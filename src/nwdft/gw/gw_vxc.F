@@ -1,4 +1,4 @@
-      subroutine gw_vxc(pars)
+      subroutine gw_vxc(vxc,nmo,pars)
       implicit none
 #include "errquit.fh" 
 #include "mafdecls.fh"
@@ -8,27 +8,41 @@
 #include "rtdb.fh"      
 #include "cdft.fh"
 #include "util.fh"
+#include "cgridfile.fh"
+#include "dftps.fh"
 #include "gw.fh"
 
       type(gw_params_t) :: pars
+      integer nmo
+      double precision vxc(nmo)
+c
       character(len=8), parameter :: pname = 'gw_vxc: '
 c
       integer g_dens(2), g_evecs(2), g_vxc(4)
       integer g_wght, g_xyz, g_nq
 
-      logical wght_ga
+      logical wght_ga, ok
 
-      integer isp, ivxc_opt, nexc
+      integer isp, ivxc_opt, nexc, imo
       integer nscr, l_scr, k_scr, npol, natoms
-      integer l_cntoce,l_cntobfr,l_cetobfr,l_rdens_atom
-      integer k_cntoce,k_cntobfr,k_cetobfr,k_rdens_atom
+      integer l_cntoce,l_cntobfr,l_cetobfr,l_rdens_atom,l_tmp
+      integer k_cntoce,k_cntobfr,k_cetobfr,k_rdens_atom,k_tmp
 
       double precision rho_n, ecoul, exc(1)
 
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
+
+      logical grid_reopen
+      external grid_reopen
 c
-      call grid_setquad(pars%rtdb)
+      if (.not.grid_written) then
+        grid_written = grid_reopen(geom)
+      endif
+      if (grid_written) then
+        call grid_setquad(pars%rtdb)
+        call grid_packing_info
+      endif
 c
       if (.not.geom_ncent(geom,natoms))
      $  call errquit(pname//'geom_ncent failed',0,GEOM_ERR)
@@ -60,15 +74,20 @@ c
      $                int_mb(k_cetobfr), natoms, nshells_ao)
 
  
-      if(.not.ma_push_get(mt_dbl,2*natoms**2,'rdens atom',l_rdens_atom,
-     $                    k_rdens_atom))
+      if(.not.ma_push_get(mt_dbl,ipol*natoms**2,'rdens atom',
+     $                    l_rdens_atom,k_rdens_atom))
      $  call errquit(pname//'failed to allocate rdens_atom',0,MA_ERR)
+      call dfill(ipol*natoms**2,0.0d0,dbl_mb(k_rdens_atom),1)
 
-
+c
+c     density
+c
       do isp=1,ipol
+        if (odftps) call pstat_on(ps_dgemm)
         call ga_dgemm('n','t',nbf_ao,nbf_ao,noc(1),2d0/dble(ipol),
      $                 pars%g_movecs(isp),pars%g_movecs(isp),0d0,
      $                 g_dens(isp))
+        if (odftps) call pstat_off(ps_dgemm)
       enddo
 c
       nscr = nbf_ao_mxnbf_ce**2
@@ -84,9 +103,34 @@ c
       cdfit = .true.
       npol = (ipol*(ipol+1))/2
 c
+      call xc_rep_init(pars%rtdb,geom,ao_bas_han,g_dens,g_dens,nbf_ao,
+     $                 ipol,.true.,.false.) 
+c
       call xc_getv(pars%rtdb, exc, ecoul, 1, 0, 0,
      $             g_dens, g_vxc, .false., g_wght, g_xyz, g_nq,
      $             .false., rho_n, dbl_mb(k_rdens_atom),
      $             dbl_mb(k_cetobfr), natoms) 
 c
+      if (.not.ma_push_get(mt_dbl,2*nbf_ao,'vxc temp',l_tmp,k_tmp))
+     $  call errquit(pname//'failed to allocate temp',0,MA_ERR) 
+      do isp=1,ipol
+        call ga_dgemm('n','n',nbf_ao,nmo,nbf_ao,1.0d0,g_vxc(isp),
+     $                 pars%g_movecs(isp),0.0d0,g_dens(isp))
+        do imo=1,nmo
+          call ga_get(pars%g_movecs(isp),1,nbf_ao,imo,imo,dbl_mb(k_tmp),
+     $                1)
+          call ga_get(g_dens,1,nbf_ao,imo,imo,dbl_mb(k_tmp+nbf_ao),1)
+          vxc(imo) = ddot(nbf_ao,dbl_mb(k_tmp),1,dbl_mb(k_tmp+nbf_ao),1)
+        enddo
+      enddo
+c
+      if (.not.ma_chop_stack(l_cntoce))
+     $  call errquit(pname//'failed to chop stack',0,MA_ERR)
+      ok = .true.
+      do isp=1,ipol
+        ok =  ok .and. ga_destroy(g_dens(isp))
+        ok = ok .and. ga_destroy(g_vxc(isp))
+      enddo
+      if (.not.ok) call errquit(pname//'failed to destroy ga',0,GA_ERR)
+c 
       end subroutine

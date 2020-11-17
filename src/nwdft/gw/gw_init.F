@@ -8,11 +8,12 @@ c
 #include "case.fh"
 #include "geom.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
 #include "gw.fh"
 c
       type(gw_params_t) :: pars
 c
-      integer i
+      integer i, ilo, ihi
       integer nbf_temp, ipol_temp, nocc, nvir
 c
       character(len=9), parameter :: pname = 'gw_init: '
@@ -21,8 +22,8 @@ c
       logical int_normalize, int_norm_2c
       external int_normalize, int_norm_2c
 c
-      logical movecs_read, movecs_read_header
-      external movecs_read, movecs_read_header
+      logical movecs_read, movecs_read_header, atom_tag_check
+      external movecs_read, movecs_read_header, atom_tag_check
 c
       logical ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -57,87 +58,22 @@ c
 c
       if (.not.rtdb_get(pars%rtdb,'gw:noqp',mt_int,1,pars%noqp))
      $  call errquit(pname//'failed to read noqp',0,RTDB_ERR)
-      if (.not.rtdb_get(pars%rtdb,'gw:noqp',mt_int,1,pars%nvqp))
+      if (.not.rtdb_get(pars%rtdb,'gw:nvqp',mt_int,1,pars%nvqp))
      $  call errquit(pname//'failed to read nvqp',0,RTDB_ERR)
 c
       if (.not.rtdb_get(pars%rtdb,'gw:analyticw',mt_log,1,pars%anaw))
      $  call errquit(pname//'failed to read analyticw',0,RTDB_ERR)
 c
-c     Geometry
-c
-      if (.not.geom_create(geom, 'geometry'))
-     $  call errquit(pname//'geom_create failed',0, GEOM_ERR)
-      if (.not.geom_rtdb_load(pars%rtdb, geom, 'geometry'))
-     $  call errquit(pname//'geom_rtdb_load failed',0,RTDB_ERR)
-c
-c     Coulomb Attenuation Method
-c
-      if (.not.rtdb_get(pars%rtdb, 'dft:cam_exch',mt_log,1,cam_exch))
-     $  cam_exch = .false.
-      if (.not.rtdb_get(pars%rtdb, 'dft:cam_omega',mt_dbl,1,cam_omega))
-     $  cam_omega = 0.0d0
-      if (.not.rtdb_get(pars%rtdb, 'dft:cam_alpha',mt_dbl,1,cam_omega))
-     $  cam_alpha = 0.0d0
-      if (.not.rtdb_get(pars%rtdb, 'dft:cam_beta',mt_dbl,1,cam_omega))
-     $  cam_beta = 0.0d0
-c
-c     XC functionals
-c
-      if (.not.rtdb_get(pars%rtdb,'dft:xfac',mt_dbl,numfunc,xfac))
-     1  call errquit(pname//'failed to read xfac',0, RTDB_ERR)
-      if (.not.rtdb_get(pars%rtdb,'dft:cfac',mt_dbl,numfunc,cfac))
-     1  call errquit(pname//'failed to read cfac',0, RTDB_ERR)
-      if (.not.rtdb_get(pars%rtdb,'dft:lxfac',mt_log,numfunc,lxfac))
-     1  call errquit(pname//'failed to read lxfac',0, RTDB_ERR)
-      if (.not.rtdb_get(pars%rtdb,'dft:nlxfac',mt_log,numfunc,nlxfac))
-     1  call errquit(pname//'failed to read nlxfac',0, RTDB_ERR)
-      if (.not.rtdb_get(pars%rtdb,'dft:lcfac',mt_log,numfunc,lcfac))
-     1  call errquit(pname//'failed to read lcfac',0, RTDB_ERR)
-      if (.not.rtdb_get(pars%rtdb,'dft:nlcfac',mt_log,numfunc,nlcfac))
-     1  call errquit(pname//'failed to read nlcfac',0, RTDB_ERR)
-      if (.not.rtdb_get(pars%rtdb,'dft:xccomb',mt_log,numfunc,xccomb))
-     1  call errquit(pname//'failed to read xccomb',0, RTDB_ERR)
-      if (.not.rtdb_cget(pars%rtdb,'dft:cname',numfunc,cname))
-     1  call errquit(pname//'failed to read xname',0, RTDB_ERR)
-      if (.not.rtdb_cget(pars%rtdb,'dft:xcname',numfunc,xcname))
-     1  call errquit(pname//'failed to read cname',0, RTDB_ERR)
-      if (.not.rtdb_cget(pars%rtdb,'dft:xname',numfunc,xname))
-     1  call errquit(pname//'failed to read xcname',0, RTDB_ERR)
-      if (.not.rtdb_get(pars%rtdb,'dft:lb94',mt_log,1,lb94))
-     1  call errquit(pname//'failed to read lb94',0, RTDB_ERR)
-      if (.not.rtdb_get(pars%rtdb,'dft:cs00',mt_log,1,cs00))
-     1  call errquit(pname//'failed to read cs00',0, RTDB_ERR)
-      if (.not.rtdb_get(pars%rtdb,'dft:ncap',mt_log,1,ncap))
-     1  call errquit(pname//'failed to read ncap',0, RTDB_ERR)
-c
-c     2-e integral tolerance
-c
+      call dft_rdinput(pars%rtdb)
+c      
+      if (cdfit) then
+        if (.not.bas_destroy(cd_bas_han))      
+     $    call errquit(pname//'failed to destroy cd_bas',0,BASIS_ERR)
+      endif
+
       if (.not.rtdb_get(pars%rtdb, 'dft:itol2e',mt_int,1,itol2e))
      $  call errquit(pname//'failed to read itol2e',0,RTDB_ERR)
       pars%tol2e = 10.0d0**(-itol2e)
-c
-c     Basis set
-c
-      if (.not.bas_create(ao_bas_han,'ao basis'))
-     $  call errquit(pname//'bas_create failed',0,BASIS_ERR)
-      if (.not.bas_rtdb_load(pars%rtdb,geom,ao_bas_han,'ao basis'))
-     $  call errquit(pname//'no ao basis found',0,BASIS_ERR)
-      if (.not.int_normalize(pars%rtdb, ao_bas_han))
-     $  call errquit(pname//'int_normalize failed',0,BASIS_ERR)
-      if (.not.bas_numbf(ao_bas_han,nbf_ao))
-     $  call errquit(pname//'failed to read nbf_ao',0,BASIS_ERR)
-      if (.not. bas_nprim_cn_max(ao_bas_han,nbf_ao_mxprim))
-     &  call errquit(pname//'basis set error:', 86, BASIS_ERR)
-      if (.not. bas_high_angular(ao_bas_han,nbf_ao_mxang))
-     &  call errquit(pname//'basis set error:', 86, BASIS_ERR)
-      if (.not. bas_ncontr_cn_max(ao_bas_han,nbf_ao_mxcont))
-     &  call errquit(pname//'basis set error:', 86, BASIS_ERR)
-      if (.not. bas_nbf_cn_max(ao_bas_han,nbf_ao_mxnbf_cn))
-     &  call errquit(pname//'basis set error:', 86, BASIS_ERR)
-      if (.not. bas_nbf_ce_max(ao_bas_han,nbf_ao_mxnbf_ce))
-     &  call errquit(pname//'basis set error:', 86, BASIS_ERR)
-      if (.not. bas_numcont(ao_bas_han,nshells_ao))
-     &  call errquit(pname//'basis set error:', 86, BASIS_ERR)
 c
 c     RI basis set
 c
@@ -240,8 +176,11 @@ c
       if (pars%noqp+pars%nvqp.eq.0)
      $  call errquit(pname//'no quasiparticle energies to obtain',0,0)
 c
-      if (pars%eviter.lt.1)
-     $  call errquit(pname//'invalid eviter',0,0)
+      if (pars%evgw .or. pars%evgw0) then
+        if (pars%eviter.lt.1)
+     $    call errquit(pname//'invalid eviter',0,0)
+      endif
+c      
       if (pars%qpiter.lt.1)
      $  call errquit(pname//'invalid qpiter',0,0)
 c

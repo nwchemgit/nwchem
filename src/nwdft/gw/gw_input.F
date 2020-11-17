@@ -136,7 +136,7 @@ c
      $    call errquit('gw_input: rtdb_put failed', 600, RTDB_ERR)
       elseif (inp_compare(.false.,'vir',test)) then
         if (.not. inp_i(nvqp)) goto 8200
-        if (.not.rtdb_put(rtdb, 'gw:nvqp',mt_int,1,noqp))
+        if (.not.rtdb_put(rtdb, 'gw:nvqp',mt_int,1,nvqp))
      $    call errquit('gw_input: rtdb_put failed', 600, RTDB_ERR)
       else
         goto 8200

@@ -32,11 +32,10 @@ c
       if (.not.ma_chop_stack(pars%l_evals))
      $  call errquit(pname//'failed to chop stack',0,MA_ERR)
 c
-      call schwarz_tidy
-      call int_terminate
-c
       if (.not.ma_free_heap(pars%l_3ceri))
      $  call errquit(pname//'could not free heap',0,MA_ERR)
 c
+      call schwarz_tidy()
+      call int_terminate()
       return
       end

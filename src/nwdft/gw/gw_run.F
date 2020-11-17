@@ -12,7 +12,7 @@ c
 c
       character(len=8), parameter :: pname = 'gw_run: '
 c
-      integer nmo, nri, nocc, nvir, iocc, ivir
+      integer nmo, nri, nocc, nvir, iocc, ivir, iqp
       integer npoles, ipole, lo1, lo2
       integer l_sigmax, k_sigmax
       integer l_eia, k_eia
@@ -21,7 +21,15 @@ c
       integer l_xpy, k_xpy
       integer l_scr, k_scr
       integer l_eriia,k_eriia
+      integer l_vxc, k_vxc
+      integer l_wmn, k_wmn
+      integer l_smomega, k_smomega
+      integer l_eritmp, k_eritmp
+      integer l_old, k_old
       integer lscr
+c
+      double precision sigma_c, dsigma_c, eps_in, eps_out
+      double precision z, sigma, func, linear
 c
       integer ilaenv
       external ilaenv
@@ -35,20 +43,6 @@ c
       npoles = nocc*nvir
       lscr = ilaenv(1,'dsytrd','u',npoles,-1,-1,-1)
       lscr = (lscr+2)*npoles
-c
-c     Eigenvalue difference
-c
-      if (.not.ma_push_get(mt_dbl,npoles,'eval_ia',l_eia,k_eia))
-     $  call errquit(pname//'cannot allocate eval_ia',0,MA_ERR)
-c
-      ipole = 0
-      do iocc=0,nocc-1
-        do ivir=0,nvir-1
-          dbl_mb(k_eia+ipole) = dbl_mb(pars%k_evals+ivir) - 
-     $                          dbl_mb(pars%k_evals+iocc)
-          ipole = ipole + 1
-        enddo
-      enddo
 c
 c     Copy occupied-virtual block of ERIs into a contiguous block
 c 
@@ -74,18 +68,40 @@ c
 c
 c     Obtain Vxc
 c
-      call gw_vxc(pars)
+      write(luout,9010)
+ 9010 format(10x,'Computing V_xc')
+
+      if (.not.ma_push_get(mt_dbl,pars%nmo,'Vxc',l_vxc,k_vxc))
+     $  call errquit(pname//'cannot allocate Vxc',0,MA_ERR)
+      call gw_vxc(dbl_mb(k_vxc),pars%nmo,pars)
 c
       if(.not.ma_push_get(mt_dbl,npoles,'omega',l_omega,k_omega))
-     $  call errquit(pname//'cannot allocate Omega',0,MA_ERR) 
+     $  call errquit(pname//'cannot allocate Omega',0,MA_ERR)
+      if (.not.ma_push_get(mt_dbl,pars%nmo,'old evals',l_old,k_old))
+     $  call errquit(pname//'failed to allocate old evals',0,MA_ERR)
+      if (.not.ma_push_get(mt_dbl,npoles,'eval_ia',l_eia,k_eia))
+     $  call errquit(pname//'cannot allocate eval_ia',0,MA_ERR)
 c
   100 continue  ! evGW calculations recompute RPA polarizability
 c
+c     Eigenvalue difference
+c
+      call dcopy(pars%nmo,dbl_mb(pars%k_evals),1,dbl_mb(k_old),1)
+      lo1 = nocc - pars%noqp
+c
+      ipole = 0
+      do iocc=0,nocc-1
+        do ivir=0,nvir-1
+          dbl_mb(k_eia+ipole) = dbl_mb(k_old+ivir+nocc) - 
+     $                          dbl_mb(k_old+iocc)
+          ipole = ipole + 1
+        enddo
+      enddo
+c
 c     RPA polarizability
 c
-c
-      write(luout,9010)
- 9010 format(10x,'Computing RPA polarizability')
+      write(luout,9020)
+ 9020 format(10x,'Computing RPA polarizability')
 
       if(.not.ma_push_get(mt_dbl,npoles,'AmB',l_amb,k_amb))
      $  call errquit(pname//'cannot allocate AmB',0,MA_ERR) 
@@ -102,9 +118,40 @@ c
 
   200 continue ! evGW0 calculations recompute the rest
 c
+      if (.not.ma_push_get(mt_dbl,nmo*npoles,'wnm',l_wmn,k_wmn))
+     $  call errquit(pname//'failed to allocate wnm',0,MA_ERR) 
+      if (.not.ma_push_get(mt_dbl,nri*nmo,'eritemp',l_eritmp,k_eritmp))
+     $  call errquit(pname//'failed to allocate eritmp',0,MA_ERR)
+      if (.not.ma_push_get(mt_dbl,nmo,'sm omega',l_smomega,k_smomega))
+     $  call errquit(pname//'failed to allocate small omega',0,MA_ERR) 
+      if (.not.ma_push_get(mt_dbl,4*nmo,'scratch',l_scr,k_scr))
+     $  call errquit(pname//'failed to allocate scratch',0,MA_ERR) 
+c      
+      write(luout,9030)
+ 9030 format(10x,'Solving quasiparticle equations')
 
+      do iqp=1,pars%noqp+pars%nvqp
+        eps_in = dbl_mb(k_old+lo1+iqp-1)
+        dbl_mb(k_smomega:k_smomega+nmo-1) = eps_in - 
+     $                                      dbl_mb(k_old:k_old+nmo-1)
 
-      if (.not.ma_chop_stack(l_eia))
+        call gw_get_wnm(dbl_mb(k_wmn),dbl_mb(k_eritmp),dbl_mb(k_eriia),
+     $                  dbl_mb(pars%k_3ceri),iqp+lo1,npoles,nri,nmo)
+        
+        call gw_sigmac(sigma_c,dsigma_c,dbl_mb(k_smomega),dbl_mb(k_wmn),
+     $                 dbl_mb(k_omega),dbl_mb(k_scr),0.001d0**2,npoles,
+     $                 nri,nmo)
+c
+        z = max(0.0d0,min(1.0d0/(1.0d0-dsigma_c),1.0d0))
+        sigma = sigma_c + dbl_mb(k_sigmax+lo1+iqp-1) -
+     $          dbl_mb(k_vxc+lo1+iqp-1)
+        func = dbl_mb(k_old+lo1+iqp-1) + sigma - eps_in
+        linear = eps_in + z*func
+        write(luout,*) '      state: ',lo1+iqp,'  energy: ',
+     $                 linear*27.2114
+      enddo
+c
+      if (.not.ma_chop_stack(l_eriia))
      $  call errquit(pname//'could not free stack',0,MA_ERR)
 
       end subroutine gw_run
@@ -171,5 +218,59 @@ c
         eriia(iri,:) = scr(npoles+1:2*npoles)
       enddo
 c
+      return
+      end subroutine
+
+
+      subroutine gw_get_wnm(wnm,erin,erim,eris,imo,npoles,nri,nmo)
+      implicit none
+      integer imo, npoles, nri, nmo, idx, jmo
+      double precision wnm(npoles,nmo),erim(nri,npoles),erin(nri,nmo)
+      double precision eris(nri,*)
+
+      do jmo=1,nmo
+        if (imo.lt.jmo) then
+          idx = imo + (jmo*(jmo-1))/2
+        else
+          idx = jmo + (imo*(imo-1))/2
+        endif
+        erin(:,jmo) = eris(:,idx)
+      enddo
+
+      call dgemm('t','n',npoles,nmo,nri,1.0d0,erim,nri,erin,nri,0.0d0,
+     $            wnm,npoles) 
+
+      wnm = 2.0d0*wnm**2
+
+      return
+      end subroutine
+
+
+      subroutine gw_sigmac(sigma_c,dsigma_c,omegan,wmn,Omegam,scratch,
+     $                     eta2,npoles,nri,nmo)
+      implicit none
+      integer, intent(in) :: npoles,nri,nmo
+      double precision, intent(out) ::  sigma_c, dsigma_c
+      double precision, intent(in) :: omegan(nmo), wmn(npoles,nmo),
+     $                                Omegam(npoles), eta2
+      double precision scratch(*)
+
+      integer ipole
+
+      sigma_c = 0.0d0
+      dsigma_c = 0.0d0
+
+      do ipole=1,npoles
+        scratch(1:nmo) = omegan - Omegam(ipole)*sign(1.0d0,omegan)
+        scratch(nmo+1:2*nmo) = 1.0d0/(scratch(1:nmo)**2 + eta2)
+        scratch(2*nmo+1:3*nmo) = scratch(1:nmo)*scratch(nmo+1:2*nmo)
+        scratch(3*nmo+1:4*nmo) = scratch(nmo+1:2*nmo) - 2.0d0*
+     $                           scratch(2*nmo+1:3*nmo)**2
+        sigma_c = sigma_c + dot_product(wmn(ipole,:),
+     $                                  scratch(2*nmo+1:3*nmo))
+        dsigma_c = dsigma_c + dot_product(wmn(ipole,:),
+     $                                    scratch(3*nmo+1:4*nmo))
+      enddo 
+
       return
       end subroutine
