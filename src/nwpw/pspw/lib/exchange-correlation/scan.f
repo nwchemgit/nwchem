@@ -17,7 +17,7 @@
 *     ***** output *****
       real*8 xe,dfdnx,dfdagrx,dfdtaux
 *     ***** local declarations *****
-      real*8 n_13,n_53,n_83,inv_n,agr2,tauW,tauU
+      real*8 n_13,n_23,n_53,n_83,inv_n,agr2,tauW,tauU
       real*8 p,p_14,dp_dn,dp_dagr
       real*8 z,z2,fz,dz_dn,dz_dagr,dz_dtau
       real*8 alpha,dalpha_dn,dalpha_dagr,dalpha_dtau
@@ -35,49 +35,32 @@
       parameter (thr2 = 1.004d0)
 
       n_13  = n**thrd
+      n_23  = n_13*n_13
       n_53  = n_13*n_13*n
       n_83  = n_53*n
       inv_n = 1.0d0/n
       agr2  = agr*agr
 
       p       =  agr2/(4.0d0*P23*n_83)
-      p_14    =  dsqrt(dsqrt(p))
+      p_14    =  sqrt(sqrt(1.0d0/(4.0d0*P23)))*sqrt(agr)/n_23 
       dp_dn   = -etthrd*p*inv_n
       dp_dagr =  2.0d0*p/agr
 c     dp_dtau =  0.0d0
 
       tauW  = 0.125d0*agr2*inv_n
       tauU  = 0.3d0*P23*n_53
-      fz    = tauW/tau
 
-      if (fz .gt. 1.0d0) then
-         z       = 1.0d0
-         dz_dn   = 0.0d0
-         dz_dagr = 0.0d0
-         dz_dtau = 0.0d0
-      else
-         z       =  fz
-         dz_dn   = -z*inv_n
-         dz_dagr =  2.0d0*z/agr
-         dz_dtau = -z/tau
-      end if
+      z       = tauW/tau
+      dz_dn   = -z*inv_n
+      dz_dagr =  2.0d0*z/agr
+      dz_dtau = -z/tau
 
       z2 = z*z
 
-      alpha = fvthrd*p*(1.0d0/z - 1.0d0)
-c     alpha = (tau - tauW)/tauU
-
-      if (alpha .le. 0.0d0) then
-        alpha       = 0.0d0
-        dalpha_dn   = 0.0d0
-        dalpha_dagr = 0.0d0
-        dalpha_dtau = 0.0d0
-      else
-        dalpha_dn   = fvthrd*(-p*dz_dn/z2 + dp_dn*(1.0d0/z - 1.0d0))
-        dalpha_dagr = (alpha/p)*dp_dagr - fvthrd*(p/z2)*dz_dagr
-        dalpha_dtau = 1.0d0/tauU
-c       dalpha_dtau = fvthrd*p*(-1.0d0/z2)*dz_dtau
-      end if
+      alpha       = fvthrd*p*(1.0d0/z - 1.0d0)
+      dalpha_dn   = fvthrd*(-p*dz_dn/z2 + dp_dn*(1.0d0/z - 1.0d0))
+      dalpha_dagr = (alpha/p)*dp_dagr - fvthrd*(p/z2)*dz_dagr
+      dalpha_dtau = 1.0d0/tauU
 
       oma  = 1.0d0 - alpha
       oma2 = oma*oma
@@ -361,35 +344,18 @@ c       dalpha_dtau = fvthrd*p*(-1.0d0/z2)*dz_dtau
 
         tauU  = 0.3d0*P23*n_53
         tauW  = 0.125d0*agr2/n
-        fz    = tauW/tau
-        if (fz .gt. 1.0d0) then
-           z       = 1.0d0
-           dz_dn   = 0.0d0
-           dz_dagr = 0.0d0
-           dz_dtau = 0.0d0
-        else
-           z       =  fz
-           dz_dn   = -z/n
-           dz_dagr =  2.0d0*z/agr
-           dz_dtau = -z/tau
-        end if
+
+        z       = tauW/tau
+        dz_dn   = -z/n
+        dz_dagr =  2.0d0*z/agr
+        dz_dtau = -z/tau
 
         z2 = z*z
 
-        alpha = fvthrd*p*(1.0d0/z - 1.0d0)
-c       alpha = (tau - tauW)/tauU
-
-        if (alpha .le. 0.0d0) then
-          alpha       = 0.0d0
-          dalpha_dn   = 0.0d0
-          dalpha_dagr = 0.0d0
-          dalpha_dtau = 0.0d0
-        else
-          dalpha_dn   = fvthrd*(-p*dz_dn/z2 + dp_dn*(1.0d0/z - 1.0d0))
-          dalpha_dagr = (alpha/p)*dp_dagr - fvthrd*(p/z2)*dz_dagr
-          dalpha_dtau = 1.0d0/tauU
-c         dalpha_dtau = fvthrd*p*(-1.0d0/z2)*dz_dtau
-        end if
+        alpha       = fvthrd*p*(1.0d0/z - 1.0d0)
+        dalpha_dn   = fvthrd*(-p*dz_dn/z2 + dp_dn*(1.0d0/z - 1.0d0))
+        dalpha_dagr = (alpha/p)*dp_dagr - fvthrd*(p/z2)*dz_dagr
+        dalpha_dtau = 1.0d0/tauU
 
         oma  = 1.0d0 - alpha
         oma2 = oma*oma
@@ -722,43 +688,23 @@ c         dalpha_dtau = fvthrd*p*(-1.0d0/z2)*dz_dtau
 
         tauU  = 0.3d0*P23*ds*n_53
         tauW  = 0.125d0*agr2/n
-        fz    = tauW/tau
 
-        if (fz .gt. 1.0d0) then
-           z       = 1.0d0
-           dz_dn   = 0.0d0
-           dz_dagr = 0.0d0
-           dz_dtau = 0.0d0
-        else
-           z       =  fz
-           dz_dn   = -z/n
-           dz_dagr =  2.0d0*z/agr
-           dz_dtau = -z/tau
-        end if
+        z       = tauW/tau
+        dz_dn   = -z/n
+        dz_dagr =  2.0d0*z/agr
+        dz_dtau = -z/tau
 
         z2 = z*z
 
-        alpha = fvthrd*p*(1.0d0/z - 1.0d0)/ds
-c       alpha = (tau - tauW)/tauU
-
-        if (alpha .le. 0.0d0) then
-          alpha         = 0.0d0
-          dalpha_dnup   = 0.0d0
-          dalpha_dndn   = 0.0d0
-          dalpha_dagr   = 0.0d0
-          dalpha_dtauup = 0.0d0
-          dalpha_dtaudn = 0.0d0
-        else
-          tmpa1         =  fvthrd*(-p*dz_dn/z2
-     &                  +  dp_dn*(1.0d0/z - 1.0d0))/ds
-          tmpa2         = -alpha/ds*dds_dzeta
-          dalpha_dnup   =  tmpa1 + tmpa2*dzeta_dnup
-          dalpha_dndn   =  tmpa1 + tmpa2*dzeta_dndn 
-          dalpha_dagr   =  (alpha/p)*dp_dagr - fvthrd*(p/z2)*dz_dagr/ds
-          dalpha_dtauup =  1.0d0/tauU
-          dalpha_dtaudn =  dalpha_dtauup
-c         dalpha_dtau = fvthrd*p*(-1.0d0/z2)*dz_dtau
-        end if
+        alpha         = fvthrd*p*(1.0d0/z - 1.0d0)/ds
+        tmpa1         =  fvthrd*(-p*dz_dn/z2
+     &                +  dp_dn*(1.0d0/z - 1.0d0))/ds
+        tmpa2         = -alpha/ds*dds_dzeta
+        dalpha_dnup   =  tmpa1 + tmpa2*dzeta_dnup
+        dalpha_dndn   =  tmpa1 + tmpa2*dzeta_dndn 
+        dalpha_dagr   =  (alpha/p)*dp_dagr - fvthrd*(p/z2)*dz_dagr/ds
+        dalpha_dtauup =  1.0d0/tauU
+        dalpha_dtaudn =  dalpha_dtauup
 
         oma  = 1.0d0 - alpha
         oma2 = oma*oma
