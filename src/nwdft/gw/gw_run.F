@@ -118,7 +118,7 @@ c
 c
       if (pars%evgw) then
         write(luout,*)
-        write(luout,'("G",I1,"W",I1)') eviter,eviter
+        write(luout,'("  *** G",I1,"W",I1)') eviter,eviter
         write(luout,*)
       endif
 c
@@ -163,7 +163,7 @@ c
 c      
       if (pars%evgw0) then
         write(luout,*)
-        write(luout,'("G",I1,"W0")') eviter
+        write(luout,'("  *** G",I1,"W0")') eviter
         write(luout,*)
       endif
 c      
@@ -171,8 +171,8 @@ c
  9030 format(10x,'Solving quasiparticle equations')
 
       write(luout,9040)
- 9040 format(/,10x,'State',5x,'Energy (eV)',5x,'Z',5x,'Elin (eV)',
-     $       /,10x,40('-'))
+ 9040 format(/,10x,'State',5x,'Energy (eV)',5x,'Z',8x,'Elin (eV)',
+     $       /,10x,45('-'))
 
       dbl_mb(k_sign:k_sign+nmo-1) =
      $  sign(1.0d0,dbl_mb(k_eold:k_eold+nmo-1))
