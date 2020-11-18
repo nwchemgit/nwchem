@@ -173,6 +173,11 @@ c
       if (pars%nvqp.lt.-1)
      $  call errquit(pname//'invalid number nvqp specified',0,0)
 c
+      if (pars%evgw.or.pars%evgw0) then
+        pars%noqp = nocc
+        pars%nvqp = nvir
+      endif
+c
       if (pars%noqp+pars%nvqp.eq.0)
      $  call errquit(pname//'no quasiparticle energies to obtain',0,0)
 c
