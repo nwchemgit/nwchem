@@ -65,7 +65,7 @@
       else if (gga.eq.115) then
          call v_bwexc(15,n2ft3d,ispin,dn,0.80d0,1.0d0,xcp,xce)
       end if
-        
+
       return
       end
 

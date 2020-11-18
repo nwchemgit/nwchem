@@ -1,0 +1,47 @@
+diff --git a/index.html b/index.html
+index 739cbb847..78a25d8ef 100644
+--- a/index.html
++++ b/index.html
+@@ -10,10 +10,38 @@
+   <link rel="canonical" href="https://nwchemgit.github.io/index.html">
+   <link rel="shortcut icon" href="img/favicon.ico">
+   <title>NWChem Website - NWChem</title>
+-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
+-
+-  <link rel="stylesheet" href="css/theme.css" />
+-  <link rel="stylesheet" href="css/theme_extra.css" />
++  <link
++  rel="preload"
++  as="style"
++  onload="this.rel = 'stylesheet'"
++    href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
++  <noscript>
++  <link
++    rel="stylesheet"
++    href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
++  </noscript>
++  
++  <link
++  rel="preload"
++  as="style"
++  onload="this.rel = 'stylesheet'"
++    href="css/theme.css" />
++  <noscript>
++  <link
++    rel="stylesheet"
++    href="css/theme.css" />
++  </noscript>
++  
++  <link
++  rel="preload"
++  as="style"
++  onload="this.rel = 'stylesheet'"
++    href="css/theme_extra.css" />
++  <noscript>
++  <link
++    rel="stylesheet"
++    href="css/theme_extra.css" />
++  </noscript>
+   
+   <script>
+     // Current page data

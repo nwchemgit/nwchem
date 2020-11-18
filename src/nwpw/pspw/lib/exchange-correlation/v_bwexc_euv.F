@@ -97,8 +97,10 @@ c        *****                          agr,fn,fdn      *****
         value = value.and.
      >        BA_push_get(mt_dbl, n2ft3d,'xce',xce(2),xce(1))
       if (.not. value) call errquit('out of stack memory',0,0)
-      call dcopy(n2ft3d,0.0d0,0,dbl_mb(rho(1)),1)
-      call dcopy(n2ft3d,0.0d0,0,dbl_mb(agr(1)),1)
+      call Parallel_shared_vector_zero(.false.,n2ft3d,dbl_mb(rho(1)))
+      call Parallel_shared_vector_zero(.true.,n2ft3d,dbl_mb(agr(1)))
+      !call dcopy(n2ft3d,0.0d0,0,dbl_mb(rho(1)),1)
+      !call dcopy(n2ft3d,0.0d0,0,dbl_mb(agr(1)),1)
 
 
 
@@ -400,9 +402,12 @@ c        *****                          agr,fn,fdn      *****
         value = value.and.
      >        BA_push_get(mt_dbl, n2ft3d,'xce',xce(2),xce(1))
         if (.not. value) call errquit('out of stack memory',0,0)
-      call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhoup(1)),1)
-      call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhodn(1)),1)
-      call dcopy(3*n2ft3d,0.0d0,0,dbl_mb(xagr(1)),1)
+      call Parallel_shared_vector_zero(.false.,n2ft3d,dbl_mb(rhoup(1)))
+      call Parallel_shared_vector_zero(.false.,n2ft3d,dbl_mb(rhodn(1)))
+      call Parallel_shared_vector_zero(.true.,3*n2ft3d,dbl_mb(xagr(1)))
+      !call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhoup(1)),1)
+      !call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhodn(1)),1)
+      !call dcopy(3*n2ft3d,0.0d0,0,dbl_mb(xagr(1)),1)
 
 
 c        ***** calculate rhoup  ****
@@ -584,10 +589,15 @@ c
 c
 c          Put the results back into fdn
 c
-           call dcopy(n2ft3d,dbl_mb(gtmp(1)+n2ft3d),1,
-     +                       dbl_mb(fdn(2)),1)
-           call dcopy(n2ft3d,dbl_mb(gtmp(1)+2*n2ft3d),1,
-     +                       dbl_mb(fdn(3)),1)
+           call Parallel_shared_vector_copy(.false.,n2ft3d,
+     >                     dbl_mb(gtmp(1)+n2ft3d),dbl_mb(fdn(2)))
+           call Parallel_shared_vector_copy(.true.,n2ft3d,
+     >                     dbl_mb(gtmp(1)+2*n2ft3d),dbl_mb(fdn(3)))
+
+c           call dcopy(n2ft3d,dbl_mb(gtmp(1)+n2ft3d),1,
+c     +                       dbl_mb(fdn(2)),1)
+c           call dcopy(n2ft3d,dbl_mb(gtmp(1)+2*n2ft3d),1,
+c     +                       dbl_mb(fdn(3)),1)
 c
          else
  

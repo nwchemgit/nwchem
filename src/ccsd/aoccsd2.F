@@ -126,6 +126,7 @@ c gradient
       integer nkpass0
       external ccsd_createg
       Logical Do_Z,ccsd_createg
+      integer nthrd_org,ccsd_omp_threads
 #ifdef USE_F90INTERFACE
       interface
       subroutine ccsd_iterdrv2(rtdb,basis,nsh,ncor,nocc,nvir,nact,nbf,
@@ -313,9 +314,19 @@ c     mem needed for x c sht2 (see pampt3)
 !
       if (.not.rtdb_get(rtdb,'ccsd:use_ccsd_omp',mt_log,1,use_ccsd_omp))
      &         use_ccsd_omp = .false. 
+      if (.not.rtdb_get(rtdb,'ccsd:ccsd_omp_threads',mt_int,1,
+     A     ccsd_omp_threads)) ccsd_omp_threads=0
+#if defined(USE_OPENMP)
+c hack to avoid problems with ompi 4 ucx on tahoma
+        if (use_ccsd_omp.and.ccsd_omp_threads.ne.0) then
+          nthrd_org= omp_get_max_threads()
+          call omp_set_num_threads(ccsd_omp_threads)
+       endif
+#endif
       if (ga_nodeid().eq.0) then
 #if defined(USE_OPENMP)
         if (use_ccsd_omp) then
+           write(6,*) ' nthrd_org ',nthrd_org
           write(6,33) omp_get_max_threads()
         else
           write(6,33) 1
@@ -343,6 +354,16 @@ c     mem needed for x c sht2 (see pampt3)
      &                  occd, oconverged, eccsdos, use_ccsd_omp)
 !     
       call ga_sync()
+#ifdef USE_OPENMP
+c hack to avoid problems with ompi 4 ucx on tahoma
+        if (use_ccsd_omp.and.ccsd_omp_threads.ne.0) then
+          call omp_set_num_threads(nthrd_org)
+          if (ga_nodeid().eq.0) then
+             write(6,*) 'OMP threads from now on is',
+     C            omp_get_max_threads()
+          endif
+       endif
+#endif
 !
          if (.not.ga_create(MT_DBL,lnov,lnov,'g_nt2',
      &      nvir,nvir,g_nt2))

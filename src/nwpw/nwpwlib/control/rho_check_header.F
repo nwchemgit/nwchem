@@ -42,6 +42,7 @@
 
 *     **** open RHOIN binary file ****
       filename = control_input_rho()
+
       ok = .true.
       if (taskid.eq.MASTER) then
          call util_file_name_noprefix(filename,.false.,
