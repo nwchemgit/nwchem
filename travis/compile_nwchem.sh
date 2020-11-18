@@ -32,8 +32,8 @@ fi
    if [[ ! -z "$USE_SIMINT" ]] ; then 
        FOPT="-O0 -fno-aggressive-loop-optimizations"
        SIMINT_BUILD_TYPE=Debug
-       export PATH="/usr/local/opt/python@3.8/bin:$PATH"
-#       export LDFLAGS="-L/usr/local/opt/python@3.8/lib:$LDFLAGS"
+       export PATH="/usr/local/opt/python@3.7/bin:$PATH"
+#       export LDFLAGS="-L/usr/local/opt/python@3.7/lib:$LDFLAGS"
    fi
      ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
      cd $TRAVIS_BUILD_DIR/src/64to32blas 
