@@ -29,7 +29,7 @@ c
       integer lscr
 c
       double precision sigma_c, dsigma_c, eps_in, eps_out
-      double precision z, sigma, func, linear
+      double precision z, sigma, func, linear, efermi
 c
       integer ilaenv
       external ilaenv
@@ -82,6 +82,13 @@ c
       if (.not.ma_push_get(mt_dbl,npoles,'eval_ia',l_eia,k_eia))
      $  call errquit(pname//'cannot allocate eval_ia',0,MA_ERR)
 c
+c     Fermi energy
+c
+      efermi = (dbl_mb(pars%k_evals+nocc-1) +
+     $         dbl_mb(pars%k_evals+nocc))/2.0d0
+      dbl_mb(pars%k_evals:pars%k_evals+nmo-1) =
+     $  dbl_mb(pars%k_evals:pars%k_evals+nmo-1) - efermi
+c
   100 continue  ! evGW calculations recompute RPA polarizability
 c
 c     Eigenvalue difference
@@ -130,6 +137,9 @@ c
       write(luout,9030)
  9030 format(10x,'Solving quasiparticle equations')
 
+      write(luout,9040)
+ 9040 format(/,10x,'State',5x,'Energy (eV)',5x,'Z',/,10x,30('-'))
+
       do iqp=1,pars%noqp+pars%nvqp
         eps_in = dbl_mb(k_old+lo1+iqp-1)
         dbl_mb(k_smomega:k_smomega+nmo-1) = eps_in - 
@@ -147,22 +157,28 @@ c
      $          dbl_mb(k_vxc+lo1+iqp-1)
         func = dbl_mb(k_old+lo1+iqp-1) + sigma - eps_in
         linear = eps_in + z*func
-        write(luout,*) '      state: ',lo1+iqp,'  energy: ',
-     $                 linear*27.2114
+        write(luout,9050) lo1+iqp,(linear+efermi)*27.2144d0,z
       enddo
+ 9050 format(10x,I3,6x,F8.3,6x,F6.3)
 c
       if (.not.ma_chop_stack(l_eriia))
      $  call errquit(pname//'could not free stack',0,MA_ERR)
 
       end subroutine gw_run
 c
-      subroutine gw_sigmax(eri,sigmax,nmo,nri,nocc)
-      implicit none
-      integer nri, nmo, nocc
-      double precision eri(nri,*),sigmax(nmo)
-      double precision temp
+c     *****************************************************************
 c
-      integer iocc,imo,jmo,ij
+      subroutine gw_sigmax(eri,sigmax,nmo,nri,nocc)
+c
+c     computes the exchange part of the self-energy
+c
+      implicit none
+      integer,intent(in) ::  nri, nmo, nocc
+      double precision,intent(in) :: eri(nri,*)
+      double precision,intent(out) :: sigmax(nmo)
+c      
+      double precision temp
+      integer imo,jmo,ij
 c
       sigmax(:) = 0.0d0
 c
@@ -179,12 +195,16 @@ c
 c
       return
       end subroutine
-
-
+c
+c     *****************************************************************
+c
       subroutine gw_rpa(eia,amb,omega,xpy,eriia,scr,
      $                  npoles,nri,lscr)
+c
+c     builds and solves for the RPA polarizability
+c
       implicit none
-      integer npoles,nri,lscr
+      integer,intent(in) :: npoles,nri,lscr
       double precision eia(npoles),amb(npoles),omega(npoles)
       double precision xpy(npoles,npoles),eriia(nri,npoles)
       double precision scr(lscr)
@@ -220,9 +240,13 @@ c
 c
       return
       end subroutine
-
+c
+c     *****************************************************************
 
       subroutine gw_get_wnm(wnm,erin,erim,eris,imo,npoles,nri,nmo)
+c
+c     computes the matrix representation of the screened Coulomb op.
+c
       implicit none
       integer imo, npoles, nri, nmo, idx, jmo
       double precision wnm(npoles,nmo),erim(nri,npoles),erin(nri,nmo)
@@ -244,10 +268,14 @@ c
 
       return
       end subroutine
-
-
+c
+c     *****************************************************************
+c
       subroutine gw_sigmac(sigma_c,dsigma_c,omegan,wmn,Omegam,scratch,
      $                     eta2,npoles,nri,nmo)
+c 
+c     computes the correlation part of the self-energy
+c
       implicit none
       integer, intent(in) :: npoles,nri,nmo
       double precision, intent(out) ::  sigma_c, dsigma_c
