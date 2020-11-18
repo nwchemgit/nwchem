@@ -36,7 +36,7 @@ c
        
       integer vall_in(2),vall_out(2),vall_junk(2),rho_in(2)
       real*8  E0,dE0,deltae_old,Ein,deltae_history(10)
-      real*8  ks_deltae,deltav,dV,deltav_old,diis_error
+      real*8  ks_deltae,deltav,dV,deltav_old,diis_error,e00
       integer nx,ny,nz,stalled_count,sd_count
 
 
@@ -48,6 +48,7 @@ c
       integer it,it_in,i,ispin,bfgscount,icount,sd_it,cg_it
 
       logical value,precondition,done,stalled,deltav_bad(4),oprint
+      logical ks_block
       integer n2ft3d,n2ft3d_map
       !real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
       !real*8  e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
@@ -114,6 +115,9 @@ c
       real*8   psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
       external psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
 
+      integer  control_ks_maxit_orb
+      external control_ks_maxit_orb
+
    
       Ein = E(1)
       call Parallel_taskid(taskid)
@@ -167,10 +171,20 @@ c
      >                     'rho_in',rho_in(2),rho_in(1))
       if (.not. value) 
      >   call errquit('bybminimize:out of stack memory',0,0)
-      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(vall_in(1)),1)
-      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(vall_out(1)),1)
-      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(vall_junk(1)),1)
-      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(rho_in(1)),1)
+c      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(vall_in(1)),1)
+c      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(vall_out(1)),1)
+c      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(vall_junk(1)),1)
+c      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(rho_in(1)),1)
+      call Parallel_shared_vector_zero(.false.,2*n2ft3d,
+     >                                 dbl_mb(vall_in(1)))
+      call Parallel_shared_vector_zero(.false.,2*n2ft3d,
+     >                                 dbl_mb(vall_out(1)))
+      call Parallel_shared_vector_zero(.false.,2*n2ft3d,
+     >                                 dbl_mb(vall_junk(1)))
+      call Parallel_shared_vector_zero(.true.,2*n2ft3d,
+     >                                 dbl_mb(rho_in(1)))
+
+
 
 *     **** ion-ion energy ****
       eion = 0.0d0
@@ -210,16 +224,34 @@ c
 *     **** iniitialize RMM-DIIS ****
       if (control_ks_algorithm().eq.1) call pspw_rmmdiis_init(5)
 
+*     **** iniitialize blocked cg ****
+      ks_block = .false.
+      if (control_ks_algorithm().eq.-1)  then
+         ks_block = .true.
+         call linesearch_maxiter_set(control_ks_maxit_orb())
+      end if
+
+
 
 *     ***** diis loop ****
       it   = 0
  2    it   = it + 1
       
 *     **** diaganolize KS matrix ****
-      call psi_KS_update(1,
-     >                   control_ks_algorithm(),
-     >                   precondition,
-     >                   ks_deltae)
+      if (ks_block) then
+         call psi_KS_block_update(e00,deltae,it,ks_deltae)
+      else
+         call psi_KS_update(1,
+     >                      control_ks_algorithm(),
+     >                      precondition,
+     >                      ks_deltae)
+      end if
+
+c      call psi_KS_update(1,
+c     >                   control_ks_algorithm(),
+c     >                   precondition,
+c     >                   ks_deltae)
+
 
       call rho_1to2()
       Eold = Enew
@@ -231,17 +263,27 @@ c
       call electron_get_vall(dbl_mb(vall_in(1)))
 
 *     **** compute deltaV ****
-      call dcopy(ispin*n2ft3d_map,
-     >           dbl_mb(vall_in(1)),1,
-     >           dbl_mb(vall_junk(1)),1)
-      call daxpy(ispin*n2ft3d_map,
+c      call dcopy(ispin*n2ft3d_map,
+c     >           dbl_mb(vall_in(1)),1,
+c     >           dbl_mb(vall_junk(1)),1)
+      call Parallel_shared_vector_copy(.true.,ispin*n2ft3d,
+     >                                 dbl_mb(vall_in(1)),
+     >                                 dbl_mb(vall_junk(1)))
+      call DAXPY_OMP(ispin*n2ft3d_map,
      >              (-1.0d0),
      >              dbl_mb(vall_out(1)),1,
      >              dbl_mb(vall_junk(1)),1)
-      deltav = ddot(ispin*n2ft3d_map,
-     >                 dbl_mb(vall_junk(1)),1,
-     >                 dbl_mb(vall_junk(1)),1)
-      call D3dB_SumAll(deltav)
+      call D3dB_rr_dot(1,dbl_mb(vall_junk(1)),
+     >                   dbl_mb(vall_junk(1)),deltav)
+      if (ispin.gt.1) then
+         call D3dB_rr_dot(1,dbl_mb(vall_junk(1)+n2ft3d),
+     >                      dbl_mb(vall_junk(1)+n2ft3d),e00)
+         deltav = deltav + e00
+      end if
+c      deltav = ddot(ispin*n2ft3d_map,
+c     >                 dbl_mb(vall_junk(1)),1,
+c     >                 dbl_mb(vall_junk(1)),1)
+c      call D3dB_SumAll(deltav)
       deltav = deltav*dV
       
 
@@ -269,23 +311,32 @@ c     >    (.not.stalled          ))) then
 c         if ((Enew.gt.Eold).or.(dabs(Enew-Eold).gt.1.0d-1)) go to 30
          if ((Enew.gt.Eold).and.(sd_count.lt.MAX_SD_COUNT)) go to 30
 
-         call dcopy(ispin*n2ft3d,
-     >              dbl_mb(vall_out(1)),1,
-     >              dbl_mb(vall_junk(1)),1)
-
+c         call dcopy(ispin*n2ft3d,
+c     >              dbl_mb(vall_out(1)),1,
+c     >              dbl_mb(vall_junk(1)),1)
+         call Parallel_shared_vector_copy(.true.,ispin*n2ft3d,
+     >                                    dbl_mb(vall_out(1)),
+     >                                    dbl_mb(vall_junk(1)))
          call electron_gen_vall()
          call electron_get_vall(dbl_mb(vall_out(1))) 
          call nwpw_scf_mixing_reset(dbl_mb(vall_out(1)))
 
 
-         call daxpy(ispin*n2ft3d,
-     >              (-1.0d0),
-     >              dbl_mb(vall_out(1)),1,
-     >              dbl_mb(vall_junk(1)),1)
-         deltav = ddot(ispin*n2ft3d,
-     >                 dbl_mb(vall_junk(1)),1,
-     >                 dbl_mb(vall_junk(1)),1)
-         call D3dB_SumAll(deltav)
+         call DAXPY_omp(ispin*n2ft3d,
+     >                  (-1.0d0),
+     >                  dbl_mb(vall_out(1)),1,
+     >                  dbl_mb(vall_junk(1)),1)
+         call D3dB_rr_dot(1,dbl_mb(vall_junk(1)),
+     >                   dbl_mb(vall_junk(1)),deltav)
+         if (ispin.gt.1) then
+            call D3dB_rr_dot(1,dbl_mb(vall_junk(1)+n2ft3d),
+     >                         dbl_mb(vall_junk(1)+n2ft3d),e00)
+            deltav = deltav + e00
+         end if
+c         deltav = ddot(ispin*n2ft3d,
+c     >                 dbl_mb(vall_junk(1)),1,
+c     >                 dbl_mb(vall_junk(1)),1)
+c         call D3dB_SumAll(deltav)
          deltav = deltav*dV
 
          call psi_1gen_hml()

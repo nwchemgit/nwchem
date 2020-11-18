@@ -335,7 +335,10 @@ c      if (ispin.eq.1) pmeta0 = pmeta0 + pmeta0
 c      integer n,nfft3d,npack1,xyz
 c      integer G(3),n1(2),n2(2),dpsi(2)
 c      real*8 scal1,scal2
-      real*8 pmeta,dV,ee,pmeta2
+      real*8 pmeta,dV
+
+      real*8 ee,e2
+      common /eenergy_tmp_common/ ee,e2
 
 *     **** external functions ****
 c      integer  Pack_G_indx

@@ -1,9 +1,9 @@
 #!/bin/bash
 if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then 
-  brew cask uninstall oclint || true  
-  brew install gcc "$MPI_IMPL" openblas python@3.8 ||true
+#  HOMEBREW_NO_AUTO_UPDATE=1 brew cask uninstall oclint || true  
+  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python@3.7 ||true
   if [[ "$MPI_IMPL" == "openmpi" ]]; then
-     brew install scalapack
+      HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install scalapack
   fi
 fi
 if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then 

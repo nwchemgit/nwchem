@@ -15,8 +15,8 @@ end
 
 print none
 
-scf; print none; end
-driver; print low; end
+dft; sym off;adapt off; print none; xc hfexch ;end
+driver; maxiter 99; trust 0.15;print low; end
 
 python
   from __future__ import print_function
@@ -64,18 +64,18 @@ python
   cndata = []
   chdata = []
   nhdata = []
-  for i in range(-10,11):
+  for i in range(5,13):
     try:
       os.remove('/tmp/hcn.drv.hess')
     except:
       pass
     angle = 18.0*i
     input_parse(geometry % (cn, ch, angle))
-    (energy, gradient) = task_optimize('scf')
+    (energy, gradient) = task_optimize('dft')
     cn = bond_length(1,2)
     nh = bond_length(2,3)
     ch = bond_length(1,3)
-    print(' angle=%6.1f => cn=%5.3f ch=%5.3f nh=%5.3f energy=%10.6f ' % \
+    print(' ANGLE=%6.1f => CN=%5.3f CH=%5.3f NH=%5.3f ENERGY=%10.6f ' % \
                 (angle,cn,ch,nh,energy))
     angle = angle + 180
     edata = edata + [[angle,energy]]
@@ -88,7 +88,8 @@ python
            Gnuplot.Data(chdata,title='CH'),\
            Gnuplot.Data(nhdata,title='NH'))
     """
-  time.sleep(90)
+  print(' Done!')
+  time.sleep(20)
 end
 
 task python

@@ -2260,7 +2260,12 @@ endif
              endif
         endif
 
-        FDEBUG += -g -O 
+        ifeq ($(FC),flang)
+#AOMP flang crashes with -g in source using block data
+        FDEBUG =  -O
+	  else
+        FDEBUG += -g -O
+	endif
         ifdef USE_F2C
 #possible segv with use of zdotc (e.g. with GOTO BLAS)
 #http://gcc.gnu.org/bugzilla/show_bug.cgi?id=20178

@@ -1,5 +1,5 @@
 #!/bin/bash 
-VERSION=0.3.10
+VERSION=0.3.12
 if [ -f  OpenBLAS-${VERSION}.tar.gz ]; then
     echo "using existing"  OpenBLAS-${VERSION}.tar.gz
 else
@@ -9,6 +9,7 @@ fi
 tar xzf OpenBLAS-${VERSION}.tar.gz
 ln -sf OpenBLAS-${VERSION} OpenBLAS
 cd OpenBLAS-${VERSION}
+if [[  -z "${FORCETARGET}" ]]; then
 FORCETARGET=" "
 UNAME_S=$(uname -s)
 if [[ ${UNAME_S} == Linux ]]; then
@@ -30,6 +31,7 @@ if [[ "${GOTAVX512}" == "Y" ]]; then
     echo "forcing Haswell target on SkyLake"
     FORCETARGET=" TARGET=HASWELL "
 fi
+fi #FORCETARGET
 if [[ ${BLAS_SIZE} == 8 ]]; then
   sixty4_int=1
 else

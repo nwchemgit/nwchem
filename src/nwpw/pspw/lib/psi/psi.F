@@ -2939,7 +2939,7 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
 
 *     ***********************************
 *     *				        *
-*     *	     psi_linesearch_virtual
+*     *	     psi_linesearch_virtual     *
 *     *				        *
 *     ***********************************
 
@@ -3403,6 +3403,217 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
 
       return
       end
+
+   
+
+
+*     ***********************************
+*     *                                 *
+*     *      psi_KS_block_update        *
+*     *                                 *
+*     ***********************************
+ 
+*    This routine (approximately) diagonalizes the KS matrix.
+*
+*    input variables
+*    - current_iteration
+*    - maxerror
+*    global shared variables output 
+*    - Enew
+*    - deltae
+*
+      subroutine psi_KS_block_update(Enew,deltae,
+     >                               current_iteration,maxerror)
+      implicit none
+      real*8  Enew,deltae
+      integer current_iteration
+      real*8  maxerror
+        
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "psi.fh"
+
+*     **** local variables ****
+      real*8  deltat_min
+      parameter (deltat_min=1.0d-2)
+
+      integer G0(2),S0(2)
+      real*8  E0,dE0,Enew0
+
+      logical precondition
+      common / cgsd_block2 / precondition
+
+      real*8 tmin,dte,sum0,sum1
+      common / bfgs_block / tmin,dte,sum0,sum1
+
+      integer it,it_in
+      real*8 deltat,tmin0,deltae0,deltac0
+      real*8 max_sigma,dt,kappa
+
+      logical value
+      integer neall,maxit_orbs
+
+*     **** external functions ****
+      logical  control_precondition,psp_pawexist
+      external control_precondition,psp_pawexist
+      integer  control_lmbfgs_size
+      external control_lmbfgs_size
+      integer  control_ks_maxit_orbs,psi_neq
+      external control_ks_maxit_orbs,psi_neq
+      real*8   control_time_step
+      external control_time_step
+      real*8   psi_geodesic_energy0,psi_geodesic_denergy
+      external psi_geodesic_energy0,psi_geodesic_denergy
+      real*8   linesearch
+      external linesearch
+
+      !maxit_orb  = control_ks_maxit_orb()   !*** should be read from rtdb ***
+      maxit_orbs = control_ks_maxit_orbs()  !*** should be read from rtdb ***
+      it_in = maxit_orbs
+
+      dt = control_time_step()
+
+
+!$OMP MASTER
+      if (current_iteration.eq.1) then
+         precondition = control_precondition()
+         tmin  = 10*deltat_min
+      end if
+!$OMP END MASTER
+
+      neall = neq(1)+neq(2)
+
+*     **** allocate G0, S0 ****
+      value = BA_push_get(mt_dcpl,npack1*neall,
+     >                     'S0',S0(2),S0(1))
+      value = value.and.
+     >        BA_push_get(mt_dcpl,npack1*neall,
+     >                     'G0',G0(2),G0(1))
+      if (.not.value) 
+     >   call errquit('psi_KS_block_update:out of heap memory',0,MA_ERR)
+
+      call Parallel_shared_vector_zero(.true.,2*npack1*neall,
+     >                                 dcpl_mb(G0(1)))
+
+*     ***** get the initial direction ****
+      if (pawexist) then
+         call psi_1get_STgradient(dcpl_mb(S0(1)),dcpl_mb(G0(1)),Enew0)
+      else
+         if (precondition) then
+            call psi_1get_TMgradient0(dcpl_mb(G0(1)),Enew0)
+         else
+            call psi_1get_Tgradient0(dcpl_mb(G0(1)),Enew0)
+         end if
+      end if
+      E0 = Enew0
+
+*     ***** use the initial gradient for the direction ****
+      call pspw_lmbfgs_init(control_lmbfgs_size(),dcpl_mb(G0(1)))
+      call Grsm_gg_Copy(npack1,neall,
+     >                  dcpl_mb(G0(1)),
+     >                  dcpl_mb(S0(1)))
+
+      do it=2,it_in
+*        **** initialize the geoedesic line data structure ****
+         call geodesic_start(dcpl_mb(S0(1)),max_sigma,dE0)
+
+*        ******* line search *********
+         if ((tmin.gt.deltat_min).and.(tmin.lt.1.0d4)) then
+            deltat = tmin
+         else
+            deltat = deltat_min
+         end if
+ 20      continue
+c         write(*,*) "     --- tmin0=",tmin
+         tmin0 = tmin
+         deltae0 = deltae
+         Enew0 = linesearch(0.0d0,E0,dE0,deltat,
+     >                        psi_geodesic_energy0,
+     >                        psi_geodesic_denergy,
+     >                        0.50d0,tmin0,deltae0,2)
+
+!$OMP MASTER
+         tmin = tmin0
+         deltae = deltae0
+         Enew = Enew0
+!$OMP END MASTER
+!$OMP BARRIER
+c         write(*,*) "     --- tmin=",tmin
+c         write(*,*) "     --- it,Enew,deltae=",it,Enew,deltae
+
+         call psi_geodesic_final(tmin)
+
+*        **** exit loop early ****
+         if (dabs(deltae).lt.maxerror) then
+            if (.not.precondition) go to 30
+            precondition = .false.
+         end if
+
+*        **** get the new gradient ****
+         if (pawexist) then
+              call psi_2get_STgradient(2,dcpl_mb(S0(1)),
+     >                                   dcpl_mb(G0(1)),Enew0)
+         else
+            if (precondition) then
+               call psi_2get_TMgradient0(2,dcpl_mb(G0(1)),Enew0)
+            else
+               call psi_2get_Tgradient0(2,dcpl_mb(G0(1)),Enew0)
+            end if
+         end if
+!$OMP MASTER
+      E0 = Enew0
+!$OMP END MASTER
+!$OMP BARRIER
+
+         call pspw_lmbfgs(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
+         call psi_2to1()
+
+      end do
+
+*     **** initialize the geoedesic line data structure ****
+      call geodesic_start(dcpl_mb(S0(1)),max_sigma,dE0)
+
+*     ******* line search *********
+      if ((tmin.gt.deltat_min).and.(tmin.lt.1.0d4)) then
+         deltat = tmin
+      else
+         deltat = deltat_min
+      end if
+
+ 25   continue
+      tmin0 = tmin
+      deltae0 = deltae
+      Enew0 = linesearch(0.0d0,E0,dE0,deltat,
+     >                        psi_geodesic_energy0,
+     >                        psi_geodesic_denergy,
+     >                        0.50d0,tmin0,deltae0,2)
+!$OMP MASTER
+         tmin = tmin0
+         deltae = deltae0
+         Enew = Enew0
+!$OMP END MASTER
+!$OMP BARRIER
+
+      call psi_geodesic_final(tmin)
+
+ 30   CONTINUE
+
+
+*     **** free memory ****
+      value = BA_pop_stack(G0(2))
+      value = value.and.
+     >        BA_pop_stack(S0(2))
+      if (.not. value)
+     >  call errquit('bfgsminimize:error freeing heap memory',0, MA_ERR)
+
+      call psi_2to1()
+      !call psi_1gen_hml()
+      !call psi_diagonalize_hml_assending()
+      !call psi_1toelectron()
+
+      return
+      end
+
 
 
 *     ***********************************
@@ -4599,13 +4810,20 @@ c     >           dbl_mb(rho1_all(1)),1)
       integer rho2_all(2)
       common / rhoall_block / rho1_all,rho2_all
 
-      call dcopy(4*nfft3d,
-     >           dbl_mb(rho1(1)),1,
-     >           dbl_mb(rho2(1)),1)
+c      call dcopy(4*nfft3d,
+c     >           dbl_mb(rho1(1)),1,
+c     >           dbl_mb(rho2(1)),1)
+c
+c      call dcopy(4*nfft3d,
+c     >           dbl_mb(rho1_all(1)),1,
+c     >           dbl_mb(rho2_all(1)),1)
 
-      call dcopy(4*nfft3d,
-     >           dbl_mb(rho1_all(1)),1,
-     >           dbl_mb(rho2_all(1)),1)
+      call Parallel_shared_vector_copy(.false.,4*nfft3d,
+     >           dbl_mb(rho1(1)),
+     >           dbl_mb(rho2(1)))
+      call Parallel_shared_vector_copy(.true.,4*nfft3d,
+     >           dbl_mb(rho1_all(1)),
+     >           dbl_mb(rho2_all(1)))
 
       return
       end
@@ -5695,6 +5913,58 @@ c      end
 
 *     ***********************************
 *     *                                 *
+*     *         psi_1get_Tgradient0     *
+*     *                                 *
+*     ***********************************
+
+*     THpsi = Hpsi - Y*Y^t*Hpsi ! used by Grassman minimizers
+*
+      subroutine psi_1get_Tgradient0(THpsi,Eout)
+      implicit none
+      complex*16 THpsi(*)
+      real*8 Eout
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "psi.fh"
+
+
+*     **** local variables ****
+      integer tmp1(2),i,n
+      logical value
+
+*     **** external functions ****
+      logical  Dneall_m_push_get,Dneall_m_pop_stack
+      external Dneall_m_push_get,Dneall_m_pop_stack
+
+      real*8   electron_energy0
+      external electron_energy0
+
+      if (.not.Dneall_m_push_get(0,tmp1))
+     >   call errquit('out of stack memory in psi_1get_Tradient0',0,
+     >       MA_ERR)
+
+      call electron_run0(dcpl_mb(psi1(1)))
+      Eout =  electron_energy0(dcpl_mb(psi1(1)))
+
+      call electron_gen_hml(dcpl_mb(psi1(1)),
+     >                       dbl_mb(tmp1(1)))
+
+*     **** get the tangent THpsi = Hpsi - psi1*tmp1 , TY = HY - Y*Y'HY ****
+      call electron_get_Tgradient(dcpl_mb(psi1(1)),
+     >                             dbl_mb(tmp1(1)),
+     >                            THpsi)
+
+      if (.not.Dneall_m_pop_stack(tmp1))
+     > call errquit('psi_1get_Tgradient0:error popping stack',1,
+     >     MA_ERR)
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
 *     *         psi_1get_STgradient     *
 *     *                                 *
 *     ***********************************
@@ -6002,6 +6272,60 @@ c      end
 
 
 *     ***********************************
+*     *                                 *
+*     *         psi_2get_Tgradient0     *
+*     *                                 *
+*     ***********************************
+      subroutine psi_2get_Tgradient0(option,THpsi,Eout)
+      implicit none
+      integer    option
+      complex*16 THpsi(*)
+      real*8     Eout
+
+#include "errquit.fh"
+#include "bafdecls.fh"
+#include "psi.fh"
+
+
+*     **** local variables ****
+      integer tmp1(2)
+
+*     **** external functions ****
+      logical  Dneall_m_push_get,Dneall_m_pop_stack
+      external Dneall_m_push_get,Dneall_m_pop_stack
+
+      real*8   electron_energy0
+      external electron_energy0
+
+
+!$OMP BARRIER
+
+      if (.not.Dneall_m_push_get(0,tmp1))
+     >   call errquit('out of stack memory in psi_2get_Tradient0',0,
+     >       MA_ERR)
+
+      if (option.le.1) then
+        call electron_run0(dcpl_mb(psi2(1)))
+      end if
+
+      Eout =  electron_energy0(dcpl_mb(psi2(1)))
+!$OMP BARRIER
+
+      call electron_gen_hml(dcpl_mb(psi2(1)),
+     >                       dbl_mb(tmp1(1)))
+      call electron_get_Tgradient(dcpl_mb(psi2(1)),
+     >                             dbl_mb(tmp1(1)),
+     >                             THpsi)
+
+      if (.not. Dneall_m_pop_stack(tmp1))
+     >call errquit('psi_2get_Tgradient0:error popping stack',1,MA_ERR)
+
+      return
+      end
+
+
+
+*     ***********************************
 *     *					*
 *     *		psi_2get_Gradient	*
 *     *					*
@@ -6260,6 +6584,34 @@ c      end
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *        psi_1get_TMgradient0     *
+*     *                                 *
+*     ***********************************
+      subroutine psi_1get_TMgradient0(THpsi,Eout)
+      implicit none
+      complex*16 THpsi(*)
+      real*8     Eout
+
+#include "bafdecls.fh"
+#include "psi.fh"
+
+*     **** external functions ****
+      real*8   electron_energy0
+      external electron_energy0
+
+
+      call electron_run0(dcpl_mb(psi1(1)))
+      Eout =  electron_energy0(dcpl_mb(psi1(1)))
+
+      call electron_get_TMgradient(dcpl_mb(psi1(1)),
+     >                             THpsi)
+
+      return
+      end
+
+
 
 *     ***********************************
 *     *					*
@@ -6303,6 +6655,39 @@ c      end
       
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *         psi_2get_TMgradient0    *
+*     *                                 *
+*     ***********************************
+      subroutine psi_2get_TMgradient0(option,THpsi,Eout)
+      implicit none
+      integer    option
+      complex*16 THpsi(*)
+      real*8     Eout
+
+#include "bafdecls.fh"
+#include "psi.fh"
+
+*     **** external functions ****
+      real*8   electron_energy0
+      external electron_energy0
+
+      if (option.le.1) then
+        call electron_run0(dcpl_mb(psi2(1)))
+      end if
+
+      Eout =  electron_energy0(dcpl_mb(psi2(1)))
+
+      call electron_get_TMgradient(dcpl_mb(psi2(1)),
+     >                             THpsi)
+
+      return
+      end
+
+
+
 
 *     ***********************************
 *     *					*
@@ -6363,6 +6748,45 @@ c      end
 
       call geodesic_Gtransport(t,dcpl_mb(psi1(1)),G0)
 
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         psi_geodesic_energy0    *
+*     *                                 *
+*     ***********************************
+*
+*    This function follows a geodesic but without updating
+* the densities.
+
+      real*8 function psi_geodesic_energy0(t)
+      implicit none
+      real*8 t
+
+#include "bafdecls.fh"
+#include "psi.fh"
+
+*     ***** rhoall common block ****
+      integer rho1_all(2)
+      integer rho2_all(2)
+      common / rhoall_block / rho1_all,rho2_all
+
+      real*8 e_new
+*     **** external functions ****
+      real*8   electron_energy0
+      external electron_energy0
+
+      call geodesic_get(t,dcpl_mb(psi1(1)),
+     >                    dcpl_mb(psi2(1)))
+
+      call electron_run0(dcpl_mb(psi2(1)))
+
+      e_new =  electron_energy0(dcpl_mb(psi2(1)))
+        
+      psi_geodesic_energy0 = e_new
       return
       end
 
@@ -7272,6 +7696,7 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
 
       integer ms,i,indx1,indx2
 
+!$OMP MASTER
       do ms=1,ispin
          indx1 = occ1(1) + ne(ms) - 1 + (ms-1)*ne(1)
          indx2 = occ2(1)              + (ms-1)*ne(1)
@@ -7282,6 +7707,8 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
          end do
       end do
       call dcopy((ne(1)+ne(2)),dbl_mb(occ2(1)),1,dbl_mb(occ1(1)),1)
+!$OMP END MASTER
+!$OMP BARRIER
       return
       end
 
@@ -7359,6 +7786,9 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
       external control_TotalCharge,ion_TotalCharge_qm
       external psi_occ_distribution,control_fractional_alpha
 
+      ZZ  = ion_TotalCharge_qm() - control_TotalCharge()
+
+!$OMP MASTER
       if (use_hml) then
          do ms=1,ispin
             shift1 = eig(1) + (ms-1)*ne(1)
@@ -7368,7 +7798,6 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
             end do
          end do
       end if
-
       smearfermi(1)   = 0.0d0
       smearfermi(2)   = 0.0d0
       smearcorrection = 0.0d0
@@ -7380,7 +7809,8 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
             alpha = initial_alpha
          end if
          kT    = smearkT
-         ZZ  = ion_TotalCharge_qm() - control_TotalCharge()
+         !ZZ  = ion_TotalCharge_qm() - control_TotalCharge()
+
          if (dabs(ZZ).lt.1.0d-9) go to 98
 
          if (ispin.eq.2) then
@@ -7506,6 +7936,8 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
   99     continue
 
       end if
+!$OMP END MASTER
+!$OMP BARRIER
 
       return
       end
@@ -7969,18 +8401,19 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 *     scale = (scale)/dble(nx*ny*nz)
 *     scale = (scale*scale)
 
-!$OMP DO private(k)
+!$OMP DO 
       do k=1,(2*nfft3d)
          dbl_mb(tmp1(1)+k-1) = (dbl_mb(rho2(1)+k-1)
      >                         -dbl_mb(rho1(1)+k-1)) 
          dbl_mb(tmp1(1)+k-1) = dbl_mb(tmp1(1)+k-1) 
      >                      + (dbl_mb(rho2(1)+k-1+(ispin-1)*(2*nfft3d))
-     >                        -dbl_mb(rho1(1)+k-1+(ispin-1)*(2*nfft3d))) 
+     >                        -dbl_mb(rho1(1)+k-1+(ispin-1)*(2*nfft3d)))
       end do
 !$OMP END DO
       call D3dB_rr_dot(1,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)),e1)
       error = e1*scale
 *     error = dsqrt(error)
+
 
       value = BA_pop_stack(tmp1(2))
       if (.not. value) 
