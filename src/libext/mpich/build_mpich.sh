@@ -11,7 +11,7 @@ if [[ $GNUMAJOR -ge 10  ]]; then
     export FFLAGS=-std=legacy
 fi
 echo 'using FFLAGS=' $FFLAGS
-./configure --prefix=`pwd`/../.. --enable-fast --enable-fortran=all --disable-shared
+./configure --prefix=`pwd`/../.. --enable-fast --enable-fortran=all --disable-shared --disable-cxx
 mkdir -p ../../../lib
 make
 make install

@@ -9,11 +9,11 @@ SUBDIRS=
 ifdef BUILD_OPENBLAS
     SUBDIRS += openblas
 endif
-ifdef BUILD_SCALAPACK
-    SUBDIRS += scalapack
-endif
 ifdef BUILD_MPICH
     SUBDIRS += mpich
+endif
+ifdef BUILD_SCALAPACK
+    SUBDIRS += scalapack
 endif
 
 
