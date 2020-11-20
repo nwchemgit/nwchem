@@ -73,6 +73,7 @@ c
      $     ostress2,            ! include lattice gradients
      $     ocheckgrad,          ! verify the gradient
      $     diagonal_hessian,    ! tells the code to use a diagonal hessian
+     $     odsyev          ,    ! use dsyev instead of jacobi eigensolver
      $     oactive(max_cent)    ! active atom flags
 c
       character*8
@@ -90,7 +91,8 @@ c     integers
      $     izfrz, isystype, nactive,
 c     logicals
      $     ofirstneg, opcg, oqstep, zcoord, zmatrix, oprint, odebug,
-     $     ostress, ostress2, ocheckgrad, diagonal_hessian,oactive
+     $     ostress, ostress2, ocheckgrad, diagonal_hessian,odsyev,
+     $     oactive
 c     characters
       common/ccdrv_optopt/
      $     zvarname, xyz
