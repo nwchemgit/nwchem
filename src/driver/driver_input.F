@@ -306,6 +306,11 @@ c
       else if(inp_compare(.false.,'noxyz',field)) then
          ignore = rtdb_delete(rtdb,'driver:xyz')
 c
+      else if (inp_compare(.false.,'dsyev',field)) then
+         odsyev = .true.
+         if (.not. rtdb_put(rtdb,'driver:odsyev',mt_log,1,odsyev))
+     $        call errquit('driver_input: rtdb put failed',0, RTDB_ERR)
+c
       else
          call errquit('driver_input: unknown directive',0, INPUT_ERR)
       endif
