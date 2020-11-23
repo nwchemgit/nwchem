@@ -9,10 +9,13 @@
       common /nwpw_cosmo_blk2/ i_indx,j_indx,nindx
 
       integer qc0(2),qc1(2),BQc(2),qs(2),AA(2),qold(2),rqion(2)
-      real*8  Qion,Qelc,qthresh,invAsum
-      logical Qset,Qt,Qt0,Qlmd,firstrestart,firstrun
-      common /nwpw_cosmo_blk3/ invAsum,Qion,Qelc,qthresh,qc0,qc1,
+      real*8  Qion,Qelc,qthresh,invAsum,qalpha,old_qerror
+      logical Qset,Qt,Qt0,Qlmd,firstrestart,firstrun,fix_q,use_fix_q
+      common /nwpw_cosmo_blk3/ invAsum,Qion,Qelc,qthresh,qalpha,
+     >                         old_qerror,
+     >                         qc0,qc1,
      >                         BQc,qs,AA,qold,rqion,
-     >                         Qset,Qt,Qt0,Qlmd,firstrestart,firstrun
+     >                         Qset,Qt,Qt0,Qlmd,firstrestart,firstrun,
+     >                         fix_q,use_fix_q
 
 
