@@ -1627,7 +1627,7 @@ c
 c     Only alpha and ds() are modified.
 c
       integer i, iat,j, top
-*     integer info
+      integer info
       integer l_hess, k_hess, l_work, k_work, lenwork
       double precision  e(max_nvar) ! Hessian eigenvalues
       double precision pg(max_nvar) ! P.g
@@ -1698,11 +1698,14 @@ c
       do i = 0, nvar**2-1
          if (abs(dbl_mb(k_hess+i)).lt.1d-8) dbl_mb(k_hess+i) = 0d0
       enddo
-*      call dsyev('v', 'u', nvar, dbl_mb(k_hess), 
-*     $     nvar, e, dbl_mb(k_work), lenwork, info)
-*      if (info .ne. 0) call errquit
-*     $     ('driver_search_dir: dsyev failed',info, 0)
-      call util_jacobi(nvar, dbl_mb(k_hess), nvar, e)
+      if (odsyev) then
+         call dsyev('v', 'u', nvar, dbl_mb(k_hess), 
+     $        nvar, e, dbl_mb(k_work), lenwork, info)
+         if (info .ne. 0) call errquit
+     $        ('driver_search_dir: dsyev failed',info, 0)
+      else
+         call util_jacobi(nvar, dbl_mb(k_hess), nvar, e)
+      endif
       if (odebug .or. (util_print('hvecs',print_never) 
      $     .and. ga_nodeid().eq.0)) then
          write(6,*) ' Eigenvalues of the Hessian '
@@ -1946,8 +1949,8 @@ c     Edo seems to have encountered a case where different processors
 c     generated different steps.  To prevent this, broadcast the 
 c     critical info to everyone.
 c
-      call ga_brdcst(1,ds,8*nvar,0)
-      call ga_brdcst(2,alpha,8,0)
+      call ga_brdcst(1,ds, ma_sizeof(mt_dbl,nvar,mt_byte),0)
+      call ga_brdcst(2,alpha, ma_sizeof(mt_dbl,1,mt_byte),0)
 c
       if (util_print('searchdir',print_high) .and. 
      $     ga_nodeid().eq.0) then
@@ -3022,7 +3025,8 @@ c
          enddo
          close(unit=h_unit,status='keep')
       endif
-      call ga_brdcst(1,dbl_mb(k_hc),8*ncart**2,0)
+      call ga_brdcst(1,dbl_mb(k_hc),
+     c     ma_sizeof(mt_dbl,ncart**2,mt_byte),0)
 c     
       call geom_hnd_get_data('b^-1', dbl_mb(k_bi), nvar*ncart)
       call dgemm('n', 'n', ncart, nvar, ncart, 1d0, dbl_mb(k_hc), ncart,
@@ -3065,6 +3069,7 @@ c
 #include "mafdecls.fh"
 #include "global.fh"
 #include "util.fh"
+#include "util_params.fh"
       integer rtdb
       integer geom
       integer istep
@@ -3092,6 +3097,7 @@ c
       double precision dsmax    ! Max. value of current step (smax is prev.)
 c     
       integer nzero, negeig, idamax, mod2, ntest
+      integer info
       double precision bohr, deg ! For printing purposes
       double precision trustds  ! Restriction of step in opt. variable
       double precision gvrms, dir, tmp1, tmp2, ovtol
@@ -3128,11 +3134,14 @@ c
       do i = 0, nvar**2-1
          if (abs(dbl_mb(k_hess+i)).lt.1d-8) dbl_mb(k_hess+i) = 0d0
       enddo
-c$$$  call dsyev('v', 'u', nvar, dbl_mb(k_hess), 
-c$$$  $     nvar, e, dbl_mb(k_work), lenwork, info)
-c$$$  if (info .ne. 0) call errquit
-c$$$  $     ('driver_search_dir: dsyev failed',info, GEOM_ERR)
-      call util_jacobi(nvar, dbl_mb(k_hess), nvar, e)
+      if(odsyev) then
+         call dsyev('v', 'u', nvar, dbl_mb(k_hess), 
+     $        nvar, e, dbl_mb(k_work), lenwork, info)
+         if (info .ne. 0) call errquit
+     $        ('driver_search_dir: dsyev failed',info, GEOM_ERR)
+      else
+         call util_jacobi(nvar, dbl_mb(k_hess), nvar, e)
+      endif
       if (odebug .or. (util_print('hvecs',print_never) 
      $     .and. ga_nodeid().eq.0)) then
          write(6,*) ' Eigenvalues of the Hessian '
@@ -3438,16 +3447,16 @@ c     Edo seems to have encountered a case where different processors
 c     generated different steps.  To prevent this, broadcast the 
 c     critical info to everyone.
 c     
-      call ga_brdcst(1,ds,8*nvar,0)
-      call ga_brdcst(2,alpha,8,0)
+      call ga_brdcst(1,ds, ma_sizeof(mt_dbl,nvar,mt_byte),0)
+      call ga_brdcst(2,alpha, ma_sizeof(mt_dbl,1,mt_byte),0)
 c     
       if (util_print('searchdir',print_high) .and. 
      $     ga_nodeid().eq.0) then
          write(6,*)
          write(6,*) '       The search direction'
          if (zcoord) then
-            bohr = 0.52917715d0
-            deg  = 0.52917715d0*180d0/(4d0*atan(1d0))
+            bohr = cau2ang
+            deg  = bohr*180d0/(4d0*atan(1d0))
             call geom_zmat_ico_scale(geom, ds, bohr, deg)
             if (.not. geom_print_zmatrix(geom, ds, 'Search  ',.true.))
      $           call errquit('driver:print search_dir?',geom, GEOM_ERR)
