@@ -254,7 +254,7 @@ c    >     + i+1
 #include "pspw_APC.fh"
 
 *     ***** local variables ****
-      integer taskid,MASTER
+      integer taskid,MASTER,tid
       parameter (MASTER=0)
 
       logical value
@@ -267,11 +267,16 @@ c      integer G(3)
       integer gaus_i(2),gaus_j(2),ipiv(2)
       integer AAA(2),work(2),lwork,rank,info
 
+      real*8 e1,e2
+      common /eenergy_tmp_common/ e1,e2
+
 *     ***** external functions ****
       integer  ion_nion_qm,Pack_G_indx
       external ion_nion_qm,Pack_G_indx
       real*8   lattice_omega
       external lattice_omega
+      integer  Parallel_threadid
+      external Parallel_threadid
 
       if (nga.gt.0) then
          omega = lattice_omega()
@@ -325,9 +330,10 @@ c     >                          dcpl_mb(gaus_i(1)))
 *              *** omega*Sum(G) w(G)*Re(dcongj(dng(G))*gaus_i(G))***
                call Pack_cc_dot(0,dng,
      >                            dcpl_mb(gaus_i(1)),
-     >                            sum)
+     >                            e1)
 !$OMP MASTER
-               dbl_mb(b(1)+i-1) = sum*omega
+               !dbl_mb(b(1)+i-1) = sum*omega
+               dbl_mb(b(1)+i-1) = e1*omega
 !$OMP END MASTER
 
 
@@ -385,16 +391,18 @@ c     >                               dcpl_mb(gaus_i(1)))
 *                   *** omega*Sum(G) w(G)*gaus_i(G)*gaus_j(G))***
                     call Pack_cc_dot(0,dcpl_mb(gaus_i(1)),
      >                                 dcpl_mb(gaus_j(1)),
-     >                                 sum)
-                    sum = sum*omega
+     >                                 e1)
+                    !sum = sum*omega
                     i = iii + (ii-1)*nga
                     j = jjj + (jj-1)*nga
 
                     indx  = (i-1) + (j-1)*ngs
                     indxt = (j-1) + (i-1)*ngs
 !$OMP MASTER
-                    dbl_mb(A(1)+indx)  = sum
-                    dbl_mb(A(1)+indxt) = sum
+                    !dbl_mb(A(1)+indx)  = sum
+                    !dbl_mb(A(1)+indxt) = sum
+                    dbl_mb(A(1)+indx)  = e1*omega
+                    dbl_mb(A(1)+indxt) = e1*omega
 !$OMP END MASTER
                end do
              end do
@@ -485,6 +493,7 @@ c     >                        j)
          call D3dB_Vector_SumAll(ngs*ngs,dbl_mb(Am(1)))
 
       end if
+!$OMP BARRIER
 
       return
       end
@@ -566,19 +575,30 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 
 *     **** local variables ***
       integer i,j
-      real*8  sum0
+      
+      real*8 jsum0
+
+      real*8 sum0,sum1
+      common /eenergy_tmp_common/ sum0,sum1
 
 !$OMP MASTER
-      sum0 = 0.0d0
-      do i=1,ngs
-         do j=1,ngs
-            sum0 = sum0 + Am(i,j)
-         end do
-      end do
+      sum1 = 0.0d0
 !$OMP END MASTER
 !$OMP BARRIER
 
-      pspw_sumAm_APC = sum0
+!$OMP DO REDUCTION(+:sum1)
+      do i=1,ngs
+
+         jsum0 = 0.0d0
+         do j=1,ngs
+            jsum0 = jsum0 + Am(i,j)
+         end do
+
+         sum1 = sum1 + jsum0
+      end do
+!$OMP END DO
+
+      pspw_sumAm_APC = sum1
       return
       end
 
@@ -595,17 +615,26 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 
 *     **** local variables ***
       integer i,j
-      real*8  sum0
+
+      real*8 jsum0
+
+      real*8 sum0,sum1
+      common /eenergy_tmp_common/ sum0,sum1
 
 !$OMP MASTER
       sum0 = 0.0d0
-      do i=1,ngs
-         do j=1,ngs
-            sum0 = sum0 + Am(i,j)*u(j)
-         end do
-      end do
 !$OMP END MASTER
 !$OMP BARRIER
+
+!$OMP DO REDUCTION(+:sum0)
+      do i=1,ngs
+         jsum0 = 0.0
+         do j=1,ngs
+            jsum0 = jsum0 + Am(i,j)*u(j)
+         end do
+         sum0 = sum0 + jsum0
+      end do
+!$OMP END DO
 
       pspw_Amtimesu_APC = sum0
       return
@@ -625,15 +654,26 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 
 *     **** local variables ****
       integer j
-      real*8 sum0
+
+      real*8 sum0,sum1
+      common /eenergy_tmp_common/ sum0,sum1
+
+
+c      sum0 = 0.0d0
+c      do j=1,ngs
+c         sum0 = sum0 + Am(i,j)*u(j)
+c      end do
 
 !$OMP MASTER
       sum0 = 0.0d0
+!$OMP END MASTER
+!$OMP BARRIER
+
+!$OMP DO REDUCTION(+:sum0)
       do j=1,ngs
          sum0 = sum0 + Am(i,j)*u(j)
       end do
-!$OMP END MASTER
-!$OMP BARRIER
+!$OMP END DO
 
       pspw_Vfac_APC = sum0
       return
@@ -694,6 +734,11 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
          tid = Parallel_threadid()
          nthreads = Parallel_nthreads()
 
+         sumAm  = pspw_sumAm_APC(ngs,dbl_mb(Am(1)))
+         sumAmU = pspw_Amtimesu_APC(ngs,dbl_mb(Am(1)),u)
+         !*** note the barrier takes place in the BA_push_get ***
+         !*** otherwise a barrier will be needed here ***
+
 *        **** get memory from stack ****
          value = BA_push_get(mt_dcpl,npack0,'ttexi',exi(2),exi(1))
          value = value.and.
@@ -702,12 +747,12 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
          if (.not. value) 
      >      call errquit('pspw_VQ_APC:push stack',0, MA_ERR)
 
-         sumAm  = pspw_sumAm_APC(ngs,dbl_mb(Am(1)))
-         sumAmU = pspw_Amtimesu_APC(ngs,dbl_mb(Am(1)),u)
 
-         do i=tid+1,ngs,nthreads
+!$OMP DO
+         do i=1,ngs
             u(i) = u(i) - (sumAmU/SumAm)
          end do
+!$OMP END DO
 
 
 *        ***** calculate VQ(G) ****
@@ -746,6 +791,9 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 
 
       end if
+
+!$OMP BARRIER
+
       return
       end
 
@@ -796,9 +844,11 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 
 *     **** calculate u = dEQelcq/dq ****
       call Parallel_shared_vector_zero(.true.,ngs,dbl_mb(u(1)))
-      do j=tid+1,nion_q,nthreads
+      !do j=tid+1,nion_q,nthreads
+      !do ii=taskid+1,nion,np
+      do j=taskid+1,nion_q,np
          qj = nwpw_cosmo_screen_qc0(j)
-         do ii=taskid+1,nion,np
+         do ii=tid+1,nion,nthreads
             x = dbl_mb(qcoord_ptr+3*(j-1))  -ion_rion(1,ii)
             y = dbl_mb(qcoord_ptr+3*(j-1)+1)-ion_rion(2,ii)
             z = dbl_mb(qcoord_ptr+3*(j-1)+2)-ion_rion(3,ii)
@@ -810,6 +860,7 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
             end do
          end do
       end do
+!$OMP BARRIER
       call Parallel_Vector_SumAll(ngs,dbl_mb(u(1)))
 
       call pspw_VQ_APC(nion,dbl_mb(u(1)),vcosmo)
@@ -827,6 +878,8 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 *     *		pspw_cosmo_V_APC	*
 *     *					*
 *     ***********************************
+
+*    dng,vcosmo,ecosmo,pcosmo are assumed to be shared memory
 *
       subroutine pspw_cosmo_V_APC(ispin,ne,dng,vcosmo,ecosmo,pcosmo)
       implicit none
@@ -876,7 +929,7 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 
       qcoord_ptr = nwpw_cosmo_qcoord_ptr()
       BQ_ptr     = nwpw_cosmo_BQ_ptr()
-      call Parallel_shared_vector_zero(.true.,nion_q,dbl_mb(BQ_ptr))
+      call Parallel_shared_vector_zero(.false.,nion_q,dbl_mb(BQ_ptr))
       call Parallel_shared_vector_zero(.true.,2*npack0,dcpl_mb(vtmp(1)))
       
 
@@ -885,7 +938,9 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       call pspw_gen_APC(ispin,ne,dng)
 
       !**** q-Qion + q-Qelc BQ contributions ****
-      do j=tid+1,nion_q,nthreads
+      !do j=tid+1,nion_q,nthreads
+!$OMP DO
+      do j=1,nion_q
          do ii=taskid+1,nion,np
             ia=ion_katm(ii)
             x = dbl_mb(qcoord_ptr+3*(j-1))  -ion_rion(1,ii)
@@ -896,6 +951,8 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
             dbl_mb(BQ_ptr+j-1)= dbl_mb(BQ_ptr+j-1) + sb
          end do
       end do
+!$OMP END DO
+
       call Parallel_Vector_SumAll(nion_q,dbl_mb(BQ_ptr))
 
 *     **** solve for cosmo q charges ****
@@ -908,11 +965,17 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
       call Pack_cc_daxpy(0,1.0d0,dcpl_mb(vtmp(1)),vcosmo)
 
       call Pack_cc_dot(0,dng,dcpl_mb(vtmp(1)),pcosmo)
-      ecosmo = nwpw_cosmo_EQelcq()
+
+      suma = nwpw_cosmo_EQelcq()
+!$OMP MASTER
+      ecosmo = suma
+!$OMP END MASTER
 
       value = value.and.BA_pop_stack(vtmp(2))
       if (.not.value)
      >   call errquit('pspw_cosmo_V_APC:pop stack',0,MA_ERR)
+
+!$OMP BARRIER
       return
       end
 
@@ -1139,6 +1202,9 @@ c      write(*,*)
 *     *		pspw_V_APC	        *
 *     *					*
 *     ***********************************
+
+*     dng, vapc, Eapc, and Papc are assumed to be shared memory
+*
       subroutine pspw_V_APC(ispin,ne,dng,vapc,Eapc,Papc)
       implicit none
       integer ispin,ne(2)
@@ -1152,8 +1218,12 @@ c      write(*,*)
       logical  nwpw_cosmo2_on,nwpw_born_on,nwpw_cdft_on
       external nwpw_cosmo2_on,nwpw_born_on,nwpw_cdft_on
 
+!$OMP MASTER
       Eapc = 0.0d0
       Papc = 0.0d0
+!$OMP END MASTER
+!$OMP BARRIER
+
       if (nwpw_cosmo2_on()) then
          call pspw_cosmo_V_APC(ispin,ne,dng,vapc,Eapc,Papc)
       else if (nwpw_born_on()) then
@@ -1161,8 +1231,12 @@ c      write(*,*)
       else if (nwpw_cdft_on()) then
          call pspw_cdft_V_APC(ispin,ne,dng,vapc,Eapc,Papc)
       end if
+
+!$OMP MASTER
       Eapc_APC = Eapc
       Papc_APC = Papc
+!$OMP END MASTER
+
 
       return
       end
@@ -1267,14 +1341,30 @@ c      write(*,*)
 *     *** local variables ***
       integer ii
 
-      write(unit,*)
-      write(unit,*) "APC Potential:"
-      write(unit,'(10F14.9)') (dbl_mb(nwpw_cdft_u_ptr()+ii-1),
-     >                         ii=1,ion_nion())
-      write(unit,*)
-      write(unit,*) "APC Point Charges:"
-      write(unit,'(10F14.9)') (dbl_mb(nwpw_cdft_q_ptr()+ii-1),
-     >                         ii=1,ion_nion())
+*     **** external functions ****
+      logical  nwpw_cosmo2_on
+      external nwpw_cosmo2_on
+      integer  ion_katm_qm
+      external ion_katm_qm
+      real*8   psp_zv,pspw_getQtot_APC
+      external psp_zv,pspw_getQtot_APC
+
+      if (nwpw_cosmo2_on()) then
+         write(unit,*)
+         write(unit,*) "APC Point Charges:"
+         write(unit,'(10F14.9)') (
+     >        psp_zv(ion_katm_qm(ii))+pspw_getQtot_APC(ii),
+     >        ii=1,ion_nion())
+      else
+         write(unit,*)
+         write(unit,*) "APC Potential:"
+         write(unit,'(10F14.9)') (dbl_mb(nwpw_cdft_u_ptr()+ii-1),
+     >                            ii=1,ion_nion())
+         write(unit,*)
+         write(unit,*) "APC Point Charges:"
+         write(unit,'(10F14.9)') (dbl_mb(nwpw_cdft_q_ptr()+ii-1),
+     >                            ii=1,ion_nion())
+      end if
 
       return
       end

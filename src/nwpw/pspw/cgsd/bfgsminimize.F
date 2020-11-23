@@ -246,11 +246,12 @@ c     >                                      dcpl_mb(S0(1)))
  20      continue
          tmin0 = tmin
          deltae0 = deltae
+         call nwpw_cosmo_fix_q()
          Enew0 = linesearch(0.0d0,E0,dE0,deltat,
      >                        psi_geodesic_energy,
      >                        psi_geodesic_denergy,
      >                        0.50d0,tmin0,deltae0,2)
-
+         call nwpw_cosmo_relax_q()
 !$OMP MASTER
          tmin = tmin0
          deltae = deltae0
@@ -348,10 +349,12 @@ c      Eold = psi_geodesic_energy(0.0d0)
  25   continue
       tmin0 = tmin
       deltae0 = deltae
+      call nwpw_cosmo_fix_q()
       Enew0 = linesearch(0.0d0,E0,dE0,deltat,
      >                        psi_geodesic_energy,
      >                        psi_geodesic_denergy,
      >                        0.50d0,tmin0,deltae0,2)
+      call nwpw_cosmo_relax_q()
 !$OMP MASTER
          tmin = tmin0
          deltae = deltae0

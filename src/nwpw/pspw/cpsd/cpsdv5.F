@@ -1394,7 +1394,7 @@ c      call frac_occ_end()
  1733 FORMAT(5x,' screen*Qion*B*q energy  :',E19.10)
  1734 FORMAT(5x,' screen*0.5*q*A*q energy :',E19.10)
  1735 FORMAT(5x,' solvation energy (w/o QM polarization) :',E19.10,
-     >   /45x,' (',F8.3,' kcal/mol)')
+     >   ' (',F8.3,' kcal/mol)')
  1736 FORMAT(5x,' solvation energy (w/  QM polarization) :',E19.10,
      >   ' (',F8.3,' kcal/mol)')
 
