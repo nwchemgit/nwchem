@@ -71,3 +71,31 @@ c          call gw_buildrn
       enddo
 c
       end subroutine
+
+c     *****************************************************************
+
+      subroutine gw_buildiw
+      implicit none
+      double complex factor
+      do g=1,ngrid
+        factor = ieta - eai
+        factor = 2.0d0*sqrt(factor/(factor**2 + glw2(g)))
+
+      enddo
+      end subroutine
+
+c     *****************************************************************
+
+      subroutine gw_buildpi
+      end subroutine
+
+c     *****************************************************************
+
+      subroutine gw_buildin
+      end subroutine
+
+c     *****************************************************************
+
+      subroutine gw_buildrn
+      end subroutine
+

@@ -210,8 +210,8 @@ c
           enddo
           dbl_mb(k_enew+lo1+iqp-1) = eps_out
           dbl_mb(k_sigma+lo1+iqp-1) = sigma_c + sigma_x
-          write(luout,9050) lo1+iqp,(eps_out+efermi)*27.2114d0,z,
-     $                                (linear+efermi)*27.2114d0     
+          write(luout,9050) lo1+iqp,(eps_out+efermi)*ha2ev,z,
+     $                                (linear+efermi)*ha2ev     
         endif
       enddo
 c

@@ -1,4 +1,6 @@
 
+      double precision, parameter :: ha2ev = 27.211386245988d0
+
       type :: gw_params_t
 #ifdef XLFLINUX
         sequence

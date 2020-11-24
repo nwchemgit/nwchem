@@ -10,10 +10,10 @@ c
 #include "errquit.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
+#include "gw.fh"
 c
       integer rtdb
       logical ok
-      double precision, parameter :: ha2ev = 27.211386245988d0
 c
 c     Set default values and put them in RTDB
 c
