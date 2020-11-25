@@ -3,7 +3,11 @@
 #include "ga.h"
 
 #include <import.h>
+#if ( PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 9)
+/* might require new headers and code */
+#else
 #include <graminit.h>
+#endif
 #include <pythonrun.h>
 #include <stdlib.h>
 #include "typesf2c.h"

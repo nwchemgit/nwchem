@@ -433,6 +433,17 @@ c     **** allocate other variables ****
 *     **** Ortho Check ****
       call Pneb_orthoCheckMake_tag(.true.,0,0,npack1,psi2_tag)
 
+
+*     **** initialize two-electron Gaussian integrals ****
+*     **** initialize paw ncmp*Vloc ****
+c      if (cpsp_pawexist()) then
+c         call nwpw_gintegrals_init()
+c         call nwpw_gintegrals_set(control_move())
+c         call psp_dE_ncmp_vloc_Qlm(ispin,.false.,hunita)
+c      end if
+
+
+
 *     **** initialize SIC and HFX  ****
 c      call pspw_init_SIC(rtdb,ne)
        call band_init_HFX(rtdb,nbrillioun,ispin,ne)

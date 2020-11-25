@@ -365,6 +365,10 @@ c          **** reset minimizer if failed ****
             write(luout,1322) en1(1),en1(psi_ispin()),' (real space)'
             write(luout,1323) en2(1),en2(psi_ispin()),' (real space)'
          end if
+
+*       **** write APC potential and charges ***
+        if (pspw_V_APC_on()) call pspw_shortprint_APC(luout)
+
          write(luout,1430) E(1),E(1)/ion_nion()
 
 
