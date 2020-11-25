@@ -40,4 +40,5 @@ nav:
       - 'FAQ': FAQ.md
       - Tutorials.md
       - Forum.md
-      - Archived Forum: Archived-Forum.md
+      - 'Archived Forum': Archived-Forum.md
+      - 'EMSL Arrows': EMSL_Arrows.md

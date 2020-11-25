@@ -51,6 +51,7 @@
          end do
       end do
 !$OMP END MASTER
+!$OMP BARRIER
 
 
       return

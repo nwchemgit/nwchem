@@ -2630,12 +2630,12 @@ else
   GOTPYTHON2 := $(shell command -v python2 2> /dev/null)
   GOTPYTHON  := $(shell command -v python 2> /dev/null)
   ifdef GOTPYTHON3
-    PYTHONVERSION=$(shell python3 -V 2>&1 |cut -c 8-10)
+    PYTHONVERSION=$(shell python3 -c 'import sys; print("{}.{}".format(sys.version_info.major, sys.version_info.minor))')
   else ifdef GOTPYTHON2
-    PYTHONVERSION=$(shell python2 -V 2>&1 |cut -c 8-10)
+    PYTHONVERSION=$(shell python2 -c 'import sys; print("{}.{}".format(sys.version_info.major, sys.version_info.minor))')
   else ifdef GOTPYTHON
 #last try at python2
-    PYTHONVERSION=$(shell python -V 2>&1 |cut -c 8-10)
+    PYTHONVERSION=$(shell python -c 'import sys; print("{}.{}".format(sys.version_info.major, sys.version_info.minor))')
   else
 errorpython3:
 $(info )
