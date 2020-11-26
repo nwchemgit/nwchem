@@ -1134,6 +1134,8 @@ c
       if (.not.rtdb_get(rtdb,'driver:diagonal_hessian',
      $                   mt_log,1,diagonal_hessian))
      $   diagonal_hessian = .false.
+      if (.not. rtdb_get(rtdb,'driver:odsyev',mt_log,1,odsyev))
+     $     odsyev = .false.
       
 c
 c     Force sensible options
