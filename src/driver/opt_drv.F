@@ -1630,6 +1630,7 @@ c
       integer i, iat,j, top
       integer info
       integer l_hess, k_hess, l_work, k_work, lenwork
+      integer l_iwork,k_iwork,leniwork
       double precision  e(max_nvar) ! Hessian eigenvalues
       double precision pg(max_nvar) ! P.g
       double precision gv(max_nvar) ! Gradient along eigenvectors
@@ -1692,16 +1693,24 @@ c
 c     To cause degenerate eigenvalues to be resolved into symmetry
 c     adapted combinations use Jacobi not dsyev and screen out junk
 c
-      lenwork = max(nvar**2,100)
+cdsyev      lenwork = max(nvar**2,100)
+      lenwork = max(1+6*nvar+2*nvar**2,100)
       if (.not. ma_push_get(mt_dbl, lenwork, 'work',
      $     l_work, k_work)) call errquit
+     $     ('driver_search_dir: memory for hessian', lenwork, MA_ERR)
+      leniwork = max(3+5*nvar,100)
+      if (.not. ma_push_get(mt_int, leniwork, 'iwork',
+     $     l_iwork, k_iwork)) call errquit
      $     ('driver_search_dir: memory for hessian', lenwork, MA_ERR)
       do i = 0, nvar**2-1
          if (abs(dbl_mb(k_hess+i)).lt.1d-8) dbl_mb(k_hess+i) = 0d0
       enddo
       if (ofast_diag) then
-         call dsyev('v', 'u', nvar, dbl_mb(k_hess), 
-     $        nvar, e, dbl_mb(k_work), lenwork, info)
+c         call dsyev('v', 'u', nvar, dbl_mb(k_hess), 
+c     $        nvar, e, dbl_mb(k_work), lenwork, info)
+         call dsyevd('v', 'u', nvar, dbl_mb(k_hess), 
+     $        nvar, e, dbl_mb(k_work), lenwork,
+     I        int_mb(k_iwork),leniwork,info)
          if (info .ne. 0) call errquit
      $        ('driver_search_dir: dsyev failed',info, 0)
       else
@@ -3087,8 +3096,8 @@ c     On first geometry optimization step need to identify
 c     the search direction.
 c     
       integer i
-*     integer info
       integer l_hess, k_hess, l_work, k_work, lenwork
+      integer l_iwork, k_iwork, leniwork
       double precision  e(max_nvar) ! Hessian eigenvalues
       double precision pg(max_nvar) ! P.g
       double precision gv(max_nvar) ! Gradient along eigenvectors
@@ -3132,12 +3141,17 @@ c
       if (.not. ma_push_get(mt_dbl, lenwork, 'work',
      $     l_work, k_work)) call errquit
      $     ('driver_search_dir: memory for hessian', lenwork, GEOM_ERR)
+      leniwork = max(3+5*nvar,100)
+      if (.not. ma_push_get(mt_int, leniwork, 'iwork',
+     $     l_iwork, k_iwork)) call errquit
+     $     ('driver_search_dir: memory for hessian', lenwork, MA_ERR)
       do i = 0, nvar**2-1
          if (abs(dbl_mb(k_hess+i)).lt.1d-8) dbl_mb(k_hess+i) = 0d0
       enddo
       if(ofast_diag) then
-         call dsyev('v', 'u', nvar, dbl_mb(k_hess), 
-     $        nvar, e, dbl_mb(k_work), lenwork, info)
+         call dsyevd('v', 'u', nvar, dbl_mb(k_hess), 
+     $        nvar, e, dbl_mb(k_work), lenwork,
+     I        int_mb(k_iwork),leniwork,info)
          if (info .ne. 0) call errquit
      $        ('driver_search_dir: dsyev failed',info, GEOM_ERR)
       else
