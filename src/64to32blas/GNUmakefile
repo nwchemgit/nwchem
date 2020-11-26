@@ -3,7 +3,7 @@
   
   OBJ_OPTIMIZE = yscal.o ycopy.o ydot.o ygemm.o ygemv.o \
                  iyamax.o ygesv.o ygesvd.o yaxpy.o yspsvx.o \
-                 yposv.o ysyev.o yger.o yrot.o ylaset.o yswap.o\
+                 yposv.o ysyev.o ysyevd.o yger.o yrot.o ylaset.o yswap.o\
                  ygebak.o ygebal.o ynrm2.o ylacpy.o ylascl.o\
                  ylange.o ytrevc.o yhseqr.o yorghr.o ygehrd.o\
                  ysterf.o ylarnv.o ylagtf.o ylagts.o yasum.o \
