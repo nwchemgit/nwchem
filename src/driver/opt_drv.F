@@ -1134,8 +1134,8 @@ c
       if (.not.rtdb_get(rtdb,'driver:diagonal_hessian',
      $                   mt_log,1,diagonal_hessian))
      $   diagonal_hessian = .false.
-      if (.not. rtdb_get(rtdb,'driver:odsyev',mt_log,1,odsyev))
-     $     odsyev = .false.
+      if (.not. rtdb_get(rtdb,'driver:ofast_diag',mt_log,1,ofast_diag))
+     $     ofast_diag = .false.
       
 c
 c     Force sensible options
@@ -1699,7 +1699,7 @@ c
       do i = 0, nvar**2-1
          if (abs(dbl_mb(k_hess+i)).lt.1d-8) dbl_mb(k_hess+i) = 0d0
       enddo
-      if (odsyev) then
+      if (ofast_diag) then
          call dsyev('v', 'u', nvar, dbl_mb(k_hess), 
      $        nvar, e, dbl_mb(k_work), lenwork, info)
          if (info .ne. 0) call errquit
@@ -3135,7 +3135,7 @@ c
       do i = 0, nvar**2-1
          if (abs(dbl_mb(k_hess+i)).lt.1d-8) dbl_mb(k_hess+i) = 0d0
       enddo
-      if(odsyev) then
+      if(ofast_diag) then
          call dsyev('v', 'u', nvar, dbl_mb(k_hess), 
      $        nvar, e, dbl_mb(k_work), lenwork, info)
          if (info .ne. 0) call errquit
