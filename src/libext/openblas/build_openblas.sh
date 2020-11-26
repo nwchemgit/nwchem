@@ -43,6 +43,7 @@ if [[ "${NWCHEM_TARGET}" == "LINUX" ]]; then
 else
   binary=64
 fi
+FORCETARGET+="DYNAMIC_ARCH=1 DYNAMIC_OLDER=1"
 if [[ -n ${FC} ]] &&  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
  make CC=gcc FC="xlf -qextname"  INTERFACE64="$sixty4_int" BINARY="$binary" USE_THREAD=0 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 NUM_THREADS=1 LAPACK_FPFLAGS="-qstrict=ieeefp -O2 -g" libs netlib
 elif  [[ -n ${FC} ]] && [[ "${FC}" == "flang" ]]; then
