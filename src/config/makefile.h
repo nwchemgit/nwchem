@@ -171,7 +171,8 @@ else
   else
     ifneq ("$(wildcard ${NWCHEM_TOP}/src/ga_ldflags.txt)","")
       GA_LDFLAGS= $(shell cat $(NWCHEM_TOP)/src/ga_ldflags.txt)
-    else
+    endif
+    ifeq ($(GA_LDFLAGS),)
     GA_LDFLAGS=  $(shell ${GA_PATH}/bin/ga-config --ldflags  )
     endif
 #extract GA libs location from last word in GA_LDLFLAGS
@@ -197,7 +198,8 @@ else
   else
     ifneq ("$(wildcard ${NWCHEM_TOP}/src/ga_cppflags.txt)","")
       GA_CPPFLAGS= $(shell cat $(NWCHEM_TOP)/src/ga_cppflags.txt)
-    else
+    endif
+    ifeq ($(GA_CPPFLAGS),)
       GA_CPPFLAGS=  $(shell ${GA_PATH}/bin/ga-config --cppflags  )
     endif
     INCPATH :=  $(word $(words ${GA_CPPFLAGS}),${GA_CPPFLAGS})
@@ -225,6 +227,9 @@ endif
 # their header files are needed for dependency analysis of
 # other NWChem modules
 ifdef BUILD_OPENBLAS
+  ifndef BLAS_SIZE
+    BLAS_SIZE=8
+  endif
 
 NW_CORE_SUBDIRS += libext
 #bail out if BLASOPT or LAPACK_LIB or BLAS_LIB are defined by user
@@ -250,6 +255,9 @@ $(info when using BUILD_SCALAPACK )
 $(info )
 $(error )
 endif
+  ifndef SCALAPACK_SIZE
+    SCALAPACK_SIZE=8
+  endif
       SCALAPACK=-L$(NWCHEM_TOP)/src/libext/lib -lnwc_scalapack
 endif      
 ifdef BUILD_MPICH
@@ -2745,9 +2753,10 @@ endif
   ifeq ("$(wildcard ${GA_PATH}/bin/ga-config)","")
   else
 ifneq ("$(wildcard ${NWCHEM_TOP}/src/ga_use_scalapack.txt)","")
-_USE_SCALAPACK= $(shell cat $(NWCHEM_TOP)/src/ga_use_scalapack.txt)
-else
-_USE_SCALAPACK = $(shell ${GA_PATH}/bin/ga-config  --use_scalapack| awk ' /1/ {print "Y"}')
+  _USE_SCALAPACK= $(shell cat $(NWCHEM_TOP)/src/ga_use_scalapack.txt)
+endif
+ifeq ($(_USE_SCALAPACK),)
+  _USE_SCALAPACK = $(shell ${GA_PATH}/bin/ga-config  --use_scalapack| awk ' /1/ {print "Y"}')
 endif
 endif
 
