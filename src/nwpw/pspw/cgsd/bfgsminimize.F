@@ -219,7 +219,6 @@ c     >                                      dcpl_mb(G0(1)),
 c     >                                      dcpl_mb(S0(1)))
 
 
-     
 
 *     ******************************************
 *     ****                                  ****
@@ -307,6 +306,7 @@ c     >                                      dcpl_mb(S0(1)))
 !$OMP END MASTER
 !$OMP BARRIER
 
+
          if (minimizer.eq.3) then
            call pspw_diis(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
          else
@@ -393,6 +393,7 @@ c      Eold = psi_geodesic_energy(0.0d0)
 
       call psi_2to1()
       call psi_1toelectron() 
+
 
 
 c     call rho_2to1()

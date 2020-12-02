@@ -28,7 +28,8 @@
                 sdminimize.o \
 		nominimize.o \
 		md_energy.o \
-		kp_structure.o
+		kp_structure.o \
+		pspw_director.o
 
 	  OBJ = 
 

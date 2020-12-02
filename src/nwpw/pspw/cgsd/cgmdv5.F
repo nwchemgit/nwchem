@@ -865,6 +865,9 @@ c       **** inner loop ****
         call xyz_write()
         call MOTION_write(icount*it_in*dt)
 
+*        **** call pspw_director ****
+         call pspw_director(rtdb)
+
 *        **** update thermostats using SA decay ****
          if (SA) then
            tt2 = icount*it_in*dt/sa_decay(2)
@@ -878,12 +881,15 @@ c       **** inner loop ****
      >       write(luout,*) ' *** out of time. iteration terminated'
             go to 102
          end if
+
+
       if (icount.lt.it_out) go to 101
       if (oprint) write(luout,*) 
      > '*** arrived at the Maximum iteration.   terminated.'
 
 *::::::::::::::::::::  end of iteration loop  :::::::::::::::::::::::::
       call control_up_print()
+
 
   102 continue
   
