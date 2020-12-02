@@ -73,13 +73,13 @@
       gy = unitg(2,2)
       gz = unitg(3,2)
       q = dsqrt(gx**2 + gy**2 + gz**2)
-      dqmin = q
+      if (q.lt.dqmin) dqmin = q
 
       gx = unitg(1,3)
       gy = unitg(2,3)
       gz = unitg(3,3)
       q = dsqrt(gx**2 + gy**2 + gz**2)
-      dqmin = q
+      if (q.lt.dqmin) dqmin = q
 
 *     *** make fine dqmin ****
       dqmin = 0.01d0*dqmin
