@@ -100,12 +100,12 @@ c
         if (pars%me.eq.0) then
           istart = 1
         else
-          istart = sum(dbl_mb(k_map:k_map+pars%me-1)) + 1
+          istart = sum(int_mb(k_map:k_map+pars%me-1)) + 1
         endif
         if (pars%me.eq.np-1) then
           iend = pars%nmo(1)
         else
-          iend = sum(dbl_mb(k_map:k_map+pars%me))
+          iend = sum(int_mb(k_map:k_map+pars%me))
         endif
       endif
 
@@ -216,7 +216,7 @@ c
       enddo
 
       if (pars%me.ne.np-1) then
-        nbf_cd_me = int_mb(k_map+pars%me+1) - int_mb(k_map+pars%me) + 1
+        nbf_cd_me = int_mb(k_map+pars%me+1) - int_mb(k_map+pars%me)
       else
         nbf_cd_me = nbf_cd - int_mb(k_map+pars%me) + 1
       endif
@@ -229,7 +229,7 @@ c
      &  call errquit(pname//'can''t create global array',0,GA_ERR) 
 
       call putmoeris_ga(pars%g_moeris,dbl_mb(k_eri),nstates,nbf_cd,
-     &                   istart,iend)
+     &                  istart,iend)
 c
 c     Free heap
 c

@@ -42,6 +42,12 @@ c
 c
 c     -----------------------------------------------------------------
 c
+c     synchronize parallel processes
+c
+      call ga_sync()
+c
+c     initialize useful variables
+c
       nmo  = pars%nmo(1)
       nocc = pars%nocc(1)
       nvir = pars%nvir(1)
@@ -175,7 +181,8 @@ c
 c
       if (.not.ma_push_get(mt_dbl,nmo*npoles,'wmn',l_wmn,k_wmn))
      $  call errquit(pname//'failed to allocate wnm',0,MA_ERR) 
-      if (.not.ma_push_get(mt_dbl,nri*nmo,'eritemp',l_eritmp,k_eritmp))
+      if (.not.ma_push_get(mt_dbl,nri_me*nmo,'eritemp',
+     $   l_eritmp,k_eritmp))
      $  call errquit(pname//'failed to allocate eritmp',0,MA_ERR)
       if (.not.ma_push_get(mt_dbl,nmo,'sm omega',l_smomega,k_smomega))
      $  call errquit(pname//'failed to allocate small omega',0,MA_ERR) 
@@ -203,7 +210,8 @@ c
       do iqp=1,pars%noqp+pars%nvqp
 
         call gw_get_wmn(dbl_mb(k_wmn),dbl_mb(k_eritmp),dbl_mb(k_eriia),
-     $                  pars%g_moeris,iqp+lo1,npoles,nri,nmo)
+     $                  pars%g_moeris,iqp+lo1,npoles,nri_me,nmo,
+     $                  pars%istart)
 c      
         if (pars%graph) then
         elseif (pars%newton) then
@@ -218,7 +226,7 @@ c
 c
             call gw_sigmac(sigma_c,dsigma_c,dbl_mb(k_smomega),
      $       dbl_mb(k_wmn),dbl_mb(k_omega),dbl_mb(k_scr),dbl_mb(k_sign),
-     $       0.001d0**2,npoles,nri,nmo)
+     $       0.001d0**2,npoles,nri_me,nmo)
 c
             z = 1.0d0/(1.0d0-dsigma_c)
             sigma = sigma_c + sigma_x
@@ -265,6 +273,7 @@ c
 c     computes the exchange part of the self-energy
 c
       implicit none
+#include "mafdecls.fh"
       integer,intent(in) ::  nri, nmo, nocc
       double precision,intent(in) :: eri(nocc*nmo,nri)
       double precision,intent(out) :: sigmax(nmo)
@@ -282,6 +291,7 @@ c
      $    dot_product(eri(ij,:),eri(ij,:))
         enddo
       enddo
+      call ga_dgop(mt_dbl,sigmax,nmo,'+')
 c
       return
       end subroutine
@@ -294,62 +304,105 @@ c
 c     builds and solves for the RPA polarizability
 c
       implicit none
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "errquit.fh"
       integer,intent(in) :: npoles,nri,lscr
       double precision eia(npoles),amb(npoles),omega(npoles)
       double precision xpy(npoles,npoles),eriia(npoles,nri)
       double precision scr(lscr)
 c
-      integer iocc,ipole
+      integer iocc,ipole,g_a,g_b,g_c,g_d
       integer info,iri
+      logical main
+
+      logical ga_create,nga_create
+      external ga_create,nga_create
+
+      integer ga_nodeid
+      external ga_nodeid
 c
-      call dsyrk('u','n',npoles,nri,4.0d0,eriia,npoles,0.0d0,xpy,npoles)
-      call 
-c
+      main = ga_nodeid() .eq. 0
+      if (.not.ga_create(mt_dbl,npoles,npoles,'x+y',-1,-1,g_c))
+     $  call errquit('gw_rpa: can''t create global array',0,GA_ERR)
+      if (.not.ga_create(mt_dbl,npoles,npoles,'rpa',-1,-1,g_a))
+     $  call errquit('gw_rpa: can''t create global array',0,GA_ERR)
+      if (.not.nga_create(mt_dbl,1,npoles,'a-b',-1,g_b))
+     $  call errquit('gw_rpa: can''t create global array',0,GA_ERR)
+      if (.not.nga_create(mt_dbl,1,npoles,'eia',-1,g_d))
+     $  call errquit('gw_rpa: can''t create global array',0,GA_ERR)
+
+      
       amb = dsqrt(eia)
-c      
-      do ipole=1,npoles
-        xpy(ipole,ipole) = xpy(ipole,ipole) + eia(ipole)
-        xpy(1:ipole,ipole) = xpy(1:ipole,ipole)*amb(1:ipole)*amb(ipole)
-      enddo
 c
-      call dsyev('v','u',npoles,xpy,npoles,omega,scr,lscr,info)
+      xpy = 0d0
+c      call dsyrk('u','n',npoles,nri,4.0d0,eriia,npoles,0.0d0,xpy,npoles)
+      call dsyrk('u','n',npoles,nri,8.0d0,eriia,npoles,0.0d0,xpy,npoles)
+
+      call ga_zero(g_a)
+      call ga_acc(g_a,1,npoles,1,npoles,xpy,npoles,1.d0)
+      call ga_sync()
+      call ga_symmetrize(g_a)
+      call ga_get_diag(g_a,g_d)
+      call ga_scale(g_d,0.5d0)
+      call ga_set_diagonal(g_a,g_d)
+      if (main) then
+        call nga_put(g_d,1,npoles,eia,1)
+        call nga_put(g_b,1,npoles,amb,1)
+      endif
+      call ga_sync()
+      call ga_add_diagonal(g_a,g_d)
+      call ga_scale_cols(g_a,g_b)
+      call ga_scale_rows(g_a,g_b)
 c
+      call ga_diag_std(g_a,g_c,omega)
+
       omega = dsqrt(omega)
 c
-      do ipole=1,npoles
-        xpy(1:npoles,ipole) = xpy(1:npoles,ipole)*amb(1:npoles)/
-     $                        dsqrt(omega(ipole))
-      enddo
+      call ga_scale_rows(g_c,g_b)
+      if (main) call nga_put(g_b,1,npoles,1d0/dsqrt(omega),1)
+      call ga_sync()
+      call ga_scale_cols(g_c,g_b)
 c
+      call ga_get(g_c,1,npoles,1,npoles,xpy,npoles)
+
       do iri=1,nri
         scr(1:npoles) = eriia(:,iri)
         call dgemv('t',npoles,npoles,1.0d0,xpy,npoles,scr,1,0.0d0,
-     $              scr(npoles+1),1)
-        eriia(:,iri) = scr(npoles+1:2*npoles)
+     $              eriia(1,iri),1)
       enddo
+
+      call ga_destroy(g_a)
+      call ga_destroy(g_b)
+      call ga_destroy(g_c)
+      call ga_destroy(g_d)
 c
       return
       end subroutine
 c
 c     *****************************************************************
 
-      subroutine gw_get_wmn(wnm,erin,erim,g_a,imo,npoles,nri,nmo)
+      subroutine gw_get_wmn(wnm,erin,erim,g_a,imo,npoles,nri,nmo,istart)
 c
 c     computes the matrix representation of the screened Coulomb op.
 c
       implicit none
+#include "mafdecls.fh"      
       integer imo, npoles, nri, nmo, idx, jmo, g_a, ilo, ihi, iri
+      integer istart
       double precision wnm(npoles,nmo),erim(npoles,nri),erin(nmo,nri)
 
       ilo = (imo-1)*nmo + 1
       ihi = imo*nmo
 
-      do iri=1,nri
-        call ga_get(g_a,ilo,ihi,iri,iri,erin(1,iri),1)
+      do iri=istart,istart+nri-1
+        call ga_get(g_a,ilo,ihi,iri,iri,erin(1,iri-istart+1),nmo)
       enddo
 
       call dgemm('n','t',npoles,nmo,nri,1.0d0,erim,npoles,erin,nmo,
      $            0.0d0,wnm,npoles) 
+
+      call ga_dgop(mt_dbl,wnm,npoles*nmo,'+')
 
       wnm = 2.0d0*wnm**2
 
