@@ -873,3 +873,44 @@ c        dXr  = (dbl_mb(Xr2(1)+n-1)-dbl_mb(Xr0(1)+n-1))/(2.0d0*dt)
       Nose_restart = nosers
       return
       end
+
+*     ******************************
+*     *                            *
+*     *    Nose_zero_thermostats   *
+*     *                            *
+*     ******************************
+      subroutine Nose_zero_thermostats()
+      implicit none
+
+#include "bafdecls.fh"
+#include "nose-hoover.fh"
+
+*     **** local variables ****
+      real*8   Pe_tmp,Pr_tmp
+
+*     **** external functions ****
+      logical  control_Nose
+      external control_Nose
+
+      real*8   control_Nose_Pe,control_Nose_Pr
+      external control_Nose_Pe,control_Nose_Pr
+
+      if (control_Nose()) then
+         Pe_tmp = control_Nose_Pe()
+         Pr_tmp = control_Nose_Pr()
+         call dcopy(Mchain,0.0d0,0,dbl_mb(Xe1(1)),1)
+         call dcopy(Mchain,0.0d0,0,dbl_mb(Xe0(1)),1)
+         call dcopy(Mchain,0.0d0,0,dbl_mb(Xem(1)),1)
+         call dcopy(Nchain,0.0d0,0,dbl_mb(Xr1(1)),1)
+         call dcopy(Nchain,0.0d0,0,dbl_mb(Xr0(1)),1)
+         call dcopy(Nchain,0.0d0,0,dbl_mb(Xrm(1)),1)
+      
+     
+         call dcopy(Mchain,0.0d0,0,dbl_mb(Xe2(1)),1)
+         call dcopy(Mchain,Pe_tmp,0,dbl_mb(Pe(1)),1)
+         call dcopy(Nchain,0.0d0,0,dbl_mb(Xr2(1)),1)
+         call dcopy(Nchain,Pr_tmp,0,dbl_mb(Pr(1)),1)
+      end if
+ 
+      return
+      end
