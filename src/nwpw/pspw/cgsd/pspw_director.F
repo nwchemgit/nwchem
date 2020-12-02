@@ -206,6 +206,7 @@
                   write(*,*) "add_cmd_director: loadmovecs "
      >                       //filename(1:ll1)
                end if
+               call psi_tmp_read_full_filename(filename)
 
             else if (inp_contains(.false.,"savemovecs",
      >               lines(i),ind)) then
@@ -213,6 +214,7 @@
                   write(*,*) "add_cmd_director: savemovecs "
      >                       //filename(1:ll1)
                end if
+               call psi_tmp_write_full_filename(filename)
 
             else if (inp_contains(.false.,"loadgeometry",
      >                            lines(i),ind)) then
