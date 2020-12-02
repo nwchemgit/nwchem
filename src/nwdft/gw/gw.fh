@@ -13,6 +13,7 @@ c
         integer          :: nvir(2)
         integer          :: nov(2)
         integer          :: nmo(2)
+	integer          :: nstates
         double precision :: tol2e
 c
         integer          :: l_evals, k_evals
@@ -26,9 +27,10 @@ c
         integer          :: iwhat_max
         integer          :: n_semi_bufs
         integer          :: fd
+	integer          :: istart,nbf_cd_me
 c
-        integer            :: g_movecs(2)
-        logical            :: noio
+        integer          :: g_movecs(2), g_moeris
+        logical          :: noio
 c
         integer          :: noqp, nvqp
         integer          :: eviter, qpiter

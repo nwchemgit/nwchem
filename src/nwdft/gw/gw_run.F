@@ -12,8 +12,9 @@ c
 c
       character(len=8), parameter :: pname = 'gw_run: '
 c
-      integer nmo, nri, nocc, nvir, iocc, ivir, iqp, i, j
-      integer npoles, ipole, lo1, lo2, eviter
+      integer nmo, nri, nocc, nvir, iocc, ivir, iqp, i, j, nri_me
+      integer npoles, ipole, lo1, lo2, eviter, ilo, ihi, ibf, lo3
+      integer nstates
       integer l_sigmax, k_sigmax
       integer l_sigma, k_sigma
       integer l_eia, k_eia
@@ -29,7 +30,9 @@ c
       integer l_eold, k_eold
       integer l_enew, k_enew
       integer l_sign, k_sign
+      integer l_eriij, k_eriij
       integer lscr
+      logical main
 c
       double precision sigma_c, dsigma_c, eps_in, eps_out, sigma_old
       double precision z, sigma, func, linear, efermi, sigma_x
@@ -46,10 +49,14 @@ c
       npoles = nocc*nvir
       lscr = ilaenv(1,'dsytrd','u',npoles,-1,-1,-1)
       lscr = (lscr+2)*npoles
+      nri_me = pars%nbf_cd_me
+      nstates = pars%nstates
+      main = pars%me.eq.0
 c
 c     Allocation
 c
-      if (.not.ma_push_get(mt_dbl,nri*npoles,'eri_ia',l_eriia,k_eriia))
+      if (.not.ma_push_get(mt_dbl,nri_me*npoles,'eri_ia',
+     $    l_eriia,k_eriia))
      $  call errquit(pname//'cannot allocate eri_ia',0,MA_ERR)
       if (.not.ma_push_get(mt_dbl,nmo,'Vxc',l_vxc,k_vxc))
      $  call errquit(pname//'cannot allocate Vxc',0,MA_ERR)
@@ -63,6 +70,9 @@ c
      $  call errquit(pname//'failed to allocate old evals',0,MA_ERR)
       if (.not.ma_push_get(mt_dbl,nmo,'signs',l_sign,k_sign))
      $  call errquit(pname//'failed to allocate sign',0,MA_ERR)
+      if (.not.ma_push_get(mt_dbl,nri_me*nocc*nmo,'eri_ij',
+     $     l_eriij,k_eriij))
+     $  call errquit(pname//'failed to allocate eriij',0,MA_ERR) 
 c
 c     Get fermi energy
 c
@@ -77,12 +87,22 @@ c
 c
 c     Copy occupied-virtual block of ERIs into a contiguous block
 c 
-      lo1 = pars%k_3ceri + npoles
       lo2 = k_eriia
-      do i=0,nocc-1
-        call dcopy(nvir*nri,dbl_mb(lo1),1,dbl_mb(lo2),1)
-        lo1 = lo1 + nmo*nri - i*nri
-        lo2 = lo2 + nvir*nri
+      lo3 = k_eriij
+      do ibf=pars%istart,pars%istart+nri_me-1
+        do i=0,nocc-1
+          ilo = nmo*i + nocc + 1
+          ihi = ilo + nvir - 1
+
+          call ga_get(pars%g_moeris,ilo,ihi,ibf,ibf,dbl_mb(lo2),nvir)
+
+          ilo = nmo*i + 1
+          ihi = ilo + nmo - 1
+          call ga_get(pars%g_moeris,ilo,ihi,ibf,ibf,dbl_mb(lo3),nmo)
+
+          lo2 = lo2 + nvir
+          lo3 = lo3 + nmo
+        enddo
       enddo
 c
 c     Set first quasiparticle state index
@@ -91,14 +111,17 @@ c
 c
 c     Obtain Sigma_x
 c
-      write(luout,9000)
+      if (main) write(luout,9000)
  9000 format(10x,'Computing Sigma_x')
 
-      call gw_sigmax(dbl_mb(pars%k_3ceri),dbl_mb(k_sigmax),nmo,nri,nocc)
+      call gw_sigmax(dbl_mb(k_eriij),dbl_mb(k_sigmax),nmo,nri_me,nocc)
+
+      if (.not.ma_chop_stack(l_eriij))
+     $  call errquit(pname//'could not free stack',0,MA_ERR)
 c
 c     Obtain Vxc
 c
-      write(luout,9010)
+      if (main) write(luout,9010)
  9010 format(10x,'Computing V_xc')
 
       call gw_vxc(dbl_mb(k_vxc),nmo,pars)
@@ -116,7 +139,7 @@ c
 c
   100 continue  ! evGW calculations recompute RPA polarizability
 c
-      if (pars%evgw) then
+      if (pars%evgw.and.main) then
         write(luout,*)
         write(luout,'("  *** G",I1,"W",I1)') eviter,eviter
         write(luout,*)
@@ -134,7 +157,7 @@ c
 c
 c     RPA polarizability
 c
-      write(luout,9020)
+      if (main) write(luout,9020)
  9020 format(10x,'Computing RPA polarizability')
 
       if(.not.ma_push_get(mt_dbl,npoles,'AmB',l_amb,k_amb))
@@ -145,7 +168,7 @@ c
      $  call errquit('gw_rpa: could not allocate work',0,MA_ERR)
 c
       call gw_rpa(dbl_mb(k_eia),dbl_mb(k_amb),dbl_mb(k_omega),
-     $  dbl_mb(k_xpy),dbl_mb(k_eriia),dbl_mb(k_scr),npoles,nri,lscr)
+     $  dbl_mb(k_xpy),dbl_mb(k_eriia),dbl_mb(k_scr),npoles,nri_me,lscr)
 c
       if (.not.ma_chop_stack(l_amb))
      $  call errquit(pname//'could not free stack',0,MA_ERR)
@@ -161,16 +184,16 @@ c
 c
   200 continue ! evGW0 calculations recompute the rest
 c      
-      if (pars%evgw0) then
+      if (pars%evgw0.and.main) then
         write(luout,*)
         write(luout,'("  *** G",I1,"W0")') eviter
         write(luout,*)
       endif
 c      
-      write(luout,9030)
+      if (main) write(luout,9030)
  9030 format(10x,'Solving quasiparticle equations')
 
-      write(luout,9040)
+      if (main) write(luout,9040)
  9040 format(/,10x,'State',5x,'Energy (eV)',5x,'Z',8x,'Elin (eV)',
      $       /,10x,45('-'))
 
@@ -180,7 +203,7 @@ c
       do iqp=1,pars%noqp+pars%nvqp
 
         call gw_get_wmn(dbl_mb(k_wmn),dbl_mb(k_eritmp),dbl_mb(k_eriia),
-     $                  dbl_mb(pars%k_3ceri),iqp+lo1,npoles,nri,nmo)
+     $                  pars%g_moeris,iqp+lo1,npoles,nri,nmo)
 c      
         if (pars%graph) then
         elseif (pars%newton) then
@@ -210,7 +233,7 @@ c
           enddo
           dbl_mb(k_enew+lo1+iqp-1) = eps_out
           dbl_mb(k_sigma+lo1+iqp-1) = sigma_c + sigma_x
-          write(luout,9050) lo1+iqp,(eps_out+efermi)*ha2ev,z,
+          if (main) write(luout,9050) lo1+iqp,(eps_out+efermi)*ha2ev,z,
      $                                (linear+efermi)*ha2ev     
         endif
       enddo
@@ -243,7 +266,7 @@ c     computes the exchange part of the self-energy
 c
       implicit none
       integer,intent(in) ::  nri, nmo, nocc
-      double precision,intent(in) :: eri(nri,*)
+      double precision,intent(in) :: eri(nocc*nmo,nri)
       double precision,intent(out) :: sigmax(nmo)
 c      
       double precision temp
@@ -252,13 +275,11 @@ c
       sigmax(:) = 0.0d0
 c
       ij = 0
-      do imo=1,nmo
-        do jmo=imo,nmo
+      do imo=1,nocc
+        do jmo=1,nmo
           ij = ij + 1
-          temp = dot_product(eri(:,ij),eri(:,ij))
-          if (jmo.le.nocc) sigmax(imo) = sigmax(imo) - temp
-          if (imo.eq.jmo) cycle
-          if (imo.le.nocc) sigmax(jmo) = sigmax(jmo) - temp
+          sigmax(jmo) = sigmax(jmo) - 
+     $    dot_product(eri(ij,:),eri(ij,:))
         enddo
       enddo
 c
@@ -275,13 +296,14 @@ c
       implicit none
       integer,intent(in) :: npoles,nri,lscr
       double precision eia(npoles),amb(npoles),omega(npoles)
-      double precision xpy(npoles,npoles),eriia(nri,npoles)
+      double precision xpy(npoles,npoles),eriia(npoles,nri)
       double precision scr(lscr)
 c
       integer iocc,ipole
       integer info,iri
 c
-      call dsyrk('u','t',npoles,nri,4.0d0,eriia,nri,0.0d0,xpy,npoles)
+      call dsyrk('u','n',npoles,nri,4.0d0,eriia,npoles,0.0d0,xpy,npoles)
+      call 
 c
       amb = dsqrt(eia)
 c      
@@ -290,7 +312,6 @@ c
         xpy(1:ipole,ipole) = xpy(1:ipole,ipole)*amb(1:ipole)*amb(ipole)
       enddo
 c
-
       call dsyev('v','u',npoles,xpy,npoles,omega,scr,lscr,info)
 c
       omega = dsqrt(omega)
@@ -301,10 +322,10 @@ c
       enddo
 c
       do iri=1,nri
-        scr(1:npoles) = eriia(iri,:)
+        scr(1:npoles) = eriia(:,iri)
         call dgemv('t',npoles,npoles,1.0d0,xpy,npoles,scr,1,0.0d0,
      $              scr(npoles+1),1)
-        eriia(iri,:) = scr(npoles+1:2*npoles)
+        eriia(:,iri) = scr(npoles+1:2*npoles)
       enddo
 c
       return
@@ -312,26 +333,23 @@ c
 c
 c     *****************************************************************
 
-      subroutine gw_get_wmn(wnm,erin,erim,eris,imo,npoles,nri,nmo)
+      subroutine gw_get_wmn(wnm,erin,erim,g_a,imo,npoles,nri,nmo)
 c
 c     computes the matrix representation of the screened Coulomb op.
 c
       implicit none
-      integer imo, npoles, nri, nmo, idx, jmo
-      double precision wnm(npoles,nmo),erim(nri,npoles),erin(nri,nmo)
-      double precision eris(nri,*)
+      integer imo, npoles, nri, nmo, idx, jmo, g_a, ilo, ihi, iri
+      double precision wnm(npoles,nmo),erim(npoles,nri),erin(nmo,nri)
 
-      do jmo=1,nmo
-        if (imo.lt.jmo) then
-          idx = imo + (jmo*(jmo-1))/2
-        else
-          idx = jmo + (imo*(imo-1))/2
-        endif
-        erin(:,jmo) = eris(:,idx)
+      ilo = (imo-1)*nmo + 1
+      ihi = imo*nmo
+
+      do iri=1,nri
+        call ga_get(g_a,ilo,ihi,iri,iri,erin(1,iri),1)
       enddo
 
-      call dgemm('t','n',npoles,nmo,nri,1.0d0,erim,nri,erin,nri,0.0d0,
-     $            wnm,npoles) 
+      call dgemm('n','t',npoles,nmo,nri,1.0d0,erim,npoles,erin,nmo,
+     $            0.0d0,wnm,npoles) 
 
       wnm = 2.0d0*wnm**2
 

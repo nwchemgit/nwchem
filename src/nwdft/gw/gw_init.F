@@ -181,6 +181,8 @@ c
       if (pars%noqp+pars%nvqp.eq.0)
      $  call errquit(pname//'no quasiparticle energies to obtain',0,0)
 c
+      pars%nstates = nocc + pars%nvqp
+c
       if (pars%evgw .or. pars%evgw0) then
         if (pars%eviter.lt.1)
      $    call errquit(pname//'invalid eviter',0,0)

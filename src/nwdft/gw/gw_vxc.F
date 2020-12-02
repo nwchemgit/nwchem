@@ -43,6 +43,7 @@ c
         call grid_setquad(pars%rtdb)
         call grid_packing_info
       endif
+
 c
       if (.not.geom_ncent(geom,natoms))
      $  call errquit(pname//'geom_ncent failed',0,GEOM_ERR)
@@ -53,32 +54,32 @@ c
      $  call errquit(pname//'failed to create ga',0,GA_ERR)
       call ga_zero(g_dens(1))
       if (ipol.ne.1) then
-        if (.not.ga_duplicate(g_vxc(1),g_vxc(2),'alpha density'))
+        if (.not.ga_duplicate(g_vxc(1),g_vxc(2),'beta vxc'))
      $    call errquit(pname//'failed to create ga',0,GA_ERR)
         call ga_zero(g_vxc(2))
-        if (.not.ga_duplicate(g_vxc(1),g_dens(2),'alpha density'))
+        if (.not.ga_duplicate(g_vxc(1),g_dens(2),'beta density'))
      $    call errquit(pname//'failed to create ga',0,GA_ERR)
         call ga_zero(g_dens(2))
       endif
 
+      if (.not.ma_push_get(mt_int,natoms*2,'cetobfr map',l_cetobfr,
+     $                     k_cetobfr))
+     $  call errquit(pname//'failed to allocate cetobfr',0,MA_ERR)
       if (.not.ma_push_get(mt_int,nshells_ao,'cntoce map',l_cntoce,
      $                     k_cntoce))
      $  call errquit(pname//'failed to allocate cntoce',0,MA_ERR)
       if (.not.ma_push_get(mt_int,nshells_ao*2,'cntobfr map',l_cntobfr,
      $                     k_cntobfr))
      $  call errquit(pname//'failed to allocate cntobfr',0,MA_ERR)
-      if (.not.ma_push_get(mt_int,natoms*2,'cetobfr map',l_cetobfr,
-     $                     k_cetobfr))
-     $  call errquit(pname//'failed to allocate cetobfr',0,MA_ERR)
       call build_maps(ao_bas_han, int_mb(k_cntoce), int_mb(k_cntobfr),
      $                int_mb(k_cetobfr), natoms, nshells_ao)
-
+      if (.not.ma_chop_stack(l_cntoce))
+     $  call errquit(pname//'failed to chop stack',0,MA_ERR) 
  
       if(.not.ma_push_get(mt_dbl,ipol*natoms**2,'rdens atom',
      $                    l_rdens_atom,k_rdens_atom))
      $  call errquit(pname//'failed to allocate rdens_atom',0,MA_ERR)
       call dfill(ipol*natoms**2,0.0d0,dbl_mb(k_rdens_atom),1)
-
 c
 c     density
 c
@@ -90,10 +91,10 @@ c
         if (odftps) call pstat_off(ps_dgemm)
       enddo
 c
-      nscr = nbf_ao_mxnbf_ce**2
+      nscr = 2*nbf_ao_mxnbf_ce**2
       if (.not.ma_push_get(mt_dbl,nscr,'scr',l_scr,k_scr))
      $  call errquit(pname//'failed to allocate scr',0,MA_ERR) 
-      call util_ga_mat_reduce(nbf_ao, natoms, dbl_mb(k_cetobfr), g_dens,
+      call util_ga_mat_reduce(nbf_ao, natoms, int_mb(k_cetobfr), g_dens,
      $                        ipol, dbl_mb(k_rdens_atom), 'absmax',
      $                        dbl_mb(k_scr),nbf_ao_mxnbf_ce,.true.) 
       if (.not.ma_pop_stack(l_scr))
@@ -124,7 +125,7 @@ c
         enddo
       enddo
 c
-      if (.not.ma_chop_stack(l_cntoce))
+      if (.not.ma_chop_stack(l_cetobfr))
      $  call errquit(pname//'failed to chop stack',0,MA_ERR)
       ok = .true.
       do isp=1,ipol

@@ -23,17 +23,20 @@ c
       integer lbuf,lscr,ltmp,leri,lvecs,lvtmp,laomo
       integer l_buf,k_buf,l_scr,k_scr,l_tmp,k_tmp,l_eri,k_eri
       integer l_vecs,k_vecs,l_vtmp,k_vtmp,l_aomo,k_aomo
-      integer cfirst,clast,dfirst,dlast,pfirst,plast
-      integer nfc,nfd,nfp,nij,eri_offset,ishc,ishd,ishp
-      integer imo
-      logical CeqD,ok
+      integer cfirst,clast,dfirst,dlast,pfirst,plast,ip
+      integer nfc,nfd,nfp,nij,eri_offset,ishc,ishd,ishp,nactive,tmp,me
+      integer imo,istart,iend,l_map,k_map,np,nstates,npairs,nbf_cd_me
+      logical CeqD,ok,oactive
       double precision eri_est
 c
-      logical ga_create, ga_duplicate, ga_destroy
-      external ga_create, ga_duplicate, ga_destroy
+      logical ga_create, ga_duplicate, ga_destroy, ga_create_irreg
+      external ga_create, ga_duplicate, ga_destroy, ga_create_irreg
 c
       double precision schwarz_shell
       external schwarz_shell
+c
+      integer ga_nnodes
+      external ga_nnodes
 c
 c     Create Global Arrays
 c
@@ -74,12 +77,41 @@ c
         endif
         call dft_invdiag(g_2ceris, g_2cinv, nbf_cd)
       endif
+c      
+      if (.not. ga_destroy(g_2ceris))
+     $  call errquit(pname//'failed to destrou g_2ceri',0,GA_ERR)
 c
 c     Allocate storage
 c
-      leri = nbf_cd*(pars%nmo(1)*(pars%nmo(1)+1)/2)
-      if (.not.ma_alloc_get(mt_dbl,leri,'3 centers',l_eri,k_eri))
-     $  call errquit(pname//'can''t get eri space',0,MA_ERR)
+      np = ga_nnodes()
+      nstates = pars%nstates
+      npairs = nstates*pars%nmo(1)
+
+      if (.not.ma_alloc_get(mt_int,np,'ga map',l_map,k_map))
+     &  call errquit(pname//'can''t get map space',0,MA_ERR)
+
+      call ifill(np,pars%nmo(1)/np,int_mb(k_map),1)
+      do ip=0,mod(pars%nmo(1),np)-1
+        int_mb(k_map+ip) = int_mb(k_map+ip) + 1
+      enddo
+
+      oactive = int_mb(k_map+pars%me) > 0
+      if (oactive) then
+        if (pars%me.eq.0) then
+          istart = 1
+        else
+          istart = sum(dbl_mb(k_map:k_map+pars%me-1)) + 1
+        endif
+        if (pars%me.eq.np-1) then
+          iend = pars%nmo(1)
+        else
+          iend = sum(dbl_mb(k_map:k_map+pars%me))
+        endif
+      endif
+
+      leri = nbf_cd*(iend-istart+1)*nstates
+      if (.not.ma_alloc_get(mt_dbl,leri, 'ERI buffer',l_eri,k_eri))
+     $  call errquit(pname//'can''t allocate eri buffer',0,MA_ERR) 
       call int_mem_2e3c(lbuf, lscr)
       if (.not.ma_alloc_get(mt_dbl,lbuf, 'RI buffer',l_buf, k_buf))
      $  call errquit(pname//'can''t get buffer space',0,MA_ERR)
@@ -95,7 +127,7 @@ c
       lvtmp = nbf_ao_mxnbf_cn*pars%nmo(1)
       if (.not.ma_alloc_get(mt_dbl,lvtmp,'MOVECS tmp',l_vtmp,k_vtmp))
      $  call errquit(pname//'can''t get temp movecs space',0,MA_ERR)
-      laomo = nbf_cd*lvtmp
+      laomo = nbf_cd*nbf_ao_mxnbf_cn*nstates
       if (.not.ma_alloc_get(mt_dbl,laomo,'AOMO tmp',l_aomo,k_aomo))
      $  call errquit(pname//'can''t get temp aomo space',0,MA_ERR)
 
@@ -124,7 +156,7 @@ c
      $      call errquit(pname//'bas_cn2bfr failed',0,BASIS_ERR)
           nfd = dlast - dfirst + 1
 c
-          do imo=1,pars%nmo(1)
+          do imo=1,nstates
             call dcopy(nfd,dbl_mb(k_vecs+(imo-1)*nbf_ao+dfirst-1),
      $                 1,dbl_mb(k_vtmp+(imo-1)*nfd),1)
           enddo
@@ -142,16 +174,19 @@ c
           enddo
 c
           call gw_aomo(dbl_mb(k_tmp),nbf_cd,nfc,nfd,
-     $                 dbl_mb(k_aomo),dbl_mb(k_vtmp),pars%nmo(1))
+     $                 dbl_mb(k_aomo),dbl_mb(k_vtmp),nstates)
 c
         enddo
         do imo=1,pars%nmo(1)
           call dcopy(nfc,dbl_mb(k_vecs+(imo-1)*nbf_ao+cfirst-1),1,
      $               dbl_mb(k_vtmp+(imo-1)*nfc),1)
         enddo
-        call gw_mo(dbl_mb(k_aomo),nbf_cd,nfc,pars%nmo(1),
-     $             dbl_mb(k_eri),dbl_mb(k_vtmp))
+        if (oactive) then
+          call gw_mo(dbl_mb(k_aomo),nbf_cd,nfc,nstates,pars%nmo(1),
+     $               dbl_mb(k_eri),dbl_mb(k_vtmp),istart,iend)
+        endif
       enddo
+
 c
 c     Orthonormalize 3-center ERIs
 c
@@ -169,8 +204,32 @@ c     Destroy global arrays
 c
       if (.not. ga_destroy(g_2cinv))
      $  call errquit(pname//'failed to destroy g_2cinv',0,GA_ERR)
-      if (.not. ga_destroy(g_2ceris))
-     $  call errquit(pname//'failed to destrou g_2ceri',0,GA_ERR)
+c
+      nactive = min(nbf_cd,np)
+      tmp = nbf_cd/np
+      int_mb(k_map) = 1
+      do ip=1,nactive-1
+        int_mb(k_map+ip) = int_mb(k_map+ip-1) + tmp
+        if (ip.lt.mod(nbf_cd,nactive)) then
+          int_mb(k_map+ip) = int_mb(k_map+ip) + 1
+        endif
+      enddo
+
+      if (pars%me.ne.np-1) then
+        nbf_cd_me = int_mb(k_map+pars%me+1) - int_mb(k_map+pars%me) + 1
+      else
+        nbf_cd_me = nbf_cd - int_mb(k_map+pars%me) + 1
+      endif
+
+      pars%istart = int_mb(k_map+pars%me)
+      pars%nbf_cd_me = nbf_cd_me
+
+      if (.not.ga_create_irreg(mt_dbl,npairs,nbf_cd,'mo eris',(/1/),
+     &     1,int_mb(k_map),nactive,pars%g_moeris))
+     &  call errquit(pname//'can''t create global array',0,GA_ERR) 
+
+      call putmoeris_ga(pars%g_moeris,dbl_mb(k_eri),nstates,nbf_cd,
+     &                   istart,iend)
 c
 c     Free heap
 c
@@ -188,14 +247,15 @@ c
       return
       end subroutine
 c
-      subroutine gw_aomo(buf,nri,ni,nj,res,movecs,nmo)
+      subroutine gw_aomo(buf,nri,ni,nj,res,movecs,nstates)
       implicit none
-      integer nri,ni,nj,nmo
-      double precision buf(nri,nj,ni),res(nri,ni,nmo),movecs(nj,nmo)
+      integer nri,ni,nj,nstates
+      double precision buf(nri,nj,ni),res(nri,ni,nstates)
+      double precision movecs(nj,nstates)
 c
       integer i,j,s,imo,ib,ir
 c
-      do imo=1,nmo
+      do imo=1,nstates
         do i=1,ni
 c          call dgemv('n',nri,nj,1.0d0,buf(1,ib+1),nri,movecs(1,imo),1,
 c     $                1.0d0,res(1,ir),1)
@@ -208,15 +268,16 @@ c
       return
       end subroutine
 c
-      subroutine gw_mo(buf,nri,ni,nmo,eri,movecs)
+      subroutine gw_mo(buf,nri,ni,nstates,nmo,eri,movecs,istart,iend)
       implicit none
-      integer nri,ni,nmo
-      double precision buf(nri,ni,nmo),eri(nri,*),movecs(ni,nmo)
+      integer nri,ni,nstates,nmo,istart,iend
+      double precision buf(nri,ni,nstates),eri(nri,*)
+      double precision movecs(ni,nmo)
       integer imo,jmo,i,ieri,ib
 
       ieri = 0
-      do imo=1,nmo
-        do jmo=imo,nmo
+      do jmo=1,nstates
+        do imo=istart,iend
           ieri = ieri + 1
           do i=1,ni
             eri(:,ieri) = eri(:,ieri) + buf(:,i,jmo)*movecs(i,imo)
@@ -224,4 +285,22 @@ c
         enddo
       enddo
       return
+      end subroutine
+
+      subroutine putmoeris_ga(g_a,eris,nstates,nri,istart,iend)
+      implicit none
+      integer nstates,nri,nri_me,istart,iend,g_a,ieri
+      double precision eris(nri,*)
+
+      integer ilo,ihi,ipair
+
+      ilo = nstates*(istart-1) + 1
+      ihi = nstates*iend
+
+      ieri = 0
+      do ipair=ilo,ihi
+        ieri = ieri + 1
+        call ga_put(g_a,ipair,ipair,1,nri,eris(1,ieri),1)
+      enddo
+
       end subroutine
