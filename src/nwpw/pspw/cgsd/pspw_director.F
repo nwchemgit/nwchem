@@ -252,6 +252,8 @@
                call Parallel_Brdcst_values(MASTER,3*nion,dbl_mb(r1_ptr))
                call Parallel_Brdcst_values(MASTER,3*nion,dbl_mb(r0_ptr))
                call Parallel_Brdcst_values(MASTER,3*nion,dbl_mb(v2_ptr))
+
+               call Nose_zero_thermostats()
             
 
             else if (inp_contains(.false.,"savegeometry",
