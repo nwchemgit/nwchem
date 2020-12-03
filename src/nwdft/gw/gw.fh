@@ -20,7 +20,6 @@ c
         integer          :: l_occ, k_occ
 c
         integer          :: n_batch
-        integer          :: l_3ceri, k_3ceri
         integer          :: n3c_int
         integer          :: l_3cwhat, k_3cwhat
         integer          :: n3c_dbl

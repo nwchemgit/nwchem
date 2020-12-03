@@ -18,6 +18,8 @@ c
 c
       character(len=9), parameter :: pname = 'gw_init: '
       character(len=255) :: basisname, scftype
+
+      logical init
 c
       logical int_normalize, int_norm_2c
       external int_normalize, int_norm_2c
@@ -30,6 +32,9 @@ c
 c
 c     -----------------------------------------------------------------
 c
+      if (.not.rtdb_get(pars%rtdb,'gw:init',mt_log,1,init))
+     $  call gw_defaults(pars%rtdb) 
+
       if (.not.rtdb_get(pars%rtdb,'gw:evgw0',mt_log,1,pars%evgw0))
      $  call errquit(pname//'failed to read evgw0',0,RTDB_ERR)
       if (.not.rtdb_get(pars%rtdb,'gw:evgw',mt_log,1,pars%evgw))
@@ -102,12 +107,6 @@ c
       if (bas_is_spherical(ao_bas_han).and.
      $   (.not.bas_is_spherical(cd_bas_han)))
      $        call int_app_set_no_texas(pars%rtdb)
-c
-      call scf_get_fock_param(pars%rtdb, pars%tol2e)
-c
-      call int_init(pars%rtdb, 2, (/ao_bas_han, cd_bas_han/))
-      call print_integrals((/ao_bas_han,cd_bas_han/),.false.)
-      call schwarz_init(geom, ao_bas_han)
 c
 c     Spin multiplicity, occupations
 c
@@ -192,6 +191,11 @@ c
      $  call errquit(pname//'invalid qpiter',0,0)
 c
 c     3-center ERIs 
+c
+      call int_init(pars%rtdb, 2, (/ao_bas_han, cd_bas_han/))
+      call print_integrals((/ao_bas_han,cd_bas_han/),.false.)
+      call schwarz_init(geom, ao_bas_han)
+      call scf_get_fock_param(pars%rtdb, pars%tol2e)
 c
       call gw_memory(pars)
       call gw_ri_init(pars)

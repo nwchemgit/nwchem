@@ -15,11 +15,12 @@ c
 c
       type(gw_params_t) :: pars
 c
-      character(len=14), parameter :: pname = "gw_coul_init: "
+      character(len=12), parameter :: pname = "gw_ri_init: "
 c
       logical iolgc
       integer g_2ceris, g_2cinv, info, lmiss
 c
+      integer ilo,ihi,jlo,jhi,g_a
       integer lbuf,lscr,ltmp,leri,lvecs,lvtmp,laomo
       integer l_buf,k_buf,l_scr,k_scr,l_tmp,k_tmp,l_eri,k_eri
       integer l_vecs,k_vecs,l_vtmp,k_vtmp,l_aomo,k_aomo
@@ -109,6 +110,8 @@ c
         endif
       endif
 
+      if (.not.oactive) goto 200
+
       leri = nbf_cd*(iend-istart+1)*nstates
       if (.not.ma_alloc_get(mt_dbl,leri, 'ERI buffer',l_eri,k_eri))
      $  call errquit(pname//'can''t allocate eri buffer',0,MA_ERR) 
@@ -181,12 +184,10 @@ c
           call dcopy(nfc,dbl_mb(k_vecs+(imo-1)*nbf_ao+cfirst-1),1,
      $               dbl_mb(k_vtmp+(imo-1)*nfc),1)
         enddo
-        if (oactive) then
-          call gw_mo(dbl_mb(k_aomo),nbf_cd,nfc,nstates,pars%nmo(1),
-     $               dbl_mb(k_eri),dbl_mb(k_vtmp),istart,iend)
-        endif
+        call gw_mo(dbl_mb(k_aomo),nbf_cd,nfc,nstates,pars%nmo(1),
+     $             dbl_mb(k_eri),dbl_mb(k_vtmp),istart,iend)
       enddo
-
+  200 continue
 c
 c     Orthonormalize 3-center ERIs
 c
@@ -200,34 +201,26 @@ c
       call dtrmm('l','l','n','n',nbf_cd,nij,1.0d0,dbl_mb(k_tmp),
      $            nbf_cd,dbl_mb(k_eri),nbf_cd)
 c
-c     Destroy global arrays
+c     Destroy 2-ctr global array
 c
       if (.not. ga_destroy(g_2cinv))
      $  call errquit(pname//'failed to destroy g_2cinv',0,GA_ERR)
 c
-      nactive = min(nbf_cd,np)
-      tmp = nbf_cd/np
-      int_mb(k_map) = 1
-      do ip=1,nactive-1
-        int_mb(k_map+ip) = int_mb(k_map+ip-1) + tmp
-        if (ip.lt.mod(nbf_cd,nactive)) then
-          int_mb(k_map+ip) = int_mb(k_map+ip) + 1
-        endif
-      enddo
-
-      if (pars%me.ne.np-1) then
-        nbf_cd_me = int_mb(k_map+pars%me+1) - int_mb(k_map+pars%me)
-      else
-        nbf_cd_me = nbf_cd - int_mb(k_map+pars%me) + 1
-      endif
-
-      pars%istart = int_mb(k_map+pars%me)
-      pars%nbf_cd_me = nbf_cd_me
-
-      if (.not.ga_create_irreg(mt_dbl,npairs,nbf_cd,'mo eris',(/1/),
-     &     1,int_mb(k_map),nactive,pars%g_moeris))
+c     Create global array with distributed by fitting functions
+c
+      if (.not.ga_create(mt_dbl,npairs,nbf_cd,'mo eris',npairs,-1,
+     &     pars%g_moeris))
      &  call errquit(pname//'can''t create global array',0,GA_ERR) 
-
+      call ga_distribution(pars%g_moeris,pars%me,ilo,ihi,jlo,jhi)
+c
+c     Save distribution information
+c
+      pars%istart = jlo
+      pars%nbf_cd_me = jhi-jlo+1
+c
+c     Put MO ERIs in the global array
+c
+      if (.not.oactive) return
       call putmoeris_ga(pars%g_moeris,dbl_mb(k_eri),nstates,nbf_cd,
      &                  istart,iend)
 c
@@ -235,14 +228,10 @@ c     Free heap
 c
       ok = ma_free_heap(l_buf) .and. ma_free_heap(l_tmp) .and.
      $     ma_free_heap(l_scr) .and. ma_free_heap(l_vtmp) .and.
-     $     ma_free_heap(l_vecs) .and. ma_free_heap(l_aomo)
+     $     ma_free_heap(l_vecs) .and. ma_free_heap(l_aomo) .and.
+     $     ma_free_heap(l_eri)  .and. ma_free_heap(l_map)
       if (.not.ok)
      $  call errquit(pname//'failed to free heap',0,MA_ERR)
-c
-c      Save 3-center ERIs information
-c
-       pars%l_3ceri = l_eri
-       pars%k_3ceri = k_eri
 c
       return
       end subroutine

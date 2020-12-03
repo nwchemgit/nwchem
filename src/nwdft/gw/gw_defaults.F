@@ -31,7 +31,8 @@ c
      &     rtdb_put(rtdb,'gw:nvqp',mt_int,1,0).and.
      &     rtdb_put(rtdb,'gw:ngl',mt_int,1,200).and.
      &     rtdb_put(rtdb,'gw:nomega',mt_int,1,100).and.
-     &     rtdb_put(rtdb,'gw:threshold',mt_dbl,1,0.01/ha2ev)
+     &     rtdb_put(rtdb,'gw:threshold',mt_dbl,1,0.01/ha2ev).and.
+     &     rtdb_put(rtdb,'gw:init',mt_log,1,.true.) 
 c
       if (ok) return
 c
