@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/usr/bin/env bash
 VERSION=0.3.12
 if [ -f  OpenBLAS-${VERSION}.tar.gz ]; then
     echo "using existing"  OpenBLAS-${VERSION}.tar.gz
