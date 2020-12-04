@@ -137,7 +137,7 @@ c     xperde86 ==> 9520
 c
 c
       integer num_dirs, ind, mlen, iline, n
-      parameter (num_dirs=153)
+      parameter (num_dirs=155)
 c
       character*15 dirs(num_dirs)
       character*255 test
@@ -188,7 +188,8 @@ c
      &     's12g','s12h','cam-s12g','cam-s12h',
      &     'becke86b','xperdew86','xmvs15','cvpbe09','mvs',
      &     'hle16', 'scan', 'scanl','scan0','lb94', 'rscan',
-     &     'xncap', 'ncap', 'r2scan', 'r2scanl' /
+     &     'xncap', 'ncap', 'r2scan', 'r2scanl',
+     &     'xscan', 'cscan'/
 c     becke97-d, ssb-d
       logical disp, dumdirect
       integer ivdw
@@ -259,7 +260,7 @@ c
      &  8532,8533,8534,9300,9310,9320,4610,4620,4630,4640,
      &  9510,9520,4115,2109,4124,3101,
      &  9610,9620,9630,9494,9640,
-     &  9710,9720,9650,9660,1999) ind
+     &  9710,9720,9650,9660,9615,9616,1999) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     acm; adiabatic connection method
@@ -1510,23 +1511,13 @@ c
 c     cpkzb99 Perdew Kurth Zupan Blaha metaGGA functional for correlation
 c     default local functional (PW91 LDA) is set in cpkzb99.F code
 c             
- 3650 if (inp_a(test)) then
-         if (inp_compare(.false.,'local', test)) then
-            write(LuOut,*)' cpkzb99 is a nonlocal functional;',
-     &                ' "local" descriptor is ignored. '                   
-           call inp_prev_field()
-         elseif (inp_compare(.false.,'nonlocal', test)) then
-           write(LuOut,*)' cpkzb99 cannot be conveniently',
-     &           ' split into local and nonlocal pieces; '
-            write(LuOut,*)' total cpkzb99 is used. '
-            call inp_prev_field()
-         endif
-      endif
+ 3650 continue
 c
 c           assume total wanted (but total here = nonlocal)
 c
       lcfac(25) = .true.
       nlcfac(25) = .true.
+      call xcinp_fact_noloc(test,'cpkzb99',cfac(25))
       if (.not. inp_f(cfac(25))) then
          cfac(25) = 1.0d0
       endif            
@@ -1685,6 +1676,20 @@ c
        lxfac(66) = .true.
       nlxfac(66) = .true.
         xfac(66) = 1.0d0
+      goto 10
+c
+c X-only SCAN meta GGA
+c
+ 9615 lxfac(66) = .true.
+      nlxfac(66) = .true.
+      call xcinp_fact_noloc(test,'xscan',xfac(66))
+      goto 10
+c
+c C-only SCAN meta GGA
+c
+ 9616 lcfac(66) = .true.
+      nlcfac(66) = .true.
+      call xcinp_fact_noloc(test,'cscan',cfac(66))
       goto 10
 c
 c SCAN0 hybrid meta GGA
@@ -4466,4 +4471,32 @@ c
       call util_flush(LuOut)
       call errquit('ts_input: invalid format', 0, INPUT_ERR)
 c     
+      end
+      subroutine xcinp_fact_noloc(test,funcname,fact_out)
+      implicit none
+      character*(*) test        ! [in]
+      character*(*) funcname    ! [in]
+      double precision fact_out ! [out]
+#include "inp.fh"
+#include "stdio.fh"
+ 1    if (.not. inp_f(fact_out)) then
+         if (inp_a(test)) then
+            if (inp_compare(.false.,'local', test)) then
+               write(LuOut,*) funcname(1:inp_strlen(funcname)),
+     &              ' is a nonlocal functional;',
+     &              ' "local" descriptor is ignored. '
+               goto 1
+            elseif (inp_compare(.false.,'nonlocal', test)) then
+               write(LuOut,*) funcname(1:inp_strlen(funcname)),
+     &              ' cannot be conveniently',
+     &              ' split into local and nonlocal pieces; '
+               write(LuOut,*)' total ',funcname(1:inp_strlen(funcname)),
+     &              ' is used. '
+               goto 1
+            endif
+         else
+            fact_out=1d0
+         endif
+      endif
+      return
       end
