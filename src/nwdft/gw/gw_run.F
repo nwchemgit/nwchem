@@ -31,8 +31,8 @@ c
       integer l_enew, k_enew
       integer l_sign, k_sign
       integer l_eriij, k_eriij
-      integer lscr
-      logical main
+      integer lscr,lo4,ld, istart, iend
+      logical main,oactive
 c
       double precision sigma_c, dsigma_c, eps_in, eps_out, sigma_old
       double precision z, sigma, func, linear, efermi, sigma_x
@@ -58,88 +58,58 @@ c
       nri_me = pars%nbf_cd_me
       nstates = pars%nstates
       main = pars%me.eq.0
-c
-c     Allocation
-c
-      if (.not.ma_push_get(mt_dbl,nri_me*npoles,'eri_ia',
-     $    l_eriia,k_eriia))
-     $  call errquit(pname//'cannot allocate eri_ia',0,MA_ERR)
-      if (.not.ma_push_get(mt_dbl,nmo,'Vxc',l_vxc,k_vxc))
-     $  call errquit(pname//'cannot allocate Vxc',0,MA_ERR)
-      if (.not.ma_push_get(mt_dbl,nmo,'Sigma_x',l_sigmax,k_sigmax))
-     $  call errquit(pname//'cannot allocate Sigma_x',0,MA_ERR)
-      if (.not.ma_push_get(mt_dbl,2*nmo,'Sigma',l_sigma,k_sigma))
-     $  call errquit(pname//'cannot allocate Sigma',0,MA_ERR)
-      if (.not.ma_push_get(mt_dbl,nmo,'evals old',l_eold,k_eold))
-     $  call errquit(pname//'failed to allocate old evals',0,MA_ERR)
-      if (.not.ma_push_get(mt_dbl,nmo,'evals new',l_enew,k_enew))
-     $  call errquit(pname//'failed to allocate old evals',0,MA_ERR)
-      if (.not.ma_push_get(mt_dbl,nmo,'signs',l_sign,k_sign))
-     $  call errquit(pname//'failed to allocate sign',0,MA_ERR)
-      if (.not.ma_push_get(mt_dbl,nri_me*nocc*nmo,'eri_ij',
-     $     l_eriij,k_eriij))
-     $  call errquit(pname//'failed to allocate eriij',0,MA_ERR) 
+      oactive = pars%nbf_cd_me .gt. 0
+      lo1 = nocc - pars%noqp
+      istart = pars%istart
+      iend = pars%istart + pars%nbf_cd_me - 1
 c
 c     Get fermi energy
 c
       efermi = (dbl_mb(pars%k_evals+nocc-1) +
      $         dbl_mb(pars%k_evals+nocc))/2.0d0
 c
-c     Shift eigenvalues
+c     Obtain Vxc and store it in Sigma
 c
-      do i=0,nmo-1
-        dbl_mb(k_eold+i) = dbl_mb(pars%k_evals+i) - efermi
-      enddo
-c
-c     Copy occupied-virtual block of ERIs into a contiguous block
-c 
-      lo2 = k_eriia
-      lo3 = k_eriij
-      do ibf=pars%istart,pars%istart+nri_me-1
-        do i=0,nocc-1
-          ilo = nmo*i + nocc + 1
-          ihi = ilo + nvir - 1
+      if (main) write(luout,9010)
+ 9010 format(10x,'Computing V_xc')
 
-          call ga_get(pars%g_moeris,ilo,ihi,ibf,ibf,dbl_mb(lo2),nvir)
+      if (.not.ma_push_get(mt_dbl,2*nmo,'Sigma',l_sigma,k_sigma))
+     $  call errquit(pname//'cannot allocate Sigma',0,MA_ERR)
 
-          ilo = nmo*i + 1
-          ihi = ilo + nmo - 1
-          call ga_get(pars%g_moeris,ilo,ihi,ibf,ibf,dbl_mb(lo3),nmo)
-
-          lo2 = lo2 + nvir
-          lo3 = lo3 + nmo
-        enddo
-      enddo
-c
-c     Set first quasiparticle state index
-c
-      lo1 = nocc - pars%noqp
+      call gw_vxc(dbl_mb(k_sigma),nmo,pars)
 c
 c     Obtain Sigma_x
 c
       if (main) write(luout,9000)
  9000 format(10x,'Computing Sigma_x')
-
+      
+      if (.not.ma_push_get(mt_dbl,nmo,'Sigma_x',l_sigmax,k_sigmax))
+     $  call errquit(pname//'cannot allocate Sigma_x',0,MA_ERR)
+c
+      call ga_access(pars%g_moeris,1,nmo*nocc,istart,iend,k_eriij,ld)
       call gw_sigmax(dbl_mb(k_eriij),dbl_mb(k_sigmax),nmo,nri_me,nocc)
-
-      if (.not.ma_chop_stack(l_eriij))
-     $  call errquit(pname//'could not free stack',0,MA_ERR)
 c
-c     Obtain Vxc
+c     Allocation
 c
-      if (main) write(luout,9010)
- 9010 format(10x,'Computing V_xc')
-
-      call gw_vxc(dbl_mb(k_vxc),nmo,pars)
-c
-c     Copy Vxc into old Sigma
-c
-      call dcopy(nmo,dbl_mb(k_vxc),1,dbl_mb(k_sigma),1)
-
+      if (.not.ma_push_get(mt_dbl,nri_me*npoles,'eri_ia',
+     $    l_eriia,k_eriia))
+     $  call errquit(pname//'cannot allocate eri_ia',0,MA_ERR)
+      if (.not.ma_push_get(mt_dbl,nmo,'evals old',l_eold,k_eold))
+     $  call errquit(pname//'failed to allocate old evals',0,MA_ERR)
+      if (.not.ma_push_get(mt_dbl,nmo,'evals new',l_enew,k_enew))
+     $  call errquit(pname//'failed to allocate old evals',0,MA_ERR)
+      if (.not.ma_push_get(mt_dbl,nmo,'signs',l_sign,k_sign))
+     $  call errquit(pname//'failed to allocate sign',0,MA_ERR)
       if(.not.ma_push_get(mt_dbl,npoles,'omega',l_omega,k_omega))
      $  call errquit(pname//'cannot allocate Omega',0,MA_ERR)
       if (.not.ma_push_get(mt_dbl,npoles,'eval_ia',l_eia,k_eia))
      $  call errquit(pname//'cannot allocate eval_ia',0,MA_ERR)
+c
+c     Shift eigenvalues
+c
+      do i=0,nmo-1
+        dbl_mb(k_eold+i) = dbl_mb(pars%k_evals+i) - efermi
+      enddo
 c
       eviter = 0
 c
@@ -161,22 +131,33 @@ c
         enddo
       enddo
 c
+c     Copy occupied-virtual into contiguous block
+c
+      lo2 = k_eriia
+      do ibf=istart,iend
+        do i=0,nocc-1
+          ilo = nmo*i + 1
+          ihi = ilo + nmo - 1
+          call ga_access(pars%g_moeris,ilo,ihi,ibf,ibf,lo4,ld)
+          call dcopy(nvir,dbl_mb(lo4+nocc),1,dbl_mb(lo2),1)
+          lo2 = lo2 + nvir
+        enddo
+      enddo
+c
 c     RPA polarizability
 c
       if (main) write(luout,9020)
  9020 format(10x,'Computing RPA polarizability')
 
-      if(.not.ma_push_get(mt_dbl,npoles,'AmB',l_amb,k_amb))
-     $  call errquit(pname//'cannot allocate AmB',0,MA_ERR) 
       if(.not.ma_push_get(mt_dbl,npoles*npoles,'XpY',l_xpy,k_xpy))
      $  call errquit(pname//'cannot allocate XpY',0,MA_ERR)
       if (.not.ma_push_get(mt_dbl,lscr,'work',l_scr,k_scr))
      $  call errquit('gw_rpa: could not allocate work',0,MA_ERR)
 c
-      call gw_rpa(dbl_mb(k_eia),dbl_mb(k_amb),dbl_mb(k_omega),
+      call gw_rpa(dbl_mb(k_eia),dbl_mb(k_omega),
      $  dbl_mb(k_xpy),dbl_mb(k_eriia),dbl_mb(k_scr),npoles,nri_me,lscr)
 c
-      if (.not.ma_chop_stack(l_amb))
+      if (.not.ma_chop_stack(l_xpy))
      $  call errquit(pname//'could not free stack',0,MA_ERR)
 c
       if (.not.ma_push_get(mt_dbl,nmo*npoles,'wmn',l_wmn,k_wmn))
@@ -261,7 +242,7 @@ c
 
  9050 format(10x,I3,6x,F8.3,6x,F6.3,6x,F8.3)
 c
-      if (.not.ma_chop_stack(l_eriia))
+      if (.not.ma_chop_stack(l_sigma))
      $  call errquit(pname//'could not free stack',0,MA_ERR)
 
       end subroutine gw_run
@@ -298,7 +279,7 @@ c
 c
 c     *****************************************************************
 c
-      subroutine gw_rpa(eia,amb,omega,xpy,eriia,scr,
+      subroutine gw_rpa(eia,omega,xpy,eriia,scr,
      $                  npoles,nri,lscr)
 c
 c     builds and solves for the RPA polarizability
@@ -313,7 +294,7 @@ c
       double precision scr(lscr)
 c
       integer iocc,ipole,g_a,g_b,g_c,g_d
-      integer info,iri
+      integer info,iri,me,ilo,ihi,k_index,ld
       logical main
 
       logical ga_create,nga_create
@@ -322,60 +303,54 @@ c
       integer ga_nodeid
       external ga_nodeid
 c
-      main = ga_nodeid() .eq. 0
-      if (.not.ga_create(mt_dbl,npoles,npoles,'x+y',-1,-1,g_c))
+      me = ga_nodeid()
+      main = me .eq. 0
+c      
+      if (.not.ga_create(mt_dbl,npoles,npoles,'x+y',npoles,-1,g_c))
      $  call errquit('gw_rpa: can''t create global array',0,GA_ERR)
-      if (.not.ga_create(mt_dbl,npoles,npoles,'rpa',-1,-1,g_a))
+      if (.not.ga_create(mt_dbl,npoles,npoles,'rpa',npoles,-1,g_a))
      $  call errquit('gw_rpa: can''t create global array',0,GA_ERR)
-      if (.not.nga_create(mt_dbl,1,npoles,'a-b',-1,g_b))
+      if (.not.nga_create(mt_dbl,1,npoles,'scratch',-1,g_b))
      $  call errquit('gw_rpa: can''t create global array',0,GA_ERR)
       if (.not.nga_create(mt_dbl,1,npoles,'eia',-1,g_d))
      $  call errquit('gw_rpa: can''t create global array',0,GA_ERR)
-
-      
-      amb = dsqrt(eia)
 c
-      xpy = 0d0
-c      call dsyrk('u','n',npoles,nri,4.0d0,eriia,npoles,0.0d0,xpy,npoles)
-      call dsyrk('u','n',npoles,nri,8.0d0,eriia,npoles,0.0d0,xpy,npoles)
-
       call ga_zero(g_a)
-      call ga_acc(g_a,1,npoles,1,npoles,xpy,npoles,1.d0)
+      do ipole=1,npoles
+        call dgemv('n',npoles,nri,4d0,eriia,npoles,eriia(ipole,1),
+     $              npoles,0d0,omega,1)
+        call ga_acc(g_a,1,npoles,ipole,ipole,omega,1,1.0d0)
+      enddo
       call ga_sync()
-      call ga_symmetrize(g_a)
-      call ga_get_diag(g_a,g_d)
-      call ga_scale(g_d,0.5d0)
-      call ga_set_diagonal(g_a,g_d)
-      if (main) then
-        call nga_put(g_d,1,npoles,eia,1)
-        call nga_put(g_b,1,npoles,amb,1)
-      endif
-      call ga_sync()
+
+      call nga_distribution(g_d,me,ilo,ihi)
+      call nga_put(g_d,ilo,ihi,eia(ilo),1)
+      call nga_put(g_b,ilo,ihi,dsqrt(eia(ilo:ihi)),1)
       call ga_add_diagonal(g_a,g_d)
+      call ga_destroy(g_d)
+
       call ga_scale_cols(g_a,g_b)
       call ga_scale_rows(g_a,g_b)
 c
       call ga_diag_std(g_a,g_c,omega)
+      call ga_destroy(g_a)
 
       omega = dsqrt(omega)
 c
       call ga_scale_rows(g_c,g_b)
-      if (main) call nga_put(g_b,1,npoles,1d0/dsqrt(omega),1)
-      call ga_sync()
+      call nga_put(g_b,ilo,ihi,1d0/dsqrt(omega(ilo:ihi)),1)
       call ga_scale_cols(g_c,g_b)
+      call ga_destroy(g_b)
 c
       call ga_get(g_c,1,npoles,1,npoles,xpy,npoles)
 
       do iri=1,nri
         scr(1:npoles) = eriia(:,iri)
-        call dgemv('t',npoles,npoles,1.0d0,xpy,npoles,scr,1,0.0d0,
+        call dgemv('t',npoles,npoles,1d0,xpy,npoles,scr,1,0d0,
      $              eriia(1,iri),1)
       enddo
 
-      call ga_destroy(g_a)
-      call ga_destroy(g_b)
       call ga_destroy(g_c)
-      call ga_destroy(g_d)
 c
       return
       end subroutine

@@ -159,11 +159,6 @@ c
      $      call errquit(pname//'bas_cn2bfr failed',0,BASIS_ERR)
           nfd = dlast - dfirst + 1
 c
-          do imo=1,nstates
-            call dcopy(nfd,dbl_mb(k_vecs+(imo-1)*nbf_ao+dfirst-1),
-     $                 1,dbl_mb(k_vtmp+(imo-1)*nfd),1)
-          enddo
-c
           do ishp=1,nshells_cd
             if (.not.bas_cn2bfr(cd_bas_han, ishp, pfirst, plast))
      $        call errquit(pname//'bas_cn2bfr failed',0,BASIS_ERR)
@@ -174,6 +169,11 @@ c
      $                    dbl_mb(k_buf))
             call put_int(dbl_mb(k_buf), pfirst, nfp, nfc, nfd,
      $                   dbl_mb(k_tmp), nbf_cd, .false.)
+          enddo
+c          
+          do imo=1,nstates
+            call dcopy(nfd,dbl_mb(k_vecs+(imo-1)*nbf_ao+dfirst-1),
+     $                 1,dbl_mb(k_vtmp+(imo-1)*nfd),1)
           enddo
 c
           call gw_aomo(dbl_mb(k_tmp),nbf_cd,nfc,nfd,

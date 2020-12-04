@@ -102,7 +102,7 @@ c
             operation = 'et'
          else if (inp_compare(.false.,test,'rt_tddft')) then
             operation = 'rt_tddft'
-         else if (inp_compare(.false.,test,'gw@dft')) then
+         else if (inp_compare(.false.,test,'gw')) then
             operation = 'gw'
          else if (inp_compare(.false.,test,'fcidump')) then
             operation = 'fcidump'
