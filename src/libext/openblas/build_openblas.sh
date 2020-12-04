@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/usr/bin/env bash
 VERSION=0.3.12
 if [ -f  OpenBLAS-${VERSION}.tar.gz ]; then
     echo "using existing"  OpenBLAS-${VERSION}.tar.gz
@@ -6,9 +6,12 @@ else
     rm -rf OpenBLAS*
     curl -L https://github.com/xianyi/OpenBLAS/archive/v${VERSION}.tar.gz -o OpenBLAS-${VERSION}.tar.gz
 fi
+# patch for avx2 detection
+curl -L https://github.com/xianyi/OpenBLAS/commit/aa21cb52179b86b00f7ac52a4e41ed712836f2d1.patch -o  avx2.patch
 tar xzf OpenBLAS-${VERSION}.tar.gz
 ln -sf OpenBLAS-${VERSION} OpenBLAS
 cd OpenBLAS-${VERSION}
+patch -p1 < ../avx2.patch
 if [[  -z "${FORCETARGET}" ]]; then
 FORCETARGET=" "
 UNAME_S=$(uname -s)

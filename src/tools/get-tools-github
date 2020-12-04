@@ -2,6 +2,55 @@
 #
 # $Id: get-tools 28436 2016-08-03 19:50:05Z edo $
 #
+function ga_download()
+{
+    TAR_URL=$1
+    GA_RELEASE_NO=$2
+       CURL_YES=`curl  -O 2>&1 | head -1  | awk ' /URL/ {print "Y";exit};{print "N"}'`
+	if [ $CURL_YES = "Y" ]
+	then
+	    if test "x$GADOWN_IGNORECERTS" != x
+	    then
+	    curl -L -k "$TAR_URL" -o ga-"$GA_RELEASE_NO".tar.gz
+	    else
+	    curl -L  "$TAR_URL" -o ga-"$GA_RELEASE_NO".tar.gz
+	    fi
+	else
+	WGET_YES=`wget  -O 2>&1 | head -1  | awk ' /require/ {print "Y";exit};{print "N"}'`
+	    if [ $WGET_YES = "Y" ]
+	    then
+	        #try wget because curl is not there
+	        if wget  -O ga-"$GA_RELEASE_NO".tar.gz "$TAR_URL" ; then
+                    echo "wget works"
+                else
+                    echo " "
+                    echo "obsolete wget"
+                    echo "trying tlsv12 wget option"
+                    echo " "
+		    if test "x$GADOWN_IGNORECERTS" != x
+		    then
+			wget --no-check-certificate  --secure-protocol=TLSv1_2 -O ga-"$GA_RELEASE_NO".tar.gz "$TAR_URL"
+		    else
+			wget  --secure-protocol=TLSv1_2 -O ga-"$GA_RELEASE_NO".tar.gz "$TAR_URL"
+		    fi
+                fi
+            else
+	        echo " "
+	        echo "wget or curl required for downloading GA tar file" 
+	        echo " "
+	        return 1
+            fi
+	fi
+# check tar.gz integrity	
+	gzip -t ga-"$GA_RELEASE_NO".tar.gz >&  /dev/null
+	if [ $? -ne 0 ]; then
+            echo ga-"$GA_RELEASE_NO".tar.gz file integrity check failed
+            return 1
+	else
+            echo ga-"$GA_RELEASE_NO".tar.gz file integrity OK
+	    return 0
+	fi
+    }
 
 unalias -a
 export NWCHEM_TOP=${NWCHEM_TOP:-"`pwd`/../"}
@@ -49,41 +98,15 @@ then
 	 #         https://github.com/edoapra/ga/releases/download/v5.7.2/ga-5.7.2.tar.gz
 	fi
 	echo "downloading" ga-"$GA_RELEASE_NO".tar.gz  "from" "$TAR_URL"
-       CURL_YES=`curl  -O 2>&1 | head -1  | awk ' /URL/ {print "Y";exit};{print "N"}'`
-	if [ $CURL_YES = "Y" ]
-	then
-	    if test "x$GADOWN_IGNORECERTS" != x
-	    then
-	    curl -L -k "$TAR_URL" -o ga-"$GA_RELEASE_NO".tar.gz
-	    else
-	    curl -L  "$TAR_URL" -o ga-"$GA_RELEASE_NO".tar.gz
-	    fi
-	else
-	WGET_YES=`wget  -O 2>&1 | head -1  | awk ' /require/ {print "Y";exit};{print "N"}'`
-	    if [ $WGET_YES = "Y" ]
-	    then
-	        #try wget because curl is not there
-	        if wget  -O ga-"$GA_RELEASE_NO".tar.gz "$TAR_URL" ; then
-                    echo "wget works"
-                else
-                    echo " "
-                    echo "obsolete wget"
-                    echo "trying tlsv12 wget option"
-                    echo " "
-		    if test "x$GADOWN_IGNORECERTS" != x
-		    then
-			wget --no-check-certificate  --secure-protocol=TLSv1_2 -O ga-"$GA_RELEASE_NO".tar.gz "$TAR_URL"
-		    else
-			wget  --secure-protocol=TLSv1_2 -O ga-"$GA_RELEASE_NO".tar.gz "$TAR_URL"
-		    fi
-                fi
-            else
-	        echo " "
-	        echo "wget or curl required for downloading GA tar file" 
-	        echo " "
-	        exit 1
-            fi
-	fi
+	max_retry=5
+	counter=0
+	until 	ga_download $TAR_URL $GA_RELEASE_NO
+	do
+	    [[ counter -eq $max_retry ]] && echo "GA download failed!" && exit 1
+	    sleep 2
+	    echo "Trying again. Try #$counter"
+	    ((counter++))
+	done
 	if [ $? -ne 0 ]
 	then
 	    rm -f ga-"$GA_RELEASE_NO".tar.gz
@@ -192,3 +215,4 @@ else
         cd  $GA_DIR;sh ./autogen.sh
 fi
 exit 0
+

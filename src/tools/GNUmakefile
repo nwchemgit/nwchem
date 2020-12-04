@@ -671,6 +671,9 @@ $(INSTALLDIR)/lib/libga.a: $(BUILDDIR)/.libs/libga.a
 	@echo ''
 	@(cd $(BUILDDIR) && $(MAKE) install) || exit 1
 	@(../util/util_ga_version.bash)
+	${GA_PATH}/bin/ga-config --cppflags  > $(NWCHEM_TOP)/src/ga_cppflags.txt
+	${GA_PATH}/bin/ga-config --ldflags  > $(NWCHEM_TOP)/src/ga_ldflags.txt
+	${GA_PATH}/bin/ga-config --use_scalapack | awk ' /1/ {print "Y";exit};{print "N"}'  > $(NWCHEM_TOP)/src/ga_use_scalapack.txt
 
 $(BUILDDIR)/.libs/libga.a:  $(BUILDDIR)/Makefile $(BUILDDIR)/armci/Makefile
 	@echo ''
