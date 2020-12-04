@@ -100,7 +100,7 @@ jobs:
       env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=SOCKETS
     - stage: compile
       <<: *compile-template-ompi-osx
-      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PR USE_OPENMP=1
+      env: NWCHEM_MODULES="tinyqmpw python" ARMCI_NETWORK=MPI-PR USE_OPENMP=1
     - stage: compile
       <<: *compile-template-ompi-osx
       env: NWCHEM_MODULES=tce ARMCI_NETWORK=MPI-TS
@@ -109,8 +109,8 @@ jobs:
       env: NWCHEM_MODULES="nwdft solvation driver" ARMCI_NETWORK=MPI-PT USE_SIMINT=1 SIMINT_MAXAM=3
     - stage: compile
       <<: *compile-template-ompi-osx
-      osx_image: xcode12
-      env: NWCHEM_MODULES="tinyqmpw python" ARMCI_NETWORK=MPI-PT 
+      osx_image: xcode12.2
+      env: NWCHEM_MODULES="tinyqmpw" ARMCI_NETWORK=SOCKETS
     - stage: compile
       <<: *compile-template-ompi-osx
       env: NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-PR
@@ -152,7 +152,7 @@ jobs:
       env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=SOCKETS
     - stage: test
       <<: *qatest-template-ompi-osx
-      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PR USE_OPENMP=1
+      env: NWCHEM_MODULES="tinyqmpw python" ARMCI_NETWORK=MPI-PR USE_OPENMP=1
     - stage: test
       <<: *qatest-template-ompi-osx
       env: NWCHEM_MODULES=tce ARMCI_NETWORK=MPI-TS
@@ -161,8 +161,8 @@ jobs:
       env: NWCHEM_MODULES="nwdft solvation driver" ARMCI_NETWORK=MPI-PT USE_SIMINT=1 SIMINT_MAXAM=3
     - stage: test
       <<: *qatest-template-ompi-osx
-      osx_image: xcode12
-      env: NWCHEM_MODULES="tinyqmpw python" ARMCI_NETWORK=MPI-PT 
+      osx_image: xcode12.2
+      env: NWCHEM_MODULES="tinyqmpw" ARMCI_NETWORK=SOCKETS
     - stage: test
       <<: *qatest-template-ompi-osx
       env: NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-PR
@@ -203,9 +203,9 @@ jobs:
       arch: amd64
       env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT USE_SIMINT=1 SIMINT_MAXAM=3
     - os: osx
-      osx_image: xcode11.3
+      osx_image: xcode12.2
       arch: amd64
-      env: NWCHEM_MODULES="tinyqmpw python" ARMCI_NETWORK=MPI-PT 
+      env: NWCHEM_MODULES="tinyqmpw" ARMCI_NETWORK=SOCKETS
 
 compiler:
   - gcc
