@@ -1,7 +1,7 @@
 c
 c     qmd_gradient: wrapper for gradient
 c
-      subroutine qmd_gradient(rtdb,nat,g,energy)
+      subroutine qmd_gradient(rtdb,nat,istep_nucl,m,g,r,energy)
 c
       implicit none
 c
@@ -12,8 +12,11 @@ c
 #include "global.fh"
 c
       integer rtdb               ! rtdb
-      integer nat                ! number of atoms
+      integer nat               ! number of atoms
+      integer istep_nucl
+      double precision m(nat)    ! masses
       double precision g(3,nat)  ! gradients
+      double precision r(3,nat)  ! coordinates
       double precision energy    ! system energy
 c
       integer i,j
@@ -36,7 +39,9 @@ c     energy/gradient calculation
      &   call errquit(pname//'rtdb_get gradient',0,RTDB_ERR)
       if(.not.rtdb_get(rtdb,'task:energy',mt_dbl,1,energy))
      &   call errquit(pname//'rtdb_get energy',0,RTDB_ERR)
-c
+c     add external forces only when inside loop
+      if(istep_nucl.gt.0)
+     c     call qmd_ext_gradient(nat,istep_nucl,energy,m,g,r)
       return
       end
 c $Id$

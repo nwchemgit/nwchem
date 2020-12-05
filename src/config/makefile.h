@@ -2923,6 +2923,11 @@ endif
     EXTRA_LIBS += -L$(SIMINT_HOME)/lib -lnwc_simint
   endif
 endif
+ifdef USE_PLUMED
+  DEFINES += -DUSE_PLUMED
+PLUMED_LOAD= /Users/edo/docs/proposals/mq/plumed-2.6.2/src/lib/libplumed.dylib -lstdc++ -L/usr/local/opt/fftw/lib -lfftw3 -lz -ldl -llapack -lblas
+      EXTRA_LIBS += $(PLUMED_LOAD)
+endif
 
 # CUDA
 ifndef CUDA

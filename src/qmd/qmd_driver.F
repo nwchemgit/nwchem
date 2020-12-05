@@ -225,6 +225,8 @@ c              ***Forces DFT/TDDFT calculation***
      &   call errquit(pname//'dt_nucl and dt_elec not compatible',0,
      &                INPUT_ERR)
       end if
+
+      call qmd_ext_init(nat,dt_nucl)
 c
 c     get initial coordinates and velocities
       call qmd_coords_vels(rtdb,geom,nat,sstep_nucl,ekin,rstfilename,
@@ -252,7 +254,8 @@ c       get energies and movecs
       end if
 c
 c     perform energy gradient calculation on initial coordinates
-      call qmd_gradient(rtdb,nat,dbl_mb(k_g),esys)
+      call qmd_gradient(rtdb,nat,-10,
+     $     dbl_mb(k_m),dbl_mb(k_g),dbl_mb(k_r),esys)
 c
       if (do_namd.and.(.not.do_tdks)) then
 c       get energies and movecs
@@ -327,7 +330,8 @@ c         get energies and movecs
         end if
 c
 c       calculate energy and gradient
-        call qmd_gradient(rtdb,nat,dbl_mb(k_g),esys)
+        call qmd_gradient(rtdb,nat,istep_nucl,
+     $       dbl_mb(k_m),dbl_mb(k_g),dbl_mb(k_r),esys)
 c
 c       include cavity reflection if requested
         if (do_cavity) then
@@ -377,7 +381,8 @@ c         calculate gradient for new current state
               call qmd_tdks_swap(rtdb,state,nstates,ks_spin,
      $                           int_mb(k_so),int_mb(k_sv))
             end if
-            call qmd_gradient(rtdb,nat,dbl_mb(k_g),esys)
+            call qmd_gradient(rtdb,nat,istep_nucl,
+     $           dbl_mb(k_m),dbl_mb(k_g),dbl_mb(k_r),esys)
           end if
           state_p=state
 c
