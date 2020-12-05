@@ -1,4 +1,52 @@
 
+*     *****************************
+*     *                           *
+*     *     pspw_director_init    *
+*     *                           *
+*     *****************************
+      subroutine pspw_director_init(rtdb)
+      implicit none
+      integer rtdb
+
+#include "btdb.fh"
+#include "util.fh"
+#include "stdio.fh"
+
+*     **** local variables ****
+      logical   lprint
+      integer   MASTER,taskid,l
+      parameter (MASTER=0)
+
+      character*255 filename,full_filename
+
+      logical use_director
+      common /pspw_director_common/ use_director
+
+*     **** external functions ****
+      logical  control_use_director,control_print
+      external control_use_director,control_print
+
+
+      use_director = control_use_director()
+
+      if (use_director) then
+         call Parallel_taskid(taskid)
+         if (.not.btdb_cget(rtdb,'nwpw:director_filename',
+     >                      1,filename))
+     >      call util_file_prefix('director',filename)
+            call util_file_name_noprefix(filename,.false.,.false.,
+     >                                   full_filename)
+
+          l = index(full_filename,' ') -1
+          lprint= ((taskid.eq.MASTER).and.control_print(print_medium))
+          if (lprint) write(luout,1210) full_filename(1:l)
+
+      end if
+
+ 1210 FORMAT(/' pspw_director filename:',A)
+      return
+      end 
+
 *     ***************************
 *     *                         *
 *     *     pspw_director       *
@@ -24,45 +72,50 @@
       character*255 full_filename,line
 
 
+      logical use_director
+      common /pspw_director_common/ use_director
+
 *     **** external functions ***
       real*8   lattice_omega
       integer  ion_nion,control_it_out
       external lattice_omega
       external ion_nion,control_it_out
 
+      if (use_director) then
 
-      call Parallel_taskid(taskid)
+         call Parallel_taskid(taskid)
 
-      if (.not.btdb_cget(rtdb,'nwpw:director_filename',1,filename))
-     >    call util_file_prefix('director',filename)
+         if (.not.btdb_cget(rtdb,'nwpw:director_filename',1,filename))
+     >       call util_file_prefix('director',filename)
 
-      call util_file_name_noprefix(filename,.false.,.false.,
-     >                             full_filename)
+         call util_file_name_noprefix(filename,.false.,.false.,
+     >                                full_filename)
 
-      call pspw_reset_cmd_director()
+         call pspw_reset_cmd_director()
 
-      if (taskid.eq.MASTER) then
-        
+         if (taskid.eq.MASTER) then
 
-         inquire(file=full_filename,exist=found)
-         if (found) then
-            open(unit=83,file=full_filename,
-     >           form='formatted',status='old')
-            do while (found)
-               read(83,'(A)',ERR=30,END=30) line
-               if (inp_strlen(line).gt.9) 
-     >            call pspw_add_cmd_director(line)
-            end do
-   30       continue 
-            close(83)
+            inquire(file=full_filename,exist=found)
+            if (found) then
+               open(unit=83,file=full_filename,
+     >              form='formatted',status='old')
+               do while (found)
+                  read(83,'(A)',ERR=30,END=30) line
+                  if (inp_strlen(line).gt.9) 
+     >               call pspw_add_cmd_director(line)
+               end do
+   30          continue 
+               close(83)
 
-            call util_file_unlink(full_filename)
+               call util_file_unlink(full_filename)
 
+            end if
          end if
-      end if
 
-      call pspw_brdcst_cmd_director()
-      call pspw_run_cmd_director()
+         call pspw_brdcst_cmd_director()
+         call pspw_run_cmd_director()
+
+      end if
 
       return
       end
