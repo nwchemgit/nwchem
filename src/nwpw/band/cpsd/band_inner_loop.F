@@ -23,7 +23,7 @@
       integer hml_tag
 
 *     **** very big workspace variables ****
-      integer psir_tag,Hpsi_tag
+      integer psir_tag,Hpsi_tag,next1_tag,next2_tag
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -45,7 +45,7 @@
 
 
 *     **** MA local variables ****
-      logical value,field_exist
+      logical value,field_exist,fractional
       integer tmp_L(2),trho(2),txcp(2),txce(2)
       integer tmp1(2),tmp2(2)
       integer vl(2),vc(2),dng(2)
@@ -91,6 +91,16 @@
       real*8   ion_disp_energy
       external ion_disp_energy
 
+      integer tid
+      integer nthreads
+      integer  Parallel_threadid, Parallel_nthreads
+      external Parallel_threadid, Parallel_nthreads
+
+      logical  control_fractional
+      external control_fractional
+      integer  control_fractional_smeartype
+      external control_fractional_smeartype
+
       call Cram_npack(0,npack0)
       call Cram_max_npack(npack1)
       deltamm = 0.0d0
@@ -103,6 +113,7 @@
       n1(2) = neq(1)+1
       n2(2) = neq(1)+neq(2)
       nemaxq = neq(1)+neq(2)
+      fractional = control_fractional()
 
       call nwpw_timing_start(12)
 
@@ -139,8 +150,12 @@
       end if
       if (.not. value) 
      > call errquit('band_inner_loop:out of stack memory',0, MA_ERR)
-      call dcopy(2*nfft3d,0.0d0,0,dbl_mb(xcp(1)),1)
-      call dcopy(2*nfft3d,0.0d0,0,dbl_mb(xce(1)),1)
+      call Parallel_shared_vector_zero(.false.,2*nfft3d,dbl_mb(xcp(1)))
+      call Parallel_shared_vector_zero(.true., 2*nfft3d,dbl_mb(xce(1)))
+      if (fractional) then
+         next1_tag = cpsi_data_get_next(psi1_tag)
+         next2_tag = cpsi_data_get_next(psi2_tag)
+      end if
 
       call nwpw_timing_end(12)
      
@@ -160,8 +175,19 @@
 *     ****   Start of steepest descent loop ****
 *     ****                                  ****
 *     ******************************************
+*!$OMP PARALLEL private(it,tid,nthreads)
+*      tid      = Parallel_threadid()
+*      nthreads = Parallel_nthreads()
+
       do it=1,it_in
+
+c!$OMP PARALLEL private(tid,nthreads)
+c      tid      = Parallel_threadid()
+c      nthreads = Parallel_nthreads()
+c      write(*,*) "tid,nthreads=",tid,nthreads
+
         call cpsi_data_copyall(psi2_tag,psi1_tag)
+        if (fractional) call cpsi_data_copyall(next2_tag,next1_tag)
         if (move) call ion_shift()
 
 *       ********************************
@@ -182,6 +208,8 @@
         nbj = 1
         kj  = 1
         shiftB =  cpsi_data_get_chnk(psir_tag,nbj)
+
+c!$OMP END PARALLEL
 
         done = .false.
         do while (.not.done)
@@ -220,7 +248,7 @@
 *       *********************
 *       **** generate dn ****
 *       *********************
-        call dcopy(ispin*nfft3d,0.0d0,0,dn,1)
+        call Parallel_shared_vector_zero(.true.,ispin*nfft3d,dn)
 
 
         occ_tag = cpsi_data_get_next(psir_tag)
@@ -281,7 +309,8 @@
      >                        dbl_mb(dnall(1)+(ms-1)*nfft3d))
            end do
         else
-           call dcopy(ispin*nfft3d,dn,1,dbl_mb(dnall(1)),1)
+           call Parallel_shared_vector_copy(.true.,ispin*nfft3d,
+     >                                      dn,dbl_mb(dnall(1)))
         end if
         call nwpw_timing_end(11)
 
@@ -408,6 +437,7 @@ c           if (pspw_qmmm_found()) call pspw_qmmm_fion(dbl_mb(fion(1)))
           end do
         end do
         call cpsi_data_noupdate(psi2_tag)
+
 
       end do
 
