@@ -14,10 +14,13 @@ c
         integer          :: nov(2)
         integer          :: nmo(2)
 	integer          :: nstates
+	integer          :: ngl
         double precision :: tol2e
 c
         integer          :: l_evals, k_evals
         integer          :: l_occ, k_occ
+	integer          :: l_glx, k_glx
+	integer          :: l_glw, k_glw
 c
         integer          :: n_batch
         integer          :: n3c_int

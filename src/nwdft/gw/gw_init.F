@@ -46,7 +46,7 @@ c
 c
       if (.not.rtdb_get(pars%rtdb,'gw:cdgw',mt_log,1,pars%cdgw))
      $  call errquit(pname//'failed to read cdgw',0,RTDB_ERR)
-      if (.not.rtdb_get(pars%rtdb,'gw:acgw',mt_log,1,pars%cdgw))
+      if (.not.rtdb_get(pars%rtdb,'gw:acgw',mt_log,1,pars%acgw))
      $  call errquit(pname//'failed to read acgw',0,RTDB_ERR)
 c
       if (.not.rtdb_get(pars%rtdb,'gw:graph',mt_log,1,pars%graph))
@@ -190,6 +190,21 @@ c
       if (pars%qpiter.lt.1)
      $  call errquit(pname//'invalid qpiter',0,0)
 c
+c     Gauss-Legendre quadrature
+c
+      if (pars%cdgw) then
+        if (.not.rtdb_get(pars%rtdb,'gw:ngl',mt_int,1,pars%ngl))
+     $    call errquit(pname//'failed to read ngl',0,RTDB_ERR)
+        if (.not.ma_push_get(mt_dbl,pars%ngl,'GL roots',
+     $    pars%l_glx,pars%k_glx))
+     $    call errquit(pname//'can''t allocate GL roots',0,MA_ERR) 
+        if (.not.ma_push_get(mt_dbl,pars%ngl,'GL weights',
+     $    pars%l_glw,pars%k_glw))
+     $    call errquit(pname//'can''t allocate GL roots',0,MA_ERR) 
+        call grid_gaussleg(pars%ngl,dbl_mb(pars%k_glx),
+     $    dbl_mb(pars%k_glw))
+      endif
+c
 c     3-center ERIs 
 c
       call int_init(pars%rtdb, 2, (/ao_bas_han, cd_bas_han/))
@@ -199,6 +214,6 @@ c
 c
       call gw_memory(pars)
       call gw_ri_init(pars)
-c
+c      
       return
       end subroutine gw_init
