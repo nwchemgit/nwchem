@@ -865,7 +865,7 @@ c     >           dcpl_mb(psi1(1)),1)
       parameter (MASTER=0)
 
       logical oprint
-      integer maxit_orb,maxit_ls
+      integer maxit_sweeps,maxit_orb,maxit_ls
       integer ii,l
       real*8  sum,maxerror,error_out,e0,eci
       integer g93(2),eig_eci(2)
@@ -875,6 +875,8 @@ c     >           dcpl_mb(psi1(1)),1)
       external control_print
       integer  control_CI_maxit_orb,control_CI_maxit_linesearch
       external control_CI_maxit_orb,control_CI_maxit_linesearch
+      integer  control_CI_maxit_sweeps
+      external control_CI_maxit_sweeps
       real*8   control_tole
       external control_tole
 
@@ -890,6 +892,7 @@ c     >           dcpl_mb(psi1(1)),1)
      >   call errquit('psi_CI_minimize_virtual:out of stack',1,MA_ERR)
 
       !call psi_gen_density_potentials(1)
+      maxit_sweeps = control_CI_maxit_sweeps()
       maxit_orb = control_CI_maxit_orb()
       maxit_ls  = control_CI_maxit_linesearch()
       maxerror  = control_tole()
@@ -898,6 +901,7 @@ c     >           dcpl_mb(psi1(1)),1)
          write(luout,*) "COVOs Mimimization"
          write(luout,*) "------------------"
          write(luout,'(A,I9)') "CI gradient algorithm = ",ci_algorithm
+         write(luout,'(A,I9)') "maxit_sweeps          = ",maxit_sweeps
          write(luout,'(A,I9)') "maxit_orb             = ",maxit_orb
          write(luout,'(A,I9)') "maxit_linesearch      = ",maxit_ls
          write(luout,'(A,E9.3)') "maxerror              = ",maxerror
@@ -937,7 +941,7 @@ c     >           dcpl_mb(psi1(1)),1)
      >                               0.001d0,ii,error_out,e0,eci)
           l = l+1
           !if ((error_out.gt.maxerror).and.(l.le.4)) go to 2
-          if ((error_out.gt.maxerror).and.(l.le.2)) go to 2
+          if ((error_out.gt.maxerror).and.(l.lt.maxit_sweeps)) go to 2
 
           dbl_mb(eig_excited(1)+ii-1) = e0
           dbl_mb(eig_eci(1)+ii-1)     = eci
@@ -1138,7 +1142,8 @@ c      end if
 
       ep = control_Ep()
       sp = control_Sp()
-      precondition = .true.
+      !precondition = .true.
+      precondition = .false.
       done = .false.
       error0 = 0.0d0
       eci = 0.0d0
@@ -1215,43 +1220,52 @@ c     >   write(*,*) "orb,it,eci,eold,eci-eold=",ii,it,eci,eold,eci-eold
 
          !*** project out to lower orbitals  ****
          call Pack_c_Copy(1,dcpl_mb(g(1)),dcpl_mb(r1(1)))
+
+*        **** preconditioning ****
+         if (precondition) then
+            pit = pit + 1
+            call ke_Precondition(npack1,1,
+     >                           dcpl_mb(psie_ptr),
+     >                           dcpl_mb(r1(1)))
+         end if
+
          !call psi_project_out_virtual1(ii,dcpl_mb(r1(1)))
          call psi_project_out_virtual(ii,dcpl_mb(r1(1)))
 
 *        *** determine conjuagate direction ***
-c         call Pack_cc_dot(1,dcpl_mb(r1(1)),
-c     >                   dcpl_mb(r1(1)),
-c     >                   lmbda_r1)
+         call Pack_cc_dot(1,dcpl_mb(r1(1)),
+     >                   dcpl_mb(r1(1)),
+     >                   lmbda_r1)
 
          call Pack_c_Copy(1,dcpl_mb(r1(1)),dcpl_mb(t(1)))
 
-c         if (it.gt.1) then
-c         call Pack_cc_daxpy(1,(lmbda_r1/lmbda_r0),
-c     >                   dcpl_mb(t0(1)),
-c     >                   dcpl_mb(t(1)))
-c         end if
-c         lmbda_r0 = lmbda_r1
-c         oneloop = .true.
-c 3       call Pack_c_Copy(1,dcpl_mb(t(1)),dcpl_mb(t0(1)))
+         if (it.gt.1) then
+            call Pack_cc_daxpy(1,(lmbda_r1/lmbda_r0),
+     >                      dcpl_mb(t0(1)),
+     >                      dcpl_mb(t(1)))
+         end if
+         lmbda_r0 = lmbda_r1
+         oneloop = .true.
+ 3       call Pack_c_Copy(1,dcpl_mb(t(1)),dcpl_mb(t0(1)))
 
 *        *** normalize search direction, t ****
+         call psi_project_out_virtual(ii,dcpl_mb(t(1)))
          call Pack_cc_dot(1,dcpl_mb(t(1)),dcpl_mb(t(1)),sigma)
          sigma = dsqrt(sigma)
          de0 = 1.0d0/sigma
          call Pack_c_SMul1(1,de0,dcpl_mb(t(1)))
 
 *        **** compute de0 = <t|g> ****
-c         call Pack_cc_dot(1,dcpl_mb(t(1)),
-c     >                      dcpl_mb(g(1)),
-c     >                      de0)
-c         call Pack_cc_dot(1,dcpl_mb(t(1)),dcpl_mb(t(1)),sigma)
+         call Pack_cc_dot(1,dcpl_mb(t(1)),
+     >                      dcpl_mb(g(1)),
+     >                      de0)
 
 *        *** bad direction ***
-c         if ((de0.lt.0.0d0).and.oneloop) then
-c           call Pack_c_Copy(1,dcpl_mb(g(1)),dcpl_mb(t(1)))
-c           oneloop = .false.
-c           go to 3
-c         end if
+         if ((de0.lt.0.0d0).and.oneloop) then
+           call Pack_c_Copy(1,dcpl_mb(g(1)),dcpl_mb(t(1)))
+           oneloop = .false.
+           go to 3
+         end if
 
          call psi_linesearch_CI_virtual(ci_algorithm,maxit_ls,
      >                                   ii,theta,eci,de0,dcpl_mb(t(1)),
@@ -1271,9 +1285,12 @@ c         end if
      >                                  electron_psi_r_ptr(),
      >                                  hpsig(1),hpsig_r(1),
      >                                  maxerror)
+
+         !precondition = (dabs(eci-eold).gt.(sp*maxerror))
+
          if (oprint) 
      >   write(*,*) "    orb,it,eci,eold,eci-eold=",
-     >              ii,it,eci,eold,eci-eold
+     >              ii,it,eci,eold,eci-eold,precondition
 
          done = ((it.gt.maxiteration) 
      >           .or.
@@ -2032,6 +2049,7 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
 
       call D3dB_r_SMul1(1,(-2.0d0*c2*c2),vcee)
       call D3dB_rr_daxpy(1,(-1.0d0*c1*c2),vcge,vcee)
+      !original call D3dB_rr_daxpy(1,(-1.0d0*c1*c2),vcge,vcee)
 
       call D3dB_rc_fft3f(1,vcee)
       call Pack_c_pack(1,vcee)
@@ -2039,7 +2057,8 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
 
       call Pack_cc_daxpy(1,2.0d0*c2*c2,h1psie,dEdpsie)
       E = Elow
-c      !if (oprint) write(*,*) "c1,c2=",c1,c2
+      !if (oprint) write(*,*) "2x2ne c1,c2=",c1,c2
+      write(*,*) "2x2ne c1,c2=",c1,c2,Elow
 c
 
       return
@@ -3422,11 +3441,12 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
 *    - Enew
 *    - deltae
 *
-      subroutine psi_KS_block_update(Enew,deltae,
-     >                               current_iteration,maxerror)
+      subroutine psi_KS_block_update(Enew,deltae,current_iteration,
+     >                               maxit_orbs,maxerror)
       implicit none
       real*8  Enew,deltae
       integer current_iteration
+      integer maxit_orbs
       real*8  maxerror
         
 #include "bafdecls.fh"
@@ -3451,15 +3471,17 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
       real*8 max_sigma,dt,kappa
 
       logical value
-      integer neall,maxit_orbs
+      integer neall
 
 *     **** external functions ****
       logical  control_precondition,psp_pawexist
       external control_precondition,psp_pawexist
       integer  control_lmbfgs_size
       external control_lmbfgs_size
-      integer  control_ks_maxit_orbs,psi_neq
-      external control_ks_maxit_orbs,psi_neq
+      !integer  control_ks_maxit_orbs,psi_neq
+      !external control_ks_maxit_orbs,psi_neq
+      integer  psi_neq
+      external psi_neq
       real*8   control_time_step
       external control_time_step
       real*8   psi_geodesic_energy0,psi_geodesic_denergy
@@ -3468,7 +3490,7 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
       external linesearch
 
       !maxit_orb  = control_ks_maxit_orb()   !*** should be read from rtdb ***
-      maxit_orbs = control_ks_maxit_orbs()  !*** should be read from rtdb ***
+      !maxit_orbs = control_ks_maxit_orbs()  !*** should be read from rtdb ***
       it_in = maxit_orbs
 
       dt = control_time_step()
@@ -9187,6 +9209,45 @@ c         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
       call psi_write(ispin,ne,dcpl_mb(psi1(1)),
      >               smearoccupation,dbl_mb(occ1(1)))
 
+      return
+      end
+
+
+*     ************************************
+*     *				         *
+*     *	    psi_tmp_write_full_filename  *
+*     *				         *
+*     ************************************
+      subroutine psi_tmp_write_full_filename(full_filename)
+      implicit none
+      character*(*) full_filename
+
+#include "bafdecls.fh"
+#include "psi.fh"
+
+*     ***** write psi1 wavefunctions ****
+      call psi_write_full_filename(full_filename,
+     >                             ispin,ne,dcpl_mb(psi1(1)),
+     >                             smearoccupation,dbl_mb(occ1(1)))
+
+      return
+      end
+
+*     ************************************
+*     *				         *
+*     *	    psi_tmp_read_full_filename   *
+*     *				         *
+*     ************************************
+      subroutine psi_tmp_read_full_filename(full_filename)
+      implicit none
+      character*(*) full_filename
+
+#include "bafdecls.fh"
+#include "psi.fh"
+
+      call psi_read_full_filename(full_filename,
+     >                            ispin,ne,dcpl_mb(psi1(1)),
+     >                            smearoccupation,dbl_mb(occ1(1)))
       return
       end
 

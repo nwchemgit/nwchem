@@ -58,7 +58,7 @@ OBJ_OPTIMIZE = dbdsqr.o      dgebd2.o      dgebrd.o       dgelq2.o     \
                dlasq4.o      dlasq6.o      dposv.o        dtrtrs.o     \
                dpotrs.o      dlaebz.o      dstedc.o       \
                dlaed0.o dlaed1.o dlaed2.o dlaed3.o dlaed4.o dlaed5.o dlaed6.o dlaed7.o dlaed8.o dlaed9.o \
-               dlamrg.o      dlaeda.o \
+               dlamrg.o      dlaeda.o dsyevd.o \
                ilaenv.o ieeeck.o      lsamen.o  iladlr.o iladlc.o ilazlc.o ilazlr.o iparmq.o \
 	       zbdsqr.o  zgebd2.o zgebrd.o zgelq2.o zgelqf.o zgeqr2.o \
                zgeqrf.o zgesvd.o \
@@ -83,7 +83,7 @@ OBJ_OPTIMIZE = dbdsqr.o      dgebd2.o      dgebrd.o       dgelq2.o     \
                dhseqr.o dorghr.o dtrevc.o dlaln2.o dlahqr.o dgehd2.o \
                dlanhs.o dlarfx.o dlahrd.o dlanv2.o \
                dlarra.o dlarrb.o dlarrc.o dlarrd.o dlarrf.o dlarrk.o dlarrv.o\
-               dlar1v.o dlaneg.o dgelss.o dcombssq.o
+               dlar1v.o dlaneg.o dgelss.o dormtr.o dormql.o dorm2l.o
 
 #pgf77 on Linux, hpux (and possibly others) puts dlamch routines into infinite loop
         OBJ = $(OBJ_DLAMCH)
@@ -132,7 +132,8 @@ OBJ_OPTIMIZE = sbdsqr.o      sgebd2.o      sgebrd.o       sgelq2.o     \
                cgehd2.o cgehrd.o clahrd.o cgebak.o cgebal.o cgeev.o \
                chseqr.o clacpy.o clahqr.o clange.o clanhs.o clarfx.o \
                clatrs.o ctrevc.o cunghr.o slabad.o claswp.o \
-               sgebak.o sgebal.o sgehrd.o shseqr.o sorghr.o strevc.o  scombssq.o
+               sgebak.o sgebal.o sgehrd.o shseqr.o sorghr.o strevc.o \
+	       dormtr.o dormql.o dorm2l.o
 endif
 
 include ../config/makelib.h
@@ -148,11 +149,6 @@ ifeq ($(_FC),g77)
     FDEBUG +=-ffloat-store -fno-fast-math
 endif
 ifeq ($(_FC),gfortran)
-ifneq ($(FC),flang)
     FDEBUG +=-ffloat-store -fno-fast-math
-else
-    FDEBUG +=-O0 -g -Kieee -fno-fast-math -fno-finite-math-only
-    FOPTIMIZE +=  -Kieee -fno-fast-math -fno-finite-math-only
-endif
 endif
 

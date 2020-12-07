@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 get_cmake38(){
 	UNAME_S=$(uname -s)
 	if [[ ${UNAME_S} == "Linux" ]] || [[ ${UNAME_S} == "Darwin" ]] && [[ $(uname -m) == "x86_64" ]] ; then

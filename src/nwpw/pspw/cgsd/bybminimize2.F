@@ -64,6 +64,7 @@ c
       real*8 ehartree,eorbit,exc,pxc,eion,eke,evl,evnl
 
       integer it,it_in,i,j,ispin,bfgscount,icount,sd_it,cg_it,it2
+      integer maxit_orb,maxit_orbs
 
       logical value,precondition,done,stalled,deltav_bad(4),oprint
       logical dohfx,assending,ks_block
@@ -139,8 +140,8 @@ c
       external nwpw_cosmo_on,nwpw_cosmo1_on,pspw_V_APC_on
       real*8   psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
       external psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
-      integer  control_ks_maxit_orb
-      external control_ks_maxit_orb
+      integer  control_ks_maxit_orb,control_ks_maxit_orbs
+      external control_ks_maxit_orb,control_ks_maxit_orbs
 
 
       Ein = E(1)
@@ -164,6 +165,8 @@ c
         sd_it = 10
         cg_it = 10
       end if
+      maxit_orb  = control_ks_maxit_orb()
+      maxit_orbs = control_ks_maxit_orbs()
       tole  = control_tole()
       tolc  = control_tolc()
       precondition = control_precondition()
@@ -278,7 +281,8 @@ c         end if
       
 *     **** diaganolize KS matrix - note that Hpsik set to last application of H(rho)|psi> ****
       if (ks_block) then
-         call psi_KS_block_update(e00_shared,deltae,it,ks_deltae)
+         call psi_KS_block_update(e00_shared,deltae,it,
+     >                            maxit_orbs,ks_deltae)
       else
          call psi_KS_update(1,
      >                      control_ks_algorithm(),
@@ -447,6 +451,25 @@ c         call D3dB_SumAll(deltav)
 !$OMP END MASTER
  1310 FORMAT(I8,E20.11,3E15.5)
 
+*     *** reduce ks iterations in block cg ***
+      if (ks_block.and.(deltae.gt.0.0d0).and.
+     >    (deltac.lt.1.0d-4).and.
+     >    (deltav.lt.1.0d-4)) then
+         if ((maxit_orb.gt.1).and.(maxit_orb.gt.maxit_orbs)) then
+            maxit_orb = maxit_orb - 1
+            call linesearch_maxiter_set(maxit_orb)
+            if ((oprint).and.(.not.set_iterations)) then 
+               write(luout,1311) maxit_orb,maxit_orbs
+            end if
+         else if (maxit_orbs.gt.1) then
+            maxit_orbs = maxit_orbs - 1
+            if ((oprint).and.(.not.set_iterations)) then 
+               write(luout,1311) maxit_orb,maxit_orbs
+            end if
+         end if
+      end if
+ 1311 FORMAT(5X, '     - Reducing Kohn-Sham iterations = ',I3,
+     >           ' (',I3,' outer)')
 
       !**** set ks_deltae ****
       ks_deltae = 0.001d0*dabs(deltae)

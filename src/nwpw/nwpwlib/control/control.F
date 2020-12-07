@@ -7279,3 +7279,28 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *        control_use_director     *
+*     *                                 *
+*     ***********************************
+      logical function control_use_director()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .true.
+      if (.not.btdb_get(rtdb,'nwpw:use_director',mt_log,1,value))
+     >   value = .false.
+
+      control_use_director = value
+      return
+      end
+

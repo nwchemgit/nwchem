@@ -46,6 +46,7 @@ c
       !common / cgsd_block / Enew,Eold,alpha
 
       integer it,it_in,i,ispin,bfgscount,icount,sd_it,cg_it
+      integer maxit_orbs
 
       logical value,precondition,done,stalled,deltav_bad(4),oprint
       logical ks_block
@@ -115,8 +116,8 @@ c
       real*8   psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
       external psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
 
-      integer  control_ks_maxit_orb
-      external control_ks_maxit_orb
+      integer  control_ks_maxit_orb,control_ks_maxit_orbs
+      external control_ks_maxit_orb,control_ks_maxit_orbs
 
    
       Ein = E(1)
@@ -139,6 +140,7 @@ c
         sd_it = 10
         cg_it = 10
       end if
+      maxit_orbs = control_ks_maxit_orbs() 
       tole  = control_tole()
       tolc  = control_tolc()
       precondition = control_precondition()
@@ -239,7 +241,7 @@ c      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(rho_in(1)),1)
       
 *     **** diaganolize KS matrix ****
       if (ks_block) then
-         call psi_KS_block_update(e00,deltae,it,ks_deltae)
+         call psi_KS_block_update(e00,deltae,it,maxit_orbs,ks_deltae)
       else
          call psi_KS_update(1,
      >                      control_ks_algorithm(),

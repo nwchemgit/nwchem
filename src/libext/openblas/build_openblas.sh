@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/usr/bin/env bash
 VERSION=0.3.12
 if [ -f  OpenBLAS-${VERSION}.tar.gz ]; then
     echo "using existing"  OpenBLAS-${VERSION}.tar.gz
@@ -6,9 +6,12 @@ else
     rm -rf OpenBLAS*
     curl -L https://github.com/xianyi/OpenBLAS/archive/v${VERSION}.tar.gz -o OpenBLAS-${VERSION}.tar.gz
 fi
+# patch for avx2 detection
+curl -L https://github.com/xianyi/OpenBLAS/commit/aa21cb52179b86b00f7ac52a4e41ed712836f2d1.patch -o  avx2.patch
 tar xzf OpenBLAS-${VERSION}.tar.gz
 ln -sf OpenBLAS-${VERSION} OpenBLAS
 cd OpenBLAS-${VERSION}
+patch -p1 < ../avx2.patch
 if [[  -z "${FORCETARGET}" ]]; then
 FORCETARGET=" "
 UNAME_S=$(uname -s)
@@ -43,6 +46,9 @@ if [[ "${NWCHEM_TARGET}" == "LINUX" ]]; then
 else
   binary=64
 fi
+if [ -n "${USE_DYNAMIC_ARCH}" ]; then
+    FORCETARGET+="DYNAMIC_ARCH=1 DYNAMIC_OLDER=1"
+fi    
 if [[ -n ${FC} ]] &&  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
  make CC=gcc FC="xlf -qextname"  INTERFACE64="$sixty4_int" BINARY="$binary" USE_THREAD=0 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 NUM_THREADS=1 LAPACK_FPFLAGS="-qstrict=ieeefp -O2 -g" libs netlib
 elif  [[ -n ${FC} ]] && [[ "${FC}" == "flang" ]]; then

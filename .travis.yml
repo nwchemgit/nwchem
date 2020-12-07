@@ -122,13 +122,19 @@ jobs:
       env: NWCHEM_MODULES=tce ARMCI_NETWORK=MPI-TS
     - stage: compile
       <<: *compile-template-mpich-ppc
-      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT
+      env: NWCHEM_MODULES="tinyqmpw python" ARMCI_NETWORK=MPI-PT
     - stage: compile
       <<: *compile-template-mpich-ppc
       env: NWCHEM_MODULES=tce ARMCI_NETWORK=MPI-TS
     - stage: compile
       <<: *compile-template-mpich-ppc
       env: NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-PR
+    - stage: compile
+      <<: *compile-template-mpich-ppc
+      env: NWCHEM_MODULES=qmandpw USE_INTERNALBLAS=y ARMCI_NETWORK=MPI-PR
+    - stage: compile
+      <<: *compile-template-mpich-ppc
+      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PR USE_64TO32=y
     - stage: test
       <<: *qatest-template-ompi-x86
       env: NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-PR
@@ -168,13 +174,19 @@ jobs:
       env: NWCHEM_MODULES=tce ARMCI_NETWORK=MPI-TS
     - stage: test
       <<: *qatest-template-mpich-ppc
-      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PT
+      env: NWCHEM_MODULES="tinyqmpw python" ARMCI_NETWORK=MPI-PT
     - stage: test
       <<: *qatest-template-mpich-ppc
       env: NWCHEM_MODULES=tce ARMCI_NETWORK=MPI-TS
     - stage: test
       <<: *qatest-template-mpich-ppc
       env: NWCHEM_MODULES=qmandpw ARMCI_NETWORK=MPI-PR
+    - stage: test
+      <<: *qatest-template-mpich-ppc
+      env: NWCHEM_MODULES=qmandpw USE_INTERNALBLAS=y ARMCI_NETWORK=MPI-PR
+    - stage: test
+      <<: *qatest-template-mpich-ppc
+      env: NWCHEM_MODULES=tinyqmpw ARMCI_NETWORK=MPI-PR USE_64TO32=y
   exclude:
     - os: osx
       arch: arm64
