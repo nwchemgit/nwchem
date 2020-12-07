@@ -187,7 +187,15 @@ C
       external ion_nion
       external lattice_unitg,ion_rion
 
+      integer tid
+      integer nthr
+      integer  Parallel_threadid, Parallel_nthreads
+      external Parallel_threadid, Parallel_nthreads
+
+
       call nwpw_timing_start(8)
+      tid  = Parallel_threadid()
+      nthr = Parallel_nthreads()
 
       pi = 4.0d0*datan(1.0d0)
 
@@ -196,7 +204,7 @@ C
       call C3dB_nz(1,nz)
 
 *::::::::::::::::::  phase factor of ion positions  :::::::::::::::::::
-      do i=1,ion_nion()
+      do i=1+tid,ion_nion(),nthr
         sw1= lattice_unitg(1,1)*ion_rion(1,i)
      >     + lattice_unitg(2,1)*ion_rion(2,i)
      >     + lattice_unitg(3,1)*ion_rion(3,i) + pi
@@ -532,9 +540,17 @@ C
       external brillioun_nbrillq,ion_nion
       external brillioun_k,ion_rion
 
+      integer tid
+      integer nthr
+      integer  Parallel_threadid, Parallel_nthreads
+      external Parallel_threadid, Parallel_nthreads
+
+      tid  = Parallel_threadid()
+      nthr = Parallel_nthreads()
+
       nion = ion_nion()
       do nb=1,brillioun_nbrillq()
-      do i =1,nion
+      do i =1+tid,nion,nthr
          dcpl_mb(cxr(1)+i-1+(nb-1)*nion) =
      >        dcmplx(cos( (brillioun_k(1,nb))*ion_rion(1,i)
      >                  + (brillioun_k(2,nb))*ion_rion(2,i)

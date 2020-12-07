@@ -85,6 +85,7 @@
       integer hversion,hnfft(3),hispin,hne(2)
       real*8 hunita(3,3)
       integer ind,vers
+      integer psi2_tmp(2)
 
       character*255 filename
       character*50 control_input_psi
@@ -111,10 +112,13 @@
 
       logical  control_fractional
       external control_fractional
+      integer  control_fractional_smeartype
+      external control_fractional_smeartype
       real*8   control_fractional_temperature
       external control_fractional_temperature
-      real*8   control_fractional_kT,control_fractional_smeartype
-      external control_fractional_kT,control_fractional_smeartype
+      real*8   control_fractional_kT
+      external control_fractional_kT
+
       real*8   control_tole,control_tolc,control_tolr,ion_rion
       external control_tole,control_tolc,control_tolr,ion_rion
       real*8   control_time_step,control_fake_mass
@@ -357,6 +361,7 @@ c      call center_mass(gx,gy,gz)
      >                 cpsi_data_alloc(nbrillq,nemaxq,1))
         smeartype = control_fractional_smeartype()
         smearkT   = control_fractional_kT()
+        
       end if
 
 c     **** allocate other variables ****
@@ -366,6 +371,11 @@ c     **** allocate other variables ****
       eig_tag  = cpsi_data_alloc(nbrillq,ne(1)+ne(2),1)
       svec_tag = cpsi_data_alloc(nbrillq,neq(1),3)
       value = BA_alloc_get(mt_dbl,2*nfft3d,'dn',dn(2),dn(1))
+      if (smearoccupation.gt.0) then
+         value = value.and.
+     >           BA_alloc_get(mt_dbl,nemaxq*2*npack1,'psi2_tmp',
+     >                        psi2_tmp(2),psi2_tmp(1))
+      end if
       if (.not. value)
      >  call errquit('band_sd:out of heap memory',0,MA_ERR)
 
@@ -429,6 +439,14 @@ c     **** allocate other variables ****
 
 *     *****  read psi2 wavefunctions ****
       call cpsi_read(spin_orbit,ispin,ne,nbrillioun,psi2_tag)
+
+      !next = cpsi_data_get_next(psi2_tag)
+      !do nb=1,nbrillq
+      !do i=1,ne(1)
+      !   f2=cpsi_occ_brdcst_tag(ne,spin_orbit,next,   nb,1,i)
+      !   write(*,*) "nb,i,f2=",nb,i,f2
+      !end do
+      !end do
 
 *     **** Ortho Check ****
       call Pneb_orthoCheckMake_tag(.true.,0,0,npack1,psi2_tag)
@@ -688,6 +706,8 @@ c
      >                      hml_tag,
      >                      psir_tag,Hpsi_tag)
 
+
+
          if (mprint) then 
            write(luout,1310) icount*it_in,E(1),deltae,deltac,deltar
            call util_flush(luout)
@@ -707,10 +727,50 @@ c
      >       ' *** tolerance ok.     iteration terminated.'
             go to 2
          end if
+
+*        ***** define fractional occupation ****
+         if ( (icount.lt.it_out).and.control_fractional().and.
+     >       (control_fractional_smeartype().ge.0)) then
+            call cpsi_data_update(hml_tag)
+            call cpsi_data_update(eig_tag)
+            do nb=1,nbrillq
+              hml_shift = cpsi_data_get_chnk(hml_tag,nb)
+              eig_shift = cpsi_data_get_chnk(eig_tag,nb)
+              call Pneb_w_diag(0,nb,dbl_mb(eig_shift),dbl_mb(hml_shift))
+            end do
+            call cpsi_data_noupdate(hml_tag)
+            call cpsi_data_noupdate(eig_tag)
+
+            call cpsi_data_update(psi2_tag)
+            do nb=1,nbrillq
+              !psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
+              psi2_shift = cpsi_data_get_chnk(psi2_tag,nb)
+              hml_shift  = cpsi_data_get_chnk(hml_tag,nb)
+              call Parallel_shared_vector_copy(.true.,nemaxq*2*npack1,
+     >                                         dbl_mb(psi2_shift),
+     >                                         dbl_mb(psi2_tmp(1)))
+              call Pneb_fwf_Multiply(0,nb,
+     >                          one,
+     >                          dbl_mb(psi2_tmp(1)),npack1,
+     >                          dbl_mb(hml_shift),
+     >                          zero,
+     >                          dbl_mb(psi2_shift))
+            end do
+
+            next = cpsi_data_get_next(psi2_tag)
+            call cpsi_0define_occupation(1.0d0,.false.,
+     >                               ispin,ne,nbrillq,
+     >                               eig_tag,hml_tag,next,
+     >                               smeartype,smearkT,
+     >                               smearfermi,smearcorrection)
+            call cpsi_data_noupdate(psi2_tag)
+         end if
+
       if (icount.lt.it_out) go to 1
       if (mprint) 
      > write(luout,*) 
      > '*** arrived at the Maximum iteration.   terminated.'
+
 
 *::::::::::::::::::::  end of iteration loop  :::::::::::::::::::::::::
 
@@ -993,6 +1053,9 @@ c
       call cpsi_data_dealloc(eig_tag)
       call cpsi_data_dealloc(svec_tag)
       value = BA_free_heap(dn(2))
+      if (smearoccupation.gt.0) then
+         value = value.and.BA_free_heap(psi2_tmp(2))
+      end if
       if (.not. value)
      >  call errquit('band_sd:freeing heap memory',0,MA_ERR)
 

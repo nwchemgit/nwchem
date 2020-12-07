@@ -2543,6 +2543,7 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
       call v_bwexc_all(gga,n2ft3d,ispin,dnall,
      >                 dbl_mb(xcp(1)),dbl_mb(xce(1)))
 
+
       return
       end
 

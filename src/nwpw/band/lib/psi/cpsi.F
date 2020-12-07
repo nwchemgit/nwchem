@@ -1263,6 +1263,216 @@ c     &       MA_ERR)
 
 *     ***********************************
 *     *                                 *
+*     *      cpsi_0define_occupation    *
+*     *                                 *
+*     ***********************************
+      subroutine cpsi_0define_occupation(initial_alpha,use_hml,
+     >                                   ispin,ne,nbrillq,
+     >                                   eig_tag,hml_tag,occ1_tag,
+     >                                   smeartype,smearkT,
+     >                                   smearfermi,smearcorrection)
+      implicit none
+      real*8  initial_alpha
+      logical use_hml
+      integer ispin,ne(2),nbrillq
+      integer eig_tag,hml_tag,occ1_tag,smeartype
+      real*8  smearkT,smearfermi(2),smearcorrection
+
+#include "bafdecls.fh"
+
+*     **** local variables ****
+      integer it,itmax
+      parameter (itmax=50)
+
+      integer ms,nb,n,shift1,shift2,ndiff
+      real*8 e,x,kT,f,g,wb,alpha,pi
+      real*8 ZZ,Z(2),Zlower,Zmid,Zupper,elower,emid,eupper
+      real*8 flower,fmid,fupper
+
+*     **** external functions ****
+      integer  cpsi_data_get_next,cpsi_data_get_chnk
+      integer  control_multiplicity
+      real*8   brillioun_weight
+      real*8   control_TotalCharge,ion_TotalCharge_qm
+      real*8   cpsi_occ_distribution,control_fractional_alpha
+      external cpsi_data_get_next,cpsi_data_get_chnk
+      external control_multiplicity
+      external brillioun_weight
+      external control_TotalCharge,ion_TotalCharge_qm
+      external cpsi_occ_distribution,control_fractional_alpha
+      !integer  control_fractional_smeartype
+      !external control_fractional_smeartype
+      !real*8   control_fractional_kT
+      !external control_fractional_kT
+
+      !smeartype = control_fractional_smeartype()
+      !smearkT   = control_fractional_kT()
+
+      if (use_hml) then
+         do ms=1,ispin
+            do nb=1,nbrillq
+               shift1 = cpsi_data_get_chnk(eig_tag, nb) + (ms-1)*ne(1)
+               shift2 = cpsi_data_get_chnk(hml_tag,nb)
+     >                + (ms-1)*ne(1)*ne(1)
+               do n=1,ne(ms)
+                  dbl_mb(shift1+n-1) = dbl_mb(shift2+(n-1)+(n-1)*ne(ms))
+               end do
+            end do
+         end do
+      end if
+
+      smearfermi(1)      = 0.0d0
+      smearfermi(2)      = 0.0d0
+      smearcorrection = 0.0d0
+      !occ1_tag = cpsi_data_get_next(psi1_tag)
+      if (occ1_tag.gt.0) then
+         if (initial_alpha.lt.0.0d0) then
+            alpha = control_fractional_alpha()
+         else
+            alpha = initial_alpha
+         end if
+         kT    = smearkT
+         ZZ  = ion_TotalCharge_qm() - control_TotalCharge()
+         if (ispin.eq.2) then
+            ndiff = control_multiplicity() - 1
+            Z(1) = 0.5d0*(ZZ+ndiff)
+            Z(2) = 0.5d0*(ZZ-ndiff)
+         else
+            Z(1) = 0.5d0*ZZ
+            Z(2) = 0.0d0
+         end if
+
+
+         pi    = 4.0d0*datan(1.0d0)
+         !if (initial) alpha = 1.0d0
+         if (smeartype.le.0) alpha = 0.0d0
+
+*        **** outer loop over spins ****
+         smearcorrection = 0.0d0
+         do ms=1,ispin
+
+*           **** find eupper and elower ****
+            elower =  9.9d12
+            eupper = -9.9d12
+            do nb=1,nbrillq
+               shift1 = cpsi_data_get_chnk(eig_tag, nb) + (ms-1)*ne(1)
+               do n=1,ne(ms)
+                 e       = dbl_mb(shift1)
+                 if (e.lt.elower) elower = e
+                 if (e.gt.eupper) eupper = e
+                 shift1  = shift1 + 1
+               end do
+            end do
+            call K1dB_MinAll(elower)
+            call K1dB_MaxAll(eupper)
+
+*           **** find fermi level ****
+  10        Zlower = 0.0d0
+            Zupper = 0.0d0
+            do nb=1,nbrillq
+               shift1 = cpsi_data_get_chnk(eig_tag, nb) + (ms-1)*ne(1)
+               wb = brillioun_weight(nb)
+               do n=1,ne(ms)
+                 e = dbl_mb(shift1)
+                 Zlower = Zlower
+     >            + wb*cpsi_occ_distribution(smeartype,(e-elower)/kT)
+                 Zupper = Zupper
+     >            + wb*cpsi_occ_distribution(smeartype,(e-eupper)/kT)
+                 shift1  = shift1 + 1
+               end do
+            end do
+            call K1dB_SumAll(Zlower)
+            call K1dB_SumAll(Zupper)
+            flower = Zlower - Z(ms)
+            fupper = Zupper - Z(ms)
+
+            if (flower*fupper.ge.0.0d0)
+     >       call errquit(
+     >            'cpsi_0define_occupation:Fermi energy not found',ms,0)
+
+
+            it = 0
+  20        it = it + 1
+            emid = 0.5d0*(elower + eupper)
+            Zmid = 0.0d0
+            do nb=1,nbrillq
+               shift1 = cpsi_data_get_chnk(eig_tag, nb) + (ms-1)*ne(1)
+               wb = brillioun_weight(nb)
+               do n=1,ne(ms)
+                 e = dbl_mb(shift1)
+                 Zmid = Zmid
+     >                + wb*cpsi_occ_distribution(smeartype,(e-emid)/kT)
+                 shift1  = shift1 + 1
+               end do
+            end do
+            call K1dB_SumAll(Zmid)
+            fmid = Zmid - Z(ms)
+            if (fmid.lt.0.0d0) then
+               flower = fmid
+               elower = emid
+            else
+               fupper = fmid
+               eupper = emid
+            end if
+            if ( (dabs(fmid)     .gt.1.0d-11) .and.
+     >           ((eupper-elower).gt.1.0d-11) .and.
+     >           (it.lt.itmax))   goto 20
+
+            smearfermi(ms) = emid
+
+*           **** determine filling and correction ****
+            do nb=1,nbrillq
+               shift1 = cpsi_data_get_chnk(eig_tag, nb) + (ms-1)*ne(1)
+               shift2 = cpsi_data_get_chnk(occ1_tag,nb) + (ms-1)*ne(1)
+               wb = brillioun_weight(nb)
+               do n=1,ne(ms)
+                 e = dbl_mb(shift1)
+                 x = (e - smearfermi(ms))/kT
+                 f = cpsi_occ_distribution(smeartype,x)
+
+                 dbl_mb(shift2) = (1.0d0-alpha)*dbl_mb(shift2) + alpha*f
+
+                 if (smeartype.eq.1) then
+                    if (  (dbl_mb(shift2)       .gt.1.0d-6) .and.
+     >                  ( (1.0d0-dbl_mb(shift2)).gt.1.0d-6)) then
+                   smearcorrection = smearcorrection
+     >              + kT*wb*( dbl_mb(shift2)*log(dbl_mb(shift2))
+     >              + (1.0d0-dbl_mb(shift2))*log(1.0d0-dbl_mb(shift2)) )
+                    end if
+                 else if (smeartype.eq.2) then
+                   smearcorrection
+     >                 = smearcorrection
+     >                 - kT*wb*dexp(-x*x)/(4.0d0*dsqrt(pi))
+                 else if (smeartype.eq.4) then
+                   smearcorrection
+     >                 = smearcorrection
+     >                 - kT*wb*dexp(-(x+dsqrt(0.5d0))*(x+dsqrt(0.5d0)))
+     >                 * (1.0d0 + dsqrt(2.0d0) * x)
+     >                 / (2.0d0 * dsqrt(pi))
+                 end if
+                 shift1  = shift1 + 1
+                 shift2  = shift2 + 1
+               end do
+            end do
+
+         end do !** ms***
+         if (ms.eq.1) smearcorrection=smearcorrection+smearcorrection
+         call K1dB_SumAll(smearcorrection)
+
+      end if
+
+      return
+      end
+
+
+
+
+
+
+
+
+*     ***********************************
+*     *                                 *
 *     *      cpsi_1define_occupation    *
 *     *                                 *
 *     ***********************************

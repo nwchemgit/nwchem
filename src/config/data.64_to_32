@@ -132,6 +132,7 @@ dsptrs    ysptrs
 dsteqr    ysteqr    
 dsterf    ysterf    
 dsyev     ysyev    
+dsyevd     ysyevd    
 dsygs2    ysygs2    
 dsygst    ysygst    
 dsygv     ysygv    
@@ -318,6 +319,7 @@ dsptrs_   ysptrs_
 dsteqr_   ysteqr_   
 dsterf_   ysterf_   
 dsyev_    ysyev_   
+dsyevd_    ysyevd_   
 dsygs2_   ysygs2_   
 dsygst_   ysygst_   
 dsygv_    ysygv_   

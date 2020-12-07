@@ -1941,6 +1941,32 @@ c      end if
       return
       end
 
+*     ***************************
+*     *                         *
+*     *    ion_rion_indx_ptr    *
+*     *                         *
+*     ***************************
+
+      integer function ion_rion_indx_ptr(indx)
+      implicit none
+      integer indx
+
+#include "bafdecls.fh"
+#include "ion.fh"
+
+      if (indx.eq.0) then
+         ion_rion_indx_ptr = r0(1)
+      else if (indx.eq.1) then
+         ion_rion_indx_ptr = r1(1)
+      else if (indx.eq.2) then
+         ion_rion_indx_ptr = r2(1)
+      else if (indx.eq.3) then
+         ion_rion_indx_ptr = v2(1)
+      end if
+
+      return
+      end
+
 
 *     ***************************
 *     *				*

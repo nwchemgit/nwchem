@@ -27,18 +27,19 @@ plugins:
   - search
   - alternate-link
 nav:
-      - 'User Documentation': Home.md
-      - Download: Download.md
+      - 'NWChem Manual': Home.md
+      - 'How to download NWChem': Download.md
       - Quantum-Mechanical-Methods.md
       - Quantum-Molecular-Dynamics.md
+      - 'Hybrid Approaches': Hybrid-Approaches.md
       - Other-Capabilities.md
-      - Examples.md
+      - 'NWChem Examples': Examples.md
       - Supplementary-Information.md
-      - Compiling-NWChem.md
+      - 'How to install NWChem': Compiling-NWChem.md
       - Benchmarks.md
       - Known-Bugs.md
       - 'FAQ': FAQ.md
-      - Tutorials.md
+      - 'NWChem Tutorials': Tutorials.md
       - Forum.md
       - 'Archived Forum': Archived-Forum.md
       - 'EMSL Arrows': EMSL_Arrows.md
