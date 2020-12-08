@@ -39,12 +39,10 @@ c     energy/gradient calculation
      &   call errquit(pname//'rtdb_get gradient',0,RTDB_ERR)
       if(.not.rtdb_get(rtdb,'task:energy',mt_dbl,1,energy))
      &   call errquit(pname//'rtdb_get energy',0,RTDB_ERR)
-c     add external forces only when inside loop
-      if(istep_nucl.gt.0) then
+c plumed uses forces not gradientes. double flip
         call dscal(3*nat, -1d0, g, 1)
          call qmd_ext_gradient(nat,istep_nucl,energy,m,g,r)
         call dscal(3*nat, -1d0, g, 1)
-      endif
       return
       end
 c $Id$

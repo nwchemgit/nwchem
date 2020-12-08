@@ -255,7 +255,7 @@ c       get energies and movecs
       end if
 c
 c     perform energy gradient calculation on initial coordinates
-      call qmd_gradient(rtdb,nat,-10,
+      call qmd_gradient(rtdb,nat,0,
      $     dbl_mb(k_m),dbl_mb(k_g),dbl_mb(k_r),esys)
 c
       if (do_namd.and.(.not.do_tdks)) then
