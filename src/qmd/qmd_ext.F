@@ -1,6 +1,7 @@
       subroutine qmd_ext_init(nat,dt_nucl,kbt)
       implicit none
 #include "mafdecls.fh"
+#include "global.fh"
 #include "util_params.fh"
       integer nat             ![in]
       integer dt_nucl         ![in]
@@ -9,6 +10,8 @@ c     pass plumed initialization bits
 #ifdef USE_PLUMED
       integer ga_comm
       integer*4 ga_comm4
+      call ga_mpi_comm_pgroup_default(ga_comm)
+      if(ga_nodeid().eq.0) then
       call plumed_f_gcreate()
       call plumed_f_gcmd("setRealPrecision"//char(0),
      c     MA_sizeof(MT_DBL,1,MT_BYTE))
@@ -27,10 +30,11 @@ c     kBT
       call plumed_f_gcmd("setLogFile"//char(0),"plumed.out"//char(0))
       call plumed_f_gcmd("setNatoms"//char(0),nat)
       call plumed_f_gcmd("setMDEngine"//char(0),"nwchem")
-      call ga_mpi_comm_pgroup_default(ga_comm)
       call plumed_f_gcmd("setMPIFComm"//char(0),ga_comm4)
       call plumed_f_gcmd("setTimestep"//char(0),dt_nucl)
+      write(6,*) ' plumed init '
       call plumed_f_gcmd("init"//char(0),0)
+      endif
 #endif      
       return
       end
@@ -38,6 +42,7 @@ c     kBT
       subroutine qmd_ext_gradient(nat,istep_nucl,energy,m,g,r)
       implicit none
 #include "global.fh"      
+#include "mafdecls.fh"
       integer nat                ! [in]
       integer istep_nucl         ! [in]
       double precision energy    ! [in]
@@ -48,6 +53,7 @@ c     kBT
       integer i
 c     call plumed: r[in], g[out]
 c     pointer to current timestep
+      if(ga_nodeid().eq.0) then
       call plumed_f_gcmd("setStep"//char(0),istep_nucl)
       call plumed_f_gcmd("setMasses"//char(0),m)
        if(ga_nodeid().eq.0) then
@@ -64,7 +70,10 @@ c      call plumed_f_gcmd("setVirial"//char(0),virial)
       write(6,*) ' E ext', energy
        call plumed_f_gcmd("setEnergy"//char(0),energy)
 c     forces before plumed call
-      call plumed_f_gcmd("calc"//char(0),0)
+       call plumed_f_gcmd("calc"//char(0),0)
+      endif
+c     broadcast from 0
+      call ga_brdcst(2020,g,MA_sizeof(MT_DBL,1,MT_BYTE),0)
        if(ga_nodeid().eq.0) then
           write(6,*) '### after plumed ##'
           do i=1,nat
@@ -78,9 +87,12 @@ c     check sign agreement with plumed ...
       end
       subroutine qmd_ext_final()
       implicit none
-#ifdef USE_PLUMED      
+#include "global.fh"
+#ifdef USE_PLUMED
+      if(ga_nodeid().eq.0) then
 c     call plumed finalization bits
-      call plumed_f_gfinalize()
+         call plumed_f_gfinalize()
+      endif
 #endif      
       return
       end
