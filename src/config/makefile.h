@@ -2925,8 +2925,19 @@ endif
 endif
 ifdef USE_PLUMED
   DEFINES += -DUSE_PLUMED
-PLUMED_LOAD= /Users/edo/docs/proposals/mq/plumed-2.6.2/src/lib/libplumed.dylib -lstdc++ -L/usr/local/opt/fftw/lib -lfftw3 -lz -ldl -llapack -lblas
+include $(NWCHEM_TOP)/src/Plumed.inc
+#PLUMED_LOAD= /Users/edo/docs/proposals/mq/plumed-2.6.2/src/lib/libplumed.dylib -lstdc++ -L/usr/local/opt/fftw/lib -lfftw3 -lz -ldl -llapack -lblas
+  ifdef PLUMED_LOAD
       EXTRA_LIBS += $(PLUMED_LOAD)
+  else
+        errorplumed:
+$(info )
+$(info  PLUMED installation not found. Missing Plumed.inc file)
+$(info  Please cd ${NWCHEM_TOP}/src and execute the command )
+$(info )
+$(info  plumed patch --patch --engine nwchem )
+$(info )
+  endif
 endif
 
 # CUDA
