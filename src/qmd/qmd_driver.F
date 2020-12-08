@@ -75,6 +75,7 @@ c     Surface Hopping
       integer ks_spin                    ! 1=alpha, 2=beta
       integer ispin
       double precision dt_elec           ! electronic time step
+      double precision kbt               ! k_b*T in au (for plumed)
       logical do_namd                    ! NAMD flag
       logical do_property                ! property flag
       logical do_tddft                   ! tddft flag
@@ -226,7 +227,7 @@ c              ***Forces DFT/TDDFT calculation***
      &                INPUT_ERR)
       end if
 
-      call qmd_ext_init(nat,dt_nucl)
+      call qmd_ext_init(nat,dt_nucl,kb_au*targ_temp)
 c
 c     get initial coordinates and velocities
       call qmd_coords_vels(rtdb,geom,nat,sstep_nucl,ekin,rstfilename,
@@ -399,7 +400,6 @@ c       instantaneous total energy: instantaneous kinetic energy + system energy
 c
 c       instantaneous temperature
         final_temp = 2.0d0*ekin/kb_au/(1.d0*ndeg)
-c
 c       print md run information
         if (ga_nodeid().eq.0) then
 c

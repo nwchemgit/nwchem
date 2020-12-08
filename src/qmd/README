@@ -38,5 +38,10 @@ PRINT ARG=d FILE=colvar
 e: ENERGY
 PRINT ARG=e FILE=colvar
 
-
+F=-gradient . Need to invert sign
+ better move ext_grad out of qmd_grad inside qmd_driver. extra scratch_force(3,N) neededed
+ Grad = grad_qm - force_plumed
 time-step wrong at first call
+
+====
+const Temp? NVE? Langevin dynamics

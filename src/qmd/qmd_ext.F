@@ -1,14 +1,14 @@
-      subroutine qmd_ext_init(nat,dt_nucl)
+      subroutine qmd_ext_init(nat,dt_nucl,kbt)
       implicit none
 #include "mafdecls.fh"
 #include "util_params.fh"
-      integer nat     ![in]
-      integer dt_nucl ![in]
+      integer nat             ![in]
+      integer dt_nucl         ![in]
+      double precision kbt    ![in]
 c     pass plumed initialization bits
 #ifdef USE_PLUMED
       integer ga_comm
       integer*4 ga_comm4
-      double precision kbt
       call plumed_f_gcreate()
       call plumed_f_gcmd("setRealPrecision"//char(0),
      c     MA_sizeof(MT_DBL,1,MT_BYTE))
@@ -20,11 +20,9 @@ c conversion factor between the length unit used in nwchem and nm
       call plumed_f_gcmd("setMDLengthUnits"//char(0),cau2nm)
 c conversion factor between the time unit used in nwchem and ps      
       call plumed_f_gcmd("setMDTimeUnits"//char(0),cau2fs/1000)
-#if 0      
 c     kBT
-c      kbt=1000d0
-c     call plumed_f_gcmd("setKbT"//char(0),kbt)
-#endif      
+      write(6,*) ' kbt ',kbt
+      call plumed_f_gcmd("setKbT"//char(0),kbt)
       call plumed_f_gcmd("setPlumedDat"//char(0),"plumed.dat"//char(0))
       call plumed_f_gcmd("setLogFile"//char(0),"plumed.out"//char(0))
       call plumed_f_gcmd("setNatoms"//char(0),nat)
@@ -60,8 +58,10 @@ c     pointer to current timestep
        endif
       call plumed_f_gcmd("setForces"//char(0),g)
       call plumed_f_gcmd("setPositions"//char(0),r)
+
 c      call plumed_f_gcmd("setBox"//char(0),at_plumed)
 c      call plumed_f_gcmd("setVirial"//char(0),virial)
+      write(6,*) ' E ext', energy
        call plumed_f_gcmd("setEnergy"//char(0),energy)
 c     forces before plumed call
       call plumed_f_gcmd("calc"//char(0),0)
