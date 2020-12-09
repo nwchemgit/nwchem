@@ -1,15 +1,19 @@
-      subroutine qmd_ext_init(nat,dt_nucl,kbt)
+      subroutine qmd_ext_init(nat,dt_nucl,kbt,ext_forces)
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
+#include "inp.fh"
 #include "util_params.fh"
       integer nat             ![in]
       integer dt_nucl         ![in]
       double precision kbt    ![in]
+      character*(*) ext_forces
 c     pass plumed initialization bits
 #ifdef USE_PLUMED
       integer ga_comm
       integer*4 ga_comm4
+      if(ext_forces(1:inp_strlen(ext_forces)).ne.'plumed') call
+     E     errquit(' qmd_ext works only with plumed ',0,0)
       call ga_mpi_comm_pgroup_default(ga_comm)
       if(ga_nodeid().eq.0) then
       call plumed_f_gcreate()
@@ -39,21 +43,27 @@ c     kBT
       return
       end
 
-      subroutine qmd_ext_gradient(nat,istep_nucl,energy,m,g,r)
+      subroutine qmd_ext_gradient(nat,istep_nucl,energy,m,g,r,
+     E     ext_forces)
       implicit none
 #include "global.fh"      
 #include "mafdecls.fh"
+#include "inp.fh"
       integer nat                ! [in]
       integer istep_nucl         ! [in]
       double precision energy    ! [in]
       double precision g(3,nat)  ! gradients [in/out]
       double precision r(3,nat)  ! coordinates [in]
       double precision m(nat)    ! masses [in]
+      character*(*) ext_forces
 #ifdef USE_PLUMED
       integer i
 c     call plumed: r[in], g[out]
 c     pointer to current timestep
+      if(ext_forces(1:inp_strlen(ext_forces)).ne.'plumed') call
+     E     errquit(' qmd_ext works only with plumed ',0,0)
       if(ga_nodeid().eq.0) then
+      write(6,*) ' qmd_ext_gr istep ',istep_nucl
       call plumed_f_gcmd("setStep"//char(0),istep_nucl)
       call plumed_f_gcmd("setMasses"//char(0),m)
        if(ga_nodeid().eq.0) then
@@ -85,10 +95,14 @@ c     check sign agreement with plumed ...
 
       return
       end
-      subroutine qmd_ext_final()
+      subroutine qmd_ext_final(ext_forces)
       implicit none
 #include "global.fh"
+#include "inp.fh"
+      character*(*) ext_forces
 #ifdef USE_PLUMED
+      if(ext_forces(1:inp_strlen(ext_forces)).ne.'plumed') call
+     E     errquit(' qmd_ext works only with plumed ',0,0)
       if(ga_nodeid().eq.0) then
 c     call plumed finalization bits
          call plumed_f_gfinalize()
