@@ -34,7 +34,9 @@ c     kBT
       call plumed_f_gcmd("setLogFile"//char(0),"plumed.out"//char(0))
       call plumed_f_gcmd("setNatoms"//char(0),nat)
       call plumed_f_gcmd("setMDEngine"//char(0),"nwchem")
+#ifdef PLUMED_HASMPI 
       call plumed_f_gcmd("setMPIFComm"//char(0),ga_comm4)
+#endif
       call plumed_f_gcmd("setTimestep"//char(0),dt_nucl)
       write(6,*) ' plumed init '
       call plumed_f_gcmd("init"//char(0),0)
