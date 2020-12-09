@@ -19,7 +19,7 @@ LIBRARY=libqmd.a
 
 HEADERS= ../util/util_params.fh
 
-USES_BLAS= qmd_driver.F
+USES_BLAS= qmd_ext.F
 
 include ../config/makefile.h
 include ../config/makelib.h

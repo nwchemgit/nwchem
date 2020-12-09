@@ -68,6 +68,9 @@ c     pointer to current timestep
       write(6,*) ' qmd_ext_gr istep ',istep_nucl
       call plumed_f_gcmd("setStep"//char(0),istep_nucl)
       call plumed_f_gcmd("setMasses"//char(0),m)
+c plumed uses forces not gradientes. double flip
+c first flip
+        call dscal(3*nat, -1d0, g, 1)
        if(ga_nodeid().eq.0) then
           write(6,*) '### before plumed ##'
           do i=1,nat
@@ -84,6 +87,8 @@ c      call plumed_f_gcmd("setVirial"//char(0),virial)
 c     forces before plumed call
        call plumed_f_gcmd("calc"//char(0),0)
       endif
+c second sign flip
+      call dscal(3*nat, -1d0, g, 1)
 c     broadcast from 0
       call ga_brdcst(2020,g,MA_sizeof(MT_DBL,1,MT_BYTE),0)
        if(ga_nodeid().eq.0) then

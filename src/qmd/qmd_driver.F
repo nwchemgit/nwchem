@@ -265,7 +265,6 @@ c       get energies and movecs
       end if
 c
 c     perform energy gradient calculation on initial coordinates
-      write(6,*) ' qmd_dr gr0 istep ',istep_nucl
       call qmd_gradient(rtdb,nat,0,
      $     dbl_mb(k_m),dbl_mb(k_g),dbl_mb(k_r),esys,ext_forces)
 c
@@ -342,7 +341,6 @@ c         get energies and movecs
         end if
 c
 c       calculate energy and gradient
-      write(6,*) ' qmd_dr gr1 istep ',istep_nucl
         call qmd_gradient(rtdb,nat,istep_nucl,
      $       dbl_mb(k_m),dbl_mb(k_g),dbl_mb(k_r),esys,ext_forces)
 c
@@ -394,7 +392,6 @@ c         calculate gradient for new current state
               call qmd_tdks_swap(rtdb,state,nstates,ks_spin,
      $                           int_mb(k_so),int_mb(k_sv))
             end if
-      write(6,*) ' qmd_dr gr2 istep ',istep_nucl
             call qmd_gradient(rtdb,nat,istep_nucl,
      $           dbl_mb(k_m),dbl_mb(k_g),dbl_mb(k_r),esys,ext_forces)
           end if

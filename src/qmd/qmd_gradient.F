@@ -44,12 +44,8 @@ c     energy/gradient calculation
      &     call errquit(pname//'rtdb_get energy',0,RTDB_ERR)
 
       if(ext_forces(1:inp_strlen(ext_forces)).ne.'none') then
-c plumed uses forces not gradientes. double flip
-        call dscal(3*nat, -1d0, g, 1)
-        write(6,*) ' qmd_gr istep ',istep_nucl
         call qmd_ext_gradient(nat,istep_nucl,energy,m,g,r,
      E       ext_forces)
-        call dscal(3*nat, -1d0, g, 1)
       endif
       return
       end
