@@ -1,4 +1,4 @@
-#Notes on NWChem-Plumed interface
+# Notes on NWChem-Plumed interface
 
 Used Plumed version 2.6
 
@@ -23,6 +23,13 @@ make install
 example above)
 * set the env. variable `USE_PLUMED=y`
 * include the qmd module in `NWCHEM_MODULES`
+* use BLASOPT and LAPACK_LIB compatible with the definitions used to compile Plumed.
+In the example above
+```
+BLASOPT="-L$MKLROOT/lib/intel64 -lmkl_intel_lp64 -lmkl_sequential -lmkl_core  -lpthread -lm"
+LAPACK_LIB=$BLASOPT
+BLAS_SIZE=4
+```
 
 ## Files of the NWChem-Plumed interface
 
