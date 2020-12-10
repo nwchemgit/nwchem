@@ -94,7 +94,6 @@ c
       endif
  9020 format(/,2x,"*** G",I1,"W",I1)     
 c
-c
 c     Obtain eigenvalue difference
 c
       ipole = 0
@@ -120,14 +119,18 @@ c
 c
 c     Obtain Screened Coulomb matrices on imaginary axis
 c
-      call gw_buldiw(dbl_mb(k_eriia),npoles,nri_me)
+      if (main) write(luout,9030)
+ 9030 format(10x,'Computing W(iw) on the imaginary grid')
+c
+      call gw_buldiw(dbl_mb(k_eriia),dbl_mb(k_eia),dbl_mb(pars%k_glx),
+     $   dbl_mb(pars%k_glw),npoles,nri_me,pars%ngl)
 c
   200 continue ! evGW0
 c
       if (pars%evgw0.and.main) then
-        write(luout,9030) eviter
+        write(luout,9040) eviter
       endif
- 9030 format(/,2x,"*** G",I1,"W0")     
+ 9040 format(/,2x,"*** G",I1,"W0")     
 
       do iqp=1,nstates
         do i=1,pars%qpiter
@@ -140,12 +143,37 @@ c
 
 c     *****************************************************************
 
-      subroutine gw_buildiw(eriia,npoles,nocc,nri)
+      subroutine gw_buildiw(eriia,eia,x2,w,npoles,nocc,nri,ngl)
       implicit none
-      integer,intent(in) :: npoles,nocc,nri
-      double precision,intent(in) :: eriia(npoles,nri)
+      integer,intent(in) :: npoles,nocc,nri,ngl
+      double precision,intent(in) :: eriia(npoles,nri),eia(npoles)
+      double precision,intent(in) :: x2(ngl),w(ngl)
 
-      double complex factor
+      logical ok
+      integer g_a,g_w(ngl)
+      double precision factor(npoles),buf(npoles)
+
+c      call ga_create(mt_dbl,npoles,nri_tot,'eriia',npoles,-1,g_a)
+c      call ga_distribution(g_a,me,ilo,ihi,jlo,jhi)
+c
+c      do igl=1,ngl
+c        do ipoles=1,npoles
+c          factor(ipoles) = dsqrt(eia(ipoles)/(eia(ipoles)**2 + x2(igl)))
+c        enddo
+c        do iri=1,nri
+c          buf(:) = eriia(:,iri)*factor(:)
+c          call ga_put(g_a,1,npoles,jlo+iri-1,jlo+iri-1,buf,1)
+c        enddo
+c        call ga_dgemm('t','n',nri_tot,nri_tot,npoles,2d0,g_a,g_a,0d0,
+c     $                 g_w(igl))
+c      enddo
+c
+c
+c          
+c      do iri=1,nri
+c        factor = eia(:)/(eia**2 + x2(igl))
+c      enddo
+
 c      do g=1,ngrid
 c        factor = ieta - eai
 c        factor = 2.0d0*sqrt(factor/(factor**2 + glw2(g)))
@@ -167,4 +195,3 @@ c     *****************************************************************
 
       subroutine gw_buildrn
       end subroutine
-

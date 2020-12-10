@@ -23,8 +23,14 @@ c
         if (.not.ga_destroy(pars%g_movecs(i)))
      $    call errquit(pname//'failed to destroy g_movecs',0,GA_ERR)
       enddo
-      if (.not.ga_destroy(pars%g_moeris))
+      if (.not.ga_destroy(pars%g_erioo))
      $  call errquit(pname//'failed to destroy g_moeris',0,GA_ERR) 
+      if (.not.ga_destroy(pars%g_eriov))
+     $  call errquit(pname//'failed to destroy g_moeris',0,GA_ERR) 
+      if (pars%nstates.gt.pars%nocc(1)) then
+        if (.not.ga_destroy(pars%g_erivv))
+     $    call errquit(pname//'failed to destroy g_moeris',0,GA_ERR) 
+      endif
       if (.not.ma_chop_stack(pars%l_evals))
      $  call errquit(pname//'failed to chop stack',0,MA_ERR)
 c

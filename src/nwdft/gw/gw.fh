@@ -29,9 +29,10 @@ c
         integer          :: iwhat_max
         integer          :: n_semi_bufs
         integer          :: fd
-	integer          :: istart,nbf_cd_me
+	integer          :: istart,nbf_cd_me,npairs
 c
         integer          :: g_movecs(2), g_moeris
+	integer          :: g_erioo, g_eriov, g_erivv
         logical          :: noio
 c
         integer          :: noqp, nvqp

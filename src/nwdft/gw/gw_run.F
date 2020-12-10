@@ -31,7 +31,7 @@ c
       integer l_enew, k_enew
       integer l_sign, k_sign
       integer l_eriij, k_eriij
-      integer lscr,lo4,ld, istart, iend
+      integer lscr,lo4,ld, istart, iend, g_erim, g_wmn
       logical main,oactive
 c
       double precision sigma_c, dsigma_c, eps_in, eps_out, sigma_old
@@ -86,14 +86,11 @@ c
       if (.not.ma_push_get(mt_dbl,nmo,'Sigma_x',l_sigmax,k_sigmax))
      $  call errquit(pname//'cannot allocate Sigma_x',0,MA_ERR)
 c
-      call ga_access(pars%g_moeris,1,nmo*nocc,istart,iend,k_eriij,ld)
-      call gw_sigmax(dbl_mb(k_eriij),dbl_mb(k_sigmax),nmo,nri_me,nocc)
+      call gw_sigmax(pars%g_erioo,pars%g_eriov,dbl_mb(k_sigmax),nri,nmo,
+     $               nocc,nvir,pars%me)
 c
 c     Allocation
 c
-      if (.not.ma_push_get(mt_dbl,nri_me*npoles,'eri_ia',
-     $    l_eriia,k_eriia))
-     $  call errquit(pname//'cannot allocate eri_ia',0,MA_ERR)
       if (.not.ma_push_get(mt_dbl,nmo,'evals old',l_eold,k_eold))
      $  call errquit(pname//'failed to allocate old evals',0,MA_ERR)
       if (.not.ma_push_get(mt_dbl,nmo,'evals new',l_enew,k_enew))
@@ -104,6 +101,8 @@ c
      $  call errquit(pname//'cannot allocate Omega',0,MA_ERR)
       if (.not.ma_push_get(mt_dbl,npoles,'eval_ia',l_eia,k_eia))
      $  call errquit(pname//'cannot allocate eval_ia',0,MA_ERR)
+      if (.not.ga_duplicate(pars%g_eriov,g_erim,'transformed eri'))
+     $  call errquit(pname//'failed to duplicate array',0,GA_ERR)
 c
 c     Shift eigenvalues
 c
@@ -131,40 +130,16 @@ c
         enddo
       enddo
 c
-c     Copy occupied-virtual into contiguous block
-c
-      lo2 = k_eriia
-      do ibf=istart,iend
-        do i=0,nocc-1
-          ilo = nmo*i + 1
-          ihi = ilo + nmo - 1
-          call ga_access(pars%g_moeris,ilo,ihi,ibf,ibf,lo4,ld)
-          call dcopy(nvir,dbl_mb(lo4+nocc),1,dbl_mb(lo2),1)
-          lo2 = lo2 + nvir
-        enddo
-      enddo
-c
 c     RPA polarizability
 c
       if (main) write(luout,9020)
  9020 format(10x,'Computing RPA polarizability')
-
-      if(.not.ma_push_get(mt_dbl,npoles*npoles,'XpY',l_xpy,k_xpy))
-     $  call errquit(pname//'cannot allocate XpY',0,MA_ERR)
-      if (.not.ma_push_get(mt_dbl,lscr,'work',l_scr,k_scr))
-     $  call errquit('gw_rpa: could not allocate work',0,MA_ERR)
 c
-      call gw_rpa(dbl_mb(k_eia),dbl_mb(k_omega),
-     $  dbl_mb(k_xpy),dbl_mb(k_eriia),dbl_mb(k_scr),npoles,nri_me,lscr)
+      call gw_rpa(pars%g_eriov,g_erim,dbl_mb(k_eia),dbl_mb(k_omega),
+     $            npoles,nri)
 c
-      if (.not.ma_chop_stack(l_xpy))
-     $  call errquit(pname//'could not free stack',0,MA_ERR)
-c
-      if (.not.ma_push_get(mt_dbl,nmo*npoles,'wmn',l_wmn,k_wmn))
-     $  call errquit(pname//'failed to allocate wnm',0,MA_ERR) 
-      if (.not.ma_push_get(mt_dbl,nri_me*nmo,'eritemp',
-     $   l_eritmp,k_eritmp))
-     $  call errquit(pname//'failed to allocate eritmp',0,MA_ERR)
+      if (.not.ga_create(mt_dbl,npoles,nmo,'wmn',-1,nmo,g_wmn))
+     $  call errquit(pname//'cannot create array',0,GA_ERR)
       if (.not.ma_push_get(mt_dbl,nmo,'sm omega',l_smomega,k_smomega))
      $  call errquit(pname//'failed to allocate small omega',0,MA_ERR) 
       if (.not.ma_push_get(mt_dbl,4*nmo,'scratch',l_scr,k_scr))
@@ -190,9 +165,8 @@ c
 c
       do iqp=1,pars%noqp+pars%nvqp
 
-        call gw_get_wmn(dbl_mb(k_wmn),dbl_mb(k_eritmp),dbl_mb(k_eriia),
-     $                  pars%g_moeris,iqp+lo1,npoles,nri_me,nmo,
-     $                  pars%istart)
+        call gw_get_wmn(g_wmn,g_erim,pars%g_erioo,pars%g_eriov,
+     $                  pars%g_erivv,iqp+lo1,npoles,nri,nmo,nocc)
 c      
         if (pars%graph) then
         elseif (pars%newton) then
@@ -206,8 +180,8 @@ c
      $                                      dbl_mb(k_eold:k_eold+nmo-1)
 c
             call gw_sigmac(sigma_c,dsigma_c,dbl_mb(k_smomega),
-     $       dbl_mb(k_wmn),dbl_mb(k_omega),dbl_mb(k_scr),dbl_mb(k_sign),
-     $       0.001d0**2,npoles,nri_me,nmo)
+     $       g_wmn,dbl_mb(k_omega),dbl_mb(k_scr),dbl_mb(k_sign),
+     $       0.001d0**2,npoles,nmo,pars%me)
 c
             z = 1.0d0/(1.0d0-dsigma_c)
             sigma = sigma_c + sigma_x
@@ -233,8 +207,10 @@ c
         if (eviter.lt.pars%eviter) then
           if (pars%evgw0) goto 200
           if (pars%evgw) then
-            if (.not.ma_chop_stack(l_wmn))
+            if (.not.ma_chop_stack(l_smomega))
      $        call errquit(pname//'failed to chop stack',0,MA_ERR)
+            if (.not.ga_destroy(g_wmn))
+     $        call errquit(pname//'failed to destroy array',0,GA_ERR)
             goto 100
           endif
         endif  
@@ -249,38 +225,60 @@ c
 c
 c     *****************************************************************
 c
-      subroutine gw_sigmax(eri,sigmax,nmo,nri,nocc)
+      subroutine gw_sigmax(oo,ov,sigmax,nri,nmo,nocc,nvir,me)
 c
 c     computes the exchange part of the self-energy
 c
       implicit none
 #include "mafdecls.fh"
-      integer,intent(in) ::  nri, nmo, nocc
-      double precision,intent(in) :: eri(nocc*nmo,nri)
+      integer,intent(in) :: oo, ov, me
+      integer,intent(in) :: nri, nmo, nocc, nvir
       double precision,intent(out) :: sigmax(nmo)
 c      
+      logical ok
       double precision temp
-      integer imo,jmo,ij
+      integer imo,jmo,ij,ilo,ihi,jlo,jhi,k_tmp,l_tmp
+
+      double precision ddot,ga_ddot_patch
+      external ddot,ga_ddot_patch
+
 c
       sigmax(:) = 0.0d0
+
+
+      do imo=1,nocc
+        ilo = (imo-1)*nocc + 1
+        ihi = imo*nocc
+        sigmax(imo) = -ga_ddot_patch(oo,'n',1,nri,ilo,ihi,
+     $                               oo,'n',1,nri,ilo,ihi)
+      enddo
 c
+      call ga_distribution(ov,me,ilo,ihi,jlo,jhi)
+
+      ok =  (.not.ma_push_get(mt_dbl,nri,'temp',l_tmp,k_tmp))
+
       ij = 0
       do imo=1,nocc
-        do jmo=1,nmo
+        do jmo=nocc+1,nmo
           ij = ij + 1
-          sigmax(jmo) = sigmax(jmo) - 
-     $    dot_product(eri(ij,:),eri(ij,:))
+          if (ij.lt.jlo) cycle
+          if (ij.gt.jhi) exit
+          call ga_get(ov,1,nri,ij,ij,dbl_mb(k_tmp),nri)
+          sigmax(jmo) = sigmax(jmo) -
+     $                  ddot(nri,dbl_mb(k_tmp),1,dbl_mb(k_tmp),1)
         enddo
       enddo
-      call ga_dgop(mt_dbl,sigmax,nmo,'+')
+
+      ok = ma_chop_stack(l_tmp)
+
+      call ga_dgop(mt_dbl,sigmax(nocc+1),nvir,'+')
 c
       return
       end subroutine
 c
 c     *****************************************************************
 c
-      subroutine gw_rpa(eia,omega,xpy,eriia,scr,
-     $                  npoles,nri,lscr)
+      subroutine gw_rpa(ov,erim,eia,omega,npoles,nri)
 c
 c     builds and solves for the RPA polarizability
 c
@@ -288,17 +286,16 @@ c
 #include "mafdecls.fh"
 #include "tcgmsg.fh"
 #include "errquit.fh"
-      integer,intent(in) :: npoles,nri,lscr
+      integer,intent(in) :: ov, erim
+      integer,intent(in) :: npoles,nri
       double precision eia(npoles),amb(npoles),omega(npoles)
-      double precision xpy(npoles,npoles),eriia(npoles,nri)
-      double precision scr(lscr)
 c
       integer iocc,ipole,g_a,g_b,g_c,g_d
       integer info,iri,me,ilo,ihi,k_index,ld
       logical main
 
-      logical ga_create,nga_create
-      external ga_create,nga_create
+      logical ga_create,nga_create,ga_destroy
+      external ga_create,nga_create,ga_destroy
 
       integer ga_nodeid
       external ga_nodeid
@@ -315,71 +312,83 @@ c
       if (.not.nga_create(mt_dbl,1,npoles,'eia',-1,g_d))
      $  call errquit('gw_rpa: can''t create global array',0,GA_ERR)
 c
-      call ga_zero(g_a)
-      do ipole=1,npoles
-        call dgemv('n',npoles,nri,4d0,eriia,npoles,eriia(ipole,1),
-     $              npoles,0d0,omega,1)
-        call ga_acc(g_a,1,npoles,ipole,ipole,omega,1,1.0d0)
-      enddo
-      call ga_sync()
-
+      call ga_dgemm('t','n',npoles,npoles,nri,4d0,ov,ov,0d0,g_a)
+c      
       call nga_distribution(g_d,me,ilo,ihi)
       call nga_put(g_d,ilo,ihi,eia(ilo),1)
       call nga_put(g_b,ilo,ihi,dsqrt(eia(ilo:ihi)),1)
-      call ga_add_diagonal(g_a,g_d)
-      call ga_destroy(g_d)
 
+      call ga_sync()
+      call ga_add_diagonal(g_a,g_d)
       call ga_scale_cols(g_a,g_b)
       call ga_scale_rows(g_a,g_b)
 c
       call ga_diag_std(g_a,g_c,omega)
-      call ga_destroy(g_a)
+      if(.not.ga_destroy(g_a))
+     $  call errquit('',0,GA_ERR) 
 
       omega = dsqrt(omega)
 c
       call ga_scale_rows(g_c,g_b)
       call nga_put(g_b,ilo,ihi,1d0/dsqrt(omega(ilo:ihi)),1)
+
+      call ga_sync()
       call ga_scale_cols(g_c,g_b)
-      call ga_destroy(g_b)
+
+      call ga_dgemm('n','n',nri,npoles,npoles,1d0,ov,g_c,0d0,erim)
 c
-      call ga_get(g_c,1,npoles,1,npoles,xpy,npoles)
-
-      do iri=1,nri
-        scr(1:npoles) = eriia(:,iri)
-        call dgemv('t',npoles,npoles,1d0,xpy,npoles,scr,1,0d0,
-     $              eriia(1,iri),1)
-      enddo
-
-      call ga_destroy(g_c)
+      if ((.not.ga_destroy(g_b)).or.(.not.ga_destroy(g_c)).or.
+     $    (.not.ga_destroy(g_d)))
+     $  call errquit('',0,GA_ERR) 
 c
       return
       end subroutine
 c
 c     *****************************************************************
 
-      subroutine gw_get_wmn(wnm,erin,erim,g_a,imo,npoles,nri,nmo,istart)
+      subroutine gw_get_wmn(wmn,erim,oo,ov,vv,imo,npoles,nri,nmo,nocc)
 c
 c     computes the matrix representation of the screened Coulomb op.
 c
       implicit none
-#include "mafdecls.fh"      
-      integer imo, npoles, nri, nmo, idx, jmo, g_a, ilo, ihi, iri
-      integer istart
-      double precision wnm(npoles,nmo),erim(npoles,nri),erin(nmo,nri)
+#include "mafdecls.fh"
+#include "errquit.fh"      
+      integer,intent(in) :: erim,oo,ov,vv,wmn
+      integer,intent(in) :: imo,npoles,nri,nmo,nocc
+      integer ilo, ihi, g_a
+
+      logical ga_create,ga_duplicate,ga_destroy
+      external ga_create,ga_duplicate,ga_destroy
 
       ilo = (imo-1)*nmo + 1
       ihi = imo*nmo
 
-      do iri=istart,istart+nri-1
-        call ga_get(g_a,ilo,ihi,iri,iri,erin(1,iri-istart+1),nmo)
-      enddo
+      if (.not.ga_create(mt_dbl,nri,nmo,'temp',nri,-1,g_a))
+     $  call errquit('gw_get_wmn: cannot create array',0,GA_ERR) 
 
-      call dgemm('n','t',npoles,nmo,nri,1.0d0,erim,npoles,erin,nmo,
-     $            0.0d0,wnm,npoles) 
+      if (imo.le.nocc) then
+        ilo = (imo-1)*nocc + 1
+        ihi = imo*nocc
+        call ga_copy_patch('n',oo,1,nri,ilo,ihi,g_a,1,nri,1,nocc)
+        ilo = (imo-1)*(nmo-nocc) + 1
+        ihi = imo*(nmo-nocc)
+        call ga_copy_patch('n',ov,1,nri,ilo,ihi,g_a,1,nri,nocc+1,nmo)
+      else
+        call ga_copy_patch('n',ov,1,nri,ilo,ihi,g_a,1,nri,1,nocc)
+        call ga_copy_patch('n',vv,1,nri,ilo,ihi,g_a,1,nri,nocc+1,nmo)
+      endif
 
-      call ga_dgop(mt_dbl,wnm,npoles*nmo,'+')
+      call ga_dgemm('t','n',npoles,nmo,nri,1d0,erim,g_a,0d0,wmn)
+      if(.not.ga_destroy(g_a))
+     $ call errquit('',0,GA_ERR) 
 
-      wnm = 2.0d0*wnm**2
+      if(.not.ga_duplicate(wmn,g_a,'temp'))
+     $  call errquit('',0,GA_ERR)
+      call ga_copy(wmn,g_a)
+      call ga_scale(g_a,2d0)
+      call ga_elem_multiply(wmn,g_a,wmn)
+      if (.not.ga_destroy(g_a))
+     $ call errquit('',0,GA_ERR) 
 
       return
       end subroutine
@@ -387,33 +396,40 @@ c
 c     *****************************************************************
 c
       subroutine gw_sigmac(sigma_c,dsigma_c,omegan,wmn,Omegam,scratch,
-     $                     signs,eta2,npoles,nri,nmo)
+     $                     signs,eta2,npoles,nmo,me)
 c 
 c     computes the correlation part of the self-energy
 c
       implicit none
-      integer, intent(in) :: npoles,nri,nmo
+#include "mafdecls.fh"      
+      integer,intent(in) :: wmn
+      integer, intent(in) :: npoles,nmo,me
       double precision, intent(out) ::  sigma_c, dsigma_c
-      double precision, intent(in) :: omegan(nmo), wmn(npoles,nmo),
+      double precision, intent(in) :: omegan(nmo), 
      $                                Omegam(npoles), eta2, signs(nmo)
       double precision scratch(*)
 
-      integer ipole
+      integer ipole,ilo,ihi,jlo,jhi
 
       sigma_c = 0.0d0
       dsigma_c = 0.0d0
 
-      do ipole=1,npoles
+      call ga_distribution(wmn,me,ilo,ihi,jlo,jhi)
+
+      do ipole=ilo,ihi
         scratch(1:nmo) = omegan - Omegam(ipole)*signs
         scratch(nmo+1:2*nmo) = 1.0d0/(scratch(1:nmo)**2 + eta2)
         scratch(2*nmo+1:3*nmo) = scratch(1:nmo)*scratch(nmo+1:2*nmo)
         scratch(3*nmo+1:4*nmo) = scratch(nmo+1:2*nmo) - 2.0d0*
      $                           scratch(2*nmo+1:3*nmo)**2
-        sigma_c = sigma_c + dot_product(wmn(ipole,:),
+        call ga_get(wmn,ipole,ipole,1,nmo,scratch,1)
+        sigma_c = sigma_c + dot_product(scratch(1:nmo),
      $                                  scratch(2*nmo+1:3*nmo))
-        dsigma_c = dsigma_c + dot_product(wmn(ipole,:),
+        dsigma_c = dsigma_c + dot_product(scratch(1:nmo),
      $                                    scratch(3*nmo+1:4*nmo))
-      enddo 
+      enddo
+      call ga_dgop(mt_dbl,sigma_c,1,'+')
+      call ga_dgop(mt_dbl,dsigma_c,1,'+')
 
       return
       end subroutine

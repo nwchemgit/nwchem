@@ -205,24 +205,31 @@ c     Destroy 2-ctr global array
 c
       if (.not. ga_destroy(g_2cinv))
      $  call errquit(pname//'failed to destroy g_2cinv',0,GA_ERR)
-c
-c     Create global array with distributed by fitting functions
-c
-      if (.not.ga_create(mt_dbl,npairs,nbf_cd,'mo eris',npairs,-1,
-     &     pars%g_moeris))
-     &  call errquit(pname//'can''t create global array',0,GA_ERR) 
-      call ga_distribution(pars%g_moeris,pars%me,ilo,ihi,jlo,jhi)
-c
-c     Save distribution information
-c
-      pars%istart = jlo
-      pars%nbf_cd_me = jhi-jlo+1
+
+      npairs = pars%nocc(1)**2
+      if (.not.ga_create(mt_dbl,nbf_cd,npairs,'eris oo',nbf_cd,-1,
+     $  pars%g_erioo))
+     $  call errquit(pname//'can''t create O-O block',0,GA_ERR)
+
+      npairs = pars%nocc(1)*pars%nvir(1)
+      if (.not.ga_create(mt_dbl,nbf_cd,npairs,'eris ov',nbf_cd,-1,
+     $  pars%g_eriov))
+     $  call errquit(pname//'can''t create O-V block',0,GA_ERR)
+
+      if (nstates.gt.pars%nocc(1)) then
+        npairs = pars%nvir(1)*(nstates-pars%nocc(1))
+        if (.not.ga_create(mt_dbl,nbf_cd,npairs,'eris vv',nbf_cd,-1,
+     $    pars%g_erivv))
+     $    call errquit(pname//'can''t create V-V block',0,GA_ERR)
+      endif
 c
 c     Put MO ERIs in the global array
 c
       if (.not.oactive) return
-      call putmoeris_ga(pars%g_moeris,dbl_mb(k_eri),nstates,nbf_cd,
-     &                  istart,iend)
+
+      call putmoeris_ga(pars%g_erioo,pars%g_eriov,pars%g_erivv,
+     &                  dbl_mb(k_eri),pars%nocc(1),pars%nvir(1),nstates,
+     &                  nbf_cd,pars%me,istart,iend)
 c
 c     Free heap
 c
@@ -276,20 +283,60 @@ c
       return
       end subroutine
 
-      subroutine putmoeris_ga(g_a,eris,nstates,nri,istart,iend)
+      subroutine putmoeris_ga(oo,ov,vv,eris,nocc,nvir,nstates,nri,me,
+     $                        istart,iend)
       implicit none
-      integer nstates,nri,nri_me,istart,iend,g_a,ieri
-      double precision eris(nri,*)
+      integer,intent(in) :: oo,ov,vv
+      integer,intent(in) :: nocc,nvir,nstates,nri,istart,iend,me
+      double precision,intent(in) :: eris(nri,*)
 
-      integer ilo,ihi,ipair
+      integer myend,mystart,mynmo
+      integer imo,jmo,ieri,ipair
 
-      ilo = nstates*(istart-1) + 1
-      ihi = nstates*iend
+      mynmo = iend - istart + 1
 
-      ieri = 0
-      do ipair=ilo,ihi
-        ieri = ieri + 1
-        call ga_put(g_a,ipair,ipair,1,nri,eris(1,ieri),1)
-      enddo
+      ! Save occupied-occupied block
+      if (istart.le.nocc) then
+        myend = min(iend,nocc)
+        do imo=1,nocc
+          ieri = (imo-1)*mynmo
+          ipair = (imo-1)*nocc + istart - 1
+          do jmo=istart,myend
+            ieri = ieri + 1
+            ipair = ipair + 1
+            call ga_put(oo,1,nri,ipair,ipair,eris(1,ieri),1)
+          enddo
+        enddo
+      endif
+
+      ! Save occupied-virtual block
+      if (iend.ge.nocc+1) then
+        mystart = max(nocc+1,istart)
+        do imo=1,nocc
+          ieri = (imo-1)*mynmo + mystart - istart
+          ipair = (imo-1)*nvir + mystart - nocc - 1
+          do jmo=mystart,iend
+            ieri = ieri + 1
+            ipair = ipair + 1
+            call ga_put(ov,1,nri,ipair,ipair,eris(1,ieri),1)
+          enddo
+        enddo
+      endif
+
+      ! Save virtual-virtual block, if needed
+      if (nstates.gt.nocc) then
+        if (iend.ge.nocc+1) then
+          mystart = max(nocc+1,istart)
+          do imo=nocc+1,nstates
+            ieri = (imo-1)*mynmo + mystart - istart
+            ipair = (imo-nocc-1)*nvir + mystart - nocc - 1
+            do jmo=mystart,iend
+              ieri = ieri + 1
+              ipair = ipair + 1
+              call ga_put(vv,1,nri,ipair,ipair,eris(1,ieri),1)
+            enddo
+          enddo
+        endif
+      endif
 
       end subroutine
