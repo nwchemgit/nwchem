@@ -2947,7 +2947,7 @@ $(info )
         errorplumed:
 $(info )
 $(info  PLUMED info command not returning the expected output)
-$(info  Please file an issue at https://github.com/nwchemgit/nwchem/issue )
+$(info  Please file an issue at https://github.com/nwchemgit/nwchem/issues )
 $(info )
   endif
 endif
