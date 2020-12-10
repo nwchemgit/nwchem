@@ -2926,6 +2926,14 @@ endif
 ifdef USE_PLUMED
   DEFINES += -DUSE_PLUMED
 #check presence of plumed command. TODO
+  GOTPLUMED  := $(shell command -v plumed 2> /dev/null)
+  ifndef GOTPLUMED
+        errorplumed0:
+$(info )
+$(info  PLUMED installation not found.)
+$(info  Please add to your PATH the directory where the plumed command is found )
+$(info )
+  endif
   PLUMED_HOME = $(shell plumed info --configuration|egrep prefix=|head -1|cut -c 8-)
   PLUMED_DYNAMIC_LIBS = $(shell plumed info --configuration|egrep DYNAMIC_LIBS| cut -c 14-)
   PLUMED_HASMPI = $(plumed info --configuration|grep program_can_run_mpi|cut -c 21-21)
@@ -2938,10 +2946,8 @@ ifdef USE_PLUMED
   else
         errorplumed:
 $(info )
-$(info  PLUMED installation not found. Missing Plumed.inc file)
-$(info  Please cd ${NWCHEM_TOP}/src and execute the command )
-$(info )
-$(info  plumed patch --patch --engine nwchem )
+$(info  PLUMED info command not returning the expected output)
+$(info  Please file an issue at https://github.com/nwchemgit/nwchem/issue )
 $(info )
   endif
 endif
