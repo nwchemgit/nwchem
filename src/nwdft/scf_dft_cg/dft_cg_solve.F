@@ -90,6 +90,7 @@ c
 c
       double precision tanalyze
 c
+      logical fon
       logical  xc_chkdispauto
       external xc_chkdispauto
 c
@@ -106,6 +107,12 @@ c     == Preliminaries ==
       lsuccess = .false.
       ltried_scf = .false.
       ltried_cgmin = .false.
+c
+c    cg not ready for fon
+c
+      if (.not.rtdb_get(rtdb, 'dft:fon', mt_log, 1, fon)) fon=.false.
+      if (fon) call errquit(pname//' cg not ready for FON ',0,
+     E     CAPMIS_ERR)
 c
 c     read MO analysis threshold
       if (.not.rtdb_get(rtdb,'movecs:tanalyze',MT_DBL,1,tanalyze))
