@@ -36,3 +36,16 @@ BLAS_SIZE=4
 * input and output files reside in `permanent_dir`
 * the Plumed input file can be either suffix.`plumed.dat` our just `plumed.dat`
 * the Plumed output file will be name suffix.`plumed.out` (and its content will be copied to stdout, too)
+
+## NWChem input options
+
+* the keyword `ext_forces` must be added to the `qmd` input section. `ext_forces` can take an additional optional argument.
+Choices are `plumed` (Plumed interface is used) or `none`.
+Example:
+```
+....
+qmd
+ ext_forces
+end
+task dft qmd
+```
