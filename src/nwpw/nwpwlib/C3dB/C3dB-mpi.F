@@ -80,23 +80,28 @@ c     integer i2_start(NFFT3+1)
 #ifndef CRAY
 !DIR$ ivdep
 #endif
+!$OMP DO
       do i=1,nfft3d(nb) 
          tmp1(int_mb(iq_to_i1(1,nb)+i-1)) = A(i)
       end do
+!$OMP END DO
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(i2_start(1,nb)+2-1) - int_mb(i2_start(1,nb)+1-1)
 #ifndef CRAY
 !DIR$ ivdep
 #endif
+!$OMP DO
       do i=1,msglen
          tmp2(int_mb(i2_start(1,nb)+1-1)+i-1) 
      > = tmp1(int_mb(i1_start(1,nb)+1-1)+i-1)
       end do
+!$OMP END DO
          
 
 *     **** receive packed array data ****
       reqcnt = 0
+!$OMP MASTER
       do it = 1,np-1
 
 *        **** synchronous receive of tmp ****
@@ -163,16 +168,20 @@ c     integer i2_start(NFFT3+1)
 
    
 *     **** wait for completion of mp_send, also do a sync ****
-      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,int_mb(request(1)))
 
+!$OMP END MASTER
+!$OMP BARRIER
 
 *     **** unpack A(i) array ****
 #ifndef CRAY
 !DIR$ ivdep
 #endif
+!$OMP DO
       do i=1,nfft3d(nb) !***(nx(nb)/2+1)*ny(nb)*nq(nb)
          A(i) = tmp2(int_mb(iq_to_i2(1,nb)+i-1))
       end do
+!$OMP END DO
       
 
       !*** deallocate memory ***
@@ -266,23 +275,28 @@ c     integer i2_start(NFFT3+1)
 #ifndef CRAY
 !DIR$ ivdep
 #endif
+!$OMP DO
       do i=1,nfft3d(nb) 
          tmp1(int_mb(iq_to_i1(1,nb)+i-1)) = A(i)
       end do
+!$OMP END DO
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(i2_start(1,nb)+2-1) - int_mb(i2_start(1,nb)+1-1)
 #ifndef CRAY
 !DIR$ ivdep
 #endif
+!$OMP DO
       do i=1,msglen
          tmp2(int_mb(i2_start(1,nb)+1-1)+i-1) 
      > = tmp1(int_mb(i1_start(1,nb)+1-1)+i-1)
       end do
+!$OMP END DO
          
 
 *     **** receive packed array data ****
       reqcnt = 0
+!$OMP MASTER
       do it = 1,np-1
 
 *        **** synchronous receive of tmp ****
@@ -349,16 +363,21 @@ c     integer i2_start(NFFT3+1)
 
    
 *     **** wait for completion of mp_send, also do a sync ****
-      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,int_mb(request(1)))
+
+!$OMP END MASTER
+!$OMP BARRIER
 
 
 *     **** unpack A(i) array ****
 #ifndef CRAY
 !DIR$ ivdep
 #endif
+!$OMP DO
       do i=1,nfft3d(nb) !***(nx(nb)/2+1)*ny(nb)*nq(nb)
          A(i) = tmp2(int_mb(iq_to_i2(1,nb)+i-1))
       end do
+!$OMP END DO
       
 
       !*** deallocate memory ***
@@ -460,19 +479,23 @@ c     integer i2_start(NFFT3+1)
 #ifndef CRAY
 !DIR$ ivdep
 #endif
+!$OMP DO
       do i=1,nnfft3d
          tmp1(int_mb(h_iq_to_i1(1,op,nb)+i-1)) = A(i)
       end do
+!$OMP END DO
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(h_i2_start(1,op,nb)+2-1) 
      >       - int_mb(h_i2_start(1,op,nb)+1-1)
-      call dcopy(2*msglen,tmp1(int_mb(h_i1_start(1,op,nb))),1,
-     >                    tmp2(int_mb(h_i2_start(1,op,nb))),1)
+      call Parallel_shared_vector_copy(.true.,2*msglen,
+     >                    tmp1(int_mb(h_i1_start(1,op,nb))),
+     >                    tmp2(int_mb(h_i2_start(1,op,nb))))
          
 
 *     **** receive packed array data ****
       reqcnt = 0
+!$OMP MASTER
       do it = 1,np-1
 
 *        **** synchronous receive of tmp ****
@@ -541,6 +564,9 @@ c     integer i2_start(NFFT3+1)
 *     **** wait for completion of mp_send, also do a sync ****
       if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
 
+!$OMP END MASTER
+!$OMP BARRIER
+
 
 *     **** unpack A(i) array ****
       if ((op.eq.4).or.(op.eq.6)) nnfft3d = nx(nb)*nq1(nb)
@@ -549,9 +575,11 @@ c     integer i2_start(NFFT3+1)
 #ifndef CRAY
 !DIR$ ivdep
 #endif
+!$OMP DO
       do i=1,nnfft3d
          A(i) = tmp2(int_mb(h_iq_to_i2(1,op,nb)+i-1))
       end do 
+!$OMP END DO
 
       !*** deallocate memory ***
       value =           BA_pop_stack(request(2))
@@ -647,19 +675,23 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 #ifndef CRAY
 !DIR$ ivdep
 #endif
+!$OMP DO
       do i=1,nnfft3d
          tmp1(int_mb(h_iq_to_i1(1,op,nb)+i-1)) = A(i)
       end do
+!$OMP END DO
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(h_i2_start(1,op,nb)+2-1) 
      >       - int_mb(h_i2_start(1,op,nb)+1-1)
-      call dcopy(msglen,tmp1(int_mb(h_i1_start(1,op,nb))),1,
-     >                  tmp2(int_mb(h_i2_start(1,op,nb))),1)
+      call Parallel_shared_vector_copy(.true.,msglen,
+     >                  tmp1(int_mb(h_i1_start(1,op,nb))),
+     >                  tmp2(int_mb(h_i2_start(1,op,nb))))
          
 
 *     **** receive packed array data ****
       reqcnt = 0
+!$OMP MASTER
       do it = 1,np-1
 
 *        **** synchronous receive of tmp ****
@@ -726,7 +758,10 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 
    
 *     **** wait for completion of mp_send, also do a sync ****
-      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,int_mb(request(1)))
+
+!$OMP END MASTER
+!$OMP BARRIER
 
 
 *     **** unpack A(i) array ****
@@ -777,6 +812,7 @@ c     implicit none
 
       call Parallel3d_np_i(np)
       if (np.gt.1) then
+!$OMP MASTER
          msglen = 1
 #ifdef MPI4
          stupid_msglen = msglen
@@ -787,6 +823,8 @@ c     implicit none
      >                       MPI_SUM,Parallel3d_comm_i(),mpierr)
 #endif
          sum = sumall
+!$OMP END MASTER
+!$OMP BARRIER
       end if
 
       return
@@ -820,6 +858,7 @@ c     implicit none
       call Parallel3d_np_i(np)
       if (np.gt.1) then
 
+!$OMP MASTER
 #ifdef MPI4
          stupid_msglen = 1
          stupid_tsum = sum
@@ -833,6 +872,8 @@ c     implicit none
      >                       MPI_SUM,Parallel3d_comm_i(),mpierr)
          sum = sumall
 #endif
+!$OMP END MASTER
+!$OMP BARRIER
       end if
 
       return
@@ -881,6 +922,7 @@ c     implicit none
       value = BA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
+!$OMP MASTER
 #ifdef MPI4
       stupid_msglen = n
       call MPI_Allreduce(sum,dbl_mb(sumall(1)),
@@ -894,6 +936,9 @@ c     implicit none
 #endif
 
       call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
+!$OMP END MASTER
+!$OMP BARRIER
+
       value = BA_pop_stack(sumall(2))
 
       end if
@@ -910,6 +955,7 @@ c     implicit none
 *     *                                 *
 *     ***********************************
 
+*** shared memory: sum
       subroutine C3dB_Vector_ISumAll(n,sum)
 c     implicit none
       integer n
@@ -947,6 +993,7 @@ c     implicit none
 #ifdef MPI4
       if (.not.BA_push_get(mt_int,n,'sumall1',sumall1(2),sumall1(1)))
      > call errquit('out of stack memory',0,MA_ERR)
+!$OMP MASTER
       stupid_msglen = n
       call stupid_icopy8to4(n,sum,int_mb(sumall1(1)))
       call MPI_Allreduce(int_mb(sumall1(1)),
@@ -954,15 +1001,20 @@ c     implicit none
      >                stupid_integer,
      >                stupid_sum,stupid_comm_i,stupid_ierr)
       call stupid_icopy4to8(n,int_mb(sumall(1)),sum)
+!$OMP END MASTER
       if (.not. BA_pop_stack(sumall1(2)))
      > call errquit('error popping stack',0, MA_ERR)
 #else
+!$OMP MASTER
       msglen = n
       call MPI_Allreduce(sum,int_mb(sumall(1)),msglen,
      >                MPI_INTEGER,
      >                MPI_SUM,Parallel3d_comm_i(),mpierr)
       call icopy(n,int_mb(sumall(1)),1,sum,1)
+!$OMP END MASTER
 #endif
+
+!$OMP BARRIER
 
       value = BA_pop_stack(sumall(2))
       if (.not. value) call errquit('error popping stack',0, MA_ERR)
@@ -1057,13 +1109,14 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(i2_start(1,nbb)+2-1) - int_mb(i2_start(1,nbb)+1-1)
-      call dcopy(2*msglen,
+      call Parallel_shared_vector_copy(.true.,2*msglen,
      >           tmp1(int_mb(i1_start(1,nbb)+1-1)),1,
      >           tmp2(int_mb(i2_start(1,nbb)+1-1)),1)
          
 
 *     **** receive packed array data ****
       reqcnt = 0
+!$OMP MASTER
       do it = 1,np-1
 
 *        **** synchronous receive of tmp ****
@@ -1129,7 +1182,10 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       end do
    
 *     **** wait for completion of mp_send, also do a sync ****
-      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,int_mb(request(1)))
+
+!$OMP END MASTER
+!$OMP BARRIER
 
 
 *     **** unpack A(i) array ****
@@ -1223,13 +1279,14 @@ c     **** external functions ****
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(i2_start(1,nbb)+2-1) - int_mb(i2_start(1,nbb)+1-1)
-      call dcopy(2*msglen,
-     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),1,
-     >           tmp2(int_mb(i2_start(1,nbb)+1-1)),1)
+      call Parallel_shared_vector_copy(.true.,2*msglen,
+     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),
+     >           tmp2(int_mb(i2_start(1,nbb)+1-1)))
          
 
 *     **** receive packed array data ****
       reqcnt = 0
+!$OMP MASTER
       do it = 1,np-1
 
 *        **** synchronous receive of tmp ****
@@ -1295,7 +1352,10 @@ c     **** external functions ****
       end do
    
 *     **** wait for completion of mp_send, also do a sync ****
-      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,int_mb(request(1)))
+
+!$OMP END MASTER
+!$OMP BARRIER
 
 
 *     **** unpack A(i) array ****
@@ -1403,13 +1463,14 @@ c     **** external functions ****
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(h_i2_start(1,op,nbb)+2-1) 
      >       - int_mb(h_i2_start(1,op,nbb)+1-1)
-      call dcopy(2*msglen,
-     >           tmp1(int_mb(h_i1_start(1,op,nbb))),1,
-     >           tmp2(int_mb(h_i2_start(1,op,nbb))),1)
+      call Parallel_shared_vector_copy(.true.,2*msglen,
+     >           tmp1(int_mb(h_i1_start(1,op,nbb))),
+     >           tmp2(int_mb(h_i2_start(1,op,nbb))))
 
 
 *     **** receive packed array data ****
       reqcnt = 0
+!$OMP MASTER
       do it = 1,np-1
 
 *        **** synchronous receive of tmp ****
@@ -1476,7 +1537,10 @@ c     **** external functions ****
 
    
 *     **** wait for completion of mp_send, also do a sync ****
-      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,int_mb(request(1)))
+
+!$OMP END MASTER
+!$OMP BARRIER
 
 
 *     **** unpack A(i) array ****
@@ -1528,6 +1592,7 @@ c     **** external functions ****
       external Parallel3d_convert_taskid_i
 
 
+!$OMP MASTER
       reqcnt = 0
       if (log_mb(sender_list(1)+nb)) then
          do j=1,int_mb(npacket_list(1)+nb)
@@ -1593,6 +1658,8 @@ c            recieve data....
 
          end do
       end if
+!$OMP END MASTER
+!$OMP BARRIER
 
       return
       end
@@ -1618,7 +1685,8 @@ c            recieve data....
       integer np
 
       call Parallel3d_np_i(np)
-      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,request)
+      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
+
       return
       end
 #endif
@@ -1655,6 +1723,7 @@ c     **** external functions ****
       external Parallel3d_convert_taskid_i
 
 
+!$OMP MASTER
       reqcnt=0
       if (log_mb(sender_list(1)+nb)) then
          do j=1,int_mb(npacket_list(1)+nb)
@@ -1720,6 +1789,8 @@ c            send data....
 
          end do
       end if
+!$OMP END MASTER
+!$OMP BARRIER
 
       return
       end
@@ -1819,13 +1890,14 @@ c     **** external functions ****
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(i2_start(1,nbb)+2-1) - int_mb(i2_start(1,nbb)+1-1)
-      call dcopy(2*msglen,
-     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),1,
-     >           tmp2(int_mb(i2_start(1,nbb)+1-1)),1)
+      call Parallel_shared_vector_copy(.true.,2*msglen,
+     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),
+     >           tmp2(int_mb(i2_start(1,nbb)+1-1)))
          
 
 *     **** receive packed array data ****
       reqcnt = 0
+!$OMP MASTER
       do it = 1,np-1
 
 *        **** synchronous receive of tmp ****
@@ -1894,6 +1966,8 @@ c         msgtype   = 1
          end if
 
       end do
+!$OMP END MASTER
+!$OMP BARRIER
    
 
       return
@@ -2027,12 +2101,13 @@ c     **** external functions ****
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(i2_start(1,nbb)+2-1) - int_mb(i2_start(1,nbb)+1-1)
-      call dcopy(2*msglen,
-     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),1,
-     >           tmp2(int_mb(i2_start(1,nbb)+1-1)),1)
+      call Parallel_shared_vector_copy(.true.,2*msglen,
+     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),
+     >           tmp2(int_mb(i2_start(1,nbb)+1-1)))
          
 
 *     **** receive packed array data ****
+!$OMP MASTER
       reqcnt = 0
       do it = 1,np-1
 
@@ -2102,6 +2177,8 @@ c         msgtype   = 1
          end if
 
       end do
+!$OMP END MASTER
+!$OMP BARRIER
    
 
       return
@@ -2239,12 +2316,13 @@ c     **** external functions ****
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(h_i2_start(1,op,nbb)+2-1) 
      >       - int_mb(h_i2_start(1,op,nbb)+1-1)
-      call dcopy(2*msglen,
-     >           tmp1(int_mb(h_i1_start(1,op,nbb))),1,
-     >           tmp2(int_mb(h_i2_start(1,op,nbb))),1)
+      call Parallel_shared_vector_copy(.true.,2*msglen,
+     >           tmp1(int_mb(h_i1_start(1,op,nbb))),
+     >           tmp2(int_mb(h_i2_start(1,op,nbb))))
 
 
 *     **** receive packed array data ****
+!$OMP MASTER
       reqcnt = 0
       do it = 1,np-1
 
@@ -2314,6 +2392,8 @@ c         msgtype   = 1
          end if
 
       end do
+!$OMP END MASTER
+!$OMP BARRIER
 
       return
       end
