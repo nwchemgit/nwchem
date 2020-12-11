@@ -201,8 +201,7 @@ c
         if (.not.ma_push_get(mt_dbl,pars%ngl,'GL weights',
      $    pars%l_glw,pars%k_glw))
      $    call errquit(pname//'can''t allocate GL roots',0,MA_ERR) 
-        call grid_gaussleg(pars%ngl,dbl_mb(pars%k_glx),
-     $    dbl_mb(pars%k_glw))
+        call gw_gaussleg(pars%ngl,dbl_mb(pars%k_glx),dbl_mb(pars%k_glw))
       endif
 c
 c     3-center ERIs 
@@ -217,3 +216,43 @@ c
 c      
       return
       end subroutine gw_init
+
+      subroutine gw_gaussleg(ngl,x,w)
+      implicit none
+      integer,intent(in) :: ngl
+      double precision,intent(inout),dimension(ngl) :: x, w
+
+      integer igl,jgl,m
+      double precision pi
+      double precision p1,p2,p3,pp,z,z1
+
+      pi = acos(-1d0)
+
+      m = (ngl + 1)/2
+      do igl=1,m
+        z = dcos(pi*(igl-0.25d0)/(ngl+0.5d0))
+ 100    p1 = 1d0
+        p2 = 0d0
+        do jgl=1,ngl
+          p3 = p2
+          p2 = p1
+          p1 = ((2d0*jgl-1d0)*z*p2 - (jgl-1d0)*p3)/jgl
+        enddo
+        pp = ngl*(z*p1-p2)/(z*z-1d0)
+        z1 = z
+        z = z1 - p1/pp
+        if (abs(z-z1).gt.1d-15) goto 100
+
+        x(igl) = -z
+        x(ngl+1-igl) = z
+        w(igl) = 2d0/((1d0-z*z)*pp*pp)
+        w(ngl+1-igl) = w(igl)
+      enddo
+
+      do igl=1,ngl
+        w(igl) = w(igl) / (1d0-x(igl))**2 / pi
+        x(igl) = (1d0 + x(igl))/(1d0 - x(igl))
+      enddo
+
+      end subroutine
+
