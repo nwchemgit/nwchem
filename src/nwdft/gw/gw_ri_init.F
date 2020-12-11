@@ -187,7 +187,6 @@ c
         call gw_mo(dbl_mb(k_aomo),nbf_cd,nfc,nstates,pars%nmo(1),
      $             dbl_mb(k_eri),dbl_mb(k_vtmp),istart,iend)
       enddo
-  200 continue
 c
 c     Orthonormalize 3-center ERIs
 c
@@ -205,6 +204,8 @@ c     Destroy 2-ctr global array
 c
       if (.not. ga_destroy(g_2cinv))
      $  call errquit(pname//'failed to destroy g_2cinv',0,GA_ERR)
+
+  200 continue
 
       npairs = pars%nocc(1)**2
       if (.not.ga_create(mt_dbl,nbf_cd,npairs,'eris oo',nbf_cd,-1,
@@ -251,15 +252,6 @@ c
 c
       integer i,j,s,imo,ib,ir
 c
-c      do imo=1,nstates
-c        do i=1,ni
-c          call dgemv('n',nri,nj,1d0,buf(1,1,i),nri,movecs(1,imo),1,1d0,
-c     $                res(1,i,imo),1)
-c          do j=1,nj
-c            res(:,i,imo) = res(:,i,imo) + buf(:,j,i)*movecs(j,imo)
-c          enddo
-c        enddo
-c      enddo
       do i=1,ni
         call dgemm('n','n',nri,nstates,nj,1d0,buf(1,1,i),nri,movecs,nj,
      $              1d0,res(1,1,i),nri)   
@@ -275,18 +267,10 @@ c
       double precision movecs(ni,nmo)
       integer imo,jmo,i,ieri,ib,mynmo
 
-c      ieri = 0
-c      do jmo=1,nstates
-c        do imo=istart,iend
-c          ieri = ieri + 1
-c          do i=1,ni
-c            eri(:,ieri) = eri(:,ieri) + buf(:,jmo,i)*movecs(i,imo)
-c          enddo
-c        enddo
-c      enddo
       mynmo = iend - istart + 1
       call dgemm('n','n',nri*nstates,mynmo,ni,1d0,buf,nri*nstates,
      $            movecs(1,istart),ni,1d0,eri,nri*nstates)
+
       return
       end subroutine
 
@@ -305,12 +289,11 @@ c      enddo
       ! Save occupied-occupied block
       if (istart.le.nocc) then
         myend = min(iend,nocc)
-        do imo=1,nocc
-          ieri = (imo-1)*mynmo
-          ipair = (imo-1)*nocc + istart - 1
-          do jmo=istart,myend
-c            ieri = ieri + 1
-            ieri = (jmo-istart)*nstates + imo
+        do jmo=istart,myend
+          ieri = (jmo-istart)*nstates
+          ipair = (jmo-1)*nocc
+          do imo=1,nocc
+            ieri = ieri + 1
             ipair = ipair + 1
             call ga_put(oo,1,nri,ipair,ipair,eris(1,ieri),nri)
           enddo
@@ -320,13 +303,11 @@ c            ieri = ieri + 1
       ! Save occupied-virtual block
       if (iend.ge.nocc+1) then
         mystart = max(nocc+1,istart)
-        do imo=1,nocc
-          ieri = (imo-1)*mynmo + mystart - istart
-          ipair = (imo-1)*nvir + mystart - nocc - 1
-          do jmo=mystart,iend
-c            ieri = ieri + 1
-            ieri = (jmo-istart)*nstates + imo
-            ipair = ipair + 1
+        do jmo=mystart,iend
+          ieri = (jmo-istart)*nstates
+          do imo=1,nocc
+            ieri = ieri + 1
+            ipair = (imo-1)*nvir + jmo - nocc
             call ga_put(ov,1,nri,ipair,ipair,eris(1,ieri),nri)
           enddo
         enddo
@@ -336,13 +317,11 @@ c            ieri = ieri + 1
       if (nstates.gt.nocc) then
         if (iend.ge.nocc+1) then
           mystart = max(nocc+1,istart)
-          do imo=nocc+1,nstates
-            ieri = (imo-1)*mynmo + mystart - istart
-            ipair = (imo-nocc-1)*nvir + mystart - nocc - 1
-            do jmo=mystart,iend
-c              ieri = ieri + 1
-              ieri = (jmo-istart)*nstates + imo
-              ipair = ipair + 1
+          do jmo=mystart,iend
+            ieri = (jmo-istart)*nstates + nocc
+            do imo=nocc+1,nstates
+              ieri = ieri + 1
+              ipair = (imo-nocc-1)*nvir + jmo - nocc
               call ga_put(vv,1,nri,ipair,ipair,eris(1,ieri),nri)
             enddo
           enddo

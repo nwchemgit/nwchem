@@ -138,7 +138,7 @@ c
       call gw_rpa(pars%g_eriov,g_erim,dbl_mb(k_eia),dbl_mb(k_omega),
      $            npoles,nri)
 c
-      if (.not.ga_create(mt_dbl,npoles,nmo,'wmn',-1,nmo,g_wmn))
+      if (.not.ga_create(mt_dbl,nmo,npoles,'wmn',nmo,-1,g_wmn))
      $  call errquit(pname//'cannot create array',0,GA_ERR)
       if (.not.ma_push_get(mt_dbl,nmo,'sm omega',l_smomega,k_smomega))
      $  call errquit(pname//'failed to allocate small omega',0,MA_ERR) 
@@ -193,6 +193,7 @@ c
 
             if (main) converged = abs(eps_out-eps_in).lt.pars%thresh
             call ga_brdcst(1001,converged,ma_sizeof(mt_log,1,mt_byte),0)
+            call ga_brdcst(1002,eps_out,ma_sizeof(mt_dbl,1,mt_byte),0)
             if (converged) exit
 
           enddo
@@ -204,9 +205,9 @@ c
       enddo
 c
       if (pars%evgw0.or.pars%evgw) then
-        call ga_brdcst(1002,dbl_mb(k_enew),
+        call ga_brdcst(1003,dbl_mb(k_enew),
      $       ma_sizeof(mt_dbl,nmo,mt_byte),0)
-        call ga_brdcst(1003,dbl_mb(k_sigma),
+        call ga_brdcst(1004,dbl_mb(k_sigma),
      $       ma_sizeof(mt_dbl,nmo,mt_byte),0)
         call dcopy(nmo,dbl_mb(k_enew),1,dbl_mb(k_eold),1)
         eviter = eviter + 1      
@@ -387,7 +388,7 @@ c
         call ga_copy_patch('n',vv,1,nri,ilo,ihi,g_a,1,nri,nocc+1,nmo)
       endif
 
-      call ga_dgemm('t','n',npoles,nmo,nri,1d0,erim,g_a,0d0,wmn)
+      call ga_dgemm('t','n',nmo,npoles,nri,1d0,g_a,erim,0d0,wmn)
       if(.not.ga_destroy(g_a))
      $ call errquit('',0,GA_ERR) 
 
@@ -420,22 +421,23 @@ c
 
       integer ipole,ilo,ihi,jlo,jhi
 
+      double precision ddot
+      external ddot
+
       sigma_c = 0.0d0
       dsigma_c = 0.0d0
 
       call ga_distribution(wmn,me,ilo,ihi,jlo,jhi)
-
-      do ipole=ilo,ihi
-        scratch(1:nmo) = omegan - Omegam(ipole)*signs
+      do ipole=jlo,jhi
+        call dcopy(nmo,omegan,1,scratch,1)
+        call daxpy(nmo,-Omegam(ipole),signs,1,scratch,1)
         scratch(nmo+1:2*nmo) = 1.0d0/(scratch(1:nmo)**2 + eta2)
         scratch(2*nmo+1:3*nmo) = scratch(1:nmo)*scratch(nmo+1:2*nmo)
         scratch(3*nmo+1:4*nmo) = scratch(nmo+1:2*nmo) - 2.0d0*
      $                           scratch(2*nmo+1:3*nmo)**2
-        call ga_get(wmn,ipole,ipole,1,nmo,scratch,1)
-        sigma_c = sigma_c + dot_product(scratch(1:nmo),
-     $                                  scratch(2*nmo+1:3*nmo))
-        dsigma_c = dsigma_c + dot_product(scratch(1:nmo),
-     $                                    scratch(3*nmo+1:4*nmo))
+        call ga_get(wmn,1,nmo,ipole,ipole,scratch,nmo)
+        sigma_c = sigma_c + ddot(nmo,scratch,1,scratch(2*nmo+1),1)
+        dsigma_c = dsigma_c + ddot(nmo,scratch,1,scratch(3*nmo+1),1)
       enddo
       call ga_dgop(mt_dbl,sigma_c,1,'+')
       call ga_dgop(mt_dbl,dsigma_c,1,'+')
