@@ -246,19 +246,23 @@ c
       subroutine gw_aomo(buf,nri,ni,nj,res,movecs,nstates)
       implicit none
       integer nri,ni,nj,nstates
-      double precision buf(nri,nj,ni),res(nri,ni,nstates)
+      double precision buf(nri,nj,ni),res(nri,nstates,ni)
       double precision movecs(nj,nstates)
 c
       integer i,j,s,imo,ib,ir
 c
-      do imo=1,nstates
-        do i=1,ni
-c          call dgemv('n',nri,nj,1.0d0,buf(1,ib+1),nri,movecs(1,imo),1,
-c     $                1.0d0,res(1,ir),1)
-          do j=1,nj
-            res(:,i,imo) = res(:,i,imo) + buf(:,j,i)*movecs(j,imo)
-          enddo
-        enddo
+c      do imo=1,nstates
+c        do i=1,ni
+c          call dgemv('n',nri,nj,1d0,buf(1,1,i),nri,movecs(1,imo),1,1d0,
+c     $                res(1,i,imo),1)
+c          do j=1,nj
+c            res(:,i,imo) = res(:,i,imo) + buf(:,j,i)*movecs(j,imo)
+c          enddo
+c        enddo
+c      enddo
+      do i=1,ni
+        call dgemm('n','n',nri,nstates,nj,1d0,buf(1,1,i),nri,movecs,nj,
+     $              1d0,res(1,1,i),nri)   
       enddo
 c
       return
@@ -267,19 +271,22 @@ c
       subroutine gw_mo(buf,nri,ni,nstates,nmo,eri,movecs,istart,iend)
       implicit none
       integer nri,ni,nstates,nmo,istart,iend
-      double precision buf(nri,ni,nstates),eri(nri,*)
+      double precision buf(nri,nstates,ni),eri(nri,*)
       double precision movecs(ni,nmo)
-      integer imo,jmo,i,ieri,ib
+      integer imo,jmo,i,ieri,ib,mynmo
 
-      ieri = 0
-      do jmo=1,nstates
-        do imo=istart,iend
-          ieri = ieri + 1
-          do i=1,ni
-            eri(:,ieri) = eri(:,ieri) + buf(:,i,jmo)*movecs(i,imo)
-          enddo
-        enddo
-      enddo
+c      ieri = 0
+c      do jmo=1,nstates
+c        do imo=istart,iend
+c          ieri = ieri + 1
+c          do i=1,ni
+c            eri(:,ieri) = eri(:,ieri) + buf(:,jmo,i)*movecs(i,imo)
+c          enddo
+c        enddo
+c      enddo
+      mynmo = iend - istart + 1
+      call dgemm('n','n',nri*nstates,mynmo,ni,1d0,buf,nri*nstates,
+     $            movecs(1,istart),ni,1d0,eri,nri*nstates)
       return
       end subroutine
 
@@ -302,9 +309,10 @@ c
           ieri = (imo-1)*mynmo
           ipair = (imo-1)*nocc + istart - 1
           do jmo=istart,myend
-            ieri = ieri + 1
+c            ieri = ieri + 1
+            ieri = (jmo-istart)*nstates + imo
             ipair = ipair + 1
-            call ga_put(oo,1,nri,ipair,ipair,eris(1,ieri),1)
+            call ga_put(oo,1,nri,ipair,ipair,eris(1,ieri),nri)
           enddo
         enddo
       endif
@@ -316,9 +324,10 @@ c
           ieri = (imo-1)*mynmo + mystart - istart
           ipair = (imo-1)*nvir + mystart - nocc - 1
           do jmo=mystart,iend
-            ieri = ieri + 1
+c            ieri = ieri + 1
+            ieri = (jmo-istart)*nstates + imo
             ipair = ipair + 1
-            call ga_put(ov,1,nri,ipair,ipair,eris(1,ieri),1)
+            call ga_put(ov,1,nri,ipair,ipair,eris(1,ieri),nri)
           enddo
         enddo
       endif
@@ -331,9 +340,10 @@ c
             ieri = (imo-1)*mynmo + mystart - istart
             ipair = (imo-nocc-1)*nvir + mystart - nocc - 1
             do jmo=mystart,iend
-              ieri = ieri + 1
+c              ieri = ieri + 1
+              ieri = (jmo-istart)*nstates + imo
               ipair = ipair + 1
-              call ga_put(vv,1,nri,ipair,ipair,eris(1,ieri),1)
+              call ga_put(vv,1,nri,ipair,ipair,eris(1,ieri),nri)
             enddo
           enddo
         endif

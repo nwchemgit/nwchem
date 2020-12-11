@@ -32,7 +32,7 @@ c
       integer l_sign, k_sign
       integer l_eriij, k_eriij
       integer lscr,lo4,ld, istart, iend, g_erim, g_wmn
-      logical main,oactive
+      logical main,oactive,converged
 c
       double precision sigma_c, dsigma_c, eps_in, eps_out, sigma_old
       double precision z, sigma, func, linear, efermi, sigma_x
@@ -191,7 +191,9 @@ c
 
             if (i.eq.1) linear = eps_in + z*func
 
-            if (abs(eps_out-eps_in).lt.pars%thresh) exit
+            if (main) converged = abs(eps_out-eps_in).lt.pars%thresh
+            call ga_brdcst(1001,converged,ma_sizeof(mt_log,1,mt_byte),0)
+            if (converged) exit
 
           enddo
           dbl_mb(k_enew+lo1+iqp-1) = eps_out
@@ -202,6 +204,10 @@ c
       enddo
 c
       if (pars%evgw0.or.pars%evgw) then
+        call ga_brdcst(1002,dbl_mb(k_enew),
+     $       ma_sizeof(mt_dbl,nmo,mt_byte),0)
+        call ga_brdcst(1003,dbl_mb(k_sigma),
+     $       ma_sizeof(mt_dbl,nmo,mt_byte),0)
         call dcopy(nmo,dbl_mb(k_enew),1,dbl_mb(k_eold),1)
         eviter = eviter + 1      
         if (eviter.lt.pars%eviter) then
@@ -355,16 +361,14 @@ c
 #include "errquit.fh"      
       integer,intent(in) :: erim,oo,ov,vv,wmn
       integer,intent(in) :: imo,npoles,nri,nmo,nocc
-      integer ilo, ihi, g_a
+      integer ilo, ihi, iocc, g_a
 
       logical ga_create,ga_duplicate,ga_destroy
       external ga_create,ga_duplicate,ga_destroy
 
-      ilo = (imo-1)*nmo + 1
-      ihi = imo*nmo
-
       if (.not.ga_create(mt_dbl,nri,nmo,'temp',nri,-1,g_a))
      $  call errquit('gw_get_wmn: cannot create array',0,GA_ERR) 
+      call ga_zero(g_a)
 
       if (imo.le.nocc) then
         ilo = (imo-1)*nocc + 1
@@ -374,7 +378,12 @@ c
         ihi = imo*(nmo-nocc)
         call ga_copy_patch('n',ov,1,nri,ilo,ihi,g_a,1,nri,nocc+1,nmo)
       else
-        call ga_copy_patch('n',ov,1,nri,ilo,ihi,g_a,1,nri,1,nocc)
+        do iocc=1,nocc
+          ilo = (iocc-1)*(nmo-nocc) + imo - nocc
+          call ga_copy_patch('n',ov,1,nri,ilo,ilo,g_a,1,nri,iocc,iocc)
+        enddo
+        ilo = (imo-nocc-1)*(nmo-nocc) + 1
+        ihi = (imo-nocc)*(nmo-nocc)
         call ga_copy_patch('n',vv,1,nri,ilo,ihi,g_a,1,nri,nocc+1,nmo)
       endif
 
