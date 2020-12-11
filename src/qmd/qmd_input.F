@@ -38,6 +38,7 @@ c
       character*32 thermostat
       character*32 integrator_nucl
       character*32 integrator_elec
+      character*32 ext_forces
       logical do_linear
       logical do_cavity
       logical do_namd
@@ -304,6 +305,14 @@ c     Calculate freq spectra as specified in the hessian block every step_freq s
        if (.not.rtdb_put(rtdb,'qmd:step_freq',mt_int,1,
      & step_freq))
      &  call errquit(pname//'failed to write step_freq',0,RTDB_ERR)
+c     Print xyz trajectory every print_xyz steps
+      else if (inp_compare(.false.,test,'ext_forces')) then
+c     external forces
+c     defaults to plumed for now
+        if (.not.inp_a(ext_forces)) ext_forces='plumed'
+        if (.not.rtdb_cput(rtdb,'qmd:ext_forces',1,
+     E       ext_forces(1:inp_strlen(ext_forces))))
+     1   call errquit(pname//'failed to write ext forces',0,RTDB_ERR)
 c
 c     Print
       else if (inp_compare(.false.,test,'print')) then

@@ -1,0 +1,10 @@
+c
+c $Id$
+c input and output files for plume
+c
+      character*255 extfrc_input
+      character*255 extfrc_output
+      common/qmd_extfrc/
+     I     extfrc_input,
+     O     extfrc_output
+	

@@ -75,6 +75,7 @@ c     Surface Hopping
       integer ks_spin                    ! 1=alpha, 2=beta
       integer ispin
       double precision dt_elec           ! electronic time step
+      double precision kbt               ! k_b*T in au (for plumed)
       logical do_namd                    ! NAMD flag
       logical do_property                ! property flag
       logical do_tddft                   ! tddft flag
@@ -92,6 +93,7 @@ c
       logical restart
 c
       character*32 pname
+      character*32 ext_forces
       integer xyzfileunit
       character*255 xyzfilename
       integer rstfileunit
@@ -135,6 +137,14 @@ c     check if we need cavity constraints
       if(.not.rtdb_get(rtdb,'qmd:cavity_spring',mt_dbl,1,cavity_spring))
      &    call errquit("cannot get cavity spring constant",0,0)
       end if ! do_cavity
+c
+c     check if we want external forces
+c
+      ext_forces='none'
+      if (.not.rtdb_cget(rtdb,'qmd:ext_forces',1,ext_forces))
+     E       ext_forces='none'
+      if(ga_nodeid().eq.0) write(6,*) ' Ext forces = ',
+     E     ext_forces(1:inp_strlen(ext_forces))
 c
 c     get xyzfileunit
       if(.not.util_get_io_unit(xyzfileunit))
@@ -225,6 +235,9 @@ c              ***Forces DFT/TDDFT calculation***
      &   call errquit(pname//'dt_nucl and dt_elec not compatible',0,
      &                INPUT_ERR)
       end if
+
+      if(ext_forces.ne.'none')
+     $     call qmd_ext_init(nat,dt_nucl,kb_au*targ_temp,ext_forces)
 c
 c     get initial coordinates and velocities
       call qmd_coords_vels(rtdb,geom,nat,sstep_nucl,ekin,rstfilename,
@@ -252,7 +265,8 @@ c       get energies and movecs
       end if
 c
 c     perform energy gradient calculation on initial coordinates
-      call qmd_gradient(rtdb,nat,dbl_mb(k_g),esys)
+      call qmd_gradient(rtdb,nat,0,
+     $     dbl_mb(k_m),dbl_mb(k_g),dbl_mb(k_r),esys,ext_forces)
 c
       if (do_namd.and.(.not.do_tdks)) then
 c       get energies and movecs
@@ -327,7 +341,8 @@ c         get energies and movecs
         end if
 c
 c       calculate energy and gradient
-        call qmd_gradient(rtdb,nat,dbl_mb(k_g),esys)
+        call qmd_gradient(rtdb,nat,istep_nucl,
+     $       dbl_mb(k_m),dbl_mb(k_g),dbl_mb(k_r),esys,ext_forces)
 c
 c       include cavity reflection if requested
         if (do_cavity) then
@@ -377,7 +392,8 @@ c         calculate gradient for new current state
               call qmd_tdks_swap(rtdb,state,nstates,ks_spin,
      $                           int_mb(k_so),int_mb(k_sv))
             end if
-            call qmd_gradient(rtdb,nat,dbl_mb(k_g),esys)
+            call qmd_gradient(rtdb,nat,istep_nucl,
+     $           dbl_mb(k_m),dbl_mb(k_g),dbl_mb(k_r),esys,ext_forces)
           end if
           state_p=state
 c
@@ -394,7 +410,6 @@ c       instantaneous total energy: instantaneous kinetic energy + system energy
 c
 c       instantaneous temperature
         final_temp = 2.0d0*ekin/kb_au/(1.d0*ndeg)
-c
 c       print md run information
         if (ga_nodeid().eq.0) then
 c
@@ -473,6 +488,10 @@ c
   135 format(A21,I9,F20.6)
   140 format(A21,I9,3ES15.6)
   145 format(A21,I9,I20)
+c
+c     finalized ext forces
+c
+      if(ext_forces.ne.'none') call qmd_ext_final(ext_forces)
 c
 c     clear memory
       if(.not.ma_chop_stack(l_m))
