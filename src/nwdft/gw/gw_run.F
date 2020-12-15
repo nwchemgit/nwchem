@@ -70,8 +70,8 @@ c
 c
 c     Obtain Vxc and store it in Sigma
 c
-      if (main) write(luout,9010)
- 9010 format(10x,'Computing V_xc')
+      if (main) write(luout,9000)
+ 9000 format(10x,'Computing V_xc')
 
       if (.not.ma_push_get(mt_dbl,2*nmo,'Sigma',l_sigma,k_sigma))
      $  call errquit(pname//'cannot allocate Sigma',0,MA_ERR)
@@ -80,8 +80,8 @@ c
 c
 c     Obtain Sigma_x
 c
-      if (main) write(luout,9000)
- 9000 format(10x,'Computing Sigma_x')
+      if (main) write(luout,9010)
+ 9010 format(10x,'Computing Sigma_x')
       
       if (.not.ma_push_get(mt_dbl,nmo,'Sigma_x',l_sigmax,k_sigmax))
      $  call errquit(pname//'cannot allocate Sigma_x',0,MA_ERR)
