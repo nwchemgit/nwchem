@@ -225,6 +225,10 @@ c
 
  9050 format(10x,I3,6x,F8.3,6x,F6.3,6x,F8.3)
 c
+      if (.not.ga_destroy(g_wmn))
+     $  call errquit(pname//'failed to destroy array',0,GA_ERR)
+      if (.not.ga_destroy(g_erim))
+     $  call errquit(pname//'failed to destroy array',0,GA_ERR)
       if (.not.ma_chop_stack(l_sigma))
      $  call errquit(pname//'could not free stack',0,MA_ERR)
 
