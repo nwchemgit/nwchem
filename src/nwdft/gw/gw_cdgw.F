@@ -35,6 +35,8 @@ c
       double precision sigma_x, sigma_old
 
       logical converged
+
+      double precision, parameter :: fdstep = 0.01d0
 c
 c     -----------------------------------------------------------------
 c
@@ -150,37 +152,33 @@ c
      $       /,10x,45('-'))
 
       do iqp=1,pars%noqp+pars%nvqp
-        eps_out = dbl_mb(k_eold+lo1+iqp-1)
         sigma_x = dbl_mb(k_sigmax+lo1+iqp-1)
         sigma_old = dbl_mb(k_sigma+lo1+iqp-1)
+        eps_out = dbl_mb(k_eold+lo1+iqp-1)
+        if (eviter.eq.0) eps_out = eps_out + 0.17d0*(sigma_x-sigma_old)
+c        
         do i=1,pars%qpiter
           eps_in = eps_out
           call gw_buildin(g_epsilon,dbl_mb(k_eold),dbl_mb(pars%k_glx),
-     $                    dbl_mb(pars%k_glw),eps_in,I_n,dI_n,iqp,
+     $                    dbl_mb(pars%k_glw),eps_in,I_n,dI_n,fdstep,iqp,
      $                    npoles,nocc,nvir,nri,pars%ngl,pars%me)
-          call gw_buildin(g_epsilon,dbl_mb(k_eold),dbl_mb(pars%k_glx),
-     $                    dbl_mb(pars%k_glw),eps_in+0.001d0,dI_np,dummy,
-     $                    iqp,npoles,nocc,nvir,nri,pars%ngl,pars%me)
-          call gw_buildin(g_epsilon,dbl_mb(k_eold),dbl_mb(pars%k_glx),
-     $                    dbl_mb(pars%k_glw),eps_in-0.001d0,dI_nm,dummy,
-     $                    iqp,npoles,nocc,nvir,nri,pars%ngl,pars%me)
           call gw_buildrn(pars%g_erioo,pars%g_eriov,pars%g_erivv,
      $                    dbl_mb(k_eold),dbl_mb(k_eia),eps_in,R_n,
      $                    lo1+iqp,npoles,nocc,nvir,nri,pars%me)
           call gw_buildrn(pars%g_erioo,pars%g_eriov,pars%g_erivv,
-     $                    dbl_mb(k_eold),dbl_mb(k_eia),eps_in+0.001d0,
+     $                    dbl_mb(k_eold),dbl_mb(k_eia),eps_in+fdstep,
      $                    dR_np,lo1+iqp,npoles,nocc,nvir,nri,pars%me)
           call gw_buildrn(pars%g_erioo,pars%g_eriov,pars%g_erivv,
-     $                    dbl_mb(k_eold),dbl_mb(k_eia),eps_in-0.001d0,
+     $                    dbl_mb(k_eold),dbl_mb(k_eia),eps_in-fdstep,
      $                    dR_nm,lo1+iqp,npoles,nocc,nvir,nri,pars%me)
           sigma_c = R_n + I_n
-          dsigma_c = (dR_np - dR_nm + dI_np - dI_nm)/0.002d0
+          dsigma_c = (dR_np - dR_nm)/(2d0*fdstep) + dI_n
           sigma = sigma_c + sigma_x
 
-          z = 1.0d0/(1.0d0-dsigma_c)
+          z = 1d0/(1d0-dsigma_c)
             
           func = dbl_mb(k_eold+lo1+iqp-1) + sigma - sigma_old - eps_in
-          eps_out = eps_in + 0.667*z*func
+          eps_out = eps_in + z*func
 
           if (i.eq.1) linear = eps_in + z*func
 
@@ -260,6 +258,8 @@ c     *****************************************************************
 
       call ga_distribution(oo,me,ilo,ihi,oolo,oohi)
       call ga_distribution(ov,me,ilo,ihi,ovlo,ovhi)
+      if (llmo+nqp-1.gt.nocc) call ga_distribution(vv,me,ilo,ihi,
+     $                                             vvlo,vvhi)
       call ga_distribution(g_b,me,ilo,ihi,pilo,pihi)
       call nga_distribution(g_a,me,ilo,ihi)
       call ga_access(ov,1,nri,ilo,ihi,k_ov,ld)
@@ -311,12 +311,20 @@ c     *****************************************************************
               if (idy.lt.ovlo) cycle
               if (idy.gt.ovhi) exit
               call ga_get(ov,1,nri,idy,idy,dbl_mb(tmp),nri)
+              call dtrmv('l','n','n',nri,dbl_mb(k_pi),nri,dbl_mb(tmp),1)
+              wmo = ddot(nri,dbl_mb(tmp),1,dbl_mb(tmp),1) + 
+     $                   vmo(kmo,jmo)
+              call ga_put(g_iw(igl),kmo,kmo,jmo,jmo,wmo,1)
             enddo
             do kmo=1,nvir
-              idy = (kmo-1)*nvir + kmo
+              idy = (imo-nocc-1)*nvir + kmo
               if (idy.lt.vvlo) cycle
               if (idy.gt.vvhi) exit
               call ga_get(vv,1,nri,idy,idy,dbl_mb(tmp),nri)
+              call dtrmv('l','n','n',nri,dbl_mb(k_pi),nri,dbl_mb(tmp),1)
+              wmo = ddot(nri,dbl_mb(tmp),1,dbl_mb(tmp),1) + 
+     $                   vmo(kmo+nocc,jmo)
+              call ga_put(g_iw(igl),kmo+nocc,kmo+nocc,jmo,jmo,wmo,1)
             enddo
           endif
         enddo
@@ -333,13 +341,14 @@ c
 
 c     *****************************************************************
 
-      subroutine gw_buildin(eps,eig,x,w,omega,Iqp,dIqp,imo,npoles,
-     $                      nocc,nvir,nri,ngl,me)
+      subroutine gw_buildin(eps,eig,x,w,omega,Iqp,dIqp,fdstep,imo,
+     $                      npoles,nocc,nvir,nri,ngl,me)
       implicit none
 #include "mafdecls.fh"      
       integer,intent(in) :: npoles,nocc,nvir,nri,ngl
       integer,intent(in) :: eps(ngl)
       integer,intent(in) :: imo, me
+      double precision, intent(in) :: fdstep
       double precision, intent(in), dimension(nocc+nvir) :: eig
       double precision, intent(in), dimension(ngl) :: x, w
       double precision, intent(in)  :: omega
@@ -367,8 +376,8 @@ c     *****************************************************************
         call ga_get(eps(igl),jlo,jhi,imo,imo,wmo,mynmo)
         do jmo=1,mynmo
           factor2(jmo) =  factor(jmo)/(factor(jmo)**2 + w2)
-          dfactor2(jmo) = 1d0/(factor(jmo)**2 + w2) - 
-     $                    2d0*factor2(jmo)**2
+          dfactor2(jmo) = (w2 - factor(jmo)**2+fdstep**2)/
+     $  (((factor(jmo)+fdstep)**2 + w2)*((factor(jmo)-fdstep)**2+w2))
         enddo
         Iqp = Iqp - w(igl)*ddot(mynmo,factor2,1,wmo,1)
         dIqp = dIqp - w(igl)*ddot(mynmo,dfactor2,1,wmo,1)
@@ -459,6 +468,26 @@ c     *****************************************************************
         do jmo=nocc+1,nmo
           if (eig(jmo).gt.omega+shift) exit
           if (is_near(eig(jmo),omega,shift)) fac = 0.5d0
+          arg = (omega - eig(jmo))**2
+          do ipole=ilo,ihi
+            factor(ipole) = eia(ipole)/(eia(ipole)**2 - arg)
+          enddo
+          call nga_put(g_a,ilo,ihi,factor(ilo),1)
+          call ga_sync()
+          call ga_copy(ov,g_c)
+          call ga_scale_cols(g_c,g_a)
+          call ga_dgemm('n','t',nri,nri,npoles,4d0,g_c,ov,0d0,g_b)
+          call ga_add_diagonal(g_b,g_d)
+          call dft_invdiag(g_b, g_epsilon, nri)
+
+          idx = (imo-nocc-1)*nvir + jmo - nocc
+          call ga_get(vv,1,nri,idx,idx,vector,nri)
+          call dgemv('t',nri,mynri,1d0,dbl_mb(k_eps),ld,vector,1,0d0,
+     $                vector2(jlo),1)
+
+          vector2(jlo:jhi) = vector2(jlo:jhi) - vector(jlo:jhi)
+          w = ddot(mynri,vector(jlo),1,vector2(jlo),1)
+          R_n = R_n + fac*w
         enddo
       end if
       call ga_dgop(mt_dbl,R_n,1,'+')
@@ -534,7 +563,7 @@ c
             vmo(kmo,jmo) = -ddot(nri,dbl_mb(tmp),1,dbl_mb(tmp),1)
           enddo
           do kmo=1,nvir
-            idx = (kmo-1)*nvir + kmo
+            idx = (imo-nocc-1)*nvir + kmo
             if (idx.lt.vvlo) cycle
             if (idx.gt.vvhi) exit
             call ga_get(vv,1,nri,idx,idx,dbl_mb(tmp),nri)
