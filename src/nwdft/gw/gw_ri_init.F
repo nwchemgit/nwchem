@@ -51,7 +51,7 @@ c
 c
 c     Compute 2-center ERIs
 c
-      write(luout,*)
+      if (pars%me.eq.0) write(luout,*)
 c
       if (pars%me.eq.0) write(luout,9000)
  9000 format(10x,'Computing 2-center integrals')
@@ -133,7 +133,6 @@ c
       laomo = nbf_cd*nbf_ao_mxnbf_cn*nstates
       if (.not.ma_alloc_get(mt_dbl,laomo,'AOMO tmp',l_aomo,k_aomo))
      $  call errquit(pname//'can''t get temp aomo space',0,MA_ERR)
-
 c
 c     Compute three-center ERIs in MO representation
 c

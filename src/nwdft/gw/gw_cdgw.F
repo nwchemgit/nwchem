@@ -36,7 +36,7 @@ c
 
       logical converged
 
-      double precision, parameter :: fdstep = 0.01d0
+      double precision, parameter :: fdstep = 0.001d0
 c
 c     -----------------------------------------------------------------
 c
@@ -403,7 +403,7 @@ c     *****************************************************************
 
       character(len=12), parameter :: pname = 'gw_buildrn: '
 
-      integer g_a, g_b, g_c, g_d, g_e, g_epsilon, k_eps
+      integer g_a, g_b, g_c, g_d, g_e, g_epsilon, k_eps, k_sol
       integer nmo, jmo, ipole, ilo, ihi, jlo, jhi, info, ld, mynri, idx
       double precision fac, arg, w
       double precision factor(npoles), vector(nri), vector2(nri)
@@ -425,12 +425,15 @@ c     *****************************************************************
      $  call errquit(pname//'can''t create array',0,GA_ERR)
       if (.not.ga_create(mt_dbl,nri,nri,'Pi',nri,-1,g_b))
      $  call errquit(pname//'can''t create array',0,GA_ERR)
+      if (.not.ga_create(mt_dbl,nri,1,'sol',-1,1,g_e))
+     $  call errquit(pname//'can''t create array',0,GA_ERR)
 
 
       call ga_distribution(g_epsilon,me,ilo,ihi,jlo,jhi)
       call nga_distribution(g_a,me,ilo,ihi)
       call ga_zero(g_d)
       call ga_add_constant(g_d,1d0)
+      call ga_access(g_e,jlo,jhi,1,1,k_sol,ld)
       call ga_access(g_epsilon,1,nri,jlo,jhi,k_eps,ld)
 
       mynri = jhi - jlo + 1
@@ -472,21 +475,27 @@ c     *****************************************************************
           do ipole=ilo,ihi
             factor(ipole) = eia(ipole)/(eia(ipole)**2 - arg)
           enddo
+          idx = (imo-nocc-1)*nvir + jmo - nocc
+          call ga_get(vv,1,nri,idx,idx,vector,nri)
+          
           call nga_put(g_a,ilo,ihi,factor(ilo),1)
           call ga_sync()
           call ga_copy(ov,g_c)
           call ga_scale_cols(g_c,g_a)
           call ga_dgemm('n','t',nri,nri,npoles,4d0,g_c,ov,0d0,g_b)
           call ga_add_diagonal(g_b,g_d)
+#ifndef SCALAPACK
           call dft_invdiag(g_b, g_epsilon, nri)
-
-          idx = (imo-nocc-1)*nvir + jmo - nocc
-          call ga_get(vv,1,nri,idx,idx,vector,nri)
           call dgemv('t',nri,mynri,1d0,dbl_mb(k_eps),ld,vector,1,0d0,
      $                vector2(jlo),1)
-
           vector2(jlo:jhi) = vector2(jlo:jhi) - vector(jlo:jhi)
           w = ddot(mynri,vector(jlo),1,vector2(jlo),1)
+#else
+          call dcopy(mynri,vector(jlo),1,dbl_mb(k_sol),1)
+          call ga_solve(g_b,g_e)
+          call daxpy(mynri,-1d0,vector(jlo),1,dbl_mb(k_sol),1)
+          w = ddot(mynri,dbl_mb(k_sol),1,vector(jlo),1)
+#endif          
           R_n = R_n + fac*w
         enddo
       end if
@@ -494,17 +503,19 @@ c     *****************************************************************
 
       if ((.not.ga_destroy(g_a)).or.(.not.ga_destroy(g_b)).or.
      $    (.not.ga_destroy(g_c)).or.(.not.ga_destroy(g_d)).or.
-     $    (.not.ga_destroy(g_epsilon)))
+     $    (.not.ga_destroy(g_epsilon).or.(.not.ga_destroy(g_e))))
      $  call errquit(pname//'can''t destroy global array',0,GA_ERR) 
 c     
       return
       end subroutine
 
+c     *****************************************************************
+
       logical function is_near(test,targ,tol)
       implicit none
       double precision, intent(in) :: test, targ, tol
 
-      if (abs(test-targ).lt.tol) then
+      if (abs(test-targ).le.tol) then
         is_near = .true.
       else
         is_near = .false.
@@ -512,6 +523,8 @@ c
 
       return
       end function
+
+c     *****************************************************************
 
       subroutine gw_vmo(oo,ov,vv,vmo,sigma_x,nqp,nmo,nocc,nvir,nri,
      $                  llmo,me,nvqp)
@@ -577,11 +590,13 @@ c
 
       call dgop(mt_dbl,vmo,nqp*nmo,'+')
 
-      do imo=llmo,llmo+nqp-1
+      do imo=1,nqp
         sigma_x(imo) = sum(vmo(1:nocc,imo))
       enddo
 
       end subroutine
+
+c     *****************************************************************
 
       subroutine gw_buildpi(ov,pi,factor,nri,npoles,ilo,ihi)
       implicit none
