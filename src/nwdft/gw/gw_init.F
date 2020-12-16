@@ -250,8 +250,8 @@ c
       enddo
 
       do igl=1,ngl
-        w(igl) = w(igl) / (1d0-x(igl))**2 / pi
-        x(igl) = (1d0 + x(igl))/(1d0 - x(igl))
+        w(igl) = 2d0 * w(igl) / (1d0-x(igl))**2 / pi
+        x(igl) = ((1d0 + x(igl))/(1d0 - x(igl)))**2
       enddo
 
       end subroutine
