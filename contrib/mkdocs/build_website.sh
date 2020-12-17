@@ -25,6 +25,9 @@ rm -rf nwchemgit.github.io_temp
 git clone --depth 1 https://github.com/nwchemgit/nwchemgit.github.io  nwchemgit.github.io_temp
 cd nwchemgit.github.io_temp
 mkdocs -v gh-deploy --config-file ../mkdocs.yml --remote-branch master
+echo "********"
+echo remember to apply preload.patch to nwchemgit.github.io
+echo "********"
 cd ..
 rm -rf  nwchemgit.github.io_temp
 else
