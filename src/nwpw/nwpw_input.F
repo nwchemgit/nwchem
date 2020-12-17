@@ -23,7 +23,7 @@ c#include "nwpwxc.fh"
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 130)
+      parameter (num_dirs = 131)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -154,6 +154,7 @@ c
      >            'one_electron_guess',
      >            'zone_fft_name',
      >            'dos-fft-grid',
+     >            'director',
      >            'end'/
 
       double precision kb
@@ -234,7 +235,7 @@ c
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
      >       6700,6800,6900,7000,4250,7100,7200,7300,7400,7500,7600,
      >       7700,7800,7900,8000,8100,6650,8200,8300,8400,8500,8600,
-     >       8700,8800,8900,9000,9010,9020,9030,1810,1811,
+     >       8700,8800,8900,9000,9010,9020,9030,1810,1811,1812,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -494,6 +495,30 @@ c
       call dos_states_set(rtdb,zone_name,cell_expand(1),
      >                                   cell_expand(2),
      >                                   cell_expand(3))
+
+      goto 10
+
+c
+c director
+c
+ 1812 if (.not.inp_a(zone_name)) then
+         value = rtdb_put(rtdb,'nwpw:use_director',mt_log,1,.true.)
+      else
+
+         if (.not.nwpw_parse_boolean(zone_name,.true.)) then
+            value = rtdb_put(rtdb,'nwpw:use_director',mt_log,1,.false.)
+         else
+
+            value = rtdb_put(rtdb,'nwpw:use_director',mt_log,1,.true.)
+            ind = index(zone_name,' ') - 1
+            value = rtdb_cput(rtdb,'nwpw:director_filename',1,
+     >                        zone_name(1:ind))
+         end if
+      end if
+
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 1811, RTDB_ERR)
 
       goto 10
 
