@@ -7,6 +7,7 @@ c
 #include "bas.fh"
 #include "gw.fh"
 #include "stdio.fh"
+#include "util.fh"      
 #ifdef SCALAPACK
 #include "dft_scaleig.fh"
       integer ga_cholesky, ga_llt_i
@@ -28,7 +29,7 @@ c
       integer nfc,nfd,nfp,nij,eri_offset,ishc,ishd,ishp,nactive,tmp,me
       integer imo,istart,iend,l_map,k_map,np,nstates,npairs,nbf_cd_me
       logical CeqD,ok,oactive
-      double precision eri_est
+      double precision eri_est,timer
 c
       logical ga_create, ga_duplicate, ga_destroy, ga_create_irreg
       external ga_create, ga_duplicate, ga_destroy, ga_create_irreg
@@ -38,6 +39,8 @@ c
 c
       integer ga_nnodes
       external ga_nnodes
+
+      timer = util_wallsec()
 c
 c     Create Global Arrays
 c
@@ -206,6 +209,10 @@ c
 
   200 continue
 
+      pars%timer%eris = util_wallsec() - timer
+
+      timer = util_wallsec()
+
       npairs = pars%nocc(1)**2
       if (.not.ga_create(mt_dbl,nbf_cd,npairs,'eris oo',nbf_cd,-1,
      $  pars%g_erioo))
@@ -230,6 +237,8 @@ c
       call putmoeris_ga(pars%g_erioo,pars%g_eriov,pars%g_erivv,
      &                  dbl_mb(k_eri),pars%nocc(1),pars%nvir(1),nstates,
      &                  nbf_cd,pars%me,istart,iend)
+
+      pars%timer%distr = util_wallsec() - timer
 c
 c     Free heap
 c

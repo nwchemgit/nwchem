@@ -8,6 +8,7 @@ c
 #include "cdft.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
+#include "util.fh"      
 #include "gw.fh"
 
       type(gw_params_t) :: pars
@@ -33,6 +34,9 @@ c
       double precision sigma, sigma_c, dsigma_c, d2sigma_c
       double precision eps_in, eps_out, z, func, linear, dfunc, d2func
       double precision sigma_x, sigma_old
+
+      double precision timer_gw,timer_vmo,timer_iw,timer_in,timer_rn
+      double precision timer_vxc,timer
 
       logical converged
 
@@ -60,15 +64,21 @@ c
       if (main) write(luout,9000)
  9000 format(10x,'Computing Vxc')
 
+      timer = util_wallsec()
+
       if (.not.ma_push_get(mt_dbl,2*nmo,'Sigma',l_sigma,k_sigma))
      $  call errquit(pname//'cannot allocate Sigma',0,MA_ERR)
 
       call gw_vxc(dbl_mb(k_sigma),nmo,pars)
+
+      pars%timer%vxc = pars%timer%vxc + util_wallsec() - timer
 c
 c     Obtain Sigma_x
 c
       if (main) write(luout,9010)
  9010 format(10x,'Computing Sigma_x')
+
+      timer = util_wallsec()
 
       if (.not.ma_push_get(mt_dbl,nmo,'Sigma_x',l_sigmax,k_sigmax))
      $  call errquit(pname//'cannot allocate Sigma_x',0,MA_ERR)
@@ -78,6 +88,8 @@ c
       call gw_vmo(pars%g_erioo,pars%g_eriov,pars%g_erivv,
      $            dbl_mb(k_vmo),dbl_mb(k_sigmax+lo1),nqp,nmo,nocc,
      $            nvir,nri,lo1+1,pars%me,pars%nvqp)
+
+      pars%timer%vmo = pars%timer%vmo + util_wallsec() - timer
 c
 c     Allocations
 c
@@ -133,9 +145,13 @@ c
       if (main) write(luout,9030)
  9030 format(10x,'Computing W(iw) on the imaginary grid')
 c
+      timer = util_wallsec()
+
       call gw_buildiw(pars%g_erioo,pars%g_eriov,pars%g_erivv,
      $    dbl_mb(k_eia),dbl_mb(pars%k_glx),g_epsilon,dbl_mb(k_vmo),
      $    npoles,nmo,nocc,nvir,nri,pars%ngl,nqp,lo1+1)
+
+      pars%timer%iw = pars%timer%iw + util_wallsec() - timer
 c
   200 continue ! evGW0
 c
@@ -159,9 +175,12 @@ c
 c        
         do i=1,pars%qpiter
           eps_in = eps_out
+          timer = util_wallsec()
           call gw_buildin(g_epsilon,dbl_mb(k_eold),dbl_mb(pars%k_glx),
      $                    dbl_mb(pars%k_glw),eps_in,I_n,dI_n,fdstep,iqp,
      $                    npoles,nocc,nvir,nri,pars%ngl,pars%me)
+          pars%timer%in = pars%timer%in + util_wallsec() - timer
+          timer = util_wallsec()
           call gw_buildrn(pars%g_erioo,pars%g_eriov,pars%g_erivv,
      $                    dbl_mb(k_eold),dbl_mb(k_eia),eps_in,R_n,
      $                    lo1+iqp,npoles,nocc,nvir,nri,pars%me)
@@ -171,6 +190,7 @@ c
           call gw_buildrn(pars%g_erioo,pars%g_eriov,pars%g_erivv,
      $                    dbl_mb(k_eold),dbl_mb(k_eia),eps_in-fdstep,
      $                    dR_nm,lo1+iqp,npoles,nocc,nvir,nri,pars%me)
+          pars%timer%rn = pars%timer%rn + util_wallsec() - timer
           sigma_c = R_n + I_n
           dsigma_c = (dR_np - dR_nm)/(2d0*fdstep) + dI_n
           sigma = sigma_c + sigma_x
@@ -212,6 +232,7 @@ c
         if (.not.ga_destroy(g_epsilon(igl)))
      $    call errquit(pname//'cannot destroy global arrays',0,GA_ERR)
       enddo
+
 c
       end subroutine
 

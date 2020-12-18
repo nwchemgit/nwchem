@@ -1,6 +1,12 @@
 
       double precision, parameter :: ha2ev = 27.211386245988d0
 
+      type gwtimer
+        double precision :: init,eris,distr,vxc,total
+        double precision :: vmo,iw,in,rn
+	double precision :: sigmac,sigmax,rpa,wm
+      end type gwtimer
+
       type :: gw_params_t
 #ifdef XLFLINUX
         sequence
@@ -41,4 +47,7 @@ c
         logical          :: graph, newton, anaw
         double precision :: thresh
 
+        type(gwtimer)    :: timer
+
       end type gw_params_t
+

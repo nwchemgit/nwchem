@@ -9,6 +9,8 @@ c
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
+#include "util.fh"      
 #include "gw.fh"
 
       type(gw_params_t)  :: pars
@@ -44,5 +46,31 @@ c
      $  call errquit(pname//'bas_destroy failed',0,BASIS_ERR)
       if (.not.bas_destroy(cd_bas_han))
      $  call errquit(pname//'bas_destroy failed',0,BASIS_ERR)
+
+      pars%timer%total = util_wallsec() - pars%timer%total
+
+      if (pars%me.eq.0) then
+        write(luout,*)
+        write(luout,*) "    GW Timing Statistics"
+        write(luout,*) "  ------------------------"
+        write(luout,'("   Init.   : ",F12.1,"s")') pars%timer%init
+        write(luout,'("   ERIs    : ",F12.1,"s")') pars%timer%eris
+        write(luout,'("   Distr.  : ",F12.1,"s")') pars%timer%distr
+        write(luout,'("   Vxc     : ",F12.1,"s")') pars%timer%vxc
+        if (pars%cdgw) then
+          write(luout,'("   Vmo     : ",F12.1,"s")') pars%timer%vmo
+          write(luout,'("   iW      : ",F12.1,"s")') pars%timer%iw
+          write(luout,'("   I_n     : ",F12.1,"s")') pars%timer%in
+          write(luout,'("   R_n     : ",F12.1,"s")') pars%timer%rn
+        else
+          write(luout,'("   Sigma_x : ",F12.1,"s")') pars%timer%sigmax
+          write(luout,'("   RPA     : ",F12.1,"s")') pars%timer%rpa
+          write(luout,'("   Wmn     : ",F12.1,"s")') pars%timer%wm
+          write(luout,'("   Sigma_c : ",F12.1,"s")') pars%timer%sigmac
+        endif
+        write(luout,  '("   GW total: ",F12.1,"s")') pars%timer%total
+        write(luout,*)
+      endif
+
       return
       end

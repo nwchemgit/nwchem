@@ -9,6 +9,7 @@ c
 #include "geom.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
+#include "util.fh"      
 #include "gw.fh"
 c
       type(gw_params_t) :: pars
@@ -32,6 +33,20 @@ c
 c
 c     -----------------------------------------------------------------
 c
+      pars%timer%init  = util_wallsec()
+      pars%timer%total = pars%timer%init
+      pars%timer%vxc   = 0d0
+      pars%timer%eris  = 0d0
+      pars%timer%distr = 0d0
+      pars%timer%sigmax= 0d0
+      pars%timer%sigmac= 0d0
+      pars%timer%rpa   = 0d0
+      pars%timer%wm    = 0d0
+      pars%timer%rn    = 0d0
+      pars%timer%in    = 0d0
+      pars%timer%iw    = 0d0
+      pars%timer%vmo   = 0d0
+
       if (.not.rtdb_get(pars%rtdb,'gw:init',mt_log,1,init))
      $  call gw_defaults(pars%rtdb) 
 
@@ -210,6 +225,8 @@ c
       call print_integrals((/ao_bas_han,cd_bas_han/),.false.)
       call schwarz_init(geom, ao_bas_han)
       call scf_get_fock_param(pars%rtdb, pars%tol2e)
+
+      pars%timer%init = util_wallsec() - pars%timer%init
 c
       call gw_memory(pars)
       call gw_ri_init(pars)

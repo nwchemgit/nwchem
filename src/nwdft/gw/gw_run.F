@@ -7,6 +7,7 @@ c
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "gw.fh"
+#include "util.fh"      
 c
       type(gw_params_t) :: pars
 c
@@ -36,6 +37,9 @@ c
 c
       double precision sigma_c, dsigma_c, eps_in, eps_out, sigma_old
       double precision z, sigma, func, linear, efermi, sigma_x
+
+      double precision cputime,walltime,timer,timer_wm,timer_sigmac
+      double precision timer_vxc,timer_sigmax,timer_rpa
 c
       integer ilaenv
       external ilaenv
@@ -71,23 +75,32 @@ c
 c     Obtain Vxc and store it in Sigma
 c
       if (main) write(luout,9000)
- 9000 format(10x,'Computing V_xc')
+ 9000 format(10x,'Computing V_xc ... ')
+ 9001 format(F12.1,'s')     
 
+      timer = util_wallsec()
+c      
       if (.not.ma_push_get(mt_dbl,2*nmo,'Sigma',l_sigma,k_sigma))
      $  call errquit(pname//'cannot allocate Sigma',0,MA_ERR)
 
       call gw_vxc(dbl_mb(k_sigma),nmo,pars)
+
+      pars%timer%vxc = pars%timer%vxc + util_wallsec() - timer
 c
 c     Obtain Sigma_x
 c
       if (main) write(luout,9010)
  9010 format(10x,'Computing Sigma_x')
       
+      timer = util_wallsec()
+
       if (.not.ma_push_get(mt_dbl,nmo,'Sigma_x',l_sigmax,k_sigmax))
      $  call errquit(pname//'cannot allocate Sigma_x',0,MA_ERR)
 c
       call gw_sigmax(pars%g_erioo,pars%g_eriov,dbl_mb(k_sigmax),nri,nmo,
      $               nocc,nvir,pars%me)
+
+      pars%timer%sigmax = pars%timer%sigmax + util_wallsec() - timer
 c
 c     Allocation
 c
@@ -134,9 +147,14 @@ c     RPA polarizability
 c
       if (main) write(luout,9020)
  9020 format(10x,'Computing RPA polarizability')
+
+      timer = util_wallsec()
 c
       call gw_rpa(pars%g_eriov,g_erim,dbl_mb(k_eia),dbl_mb(k_omega),
      $            npoles,nri)
+
+      pars%timer%rpa = pars%timer%rpa + util_wallsec() - timer
+
 c
       if (.not.ga_create(mt_dbl,nmo,npoles,'wmn',nmo,-1,g_wmn))
      $  call errquit(pname//'cannot create array',0,GA_ERR)
@@ -165,8 +183,12 @@ c
 c
       do iqp=1,pars%noqp+pars%nvqp
 
+        timer = util_wallsec()
+
         call gw_get_wmn(g_wmn,g_erim,pars%g_erioo,pars%g_eriov,
      $                  pars%g_erivv,iqp+lo1,npoles,nri,nmo,nocc)
+
+        pars%timer%wm = pars%timer%wm - timer + util_wallsec()
 c      
         if (pars%graph) then
         elseif (pars%newton) then
@@ -179,9 +201,14 @@ c
             dbl_mb(k_smomega:k_smomega+nmo-1) = eps_in - 
      $                                      dbl_mb(k_eold:k_eold+nmo-1)
 c
+            timer = util_wallsec()
+
             call gw_sigmac(sigma_c,dsigma_c,dbl_mb(k_smomega),
      $       g_wmn,dbl_mb(k_omega),dbl_mb(k_scr),dbl_mb(k_sign),
      $       0.001d0**2,npoles,nmo,pars%me)
+
+            pars%timer%sigmac = pars%timer%sigmac - timer + 
+     $                          util_wallsec()
 c
             z = 1.0d0/(1.0d0-dsigma_c)
             sigma = sigma_c + sigma_x
@@ -231,6 +258,7 @@ c
      $  call errquit(pname//'failed to destroy array',0,GA_ERR)
       if (.not.ma_chop_stack(l_sigma))
      $  call errquit(pname//'could not free stack',0,MA_ERR)
+c
 
       end subroutine gw_run
 c
