@@ -37,6 +37,10 @@
 
       call Parallel_taskid(taskid)
 
+      do it=1,202
+         write(*,*) "i,fweight=",it,fweight(it)
+      end do
+
       ierr = 0
       one  = dcmplx(1.0d0,0.0d0)
       zero = dcmplx(0.0d0,0.0d0)
@@ -56,23 +60,29 @@
       U    = Bs
       st2  = B
 
-      call zcopy(8*nn,zero,0,tmp,1)
+      !call zcopy(8*nn,zero,0,tmp,1)
+      call Parallel_shared_vector_zero(.true.,16*nn,tmp)
      
 *::::::::::::::::::::::  Lagrangian multipliers  ::::::::::::::::::::::
 
+      write(*,*) "HERA"
         call Pneb_ffw_hermit_Multiply(ms,nb,psi2,psi2,npack1,tmp(A))
         call Pneb_ffw_Multiply(ms,nb,psi1,psi2,npack1,tmp(B))
         call Pneb_ffw_hermit_Multiply(ms,nb,psi1,psi1,npack1,tmp(C))
 
+      write(*,*) "HERB"
         call cpsi_gen_Ba_Bs(ms,nb,nn,tmp(B),tmp(Bs),tmp(Ba))
+      write(*,*) "HERC"
 
         call cpsi_gen_UD(ms,nb,tmp(Bs),tmp(D))
+      write(*,*) "HERD"
 
-        call cpsi_gen_X(nn,tmp(st1),tmp(st2),
+        call cpsi_gen_X(ms,nb,nn,tmp(st1),tmp(st2),
      >                     tmp(A),tmp(Ba),tmp(C),
      >                     tmp(U),tmp(D),tmp(fnm),
      >                     fweight,
      >                     failed)
+      write(*,*) "HERE, failed=",failed
 
         if (failed) then
            ierr=10
@@ -108,9 +118,10 @@
       call Pneb_w_copy_dagger(ms,nb,B,Ba)
 
       !call dcopy(nn,B,1,Bs,1)
-      call Parallel_shared_vector_copy(.true.,nn,B,Bs)
+      call Parallel_shared_vector_copy(.true.,2*nn,B,Bs)
+
       call DAXPY_OMP(2*nn,1.0d0,Ba,1,Bs,1)
-      call DAXPY_OMP(2*nn,0.5d0,Bs,1)
+      call DSCAL_OMP(2*nn,0.5d0,Bs,1)
 
       call DAXPY_OMP(2*nn,-1.0d0,B,1,Ba,1)
       call DSCAL_OMP(2*nn,-0.5d0,Ba,1)
@@ -130,7 +141,7 @@
       real*8     D(*)
 
       !call DSYEV('V','U',n,Bs,n_max, D,Work,2*n_max*n_max,ierr)
-      call Pneb_w_diag(ms,D,Bs)
+      call Pneb_w_diag(ms,nb,D,Bs)
 
       return
       end
@@ -219,6 +230,7 @@
         call DAXPY_OMP(2*nn,-1.0d0,fnm,1,tmp,1)
         adiff = Pneb_w_dmax(ms,nb,tmp)
         call Parallel_shared_vector_copy(.true.,2*nn,fnm,X1)
+        write(*,*) "it,adiff=",it,adiff
 
         if (adiff.lt.convg) failed = .false.
       end do
