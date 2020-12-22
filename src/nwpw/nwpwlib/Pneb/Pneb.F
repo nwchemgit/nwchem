@@ -1094,7 +1094,7 @@ c     **** external functions ****
       external Pneb_w_size
 
       nsize = Pneb_w_size(mb,nbb)
-      call dcopy(2*nsize,0.0d0,0,w,1)
+      call Parallel_shared_vector_zero(.true.,2*nsize,w)
       return
       end
 
@@ -1122,7 +1122,7 @@ c     **** external functions ****
       external Pneb_m_size
 
       nsize = Pneb_m_size(mb,nbb)
-      call dcopy(nsize,0.0d0,0,m,1)
+      call Parallel_shared_vector_zero(.true.,nsize,m)
 
       return
       end
@@ -3836,7 +3836,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         call Cram_c_copy(nbb,A(1),B(indx2))
       end do
       return 
-      end 	
+      end
 cccccccccccccccc
 
 *     **********************************************
@@ -3877,6 +3877,7 @@ cccccccccccccccc
         do ms=ms1,ms2
           if (ne(ms).le.0) go to 30
           shift2 = (ms1-1)*ishift2 + shift3
+!$OMP DO
           do k=1,ne(ms)
              indx = k + (k-1)*ne(ms) + shift2
              s22(indx) = (1.0d0-s22(indx))*0.5d0/dte
@@ -3888,6 +3889,7 @@ cccccccccccccccc
                 s22(indxt) = dconjg(s22(indx))
              end do
           end do
+!$OMP END DO
 
  30     continue
         end do
@@ -3936,6 +3938,7 @@ cccccccccccccccc
         do ms=ms1,ms2
           if (ne(ms).le.0) go to 30
           shift2 = (ms1-1)*ishift2 + shift3
+!$OMP DO
           do k=1,ne(ms)
              indx = k + (k-1)*ne(ms) + shift2
              s21(indx) = (1.0d0-s21(indx))*0.5d0
@@ -3947,6 +3950,7 @@ cccccccccccccccc
                 s21(indxt) = dconjg(s21(indx))
              end do
           end do
+!$OMP END DO
 
  30     continue
         end do
@@ -3992,6 +3996,7 @@ cccccccccccccccc
         do ms=ms1,ms2
           if (ne(ms).le.0) go to 30
           shift2 = (ms1-1)*ishift2 + shift3
+!$OMP DO
           do k=1,ne(ms)
              indx = k + (k-1)*ne(ms) + shift2
              s11(indx) = -s11(indx)*0.5d0*dte
@@ -4003,6 +4008,7 @@ cccccccccccccccc
                 s11(indxt) = dconjg(s11(indx))
              end do
           end do
+!$OMP END DO
 
  30     continue
         end do
@@ -4050,6 +4056,7 @@ cccccccccccccccc
         do ms=ms1,ms2
           if (ne(ms).le.0) go to 30
           shift2 = (ms1-1)*ishift2 + shift3
+!$OMP DO
           do k=1,ne(ms)
           do j=1,ne(ms)
              indx  = j + (k-1)*ne(ms) + shift2
@@ -4059,6 +4066,7 @@ cccccccccccccccc
              fnm(indx) = fnm(indx)/d2
           end do
           end do
+!$OMP END DO
 
  30     continue
         end do
@@ -4104,6 +4112,7 @@ cccccccccccccccc
         do ms=ms1,ms2
           if (ne(ms).le.0) go to 30
           shift2 = (ms1-1)*ishift2 + shift3
+!$OMP DO
           do k=1,ne(ms)
           do j=1,ne(ms)
              indx  = j + (k-1)*ne(ms) + shift2
@@ -4112,12 +4121,70 @@ cccccccccccccccc
      >                  *(2.0d0*fweight(j)/(fweight(j)+fweight(k)))
           end do
           end do
+!$OMP END DO
 
  30     continue
         end do
       end do
       return
       end
+
+
+*     **********************************************
+*     *                                            *
+*     *               Pneb_w_eye                   *
+*     *                                            *
+*     **********************************************
+      subroutine Pneb_w_eye(mbb,nbb,A,scal)
+      implicit none
+      integer mbb,nbb
+      complex*16 A(*)
+      real*8     scal
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer nb,ms,nb1,nb2,ms1,ms2,ishift2,ishift3,shift2,shift3
+      integer k,indx
+
+      call assign_nb(nbb,nb1,nb2)
+      call assign_ms(mbb,ms1,ms2)
+      if (mbb.eq.0) then
+         ishift2 = ne(1)*ne(1)
+      else
+         ishift2 = 0
+      end if
+      if (nbb.eq.0) then
+         if (spin_orbit) then
+           ishift3 = ne(1)*ne(1)
+         else
+           ishift3 = ne(1)*ne(1) + ne(2)*ne(2)
+         end if
+      else
+         ishift3 = 0
+      end if
+      do nb=nb1,nb2
+        shift3 = (nb-nb1)*ishift3
+        do ms=ms1,ms2
+          if (ne(ms).le.0) go to 30
+          shift2 = (ms1-1)*ishift2 + shift3
+          call Pneb_w_zero(ms,nb,A(shift2))
+!$OMP DO
+          do k=1,ne(ms)
+             indx  = k + (k-1)*ne(ms) + shift2
+             A(indx) = dcmplx(scal,0.0d0)
+          end do
+!$OMP END DO
+
+ 30     continue
+        end do
+      end do
+      return
+      end
+
+
+
+
 
 
 
