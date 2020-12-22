@@ -746,34 +746,35 @@ c
 *        ***** define fractional occupation ****
          if ( (icount.lt.it_out).and.control_fractional().and.
      >       (control_fractional_smeartype().ge.0)) then
-            call cpsi_data_update(hml_tag)
-            call cpsi_data_update(eig_tag)
-            do nb=1,nbrillq
-              hml_shift = cpsi_data_get_chnk(hml_tag,nb)
-              eig_shift = cpsi_data_get_chnk(eig_tag,nb)
-              call Pneb_w_diag(0,nb,dbl_mb(eig_shift),dbl_mb(hml_shift))
-            end do
-            call cpsi_data_noupdate(hml_tag)
-            call cpsi_data_noupdate(eig_tag)
 
-            call cpsi_data_update(psi2_tag)
-            do nb=1,nbrillq
-              !psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
-              psi2_shift = cpsi_data_get_chnk(psi2_tag,nb)
-              hml_shift  = cpsi_data_get_chnk(hml_tag,nb)
-              call Parallel_shared_vector_copy(.true.,nemaxq*2*npack1,
-     >                                         dbl_mb(psi2_shift),
-     >                                         dbl_mb(psi2_tmp(1)))
-              call Pneb_fwf_Multiply(0,nb,
-     >                          one,
-     >                          dbl_mb(psi2_tmp(1)),npack1,
-     >                          dbl_mb(hml_shift),
-     >                          zero,
-     >                          dbl_mb(psi2_shift))
-            end do
+c            call cpsi_data_update(hml_tag)
+c            call cpsi_data_update(eig_tag)
+c            do nb=1,nbrillq
+c              hml_shift = cpsi_data_get_chnk(hml_tag,nb)
+c              eig_shift = cpsi_data_get_chnk(eig_tag,nb)
+c              call Pneb_w_diag(0,nb,dbl_mb(eig_shift),dbl_mb(hml_shift))
+c            end do
+c            call cpsi_data_noupdate(hml_tag)
+c            call cpsi_data_noupdate(eig_tag)
+c
+c            call cpsi_data_update(psi2_tag)
+c            do nb=1,nbrillq
+c              !psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
+c              psi2_shift = cpsi_data_get_chnk(psi2_tag,nb)
+c              hml_shift  = cpsi_data_get_chnk(hml_tag,nb)
+c              call Parallel_shared_vector_copy(.true.,nemaxq*2*npack1,
+c     >                                         dbl_mb(psi2_shift),
+c     >                                         dbl_mb(psi2_tmp(1)))
+c              call Pneb_fwf_Multiply(0,nb,
+c     >                          one,
+c     >                          dbl_mb(psi2_tmp(1)),npack1,
+c     >                          dbl_mb(hml_shift),
+c     >                          zero,
+c     >                          dbl_mb(psi2_shift))
+c            end do
 
             next = cpsi_data_get_next(psi2_tag)
-            call cpsi_0define_occupation(1.0d0,.false.,
+            call cpsi_0define_occupation(1.0d0,.true.,
      >                               ispin,ne,nbrillq,
      >                               eig_tag,hml_tag,next,
      >                               smeartype,smearkT,

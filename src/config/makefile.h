@@ -2945,6 +2945,34 @@ endif
     EXTRA_LIBS += -L$(SIMINT_HOME)/lib -lnwc_simint
   endif
 endif
+ifdef USE_PLUMED
+  DEFINES += -DUSE_PLUMED
+#check presence of plumed command. TODO
+  GOTPLUMED  := $(shell command -v plumed 2> /dev/null)
+  ifndef GOTPLUMED
+        errorplumed0:
+$(info )
+$(info  PLUMED installation not found.)
+$(info  Please add to your PATH the directory where the plumed command is found )
+$(info )
+  endif
+  PLUMED_HOME = $(shell plumed info --configuration|egrep prefix=|head -1|cut -c 8-)
+  PLUMED_DYNAMIC_LIBS = $(shell plumed info --configuration|egrep DYNAMIC_LIBS| cut -c 14-)
+  PLUMED_HASMPI = $(plumed info --configuration|grep program_can_run_mpi|cut -c 21-21)
+  ifeq ($(PLUMED_HASMPI),y)
+    DEFINES += -DPLUMED_HASMPI
+  endif
+#PLUMED_LOAD= /home/edo/tahoma/apps/plumed262.intel20u2/lib/libplumed.a -ldl  -lstdc++ -lfftw3 -lz -ldl -llapack -lblas   -rdynamic -Wl,-Bsymbolic -fopenmp 
+  ifdef PLUMED_DYNAMIC_LIBS
+      EXTRA_LIBS += -L$(PLUMED_HOME)/lib -lplumed $(PLUMED_DYNAMIC_LIBS)
+  else
+        errorplumed:
+$(info )
+$(info  PLUMED info command not returning the expected output)
+$(info  Please file an issue at https://github.com/nwchemgit/nwchem/issues )
+$(info )
+  endif
+endif
 
 # CUDA
 ifndef CUDA
