@@ -1723,10 +1723,16 @@ endif
       ifeq ($(CC),pgcc)
         _CC=pgcc
       endif
+      ifeq ($(CC),nvcc)
+        _CC=pgcc
+      endif
       ifeq ($(CC),icc)
         _CC=icc
       endif
       ifeq ($(FC),pgf90)
+        _FC=pgf90
+      endif
+      ifeq ($(FC),nvfortran)
         _FC=pgf90
       endif
       ifeq ($(FC),pgf77)
