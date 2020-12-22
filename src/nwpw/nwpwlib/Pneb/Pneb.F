@@ -4013,6 +4013,120 @@ cccccccccccccccc
 
 *     **********************************************
 *     *                                            *
+*     *           Pneb_w_HmldivideDplusD           *
+*     *                                            *
+*     **********************************************
+      subroutine Pneb_w_HmldivideDplusD(mbb,nbb,fnm,D)
+      implicit none
+      integer mbb,nbb
+      complex*16 fnm(*)
+      real*8     D(*)
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer nb,ms,nb1,nb2,ms1,ms2,ishift2,ishift3,shift2,shift3
+      integer j,k,indx,indxt
+      real*8 d2
+
+      call assign_nb(nbb,nb1,nb2)
+      call assign_ms(mbb,ms1,ms2)
+      if (mbb.eq.0) then
+         ishift2 = ne(1)*ne(1)
+      else
+         ishift2 = 0
+      end if
+      if (nbb.eq.0) then
+         if (spin_orbit) then
+           ishift3 = ne(1)*ne(1)
+         else
+           ishift3 = ne(1)*ne(1) + ne(2)*ne(2)
+         end if
+      else
+         ishift3 = 0
+      end if
+      do nb=nb1,nb2
+        shift3 = (nb-nb1)*ishift3
+        do ms=ms1,ms2
+          if (ne(ms).le.0) go to 30
+          shift2 = (ms1-1)*ishift2 + shift3
+          do k=1,ne(ms)
+          do j=1,ne(ms)
+             indx  = j + (k-1)*ne(ms) + shift2
+             indxt = k + (j-1)*ne(ms) + shift2
+             d2 = D(indx) + D(indxt)
+
+             fnm(indx) = fnm(indx)/d2
+          end do
+          end do
+
+ 30     continue
+        end do
+      end do
+      return
+      end
+
+*     **********************************************
+*     *                                            *
+*     *           Pneb_w_Hmlfweightscale           *
+*     *                                            *
+*     **********************************************
+      subroutine Pneb_w_Hmlfweightscale(mbb,nbb,fnm,fweight)
+      implicit none
+      integer mbb,nbb
+      complex*16 fnm(*)    
+      real*8     fweight(*)
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer nb,ms,nb1,nb2,ms1,ms2,ishift2,ishift3,shift2,shift3
+      integer j,k,indx
+
+      call assign_nb(nbb,nb1,nb2)
+      call assign_ms(mbb,ms1,ms2)
+      if (mbb.eq.0) then
+         ishift2 = ne(1)*ne(1)
+      else
+         ishift2 = 0
+      end if
+      if (nbb.eq.0) then
+         if (spin_orbit) then
+           ishift3 = ne(1)*ne(1)
+         else
+           ishift3 = ne(1)*ne(1) + ne(2)*ne(2)
+         end if
+      else
+         ishift3 = 0
+      end if
+      do nb=nb1,nb2
+        shift3 = (nb-nb1)*ishift3
+        do ms=ms1,ms2
+          if (ne(ms).le.0) go to 30
+          shift2 = (ms1-1)*ishift2 + shift3
+          do k=1,ne(ms)
+          do j=1,ne(ms)
+             indx  = j + (k-1)*ne(ms) + shift2
+
+             fnm(indx) = fnm(indx)
+     >                  *(2.0d0*fweight(j)/(fweight(j)+fweight(k)))
+          end do
+          end do
+
+ 30     continue
+        end do
+      end do
+      return
+      end
+
+
+
+
+
+
+
+*     **********************************************
+*     *                                            *
 *     *             Pneb_w_trace               *
 *     *                                            *
 *     **********************************************
