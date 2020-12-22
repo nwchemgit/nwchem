@@ -122,7 +122,7 @@ c local and dummy variables
       real*8  x,y,dispr,displ,gdsp,dum,xx(10),dum6(86)
       real*8  dum1,dum2,dum3(3)
       logical ex,pot,fdum
-#if defined(__FLANG) || defined(XLFLINUX)
+#if defined(__FLANG) || defined(XLFLINUX) || defined (PGLINUX)
       logical util_isnan
       external util_isnan
 #endif
@@ -822,7 +822,7 @@ c     .           numgrad,version,echo,g,gdsp,x,rthr2,fix)
 c check if nwpwxc_gdisp yields same energy as nwpwxc_edisp
       dum=abs((disp-gdsp)/disp)
 !if this check gives compiler errors, replace is with a different NaN check
-#if defined(__FLANG) || defined(XLFLINUX)
+#if defined(__FLANG) || defined(XLFLINUX)  || defined (PGLINUX)
       if (util_isnan(dum)) call
      c     nwpwxc_stoprun('internal NaN-error')
 #else
