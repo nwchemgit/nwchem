@@ -240,9 +240,11 @@
       minimizer = control_minimizer()
       mapping   = control_mapping()
 
+*     **** initialize pspw_director ****
+      call pspw_director_init(rtdb)
+
 *     **** initialize psi_data ****
       call psi_data_init(100)
-
 
 
 *     **** initialize D3dB data structure ****

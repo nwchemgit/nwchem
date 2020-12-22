@@ -62,7 +62,7 @@ c      real*8  tmp1(1000000)
         call Dneall_ffm_sym_Multiply(ms,psi1,psi1,npack1,tmp(s11))
 
 ****  Begin  ADDED by Kiril *****
-        call Dneall_m_Kiril_BTransform(ms,tmp(12),tmp(s21))
+        call Dneall_m_Kiril_BTransform(ms,tmp(s12),tmp(s21))
 c        do ii=1,ne(ms)
 c           do jj=1,ne(ms)
 c             ii1 = -1+ii+jj*(ii-1)
