@@ -18,9 +18,9 @@ jobs:
         uses: actions/checkout@v1
       - name: build environment
         run: |
-        pwd
-        ls -lart
-        ./travis/build_env.sh
+          pwd
+          ls -lart
+          ./travis/build_env.sh
       - name: compile
         run: |
           ./travis/compile_nwchem.sh
