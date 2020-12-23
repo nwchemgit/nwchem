@@ -2151,7 +2151,8 @@ endif
      endif # _FC = ifort (i think)
 #
       ifeq ($(_FC),pgf90)
-        FOPTIONS   += -Mdalign -Mllalign -Kieee 
+        FOPTIONS   += -Mdalign -Mllalign -Kieee
+	FOPTIONS   += -Mbackslash
 #        FOPTIONS   += -tp k8-64  
 #        FOPTIONS   +=    -Ktrap=fp
         FOPTIMIZE   = -O3 -fastsse -Mnounroll -Minfo=loop -Mipa=fast
