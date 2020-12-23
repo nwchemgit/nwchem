@@ -2,6 +2,10 @@
 echo "start compile"
 set -ev
 # source env. variables
+if [[ -z "$TRAVIS_BUILD_DIR" ]] ; then
+    TRAVIS_BUILD_DIR=$(pwd)
+fi
+echo TRAVIS_BUILD_DIR is $TRAVIS_BUILD_DIR
 source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
 echo ============================================================
 env|egrep BLAS     || true

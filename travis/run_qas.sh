@@ -2,6 +2,9 @@
 # Exit on error
 set -ev
 # source env. variables
+if [[ -z "$TRAVIS_BUILD_DIR" ]] ; then
+    TRAVIS_BUILD_DIR=$(pwd)
+fi
 source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
 # check if nwchem binary has been cached
 if [[ -f "$NWCHEM_EXECUTABLE" ]] ; then
