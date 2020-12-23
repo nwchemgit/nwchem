@@ -1881,7 +1881,7 @@ c     ****************************************
       external Pneb_w_size
 
       nsize = Pneb_w_size(mb,nbb)
-      call dscal(2*nsize,alpha,hml,1)
+      call dscal_omp(2*nsize,alpha,hml,1)
       return
       end
 
@@ -1965,7 +1965,7 @@ c     **** external functions ****
       external Pneb_m_size
 
       nsize = Pneb_m_size(mbb,nbb)
-      call dcopy(2*nsize,hml,1,gml,1)
+      call Parallel_shared_vector_copy(.true.,2*nsize,hml,gml)
 
       return 
       end 
@@ -4385,6 +4385,23 @@ cccccccccccccccc
       return
       end
 
+
+
+      subroutine Pneb_ww_transpose_sub(n,A,B)
+      implicit none
+      integer n
+      complex*16 A(n,n)
+      complex*16 B(n,n)
+      integer i,j
+!$OMP DO private(i,j)
+      do j=1,n
+         do i=1,n
+            B(i,j) = dconjg(A(j,i))
+         end do
+      end do
+!$OMP END DO
+      return
+      end
 
 
 
