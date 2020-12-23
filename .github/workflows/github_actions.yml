@@ -14,6 +14,12 @@ jobs:
     env:
         CC: ${{ matrix.compiler }}
         MPI_IMPL: "openmpi"
+        NWCHEM_MODULES: "nwdft driver solvation"
+        USE_MPI: y
+        BUILD_OPENBLAS: y
+        BUILD_SCALAPACK: y
+        BLAS_SIZE: 8
+        SCALAPACK_SIZE: 8
     steps: 
       - name: Checkout code
         uses: actions/checkout@v1
