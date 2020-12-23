@@ -3,8 +3,8 @@ name: NWChem_CI
 on: [push, pull_request]
 
 jobs:
-  runs-on: ubuntu-latest
   build:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         compiler:
