@@ -1723,10 +1723,16 @@ endif
       ifeq ($(CC),pgcc)
         _CC=pgcc
       endif
+      ifeq ($(CC),nvcc)
+        _CC=pgcc
+      endif
       ifeq ($(CC),icc)
         _CC=icc
       endif
       ifeq ($(FC),pgf90)
+        _FC=pgf90
+      endif
+      ifeq ($(FC),nvfortran)
         _FC=pgf90
       endif
       ifeq ($(FC),pgf77)
@@ -2145,7 +2151,8 @@ endif
      endif # _FC = ifort (i think)
 #
       ifeq ($(_FC),pgf90)
-        FOPTIONS   += -Mdalign -Mllalign -Kieee 
+        FOPTIONS   += -Mdalign -Mllalign -Kieee
+	FOPTIONS   += -Mbackslash
 #        FOPTIONS   += -tp k8-64  
 #        FOPTIONS   +=    -Ktrap=fp
         FOPTIMIZE   = -O3 -fastsse -Mnounroll -Minfo=loop -Mipa=fast
