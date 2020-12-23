@@ -1,1 +1,31 @@
 name: NWChem_CI
+
+on: [push, pull_request]
+
+jobs:
+  runs-on: ubuntu-latest
+  build:
+    strategy:
+      matrix:
+        compiler:
+          - gcc-7
+          - gcc-8
+      fail-fast: false
+    env:
+        CC: ${{ matrix.compiler }}
+    steps: 
+      - name: Checkout code
+        uses: actions/checkout@v1
+      - name: build environment
+        run: |
+        pwd
+        ls -lart
+        ./travis/build_env.sh
+      - name: compile
+        run: |
+          ./travis/compile_nwchem.sh
+  
+
+
+
+     
