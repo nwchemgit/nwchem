@@ -9,6 +9,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-20.04, ubuntu-18.04, macos-10.15]
+        use_simint: ""
         mpi_impl:
           - openmpi
           - mpich
@@ -19,12 +20,20 @@ jobs:
           - "tinyqmpw python"
           - "qmandpw"
           - "tce"
+        include:
+          - os: ubuntu-20.04
+            experimental: true 
+            mpi_impl: mpi-pt
+            nwchem_modules: "nwdft solvation driver"
+            use_simint: 1
       fail-fast: false
     env:
         MPI_IMPL: ${{ matrix.mpi_impl }}
         ARMCI_NETWORK: ${{ matrix.armci_network }}
         NWCHEM_MODULES: ${{ matrix.nwchem_modules }}
+        USE_SIMINT: ${{ matrix.use_simint }}
         COMEX_MAX_NB_OUTSTANDING: 4
+        SIMINT_MAXAM: 3
         FC: gfortran-9
     steps: 
       - name: Checkout code
@@ -49,14 +58,13 @@ jobs:
           head -200 src/make.log
           tail -200 src/make.log
           tail -200 src/6log
-          grep -i tce_energy $TRAVIS_BUILD_DIR/src/6log
+          grep -i tce_energy src/6log
       - name: qa_test
         run: |
           ./travis/run_qas.sh
       - name: Check if QA testing has failed
         if: ${{ failure() }}
         run: |
-          pwd
           grep d= QA/testoutputs/dft_he2+.out
           grep @ QA/testoutputs/h2o_opt.out
           tail -30 QA/testoutputs/dft_he2+.out
