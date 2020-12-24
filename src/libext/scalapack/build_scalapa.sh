@@ -127,7 +127,7 @@ if [[ ${GOTCLANG} == "1" ]] ; then
     C_FLAGS=" -Wno-error=implicit-function-declaration "
 fi
 if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
-    if  [[ ${FC} == gfortran ]] ; then
+    if  [[ ${FC} == gfortran ]] || [[ ${FC} == f95 ]]  ; then
     Fortran_FLAGS+=" -fdefault-integer-8 "
     elif  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
     Fortran_FLAGS=" -qintsize=8 -qextname "
