@@ -7,6 +7,7 @@ if [[ -z "$TRAVIS_BUILD_DIR" ]] ; then
 fi
 source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
 # check if nwchem binary has been cached
+echo NWCHEM_EXECUTABLE is "$NWCHEM_EXECUTABLE"
 if [[ -f "$NWCHEM_EXECUTABLE" ]] ; then
     EXTRA_BUILD=0
 else
@@ -67,9 +68,9 @@ export NWCHEM_NWPW_LIBRARY=$TRAVIS_BUILD_DIR/.cachedir/files/libraryps/
  ls -lrt $TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET/ || true
  echo =========================
  if [[ -z "$TRAVIS_HOME" ]]; then
-     #do not use sleep loop
+     echo 'no using sleep loop'
  else
- export USE_SLEEPLOOP=1
+     export USE_SLEEPLOOP=1
  fi
  if [[ "$NWCHEM_MODULES" == "tce" ]]; then
    cd $TRAVIS_BUILD_DIR/QA &&  ./runtests.mpi.unix procs $nprocs tce_n2 tce_ccsd_t_h2o tce_h2o_eomcc
