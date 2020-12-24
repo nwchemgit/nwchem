@@ -28,7 +28,7 @@ jobs:
         FC: gfortran-9
     steps: 
       - name: Checkout code
-        uses: actions/checkout
+        uses: actions/checkout@v2
         with:
           fetch-depth: 40
       - name: build environment
