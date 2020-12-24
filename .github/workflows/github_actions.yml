@@ -8,32 +8,48 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, ubuntu-18.04, macos-10.15]
+        os: [ubuntu-18.04, macos-10.15]
         mpi_impl:
           - openmpi
           - mpich
         armci_network:
           - MPI-TS
-          - MPI-PR
         nwchem_modules:
           - "tinyqmpw python"
           - "qmandpw"
           - "tce"
+        fc:
+          - gfortran-9
         include:
           - os: ubuntu-20.04
             experimental: true 
-            mpi_impl: mpi-pt
+            mpi_impl: mpich
+            armci_network: mpi-pt
             nwchem_modules: "nwdft solvation driver"
+            fc: gfortran-10
             use_simint: 1
+          - os: ubuntu-20.04
+            experimental: true 
+            mpi_impl: mpich
+            armci_network: mpi-pr
+            nwchem_modules: "tinyqmpw python"
+            fc: gfortran-10
+          - os: macos-11.0
+            experimental: true 
+            mpi_impl: mpich
+            armci_network: mpi-pr
+            nwchem_modules: "nwdft solvation driver"
+            fc: gfortran-10
+
       fail-fast: false
     env:
         MPI_IMPL: ${{ matrix.mpi_impl }}
         ARMCI_NETWORK: ${{ matrix.armci_network }}
         NWCHEM_MODULES: ${{ matrix.nwchem_modules }}
         USE_SIMINT: ${{ matrix.use_simint }}
+        FC: $${{ matrix.fc }}
         COMEX_MAX_NB_OUTSTANDING: 4
         SIMINT_MAXAM: 3
-        FC: gfortran-9
     steps: 
       - name: Checkout code
         uses: actions/checkout@v2
@@ -53,11 +69,6 @@ jobs:
           pwd
           tail -20 src/tools/build/config.log
           tail -10 src/tools/build/comex/config.log
-          grep -A 2 -B 2 -i error src/make.log 
-          head -200 src/make.log
-          tail -200 src/make.log
-          tail -200 src/6log
-          grep -i tce_energy src/6log
       - name: qa_test
         run: |
           ./travis/run_qas.sh
