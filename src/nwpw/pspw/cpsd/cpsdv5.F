@@ -409,6 +409,10 @@ c#include "Parallel.fh"
 *     *****  read psi2 wavefunctions ****
       call psi_read(ispin,ne,dcpl_mb(psi2(1)),
      >              smearoccupation,dbl_mb(occ2(1)))
+      if (smearoccupation.gt.0) 
+     >   call Parallel_shared_vector_copy(.true.,ne(1)+ne(2),
+     >                                    dbl_mb(occ2(1)),
+     >                                    dbl_mb(occ1(1)))
 
 
       n1(1) = 1
