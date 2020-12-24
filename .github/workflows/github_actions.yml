@@ -7,10 +7,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, ubuntu-18.04]
-        compiler:
-          - gcc-7
-          - gcc-8
+        os: [ubuntu-20.04, ubuntu-18.04, macos-10.15]
         mpi_impl:
           - openmpi
           - mpich
@@ -19,10 +16,10 @@ jobs:
           - MPI-PR
         nwchem_modules:
           - "tinyqmpw python"
-          - "tinyqmpw"
+          - "qmandpw"
+          - "tce"
       fail-fast: false
     env:
-        CC: ${{ matrix.compiler }}
         MPI_IMPL: ${{ matrix.mpi_impl }}
         ARMCI_NETWORK: ${{ matrix.armci_network }}
         NWCHEM_MODULES: ${{ matrix.nwchem_modules }}
@@ -40,7 +37,7 @@ jobs:
       - name: compile
         run: |
           ./travis/compile_nwchem.sh
-      - name: Compilation has failed
+      - name: Chexck compilation result
         if: ${{ failure() }}
         run: |
           pwd
@@ -54,7 +51,7 @@ jobs:
       - name: qa_test
         run: |
           ./travis/run_qas.sh
-      - name: QA testing has failed
+      - name: Check if QA testing has failed
         if: ${{ failure() }}
         run: |
           pwd
