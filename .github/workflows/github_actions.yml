@@ -30,14 +30,13 @@ jobs:
           fetch-depth: 40
       - name: build environment
         run: |
-          lscpu
           pwd
           ls -lart
           ./travis/build_env.sh
       - name: compile
         run: |
           ./travis/compile_nwchem.sh
-      - name: Chexck compilation result
+      - name: Check compilation result
         if: ${{ failure() }}
         run: |
           pwd
