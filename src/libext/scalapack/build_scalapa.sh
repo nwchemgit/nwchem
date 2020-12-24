@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 get_cmake38(){
 	UNAME_S=$(uname -s)
 	if [[ ${UNAME_S} == "Linux" ]] || [[ ${UNAME_S} == "Darwin" ]] && [[ $(uname -m) == "x86_64" ]] ; then
@@ -91,20 +91,26 @@ if [[ ! -z "$BUILD_OPENBLAS"   ]] ; then
 fi
 #git clone https://github.com/scibuilder/scalapack.git
 #svn co --non-interactive --trust-server-cert https://icl.utk.edu/svn/scalapack-dev/scalapack/trunk/ scalapack
-rm -rf scalapack*
+#rm -rf scalapack*
 VERSION=2.1.0
 #curl -L https://github.com/Reference-ScaLAPACK/scalapack/archive/v${VERSION}.tar.gz -o scalapack.tgz
 COMMIT=bc6cad585362aa58e05186bb85d4b619080c45a9
-rm -f scalapack-$COMMIT.zip
-curl -L https://github.com/Reference-ScaLAPACK/scalapack/archive/$COMMIT.zip -o scalapack-$COMMIT.zip
-unzip -q scalapack-$COMMIT.zip
+rm -rf scalapack 
+if [[ -f "scalapack-$COMMIT.zip" ]]; then
+    echo "using existing"  "scalapack-$COMMIT.zip"
+else
+    echo "downloading"  "scalapack-$COMMIT.zip"
+    rm -f scalapack-$COMMIT.zip
+    curl -L https://github.com/Reference-ScaLAPACK/scalapack/archive/$COMMIT.zip -o scalapack-$COMMIT.zip
+fi
+unzip -n -q scalapack-$COMMIT.zip
 ln -sf scalapack-$COMMIT scalapack
 #ln -sf scalapack-${VERSION} scalapack
 #curl -L http://www.netlib.org/scalapack/scalapack-${VERSION}.tgz -o scalapack.tgz
 #tar xzf scalapack.tgz
 cd scalapack
 if [[  -z "$USE_DCOMBSSQ" ]]; then
-    patch -p0 < ../dcombssq.patch
+    patch -p0 -s -N < ../dcombssq.patch
 fi
 #curl -LJO https://github.com/Reference-ScaLAPACK/scalapack/commit/189c84001bcd564296a475c5c757afc9f337e828.patch
 #patch -p1 < 189c84001bcd564296a475c5c757afc9f337e828.patch
@@ -126,8 +132,10 @@ GOTCLANG=$( mpicc -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -
 if [[ ${GOTCLANG} == "1" ]] ; then
     C_FLAGS=" -Wno-error=implicit-function-declaration "
 fi
+
 if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
-    if  [[ ${FC} == gfortran ]] || [[ ${FC} == f95 ]]  ; then
+    GFORTRAN_EXTRA=$(echo $FC | cut -c 1-8)
+    if  [[ ${FC} == gfortran ]] || [[ ${FC} == f95 ]] || [[ ${GFORTRAN_EXTRA} == gfortran ]] ; then
     Fortran_FLAGS+=" -fdefault-integer-8 "
     elif  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
     Fortran_FLAGS=" -qintsize=8 -qextname "
