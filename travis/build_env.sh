@@ -25,4 +25,8 @@ if [[ "$os" == "Linux" ]]; then
 	sudo ln -sf /usr/bin/mpifort.mpich /etc/alternatives/mpif90
 	sudo ln -sf /etc/alternatives/mpif90  /usr/bin/mpif90
     fi
+    ls -lrt /usr/bin/mpif*
+    ls -lrt /etc/alternatives/mpif*
+    which mpif90
+    mpif90 -show
 fi
