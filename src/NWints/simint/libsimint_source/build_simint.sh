@@ -157,6 +157,11 @@ if [[ -z "${FC}" ]]; then
 fi    
 if [ ${FC} == gfortran ] || [ ${FC} == flang ] ; then
     Fortran_FLAGS="-fdefault-integer-8 -cpp"
+    GNUMAJOR=$(${FC} -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
+    echo GNUMAJOR is $GNUMAJOR
+    if [ $GNUMAJOR -ge 8 ]; then
+    Fortran_FLAGS+=" -std=legacy "
+    fi
 elif  [ ${FC} == xlf ] || [ ${FC} == xlf_r ] || [ ${FC} == xlf90 ]|| [ ${FC} == xlf90_r ]; then
     Fortran_FLAGS=" -qintsize=8 -qextname -qpreprocess"
 elif  [ ${FC} == ifort ]; then
