@@ -4,22 +4,27 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: [ubuntu-latest, macos-latest]
     strategy:
       matrix:
         compiler:
           - gcc-7
           - gcc-8
+        mpi_impl:
+          - openmpi
+          - mpich
+        armci_network:
+          - MPI-TS
+          - MPI-PR
+        nwchem_modules:
+          - "tinyqmpw python"
+          - "tinyqmpw"
       fail-fast: false
     env:
         CC: ${{ matrix.compiler }}
-        MPI_IMPL: "openmpi"
-        NWCHEM_MODULES: "nwdft driver solvation"
-        USE_MPI: y
-        BUILD_OPENBLAS: y
-        BUILD_SCALAPACK: y
-        BLAS_SIZE: 8
-        SCALAPACK_SIZE: 8
+        MPI_IMPL: ${{ matrix.mpi_impl }}
+        ARMCI_NETWORK: ${{ matrix.armci_network }}
+        NWCHEM_MODULES: ${{ matrix.nwchem_modules }}
     steps: 
       - name: Checkout code
         uses: actions/checkout@v1
@@ -34,9 +39,31 @@ jobs:
       - name: compile
         run: |
           ./travis/compile_nwchem.sh
+      - name: Compilation has failed
+        if: ${{ failure() }}
+        run: |
+          pwd
+          tail -20 $TRAVIS_BUILD_DIR/src/tools/build/config.log
+          tail -10 $TRAVIS_BUILD_DIR/src/tools/build/comex/config.log
+          grep -A 2 -B 2 -i error $TRAVIS_BUILD_DIR/src/make.log 
+          head -200 $TRAVIS_BUILD_DIR/src/make.log
+          tail -200 $TRAVIS_BUILD_DIR/src/make.log
+          tail -200 $TRAVIS_BUILD_DIR/src/6log
+          grep -i tce_energy $TRAVIS_BUILD_DIR/src/6log
       - name: qa_test
         run: |
           ./travis/run_qas.sh
+      - name: QA testing has failed
+        if: ${{ failure() }}
+        run: |
+          pwd
+          grep d= $TRAVIS_BUILD_DIR/QA/testoutputs/dft_he2+.out
+          grep @ $TRAVIS_BUILD_DIR/QA/testoutputs/h2o_opt.out
+          tail -30 $TRAVIS_BUILD_DIR/QA/testoutputs/dft_he2+.out
+          tail -490 $TRAVIS_BUILD_DIR/QA/testoutputs/h2o2-response.out
+          tail -30 $TRAVIS_BUILD_DIR/QA/testoutputs/prop_mep_gcube.out
+          diff $TRAVIS_BUILD_DIR/QA/testoutputs/prop_ch3f.o*nw*
+          diff $TRAVIS_BUILD_DIR/QA/testoutputs/h2o2-response.o*nw*
   
 
 
