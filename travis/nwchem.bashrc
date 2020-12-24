@@ -1,7 +1,12 @@
 #- env: == default ==
 os=`uname`
 arch=`uname -m`
-export NWCHEM_TOP=$TRAVIS_BUILD_DIR
+if [[ -z "$TRAVIS_BUILD_DIR" ]] ; then
+    TRAVIS_BUILD_DIR=$(pwd)
+else
+    export NWCHEM_TOP=$TRAVIS_BUILD_DIR
+fi
+echo NWCHEM_TOP is $NWCHEM_TOP
 #TARBALL=https://github.com/nwchemgit/nwchem/releases/download/v7.0.0-beta1/nwchem-7.0.0-release.revision-5bcf0416-src.2019-11-01.tar.bz2
 export USE_MPI=y
 if [[ "$os" == "Darwin" ]]; then 

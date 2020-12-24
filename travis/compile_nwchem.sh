@@ -2,6 +2,10 @@
 echo "start compile"
 set -ev
 # source env. variables
+if [[ -z "$TRAVIS_BUILD_DIR" ]] ; then
+    TRAVIS_BUILD_DIR=$(pwd)
+fi
+echo TRAVIS_BUILD_DIR is $TRAVIS_BUILD_DIR
 source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
 echo ============================================================
 env|egrep BLAS     || true
@@ -35,7 +39,11 @@ fi
        export PATH="/usr/local/bin:$PATH"
 #       export LDFLAGS="-L/usr/local/opt/python@3.7/lib:$LDFLAGS"
    fi
-     ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
+if [[ -z "$TRAVIS_HOME" ]]; then
+    make V=1 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
+else
+    ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
+fi
      cd $TRAVIS_BUILD_DIR/src/64to32blas 
      make
      cd $TRAVIS_BUILD_DIR/src
@@ -51,7 +59,11 @@ fi
 	 export MAKEFLAGS=-j3
      fi
      echo    "$FOPT$FDOPT"
-     ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
+if [[ -z "$TRAVIS_HOME" ]]; then
+    make V=1 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
+else
+    ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
+fi
      cd $TRAVIS_BUILD_DIR/src/64to32blas 
      make
      cd $TRAVIS_BUILD_DIR/src

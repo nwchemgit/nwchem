@@ -1,4 +1,7 @@
 #!/bin/bash
+if [[ -z "$TRAVIS_BUILD_DIR" ]] ; then
+    TRAVIS_BUILD_DIR=$(pwd)
+fi
 source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
 env
 head -4000 $TRAVIS_BUILD_DIR/src/make.log

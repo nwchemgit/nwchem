@@ -1,0 +1,71 @@
+name: NWChem_CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    if: "!contains(github.event.head_commit.message, 'ci skip')"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, ubuntu-18.04, macos-10.15]
+        mpi_impl:
+          - openmpi
+          - mpich
+        armci_network:
+          - MPI-TS
+          - MPI-PR
+        nwchem_modules:
+          - "tinyqmpw python"
+          - "qmandpw"
+          - "tce"
+      fail-fast: false
+    env:
+        MPI_IMPL: ${{ matrix.mpi_impl }}
+        ARMCI_NETWORK: ${{ matrix.armci_network }}
+        NWCHEM_MODULES: ${{ matrix.nwchem_modules }}
+        COMEX_MAX_NB_OUTSTANDING: 4
+        FC: gfortran-9
+    steps: 
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 40
+      - name: build environment
+        run: |
+          pwd
+          ls -lart
+          ./travis/build_env.sh
+      - name: compile
+        run: |
+          ./travis/compile_nwchem.sh
+      - name: Check compilation result
+        if: ${{ failure() }}
+        run: |
+          pwd
+          tail -20 src/tools/build/config.log
+          tail -10 src/tools/build/comex/config.log
+          grep -A 2 -B 2 -i error src/make.log 
+          head -200 src/make.log
+          tail -200 src/make.log
+          tail -200 src/6log
+          grep -i tce_energy $TRAVIS_BUILD_DIR/src/6log
+      - name: qa_test
+        run: |
+          ./travis/run_qas.sh
+      - name: Check if QA testing has failed
+        if: ${{ failure() }}
+        run: |
+          pwd
+          grep d= QA/testoutputs/dft_he2+.out
+          grep @ QA/testoutputs/h2o_opt.out
+          tail -30 QA/testoutputs/dft_he2+.out
+          tail -490 QA/testoutputs/h2o2-response.out
+          tail -30 QA/testoutputs/prop_mep_gcube.out
+          diff QA/testoutputs/prop_ch3f.o*nw*
+          diff QA/testoutputs/h2o2-response.o*nw*
+  
+
+
+
+     
