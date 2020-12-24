@@ -20,4 +20,9 @@ if [[ "$os" == "Linux" ]]; then
     sudo add-apt-repository universe && sudo apt update
 #    sudo apt-get -y install gfortran python3-dev python-dev cmake "$mpi_libdev" "$mpi_bin" "$scalapack_libdev"  make perl  libopenblas-dev python3 rsync
     sudo apt-get -y install gfortran python3-dev python-dev cmake "$mpi_libdev" "$mpi_bin"  make perl  python3 rsync
+    if [[ "$MPI_IMPL" == "mpich" ]]; then
+#fix for github actions	
+	sudo ln -sf /usr/bin/mpifort.mpich /etc/alternatives/mpif90
+	sudo ln -sf /etc/alternatives/mpif90  /usr/bin/mpif90
+    fi
 fi
