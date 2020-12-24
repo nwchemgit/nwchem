@@ -9,6 +9,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-18.04, macos-10.15]
+        experimental: [false]
         mpi_impl:
           - openmpi
           - mpich
