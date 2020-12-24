@@ -23,14 +23,20 @@ jobs:
     steps: 
       - name: Checkout code
         uses: actions/checkout@v1
+        with:
+          fetch-depth: 40
       - name: build environment
         run: |
+          lscpu
           pwd
           ls -lart
           ./travis/build_env.sh
       - name: compile
         run: |
           ./travis/compile_nwchem.sh
+      - name: qa_test
+        run: |
+          ./travis/run_qas.sh
   
 
 
