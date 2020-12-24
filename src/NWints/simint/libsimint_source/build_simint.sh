@@ -155,7 +155,8 @@ if [[ -z "${FC}" ]]; then
 	FC=gfortran
     fi
 fi    
-if [ ${FC} == gfortran ] || [ ${FC} == flang ] ; then
+    GFORTRAN_EXTRA=$(echo $FC | cut -c 1-8)
+if [ ${FC} == gfortran ] || [ ${FC} == flang ] || [[ ${GFORTRAN_EXTRA} == gfortran ]] ; then
     Fortran_FLAGS="-fdefault-integer-8 -cpp"
     GNUMAJOR=$(${FC} -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
     echo GNUMAJOR is $GNUMAJOR
@@ -170,7 +171,7 @@ fi
 if [[ -z "${SIMINT_BUILD_TYPE}" ]]; then
     SIMINT_BUILD_TYPE=Release
 fi
-    
+echo Fortran_FLAGS equal "$Fortran_FLAGS"
 FC="${FC}" CXX="${CXX}" $CMAKE \
  -DCMAKE_BUILD_TYPE="${SIMINT_BUILD_TYPE}" -DSIMINT_VECTOR=${VEC}  \
  -DCMAKE_INSTALL_LIBDIR=lib -DENABLE_FORTRAN=ON -DSIMINT_MAXAM=${SIMINT_MAXAM} -DSIMINT_MAXDER=${DERIV} \
