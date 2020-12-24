@@ -38,7 +38,7 @@ jobs:
             experimental: true 
             mpi_impl: mpich
             armci_network: mpi-pr
-            nwchem_modules: "nwdft solvation driver"
+            nwchem_modules: "qmandpw"
             fc: gfortran-10
 
       fail-fast: false
