@@ -21,6 +21,13 @@ jobs:
           - "tce"
         fc:
           - gfortran-9
+        exclude:
+          - os: macos-10.15 
+            mpi_impl: mpich
+            nwchem_modules: "tinyqmpw python"
+          - os: macos-10.15 
+            mpi_impl: mpich
+            nwchem_modules: "qmandpw"
         include:
           - os: ubuntu-20.04
             experimental: true 
@@ -37,7 +44,7 @@ jobs:
             fc: gfortran-10
           - os: macos-11.0
             experimental: true 
-            mpi_impl: mpich
+            mpi_impl: openmpi
             armci_network: mpi-pr
             nwchem_modules: "qmandpw"
             fc: gfortran-10
