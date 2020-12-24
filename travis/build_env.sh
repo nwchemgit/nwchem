@@ -4,7 +4,11 @@ arch=`uname -m`
  if [[ "$os" == "Darwin" ]]; then 
 #  HOMEBREW_NO_AUTO_UPDATE=1 brew cask uninstall oclint || true  
 #  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python3 ||true
-  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" python3 ||true
+     HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" python3 ||true
+     #hack to fix Github actions mpif90
+     ln -sf /usr/local/bin/$FC /usr/local/bin/gfortran
+     $FC --version
+     gfortran --version
 #  if [[ "$MPI_IMPL" == "openmpi" ]]; then
 #      HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install scalapack
 #  fi
@@ -20,13 +24,4 @@ if [[ "$os" == "Linux" ]]; then
     sudo add-apt-repository universe && sudo apt update
 #    sudo apt-get -y install gfortran python3-dev python-dev cmake "$mpi_libdev" "$mpi_bin" "$scalapack_libdev"  make perl  libopenblas-dev python3 rsync
     sudo apt-get -y install gfortran python3-dev python-dev cmake "$mpi_libdev" "$mpi_bin"  make perl  python3 rsync
-    if [[ "$MPI_IMPL" == "mpich" ]]; then
-#fix for github actions	
-	sudo ln -sf /usr/bin/mpifort.mpich /etc/alternatives/mpif90
-	sudo ln -sf /etc/alternatives/mpif90  /usr/bin/mpif90
-    fi
-    ls -lrt /usr/bin/mpif*
-    ls -lrt /etc/alternatives/mpif*
-    which mpif90
-    mpif90 -show
 fi
