@@ -36,14 +36,14 @@ export NWCHEM_NWPW_LIBRARY=$TRAVIS_BUILD_DIR/.cachedir/files/libraryps/
  case "$ARMCI_NETWORK" in
     MPI-PR)
 	nprocs=$(( nprocs + 1 ))
+	case "$MPI_IMPL" in
+	    openmpi)
+		export MPIRUN_NPOPT="-mca mpi_yield_when_idle 0 --oversubscribe -np "
+		;;
+	esac
         case "$os" in
             Darwin)
                 do_largeqas=0
-		case "$MPI_IMPL" in
-		    openmpi)
-			export MPIRUN_NPOPT="-mca mpi_yield_when_idle 0 --oversubscribe -np "
-			;;
-		esac
             ;;
         esac
 	;;
