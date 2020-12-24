@@ -47,7 +47,7 @@ jobs:
         ARMCI_NETWORK: ${{ matrix.armci_network }}
         NWCHEM_MODULES: ${{ matrix.nwchem_modules }}
         USE_SIMINT: ${{ matrix.use_simint }}
-        FC: $${{ matrix.fc }}
+        FC: ${{ matrix.fc }}
         COMEX_MAX_NB_OUTSTANDING: 4
         SIMINT_MAXAM: 3
     steps: 
