@@ -23,7 +23,7 @@ export NWCHEM_NWPW_LIBRARY=$TRAVIS_BUILD_DIR/.cachedir/files/libraryps/
  nprocs=2
  do_largeqas=1
 
- if [[ "$EXTRA_BUILD" == "1" ]]; then
+ if [[ "$EXTRA_BUILD" == "1" ]] || [[ ! -z "$USE_SIMINT" ]]; then
      do_largeqas=0
  fi
 
