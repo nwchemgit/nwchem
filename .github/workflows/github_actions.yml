@@ -17,7 +17,7 @@ jobs:
           - MPI-TS
         nwchem_modules:
           - "tinyqmpw python"
-          - "qmandpw"
+          - "qmandpw qmd"
           - "tce"
         fc:
           - gfortran-9
@@ -27,7 +27,7 @@ jobs:
             nwchem_modules: "tinyqmpw python"
           - os: macos-10.15 
             mpi_impl: mpich
-            nwchem_modules: "qmandpw"
+            nwchem_modules: "qmandpw qmd"
         include:
           - os: ubuntu-20.04
             experimental: true 
@@ -46,7 +46,7 @@ jobs:
             experimental: true 
             mpi_impl: openmpi
             armci_network: mpi-pr
-            nwchem_modules: "qmandpw"
+            nwchem_modules: "qmandpw qmd"
             fc: gfortran-10
       fail-fast: false
     env:
