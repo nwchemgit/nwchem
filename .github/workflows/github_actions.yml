@@ -48,7 +48,6 @@ jobs:
             armci_network: mpi-pr
             nwchem_modules: "qmandpw"
             fc: gfortran-10
-
       fail-fast: false
     env:
         MPI_IMPL: ${{ matrix.mpi_impl }}
@@ -58,6 +57,7 @@ jobs:
         FC: ${{ matrix.fc }}
         COMEX_MAX_NB_OUTSTANDING: 4
         SIMINT_MAXAM: 3
+    continue-on-error: ${{ matrix.experimental }}
     steps: 
       - name: Checkout code
         uses: actions/checkout@v2
@@ -78,6 +78,7 @@ jobs:
           tail -20 src/tools/build/config.log
           tail -10 src/tools/build/comex/config.log
       - name: qa_test
+        if: ${{ success() }}
         run: |
           ./travis/run_qas.sh
       - name: Check if QA testing has failed
