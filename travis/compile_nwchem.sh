@@ -2,8 +2,16 @@
 echo "start compile"
 set -ev
 # source env. variables
- source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
+if [[ -z "$TRAVIS_BUILD_DIR" ]] ; then
+    TRAVIS_BUILD_DIR=$(pwd)
+fi
+echo TRAVIS_BUILD_DIR is $TRAVIS_BUILD_DIR
+source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
+echo ============================================================
+env|egrep BLAS     || true
+env|egrep USE_6   || true
 ls -lrt $TRAVIS_BUILD_DIR|tail -3
+echo ============================================================
 os=`uname`
 arch=`uname -m`
 if [[ "$NWCHEM_MODULES" == "tce" ]]; then 
@@ -11,26 +19,31 @@ if [[ "$NWCHEM_MODULES" == "tce" ]]; then
     export IPCCSD=1
 fi
 cd $TRAVIS_BUILD_DIR/src
+FDOPT="-O0 -g"
 if [[ "$arch" == "aarch64" ]]; then 
     if [[ "$NWCHEM_MODULES" == "tce" ]]; then 
-	FOPT2="-O0 -fno-aggressive-loop-optimizations"
+	FOPT="-O0 -fno-aggressive-loop-optimizations"
     else
-	FOPT2="-O1 -fno-aggressive-loop-optimizations"
+	FOPT="-O1 -fno-aggressive-loop-optimizations"
     fi
-else    
-    FOPT2="-O2 -fno-aggressive-loop-optimizations"
+else
+    FOPT="-O2 -fno-aggressive-loop-optimizations  -ffast-math"
 fi    
  if [[ "$os" == "Darwin" ]]; then 
    if [[ "$NWCHEM_MODULES" == "tce" ]]; then
-     FOPT2="-O1 -fno-aggressive-loop-optimizations"
+     FOPT="-O1 -fno-aggressive-loop-optimizations"
    fi
    if [[ ! -z "$USE_SIMINT" ]] ; then 
-       FOPT2="-O0 -fno-aggressive-loop-optimizations"
+       FOPT="-O0 -fno-aggressive-loop-optimizations"
        SIMINT_BUILD_TYPE=Debug
-       export PATH="/usr/local/opt/python@3.8/bin:$PATH"
-#       export LDFLAGS="-L/usr/local/opt/python@3.8/lib:$LDFLAGS"
+       export PATH="/usr/local/bin:$PATH"
+#       export LDFLAGS="-L/usr/local/opt/python@3.7/lib:$LDFLAGS"
    fi
-     ../travis/sleep_loop.sh make  FDEBUG="-O0 -g" FOPTIMIZE="$FOPT2" -j3
+if [[ -z "$TRAVIS_HOME" ]]; then
+    make V=1 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
+else
+    ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
+fi
      cd $TRAVIS_BUILD_DIR/src/64to32blas 
      make
      cd $TRAVIS_BUILD_DIR/src
@@ -45,7 +58,12 @@ fi
      else    
 	 export MAKEFLAGS=-j3
      fi
-     ../travis/sleep_loop.sh make  FDEBUG="-O0 -g" FOPTIMIZE="$FOPT2" 
+     echo    "$FOPT$FDOPT"
+if [[ -z "$TRAVIS_HOME" ]]; then
+    make V=1 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
+else
+    ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
+fi
      cd $TRAVIS_BUILD_DIR/src/64to32blas 
      make
      cd $TRAVIS_BUILD_DIR/src
@@ -58,3 +76,4 @@ fi
  ls -lrt $TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET/ 
  echo =========================
  rsync -av $TRAVIS_BUILD_DIR/src/basis/libraries  $TRAVIS_BUILD_DIR/.cachedir/files/.
+ rsync -av $TRAVIS_BUILD_DIR/src/nwpw/libraryps  $TRAVIS_BUILD_DIR/.cachedir/files/.

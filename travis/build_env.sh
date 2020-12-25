@@ -1,12 +1,19 @@
 #!/bin/bash
-if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then 
-  brew cask uninstall oclint || true  
-  brew install gcc "$MPI_IMPL" openblas python@3.8 ||true
-  if [[ "$MPI_IMPL" == "openmpi" ]]; then
-     brew install scalapack
-  fi
+os=`uname`
+arch=`uname -m`
+ if [[ "$os" == "Darwin" ]]; then 
+#  HOMEBREW_NO_AUTO_UPDATE=1 brew cask uninstall oclint || true  
+#  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python3 ||true
+     HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" python3 ||true
+     #hack to fix Github actions mpif90
+     ln -sf /usr/local/bin/$FC /usr/local/bin/gfortran
+     $FC --version
+     gfortran --version
+#  if [[ "$MPI_IMPL" == "openmpi" ]]; then
+#      HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install scalapack
+#  fi
 fi
-if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then 
+if [[ "$os" == "Linux" ]]; then 
     if [[ "$MPI_IMPL" == "openmpi" ]]; then
 	mpi_bin="openmpi-bin" ; mpi_libdev="libopenmpi-dev" scalapack_libdev="libscalapack-openmpi-dev"
     fi
@@ -15,5 +22,6 @@ if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
     fi
     cat /etc/apt/sources.list
     sudo add-apt-repository universe && sudo apt update
-    sudo apt-get -y install gfortran python3-dev python-dev cmake "$mpi_libdev" "$mpi_bin" "$scalapack_libdev"  make perl  libopenblas-dev python3 rsync
+#    sudo apt-get -y install gfortran python3-dev python-dev cmake "$mpi_libdev" "$mpi_bin" "$scalapack_libdev"  make perl  libopenblas-dev python3 rsync
+    sudo apt-get -y install gfortran python3-dev python-dev cmake "$mpi_libdev" "$mpi_bin"  make perl  python3 rsync
 fi

@@ -1,0 +1,90 @@
+name: NWChem_CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    if: "!contains(github.event.head_commit.message, 'ci skip')"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-18.04, macos-10.15]
+        experimental: [false]
+        mpi_impl:
+          - openmpi
+          - mpich
+        armci_network:
+          - MPI-TS
+        nwchem_modules:
+          - "tinyqmpw python"
+          - "qmandpw"
+          - "tce"
+        fc:
+          - gfortran-9
+        include:
+          - os: ubuntu-20.04
+            experimental: true 
+            mpi_impl: mpich
+            armci_network: mpi-pt
+            nwchem_modules: "nwdft solvation driver"
+            fc: gfortran-10
+            use_simint: 1
+          - os: ubuntu-20.04
+            experimental: true 
+            mpi_impl: mpich
+            armci_network: mpi-pr
+            nwchem_modules: "tinyqmpw python"
+            fc: gfortran-10
+          - os: macos-11.0
+            experimental: true 
+            mpi_impl: mpich
+            armci_network: mpi-pr
+            nwchem_modules: "qmandpw"
+            fc: gfortran-10
+
+      fail-fast: false
+    env:
+        MPI_IMPL: ${{ matrix.mpi_impl }}
+        ARMCI_NETWORK: ${{ matrix.armci_network }}
+        NWCHEM_MODULES: ${{ matrix.nwchem_modules }}
+        USE_SIMINT: ${{ matrix.use_simint }}
+        FC: ${{ matrix.fc }}
+        COMEX_MAX_NB_OUTSTANDING: 4
+        SIMINT_MAXAM: 3
+    steps: 
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 40
+      - name: build environment
+        run: |
+          pwd
+          ls -lart
+          ./travis/build_env.sh
+      - name: compile
+        run: |
+          ./travis/compile_nwchem.sh
+      - name: Check compilation result
+        if: ${{ failure() }}
+        run: |
+          pwd
+          tail -20 src/tools/build/config.log
+          tail -10 src/tools/build/comex/config.log
+      - name: qa_test
+        run: |
+          ./travis/run_qas.sh
+      - name: Check if QA testing has failed
+        if: ${{ failure() }}
+        run: |
+          grep d= QA/testoutputs/dft_he2+.out
+          grep @ QA/testoutputs/h2o_opt.out
+          tail -30 QA/testoutputs/dft_he2+.out
+          tail -490 QA/testoutputs/h2o2-response.out
+          tail -30 QA/testoutputs/prop_mep_gcube.out
+          diff QA/testoutputs/prop_ch3f.o*nw*
+          diff QA/testoutputs/h2o2-response.o*nw*
+  
+
+
+
+     

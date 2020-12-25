@@ -1,11 +1,23 @@
 #!/bin/bash
-tail -20 $TRAVIS_BUILD_DIR/src/tools/build/config.log
-tail -10 $TRAVIS_BUILD_DIR/src/tools/build/comex/config.log
+if [[ -z "$TRAVIS_BUILD_DIR" ]] ; then
+    TRAVIS_BUILD_DIR=$(pwd)
+fi
+source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
+env
+head -4000 $TRAVIS_BUILD_DIR/src/make.log
 grep -A 2 -B 2 -i error $TRAVIS_BUILD_DIR/src/make.log 
-head -200 $TRAVIS_BUILD_DIR/src/make.log
-tail -200 $TRAVIS_BUILD_DIR/src/make.log
-tail -200 $TRAVIS_BUILD_DIR/src/6log
-grep -i tce_energy $TRAVIS_BUILD_DIR/src/6log
+cat $TRAVIS_BUILD_DIR/src/tools/build/config.log
+cat $TRAVIS_BUILD_DIR/src/tools/build/comex/config.log
+tail -4000 $TRAVIS_BUILD_DIR/src/make.log
+ls -lrt $TRAVIS_BUILD_DIR/src/libext/lib/
+echo '###### OpenBLAS make.log ####'
+grep -i  gemm_incopy $TRAVIS_BUILD_DIR/src/make.log
+grep  NO_LAPACKE $TRAVIS_BUILD_DIR/src/make.log 
+echo '###### end of make.log ####'
+if [[ "$USE_64TO32" == "y" ]]; then
+    tail -200 $TRAVIS_BUILD_DIR/src/6log
+    grep -i tce_energy $TRAVIS_BUILD_DIR/src/6log
+fi
 # tail output files on failures
 check_file () {
     file=$TRAVIS_BUILD_DIR/QA/testoutputs/$1.out
@@ -34,4 +46,9 @@ check_file h2o2-response
 check_file pspw
 check_file pspw_md
 check_file aump2
-
+# stuff for OpenBLAS issues on macos
+echo 'looking for cgemm_incopy.o'
+find $TRAVIS_BUILD_DIR/src/libext -name cgemm_incopy.o
+echo ' looking for _cgemm_incopy symbol in cgemm_incopy.o'
+nm `find $TRAVIS_BUILD_DIR/src/libext -name cgemm_incopy.o` 
+echo ' done OpenBLAS debugging '
