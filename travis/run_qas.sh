@@ -87,7 +87,9 @@ export NWCHEM_NWPW_LIBRARY=$TRAVIS_BUILD_DIR/.cachedir/files/libraryps/
 # check if python is among modules
      echo "$NWCHEM_MODULES"|grep -q python
      if [ $? -eq 0 ]; then
-       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs pyqa3
+	 cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs pyqa3
+     else
+	 true
      fi
      if  [[ "$do_largeqas" == 1 ]]; then
        cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_siosi3 h2o_opt
@@ -103,7 +105,9 @@ export NWCHEM_NWPW_LIBRARY=$TRAVIS_BUILD_DIR/.cachedir/files/libraryps/
        # check if qmd is among modules
        grep -iq qmd $TRAVIS_BUILD_DIR/src/stubs.F
        if [ $? -eq 1 ]; then
-         cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs qmd_dft_h2o_svr
+           cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs qmd_dft_h2o_svr
+       else
+	   true
        fi
      fi
  fi
