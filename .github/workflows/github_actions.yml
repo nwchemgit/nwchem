@@ -17,7 +17,7 @@ jobs:
           - MPI-TS
         nwchem_modules:
           - "tinyqmpw python"
-          - "qmandpw"
+          - "qmandpw qmd"
           - "tce"
         fc:
           - gfortran-9
