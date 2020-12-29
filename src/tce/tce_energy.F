@@ -1888,7 +1888,7 @@ c
          end if
 ! ==============
          if(model.ne.'ccsd_act') then
-            write(6,*) ' chop v2 '
+             if (nodezero) write(6,*) ' chop v2 '
           call  tce_mo2e_zones_4a_disk_ga_chop_N5(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
          else 
