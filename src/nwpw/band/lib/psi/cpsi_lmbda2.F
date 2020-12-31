@@ -26,7 +26,7 @@
   
       logical value,failed
       integer it
-      integer nn
+      integer nn,ne(2)
       integer st1,st2
       integer A,B,C,U,D,Ba,Bs,fnm
       complex*16 zero,one,dtec
@@ -37,15 +37,13 @@
 
       call Parallel_taskid(taskid)
 
-      do it=1,202
-         write(*,*) "i,fweight=",it,fweight(it)
-      end do
 
       ierr = 0
       one  = dcmplx(1.0d0,0.0d0)
       zero = dcmplx(0.0d0,0.0d0)
       dtec = dcmplx(dte,0.0d0)
 *     **** set the matrices dimensions ****
+      call Pneb_ne(ne)
       nn   = Pneb_w_size(0,nb)
 
       A    = 0*nn + 1
@@ -65,31 +63,33 @@
      
 *::::::::::::::::::::::  Lagrangian multipliers  ::::::::::::::::::::::
 
-      write(*,*) "HERA"
         call Pneb_ffw_hermit_Multiply(ms,nb,psi2,psi2,npack1,tmp(A))
         call Pneb_ffw_Multiply(ms,nb,psi1,psi2,npack1,tmp(B))
         call Pneb_ffw_hermit_Multiply(ms,nb,psi1,psi1,npack1,tmp(C))
 
-      write(*,*) "HERB"
+c        write(*,*) "A="
+c        call prt_cmat(ne(ms),tmp(A))
+c        write(*,*) "B="
+c        call prt_cmat(ne(ms),tmp(B))
+c        write(*,*) "C="
+c        call prt_cmat(ne(ms),tmp(C))
+
         call cpsi_gen_Ba_Bs(ms,nb,nn,tmp(B),tmp(Bs),tmp(Ba))
-      write(*,*) "HERC"
 
         call cpsi_gen_UD(ms,nb,tmp(Bs),tmp(D))
-      write(*,*) "HERD"
 
         call cpsi_gen_X(ms,nb,nn,tmp(st1),tmp(st2),
      >                     tmp(A),tmp(Ba),tmp(C),
      >                     tmp(U),tmp(D),tmp(fnm),
      >                     fweight,
      >                     failed)
-      write(*,*) "HERE, failed=",failed
 
         if (failed) then
            ierr=10
            if (taskid.eq.MASTER) then
              write(luout,*) "Warning: Lagrange Mult generation failed."
              write(luout,*) " +Try using a smaller time step"
-             write(luout,*) " +Gram-Schmidt performed,nb,ms=",ms,nb
+             write(luout,*) " +Gram-Schmidt performed,nb,ms=",nb,ms
            end if
            call Pneb_orthoCheckMake(.true.,ms,nb,npack1,psi2)
         else
@@ -139,6 +139,7 @@
       integer ms,nb
       complex*16 Bs(*)
       real*8     D(*)
+      integer i
 
       !call DSYEV('V','U',n,Bs,n_max, D,Work,2*n_max*n_max,ierr)
       call Pneb_w_diag(ms,nb,D,Bs)
@@ -170,7 +171,7 @@
       complex*16 U(*)
 
       real*8 D(*)
-      real*8 fnm(*)
+      complex*16 fnm(*)
       real*8 fweight(*)
       logical failed
 
@@ -179,12 +180,14 @@
       real*8  convg
       parameter (itrlmd=120, convg=1.0d-15)
 
-      integer it
+      integer it,i,ne(2)
       real*8  adiff
 
 *     **** external functions ****
       real*8   Pneb_w_dmax
       external Pneb_w_dmax
+
+      call Pneb_ne(ne)
 
       !**** A = I-A ***
        call DSCAL_OMP(2*nn,(-1.0d0),A,1)
@@ -198,30 +201,45 @@
       call cpsi_fnm_to_X(ms,nb,fnm,U,D,fweight,tmp)
       call Parallel_shared_vector_copy(.true.,2*nn,fnm,X1)
 
+c       write(*,*) "X1="
+c       call prt_cmat(ne(ms),X1)
+c       call Pneb_www_Multiply2(ms,nb,dcmplx(1.0d0,0.0d0),X1,X1,
+c     >                               dcmplx(0.0d0,0.0d0),tmp)
+c       write(*,*) "X1'*X1="
+c       call prt_cmat(ne(ms),tmp)
 
       it     = 0
       failed = .true.
       do while (failed .and. (it.lt.itrlmd))
         it = it + 1
 
-        !*** fnm = X*C*X ***
-        call Pneb_www_Multiply1(ms,nb,1.0d0,C,X1,0.0d0,tmp)
-        call Pneb_www_Multiply1(ms,nb,1.0d0,X1,tmp,0.0d0,fnm)
+        !*** fnm = X'*C*X ***
+        call Pneb_www_Multiply1(ms,nb,dcmplx(1.0d0,0.0d0),C,X1,
+     >                                dcmplx(0.0d0,0.0d0),tmp)
+        call Pneb_www_Multiply1(ms,nb,dcmplx(1.0d0,0.0d0),X1,tmp,
+     >                                dcmplx(0.0d0,0.0d0),fnm)
 
+        !*** fnm = Ba*X - X'*C*X ***
+        call Pneb_www_Multiply1(ms,nb,dcmplx(1.0d0,0.0d0),Ba,X1,
+     >                                dcmplx(-1.0d0,0.0d0),fnm)
 
-        !*** fnm = Ba*X - X*C*X ***
-        call Pneb_www_Multiply1(ms,nb,1.0d0,Ba,X1,-1.0d0,fnm)
+        !*** fnm = Ba*X - X'*Ba - X*C*X ***
+        call Pneb_www_Multiply1(ms,nb,dcmplx(-1.0d0,0.0d0),X1,Ba,
+     >                                dcmplx(1.0d0,0.0d0),fnm)
 
-
-        !*** fnm = Ba*X - X*Ba - X*C*X ***
-        call Pneb_www_Multiply1(ms,nb,-1.0d0,X1,Ba,1.0d0,fnm)
-
-        !*** fnm = I-A + Ba*X - X*Ba - X*C*X ***
+        !*** fnm = I-A + Ba*X - X'*Ba - X'*C*X ***
         call DAXPY_OMP(2*nn,1.0d0,A,1,fnm,1)
 
 
         !*** solve U*D*Ut*X + X*U*D*Ut = fnm for X ***
-        call cpsi_fnm_to_X(ms,fnm,U,D,fweight,tmp)
+        call cpsi_fnm_to_X(ms,nb,fnm,U,D,fweight,tmp)
+
+c       write(*,*) "X1=, it=",it
+c       call prt_cmat(ne(ms),fnm)
+c       call Pneb_www_Multiply2(ms,nb,dcmplx(1.0d0,0.0d0),fnm,fnm,
+c     >                               dcmplx(0.0d0,0.0d0),tmp)
+c       write(*,*) "X1'*X1=, it=",it
+c       call prt_cmat(ne(ms),tmp)
 
         !call DMSUB(n_max,n,X1,fnm,tmp)
         !adiff = tmp(idamax(n_max*n,tmp,1))
@@ -230,7 +248,7 @@
         call DAXPY_OMP(2*nn,-1.0d0,fnm,1,tmp,1)
         adiff = Pneb_w_dmax(ms,nb,tmp)
         call Parallel_shared_vector_copy(.true.,2*nn,fnm,X1)
-        write(*,*) "it,adiff=",it,adiff
+        !write(*,*) "it,adiff=",it,adiff
 
         if (adiff.lt.convg) failed = .false.
       end do
@@ -254,6 +272,8 @@
       real*8 fweight(*)
       complex*16 tmp(*)
 
+      integer i
+
 
       !**** fnm = Ut*fnm*U ***
 c      call DGEMM('N','N',n,n,n,1.0d0,
@@ -266,8 +286,10 @@ c     >           U,n_max,
 c     >           tmp,n_max,
 c     >           0.0d0,
 c     >           fnm,n_max)
-      call Pneb_www_Multiply1(ms,nb,1.0d0,fnm,U,0.0d0,tmp)
-      call Pneb_www_Multiply2(ms,nb,1.0d0,U,tmp,0.0d0,fnm)
+      call Pneb_www_Multiply1(ms,nb,dcmplx(1.0d0,0.0d0),fnm,U,
+     >                              dcmplx(0.0d0,0.0d0),tmp)
+      call Pneb_www_Multiply2(ms,nb,dcmplx(1.0d0,0.0d0),U,tmp,
+     >                              dcmplx(0.0d0,0.0d0),fnm)
 
       !**** fnm = (Ut*fnm*U)_nm/(d_n+d_m) ***
 c      do j=1,n
@@ -289,8 +311,11 @@ c     >           tmp,n_max,
 c     >           U,n_max,
 c     >           0.0d0,
 c     >           fnm,n_max)
-      call Pneb_www_Multiply1(ms,nb,1.0d0,U,fnm,0.0d0,tmp)
-      call Pneb_www_Multiply3(ms,nb,1.0d0,tmp,U,0.0d0,fnm)
+      call Pneb_www_Multiply1(ms,nb,dcmplx(1.0d0,0.0d0),U,fnm,
+     >                              dcmplx(0.0d0,0.0d0),tmp)
+      call Pneb_www_Multiply3(ms,nb,dcmplx(1.0d0,0.0d0),tmp,U,
+     >                              dcmplx(0.0d0,0.0d0),fnm)
+
 
 c      do j=1,n
 c      do i=1,n
@@ -298,6 +323,20 @@ c        fnm(i,j) = fnm(i,j)*(2.0d0*fweight(i)/(fweight(i)+fweight(j)))
 c      end do
 c      end do
       call Pneb_w_Hmlfweightscale(ms,nb,fnm,fweight)
+
+      return
+      end
+
+      subroutine prt_cmat(n,C)
+      implicit none
+      integer n
+      complex*16 C(n,n)
+
+      integer i,j
+
+      do i=1,n
+         write(*,'(20("(",F8.4,E10.2,")"))') (C(i,j), j=1,n)
+      end do
 
       return
       end
