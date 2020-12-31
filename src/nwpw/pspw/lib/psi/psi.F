@@ -7775,6 +7775,195 @@ c      call Orb_Analysis(iunit,ispin,ne,dcpl_mb(psi1(1)))
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *      psi_0define_occupation     *
+*     *                                 *
+*     ***********************************
+      subroutine psi_0define_occupation(initial_alpha,use_hml,
+     >                                  ispin,ne,eig,hml,occ,
+     >                                  smeartype,smearkT,
+     >                                  smearfermi,smearcorrection)
+      implicit none
+      real*8  initial_alpha
+      logical use_hml
+      integer ispin,ne(2)
+      real*8  eig(*),hml(*),occ(*)
+      integer smeartype
+      real*8 smearkT,smearfermi(2),smearcorrection
+
+*     **** local variables ****
+      integer it,itmax
+      parameter (itmax=50)
+
+      integer ms,nb,n,shift1,shift2,occ1_tag,ndiff
+      real*8 e,x,kT,f,g,alpha,pi,f0
+      real*8 ZZ,Z(2),Zlower,Zmid,Zupper,elower,emid,eupper
+      real*8 flower,fmid,fupper,lmbda
+
+*     **** external functions ****
+      integer  control_multiplicity
+      real*8   control_TotalCharge,ion_TotalCharge_qm
+      real*8   psi_occ_distribution,control_fractional_alpha
+      external control_multiplicity
+      external control_TotalCharge,ion_TotalCharge_qm
+      external psi_occ_distribution,control_fractional_alpha
+
+      ZZ  = ion_TotalCharge_qm() - control_TotalCharge()
+
+!$OMP MASTER
+      if (use_hml) then
+         do ms=1,ispin
+            shift1 = (ms-1)*ne(1)
+            shift2 = (ms-1)*ne(1)*ne(1)
+            do n=1,ne(ms)
+               eig(n+shift1) = hml(n+(n-1)*ne(ms)+shift2)
+            end do
+         end do
+      end if
+      smearfermi(1)   = 0.0d0
+      smearfermi(2)   = 0.0d0
+      smearcorrection = 0.0d0
+
+      
+         if (initial_alpha.lt.0.0d0) then
+            alpha = control_fractional_alpha()
+         else
+            alpha = initial_alpha
+         end if
+         kT    = smearkT
+         !ZZ  = ion_TotalCharge_qm() - control_TotalCharge()
+
+         if (dabs(ZZ).lt.1.0d-9) go to 98
+
+         if (ispin.eq.2) then
+            ndiff = control_multiplicity() - 1
+            Z(1) = 0.5d0*(ZZ+ndiff)
+            Z(2) = 0.5d0*(ZZ-ndiff)
+         else
+            Z(1) = 0.5d0*ZZ
+            Z(2) = 0.0d0
+         end if
+
+         pi    = 4.0d0*datan(1.0d0)
+         !if (initial) alpha = 1.0d0
+         if (smeartype.le.0) alpha = 0.0d0
+
+*        **** outer loop over spins ****
+         smearcorrection = 0.0d0
+         do ms=1,ispin
+
+*           **** find eupper and elower ****
+            elower =  9.9d12
+            eupper = -9.9d12
+            shift1 = (ms-1)*ne(1) + 1
+            do n=1,ne(ms)
+              e       = eig(shift1)
+              if (e.lt.elower) elower = e
+              if (e.gt.eupper) eupper = e
+              shift1  = shift1 + 1
+            end do
+
+*           **** find fermi level ****
+            Zlower = 0.0d0
+            Zupper = 0.0d0
+            shift1 = (ms-1)*ne(1) + 1
+            do n=1,ne(ms)
+              e = eig(shift1)
+              Zlower = Zlower
+     >         + psi_occ_distribution(smeartype,(e-elower)/kT)
+              Zupper = Zupper
+     >         + psi_occ_distribution(smeartype,(e-eupper)/kT)
+              shift1  = shift1 + 1
+            end do
+
+
+            flower = Zlower - Z(ms)
+            fupper = Zupper - Z(ms)
+
+            if (flower*fupper.ge.0.0d0)
+     >       call errquit(
+     >            'psi_0define_occupation:Fermi energy not found',ms,0)
+
+            it = 0
+  20        it = it + 1
+            emid = 0.5d0*(elower + eupper)
+            Zmid = 0.0d0
+            shift1 = (ms-1)*ne(1) + 1
+            do n=1,ne(ms)
+              e = eig(shift1)
+              Zmid = Zmid + psi_occ_distribution(smeartype,(e-emid)/kT)
+              shift1  = shift1 + 1
+            end do
+            fmid = Zmid - Z(ms)
+            if (fmid.lt.0.0d0) then
+               flower = fmid
+               elower = emid
+            else
+               fupper = fmid
+               eupper = emid
+            end if
+            if ( (dabs(fmid)     .gt.1.0d-11) .and.
+     >           ((eupper-elower).gt.1.0d-11) .and.
+     >           (it.lt.itmax))   goto 20
+
+
+            smearfermi(ms) = emid
+
+*           **** determine filling and correction ****
+            shift1 = (ms-1)*ne(1) + 1
+            shift2 = (ms-1)*ne(1) + 1
+            do n=1,ne(ms)
+              e = eig(shift1)
+              x = (e - smearfermi(ms))/kT
+              f = psi_occ_distribution(smeartype,x)
+              f0 = occ(shift2)
+
+              occ(shift2) = (1.0d0-alpha)*f0 + alpha*f
+
+              if (smeartype.eq.1) then
+                 if (  (occ(shift2)       .gt.1.0d-6) .and.
+     >               ( (1.0d0-occ(shift2)).gt.1.0d-6)) then
+                smearcorrection = smearcorrection
+     >           + kT*( occ(shift2)*log(occ(shift2))
+     >           + (1.0d0-occ(shift2))*log(1.0d0-occ(shift2)) )
+                 end if
+              else if (smeartype.eq.2) then
+                smearcorrection
+     >              = smearcorrection
+     >              - kT*dexp(-x*x)/(4.0d0*dsqrt(pi))
+              else if (smeartype.eq.4) then
+                smearcorrection
+     >              = smearcorrection
+     >              - kT*dexp(-(x+dsqrt(0.5d0))*(x+dsqrt(0.5d0)))
+     >              * (1.0d0 + dsqrt(2.0d0) * x)
+     >              / (2.0d0 * dsqrt(pi))
+              end if
+
+              shift1  = shift1 + 1
+              shift2  = shift2 + 1
+            end do
+
+         end do !** ms***
+         if (ms.eq.1) smearcorrection=smearcorrection+smearcorrection
+
+         go to 99
+
+
+  98     continue
+         smearcorrection = 0.0d0
+         call dcopy(ne(1)+ne(2),0.0d0,0,occ,1)
+
+  99     continue
+
+!$OMP END MASTER
+!$OMP BARRIER
+
+      return
+      end
+
+
+
 
 
 
