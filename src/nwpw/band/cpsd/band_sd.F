@@ -745,7 +745,7 @@ c
 
 *        ***** define fractional occupation ****
          if ( (icount.lt.it_out).and.control_fractional().and.
-     >       (control_fractional_smeartype().ge.0)) then
+     >       (control_fractional_smeartype().ge.990)) then
 
 c            call cpsi_data_update(hml_tag)
 c            call cpsi_data_update(eig_tag)

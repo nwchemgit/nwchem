@@ -282,7 +282,7 @@ c!$OMP END PARALLEL
 
 *       *** reduce over brillioun zone ***
         call K1dB_Vector_SumAll(ispin*nfft3d,dn)
-        call dscal(ispin*nfft3d,scal2,dn,1)
+        call DSCAL_OMP(ispin*nfft3d,scal2,dn,1)
 
         call c_rho_symmetrizer_dn(ispin,nfft3d,dn)
 
@@ -427,12 +427,20 @@ c           if (pspw_qmmm_found()) call pspw_qmmm_fion(dbl_mb(fion(1)))
           psi2_shift = cpsi_data_get_chnk(psi2_tag,nb)
           do ms=1,ispinq
           if (neq(ms).gt.0) then
-             call cpsi_lmbda(ms,nb,npack1,
+             if (fractional) then
+                shifto = cpsi_data_get_chnk(next1_tag,nb)
+                call cpsi_lmbda2(ms,nb,npack1,
+     >                   dbl_mb(psi1_shift),
+     >                   dbl_mb(psi2_shift),
+     >                   dte,dbl_mb(shifto),
+     >                   dcpl_mb(tmp_L(1)),ierr)
+             else
+                call cpsi_lmbda(ms,nb,npack1,
      >                   dbl_mb(psi1_shift),
      >                   dbl_mb(psi2_shift),
      >                   dte,
      >                   dcpl_mb(tmp_L(1)),ierr)
-
+             end if
           end if
           end do
         end do
