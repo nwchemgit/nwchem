@@ -204,6 +204,17 @@ c#include "Parallel.fh"
       real*8   control_gas_energy
       external control_gas_energy
 
+      logical  control_fractional
+      external control_fractional
+      integer  control_fractional_smeartype
+      external control_fractional_smeartype
+      real*8   control_fractional_temperature
+      external control_fractional_temperature
+      real*8   control_fractional_kT
+      external control_fractional_kT
+
+
+
 *                            |************|
 *****************************|  PROLOGUE  |****************************
 *                            |************|
@@ -329,6 +340,10 @@ c#include "Parallel.fh"
       else
          fractional = .false.
       end if
+      smearcorrection = 0.0d0
+      smeartype = control_fractional_smeartype()
+      smearkT   = control_fractional_kT()
+      
       mapping1d = control_mapping1d()
       call Dne_init(ispin,ne,mapping1d)
       call Dneall_neq(neq)
@@ -738,6 +753,23 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
      >       ' *** tolerance ok.     iteration terminated.'
             go to 2
          end if
+
+*        ***** define fractional occupation ****
+         if ((icount.lt.it_out).and.fractional.and.
+     >       (smeartype.ge.0)) then
+
+            call Dneall_m_diagonalize(0,dbl_mb(hml(1)),
+     >                                  dbl_mb(eig(1)),.false.)
+            call psi_0define_occupation(1.0d0,.true.,
+     >                               ispin,ne,
+     >                               dbl_mb(eig(1)),dbl_mb(hml(1)),
+     >                               dbl_mb(occ1(1)),
+     >                               smeartype,smearkT,
+     >                               smearfermi,smearcorrection)
+         end if
+
+
+
       if (icount.lt.it_out) go to 1
       if (oprint) 
      > write(luout,*) 

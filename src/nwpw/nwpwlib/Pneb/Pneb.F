@@ -3296,7 +3296,7 @@ c    returns C = beta*C + alpha*A*B
       do nb=nb1,nb2
       do ms=ms1,ms2
          if (ne(ms).gt.0) then
-            call ZGEMM('N','N',ne(ms),ne(ms),ne(ms),
+            call ZGEMM_OMP('N','N',ne(ms),ne(ms),ne(ms),
      >                 alpha,
      >                 A(indx),ne(ms),
      >                 B(indx),ne(ms),
@@ -3336,7 +3336,7 @@ c
       do nb=nb1,nb2
       do ms=ms1,ms2
          if (ne(ms).gt.0) then
-            call ZGEMM('C','N',ne(ms),ne(ms),ne(ms),
+            call ZGEMM_OMP('C','N',ne(ms),ne(ms),ne(ms),
      >                 alpha,
      >                 A(indx),ne(ms),
      >                 B(indx),ne(ms),
@@ -3369,7 +3369,7 @@ c    returns C = beta*C + alpha*A*conj(B')
 
 *     **** local variables ****
       integer ms1,ms2,nb1,nb2,indx,ms,nb,ishift2,ishift3
-      integer shift2
+      integer shift2,i
 
       if (mparallelized) then
          
@@ -3425,7 +3425,7 @@ c    returns C = beta*C + alpha*A*conj(B')
          do nb=nb1,nb2
          do ms=ms1,ms2
             if (ne(ms).gt.0) then
-               call ZGEMM('N','C',ne(ms),ne(ms),ne(ms),
+               call ZGEMM_OMP('N','C',ne(ms),ne(ms),ne(ms),
      >                    alpha,
      >                    A(indx),ne(ms),
      >                    B(indx),ne(ms),
@@ -4032,14 +4032,17 @@ cccccccccccccccc
 
 *     **** local variables ****
       integer nb,ms,nb1,nb2,ms1,ms2,ishift2,ishift3,shift2,shift3
+      integer ishift1
       integer j,k,indx,indxt
       real*8 d2
 
       call assign_nb(nbb,nb1,nb2)
       call assign_ms(mbb,ms1,ms2)
       if (mbb.eq.0) then
+         ishift1 = ne(1)
          ishift2 = ne(1)*ne(1)
       else
+         ishift1 = 0
          ishift2 = 0
       end if
       if (nbb.eq.0) then
@@ -4060,8 +4063,8 @@ cccccccccccccccc
           do k=1,ne(ms)
           do j=1,ne(ms)
              indx  = j + (k-1)*ne(ms) + shift2
-             indxt = k + (j-1)*ne(ms) + shift2
-             d2 = D(indx) + D(indxt)
+             !indxt = k + (j-1)*ne(ms) + shift2
+             d2 = D(j) + D(k)
 
              fnm(indx) = fnm(indx)/d2
           end do
@@ -4090,6 +4093,7 @@ cccccccccccccccc
 *     **** local variables ****
       integer nb,ms,nb1,nb2,ms1,ms2,ishift2,ishift3,shift2,shift3
       integer j,k,indx
+      real*8  wjk
 
       call assign_nb(nbb,nb1,nb2)
       call assign_ms(mbb,ms1,ms2)
@@ -4115,10 +4119,11 @@ cccccccccccccccc
 !$OMP DO
           do k=1,ne(ms)
           do j=1,ne(ms)
-             indx  = j + (k-1)*ne(ms) + shift2
-
-             fnm(indx) = fnm(indx)
-     >                  *(2.0d0*fweight(j)/(fweight(j)+fweight(k)))
+             wjk = fweight(j)+fweight(k)
+             if (wjk.gt.1.0d-9) then
+                indx  = j + (k-1)*ne(ms) + shift2
+                fnm(indx) = fnm(indx)*(2.0d0*fweight(j)/wjk)
+             end if
           end do
           end do
 !$OMP END DO
