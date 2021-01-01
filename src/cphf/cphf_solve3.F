@@ -129,9 +129,10 @@ c     determine how many components we should treat:
       if (.not. rtdb_get(rtdb, 'cphf:ncomp', mt_int, 1, ncomp)) call
      &   errquit('cphf_solve3: failed to read ncomp ', 0, RTDB_ERR)
 
-      if (ncomp.gt.1 .and. lstatic) then ! something's fishy here
-        call errquit
-     &     ('cphf_solve3: static response but more than one component?',
+      if (ncomp.gt.1 .and. lstatic) then ! fishy ?
+        if (.not.lifetime) 
+     &    call errquit
+     &     ('cphf_solve3: static response no damping 2 compts.',
      &     ncomp, RTDB_ERR)
       elseif (ncomp.eq.1 .and. .not.lstatic) then ! fishy fishy
         call errquit
