@@ -78,7 +78,7 @@ EXP_qm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
           optim stepper driver ccsd vib mcscf property solvation dplot mp2_grad esp etrans tce vscf dimqm
 EXP_smallqm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
           optim stepper driver vib qmd mcscf property solvation dplot \
-           mp2_grad esp etrans vscf nwmd dimqm 
+           mp2_grad esp etrans vscf nwmd dimqm python
 EXP_smallqmmm  = NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
           optim stepper driver vib qmd mcscf property solvation dplot \
            mp2_grad esp etrans vscf nwmd qmmm prepar analyz dimqm
