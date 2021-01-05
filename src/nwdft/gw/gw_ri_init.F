@@ -21,10 +21,10 @@ c
       logical iolgc
       integer g_2ceris, g_2cinv, info, lmiss
 c
-      integer ilo,ihi
+      integer ilo,ihi,jlo,jhi
       integer lbuf,lscr,ltmp,leri,lvecs
       integer l_buf,k_buf,l_scr,k_scr,l_tmp,k_tmp,k_eri,k_mo,l_mo
-      integer l_vecs,k_vecs
+      integer l_vecs,k_vecs,l_idx,k_idx
       integer me
       integer np,nstates
       integer g_3ceris,shlo,shhi,offset,ld
@@ -100,7 +100,8 @@ c
       mopairs = nstates*nmo
       aopairs = (nbf_ao*(nbf_ao+1))/2
 
-      if (.not.ga_create(mt_dbl,aopairs,nri,'3c ERI',aopairs,0,g_3ceris)
+      if (.not.ga_create(mt_dbl,aopairs,nri,'3c ERI',aopairs,0,
+     $     g_3ceris))
      $  call errquit(pname//'can''t create 3c ERIs',0,GA_ERR)
       call ga_distribution(g_3ceris,pars%me,ilo,ihi,rilo,rihi)
       nri_me = rihi - rilo + 1
@@ -109,15 +110,15 @@ c
       call dfill(aopairs*nri_me,0d0,dbl_mb(k_eri),1)
 
       shlo = 0
-      do ishp=1,nshells_cd
-        ok = bas_cn2bfr(cd_bas_han,ishp,pfirst,plast)
-        if (plast.lt.rilo) cycle
+      do ksh=1,nshells_cd
+        ok = bas_cn2bfr(cd_bas_han,ksh,kfirst,klast)
+        if (klast.lt.rilo) cycle
         if (shlo.eq.0) then
-          offset = (pfirst-rilo)
-          shlo = ishp
+          offset = (kfirst-rilo)
+          shlo = ksh
         endif
-        shhi = ishp
-        if (plast.ge.rihi) exit
+        shhi = ksh
+        if (klast.ge.rihi) exit
       enddo
 
       oactive = nri_me.gt.0
@@ -128,7 +129,7 @@ c
       lscr = max(lscr,nbf_cd*nbf_ao_mxnbf_cn**2)
       if (.not.ma_alloc_get(mt_dbl,lscr, 'RI scratch', l_scr, k_scr))
      $  call errquit(pname//'can''t get scratch space',0,MA_ERR)
-      if (.not.ma_alloc_get(mt_int,lscr/nri,'Index',l_idx,k_idx)
+      if (.not.ma_alloc_get(mt_int,lscr/nri,'Index',l_idx,k_idx))
      $  call errquit(pname/'can''t allocate index space',0,MA_ERR)
 c
 c     Compute three-center ERIs in MO representation
@@ -142,7 +143,7 @@ c
         ok = bas_cn2bfr(ao_bas_han,ish,ifirst,ilast)
         ni = ilast - ifirst + 1
         do jsh=1,ish
-          eri_est = schwarz_shell(ishc,ishd)
+          eri_est = schwarz_shell(ish,jsh)
           if (eri_est.lt.pars%tol2e*0.1d0) cycle
           IeqJ = ish.eq.jsh
           ok = bas_cn2bfr(ao_bas_han,jsh,jfirst,jlast)
