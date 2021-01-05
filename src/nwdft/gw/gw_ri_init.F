@@ -29,7 +29,7 @@ c
       integer nfc,nfd,nfp,nij,eri_offset,ishc,ishd,ishp,nactive,tmp,me
       integer imo,istart,iend,l_map,k_map,np,nstates,npairs,nbf_cd_me
       logical CeqD,ok,oactive
-      double precision eri_est,timer
+      double precision eri_est,timer,timing
 c
       logical ga_create, ga_duplicate, ga_destroy, ga_create_irreg
       external ga_create, ga_duplicate, ga_destroy, ga_create_irreg
@@ -139,6 +139,8 @@ c
 c
 c     Compute three-center ERIs in MO representation
 c
+      call ga_sync()
+c
       if (pars%me.eq.0) write(luout,9020)
  9020 format(10x,'Computing 3-center integrals')
 c
@@ -155,7 +157,7 @@ c
         do ishd=1,nshells_ao
 c
           eri_est = schwarz_shell(ishc,ishd)
-          if (eri_est.lt.pars%tol2e*0.001d0) cycle
+          if (eri_est.lt.pars%tol2e*0.1d0) cycle
 c
           if (.not.bas_cn2bfr(ao_bas_han, ishd, dfirst, dlast))
      $      call errquit(pname//'bas_cn2bfr failed',0,BASIS_ERR)
@@ -195,8 +197,7 @@ c
       if (pars%me.eq.0) write(luout,9030)
  9030 format(10x,'Orthonormalization of 3-center integrals')
 c
-      call ga_get(g_2cinv,1,nbf_cd,1,nbf_cd,dbl_mb(k_tmp),
-     $            nbf_cd)
+      call ga_get(g_2cinv,1,nbf_cd,1,nbf_cd,dbl_mb(k_tmp),nbf_cd)
 c
       nij = leri/nbf_cd
       call dtrmm('l','l','n','n',nbf_cd,nij,1.0d0,dbl_mb(k_tmp),
