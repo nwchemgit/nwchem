@@ -114,7 +114,7 @@ c
         ok = bas_cn2bfr(cd_bas_han,ksh,kfirst,klast)
         if (klast.lt.rilo) cycle
         if (shlo.eq.0) then
-          offset = (kfirst-rilo)
+          offset = (rilo-kfirst)
           shlo = ksh
         endif
         shhi = ksh
@@ -150,7 +150,7 @@ c
           nj = jlast - jfirst + 1
           nij = ni*nj
           offk = k_buf+offset*nij
-          call gw_ri_idx(int_mb(k_idx),ifirst,ilast,jfirst,jlast,nij,
+          call gw_ri_idx(int_mb(k_idx),ifirst,ilast,jfirst,jlast,
      $                   IeqJ)
           do ksh=shlo,shhi
             ok = bas_cn2bfr(cd_bas_han, ksh, kfirst, klast)
@@ -159,6 +159,7 @@ c
             if (ksh.eq.shlo) kfirst = rilo
             if (ksh.eq.shhi) klast = rihi
             nk = klast - kfirst + 1
+            kfirst = kfirst - rilo + 1
             call gw_put_int(dbl_mb(offk),dbl_mb(k_eri),int_mb(k_idx),
      $                      nk,ni,nj,nij,aopairs,nri_me,kfirst,IeqJ)
           enddo
@@ -236,22 +237,22 @@ c
 c
 c     *****************************************************************
 c
-      subroutine gw_ri_idx(idx,ifirst,ilast,jfirst,jlast,nij,IeqJ)
+      subroutine gw_ri_idx(idx,ifirst,ilast,jfirst,jlast,IeqJ)
       implicit none
-      integer,intent(in) :: ifirst,jfirst,ilast,jlast,nij
+      integer,intent(in) :: ifirst,jfirst,ilast,jlast
       logical,intent(in) :: IeqJ
-      integer,intent(out),dimension(nij) :: idx
+      integer,intent(out),dimension(*) :: idx
 
-      integer :: i, j, ij, jupper
+      integer :: i, j, ij, jupper, itmp
 
       ij = 0
       jupper = jlast
       do i=ifirst,ilast
-        idx(1:nij) = (i*(i-1))/2
+        itmp = (i*(i-1))/2
         if (IeqJ) jupper = i
         do j=jfirst,jupper
           ij = ij + 1
-          idx(ij) = idx(ij) + j
+          idx(ij) = itmp + j
         enddo
       enddo
       return
@@ -276,6 +277,7 @@ c
           ij = 0
           do i=1,ni
             tmp(idx(ij+1:ij+i),kri) = buf(1:i,i,k)
+            ij = ij + i
           enddo
         enddo
       else
@@ -378,7 +380,7 @@ c     *****************************************************************
         do jmo=1,nocc
           ipair = ipair + 1
           call ga_put(pars%g_erioo,rilo,rihi,ipair,ipair,
-     $                erimo(jmo,imo,:),nri)
+     $                erimo(jmo,imo,1:nri_me),nri_me)
         enddo
       enddo
 
@@ -388,17 +390,7 @@ c     *****************************************************************
         do jmo=nocc+1,nmo
           ipair = ipair + 1
           call ga_put(pars%g_eriov,rilo,rihi,ipair,ipair,
-     $                erimo(imo,jmo,:),nri)
-        enddo
-      enddo
-
-      ! Fill VV block
-      ipair = 0
-      do imo=1,nocc
-        do jmo=nocc+1,nmo
-          ipair = ipair + 1
-          call ga_put(pars%g_eriov,rilo,rihi,ipair,ipair,
-     $                erimo(imo,jmo,:),nri)
+     $                erimo(imo,jmo,1:nri_me),nri_me)
         enddo
       enddo
 
