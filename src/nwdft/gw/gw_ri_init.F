@@ -130,7 +130,7 @@ c
       if (.not.ma_alloc_get(mt_dbl,lscr, 'RI scratch', l_scr, k_scr))
      $  call errquit(pname//'can''t get scratch space',0,MA_ERR)
       if (.not.ma_alloc_get(mt_int,lscr/nri,'Index',l_idx,k_idx))
-     $  call errquit(pname/'can''t allocate index space',0,MA_ERR)
+     $  call errquit(pname//'can''t allocate index space',0,MA_ERR)
 c
 c     Compute three-center ERIs in MO representation
 c
@@ -158,7 +158,7 @@ c
      $                    dbl_mb(k_scr),lbuf,dbl_mb(k_buf))
             if (ksh.eq.shlo) kfirst = rilo
             if (ksh.eq.shhi) klast = rihi
-            nk = plast - kfirst + 1
+            nk = klast - kfirst + 1
             call gw_put_int(dbl_mb(offk),dbl_mb(k_eri),int_mb(k_idx),
      $                      nk,ni,nj,nij,aopairs,nri_me,kfirst,IeqJ)
           enddo
