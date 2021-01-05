@@ -291,6 +291,11 @@ c
         call gw_buildpi(dbl_mb(k_ov),dbl_mb(k_pi),factor(ovlo),
      $                  nri,mynpoles,main)
         call ga_dgop(mt_dbl,dbl_mb(k_pi),nri**2,'+')
+        !
+        ! All cores invert the same matrix in order to avoid
+        ! communication. This is good for small matrices but
+        ! will be very slow for large ones.
+        !
         call dpotrf('l',nri,dbl_mb(k_pi),nri,info)
         if (info.eq.0) then
           call dtrtri('l','n',nri,dbl_mb(k_pi),nri,info)
@@ -298,7 +303,10 @@ c
           call errquit(pname//'Cholesky decomposition failed',0,0)
           !call dft_invdiag
         endif
-
+        !
+        ! Need to reconsider parallelization. Many cores are 
+        ! idle in this section.
+        !
         do imo=llmo,llmo+nqp-1
           jmo = imo - llmo + 1
           if (imo.le.nocc) then
