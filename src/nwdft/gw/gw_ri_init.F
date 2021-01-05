@@ -173,7 +173,8 @@ c
         enddo
       enddo
 c
-      ok = ma_free_heap(l_buf) .and. ma_free_heap(l_scr)
+      ok = ma_free_heap(l_buf) .and. ma_free_heap(l_scr) .and.
+     $     ma_free_heap(l_idx) 
       if (.not.ok) 
      $  call errquit(pname//'can''t free heap',165,MA_ERR)
 c

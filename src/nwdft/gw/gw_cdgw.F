@@ -255,6 +255,7 @@ c     *****************************************************************
       double precision factor(npoles),buf(npoles)
 
 
+      logical main
       integer ilo,ihi,me,k_ov,ld,mynpoles,igl,ipole,info,k_c
       integer pilo,pihi,k_pi,l_pi,idx,idy,mynri,offset,l_tmp,tmp
       integer oolo,oohi,ovlo,ovhi,vvlo,vvhi,jmo,kmo,imo
@@ -265,13 +266,8 @@ c     *****************************************************************
       logical,external :: nga_create,ga_destroy,ga_create,ga_duplicate
 
       me = ga_nodeid()
+      main = me.eq.0
 
-      if (.not.nga_create(mt_dbl,1,npoles,'factor',-1,g_a))
-     $  call errquit(pname//'can''t create global array',0,GA_ERR) 
-      if (.not.ga_create(mt_dbl,nri,nri,'Pi',nri,-1,g_b))
-     $  call errquit(pname//'can''t duplicate array',0,GA_ERR) 
-      if (.not.ga_create(mt_dbl,nri,nri,'EPS',nri,-1,g_f))
-     $  call errquit(pname//'can''t duplicate array',0,GA_ERR)
       if (.not.ma_push_get(mt_dbl,nri*nri,'Pi',l_pi,k_pi))
      $  call errquit(pname//'can''t allocate Pi',0,MA_ERR) 
       if (.not.ma_push_get(mt_dbl,nri,'temp',l_tmp,tmp))
@@ -279,30 +275,29 @@ c     *****************************************************************
 
       call ga_distribution(oo,me,ilo,ihi,oolo,oohi)
       call ga_distribution(ov,me,ilo,ihi,ovlo,ovhi)
-      if (llmo+nqp-1.gt.nocc) call ga_distribution(vv,me,ilo,ihi,
-     $                                             vvlo,vvhi)
-      call ga_distribution(g_b,me,ilo,ihi,pilo,pihi)
-      call nga_distribution(g_a,me,ilo,ihi)
-      call ga_access(ov,1,nri,ilo,ihi,k_ov,ld)
-      call ga_access(g_b,1,nri,pilo,pihi,idx,ld)
-
-      mynri = pihi - pilo + 1
-      mynpoles = ihi-ilo+1
-      offset = (pilo-1)*nri
+      call ga_access(ov,1,nri,ovlo,ovhi,k_ov,ld)
+      if (llmo+nqp-1.gt.nocc) then
+        call ga_distribution(vv,me,ilo,ihi,vvlo,vvhi)
+      endif
+      mynpoles = ovhi-ovlo+1
 
       do igl=1,ngl
-
+c
         w2 = x(igl)
-        do ipole=ilo,ihi
+        do ipole=ovlo,ovhi
           factor(ipole) = dsqrt(eia(ipole)/(eia(ipole)**2 + w2))
         enddo
-        call gw_buildpi(dbl_mb(k_ov),dbl_mb(k_pi),factor(ilo),
-     $                  nri,mynpoles,pilo,pihi)
+c        
+        call gw_buildpi(dbl_mb(k_ov),dbl_mb(k_pi),factor(ovlo),
+     $                  nri,mynpoles,main)
         call ga_dgop(mt_dbl,dbl_mb(k_pi),nri**2,'+')
-        call dcopy(nri*mynri,dbl_mb(k_pi+offset),1,dbl_mb(idx),1)
-        call ga_sync()
-        call ga_chol_inv_seq(g_b,g_f,info)
-        call ga_get(g_f,1,nri,1,nri,dbl_mb(k_pi),nri)
+        call dpotrf('l',nri,dbl_mb(k_pi),nri,info)
+        if (info.eq.0) then
+          call dtrtri('l','n',nri,dbl_mb(k_pi),nri,info)
+        else
+          call errquit(pname//'Cholesky decomposition failed',0,0)
+          !call dft_invdiag
+        endif
 
         do imo=llmo,llmo+nqp-1
           jmo = imo - llmo + 1
@@ -352,9 +347,6 @@ c     *****************************************************************
 
       enddo
 
-      if ((.not.ga_destroy(g_a)).or.
-     $    (.not.ga_destroy(g_b)).or.(.not.ga_destroy(g_f)))
-     $  call errquit(pname//'can''t destroy global arrays',0,GA_ERR)
       if (.not.ma_chop_stack(l_pi))
      $  call errquit(pname//'can''t pop stack',0,MA_ERR) 
 c
@@ -619,9 +611,10 @@ c     *****************************************************************
 
 c     *****************************************************************
 
-      subroutine gw_buildpi(ov,pi,factor,nri,npoles,ilo,ihi)
+      subroutine gw_buildpi(ov,pi,factor,nri,npoles,main)
       implicit none
-      integer,intent(in) :: nri,npoles,ilo,ihi
+      logical,intent(in) :: main
+      integer,intent(in) :: nri,npoles
       double precision,intent(in),dimension(npoles) :: factor
       double precision,intent(inout),dimension(nri,npoles) :: ov
       double precision,intent(out),dimension(nri,nri) :: pi
@@ -638,9 +631,11 @@ c     *****************************************************************
         pi(iri,iri+1:) = pi(iri+1:,iri)
       enddo
 
-      do iri=ilo,ihi
-        pi(iri,iri) = pi(iri,iri) + 1d0
-      enddo
+      if (main) then
+        do iri=1,nri
+          pi(iri,iri) = pi(iri,iri) + 1d0
+        enddo
+      endif
 
       do ipole=1,npoles
         ov(1:nri,ipole) = ov(1:nri,ipole)/factor(ipole)
