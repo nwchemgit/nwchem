@@ -21,14 +21,19 @@ c
       logical iolgc
       integer g_2ceris, g_2cinv, info, lmiss
 c
-      integer ilo,ihi,jlo,jhi,g_a
-      integer lbuf,lscr,ltmp,leri,lvecs,lvtmp,laomo
-      integer l_buf,k_buf,l_scr,k_scr,l_tmp,k_tmp,l_eri,k_eri
-      integer l_vecs,k_vecs,l_vtmp,k_vtmp,l_aomo,k_aomo
-      integer cfirst,clast,dfirst,dlast,pfirst,plast,ip
-      integer nfc,nfd,nfp,nij,eri_offset,ishc,ishd,ishp,nactive,tmp,me
-      integer imo,istart,iend,l_map,k_map,np,nstates,npairs,nbf_cd_me
-      logical CeqD,ok,oactive
+      integer ilo,ihi
+      integer lbuf,lscr,ltmp,leri,lvecs
+      integer l_buf,k_buf,l_scr,k_scr,l_tmp,k_tmp,k_eri,k_mo,l_mo
+      integer l_vecs,k_vecs
+      integer me
+      integer np,nstates
+      integer g_3ceris,shlo,shhi,offset,ld
+      integer nmo,nvir,rihi,rilo,nri,nri_me,nocc,offk
+      integer ish,jsh,ksh,ni,nj,nk,nij
+      integer ifirst,jfirst,kfirst
+      integer ilast,jlast,klast
+      integer aopairs,mopairs
+      logical IeqJ,ok,oactive
       double precision eri_est,timer,timing
 c
       logical ga_create, ga_duplicate, ga_destroy, ga_create_irreg
@@ -88,54 +93,43 @@ c
 c     Allocate storage
 c
       np = ga_nnodes()
+      nri = nbf_cd
+      nmo = pars%nmo(1)
+      nocc = pars%nocc(1)
       nstates = pars%nstates
-      npairs = nstates*pars%nmo(1)
+      mopairs = nstates*nmo
+      aopairs = (nbf_ao*(nbf_ao+1))/2
 
-      if (.not.ma_alloc_get(mt_int,np,'ga map',l_map,k_map))
-     &  call errquit(pname//'can''t get map space',0,MA_ERR)
+      if (.not.ga_create(mt_dbl,aopairs,nri,'3c ERI',aopairs,0,g_3ceris)
+     $  call errquit(pname//'can''t create 3c ERIs',0,GA_ERR)
+      call ga_distribution(g_3ceris,pars%me,ilo,ihi,rilo,rihi)
+      nri_me = rihi - rilo + 1
 
-      call ifill(np,pars%nmo(1)/np,int_mb(k_map),1)
-      do ip=0,mod(pars%nmo(1),np)-1
-        int_mb(k_map+ip) = int_mb(k_map+ip) + 1
+      call ga_access(g_3ceris,1,aopairs,rilo,rihi,k_eri,ld)
+      call dfill(aopairs*nri_me,0d0,dbl_mb(k_eri),1)
+
+      shlo = 0
+      do ishp=1,nshells_cd
+        ok = bas_cn2bfr(cd_bas_han,ishp,pfirst,plast)
+        if (plast.lt.rilo) cycle
+        if (shlo.eq.0) then
+          offset = (pfirst-rilo)
+          shlo = ishp
+        endif
+        shhi = ishp
+        if (plast.ge.rihi) exit
       enddo
 
-      oactive = int_mb(k_map+pars%me) > 0
-      if (oactive) then
-        if (pars%me.eq.0) then
-          istart = 1
-        else
-          istart = sum(int_mb(k_map:k_map+pars%me-1)) + 1
-        endif
-        if (pars%me.eq.np-1) then
-          iend = pars%nmo(1)
-        else
-          iend = sum(int_mb(k_map:k_map+pars%me))
-        endif
-      endif
+      oactive = nri_me.gt.0
 
-      if (.not.oactive) goto 200
-
-      leri = nbf_cd*(iend-istart+1)*nstates
-      if (.not.ma_alloc_get(mt_dbl,leri, 'ERI buffer',l_eri,k_eri))
-     $  call errquit(pname//'can''t allocate eri buffer',0,MA_ERR) 
       call int_mem_2e3c(lbuf, lscr)
       if (.not.ma_alloc_get(mt_dbl,lbuf, 'RI buffer',l_buf, k_buf))
      $  call errquit(pname//'can''t get buffer space',0,MA_ERR)
       lscr = max(lscr,nbf_cd*nbf_ao_mxnbf_cn**2)
       if (.not.ma_alloc_get(mt_dbl,lscr, 'RI scratch', l_scr, k_scr))
      $  call errquit(pname//'can''t get scratch space',0,MA_ERR)
-      ltmp = max(nbf_cd*nbf_ao_mxnbf_cn**2,nbf_cd**2)
-      if (.not.ma_alloc_get(mt_dbl,ltmp,'RI temporary',l_tmp,k_tmp))
-     $  call errquit(pname//'can''t get temp space',0,MA_ERR)
-      lvecs = nbf_ao*pars%nmo(1)
-      if (.not.ma_alloc_get(mt_dbl,lvecs,'MOVECS',l_vecs,k_vecs))
-     $  call errquit(pname//'can''t get movecs space',0,MA_ERR)
-      lvtmp = nbf_ao_mxnbf_cn*pars%nmo(1)
-      if (.not.ma_alloc_get(mt_dbl,lvtmp,'MOVECS tmp',l_vtmp,k_vtmp))
-     $  call errquit(pname//'can''t get temp movecs space',0,MA_ERR)
-      laomo = nbf_cd*nbf_ao_mxnbf_cn*nstates
-      if (.not.ma_alloc_get(mt_dbl,laomo,'AOMO tmp',l_aomo,k_aomo))
-     $  call errquit(pname//'can''t get temp aomo space',0,MA_ERR)
+      if (.not.ma_alloc_get(mt_int,lscr/nri,'Index',l_idx,k_idx)
+     $  call errquit(pname/'can''t allocate index space',0,MA_ERR)
 c
 c     Compute three-center ERIs in MO representation
 c
@@ -144,197 +138,278 @@ c
       if (pars%me.eq.0) write(luout,9020)
  9020 format(10x,'Computing 3-center integrals')
 c
-      call ga_get(pars%g_movecs(1),1,nbf_ao,1,pars%nmo(1),
-     $            dbl_mb(k_vecs),nbf_ao)
-c
-      call dfill(leri,0.0d0,dbl_mb(k_eri),1)
-      do ishc=1,nshells_ao
-        if (.not.bas_cn2bfr(ao_bas_han, ishc, cfirst, clast))
-     $    call errquit(pname//'bas_cn2bfr failed',0,BASIS_ERR)
-        nfc = clast - cfirst + 1
-c
-        call dfill(laomo,0.0d0,dbl_mb(k_aomo),1)
-        do ishd=1,nshells_ao
-c
+      do ish=1,nshells_ao
+        ok = bas_cn2bfr(ao_bas_han,ish,ifirst,ilast)
+        ni = ilast - ifirst + 1
+        do jsh=1,ish
           eri_est = schwarz_shell(ishc,ishd)
           if (eri_est.lt.pars%tol2e*0.1d0) cycle
-c
-          if (.not.bas_cn2bfr(ao_bas_han, ishd, dfirst, dlast))
-     $      call errquit(pname//'bas_cn2bfr failed',0,BASIS_ERR)
-          nfd = dlast - dfirst + 1
-c
-          do ishp=1,nshells_cd
-            if (.not.bas_cn2bfr(cd_bas_han, ishp, pfirst, plast))
-     $        call errquit(pname//'bas_cn2bfr failed',0,BASIS_ERR)
-            nfp = plast - pfirst + 1
-c
-            call int_2e3c(cd_bas_han, ishp, ao_bas_han,
-     $                    ishc, ishd, lscr, dbl_mb(k_scr), lbuf,
-     $                    dbl_mb(k_buf))
-            call put_int(dbl_mb(k_buf), pfirst, nfp, nfc, nfd,
-     $                   dbl_mb(k_tmp), nbf_cd, .false.)
+          IeqJ = ish.eq.jsh
+          ok = bas_cn2bfr(ao_bas_han,jsh,jfirst,jlast)
+          nj = jlast - jfirst + 1
+          nij = ni*nj
+          offk = k_buf+offset*nij
+          call gw_ri_idx(int_mb(k_idx),ifirst,ilast,jfirst,jlast,nij,
+     $                   IeqJ)
+          do ksh=shlo,shhi
+            ok = bas_cn2bfr(cd_bas_han, ksh, kfirst, klast)
+            call int_2e3c(cd_bas_han,ksh,ao_bas_han,ish,jsh,lscr,
+     $                    dbl_mb(k_scr),lbuf,dbl_mb(k_buf))
+            if (ksh.eq.shlo) kfirst = rilo
+            if (ksh.eq.shhi) klast = rihi
+            nk = plast - kfirst + 1
+            call gw_put_int(dbl_mb(offk),dbl_mb(k_eri),int_mb(k_idx),
+     $                      nk,ni,nj,nij,aopairs,nri_me,kfirst,IeqJ)
           enddo
-c          
-          do imo=1,nstates
-            call dcopy(nfd,dbl_mb(k_vecs+(imo-1)*nbf_ao+dfirst-1),
-     $                 1,dbl_mb(k_vtmp+(imo-1)*nfd),1)
-          enddo
-c
-          call gw_aomo(dbl_mb(k_tmp),nbf_cd,nfc,nfd,
-     $                 dbl_mb(k_aomo),dbl_mb(k_vtmp),nstates)
-c
         enddo
-        do imo=1,pars%nmo(1)
-          call dcopy(nfc,dbl_mb(k_vecs+(imo-1)*nbf_ao+cfirst-1),1,
-     $               dbl_mb(k_vtmp+(imo-1)*nfc),1)
-        enddo
-        call gw_mo(dbl_mb(k_aomo),nbf_cd,nfc,nstates,pars%nmo(1),
-     $             dbl_mb(k_eri),dbl_mb(k_vtmp),istart,iend)
       enddo
 c
-c     Orthonormalize 3-center ERIs
+      ok = ma_free_heap(l_buf) .and. ma_free_heap(l_scr)
+      if (.not.ok) 
+     $  call errquit(pname//'can''t free heap',165,MA_ERR)
 c
-      if (pars%me.eq.0) write(luout,9030)
- 9030 format(10x,'Orthonormalization of 3-center integrals')
+      lvecs = nbf_ao*nmo
+      if (.not.ma_alloc_get(mt_dbl,lvecs,'MOVECS',l_vecs,k_vecs))
+     $  call errquit(pname//'can''t get movecs space',0,MA_ERR)
+      if (.not.ma_alloc_get(mt_dbl,mopairs*nri_me,'MO Eris',l_mo,k_mo))
+     $  call errquit(pname//'can''t get MO eris space',0,MA_ERR)
 c
+      call ga_get(pars%g_movecs(1),1,nbf_ao,1,nmo,dbl_mb(k_vecs),nbf_ao)
+      call gw_mo(dbl_mb(k_eri),dbl_mb(k_vecs),dbl_mb(k_mo),nbf_ao,nmo,
+     $           nstates,aopairs,nri_me)
+
+      ok = ma_free_heap(l_vecs) .and. ga_destroy(g_3ceris)
+      if (.not.ok)
+     $  call errquit(pname//'can''t free heap',176,MA_ERR)
+c
+      pars%timer%eris = util_wallsec() - timer
+c
+c     Distribute and orthonormalize ERIs
+c
+      timer = util_wallsec()
+      call gw_puteris(pars,dbl_mb(k_mo),nmo,nstates,nri,nri_me,rilo)
+      ok = ma_free_heap(l_mo)
+c
+      if (.not.ma_alloc_get(mt_dbl,nri**2,'RI temporary',l_tmp,k_tmp))
+     $  call errquit(pname//'can''t get temp space',0,MA_ERR)
       call ga_get(g_2cinv,1,nbf_cd,1,nbf_cd,dbl_mb(k_tmp),nbf_cd)
+      if (.not. ga_destroy(g_2cinv))
+     $  call errquit(pname//'failed to destroy g_2cinv',0,GA_ERR)
 c
-      nij = leri/nbf_cd
+c     Transform OO block
+c
+      call ga_distribution(pars%g_erioo,pars%me,ilo,ihi,jlo,jhi)
+      call ga_access(pars%g_erioo,ilo,ihi,jlo,jhi,k_eri,ld)
+      nij = jhi-jlo+1
       call dtrmm('l','l','n','n',nbf_cd,nij,1.0d0,dbl_mb(k_tmp),
      $            nbf_cd,dbl_mb(k_eri),nbf_cd)
 c
-c     Destroy 2-ctr global array
+c     Transform OV block
 c
-      if (.not. ga_destroy(g_2cinv))
-     $  call errquit(pname//'failed to destroy g_2cinv',0,GA_ERR)
-
-  200 continue
-
-      pars%timer%eris = util_wallsec() - timer
-
-      timer = util_wallsec()
-
-      npairs = pars%nocc(1)**2
-      if (.not.ga_create(mt_dbl,nbf_cd,npairs,'eris oo',nbf_cd,-1,
-     $  pars%g_erioo))
-     $  call errquit(pname//'can''t create O-O block',0,GA_ERR)
-
-      npairs = pars%nocc(1)*pars%nvir(1)
-      if (.not.ga_create(mt_dbl,nbf_cd,npairs,'eris ov',nbf_cd,-1,
-     $  pars%g_eriov))
-     $  call errquit(pname//'can''t create O-V block',0,GA_ERR)
-
-      if (nstates.gt.pars%nocc(1)) then
-        npairs = pars%nvir(1)*(nstates-pars%nocc(1))
-        if (.not.ga_create(mt_dbl,nbf_cd,npairs,'eris vv',nbf_cd,-1,
-     $    pars%g_erivv))
-     $    call errquit(pname//'can''t create V-V block',0,GA_ERR)
+      call ga_distribution(pars%g_eriov,pars%me,ilo,ihi,jlo,jhi)
+      call ga_access(pars%g_eriov,ilo,ihi,jlo,jhi,k_eri,ld)
+      nij = jhi-jlo+1
+      call dtrmm('l','l','n','n',nbf_cd,nij,1.0d0,dbl_mb(k_tmp),
+     $            nbf_cd,dbl_mb(k_eri),nbf_cd)
+c
+c     Transform VV block
+c
+      if (nstates.gt.nocc) then
+        call ga_distribution(pars%g_erivv,pars%me,ilo,ihi,jlo,jhi)
+        call ga_access(pars%g_erivv,ilo,ihi,jlo,jhi,k_eri,ld)
+        nij = jhi-jlo+1
+        call dtrmm('l','l','n','n',nbf_cd,nij,1.0d0,dbl_mb(k_tmp),
+     $              nbf_cd,dbl_mb(k_eri),nbf_cd)
       endif
 c
-c     Put MO ERIs in the global array
-c
-      if (.not.oactive) return
-
-      call putmoeris_ga(pars%g_erioo,pars%g_eriov,pars%g_erivv,
-     &                  dbl_mb(k_eri),pars%nocc(1),pars%nvir(1),nstates,
-     &                  nbf_cd,pars%me,istart,iend)
-
       pars%timer%distr = util_wallsec() - timer
 c
 c     Free heap
 c
-      ok = ma_free_heap(l_buf) .and. ma_free_heap(l_tmp) .and.
-     $     ma_free_heap(l_scr) .and. ma_free_heap(l_vtmp) .and.
-     $     ma_free_heap(l_vecs) .and. ma_free_heap(l_aomo) .and.
-     $     ma_free_heap(l_eri)  .and. ma_free_heap(l_map)
+      ok = ma_free_heap(l_tmp)
       if (.not.ok)
-     $  call errquit(pname//'failed to free heap',0,MA_ERR)
+     $  call errquit(pname//'failed to free heap',224,MA_ERR)
 c
       return
       end subroutine
 c
-      subroutine gw_aomo(buf,nri,ni,nj,res,movecs,nstates)
+c     *****************************************************************
+c
+      subroutine gw_ri_idx(idx,ifirst,ilast,jfirst,jlast,nij,IeqJ)
       implicit none
-      integer nri,ni,nj,nstates
-      double precision buf(nri,nj,ni),res(nri,nstates,ni)
-      double precision movecs(nj,nstates)
+      integer,intent(in) :: ifirst,jfirst,ilast,jlast,nij
+      logical,intent(in) :: IeqJ
+      integer,intent(out),dimension(nij) :: idx
+
+      integer :: i, j, ij, jupper
+
+      ij = 0
+      jupper = jlast
+      do i=ifirst,ilast
+        idx(1:nij) = (i*(i-1))/2
+        if (IeqJ) jupper = i
+        do j=jfirst,jupper
+          ij = ij + 1
+          idx(ij) = idx(ij) + j
+        enddo
+      enddo
+      return
+      end subroutine
 c
-      integer i,j,s,imo,ib,ir
+c     *****************************************************************
 c
-      do i=1,ni
-        call dgemm('n','n',nri,nstates,nj,1d0,buf(1,1,i),nri,movecs,nj,
-     $              1d0,res(1,1,i),nri)   
+      subroutine gw_put_int(buf,tmp,idx,nk,ni,nj,nij,aopairs,nri,kfirst,
+     $                      IeqJ)
+      implicit none
+      integer,intent(in) :: nk, ni, nj, nij, aopairs, nri, kfirst
+      integer,intent(in),dimension(nij) :: idx
+      logical,intent(in) :: ieqj
+      double precision,intent(in),dimension(nj,ni,nk) :: buf
+      double precision,intent(out),dimension(aopairs,nri) :: tmp
+c
+      integer i, j, k, kri, ij
+
+      if (IeqJ) then
+        do k=1,nk
+          kri = k + kfirst - 1
+          ij = 0
+          do i=1,ni
+            tmp(idx(ij+1:ij+i),kri) = buf(1:i,i,k)
+          enddo
+        enddo
+      else
+        do k=1,nk
+          kri = k + kfirst - 1
+          ij = 0
+          do i=1,ni
+            tmp(idx(ij+1:ij+nj),kri) = buf(1:nj,i,k)
+            ij = ij + nj
+          enddo
+        enddo
+      endif
+c
+      end subroutine
+c
+c     *****************************************************************
+c
+      subroutine gw_mo(eriao,mos,erimo,nbf,nmo,nstates,npairs,nri)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+      integer,intent(in) :: nbf, nmo, nstates, npairs, nri
+      double precision,intent(in),dimension(npairs,nri) :: eriao
+      double precision,intent(in),dimension(nbf,nmo) :: mos
+      double precision,intent(in),dimension(nstates,nmo,nri) :: erimo
+
+      integer k_tmp, l_tmp, k_sym, l_sym
+      integer istate, iri, ibf, istart, jstart
+
+      if (.not.ma_push_get(mt_dbl,nstates*nbf,'temp',l_tmp,k_tmp))
+     $  call errquit('gw_mo: cannot allocate temporart space',0,MA_ERR)
+      if (.not.ma_push_get(mt_dbl,nbf*nbf,'symm',l_sym,k_sym))
+     $  call errquit('gw_mo: cannot allocate space',0,MA_ERR)
+      call dfill(nmo*nmo,0.0d0,dbl_mb(k_sym),1)
+
+      do iri=1,nri
+c        
+        do ibf=1,nbf
+          istart = (ibf*(ibf-1))/2 + 1
+          jstart = k_sym + nbf*(ibf-1)
+          call dcopy(ibf,eriao(istart,iri),1,dbl_mb(jstart),1)
+        enddo
+c        
+        call dsymm('l','u',nbf,nstates,1d0,dbl_mb(k_sym),nbf,mos,nbf,
+     $              0d0,dbl_mb(k_tmp),nbf)
+        call dgemm('t','n',nstates,nmo,nbf,1d0,dbl_mb(k_tmp),nbf,mos,
+     $              nbf,0d0,erimo(1,1,iri),nstates)
+c
       enddo
 c
+      if (.not.ma_chop_stack(l_tmp))
+     $  call errquit('gw_mo: cannot chop stack',0,MA_ERR)
+
       return
       end subroutine
 c
-      subroutine gw_mo(buf,nri,ni,nstates,nmo,eri,movecs,istart,iend)
+c     *****************************************************************
+      subroutine gw_puteris(pars,erimo,nmo,nstates,nri,nri_me,rilo)
       implicit none
-      integer nri,ni,nstates,nmo,istart,iend
-      double precision buf(nri,nstates,ni),eri(nri,*)
-      double precision movecs(ni,nmo)
-      integer imo,jmo,i,ieri,ib,mynmo
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "gw.fh"
 
-      mynmo = iend - istart + 1
-      call dgemm('n','n',nri*nstates,mynmo,ni,1d0,buf,nri*nstates,
-     $            movecs(1,istart),ni,1d0,eri,nri*nstates)
+      type(gw_params_t) :: pars
+      integer,intent(in) :: nmo, nstates, nri, nri_me, rilo
+      double precision,intent(in),dimension(nstates,nmo,nri_me) :: erimo
 
-      return
-      end subroutine
+      character(len=12),parameter :: pname = 'gw_puteris: '
 
-      subroutine putmoeris_ga(oo,ov,vv,eris,nocc,nvir,nstates,nri,me,
-     $                        istart,iend)
-      implicit none
-      integer,intent(in) :: oo,ov,vv
-      integer,intent(in) :: nocc,nvir,nstates,nri,istart,iend,me
-      double precision,intent(in) :: eris(nri,*)
+      integer ilo,ihi,jlo,jhi,imo,jmo,ipair,npairs,nocc,nvir,rihi
 
-      integer myend,mystart,mynmo
-      integer imo,jmo,ieri,ipair
+      logical ok
+      logical,external :: ga_create
 
-      mynmo = iend - istart + 1
 
-      ! Save occupied-occupied block
-      if (istart.le.nocc) then
-        myend = min(iend,nocc)
-        do jmo=istart,myend
-          ieri = (jmo-istart)*nstates
-          ipair = (jmo-1)*nocc
-          do imo=1,nocc
-            ieri = ieri + 1
-            ipair = ipair + 1
-            call ga_put(oo,1,nri,ipair,ipair,eris(1,ieri),nri)
-          enddo
-        enddo
-      endif
+      nocc = pars%nocc(1)
+      nvir = nmo - nocc
+      rihi = rilo + nri_me - 1
 
-      ! Save occupied-virtual block
-      if (iend.ge.nocc+1) then
-        mystart = max(nocc+1,istart)
-        do jmo=mystart,iend
-          ieri = (jmo-istart)*nstates
-          do imo=1,nocc
-            ieri = ieri + 1
-            ipair = (imo-1)*nvir + jmo - nocc
-            call ga_put(ov,1,nri,ipair,ipair,eris(1,ieri),nri)
-          enddo
-        enddo
-      endif
+      npairs = nocc**2
+      if (.not.ga_create(mt_dbl,nri,npairs,'eris oo',nri,0,
+     $  pars%g_erioo))
+     $  call errquit(pname//'can''t create OO block',0,GA_ERR)
 
-      ! Save virtual-virtual block, if needed
+      npairs = nocc*nvir
+      if (.not.ga_create(mt_dbl,nri,npairs,'eris ov',nri,0,
+     $  pars%g_eriov))
+     $  call errquit(pname//'can''t create OV block',0,GA_ERR)
+
       if (nstates.gt.nocc) then
-        if (iend.ge.nocc+1) then
-          mystart = max(nocc+1,istart)
-          do jmo=mystart,iend
-            ieri = (jmo-istart)*nstates + nocc
-            do imo=nocc+1,nstates
-              ieri = ieri + 1
-              ipair = (imo-nocc-1)*nvir + jmo - nocc
-              call ga_put(vv,1,nri,ipair,ipair,eris(1,ieri),nri)
-            enddo
-          enddo
-        endif
+        npairs = nvir*(nstates-nocc)
+        if (.not.ga_create(mt_dbl,nri,npairs,'eris vv',nri,0,
+     $    pars%g_erivv))
+     $    call errquit(pname//'can''t create VV block',0,GA_ERR)
       endif
 
+      ! Fill OO block
+      ipair = 0
+      do imo=1,nocc
+        do jmo=1,nocc
+          ipair = ipair + 1
+          call ga_put(pars%g_erioo,rilo,rihi,ipair,ipair,
+     $                erimo(jmo,imo,:),nri)
+        enddo
+      enddo
+
+      ! Fill OV block
+      ipair = 0
+      do imo=1,nocc
+        do jmo=nocc+1,nmo
+          ipair = ipair + 1
+          call ga_put(pars%g_eriov,rilo,rihi,ipair,ipair,
+     $                erimo(imo,jmo,:),nri)
+        enddo
+      enddo
+
+      ! Fill VV block
+      ipair = 0
+      do imo=1,nocc
+        do jmo=nocc+1,nmo
+          ipair = ipair + 1
+          call ga_put(pars%g_eriov,rilo,rihi,ipair,ipair,
+     $                erimo(imo,jmo,:),nri)
+        enddo
+      enddo
+
+      ! Fill VV block
+      ipair = 0
+      do imo=nocc+1,nstates
+        do jmo=nocc+1,nmo
+          ipair = ipair + 1
+          call ga_put(pars%g_erivv,rilo,rihi,ipair,ipair,
+     $                erimo(imo,jmo,:),nri)
+        enddo
+      enddo
+
       end subroutine
+
