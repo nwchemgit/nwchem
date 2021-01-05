@@ -106,7 +106,7 @@ c
       call ga_distribution(g_3ceris,pars%me,ilo,ihi,rilo,rihi)
       nri_me = rihi - rilo + 1
 
-      call ga_access(g_3ceris,1,aopairs,rilo,rihi,k_eri,ld)
+      call ga_access(g_3ceris,ilo,ihi,rilo,rihi,k_eri,ld)
       call dfill(aopairs*nri_me,0d0,dbl_mb(k_eri),1)
 
       shlo = 0
@@ -149,15 +149,22 @@ c
           ok = bas_cn2bfr(ao_bas_han,jsh,jfirst,jlast)
           nj = jlast - jfirst + 1
           nij = ni*nj
-          offk = k_buf+offset*nij
           call gw_ri_idx(int_mb(k_idx),ifirst,ilast,jfirst,jlast,
      $                   IeqJ)
           do ksh=shlo,shhi
             ok = bas_cn2bfr(cd_bas_han, ksh, kfirst, klast)
             call int_2e3c(cd_bas_han,ksh,ao_bas_han,ish,jsh,lscr,
      $                    dbl_mb(k_scr),lbuf,dbl_mb(k_buf))
-            if (ksh.eq.shlo) kfirst = rilo
+
+            if (ksh.eq.shlo) then
+              kfirst = rilo
+              offk = k_buf + offset*nij
+            else
+              offk = k_buf
+            endif
+
             if (ksh.eq.shhi) klast = rihi
+
             nk = klast - kfirst + 1
             kfirst = kfirst - rilo + 1
             call gw_put_int(dbl_mb(offk),dbl_mb(k_eri),int_mb(k_idx),
