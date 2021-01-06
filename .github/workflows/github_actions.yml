@@ -48,7 +48,7 @@ jobs:
             armci_network: mpi-pr
             nwchem_modules: "tinyqmpw python"
             fc: gfortran-10
-          - os: macos-11.0
+          - os: macos-10.15
             experimental: true 
             mpi_impl: openmpi
             armci_network: mpi-pr
