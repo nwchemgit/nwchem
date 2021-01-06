@@ -1,10 +1,16 @@
 name: NWChem_CI
 
-on: [push, pull_request]
-
+on:
+  push:
+  pull_request:
+  release:
+  schedule:
+    - cron: '0 0 * * SUN'
 jobs:
   build:
-    if: "!contains(github.event.head_commit.message, 'ci skip')"
+    if: |
+      github.event_name == 'schedule' ||
+      (!contains(github.event.head_commit.message, 'ci skip'))
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -17,7 +23,7 @@ jobs:
           - MPI-TS
         nwchem_modules:
           - "tinyqmpw python"
-          - "qmandpw"
+          - "qmandpw qmd"
           - "tce"
         fc:
           - gfortran-9
@@ -27,7 +33,7 @@ jobs:
             nwchem_modules: "tinyqmpw python"
           - os: macos-10.15 
             mpi_impl: mpich
-            nwchem_modules: "qmandpw"
+            nwchem_modules: "qmandpw qmd"
         include:
           - os: ubuntu-20.04
             experimental: true 
@@ -42,13 +48,12 @@ jobs:
             armci_network: mpi-pr
             nwchem_modules: "tinyqmpw python"
             fc: gfortran-10
-          - os: macos-11.0
+          - os: macos-10.15
             experimental: true 
             mpi_impl: openmpi
             armci_network: mpi-pr
-            nwchem_modules: "qmandpw"
+            nwchem_modules: "qmandpw qmd"
             fc: gfortran-10
-
       fail-fast: false
     env:
         MPI_IMPL: ${{ matrix.mpi_impl }}
@@ -58,6 +63,7 @@ jobs:
         FC: ${{ matrix.fc }}
         COMEX_MAX_NB_OUTSTANDING: 4
         SIMINT_MAXAM: 3
+    continue-on-error: ${{ matrix.experimental }}
     steps: 
       - name: Checkout code
         uses: actions/checkout@v2
@@ -78,6 +84,7 @@ jobs:
           tail -20 src/tools/build/config.log
           tail -10 src/tools/build/comex/config.log
       - name: qa_test
+        if: ${{ success() }}
         run: |
           ./travis/run_qas.sh
       - name: Check if QA testing has failed
