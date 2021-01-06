@@ -40,7 +40,7 @@ fi
 #       export LDFLAGS="-L/usr/local/opt/python@3.7/lib:$LDFLAGS"
    fi
 if [[ -z "$TRAVIS_HOME" ]]; then
-    make V=1 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
+    make V=0 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
 else
     ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
 fi
@@ -53,14 +53,10 @@ fi
 #     ls -lrt $DYLD_LIBRARY_PATH
 #      tail -120 make.log
  elif [[ "$os" == "Linux" ]]; then
-     if [[ "$arch" == "aarch64" ]]; then 
-	 export MAKEFLAGS=-j8
-     else    
-	 export MAKEFLAGS=-j3
-     fi
+     export MAKEFLAGS=-j3
      echo    "$FOPT$FDOPT"
 if [[ -z "$TRAVIS_HOME" ]]; then
-    make V=1 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
+    make V=0 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
 else
     ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
 fi

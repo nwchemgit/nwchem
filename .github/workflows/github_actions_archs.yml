@@ -1,0 +1,125 @@
+name: NWChem_CI_archs
+
+on: [push, pull_request]
+
+jobs:
+  build_archs:
+    if: "!contains(github.event.head_commit.message, 'ci skip') && contains(github.event.head_commit.message, 'do_extra_archs')"
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        include:
+          - arch: aarch64
+            distro_short: ubuntu
+            distro: ubuntu18.04
+            ftarget: " TARGET=ARMV8"
+            blas: "build_openblas"
+            scalapack: "off"
+            nwchem_modules: "tinyqmpw"
+          - arch: ppc64le
+            distro_short: ubuntu
+            distro: ubuntu18.04
+            blas: "build_openblas"
+            scalapack: "on"
+            ftarget: " TARGET=POWER8"
+            nwchem_modules: "tinyqmpw"
+
+      fail-fast: false
+    steps: 
+      - name: Setup cache
+        id: setup-cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/cache
+          key: ${{ runner.os }}-${{ matrix.mpi_impl}}-${{ matrix.distro}}-${{ matrix.arch}}-nwchem-v004
+      - uses: actions/checkout@v2
+        name: Checkout
+        with:
+          fetch-depth: 40
+      - name: tools_checkout
+        run: |
+          ls -l
+          cd src/tools
+          ./get-tools-github
+          cd ..
+          mkdir -p ../bin/LINUX64
+          gcc -o ../bin/LINUX64/depend.x config/depend.c
+          make USE_INTERNALBLAS=y nwchem_config NWCHEM_MODULES="${{ matrix.nwchem_modules }}"
+          make USE_INTERNALBLAS=y deps_stamp
+          rm -f ../bin/LINUX64/depend.x
+      - name: reconfig when needed
+        if: steps.setup-cache.outputs.cache-hit != 'true'
+        run: |
+          cd src
+          make USE_INTERNALBLAS=y nwchem_config NWCHEM_MODULES="nwdft driver solvation"
+      - uses: uraimo/run-on-arch-action@v2.0.8
+        name: Build and Test NWChem
+        id: build
+        with:
+          arch: ${{ matrix.arch }}
+          distro: ${{ matrix.distro }}
+          # Not required, but speeds up builds
+          githubToken: ${{ github.token }}
+          # Create cached/volume directories on host
+          setup: |
+            mkdir -p ~/cache
+          # Mount the ~/cache directory as  ..nwchem/cache in the container
+          dockerRunArgs: |
+            --volume "${HOME}/cache:/home/runner/work/nwchem/nwchem/cache"
+          #environment      
+          env: |
+            FORCETARGET: ${{ matrix.ftarget }}
+            COMEX_MAX_NB_OUTSTANDING: 4
+            SIMINT_MAXAM: 3
+            MPI_IMPL: openmpi
+            ARMCI_NETWORK: MPI-TS
+            FC: gfortran
+            DISTR: ${{ matrix.distro_short }}
+            BLAS_ENV:  ${{ matrix.blas }}
+            SCALAPACK_ENV:  ${{ matrix.scalapack }}
+          shell: /bin/sh
+          install: |
+            case "${{ matrix.distro }}" in
+            ubuntu*|jessie|stretch|buster)
+            apt-get update -q -y 
+            apt-get install -q -y sudo git gfortran libopenmpi-dev curl wget unzip perl rsync python3-dev python-dev cmake
+            ;;
+            fedora*)
+            dnf -y update
+            dnf -y install git  which sudo curl wget unzip openblas-serial64 openmpi-devel perl python3-devel gcc-gfortran unzip cmake patch time
+            ;;
+            esac
+          run: |
+            pwd
+            df
+            ls -lrt
+            uname -a
+            lscpu
+            ./travis/build_env.sh
+            echo ' done build_env '
+            mkdir -p cache/libext/lib || true
+            mkdir -p src/libext/lib || true
+            ls -Rl src/libext || true
+            ls -lRrt cache
+            df cache
+            rsync -av cache/libext/lib/* src/libext/lib/.   || true
+            echo "cache fetched"
+            ls -Rl cache/libext/lib/ ||true
+            ./travis/compile_nwchem.sh
+            echo ' done compiling'
+            rsync -av src/libext/lib/*  cache/libext/lib/. || true
+            echo "cache stored"
+            ls -l cache/libext/lib/
+            ./travis/run_qas.sh
+      
+      - name: Cache check
+        run: |
+          pwd
+          echo HOME is $HOME || true
+          ls -l ~/  || true
+          ls -Rl ~/cache || true
+          ls -l ~/ || true
+          ls -l ~/work/  || true
+          ls -l ~/work/nwchem  || true
+          
