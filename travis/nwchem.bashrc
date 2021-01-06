@@ -1,6 +1,7 @@
 #- env: == default ==
 os=`uname`
 arch=`uname -m`
+echo DISTR is "$DISTR"
 if [[ -z "$TRAVIS_BUILD_DIR" ]] ; then
     TRAVIS_BUILD_DIR=$(pwd)
 else
@@ -30,10 +31,36 @@ export USE_NOIO=1
 if [[ "$BLAS_SIZE" == "4" ]]; then
   export USE_64TO32=y
 fi
+
+if [[ "$DISTR" == "fedora" ]]; then
+    export PATH=/usr/lib64/"$MPI_IMPL"/bin:$PATH
+    export LD_LIBRARY_PATH=/usr/lib64/"$MPI_IMPL"/lib:$LD_LIBRARY_PATH
+fi
+if [[ "$BLAS_ENV" == "internal" ]]; then
+    export USE_INTERNALBLAS=1
+    export BLAS_SIZE=8
+elif [[ "$BLAS_ENV" == "build_openblas" ]]; then
+    export BUILD_OPENBLAS="y"
+    export BLAS_SIZE=8
+fi
 if [[ -z "$USE_INTERNALBLAS" ]]; then
-  export BUILD_OPENBLAS="y"
-  export BUILD_SCALAPACK="y"
-  export BLAS_SIZE=8
-  export SCALAPACK_SIZE=8
+    if [[ -z "$BLASOPT" ]] ; then
+	export BUILD_OPENBLAS="y"
+	export BLAS_SIZE=8
+    else
+	unset BUILD_OPENBLAS
+    fi
+    if [[ "$SCALAPACK_ENV" == "off" ]]; then
+	unset BUILD_SCALAPACK
+	unset SCALAPACK
+	unset SCALAPACK_SIZE
+    else
+	if [[ -z "$SCALAPACK" ]] ; then
+	    export BUILD_SCALAPACK="y"
+	    export SCALAPACK_SIZE=8
+	else
+	    unset BUILD_SCALAPACK
+	fi
+    fi
 fi
 export NWCHEM_EXECUTABLE=$TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET/nwchem_"$arch"_`echo $NWCHEM_MODULES|sed 's/ /-/g'`_"$MPI_IMPL"
