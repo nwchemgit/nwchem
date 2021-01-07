@@ -1,8 +1,8 @@
  
 
 <!---[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fnwchemgit%2Fnwchem%2Fbadge%3Fref%3Dmaster&style=flat)](https://actions-badge.atrox.dev/nwchemgit/nwchem/goto?ref=master)--->
-[![NWChem_CI](https://github.com/nwchemgit/nwchem/workflows/NWChem_CI/badge.svg)](https://github.com/nwchemgit/nwchem/actions)   
-[![Build Travis-CI Status](https://img.shields.io/travis/nwchemgit/nwchem.svg)](https://travis-ci.org/nwchemgit/nwchem/builds)
+[![NWChem_CI](https://img.shields.io/github/workflow/status/nwchemgit/nwchem/NWChem_CI)](https://github.com/nwchemgit/nwchem/actions)   
+<!---[![Build Travis-CI Status](https://img.shields.io/travis/nwchemgit/nwchem.svg)](https://travis-ci.org/nwchemgit/nwchem/builds)--->
 [![License](https://img.shields.io/badge/license-ECL2-blue.svg)](https://raw.githubusercontent.com/nwchemgit/nwchem/master/LICENSE.md)
 [![Github Downloads All Releases](https://img.shields.io/github/downloads/nwchemgit/nwchem/total.svg)](https://github.com/nwchemgit/nwchem/releases)
 [![Github Downloads Release 6.8](https://img.shields.io/github/downloads/nwchemgit/nwchem/v6.8-release/total.svg)](https://github.com/nwchemgit/nwchem/releases/tag/v6.8-release)
