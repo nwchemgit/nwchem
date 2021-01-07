@@ -32,7 +32,7 @@ c
       integer ish,jsh,ksh,ni,nj,nk,nij
       integer ifirst,jfirst,kfirst
       integer ilast,jlast,klast
-      integer aopairs,mopairs
+      integer aopairs,mopairs,idum
       logical IeqJ,ok,oactive
       double precision eri_est,timer,timing
 c
@@ -197,7 +197,23 @@ c
 c     Distribute and orthonormalize ERIs
 c
       timer = util_wallsec()
-      call gw_puteris(pars,dbl_mb(k_mo),nmo,nstates,nri,nri_me,rilo)
+
+      ! OO block
+      call gw_puteris(dbl_mb(k_mo),nmo,nstates,nri,nri_me,rilo,1,nocc,
+     $                1,nocc,pars%g_erioo,pars%idx_oo,'oo',idum,idum,
+     $                idum)
+
+      ! OV block
+      call gw_puteris(dbl_mb(k_mo),nmo,nstates,nri,nri_me,rilo,1,nocc,
+     $                nocc+1,nmo,pars%g_eriov,pars%idx_ov,'ov',
+     $                pars%polelo,pars%polehi,pars%mynpoles)
+
+      ! VV block
+      call gw_puteris(dbl_mb(k_mo),nmo,nstates,nri,nri_me,rilo,nocc+1,
+     $                nstates,nocc+1,nmo,pars%g_erivv,pars%idx_vv,'vv',
+     $                idum,idum,idum)
+
+
       ok = ma_free_heap(l_mo)
 c
       if (.not.ma_alloc_get(mt_dbl,nri**2,'RI temporary',l_tmp,k_tmp))
@@ -343,74 +359,110 @@ c
       end subroutine
 c
 c     *****************************************************************
-      subroutine gw_puteris(pars,erimo,nmo,nstates,nri,nri_me,rilo)
+      subroutine gw_puteris(erimo,nmo,nstates,nri,nri_me,rilo,ilower,
+     $                      iupper,jlower,jupper,eri,idx,blk,polelo,
+     $                      polehi,mynpoles)
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
-#include "gw.fh"
 
-      type(gw_params_t) :: pars
+      character(len=2),intent(in) :: blk
       integer,intent(in) :: nmo, nstates, nri, nri_me, rilo
+      integer,intent(in) :: ilower, iupper, jlower, jupper
+      integer,intent(out) :: eri,idx,polelo,polehi,mynpoles
       double precision,intent(in),dimension(nstates,nmo,nri_me) :: erimo
 
       character(len=12),parameter :: pname = 'gw_puteris: '
+      character(len=6) :: erilabel,idxlabel
 
-      integer ilo,ihi,jlo,jhi,imo,jmo,ipair,npairs,nocc,nvir,rihi
+      integer ilo,ihi,jlo,jhi,imo,jmo,ipair,npairs,me,rihi
+      integer ni,nj,l_tmp,k_tmp,k_loc,ld
 
       logical ok
       logical,external :: ga_create
+      integer,external :: ga_nodeid, gw_get_pair
 
+      integer l_oo,k_oo,l_ov,k_ov,l_vv,k_vv
 
-      nocc = pars%nocc(1)
-      nvir = nmo - nocc
+      ni = iupper - ilower + 1
+      if (ni.lt.1) return
+
+      nj = jupper - jlower + 1
       rihi = rilo + nri_me - 1
+      me = ga_nodeid()
 
-      npairs = nocc**2
-      if (.not.ga_create(mt_dbl,nri,npairs,'eris oo',nri,0,
-     $  pars%g_erioo))
-     $  call errquit(pname//'can''t create OO block',0,GA_ERR)
+      erilabel = 'eri '//blk
+      idxlabel = 'idx '//blk
 
-      npairs = nocc*nvir
-      if (.not.ga_create(mt_dbl,nri,npairs,'eris ov',nri,0,
-     $  pars%g_eriov))
-     $  call errquit(pname//'can''t create OV block',0,GA_ERR)
+      npairs = ni*nj
+      if (.not.ga_create(mt_dbl,nri,npairs,erilabel,nri,0,eri))
+     $  call errquit(pname//'can''t create '//blk//' block',0,GA_ERR)
+      if (.not.ma_alloc_get(mt_int,2*npairs,idxlabel,l_tmp,k_tmp))
+     $  call errquit(pname//'can''t create '//blk//' index',0,MA_ERR)
+      if (.not.ga_create(mt_int,npairs,2,idxlabel,0,2,idx))
+     $  call errquit(pname//'can''t create '//blk//' index',0,GA_ERR)
 
-      if (nstates.gt.nocc) then
-        npairs = nvir*(nstates-nocc)
-        if (.not.ga_create(mt_dbl,nri,npairs,'eris vv',nri,0,
-     $    pars%g_erivv))
-     $    call errquit(pname//'can''t create VV block',0,GA_ERR)
+      call gw_get_indeces(int_mb(k_tmp),npairs,ilower,iupper,jlower,
+     $                    jupper)
+
+      do ipair=1,npairs
+        imo = gw_get_pair(int_mb(k_tmp),ipair,1,npairs)
+        jmo = gw_get_pair(int_mb(k_tmp),ipair,2,npairs)
+        call ga_put(eri,rilo,rihi,ipair,ipair,erimo(imo,jmo,1:nri_me),
+     $              nri_me)
+      enddo
+
+      call ga_distribution(idx,me,ilo,ihi,jlo,jhi)
+      call ga_access(idx,ilo,ihi,1,2,k_loc,ld)
+      call dcopy(ld,int_mb(k_tmp+ilo-1),1,int_mb(k_loc),1)
+      call dcopy(ld,int_mb(k_tmp+npairs+ilo-1),1,int_mb(k_loc+ld),1)
+      ok = ma_free_heap(l_tmp)
+
+      if (blk .eq. 'ov') then
+        polelo = ilo
+        polehi = ihi
+        mynpoles = ihi - ilo + 1
       endif
-
-      ! Fill OO block
-      ipair = 0
-      do imo=1,nocc
-        do jmo=1,nocc
-          ipair = ipair + 1
-          call ga_put(pars%g_erioo,rilo,rihi,ipair,ipair,
-     $                erimo(jmo,imo,1:nri_me),nri_me)
-        enddo
-      enddo
-
-      ! Fill OV block
-      ipair = 0
-      do imo=1,nocc
-        do jmo=nocc+1,nmo
-          ipair = ipair + 1
-          call ga_put(pars%g_eriov,rilo,rihi,ipair,ipair,
-     $                erimo(imo,jmo,1:nri_me),nri_me)
-        enddo
-      enddo
-
-      ! Fill VV block
-      ipair = 0
-      do imo=nocc+1,nstates
-        do jmo=nocc+1,nmo
-          ipair = ipair + 1
-          call ga_put(pars%g_erivv,rilo,rihi,ipair,ipair,
-     $                erimo(imo,jmo,:),nri)
-        enddo
-      enddo
 
       end subroutine
 
+c     *****************************************************************      
+
+      subroutine gw_get_indeces(idx,npairs,ilower,iupper,jlower,jupper)
+      implicit none
+      integer,intent(in) :: npairs,ilower,iupper,jlower,jupper
+
+      integer,intent(out),dimension(npairs,2) :: idx
+
+      integer iproc, ipair, jproc, nprocs
+      integer imo, jmo
+      integer,external :: ga_nnodes
+
+      nprocs = ga_nnodes()
+
+      ipair = 0
+      do iproc=0,nprocs-1
+        jproc = 0
+        do imo=ilower,iupper
+          do jmo=jlower,jupper
+            if (jproc.eq.iproc) then
+              ipair = ipair + 1
+              idx(ipair,1) = imo
+              idx(ipair,2) = jmo
+            endif
+            jproc = jproc + 1
+            if (jproc.gt.nprocs-1) jproc = 0
+          enddo
+        end do
+      enddo
+      return
+      end subroutine
+
+
+      integer function gw_get_pair(idx,ipair,col,npairs)
+      implicit none
+      integer,intent(in) :: ipair,col,npairs
+      integer,intent(in),dimension(npairs,2) :: idx
+      gw_get_pair = idx(ipair,col)
+      return
+      end function
