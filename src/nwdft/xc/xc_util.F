@@ -40,7 +40,9 @@ c
      + xfac(60) + xfac(61) + xfac(62) + xfac(63) + xfac(68) + xfac(69)+
      +     xfac(66) + cfac(66) + xfac(67) + cfac(67) +
      +     cfac(68)+  cfac(69) + xfac(70) + xfac(71) + cfac(71) +
-     L     xfac(72) + xfac(73) + xfac(74) + lxdm +
+     +     xfac(72) + xfac(73) + xfac(74) +
+     +     xfac(75) + cfac(75) +
+     L     lxdm +
 cc AJL/Begin/FDE
      + xfac_fde(3) + xfac_fde(4) + xfac_fde(5) + xfac_fde(6) + 
      + xfac_fde(7) +
@@ -498,6 +500,7 @@ c
      .     xfac(71).ne.0d0.or.  ! rSCAN
      .     xfac(73).ne.0d0.or.  ! r^2SCAN
      .     xfac(74).ne.0d0.or.  ! r^2SCAN-L
+     .     xfac(75).ne.0d0.or.  ! hcth147@tz2p
 c
      .     cfac(5).ne.0d0.or.   ! PW91
      .     cfac(13).ne.0d0.or.  ! HCTH
@@ -545,7 +548,8 @@ c
      .     cfac(69).ne.0d0.or.  ! revM06-L
      .     cfac(71).ne.0d0.or.  ! rSCAN
      .     cfac(73).ne.0d0.or.  ! r^2SCAN
-     .     cfac(74).ne.0d0      ! r^2SCAN-L
+     .     cfac(74).ne.0d0.or.  ! r^2SCAN-L
+     .     cfac(75).ne.0d0      ! hcth147@tz2p
      .                )
 c
       return
