@@ -27,9 +27,8 @@ c
       integer igl,ngl,nqp
       integer mynpoles,idx_oo,idx_ov,idx_vv
 
-      integer nprocs
-      integer eviter, i, j, ibf, ilo, ihi, lo2, ipole, iqp, lo4, mynmo
-      integer oolo,oohi,jlo,jhi,vvlo,vvhi,k_iw,l_iw,k_iwidx,l_iwidx
+      integer eviter, i, j, ibf, ilo, ihi, lo2, ipole, iqp, lo4
+      integer oolo,oohi,jlo,jhi,vvlo,vvhi
 
       double precision efermi
       double precision I_n, R_n, dI_n, dR_n, dI_np, dI_nm, dR_np, dR_nm
@@ -63,7 +62,6 @@ c
       iend = istart + nri_me - 1
       nqp = pars%noqp + pars%nvqp
       mynpoles = pars%mynpoles
-      nprocs = ga_nnodes()
 
       call ga_distribution(pars%idx_oo,pars%me,oolo,oohi,jlo,jhi)
       call ga_access(pars%idx_oo,oolo,oohi,1,2,idx_oo,ld)
@@ -187,10 +185,9 @@ c
         do i=1,pars%qpiter
           eps_in = eps_out
           timer = util_wallsec()
-          call gw_buildin(dbl_mb(k_iw),dbl_mb(k_eold),
-     $       dbl_mb(pars%k_glx),dbl_mb(pars%k_glw),int_mb(k_iwidx),
-     $       eps_in,I_n,dI_n,fdstep,iqp,npoles,nocc,nvir,nri,pars%ngl,
-     $       pars%me,mynmo,nqp)
+          call gw_buildin(g_epsilon,dbl_mb(k_eold),dbl_mb(pars%k_glx),
+     $                    dbl_mb(pars%k_glw),eps_in,I_n,dI_n,fdstep,iqp,
+     $                    npoles,nocc,nvir,nri,pars%ngl,pars%me)
           pars%timer%in = pars%timer%in + util_wallsec() - timer
           timer = util_wallsec()
           call gw_buildrn(pars%g_erioo,pars%g_eriov,pars%g_erivv,
@@ -240,7 +237,7 @@ c
 
  9070 format(10x,I3,6x,F8.3,6x,F6.3,6x,F8.3)
 
-      if (.not.(ma_free_heap(l_iw).and.ma_free_heap(l_iwidx)))
+      if (.not.ma_free_heap(l_iw))
      $  call errquit(pname//'cannot destroy iW arrays',0,MA_ERR)
 
 c
@@ -254,11 +251,11 @@ c     *****************************************************************
 #include "mafdecls.fh"
 #include "errquit.fh"
       integer,intent(in) :: npoles,nmo,nocc,nvir,nri,ngl,nqp,llmo,mynmo
-      integer,intent(in) :: oo,ov,vv
+      integer,intent(in) :: oo,ov,vv,g_iw(ngl)
       double precision,intent(in) :: eia(npoles),x(ngl)
       double precision,intent(in) :: vmo(nmo,nqp)
-      integer,intent(in),dimension(0:mynmo,nqp) :: iwidx
-      double precision,intent(out),dimension(mynmo,ngl,nqp) :: iw
+      integer,intent(out),dimension(mynmo,nqp) :: iwidx
+      double precision,intent(out),dimension(mynmo,nqp,ngl) :: iw
 
 
       character(len=12),parameter :: pname = 'gw_buildiw: '
@@ -269,7 +266,7 @@ c     *****************************************************************
 
 
       logical main
-      integer molo,mohi,lmo
+      integer molo,mohi
       integer ilo,ihi,me,k_ov,ld,mynpoles,igl,ipole,info,k_c
       integer pilo,pihi,k_pi,l_pi,idx,idy,mynri,offset,l_tmp,tmp
       integer oolo,oohi,ovlo,ovhi,vvlo,vvhi,jmo,kmo,imo,nprocs
@@ -324,8 +321,8 @@ c
         !
         do imo=llmo,llmo+nqp-1
           jmo = imo - llmo + 1
+          wmo(:) = 0d0
           if (imo.le.nocc) then
-
             do kmo=1,iwidx(0,jmo)
               lmo = iwidx(kmo,jmo)
               if (lmo.le.nocc) then
@@ -335,29 +332,53 @@ c
                 idy = ((imo-1)*nvir+lmo-nocc-1)/nprocs + ovlo
                 call ga_get(ov,1,nri,idy,idy,dbl_mb(tmp),nri)
               endif
+
+            do kmo=1,nocc
+              if (me.ne.mod((imo-1)*nocc+kmo-1,nprocs)) cycle
+              idy = ((imo-1)*nocc+kmo-1)/nprocs + oolo
+              call ga_get(oo,1,nri,idy,idy,dbl_mb(tmp),nri)
               call dtrmv('l','n','n',nri,dbl_mb(k_pi),nri,dbl_mb(tmp),1)
-              iw(kmo,igl,jmo) = ddot(nri,dbl_mb(tmp),1,dbl_mb(tmp),1) +
-     $                          vmo(lmo,jmo)
+              wmo(kmo) = ddot(nri,dbl_mb(tmp),1,dbl_mb(tmp),1) +
+     $                   vmo(kmo,jmo)         
+!              call ga_put(g_iw(igl),kmo,kmo,jmo,jmo,wmo,1)
+            enddo
+            do kmo=1,nvir
+              if (me.ne.mod((imo-1)*nvir+kmo-1,nprocs)) cycle
+              idy = ((imo-1)*nvir+kmo-1)/nprocs + ovlo
+              call ga_get(ov,1,nri,idy,idy,dbl_mb(tmp),nri)
+              call dtrmv('l','n','n',nri,dbl_mb(k_pi),nri,dbl_mb(tmp),1)
+              wmo(kmo+nocc) = ddot(nri,dbl_mb(tmp),1,dbl_mb(tmp),1) + 
+     $                        vmo(kmo+nocc,jmo)
+!              call ga_put(g_iw(igl),kmo+nocc,kmo+nocc,jmo,jmo,wmo,1)
             enddo
 
           else
 
-            do kmo=1,iwidx(0,jmo)
-              lmo = iwidx(kmo,jmo)
-              if (lmo.le.nocc) then
-                idy = ((lmo-1)*nvir+imo-nocc-1)/nprocs + ovlo
-                call ga_get(ov,1,nri,idy,idy,dbl_mb(tmp),nri)
-              else
-                idy = ((imo-nocc-1)*nvir+lmo-nocc-1)/nprocs + ovlo
-                call ga_get(ov,1,nri,idy,idy,dbl_mb(tmp),nri)
-              endif
+            do kmo=1,nocc
+              if (me.ne.mod((kmo-1)*nvir+imo-1,nprocs)) cycle
+              idy = ((kmo-1)*nvir+imo-1)/nprocs + ovlo
+              call ga_get(ov,1,nri,idy,idy,dbl_mb(tmp),nri)
               call dtrmv('l','n','n',nri,dbl_mb(k_pi),nri,dbl_mb(tmp),1)
-              iw(kmo,igl,jmo) = ddot(nri,dbl_mb(tmp),1,dbl_mb(tmp),1) +
-     $                          vmo(lmo,jmo)
+              wmo(kmo) = ddot(nri,dbl_mb(tmp),1,dbl_mb(tmp),1) + 
+     $                   vmo(kmo,jmo)
+!              call ga_put(g_iw(igl),kmo,kmo,jmo,jmo,wmo,1)
+            enddo
+            do kmo=1,nvir
+              if (me.ne.mod((imo-nocc-1)*nvir+kmo-1,nprocs)) cycle
+              idy = ((imo-nocc-1)*nvir+kmo-1)/nprocs + vvlo
+              call ga_get(vv,1,nri,idy,idy,dbl_mb(tmp),nri)
+              call dtrmv('l','n','n',nri,dbl_mb(k_pi),nri,dbl_mb(tmp),1)
+              wmo(kmo+nocc) = ddot(nri,dbl_mb(tmp),1,dbl_mb(tmp),1) + 
+     $                        vmo(kmo+nocc,jmo)
+!              call ga_put(g_iw(igl),kmo+nocc,kmo+nocc,jmo,jmo,wmo,1)
             enddo
 
           endif
+
+          call dgop(mt_dbl,wmo,nmo,'+')
+          call ga_put(g_iw(igl),molo,mohi,jmo,jmo,wmo(molo),mohi-molo+1)
         enddo
+
       enddo
 
       if (.not.ma_chop_stack(l_pi))
@@ -367,18 +388,17 @@ c
 
 c     *****************************************************************
 
-      subroutine gw_buildin(iw,eig,x,w,iwidx,omega,Iqp,dIqp,fdstep,imo,
-     $                      npoles,nocc,nvir,nri,ngl,me,myld,nqp)
+      subroutine gw_buildin(eps,eig,x,w,omega,Iqp,dIqp,fdstep,imo,
+     $                      npoles,nocc,nvir,nri,ngl,me)
       implicit none
 #include "mafdecls.fh"      
-      integer,intent(in) :: npoles,nocc,nvir,nri,ngl,myld,nqp
+      integer,intent(in) :: npoles,nocc,nvir,nri,ngl
+      integer,intent(in) :: eps(ngl)
       integer,intent(in) :: imo, me
-      integer,intent(in),dimension(0:myld,nqp) :: iwidx
       double precision, intent(in) :: fdstep
       double precision, intent(in), dimension(nocc+nvir) :: eig
       double precision, intent(in), dimension(ngl) :: x, w
       double precision, intent(in)  :: omega
-      double precision, intent(in), dimension(myld,ngl,nqp) :: iw
       double precision, intent(out) :: Iqp,dIqp
 
       integer ilo,ihi,jlo,jhi
@@ -389,22 +409,25 @@ c     *****************************************************************
 
       double precision,external :: ddot
 
-      mynmo = iwidx(0,imo)
+      call ga_distribution(eps(1),me,jlo,jhi,ilo,ihi)
+
+      mynmo = jhi - jlo + 1
       do jmo=1,mynmo
-        factor(jmo) = omega - eig(iwidx(jmo,imo))
+        factor(jmo) = omega - eig(jmo+jlo-1)
       enddo
 
       Iqp = 0d0
       dIqp = 0d0
       do igl=1,ngl
         w2 = x(igl)
+        call ga_get(eps(igl),jlo,jhi,imo,imo,wmo,mynmo)
         do jmo=1,mynmo
           factor2(jmo) =  factor(jmo)/(factor(jmo)**2 + w2)
           dfactor2(jmo) = (w2 - factor(jmo)**2+fdstep**2)/
      $  (((factor(jmo)+fdstep)**2 + w2)*((factor(jmo)-fdstep)**2+w2))
         enddo
-        Iqp = Iqp - w(igl)*ddot(mynmo,factor2,1,iw(1,igl,imo),1)
-        dIqp = dIqp - w(igl)*ddot(mynmo,dfactor2,1,iw(1,igl,imo),1)
+        Iqp = Iqp - w(igl)*ddot(mynmo,factor2,1,wmo,1)
+        dIqp = dIqp - w(igl)*ddot(mynmo,dfactor2,1,wmo,1)
       enddo
       call ga_dgop(mt_dbl,Iqp,1,'+')
       call ga_dgop(mt_dbl,dIqp,1,'+')
@@ -613,8 +636,8 @@ c     *****************************************************************
         else
 
           do kmo=1,nocc
-            if (me.ne.mod((kmo-1)*nvir+imo-nocc-1,nprocs)) cycle
-            idx = ((kmo-1)*nvir+imo-nocc-1)/nprocs + ovlo
+            if (me.ne.mod((kmo-1)*nvir+imo-1,nprocs)) cycle
+            idx = ((kmo-1)*nvir+imo-1)/nprocs + ovlo
             call ga_get(ov,1,nri,idx,idx,dbl_mb(tmp),nri)
             vmo(kmo,jmo) = -ddot(nri,dbl_mb(tmp),1,dbl_mb(tmp),1)
           enddo
@@ -715,7 +738,7 @@ c     *****************************************************************
       return
       end subroutine
 
-      subroutine gw_get_iwidx(idx,nmo,nocc,nvir,mynmo,nqp,llmo)
+      subroutine gw_get_iwidx(idx,nmo,nocc,nvir,mynmo,nqp,lo1+1)
       implicit none
       integer,intent(in) :: nmo, nocc, nvir, mynmo, nqp, llmo
       integer,intent(out),dimension(0:mynmo,nqp) :: idx
@@ -743,7 +766,7 @@ c     *****************************************************************
           enddo
         else
           do kmo=1,nocc
-            if (me.ne.mod((kmo-1)*nvir+imo-nocc-1,nprocs)) cycle
+            if (me.ne.mod((kmo-1)*nvir+imo-1,nprocs)) cycle
             lmo = lmo + 1
             idx(lmo,jmo) = kmo
           enddo
