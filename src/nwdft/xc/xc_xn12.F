@@ -1,9 +1,8 @@
 c $Id: xc_eval_fnl.F 27518 2015-09-17 09:34:57Z alogsdail $
-corg      Subroutine N12X(NGrid,RA,RB,D1RA,D1RB,F,D1F,FG,ijzy)
       subroutine xc_xn12(tol_rho, fac,lfac,nlfac, rho, delrho, 
      &                     amat, cmat, nq, ipol, ex, 
      &                     qwght, ldew, func, ijzy)
-      Implicit Real*8(A-H,O-Z)
+      implicit none
 ************************************************************************
 *                                                                      *
 *  N12 evaluates the exchange part of the N12 and N12-SX               *
@@ -46,10 +45,87 @@ c
 c     Quadrature Weights
 c
       double precision qwght(nq)
+      logical ma_verify_allocator_stuff
+      external ma_verify_allocator_stuff
 c
 c     Sampling Matrices for the XC Potential & Energy
 c
       double precision Amat(nq,ipol), Cmat(nq,*)
+      double precision tol_rho, pi,fact_cs
+      integer r_a,r_b,dr_a,dr_b
+      integer a_a,a_b,c_a,c_b
+      if(ipol.eq.1) then
+         r_a=1
+         r_b=1
+         dr_a=1
+         dr_a=1
+         a_a=D1_RA
+         a_b=D1_RA
+         c_a=D1_GAA
+         c_b=D1_GAA
+         fact_cs=2d0
+         call dscal(nq,0.5d0,rho,1)
+         call dscal(nq*3,0.5d0,delrho,1)
+      else
+         r_a=2
+         r_b=3
+         dr_a=1
+         dr_a=2
+         a_a=D1_RA
+         a_b=D1_RB
+         c_a=D1_GAA
+         c_b=D1_GBB
+         fact_cs=1d0
+      endif
+c     alpha
+      call xc_xn12_0(tol_rho, fac,lfac,nlfac,
+     C     rho(1,r_a), delrho(1,1,dr_a), 
+     &     amat(1,a_a), cmat(1,c_a), nq,  ex, 
+     &     qwght, ldew, func, ijzy,fact_cs)
+c     beta
+      if (ipol.eq.2) then
+      call xc_xn12_0(tol_rho, fac,lfac,nlfac,
+     C     rho(1,r_b), delrho(1,1,dr_a), 
+     &     amat(1,a_b), cmat(1,c_b), nq,  ex, 
+     &        qwght, ldew, func, ijzy,fact_cs)
+      endif
+      if(ipol.eq.1) then
+         call dscal(nq,2d0,rho,1)
+         call dscal(nq*3,2d0,delrho,1)
+      endif
+      return
+      end
+      subroutine xc_xn12_0(tol_rho, fac,lfac,nlfac, rho, delrho, 
+     &                     amat, cmat, nq,  ex, 
+     &                     qwght, ldew, func, ijzy,fact_cs)
+      Implicit Real*8(A-H,O-Z)
+#include "errquit.fh"
+#include "dft2drv.fh"
+c      
+      integer ijzy
+      double precision fac, Ex
+      double precision fact_cs
+      integer nq, ipol
+      logical lfac, nlfac,ldew,   uselc
+      double precision func(*)  ! value of the functional [output]
+c
+c     Charge Density & Its Cube Root
+c
+      double precision rho(nq)
+c
+c     Charge Density Gradient
+c
+      double precision delrho(nq,3)
+c
+c     Quadrature Weights
+c
+      double precision qwght(nq)
+      logical ma_verify_allocator_stuff
+      external ma_verify_allocator_stuff
+c
+c     Sampling Matrices for the XC Potential & Energy
+c
+      double precision Amat(nq), Cmat(nq)
       double precision tol_rho, pi
 c      Real*8 RA(*),RB(*),D1RA(NGrid,3),D1RB(NGrid,3),F(*),D1F(NGrid,*)
       Save One,Two,Three,Four,Five,Six,Seven,Eight,Nine
@@ -57,7 +133,6 @@ c      Real*8 RA(*),RB(*),D1RA(NGrid,3),D1RB(NGrid,3),F(*),D1F(NGrid,*)
      $  Six/6.0d0/,Seven/7.0d0/,Eight/8.0d0/,Nine/9.0d0/
 C
 C
-      TinyDFT = tol_rho
       G    = 0.004d+0
       ome  = 2.5d+0        
       If (ijzy.eq.1) then
@@ -118,13 +193,15 @@ C
 C
 C     Alpha contributions ...
 C
+      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2e'
       Do 10 n = 1, nq
-        If(rho(n,2).gt.TinyDFT) then
-          pX    = rho(n,2)
-cold          GamX2 = D1RA(iG,1)**2 + D1RA(iG,2)**2 + D1RA(iG,3)**2
-          GamX2 =(delrho(n,1,1)*delrho(n,1,1) +
-     &              delrho(n,2,1)*delrho(n,2,1) +
-     &              delrho(n,3,1)*delrho(n,3,1))
+        If(rho(n).gt.tol_rho) then
+          pX    = rho(n)
+      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2e'
+          GamX2 =(delrho(n,1)*delrho(n,1) +
+     &              delrho(n,2)*delrho(n,2) +
+     &     delrho(n,3)*delrho(n,3))
+      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2e'
           S2    = GamX2*pX**(-F8o3)
           U     = G*S2/(One+G*S2)
           E     = Ax*pX**F4o3
@@ -135,8 +212,8 @@ c
      $    CC20*FV**2+CC21*FV**2*U+CC22*FV**2*U**2+CC23*FV**2*U**3+
      $    CC30*FV**3+CC31*FV**3*U+CC32*FV**3*U**2+CC33*FV**3*U**3
 c
-       ex = ex + E*FN12*qwght(n)
-       if(ldew) func(n)=func(n) + E*FN12
+       ex = ex + E*FN12*qwght(n)*fac*fact_cs
+       if(ldew) func(n)=func(n) + E*FN12*fac*fact_cs
 c
 c First Derivative
 c
@@ -164,66 +241,14 @@ c
         dFN12dR  = dFN12dU*US*SR+dFN12dV*dFVdR
         dFN12dG  = dFN12dU*US*SG
 c
-            amat(n,D1_RA) = amat(n,D1_RA) + ER*FN12
-     $                      + E*dFN12dR
-            cmat(n,D1_GAA) = cmat(n,D1_GAA) + E*dFN12dG/(Two*GamX)
+      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2e'
+            amat(n) = amat(n) + (ER*FN12
+     $                      + E*dFN12dR)*fac
+      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2e'
+            cmat(n) = cmat(n) + E*dFN12dG/(Two*GamX)*fac
+      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2e'
           endIf
    10   Continue
-C
-C     Beta contributions ...
-C
-      Do 20 n = 1, nq
-        If(rho(n,3).gt.TinyDFT) then
-          pX    = rho(n,3)
-          GamX2 =(delrho(n,1,2)*delrho(n,1,2) +
-     &              delrho(n,2,2)*delrho(n,2,2) +
-     &              delrho(n,3,2)*delrho(n,3,2))
-cold          GamX2 = D1RB(iG,1)**2 + D1RB(iG,2)**2 + D1RB(iG,3)**2
-          S2    = GamX2*pX**(-F8o3)
-          U     = G*S2/(One+G*S2)
-          E     = Ax*pX**F4o3
-          FV    = ome*pX**F1o3/(One+ome*pX**F1o3)
-c
-       FN12 =CC00  +CC01      *U+CC02      *U**2+CC03      *U**3+
-     $    CC10*FV   +CC11*FV   *U+CC12*FV   *U**2+CC13*FV   *U**3+
-     $    CC20*FV**2+CC21*FV**2*U+CC22*FV**2*U**2+CC23*FV**2*U**3+
-     $    CC30*FV**3+CC31*FV**3*U+CC32*FV**3*U**2+CC33*FV**3*U**3
-c
-       ex = ex + E*FN12*qwght(n)
-       if(ldew) func(n)=func(n) + E*FN12
-c
-c First Derivative
-c
-          ER = F4o3*E/pX
-          S    = Sqrt(S2)
-          GamX = Sqrt(GamX2)
-          SR   = -F4o3*S/pX
-          SG   = S/GamX
-          US   = Two*G*S/((One+G*S*S)**2)
-c        
-          dFVdR =  (ome/(Three*pX**F2o3))
-     $                *(One+ome*pX**F1o3)**(-Two)
-c
-        dFN12dU=CC01+2.0d0*CC02      *U+3.0d0*CC03      *U**2+
-     $     CC11*FV   +2.0d0*CC12*FV   *U+3.0d0*CC13*FV   *U**2+
-     $     CC21*FV**2+2.0d0*CC22*FV**2*U+3.0d0*CC23*FV**2*U**2+
-     $     CC31*FV**3+2.0d0*CC32*FV**3*U+3.0d0*CC33*FV**3*U**2
-c
-        dFN12dV=
-     $     CC10+CC11   *U+CC12   *U**2+CC13   *U**3+
-     $     2.0d0*CC20*FV   +2.0d0*CC21*FV*U+
-     $     2.0d0*CC22*FV*U**2+2.0d0*CC23*FV*U**3+
-     $     3.0d0*CC30*FV**2+3.0d0*CC31*FV**2*U+
-     $     3.0d0*CC32*FV**2*U**2+3.0d0*CC33*FV**2*U**3
-c
-        dFN12dR  = dFN12dU*US*SR+dFN12dV*dFVdR
-        dFN12dG  = dFN12dU*US*SG
-c
-            amat(n,D1_RB) = amat(n,D1_RB) + ER*FN12
-     $                      + E*dFN12dR
-            cmat(n,D1_GBB) = cmat(n,D1_GBB) + E*dFN12dG/(Two*GamX)
-          endIf
-   20   Continue
       Return
       End
       Subroutine xc_xn12_d2()
