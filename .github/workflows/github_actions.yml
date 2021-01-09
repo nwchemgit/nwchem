@@ -36,6 +36,24 @@ jobs:
             nwchem_modules: "qmandpw qmd"
         include:
           - os: ubuntu-20.04
+            experimental: true
+            mpi_impl: mpich
+            armci_network: mpi-ts
+            nwchem_modules: "nwdft driver solvation"
+            fc: flang
+          - os: ubuntu-20.04
+            experimental: true
+            mpi_impl: intel
+            armci_network: mpi-pr
+            nwchem_modules: "tinyqmpw python"
+            fc: ifort
+          - os: ubuntu-20.04
+            experimental: true
+            mpi_impl: intel
+            armci_network: sockets
+            nwchem_modules: "tce"
+            fc: ifort
+          - os: ubuntu-20.04
             experimental: true 
             mpi_impl: mpich
             armci_network: mpi-pt
@@ -81,8 +99,8 @@ jobs:
         if: ${{ failure() }}
         run: |
           pwd
-          tail -20 src/tools/build/config.log
-          tail -10 src/tools/build/comex/config.log
+          cat src/tools/build/config.log
+          cat src/tools/build/comex/config.log
       - name: qa_test
         if: ${{ success() }}
         run: |
