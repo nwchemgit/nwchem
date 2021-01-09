@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "start compile"
-set -ev
+set -e
 # source env. variables
 if [[ -z "$TRAVIS_BUILD_DIR" ]] ; then
     TRAVIS_BUILD_DIR=$(pwd)
@@ -27,7 +27,19 @@ if [[ "$arch" == "aarch64" ]]; then
 	FOPT="-O1 -fno-aggressive-loop-optimizations"
     fi
 else
-    FOPT="-O2 -fno-aggressive-loop-optimizations  -ffast-math"
+    if [[ "$FC" == "ifort" ]] ; then
+	FOPT=-O2
+	export USE_FPICF=Y
+	export BLASOPT=" -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core  -lpthread -lm -ldl"
+	export LAPACK_LIB=" -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core  -lpthread -lm -ldl"
+	export SCALAPACK_LIB=" -lmkl_scalapack_ilp64 -lmkl_blacs_intelmpi_ilp64 -lpthread -lm -ldl"
+	export BLAS_SIZE=8
+	export SCALAPACK_SIZE=8
+	unset BUILD_OPENBLAS
+	unset BUILD_SCALAPACK
+    else
+	FOPT="-O2 -fno-aggressive-loop-optimizations  -ffast-math"
+    fi
 fi    
  if [[ "$os" == "Darwin" ]]; then 
    if [[ "$NWCHEM_MODULES" == "tce" ]]; then
@@ -39,7 +51,8 @@ fi
        export PATH="/usr/local/bin:$PATH"
 #       export LDFLAGS="-L/usr/local/opt/python@3.7/lib:$LDFLAGS"
    fi
-if [[ -z "$TRAVIS_HOME" ]]; then
+   if [[ -z "$TRAVIS_HOME" ]]; then
+       env
     make V=0 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
 else
     ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
