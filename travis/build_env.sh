@@ -51,5 +51,10 @@ fi
 	sudo apt-get -y install intel-oneapi-ifort intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic  intel-oneapi-mkl
 	sudo apt-get -y install intel-oneapi-mpi-devel
     fi
+    if [[ "$FC" == "flang" ]]; then
+	wget https://github.com/ROCm-Developer-Tools/aomp/releases/download/rel_11.12-0/aomp_Ubuntu2004_11.12-0_amd64.deb
+	sudo dpkg -i aomp_Ubuntu2004_11.12-0_amd64.deb
+	export PATH=/usr/lib/aomp_11.12-0/bin/:$PATH
+    fi
     fi
 fi

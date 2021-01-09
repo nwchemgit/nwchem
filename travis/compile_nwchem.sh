@@ -37,6 +37,8 @@ else
 	export SCALAPACK_SIZE=8
 	unset BUILD_OPENBLAS
 	unset BUILD_SCALAPACK
+    elif [[ "$FC" == "flang" ]] ; then
+	export BUILD_MPICH=1
     else
 	FOPT="-O2 -fno-aggressive-loop-optimizations  -ffast-math"
     fi

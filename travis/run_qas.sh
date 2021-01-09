@@ -16,6 +16,10 @@ else
     $TRAVIS_BUILD_DIR/travis/compile_nwchem.sh
     EXTRA_BUILD=1
 fi
+if [[ "$BUILD_MPICH" == 1 ]] ; then
+    export PATH=$TRAVIS_BUILD_DIR/src/libext/bin:$PATH
+fi
+
 os=`uname`
 arch=`uname -m`
 export NWCHEM_BASIS_LIBRARY=$TRAVIS_BUILD_DIR/.cachedir/files/libraries/

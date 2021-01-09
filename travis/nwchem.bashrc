@@ -10,6 +10,9 @@ fi
 echo NWCHEM_TOP is $NWCHEM_TOP
 #TARBALL=https://github.com/nwchemgit/nwchem/releases/download/v7.0.0-beta1/nwchem-7.0.0-release.revision-5bcf0416-src.2019-11-01.tar.bz2
 export USE_MPI=y
+if [[ "$FC" == "flang" ]]; then
+    export PATH=/usr/lib/aomp_11.12-0/bin/:$PATH
+fi
 if [[ "$FC" == "ifort" ]]; then
     source /opt/intel/oneapi/compiler/latest/env/vars.sh
     ifort -V
