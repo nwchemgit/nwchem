@@ -285,8 +285,8 @@ c     *****************************************************************
 
       if (.not.ma_push_get(mt_dbl,nri*nri,'Pi',l_pi,k_pi))
      $  call errquit(pname//'can''t allocate Pi',0,MA_ERR) 
-      if (.not.ma_push_get(mt_dbl,nri,'temp',l_tmp,tmp))
-     $  call errquit(pname//'can''t allocate Pi',0,MA_ERR) 
+      if (.not.ma_push_get(mt_dbl,nri*mynmo,'temp',l_tmp,tmp))
+     $  call errquit(pname//'can''t allocate tmp',0,MA_ERR) 
       call dfill(nri*nri,0d0,dbl_mb(k_pi),1)
 
       call ga_distribution(oo,me,ilo,ihi,oolo,oohi)
@@ -328,35 +328,43 @@ c
 
             do kmo=1,iwidx(0,jmo)
               lmo = iwidx(kmo,jmo)
+              idx = tmp + (kmo-1)*nri
               if (lmo.le.nocc) then
                 idy = ((imo-1)*nocc+lmo-1)/nprocs + oolo
-                call ga_get(oo,1,nri,idy,idy,dbl_mb(tmp),nri)
+                call ga_get(oo,1,nri,idy,idy,dbl_mb(idx),nri)
               else
                 idy = ((imo-1)*nvir+lmo-nocc-1)/nprocs + ovlo
-                call ga_get(ov,1,nri,idy,idy,dbl_mb(tmp),nri)
+                call ga_get(ov,1,nri,idy,idy,dbl_mb(idx),nri)
               endif
-              call dtrmv('l','n','n',nri,dbl_mb(k_pi),nri,dbl_mb(tmp),1)
-              iw(kmo,igl,jmo) = ddot(nri,dbl_mb(tmp),1,dbl_mb(tmp),1) +
-     $                          vmo(lmo,jmo)
             enddo
+
 
           else
 
             do kmo=1,iwidx(0,jmo)
               lmo = iwidx(kmo,jmo)
+              idx = tmp + (kmo-1)*nri
               if (lmo.le.nocc) then
                 idy = ((lmo-1)*nvir+imo-nocc-1)/nprocs + ovlo
-                call ga_get(ov,1,nri,idy,idy,dbl_mb(tmp),nri)
+                call ga_get(ov,1,nri,idy,idy,dbl_mb(idx),nri)
               else
                 idy = ((imo-nocc-1)*nvir+lmo-nocc-1)/nprocs + ovlo
-                call ga_get(ov,1,nri,idy,idy,dbl_mb(tmp),nri)
+                call ga_get(ov,1,nri,idy,idy,dbl_mb(idx),nri)
               endif
-              call dtrmv('l','n','n',nri,dbl_mb(k_pi),nri,dbl_mb(tmp),1)
-              iw(kmo,igl,jmo) = ddot(nri,dbl_mb(tmp),1,dbl_mb(tmp),1) +
-     $                          vmo(lmo,jmo)
             enddo
 
           endif
+c
+          call dtrmm('l','l','n','n',nri,iwidx(0,jmo),1d0,dbl_mb(k_pi),
+     $                nri,dbl_mb(tmp),nri)
+c
+          do kmo=1,iwidx(0,jmo)
+            idx = tmp + (kmo-1)*nri
+            lmo = iwidx(kmo,jmo)
+            iw(kmo,igl,jmo) = ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1) +
+     $                        vmo(lmo,jmo)
+          enddo
+c
         enddo
       enddo
 
@@ -643,6 +651,7 @@ c     *****************************************************************
 
       subroutine gw_buildpi(which,ov,pi,factor,nri,npoles,main)
       implicit none
+#include "mafdecls.fh"      
       logical,intent(in) :: main
       integer,intent(in) :: nri,npoles
       character(len=1),intent(in) :: which
@@ -650,8 +659,10 @@ c     *****************************************************************
       double precision,intent(inout),dimension(nri,npoles) :: ov
       double precision,intent(out),dimension(nri,nri) :: pi
 
-      double precision, dimension(nri) :: vector
-      integer ipole,iri
+      double precision, dimension(nri) :: vector, scaling
+      integer ipole,iri,ma_dbl,l_scr,k_scr,maxpoles,mynpoles,llpole
+      integer ulpole,nbatch,ibatch
+      logical ok
 
       if (which.eq.'w') then
         do ipole=1,npoles
@@ -662,11 +673,34 @@ c     *****************************************************************
           ov(1:nri,ipole) = ov(1:nri,ipole)/dsqrt(factor(ipole))
         enddo
       else if (which.eq.'r') then
-        pi = 0d0
-        do ipole=1,npoles
-          vector(:) = 2d0*ov(:,ipole)*factor(ipole)
-          call dsyr2('l',nri,1d0,vector,1,ov(1,ipole),1,pi,nri)
+
+        ma_dbl = ma_inquire_avail(mt_dbl)/nri
+        nbatch = npoles/ma_dbl + 1
+        maxpoles = min(npoles/nbatch + 1,npoles)
+        ok = ma_alloc_get(mt_dbl,nri*maxpoles,'scratch',l_scr,k_scr)
+
+        call dcopy(nri*maxpoles,ov,1,dbl_mb(k_scr),1)
+        do ipole=1,maxpoles
+          call dscal(nri,factor(ipole),dbl_mb(k_scr+(ipole-1)*nri),1)
         enddo
+        call dsyr2k('l','n',nri,maxpoles,2d0,ov,nri,dbl_mb(k_scr),nri,
+     $               0d0,pi,nri)
+
+        do ibatch=2,nbatch
+          llpole = (ibatch-1)*maxpoles + 1
+          ulpole = min(ibatch*maxpoles,npoles)
+          mynpoles = ulpole - llpole + 1
+          call dcopy(nri*mynpoles,ov(1,llpole),1,dbl_mb(k_scr),1)
+          do ipole=1,mynpoles
+            call dscal(nri,factor(llpole+ipole-1),
+     $                 dbl_mb(k_scr+(ipole-1)*nri),1)
+          enddo
+          call dsyr2k('l','n',nri,mynpoles,2d0,ov(1,llpole),nri,
+     $                 dbl_mb(k_scr),nri,1d0,pi,nri)     
+        enddo
+
+        ok = ma_free_heap(l_scr)
+
       endif
 
       if (main) then
