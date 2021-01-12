@@ -313,14 +313,10 @@ c
         ! will be very slow for large ones.
         !
         call dpotrf('l',nri,dbl_mb(k_pi),nri,info)
-        if (info.eq.0) then
-          call dtrtri('l','n',nri,dbl_mb(k_pi),nri,info)
-        else
+        if (info.ne.0) then
           call errquit(pname//'Cholesky decomposition failed',0,0)
           !call dft_invdiag
         endif
-        !
-        ! The following ga_puts might be to different cores
         !
         do imo=llmo,llmo+nqp-1
           jmo = imo - llmo + 1
@@ -355,8 +351,12 @@ c
 
           endif
 c
-          call dtrmm('l','l','n','n',nri,iwidx(0,jmo),1d0,dbl_mb(k_pi),
-     $                nri,dbl_mb(tmp),nri)
+          call dtrtrs('l','n','n',nri,iwidx(0,jmo),dbl_mb(k_pi),
+     $                nri,dbl_mb(tmp),nrii,info)
+c
+          if (info.ne.0) then
+            call errquit(pname//' triangular solve failed',0,0)
+          endif
 c
           do kmo=1,iwidx(0,jmo)
             idx = tmp + (kmo-1)*nri
