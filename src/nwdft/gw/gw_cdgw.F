@@ -269,7 +269,7 @@ c     *****************************************************************
 
 
       logical main
-      integer molo,mohi,lmo
+      integer molo,mohi,lmo,ldpi,sizepi,l_sol,k_sol
       integer ilo,ihi,me,k_ov,ld,mynpoles,igl,ipole,info,k_c
       integer pilo,pihi,k_pi,l_pi,idx,idy,mynri,offset,l_tmp,tmp
       integer oolo,oohi,ovlo,ovhi,vvlo,vvhi,jmo,kmo,imo,nprocs
@@ -283,11 +283,19 @@ c     *****************************************************************
       nprocs = ga_nnodes()
       main = me.eq.0
 
-      if (.not.ma_push_get(mt_dbl,nri*nri,'Pi',l_pi,k_pi))
+      if (mod(nri,2).eq.0) then
+        ldpi = nri + 1
+      else
+        ldpi = nri
+      endif
+      sizepi = (nri*(nri+1))/2
+
+      if (.not.ma_push_get(mt_dbl,sizepi,'Pi',l_pi,k_pi))
      $  call errquit(pname//'can''t allocate Pi',0,MA_ERR) 
       if (.not.ma_push_get(mt_dbl,nri*mynmo,'temp',l_tmp,tmp))
      $  call errquit(pname//'can''t allocate tmp',0,MA_ERR) 
-      call dfill(nri*nri,0d0,dbl_mb(k_pi),1)
+      if (.not.ma_push_get(mt_dbl,nri*mynmo,'sol',l_sol,k_sol))
+     $  call errquit(pname//'can''t allocate sol',0,MA_ERR) 
 
       call ga_distribution(oo,me,ilo,ihi,oolo,oohi)
       call ga_distribution(ov,me,ilo,ihi,ovlo,ovhi)
@@ -301,18 +309,19 @@ c     *****************************************************************
 c
         w2 = x(igl)
         do ipole=1,mynpoles
-          factor(ipole) = eia(ipole)/(eia(ipole)**2 + w2)
+          factor(ipole) = dsqrt(eia(ipole)/(eia(ipole)**2 + w2))
         enddo
 c        
-        call gw_buildpi('w',dbl_mb(k_ov),dbl_mb(k_pi),factor,
+        call gw_buildpi('w',dbl_mb(k_ov),dbl_mb(k_pi),factor,ldpi,
      $                  nri,mynpoles,main)
-        call ga_dgop(mt_dbl,dbl_mb(k_pi),nri**2,'+')
+        call ga_dgop(mt_dbl,dbl_mb(k_pi),sizepi,'+')
         !
         ! All cores invert the same matrix in order to avoid
         ! communication. This is good for small matrices but
         ! will be very slow for large ones.
         !
-        call dpotrf('l',nri,dbl_mb(k_pi),nri,info)
+
+        call dpftrf('n','l',nri,dbl_mb(k_pi),info)
         if (info.ne.0) then
           call errquit(pname//'Cholesky decomposition failed',0,0)
           !call dft_invdiag
@@ -350,9 +359,11 @@ c
             enddo
 
           endif
-c
-          call dtrtrs('l','n','n',nri,iwidx(0,jmo),dbl_mb(k_pi),
-     $                nri,dbl_mb(tmp),nrii,info)
+
+          call dcopy(nri*iwidx(0,jmo),dbl_mb(tmp),1,dbl_mb(k_sol),1)
+
+          call dpftrs('n','l',nri,iwidx(0,jmo),dbl_mb(k_pi),
+     $                dbl_mb(k_sol),nri,info)
 c
           if (info.ne.0) then
             call errquit(pname//' triangular solve failed',0,0)
@@ -360,8 +371,9 @@ c
 c
           do kmo=1,iwidx(0,jmo)
             idx = tmp + (kmo-1)*nri
+            idy = k_sol + (kmo-1)*nri
             lmo = iwidx(kmo,jmo)
-            iw(kmo,igl,jmo) = ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1) +
+            iw(kmo,igl,jmo) = ddot(nri,dbl_mb(idx),1,dbl_mb(idy),1) +
      $                        vmo(lmo,jmo)
           enddo
 c
@@ -485,7 +497,7 @@ c     *****************************************************************
           enddo
 
           call gw_buildpi('r',dbl_mb(k_ov),dbl_mb(k_pi),factor,
-     $                    nri,mynpoles,main)
+     $                    nri,nri,mynpoles,main)
           call ga_dgop(mt_dbl,dbl_mb(k_pi),nri**2,'+')
 
           root = mod((imo-1)*nocc+jmo-1,nprocs)
@@ -523,7 +535,7 @@ c     *****************************************************************
           enddo
 
           call gw_buildpi('r',dbl_mb(k_ov),dbl_mb(k_pi),factor,
-     $                    nri,mynpoles,main)
+     $                    nri,nri,mynpoles,main)
           call ga_dgop(mt_dbl,dbl_mb(k_pi),nri**2,'+')
 
           root = mod((imo-nocc-1)*nvir+jmo-nocc-1,nprocs)
@@ -649,15 +661,15 @@ c     *****************************************************************
 
 c     *****************************************************************
 
-      subroutine gw_buildpi(which,ov,pi,factor,nri,npoles,main)
+      subroutine gw_buildpi(which,ov,pi,factor,ldpi,nri,npoles,main)
       implicit none
 #include "mafdecls.fh"      
       logical,intent(in) :: main
-      integer,intent(in) :: nri,npoles
+      integer,intent(in) :: ldpi,nri,npoles
       character(len=1),intent(in) :: which
       double precision,intent(in),dimension(npoles) :: factor
       double precision,intent(inout),dimension(nri,npoles) :: ov
-      double precision,intent(out),dimension(nri,nri) :: pi
+      double precision,intent(out),dimension(ldpi,*) :: pi
 
       double precision, dimension(nri) :: vector, scaling
       integer ipole,iri,ma_dbl,l_scr,k_scr,maxpoles,mynpoles,llpole
@@ -665,13 +677,33 @@ c     *****************************************************************
       logical ok
 
       if (which.eq.'w') then
+
         do ipole=1,npoles
-          ov(1:nri,ipole) = ov(1:nri,ipole)*dsqrt(factor(ipole))
+          ov(1:nri,ipole) = ov(1:nri,ipole)*factor(ipole)
         enddo
-        call dsyrk('l','n',nri,npoles,4d0,ov,nri,0d0,pi,nri)
+
+c        call dsyrk('l','n',nri,npoles,4d0,ov,nri,0d0,pi,nri)
+        call dsfrk('n','l','n',nri,npoles,4d0,ov,nri,0d0,pi)
+
         do ipole=1,npoles
-          ov(1:nri,ipole) = ov(1:nri,ipole)/dsqrt(factor(ipole))
+          ov(1:nri,ipole) = ov(1:nri,ipole)/factor(ipole)
         enddo
+
+        if (main) then
+          if ( mod(nri,2) .eq. 0 ) then
+            do iri=1,nri/2
+              pi(iri,iri) = pi(iri,iri) + 1d0
+              pi(iri+1,iri) = pi(iri+1,iri) + 1d0
+            enddo
+          else
+            pi(1,1) = pi(1,1) + 1d0
+            do iri=2,nri/2+1
+              pi(iri-1,iri) = pi(iri-1,iri) + 1d0
+              pi(iri,iri) = pi(iri,iri) + 1d0
+            enddo
+          endif
+        endif
+
       else if (which.eq.'r') then
 
         ma_dbl = ma_inquire_avail(mt_dbl)/nri
@@ -701,14 +733,13 @@ c     *****************************************************************
 
         ok = ma_free_heap(l_scr)
 
-      endif
+        if (main) then
+          do iri=1,nri
+            pi(iri,iri) = pi(iri,iri) + 1d0
+          enddo
+        endif
 
-      if (main) then
-        do iri=1,nri
-          pi(iri,iri) = pi(iri,iri) + 1d0
-        enddo
       endif
-
 
       end subroutine
 
