@@ -788,7 +788,7 @@ c            call Dneall_fmf_Multiply(0,dcpl_mb(psi2(1)),npack1,
 c     >                                 dbl_mb(hml(1)),  1.0d0,
 c     >                                 dcpl_mb(psi1(1)),0.0d0)
 
-            call psi_0define_occupation(1.0d0,.false.,
+            call psi_0define_occupation(-1.0d0,.false.,
      >                               ispin,ne,
      >                               dbl_mb(eig(1)),dbl_mb(hml(1)),
      >                               dbl_mb(occ2(1)),
