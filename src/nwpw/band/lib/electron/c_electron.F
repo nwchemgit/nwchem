@@ -173,6 +173,30 @@ c      call c_electron_gen_densities(dn,dng,dnall)
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *         c_electron_run0          *
+*     *                                 *
+*     ***********************************
+      subroutine c_electron_run0(psi_k_tag)
+      implicit none
+c      complex*16 psi_k(*)
+      integer    psi_k_tag
+
+#include "c_electron_common.fh"
+
+!$OMP MASTER   
+      counter = counter+1
+!$OMP END MASTER
+      
+      call c_electron_gen_psi_r(psi_k_tag)
+      call c_electron_gen_Hpsi_k_vall(psi_k_tag)
+     
+      return              
+      end     
+
+
 *     ***********************************
 *     *					*
 *     *		c_electron_run		*
@@ -899,6 +923,7 @@ c     >                     THpsi_k)
 *******    routines below this line are for internal use only    *********
 **************************************************************************
 **************************************************************************
+
 
 *     ***********************************
 *     *					*

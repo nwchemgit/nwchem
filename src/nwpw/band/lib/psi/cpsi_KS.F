@@ -310,6 +310,178 @@ c      call c_electron_gen_psi_r(psi_ptr)
       end
 
 
+************************ KS block orbital Part ************************
+*     ***********************************
+*     *                                 *
+*     *        cpsi_KS_block_update     *
+*     *                                 *
+*     ***********************************
+
+      subroutine cpsi_KS_block_update(psi_number,Enew,deltae,
+     >                                current_iteration,maxit_orbs,
+     >                                precondition,maxerror)
+      implicit none
+      integer psi_number
+      real*8  Enew,deltae
+      integer current_iteration,maxit_orbs
+      logical precondition
+      real*8  maxerror
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      real*8  deltat_min
+      parameter (deltat_min=1.0d-2)
+
+      integer G0_tag,S0_tag,G0_shift,S0_shift
+      real*8  E0,dE0
+
+c      real*8     tole,tolc
+c      real*8     ehartree,eorbit,exc,pxc,eion
+c      real*8     Enew,Eold,Estart
+c      common / c_cgsd_block / Enew,Eold,Estart
+
+      real*8 tmin,dte,sum0,sum1
+      common / c_bfgs_block / tmin,dte,sum0,sum1
+
+      integer it,it_in
+      real*8 deltat
+      real*8 max_sigma,dt
+      real*8  ehfx,phfx
+
+      integer ispin,neq(2),neall,npack1,nbrillq
+
+*     **** external functions ****
+      integer  control_it_in,cpsi_neq,cpsi_ispin,cpsi_nbrillq
+      external control_it_in,cpsi_neq,cpsi_ispin,cpsi_nbrillq
+      integer  cpsi_data_push_stack,cpsi_data_get_allptr
+      external cpsi_data_push_stack,cpsi_data_get_allptr
+
+      real*8   cpsi_geodesic_energy0
+      external cpsi_geodesic_energy0
+      real*8   cpsi_geodesic_denergy
+      external cpsi_geodesic_denergy
+
+      real*8   linesearch
+      external linesearch
+
+      real*8   control_time_step
+      external control_time_step
+      integer  control_lmbfgs_size
+      external control_lmbfgs_size
+      logical  control_precondition,band_hfx
+      external control_precondition,band_hfx
+
+      dt = control_time_step()
+c     dte = dt/dsqrt(control_fake_mass())
+c     dte = dsqrt(control_fake_mass())/dt
+c     dte = 1.0d0
+
+
+      call Cram_max_npack(npack1)
+      ispin = cpsi_ispin()
+      neq(1) = cpsi_neq(1)
+      neq(2) = cpsi_neq(2)
+      neall = neq(1)+neq(2)
+      nbrillq = cpsi_nbrillq()
+
+
+*     **** allocate G0, S0 ****
+      S0_tag = cpsi_data_push_stack(nbrillq,neall,2*npack1)
+      G0_tag = cpsi_data_push_stack(nbrillq,neall,2*npack1)
+      S0_shift = cpsi_data_get_allptr(S0_tag)
+      G0_shift = cpsi_data_get_allptr(G0_tag)
+
+
+*     ***** get the initial direction ****
+      call cpsi_1get_Tgradient0(G0_tag,E0)
+
+      if (current_iteration.eq.1) then
+
+*        ***** use the initial gradient for the direction ****
+         call band_lmbfgs_init(control_lmbfgs_size(),dbl_mb(G0_shift))
+         call BGrsm_ff_Copy_tag(G0_tag,S0_tag)
+         tmin  = 10*deltat_min
+      else
+         call band_lmbfgs(tmin,dbl_mb(G0_shift),dbl_mb(S0_shift))
+         call Pneb_ff_traceall_tag(0,0,G0_tag,S0_tag,sum1)
+         if (dabs(sum1).gt.1.0d3) call BGrsm_ff_Copy_tag(G0_tag,S0_tag)
+      end if
+
+*     ******************************************
+*     ****                                  ****
+*     **** Start of BFGS iteration loop     ****
+*     ****                                  ****
+*     ******************************************
+      it_in = control_it_in()
+      do it=2,it_in
+
+
+*        **** initialize the geoedesic line data structure ****
+         call c_geodesic_start(S0_tag,max_sigma,dE0)
+
+
+*        ******* line search *********
+         if ((tmin.gt.deltat_min).and.(tmin.lt.1.0d4)) then
+            deltat = tmin
+         else
+            deltat = deltat_min
+         end if
+c         deltat = 1.0d0  !** debug **
+         Enew = linesearch(0.0d0,E0,dE0,deltat,
+     >                        cpsi_geodesic_energy0,
+     >                        cpsi_geodesic_denergy,
+     >                        0.50d0,tmin,deltae,2)
+         call cpsi_geodesic_final(tmin)
+         !deltac = c_rho_error()
+
+*        **** exit loop early ****
+         if (dabs(deltae).lt.maxerror) then
+            if (.not.precondition) go to 30
+            precondition = .false.
+         end if
+
+*        **** get the new gradient - also updates densities****
+         call cpsi_2get_Tgradient0(2,G0_tag,E0)
+         call band_lmbfgs(tmin,dbl_mb(G0_shift),dbl_mb(S0_shift))
+
+         call Pneb_ff_traceall_tag(0,0,G0_tag,S0_tag,sum1)
+         if (dabs(sum1).gt.1.0d3) call BGrsm_ff_Copy_tag(G0_tag,S0_tag)
+
+*        **** make psi1 <--- psi2(tmin) ****
+         call cpsi_2to1()
+c        call c_rho_2to1()
+c        call c_dng_2to1()
+
+      end do
+
+*     **** initialize the geoedesic line data structure ****
+      call c_geodesic_start(S0_tag,max_sigma,dE0)
+
+*     ******* line search *********
+      if ((tmin.gt.deltat_min).and.(tmin.lt.1.0d4)) then
+         deltat = tmin
+      else
+         deltat = deltat_min
+      end if
+      Enew = linesearch(0.0d0,E0,dE0,deltat,
+     >                        cpsi_geodesic_energy0,
+     >                        cpsi_geodesic_denergy,
+     >                        0.50d0,tmin,deltae,2)
+      call cpsi_geodesic_final(tmin)
+
+*     **** free memory ****
+ 30   call cpsi_data_pop_stack(G0_tag)
+      call cpsi_data_pop_stack(S0_tag)
+
+      call cpsi_2to1()
+      call cpsi_1toelectron()
+c     call c_rho_2to1()
+
+
+      return
+      end
 
 
 ************************ KS orbital Part ************************
