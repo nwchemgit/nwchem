@@ -229,7 +229,6 @@ c
       
 *     **** diaganolize KS matrix ****
       if (ks_block) then
-         write(*,*) "into block update"
          call cpsi_KS_block_update(1,e00_shared,deltae,it,maxit_orbs,
      >                             precondition,ks_deltae)
       else
