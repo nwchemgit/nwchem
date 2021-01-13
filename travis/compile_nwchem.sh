@@ -39,14 +39,7 @@ else
 	unset BUILD_SCALAPACK
     elif [[ "$FC" == "flang" ]] ; then
 	export BUILD_MPICH=1
-    else
-	if [[ -z "$TRAVIS_HOME" ]]; then
-	    echo ' do not modify compiler options when using github actions '
-	else
-	    if [[ "$FC" == "flang" ]] ; then
-		FOPT="-O2  -ffast-math"
-	    fi
-	fi
+	FOPT="-O2  -ffast-math"
     fi
 fi    
  if [[ "$os" == "Darwin" ]]; then 
