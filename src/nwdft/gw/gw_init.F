@@ -217,6 +217,7 @@ c
      $    pars%l_glw,pars%k_glw))
      $    call errquit(pname//'can''t allocate GL roots',0,MA_ERR) 
         call gw_gaussleg(pars%ngl,dbl_mb(pars%k_glx),dbl_mb(pars%k_glw))
+c        call gw_dequad(pars%ngl,dbl_mb(pars%k_glx),dbl_mb(pars%k_glw))
       endif
 c
 c     3-center ERIs 
@@ -267,9 +268,42 @@ c
       enddo
 
       do igl=1,ngl
-        w(igl) = 2d0 * w(igl) / (1d0-x(igl))**2 / pi
-        x(igl) = ((1d0 + x(igl))/(1d0 - x(igl)))**2
+        w(igl) = 0.5d0 * 2d0 * w(igl) / (1d0-x(igl))**2 / pi
+        x(igl) = (0.5d0 * ((1d0 + x(igl))/(1d0 - x(igl))))**2
       enddo
 
       end subroutine
+
+      subroutine gw_dequad(ngl,x,w)
+      implicit none
+      integer,intent(in) :: ngl
+      double precision,intent(out),dimension(ngl) :: x, w
+
+      integer imin,imax,igl,jgl
+      double precision alpha, h, s, arcsinh, rmax, rmin, pi
+      double precision,dimension(ngl) :: tmp
+      arcsinh(s) = dlog(s + dsqrt(1d0 + s**2))
+
+      alpha = 2.2d0
+      rmin = 0.01d0
+      rmax = 1d6
+      pi = dacos(-1d0)
+
+      imin = -ceiling(dble(ngl-1)/(1d0 - arcsinh(dlog(rmax)/alpha)/
+     $               arcsinh(dlog(rmin)/alpha)))
+      imax = ngl + imin - 1
+      h = arcsinh(dlog(rmin)/alpha)/dble(imin)
+
+      igl = 0
+      do jgl=imin,imax
+        igl = igl + 1
+        x(igl) = dexp(alpha*dsinh(jgl*h))**2
+        w(igl) = alpha*h*dexp(3d0*alpha*dsinh(jgl*h))*dcosh(jgl*h)/
+     $           pi/x(igl)**2
+        write(*,*) x(igl)
+      enddo
+      return
+      end subroutine
+
+
 

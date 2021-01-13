@@ -31,9 +31,10 @@ c
       integer eviter, i, j, ibf, ilo, ihi, lo2, ipole, iqp, lo4, mynmo
       integer oolo,oohi,jlo,jhi,vvlo,vvhi,k_iw,l_iw,k_iwidx,l_iwidx
 
-      double precision efermi
+      double precision step,dfunc2_old,d2func2, func_old
+      double precision efermi, func2, dfunc2
       double precision I_n, R_n, dI_n, dR_n, dI_np, dI_nm, dR_np, dR_nm
-      double precision d2I_n, d2R_n, dummy
+      double precision d2I_n, d2R_n, dummy, dum
       double precision sigma, sigma_c, dsigma_c, d2sigma_c
       double precision eps_in, eps_out, z, func, linear, dfunc, d2func
       double precision sigma_x, sigma_old
@@ -43,7 +44,7 @@ c
 
       logical converged
 
-      double precision, parameter :: fdstep = 0.001d0
+      double precision, parameter :: fdstep = 0.002d0
       double precision, external :: gw_efermi
 c
 c     -----------------------------------------------------------------
@@ -182,41 +183,61 @@ c
         sigma_x = dbl_mb(k_sigmax+lo1+iqp-1)
         sigma_old = dbl_mb(k_sigma+lo1+iqp-1)
         eps_out = dbl_mb(k_eold+lo1+iqp-1)
-        if (eviter.eq.0) eps_out = eps_out + 0.17d0*(sigma_x-sigma_old)
+
+        if (eviter.eq.0) then
+          eps_out = eps_out + 0.12d0*(sigma_x-sigma_old)
+        else
+          eps_out = eps_out + 0.08d0*(sigma_x-sigma_old)
+        endif
 c        
         do i=1,pars%qpiter
           eps_in = eps_out
+
           timer = util_wallsec()
           call gw_buildin(dbl_mb(k_iw),dbl_mb(k_eold),
      $       dbl_mb(pars%k_glx),dbl_mb(pars%k_glw),int_mb(k_iwidx),
      $       eps_in,I_n,dI_n,fdstep,iqp,npoles,nocc,nvir,nri,pars%ngl,
      $       pars%me,mynmo,nqp)
           pars%timer%in = pars%timer%in + util_wallsec() - timer
+
           timer = util_wallsec()
           call gw_buildrn(pars%g_erioo,pars%g_eriov,pars%g_erivv,
-     $                    dbl_mb(k_eold),dbl_mb(k_eia),eps_in,R_n,
+     $                    dbl_mb(k_eold),dbl_mb(k_eia),eps_in,R_n,dR_n,
      $                    lo1+iqp,npoles,nocc,nvir,nri,pars%me)
-          call gw_buildrn(pars%g_erioo,pars%g_eriov,pars%g_erivv,
-     $                    dbl_mb(k_eold),dbl_mb(k_eia),eps_in+fdstep,
-     $                    dR_np,lo1+iqp,npoles,nocc,nvir,nri,pars%me)
-          call gw_buildrn(pars%g_erioo,pars%g_eriov,pars%g_erivv,
-     $                    dbl_mb(k_eold),dbl_mb(k_eia),eps_in-fdstep,
-     $                    dR_nm,lo1+iqp,npoles,nocc,nvir,nri,pars%me)
           pars%timer%rn = pars%timer%rn + util_wallsec() - timer
+
           sigma_c = R_n + I_n
-          dsigma_c = (dR_np - dR_nm)/(2d0*fdstep) + dI_n
+          dsigma_c = dR_n + dI_n
           sigma = sigma_c + sigma_x
 
-          z = 1d0/(1d0-dsigma_c)
+          z = min(1d0,1d0/(1d0-dsigma_c))
             
           func = dbl_mb(k_eold+lo1+iqp-1) + sigma - sigma_old - eps_in
-          eps_out = eps_in + z*func
+          dfunc = dsigma_c - 1d0
+          func2 = func**2
+          dfunc2 = 2d0*func*dfunc
+
+          if (i.gt.1) then
+            d2func2 = (dfunc2 - dfunc2_old)/step
+            if (d2func2.gt.1d0) then
+              step = -dfunc2/d2func2
+            else
+              step = z*func
+            endif
+          else
+            step = z*func
+          endif
+
+          eps_out = eps_in + step
 
           if (i.eq.1) linear = eps_in + z*func
 
+          dfunc2_old = dfunc2
+          func_old = func
+
           if (main) converged = abs(eps_out-eps_in).lt.pars%thresh
-          call ga_brdcst(1001,converged,ma_sizeof(mt_log,1,mt_byte),0)
-          call ga_brdcst(1002,eps_out,ma_sizeof(mt_dbl,1,mt_byte),0)
+          call ga_brdcst(mt_log,converged,ma_sizeof(mt_log,1,mt_byte),0)
+          call ga_brdcst(mt_dbl,eps_out,ma_sizeof(mt_dbl,1,mt_byte),0)
           if (converged) exit
         enddo
         dbl_mb(k_enew+lo1+iqp-1) = eps_out
@@ -226,9 +247,9 @@ c
       enddo
 
       if (pars%evgw0.or.pars%evgw) then
-        call ga_brdcst(1003,dbl_mb(k_enew),
+        call ga_brdcst(mt_dbl,dbl_mb(k_enew),
      $       ma_sizeof(mt_dbl,nmo,mt_byte),0)
-        call ga_brdcst(1004,dbl_mb(k_sigma),
+        call ga_brdcst(mt_dbl,dbl_mb(k_sigma),
      $       ma_sizeof(mt_dbl,nmo,mt_byte),0)
         call dcopy(nmo,dbl_mb(k_enew),1,dbl_mb(k_eold),1)
         eviter = eviter + 1      
@@ -353,8 +374,8 @@ c
                 idy = ((lmo-1)*nvir+imo-nocc-1)/nprocs + ovlo
                 call ga_get(ov,1,nri,idy,idy,dbl_mb(idx),nri)
               else
-                idy = ((imo-nocc-1)*nvir+lmo-nocc-1)/nprocs + ovlo
-                call ga_get(ov,1,nri,idy,idy,dbl_mb(idx),nri)
+                idy = ((imo-nocc-1)*nvir+lmo-nocc-1)/nprocs + vvlo
+                call ga_get(vv,1,nri,idy,idy,dbl_mb(idx),nri)
               endif
             enddo
 
@@ -420,8 +441,7 @@ c     *****************************************************************
         w2 = x(igl)
         do jmo=1,mynmo
           factor2(jmo) =  factor(jmo)/(factor(jmo)**2 + w2)
-          dfactor2(jmo) = (w2 - factor(jmo)**2+fdstep**2)/
-     $  (((factor(jmo)+fdstep)**2 + w2)*((factor(jmo)-fdstep)**2+w2))
+          dfactor2(jmo) = (w2 - factor(jmo)**2)/(factor(jmo)**2+w2)**2
         enddo
         Iqp = Iqp - w(igl)*ddot(mynmo,factor2,1,iw(1,igl,imo),1)
         dIqp = dIqp - w(igl)*ddot(mynmo,dfactor2,1,iw(1,igl,imo),1)
@@ -433,8 +453,8 @@ c     *****************************************************************
 
 c     *****************************************************************
 
-      subroutine gw_buildrn(oo,ov,vv,eig,eia,omega,R_n,imo,npoles,nocc,
-     $                      nvir,nri,me)
+      subroutine gw_buildrn(oo,ov,vv,eig,eia,omega,R_n,dR_n,imo,npoles,
+     $                      nocc,nvir,nri,me)
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -443,7 +463,7 @@ c     *****************************************************************
       double precision, intent(in) :: omega
       double precision, intent(in), dimension(nocc+nvir) :: eig
       double precision, intent(in), dimension(npoles) :: eia
-      double precision, intent(out) :: R_n
+      double precision, intent(out) :: R_n,dR_n
 
       character(len=12), parameter :: pname = 'gw_buildrn: '
 
@@ -452,8 +472,10 @@ c     *****************************************************************
       integer g_a, g_b, g_c, g_d, g_e, g_epsilon, k_eps, k_sol, nprocs
       integer nmo, jmo, ipole, ilo, ihi, jlo, jhi, info, ld, mynri, idx
       integer l_pi, k_pi, l_ipiv, k_ipiv, l_scr, k_scr, k_ov, lscr
-      double precision fac, arg, w
+      double precision fac, arg, w, arg2
       double precision factor(npoles), vector(nri), vector2(nri)
+      double precision vector3(nri)
+      double precision dfactor(npoles)
 
       logical main
       double precision, parameter :: shift = 0.0001d0
@@ -484,16 +506,25 @@ c     *****************************************************************
       mynpoles = ovhi - ovlo + 1
 
       R_n = 0d0
+      dR_n = 0d0
 
       if (omega.lt.0d0) then
-        do jmo=1,nocc
-          if (eig(jmo).lt.omega-shift) cycle
-          fac = -1d0
-          if (is_near(eig(jmo),omega,shift)) fac = -0.5d0
+        do jmo=nocc,1,-1
+          if (eig(jmo).lt.omega-shift) exit
 
-          arg = (omega - eig(jmo))**2
+          if (is_near(eig(jmo),omega,shift)) then
+            fac = -0.5d0
+            arg = 0.0d0
+            arg2 = 0.0d0
+          else
+            fac = -1d0
+            arg = (eig(jmo) - omega)
+            arg2 = arg**2
+          endif
+
           do ipole=1,mynpoles
-            factor(ipole) = eia(ipole)/(eia(ipole)**2 - arg)
+            factor(ipole) = eia(ipole)/(eia(ipole)**2 - arg2)
+            dfactor(ipole) = -8d0*factor(ipole)**2 * arg / eia(ipole)
           enddo
 
           call gw_buildpi('r',dbl_mb(k_ov),dbl_mb(k_pi),factor,
@@ -501,24 +532,35 @@ c     *****************************************************************
           call ga_dgop(mt_dbl,dbl_mb(k_pi),nri**2,'+')
 
           root = mod((imo-1)*nocc+jmo-1,nprocs)
-          if (me.ne.root) cycle
-
           idx = ((imo-1)*nocc+jmo-1)/nprocs + oolo
-          call ga_get(oo,1,nri,idx,idx,vector,nri)
-          vector2(:) = vector(:)
-          !
-          ! Only one core is working at a time in order to
-          ! reduce commuication. Will be very slow for large
-          ! systems
-          !
-          call dsytrf('l',nri,dbl_mb(k_pi),nri,int_mb(k_ipiv),
-     $                 dbl_mb(k_scr),lscr,info)
-          call dsytrs('l',nri,1,dbl_mb(k_pi),nri,int_mb(k_ipiv),vector2,
-     $                 nri,info)     
-          vector2(:) = vector2(:) - vector(:)
+          if (me.eq.root) then
+            call ga_get(oo,1,nri,idx,idx,vector,nri)
+            call ga_get(oo,1,nri,idx,idx,vector2,nri)
+            call dsytrf('l',nri,dbl_mb(k_pi),nri,int_mb(k_ipiv),
+     $                   dbl_mb(k_scr),lscr,info)
+            call dsytrs('l',nri,1,dbl_mb(k_pi),nri,int_mb(k_ipiv),
+     $                   vector2,nri,info)
+          end if
 
+
+          if (arg.ne.0d0) then
+            call ga_brdcst(mt_dbl,vector2,ma_sizeof(mt_dbl,nri,mt_byte),
+     $                     root)
+            call dgemv('t',nri,mynpoles,1d0,dbl_mb(k_ov),nri,vector2,1,
+     $                  0d0,factor,1)
+            do ipole=1,mynpoles
+              dR_n = dR_n + dfactor(ipole)*factor(ipole)**2
+            enddo
+          endif
+
+          if (root.ne.me) cycle
+
+          vector2(:) = vector2(:) - vector(:)
           w = ddot(nri,vector,1,vector2,1)
           R_n = R_n + fac*w
+
+          if (fac.eq.-0.5d0) dR_n = dR_n + w
+
         enddo
 
       else if (omega.gt.0d0) then
@@ -526,12 +568,19 @@ c     *****************************************************************
         do jmo=nocc+1,nmo
           if (eig(jmo).gt.omega+shift) exit
 
-          fac = 1d0
-          if (is_near(eig(jmo),omega,shift)) fac = 0.5d0
+          if (is_near(eig(jmo),omega,shift)) then
+            fac = 0.5d0
+            arg = 0.0d0
+            arg2 = 0.0d0
+          else
+            fac = 1d0
+            arg = (omega - eig(jmo))
+            arg2 = arg**2
+          endif
 
-          arg = (omega - eig(jmo))**2
           do ipole=1,mynpoles
-            factor(ipole) = eia(ipole)/(eia(ipole)**2 - arg)
+            factor(ipole) = eia(ipole)/(eia(ipole)**2 - arg2)
+            dfactor(ipole) = 8d0*factor(ipole)**2 * arg / eia(ipole)
           enddo
 
           call gw_buildpi('r',dbl_mb(k_ov),dbl_mb(k_pi),factor,
@@ -539,24 +588,38 @@ c     *****************************************************************
           call ga_dgop(mt_dbl,dbl_mb(k_pi),nri**2,'+')
 
           root = mod((imo-nocc-1)*nvir+jmo-nocc-1,nprocs)
-          if (me.ne.root) cycle
-
           idx = ((imo-nocc-1)*nvir+jmo-nocc-1)/nprocs + vvlo
-          call ga_get(vv,1,nri,idx,idx,vector,nri)
-          vector2(:) = vector(:)
+          if (me.eq.root) then
+            call ga_get(vv,1,nri,idx,idx,vector,nri)
+            call ga_get(vv,1,nri,idx,idx,vector2,nri)
+            call dsytrf('l',nri,dbl_mb(k_pi),nri,int_mb(k_ipiv),
+     $                   dbl_mb(k_scr),lscr,info)
+            call dsytrs('l',nri,1,dbl_mb(k_pi),nri,int_mb(k_ipiv),
+     $                   vector2,nri,info)
+          end if
 
-          call dsytrf('l',nri,dbl_mb(k_pi),nri,int_mb(k_ipiv),
-     $                 dbl_mb(k_scr),lscr,info)
-          call dsytrs('l',nri,1,dbl_mb(k_pi),nri,int_mb(k_ipiv),vector2,
-     $                 nri,info)     
+          if (arg.ne.0d0) then
+            call ga_brdcst(mt_dbl,vector2,ma_sizeof(mt_dbl,nri,mt_byte),
+     $                     root)
+            call dgemv('t',nri,mynpoles,1d0,dbl_mb(k_ov),nri,vector2,1,
+     $                  0d0,factor,1)
+            do ipole=1,mynpoles
+              dR_n = dR_n - dfactor(ipole)*factor(ipole)**2
+            enddo
+          endif
+
+          if (root.ne.me) cycle
+
           vector2(:) = vector2(:) - vector(:)
-
           w = ddot(nri,vector,1,vector2,1)
           R_n = R_n + fac*w
+          if (fac.eq.0.5d0) dR_n = dR_n + w
+
         enddo
 
       end if
       call ga_dgop(mt_dbl,R_n,1,'+')
+      call ga_dgop(mt_dbl,dR_n,1,'+')
 
       if (.not.ma_chop_stack(l_pi))
      $   call errquit(pname//'can''t destroy global array',0,MA_ERR)
