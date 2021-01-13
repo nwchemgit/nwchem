@@ -1845,8 +1845,8 @@ endif
         ifeq ($(GNU_GE_4_8),true)
           ifeq ($(_CPU),ppc64le)
           FDEBUG =-O0 -g 
-          else
-          FDEBUG =-O2 -g 
+#          else
+#          FDEBUG =-O2 -g
           endif
           FDEBUG +=-fno-aggressive-loop-optimizations
           FOPTIMIZE +=-fno-aggressive-loop-optimizations
@@ -2288,7 +2288,10 @@ endif
 #AOMP flang crashes with -g in source using block data
         FDEBUG =  -O
 	  else
-        FDEBUG += -g -O
+        FDEBUG += -g -O0
+        ifeq ($(GNU_GE_4_8),true)
+          FDEBUG +=-fno-aggressive-loop-optimizations
+	endif
 	endif
         ifdef USE_F2C
 #possible segv with use of zdotc (e.g. with GOTO BLAS)
@@ -2297,7 +2300,8 @@ endif
         endif
         ifeq ($(GNU_GE_4_6),true) 
           FOPTIMIZE +=  -mtune=native
-          FOPTIONS += -finline-functions
+# causes slowdows in mp2/ccsd
+#          FOPTIONS += -finline-functions
         endif
 #        FVECTORIZE  += -ftree-vectorize -ftree-vectorizer-verbose=1
        ifdef  USE_FPE
@@ -2360,11 +2364,12 @@ ifeq ($(_CPU),$(findstring $(_CPU),aarch64))
       FOPTIMIZE  += -ftree-vectorize   -fopt-info-vec
     endif
 
-    FDEBUG += -g -O 
+    FDEBUG += -g -O
 
     ifeq ($(GNU_GE_4_6),true) 
       FOPTIMIZE +=  -mtune=native
-      FOPTIONS += -finline-functions
+# causes slowdows in mp2/ccsd
+#      FOPTIONS += -finline-functions
     endif
     ifndef USE_FPE
       FOPTIMIZE  += -ffast-math #2nd time

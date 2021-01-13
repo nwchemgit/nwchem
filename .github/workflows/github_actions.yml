@@ -21,6 +21,8 @@ jobs:
           - mpich
         armci_network:
           - MPI-TS
+        xcode_version:
+          - 11.7
         nwchem_modules:
           - "tinyqmpw python"
           - "qmandpw qmd"
@@ -39,8 +41,9 @@ jobs:
             experimental: true
             mpi_impl: mpich
             armci_network: mpi-ts
-            nwchem_modules: "nwdft driver solvation"
+            nwchem_modules: "tinyqmpw python"
             fc: flang
+            cc: clang
           - os: ubuntu-20.04
             experimental: true
             mpi_impl: intel
@@ -49,6 +52,25 @@ jobs:
             fc: ifort
           - os: ubuntu-20.04
             experimental: true
+            mpi_impl: intel
+            armci_network: sockets
+            nwchem_modules: "tce"
+            fc: ifort
+          - os: ubuntu-20.04
+            experimental: true 
+            mpi_impl: mpich
+            armci_network: mpi-ts
+            nwchem_modules: "tce"
+            fc: flang
+            cc: clang
+          - os: ubuntu-20.04
+            experimental: true 
+            mpi_impl: intel
+            armci_network: mpi-pr
+            nwchem_modules: "tinyqmpw python"
+            fc: ifort
+          - os: ubuntu-20.04
+            experimental: true 
             mpi_impl: intel
             armci_network: sockets
             nwchem_modules: "tce"
@@ -72,6 +94,14 @@ jobs:
             armci_network: mpi-pr
             nwchem_modules: "qmandpw qmd"
             fc: gfortran-10
+            xcode_version: 12.3
+          - os: macos-10.15
+            experimental: true
+            mpi_impl: openmpi
+            armci_network: mpi-pr
+            nwchem_modules: "tce"
+            fc: gfortran-10
+            xcode_version: 12.3
       fail-fast: false
     env:
         MPI_IMPL: ${{ matrix.mpi_impl }}
@@ -81,6 +111,7 @@ jobs:
         FC: ${{ matrix.fc }}
         COMEX_MAX_NB_OUTSTANDING: 4
         SIMINT_MAXAM: 3
+        DEVELOPER_DIR: /Applications/Xcode_${{ matrix.xcode_version}}.app/Contents/Developer
     continue-on-error: ${{ matrix.experimental }}
     steps: 
       - name: Checkout code
@@ -94,11 +125,13 @@ jobs:
           ./travis/build_env.sh
       - name: compile
         run: |
+          cc -v
           ./travis/compile_nwchem.sh
       - name: Check compilation result
         if: ${{ failure() }}
         run: |
           pwd
+          cc -v
           cat src/tools/build/config.log
           cat src/tools/build/comex/config.log
       - name: qa_test
