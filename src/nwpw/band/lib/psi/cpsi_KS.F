@@ -395,7 +395,11 @@ c     dte = 1.0d0
 
 
 *     ***** get the initial direction ****
-      call cpsi_1get_Tgradient0(G0_tag,E0)
+      if (precondition) then
+         call cpsi_1get_TMgradient0(G0_tag,E0)
+      else
+         call cpsi_1get_Tgradient0(G0_tag,E0)
+      end if
 
       if (current_iteration.eq.1) then
 
@@ -443,7 +447,11 @@ c         deltat = 1.0d0  !** debug **
          end if
 
 *        **** get the new gradient - also updates densities****
-         call cpsi_2get_Tgradient0(2,G0_tag,E0)
+         if (precondition) then
+            call cpsi_2get_TMgradient0(2,G0_tag,E0)
+         else
+            call cpsi_2get_Tgradient0(2,G0_tag,E0)
+         end if
          call band_lmbfgs(tmin,dbl_mb(G0_shift),dbl_mb(S0_shift))
 
          call Pneb_ff_traceall_tag(0,0,G0_tag,S0_tag,sum1)
