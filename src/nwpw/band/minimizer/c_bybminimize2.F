@@ -259,7 +259,7 @@ c
       call dcopy(ispin*nfft3d,
      >           dbl_mb(rho_in(1)),1,
      >           dbl_mb(rho_junk(1)),1)
-      call daxpy(ispin*nfft3d,
+      call DAXPY_OMP(ispin*nfft3d,
      >              (-1.0d0),
      >              dbl_mb(rho_out(1)),1,
      >              dbl_mb(rho_junk(1)),1)
@@ -298,7 +298,7 @@ c
          call nwpw_scf_mixing_reset(dbl_mb(rho_out(1)))
 
 
-         call daxpy(ispin*nfft3d,
+         call DAXPY_OMP(ispin*nfft3d,
      >              (-1.0d0),
      >              dbl_mb(rho_out(1)),1,
      >              dbl_mb(rho_junk(1)),1)
