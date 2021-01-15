@@ -1,6 +1,7 @@
 
-FC=gfortran
-FFLAGS=-O2
+#FC=gfortran
+#FFLAGS=-O2
+include ../../src/config/makefile.h
 OBJ=dsyev.o lsame.o xerbla.o ilaenv.o dlamch.o dlansy.o dlascl.o\
            dsytrd.o dsterf.o dorgtr.o dsteqr.o dscal.o dsyr2k.o\
            iparmq.o ieeeck.o disnan.o dlassq.o dlatrd.o dsytd2.o\
