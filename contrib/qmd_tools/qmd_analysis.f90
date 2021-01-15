@@ -395,8 +395,8 @@ call zfftf(pn,ir_fft,wsave)
 do i=1,ig
  call zfftf(pn,vdos_fft(i,:),wsave)
 end do
-write(10,'(A17,2A20)') 'Freq. (cm^{-1})', 'IR Inten.', 'QC-IR Inten.'
-write(20,'((A17),$)') 'Freq. (cm^{-1})'
+write(10,'(A17,2A20)') '# Freq. (cm^{-1})', 'IR Inten.', 'QC-IR Inten.'
+write(20,'((A17),$)') '# Freq. (cm^{-1})'
 vdos_tag='VDOS-'
 if(jlast.eq.1) then
    vdos_tag='VDOSx-'
