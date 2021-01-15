@@ -114,6 +114,13 @@ jobs:
         DEVELOPER_DIR: /Applications/Xcode_${{ matrix.xcode_version}}.app/Contents/Developer
     continue-on-error: ${{ matrix.experimental }}
     steps: 
+      - name: Setup cache
+        id: setup-cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/cache
+          key: ${{ matrix.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-nwchemcache-v001
       - name: Checkout code
         uses: actions/checkout@v2
         with:
@@ -123,6 +130,15 @@ jobs:
           pwd
           ls -lart
           ./travis/build_env.sh
+      - name: fetch cache
+        if: steps.setup-cache.outputs.cache-hit == 'true'
+        run: |
+          [ -d ~/cache/libext ] && mkdir -p ~/cache/libext/mpich/mpich  && \
+          rsync -av ~/cache/libext/* src/libext/.  
+          [ -d ~/cache/simint/simint_install/lib ] && \
+          mkdir -p src/NWints/simint/libsimint_source/simint_install && \
+          rsync -av ~/cache/simint/simint_install/* src/NWints/simint/libsimint_source/simint_install/.   || true
+          echo "cache fetched"
       - name: compile
         run: |
           cc -v
@@ -130,10 +146,19 @@ jobs:
       - name: Check compilation result
         if: ${{ failure() }}
         run: |
-          pwd
-          cc -v
-          cat src/tools/build/config.log
-          cat src/tools/build/comex/config.log
+          cat src/tools/build/config.log || true
+          cat src/tools/build/comex/config.log || true
+      - name: store cache
+        run: |
+          mkdir -p ~/cache/libext/lib  ~/cache/libext/bin  ~/cache/libext/include ~/cache/libext/mpich || true
+          mkdir -p ~/cache/simint/simint_install || true
+          [ -d "src/libext/lib" ] && rsync -av src/libext/lib/*  ~/cache/libext/lib/. 
+          [ -d "src/libext/bin" ] && rsync -av src/libext/bin/*  ~/cache/libext/bin/. 
+          [ -d "src/libext/include" ] && rsync -av src/libext/include/*  ~/cache/libext/include/.  
+          [ -d "src/NWints/simint/libsimint_source/simint_install/lib" ] && rsync -av src/NWints/simint/libsimint_source/simint_install/* ~/cache/simint/simint_install/.  
+          mkdir -p ~/cache/libext/mpich/mpich || true
+          echo "cache stored"
+          ls -Rl ~/cache 
       - name: qa_test
         if: ${{ success() }}
         run: |
