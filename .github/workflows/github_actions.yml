@@ -159,7 +159,7 @@ jobs:
           [ -d "src/NWints/simint/libsimint_source/simint_install/lib" ] && rsync -av src/NWints/simint/libsimint_source/simint_install/* ~/cache/simint/simint_install/.  || true
           mkdir -p ~/cache/libext/mpich/mpich || true
           echo "cache stored"
-          ls -Rl ~/cache 
+          ls -Rla ~/cache 
       - name: qa_test
         if: ${{ success() }}
         run: |
