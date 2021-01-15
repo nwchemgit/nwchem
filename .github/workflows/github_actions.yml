@@ -152,10 +152,10 @@ jobs:
         run: |
           mkdir -p ~/cache/libext/lib  ~/cache/libext/bin  ~/cache/libext/include ~/cache/libext/mpich || true
           mkdir -p ~/cache/simint/simint_install || true
-          [ -d "src/libext/lib" ] && rsync -av src/libext/lib/*  ~/cache/libext/lib/. 
-          [ -d "src/libext/bin" ] && rsync -av src/libext/bin/*  ~/cache/libext/bin/. 
-          [ -d "src/libext/include" ] && rsync -av src/libext/include/*  ~/cache/libext/include/.  
-          [ -d "src/NWints/simint/libsimint_source/simint_install/lib" ] && rsync -av src/NWints/simint/libsimint_source/simint_install/* ~/cache/simint/simint_install/.  
+          [ -d "src/libext/lib" ] && rsync -av src/libext/lib/*  ~/cache/libext/lib/. || true
+          [ -d "src/libext/bin" ] && rsync -av src/libext/bin/*  ~/cache/libext/bin/. || true
+          [ -d "src/libext/include" ] && rsync -av src/libext/include/*  ~/cache/libext/include/.  || true
+          [ -d "src/NWints/simint/libsimint_source/simint_install/lib" ] && rsync -av src/NWints/simint/libsimint_source/simint_install/* ~/cache/simint/simint_install/.  || true
           mkdir -p ~/cache/libext/mpich/mpich || true
           echo "cache stored"
           ls -Rl ~/cache 
