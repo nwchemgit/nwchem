@@ -2,10 +2,19 @@
 os=`uname`
 arch=`uname -m`
 dist="ubuntu"
-if test -f " /usr/lib/fedora-release"; then
+if test -f "/usr/lib/os-release"; then
+    dist=$(grep ID= /etc/os-release |head -1 |cut -c4-| sed 's/\"//g')
+fi
+if test -f "/usr/lib/fedora-release"; then
     dist="fedora"
 fi
+if test -f "/usr/lib/centos-release"; then
+    dist="centos"
+fi
 echo dist is "$dist"
+if [ -z "$DISTR" ] ; then
+    DISTR=$dist
+fi
 echo DISTR is "$DISTR"
  if [[ "$os" == "Darwin" ]]; then 
 #  HOMEBREW_NO_AUTO_UPDATE=1 brew cask uninstall oclint || true  
@@ -20,11 +29,21 @@ echo DISTR is "$DISTR"
 #  fi
 fi
  if [[ "$os" == "Linux" ]]; then
-     if [[ "$DISTR" == "fedora" ]];then
-	 sudo dnf udate;  sudo dnf -y install perl perl python3-devel time patch openblas-serial64 openmpi-devel cmake gcc-gfortran unzip
+     if [[ "$DISTR" == "fedora" ]] || [[ "$DISTR" == "centos" ]] ; then
+	 rpminst=dnf
+	 if [[ "$DISTR" == "centos" ]] ; then
+	     rpminst=yum
+	 fi
+	 sudo $rpminst udate;  sudo $rpminst -y install perl perl python3-devel time patch openblas-serial64 openmpi-devel cmake gcc-gfortran unzip which make tar bzip2 openssh-clients rsync
 	 #	 module load mpi
-	 export PATH=/usr/lib64/openmpi/bin:$PATH
-	 export LD_LIBRARY_PATH=/usr/lib64/openmpi/lib:$LD_LIBRARY_PATH
+	 if [[ "$MPI_IMPL" == "openmpi" ]]; then
+	     sudo $rpminst -y install  openmpi-devel
+	 else
+	     echo ready only for openmpi
+	     exit 1
+	 fi
+	 export PATH=/usr/lib64/"$MPI_IMPL"/bin:$PATH
+	 export LD_LIBRARY_PATH=/usr/lib64/"$MPI_IMPL"/lib:$LD_LIBRARY_PATH
 	 which mpif90
 	 mpif90 -show
      else
