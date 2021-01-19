@@ -458,6 +458,7 @@ c     *****************************************************************
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
+#include "tcgmsg.fh"      
       integer,intent(in) :: oo, ov, vv
       integer,intent(in) :: imo, npoles, nocc, nvir, nri, me
       double precision, intent(in) :: omega
@@ -472,16 +473,18 @@ c     *****************************************************************
       integer g_a, g_b, g_c, g_d, g_e, g_epsilon, k_eps, k_sol, nprocs
       integer nmo, jmo, ipole, ilo, ihi, jlo, jhi, info, ld, mynri, idx
       integer l_pi, k_pi, l_ipiv, k_ipiv, l_scr, k_scr, k_ov, lscr
+      integer g_pi, g_inv, g_sol, addrPi, addrInv, addrSol, llpi
+      integer pihi, pilo
       double precision fac, arg, w, arg2
       double precision factor(npoles), vector(nri), vector2(nri)
       double precision vector3(nri)
       double precision dfactor(npoles)
 
-      logical main
+      logical main, ok
       double precision, parameter :: shift = 0.0001d0
       double precision, external :: ddot
       logical, external :: is_near, nga_create, ga_duplicate, ga_destroy
-      logical, external :: ga_create
+      logical, external :: ga_create, ga_copy
       integer,external :: ga_nodeid,ga_nnodes
 
       main = me.eq.0
@@ -502,6 +505,27 @@ c     *****************************************************************
       if (omega.gt.0d0) call ga_distribution(vv,me,ilo,ihi,vvlo,vvhi)
       call ga_distribution(ov,me,ilo,ihi,ovlo,ovhi)
       call ga_access(ov,1,nri,ovlo,ovhi,k_ov,ld)
+
+
+#if defined(PARALLEL_DIAG)
+      ok = ga_create(mt_dbl,nri,nri,'Pi',nri,0,g_pi)
+      if (.not.ok) call errquit(pname//'can''t create Pi',0,GA_ERR)
+      call ga_distribution(g_pi,me,ilo,ihi,pilo,pihi)
+      call ga_access(g_pi,1,nri,pilo,pihi,addrPi,ld)
+      mynri = pihi - pilo + 1
+      llpi = k_pi + (pilo-1)*nri
+#if defined(SCALAPACK)
+      ok = nga_create(mt_dbl,1,nri,'solution',0,g_sol)
+      if (.not.ok) call errquit(pname//'can''t create vector',0,GA_ERR)
+      call nga_access(g_sol,pilo,pihi,addrSol,ld)
+#else
+      ok = ga_duplicate(g_pi,g_inv,'Inverse')
+      if (.not.ok) call errquit(pname//'can''t create Inverse',0,GA_ERR)
+      call ga_access(g_inv,1,nri,pilo,pihi,addrInv,ld)
+#endif
+
+#endif
+
 
       mynpoles = ovhi - ovlo + 1
 
@@ -533,19 +557,38 @@ c     *****************************************************************
 
           root = mod((imo-1)*nocc+jmo-1,nprocs)
           idx = ((imo-1)*nocc+jmo-1)/nprocs + oolo
+
+#ifdef PARALLEL_DIAG
+          call ga_brdcst(mt_int,idx,mitob(1),root)
+          call dcopy(mynri*nri,dbl_mb(llpi),1,dbl_mb(addrPi),1)
+          call ga_get(oo,1,nri,idx,idx,vector,nri)
+
+#ifdef SCALAPACK
+          call dcopy(mynri,vector(pilo),1,dbl_mb(addrSol),1)
+          call ga_lu_solve('n',g_pi,g_sol)
+          call nga_get(g_sol,1,nri,vector2,nri)
+#else
+          vector2(:) = 0d0
+          call gw_invdiag(g_pi,g_inv,nri)
+          call dgemv('t',nri,mynri,1d0,dbl_mb(addrInv),nri,vector,1,0d0,
+     $                vector2(pilo),1)
+          call dgop(mt_dbl,vector2,nri,'+')
+#endif
+
+#else
           if (me.eq.root) then
             call ga_get(oo,1,nri,idx,idx,vector,nri)
-            call ga_get(oo,1,nri,idx,idx,vector2,nri)
+            call dcopy(nri,vector,1,vector2,1)
             call dsytrf('l',nri,dbl_mb(k_pi),nri,int_mb(k_ipiv),
      $                   dbl_mb(k_scr),lscr,info)
             call dsytrs('l',nri,1,dbl_mb(k_pi),nri,int_mb(k_ipiv),
      $                   vector2,nri,info)
           end if
+          call ga_brdcst(mt_dbl,vector2,mdtob(nri),root)
+#endif
 
 
           if (arg.ne.0d0) then
-            call ga_brdcst(mt_dbl,vector2,ma_sizeof(mt_dbl,nri,mt_byte),
-     $                     root)
             call dgemv('t',nri,mynpoles,1d0,dbl_mb(k_ov),nri,vector2,1,
      $                  0d0,factor,1)
             do ipole=1,mynpoles
@@ -589,18 +632,38 @@ c     *****************************************************************
 
           root = mod((imo-nocc-1)*nvir+jmo-nocc-1,nprocs)
           idx = ((imo-nocc-1)*nvir+jmo-nocc-1)/nprocs + vvlo
+
+
+#ifdef PARALLEL_DIAG
+          call ga_brdcst(mt_int,idx,mitob(1),root)
+          call dcopy(mynri*nri,dbl_mb(llpi),1,dbl_mb(addrPi),1)
+          call ga_get(vv,1,nri,idx,idx,vector,nri)
+
+#ifdef SCALAPACK
+          call dcopy(mynri,vector(pilo),1,dbl_mb(addrSol),1)
+          call ga_lu_solve('n',g_pi,g_sol)
+          call nga_get(g_sol,1,nri,vector2,nri)
+#else
+          vector2(:) = 0d0
+          call gw_invdiag(g_pi,g_inv,nri)
+          call dgemv('t',nri,mynri,1d0,dbl_mb(addrInv),nri,vector,1,0d0,
+     $                vector2(pilo),1)
+          call dgop(mt_dbl,vector2,nri,'+')
+#endif
+
+#else
           if (me.eq.root) then
             call ga_get(vv,1,nri,idx,idx,vector,nri)
-            call ga_get(vv,1,nri,idx,idx,vector2,nri)
+            call dcopy(nri,vector,1,vector2,1)
             call dsytrf('l',nri,dbl_mb(k_pi),nri,int_mb(k_ipiv),
      $                   dbl_mb(k_scr),lscr,info)
             call dsytrs('l',nri,1,dbl_mb(k_pi),nri,int_mb(k_ipiv),
      $                   vector2,nri,info)
           end if
+          call ga_brdcst(mt_dbl,vector2,mdtob(nri),root)
+#endif
 
           if (arg.ne.0d0) then
-            call ga_brdcst(mt_dbl,vector2,ma_sizeof(mt_dbl,nri,mt_byte),
-     $                     root)
             call dgemv('t',nri,mynpoles,1d0,dbl_mb(k_ov),nri,vector2,1,
      $                  0d0,factor,1)
             do ipole=1,mynpoles
@@ -624,6 +687,16 @@ c     *****************************************************************
       if (.not.ma_chop_stack(l_pi))
      $   call errquit(pname//'can''t destroy global array',0,MA_ERR)
 c     
+
+#ifdef PARALLEL_DIAG
+      ok = ga_destroy(g_pi)
+#ifdef SCALAPACK
+      ok = ok .and .ga_destroy(g_sol)
+#else
+      ok = ok .and. ga_destroy(g_inv)
+#endif
+      if (.not.ok) call errquit(pname//'can''t destroy arrays',0,GA_ERR)
+#endif
       return
       end subroutine
 
