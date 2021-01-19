@@ -14,7 +14,7 @@ c
 #include "stdio.fh"
 c
       integer me,nproc,i,j,g_tmp2
-      integer lev,iev,ltmp,itmp,ll,ul,idum
+      integer lev,iev,ltmp,itmp,ll,ul,idum,ld,addrA
       double precision toll,THRESHOLD
       parameter (toll=1.d-6,THRESHOLD=1.D-12)
 c
@@ -59,16 +59,17 @@ C     check on eigenvalues
 C     (U * sigma^-1)
 
       do i=ll,ul
-        call ga_get(g_tmp2,1,n,i,i,DBL_MB(itmp),1)
+        call ga_access(g_tmp2,1,n,i,i,itmp,ld)
+        call ga_access(g_A,1,n,i,i,addrA,ld)
+        call dcopy(n,DBL_MB(itmp),1,DBL_MB(addrA),1)
         call dscal(n,DBL_MB(iev+i-1),DBL_MB(itmp),1)
-        call ga_put(g_A,1,n,i,i,DBL_MB(itmp),1)
       enddo
 
       call ga_sync
 
 C     (U * sigma^-1) * U(transp) 
       
-      call ga_dgemm('N','T',n,n,n,1.d0,g_A,g_tmp2,0.d0,g_cdinv)
+      call ga_dgemm('N','T',n,n,n,1.d0,g_tmp2,g_A,0.d0,g_cdinv)
 
       if(.not.ma_pop_stack(ltmp))
      &  call errquit('dft_invdiag: cannot pop stack',0, MA_ERR)
