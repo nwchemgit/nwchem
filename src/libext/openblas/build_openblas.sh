@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -v
 arch=`uname -m`
 VERSION=0.3.12
 if [ -f  OpenBLAS-${VERSION}.tar.gz ]; then
@@ -66,11 +67,14 @@ else
     LAPACK_FPFLAGS_VAL=" "
 fi
 #disable threading for ppc64le since it uses OPENMP
+echo arch is "$arch"
 if [[ "$arch" == "ppc64le" ]]; then
     THREADOPT=" USE_THREAD=0 NUM_THREADS=1 "
+    echo ppc64le using opt "$THREADOPT" 
 else
     THREADOPT=" USE_THREAD=1 NUM_THREADS=8 "
 fi
+echo make $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" "$THREADOPT" NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0   libs netlib -j4
  make $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" "$THREADOPT" NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0   libs netlib -j4
 # make $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" USE_THREAD=1 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 NUM_THREADS=1  libs netlib -j4
 
