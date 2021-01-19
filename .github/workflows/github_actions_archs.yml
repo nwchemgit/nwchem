@@ -38,7 +38,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ runner.os }}-${{ matrix.mpi_impl}}-${{ matrix.distro}}-${{ matrix.arch}}-nwchem-v004
+          key: ${{ runner.os }}-${{ matrix.mpi_impl}}-${{ matrix.distro}}-${{ matrix.arch}}-nwchem-v005
       - uses: actions/checkout@v2
         name: Checkout
         with:
