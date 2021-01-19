@@ -266,7 +266,7 @@ NW_CORE_SUBDIRS += libext
       MPI_INCLUDE = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
       MPI_LIB     = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH)  $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
       LIBMPI      = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
-endif      
+endif
 ifndef EXTERNAL_GA_PATH
 NW_CORE_SUBDIRS += tools
 endif
@@ -3056,6 +3056,22 @@ endif
 # machine-dependent 
 
 MKDIR = mkdir
+#extract defines to be used with linear algebra libraries
+      ifdef USE_INTERNALBLAS
+      DEFINES += -DINTERNALBLAS
+endif
+ifdef BUILD_OPENBLAS
+      DEFINES += -DOPENBLAS
+endif
+ifeq ($(shell echo $(BLASOPT) |awk '/openblas/ {print "Y"; exit}'),Y)
+      DEFINES += -DOPENBLAS
+endif
+ifeq ($(shell echo $(BLASOPT) |awk '/mkl/ {print "Y"; exit}'),Y)
+      DEFINES += -DMKL
+endif
+ifeq ($(shell echo $(BLASOPT) |awk '/blis/ {print "Y"; exit}'),Y)
+      DEFINES += -DBLIS
+endif
 
 #
 # Define known suffixes mostly so that .p files don\'t cause pc to be invoked
