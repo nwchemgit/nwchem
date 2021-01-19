@@ -2336,7 +2336,8 @@ c           call Cram_c_SMul(nb,w,A(index2),A(index2))
         do nb=nb1,nb2
         do ms=ms1,ms2
           bindex=(nb-nb1)*nbshift+(ms-1)*ne(1)*npack1
-          do k=1,ne(ms)
+          !do k=1,ne(ms)
+          do k=ne(ms),1,-1
            index1=bindex+(k-1)*npack1+1
            call Cram_cc_dot(nb,A(index1),A(index1),w)
 
@@ -2350,7 +2351,8 @@ c           call Cram_c_SMul(nb,w,A(index2),A(index2))
 c           call Cram_c_SMul(nb,w,A(index1),A(index1))
            call Cram_c_SMul1(nb,w,A(index1))
 
-           do j=k+1,ne(ms)
+           !do j=k+1,ne(ms)
+           do j=k-1,1,-1
              index3=bindex+(j-1)*npack1+1
              call Cram_cc_zdot(nb,A(index1),A(index3),wc)
              wc=-wc
