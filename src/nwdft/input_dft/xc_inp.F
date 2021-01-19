@@ -137,7 +137,7 @@ c     xperde86 ==> 9520
 c
 c
       integer num_dirs, ind, mlen, iline, n
-      parameter (num_dirs=155)
+      parameter (num_dirs=156)
 c
       character*15 dirs(num_dirs)
       character*255 test
@@ -189,7 +189,8 @@ c
      &     'becke86b','xperdew86','xmvs15','cvpbe09','mvs',
      &     'hle16', 'scan', 'scanl','scan0','lb94', 'rscan',
      &     'xncap', 'ncap', 'r2scan', 'r2scanl',
-     &     'xscan', 'cscan'/
+     &     'xscan', 'cscan',
+     &     'hcth147@tz2p'/
 c     becke97-d, ssb-d
       logical disp, dumdirect
       integer ivdw
@@ -260,7 +261,9 @@ c
      &  8532,8533,8534,9300,9310,9320,4610,4620,4630,4640,
      &  9510,9520,4115,2109,4124,3101,
      &  9610,9620,9630,9494,9640,
-     &  9710,9720,9650,9660,9615,9616,1999) ind
+     &     9710,9720,9650,9660,9615,9616,
+     &  1947,
+     &    1999 ) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     acm; adiabatic connection method
@@ -549,7 +552,23 @@ c
          nlcfac(17) = .true.
          cfac(17) = 1.0d0
        goto 10
-c     
+c
+c
+c     HCTH147@TZ2P for exchange & correlation
+c
+ 1947    continue
+c
+c        assume total wanted
+c
+       xccomb(75) = .true.
+         lxfac(75) = .true.
+         nlxfac(75) = .true.
+         xfac(75) = 1.0d0
+         lcfac(75) = .true.
+         nlcfac(75) = .true.
+         cfac(75) = 1.0d0
+       goto 10
+c
 c     becke 97 gga-1 by  Cohen and Handy
 c     
  3000  continue

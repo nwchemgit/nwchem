@@ -173,6 +173,30 @@ c      call c_electron_gen_densities(dn,dng,dnall)
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *         c_electron_run0          *
+*     *                                 *
+*     ***********************************
+      subroutine c_electron_run0(psi_k_tag)
+      implicit none
+c      complex*16 psi_k(*)
+      integer    psi_k_tag
+
+#include "c_electron_common.fh"
+
+!$OMP MASTER   
+      counter = counter+1
+!$OMP END MASTER
+      
+      call c_electron_gen_psi_r(psi_k_tag)
+      call c_electron_gen_Hpsi_k_vall(psi_k_tag)
+     
+      return              
+      end     
+
+
 *     ***********************************
 *     *					*
 *     *		c_electron_run		*
@@ -816,6 +840,7 @@ cccccccccccccccccc
       integer  cpsi_data_get_chnk
       external cpsi_data_get_chnk
 
+
       nsize = 2*(neq(1)+neq(2))*npack1
 
       call cpsi_data_update(THpsi_k_tag)
@@ -846,6 +871,89 @@ c     >                     THpsi_k)
       call cpsi_data_noupdate(THpsi_k_tag)
       return
       end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *     c_electron_get_TMgradient   *
+*     *                                 *
+*     ***********************************
+
+      subroutine c_electron_get_TMgradient(psi_k_tag,hml_tag,
+     >                                     THpsi_k_tag)
+      implicit none
+      integer    psi_k_tag
+      integer    hml_tag
+      integer    THpsi_k_tag
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "c_electron_common.fh"
+
+*     **** local variables ****
+      complex*16 zero,one,mone
+      parameter (zero=(0.0d0,0.0d0), one=(1.0d0,0.0d0), 
+     >           mone=(-1.0d0,0.0d0))
+
+      logical value
+      integer nb,nsize,psi_shift,hpsi_shift,tpsi_shift,hml_shift
+
+*     **** external functions ****
+      integer  cpsi_data_get_chnk
+      external cpsi_data_get_chnk
+
+c      value = BA_push_get(mt_dbl,2*(ne(1)*ne(1)+ne(2)*ne(2)),
+c     >                    'mhml_tmp',mhml_tmp(2),mhml_tmp(1)) 
+c      if (.not.value) 
+c     >   call errquit('c_electron_get_TMgradient:out of stack',0,MA_ERR)
+
+
+      nsize = 2*(neq(1)+neq(2))*npack1
+
+      call cpsi_data_update(THpsi_k_tag)
+      do nb=1,nbrillq
+         psi_shift  = cpsi_data_get_chnk(psi_k_tag,nb)
+         hpsi_shift = cpsi_data_get_chnk(Hpsi_k_tag,nb)
+         tpsi_shift = cpsi_data_get_chnk(THpsi_k_tag,nb)
+         hml_shift  = cpsi_data_get_chnk(hml_tag,nb)
+
+*        *** generate M*H|psi> ***
+         call Parallel_shared_vector_copy(.true.,nsize,
+     >                                    dbl_mb(hpsi_shift),
+     >                                    dbl_mb(tpsi_shift))
+
+         call cke_Precondition(nb,npack1,(neq(1)+neq(2)),
+     >                         dbl_mb(psi_shift),
+     >                         dbl_mb(tpsi_shift))
+
+*        **** generate mhml = <psi|M*H|psi> ****
+         call Pneb_ffw_hermit_Multiply(0,nb,
+     >                  dbl_mb(psi_shift),
+     >                  dbl_mb(tpsi_shift),npack1,
+     >                  dbl_mb(hml_shift))
+
+*         **** generate TMG = M*H|psi> - |psi>*mhml ****
+         call Pneb_fwf_Multiply(0,nb,
+     >                       mone,
+     >                       dbl_mb(psi_shift),npack1,
+     >                       dbl_mb(hml_shift),
+     >                       one,
+     >                       dbl_mb(tpsi_shift))
+
+      end do
+      call cpsi_data_noupdate(THpsi_k_tag)
+
+c      value = BA_pop_stack(mhml_tmp(2))
+c      if (.not.value) 
+c     > call errquit('c_electron_get_TMgradient:popping stack',1,MA_ERR)
+ 
+      return
+      end
+
+
+
+
 
       subroutine c_electron_ff_sub(nsize,A,B)
       implicit none
@@ -899,6 +1007,7 @@ c     >                     THpsi_k)
 *******    routines below this line are for internal use only    *********
 **************************************************************************
 **************************************************************************
+
 
 *     ***********************************
 *     *					*

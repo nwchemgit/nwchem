@@ -303,6 +303,11 @@ c
          dohcth=.true.
          nx=11
          nc=17
+      elseif (abs(xfac(75)).gt.eps.or.abs(cfac(75)).gt.eps)then
+         whichf='h7tz'
+         dohcth=.true.
+         nx=75
+         nc=75
       elseif (abs(xfac(5)).gt.eps.or.abs(cfac(14)).gt.eps)then
          whichf='b970'
          dohcth=.true.

@@ -604,8 +604,8 @@ ifdef USE_GAGITHUB
 #DEV_GA=1 gives the current "best" dev branch, not develop
 #to get develop, set GA_BRANCH-develop
     ifdef DEV_GA
-      GA_DIR = ga-5.7.2
-      GA_BRANCH = hotfix/5.7.2
+      GA_DIR = ga-develop
+      GA_BRANCH = develop
     else
       GA_DIR0=ga-$(GA_BRANCH)
       GA_DIR=$(shell echo $(GA_DIR0) | sed -e 's/\//_/g')

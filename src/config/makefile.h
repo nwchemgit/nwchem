@@ -266,7 +266,7 @@ NW_CORE_SUBDIRS += libext
       MPI_INCLUDE = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
       MPI_LIB     = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH)  $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
       LIBMPI      = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
-endif      
+endif
 ifndef EXTERNAL_GA_PATH
 NW_CORE_SUBDIRS += tools
 endif
@@ -1723,10 +1723,16 @@ endif
       ifeq ($(CC),pgcc)
         _CC=pgcc
       endif
+      ifeq ($(CC),nvcc)
+        _CC=pgcc
+      endif
       ifeq ($(CC),icc)
         _CC=icc
       endif
       ifeq ($(FC),pgf90)
+        _FC=pgf90
+      endif
+      ifeq ($(FC),nvfortran)
         _FC=pgf90
       endif
       ifeq ($(FC),pgf77)
@@ -1839,8 +1845,8 @@ endif
         ifeq ($(GNU_GE_4_8),true)
           ifeq ($(_CPU),ppc64le)
           FDEBUG =-O0 -g 
-          else
-          FDEBUG =-O2 -g 
+#          else
+#          FDEBUG =-O2 -g
           endif
           FDEBUG +=-fno-aggressive-loop-optimizations
           FOPTIMIZE +=-fno-aggressive-loop-optimizations
@@ -2145,7 +2151,8 @@ endif
      endif # _FC = ifort (i think)
 #
       ifeq ($(_FC),pgf90)
-        FOPTIONS   += -Mdalign -Mllalign -Kieee 
+        FOPTIONS   += -Mdalign -Mllalign -Kieee
+	FOPTIONS   += -Mbackslash
 #        FOPTIONS   += -tp k8-64  
 #        FOPTIONS   +=    -Ktrap=fp
         FOPTIMIZE   = -O3 -fastsse -Mnounroll -Minfo=loop -Mipa=fast
@@ -2281,7 +2288,10 @@ endif
 #AOMP flang crashes with -g in source using block data
         FDEBUG =  -O
 	  else
-        FDEBUG += -g -O
+        FDEBUG += -g -O0
+        ifeq ($(GNU_GE_4_8),true)
+          FDEBUG +=-fno-aggressive-loop-optimizations
+	endif
 	endif
         ifdef USE_F2C
 #possible segv with use of zdotc (e.g. with GOTO BLAS)
@@ -2290,7 +2300,8 @@ endif
         endif
         ifeq ($(GNU_GE_4_6),true) 
           FOPTIMIZE +=  -mtune=native
-          FOPTIONS += -finline-functions
+# causes slowdows in mp2/ccsd
+#          FOPTIONS += -finline-functions
         endif
 #        FVECTORIZE  += -ftree-vectorize -ftree-vectorizer-verbose=1
        ifdef  USE_FPE
@@ -2353,11 +2364,12 @@ ifeq ($(_CPU),$(findstring $(_CPU),aarch64))
       FOPTIMIZE  += -ftree-vectorize   -fopt-info-vec
     endif
 
-    FDEBUG += -g -O 
+    FDEBUG += -g -O
 
     ifeq ($(GNU_GE_4_6),true) 
       FOPTIMIZE +=  -mtune=native
-      FOPTIONS += -finline-functions
+# causes slowdows in mp2/ccsd
+#      FOPTIONS += -finline-functions
     endif
     ifndef USE_FPE
       FOPTIMIZE  += -ffast-math #2nd time
@@ -3044,6 +3056,22 @@ endif
 # machine-dependent 
 
 MKDIR = mkdir
+#extract defines to be used with linear algebra libraries
+      ifdef USE_INTERNALBLAS
+      DEFINES += -DINTERNALBLAS
+endif
+ifdef BUILD_OPENBLAS
+      DEFINES += -DOPENBLAS
+endif
+ifeq ($(shell echo $(BLASOPT) |awk '/openblas/ {print "Y"; exit}'),Y)
+      DEFINES += -DOPENBLAS
+endif
+ifeq ($(shell echo $(BLASOPT) |awk '/mkl/ {print "Y"; exit}'),Y)
+      DEFINES += -DMKL
+endif
+ifeq ($(shell echo $(BLASOPT) |awk '/blis/ {print "Y"; exit}'),Y)
+      DEFINES += -DBLIS
+endif
 
 #
 # Define known suffixes mostly so that .p files don\'t cause pc to be invoked

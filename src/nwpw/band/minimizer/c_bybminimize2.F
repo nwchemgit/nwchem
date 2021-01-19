@@ -37,6 +37,9 @@ c
       real*8  charge(2),tcharge
       integer nx,ny,nz,stalled_count,ms,nb,i
 
+      real*8 e00_shared,deltav_shared,diis_error_shared
+      common / c_shared_e00_block / e00_shared,deltav_shared,
+     >                              diis_error_shared
 
       real*8     tole,tolc
       real*8     ehartree,eorbit,exc,pxc,eion
@@ -46,7 +49,10 @@ c
       integer it,it_in,ispin,sd_it,cg_it
 
       logical value,precondition,done,stalled,oprint
+      logical ks_block
       integer nfft3d
+
+      integer maxit_orb,maxit_orbs
       
 
 
@@ -94,7 +100,10 @@ c
 
       logical  cpsi_try_read_density,control_use_fractional_rho
       external cpsi_try_read_density,control_use_fractional_rho
-   
+      integer  control_ks_algorithm
+      external control_ks_algorithm
+      integer  control_ks_maxit_orb,control_ks_maxit_orbs
+      external control_ks_maxit_orb,control_ks_maxit_orbs
 
       Ein = E(1)
       call Parallel_taskid(taskid)
@@ -113,6 +122,9 @@ c
         sd_it = 10
         cg_it = 10
       end if
+      maxit_orb  = control_ks_maxit_orb()
+      maxit_orbs = control_ks_maxit_orbs()
+
       tole  = control_tole()
       tolc  = control_tolc()
       precondition = control_precondition()
@@ -203,12 +215,26 @@ c
      >                5,ispin,nfft3d,dbl_mb(rho_out(1)))
 
 
+*     **** iniitialize blocked cg ****
+      ks_block = .false.
+      if (control_ks_algorithm().eq.-1)  then
+         ks_block = .true.
+         call linesearch_maxiter_set(control_ks_maxit_orb())
+      end if
+
+
 *     ***** scf loop ****
       it   = 0
  2    it   = it + 1
       
 *     **** diaganolize KS matrix ****
-      call cpsi_KS_update(1,precondition,ks_deltae)
+      if (ks_block) then
+         call cpsi_KS_block_update(1,e00_shared,deltae,it,maxit_orbs,
+     >                             precondition,ks_deltae)
+      else
+         call cpsi_KS_update(1,precondition,ks_deltae)
+      end if
+
       call c_rho_1to2()
 
 *     **** rotate orbitals or define fractional occupation **** 
@@ -233,7 +259,7 @@ c
       call dcopy(ispin*nfft3d,
      >           dbl_mb(rho_in(1)),1,
      >           dbl_mb(rho_junk(1)),1)
-      call daxpy(ispin*nfft3d,
+      call DAXPY_OMP(ispin*nfft3d,
      >              (-1.0d0),
      >              dbl_mb(rho_out(1)),1,
      >              dbl_mb(rho_junk(1)),1)
@@ -272,7 +298,7 @@ c
          call nwpw_scf_mixing_reset(dbl_mb(rho_out(1)))
 
 
-         call daxpy(ispin*nfft3d,
+         call DAXPY_OMP(ispin*nfft3d,
      >              (-1.0d0),
      >              dbl_mb(rho_out(1)),1,
      >              dbl_mb(rho_junk(1)),1)

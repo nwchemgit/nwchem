@@ -325,6 +325,12 @@ c      value = value .and. MA_set_auto_verify(.true.)
 
         call Pack_c_nCopy(1,nemax,psi2,psi1)
 
+        if (fractional) then
+           call Parallel_shared_vector_copy(.false.,ne(1)+ne(2),
+     >                                      occ2,occ1)
+        end if
+     
+
         if (move) then
            call ion_shift()
            if (psp_pawexist()) call nwpw_gintegrals_set(.true.)
