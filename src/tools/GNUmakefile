@@ -665,7 +665,7 @@ else
 STAMP_DIR = $(subst $(SPACE),-,$(strip $(GA_DIR))).DIR.stamp
 endif
 
-$(INSTALLDIR)/lib/libga.a: $(BUILDDIR)/.libs/libga.a
+$(INSTALLDIR)/lib/libga.a: $(BUILDDIR)/.libs/libga.a cleanlibga
 	@echo ''
 	@echo '*** Installing Parallel Tools ****'
 	@echo ''
@@ -683,7 +683,7 @@ $(BUILDDIR)/.libs/libga.a:  $(BUILDDIR)/Makefile $(BUILDDIR)/armci/Makefile
 
 configure_ga: $(BUILDDIR)/Makefile
 
-$(BUILDDIR)/Makefile: $(GA_DIR)/Makefile.in $(BUILDDIR)/config.status
+$(BUILDDIR)/Makefile: $(GA_DIR)/Makefile.in $(BUILDDIR)/config.status cleanmac
 	cd $(BUILDDIR) && $(SHELL) ./config.status
 
 $(BUILDDIR)/armci/Makefile: $(GA_DIR)/armci/Makefile.in $(BUILDDIR)/armci/config.status
@@ -730,12 +730,16 @@ clean:
 realclean:
 	@rm -rf $(BUILDDIR) $(INSTALLDIR)
 # remove all files that are not .o objects (eg lib*.a) from libga.a
-cleanlibga:
+cleanlibga: $(BUILDDIR)/.libs/libga.a
 	mkdir -p ob
 	cd ob && ar -x ../build/.libs/libga.a && rm -f ../build/.libs/libga.a && ar crv ../build/.libs/libga.a *.o && mkdir -p ../install/lib
 	cd ..
 	rm -rf ob
+	cp build/.libs/libga.a install/lib
 
+cleanmac: $(BUILDDIR)/config.status
+	sed -e '/FLIBS/,/CommandLine/ s/lpthread.*/lpthread"/' -e '/FLIBS/,/osx/ s/.*osx.*//' $(BUILDDIR)/config.status > config.bak
+	mv config.bak $(BUILDDIR)/config.status
 
 #
 # Common targets shared between GNUmakefile's and automake Makefiles
