@@ -751,17 +751,14 @@ c
 
             call cpsi_data_update(hml_tag)
             call cpsi_data_update(eig_tag)
+            call cpsi_data_update(psi2_tag)
             do nb=1,nbrillq
               hml_shift = cpsi_data_get_chnk(hml_tag,nb)
               eig_shift = cpsi_data_get_chnk(eig_tag,nb)
               call Pneb_w_diag(0,nb,dbl_mb(eig_shift),dbl_mb(hml_shift))
             end do
-            call cpsi_data_noupdate(hml_tag)
-            call cpsi_data_noupdate(eig_tag)
-c
-            call cpsi_data_update(psi2_tag)
+
             do nb=1,nbrillq
-              !psi1_shift = cpsi_data_get_chnk(psi1_tag,nb)
               psi2_shift = cpsi_data_get_chnk(psi2_tag,nb)
               hml_shift  = cpsi_data_get_chnk(hml_tag,nb)
               call Parallel_shared_vector_copy(.true.,nemaxq*2*npack1,
@@ -782,6 +779,8 @@ c
      >                               smeartype,smearkT,
      >                               smearfermi,smearcorrection)
             call cpsi_data_noupdate(psi2_tag)
+            call cpsi_data_noupdate(eig_tag)
+            call cpsi_data_noupdate(hml_tag)
          end if
 
       if (icount.lt.it_out) go to 1
@@ -855,15 +854,17 @@ c      call cpsi_data_dealloc(lmd_tag)
 
 
 *     ***** diagonalize the hamiltonian matrix but don't rotate ****
-      call cpsi_data_update(hml_tag)
-      call cpsi_data_update(eig_tag)
-      do nb=1,nbrillq
-        hml_shift = cpsi_data_get_chnk(hml_tag,nb)
-        eig_shift = cpsi_data_get_chnk(eig_tag,nb)
-        call Pneb_w_diag(0,nb,dbl_mb(eig_shift),dbl_mb(hml_shift))
-      end do
-      call cpsi_data_noupdate(hml_tag)
-      call cpsi_data_noupdate(eig_tag)
+      if (.not.fractional) then
+         call cpsi_data_update(hml_tag)
+         call cpsi_data_update(eig_tag)
+         do nb=1,nbrillq
+           hml_shift = cpsi_data_get_chnk(hml_tag,nb)
+           eig_shift = cpsi_data_get_chnk(eig_tag,nb)
+           call Pneb_w_diag(0,nb,dbl_mb(eig_shift),dbl_mb(hml_shift))
+         end do
+         call cpsi_data_noupdate(hml_tag)
+         call cpsi_data_noupdate(eig_tag)
+      end if
 
 
 *     ***** diagonalize and rotate the hamiltonian matrix ****
