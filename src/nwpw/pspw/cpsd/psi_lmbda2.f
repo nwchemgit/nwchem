@@ -212,6 +212,7 @@ c          call Dneall_f_ortho(ms,psi2,npack1)
 
         !*** solve U*D*Ut*X + X*U*D*Ut = fnm for X ***
         call psi_fnm_to_X(ms,fnm,U,D,fweight,tmp)
+        !call daxpy(nn,-1.0d0,X1,1,fnm,1)
 
         !call DMSUB(n_max,n,X1,fnm,tmp)
         !adiff = tmp(idamax(n_max*n,tmp,1))

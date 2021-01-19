@@ -1224,6 +1224,10 @@ c         return
      >                  mt_int,1,frac_smeartype)) then
          frac_smeartype = 0
       end if
+      if (.not. btdb_get(rtdb,'nwpw:fractional_alpha',
+     >                   mt_dbl,1,fractional_alpha)) then
+         fractional_alpha = 1.00d0
+      end if
 
 *     **** set attenuation parameter ****
       if (.not.btdb_get(rtdb,'nwpw:attenuation',mt_dbl,1,attenuation))

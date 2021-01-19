@@ -31,9 +31,9 @@
 *     **** local variables ****
       logical move,sic,hfx,done
       integer n2ft3d,np_i,np_j,np_k,np,nbq,nemaxq
-      integer i,n,n1(2),n2(2),it,ms,ierr,shifto
+      integer i,n,n1(2),n2(2),it,ms,ierr,shifto,indx
       integer shiftA,shiftB,nshiftA,nshiftB,psi1_shift,psi2_shift
-      integer nx,ny,nz,nbi,nbj,ki,kj,occ_tag,nb
+      integer nx,ny,nz,nbi,nbj,ki,kj,occ_tag,nb,eig_shift
       integer gga,psi_shift,hpsi_shift,hml_shift,nshift1,nshift2
       real*8  sum,Eold,eorbit,eion,ehartr,eke,elocal,enlocal
       real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
@@ -282,7 +282,7 @@ c!$OMP END PARALLEL
 
 *       *** reduce over brillioun zone ***
         call K1dB_Vector_SumAll(ispin*nfft3d,dn)
-        call dscal(ispin*nfft3d,scal2,dn,1)
+        call DSCAL_OMP(ispin*nfft3d,scal2,dn,1)
 
         call c_rho_symmetrizer_dn(ispin,nfft3d,dn)
 
@@ -427,12 +427,20 @@ c           if (pspw_qmmm_found()) call pspw_qmmm_fion(dbl_mb(fion(1)))
           psi2_shift = cpsi_data_get_chnk(psi2_tag,nb)
           do ms=1,ispinq
           if (neq(ms).gt.0) then
-             call cpsi_lmbda(ms,nb,npack1,
+             if (fractional) then
+                shifto = cpsi_data_get_chnk(next1_tag,nb)
+                call cpsi_lmbda2(ms,nb,npack1,
+     >                   dbl_mb(psi1_shift),
+     >                   dbl_mb(psi2_shift),
+     >                   dte,dbl_mb(shifto),
+     >                   dcpl_mb(tmp_L(1)),ierr)
+             else
+                call cpsi_lmbda(ms,nb,npack1,
      >                   dbl_mb(psi1_shift),
      >                   dbl_mb(psi2_shift),
      >                   dte,
      >                   dcpl_mb(tmp_L(1)),ierr)
-
+             end if
           end if
           end do
         end do
@@ -462,7 +470,21 @@ c           if (pspw_qmmm_found()) call pspw_qmmm_fion(dbl_mb(fion(1)))
      >                  dbl_mb(hpsi_shift),npack1,
      >                  dbl_mb(hml_shift))
          call Pneb_w_scal(0,nb,-1.0d0,dbl_mb(hml_shift))
-         call Pneb_w_trace(0,nb,dbl_mb(hml_shift),sum)
+         if ((occ_tag.gt.0).and.(.true.)) then
+            shifto = cpsi_data_get_chnk(occ_tag,nb)
+            sum  = 0.0d0
+             do ms=1,ispin
+             do n=1,ne(ms)
+                sum = sum 
+     >              + dbl_mb(hml_shift+2*(n-1+(n-1)*ne(ms)
+     >                      + (ms-1)*ne(1)*ne(1)))
+     >                *dbl_mb(shifto) 
+                shifto = shifto + 1
+             end do
+             end do
+         else
+            call Pneb_w_trace(0,nb,dbl_mb(hml_shift),sum)
+         end if
          eorbit = eorbit + sum*brillioun_weight(nb)
       end do
       call cpsi_data_noupdate(hml_tag)

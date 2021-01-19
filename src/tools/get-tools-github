@@ -76,8 +76,8 @@ TOOLGIT=`which git`
 CONFIG=$NWCHEM_TOP/src/config/makefile.h
 if test "x$DEV_GA" != x
 then
-    GA_DIR=ga-5.7.2
-    GA_BRANCH=hotfix/5.7.2
+    GA_DIR=ga-5.8
+    GA_BRANCH=release/5.8
 fi
 if test "x$GA_BRANCH" = x 
 then
@@ -134,8 +134,8 @@ if test "x$DEV_GA" != x
 then
 #DEV_GA=1 gives the current "best" dev branch, not develop
 #to get develop, set GA_BRANCH-develop
-    GA_DIR=ga-5.7.2
-    GA_BRANCH=hotfix/5.7.2
+    GA_DIR=ga-develop
+    GA_BRANCH=develop
 else
     if test "x$GA_BRANCH" != x
     then
@@ -145,8 +145,8 @@ else
 	    GA_DIR=`echo $GA_DIR0 | sed -e 's/\//_/g'`
 	fi
     else
-	GA_DIR=ga-5.7.2
-	GA_BRANCH=hotfix/5.7.2
+	GA_DIR=ga-5.8
+	GA_BRANCH=release/5.8
     fi
 fi
 if test "x$GA_URL" != x

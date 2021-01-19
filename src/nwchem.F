@@ -168,6 +168,8 @@ C
       !$omp end master
       !$omp end parallel
 #endif
+c     set no. threads for threaded BLAS to 1
+      call util_blas_set_num_threads(1)
 !
       call rtdb_init()
 c

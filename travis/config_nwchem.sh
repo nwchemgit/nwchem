@@ -1,6 +1,9 @@
 #!/bin/bash
 # source env. variables
- source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
+if [[ -z "$TRAVIS_BUILD_DIR" ]] ; then
+    TRAVIS_BUILD_DIR=$(pwd)
+fi
+source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
 if [[ ! -z "$TARBALL" ]]; then
     cd $TRAVIS_BUILD_DIR/..
     pwd

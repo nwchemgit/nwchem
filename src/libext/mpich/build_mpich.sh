@@ -13,5 +13,5 @@ fi
 echo 'using FFLAGS=' $FFLAGS
 ./configure --prefix=`pwd`/../.. --enable-fast --enable-fortran=all --disable-shared --disable-cxx
 mkdir -p ../../../lib
-make
+make -j3
 make install

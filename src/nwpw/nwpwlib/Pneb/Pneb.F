@@ -1094,7 +1094,7 @@ c     **** external functions ****
       external Pneb_w_size
 
       nsize = Pneb_w_size(mb,nbb)
-      call dcopy(2*nsize,0.0d0,0,w,1)
+      call Parallel_shared_vector_zero(.true.,2*nsize,w)
       return
       end
 
@@ -1122,7 +1122,7 @@ c     **** external functions ****
       external Pneb_m_size
 
       nsize = Pneb_m_size(mb,nbb)
-      call dcopy(nsize,0.0d0,0,m,1)
+      call Parallel_shared_vector_zero(.true.,nsize,m)
 
       return
       end
@@ -1881,7 +1881,7 @@ c     ****************************************
       external Pneb_w_size
 
       nsize = Pneb_w_size(mb,nbb)
-      call dscal(2*nsize,alpha,hml,1)
+      call dscal_omp(2*nsize,alpha,hml,1)
       return
       end
 
@@ -1965,7 +1965,7 @@ c     **** external functions ****
       external Pneb_m_size
 
       nsize = Pneb_m_size(mbb,nbb)
-      call dcopy(2*nsize,hml,1,gml,1)
+      call Parallel_shared_vector_copy(.true.,2*nsize,hml,gml)
 
       return 
       end 
@@ -2336,7 +2336,8 @@ c           call Cram_c_SMul(nb,w,A(index2),A(index2))
         do nb=nb1,nb2
         do ms=ms1,ms2
           bindex=(nb-nb1)*nbshift+(ms-1)*ne(1)*npack1
-          do k=1,ne(ms)
+          !do k=1,ne(ms)
+          do k=ne(ms),1,-1
            index1=bindex+(k-1)*npack1+1
            call Cram_cc_dot(nb,A(index1),A(index1),w)
 
@@ -2350,7 +2351,8 @@ c           call Cram_c_SMul(nb,w,A(index2),A(index2))
 c           call Cram_c_SMul(nb,w,A(index1),A(index1))
            call Cram_c_SMul1(nb,w,A(index1))
 
-           do j=k+1,ne(ms)
+           !do j=k+1,ne(ms)
+           do j=k-1,1,-1
              index3=bindex+(j-1)*npack1+1
              call Cram_cc_zdot(nb,A(index1),A(index3),wc)
              wc=-wc
@@ -3296,7 +3298,7 @@ c    returns C = beta*C + alpha*A*B
       do nb=nb1,nb2
       do ms=ms1,ms2
          if (ne(ms).gt.0) then
-            call ZGEMM('N','N',ne(ms),ne(ms),ne(ms),
+            call ZGEMM_OMP('N','N',ne(ms),ne(ms),ne(ms),
      >                 alpha,
      >                 A(indx),ne(ms),
      >                 B(indx),ne(ms),
@@ -3336,7 +3338,7 @@ c
       do nb=nb1,nb2
       do ms=ms1,ms2
          if (ne(ms).gt.0) then
-            call ZGEMM('C','N',ne(ms),ne(ms),ne(ms),
+            call ZGEMM_OMP('C','N',ne(ms),ne(ms),ne(ms),
      >                 alpha,
      >                 A(indx),ne(ms),
      >                 B(indx),ne(ms),
@@ -3369,7 +3371,7 @@ c    returns C = beta*C + alpha*A*conj(B')
 
 *     **** local variables ****
       integer ms1,ms2,nb1,nb2,indx,ms,nb,ishift2,ishift3
-      integer shift2
+      integer shift2,i
 
       if (mparallelized) then
          
@@ -3425,7 +3427,7 @@ c    returns C = beta*C + alpha*A*conj(B')
          do nb=nb1,nb2
          do ms=ms1,ms2
             if (ne(ms).gt.0) then
-               call ZGEMM('N','C',ne(ms),ne(ms),ne(ms),
+               call ZGEMM_OMP('N','C',ne(ms),ne(ms),ne(ms),
      >                    alpha,
      >                    A(indx),ne(ms),
      >                    B(indx),ne(ms),
@@ -3836,7 +3838,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         call Cram_c_copy(nbb,A(1),B(indx2))
       end do
       return 
-      end 	
+      end
 cccccccccccccccc
 
 *     **********************************************
@@ -3877,6 +3879,7 @@ cccccccccccccccc
         do ms=ms1,ms2
           if (ne(ms).le.0) go to 30
           shift2 = (ms1-1)*ishift2 + shift3
+!$OMP DO
           do k=1,ne(ms)
              indx = k + (k-1)*ne(ms) + shift2
              s22(indx) = (1.0d0-s22(indx))*0.5d0/dte
@@ -3888,6 +3891,7 @@ cccccccccccccccc
                 s22(indxt) = dconjg(s22(indx))
              end do
           end do
+!$OMP END DO
 
  30     continue
         end do
@@ -3936,6 +3940,7 @@ cccccccccccccccc
         do ms=ms1,ms2
           if (ne(ms).le.0) go to 30
           shift2 = (ms1-1)*ishift2 + shift3
+!$OMP DO
           do k=1,ne(ms)
              indx = k + (k-1)*ne(ms) + shift2
              s21(indx) = (1.0d0-s21(indx))*0.5d0
@@ -3947,6 +3952,7 @@ cccccccccccccccc
                 s21(indxt) = dconjg(s21(indx))
              end do
           end do
+!$OMP END DO
 
  30     continue
         end do
@@ -3992,6 +3998,7 @@ cccccccccccccccc
         do ms=ms1,ms2
           if (ne(ms).le.0) go to 30
           shift2 = (ms1-1)*ishift2 + shift3
+!$OMP DO
           do k=1,ne(ms)
              indx = k + (k-1)*ne(ms) + shift2
              s11(indx) = -s11(indx)*0.5d0*dte
@@ -4003,12 +4010,193 @@ cccccccccccccccc
                 s11(indxt) = dconjg(s11(indx))
              end do
           end do
+!$OMP END DO
 
  30     continue
         end do
       end do
       return
       end
+
+
+*     **********************************************
+*     *                                            *
+*     *           Pneb_w_HmldivideDplusD           *
+*     *                                            *
+*     **********************************************
+      subroutine Pneb_w_HmldivideDplusD(mbb,nbb,fnm,D)
+      implicit none
+      integer mbb,nbb
+      complex*16 fnm(*)
+      real*8     D(*)
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer nb,ms,nb1,nb2,ms1,ms2,ishift2,ishift3,shift2,shift3
+      integer ishift1
+      integer j,k,indx,indxt
+      real*8 d2
+
+      call assign_nb(nbb,nb1,nb2)
+      call assign_ms(mbb,ms1,ms2)
+      if (mbb.eq.0) then
+         ishift1 = ne(1)
+         ishift2 = ne(1)*ne(1)
+      else
+         ishift1 = 0
+         ishift2 = 0
+      end if
+      if (nbb.eq.0) then
+         if (spin_orbit) then
+           ishift3 = ne(1)*ne(1)
+         else
+           ishift3 = ne(1)*ne(1) + ne(2)*ne(2)
+         end if
+      else
+         ishift3 = 0
+      end if
+      do nb=nb1,nb2
+        shift3 = (nb-nb1)*ishift3
+        do ms=ms1,ms2
+          if (ne(ms).le.0) go to 30
+          shift2 = (ms1-1)*ishift2 + shift3
+!$OMP DO
+          do k=1,ne(ms)
+          do j=1,ne(ms)
+             indx  = j + (k-1)*ne(ms) + shift2
+             !indxt = k + (j-1)*ne(ms) + shift2
+             d2 = D(j) + D(k)
+
+             fnm(indx) = fnm(indx)/d2
+          end do
+          end do
+!$OMP END DO
+
+ 30     continue
+        end do
+      end do
+      return
+      end
+
+*     **********************************************
+*     *                                            *
+*     *           Pneb_w_Hmlfweightscale           *
+*     *                                            *
+*     **********************************************
+      subroutine Pneb_w_Hmlfweightscale(mbb,nbb,fnm,fweight)
+      implicit none
+      integer mbb,nbb
+      complex*16 fnm(*)    
+      real*8     fweight(*)
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer nb,ms,nb1,nb2,ms1,ms2,ishift2,ishift3,shift2,shift3
+      integer j,k,indx
+      real*8  wjk
+
+      call assign_nb(nbb,nb1,nb2)
+      call assign_ms(mbb,ms1,ms2)
+      if (mbb.eq.0) then
+         ishift2 = ne(1)*ne(1)
+      else
+         ishift2 = 0
+      end if
+      if (nbb.eq.0) then
+         if (spin_orbit) then
+           ishift3 = ne(1)*ne(1)
+         else
+           ishift3 = ne(1)*ne(1) + ne(2)*ne(2)
+         end if
+      else
+         ishift3 = 0
+      end if
+      do nb=nb1,nb2
+        shift3 = (nb-nb1)*ishift3
+        do ms=ms1,ms2
+          if (ne(ms).le.0) go to 30
+          shift2 = (ms1-1)*ishift2 + shift3
+!$OMP DO
+          do k=1,ne(ms)
+          do j=1,ne(ms)
+             wjk = fweight(j)+fweight(k)
+             if (wjk.gt.1.0d-9) then
+                indx  = j + (k-1)*ne(ms) + shift2
+                fnm(indx) = fnm(indx)*(2.0d0*fweight(j)/wjk)
+             end if
+          end do
+          end do
+!$OMP END DO
+
+ 30     continue
+        end do
+      end do
+      return
+      end
+
+
+*     **********************************************
+*     *                                            *
+*     *               Pneb_w_eye                   *
+*     *                                            *
+*     **********************************************
+      subroutine Pneb_w_eye(mbb,nbb,A,scal)
+      implicit none
+      integer mbb,nbb
+      complex*16 A(*)
+      real*8     scal
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer nb,ms,nb1,nb2,ms1,ms2,ishift2,ishift3,shift2,shift3
+      integer k,indx
+
+      call assign_nb(nbb,nb1,nb2)
+      call assign_ms(mbb,ms1,ms2)
+      if (mbb.eq.0) then
+         ishift2 = ne(1)*ne(1)
+      else
+         ishift2 = 0
+      end if
+      if (nbb.eq.0) then
+         if (spin_orbit) then
+           ishift3 = ne(1)*ne(1)
+         else
+           ishift3 = ne(1)*ne(1) + ne(2)*ne(2)
+         end if
+      else
+         ishift3 = 0
+      end if
+      do nb=nb1,nb2
+        shift3 = (nb-nb1)*ishift3
+        do ms=ms1,ms2
+          if (ne(ms).le.0) go to 30
+          shift2 = (ms1-1)*ishift2 + shift3
+          call Pneb_w_zero(ms,nb,A(shift2))
+!$OMP DO
+          do k=1,ne(ms)
+             indx  = k + (k-1)*ne(ms) + shift2
+             A(indx) = dcmplx(scal,0.0d0)
+          end do
+!$OMP END DO
+
+ 30     continue
+        end do
+      end do
+      return
+      end
+
+
+
+
+
+
+
+
+
 
 
 *     **********************************************
@@ -4204,6 +4392,23 @@ cccccccccccccccc
       return
       end
 
+
+
+      subroutine Pneb_ww_transpose_sub(n,A,B)
+      implicit none
+      integer n
+      complex*16 A(n,n)
+      complex*16 B(n,n)
+      integer i,j
+!$OMP DO private(i,j)
+      do j=1,n
+         do i=1,n
+            B(i,j) = dconjg(A(j,i))
+         end do
+      end do
+!$OMP END DO
+      return
+      end
 
 
 
