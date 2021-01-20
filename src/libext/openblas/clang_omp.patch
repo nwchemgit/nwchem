@@ -1,0 +1,15 @@
+--- Makefile.system	2020-12-12 09:19:29.000000000 -0800
++++ Makefile.system	2021-01-19 17:00:32.000000000 -0800
+@@ -548,8 +548,12 @@
+ endif
+ 
+ ifeq ($(C_COMPILER), CLANG)
++ifeq ($(shell uname -s),Darwin)
++CCOMMON_OPT    += -Xpreprocessor -fopenmp
++else
+ CCOMMON_OPT    += -fopenmp
+ endif
++endif
+ 
+ ifeq ($(C_COMPILER), INTEL)
+ CCOMMON_OPT    += -fopenmp
