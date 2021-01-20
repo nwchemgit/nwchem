@@ -508,7 +508,7 @@ c     *****************************************************************
 
 
 #if PARALLEL_DIAG
-      parallel_diag = nri .gt. 1500
+      parallel_diag = nri .gt. 1000
 #else
       parallel_diag = .false.
 #endif
@@ -521,9 +521,9 @@ c     *****************************************************************
         mynri = pihi - pilo + 1
         llpi = k_pi + (pilo-1)*nri
 #if defined(SCALAPACK)
-        ok = nga_create(mt_dbl,1,nri,'solution',0,g_sol)
+        ok = ga_create(mt_dbl,nri,1,'solution',0,1,g_sol)
         if (.not.ok) call errquit(pname//'can''t create sol',0,GA_ERR)
-        call nga_access(g_sol,pilo,pihi,addrSol,ld)
+        call ga_access(g_sol,pilo,pihi,1,1,addrSol,ld)
 #else
         ok = ga_duplicate(g_pi,g_inv,'Inverse')
         if (.not.ok) call errquit(pname//'can''t create Inv',0,GA_ERR)
@@ -564,13 +564,16 @@ c     *****************************************************************
           idx = ((imo-1)*nocc+jmo-1)/nprocs + oolo
 
           if (parallel_diag) then
+            call gw_symmat(dbl_mb(k_pi),nri,pilo,pihi)
             call ga_brdcst(mt_int,idx,mitob(1),root)
-            call dcopy(mynri*nri,dbl_mb(llpi),1,dbl_mb(addrPi),1)
+!            call dcopy(mynri*nri,dbl_mb(llpi),1,dbl_mb(addrPi),1)
             call ga_get(oo,1,nri,idx,idx,vector,nri)
 #ifdef SCALAPACK
-            call dcopy(mynri,vector(pilo),1,dbl_mb(addrSol),1)
-            call ga_lu_solve('n',g_pi,g_sol)
-            call nga_get(g_sol,1,nri,vector2,nri)
+!            call dcopy(mynri,vector(pilo),1,dbl_mb(addrSol),1)
+            call dcopy(nri,vector,1,vector2,1)
+            call gw_lu_solve(dbl_mb(k_pi),vector2,nri)
+!            call gai_lu_solve('n',g_pi,g_sol)
+!            call ga_get(g_sol,1,nri,1,1,vector2,nri)
 #else
             vector2(:) = 0d0
             call gw_invdiag(g_pi,g_inv,nri)
@@ -638,6 +641,7 @@ c     *****************************************************************
 
 
           if (parallel_diag) then
+            call gw_symmat(dbl_mb(k_pi),nri,pilo,pihi)
             call ga_brdcst(mt_int,idx,mitob(1),root)
             call dcopy(mynri*nri,dbl_mb(llpi),1,dbl_mb(addrPi),1)
             call ga_get(vv,1,nri,idx,idx,vector,nri)
@@ -645,7 +649,7 @@ c     *****************************************************************
 #ifdef SCALAPACK
             call dcopy(mynri,vector(pilo),1,dbl_mb(addrSol),1)
             call ga_lu_solve('n',g_pi,g_sol)
-            call nga_get(g_sol,1,nri,vector2,nri)
+            call ga_get(g_sol,1,nri,1,1,vector2,nri)
 #else
             vector2(:) = 0d0
             call gw_invdiag(g_pi,g_inv,nri)
@@ -958,6 +962,17 @@ c     *****************************************************************
           enddo
         endif
         idx(0,jmo) = lmo
+      enddo
+      return
+      end subroutine
+
+      subroutine gw_symmat(matrix,n,lo,hi)
+      implicit none
+      integer,intent(in) :: n, lo, hi
+      double precision,intent(inout),dimension(n,n) :: matrix
+      integer i,ilo
+      do i=1,n-1
+        matrix(i,i+1:) = matrix(i+1:,i)
       enddo
       return
       end subroutine
