@@ -311,6 +311,9 @@ c     *****************************************************************
       endif
       sizepi = (nri*(nri+1))/2
 
+#ifdef PARALLEL_DIAG
+#endif      
+
       if (.not.ma_push_get(mt_dbl,sizepi,'Pi',l_pi,k_pi))
      $  call errquit(pname//'can''t allocate Pi',0,MA_ERR) 
       if (.not.ma_push_get(mt_dbl,nri*mynmo,'temp',l_tmp,tmp))
@@ -508,23 +511,21 @@ c     *****************************************************************
 
 
 #if PARALLEL_DIAG
-      parallel_diag = nri .gt. 1000
+      parallel_diag = nri .gt. 2000
 #else
       parallel_diag = .false.
 #endif
 
       if (parallel_diag) then
+        pilo = 1
+        pihi = nri
+#ifndef SCALAPACK
         ok = ga_create(mt_dbl,nri,nri,'Pi',nri,0,g_pi)
         if (.not.ok) call errquit(pname//'can''t create Pi',0,GA_ERR)
         call ga_distribution(g_pi,me,ilo,ihi,pilo,pihi)
         call ga_access(g_pi,1,nri,pilo,pihi,addrPi,ld)
         mynri = pihi - pilo + 1
         llpi = k_pi + (pilo-1)*nri
-#if defined(SCALAPACK)
-        ok = ga_create(mt_dbl,nri,1,'solution',0,1,g_sol)
-        if (.not.ok) call errquit(pname//'can''t create sol',0,GA_ERR)
-        call ga_access(g_sol,pilo,pihi,1,1,addrSol,ld)
-#else
         ok = ga_duplicate(g_pi,g_inv,'Inverse')
         if (.not.ok) call errquit(pname//'can''t create Inv',0,GA_ERR)
         call ga_access(g_inv,1,nri,pilo,pihi,addrInv,ld)
@@ -566,16 +567,13 @@ c     *****************************************************************
           if (parallel_diag) then
             call gw_symmat(dbl_mb(k_pi),nri,pilo,pihi)
             call ga_brdcst(mt_int,idx,mitob(1),root)
-!            call dcopy(mynri*nri,dbl_mb(llpi),1,dbl_mb(addrPi),1)
             call ga_get(oo,1,nri,idx,idx,vector,nri)
 #ifdef SCALAPACK
-!            call dcopy(mynri,vector(pilo),1,dbl_mb(addrSol),1)
             call dcopy(nri,vector,1,vector2,1)
             call gw_lu_solve(dbl_mb(k_pi),vector2,nri)
-!            call gai_lu_solve('n',g_pi,g_sol)
-!            call ga_get(g_sol,1,nri,1,1,vector2,nri)
 #else
             vector2(:) = 0d0
+            call dcopy(mynri*nri,dbl_mb(llpi),1,dbl_mb(addrPi),1)
             call gw_invdiag(g_pi,g_inv,nri)
             call dgemv('t',nri,mynri,1d0,dbl_mb(addrInv),nri,vector,1,
      $                  0d0,vector2(pilo),1)
@@ -643,15 +641,14 @@ c     *****************************************************************
           if (parallel_diag) then
             call gw_symmat(dbl_mb(k_pi),nri,pilo,pihi)
             call ga_brdcst(mt_int,idx,mitob(1),root)
-            call dcopy(mynri*nri,dbl_mb(llpi),1,dbl_mb(addrPi),1)
             call ga_get(vv,1,nri,idx,idx,vector,nri)
 
 #ifdef SCALAPACK
-            call dcopy(mynri,vector(pilo),1,dbl_mb(addrSol),1)
-            call ga_lu_solve('n',g_pi,g_sol)
-            call ga_get(g_sol,1,nri,1,1,vector2,nri)
+            call dcopy(nri,vector,1,vector2,1)
+            call gw_lu_solve(dbl_mb(k_pi),vector2,nri)
 #else
             vector2(:) = 0d0
+            call dcopy(mynri*nri,dbl_mb(llpi),1,dbl_mb(addrPi),1)
             call gw_invdiag(g_pi,g_inv,nri)
             call dgemv('t',nri,mynri,1d0,dbl_mb(addrInv),nri,vector,1,
      $                 0d0,vector2(pilo),1)
@@ -695,13 +692,11 @@ c     *****************************************************************
 c     
 
       if (parallel_diag) then
+#ifndef SCALAPACK
         ok = ga_destroy(g_pi)
-#ifdef SCALAPACK
-        ok = ok .and .ga_destroy(g_sol)
-#else
         ok = ok .and. ga_destroy(g_inv)
-#endif
         if (.not.ok) call errquit(pname//'can''t destroy GAs',0,GA_ERR)
+#endif
       endif
 
       return

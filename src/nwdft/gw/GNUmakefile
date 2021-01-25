@@ -10,12 +10,10 @@ OBJ_OPTIMIZE = gw_ri_init.o gw_cdgw.o gw_run.o gw_lu_solve.o\
 
 LIBRARY = libnwdft.a
 
-HEADERS = ./gw.fh ../grid/cgridfile.fh scalapack.fh
+HEADERS = 
 
 LIB_DEFINES =
-LIB_INCLUDES = -I../include -I../grid 
-
-USES_BLAS =
+LIB_INCLUDES = -I../include -I../grid -I./
 
 include ../../config/makefile.h
 include ../../config/makelib.h

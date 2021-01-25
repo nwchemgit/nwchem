@@ -26,10 +26,10 @@ c
      &     rtdb_put(rtdb,'gw:newton',mt_log,1,.true.).and.
      &     rtdb_put(rtdb,'gw:graph',mt_log,1,.false.).and.
      &     rtdb_put(rtdb,'gw:eviter',mt_int,1,4).and.
-     &     rtdb_put(rtdb,'gw:qpiter',mt_int,1,10).and.
+     &     rtdb_put(rtdb,'gw:qpiter',mt_int,1,6).and.
      &     rtdb_put(rtdb,'gw:noqp',mt_int,1,1).and.
      &     rtdb_put(rtdb,'gw:nvqp',mt_int,1,0).and.
-     &     rtdb_put(rtdb,'gw:ngl',mt_int,1,96).and.
+     &     rtdb_put(rtdb,'gw:ngl',mt_int,1,128).and.
      &     rtdb_put(rtdb,'gw:nomega',mt_int,1,100).and.
      &     rtdb_put(rtdb,'gw:threshold',mt_dbl,1,0.01/ha2ev).and.
      &     rtdb_put(rtdb,'gw:init',mt_log,1,.true.) 
