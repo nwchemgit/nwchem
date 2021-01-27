@@ -15,6 +15,7 @@
       integer      ispin,nein(2),nbrillioun
 
 #include "bafdecls.fh"
+#include "btdb.fh"
 #include "errquit.fh"
  
 *     **** local variables ****
@@ -34,6 +35,8 @@
       external control_fractional_orbitals
       character*50 control_input_epsi
       external     control_input_epsi
+      integer  control_excited_ne
+      external control_excited_ne
 
       ne(1) = nein(1)
       ne(2) = nein(2)
@@ -48,7 +51,10 @@
       end if
 
       NMAX = ne(1)+ne(2)
+
       call Parallel_taskid(taskid)
+      value = btdb_parallel(.false.)
+
       if (taskid.eq.MASTER) then
         value = BA_push_get(mt_int,8*NMAX,
      >                    'filling',filling(2),filling(1))
@@ -93,6 +99,7 @@
         value = BA_pop_stack(filling(2))
         if (.not. value) call errquit('popping stack memory',0, MA_ERR)
       end if
+      value = btdb_parallel(.true.)
       call ga_sync()
 
       return
@@ -246,7 +253,7 @@
                call sub_c_wvfnc_emo_fetch(emo_filename,nb,ms,n-n0max,
      >                                    nfft3d,dcpl_mb(cfull_indx))
                nx = nx + 1
-c               emo_used  = .true.
+               emo_used  = .true.
 cc               call dread(3,dcpl_mb(cfull_indx),2*nfft3d)
 cc               call sub_c_wvfnc_project_out(nfft3d,
 cc     >                                  dcpl_mb(cfull_indx),
