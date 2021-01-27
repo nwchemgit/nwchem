@@ -52,20 +52,15 @@ c
 c
 c     initialize useful variables
 c
-      nmo  = pars%nmo(1)
+      nmo  = pars%nmo
       nocc = pars%nocc(1)
       nvir = pars%nvir(1)
       nri  = nbf_cd
       npoles = nocc*nvir
       lscr = ilaenv(1,'dsytrd','u',npoles,-1,-1,-1)
       lscr = (lscr+2)*npoles
-      nri_me = pars%nbf_cd_me
-      nstates = pars%nstates
+      nstates = pars%nstates(1)
       main = pars%me.eq.0
-      oactive = pars%nbf_cd_me .gt. 0
-      lo1 = nocc - pars%noqp
-      istart = pars%istart
-      iend = pars%istart + pars%nbf_cd_me - 1
 c
 c     Get fermi energy
 c
@@ -181,12 +176,13 @@ c
       dbl_mb(k_sign:k_sign+nmo-1) =
      $  sign(1.0d0,dbl_mb(k_eold:k_eold+nmo-1))
 c
-      do iqp=1,pars%noqp+pars%nvqp
+      do iqp=1,pars%noqp(1)+pars%nvqp(1)
 
         timer = util_wallsec()
 
         call gw_get_wmn(g_wmn,g_erim,pars%g_erioo,pars%g_eriov,
-     $                  pars%g_erivv,iqp+lo1,npoles,nri,nmo,nocc)
+     $                  pars%g_erivv,iqp+pars%llmo(1)-1,npoles,nri,nmo,
+     $                  nocc)
 
         pars%timer%wm = pars%timer%wm - timer + util_wallsec()
 c      

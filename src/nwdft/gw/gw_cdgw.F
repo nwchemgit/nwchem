@@ -14,33 +14,27 @@ c
       type(gw_params_t) :: pars
       character(len=9), parameter :: pname = 'gw_cdgw: '
 
-      integer nri, nmo, nocc, nvir, npoles, nstates
-      integer nri_me, istart, iend, lo1, ld
+      integer,dimension(2) :: nocc,nvir,npoles,nstates,mynpoles
+
+      integer nri, nmo
+      integer nri_me, istart, iend, ld
       logical main, oactive
 
-      integer k_eriij,k_eriia,k_sigma,k_sigmax,k_eold,k_enew,k_sign
-      integer l_eriij,l_eriia,l_sigma,l_sigmax,l_eold,l_enew,l_sign
-      integer k_omega,k_eia
-      integer l_omega,l_eia
-      integer k_vmo, l_vmo
+      integer k_eriij,k_eriia,kSigma,kSigmax,kEold,kEnew
+      integer l_eriij,l_eriia,lSigma,lSigmax,lEold,lEnew
+      integer k_omega,kEia
+      integer l_omega,lEia
+      integer kVmo, lVmo
       integer g_epsilon(pars%ngl)
       integer igl,ngl,nqp
-      integer mynpoles,idx_oo,idx_ov,idx_vv
 
-      integer nprocs
+      integer nprocs, maxqp, lsize, maxpoles
       integer eviter, i, j, ibf, ilo, ihi, lo2, ipole, iqp, lo4, mynmo
-      integer oolo,oohi,jlo,jhi,vvlo,vvhi,k_iw,l_iw,k_iwidx,l_iwidx
+      integer oolo,oohi,jlo,jhi,vvlo,vvhi,kiW,liW,kiWidx,liWidx
 
-      double precision step,dfunc2_old,d2func2, func_old
-      double precision efermi, func2, dfunc2
-      double precision I_n, R_n, dI_n, dR_n, dI_np, dI_nm, dR_np, dR_nm
-      double precision d2I_n, d2R_n, dummy, dum
-      double precision sigma, sigma_c, dsigma_c, d2sigma_c
-      double precision eps_in, eps_out, z, func, linear, dfunc, d2func
-      double precision sigma_x, sigma_old
+      double precision efermi(ipol)
+      double precision timer
 
-      double precision timer_gw,timer_vmo,timer_iw,timer_in,timer_rn
-      double precision timer_vxc,timer
 
       logical converged
 
@@ -51,30 +45,20 @@ c     -----------------------------------------------------------------
 c
       ngl = pars%ngl
       nri = nbf_cd
-      nmo = pars%nmo(1)
-      nocc = pars%nocc(1)
-      nvir = pars%nvir(1)
-      npoles = nocc*nvir
-      nri_me = pars%nbf_cd_me
-      nstates = pars%nstates
-      main = pars%me .eq. 0
-      oactive = pars%nbf_cd_me .gt. 0
-      lo1 = nocc - pars%noqp
-      istart = pars%istart
-      iend = istart + nri_me - 1
-      nqp = pars%noqp + pars%nvqp
-      mynpoles = pars%mynpoles
-      nprocs = ga_nnodes()
+      nmo = pars%nmo
+      
+      do i=1,ipol
+        nocc(i) = pars%nocc(i)
+        nvir(i) = pars%nvir(i)
+        npoles(i) = nocc(i)*nvir(i)
+        nstates(i) = pars%nstates(i)
+        mynpoles(i) = pars%mynpoles(i)
+      enddo
 
-      call ga_distribution(pars%idx_oo,pars%me,oolo,oohi,jlo,jhi)
-      call ga_access(pars%idx_oo,oolo,oohi,1,2,idx_oo,ld)
-      call ga_access(pars%idx_ov,pars%polelo,pars%polehi,1,2,idx_ov,ld)
-      if (nstates.gt.nocc) then
-        call ga_distribution(pars%idx_vv,pars%me,vvlo,vvhi,jlo,jhi)
-        call ga_access(pars%idx_vv,vvlo,vvhi,1,2,idx_vv,ld)
-      else
-        idx_vv = 1
-      endif
+      main = pars%me .eq. 0
+      nprocs = ga_nnodes()
+      maxqp = maxval(pars%nqp(1:ipol))
+      maxpoles = maxval(pars%mynpoles(1:ipol))
 c
 c     Obtain Vxc
 c
@@ -83,10 +67,11 @@ c
 
       timer = util_wallsec()
 
-      if (.not.ma_push_get(mt_dbl,2*nmo,'Sigma',l_sigma,k_sigma))
-     $  call errquit(pname//'cannot allocate Sigma',0,MA_ERR)
+      lSize = ipol*nmo
+      if (.not.ma_push_get(mt_dbl,lSize,'Sigma',lSigma,kSigma))
+     $    call errquit(pname//'can''t create Sigma',0,MA_ERR)
 
-      call gw_vxc(dbl_mb(k_sigma),nmo,pars)
+      call gw_vxc(dbl_mb(kSigma),nmo,pars)
 
       pars%timer%vxc = pars%timer%vxc + util_wallsec() - timer
 c
@@ -97,43 +82,52 @@ c
 
       timer = util_wallsec()
 
-      if (.not.ma_push_get(mt_dbl,nmo,'Sigma_x',l_sigmax,k_sigmax))
+      lSize = ipol*nmo
+      if (.not.ma_push_get(mt_dbl,lSize,'Sigma_x',lSigmax,kSigmax))
      $  call errquit(pname//'cannot allocate Sigma_x',0,MA_ERR)
-      if (.not.ma_push_get(mt_dbl,nqp*nmo,'Vmo',l_vmo,k_vmo))
+
+      lSize = ipol*nmo*maxqp
+      if (.not.ma_push_get(mt_dbl,lSize,'Vmo',lVmo,kVmo))
      $  call errquit(pname//'cannot allocate Vmo',0,MA_ERR)
 
-      call gw_vmo(pars%g_erioo,pars%g_eriov,pars%g_erivv,
-     $            dbl_mb(k_vmo),dbl_mb(k_sigmax+lo1),nqp,nmo,nocc,
-     $            nvir,nri,lo1+1,pars%me,pars%nvqp,int_mb(idx_oo),
-     $            int_mb(idx_ov),int_mb(idx_vv))
+      call gw_vmo(pars,dbl_mb(kVmo),dbl_mb(kSigmax),nri,pars%nmo,maxqp)
 
       pars%timer%vmo = pars%timer%vmo + util_wallsec() - timer
 c
 c     Allocations
 c
-      mynmo = nmo/nprocs + 2
-      if (.not.ma_alloc_get(mt_dbl,mynmo*nqp*ngl,'W(igl)',l_iw,k_iw))
+      mynmo = pars%nmo/pars%nprocs + 2
+
+      lSize = ipol*mynmo*maxqp*ngl
+      if (.not.ma_alloc_get(mt_dbl,lSize,'W(igl)',liW,kiW))
      $  call errquit(pname//'can''t create iw array',0,MA_ERR)
-      if (.not.ma_alloc_get(mt_int,mynmo*nqp+nqp,'iW idx',l_iwidx,
-     $  k_iwidx))
+
+      lSize = ipol*(mynmo+1)*maxqp
+      if (.not.ma_alloc_get(mt_int,lSize,'iW idx',liWidx,kiWidx))
      $  call errquit(pname//'can''t create iw index',0,MA_ERR)
 
-      if (.not.ma_push_get(mt_dbl,nmo,'evals old',l_eold,k_eold))
+      lSize = ipol*pars%nmo
+      if (.not.ma_push_get(mt_dbl,lSize,'evals old',lEold,kEold))
      $  call errquit(pname//'failed to allocate old evals',0,MA_ERR)
-      if (.not.ma_push_get(mt_dbl,nmo,'evals new',l_enew,k_enew))
+
+      if (.not.ma_push_get(mt_dbl,lSize,'evals new',lEnew,kEnew))
      $  call errquit(pname//'failed to allocate old evals',0,MA_ERR)
-      if (.not.ma_push_get(mt_dbl,nmo,'signs',l_sign,k_sign))
-     $  call errquit(pname//'failed to allocate sign',0,MA_ERR)
-       if (.not.ma_push_get(mt_dbl,npoles,'eval_ia',l_eia,k_eia))
+
+      lSize = ipol*maxpoles
+      if (.not.ma_push_get(mt_dbl,lSize,'eval_ia',lEia,kEia))
      $  call errquit(pname//'cannot allocate eval_ia',0,MA_ERR)
 c
 c     Get fermi energy
 c
-      efermi = gw_efermi(dbl_mb(pars%k_evals),nocc)
+      do i=1,ipol
+        lSize = pars%k_evals + (i-1)*nbf_ao
+        efermi(i) = gw_efermi(dbl_mb(lSize),pars%nocc(i))
+      enddo
 c
 c     Shift eigenvalues
 c
-      call gw_shift(dbl_mb(pars%k_evals),dbl_mb(k_eold),efermi,nmo)
+      call gw_shift(dbl_mb(pars%k_evals),dbl_mb(kEold),efermi,
+     $              nbf_ao,pars%nmo,pars%ipol)
 c
       eviter = 0
 c
@@ -146,8 +140,11 @@ c
 c
 c     Obtain eigenvalue difference
 c
-      call gw_get_eia(dbl_mb(k_eold),dbl_mb(k_eia),int_mb(idx_ov),
-     $                mynpoles)
+      do i=1,ipol
+        lSize = (i-1)*maxpoles
+        call gw_get_eia(dbl_mb(kEold+(i-1)*pars%nmo),dbl_mb(kEia+lSize),
+     $                  pars%nocc(i),pars%nvir(i))
+      enddo
 c
 c     Obtain Screened Coulomb matrices on imaginary axis
 c
@@ -156,12 +153,15 @@ c
 c
       timer = util_wallsec()
 
-      call gw_get_iwidx(int_mb(k_iwidx),nmo,nocc,nvir,mynmo,nqp,lo1+1)
+      do i=1,ipol
+        lSize = (i-1)*(mynmo+1)*maxqp
+        call gw_get_iwidx(int_mb(kiWidx+lSize),pars%nmo,pars%nocc(i),
+     $                    pars%nvir(i),mynmo,pars%nqp(i),pars%llmo(i))
+      enddo
 
-      call gw_buildiw(pars%g_erioo,pars%g_eriov,pars%g_erivv,
-     $    dbl_mb(k_eia),dbl_mb(pars%k_glx),dbl_mb(k_iw),
-     $    int_mb(k_iwidx),dbl_mb(k_vmo),
-     $    npoles,nmo,nocc,nvir,nri,pars%ngl,nqp,lo1+1,mynmo)
+      call gw_buildiw(pars,dbl_mb(kEia),dbl_mb(pars%k_glx),dbl_mb(kiW),
+     $    int_mb(kiWidx),pars%nmo,nri,pars%ngl,mynmo,maxpoles,maxqp,
+     $    pars%ipol)
 
       pars%timer%iw = pars%timer%iw + util_wallsec() - timer
 c
@@ -175,83 +175,29 @@ c
       if (main) write(luout,9050)
  9050 format(10x,'Solving quasiparticle equations')
 
-      if (main) write(luout,9060)
- 9060 format(/,10x,'State',5x,'Energy (eV)',5x,'Z',8x,'Elin (eV)',
-     $       /,10x,45('-'))
-
-      do iqp=1,pars%noqp+pars%nvqp
-        sigma_x = dbl_mb(k_sigmax+lo1+iqp-1)
-        sigma_old = dbl_mb(k_sigma+lo1+iqp-1)
-        eps_out = dbl_mb(k_eold+lo1+iqp-1)
-
-        if (eviter.eq.0) then
-          eps_out = eps_out + 0.12d0*(sigma_x-sigma_old)
-        else
-          eps_out = eps_out + 0.08d0*(sigma_x-sigma_old)
-        endif
-c        
-        do i=1,pars%qpiter
-          eps_in = eps_out
-
-          timer = util_wallsec()
-          call gw_buildin(dbl_mb(k_iw),dbl_mb(k_eold),
-     $       dbl_mb(pars%k_glx),dbl_mb(pars%k_glw),int_mb(k_iwidx),
-     $       eps_in,I_n,dI_n,fdstep,iqp,npoles,nocc,nvir,nri,pars%ngl,
-     $       pars%me,mynmo,nqp)
-          pars%timer%in = pars%timer%in + util_wallsec() - timer
-
-          timer = util_wallsec()
-          call gw_buildrn(pars%g_erioo,pars%g_eriov,pars%g_erivv,
-     $                    dbl_mb(k_eold),dbl_mb(k_eia),eps_in,R_n,dR_n,
-     $                    lo1+iqp,npoles,nocc,nvir,nri,pars%me)
-          pars%timer%rn = pars%timer%rn + util_wallsec() - timer
-
-          sigma_c = R_n + I_n
-          dsigma_c = dR_n + dI_n
-          sigma = sigma_c + sigma_x
-
-          z = min(1d0,1d0/(1d0-dsigma_c))
-            
-          func = dbl_mb(k_eold+lo1+iqp-1) + sigma - sigma_old - eps_in
-          dfunc = dsigma_c - 1d0
-          func2 = func**2
-          dfunc2 = 2d0*func*dfunc
-
-          if (i.gt.1) then
-            d2func2 = (dfunc2 - dfunc2_old)/step
-            if (d2func2.gt.1d0) then
-              step = -dfunc2/d2func2
-            else
-              step = z*func
-            endif
-          else
-            step = z*func
-          endif
-
-          eps_out = eps_in + step
-
-          if (i.eq.1) linear = eps_in + z*func
-
-          dfunc2_old = dfunc2
-          func_old = func
-
-          if (main) converged = abs(eps_out-eps_in).lt.pars%thresh
-          call ga_brdcst(mt_log,converged,ma_sizeof(mt_log,1,mt_byte),0)
-          call ga_brdcst(mt_dbl,eps_out,ma_sizeof(mt_dbl,1,mt_byte),0)
-          if (converged) exit
-        enddo
-        dbl_mb(k_enew+lo1+iqp-1) = eps_out
-        dbl_mb(k_sigma+lo1+iqp-1) = sigma_c + sigma_x
-        if (main) write(luout,9070) lo1+iqp,(eps_out+efermi)*ha2ev,z,
-     $                              (linear+efermi)*ha2ev     
-      enddo
+      if (pars%graph) then
+        call gw_cdgw_graph(pars,dbl_mb(kSigmax),dbl_mb(kSigma),
+     $                          dbl_mb(kEold),dbl_mb(kEnew),
+     $                          dbl_mb(kEia),dbl_mb(kiW),int_mb(kiWidx),
+     $                          efermi,nri,mynmo,maxqp,maxpoles)
+      elseif (pars%newton .and. eviter.lt.2) then
+        call gw_cdgw_newton(pars,dbl_mb(kSigmax),dbl_mb(kSigma),
+     $                      dbl_mb(kEold),dbl_mb(kEnew),dbl_mb(kEia),
+     $                      dbl_mb(kiW),int_mb(kiWidx),efermi,nri,
+     $                      mynmo,maxqp,maxpoles,eviter)
+      else
+        call gw_cdgw_linear(pars,dbl_mb(kSigmax),dbl_mb(kSigma),
+     $                      dbl_mb(kEold),dbl_mb(kEnew),dbl_mb(kEia),
+     $                      dbl_mb(kiW),int_mb(kiWidx),efermi,nri,
+     $                      mynmo,maxqp,maxpoles)
+      endif
 
       if (pars%evgw0.or.pars%evgw) then
-        call ga_brdcst(mt_dbl,dbl_mb(k_enew),
+        call ga_brdcst(mt_dbl,dbl_mb(kEnew),
      $       ma_sizeof(mt_dbl,nmo,mt_byte),0)
-        call ga_brdcst(mt_dbl,dbl_mb(k_sigma),
+        call ga_brdcst(mt_dbl,dbl_mb(kSigma),
      $       ma_sizeof(mt_dbl,nmo,mt_byte),0)
-        call dcopy(nmo,dbl_mb(k_enew),1,dbl_mb(k_eold),1)
+        call dcopy(nmo,dbl_mb(kEnew),1,dbl_mb(kEold),1)
         eviter = eviter + 1      
         if (eviter.lt.pars%eviter) then
           if (pars%evgw0) goto 200
@@ -259,447 +205,10 @@ c
         endif  
       endif
 
- 9070 format(10x,I3,6x,F8.3,6x,F6.3,6x,F8.3)
-
-      if (.not.(ma_free_heap(l_iw).and.ma_free_heap(l_iwidx)))
+      if (.not.(ma_free_heap(liW).and.ma_free_heap(liWidx)))
      $  call errquit(pname//'cannot destroy iW arrays',0,MA_ERR)
 
 c
-      end subroutine
-
-c     *****************************************************************
-
-      subroutine gw_buildiw(oo,ov,vv,eia,x,iw,iwidx,vmo,npoles,nmo,nocc,
-     $                      nvir,nri,ngl,nqp,llmo,mynmo)
-      implicit none
-#include "mafdecls.fh"
-#include "errquit.fh"
-      integer,intent(in) :: npoles,nmo,nocc,nvir,nri,ngl,nqp,llmo,mynmo
-      integer,intent(in) :: oo,ov,vv
-      double precision,intent(in) :: eia(npoles),x(ngl)
-      double precision,intent(in) :: vmo(nmo,nqp)
-      integer,intent(in),dimension(0:mynmo,nqp) :: iwidx
-      double precision,intent(out),dimension(mynmo,ngl,nqp) :: iw
-
-
-      character(len=12),parameter :: pname = 'gw_buildiw: '
-
-      logical ok
-      integer g_a,g_b,g_c,g_d,g_e,g_f
-      double precision factor(npoles),buf(npoles)
-
-
-      logical main
-      integer molo,mohi,lmo,ldpi,sizepi,l_sol,k_sol
-      integer ilo,ihi,me,k_ov,ld,mynpoles,igl,ipole,info,k_c
-      integer pilo,pihi,k_pi,l_pi,idx,idy,mynri,offset,l_tmp,tmp
-      integer oolo,oohi,ovlo,ovhi,vvlo,vvhi,jmo,kmo,imo,nprocs
-      double precision w2,wmo(nmo),vector(nri)
-
-      double precision,external :: ddot
-      integer,external :: ga_nodeid, ga_nnodes
-      logical,external :: nga_create,ga_destroy,ga_create,ga_duplicate
-
-      me = ga_nodeid()
-      nprocs = ga_nnodes()
-      main = me.eq.0
-
-      if (mod(nri,2).eq.0) then
-        ldpi = nri + 1
-      else
-        ldpi = nri
-      endif
-      sizepi = (nri*(nri+1))/2
-
-#ifdef PARALLEL_DIAG
-#endif      
-
-      if (.not.ma_push_get(mt_dbl,sizepi,'Pi',l_pi,k_pi))
-     $  call errquit(pname//'can''t allocate Pi',0,MA_ERR) 
-      if (.not.ma_push_get(mt_dbl,nri*mynmo,'temp',l_tmp,tmp))
-     $  call errquit(pname//'can''t allocate tmp',0,MA_ERR) 
-      if (.not.ma_push_get(mt_dbl,nri*mynmo,'sol',l_sol,k_sol))
-     $  call errquit(pname//'can''t allocate sol',0,MA_ERR) 
-
-      call ga_distribution(oo,me,ilo,ihi,oolo,oohi)
-      call ga_distribution(ov,me,ilo,ihi,ovlo,ovhi)
-      call ga_access(ov,1,nri,ovlo,ovhi,k_ov,ld)
-      if (llmo+nqp-1.gt.nocc) then
-        call ga_distribution(vv,me,ilo,ihi,vvlo,vvhi)
-      endif
-      mynpoles = ovhi-ovlo+1
-
-      do igl=1,ngl
-c
-        w2 = x(igl)
-        do ipole=1,mynpoles
-          factor(ipole) = dsqrt(eia(ipole)/(eia(ipole)**2 + w2))
-        enddo
-c        
-        call gw_buildpi('w',dbl_mb(k_ov),dbl_mb(k_pi),factor,ldpi,
-     $                  nri,mynpoles,main)
-        call ga_dgop(mt_dbl,dbl_mb(k_pi),sizepi,'+')
-        !
-        ! All cores invert the same matrix in order to avoid
-        ! communication. This is good for small matrices but
-        ! will be very slow for large ones.
-        !
-
-        call dpftrf('n','l',nri,dbl_mb(k_pi),info)
-        if (info.ne.0) then
-          call errquit(pname//'Cholesky decomposition failed',0,0)
-          !call dft_invdiag
-        endif
-        !
-        do imo=llmo,llmo+nqp-1
-          jmo = imo - llmo + 1
-          if (imo.le.nocc) then
-
-            do kmo=1,iwidx(0,jmo)
-              lmo = iwidx(kmo,jmo)
-              idx = tmp + (kmo-1)*nri
-              if (lmo.le.nocc) then
-                idy = ((imo-1)*nocc+lmo-1)/nprocs + oolo
-                call ga_get(oo,1,nri,idy,idy,dbl_mb(idx),nri)
-              else
-                idy = ((imo-1)*nvir+lmo-nocc-1)/nprocs + ovlo
-                call ga_get(ov,1,nri,idy,idy,dbl_mb(idx),nri)
-              endif
-            enddo
-
-
-          else
-
-            do kmo=1,iwidx(0,jmo)
-              lmo = iwidx(kmo,jmo)
-              idx = tmp + (kmo-1)*nri
-              if (lmo.le.nocc) then
-                idy = ((lmo-1)*nvir+imo-nocc-1)/nprocs + ovlo
-                call ga_get(ov,1,nri,idy,idy,dbl_mb(idx),nri)
-              else
-                idy = ((imo-nocc-1)*nvir+lmo-nocc-1)/nprocs + vvlo
-                call ga_get(vv,1,nri,idy,idy,dbl_mb(idx),nri)
-              endif
-            enddo
-
-          endif
-
-          call dcopy(nri*iwidx(0,jmo),dbl_mb(tmp),1,dbl_mb(k_sol),1)
-
-          call dpftrs('n','l',nri,iwidx(0,jmo),dbl_mb(k_pi),
-     $                dbl_mb(k_sol),nri,info)
-c
-          if (info.ne.0) then
-            call errquit(pname//' triangular solve failed',0,0)
-          endif
-c
-          do kmo=1,iwidx(0,jmo)
-            idx = tmp + (kmo-1)*nri
-            idy = k_sol + (kmo-1)*nri
-            lmo = iwidx(kmo,jmo)
-            iw(kmo,igl,jmo) = ddot(nri,dbl_mb(idx),1,dbl_mb(idy),1) +
-     $                        vmo(lmo,jmo)
-          enddo
-c
-        enddo
-      enddo
-
-      if (.not.ma_chop_stack(l_pi))
-     $  call errquit(pname//'can''t pop stack',0,MA_ERR) 
-c
-      end subroutine
-
-c     *****************************************************************
-
-      subroutine gw_buildin(iw,eig,x,w,iwidx,omega,Iqp,dIqp,fdstep,imo,
-     $                      npoles,nocc,nvir,nri,ngl,me,myld,nqp)
-      implicit none
-#include "mafdecls.fh"      
-      integer,intent(in) :: npoles,nocc,nvir,nri,ngl,myld,nqp
-      integer,intent(in) :: imo, me
-      integer,intent(in),dimension(0:myld,nqp) :: iwidx
-      double precision, intent(in) :: fdstep
-      double precision, intent(in), dimension(nocc+nvir) :: eig
-      double precision, intent(in), dimension(ngl) :: x, w
-      double precision, intent(in)  :: omega
-      double precision, intent(in), dimension(myld,ngl,nqp) :: iw
-      double precision, intent(out) :: Iqp,dIqp
-
-      integer ilo,ihi,jlo,jhi
-      double precision wmo(nocc+nvir),factor(nocc+nvir)
-      double precision factor2(nocc+nvir),dfactor2(nocc+nvir),w2
-
-      integer igl,mynmo,jmo
-
-      double precision,external :: ddot
-
-      mynmo = iwidx(0,imo)
-      do jmo=1,mynmo
-        factor(jmo) = omega - eig(iwidx(jmo,imo))
-      enddo
-
-      Iqp = 0d0
-      dIqp = 0d0
-      do igl=1,ngl
-        w2 = x(igl)
-        do jmo=1,mynmo
-          factor2(jmo) =  factor(jmo)/(factor(jmo)**2 + w2)
-          dfactor2(jmo) = (w2 - factor(jmo)**2)/(factor(jmo)**2+w2)**2
-        enddo
-        Iqp = Iqp - w(igl)*ddot(mynmo,factor2,1,iw(1,igl,imo),1)
-        dIqp = dIqp - w(igl)*ddot(mynmo,dfactor2,1,iw(1,igl,imo),1)
-      enddo
-      call ga_dgop(mt_dbl,Iqp,1,'+')
-      call ga_dgop(mt_dbl,dIqp,1,'+')
-      
-      end subroutine
-
-c     *****************************************************************
-
-      subroutine gw_buildrn(oo,ov,vv,eig,eia,omega,R_n,dR_n,imo,npoles,
-     $                      nocc,nvir,nri,me)
-      implicit none
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "tcgmsg.fh"      
-      integer,intent(in) :: oo, ov, vv
-      integer,intent(in) :: imo, npoles, nocc, nvir, nri, me
-      double precision, intent(in) :: omega
-      double precision, intent(in), dimension(nocc+nvir) :: eig
-      double precision, intent(in), dimension(npoles) :: eia
-      double precision, intent(out) :: R_n,dR_n
-
-      character(len=12), parameter :: pname = 'gw_buildrn: '
-
-      integer mynpoles, root2
-      integer root, oolo, oohi, vvlo, vvhi, nrisize, ovlo, ovhi
-      integer g_a, g_b, g_c, g_d, g_e, g_epsilon, k_eps, k_sol, nprocs
-      integer nmo, jmo, ipole, ilo, ihi, jlo, jhi, info, ld, mynri, idx
-      integer l_pi, k_pi, l_ipiv, k_ipiv, l_scr, k_scr, k_ov, lscr
-      integer g_pi, g_inv, g_sol, addrPi, addrInv, addrSol, llpi
-      integer pihi, pilo
-      double precision fac, arg, w, arg2
-      double precision factor(npoles), vector(nri), vector2(nri)
-      double precision vector3(nri)
-      double precision dfactor(npoles)
-
-      logical main, ok, parallel_diag
-      double precision, parameter :: shift = 0.0001d0
-      double precision, external :: ddot
-      logical, external :: is_near, nga_create, ga_duplicate, ga_destroy
-      logical, external :: ga_create, ga_copy
-      integer,external :: ga_nodeid,ga_nnodes
-
-      main = me.eq.0
-      nmo = nocc + nvir
-      nprocs = ga_nnodes()
-
-      if (.not.ma_push_get(mt_dbl,nri**2,'pi',l_pi,k_pi))
-     $  call errquit(pname//'can''t allocate pi matri',0,MA_ERR) 
-      if (.not.ma_push_get(mt_int,nri,'ipiv',l_ipiv,k_ipiv))
-     $  call errquit(pname//'can''t allocate ipiv',0,MA_ERR) 
-      call dsytrf('l',nri,dbl_mb(k_pi),nri,int_mb(k_ipiv),
-     $            factor,-1,info)
-      lscr = int(factor(1))
-      if (.not.ma_push_get(mt_dbl,lscr,'scr',l_scr,k_scr))
-     $  call errquit(pname//'can''t allocate scratch',0,MA_ERR) 
-
-      call ga_distribution(oo,me,ilo,ihi,oolo,oohi)
-      if (omega.gt.0d0) call ga_distribution(vv,me,ilo,ihi,vvlo,vvhi)
-      call ga_distribution(ov,me,ilo,ihi,ovlo,ovhi)
-      call ga_access(ov,1,nri,ovlo,ovhi,k_ov,ld)
-
-
-#if PARALLEL_DIAG
-      parallel_diag = nri .gt. 2000
-#else
-      parallel_diag = .false.
-#endif
-
-      if (parallel_diag) then
-        pilo = 1
-        pihi = nri
-#ifndef SCALAPACK
-        ok = ga_create(mt_dbl,nri,nri,'Pi',nri,0,g_pi)
-        if (.not.ok) call errquit(pname//'can''t create Pi',0,GA_ERR)
-        call ga_distribution(g_pi,me,ilo,ihi,pilo,pihi)
-        call ga_access(g_pi,1,nri,pilo,pihi,addrPi,ld)
-        mynri = pihi - pilo + 1
-        llpi = k_pi + (pilo-1)*nri
-        ok = ga_duplicate(g_pi,g_inv,'Inverse')
-        if (.not.ok) call errquit(pname//'can''t create Inv',0,GA_ERR)
-        call ga_access(g_inv,1,nri,pilo,pihi,addrInv,ld)
-#endif
-      endif
-
-
-      mynpoles = ovhi - ovlo + 1
-
-      R_n = 0d0
-      dR_n = 0d0
-
-      if (omega.lt.0d0) then
-        do jmo=nocc,1,-1
-          if (eig(jmo).lt.omega-shift) exit
-
-          if (is_near(eig(jmo),omega,shift)) then
-            fac = -0.5d0
-            arg = 0.0d0
-            arg2 = 0.0d0
-          else
-            fac = -1d0
-            arg = (eig(jmo) - omega)
-            arg2 = arg**2
-          endif
-
-          do ipole=1,mynpoles
-            factor(ipole) = eia(ipole)/(eia(ipole)**2 - arg2)
-            dfactor(ipole) = -8d0*factor(ipole)**2 * arg / eia(ipole)
-          enddo
-
-          call gw_buildpi('r',dbl_mb(k_ov),dbl_mb(k_pi),factor,
-     $                    nri,nri,mynpoles,main)
-          call ga_dgop(mt_dbl,dbl_mb(k_pi),nri**2,'+')
-
-          root = mod((imo-1)*nocc+jmo-1,nprocs)
-          idx = ((imo-1)*nocc+jmo-1)/nprocs + oolo
-
-          if (parallel_diag) then
-            call gw_symmat(dbl_mb(k_pi),nri,pilo,pihi)
-            call ga_brdcst(mt_int,idx,mitob(1),root)
-            call ga_get(oo,1,nri,idx,idx,vector,nri)
-#ifdef SCALAPACK
-            call dcopy(nri,vector,1,vector2,1)
-            call gw_lu_solve(dbl_mb(k_pi),vector2,nri)
-#else
-            vector2(:) = 0d0
-            call dcopy(mynri*nri,dbl_mb(llpi),1,dbl_mb(addrPi),1)
-            call gw_invdiag(g_pi,g_inv,nri)
-            call dgemv('t',nri,mynri,1d0,dbl_mb(addrInv),nri,vector,1,
-     $                  0d0,vector2(pilo),1)
-            call dgop(mt_dbl,vector2,nri,'+')
-#endif
-          else
-            if (me.eq.root) then
-              call ga_get(oo,1,nri,idx,idx,vector,nri)
-              call dcopy(nri,vector,1,vector2,1)
-              call dsytrf('l',nri,dbl_mb(k_pi),nri,int_mb(k_ipiv),
-     $                     dbl_mb(k_scr),lscr,info)
-              call dsytrs('l',nri,1,dbl_mb(k_pi),nri,int_mb(k_ipiv),
-     $                     vector2,nri,info)
-            end if
-            call ga_brdcst(mt_dbl,vector2,mdtob(nri),root)
-          endif
-
-
-          if (arg.ne.0d0) then
-            call dgemv('t',nri,mynpoles,1d0,dbl_mb(k_ov),nri,vector2,1,
-     $                  0d0,factor,1)
-            do ipole=1,mynpoles
-              dR_n = dR_n + dfactor(ipole)*factor(ipole)**2
-            enddo
-          endif
-
-          if (root.ne.me) cycle
-
-          vector2(:) = vector2(:) - vector(:)
-          w = ddot(nri,vector,1,vector2,1)
-          R_n = R_n + fac*w
-
-          if (fac.eq.-0.5d0) dR_n = dR_n + w
-
-        enddo
-
-      else if (omega.gt.0d0) then
-
-        do jmo=nocc+1,nmo
-          if (eig(jmo).gt.omega+shift) exit
-
-          if (is_near(eig(jmo),omega,shift)) then
-            fac = 0.5d0
-            arg = 0.0d0
-            arg2 = 0.0d0
-          else
-            fac = 1d0
-            arg = (omega - eig(jmo))
-            arg2 = arg**2
-          endif
-
-          do ipole=1,mynpoles
-            factor(ipole) = eia(ipole)/(eia(ipole)**2 - arg2)
-            dfactor(ipole) = 8d0*factor(ipole)**2 * arg / eia(ipole)
-          enddo
-
-          call gw_buildpi('r',dbl_mb(k_ov),dbl_mb(k_pi),factor,
-     $                    nri,nri,mynpoles,main)
-          call ga_dgop(mt_dbl,dbl_mb(k_pi),nri**2,'+')
-
-          root = mod((imo-nocc-1)*nvir+jmo-nocc-1,nprocs)
-          idx = ((imo-nocc-1)*nvir+jmo-nocc-1)/nprocs + vvlo
-
-
-          if (parallel_diag) then
-            call gw_symmat(dbl_mb(k_pi),nri,pilo,pihi)
-            call ga_brdcst(mt_int,idx,mitob(1),root)
-            call ga_get(vv,1,nri,idx,idx,vector,nri)
-
-#ifdef SCALAPACK
-            call dcopy(nri,vector,1,vector2,1)
-            call gw_lu_solve(dbl_mb(k_pi),vector2,nri)
-#else
-            vector2(:) = 0d0
-            call dcopy(mynri*nri,dbl_mb(llpi),1,dbl_mb(addrPi),1)
-            call gw_invdiag(g_pi,g_inv,nri)
-            call dgemv('t',nri,mynri,1d0,dbl_mb(addrInv),nri,vector,1,
-     $                 0d0,vector2(pilo),1)
-            call dgop(mt_dbl,vector2,nri,'+')
-#endif
-          else
-            if (me.eq.root) then
-              call ga_get(vv,1,nri,idx,idx,vector,nri)
-              call dcopy(nri,vector,1,vector2,1)
-              call dsytrf('l',nri,dbl_mb(k_pi),nri,int_mb(k_ipiv),
-     $                     dbl_mb(k_scr),lscr,info)
-              call dsytrs('l',nri,1,dbl_mb(k_pi),nri,int_mb(k_ipiv),
-     $                     vector2,nri,info)
-            end if
-            call ga_brdcst(mt_dbl,vector2,mdtob(nri),root)
-          endif
-
-          if (arg.ne.0d0) then
-            call dgemv('t',nri,mynpoles,1d0,dbl_mb(k_ov),nri,vector2,1,
-     $                  0d0,factor,1)
-            do ipole=1,mynpoles
-              dR_n = dR_n - dfactor(ipole)*factor(ipole)**2
-            enddo
-          endif
-
-          if (root.ne.me) cycle
-
-          vector2(:) = vector2(:) - vector(:)
-          w = ddot(nri,vector,1,vector2,1)
-          R_n = R_n + fac*w
-          if (fac.eq.0.5d0) dR_n = dR_n + w
-
-        enddo
-
-      end if
-      call ga_dgop(mt_dbl,R_n,1,'+')
-      call ga_dgop(mt_dbl,dR_n,1,'+')
-
-      if (.not.ma_chop_stack(l_pi))
-     $   call errquit(pname//'can''t destroy global array',0,MA_ERR)
-c     
-
-      if (parallel_diag) then
-#ifndef SCALAPACK
-        ok = ga_destroy(g_pi)
-        ok = ok .and. ga_destroy(g_inv)
-        if (.not.ok) call errquit(pname//'can''t destroy GAs',0,GA_ERR)
-#endif
-      endif
-
-      return
       end subroutine
 
 c     *****************************************************************
@@ -719,113 +228,127 @@ c     *****************************************************************
 
 c     *****************************************************************
 
-      subroutine gw_vmo(oo,ov,vv,vmo,sigma_x,nqp,nmo,nocc,nvir,nri,
-     $                  llmo,me,nvqp,idx_oo,idx_ov,idx_vv)
+      subroutine gw_vmo(pars,vmo,sigmax,nri,nmo,maxqp)
       implicit none
 #include "mafdecls.fh"
-#include "errquit.fh"      
-      integer,intent(in) :: oo, ov, vv, me
-      integer,intent(in) :: nqp, nmo, nocc, nvir, nri, llmo, nvqp
-      integer,intent(in),dimension(nocc**2,2) :: idx_oo
-      integer,intent(in),dimension(nvir*nocc,2) :: idx_ov
-      integer,intent(in),dimension(nvir*max(1,nvqp),2) :: idx_vv
-      double precision,intent(out),dimension(nmo,nqp) :: vmo
-      double precision,intent(out),dimension(nqp) :: sigma_x
+#include "gw.fh"
+      type(gw_params_t) :: pars
+      integer,intent(in) :: maxqp, nri, nmo
+      double precision,intent(out),dimension(nmo,maxqp,*) :: vmo
+      double precision,intent(out),dimension(nmo,*) :: sigmax
 
       double precision,external :: ddot
 
-      integer ilo,ihi,oolo,oohi,ovlo,ovhi,vvlo,vvhi,idx
-      integer l_tmp, tmp, nprocs
-      integer imo,jmo,kmo
+      integer idx, idum
+      integer imo, jmo, kmo, ipol
+      integer addrOO, addrOV, addrVV
 
-      integer,external :: ga_nnodes
+      do ipol=1,pars%ipol
+        if (pars%nqp(ipol).eq.0) cycle
 
-      nprocs = ga_nnodes()
-
-      call ga_distribution(oo,me,ilo,ihi,oolo,oohi)
-      call ga_distribution(ov,me,ilo,ihi,ovlo,ovhi)
-      if (nvqp.gt.0) call ga_distribution(vv,me,ilo,ihi,vvlo,vvhi)
-
-      if (.not.ma_push_get(mt_dbl,nri,'temp',l_tmp,tmp))
-     $  call errquit('gw_vmo: could not allocate',0,MA_ERR) 
-
-      vmo = 0d0
-      do imo=llmo,llmo+nqp-1
-        jmo = imo - llmo + 1
-
-        if (imo.le.nocc) then
-
-          do kmo=1,nocc
-            if (me.ne.mod((imo-1)*nocc+kmo-1,nprocs)) cycle
-            idx = ((imo-1)*nocc+kmo-1)/nprocs + oolo
-            call ga_get(oo,1,nri,idx,idx,dbl_mb(tmp),nri)
-            vmo(kmo,jmo) = -ddot(nri,dbl_mb(tmp),1,dbl_mb(tmp),1)
-          enddo
-          do kmo=1,nvir
-            if (me.ne.mod((imo-1)*nvir+kmo-1,nprocs)) cycle
-            idx = ((imo-1)*nvir+kmo-1)/nprocs + ovlo
-            call ga_get(ov,1,nri,idx,idx,dbl_mb(tmp),nri)
-            vmo(kmo+nocc,jmo) = -ddot(nri,dbl_mb(tmp),1,dbl_mb(tmp),1)
-          enddo
-
-        else
-
-          do kmo=1,nocc
-            if (me.ne.mod((kmo-1)*nvir+imo-nocc-1,nprocs)) cycle
-            idx = ((kmo-1)*nvir+imo-nocc-1)/nprocs + ovlo
-            call ga_get(ov,1,nri,idx,idx,dbl_mb(tmp),nri)
-            vmo(kmo,jmo) = -ddot(nri,dbl_mb(tmp),1,dbl_mb(tmp),1)
-          enddo
-          do kmo=1,nvir
-            if (me.ne.mod((imo-nocc-1)*nvir+kmo-1,nprocs)) cycle
-            idx = ((imo-nocc-1)*nvir+kmo-1)/nprocs + vvlo
-            call ga_get(vv,1,nri,idx,idx,dbl_mb(tmp),nri)
-            vmo(kmo+nocc,jmo) = -ddot(nri,dbl_mb(tmp),1,dbl_mb(tmp),1)
-          enddo
-
+        call ga_access(pars%g_erioo(ipol),1,nri,pars%oolo(ipol),
+     $                 pars%oohi(ipol),addrOO,idum)
+        call ga_access(pars%g_eriov(ipol),1,nri,pars%ovlo(ipol),
+     $                 pars%ovhi(ipol),addrOV,idum)
+        if (pars%nvqp(ipol).gt.0) then
+          call ga_access(pars%g_erivv(ipol),1,nri,pars%vvlo(ipol),
+     $                   pars%vvhi(ipol),addrVV,idum)
         endif
+        call dfill(pars%nmo*pars%nqp(ipol),0d0,vmo(1,1,ipol),1)
+       
+
+
+        do imo=pars%llmo(ipol),pars%llmo(ipol)+pars%nqp(ipol)-1
+          jmo = imo - pars%llmo(ipol) + 1
+
+          if (imo.gt.pars%nocc(ipol)) goto 100
+
+          do kmo=1,pars%nocc(ipol)
+            idx = (imo-1)*pars%nocc(ipol)+kmo-1
+            if (pars%me.ne.mod(idx,pars%nprocs)) cycle
+            idx = (idx/pars%nprocs)*nri + addrOO
+            vmo(kmo,jmo,ipol) = -ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
+          enddo
+
+          do kmo=1,pars%nvir(ipol)
+            idx = (imo-1)*pars%nvir(ipol) + kmo - 1
+            if (pars%me.ne.mod(idx,pars%nprocs)) cycle
+            idx = (idx/pars%nprocs)*nri + addrOV
+            vmo(kmo+pars%nocc(ipol),jmo,ipol) = 
+     $              -ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
+          enddo
+          cycle
+
+  100     continue
+
+          do kmo=1,pars%nocc(ipol)
+            idx = (kmo-1)*pars%nvir(ipol)+imo-pars%nocc(ipol)-1
+            if (pars%me.ne.mod(idx,pars%nprocs)) cycle
+            idx = (idx/pars%nprocs)*nri + addrOV
+            vmo(kmo,jmo,ipol) = -ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
+          enddo
+          do kmo=1,pars%nvir(ipol)
+            idx = (imo-pars%nocc(ipol)-1)*pars%nvir(ipol) + kmo - 1
+            if (pars%me.ne.mod(idx,pars%nprocs)) cycle
+            idx = (idx/pars%nprocs)*nri + addrVV
+            vmo(kmo+pars%nocc(ipol),jmo,ipol) = 
+     $                     -ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
+          enddo
+
+        enddo
+
+        call dgop(mt_dbl,vmo(1,1,ipol),pars%nqp(ipol)*pars%nmo,'+')
+        do imo=1,pars%nqp(ipol)
+          kmo = pars%llmo(ipol) + imo - 1
+          sigmax(kmo,ipol) = sum(vmo(1:pars%nocc(ipol),imo,ipol))
+        enddo
+
       enddo
 
-      if (.not.ma_pop_stack(l_tmp))
-     $  call errquit('gw_vmo: could not pop stack',0,MA_ERR) 
-
-      call dgop(mt_dbl,vmo,nqp*nmo,'+')
-
-      do imo=1,nqp
-        sigma_x(imo) = sum(vmo(1:nocc,imo))
-      enddo
 
       end subroutine
 
 c     *****************************************************************
 
-      subroutine gw_buildpi(which,ov,pi,factor,ldpi,nri,npoles,main)
+      subroutine gw_buildpi(which,ovup,ovdw,pi,factor,ldpi,nri,npoles,
+     $                      main,ipol,maxpoles)
       implicit none
 #include "mafdecls.fh"      
       logical,intent(in) :: main
-      integer,intent(in) :: ldpi,nri,npoles
+      integer,intent(in) :: ldpi, nri, maxpoles, ipol
       character(len=1),intent(in) :: which
-      double precision,intent(in),dimension(npoles) :: factor
-      double precision,intent(inout),dimension(nri,npoles) :: ov
+      integer,intent(in),dimension(ipol) :: npoles
+      double precision,intent(in),dimension(maxpoles,ipol) :: factor
+      double precision,intent(inout),dimension(nri,*) :: ovup,ovdw
       double precision,intent(out),dimension(ldpi,*) :: pi
 
-      double precision, dimension(nri) :: vector, scaling
-      integer ipole,iri,ma_dbl,l_scr,k_scr,maxpoles,mynpoles,llpole
+      double precision, dimension(nri) :: vector, scaling, scal
+      integer ipole,iri,ma_dbl,l_scr,k_scr,mynpoles,llpole,mymax
       integer ulpole,nbatch,ibatch
       logical ok
 
+      scal = 2d0
+      if (ipol.eq.1) scal = 2d0*scal
+
       if (which.eq.'w') then
 
-        do ipole=1,npoles
-          ov(1:nri,ipole) = ov(1:nri,ipole)*factor(ipole)
+        do ipole=1,npoles(1)
+          ovup(1:nri,ipole) = ovup(1:nri,ipole)*factor(ipole,1)
+        enddo
+        call dsfrk('n','l','n',nri,npoles(1),scal,ovup,nri,0d0,pi)
+        do ipole=1,npoles(1)
+          ovup(1:nri,ipole) = ovup(1:nri,ipole)/factor(ipole,1)
         enddo
 
-c        call dsyrk('l','n',nri,npoles,4d0,ov,nri,0d0,pi,nri)
-        call dsfrk('n','l','n',nri,npoles,4d0,ov,nri,0d0,pi)
-
-        do ipole=1,npoles
-          ov(1:nri,ipole) = ov(1:nri,ipole)/factor(ipole)
-        enddo
+        if (ipol.gt.1) then
+          do ipole=1,npoles(2)
+            ovdw(1:nri,ipole) = ovdw(1:nri,ipole)*factor(ipole,2)
+          enddo
+          call dsfrk('n','l','n',nri,npoles(2),scal,ovdw,nri,1d0,pi)
+          do ipole=1,npoles(2)
+            ovdw(1:nri,ipole) = ovdw(1:nri,ipole)/factor(ipole,2)
+          enddo
+        endif
 
         if (main) then
           if ( mod(nri,2) .eq. 0 ) then
@@ -844,32 +367,63 @@ c        call dsyrk('l','n',nri,npoles,4d0,ov,nri,0d0,pi,nri)
 
       else if (which.eq.'r') then
 
+        scal = scal/2d0
         ma_dbl = ma_inquire_avail(mt_dbl)/nri
-        nbatch = npoles/ma_dbl + 1
-        maxpoles = min(npoles/nbatch + 1,npoles)
-        ok = ma_alloc_get(mt_dbl,nri*maxpoles,'scratch',l_scr,k_scr)
+        nbatch = npoles(1)/ma_dbl + 1
+        mymax = min(npoles(1)/nbatch + 1,npoles(1))
+        ok = ma_alloc_get(mt_dbl,nri*mymax,'scratch',l_scr,k_scr)
 
-        call dcopy(nri*maxpoles,ov,1,dbl_mb(k_scr),1)
-        do ipole=1,maxpoles
-          call dscal(nri,factor(ipole),dbl_mb(k_scr+(ipole-1)*nri),1)
+        call dcopy(nri*mymax,ovup,1,dbl_mb(k_scr),1)
+        do ipole=1,mymax
+          call dscal(nri,factor(ipole,1),dbl_mb(k_scr+(ipole-1)*nri),1)
         enddo
-        call dsyr2k('l','n',nri,maxpoles,2d0,ov,nri,dbl_mb(k_scr),nri,
+        call dsyr2k('l','n',nri,mymax,scal,ovup,nri,dbl_mb(k_scr),nri,
      $               0d0,pi,nri)
 
         do ibatch=2,nbatch
-          llpole = (ibatch-1)*maxpoles + 1
-          ulpole = min(ibatch*maxpoles,npoles)
+          llpole = (ibatch-1)*mymax + 1
+          ulpole = min(ibatch*mymax,npoles(1))
           mynpoles = ulpole - llpole + 1
-          call dcopy(nri*mynpoles,ov(1,llpole),1,dbl_mb(k_scr),1)
+          call dcopy(nri*mynpoles,ovup(1,llpole),1,dbl_mb(k_scr),1)
           do ipole=1,mynpoles
-            call dscal(nri,factor(llpole+ipole-1),
+            call dscal(nri,factor(llpole+ipole-1,1),
      $                 dbl_mb(k_scr+(ipole-1)*nri),1)
           enddo
-          call dsyr2k('l','n',nri,mynpoles,2d0,ov(1,llpole),nri,
+          call dsyr2k('l','n',nri,mynpoles,scal,ovup(1,llpole),nri,
      $                 dbl_mb(k_scr),nri,1d0,pi,nri)     
         enddo
 
         ok = ma_free_heap(l_scr)
+
+        if (ipol.gt.1) then
+          nbatch = npoles(2)/ma_dbl + 1
+          mymax = min(npoles(2)/nbatch + 1,npoles(2))
+          ok = ma_alloc_get(mt_dbl,nri*mymax,'scratch',l_scr,k_scr)
+
+          call dcopy(nri*mymax,ovdw,1,dbl_mb(k_scr),1)
+          do ipole=1,mymax
+            call dscal(nri,factor(ipole,2),
+     $                 dbl_mb(k_scr+(ipole-1)*nri),1)
+          enddo
+          call dsyr2k('l','n',nri,mymax,scal,ovdw,nri,dbl_mb(k_scr),nri,
+     $                 1d0,pi,nri)
+
+          do ibatch=2,nbatch
+            llpole = (ibatch-1)*mymax + 1
+            ulpole = min(ibatch*mymax,npoles(2))
+            mynpoles = ulpole - llpole + 1
+            call dcopy(nri*mynpoles,ovdw(1,llpole),1,dbl_mb(k_scr),1)
+            do ipole=1,mynpoles
+              call dscal(nri,factor(llpole+ipole-1,2),
+     $                   dbl_mb(k_scr+(ipole-1)*nri),1)
+            enddo
+            call dsyr2k('l','n',nri,mynpoles,scal,ovdw(1,llpole),nri,
+     $                   dbl_mb(k_scr),nri,1d0,pi,nri)     
+          enddo
+
+          ok = ma_free_heap(l_scr)
+
+        endif
 
         if (main) then
           do iri=1,nri
@@ -891,30 +445,40 @@ c     *****************************************************************
       return
       end function
 
-      subroutine gw_shift(eig,shifted,efermi,nmo)
+      subroutine gw_shift(eig,shifted,efermi,nbf,nmo,npol)
       implicit none
-      integer,intent(in) :: nmo
-      double precision,intent(in) :: efermi,eig(nmo)
-      double precision,intent(out) :: shifted(nmo)
-      integer imo
-      do imo=1,nmo
-        shifted(imo) = eig(imo) - efermi
+      integer,intent(in) :: nbf, nmo, npol
+      double precision,intent(in) :: efermi(npol),eig(nbf,npol)
+      double precision,intent(out) :: shifted(nmo,npol)
+      integer imo,ipol
+      do ipol=1,npol
+        do imo=1,nmo
+          shifted(imo,ipol) = eig(imo,ipol) - efermi(ipol)
+        enddo
       enddo
       return
       end subroutine
 
-      subroutine gw_get_eia(eig,eia,idx,npoles)
+      subroutine gw_get_eia(eig,eia,nocc,nvir)
       implicit none
-      integer,intent(in) :: npoles
-      integer,intent(in),dimension(npoles,2) :: idx
-      double precision,intent(in),dimension(*) :: eig
-      double precision,intent(out),dimension(npoles) :: eia
-      integer ipole,imo,jmo
-      do ipole=1,npoles
-        imo = idx(ipole,1)
-        jmo = idx(ipole,2)
-        eia(ipole) = eig(jmo) - eig(imo)
+#include "global.fh"      
+      integer,intent(in) :: nocc,nvir
+      double precision,intent(in),dimension(nocc+nvir) :: eig
+      double precision,intent(out),dimension(*) :: eia
+      integer ipole,imo,jmo,me,nprocs
+
+      me = ga_nodeid()
+      nprocs = ga_nnodes()
+c
+      ipole = 0
+      do imo=1,nocc
+        do jmo=nocc+1,nocc+nvir
+          if (me.ne.mod((imo-1)*nvir+jmo-nocc-1,nprocs)) cycle
+          ipole = ipole + 1
+          eia(ipole) = eig(jmo) - eig(imo)
+        enddo
       enddo
+c      
       return
       end subroutine
 

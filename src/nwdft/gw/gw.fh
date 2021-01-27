@@ -11,16 +11,18 @@
       type :: gw_params_t
         sequence
         integer          :: rtdb
-        integer          :: me
-	integer          :: mynpoles
-	integer          :: polelo,polehi
+        integer          :: me, nprocs
+        integer          :: ipol
+	logical          :: main, odft
 c
         integer          :: natoms
-        integer          :: nocc(2)
-        integer          :: nvir(2)
-        integer          :: nov(2)
-        integer          :: nmo(2)
-	integer          :: nstates
+        integer          :: nmo
+	integer          :: nocc(2),nvir(2)
+        integer          :: noqp(2),nvqp(2),nstates(2),mynpoles(2)
+	integer          :: oolo(2),oohi(2)
+	integer          :: ovlo(2),ovhi(2)
+	integer          :: vvlo(2),vvhi(2)
+	integer          :: llmo(2),nqp(2)
 	integer          :: ngl
         double precision :: tol2e
 c
@@ -28,28 +30,17 @@ c
         integer          :: l_occ, k_occ
 	integer          :: l_glx, k_glx
 	integer          :: l_glw, k_glw
-	integer          :: idx_oo
-	integer          :: idx_ov
-	integer          :: idx_vv
 c
-        integer          :: n_batch
-        integer          :: n3c_int
-        integer          :: l_3cwhat, k_3cwhat
-        integer          :: n3c_dbl
-        integer          :: iwhat_max
-        integer          :: n_semi_bufs
         integer          :: fd
-	integer          :: istart,nbf_cd_me,npairs
 c
         integer          :: g_movecs(2), g_moeris
-	integer          :: g_erioo, g_eriov, g_erivv
+	integer          :: g_erioo(2), g_eriov(2), g_erivv(2)
         logical          :: noio
 c
-        integer          :: noqp, nvqp
         integer          :: eviter, qpiter
         logical          :: evgw, evgw0, analyticw, cdgw, acgw
-        logical          :: graph, newton, anaw
-        double precision :: thresh
+        logical          :: graph, newton, anaw, linear
+        double precision :: thresh, fdstep
 
         type(gwtimer)    :: timer
 

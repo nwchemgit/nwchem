@@ -25,14 +25,14 @@ c
       integer lbuf,lscr,ltmp,leri,lvecs
       integer l_buf,k_buf,l_scr,k_scr,l_tmp,k_tmp,k_eri,k_mo,l_mo
       integer l_vecs,k_vecs,l_idx,k_idx
-      integer me
-      integer np,nstates
+      integer me, isp, addr
+      integer np,nstates(2)
       integer g_3ceris,shlo,shhi,offset,ld
       integer nmo,nvir,rihi,rilo,nri,nri_me,nocc,offk
       integer ish,jsh,ksh,ni,nj,nk,nij
       integer ifirst,jfirst,kfirst
       integer ilast,jlast,klast
-      integer aopairs,mopairs,idum
+      integer aopairs,mopairs(2),idum,totmopairs
       logical IeqJ,ok,oactive
       double precision eri_est,timer,timing
 c
@@ -94,11 +94,13 @@ c     Allocate storage
 c
       np = ga_nnodes()
       nri = nbf_cd
-      nmo = pars%nmo(1)
-      nocc = pars%nocc(1)
-      nstates = pars%nstates
-      mopairs = nstates*nmo
+      nmo = pars%nmo
       aopairs = (nbf_ao*(nbf_ao+1))/2
+
+      do isp=1,pars%ipol
+        mopairs(isp) = pars%nstates(isp)*nmo
+      enddo
+      totmopairs = sum(mopairs(:))
 
       if (.not.ga_create(mt_dbl,aopairs,nri,'3c ERI',aopairs,0,
      $     g_3ceris))
@@ -181,12 +183,18 @@ c
       lvecs = nbf_ao*nmo
       if (.not.ma_alloc_get(mt_dbl,lvecs,'MOVECS',l_vecs,k_vecs))
      $  call errquit(pname//'can''t get movecs space',0,MA_ERR)
-      if (.not.ma_alloc_get(mt_dbl,mopairs*nri_me,'MO Eris',l_mo,k_mo))
+      if (.not.ma_alloc_get(mt_dbl,totmopairs*nri_me,'MO Eris',
+     $                      l_mo,k_mo))
      $  call errquit(pname//'can''t get MO eris space',0,MA_ERR)
 c
-      call ga_get(pars%g_movecs(1),1,nbf_ao,1,nmo,dbl_mb(k_vecs),nbf_ao)
-      call gw_mo(dbl_mb(k_eri),dbl_mb(k_vecs),dbl_mb(k_mo),nbf_ao,nmo,
-     $           nstates,aopairs,nri_me)
+      addr = k_mo
+      do isp=1,pars%ipol
+        if (isp.eq.2) addr = k_mo + mopairs(1)*nri_me
+        call ga_get(pars%g_movecs(isp),1,nbf_ao,1,nmo,
+     $              dbl_mb(k_vecs),nbf_ao)
+        call gw_mo(dbl_mb(k_eri),dbl_mb(k_vecs),dbl_mb(addr),nbf_ao,nmo,
+     $             pars%nstates(isp),aopairs,nri_me)
+      enddo
 
       ok = ma_free_heap(l_vecs) .and. ga_destroy(g_3ceris)
       if (.not.ok)
@@ -198,21 +206,29 @@ c     Distribute and orthonormalize ERIs
 c
       timer = util_wallsec()
 
-      ! OO block
-      call gw_puteris(dbl_mb(k_mo),nmo,nstates,nri,nri_me,rilo,1,nocc,
-     $                1,nocc,pars%g_erioo,pars%idx_oo,'oo',idum,idum,
-     $                idum)
+      addr = k_mo
+      do isp=1,pars%ipol
+        if (isp.eq.2) addr = k_mo + mopairs(1)*nri_me
 
-      ! OV block
-      call gw_puteris(dbl_mb(k_mo),nmo,nstates,nri,nri_me,rilo,1,nocc,
-     $                nocc+1,nmo,pars%g_eriov,pars%idx_ov,'ov',
-     $                pars%polelo,pars%polehi,pars%mynpoles)
+        ! OO block
+        call gw_puteris(dbl_mb(addr),nmo,pars%nstates(isp),nri,nri_me,
+     $                  rilo,1,pars%nocc(isp),1,pars%nocc(isp),
+     $                  pars%g_erioo(isp),'oo',pars%oolo(isp),
+     $                  pars%oohi(isp),idum)
 
-      ! VV block
-      call gw_puteris(dbl_mb(k_mo),nmo,nstates,nri,nri_me,rilo,nocc+1,
-     $                nstates,nocc+1,nmo,pars%g_erivv,pars%idx_vv,'vv',
-     $                idum,idum,idum)
+        ! OV block
+        call gw_puteris(dbl_mb(addr),nmo,pars%nstates(isp),nri,nri_me,
+     $                  rilo,1,pars%nocc(isp),pars%nocc(isp)+1,
+     $                  nmo,pars%g_eriov(isp),'ov',pars%ovlo(isp),
+     $                  pars%ovhi(isp),pars%mynpoles(isp))
 
+        ! VV block
+        call gw_puteris(dbl_mb(addr),nmo,pars%nstates(isp),nri,nri_me,
+     $                  rilo,pars%nocc(isp)+1,pars%nstates(isp),
+     $                  pars%nocc(isp)+1,nmo,pars%g_erivv(isp),
+     $                  'vv',pars%vvlo(isp),pars%vvhi(isp),idum)
+
+      enddo
 
       ok = ma_free_heap(l_mo)
 c
@@ -221,32 +237,36 @@ c
       call ga_get(g_2cinv,1,nbf_cd,1,nbf_cd,dbl_mb(k_tmp),nbf_cd)
       if (.not. ga_destroy(g_2cinv))
      $  call errquit(pname//'failed to destroy g_2cinv',0,GA_ERR)
+
+      do isp=1,pars%ipol
 c
 c     Transform OO block
 c
-      call ga_distribution(pars%g_erioo,pars%me,ilo,ihi,jlo,jhi)
-      call ga_access(pars%g_erioo,ilo,ihi,jlo,jhi,k_eri,ld)
-      nij = jhi-jlo+1
-      call dtrmm('l','l','n','n',nbf_cd,nij,1.0d0,dbl_mb(k_tmp),
-     $            nbf_cd,dbl_mb(k_eri),nbf_cd)
-c
-c     Transform OV block
-c
-      call ga_distribution(pars%g_eriov,pars%me,ilo,ihi,jlo,jhi)
-      call ga_access(pars%g_eriov,ilo,ihi,jlo,jhi,k_eri,ld)
-      nij = jhi-jlo+1
-      call dtrmm('l','l','n','n',nbf_cd,nij,1.0d0,dbl_mb(k_tmp),
-     $            nbf_cd,dbl_mb(k_eri),nbf_cd)
-c
-c     Transform VV block
-c
-      if (nstates.gt.nocc) then
-        call ga_distribution(pars%g_erivv,pars%me,ilo,ihi,jlo,jhi)
-        call ga_access(pars%g_erivv,ilo,ihi,jlo,jhi,k_eri,ld)
+        call ga_distribution(pars%g_erioo(isp),pars%me,ilo,ihi,jlo,jhi)
+        call ga_access(pars%g_erioo(isp),ilo,ihi,jlo,jhi,k_eri,ld)
         nij = jhi-jlo+1
         call dtrmm('l','l','n','n',nbf_cd,nij,1.0d0,dbl_mb(k_tmp),
      $              nbf_cd,dbl_mb(k_eri),nbf_cd)
-      endif
+c
+c     Transform OV block
+c
+        call ga_distribution(pars%g_eriov(isp),pars%me,ilo,ihi,jlo,jhi)
+        call ga_access(pars%g_eriov(isp),ilo,ihi,jlo,jhi,k_eri,ld)
+        nij = jhi-jlo+1
+        call dtrmm('l','l','n','n',nbf_cd,nij,1.0d0,dbl_mb(k_tmp),
+     $              nbf_cd,dbl_mb(k_eri),nbf_cd)
+c
+c     Transform VV block
+c
+        if (pars%nstates(isp).gt.pars%nocc(isp)) then
+          call ga_distribution(pars%g_erivv(isp),pars%me,ilo,ihi,
+     $                         jlo,jhi)
+          call ga_access(pars%g_erivv(isp),ilo,ihi,jlo,jhi,k_eri,ld)
+          nij = jhi-jlo+1
+          call dtrmm('l','l','n','n',nbf_cd,nij,1.0d0,dbl_mb(k_tmp),
+     $                nbf_cd,dbl_mb(k_eri),nbf_cd)
+        endif
+      enddo
 c
       pars%timer%distr = util_wallsec() - timer
 c
@@ -360,7 +380,7 @@ c
 c
 c     *****************************************************************
       subroutine gw_puteris(erimo,nmo,nstates,nri,nri_me,rilo,ilower,
-     $                      iupper,jlower,jupper,eri,idx,blk,polelo,
+     $                      iupper,jlower,jupper,eri,blk,polelo,
      $                      polehi,mynpoles)
       implicit none
 #include "mafdecls.fh"
@@ -369,7 +389,7 @@ c     *****************************************************************
       character(len=2),intent(in) :: blk
       integer,intent(in) :: nmo, nstates, nri, nri_me, rilo
       integer,intent(in) :: ilower, iupper, jlower, jupper
-      integer,intent(out) :: eri,idx,polelo,polehi,mynpoles
+      integer,intent(out) :: eri,polelo,polehi,mynpoles
       double precision,intent(in),dimension(nstates,nmo,nri_me) :: erimo
 
       character(len=12),parameter :: pname = 'gw_puteris: '
@@ -399,8 +419,6 @@ c     *****************************************************************
      $  call errquit(pname//'can''t create '//blk//' block',0,GA_ERR)
       if (.not.ma_alloc_get(mt_int,2*npairs,idxlabel,l_tmp,k_tmp))
      $  call errquit(pname//'can''t create '//blk//' index',0,MA_ERR)
-      if (.not.ga_create(mt_int,npairs,2,idxlabel,0,2,idx))
-     $  call errquit(pname//'can''t create '//blk//' index',0,GA_ERR)
 
       call gw_get_indeces(int_mb(k_tmp),npairs,ilower,iupper,jlower,
      $                    jupper)
@@ -412,16 +430,12 @@ c     *****************************************************************
      $              nri_me)
       enddo
 
-      call ga_distribution(idx,me,ilo,ihi,jlo,jhi)
-      call ga_access(idx,ilo,ihi,1,2,k_loc,ld)
-      call dcopy(ld,int_mb(k_tmp+ilo-1),1,int_mb(k_loc),1)
-      call dcopy(ld,int_mb(k_tmp+npairs+ilo-1),1,int_mb(k_loc+ld),1)
       ok = ma_free_heap(l_tmp)
 
+      call ga_distribution(eri,me,ld,ld,polelo,polehi)
+
       if (blk .eq. 'ov') then
-        polelo = ilo
-        polehi = ihi
-        mynpoles = ihi - ilo + 1
+        mynpoles = polehi - polelo + 1
       endif
 
       end subroutine

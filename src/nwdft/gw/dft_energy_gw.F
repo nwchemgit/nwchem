@@ -69,17 +69,15 @@ c
 c
       if (theory.eq."dft") then
         
-        if (ipol.eq.1) then
-          if (params%cdgw) then
-            call gw_cdgw(params)
-          else
-            call gw_run(params)
-          endif
-c
-        elseif (ipol.eq.2) then
-          call errquit(pname//"open-shell not implemented",0,0)
+        if (params%cdgw) then
+          call gw_cdgw(params)
         else
-          call errquit(pname//"bad ipol value",0,0)
+          if (ipol.eq.1) then
+            call gw_run(params)
+          else
+            call errquit(pname//'Analytic open-shell not implemented',
+     $                   0,0)
+          endif
         endif
 c
       elseif (theory.eq.'sodft') then

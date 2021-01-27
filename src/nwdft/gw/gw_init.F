@@ -10,12 +10,13 @@ c
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "util.fh"      
+#include "global.fh"      
 #include "gw.fh"
 c
       type(gw_params_t) :: pars
 c
-      integer i, ilo, ihi
-      integer nbf_temp, ipol_temp, nocc, nvir
+      integer i, ilo, ihi, j
+      integer nbf_temp, ipol_temp, nocc, nvir, nmo_temp(2)
 c
       character(len=9), parameter :: pname = 'gw_init: '
       character(len=255) :: basisname, scftype
@@ -47,6 +48,9 @@ c
       pars%timer%iw    = 0d0
       pars%timer%vmo   = 0d0
 
+      pars%me = ga_nodeid()
+      pars%nprocs = ga_nnodes()
+
       if (.not.rtdb_get(pars%rtdb,'gw:init',mt_log,1,init))
      $  call gw_defaults(pars%rtdb) 
 
@@ -68,6 +72,11 @@ c
      $  call errquit(pname//'failed to read graph',0,RTDB_ERR)
       if (.not.rtdb_get(pars%rtdb,'gw:newton',mt_log,1,pars%newton))
      $  call errquit(pname//'failed to read newton',0,RTDB_ERR)
+      if (.not.rtdb_get(pars%rtdb,'gw:linear',mt_log,1,pars%linear))
+     $  call errquit(pname//'failed to read linear',0,RTDB_ERR)
+
+      if (pars%linear .or. pars%graph) pars%newton = .false.
+
       if (pars%newton) then
         if (.not.rtdb_get(pars%rtdb,'gw:qpiter',mt_int,1,pars%qpiter))
      $    call errquit(pname//'failed to read qpiter',0,RTDB_ERR)
@@ -76,9 +85,15 @@ c
       if (.not.rtdb_get(pars%rtdb,'gw:threshold',mt_dbl,1,pars%thresh))
      $  call errquit(pname//'failed to read threshold',0,RTDB_ERR)
 c
-      if (.not.rtdb_get(pars%rtdb,'gw:noqp',mt_int,1,pars%noqp))
+      if (.not.rtdb_get(pars%rtdb,'gw:noqp_alpha',mt_int,1,
+     $                  pars%noqp(1)))
      $  call errquit(pname//'failed to read noqp',0,RTDB_ERR)
-      if (.not.rtdb_get(pars%rtdb,'gw:nvqp',mt_int,1,pars%nvqp))
+      if (.not.rtdb_get(pars%rtdb,'gw:nvqp_alpha',mt_int,1,
+     $                  pars%nvqp(1)))
+     $  call errquit(pname//'failed to read nvqp',0,RTDB_ERR)
+      if (.not.rtdb_get(pars%rtdb,'gw:noqp_beta',mt_int,1,pars%noqp(2)))
+     $  call errquit(pname//'failed to read noqp',0,RTDB_ERR)
+      if (.not.rtdb_get(pars%rtdb,'gw:nvqp_beta',mt_int,1,pars%nvqp(2)))
      $  call errquit(pname//'failed to read nvqp',0,RTDB_ERR)
 c
       if (.not.rtdb_get(pars%rtdb,'gw:analyticw',mt_log,1,pars%anaw))
@@ -131,6 +146,7 @@ c
      $  call errquit(pname//'failed to read noc',0,RTDB_ERR)
       if (.not.rtdb_get(pars%rtdb,'dft:mult',mt_int,1,mult))
      $  call errquit(pname//'failed to read mult',0,RTDB_ERR)
+      pars%ipol = ipol
 c
 c     MO vectors
 c
@@ -146,12 +162,14 @@ c
      $  pars%k_occ))
      $  call errquit(pname//'failed to allocate occ',0,MA_ERR) 
       if (.not.movecs_read_header(movecs_out,title,basisname,
-     $    scftype,nbf_temp,ipol_temp,pars%nmo,2))
+     $    scftype,nbf_temp,ipol_temp,nmo_temp,2))
      $    call errquit(pname//'failed to read MO header',0,DISK_ERR)
       if (nbf_ao.ne.nbf_temp)
      $  call errquit(pname//'corrupted MO vectors',0,DISK_ERR)
       if (ipol.ne.ipol_temp)
      $  call errquit(pname//'corrupted MO vectors',0,DISK_ERR)
+
+      pars%nmo = nmo_temp(1)
 c
       do i=1,ipol
         pars%g_movecs(i) = ga_create_atom_blocked(geom,
@@ -161,49 +179,59 @@ c
      $      dbl_mb(pars%k_evals+(i-1)*nbf_ao),
      $      pars%g_movecs(i)))
      $    call errquit(pname//'failed to read MO vectors',0,DISK_ERR)
+
+        nocc = 0
+        nvir = 0
+        do j=1,pars%nmo
+          if (dbl_mb(pars%k_occ+(i-1)*nbf_ao+j-1).gt.0.d0) then
+            nocc = nocc + 1
+            cycle
+          else
+            nvir = nvir + 1
+          endif
+        enddo
+        pars%nocc(i) = nocc
+        pars%nvir(i) = nvir
+        if (nocc+nvir.ne.pars%nmo)
+     $    call errquit(pname//'something went wrong',0,0)
+      
+c
+        if ((pars%noqp(i).gt.nocc).or.(pars%noqp(i).eq.-1)) 
+     $     pars%noqp(i) = nocc
+
+        if (pars%noqp(i).lt.-1)
+     $    call errquit(pname//'invalid number noqp specified',0,0)
+c
+        if ((pars%nvqp(i).gt.nvir).or.(pars%nvqp(i).eq.-1)) 
+     $     pars%nvqp(i) = nvir
+
+        if (pars%nvqp(i).lt.-1)
+     $    call errquit(pname//'invalid number nvqp specified',0,0)
+
+        pars%llmo(i) = pars%nocc(i) - pars%noqp(i) + 1
+        pars%nqp(i) = pars%noqp(i) + pars%nvqp(i)
+
       enddo
-c
-      nocc = 0
-      nvir = 0
-      do i=1,pars%nmo(1)
-        if (dbl_mb(pars%k_occ+i-1).gt.0.d0) then
-          nocc = nocc + 1
-          cycle
-        else
-          nvir = nvir + 1
-        endif
-      enddo
-      pars%nocc(1) = nocc
-      pars%nvir(1) = nvir
-      pars%nov(1)  = nocc*nvir
-      if (nocc+nvir.ne.pars%nmo(1))
-     $  call errquit(pname//'something went wrong',0,0)
-c
-      if ((pars%noqp.gt.nocc).or.(pars%noqp.eq.-1)) pars%noqp = nocc
-      if (pars%noqp.lt.-1)
-     $  call errquit(pname//'invalid number noqp specified',0,0)
-c
-      if ((pars%nvqp.gt.nvir).or.(pars%nvqp.eq.-1)) pars%nvqp = nvir
-      if (pars%nvqp.lt.-1)
-     $  call errquit(pname//'invalid number nvqp specified',0,0)
 c
       if (pars%evgw.or.pars%evgw0) then
-        pars%noqp = nocc
-        pars%nvqp = nvir
+        pars%noqp(:) = pars%nocc(:)
+        pars%nvqp(:) = pars%nvir(:)
       endif
 c
-      if (pars%noqp+pars%nvqp.eq.0)
+      if (sum(pars%noqp)+sum(pars%nvqp).eq.0)
      $  call errquit(pname//'no quasiparticle energies to obtain',0,0)
 c
-      pars%nstates = nocc + pars%nvqp
+      do i=1,ipol
+        pars%nstates(i) = pars%nocc(i) + pars%nvqp(i)
+      enddo
 c
       if (pars%evgw .or. pars%evgw0) then
         if (pars%eviter.lt.1)
-     $    call errquit(pname//'invalid eviter',0,0)
+     $    call errquit(pname//'invalid eviter',0,INPUT_ERR)
       endif
 c      
-      if (pars%qpiter.lt.1)
-     $  call errquit(pname//'invalid qpiter',0,0)
+      if (pars%newton .and. pars%qpiter.lt.1)
+     $  call errquit(pname//'invalid qpiter',0,INPUT_ERR)
 c
 c     Gauss-Legendre quadrature
 c
@@ -231,7 +259,9 @@ c
 c
       call gw_memory(pars)
       call gw_ri_init(pars)
-c      
+c
+      pars%fdstep = 0.0005d0
+
       return
       end subroutine gw_init
 

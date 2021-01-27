@@ -22,7 +22,7 @@ c
       data dirs /'evgw0', 'evgw' , 'method', 'solver',
      &           'convergence', 'states', 'analyticw', 'end'/
 c
-      integer ind, qpiter,eviter,noqp,nvqp
+      integer ind, qpiter,eviter,noqp(2),nvqp(2)
       double precision threshold
       double precision, parameter :: ha2ev = 27.211386245988d0
 c
@@ -103,11 +103,13 @@ c
      &    call errquit('gw_input: rtdb_put failed', 400, RTDB_ERR)
         if (.not.rtdb_put(rtdb, 'gw:qpiter', mt_int, 1, qpiter))
      &    call errquit('gw_input: rtdb_put failed', 400, RTDB_ERR)
+      elseif (inp_compare(.false.,'linear',test)) then
+        if (.not.rtdb_put(rtdb, 'gw:linear', mt_log, 1, .true.))
+     &    call errquit('gw_input: rtdb_put failed', 108, RTDB_ERR)   
       else
         goto 8000
       endif
       goto 10
-      
 c
 c     convergence
 c
@@ -130,20 +132,40 @@ c
 c     states
 c
  600  if (.not. inp_a(test)) goto 8200
- 601  if (inp_compare(.false.,'occ',test)) then
-        if (.not. inp_i(noqp)) goto 8200
-        if (.not.rtdb_put(rtdb, 'gw:noqp',mt_int,1,noqp))
-     $    call errquit('gw_input: rtdb_put failed', 600, RTDB_ERR)
-      elseif (inp_compare(.false.,'vir',test)) then
-        if (.not. inp_i(nvqp)) goto 8200
-        if (.not.rtdb_put(rtdb, 'gw:nvqp',mt_int,1,nvqp))
-     $    call errquit('gw_input: rtdb_put failed', 600, RTDB_ERR)
-      else
-        goto 8200
+
+      if (inp_compare(.false.,'alpha',test)) then
+        if (.not.inp_a(test)) goto 8200
+ 601    if (inp_compare(.false.,'occ',test)) then
+          if (.not. inp_i(noqp)) goto 8200
+          if (.not.rtdb_put(rtdb, 'gw:noqp_alpha',mt_int,1,noqp))
+     $      call errquit('gw_input: rtdb_put failed', 600, RTDB_ERR)
+        elseif (inp_compare(.false.,'vir',test)) then
+          if (.not. inp_i(nvqp)) goto 8200
+          if (.not.rtdb_put(rtdb, 'gw:nvqp_alpha',mt_int,1,nvqp))
+     $      call errquit('gw_input: rtdb_put failed', 600, RTDB_ERR)
+        else
+          goto 8200
+        endif
+        if (.not. inp_a(test)) goto 10
+        goto 601
+
+      elseif (inp_compare(.false.,'beta',test)) then
+        if (.not.inp_a(test)) goto 8200
+ 602    if (inp_compare(.false.,'occ',test)) then
+          if (.not. inp_i(noqp)) goto 8200
+          if (.not.rtdb_put(rtdb, 'gw:noqp_beta',mt_int,1,noqp))
+     $      call errquit('gw_input: rtdb_put failed', 600, RTDB_ERR)
+        elseif (inp_compare(.false.,'vir',test)) then
+          if (.not. inp_i(nvqp)) goto 8200
+          if (.not.rtdb_put(rtdb, 'gw:nvqp_beta',mt_int,1,nvqp))
+     $      call errquit('gw_input: rtdb_put failed', 600, RTDB_ERR)
+        else
+          goto 8200
+        endif
+        if (.not. inp_a(test)) goto 10
+        goto 602
       endif
 c
-      if (.not. inp_a(test)) goto 10
-      goto 601
 c
 c
 c
@@ -157,8 +179,8 @@ c
 c
 c     error handling
 c
- 8000 call errquit('solver graph || newton <integer>',0, INPUT_ERR)
- 8200 call errquit('states [occ <integer>] [vir <integer>]',0,
+ 8000 call errquit('solver graph || newton <int>',0, INPUT_ERR)
+ 8200 call errquit('states alpha||beta [occ <int>] [vir <int>]',0,
      &              INPUT_ERR)
 c
       end subroutine gw_input    

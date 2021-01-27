@@ -13,8 +13,8 @@
 #include "gw.fh"
 
       type(gw_params_t) :: pars
-      integer nmo
-      double precision vxc(nmo)
+      integer,intent(in) :: nmo
+      double precision,intent(out) :: vxc(nmo,ipol)
 c
       character(len=8), parameter :: pname = 'gw_vxc: '
 c
@@ -28,13 +28,13 @@ c
       integer l_cntoce,l_cntobfr,l_cetobfr,l_rdens_atom,l_tmp
       integer k_cntoce,k_cntobfr,k_cetobfr,k_rdens_atom,k_tmp
 
-      double precision rho_n, ecoul, exc(1)
+      double precision rho_n, ecoul, exc(ipol)
 
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
 
-      logical grid_reopen
-      external grid_reopen
+      logical grid_reopen,xc_rep_close
+      external grid_reopen,xc_rep_close
 c
       if (.not.grid_written) then
         grid_written = grid_reopen(geom)
@@ -104,13 +104,16 @@ c
       cdfit = .true.
       npol = (ipol*(ipol+1))/2
 c
-      call xc_rep_init(pars%rtdb,geom,ao_bas_han,g_dens,g_dens,nbf_ao,
+      call xc_rep_init(pars%rtdb,geom,ao_bas_han,g_dens,g_vxc,nbf_ao,
      $                 ipol,.true.,.false.) 
 c
       call xc_getv(pars%rtdb, exc, ecoul, 1, 0, 0,
      $             g_dens, g_vxc, .false., g_wght, g_xyz, g_nq,
      $             .false., rho_n, dbl_mb(k_rdens_atom),
      $             dbl_mb(k_cetobfr), natoms) 
+
+      if (.not.xc_rep_close(pars%rtdb,nbf_ao,ipol,g_dens,g_vxc,.false.))
+     $  call errquit(pname//'xc_rep_close failed',0,DISK_ERR) 
 c
       if (.not.ma_push_get(mt_dbl,2*nbf_ao,'vxc temp',l_tmp,k_tmp))
      $  call errquit(pname//'failed to allocate temp',0,MA_ERR) 
@@ -118,10 +121,8 @@ c
         call ga_dgemm('n','n',nbf_ao,nmo,nbf_ao,1.0d0,g_vxc(isp),
      $                 pars%g_movecs(isp),0.0d0,g_dens(isp))
         do imo=1,nmo
-          call ga_get(pars%g_movecs(isp),1,nbf_ao,imo,imo,dbl_mb(k_tmp),
-     $                1)
-          call ga_get(g_dens,1,nbf_ao,imo,imo,dbl_mb(k_tmp+nbf_ao),1)
-          vxc(imo) = ddot(nbf_ao,dbl_mb(k_tmp),1,dbl_mb(k_tmp+nbf_ao),1)
+          vxc(imo,isp) = ga_ddot_patch(g_dens(isp),'n',1,nbf_ao,imo,imo,
+     $                          pars%g_movecs(isp),'n',1,nbf_ao,imo,imo)
         enddo
       enddo
 c

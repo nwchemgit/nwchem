@@ -74,10 +74,6 @@ c
       if (.not.rtdb_get(rtdb, 'dft:ipol', mt_int, 1, ipol))
      &  call errquit('task_gw: failed to read ipol', 0, RTDB_ERR)
 c
-      if (ipol.ne.1)
-     &  call errquit('task_gw: spin-polarized version is not'//
-     &               ' available', 0, INPUT_ERR)
-c
 c     Make sure a DFT solution is available
 c
       status = dft_energy_gw(rtdb)
