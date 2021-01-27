@@ -81,6 +81,7 @@
 #include "c_geodesic_common.fh"
 
 *     **** local variables ****
+      logical value
       integer nb,i,nbrillq,neall,npack1
       integer ashift,ushift,sshift,vshift,vtshift,V_tag
       real*8 tmp
@@ -99,6 +100,12 @@
       call Cram_max_npack(npack1)
       nbrillq = cpsi_nbrillq()
       neall   = cpsi_neq(1)+cpsi_neq(2)
+
+      !write(*,*) "FERA0, nb=",npack1,nbrillq,neall,Pneb_w_size(0,1)
+      !value = MA_set_auto_verify(.true.)
+      !value = MA_verify_allocator_stuff()
+      !call MA_summarize_allocated_blocks()
+      !write(*,*) "FERA1, nb=",npack1,nbrillq,neall,Pneb_w_size(0,1)
 
 *     **** allocate tmp space ****
       V_tag = cpsi_data_push_stack(nbrillq,1,2*Pneb_w_size(0,1))

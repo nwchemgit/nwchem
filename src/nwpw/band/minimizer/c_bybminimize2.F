@@ -165,6 +165,7 @@ c
 *     **** set the initial density ****
       if (current_iteration.eq.1) then
          Enew  = cpsi_1energy()
+         !write(*,*) "Enew=",Enew+eion
          alpha = control_ks_alpha()
          deltae = -9232323299.0d0
          ks_deltae = tole
@@ -209,6 +210,7 @@ c
          end do
          call K1dB_SumAll(charge(ms))
       end do
+
   
 *     **** iniitialize SCF Mixing ****    
       call nwpw_scf_mixing_init(control_scf_algorithm(),alpha,

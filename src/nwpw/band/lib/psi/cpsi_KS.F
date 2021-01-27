@@ -372,12 +372,12 @@ c      common / c_cgsd_block / Enew,Eold,Estart
       external control_lmbfgs_size
       logical  control_precondition,band_hfx
       external control_precondition,band_hfx
+      logical value
 
       dt = control_time_step()
 c     dte = dt/dsqrt(control_fake_mass())
 c     dte = dsqrt(control_fake_mass())/dt
 c     dte = 1.0d0
-
 
       call Cram_max_npack(npack1)
       ispin = cpsi_ispin()
@@ -401,17 +401,20 @@ c     dte = 1.0d0
          call cpsi_1get_Tgradient0(G0_tag,E0)
       end if
 
+
       if (current_iteration.eq.1) then
 
 *        ***** use the initial gradient for the direction ****
          call band_lmbfgs_init(control_lmbfgs_size(),dbl_mb(G0_shift))
          call BGrsm_ff_Copy_tag(G0_tag,S0_tag)
+
          tmin  = 10*deltat_min
       else
          call band_lmbfgs(tmin,dbl_mb(G0_shift),dbl_mb(S0_shift))
          call Pneb_ff_traceall_tag(0,0,G0_tag,S0_tag,sum1)
          if (dabs(sum1).gt.1.0d3) call BGrsm_ff_Copy_tag(G0_tag,S0_tag)
       end if
+
 
 *     ******************************************
 *     ****                                  ****
@@ -439,6 +442,8 @@ c         deltat = 1.0d0  !** debug **
      >                        0.50d0,tmin,deltae,2)
          call cpsi_geodesic_final(tmin)
          !deltac = c_rho_error()
+
+
 
 *        **** exit loop early ****
          if (dabs(deltae).lt.maxerror) then

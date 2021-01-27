@@ -1004,19 +1004,26 @@ c     &       MA_ERR)
 #include "rhoall_common.fh"
 
 *     **** local variables ****
-      logical value
+      logical value,fractional
       integer ms,nb,ierr
       integer tmp_L(2)
-      integer psi1_shift,psi2_shift
+      integer psi1_shift,psi2_shift,next1_tag,shifto
       real*8 tsum
       complex*16 tttc(16,16)
       integer i,j
 
 *     **** external functions ****
       logical  Pneb_w_push_get,Pneb_w_push_get_block,Pneb_w_pop_stack
-      integer  cpsi_data_get_chnk
+      integer  cpsi_data_get_chnk,cpsi_data_get_next
       external Pneb_w_push_get,Pneb_w_push_get_block,Pneb_w_pop_stack
-      external cpsi_data_get_chnk
+      external cpsi_data_get_chnk,cpsi_data_get_next
+      logical  control_fractional
+      external control_fractional
+
+      fractional = control_fractional()
+      if (fractional) then
+         next1_tag = cpsi_data_get_next(psi1_tag)
+      end if
 
       call c_electron_run(psi1_tag,
      >                     dbl_mb(rho1(1)),
@@ -1037,14 +1044,22 @@ c     &       MA_ERR)
         psi2_shift = cpsi_data_get_chnk(psi2_tag,nb)
         do ms=1,ispinq
         if (neq(ms).gt.0) then
-           !psi1_shift = cpsi_data_get_ptr(psi1_tag,nb,1+(ms-1)*neq(1))
-           !psi2_shift = cpsi_data_get_ptr(psi2_tag,nb,1+(ms-1)*neq(1))
-           call cpsi_lmbda(ms,nb,npack1,
+           if (fractional) then
+              shifto = cpsi_data_get_chnk(next1_tag,nb)
+              call cpsi_lmbda2(ms,nb,npack1,
+     >                   dbl_mb(psi1_shift),
+     >                   dbl_mb(psi2_shift),
+     >                   dte,dbl_mb(shifto),
+     >                   dcpl_mb(tmp_L(1)),ierr)
+           else
+              !psi1_shift = cpsi_data_get_ptr(psi1_tag,nb,1+(ms-1)*neq(1))
+              !psi2_shift = cpsi_data_get_ptr(psi2_tag,nb,1+(ms-1)*neq(1))
+              call cpsi_lmbda(ms,nb,npack1,
      >                 dbl_mb(psi1_shift),
      >                 dbl_mb(psi2_shift),
      >                 dte,
      >                 dcpl_mb(tmp_L(1)),ierr)
-
+           end if
         end if
         end do
       end do
@@ -2420,6 +2435,8 @@ c         end do
       external     control_input_psi
       logical  c_wvfnc_expander,control_spin_orbit
       external c_wvfnc_expander,control_spin_orbit
+      logical  control_fractional
+      external control_fractional
   
 *     **** external functions ****
       logical  pspw_reformat_c_wvfnc
