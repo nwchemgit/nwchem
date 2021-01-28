@@ -36,8 +36,8 @@
 
       main = me.eq.0
       nprocs = ga_nnodes()
-      
-      if (.not.ma_push_get(mt_dbl,nri**2,'pi',l_pi,k_pi))
+
+      if (.not.ma_alloc_get(mt_dbl,nri**2,'pi',l_pi,k_pi))
      $  call errquit(pname//'can''t allocate pi matri',0,MA_ERR) 
       if (.not.ma_push_get(mt_int,nri,'ipiv',l_ipiv,k_ipiv))
      $  call errquit(pname//'can''t allocate ipiv',0,MA_ERR) 
@@ -187,8 +187,10 @@
       call ga_dgop(mt_dbl,dR,1,'+')
 
 
-      if (.not.ma_chop_stack(l_pi))
-     $   call errquit(pname//'can''t destroy global array',0,MA_ERR)
+      if (.not.ma_chop_stack(l_ipiv))
+     $   call errquit(pname//'can''t chop stack',0,MA_ERR)
+      if (.not.ma_free_heap(l_pi))
+     $   call errquit(pname//'can''t free heap',0,MA_ERR)
 c     
 
       if (parallel_diag) then

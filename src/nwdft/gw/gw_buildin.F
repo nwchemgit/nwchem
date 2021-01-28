@@ -11,10 +11,10 @@
       double precision, intent(out) :: I,dI,d2I
 
       integer igl,jmo,mynmo,istep
-      double precision w2
+      double precision w2,a
       double precision,dimension(iwidx(0)) :: vector,wmo
-      double precision,dimension(iwidx(0)) :: factor
-      double precision,dimension(-2:2)     :: res
+      double precision,dimension(iwidx(0)) :: factor, dfactor, d2factor
+      double precision,dimension(0:2)     :: res
 
       double precision,external :: ddot
 
@@ -29,21 +29,22 @@
         w2 = x(igl)
         wmo(:) = iW(1:iwidx(0),igl)
 
-        do istep=-2,2
-          do jmo=1,iwidx(0)
-            factor(jmo) =  (vector(jmo)+istep*fdstep)/
-     $                     ((vector(jmo)+istep*fdstep)**2 + w2)
-          enddo
-          res(istep) = res(istep) - w(igl)*dot_product(wmo,factor)
+        do jmo=1,iwidx(0)
+          a = 1d0/(vector(jmo)**2 + w2)
+          factor(jmo) =  vector(jmo)*a
+          dfactor(jmo) = (w2 - vector(jmo)**2)*a**2
+          d2factor(jmo) = 2d0*vector(jmo)*(vector(jmo)**2 - 3d0*w2)*a**3
         enddo
+        res(0) = res(0) - w(igl)*dot_product(wmo,factor)
+        res(1) = res(1) - w(igl)*dot_product(wmo,dfactor)
+        res(2) = res(2) - w(igl)*dot_product(wmo,d2factor)
+
       enddo
 
-      call ga_dgop(mt_dbl,res,5,'+')
-
+      call ga_dgop(mt_dbl,res,3,'+')
 
       I = res(0)
-      dI = (res(-2) - 8d0*res(-1) + 8d0*res(1) - res(2))/(12d0*fdstep)
-      d2I = -res(-2)+16d0*res(-1)-30d0*res(0)+16d0*res(1)-res(2)
-      d2I = d2I/(12d0*fdstep**2)
+      dI = res(1)
+      d2I = res(2)
      
       end subroutine

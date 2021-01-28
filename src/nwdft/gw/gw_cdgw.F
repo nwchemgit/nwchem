@@ -36,7 +36,7 @@ c
       double precision timer
 
 
-      logical converged
+      logical converged,ok
 
       double precision, parameter :: fdstep = 0.002d0
       double precision, external :: gw_efermi
@@ -96,7 +96,7 @@ c
 c
 c     Allocations
 c
-      mynmo = pars%nmo/pars%nprocs + 2
+      mynmo = pars%nmo/nprocs + nprocs + 1
 
       lSize = ipol*mynmo*maxqp*ngl
       if (.not.ma_alloc_get(mt_dbl,lSize,'W(igl)',liW,kiW))
@@ -180,7 +180,7 @@ c
      $                          dbl_mb(kEold),dbl_mb(kEnew),
      $                          dbl_mb(kEia),dbl_mb(kiW),int_mb(kiWidx),
      $                          efermi,nri,mynmo,maxqp,maxpoles)
-      elseif (pars%newton .and. eviter.lt.2) then
+      elseif (pars%newton) then
         call gw_cdgw_newton(pars,dbl_mb(kSigmax),dbl_mb(kSigma),
      $                      dbl_mb(kEold),dbl_mb(kEnew),dbl_mb(kEia),
      $                      dbl_mb(kiW),int_mb(kiWidx),efermi,nri,
@@ -485,7 +485,7 @@ c
       subroutine gw_get_iwidx(idx,nmo,nocc,nvir,mynmo,nqp,llmo)
       implicit none
       integer,intent(in) :: nmo, nocc, nvir, mynmo, nqp, llmo
-      integer,intent(out),dimension(0:mynmo,nqp) :: idx
+      integer,intent(out),dimension(0:mynmo,*) :: idx
 
       integer me, imo, jmo, kmo, lmo, nprocs
       integer,external :: ga_nodeid, ga_nnodes

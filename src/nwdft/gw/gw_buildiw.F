@@ -7,9 +7,9 @@
       type(gw_params_t) :: pars
       integer,intent(in) :: nmo,nri,ngl,mynmo,maxpoles,maxqp,ipol
 
-      double precision,intent(in)    :: eia(maxpoles,ipol),x(ngl)
-      integer,intent(in)             :: iwidx(0:mynmo,maxqp,ipol)
-      double precision,intent(out)   :: iw(mynmo,ngl,maxqp,ipol)
+      double precision,intent(in)    :: eia(maxpoles,*),x(ngl)
+      integer,intent(in)             :: iwidx(0:mynmo,maxqp,*)
+      double precision,intent(out)   :: iw(mynmo,ngl,maxqp,*)
 
       character(len=12),parameter :: pname = 'gw_buildiw: '
 
@@ -25,6 +25,8 @@
       double precision,external :: ddot
       integer,external :: ga_nodeid, ga_nnodes
 
+      call ga_sync()
+
       me = ga_nodeid()
       nprocs = ga_nnodes()
       main = me.eq.0
@@ -36,16 +38,12 @@
       endif
       sizepi = (nri*(nri+1))/2
 
-#ifdef PARALLEL_DIAG
-#endif      
-
-      if (.not.ma_push_get(mt_dbl,sizepi,'Pi',l_pi,k_pi))
+      if (.not.ma_alloc_get(mt_dbl,sizepi,'Pi',l_pi,k_pi))
      $  call errquit(pname//'can''t allocate Pi',0,MA_ERR) 
-      if (.not.ma_push_get(mt_dbl,nri*mynmo,'temp',l_tmp,tmp))
+      if (.not.ma_alloc_get(mt_dbl,nri*mynmo,'temp',l_tmp,tmp))
      $  call errquit(pname//'can''t allocate tmp',0,MA_ERR) 
-      if (.not.ma_push_get(mt_dbl,nri*mynmo,'sol',l_sol,k_sol))
+      if (.not.ma_alloc_get(mt_dbl,nri*mynmo,'sol',l_sol,k_sol))
      $  call errquit(pname//'can''t allocate sol',0,MA_ERR) 
-
 
       call ga_access(pars%g_eriov(1),1,nri,pars%ovlo(1),pars%ovhi(1),
      $               kOV1,ld)
@@ -148,7 +146,11 @@ c
         enddo
       enddo
 
-      if (.not.ma_chop_stack(l_pi))
-     $  call errquit(pname//'can''t pop stack',0,MA_ERR) 
+      if (.not.(ma_free_heap(l_sol)))
+     $  call errquit(pname//'can''t free SOL heap',me,MA_ERR) 
+      if (.not.(ma_free_heap(l_tmp)))
+     $  call errquit(pname//'can''t free TMP heap',me,MA_ERR) 
+      if (.not.(ma_free_heap(l_pi)))
+     $  call errquit(pname//'can''t free PI heap',me,MA_ERR) 
 c
       end subroutine
