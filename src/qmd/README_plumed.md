@@ -19,7 +19,8 @@ make install
 
 ## Compilation of the NWChem Interface
 
-* modify PATH to point to the location of the plumed command (`/home/edo/tahoma/apps/plumed262.intel20u2/bin` in the 
+* modify `PATH` to point to the location of the plumed command (e.g. `/home/edo/tahoma/apps/plumed262.intel20u2/bin` in the 
+example above) and `LD_LIBRARY_PATH` to point to the location of the plumed libraries (e.g. `/home/edo/tahoma/apps/plumed262.intel20u2/lib` in the 
 example above)
 * set the env. variable `USE_PLUMED=y`
 * include the qmd module in `NWCHEM_MODULES`
