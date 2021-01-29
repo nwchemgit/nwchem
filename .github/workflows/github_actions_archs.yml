@@ -6,6 +6,9 @@ on:
   release:
   schedule:
     - cron: '0 0 * * SUN'
+  repository_dispatch:
+    types: [backend_automation]
+  workflow_dispatch:
 jobs:
   build_archs:
     if: |
