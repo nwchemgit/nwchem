@@ -60,11 +60,11 @@ fi
             && rm -f GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB || true \
             && echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list \
             && sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"  \
-	    && sudo apt update
+	    && sudo apt-get update
 	sudo apt-cache search intel-oneapi-mpi
         mpi_bin="  " ; mpi_libdev="intel-oneapi-mpi-devel" scalapack_libdev="intel-oneapi-mkl"
     fi
-    sudo add-apt-repository universe && sudo apt update
+    sudo add-apt-repository universe && sudo apt-get update
 #    sudo apt-get -y install gfortran python3-dev python-dev cmake "$mpi_libdev" "$mpi_bin" "$scalapack_libdev"  make perl  libopenblas-dev python3 rsync
     sudo apt-get -y install gfortran python3-dev python-dev cmake "$mpi_libdev" "$mpi_bin"  make perl  python3 rsync
     if [[ "$FC" == "ifort" ]]; then
