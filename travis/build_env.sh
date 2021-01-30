@@ -54,9 +54,10 @@ fi
         mpi_bin="mpich" ; mpi_libdev="libmpich-dev" scalapack_libdev="libscalapack-mpich-dev"
     fi
     if [[ "$MPI_IMPL" == "intel" ]]; then
-	wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB \
-            && sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB  \
-            && rm GPG-PUB-KEY-INTEL-SW-PRODUCTS-2023.PUB  \
+	export APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
+	wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
+            && sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB  \
+            && rm -f GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB || true \
             && echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list \
             && sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"  \
 	    && sudo apt update
