@@ -176,13 +176,13 @@ c      call c_electron_gen_densities(dn,dng,dnall)
 
 *     ***********************************
 *     *                                 *
-*     *         c_electron_run0          *
+*     *        c_electron_run0          *
 *     *                                 *
 *     ***********************************
       subroutine c_electron_run0(psi_k_tag)
       implicit none
-c      complex*16 psi_k(*)
       integer    psi_k_tag
+c      complex*16 psi_k(*)
 
 #include "c_electron_common.fh"
 
@@ -195,6 +195,27 @@ c      complex*16 psi_k(*)
      
       return              
       end     
+
+*     ***********************************
+*     *                                 *
+*     *        c_electron_run00         *
+*     *                                 *
+*     ***********************************
+      subroutine c_electron_run00(nb,psi_k_tag)
+      implicit none
+      integer   nb
+      integer   psi_k_tag
+c      complex*16 psi_k(*)
+
+#include "c_electron_common.fh"
+      
+      call c_electron_gen_psi_r0(nb,psi_k_tag)
+      call c_electron_gen_Hpsi_k_vall0(nb,psi_k_tag)
+     
+      return              
+      end     
+
+
 
 
 *     ***********************************
@@ -576,6 +597,117 @@ cccccccccccccccccc
       c_electron_eorbit = eorbit 
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *      c_electron_eorbit0_tag     *
+*     *                                 *
+*     ***********************************
+      subroutine c_electron_eorbit0_tag(psi_k_tag,Eorb_tag)
+      implicit none
+      integer psi_k_tag,Eorb_tag
+
+#include "bafdecls.fh"
+#include "c_electron_common.fh"
+
+*     **** local variables ****
+      integer nbq,ii,neall
+      integer psi_shift,Hpsi_shift,nshift1,nshift2,Eorb_shift
+      real*8  sum,eorbit,weight
+
+*     **** external functions *****
+      integer  cpsi_data_get_chnk,cpsi_data_nsize,Pneb_convert_nb
+      integer  cpsi_data_get_next
+      external cpsi_data_get_chnk,cpsi_data_nsize,Pneb_convert_nb
+      external cpsi_data_get_next
+
+      neall = neq(1) + neq(2)
+      nshift1 = cpsi_data_nsize(psi_k_tag)
+      nshift2 = cpsi_data_nsize(Hpsi_k_tag)
+
+*     *** get orbital energies ****
+      do nbq=1,nbrillq
+        !weight = brillioun_weight(Pneb_convert_nb(nbq))
+        !weight = brillioun_weight(nbq)
+        psi_shift  = cpsi_data_get_chnk(psi_k_tag,nbq)
+        Hpsi_shift = cpsi_data_get_chnk(Hpsi_k_tag,nbq)
+        Eorb_shift = cpsi_data_get_chnk(Eorb_tag,nbq)
+
+        eorbit = 0.0d0
+        do ii=1,neall
+           call Cram_cc_idot(nbq,
+     >                       dbl_mb(psi_shift),
+     >                       dbl_mb(Hpsi_shift),
+     >                       sum)
+           !eorbit = eorbit + sum*weight
+           eorbit = eorbit + sum
+           psi_shift  = psi_shift  + nshift1
+           Hpsi_shift = Hpsi_shift + nshift2
+        end do
+        call C3dB_SumAll(eorbit)
+        if (ispin.eq.1) eorbit = eorbit+eorbit
+        dbl_mb(Eorb_shift) = eorbit
+
+      end do
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *      c_electron_eorbit0         *
+*     *                                 *
+*     ***********************************
+      real*8 function c_electron_eorbit0(nbq,psi_k_tag)
+      implicit none
+      integer nbq,psi_k_tag
+
+#include "bafdecls.fh"
+#include "c_electron_common.fh"
+
+*     **** local variables ****
+      integer ii,neall
+      integer psi_shift,Hpsi_shift,nshift1,nshift2,Eorb_shift
+      real*8  sum,eorbit,weight
+
+*     **** external functions *****
+      integer  cpsi_data_get_chnk,cpsi_data_nsize,Pneb_convert_nb
+      external cpsi_data_get_chnk,cpsi_data_nsize,Pneb_convert_nb
+      !integer  cpsi_data_get_next
+      !external cpsi_data_get_next
+
+      neall = neq(1) + neq(2)
+      nshift1 = cpsi_data_nsize(psi_k_tag)
+      nshift2 = cpsi_data_nsize(Hpsi_k_tag)
+
+*     *** get orbital energies ****
+        !weight = brillioun_weight(Pneb_convert_nb(nbq))
+        !weight = brillioun_weight(nbq)
+        psi_shift  = cpsi_data_get_chnk(psi_k_tag,nbq)
+        Hpsi_shift = cpsi_data_get_chnk(Hpsi_k_tag,nbq)
+
+        eorbit = 0.0d0
+        do ii=1,neall
+           call Cram_cc_idot(nbq,
+     >                       dbl_mb(psi_shift),
+     >                       dbl_mb(Hpsi_shift),
+     >                       sum)
+           !eorbit = eorbit + sum*weight
+           eorbit = eorbit + sum
+           psi_shift  = psi_shift  + nshift1
+           Hpsi_shift = Hpsi_shift + nshift2
+        end do
+        call C3dB_SumAll(eorbit)
+        if (ispin.eq.1) eorbit = eorbit+eorbit
+      
+      c_electron_eorbit0 = eorbit
+      return
+      end
+
+
+
+
  
 
 *     ***********************************
@@ -1049,7 +1181,7 @@ c     > call errquit('c_electron_get_TMgradient:popping stack',1,MA_ERR)
       nsize = 2*(neq(1)+neq(2))*npack1
       do nb=1,nbrillq
         hpsi_shift = cpsi_data_get_chnk(Hpsi_k_tag,nb)
-        call dscal(nsize,(-1.0d0),dbl_mb(hpsi_shift),1)
+        call DSCAL_OMP(nsize,(-1.0d0),dbl_mb(hpsi_shift),1)
       end do
       return
       end
@@ -1090,6 +1222,43 @@ c     > call errquit('c_electron_get_TMgradient:popping stack',1,MA_ERR)
       end do
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *   c_electron_gen_Hpsi_k_vall0   *
+*     *                                 *
+*     ***********************************
+
+      subroutine c_electron_gen_Hpsi_k_vall0(nb,psi_k_tag)
+      implicit none
+      integer nb
+      integer psi_k_tag
+
+#include "bafdecls.fh"
+#include "c_electron_common.fh"
+
+*     **** local variables ****
+      integer hpsi_shift,nsize
+
+*     **** external functions ****
+      integer  cpsi_data_get_chnk
+      external cpsi_data_get_chnk
+
+*     ******************
+*     **** get Hpsi ****
+*     ******************
+      call cpsi_H_vall0(nb,ispin,ne,
+     >           psi_k_tag,
+     >           psi_r_tag,
+     >           dcpl_mb(vall(1)),
+     >           Hpsi_k_tag)
+
+      nsize = 2*(neq(1)+neq(2))*npack1
+      hpsi_shift = cpsi_data_get_chnk(Hpsi_k_tag,nb)
+      call DSCAL_OMP(nsize,(-1.0d0),dbl_mb(hpsi_shift),1)
+      return
+      end
+
 
 
 *     ***********************************
@@ -1249,6 +1418,88 @@ c      done = .false.
 
       return
       end
+
+
+
+
+*     *******************************
+*     *                             *
+*     *     c_electron_gen_psi_r0   *
+*     *                             *
+*     *******************************
+
+      subroutine c_electron_gen_psi_r0(nb,psi_k_tag)
+      implicit none
+      integer nb
+      integer psi_k_tag
+
+#include "bafdecls.fh"
+#include "c_electron_common.fh"
+
+c     **** local variables ****
+      logical done
+      integer k,neall
+      integer ki,kj,nbi,nbj
+      integer shiftA,nshiftA
+      integer shiftB,nshiftB
+
+c     **** external functions ***
+      logical  C3dB_cr_pfft3_queue_filled
+      integer  Pneb_convert_nb,cpsi_data_get_chnk,cpsi_data_get_next
+      external C3dB_cr_pfft3_queue_filled
+      external Pneb_convert_nb,cpsi_data_get_chnk,cpsi_data_get_next
+
+c      call BGrsm_fh_fftb(psi_k,
+c     >                   dcpl_mb(psi_r(1)))
+
+      neall   = neq(1)+neq(2)
+      nshiftA = 2*npack1
+      nshiftB = 2*nfft3d
+
+
+      nbi = nb
+      ki  = 1
+      shiftA =  cpsi_data_get_chnk(psi_k_tag,nbi)
+
+      nbj = nb
+      kj  = 1
+      shiftB =  cpsi_data_get_chnk(psi_r_tag,nbj)
+
+c      done = .false.
+      done = (nbrillq.eq.0)
+      do while (.not.done)
+
+         if (nbi.le.nb) then
+            call C3dB_cr_pfft3b_queuein(nbi,dbl_mb(shiftA))
+            shiftA = shiftA + nshiftA
+            ki = ki+1
+            if (ki.gt.neall) then
+               nbi = nbi + 1
+               ki  = 1
+               if (nbi.le.nb) then
+                  shiftA =  cpsi_data_get_chnk(psi_k_tag,nbi)
+               endif
+            end if
+         end if
+
+         if ((C3dB_cr_pfft3_queue_filled()).or.(nbi.gt.nb)) then
+            call C3dB_cr_pfft3b_queueout(nbj,dbl_mb(shiftB))
+            shiftB = shiftB + nshiftB
+            kj = kj+1
+            if (kj.gt.neall) then
+               nbj = nbj + 1
+               kj  = 1
+               if (nbj.le.nb) then
+                  shiftB =  cpsi_data_get_chnk(psi_r_tag,nbj)
+               endif
+            end if
+         endif
+         done = ((nbi.gt.nb).and.(nbj.gt.nb))
+      end do
+
+      return
+      end 
+
 
 
 *     ***********************************
