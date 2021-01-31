@@ -3766,6 +3766,9 @@ c     **** local variables ****
 
       return
       end
+
+
+
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
 c     Return the size of real diagonal s matrix 
