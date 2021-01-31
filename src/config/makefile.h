@@ -241,7 +241,7 @@ $(info when using BUILD_OPENBLAS )
 $(info )
 $(error )
 endif
-      BLASOPT=-L$(NWCHEM_TOP)/src/libext/lib -lnwc_openblas
+      BLASOPT=-L$(NWCHEM_TOP)/src/libext/lib -lnwc_openblas -lpthread
       LAPACK_LIB=$(BLASOPT)      
       BLAS_LIB=$(BLASOPT)
 endif      
