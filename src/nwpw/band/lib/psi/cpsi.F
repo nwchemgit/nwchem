@@ -502,10 +502,10 @@
 *     *         cpsi_1get_Tgradient0    *
 *     *                                 *
 *     ***********************************
-      subroutine cpsi_1get_Tgradient0(THpsi_tag,E0)
+      subroutine cpsi_1get_Tgradient0(THpsi_tag,E0_tag)
       implicit none
       integer    THpsi_tag
-      real*8     E0
+      integer    E0_tag
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -513,22 +513,28 @@
 #include "rhoall_common.fh"
 
 *     **** local variables ****
-      integer tmp1_tag
+      integer tmp1_tag,nb,n
+      integer h_shift,e_shift,e_tag,taskid
+      real*8  ee
 
 *     **** external functions ****
       integer  cpsi_data_push_stack,Pneb_w_size
       external cpsi_data_push_stack,Pneb_w_size
-      real*8   c_electron_eorbit
-      external c_electron_eorbit
+      integer  cpsi_data_get_chnk
+      external cpsi_data_get_chnk
+      !real*8   c_electron_eorbit
+      !external c_electron_eorbit
 
       tmp1_tag = cpsi_data_push_stack(nbrillq,1,2*Pneb_w_size(0,1))
+      e_tag    = cpsi_data_push_stack(nbrillq,ne(1)+ne(2),1)
 c      if (.not.Pneb_w_push_get(0,0,tmp1))
 c     >  call errquit("psi_1_get_Tgradient:out of stack memory",0,MA_ERR)
 
 
       call c_electron_run0(psi1_tag)
-     >                   
-      E0 = c_electron_eorbit(psi1_tag)
+      !call c_electron_eorbit(psi1_tag,E0_tag)
+      call c_electron_eorbit0_tag(psi1_tag,E0_tag)
+
       call c_electron_gen_hml(psi1_tag,
      >                        tmp1_tag)
 
@@ -536,6 +542,22 @@ c     >  call errquit("psi_1_get_Tgradient:out of stack memory",0,MA_ERR)
      >                             tmp1_tag,
      >                             THpsi_tag)
 
+      call Parallel_taskid(taskid)
+      do nb=1,nbrillq
+         h_shift = cpsi_data_get_chnk(tmp1_tag,nb) 
+         e_shift = cpsi_data_get_chnk(e_tag,nb) 
+         call Pneb_w_diag(0,nb,dbl_mb(e_shift),dbl_mb(h_shift))
+         if (taskid.eq.0) then
+         ee = 0.0d0
+         do n=1,neq(1)+neq(2)
+            write(*,*) "1Tgradient0 nb,n,e=",nb,n,
+     >                  dbl_mb(e_shift+n-1)
+            ee = ee + dbl_mb(e_shift+n-1)
+         end do
+         write(*,*) "1Tgradient0 nb,ee=",nb,ee
+         end if
+      end do
+      call cpsi_data_pop_stack(e_tag)
       call cpsi_data_pop_stack(tmp1_tag)
 c      if (.not.Pneb_w_pop_stack(tmp1))
 c     > call errquit("psi_1_get_Tgradient:error popping stack",0,MA_ERR)
@@ -546,13 +568,14 @@ c     > call errquit("psi_1_get_Tgradient:error popping stack",0,MA_ERR)
 
 *     ***********************************
 *     *                                 *
-*     *         cpsi_1get_TMgradient0    *
+*     *        cpsi_1get_TMgradient0    *
 *     *                                 *
 *     ***********************************
-      subroutine cpsi_1get_TMgradient0(THpsi_tag,E0)
+      subroutine cpsi_1get_TMgradient0(THpsi_tag,E0_tag)
       implicit none
       integer    THpsi_tag
-      real*8     E0
+      integer    E0_tag
+      !real*8     E0
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -565,8 +588,8 @@ c     > call errquit("psi_1_get_Tgradient:error popping stack",0,MA_ERR)
 *     **** external functions ****
       integer  cpsi_data_push_stack,Pneb_w_size
       external cpsi_data_push_stack,Pneb_w_size
-      real*8   c_electron_eorbit
-      external c_electron_eorbit
+      !real*8   c_electron_eorbit
+      !external c_electron_eorbit
 
       tmp1_tag = cpsi_data_push_stack(nbrillq,1,2*Pneb_w_size(0,1))
 c      if (.not.Pneb_w_push_get(0,0,tmp1))
@@ -574,8 +597,12 @@ c     >  call errquit("psi_1_get_Tgradient:out of stack memory",0,MA_ERR)
 
 
       call c_electron_run0(psi1_tag)
-     >
-      E0 = c_electron_eorbit(psi1_tag)
+      call c_electron_eorbit0_tag(psi1_tag,E0_tag)
+      !E0 = c_electron_eorbit(psi1_tag)
+c      E0 = c_electron_energy(psi1_tag,
+c     >                       dbl_mb(rho1(1)),
+c     >                       dcpl_mb(dng1(1)),
+c     >                       dbl_mb(rho1_all(1)))
 c      call c_electron_gen_hml(psi1_tag,
 c     >                        tmp1_tag)
 
@@ -652,33 +679,38 @@ c     > call errquit("psi_1_get_Tgradient:error popping stack",0,MA_ERR)
 *     *         cpsi_2get_Tgradient0    *
 *     *                                 *
 *     ***********************************
-      subroutine cpsi_2get_Tgradient0(option,THpsi_tag,E0)
+      subroutine cpsi_2get_Tgradient0(option,THpsi_tag,E0_tag)
       implicit none
       integer    option
-      integer    THpsi_tag
-      real*8     E0
+      integer    THpsi_tag,E0_tag
+      !real*8     E0
 
 #include "bafdecls.fh"
 #include "cpsi_common.fh"
 #include "rhoall_common.fh"
 #include "errquit.fh"
 
-*     *** local variables ****
-      integer tmp1_tag
+*     **** local variables ****
+      integer tmp1_tag,nb,n
+      integer h_shift,e_shift,e_tag,taskid
 
 *     **** external functions ****
       integer  cpsi_data_push_stack,Pneb_w_size
-      real*8   c_electron_eorbit
       external cpsi_data_push_stack,Pneb_w_size
-      external c_electron_eorbit
+      integer  cpsi_data_get_chnk
+      external cpsi_data_get_chnk
+      !real*8   c_electron_eorbit
+      !external c_electron_eorbit
 
       tmp1_tag = cpsi_data_push_stack(nbrillq,1,2*Pneb_w_size(0,1))
+      e_tag    = cpsi_data_push_stack(nbrillq,ne(1)+ne(2),1)
 
       if (option.le.1) then
       call c_electron_run0(psi2_tag)
       end if
 
-      E0 = c_electron_eorbit(psi2_tag)
+      !E0 = c_electron_eorbit(psi2_tag)
+      call c_electron_eorbit0_tag(psi2_tag,E0_tag)
 
       call c_electron_gen_hml(psi2_tag,
      >                       tmp1_tag)
@@ -686,6 +718,21 @@ c     > call errquit("psi_1_get_Tgradient:error popping stack",0,MA_ERR)
      >                             tmp1_tag,
      >                             THpsi_tag)
 
+
+      call Parallel_taskid(taskid)
+      do nb=1,nbrillq
+         h_shift = cpsi_data_get_chnk(tmp1_tag,nb)
+         e_shift = cpsi_data_get_chnk(e_tag,nb)
+         call Pneb_w_diag(0,nb,dbl_mb(e_shift),dbl_mb(h_shift))
+         if (taskid.eq.0) then
+         do n=1,neq(1)+neq(2)
+            write(*,*) "2Tgradient0 nb,n,e=",nb,n,
+     >                  dbl_mb(e_shift+n-1)
+         end do
+         end if
+      end do
+
+      call cpsi_data_pop_stack(e_tag)
       call cpsi_data_pop_stack(tmp1_tag)
 
       return
@@ -696,11 +743,12 @@ c     > call errquit("psi_1_get_Tgradient:error popping stack",0,MA_ERR)
 *     *       cpsi_2get_TMgradient0     *
 *     *                                 *
 *     ***********************************
-      subroutine cpsi_2get_TMgradient0(option,THpsi_tag,E0)
+      subroutine cpsi_2get_TMgradient0(option,THpsi_tag,E0_tag)
       implicit none
       integer    option
       integer    THpsi_tag
-      real*8     E0
+      integer    E0_tag
+      !real*8     E0
          
 #include "bafdecls.fh"
 #include "cpsi_common.fh"
@@ -712,9 +760,9 @@ c     > call errquit("psi_1_get_Tgradient:error popping stack",0,MA_ERR)
 
 *     **** external functions ****
       integer  cpsi_data_push_stack,Pneb_w_size
-      real*8   c_electron_eorbit
       external cpsi_data_push_stack,Pneb_w_size
-      external c_electron_eorbit
+      !real*8   c_electron_eorbit
+      !external c_electron_eorbit
          
       tmp1_tag = cpsi_data_push_stack(nbrillq,1,2*Pneb_w_size(0,1))
          
@@ -722,7 +770,8 @@ c     > call errquit("psi_1_get_Tgradient:error popping stack",0,MA_ERR)
       call c_electron_run0(psi2_tag)
       end if                  
 
-      E0 = c_electron_eorbit(psi2_tag)
+      !E0 = c_electron_eorbit(psi2_tag)
+      call c_electron_eorbit0_tag(psi2_tag,E0_tag)
 
 c      call c_electron_gen_hml(psi2_tag,
 c     >                       tmp1_tag)
@@ -861,6 +910,26 @@ c     &       MA_ERR)
       return
       end
 
+*     ****************************************
+*     *                                      *
+*     *     cpsi_1geodesic_transport_junk    *
+*     *                                      *
+*     ****************************************
+      subroutine cpsi_1geodesic_transport_junk0(t,H0)
+      implicit none
+      real*8 t(*)
+      complex*16 H0(*)
+
+#include "bafdecls.fh"
+#include "cpsi_common.fh"
+
+      call c_geodesic_transport_junk0(t,psi1_tag,H0)
+
+      return
+      end
+
+
+
 
 
 *     ****************************************
@@ -881,36 +950,22 @@ c     &       MA_ERR)
       end
 
 
-*     ***********************************
-*     *                                 *
-*     *      cpsi_geodesic_energy0      *
-*     *                                 *
-*     ***********************************
-      real*8 function cpsi_geodesic_energy0(t)
+*     ****************************************
+*     *                                      *
+*     *     cpsi_1geodesic_Gtransport_junk0  *
+*     *                                      *
+*     ****************************************
+      subroutine cpsi_1geodesic_Gtransport_junk0(t,G0)
       implicit none
-      real*8 t 
+      real*8 t(*)
+      complex*16 G0(*)
 
 #include "bafdecls.fh"
 #include "cpsi_common.fh"
-#include "rhoall_common.fh"
-      
-      real*8 e_new
-      
-*     **** external functions ****
-      real*8   c_electron_eorbit
-      external c_electron_eorbit
 
-      call c_geodesic_get(t,psi1_tag,
-     >                      psi2_tag)
-
-      call c_electron_run0(psi2_tag)
-
-      e_new =  c_electron_eorbit(psi2_tag)
-
-      cpsi_geodesic_energy0 = e_new
+      call c_geodesic_Gtransport_junk0(t,psi1_tag,G0)
       return
       end
-
 
 
 *     ***********************************
@@ -973,6 +1028,79 @@ c     &       MA_ERR)
       return
       end
 
+
+
+
+      subroutine cpsi_geodesic0_setnb(nbin)
+      implicit none
+      integer nbin
+
+      integer nb
+      common /cpsi_geodesic0_nb/ nb
+      nb = nbin
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *      cpsi_geodesic_energy0      *
+*     *                                 *
+*     ***********************************
+      real*8 function cpsi_geodesic_energy0(t)
+      implicit none
+      real*8 t
+
+#include "bafdecls.fh"
+#include "cpsi_common.fh"
+#include "rhoall_common.fh"
+
+      integer nb
+      common /cpsi_geodesic0_nb/ nb
+
+      real*8 e_new
+
+*     **** external functions ****
+      real*8   c_electron_eorbit0
+      external c_electron_eorbit0
+
+      call c_geodesic_get0(nb,t,psi1_tag,psi2_tag)
+      call c_electron_run00(nb,psi2_tag)
+
+      e_new =  c_electron_eorbit0(nb,psi2_tag)
+
+      cpsi_geodesic_energy0 = e_new
+      return
+      end
+
+
+
+*     ***************************************
+*     *                                     *
+*     *         cpsi_geodesic_denergy0      *
+*     *                                     *
+*     ***************************************
+      real*8 function cpsi_geodesic_denergy0(t)
+      implicit none               
+      real*8 t                    
+         
+#include "bafdecls.fh"
+#include "cpsi_common.fh"
+
+      integer nb
+      common /cpsi_geodesic0_nb/ nb
+
+*     **** external functions ****
+      real*8   c_electron_eorbit0
+      external c_electron_eorbit0
+      
+      call c_geodesic_transport0(nb,t,psi1_tag,psi2_tag)
+      cpsi_geodesic_denergy0 = 2.0d0*c_electron_eorbit0(nb,psi2_tag)
+      return
+      end
+
+
+
 *     ***********************************
 *     *					*
 *     *		cpsi_geodesic_final 	*
@@ -988,6 +1116,26 @@ c     &       MA_ERR)
       call c_geodesic_get(t,psi1_tag,psi2_tag)
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *       cpsi_geodesic_final0      *
+*     *                                 *
+*     ***********************************
+      subroutine cpsi_geodesic_final0(nb,t)
+      implicit none
+      integer nb
+      real*8  t
+
+#include "bafdecls.fh"
+#include "cpsi_common.fh"
+
+      call c_geodesic_get0(nb,t,psi1_tag,psi2_tag)
+      return
+      end
+
+
 
 *     ***********************************
 *     *					*
