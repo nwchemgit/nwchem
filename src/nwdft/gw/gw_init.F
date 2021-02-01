@@ -170,6 +170,11 @@ c
      $  call errquit(pname//'corrupted MO vectors',0,DISK_ERR)
 
       pars%nmo = nmo_temp(1)
+
+      pars%nocc(:) = 0
+      pars%mynpoles(:) = 0
+      pars%nvir(:) = 0
+      pars%nqp(:) = 0
 c
       do i=1,ipol
         pars%g_movecs(i) = ga_create_atom_blocked(geom,

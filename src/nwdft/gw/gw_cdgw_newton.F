@@ -51,7 +51,7 @@
           Sigma_X  = Sigmax(llmo+iqp-1,isp)
           residualOld = 1d100 
 
-          if (EViter.eq.0) Eout = Eout + 0.12d0*(Sigma_X - SigmaOld)
+          if (EViter.eq.0) Eout = Eout + 0.10d0*(Sigma_X - SigmaOld)
 c        
           do iter=1,pars%qpiter
 
@@ -89,7 +89,7 @@ c
             linearstep    = Z*residual
             quadraticstep = -dquadratic/d2quadratic
 
-            step = linearstep
+            step = 0.6180d0*linearstep
 
             Eout = Ein + step
 
@@ -97,7 +97,7 @@ c
 
             residualOld = residual
 
-            if (main) converged = abs(Eout-Ein).lt.pars%thresh
+            if (main) converged = abs(residual).lt.pars%thresh
             call ga_brdcst(mt_log,converged,mitob(1),0)
             call ga_brdcst(mt_dbl,Eout,mdtob(1),0)
             if (converged) exit

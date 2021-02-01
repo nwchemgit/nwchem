@@ -3,6 +3,7 @@
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
+#include "tcgmsg.fh"      
 #include "gw.fh"
       type(gw_params_t) :: pars
       integer,intent(in) :: nmo,nri,ngl,mynmo,maxpoles,maxqp,ipol
@@ -15,15 +16,16 @@
 
       logical ok
       logical main
-      integer molo,mohi,ldpi,sizepi,l_sol,k_sol
-      integer ilo,ihi,me,ld,mynpoles,igl,ipole,info
+      integer molo,mohi,ldpi,sizepi,l_sol,k_sol,k_work,l_work,lwork
+      integer ilo,ihi,me,ld,mynpoles,igl,ipole,info,k_ipiv,l_ipiv
       integer pilo,pihi,k_pi,l_pi,idx,idy,l_tmp,tmp
-      integer imo,jmo,kmo,lmo,nprocs,kOV1,kOV2,isp
+      integer imo,jmo,kmo,lmo,nprocs,kOV1,kOV2,isp,addr,idz
       double precision w2
       double precision factor(maxpoles,ipol)
 
+      logical cholesky
       double precision,external :: ddot
-      integer,external :: ga_nodeid, ga_nnodes
+      integer,external :: ga_nodeid, ga_nnodes,ilaenv
 
       call ga_sync()
 
@@ -38,12 +40,17 @@
       endif
       sizepi = (nri*(nri+1))/2
 
-      if (.not.ma_alloc_get(mt_dbl,sizepi,'Pi',l_pi,k_pi))
+      if (.not.ma_alloc_get(mt_dbl,nri**2,'Pi',l_pi,k_pi))
      $  call errquit(pname//'can''t allocate Pi',0,MA_ERR) 
       if (.not.ma_alloc_get(mt_dbl,nri*mynmo,'temp',l_tmp,tmp))
      $  call errquit(pname//'can''t allocate tmp',0,MA_ERR) 
       if (.not.ma_alloc_get(mt_dbl,nri*mynmo,'sol',l_sol,k_sol))
      $  call errquit(pname//'can''t allocate sol',0,MA_ERR) 
+      if (.not.ma_alloc_get(mt_int,nri,'IPIV',l_ipiv,k_ipiv))
+     $  call errquit(pname//'can''t allocate IPIV',0,MA_ERR)
+      lwork = ilaenv(1,'DSYTRF','L',nri,-1,-1,-1)*nri
+      if (.not.ma_alloc_get(mt_dbl,lwork,'Work',l_work,k_work))
+     $  call errquit(pname//'can''t allocate Work',0,MA_ERR) 
 
       call ga_access(pars%g_eriov(1),1,nri,pars%ovlo(1),pars%ovhi(1),
      $               kOV1,ld)
@@ -59,8 +66,8 @@ c
         w2 = x(igl)
         do isp=1,ipol
           do ipole=1,pars%mynpoles(isp)
-            factor(ipole,isp) = 
-     $          dsqrt(eia(ipole,isp)/(eia(ipole,isp)**2 + w2))
+              factor(ipole,isp) = 
+     $            dsqrt(eia(ipole,isp)/(eia(ipole,isp)**2 + w2))
           enddo
         enddo
 c
@@ -74,10 +81,22 @@ c
         ! will be very slow for large ones.
         !
 
+        cholesky = .true.
         call dpftrf('n','l',nri,dbl_mb(k_pi),info)
+        call ga_brdcst(mt_dbl,info,mitob(1),0)
         if (info.ne.0) then
-          call errquit(pname//'Cholesky decomposition failed',0,0)
-          !call dft_invdiag
+          cholesky = .false.
+          call gw_buildpi('r',dbl_mb(kOV1),dbl_mb(kOV2),dbl_mb(k_pi),
+     $                    factor,nri,nri,pars%mynpoles,main,ipol,
+     $                    maxpoles)
+          call ga_dgop(mt_dbl,dbl_mb(k_pi),nri**2,'+')
+          call dsytrf('l',nri,dbl_mb(k_pi),nri,int_mb(k_ipiv),
+     $                 dbl_mb(k_work),lwork,info)
+          if (info.gt.0) then
+            call gw_corrldl(dbl_mb(k_pi),int_mb(k_ipiv),nri,main)
+          else
+            call errquit(pname//'LDL factorization failed',info,0)
+          endif
         endif
         !
         do isp=1,ipol
@@ -105,6 +124,7 @@ c
 
             else
 
+
               do kmo=1,iwidx(0,jmo,isp)
                 lmo = iwidx(kmo,jmo,isp)
                 idx = tmp + (kmo-1)*nri
@@ -126,20 +146,27 @@ c
             call dcopy(nri*iwidx(0,jmo,isp),dbl_mb(tmp),1,
      $                 dbl_mb(k_sol),1)
 
-            call dpftrs('n','l',nri,iwidx(0,jmo,isp),dbl_mb(k_pi),
-     $                  dbl_mb(k_sol),nri,info)
-c
-            if (info.ne.0) then
-              call errquit(pname//' triangular solve failed',0,0)
+            if (cholesky) then
+              call dtfsm('n','l','l','n','n',nri,iwidx(0,jmo,isp),1d0,
+     $                  dbl_mb(k_pi),dbl_mb(k_sol),nri)       
+              addr = k_sol
+            else
+              call dsytrs('L',nri,iwidx(0,jmo,isp),dbl_mb(k_pi),nri,
+     $                     int_mb(k_ipiv),dbl_mb(k_sol),nri,info)
+              if (info.ne.0) then
+                call errquit(pname//'LS solution failed',info,0)
+              endif
+              addr = tmp
             endif
 c
             do kmo=1,iwidx(0,jmo,isp)
               idx = tmp + (kmo-1)*nri
               idy = k_sol + (kmo-1)*nri
+              idz = addr + (kmo-1)*nri
               lmo = iwidx(kmo,jmo,isp)
               iw(kmo,igl,jmo,isp) = 
-     $           ddot(nri,dbl_mb(idx),1,dbl_mb(idy),1) -
-     $           ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
+     $            ddot(nri,dbl_mb(idy),1,dbl_mb(idz),1) -
+     $            ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
             enddo
           enddo
 c
@@ -152,5 +179,50 @@ c
      $  call errquit(pname//'can''t free TMP heap',me,MA_ERR) 
       if (.not.(ma_free_heap(l_pi)))
      $  call errquit(pname//'can''t free PI heap',me,MA_ERR) 
+      if (.not.(ma_free_heap(l_ipiv)))
+     $  call errquit(pname//'can''t free IPIV heap',me,MA_ERR) 
+      if (.not.(ma_free_heap(l_work)))
+     $  call errquit(pname//'can''t free WORK heap',me,MA_ERR) 
 c
       end subroutine
+
+      subroutine gw_corrldl(matrix,ipiv,n,main)
+      implicit none
+      logical,intent(in) :: main
+      integer,intent(in) :: n
+      double precision,dimension(n,n) :: matrix
+      integer,dimension(n)            :: ipiv
+
+      integer i,s
+      double precision eig1,eig2,a,b,c
+
+      i = 1
+      do while (i.le.n)
+
+      if (ipiv(i).lt.0) then
+        s = 2
+      else
+        s = 1
+      endif
+
+      if ( (s.eq.1) .and. (matrix(i,i).lt.1d-6) ) then
+        matrix(i,i) = 1d-6
+      else if (s.eq.2) then
+        a = matrix(i,i)
+        b = matrix(i+1,i+1)
+        c = matrix(i+1,i)
+        eig1 = 0.5d0*(a+b+dsqrt((a-b)**2 + 4d0*c**2))
+        eig2 = 0.5d0*(a+b-dsqrt((a-b)**2 + 4d0*c**2))
+        if (main) write(*,*) eig1,eig2
+        if (eig2.lt.1d-6) then
+          matrix(i,i) = matrix(i,i) + 1d-6 - eig2
+          matrix(i+1,i+1) = matrix(i+1,i+1) + 1d-6 - eig2
+        endif
+      endif
+
+      i = i + s
+      end do
+
+      end subroutine
+
+

@@ -24,7 +24,6 @@ c
       integer l_eriij,l_eriia,lSigma,lSigmax,lEold,lEnew
       integer k_omega,kEia
       integer l_omega,lEia
-      integer kVmo, lVmo
       integer g_epsilon(pars%ngl)
       integer igl,ngl,nqp
 
@@ -86,17 +85,13 @@ c
       if (.not.ma_push_get(mt_dbl,lSize,'Sigma_x',lSigmax,kSigmax))
      $  call errquit(pname//'cannot allocate Sigma_x',0,MA_ERR)
 
-      lSize = ipol*nmo*maxqp
-      if (.not.ma_push_get(mt_dbl,lSize,'Vmo',lVmo,kVmo))
-     $  call errquit(pname//'cannot allocate Vmo',0,MA_ERR)
-
-      call gw_vmo(pars,dbl_mb(kVmo),dbl_mb(kSigmax),nri,pars%nmo,maxqp)
+      call gw_vmo(pars,dbl_mb(kSigmax),nri,pars%nmo,maxqp)
 
       pars%timer%vmo = pars%timer%vmo + util_wallsec() - timer
 c
 c     Allocations
 c
-      mynmo = pars%nmo/nprocs + nprocs + 1
+      mynmo = pars%nmo/nprocs + maxval(pars%nocc(:)) + 1
 
       lSize = ipol*mynmo*maxqp*ngl
       if (.not.ma_alloc_get(mt_dbl,lSize,'W(igl)',liW,kiW))
@@ -228,13 +223,12 @@ c     *****************************************************************
 
 c     *****************************************************************
 
-      subroutine gw_vmo(pars,vmo,sigmax,nri,nmo,maxqp)
+      subroutine gw_vmo(pars,sigmax,nri,nmo,maxqp)
       implicit none
 #include "mafdecls.fh"
 #include "gw.fh"
       type(gw_params_t) :: pars
       integer,intent(in) :: maxqp, nri, nmo
-      double precision,intent(out),dimension(nmo,maxqp,*) :: vmo
       double precision,intent(out),dimension(nmo,*) :: sigmax
 
       double precision,external :: ddot
@@ -242,6 +236,8 @@ c     *****************************************************************
       integer idx, idum
       integer imo, jmo, kmo, ipol
       integer addrOO, addrOV, addrVV
+
+      sigmax(:,:) = 0d0
 
       do ipol=1,pars%ipol
         if (pars%nqp(ipol).eq.0) cycle
@@ -254,7 +250,7 @@ c     *****************************************************************
           call ga_access(pars%g_erivv(ipol),1,nri,pars%vvlo(ipol),
      $                   pars%vvhi(ipol),addrVV,idum)
         endif
-        call dfill(pars%nmo*pars%nqp(ipol),0d0,vmo(1,1,ipol),1)
+c        call dfill(pars%nmo*pars%nqp(ipol),0d0,vmo(1,1,ipol),1)
        
 
 
@@ -267,16 +263,18 @@ c     *****************************************************************
             idx = (imo-1)*pars%nocc(ipol)+kmo-1
             if (pars%me.ne.mod(idx,pars%nprocs)) cycle
             idx = (idx/pars%nprocs)*nri + addrOO
-            vmo(kmo,jmo,ipol) = -ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
+c            vmo(kmo,jmo,ipol) = -ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
+            sigmax(imo,ipol) = sigmax(imo,ipol) - 
+     $                          ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
           enddo
 
-          do kmo=1,pars%nvir(ipol)
-            idx = (imo-1)*pars%nvir(ipol) + kmo - 1
-            if (pars%me.ne.mod(idx,pars%nprocs)) cycle
-            idx = (idx/pars%nprocs)*nri + addrOV
-            vmo(kmo+pars%nocc(ipol),jmo,ipol) = 
-     $              -ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
-          enddo
+c          do kmo=1,pars%nvir(ipol)
+c            idx = (imo-1)*pars%nvir(ipol) + kmo - 1
+c            if (pars%me.ne.mod(idx,pars%nprocs)) cycle
+c            idx = (idx/pars%nprocs)*nri + addrOV
+c            vmo(kmo+pars%nocc(ipol),jmo,ipol) = 
+c     $              -ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
+c          enddo
           cycle
 
   100     continue
@@ -285,26 +283,29 @@ c     *****************************************************************
             idx = (kmo-1)*pars%nvir(ipol)+imo-pars%nocc(ipol)-1
             if (pars%me.ne.mod(idx,pars%nprocs)) cycle
             idx = (idx/pars%nprocs)*nri + addrOV
-            vmo(kmo,jmo,ipol) = -ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
+c            vmo(kmo,jmo,ipol) = -ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
+            sigmax(imo,ipol) = sigmax(imo,ipol) - 
+     $                          ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
           enddo
-          do kmo=1,pars%nvir(ipol)
-            idx = (imo-pars%nocc(ipol)-1)*pars%nvir(ipol) + kmo - 1
-            if (pars%me.ne.mod(idx,pars%nprocs)) cycle
-            idx = (idx/pars%nprocs)*nri + addrVV
-            vmo(kmo+pars%nocc(ipol),jmo,ipol) = 
-     $                     -ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
-          enddo
+c          do kmo=1,pars%nvir(ipol)
+c            idx = (imo-pars%nocc(ipol)-1)*pars%nvir(ipol) + kmo - 1
+c            if (pars%me.ne.mod(idx,pars%nprocs)) cycle
+c            idx = (idx/pars%nprocs)*nri + addrVV
+c            vmo(kmo+pars%nocc(ipol),jmo,ipol) = 
+c     $                     -ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
+c          enddo
 
         enddo
 
-        call dgop(mt_dbl,vmo(1,1,ipol),pars%nqp(ipol)*pars%nmo,'+')
-        do imo=1,pars%nqp(ipol)
-          kmo = pars%llmo(ipol) + imo - 1
-          sigmax(kmo,ipol) = sum(vmo(1:pars%nocc(ipol),imo,ipol))
-        enddo
+c        call dgop(mt_dbl,vmo(1,1,ipol),pars%nqp(ipol)*pars%nmo,'+')
+c        do imo=1,pars%nqp(ipol)
+c          kmo = pars%llmo(ipol) + imo - 1
+c          sigmax(kmo,ipol) = sum(vmo(1:pars%nocc(ipol),imo,ipol))
+c        enddo
 
       enddo
 
+      call dgop(mt_dbl,sigmax,nmo*ipol,'+')
 
       end subroutine
 

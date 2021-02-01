@@ -89,7 +89,7 @@ c
       
       timer = util_wallsec()
 
-      if (.not.ma_push_get(mt_dbl,nmo,'Sigma_x',l_sigmax,k_sigmax))
+      if (.not.ma_push_get(mt_dbl,ipol*nmo,'Sigma_x',l_sigmax,k_sigmax))
      $  call errquit(pname//'cannot allocate Sigma_x',0,MA_ERR)
 c
       call gw_sigmax(pars%g_erioo,pars%g_eriov,dbl_mb(k_sigmax),nri,nmo,
