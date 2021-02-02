@@ -1,0 +1,13 @@
+      subroutine gw_analytic_scalxpy(XPY,omega,mynpoles,npoles)
+      implicit none
+      integer,intent(in) :: mynpoles, npoles
+      double precision,intent(in) :: omega(npoles)
+      double precision,intent(out) :: XPY(mynpoles,npoles)
+
+      integer ipole
+
+      do ipole=1,npoles
+        XPY(:,npoles) = XPY(:,npoles)/dsqrt(omega(ipole))
+      enddo
+
+      end subroutine

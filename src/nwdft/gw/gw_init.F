@@ -228,6 +228,7 @@ c
 c
       do i=1,ipol
         pars%nstates(i) = pars%nocc(i) + pars%nvqp(i)
+        pars%npoles(i) = pars%nocc(i)*pars%nvir(i)
       enddo
 c
       if (pars%evgw .or. pars%evgw0) then

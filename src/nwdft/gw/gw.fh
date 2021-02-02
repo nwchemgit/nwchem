@@ -17,7 +17,7 @@
 c
         integer          :: natoms
         integer          :: nmo
-	integer          :: nocc(2),nvir(2)
+	integer          :: nocc(2),nvir(2),npoles(2)
         integer          :: noqp(2),nvqp(2),nstates(2),mynpoles(2)
 	integer          :: oolo(2),oohi(2)
 	integer          :: ovlo(2),ovhi(2)
@@ -34,7 +34,7 @@ c
         integer          :: fd
 c
         integer          :: g_movecs(2), g_moeris
-	integer          :: g_erioo(2), g_eriov(2), g_erivv(2)
+	integer          :: g_erioo(2), g_eriov(2), g_erivv(2), g_erim(2)
         logical          :: noio
 c
         integer          :: eviter, qpiter
