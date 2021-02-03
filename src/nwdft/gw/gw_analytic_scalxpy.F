@@ -7,7 +7,7 @@
       integer ipole
 
       do ipole=1,npoles
-        XPY(:,npoles) = XPY(:,npoles)/dsqrt(omega(ipole))
+        XPY(:,ipole) = XPY(:,ipole)/dsqrt(omega(ipole))
       enddo
 
       end subroutine

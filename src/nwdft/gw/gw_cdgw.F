@@ -277,7 +277,7 @@ c     *****************************************************************
 
       enddo
 
-      call dgop(mt_dbl,sigmax,nmo*ipol,'+')
+      call dgop(mt_dbl,sigmax,nmo*pars%ipol,'+')
 
       end subroutine
 

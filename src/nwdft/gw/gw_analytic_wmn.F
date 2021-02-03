@@ -9,12 +9,16 @@
       integer oo,ov,vv,erim,nocc
       integer g_a
       integer ilo,ihi,jlo,jhi,iocc
-      integer nmo,npoles
+      integer nmo,npoles,nvir
+      integer idx,kmo
 
       integer,external :: ga_create, ga_destroy
 
+      double precision :: scr(nri)
+
       nmo = pars%nmo
       nocc = pars%nocc(isp)
+      nvir = pars%nvir(isp)
       oo = pars%g_erioo(isp)
       ov = pars%g_eriov(isp)
       vv = pars%g_erivv(isp)
@@ -25,22 +29,39 @@
      $  call errquit('gw_analytic_wmn: cannot create array',0,GA_ERR)
 
       if (imo.le.nocc) then
-        ilo = (imo-1)*nocc + 1
-        ihi = imo*nocc
-        call ga_copy_patch('n',oo,1,nri,ilo,ihi,g_a,1,nri,1,nocc)
-        ilo = (imo-1)*(nmo-nocc) + 1
-        ihi = imo*(nmo-nocc)
-        call ga_copy_patch('n',ov,1,nri,ilo,ihi,g_a,1,nri,nocc+1,nmo)
-      else
-        do iocc=1,nocc
-          ilo = (iocc-1)*(nmo-nocc) + imo - nocc
-          call ga_copy_patch('n',ov,1,nri,ilo,ilo,g_a,1,nri,iocc,iocc)
+
+        do kmo=1,nocc
+          idx = (imo-1)*nocc+kmo-1
+          if (pars%me.ne.mod(idx,pars%nprocs)) cycle
+          idx = (idx/pars%nprocs) + pars%oolo(isp)
+          call ga_get(oo,1,nri,idx,idx,scr,nri)
+          call ga_put(g_a,1,nri,kmo,kmo,scr,nri)
         enddo
-        ilo = (imo-nocc-1)*(nmo-nocc) + 1
-        ihi = (imo-nocc)*(nmo-nocc)
-        call ga_copy_patch('n',vv,1,nri,ilo,ihi,g_a,1,nri,nocc+1,nmo)
+        do kmo=nocc+1,nmo
+          idx = (imo-1)*nvir+kmo-nocc-1
+          if (pars%me.ne.mod(idx,pars%nprocs)) cycle
+          idx = (idx/pars%nprocs) + pars%ovlo(isp)
+          call ga_get(ov,1,nri,idx,idx,scr,nri)
+          call ga_put(g_a,1,nri,kmo,kmo,scr,nri)
+        enddo
+      else
+        do kmo=1,nocc
+          idx = (kmo-1)*nvir+imo-nocc-1
+          if (pars%me.ne.mod(idx,pars%nprocs)) cycle
+          idx = (idx/pars%nprocs) + pars%ovlo(isp)
+          call ga_get(ov,1,nri,idx,idx,scr,nri)
+          call ga_put(g_a,1,nri,kmo,kmo,scr,nri)
+        enddo
+        do kmo=1,nvir
+          idx = (imo-nocc-1)*nvir+kmo-1
+          if (pars%me.ne.mod(idx,pars%nprocs)) cycle
+          idx = (idx/pars%nprocs) + pars%vvlo(isp)
+          call ga_get(vv,1,nri,idx,idx,scr,nri)
+          call ga_put(g_a,1,nri,kmo+nocc,kmo+nocc,scr,nri)
+        enddo
       endif
 
+      call ga_sync()
       call ga_dgemm('t','n',nmo,npoles,nri,dsqrt(2d0),g_a,erim,0d0,wmn)
       call ga_elem_multiply(wmn,wmn,wmn)
 

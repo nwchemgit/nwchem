@@ -52,6 +52,7 @@
         call ga_diag_std(g_rpa,g_xpy,omega)
         omega(:,1) = dsqrt(omega(:,1))
 
+
         call gw_analytic_scalxpy(dbl_mb(kXPY),omega,mynpoles,npoles)
         call ga_dgemm('n','n',nri,npoles,npoles,1d0,pars%g_eriov(1),
      $                 g_xpy,0d0,pars%g_erim(1))

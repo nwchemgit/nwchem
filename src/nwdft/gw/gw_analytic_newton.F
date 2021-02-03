@@ -51,8 +51,8 @@
      $    call errquit('can''t create array',0,GA_ERR)
 
         do imo=1,pars%nmo
-          if (Eold(imo,isp).lt.0d0) then
-            plus = imo
+          if (Eold(imo,isp).gt.0d0) then
+            plus = imo - 1
             exit
           endif
         enddo
@@ -64,7 +64,7 @@
           Sigma_X  = Sigmax(llmo+iqp-1,isp)
           residualOld = 1d100 
 
-          if (EViter.eq.0) Eout = Eout + 0.10d0*(Sigma_X - SigmaOld)
+          if (EViter.eq.0) Eout = Eout + 0.075d0*(Sigma_X - SigmaOld)
 
           timer = util_wallsec()
 
@@ -88,7 +88,7 @@ c
      $                          util_wallsec()
 
 
-            Z = min(1d0,1d0/(1d0-dSigmaC))
+            Z = 1d0/(1d0-dSigmaC)
 
             residual = Eold(llmo+iqp-1,isp) + 
      $                 SigmaC + Sigma_X - SigmaOld - Ein
@@ -96,12 +96,19 @@ c
             dresidual = dSigmaC - 1d0
             d2residual = d2SigmaC
             dquadratic = 2d0*residual*dresidual
-            d2quadratic = 2d0*d2residual*dresidual**2
+            d2quadratic = 2d0*dresidual**2 + 2d0*residual*d2residual
 
             linearstep    = Z*residual
             quadraticstep = -dquadratic/d2quadratic
 
-            step = 0.6180d0*linearstep
+            if (d2quadratic.gt.1d-3) then
+              step = sign(min(0.15d0,abs(quadraticstep)),quadraticstep)
+              if (abs(step).lt.0.1d0 .and. abs(residual).gt.0.1d0) then
+                step = 0.3d0*linearstep
+              endif
+            else
+              step = 0.6180d0*linearstep
+            endif
 
             Eout = Ein + step
 
