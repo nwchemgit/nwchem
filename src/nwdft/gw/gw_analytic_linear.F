@@ -27,7 +27,7 @@
       double precision quadratic, dquadratic, d2quadratic
       double precision quadraticstep, linearstep, step
 
-      integer,external :: ga_create, ga_destroy
+      logical,external :: ga_create, ga_destroy
 
       if (.not.ma_alloc_get(mt_dbl,5*pars%nmo,'scratch',l_scr,k_scr))
      $  call errquit('can''t allocate scratch',0,MA_ERR)

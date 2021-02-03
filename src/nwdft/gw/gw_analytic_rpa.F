@@ -16,7 +16,7 @@
 
       character(len=17),parameter :: pname = 'gw_analytic_rpa: '
 
-      integer,external :: ga_create, ga_destroy
+      logical,external :: ga_create, ga_destroy
 
 
       call ga_access(pars%g_eriov(1),1,nri,pars%ovlo(1),pars%ovhi(1),

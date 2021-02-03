@@ -12,7 +12,7 @@
       integer nmo,npoles,nvir
       integer idx,kmo
 
-      integer,external :: ga_create, ga_destroy
+      logical,external :: ga_create, ga_destroy
 
       double precision :: scr(nri)
 
