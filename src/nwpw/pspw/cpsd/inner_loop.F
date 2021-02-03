@@ -660,9 +660,10 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
 
 
       if (fractional) then
-         !call Dneall_m_diag_scal(0,dbl_mb(fweight(1)),hml)
+         call Dneall_m_diag_scal(0,occ1,hml)
          eorbit = Dneall_m_trace(0,hml)
-         !call Dneall_m_diag_scal_inv(0,dbl_mb(fweight(1)),hml)
+         !eorbit = Dneall_m_occtrace(0,hml,occ1)
+         call Dneall_m_diag_scal_inv(0,occ1,hml)
       else
          eorbit = Dneall_m_trace(0,hml)
       end if

@@ -169,6 +169,46 @@ c     real*8 G(nfft3d,3)
 
 *     **********************************************
 *     *                                            *
+*     *             cke0                           *
+*     *                                            *
+*     **********************************************
+      subroutine cke0(nbq,ispin,ne,psi1_tag,psi2_tag)
+      implicit none
+      integer  nbq
+      integer    ispin,ne(2)
+      integer    psi1_tag
+      integer    psi2_tag
+
+#include "bafdecls.fh"
+#include "cke_common.fh"
+
+*     **** local variables ****
+      integer npack1,nbrillq,neall
+      integer n,shift1,shift2,nshift
+
+*     **** external functions ****
+      integer  Pneb_nbrillq,Pneb_convert_nb,cpsi_data_get_chnk
+      external Pneb_nbrillq,Pneb_convert_nb,cpsi_data_get_chnk
+
+      call Cram_max_npack(npack1)
+      nshift = 2*npack1
+      nbrillq = Pneb_nbrillq()
+      neall  = ne(1)+ne(2)
+
+         shift1 = cpsi_data_get_chnk(psi1_tag,nbq)
+         shift2 = cpsi_data_get_chnk(psi2_tag,nbq)
+         do n=1,neall
+            call Cram_rc_Mul(nbq,dbl_mb(tg_indx+(nbq-1)*npack1),
+     >                           dbl_mb(shift1),dbl_mb(shift2))
+            shift1 = shift1 + nshift
+            shift2 = shift2 + nshift
+         end do
+
+      return
+      end
+
+*     **********************************************
+*     *                                            *
 *     *             cke_orb                        *
 *     *                                            *
 *     **********************************************

@@ -227,7 +227,7 @@ c      external      cpsp_comment
       call C3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
       call C3dB_nfft3d(1,nfft3d)
        
-      call cpsi_data_init(20)
+      call cpsi_data_init(30)
 
 *     **** read ions ****
       value = ion_init(rtdb)
@@ -757,7 +757,7 @@ c     >     .or.nwpwxc_is_on()) THEN
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1140 FORMAT(/' elements involved in the cluster:')
- 1150 FORMAT(5X,I2,': ',A4,'  core charge:',F4.1,'  lmax=',I1)
+ 1150 FORMAT(5X,I2,': ',A4,'core charge:',F4.1,'  lmax=',I1)
  1151 FORMAT(5X,'        cutoff =',4F8.3)
  1152 FORMAT(12X,' highest angular component      : ',i3)
  1153 FORMAT(12X,' local potential used           : ',i3)
@@ -818,7 +818,7 @@ c     >     .or.nwpwxc_is_on()) THEN
  1280 FORMAT(5X, ' time step=',F10.2,5X,'fictitious mass=',F10.1)
  1281 FORMAT(5X, ' maximum iterations =',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
- 1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
+ 1290 FORMAT(5X, ' tolerance=',E9.3,' (energy)',E12.3,
      &        ' (density)')
  1291 FORMAT(/' Kohn-Sham scf parameters:')
  1292 FORMAT(5X, ' Kohn-Sham algorithm  = ',A)

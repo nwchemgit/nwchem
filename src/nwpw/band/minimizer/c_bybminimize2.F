@@ -41,6 +41,7 @@ c
       common / c_shared_e00_block / e00_shared,deltav_shared,
      >                              diis_error_shared
 
+
       real*8     tole,tolc
       real*8     ehartree,eorbit,exc,pxc,eion
       real*8     Enew,Eold,alpha
@@ -54,6 +55,7 @@ c
 
       integer maxit_orb,maxit_orbs
       
+      integer e00(2),tmin(2)
 
 
 *     **** external functions ****
@@ -150,6 +152,12 @@ c
       value = value.and.
      >        BA_push_get(mt_dbl,2*nfft3d,
      >                   'rho_junk',rho_junk(2),rho_junk(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,cpsi_nbrillq(),
+     >                   'tmin',tmin(2),tmin(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,cpsi_nbrillq(),
+     >                   'e00',e00(2),e00(1))
       if (.not. value) 
      >   call errquit('c_bybminimize2:out of stack memory',0,0)
 
@@ -165,6 +173,7 @@ c
 *     **** set the initial density ****
       if (current_iteration.eq.1) then
          Enew  = cpsi_1energy()
+         !write(*,*) "Enew=",Enew+eion,Enew
          alpha = control_ks_alpha()
          deltae = -9232323299.0d0
          ks_deltae = tole
@@ -209,6 +218,7 @@ c
          end do
          call K1dB_SumAll(charge(ms))
       end do
+
   
 *     **** iniitialize SCF Mixing ****    
       call nwpw_scf_mixing_init(control_scf_algorithm(),alpha,
@@ -229,7 +239,9 @@ c
       
 *     **** diaganolize KS matrix ****
       if (ks_block) then
-         call cpsi_KS_block_update(1,e00_shared,deltae,it,maxit_orbs,
+         write(*,*) "into block update"
+         call cpsi_KS_block_update(1,dbl_mb(e00(1)),dbl_mb(tmin(1)),
+     >                             deltae,it,maxit_orbs,
      >                             precondition,ks_deltae)
       else
          call cpsi_KS_update(1,precondition,ks_deltae)
@@ -400,7 +412,9 @@ c     >      call cpsi_1define_occupation(1.0d0,.false.)
 
 *     **** free memory ****
       call nwpw_scf_mixing_end()
-      value =           BA_pop_stack(rho_junk(2))
+      value =           BA_pop_stack(e00(2))
+      value = value.and.BA_pop_stack(tmin(2))
+      value = value.and.BA_pop_stack(rho_junk(2))
       value = value.and.BA_pop_stack(rho_out(2))
       value = value.and.BA_pop_stack(rho_in(2))
       if (.not. value) 

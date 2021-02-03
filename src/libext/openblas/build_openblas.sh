@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
+set -v
 arch=`uname -m`
-VERSION=0.3.12
+VERSION=0.3.13
 if [ -f  OpenBLAS-${VERSION}.tar.gz ]; then
     echo "using existing"  OpenBLAS-${VERSION}.tar.gz
 else
@@ -8,11 +9,11 @@ else
     curl -L https://github.com/xianyi/OpenBLAS/archive/v${VERSION}.tar.gz -o OpenBLAS-${VERSION}.tar.gz
 fi
 # patch for avx2 detection
-curl -L https://github.com/xianyi/OpenBLAS/commit/aa21cb52179b86b00f7ac52a4e41ed712836f2d1.patch -o  avx2.patch
 tar xzf OpenBLAS-${VERSION}.tar.gz
 ln -sf OpenBLAS-${VERSION} OpenBLAS
 cd OpenBLAS-${VERSION}
-patch -p1 < ../avx2.patch
+# patch for apple clang -fopenmp
+patch -p0 < ../clang_omp.patch
 if [[  -z "${FORCETARGET}" ]]; then
 FORCETARGET=" "
 UNAME_S=$(uname -s)
@@ -66,13 +67,15 @@ else
     LAPACK_FPFLAGS_VAL=" "
 fi
 #disable threading for ppc64le since it uses OPENMP
+echo arch is "$arch"
 if [[ "$arch" == "ppc64le" ]]; then
-    THREADOPT=" USE_THREAD=0 NUM_THREADS=1 "
+    THREADOPT="0"
 else
-    THREADOPT=" USE_THREAD=1 NUM_THREADS=8 "
+    THREADOPT="1"
 fi
- make $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" "$THREADOPT" NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0   libs netlib -j4
-# make $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" USE_THREAD=1 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 NUM_THREADS=1  libs netlib -j4
+
+echo make $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT"  libs netlib -j4
+ make $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4
 
 mkdir -p ../../lib
 cp libopenblas.a ../../lib/libnwc_openblas.a
