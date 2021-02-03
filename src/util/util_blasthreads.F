@@ -8,6 +8,8 @@ c
       call mkl_set_num_threads(nt)
 #elif defined(BLIS)
       call bli_thread_set_num_threads(nt)
+#elif defined(FLEXIBLAS)
+      call flexiblas_set_num_threads(nt)
 #elif defined(INTERNALBLAS)
 c do nothing      
 #else
@@ -37,6 +39,10 @@ c do nothing
       end interface
       nt=bli_thread_get_num_threads()
 c     return value=-1 -> threading not enabled
+#elif defined(FLEXIBLAS)
+      external flexiblas_get_num_threads
+      integer flexiblas_get_num_threads
+      nt=flexiblas_get_num_threads()
 #elif defined(INTERNALBLAS)
       nt=1
 #else

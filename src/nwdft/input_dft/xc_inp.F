@@ -199,6 +199,8 @@ c
       logical cam_exch,cam_srhf
       double precision cam_omega,cam_alpha,cam_beta
 c
+      logical use_hcth147
+c
 c     Grab the current input line and dump the functional specification
 c     onto the RTDB. This way external programs can pick the actual
 c     functional definition up as it was entered.
@@ -543,7 +545,23 @@ c
  1847    continue
 c
 c        assume total wanted
-c     
+c
+         if (.not. rtdb_get(rtdb, 'dft:use_hcth147', mt_log, 1,
+     c        use_hcth147)) use_hcth147=.false.
+         if(.not.use_hcth147) then
+            write(luout,*) ' ********** WARNING *********'
+            write(luout,*) ' Use of the hcth147 is deprecated,'
+            write(luout,*) ' the hcth147@tz2p should be used instead.'
+            write(luout,*) ' Details at '
+        write(luout,*) ' https://github.com/nwchemgit/nwchem/pull/301'
+            write(luout,*) ' ****************************'
+            write(luout,*) ' If you still wish to use hcth147, '
+            write(luout,*) ' add the folllowing input line '
+            write(luout,*) ' before the dft input section'
+            write(luout,*) '    set dft:use_hcth147 t'
+            write(luout,*) ' ****************************'
+            call errquit(' use of hcth147 deprecated ',0, INPUT_ERR)
+         endif
        xccomb(8) = .true.
          lxfac(11) = .true.
          nlxfac(11) = .true.

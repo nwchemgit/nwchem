@@ -7308,3 +7308,31 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *      control_unset_excited_ne   *
+*     *                                 *
+*     ***********************************
+      subroutine control_unset_excited_ne()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+      integer ne(2)
+
+      ne(1) = 0
+      ne(2) = 0
+      value = btdb_put(rtdb,'nwpw:excited_ne',mt_int,2,ne)
+
+      !value = rtdb_delete(rtdb,'nwpw:excited_ne')
+
+      return
+      end
+

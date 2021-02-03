@@ -15,6 +15,7 @@
       integer      ispin,nein(2),nbrillioun
 
 #include "bafdecls.fh"
+#include "btdb.fh"
 #include "errquit.fh"
  
 *     **** local variables ****
@@ -34,6 +35,8 @@
       external control_fractional_orbitals
       character*50 control_input_epsi
       external     control_input_epsi
+      integer  control_excited_ne
+      external control_excited_ne
 
       ne(1) = nein(1)
       ne(2) = nein(2)
@@ -48,7 +51,10 @@
       end if
 
       NMAX = ne(1)+ne(2)
+
       call Parallel_taskid(taskid)
+      value = btdb_parallel(.false.)
+
       if (taskid.eq.MASTER) then
         value = BA_push_get(mt_int,8*NMAX,
      >                    'filling',filling(2),filling(1))
@@ -93,6 +99,7 @@
         value = BA_pop_stack(filling(2))
         if (.not. value) call errquit('popping stack memory',0, MA_ERR)
       end if
+      value = btdb_parallel(.true.)
       call ga_sync()
 
       return
@@ -223,6 +230,7 @@
          call iread(3,nex,2)
          call iread(3,nbrilliounx,1)
          call iread(3,occupation,1)
+         call closefile(3)
       end if
 
       ms0 = 1
@@ -231,8 +239,8 @@
       do ms=1,ispin
          n0 = 1
          nx = 1
-         n0max = ne0(ms0)
-         nxmax = nex(ms0)
+         n0max = ne0(ms)
+         nxmax = nex(ms)
          do n=1,ne(ms)
 
             !*** read from old filename ***
@@ -242,19 +250,22 @@
 
             !*** read from emo_filename ***
             else if (n.le.(n0max+nxmax)) then
-               call dread(3,dcpl_mb(cfull_indx),2*nfft3d)
+               call sub_c_wvfnc_emo_fetch(emo_filename,nb,ms,n-n0max,
+     >                                    nfft3d,dcpl_mb(cfull_indx))
                nx = nx + 1
                emo_used  = .true.
-               call sub_c_wvfnc_project_out(nfft3d,
-     >                                  dcpl_mb(cfull_indx),
-     >                                  dcpl_mb(cfull_indx+nfft3d),
-     >                                  old_filename)
-               P=gcdot(nfft1,nfft2,nfft3,
-     >                 dcpl_mb(cfull_indx),
-     >                 dcpl_mb(cfull_indx))
-               P=1.0d0/dsqrt(P)
-               call dscal(2*nfft3d,P,dcpl_mb(cfull_indx),1)
-
+cc               call dread(3,dcpl_mb(cfull_indx),2*nfft3d)
+cc               call sub_c_wvfnc_project_out(nfft3d,
+cc     >                                  dcpl_mb(cfull_indx),
+cc     >                                  dcpl_mb(cfull_indx+nfft3d),
+cc     >                                  old_filename)
+c               P=gcdot(nfft1,nfft2,nfft3,
+c     >                 dcpl_mb(cfull_indx),
+c     >                 dcpl_mb(cfull_indx))
+c               !write(*,*) "emo n,nfft1,nfft2,nfft3,P=",n,P
+cc               P=1.0d0/dsqrt(P)
+cc               call dscal(2*nfft3d,P,dcpl_mb(cfull_indx),1)
+c
             !*** generate new random wavefunction ***
             else
                call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(cfull_indx),1)
@@ -297,57 +308,61 @@ c                end if
             end if
 
             call dwrite(6,dcpl_mb(cfull_indx),2*nfft3d)
+c            write(*,'(A,2I3,A,6E10.2)') "nb,n=",nb,n,
+c     >                      " cpsi=",dcpl_mb(cfull_indx),
+c     >                               dcpl_mb(cfull_indx+1),
+c     >                               dcpl_mb(cfull_indx+2)
             !n0 = n0 + 1
          end do
          
-         ms0 = ms0 + 1
-         msx = msx + 1
+         !ms0 = ms0 + 1
+         !msx = msx + 1
 
 *        **** rewind the wavefunction read ****
-         if (ms0.gt.ispin0) then
-            ms0 = 1
-            call closefile(5)
-            l = index(old_filename,' ') - 1
-            call openfile(5,old_filename,l,'r',l)
-            call iread(5,version,1)
-            call iread(5,ngrid,3)
-            call dread(5,unita,9)
-            call iread(5,ispin0,1)
-            call iread(5,ne0,2)
-            call iread(5,nbrillioun0,2)
-            call iread(5,occupation,1)
-         end if
-
-*        **** read remaining wvfunctions in spin ****
-         if ((ispin0.eq.2).and.(ispin.eq.2).and.(n0.le.n0max)) then
-           do n=n0,n0max
-             call dread(5,dcpl_mb(cfull_indx),2*nfft3d)
-           end do
-         end if
+c         if (ms0.gt.ispin0) then
+c            ms0 = 1
+c            call closefile(5)
+c            l = index(old_filename,' ') - 1
+c            call openfile(5,old_filename,l,'r',l)
+c            call iread(5,version,1)
+c            call iread(5,ngrid,3)
+c            call dread(5,unita,9)
+c            call iread(5,ispin0,1)
+c            call iread(5,ne0,2)
+c            call iread(5,nbrillioun0,2)
+c            call iread(5,occupation,1)
+c         end if
+c
+c*        **** read remaining wvfunctions in spin ****
+c         if ((ispin0.eq.2).and.(ispin.eq.2).and.(n0.le.n0max)) then
+c           do n=n0,n0max
+c             call dread(5,dcpl_mb(cfull_indx),2*nfft3d)
+c           end do
+c         end if
 
 *        **** read remaining emo_filename wavefunctions in spin ***
-         if (emo_found) then
-            if (msx.gt.ispinx) then
-               msx = 1
-               call closefile(3)
-               l = index(emo_filename,' ') - 1
-               call openfile(3,emo_filename,l,'r',l)
-               call iread(3,version,1)
-               call iread(3,ngrid,3)
-               call dread(3,unita,9)
-               call iread(3,ispinx,1)
-               call iread(3,nex,2)
-               call iread(3,nbrilliounx,1)
-               call iread(3,occupation,1)
-            end if
-
-*           **** read remaining wvfunctions in spin ****
-            if ((ispinx.eq.2).and.(ispin.eq.2).and.(nx.le.nxmax)) then
-              do n=nx,nxmax
-                call dread(3,dcpl_mb(cfull_indx),2*nfft3d)
-              end do
-            end if
-         end if
+c         if (emo_found) then
+c            if (msx.gt.ispinx) then
+c               msx = 1
+c               call closefile(3)
+c               l = index(emo_filename,' ') - 1
+c               call openfile(3,emo_filename,l,'r',l)
+c               call iread(3,version,1)
+c               call iread(3,ngrid,3)
+c               call dread(3,unita,9)
+c               call iread(3,ispinx,1)
+c               call iread(3,nex,2)
+c               call iread(3,nbrilliounx,1)
+c               call iread(3,occupation,1)
+c            end if
+c
+c*           **** read remaining wvfunctions in spin ****
+c            if ((ispinx.eq.2).and.(ispin.eq.2).and.(nx.le.nxmax)) then
+c              do n=nx,nxmax
+c                call dread(3,dcpl_mb(cfull_indx),2*nfft3d)
+c              end do
+c            end if
+c         end if
 
       end do
       end do
@@ -370,8 +385,11 @@ c     **** add occupation - don't use previous start from scratch ****
       end if
  
       if (emo_found) then
-         call closefile(3)
-         if (emo_used) call util_file_unlink(emo_filename) !*** remove emo_filename ***
+         !call closefile(3)
+         if (emo_used) then
+            call util_file_unlink(emo_filename) !*** remove emo_filename ***
+            call control_unset_excited_ne()     !*** remove excited_ne from rtdb ***
+         end if
       end if
       call closefile(5)
       call closefile(6)
@@ -381,6 +399,46 @@ c     **** add occupation - don't use previous start from scratch ****
       
       return 
       end
+
+
+      subroutine sub_c_wvfnc_emo_fetch(emo_filename,nb0,ms0,n0,
+     >                                 nfft3d,epsi)
+      implicit none
+      character*(*) emo_filename
+      integer nb0,n0,ms0,nfft3d
+      complex*16 epsi(*)
+
+*     *** local variables ***
+      integer ngrid(3),nex(2),l,version,ispinx,nbrilliounx,occupation
+      integer nb,ms,n,ishift
+      real*8 unita(3,3)
+
+      l = index(emo_filename,' ') - 1
+      call openfile(2,emo_filename,l,'r',l)
+      call iread(2,version,1)
+      call iread(2,ngrid,3)
+      call dread(2,unita,9)
+      call iread(2,ispinx,1)
+      call iread(2,nex,2)
+      call iread(2,nbrilliounx,1)
+      call iread(2,occupation,1)
+
+      ishift = (nb0-1)*(nex(1)+nex(2))
+      ishift = ishift + (ms0-1)*nex(1)
+      ishift = ishift + n0-1
+      !write(*,'(A,3I3,I5)') "nb0,ms0,n0,ishift=",nb0,ms0,n0,ishift
+
+c      do n=1,ishift
+c         call dread(2,epsi,2*nfft3d)
+c      end do
+      if (ishift.gt.0) call dshift_fileptr(3,ishift*2*nfft3d)
+
+      call dread(2,epsi,2*nfft3d)
+      call closefile(2)
+      return
+      end
+
+
  
       subroutine sub_c_wvfnc_project_out(nfft3d,psi,tpsi,old_filename)
       implicit none
