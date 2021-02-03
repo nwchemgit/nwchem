@@ -31,6 +31,10 @@ c
 c
       logical ga_create_atom_blocked
       external ga_create_atom_blocked
+
+#ifdef USE_OPENMP
+      integer,external :: omp_get_max_threads
+#endif      
 c
 c     -----------------------------------------------------------------
 c
@@ -50,6 +54,12 @@ c
 
       pars%me = ga_nodeid()
       pars%nprocs = ga_nnodes()
+
+#ifdef USE_OPENMP
+      pars%iMaxThreads = omp_get_max_threads()
+#else
+      pars%iMaxThreads = 1
+#endif
 
       if (.not.rtdb_get(pars%rtdb,'gw:init',mt_log,1,init))
      $  call gw_defaults(pars%rtdb) 

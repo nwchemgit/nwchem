@@ -42,8 +42,8 @@ c
       double precision schwarz_shell
       external schwarz_shell
 c
-      integer ga_nnodes
-      external ga_nnodes
+      integer,external :: ga_nnodes,omp_get_num_threads
+      integer,external :: omp_get_max_threads
 
       timer = util_wallsec()
 c
@@ -100,7 +100,7 @@ c
       do isp=1,pars%ipol
         mopairs(isp) = pars%nstates(isp)*nmo
       enddo
-      totmopairs = sum(mopairs(:))
+      totmopairs = sum(mopairs(1:pars%ipol))
 
       if (.not.ga_create(mt_dbl,aopairs,nri,'3c ERI',aopairs,0,
      $     g_3ceris))
@@ -349,7 +349,13 @@ c
       double precision,intent(in),dimension(nstates,nmo,nri) :: erimo
 
       integer k_tmp, l_tmp, k_sym, l_sym
-      integer istate, iri, ibf, istart, jstart
+      integer istate, iri, ibf, istart, jstart, iMaxThreads
+#ifdef USE_OPENMP
+      integer,external :: omp_get_max_threads
+      iMaxThreads = omp_get_max_threads()
+      call omp_set_num_threads(iMaxThreads)
+#endif
+
 
       if (.not.ma_push_get(mt_dbl,nstates*nbf,'temp',l_tmp,k_tmp))
      $  call errquit('gw_mo: cannot allocate temporart space',0,MA_ERR)
@@ -359,11 +365,17 @@ c
 
       do iri=1,nri
 c        
+c#ifdef USE_OPENMP
+c!$omp parallel do private(ibf,istart,jstart)
+c#endif
         do ibf=1,nbf
           istart = (ibf*(ibf-1))/2 + 1
           jstart = k_sym + nbf*(ibf-1)
           call dcopy(ibf,eriao(istart,iri),1,dbl_mb(jstart),1)
         enddo
+cifdef USE_OPENMP
+c!$omp end parallel do
+cendif
 c        
         call dsymm('l','u',nbf,nstates,1d0,dbl_mb(k_sym),nbf,mos,nbf,
      $              0d0,dbl_mb(k_tmp),nbf)
@@ -374,6 +386,10 @@ c
 c
       if (.not.ma_chop_stack(l_tmp))
      $  call errquit('gw_mo: cannot chop stack',0,MA_ERR)
+
+#ifdef USE_OPENMP
+      call omp_set_num_threads(1)
+#endif
 
       return
       end subroutine

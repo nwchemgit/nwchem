@@ -4,16 +4,29 @@
       double precision, intent(in)  :: eia(npoles)
       double precision, intent(out) :: OV(nri,npoles)
 
-      integer ipole
+      integer ipole,iMaxThreads
 
       if (id.eq.1) then
+
+#ifdef USE_OPENMP
+!$omp parallel do
+#endif        
         do ipole=1,npoles
           OV(1:nri,ipole) = OV(1:nri,ipole)*dsqrt(eia(ipole))
         enddo
+#ifdef USE_OPENMP        
+!$omp end parallel do
+#endif
       else
+#ifdef USE_OPENMP        
+!$omp parallel do        
+#endif
         do ipole=1,npoles
           OV(1:nri,ipole) = OV(1:nri,ipole)/dsqrt(eia(ipole))
         enddo
+#ifdef USE_OPENMP        
+!$omp end parallel do
+#endif
       endif
 
       end subroutine

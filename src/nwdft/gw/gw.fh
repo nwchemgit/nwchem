@@ -11,7 +11,7 @@
       type :: gw_params_t
         sequence
         integer          :: rtdb
-        integer          :: me, nprocs
+        integer          :: me, nprocs, iMaxThreads
         integer          :: ipol
 	logical          :: main, odft
 c

@@ -4,6 +4,9 @@
 #include "tcgmsg.fh"
 #include "errquit.fh"
 #include "gw.fh"
+#ifdef SCALAPACK
+#include "dft_scaleig.fh"
+#endif
       type(gw_params_t)  :: pars
       integer,intent(in) :: maxpoles, maxnpoles, nri
 
@@ -13,10 +16,17 @@
       integer g_rpa, g_xpy
       integer npoles,mynpoles
       integer kRPA,kOV1,kOV2,kXPY,ld
+      integer iMaxThreads
 
       character(len=17),parameter :: pname = 'gw_analytic_rpa: '
 
       logical,external :: ga_create, ga_destroy
+#ifdef USE_OPENMP
+      integer,external :: omp_get_max_threads
+      iMaxThreads = omp_get_max_threads()
+      call omp_set_num_threads(iMaxThreads)
+#endif      
+
 
 
       call ga_access(pars%g_eriov(1),1,nri,pars%ovlo(1),pars%ovhi(1),
@@ -49,7 +59,16 @@
         call gw_analytic_addrpa(dbl_mb(kRPA),eia(1,1),mynpoles,
      $                          pars%ovlo(1))
 
+#ifdef PARALLEL_DIAG
+#ifdef SCALAPACK        
+        call dft_scaleig(g_rpa,g_xpy,omega,pars%nocc(1))
+#else
         call ga_diag_std(g_rpa,g_xpy,omega)
+#endif
+#else
+        call ga_diag_std_seq(g_rpa,g_xpy,omega)
+#endif
+
         omega(:,1) = dsqrt(omega(:,1))
 
 
@@ -65,5 +84,9 @@
       else
 
       endif
+
+#ifdef USE_OPENMP
+      call omp_set_num_threads(1)
+#endif
 
       end subroutine
