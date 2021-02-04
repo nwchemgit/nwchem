@@ -233,11 +233,17 @@ c     *****************************************************************
 
       double precision,external :: ddot
 
-      integer idx, idum
+      integer idx, idum, isp
       integer imo, jmo, kmo, ipol
       integer addrOO, addrOV, addrVV
 
-      sigmax(:,1:pars%ipol) = 0d0
+      !$omp parallel do collapse(2)
+      do isp=1,pars%ipol
+        do imo=1,nmo
+          sigmax(imo,isp) = 0d0
+        enddo
+      enddo
+      !$omp end parallel do
 
       do ipol=1,pars%ipol
         if (pars%nqp(ipol).eq.0) cycle
@@ -253,6 +259,7 @@ c     *****************************************************************
 
           if (imo.gt.pars%nocc(ipol)) goto 100
 
+          !$omp parallel do
           do kmo=1,pars%nocc(ipol)
             idx = (imo-1)*pars%nocc(ipol)+kmo-1
             if (pars%me.ne.mod(idx,pars%nprocs)) cycle
@@ -260,11 +267,13 @@ c     *****************************************************************
             sigmax(imo,ipol) = sigmax(imo,ipol) - 
      $                          ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
           enddo
+          !$omp end parallel do
 
           cycle
 
   100     continue
 
+          !$omp parallel do
           do kmo=1,pars%nocc(ipol)
             idx = (kmo-1)*pars%nvir(ipol)+imo-pars%nocc(ipol)-1
             if (pars%me.ne.mod(idx,pars%nprocs)) cycle
@@ -272,6 +281,7 @@ c     *****************************************************************
             sigmax(imo,ipol) = sigmax(imo,ipol) - 
      $                          ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
           enddo
+          !$omp end parallel do
 
         enddo
 

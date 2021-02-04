@@ -95,7 +95,7 @@ c
 
         if (pars%me.eq.0) write(luout,9040) 
         ga_mem = (totmopairs + sum(pars%npoles(1:pars%ipol)))*nbf_cd
-        ga_mem = ga_mem + 2*sum(pars%npoles(1:pars%ipol))**2
+        ga_mem = ga_mem + sum(pars%npoles(1:pars%ipol))**2
 
         ma_mem = 10*pars%ipol*pars%nmo +
      $           pars%ipol*maxnpoles +

@@ -44,14 +44,10 @@
         mynpoles = pars%mynpoles(1)
 
         if (.not.ga_create(mt_dbl,npoles,npoles,'rpa',0,npoles,g_rpa))
-     $    call errquit(pname//'can''t create array',0,GA_ERR)
-        if (.not.ga_create(mt_dbl,npoles,npoles,'x+y',0,npoles,g_xpy))
-     $    call errquit(pname//'can''t create array',0,GA_ERR) 
+     $    call errquit(pname//'can''t create RPA GA',0,GA_ERR)
 
         call ga_access(g_rpa,pars%ovlo(1),pars%ovhi(1),1,npoles,
      $                 kRPA,ld)   
-        call ga_access(g_xpy,pars%ovlo(1),pars%ovhi(1),1,npoles,
-     $                 kXPY,ld)   
 
         call gw_analytic_ovscale(1,dbl_mb(kOV1),eia(1,1),nri,mynpoles)
         call ga_dgemm('t','n',pars%npoles(1),pars%npoles(1),nri,4d0,
@@ -61,16 +57,14 @@
 
 #ifdef PARALLEL_DIAG
 #ifdef SCALAPACK        
-        call dft_scaleig(g_rpa,g_xpy,omega,pars%nocc(1))
+        call dft_scaleig(g_rpa,g_rpa,omega,pars%nocc(1))
 #else
-        call ga_diag_std(g_rpa,g_xpy,omega)
+        call ga_diag_std(g_rpa,g_rpa,omega)
 #endif
 #else
-        call ga_diag_std_seq(g_rpa,g_xpy,omega)
+        call ga_diag_std_seq(g_rpa,g_rpa,omega)
 #endif
 
-        if (.not.ga_destroy(g_rpa))
-     $    call errquit(pname//'can''t destroy RPA GA',0,GA_ERR)   
 
         !$omp parallel do
         do ipole=1,npoles
@@ -82,13 +76,13 @@
      $                        'transformed eri alpha'))
      $    call errquit(pname//'failed to duplicate array',0,GA_ERR)
 
-        call gw_analytic_scalxpy(dbl_mb(kXPY),omega,mynpoles,npoles)
+        call gw_analytic_scalxpy(dbl_mb(kRPA),omega,mynpoles,npoles)
         call ga_dgemm('n','n',nri,npoles,npoles,1d0,pars%g_eriov(1),
-     $                 g_xpy,0d0,pars%g_erim(1))
+     $                 g_rpa,0d0,pars%g_erim(1))
         call gw_analytic_ovscale(2,dbl_mb(kOV1),eia(1,1),nri,mynpoles)
 
-        if (.not.(ga_destroy(g_xpy)))
-     $    call errquit(pname//'can''t destroy X+Y GA',0,GA_ERR)
+        if (.not.(ga_destroy(g_rpa)))
+     $    call errquit(pname//'can''t destroy RPA GA',0,GA_ERR)
 
 
       else

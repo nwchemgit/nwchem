@@ -19,8 +19,8 @@
       integer g_a, g_b, g_c, g_d, g_e, g_epsilon, k_eps, k_sol, nprocs
       integer jmo, ipole, ilo, ihi, jlo, jhi, info, ld, mynri, idx, jsp
       integer l_pi, k_pi, l_ipiv, k_ipiv, l_scr, k_scr, k_ov, lscr
-      integer g_pi, g_inv, g_sol, addrPi, addrInv, addrSol, llpi, off
-      integer pihi, pilo, kOV1, kOV2, ga, first, second, step
+      integer g_pi, g_sol, addrPi, addrSol, llpi, off
+      integer pihi, pilo, kOV(2), ga, first, second, step
       integer spacelo, addr
       double precision fac, arg, w, arg2, dfac, sgn
       double precision factor(maxpoles,ipol), vector(nri), vector2(nri)
@@ -54,14 +54,11 @@
       if (.not.ma_push_get(mt_dbl,lscr,'scr',l_scr,k_scr))
      $  call errquit(pname//'can''t allocate scratch',0,MA_ERR) 
 
-      call ga_access(pars%g_eriov(1),1,nri,pars%ovlo(1),pars%ovhi(1),
-     $               kOV1,ld)
-      if (ipol.gt.1) then
-        call ga_access(pars%g_eriov(2),1,nri,pars%ovlo(2),pars%ovhi(2),
-     $                 kOV2,ld)
-      else 
-        kOV2 = 1
-      endif
+      do jsp=1,ipol
+        call ga_access(pars%g_eriov(jsp),1,nri,pars%ovlo(jsp),
+     $                 pars%ovhi(jsp),kOV(jsp),ld)   
+      enddo
+      if (ipol.eq.1) kOV(2) = 1
 
 #if PARALLEL_DIAG
       parallel_diag = nri .gt. 2000
@@ -79,9 +76,6 @@
         call ga_access(g_pi,1,nri,pilo,pihi,addrPi,ld)
         mynri = pihi - pilo + 1
         llpi = k_pi + (pilo-1)*nri
-        ok = ga_duplicate(g_pi,g_inv,'Inverse')
-        if (.not.ok) call errquit(pname//'can''t create Inv',0,GA_ERR)
-        call ga_access(g_inv,1,nri,pilo,pihi,addrInv,ld)
 #endif
       endif
 
@@ -135,7 +129,7 @@
           !$omp end parallel do
         enddo
 
-        call gw_buildpi('r',dbl_mb(kOV1),dbl_mb(kOV2),dbl_mb(k_pi),
+        call gw_buildpi('r',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
      $                   factor,nri,nri,pars%mynpoles,main,ipol,
      $                   maxpoles)
         call dgop(mt_dbl,dbl_mb(k_pi),nri**2,'+')
@@ -153,8 +147,8 @@
 #else
           vector2(:) = 0d0
           call dcopy(mynri*nri,dbl_mb(llpi),1,dbl_mb(addrPi),1)
-          call gw_invdiag(g_pi,g_inv,nri)
-          call dgemv('t',nri,mynri,1d0,dbl_mb(addrInv),nri,vector,1,
+          call gw_invdiag(g_pi,g_pi,nri)
+          call dgemv('t',nri,mynri,1d0,dbl_mb(addrPi),nri,vector,1,
      $                0d0,vector2(pilo),1)
           call dgop(mt_dbl,vector2,nri,'+')
 #endif
@@ -171,9 +165,8 @@
         endif
 
         if (arg.ne.0d0) then
-          addr = kOV1
           do jsp=1,ipol
-            if (jsp.eq.2) addr = kOV2
+            addr = kOV(jsp)
             call dgemv('t',nri,pars%mynpoles(jsp),1d0,dbl_mb(addr),nri,
      $                  vector2,1,0d0,factor(1,jsp),1)
 
@@ -209,7 +202,6 @@ c
       if (parallel_diag) then
 #ifndef SCALAPACK
         ok = ga_destroy(g_pi)
-        ok = ok .and. ga_destroy(g_inv)
         if (.not.ok) call errquit(pname//'can''t destroy GAs',0,GA_ERR)
 #endif
       endif
