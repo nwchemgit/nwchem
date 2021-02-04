@@ -8,25 +8,17 @@
 
       if (id.eq.1) then
 
-#ifdef USE_OPENMP
-!$omp parallel do
-#endif        
+        !$omp parallel do
         do ipole=1,npoles
           OV(1:nri,ipole) = OV(1:nri,ipole)*dsqrt(eia(ipole))
         enddo
-#ifdef USE_OPENMP        
-!$omp end parallel do
-#endif
+        !$omp end parallel do
       else
-#ifdef USE_OPENMP        
-!$omp parallel do        
-#endif
+        !$omp parallel do        
         do ipole=1,npoles
           OV(1:nri,ipole) = OV(1:nri,ipole)/dsqrt(eia(ipole))
         enddo
-#ifdef USE_OPENMP        
-!$omp end parallel do
-#endif
+        !$omp end parallel do
       endif
 
       end subroutine

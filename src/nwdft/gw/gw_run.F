@@ -104,14 +104,6 @@ c
      $  call errquit(pname//'cannot allocate Omega',0,MA_ERR)
       if (.not.ma_push_get(mt_dbl,ipol*maxpoles,'eval_ia',l_eia,k_eia))
      $  call errquit(pname//'cannot allocate eval_ia',0,MA_ERR)
-      if (.not.ga_duplicate(pars%g_eriov(1),pars%g_erim(1),
-     $                      'transformed eri alpha'))
-     $  call errquit(pname//'failed to duplicate array',0,GA_ERR)
-      if (ipol.gt.1) then
-        if (.not.ga_duplicate(pars%g_eriov(2),pars%g_erim(2),
-     $                        'transformed eri beta'))
-     $    call errquit(pname//'failed to duplicate array',0,GA_ERR)
-      endif
 c
 c     Shift eigenvalues
 c
@@ -193,13 +185,6 @@ c
 
  9050 format(10x,I3,6x,F8.3,6x,F6.3,6x,F8.3)
 c
-      if (.not.ga_destroy(pars%g_erim(1)))
-     $  call errquit(pname//'failed to destroy array',0,GA_ERR)
-      if (ipol.gt.1) then
-        if (.not.ga_destroy(pars%g_erim(2)))
-     $    call errquit(pname//'failed to destroy array',0,GA_ERR)
-      endif
-
       if (.not.ma_chop_stack(l_sigma))
      $  call errquit(pname//'could not free stack',0,MA_ERR)
 c

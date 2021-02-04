@@ -132,8 +132,8 @@ c
      $                        residual*ha2ev
           endif
         enddo
-        if (.not.ga_destroy(g_wmn))
-     $    call errquit('can''t destroy array',0,GA_ERR)   
+        if (.not.(ga_destroy(g_wmn) .and. ga_destroy(pars%g_erim(isp))))
+     $    call errquit('can''t destroy GAs',0,GA_ERR)   
       enddo
       if (.not.ma_free_heap(l_scr))
      $  call errquit('can''t deallocate srcatch',0,MA_ERR) 

@@ -14,13 +14,13 @@
       double precision, intent(out) :: omega(maxnpoles,*)
 
       integer g_rpa, g_xpy
-      integer npoles,mynpoles
+      integer npoles,mynpoles,ipole
       integer kRPA,kOV1,kOV2,kXPY,ld
       integer iMaxThreads
 
       character(len=17),parameter :: pname = 'gw_analytic_rpa: '
 
-      logical,external :: ga_create, ga_destroy
+      logical,external :: ga_create, ga_destroy, ga_duplicate
 #ifdef USE_OPENMP
       integer,external :: omp_get_max_threads
       iMaxThreads = omp_get_max_threads()
@@ -69,16 +69,26 @@
         call ga_diag_std_seq(g_rpa,g_xpy,omega)
 #endif
 
-        omega(:,1) = dsqrt(omega(:,1))
+        if (.not.ga_destroy(g_rpa))
+     $    call errquit(pname//'can''t destroy RPA GA',0,GA_ERR)   
 
+        !$omp parallel do
+        do ipole=1,npoles
+          omega(ipole,1) = dsqrt(omega(ipole,1))
+        enddo
+        !$omp end parallel do
+
+        if (.not.ga_duplicate(pars%g_eriov(1),pars%g_erim(1),
+     $                        'transformed eri alpha'))
+     $    call errquit(pname//'failed to duplicate array',0,GA_ERR)
 
         call gw_analytic_scalxpy(dbl_mb(kXPY),omega,mynpoles,npoles)
         call ga_dgemm('n','n',nri,npoles,npoles,1d0,pars%g_eriov(1),
      $                 g_xpy,0d0,pars%g_erim(1))
         call gw_analytic_ovscale(2,dbl_mb(kOV1),eia(1,1),nri,mynpoles)
 
-        if (.not.(ga_destroy(g_rpa) .and. ga_destroy(g_xpy)))
-     $    call errquit(pname//'can''t destroy arrays',0,GA_ERR)
+        if (.not.(ga_destroy(g_xpy)))
+     $    call errquit(pname//'can''t destroy X+Y GA',0,GA_ERR)
 
 
       else
