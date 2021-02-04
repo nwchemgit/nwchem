@@ -33,6 +33,13 @@
       logical, external :: is_near, nga_create, ga_duplicate, ga_destroy
       logical, external :: ga_create, ga_copy
       integer,external :: ga_nodeid,ga_nnodes
+#ifdef USE_OPENMP      
+      integer iMaxThreads
+      integer,external :: omp_get_max_threads
+      iMaxThreads = omp_get_max_threads()
+      call util_blas_set_num_threads(iMaxThreads)
+#endif
+
 
       main = me.eq.0
       nprocs = ga_nnodes()
@@ -119,11 +126,13 @@
         endif
 
         do jsp=1,ipol
+          !$omp parallel do
           do ipole=1,pars%mynpoles(jsp)
             factor(ipole,jsp) = Eia(ipole,jsp)/(Eia(ipole,jsp)**2-arg2)
             dfactor(ipole,jsp) = -dfac*arg*factor(ipole,jsp)**2/
      $                           Eia(ipole,jsp)
           enddo
+          !$omp end parallel do
         enddo
 
         call gw_buildpi('r',dbl_mb(kOV1),dbl_mb(kOV2),dbl_mb(k_pi),
@@ -167,9 +176,13 @@
             if (jsp.eq.2) addr = kOV2
             call dgemv('t',nri,pars%mynpoles(jsp),1d0,dbl_mb(addr),nri,
      $                  vector2,1,0d0,factor(1,jsp),1)
+
+            !$omp parallel do
             do ipole=1,pars%mynpoles(jsp)
               dR = dR + dfactor(ipole,jsp)*factor(ipole,jsp)**2
             enddo
+            !$omp end parallel do
+
           enddo
         endif
 
@@ -200,6 +213,10 @@ c
         if (.not.ok) call errquit(pname//'can''t destroy GAs',0,GA_ERR)
 #endif
       endif
+
+#ifdef USE_OPENMP
+      call util_blas_set_num_threads(1)
+#endif
 
       return
       end subroutine

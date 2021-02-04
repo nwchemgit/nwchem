@@ -24,7 +24,7 @@
 #ifdef USE_OPENMP
       integer,external :: omp_get_max_threads
       iMaxThreads = omp_get_max_threads()
-      call omp_set_num_threads(iMaxThreads)
+      call util_blas_set_num_threads(iMaxThreads)
 #endif      
 
 
@@ -86,7 +86,7 @@
       endif
 
 #ifdef USE_OPENMP
-      call omp_set_num_threads(1)
+      call util_blas_set_num_threads(1)
 #endif
 
       end subroutine

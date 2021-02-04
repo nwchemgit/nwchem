@@ -19,13 +19,22 @@
       integer molo,mohi,ldpi,sizepi,l_sol,k_sol,k_work,l_work,lwork
       integer ilo,ihi,me,ld,mynpoles,igl,ipole,info,k_ipiv,l_ipiv
       integer pilo,pihi,k_pi,l_pi,idx,idy,l_tmp,tmp
-      integer imo,jmo,kmo,lmo,nprocs,kOV1,kOV2,isp,addr,idz
+      integer imo,jmo,kmo,lmo,nprocs,kOV1,kOV2,isp,addr,idz,kOO(2)
+      integer kVV(2),kOV(2)
       double precision w2
       double precision factor(maxpoles,ipol)
 
       logical cholesky
       double precision,external :: ddot
       integer,external :: ga_nodeid, ga_nnodes,ilaenv
+
+#ifdef USE_OPENMP
+      integer iMaxThreads
+      integer,external :: omp_get_max_threads
+      iMaxThreads = omp_get_max_threads()
+      call util_blas_set_num_threads(iMaxThreads)
+#endif
+
 
       call ga_sync()
 
@@ -53,25 +62,41 @@
      $  call errquit(pname//'can''t allocate Work',0,MA_ERR) 
 
       call ga_access(pars%g_eriov(1),1,nri,pars%ovlo(1),pars%ovhi(1),
-     $               kOV1,ld)
+     $               kOV(1),ld)
+      call ga_access(pars%g_erioo(1),1,nri,pars%oolo(1),pars%oohi(1),
+     $               kOO(1),ld) 
+      if (pars%nvqp(1).gt.0) then
+        call ga_access(pars%g_erivv(1),1,nri,pars%vvlo(1),pars%vvhi(1),
+     $                 kVV(1),ld) 
+      end if
+
       if (ipol.gt.1) then
         call ga_access(pars%g_eriov(2),1,nri,pars%ovlo(2),pars%ovhi(2),
-     $                 kOV2,ld)
+     $                 kOV(2),ld)
+        call ga_access(pars%g_erioo(2),1,nri,pars%oolo(2),pars%oohi(2),
+     $                 kOO(2),ld) 
+        if (pars%nvqp(2).gt.0) then
+          call ga_access(pars%g_erivv(2),1,nri,pars%vvlo(2),
+     $                   pars%vvhi(2),kVV(2),ld) 
+        endif
       else
-        kOV2 = 1
+        kOV(2) = 1
       endif
 
       do igl=1,ngl
 c
         w2 = x(igl)
         do isp=1,ipol
+          !$omp parallel do
           do ipole=1,pars%mynpoles(isp)
               factor(ipole,isp) = 
      $            dsqrt(eia(ipole,isp)/(eia(ipole,isp)**2 + w2))
           enddo
+          !$omp end parallel do
         enddo
+
 c
-        call gw_buildpi('w',dbl_mb(kOV1),dbl_mb(kOV2),dbl_mb(k_pi),
+        call gw_buildpi('w',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
      $                  factor,ldpi,nri,pars%mynpoles,main,ipol,
      $                  maxpoles)
         call ga_dgop(mt_dbl,dbl_mb(k_pi),sizepi,'+')
@@ -86,7 +111,8 @@ c
         call ga_brdcst(mt_dbl,info,mitob(1),0)
         if (info.ne.0) then
           cholesky = .false.
-          call gw_buildpi('r',dbl_mb(kOV1),dbl_mb(kOV2),dbl_mb(k_pi),
+          call gw_buildpi('r',dbl_mb(kOV(1)),dbl_mb(kOV(2)),
+     $                    dbl_mb(k_pi),
      $                    factor,nri,nri,pars%mynpoles,main,ipol,
      $                    maxpoles)
           call ga_dgop(mt_dbl,dbl_mb(k_pi),nri**2,'+')
@@ -102,46 +128,50 @@ c
         do isp=1,ipol
 
           do imo=pars%llmo(isp),pars%llmo(isp)+pars%nqp(isp)-1
+#ifdef USE_OPENMP
+            call util_blas_set_num_threads(1)
+#endif
             jmo = imo - pars%llmo(isp) + 1
             if (imo.le.pars%nocc(isp)) then
 
+
+              !$omp parallel do private(kmo,lmo,idx,idy)
               do kmo=1,iwidx(0,jmo,isp)
                 lmo = iwidx(kmo,jmo,isp)
                 idx = tmp + (kmo-1)*nri
                 if (lmo.le.pars%nocc(isp)) then
-                  idy = ((imo-1)*pars%nocc(isp)+lmo-1)/nprocs + 
-     $                  pars%oolo(isp)
-                  call ga_get(pars%g_erioo(isp),1,nri,idy,idy,
-     $                 dbl_mb(idx),nri)
+                  idy = (imo-1)*pars%nocc(isp)+lmo-1
+                  idy = idy/nprocs*nri + kOO(isp)
                 else
-                  idy = ((imo-1)*pars%nvir(isp)+lmo-
-     $                   pars%nocc(isp)-1)/nprocs + pars%ovlo(isp)
-                  call ga_get(pars%g_eriov(isp),1,nri,idy,idy,
-     $                  dbl_mb(idx),nri)
+                  idy = ((imo-1)*pars%nvir(isp)+lmo-pars%nocc(isp)-1)
+                  idy = idy/nprocs*nri + kOV(isp)
                 endif
+                call dcopy(nri,dbl_mb(idy),1,dbl_mb(idx),1)
               enddo
-
+              !$omp end parallel do
 
             else
 
-
+              !$omp parallel do private(kmo,lmo,idx,idy)
               do kmo=1,iwidx(0,jmo,isp)
                 lmo = iwidx(kmo,jmo,isp)
                 idx = tmp + (kmo-1)*nri
                 if (lmo.le.pars%nocc(isp)) then
-                  idy = ((lmo-1)*pars%nvir(isp)+imo-
-     $                   pars%nocc(isp)-1)/nprocs + pars%ovlo(isp)
-                  call ga_get(pars%g_eriov(isp),1,nri,idy,idy,
-     $                   dbl_mb(idx),nri)
+                  idy = ((lmo-1)*pars%nvir(isp)+imo-pars%nocc(isp)-1)
+                  idy = idy/nprocs*nri + kOV(isp)
                 else
                   idy = ((imo-pars%nocc(isp)-1)*pars%nvir(isp)+lmo-
-     $                    pars%nocc(isp)-1)/nprocs + pars%vvlo(isp)
-                  call ga_get(pars%g_erivv(isp),1,nri,idy,idy,
-     $                    dbl_mb(idx),nri)
+     $                    pars%nocc(isp)-1)/nprocs + kVV(isp)
                 endif
+                call dcopy(nri,dbl_mb(idy),1,dbl_mb(idx),1)
               enddo
+              !$omp end parallel do
 
             endif
+
+#ifdef USE_OPENMP
+            call util_blas_set_num_threads(iMaxThreads)
+#endif
 
             call dcopy(nri*iwidx(0,jmo,isp),dbl_mb(tmp),1,
      $                 dbl_mb(k_sol),1)
@@ -159,6 +189,10 @@ c
               addr = tmp
             endif
 c
+#ifdef USE_OPENMP
+            call util_blas_set_num_threads(1)
+#endif
+            !$omp parallel do private(kmo,idx,idy,idz,lmo)
             do kmo=1,iwidx(0,jmo,isp)
               idx = tmp + (kmo-1)*nri
               idy = k_sol + (kmo-1)*nri
@@ -168,6 +202,10 @@ c
      $            ddot(nri,dbl_mb(idy),1,dbl_mb(idz),1) -
      $            ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
             enddo
+            !$omp end parallel do
+#ifdef USE_OPENMP
+            call util_blas_set_num_threads(iMaxThreads)
+#endif            
           enddo
 c
         enddo
@@ -183,6 +221,10 @@ c
      $  call errquit(pname//'can''t free IPIV heap',me,MA_ERR) 
       if (.not.(ma_free_heap(l_work)))
      $  call errquit(pname//'can''t free WORK heap',me,MA_ERR) 
+
+#ifdef USE_OPENMP
+      call util_blas_set_num_threads(1)
+#endif      
 c
       end subroutine
 

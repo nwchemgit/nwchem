@@ -42,8 +42,7 @@ c
       double precision schwarz_shell
       external schwarz_shell
 c
-      integer,external :: ga_nnodes,omp_get_num_threads
-      integer,external :: omp_get_max_threads
+      integer,external :: ga_nnodes,omp_get_max_threads
 
       timer = util_wallsec()
 c
@@ -353,7 +352,7 @@ c
 #ifdef USE_OPENMP
       integer,external :: omp_get_max_threads
       iMaxThreads = omp_get_max_threads()
-      call omp_set_num_threads(iMaxThreads)
+      call util_blas_set_num_threads(iMaxThreads)
 #endif
 
 
@@ -365,17 +364,11 @@ c
 
       do iri=1,nri
 c        
-c#ifdef USE_OPENMP
-c!$omp parallel do private(ibf,istart,jstart)
-c#endif
         do ibf=1,nbf
           istart = (ibf*(ibf-1))/2 + 1
           jstart = k_sym + nbf*(ibf-1)
           call dcopy(ibf,eriao(istart,iri),1,dbl_mb(jstart),1)
         enddo
-cifdef USE_OPENMP
-c!$omp end parallel do
-cendif
 c        
         call dsymm('l','u',nbf,nstates,1d0,dbl_mb(k_sym),nbf,mos,nbf,
      $              0d0,dbl_mb(k_tmp),nbf)
@@ -388,7 +381,7 @@ c
      $  call errquit('gw_mo: cannot chop stack',0,MA_ERR)
 
 #ifdef USE_OPENMP
-      call omp_set_num_threads(1)
+      call util_blas_set_num_threads(1)
 #endif
 
       return

@@ -91,7 +91,7 @@ c
 c
 c     Allocations
 c
-      mynmo = pars%nmo/nprocs + maxval(pars%nocc(:)) + 1
+      mynmo = pars%nmo/nprocs + maxval(pars%nocc(1:pars%ipol)) + 1
 
       lSize = ipol*mynmo*maxqp*ngl
       if (.not.ma_alloc_get(mt_dbl,lSize,'W(igl)',liW,kiW))
@@ -305,36 +305,54 @@ c     *****************************************************************
 
       if (which.eq.'w') then
 
+        !$omp parallel do
         do ipole=1,npoles(1)
           ovup(1:nri,ipole) = ovup(1:nri,ipole)*factor(ipole,1)
         enddo
+        !$omp end parallel do
+
         call dsfrk('n','l','n',nri,npoles(1),scal,ovup,nri,0d0,pi)
+
+        !$omp parallel do
         do ipole=1,npoles(1)
           ovup(1:nri,ipole) = ovup(1:nri,ipole)/factor(ipole,1)
         enddo
+        !$omp end parallel do
 
         if (ipol.gt.1) then
+
+          !$omp parallel do
           do ipole=1,npoles(2)
             ovdw(1:nri,ipole) = ovdw(1:nri,ipole)*factor(ipole,2)
           enddo
+          !$omp end parallel do
+
           call dsfrk('n','l','n',nri,npoles(2),scal,ovdw,nri,1d0,pi)
+
+          !$omp parallel do
           do ipole=1,npoles(2)
             ovdw(1:nri,ipole) = ovdw(1:nri,ipole)/factor(ipole,2)
           enddo
+          !$omp end parallel do
+
         endif
 
         if (main) then
           if ( mod(nri,2) .eq. 0 ) then
+            !$omp parallel do
             do iri=1,nri/2
               pi(iri,iri) = pi(iri,iri) + 1d0
               pi(iri+1,iri) = pi(iri+1,iri) + 1d0
             enddo
+            !$omp end parallel do
           else
             pi(1,1) = pi(1,1) + 1d0
+            !$omp parallel do
             do iri=2,nri/2+1
               pi(iri-1,iri) = pi(iri-1,iri) + 1d0
               pi(iri,iri) = pi(iri,iri) + 1d0
             enddo
+            !$omp end parallel do
           endif
         endif
 
@@ -399,9 +417,11 @@ c     *****************************************************************
         endif
 
         if (main) then
+          !$omp parallel do
           do iri=1,nri
             pi(iri,iri) = pi(iri,iri) + 1d0
           enddo
+          !$omp end parallel do
         endif
 
       endif
