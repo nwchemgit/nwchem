@@ -1320,8 +1320,8 @@ c
 c    Standard cosmo output
 c
  911  format(
-     $5x,' COSMO solvation results',/,
-     $5x,' -----------------------',/)
+     $/5x,' COSMO solvation results',/,
+     $5x,' -----------------------')
  912  format(5x,' gas phase energy                 : ',e19.10)
  913  format(5x,' sol phase energy                 : ',e19.10)
  914  format(5x,' (electrostatic) solvation energy : ',e19.10,
