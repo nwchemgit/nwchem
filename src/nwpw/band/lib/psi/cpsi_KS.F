@@ -478,10 +478,14 @@ c            deltat = 1.0d0  !** debug **
          else
             call cpsi_2get_Tgradient0(2,G0_tag,E0_tag)
          end if
+         write(*,*) "INTO band_lmbfgs0"
          call band_lmbfgs0(tmin,dbl_mb(G0_shift),dbl_mb(S0_shift))
 
-         call Pneb_ff_traceall_tag(0,G0_tag,S0_tag,sum1)
+         write(*,*) "INTO Pneb_ff_traceall_tag"
+         call Pneb_ff_traceall_tag(0,0,G0_tag,S0_tag,sum1)
+         write(*,*) "OUT Pneb_ff_traceall_tag,sum1=",sum1
          if (dabs(sum1).gt.1.0d3) call BGrsm_ff_Copy_tag(G0_tag,S0_tag)
+         write(*,*) "INTPU cpsi_2to1"
 
 *        **** make psi1 <--- psi2(tmin) ****
          call cpsi_2to1()
