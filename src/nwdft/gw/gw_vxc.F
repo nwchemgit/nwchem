@@ -112,7 +112,7 @@ c
      $             .false., rho_n, dbl_mb(k_rdens_atom),
      $             dbl_mb(k_cetobfr), natoms) 
 
-      if (.not.xc_rep_close(pars%rtdb,nbf_ao,ipol,g_dens,g_vxc,.false.))
+      if (.not.xc_rep_close(pars%rtdb,nbf_ao,ipol,g_vxc,g_dens,.false.))
      $  call errquit(pname//'xc_rep_close failed',0,DISK_ERR) 
 c
       if (.not.ma_push_get(mt_dbl,2*nbf_ao,'vxc temp',l_tmp,k_tmp))

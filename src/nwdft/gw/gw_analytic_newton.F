@@ -133,7 +133,7 @@ c
         enddo
         if (.not.(ga_destroy(g_wmn)))
      $    call errquit('can''t destroy Wmn',0,GA_ERR)   
-        if (pars%evgw) then
+        if ( .not.pars%evgw0 ) then
           if (.not.(ga_destroy(pars%g_erim(isp))))
      $      call errquit('can''t destroy ERIm',0,GA_ERR)   
         endif
