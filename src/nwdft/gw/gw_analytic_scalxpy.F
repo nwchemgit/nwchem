@@ -4,10 +4,14 @@
       double precision,intent(in) :: omega(npoles)
       double precision,intent(out) :: XPY(mynpoles,npoles)
 
-      integer ipole
+      integer ipole,jpole
 
+!$omp parallel do collapse(2)
       do ipole=1,npoles
-        XPY(:,ipole) = XPY(:,ipole)/dsqrt(omega(ipole))
+        do jpole=1,mynpoles
+          XPY(jpole,ipole) = XPY(jpole,ipole)/dsqrt(omega(ipole))
+        end do
       enddo
+!$omp end parallel do      
 
       end subroutine

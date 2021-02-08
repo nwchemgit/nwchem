@@ -76,7 +76,7 @@ c
           timer = util_wallsec()
 
           call gw_analytic_sigmac(sigmaC,dsigmaC,d2sigmaC,Ein,Eold,
-     $                            omega(1,isp),g_wmn,dbl_mb(k_scr),
+     $                            omega(1,isp),g_wmn,
      $                            0.001d0**2,pars%npoles(isp),
      $                            pars%nmo,plus,pars%me)
 

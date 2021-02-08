@@ -236,14 +236,17 @@ c     *****************************************************************
       integer idx, idum, isp
       integer imo, jmo, kmo, ipol
       integer addrOO, addrOV, addrVV
+      integer,external :: omp_get_num_threads,omp_get_thread_num
 
-      !$omp parallel do collapse(2)
+!$omp parallel
+!$omp do collapse(2)
       do isp=1,pars%ipol
         do imo=1,nmo
           sigmax(imo,isp) = 0d0
         enddo
       enddo
-      !$omp end parallel do
+!$omp end do
+!$omp end parallel
 
       do ipol=1,pars%ipol
         if (pars%nqp(ipol).eq.0) cycle
@@ -259,7 +262,7 @@ c     *****************************************************************
 
           if (imo.gt.pars%nocc(ipol)) goto 100
 
-          !$omp parallel do
+!$omp     parallel do
           do kmo=1,pars%nocc(ipol)
             idx = (imo-1)*pars%nocc(ipol)+kmo-1
             if (pars%me.ne.mod(idx,pars%nprocs)) cycle
@@ -267,13 +270,13 @@ c     *****************************************************************
             sigmax(imo,ipol) = sigmax(imo,ipol) - 
      $                          ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
           enddo
-          !$omp end parallel do
+!$omp     end parallel do
 
           cycle
 
   100     continue
 
-          !$omp parallel do
+!$omp     parallel do
           do kmo=1,pars%nocc(ipol)
             idx = (kmo-1)*pars%nvir(ipol)+imo-pars%nocc(ipol)-1
             if (pars%me.ne.mod(idx,pars%nprocs)) cycle
@@ -281,7 +284,7 @@ c     *****************************************************************
             sigmax(imo,ipol) = sigmax(imo,ipol) - 
      $                          ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
           enddo
-          !$omp end parallel do
+!$omp     end parallel do
 
         enddo
 
@@ -315,54 +318,54 @@ c     *****************************************************************
 
       if (which.eq.'w') then
 
-        !$omp parallel do
+!$omp   parallel do
         do ipole=1,npoles(1)
           ovup(1:nri,ipole) = ovup(1:nri,ipole)*factor(ipole,1)
         enddo
-        !$omp end parallel do
+!$omp   end parallel do
 
         call dsfrk('n','l','n',nri,npoles(1),scal,ovup,nri,0d0,pi)
 
-        !$omp parallel do
+!$omp   parallel do
         do ipole=1,npoles(1)
           ovup(1:nri,ipole) = ovup(1:nri,ipole)/factor(ipole,1)
         enddo
-        !$omp end parallel do
+!$omp   end parallel do
 
         if (ipol.gt.1) then
 
-          !$omp parallel do
+!$omp     parallel do
           do ipole=1,npoles(2)
             ovdw(1:nri,ipole) = ovdw(1:nri,ipole)*factor(ipole,2)
           enddo
-          !$omp end parallel do
+!$omp     end parallel do
 
           call dsfrk('n','l','n',nri,npoles(2),scal,ovdw,nri,1d0,pi)
 
-          !$omp parallel do
+!$omp     parallel do
           do ipole=1,npoles(2)
             ovdw(1:nri,ipole) = ovdw(1:nri,ipole)/factor(ipole,2)
           enddo
-          !$omp end parallel do
+!$omp     end parallel do
 
         endif
 
         if (main) then
           if ( mod(nri,2) .eq. 0 ) then
-            !$omp parallel do
+!$omp       parallel do
             do iri=1,nri/2
               pi(iri,iri) = pi(iri,iri) + 1d0
               pi(iri+1,iri) = pi(iri+1,iri) + 1d0
             enddo
-            !$omp end parallel do
+!$omp       end parallel do
           else
             pi(1,1) = pi(1,1) + 1d0
-            !$omp parallel do
+!$omp       parallel do
             do iri=2,nri/2+1
               pi(iri-1,iri) = pi(iri-1,iri) + 1d0
               pi(iri,iri) = pi(iri,iri) + 1d0
             enddo
-            !$omp end parallel do
+!$omp       end parallel do
           endif
         endif
 
@@ -427,11 +430,11 @@ c     *****************************************************************
         endif
 
         if (main) then
-          !$omp parallel do
+!$omp     parallel do
           do iri=1,nri
             pi(iri,iri) = pi(iri,iri) + 1d0
           enddo
-          !$omp end parallel do
+!$omp     end parallel do
         endif
 
       endif
@@ -454,11 +457,13 @@ c     *****************************************************************
       double precision,intent(in) :: efermi(npol),eig(nbf,npol)
       double precision,intent(out) :: shifted(nmo,npol)
       integer imo,ipol
+!$omp parallel do collapse(2)      
       do ipol=1,npol
         do imo=1,nmo
           shifted(imo,ipol) = eig(imo,ipol) - efermi(ipol)
         enddo
       enddo
+!$omp end parallel do      
       return
       end subroutine
 

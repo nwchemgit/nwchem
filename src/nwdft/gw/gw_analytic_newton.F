@@ -19,7 +19,7 @@
 
       logical main, converged
       integer isp, totalqp, llmo, iqp, iter, g_wmn, plus, imo
-      integer l_sw,k_sw,l_scr,k_scr
+      integer l_sw,k_sw
       double precision timer
       double precision Ein, Eout, SigmaOld, Sigma_X, SigmaC, Z
       double precision d2SigmaC, dSigmaC, Linear
@@ -28,9 +28,6 @@
       double precision quadraticstep, linearstep, step
 
       logical,external :: ga_create, ga_destroy
-
-      if (.not.ma_alloc_get(mt_dbl,5*pars%nmo,'scratch',l_scr,k_scr))
-     $  call errquit('can''t allocate scratch',0,MA_ERR)
 
       main = pars%me .eq. 0
 
@@ -69,6 +66,7 @@
           timer = util_wallsec()
 
           call gw_analytic_wmn(pars,g_wmn,iqp+llmo-1,isp,nri)
+          if (.not.ma_verify_allocator_stuff()) stop ' WMN'
 
           pars%timer%wm = pars%timer%wm - timer + util_wallsec()
 c        
@@ -80,9 +78,10 @@ c
             timer = util_wallsec()
 
             call gw_analytic_sigmac(sigmaC,dsigmaC,d2sigmaC,Ein,Eold,
-     $                              omega(1,isp),g_wmn,dbl_mb(k_scr),
+     $                              omega(1,isp),g_wmn,
      $                              0.001d0**2,pars%npoles(isp),
      $                              pars%nmo,plus,pars%me)
+            if (.not.ma_verify_allocator_stuff()) stop ' Sigmac'
 
             pars%timer%sigmac = pars%timer%sigmac - timer +  
      $                          util_wallsec()
@@ -132,11 +131,13 @@ c
      $                        residual*ha2ev
           endif
         enddo
-        if (.not.(ga_destroy(g_wmn) .and. ga_destroy(pars%g_erim(isp))))
-     $    call errquit('can''t destroy GAs',0,GA_ERR)   
+        if (.not.(ga_destroy(g_wmn)))
+     $    call errquit('can''t destroy Wmn',0,GA_ERR)   
+        if (pars%evgw) then
+          if (.not.(ga_destroy(pars%g_erim(isp))))
+     $      call errquit('can''t destroy ERIm',0,GA_ERR)   
+        endif
       enddo
-      if (.not.ma_free_heap(l_scr))
-     $  call errquit('can''t deallocate srcatch',0,MA_ERR) 
 
  9000 format(/,31x,'Alpha Orbitals',/,10x,'State',5x,'Energy (eV)',
      $       5x,'Z',8x,'Elin (eV)',6x,'Res.',/,10x,55('-'))

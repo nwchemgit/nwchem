@@ -119,15 +119,15 @@
           arg2 = arg**2
         endif
 
+!$omp   parallel do collapse(2)
         do jsp=1,ipol
-          !$omp parallel do
           do ipole=1,pars%mynpoles(jsp)
             factor(ipole,jsp) = Eia(ipole,jsp)/(Eia(ipole,jsp)**2-arg2)
             dfactor(ipole,jsp) = -dfac*arg*factor(ipole,jsp)**2/
      $                           Eia(ipole,jsp)
           enddo
-          !$omp end parallel do
         enddo
+!$omp   end parallel do        
 
         call gw_buildpi('r',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
      $                   factor,nri,nri,pars%mynpoles,main,ipol,
@@ -170,11 +170,11 @@
             call dgemv('t',nri,pars%mynpoles(jsp),1d0,dbl_mb(addr),nri,
      $                  vector2,1,0d0,factor(1,jsp),1)
 
-            !$omp parallel do
+!$omp       parallel do reduction(+:dR)
             do ipole=1,pars%mynpoles(jsp)
               dR = dR + dfactor(ipole,jsp)*factor(ipole,jsp)**2
             enddo
-            !$omp end parallel do
+!$omp       end parallel do
 
           enddo
         endif

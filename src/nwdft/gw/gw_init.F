@@ -12,6 +12,9 @@ c
 #include "util.fh"      
 #include "global.fh"      
 #include "gw.fh"
+#ifdef SCALAPACK
+#include "dft_scaleig.fh"
+#endif
 c
       type(gw_params_t) :: pars
 c
@@ -277,6 +280,16 @@ c
       call gw_ri_init(pars)
 c
       pars%fdstep = 0.0005d0
+
+#if defined(PARALLEL_DIAG) && defined(SCALAPACK)
+      call slexit
+      call slexit2
+      if (.not. rtdb_cget(pars%rtdb, 'dft:scaladiag',1,yev))
+     &     yev='d'
+      if (.not. rtdb_get(pars%rtdb, 'dft:scalanb',mt_int,1,nb))
+     &     nb=32
+#endif
+
 
       return
       end subroutine gw_init

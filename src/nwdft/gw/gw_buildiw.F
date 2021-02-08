@@ -86,14 +86,15 @@
       do igl=1,ngl
 c
         w2 = x(igl)
+
+!$omp   parallel do collapse(2)        
         do isp=1,ipol
-          !$omp parallel do
           do ipole=1,pars%mynpoles(isp)
               factor(ipole,isp) = 
      $            dsqrt(eia(ipole,isp)/(eia(ipole,isp)**2 + w2))
           enddo
-          !$omp end parallel do
         enddo
+!$omp   end parallel do        
 
 c
         call gw_buildpi('w',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
@@ -135,7 +136,7 @@ c
             if (imo.le.pars%nocc(isp)) then
 
 
-              !$omp parallel do private(kmo,lmo,idx,idy)
+!$omp         parallel do private(kmo,lmo,idx,idy)
               do kmo=1,iwidx(0,jmo,isp)
                 lmo = iwidx(kmo,jmo,isp)
                 idx = tmp + (kmo-1)*nri
@@ -148,11 +149,11 @@ c
                 endif
                 call dcopy(nri,dbl_mb(idy),1,dbl_mb(idx),1)
               enddo
-              !$omp end parallel do
+!$omp         end parallel do
 
             else
 
-              !$omp parallel do private(kmo,lmo,idx,idy)
+!$omp         parallel do private(kmo,lmo,idx,idy)
               do kmo=1,iwidx(0,jmo,isp)
                 lmo = iwidx(kmo,jmo,isp)
                 idx = tmp + (kmo-1)*nri
@@ -165,7 +166,7 @@ c
                 endif
                 call dcopy(nri,dbl_mb(idy),1,dbl_mb(idx),1)
               enddo
-              !$omp end parallel do
+!$omp         end parallel do
 
             endif
 
@@ -192,7 +193,9 @@ c
 #ifdef USE_OPENMP
             call util_blas_set_num_threads(1)
 #endif
-            !$omp parallel do private(kmo,idx,idy,idz,lmo)
+
+
+!$omp       parallel do private(kmo,idx,idy,idz,lmo)
             do kmo=1,iwidx(0,jmo,isp)
               idx = tmp + (kmo-1)*nri
               idy = k_sol + (kmo-1)*nri
@@ -202,7 +205,9 @@ c
      $            ddot(nri,dbl_mb(idy),1,dbl_mb(idz),1) -
      $            ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
             enddo
-            !$omp end parallel do
+!$omp       end parallel do
+
+
 #ifdef USE_OPENMP
             call util_blas_set_num_threads(iMaxThreads)
 #endif            

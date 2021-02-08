@@ -14,7 +14,7 @@
       double precision, intent(out) :: omega(maxnpoles,*)
 
       integer g_rpa, g_xpy
-      integer npoles,mynpoles,ipole
+      integer npoles,mynpoles,ipole,ilo,ihi,jlo,jhi
       integer kRPA,kOV1,kOV2,kXPY,ld
       integer iMaxThreads
 
@@ -46,8 +46,15 @@
         if (.not.ga_create(mt_dbl,npoles,npoles,'rpa',0,npoles,g_rpa))
      $    call errquit(pname//'can''t create RPA GA',0,GA_ERR)
 
+        call ga_distribution(g_rpa,pars%me,ilo,ihi,jlo,jhi)
+        if (pars%ovlo(1).ne.ilo .or. pars%ovhi(1).ne.ihi)
+     $    call errquit('gw_rpa: wrong distribution',0,GA_ERR)
+
+
         call ga_access(g_rpa,pars%ovlo(1),pars%ovhi(1),1,npoles,
      $                 kRPA,ld)   
+        if (ld.ne.mynpoles)
+     $    call errquit('gw_rpa: wrong distribution',0,GA_ERR)   
 
         call gw_analytic_ovscale(1,dbl_mb(kOV1),eia(1,1),nri,mynpoles)
         call ga_dgemm('t','n',pars%npoles(1),pars%npoles(1),nri,4d0,
@@ -55,9 +62,10 @@
         call gw_analytic_addrpa(dbl_mb(kRPA),eia(1,1),mynpoles,
      $                          pars%ovlo(1))
 
+
 #ifdef PARALLEL_DIAG
 #ifdef SCALAPACK        
-        call dft_scaleig(g_rpa,g_rpa,omega,pars%nocc(1))
+        call dft_scaleig(g_rpa,g_rpa,omega,0)
 #else
         call ga_diag_std(g_rpa,g_rpa,omega)
 #endif
@@ -66,11 +74,11 @@
 #endif
 
 
-        !$omp parallel do
+!$omp   parallel do
         do ipole=1,npoles
           omega(ipole,1) = dsqrt(omega(ipole,1))
         enddo
-        !$omp end parallel do
+!$omp   end parallel do
 
         if (.not.ga_duplicate(pars%g_eriov(1),pars%g_erim(1),
      $                        'transformed eri alpha'))
