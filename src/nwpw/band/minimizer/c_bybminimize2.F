@@ -239,10 +239,14 @@ c
       
 *     **** diaganolize KS matrix ****
       if (ks_block) then
-         write(*,*) "into block update"
          call cpsi_KS_block_update(1,dbl_mb(e00(1)),dbl_mb(tmin(1)),
      >                             deltae,it,maxit_orbs,
      >                             precondition,ks_deltae)
+         !write(*,*) "after KS_block_update:"
+         !call cpsi_1checkhml()
+         !call cpsi_KS_update(1,precondition,ks_deltae)
+         !write(*,*) "after KS_update:"
+         !call cpsi_1checkhml()
       else
          call cpsi_KS_update(1,precondition,ks_deltae)
       end if
@@ -271,6 +275,7 @@ c
       call dcopy(ispin*nfft3d,
      >           dbl_mb(rho_in(1)),1,
      >           dbl_mb(rho_junk(1)),1)
+
       call DAXPY_OMP(ispin*nfft3d,
      >              (-1.0d0),
      >              dbl_mb(rho_out(1)),1,
