@@ -1297,7 +1297,7 @@ cccc set to some reasonable default !
             end do
          end if
       end if
-      pio = pio.and.(np_dimensions(2).gt.1)
+      pio = pio.and.((np_dimensions(2).gt.1).or.(np_dimensions(3).gt.1))
 
 *     **** minimizer ****
       if (.not.btdb_get(rtdb,'nwpw:minimizer',mt_int,1,minimizer)) then
