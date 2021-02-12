@@ -67,8 +67,20 @@ elif  [[ -n ${FC} ]] && [[ "${FC}" == "ifort" ]] || [[ "${FC}" == "ifx" ]]; then
 else
     LAPACK_FPFLAGS_VAL=" "
 fi
+if [[   -z "${CC}" ]]; then
+    CC=cc
+fi
 let GCCVERSIONGT5=$(expr `${CC} -dumpversion | cut -f1 -d.` \> 5)
-echo GCCVERSIONGT5 $GCCVERSIONGT5
+# check gcc version for skylake
+if [[ "$FORCETARGET" == *"SKYLAKEX"* ]]; then
+    if [[ ${GCCVERSIONGT5} != 1 ]]; then
+	echo
+	echo you have gcc version $(${CC} -dumpversion | cut -f1 -d.)
+	echo gcc version 6 and later needed for skylake
+	echo
+	exit 1
+    fi
+fi
 #disable threading for ppc64le since it uses OPENMP
 echo arch is "$arch"
 if [[ "$arch" == "ppc64le" ]]; then
