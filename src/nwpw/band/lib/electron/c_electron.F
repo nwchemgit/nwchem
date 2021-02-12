@@ -176,10 +176,10 @@ c      call c_electron_gen_densities(dn,dng,dnall)
 
 *     ***********************************
 *     *                                 *
-*     *        c_electron_run0          *
+*     *        c_electron_run00         *
 *     *                                 *
 *     ***********************************
-      subroutine c_electron_run0(psi_k_tag)
+      subroutine c_electron_run00(psi_k_tag)
       implicit none
       integer    psi_k_tag
 c      complex*16 psi_k(*)
@@ -198,10 +198,10 @@ c      complex*16 psi_k(*)
 
 *     ***********************************
 *     *                                 *
-*     *        c_electron_run00         *
+*     *        c_electron_run0          *
 *     *                                 *
 *     ***********************************
-      subroutine c_electron_run00(nb,psi_k_tag)
+      subroutine c_electron_run0(nb,psi_k_tag)
       implicit none
       integer   nb
       integer   psi_k_tag
@@ -597,6 +597,73 @@ cccccccccccccccccc
       c_electron_eorbit = eorbit 
       return
       end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         c_electron_eorbit00     *
+*     *                                 *
+*     ***********************************
+      real*8 function c_electron_eorbit00(psi_k_tag)
+      implicit none
+      integer psi_k_tag
+
+#include "bafdecls.fh"
+#include "c_electron_common.fh"
+
+*     **** local variables ****
+      integer nbq,ii,neall
+      integer psi_shift,Hpsi_shift,nshift1,nshift2,occ_shift,occ_tag
+      real*8  sum,eorbit,weight
+
+*     **** external functions *****
+      !integer  cpsi_data_get_chnk,cpsi_data_nsize,Pneb_convert_nb
+      !external cpsi_data_get_chnk,cpsi_data_nsize,Pneb_convert_nb
+      !integer  cpsi_data_get_next
+      !external cpsi_data_get_next
+      integer  cpsi_data_get_ptr,cpsi_data_nsize
+      external cpsi_data_get_ptr,cpsi_data_nsize
+      real*8   brillioun_weight
+      external brillioun_weight
+
+      neall = neq(1) + neq(2)
+      nshift1 = cpsi_data_nsize(psi_k_tag)
+      nshift2 = cpsi_data_nsize(Hpsi_k_tag)
+      !occ_tag = cpsi_data_get_next(psi_k_tag)
+
+*     *** get orbital energies ****
+      eorbit = 0.0d0
+      do nbq=1,nbrillq
+        weight = brillioun_weight(nbq)
+
+        do ii=1,neall
+           psi_shift  = cpsi_data_get_ptr( psi_k_tag,nbq,ii)
+           Hpsi_shift = cpsi_data_get_ptr(Hpsi_k_tag,nbq,ii)
+           call Cram_cc_idot(nbq,
+     >                       dbl_mb(psi_shift),
+     >                       dbl_mb(Hpsi_shift),
+     >                       sum)
+           eorbit = eorbit + sum*weight
+           !psi_shift  = psi_shift  + nshift1
+           !Hpsi_shift = Hpsi_shift + nshift2
+        end do
+
+      end do
+      call Parallel_SumAll(eorbit)
+      if (ispin.eq.1) eorbit = eorbit+eorbit
+
+      c_electron_eorbit00 = eorbit
+      return
+      end
+
+
+
+
+
+
+
+
 
 *     ***********************************
 *     *                                 *
@@ -1133,6 +1200,45 @@ c     > call errquit('c_electron_get_TMgradient:popping stack',1,MA_ERR)
 
       return
       end
+
+      subroutine c_electron_print_hml(hml_tag)
+      implicit none
+      integer hml_tag
+
+#include "bafdecls.fh"
+#include "c_electron_common.fh"
+
+      integer nb,n,hml_shift,taskid
+
+*     **** external functions ****
+      integer  cpsi_data_get_chnk
+      external cpsi_data_get_chnk
+
+      call Parallel_taskid(taskid)
+      !do nb=1,nbrillq
+      nb=1
+         hml_shift  = cpsi_data_get_chnk(hml_tag,nb)
+         if (taskid.eq.0) then
+         write(*,*) "diahml nb,ne=",nb,ne
+         call print_hml_tmp(ne(1),dbl_mb(hml_shift))
+         end if
+         
+      !end do
+      return
+      end 
+
+      subroutine print_hml_tmp(n,A)
+      implicit none
+      integer n
+      complex*16 A(n,n)
+      integer i
+      do i=1,n
+         write(*,*) "diaghml=",i,A(i,i)
+      end do
+      return
+      end 
+
+
 
 **************************************************************************
 **************************************************************************

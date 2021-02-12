@@ -100,12 +100,6 @@
       nbrillq = cpsi_nbrillq()
       neall   = cpsi_neq(1)+cpsi_neq(2)
 
-      !write(*,*) "FERA0, nb=",npack1,nbrillq,neall,Pneb_w_size(0,1)
-      !value = MA_set_auto_verify(.true.)
-      !value = MA_verify_allocator_stuff()
-      !call MA_summarize_allocated_blocks()
-      !write(*,*) "FERA1, nb=",npack1,nbrillq,neall,Pneb_w_size(0,1)
-
 *     **** allocate tmp space ****
       V_tag = cpsi_data_push_stack(nbrillq,1,2*Pneb_w_size(0,1))
 
@@ -146,6 +140,88 @@
       call nwpw_timing_end(10)
       return
       end
+
+
+        
+*     ***********************************
+*     *                                 *
+*     *         c_geodesic_start00        *
+*     *                                 *
+*     ***********************************
+*           
+*     Uses - c_geodesic common block
+*        
+      subroutine c_geodesic_start00(A_tag,max_sigma,dE)
+      implicit none
+      integer A_tag
+      real*8  max_sigma,dE
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "c_geodesic_common.fh"
+
+*     **** local variables ****
+      logical value
+      integer nb,i,nbrillq,neall,npack1
+      integer ashift,ushift,sshift,vshift,vtshift,V_tag
+      real*8 tmp
+
+*     **** external functions **** 
+      integer  cpsi_nbrillq,cpsi_neq,Pneb_w_size
+      external cpsi_nbrillq,cpsi_neq,Pneb_w_size
+      integer  cpsi_data_push_stack,cpsi_data_get_chnk
+      external cpsi_data_push_stack,cpsi_data_get_chnk
+      real*8   c_electron_eorbit00
+      external c_electron_eorbit00
+
+
+      call nwpw_timing_start(10)
+
+      call Cram_max_npack(npack1)
+      nbrillq = cpsi_nbrillq()
+      neall   = cpsi_neq(1)+cpsi_neq(2)
+
+*     **** allocate tmp space ****
+      V_tag = cpsi_data_push_stack(nbrillq,1,2*Pneb_w_size(0,1))
+
+      max_sigma = -1.0d200
+      do nb=1,nbrillq
+         ashift  = cpsi_data_get_chnk(A_tag,nb)
+         ushift  = cpsi_data_get_chnk(U_tag,nb)
+         vshift  = cpsi_data_get_chnk(V_tag,nb)
+         sshift  = cpsi_data_get_chnk(S_tag,nb)
+         vtshift = cpsi_data_get_chnk(Vt_tag,nb)
+
+*        **** HomeGrown SVD ****
+         call Pneb_SVD(0,nb,npack1,
+     >              dbl_mb(ashift),
+     >              dbl_mb(ushift),
+     >              dbl_mb(sshift),
+     >              dbl_mb(vshift) )
+
+*        **** calculate Vt ****
+         call Pneb_w_copy_dagger(0,nb,dbl_mb(vshift),dbl_mb(vtshift))
+
+*        **** find max_sigma ****
+         do i=1,neall
+            tmp=dabs(dbl_mb(sshift))
+            if (tmp.gt.max_sigma) max_sigma=tmp
+            sshift=sshift+1
+         end do
+
+      end do
+      call K1dB_MaxAll(max_sigma)
+
+*     **** calculate 2*<A|H|psi> ****
+      dE = 2.0d0*c_electron_eorbit00(A_tag)
+
+*     **** deallocate tmp space ****     
+      call cpsi_data_pop_stack(V_tag)
+
+      call nwpw_timing_end(10)
+      return
+      end
+
 
 
 *     ***********************************

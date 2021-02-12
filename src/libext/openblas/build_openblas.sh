@@ -52,7 +52,8 @@ if [ -n "${USE_DYNAMIC_ARCH}" ]; then
     FORCETARGET+="DYNAMIC_ARCH=1 DYNAMIC_OLDER=1"
 fi    
 if [[ -n ${FC} ]] &&  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
-    FORCETARGET+=' CC=gcc FC="xlf -qextname "'
+    FORCETARGET+=" CC=gcc "
+    _FC=xlf
     LAPACK_FPFLAGS_VAL=" -qstrict=ieeefp -O2 -g" 
 elif  [[ -n ${FC} ]] && [[ "${FC}" == "flang" ]]; then
     FORCETARGET+=' F_COMPILER=FLANG '
@@ -66,17 +67,49 @@ elif  [[ -n ${FC} ]] && [[ "${FC}" == "ifort" ]] || [[ "${FC}" == "ifx" ]]; then
 else
     LAPACK_FPFLAGS_VAL=" "
 fi
+if [[   -z "${CC}" ]]; then
+    CC=cc
+fi
+let GCCVERSIONGT5=$(expr `${CC} -dumpversion | cut -f1 -d.` \> 5)
+# check gcc version for skylake
+if [[ "$FORCETARGET" == *"SKYLAKEX"* ]]; then
+    if [[ ${GCCVERSIONGT5} != 1 ]]; then
+	echo
+	echo you have gcc version $(${CC} -dumpversion | cut -f1 -d.)
+	echo gcc version 6 and later needed for skylake
+	echo
+	exit 1
+    fi
+fi
 #disable threading for ppc64le since it uses OPENMP
 echo arch is "$arch"
 if [[ "$arch" == "ppc64le" ]]; then
+if [[ ${GCCVERSIONGT5} != 1 ]]; then
+    echo gcc version 6 and later needed for ppc64le
+    exit 1
+fi
     THREADOPT="0"
 else
     THREADOPT="1"
 fi
 
+#we want openblas to use pthreads and not openmp.
+#but NWChem and OpenBLAS both use USE_OPENMP
+#disable USE_OPENMP if set and re-enable it later
+if [[  ! -z "${USE_OPENMP}" ]]; then
+    unset USE_OPENMP
+    NWCHEM_USE_OPENMP=1
+fi
 echo make $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT"  libs netlib -j4
+if [[ ${_FC} == xlf ]]; then
+ make FC="xlf -qextname" $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4
+else
  make $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4
+fi
 
 mkdir -p ../../lib
 cp libopenblas.a ../../lib/libnwc_openblas.a
 #make PREFIX=. install
+if [[  ! -z "${NWCHEM_USE_OPENMP}" ]]; then
+    export USE_OPENMP=1
+fi

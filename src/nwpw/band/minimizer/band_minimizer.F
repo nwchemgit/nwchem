@@ -160,6 +160,10 @@ c      external      cpsp_comment
       external control_smooth_cutoff_values
       logical  nwpwxc_is_on,control_only_lda,control_precondition
       external nwpwxc_is_on,control_only_lda,control_precondition
+      integer  Parallel_maxthreads
+      external Parallel_maxthreads
+      logical  control_parallel_io
+      external control_parallel_io
 
 
 *****************************|  PROLOGUE  |****************************
@@ -361,6 +365,13 @@ c      call center_mass(gx,gy,gz)
          if (mapping.eq.1) write(luout,1112)
          if (mapping.eq.2) write(luout,1113)
          if (mapping.eq.3) write(luout,1118)
+         write(luout,1119)  Parallel_maxthreads()
+
+         if (control_parallel_io()) then
+           write(luout,1123)
+         else
+           write(luout,1124)
+         end if
 
          write(luout,1115)
          write(luout,1121) control_boundry(),control_version()
@@ -752,8 +763,11 @@ c     >     .or.nwpwxc_is_on()) THEN
  1115 FORMAT(/' options:')
  1117 FORMAT( ' processor grid           :',I4,' x',I4,' x',I4)
  1118 FORMAT( ' parallel mapping         :       2d hcurve')
+ 1119 FORMAT( ' number of threads        :',I10)
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
+ 1123 FORMAT( ' parallel io              :        on')
+ 1124 FORMAT( ' parallel io              :       off')
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1140 FORMAT(/' elements involved in the cluster:')

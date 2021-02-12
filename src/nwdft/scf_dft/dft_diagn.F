@@ -41,7 +41,7 @@ c
       integer nmo ! [out]
 c
       integer me,j,nproc,g_fockt,g_xij,g_movecst
-      integer ncanorg,g_vecstt
+      integer ncanorg
       double precision fjj
       integer dft_lindep
       external dft_lindep
@@ -72,7 +72,7 @@ c
      &     nbf, 0, g_movecst)) 
      . call errquit(' ddftdiagn: ga_create failed ',1, GA_ERR)
       if (.not. ga_create(mt_dbl, nmo, nmo, 'fock transf', 
-     &     nbf, 0, g_fockt)) 
+     &     nmo, 0, g_fockt))
      . call errquit(' ddftdiagn: ga_create failed ',2, GA_ERR)
 c
 c     get xij through canonical orthog
@@ -141,26 +141,22 @@ c
       if (oprint_intermediate_fock)then     
          call ga_print(g_fockt)
       endif
-      if (.not. ga_create(mt_dbl, nmo, nmo, 'vecs transf1', 
-     &     nmo, 0, g_vecstt)) 
-     . call errquit(' ddftdiagn: ga_create failed ',2, GA_ERR)
       if (oprint_time)
      &     call dft_tstamp(' calling diag ')
 
       if (odftps) call pstat_on(ps_diag)
 #if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
-      call dft_scaleig(g_fockt, g_vecstt, evals,
+      call dft_scaleig(g_fockt, g_fockt, evals,
      P     nocc) 
 #else
       call ga_diag_std(
-     .     g_fockt,  g_vecstt, evals)
+     .     g_fockt,  g_fockt, evals)
 #endif
 #else 
-      call ga_diag_std_seq(g_fockt, g_vecstt, evals)
+      call ga_diag_std_seq(g_fockt, g_fockt, evals)
 #endif
 cedo      call ga_print(g_fockt)
-cedo      call ga_print(g_vecstt)
       if (odftps) call pstat_off(ps_diag)
       if (oprint_time)
      &     call dft_tstamp(' called diag ')
@@ -190,9 +186,9 @@ c
       call ga_zero(g_movecst)
       if (odftps) call pstat_on(ps_dgemm)
       call ga_dgemm('N', 'N', nbf_ao, nmo, nmo, 1d0, 
-     &     g_xij, g_vecstt, 0d0, g_movecst)
+     &     g_xij, g_fockt, 0d0, g_movecst)
       if (odftps) call pstat_off(ps_dgemm)
-      if (.not. ga_destroy(g_vecstt)) call errquit
+      if (.not. ga_destroy(g_fockt)) call errquit
      &     ('dft_diagn: could not destroy g_scr', 0, GA_ERR)
 
 c     
@@ -209,8 +205,6 @@ c
 c     put new movecs
 c     
       call ga_copy(g_movecst, g_movecs)
-         if (.not. ga_destroy(g_fockt)) call errquit
-     &        ('dft_diagn: could not destroy g_scr', 0, GA_ERR)
          if (.not. ga_destroy(g_movecst)) call errquit
      &        ('dft_diagn: could not destroy g_scr', 0, GA_ERR)
          if(ncanorg.eq.0) then
