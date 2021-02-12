@@ -52,7 +52,8 @@ if [ -n "${USE_DYNAMIC_ARCH}" ]; then
     FORCETARGET+="DYNAMIC_ARCH=1 DYNAMIC_OLDER=1"
 fi    
 if [[ -n ${FC} ]] &&  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
-    FORCETARGET+=' CC=gcc FC="xlf -qextname "'
+    FORCETARGET+=" CC=gcc "
+    _FC=xlf
     LAPACK_FPFLAGS_VAL=" -qstrict=ieeefp -O2 -g" 
 elif  [[ -n ${FC} ]] && [[ "${FC}" == "flang" ]]; then
     FORCETARGET+=' F_COMPILER=FLANG '
@@ -82,7 +83,11 @@ if [[  ! -z "${USE_OPENMP}" ]]; then
     NWCHEM_USE_OPENMP=1
 fi
 echo make $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT"  libs netlib -j4
+if [[ ${_FC} == xlf ]]; then
+ make FC="xlf -qextname" $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4
+else
  make $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4
+fi
 
 mkdir -p ../../lib
 cp libopenblas.a ../../lib/libnwc_openblas.a
