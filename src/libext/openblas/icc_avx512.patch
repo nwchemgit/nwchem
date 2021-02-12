@@ -1,0 +1,11 @@
+--- getarch.c   2020-12-12 09:19:29.000000000 -0800
++++ getarch.c   2021-02-10 12:31:57.862502155 -0800
+@@ -95,7 +95,7 @@
+ #endif
+
+ #if defined(__x86_64__) || defined(_M_X64)
+-#if (( defined(__GNUC__)  && __GNUC__   > 6 && defined(__AVX2__)) || (defined(__clang__) && __clang_major__ >= 6))
++#if (( defined(__GNUC__)  && __GNUC__   > 6 && defined(__AVX2__)) || (defined(__clang__) && __clang_major__ >= 6) || (defined __AVX512VL__))
+ #else
+ #ifndef NO_AVX512
+ #define NO_AVX512

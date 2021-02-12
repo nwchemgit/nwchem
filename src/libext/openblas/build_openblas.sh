@@ -14,6 +14,7 @@ ln -sf OpenBLAS-${VERSION} OpenBLAS
 cd OpenBLAS-${VERSION}
 # patch for apple clang -fopenmp
 patch -p0 < ../clang_omp.patch
+patch -p0 < ../icc_avx512.patch
 if [[  -z "${FORCETARGET}" ]]; then
 FORCETARGET=" "
 UNAME_S=$(uname -s)
