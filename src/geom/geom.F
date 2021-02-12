@@ -1459,7 +1459,7 @@ c
       geom_strip_sym = geom_check_handle(geom, 'geom_strip_sym')
       if (.not. geom_strip_sym) return
 c
-      isystype(geom) = 0
+c      isystype(geom) = 0
       group_number(geom) = 1
       setting_number(geom) = 0
       if (sym_center_map_handle(geom) .ne. -1) then
