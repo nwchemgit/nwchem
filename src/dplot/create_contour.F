@@ -58,7 +58,7 @@
       integer lbas_cent_info, ibas_cent_info,
      &     lbas_cset_info, ibas_cset_info,
      &     ldocset, idocset
-      integer ii,ioffg
+      integer ii,ioffg,nstride
       integer nxtask,next,icount
       external nxtask
 
@@ -193,6 +193,7 @@ c     make stride equal 5x z- grid length
 c
       ngrpp=(no_of_spacings(3)+1)
       if(ngrpp.lt.2) ngrpp=(no_of_spacings(2)+1)
+      ngrpp=min(ngrid,ngrpp)
       lth1=ngrpp*nbf
       LResult = MA_Push_Get(MT_Dbl,ngrpp*natom,'rq', l_rq, k_rq)
       Call ErrMem(LResult,'C_C: Failed to allocate rq',0)
@@ -210,16 +211,17 @@ C
  122  ioffg=ioffg+ngrpp
       ii=ii+1
       if(ii.ne.next) goto 122
-      if(ioffg+ngrpp.lt.ngrid) then
+      if(ioffg+1.le.ngrid) then
          If (DeBug ) Then
             write(luout,14)  me,ii,
      ,           ioffg,ngrpp,ngrid
  14         format(' me= ',i3,' step# ',i5,' offset: ',i7,
      .           ' stride ',i7, ' end ',i7)
          endif
+         nstride=min(ngrid-ioffg+1,ngrpp)
          Call QDist(Dbl_mb(k_rq0),Dbl_mb(k_rq),
      .        Grid(1,ioffg),Dbl_mb(k_xyz),
-     &        ngrpp,nAtom)
+     &        nstride,nAtom)
          Call oldnBF_to_mBF(AO_Bas_Han,dbl_mb(k_rq0),
      &        mBF,nAtom,
      &        Int_mb(k_iniz),Int_mb(k_ifin),
@@ -230,7 +232,7 @@ C
          call xc_eval_basis(ao_bas_han, 0, dbl_mb(k_scr1),
      &        0,0,0,
      ,        Dbl_mb(k_rq), Grid(1,iOffg),Dbl_mb(k_xyz),
-     ,        ngrpp, natom, int_mb(k_iniz), log_mb(idocset), 
+     ,        nstride, natom, int_mb(k_iniz), log_mb(idocset), 
      .        int_mb(ibas_cent_info), int_mb(ibas_cset_info))
 
 *---- Matrix Scr1(nGrid,nBF) contains HOPEFULY!!! the values of basis
@@ -247,10 +249,10 @@ C
 *
          call dcopy(nbf_ao_mxnbf_ce2, 0.0d0,0,dbl_mb(k_Fmat), 1)
          call dcopy(nbf_ao_mxnbf_ce2,0.0d0,0,dbl_mb(k_Pmat), 1)
-         call dcopy(nbf_ao_mxnbf_ce*ngrpp,0.0d0,0,dbl_mb(k_Bmat),1)
+         call dcopy(nbf_ao_mxnbf_ce*nstride,0.0d0,0,dbl_mb(k_Bmat),1)
          call dcopy(natom, 0.0d0, 0,dbl_mb(irchi_atom), 1)
 c
-         call util_rmsatbf(ngrpp, natom,
+         call util_rmsatbf(nstride, natom,
      .        int_mb(k_iniz),int_mb(k_ifin),
      ,        dbl_mb(k_scr1),dbl_mb(irchi_atom))
 c
@@ -261,7 +263,7 @@ c
      &         nbf_ao_mxnbf_ce,
      &         nAtom,
      &         1,1,1,
-     U         1,ngrpp,nBF,mBF,.false.,1,
+     U         1,nstride,nBF,mBF,.false.,1,
      &         Dbl_mb(k_FMat),Dbl_mb(k_PMat),Dbl_mb(k_BMat),0d0,
      &         Dbl_mb(k_Scr1),0,0d0,Int_mb(k_ibf),
      &         Int_mb(k_iniz),Int_mb(k_ifin), Values(iOffg),0,
@@ -274,7 +276,7 @@ c
 *------- Get the values of the orbital at the grid points
 *
          Call PhiGen(Dbl_mb(k_Scr1),Dbl_mb(k_MOVec),Values(iOffg),
-     &               ngrpp,nBF,g_Vec(1),nSet,Spin,Orb_No,
+     &               nstride,nBF,g_Vec(1),nSet,Spin,Orb_No,
      &        mbf,int_mb(k_ibf))
       End If
  123  continue

@@ -55,6 +55,7 @@ c
       Character*256 File_Out
       character*255 file_out_dir
       character*30 tag
+      character*16 tag16
       Character*255 Title
       Logical LResult, DeBug
       logical lgaussian,dodos
@@ -593,6 +594,7 @@ c          Calculate the difference
 *---- Get the values of the density at the grid points
       LResult = MA_Push_Get(MT_Dbl,nPoint,'Vls',l_Vls,k_Vls)
       Call ErrMem(LResult,'DPlot: Failed to allocate values',0)
+      call dcopy(npoint,0d0,0,dbl_mb(k_vls),1)
 *ga:1:0
       If (What.ne.'CHARGES') Then
          Call Create_Contour(rtdb,Geom,AO_Bas_Han,nBF,nPoint,
@@ -601,7 +603,7 @@ c          Calculate the difference
      .                       no_of_spacings, tol_rho,
      &                       What,Spin,Int_mb(k_Orb))
          maxelt=0d0
-         do i=1,ngrid
+         do i=1,npoint
             maxelt=max(maxelt,abs(dbl_mb(k_vls+i-1)))
          enddo
          if(iproc.eq.0) write(luout,*) ' max element ',maxelt
@@ -661,9 +663,12 @@ c          Calculate the difference
          Do iAtom = 1, nAtom
             iOff = (iAtom - 1)*3
             If (What.ne.'CHARGES')
-     &         Dbl_mb(k_Charge-1+iAtom)=Dbl_mb(k_Vls+Atom_Off-1+iAtom)
+     &           Dbl_mb(k_Charge-1+iAtom)=Dbl_mb(k_Vls+Atom_Off-1+iAtom)
+            do j=1,16
+               tag16(j:j)=Byte_mb(k_Tags+ (iAtom-1)*16+j-1)
+            enddo
             Write(LuOut,'(A16,3f12.6,3x,f15.10)')
-     &           Byte_mb(k_Tags-1 + iAtom),
+     T       tag16(1:inp_strlen(tag16)),
      &           (Dbl_mb(k_xyz+iOff+j),j=0,2),
      &           Dbl_mb(k_Charge-1+iAtom)
          End Do
