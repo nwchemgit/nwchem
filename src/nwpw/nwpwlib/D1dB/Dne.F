@@ -5504,7 +5504,7 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
-c     *        Dneall_4m_allocate_block       *
+c     *        Dneall_4m_allocate_block      *
 c     *                                      *
 c     ****************************************
       logical function Dneall_4m_allocate_block(mb,nb,hml)
