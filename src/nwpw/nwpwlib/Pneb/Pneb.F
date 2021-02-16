@@ -5041,6 +5041,328 @@ c     ****************************************
       end
 
 
+c     ****************************************
+c     *                                      *
+c     *          Pneb_4mmm_Multiply2         *
+c     *                                      *
+c     ****************************************
+      subroutine Pneb_4mmm_Multiply2(mb,nbb,A,B,alpha,C,beta)
+      implicit none
+      integer mb,nbb
+      real*8 A(*),B(*),C(*)
+      real*8 alpha,beta
+
+#include "bafdecls.fh"
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
+      integer ms,ms1,ms2,n,shift2,ishift2
+      integer nb,nb1,nb2,ishift3,nbsize
+
+      if (mparallelized) then
+         call errquit('Pneb_4mm_Multiply2 not finished',0,0)
+      else
+         if (nbb.eq.0) then
+            nb1 = 1
+            nb2 = nbrillq
+            ishift3 = 4*ne(1)*ne(1) + 4*ne(2)*ne(2)*(ispinq-1)
+            nbsize  = nbrillq
+         else
+            nb1 = nbb
+            nb2 = nbb
+            ishift3 = 0
+            nbsize  = 1
+         end if
+
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = 4*ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do nb=nb1,nb2
+         do ms=ms1,ms2
+            n     = 2*ne(ms)
+            if (n.le.0) go to 30
+            shift2 = 1 + (ms-1)*ishift2 + (nb-1)*ishift3
+            call DGEMM_OMP('T','N',n,n,n,alpha,
+     >                A(shift2), n,
+     >                B(shift2), n,
+     >                beta,
+     >                C(shift2), n)
+   30       continue
+         end do
+         end do
+         if (mb.eq.0) then
+            call Parallel_Brdcst_values(MASTER,
+     >                   nbsize*4*(ne(1)*ne(1)+ne(2)*ne(2)),C)
+         else
+            call Parallel_Brdcst_values(MASTER,nbsize*4*ne(mb)*ne(mb),C)
+         end if
+
+      end if
+
+      return
+      end
+
+
+
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_4mmm_Multiply3         *
+c     *                                      *
+c     ****************************************
+      subroutine Pneb_4mmm_Multiply3(mb,nbb,A,B,alpha,C,beta)
+      implicit none
+      integer mb,nbb
+      real*8 A(*),B(*),C(*)
+      real*8 alpha,beta
+
+#include "bafdecls.fh"
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
+      integer ms,ms1,ms2,n,shift2,ishift2
+      integer nb,nb1,nb2,ishift3,nbsize
+
+      if (mparallelized) then
+         call errquit('Pneb_4mm_Multiply3 not finished',0,0)
+      else
+         if (nbb.eq.0) then
+            nb1 = 1
+            nb2 = nbrillq
+            ishift3 = 4*ne(1)*ne(1) + 4*ne(2)*ne(2)*(ispinq-1)
+            nbsize  = nbrillq
+         else
+            nb1 = nbb
+            nb2 = nbb
+            ishift3 = 0
+            nbsize  = 1
+         end if
+
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = 4*ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do nb=nb1,nb2
+         do ms=ms1,ms2
+            n     = 2*ne(ms)
+            if (n.le.0) go to 30
+            shift2 = 1 + (ms-1)*ishift2 + (nb-1)*ishift3
+            call DGEMM_OMP('N','T',n,n,n,alpha,
+     >                A(shift2), n,
+     >                B(shift2), n,
+     >                beta,
+     >                C(shift2), n)
+   30       continue
+         end do
+         end do
+         if (mb.eq.0) then
+            call Parallel_Brdcst_values(MASTER,
+     >                   nbsize*4*(ne(1)*ne(1)+ne(2)*ne(2)),C)
+         else
+            call Parallel_Brdcst_values(MASTER,nbsize*4*ne(mb)*ne(mb),C)
+         end if
+
+      end if
+
+      return
+      end
+
+
+
+
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_4mmm_Multiply          *
+c     *                                      *
+c     ****************************************
+      subroutine Pneb_4mmm_Multiply(mb,nbb,A,B,alpha,C,beta)
+      implicit none
+      integer mb,nbb
+      real*8 A(*),B(*),C(*)
+      real*8 alpha,beta
+
+#include "bafdecls.fh"
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
+      integer ms,ms1,ms2,n,shift2,ishift2
+      integer nb,nb1,nb2,ishift3,nbsize
+
+      if (mparallelized) then
+         call errquit('Pneb_4mm_Multiply not finished',0,0)
+      else
+         if (nbb.eq.0) then
+            nb1 = 1
+            nb2 = nbrillq
+            ishift3 = 4*ne(1)*ne(1) + 4*ne(2)*ne(2)*(ispinq-1)
+            nbsize  = nbrillq
+         else
+            nb1 = nbb
+            nb2 = nbb
+            ishift3 = 0
+            nbsize  = 1
+         end if
+
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = 4*ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do nb=nb1,nb2
+         do ms=ms1,ms2
+            n     = 2*ne(ms)
+            if (n.le.0) go to 30
+            shift2 = 1 + (ms-1)*ishift2 + (nb-1)*ishift3
+            call DGEMM_OMP('N','N',n,n,n,
+     >                alpha,
+     >                A(shift2), n,
+     >                B(shift2), n,
+     >                beta,
+     >                C(shift2), n)
+   30       continue
+         end do
+         end do
+
+         if (mb.eq.0) then
+            call Parallel_Brdcst_values(MASTER,
+     >                   nbsize*4*(ne(1)*ne(1)+ne(2)*ne(2)),C)
+         else
+            call Parallel_Brdcst_values(MASTER,nbsize*4*ne(mb)*ne(mb),C)
+         end if
+
+      end if
+
+      return
+      end
+
+
+
+
+
+c     ****************************************
+c     *                                      *
+c     *             Pneb_4m_trace            *
+c     *                                      *
+c     ****************************************
+      double precision function Pneb_4m_trace(mb,nbb,M)
+      implicit none
+      integer mb,nbb
+      real*8  M(*)
+
+#include "bafdecls.fh"
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,shift2,ishift2,indx,i
+      integer nb,nb1,nb2,ishift3
+      real*8  sum
+
+      if (mparallelized) then
+         call errquit('Pneb_4m_trace not finished',0,0)
+      else
+         if (nbb.eq.0) then
+            nb1 = 1
+            nb2 = nbrillq
+            ishift3 = 4*ne(1)*ne(1) + 4*ne(2)*ne(2)*(ispinq-1)
+         else
+            nb1 = nbb
+            nb2 = nbb
+            ishift3 = 0
+         end if
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = 4*ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         sum = 0.0d0
+         do nb=nb1,nb2
+         do ms=ms1,ms2
+
+           if (ne(ms).le.0) goto 30
+           shift2 = (ms-1)*ishift2 + (nb-1)*ishift3
+
+           do i=1,ne(ms)
+              indx = i + (i-1)*2*ne(ms) + shift2
+              sum = sum + M(indx)
+           end do
+
+ 30        continue
+         end do
+         end do
+      end if
+
+      Pneb_4m_trace = sum
+      return
+      end
+
+
+c     ****************************************
+c     *                                      *
+c     *            Pneb_4m_scal              *
+c     *                                      *
+c     ****************************************
+
+      subroutine Pneb_4m_scal(mb,nbb,alpha,M)
+      implicit none
+      integer mb,nbb
+      real*8  alpha
+      real*8  M(*)
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer nn,nn0
+
+      if (mparallelized) then
+         call errquit('Pneb_4m_scal not finished',0,0)
+      else
+         if (mb.eq.0) then
+            nn = 4*(ne(1)*ne(1) + ne(2)*ne(2))
+         else
+            nn = 4*ne(mb)*ne(mb)
+         end if
+         if (nbb.eq.0) then
+            nn = nn*nbrillq
+         end if
+      end if
+
+      call DSCAL_OMP(nn,alpha,M,1)
+      return
+      end
+
+
+
+
 
 c     ****************************************
 c     *                                      *
