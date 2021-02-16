@@ -5040,6 +5040,139 @@ c     ****************************************
       return
       end
 
+
+
+c     ****************************************
+c     *                                      *
+c     *           Pneb_4m_diag_scal          *
+c     *                                      *
+c     ****************************************
+      subroutine Pneb_4m_diag_scal(mb,nbb,diag,M)
+      implicit none
+      integer mb,nbb
+      real*8  diag(*)
+      real*8  M(*)
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,indx,i
+      integer nb,nb1,nb2,ishift3,ishift4
+
+      if (mparallelized) then
+         call errquit('Pneb_4m_diag_scal_inv not finished',0,0)
+      else
+         if (nbb.eq.0) then
+            nb1 = 1
+            nb2 = nbrillq
+            ishift3 = 2*ne(1)       + 2*ne(2)*(ispinq-1)
+            ishift4 = 4*ne(1)*ne(1) + 4*ne(2)*ne(2)*(ispinq-1)
+         else
+            nb1 = nbb
+            nb2 = nbb
+            ishift3 = 0
+            ishift4 = 0
+         end if
+
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift1 = 2*ne(1)
+            ishift2 = 4*ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift1 = 0
+            ishift2 = 0
+         end if
+
+         do nb=nb1,nb2
+         do ms=ms1,ms2
+
+            if (ne(ms).le.0) goto 30
+            shift1 = (ms-1)*ishift1 + (nb-1)*ishift3
+            shift2 = (ms-1)*ishift2 + (nb-1)*ishift4
+
+            do i=1,2*ne(ms)
+               indx = i + (i-1)*2*ne(ms) + shift2
+               M(indx) = M(indx)*diag(i+shift1)
+            end do
+
+ 30        continue
+         end do
+         end do
+      end if
+      return
+      end
+
+
+
+
+c     ****************************************
+c     *                                      *
+c     *         Pneb_4m_diag_scal_inv        *
+c     *                                      *
+c     ****************************************
+      subroutine Pneb_4m_diag_scal_inv(mb,nbb,diag,M)
+      implicit none
+      integer mb,nbb
+      real*8  diag(*)
+      real*8  M(*)
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,indx,i
+      integer nb,nb1,nb2,ishift3,ishift4
+
+      if (mparallelized) then
+         call errquit('Pneb_4m_diag_scal_inv not finished',0,0)
+      else
+         if (nbb.eq.0) then
+            nb1 = 1
+            nb2 = nbrillq
+            ishift3 = 2*ne(1)       + 2*ne(2)*(ispinq-1)
+            ishift4 = 4*ne(1)*ne(1) + 4*ne(2)*ne(2)*(ispinq-1)
+         else
+            nb1 = nbb
+            nb2 = nbb
+            ishift3 = 0
+            ishift4 = 0
+         end if
+
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift1 = 2*ne(1)
+            ishift2 = 4*ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift1 = 0
+            ishift2 = 0
+         end if
+
+         do nb=nb1,nb2
+         do ms=ms1,ms2
+
+            if (ne(ms).le.0) goto 30
+            shift1 = (ms-1)*ishift1 + (nb-1)*ishift3
+            shift2 = (ms-1)*ishift2 + (nb-1)*ishift4
+
+            do i=1,2*ne(ms)
+               indx = i + (i-1)*2*ne(ms) + shift2
+               M(indx) = M(indx)/diag(i+shift1)
+            end do
+
+ 30        continue
+         end do
+         end do
+      end if
+      return
+      end
+
+
+
 c     ****************************************
 c     *                                      *
 c     *          Pneb_4m_eye                 *
@@ -5164,6 +5297,72 @@ c     ****************************************
       end if
       return
       end
+
+      real*8 function  Pneb_4m_value(mb,nb,ms,i,j,A)
+      implicit none
+      integer mb,nb,ms,i,j
+      real*8  A(*)
+
+#include "bafdecls.fh"
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer shift2
+      real*8  w
+
+*     **** external functions ****
+c      real*8   DMatrix_m_get_value
+c      external DMatrix_m_get_value
+
+      w = 0.0d0
+      if (ne(ms).gt.0)  then
+         if (mparallelized) then
+            call errquit('Pneb_4w_value: mparallel not finished',0,0)
+         else
+            shift2 = (ms-1)*ne(1)*2 
+     >             + (nb-1)*(4*ne(1)*ne(1)+4*ne(2)+ne(2)*(ispinq-1))
+
+            w = A(i+(j-1)*2*ne(ms)+shift2)
+         end if
+      end if
+
+      Pneb_4m_value = w
+      return
+      end
+
+
+      complex*16 function Pneb_4w_value(mb,nb,ms,i,j,A)
+      implicit none
+      integer mb,nb,ms,i,j
+      complex*16  A(*)
+
+#include "bafdecls.fh"
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer    shift2
+      complex*16 w
+
+*     **** external functions ****
+c      real*8   DMatrix_m_get_value
+c      external DMatrix_m_get_value
+
+      w = dcmplx(0.0d0,0.0d0)
+      if (ne(ms).gt.0)  then
+         if (mparallelized) then
+            call errquit('Pneb_4w_value: mparallel not finished',0,0)
+         else
+            shift2 = (ms-1)*ne(1)*2
+     >             + (nb-1)*(4*ne(1)*ne(1)+4*ne(2)+ne(2)*(ispinq-1))
+
+            w = A(i+(j-1)*2*ne(ms)+shift2)
+         end if
+      end if
+
+      Pneb_4w_value = w
+      return
+      end
+
 
 
 
