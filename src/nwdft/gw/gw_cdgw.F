@@ -231,22 +231,13 @@ c     *****************************************************************
       integer,intent(in) :: nri, nmo
       double precision,intent(out),dimension(nmo,*) :: sigmax
 
+      double precision :: temp
       double precision,external :: ddot
 
       integer idx, idum, isp
       integer imo, jmo, kmo, ipol
       integer addrOO, addrOV, addrVV
       integer,external :: omp_get_num_threads,omp_get_thread_num
-
-!$omp parallel
-!$omp do collapse(2)
-      do isp=1,pars%ipol
-        do imo=1,nmo
-          sigmax(imo,isp) = 0d0
-        enddo
-      enddo
-!$omp end do
-!$omp end parallel
 
       do ipol=1,pars%ipol
         if (pars%nqp(ipol).eq.0) cycle
@@ -259,32 +250,32 @@ c     *****************************************************************
 
         do imo=pars%llmo(ipol),pars%llmo(ipol)+pars%nqp(ipol)-1
           jmo = imo - pars%llmo(ipol) + 1
+          temp = 0d0
 
-          if (imo.gt.pars%nocc(ipol)) goto 100
-
-!$omp     parallel do
-          do kmo=1,pars%nocc(ipol)
-            idx = (imo-1)*pars%nocc(ipol)+kmo-1
-            if (pars%me.ne.mod(idx,pars%nprocs)) cycle
-            idx = (idx/pars%nprocs)*nri + addrOO
-            sigmax(imo,ipol) = sigmax(imo,ipol) - 
-     $                          ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
-          enddo
-!$omp     end parallel do
-
-          cycle
-
-  100     continue
-
-!$omp     parallel do
-          do kmo=1,pars%nocc(ipol)
-            idx = (kmo-1)*pars%nvir(ipol)+imo-pars%nocc(ipol)-1
-            if (pars%me.ne.mod(idx,pars%nprocs)) cycle
-            idx = (idx/pars%nprocs)*nri + addrOV
-            sigmax(imo,ipol) = sigmax(imo,ipol) - 
-     $                          ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
-          enddo
-!$omp     end parallel do
+          if (imo.le.pars%nocc(ipol)) then
+c
+!$omp       parallel do private(idx) reduction(+:temp)
+            do kmo=1,pars%nocc(ipol)
+              idx = (imo-1)*pars%nocc(ipol)+kmo-1
+              if (pars%me.ne.mod(idx,pars%nprocs)) cycle
+              idx = (idx/pars%nprocs)*nri + addrOO
+              temp = temp - ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
+            enddo
+!$omp       end parallel do
+c
+          else
+c
+!$omp       parallel do private(idx) reduction(+:temp)
+            do kmo=1,pars%nocc(ipol)
+              idx = (kmo-1)*pars%nvir(ipol)+imo-pars%nocc(ipol)-1
+              if (pars%me.ne.mod(idx,pars%nprocs)) cycle
+              idx = (idx/pars%nprocs)*nri + addrOV
+              temp = temp - ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
+            enddo
+!$omp       end parallel do
+c
+          endif
+          sigmax(imo,ipol) = temp
 
         enddo
 
@@ -538,8 +529,10 @@ c
       integer,intent(in) :: n, lo, hi
       double precision,intent(inout),dimension(n,n) :: matrix
       integer i,ilo
+
       do i=1,n-1
         matrix(i,i+1:) = matrix(i+1:,i)
       enddo
+
       return
       end subroutine

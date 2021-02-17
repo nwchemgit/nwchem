@@ -66,6 +66,7 @@
       parallel_diag = .false.
 #endif
 
+
       if (parallel_diag) then
         pilo = 1
         pihi = nri
@@ -137,7 +138,15 @@
         root = mod((imo-off-1)*nspace+jmo-off-1,nprocs)
         idx = ((imo-off-1)*nspace+jmo-off-1)/nprocs + spacelo
 
-        if (parallel_diag) then
+! for now, deactivate MINRES        
+!        if (jmo.ne.first) then
+        if (jmo.eq.-1) then
+          if (me.eq.root) then
+            call ga_get(ga,1,nri,idx,idx,vector,nri)
+            call minres(dbl_mb(k_pi),vector2,vector,nri)
+          endif
+          call ga_brdcst(mt_dbl,vector2,mdtob(nri),root)
+        else if (parallel_diag) then
           call gw_symmat(dbl_mb(k_pi),nri,pilo,pihi)
           call ga_brdcst(mt_int,idx,mitob(1),root)
           call ga_get(ga,1,nri,idx,idx,vector,nri)
@@ -181,8 +190,7 @@
 
         if (root.ne.me) cycle
 
-        vector2(:) = vector2(:) - vector(:)
-        w = dot_product(vector,vector2)
+        w = dot_product(vector,vector2) - dot_product(vector,vector)
         R = R + fac*w
 
         if (abs(fac).lt.1d0) dR = dR + w

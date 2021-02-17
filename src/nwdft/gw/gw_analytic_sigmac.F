@@ -12,7 +12,14 @@
       double precision,intent(out) :: sigma,dsigma,d2sigma
 
       integer :: ilo, ihi, jlo, jhi, ipole, imo, ld, adrWMN
-      double precision :: resp(3),omega,w,delta,denom, resm(3), eta3
+      double precision :: omega,w,delta,denom, eta3
+      double precision  :: resp(3),resm(3)
+#ifdef USE_OPENMP
+      integer iMaxThreads
+      integer,external :: omp_get_max_threads
+      iMaxThreads = omp_get_max_threads()
+      call util_blas_set_num_threads(iMaxThreads)
+#endif      
 
       call ga_distribution(wmn, me, ilo, ihi, jlo , jhi)
 
@@ -23,7 +30,7 @@
       eta3 = 3d0*eta
 
 !$omp parallel do collapse(2) private(delta,omega,w,denom) 
-!$omp&                        reduction(+:resp)
+!$omp&                        reduction(+: resp )
       do imo=1,plus
         do ipole=jlo,jhi
           omega = omegain - Eold(imo) + omegam(ipole)
@@ -36,9 +43,8 @@
       enddo
 !$omp end parallel do      
 c
-c
 !$omp parallel do collapse(2) private(delta,omega,w,denom) 
-!$omp&                        reduction(+:resm)
+!$omp&                        reduction(+: resm )
       do imo=plus+1,nmo
         do ipole=jlo,jhi
           omega = omegain - Eold(imo) - omegam(ipole)
@@ -57,5 +63,9 @@ c
       sigma = resp(1)
       dsigma = resp(2)
       d2sigma = resp(3)
+
+#ifdef USE_OPENMP
+      call util_blas_set_num_threads(1)
+#endif      
 
       end subroutine
