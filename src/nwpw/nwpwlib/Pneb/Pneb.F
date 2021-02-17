@@ -4416,3 +4416,1275 @@ cccccccccccccccc
 
 
 
+c     ****************************************
+c     *                                      *
+c     *        Pneb_4m_size                   *
+c     *                                      *
+c     ****************************************
+
+c   This function returns the size of the 'm' array
+c with options mb and nb.
+c
+c if mb==0 means m array contains all data for both up and down matrices
+c if mb==1 means the
+c if (mb==0 && nb==0)
+
+      integer function Pneb_4m_size(mb,nb)
+      implicit none
+      integer mb,nb
+
+#include "Pneb.fh"
+
+      integer mbsize,nbsize
+
+      if (nb.eq.0) then
+        nbsize = nbrillq
+      else
+        nbsize = 1
+      end if
+
+      if (mb.eq.0) then
+         if (.not.spin_orbit) then
+            mbsize = ne(1)*ne(1) + ne(2)*ne(2)       !*** Changing back to a more packed space! ***
+         else
+            mbsize = ne(1)*ne(1)
+         end if
+      else
+         mbsize = ne(mb)*ne(mb)
+      end if
+
+      Pneb_4m_size = 4*mbsize*nbsize
+      return
+      end
+
+
+c
+c     ****************************************
+c     *                                      *
+c     *          Pneb_4w_size                *
+c     *                                      *
+c     ****************************************
+      integer function Pneb_4w_size(mb,nb)
+      implicit none
+      integer mb,nb
+
+#include "Pneb.fh"
+
+      integer mbsize,nbsize
+
+      if (nb.eq.0) then
+        nbsize = nbrillq
+      else
+        nbsize = 1
+      end if
+
+      if (mb.eq.0) then
+         if (.not.spin_orbit) then
+            mbsize = 4*(ne(1)*ne(1) + ne(2)*ne(2))       !*** Changing back to a more packed space! ***
+         else
+            mbsize = 4*ne(1)*ne(1)
+         end if
+      else
+         mbsize = 4*ne(mb)*ne(mb)
+      end if
+
+      Pneb_4w_size = mbsize*nbsize
+      return
+      end
+
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_4w_allocate            *
+c     *                                      *
+c     ****************************************
+
+      logical function Pneb_4w_allocate(mb,nb,hml)
+      implicit none
+      integer mb,nb
+      integer hml(2)
+
+#include "bafdecls.fh"
+
+*     **** local variables ****
+      integer size
+
+*     **** external functions ****
+      integer  Pneb_4w_size
+      external Pneb_4w_size
+
+      size = Pneb_4w_size(mb,nb)
+      Pneb_4w_allocate = BA_alloc_get(mt_dcpl,size,'hml',hml(2),hml(1))
+      return
+      end
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_4m_allocate            *
+c     *                                      *
+c     ****************************************
+
+      logical function Pneb_4m_allocate(mb,nb,hml)
+      implicit none
+      integer mb,nb
+      integer hml(2)
+
+#include "bafdecls.fh"
+
+*     **** local variables ****
+      integer size
+
+*     **** external functions ****
+      integer  Pneb_4m_size
+      external Pneb_4m_size
+
+      size = Pneb_4m_size(mb,nb)
+      Pneb_4m_allocate = BA_alloc_get(mt_dbl,size,'hml',hml(2),hml(1))
+      return
+      end
+
+c     ****************************************
+c     *                                      *
+c     *        Pneb_4m_allocate_block        *
+c     *                                      *
+c     ****************************************
+
+      logical function Pneb_4m_allocate_block(mb,nb,nblocks,hml)
+      implicit none
+      integer mb,nb,nblocks
+      integer hml(2)
+
+#include "bafdecls.fh"
+
+*     **** local variables ****
+      integer size
+
+*     **** external functions ****
+      integer  Pneb_4m_size
+      external Pneb_4m_size
+
+      size = nblocks*Pneb_4m_size(mb,nb)
+
+      Pneb_4m_allocate_block =
+     >   BA_alloc_get(mt_dbl,size,'hml',hml(2),hml(1))
+      return
+      end
+
+c     ****************************************
+c     *                                      *
+c     *        Pneb_4w_allocate_block        *
+c     *                                      *
+c     ****************************************
+      logical function Pneb_4w_allocate_block(mb,nb,nblocks,hml)
+      implicit none
+      integer mb,nb,nblocks
+      integer hml(2)
+
+#include "bafdecls.fh"
+
+*     **** local variables ****
+      integer size
+
+*     **** external functions ****
+      integer  Pneb_4w_size
+      external Pneb_4w_size
+    
+      size = nblocks*Pneb_4w_size(mb,nb)
+    
+      Pneb_4w_allocate_block =
+     >   BA_alloc_get(mt_dcpl,size,'hml',hml(2),hml(1))
+      return
+      end
+
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_4m_push_get            *
+c     *                                      *
+c     ****************************************
+      logical function Pneb_4m_push_get(mb,nb,hml)
+      implicit none
+      integer mb,nb
+      integer hml(2)
+
+#include "Pneb.fh"
+#include "bafdecls.fh"
+
+*     **** local variables
+      integer size
+
+*     **** external functions ****
+      integer  Pneb_4m_size
+      external Pneb_4m_size
+
+      size = Pneb_4m_size(mb,nb)
+      Pneb_4m_push_get = BA_push_get(mt_dbl,size,'hml',hml(2),hml(1))
+      return
+      end
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_4w_push_get            *
+c     *                                      *
+c     ****************************************
+      logical function Pneb_4w_push_get(mb,nb,hml)
+      implicit none
+      integer mb,nb
+      integer hml(2)
+
+#include "Pneb.fh"
+#include "bafdecls.fh"
+
+*     **** local variables
+      integer size
+
+*     **** external functions ****
+      integer  Pneb_4w_size
+      external Pneb_4w_size
+
+      size = Pneb_4w_size(mb,nb)
+      Pneb_4w_push_get = BA_push_get(mt_dcpl,size,'hml',hml(2),hml(1))
+      return
+      end
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_4m_push_get_block      *
+c     *                                      *
+c     ****************************************
+      logical function Pneb_4m_push_get_block(mb,nb,nblock,hml)
+      implicit none
+      integer mb,nb,nblock
+      integer hml(2)
+
+#include "bafdecls.fh"
+#include "Pneb.fh"
+
+*     **** local variables
+      integer nsize
+
+*     **** external functions ****
+      integer  Pneb_4m_size
+      external Pneb_4m_size
+
+      nsize = nblock*Pneb_4m_size(mb,nb)
+      Pneb_4m_push_get_block =
+     >    BA_push_get(mt_dbl,nsize,'hml',hml(2),hml(1))
+      return
+      end
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_4w_push_get_block      *
+c     *                                      *
+c     ****************************************
+      logical function Pneb_4w_push_get_block(mb,nb,nblock,hml)
+      implicit none
+      integer mb,nb,nblock
+      integer hml(2)
+
+#include "bafdecls.fh"
+#include "Pneb.fh"
+
+*     **** local variables
+      integer nsize
+
+*     **** external functions ****
+      integer  Pneb_4w_size
+      external Pneb_4w_size
+
+      nsize = nblock*Pneb_4w_size(mb,nb)
+      Pneb_4w_push_get_block =
+     >    BA_push_get(mt_dcpl,nsize,'hml',hml(2),hml(1))
+      return
+      end
+
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_AR_to_4m               *
+c     *                                      *
+c     ****************************************
+      subroutine Pneb_AR_to_4m(mb,nbb,A,R,T)
+      implicit none
+      integer mb,nbb
+      real*8 A(*),R(*),T(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,ishift1,ishift2,shift1,shift2
+      integer nb,nb1,nb2,ishift3,ishift4,nbsize
+
+      if (mparallelized) then
+         call errquit('Pneb_AR_to_4m: mparallel not finished',0,0)
+      else
+        if (nbb.eq.0) then
+          nb1 = 1
+          nb2 = nbrillq
+          ishift3 = ne(1)*ne(1) + ne(2)*ne(2)*(ispinq-1)
+          ishift4 = 4*ne(1)*ne(1) + 4*ne(2)*ne(2)*(ispinq-1)
+          nbsize = nbrillq
+        else
+          nb1 = nbb
+          nb2 = nbb
+          ishift3 = 0
+          ishift4 = 0
+          nbsize = 1
+        end if
+        if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift1 = ne(1)*ne(1)
+            ishift2 = 4*ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift1 = 0
+            ishift2 = 0
+         end if
+         !call dcopy(4*(ne(1)*ne(1)+ne(2)*ne(2)),0.0d0,0,T,1)
+         call Parallel_shared_vector_zero(.true.,
+     >                       4*(ne(1)*ne(1)+ne(2)*ne(2))*nbsize,T)
+         do nb=nb1,nb2
+         do ms=ms1,ms2
+             shift1 = 1+(ms-1)*ishift1+(nb-1)*ishift3
+             shift2 = 1+(ms-1)*ishift2+(nb-1)*ishift4
+             call Pneb_AR_to_4msub(ne(ms),
+     >                             A(shift1),
+     >                             R(shift1),
+     >                             T(shift2))
+         end do
+         end do
+      end if
+      return
+      end
+
+      subroutine Pneb_AR_to_4msub(n,A,R,T)
+      implicit none
+      integer n
+      real*8 A(n,n)
+      real*8 R(n,n)
+      real*8 T(2*n,2*n)
+
+*     **** local variables ****
+      integer i,j
+
+*     **** copy A to upper-left of T ****
+      do j=1,n
+      do i=1,n
+         T(i,j) = A(i,j)
+      end do
+      end do
+
+*     **** copy R to lower-left of T ****
+      do j=1,n
+      do i=1,n
+         T(i+n,j) = R(i,j)
+      end do
+      end do
+
+*     **** copy -R^t to upper-right of T ****
+      do j=1,n
+      do i=1,n
+         T(i,j+n) = -R(j,i)
+      end do
+      end do
+
+      return
+      end
+
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_AR_to_4w               *
+c     *                                      *
+c     ****************************************
+      subroutine Pneb_AR_to_4w(mb,nbb,A,R,T)
+      implicit none
+      integer mb,nbb
+      complex*16 A(*),R(*),T(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,ishift1,ishift2,shift1,shift2
+      integer nb,nb1,nb2,ishift3,ishift4,nbsize
+
+      if (mparallelized) then
+         call errquit('Pneb_AR_to_4m: mparallel not finished',0,0)
+      else
+        if (nbb.eq.0) then
+          nb1 = 1
+          nb2 = nbrillq
+          ishift3 = ne(1)*ne(1) + ne(2)*ne(2)*(ispinq-1)
+          ishift4 = 4*ne(1)*ne(1) + 4*ne(2)*ne(2)*(ispinq-1)
+          nbsize = nbrillq
+        else
+          nb1 = nbb
+          nb2 = nbb
+          ishift3 = 0
+          ishift4 = 0
+          nbsize = 1
+        end if
+        if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift1 = ne(1)*ne(1)
+            ishift2 = 4*ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift1 = 0
+            ishift2 = 0
+         end if
+         !call dcopy(4*(ne(1)*ne(1)+ne(2)*ne(2)),0.0d0,0,T,1)
+         call Parallel_shared_vector_zero(.true.,
+     >                       4*(ne(1)*ne(1)+ne(2)*ne(2))*nbsize*2,T)
+         do nb=nb1,nb2
+         do ms=ms1,ms2
+             shift1 = 1+(ms-1)*ishift1+(nb-1)*ishift3
+             shift2 = 1+(ms-1)*ishift2+(nb-1)*ishift4
+             call Pneb_AR_to_4wsub(ne(ms),
+     >                             A(shift1),
+     >                             R(shift1),
+     >                             T(shift2))
+         end do
+         end do
+      end if
+      return
+      end
+
+      subroutine Pneb_AR_to_4wsub(n,A,R,T)
+      implicit none
+      integer n
+      complex*16 A(n,n)
+      complex*16 R(n,n)
+      complex*16 T(2*n,2*n)
+
+*     **** local variables ****
+      integer i,j
+
+*     **** copy A to upper-left of T ****
+      do j=1,n
+      do i=1,n
+         T(i,j) = A(i,j)
+      end do
+      end do
+
+*     **** copy R to lower-left of T ****
+      do j=1,n
+      do i=1,n
+         T(i+n,j) = R(i,j)
+      end do
+      end do
+
+*     **** copy -R^t to upper-right of T ****
+      do j=1,n
+      do i=1,n
+         T(i,j+n) = -R(j,i)
+      end do
+      end do
+
+      return
+      end
+
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_4m_to_MN               *
+c     *                                      *
+c     ****************************************
+      subroutine Pneb_4m_to_MN(mb,nbb,R,M,N)
+      implicit none
+      integer mb,nbb
+      real*8 R(*),M(*),N(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,ishift1,ishift2,shift1,shift2
+      integer nb,nb1,nb2,ishift3,ishift4
+
+      if (mparallelized) then
+         call errquit('Pneb_4m_to_MN: mparallel not finished',0,0)
+      else
+        if (nbb.eq.0) then
+          nb1 = 1
+          nb2 = nbrillq
+          ishift3 = ne(1)*ne(1) + ne(2)*ne(2)*(ispinq-1)
+          ishift4 = 4*ne(1)*ne(1) + 4*ne(2)*ne(2)*(ispinq-1)
+        else
+          nb1 = nbb
+          nb2 = nbb
+          ishift3 = 0
+          ishift4 = 0
+        end if
+        if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift1 = ne(1)*ne(1)
+            ishift2 = 4*ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift1 = 0
+            ishift2 = 0
+         end if
+         do nb=nb1,nb2
+         do ms=ms1,ms2
+            if (ne(ms).le.0) go to 30
+            shift1 = 1 + (ms-1)*ishift1 + (nb-1)*ishift3
+            shift2 = 1 + (ms-1)*ishift2 + (nb-1)*ishift4
+            call Pneb_4m_MN_sub(ne(ms),R(shift2),M(shift1),N(shift1))
+  30        continue
+         end do
+         end do
+      end if
+
+      return
+      end
+      subroutine Pneb_4m_MN_sub(n,R,X,Y)
+      implicit none
+      integer n
+      real*8 R(2*n,2*n)
+      real*8 X(n,n)
+      real*8 Y(n,n)
+      integer i,j
+      do j=1,n
+      do i=1,n
+         X(i,j) = R(i,j)
+         Y(i,j) = R(i+n,j)
+      end do
+      end do
+
+      return
+      end
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_4w_to_MN               *
+c     *                                      *
+c     ****************************************
+      subroutine Pneb_4w_to_MN(mb,nbb,R,M,N)
+      implicit none
+      integer mb,nbb
+      complex*16 R(*),M(*),N(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,ishift1,ishift2,shift1,shift2
+      integer nb,nb1,nb2,ishift3,ishift4
+
+      if (mparallelized) then
+         call errquit('Pneb_4w_to_MN: mparallel not finished',0,0)
+      else
+        if (nbb.eq.0) then
+          nb1 = 1
+          nb2 = nbrillq
+          ishift3 = ne(1)*ne(1) + ne(2)*ne(2)*(ispinq-1)
+          ishift4 = 4*ne(1)*ne(1) + 4*ne(2)*ne(2)*(ispinq-1)
+        else
+          nb1 = nbb
+          nb2 = nbb
+          ishift3 = 0
+          ishift4 = 0
+        end if
+        if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift1 = ne(1)*ne(1)
+            ishift2 = 4*ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift1 = 0
+            ishift2 = 0
+         end if
+         do nb=nb1,nb2
+         do ms=ms1,ms2
+            if (ne(ms).le.0) go to 30
+            shift1 = 1 + (ms-1)*ishift1 + (nb-1)*ishift3
+            shift2 = 1 + (ms-1)*ishift2 + (nb-1)*ishift4
+            call Pneb_4w_MN_sub(ne(ms),R(shift2),M(shift1),N(shift1))
+  30        continue
+         end do
+         end do
+      end if
+
+      return
+      end
+      subroutine Pneb_4w_MN_sub(n,R,X,Y)
+      implicit none
+      integer n
+      complex*16 R(2*n,2*n)
+      complex*16 X(n,n)
+      complex*16 Y(n,n)
+      integer i,j
+      do j=1,n
+      do i=1,n
+         X(i,j) = R(i,j)
+         Y(i,j) = R(i+n,j)
+      end do
+      end do
+
+      return
+      end
+
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_4mmm_Multiply2         *
+c     *                                      *
+c     ****************************************
+      subroutine Pneb_4mmm_Multiply2(mb,nbb,A,B,alpha,C,beta)
+      implicit none
+      integer mb,nbb
+      real*8 A(*),B(*),C(*)
+      real*8 alpha,beta
+
+#include "bafdecls.fh"
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
+      integer ms,ms1,ms2,n,shift2,ishift2
+      integer nb,nb1,nb2,ishift3,nbsize
+
+      if (mparallelized) then
+         call errquit('Pneb_4mm_Multiply2 not finished',0,0)
+      else
+         if (nbb.eq.0) then
+            nb1 = 1
+            nb2 = nbrillq
+            ishift3 = 4*ne(1)*ne(1) + 4*ne(2)*ne(2)*(ispinq-1)
+            nbsize  = nbrillq
+         else
+            nb1 = nbb
+            nb2 = nbb
+            ishift3 = 0
+            nbsize  = 1
+         end if
+
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = 4*ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do nb=nb1,nb2
+         do ms=ms1,ms2
+            n     = 2*ne(ms)
+            if (n.le.0) go to 30
+            shift2 = 1 + (ms-1)*ishift2 + (nb-1)*ishift3
+            call DGEMM_OMP('T','N',n,n,n,alpha,
+     >                A(shift2), n,
+     >                B(shift2), n,
+     >                beta,
+     >                C(shift2), n)
+   30       continue
+         end do
+         end do
+         if (mb.eq.0) then
+            call Parallel_Brdcst_values(MASTER,
+     >                   nbsize*4*(ne(1)*ne(1)+ne(2)*ne(2)),C)
+         else
+            call Parallel_Brdcst_values(MASTER,nbsize*4*ne(mb)*ne(mb),C)
+         end if
+
+      end if
+
+      return
+      end
+
+
+
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_4mmm_Multiply3         *
+c     *                                      *
+c     ****************************************
+      subroutine Pneb_4mmm_Multiply3(mb,nbb,A,B,alpha,C,beta)
+      implicit none
+      integer mb,nbb
+      real*8 A(*),B(*),C(*)
+      real*8 alpha,beta
+
+#include "bafdecls.fh"
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
+      integer ms,ms1,ms2,n,shift2,ishift2
+      integer nb,nb1,nb2,ishift3,nbsize
+
+      if (mparallelized) then
+         call errquit('Pneb_4mm_Multiply3 not finished',0,0)
+      else
+         if (nbb.eq.0) then
+            nb1 = 1
+            nb2 = nbrillq
+            ishift3 = 4*ne(1)*ne(1) + 4*ne(2)*ne(2)*(ispinq-1)
+            nbsize  = nbrillq
+         else
+            nb1 = nbb
+            nb2 = nbb
+            ishift3 = 0
+            nbsize  = 1
+         end if
+
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = 4*ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do nb=nb1,nb2
+         do ms=ms1,ms2
+            n     = 2*ne(ms)
+            if (n.le.0) go to 30
+            shift2 = 1 + (ms-1)*ishift2 + (nb-1)*ishift3
+            call DGEMM_OMP('N','T',n,n,n,alpha,
+     >                A(shift2), n,
+     >                B(shift2), n,
+     >                beta,
+     >                C(shift2), n)
+   30       continue
+         end do
+         end do
+         if (mb.eq.0) then
+            call Parallel_Brdcst_values(MASTER,
+     >                   nbsize*4*(ne(1)*ne(1)+ne(2)*ne(2)),C)
+         else
+            call Parallel_Brdcst_values(MASTER,nbsize*4*ne(mb)*ne(mb),C)
+         end if
+
+      end if
+
+      return
+      end
+
+
+
+
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_4mmm_Multiply          *
+c     *                                      *
+c     ****************************************
+      subroutine Pneb_4mmm_Multiply(mb,nbb,A,B,alpha,C,beta)
+      implicit none
+      integer mb,nbb
+      real*8 A(*),B(*),C(*)
+      real*8 alpha,beta
+
+#include "bafdecls.fh"
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
+      integer ms,ms1,ms2,n,shift2,ishift2
+      integer nb,nb1,nb2,ishift3,nbsize
+
+      if (mparallelized) then
+         call errquit('Pneb_4mm_Multiply not finished',0,0)
+      else
+         if (nbb.eq.0) then
+            nb1 = 1
+            nb2 = nbrillq
+            ishift3 = 4*ne(1)*ne(1) + 4*ne(2)*ne(2)*(ispinq-1)
+            nbsize  = nbrillq
+         else
+            nb1 = nbb
+            nb2 = nbb
+            ishift3 = 0
+            nbsize  = 1
+         end if
+
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = 4*ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do nb=nb1,nb2
+         do ms=ms1,ms2
+            n     = 2*ne(ms)
+            if (n.le.0) go to 30
+            shift2 = 1 + (ms-1)*ishift2 + (nb-1)*ishift3
+            call DGEMM_OMP('N','N',n,n,n,
+     >                alpha,
+     >                A(shift2), n,
+     >                B(shift2), n,
+     >                beta,
+     >                C(shift2), n)
+   30       continue
+         end do
+         end do
+
+         if (mb.eq.0) then
+            call Parallel_Brdcst_values(MASTER,
+     >                   nbsize*4*(ne(1)*ne(1)+ne(2)*ne(2)),C)
+         else
+            call Parallel_Brdcst_values(MASTER,nbsize*4*ne(mb)*ne(mb),C)
+         end if
+
+      end if
+
+      return
+      end
+
+
+
+
+
+c     ****************************************
+c     *                                      *
+c     *             Pneb_4m_trace            *
+c     *                                      *
+c     ****************************************
+      double precision function Pneb_4m_trace(mb,nbb,M)
+      implicit none
+      integer mb,nbb
+      real*8  M(*)
+
+#include "bafdecls.fh"
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,shift2,ishift2,indx,i
+      integer nb,nb1,nb2,ishift3
+      real*8  sum
+
+      if (mparallelized) then
+         call errquit('Pneb_4m_trace not finished',0,0)
+      else
+         if (nbb.eq.0) then
+            nb1 = 1
+            nb2 = nbrillq
+            ishift3 = 4*ne(1)*ne(1) + 4*ne(2)*ne(2)*(ispinq-1)
+         else
+            nb1 = nbb
+            nb2 = nbb
+            ishift3 = 0
+         end if
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = 4*ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         sum = 0.0d0
+         do nb=nb1,nb2
+         do ms=ms1,ms2
+
+           if (ne(ms).le.0) goto 30
+           shift2 = (ms-1)*ishift2 + (nb-1)*ishift3
+
+           do i=1,ne(ms)
+              indx = i + (i-1)*2*ne(ms) + shift2
+              sum = sum + M(indx)
+           end do
+
+ 30        continue
+         end do
+         end do
+      end if
+
+      Pneb_4m_trace = sum
+      return
+      end
+
+
+c     ****************************************
+c     *                                      *
+c     *            Pneb_4m_scal              *
+c     *                                      *
+c     ****************************************
+
+      subroutine Pneb_4m_scal(mb,nbb,alpha,M)
+      implicit none
+      integer mb,nbb
+      real*8  alpha
+      real*8  M(*)
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer nn,nn0
+
+      if (mparallelized) then
+         call errquit('Pneb_4m_scal not finished',0,0)
+      else
+         if (mb.eq.0) then
+            nn = 4*(ne(1)*ne(1) + ne(2)*ne(2))
+         else
+            nn = 4*ne(mb)*ne(mb)
+         end if
+         if (nbb.eq.0) then
+            nn = nn*nbrillq
+         end if
+      end if
+
+      call DSCAL_OMP(nn,alpha,M,1)
+      return
+      end
+
+
+
+
+
+c     ****************************************
+c     *                                      *
+c     *           Pneb_4m_diag_scal          *
+c     *                                      *
+c     ****************************************
+      subroutine Pneb_4m_diag_scal(mb,nbb,diag,M)
+      implicit none
+      integer mb,nbb
+      real*8  diag(*)
+      real*8  M(*)
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,indx,i
+      integer nb,nb1,nb2,ishift3,ishift4
+
+      if (mparallelized) then
+         call errquit('Pneb_4m_diag_scal_inv not finished',0,0)
+      else
+         if (nbb.eq.0) then
+            nb1 = 1
+            nb2 = nbrillq
+            ishift3 = 2*ne(1)       + 2*ne(2)*(ispinq-1)
+            ishift4 = 4*ne(1)*ne(1) + 4*ne(2)*ne(2)*(ispinq-1)
+         else
+            nb1 = nbb
+            nb2 = nbb
+            ishift3 = 0
+            ishift4 = 0
+         end if
+
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift1 = 2*ne(1)
+            ishift2 = 4*ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift1 = 0
+            ishift2 = 0
+         end if
+
+         do nb=nb1,nb2
+         do ms=ms1,ms2
+
+            if (ne(ms).le.0) goto 30
+            shift1 = (ms-1)*ishift1 + (nb-1)*ishift3
+            shift2 = (ms-1)*ishift2 + (nb-1)*ishift4
+
+            do i=1,2*ne(ms)
+               indx = i + (i-1)*2*ne(ms) + shift2
+               M(indx) = M(indx)*diag(i+shift1)
+            end do
+
+ 30        continue
+         end do
+         end do
+      end if
+      return
+      end
+
+
+
+
+c     ****************************************
+c     *                                      *
+c     *         Pneb_4m_diag_scal_inv        *
+c     *                                      *
+c     ****************************************
+      subroutine Pneb_4m_diag_scal_inv(mb,nbb,diag,M)
+      implicit none
+      integer mb,nbb
+      real*8  diag(*)
+      real*8  M(*)
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,indx,i
+      integer nb,nb1,nb2,ishift3,ishift4
+
+      if (mparallelized) then
+         call errquit('Pneb_4m_diag_scal_inv not finished',0,0)
+      else
+         if (nbb.eq.0) then
+            nb1 = 1
+            nb2 = nbrillq
+            ishift3 = 2*ne(1)       + 2*ne(2)*(ispinq-1)
+            ishift4 = 4*ne(1)*ne(1) + 4*ne(2)*ne(2)*(ispinq-1)
+         else
+            nb1 = nbb
+            nb2 = nbb
+            ishift3 = 0
+            ishift4 = 0
+         end if
+
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift1 = 2*ne(1)
+            ishift2 = 4*ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift1 = 0
+            ishift2 = 0
+         end if
+
+         do nb=nb1,nb2
+         do ms=ms1,ms2
+
+            if (ne(ms).le.0) goto 30
+            shift1 = (ms-1)*ishift1 + (nb-1)*ishift3
+            shift2 = (ms-1)*ishift2 + (nb-1)*ishift4
+
+            do i=1,2*ne(ms)
+               indx = i + (i-1)*2*ne(ms) + shift2
+               M(indx) = M(indx)/diag(i+shift1)
+            end do
+
+ 30        continue
+         end do
+         end do
+      end if
+      return
+      end
+
+
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_4m_eye                 *
+c     *                                      *
+c     ****************************************
+      subroutine Pneb_4m_eye(mb,nbb,A,alpha)
+      implicit none
+      integer mb,nbb
+      real*8 A(*)
+      real*8 alpha
+
+#include "bafdecls.fh"
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,shift2,ishift2,k
+      integer nb,nb1,nb2,ishift3,nbsize
+      integer indx2
+
+      if (mparallelized) then
+         call errquit('Pneb_4m_eye: mparallel not finished',0,0)
+      else
+         if (nbb.eq.0) then
+            nb1 = 1
+            nb2 = nbrillq
+            ishift3 = 4*ne(1)*ne(1) + 4*ne(2)*ne(2)*(ispinq-1)
+            nbsize = nbrillq
+         else
+            nb1 = nbb
+            nb2 = nbb
+            ishift3 = 0
+            nbsize = 1
+         end if
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = 4*ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         call Parallel_shared_vector_zero(.true.,
+     >                              4*ne(ms)*ne(ms)*nbsize,A)
+         do nb=nb1,nb2
+         do ms=ms1,ms2
+           if (ne(ms).le.0) go to 30
+           shift2 = 1 + (ms-1)*ishift2 + (nb-1)*ishift3
+           indx2 = shift2
+           do k=1,2*ne(ms)
+              A(indx2) = alpha
+              indx2    = indx2 + (1+2*ne(ms))
+           end do
+
+ 30        continue
+         end do
+         end do
+      end if
+      return
+      end
+
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_4w_eye                 *
+c     *                                      *
+c     ****************************************
+      subroutine Pneb_4w_eye(mb,nbb,A,alpha)
+      implicit none
+      integer mb,nbb
+      complex*16 A(*)
+      complex*16 alpha
+
+#include "bafdecls.fh"
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,shift2,ishift2,k
+      integer nb,nb1,nb2,ishift3,nbsize
+      integer indx2
+
+      if (mparallelized) then
+         call errquit('Pneb_4w_eye: mparallel not finished',0,0)
+      else
+         if (nbb.eq.0) then
+            nb1 = 1
+            nb2 = nbrillq
+            ishift3 = 4*ne(1)*ne(1) + 4*ne(2)*ne(2)*(ispinq-1)
+            nbsize = nbrillq
+         else
+            nb1 = nbb
+            nb2 = nbb
+            ishift3 = 0
+            nbsize = 1
+         end if
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = 4*ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         call Parallel_shared_vector_zero(.true.,
+     >                              8*ne(ms)*ne(ms)*nbsize,A)
+         do nb=nb1,nb2
+         do ms=ms1,ms2
+           if (ne(ms).le.0) go to 30
+           shift2 = 1 + (ms-1)*ishift2 + (nb-1)*ishift3
+           indx2 = shift2
+           do k=1,2*ne(ms)
+              A(indx2) = alpha
+              indx2    = indx2 + (1+2*ne(ms))
+           end do
+
+ 30        continue
+         end do
+         end do
+      end if
+      return
+      end
+
+      real*8 function  Pneb_4m_value(mb,nb,ms,i,j,A)
+      implicit none
+      integer mb,nb,ms,i,j
+      real*8  A(*)
+
+#include "bafdecls.fh"
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer shift2
+      real*8  w
+
+*     **** external functions ****
+c      real*8   DMatrix_m_get_value
+c      external DMatrix_m_get_value
+
+      w = 0.0d0
+      if (ne(ms).gt.0)  then
+         if (mparallelized) then
+            call errquit('Pneb_4w_value: mparallel not finished',0,0)
+         else
+            shift2 = (ms-1)*ne(1)*2 
+     >             + (nb-1)*(4*ne(1)*ne(1)+4*ne(2)+ne(2)*(ispinq-1))
+
+            w = A(i+(j-1)*2*ne(ms)+shift2)
+         end if
+      end if
+
+      Pneb_4m_value = w
+      return
+      end
+
+
+      complex*16 function Pneb_4w_value(mb,nb,ms,i,j,A)
+      implicit none
+      integer mb,nb,ms,i,j
+      complex*16  A(*)
+
+#include "bafdecls.fh"
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer    shift2
+      complex*16 w
+
+*     **** external functions ****
+c      real*8   DMatrix_m_get_value
+c      external DMatrix_m_get_value
+
+      w = dcmplx(0.0d0,0.0d0)
+      if (ne(ms).gt.0)  then
+         if (mparallelized) then
+            call errquit('Pneb_4w_value: mparallel not finished',0,0)
+         else
+            shift2 = (ms-1)*ne(1)*2
+     >             + (nb-1)*(4*ne(1)*ne(1)+4*ne(2)+ne(2)*(ispinq-1))
+
+            w = A(i+(j-1)*2*ne(ms)+shift2)
+         end if
+      end if
+
+      Pneb_4w_value = w
+      return
+      end
+
+
+
+

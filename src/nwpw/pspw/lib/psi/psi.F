@@ -1396,7 +1396,7 @@ c     >   write(*,*) "orb,it,eci,eold,eci-eold=",ii,it,eci,eold,eci-eold
       real*8 x,y,pi,dtheta_min,e1,de1,de1a,de1b
       real*8 theta0,theta1,theta2,dtheta,emin,theta_min,demin,tnorm
       real*8 ea,eb,ec,e2,de2
-      real*8 emid,demid
+      real*8 emid,demid,thetatmp
 
       psi_ptr=psi1_excited(1)
 
@@ -1421,13 +1421,22 @@ c     >   write(*,*) "orb,it,eci,eold,eci-eold=",ii,it,eci,eold,eci-eold
 
       theta0 = 0.0d0
       iteration = 0
-      !write(*,*) 
-      !write(*,*) "e0,de0, <psi|t> =",e0,de0,tnorm
-      !write(*,*) "start line search:"
+c      write(*,*) 
+c      write(*,*) "e0,de0, <psi|t> =",e0,de0,tnorm
+c      write(*,*) "start line search:"
       emin = e0
       demin = de0
       dtheta = (2.0d0*pi/100.0d0)/99.0
       first = .true.
+
+c      if (ii.eq.2) then
+c         write(*,*) 
+c         write(*,*) "e0,de0, <psi|t> =",e0,de0,tnorm
+c         write(*,*) "start line search:"
+c         dtheta = 0.05d0
+c         thetatmp = theta 
+c         theta = 0.0d0
+c      end if
 
  10   iteration = iteration + 1
       x = cos(theta)
@@ -1478,7 +1487,28 @@ c     >   write(*,*) "orb,it,eci,eold,eci-eold=",ii,it,eci,eold,eci-eold
       call Pack_cc_dot(1,dcpl_mb(orb(1)),dcpl_mb(g(1)),de1a)
       call Pack_cc_dot(1,t,              dcpl_mb(g(1)),de1b)
       de1 = y*de1a - x*de1b
-      !write(*,*) "theta,e0,e1,de0,de1 = ",iteration,theta,e0,e1,de0,de1
+c      write(*,*) "theta,e0,e1,de0,de1 = ",
+c     >           ii,iteration,theta,e0,e1,de0,de1
+
+c      if (e1.lt.emin) then
+c         emin  = e1
+c         demin = de1
+c         theta_min = theta
+c      end if
+
+c      if ((first).and.(ii.eq.2)) then
+c         write(*,*) "theta,e0,e1,de0,de1 = ",
+c     >           ii,iteration,theta,e0,e1,de0,de1
+c         theta = theta + dtheta
+c         if (theta.gt.2.0d0*pi) then
+c            first = .false.
+c           dtheta = (2.0d0*pi/100.0d0)/99.0
+c           theta = thetatmp
+c        
+c         end if
+c
+c         go to 10
+c      end if
 
       if (e1.lt.emin) then
          emin  = e1
@@ -1661,6 +1691,27 @@ c     >                   dcpl_mb(psi_ptr+(ii-1)*npack1))
 
       return
       end
+
+c      subroutine psi_follow_geovirt(orb1,t,orb2)
+c      implicit none
+c      complex*16 orb(*),t(*),orb2(*)
+c
+c      integer i
+c      real*8 theta x,y
+c
+c      do i=1,50
+c         theta = (i-1)/50.0 * 2.0d0*datan(1.0d0)
+c         call psi_linesearch_genpsi(theta,orb,t,orb2)
+c
+c         call psi_2x2_virtual_gradient(psig,psig_r,
+c     >                              orb2,
+c     >                              psie_r,
+c     >                              e1,dcpl_mb(g(1)),
+c     >                              h1psie,rho,vcee,vcge)
+c      end do
+
+c      return
+c      end
 
 
       subroutine psi_linesearch_genpsi(theta,orb,t,orb2)
