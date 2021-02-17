@@ -6,7 +6,7 @@ OBJ = gw_input.o gw_defaults.o task_gw.o dft_energy_gw.o\
 USES_BLAS = gw_cdgw.F gw_ri_init.F gw_run.F ga_chol_inv_seq.F\
             gw_lu_solve.F gw_invdiag ga_chol_inv_seq.F\
 	    gw_buildrn.o gw_buildiw.o gw_analytic_sigmac.o\
-	    gw_analytic_wmn.o
+	    gw_analytic_wmn.o gw_minres.o
 
 OBJ_OPTIMIZE = gw_ri_init.o gw_cdgw.o gw_run.o gw_lu_solve.o\
                gw_invdiag.o gw_buildrn.o gw_buildin.o\
@@ -14,7 +14,7 @@ OBJ_OPTIMIZE = gw_ri_init.o gw_cdgw.o gw_run.o gw_lu_solve.o\
 	       gw_analytic_addrpa.o gw_analytic_graph.o\
 	       gw_analytic_linear.o gw_analytic_newton.o\
 	       gw_analytic_ovscale.o gw_analytic_rpa.o\
-	       gw_analytic_scalxpy.o
+	       gw_analytic_scalxpy.o gw_minres.o
 
 LIBRARY = libnwdft.a
 
