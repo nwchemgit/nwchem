@@ -118,7 +118,7 @@ c
       character*(nw_max_path_len) fn_trials
 c
       logical llanczos
-      logical lkdav,lpolar
+      logical lkdav,lpolar,rodft
       integer ipolar,ipolar_start,ipolar_end
 c
       nodezero=(ga_nodeid().eq.0)
@@ -128,6 +128,13 @@ c Ground-state HF/DFT first
 c -------------------------
 c
       use_theory = "dft"
+c
+c     stop for rodft
+c
+      if (.not. rtdb_get(rtdb, 'dft:rodft', mt_log, 1, rodft))
+     R     rodft=.false.
+      if(rodft) call errquit(
+     R     ' tddft not compatible with RODFT ',0,CAPMIS_ERR)
       call tddft_dftinit(rtdb,oskel,oadapt)
       if (.not.dft_energy(rtdb)) then
         tddft_energy=.false.
