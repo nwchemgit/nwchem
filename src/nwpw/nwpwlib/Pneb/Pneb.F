@@ -2879,6 +2879,98 @@ c     ccccccccc first line ccccccccc
 
 c     ****************************************
 c     *                                      *
+c     *              Pneb_fw_QR              *
+c     *                                      *
+c     ****************************************
+c
+c  This subroutine calculates the QR decoposition of Q
+c
+c     Entry - mb,nbb
+c             Q - npack1xne complex matrix to be factored
+c             npack1  
+c     Exit - R - nexne complex matrix
+c          
+      subroutine Pneb_fw_QR(mb,nbb,Q,npack1,R)
+      implicit none
+      integer mb,nbb
+      complex*16 Q(*)
+      integer    npack1
+      complex*16 R(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "Pneb.fh"
+
+c     **** local variables ****
+      integer ms,ms1,ms2,ishift2,j,k,indxk,indxj,indxm
+      integer nb,nb1,nb2,ishift3,ishift1,ishift11
+     
+      integer jj,kk,rr,ss,jcur,kcur,rcur,scur
+      integer tmp(2)
+      real*8 w
+      complex*16 wc
+
+      if (mparallelized) then
+         call errquit('Pneb_fw_QR: mparallel not finished',0,0)
+
+c     **** not mparallized ****
+      else
+         if (nbb.eq.0) then
+            nb1=1
+            nb2=nbrillq
+            ishift3 = ne(1)*ne(1)+ne(2)*ne(2)*(ispinq-1)
+         else
+            ishift3 = 0
+            nb1=nbb
+            nb2=nbb
+         end if
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+         ishift1  = neq(1)*npack1
+         ishift11 = (neq(1)+neq(2))*npack1
+
+c         **** modified Gram-Schmidt ****
+         call Parallel_shared_vector_zero(.true.,
+     >                              2*(ne(1)*ne(1)+ne(2)*ne(2)),R)
+         do nb=nb1,nb2
+         do ms=ms1,ms2
+         do k=1,ne(ms)
+            indxk = 1 + (k-1)*npack1 + (ms-1)*ishift1 + (nb-1)*ishift11
+            indxm = k + (k-1)*ne(ms) + (ms-1)*ishift2  + (nb-1)*ishift3
+            call Cram_cc_dot(nb,Q(indxk),Q(indxk),w)
+            R(indxm) = dcmplx(dsqrt(w),0.0d0)
+            w        = 1.0d0/R(indxm)
+            call Cram_c_SMul1(nb,w,Q(indxk))
+
+            do j=k+1,ne(ms)
+               indxj = 1+(j-1)*npack1 + (ms-1)*ishift1+(nb-1)*ishift11
+               indxm = k+(j-1)*ne(ms) + (ms-1)*ishift2+(nb-1)*ishift3
+               call Cram_cc_zdot(nb,Q(indxk),Q(indxj),wc)
+               R(indxm) = wc
+               w = -wc
+               call Cram_cc_zaxpy(1,wc,Q(indxk),Q(indxj))
+            end do
+         end do
+         end do
+         end do
+      end if
+
+      return
+      end 
+
+
+
+
+
+c     ****************************************
+c     *                                      *
 c     *          Pneb_ff_traceall            *
 c     *                                      *
 c     ****************************************

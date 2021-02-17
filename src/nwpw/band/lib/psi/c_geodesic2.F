@@ -23,8 +23,10 @@
       integer npack1,neall,nemax,nbrillq
 
 *     **** external functions **** 
-      integer  cpsi_ne,cpsi_neq,Pneb_w_size,Pneb_4w_size
-      external cpsi_ne,cpsi_neq,Pneb_w_size,Pneb_4w_size
+      integer  cpsi_ne,cpsi_neq,cpsi_nbrillq,Pneb_w_size,Pneb_4w_size
+      external cpsi_ne,cpsi_neq,cpsi_nbrillq,Pneb_w_size,Pneb_4w_size
+      integer  cpsi_data_alloc
+      external cpsi_data_alloc
 
       call Cram_max_npack(npack1)
       neall  = cpsi_neq(1)+cpsi_neq(2)
@@ -97,70 +99,86 @@
 
 *     **** local variables ****
       logical value
-      integer npack1,nemax
+      integer npack1,neall
       integer ms,n,ispin,ne(2)
       integer shift,shift2,i,j
-      integer T(2)
+      integer T_tag
 
 *     **** external functions **** 
-      logical  Dneall_4m_allocate,Dneall_m_free
-      integer  psi_ispin,psi_neq
-      real*8   electron_eorbit_noocc
-      external Dneall_4m_allocate,Dneall_m_free
-      external psi_ispin,psi_neq
-      external electron_eorbit_noocc
+      logical  Pneb_4m_allocate,Dneall_m_free
+      external Pneb_4m_allocate,Dneall_m_free
+      integer  cpsi_ispin,cpsi_neq
+      external cpsi_ispin,cpsi_neq
+      integer  cpsi_data_push_stack,cpsi_data_get_allptr
+      external cpsi_data_push_stack,cpsi_data_get_allptr
+      real*8   c_electron_eorbit_noocc
+      external c_electron_eorbit_noocc
 
       call nwpw_timing_start(10)
-      call Pack_npack(1,npack1)
-      nemax = psi_neq(1) + psi_neq(2)
-      ispin = psi_ispin()
-      ne(1) = psi_neq(1)
-      ne(2) = psi_neq(2)
+      call Cram_max_npack(npack1)
+      neall = cpsi_neq(1) + cpsi_neq(2)
+      ispin = cpsi_ispin()
+      ne(1) = cpsi_neq(1)
+      ne(2) = cpsi_neq(2)
+      nbrillq = cpsi_nbrillq()
 
 *     **** allocate tmp space ****
-      value = Dneall_4m_allocate(0,T)
-      if (.not. value) 
-     >   call errquit('geodesic2_start: pushing stack',0, MA_ERR)
+      T_tag  = cpsi_data_push_stack(nbrillq,neall,2*npack1)
 
 *     **** Hold <-- H ****
-      !call dcopy(2*npack1*nemax,H,1,dcpl_mb(Hold(1)),1)
       call Parallel_shared_vector_copy(.true.,
-     >                    2*npack1*nemax,H,dcpl_mb(Hold(1)))
+     >                    nbrillq*2*npack1*nemax,
+     >                    dbl_mb(cpsi_data_get_allptr(H_tag)),
+     >                    dbl_mb(cpsi_data_get_allptr(Hold_tag)))
 
 *     **** calculate A=<Y|H> ****
-      call Dneall_ffm_Multiply(0,Y,H,npack1,dbl_mb(A(1)))
+      call Pneb_ffw_Multiply(0,0,
+     >                       dbl_mb(cpsi_data_get_allptr(Y_tag)),
+     >                       dbl_mb(cpsi_data_get_allptr(H_tag)),npack1,
+     >                       dbl_mb(cpsi_data_get_allptr(A_tag)))
 
 *     **** calculate Q=(I-YYt)H - should not be necessary but just in case ****
-      call Dneall_fmf_Multiply(0,Y,npack1,
-     >                         dbl_mb(A(1)),1.0d0,
-     >                         dcpl_mb(Q(1)),0.0d0)
-      call daxpy_omp(2*npack1*nemax,(-1.0d0),H,1,dcpl_mb(Q(1)),1)
-      call dscal_omp(2*npack1*nemax,(-1.0d0),dcpl_mb(Q(1)),1)
+      call Pneb_fwf_Multiply(0,0,
+     >                       dbl_mb(cpsi_data_get_allptr(Y_tag)),npack1,
+     >                       dbl_mb(cpsi_data_get_allptr(A_tag)),
+     >                       dcmplx(1.0d0,0.0d0),
+     >                       dbl_mb(cpsi_data_get_allptr(Q_tag)),
+     >                       dcmplx(0.0d0,0.0d0))
+      call DAXPY_OMP(nbrillq*2*npack1*nemax,(-1.0d0),
+     >                dbl_mb(cpsi_data_get_allptr(H_tag)),1,
+     >                dbl_mb(cpsi_data_get_allptr(Q_tag)),1)
+      call DSCAL_OMP(nbrillq*2*npack1*nemax,(-1.0d0),
+     >               dbl_mb(cpsi_data_get_allptr(Q_tag)),1)
 
 *     **** calculate QR using Modified Gram-Schmidt ****
-      call Dneall_fm_QR(0,dcpl_mb(Q(1)),npack1,dbl_mb(R(1)))
+      !call Pneb_fw_QR(0,0,dcpl_mb(Q(1)),npack1,dcpl_mb(R(1)))
+      call Pneb_fw_QR(0,0,
+     >                dbl_mb(cpsi_data_get_allptr(Q_tag)),npack1,
+     >                dbl_mb(cpsi_data_get_allptr(R_tag)))
 
 *     **** generate T from A and R ****
 *       -     -
 *  T = |A, -R^t|
 *      |R,  0  |
 *       -     -
-      call Dneall_AR_to_4m(0,dbl_mb(A(1)),dbl_mb(R(1)),dbl_mb(T(1)))
+      call Pneb_AR_to_4w(0,0,
+     >                   dbl_mb(cpsi_data_get_allptr(A_tag)),
+     >                   dbl_mb(cpsi_data_get_allptr(R_tag)),
+     >                   dbl_mb(cpsi_data_get_allptr(T_tag)))
 
 *     **** Factor T--> V,W,and S ****
-      call Dneall_4m_FactorSkew(0, dbl_mb(T(1)),
-     >                             dbl_mb(V(1)),
-     >                             dbl_mb(W(1)),
-     >                             dbl_mb(S(1)))
+      call Pneb_4w_FactorSkew(0,0,
+     >                        dbl_mb(cpsi_data_get_allptr(T_tag)),
+     >                        dbl_mb(cpsi_data_get_allptr(V_tag)),
+     >                        dbl_mb(cpsi_data_get_allptr(W_tag)),
+     >                        dbl_mb(cpsi_data_get_allptr(S_tag)))
 
 *     **** calculate dE ****
       dE = 2.0d0*c_electron_eorbit_noocc(H)
 
 
 *     **** deallocate tmp space ****     
-      value = Dneall_m_free(T)
-      if (.not. value) 
-     > call errquit('geodesic2_start:popping stack',1, MA_ERR)
+      call cpsi_data_pop_stack(T_tag)
 
       call nwpw_timing_end(10)
       return
@@ -188,15 +206,15 @@
       subroutine c_geodesic2_generate_T(n,A,R,T)
       implicit none
       integer n
-      real*8 A(n,n)
-      real*8 R(n,n)
-      real*8 T(2*n,2*n)
+      complex*16 A(n,n)
+      complex*16 R(n,n)
+      complex*16 T(2*n,2*n)
 
 *     **** local variables ****
       integer i,j
 
       !call dcopy(4*n*n,0.0d0,0,T,1)
-      call Parallel_shared_vector_zero(.true.,4*n*n,T)
+      call Parallel_shared_vector_zero(.true.,8*n*n,T)
       
 *     **** copy A to upper-left of T ****
       do j=1,n
@@ -215,7 +233,7 @@
 *     **** copy -R^t to upper-right of T ****
       do j=1,n
       do i=1,n
-         T(i,j+n) = -R(j,i)
+         T(i,j+n) = -dconjg(R(j,i))
       end do
       end do
 
@@ -253,42 +271,36 @@
       logical value
       integer npack1,ispin,ne(2)
       integer ms,n,j,k,shift1,shift2
-      integer MM(2),NN(2)
+      integer MM_tag,NN_tag
 
 *     **** external functions ****
-      logical  Dneall_m_push_get,Dneall_m_pop_stack
-      external Dneall_m_push_get,Dneall_m_pop_stack
+      integer  cpsi_data_push_stack,cpsi_data_getallptr
+      external cpsi_data_push_stack,cpsi_data_getallptr
 
 
       call Pack_npack(1,npack1)
 
 *     **** allocate tmp space ****
-      value =           Dneall_m_push_get(0,MM)
-      value = value.and.Dneall_m_push_get(0,NN)
-      if (.not. value) 
-     >   call errquit('geodesic2_get: pushing stack',0, MA_ERR)
+      MM_tag  = cpsi_data_push_stack(nbrillq,1,xxx)
+      NN_tag  = cpsi_data_push_stack(nbrillq,1,xxx)
 
-      call geodesic2_get_MandN(t,dbl_mb(MM(1)),dbl_mb(NN(1)))
+      call c_geodesic2_get_MandN(t,MM_tag,NN_tag)
 
-      call Dneall_fmf_Multiply(0,
-     >                         Yold,npack1,
-     >                         dbl_mb(MM(1)),
-     >                         1.0d0,
-     >                         Ynew,
-     >                         0.0d0)
-      call Dneall_fmf_Multiply(0,
-     >                         dcpl_mb(Q(1)),npack1,
-     >                         dbl_mb(NN(1)),
-     >                         1.0d0,
-     >                         Ynew,
-     >                         1.0d0)
+      call Pneb_fwf_Multiply(0,0,dcmplx(1.0d0,0.0d0),
+     >             dbl_mb(cpsi_data_get_allptr(Yold_tag)),npack1,
+     >             dbl_mb(cpsi_data_get_allptr(MM_tag)),
+     >             dcmplx(0.0d0,0.0d0),
+     >             dbl_mb(cpsi_data_get_allptr(Ynew_tag)))
+
+      call Pneb_fwf_Multiply(0,0,dcmplx(1.0d0,0.0d0),
+     >             dbl_mb(cpsi_data_get_allptr(Q_tag)),npack1,
+     >             dbl_mb(cpsi_data_get_allptr(NN_tag)),
+     >             dcmplx(1.0d0,0.0d0),
+     >             dbl_mb(cpsi_data_get_allptr(Ynew_tag)))
 
 *     **** deallocate tmp space ****     
-      value =           Dneall_m_pop_stack(NN)
-      value = value.and.Dneall_m_pop_stack(MM)
-      if (.not. value) 
-     > call errquit('geodesic2_get:popping stack',1, MA_ERR)
-
+      call cpsi_data_pop_stack(NN_tag))
+      call cpsi_data_pop_stack(MM_tag))
       return
       end
 
@@ -333,13 +345,19 @@
       call Pack_npack(1,npack1)
 
 *     **** allocate tmp space ****
+*     **** allocate tmp space ****
+      MM_tag  = cpsi_data_push_stack(nbrillq,1,xxx)
+      NN_tag  = cpsi_data_push_stack(nbrillq,1,xxx)
+      TT_tag  = cpsi_data_push_stack(nbrillq,1,xxx)
+
+*     **** allocate tmp space ****
       value =           Dneall_m_push_get(0,MM)
       value = value.and.Dneall_m_push_get(0,NN)
       value = value.and.Dneall_m_push_get(0,TT)
       if (.not. value) 
      >   call errquit('geodesic2_transport: pushing stack',0, MA_ERR)
 
-      call geodesic2_get_MandN(t,dbl_mb(MM(1)),dbl_mb(NN(1)))
+      call c_geodesic2_get_MandN(t,MM_tag,NN_tag)
 
 *     **** TT(t) = -R^t*NN(t) ****
       call Dneall_mmm_Multiply2ab(0,
@@ -351,13 +369,13 @@
 
 
 *     *** Hnew <-- Hold*M(t) + Yold*TT(t) ***
-      call Dneall_fmf_Multiply(0,
+      call Pneb_fmf_Multiply(0,
      >                         dcpl_mb(Hold(1)),npack1,
      >                         dbl_mb(MM(1)),
      >                         1.0d0,
      >                         Hnew,
      >                         0.0d0)
-      call Dneall_fmf_Multiply(0,
+      call Pneb_fmf_Multiply(0,
      >                         Yold,npack1,
      >                         dbl_mb(TT(1)),
      >                         1.0d0,
@@ -446,13 +464,13 @@
       if (.not. value) 
      >   call errquit('c_geodesic2_get_MandN: pushing stack',0, MA_ERR)
 
-      call Dneall_4m_RotateSkew(0,t,
+      call Pneb_4w_RotateSkew(0,t,
      >                          dbl_mb(V(1)),
      >                          dbl_mb(W(1)),
      >                          dbl_mb(S(1)),
      >                          dbl_mb(RR(1)) )
 
-      call Dneall_4m_to_MN(0,dbl_mb(RR(1)),M,N)
+      call Pneb_4w_to_MN(0,dbl_mb(RR(1)),M,N)
 
 *     **** deallocate tmp space ****     
       value = Dneall_m_pop_stack(RR)
