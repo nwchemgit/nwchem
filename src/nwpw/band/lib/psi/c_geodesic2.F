@@ -37,8 +37,7 @@
       Q_tag     = cpsi_data_alloc(nbrillq,neall,2*npack1)
       R_tag     = cpsi_data_alloc(nbrillq,1,2*Pneb_w_size(0,0))
       A_tag     = cpsi_data_alloc(nbrillq,1,2*Pneb_w_size(0,0))
-      V_tag     = cpsi_data_alloc(nbrillq,1,2*Pneb_4w_size(0,0))
-      W_tag     = cpsi_data_alloc(nbrillq,1,2*Pneb_4w_size(0,0))
+      U_tag     = cpsi_data_alloc(nbrillq,1,2*Pneb_4w_size(0,0))
       S_tag     = cpsi_data_alloc(nbrillq,2*nemax,1)
 
       return
@@ -67,8 +66,7 @@
       call cpsi_data_dealloc(Q_tag)
       call cpsi_data_dealloc(R_tag)
       call cpsi_data_dealloc(A_tag)
-      call cpsi_data_dealloc(V_tag)
-      call cpsi_data_dealloc(W_tag)
+      call cpsi_data_dealloc(U_tag)
       call cpsi_data_dealloc(S_tag)
       return
       end
@@ -99,20 +97,22 @@
 
 *     **** local variables ****
       logical value
-      integer npack1,neall
+      integer npack1,neall,nbrillq
       integer ms,n,ispin,ne(2)
       integer shift,shift2,i,j
       integer T_tag
 
 *     **** external functions **** 
-      logical  Pneb_4m_allocate,Dneall_m_free
-      external Pneb_4m_allocate,Dneall_m_free
-      integer  cpsi_ispin,cpsi_neq
-      external cpsi_ispin,cpsi_neq
+      logical  Pneb_4m_allocate
+      external Pneb_4m_allocate
+      integer  cpsi_ispin,cpsi_neq,cpsi_nbrillq
+      external cpsi_ispin,cpsi_neq,cpsi_nbrillq
       integer  cpsi_data_push_stack,cpsi_data_get_allptr
       external cpsi_data_push_stack,cpsi_data_get_allptr
-      real*8   c_electron_eorbit_noocc
-      external c_electron_eorbit_noocc
+      !real*8   c_electron_eorbit_noocc
+      !external c_electron_eorbit_noocc
+      real*8   c_electron_eorbit
+      external c_electron_eorbit
 
       call nwpw_timing_start(10)
       call Cram_max_npack(npack1)
@@ -127,7 +127,7 @@
 
 *     **** Hold <-- H ****
       call Parallel_shared_vector_copy(.true.,
-     >                    nbrillq*2*npack1*nemax,
+     >                    nbrillq*2*npack1*neall,
      >                    dbl_mb(cpsi_data_get_allptr(H_tag)),
      >                    dbl_mb(cpsi_data_get_allptr(Hold_tag)))
 
@@ -138,16 +138,15 @@
      >                       dbl_mb(cpsi_data_get_allptr(A_tag)))
 
 *     **** calculate Q=(I-YYt)H - should not be necessary but just in case ****
-      call Pneb_fwf_Multiply(0,0,
+      call Pneb_fwf_Multiply(0,0,dcmplx(1.0d0,0.0d0),
      >                       dbl_mb(cpsi_data_get_allptr(Y_tag)),npack1,
      >                       dbl_mb(cpsi_data_get_allptr(A_tag)),
-     >                       dcmplx(1.0d0,0.0d0),
-     >                       dbl_mb(cpsi_data_get_allptr(Q_tag)),
-     >                       dcmplx(0.0d0,0.0d0))
-      call DAXPY_OMP(nbrillq*2*npack1*nemax,(-1.0d0),
+     >                       dcmplx(0.0d0,0.0d0),
+     >                       dbl_mb(cpsi_data_get_allptr(Q_tag)))
+      call DAXPY_OMP(nbrillq*2*npack1*neall,(-1.0d0),
      >                dbl_mb(cpsi_data_get_allptr(H_tag)),1,
      >                dbl_mb(cpsi_data_get_allptr(Q_tag)),1)
-      call DSCAL_OMP(nbrillq*2*npack1*nemax,(-1.0d0),
+      call DSCAL_OMP(nbrillq*2*npack1*neall,(-1.0d0),
      >               dbl_mb(cpsi_data_get_allptr(Q_tag)),1)
 
 *     **** calculate QR using Modified Gram-Schmidt ****
@@ -169,12 +168,12 @@
 *     **** Factor T--> V,W,and S ****
       call Pneb_4w_FactorSkew(0,0,
      >                        dbl_mb(cpsi_data_get_allptr(T_tag)),
-     >                        dbl_mb(cpsi_data_get_allptr(V_tag)),
-     >                        dbl_mb(cpsi_data_get_allptr(W_tag)),
+     >                        dbl_mb(cpsi_data_get_allptr(U_tag)),
      >                        dbl_mb(cpsi_data_get_allptr(S_tag)))
 
 *     **** calculate dE ****
-      dE = 2.0d0*c_electron_eorbit_noocc(H)
+      !dE = 2.0d0*c_electron_eorbit_noocc(H)
+      dE = 2.0d0*c_electron_eorbit(cpsi_data_get_allptr(H_tag))
 
 
 *     **** deallocate tmp space ****     
@@ -268,16 +267,19 @@
 
 *     **** local variables ****
       logical value
-      integer npack1
+      integer npack1,nbrillq
       integer MM_tag,NN_tag
 
 *     **** external functions ****
+      integer  cpsi_nbrillq
+      external cpsi_nbrillq
       integer  cpsi_data_push_stack,cpsi_data_get_allptr
       external cpsi_data_push_stack,cpsi_data_get_allptr
       integer  Pneb_w_size
       external Pneb_w_size
 
       call Cram_max_npack(npack1)
+      nbrillq = cpsi_nbrillq()
 
 *     **** allocate tmp space ****
       MM_tag  = cpsi_data_push_stack(nbrillq,1,2*Pneb_w_size(0,0))
@@ -298,8 +300,8 @@
      >             dbl_mb(cpsi_data_get_allptr(Ynew_tag)))
 
 *     **** deallocate tmp space ****     
-      call cpsi_data_pop_stack(NN_tag))
-      call cpsi_data_pop_stack(MM_tag))
+      call cpsi_data_pop_stack(NN_tag)
+      call cpsi_data_pop_stack(MM_tag)
       return
       end
 
@@ -332,16 +334,19 @@
 
 *     **** local variables ****
       logical value
-      integer npack1
+      integer npack1,nbrillq
       integer MM_tag,NN_tag,TT_tag
 
 *     **** external functions ****
+      integer  cpsi_nbrillq
+      external cpsi_nbrillq
       integer  cpsi_data_push_stack,cpsi_data_get_allptr
       external cpsi_data_push_stack,cpsi_data_get_allptr
-      integer  Pneb_w_size
-      external Pneb_w_size
+      integer  Pneb_4w_size,Pneb_w_size
+      external Pneb_4w_size,Pneb_w_size
 
       call Cram_max_npack(npack1)
+      nbrillq = cpsi_nbrillq()
 
 *     **** allocate tmp space ****
       NN_tag  = cpsi_data_push_stack(nbrillq,1,2*Pneb_w_size(0,0))
@@ -367,9 +372,9 @@
      >             dbl_mb(cpsi_data_get_allptr(Hnew_tag)))
 
 *     **** deallocate tmp space ****    
-      call cpsi_data_pop_stack((TT_tag)
-      call cpsi_data_pop_stack((NN_tag)
-      call cpsi_data_pop_stack((MM_tag)
+      call cpsi_data_pop_stack(TT_tag)
+      call cpsi_data_pop_stack(NN_tag)
+      call cpsi_data_pop_stack(MM_tag)
 
       return
       end
@@ -431,21 +436,27 @@
 
 *     **** local variables ****
       logical value
-      integer RR_tag
+      integer nbrillq
+      integer AB_tag,RR_tag
 
 *     **** external functions ****
+      integer  cpsi_nbrillq
+      external cpsi_nbrillq
       integer  cpsi_data_push_stack,cpsi_data_get_allptr
       external cpsi_data_push_stack,cpsi_data_get_allptr
       integer  Pneb_4w_size
       external Pneb_4w_size
 
+      nbrillq = cpsi_nbrillq()
+
 *     **** allocate tmp space ****
+      AB_tag = cpsi_data_push_stack(nbrillq,1,2*Pneb_4w_size(0,0))
       RR_tag = cpsi_data_push_stack(nbrillq,1,2*Pneb_4w_size(0,0))
 
       call Pneb_4w_RotateSkew(0,0,t,
-     >                        dbl_mb(cpsi_data_get_allptr(V_tag)),
-     >                        dbl_mb(cpsi_data_get_allptr(W_tag)),
+     >                        dbl_mb(cpsi_data_get_allptr(U_tag)),
      >                        dbl_mb(cpsi_data_get_allptr(S_tag)),
+     >                        dbl_mb(cpsi_data_get_allptr(AB_tag)),
      >                        dbl_mb(cpsi_data_get_allptr(RR_tag)))
 
       call Pneb_4w_to_MN(0,0,
@@ -455,6 +466,7 @@
 
 *     **** deallocate tmp space ****     
       call cpsi_data_pop_stack(RR_tag)
+      call cpsi_data_pop_stack(AB_tag)
 
       return
       end
