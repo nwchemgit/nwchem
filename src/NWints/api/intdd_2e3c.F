@@ -209,8 +209,10 @@ c
       else
         write(luout,*)'intdd_2e3c: could not use the texas '
         write(luout,*)'           integral second derivatives'
-        write(luout,*)' Please notify nwchem-support@emsl.pnl.gov with'
-        write(luout,*)'        the input deck and output available'
+        write(luout,*)' Please open a github issue at'
+        write(luout,*)
+     W   ' https://github.com/nwchemgit/nwchem/issues/new/choose'
+        write(luout,*)'        attaching the input and output files'
         call errquit('intdd_2e3c: fatal error',911, INT_ERR)
       endif
 c

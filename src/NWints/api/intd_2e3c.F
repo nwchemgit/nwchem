@@ -233,8 +233,10 @@ c     skip for sp
       else
         write(luout,*)'intd_2e3c: could not use either texas or nwchem'
         write(luout,*)'           integral derivatives'
-        write(luout,*)' Please notify nwchem-support@emsl.pnl.gov with'
-        write(luout,*)'        the input deck and output available'
+        write(luout,*)' Please open a github issue at'
+        write(luout,*)
+     W   ' https://github.com/nwchemgit/nwchem/issues/new/choose'
+        write(luout,*)'        attaching the input and output files'
         call errquit('intd_2e3c: fatal error',911, INT_ERR)
       endif
 c
