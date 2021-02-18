@@ -5803,7 +5803,7 @@ c     ****************************************
            if (ne(ms).le.0) go to 30
            shift1 = 1 + (ms-1)*ishift1 + (nb-1)*ishift3
            shift2 = 1 + (ms-1)*ishift2 + (nb-1)*ishift4
-           call Pneb_4w_RotateSkew_sub2(2*ne(ms),t,Sigma(shift1),
+           call Pneb_4w_RotateSkew_sub(2*ne(ms),t,Sigma(shift1),
      >                                  U(shift2),
      >                                  AB(shift2))
  30        continue
@@ -5811,7 +5811,6 @@ c     ****************************************
          end do
          call Pneb_4www_Multiply3(0,0,dcmplx(1.0d0,0.0d0),U,AB,
      >                            dcmplx(0.0d0,0.0d0),R)
-
       end if
 
       return
