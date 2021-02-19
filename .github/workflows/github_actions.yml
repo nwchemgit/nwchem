@@ -144,6 +144,7 @@ jobs:
           rsync -av ~/cache/simint/simint_install/* src/NWints/simint/libsimint_source/simint_install/.   || true
           echo "cache fetched"
       - name: compile
+        id: compile
         run: |
           cc -v
           ./travis/compile_nwchem.sh
@@ -164,12 +165,16 @@ jobs:
           echo "cache stored"
           ls -Rla ~/cache 
       - name: qa_test
-        if: ${{ success() }}
+        id: qa_test
+        if: steps.compile.conclusion == 'success'
         run: |
           ./travis/run_qas.sh
       - name: Check if QA testing has failed
-        if: ${{ failure() }}
+        if: steps.qa_test.outcome == 'failure'
         run: |
+          echo "The steps context is:"
+          echo "${{ toJson(steps) }}"
+          echo "!!!!!!!!!!!!!!!!!!!!!!!!!"
           grep d= QA/testoutputs/dft_he2+.out
           grep @ QA/testoutputs/h2o_opt.out
           tail -30 QA/testoutputs/dft_he2+.out
