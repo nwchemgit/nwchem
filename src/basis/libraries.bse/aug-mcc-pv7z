@@ -1,0 +1,130 @@
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
+# aug-mcc-pv7z version number 0
+# Description: aug-mcc-pV7Z
+# Role: orbital
+# 
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
+# 
+# feller1996a
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+# schuchardt2007a
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# 
+#  References for the basis set
+# 
+#  H
+#      aug-mcc-pV7Z
+#          mielke2002a
+# 
+# 
+# 
+# mielke2002a
+#     Mielke, Steven L., Garrett, Bruce C., Peterson, Kirk A.
+#     A hierarchical family of global analytic Born-Oppenheimer potential
+#             energy surfaces for the H+H2 reaction ranging in quality from
+#             double-zeta to the complete basis set limit
+#     J. Chem. Phys., 116, 4142-4161 (2002)
+#     10.1063/1.1432319
+# 
+# # 
+basis "H_aug-mcc-pv7z" 
+#basis SET: (16s,7p,6d,5f,4g,3h,2i) -> [8s,7p,6d,5f,4g,3h,2i]
+H    S
+    884.1687000              0.0001040
+    132.3019000              0.0008120
+     30.1010100              0.0042500
+      8.5215260              0.0176180
+      2.7773320              0.0606630
+      1.0009950              0.1701620
+      0.3889190              0.3496490
+      0.1595940              0.4028080
+      0.0668510              0.1386980
+H    S
+      4.9682600              1.0000000
+H    S
+      2.0843320              1.0000000
+H    S
+      0.8744390              1.0000000
+H    S
+      0.3668530              1.0000000
+H    S
+      0.1539060              1.0000000
+H    S
+      0.0645680              1.0000000
+H    S
+      0.0159600              1.0000000
+H    P
+     14.5535450              1.0000000
+H    P
+      6.1201740              1.0000000
+H    P
+      2.5737050              1.0000000
+H    P
+      1.0823150              1.0000000
+H    P
+      0.4551440              1.0000000
+H    P
+      0.1914010              1.0000000
+H    P
+      0.0617110              1.0000000
+H    D
+      6.4699350              1.0000000
+H    D
+      2.9747130              1.0000000
+H    D
+      1.3676980              1.0000000
+H    D
+      0.6288330              1.0000000
+H    D
+      0.2891220              1.0000000
+H    D
+      0.1031700              1.0000000
+H    F
+      7.9238760              1.0000000
+H    F
+      3.5502400              1.0000000
+H    F
+      1.5906610              1.0000000
+H    F
+      0.7126850              1.0000000
+H    F
+      0.2320100              1.0000000
+H    G
+      4.1644940              1.0000000
+H    G
+      1.8436270              1.0000000
+H    G
+      0.8161760              1.0000000
+H    G
+      0.2955660              1.0000000
+H    H
+      4.6702960              1.0000000
+H    H
+      2.0470840              1.0000000
+H    H
+      0.5944500              1.0000000
+H    I
+      2.3260660              1.0000000
+H    I
+      0.7313800              1.0000000
+end

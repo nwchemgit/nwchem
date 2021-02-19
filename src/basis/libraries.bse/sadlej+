@@ -1,0 +1,208 @@
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
+# sadlej+ version number 1
+# Description: Sadlej+
+# Role: orbital
+# 
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
+# 
+# feller1996a
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+# schuchardt2007a
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# 
+#  References for the basis set
+# 
+#  H,C-O
+#      
+#          sadlej1988a
+# 
+#      Sadlej+ diffuse functions
+#          casida1998a
+# 
+# 
+# 
+# casida1998a
+#     Casida, Mark E., Jamorski, Christine, Casida, Kim C., Salahub, Dennis
+#             R.
+#     Molecular excitation energies to high-lying bound states from time-
+#             dependent density-functional response theory: Characterization
+#             and correction of the time-dependent local density
+#             approximation ionization threshold
+#     J. Chem. Phys., 108, 4439-4449 (1998)
+#     10.1063/1.475855
+# 
+# sadlej1988a
+#     Sadlej, Andrzej J.
+#     Medium-size polarized basis sets for high-level correlated
+#             calculations of molecular electric properties
+#     Collect. Czech. Chem. Commun., 53, 1995-2016 (1988)
+#     10.1135/cccc19881995
+# 
+# # 
+basis "H_sadlej+" 
+#basis SET: (8s,5p) -> [5s,3p]
+H    S
+     33.685014                .006068
+      5.094788                .045316
+      1.158786                .202846
+      0.325840                .503709
+H    S
+      0.102741               1.00000
+H    S
+      0.032400               1.00000
+H    S
+      0.0102000              1.0000000
+H    S
+      0.0032200              1.0000000
+H    P
+      1.1588                  .188440
+      0.3258                  .882420
+H    P
+      0.1027                  .117800
+      0.0324                  .004200
+H    P
+      0.0102000              1.0000000
+end
+basis "C_sadlej+" 
+#basis SET: (12s,7p,5d) -> [7s,4p,3d]
+C    S
+   5240.6353                  .000937
+    782.20480                 .007228
+    178.35083                 .036344
+     50.815942                .130600
+     16.823562                .318931
+C    S
+      6.175776                .438742
+      2.418049                .214974
+C    S
+      0.511900               1.
+C    S
+      0.156590               1.
+C    S
+      0.047900               1.
+C    S
+      0.0147000              1.0000000
+C    S
+      0.0044800              1.0000000
+C    P
+     18.841800                .013887
+      4.159240                .086279
+      1.206710                .288744
+      0.385540                .499411
+C    P
+      0.121940               1.
+C    P
+      0.038568               1.
+C    P
+      0.0120000              1.0000000
+C    D
+      1.206710                .262852
+      0.385540                .804300
+C    D
+      0.121940                .653500
+      0.038658                .863600
+C    D
+      0.0120000              1.0000000
+end
+basis "N_sadlej+" 
+#basis SET: (12s,7p,5d) -> [7s,4p,3d]
+N    S
+   8104.0716                  .000802
+   1216.0215                  .006174
+    277.23428                 .031233
+     76.904023                .115198
+     25.874419                .296951
+N    S
+      9.346767                .447349
+      3.579794                .245003
+N    S
+      0.739610               1.
+N    S
+      0.222617               1.
+N    S
+      0.067006               1.
+N    S
+      0.0202000              1.0000000
+N    S
+      0.0060800              1.0000000
+N    P
+     26.868987                .014478
+      5.991227                .091156
+      1.750842                .297420
+      0.560511                .493796
+N    P
+      0.175948               1.
+N    P
+      0.055231               1.
+N    P
+      0.0173000              1.0000000
+N    D
+      1.750842                .224774
+      0.560511                .659562
+N    D
+      0.175948                .871355
+      0.055231                .704217
+N    D
+      0.0173000              1.0000000
+end
+basis "O_sadlej+" 
+#basis SET: (12s,7p,5d) -> [7s,4p,3d]
+O    S
+  10662.285                   .000799
+   1599.7097                  .006153
+    364.72526                 .031157
+    103.65179                 .115596
+     33.905805                .301552
+O    S
+     12.287469                .444870
+      4.756805                .243172
+O    S
+      1.004271               1.
+O    S
+      0.300686               1.
+O    S
+      0.09003                1.
+O    S
+      0.0270000              1.0000000
+O    S
+      0.0080700              1.0000000
+O    P
+     34.856463                .015648
+      7.843131                .098197
+      2.306249                .307768
+      0.723164                .492470
+O    P
+      0.214882               1.
+O    P
+      0.06385                1.
+O    P
+      0.0190000              1.0000000
+O    D
+      2.3062                  .20270
+      0.7232                  .5791
+O    D
+      0.2149                  .78545
+      0.0639                  .53387
+O    D
+      0.0190000              1.0000000
+end

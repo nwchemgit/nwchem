@@ -1,0 +1,241 @@
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
+# svp + rydberg (dunning-hay) version number 0
+# Description: VDZP1R  Valence Double Zeta + Polarization + Rydberg
+# Role: orbital
+# 
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
+# 
+# feller1996a
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+# schuchardt2007a
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# 
+#  References for the basis set
+# 
+#  B-Ne
+#      VDZ     Valence Double Zeta: 2 Funct.'s/Valence AO
+#          dunning1977b
+# 
+#      1P      Polarization Functions
+#          dunning1977b
+# 
+#      1R      Rydberg Functions
+#          dunning1977b
+# 
+# 
+# 
+# dunning1977b
+#     Dunning, Thom H., Hay, P. Jeffrey
+#     Gaussian basis sets for molecular calculations
+#     in 'Methods of Electronic Structure Theory'
+#     ed. Henry F. Schaefer
+#     Modern Theoretical Chemistry, 3, 1-27 (1977)
+#     10.1007/978-1-4757-0887-5
+# 
+# # 
+basis "B_svp + rydberg (dunning-hay)" 
+#basis SET: (11s,6p,2d) -> [4s,3p,2d]
+B    S
+   2788.0                    0.001288
+    419.00                   0.009835
+     96.470                  0.047648
+     28.070                  0.160069
+      9.3760                 0.362894
+      3.4060                 0.433582
+      1.3060                 0.140082
+B    S
+      3.4060                -0.179330
+      0.3245                 1.062594
+B    S
+      0.1022                 1.000000
+B    S
+      0.019000               1.000000
+B    P
+     11.340                  0.017988
+      2.4360                 0.110343
+      0.6836                 0.383072
+      0.2134                 0.647895
+B    P
+      0.07011                1.000000
+B    P
+      0.015000               1.000000
+B    D
+      0.700000               1.000000
+B    D
+      0.015000               1.000000
+end
+basis "C_svp + rydberg (dunning-hay)" 
+#basis SET: (11s,6p,2d) -> [4s,3p,2d]
+C    S
+   4233.0                    0.001220
+    634.90                   0.009342
+    146.10                   0.045452
+     42.500                  0.154657
+     14.190                  0.358866
+      5.1480                 0.438632
+      1.9670                 0.145918
+C    S
+      5.1480                -0.168367
+      0.4962                 1.060091
+C    S
+      0.1533                 1.000000
+C    S
+      0.023000               1.000000
+C    P
+     18.160                  0.018539
+      3.9860                 0.115436
+      1.1430                 0.386188
+      0.3594                 0.640114
+C    P
+      0.1146                 1.000000
+C    P
+      0.021000               1.000000
+C    D
+      0.750000               1.000000
+C    D
+      0.015000               1.000000
+end
+basis "N_svp + rydberg (dunning-hay)" 
+#basis SET: (11s,6p,2d) -> [4s,3p,2d]
+N    S
+   5909.0                    0.001190
+    887.50                   0.009099
+    204.70                   0.044145
+     59.840                  0.150464
+     20.000                  0.356741
+      7.1930                 0.446533
+      2.6860                 0.145603
+N    S
+      7.1930                -0.160405
+      0.7000                 1.058215
+N    S
+      0.2133                 1.000000
+N    S
+      0.028000               1.000000
+N    P
+     26.790                  0.018254
+      5.9560                 0.116461
+      1.7070                 0.390178
+      0.5314                 0.637102
+N    P
+      0.1654                 1.000000
+N    P
+      0.025000               1.000000
+N    D
+      0.800000               1.000000
+N    D
+      0.015000               1.000000
+end
+basis "O_svp + rydberg (dunning-hay)" 
+#basis SET: (11s,6p,2d) -> [4s,3p,2d]
+O    S
+   7817.0                    0.001176
+   1176.0                    0.008968
+    273.20                   0.042868
+     81.170                  0.143930
+     27.180                  0.355630
+      9.5320                 0.461248
+      3.4140                 0.140206
+O    S
+      9.5320                -0.154153
+      0.9398                 1.056914
+O    S
+      0.2846                 1.000000
+O    S
+      0.032000               1.000000
+O    P
+     35.180                  0.019580
+      7.9040                 0.124200
+      2.3050                 0.394714
+      0.7171                 0.627376
+O    P
+      0.2137                 1.000000
+O    P
+      0.028000               1.000000
+O    D
+      0.850000               1.000000
+O    D
+      0.015000               1.000000
+end
+basis "F_svp + rydberg (dunning-hay)" 
+#basis SET: (11s,6p,2d) -> [4s,3p,2d]
+F    S
+   9995.0                    0.001166
+   1506.0                    0.008876
+    350.30                   0.042380
+    104.10                   0.142929
+     34.840                  0.355372
+     12.220                  0.462085
+      4.3690                 0.140848
+F    S
+     12.220                 -0.148452
+      1.2080                 1.055270
+F    S
+      0.3634                 1.000000
+F    S
+      0.036000               1.000000
+F    P
+     44.360                  0.020876
+     10.080                  0.130107
+      2.9960                 0.396166
+      0.9383                 0.620404
+F    P
+      0.2733                 1.000000
+F    P
+      0.029000               1.000000
+F    D
+      0.900000               1.000000
+F    D
+      0.015000               1.000000
+end
+basis "Ne_svp + rydberg (dunning-hay)" 
+#basis SET: (11s,6p,2d) -> [4s,3p,2d]
+Ne    S
+  12100.                     0.001200
+   1821.0                    0.009092
+    432.80                   0.041305
+    132.50                   0.137867
+     43.770                  0.362433
+     14.910                  0.472247
+      5.1270                 0.130035
+Ne    S
+     14.910                 -0.140810
+      1.4910                 1.053327
+Ne    S
+      0.4468                 1.000000
+Ne    S
+      0.040000               1.000000
+Ne    P
+     56.450                  0.020875
+     12.920                  0.130032
+      3.8650                 0.395679
+      1.2030                 0.621450
+Ne    P
+      0.3444                 1.000000
+Ne    P
+      0.030000               1.000000
+Ne    D
+      0.950000               1.000000
+Ne    D
+      0.015000               1.000000
+end

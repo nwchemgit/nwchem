@@ -1,0 +1,72 @@
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
+# dfo-1-bhs version number 1
+# Description: Optimized gaussian basis set for Density-functional calculations (requiring pseudopotential)
+# Role: orbital
+# 
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
+# 
+# feller1996a
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+# schuchardt2007a
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# 
+#  References for the basis set
+# 
+#  Si
+#      Optimized gaussian basis set for Density-functional calculations (requiring pseudopotential)
+#          porezag1999a
+# 
+# 
+# 
+# porezag1999a
+#     Porezag, Dirk, Pederson, Mark R.
+#     Optimization of Gaussian basis sets for density-functional
+#             calculations
+#     Phys. Rev. A, 60, 2840-2847 (1999)
+#     10.1103/PhysRevA.60.2840
+# 
+# # 
+basis "Si_dfo-1-bhs" 
+#basis SET: (7s,7p,2d) -> [2s,2p,1d]
+Si    S
+      2.23626e+00            1.23450e-01
+      1.33476e+00           -4.06338e-01
+      3.95680e-01            3.17372e-01
+      1.52472e-01            7.43263e-01
+      5.42228e-02            1.51311e-01
+Si    S
+      1.52472e-01            2.78989e-01
+      5.42228e-02            7.57275e-01
+Si    P
+      2.23626e+00            6.57953e-04
+      1.33476e+00           -1.93641e-02
+      3.95680e-01            2.96728e-01
+      1.52472e-01            5.20318e-01
+      5.42228e-02            3.26872e-01
+Si    P
+      1.52472e-01            2.26183e-01
+      5.42228e-02            8.23610e-01
+Si    D
+      3.95680e-01            6.81837e-01
+      1.52472e-01            4.01981e-01
+end

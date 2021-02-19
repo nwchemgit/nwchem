@@ -1,0 +1,308 @@
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
+# dzp + diffuse (dunning-hay) version number 0
+# Description: DZPD    Double Zeta + Polarization + Diffuse
+# Role: orbital
+# 
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
+# 
+# feller1996a
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+# schuchardt2007a
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# 
+#  References for the basis set
+# 
+#  H,B-F
+#      DZ      Double Zeta: 2 Functions/AO
+#          dunning1970a
+# 
+#      1P      Polarization Functions
+#          dunning1977b
+# 
+#      1D      Diffuse Functions
+#          dunning1977b
+# 
+#  Li
+#      DZ      Double Zeta: 2 Functions/AO
+#          dunning1977b
+# 
+#      1P      Polarization Functions
+#          gaussian09e01
+# 
+#      1D      Diffuse Functions
+#          dunning1977b
+# 
+#  Ne
+#      DZ      Double Zeta: 2 Functions/AO
+#          dunning1977b
+# 
+#      1P      Polarization Functions
+#          dunning1977b
+# 
+#      1D      Diffuse Functions
+#          dunning1977b
+# 
+# 
+# 
+# dunning1970a
+#     Dunning, Thom H.
+#     Gaussian Basis Functions for Use in Molecular Calculations. I.
+#             Contraction of (9s5p) Atomic Basis Sets for the First-Row
+#             Atoms
+#     J. Chem. Phys., 53, 2823-2833 (1970)
+#     10.1063/1.1674408
+# 
+# dunning1977b
+#     Dunning, Thom H., Hay, P. Jeffrey
+#     Gaussian basis sets for molecular calculations
+#     in 'Methods of Electronic Structure Theory'
+#     ed. Henry F. Schaefer
+#     Modern Theoretical Chemistry, 3, 1-27 (1977)
+#     10.1007/978-1-4757-0887-5
+# 
+# gaussian09e01
+#     Frisch, M. J., Trucks, G. W., Schlegel, H. B., Scuseria, G. E., Robb,
+#             M. A., Cheeseman, J. R., Scalmani, G., Barone, V., Mennucci,
+#             B., Petersson, G. A., Nakatsuji, H., Caricato, M., Li, X.,
+#             Hratchian, H. P., Izmaylov, A. F., Bloino, J., Zheng, G.,
+#             Sonnenberg, J. L., Hada, M., Ehara, M., Toyota, K., Fukuda,
+#             R., Hasegawa, J., Ishida, M., Nakajima, T., Honda, Y., Kitao,
+#             O., Nakai, H., Vreven, T., Montgomery, J. A., Jr., Peralta, J.
+#             E., Ogliaro, F., Bearpark, M., Heyd, J. J., Brothers, E.,
+#             Kudin, K. N., Staroverov, V. N., Kobayashi, R., Normand, J.,
+#             Raghavachari, K., Rendell, A., Burant, J. C., Iyengar, S. S.,
+#             Tomasi, J., Cossi, M., Rega, N., Millam, M. J., Klene, M.,
+#             Knox, J. E., Cross, J. B., Bakken, V., Adamo, C., Jaramillo,
+#             J., Gomperts, R., Stratmann, R. E., Yazyev, O., Austin, A. J.,
+#             Cammi, R., Pomelli, C., Ochterski, J. W., Martin, R. L.,
+#             Morokuma, K., Zakrzewski, V. G., Voth, G. A., Salvador, P.,
+#             Dannenberg, J. J., Dapprich, S., Daniels, A. D., Farkas, Ö.,
+#             Foresman, J. B., Ortiz, J. V., Cioslowski, J., Fox, D. J.
+#     Gaussian 09 Revision E.01
+#     Gaussian, Inc., Wallingford, CT, 2009
+# 
+# # 
+basis "H_dzp + diffuse (dunning-hay)" 
+#basis SET: (5s,1p) -> [3s,1p]
+H    S
+     19.2406                 0.032828
+      2.89920                0.231208
+      0.65340                0.817238
+H    S
+      0.17760                1.000000
+H    S
+      0.048273               1.000000
+H    P
+      1.000000               1.000000
+end
+basis "Li_dzp + diffuse (dunning-hay)" 
+#basis SET: (10s,5p,1d) -> [5s,3p,1d]
+Li    S
+    921.30                   0.001367
+    138.70                   0.010425
+     31.940                  0.049859
+      9.3530                 0.160701
+      3.1580                 0.344604
+      1.1570                 0.425197
+Li    S
+      0.44460                1.000000
+Li    S
+      0.07666                1.000000
+Li    S
+      0.028640               1.000000
+Li    S
+      0.010700               1.000000
+Li    P
+      1.488000               0.038770
+      0.266700               0.236257
+      0.072010               0.830448
+Li    P
+      0.023700               1.000000
+Li    P
+      0.007800               1.000000
+Li    D
+      0.200000               1.000000
+end
+basis "B_dzp + diffuse (dunning-hay)" 
+#basis SET: (9s,6p,1d) -> [4s,3p,1d]
+B    S
+   2788.41                   0.002122
+    419.039                  0.016171
+     96.4683                 0.078356
+     28.0694                 0.263250
+      9.37600                0.596729
+      1.30570                0.230397
+B    S
+      3.40620                1.000000
+B    S
+      0.3245                 1.000000
+B    S
+      0.1022                 1.000000
+B    P
+     11.3413                 0.017987
+      2.43600                0.110339
+      0.68360                0.383111
+      0.21340                0.647860
+B    P
+      0.07010                1.000000
+B    P
+      0.019                  1.000000
+B    D
+      0.700000               1.000000
+end
+basis "C_dzp + diffuse (dunning-hay)" 
+#basis SET: (9s,6p,1d) -> [4s,3p,1d]
+C    S
+   4232.61                   0.002029
+    634.882                  0.015535
+    146.097                  0.075411
+     42.4974                 0.257121
+     14.1892                 0.596555
+      1.96660                0.242517
+C    S
+      5.14770                1.000000
+C    S
+      0.4962                 1.000000
+C    S
+      0.1533                 1.000000
+C    P
+     18.1557                 0.018534
+      3.98640                0.115442
+      1.14290                0.386206
+      0.35940                0.640089
+C    P
+      0.11460                1.000000
+C    P
+      0.034                  1.000000
+C    D
+      0.750000               1.000000
+end
+basis "N_dzp + diffuse (dunning-hay)" 
+#basis SET: (9s,6p,1d) -> [4s,3p,1d]
+N    S
+   5909.44                   0.002004
+    887.451                  0.015310
+    204.749                  0.074293
+     59.8376                 0.253364
+     19.9981                 0.600576
+      2.6860                 0.245111
+N    S
+      7.1927                 1.000000
+N    S
+      0.7000                 1.000000
+N    S
+      0.2133                 1.000000
+N    P
+     26.786                  0.018257
+      5.9564                 0.116407
+      1.7074                 0.390111
+      0.5314                 0.637221
+N    P
+      0.1654                 1.000000
+N    P
+      0.048                  1.000000
+N    D
+      0.800000               1.000000
+end
+basis "O_dzp + diffuse (dunning-hay)" 
+#basis SET: (9s,6p,1d) -> [4s,3p,1d]
+O    S
+   7816.54                   0.002031
+   1175.82                   0.015436
+    273.188                  0.073771
+     81.1696                 0.247606
+     27.1836                 0.611832
+      3.41360                0.241205
+O    S
+      9.5322                 1.000000
+O    S
+      0.9398                 1.000000
+O    S
+      0.2846                 1.000000
+O    P
+     35.1832                 0.019580
+      7.9040                 0.124189
+      2.3051                 0.394727
+      0.7171                 0.627375
+O    P
+      0.2137                 1.000000
+O    P
+      0.059                  1.000000
+O    D
+      0.850000               1.000000
+end
+basis "F_dzp + diffuse (dunning-hay)" 
+#basis SET: (9s,6p,1d) -> [4s,3p,1d]
+F    S
+   9994.79                   0.002017
+   1506.03                   0.015295
+    350.269                  0.073110
+    104.053                  0.246420
+     34.8432                 0.612593
+      4.36880                0.242489
+F    S
+     12.2164                 1.000000
+F    S
+      1.2078                 1.000000
+F    S
+      0.3634                 1.000000
+F    P
+     44.3555                 0.020868
+     10.0820                 0.130092
+      2.99590                0.396219
+      0.93830                0.620368
+F    P
+      0.2733                 1.000000
+F    P
+      0.074                  1.000000
+F    D
+      0.900000               1.000000
+end
+basis "Ne_dzp + diffuse (dunning-hay)" 
+#basis SET: (10s,6p,1d) -> [4s,3p,1d]
+Ne    S
+  12100.                     0.001200
+   1821.0                    0.009092
+    432.80                   0.041305
+    132.50                   0.137867
+     43.770                  0.362433
+     14.910                  0.472247
+      5.1270                 0.130035
+Ne    S
+     14.910                  1.000000
+Ne    S
+      1.4910                 1.000000
+Ne    S
+      0.4468                 1.000000
+Ne    P
+     56.450                  0.020875
+     12.920                  0.130032
+      3.8650                 0.395679
+      1.2030                 0.621450
+Ne    P
+      0.3444                 1.000000
+Ne    P
+      0.089                  1.000000
+Ne    D
+      0.950000               1.000000
+end
