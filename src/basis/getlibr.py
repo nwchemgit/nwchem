@@ -33,7 +33,8 @@ for bas_name in all_bs:
     elements_list = md[bas_name]['versions'][version_bs]['elements']
     #open file
     # get rid of asterisks
-    file_name = bas_name.replace("*","s")
+    #file_name = bas_name.replace("*","s")
+    file_name = bas_name.replace("_st_","s")
     #get rid of parenthesis
     file_name = file_name.replace("(","")
     file_name = file_name.replace(")","")
@@ -42,7 +43,8 @@ for bas_name in all_bs:
     #replace whitespace with underscore
     file_name = file_name.replace(" ","_")
     #replace forward slash with underscore
-    file_name = file_name.replace("/","_")
+    #file_name = file_name.replace("/","_")
+    file_name = file_name.replace("_sl_","_")
     print(' file name is '+file_name+"\n")
     output_file = open(file_name,'w')
     output_file.write('# BSE Version '+bse.version()+'\n')
