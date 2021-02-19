@@ -783,6 +783,52 @@ c     > call errquit("psi_1_get_Tgradient:error popping stack",0,MA_ERR)
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *        cpsi_1get_TSgradient     *
+*     *                                 *
+*     ***********************************
+      subroutine cpsi_1get_TSgradient(THpsi_tag,E0)
+      implicit none
+      integer    THpsi_tag
+      real*8     E0
+            
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "cpsi_common.fh"
+#include "rhoall_common.fh"
+         
+*     **** local variables ****
+      integer tmp1_tag        
+     
+*     **** external functions ****
+      integer  cpsi_data_push_stack,Pneb_w_size
+      external cpsi_data_push_stack,Pneb_w_size
+      real*8   c_electron_energy
+      external c_electron_energy
+         
+      tmp1_tag = cpsi_data_push_stack(nbrillq,1,2*Pneb_w_size(0,1))
+         
+      call c_electron_run(psi1_tag,
+     >                   dbl_mb(rho1(1)),
+     >                   dcpl_mb(dng1(1)),
+     >                   dbl_mb(rho1_all(1)))
+      E0 = c_electron_energy(psi1_tag,
+     >                       dbl_mb(rho1(1)),
+     >                       dcpl_mb(dng1(1)),
+     >                       dbl_mb(rho1_all(1)))
+      call c_electron_gen_hmlt(psi1_tag,tmp1_tag)
+
+      call c_electron_get_Tgradient(psi1_tag,
+     >                             tmp1_tag,
+     >                             THpsi_tag)
+
+      call cpsi_data_pop_stack(tmp1_tag)
+
+      return
+      end
+
+
 
 
 
@@ -1364,6 +1410,103 @@ c     >                       tmp1_tag)
 #include "cpsi_common.fh"
 
       call c_geodesic_get0(nb,t,psi1_tag,psi2_tag)
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         cpsi_geodesic2_energy    *
+*     *                                 *
+*     ***********************************
+      real*8 function cpsi_geodesic2_energy(t)
+      implicit none
+      real*8 t
+
+#include "bafdecls.fh"
+#include "cpsi_common.fh"
+#include "rhoall_common.fh"
+
+      real*8 e_new
+
+*     **** external functions ****
+      real*8   c_electron_energy
+      external c_electron_energy
+
+      call c_geodesic2_get(t,psi1_tag,
+     >                       psi2_tag)
+
+
+      call c_electron_run(psi2_tag,
+     >                    dbl_mb(rho2(1)),
+     >                    dcpl_mb(dng2(1)),
+     >                    dbl_mb(rho2_all(1)))
+
+
+      e_new =  c_electron_energy(psi2_tag,
+     >                           dbl_mb(rho2(1)),
+     >                           dcpl_mb(dng2(1)),
+     >                           dbl_mb(rho2_all(1)))
+
+
+      cpsi_geodesic2_energy = e_new
+      return
+      end
+
+*     ***************************************
+*     *                                     *
+*     *         cpsi_geodesic2_denergy      *
+*     *                                     *
+*     ***************************************
+      real*8 function cpsi_geodesic2_denergy(t)
+      implicit none
+      real*8 t
+
+#include "bafdecls.fh"
+#include "cpsi_common.fh"
+
+*     **** external functions ****
+      real*8   c_electron_eorbit
+      external c_electron_eorbit
+
+      call c_geodesic2_transport(t,psi1_tag,psi2_tag)
+      cpsi_geodesic2_denergy = 2.0d0*c_electron_eorbit(psi2_tag)
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *     cpsi_1geodesic2_transport   *
+*     *                                 *
+*     ***********************************
+      subroutine cpsi_1geodesic2_transport(t,H0_tag)
+      implicit none 
+      real*8 t 
+      integer H0_tag
+           
+#include "bafdecls.fh"
+#include "cpsi_common.fh"
+
+      call c_geodesic2_transport(t,psi1_tag,H0_tag)
+         
+      return  
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *         cpsi_geodesic2_final    *
+*     *                                 *
+*     ***********************************
+      subroutine cpsi_geodesic2_final(t)
+      implicit none
+      real*8 t
+
+#include "bafdecls.fh"
+#include "cpsi_common.fh"
+
+      call c_geodesic2_get(t,psi1_tag,psi2_tag)
       return
       end
 

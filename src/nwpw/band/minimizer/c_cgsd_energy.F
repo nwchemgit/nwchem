@@ -157,8 +157,14 @@
            stop
          else if (minimizer.eq.4) then
            bfgscount = bfgscount + 1
-           write(*,*) "Bundled Stiefel minimizer not implemented"
-           stop
+           call c_cgminimize2(E,deltae,deltac,bfgscount,it_in)
+c           if (control_fractional()) then
+c              call psi_1gen_hml()
+c              call psi_diagonalize_hml_assending()
+c              call psi_1define_occupation(-1.0d0,.false.)
+c              !call psi_1rotate2()
+c              !call psi_2to1()
+c           end if
          else if (minimizer.eq.5) then
            bfgscount = bfgscount + 1
            call c_bybminimize(E,deltae,deltac,bfgscount,.false.,1)
