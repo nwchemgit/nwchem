@@ -1,9 +1,12 @@
 #!/usr/bin/python3
 # This script downloads the basis set library data from www.basissetexchange.org
 # into the directory $NWCHEM_TOP/src/basis/libraries.bse
-# to use, set the env. variable NWCHEM_BASIS_LIBRARY=$NWCHEM_TOP/src/basis/libraries.bse/
+# To run, cd $NWCHEM_TOP/src/basis/libraries.bse/ && ../getlibr.py
+# this will update the content of $NWCHEM_TOP/src/basis/libraries.bse
+# To use the updates library, set the env. variable NWCHEM_BASIS_LIBRARY=$NWCHEM_TOP/src/basis/libraries.bse/
 # Requires the installation of the python env. from
 # https://github.com/MolSSI-BSE/basis_set_exchange
+# e.g. python3 -m pip install --user basis_set_exchange
 # See https://molssi-bse.github.io/basis_set_exchange/
 #
 # names changed
@@ -19,6 +22,13 @@ all_bs = bse.get_all_basis_names()
 md = bse.get_metadata()
 for bas_name in all_bs:
     #get version and list of elements
+    #new conventiosn for bas_name
+    #>>> md = bse.filter_basis_sets('6-31++g')
+    #>>> md.keys()
+    bas_name = bas_name.lower()
+    bas_name = bas_name.replace("*","_st_")
+    bas_name = bas_name.replace("/","_sl_")
+    print(' bas_name '+bas_name+"\n")
     version_bs = md[bas_name]['latest_version']
     elements_list = md[bas_name]['versions'][version_bs]['elements']
     #open file
@@ -36,7 +46,7 @@ for bas_name in all_bs:
     print(' file name is '+file_name+"\n")
     output_file = open(file_name,'w')
     output_file.write('# BSE Version '+bse.version()+'\n')
-    output_file.write('# Data downloaded at '+today+'\n')
+    output_file.write('# Data downloaded on '+today+'\n')
     output_file.write('# '+bas_name+' version number '+version_bs+'\n')
     output_file.write('# Description: '+md[bas_name]['description']+'\n')
     output_file.write('# Role: '+md[bas_name]['role']+'\n')
