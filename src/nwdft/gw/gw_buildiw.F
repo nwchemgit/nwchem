@@ -20,13 +20,14 @@
       integer ilo,ihi,me,ld,mynpoles,igl,ipole,info,k_ipiv,l_ipiv
       integer pilo,pihi,k_pi,l_pi,idx,idy,l_tmp,tmp
       integer imo,jmo,kmo,lmo,nprocs,kOV1,kOV2,isp,addr,idz,kOO(2)
-      integer kVV(2),kOV(2)
+      integer kVV(2),kOV(2),mynvir,mynocc
       double precision w2
       double precision factor(maxpoles,ipol)
 
       logical cholesky
       double precision,external :: ddot
       integer,external :: ga_nodeid, ga_nnodes,ilaenv
+      logical,external :: ga_locate
 
 #ifdef USE_OPENMP
       integer iMaxThreads
@@ -34,7 +35,6 @@
       iMaxThreads = omp_get_max_threads()
       call util_blas_set_num_threads(iMaxThreads)
 #endif
-
 
       call ga_sync()
 
@@ -83,7 +83,7 @@
         kOV(2) = 1
       endif
 
-      do igl=1,ngl
+      do igl=ngl,1,-1
 c
         w2 = x(igl)
 
@@ -109,30 +109,15 @@ c
 
         cholesky = .true.
         call dpftrf('n','l',nri,dbl_mb(k_pi),info)
-        call ga_brdcst(mt_dbl,info,mitob(1),0)
-        if (info.ne.0) then
-          cholesky = .false.
-          call gw_buildpi('r',dbl_mb(kOV(1)),dbl_mb(kOV(2)),
-     $                    dbl_mb(k_pi),
-     $                    factor,nri,nri,pars%mynpoles,main,ipol,
-     $                    maxpoles)
-          call ga_dgop(mt_dbl,dbl_mb(k_pi),nri**2,'+')
-          call dsytrf('l',nri,dbl_mb(k_pi),nri,int_mb(k_ipiv),
-     $                 dbl_mb(k_work),lwork,info)
-          if (info.gt.0) then
-            call gw_corrldl(dbl_mb(k_pi),int_mb(k_ipiv),nri,main)
-          else
-            call errquit(pname//'LDL factorization failed',info,0)
-          endif
-        endif
         !
         do isp=1,ipol
 
           do imo=pars%llmo(isp),pars%llmo(isp)+pars%nqp(isp)-1
+            jmo = imo - pars%llmo(isp) + 1
+
 #ifdef USE_OPENMP
             call util_blas_set_num_threads(1)
 #endif
-            jmo = imo - pars%llmo(isp) + 1
             if (imo.le.pars%nocc(isp)) then
 
 
@@ -167,42 +152,30 @@ c
                 call dcopy(nri,dbl_mb(idy),1,dbl_mb(idx),1)
               enddo
 !$omp         end parallel do
-
             endif
-
 #ifdef USE_OPENMP
             call util_blas_set_num_threads(iMaxThreads)
 #endif
 
+
             call dcopy(nri*iwidx(0,jmo,isp),dbl_mb(tmp),1,
      $                 dbl_mb(k_sol),1)
 
-            if (cholesky) then
-              call dtfsm('n','l','l','n','n',nri,iwidx(0,jmo,isp),1d0,
-     $                  dbl_mb(k_pi),dbl_mb(k_sol),nri)       
-              addr = k_sol
-            else
-              call dsytrs('L',nri,iwidx(0,jmo,isp),dbl_mb(k_pi),nri,
-     $                     int_mb(k_ipiv),dbl_mb(k_sol),nri,info)
-              if (info.ne.0) then
-                call errquit(pname//'LS solution failed',info,0)
-              endif
-              addr = tmp
-            endif
+            call dtfsm('n','l','l','n','n',nri,iwidx(0,jmo,isp),1d0,
+     $                 dbl_mb(k_pi),dbl_mb(k_sol),nri)       
+            addr = k_sol
 c
 #ifdef USE_OPENMP
             call util_blas_set_num_threads(1)
 #endif
 
 
-!$omp       parallel do private(kmo,idx,idy,idz,lmo)
+!$omp       parallel do private(kmo,idx,idy)
             do kmo=1,iwidx(0,jmo,isp)
               idx = tmp + (kmo-1)*nri
               idy = k_sol + (kmo-1)*nri
-              idz = addr + (kmo-1)*nri
-              lmo = iwidx(kmo,jmo,isp)
               iw(kmo,igl,jmo,isp) = 
-     $            ddot(nri,dbl_mb(idy),1,dbl_mb(idz),1) -
+     $            ddot(nri,dbl_mb(idy),1,dbl_mb(idy),1) -
      $            ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
             enddo
 !$omp       end parallel do

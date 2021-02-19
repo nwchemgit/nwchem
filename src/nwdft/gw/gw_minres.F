@@ -17,15 +17,9 @@
       double precision,dimension(n) :: r1, r2, sol, v, w, w1, w2, y
 
       integer iter, istop, i
-      integer,parameter :: maxiter = 30
+      integer,parameter :: maxiter = 10
       double precision,parameter :: rtol = 1d-5
       double precision,parameter :: shift = 0.0d0
-#ifdef USE_OPENMP
-      integer iMaxThreads
-      integer, external :: omp_get_max_threads
-      iMaxThreads = omp_get_max_threads()
-      call util_blas_set_num_threads(iMaxThreads)
-#endif
 
 
       eps  = epsilon(eps)
@@ -200,17 +194,226 @@ c          if (grnorm/dsqrt(dble(n)) .le. rtol ) istop = 1
       if (istop.eq.4) 
      $  call errquit('gw_minres: matrix is very ill-conditioned',0,0)
 
-      if (istop.eq.5)
-     $  call errquit('gw_minres: minres did not converge',0,0)
+c      if (istop.eq.5)
+c     $  call errquit('gw_minres: minres did not converge',0,0)
 
 
-#ifdef USE_OPENMP
-      call util_blas_set_num_threads(1)
-#endif      
 
       end subroutine
 
 
 
 
+      subroutine gw_minres(OV1,OV2,factor,x,b,npoles,maxpoles,n,ipol)
+      implicit none
+#include "errquit.fh"
+#include "global.fh"      
+#include "mafdecls.fh"
+#include "tcgmsg.fh"      
+      integer,intent(in) :: ipol
+      integer,intent(in) :: npoles(ipol),maxpoles,n
+      double precision,intent(in) :: factor(maxpoles,ipol)
+      double precision,intent(in) :: OV1(n,maxpoles),OV2(n,maxpoles)
+      double precision,dimension(n),intent(in)   :: b
+      double precision,dimension(n),intent(inout)  :: x
 
+      double precision :: eps
+      double precision :: Anorm, Acond, Arnorm, rnorm, ynorm
+      double precision :: alpha, beta, beta1, cs, dbar, delta, denom
+      double precision :: diag, epsa, epsln, epsr, epsx, gam
+      double precision :: gbar, gmax, gmin, oldb, oldeps, grnorm, phi
+      double precision :: phibar, rhs1, rhs2, rnorml, rootl, Arnorml
+      double precision :: relArnorml, s, sn, t, tnorm2, ynorm2, z
+      double precision,dimension(n) :: r1, r2, sol, v, w, w1, w2, y
+
+      logical main,converged
+      integer iter, istop, i
+      integer,parameter :: maxiter = 20
+      double precision,parameter :: rtol = 1d-6
+      double precision,parameter :: shift = 0.000d0
+
+      call ga_sync()
+
+      main = ga_nodeid().eq.0
+      converged = .false.
+
+      eps  = epsilon(eps)
+      iter = 0
+      istop = 0
+      Anorm = 0d0
+      Acond = 0d0
+      rnorm = 0d0
+      ynorm = 0d0
+
+      if (dot_product(x,x).eq.0d0) then
+        x(:) = b(:)
+      endif
+
+      if (main) then
+        y(:) = b(:) - x(:)
+      else
+        y(:) = 0d0
+      endif
+
+      if (ipol.eq.1) then
+        call gw_aprod(OV1,factor,x,y,-4d0,npoles,n)
+      else
+        call gw_aprod(OV1,factor,x,y,-2d0,npoles,n)
+        call gw_aprod(OV2,factor(1,2),x,y,-2d0,npoles(2),n)
+      endif
+      call dgop(mt_dbl,y,n,'+')
+
+      r1(:) = y(:)
+
+      beta1 = dsqrt(dot_product(r1,r1))
+      call ga_brdcst(mt_dbl,beta1,mdtob(1),0)
+
+      ! Solution already converged
+      if (beta1/dsqrt(dble(n)).lt.rtol) then
+        istop = -1
+        goto 1000
+      endif
+
+      oldb = 0d0
+      beta = beta1
+      dbar = 0d0
+      epsln = 0d0
+      grnorm = beta1
+      phibar = beta1
+      rhs1 = beta1
+      rhs2 = 0d0
+      tnorm2 = 0d0
+      ynorm2 = 0d0
+      cs = -1d0
+      sn = 0d0
+      w(:) = 0d0
+      w1(:) = 0d0
+      w2(:) = 0d0
+      r2(:) = r1(:)
+      sol(:) = 0d0
+
+      do
+        iter = iter + 1
+        s = 1d0/beta
+
+        v(:) = s*y(:)
+        if (main) then
+          y(:) = v(:)
+        else
+          y(:) = 0d0
+        endif
+
+        if (ipol.eq.1) then
+          call gw_aprod(OV1,factor,v,y,4d0,npoles,n)
+        else
+          call gw_aprod(OV1,factor,v,y,2d0,npoles,n)
+          call gw_aprod(OV2,factor(1,2),v,y,2d0,npoles(2),n)
+        endif
+        call dgop(mt_dbl,y,n,'+')
+
+        call daxpy(n,-shift,v,1,y,1)
+        if (iter.ge.2) call daxpy(n,-beta/oldb,r1,1,y,1)
+
+        alpha = dot_product(v,y)
+        r1(:) = r2(:)
+        call daxpy(n,-alpha/beta,r2,1,y,1)
+        r2(:) = y(:)
+
+        oldb = beta
+        beta = dsqrt(dot_product(r2,r2))
+        tnorm2 = tnorm2 + alpha**2 + oldb**2 + beta**2
+
+        if (iter.eq.1) then
+          if (beta/beta1 .le. 10d0*eps) then
+            istop = -1
+          endif
+          gmax = abs(alpha)
+          gmin = gmax
+        endif
+
+        oldeps = epsln
+        delta = cs*dbar + sn*alpha
+        gbar  = sn*dbar - cs*alpha
+        epsln = sn*beta
+        dbar  = -cs*beta
+
+        gam    = dsqrt( gbar**2 + beta**2 )
+        gam    = max(gam,eps)
+        cs     = gbar/gam
+        sn     = beta/gam
+        phi    = cs*phibar
+        phibar = sn*phibar
+
+        w1(:) = w2(:)
+        w2(:) = w(:)
+        w(:) = (v(:) - oldeps*w1(:) - delta*w(:))/gam
+        call daxpy(n,phi,w,1,sol,1)
+
+        gmax = max(gmax,gam)
+        gmin = min(gmin,gam)
+        z    = rhs1/gam
+        ynorm2 = z**2 + ynorm2
+        rhs1 = rhs2 - delta*z
+        rhs2 = -epsln*z
+
+        Anorm = dsqrt(tnorm2)
+        ynorm = dsqrt(ynorm2)
+        epsa = Anorm*eps
+        epsx = Anorm*ynorm*eps
+        epsr = Anorm*ynorm*rtol
+        diag = gbar
+        if (diag.eq.0) diag = epsa
+
+        grnorm = phibar
+        rnorml = rnorm
+        rnorm  = grnorm
+        rootl  = dsqrt(gbar**2 + dbar**2)
+        Arnorml = rnorml*rootl
+        relArnorml = rootl/Anorm
+
+        Acond = gmax/gmin
+
+        if (istop .eq. 0) then
+          if (iter .ge. maxiter) istop = 5
+          if (Acond .ge. 0.1d0/eps) istop=4
+          if (epsx  .ge. beta1    ) istop=3
+          if (grnorm .le. epsx .or. relArnorml .le. epsx) istop = 2
+          if (grnorm .le. epsr .or. relArnorml .le. epsr) istop = 1
+          if (grnorm/dsqrt(dble(n)) .le. rtol) istop = 1
+        endif
+
+        call ga_brdcst(mt_int,istop,mitob(1),0)
+
+        if (istop.ne.0) exit
+      enddo
+
+ 1000 Arnorm = Arnorml
+
+      x(:) = x(:) + sol(:)
+      call ga_brdcst(mt_dbl,x,mdtob(n),0)
+
+      if (istop.eq.4) 
+     $  call errquit('gw_minres: matrix is very ill-conditioned',0,0)
+
+
+      end subroutine
+
+
+      subroutine gw_aprod(ov,factor,x,y,scal,npoles,n)
+      implicit none
+      integer,intent(in) :: npoles, n
+      double precision, intent(in) :: scal
+      double precision, intent(in) :: ov(n,npoles),factor(npoles)
+      double precision, intent(in) :: x(n)
+      double precision, intent(out) :: y(n)
+
+      integer :: i
+      double precision :: tmp(npoles)
+
+      call dgemv('t',n,npoles,scal,ov,n,x,1,0d0,tmp,1)
+
+      tmp(:) = tmp(:)*factor(:)
+
+      call dgemv('n',n,npoles,1d0,ov,n,tmp,1,1d0,y,1)
+
+      end subroutine

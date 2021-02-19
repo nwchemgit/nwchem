@@ -154,9 +154,17 @@ c
      $                    pars%nvir(i),mynmo,pars%nqp(i),pars%llmo(i))
       enddo
 
+      if(.not.(ga_create(mt_dbl,nri,pars%nmo,'sols',nri,0,pars%g_sols)))
+     $  call errquit('gw_cdgw_newton: cannot create GA',0,GA_ERR) 
+
       call gw_buildiw(pars,dbl_mb(kEia),dbl_mb(pars%k_glx),dbl_mb(kiW),
      $    int_mb(kiWidx),pars%nmo,nri,pars%ngl,mynmo,maxpoles,maxqp,
      $    pars%ipol)
+
+c      call gw_buildiw_minres(pars,dbl_mb(kEia),dbl_mb(pars%k_glx),
+c     $     dbl_mb(kiW),
+c     $    int_mb(kiWidx),pars%nmo,nri,pars%ngl,mynmo,maxpoles,maxqp,
+c     $    pars%ipol)
 
       pars%timer%iw = pars%timer%iw + util_wallsec() - timer
 c
@@ -199,6 +207,9 @@ c
           if (pars%evgw)  goto 100
         endif  
       endif
+
+      if (.not.ga_destroy(pars%g_sols))
+     $  call errquit('gw_cdgw_newton: cannot destroy GA',0,GA_ERR) 
 
       if (.not.(ma_free_heap(liW).and.ma_free_heap(liWidx)))
      $  call errquit(pname//'cannot destroy iW arrays',0,MA_ERR)

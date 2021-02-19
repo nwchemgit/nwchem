@@ -290,7 +290,6 @@ c
      &     nb=32
 #endif
 
-
       return
       end subroutine gw_init
 
@@ -330,6 +329,7 @@ c
         w(igl) = 0.5d0 * 2d0 * w(igl) / (1d0-x(igl))**2 / pi
         x(igl) = (0.5d0 * ((1d0 + x(igl))/(1d0 - x(igl))))**2
       enddo
+
 
       end subroutine
 

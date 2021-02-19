@@ -1,5 +1,5 @@
-      subroutine gw_buildrn(pars,Eig,Eia,omega,R,dR,d2R,imo,maxpoles,
-     $                      nri,me,nmo,ipol,isp)
+      subroutine gw_buildrn_minres(pars,Eig,Eia,omega,R,dR,d2R,imo,
+     $                      maxpoles,nri,me,nmo,ipol,isp)
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -44,41 +44,11 @@
       main = me.eq.0
       nprocs = ga_nnodes()
 
-      if (.not.ma_alloc_get(mt_dbl,nri**2,'pi',l_pi,k_pi))
-     $  call errquit(pname//'can''t allocate pi matri',0,MA_ERR) 
-      if (.not.ma_push_get(mt_int,nri,'ipiv',l_ipiv,k_ipiv))
-     $  call errquit(pname//'can''t allocate ipiv',0,MA_ERR) 
-      call dsytrf('l',nri,dbl_mb(k_pi),nri,int_mb(k_ipiv),
-     $            factor,-1,info)
-      lscr = int(factor(1,1))
-      if (.not.ma_push_get(mt_dbl,lscr,'scr',l_scr,k_scr))
-     $  call errquit(pname//'can''t allocate scratch',0,MA_ERR) 
-
       do jsp=1,ipol
         call ga_access(pars%g_eriov(jsp),1,nri,pars%ovlo(jsp),
      $                 pars%ovhi(jsp),kOV(jsp),ld)   
       enddo
       if (ipol.eq.1) kOV(2) = 1
-
-#if PARALLEL_DIAG
-      parallel_diag = nri .gt. 2000
-#else
-      parallel_diag = .false.
-#endif
-
-
-      if (parallel_diag) then
-        pilo = 1
-        pihi = nri
-#ifndef SCALAPACK
-        ok = ga_create(mt_dbl,nri,nri,'Pi',nri,0,g_pi)
-        if (.not.ok) call errquit(pname//'can''t create Pi',0,GA_ERR)
-        call ga_distribution(g_pi,me,ilo,ihi,pilo,pihi)
-        call ga_access(g_pi,1,nri,pilo,pihi,addrPi,ld)
-        mynri = pihi - pilo + 1
-        llpi = k_pi + (pilo-1)*nri
-#endif
-      endif
 
       R = 0d0
       dR = 0d0
@@ -132,53 +102,18 @@
         enddo
 !$omp   end parallel do        
 
-        call gw_buildpi('r',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
-     $                   factor,nri,nri,pars%mynpoles,main,ipol,
-     $                   maxpoles)
-        call dgop(mt_dbl,dbl_mb(k_pi),nri**2,'+')
-
         root = mod((imo-off-1)*nspace+jmo-off-1,nprocs)
         idx = ((imo-off-1)*nspace+jmo-off-1)/nprocs + spacelo
 
-! for now, deactivate MINRES        
-!        if (jmo.ne.first) then
-        if (jmo.eq.-1) then
-!        if (.true.) then
-          if (me.eq.root) then
-            call ga_get(ga,1,nri,idx,idx,vector,nri)
-            vector2 = 0d0
-            call minres(dbl_mb(k_pi),vector2,vector,nri)
-          endif
-          call ga_brdcst(mt_dbl,vector2,mdtob(nri),root)
-        else if (parallel_diag) then
-          call gw_symmat(dbl_mb(k_pi),nri,pilo,pihi)
-          call ga_brdcst(mt_int,idx,mitob(1),root)
-          call ga_get(ga,1,nri,idx,idx,vector,nri)
-#ifdef SCALAPACK
-          call dcopy(nri,vector,1,vector2,1)
-          call gw_lu_solve(dbl_mb(k_pi),vector2,nri)
-#else
-          vector2(:) = 0d0
-          call dcopy(mynri*nri,dbl_mb(llpi),1,dbl_mb(addrPi),1)
-          call gw_invdiag(g_pi,g_pi,nri)
-          call dgemv('t',nri,mynri,1d0,dbl_mb(addrPi),nri,vector,1,
-     $                0d0,vector2(pilo),1)
-          call dgop(mt_dbl,vector2,nri,'+')
-#endif
-        else
-          if (me.eq.root) then
-            call ga_get(ga,1,nri,idx,idx,vector,nri)
-            call dcopy(nri,vector,1,vector2,1)
-            call dsytrf('l',nri,dbl_mb(k_pi),nri,int_mb(k_ipiv),
-     $                   dbl_mb(k_scr),lscr,info)
-            call dsytrs('l',nri,1,dbl_mb(k_pi),nri,int_mb(k_ipiv),
-     $                   vector2,nri,info)
-          end if
-          call ga_brdcst(mt_dbl,vector2,mdtob(nri),root)
-        endif
+        call ga_brdcst(mt_int,idx,mitob(1),root)
 
         if (.not.ga_locate(gb,1,jmo,owner))
-     $    call errquit('gw_buildrn: cannot locate owner',0,GA_ERR)
+     $  call errquit('gw_buildrn_minres: cannot locate owner',0,GA_ERR)
+
+        call ga_get(gb,1,nri,jmo,jmo,vector2,nri)
+        call ga_get(ga,1,nri,idx,idx,vector,nri)
+        call gw_minres(dbl_mb(kOV(1)),dbl_mb(kOV(2)),factor,vector2,
+     $                 vector,pars%mynpoles,maxpoles,nri,ipol)
         if (owner.eq.me) call ga_put(gb,1,nri,jmo,jmo,vector2,nri)
 
         if (arg.ne.0d0) then
@@ -208,19 +143,6 @@
       call ga_dgop(mt_dbl,R,1,'+')
       call ga_dgop(mt_dbl,dR,1,'+')
 
-
-      if (.not.ma_chop_stack(l_ipiv))
-     $   call errquit(pname//'can''t chop stack',0,MA_ERR)
-      if (.not.ma_free_heap(l_pi))
-     $   call errquit(pname//'can''t free heap',0,MA_ERR)
-c     
-
-      if (parallel_diag) then
-#ifndef SCALAPACK
-        ok = ga_destroy(g_pi)
-        if (.not.ok) call errquit(pname//'can''t destroy GAs',0,GA_ERR)
-#endif
-      endif
 
 #ifdef USE_OPENMP
       call util_blas_set_num_threads(1)

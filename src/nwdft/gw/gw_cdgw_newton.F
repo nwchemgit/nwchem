@@ -30,7 +30,10 @@
       double precision quadraticstep, linearstep, step
       double precision I,dI,d2I,R,dR,d2R
 
+      logical,external :: ga_create, ga_destroy
+
       main = pars%me .eq. 0
+
 
       do isp=1,pars%ipol
         totalqp = pars%noqp(isp) + pars%nvqp(isp)
@@ -52,6 +55,8 @@
           residualOld = 1d100 
 
           if (EViter.eq.0) Eout = Eout + 0.10d0*(Sigma_X - SigmaOld)
+
+          call ga_zero(pars%g_sols)
 c        
           do iter=1,pars%qpiter
 
@@ -67,9 +72,17 @@ c
 
             call ga_sync()
             timer = util_wallsec()
-            call gw_buildrn(pars,Eold(1,isp),Eia,Ein,R,dR,d2R,
+
+            if (iter.eq.1) then
+              call gw_buildrn(pars,Eold(1,isp),Eia,Ein,R,dR,d2R,
      $                      llmo+iqp-1,maxpoles,nri,pars%me,pars%nmo,
      $                      pars%ipol,isp)
+            else
+              call gw_buildrn_minres(pars,Eold(1,isp),Eia,Ein,R,dR,d2R,
+     $                      llmo+iqp-1,maxpoles,nri,pars%me,pars%nmo,
+     $                      pars%ipol,isp)
+            endif
+
             pars%timer%rn = pars%timer%rn + util_wallsec() - timer
 
             SigmaC   = I + R
@@ -114,6 +127,7 @@ c
           endif
         enddo
       enddo
+
 
  9000 format(/,31x,'Alpha Orbitals',/,10x,'State',5x,'Energy (eV)',
      $       5x,'Z',8x,'Elin (eV)',6x,'Res.',/,10x,55('-'))
