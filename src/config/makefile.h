@@ -1215,7 +1215,8 @@ endif
        DEFINES   += -DGFORTRAN -DGCC4
 #
          FOPTIMIZE+= -funroll-all-loops -mtune=native 
-         FVECTORIZE=-O3 -ffast-math -mtune=native -mfpmath=sse -msse3 -ftree-vectorize -ftree-vectorizer-verbose=1   -fprefetch-loop-arrays  -funroll-all-loops 
+         #FVECTORIZE=-O3 -ffast-math -mtune=native -mfpmath=sse -msse3 -ftree-vectorize -ftree-vectorizer-verbose=1   -fprefetch-loop-arrays  -funroll-all-loops
+         FVECTORIZE=-O3 -ffast-math -mtune=native -ftree-vectorize -ftree-vectorizer-verbose=1 -funroll-all-loops
         GNUMAJOR=$(shell $(_FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
 	ifneq ($(strip $(GNUMAJOR)),)
         GNUMINOR=$(shell $(_FC) -dM -E - < /dev/null 2> /dev/null | egrep __GNUC_MINOR | cut -c24)

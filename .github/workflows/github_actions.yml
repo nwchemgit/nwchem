@@ -144,6 +144,7 @@ jobs:
           rsync -av ~/cache/simint/simint_install/* src/NWints/simint/libsimint_source/simint_install/.   || true
           echo "cache fetched"
       - name: compile
+        id: compile
         run: |
           cc -v
           ./travis/compile_nwchem.sh
@@ -164,19 +165,25 @@ jobs:
           echo "cache stored"
           ls -Rla ~/cache 
       - name: qa_test
-        if: ${{ success() }}
+        id: qa_test
+        if: steps.compile.conclusion == 'success'
         run: |
           ./travis/run_qas.sh
       - name: Check if QA testing has failed
-        if: ${{ failure() }}
+#        if: steps.qa_test.outcome == 'failure' || steps.qa_test.outcome == 'cancelled'
+        if: ${{ failure() }} &&  steps.qa_test.outcome == 'failure'
         run: |
-          grep d= QA/testoutputs/dft_he2+.out
-          grep @ QA/testoutputs/h2o_opt.out
-          tail -30 QA/testoutputs/dft_he2+.out
-          tail -490 QA/testoutputs/h2o2-response.out
-          tail -30 QA/testoutputs/prop_mep_gcube.out
-          diff QA/testoutputs/prop_ch3f.o*nw*
-          diff QA/testoutputs/h2o2-response.o*nw*
+          echo "The steps context is:"
+          echo "${{ toJson(steps) }}"
+          echo "!!!!!!!!!!!!!!!!!!!!!!!!!"
+          if [[ -f QA/testoutputs/dft_he2+.out ]]; then \
+          grep d= QA/testoutputs/dft_he2+.out || true ;  fi
+          if [[ -f QA/testoutputs/h2o_opt.out ]]; then \
+          grep @ QA/testoutputs/h2o_opt.out || true ; fi
+          if [[ -f QA/testoutputs/h2o2-response.out ]]; then \
+          tail -490 QA/testoutputs/h2o2-response.out || true; fi
+          if [[ -f QA/testoutputs/prop_mep_gcube.out ]]; then \
+          tail -30 QA/testoutputs/prop_mep_gcube.out || true; fi
   
 
 

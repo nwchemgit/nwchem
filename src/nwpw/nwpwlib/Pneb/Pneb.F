@@ -2879,6 +2879,98 @@ c     ccccccccc first line ccccccccc
 
 c     ****************************************
 c     *                                      *
+c     *              Pneb_fw_QR              *
+c     *                                      *
+c     ****************************************
+c
+c  This subroutine calculates the QR decoposition of Q
+c
+c     Entry - mb,nbb
+c             Q - npack1xne complex matrix to be factored
+c             npack1  
+c     Exit - R - nexne complex matrix
+c          
+      subroutine Pneb_fw_QR(mb,nbb,Q,npack1,R)
+      implicit none
+      integer mb,nbb
+      complex*16 Q(*)
+      integer    npack1
+      complex*16 R(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "Pneb.fh"
+
+c     **** local variables ****
+      integer ms,ms1,ms2,ishift2,j,k,indxk,indxj,indxm
+      integer nb,nb1,nb2,ishift3,ishift1,ishift11
+     
+      integer jj,kk,rr,ss,jcur,kcur,rcur,scur
+      integer tmp(2)
+      real*8 w
+      complex*16 wc
+
+      if (mparallelized) then
+         call errquit('Pneb_fw_QR: mparallel not finished',0,0)
+
+c     **** not mparallized ****
+      else
+         if (nbb.eq.0) then
+            nb1=1
+            nb2=nbrillq
+            ishift3 = ne(1)*ne(1)+ne(2)*ne(2)*(ispinq-1)
+         else
+            ishift3 = 0
+            nb1=nbb
+            nb2=nbb
+         end if
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+         ishift1  = neq(1)*npack1
+         ishift11 = (neq(1)+neq(2))*npack1
+
+c         **** modified Gram-Schmidt ****
+         call Parallel_shared_vector_zero(.true.,
+     >                              2*(ne(1)*ne(1)+ne(2)*ne(2)),R)
+         do nb=nb1,nb2
+         do ms=ms1,ms2
+         do k=1,ne(ms)
+            indxk = 1 + (k-1)*npack1 + (ms-1)*ishift1 + (nb-1)*ishift11
+            indxm = k + (k-1)*ne(ms) + (ms-1)*ishift2  + (nb-1)*ishift3
+            call Cram_cc_dot(nb,Q(indxk),Q(indxk),w)
+            R(indxm) = dcmplx(dsqrt(w),0.0d0)
+            w        = 1.0d0/R(indxm)
+            call Cram_c_SMul1(nb,w,Q(indxk))
+
+            do j=k+1,ne(ms)
+               indxj = 1+(j-1)*npack1 + (ms-1)*ishift1+(nb-1)*ishift11
+               indxm = k+(j-1)*ne(ms) + (ms-1)*ishift2+(nb-1)*ishift3
+               call Cram_cc_zdot(nb,Q(indxk),Q(indxj),wc)
+               R(indxm) = wc
+               w = -wc
+               call Cram_cc_zaxpy(1,wc,Q(indxk),Q(indxj))
+            end do
+         end do
+         end do
+         end do
+      end if
+
+      return
+      end 
+
+
+
+
+
+c     ****************************************
+c     *                                      *
 c     *          Pneb_ff_traceall            *
 c     *                                      *
 c     ****************************************
@@ -4886,7 +4978,7 @@ c     ****************************************
 *     **** copy -R^t to upper-right of T ****
       do j=1,n
       do i=1,n
-         T(i,j+n) = -R(j,i)
+         T(i,j+n) = -dconjg(R(j,i))
       end do
       end do
 
@@ -5183,6 +5275,79 @@ c     ****************************************
 
       return
       end
+
+
+c     ****************************************
+c     *                                      *
+c     *          Pneb_4www_Multiply3         *
+c     *                                      *
+c     ****************************************
+      subroutine Pneb_4www_Multiply3(mb,nbb,A,B,alpha,C,beta)
+      implicit none
+      integer mb,nbb
+      complex*16 A(*),B(*),C(*)
+      complex*16 alpha,beta
+
+#include "bafdecls.fh"
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
+      integer ms,ms1,ms2,n,shift2,ishift2
+      integer nb,nb1,nb2,ishift3,nbsize
+
+      if (mparallelized) then
+         call errquit('Pneb_4mm_Multiply3 not finished',0,0)
+      else
+         if (nbb.eq.0) then
+            nb1 = 1
+            nb2 = nbrillq
+            ishift3 = 4*ne(1)*ne(1) + 4*ne(2)*ne(2)*(ispinq-1)
+            nbsize  = nbrillq
+         else
+            nb1 = nbb
+            nb2 = nbb
+            ishift3 = 0
+            nbsize  = 1
+         end if
+
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift2 = 4*ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift2 = 0
+         end if
+
+         do nb=nb1,nb2
+         do ms=ms1,ms2
+            n     = 2*ne(ms)
+            if (n.le.0) go to 30
+            shift2 = 1 + (ms-1)*ishift2 + (nb-1)*ishift3
+            call ZGEMM_OMP('N','T',n,n,n,alpha,
+     >                A(shift2), n,
+     >                B(shift2), n,
+     >                beta,
+     >                C(shift2), n)
+   30       continue
+         end do
+         end do
+         if (mb.eq.0) then
+            call Parallel_Brdcst_values(MASTER,
+     >                   nbsize*8*(ne(1)*ne(1)+ne(2)*ne(2)),C)
+         else
+            call Parallel_Brdcst_values(MASTER,nbsize*8*ne(mb)*ne(mb),C)
+         end if
+
+      end if
+      return
+      end
+
+
+
 
 
 
@@ -5492,6 +5657,186 @@ c     ****************************************
       end if
       return
       end
+
+c     ****************************************
+c     *                                      *
+c     *         Pneb_4w_FactorSkew           *
+c     *                                      *
+c     ****************************************
+     
+*  This routine factors a 4w skew Hermitian matrix K such that
+*    
+*  Let's define the Hermitian matrix iK = i*K
+*  then iK can be written as iK = U*Sigma*U^H 
+*
+*  and K = -i * (iK) = -i * (U*Sigma*U^H) = U*(-i*Sigma)*U^H, 
+*
+*     
+*     Entry - mb:  
+*             K: 4w hermitian skew matrix
+*     Exit - U: 4w matrix
+*            Sigma: eigenvalues
+*
+*
+      subroutine Pneb_4w_FactorSkew(mb,nbb,K,U,Sigma)
+      implicit none
+      integer    mb,nbb
+      complex*16 K(*),U(*)
+      real*8     Sigma(*)
+      
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "Pneb.fh"                       
+
+*     **** local variables ****         
+      logical value
+      integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2
+      integer nb,nb1,nb2,ishift3,ishift4,nbsize
+      integer work(2),rwork(2),lwork,ierr
+
+      call nwpw_timing_start(17)  
+
+c     **** get temp memory from stack ****
+      lwork=4*ne(1)*ne(1)
+      value =BA_push_get(mt_dbl,lwork,'rwork',rwork(2),rwork(1))
+      value =value.and.BA_push_get(mt_dcpl,lwork,'work',work(2),work(1))
+      if (.not.value) 
+     >   call errquit('Pneb_4w_FactorSkewg: out of stack',0,MA_ERR)
+
+
+      if (mparallelized) then
+        call errquit('Dneall_4m_FactorSkew: mparallel not finished',0,0)
+      else 
+         if (nbb.eq.0) then
+            nb1 = 1
+            nb2 = nbrillq
+            ishift3 = 2*ne(1) + 2*ne(2)*(ispinq-1)
+            ishift4 = 4*ne(1)*ne(1) + 4*ne(2)*ne(2)*(ispinq-1)
+            nbsize = nbrillq
+         else
+            nb1 = nbb
+            nb2 = nbb
+            ishift4 = 0
+            nbsize = 1
+         end if
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift1 = 2*ne(1) 
+            ishift2 = 4*ne(1)*ne(1)
+         else 
+            ms1 = mb
+            ms2 = mb
+            ishift1 = 0
+            ishift2 = 0
+         end if
+
+         call Parallel_shared_vector_copy(.true.,
+     >                       nbsize*4*(ne(1)*ne(1)+ne(2)*ne(2)),K,U)
+         call ZSCAL_OMP(nbsize*4*(ne(1)*ne(1)+ne(2)*ne(2)),
+     >              dcmplx(0.0d0,1.0d0),U,1)
+
+         do nb=nb1,nb2
+         do ms=ms1,ms2
+            shift1 = 1 + (ms-1)*ishift1 + (nb-1)*ishift3
+            shift2 = 1 + (ms-1)*ishift2 + (nb-1)*ishift4
+            call ZHEEV('V','L',2*ne(ms),
+     >                 U(shift2),2*ne(ms),
+     >                 Sigma(shift1),
+     >                 dcpl_mb(work(1)),lwork,dbl_mb(rwork),ierr)
+             if (ierr.ne.0) 
+     >          call errquit("Pneb_4w_FactorSkew: ZHEEV failed",ierr,0)
+
+         end do
+         end do
+      end if
+
+      call nwpw_timing_end(17)
+      return
+      end
+
+c     ****************************************
+c     *                                      *
+c     *         Pneb_4w_RotateSkew           *
+c     *                                      *
+c     ****************************************
+      subroutine Pneb_4w_RotateSkew(mb,nbb,t,U,Sigma,AB,R)
+      implicit none
+      integer mb,nbb
+      real*8 t,Sigma(*)
+      complex*16 U(*),AB(*),R(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2
+      integer nb,nb1,nb2,ishift3,ishift4
+
+      if (mparallelized) then
+        call errquit('Dneall_4m_FactorSkew: mparallel not finished',0,0)
+      else
+         if (nbb.eq.0) then
+            nb1 = 1
+            nb2 = nbrillq
+            ishift3 = 2*ne(1) + 2*ne(2)*(ispinq-1)
+            ishift4 = 4*ne(1)*ne(1) + 4*ne(2)*ne(2)*(ispinq-1)
+         else
+            nb1 = nbb
+            nb2 = nbb
+            ishift4 = 0
+         end if
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift1 = 2*ne(1)
+            ishift2 = 4*ne(1)*ne(1)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift1 = 0
+            ishift2 = 0
+         end if
+         do nb=nb1,nb2
+         do ms=ms1,ms2
+           if (ne(ms).le.0) go to 30
+           shift1 = 1 + (ms-1)*ishift1 + (nb-1)*ishift3
+           shift2 = 1 + (ms-1)*ishift2 + (nb-1)*ishift4
+           call Pneb_4w_RotateSkew_sub(2*ne(ms),t,Sigma(shift1),
+     >                                  U(shift2),
+     >                                  AB(shift2))
+ 30        continue
+         end do
+         end do
+         call Pneb_4www_Multiply3(0,0,dcmplx(1.0d0,0.0d0),U,AB,
+     >                            dcmplx(0.0d0,0.0d0),R)
+      end if
+
+      return
+      end 
+
+
+      subroutine Pneb_4w_RotateSkew_sub(N,t,Sigma,U,AB)
+      implicit none
+      integer N
+      real*8  t,Sigma(*)
+      complex*16 U(N,N),AB(N,N)
+
+      integer i,j
+      complex*16 sab
+
+      do j=1,N
+         sab = dcmplx(dcos(Sigma(j)*t),-dsin(Sigma(j)*t))
+         do i=1,N
+            AB(i,j) = U(i,j)*sab
+         end do
+      end do
+      return
+      end
+
+
+     
 
 
 

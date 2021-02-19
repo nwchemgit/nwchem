@@ -5,7 +5,7 @@
   OBJ_OPTIMIZE = dgemm_omp.o \
 		 dgamm_omp.o \
 		 daxpy_omp.o \
-		 dscal_omp.o \
+		 dscal_omp.o zscal_omp.o \
 		 ffm_multiply_omp_group.o \
 		 zgemm_omp.o \
 		 ffw_multiply_omp_group.o 
