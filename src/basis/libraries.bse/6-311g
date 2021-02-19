@@ -1,43 +1,84 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
 # 6-311g version number 0
 # Description: VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
 #     J. Comput. Chem., 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
 #     J. Chem. Inf. Model., 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H
-#     ## VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO for H,He
-#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
-#     Self-consistent molecular orbital methods. XX. A basis set for
-#             correlated wave functions
-#     J. Chem. Phys., 72, 650-654 (1980)
-#     10.1063/1.438955
 # 
-# He
-#     ## VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO for H,He
+#  References for the basis set
+# 
+#  H
+#      VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO for H,He
+#          krishnan1980a
+# 
+#  He
+#      VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO for H,He
+#          gaussian09e01
+# 
+#  Li-Ne
+#      VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
+#          krishnan1980a
+# 
+#  Na-Ar
+#      VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
+#          mclean1980a
+# 
+#  K,Ca
+#      VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
+#          blaudeau1997a
+# 
+#  Ga-Kr
+#      VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
+#          curtiss1995a
+# 
+#  I
+#      VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
+#          glukhovstev1995a
+# 
+# 
+# 
+# blaudeau1997a
+#     Blaudeau, Jean-Philippe, McGrath, Mark P., Curtiss, Larry A., Radom,
+#             Leo
+#     Extension of Gaussian-2 (G2) theory to molecules containing third-row
+#             atoms K and Ca
+#     J. Chem. Phys., 107, 5016-5021 (1997)
+#     10.1063/1.474865
+# 
+# curtiss1995a
+#     Curtiss, Larry A., McGrath, Mark P., Blaudeau, Jean-Philippe, Davis,
+#             Nancy E., Binning, Robert C., Radom, Leo
+#     Extension of Gaussian-2 theory to molecules containing third-row atoms
+#             Ga-Kr
+#     J. Chem. Phys., 103, 6104-6113 (1995)
+#     10.1063/1.470438
+# 
+# gaussian09e01
 #     Frisch, M. J., Trucks, G. W., Schlegel, H. B., Scuseria, G. E., Robb,
 #             M. A., Cheeseman, J. R., Scalmani, G., Barone, V., Mennucci,
 #             B., Petersson, G. A., Nakatsuji, H., Caricato, M., Li, X.,
@@ -58,47 +99,26 @@
 #     Gaussian 09 Revision E.01
 #     Gaussian, Inc., Wallingford, CT, 2009
 # 
-# Li-Ne
-#     ## VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
+# glukhovstev1995a
+#     Glukhovtsev, Mikhail N., Pross, Addy, McGrath, Mark P., Radom, Leo
+#     Extension of Gaussian-2 (G2) theory to bromine- and iodine-containing
+#             molecules: Use of effective core potentials
+#     J. Chem. Phys., 103, 1878-1885 (1995)
+#     10.1063/1.469712
+# 
+# krishnan1980a
 #     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
 #     Self-consistent molecular orbital methods. XX. A basis set for
 #             correlated wave functions
 #     J. Chem. Phys., 72, 650-654 (1980)
 #     10.1063/1.438955
 # 
-# Na-Ar
-#     ## VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
+# mclean1980a
 #     McLean, A. D., Chandler, G. S.
 #     Contracted Gaussian basis sets for molecular calculations. I. Second
 #             row atoms, Z=11-18
 #     J. Chem. Phys., 72, 5639-5648 (1980)
 #     10.1063/1.438980
-# 
-# K,Ca
-#     ## VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
-#     Blaudeau, Jean-Philippe, McGrath, Mark P., Curtiss, Larry A., Radom,
-#             Leo
-#     Extension of Gaussian-2 (G2) theory to molecules containing third-row
-#             atoms K and Ca
-#     J. Chem. Phys., 107, 5016-5021 (1997)
-#     10.1063/1.474865
-# 
-# Ga-Kr
-#     ## VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
-#     Curtiss, Larry A., McGrath, Mark P., Blaudeau, Jean-Philippe, Davis,
-#             Nancy E., Binning, Robert C., Radom, Leo
-#     Extension of Gaussian-2 theory to molecules containing third-row atoms
-#             Ga-Kr
-#     J. Chem. Phys., 103, 6104-6113 (1995)
-#     10.1063/1.470438
-# 
-# I
-#     ## VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
-#     Glukhovtsev, Mikhail N., Pross, Addy, McGrath, Mark P., Radom, Leo
-#     Extension of Gaussian-2 (G2) theory to bromine- and iodine-containing
-#             molecules: Use of effective core potentials
-#     J. Chem. Phys., 103, 1878-1885 (1995)
-#     10.1063/1.469712
 # 
 # # 
 basis "H_6-311g" 

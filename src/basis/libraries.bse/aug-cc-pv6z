@@ -1,56 +1,68 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
 # aug-cc-pv6z version number 1
 # Description: aug-cc-pV6Z
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
 #     J. Comput. Chem., 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
 #     J. Chem. Inf. Model., 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H
-#     ## The cc-pV6Z basis set
-#     Peterson, Kirk A., Woon, David E., Dunning, Jr, Thom H.
-#     Benchmark calculations with correlated molecular wave functions. IV.
-#             The classical barrier height of the H+H2→H2+H reaction
-#     J. Chem. Phys., 100, 7410-7415 (1994)
-#     10.1063/1.466884
 # 
-#     ## Augmenting functions for cc-pV6Z
-#     Peterson, Kirk A., Woon, David E., Dunning, Jr, Thom H.
-#     Benchmark calculations with correlated molecular wave functions. IV.
-#             The classical barrier height of the H+H2→H2+H reaction
-#     J. Chem. Phys., 100, 7410-7415 (1994)
-#     10.1063/1.466884
+#  References for the basis set
 # 
-# He
-#     ## The cc-pV6Z basis set
-#     Woon, D. E., Dunning, Jr, T. H.
-#     unpublished
-#     As referenced in 'van Mourik et al, Mol Phys, 96, 529-547 (1999)' (as
-#             reference 48)
+#  H
+#      The cc-pV6Z basis set
+#          peterson1994a
 # 
-#     ## Augmenting functions for cc-pV6Z
+#      Augmenting functions for cc-pV6Z
+#          peterson1994a
+# 
+#  He
+#      The cc-pV6Z basis set
+#          woonXXXXa
+# 
+#      Augmenting functions for cc-pV6Z
+#          mourik1999a
+# 
+#  B-Ne
+#      The cc-pV6Z basis set
+#          wilson1996a
+# 
+#      Augmenting functions for cc-pV6Z
+#          mourik1999a
+# 
+#  Al-Ar
+#      The cc-pV6Z basis set
+#          mourik2000a
+# 
+#      Augmenting functions for cc-pV6Z
+#          mourik2000a
+# 
+# 
+# 
+# mourik1999a
 #     van Mourik, Tanja, Wilson, Angela K., Dunning, Jr, Thom H.
 #     Benchmark calculations with correlated molecular wavefunctions. XIII.
 #             Potential energy curves for He2, Ne2 and Ar2 using correlation
@@ -58,8 +70,22 @@
 #     Mol. Phys., 96, 529-547 (1999)
 #     10.1080/00268979909482990
 # 
-# B-Ne
-#     ## The cc-pV6Z basis set
+# mourik2000a
+#     van Mourik, Tanja, Dunning, Jr, Thom H.
+#     Gaussian basis sets for use in correlated molecular calculations.
+#             VIII. Standard and augmented sextuple zeta correlation
+#             consistent basis sets for aluminum through argon
+#     Int. J. Quantum Chem., 76, 205-221 (2000)
+#     10.1002/(SICI)1097-461X(2000)76:2<205::AID-QUA10>3.0.CO;2-C
+# 
+# peterson1994a
+#     Peterson, Kirk A., Woon, David E., Dunning, Jr, Thom H.
+#     Benchmark calculations with correlated molecular wave functions. IV.
+#             The classical barrier height of the H+H2→H2+H reaction
+#     J. Chem. Phys., 100, 7410-7415 (1994)
+#     10.1063/1.466884
+# 
+# wilson1996a
 #     Wilson, Angela K., van Mourik, Tanja, Dunning, Thom H.
 #     Gaussian basis sets for use in correlated molecular calculations. VI.
 #             Sextuple zeta correlation consistent basis sets for boron
@@ -67,30 +93,11 @@
 #     J. Mol. Struc-THEOCHEM, 388, 339-349 (1996)
 #     10.1016/s0166-1280(96)80048-0
 # 
-#     ## Augmenting functions for cc-pV6Z
-#     van Mourik, Tanja, Wilson, Angela K., Dunning, Jr, Thom H.
-#     Benchmark calculations with correlated molecular wavefunctions. XIII.
-#             Potential energy curves for He2, Ne2 and Ar2 using correlation
-#             consistent basis sets through augmented sextuple zeta
-#     Mol. Phys., 96, 529-547 (1999)
-#     10.1080/00268979909482990
-# 
-# Al-Ar
-#     ## The cc-pV6Z basis set
-#     van Mourik, Tanja, Dunning, Jr, Thom H.
-#     Gaussian basis sets for use in correlated molecular calculations.
-#             VIII. Standard and augmented sextuple zeta correlation
-#             consistent basis sets for aluminum through argon
-#     Int. J. Quantum Chem., 76, 205-221 (2000)
-#     10.1002/(SICI)1097-461X(2000)76:2<205::AID-QUA10>3.0.CO;2-C
-# 
-#     ## Augmenting functions for cc-pV6Z
-#     van Mourik, Tanja, Dunning, Jr, Thom H.
-#     Gaussian basis sets for use in correlated molecular calculations.
-#             VIII. Standard and augmented sextuple zeta correlation
-#             consistent basis sets for aluminum through argon
-#     Int. J. Quantum Chem., 76, 205-221 (2000)
-#     10.1002/(SICI)1097-461X(2000)76:2<205::AID-QUA10>3.0.CO;2-C
+# woonXXXXa
+#     Woon, D. E., Dunning, Jr, T. H.
+#     unpublished
+#     As referenced in 'van Mourik et al, Mol Phys, 96, 529-547 (1999)' (as
+#             reference 48)
 # 
 # # 
 basis "H_aug-cc-pv6z" 

@@ -1,42 +1,79 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
 # cc-pwcvtz version number 0
 # Description: TZ2P    Triple Zeta + Polarization + Tight Core
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
 #     J. Comput. Chem., 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
 #     J. Chem. Inf. Model., 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# B-Ne
-#     ## cc-pVTZ
+# 
+#  References for the basis set
+# 
+#  B-Ne
+#      cc-pVTZ
+#          dunning1989a
+# 
+#      2T      Tight Functions
+#          peterson2002a
+# 
+#  Al-Ar
+#      cc-pVTZ
+#          woon1993a
+# 
+#      cc-pVTZ
+#          woon1993a
+# 
+#      2T      Tight Functions
+#          peterson2002a
+# 
+#  Sc-Zn
+#      cc-pVTZ
+#          balabanov2005a
+# 
+#      TZ2P    All-electron non-relativistic Core-Valence Triple Zeta + Polarization
+#          balabanov2005a
+# 
+# 
+# 
+# balabanov2005a
+#     Balabanov, Nikolai B., Peterson, Kirk A.
+#     Systematically convergent basis sets for transition metals. I. All-
+#             electron correlation consistent basis sets for the 3d elements
+#             Sc-Zn
+#     J. Chem. Phys., 123, 064107 (2005)
+#     10.1063/1.1998907
+# 
+# dunning1989a
 #     Dunning, Thom H.
 #     Gaussian basis sets for use in correlated molecular calculations. I.
 #             The atoms boron through neon and hydrogen
 #     J. Chem. Phys., 90, 1007-1023 (1989)
 #     10.1063/1.456153
 # 
-#     ## 2T      Tight Functions
+# peterson2002a
 #     Peterson, Kirk A., Dunning, Thom H.
 #     Accurate correlation consistent basis sets for molecular core-valence
 #             correlation effects: The second row atoms Al-Ar, and the first
@@ -44,38 +81,12 @@
 #     J. Chem. Phys., 117, 10548-10560 (2002)
 #     10.1063/1.1520138
 # 
-# Al-Ar
-#     ## cc-pVTZ
+# woon1993a
 #     Woon, David E., Dunning, Thom H.
 #     Gaussian basis sets for use in correlated molecular calculations. III.
 #             The atoms aluminum through argon
 #     J. Chem. Phys., 98, 1358-1371 (1993)
 #     10.1063/1.464303
-# 
-#     ## 2T      Tight Functions
-#     Peterson, Kirk A., Dunning, Thom H.
-#     Accurate correlation consistent basis sets for molecular core-valence
-#             correlation effects: The second row atoms Al-Ar, and the first
-#             row atoms B-Ne revisited
-#     J. Chem. Phys., 117, 10548-10560 (2002)
-#     10.1063/1.1520138
-# 
-# Sc-Zn
-#     ## cc-pVTZ
-#     Balabanov, Nikolai B., Peterson, Kirk A.
-#     Systematically convergent basis sets for transition metals. I. All-
-#             electron correlation consistent basis sets for the 3d elements
-#             Sc-Zn
-#     J. Chem. Phys., 123, 064107 (2005)
-#     10.1063/1.1998907
-# 
-#     ## TZ2P    All-electron non-relativistic Core-Valence Triple Zeta + Polarization
-#     Balabanov, Nikolai B., Peterson, Kirk A.
-#     Systematically convergent basis sets for transition metals. I. All-
-#             electron correlation consistent basis sets for the 3d elements
-#             Sc-Zn
-#     J. Chem. Phys., 123, 064107 (2005)
-#     10.1063/1.1998907
 # 
 # # 
 basis "B_cc-pwcvtz" 

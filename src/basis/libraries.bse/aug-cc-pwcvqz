@@ -1,49 +1,105 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
 # aug-cc-pwcvqz version number 0
 # Description: QZ3P    Quadruple Zeta + Polarization + Tight Core + diffuse
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
 #     J. Comput. Chem., 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
 #     J. Chem. Inf. Model., 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# B-Ne
-#     ## cc-pVQZ
+# 
+#  References for the basis set
+# 
+#  B-Ne
+#      cc-pVQZ
+#          dunning1989a
+# 
+#      aug-cc-pVQZ Diffuse
+#          kendall1992a
+# 
+#      3T      Tight Functions
+#          peterson2002a
+# 
+#  Al-Ar
+#      cc-pVQZ
+#          woon1993a
+# 
+#      cc-pVQZ
+#          woon1993a
+# 
+#      aug-cc-pVQZ Diffuse
+#          woon1993a
+# 
+#      3T      Tight Functions
+#          peterson2002a
+# 
+#  Sc-Zn
+#      cc-pVQZ
+#          balabanov2005a
+# 
+#      QZ3P    All-electron non-relativistic Core-Valence Quadruple Zeta + Polarization
+#          balabanov2005a
+# 
+#      aug-cc-pVQZ Diffuse
+#          balabanov2005a
+# 
+#  Br
+#      cc-pVQZ
+#          wilson1999a
+# 
+#      aug-cc-pVQZ Diffuse
+#          wilson1999a
+# 
+#      3T      Tight Functions
+#          (...no reference...)
+# 
+# 
+# 
+# balabanov2005a
+#     Balabanov, Nikolai B., Peterson, Kirk A.
+#     Systematically convergent basis sets for transition metals. I. All-
+#             electron correlation consistent basis sets for the 3d elements
+#             Sc-Zn
+#     J. Chem. Phys., 123, 064107 (2005)
+#     10.1063/1.1998907
+# 
+# dunning1989a
 #     Dunning, Thom H.
 #     Gaussian basis sets for use in correlated molecular calculations. I.
 #             The atoms boron through neon and hydrogen
 #     J. Chem. Phys., 90, 1007-1023 (1989)
 #     10.1063/1.456153
 # 
-#     ## aug-cc-pVQZ Diffuse
+# kendall1992a
 #     Kendall, Rick A., Dunning, Thom H., Harrison, Robert J.
 #     Electron affinities of the first-row atoms revisited. Systematic basis
 #             sets and wave functions
 #     J. Chem. Phys., 96, 6796-6806 (1992)
 #     10.1063/1.462569
 # 
-#     ## 3T      Tight Functions
+# peterson2002a
 #     Peterson, Kirk A., Dunning, Thom H.
 #     Accurate correlation consistent basis sets for molecular core-valence
 #             correlation effects: The second row atoms Al-Ar, and the first
@@ -51,71 +107,19 @@
 #     J. Chem. Phys., 117, 10548-10560 (2002)
 #     10.1063/1.1520138
 # 
-# Al-Ar
-#     ## cc-pVQZ
-#     Woon, David E., Dunning, Thom H.
-#     Gaussian basis sets for use in correlated molecular calculations. III.
-#             The atoms aluminum through argon
-#     J. Chem. Phys., 98, 1358-1371 (1993)
-#     10.1063/1.464303
-# 
-#     ## aug-cc-pVQZ Diffuse
-#     Woon, David E., Dunning, Thom H.
-#     Gaussian basis sets for use in correlated molecular calculations. III.
-#             The atoms aluminum through argon
-#     J. Chem. Phys., 98, 1358-1371 (1993)
-#     10.1063/1.464303
-# 
-#     ## 3T      Tight Functions
-#     Peterson, Kirk A., Dunning, Thom H.
-#     Accurate correlation consistent basis sets for molecular core-valence
-#             correlation effects: The second row atoms Al-Ar, and the first
-#             row atoms B-Ne revisited
-#     J. Chem. Phys., 117, 10548-10560 (2002)
-#     10.1063/1.1520138
-# 
-# Sc-Zn
-#     ## cc-pVQZ
-#     Balabanov, Nikolai B., Peterson, Kirk A.
-#     Systematically convergent basis sets for transition metals. I. All-
-#             electron correlation consistent basis sets for the 3d elements
-#             Sc-Zn
-#     J. Chem. Phys., 123, 064107 (2005)
-#     10.1063/1.1998907
-# 
-#     ## QZ3P    All-electron non-relativistic Core-Valence Quadruple Zeta + Polarization
-#     Balabanov, Nikolai B., Peterson, Kirk A.
-#     Systematically convergent basis sets for transition metals. I. All-
-#             electron correlation consistent basis sets for the 3d elements
-#             Sc-Zn
-#     J. Chem. Phys., 123, 064107 (2005)
-#     10.1063/1.1998907
-# 
-#     ## aug-cc-pVQZ Diffuse
-#     Balabanov, Nikolai B., Peterson, Kirk A.
-#     Systematically convergent basis sets for transition metals. I. All-
-#             electron correlation consistent basis sets for the 3d elements
-#             Sc-Zn
-#     J. Chem. Phys., 123, 064107 (2005)
-#     10.1063/1.1998907
-# 
-# Br
-#     ## cc-pVQZ
+# wilson1999a
 #     Wilson, Angela K., Woon, David E., Peterson, Kirk A., Dunning, Thom H.
 #     Gaussian basis sets for use in correlated molecular calculations. IX.
 #             The atoms gallium through krypton
 #     J. Chem. Phys., 110, 7667-7676 (1999)
 #     10.1063/1.478678
 # 
-#     ## aug-cc-pVQZ Diffuse
-#     Wilson, Angela K., Woon, David E., Peterson, Kirk A., Dunning, Thom H.
-#     Gaussian basis sets for use in correlated molecular calculations. IX.
-#             The atoms gallium through krypton
-#     J. Chem. Phys., 110, 7667-7676 (1999)
-#     10.1063/1.478678
-# 
-#     ## 3T      Tight Functions
-#     (...no reference...)
+# woon1993a
+#     Woon, David E., Dunning, Thom H.
+#     Gaussian basis sets for use in correlated molecular calculations. III.
+#             The atoms aluminum through argon
+#     J. Chem. Phys., 98, 1358-1371 (1993)
+#     10.1063/1.464303
 # 
 # # 
 basis "B_aug-cc-pwcvqz" 

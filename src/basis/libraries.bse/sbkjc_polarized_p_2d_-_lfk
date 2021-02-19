@@ -1,35 +1,58 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
 # sbkjc polarized (p,2d) - lfk version number 0
 # Description: SBKJC Polarized (p,2d) - LFK
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
 #     J. Comput. Chem., 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
 #     J. Chem. Inf. Model., 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H,He
-#     ## SBKJC Polarized (p,2d) - LFK
+# 
+#  References for the basis set
+# 
+#  H,He
+#      SBKJC Polarized (p,2d) - LFK
+#          labello2006a
+# 
+#  Li-Ar
+#      SBKJC Polarized (p,2d) - LFK
+#          labello2006a
+# 
+#      SBKJC ECP
+#          stevens1984a
+# 
+#  K,Ca,Ge-Sr,Sn-Ba,Pb-Rn
+#      SBKJC Polarized (p,2d) - LFK
+#          labello2006a
+# 
+#      SBKJC ECP
+#          stevens1992a
+# 
+# 
+# 
+# labello2006a
 #     Labello, Nicholas P., Ferreira, Antonio M., Kurtz, Henry A.
 #     Correlated, relativistic, and basis set limit molecular polarizability
 #             calculations to evaluate an augmented effective core potential
@@ -37,32 +60,14 @@
 #     Int. J. Quantum Chem., 106, 3140-3148 (2006)
 #     10.1002/qua.21129
 # 
-# Li-Ar
-#     ## SBKJC Polarized (p,2d) - LFK
-#     Labello, Nicholas P., Ferreira, Antonio M., Kurtz, Henry A.
-#     Correlated, relativistic, and basis set limit molecular polarizability
-#             calculations to evaluate an augmented effective core potential
-#             basis set
-#     Int. J. Quantum Chem., 106, 3140-3148 (2006)
-#     10.1002/qua.21129
-# 
-#     ## SBKJC ECP
+# stevens1984a
 #     Stevens, Walter J., Basch, Harold, Krauss, Morris
 #     Compact effective potentials and efficient shared-exponent basis sets
 #             for the first- and second-row atoms
 #     J. Chem. Phys., 81, 6026-6033 (1984)
 #     10.1063/1.447604
 # 
-# K,Ca,Ge-Sr,Sn-Ba,Pb-Rn
-#     ## SBKJC Polarized (p,2d) - LFK
-#     Labello, Nicholas P., Ferreira, Antonio M., Kurtz, Henry A.
-#     Correlated, relativistic, and basis set limit molecular polarizability
-#             calculations to evaluate an augmented effective core potential
-#             basis set
-#     Int. J. Quantum Chem., 106, 3140-3148 (2006)
-#     10.1002/qua.21129
-# 
-#     ## SBKJC ECP
+# stevens1992a
 #     Stevens, Walter J., Krauss, Morris, Basch, Harold, Jasien, Paul G.
 #     Relativistic compact effective potentials and efficient, shared-
 #             exponent basis sets for the third-, fourth-, and fifth-row

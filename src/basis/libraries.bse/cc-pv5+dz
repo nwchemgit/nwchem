@@ -1,103 +1,78 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
 # cc-pv(5+d)z version number 1
 # Description: cc-pV(5+d)Z
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
 #     J. Comput. Chem., 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
 #     J. Chem. Inf. Model., 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H,B-Ne
-#     ## The cc-pV5Z basis set
-#     Dunning, Thom H.
-#     Gaussian basis sets for use in correlated molecular calculations. I.
-#             The atoms boron through neon and hydrogen
-#     J. Chem. Phys., 90, 1007-1023 (1989)
-#     10.1063/1.456153
 # 
-# He
-#     ## The cc-pV5Z basis set
-#     Woon, David E., Dunning, Thom H.
-#     Gaussian basis sets for use in correlated molecular calculations. IV.
-#             Calculation of static electrical response properties
-#     J. Chem. Phys., 100, 2975-2988 (1994)
-#     10.1063/1.466439
+#  References for the basis set
 # 
-# Li,Be
-#     ## Common functions for cc-pV5Z and similar
-#     Prascher, Brian P., Woon, David E., Peterson, Kirk A., Dunning, Thom
-#             H., Wilson, Angela K.
-#     Gaussian basis sets for use in correlated molecular calculations. VII.
-#             Valence, core-valence, and scalar relativistic basis sets for
-#             Li, Be, Na, and Mg
-#     Theor. Chem. Acc., 128, 69-82 (2011)
-#     10.1007/s00214-010-0764-0
+#  H,B-Ne
+#      The cc-pV5Z basis set
+#          dunning1989a
 # 
-# Na,Mg
-#     ## Common functions for cc-pV5Z and similar
-#     Prascher, Brian P., Woon, David E., Peterson, Kirk A., Dunning, Thom
-#             H., Wilson, Angela K.
-#     Gaussian basis sets for use in correlated molecular calculations. VII.
-#             Valence, core-valence, and scalar relativistic basis sets for
-#             Li, Be, Na, and Mg
-#     Theor. Chem. Acc., 128, 69-82 (2011)
-#     10.1007/s00214-010-0764-0
+#  He
+#      The cc-pV5Z basis set
+#          woon1994a
 # 
-#     ## Additional functions to form cc-pV5+dZ
-#     Prascher, Brian P., Woon, David E., Peterson, Kirk A., Dunning, Thom
-#             H., Wilson, Angela K.
-#     Gaussian basis sets for use in correlated molecular calculations. VII.
-#             Valence, core-valence, and scalar relativistic basis sets for
-#             Li, Be, Na, and Mg
-#     Theor. Chem. Acc., 128, 69-82 (2011)
-#     10.1007/s00214-010-0764-0
+#  Li,Be
+#      Common functions for cc-pV5Z and similar
+#          prascher2011a
 # 
-# Al-Ar
-#     ## Common functions for cc-pV5Z and similar
-#     Woon, David E., Dunning, Thom H.
-#     Gaussian basis sets for use in correlated molecular calculations. III.
-#             The atoms aluminum through argon
-#     J. Chem. Phys., 98, 1358-1371 (1993)
-#     10.1063/1.464303
+#  Na,Mg
+#      Common functions for cc-pV5Z and similar
+#          prascher2011a
 # 
-#     ## Additional functions to form cc-pV5+dZ
-#     Dunning, Thom H., Peterson, Kirk A., Wilson, Angela K.
-#     Gaussian basis sets for use in correlated molecular calculations. X.
-#             The atoms aluminum through argon revisited
-#     J. Chem. Phys., 114, 9244-9253 (2001)
-#     10.1063/1.1367373
+#      Additional functions to form cc-pV5+dZ
+#          prascher2011a
 # 
-# Ca
-#     ## The cc-pV5Z basis set
-#     Koput, Jacek, Peterson, Kirk A.
-#     Ab Initio Potential Energy Surface and Vibrational-Rotational Energy
-#             Levels of X2Σ+CaOH
-#     J. Phys. Chem. A, 106, 9595-9599 (2002)
-#     10.1021/jp026283u
+#  Al-Ar
+#      Common functions for cc-pV5Z and similar
+#          woon1993a
 # 
-# Sc-Zn
-#     ## The cc-pV5Z basis set
+#      Additional functions to form cc-pV5+dZ
+#          dunning2001a
+# 
+#  Ca
+#      The cc-pV5Z basis set
+#          koput2002a
+# 
+#  Sc-Zn
+#      The cc-pV5Z basis set
+#          balabanov2005a
+# 
+#  Ga-Kr
+#      The cc-pV5Z basis set
+#          wilson1999a
+# 
+# 
+# 
+# balabanov2005a
 #     Balabanov, Nikolai B., Peterson, Kirk A.
 #     Systematically convergent basis sets for transition metals. I. All-
 #             electron correlation consistent basis sets for the 3d elements
@@ -105,13 +80,56 @@
 #     J. Chem. Phys., 123, 064107 (2005)
 #     10.1063/1.1998907
 # 
-# Ga-Kr
-#     ## The cc-pV5Z basis set
+# dunning1989a
+#     Dunning, Thom H.
+#     Gaussian basis sets for use in correlated molecular calculations. I.
+#             The atoms boron through neon and hydrogen
+#     J. Chem. Phys., 90, 1007-1023 (1989)
+#     10.1063/1.456153
+# 
+# dunning2001a
+#     Dunning, Thom H., Peterson, Kirk A., Wilson, Angela K.
+#     Gaussian basis sets for use in correlated molecular calculations. X.
+#             The atoms aluminum through argon revisited
+#     J. Chem. Phys., 114, 9244-9253 (2001)
+#     10.1063/1.1367373
+# 
+# koput2002a
+#     Koput, Jacek, Peterson, Kirk A.
+#     Ab Initio Potential Energy Surface and Vibrational-Rotational Energy
+#             Levels of X2Σ+CaOH
+#     J. Phys. Chem. A, 106, 9595-9599 (2002)
+#     10.1021/jp026283u
+# 
+# prascher2011a
+#     Prascher, Brian P., Woon, David E., Peterson, Kirk A., Dunning, Thom
+#             H., Wilson, Angela K.
+#     Gaussian basis sets for use in correlated molecular calculations. VII.
+#             Valence, core-valence, and scalar relativistic basis sets for
+#             Li, Be, Na, and Mg
+#     Theor. Chem. Acc., 128, 69-82 (2011)
+#     10.1007/s00214-010-0764-0
+# 
+# wilson1999a
 #     Wilson, Angela K., Woon, David E., Peterson, Kirk A., Dunning, Thom H.
 #     Gaussian basis sets for use in correlated molecular calculations. IX.
 #             The atoms gallium through krypton
 #     J. Chem. Phys., 110, 7667-7676 (1999)
 #     10.1063/1.478678
+# 
+# woon1993a
+#     Woon, David E., Dunning, Thom H.
+#     Gaussian basis sets for use in correlated molecular calculations. III.
+#             The atoms aluminum through argon
+#     J. Chem. Phys., 98, 1358-1371 (1993)
+#     10.1063/1.464303
+# 
+# woon1994a
+#     Woon, David E., Dunning, Thom H.
+#     Gaussian basis sets for use in correlated molecular calculations. IV.
+#             Calculation of static electrical response properties
+#     J. Chem. Phys., 100, 2975-2988 (1994)
+#     10.1063/1.466439
 # 
 # # 
 basis "H_cc-pv(5+d)z" 

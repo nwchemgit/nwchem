@@ -1,75 +1,124 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
 # cc-pwcvtz-pp version number 0
 # Description: cc-pwCVTZ-PP
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
 #     J. Comput. Chem., 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
 #     J. Chem. Inf. Model., 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# Cu,Zn,Ag,Cd,Au,Hg
-#     ## cc-pVTZ-PP
-#     Peterson, Kirk A, Puzzarini, Cristina
-#     Systematically convergent basis sets for transition metals. II.
-#             Pseudopotential-based correlation consistent basis sets for
-#             the group 11 (Cu, Ag, Au) and 12 (Zn, Cd, Hg) elements
-#     Theor. Chem. Acc., 114, 283-296 (2005)
-#     10.1007/s00214-005-0681-9
 # 
-#     ## cc-pwCVTZ-PP
-#     Peterson, Kirk A, Puzzarini, Cristina
-#     Systematically convergent basis sets for transition metals. II.
-#             Pseudopotential-based correlation consistent basis sets for
-#             the group 11 (Cu, Ag, Au) and 12 (Zn, Cd, Hg) elements
-#     Theor. Chem. Acc., 114, 283-296 (2005)
-#     10.1007/s00214-005-0681-9
+#  References for the basis set
 # 
-#     ## Stuttgart-Koeln MCDHF RSC ECP
+#  Cu,Zn,Ag,Cd,Au,Hg
+#      cc-pVTZ-PP
+#          peterson2005a
+# 
+#      cc-pwCVTZ-PP
+#          peterson2005a
+# 
+#      Stuttgart-Koeln MCDHF RSC ECP
+#          figgen2005a
+# 
+#  Ga-As,In-Sb,Pb,Bi
+#      cc-pVTZ-PP
+#          peterson2003a
+# 
+#      cc-pwCVTZ-PP
+#          peterson2010a
+# 
+#      Stuttgart-Koeln MCDHF RSC ECP
+#          metz2000a
+# 
+#  Se-Kr,Te,Xe,Po-Rn
+#      cc-pVTZ-PP
+#          peterson2003b
+# 
+#      cc-pwCVTZ-PP
+#          peterson2010a
+# 
+#      Stuttgart-Koeln MCDHF RSC ECP
+#          peterson2003b
+# 
+#  Y-Pd
+#      cc-pVTZ-PP
+#          peterson2007a
+# 
+#      cc-pwCVTZ-PP
+#          peterson2007a
+# 
+#      Stuttgart-Koeln MCDHF RSC ECP
+#          peterson2007a
+# 
+#  I
+#      cc-pVTZ-PP
+#          peterson2003b peterson2006a
+# 
+#      cc-pwCVTZ-PP
+#          peterson2010a
+# 
+#      Stuttgart-Koeln MCDHF RSC ECP
+#          peterson2003b peterson2006a
+# 
+#  Hf-Pt
+#      cc-pVTZ-PP
+#          figgen2009a
+# 
+#      cc-pwCVTZ-PP
+#          figgen2009a
+# 
+#      Stuttgart-Koeln MCDHF RSC ECP
+#          figgen2009a
+# 
+#  Tl
+#      cc-pVTZ-PP
+#          peterson2003a
+# 
+#      cc-pwCVTZ-PP
+#          peterson2010a
+# 
+#      Stuttgart-Koeln MCDHF RSC ECP
+#          metz2000b
+# 
+# 
+# 
+# figgen2005a
 #     Figgen, Detlev, Rauhut, Guntram, Dolg, Michael, Stoll, Hermann
 #     Energy-consistent pseudopotentials for group 11 and 12 atoms:
 #             adjustment to multi-configuration Dirac-Hartree-Fock data
 #     J. Chem. Phys., 311, 227-244 (2005)
 #     10.1016/j.chemphys.2004.10.005
 # 
-# Ga-As,In-Sb,Pb,Bi
-#     ## cc-pVTZ-PP
-#     Peterson, Kirk A.
-#     Systematically convergent basis sets with relativistic
-#             pseudopotentials. I. Correlation consistent basis sets for the
-#             post-d group 13-15 elements
-#     J. Chem. Phys., 119, 11099-11112 (2003)
-#     10.1063/1.1622923
+# figgen2009a
+#     Figgen, Detlev, Peterson, Kirk A., Dolg, Michael, Stoll, Hermann
+#     Energy-consistent pseudopotentials and correlation consistent basis
+#             sets for the 5d elements Hf-Pt
+#     J. Chem. Phys., 130, 164108 (2009)
+#     10.1063/1.3119665
 # 
-#     ## cc-pwCVTZ-PP
-#     Peterson, Kirk A., Yousaf, Kazim E.
-#     Molecular core-valence correlation effects involving the post-d
-#             elements Ga-Rn: Benchmarks and new pseudopotential-based
-#             correlation consistent basis sets
-#     J. Chem. Phys., 133, 174116 (2010)
-#     10.1063/1.3503659
-# 
-#     ## Stuttgart-Koeln MCDHF RSC ECP
+# metz2000a
 #     Metz, Bernhard, Stoll, Hermann, Dolg, Michael
 #     Small-core multiconfiguration-Dirac-Hartree-Fock-adjusted
 #             pseudopotentials for post-d main group elements: Application
@@ -77,140 +126,7 @@
 #     J. Chem. Phys., 113, 2563-2569 (2000)
 #     10.1063/1.1305880
 # 
-# Se-Kr,Te,Xe,Po-Rn
-#     ## cc-pVTZ-PP
-#     Peterson, Kirk A., Figgen, Detlev, Goll, Erich, Stoll, Hermann, Dolg,
-#             Michael
-#     Systematically convergent basis sets with relativistic
-#             pseudopotentials. II. Small-core pseudopotentials and
-#             correlation consistent basis sets for the post-d group 16-18
-#             elements
-#     J. Chem. Phys., 119, 11113-11123 (2003)
-#     10.1063/1.1622924
-# 
-#     ## cc-pwCVTZ-PP
-#     Peterson, Kirk A., Yousaf, Kazim E.
-#     Molecular core-valence correlation effects involving the post-d
-#             elements Ga-Rn: Benchmarks and new pseudopotential-based
-#             correlation consistent basis sets
-#     J. Chem. Phys., 133, 174116 (2010)
-#     10.1063/1.3503659
-# 
-#     ## Stuttgart-Koeln MCDHF RSC ECP
-#     Peterson, Kirk A., Figgen, Detlev, Goll, Erich, Stoll, Hermann, Dolg,
-#             Michael
-#     Systematically convergent basis sets with relativistic
-#             pseudopotentials. II. Small-core pseudopotentials and
-#             correlation consistent basis sets for the post-d group 16-18
-#             elements
-#     J. Chem. Phys., 119, 11113-11123 (2003)
-#     10.1063/1.1622924
-# 
-# Y-Pd
-#     ## cc-pVTZ-PP
-#     Peterson, Kirk A., Figgen, Detlev, Dolg, Michael, Stoll, Hermann
-#     Energy-consistent relativistic pseudopotentials and correlation
-#             consistent basis sets for the 4d elements Y-Pd
-#     J. Chem. Phys., 126, 124101 (2007)
-#     10.1063/1.2647019
-# 
-#     ## cc-pwCVTZ-PP
-#     Peterson, Kirk A., Figgen, Detlev, Dolg, Michael, Stoll, Hermann
-#     Energy-consistent relativistic pseudopotentials and correlation
-#             consistent basis sets for the 4d elements Y-Pd
-#     J. Chem. Phys., 126, 124101 (2007)
-#     10.1063/1.2647019
-# 
-#     ## Stuttgart-Koeln MCDHF RSC ECP
-#     Peterson, Kirk A., Figgen, Detlev, Dolg, Michael, Stoll, Hermann
-#     Energy-consistent relativistic pseudopotentials and correlation
-#             consistent basis sets for the 4d elements Y-Pd
-#     J. Chem. Phys., 126, 124101 (2007)
-#     10.1063/1.2647019
-# 
-# I
-#     ## cc-pVTZ-PP
-#     Peterson, Kirk A., Figgen, Detlev, Goll, Erich, Stoll, Hermann, Dolg,
-#             Michael
-#     Systematically convergent basis sets with relativistic
-#             pseudopotentials. II. Small-core pseudopotentials and
-#             correlation consistent basis sets for the post-d group 16-18
-#             elements
-#     J. Chem. Phys., 119, 11113-11123 (2003)
-#     10.1063/1.1622924
-# 
-#     Peterson, Kirk A., Shepler, Benjamin C., Figgen, Detlev, Stoll,
-#             Hermann
-#     On the Spectroscopic and Thermochemical Properties of ClO, BrO, IO,
-#             and Their Anions
-#     J. Phys. Chem. A, 110, 13877-13883 (2006)
-#     10.1021/jp065887l
-# 
-#     ## cc-pwCVTZ-PP
-#     Peterson, Kirk A., Yousaf, Kazim E.
-#     Molecular core-valence correlation effects involving the post-d
-#             elements Ga-Rn: Benchmarks and new pseudopotential-based
-#             correlation consistent basis sets
-#     J. Chem. Phys., 133, 174116 (2010)
-#     10.1063/1.3503659
-# 
-#     ## Stuttgart-Koeln MCDHF RSC ECP
-#     Peterson, Kirk A., Figgen, Detlev, Goll, Erich, Stoll, Hermann, Dolg,
-#             Michael
-#     Systematically convergent basis sets with relativistic
-#             pseudopotentials. II. Small-core pseudopotentials and
-#             correlation consistent basis sets for the post-d group 16-18
-#             elements
-#     J. Chem. Phys., 119, 11113-11123 (2003)
-#     10.1063/1.1622924
-# 
-#     Peterson, Kirk A., Shepler, Benjamin C., Figgen, Detlev, Stoll,
-#             Hermann
-#     On the Spectroscopic and Thermochemical Properties of ClO, BrO, IO,
-#             and Their Anions
-#     J. Phys. Chem. A, 110, 13877-13883 (2006)
-#     10.1021/jp065887l
-# 
-# Hf-Pt
-#     ## cc-pVTZ-PP
-#     Figgen, Detlev, Peterson, Kirk A., Dolg, Michael, Stoll, Hermann
-#     Energy-consistent pseudopotentials and correlation consistent basis
-#             sets for the 5d elements Hf-Pt
-#     J. Chem. Phys., 130, 164108 (2009)
-#     10.1063/1.3119665
-# 
-#     ## cc-pwCVTZ-PP
-#     Figgen, Detlev, Peterson, Kirk A., Dolg, Michael, Stoll, Hermann
-#     Energy-consistent pseudopotentials and correlation consistent basis
-#             sets for the 5d elements Hf-Pt
-#     J. Chem. Phys., 130, 164108 (2009)
-#     10.1063/1.3119665
-# 
-#     ## Stuttgart-Koeln MCDHF RSC ECP
-#     Figgen, Detlev, Peterson, Kirk A., Dolg, Michael, Stoll, Hermann
-#     Energy-consistent pseudopotentials and correlation consistent basis
-#             sets for the 5d elements Hf-Pt
-#     J. Chem. Phys., 130, 164108 (2009)
-#     10.1063/1.3119665
-# 
-# Tl
-#     ## cc-pVTZ-PP
-#     Peterson, Kirk A.
-#     Systematically convergent basis sets with relativistic
-#             pseudopotentials. I. Correlation consistent basis sets for the
-#             post-d group 13-15 elements
-#     J. Chem. Phys., 119, 11099-11112 (2003)
-#     10.1063/1.1622923
-# 
-#     ## cc-pwCVTZ-PP
-#     Peterson, Kirk A., Yousaf, Kazim E.
-#     Molecular core-valence correlation effects involving the post-d
-#             elements Ga-Rn: Benchmarks and new pseudopotential-based
-#             correlation consistent basis sets
-#     J. Chem. Phys., 133, 174116 (2010)
-#     10.1063/1.3503659
-# 
-#     ## Stuttgart-Koeln MCDHF RSC ECP
+# metz2000b
 #     Metz, Bernhard, Schweizer, Marcus, Stoll, Hermann, Dolg, Michael, Liu,
 #             Wenjian
 #     A small-core multiconfiguration Dirac-Hartree-Fock-adjusted
@@ -218,6 +134,55 @@
 #             I)
 #     Theor. Chim. Acta, 104, 22-28 (2000)
 #     10.1007/s002149900101
+# 
+# peterson2003a
+#     Peterson, Kirk A.
+#     Systematically convergent basis sets with relativistic
+#             pseudopotentials. I. Correlation consistent basis sets for the
+#             post-d group 13-15 elements
+#     J. Chem. Phys., 119, 11099-11112 (2003)
+#     10.1063/1.1622923
+# 
+# peterson2003b
+#     Peterson, Kirk A., Figgen, Detlev, Goll, Erich, Stoll, Hermann, Dolg,
+#             Michael
+#     Systematically convergent basis sets with relativistic
+#             pseudopotentials. II. Small-core pseudopotentials and
+#             correlation consistent basis sets for the post-d group 16-18
+#             elements
+#     J. Chem. Phys., 119, 11113-11123 (2003)
+#     10.1063/1.1622924
+# 
+# peterson2005a
+#     Peterson, Kirk A, Puzzarini, Cristina
+#     Systematically convergent basis sets for transition metals. II.
+#             Pseudopotential-based correlation consistent basis sets for
+#             the group 11 (Cu, Ag, Au) and 12 (Zn, Cd, Hg) elements
+#     Theor. Chem. Acc., 114, 283-296 (2005)
+#     10.1007/s00214-005-0681-9
+# 
+# peterson2006a
+#     Peterson, Kirk A., Shepler, Benjamin C., Figgen, Detlev, Stoll,
+#             Hermann
+#     On the Spectroscopic and Thermochemical Properties of ClO, BrO, IO,
+#             and Their Anions
+#     J. Phys. Chem. A, 110, 13877-13883 (2006)
+#     10.1021/jp065887l
+# 
+# peterson2007a
+#     Peterson, Kirk A., Figgen, Detlev, Dolg, Michael, Stoll, Hermann
+#     Energy-consistent relativistic pseudopotentials and correlation
+#             consistent basis sets for the 4d elements Y-Pd
+#     J. Chem. Phys., 126, 124101 (2007)
+#     10.1063/1.2647019
+# 
+# peterson2010a
+#     Peterson, Kirk A., Yousaf, Kazim E.
+#     Molecular core-valence correlation effects involving the post-d
+#             elements Ga-Rn: Benchmarks and new pseudopotential-based
+#             correlation consistent basis sets
+#     J. Chem. Phys., 133, 174116 (2010)
+#     10.1063/1.3503659
 # 
 # # 
 basis "Cu_cc-pwcvtz-pp" 

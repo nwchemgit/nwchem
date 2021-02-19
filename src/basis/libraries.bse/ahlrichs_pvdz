@@ -1,41 +1,47 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
 # ahlrichs pvdz version number 0
 # Description: VDZP    Valence Double Zeta + Polarization on All Atoms
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
 #     J. Comput. Chem., 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
 #     J. Chem. Inf. Model., 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H-Kr
-#     ## VDZ     Valence Double Zeta: 2 Funct.'s/Valence AO
-#     Schäfer, Ansgar, Horn, Hans, Ahlrichs, Reinhart
-#     Fully optimized contracted Gaussian basis sets for atoms Li to Kr
-#     J. Chem. Phys., 97, 2571-2577 (1992)
-#     10.1063/1.463096
 # 
-#     ## 1P      Polarization functions
+#  References for the basis set
+# 
+#  H-Kr
+#      VDZ     Valence Double Zeta: 2 Funct.'s/Valence AO
+#          schafer1992a
+# 
+#      1P      Polarization functions
+#          schafer1992a
+# 
+# 
+# 
+# schafer1992a
 #     Schäfer, Ansgar, Horn, Hans, Ahlrichs, Reinhart
 #     Fully optimized contracted Gaussian basis sets for atoms Li to Kr
 #     J. Chem. Phys., 97, 2571-2577 (1992)
@@ -649,13 +655,13 @@ Cr    S
     161.46520598             0.38295412850
      55.466352268            0.29090050668
 Cr    S
-      8.5461640165          -0.22711013286
-      1.3900441221           0.73301527591
-      0.56066602876          0.44225565433
-Cr    S
     107.54732999            -0.10932281100
      12.408671897            0.64472599471
       5.0423628826           0.46262712560
+Cr    S
+      8.5461640165          -0.22711013286
+      1.3900441221           0.73301527591
+      0.56066602876          0.44225565433
 Cr    S
       0.71483705972E-01      1.0000000000
 Cr    S
@@ -690,13 +696,13 @@ Mn    S
     176.00069142             0.38198025054
      60.500477010            0.29156772596
 Mn    S
-      9.4662853530          -0.22538977259
-      1.5595006070           0.72307758657
-      0.65230205868          0.45300721536
-Mn    S
     117.17282882            -0.10933661328
      13.596973368            0.64305039431
       5.5483996341           0.45848970584
+Mn    S
+      9.4662853530          -0.22538977259
+      1.5595006070           0.72307758657
+      0.65230205868          0.45300721536
 Mn    S
       0.84003734475E-01      1.0000000000
 Mn    S
@@ -731,13 +737,13 @@ Fe    S
     191.09043990             0.38253069946
      65.732730112            0.29308335984
 Fe    S
-     10.449943710           -0.22539639952
-      1.7245228003           0.72164398156
-      0.71772177325          0.44985492922
-Fe    S
     127.25891928            -0.10964564925
      14.830913010            0.64387631332
       6.0653307408           0.45472347323
+Fe    S
+     10.449943710           -0.22539639952
+      1.7245228003           0.72164398156
+      0.71772177325          0.44985492922
 Fe    S
       0.91449828308E-01      1.0000000000
 Fe    S
@@ -772,13 +778,13 @@ Co    S
     206.78820681             0.38301634994
      71.179242971            0.29443551266
 Co    S
-     11.479915788           -0.22593846910
-      1.8956426324           0.72231409008
-      0.78466232067          0.44903812296
-Co    S
     137.77268040            -0.10990221736
      16.118079243            0.64455537395
       6.6030327710           0.45116787924
+Co    S
+     11.479915788           -0.22593846910
+      1.8956426324           0.72231409008
+      0.78466232067          0.44903812296
 Co    S
       0.98425774432E-01      1.0000000000
 Co    S

@@ -1,58 +1,73 @@
-# BSE Version v0.8.6
-# Data downloaded at 2019-10-24T11:58
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
 # pv6z version number 0
 # Description: V6Z5P   Valence Sextuple Zeta + Polarization on All Atoms
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
 #     J. Comput. Chem., 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
 #     J. Chem. Inf. Model., 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H
-#     ## V6Z5P   Valence Sextuple Zeta + Polarization on All Atoms
+# 
+#  References for the basis set
+# 
+#  H
+#      V6Z5P   Valence Sextuple Zeta + Polarization on All Atoms
+#          peterson1994a
+# 
+#  C
+#      V6Z5P   Valence Sextuple Zeta + Polarization on All Atoms
+#          pradhan1994a
+# 
+#  N
+#      V6Z5P   Valence Sextuple Zeta + Polarization on All Atoms
+#          bauschlicher1994a
+# 
+#  O
+#      V6Z5P   Valence Sextuple Zeta + Polarization on All Atoms
+#          (...no reference...)
+# 
+# 
+# 
+# bauschlicher1994a
+#     Bauschlicher, Charles W., Partridge, Harry
+#     How large is the effect of 1s correlation on the De, ωe, and re of N2?
+#     J. Chem. Phys., 100, 4329-4335 (1994)
+#     10.1063/1.466315
+# 
+# peterson1994a
 #     Peterson, Kirk A., Woon, David E., Dunning, Jr, Thom H.
 #     Benchmark calculations with correlated molecular wave functions. IV.
 #             The classical barrier height of the H+H2→H2+H reaction
 #     J. Chem. Phys., 100, 7410-7415 (1994)
 #     10.1063/1.466884
 # 
-# C
-#     ## V6Z5P   Valence Sextuple Zeta + Polarization on All Atoms
+# pradhan1994a
 #     Pradhan, Atul D., Partridge, Harry, Bauschlicher, Charles W.
 #     The dissociation energy of CN and C2
 #     J. Chem. Phys., 101, 3857-3861 (1994)
 #     10.1063/1.467503
-# 
-# N
-#     ## V6Z5P   Valence Sextuple Zeta + Polarization on All Atoms
-#     Bauschlicher, Charles W., Partridge, Harry
-#     How large is the effect of 1s correlation on the De, ωe, and re of N2?
-#     J. Chem. Phys., 100, 4329-4335 (1994)
-#     10.1063/1.466315
-# 
-# O
-#     ## V6Z5P   Valence Sextuple Zeta + Polarization on All Atoms
-#     (...no reference...)
 # 
 # # 
 basis "H_pv6z" 

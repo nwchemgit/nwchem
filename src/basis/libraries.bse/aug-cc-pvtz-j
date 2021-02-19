@@ -1,73 +1,72 @@
-# BSE Version v0.8.6
-# Data downloaded at 2019-10-24T11:58
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
 # aug-cc-pvtz-j version number 0
 # Description: aug-cc-pVTZ-J
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
 #     J. Comput. Chem., 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
 #     J. Chem. Inf. Model., 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H,C-O
-#     ## 
-#     Enevoldsen, Thomas, Oddershede, Jens, Sauer, Stephan P. A.
-#     Correlated calculations of indirect nuclear spin-spin coupling
-#             constants using second-order polarization propagator
-#             approximations: SOPPA and SOPPA(CCSD)
-#     Theor. Chim. Acta, 100, 275-284 (1998)
-#     10.1007/s002140050388
 # 
-#     Provasi, Patricio F., Aucar, Gustavo A., Sauer, Stephan P. A.
-#     The effect of lone pairs and electronegativity on the indirect nuclear
-#             spin-spin coupling constants in CH2X (X=CH2, NH, O, S):Ab
-#             initiocalculations using optimized contracted basis sets
-#     J. Chem. Phys., 115, 1324-1334 (2001)
-#     10.1063/1.1379331
+#  References for the basis set
 # 
-# B,Al
-#     ## 
-#     Enevoldsen, Thomas, Oddershede, Jens, Sauer, Stephan P. A.
-#     Correlated calculations of indirect nuclear spin-spin coupling
-#             constants using second-order polarization propagator
-#             approximations: SOPPA and SOPPA(CCSD)
-#     Theor. Chim. Acta, 100, 275-284 (1998)
-#     10.1007/s002140050388
+#  H,C-O
+#      
+#          enevoldsen1998a provasi2001a
 # 
-#     Provasi, Patricio F., Sauer, Stephan P. A.
-#     Optimized basis sets for the calculation of indirect nuclear spin-spin
-#             coupling constants involving the atoms B, Al, Si, P, and Cl
-#     J. Chem. Phys., 133, 054308 (2010)
-#     10.1063/1.3465553
+#  B,Al
+#      
+#          enevoldsen1998a provasi2010a
 # 
-# F
-#     ## 
-#     Enevoldsen, Thomas, Oddershede, Jens, Sauer, Stephan P. A.
-#     Correlated calculations of indirect nuclear spin-spin coupling
-#             constants using second-order polarization propagator
-#             approximations: SOPPA and SOPPA(CCSD)
-#     Theor. Chim. Acta, 100, 275-284 (1998)
-#     10.1007/s002140050388
+#  F
+#      
+#          enevoldsen1998a barone2003a
 # 
+#  Si
+#      
+#          sauer2000a sauer2001a provasi2010a
+# 
+#  P,Cl
+#      
+#          provasi2010a
+# 
+#  S
+#      
+#          provasi2001a
+# 
+#  Sc-Zn
+#      
+#          hedegard2011a
+# 
+#  Se
+#      
+#          rusakov2010a
+# 
+# 
+# 
+# barone2003a
 #     Barone, Verónica, Provasi, Patricio F., Peralta, Juan E., Snyder,
 #             James P., Sauer, Stephan P. A., Contreras, Rubén H.
 #     Substituent Effects on Scalar2J(19F,19F) and3J(19F,19F) NMR Couplings:
@@ -75,45 +74,15 @@
 #     J. Phys. Chem. A, 107, 4748-4754 (2003)
 #     10.1021/jp0300851
 # 
-# Si
-#     ## 
-#     Sauer, Stephan P. A., Raynes, William T.
-#     Unexpected differential sensitivity of nuclear spin-spin-coupling
-#             constants to bond stretching in BH4-, NH4+, and SiH4
-#     J. Chem. Phys., 113, 3121-3129 (2000)
-#     10.1063/1.1287277
+# enevoldsen1998a
+#     Enevoldsen, Thomas, Oddershede, Jens, Sauer, Stephan P. A.
+#     Correlated calculations of indirect nuclear spin-spin coupling
+#             constants using second-order polarization propagator
+#             approximations: SOPPA and SOPPA(CCSD)
+#     Theor. Chim. Acta, 100, 275-284 (1998)
+#     10.1007/s002140050388
 # 
-#     Sauer, Stephan P. A., Raynes, William T., Nicholls, Robert A.
-#     Nuclear spin-spin coupling in silane and its isotopomers: Ab initio
-#             calculation and experimental investigation
-#     J. Chem. Phys., 115, 5994-6006 (2001)
-#     10.1063/1.1398091
-# 
-#     Provasi, Patricio F., Sauer, Stephan P. A.
-#     Optimized basis sets for the calculation of indirect nuclear spin-spin
-#             coupling constants involving the atoms B, Al, Si, P, and Cl
-#     J. Chem. Phys., 133, 054308 (2010)
-#     10.1063/1.3465553
-# 
-# P,Cl
-#     ## 
-#     Provasi, Patricio F., Sauer, Stephan P. A.
-#     Optimized basis sets for the calculation of indirect nuclear spin-spin
-#             coupling constants involving the atoms B, Al, Si, P, and Cl
-#     J. Chem. Phys., 133, 054308 (2010)
-#     10.1063/1.3465553
-# 
-# S
-#     ## 
-#     Provasi, Patricio F., Aucar, Gustavo A., Sauer, Stephan P. A.
-#     The effect of lone pairs and electronegativity on the indirect nuclear
-#             spin-spin coupling constants in CH2X (X=CH2, NH, O, S):Ab
-#             initiocalculations using optimized contracted basis sets
-#     J. Chem. Phys., 115, 1324-1334 (2001)
-#     10.1063/1.1379331
-# 
-# Sc-Zn
-#     ## 
+# hedegard2011a
 #     Hedegård, Erik Donovan, Kongsted, Jacob, Sauer, Stephan P. A.
 #     Optimized Basis Sets for Calculation of Electron Paramagnetic
 #             Resonance Hyperfine Coupling Constants: aug-cc-pVTZ-J for the
@@ -121,14 +90,42 @@
 #     J. Chem. Theory Comput., 7, 4077-4087 (2011)
 #     10.1021/ct200587k
 # 
-# Se
-#     ## 
+# provasi2001a
+#     Provasi, Patricio F., Aucar, Gustavo A., Sauer, Stephan P. A.
+#     The effect of lone pairs and electronegativity on the indirect nuclear
+#             spin-spin coupling constants in CH2X (X=CH2, NH, O, S):Ab
+#             initiocalculations using optimized contracted basis sets
+#     J. Chem. Phys., 115, 1324-1334 (2001)
+#     10.1063/1.1379331
+# 
+# provasi2010a
+#     Provasi, Patricio F., Sauer, Stephan P. A.
+#     Optimized basis sets for the calculation of indirect nuclear spin-spin
+#             coupling constants involving the atoms B, Al, Si, P, and Cl
+#     J. Chem. Phys., 133, 054308 (2010)
+#     10.1063/1.3465553
+# 
+# rusakov2010a
 #     Rusakov, Yury Yu., Krivdin, Leonid B., Sauer, Stephan P. A., Levanova,
 #             Ekaterina P., Levkovskaya, Galina G.
 #     Structural trends of 77Se-1H spin-spin coupling constants and
 #             conformational behavior of 2-substituted selenophenes
 #     Magn. Reson. Chem., 48, 44-52 (2010)
 #     10.1002/mrc.2537
+# 
+# sauer2000a
+#     Sauer, Stephan P. A., Raynes, William T.
+#     Unexpected differential sensitivity of nuclear spin-spin-coupling
+#             constants to bond stretching in BH4-, NH4+, and SiH4
+#     J. Chem. Phys., 113, 3121-3129 (2000)
+#     10.1063/1.1287277
+# 
+# sauer2001a
+#     Sauer, Stephan P. A., Raynes, William T., Nicholls, Robert A.
+#     Nuclear spin-spin coupling in silane and its isotopomers: Ab initio
+#             calculation and experimental investigation
+#     J. Chem. Phys., 115, 5994-6006 (2001)
+#     10.1063/1.1398091
 # 
 # # 
 basis "H_aug-cc-pvtz-j" 

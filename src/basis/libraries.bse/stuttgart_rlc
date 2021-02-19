@@ -1,45 +1,118 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
 # stuttgart rlc version number 0
 # Description: Stuttgart RLC ECP + Valence basis
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
 #     J. Comput. Chem., 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
 #     J. Chem. Inf. Model., 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# Li,Na,K
-#     ## DZ      Double Zeta Basis Set designed for an ECP
-#     Poppe, J.
-#     unpublished
-#     As referenced in the Stuttgart ECP database/website
 # 
-#     Fuentealba, P.
-#     unpublished
-#     1988
-#     As referenced in the Stuttgart ECP database/website
+#  References for the basis set
 # 
-#     ## Stuttgart RLC ECP
+#  Li,Na,K
+#      DZ      Double Zeta Basis Set designed for an ECP
+#          poppeXXXXa fuentealba1988a
+# 
+#      Stuttgart RLC ECP
+#          fuentealba1982a
+# 
+#  Be,Mg,Ca,Sr,Ba
+#      DZ      Double Zeta Basis Set designed for an ECP
+#          poppeXXXXa fuentealba1988a
+# 
+#      Stuttgart RLC ECP
+#          fuentealba1985a
+# 
+#  B-F,Al-Cl,Ge-Br,Sn-I
+#      DZ      Double Zeta Basis Set designed for an ECP
+#          bergner1993a
+# 
+#      Stuttgart RLC ECP
+#          bergner1993a
+# 
+#  Ne,Ar,Kr,Xe
+#      DZ      Double Zeta Basis Set designed for an ECP
+#          nicklass1995a
+# 
+#      Stuttgart RLC ECP
+#          nicklass1995a
+# 
+#  Zn
+#      DZ      Double Zeta Basis Set designed for an ECP
+#          (...no reference...)
+# 
+#      Stuttgart RLC ECP
+#          igelmann1987a
+# 
+#  Ga,In
+#      DZ      Double Zeta Basis Set designed for an ECP
+#          bergner1993a
+# 
+#      Stuttgart RLC ECP
+#          leininger1997a bergner1993a
+# 
+#  Rb
+#      DZ      Double Zeta Basis Set designed for an ECP
+#          poppeXXXXa fuentealba1988a
+# 
+#      Stuttgart RLC ECP
+#          szentpaly1982a fuentealba1983a
+# 
+#  Cs
+#      DZ      Double Zeta Basis Set designed for an ECP
+#          poppeXXXXa fuentealba1988a
+# 
+#      Stuttgart RLC ECP
+#          szentpaly1982a
+# 
+#  Hg-Rn
+#      DZ      Double Zeta Basis Set designed for an ECP
+#          kuchle1991a
+# 
+#      Stuttgart RLC ECP
+#          kuchle1991a
+# 
+#  Ac-Lr
+#      DZ      Double Zeta Basis Set designed for an ECP
+#          (...no reference...)
+# 
+#      Stuttgart RLC ECP
+#          (...no reference...)
+# 
+# 
+# 
+# bergner1993a
+#     Bergner, Andreas, Dolg, Michael, Küchle, Wolfgang, Stoll, Hermann,
+#             Preuß, Heinzwerner
+#     Ab initio energy-adjusted pseudopotentials for elements of groups
+#             13-17
+#     Mol. Phys., 80, 1431-1441 (1993)
+#     10.1080/00268979300103121
+# 
+# fuentealba1982a
 #     Fuentealba, Patricio, Preuss, Heinzwerner, Stoll, Hermann, Szentpály,
 #             László Von
 #     A proper account of core-polarization with pseudopotentials: single
@@ -47,110 +120,7 @@
 #     Chem. Phys. Lett., 89, 418-422 (1982)
 #     10.1016/0009-2614(82)80012-2
 # 
-# Be,Mg,Ca,Sr,Ba
-#     ## DZ      Double Zeta Basis Set designed for an ECP
-#     Poppe, J.
-#     unpublished
-#     As referenced in the Stuttgart ECP database/website
-# 
-#     Fuentealba, P.
-#     unpublished
-#     1988
-#     As referenced in the Stuttgart ECP database/website
-# 
-#     ## Stuttgart RLC ECP
-#     Fuentealba, P, Szentpaly, L von, Preuss, H, Stoll, H
-#     Pseudopotential calculations for alkaline-earth atoms
-#     J. Phys. B-At. Mol. Phys., 18, 1287-1296 (1985)
-#     10.1088/0022-3700/18/7/010
-# 
-# B-F,Al-Cl,Ge-Br,Sn-I
-#     ## DZ      Double Zeta Basis Set designed for an ECP
-#     Bergner, Andreas, Dolg, Michael, Küchle, Wolfgang, Stoll, Hermann,
-#             Preuß, Heinzwerner
-#     Ab initio energy-adjusted pseudopotentials for elements of groups
-#             13-17
-#     Mol. Phys., 80, 1431-1441 (1993)
-#     10.1080/00268979300103121
-# 
-#     ## Stuttgart RLC ECP
-#     Bergner, Andreas, Dolg, Michael, Küchle, Wolfgang, Stoll, Hermann,
-#             Preuß, Heinzwerner
-#     Ab initio energy-adjusted pseudopotentials for elements of groups
-#             13-17
-#     Mol. Phys., 80, 1431-1441 (1993)
-#     10.1080/00268979300103121
-# 
-# Ne,Ar,Kr,Xe
-#     ## DZ      Double Zeta Basis Set designed for an ECP
-#     Nicklass, Andreas, Dolg, Michael, Stoll, Hermann, Preuss, Heinzwerner
-#     Ab initio energy‐adjusted pseudopotentials for the noble gases Ne
-#             through Xe: Calculation of atomic dipole and quadrupole
-#             polarizabilities
-#     J. Chem. Phys., 102, 8942-8952 (1995)
-#     10.1063/1.468948
-# 
-#     ## Stuttgart RLC ECP
-#     Nicklass, Andreas, Dolg, Michael, Stoll, Hermann, Preuss, Heinzwerner
-#     Ab initio energy‐adjusted pseudopotentials for the noble gases Ne
-#             through Xe: Calculation of atomic dipole and quadrupole
-#             polarizabilities
-#     J. Chem. Phys., 102, 8942-8952 (1995)
-#     10.1063/1.468948
-# 
-# Zn
-#     ## DZ      Double Zeta Basis Set designed for an ECP
-#     (...no reference...)
-# 
-#     ## Stuttgart RLC ECP
-#     Igel-Mann, Gundrun
-#     Semiempirische Pseudopotentiale : Unters. an Hauptgruppenelementen u.
-#             Nebengruppenelementen mit abgeschlossener d-Schale
-#     Doktorarbeit, Institut für Theoretische Chemie, Universität Stuttgart
-#     As referenced in the Stuttgart ECP database/website
-# 
-# Ga,In
-#     ## DZ      Double Zeta Basis Set designed for an ECP
-#     Bergner, Andreas, Dolg, Michael, Küchle, Wolfgang, Stoll, Hermann,
-#             Preuß, Heinzwerner
-#     Ab initio energy-adjusted pseudopotentials for elements of groups
-#             13-17
-#     Mol. Phys., 80, 1431-1441 (1993)
-#     10.1080/00268979300103121
-# 
-#     ## Stuttgart RLC ECP
-#     Leininger, Thierry, Berning, Andreas, Nicklass, Andreas, Stoll,
-#             Hermann, Werner, Hans-Joachim, Flad, Heinz-Jürgen
-#     Spin-orbit interaction in heavy group 13 atoms and TlAr
-#     Chemical Physics, 217, 19-27 (1997)
-#     10.1016/s0301-0104(97)00043-8
-# 
-#     Bergner, Andreas, Dolg, Michael, Küchle, Wolfgang, Stoll, Hermann,
-#             Preuß, Heinzwerner
-#     Ab initio energy-adjusted pseudopotentials for elements of groups
-#             13-17
-#     Mol. Phys., 80, 1431-1441 (1993)
-#     10.1080/00268979300103121
-# 
-# Rb
-#     ## DZ      Double Zeta Basis Set designed for an ECP
-#     Poppe, J.
-#     unpublished
-#     As referenced in the Stuttgart ECP database/website
-# 
-#     Fuentealba, P.
-#     unpublished
-#     1988
-#     As referenced in the Stuttgart ECP database/website
-# 
-#     ## Stuttgart RLC ECP
-#     Szentpály, László Von, Fuentealba, Patricio, Preuss, Heinzwerner,
-#             Stoll, Hermann
-#     Pseudopotential calculations on Rb+2, Cs+2, RbH+, CsH+ and the mixed
-#             alkali dimer ions
-#     Chem. Phys. Lett., 93, 555-559 (1982)
-#     10.1016/0009-2614(82)83728-7
-# 
+# fuentealba1983a
 #     Fuentealba, P., Stoll, H., Szentpály, L. Von, Schwerdtfeger, P.,
 #             Preuss, H.
 #     On the reliability of semi-empirical pseudopotentials: simulation of
@@ -158,44 +128,58 @@
 #     J. Phys. B, 16, L323-L328 (1983)
 #     10.1088/0022-3700/16/11/001
 # 
-# Cs
-#     ## DZ      Double Zeta Basis Set designed for an ECP
-#     Poppe, J.
-#     unpublished
-#     As referenced in the Stuttgart ECP database/website
+# fuentealba1985a
+#     Fuentealba, P, Szentpaly, L von, Preuss, H, Stoll, H
+#     Pseudopotential calculations for alkaline-earth atoms
+#     J. Phys. B-At. Mol. Phys., 18, 1287-1296 (1985)
+#     10.1088/0022-3700/18/7/010
 # 
+# fuentealba1988a
 #     Fuentealba, P.
 #     unpublished
 #     1988
 #     As referenced in the Stuttgart ECP database/website
 # 
-#     ## Stuttgart RLC ECP
+# igelmann1987a
+#     Igel-Mann, Gundrun
+#     Semiempirische Pseudopotentiale : Unters. an Hauptgruppenelementen u.
+#             Nebengruppenelementen mit abgeschlossener d-Schale
+#     Doktorarbeit, Institut für Theoretische Chemie, Universität Stuttgart
+#     As referenced in the Stuttgart ECP database/website
+# 
+# kuchle1991a
+#     Küchle, W., Dolg, M., Stoll, H., Preuss, H.
+#     Ab initiopseudopotentials for Hg through Rn
+#     Mol. Phys., 74, 1245-1263 (1991)
+#     10.1080/00268979100102941
+# 
+# leininger1997a
+#     Leininger, Thierry, Berning, Andreas, Nicklass, Andreas, Stoll,
+#             Hermann, Werner, Hans-Joachim, Flad, Heinz-Jürgen
+#     Spin-orbit interaction in heavy group 13 atoms and TlAr
+#     Chemical Physics, 217, 19-27 (1997)
+#     10.1016/s0301-0104(97)00043-8
+# 
+# nicklass1995a
+#     Nicklass, Andreas, Dolg, Michael, Stoll, Hermann, Preuss, Heinzwerner
+#     Ab initio energy‐adjusted pseudopotentials for the noble gases Ne
+#             through Xe: Calculation of atomic dipole and quadrupole
+#             polarizabilities
+#     J. Chem. Phys., 102, 8942-8952 (1995)
+#     10.1063/1.468948
+# 
+# poppeXXXXa
+#     Poppe, J.
+#     unpublished
+#     As referenced in the Stuttgart ECP database/website
+# 
+# szentpaly1982a
 #     Szentpály, László Von, Fuentealba, Patricio, Preuss, Heinzwerner,
 #             Stoll, Hermann
 #     Pseudopotential calculations on Rb+2, Cs+2, RbH+, CsH+ and the mixed
 #             alkali dimer ions
 #     Chem. Phys. Lett., 93, 555-559 (1982)
 #     10.1016/0009-2614(82)83728-7
-# 
-# Hg-Rn
-#     ## DZ      Double Zeta Basis Set designed for an ECP
-#     Küchle, W., Dolg, M., Stoll, H., Preuss, H.
-#     Ab initiopseudopotentials for Hg through Rn
-#     Mol. Phys., 74, 1245-1263 (1991)
-#     10.1080/00268979100102941
-# 
-#     ## Stuttgart RLC ECP
-#     Küchle, W., Dolg, M., Stoll, H., Preuss, H.
-#     Ab initiopseudopotentials for Hg through Rn
-#     Mol. Phys., 74, 1245-1263 (1991)
-#     10.1080/00268979100102941
-# 
-# Ac-Lr
-#     ## DZ      Double Zeta Basis Set designed for an ECP
-#     (...no reference...)
-# 
-#     ## Stuttgart RLC ECP
-#     (...no reference...)
 # 
 # # 
 basis "Li_stuttgart rlc" 

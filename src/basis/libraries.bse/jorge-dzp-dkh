@@ -1,44 +1,68 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
 # jorge-dzp-dkh version number 1
 # Description: DZP-DKH: Double zeta valence quality plus polarization (DKH)
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
 #     J. Comput. Chem., 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
 #     J. Chem. Inf. Model., 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H-Kr
-#     ## TODO
-#     Jorge, F. E., Neto, A. Canal, Camiletti, G. G., Machado, S. F.
-#     Contracted Gaussian basis sets for Douglas-Kroll-Hess calculations:
-#             Estimating scalar relativistic effects of some atomic and
-#             molecular properties
-#     J. Chem. Phys., 130, 064108 (2009)
-#     10.1063/1.3072360
 # 
-# Rb-Xe
-#     ## TODO
+#  References for the basis set
+# 
+#  H-Kr
+#      TODO
+#          jorge2009a
+# 
+#  Rb-Xe
+#      TODO
+#          barros2010a
+# 
+#  Cs-La,Hf-Ir,Au-Rn
+#      TODO
+#          neto2013a
+# 
+#  Ce-Lu
+#      TODO
+#          jorge2016a
+# 
+#  Pt
+#      TODO
+#          berreado2010a
+# 
+#  Fr-Ac
+#      TODO
+#          campos2017a
+# 
+#  Th-Lr
+#      TODO
+#          martins2016a
+# 
+# 
+# 
+# barros2010a
 #     Barros, C. L., de Oliveira, P. J. P., Jorge, F. E., Neto, A. Canal,
 #             Campos, M.
 #     Gaussian basis set of double zeta quality for atoms Rb through Xe:
@@ -47,32 +71,14 @@
 #     Mol. Phys., 108, 1965-1972 (2010)
 #     10.1080/00268976.2010.499377
 # 
-# Cs-La,Hf-Ir,Au-Rn
-#     ## TODO
-#     Neto, A. Canal, Jorge, F. E.
-#     All-electron double zeta basis sets for the most fifth-row atoms:
-#             Application in DFT spectroscopic constant calculations
-#     Chem. Phys. Lett., 582, 158-162 (2013)
-#     10.1016/j.cplett.2013.07.045
-# 
-# Ce-Lu
-#     ## TODO
-#     Jorge, F. E., Martins, L. S. C., Franco, M. L.
-#     All-electron double zeta basis sets for the lanthanides: Application
-#             in atomic and molecular property calculations
-#     Chem. Phys. Lett., 643, 84-88 (2016)
-#     10.1016/j.cplett.2015.11.013
-# 
-# Pt
-#     ## TODO
+# berreado2010a
 #     de Berrêdo, R. C., Jorge, F. E.
 #     All-electron double zeta basis sets for platinum: Estimating scalar
 #             relativistic effects on platinum(II) anticancer drugs
 #     J. Mol. Struc-THEOCHEM, 961, 107-112 (2010)
 #     10.1016/j.theochem.2010.09.007
 # 
-# Fr-Ac
-#     ## TODO
+# campos2017a
 #     Campos, C. T., de Oliveira, A. Z., Ferreira, I. B., Jorge, F. E.,
 #             Martins, L. S. C.
 #     Segmented all-electron Gaussian basis sets of double and triple zeta
@@ -80,13 +86,34 @@
 #     Chem. Phys. Lett., 675, 1-5 (2017a)
 #     10.1016/j.cplett.2017.02.080
 # 
-# Th-Lr
-#     ## TODO
+# jorge2009a
+#     Jorge, F. E., Neto, A. Canal, Camiletti, G. G., Machado, S. F.
+#     Contracted Gaussian basis sets for Douglas-Kroll-Hess calculations:
+#             Estimating scalar relativistic effects of some atomic and
+#             molecular properties
+#     J. Chem. Phys., 130, 064108 (2009)
+#     10.1063/1.3072360
+# 
+# jorge2016a
+#     Jorge, F. E., Martins, L. S. C., Franco, M. L.
+#     All-electron double zeta basis sets for the lanthanides: Application
+#             in atomic and molecular property calculations
+#     Chem. Phys. Lett., 643, 84-88 (2016)
+#     10.1016/j.cplett.2015.11.013
+# 
+# martins2016a
 #     Martins, L. S. C., Jorge, F. E., Franco, M. L., Ferreira, I. B.
 #     All-electron Gaussian basis sets of double zeta quality for the
 #             actinides
 #     J. Chem. Phys., 145, 244113 (2016)
 #     10.1063/1.4973377
+# 
+# neto2013a
+#     Neto, A. Canal, Jorge, F. E.
+#     All-electron double zeta basis sets for the most fifth-row atoms:
+#             Application in DFT spectroscopic constant calculations
+#     Chem. Phys. Lett., 582, 158-162 (2013)
+#     10.1016/j.cplett.2013.07.045
 # 
 # # 
 basis "H_jorge-dzp-dkh" 

@@ -1,50 +1,129 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
 # 6-311+g(2d,p) version number 0
 # Description: 6-311+G(2d,p)
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
 #     J. Comput. Chem., 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
 #     J. Chem. Inf. Model., 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H
-#     ## VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO for H,He
-#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
-#     Self-consistent molecular orbital methods. XX. A basis set for
-#             correlated wave functions
-#     J. Chem. Phys., 72, 650-654 (1980)
-#     10.1063/1.438955
 # 
-#     ## 1P Polarization functions associated with 6-311G for H,He
-#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
-#     Self-consistent molecular orbital methods. XX. A basis set for
-#             correlated wave functions
-#     J. Chem. Phys., 72, 650-654 (1980)
-#     10.1063/1.438955
+#  References for the basis set
 # 
-# He
-#     ## VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO for H,He
+#  H
+#      VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO for H,He
+#          krishnan1980a
+# 
+#      1P Polarization functions associated with 6-311G for H,He
+#          krishnan1980a
+# 
+#  He
+#      VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO for H,He
+#          gaussian09e01
+# 
+#      1P Polarization functions associated with 6-311G for H,He
+#          krishnan1980a
+# 
+#  Li-F
+#      VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
+#          krishnan1980a
+# 
+#      6-31G(2df)
+#          krishnan1980a
+# 
+#      Diffuse functions asociated with 6-31G
+#          clark1983a
+# 
+#  Ne
+#      VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
+#          krishnan1980a
+# 
+#      6-31G(2df)
+#          krishnan1980a
+# 
+#      Diffuse functions asociated with 6-31G
+#          gill1992a
+# 
+#  Na-Cl
+#      VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
+#          mclean1980a
+# 
+#      6-31G(2df)
+#          francl1982a
+# 
+#      Diffuse functions asociated with 6-31G
+#          spitznagel1987a
+# 
+#  Ar
+#      VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
+#          mclean1980a
+# 
+#      6-31G(2df)
+#          francl1982a
+# 
+#      Diffuse functions asociated with 6-31G
+#          gill1992a
+# 
+#  K,Ca
+#      VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
+#          blaudeau1997a
+# 
+#      6-31G(2df)
+#          blaudeau1997a
+# 
+#      Diffuse functions asociated with 6-31G
+#          (...no reference...)
+# 
+# 
+# 
+# blaudeau1997a
+#     Blaudeau, Jean-Philippe, McGrath, Mark P., Curtiss, Larry A., Radom,
+#             Leo
+#     Extension of Gaussian-2 (G2) theory to molecules containing third-row
+#             atoms K and Ca
+#     J. Chem. Phys., 107, 5016-5021 (1997)
+#     10.1063/1.474865
+# 
+# clark1983a
+#     Clark, Timothy, Chandrasekhar, Jayaraman, Spitznagel, Günther W.,
+#             Schleyer, Paul Von Ragué
+#     Efficient diffuse function-augmented basis sets for anion
+#             calculations. III. The 3-21+G basis set for first-row
+#             elements, Li-F
+#     J. Comput. Chem., 4, 294-301 (1983)
+#     10.1002/jcc.540040303
+# 
+# francl1982a
+#     Francl, Michelle M., Pietro, William J., Hehre, Warren J., Binkley, J.
+#             Stephen, Gordon, Mark S., DeFrees, Douglas J., Pople, John A.
+#     Self-consistent molecular orbital methods. XXIII. A polarization-type
+#             basis set for second-row elements
+#     J. Chem. Phys., 77, 3654-3665 (1982)
+#     10.1063/1.444267
+# 
+# gaussian09e01
 #     Frisch, M. J., Trucks, G. W., Schlegel, H. B., Scuseria, G. E., Robb,
 #             M. A., Cheeseman, J. R., Scalmani, G., Barone, V., Mennucci,
 #             B., Petersson, G. A., Nakatsuji, H., Caricato, M., Li, X.,
@@ -65,53 +144,7 @@
 #     Gaussian 09 Revision E.01
 #     Gaussian, Inc., Wallingford, CT, 2009
 # 
-#     ## 1P Polarization functions associated with 6-311G for H,He
-#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
-#     Self-consistent molecular orbital methods. XX. A basis set for
-#             correlated wave functions
-#     J. Chem. Phys., 72, 650-654 (1980)
-#     10.1063/1.438955
-# 
-# Li-F
-#     ## VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
-#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
-#     Self-consistent molecular orbital methods. XX. A basis set for
-#             correlated wave functions
-#     J. Chem. Phys., 72, 650-654 (1980)
-#     10.1063/1.438955
-# 
-#     ## 6-31G(2df)
-#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
-#     Self-consistent molecular orbital methods. XX. A basis set for
-#             correlated wave functions
-#     J. Chem. Phys., 72, 650-654 (1980)
-#     10.1063/1.438955
-# 
-#     ## Diffuse functions asociated with 6-31G
-#     Clark, Timothy, Chandrasekhar, Jayaraman, Spitznagel, Günther W.,
-#             Schleyer, Paul Von Ragué
-#     Efficient diffuse function-augmented basis sets for anion
-#             calculations. III. The 3-21+G basis set for first-row
-#             elements, Li-F
-#     J. Comput. Chem., 4, 294-301 (1983)
-#     10.1002/jcc.540040303
-# 
-# Ne
-#     ## VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
-#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
-#     Self-consistent molecular orbital methods. XX. A basis set for
-#             correlated wave functions
-#     J. Chem. Phys., 72, 650-654 (1980)
-#     10.1063/1.438955
-# 
-#     ## 6-31G(2df)
-#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
-#     Self-consistent molecular orbital methods. XX. A basis set for
-#             correlated wave functions
-#     J. Chem. Phys., 72, 650-654 (1980)
-#     10.1063/1.438955
-# 
-#     ## Diffuse functions asociated with 6-31G
+# gill1992a
 #     Gill, Peter M. W., Johnson, Benny G., Pople, John A., Frisch, Michael
 #             J.
 #     The performance of the Becke-Lee-Yang-Parr (B-LYP) density functional
@@ -119,73 +152,27 @@
 #     Chem. Phys. Lett., 197, 499-505 (1992)
 #     10.1016/0009-2614(92)85807-m
 # 
-# Na-Cl
-#     ## VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
+# krishnan1980a
+#     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
+#     Self-consistent molecular orbital methods. XX. A basis set for
+#             correlated wave functions
+#     J. Chem. Phys., 72, 650-654 (1980)
+#     10.1063/1.438955
+# 
+# mclean1980a
 #     McLean, A. D., Chandler, G. S.
 #     Contracted Gaussian basis sets for molecular calculations. I. Second
 #             row atoms, Z=11-18
 #     J. Chem. Phys., 72, 5639-5648 (1980)
 #     10.1063/1.438980
 # 
-#     ## 6-31G(2df)
-#     Francl, Michelle M., Pietro, William J., Hehre, Warren J., Binkley, J.
-#             Stephen, Gordon, Mark S., DeFrees, Douglas J., Pople, John A.
-#     Self-consistent molecular orbital methods. XXIII. A polarization-type
-#             basis set for second-row elements
-#     J. Chem. Phys., 77, 3654-3665 (1982)
-#     10.1063/1.444267
-# 
-#     ## Diffuse functions asociated with 6-31G
+# spitznagel1987a
 #     Spitznagel, Günther W., Clark, Timothy, Schleyer, Paul von Ragué,
 #             Hehre, Warren J.
 #     An evaluation of the performance of diffuse function-augmented basis
 #             sets for second row elements, Na-Cl
 #     J. Comput. Chem., 8, 1109-1116 (1987)
 #     10.1002/jcc.540080807
-# 
-# Ar
-#     ## VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
-#     McLean, A. D., Chandler, G. S.
-#     Contracted Gaussian basis sets for molecular calculations. I. Second
-#             row atoms, Z=11-18
-#     J. Chem. Phys., 72, 5639-5648 (1980)
-#     10.1063/1.438980
-# 
-#     ## 6-31G(2df)
-#     Francl, Michelle M., Pietro, William J., Hehre, Warren J., Binkley, J.
-#             Stephen, Gordon, Mark S., DeFrees, Douglas J., Pople, John A.
-#     Self-consistent molecular orbital methods. XXIII. A polarization-type
-#             basis set for second-row elements
-#     J. Chem. Phys., 77, 3654-3665 (1982)
-#     10.1063/1.444267
-# 
-#     ## Diffuse functions asociated with 6-31G
-#     Gill, Peter M. W., Johnson, Benny G., Pople, John A., Frisch, Michael
-#             J.
-#     The performance of the Becke-Lee-Yang-Parr (B-LYP) density functional
-#             theory with various basis sets
-#     Chem. Phys. Lett., 197, 499-505 (1992)
-#     10.1016/0009-2614(92)85807-m
-# 
-# K,Ca
-#     ## VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO
-#     Blaudeau, Jean-Philippe, McGrath, Mark P., Curtiss, Larry A., Radom,
-#             Leo
-#     Extension of Gaussian-2 (G2) theory to molecules containing third-row
-#             atoms K and Ca
-#     J. Chem. Phys., 107, 5016-5021 (1997)
-#     10.1063/1.474865
-# 
-#     ## 6-31G(2df)
-#     Blaudeau, Jean-Philippe, McGrath, Mark P., Curtiss, Larry A., Radom,
-#             Leo
-#     Extension of Gaussian-2 (G2) theory to molecules containing third-row
-#             atoms K and Ca
-#     J. Chem. Phys., 107, 5016-5021 (1997)
-#     10.1063/1.474865
-# 
-#     ## Diffuse functions asociated with 6-31G
-#     (...no reference...)
 # 
 # # 
 basis "H_6-311+g(2d,p)" 

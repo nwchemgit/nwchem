@@ -1,90 +1,92 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
 # cc-pcvtz version number 0
 # Description: TZ2P    Triple Zeta + Polarization + Tight Core
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
 #     J. Comput. Chem., 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
 #     J. Chem. Inf. Model., 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# Li,Be,Na,Mg
-#     ## cc-pVTZ
-#     Feller, David
-#     The role of databases in support of computational chemistry
-#             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
-#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
-#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
-#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
-#     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
-#     10.1021/ci600510j
+#  References for the basis set
 # 
-#     ## Core/valence Functions (cc-pCVTZ)
-#     Feller, David
-#     The role of databases in support of computational chemistry
-#             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
-#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+#  Li,Be,Na,Mg
+#      cc-pVTZ
+#          feller1996a schuchardt2007a
 # 
-#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
-#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
-#     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
-#     10.1021/ci600510j
+#      Core/valence Functions (cc-pCVTZ)
+#          feller1996a schuchardt2007a
 # 
-# B-Ne
-#     ## cc-pVTZ
+#  B-Ne
+#      cc-pVTZ
+#          dunning1989a
+# 
+#      Core/valence Functions (cc-pCVTZ)
+#          dunning1989a woon1995a
+# 
+#  Al-Ar
+#      cc-pVTZ
+#          woon1993a
+# 
+#      cc-pVTZ
+#          woon1993a
+# 
+#      Core/valence Functions (cc-pCVTZ)
+#          peterson2002a
+# 
+#  Ca
+#      cc-pVTZ
+#          koput2002a
+# 
+#      Core/valence Functions (cc-pCVTZ)
+#          koput2002a
+# 
+# 
+# 
+# dunning1989a
 #     Dunning, Thom H.
 #     Gaussian basis sets for use in correlated molecular calculations. I.
 #             The atoms boron through neon and hydrogen
 #     J. Chem. Phys., 90, 1007-1023 (1989)
 #     10.1063/1.456153
 # 
-#     ## Core/valence Functions (cc-pCVTZ)
-#     Dunning, Thom H.
-#     Gaussian basis sets for use in correlated molecular calculations. I.
-#             The atoms boron through neon and hydrogen
-#     J. Chem. Phys., 90, 1007-1023 (1989)
-#     10.1063/1.456153
+# feller1996a
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
-#     Woon, David E., Dunning, Thom H.
-#     Gaussian basis sets for use in correlated molecular calculations. V.
-#             Core-valence basis sets for boron through neon
-#     J. Chem. Phys., 103, 4572-4585 (1995)
-#     10.1063/1.470645
+# koput2002a
+#     Koput, Jacek, Peterson, Kirk A.
+#     Ab Initio Potential Energy Surface and Vibrational-Rotational Energy
+#             Levels of X2Σ+CaOH
+#     J. Phys. Chem. A, 106, 9595-9599 (2002)
+#     10.1021/jp026283u
 # 
-# Al-Ar
-#     ## cc-pVTZ
-#     Woon, David E., Dunning, Thom H.
-#     Gaussian basis sets for use in correlated molecular calculations. III.
-#             The atoms aluminum through argon
-#     J. Chem. Phys., 98, 1358-1371 (1993)
-#     10.1063/1.464303
-# 
-#     ## Core/valence Functions (cc-pCVTZ)
+# peterson2002a
 #     Peterson, Kirk A., Dunning, Thom H.
 #     Accurate correlation consistent basis sets for molecular core-valence
 #             correlation effects: The second row atoms Al-Ar, and the first
@@ -92,20 +94,26 @@
 #     J. Chem. Phys., 117, 10548-10560 (2002)
 #     10.1063/1.1520138
 # 
-# Ca
-#     ## cc-pVTZ
-#     Koput, Jacek, Peterson, Kirk A.
-#     Ab Initio Potential Energy Surface and Vibrational-Rotational Energy
-#             Levels of X2Σ+CaOH
-#     J. Phys. Chem. A, 106, 9595-9599 (2002)
-#     10.1021/jp026283u
+# schuchardt2007a
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     10.1021/ci600510j
 # 
-#     ## Core/valence Functions (cc-pCVTZ)
-#     Koput, Jacek, Peterson, Kirk A.
-#     Ab Initio Potential Energy Surface and Vibrational-Rotational Energy
-#             Levels of X2Σ+CaOH
-#     J. Phys. Chem. A, 106, 9595-9599 (2002)
-#     10.1021/jp026283u
+# woon1993a
+#     Woon, David E., Dunning, Thom H.
+#     Gaussian basis sets for use in correlated molecular calculations. III.
+#             The atoms aluminum through argon
+#     J. Chem. Phys., 98, 1358-1371 (1993)
+#     10.1063/1.464303
+# 
+# woon1995a
+#     Woon, David E., Dunning, Thom H.
+#     Gaussian basis sets for use in correlated molecular calculations. V.
+#             Core-valence basis sets for boron through neon
+#     J. Chem. Phys., 103, 4572-4585 (1995)
+#     10.1063/1.470645
 # 
 # # 
 basis "Li_cc-pcvtz" 

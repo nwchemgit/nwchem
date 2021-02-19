@@ -1,47 +1,59 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
 # def2-universal-jkfit version number 1
 # Description: Coulomb/Exchange fitting auxiliary basis for def2 basis sets
 # Role: jkfit
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
 #     J. Comput. Chem., 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
 #     J. Chem. Inf. Model., 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H-La,Hf-Rn
-#     ## def2-universal-JKFit
-#     Weigend, Florian
-#     Hartree-Fock exchange fitting basis sets for H to Rn
-#     J. Comput. Chem., 29, 167-175 (2008)
-#     10.1002/jcc.20702
 # 
-# Ce-Lu
-#     ## def2-universal-JKFit
+#  References for the basis set
+# 
+#  H-La,Hf-Rn
+#      def2-universal-JKFit
+#          weigend2008a
+# 
+#  Ce-Lu
+#      def2-universal-JKFit
+#          gulde2012a
+# 
+# 
+# 
+# gulde2012a
 #     Gulde, Rebekka, Pollak, Patrik, Weigend, Florian
 #     Error-Balanced Segmented Contracted Basis Sets of Double-ζ to
 #             Quadruple-ζ Valence Quality for the Lanthanides
 #     J. Chem. Theory Comput., 8, 4062-4068 (2012)
 #     10.1021/ct300302u
+# 
+# weigend2008a
+#     Weigend, Florian
+#     Hartree-Fock exchange fitting basis sets for H to Rn
+#     J. Comput. Chem., 29, 167-175 (2008)
+#     10.1002/jcc.20702
 # 
 # # 
 basis "H_def2-universal-jkfit" 

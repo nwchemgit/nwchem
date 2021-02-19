@@ -1,43 +1,64 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
 # ano-rcc version number 1
 # Description: Full ANO-RCC basis
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
 #     J. Comput. Chem., 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
 #     J. Chem. Inf. Model., 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H,He
-#     ## Full ANO-RCC basis
-#     Widmark, Per-Olof, Malmqvist, Per-Åke, Roos, Björn O.
-#     Density matrix averaged atomic natural orbital (ANO) basis sets for
-#             correlated molecular wave functions
-#     Theor. Chim. Acta, 77, 291-306 (1990)
-#     10.1007/bf01120130
 # 
-# Li,Be,Na,Mg,K,Ca,Rb,Sr,Cs,Ba,Fr,Ra
-#     ## Full ANO-RCC basis
+#  References for the basis set
+# 
+#  H,He
+#      Full ANO-RCC basis
+#          widmark1990a
+# 
+#  Li,Be,Na,Mg,K,Ca,Rb,Sr,Cs,Ba,Fr,Ra
+#      Full ANO-RCC basis
+#          roos2004a
+# 
+#  B-Ne,Al-Ar,Ga-Kr,In-Xe,Tl-Rn
+#      Full ANO-RCC basis
+#          roos2004b
+# 
+#  Sc-Zn,Y-Cd,Hf-Hg
+#      Full ANO-RCC basis
+#          roos2005a
+# 
+#  La-Lu
+#      Full ANO-RCC basis
+#          roos2008a
+# 
+#  Ac-Cm
+#      Full ANO-RCC basis
+#          roos2005b
+# 
+# 
+# 
+# roos2004a
 #     Veryazov, Valera, Widmark, Per-Olof, Roos, Björn O.
 #     Relativistic atomic natural orbital type basis sets for the alkaline
 #             and alkaline-earth atoms applied to the ground-state
@@ -45,8 +66,7 @@
 #     Theor. Chem. Acc., 111, 345-351 (2004)
 #     10.1007/s00214-003-0537-0
 # 
-# B-Ne,Al-Ar,Ga-Kr,In-Xe,Tl-Rn
-#     ## Full ANO-RCC basis
+# roos2004b
 #     Roos, Björn O., Lindh, Roland, Malmqvist, Per-Åke, Veryazov, Valera,
 #             Widmark, Per-Olof
 #     Main Group Atoms and Dimers Studied with a New Relativistic ANO Basis
@@ -54,16 +74,21 @@
 #     J. Phys. Chem. A, 108, 2851-2858 (2004)
 #     10.1021/jp031064+
 # 
-# Sc-Zn,Y-Cd,Hf-Hg
-#     ## Full ANO-RCC basis
+# roos2005a
 #     Roos, Björn O., Lindh, Roland, Malmqvist, Per-Åke, Veryazov, Valera,
 #             Widmark, Per-Olof
 #     New Relativistic ANO Basis Sets for Transition Metal Atoms
 #     J. Phys. Chem. A, 109, 6575-6579 (2005)
 #     10.1021/jp0581126
 # 
-# La-Lu
-#     ## Full ANO-RCC basis
+# roos2005b
+#     Roos, Björn O., Lindh, Roland, Malmqvist, Per-Åke, Veryazov, Valera,
+#             Widmark, Per-Olof
+#     New relativistic ANO basis sets for actinide atoms
+#     Chem. Phys. Lett., 409, 295-299 (2005)
+#     10.1016/j.cplett.2005.05.011
+# 
+# roos2008a
 #     Roos, Björn O., Lindh, Roland, Malmqvist, Per-Åke, Veryazov, Valera,
 #             Widmark, Per-Olof, Borin, Antonio Carlos
 #     New Relativistic Atomic Natural Orbital Basis Sets for Lanthanide
@@ -71,13 +96,12 @@
 #     J. Phys. Chem. A, 112, 11431-11435 (2008)
 #     10.1021/jp803213j
 # 
-# Ac-Cm
-#     ## Full ANO-RCC basis
-#     Roos, Björn O., Lindh, Roland, Malmqvist, Per-Åke, Veryazov, Valera,
-#             Widmark, Per-Olof
-#     New relativistic ANO basis sets for actinide atoms
-#     Chem. Phys. Lett., 409, 295-299 (2005)
-#     10.1016/j.cplett.2005.05.011
+# widmark1990a
+#     Widmark, Per-Olof, Malmqvist, Per-Åke, Roos, Björn O.
+#     Density matrix averaged atomic natural orbital (ANO) basis sets for
+#             correlated molecular wave functions
+#     Theor. Chim. Acta, 77, 291-306 (1990)
+#     10.1007/bf01120130
 # 
 # # 
 basis "H_ano-rcc" 

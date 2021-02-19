@@ -1,44 +1,48 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
 # mini version number 0
 # Description: Huzinaga MINI
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
 #     J. Comput. Chem., 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
 #     J. Chem. Inf. Model., 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H,He
-#     ## MB Minimal Basis: 1 Function/AO
-#     van Duijneveldt, F. B.
 # 
-#     Gaussian basis sets for the atoms H-Ne for use in molecular
-#             calculations
-#     'IBM Research Laboratory'
-#     Technical Report RJ 945, 1971
+#  References for the basis set
 # 
-# Li-Ca
-#     ## MB Minimal Basis: 1 Function/AO
+#  H,He
+#      MB Minimal Basis: 1 Function/AO
+#          duijneveldt1971a
+# 
+#  Li-Ca
+#      MB Minimal Basis: 1 Function/AO
+#          andzelm1984a
+# 
+# 
+# 
+# andzelm1984a
 #     Andzelm, Jan, Huzinaga, Sigeru, Klobukowski, Mariusz, Radzio-Andzelm,
 #             Elżbieta, Sakai, Yoshiko, Tatewaki, Hiroshi
 #     Gaussian Basis Sets
@@ -46,6 +50,14 @@
 #     ed. S. Huzinaga
 #     Physical Sciences Data, 16, 27-426 (1984)
 #     10.1016/B978-0-444-42254-5.50008-0
+# 
+# duijneveldt1971a
+#     van Duijneveldt, F. B.
+#     
+#     Gaussian basis sets for the atoms H-Ne for use in molecular
+#             calculations
+#     'IBM Research Laboratory'
+#     Technical Report RJ 945, 1971
 # 
 # # 
 basis "H_mini" 
@@ -87,13 +99,13 @@ end
 basis "B_mini" 
 #basis SET: (6s,3p) -> [2s,1p]
 B    S
-      3.566500              -0.082419
-      0.295470               0.559064
-      0.098050               0.516795
-B    S
     108.43704                0.068651
      16.120560               0.389933
       3.3734300              0.671395
+B    S
+      3.566500              -0.082419
+      0.295470               0.559064
+      0.098050               0.516795
 B    P
       2.572072               0.105900
       0.516940               0.457180
@@ -102,13 +114,13 @@ end
 basis "C_mini" 
 #basis SET: (6s,3p) -> [2s,1p]
 C    S
-      5.725570              -0.081380
-      0.455040               0.574853
-      0.147070               0.502413
-C    S
     153.17226                0.070740
      23.073030               0.395380
       4.9232900              0.663311
+C    S
+      5.725570              -0.081380
+      0.455040               0.574853
+      0.147070               0.502413
 C    P
       4.251310               0.109931
       0.863270               0.462713
@@ -117,13 +129,13 @@ end
 basis "N_mini" 
 #basis SET: (6s,3p) -> [2s,1p]
 N    S
-      8.326380              -0.080890
-      0.659190               0.567202
-      0.210090               0.511092
-N    S
     218.36449                0.067870
      32.598890               0.390202
       6.9173900              0.670083
+N    S
+      8.326380              -0.080890
+      0.659190               0.567202
+      0.210090               0.511092
 N    P
       6.120350               0.115919
       1.259380               0.469958
@@ -132,13 +144,13 @@ end
 basis "O_mini" 
 #basis SET: (6s,3p) -> [2s,1p]
 O    S
-     11.46603               -0.080820
-      0.887860               0.582090
-      0.278800               0.497160
-O    S
     281.86658                0.069060
      42.416000               0.393159
       9.0956200              0.665669
+O    S
+     11.46603               -0.080820
+      0.887860               0.582090
+      0.278800               0.497160
 O    P
       8.047240               0.124271
       1.668420               0.476594
@@ -261,13 +273,13 @@ end
 basis "P_mini" 
 #basis SET: (9s,6p) -> [3s,2p]
 P    S
-     45.450377              -0.092655
-      3.899926               0.626513
-      1.488507               0.441039
-P    S
    1053.2658                 0.065865
     158.79044                0.384578
      34.424407               0.673963
+P    S
+     45.450377              -0.092655
+      3.899926               0.626513
+      1.488507               0.441039
 P    S
       2.300841              -0.180549
       0.298959               0.680952
@@ -284,13 +296,13 @@ end
 basis "S_mini" 
 #basis SET: (9s,6p) -> [3s,2p]
 S    S
-     52.13903               -0.094232
-      4.528799               0.635468
-      1.754938               0.431506
-S    S
    1201.4584                 0.065765
     181.39212                0.383948
      39.404795               0.674372
+S    S
+     52.13903               -0.094232
+      4.528799               0.635468
+      1.754938               0.431506
 S    S
       2.840437               0.190042
       0.381433              -0.685527
@@ -307,13 +319,13 @@ end
 basis "Cl_mini" 
 #basis SET: (9s,6p) -> [3s,2p]
 Cl    S
-     59.225732              -0.095620
-      5.213902               0.641426
-      2.047346               0.425153
-Cl    S
    1362.0220                 0.065544
     205.81110                0.3829187
      44.772167               0.675210
+Cl    S
+     59.225732              -0.095620
+      5.213902               0.641426
+      2.047346               0.425153
 Cl    S
       3.419712               0.196401
       0.470017              -0.692360
@@ -330,13 +342,13 @@ end
 basis "Ar_mini" 
 #basis SET: (9s,6p) -> [3s,2p]
 Ar    S
-     66.933949              -0.096740
-      5.918552               0.652749
-      2.339342               0.413573
-Ar    S
    1536.9325                 0.065159
     232.17765                0.381807
      50.521685               0.676446
+Ar    S
+     66.933949              -0.096740
+      5.918552               0.652749
+      2.339342               0.413573
 Ar    S
       4.045307               0.200736
       0.565701              -0.696268
@@ -353,13 +365,13 @@ end
 basis "K_mini" 
 #basis SET: (12s,6p) -> [4s,2p]
 K    S
-     75.05560               -0.097873
-      6.691163               0.659560
-      2.667166               0.406529
-K    S
    1721.1755                 0.064875
     260.01633                0.380859
      56.624554               0.677368
+K    S
+     75.05560               -0.097873
+      6.691163               0.659560
+      2.667166               0.406529
 K    S
       4.668937              -0.212930
       0.700013               0.689249
@@ -380,13 +392,13 @@ end
 basis "Ca_mini" 
 #basis SET: (12s,6p) -> [4s,2p]
 Ca    S
-     83.63328               -0.098882
-      7.511840               0.666027
-      3.014585               0.399912
-Ca    S
    1915.4348                 0.064624
     289.53324                0.379838
      63.106352               0.678329
+Ca    S
+     83.63328               -0.098882
+      7.511840               0.666027
+      3.014585               0.399912
 Ca    S
       5.370754              -0.223531
       0.838380               0.702886

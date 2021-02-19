@@ -1,101 +1,129 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# 6-31g* version number 1
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
+# 6-31g_st_ version number 1
 # Description: 6-31G + polarization on heavy atoms
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
 #     J. Comput. Chem., 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
 #     J. Chem. Inf. Model., 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H
-#     ## 31G Split-valence basis set for H,He
-#     Ditchfield, R., Hehre, W. J., Pople, J. A.
-#     Self-Consistent Molecular-Orbital Methods. IX. An Extended Gaussian-
-#             Type Basis for Molecular-Orbital Studies of Organic Molecules
-#     J. Chem. Phys., 54, 724-728 (1971)
-#     10.1063/1.1674902
 # 
-# He
-#     ## 31G Split-valence basis set for H,He
-#     Frisch, M. J., Trucks, G. W., Schlegel, H. B., Scuseria, G. E., Robb,
-#             M. A., Cheeseman, J. R., Scalmani, G., Barone, V., Mennucci,
-#             B., Petersson, G. A., Nakatsuji, H., Caricato, M., Li, X.,
-#             Hratchian, H. P., Izmaylov, A. F., Bloino, J., Zheng, G.,
-#             Sonnenberg, J. L., Hada, M., Ehara, M., Toyota, K., Fukuda,
-#             R., Hasegawa, J., Ishida, M., Nakajima, T., Honda, Y., Kitao,
-#             O., Nakai, H., Vreven, T., Montgomery, J. A., Jr., Peralta, J.
-#             E., Ogliaro, F., Bearpark, M., Heyd, J. J., Brothers, E.,
-#             Kudin, K. N., Staroverov, V. N., Kobayashi, R., Normand, J.,
-#             Raghavachari, K., Rendell, A., Burant, J. C., Iyengar, S. S.,
-#             Tomasi, J., Cossi, M., Rega, N., Millam, M. J., Klene, M.,
-#             Knox, J. E., Cross, J. B., Bakken, V., Adamo, C., Jaramillo,
-#             J., Gomperts, R., Stratmann, R. E., Yazyev, O., Austin, A. J.,
-#             Cammi, R., Pomelli, C., Ochterski, J. W., Martin, R. L.,
-#             Morokuma, K., Zakrzewski, V. G., Voth, G. A., Salvador, P.,
-#             Dannenberg, J. J., Dapprich, S., Daniels, A. D., Farkas, Ö.,
-#             Foresman, J. B., Ortiz, J. V., Cioslowski, J., Fox, D. J.
-#     Gaussian 09 Revision E.01
-#     Gaussian, Inc., Wallingford, CT, 2009
+#  References for the basis set
 # 
-# Li,B
-#     ## 6-31G Split-valence basis set
-#     Dill, James D., Pople, John A.
-#     Self-consistent molecular orbital methods. XV. Extended Gaussian-type
-#             basis sets for lithium, beryllium, and boron
-#     J. Chem. Phys., 62, 2921-2923 (1975)
-#     10.1063/1.430801
+#  H
+#      31G Split-valence basis set for H,He
+#          ditchfield1971a
 # 
-#     ## Polarization for 6-31G split-valence basis set
-#     Frisch, M. J., Trucks, G. W., Schlegel, H. B., Scuseria, G. E., Robb,
-#             M. A., Cheeseman, J. R., Scalmani, G., Barone, V., Mennucci,
-#             B., Petersson, G. A., Nakatsuji, H., Caricato, M., Li, X.,
-#             Hratchian, H. P., Izmaylov, A. F., Bloino, J., Zheng, G.,
-#             Sonnenberg, J. L., Hada, M., Ehara, M., Toyota, K., Fukuda,
-#             R., Hasegawa, J., Ishida, M., Nakajima, T., Honda, Y., Kitao,
-#             O., Nakai, H., Vreven, T., Montgomery, J. A., Jr., Peralta, J.
-#             E., Ogliaro, F., Bearpark, M., Heyd, J. J., Brothers, E.,
-#             Kudin, K. N., Staroverov, V. N., Kobayashi, R., Normand, J.,
-#             Raghavachari, K., Rendell, A., Burant, J. C., Iyengar, S. S.,
-#             Tomasi, J., Cossi, M., Rega, N., Millam, M. J., Klene, M.,
-#             Knox, J. E., Cross, J. B., Bakken, V., Adamo, C., Jaramillo,
-#             J., Gomperts, R., Stratmann, R. E., Yazyev, O., Austin, A. J.,
-#             Cammi, R., Pomelli, C., Ochterski, J. W., Martin, R. L.,
-#             Morokuma, K., Zakrzewski, V. G., Voth, G. A., Salvador, P.,
-#             Dannenberg, J. J., Dapprich, S., Daniels, A. D., Farkas, Ö.,
-#             Foresman, J. B., Ortiz, J. V., Cioslowski, J., Fox, D. J.
-#     Gaussian 09 Revision E.01
-#     Gaussian, Inc., Wallingford, CT, 2009
+#  He
+#      31G Split-valence basis set for H,He
+#          gaussian09e01
 # 
-# Be
-#     ## 6-31G Split-valence basis set
+#  Li,B
+#      6-31G Split-valence basis set
+#          dill1975a
+# 
+#      Polarization for 6-31G split-valence basis set
+#          gaussian09e01
+# 
+#  Be
+#      6-31G Split-valence basis set
+#          binkley1977a
+# 
+#      Polarization for 6-31G split-valence basis set
+#          gaussian09e01
+# 
+#  C-F
+#      6-31G Split-valence basis set
+#          hehre1972a
+# 
+#      Polarization for 6-31G split-valence basis set
+#          hariharan1973a
+# 
+#  Ne
+#      6-31G Split-valence basis set
+#          gaussian09e01
+# 
+#      Polarization for 6-31G split-valence basis set
+#          gaussian09e01
+# 
+#  Na-Ar
+#      6-21G Split-valence basis set
+#          gordon1982a
+# 
+#      31G Split-valence part
+#          francl1982a
+# 
+#      Polarization for 6-31G split-valence basis set
+#          francl1982a
+# 
+#  K,Ca,Ga-Kr
+#      6-31G Split-valence basis set
+#          rassolov2001a
+# 
+#      Polarization for 6-31G split-valence basis set
+#          rassolov2001a
+# 
+#  Sc-Zn
+#      6-31G Split-valence basis set
+#          rassolov1998a
+# 
+#      Polarization for 6-31G split-valence basis set
+#          rassolov1998a
+# 
+# 
+# 
+# binkley1977a
 #     Binkley, J. Stephen, Pople, John A.
 #     Self-consistent molecular orbital methods. XIX. Split-valence
 #             Gaussian-type basis sets for beryllium
 #     J. Chem. Phys., 66, 879-880 (1977)
 #     10.1063/1.433929
 # 
-#     ## Polarization for 6-31G split-valence basis set
+# dill1975a
+#     Dill, James D., Pople, John A.
+#     Self-consistent molecular orbital methods. XV. Extended Gaussian-type
+#             basis sets for lithium, beryllium, and boron
+#     J. Chem. Phys., 62, 2921-2923 (1975)
+#     10.1063/1.430801
+# 
+# ditchfield1971a
+#     Ditchfield, R., Hehre, W. J., Pople, J. A.
+#     Self-Consistent Molecular-Orbital Methods. IX. An Extended Gaussian-
+#             Type Basis for Molecular-Orbital Studies of Organic Molecules
+#     J. Chem. Phys., 54, 724-728 (1971)
+#     10.1063/1.1674902
+# 
+# francl1982a
+#     Francl, Michelle M., Pietro, William J., Hehre, Warren J., Binkley, J.
+#             Stephen, Gordon, Mark S., DeFrees, Douglas J., Pople, John A.
+#     Self-consistent molecular orbital methods. XXIII. A polarization-type
+#             basis set for second-row elements
+#     J. Chem. Phys., 77, 3654-3665 (1982)
+#     10.1063/1.444267
+# 
+# gaussian09e01
 #     Frisch, M. J., Trucks, G. W., Schlegel, H. B., Scuseria, G. E., Robb,
 #             M. A., Cheeseman, J. R., Scalmani, G., Barone, V., Mennucci,
 #             B., Petersson, G. A., Nakatsuji, H., Caricato, M., Li, X.,
@@ -116,67 +144,7 @@
 #     Gaussian 09 Revision E.01
 #     Gaussian, Inc., Wallingford, CT, 2009
 # 
-# C-F
-#     ## 6-31G Split-valence basis set
-#     Hehre, W. J., Ditchfield, R., Pople, J. A.
-#     Self-Consistent Molecular Orbital Methods. XII. Further Extensions of
-#             Gaussian-Type Basis Sets for Use in Molecular Orbital Studies
-#             of Organic Molecules
-#     J. Chem. Phys., 56, 2257-2261 (1972)
-#     10.1063/1.1677527
-# 
-#     ## Polarization for 6-31G split-valence basis set
-#     Hariharan, P. C., Pople, J. A.
-#     The influence of polarization functions on molecular orbital
-#             hydrogenation energies
-#     Theor. Chim. Acta, 28, 213-222 (1973)
-#     10.1007/bf00533485
-# 
-# Ne
-#     ## 6-31G Split-valence basis set
-#     Frisch, M. J., Trucks, G. W., Schlegel, H. B., Scuseria, G. E., Robb,
-#             M. A., Cheeseman, J. R., Scalmani, G., Barone, V., Mennucci,
-#             B., Petersson, G. A., Nakatsuji, H., Caricato, M., Li, X.,
-#             Hratchian, H. P., Izmaylov, A. F., Bloino, J., Zheng, G.,
-#             Sonnenberg, J. L., Hada, M., Ehara, M., Toyota, K., Fukuda,
-#             R., Hasegawa, J., Ishida, M., Nakajima, T., Honda, Y., Kitao,
-#             O., Nakai, H., Vreven, T., Montgomery, J. A., Jr., Peralta, J.
-#             E., Ogliaro, F., Bearpark, M., Heyd, J. J., Brothers, E.,
-#             Kudin, K. N., Staroverov, V. N., Kobayashi, R., Normand, J.,
-#             Raghavachari, K., Rendell, A., Burant, J. C., Iyengar, S. S.,
-#             Tomasi, J., Cossi, M., Rega, N., Millam, M. J., Klene, M.,
-#             Knox, J. E., Cross, J. B., Bakken, V., Adamo, C., Jaramillo,
-#             J., Gomperts, R., Stratmann, R. E., Yazyev, O., Austin, A. J.,
-#             Cammi, R., Pomelli, C., Ochterski, J. W., Martin, R. L.,
-#             Morokuma, K., Zakrzewski, V. G., Voth, G. A., Salvador, P.,
-#             Dannenberg, J. J., Dapprich, S., Daniels, A. D., Farkas, Ö.,
-#             Foresman, J. B., Ortiz, J. V., Cioslowski, J., Fox, D. J.
-#     Gaussian 09 Revision E.01
-#     Gaussian, Inc., Wallingford, CT, 2009
-# 
-#     ## Polarization for 6-31G split-valence basis set
-#     Frisch, M. J., Trucks, G. W., Schlegel, H. B., Scuseria, G. E., Robb,
-#             M. A., Cheeseman, J. R., Scalmani, G., Barone, V., Mennucci,
-#             B., Petersson, G. A., Nakatsuji, H., Caricato, M., Li, X.,
-#             Hratchian, H. P., Izmaylov, A. F., Bloino, J., Zheng, G.,
-#             Sonnenberg, J. L., Hada, M., Ehara, M., Toyota, K., Fukuda,
-#             R., Hasegawa, J., Ishida, M., Nakajima, T., Honda, Y., Kitao,
-#             O., Nakai, H., Vreven, T., Montgomery, J. A., Jr., Peralta, J.
-#             E., Ogliaro, F., Bearpark, M., Heyd, J. J., Brothers, E.,
-#             Kudin, K. N., Staroverov, V. N., Kobayashi, R., Normand, J.,
-#             Raghavachari, K., Rendell, A., Burant, J. C., Iyengar, S. S.,
-#             Tomasi, J., Cossi, M., Rega, N., Millam, M. J., Klene, M.,
-#             Knox, J. E., Cross, J. B., Bakken, V., Adamo, C., Jaramillo,
-#             J., Gomperts, R., Stratmann, R. E., Yazyev, O., Austin, A. J.,
-#             Cammi, R., Pomelli, C., Ochterski, J. W., Martin, R. L.,
-#             Morokuma, K., Zakrzewski, V. G., Voth, G. A., Salvador, P.,
-#             Dannenberg, J. J., Dapprich, S., Daniels, A. D., Farkas, Ö.,
-#             Foresman, J. B., Ortiz, J. V., Cioslowski, J., Fox, D. J.
-#     Gaussian 09 Revision E.01
-#     Gaussian, Inc., Wallingford, CT, 2009
-# 
-# Na-Ar
-#     ## 6-21G Split-valence basis set
+# gordon1982a
 #     Gordon, Mark S., Binkley, J. Stephen, Pople, John A., Pietro, William
 #             J., Hehre, Warren J.
 #     Self-consistent molecular-orbital methods. 22. Small split-valence
@@ -184,54 +152,37 @@
 #     J. Am. Chem. Soc., 104, 2797-2803 (1982)
 #     10.1021/ja00374a017
 # 
-#     ## 31G Split-valence part
-#     Francl, Michelle M., Pietro, William J., Hehre, Warren J., Binkley, J.
-#             Stephen, Gordon, Mark S., DeFrees, Douglas J., Pople, John A.
-#     Self-consistent molecular orbital methods. XXIII. A polarization-type
-#             basis set for second-row elements
-#     J. Chem. Phys., 77, 3654-3665 (1982)
-#     10.1063/1.444267
+# hariharan1973a
+#     Hariharan, P. C., Pople, J. A.
+#     The influence of polarization functions on molecular orbital
+#             hydrogenation energies
+#     Theor. Chim. Acta, 28, 213-222 (1973)
+#     10.1007/bf00533485
 # 
-#     ## Polarization for 6-31G split-valence basis set
-#     Francl, Michelle M., Pietro, William J., Hehre, Warren J., Binkley, J.
-#             Stephen, Gordon, Mark S., DeFrees, Douglas J., Pople, John A.
-#     Self-consistent molecular orbital methods. XXIII. A polarization-type
-#             basis set for second-row elements
-#     J. Chem. Phys., 77, 3654-3665 (1982)
-#     10.1063/1.444267
+# hehre1972a
+#     Hehre, W. J., Ditchfield, R., Pople, J. A.
+#     Self-Consistent Molecular Orbital Methods. XII. Further Extensions of
+#             Gaussian-Type Basis Sets for Use in Molecular Orbital Studies
+#             of Organic Molecules
+#     J. Chem. Phys., 56, 2257-2261 (1972)
+#     10.1063/1.1677527
 # 
-# K,Ca,Ga-Kr
-#     ## 6-31G Split-valence basis set
-#     Rassolov, Vitaly A., Ratner, Mark A., Pople, John A., Redfern, Paul
-#             C., Curtiss, Larry A.
-#     6-31G* basis set for third-row atoms
-#     J. Comput. Chem., 22, 976-984 (2001)
-#     10.1002/jcc.1058.abs
-# 
-#     ## Polarization for 6-31G split-valence basis set
-#     Rassolov, Vitaly A., Ratner, Mark A., Pople, John A., Redfern, Paul
-#             C., Curtiss, Larry A.
-#     6-31G* basis set for third-row atoms
-#     J. Comput. Chem., 22, 976-984 (2001)
-#     10.1002/jcc.1058.abs
-# 
-# Sc-Zn
-#     ## 6-31G Split-valence basis set
+# rassolov1998a
 #     Rassolov, Vitaly A., Pople, John A., Ratner, Mark A., Windus, Theresa
 #             L.
 #     6-31G* basis set for atoms K through Zn
 #     J. Chem. Phys., 109, 1223-1229 (1998)
 #     10.1063/1.476673
 # 
-#     ## Polarization for 6-31G split-valence basis set
-#     Rassolov, Vitaly A., Pople, John A., Ratner, Mark A., Windus, Theresa
-#             L.
-#     6-31G* basis set for atoms K through Zn
-#     J. Chem. Phys., 109, 1223-1229 (1998)
-#     10.1063/1.476673
+# rassolov2001a
+#     Rassolov, Vitaly A., Ratner, Mark A., Pople, John A., Redfern, Paul
+#             C., Curtiss, Larry A.
+#     6-31G* basis set for third-row atoms
+#     J. Comput. Chem., 22, 976-984 (2001)
+#     10.1002/jcc.1058.abs
 # 
 # # 
-basis "H_6-31g*" 
+basis "H_6-31g_st_" 
 #basis SET: (4s) -> [2s]
 H    S
       0.1873113696E+02       0.3349460434E-01
@@ -240,7 +191,7 @@ H    S
 H    S
       0.1612777588E+00       1.0000000
 end
-basis "He_6-31g*" 
+basis "He_6-31g_st_" 
 #basis SET: (4s) -> [2s]
 He    S
       0.3842163400E+02       0.4013973935E-01
@@ -249,7 +200,7 @@ He    S
 He    S
       0.2979640000E+00       1.0000000
 end
-basis "Li_6-31g*" 
+basis "Li_6-31g_st_" 
 #basis SET: (10s,4p,1d) -> [3s,2p,1d]
 Li    S
       0.6424189150E+03       0.2142607810E-02
@@ -267,7 +218,7 @@ Li    SP
 Li    D
       0.2000000000E+00       1.0000000
 end
-basis "Be_6-31g*" 
+basis "Be_6-31g_st_" 
 #basis SET: (10s,4p,1d) -> [3s,2p,1d]
 Be    S
       0.1264585690E+04       0.1944757590E-02
@@ -285,7 +236,7 @@ Be    SP
 Be    D
       0.4000000000E+00       1.0000000
 end
-basis "B_6-31g*" 
+basis "B_6-31g_st_" 
 #basis SET: (10s,4p,1d) -> [3s,2p,1d]
 B    S
       0.2068882250E+04       0.1866274590E-02
@@ -303,7 +254,7 @@ B    SP
 B    D
       0.6000000000E+00       1.0000000
 end
-basis "C_6-31g*" 
+basis "C_6-31g_st_" 
 #basis SET: (10s,4p,1d) -> [3s,2p,1d]
 C    S
       0.3047524880E+04       0.1834737132E-02
@@ -321,7 +272,7 @@ C    SP
 C    D
       0.8000000000E+00       1.0000000
 end
-basis "N_6-31g*" 
+basis "N_6-31g_st_" 
 #basis SET: (10s,4p,1d) -> [3s,2p,1d]
 N    S
       0.4173511460E+04       0.1834772160E-02
@@ -339,7 +290,7 @@ N    SP
 N    D
       0.8000000000E+00       1.0000000
 end
-basis "O_6-31g*" 
+basis "O_6-31g_st_" 
 #basis SET: (10s,4p,1d) -> [3s,2p,1d]
 O    S
       0.5484671660E+04       0.1831074430E-02
@@ -357,7 +308,7 @@ O    SP
 O    D
       0.8000000000E+00       1.0000000
 end
-basis "F_6-31g*" 
+basis "F_6-31g_st_" 
 #basis SET: (10s,4p,1d) -> [3s,2p,1d]
 F    S
       0.7001713090E+04       0.1819616901E-02
@@ -375,7 +326,7 @@ F    SP
 F    D
       0.8000000000E+00       1.0000000
 end
-basis "Ne_6-31g*" 
+basis "Ne_6-31g_st_" 
 #basis SET: (10s,4p,1d) -> [3s,2p,1d]
 Ne    S
       0.8425851530E+04       0.1884348050E-02
@@ -393,7 +344,7 @@ Ne    SP
 Ne    D
       0.8000000000E+00       1.0000000
 end
-basis "Na_6-31g*" 
+basis "Na_6-31g_st_" 
 #basis SET: (16s,10p,1d) -> [4s,3p,1d]
 Na    S
       0.9993200000E+04       0.1937659277E-02
@@ -418,7 +369,7 @@ Na    SP
 Na    D
       0.1750000000E+00       1.0000000
 end
-basis "Mg_6-31g*" 
+basis "Mg_6-31g_st_" 
 #basis SET: (16s,10p,1d) -> [4s,3p,1d]
 Mg    S
       0.1172280000E+05       0.1977829317E-02
@@ -443,7 +394,7 @@ Mg    SP
 Mg    D
       0.1750000000E+00       1.0000000
 end
-basis "Al_6-31g*" 
+basis "Al_6-31g_st_" 
 #basis SET: (16s,10p,1d) -> [4s,3p,1d]
 Al    S
       0.1398310000E+05       0.1942669947E-02
@@ -468,7 +419,7 @@ Al    SP
 Al    D
       0.3250000000E+00       1.0000000
 end
-basis "Si_6-31g*" 
+basis "Si_6-31g_st_" 
 #basis SET: (16s,10p,1d) -> [4s,3p,1d]
 Si    S
       0.1611590000E+05       0.1959480216E-02
@@ -493,7 +444,7 @@ Si    SP
 Si    D
       0.4500000000E+00       1.0000000
 end
-basis "P_6-31g*" 
+basis "P_6-31g_st_" 
 #basis SET: (16s,10p,1d) -> [4s,3p,1d]
 P    S
       0.1941330000E+05       0.1851598923E-02
@@ -518,7 +469,7 @@ P    SP
 P    D
       0.5500000000E+00       1.0000000
 end
-basis "S_6-31g*" 
+basis "S_6-31g_st_" 
 #basis SET: (16s,10p,1d) -> [4s,3p,1d]
 S    S
       0.2191710000E+05       0.1869240849E-02
@@ -543,7 +494,7 @@ S    SP
 S    D
       0.6500000000E+00       1.0000000
 end
-basis "Cl_6-31g*" 
+basis "Cl_6-31g_st_" 
 #basis SET: (16s,10p,1d) -> [4s,3p,1d]
 Cl    S
       0.2518010000E+05       0.1832959848E-02
@@ -568,7 +519,7 @@ Cl    SP
 Cl    D
       0.7500000000E+00       1.0000000
 end
-basis "Ar_6-31g*" 
+basis "Ar_6-31g_st_" 
 #basis SET: (16s,10p,1d) -> [4s,3p,1d]
 Ar    S
       0.2834830000E+05       0.1825260192E-02
@@ -593,7 +544,7 @@ Ar    SP
 Ar    D
       0.8500000000E+00       1.0000000
 end
-basis "K_6-31g*" 
+basis "K_6-31g_st_" 
 #basis SET: (22s,16p,5d) -> [5s,4p,3d]
 K    S
       0.3159442000E+05       0.1828009922E-02
@@ -631,7 +582,7 @@ K    D
 K    D
       0.4485000000E-01       1.0000000
 end
-basis "Ca_6-31g*" 
+basis "Ca_6-31g_st_" 
 #basis SET: (22s,16p,5d) -> [5s,4p,3d]
 Ca    S
       0.3526486000E+05       0.1813501124E-02
@@ -669,7 +620,7 @@ Ca    D
 Ca    D
       0.5020000000E-01       1.0000000
 end
-basis "Sc_6-31g*" 
+basis "Sc_6-31g_st_" 
 #basis SET: (22s,16p,4d,1f) -> [5s,4p,2d,1f]
 Sc    S
       0.3908898000E+05       0.1803262955E-02
@@ -679,19 +630,19 @@ Sc    S
       0.1204679000E+03       0.4815689879E+00
       0.4098032000E+02       0.3445651913E+00
 Sc    SP
-      0.2984355000E+02      -0.2586302031E-02      -0.6096652719E-02
-      0.9542383000E+01       0.7188424085E-01      -0.2628884310E-01
-      0.4056790000E+01       0.2503260030E+00       0.5091001601E-01
-      0.1704703000E+01      -0.2991003035E+00       0.3798097448E+00
-      0.7062340000E+00      -0.7446818088E+00       0.5170883610E+00
-      0.2795360000E+00      -0.1799776021E+00       0.1829772216E+00
-Sc    SP
       0.7862852000E+03       0.2451863032E-02       0.4039529691E-02
       0.1868870000E+03       0.3259579042E-01       0.3122569761E-01
       0.6000935000E+02       0.1238242016E+00       0.1349832897E+00
       0.2225883000E+02      -0.4359890057E-01       0.3424792738E+00
       0.8885149000E+01      -0.6177181080E+00       0.4623112646E+00
       0.3609211000E+01      -0.4432823058E+00       0.2177523833E+00
+Sc    SP
+      0.2984355000E+02      -0.2586302031E-02      -0.6096652719E-02
+      0.9542383000E+01       0.7188424085E-01      -0.2628884310E-01
+      0.4056790000E+01       0.2503260030E+00       0.5091001601E-01
+      0.1704703000E+01      -0.2991003035E+00       0.3798097448E+00
+      0.7062340000E+00      -0.7446818088E+00       0.5170883610E+00
+      0.2795360000E+00      -0.1799776021E+00       0.1829772216E+00
 Sc    SP
       0.1065609000E+01       0.6482978223E-01      -0.2938439989E+00
       0.4259330000E+00       0.3253756112E+00       0.9235322967E-01
@@ -707,7 +658,7 @@ Sc    D
 Sc    F
       0.8000000000E+00       1.0000000
 end
-basis "Ti_6-31g*" 
+basis "Ti_6-31g_st_" 
 #basis SET: (22s,16p,4d,1f) -> [5s,4p,2d,1f]
 Ti    S
       0.4315295000E+05       0.1791871976E-02
@@ -745,7 +696,7 @@ Ti    D
 Ti    F
       0.8000000000E+00       1.0000000
 end
-basis "V_6-31g*" 
+basis "V_6-31g_st_" 
 #basis SET: (22s,16p,4d,1f) -> [5s,4p,2d,1f]
 V    S
       0.4735433000E+05       0.1784512997E-02
@@ -783,7 +734,7 @@ V    D
 V    F
       0.8000000000E+00       1.0000000
 end
-basis "Cr_6-31g*" 
+basis "Cr_6-31g_st_" 
 #basis SET: (22s,16p,4d,1f) -> [5s,4p,2d,1f]
 Cr    S
       0.5178981000E+05       0.1776181956E-02
@@ -821,7 +772,7 @@ Cr    D
 Cr    F
       0.8000000000E+00       1.0000000
 end
-basis "Mn_6-31g*" 
+basis "Mn_6-31g_st_" 
 #basis SET: (22s,16p,4d,1f) -> [5s,4p,2d,1f]
 Mn    S
       0.5634714000E+05       0.1771579986E-02
@@ -859,7 +810,7 @@ Mn    D
 Mn    F
       0.8000000000E+00       1.0000000
 end
-basis "Fe_6-31g*" 
+basis "Fe_6-31g_st_" 
 #basis SET: (22s,16p,4d,1f) -> [5s,4p,2d,1f]
 Fe    S
       0.6113262000E+05       0.1766110976E-02
@@ -897,7 +848,7 @@ Fe    D
 Fe    F
       0.8000000000E+00       1.0000000
 end
-basis "Co_6-31g*" 
+basis "Co_6-31g_st_" 
 #basis SET: (22s,16p,4d,1f) -> [5s,4p,2d,1f]
 Co    S
       0.6614899000E+05       0.1759787106E-02
@@ -907,19 +858,19 @@ Co    S
       0.2044122000E+03       0.4792919288E+00
       0.6982538000E+02       0.3514097211E+00
 Co    SP
-      0.5452355000E+02      -0.3993003860E-02      -0.7290771623E-02
-      0.1829783000E+02       0.7409662740E-01      -0.2926026849E-01
-      0.7867348000E+01       0.2541999911E+00       0.6564149661E-01
-      0.3340534000E+01      -0.2921656898E+00       0.4000651793E+00
-      0.1393756000E+01      -0.7318702744E+00       0.4950235744E+00
-      0.5513260000E+00      -0.2040783929E+00       0.1758239909E+00
-Co    SP
       0.1378841000E+04       0.2376276103E-02       0.3971488140E-02
       0.3282694000E+03       0.3167450137E-01       0.3108174109E-01
       0.1060946000E+03       0.1262888054E+00       0.1357439048E+00
       0.3983275000E+02      -0.2584552112E-01       0.3476827122E+00
       0.1618622000E+02      -0.6183491267E+00       0.4626340163E+00
       0.6667788000E+01      -0.4567008197E+00       0.2051632072E+00
+Co    SP
+      0.5452355000E+02      -0.3993003860E-02      -0.7290771623E-02
+      0.1829783000E+02       0.7409662740E-01      -0.2926026849E-01
+      0.7867348000E+01       0.2541999911E+00       0.6564149661E-01
+      0.3340534000E+01      -0.2921656898E+00       0.4000651793E+00
+      0.1393756000E+01      -0.7318702744E+00       0.4950235744E+00
+      0.5513260000E+00      -0.2040783929E+00       0.1758239909E+00
 Co    SP
       0.2151947000E+01       0.5379840456E-01      -0.2165495935E+00
       0.8110630000E+00       0.2759969695E+00       0.1240487963E+00
@@ -935,7 +886,7 @@ Co    D
 Co    F
       0.8000000000E+00       1.0000000
 end
-basis "Ni_6-31g*" 
+basis "Ni_6-31g_st_" 
 #basis SET: (22s,16p,4d,1f) -> [5s,4p,2d,1f]
 Ni    S
       0.7139635000E+05       0.1753002902E-02
@@ -945,19 +896,19 @@ Ni    S
       0.2206153000E+03       0.4790185733E+00
       0.7539373000E+02       0.3523443804E+00
 Ni    SP
-      0.5935261000E+02      -0.4162002046E-02      -0.7421451709E-02
-      0.2002181000E+02       0.7425111082E-01      -0.2953409884E-01
-      0.8614561000E+01       0.2541360028E+00       0.6731851736E-01
-      0.3660531000E+01      -0.2903477032E+00       0.4016659842E+00
-      0.1528111000E+01      -0.7302121080E+00       0.4926622807E+00
-      0.6040570000E+00      -0.2076057023E+00       0.1756892931E+00
-Ni    SP
       0.1492532000E+04       0.2370713841E-02       0.3967554145E-02
       0.3554013000E+03       0.3160565787E-01       0.3109479114E-01
       0.1149534000E+03       0.1266334915E+00       0.1359517050E+00
       0.4322043000E+02      -0.2417036837E-01       0.3485136127E+00
       0.1759710000E+02      -0.6187774584E+00       0.4625498169E+00
       0.7257765000E+01      -0.4576769692E+00       0.2035186074E+00
+Ni    SP
+      0.5935261000E+02      -0.4162002046E-02      -0.7421451709E-02
+      0.2002181000E+02       0.7425111082E-01      -0.2953409884E-01
+      0.8614561000E+01       0.2541360028E+00       0.6731851736E-01
+      0.3660531000E+01      -0.2903477032E+00       0.4016659842E+00
+      0.1528111000E+01      -0.7302121080E+00       0.4926622807E+00
+      0.6040570000E+00      -0.2076057023E+00       0.1756892931E+00
 Ni    SP
       0.2379276000E+01       0.5157890540E-01      -0.1887663036E+00
       0.8858390000E+00       0.2707612333E+00       0.1015199019E+00
@@ -973,7 +924,7 @@ Ni    D
 Ni    F
       0.8000000000E+00       1.0000000
 end
-basis "Cu_6-31g*" 
+basis "Cu_6-31g_st_" 
 #basis SET: (22s,16p,4d,1f) -> [5s,4p,2d,1f]
 Cu    S
       0.7679438000E+05       0.1748161083E-02
@@ -983,19 +934,19 @@ Cu    S
       0.2373528000E+03       0.4787675228E+00
       0.8115818000E+02       0.3530739168E+00
 Cu    SP
-      0.6445732000E+02      -0.4331075387E-02      -0.7523724515E-02
-      0.2185212000E+02       0.7412307662E-01      -0.2975686808E-01
-      0.9405343000E+01       0.2542108227E+00       0.6849653559E-01
-      0.3999168000E+01      -0.2874843257E+00       0.4027140741E+00
-      0.1670297000E+01      -0.7291436651E+00       0.4908489684E+00
-      0.6596270000E+00      -0.2113951189E+00       0.1759267887E+00
-Cu    SP
       0.1610814000E+04       0.2364054998E-02       0.3963306847E-02
       0.3836367000E+03       0.3153634997E-01       0.3110222880E-01
       0.1241733000E+03       0.1269451999E+00       0.1361349948E+00
       0.4674678000E+02      -0.2262839998E-01       0.3492913866E+00
       0.1906569000E+02      -0.6192079994E+00       0.4624779822E+00
       0.7871567000E+01      -0.4585392996E+00       0.2020101922E+00
+Cu    SP
+      0.6445732000E+02      -0.4331075387E-02      -0.7523724515E-02
+      0.2185212000E+02       0.7412307662E-01      -0.2975686808E-01
+      0.9405343000E+01       0.2542108227E+00       0.6849653559E-01
+      0.3999168000E+01      -0.2874843257E+00       0.4027140741E+00
+      0.1670297000E+01      -0.7291436651E+00       0.4908489684E+00
+      0.6596270000E+00      -0.2113951189E+00       0.1759267887E+00
 Cu    SP
       0.2600088000E+01       0.5027577003E-01      -0.1702910950E+00
       0.9630940000E+00       0.2650040002E+00       0.9310132728E-01
@@ -1011,7 +962,7 @@ Cu    D
 Cu    F
       0.8000000000E+00       1.0000000
 end
-basis "Zn_6-31g*" 
+basis "Zn_6-31g_st_" 
 #basis SET: (22s,16p,4d,1f) -> [5s,4p,2d,1f]
 Zn    S
       0.8240094000E+05       0.1743328988E-02
@@ -1049,7 +1000,7 @@ Zn    D
 Zn    F
       0.8000000000E+00       1.0000000
 end
-basis "Ga_6-31g*" 
+basis "Ga_6-31g_st_" 
 #basis SET: (22s,16p,5d) -> [5s,4p,3d]
 Ga    S
       0.8828461000E+05       0.1736921000E-02
@@ -1087,7 +1038,7 @@ Ga    D
 Ga    D
       0.2289000000E+00       1.0000000
 end
-basis "Ge_6-31g*" 
+basis "Ge_6-31g_st_" 
 #basis SET: (22s,16p,5d) -> [5s,4p,3d]
 Ge    S
       0.9428132000E+05       0.1732993000E-02
@@ -1097,19 +1048,19 @@ Ge    S
       0.2917149000E+03       0.4778104000E+00
       0.9989074000E+02       0.3557135000E+00
 Ge    SP
-      0.8728112000E+02      -0.5330845000E-02      -0.6893957000E-02
-      0.3028230000E+02       0.5874495000E-01      -0.2954252000E-01
-      0.1285367000E+02       0.2598349000E+00       0.5042291000E-01
-      0.5587437000E+01      -0.1926917000E+00       0.3699366000E+00
-      0.2438461000E+01      -0.7190570000E+00       0.4933147000E+00
-      0.1040324000E+01      -0.2995181000E+00       0.2116445000E+00
-Ge    SP
       0.2016629000E+04       0.2299186000E-02       0.3872605000E-02
       0.4806599000E+03       0.3068823000E-01       0.3051218000E-01
       0.1560616000E+03       0.1262906000E+00       0.1338971000E+00
       0.5907914000E+02      -0.1105405000E-01       0.3462496000E+00
       0.2422346000E+02      -0.6103659000E+00       0.4635741000E+00
       0.1004418000E+02      -0.4755387000E+00       0.2047879000E+00
+Ge    SP
+      0.8728112000E+02      -0.5330845000E-02      -0.6893957000E-02
+      0.3028230000E+02       0.5874495000E-01      -0.2954252000E-01
+      0.1285367000E+02       0.2598349000E+00       0.5042291000E-01
+      0.5587437000E+01      -0.1926917000E+00       0.3699366000E+00
+      0.2438461000E+01      -0.7190570000E+00       0.4933147000E+00
+      0.1040324000E+01      -0.2995181000E+00       0.2116445000E+00
 Ge    SP
       0.1344960000E+01       0.2338815000E+00      -0.1976804000E-01
       0.4436620000E+00      -0.2189617000E+00       0.3028906000E+00
@@ -1125,7 +1076,7 @@ Ge    D
 Ge    D
       0.2772000000E+00       1.0000000
 end
-basis "As_6-31g*" 
+basis "As_6-31g_st_" 
 #basis SET: (22s,16p,5d) -> [5s,4p,3d]
 As    S
       0.1005955000E+06       0.1726750000E-02
@@ -1135,19 +1086,19 @@ As    S
       0.3112852000E+03       0.4774525000E+00
       0.1066284000E+03       0.3567619000E+00
 As    SP
-      0.9506989000E+02      -0.5587423000E-02      -0.6816583000E-02
-      0.3318087000E+02       0.5632506000E-01      -0.2970303000E-01
-      0.1406773000E+02       0.2625835000E+00       0.4704335000E-01
-      0.6153288000E+01      -0.1718349000E+00       0.3645042000E+00
-      0.2721712000E+01      -0.7175645000E+00       0.4945157000E+00
-      0.1185334000E+01      -0.3184598000E+00       0.2149830000E+00
-As    SP
       0.2166679000E+04       0.2271761000E-02       0.3832156000E-02
       0.5165414000E+03       0.3033475000E-01       0.3023558000E-01
       0.1678674000E+03       0.1259057000E+00       0.1328632000E+00
       0.6364638000E+02      -0.6687172000E-02       0.3447648000E+00
       0.2613673000E+02      -0.6065306000E+00       0.4640368000E+00
       0.1085439000E+02      -0.4823144000E+00       0.2064824000E+00
+As    SP
+      0.9506989000E+02      -0.5587423000E-02      -0.6816583000E-02
+      0.3318087000E+02       0.5632506000E-01      -0.2970303000E-01
+      0.1406773000E+02       0.2625835000E+00       0.4704335000E-01
+      0.6153288000E+01      -0.1718349000E+00       0.3645042000E+00
+      0.2721712000E+01      -0.7175645000E+00       0.4945157000E+00
+      0.1185334000E+01      -0.3184598000E+00       0.2149830000E+00
 As    SP
       0.1615315000E+01       0.2645372000E+00      -0.2574061000E-01
       0.5513300000E+00      -0.1952737000E+00       0.3072764000E+00
@@ -1163,7 +1114,7 @@ As    D
 As    D
       0.3277000000E+00       1.0000000
 end
-basis "Se_6-31g*" 
+basis "Se_6-31g_st_" 
 #basis SET: (22s,16p,5d) -> [5s,4p,3d]
 Se    S
       0.1070273000E+06       0.1722646000E-02
@@ -1201,7 +1152,7 @@ Se    D
 Se    D
       0.3810000000E+00       1.0000000
 end
-basis "Br_6-31g*" 
+basis "Br_6-31g_st_" 
 #basis SET: (22s,16p,5d) -> [5s,4p,3d]
 Br    S
       0.1137182000E+06       0.1717696000E-02
@@ -1239,7 +1190,7 @@ Br    D
 Br    D
       0.4366000000E+00       1.0000000
 end
-basis "Kr_6-31g*" 
+basis "Kr_6-31g_st_" 
 #basis SET: (22s,16p,5d) -> [5s,4p,3d]
 Kr    S
       0.1205524000E+06       0.1714050000E-02

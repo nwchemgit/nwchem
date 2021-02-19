@@ -1,50 +1,62 @@
-# BSE Version v0.8.6
-# Data downloaded at 2019-10-24T11:58
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
 # cc-pcvtz-f12 version number 0
 # Description: cc-pCVTZ-F12
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
 #     J. Comput. Chem., 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
 #     J. Chem. Inf. Model., 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# Li,Be,Na,Mg
-#     ## cc-pCVTZ-F12
-#     Hill, J. Grant, Peterson, Kirk A.
-#     Correlation consistent basis sets for explicitly correlated
-#             wavefunctions: valence and core-valence basis sets for Li, Be,
-#             Na, and Mg
-#     Phys. Chem. Chem. Phys., 12, 10460 (2010)
-#     10.1039/c0cp00020e
 # 
-# B-Ne,Al-Ar
-#     ## cc-pCVTZ-F12
+#  References for the basis set
+# 
+#  Li,Be,Na,Mg
+#      cc-pCVTZ-F12
+#          hill2010b
+# 
+#  B-Ne,Al-Ar
+#      cc-pCVTZ-F12
+#          hill2010a
+# 
+# 
+# 
+# hill2010a
 #     Hill, J. Grant, Mazumder, Shivnath, Peterson, Kirk A.
 #     Correlation consistent basis sets for molecular core-valence effects
 #             with explicitly correlated wave functions: The atoms B-Ne and
 #             Al-Ar
 #     J. Chem. Phys., 132, 054108 (2010)
 #     10.1063/1.3308483
+# 
+# hill2010b
+#     Hill, J. Grant, Peterson, Kirk A.
+#     Correlation consistent basis sets for explicitly correlated
+#             wavefunctions: valence and core-valence basis sets for Li, Be,
+#             Na, and Mg
+#     Phys. Chem. Chem. Phys., 12, 10460 (2010)
+#     10.1039/c0cp00020e
 # 
 # # 
 basis "Li_cc-pcvtz-f12" 

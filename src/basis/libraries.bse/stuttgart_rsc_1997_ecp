@@ -1,35 +1,161 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
 # stuttgart rsc 1997 ecp version number 0
 # Description: Stuttgart RSC 1997 ECP
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
 #     J. Comput. Chem., 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
 #     J. Chem. Inf. Model., 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# K,Rb,Cs
-#     ## Stuttgart RSC 1997 ECP
+# 
+#  References for the basis set
+# 
+#  K,Rb,Cs
+#      Stuttgart RSC 1997 ECP
+#          leininger1996a
+# 
+#  Ca,Sr,Ba
+#      Stuttgart RSC 1997 ECP
+#          kaupp1991a
+# 
+#  Sc-Zn
+#      Stuttgart RSC 1997 ECP
+#          dolg1987a
+# 
+#  Y-Cd,Hf-Pt
+#      Stuttgart RSC 1997 ECP
+#          andrae1990a
+# 
+#  La,Lu
+#      Stuttgart RSC 1997 ECP
+#          cao2002a cao2001a
+# 
+#  Ce-Yb
+#      Stuttgart RSC 1997 ECP
+#          dolg1989b
+# 
+#  Au
+#      Stuttgart RSC 1997 ECP
+#          schwerdtfeger1989a
+# 
+#  Hg
+#      Stuttgart RSC 1997 ECP
+#          haussermann1993a
+# 
+#  Ac-No
+#      Stuttgart RSC 1997 ECP
+#          kuchle1994a cao2004a cao2003a
+# 
+#  Lr
+#      Stuttgart RSC 1997 ECP
+#          (...no reference...)
+# 
+#  Db
+#      Stuttgart RSC 1997 ECP
+#          dolg1993a
+# 
+# 
+# 
+# andrae1990a
+#     Andrae, D., Häußermann, U., Dolg, M., Stoll, H., Preuß, H.
+#     Energy-adjustedab initio pseudopotentials for the second and third row
+#             transition elements
+#     Theor. Chim. Acta, 77, 123-141 (1990)
+#     10.1007/bf01114537
+# 
+# cao2001a
+#     Cao, Xiaoyan, Dolg, Michael
+#     Valence basis sets for relativistic energy-consistent small-core
+#             lanthanide pseudopotentials
+#     J. Chem. Phys., 115, 7348 (2001)
+#     10.1063/1.1406535
+# 
+# cao2002a
+#     Cao, Xiaoyan, Dolg, Michael
+#     Segmented contraction scheme for small-core lanthanide pseudopotential
+#             basis sets
+#     J. Mol. Struc-THEOCHEM, 581, 139-147 (2002)
+#     10.1016/s0166-1280(01)00751-5
+# 
+# cao2003a
+#     Cao, Xiaoyan, Dolg, Michael, Stoll, Hermann
+#     Valence basis sets for relativistic energy-consistent small-core
+#             actinide pseudopotentials
+#     J. Chem. Phys., 118, 487-496 (2003)
+#     10.1063/1.1521431
+# 
+# cao2004a
+#     Cao, Xiaoyan, Dolg, Michael
+#     Segmented contraction scheme for small-core actinide pseudopotential
+#             basis sets
+#     J. Mol. Struc-THEOCHEM, 673, 203-209 (2004)
+#     10.1016/j.theochem.2003.12.015
+# 
+# dolg1987a
+#     Dolg, M., Wedig, U., Stoll, H., Preuss, H.
+#     Energy‐adjustedabinitiopseudopotentials for the first row transition
+#             elements
+#     J. Chem. Phys., 86, 866-872 (1987)
+#     10.1063/1.452288
+# 
+# dolg1989b
+#     Dolg, M., Stoll, H., Preuss, H.
+#     Energy-adjusted ab initio pseudopotentials for the rare earth elements
+#     J. Chem. Phys., 90, 1730-1734 (1989)
+#     10.1063/1.456066
+# 
+# dolg1993a
+#     Dolg, Michael, Stoll, Hermann, Preuss, Heinzwerner, Pitzer, Russell M.
+#     Relativistic and correlation effects for element 105 (hahnium, Ha): a
+#             comparative study of M and MO (M = Nb, Ta, Ha) using energy-
+#             adjusted ab initio pseudopotentials
+#     J. Phys. Chem., 97, 5852-5859 (1993)
+#     10.1021/j100124a012
+# 
+# haussermann1993a
+#     Häussermann, U., Dolg, M., Stoll, H., Preuss, H., Schwerdtfeger, P.,
+#             Pitzer, R.M.
+#     Accuracy of energy-adjusted quasirelativisticab initiopseudopotentials
+#     Molecular Physics, 78, 1211-1224 (1993)
+#     10.1080/00268979300100801
+# 
+# kaupp1991a
+#     Kaupp, M., Schleyer, P. v. R., Stoll, H., Preuss, H.
+#     Pseudopotential approaches to Ca, Sr, and Ba hydrides. Why are some
+#             alkaline earth MX2compounds bent?
+#     J. Chem. Phys., 94, 1360-1366 (1991)
+#     10.1063/1.459993
+# 
+# kuchle1994a
+#     Küchle, W., Dolg, M., Stoll, H., Preuss, H.
+#     Energy‐adjusted pseudopotentials for the actinides. Parameter sets and
+#             test calculations for thorium and thorium monoxide
+#     J. Chem. Phys., 100, 7535-7542 (1994)
+#     10.1063/1.466847
+# 
+# leininger1996a
 #     Leininger, Thierry, Nicklass, Andreas, Küchle, Wolfgang, Stoll,
 #             Hermann, Dolg, Michael, Bergner, Andreas
 #     The accuracy of the pseudopotential approximation: non-frozen-core
@@ -38,99 +164,12 @@
 #     Chem. Phys. Lett., 255, 274-280 (1996)
 #     10.1016/0009-2614(96)00382-x
 # 
-# Ca,Sr,Ba
-#     ## Stuttgart RSC 1997 ECP
-#     Kaupp, M., Schleyer, P. v. R., Stoll, H., Preuss, H.
-#     Pseudopotential approaches to Ca, Sr, and Ba hydrides. Why are some
-#             alkaline earth MX2compounds bent?
-#     J. Chem. Phys., 94, 1360-1366 (1991)
-#     10.1063/1.459993
-# 
-# Sc-Zn
-#     ## Stuttgart RSC 1997 ECP
-#     Dolg, M., Wedig, U., Stoll, H., Preuss, H.
-#     Energy‐adjustedabinitiopseudopotentials for the first row transition
-#             elements
-#     J. Chem. Phys., 86, 866-872 (1987)
-#     10.1063/1.452288
-# 
-# Y-Cd,Hf-Pt
-#     ## Stuttgart RSC 1997 ECP
-#     Andrae, D., Häußermann, U., Dolg, M., Stoll, H., Preuß, H.
-#     Energy-adjustedab initio pseudopotentials for the second and third row
-#             transition elements
-#     Theor. Chim. Acta, 77, 123-141 (1990)
-#     10.1007/bf01114537
-# 
-# La,Lu
-#     ## Stuttgart RSC 1997 ECP
-#     Cao, Xiaoyan, Dolg, Michael
-#     Segmented contraction scheme for small-core lanthanide pseudopotential
-#             basis sets
-#     J. Mol. Struc-THEOCHEM, 581, 139-147 (2002)
-#     10.1016/s0166-1280(01)00751-5
-# 
-#     Cao, Xiaoyan, Dolg, Michael
-#     Valence basis sets for relativistic energy-consistent small-core
-#             lanthanide pseudopotentials
-#     J. Chem. Phys., 115, 7348 (2001)
-#     10.1063/1.1406535
-# 
-# Ce-Yb
-#     ## Stuttgart RSC 1997 ECP
-#     Dolg, M., Stoll, H., Preuss, H.
-#     Energy-adjusted ab initio pseudopotentials for the rare earth elements
-#     J. Chem. Phys., 90, 1730-1734 (1989)
-#     10.1063/1.456066
-# 
-# Au
-#     ## Stuttgart RSC 1997 ECP
+# schwerdtfeger1989a
 #     Schwerdtfeger, Peter, Dolg, Michael, Schwarz, W. H. Eugen, Bowmaker,
 #             Graham A., Boyd, Peter D. W.
 #     Relativistic effects in gold chemistry. I. Diatomic gold compounds
 #     J. Chem. Phys., 91, 1762-1774 (1989)
 #     10.1063/1.457082
-# 
-# Hg
-#     ## Stuttgart RSC 1997 ECP
-#     Häussermann, U., Dolg, M., Stoll, H., Preuss, H., Schwerdtfeger, P.,
-#             Pitzer, R.M.
-#     Accuracy of energy-adjusted quasirelativisticab initiopseudopotentials
-#     Molecular Physics, 78, 1211-1224 (1993)
-#     10.1080/00268979300100801
-# 
-# Ac-No
-#     ## Stuttgart RSC 1997 ECP
-#     Küchle, W., Dolg, M., Stoll, H., Preuss, H.
-#     Energy‐adjusted pseudopotentials for the actinides. Parameter sets and
-#             test calculations for thorium and thorium monoxide
-#     J. Chem. Phys., 100, 7535-7542 (1994)
-#     10.1063/1.466847
-# 
-#     Cao, Xiaoyan, Dolg, Michael
-#     Segmented contraction scheme for small-core actinide pseudopotential
-#             basis sets
-#     J. Mol. Struc-THEOCHEM, 673, 203-209 (2004)
-#     10.1016/j.theochem.2003.12.015
-# 
-#     Cao, Xiaoyan, Dolg, Michael, Stoll, Hermann
-#     Valence basis sets for relativistic energy-consistent small-core
-#             actinide pseudopotentials
-#     J. Chem. Phys., 118, 487-496 (2003)
-#     10.1063/1.1521431
-# 
-# Lr
-#     ## Stuttgart RSC 1997 ECP
-#     (...no reference...)
-# 
-# Db
-#     ## Stuttgart RSC 1997 ECP
-#     Dolg, Michael, Stoll, Hermann, Preuss, Heinzwerner, Pitzer, Russell M.
-#     Relativistic and correlation effects for element 105 (hahnium, Ha): a
-#             comparative study of M and MO (M = Nb, Ta, Ha) using energy-
-#             adjusted ab initio pseudopotentials
-#     J. Phys. Chem., 97, 5852-5859 (1993)
-#     10.1021/j100124a012
 # 
 # # 
 

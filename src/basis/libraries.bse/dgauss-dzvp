@@ -1,35 +1,44 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
 # dgauss-dzvp version number 0
 # Description: VDZP Valence Double Zeta + Polarization designed for DFT
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
 #     J. Comput. Chem., 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
 #     J. Chem. Inf. Model., 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H-Xe
-#     ## VDZP Valence Double Zeta + Polarization designed for DFT
+# 
+#  References for the basis set
+# 
+#  H-Xe
+#      VDZP Valence Double Zeta + Polarization designed for DFT
+#          godbout1992a
+# 
+# 
+# 
+# godbout1992a
 #     Godbout, Nathalie, Salahub, Dennis R., Andzelm, Jan, Wimmer, Erich
 #     Optimization of Gaussian-type basis sets for local spin density
 #             functional calculations. Part I. Boron through neon,
@@ -710,13 +719,13 @@ Cr    S
     163.5005800              0.4700728
      55.8176340              0.3647653
 Cr    S
-      8.9020446              0.2161901
-      1.3966976             -0.7109203
-      0.5440141             -0.4173588
-Cr    S
     108.8041200              0.1035171
      12.3273870             -0.6115169
       4.9462295             -0.4623066
+Cr    S
+      8.9020446              0.2161901
+      1.3966976             -0.7109203
+      0.5440141             -0.4173588
 Cr    S
       0.7773661              0.1468721
       0.1070358             -0.6148496
@@ -752,13 +761,13 @@ Mn    S
     180.1227000              0.4696949
      61.2621340              0.3698049
 Mn    S
-      9.8569553              0.2175547
-      1.5552163             -0.7108859
-      0.6046178             -0.4183703
-Mn    S
     118.5280300              0.1042770
      13.5049460             -0.6140001
       5.4431834             -0.4598971
+Mn    S
+      9.8569553              0.2175547
+      1.5552163             -0.7108859
+      0.6046178             -0.4183703
 Mn    S
       0.8629655              0.1437611
       0.1167188             -0.6009008
@@ -794,13 +803,13 @@ Fe    S
     191.8606200              0.4694499
      65.8263280              0.3635569
 Fe    S
-     10.8598790              0.2184917
-      1.7194471             -0.7113310
-      0.6664532             -0.4186947
-Fe    S
     128.7407400             -0.1049168
      14.7181330              0.6179619
       5.9507543              0.4560093
+Fe    S
+     10.8598790              0.2184917
+      1.7194471             -0.7113310
+      0.6664532             -0.4186947
 Fe    S
       0.9754761             -0.1441054
       0.1231143              0.5958134
@@ -836,13 +845,13 @@ Co    S
     210.0601500             -0.4691457
      71.7744980             -0.3686586
 Co    S
-     11.9103940             -0.2191273
-      1.8904105              0.7114201
-      0.7302278              0.4192248
-Co    S
     139.3222100              0.1055578
      16.0027860             -0.6200954
       6.4919353             -0.4539725
+Co    S
+     11.9103940             -0.2191273
+      1.8904105              0.7114201
+      0.7302278              0.4192248
 Co    S
       1.0586020              0.1392893
       0.1300905             -0.5864315

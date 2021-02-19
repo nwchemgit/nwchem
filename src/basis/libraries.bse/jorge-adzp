@@ -1,43 +1,75 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
 # jorge-adzp version number 1
 # Description: ADZP: Augmented double zeta valence quality plus polarization
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
 #     J. Comput. Chem., 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
 #     J. Chem. Inf. Model., 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H,Li-Ar
-#     ## TODO
-#     Neto, A. Canal, Muniz, E. P., Centoducatte, R., Jorge, F. E.
-#     Gaussian basis sets for correlated wave functions. Hydrogen, helium,
-#             first- and second-row atoms
-#     J. Mol. Struc-THEOCHEM, 718, 219-224 (2005)
-#     10.1016/j.theochem.2004.11.037
 # 
-# K,Sc-Kr
-#     ## TODO
+#  References for the basis set
+# 
+#  H,Li-Ar
+#      TODO
+#          neto2005a
+# 
+#  K,Sc-Kr
+#      TODO
+#          camiletti2009a
+# 
+#  Rb,Y-Xe
+#      TODO
+#          oliveira2010a
+# 
+#  Cs,La,Hf-Ir,Au-Rn
+#      TODO
+#          neto2013a
+# 
+#  Pt
+#      TODO
+#          berreado2011a
+# 
+#  Fr-Ac
+#      TODO
+#          campos2017a
+# 
+#  Th-Lr
+#      TODO
+#          martins2016a
+# 
+# 
+# 
+# berreado2011a
+#     de Berrêdo, R. C., Jorge, F. E., Jorge, Sara S., Centoducatte, R.
+#     An augmented Gaussian basis set for calculations of molecular
+#             polarizabilities on platinum compounds
+#     Comput. Theor. Chem., 965, 236-239 (2011)
+#     10.1016/j.comptc.2011.02.007
+# 
+# camiletti2009a
 #     Camiletti, G. G., Neto, A. Canal, Jorge, F. E., Machado, S. F.
 #     Augmented Gaussian basis sets of double and triple zeta valence
 #             qualities for the atoms K and Sc-Kr: Applications in HF, MP2,
@@ -45,34 +77,7 @@
 #     J. Mol. Struc-THEOCHEM, 910, 122-125 (2009)
 #     10.1016/j.theochem.2009.06.024
 # 
-# Rb,Y-Xe
-#     ## TODO
-#     de Oliveira, P. J. P., Barros, C. L., Jorge, F. E., Neto, A. Canal,
-#             Campos, M.
-#     Augmented Gaussian basis set of double zeta valence quality for the
-#             atoms Rb and Y-Xe: Application in DFT calculations of
-#             molecular electric properties
-#     J. Mol. Struc-THEOCHEM, 948, 43-46 (2010)
-#     10.1016/j.theochem.2010.02.017
-# 
-# Cs,La,Hf-Ir,Au-Rn
-#     ## TODO
-#     Neto, A. Canal, Jorge, F. E.
-#     All-electron double zeta basis sets for the most fifth-row atoms:
-#             Application in DFT spectroscopic constant calculations
-#     Chem. Phys. Lett., 582, 158-162 (2013)
-#     10.1016/j.cplett.2013.07.045
-# 
-# Pt
-#     ## TODO
-#     de Berrêdo, R. C., Jorge, F. E., Jorge, Sara S., Centoducatte, R.
-#     An augmented Gaussian basis set for calculations of molecular
-#             polarizabilities on platinum compounds
-#     Comput. Theor. Chem., 965, 236-239 (2011)
-#     10.1016/j.comptc.2011.02.007
-# 
-# Fr-Ac
-#     ## TODO
+# campos2017a
 #     Campos, C. T., de Oliveira, A. Z., Ferreira, I. B., Jorge, F. E.,
 #             Martins, L. S. C.
 #     Segmented all-electron Gaussian basis sets of double and triple zeta
@@ -80,13 +85,35 @@
 #     Chem. Phys. Lett., 675, 1-5 (2017a)
 #     10.1016/j.cplett.2017.02.080
 # 
-# Th-Lr
-#     ## TODO
+# martins2016a
 #     Martins, L. S. C., Jorge, F. E., Franco, M. L., Ferreira, I. B.
 #     All-electron Gaussian basis sets of double zeta quality for the
 #             actinides
 #     J. Chem. Phys., 145, 244113 (2016)
 #     10.1063/1.4973377
+# 
+# neto2005a
+#     Neto, A. Canal, Muniz, E. P., Centoducatte, R., Jorge, F. E.
+#     Gaussian basis sets for correlated wave functions. Hydrogen, helium,
+#             first- and second-row atoms
+#     J. Mol. Struc-THEOCHEM, 718, 219-224 (2005)
+#     10.1016/j.theochem.2004.11.037
+# 
+# neto2013a
+#     Neto, A. Canal, Jorge, F. E.
+#     All-electron double zeta basis sets for the most fifth-row atoms:
+#             Application in DFT spectroscopic constant calculations
+#     Chem. Phys. Lett., 582, 158-162 (2013)
+#     10.1016/j.cplett.2013.07.045
+# 
+# oliveira2010a
+#     de Oliveira, P. J. P., Barros, C. L., Jorge, F. E., Neto, A. Canal,
+#             Campos, M.
+#     Augmented Gaussian basis set of double zeta valence quality for the
+#             atoms Rb and Y-Xe: Application in DFT calculations of
+#             molecular electric properties
+#     J. Mol. Struc-THEOCHEM, 948, 43-46 (2010)
+#     10.1016/j.theochem.2010.02.017
 # 
 # # 
 basis "H_jorge-adzp" 

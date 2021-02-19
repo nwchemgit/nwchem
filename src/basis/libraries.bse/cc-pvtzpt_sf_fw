@@ -1,83 +1,90 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# cc-pvtz(pt/sf/fw) version number 0
+# BSE Version v0.8.13
+# Data downloaded on 2021-02-19T12:41
+# cc-pvtz(pt_sl_sf_sl_fw) version number 0
 # Description: VTZ2P   Relativistic Valence Triple Zeta + Polarization
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
 #     J. Comput. Chem., 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
 #     J. Chem. Inf. Model., 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H,B-Ne
-#     ## VTZ2P   Relativistic Valence Triple Zeta + Polarization
+# 
+#  References for the basis set
+# 
+#  H,B-Ne
+#      VTZ2P   Relativistic Valence Triple Zeta + Polarization
+#          dunning1989a dyallXXXXa
+# 
+#  He
+#      VTZ2P   Relativistic Valence Triple Zeta + Polarization
+#          woon1994a dyallXXXXa
+# 
+#  Al-Ar
+#      VTZ2P   Relativistic Valence Triple Zeta + Polarization
+#          woon1993a dyallXXXXa
+# 
+#  Ga-Kr
+#      VTZ2P   Relativistic Valence Triple Zeta + Polarization
+#          wilson1999a dyallXXXXa
+# 
+# 
+# 
+# dunning1989a
 #     Dunning, Thom H.
 #     Gaussian basis sets for use in correlated molecular calculations. I.
 #             The atoms boron through neon and hydrogen
 #     J. Chem. Phys., 90, 1007-1023 (1989)
 #     10.1063/1.456153
 # 
+# dyallXXXXa
 #     Dyall, K. G.
 #     unpublished
 #     As referenced in the original BSE
 # 
-# He
-#     ## VTZ2P   Relativistic Valence Triple Zeta + Polarization
-#     Woon, David E., Dunning, Thom H.
-#     Gaussian basis sets for use in correlated molecular calculations. IV.
-#             Calculation of static electrical response properties
-#     J. Chem. Phys., 100, 2975-2988 (1994)
-#     10.1063/1.466439
-# 
-#     Dyall, K. G.
-#     unpublished
-#     As referenced in the original BSE
-# 
-# Al-Ar
-#     ## VTZ2P   Relativistic Valence Triple Zeta + Polarization
-#     Woon, David E., Dunning, Thom H.
-#     Gaussian basis sets for use in correlated molecular calculations. III.
-#             The atoms aluminum through argon
-#     J. Chem. Phys., 98, 1358-1371 (1993)
-#     10.1063/1.464303
-# 
-#     Dyall, K. G.
-#     unpublished
-#     As referenced in the original BSE
-# 
-# Ga-Kr
-#     ## VTZ2P   Relativistic Valence Triple Zeta + Polarization
+# wilson1999a
 #     Wilson, Angela K., Woon, David E., Peterson, Kirk A., Dunning, Thom H.
 #     Gaussian basis sets for use in correlated molecular calculations. IX.
 #             The atoms gallium through krypton
 #     J. Chem. Phys., 110, 7667-7676 (1999)
 #     10.1063/1.478678
 # 
-#     Dyall, K. G.
-#     unpublished
-#     As referenced in the original BSE
+# woon1993a
+#     Woon, David E., Dunning, Thom H.
+#     Gaussian basis sets for use in correlated molecular calculations. III.
+#             The atoms aluminum through argon
+#     J. Chem. Phys., 98, 1358-1371 (1993)
+#     10.1063/1.464303
+# 
+# woon1994a
+#     Woon, David E., Dunning, Thom H.
+#     Gaussian basis sets for use in correlated molecular calculations. IV.
+#             Calculation of static electrical response properties
+#     J. Chem. Phys., 100, 2975-2988 (1994)
+#     10.1063/1.466439
 # 
 # # 
-basis "H_cc-pvtz(pt/sf/fw)" 
+basis "H_cc-pvtz(pt_sl_sf_sl_fw)" 
 #basis SET: (5s,2p,1d) -> [3s,2p,1d]
 H    S
       3.3870000E+01          6.06899476480E-03
@@ -94,7 +101,7 @@ H    P
 H    D
       1.0570000E+00          1.00000000000E+00
 end
-basis "He_cc-pvtz(pt/sf/fw)" 
+basis "He_cc-pvtz(pt_sl_sf_sl_fw)" 
 #basis SET: (6s,2p,1d) -> [3s,2p,1d]
 He    S
       2.3400000E+02          2.58661763795E-03
@@ -112,7 +119,7 @@ He    P
 He    D
       1.9650000E+00          1.00000000000E+00
 end
-basis "B_cc-pvtz(pt/sf/fw)" 
+basis "B_cc-pvtz(pt_sl_sf_sl_fw)" 
 #basis SET: (18s,5p,2d,1f) -> [4s,3p,2d,1f]
 B    S
       5.4730000E+03          5.31194753186E-04
@@ -151,7 +158,7 @@ B    D
 B    F
       4.9000000E-01          1.00000000000E+00
 end
-basis "C_cc-pvtz(pt/sf/fw)" 
+basis "C_cc-pvtz(pt_sl_sf_sl_fw)" 
 #basis SET: (18s,5p,2d,1f) -> [4s,3p,2d,1f]
 C    S
       8.2360000E+03          5.06044594058E-04
@@ -190,7 +197,7 @@ C    D
 C    F
       7.6100000E-01          1.00000000000E+00
 end
-basis "N_cc-pvtz(pt/sf/fw)" 
+basis "N_cc-pvtz(pt_sl_sf_sl_fw)" 
 #basis SET: (18s,5p,2d,1f) -> [4s,3p,2d,1f]
 N    S
       1.1420000E+04          5.00654901663E-04
@@ -229,7 +236,7 @@ N    D
 N    F
       1.0930000E+00          1.00000000000E+00
 end
-basis "O_cc-pvtz(pt/sf/fw)" 
+basis "O_cc-pvtz(pt_sl_sf_sl_fw)" 
 #basis SET: (18s,5p,2d,1f) -> [4s,3p,2d,1f]
 O    S
       1.5330000E+04          4.92019911755E-04
@@ -268,7 +275,7 @@ O    D
 O    F
       1.4280000E+00          1.00000000000E+00
 end
-basis "F_cc-pvtz(pt/sf/fw)" 
+basis "F_cc-pvtz(pt_sl_sf_sl_fw)" 
 #basis SET: (18s,5p,2d,1f) -> [4s,3p,2d,1f]
 F    S
       1.9500000E+04          5.01343691800E-04
@@ -307,7 +314,7 @@ F    D
 F    F
       1.9170000E+00          1.00000000000E+00
 end
-basis "Ne_cc-pvtz(pt/sf/fw)" 
+basis "Ne_cc-pvtz(pt_sl_sf_sl_fw)" 
 #basis SET: (18s,5p,2d,1f) -> [4s,3p,2d,1f]
 Ne    S
       2.4350000E+04          5.09188916073E-04
@@ -346,7 +353,7 @@ Ne    D
 Ne    F
       2.5440000E+00          1.00000000000E+00
 end
-basis "Al_cc-pvtz(pt/sf/fw)" 
+basis "Al_cc-pvtz(pt_sl_sf_sl_fw)" 
 #basis SET: (41s,16p,2d,1f) -> [5s,4p,2d,1f]
 Al    S
       2.0550000E+05          9.61850845677E-05
@@ -421,7 +428,7 @@ Al    D
 Al    F
       2.4400000E-01          1.00000000000E+00
 end
-basis "Si_cc-pvtz(pt/sf/fw)" 
+basis "Si_cc-pvtz(pt_sl_sf_sl_fw)" 
 #basis SET: (41s,16p,2d,1f) -> [5s,4p,2d,1f]
 Si    S
       2.5490000E+05          9.93890866590E-05
@@ -496,7 +503,7 @@ Si    D
 Si    F
       3.3600000E-01          1.00000000000E+00
 end
-basis "P_cc-pvtz(pt/sf/fw)" 
+basis "P_cc-pvtz(pt_sl_sf_sl_fw)" 
 #basis SET: (41s,16p,2d,1f) -> [5s,4p,2d,1f]
 P    S
       3.1240000E+05          1.03095463899E-04
@@ -571,7 +578,7 @@ P    D
 P    F
       4.5200000E-01          1.00000000000E+00
 end
-basis "S_cc-pvtz(pt/sf/fw)" 
+basis "S_cc-pvtz(pt_sl_sf_sl_fw)" 
 #basis SET: (41s,16p,2d,1f) -> [5s,4p,2d,1f]
 S    S
       3.7410000E+05          1.08380460351E-04
@@ -646,7 +653,7 @@ S    D
 S    F
       5.5700000E-01          1.00000000000E+00
 end
-basis "Cl_cc-pvtz(pt/sf/fw)" 
+basis "Cl_cc-pvtz(pt_sl_sf_sl_fw)" 
 #basis SET: (41s,16p,2d,1f) -> [5s,4p,2d,1f]
 Cl    S
       4.5610000E+05          1.11154377342E-04
@@ -721,7 +728,7 @@ Cl    D
 Cl    F
       7.0600000E-01          1.00000000000E+00
 end
-basis "Ar_cc-pvtz(pt/sf/fw)" 
+basis "Ar_cc-pvtz(pt_sl_sf_sl_fw)" 
 #basis SET: (41s,16p,2d,1f) -> [5s,4p,2d,1f]
 Ar    S
       5.4500000E+05          1.15282207613E-04
@@ -796,7 +803,7 @@ Ar    D
 Ar    F
       8.9000000E-01          1.00000000000E+00
 end
-basis "Ga_cc-pvtz(pt/sf/fw)" 
+basis "Ga_cc-pvtz(pt_sl_sf_sl_fw)" 
 #basis SET: (74s,35p,9d,1f) -> [6s,5p,3d,1f]
 Ga    S
       6.5581573E+06          1.05221087094E-04
@@ -933,7 +940,7 @@ Ga    D
 Ga    F
       2.8810000E-01          1.00000000000E+00
 end
-basis "Ge_cc-pvtz(pt/sf/fw)" 
+basis "Ge_cc-pvtz(pt_sl_sf_sl_fw)" 
 #basis SET: (74s,35p,9d,1f) -> [6s,5p,3d,1f]
 Ge    S
       7.4479668E+06          1.07209922013E-04
@@ -1070,7 +1077,7 @@ Ge    D
 Ge    F
       3.4580000E-01          1.00000000000E+00
 end
-basis "As_cc-pvtz(pt/sf/fw)" 
+basis "As_cc-pvtz(pt_sl_sf_sl_fw)" 
 #basis SET: (74s,35p,9d,1f) -> [6s,5p,3d,1f]
 As    S
       8.4823396E+06          1.08762460516E-04
@@ -1207,7 +1214,7 @@ As    D
 As    F
       4.1580000E-01          1.00000000000E+00
 end
-basis "Se_cc-pvtz(pt/sf/fw)" 
+basis "Se_cc-pvtz(pt_sl_sf_sl_fw)" 
 #basis SET: (74s,35p,9d,1f) -> [6s,5p,3d,1f]
 Se    S
       9.5636000E+06          1.10900739705E-04
@@ -1344,7 +1351,7 @@ Se    D
 Se    F
       4.6200000E-01          1.00000000000E+00
 end
-basis "Br_cc-pvtz(pt/sf/fw)" 
+basis "Br_cc-pvtz(pt_sl_sf_sl_fw)" 
 #basis SET: (74s,35p,9d,1f) -> [6s,5p,3d,1f]
 Br    S
       1.0639000E+07          1.13938401770E-04
@@ -1481,7 +1488,7 @@ Br    D
 Br    F
       5.5150000E-01          1.00000000000E+00
 end
-basis "Kr_cc-pvtz(pt/sf/fw)" 
+basis "Kr_cc-pvtz(pt_sl_sf_sl_fw)" 
 #basis SET: (74s,35p,9d,1f) -> [6s,5p,3d,1f]
 Kr    S
       1.1718113E+07          1.17683266977E-04
