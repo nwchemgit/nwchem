@@ -11,7 +11,7 @@ c
 #elif defined(FLEXIBLAS)
       call flexiblas_set_num_threads(nt)
 #elif defined(ACCELERATE)
-! unnecessary?
+      call veclib_set_num_threads(nt)
 #elif defined(INTERNALBLAS)
 c do nothing      
 #else
