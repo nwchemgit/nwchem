@@ -157,6 +157,10 @@ ifdef USE_VTUNE
   EXTRA_OBJ += vtune_bind.o vtune.o
 endif
 
+ifeq ($(shell echo $(BLASOPT) |awk '/Accelerate/ {print "Y"; exit}'),Y)
+  EXTRA_OBJ += veclib_threads.o
+endif
+
        BLAS = dfill.o ifill.o  mabyte_fill.o zfill.o
 
    LIB_TARGETS = testsolve testecce
