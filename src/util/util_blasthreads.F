@@ -10,6 +10,8 @@ c
       call bli_thread_set_num_threads(nt)
 #elif defined(FLEXIBLAS)
       call flexiblas_set_num_threads(nt)
+#elif defined(ACCELERATE)
+! unnecessary?
 #elif defined(INTERNALBLAS)
 c do nothing      
 #else
