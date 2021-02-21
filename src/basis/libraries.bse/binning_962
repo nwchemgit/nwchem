@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # binning 962 version number 0
 # Description: Binning/Curtiss 962
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -41,17 +41,17 @@
 # binning1990a
 #     Binning, R. C., Curtiss, L. A.
 #     Compact contracted basis sets for third-row atoms: Ga-Kr
-#     J. Comput. Chem., 11, 1206-1216 (1990)
+#     J. Comput. Chem. 11, 1206-1216 (1990)
 #     10.1002/jcc.540111013
 # 
 # dunning1977a
 #     Dunning, Thom H.
 #     Gaussian basis sets for the atoms gallium through krypton
-#     J. Chem. Phys., 66, 1382-1383 (1977)
+#     J. Chem. Phys. 66, 1382-1383 (1977)
 #     10.1063/1.434039
 # 
 # # 
-basis "Ga_binning 962" 
+basis "Ga_binning 962" SPHERICAL 
 #basis SET: (14s,11p,5d) -> [9s,6p,2d]
 Ga    S
  457600.00000                0.000221
@@ -101,7 +101,7 @@ Ga    D
 Ga    D
       0.684400               1.000000
 end
-basis "Ge_binning 962" 
+basis "Ge_binning 962" SPHERICAL 
 #basis SET: (14s,11p,5d) -> [9s,6p,2d]
 Ge    S
  489000.000000               0.000222
@@ -151,7 +151,7 @@ Ge    D
 Ge    D
       0.830100               1.000000
 end
-basis "As_binning 962" 
+basis "As_binning 962" SPHERICAL 
 #basis SET: (14s,11p,5d) -> [9s,6p,2d]
 As    S
  526200.000000               0.000220
@@ -201,7 +201,7 @@ As    D
 As    D
       0.982700               1.000000
 end
-basis "Se_binning 962" 
+basis "Se_binning 962" SPHERICAL 
 #basis SET: (14s,11p,5d) -> [9s,6p,2d]
 Se    S
  560600.000000               0.000220
@@ -251,7 +251,7 @@ Se    D
 Se    D
       1.145000               0.231840
 end
-basis "Br_binning 962" 
+basis "Br_binning 962" SPHERICAL 
 #basis SET: (14s,11p,5d) -> [9s,6p,2d]
 Br    S
  574300.000000               0.000220
@@ -301,7 +301,7 @@ Br    D
 Br    D
       1.317000               1.000000
 end
-basis "Kr_binning 962" 
+basis "Kr_binning 962" SPHERICAL 
 #basis SET: (14s,11p,5d) -> [9s,6p,2d]
 Kr    S
  605700.000000               0.000230

@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # pv7z version number 0
 # Description: pV7Z
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -50,13 +50,13 @@
 #     Feller, David, Peterson, Kirk A.
 #     Re-examination of atomization energies for the Gaussian-2 set of
 #             molecules
-#     J. Chem. Phys., 110, 8384-8396 (1999)
+#     J. Chem. Phys. 110, 8384-8396 (1999)
 #     10.1063/1.478747
 # 
 # feller2000a
 #     Feller, David, Sordo, Jose A.
 #     Performance of CCSDT for diatomic dissociation energies
-#     J. Chem. Phys., 113, 485-493 (2000)
+#     J. Chem. Phys. 113, 485-493 (2000)
 #     10.1063/1.481827
 # 
 # fellerXXXXa
@@ -70,7 +70,7 @@
 #     As referenced in the original Basis Set Exchange
 # 
 # # 
-basis "H_pv7z" 
+basis "H_pv7z" SPHERICAL 
 #basis SET: (14s,6p,5d,4f,3g,2h,1i) -> [7s,6p,5d,4f,3g,2h,1i]
 H    S
    2762.5161400              0.0000220
@@ -136,7 +136,7 @@ H    H
 H    I
       3.4140000              1.0000000
 end
-basis "C_pv7z" 
+basis "C_pv7z" SPHERICAL 
 #basis SET: (30s,12p,6d,5f,4g,3h,2i,1k) -> [8s,7p,6d,5f,4g,3h,2i,1k]
 C    S
  949028.8000000              0.0000014
@@ -238,7 +238,7 @@ C    I
 C    K
       1.9560000              1.0000000
 end
-basis "N_pv7z" 
+basis "N_pv7z" SPHERICAL 
 #basis SET: (30s,12p,6d,5f,4g,3h,2i,1k) -> [8s,7p,6d,5f,4g,3h,2i,1k]
 N    S
 1296296.0000000              0.0000014
@@ -340,7 +340,7 @@ N    I
 N    K
       2.3790000              1.0000000
 end
-basis "O_pv7z" 
+basis "O_pv7z" SPHERICAL 
 #basis SET: (30s,12p,6d,5f,4g,3h,2i,1k) -> [8s,7p,6d,5f,4g,3h,2i,1k]
 O    S
 1678789.0000000              0.0000014
@@ -442,7 +442,7 @@ O    I
 O    K
       3.1230000              1.0000000
 end
-basis "F_pv7z" 
+basis "F_pv7z" SPHERICAL 
 #basis SET: (30s,12p,6d,5f,4g,3h,2i,1k) -> [8s,7p,6d,5f,4g,3h,2i,1k]
 F    S
 2115112.0000000              0.0000015
@@ -544,7 +544,7 @@ F    I
 F    K
       4.2560000              1.0000000
 end
-basis "Ne_pv7z" 
+basis "Ne_pv7z" SPHERICAL 
 #basis SET: (30s,12p,6d,5f,4g,3h,2i,1k) -> [8s,7p,6d,5f,4g,3h,2i,1k]
 Ne    S
 2636740.0000000              0.00000144
@@ -646,7 +646,7 @@ Ne    I
 Ne    K
       5.2560000              1.0000000
 end
-basis "S_pv7z" 
+basis "S_pv7z" SPHERICAL 
 #basis SET: (69s,30p,6d,5f,4g,3h,2i,1k) -> [9s,8p,6d,5f,4g,3h,2i,1k]
 S    S
 7010036.0000000              0.14393981E-5

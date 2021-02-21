@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # aug-cc-pvdz-x2c version number 1
 # Description: aug-cc-pVDZ-X2C
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -43,11 +43,11 @@
 #     Gaussian basis sets for use in correlated molecular calculations. XI.
 #             Pseudopotential-based and all-electron relativistic basis sets
 #             for alkali metal (K-Fr) and alkaline earth (Ca-Ra) elements
-#     J. Chem. Phys., 147, 244106 (2018)
+#     J. Chem. Phys. 147, 244106 (2018)
 #     10.1063/1.5010587
 # 
 # # 
-basis "K_aug-cc-pvdz-x2c" 
+basis "K_aug-cc-pvdz-x2c" SPHERICAL 
 #basis SET: (58s,32p,6d) -> [6s,5p,3d]
 K    S
       5.233468E+05           2.630000E-04
@@ -160,7 +160,7 @@ K    D
 K    D
       6.340000E-03           1.000000E+00
 end
-basis "Ca_aug-cc-pvdz-x2c" 
+basis "Ca_aug-cc-pvdz-x2c" SPHERICAL 
 #basis SET: (58s,32p,6d) -> [6s,5p,3d]
 Ca    S
       6.342940E+05           2.610000E-04
@@ -273,7 +273,7 @@ Ca    D
 Ca    D
       1.928000E-02           1.000000E+00
 end
-basis "Rb_aug-cc-pvdz-x2c" 
+basis "Rb_aug-cc-pvdz-x2c" SPHERICAL 
 #basis SET: (97s,58p,22d) -> [7s,6p,4d]
 Rb    S
       2.196353E+07           1.200000E-04
@@ -470,7 +470,7 @@ Rb    D
 Rb    D
       6.650000E-03           1.000000E+00
 end
-basis "Sr_aug-cc-pvdz-x2c" 
+basis "Sr_aug-cc-pvdz-x2c" SPHERICAL 
 #basis SET: (97s,54p,22d) -> [7s,6p,4d]
 Sr    S
       2.330405E+07           1.250000E-04
@@ -663,7 +663,7 @@ Sr    D
 Sr    D
       1.249000E-02           1.000000E+00
 end
-basis "Cs_aug-cc-pvdz-x2c" 
+basis "Cs_aug-cc-pvdz-x2c" SPHERICAL 
 #basis SET: (140s,92p,41d) -> [8s,7p,5d]
 Cs    S
       5.684199E+07           2.480000E-04
@@ -959,7 +959,7 @@ Cs    D
 Cs    D
       6.370000E-03           1.000000E+00
 end
-basis "Ba_aug-cc-pvdz-x2c" 
+basis "Ba_aug-cc-pvdz-x2c" SPHERICAL 
 #basis SET: (140s,87p,41d) -> [8s,7p,5d]
 Ba    S
       5.691350E+07           2.670000E-04
@@ -1250,7 +1250,7 @@ Ba    D
 Ba    D
       1.240000E-02           1.000000E+00
 end
-basis "Fr_aug-cc-pvdz-x2c" 
+basis "Fr_aug-cc-pvdz-x2c" SPHERICAL 
 #basis SET: (177s,139p,66d,8f) -> [9s,8p,6d,1f]
 Fr    S
       5.696310E+07           2.098000E-03
@@ -1667,7 +1667,7 @@ Fr    F
       4.984043E+00           2.385640E-01
       2.217811E+00           5.910200E-02
 end
-basis "Ra_aug-cc-pvdz-x2c" 
+basis "Ra_aug-cc-pvdz-x2c" SPHERICAL 
 #basis SET: (177s,133p,66d,8f) -> [9s,8p,6d,1f]
 Ra    S
       5.676373E+07           2.239000E-03

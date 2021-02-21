@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # aug-cc-pwcvdz-pp-rifit version number 0
 # Description: aug-cc-pwCVDZ-PP-RIFIT
 # Role: rifit
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -46,11 +46,11 @@
 #     Auxiliary basis sets for density-fitting second-order Møller-Plesset
 #             perturbation theory: Weighted core-valence correlation
 #             consistent basis sets for the 4delements Y-Pd
-#     J. Comput. Chem., 34, 2168-2177 (2013)
+#     J. Comput. Chem. 34, 2168-2177 (2013)
 #     10.1002/jcc.23372
 # 
 # # 
-basis "Y_aug-cc-pwcvdz-pp-rifit" 
+basis "Y_aug-cc-pwcvdz-pp-rifit" SPHERICAL 
 #basis SET: (10s,10p,9d,9f,7g,4h) -> [10s,10p,9d,9f,7g,4h]
 Y    S
       7.0381800              1.0000000
@@ -151,7 +151,7 @@ Y    H
 Y    H
       0.1126090              1.0000000
 end
-basis "Zr_aug-cc-pwcvdz-pp-rifit" 
+basis "Zr_aug-cc-pwcvdz-pp-rifit" SPHERICAL 
 #basis SET: (10s,10p,9d,9f,7g,4h) -> [10s,10p,9d,9f,7g,4h]
 Zr    S
       7.5560500              1.0000000
@@ -252,7 +252,7 @@ Zr    H
 Zr    H
       0.1926820              1.0000000
 end
-basis "Nb_aug-cc-pwcvdz-pp-rifit" 
+basis "Nb_aug-cc-pwcvdz-pp-rifit" SPHERICAL 
 #basis SET: (10s,10p,9d,9f,7g,4h) -> [10s,10p,9d,9f,7g,4h]
 Nb    S
       8.6138600              1.0000000
@@ -353,7 +353,7 @@ Nb    H
 Nb    H
       0.2741690              1.0000000
 end
-basis "Mo_aug-cc-pwcvdz-pp-rifit" 
+basis "Mo_aug-cc-pwcvdz-pp-rifit" SPHERICAL 
 #basis SET: (10s,10p,9d,9f,7g,4h) -> [10s,10p,9d,9f,7g,4h]
 Mo    S
       9.2109700              1.0000000
@@ -454,7 +454,7 @@ Mo    H
 Mo    H
       0.3757910              1.0000000
 end
-basis "Tc_aug-cc-pwcvdz-pp-rifit" 
+basis "Tc_aug-cc-pwcvdz-pp-rifit" SPHERICAL 
 #basis SET: (10s,10p,9d,9f,7g,4h) -> [10s,10p,9d,9f,7g,4h]
 Tc    S
       9.8017100              1.0000000
@@ -555,7 +555,7 @@ Tc    H
 Tc    H
       0.4544760              1.0000000
 end
-basis "Ru_aug-cc-pwcvdz-pp-rifit" 
+basis "Ru_aug-cc-pwcvdz-pp-rifit" SPHERICAL 
 #basis SET: (10s,10p,9d,9f,7g,4h) -> [10s,10p,9d,9f,7g,4h]
 Ru    S
      10.1988000              1.0000000
@@ -656,7 +656,7 @@ Ru    H
 Ru    H
       0.5335170              1.0000000
 end
-basis "Rh_aug-cc-pwcvdz-pp-rifit" 
+basis "Rh_aug-cc-pwcvdz-pp-rifit" SPHERICAL 
 #basis SET: (10s,10p,9d,9f,7g,4h) -> [10s,10p,9d,9f,7g,4h]
 Rh    S
      10.8856000              1.0000000
@@ -757,7 +757,7 @@ Rh    H
 Rh    H
       0.6010140              1.0000000
 end
-basis "Pd_aug-cc-pwcvdz-pp-rifit" 
+basis "Pd_aug-cc-pwcvdz-pp-rifit" SPHERICAL 
 #basis SET: (10s,10p,9d,9f,7g,4h) -> [10s,10p,9d,9f,7g,4h]
 Pd    S
      11.4019000              1.0000000

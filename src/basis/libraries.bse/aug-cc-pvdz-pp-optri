@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # aug-cc-pvdz-pp-optri version number 0
 # Description: aug-cc-pVDZ-PP-OPTRI
 # Role: optri
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -44,11 +44,11 @@
 #             Containing Group 11 (Cu, Ag, Au) and 12 (Zn, Cd, Hg) Elements:
 #             Optimized Complementary Auxiliary Basis Sets for Valence and
 #             Core-Valence Basis Sets
-#     J. Chem. Theory Comput., 8, 518-526 (2012)
+#     J. Chem. Theory Comput. 8, 518-526 (2012)
 #     10.1021/ct200856f
 # 
 # # 
-basis "Cu_aug-cc-pvdz-pp-optri" 
+basis "Cu_aug-cc-pvdz-pp-optri" SPHERICAL 
 #basis SET: (6s,6p,6d,5f,4g,2h,1i) -> [6s,6p,6d,5f,4g,2h,1i]
 Cu    S
      13.6151500              1.0000000
@@ -111,7 +111,7 @@ Cu    H
 Cu    I
       5.4472130              1.0000000
 end
-basis "Zn_aug-cc-pvdz-pp-optri" 
+basis "Zn_aug-cc-pvdz-pp-optri" SPHERICAL 
 #basis SET: (6s,6p,6d,5f,4g,2h,1i) -> [6s,6p,6d,5f,4g,2h,1i]
 Zn    S
      13.7001900              1.0000000
@@ -174,7 +174,7 @@ Zn    H
 Zn    I
       6.4053200              1.0000000
 end
-basis "Ag_aug-cc-pvdz-pp-optri" 
+basis "Ag_aug-cc-pvdz-pp-optri" SPHERICAL 
 #basis SET: (6s,6p,6d,5f,4g,2h,1i) -> [6s,6p,6d,5f,4g,2h,1i]
 Ag    S
      12.6392100              1.0000000
@@ -237,7 +237,7 @@ Ag    H
 Ag    I
       2.2667700              1.0000000
 end
-basis "Cd_aug-cc-pvdz-pp-optri" 
+basis "Cd_aug-cc-pvdz-pp-optri" SPHERICAL 
 #basis SET: (6s,6p,6d,5f,4g,2h,1i) -> [6s,6p,6d,5f,4g,2h,1i]
 Cd    S
      12.8693200              1.0000000
@@ -300,7 +300,7 @@ Cd    H
 Cd    I
       2.5575350              1.0000000
 end
-basis "Au_aug-cc-pvdz-pp-optri" 
+basis "Au_aug-cc-pvdz-pp-optri" SPHERICAL 
 #basis SET: (6s,6p,6d,5f,4g,2h,1i) -> [6s,6p,6d,5f,4g,2h,1i]
 Au    S
      15.0545900              1.0000000
@@ -363,7 +363,7 @@ Au    H
 Au    I
       1.7224630              1.0000000
 end
-basis "Hg_aug-cc-pvdz-pp-optri" 
+basis "Hg_aug-cc-pvdz-pp-optri" SPHERICAL 
 #basis SET: (6s,6p,6d,5f,4g,2h,1i) -> [6s,6p,6d,5f,4g,2h,1i]
 Hg    S
      13.3739400              1.0000000

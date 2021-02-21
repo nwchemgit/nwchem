@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # sarc2-qzv-zora version number 0
 # Description: SARC2-QZV-ZORA
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -42,11 +42,11 @@
 #     Aravena, Daniel, Neese, Frank, Pantazis, Dimitrios A.
 #     Improved Segmented All-Electron Relativistically Contracted Basis Sets
 #             for the Lanthanides
-#     J. Chem. Theory Comput., 12, 1148-1156 (2016)
+#     J. Chem. Theory Comput. 12, 1148-1156 (2016)
 #     10.1021/acs.jctc.5b01048
 # 
 # # 
-basis "La_sarc2-qzv-zora" 
+basis "La_sarc2-qzv-zora" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 La    S
 3851889.1210000              0.000668781692
@@ -150,7 +150,7 @@ La    F
 La    F
       0.08887687             1.0000000
 end
-basis "Ce_sarc2-qzv-zora" 
+basis "Ce_sarc2-qzv-zora" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Ce    S
 4136438.9501500              0.000679301049
@@ -254,7 +254,7 @@ Ce    F
 Ce    F
       0.23504636             1.0000000
 end
-basis "Pr_sarc2-qzv-zora" 
+basis "Pr_sarc2-qzv-zora" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Pr    S
 4449443.7620000              0.000689008461
@@ -358,7 +358,7 @@ Pr    F
 Pr    F
       0.24966331             1.0000000
 end
-basis "Nd_sarc2-qzv-zora" 
+basis "Nd_sarc2-qzv-zora" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Nd    S
 4762448.5741900              0.000701579811
@@ -462,7 +462,7 @@ Nd    F
 Nd    F
       0.26755833             1.0000000
 end
-basis "Pm_sarc2-qzv-zora" 
+basis "Pm_sarc2-qzv-zora" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Pm    S
 5118728.4620000              0.00071188271
@@ -566,7 +566,7 @@ Pm    F
 Pm    F
       0.28376952             1.0000000
 end
-basis "Sm_sarc2-qzv-zora" 
+basis "Sm_sarc2-qzv-zora" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Sm    S
 5503685.8220000              0.000721863127
@@ -670,7 +670,7 @@ Sm    F
 Sm    F
       0.29838647             1.0000000
 end
-basis "Eu_sarc2-qzv-zora" 
+basis "Eu_sarc2-qzv-zora" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Eu    S
 5815282.9420000              0.000742252919
@@ -774,7 +774,7 @@ Eu    F
 Eu    F
       0.31300342             1.0000000
 end
-basis "Gd_sarc2-qzv-zora" 
+basis "Gd_sarc2-qzv-zora" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Gd    S
 6205316.7570000              0.000757272185
@@ -878,7 +878,7 @@ Gd    F
 Gd    F
       0.32762036             1.0000000
 end
-basis "Tb_sarc2-qzv-zora" 
+basis "Tb_sarc2-qzv-zora" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Tb    S
 6703767.5350000              0.000764940161
@@ -982,7 +982,7 @@ Tb    F
 Tb    F
       0.33249268             1.0000000
 end
-basis "Dy_sarc2-qzv-zora" 
+basis "Dy_sarc2-qzv-zora" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Dy    S
 7096822.6200000              0.000785329528
@@ -1086,7 +1086,7 @@ Dy    F
 Dy    F
       0.33249268             1.0000000
 end
-basis "Ho_sarc2-qzv-zora" 
+basis "Ho_sarc2-qzv-zora" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Ho    S
 7598294.6680000              0.000799136378
@@ -1190,7 +1190,7 @@ Ho    F
 Ho    F
       0.34223731             1.0000000
 end
-basis "Er_sarc2-qzv-zora" 
+basis "Er_sarc2-qzv-zora" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Er    S
 8122045.9220000              0.000813812339
@@ -1294,7 +1294,7 @@ Er    F
 Er    F
       0.34710963             1.0000000
 end
-basis "Tm_sarc2-qzv-zora" 
+basis "Tm_sarc2-qzv-zora" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Tm    S
 8656957.8800000              0.000831277524
@@ -1398,7 +1398,7 @@ Tm    F
 Tm    F
       0.36172658             1.0000000
 end
-basis "Yb_sarc2-qzv-zora" 
+basis "Yb_sarc2-qzv-zora" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Yb    S
 9269868.1610000              0.000845740823
@@ -1502,7 +1502,7 @@ Yb    F
 Yb    F
       0.36172658             1.0000000
 end
-basis "Lu_sarc2-qzv-zora" 
+basis "Lu_sarc2-qzv-zora" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Lu    S
 9882778.4410000              0.00086651621

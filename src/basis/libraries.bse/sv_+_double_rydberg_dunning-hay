@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # sv + double rydberg (dunning-hay) version number 0
 # Description: VDZ2R   Valence Double Zeta + Double Rydberg Functions
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -46,11 +46,11 @@
 #     Gaussian basis sets for molecular calculations
 #     in 'Methods of Electronic Structure Theory'
 #     ed. Henry F. Schaefer
-#     Modern Theoretical Chemistry, 3, 1-27 (1977)
+#     Modern Theoretical Chemistry 3, 1-27 (1977)
 #     10.1007/978-1-4757-0887-5
 # 
 # # 
-basis "B_sv + double rydberg (dunning-hay)" 
+basis "B_sv + double rydberg (dunning-hay)" SPHERICAL 
 #basis SET: (12s,7p,2d) -> [5s,4p,2d]
 B    S
    2788.0                    0.001288
@@ -85,7 +85,7 @@ B    D
 B    D
       0.003200               1.000000
 end
-basis "C_sv + double rydberg (dunning-hay)" 
+basis "C_sv + double rydberg (dunning-hay)" SPHERICAL 
 #basis SET: (12s,7p,2d) -> [5s,4p,2d]
 C    S
    4233.0                    0.001220
@@ -120,7 +120,7 @@ C    D
 C    D
       0.003200               1.000000
 end
-basis "N_sv + double rydberg (dunning-hay)" 
+basis "N_sv + double rydberg (dunning-hay)" SPHERICAL 
 #basis SET: (12s,7p,2d) -> [5s,4p,2d]
 N    S
    5909.0                    0.001190
@@ -155,7 +155,7 @@ N    D
 N    D
       0.003200               1.000000
 end
-basis "O_sv + double rydberg (dunning-hay)" 
+basis "O_sv + double rydberg (dunning-hay)" SPHERICAL 
 #basis SET: (12s,7p,2d) -> [5s,4p,2d]
 O    S
    7817.0                    0.001176
@@ -190,7 +190,7 @@ O    D
 O    D
       0.003200               1.000000
 end
-basis "F_sv + double rydberg (dunning-hay)" 
+basis "F_sv + double rydberg (dunning-hay)" SPHERICAL 
 #basis SET: (12s,7p,2d) -> [5s,4p,2d]
 F    S
    9995.0                    0.001166
@@ -225,7 +225,7 @@ F    D
 F    D
       0.003200               1.000000
 end
-basis "Ne_sv + double rydberg (dunning-hay)" 
+basis "Ne_sv + double rydberg (dunning-hay)" SPHERICAL 
 #basis SET: (12s,7p,2d) -> [5s,4p,2d]
 Ne    S
   12100.                     0.001200

@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # psbkjc version number 0
 # Description: Electrically polarized valence basis sets for the SBKJC effective core potential developed for calculations of dynamic polarizabilities and Raman intensities
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -52,7 +52,7 @@
 #     Stevens, Walter J., Basch, Harold, Krauss, Morris
 #     Compact effective potentials and efficient shared-exponent basis sets
 #             for the first- and second-row atoms
-#     J. Chem. Phys., 81, 6026-6033 (1984)
+#     J. Chem. Phys. 81, 6026-6033 (1984)
 #     10.1063/1.447604
 # 
 # stevens1992a
@@ -60,7 +60,7 @@
 #     Relativistic compact effective potentials and efficient, shared-
 #             exponent basis sets for the third-, fourth-, and fifth-row
 #             atoms
-#     Can. J. Chem., 70, 612-630 (1992)
+#     Can. J. Chem. 70, 612-630 (1992)
 #     10.1139/v92-085
 # 
 # vidal2012a
@@ -68,11 +68,11 @@
 #     Electrically polarized valence basis sets for the SBKJC effective core
 #             potential developed for calculations of dynamic
 #             polarizabilities and Raman intensities
-#     Theor. Chem. Acc., 131, 1111 (2012)
+#     Theor. Chem. Acc. 131, 1111 (2012)
 #     10.1007/s00214-012-1111-4
 # 
 # # 
-basis "C_psbkjc" 
+basis "C_psbkjc" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [3s,3p,2d]
 C    S
       4.2860000             -0.14722000
@@ -107,7 +107,7 @@ C S
 0       2.8149700              1.9292600
 2       8.1129600             14.8819900
 end
-basis "N_psbkjc" 
+basis "N_psbkjc" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [3s,3p,2d]
 N    S
       6.4030000             -0.13955000
@@ -142,7 +142,7 @@ N S
 0       3.8389500              1.9356500
 2      11.7324700             21.7335500
 end
-basis "O_psbkjc" 
+basis "O_psbkjc" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [3s,3p,2d]
 O    S
       8.5190000             -0.14551000
@@ -177,7 +177,7 @@ O S
 0       5.0534800              1.9606900
 2      15.9533300             29.1344200
 end
-basis "F_psbkjc" 
+basis "F_psbkjc" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [3s,3p,2d]
 F    S
      11.1200000             -0.14451000
@@ -212,7 +212,7 @@ F S
 0       6.6048800              2.0364900
 2      18.2409200             27.8627900
 end
-basis "Si_psbkjc" 
+basis "Si_psbkjc" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [3s,3p,2d]
 Si    S
       1.1670000             -0.32403000
@@ -250,7 +250,7 @@ Si P
 0       3.8258500              3.2034500
 2       1.8302600              9.8643800
 end
-basis "P_psbkjc" 
+basis "P_psbkjc" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [3s,3p,2d]
 P    S
       1.4590000             -0.34091000
@@ -288,7 +288,7 @@ P P
 0       4.9636800              3.2408400
 2       2.3186500             13.1077800
 end
-basis "S_psbkjc" 
+basis "S_psbkjc" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [3s,3p,2d]
 S    S
       1.8170000             -0.34015000
@@ -326,7 +326,7 @@ S P
 0       6.8854000              3.3570500
 2       2.9069000             17.5423700
 end
-basis "Cl_psbkjc" 
+basis "Cl_psbkjc" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [3s,3p,2d]
 Cl    S
       2.2250000             -0.33098000
@@ -364,7 +364,7 @@ Cl P
 0       8.9002900              3.4286000
 2       3.5264800             22.1525600
 end
-basis "Ge_psbkjc" 
+basis "Ge_psbkjc" SPHERICAL 
 #basis SET: (8s,8p,4d) -> [3s,3p,2d]
 Ge    S
       1.8340000              0.49386000
@@ -411,7 +411,7 @@ Ge D
 0       3.0697000              1.6236000
 2       0.8052500              3.2066000
 end
-basis "As_psbkjc" 
+basis "As_psbkjc" SPHERICAL 
 #basis SET: (8s,8p,4d) -> [3s,3p,2d]
 As    S
       2.7090000              0.12147900
@@ -458,7 +458,7 @@ As D
 0       1.1208600              2.2350800
 2       1.1214000              4.6072100
 end
-basis "Se_psbkjc" 
+basis "Se_psbkjc" SPHERICAL 
 #basis SET: (8s,8p,4d) -> [3s,3p,2d]
 Se    S
       3.7110000              0.05574400
@@ -505,7 +505,7 @@ Se D
 0       1.3829000              2.4000100
 2       1.4267100              6.5994800
 end
-basis "Br_psbkjc" 
+basis "Br_psbkjc" SPHERICAL 
 #basis SET: (8s,8p,4d) -> [3s,3p,2d]
 Br    S
       3.2760000              0.20057000
@@ -552,7 +552,7 @@ Br D
 0       1.7316800              1.7937500
 2       1.7324600             10.0466000
 end
-basis "Sn_psbkjc" 
+basis "Sn_psbkjc" SPHERICAL 
 #basis SET: (8s,8p,4d) -> [3s,3p,2d]
 Sn    S
       2.6040000              0.03104200
@@ -601,7 +601,7 @@ Sn D
 0       1.6543000              5.1024300
 2       0.6030100              5.2746600
 end
-basis "Sb_psbkjc" 
+basis "Sb_psbkjc" SPHERICAL 
 #basis SET: (8s,8p,4d) -> [3s,3p,2d]
 Sb    S
       0.9922000              0.69007600
@@ -651,7 +651,7 @@ Sb D
 0       2.4598100              9.2218200
 2       0.7641500              7.9212900
 end
-basis "Te_psbkjc" 
+basis "Te_psbkjc" SPHERICAL 
 #basis SET: (8s,8p,4d) -> [3s,3p,2d]
 Te    S
       2.3640000              0.08717900
@@ -701,7 +701,7 @@ Te D
 0       3.6661800             11.5466300
 2       0.9318900             11.2377600
 end
-basis "I_psbkjc" 
+basis "I_psbkjc" SPHERICAL 
 #basis SET: (8s,8p,4d) -> [3s,3p,2d]
 I    S
       2.6250000              0.07366000

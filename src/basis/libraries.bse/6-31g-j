@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # 6-31g-j version number 0
 # Description: 6-31G-J
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -42,11 +42,11 @@
 #     Kjær, Hanna, Sauer, Stephan P. A.
 #     Pople Style Basis Sets for the Calculation of NMR Spin-Spin Coupling
 #             Constants: the 6-31G-J and 6-311G-J Basis Sets
-#     J. Chem. Theory Comput., 7, 4070-4076 (2011)
+#     J. Chem. Theory Comput. 7, 4070-4076 (2011)
 #     10.1021/ct200546q
 # 
 # # 
-basis "H_6-31g-j" 
+basis "H_6-31g-j" SPHERICAL 
 #basis SET: (7s) -> [4s]
 H    S
   62666.02044953             0.00000075
@@ -60,8 +60,12 @@ H    S
 H    S
       0.16127780             1.00000000
 end
-basis "C_6-31g-j" 
+basis "C_6-31g-j" SPHERICAL 
 #basis SET: (13s,5p) -> [6s,2p]
+C    S
+     29.2101550              1.00000000
+C    S
+      7.8682724              1.00000000
 C    S
 10873731.5797600             0.00000010
  469897.3134792              0.00000447
@@ -71,10 +75,6 @@ C    S
     103.9486900              0.06861645
       9.2866630              0.43997543
       3.1639270              0.33485178
-C    S
-     29.2101550              1.00000000
-C    S
-      7.8682724              1.00000000
 C    S
       1.8812885              1.00000000
 C    S
@@ -89,8 +89,12 @@ C    P
 C    P
       0.1687144              1.00000000
 end
-basis "N_6-31g-j" 
+basis "N_6-31g-j" SPHERICAL 
 #basis SET: (13s,5p) -> [6s,2p]
+N    S
+     40.23433000             1.00000000
+N    S
+     11.62635800             1.00000000
 N    S
 14841521.1725200             0.00000010
  641872.0643321              0.00000447
@@ -100,10 +104,6 @@ N    S
     142.90210000             0.06816058
      12.82021000             0.43256438
       4.39043700             0.33295616
-N    S
-     40.23433000             1.00000000
-N    S
-     11.62635800             1.00000000
 N    S
       2.71628000             1.00000000
 N    S
@@ -118,8 +118,12 @@ N    P
 N    P
       0.21203130             1.00000000
 end
-basis "O_6-31g-j" 
+basis "O_6-31g-j" SPHERICAL 
 #basis SET: (13s,5p) -> [6s,2p]
+O    S
+     52.9645000              1.00000000
+O    S
+     15.5396160              1.00000000
 O    S
 19428536.0930000             0.00000010
  841553.7695902              0.00000447
@@ -129,10 +133,6 @@ O    S
     188.0469600              0.06800430
      16.8975700              0.43150790
       5.7996353              0.33140637
-O    S
-     52.9645000              1.00000000
-O    S
-     15.5396160              1.00000000
 O    S
       3.5999336              1.00000000
 O    S

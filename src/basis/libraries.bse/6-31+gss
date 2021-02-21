@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # 6-31+g_st__st_ version number 1
 # Description: 6-31G + diffuse functions on heavy atoms, polarization on all
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -118,7 +118,7 @@
 #     Binkley, J. Stephen, Pople, John A.
 #     Self-consistent molecular orbital methods. XIX. Split-valence
 #             Gaussian-type basis sets for beryllium
-#     J. Chem. Phys., 66, 879-880 (1977)
+#     J. Chem. Phys. 66, 879-880 (1977)
 #     10.1063/1.433929
 # 
 # clark1983a
@@ -127,21 +127,21 @@
 #     Efficient diffuse function-augmented basis sets for anion
 #             calculations. III. The 3-21+G basis set for first-row
 #             elements, Li-F
-#     J. Comput. Chem., 4, 294-301 (1983)
+#     J. Comput. Chem. 4, 294-301 (1983)
 #     10.1002/jcc.540040303
 # 
 # dill1975a
 #     Dill, James D., Pople, John A.
 #     Self-consistent molecular orbital methods. XV. Extended Gaussian-type
 #             basis sets for lithium, beryllium, and boron
-#     J. Chem. Phys., 62, 2921-2923 (1975)
+#     J. Chem. Phys. 62, 2921-2923 (1975)
 #     10.1063/1.430801
 # 
 # ditchfield1971a
 #     Ditchfield, R., Hehre, W. J., Pople, J. A.
 #     Self-Consistent Molecular-Orbital Methods. IX. An Extended Gaussian-
 #             Type Basis for Molecular-Orbital Studies of Organic Molecules
-#     J. Chem. Phys., 54, 724-728 (1971)
+#     J. Chem. Phys. 54, 724-728 (1971)
 #     10.1063/1.1674902
 # 
 # francl1982a
@@ -149,7 +149,7 @@
 #             Stephen, Gordon, Mark S., DeFrees, Douglas J., Pople, John A.
 #     Self-consistent molecular orbital methods. XXIII. A polarization-type
 #             basis set for second-row elements
-#     J. Chem. Phys., 77, 3654-3665 (1982)
+#     J. Chem. Phys. 77, 3654-3665 (1982)
 #     10.1063/1.444267
 # 
 # gaussian09e01
@@ -178,7 +178,7 @@
 #             J.
 #     The performance of the Becke-Lee-Yang-Parr (B-LYP) density functional
 #             theory with various basis sets
-#     Chem. Phys. Lett., 197, 499-505 (1992)
+#     Chem. Phys. Lett. 197, 499-505 (1992)
 #     10.1016/0009-2614(92)85807-m
 # 
 # gordon1982a
@@ -186,14 +186,14 @@
 #             J., Hehre, Warren J.
 #     Self-consistent molecular-orbital methods. 22. Small split-valence
 #             basis sets for second-row elements
-#     J. Am. Chem. Soc., 104, 2797-2803 (1982)
+#     J. Am. Chem. Soc. 104, 2797-2803 (1982)
 #     10.1021/ja00374a017
 # 
 # hariharan1973a
 #     Hariharan, P. C., Pople, J. A.
 #     The influence of polarization functions on molecular orbital
 #             hydrogenation energies
-#     Theor. Chim. Acta, 28, 213-222 (1973)
+#     Theor. Chim. Acta 28, 213-222 (1973)
 #     10.1007/bf00533485
 # 
 # hehre1972a
@@ -201,7 +201,7 @@
 #     Self-Consistent Molecular Orbital Methods. XII. Further Extensions of
 #             Gaussian-Type Basis Sets for Use in Molecular Orbital Studies
 #             of Organic Molecules
-#     J. Chem. Phys., 56, 2257-2261 (1972)
+#     J. Chem. Phys. 56, 2257-2261 (1972)
 #     10.1063/1.1677527
 # 
 # spitznagel1987a
@@ -209,11 +209,11 @@
 #             Hehre, Warren J.
 #     An evaluation of the performance of diffuse function-augmented basis
 #             sets for second row elements, Na-Cl
-#     J. Comput. Chem., 8, 1109-1116 (1987)
+#     J. Comput. Chem. 8, 1109-1116 (1987)
 #     10.1002/jcc.540080807
 # 
 # # 
-basis "H_6-31+g_st__st_" 
+basis "H_6-31+g_st__st_" SPHERICAL 
 #basis SET: (4s,1p) -> [2s,1p]
 H    S
       0.1873113696E+02       0.3349460434E-01
@@ -224,7 +224,7 @@ H    S
 H    P
       0.1100000000E+01       1.0000000
 end
-basis "He_6-31+g_st__st_" 
+basis "He_6-31+g_st__st_" SPHERICAL 
 #basis SET: (4s,1p) -> [2s,1p]
 He    S
       0.3842163400E+02       0.4013973935E-01
@@ -235,7 +235,7 @@ He    S
 He    P
       0.1100000000E+01       1.0000000
 end
-basis "Li_6-31+g_st__st_" 
+basis "Li_6-31+g_st__st_" CARTESIAN 
 #basis SET: (11s,5p,1d) -> [4s,3p,1d]
 Li    S
       0.6424189150E+03       0.2142607810E-02
@@ -255,7 +255,7 @@ Li    SP
 Li    D
       0.2000000000E+00       1.0000000
 end
-basis "Be_6-31+g_st__st_" 
+basis "Be_6-31+g_st__st_" CARTESIAN 
 #basis SET: (11s,5p,1d) -> [4s,3p,1d]
 Be    S
       0.1264585690E+04       0.1944757590E-02
@@ -275,7 +275,7 @@ Be    SP
 Be    D
       0.4000000000E+00       1.0000000
 end
-basis "B_6-31+g_st__st_" 
+basis "B_6-31+g_st__st_" CARTESIAN 
 #basis SET: (11s,5p,1d) -> [4s,3p,1d]
 B    S
       0.2068882250E+04       0.1866274590E-02
@@ -295,7 +295,7 @@ B    SP
 B    D
       0.6000000000E+00       1.0000000
 end
-basis "C_6-31+g_st__st_" 
+basis "C_6-31+g_st__st_" CARTESIAN 
 #basis SET: (11s,5p,1d) -> [4s,3p,1d]
 C    S
       0.3047524880E+04       0.1834737132E-02
@@ -315,7 +315,7 @@ C    SP
 C    D
       0.8000000000E+00       1.0000000
 end
-basis "N_6-31+g_st__st_" 
+basis "N_6-31+g_st__st_" CARTESIAN 
 #basis SET: (11s,5p,1d) -> [4s,3p,1d]
 N    S
       0.4173511460E+04       0.1834772160E-02
@@ -335,7 +335,7 @@ N    SP
 N    D
       0.8000000000E+00       1.0000000
 end
-basis "O_6-31+g_st__st_" 
+basis "O_6-31+g_st__st_" CARTESIAN 
 #basis SET: (11s,5p,1d) -> [4s,3p,1d]
 O    S
       0.5484671660E+04       0.1831074430E-02
@@ -355,7 +355,7 @@ O    SP
 O    D
       0.8000000000E+00       1.0000000
 end
-basis "F_6-31+g_st__st_" 
+basis "F_6-31+g_st__st_" CARTESIAN 
 #basis SET: (11s,5p,1d) -> [4s,3p,1d]
 F    S
       0.7001713090E+04       0.1819616901E-02
@@ -375,7 +375,7 @@ F    SP
 F    D
       0.8000000000E+00       1.0000000
 end
-basis "Ne_6-31+g_st__st_" 
+basis "Ne_6-31+g_st__st_" CARTESIAN 
 #basis SET: (11s,5p,1d) -> [4s,3p,1d]
 Ne    S
       0.8425851530E+04       0.1884348050E-02
@@ -395,7 +395,7 @@ Ne    SP
 Ne    D
       0.8000000000E+00       1.0000000
 end
-basis "Na_6-31+g_st__st_" 
+basis "Na_6-31+g_st__st_" CARTESIAN 
 #basis SET: (17s,11p,1d) -> [5s,4p,1d]
 Na    S
       0.9993200000E+04       0.1937659277E-02
@@ -422,7 +422,7 @@ Na    SP
 Na    D
       0.1750000000E+00       1.0000000
 end
-basis "Mg_6-31+g_st__st_" 
+basis "Mg_6-31+g_st__st_" CARTESIAN 
 #basis SET: (17s,11p,1d) -> [5s,4p,1d]
 Mg    S
       0.1172280000E+05       0.1977829317E-02
@@ -449,7 +449,7 @@ Mg    SP
 Mg    D
       0.1750000000E+00       1.0000000
 end
-basis "Al_6-31+g_st__st_" 
+basis "Al_6-31+g_st__st_" CARTESIAN 
 #basis SET: (17s,11p,1d) -> [5s,4p,1d]
 Al    S
       0.1398310000E+05       0.1942669947E-02
@@ -476,7 +476,7 @@ Al    SP
 Al    D
       0.3250000000E+00       1.0000000
 end
-basis "Si_6-31+g_st__st_" 
+basis "Si_6-31+g_st__st_" CARTESIAN 
 #basis SET: (17s,11p,1d) -> [5s,4p,1d]
 Si    S
       0.1611590000E+05       0.1959480216E-02
@@ -503,7 +503,7 @@ Si    SP
 Si    D
       0.4500000000E+00       1.0000000
 end
-basis "P_6-31+g_st__st_" 
+basis "P_6-31+g_st__st_" CARTESIAN 
 #basis SET: (17s,11p,1d) -> [5s,4p,1d]
 P    S
       0.1941330000E+05       0.1851598923E-02
@@ -530,7 +530,7 @@ P    SP
 P    D
       0.5500000000E+00       1.0000000
 end
-basis "S_6-31+g_st__st_" 
+basis "S_6-31+g_st__st_" CARTESIAN 
 #basis SET: (17s,11p,1d) -> [5s,4p,1d]
 S    S
       0.2191710000E+05       0.1869240849E-02
@@ -557,7 +557,7 @@ S    SP
 S    D
       0.6500000000E+00       1.0000000
 end
-basis "Cl_6-31+g_st__st_" 
+basis "Cl_6-31+g_st__st_" CARTESIAN 
 #basis SET: (17s,11p,1d) -> [5s,4p,1d]
 Cl    S
       0.2518010000E+05       0.1832959848E-02
@@ -584,7 +584,7 @@ Cl    SP
 Cl    D
       0.7500000000E+00       1.0000000
 end
-basis "Ar_6-31+g_st__st_" 
+basis "Ar_6-31+g_st__st_" CARTESIAN 
 #basis SET: (17s,11p,1d) -> [5s,4p,1d]
 Ar    S
       0.2834830000E+05       0.1825260192E-02

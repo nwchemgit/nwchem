@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # dzp + rydberg (dunning-hay) version number 0
 # Description: DZP1R   Double Zeta + Polarization on All Atoms
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -79,7 +79,7 @@
 #     Gaussian Basis Functions for Use in Molecular Calculations. I.
 #             Contraction of (9s5p) Atomic Basis Sets for the First-Row
 #             Atoms
-#     J. Chem. Phys., 53, 2823-2833 (1970)
+#     J. Chem. Phys. 53, 2823-2833 (1970)
 #     10.1063/1.1674408
 # 
 # dunning1977b
@@ -87,7 +87,7 @@
 #     Gaussian basis sets for molecular calculations
 #     in 'Methods of Electronic Structure Theory'
 #     ed. Henry F. Schaefer
-#     Modern Theoretical Chemistry, 3, 1-27 (1977)
+#     Modern Theoretical Chemistry 3, 1-27 (1977)
 #     10.1007/978-1-4757-0887-5
 # 
 # gaussian09e01
@@ -115,11 +115,11 @@
 #     Magnusson, Eric, Schaefer, Henry F.
 #     Multiple d-type basis functions for molecules containing second row
 #             atoms
-#     J. Chem. Phys., 83, 5721-5726 (1985)
+#     J. Chem. Phys. 83, 5721-5726 (1985)
 #     10.1063/1.449647
 # 
 # # 
-basis "B_dzp + rydberg (dunning-hay)" 
+basis "B_dzp + rydberg (dunning-hay)" SPHERICAL 
 #basis SET: (10s,6p,2d) -> [5s,3p,2d]
 B    S
    2788.41                   0.002122
@@ -150,7 +150,7 @@ B    D
 B    D
       0.015000               1.000000
 end
-basis "C_dzp + rydberg (dunning-hay)" 
+basis "C_dzp + rydberg (dunning-hay)" SPHERICAL 
 #basis SET: (10s,6p,2d) -> [5s,3p,2d]
 C    S
    4232.61                   0.002029
@@ -181,7 +181,7 @@ C    D
 C    D
       0.015000               1.000000
 end
-basis "N_dzp + rydberg (dunning-hay)" 
+basis "N_dzp + rydberg (dunning-hay)" SPHERICAL 
 #basis SET: (10s,6p,2d) -> [5s,3p,2d]
 N    S
    5909.44                   0.002004
@@ -212,7 +212,7 @@ N    D
 N    D
       0.015000               1.000000
 end
-basis "O_dzp + rydberg (dunning-hay)" 
+basis "O_dzp + rydberg (dunning-hay)" SPHERICAL 
 #basis SET: (10s,6p,2d) -> [5s,3p,2d]
 O    S
    7816.54                   0.002031
@@ -243,7 +243,7 @@ O    D
 O    D
       0.015000               1.000000
 end
-basis "F_dzp + rydberg (dunning-hay)" 
+basis "F_dzp + rydberg (dunning-hay)" SPHERICAL 
 #basis SET: (10s,6p,2d) -> [5s,3p,2d]
 F    S
    9994.79                   0.002017
@@ -274,15 +274,14 @@ F    D
 F    D
       0.015000               1.000000
 end
-basis "Ne_dzp + rydberg (dunning-hay)" 
-#basis SET: (11s,6p,2d) -> [5s,3p,2d]
+basis "Ne_dzp + rydberg (dunning-hay)" SPHERICAL 
+#basis SET: (10s,6p,2d) -> [5s,3p,2d]
 Ne    S
   12100.                     0.001200
    1821.0                    0.009092
     432.80                   0.041305
     132.50                   0.137867
      43.770                  0.362433
-     14.910                  0.472247
       5.1270                 0.130035
 Ne    S
      14.910                  1.000000
@@ -306,7 +305,7 @@ Ne    D
 Ne    D
       0.015000               1.000000
 end
-basis "Al_dzp + rydberg (dunning-hay)" 
+basis "Al_dzp + rydberg (dunning-hay)" SPHERICAL 
 #basis SET: (13s,9p,2d) -> [7s,5p,2d]
 Al    S
   23490.00                   0.002509
@@ -347,7 +346,7 @@ Al    D
 Al    D
       0.01500                1.000000
 end
-basis "Si_dzp + rydberg (dunning-hay)" 
+basis "Si_dzp + rydberg (dunning-hay)" SPHERICAL 
 #basis SET: (13s,9p,2d) -> [7s,5p,2d]
 Si    S
   26740.00                   0.002583
@@ -388,7 +387,7 @@ Si    D
 Si    D
       0.01500                1.000000
 end
-basis "P_dzp + rydberg (dunning-hay)" 
+basis "P_dzp + rydberg (dunning-hay)" SPHERICAL 
 #basis SET: (13s,9p,2d) -> [7s,5p,2d]
 P    S
   30630.00                   0.002619
@@ -429,7 +428,7 @@ P    D
 P    D
       0.01500                1.000000
 end
-basis "S_dzp + rydberg (dunning-hay)" 
+basis "S_dzp + rydberg (dunning-hay)" SPHERICAL 
 #basis SET: (13s,9p,2d) -> [7s,5p,2d]
 S    S
   35710.00                   0.002565
@@ -470,7 +469,7 @@ S    D
 S    D
       0.01500                1.000000
 end
-basis "Cl_dzp + rydberg (dunning-hay)" 
+basis "Cl_dzp + rydberg (dunning-hay)" SPHERICAL 
 #basis SET: (13s,9p,2d) -> [7s,5p,2d]
 Cl    S
   40850.00                   0.002532

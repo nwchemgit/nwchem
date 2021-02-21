@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # ccj-pv5z version number 0
 # Description: ccJ-pV5Z
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -42,11 +42,11 @@
 #     Benedikt, Udo, Auer, Alexander A., Jensen, Frank
 #     Optimization of augmentation functions for correlated calculations of
 #             spin-spin coupling constants and related properties
-#     J. Chem. Phys., 129, 064111 (2008)
+#     J. Chem. Phys. 129, 064111 (2008)
 #     10.1063/1.2962973
 # 
 # # 
-basis "H_ccj-pv5z" 
+basis "H_ccj-pv5z" SPHERICAL 
 #basis SET: (10s,5p,4d,2f,1g) -> [8s,5p,4d,2f,1g]
 H    S
  106128.0000000              0.0251887
@@ -91,7 +91,7 @@ H    F
 H    G
       2.3580000              1.0000000
 end
-basis "He_ccj-pv5z" 
+basis "He_ccj-pv5z" SPHERICAL 
 #basis SET: (10s,5p,4d,2f,1g) -> [8s,5p,4d,2f,1g]
 He    S
  302280.0000000              0.0251774
@@ -136,7 +136,7 @@ He    F
 He    G
       3.4300000              1.0000000
 end
-basis "B_ccj-pv5z" 
+basis "B_ccj-pv5z" SPHERICAL 
 #basis SET: (16s,9p,5d,3f,2g,1h) -> [11s,7p,5d,3f,2g,1h]
 B    S
 19522360.0000000             0.0014057
@@ -204,7 +204,7 @@ B    G
 B    H
       0.8340000              1.0000000
 end
-basis "C_ccj-pv5z" 
+basis "C_ccj-pv5z" SPHERICAL 
 #basis SET: (16s,9p,5d,3f,2g,1h) -> [11s,7p,5d,3f,2g,1h]
 C    S
 27676220.0000000             0.0014055
@@ -272,7 +272,7 @@ C    G
 C    H
       1.2590000              1.0000000
 end
-basis "N_ccj-pv5z" 
+basis "N_ccj-pv5z" SPHERICAL 
 #basis SET: (16s,9p,5d,3f,2g,1h) -> [11s,7p,5d,3f,2g,1h]
 N    S
 36951200.0000000             0.0014052
@@ -340,7 +340,7 @@ N    G
 N    H
       1.7680000              1.0000000
 end
-basis "O_ccj-pv5z" 
+basis "O_ccj-pv5z" SPHERICAL 
 #basis SET: (16s,9p,5d,3f,2g,1h) -> [11s,7p,5d,3f,2g,1h]
 O    S
 46961200.0000000             0.0014053
@@ -408,7 +408,7 @@ O    G
 O    H
       2.3190000              1.0000000
 end
-basis "F_ccj-pv5z" 
+basis "F_ccj-pv5z" SPHERICAL 
 #basis SET: (16s,9p,5d,3f,2g,1h) -> [11s,7p,5d,3f,2g,1h]
 F    S
 60460400.0000000             0.0014054
@@ -476,7 +476,7 @@ F    G
 F    H
       2.9950000              1.0000000
 end
-basis "Ne_ccj-pv5z" 
+basis "Ne_ccj-pv5z" SPHERICAL 
 #basis SET: (16s,9p,5d,3f,2g,1h) -> [11s,7p,5d,3f,2g,1h]
 Ne    S
 75132200.0000000             0.0014053

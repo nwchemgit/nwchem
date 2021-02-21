@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # cc-pv6z version number 1
 # Description: cc-pV6Z
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -59,14 +59,14 @@
 #     Gaussian basis sets for use in correlated molecular calculations.
 #             VIII. Standard and augmented sextuple zeta correlation
 #             consistent basis sets for aluminum through argon
-#     Int. J. Quantum Chem., 76, 205-221 (2000)
+#     Int. J. Quantum Chem. 76, 205-221 (2000)
 #     10.1002/(SICI)1097-461X(2000)76:2<205::AID-QUA10>3.0.CO;2-C
 # 
 # peterson1994a
 #     Peterson, Kirk A., Woon, David E., Dunning, Jr, Thom H.
 #     Benchmark calculations with correlated molecular wave functions. IV.
 #             The classical barrier height of the H+H2→H2+H reaction
-#     J. Chem. Phys., 100, 7410-7415 (1994)
+#     J. Chem. Phys. 100, 7410-7415 (1994)
 #     10.1063/1.466884
 # 
 # prascher2011a
@@ -75,7 +75,7 @@
 #     Gaussian basis sets for use in correlated molecular calculations. VII.
 #             Valence, core-valence, and scalar relativistic basis sets for
 #             Li, Be, Na, and Mg
-#     Theor. Chem. Acc., 128, 69-82 (2011)
+#     Theor. Chem. Acc. 128, 69-82 (2011)
 #     10.1007/s00214-010-0764-0
 # 
 # wilson1996a
@@ -83,7 +83,7 @@
 #     Gaussian basis sets for use in correlated molecular calculations. VI.
 #             Sextuple zeta correlation consistent basis sets for boron
 #             through neon
-#     J. Mol. Struc-THEOCHEM, 388, 339-349 (1996)
+#     J. Mol. Struc-THEOCHEM 388, 339-349 (1996)
 #     10.1016/s0166-1280(96)80048-0
 # 
 # woonXXXXa
@@ -93,7 +93,7 @@
 #             reference 48)
 # 
 # # 
-basis "H_cc-pv6z" 
+basis "H_cc-pv6z" SPHERICAL 
 #basis SET: (10s,5p,4d,3f,2g,1h) -> [6s,5p,4d,3f,2g,1h]
 H    S
       1.776776E+03           4.400000E-05
@@ -142,7 +142,7 @@ H    G
 H    H
       2.653000E+00           1.0000000
 end
-basis "He_cc-pv6z" 
+basis "He_cc-pv6z" SPHERICAL 
 #basis SET: (10s,5p,4d,3f,2g,1h) -> [6s,5p,4d,3f,2g,1h]
 He    S
       4.785000E+03           6.000000E-07
@@ -191,7 +191,7 @@ He    G
 He    H
       4.159000E+00           1.0000000
 end
-basis "Be_cc-pv6z" 
+basis "Be_cc-pv6z" SPHERICAL 
 #basis SET: (27s,9p,5d,4f,3g,2h,1i) -> [7s,6p,5d,4f,3g,2h,1i]
 Be    S
       1.265123E+05           6.000000E-06
@@ -273,7 +273,7 @@ Be    H
 Be    I
       6.007000E-01           1.0000000
 end
-basis "B_cc-pv6z" 
+basis "B_cc-pv6z" SPHERICAL 
 #basis SET: (27s,10p,5d,4f,3g,2h,1i) -> [7s,6p,5d,4f,3g,2h,1i]
 B    S
       2.104000E+05           5.830000E-06
@@ -356,7 +356,7 @@ B    H
 B    I
       9.847000E-01           1.0000000
 end
-basis "C_cc-pv6z" 
+basis "C_cc-pv6z" SPHERICAL 
 #basis SET: (27s,10p,5d,4f,3g,2h,1i) -> [7s,6p,5d,4f,3g,2h,1i]
 C    S
       3.121000E+05           5.670000E-06
@@ -439,7 +439,7 @@ C    H
 C    I
       1.491000E+00           1.0000000
 end
-basis "N_cc-pv6z" 
+basis "N_cc-pv6z" SPHERICAL 
 #basis SET: (27s,10p,5d,4f,3g,2h,1i) -> [7s,6p,5d,4f,3g,2h,1i]
 N    S
       4.323000E+05           5.590000E-06
@@ -522,7 +522,7 @@ N    H
 N    I
       2.099000E+00           1.0000000
 end
-basis "O_cc-pv6z" 
+basis "O_cc-pv6z" SPHERICAL 
 #basis SET: (27s,10p,5d,4f,3g,2h,1i) -> [7s,6p,5d,4f,3g,2h,1i]
 O    S
       5.708000E+05           5.550000E-06
@@ -605,7 +605,7 @@ O    H
 O    I
       2.773000E+00           1.0000000
 end
-basis "F_cc-pv6z" 
+basis "F_cc-pv6z" SPHERICAL 
 #basis SET: (27s,10p,5d,4f,3g,2h,1i) -> [7s,6p,5d,4f,3g,2h,1i]
 F    S
       7.235000E+05           5.560000E-06
@@ -688,7 +688,7 @@ F    H
 F    I
       3.581000E+00           1.0000000
 end
-basis "Ne_cc-pv6z" 
+basis "Ne_cc-pv6z" SPHERICAL 
 #basis SET: (27s,10p,5d,4f,3g,2h,1i) -> [7s,6p,5d,4f,3g,2h,1i]
 Ne    S
       9.024000E+05           5.510000E-06
@@ -771,7 +771,7 @@ Ne    H
 Ne    I
       4.489000E+00           1.0000000
 end
-basis "Al_cc-pv6z" 
+basis "Al_cc-pv6z" SPHERICAL 
 #basis SET: (53s,23p,5d,4f,3g,2h,1i) -> [8s,7p,5d,4f,3g,2h,1i]
 Al    S
       3.652000E+06           1.900000E-06
@@ -895,7 +895,7 @@ Al    H
 Al    I
       5.302000E-01           1.0000000
 end
-basis "Si_cc-pv6z" 
+basis "Si_cc-pv6z" SPHERICAL 
 #basis SET: (53s,23p,5d,4f,3g,2h,1i) -> [8s,7p,5d,4f,3g,2h,1i]
 Si    S
       4.465000E+06           1.700000E-06
@@ -1019,7 +1019,7 @@ Si    H
 Si    I
       6.946000E-01           1.0000000
 end
-basis "P_cc-pv6z" 
+basis "P_cc-pv6z" SPHERICAL 
 #basis SET: (53s,23p,5d,4f,3g,2h,1i) -> [8s,7p,5d,4f,3g,2h,1i]
 P    S
       5.384000E+06           1.600000E-06
@@ -1143,7 +1143,7 @@ P    H
 P    I
       8.890000E-01           1.0000000
 end
-basis "S_cc-pv6z" 
+basis "S_cc-pv6z" SPHERICAL 
 #basis SET: (53s,23p,5d,4f,3g,2h,1i) -> [8s,7p,5d,4f,3g,2h,1i]
 S    S
       6.297000E+06           1.600000E-06
@@ -1267,7 +1267,7 @@ S    H
 S    I
       1.040900E+00           1.0000000
 end
-basis "Cl_cc-pv6z" 
+basis "Cl_cc-pv6z" SPHERICAL 
 #basis SET: (53s,23p,5d,4f,3g,2h,1i) -> [8s,7p,5d,4f,3g,2h,1i]
 Cl    S
       7.733000E+06           1.434740E-06
@@ -1391,7 +1391,7 @@ Cl    H
 Cl    I
       1.257200E+00           1.0000000
 end
-basis "Ar_cc-pv6z" 
+basis "Ar_cc-pv6z" SPHERICAL 
 #basis SET: (53s,23p,5d,4f,3g,2h,1i) -> [8s,7p,5d,4f,3g,2h,1i]
 Ar    S
       9.149000E+06           1.300000E-06

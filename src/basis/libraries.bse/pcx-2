@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # pcx-2 version number 1
 # Description: Jensen pcX basis set optimized for core-spectroscopy
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -43,11 +43,11 @@
 #     Probing Basis Set Requirements for Calculating Core Ionization and
 #             Core Excitation Spectroscopy by the Δ Self-Consistent-Field
 #             Approach
-#     J. Chem. Theory Comput., 15, 325-337 (2019)
+#     J. Chem. Theory Comput. 15, 325-337 (2019)
 #     10.1021/acs.jctc.8b01071
 # 
 # # 
-basis "Li_pcx-2" 
+basis "Li_pcx-2" SPHERICAL 
 #basis SET: (10s,4p,1d) -> [10s,4p,1d]
 Li    S
       0.214674E+04           1.0000000
@@ -80,7 +80,7 @@ Li    P
 Li    D
       0.318434E+00           1.0000000
 end
-basis "Be_pcx-2" 
+basis "Be_pcx-2" SPHERICAL 
 #basis SET: (10s,4p,1d) -> [10s,4p,1d]
 Be    S
       0.400157E+04           1.0000000
@@ -113,7 +113,7 @@ Be    P
 Be    D
       0.253052E+00           1.0000000
 end
-basis "B_pcx-2" 
+basis "B_pcx-2" SPHERICAL 
 #basis SET: (10s,6p,2d,1f) -> [10s,6p,2d,1f]
 B    S
       0.640449E+04           1.0000000
@@ -154,7 +154,7 @@ B    D
 B    F
       0.909120E+00           1.0000000
 end
-basis "C_pcx-2" 
+basis "C_pcx-2" SPHERICAL 
 #basis SET: (10s,6p,2d,1f) -> [10s,6p,2d,1f]
 C    S
       0.933941E+04           1.0000000
@@ -195,7 +195,7 @@ C    D
 C    F
       0.984378E+00           1.0000000
 end
-basis "N_pcx-2" 
+basis "N_pcx-2" SPHERICAL 
 #basis SET: (10s,6p,2d,1f) -> [10s,6p,2d,1f]
 N    S
       0.128103E+05           1.0000000
@@ -236,7 +236,7 @@ N    D
 N    F
       0.105925E+01           1.0000000
 end
-basis "O_pcx-2" 
+basis "O_pcx-2" SPHERICAL 
 #basis SET: (10s,6p,2d,1f) -> [10s,6p,2d,1f]
 O    S
       0.168149E+05           1.0000000
@@ -277,7 +277,7 @@ O    D
 O    F
       0.114891E+01           1.0000000
 end
-basis "F_pcx-2" 
+basis "F_pcx-2" SPHERICAL 
 #basis SET: (10s,6p,2d,1f) -> [10s,6p,2d,1f]
 F    S
       0.213716E+05           1.0000000
@@ -318,7 +318,7 @@ F    D
 F    F
       0.124900E+01           1.0000000
 end
-basis "Ne_pcx-2" 
+basis "Ne_pcx-2" SPHERICAL 
 #basis SET: (10s,6p,2d,1f) -> [10s,6p,2d,1f]
 Ne    S
       0.266819E+05           1.0000000
@@ -359,7 +359,7 @@ Ne    D
 Ne    F
       0.135308E+01           1.0000000
 end
-basis "Na_pcx-2" 
+basis "Na_pcx-2" SPHERICAL 
 #basis SET: (13s,9p,1d) -> [13s,9p,1d]
 Na    S
       0.722735E+05           1.0000000
@@ -408,7 +408,7 @@ Na    P
 Na    D
       0.268328E+00           1.0000000
 end
-basis "Mg_pcx-2" 
+basis "Mg_pcx-2" SPHERICAL 
 #basis SET: (13s,9p,1d) -> [13s,9p,1d]
 Mg    S
       0.898924E+05           1.0000000
@@ -457,7 +457,7 @@ Mg    P
 Mg    D
       0.112497E+00           1.0000000
 end
-basis "Al_pcx-2" 
+basis "Al_pcx-2" SPHERICAL 
 #basis SET: (13s,10p,2d,1f) -> [13s,10p,2d,1f]
 Al    S
       0.109419E+06           1.0000000
@@ -512,7 +512,7 @@ Al    D
 Al    F
       0.509117E+00           1.0000000
 end
-basis "Si_pcx-2" 
+basis "Si_pcx-2" SPHERICAL 
 #basis SET: (13s,10p,2d,1f) -> [13s,10p,2d,1f]
 Si    S
       0.132240E+06           1.0000000
@@ -567,7 +567,7 @@ Si    D
 Si    F
       0.569210E+00           1.0000000
 end
-basis "P_pcx-2" 
+basis "P_pcx-2" SPHERICAL 
 #basis SET: (13s,10p,2d,1f) -> [13s,10p,2d,1f]
 P    S
       0.158310E+06           1.0000000
@@ -622,7 +622,7 @@ P    D
 P    F
       0.629285E+00           1.0000000
 end
-basis "S_pcx-2" 
+basis "S_pcx-2" SPHERICAL 
 #basis SET: (13s,10p,2d,1f) -> [13s,10p,2d,1f]
 S    S
       0.186023E+06           1.0000000
@@ -677,7 +677,7 @@ S    D
 S    F
       0.689348E+00           1.0000000
 end
-basis "Cl_pcx-2" 
+basis "Cl_pcx-2" SPHERICAL 
 #basis SET: (13s,10p,2d,1f) -> [13s,10p,2d,1f]
 Cl    S
       0.216264E+06           1.0000000
@@ -732,7 +732,7 @@ Cl    D
 Cl    F
       0.749400E+00           1.0000000
 end
-basis "Ar_pcx-2" 
+basis "Ar_pcx-2" SPHERICAL 
 #basis SET: (13s,10p,2d,1f) -> [13s,10p,2d,1f]
 Ar    S
       0.249975E+06           1.0000000

@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # sap_grasp_large version number 1
 # Description: sap_grasp_large
 # Role: guess
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -43,11 +43,11 @@
 #     Efficient implementation of the superposition of atomic potentials
 #             initial guess for electronic structure calculations in
 #             Gaussian basis sets
-#     J. Chem. Phys., 152, 144105 (2020)
+#     J. Chem. Phys. 152, 144105 (2020)
 #     10.1063/5.0004046
 # 
 # # 
-basis "H_sap_grasp_large" 
+basis "H_sap_grasp_large" SPHERICAL 
 #basis SET: (5s) -> [1s]
 H    S
       3.214199700417737e-01 -1.010471765790612e+00
@@ -56,7 +56,7 @@ H    S
       4.268788542106363e-02  3.603426650181518e-02
       2.177953337809369e-02 -2.768309573178840e-01
 end
-basis "He_sap_grasp_large" 
+basis "He_sap_grasp_large" SPHERICAL 
 #basis SET: (7s) -> [1s]
 He    S
       1.234766956912478e+00 -1.542051848253664e+00
@@ -67,7 +67,7 @@ He    S
       4.268788542106363e-02  1.057401714033404e+00
       2.177953337809369e-02 -7.946572421811879e-01
 end
-basis "Li_sap_grasp_large" 
+basis "Li_sap_grasp_large" SPHERICAL 
 #basis SET: (10s) -> [1s]
 Li    S
       4.743480741674971e+00 -1.700222983582535e+00
@@ -81,7 +81,7 @@ Li    S
       2.177953337809369e-02  6.779797381495882e-01
       1.111200682555800e-02 -1.142912642170813e+00
 end
-basis "Be_sap_grasp_large" 
+basis "Be_sap_grasp_large" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Be    S
       9.297222253682943e+00 -1.966352464149168e+00
@@ -96,7 +96,7 @@ Be    S
       2.177953337809369e-02 -7.079296918163891e-01
       1.111200682555800e-02 -2.089845539685484e-01
 end
-basis "B_sap_grasp_large" 
+basis "B_sap_grasp_large" SPHERICAL 
 #basis SET: (11s) -> [1s]
 B    S
       1.822255561721856e+01 -1.474789634066838e+00
@@ -111,7 +111,7 @@ B    S
       4.268788542106363e-02  6.457223838006030e-01
       2.177953337809369e-02 -9.909523547503341e-01
 end
-basis "C_sap_grasp_large" 
+basis "C_sap_grasp_large" SPHERICAL 
 #basis SET: (11s) -> [1s]
 C    S
       1.822255561721856e+01 -2.350944806930784e+00
@@ -126,7 +126,7 @@ C    S
       4.268788542106363e-02 -1.525496856047539e-01
       2.177953337809369e-02 -4.911950206951587e-01
 end
-basis "N_sap_grasp_large" 
+basis "N_sap_grasp_large" SPHERICAL 
 #basis SET: (12s) -> [1s]
 N    S
       3.571620900974838e+01 -1.501441200860427e+00
@@ -142,7 +142,7 @@ N    S
       4.268788542106363e-02 -5.016366942145396e-01
       2.177953337809369e-02 -2.154240264353575e-01
 end
-basis "O_sap_grasp_large" 
+basis "O_sap_grasp_large" SPHERICAL 
 #basis SET: (11s) -> [1s]
 O    S
       3.571620900974838e+01 -2.017608483500226e+00
@@ -157,7 +157,7 @@ O    S
       8.366825542528468e-02  4.487607834598748e-01
       4.268788542106363e-02 -8.921893237093173e-01
 end
-basis "F_sap_grasp_large" 
+basis "F_sap_grasp_large" SPHERICAL 
 #basis SET: (11s) -> [1s]
 F    S
       3.571620900974838e+01 -2.368882985305390e+00
@@ -172,7 +172,7 @@ F    S
       8.366825542528468e-02 -1.009193374193273e-01
       4.268788542106363e-02 -5.511644882062683e-01
 end
-basis "Ne_sap_grasp_large" 
+basis "Ne_sap_grasp_large" SPHERICAL 
 #basis SET: (12s) -> [1s]
 Ne    S
       7.000376965910681e+01 -1.461395066555269e+00
@@ -188,7 +188,7 @@ Ne    S
       8.366825542528468e-02 -4.659958068514243e-01
       4.268788542106363e-02 -3.170178640539234e-01
 end
-basis "Na_sap_grasp_large" 
+basis "Na_sap_grasp_large" SPHERICAL 
 #basis SET: (15s) -> [1s]
 Na    S
       7.000376965910681e+01 -1.659894193635409e+00
@@ -207,7 +207,7 @@ Na    S
       1.111200682555800e-02 -7.138972315733554e-01
       5.669391237529597e-03 -1.769279767650005e-01
 end
-basis "Mg_sap_grasp_large" 
+basis "Mg_sap_grasp_large" SPHERICAL 
 #basis SET: (14s) -> [1s]
 Mg    S
       7.000376965910681e+01 -2.204400818020076e+00
@@ -225,7 +225,7 @@ Mg    S
       2.177953337809369e-02 -5.564820160507225e-01
       1.111200682555800e-02 -5.521919361963228e-01
 end
-basis "Al_sap_grasp_large" 
+basis "Al_sap_grasp_large" SPHERICAL 
 #basis SET: (14s) -> [1s]
 Al    S
       7.000376965910681e+01 -2.501389990662574e+00
@@ -243,7 +243,7 @@ Al    S
       2.177953337809369e-02  1.534258693573065e-02
       1.111200682555800e-02 -7.432550235389499e-01
 end
-basis "Si_sap_grasp_large" 
+basis "Si_sap_grasp_large" SPHERICAL 
 #basis SET: (15s) -> [1s]
 Si    S
       1.372073885318493e+02 -1.574514427873510e+00
@@ -262,7 +262,7 @@ Si    S
       2.177953337809369e-02 -6.888436131412163e-01
       1.111200682555800e-02 -2.910631037557323e-01
 end
-basis "P_sap_grasp_large" 
+basis "P_sap_grasp_large" SPHERICAL 
 #basis SET: (14s) -> [1s]
 P    S
       1.372073885318493e+02 -1.704725528092240e+00
@@ -280,7 +280,7 @@ P    S
       4.268788542106363e-02  3.793128442484885e-01
       2.177953337809369e-02 -1.103411071511800e+00
 end
-basis "S_sap_grasp_large" 
+basis "S_sap_grasp_large" SPHERICAL 
 #basis SET: (14s) -> [1s]
 S    S
       1.372073885318493e+02 -1.731204926683859e+00
@@ -298,7 +298,7 @@ S    S
       4.268788542106363e-02 -5.267266356968321e-01
       2.177953337809369e-02 -5.995984979599598e-01
 end
-basis "Cl_sap_grasp_large" 
+basis "Cl_sap_grasp_large" SPHERICAL 
 #basis SET: (14s) -> [1s]
 Cl    S
       1.372073885318493e+02 -1.874188717738434e+00
@@ -316,7 +316,7 @@ Cl    S
       4.268788542106363e-02 -7.903950966428965e-01
       2.177953337809369e-02 -3.197155128655140e-01
 end
-basis "Ar_sap_grasp_large" 
+basis "Ar_sap_grasp_large" SPHERICAL 
 #basis SET: (14s) -> [1s]
 Ar    S
       1.372073885318493e+02 -2.290322491557163e+00
@@ -334,7 +334,7 @@ Ar    S
       4.268788542106363e-02 -7.508997903496493e-01
       2.177953337809369e-02 -1.702398215056746e-01
 end
-basis "K_sap_grasp_large" 
+basis "K_sap_grasp_large" SPHERICAL 
 #basis SET: (16s) -> [1s]
 K    S
       1.372073885318493e+02 -2.828510606232157e+00
@@ -354,7 +354,7 @@ K    S
       1.111200682555800e-02 -7.795268360350747e-01
       5.669391237529597e-03 -5.061010302088107e-01
 end
-basis "Ca_sap_grasp_large" 
+basis "Ca_sap_grasp_large" SPHERICAL 
 #basis SET: (16s) -> [1s]
 Ca    S
       1.372073885318493e+02 -3.728710287818103e+00
@@ -374,7 +374,7 @@ Ca    S
       1.111200682555800e-02 -8.141986197151709e-01
       5.669391237529597e-03 -1.616400569764664e-01
 end
-basis "Sc_sap_grasp_large" 
+basis "Sc_sap_grasp_large" SPHERICAL 
 #basis SET: (16s) -> [1s]
 Sc    S
       1.372073885318493e+02 -4.349798416238627e+00
@@ -394,7 +394,7 @@ Sc    S
       1.111200682555800e-02 -7.292732068453915e-01
       5.669391237529597e-03 -9.906429676630069e-02
 end
-basis "Ti_sap_grasp_large" 
+basis "Ti_sap_grasp_large" SPHERICAL 
 #basis SET: (16s) -> [1s]
 Ti    S
       2.689264815224247e+02 -1.502184195254813e+00
@@ -414,7 +414,7 @@ Ti    S
       2.177953337809369e-02 -1.892772209248506e-01
       1.111200682555800e-02 -9.349339072505245e-01
 end
-basis "V_sap_grasp_large" 
+basis "V_sap_grasp_large" SPHERICAL 
 #basis SET: (16s) -> [1s]
 V    S
       2.689264815224247e+02 -1.916392909930437e+00
@@ -434,7 +434,7 @@ V    S
       2.177953337809369e-02 -3.792278332402930e-01
       1.111200682555800e-02 -7.744611915113637e-01
 end
-basis "Cr_sap_grasp_large" 
+basis "Cr_sap_grasp_large" SPHERICAL 
 #basis SET: (16s) -> [1s]
 Cr    S
       2.689264815224247e+02 -2.377819609602739e+00
@@ -454,7 +454,7 @@ Cr    S
       2.177953337809369e-02 -5.065896147862077e-01
       1.111200682555800e-02 -6.504627172762412e-01
 end
-basis "Mn_sap_grasp_large" 
+basis "Mn_sap_grasp_large" SPHERICAL 
 #basis SET: (16s) -> [1s]
 Mn    S
       2.689264815224247e+02 -2.831863704879652e+00
@@ -474,7 +474,7 @@ Mn    S
       2.177953337809369e-02 -5.957888223347254e-01
       1.111200682555800e-02 -5.509906185470754e-01
 end
-basis "Fe_sap_grasp_large" 
+basis "Fe_sap_grasp_large" SPHERICAL 
 #basis SET: (16s) -> [1s]
 Fe    S
       2.689264815224247e+02 -3.244257797246973e+00
@@ -494,7 +494,7 @@ Fe    S
       2.177953337809369e-02 -6.589131766231731e-01
       1.111200682555800e-02 -4.693626330772531e-01
 end
-basis "Co_sap_grasp_large" 
+basis "Co_sap_grasp_large" SPHERICAL 
 #basis SET: (16s) -> [1s]
 Co    S
       2.689264815224247e+02 -3.601940619679226e+00
@@ -514,7 +514,7 @@ Co    S
       2.177953337809369e-02 -7.025014146929607e-01
       1.111200682555800e-02 -4.014413796467124e-01
 end
-basis "Ni_sap_grasp_large" 
+basis "Ni_sap_grasp_large" SPHERICAL 
 #basis SET: (16s) -> [1s]
 Ni    S
       2.689264815224247e+02 -3.908584425866138e+00
@@ -534,7 +534,7 @@ Ni    S
       2.177953337809369e-02 -7.305140013340861e-01
       1.111200682555800e-02 -3.444425407215022e-01
 end
-basis "Cu_sap_grasp_large" 
+basis "Cu_sap_grasp_large" SPHERICAL 
 #basis SET: (16s) -> [1s]
 Cu    S
       2.689264815224247e+02 -4.178187157558568e+00
@@ -554,7 +554,7 @@ Cu    S
       2.177953337809369e-02 -7.457287202705629e-01
       1.111200682555800e-02 -2.963538898547995e-01
 end
-basis "Zn_sap_grasp_large" 
+basis "Zn_sap_grasp_large" SPHERICAL 
 #basis SET: (16s) -> [1s]
 Zn    S
       2.689264815224247e+02 -4.429075206040579e+00
@@ -574,7 +574,7 @@ Zn    S
       2.177953337809369e-02 -7.503825472085737e-01
       1.111200682555800e-02 -2.556311265288969e-01
 end
-basis "Ga_sap_grasp_large" 
+basis "Ga_sap_grasp_large" SPHERICAL 
 #basis SET: (17s) -> [1s]
 Ga    S
       5.270959037839524e+02 -2.057381906255614e+00
@@ -595,7 +595,7 @@ Ga    S
       2.177953337809369e-02  1.356233658152632e-01
       1.111200682555800e-02 -7.670983592979610e-01
 end
-basis "Ge_sap_grasp_large" 
+basis "Ge_sap_grasp_large" SPHERICAL 
 #basis SET: (17s) -> [1s]
 Ge    S
       5.270959037839524e+02 -2.339999020899995e+00
@@ -616,7 +616,7 @@ Ge    S
       2.177953337809369e-02 -6.416793233365752e-01
       1.111200682555800e-02 -3.509710244397866e-01
 end
-basis "As_sap_grasp_large" 
+basis "As_sap_grasp_large" SPHERICAL 
 #basis SET: (17s) -> [1s]
 As    S
       5.270959037839524e+02 -2.663430608903582e+00
@@ -637,7 +637,7 @@ As    S
       2.177953337809369e-02 -7.542159733129665e-01
       1.111200682555800e-02 -1.488612157045281e-01
 end
-basis "Se_sap_grasp_large" 
+basis "Se_sap_grasp_large" SPHERICAL 
 #basis SET: (16s) -> [1s]
 Se    S
       5.270959037839524e+02 -2.954781380452914e+00
@@ -657,7 +657,7 @@ Se    S
       4.268788542106363e-02 -1.040734580601566e-01
       2.177953337809369e-02 -8.871487629076000e-01
 end
-basis "Br_sap_grasp_large" 
+basis "Br_sap_grasp_large" SPHERICAL 
 #basis SET: (16s) -> [1s]
 Br    S
       5.270959037839524e+02 -3.192565033488791e+00
@@ -677,7 +677,7 @@ Br    S
       4.268788542106363e-02 -6.411268793162890e-01
       2.177953337809369e-02 -5.486280537588755e-01
 end
-basis "Kr_sap_grasp_large" 
+basis "Kr_sap_grasp_large" SPHERICAL 
 #basis SET: (16s) -> [1s]
 Kr    S
       5.270959037839524e+02 -3.338853951412602e+00
@@ -697,7 +697,7 @@ Kr    S
       4.268788542106363e-02 -8.707952729309909e-01
       2.177953337809369e-02 -3.283461655519204e-01
 end
-basis "Rb_sap_grasp_large" 
+basis "Rb_sap_grasp_large" SPHERICAL 
 #basis SET: (18s) -> [1s]
 Rb    S
       5.270959037839524e+02 -3.384985518474423e+00
@@ -719,7 +719,7 @@ Rb    S
       1.111200682555800e-02 -7.024354051682167e-01
       5.669391237529597e-03 -6.521556336592766e-01
 end
-basis "Sr_sap_grasp_large" 
+basis "Sr_sap_grasp_large" SPHERICAL 
 #basis SET: (18s) -> [1s]
 Sr    S
       5.270959037839524e+02 -3.469867828636779e+00
@@ -741,7 +741,7 @@ Sr    S
       1.111200682555800e-02 -1.053561371634714e+00
       5.669391237529597e-03 -2.334263133961940e-01
 end
-basis "Y_sap_grasp_large" 
+basis "Y_sap_grasp_large" SPHERICAL 
 #basis SET: (18s) -> [1s]
 Y    S
       5.270959037839524e+02 -3.671330407014466e+00
@@ -763,7 +763,7 @@ Y    S
       1.111200682555800e-02 -8.754830574034713e-01
       5.669391237529597e-03 -1.312989145080792e-01
 end
-basis "Zr_sap_grasp_large" 
+basis "Zr_sap_grasp_large" SPHERICAL 
 #basis SET: (18s) -> [1s]
 Zr    S
       1.033107971416546e+03 -1.967536792944884e+00
@@ -785,7 +785,7 @@ Zr    S
       2.177953337809369e-02  3.574929322348908e-02
       1.111200682555800e-02 -1.120668148592813e+00
 end
-basis "Nb_sap_grasp_large" 
+basis "Nb_sap_grasp_large" SPHERICAL 
 #basis SET: (18s) -> [1s]
 Nb    S
       1.033107971416546e+03 -2.126451929318137e+00
@@ -807,7 +807,7 @@ Nb    S
       2.177953337809369e-02 -2.673973504570313e-01
       1.111200682555800e-02 -9.131355040735798e-01
 end
-basis "Mo_sap_grasp_large" 
+basis "Mo_sap_grasp_large" SPHERICAL 
 #basis SET: (18s) -> [1s]
 Mo    S
       1.033107971416546e+03 -2.256332015254884e+00
@@ -829,7 +829,7 @@ Mo    S
       2.177953337809369e-02  1.021984926774167e-01
       1.111200682555800e-02 -9.176382572186412e-01
 end
-basis "Tc_sap_grasp_large" 
+basis "Tc_sap_grasp_large" SPHERICAL 
 #basis SET: (18s) -> [1s]
 Tc    S
       1.033107971416546e+03 -2.333052573390887e+00
@@ -851,7 +851,7 @@ Tc    S
       2.177953337809369e-02 -3.807423013495281e-02
       1.111200682555800e-02 -8.178034264565213e-01
 end
-basis "Ru_sap_grasp_large" 
+basis "Ru_sap_grasp_large" SPHERICAL 
 #basis SET: (18s) -> [1s]
 Ru    S
       1.033107971416546e+03 -2.389768856199225e+00
@@ -873,7 +873,7 @@ Ru    S
       2.177953337809369e-02 -1.494948977488093e-01
       1.111200682555800e-02 -7.375681912235450e-01
 end
-basis "Rh_sap_grasp_large" 
+basis "Rh_sap_grasp_large" SPHERICAL 
 #basis SET: (18s) -> [1s]
 Rh    S
       1.033107971416546e+03 -2.445607168512652e+00
@@ -895,7 +895,7 @@ Rh    S
       2.177953337809369e-02 -2.350446992204525e-01
       1.111200682555800e-02 -6.715072607912589e-01
 end
-basis "Pd_sap_grasp_large" 
+basis "Pd_sap_grasp_large" SPHERICAL 
 #basis SET: (17s) -> [1s]
 Pd    S
       1.033107971416546e+03 -2.539580847194884e+00
@@ -916,7 +916,7 @@ Pd    S
       4.268788542106363e-02  4.254395463503897e-01
       2.177953337809369e-02 -8.815623579430394e-01
 end
-basis "Ag_sap_grasp_large" 
+basis "Ag_sap_grasp_large" SPHERICAL 
 #basis SET: (18s) -> [1s]
 Ag    S
       1.033107971416546e+03 -2.622978118699393e+00
@@ -938,7 +938,7 @@ Ag    S
       2.177953337809369e-02 -3.443711752188392e-01
       1.111200682555800e-02 -5.693446420627879e-01
 end
-basis "Cd_sap_grasp_large" 
+basis "Cd_sap_grasp_large" SPHERICAL 
 #basis SET: (18s) -> [1s]
 Cd    S
       1.033107971416546e+03 -2.767355907926685e+00
@@ -960,7 +960,7 @@ Cd    S
       2.177953337809369e-02 -7.776871343958192e-01
       1.111200682555800e-02 -3.474597042222740e-01
 end
-basis "In_sap_grasp_large" 
+basis "In_sap_grasp_large" SPHERICAL 
 #basis SET: (19s) -> [1s]
 In    S
       1.033107971416546e+03 -2.964680122749996e+00
@@ -983,7 +983,7 @@ In    S
       1.111200682555800e-02 -5.925206369138323e-01
       5.669391237529597e-03 -9.548113377240952e-02
 end
-basis "Sn_sap_grasp_large" 
+basis "Sn_sap_grasp_large" SPHERICAL 
 #basis SET: (18s) -> [1s]
 Sn    S
       1.033107971416546e+03 -3.223199337691767e+00
@@ -1005,7 +1005,7 @@ Sn    S
       2.177953337809369e-02 -4.858781096991152e-01
       1.111200682555800e-02 -5.523742554069031e-01
 end
-basis "Sb_sap_grasp_large" 
+basis "Sb_sap_grasp_large" SPHERICAL 
 #basis SET: (18s) -> [1s]
 Sb    S
       1.033107971416546e+03 -3.530045116014662e+00
@@ -1027,7 +1027,7 @@ Sb    S
       2.177953337809369e-02 -7.619069255888462e-01
       1.111200682555800e-02 -2.941219143831404e-01
 end
-basis "Te_sap_grasp_large" 
+basis "Te_sap_grasp_large" SPHERICAL 
 #basis SET: (18s) -> [1s]
 Te    S
       1.033107971416546e+03 -3.828778092705761e+00
@@ -1049,7 +1049,7 @@ Te    S
       2.177953337809369e-02 -7.620816244743764e-01
       1.111200682555800e-02 -1.515881952800555e-01
 end
-basis "I_sap_grasp_large" 
+basis "I_sap_grasp_large" SPHERICAL 
 #basis SET: (18s) -> [1s]
 I    S
       2.024891623976431e+03 -1.625244781156653e+00
@@ -1071,7 +1071,7 @@ I    S
       4.268788542106363e-02 -2.890834953868762e-01
       2.177953337809369e-02 -9.840515522373607e-01
 end
-basis "Xe_sap_grasp_large" 
+basis "Xe_sap_grasp_large" SPHERICAL 
 #basis SET: (17s) -> [1s]
 Xe    S
       1.033107971416546e+03 -4.333276202858542e+00
@@ -1092,7 +1092,7 @@ Xe    S
       4.268788542106363e-02 -7.033424922265112e-01
       2.177953337809369e-02 -6.822437190421624e-01
 end
-basis "Cs_sap_grasp_large" 
+basis "Cs_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Cs    S
       2.024891623976431e+03 -1.878075488231843e+00
@@ -1116,7 +1116,7 @@ Cs    S
       1.111200682555800e-02 -6.919079675571993e-02
       5.669391237529597e-03 -1.013546748174122e+00
 end
-basis "Ba_sap_grasp_large" 
+basis "Ba_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Ba    S
       2.024891623976431e+03 -1.894704738078872e+00
@@ -1140,7 +1140,7 @@ Ba    S
       1.111200682555800e-02 -1.217668961617164e+00
       5.669391237529597e-03 -4.063155853364151e-01
 end
-basis "La_sap_grasp_large" 
+basis "La_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 La    S
       2.024891623976431e+03 -2.040096880038618e+00
@@ -1164,7 +1164,7 @@ La    S
       1.111200682555800e-02 -1.112185273552313e+00
       5.669391237529597e-03 -2.511005461128661e-01
 end
-basis "Ce_sap_grasp_large" 
+basis "Ce_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Ce    S
       2.024891623976431e+03 -2.164005363869364e+00
@@ -1188,7 +1188,7 @@ Ce    S
       1.111200682555800e-02 -1.083247406873852e+00
       5.669391237529597e-03 -2.296091864845948e-01
 end
-basis "Pr_sap_grasp_large" 
+basis "Pr_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Pr    S
       2.024891623976431e+03 -2.268349640478846e+00
@@ -1212,7 +1212,7 @@ Pr    S
       1.111200682555800e-02 -1.165813633357175e+00
       5.669391237529597e-03 -3.098003160557710e-01
 end
-basis "Nd_sap_grasp_large" 
+basis "Nd_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Nd    S
       2.024891623976431e+03 -2.427979212370701e+00
@@ -1236,7 +1236,7 @@ Nd    S
       1.111200682555800e-02 -1.140921480138786e+00
       5.669391237529597e-03 -2.881404571235180e-01
 end
-basis "Pm_sap_grasp_large" 
+basis "Pm_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Pm    S
       2.024891623976431e+03 -2.603017929111957e+00
@@ -1260,7 +1260,7 @@ Pm    S
       1.111200682555800e-02 -1.113718289067037e+00
       5.669391237529597e-03 -2.690226847917074e-01
 end
-basis "Sm_sap_grasp_large" 
+basis "Sm_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Sm    S
       2.024891623976431e+03 -2.790259573928779e+00
@@ -1284,7 +1284,7 @@ Sm    S
       1.111200682555800e-02 -1.085127644822933e+00
       5.669391237529597e-03 -2.518799312238116e-01
 end
-basis "Eu_sap_grasp_large" 
+basis "Eu_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Eu    S
       2.024891623976431e+03 -2.986228853784269e+00
@@ -1308,7 +1308,7 @@ Eu    S
       1.111200682555800e-02 -1.055902808322571e+00
       5.669391237529597e-03 -2.363048007537145e-01
 end
-basis "Gd_sap_grasp_large" 
+basis "Gd_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Gd    S
       2.024891623976431e+03 -3.187371841020649e+00
@@ -1332,7 +1332,7 @@ Gd    S
       1.111200682555800e-02 -1.026636386988685e+00
       5.669391237529597e-03 -2.220035289938096e-01
 end
-basis "Tb_sap_grasp_large" 
+basis "Tb_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Tb    S
       2.024891623976431e+03 -3.390550468655420e+00
@@ -1356,7 +1356,7 @@ Tb    S
       1.111200682555800e-02 -9.977601581485942e-01
       5.669391237529597e-03 -2.087484216754092e-01
 end
-basis "Dy_sap_grasp_large" 
+basis "Dy_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Dy    S
       2.024891623976431e+03 -3.593043919492629e+00
@@ -1380,7 +1380,7 @@ Dy    S
       1.111200682555800e-02 -9.695809399709105e-01
       5.669391237529597e-03 -1.963704581576167e-01
 end
-basis "Ho_sap_grasp_large" 
+basis "Ho_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Ho    S
       2.024891623976431e+03 -3.792808290847461e+00
@@ -1404,7 +1404,7 @@ Ho    S
       1.111200682555800e-02 -9.422923936508596e-01
       5.669391237529597e-03 -1.847362555126892e-01
 end
-basis "Er_sap_grasp_large" 
+basis "Er_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Er    S
       2.024891623976431e+03 -3.988340496100136e+00
@@ -1428,7 +1428,7 @@ Er    S
       1.111200682555800e-02 -9.160102142486721e-01
       5.669391237529597e-03 -1.737486286874628e-01
 end
-basis "Tm_sap_grasp_large" 
+basis "Tm_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Tm    S
       2.024891623976431e+03 -4.178931957852910e+00
@@ -1452,7 +1452,7 @@ Tm    S
       1.111200682555800e-02 -8.907719636335969e-01
       5.669391237529597e-03 -1.633254081971245e-01
 end
-basis "Yb_sap_grasp_large" 
+basis "Yb_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Yb    S
       2.024891623976431e+03 -4.364301986541250e+00
@@ -1476,7 +1476,7 @@ Yb    S
       1.111200682555800e-02 -8.665776760317385e-01
       5.669391237529597e-03 -1.534107047918951e-01
 end
-basis "Lu_sap_grasp_large" 
+basis "Lu_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Lu    S
       2.024891623976431e+03 -4.571297079965007e+00
@@ -1500,7 +1500,7 @@ Lu    S
       1.111200682555800e-02 -6.896046763285995e-01
       5.669391237529597e-03 -8.773285552160814e-02
 end
-basis "Hf_sap_grasp_large" 
+basis "Hf_sap_grasp_large" SPHERICAL 
 #basis SET: (19s) -> [1s]
 Hf    S
       2.024891623976431e+03 -4.738724922455731e+00
@@ -1523,7 +1523,7 @@ Hf    S
       2.177953337809369e-02 -5.615308070555329e-01
       1.111200682555800e-02 -7.666499668994220e-01
 end
-basis "Ta_sap_grasp_large" 
+basis "Ta_sap_grasp_large" SPHERICAL 
 #basis SET: (19s) -> [1s]
 Ta    S
       2.024891623976431e+03 -4.881211001120391e+00
@@ -1546,7 +1546,7 @@ Ta    S
       2.177953337809369e-02 -7.091815046733245e-01
       1.111200682555800e-02 -5.943146852805512e-01
 end
-basis "W_sap_grasp_large" 
+basis "W_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 W    S
       3.968787582993804e+03 -2.238582841382595e+00
@@ -1570,7 +1570,7 @@ W    S
       2.177953337809369e-02 -7.694692814256996e-01
       1.111200682555800e-02 -4.787098271481227e-01
 end
-basis "Re_sap_grasp_large" 
+basis "Re_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Re    S
       3.968787582993804e+03 -2.405013312236406e+00
@@ -1594,7 +1594,7 @@ Re    S
       2.177953337809369e-02 -7.922906965250149e-01
       1.111200682555800e-02 -3.945601021405309e-01
 end
-basis "Os_sap_grasp_large" 
+basis "Os_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Os    S
       3.968787582993804e+03 -2.570960302633466e+00
@@ -1618,7 +1618,7 @@ Os    S
       2.177953337809369e-02 -7.993778605014086e-01
       1.111200682555800e-02 -3.295042614627164e-01
 end
-basis "Ir_sap_grasp_large" 
+basis "Ir_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Ir    S
       3.968787582993804e+03 -2.734706872870447e+00
@@ -1642,7 +1642,7 @@ Ir    S
       2.177953337809369e-02 -7.968313284218311e-01
       1.111200682555800e-02 -2.775318270723801e-01
 end
-basis "Pt_sap_grasp_large" 
+basis "Pt_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Pt    S
       3.968787582993804e+03 -2.894533106096787e+00
@@ -1666,7 +1666,7 @@ Pt    S
       2.177953337809369e-02 -7.874247280415148e-01
       1.111200682555800e-02 -2.351207875472028e-01
 end
-basis "Au_sap_grasp_large" 
+basis "Au_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Au    S
       3.968787582993804e+03 -3.049101888318546e+00
@@ -1690,7 +1690,7 @@ Au    S
       2.177953337809369e-02 -7.728282314492390e-01
       1.111200682555800e-02 -1.999817476607859e-01
 end
-basis "Hg_sap_grasp_large" 
+basis "Hg_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Hg    S
       3.968787582993804e+03 -3.197631420509424e+00
@@ -1714,7 +1714,7 @@ Hg    S
       2.177953337809369e-02 -7.541891825385392e-01
       1.111200682555800e-02 -1.705473759793676e-01
 end
-basis "Tl_sap_grasp_large" 
+basis "Tl_sap_grasp_large" SPHERICAL 
 #basis SET: (21s) -> [1s]
 Tl    S
       3.968787582993804e+03 -3.338572609340190e+00
@@ -1739,7 +1739,7 @@ Tl    S
       1.111200682555800e-02 -5.945054256590083e-01
       5.669391237529597e-03 -1.429172705538804e-01
 end
-basis "Pb_sap_grasp_large" 
+basis "Pb_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Pb    S
       3.968787582993804e+03 -3.473133936960949e+00
@@ -1763,7 +1763,7 @@ Pb    S
       2.177953337809369e-02 -2.196438147220761e-01
       1.111200682555800e-02 -7.252591520373244e-01
 end
-basis "Bi_sap_grasp_large" 
+basis "Bi_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Bi    S
       3.968787582993804e+03 -3.626667085452937e+00
@@ -1787,7 +1787,7 @@ Bi    S
       2.177953337809369e-02 -6.931806750362739e-01
       1.111200682555800e-02 -4.264150697272271e-01
 end
-basis "Po_sap_grasp_large" 
+basis "Po_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Po    S
       3.968787582993804e+03 -3.783150494913571e+00
@@ -1811,7 +1811,7 @@ Po    S
       2.177953337809369e-02 -8.124417301733047e-01
       1.111200682555800e-02 -2.499840547097847e-01
 end
-basis "At_sap_grasp_large" 
+basis "At_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 At    S
       3.968787582993804e+03 -3.934813235013280e+00
@@ -1835,7 +1835,7 @@ At    S
       2.177953337809369e-02 -7.855897657573223e-01
       1.111200682555800e-02 -1.439927969477139e-01
 end
-basis "Rn_sap_grasp_large" 
+basis "Rn_sap_grasp_large" SPHERICAL 
 #basis SET: (20s) -> [1s]
 Rn    S
       3.968787582993804e+03 -4.076144843798829e+00
@@ -1859,7 +1859,7 @@ Rn    S
       2.177953337809369e-02 -7.058818549849093e-01
       1.111200682555800e-02 -7.908572352607735e-02
 end
-basis "Fr_sap_grasp_large" 
+basis "Fr_sap_grasp_large" SPHERICAL 
 #basis SET: (22s) -> [1s]
 Fr    S
       7.778823662667854e+03 -1.843235258696950e+00
@@ -1885,7 +1885,7 @@ Fr    S
       1.111200682555800e-02 -2.351627146126702e-01
       5.669391237529597e-03 -8.873109045816818e-01
 end
-basis "Ra_sap_grasp_large" 
+basis "Ra_sap_grasp_large" SPHERICAL 
 #basis SET: (22s) -> [1s]
 Ra    S
       7.778823662667854e+03 -1.929590616608039e+00
@@ -1911,7 +1911,7 @@ Ra    S
       1.111200682555800e-02 -1.199582973844372e+00
       5.669391237529597e-03 -3.748682037694380e-01
 end
-basis "Ac_sap_grasp_large" 
+basis "Ac_sap_grasp_large" SPHERICAL 
 #basis SET: (21s) -> [1s]
 Ac    S
       3.968787582993804e+03 -4.521226733369986e+00
@@ -1936,7 +1936,7 @@ Ac    S
       1.111200682555800e-02 -1.099034810322337e+00
       5.669391237529597e-03 -1.974486347462516e-01
 end
-basis "Th_sap_grasp_large" 
+basis "Th_sap_grasp_large" SPHERICAL 
 #basis SET: (22s) -> [1s]
 Th    S
       7.778823662667854e+03 -2.234487976937089e+00
@@ -1962,7 +1962,7 @@ Th    S
       1.111200682555800e-02 -9.059325858252123e-01
       5.669391237529597e-03 -1.107552915927954e-01
 end
-basis "Pa_sap_grasp_large" 
+basis "Pa_sap_grasp_large" SPHERICAL 
 #basis SET: (22s) -> [1s]
 Pa    S
       7.778823662667854e+03 -2.358979109994834e+00
@@ -1988,7 +1988,7 @@ Pa    S
       1.111200682555800e-02 -1.004018821869977e+00
       5.669391237529597e-03 -1.500783330120612e-01
 end
-basis "U_sap_grasp_large" 
+basis "U_sap_grasp_large" SPHERICAL 
 #basis SET: (22s) -> [1s]
 U    S
       7.778823662667854e+03 -2.498134279856458e+00
@@ -2014,7 +2014,7 @@ U    S
       1.111200682555800e-02 -9.660844290629029e-01
       5.669391237529597e-03 -1.353319024201483e-01
 end
-basis "Np_sap_grasp_large" 
+basis "Np_sap_grasp_large" SPHERICAL 
 #basis SET: (22s) -> [1s]
 Np    S
       7.778823662667854e+03 -2.636865711858263e+00
@@ -2040,7 +2040,7 @@ Np    S
       1.111200682555800e-02 -9.289832437643781e-01
       5.669391237529597e-03 -1.234615391877014e-01
 end
-basis "Pu_sap_grasp_large" 
+basis "Pu_sap_grasp_large" SPHERICAL 
 #basis SET: (22s) -> [1s]
 Pu    S
       7.778823662667854e+03 -2.758240098250099e+00
@@ -2066,7 +2066,7 @@ Pu    S
       1.111200682555800e-02 -1.040704732644372e+00
       5.669391237529597e-03 -1.808282653801143e-01
 end
-basis "Am_sap_grasp_large" 
+basis "Am_sap_grasp_large" SPHERICAL 
 #basis SET: (22s) -> [1s]
 Am    S
       7.778823662667854e+03 -2.897290100168902e+00
@@ -2092,7 +2092,7 @@ Am    S
       1.111200682555800e-02 -1.014199413824826e+00
       5.669391237529597e-03 -1.673922973568551e-01
 end
-basis "Cm_sap_grasp_large" 
+basis "Cm_sap_grasp_large" SPHERICAL 
 #basis SET: (22s) -> [1s]
 Cm    S
       7.778823662667854e+03 -3.038544966781046e+00
@@ -2118,7 +2118,7 @@ Cm    S
       1.111200682555800e-02 -9.857792617985979e-01
       5.669391237529597e-03 -1.551567604183219e-01
 end
-basis "Bk_sap_grasp_large" 
+basis "Bk_sap_grasp_large" SPHERICAL 
 #basis SET: (22s) -> [1s]
 Bk    S
       7.778823662667854e+03 -3.183039248979185e+00
@@ -2144,7 +2144,7 @@ Bk    S
       1.111200682555800e-02 -9.557477444177493e-01
       5.669391237529597e-03 -1.439688890823163e-01
 end
-basis "Cf_sap_grasp_large" 
+basis "Cf_sap_grasp_large" SPHERICAL 
 #basis SET: (22s) -> [1s]
 Cf    S
       7.778823662667854e+03 -3.330951454612659e+00
@@ -2170,7 +2170,7 @@ Cf    S
       1.111200682555800e-02 -9.245803739177063e-01
       5.669391237529597e-03 -1.337184485455509e-01
 end
-basis "Es_sap_grasp_large" 
+basis "Es_sap_grasp_large" SPHERICAL 
 #basis SET: (22s) -> [1s]
 Es    S
       7.778823662667854e+03 -3.483175578527153e+00
@@ -2196,7 +2196,7 @@ Es    S
       1.111200682555800e-02 -8.926550226751715e-01
       5.669391237529597e-03 -1.242580397520214e-01
 end
-basis "Fm_sap_grasp_large" 
+basis "Fm_sap_grasp_large" SPHERICAL 
 #basis SET: (22s) -> [1s]
 Fm    S
       7.778823662667854e+03 -3.639824572543148e+00
@@ -2222,7 +2222,7 @@ Fm    S
       1.111200682555800e-02 -8.604004954686388e-01
       5.669391237529597e-03 -1.154962820583023e-01
 end
-basis "Md_sap_grasp_large" 
+basis "Md_sap_grasp_large" SPHERICAL 
 #basis SET: (22s) -> [1s]
 Md    S
       7.778823662667854e+03 -3.801934634684585e+00
@@ -2248,7 +2248,7 @@ Md    S
       1.111200682555800e-02 -8.280816569458693e-01
       5.669391237529597e-03 -1.073108984855935e-01
 end
-basis "No_sap_grasp_large" 
+basis "No_sap_grasp_large" SPHERICAL 
 #basis SET: (22s) -> [1s]
 No    S
       7.778823662667854e+03 -3.969813440024154e+00
@@ -2274,7 +2274,7 @@ No    S
       1.111200682555800e-02 -7.959898801054806e-01
       5.669391237529597e-03 -9.963213626178913e-02
 end
-basis "Lr_sap_grasp_large" 
+basis "Lr_sap_grasp_large" SPHERICAL 
 #basis SET: (23s) -> [1s]
 Lr    S
       1.524649437882899e+04 -1.839982613222674e+00
@@ -2301,7 +2301,7 @@ Lr    S
       1.111200682555800e-02 -3.866426259046420e-01
       5.669391237529597e-03 -2.076869480079040e-01
 end
-basis "Rf_sap_grasp_large" 
+basis "Rf_sap_grasp_large" SPHERICAL 
 #basis SET: (23s) -> [1s]
 Rf    S
       1.524649437882899e+04 -1.961872129875701e+00
@@ -2328,7 +2328,7 @@ Rf    S
       1.111200682555800e-02 -4.403933639405295e-01
       5.669391237529597e-03 -6.944905169075355e-02
 end
-basis "Db_sap_grasp_large" 
+basis "Db_sap_grasp_large" SPHERICAL 
 #basis SET: (22s) -> [1s]
 Db    S
       1.524649437882899e+04 -2.097060624277219e+00
@@ -2354,7 +2354,7 @@ Db    S
       2.177953337809369e-02 -7.611002315534279e-01
       1.111200682555800e-02 -4.652755548013374e-01
 end
-basis "Sg_sap_grasp_large" 
+basis "Sg_sap_grasp_large" SPHERICAL 
 #basis SET: (22s) -> [1s]
 Sg    S
       1.524649437882899e+04 -2.243064743553987e+00
@@ -2380,7 +2380,7 @@ Sg    S
       2.177953337809369e-02 -8.784502102062106e-01
       1.111200682555800e-02 -3.045544241613243e-01
 end
-basis "Bh_sap_grasp_large" 
+basis "Bh_sap_grasp_large" SPHERICAL 
 #basis SET: (22s) -> [1s]
 Bh    S
       1.524649437882899e+04 -2.391010861319955e+00
@@ -2406,7 +2406,7 @@ Bh    S
       2.177953337809369e-02 -8.755862119141966e-01
       1.111200682555800e-02 -2.039901319076307e-01
 end
-basis "Hs_sap_grasp_large" 
+basis "Hs_sap_grasp_large" SPHERICAL 
 #basis SET: (22s) -> [1s]
 Hs    S
       1.524649437882899e+04 -2.540501317038434e+00
@@ -2432,7 +2432,7 @@ Hs    S
       2.177953337809369e-02 -8.221771061653271e-01
       1.111200682555800e-02 -1.379894994606730e-01
 end
-basis "Mt_sap_grasp_large" 
+basis "Mt_sap_grasp_large" SPHERICAL 
 #basis SET: (22s) -> [1s]
 Mt    S
       1.524649437882899e+04 -2.693748421967030e+00
@@ -2458,7 +2458,7 @@ Mt    S
       2.177953337809369e-02 -7.480531556066126e-01
       1.111200682555800e-02 -9.332216647453606e-02
 end
-basis "Ds_sap_grasp_large" 
+basis "Ds_sap_grasp_large" SPHERICAL 
 #basis SET: (22s) -> [1s]
 Ds    S
       1.524649437882899e+04 -2.851954204292269e+00
@@ -2484,7 +2484,7 @@ Ds    S
       2.177953337809369e-02 -4.459556248039007e-01
       1.111200682555800e-02 -1.995671458716970e-01
 end
-basis "Rg_sap_grasp_large" 
+basis "Rg_sap_grasp_large" SPHERICAL 
 #basis SET: (22s) -> [1s]
 Rg    S
       1.524649437882899e+04 -3.019347121939063e+00
@@ -2510,7 +2510,7 @@ Rg    S
       2.177953337809369e-02 -4.663955837022513e-01
       1.111200682555800e-02 -1.448184961918741e-01
 end
-basis "Cn_sap_grasp_large" 
+basis "Cn_sap_grasp_large" SPHERICAL 
 #basis SET: (23s) -> [1s]
 Cn    S
       2.988312898250482e+04 -1.363892527908320e+00
@@ -2537,7 +2537,7 @@ Cn    S
       2.177953337809369e-02 -4.592923193704337e-01
       1.111200682555800e-02 -1.059570336656179e-01
 end
-basis "Nh_sap_grasp_large" 
+basis "Nh_sap_grasp_large" SPHERICAL 
 #basis SET: (25s) -> [1s]
 Nh    S
       2.988312898250482e+04 -1.474611506782821e+00
@@ -2566,7 +2566,7 @@ Nh    S
       5.669391237529597e-03 -2.663000557804480e-01
       2.892546549759998e-03 -1.405957267998019e-01
 end
-basis "Fl_sap_grasp_large" 
+basis "Fl_sap_grasp_large" SPHERICAL 
 #basis SET: (25s) -> [1s]
 Fl    S
       2.988312898250482e+04 -1.580795347763342e+00
@@ -2595,7 +2595,7 @@ Fl    S
       5.669391237529597e-03 -2.673735170392320e-01
       2.892546549759998e-03 -3.748540421656799e-02
 end
-basis "Mc_sap_grasp_large" 
+basis "Mc_sap_grasp_large" SPHERICAL 
 #basis SET: (24s) -> [1s]
 Mc    S
       2.988312898250482e+04 -1.700369937228970e+00
@@ -2623,7 +2623,7 @@ Mc    S
       1.111200682555800e-02 -4.275332367978990e-01
       5.669391237529597e-03 -2.230956765124574e-01
 end
-basis "Lv_sap_grasp_large" 
+basis "Lv_sap_grasp_large" SPHERICAL 
 #basis SET: (24s) -> [1s]
 Lv    S
       2.988312898250482e+04 -1.830369654810056e+00
@@ -2651,7 +2651,7 @@ Lv    S
       1.111200682555800e-02 -4.613271784037352e-01
       5.669391237529597e-03 -1.199206945020705e-01
 end
-basis "Ts_sap_grasp_large" 
+basis "Ts_sap_grasp_large" SPHERICAL 
 #basis SET: (24s) -> [1s]
 Ts    S
       2.988312898250482e+04 -1.968049217888620e+00
@@ -2679,7 +2679,7 @@ Ts    S
       1.111200682555800e-02 -4.144175292458385e-01
       5.669391237529597e-03 -6.535409932257608e-02
 end
-basis "Og_sap_grasp_large" 
+basis "Og_sap_grasp_large" SPHERICAL 
 #basis SET: (24s) -> [1s]
 Og    S
       2.988312898250482e+04 -2.112448381638387e+00

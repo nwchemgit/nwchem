@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # acv2z-j version number 1
 # Description: acv2z-J basis for indirect nuclear spin-spin coupling
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -43,11 +43,11 @@
 #     Hierarchical Basis Sets for the Calculation of Nuclear Magnetic
 #             Resonance Spin-Spin Coupling Constants Involving Either
 #             Selenium or Tellurium Nuclei
-#     J. Phys. Chem. A, 123, 6564-6571 (2019)
+#     J. Phys. Chem. A 123, 6564-6571 (2019)
 #     10.1021/acs.jpca.9b05276
 # 
 # # 
-basis "Se_acv2z-j" 
+basis "Se_acv2z-j" SPHERICAL 
 #basis SET: (29s,18p,8d,4f) -> [11s,8p,5d,4f]
 Se    S
       2.080442E+09           6.7143E-09
@@ -137,7 +137,7 @@ Se    F
 Se    F
       3.754415E-01           1.00000000
 end
-basis "Te_acv2z-j" 
+basis "Te_acv2z-j" SPHERICAL 
 #basis SET: (36s,24p,18d,5f) -> [14s,10p,8d,5f]
 Te    S
       1.360735E+09           3.4110E-08
@@ -224,19 +224,19 @@ Te    P
 Te    P
       2.816225E-02           1.00000000
 Te    D
-      1.648726E+03           0.00065446
-      4.690353E+02           0.00686286
-      1.763898E+02           0.03819674
-      7.544430E+01           0.13384757
-      3.473559E+01           0.30015328
-      1.651106E+01           0.41003662
-Te    D
       1.648726E+03          -0.00026022
       4.690353E+02          -0.00277691
       1.763898E+02          -0.01543684
       7.544430E+01          -0.05562582
       3.473559E+01          -0.12384132
       1.651106E+01          -0.16225774
+Te    D
+      1.648726E+03           0.00065446
+      4.690353E+02           0.00686286
+      1.763898E+02           0.03819674
+      7.544430E+01           0.13384757
+      3.473559E+01           0.30015328
+      1.651106E+01           0.41003662
 Te    D
       8.001417E+00           1.00000000
 Te    D

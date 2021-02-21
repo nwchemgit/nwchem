@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # jgauss-dzp version number 1
 # Description: dzp basis of Schafer/Horn/Ahlrichs/Gauss
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -42,17 +42,17 @@
 #     Gauss, Jürgen
 #     Effects of electron correlation in the calculation of nuclear magnetic
 #             resonance chemical shifts
-#     J. Chem. Phys., 99, 3629-3643 (1993)
+#     J. Chem. Phys. 99, 3629-3643 (1993)
 #     10.1063/1.466161
 # 
 # schafer1992a
 #     Schäfer, Ansgar, Horn, Hans, Ahlrichs, Reinhart
 #     Fully optimized contracted Gaussian basis sets for atoms Li to Kr
-#     J. Chem. Phys., 97, 2571-2577 (1992)
+#     J. Chem. Phys. 97, 2571-2577 (1992)
 #     10.1063/1.463096
 # 
 # # 
-basis "H_jgauss-dzp" 
+basis "H_jgauss-dzp" SPHERICAL 
 #basis SET: (4s,1p) -> [2s,1p]
 H    S
      13.0107010               .0196822
@@ -63,7 +63,7 @@ H    S
 H    P
        .8000000              1.0000000
 end
-basis "He_jgauss-dzp" 
+basis "He_jgauss-dzp" SPHERICAL 
 #basis SET: (4s,1p) -> [2s,1p]
 He    S
      38.3549367               .0238143
@@ -74,7 +74,7 @@ He    S
 He    P
       1.0000000              1.0000000
 end
-basis "Li_jgauss-dzp" 
+basis "Li_jgauss-dzp" SPHERICAL 
 #basis SET: (8s,1p) -> [4s,1p]
 Li    S
    1484.2786000               .0007625
@@ -91,7 +91,7 @@ Li    S
 Li    P
        .1700000              1.0000000
 end
-basis "B_jgauss-dzp" 
+basis "B_jgauss-dzp" SPHERICAL 
 #basis SET: (8s,4p,1d) -> [4s,2p,1d]
 B    S
    2410.2061000               .0017550
@@ -114,7 +114,7 @@ B    P
 B    D
        .5000000              1.0000000
 end
-basis "C_jgauss-dzp" 
+basis "C_jgauss-dzp" SPHERICAL 
 #basis SET: (8s,4p,1d) -> [4s,2p,1d]
 C    S
    3623.8613000               .0016339
@@ -137,7 +137,7 @@ C    P
 C    D
        .8000000              1.0000000
 end
-basis "N_jgauss-dzp" 
+basis "N_jgauss-dzp" SPHERICAL 
 #basis SET: (8s,4p,1d) -> [4s,2p,1d]
 N    S
    5071.9892000               .0017067
@@ -160,7 +160,7 @@ N    P
 N    D
       1.000000               1.0000000
 end
-basis "O_jgauss-dzp" 
+basis "O_jgauss-dzp" SPHERICAL 
 #basis SET: (8s,4p,1d) -> [4s,2p,1d]
 O    S
    6773.3747000               .0017266
@@ -183,7 +183,7 @@ O    P
 O    D
       1.200000               1.0000000
 end
-basis "F_jgauss-dzp" 
+basis "F_jgauss-dzp" SPHERICAL 
 #basis SET: (8s,4p,1d) -> [4s,2p,1d]
 F    S
    8709.5462000               .0013936
@@ -206,7 +206,7 @@ F    P
 F    D
       1.4000000              1.0000000
 end
-basis "Ne_jgauss-dzp" 
+basis "Ne_jgauss-dzp" SPHERICAL 
 #basis SET: (8s,4p,1d) -> [4s,2p,1d]
 Ne    S
   10880.9393060              -.0017016
@@ -229,7 +229,7 @@ Ne    P
 Ne    D
       1.8888                 1.0000000
 end
-basis "Al_jgauss-dzp" 
+basis "Al_jgauss-dzp" SPHERICAL 
 #basis SET: (11s,7p,1d) -> [6s,4p,1d]
 Al    S
   32386.3810000               .0006266
@@ -262,7 +262,7 @@ Al    P
 Al    D
        .3000000              1.0000000
 end
-basis "Si_jgauss-dzp" 
+basis "Si_jgauss-dzp" SPHERICAL 
 #basis SET: (11s,7p,1d) -> [6s,4p,1d]
 Si    S
   37778.3210000               .0006138
@@ -295,7 +295,7 @@ Si    P
 Si    D
        .4000000              1.0000000
 end
-basis "P_jgauss-dzp" 
+basis "P_jgauss-dzp" SPHERICAL 
 #basis SET: (11s,7p,1d) -> [6s,4p,1d]
 P    S
   43629.1463840               .0006029
@@ -328,7 +328,7 @@ P    P
 P    D
        .4500000              1.0000000
 end
-basis "S_jgauss-dzp" 
+basis "S_jgauss-dzp" SPHERICAL 
 #basis SET: (11s,7p,1d) -> [6s,4p,1d]
 S    S
   49931.3060000               .0006327
@@ -361,7 +361,7 @@ S    P
 S    D
        .5500000              1.0000000
 end
-basis "Cl_jgauss-dzp" 
+basis "Cl_jgauss-dzp" SPHERICAL 
 #basis SET: (11s,7p,1d) -> [6s,4p,1d]
 Cl    S
   56684.8380000               .0006891
@@ -394,7 +394,7 @@ Cl    P
 Cl    D
        .6500000              1.000000
 end
-basis "Br_jgauss-dzp" 
+basis "Br_jgauss-dzp" SPHERICAL 
 #basis SET: (14s,11p,6d) -> [8s,6p,3d]
 Br    S
  646312.4103900              0.0002084
@@ -427,10 +427,10 @@ Br    P
      49.0932711              0.4034129
      21.8103921              0.3738648
 Br    P
+      9.6190136              1.0000000
+Br    P
       4.1341549              0.5993163
       1.7549599              0.3397940
-Br    P
-      9.6190136              1.0000000
 Br    P
       0.5280153              1.0000000
 Br    P

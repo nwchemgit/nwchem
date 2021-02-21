@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # aug-cc-pvqz-optri version number 0
 # Description: aug-cc-pVQZ-OPTRI
 # Role: optri
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -42,11 +42,11 @@
 #     Yousaf, Kazim E., Peterson, Kirk A.
 #     Optimized complementary auxiliary basis sets for explicitly correlated
 #             methods: aug-cc-pVnZ orbital basis sets
-#     Chem. Phys. Lett., 476, 303-307 (2009)
+#     Chem. Phys. Lett. 476, 303-307 (2009)
 #     10.1016/j.cplett.2009.06.003
 # 
 # # 
-basis "H_aug-cc-pvqz-optri" 
+basis "H_aug-cc-pvqz-optri" SPHERICAL 
 #basis SET: (4s,4p,3d,2f,2g) -> [4s,4p,3d,2f,2g]
 H    S
       7.7444780              1.0000000
@@ -79,7 +79,7 @@ H    G
 H    G
       1.0306510              1.0000000
 end
-basis "He_aug-cc-pvqz-optri" 
+basis "He_aug-cc-pvqz-optri" SPHERICAL 
 #basis SET: (4s,4p,3d,2f,2g) -> [4s,4p,3d,2f,2g]
 He    S
      12.9408090              1.0000000
@@ -112,7 +112,7 @@ He    G
 He    G
       1.6878750              1.0000000
 end
-basis "B_aug-cc-pvqz-optri" 
+basis "B_aug-cc-pvqz-optri" SPHERICAL 
 #basis SET: (4s,5p,4d,3f,2g,1h) -> [4s,5p,4d,3f,2g,1h]
 B    S
       1.2546950              1.0000000
@@ -153,7 +153,7 @@ B    G
 B    H
       0.7715350              1.0000000
 end
-basis "C_aug-cc-pvqz-optri" 
+basis "C_aug-cc-pvqz-optri" SPHERICAL 
 #basis SET: (4s,5p,4d,3f,2g,1h) -> [4s,5p,4d,3f,2g,1h]
 C    S
       1.9243280              1.0000000
@@ -194,7 +194,7 @@ C    G
 C    H
       1.1556570              1.0000000
 end
-basis "N_aug-cc-pvqz-optri" 
+basis "N_aug-cc-pvqz-optri" SPHERICAL 
 #basis SET: (4s,5p,4d,3f,2g,1h) -> [4s,5p,4d,3f,2g,1h]
 N    S
       2.7220260              1.0000000
@@ -235,7 +235,7 @@ N    G
 N    H
       1.7316070              1.0000000
 end
-basis "O_aug-cc-pvqz-optri" 
+basis "O_aug-cc-pvqz-optri" SPHERICAL 
 #basis SET: (4s,5p,4d,3f,2g,1h) -> [4s,5p,4d,3f,2g,1h]
 O    S
       3.1804370              1.0000000
@@ -276,7 +276,7 @@ O    G
 O    H
       2.1049590              1.0000000
 end
-basis "F_aug-cc-pvqz-optri" 
+basis "F_aug-cc-pvqz-optri" SPHERICAL 
 #basis SET: (4s,5p,4d,3f,2g,1h) -> [4s,5p,4d,3f,2g,1h]
 F    S
       4.1774050              1.0000000
@@ -317,7 +317,7 @@ F    G
 F    H
       2.6820580              1.0000000
 end
-basis "Ne_aug-cc-pvqz-optri" 
+basis "Ne_aug-cc-pvqz-optri" SPHERICAL 
 #basis SET: (4s,5p,4d,3f,2g,1h) -> [4s,5p,4d,3f,2g,1h]
 Ne    S
       5.4868980              1.0000000
@@ -358,7 +358,7 @@ Ne    G
 Ne    H
       3.3789810              1.0000000
 end
-basis "Al_aug-cc-pvqz-optri" 
+basis "Al_aug-cc-pvqz-optri" SPHERICAL 
 #basis SET: (5s,5p,4d,3f,2g,1h) -> [5s,5p,4d,3f,2g,1h]
 Al    S
       4.6451000              1.0000000
@@ -401,7 +401,7 @@ Al    G
 Al    H
       0.4025270              1.0000000
 end
-basis "Si_aug-cc-pvqz-optri" 
+basis "Si_aug-cc-pvqz-optri" SPHERICAL 
 #basis SET: (5s,5p,4d,3f,2g,1h) -> [5s,5p,4d,3f,2g,1h]
 Si    S
       6.8310980              1.0000000
@@ -444,7 +444,7 @@ Si    G
 Si    H
       0.5383670              1.0000000
 end
-basis "P_aug-cc-pvqz-optri" 
+basis "P_aug-cc-pvqz-optri" SPHERICAL 
 #basis SET: (5s,5p,4d,3f,2g,1h) -> [5s,5p,4d,3f,2g,1h]
 P    S
      10.6337500              1.0000000
@@ -487,7 +487,7 @@ P    G
 P    H
       0.7072550              1.0000000
 end
-basis "S_aug-cc-pvqz-optri" 
+basis "S_aug-cc-pvqz-optri" SPHERICAL 
 #basis SET: (5s,5p,4d,3f,2g,1h) -> [5s,5p,4d,3f,2g,1h]
 S    S
      13.2187360              1.0000000
@@ -530,7 +530,7 @@ S    G
 S    H
       0.8833010              1.0000000
 end
-basis "Cl_aug-cc-pvqz-optri" 
+basis "Cl_aug-cc-pvqz-optri" SPHERICAL 
 #basis SET: (5s,5p,4d,3f,2g,1h) -> [5s,5p,4d,3f,2g,1h]
 Cl    S
      15.2916930              1.0000000
@@ -573,7 +573,7 @@ Cl    G
 Cl    H
       1.0746150              1.0000000
 end
-basis "Ar_aug-cc-pvqz-optri" 
+basis "Ar_aug-cc-pvqz-optri" SPHERICAL 
 #basis SET: (5s,5p,4d,3f,2g,1h) -> [5s,5p,4d,3f,2g,1h]
 Ar    S
      18.9796020              1.0000000

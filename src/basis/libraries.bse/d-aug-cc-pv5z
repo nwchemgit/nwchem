@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # d-aug-cc-pv5z version number 0
 # Description: V5Z4PD  Valence Quintuple Zeta + Polarization + Diffuse
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -58,25 +58,25 @@
 #     Dunning, Thom H.
 #     Gaussian basis sets for use in correlated molecular calculations. I.
 #             The atoms boron through neon and hydrogen
-#     J. Chem. Phys., 90, 1007-1023 (1989)
+#     J. Chem. Phys. 90, 1007-1023 (1989)
 #     10.1063/1.456153
 # 
 # kendall1992a
 #     Kendall, Rick A., Dunning, Thom H., Harrison, Robert J.
 #     Electron affinities of the first-row atoms revisited. Systematic basis
 #             sets and wave functions
-#     J. Chem. Phys., 96, 6796-6806 (1992)
+#     J. Chem. Phys. 96, 6796-6806 (1992)
 #     10.1063/1.462569
 # 
 # woon1994a
 #     Woon, David E., Dunning, Thom H.
 #     Gaussian basis sets for use in correlated molecular calculations. IV.
 #             Calculation of static electrical response properties
-#     J. Chem. Phys., 100, 2975-2988 (1994)
+#     J. Chem. Phys. 100, 2975-2988 (1994)
 #     10.1063/1.466439
 # 
 # # 
-basis "H_d-aug-cc-pv5z" 
+basis "H_d-aug-cc-pv5z" SPHERICAL 
 #basis SET: (10s,6p,5d,4f,3g) -> [7s,6p,5d,4f,3g]
 H    S
     402.0000000              0.0002790
@@ -132,7 +132,7 @@ H    G
 H    G
       0.1250                 1.0000
 end
-basis "He_d-aug-cc-pv5z" 
+basis "He_d-aug-cc-pv5z" SPHERICAL 
 #basis SET: (10s,6p,5d,4f,3g) -> [7s,6p,5d,4f,3g]
 He    S
    1145.0000000              0.0003590
@@ -188,7 +188,7 @@ He    G
 He    G
       0.1820                 1.0000
 end
-basis "B_d-aug-cc-pv5z" 
+basis "B_d-aug-cc-pv5z" SPHERICAL 
 #basis SET: (26s,10p,6d,5f,4g,3h) -> [8s,7p,6d,5f,4g,3h]
 B    S
   68260.0000000              0.0000240
@@ -278,7 +278,7 @@ B    H
 B    H
       0.1770                 1.0000
 end
-basis "C_d-aug-cc-pv5z" 
+basis "C_d-aug-cc-pv5z" SPHERICAL 
 #basis SET: (26s,10p,6d,5f,4g,3h) -> [8s,7p,6d,5f,4g,3h]
 C    S
   96770.0000000              0.0000250
@@ -368,7 +368,7 @@ C    H
 C    H
       0.2730                 1.0000
 end
-basis "N_d-aug-cc-pv5z" 
+basis "N_d-aug-cc-pv5z" SPHERICAL 
 #basis SET: (26s,10p,6d,5f,4g,3h) -> [8s,7p,6d,5f,4g,3h]
 N    S
  129200.0000000              0.0000250
@@ -458,7 +458,7 @@ N    H
 N    H
       0.3510                 1.0000
 end
-basis "O_d-aug-cc-pv5z" 
+basis "O_d-aug-cc-pv5z" SPHERICAL 
 #basis SET: (26s,10p,6d,5f,4g,3h) -> [8s,7p,6d,5f,4g,3h]
 O    S
  164200.0000000              0.0000260
@@ -548,7 +548,7 @@ O    H
 O    H
       0.4520                 1.0000
 end
-basis "F_d-aug-cc-pv5z" 
+basis "F_d-aug-cc-pv5z" SPHERICAL 
 #basis SET: (26s,10p,6d,5f,4g,3h) -> [8s,7p,6d,5f,4g,3h]
 F    S
  211400.0000000              0.0000260
@@ -638,7 +638,7 @@ F    H
 F    H
       0.5870                 1.0000
 end
-basis "Ne_d-aug-cc-pv5z" 
+basis "Ne_d-aug-cc-pv5z" SPHERICAL 
 #basis SET: (26s,10p,6d,5f,4g,3h) -> [8s,7p,6d,5f,4g,3h]
 Ne    S
  262700.0000000              0.0000260

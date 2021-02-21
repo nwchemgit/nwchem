@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # sadlej+ version number 1
 # Description: Sadlej+
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -48,18 +48,18 @@
 #             dependent density-functional response theory: Characterization
 #             and correction of the time-dependent local density
 #             approximation ionization threshold
-#     J. Chem. Phys., 108, 4439-4449 (1998)
+#     J. Chem. Phys. 108, 4439-4449 (1998)
 #     10.1063/1.475855
 # 
 # sadlej1988a
 #     Sadlej, Andrzej J.
 #     Medium-size polarized basis sets for high-level correlated
 #             calculations of molecular electric properties
-#     Collect. Czech. Chem. Commun., 53, 1995-2016 (1988)
+#     Collect. Czech. Chem. Commun. 53, 1995-2016 (1988)
 #     10.1135/cccc19881995
 # 
 # # 
-basis "H_sadlej+" 
+basis "H_sadlej+" SPHERICAL 
 #basis SET: (8s,5p) -> [5s,3p]
 H    S
      33.685014                .006068
@@ -83,7 +83,7 @@ H    P
 H    P
       0.0102000              1.0000000
 end
-basis "C_sadlej+" 
+basis "C_sadlej+" SPHERICAL 
 #basis SET: (12s,7p,5d) -> [7s,4p,3d]
 C    S
    5240.6353                  .000937
@@ -124,7 +124,7 @@ C    D
 C    D
       0.0120000              1.0000000
 end
-basis "N_sadlej+" 
+basis "N_sadlej+" SPHERICAL 
 #basis SET: (12s,7p,5d) -> [7s,4p,3d]
 N    S
    8104.0716                  .000802
@@ -165,7 +165,7 @@ N    D
 N    D
       0.0173000              1.0000000
 end
-basis "O_sadlej+" 
+basis "O_sadlej+" SPHERICAL 
 #basis SET: (12s,7p,5d) -> [7s,4p,3d]
 O    S
   10662.285                   .000799

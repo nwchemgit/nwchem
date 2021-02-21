@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # un-ccemd-ref version number 0
 # Description: un-ccemd-ref: uncontracted correlation consistent electron momentum density-ref
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -42,11 +42,11 @@
 #     Lehtola, Susi, Manninen, Pekka, Hakala, Mikko, Hämäläinen, Keijo
 #     Contraction of completeness-optimized basis sets: Application to
 #             ground-state electron momentum densities
-#     J. Chem. Phys., 138, 044109 (2013)
+#     J. Chem. Phys. 138, 044109 (2013)
 #     10.1063/1.4788635
 # 
 # # 
-basis "H_un-ccemd-ref" 
+basis "H_un-ccemd-ref" SPHERICAL 
 #basis SET: (14s,6p,1d,1f,1g) -> [14s,6p,1d,1f,1g]
 H    S
       1.9850407436E+03       1.0000000
@@ -95,7 +95,7 @@ H    F
 H    G
       3.3496543916E+00       1.0000000
 end
-basis "He_un-ccemd-ref" 
+basis "He_un-ccemd-ref" SPHERICAL 
 #basis SET: (14s,6p,1d,1f,1g) -> [14s,6p,1d,1f,1g]
 He    S
       1.9850407436E+03       1.0000000
@@ -144,7 +144,7 @@ He    F
 He    G
       3.3496543916E+00       1.0000000
 end
-basis "Li_un-ccemd-ref" 
+basis "Li_un-ccemd-ref" SPHERICAL 
 #basis SET: (17s,10p,5d,2f) -> [17s,10p,5d,2f]
 Li    S
       4.8704863236E+03       1.0000000
@@ -215,7 +215,7 @@ Li    F
 Li    F
       2.2061555560E-01       1.0000000
 end
-basis "Be_un-ccemd-ref" 
+basis "Be_un-ccemd-ref" SPHERICAL 
 #basis SET: (17s,10p,5d,2f) -> [17s,10p,5d,2f]
 Be    S
       4.8704863236E+03       1.0000000
@@ -286,7 +286,7 @@ Be    F
 Be    F
       2.2061555560E-01       1.0000000
 end
-basis "B_un-ccemd-ref" 
+basis "B_un-ccemd-ref" SPHERICAL 
 #basis SET: (17s,12p,6d,2f,1g) -> [17s,12p,6d,2f,1g]
 B    S
       2.9359875724E+04       1.0000000
@@ -365,7 +365,7 @@ B    F
 B    G
       1.6788040181E+00       1.0000000
 end
-basis "C_un-ccemd-ref" 
+basis "C_un-ccemd-ref" SPHERICAL 
 #basis SET: (17s,12p,6d,2f,1g) -> [17s,12p,6d,2f,1g]
 C    S
       2.9359875724E+04       1.0000000
@@ -444,7 +444,7 @@ C    F
 C    G
       1.6788040181E+00       1.0000000
 end
-basis "N_un-ccemd-ref" 
+basis "N_un-ccemd-ref" SPHERICAL 
 #basis SET: (17s,12p,6d,2f,1g) -> [17s,12p,6d,2f,1g]
 N    S
       2.9359875724E+04       1.0000000
@@ -523,7 +523,7 @@ N    F
 N    G
       1.6788040181E+00       1.0000000
 end
-basis "O_un-ccemd-ref" 
+basis "O_un-ccemd-ref" SPHERICAL 
 #basis SET: (17s,12p,6d,2f,1g) -> [17s,12p,6d,2f,1g]
 O    S
       2.9359875724E+04       1.0000000
@@ -602,7 +602,7 @@ O    F
 O    G
       1.6788040181E+00       1.0000000
 end
-basis "F_un-ccemd-ref" 
+basis "F_un-ccemd-ref" SPHERICAL 
 #basis SET: (17s,12p,6d,2f,1g) -> [17s,12p,6d,2f,1g]
 F    S
       2.9359875724E+04       1.0000000
@@ -681,7 +681,7 @@ F    F
 F    G
       1.6788040181E+00       1.0000000
 end
-basis "Ne_un-ccemd-ref" 
+basis "Ne_un-ccemd-ref" SPHERICAL 
 #basis SET: (17s,12p,6d,2f,1g) -> [17s,12p,6d,2f,1g]
 Ne    S
       2.9359875724E+04       1.0000000
@@ -760,7 +760,7 @@ Ne    F
 Ne    G
       1.6788040181E+00       1.0000000
 end
-basis "Na_un-ccemd-ref" 
+basis "Na_un-ccemd-ref" SPHERICAL 
 #basis SET: (19s,12p,7d,1f) -> [19s,12p,7d,1f]
 Na    S
       2.9058192043E+04       1.0000000
@@ -841,7 +841,7 @@ Na    D
 Na    F
       2.7384196343E-01       1.0000000
 end
-basis "Mg_un-ccemd-ref" 
+basis "Mg_un-ccemd-ref" SPHERICAL 
 #basis SET: (19s,12p,7d,1f) -> [19s,12p,7d,1f]
 Mg    S
       2.9058192043E+04       1.0000000
@@ -922,7 +922,7 @@ Mg    D
 Mg    F
       2.7384196343E-01       1.0000000
 end
-basis "Al_un-ccemd-ref" 
+basis "Al_un-ccemd-ref" SPHERICAL 
 #basis SET: (19s,14p,7d,4f,1g) -> [19s,14p,7d,4f,1g]
 Al    S
       7.1477317914E+04       1.0000000
@@ -1015,7 +1015,7 @@ Al    F
 Al    G
       1.1885022274E+00       1.0000000
 end
-basis "Si_un-ccemd-ref" 
+basis "Si_un-ccemd-ref" SPHERICAL 
 #basis SET: (19s,14p,7d,4f,1g) -> [19s,14p,7d,4f,1g]
 Si    S
       7.1477317914E+04       1.0000000
@@ -1108,7 +1108,7 @@ Si    F
 Si    G
       1.1885022274E+00       1.0000000
 end
-basis "P_un-ccemd-ref" 
+basis "P_un-ccemd-ref" SPHERICAL 
 #basis SET: (19s,14p,7d,4f,1g) -> [19s,14p,7d,4f,1g]
 P    S
       7.1477317914E+04       1.0000000
@@ -1201,7 +1201,7 @@ P    F
 P    G
       1.1885022274E+00       1.0000000
 end
-basis "S_un-ccemd-ref" 
+basis "S_un-ccemd-ref" SPHERICAL 
 #basis SET: (19s,14p,7d,4f,1g) -> [19s,14p,7d,4f,1g]
 S    S
       7.1477317914E+04       1.0000000
@@ -1294,7 +1294,7 @@ S    F
 S    G
       1.1885022274E+00       1.0000000
 end
-basis "Cl_un-ccemd-ref" 
+basis "Cl_un-ccemd-ref" SPHERICAL 
 #basis SET: (19s,14p,7d,4f,1g) -> [19s,14p,7d,4f,1g]
 Cl    S
       7.1477317914E+04       1.0000000
@@ -1387,7 +1387,7 @@ Cl    F
 Cl    G
       1.1885022274E+00       1.0000000
 end
-basis "Ar_un-ccemd-ref" 
+basis "Ar_un-ccemd-ref" SPHERICAL 
 #basis SET: (19s,14p,7d,4f,1g) -> [19s,14p,7d,4f,1g]
 Ar    S
       7.1477317914E+04       1.0000000

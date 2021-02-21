@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # dfo-1 version number 1
 # Description: Optimized gaussian basis set for Density-functional calculations
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -42,11 +42,11 @@
 #     Porezag, Dirk, Pederson, Mark R.
 #     Optimization of Gaussian basis sets for density-functional
 #             calculations
-#     Phys. Rev. A, 60, 2840-2847 (1999)
+#     Phys. Rev. A 60, 2840-2847 (1999)
 #     10.1103/PhysRevA.60.2840
 # 
 # # 
-basis "H_dfo-1" 
+basis "H_dfo-1" SPHERICAL 
 #basis SET: (6s,2p) -> [2s,1p]
 H    S
       1.21244e+01            2.11806e-02
@@ -60,7 +60,7 @@ H    P
       1.83400e+00            5.27330e-01
       4.07249e-01            6.17760e-01
 end
-basis "B_dfo-1" 
+basis "B_dfo-1" SPHERICAL 
 #basis SET: (14s,7p,2d) -> [3s,2p,1d]
 B    S
       2.62097e+03            1.37440e-03
@@ -92,7 +92,7 @@ B    D
       8.35835e-01            5.30334e-01
       2.69347e-01            5.91970e-01
 end
-basis "C_dfo-1" 
+basis "C_dfo-1" SPHERICAL 
 #basis SET: (14s,8p,2d) -> [3s,2p,1d]
 C    S
       3.59394e+03            1.47695e-03
@@ -125,7 +125,7 @@ C    D
       1.19142e+00            4.73737e-01
       3.85119e-01            6.45040e-01
 end
-basis "N_dfo-1" 
+basis "N_dfo-1" SPHERICAL 
 #basis SET: (15s,9p,2d) -> [3s,2p,1d]
 N    S
       8.85728e+03            7.11104e-04
@@ -160,7 +160,7 @@ N    D
       1.23949e+00            6.32144e-01
       4.22588e-01            4.77659e-01
 end
-basis "O_dfo-1" 
+basis "O_dfo-1" SPHERICAL 
 #basis SET: (15s,9p,2d) -> [3s,2p,1d]
 O    S
       1.02460e+04            8.33924e-04
@@ -195,7 +195,7 @@ O    D
       1.43659e+00            5.67959e-01
       4.87736e-01            5.45102e-01
 end
-basis "F_dfo-1" 
+basis "F_dfo-1" SPHERICAL 
 #basis SET: (15s,10p,2d) -> [3s,2p,1d]
 F    S
       2.35323e+04            3.97762e-04
@@ -231,7 +231,7 @@ F    D
       1.40006e+00            5.38194e-01
       4.97984e-01            5.66420e-01
 end
-basis "Al_dfo-1" 
+basis "Al_dfo-1" SPHERICAL 
 #basis SET: (20s,12p,2d) -> [4s,3p,1d]
 Al    S
       6.85763e+04            2.66284e-04
@@ -276,7 +276,7 @@ Al    D
       7.28539e-01            2.56013e-01
       1.81530e-01            8.56877e-01
 end
-basis "Si_dfo-1" 
+basis "Si_dfo-1" SPHERICAL 
 #basis SET: (19s,14p,2d) -> [4s,3p,1d]
 Si    S
       7.20731e+04            3.01667e-04
@@ -322,7 +322,7 @@ Si    D
       7.58461e-01            2.79210e-01
       2.38494e-01            8.13309e-01
 end
-basis "Mn_dfo-1" 
+basis "Mn_dfo-1" SPHERICAL 
 #basis SET: (29s,20p,12d) -> [5s,4p,2d]
 Mn    S
       8.28089e+05            6.17266e-05
@@ -397,7 +397,7 @@ Mn    D
       4.58382e-01            4.15549e-01
       1.66578e-01            6.78639e-01
 end
-basis "Cu_dfo-1" 
+basis "Cu_dfo-1" SPHERICAL 
 #basis SET: (29s,20p,13d) -> [5s,4p,2d]
 Cu    S
       1.07431e+06            6.47749e-05

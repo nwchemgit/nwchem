@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # aug-pv7z version number 0
 # Description: V7Z6P   Valence Septuple Zeta + Polarization on All Atoms
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -52,17 +52,17 @@
 #     Feller, David, Peterson, Kirk A.
 #     Re-examination of atomization energies for the Gaussian-2 set of
 #             molecules
-#     J. Chem. Phys., 110, 8384-8396 (1999)
+#     J. Chem. Phys. 110, 8384-8396 (1999)
 #     10.1063/1.478747
 # 
 # feller2000a
 #     Feller, David, Sordo, Jose A.
 #     Performance of CCSDT for diatomic dissociation energies
-#     J. Chem. Phys., 113, 485-493 (2000)
+#     J. Chem. Phys. 113, 485-493 (2000)
 #     10.1063/1.481827
 # 
 # # 
-basis "C_aug-pv7z" 
+basis "C_aug-pv7z" SPHERICAL 
 #basis SET: (31s,13p,7d,6f,5g,4h,3i,2k) -> [9s,8p,7d,6f,5g,4h,3i,2k]
 C    S
  949028.8000000              0.0000014
@@ -180,7 +180,7 @@ C    K
 C    K
       0.9780                 1.0000
 end
-basis "N_aug-pv7z" 
+basis "N_aug-pv7z" SPHERICAL 
 #basis SET: (31s,13p,7d,6f,5g,4h,3i,2k) -> [9s,8p,7d,6f,5g,4h,3i,2k]
 N    S
 1296296.0000000              0.0000014
@@ -298,7 +298,7 @@ N    K
 N    K
       0.977000               1.0000
 end
-basis "O_aug-pv7z" 
+basis "O_aug-pv7z" SPHERICAL 
 #basis SET: (31s,13p,7d,6f,5g,4h,3i,2k) -> [9s,8p,7d,6f,5g,4h,3i,2k]
 O    S
 1678789.0000000              0.0000014
@@ -416,7 +416,7 @@ O    K
 O    K
       1.232000               1.0000
 end
-basis "F_aug-pv7z" 
+basis "F_aug-pv7z" SPHERICAL 
 #basis SET: (31s,13p,7d,6f,5g,4h,3i,2k) -> [9s,8p,7d,6f,5g,4h,3i,2k]
 F    S
 2115112.0000000              0.0000015
@@ -534,7 +534,7 @@ F    K
 F    K
       1.597000               1.0000
 end
-basis "S_aug-pv7z" 
+basis "S_aug-pv7z" SPHERICAL 
 #basis SET: (70s,31p,7d,6f,5g,4h,3i,2k) -> [10s,9p,7d,6f,5g,4h,3i,2k]
 S    S
 7010036.0000000              0.14393981E-5

@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # lanl08(f) version number 0
 # Description: LANL08(f)
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -50,24 +50,24 @@
 #             Frenking, G.
 #     A set of f-polarization functions for pseudo-potential basis sets of
 #             the transition metals Sc-Cu, Y-Ag and La-Au
-#     Chem. Phys. Lett., 208, 111-114 (1993)
+#     Chem. Phys. Lett. 208, 111-114 (1993)
 #     10.1016/0009-2614(93)80086-5
 # 
 # hay1985b
 #     Hay, P. Jeffrey, Wadt, Willard R.
 #     Ab initio effective core potentials for molecular calculations.
 #             Potentials for K to Au including the outermost core orbitals
-#     J. Chem. Phys., 82, 299-310 (1985)
+#     J. Chem. Phys. 82, 299-310 (1985)
 #     10.1063/1.448975
 # 
 # roy2008a
 #     Roy, Lindsay E., Hay, P. Jeffrey, Martin, Richard L.
 #     Revised Basis Sets for the LANL Effective Core Potentials
-#     J. Chem. Theory Comput., 4, 1029-1031 (2008)
+#     J. Chem. Theory Comput. 4, 1029-1031 (2008)
 #     10.1021/ct8000409
 # 
 # # 
-basis "Sc_lanl08(f)" 
+basis "Sc_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,5d,1f) -> [5s,5p,5d,1f]
 Sc    S
       3.7170000              1.0000000
@@ -124,7 +124,7 @@ Sc P
 2       4.7970573             68.0945974
 2       4.4142925            -41.6469108
 end
-basis "Ti_lanl08(f)" 
+basis "Ti_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,5d,1f) -> [5s,5p,5d,1f]
 Ti    S
       4.3720000              1.0000000
@@ -180,7 +180,7 @@ Ti P
 2       5.6022573            107.4207153
 2       5.2171069            -71.9065902
 end
-basis "V_lanl08(f)" 
+basis "V_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,5d,1f) -> [5s,5p,5d,1f]
 V    S
       4.5900000              1.0000000
@@ -236,7 +236,7 @@ V P
 2       6.2352020            117.2756226
 2       5.8139909            -78.5829134
 end
-basis "Cr_lanl08(f)" 
+basis "Cr_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,5d,1f) -> [5s,5p,5d,1f]
 Cr    S
       5.3610000              1.0000000
@@ -292,7 +292,7 @@ Cr P
 2       6.5582692            106.0168018
 2       6.1268236            -69.8585468
 end
-basis "Mn_lanl08(f)" 
+basis "Mn_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,5d,1f) -> [5s,5p,5d,1f]
 Mn    S
       5.9140000              1.0000000
@@ -348,7 +348,7 @@ Mn P
 2       8.0098457            143.4222647
 2       7.3390928            -88.7031851
 end
-basis "Fe_lanl08(f)" 
+basis "Fe_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,5d,1f) -> [5s,5p,5d,1f]
 Fe    S
       6.4220000              1.0000000
@@ -404,7 +404,7 @@ Fe P
 2       8.7701805            154.4244635
 2       8.0397818            -95.3164249
 end
-basis "Co_lanl08(f)" 
+basis "Co_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,5d,1f) -> [5s,5p,5d,1f]
 Co    S
       7.1760000              1.0000000
@@ -458,7 +458,7 @@ Co P
 2      48.6265909            326.3215919
 2      11.9966971             73.8788970
 end
-basis "Ni_lanl08(f)" 
+basis "Ni_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,5d,1f) -> [5s,5p,5d,1f]
 Ni    S
       7.6200000              1.0000000
@@ -512,7 +512,7 @@ Ni P
 2      47.1315453            256.6945853
 2      12.9874075             78.4754450
 end
-basis "Cu_lanl08(f)" 
+basis "Cu_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,5d,1f) -> [5s,5p,5d,1f]
 Cu    S
       8.1760000              1.0000000
@@ -566,7 +566,7 @@ Cu P
 2      53.8683720            351.4605395
 2      14.0989469             85.5016036
 end
-basis "Y_lanl08(f)" 
+basis "Y_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,4d,1f) -> [5s,5p,4d,1f]
 Y    S
       1.7510000              1.0000000
@@ -626,7 +626,7 @@ Y D
 2       7.3062400             48.7792568
 2       2.4051635             11.4535104
 end
-basis "Zr_lanl08(f)" 
+basis "Zr_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,4d,1f) -> [5s,5p,4d,1f]
 Zr    S
       1.9760000              1.0000000
@@ -685,7 +685,7 @@ Zr D
 2       9.6835718             70.7634022
 2       2.7995666             15.0492822
 end
-basis "Nb_lanl08(f)" 
+basis "Nb_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,4d,1f) -> [5s,5p,4d,1f]
 Nb    S
       2.1820000              1.0000000
@@ -744,7 +744,7 @@ Nb D
 2      12.0708574             92.9577490
 2       3.1575323             18.4744256
 end
-basis "Mo_lanl08(f)" 
+basis "Mo_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,4d,1f) -> [5s,5p,4d,1f]
 Mo    S
       2.3610000              1.0000000
@@ -803,7 +803,7 @@ Mo D
 2      13.1164437             98.4453068
 2       3.6280263             22.4901377
 end
-basis "Tc_lanl08(f)" 
+basis "Tc_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,4d,1f) -> [5s,5p,4d,1f]
 Tc    S
       2.3420000              1.0000000
@@ -862,7 +862,7 @@ Tc D
 2      15.7089115            121.1894325
 2       3.9484576             25.5866973
 end
-basis "Ru_lanl08(f)" 
+basis "Ru_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,4d,1f) -> [5s,5p,4d,1f]
 Ru    S
       2.5650000              1.0000000
@@ -923,7 +923,7 @@ Ru D
 2      19.1190074            146.0926620
 2       4.2712090             28.9129770
 end
-basis "Rh_lanl08(f)" 
+basis "Rh_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,4d,1f) -> [5s,5p,4d,1f]
 Rh    S
       2.6460000              1.0000000
@@ -984,7 +984,7 @@ Rh D
 2      19.4020301            142.6844289
 2       4.6879328             32.1406857
 end
-basis "Pd_lanl08(f)" 
+basis "Pd_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,4d,1f) -> [5s,5p,4d,1f]
 Pd    S
       2.7870000              1.0000000
@@ -1046,7 +1046,7 @@ Pd D
 2       9.1790080          -1040.8554048
 2       7.5624429            505.9375147
 end
-basis "Ag_lanl08(f)" 
+basis "Ag_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,4d,1f) -> [5s,5p,4d,1f]
 Ag    S
       2.9500000              1.0000000
@@ -1108,7 +1108,7 @@ Ag D
 2       9.7528183          -1238.8602423
 2       8.1788997            608.0677121
 end
-basis "La_lanl08(f)" 
+basis "La_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,3d,1f) -> [5s,5p,3d,1f]
 La    S
       0.9167000              1.0000000
@@ -1167,7 +1167,7 @@ La D
 2       5.8051185             63.4945183
 2       1.4583220             18.0998654
 end
-basis "Hf_lanl08(f)" 
+basis "Hf_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,3d,1f) -> [5s,5p,3d,1f]
 Hf    S
       1.9500000              1.0000000
@@ -1236,7 +1236,7 @@ Hf F
 2       6.0777120             82.0077173
 2       1.4776693              6.3063943
 end
-basis "Ta_lanl08(f)" 
+basis "Ta_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,3d,1f) -> [5s,5p,3d,1f]
 Ta    S
       2.0440000              1.0000000
@@ -1305,7 +1305,7 @@ Ta F
 2       5.6785931             72.0619298
 2       1.5814041              6.0009895
 end
-basis "W_lanl08(f)" 
+basis "W_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,3d,1f) -> [5s,5p,3d,1f]
 W    S
       2.1370000              1.0000000
@@ -1374,7 +1374,7 @@ W F
 2       6.9810413             91.7605552
 2       1.8380480              8.4247312
 end
-basis "Re_lanl08(f)" 
+basis "Re_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,3d,1f) -> [5s,5p,3d,1f]
 Re    S
       2.1850000              1.0000000
@@ -1443,7 +1443,7 @@ Re F
 2       8.5734158            116.5787266
 2       2.0892721             11.1050530
 end
-basis "Os_lanl08(f)" 
+basis "Os_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,3d,1f) -> [5s,5p,3d,1f]
 Os    S
       2.2220000              1.0000000
@@ -1510,7 +1510,7 @@ Os F
 2      10.5337695            147.1839894
 2       2.3338246             13.9622947
 end
-basis "Ir_lanl08(f)" 
+basis "Ir_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,3d,1f) -> [5s,5p,3d,1f]
 Ir    S
       2.3500000              1.0000000
@@ -1577,7 +1577,7 @@ Ir F
 2      10.1995721            137.2047338
 2       2.5409702             14.8633305
 end
-basis "Pt_lanl08(f)" 
+basis "Pt_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,3d,1f) -> [5s,5p,3d,1f]
 Pt    S
       2.5470000              1.0000000
@@ -1643,7 +1643,7 @@ Pt F
 2       9.8811751            127.8187976
 2       2.7319874             15.3772046
 end
-basis "Au_lanl08(f)" 
+basis "Au_lanl08(f)" SPHERICAL 
 #basis SET: (5s,5p,3d,1f) -> [5s,5p,3d,1f]
 Au    S
       2.8090000              1.0000000

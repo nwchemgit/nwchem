@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # dgauss-dzvp2 version number 0
 # Description: VDZP Valence Double Zeta + Polarization designed for DFT
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -43,11 +43,11 @@
 #     Optimization of Gaussian-type basis sets for local spin density
 #             functional calculations. Part I. Boron through neon,
 #             optimization technique and validation
-#     Can. J. Chem., 70, 560-571 (1992)
+#     Can. J. Chem. 70, 560-571 (1992)
 #     10.1139/v92-079
 # 
 # # 
-basis "H_dgauss-dzvp2" 
+basis "H_dgauss-dzvp2" SPHERICAL 
 #basis SET: (5s,1p) -> [2s,1p]
 H    S
      50.9991780              0.0096605
@@ -59,7 +59,7 @@ H    S
 H    P
       0.7500000              1.0000000
 end
-basis "He_dgauss-dzvp2" 
+basis "He_dgauss-dzvp2" SPHERICAL 
 #basis SET: (6s,1p) -> [2s,1p]
 He    S
     221.3880300              0.0027491
@@ -72,7 +72,7 @@ He    S
 He    P
       1.1000000              1.0000000
 end
-basis "Li_dgauss-dzvp2" 
+basis "Li_dgauss-dzvp2" SPHERICAL 
 #basis SET: (10s,1p,1d) -> [3s,1p,1d]
 Li    S
    1455.8197000             -0.0007722
@@ -92,7 +92,7 @@ Li    P
 Li    D
       0.1220000              1.0000000
 end
-basis "Be_dgauss-dzvp2" 
+basis "Be_dgauss-dzvp2" SPHERICAL 
 #basis SET: (10s,1p,1d) -> [3s,1p,1d]
 Be    S
    2692.3795000              0.0007506
@@ -112,7 +112,7 @@ Be    P
 Be    D
       0.2780000              1.0000000
 end
-basis "B_dgauss-dzvp2" 
+basis "B_dgauss-dzvp2" SPHERICAL 
 #basis SET: (10s,6p,1d) -> [3s,2p,1d]
 B    S
    3862.5988000              0.0008493
@@ -138,7 +138,7 @@ B    P
 B    D
       0.4000000              1.0000000
 end
-basis "C_dgauss-dzvp2" 
+basis "C_dgauss-dzvp2" SPHERICAL 
 #basis SET: (10s,6p,1d) -> [3s,2p,1d]
 C    S
    5784.1571000              0.0008190
@@ -164,7 +164,7 @@ C    P
 C    D
       0.6000000              1.0000000
 end
-basis "N_dgauss-dzvp2" 
+basis "N_dgauss-dzvp2" SPHERICAL 
 #basis SET: (10s,6p,1d) -> [3s,2p,1d]
 N    S
    8104.1761000              0.0007969
@@ -190,7 +190,7 @@ N    P
 N    D
       0.7000000              1.0000000
 end
-basis "O_dgauss-dzvp2" 
+basis "O_dgauss-dzvp2" SPHERICAL 
 #basis SET: (10s,6p,1d) -> [3s,2p,1d]
 O    S
   10814.4020000              0.0007809
@@ -216,7 +216,7 @@ O    P
 O    D
       0.8000000              1.0000000
 end
-basis "F_dgauss-dzvp2" 
+basis "F_dgauss-dzvp2" SPHERICAL 
 #basis SET: (10s,6p,1d) -> [3s,2p,1d]
 F    S
   13652.1010000              0.0007873
@@ -242,7 +242,7 @@ F    P
 F    D
       1.0000000              1.0000000
 end
-basis "Al_dgauss-dzvp2" 
+basis "Al_dgauss-dzvp2" SPHERICAL 
 #basis SET: (13s,9p,1d) -> [4s,3p,1d]
 Al    S
   36088.1520000              0.0005976
@@ -276,7 +276,7 @@ Al    P
 Al    D
       0.3000000              1.0000000
 end
-basis "Si_dgauss-dzvp2" 
+basis "Si_dgauss-dzvp2" SPHERICAL 
 #basis SET: (13s,9p,1d) -> [4s,3p,1d]
 Si    S
   42393.9270000             -0.0005895
@@ -310,7 +310,7 @@ Si    P
 Si    D
       0.4500000              1.0000000
 end
-basis "P_dgauss-dzvp2" 
+basis "P_dgauss-dzvp2" SPHERICAL 
 #basis SET: (13s,9p,1d) -> [4s,3p,1d]
 P    S
   48863.3540000             -0.0005865
@@ -344,7 +344,7 @@ P    P
 P    D
       0.5500000              1.0000000
 end
-basis "S_dgauss-dzvp2" 
+basis "S_dgauss-dzvp2" SPHERICAL 
 #basis SET: (13s,9p,1d) -> [4s,3p,1d]
 S    S
   56415.5800000             -0.0005778
@@ -378,7 +378,7 @@ S    P
 S    D
       0.6500000              1.0000000
 end
-basis "Cl_dgauss-dzvp2" 
+basis "Cl_dgauss-dzvp2" SPHERICAL 
 #basis SET: (13s,9p,1d) -> [4s,3p,1d]
 Cl    S
   63923.6260000             -0.0005741
@@ -412,7 +412,7 @@ Cl    P
 Cl    D
       0.7500000              1.0000000
 end
-basis "Ar_dgauss-dzvp2" 
+basis "Ar_dgauss-dzvp2" SPHERICAL 
 #basis SET: (13s,9p,1d) -> [4s,3p,1d]
 Ar    S
   71235.4630000             -0.0005786
@@ -446,7 +446,7 @@ Ar    P
 Ar    D
       0.8500000              1.0000000
 end
-basis "Sc_dgauss-dzvp2" 
+basis "Sc_dgauss-dzvp2" SPHERICAL 
 #basis SET: (15s,9p,5d) -> [5s,4p,2d]
 Sc    S
   40355.9090000              0.0017333
@@ -489,7 +489,7 @@ Sc    D
 Sc    D
       0.0360000              1.0000000
 end
-basis "Ti_dgauss-dzvp2" 
+basis "Ti_dgauss-dzvp2" SPHERICAL 
 #basis SET: (15s,9p,5d) -> [5s,4p,2d]
 Ti    S
   44446.8960000             -0.0017276
@@ -532,7 +532,7 @@ Ti    D
 Ti    D
       0.0510000              1.0000000
 end
-basis "V_dgauss-dzvp2" 
+basis "V_dgauss-dzvp2" SPHERICAL 
 #basis SET: (15s,9p,5d) -> [5s,4p,2d]
 V    S
   49145.2580000             -0.0017049
@@ -575,7 +575,7 @@ V    D
 V    D
       0.0640000              1.0000000
 end
-basis "Cr_dgauss-dzvp2" 
+basis "Cr_dgauss-dzvp2" SPHERICAL 
 #basis SET: (15s,9p,5d) -> [5s,4p,2d]
 Cr    S
   52778.7450000              0.0017354
@@ -618,7 +618,7 @@ Cr    D
 Cr    D
       0.0750000              1.0000000
 end
-basis "Mn_dgauss-dzvp2" 
+basis "Mn_dgauss-dzvp2" SPHERICAL 
 #basis SET: (15s,9p,5d) -> [5s,4p,2d]
 Mn    S
   58745.6920000              0.0016835
@@ -661,7 +661,7 @@ Mn    D
 Mn    D
       0.0820000              1.0000000
 end
-basis "Fe_dgauss-dzvp2" 
+basis "Fe_dgauss-dzvp2" SPHERICAL 
 #basis SET: (15s,9p,5d) -> [5s,4p,2d]
 Fe    S
   61430.2270000              0.0017559
@@ -704,7 +704,7 @@ Fe    D
 Fe    D
       0.0900000              1.0000000
 end
-basis "Co_dgauss-dzvp2" 
+basis "Co_dgauss-dzvp2" SPHERICAL 
 #basis SET: (15s,9p,5d) -> [5s,4p,2d]
 Co    S
   67981.0420000             -0.0017024
@@ -747,7 +747,7 @@ Co    D
 Co    D
       0.0970000              1.0000000
 end
-basis "Ni_dgauss-dzvp2" 
+basis "Ni_dgauss-dzvp2" SPHERICAL 
 #basis SET: (15s,9p,5d) -> [5s,4p,2d]
 Ni    S
   72509.0420000             -0.0017208
@@ -790,7 +790,7 @@ Ni    D
 Ni    D
       0.1040000              1.0000000
 end
-basis "Cu_dgauss-dzvp2" 
+basis "Cu_dgauss-dzvp2" SPHERICAL 
 #basis SET: (15s,9p,5d) -> [5s,4p,2d]
 Cu    S
   80289.6200000             -0.0016562
@@ -833,7 +833,7 @@ Cu    D
 Cu    D
       0.1100000              1.0000000
 end
-basis "Zn_dgauss-dzvp2" 
+basis "Zn_dgauss-dzvp2" SPHERICAL 
 #basis SET: (15s,9p,5d) -> [5s,4p,2d]
 Zn    S
   82904.2200000             -0.0017313

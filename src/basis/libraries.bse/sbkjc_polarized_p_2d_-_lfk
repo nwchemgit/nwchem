@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # sbkjc polarized (p,2d) - lfk version number 0
 # Description: SBKJC Polarized (p,2d) - LFK
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -57,14 +57,14 @@
 #     Correlated, relativistic, and basis set limit molecular polarizability
 #             calculations to evaluate an augmented effective core potential
 #             basis set
-#     Int. J. Quantum Chem., 106, 3140-3148 (2006)
+#     Int. J. Quantum Chem. 106, 3140-3148 (2006)
 #     10.1002/qua.21129
 # 
 # stevens1984a
 #     Stevens, Walter J., Basch, Harold, Krauss, Morris
 #     Compact effective potentials and efficient shared-exponent basis sets
 #             for the first- and second-row atoms
-#     J. Chem. Phys., 81, 6026-6033 (1984)
+#     J. Chem. Phys. 81, 6026-6033 (1984)
 #     10.1063/1.447604
 # 
 # stevens1992a
@@ -72,11 +72,11 @@
 #     Relativistic compact effective potentials and efficient, shared-
 #             exponent basis sets for the third-, fourth-, and fifth-row
 #             atoms
-#     Can. J. Chem., 70, 612-630 (1992)
+#     Can. J. Chem. 70, 612-630 (1992)
 #     10.1139/v92-085
 # 
 # # 
-basis "H_sbkjc polarized (p,2d) - lfk" 
+basis "H_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (4s,4p) -> [3s,2p]
 H    S
       5.447178000            0.15628500
@@ -92,7 +92,7 @@ H    P
       0.199559700            1.00000000
       0.067615100            0.95070200
 end
-basis "He_sbkjc polarized (p,2d) - lfk" 
+basis "He_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (4s,4p) -> [3s,2p]
 He    S
      13.626700000            0.17523000
@@ -108,7 +108,7 @@ He    P
       0.3882717000           0.94140500
       0.0639290000           1.00000000
 end
-basis "Li_sbkjc polarized (p,2d) - lfk" 
+basis "Li_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (4s,5p,4d) -> [2s,3p,2d]
 Li    SP
       0.617700000           -0.16287000             0.10588100
@@ -135,16 +135,16 @@ Li S
 0       0.6128400              1.8013100
 2       1.6488100              3.5497100
 end
-basis "Be_sbkjc polarized (p,2d) - lfk" 
+basis "Be_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (4s,5p,4d) -> [2s,3p,2d]
 Be    SP
       1.447000000           -0.15647000             0.08924000
       0.352200000            0.10919000             0.30999000
       0.121900000            0.67538000             0.51842000
-Be    SP
-      0.043950000            0.32987000             0.27911000
 Be    P
       0.100498500            1.00000000
+Be    SP
+      0.043950000            0.32987000             0.27911000
 Be    D
       0.321727700            0.41435500
       0.103393000            1.00000000
@@ -162,7 +162,7 @@ Be S
 0       1.1987400              1.8422900
 2       3.2073800              6.8116900
 end
-basis "B_sbkjc polarized (p,2d) - lfk" 
+basis "B_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (4s,5p,4d) -> [2s,3p,2d]
 B    SP
       2.710000000           -0.14987000             0.09474000
@@ -189,7 +189,7 @@ B S
 0       1.9206100              1.8957200
 2       5.5517700             10.9754300
 end
-basis "C_sbkjc polarized (p,2d) - lfk" 
+basis "C_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (4s,5p,4d) -> [2s,3p,2d]
 C    SP
       4.286000000           -0.14722000             0.10257000
@@ -216,7 +216,7 @@ C S
 0       2.8149700              1.9292600
 2       8.1129600             14.8819900
 end
-basis "N_sbkjc polarized (p,2d) - lfk" 
+basis "N_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (4s,5p,4d) -> [2s,3p,2d]
 N    SP
       6.403000000           -0.13955000             0.10336000
@@ -243,7 +243,7 @@ N S
 0       3.8389500              1.9356500
 2      11.7324700             21.7335500
 end
-basis "O_sbkjc polarized (p,2d) - lfk" 
+basis "O_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (4s,5p,4d) -> [2s,3p,2d]
 O    SP
       8.519000000           -0.14551000             0.11007000
@@ -270,7 +270,7 @@ O S
 0       5.0534800              1.9606900
 2      15.9533300             29.1344200
 end
-basis "F_sbkjc polarized (p,2d) - lfk" 
+basis "F_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (4s,5p,4d) -> [2s,3p,2d]
 F    SP
      11.120000000           -0.14451000             0.11300000
@@ -297,7 +297,7 @@ F S
 0       6.6048800              2.0364900
 2      18.2409200             27.8627900
 end
-basis "Ne_sbkjc polarized (p,2d) - lfk" 
+basis "Ne_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (4s,5p,4d) -> [2s,3p,2d]
 Ne    SP
      14.070000000           -0.14463000             0.11514000
@@ -324,7 +324,7 @@ Ne S
 0       8.2804700              2.0995200
 2      22.4410200             31.4671800
 end
-basis "Na_sbkjc polarized (p,2d) - lfk" 
+basis "Na_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (4s,5p,4d) -> [2s,3p,2d]
 Na    SP
       0.429900000           -0.20874000             0.04506100
@@ -354,7 +354,7 @@ Na P
 0       1.2915800              3.2397100
 2       0.6579100              2.5351400
 end
-basis "Mg_sbkjc polarized (p,2d) - lfk" 
+basis "Mg_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (4s,5p,4d) -> [2s,3p,2d]
 Mg    SP
       0.660600000           -0.24451000            -0.04421000
@@ -384,7 +384,7 @@ Mg P
 0       1.8917700              3.2476200
 2       0.9823500              4.3301200
 end
-basis "Al_sbkjc polarized (p,2d) - lfk" 
+basis "Al_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (4s,5p,4d) -> [2s,3p,2d]
 Al    SP
       0.901100000           -0.30377000            -0.07929000
@@ -414,7 +414,7 @@ Al P
 0       2.8314600              3.2946500
 2       1.3847900              6.8702900
 end
-basis "Si_sbkjc polarized (p,2d) - lfk" 
+basis "Si_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (4s,5p,4d) -> [2s,3p,2d]
 Si    SP
       1.167000000           -0.32403000            -0.08450000
@@ -444,7 +444,7 @@ Si P
 0       3.8258500              3.2034500
 2       1.8302600              9.8643800
 end
-basis "P_sbkjc polarized (p,2d) - lfk" 
+basis "P_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (4s,5p,4d) -> [2s,3p,2d]
 P    SP
       1.459000000           -0.34091000            -0.09378000
@@ -474,7 +474,7 @@ P P
 0       4.9636800              3.2408400
 2       2.3186500             13.1077800
 end
-basis "S_sbkjc polarized (p,2d) - lfk" 
+basis "S_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (4s,5p,4d) -> [2s,3p,2d]
 S    SP
       1.817000000           -0.34015000            -0.10096000
@@ -504,7 +504,7 @@ S P
 0       6.8854000              3.3570500
 2       2.9069000             17.5423700
 end
-basis "Cl_sbkjc polarized (p,2d) - lfk" 
+basis "Cl_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (4s,5p,4d) -> [2s,3p,2d]
 Cl    SP
       2.225000000           -0.33098000            -0.12604000
@@ -534,7 +534,7 @@ Cl P
 0       8.9002900              3.4286000
 2       3.5264800             22.1525600
 end
-basis "Ar_sbkjc polarized (p,2d) - lfk" 
+basis "Ar_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (4s,5p,4d) -> [2s,3p,2d]
 Ar    SP
       2.706000000           -0.31286000            -0.10927000
@@ -564,7 +564,7 @@ Ar P
 0      11.4117800              3.5250000
 2       4.2047600             27.4168600
 end
-basis "K_sbkjc polarized (p,2d) - lfk" 
+basis "K_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (4s,5p,4d) -> [2s,3p,2d]
 K    SP
       0.220100000           -0.28602700             0.00107300
@@ -594,7 +594,7 @@ K P
 0       0.9417000              7.0625200
 2       0.3362300              2.6986800
 end
-basis "Ca_sbkjc polarized (p,2d) - lfk" 
+basis "Ca_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (4s,5p,4d) -> [2s,3p,2d]
 Ca    SP
       0.260400000           -0.67646600            -0.27037400
@@ -625,7 +625,7 @@ Ca P
 0       1.7941300              8.6622200
 2       0.4932300              5.5721800
 end
-basis "Ge_sbkjc polarized (p,2d) - lfk" 
+basis "Ge_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (5s,6p,4d) -> [2s,3p,2d]
 Ge    SP
       1.834000000            0.49386000             0.00641400
@@ -659,7 +659,7 @@ Ge D
 0       3.0697000              1.6236000
 2       0.8052500              3.2066000
 end
-basis "As_sbkjc polarized (p,2d) - lfk" 
+basis "As_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (5s,6p,4d) -> [2s,3p,2d]
 As    SP
       2.709000000            0.12147900            -0.00292000
@@ -693,7 +693,7 @@ As D
 0       1.1208600              2.2350800
 2       1.1214000              4.6072100
 end
-basis "Se_sbkjc polarized (p,2d) - lfk" 
+basis "Se_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (5s,6p,4d) -> [2s,3p,2d]
 Se    SP
       3.711000000            0.05574400            -0.00601400
@@ -727,7 +727,7 @@ Se D
 0       1.3829000              2.4000100
 2       1.4267100              6.5994800
 end
-basis "Br_sbkjc polarized (p,2d) - lfk" 
+basis "Br_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (5s,6p,4d) -> [2s,3p,2d]
 Br    SP
       3.276000000            0.20057000             0.00541100
@@ -761,7 +761,7 @@ Br D
 0       1.7316800              1.7937500
 2       1.7324600             10.0466000
 end
-basis "Kr_sbkjc polarized (p,2d) - lfk" 
+basis "Kr_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (5s,6p,4d) -> [2s,3p,2d]
 Kr    SP
       3.081000000            0.53378900             0.03590600
@@ -795,7 +795,7 @@ Kr D
 0       7.0867700              2.8545900
 2       2.1505800             16.2938600
 end
-basis "Rb_sbkjc polarized (p,2d) - lfk" 
+basis "Rb_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (4s,5p,4d) -> [2s,3p,2d]
 Rb    SP
       0.154300000           -0.75339000             1.31107200
@@ -830,7 +830,7 @@ Rb D
 0       0.0827200             28.3265400
 0       0.2636500            -26.5945800
 end
-basis "Sr_sbkjc polarized (p,2d) - lfk" 
+basis "Sr_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (4s,5p,4d) -> [2s,3p,2d]
 Sr    SP
       0.183600000           -1.07513900            -0.95554900
@@ -865,7 +865,7 @@ Sr D
 0       0.2555000             37.4395600
 0       0.2886800            -36.0039300
 end
-basis "Sn_sbkjc polarized (p,2d) - lfk" 
+basis "Sn_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (5s,6p,4d) -> [2s,3p,2d]
 Sn    SP
       2.604000000            0.03104200            -0.00505300
@@ -901,7 +901,7 @@ Sn D
 0       1.6543000              5.1024300
 2       0.6030100              5.2746600
 end
-basis "Sb_sbkjc polarized (p,2d) - lfk" 
+basis "Sb_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (5s,6p,4d) -> [2s,3p,2d]
 Sb    SP
       0.992200000            0.69007600             0.18022900
@@ -938,7 +938,7 @@ Sb D
 0       2.4598100              9.2218200
 2       0.7641500              7.9212900
 end
-basis "Te_sbkjc polarized (p,2d) - lfk" 
+basis "Te_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (5s,6p,4d) -> [2s,3p,2d]
 Te    SP
       2.364000000            0.08717900            -0.00398200
@@ -975,7 +975,7 @@ Te D
 0       3.6661800             11.5466300
 2       0.9318900             11.2377600
 end
-basis "I_sbkjc polarized (p,2d) - lfk" 
+basis "I_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (5s,6p,4d) -> [2s,3p,2d]
 I    SP
       2.625000000            0.07366000            -0.00888000
@@ -1012,7 +1012,7 @@ I D
 0       3.9306300              9.7308900
 2       1.0692000             13.9888000
 end
-basis "Xe_sbkjc polarized (p,2d) - lfk" 
+basis "Xe_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (5s,6p,4d) -> [2s,3p,2d]
 Xe    SP
       1.739000000            0.34909100            -0.00542900
@@ -1049,7 +1049,7 @@ Xe D
 0       5.8989700             17.7904100
 2       1.2348500             17.2535800
 end
-basis "Cs_sbkjc polarized (p,2d) - lfk" 
+basis "Cs_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (4s,5p,4d) -> [2s,3p,2d]
 Cs    SP
       0.115700000           -0.51999400             0.68570500
@@ -1084,16 +1084,16 @@ Cs D
 2       0.2015400             -0.8050000
 1       0.2441300              2.4709600
 end
-basis "Ba_sbkjc polarized (p,2d) - lfk" 
+basis "Ba_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (4s,5p,4d) -> [2s,3p,2d]
 Ba    SP
       0.126600000           -1.56028700            -0.68663700
       0.094330000            1.48253800             0.80734600
       0.030200000            0.87891700             0.82243600
-Ba    SP
-      0.015310000            1.00000000             1.00000000
 Ba    P
       0.040933500            1.00000000
+Ba    SP
+      0.015310000            1.00000000             1.00000000
 Ba    D
       0.293780000            0.99008700
       0.126759900            1.00000000
@@ -1119,7 +1119,7 @@ Ba D
 1       1.0045000             12.7880700
 1       0.1439400             -0.2867700
 end
-basis "Pb_sbkjc polarized (p,2d) - lfk" 
+basis "Pb_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (5s,6p,4d) -> [2s,3p,2d]
 Pb    SP
       1.534000000            0.22565200             0.02825700
@@ -1159,7 +1159,7 @@ Pb F
 2       0.2068000           -124.1575800
 2       0.2077300            125.3279800
 end
-basis "Bi_sbkjc polarized (p,2d) - lfk" 
+basis "Bi_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (5s,6p,4d) -> [2s,3p,2d]
 Bi    SP
       1.746000000            0.16232700             0.01608700
@@ -1199,7 +1199,7 @@ Bi F
 0       1.1764300             31.9991800
 2       0.7883200             16.8228700
 end
-basis "Po_sbkjc polarized (p,2d) - lfk" 
+basis "Po_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (5s,6p,4d) -> [2s,3p,2d]
 Po    SP
       1.897000000            0.13269000             0.00679600
@@ -1239,7 +1239,7 @@ Po F
 0       0.7131700             33.5754000
 2       0.5624900              7.8921300
 end
-basis "At_sbkjc polarized (p,2d) - lfk" 
+basis "At_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (5s,6p,4d) -> [2s,3p,2d]
 At    SP
       2.676000000            0.06897300            -0.00265200
@@ -1278,7 +1278,7 @@ At F
 0       1.1228400              4.2709700
 2       1.1553000             -3.3950000
 end
-basis "Rn_sbkjc polarized (p,2d) - lfk" 
+basis "Rn_sbkjc polarized (p,2d) - lfk" SPHERICAL 
 #basis SET: (5s,6p,4d) -> [2s,3p,2d]
 Rn    SP
       2.489000000            0.08282000             0.00472700

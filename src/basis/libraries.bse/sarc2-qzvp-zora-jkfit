@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # sarc2-qzvp-zora-jkfit version number 0
 # Description: JK fitting basis for use with SARC2-QZVP-ZORA
 # Role: jkfit
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -42,11 +42,11 @@
 #     Aravena, Daniel, Neese, Frank, Pantazis, Dimitrios A.
 #     Improved Segmented All-Electron Relativistically Contracted Basis Sets
 #             for the Lanthanides
-#     J. Chem. Theory Comput., 12, 1148-1156 (2016)
+#     J. Chem. Theory Comput. 12, 1148-1156 (2016)
 #     10.1021/acs.jctc.5b01048
 # 
 # # 
-basis "La_sarc2-qzvp-zora-jkfit" 
+basis "La_sarc2-qzvp-zora-jkfit" SPHERICAL 
 #basis SET: (29s,27p,27d,27f,18g,13h,10i,6k) -> [29s,27p,27d,27f,18g,13h,10i,6k]
 La    S
 7703778.2420000              1.0000000
@@ -363,7 +363,7 @@ La    K
 La    K
       1.81712569536          1.0000000
 end
-basis "Ce_sarc2-qzvp-zora-jkfit" 
+basis "Ce_sarc2-qzvp-zora-jkfit" SPHERICAL 
 #basis SET: (29s,27p,27d,26f,18g,13h,9i,6k) -> [29s,27p,27d,26f,18g,13h,9i,6k]
 Ce    S
 8272877.9003000              1.0000000
@@ -676,7 +676,7 @@ Ce    K
 Ce    K
       1.22669562931          1.0000000
 end
-basis "Pr_sarc2-qzvp-zora-jkfit" 
+basis "Pr_sarc2-qzvp-zora-jkfit" SPHERICAL 
 #basis SET: (29s,27p,27d,26f,18g,13h,9i,6k) -> [29s,27p,27d,26f,18g,13h,9i,6k]
 Pr    S
 8898887.5240000              1.0000000
@@ -989,7 +989,7 @@ Pr    K
 Pr    K
       1.4312553498           1.0000000
 end
-basis "Nd_sarc2-qzvp-zora-jkfit" 
+basis "Nd_sarc2-qzvp-zora-jkfit" SPHERICAL 
 #basis SET: (29s,27p,27d,27f,18g,13h,9i,6k) -> [29s,27p,27d,27f,18g,13h,9i,6k]
 Nd    S
 9524897.1483800              1.0000000
@@ -1304,7 +1304,7 @@ Nd    K
 Nd    K
       1.56782642651          1.0000000
 end
-basis "Pm_sarc2-qzvp-zora-jkfit" 
+basis "Pm_sarc2-qzvp-zora-jkfit" SPHERICAL 
 #basis SET: (29s,27p,27d,27f,18g,13h,9i,6k) -> [29s,27p,27d,27f,18g,13h,9i,6k]
 Pm    S
 10237456.9240000             1.0000000
@@ -1619,7 +1619,7 @@ Pm    K
 Pm    K
       1.70210762888          1.0000000
 end
-basis "Sm_sarc2-qzvp-zora-jkfit" 
+basis "Sm_sarc2-qzvp-zora-jkfit" SPHERICAL 
 #basis SET: (29s,27p,27d,27f,18g,13h,9i,6k) -> [29s,27p,27d,27f,18g,13h,9i,6k]
 Sm    S
 11007371.6440000             1.0000000
@@ -1934,7 +1934,7 @@ Sm    K
 Sm    K
       1.81317936941          1.0000000
 end
-basis "Eu_sarc2-qzvp-zora-jkfit" 
+basis "Eu_sarc2-qzvp-zora-jkfit" SPHERICAL 
 #basis SET: (29s,27p,27d,26f,18g,13h,9i,6k) -> [29s,27p,27d,26f,18g,13h,9i,6k]
 Eu    S
 11630565.8840000             1.0000000
@@ -2247,7 +2247,7 @@ Eu    K
 Eu    K
       1.92885707854          1.0000000
 end
-basis "Gd_sarc2-qzvp-zora-jkfit" 
+basis "Gd_sarc2-qzvp-zora-jkfit" SPHERICAL 
 #basis SET: (30s,27p,27d,26f,18g,13h,9i,6k) -> [30s,27p,27d,26f,18g,13h,9i,6k]
 Gd    S
 12410633.5140000             1.0000000
@@ -2562,7 +2562,7 @@ Gd    K
 Gd    K
       2.0251512242           1.0000000
 end
-basis "Tb_sarc2-qzvp-zora-jkfit" 
+basis "Tb_sarc2-qzvp-zora-jkfit" SPHERICAL 
 #basis SET: (30s,28p,27d,27f,18g,13h,9i,6k) -> [30s,28p,27d,27f,18g,13h,9i,6k]
 Tb    S
 13407535.0700000             1.0000000
@@ -2881,7 +2881,7 @@ Tb    K
 Tb    K
       2.11887038898          1.0000000
 end
-basis "Dy_sarc2-qzvp-zora-jkfit" 
+basis "Dy_sarc2-qzvp-zora-jkfit" SPHERICAL 
 #basis SET: (30s,28p,27d,27f,18g,13h,9i,6k) -> [30s,28p,27d,27f,18g,13h,9i,6k]
 Dy    S
 14193645.2400000             1.0000000
@@ -3200,7 +3200,7 @@ Dy    K
 Dy    K
       2.19936574502          1.0000000
 end
-basis "Ho_sarc2-qzvp-zora-jkfit" 
+basis "Ho_sarc2-qzvp-zora-jkfit" SPHERICAL 
 #basis SET: (30s,28p,27d,27f,18g,13h,9i,6k) -> [30s,28p,27d,27f,18g,13h,9i,6k]
 Ho    S
 15196589.3360000             1.0000000
@@ -3519,7 +3519,7 @@ Ho    K
 Ho    K
       2.27934422824          1.0000000
 end
-basis "Er_sarc2-qzvp-zora-jkfit" 
+basis "Er_sarc2-qzvp-zora-jkfit" SPHERICAL 
 #basis SET: (30s,28p,27d,27f,19g,13h,10i,6k) -> [30s,28p,27d,27f,19g,13h,10i,6k]
 Er    S
 16244091.8440000             1.0000000
@@ -3842,7 +3842,7 @@ Er    K
 Er    K
       2.38472718486          1.0000000
 end
-basis "Tm_sarc2-qzvp-zora-jkfit" 
+basis "Tm_sarc2-qzvp-zora-jkfit" SPHERICAL 
 #basis SET: (30s,28p,27d,27f,19g,13h,10i,6k) -> [30s,28p,27d,27f,19g,13h,10i,6k]
 Tm    S
 17313915.7600000             1.0000000
@@ -4165,7 +4165,7 @@ Tm    K
 Tm    K
       2.48084883705          1.0000000
 end
-basis "Yb_sarc2-qzvp-zora-jkfit" 
+basis "Yb_sarc2-qzvp-zora-jkfit" SPHERICAL 
 #basis SET: (30s,28p,27d,28f,19g,13h,10i,6k) -> [30s,28p,27d,28f,19g,13h,10i,6k]
 Yb    S
 18539736.3220000             1.0000000
@@ -4490,7 +4490,7 @@ Yb    K
 Yb    K
       2.57175792796          1.0000000
 end
-basis "Lu_sarc2-qzvp-zora-jkfit" 
+basis "Lu_sarc2-qzvp-zora-jkfit" SPHERICAL 
 #basis SET: (30s,28p,28d,28f,19g,13h,10i,5k) -> [30s,28p,28d,28f,19g,13h,10i,5k]
 Lu    S
 19765556.8820000             1.0000000

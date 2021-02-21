@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # wachters+f version number 0
 # Description: VDZP    Valence Double Zeta + Polarization on All Atoms
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -52,14 +52,14 @@
 #             Barnes, Leslie A.
 #     Theoretical studies of the first- and second-row transition-metal
 #             methyls and their positive ions
-#     J. Chem. Phys., 91, 2399-2411 (1989)
+#     J. Chem. Phys. 91, 2399-2411 (1989)
 #     10.1063/1.456998
 # 
 # hay1977a
 #     Hay, P. Jeffrey
 #     Gaussian basis sets for molecular calculations. The representation of
 #             3d orbitals in transition‐metal atoms
-#     J. Chem. Phys., 66, 4377-4384 (1977)
+#     J. Chem. Phys. 66, 4377-4384 (1977)
 #     10.1063/1.433731
 # 
 # wachters1969a
@@ -74,11 +74,11 @@
 #     Wachters, A. J. H.
 #     Gaussian Basis Set for Molecular Wavefunctions Containing Third-Row
 #             Atoms
-#     J. Chem. Phys., 52, 1033-1036 (1970)
+#     J. Chem. Phys. 52, 1033-1036 (1970)
 #     10.1063/1.1673095
 # 
 # # 
-basis "Sc_wachters+f" 
+basis "Sc_wachters+f" SPHERICAL 
 #basis SET: (14s,11p,6d,3f) -> [8s,6p,4d,1f]
 Sc    S
  188961.0000000              0.0002500
@@ -111,10 +111,10 @@ Sc    P
      13.2190000              0.4251700
       5.5835700              0.3597200
 Sc    P
+      2.1859400              1.0000000
+Sc    P
       0.8950110              0.5760200
       0.3519750              0.3089000
-Sc    P
-      2.1859400              1.0000000
 Sc    P
       0.1346200              1.0000000
 Sc    P
@@ -134,7 +134,7 @@ Sc    F
       0.3198414              0.5973381
       0.1369599              0.3929396
 end
-basis "Ti_wachters+f" 
+basis "Ti_wachters+f" SPHERICAL 
 #basis SET: (14s,11p,6d,3f) -> [8s,6p,4d,1f]
 Ti    S
  206082.0000000              0.0002500
@@ -167,10 +167,10 @@ Ti    P
      14.7814000              0.4263100
       6.2746500              0.3571400
 Ti    P
+      2.4787800              1.0000000
+Ti    P
       1.0161800              0.5770900
       0.3981620              0.2998600
-Ti    P
-      2.4787800              1.0000000
 Ti    P
       0.1523400              1.0000000
 Ti    P
@@ -190,7 +190,7 @@ Ti    F
       0.4997522              0.5973381
       0.2139998              0.3929396
 end
-basis "V_wachters+f" 
+basis "V_wachters+f" SPHERICAL 
 #basis SET: (14s,11p,6d,3f) -> [8s,6p,4d,1f]
 V    S
  226878.0000000              0.0002500
@@ -223,10 +223,10 @@ V    P
      16.4635000              0.4262200
       7.0235200              0.3557800
 V    P
+      2.7902500              1.0000000
+V    P
       1.1460900              0.5769300
       0.4472720              0.2947000
-V    P
-      2.7902500              1.0000000
 V    P
       0.1668720              1.0000000
 V    P
@@ -246,7 +246,7 @@ V    F
       0.7196432              0.5973381
       0.3081598              0.3929396
 end
-basis "Cr_wachters+f" 
+basis "Cr_wachters+f" SPHERICAL 
 #basis SET: (14s,11p,6d,3f) -> [8s,6p,4d,1f]
 Cr    S
  236658.0000000              0.0002700
@@ -279,10 +279,10 @@ Cr    P
      17.7775000              0.4271800
       7.6612800              0.3457900
 Cr    P
+      3.0776500              1.0000000
+Cr    P
       1.2661900              0.5749000
       0.4935340              0.2847300
-Cr    P
-      3.0776500              1.0000000
 Cr    P
       0.1810100              1.0000000
 Cr    P
@@ -302,7 +302,7 @@ Cr    F
       0.9795143              0.5973381
       0.4194397              0.3929396
 end
-basis "Mn_wachters+f" 
+basis "Mn_wachters+f" SPHERICAL 
 #basis SET: (14s,11p,6d,3f) -> [8s,6p,4d,1f]
 Mn    S
  243694.0000000              0.0002900
@@ -335,10 +335,10 @@ Mn    P
      18.5985000              0.4288900
       8.1377800              0.3259800
 Mn    P
+      3.3373400              1.0000000
+Mn    P
       1.3789500              0.5693500
       0.5386390              0.2735400
-Mn    P
-      3.3373400              1.0000000
 Mn    P
       0.1914750              1.0000000
 Mn    P
@@ -358,7 +358,7 @@ Mn    F
       1.2793657              0.5973381
       0.5478396              0.3929396
 end
-basis "Fe_wachters+f" 
+basis "Fe_wachters+f" SPHERICAL 
 #basis SET: (14s,11p,6d,3f) -> [8s,6p,4d,1f]
 Fe    S
  257539.0000000              0.0002900
@@ -391,10 +391,10 @@ Fe    P
      20.5035000              0.4288700
       8.9871200              0.3269100
 Fe    P
+      3.6824900              1.0000000
+Fe    P
       1.5217500              0.5692500
       0.5926840              0.2686300
-Fe    P
-      3.6824900              1.0000000
 Fe    P
       0.2023700              1.0000000
 Fe    P
@@ -414,7 +414,7 @@ Fe    F
       1.6191972              0.5973381
       0.6933595              0.3929396
 end
-basis "Co_wachters+f" 
+basis "Co_wachters+f" SPHERICAL 
 #basis SET: (14s,11p,6d,3f) -> [8s,6p,4d,1f]
 Co    S
  270991.0000000              0.0003100
@@ -447,10 +447,10 @@ Co    P
      20.7512000              0.4326800
       9.2036800              0.2986100
 Co    P
+      3.8177900              1.0000000
+Co    P
       1.5876200              0.5562500
       0.6246600              0.2434500
-Co    P
-      3.8177900              1.0000000
 Co    P
       0.2119620              1.0000000
 Co    P
@@ -470,7 +470,7 @@ Co    F
       1.9990089              0.5973381
       0.8559993              0.3929396
 end
-basis "Ni_wachters+f" 
+basis "Ni_wachters+f" SPHERICAL 
 #basis SET: (14s,11p,6d,3f) -> [8s,6p,4d,1f]
 Ni    S
  284878.0000000              0.0003200
@@ -503,10 +503,10 @@ Ni    P
      22.3874000              0.4348600
       9.9284800              0.2944200
 Ni    P
+      4.1162500              1.0000000
+Ni    P
       1.7103100              0.5527300
       0.6725280              0.2344100
-Ni    P
-      4.1162500              1.0000000
 Ni    P
       0.2198820              1.0000000
 Ni    P
@@ -526,7 +526,7 @@ Ni    F
       2.4188007              0.5973381
       1.0357592              0.3929396
 end
-basis "Cu_wachters+f" 
+basis "Cu_wachters+f" SPHERICAL 
 #basis SET: (14s,11p,6d,3f) -> [8s,6p,4d,1f]
 Cu    S
  337200.0000000              0.0002800
@@ -559,10 +559,10 @@ Cu    P
      27.0551000              0.4341900
      11.7435000              0.3339000
 Cu    P
+      4.6938200              1.0000000
+Cu    P
       1.9066700              0.5693600
       0.7114450              0.2470200
-Cu    P
-      4.6938200              1.0000000
 Cu    P
       0.2325980              1.0000000
 Cu    P

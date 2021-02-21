@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # sbkjc-vdz version number 0
 # Description: VDZ Valence Double Zeta with ECP
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -63,20 +63,20 @@
 #     Binkley, J. Stephen, Pople, John A., Hehre, Warren J.
 #     Self-consistent molecular orbital methods. 21. Small split-valence
 #             basis sets for first-row elements
-#     J. Am. Chem. Soc., 102, 939-947 (1980)
+#     J. Am. Chem. Soc. 102, 939-947 (1980)
 #     10.1021/ja00523a008
 # 
 # cundari1993a
 #     Cundari, Thomas R., Stevens, Walter J.
 #     Effective core potential methods for the lanthanides
-#     J. Chem. Phys., 98, 5555-5565 (1993)
+#     J. Chem. Phys. 98, 5555-5565 (1993)
 #     10.1063/1.464902
 # 
 # stevens1984a
 #     Stevens, Walter J., Basch, Harold, Krauss, Morris
 #     Compact effective potentials and efficient shared-exponent basis sets
 #             for the first- and second-row atoms
-#     J. Chem. Phys., 81, 6026-6033 (1984)
+#     J. Chem. Phys. 81, 6026-6033 (1984)
 #     10.1063/1.447604
 # 
 # stevens1992a
@@ -84,11 +84,11 @@
 #     Relativistic compact effective potentials and efficient, shared-
 #             exponent basis sets for the third-, fourth-, and fifth-row
 #             atoms
-#     Can. J. Chem., 70, 612-630 (1992)
+#     Can. J. Chem. 70, 612-630 (1992)
 #     10.1139/v92-085
 # 
 # # 
-basis "H_sbkjc-vdz" 
+basis "H_sbkjc-vdz" SPHERICAL 
 #basis SET: (3s) -> [2s]
 H    S
       5.4471780              0.1562850
@@ -96,7 +96,7 @@ H    S
 H    S
       0.1831920              1.0000000
 end
-basis "He_sbkjc-vdz" 
+basis "He_sbkjc-vdz" SPHERICAL 
 #basis SET: (3s) -> [2s]
 He    S
      13.6267000              0.1752300
@@ -104,7 +104,7 @@ He    S
 He    S
       0.3829930              1.0000000
 end
-basis "Li_sbkjc-vdz" 
+basis "Li_sbkjc-vdz" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Li    SP
       0.617700               -.162870               0.062050
@@ -123,7 +123,7 @@ Li S
 0       0.6128400              1.8013100
 2       1.6488100              3.5497100
 end
-basis "Be_sbkjc-vdz" 
+basis "Be_sbkjc-vdz" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Be    SP
       1.447000               -.156470               0.089240
@@ -142,7 +142,7 @@ Be S
 0       1.1987400              1.8422900
 2       3.2073800              6.8116900
 end
-basis "B_sbkjc-vdz" 
+basis "B_sbkjc-vdz" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 B    SP
       2.710000               -.149870               0.094740
@@ -161,7 +161,7 @@ B S
 0       1.9206100              1.8957200
 2       5.5517700             10.9754300
 end
-basis "C_sbkjc-vdz" 
+basis "C_sbkjc-vdz" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 C    SP
       4.286000               -.147220               0.102570
@@ -180,7 +180,7 @@ C S
 0       2.8149700              1.9292600
 2       8.1129600             14.8819900
 end
-basis "N_sbkjc-vdz" 
+basis "N_sbkjc-vdz" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 N    SP
       6.403000               -.139550               0.103360
@@ -199,7 +199,7 @@ N S
 0       3.8389500              1.9356500
 2      11.7324700             21.7335500
 end
-basis "O_sbkjc-vdz" 
+basis "O_sbkjc-vdz" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 O    SP
       8.519000               -.145510               0.110070
@@ -218,7 +218,7 @@ O S
 0       5.0534800              1.9606900
 2      15.9533300             29.1344200
 end
-basis "F_sbkjc-vdz" 
+basis "F_sbkjc-vdz" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 F    SP
      11.120000               -.144510               0.113000
@@ -237,7 +237,7 @@ F S
 0       6.6048800              2.0364900
 2      18.2409200             27.8627900
 end
-basis "Ne_sbkjc-vdz" 
+basis "Ne_sbkjc-vdz" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Ne    SP
      14.070000               -.144630               0.115140
@@ -256,7 +256,7 @@ Ne S
 0       8.2804700              2.0995200
 2      22.4410200             31.4671800
 end
-basis "Na_sbkjc-vdz" 
+basis "Na_sbkjc-vdz" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Na    SP
       0.429900               -.208740               -.025710
@@ -278,7 +278,7 @@ Na P
 0       1.2915800              3.2397100
 2       0.6579100              2.5351400
 end
-basis "Mg_sbkjc-vdz" 
+basis "Mg_sbkjc-vdz" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Mg    SP
       0.660600               -.244510               -.044210
@@ -300,7 +300,7 @@ Mg P
 0       1.8917700              3.2476200
 2       0.9823500              4.3301200
 end
-basis "Al_sbkjc-vdz" 
+basis "Al_sbkjc-vdz" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Al    SP
       0.901100               -.303770               -.079290
@@ -322,7 +322,7 @@ Al P
 0       2.8314600              3.2946500
 2       1.3847900              6.8702900
 end
-basis "Si_sbkjc-vdz" 
+basis "Si_sbkjc-vdz" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Si    SP
       1.167000               -.324030               -.084500
@@ -344,7 +344,7 @@ Si P
 0       3.8258500              3.2034500
 2       1.8302600              9.8643800
 end
-basis "P_sbkjc-vdz" 
+basis "P_sbkjc-vdz" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 P    SP
       1.459000               -.340910               -.093780
@@ -366,7 +366,7 @@ P P
 0       4.9636800              3.2408400
 2       2.3186500             13.1077800
 end
-basis "S_sbkjc-vdz" 
+basis "S_sbkjc-vdz" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 S    SP
       1.817000               -.340150               -.100960
@@ -388,7 +388,7 @@ S P
 0       6.8854000              3.3570500
 2       2.9069000             17.5423700
 end
-basis "Cl_sbkjc-vdz" 
+basis "Cl_sbkjc-vdz" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Cl    SP
       2.225000               -.330980               -.126040
@@ -410,7 +410,7 @@ Cl P
 0       8.9002900              3.4286000
 2       3.5264800             22.1525600
 end
-basis "Ar_sbkjc-vdz" 
+basis "Ar_sbkjc-vdz" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Ar    SP
       2.706000               -.312860               -.109270
@@ -432,7 +432,7 @@ Ar P
 0      11.4117800              3.5250000
 2       4.2047600             27.4168600
 end
-basis "K_sbkjc-vdz" 
+basis "K_sbkjc-vdz" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 K    SP
       0.220100               -.286027               -.066245
@@ -454,7 +454,7 @@ K P
 0       0.9417000              7.0625200
 2       0.3362300              2.6986800
 end
-basis "Ca_sbkjc-vdz" 
+basis "Ca_sbkjc-vdz" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Ca    SP
       0.260400               -.676466               -.270374
@@ -477,7 +477,7 @@ Ca P
 0       1.7941300              8.6622200
 2       0.4932300              5.5721800
 end
-basis "Sc_sbkjc-vdz" 
+basis "Sc_sbkjc-vdz" SPHERICAL 
 #basis SET: (8s,8p,6d) -> [4s,4p,3d]
 Sc    SP
      40.07000                -.003296               -.007753
@@ -485,10 +485,10 @@ Sc    SP
       3.047000               0.103253               0.780261
       0.958800               1.320199               0.834079
 Sc    SP
+      0.355700               1.000000               1.000000
+Sc    SP
       1.264000               -.057596               -.031779
       0.075020               1.016468               1.004065
-Sc    SP
-      0.355700               1.000000               1.000000
 Sc    SP
       0.027410               1.000000               1.000000
 Sc    D
@@ -515,7 +515,7 @@ Sc P
 0      23.5384900              3.9304800
 2       6.5841500             45.6914000
 end
-basis "Ti_sbkjc-vdz" 
+basis "Ti_sbkjc-vdz" SPHERICAL 
 #basis SET: (8s,8p,6d) -> [4s,4p,3d]
 Ti    SP
      51.08000                -.002004               -.006949
@@ -523,10 +523,10 @@ Ti    SP
       2.997000               0.156029               0.544254
       1.019000               1.248817               0.789631
 Ti    SP
+      0.374500               1.000000               1.000000
+Ti    SP
       1.383000               -.072891               -.025949
       0.081280               1.020184               1.003353
-Ti    SP
-      0.374500               1.000000               1.000000
 Ti    SP
       0.030230               1.000000               1.000000
 Ti    D
@@ -553,7 +553,7 @@ Ti P
 0      31.6778200              4.0443300
 2       7.4579300             53.0004800
 end
-basis "V_sbkjc-vdz" 
+basis "V_sbkjc-vdz" SPHERICAL 
 #basis SET: (8s,8p,6d) -> [4s,4p,3d]
 V    SP
      48.16000                -.004277               -.008007
@@ -561,10 +561,10 @@ V    SP
       3.115000               0.131799               0.522944
       1.098000               1.218022               0.754434
 V    SP
+      0.393600               1.000000               1.000000
+V    SP
       1.565000               -.085426               -.022816
       0.094090               1.023584               1.003066
-V    SP
-      0.393600               1.000000               1.000000
 V    SP
       0.033700               1.000000               1.000000
 V    D
@@ -591,7 +591,7 @@ V P
 0      30.8372000              3.7648100
 2       8.3445400             58.9650300
 end
-basis "Cr_sbkjc-vdz" 
+basis "Cr_sbkjc-vdz" SPHERICAL 
 #basis SET: (8s,8p,6d) -> [4s,4p,3d]
 Cr    SP
      23.120000               -.005918               -.018018
@@ -599,10 +599,10 @@ Cr    SP
       2.8670000              0.296120               0.497416
       1.1440000              1.107646               0.672884
 Cr    SP
+      0.452900               1.000000               1.000000
+Cr    SP
       1.571000               -.090329               -.037281
       0.096540               1.025164               1.004879
-Cr    SP
-      0.452900               1.000000               1.000000
 Cr    SP
       0.034920               1.000000               1.000000
 Cr    D
@@ -629,7 +629,7 @@ Cr P
 0      32.2822300              3.6886200
 2       9.2813700             65.4804600
 end
-basis "Mn_sbkjc-vdz" 
+basis "Mn_sbkjc-vdz" SPHERICAL 
 #basis SET: (8s,8p,6d) -> [4s,4p,3d]
 Mn    SP
      72.17000                -.002635               -.007172
@@ -637,10 +637,10 @@ Mn    SP
       3.729000               0.224656               0.532283
       1.321000               1.175342               0.730536
 Mn    SP
+      0.475400               1.000000               1.000000
+Mn    SP
       1.827000               -.096146               -.032600
       0.113000               1.026668               1.004376
-Mn    SP
-      0.475400               1.000000               1.000000
 Mn    SP
       0.038900               1.000000               1.000000
 Mn    D
@@ -667,7 +667,7 @@ Mn P
 0      49.7676500              4.3680400
 2      10.3662300             75.5324200
 end
-basis "Fe_sbkjc-vdz" 
+basis "Fe_sbkjc-vdz" SPHERICAL 
 #basis SET: (8s,8p,6d) -> [4s,4p,3d]
 Fe    SP
      70.28000                -.002611               -.007940
@@ -675,10 +675,10 @@ Fe    SP
       4.134000               0.362530               0.591028
       1.421000               1.140645               0.719448
 Fe    SP
+      0.512100               1.000000               1.000000
+Fe    SP
       1.978000               -.098172               -.033731
       0.121300               1.026957               1.004462
-Fe    SP
-      0.512100               1.000000               1.000000
 Fe    SP
       0.041000               1.000000               1.000000
 Fe    D
@@ -705,7 +705,7 @@ Fe P
 0      49.4045600              4.1373700
 2      11.4018300             82.7369600
 end
-basis "Co_sbkjc-vdz" 
+basis "Co_sbkjc-vdz" SPHERICAL 
 #basis SET: (8s,8p,6d) -> [4s,4p,3d]
 Co    SP
      75.68000                -.005271               -.008085
@@ -713,10 +713,10 @@ Co    SP
       4.791000               0.347880               0.680078
       1.594000               1.175595               0.729594
 Co    SP
+      0.557200               1.000000               1.000000
+Co    SP
       2.337000               -.089267               -.015935
       0.126900               1.022589               1.001945
-Co    SP
-      0.557200               1.000000               1.000000
 Co    SP
       0.042320               1.000000               1.000000
 Co    D
@@ -743,7 +743,7 @@ Co P
 0      50.2814600              3.9532100
 2      12.5261000             90.9004300
 end
-basis "Ni_sbkjc-vdz" 
+basis "Ni_sbkjc-vdz" SPHERICAL 
 #basis SET: (8s,8p,6d) -> [4s,4p,3d]
 Ni    SP
      89.36000                -.005220               -.007529
@@ -751,10 +751,10 @@ Ni    SP
       5.572000               0.251050               0.706364
       1.850000               1.236451               0.753606
 Ni    SP
+      0.659400               1.000000               1.000000
+Ni    SP
       3.235000               -.063418               0.001136
       0.129500               1.013237               0.999895
-Ni    SP
-      0.659400               1.000000               1.000000
 Ni    SP
       0.043270               1.000000               1.000000
 Ni    D
@@ -781,7 +781,7 @@ Ni P
 0      56.4535300              3.8754000
 2      13.6653400             99.6828900
 end
-basis "Cu_sbkjc-vdz" 
+basis "Cu_sbkjc-vdz" SPHERICAL 
 #basis SET: (8s,8p,6d) -> [4s,4p,3d]
 Cu    SP
      83.42000                -.004829               -.008284
@@ -789,10 +789,10 @@ Cu    SP
       5.600000               0.265240               0.618133
       1.932000               1.189791               0.722184
 Cu    SP
+      0.687400               1.000000               1.000000
+Cu    SP
       2.866000               -.074774               -.000541
       0.131900               1.017037               1.000058
-Cu    SP
-      0.687400               1.000000               1.000000
 Cu    SP
       0.044000               1.000000               1.000000
 Cu    D
@@ -819,7 +819,7 @@ Cu P
 0      51.1573400              3.4213000
 2      14.7340600            105.7012600
 end
-basis "Zn_sbkjc-vdz" 
+basis "Zn_sbkjc-vdz" SPHERICAL 
 #basis SET: (8s,8p,6d) -> [4s,4p,3d]
 Zn    SP
     113.50000                -.004280               -.007429
@@ -827,10 +827,10 @@ Zn    SP
       6.3320000              0.425006               0.723451
       2.1460000              1.198077               0.727217
 Zn    SP
+      0.811600               1.000000               1.000000
+Zn    SP
       2.906000               -.082356               -.023001
       0.162300               1.021574               1.002824
-Zn    SP
-      0.811600               1.000000               1.000000
 Zn    SP
       0.053690               1.000000               1.000000
 Zn    D
@@ -857,7 +857,7 @@ Zn P
 0      75.7060300              4.1147300
 2      16.0762700            118.2993600
 end
-basis "Ga_sbkjc-vdz" 
+basis "Ga_sbkjc-vdz" SPHERICAL 
 #basis SET: (8s,8p,6d) -> [4s,4p,3d]
 Ga    SP
     113.9000                 -.001711               -.008046
@@ -865,10 +865,10 @@ Ga    SP
       6.633000               0.458618               0.663794
       2.278000               1.161817               0.713619
 Ga    SP
+      0.881800               1.000000               1.000000
+Ga    SP
       2.123000               -.145506               -.096261
       0.193900               1.051147               1.017573
-Ga    SP
-      0.881800               1.000000               1.000000
 Ga    SP
       0.074610               1.000000               1.000000
 Ga    D
@@ -895,7 +895,7 @@ Ga P
 0      79.9935300              4.2003300
 2      17.3911400            127.9913900
 end
-basis "Ge_sbkjc-vdz" 
+basis "Ge_sbkjc-vdz" SPHERICAL 
 #basis SET: (5s,5p) -> [2s,2p]
 Ge    SP
       1.834000               0.493860               0.006414
@@ -921,7 +921,7 @@ Ge D
 0       3.0697000              1.6236000
 2       0.8052500              3.2066000
 end
-basis "As_sbkjc-vdz" 
+basis "As_sbkjc-vdz" SPHERICAL 
 #basis SET: (5s,5p) -> [2s,2p]
 As    SP
       2.709000               0.121479               -.002920
@@ -947,7 +947,7 @@ As D
 0       1.1208600              2.2350800
 2       1.1214000              4.6072100
 end
-basis "Se_sbkjc-vdz" 
+basis "Se_sbkjc-vdz" SPHERICAL 
 #basis SET: (5s,5p) -> [2s,2p]
 Se    SP
       3.711000               0.055744               -.006014
@@ -973,7 +973,7 @@ Se D
 0       1.3829000              2.4000100
 2       1.4267100              6.5994800
 end
-basis "Br_sbkjc-vdz" 
+basis "Br_sbkjc-vdz" SPHERICAL 
 #basis SET: (5s,5p) -> [2s,2p]
 Br    SP
       3.276000               0.200570               0.005411
@@ -999,7 +999,7 @@ Br D
 0       1.7316800              1.7937500
 2       1.7324600             10.0466000
 end
-basis "Kr_sbkjc-vdz" 
+basis "Kr_sbkjc-vdz" SPHERICAL 
 #basis SET: (5s,5p) -> [2s,2p]
 Kr    SP
       3.081000               0.533789               0.035906
@@ -1025,7 +1025,7 @@ Kr D
 0       7.0867700              2.8545900
 2       2.1505800             16.2938600
 end
-basis "Rb_sbkjc-vdz" 
+basis "Rb_sbkjc-vdz" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Rb    SP
       0.154300               -.753390               -.108684
@@ -1052,7 +1052,7 @@ Rb D
 0       0.0827200             28.3265400
 0       0.2636500            -26.5945800
 end
-basis "Sr_sbkjc-vdz" 
+basis "Sr_sbkjc-vdz" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Sr    SP
       0.183600              -1.075139               -.955549
@@ -1079,7 +1079,7 @@ Sr D
 0       0.2555000             37.4395600
 0       0.2886800            -36.0039300
 end
-basis "Y_sbkjc-vdz" 
+basis "Y_sbkjc-vdz" SPHERICAL 
 #basis SET: (8s,8p,5d) -> [4s,4p,3d]
 Y    SP
      29.84000                -.006294               -.003457
@@ -1087,10 +1087,10 @@ Y    SP
       2.694000              -2.550213               -.098933
       0.843000               1.756065               1.112190
 Y    SP
+      0.301500               1.000000               1.000000
+Y    SP
       1.324000               -.057976               -.025891
       0.068060               1.014874               1.002833
-Y    SP
-      0.301500               1.000000               1.000000
 Y    SP
       0.027290               1.000000               1.000000
 Y    D
@@ -1120,7 +1120,7 @@ Y D
 0       9.3677000              2.2959000
 2       2.8303800             20.6218200
 end
-basis "Zr_sbkjc-vdz" 
+basis "Zr_sbkjc-vdz" SPHERICAL 
 #basis SET: (8s,8p,5d) -> [4s,4p,3d]
 Zr    SP
      30.530000               -.004504               -.004092
@@ -1128,10 +1128,10 @@ Zr    SP
       2.9710000             -2.918518               -.140588
       0.9587000              1.822958               1.130526
 Zr    SP
+      0.376400               1.000000               1.000000
+Zr    SP
       0.929300               -.061958               -.060217
       0.069100               1.020739               1.009302
-Zr    SP
-      0.376400               1.000000               1.000000
 Zr    SP
       0.027590               1.000000               1.000000
 Zr    D
@@ -1161,7 +1161,7 @@ Zr D
 0      16.5759800              5.6408500
 2       3.3207900             26.6609300
 end
-basis "Nb_sbkjc-vdz" 
+basis "Nb_sbkjc-vdz" SPHERICAL 
 #basis SET: (8s,8p,5d) -> [4s,4p,3d]
 Nb    SP
      38.53000                -.002059               -.003576
@@ -1169,10 +1169,10 @@ Nb    SP
       3.274000              -2.830860               -.185568
       1.052000               1.818465               1.133471
 Nb    SP
+      0.416500               1.000000               1.000000
+Nb    SP
       1.057000               -.071919               -.067815
       0.078760               1.023797               1.010254
-Nb    SP
-      0.416500               1.000000               1.000000
 Nb    SP
       0.030910               1.000000               1.000000
 Nb    D
@@ -1202,7 +1202,7 @@ Nb D
 0      10.4880300              2.7720600
 2       3.6426600             29.0524600
 end
-basis "Mo_sbkjc-vdz" 
+basis "Mo_sbkjc-vdz" SPHERICAL 
 #basis SET: (8s,8p,5d) -> [4s,4p,3d]
 Mo    SP
      39.67000                -.009716               -.004015
@@ -1210,10 +1210,10 @@ Mo    SP
       3.208000              -2.229530               -.251817
       1.224000               2.046495               1.192347
 Mo    SP
+      0.472800               1.000000               1.000000
+Mo    SP
       1.181000               -.075222               -.071971
       0.084890               1.024137               1.010227
-Mo    SP
-      0.472800               1.000000               1.000000
 Mo    SP
       0.032760               1.000000               1.000000
 Mo    D
@@ -1243,7 +1243,7 @@ Mo D
 0       9.7040000              2.7348600
 2       4.0309800             32.5323100
 end
-basis "Tc_sbkjc-vdz" 
+basis "Tc_sbkjc-vdz" SPHERICAL 
 #basis SET: (8s,8p,5d) -> [4s,4p,3d]
 Tc    SP
      48.87000                -.006485               -.003492
@@ -1251,10 +1251,10 @@ Tc    SP
       3.740000              -2.698832               -.297801
       1.305000               1.956263               1.174900
 Tc    SP
+      0.494000               1.000000               1.000000
+Tc    SP
       1.744000               -.094275               -.085401
       0.120600               1.028604               1.010946
-Tc    SP
-      0.494000               1.000000               1.000000
 Tc    SP
       0.043100               1.000000               1.000000
 Tc    D
@@ -1284,7 +1284,7 @@ Tc D
 0      11.6209200              2.8636500
 2       4.4590000             37.1801400
 end
-basis "Ru_sbkjc-vdz" 
+basis "Ru_sbkjc-vdz" SPHERICAL 
 #basis SET: (8s,8p,5d) -> [4s,4p,3d]
 Ru    SP
      56.00000                -.002837               -.003198
@@ -1292,10 +1292,10 @@ Ru    SP
       3.793000              -3.431011               -.127594
       1.367000               2.074446               1.146533
 Ru    SP
+      0.518300               1.000000               1.000000
+Ru    SP
       1.528000               -.069035               -.072990
       0.096730               1.020343               1.008642
-Ru    SP
-      0.518300               1.000000               1.000000
 Ru    SP
       0.036360               1.000000               1.000000
 Ru    D
@@ -1325,7 +1325,7 @@ Ru D
 0      14.3374300              3.2108300
 2       4.9000300             42.0732100
 end
-basis "Rh_sbkjc-vdz" 
+basis "Rh_sbkjc-vdz" SPHERICAL 
 #basis SET: (8s,8p,5d) -> [4s,4p,3d]
 Rh    SP
      56.870000               -.003087               -.003748
@@ -1333,10 +1333,10 @@ Rh    SP
       4.0780000             -2.160867               -.268975
       1.5470000              2.029434               1.193604
 Rh    SP
+      0.596300               1.000000               1.000000
+Rh    SP
       1.894000               -.081700               -.071093
       0.117900               1.023308               1.008280
-Rh    SP
-      0.596300               1.000000               1.000000
 Rh    SP
       0.042190               1.000000               1.000000
 Rh    D
@@ -1366,7 +1366,7 @@ Rh D
 0      17.8924800              3.3482500
 2       5.3487400             47.1388300
 end
-basis "Pd_sbkjc-vdz" 
+basis "Pd_sbkjc-vdz" SPHERICAL 
 #basis SET: (8s,8p,5d) -> [4s,4p,3d]
 Pd    SP
      41.82000                -.016522               -.005555
@@ -1374,10 +1374,10 @@ Pd    SP
       4.600000              -4.457343               -.388641
       1.752000               2.253933               1.231997
 Pd    SP
+      0.669100               1.000000               1.000000
+Pd    SP
       2.177000               -.075029               -.056178
       0.114900               1.019049               1.005515
-Pd    SP
-      0.669100               1.000000               1.000000
 Pd    SP
       0.042190               1.000000               1.000000
 Pd    D
@@ -1407,7 +1407,7 @@ Pd D
 0      19.5447700              3.3061100
 2       5.8466400             52.7880200
 end
-basis "Ag_sbkjc-vdz" 
+basis "Ag_sbkjc-vdz" SPHERICAL 
 #basis SET: (8s,8p,5d) -> [4s,4p,3d]
 Ag    SP
      63.56000                -.000731               -.004234
@@ -1415,10 +1415,10 @@ Ag    SP
       5.022000              -2.873102               -.338746
       1.789000               2.017361               1.190832
 Ag    SP
+      0.687100               1.000000               1.000000
+Ag    SP
       2.451000               -.072539               -.049830
       0.156100               1.021358               1.006516
-Ag    SP
-      0.687100               1.000000               1.000000
 Ag    SP
       0.052270               1.000000               1.000000
 Ag    D
@@ -1448,7 +1448,7 @@ Ag D
 0      22.9402000              3.4089500
 2       6.2662700             57.1051300
 end
-basis "Cd_sbkjc-vdz" 
+basis "Cd_sbkjc-vdz" SPHERICAL 
 #basis SET: (8s,8p,5d) -> [4s,4p,3d]
 Cd    SP
      63.380000               -.000464               -.004874
@@ -1456,10 +1456,10 @@ Cd    SP
       5.6020000             -3.902884               -.491872
       1.9710000              2.084604               1.213501
 Cd    SP
+      0.768900               1.000000               1.000000
+Cd    SP
       2.696000               -.064866               -.053338
       0.175800               1.019661               1.007102
-Cd    SP
-      0.768900               1.000000               1.000000
 Cd    SP
       0.056470               1.000000               1.000000
 Cd    D
@@ -1489,7 +1489,7 @@ Cd D
 0      22.3533700              3.3309400
 2       6.7540800             62.0661600
 end
-basis "In_sbkjc-vdz" 
+basis "In_sbkjc-vdz" SPHERICAL 
 #basis SET: (8s,8p,5d) -> [4s,4p,3d]
 In    SP
      71.76000                0.000733               -.004513
@@ -1497,10 +1497,10 @@ In    SP
       5.616000              -2.731089               -.338006
       2.104000               2.112844               1.213464
 In    SP
+      0.841000               1.000000               1.000000
+In    SP
       2.610000               -.099690               -.110317
       0.190100               1.031230               1.013900
-In    SP
-      0.841000               1.000000               1.000000
 In    SP
       0.082670               1.000000               1.000000
 In    D
@@ -1530,7 +1530,7 @@ In D
 0      29.1607200              3.4924400
 2       7.2656600             68.2781600
 end
-basis "Sn_sbkjc-vdz" 
+basis "Sn_sbkjc-vdz" SPHERICAL 
 #basis SET: (5s,5p) -> [2s,2p]
 Sn    SP
       2.604000               0.031042               -.005053
@@ -1558,7 +1558,7 @@ Sn D
 0       1.6543000              5.1024300
 2       0.6030100              5.2746600
 end
-basis "Sb_sbkjc-vdz" 
+basis "Sb_sbkjc-vdz" SPHERICAL 
 #basis SET: (5s,5p) -> [2s,2p]
 Sb    SP
       0.992200               0.690076               0.180229
@@ -1587,7 +1587,7 @@ Sb D
 0       2.4598100              9.2218200
 2       0.7641500              7.9212900
 end
-basis "Te_sbkjc-vdz" 
+basis "Te_sbkjc-vdz" SPHERICAL 
 #basis SET: (5s,5p) -> [2s,2p]
 Te    SP
       2.364000               0.087179               -.003982
@@ -1616,7 +1616,7 @@ Te D
 0       3.6661800             11.5466300
 2       0.9318900             11.2377600
 end
-basis "I_sbkjc-vdz" 
+basis "I_sbkjc-vdz" SPHERICAL 
 #basis SET: (5s,5p) -> [2s,2p]
 I    SP
       2.625000               0.073660               -.008880
@@ -1645,7 +1645,7 @@ I D
 0       3.9306300              9.7308900
 2       1.0692000             13.9888000
 end
-basis "Xe_sbkjc-vdz" 
+basis "Xe_sbkjc-vdz" SPHERICAL 
 #basis SET: (5s,5p) -> [2s,2p]
 Xe    SP
       1.739000               0.349091               -.005429
@@ -1674,7 +1674,7 @@ Xe D
 0       5.8989700             17.7904100
 2       1.2348500             17.2535800
 end
-basis "Cs_sbkjc-vdz" 
+basis "Cs_sbkjc-vdz" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Cs    SP
       0.115700               -.519994               -.150560
@@ -1701,7 +1701,7 @@ Cs D
 2       0.2015400             -0.8050000
 1       0.2441300              2.4709600
 end
-basis "Ba_sbkjc-vdz" 
+basis "Ba_sbkjc-vdz" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Ba    SP
       0.126600              -1.560287               -.686637
@@ -1728,7 +1728,7 @@ Ba D
 1       1.0045000             12.7880700
 1       0.1439400             -0.2867700
 end
-basis "La_sbkjc-vdz" 
+basis "La_sbkjc-vdz" SPHERICAL 
 #basis SET: (9s,9p,5d) -> [4s,4p,3d]
 La    SP
       9.173000               -.054833               -.009798
@@ -1737,10 +1737,10 @@ La    SP
       1.320000               -.518907               0.195189
       0.496000               1.631603               1.076137
 La    SP
+      0.200400               1.000000               1.000000
+La    SP
       0.618200               -.107095               -.051869
       0.045460               1.033448               1.008108
-La    SP
-      0.200400               1.000000               1.000000
 La    SP
       0.017750               1.000000               1.000000
 La    D
@@ -1773,7 +1773,7 @@ La F
 1       2.6776200             -4.6443000
 1      10.0660800            -14.4310100
 end
-basis "Ce_sbkjc-vdz" 
+basis "Ce_sbkjc-vdz" SPHERICAL 
 #basis SET: (6s,6p,3d,7f) -> [4s,4p,2d,2f]
 Ce    SP
       4.2910000             -1.4295170             -0.9123110
@@ -1819,15 +1819,15 @@ Ce D
 2       1.7064200             24.9446800
 0       6.4893400             10.2861400
 end
-basis "Hf_sbkjc-vdz" 
+basis "Hf_sbkjc-vdz" SPHERICAL 
 #basis SET: (7s,7p,5d) -> [4s,4p,3d]
+Hf    SP
+      0.644800               1.000000               1.000000
 Hf    SP
       4.711000               0.403273               0.013791
       3.331000               -.996540               -.179991
       0.984400               0.979338               0.693601
       0.358700               0.445791               0.461877
-Hf    SP
-      0.644800               1.000000               1.000000
 Hf    SP
       0.085680               1.000000               1.000000
 Hf    SP
@@ -1861,15 +1861,15 @@ Hf D
 Hf F
 0       1.1137700             11.0370000
 end
-basis "Ta_sbkjc-vdz" 
+basis "Ta_sbkjc-vdz" SPHERICAL 
 #basis SET: (7s,7p,5d) -> [4s,4p,3d]
+Ta    SP
+      0.731500               1.000000               1.000000
 Ta    SP
       5.554000               0.264429               0.016092
       3.436000               -.865843               -.182862
       1.033000               1.008583               0.722442
       0.374700               0.420826               0.436168
-Ta    SP
-      0.731500               1.000000               1.000000
 Ta    SP
       0.093400               1.000000               1.000000
 Ta    SP
@@ -1903,15 +1903,15 @@ Ta D
 Ta F
 0       1.1301100              7.8463400
 end
-basis "W_sbkjc-vdz" 
+basis "W_sbkjc-vdz" SPHERICAL 
 #basis SET: (7s,7p,5d) -> [4s,4p,3d]
+W    SP
+      0.821900               1.000000               1.000000
 W    SP
       4.328000               1.973960               0.172752
       3.898000              -2.605377               -.348372
       1.108000               1.052920               0.727425
       0.404700               0.412613               0.434635
-W    SP
-      0.821900               1.000000               1.000000
 W    SP
       0.097760               1.000000               1.000000
 W    SP
@@ -1945,15 +1945,15 @@ W D
 W F
 0       1.2056100              6.9947100
 end
-basis "Re_sbkjc-vdz" 
+basis "Re_sbkjc-vdz" SPHERICAL 
 #basis SET: (7s,7p,5d) -> [4s,4p,3d]
+Re    SP
+      0.912700               1.000000               1.000000
 Re    SP
       4.666000               1.451709               0.156457
       4.062000              -2.101771               -.342900
       1.188000               1.062295               0.738595
       0.433900               0.416694               0.432092
-Re    SP
-      0.912700               1.000000               1.000000
 Re    SP
       0.104800               1.000000               1.000000
 Re    SP
@@ -1987,15 +1987,15 @@ Re D
 Re F
 0       1.2745600              6.4431500
 end
-basis "Os_sbkjc-vdz" 
+basis "Os_sbkjc-vdz" SPHERICAL 
 #basis SET: (7s,7p,5d) -> [4s,4p,3d]
+Os    SP
+      1.002000               1.000000               1.000000
 Os    SP
       5.019000               1.726729               0.283956
       4.444000              -2.364185               -.462163
       1.230000               1.070406               0.763251
       0.450100               0.391956               0.403944
-Os    SP
-      1.002000               1.000000               1.000000
 Os    SP
       0.110400               1.000000               1.000000
 Os    SP
@@ -2029,15 +2029,15 @@ Os D
 Os F
 0       1.3874200              6.3312000
 end
-basis "Ir_sbkjc-vdz" 
+basis "Ir_sbkjc-vdz" SPHERICAL 
 #basis SET: (7s,7p,5d) -> [4s,4p,3d]
+Ir    SP
+      1.116000               1.000000               1.000000
 Ir    SP
       5.522000               1.052849               0.143988
       4.579000              -1.697001               -.325563
       1.289000               1.087609               0.776442
       0.473400               0.377230               0.389328
-Ir    SP
-      1.116000               1.000000               1.000000
 Ir    SP
       0.115900               1.000000               1.000000
 Ir    SP
@@ -2071,15 +2071,15 @@ Ir D
 Ir F
 0       1.4852400              6.2855900
 end
-basis "Pt_sbkjc-vdz" 
+basis "Pt_sbkjc-vdz" SPHERICAL 
 #basis SET: (7s,7p,5d) -> [4s,4p,3d]
+Pt    SP
+      1.200000               1.000000               1.000000
 Pt    SP
       6.653000               0.282256               0.036575
       3.995000              -1.075967               -.284606
       1.541000               1.131255               0.752346
       0.559900               0.478241               0.476585
-Pt    SP
-      1.200000               1.000000               1.000000
 Pt    SP
       0.127700               1.000000               1.000000
 Pt    SP
@@ -2113,15 +2113,15 @@ Pt D
 Pt F
 0       1.5898800              6.1387000
 end
-basis "Au_sbkjc-vdz" 
+basis "Au_sbkjc-vdz" SPHERICAL 
 #basis SET: (7s,7p,5d) -> [4s,4p,3d]
+Au    SP
+      1.502000               1.000000               1.000000
 Au    SP
       7.419000               0.222546               0.019924
       4.023000              -1.086045               -.299997
       1.698000               1.156039               0.748919
       0.627100               0.518061               0.504023
-Au    SP
-      1.502000               1.000000               1.000000
 Au    SP
       0.151500               1.000000               1.000000
 Au    SP
@@ -2155,16 +2155,16 @@ Au D
 Au F
 0       1.6888100              6.2160300
 end
-basis "Hg_sbkjc-vdz" 
+basis "Hg_sbkjc-vdz" SPHERICAL 
 #basis SET: (8s,8p,5d) -> [4s,4p,3d]
+Hg    SP
+      1.586000               1.000000               1.000000
 Hg    SP
      25.54000                -.022041               -.006068
       8.458000               0.309845               0.063000
       4.493000              -1.080984               -.314502
       1.751000               1.093600               0.746398
       0.675300               0.519202               0.487253
-Hg    SP
-      1.586000               1.000000               1.000000
 Hg    SP
       0.152000               1.000000               1.000000
 Hg    SP
@@ -2198,16 +2198,16 @@ Hg D
 Hg F
 0       1.8097800              6.2830200
 end
-basis "Tl_sbkjc-vdz" 
+basis "Tl_sbkjc-vdz" SPHERICAL 
 #basis SET: (8s,8p,5d) -> [4s,4p,3d]
+Tl    SP
+      1.629000               1.000000               1.000000
 Tl    SP
      27.72000                -.015939               -.005281
       8.583000               0.307229               0.072455
       4.650000              -1.124512               -.343413
       1.876000               1.114798               0.759620
       0.736900               0.531758               0.489550
-Tl    SP
-      1.629000               1.000000               1.000000
 Tl    SP
       0.160000               1.000000               1.000000
 Tl    SP
@@ -2241,7 +2241,7 @@ Tl D
 Tl F
 0       1.9138500              6.2760600
 end
-basis "Pb_sbkjc-vdz" 
+basis "Pb_sbkjc-vdz" SPHERICAL 
 #basis SET: (5s,5p) -> [2s,2p]
 Pb    SP
       1.534000               0.225652               0.028257
@@ -2273,7 +2273,7 @@ Pb F
 2       0.2068000           -124.1575800
 2       0.2077300            125.3279800
 end
-basis "Bi_sbkjc-vdz" 
+basis "Bi_sbkjc-vdz" SPHERICAL 
 #basis SET: (5s,5p) -> [2s,2p]
 Bi    SP
       1.746000               0.162327               0.016087
@@ -2305,7 +2305,7 @@ Bi F
 0       1.1764300             31.9991800
 2       0.7883200             16.8228700
 end
-basis "Po_sbkjc-vdz" 
+basis "Po_sbkjc-vdz" SPHERICAL 
 #basis SET: (5s,5p) -> [2s,2p]
 Po    SP
       1.897000               0.132690               0.006796
@@ -2337,7 +2337,7 @@ Po F
 0       0.7131700             33.5754000
 2       0.5624900              7.8921300
 end
-basis "At_sbkjc-vdz" 
+basis "At_sbkjc-vdz" SPHERICAL 
 #basis SET: (5s,5p) -> [2s,2p]
 At    SP
       2.676000               0.068973               -.002652
@@ -2368,7 +2368,7 @@ At F
 0       1.1228400              4.2709700
 2       1.1553000             -3.3950000
 end
-basis "Rn_sbkjc-vdz" 
+basis "Rn_sbkjc-vdz" SPHERICAL 
 #basis SET: (5s,5p) -> [2s,2p]
 Rn    SP
       2.489000               0.082820               0.004727

@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # cc-pv6z-rifit version number 1
 # Description: RI Fitting basis for use with cc-pV6Z
 # Role: rifit
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -44,7 +44,7 @@
 #     As referenced by the original BSE
 # 
 # # 
-basis "H_cc-pv6z-rifit" 
+basis "H_cc-pv6z-rifit" SPHERICAL 
 #basis SET: (7s,6p,5d,4f,3g,2h,1i) -> [7s,6p,5d,4f,3g,2h,1i]
 H    S
      19.551                  1.0000000
@@ -103,7 +103,7 @@ H    H
 H    I
       3.22928                1.0000000
 end
-basis "He_cc-pv6z-rifit" 
+basis "He_cc-pv6z-rifit" SPHERICAL 
 #basis SET: (7s,6p,5d,4f,3g,2h,1i) -> [7s,6p,5d,4f,3g,2h,1i]
 He    S
      97.8505                 1.0000000
@@ -162,7 +162,7 @@ He    H
 He    I
       5.79347                1.0000000
 end
-basis "B_cc-pv6z-rifit" 
+basis "B_cc-pv6z-rifit" SPHERICAL 
 #basis SET: (12s,10p,8d,7f,6g,4h,3i,1k) -> [12s,10p,8d,7f,6g,4h,3i,1k]
 B    S
     390.176                  1.0000000
@@ -267,7 +267,7 @@ B    I
 B    K
       1.28955                1.0000000
 end
-basis "C_cc-pv6z-rifit" 
+basis "C_cc-pv6z-rifit" SPHERICAL 
 #basis SET: (12s,10p,8d,7f,6g,4h,3i,1k) -> [12s,10p,8d,7f,6g,4h,3i,1k]
 C    S
     504.364                  1.0000000
@@ -372,7 +372,7 @@ C    I
 C    K
       1.98022                1.0000000
 end
-basis "N_cc-pv6z-rifit" 
+basis "N_cc-pv6z-rifit" SPHERICAL 
 #basis SET: (12s,10p,8d,7f,6g,4h,3i,1k) -> [12s,10p,8d,7f,6g,4h,3i,1k]
 N    S
     650.814                  1.0000000
@@ -477,7 +477,7 @@ N    I
 N    K
       2.82143                1.0000000
 end
-basis "O_cc-pv6z-rifit" 
+basis "O_cc-pv6z-rifit" SPHERICAL 
 #basis SET: (12s,10p,8d,7f,6g,4h,3i,1k) -> [12s,10p,8d,7f,6g,4h,3i,1k]
 O    S
     834.216                  1.0000000
@@ -582,7 +582,7 @@ O    I
 O    K
       3.73114                1.0000000
 end
-basis "F_cc-pv6z-rifit" 
+basis "F_cc-pv6z-rifit" SPHERICAL 
 #basis SET: (12s,10p,8d,7f,6g,4h,3i,1k) -> [12s,10p,8d,7f,6g,4h,3i,1k]
 F    S
    1079.96                   1.0000000
@@ -687,7 +687,7 @@ F    I
 F    K
       4.82912                1.0000000
 end
-basis "Ne_cc-pv6z-rifit" 
+basis "Ne_cc-pv6z-rifit" SPHERICAL 
 #basis SET: (12s,10p,8d,7f,6g,4h,3i,1k) -> [12s,10p,8d,7f,6g,4h,3i,1k]
 Ne    S
    1341.74                   1.0000000
@@ -792,7 +792,7 @@ Ne    I
 Ne    K
       6.06565                1.0000000
 end
-basis "Al_cc-pv6z-rifit" 
+basis "Al_cc-pv6z-rifit" SPHERICAL 
 #basis SET: (13s,13p,11d,9f,7g,5h,3i,1k) -> [13s,13p,11d,9f,7g,5h,3i,1k]
 Al    S
    1219.62                   1.0000000
@@ -919,7 +919,7 @@ Al    I
 Al    K
       0.683557               1.0000000
 end
-basis "Si_cc-pv6z-rifit" 
+basis "Si_cc-pv6z-rifit" SPHERICAL 
 #basis SET: (13s,13p,11d,9f,7g,5h,3i,1k) -> [13s,13p,11d,9f,7g,5h,3i,1k]
 Si    S
    1449.53                   1.0000000
@@ -1046,7 +1046,7 @@ Si    I
 Si    K
       0.907046               1.0000000
 end
-basis "P_cc-pv6z-rifit" 
+basis "P_cc-pv6z-rifit" SPHERICAL 
 #basis SET: (13s,13p,11d,9f,7g,5h,3i,1k) -> [13s,13p,11d,9f,7g,5h,3i,1k]
 P    S
    1686.74                   1.0000000
@@ -1173,7 +1173,7 @@ P    I
 P    K
       1.17399                1.0000000
 end
-basis "S_cc-pv6z-rifit" 
+basis "S_cc-pv6z-rifit" SPHERICAL 
 #basis SET: (13s,13p,11d,9f,7g,5h,3i,1k) -> [13s,13p,11d,9f,7g,5h,3i,1k]
 S    S
    1932.75                   1.0000000
@@ -1300,7 +1300,7 @@ S    I
 S    K
       1.39124                1.0000000
 end
-basis "Cl_cc-pv6z-rifit" 
+basis "Cl_cc-pv6z-rifit" SPHERICAL 
 #basis SET: (13s,13p,11d,9f,7g,5h,3i,1k) -> [13s,13p,11d,9f,7g,5h,3i,1k]
 Cl    S
    2213.43                   1.0000000
@@ -1427,7 +1427,7 @@ Cl    I
 Cl    K
       1.69141                1.0000000
 end
-basis "Ar_cc-pv6z-rifit" 
+basis "Ar_cc-pv6z-rifit" SPHERICAL 
 #basis SET: (13s,13p,11d,9f,7g,5h,3i,1k) -> [13s,13p,11d,9f,7g,5h,3i,1k]
 Ar    S
    2692.68                   1.0000000

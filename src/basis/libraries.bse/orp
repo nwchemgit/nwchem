@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # orp version number 1
 # Description: ORP (Optical Rotation Predicion) Basis Set
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -41,11 +41,11 @@
 # baranowska2013a
 #     Baranowska-Łączkowska, Angelika, Łączkowski, Krzysztof Z.
 #     The ORP basis set designed for optical rotation calculations
-#     J. Comput. Chem., 34, 2006-2013 (2013)
+#     J. Comput. Chem. 34, 2006-2013 (2013)
 #     10.1002/jcc.23347
 # 
 # # 
-basis "H_orp" 
+basis "H_orp" SPHERICAL 
 #basis SET: (6s,3p) -> [4s,3p]
 H    S
      34.0613410E+00          0.00601459E+00
@@ -64,7 +64,7 @@ H    P
 H    P
       0.07000000E+00         1.00000000E+00
 end
-basis "C_orp" 
+basis "C_orp" SPHERICAL 
 #basis SET: (19s,7p,3d) -> [5s,4p,3d]
 C    S
    8506.03840E+00            0.00051039E+00
@@ -108,7 +108,7 @@ C    D
 C    D
       0.07000000E+00         1.00000000E+00
 end
-basis "N_orp" 
+basis "N_orp" SPHERICAL 
 #basis SET: (19s,7p,3d) -> [5s,4p,3d]
 N    S
   11913.416756E+00           0.00049611E+00
@@ -152,7 +152,7 @@ N    D
 N    D
       0.11000000E+00         1.00000000E+00
 end
-basis "O_orp" 
+basis "O_orp" SPHERICAL 
 #basis SET: (19s,7p,3d) -> [5s,4p,3d]
 O    S
   15902.647459E+00           0.00048546E+00
@@ -196,7 +196,7 @@ O    D
 O    D
       0.13000000E+00         1.00000000E+00
 end
-basis "F_orp" 
+basis "F_orp" SPHERICAL 
 #basis SET: (19s,7p,3d) -> [5s,4p,3d]
 F    S
   20450.4890E+00             0.00047787E+00

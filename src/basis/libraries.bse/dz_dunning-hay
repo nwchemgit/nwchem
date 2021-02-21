@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # dz (dunning-hay) version number 0
 # Description: DZ      Double Zeta: 2 Functions/AO
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -47,7 +47,7 @@
 #     Gaussian Basis Functions for Use in Molecular Calculations. I.
 #             Contraction of (9s5p) Atomic Basis Sets for the First-Row
 #             Atoms
-#     J. Chem. Phys., 53, 2823-2833 (1970)
+#     J. Chem. Phys. 53, 2823-2833 (1970)
 #     10.1063/1.1674408
 # 
 # dunning1977b
@@ -55,11 +55,11 @@
 #     Gaussian basis sets for molecular calculations
 #     in 'Methods of Electronic Structure Theory'
 #     ed. Henry F. Schaefer
-#     Modern Theoretical Chemistry, 3, 1-27 (1977)
+#     Modern Theoretical Chemistry 3, 1-27 (1977)
 #     10.1007/978-1-4757-0887-5
 # 
 # # 
-basis "H_dz (dunning-hay)" 
+basis "H_dz (dunning-hay)" SPHERICAL 
 #basis SET: (4s) -> [2s]
 H    S
      19.2406                 0.032828
@@ -68,7 +68,7 @@ H    S
 H    S
       0.17760                1.000000
 end
-basis "Li_dz (dunning-hay)" 
+basis "Li_dz (dunning-hay)" SPHERICAL 
 #basis SET: (9s,4p) -> [4s,2p]
 Li    S
     921.30                   0.001367
@@ -90,7 +90,7 @@ Li    P
 Li    P
       0.023700               1.000000
 end
-basis "B_dz (dunning-hay)" 
+basis "B_dz (dunning-hay)" SPHERICAL 
 #basis SET: (9s,5p) -> [4s,2p]
 B    S
    2788.41                   0.002122
@@ -113,7 +113,7 @@ B    P
 B    P
       0.07010                1.000000
 end
-basis "C_dz (dunning-hay)" 
+basis "C_dz (dunning-hay)" SPHERICAL 
 #basis SET: (9s,5p) -> [4s,2p]
 C    S
    4232.61                   0.002029
@@ -136,7 +136,7 @@ C    P
 C    P
       0.11460                1.000000
 end
-basis "N_dz (dunning-hay)" 
+basis "N_dz (dunning-hay)" SPHERICAL 
 #basis SET: (9s,5p) -> [4s,2p]
 N    S
    5909.44                   0.002004
@@ -159,7 +159,7 @@ N    P
 N    P
       0.1654                 1.000000
 end
-basis "O_dz (dunning-hay)" 
+basis "O_dz (dunning-hay)" SPHERICAL 
 #basis SET: (9s,5p) -> [4s,2p]
 O    S
    7816.54                   0.002031
@@ -182,7 +182,7 @@ O    P
 O    P
       0.2137                 1.000000
 end
-basis "F_dz (dunning-hay)" 
+basis "F_dz (dunning-hay)" SPHERICAL 
 #basis SET: (9s,5p) -> [4s,2p]
 F    S
    9994.79                   0.002017
@@ -205,15 +205,14 @@ F    P
 F    P
       0.2733                 1.000000
 end
-basis "Ne_dz (dunning-hay)" 
-#basis SET: (10s,5p) -> [4s,2p]
+basis "Ne_dz (dunning-hay)" SPHERICAL 
+#basis SET: (9s,5p) -> [4s,2p]
 Ne    S
   12100.                     0.001200
    1821.0                    0.009092
     432.80                   0.041305
     132.50                   0.137867
      43.770                  0.362433
-     14.910                  0.472247
       5.1270                 0.130035
 Ne    S
      14.910                  1.000000
@@ -229,7 +228,7 @@ Ne    P
 Ne    P
       0.3444                 1.000000
 end
-basis "Al_dz (dunning-hay)" 
+basis "Al_dz (dunning-hay)" SPHERICAL 
 #basis SET: (12s,8p) -> [6s,4p]
 Al    S
   23490.00                   0.002509
@@ -262,7 +261,7 @@ Al    P
 Al    P
       0.076290               1.000000
 end
-basis "Si_dz (dunning-hay)" 
+basis "Si_dz (dunning-hay)" SPHERICAL 
 #basis SET: (12s,8p) -> [6s,4p]
 Si    S
   26740.00                   0.002583
@@ -295,7 +294,7 @@ Si    P
 Si    P
       0.096990               1.000000
 end
-basis "P_dz (dunning-hay)" 
+basis "P_dz (dunning-hay)" SPHERICAL 
 #basis SET: (12s,8p) -> [6s,4p]
 P    S
   30630.00                   0.002619
@@ -328,7 +327,7 @@ P    P
 P    P
       0.124500               1.000000
 end
-basis "S_dz (dunning-hay)" 
+basis "S_dz (dunning-hay)" SPHERICAL 
 #basis SET: (12s,8p) -> [6s,4p]
 S    S
   35710.00                   0.002565
@@ -361,7 +360,7 @@ S    P
 S    P
       0.150600               1.000000
 end
-basis "Cl_dz (dunning-hay)" 
+basis "Cl_dz (dunning-hay)" SPHERICAL 
 #basis SET: (12s,8p) -> [6s,4p]
 Cl    S
   40850.00                   0.002532

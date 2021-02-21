@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # nasa ames cc-pvtz version number 0
 # Description: NASA Ames cc-pVTZ
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -46,17 +46,17 @@
 #     Bauschlicher, Jr, Charles W.
 #     TiCl, TiH, and TiH + bond energies: a test of a correlation-consistent
 #             Ti basis set
-#     Theor. Chem. Acc., 103, 141-145 (1999)
+#     Theor. Chem. Acc. 103, 141-145 (1999)
 #     10.1007/s002140050524
 # 
 # ricca2001a
 #     Ricca, Alessandra, Bauschlicher, Jr, Charles W.
 #     A correlation-consistent basis set for Fe
-#     Theor. Chem. Acc., 106, 314-318 (2001)
+#     Theor. Chem. Acc. 106, 314-318 (2001)
 #     10.1007/s002140100279
 # 
 # # 
-basis "Ti_nasa ames cc-pvtz" 
+basis "Ti_nasa ames cc-pvtz" SPHERICAL 
 #basis SET: (54s,26p,9d,2f,1g) -> [7s,8p,6d,2f,1g]
 Ti    S
 5309148.1000000              0.0000040
@@ -175,7 +175,7 @@ Ti    F
 Ti    G
       0.6300000              1.0000000
 end
-basis "Fe_nasa ames cc-pvtz" 
+basis "Fe_nasa ames cc-pvtz" SPHERICAL 
 #basis SET: (73s,24p,10d,2f,1g) -> [6s,8p,6d,2f,1g]
 Fe    S
 4316265.3000000              0.0000090

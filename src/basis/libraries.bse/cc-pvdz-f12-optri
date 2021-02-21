@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # cc-pvdz-f12-optri version number 0
 # Description: cc-pVDZ-F12-OPTRI
 # Role: optri
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -47,17 +47,17 @@
 #     Correlation consistent basis sets for explicitly correlated
 #             wavefunctions: valence and core-valence basis sets for Li, Be,
 #             Na, and Mg
-#     Phys. Chem. Chem. Phys., 12, 10460 (2010)
+#     Phys. Chem. Chem. Phys. 12, 10460 (2010)
 #     10.1039/c0cp00020e
 # 
 # yousaf2008a
 #     Yousaf, Kazim E., Peterson, Kirk A.
 #     Optimized auxiliary basis sets for explicitly correlated methods
-#     J. Chem. Phys., 129, 184108 (2008)
+#     J. Chem. Phys. 129, 184108 (2008)
 #     10.1063/1.3009271
 # 
 # # 
-basis "H_cc-pvdz-f12-optri" 
+basis "H_cc-pvdz-f12-optri" SPHERICAL 
 #basis SET: (3s,3p,2d) -> [3s,3p,2d]
 H    S
       2.2968060              1.0000000
@@ -76,7 +76,7 @@ H    D
 H    D
       0.4585010              1.0000000
 end
-basis "Li_cc-pvdz-f12-optri" 
+basis "Li_cc-pvdz-f12-optri" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,1g) -> [4s,4p,4d,3f,1g]
 Li    S
       0.3537126              1.0000000
@@ -111,7 +111,7 @@ Li    F
 Li    G
       0.2690192              1.0000000
 end
-basis "Be_cc-pvdz-f12-optri" 
+basis "Be_cc-pvdz-f12-optri" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,1g) -> [4s,4p,4d,3f,1g]
 Be    S
       0.8779700              1.0000000
@@ -146,7 +146,7 @@ Be    F
 Be    G
       0.5609638              1.0000000
 end
-basis "B_cc-pvdz-f12-optri" 
+basis "B_cc-pvdz-f12-optri" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,1g) -> [4s,4p,4d,3f,1g]
 B    S
       3.8353110              1.0000000
@@ -181,7 +181,7 @@ B    F
 B    G
       0.6940200              1.0000000
 end
-basis "C_cc-pvdz-f12-optri" 
+basis "C_cc-pvdz-f12-optri" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,1g) -> [4s,4p,4d,3f,1g]
 C    S
       5.2227300              1.0000000
@@ -216,7 +216,7 @@ C    F
 C    G
       1.0423780              1.0000000
 end
-basis "N_cc-pvdz-f12-optri" 
+basis "N_cc-pvdz-f12-optri" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,1g) -> [4s,4p,4d,3f,1g]
 N    S
       8.2376460              1.0000000
@@ -251,7 +251,7 @@ N    F
 N    G
       1.4040600              1.0000000
 end
-basis "O_cc-pvdz-f12-optri" 
+basis "O_cc-pvdz-f12-optri" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,1g) -> [4s,4p,4d,3f,1g]
 O    S
      13.7568170              1.0000000
@@ -286,7 +286,7 @@ O    F
 O    G
       1.8374740              1.0000000
 end
-basis "F_cc-pvdz-f12-optri" 
+basis "F_cc-pvdz-f12-optri" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,1g) -> [4s,4p,4d,3f,1g]
 F    S
      14.7205750              1.0000000
@@ -321,7 +321,7 @@ F    F
 F    G
       2.3745340              1.0000000
 end
-basis "Ne_cc-pvdz-f12-optri" 
+basis "Ne_cc-pvdz-f12-optri" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,1g) -> [4s,4p,4d,3f,1g]
 Ne    S
      22.3144360              1.0000000
@@ -356,7 +356,7 @@ Ne    F
 Ne    G
       2.8677250              1.0000000
 end
-basis "Na_cc-pvdz-f12-optri" 
+basis "Na_cc-pvdz-f12-optri" SPHERICAL 
 #basis SET: (4s,5p,4d,3f,1g) -> [4s,5p,4d,3f,1g]
 Na    S
       2.9347410              1.0000000
@@ -393,7 +393,7 @@ Na    F
 Na    G
       2.3826961              1.0000000
 end
-basis "Mg_cc-pvdz-f12-optri" 
+basis "Mg_cc-pvdz-f12-optri" SPHERICAL 
 #basis SET: (4s,5p,4d,3f,1g) -> [4s,5p,4d,3f,1g]
 Mg    S
       3.5039530              1.0000000
@@ -430,7 +430,7 @@ Mg    F
 Mg    G
       0.2660970              1.0000000
 end
-basis "Al_cc-pvdz-f12-optri" 
+basis "Al_cc-pvdz-f12-optri" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,1g) -> [4s,4p,4d,3f,1g]
 Al    S
       4.6195510              1.0000000
@@ -465,7 +465,7 @@ Al    F
 Al    G
       0.3255080              1.0000000
 end
-basis "Si_cc-pvdz-f12-optri" 
+basis "Si_cc-pvdz-f12-optri" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,1g) -> [4s,4p,4d,3f,1g]
 Si    S
       6.6811890              1.0000000
@@ -500,7 +500,7 @@ Si    F
 Si    G
       0.4564510              1.0000000
 end
-basis "P_cc-pvdz-f12-optri" 
+basis "P_cc-pvdz-f12-optri" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,1g) -> [4s,4p,4d,3f,1g]
 P    S
       6.0884850              1.0000000
@@ -535,7 +535,7 @@ P    F
 P    G
       0.5961850              1.0000000
 end
-basis "S_cc-pvdz-f12-optri" 
+basis "S_cc-pvdz-f12-optri" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,1g) -> [4s,4p,4d,3f,1g]
 S    S
       7.5028510              1.0000000
@@ -570,7 +570,7 @@ S    F
 S    G
       0.7478690              1.0000000
 end
-basis "Cl_cc-pvdz-f12-optri" 
+basis "Cl_cc-pvdz-f12-optri" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,1g) -> [4s,4p,4d,3f,1g]
 Cl    S
       9.4600060              1.0000000
@@ -605,7 +605,7 @@ Cl    F
 Cl    G
       0.9124370              1.0000000
 end
-basis "Ar_cc-pvdz-f12-optri" 
+basis "Ar_cc-pvdz-f12-optri" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,1g) -> [4s,4p,4d,3f,1g]
 Ar    S
      10.1446990              1.0000000

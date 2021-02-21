@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # 6-311xxg(d,p) version number 1
 # Description: 6-311xxG(d,p) basis set
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -43,11 +43,11 @@
 #             Manuel
 #     On Electronegativity, Hardness, and Reactivity Descriptors: A New
 #             Property-Oriented Basis Set
-#     J. Phys. Chem. A, 124, 4700-4711 (2020)
+#     J. Phys. Chem. A 124, 4700-4711 (2020)
 #     10.1021/acs.jpca.0c01342
 # 
 # # 
-basis "H_6-311xxg(d,p)" 
+basis "H_6-311xxg(d,p)" SPHERICAL 
 #basis SET: (6s,2p) -> [4s,2p]
 H    S
       0.3386500000E+02       0.2549381454E-01
@@ -57,12 +57,12 @@ H    S
       0.3258400000E+00       0.1000000000E+01
 H    S
       0.1027410000E+00       0.1000000000E+01
-H    SP
-      0.0202E+00             0.1000000000E+01       0.1000000000E+01
 H    P
       0.7500000000E+00       0.1000000000E+01
+H    SP
+      0.0202E+00             0.1000000000E+01       0.1000000000E+01
 end
-basis "Li_6-311xxg(d,p)" 
+basis "Li_6-311xxg(d,p)" SPHERICAL 
 #basis SET: (12s,6p,1d) -> [5s,4p,1d]
 Li    S
       0.9004600000E+03       0.2287040374E-02
@@ -84,7 +84,7 @@ Li    SP
 Li    D
       0.2000000000E+00       0.1000000000E+01
 end
-basis "Be_6-311xxg(d,p)" 
+basis "Be_6-311xxg(d,p)" SPHERICAL 
 #basis SET: (12s,6p,1d) -> [5s,4p,1d]
 Be    S
       0.1682800000E+04       0.2285740532E-02
@@ -106,7 +106,7 @@ Be    SP
 Be    D
       0.2550000000E+00       0.1000000000E+01
 end
-basis "B_6-311xxg(d,p)" 
+basis "B_6-311xxg(d,p)" SPHERICAL 
 #basis SET: (12s,6p,1d) -> [5s,4p,1d]
 B    S
       0.2858890000E+04       0.2153749067E-02
@@ -128,7 +128,7 @@ B    SP
 B    D
       0.4010000000E+00       0.1000000000E+01
 end
-basis "C_6-311xxg(d,p)" 
+basis "C_6-311xxg(d,p)" SPHERICAL 
 #basis SET: (12s,6p,1d) -> [5s,4p,1d]
 C    S
       0.4563240000E+04       0.1966650249E-02
@@ -150,7 +150,7 @@ C    SP
 C    D
       0.6260000000E+00       0.1000000000E+01
 end
-basis "N_6-311xxg(d,p)" 
+basis "N_6-311xxg(d,p)" SPHERICAL 
 #basis SET: (12s,6p,1d) -> [5s,4p,1d]
 N    S
       0.6293480000E+04       0.1969788147E-02
@@ -172,7 +172,7 @@ N    SP
 N    D
       0.9130000000E+00       0.1000000000E+01
 end
-basis "O_6-311xxg(d,p)" 
+basis "O_6-311xxg(d,p)" SPHERICAL 
 #basis SET: (12s,6p,1d) -> [5s,4p,1d]
 O    S
       0.8588500000E+04       0.1895150083E-02
@@ -194,7 +194,7 @@ O    SP
 O    D
       0.1292000000E+01       0.1000000000E+01
 end
-basis "F_6-311xxg(d,p)" 
+basis "F_6-311xxg(d,p)" SPHERICAL 
 #basis SET: (12s,6p,1d) -> [5s,4p,1d]
 F    S
       0.1142710000E+05       0.1800930156E-02
@@ -216,7 +216,7 @@ F    SP
 F    D
       0.1750000000E+01       0.1000000000E+01
 end
-basis "Na_6-311xxg(d,p)" 
+basis "Na_6-311xxg(d,p)" SPHERICAL 
 #basis SET: (14s,10p,1d) -> [7s,6p,1d]
 Na    S
       0.3616640000E+05       0.1032000455E-02
@@ -245,18 +245,18 @@ Na    P
 Na    P
       0.1444290000E+01       0.6385061213E+00
       0.5526210000E+00       0.4253650808E+00
-Na    SP
-      0.00474E-00            0.1000000000E+01       0.1000000000E+01
 Na    P
       0.1887200000E+00       0.1000000000E+01
 Na    P
       0.4650100000E-01       0.1000000000E+01
 Na    P
       0.1628500000E-01       0.1000000000E+01
+Na    SP
+      0.00474E-00            0.1000000000E+01       0.1000000000E+01
 Na    D
       0.1750000000E+00       0.1000000000E+01
 end
-basis "Mg_6-311xxg(d,p)" 
+basis "Mg_6-311xxg(d,p)" SPHERICAL 
 #basis SET: (14s,10p,1d) -> [7s,6p,1d]
 Mg    S
       0.4386650000E+05       0.9179994236E-03
@@ -285,18 +285,18 @@ Mg    P
 Mg    P
       0.1888610000E+01       0.6673390244E+00
       0.7226520000E+00       0.3946490144E+00
-Mg    SP
-      0.00714E-00            0.1000000000E+01       0.1000000000E+01
 Mg    P
       0.2364170000E+00       0.1000000000E+01
 Mg    P
       0.9335800000E-01       0.1000000000E+01
 Mg    P
       0.3480900000E-01       0.1000000000E+01
+Mg    SP
+      0.00714E-00            0.1000000000E+01       0.1000000000E+01
 Mg    D
       0.1750000000E+00       0.1000000000E+01
 end
-basis "Al_6-311xxg(d,p)" 
+basis "Al_6-311xxg(d,p)" SPHERICAL 
 #basis SET: (14s,10p,1d) -> [7s,6p,1d]
 Al    S
       0.5486648900E+05       0.8389998342E-03
@@ -325,18 +325,18 @@ Al    P
 Al    P
       0.2673865000E+01       0.6444668403E+00
       0.1036596000E+01       0.4174128966E+00
-Al    SP
-      0.1520000000E-01       0.1000000000E+01       0.1000000000E+01
 Al    P
       0.3168190000E+00       0.1000000000E+01
 Al    P
       0.1142570000E+00       0.1000000000E+01
 Al    P
       0.4139700000E-01       0.1000000000E+01
+Al    SP
+      0.1520000000E-01       0.1000000000E+01       0.1000000000E+01
 Al    D
       0.3250000000E+00       0.1000000000E+01
 end
-basis "Si_6-311xxg(d,p)" 
+basis "Si_6-311xxg(d,p)" SPHERICAL 
 #basis SET: (14s,10p,1d) -> [7s,6p,1d]
 Si    S
       0.6937923000E+05       0.7570004081E-03
@@ -365,18 +365,18 @@ Si    P
 Si    P
       0.3621140000E+01       0.6198794404E+00
       0.1451310000E+01       0.4391483120E+00
-Si    SP
-      0.053E-00              0.1000000000E+01       0.1000000000E+01
 Si    P
       0.5049770000E+00       0.1000000000E+01
 Si    P
       0.1863170000E+00       0.1000000000E+01
+Si    SP
+      0.053E-00              0.1000000000E+01       0.1000000000E+01
 Si    P
       0.6543200000E-01       0.1000000000E+01
 Si    D
       0.4500000000E+00       0.1000000000E+01
 end
-basis "P_6-311xxg(d,p)" 
+basis "P_6-311xxg(d,p)" SPHERICAL 
 #basis SET: (14s,10p,1d) -> [7s,6p,1d]
 P    S
       0.7749240000E+05       0.7810001470E-03
@@ -405,18 +405,18 @@ P    P
 P    P
       0.4352590000E+01       0.6283488727E+00
       0.1777060000E+01       0.4280439133E+00
-P    SP
-      0.0259E-00             0.1000000000E+01       0.1000000000E+01
 P    P
       0.6970050000E+00       0.1000000000E+01
 P    P
       0.2535320000E+00       0.1000000000E+01
 P    P
       0.6849300000E-01       0.1000000000E+01
+P    SP
+      0.0259E-00             0.1000000000E+01       0.1000000000E+01
 P    D
       0.5500000000E+00       0.1000000000E+01
 end
-basis "S_6-311xxg(d,p)" 
+basis "S_6-311xxg(d,p)" SPHERICAL 
 #basis SET: (14s,10p,1d) -> [7s,6p,1d]
 S    S
       0.9341340000E+05       0.7429999567E-03
@@ -445,10 +445,10 @@ S    P
 S    P
       0.5565740000E+01       0.6137116720E+00
       0.2262970000E+01       0.4438177628E+00
-S    SP
-      0.440E-00              0.1000000000E+01       0.1000000000E+01
 S    P
       0.8079940000E+00       0.1000000000E+01
+S    SP
+      0.440E-00              0.1000000000E+01       0.1000000000E+01
 S    P
       0.2774600000E+00       0.1000000000E+01
 S    P
@@ -456,7 +456,7 @@ S    P
 S    D
       0.6500000000E+00       0.1000000000E+01
 end
-basis "Cl_6-311xxg(d,p)" 
+basis "Cl_6-311xxg(d,p)" SPHERICAL 
 #basis SET: (14s,11p,1d) -> [7s,6p,1d]
 Cl    S
       0.1058190000E+06       0.7380002465E-03
@@ -478,18 +478,18 @@ Cl    S
 Cl    S
       0.1832730000E+00       0.1000000000E+01
 Cl    P
+      0.6741100000E+01      -0.1572243813E+01
+      0.2771520000E+01       0.9923888817E+00
+Cl    P
       0.5897760000E+03       0.3665569355E-02
       0.1398490000E+03       0.2836791942E-01
       0.4514130000E+02       0.1247566028E+00
       0.1687330000E+02       0.3396546305E+00
       0.2771520000E+01       0.7475859630E+00
 Cl    P
-      0.6741100000E+01      -0.1572243813E+01
-      0.2771520000E+01       0.9923888817E+00
+      0.1023870000E+01       0.1000000000E+01
 Cl    SP
       0.560E-00              0.1000000000E+01       0.1000000000E+01
-Cl    P
-      0.1023870000E+01       0.1000000000E+01
 Cl    P
       0.3813680000E+00       0.1000000000E+01
 Cl    P

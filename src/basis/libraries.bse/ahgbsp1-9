@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # ahgbsp1-9 version number 1
 # Description: AHGBSP1-9
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -41,11 +41,11 @@
 # lehtola2020a
 #     Lehtola, Susi
 #     Polarized Gaussian basis sets from one-electron ions
-#     J. Chem. Phys., 152, 134108 (2020)
+#     J. Chem. Phys. 152, 134108 (2020)
 #     10.1063/1.5144964
 # 
 # # 
-basis "H_ahgbsp1-9" 
+basis "H_ahgbsp1-9" SPHERICAL 
 #basis SET: (25s,18p) -> [25s,18p]
 H    S
       7.7717777442e+04       1.0
@@ -134,7 +134,7 @@ H    P
 H    P
       1.4445206008e-03       1.0
 end
-basis "He_ahgbsp1-9" 
+basis "He_ahgbsp1-9" SPHERICAL 
 #basis SET: (28s,20p) -> [28s,20p]
 He    S
       3.1088829242e+05       1.0
@@ -233,7 +233,7 @@ He    P
 He    P
       1.6908567411e-03       1.0
 end
-basis "Li_ahgbsp1-9" 
+basis "Li_ahgbsp1-9" SPHERICAL 
 #basis SET: (29s,21p,19d) -> [29s,21p,19d]
 Li    S
       6.8494863985e+05       1.0
@@ -374,7 +374,7 @@ Li    D
 Li    D
       5.9197884996e-04       1.0
 end
-basis "Be_ahgbsp1-9" 
+basis "Be_ahgbsp1-9" SPHERICAL 
 #basis SET: (30s,22p,20d) -> [30s,22p,20d]
 Be    S
       1.2178044891e+06       1.0
@@ -521,7 +521,7 @@ Be    D
 Be    D
       5.9306348856e-04       1.0
 end
-basis "B_ahgbsp1-9" 
+basis "B_ahgbsp1-9" SPHERICAL 
 #basis SET: (30s,23p,20d) -> [30s,23p,20d]
 B    S
       1.9034687145e+06       1.0
@@ -670,7 +670,7 @@ B    D
 B    D
       9.2712540291e-04       1.0
 end
-basis "C_ahgbsp1-9" 
+basis "C_ahgbsp1-9" SPHERICAL 
 #basis SET: (31s,23p,21d) -> [31s,23p,21d]
 C    S
       2.6417532443e+06       1.0
@@ -823,7 +823,7 @@ C    D
 C    D
       7.5260363565e-04       1.0
 end
-basis "N_ahgbsp1-9" 
+basis "N_ahgbsp1-9" SPHERICAL 
 #basis SET: (31s,24p,22d) -> [31s,24p,22d]
 N    S
       3.7817410002e+06       1.0
@@ -980,7 +980,7 @@ N    D
 N    D
       5.7769969704e-04       1.0
 end
-basis "O_ahgbsp1-9" 
+basis "O_ahgbsp1-9" SPHERICAL 
 #basis SET: (32s,24p,22d) -> [32s,24p,22d]
 O    S
       4.7743570984e+06       1.0
@@ -1139,7 +1139,7 @@ O    D
 O    D
       7.5437708345e-04       1.0
 end
-basis "F_ahgbsp1-9" 
+basis "F_ahgbsp1-9" SPHERICAL 
 #basis SET: (32s,25p,22d) -> [32s,25p,22d]
 F    S
       6.3620663234e+06       1.0
@@ -1300,7 +1300,7 @@ F    D
 F    D
       9.5469458169e-04       1.0
 end
-basis "Ne_ahgbsp1-9" 
+basis "Ne_ahgbsp1-9" SPHERICAL 
 #basis SET: (32s,25p,23d) -> [32s,25p,23d]
 Ne    S
       7.8159065545e+06       1.0
@@ -1463,7 +1463,7 @@ Ne    D
 Ne    D
       6.6475567345e-04       1.0
 end
-basis "Na_ahgbsp1-9" 
+basis "Na_ahgbsp1-9" SPHERICAL 
 #basis SET: (33s,25p,23d) -> [33s,25p,23d]
 Na    S
       9.1174788936e+06       1.0
@@ -1628,7 +1628,7 @@ Na    D
 Na    D
       8.0377347949e-04       1.0
 end
-basis "Mg_ahgbsp1-9" 
+basis "Mg_ahgbsp1-9" SPHERICAL 
 #basis SET: (33s,26p,23d) -> [33s,26p,23d]
 Mg    S
       1.1169963167e+07       1.0
@@ -1795,7 +1795,7 @@ Mg    D
 Mg    D
       9.5670903871e-04       1.0
 end
-basis "Al_ahgbsp1-9" 
+basis "Al_ahgbsp1-9" SPHERICAL 
 #basis SET: (33s,26p,24d) -> [33s,26p,24d]
 Al    S
       1.3128607719e+07       1.0
@@ -1964,7 +1964,7 @@ Al    D
 Al    D
       6.3342208235e-04       1.0
 end
-basis "Si_ahgbsp1-9" 
+basis "Si_ahgbsp1-9" SPHERICAL 
 #basis SET: (33s,26p,24d) -> [33s,26p,24d]
 Si    S
       1.4858801073e+07       1.0
@@ -2133,7 +2133,7 @@ Si    D
 Si    D
       7.3416380388e-04       1.0
 end
-basis "P_ahgbsp1-9" 
+basis "P_ahgbsp1-9" SPHERICAL 
 #basis SET: (34s,26p,24d) -> [34s,26p,24d]
 P    S
       1.7069850035e+07       1.0
@@ -2304,7 +2304,7 @@ P    D
 P    D
       8.4298285283e-04       1.0
 end
-basis "S_ahgbsp1-9" 
+basis "S_ahgbsp1-9" SPHERICAL 
 #basis SET: (34s,27p,24d) -> [34s,27p,24d]
 S    S
       1.9620488004e+07       1.0
@@ -2477,7 +2477,7 @@ S    D
 S    D
       9.5874573655e-04       1.0
 end
-basis "Cl_ahgbsp1-9" 
+basis "Cl_ahgbsp1-9" SPHERICAL 
 #basis SET: (34s,27p,25d) -> [34s,27p,25d]
 Cl    S
       2.2393849651e+07       1.0
@@ -2652,7 +2652,7 @@ Cl    D
 Cl    D
       6.1031152782e-04       1.0
 end
-basis "Ar_ahgbsp1-9" 
+basis "Ar_ahgbsp1-9" SPHERICAL 
 #basis SET: (34s,27p,25d) -> [34s,27p,25d]
 Ar    S
       2.4950123469e+07       1.0
@@ -2827,7 +2827,7 @@ Ar    D
 Ar    D
       6.8448676064e-04       1.0
 end
-basis "K_ahgbsp1-9" 
+basis "K_ahgbsp1-9" SPHERICAL 
 #basis SET: (34s,27p,25d,25f) -> [34s,27p,25d,25f]
 K    S
       2.7832632327e+07       1.0
@@ -3052,7 +3052,7 @@ K    F
 K    F
       4.1293783795e-04       1.0
 end
-basis "Ca_ahgbsp1-9" 
+basis "Ca_ahgbsp1-9" SPHERICAL 
 #basis SET: (35s,27p,25d,25f) -> [35s,27p,25d,25f]
 Ca    S
       3.0413275279e+07       1.0
@@ -3279,7 +3279,7 @@ Ca    F
 Ca    F
       4.5743702521e-04       1.0
 end
-basis "Sc_ahgbsp1-9" 
+basis "Sc_ahgbsp1-9" SPHERICAL 
 #basis SET: (35s,28p,25d,26f) -> [35s,28p,25d,26f]
 Sc    S
       3.3713519931e+07       1.0
@@ -3510,7 +3510,7 @@ Sc    F
 Sc    F
       2.9851462170e-04       1.0
 end
-basis "Ti_ahgbsp1-9" 
+basis "Ti_ahgbsp1-9" SPHERICAL 
 #basis SET: (35s,28p,26d,26f) -> [35s,28p,26d,26f]
 Ti    S
       3.6648287816e+07       1.0
@@ -3743,7 +3743,7 @@ Ti    F
 Ti    F
       3.2773685449e-04       1.0
 end
-basis "V_ahgbsp1-9" 
+basis "V_ahgbsp1-9" SPHERICAL 
 #basis SET: (35s,28p,26d,26f) -> [35s,28p,26d,26f]
 V    S
       3.9268638085e+07       1.0
@@ -3976,7 +3976,7 @@ V    F
 V    F
       3.5806520459e-04       1.0
 end
-basis "Cr_ahgbsp1-9" 
+basis "Cr_ahgbsp1-9" SPHERICAL 
 #basis SET: (35s,28p,26d,26f) -> [35s,28p,26d,26f]
 Cr    S
       4.3989778464e+07       1.0
@@ -4209,7 +4209,7 @@ Cr    F
 Cr    F
       3.9002889921e-04       1.0
 end
-basis "Mn_ahgbsp1-9" 
+basis "Mn_ahgbsp1-9" SPHERICAL 
 #basis SET: (35s,28p,26d,26f) -> [35s,28p,26d,26f]
 Mn    S
       4.7059029714e+07       1.0
@@ -4442,7 +4442,7 @@ Mn    F
 Mn    F
       4.2322572737e-04       1.0
 end
-basis "Fe_ahgbsp1-9" 
+basis "Fe_ahgbsp1-9" SPHERICAL 
 #basis SET: (35s,28p,26d,26f) -> [35s,28p,26d,26f]
 Fe    S
       5.1525236671e+07       1.0
@@ -4675,7 +4675,7 @@ Fe    F
 Fe    F
       4.5746472131e-04       1.0
 end
-basis "Co_ahgbsp1-9" 
+basis "Co_ahgbsp1-9" SPHERICAL 
 #basis SET: (35s,28p,26d,26f) -> [35s,28p,26d,26f]
 Co    S
       5.5243761191e+07       1.0
@@ -4908,7 +4908,7 @@ Co    F
 Co    F
       4.9360442463e-04       1.0
 end
-basis "Ni_ahgbsp1-9" 
+basis "Ni_ahgbsp1-9" SPHERICAL 
 #basis SET: (36s,28p,26d,27f) -> [36s,28p,26d,27f]
 Ni    S
       6.0511642056e+07       1.0
@@ -5145,7 +5145,7 @@ Ni    F
 Ni    F
       3.1420415136e-04       1.0
 end
-basis "Cu_ahgbsp1-9" 
+basis "Cu_ahgbsp1-9" SPHERICAL 
 #basis SET: (36s,29p,27d,27f) -> [36s,29p,27d,27f]
 Cu    S
       6.5339994467e+07       1.0
@@ -5386,7 +5386,7 @@ Cu    F
 Cu    F
       3.3711364527e-04       1.0
 end
-basis "Zn_ahgbsp1-9" 
+basis "Zn_ahgbsp1-9" SPHERICAL 
 #basis SET: (36s,29p,27d,27f) -> [36s,29p,27d,27f]
 Zn    S
       6.8911918719e+07       1.0
@@ -5627,7 +5627,7 @@ Zn    F
 Zn    F
       3.6052864636e-04       1.0
 end
-basis "Ga_ahgbsp1-9" 
+basis "Ga_ahgbsp1-9" SPHERICAL 
 #basis SET: (36s,29p,27d,27f) -> [36s,29p,27d,27f]
 Ga    S
       7.4064979743e+07       1.0
@@ -5868,7 +5868,7 @@ Ga    F
 Ga    F
       3.8528802324e-04       1.0
 end
-basis "Ge_ahgbsp1-9" 
+basis "Ge_ahgbsp1-9" SPHERICAL 
 #basis SET: (36s,29p,27d,27f) -> [36s,29p,27d,27f]
 Ge    S
       7.9262642988e+07       1.0
@@ -6109,7 +6109,7 @@ Ge    F
 Ge    F
       4.1037948287e-04       1.0
 end
-basis "As_ahgbsp1-9" 
+basis "As_ahgbsp1-9" SPHERICAL 
 #basis SET: (36s,29p,27d,27f) -> [36s,29p,27d,27f]
 As    S
       8.1067977160e+07       1.0
@@ -6350,7 +6350,7 @@ As    F
 As    F
       4.3631798037e-04       1.0
 end
-basis "Se_ahgbsp1-9" 
+basis "Se_ahgbsp1-9" SPHERICAL 
 #basis SET: (36s,29p,27d,27f) -> [36s,29p,27d,27f]
 Se    S
       9.0473983926e+07       1.0
@@ -6591,7 +6591,7 @@ Se    F
 Se    F
       4.6340298522e-04       1.0
 end
-basis "Br_ahgbsp1-9" 
+basis "Br_ahgbsp1-9" SPHERICAL 
 #basis SET: (36s,29p,27d,27f) -> [36s,29p,27d,27f]
 Br    S
       9.0738599734e+07       1.0
@@ -6832,7 +6832,7 @@ Br    F
 Br    F
       4.9095324861e-04       1.0
 end
-basis "Kr_ahgbsp1-9" 
+basis "Kr_ahgbsp1-9" SPHERICAL 
 #basis SET: (36s,29p,27d,28f) -> [36s,29p,27d,28f]
 Kr    S
       9.7436684006e+07       1.0
@@ -7075,7 +7075,7 @@ Kr    F
 Kr    F
       3.0743273283e-04       1.0
 end
-basis "Rb_ahgbsp1-9" 
+basis "Rb_ahgbsp1-9" SPHERICAL 
 #basis SET: (36s,29p,27d,28f) -> [36s,29p,27d,28f]
 Rb    S
       1.0943721220e+08       1.0
@@ -7318,7 +7318,7 @@ Rb    F
 Rb    F
       3.2482849056e-04       1.0
 end
-basis "Sr_ahgbsp1-9" 
+basis "Sr_ahgbsp1-9" SPHERICAL 
 #basis SET: (37s,29p,27d,28f) -> [37s,29p,27d,28f]
 Sr    S
       1.1039179759e+08       1.0
@@ -7563,7 +7563,7 @@ Sr    F
 Sr    F
       3.4246500270e-04       1.0
 end
-basis "Y_ahgbsp1-9" 
+basis "Y_ahgbsp1-9" SPHERICAL 
 #basis SET: (37s,30p,28d,28f) -> [37s,30p,28d,28f]
 Y    S
       1.1602777091e+08       1.0
@@ -7812,7 +7812,7 @@ Y    F
 Y    F
       3.6077026023e-04       1.0
 end
-basis "Zr_ahgbsp1-9" 
+basis "Zr_ahgbsp1-9" SPHERICAL 
 #basis SET: (37s,30p,28d,28f) -> [37s,30p,28d,28f]
 Zr    S
       1.2371012056e+08       1.0
@@ -8061,7 +8061,7 @@ Zr    F
 Zr    F
       3.7942250011e-04       1.0
 end
-basis "Nb_ahgbsp1-9" 
+basis "Nb_ahgbsp1-9" SPHERICAL 
 #basis SET: (37s,30p,28d,28f) -> [37s,30p,28d,28f]
 Nb    S
       1.2931968846e+08       1.0
@@ -8310,7 +8310,7 @@ Nb    F
 Nb    F
       3.9870403554e-04       1.0
 end
-basis "Mo_ahgbsp1-9" 
+basis "Mo_ahgbsp1-9" SPHERICAL 
 #basis SET: (37s,30p,28d,28f) -> [37s,30p,28d,28f]
 Mo    S
       1.3620000632e+08       1.0
@@ -8559,7 +8559,7 @@ Mo    F
 Mo    F
       4.1841645096e-04       1.0
 end
-basis "Tc_ahgbsp1-9" 
+basis "Tc_ahgbsp1-9" SPHERICAL 
 #basis SET: (37s,30p,28d,28f) -> [37s,30p,28d,28f]
 Tc    S
       1.4061390001e+08       1.0
@@ -8808,7 +8808,7 @@ Tc    F
 Tc    F
       4.3819764777e-04       1.0
 end
-basis "Ru_ahgbsp1-9" 
+basis "Ru_ahgbsp1-9" SPHERICAL 
 #basis SET: (37s,30p,28d,28f) -> [37s,30p,28d,28f]
 Ru    S
       1.5035269585e+08       1.0
@@ -9057,7 +9057,7 @@ Ru    F
 Ru    F
       4.5909900313e-04       1.0
 end
-basis "Rh_ahgbsp1-9" 
+basis "Rh_ahgbsp1-9" SPHERICAL 
 #basis SET: (37s,30p,28d,28f) -> [37s,30p,28d,28f]
 Rh    S
       1.6081816056e+08       1.0
@@ -9306,7 +9306,7 @@ Rh    F
 Rh    F
       4.8018142559e-04       1.0
 end
-basis "Pd_ahgbsp1-9" 
+basis "Pd_ahgbsp1-9" SPHERICAL 
 #basis SET: (37s,30p,28d,29f) -> [37s,30p,28d,29f]
 Pd    S
       1.6406548352e+08       1.0
@@ -9557,7 +9557,7 @@ Pd    F
 Pd    F
       2.9694288881e-04       1.0
 end
-basis "Ag_ahgbsp1-9" 
+basis "Ag_ahgbsp1-9" SPHERICAL 
 #basis SET: (37s,30p,28d,29f) -> [37s,30p,28d,29f]
 Ag    S
       1.6954618985e+08       1.0
@@ -9808,7 +9808,7 @@ Ag    F
 Ag    F
       3.1008256601e-04       1.0
 end
-basis "Cd_ahgbsp1-9" 
+basis "Cd_ahgbsp1-9" SPHERICAL 
 #basis SET: (37s,30p,28d,29f) -> [37s,30p,28d,29f]
 Cd    S
       1.7622640437e+08       1.0
@@ -10059,7 +10059,7 @@ Cd    F
 Cd    F
       3.2346175691e-04       1.0
 end
-basis "In_ahgbsp1-9" 
+basis "In_ahgbsp1-9" SPHERICAL 
 #basis SET: (37s,30p,28d,29f) -> [37s,30p,28d,29f]
 In    S
       1.8672548305e+08       1.0
@@ -10310,7 +10310,7 @@ In    F
 In    F
       3.3724334516e-04       1.0
 end
-basis "Sn_ahgbsp1-9" 
+basis "Sn_ahgbsp1-9" SPHERICAL 
 #basis SET: (37s,30p,28d,29f) -> [37s,30p,28d,29f]
 Sn    S
       1.9083377738e+08       1.0
@@ -10561,7 +10561,7 @@ Sn    F
 Sn    F
       3.5092313868e-04       1.0
 end
-basis "Sb_ahgbsp1-9" 
+basis "Sb_ahgbsp1-9" SPHERICAL 
 #basis SET: (37s,30p,28d,29f) -> [37s,30p,28d,29f]
 Sb    S
       2.0059646146e+08       1.0
@@ -10812,7 +10812,7 @@ Sb    F
 Sb    F
       3.6503192237e-04       1.0
 end
-basis "Te_ahgbsp1-9" 
+basis "Te_ahgbsp1-9" SPHERICAL 
 #basis SET: (37s,30p,29d,29f) -> [37s,30p,29d,29f]
 Te    S
       2.0959688177e+08       1.0
@@ -11065,7 +11065,7 @@ Te    F
 Te    F
       3.7971947441e-04       1.0
 end
-basis "I_ahgbsp1-9" 
+basis "I_ahgbsp1-9" SPHERICAL 
 #basis SET: (38s,31p,29d,29f) -> [38s,31p,29d,29f]
 I    S
       2.1658516740e+08       1.0
@@ -11322,7 +11322,7 @@ I    F
 I    F
       3.9438112068e-04       1.0
 end
-basis "Xe_ahgbsp1-9" 
+basis "Xe_ahgbsp1-9" SPHERICAL 
 #basis SET: (38s,31p,29d,29f) -> [38s,31p,29d,29f]
 Xe    S
       2.2411502098e+08       1.0
@@ -11579,7 +11579,7 @@ Xe    F
 Xe    F
       4.0944998673e-04       1.0
 end
-basis "Cs_ahgbsp1-9" 
+basis "Cs_ahgbsp1-9" SPHERICAL 
 #basis SET: (38s,31p,29d,29f,29g) -> [38s,31p,29d,29f,29g]
 Cs    S
       2.3309121549e+08       1.0
@@ -11894,7 +11894,7 @@ Cs    G
 Cs    G
       2.4965740558e-04       1.0
 end
-basis "Ba_ahgbsp1-9" 
+basis "Ba_ahgbsp1-9" SPHERICAL 
 #basis SET: (38s,31p,29d,29f,29g) -> [38s,31p,29d,29f,29g]
 Ba    S
       2.4208886679e+08       1.0
@@ -12209,7 +12209,7 @@ Ba    G
 Ba    G
       2.5869571473e-04       1.0
 end
-basis "La_ahgbsp1-9" 
+basis "La_ahgbsp1-9" SPHERICAL 
 #basis SET: (38s,31p,29d,29f,29g) -> [38s,31p,29d,29f,29g]
 La    S
       2.4354043380e+08       1.0
@@ -12524,7 +12524,7 @@ La    G
 La    G
       2.6817518239e-04       1.0
 end
-basis "Ce_ahgbsp1-9" 
+basis "Ce_ahgbsp1-9" SPHERICAL 
 #basis SET: (38s,31p,29d,29f,29g) -> [38s,31p,29d,29f,29g]
 Ce    S
       2.6526348834e+08       1.0
@@ -12839,7 +12839,7 @@ Ce    G
 Ce    G
       2.7769496962e-04       1.0
 end
-basis "Pr_ahgbsp1-9" 
+basis "Pr_ahgbsp1-9" SPHERICAL 
 #basis SET: (38s,31p,29d,29f,29g) -> [38s,31p,29d,29f,29g]
 Pr    S
       2.5778859962e+08       1.0
@@ -13154,7 +13154,7 @@ Pr    G
 Pr    G
       2.8726955312e-04       1.0
 end
-basis "Nd_ahgbsp1-9" 
+basis "Nd_ahgbsp1-9" SPHERICAL 
 #basis SET: (38s,31p,29d,30f,30g) -> [38s,31p,29d,30f,30g]
 Nd    S
       2.8024664912e+08       1.0
@@ -13473,7 +13473,7 @@ Nd    G
 Nd    G
       1.8086198617e-04       1.0
 end
-basis "Pm_ahgbsp1-9" 
+basis "Pm_ahgbsp1-9" SPHERICAL 
 #basis SET: (38s,31p,29d,30f,30g) -> [38s,31p,29d,30f,30g]
 Pm    S
       2.8241168970e+08       1.0
@@ -13792,7 +13792,7 @@ Pm    G
 Pm    G
       1.8686175629e-04       1.0
 end
-basis "Sm_ahgbsp1-9" 
+basis "Sm_ahgbsp1-9" SPHERICAL 
 #basis SET: (38s,31p,29d,30f,30g) -> [38s,31p,29d,30f,30g]
 Sm    S
       2.9499651942e+08       1.0
@@ -14111,7 +14111,7 @@ Sm    G
 Sm    G
       1.9319675217e-04       1.0
 end
-basis "Eu_ahgbsp1-9" 
+basis "Eu_ahgbsp1-9" SPHERICAL 
 #basis SET: (38s,31p,29d,30f,30g) -> [38s,31p,29d,30f,30g]
 Eu    S
       3.0318190584e+08       1.0
@@ -14430,7 +14430,7 @@ Eu    G
 Eu    G
       1.9936589467e-04       1.0
 end
-basis "Gd_ahgbsp1-9" 
+basis "Gd_ahgbsp1-9" SPHERICAL 
 #basis SET: (38s,31p,29d,30f,30g) -> [38s,31p,29d,30f,30g]
 Gd    S
       3.0620947804e+08       1.0
@@ -14749,7 +14749,7 @@ Gd    G
 Gd    G
       2.0589038209e-04       1.0
 end
-basis "Tb_ahgbsp1-9" 
+basis "Tb_ahgbsp1-9" SPHERICAL 
 #basis SET: (38s,31p,29d,30f,30g) -> [38s,31p,29d,30f,30g]
 Tb    S
       3.2172026759e+08       1.0
@@ -15068,7 +15068,7 @@ Tb    G
 Tb    G
       2.1222944159e-04       1.0
 end
-basis "Dy_ahgbsp1-9" 
+basis "Dy_ahgbsp1-9" SPHERICAL 
 #basis SET: (38s,31p,29d,30f,30g) -> [38s,31p,29d,30f,30g]
 Dy    S
       3.2666660550e+08       1.0
@@ -15387,7 +15387,7 @@ Dy    G
 Dy    G
       2.1878084887e-04       1.0
 end
-basis "Ho_ahgbsp1-9" 
+basis "Ho_ahgbsp1-9" SPHERICAL 
 #basis SET: (38s,31p,29d,30f,30g) -> [38s,31p,29d,30f,30g]
 Ho    S
       3.5125762623e+08       1.0
@@ -15706,7 +15706,7 @@ Ho    G
 Ho    G
       2.2549106493e-04       1.0
 end
-basis "Er_ahgbsp1-9" 
+basis "Er_ahgbsp1-9" SPHERICAL 
 #basis SET: (38s,31p,29d,30f,30g) -> [38s,31p,29d,30f,30g]
 Er    S
       3.5463140069e+08       1.0
@@ -16025,7 +16025,7 @@ Er    G
 Er    G
       2.3241508942e-04       1.0
 end
-basis "Tm_ahgbsp1-9" 
+basis "Tm_ahgbsp1-9" SPHERICAL 
 #basis SET: (38s,31p,30d,30f,30g) -> [38s,31p,30d,30f,30g]
 Tm    S
       3.5412352251e+08       1.0
@@ -16346,7 +16346,7 @@ Tm    G
 Tm    G
       2.3920549902e-04       1.0
 end
-basis "Yb_ahgbsp1-9" 
+basis "Yb_ahgbsp1-9" SPHERICAL 
 #basis SET: (38s,31p,30d,30f,30g) -> [38s,31p,30d,30f,30g]
 Yb    S
       3.6216881514e+08       1.0
@@ -16667,7 +16667,7 @@ Yb    G
 Yb    G
       2.4630747246e-04       1.0
 end
-basis "Lu_ahgbsp1-9" 
+basis "Lu_ahgbsp1-9" SPHERICAL 
 #basis SET: (38s,31p,30d,30f,30g) -> [38s,31p,30d,30f,30g]
 Lu    S
       3.8154943218e+08       1.0
@@ -16988,7 +16988,7 @@ Lu    G
 Lu    G
       2.5316331994e-04       1.0
 end
-basis "Hf_ahgbsp1-9" 
+basis "Hf_ahgbsp1-9" SPHERICAL 
 #basis SET: (38s,32p,30d,30f,30g) -> [38s,32p,30d,30f,30g]
 Hf    S
       3.8761665050e+08       1.0
@@ -17311,7 +17311,7 @@ Hf    G
 Hf    G
       2.6044256183e-04       1.0
 end
-basis "Ta_ahgbsp1-9" 
+basis "Ta_ahgbsp1-9" SPHERICAL 
 #basis SET: (38s,32p,30d,30f,30g) -> [38s,32p,30d,30f,30g]
 Ta    S
       4.1491936649e+08       1.0
@@ -17634,7 +17634,7 @@ Ta    G
 Ta    G
       2.6768173392e-04       1.0
 end
-basis "W_ahgbsp1-9" 
+basis "W_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,32p,30d,30f,30g) -> [39s,32p,30d,30f,30g]
 W    S
       4.0459888581e+08       1.0
@@ -17959,7 +17959,7 @@ W    G
 W    G
       2.7508783117e-04       1.0
 end
-basis "Re_ahgbsp1-9" 
+basis "Re_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,32p,30d,30f,30g) -> [39s,32p,30d,30f,30g]
 Re    S
       4.2645123091e+08       1.0
@@ -18284,7 +18284,7 @@ Re    G
 Re    G
       2.8264141354e-04       1.0
 end
-basis "Os_ahgbsp1-9" 
+basis "Os_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,32p,30d,30f,30g) -> [39s,32p,30d,30f,30g]
 Os    S
       4.4190461045e+08       1.0
@@ -18609,7 +18609,7 @@ Os    G
 Os    G
       2.9022035337e-04       1.0
 end
-basis "Ir_ahgbsp1-9" 
+basis "Ir_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,32p,30d,30f,31g) -> [39s,32p,30d,30f,31g]
 Ir    S
       4.4749711209e+08       1.0
@@ -18936,7 +18936,7 @@ Ir    G
 Ir    G
       1.8130395483e-04       1.0
 end
-basis "Pt_ahgbsp1-9" 
+basis "Pt_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,32p,30d,31f,31g) -> [39s,32p,30d,31f,31g]
 Pt    S
       4.6725273112e+08       1.0
@@ -19265,7 +19265,7 @@ Pt    G
 Pt    G
       1.8613673529e-04       1.0
 end
-basis "Au_ahgbsp1-9" 
+basis "Au_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,32p,30d,31f,31g) -> [39s,32p,30d,31f,31g]
 Au    S
       4.8564903838e+08       1.0
@@ -19594,7 +19594,7 @@ Au    G
 Au    G
       1.9091923531e-04       1.0
 end
-basis "Hg_ahgbsp1-9" 
+basis "Hg_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,32p,30d,31f,31g) -> [39s,32p,30d,31f,31g]
 Hg    S
       4.8708812582e+08       1.0
@@ -19923,7 +19923,7 @@ Hg    G
 Hg    G
       1.9574021081e-04       1.0
 end
-basis "Tl_ahgbsp1-9" 
+basis "Tl_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,32p,30d,31f,31g) -> [39s,32p,30d,31f,31g]
 Tl    S
       4.9519760302e+08       1.0
@@ -20252,7 +20252,7 @@ Tl    G
 Tl    G
       2.0066039107e-04       1.0
 end
-basis "Pb_ahgbsp1-9" 
+basis "Pb_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,32p,30d,31f,31g) -> [39s,32p,30d,31f,31g]
 Pb    S
       5.0166874159e+08       1.0
@@ -20581,7 +20581,7 @@ Pb    G
 Pb    G
       2.0564207647e-04       1.0
 end
-basis "Bi_ahgbsp1-9" 
+basis "Bi_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,32p,30d,31f,31g) -> [39s,32p,30d,31f,31g]
 Bi    S
       5.0971635570e+08       1.0
@@ -20910,7 +20910,7 @@ Bi    G
 Bi    G
       2.1066092931e-04       1.0
 end
-basis "Po_ahgbsp1-9" 
+basis "Po_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,32p,30d,31f,31g) -> [39s,32p,30d,31f,31g]
 Po    S
       5.3659978233e+08       1.0
@@ -21239,7 +21239,7 @@ Po    G
 Po    G
       2.1585176382e-04       1.0
 end
-basis "At_ahgbsp1-9" 
+basis "At_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,32p,30d,31f,31g) -> [39s,32p,30d,31f,31g]
 At    S
       5.6136046420e+08       1.0
@@ -21568,7 +21568,7 @@ At    G
 At    G
       2.2097928652e-04       1.0
 end
-basis "Rn_ahgbsp1-9" 
+basis "Rn_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,32p,30d,31f,31g) -> [39s,32p,30d,31f,31g]
 Rn    S
       5.5090488131e+08       1.0
@@ -21897,7 +21897,7 @@ Rn    G
 Rn    G
       2.2615164933e-04       1.0
 end
-basis "Fr_ahgbsp1-9" 
+basis "Fr_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,32p,30d,31f,31g) -> [39s,32p,30d,31f,31g]
 Fr    S
       5.8267022627e+08       1.0
@@ -22226,7 +22226,7 @@ Fr    G
 Fr    G
       2.3150882633e-04       1.0
 end
-basis "Ra_ahgbsp1-9" 
+basis "Ra_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,32p,30d,31f,31g) -> [39s,32p,30d,31f,31g]
 Ra    S
       5.9365950775e+08       1.0
@@ -22555,7 +22555,7 @@ Ra    G
 Ra    G
       2.3683849346e-04       1.0
 end
-basis "Ac_ahgbsp1-9" 
+basis "Ac_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,32p,30d,31f,31g) -> [39s,32p,30d,31f,31g]
 Ac    S
       6.0366126060e+08       1.0
@@ -22884,7 +22884,7 @@ Ac    G
 Ac    G
       2.4229844341e-04       1.0
 end
-basis "Th_ahgbsp1-9" 
+basis "Th_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,32p,30d,31f,31g) -> [39s,32p,30d,31f,31g]
 Th    S
       6.4541228731e+08       1.0
@@ -23213,7 +23213,7 @@ Th    G
 Th    G
       2.4775833783e-04       1.0
 end
-basis "Pa_ahgbsp1-9" 
+basis "Pa_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,32p,31d,31f,31g) -> [39s,32p,31d,31f,31g]
 Pa    S
       6.2628654866e+08       1.0
@@ -23544,7 +23544,7 @@ Pa    G
 Pa    G
       2.5328029632e-04       1.0
 end
-basis "U_ahgbsp1-9" 
+basis "U_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,32p,31d,31f,31g) -> [39s,32p,31d,31f,31g]
 U    S
       6.5810159178e+08       1.0
@@ -23875,7 +23875,7 @@ U    G
 U    G
       2.5894330270e-04       1.0
 end
-basis "Np_ahgbsp1-9" 
+basis "Np_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,32p,31d,31f,31g) -> [39s,32p,31d,31f,31g]
 Np    S
       6.5999784162e+08       1.0
@@ -24206,7 +24206,7 @@ Np    G
 Np    G
       2.6454566352e-04       1.0
 end
-basis "Pu_ahgbsp1-9" 
+basis "Pu_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,32p,31d,31f,31g) -> [39s,32p,31d,31f,31g]
 Pu    S
       6.8272225295e+08       1.0
@@ -24537,7 +24537,7 @@ Pu    G
 Pu    G
       2.7030255758e-04       1.0
 end
-basis "Am_ahgbsp1-9" 
+basis "Am_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,32p,31d,31f,31g) -> [39s,32p,31d,31f,31g]
 Am    S
       6.8629438323e+08       1.0
@@ -24868,7 +24868,7 @@ Am    G
 Am    G
       2.7608442007e-04       1.0
 end
-basis "Cm_ahgbsp1-9" 
+basis "Cm_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,32p,31d,31f,31g) -> [39s,32p,31d,31f,31g]
 Cm    S
       7.1385557602e+08       1.0
@@ -25199,7 +25199,7 @@ Cm    G
 Cm    G
       2.8198223611e-04       1.0
 end
-basis "Bk_ahgbsp1-9" 
+basis "Bk_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,33p,31d,31f,31g) -> [39s,33p,31d,31f,31g]
 Bk    S
       6.9089850609e+08       1.0
@@ -25532,7 +25532,7 @@ Bk    G
 Bk    G
       2.8774098851e-04       1.0
 end
-basis "Cf_ahgbsp1-9" 
+basis "Cf_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,33p,31d,31f,32g) -> [39s,33p,31d,31f,32g]
 Cf    S
       7.3812815753e+08       1.0
@@ -25867,7 +25867,7 @@ Cf    G
 Cf    G
       1.7880929846e-04       1.0
 end
-basis "Es_ahgbsp1-9" 
+basis "Es_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,33p,31d,31f,32g) -> [39s,33p,31d,31f,32g]
 Es    S
       7.1735278520e+08       1.0
@@ -26202,7 +26202,7 @@ Es    G
 Es    G
       1.8254360847e-04       1.0
 end
-basis "Fm_ahgbsp1-9" 
+basis "Fm_ahgbsp1-9" SPHERICAL 
 #basis SET: (39s,33p,31d,31f,32g) -> [39s,33p,31d,31f,32g]
 Fm    S
       7.5357641530e+08       1.0
@@ -26537,7 +26537,7 @@ Fm    G
 Fm    G
       1.8614606198e-04       1.0
 end
-basis "Md_ahgbsp1-9" 
+basis "Md_ahgbsp1-9" SPHERICAL 
 #basis SET: (40s,33p,31d,32f,32g) -> [40s,33p,31d,32f,32g]
 Md    S
       7.5711697977e+08       1.0
@@ -26876,7 +26876,7 @@ Md    G
 Md    G
       1.8996083462e-04       1.0
 end
-basis "No_ahgbsp1-9" 
+basis "No_ahgbsp1-9" SPHERICAL 
 #basis SET: (40s,33p,31d,32f,32g) -> [40s,33p,31d,32f,32g]
 No    S
       8.1135672921e+08       1.0
@@ -27215,7 +27215,7 @@ No    G
 No    G
       1.9371419976e-04       1.0
 end
-basis "Lr_ahgbsp1-9" 
+basis "Lr_ahgbsp1-9" SPHERICAL 
 #basis SET: (40s,33p,31d,32f,32g) -> [40s,33p,31d,32f,32g]
 Lr    S
       8.3745762042e+08       1.0
@@ -27554,7 +27554,7 @@ Lr    G
 Lr    G
       1.9760906900e-04       1.0
 end
-basis "Rf_ahgbsp1-9" 
+basis "Rf_ahgbsp1-9" SPHERICAL 
 #basis SET: (40s,33p,31d,32f,32g) -> [40s,33p,31d,32f,32g]
 Rf    S
       8.0965212885e+08       1.0
@@ -27893,7 +27893,7 @@ Rf    G
 Rf    G
       2.0139835613e-04       1.0
 end
-basis "Db_ahgbsp1-9" 
+basis "Db_ahgbsp1-9" SPHERICAL 
 #basis SET: (40s,33p,31d,32f,32g) -> [40s,33p,31d,32f,32g]
 Db    S
       8.4419585087e+08       1.0
@@ -28232,7 +28232,7 @@ Db    G
 Db    G
       2.0535300042e-04       1.0
 end
-basis "Sg_ahgbsp1-9" 
+basis "Sg_ahgbsp1-9" SPHERICAL 
 #basis SET: (40s,33p,31d,32f,32g) -> [40s,33p,31d,32f,32g]
 Sg    S
       8.4175979644e+08       1.0
@@ -28571,7 +28571,7 @@ Sg    G
 Sg    G
       2.0916592743e-04       1.0
 end
-basis "Bh_ahgbsp1-9" 
+basis "Bh_ahgbsp1-9" SPHERICAL 
 #basis SET: (40s,33p,31d,32f,32g) -> [40s,33p,31d,32f,32g]
 Bh    S
       8.7583802996e+08       1.0
@@ -28910,7 +28910,7 @@ Bh    G
 Bh    G
       2.1315797264e-04       1.0
 end
-basis "Hs_ahgbsp1-9" 
+basis "Hs_ahgbsp1-9" SPHERICAL 
 #basis SET: (40s,33p,31d,32f,32g) -> [40s,33p,31d,32f,32g]
 Hs    S
       8.9175101496e+08       1.0
@@ -29249,7 +29249,7 @@ Hs    G
 Hs    G
       2.1708673125e-04       1.0
 end
-basis "Mt_ahgbsp1-9" 
+basis "Mt_ahgbsp1-9" SPHERICAL 
 #basis SET: (40s,33p,31d,32f,32g) -> [40s,33p,31d,32f,32g]
 Mt    S
       9.1744180145e+08       1.0
@@ -29588,7 +29588,7 @@ Mt    G
 Mt    G
       2.2128690764e-04       1.0
 end
-basis "Ds_ahgbsp1-9" 
+basis "Ds_ahgbsp1-9" SPHERICAL 
 #basis SET: (40s,33p,31d,32f,32g) -> [40s,33p,31d,32f,32g]
 Ds    S
       9.0993923708e+08       1.0
@@ -29927,7 +29927,7 @@ Ds    G
 Ds    G
       2.2533041576e-04       1.0
 end
-basis "Rg_ahgbsp1-9" 
+basis "Rg_ahgbsp1-9" SPHERICAL 
 #basis SET: (40s,33p,31d,32f,32g) -> [40s,33p,31d,32f,32g]
 Rg    S
       9.1897755222e+08       1.0
@@ -30266,7 +30266,7 @@ Rg    G
 Rg    G
       2.2930821948e-04       1.0
 end
-basis "Cn_ahgbsp1-9" 
+basis "Cn_ahgbsp1-9" SPHERICAL 
 #basis SET: (40s,33p,31d,32f,32g) -> [40s,33p,31d,32f,32g]
 Cn    S
       9.6308684402e+08       1.0
@@ -30605,7 +30605,7 @@ Cn    G
 Cn    G
       2.3367417757e-04       1.0
 end
-basis "Nh_ahgbsp1-9" 
+basis "Nh_ahgbsp1-9" SPHERICAL 
 #basis SET: (40s,33p,31d,32f,32g) -> [40s,33p,31d,32f,32g]
 Nh    S
       9.6453829685e+08       1.0
@@ -30944,7 +30944,7 @@ Nh    G
 Nh    G
       2.3771369909e-04       1.0
 end
-basis "Fl_ahgbsp1-9" 
+basis "Fl_ahgbsp1-9" SPHERICAL 
 #basis SET: (40s,33p,31d,32f,32g) -> [40s,33p,31d,32f,32g]
 Fl    S
       1.0034915899e+09       1.0
@@ -31283,7 +31283,7 @@ Fl    G
 Fl    G
       2.4188962162e-04       1.0
 end
-basis "Mc_ahgbsp1-9" 
+basis "Mc_ahgbsp1-9" SPHERICAL 
 #basis SET: (40s,33p,31d,32f,32g) -> [40s,33p,31d,32f,32g]
 Mc    S
       9.9338557114e+08       1.0
@@ -31622,7 +31622,7 @@ Mc    G
 Mc    G
       2.4624225578e-04       1.0
 end
-basis "Lv_ahgbsp1-9" 
+basis "Lv_ahgbsp1-9" SPHERICAL 
 #basis SET: (40s,33p,31d,32f,32g) -> [40s,33p,31d,32f,32g]
 Lv    S
       1.0199209184e+09       1.0
@@ -31961,7 +31961,7 @@ Lv    G
 Lv    G
       2.5051767358e-04       1.0
 end
-basis "Ts_ahgbsp1-9" 
+basis "Ts_ahgbsp1-9" SPHERICAL 
 #basis SET: (40s,33p,31d,32f,32g) -> [40s,33p,31d,32f,32g]
 Ts    S
       1.0303483793e+09       1.0
@@ -32300,7 +32300,7 @@ Ts    G
 Ts    G
       2.5486136216e-04       1.0
 end
-basis "Og_ahgbsp1-9" 
+basis "Og_ahgbsp1-9" SPHERICAL 
 #basis SET: (40s,33p,31d,32f,32g) -> [40s,33p,31d,32f,32g]
 Og    S
       1.0478451190e+09       1.0

@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # pcj-2 version number 1
 # Description: Contracted version of the pcJ-2 basis
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -42,11 +42,11 @@
 #     Jensen, Frank
 #     The optimum contraction of basis sets for calculating spin-spin
 #             coupling constants
-#     Theor. Chem. Acc., 126, 371-382 (2010)
+#     Theor. Chem. Acc. 126, 371-382 (2010)
 #     10.1007/s00214-009-0699-5
 # 
 # # 
-basis "H_pcj-2" 
+basis "H_pcj-2" SPHERICAL 
 #basis SET: (8s,3p,2d) -> [5s,3p,2d]
 H    S
       0.235696E+05           0.627991E-03
@@ -72,7 +72,7 @@ H    D
 H    D
       0.1250000000E+01       1.0000000
 end
-basis "He_pcj-2" 
+basis "He_pcj-2" SPHERICAL 
 #basis SET: (8s,3p,2d) -> [5s,3p,2d]
 He    S
       0.693030E+05           0.629960E-03
@@ -98,7 +98,7 @@ He    D
 He    D
       0.1800000000E+01       1.0000000
 end
-basis "Li_pcj-2" 
+basis "Li_pcj-2" SPHERICAL 
 #basis SET: (12s,4p,1d) -> [6s,2p,1d]
 Li    S
       0.469531E+06           0.910261E-06
@@ -127,7 +127,7 @@ Li    P
 Li    D
       0.260000E+00           1.0000000
 end
-basis "Be_pcj-2" 
+basis "Be_pcj-2" SPHERICAL 
 #basis SET: (12s,4p,1d) -> [6s,2p,1d]
 Be    S
       0.958531E+06           0.783042E-06
@@ -156,7 +156,7 @@ Be    P
 Be    D
       0.390000E+00           1.0000000
 end
-basis "B_pcj-2" 
+basis "B_pcj-2" SPHERICAL 
 #basis SET: (12s,7p,3d,2f) -> [7s,5p,3d,2f]
 B    S
       0.163139E+07           0.152555E-04
@@ -200,7 +200,7 @@ B    F
 B    F
       0.8700000000E+00       1.0000000
 end
-basis "C_pcj-2" 
+basis "C_pcj-2" SPHERICAL 
 #basis SET: (12s,7p,3d,2f) -> [7s,5p,3d,2f]
 C    S
       0.245534E+07           0.152218E-04
@@ -244,7 +244,7 @@ C    F
 C    F
       0.9500000000E+00       1.0000000
 end
-basis "N_pcj-2" 
+basis "N_pcj-2" SPHERICAL 
 #basis SET: (12s,7p,3d,2f) -> [7s,5p,3d,2f]
 N    S
       0.346918E+07           0.151964E-04
@@ -288,7 +288,7 @@ N    F
 N    F
       0.1020000000E+01       1.0000000
 end
-basis "O_pcj-2" 
+basis "O_pcj-2" SPHERICAL 
 #basis SET: (12s,7p,3d,2f) -> [7s,5p,3d,2f]
 O    S
       0.461950E+07           0.151827E-04
@@ -332,7 +332,7 @@ O    F
 O    F
       0.1100000000E+01       1.0000000
 end
-basis "F_pcj-2" 
+basis "F_pcj-2" SPHERICAL 
 #basis SET: (12s,7p,3d,2f) -> [7s,5p,3d,2f]
 F    S
       0.597718E+07           0.151683E-04
@@ -376,7 +376,7 @@ F    F
 F    F
       0.1200000000E+01       1.0000000
 end
-basis "Ne_pcj-2" 
+basis "Ne_pcj-2" SPHERICAL 
 #basis SET: (12s,7p,3d,2f) -> [7s,5p,3d,2f]
 Ne    S
       0.746237E+07           0.151599E-04
@@ -420,7 +420,7 @@ Ne    F
 Ne    F
       0.1300000000E+01       1.0000000
 end
-basis "Na_pcj-2" 
+basis "Na_pcj-2" SPHERICAL 
 #basis SET: (15s,9p,1d) -> [8s,3p,1d]
 Na    S
       0.201481E+08           0.228085E-06
@@ -460,7 +460,7 @@ Na    P
 Na    D
       0.240000E+00           1.0000000
 end
-basis "Mg_pcj-2" 
+basis "Mg_pcj-2" SPHERICAL 
 #basis SET: (15s,9p,1d) -> [8s,3p,1d]
 Mg    S
       0.253178E+08           0.213576E-06
@@ -500,7 +500,7 @@ Mg    P
 Mg    D
       0.300000E+00           1.0000000
 end
-basis "Al_pcj-2" 
+basis "Al_pcj-2" SPHERICAL 
 #basis SET: (15s,11p,3d,2f) -> [7s,6p,3d,2f]
 Al    S
       0.311689E+08           0.109049E-05
@@ -552,7 +552,7 @@ Al    F
 Al    F
       0.4800000000E+00       1.0000000
 end
-basis "Si_pcj-2" 
+basis "Si_pcj-2" SPHERICAL 
 #basis SET: (15s,11p,3d,2f) -> [7s,6p,3d,2f]
 Si    S
       0.375113E+08           0.108444E-05
@@ -604,7 +604,7 @@ Si    F
 Si    F
       0.5400000000E+00       1.0000000
 end
-basis "P_pcj-2" 
+basis "P_pcj-2" SPHERICAL 
 #basis SET: (15s,11p,3d,2f) -> [7s,6p,3d,2f]
 P    S
       0.455262E+08           0.107594E-05
@@ -656,7 +656,7 @@ P    F
 P    F
       0.6000000000E+00       1.0000000
 end
-basis "S_pcj-2" 
+basis "S_pcj-2" SPHERICAL 
 #basis SET: (15s,11p,3d,2f) -> [7s,6p,3d,2f]
 S    S
       0.537596E+08           0.107107E-05
@@ -708,7 +708,7 @@ S    F
 S    F
       0.6600000000E+00       1.0000000
 end
-basis "Cl_pcj-2" 
+basis "Cl_pcj-2" SPHERICAL 
 #basis SET: (15s,11p,3d,2f) -> [7s,6p,3d,2f]
 Cl    S
       0.628606E+08           0.106682E-05
@@ -760,7 +760,7 @@ Cl    F
 Cl    F
       0.7200000000E+00       1.0000000
 end
-basis "Ar_pcj-2" 
+basis "Ar_pcj-2" SPHERICAL 
 #basis SET: (15s,11p,3d,2f) -> [7s,6p,3d,2f]
 Ar    S
       0.726592E+08           0.106168E-05

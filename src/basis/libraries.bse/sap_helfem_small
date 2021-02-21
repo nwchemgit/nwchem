@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # sap_helfem_small version number 1
 # Description: sap_helfem_small
 # Role: guess
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -43,25 +43,25 @@
 #     Efficient implementation of the superposition of atomic potentials
 #             initial guess for electronic structure calculations in
 #             Gaussian basis sets
-#     J. Chem. Phys., 152, 144105 (2020)
+#     J. Chem. Phys. 152, 144105 (2020)
 #     10.1063/5.0004046
 # 
 # # 
-basis "H_sap_helfem_small" 
+basis "H_sap_helfem_small" SPHERICAL 
 #basis SET: (3s) -> [1s]
 H    S
       3.748133675820811e-01 -8.132808566523297e-01
       1.156831381426176e-01  3.129881482718586e-01
       3.570467226624002e-02 -4.997072916195289e-01
 end
-basis "He_sap_helfem_small" 
+basis "He_sap_helfem_small" SPHERICAL 
 #basis SET: (3s) -> [1s]
 He    S
       1.214395310965943e+00 -1.676110760755519e+00
       3.748133675820811e-01  9.778538151106044e-01
       1.156831381426176e-01 -1.301743054355085e+00
 end
-basis "Li_sap_helfem_small" 
+basis "Li_sap_helfem_small" SPHERICAL 
 #basis SET: (6s) -> [1s]
 Li    S
       3.934640807529656e+00 -1.159191160340920e+00
@@ -71,7 +71,7 @@ Li    S
       3.570467226624002e-02 -3.083263394988833e-02
       1.101996057600000e-02 -5.982212337930557e-01
 end
-basis "Be_sap_helfem_small" 
+basis "Be_sap_helfem_small" SPHERICAL 
 #basis SET: (6s) -> [1s]
 Be    S
       3.934640807529656e+00 -1.846492878155234e+00
@@ -81,7 +81,7 @@ Be    S
       3.570467226624002e-02 -9.551307250202186e-01
       1.101996057600000e-02 -3.735364484237680e-01
 end
-basis "B_sap_helfem_small" 
+basis "B_sap_helfem_small" SPHERICAL 
 #basis SET: (7s) -> [1s]
 B    S
       1.274823621639609e+01 -1.000252793455878e+00
@@ -92,7 +92,7 @@ B    S
       3.570467226624002e-02 -1.248703573933483e-01
       1.101996057600000e-02 -5.777514136343527e-01
 end
-basis "C_sap_helfem_small" 
+basis "C_sap_helfem_small" SPHERICAL 
 #basis SET: (6s) -> [1s]
 C    S
       1.274823621639609e+01 -1.663207986966750e+00
@@ -102,7 +102,7 @@ C    S
       1.156831381426176e-01 -1.770418814658399e-01
       3.570467226624002e-02 -6.540361310970759e-01
 end
-basis "N_sap_helfem_small" 
+basis "N_sap_helfem_small" SPHERICAL 
 #basis SET: (6s) -> [1s]
 N    S
       1.274823621639609e+01 -2.076752528138943e+00
@@ -112,7 +112,7 @@ N    S
       1.156831381426176e-01 -6.862392764968348e-01
       3.570467226624002e-02 -6.487503253828031e-01
 end
-basis "O_sap_helfem_small" 
+basis "O_sap_helfem_small" SPHERICAL 
 #basis SET: (7s) -> [1s]
 O    S
       1.274823621639609e+01 -2.549548171963487e+00
@@ -123,7 +123,7 @@ O    S
       3.570467226624002e-02 -2.113502974463302e-01
       1.101996057600000e-02 -2.824456213409761e-01
 end
-basis "F_sap_helfem_small" 
+basis "F_sap_helfem_small" SPHERICAL 
 #basis SET: (6s) -> [1s]
 F    S
       1.274823621639609e+01 -2.954606085799222e+00
@@ -133,7 +133,7 @@ F    S
       1.156831381426176e-01 -7.867604594082991e-01
       3.570467226624002e-02 -5.109770636984390e-01
 end
-basis "Ne_sap_helfem_small" 
+basis "Ne_sap_helfem_small" SPHERICAL 
 #basis SET: (6s) -> [1s]
 Ne    S
       4.130428534112331e+01 -1.357861989027846e+00
@@ -143,7 +143,7 @@ Ne    S
       3.748133675820811e-01  5.956692210929191e-01
       1.156831381426176e-01 -1.812689749658340e+00
 end
-basis "Na_sap_helfem_small" 
+basis "Na_sap_helfem_small" SPHERICAL 
 #basis SET: (8s) -> [1s]
 Na    S
       4.130428534112331e+01 -1.865407518403359e+00
@@ -155,7 +155,7 @@ Na    S
       3.570467226624002e-02  1.280798386707431e-01
       1.101996057600000e-02 -7.139520193200184e-01
 end
-basis "Mg_sap_helfem_small" 
+basis "Mg_sap_helfem_small" SPHERICAL 
 #basis SET: (8s) -> [1s]
 Mg    S
       4.130428534112331e+01 -2.025208706989304e+00
@@ -167,7 +167,7 @@ Mg    S
       3.570467226624002e-02 -7.811796167775640e-01
       1.101996057600000e-02 -6.780748257068865e-01
 end
-basis "Al_sap_helfem_small" 
+basis "Al_sap_helfem_small" SPHERICAL 
 #basis SET: (9s) -> [1s]
 Al    S
       4.130428534112331e+01 -2.184464896042243e+00
@@ -180,7 +180,7 @@ Al    S
       1.101996057600000e-02 -4.097757837600966e-01
       3.401222400000001e-03 -1.888407639206093e-01
 end
-basis "Si_sap_helfem_small" 
+basis "Si_sap_helfem_small" SPHERICAL 
 #basis SET: (8s) -> [1s]
 Si    S
       4.130428534112331e+01 -2.608105828500129e+00
@@ -192,7 +192,7 @@ Si    S
       3.570467226624002e-02 -7.012752749042761e-01
       1.101996057600000e-02 -2.051786311924957e-01
 end
-basis "P_sap_helfem_small" 
+basis "P_sap_helfem_small" SPHERICAL 
 #basis SET: (7s) -> [1s]
 P    S
       4.130428534112331e+01 -2.905499416741435e+00
@@ -203,7 +203,7 @@ P    S
       1.156831381426176e-01 -3.391402682163402e-01
       3.570467226624002e-02 -1.511868193313006e+00
 end
-basis "S_sap_helfem_small" 
+basis "S_sap_helfem_small" SPHERICAL 
 #basis SET: (8s) -> [1s]
 S    S
       4.130428534112331e+01 -3.150560624604367e+00
@@ -215,7 +215,7 @@ S    S
       3.570467226624002e-02 -6.975346150109090e-01
       1.101996057600000e-02 -3.740165155402622e-01
 end
-basis "Cl_sap_helfem_small" 
+basis "Cl_sap_helfem_small" SPHERICAL 
 #basis SET: (7s) -> [1s]
 Cl    S
       4.130428534112331e+01 -3.501645173292232e+00
@@ -226,7 +226,7 @@ Cl    S
       1.156831381426176e-01 -1.056632987637158e-01
       3.570467226624002e-02 -1.370096374960767e+00
 end
-basis "Ar_sap_helfem_small" 
+basis "Ar_sap_helfem_small" SPHERICAL 
 #basis SET: (7s) -> [1s]
 Ar    S
       4.130428534112331e+01 -3.738901731072062e+00
@@ -237,7 +237,7 @@ Ar    S
       1.156831381426176e-01 -5.532037297880379e-01
       3.570467226624002e-02 -1.009501790660877e+00
 end
-basis "K_sap_helfem_small" 
+basis "K_sap_helfem_small" SPHERICAL 
 #basis SET: (9s) -> [1s]
 K    S
       1.338258845052396e+02 -1.811064947627870e+00
@@ -250,7 +250,7 @@ K    S
       3.570467226624002e-02  5.251267825983632e-01
       1.101996057600000e-02 -1.082038332169873e+00
 end
-basis "Ca_sap_helfem_small" 
+basis "Ca_sap_helfem_small" SPHERICAL 
 #basis SET: (9s) -> [1s]
 Ca    S
       1.338258845052396e+02 -1.844959698093589e+00
@@ -263,7 +263,7 @@ Ca    S
       3.570467226624002e-02 -1.030487253046886e-03
       1.101996057600000e-02 -1.313097757945798e+00
 end
-basis "Sc_sap_helfem_small" 
+basis "Sc_sap_helfem_small" SPHERICAL 
 #basis SET: (10s) -> [1s]
 Sc    S
       1.338258845052396e+02 -2.045513807617649e+00
@@ -277,7 +277,7 @@ Sc    S
       1.101996057600000e-02 -5.894311635978635e-01
       3.401222400000001e-03 -2.656622825507209e-01
 end
-basis "Ti_sap_helfem_small" 
+basis "Ti_sap_helfem_small" SPHERICAL 
 #basis SET: (9s) -> [1s]
 Ti    S
       1.338258845052396e+02 -2.209016051856565e+00
@@ -290,7 +290,7 @@ Ti    S
       3.570467226624002e-02 -1.454044835149944e-01
       1.101996057600000e-02 -6.207170591409295e-01
 end
-basis "V_sap_helfem_small" 
+basis "V_sap_helfem_small" SPHERICAL 
 #basis SET: (9s) -> [1s]
 V    S
       1.338258845052396e+02 -2.345692739382571e+00
@@ -303,7 +303,7 @@ V    S
       3.570467226624002e-02 -1.963519174132671e-01
       1.101996057600000e-02 -3.905349077323308e-01
 end
-basis "Cr_sap_helfem_small" 
+basis "Cr_sap_helfem_small" SPHERICAL 
 #basis SET: (9s) -> [1s]
 Cr    S
       1.338258845052396e+02 -2.433994683151241e+00
@@ -316,7 +316,7 @@ Cr    S
       3.570467226624002e-02 -1.284198926118734e-01
       1.101996057600000e-02 -5.022865793987421e-01
 end
-basis "Mn_sap_helfem_small" 
+basis "Mn_sap_helfem_small" SPHERICAL 
 #basis SET: (9s) -> [1s]
 Mn    S
       1.338258845052396e+02 -2.587663201858049e+00
@@ -329,7 +329,7 @@ Mn    S
       3.570467226624002e-02 -6.492776131954088e-01
       1.101996057600000e-02 -7.537338961155911e-01
 end
-basis "Fe_sap_helfem_small" 
+basis "Fe_sap_helfem_small" SPHERICAL 
 #basis SET: (10s) -> [1s]
 Fe    S
       1.338258845052396e+02 -2.799354495522103e+00
@@ -343,7 +343,7 @@ Fe    S
       1.101996057600000e-02 -5.554575621758246e-01
       3.401222400000001e-03 -1.709688398789506e-01
 end
-basis "Co_sap_helfem_small" 
+basis "Co_sap_helfem_small" SPHERICAL 
 #basis SET: (9s) -> [1s]
 Co    S
       1.338258845052396e+02 -2.889311091765194e+00
@@ -356,7 +356,7 @@ Co    S
       3.570467226624002e-02 -7.499246400293487e-01
       1.101996057600000e-02 -5.983671971489457e-01
 end
-basis "Ni_sap_helfem_small" 
+basis "Ni_sap_helfem_small" SPHERICAL 
 #basis SET: (9s) -> [1s]
 Ni    S
       1.338258845052396e+02 -3.054995138469621e+00
@@ -369,7 +369,7 @@ Ni    S
       3.570467226624002e-02 -6.055088794237236e-01
       1.101996057600000e-02 -2.725037086033808e-01
 end
-basis "Cu_sap_helfem_small" 
+basis "Cu_sap_helfem_small" SPHERICAL 
 #basis SET: (9s) -> [1s]
 Cu    S
       1.338258845052396e+02 -3.245841300383745e+00
@@ -382,7 +382,7 @@ Cu    S
       3.570467226624002e-02 -4.924771621567743e-01
       1.101996057600000e-02 -4.136117341749923e-01
 end
-basis "Zn_sap_helfem_small" 
+basis "Zn_sap_helfem_small" SPHERICAL 
 #basis SET: (9s) -> [1s]
 Zn    S
       1.338258845052396e+02 -3.481358495346285e+00
@@ -395,7 +395,7 @@ Zn    S
       3.570467226624002e-02 -8.628061562203584e-01
       1.101996057600000e-02 -4.734470060675449e-01
 end
-basis "Ga_sap_helfem_small" 
+basis "Ga_sap_helfem_small" SPHERICAL 
 #basis SET: (10s) -> [1s]
 Ga    S
       1.338258845052396e+02 -3.837281908783318e+00
@@ -409,7 +409,7 @@ Ga    S
       1.101996057600000e-02 -3.834450538148744e-01
       3.401222400000001e-03 -1.940963814158807e-01
 end
-basis "Ge_sap_helfem_small" 
+basis "Ge_sap_helfem_small" SPHERICAL 
 #basis SET: (9s) -> [1s]
 Ge    S
       1.338258845052396e+02 -4.145505635922632e+00
@@ -422,7 +422,7 @@ Ge    S
       3.570467226624002e-02 -8.287922447266283e-01
       1.101996057600000e-02 -4.416785977397240e-01
 end
-basis "As_sap_helfem_small" 
+basis "As_sap_helfem_small" SPHERICAL 
 #basis SET: (9s) -> [1s]
 As    S
       1.338258845052396e+02 -4.475461396799687e+00
@@ -435,7 +435,7 @@ As    S
       3.570467226624002e-02 -1.122170787359209e+00
       1.101996057600000e-02 -1.747561952962542e-01
 end
-basis "Se_sap_helfem_small" 
+basis "Se_sap_helfem_small" SPHERICAL 
 #basis SET: (9s) -> [1s]
 Se    S
       1.338258845052396e+02 -4.847849133057480e+00
@@ -448,7 +448,7 @@ Se    S
       3.570467226624002e-02 -6.692006977355049e-01
       1.101996057600000e-02 -4.599432403333594e-01
 end
-basis "Br_sap_helfem_small" 
+basis "Br_sap_helfem_small" SPHERICAL 
 #basis SET: (8s) -> [1s]
 Br    S
       1.338258845052396e+02 -5.136665930245840e+00
@@ -460,7 +460,7 @@ Br    S
       1.156831381426176e-01 -2.354379030406335e-01
       3.570467226624002e-02 -1.661730879902279e+00
 end
-basis "Kr_sap_helfem_small" 
+basis "Kr_sap_helfem_small" SPHERICAL 
 #basis SET: (8s) -> [1s]
 Kr    S
       1.338258845052396e+02 -5.571394563084226e+00
@@ -472,7 +472,7 @@ Kr    S
       1.156831381426176e-01 -7.090680785596533e-01
       3.570467226624002e-02 -1.320921552624696e+00
 end
-basis "Rb_sap_helfem_small" 
+basis "Rb_sap_helfem_small" SPHERICAL 
 #basis SET: (10s) -> [1s]
 Rb    S
       1.338258845052396e+02 -5.943529885876082e+00
@@ -486,7 +486,7 @@ Rb    S
       1.101996057600000e-02 -6.706343573151443e-01
       3.401222400000001e-03 -1.831708017358284e-01
 end
-basis "Sr_sap_helfem_small" 
+basis "Sr_sap_helfem_small" SPHERICAL 
 #basis SET: (9s) -> [1s]
 Sr    S
       1.338258845052396e+02 -6.173731713367260e+00
@@ -499,7 +499,7 @@ Sr    S
       3.570467226624002e-02  5.700375412575340e-01
       1.101996057600000e-02 -1.636211262965617e+00
 end
-basis "Y_sap_helfem_small" 
+basis "Y_sap_helfem_small" SPHERICAL 
 #basis SET: (10s) -> [1s]
 Y    S
       1.338258845052396e+02 -6.440904387975955e+00
@@ -513,7 +513,7 @@ Y    S
       1.101996057600000e-02 -7.059318470057256e-01
       3.401222400000001e-03 -3.302219117933438e-01
 end
-basis "Zr_sap_helfem_small" 
+basis "Zr_sap_helfem_small" SPHERICAL 
 #basis SET: (10s) -> [1s]
 Zr    S
       4.335958657969762e+02 -2.003282409826454e+00
@@ -527,7 +527,7 @@ Zr    S
       3.570467226624002e-02 -5.674832204015345e-02
       1.101996057600000e-02 -6.943652472437654e-01
 end
-basis "Nb_sap_helfem_small" 
+basis "Nb_sap_helfem_small" SPHERICAL 
 #basis SET: (9s) -> [1s]
 Nb    S
       1.338258845052396e+02 -7.150750269610853e+00
@@ -540,7 +540,7 @@ Nb    S
       3.570467226624002e-02 -5.244062236424725e-01
       1.101996057600000e-02 -3.579508977777550e-01
 end
-basis "Mo_sap_helfem_small" 
+basis "Mo_sap_helfem_small" SPHERICAL 
 #basis SET: (9s) -> [1s]
 Mo    S
       1.338258845052396e+02 -7.398421823176022e+00
@@ -553,7 +553,7 @@ Mo    S
       3.570467226624002e-02 -3.357296943595429e-01
       1.101996057600000e-02 -4.971380054469137e-01
 end
-basis "Tc_sap_helfem_small" 
+basis "Tc_sap_helfem_small" SPHERICAL 
 #basis SET: (10s) -> [1s]
 Tc    S
       4.335958657969762e+02 -2.449460594232647e+00
@@ -567,7 +567,7 @@ Tc    S
       3.570467226624002e-02 -6.106806692189402e-01
       1.101996057600000e-02 -9.048437045454216e-01
 end
-basis "Ru_sap_helfem_small" 
+basis "Ru_sap_helfem_small" SPHERICAL 
 #basis SET: (10s) -> [1s]
 Ru    S
       4.335958657969762e+02 -2.592845804817600e+00
@@ -581,7 +581,7 @@ Ru    S
       3.570467226624002e-02 -5.987676554955570e-01
       1.101996057600000e-02 -8.530892092928379e-01
 end
-basis "Rh_sap_helfem_small" 
+basis "Rh_sap_helfem_small" SPHERICAL 
 #basis SET: (10s) -> [1s]
 Rh    S
       4.335958657969762e+02 -2.719917172510272e+00
@@ -595,7 +595,7 @@ Rh    S
       3.570467226624002e-02 -8.472057135860744e-01
       1.101996057600000e-02 -3.205337353109297e-01
 end
-basis "Pd_sap_helfem_small" 
+basis "Pd_sap_helfem_small" SPHERICAL 
 #basis SET: (9s) -> [1s]
 Pd    S
       4.335958657969762e+02 -2.961535556432182e+00
@@ -608,7 +608,7 @@ Pd    S
       1.156831381426176e-01  3.477538332053882e-01
       3.570467226624002e-02 -1.486483542564883e+00
 end
-basis "Ag_sap_helfem_small" 
+basis "Ag_sap_helfem_small" SPHERICAL 
 #basis SET: (10s) -> [1s]
 Ag    S
       4.335958657969762e+02 -3.159071569497229e+00
@@ -622,7 +622,7 @@ Ag    S
       3.570467226624002e-02 -5.494716126668706e-01
       1.101996057600000e-02 -4.882473411271526e-01
 end
-basis "Cd_sap_helfem_small" 
+basis "Cd_sap_helfem_small" SPHERICAL 
 #basis SET: (10s) -> [1s]
 Cd    S
       4.335958657969762e+02 -3.453077422905551e+00
@@ -636,7 +636,7 @@ Cd    S
       3.570467226624002e-02 -7.457789017640906e-01
       1.101996057600000e-02 -6.412123242921508e-01
 end
-basis "In_sap_helfem_small" 
+basis "In_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 In    S
       4.335958657969762e+02 -3.657770703527227e+00
@@ -651,7 +651,7 @@ In    S
       1.101996057600000e-02 -4.777932898352972e-01
       3.401222400000001e-03 -1.984062403666371e-01
 end
-basis "Sn_sap_helfem_small" 
+basis "Sn_sap_helfem_small" SPHERICAL 
 #basis SET: (10s) -> [1s]
 Sn    S
       4.335958657969762e+02 -3.963254426190737e+00
@@ -665,7 +665,7 @@ Sn    S
       3.570467226624002e-02 -6.714847144280824e-01
       1.101996057600000e-02 -3.418354809454902e-01
 end
-basis "Sb_sap_helfem_small" 
+basis "Sb_sap_helfem_small" SPHERICAL 
 #basis SET: (10s) -> [1s]
 Sb    S
       4.335958657969762e+02 -4.145512367420586e+00
@@ -679,7 +679,7 @@ Sb    S
       3.570467226624002e-02 -1.236186373376334e+00
       1.101996057600000e-02 -3.052275744974775e-01
 end
-basis "Te_sap_helfem_small" 
+basis "Te_sap_helfem_small" SPHERICAL 
 #basis SET: (10s) -> [1s]
 Te    S
       4.335958657969762e+02 -4.323408806352276e+00
@@ -693,7 +693,7 @@ Te    S
       3.570467226624002e-02 -6.913820333413199e-01
       1.101996057600000e-02 -6.064609390558120e-01
 end
-basis "I_sap_helfem_small" 
+basis "I_sap_helfem_small" SPHERICAL 
 #basis SET: (10s) -> [1s]
 I    S
       4.335958657969762e+02 -4.519531022739812e+00
@@ -707,7 +707,7 @@ I    S
       3.570467226624002e-02 -1.207136282391176e+00
       1.101996057600000e-02 -3.125367282073910e-01
 end
-basis "Xe_sap_helfem_small" 
+basis "Xe_sap_helfem_small" SPHERICAL 
 #basis SET: (9s) -> [1s]
 Xe    S
       4.335958657969762e+02 -4.719917315916973e+00
@@ -720,7 +720,7 @@ Xe    S
       1.156831381426176e-01 -1.099167350082098e+00
       3.570467226624002e-02 -1.806792106218381e+00
 end
-basis "Cs_sap_helfem_small" 
+basis "Cs_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Cs    S
       4.335958657969762e+02 -4.745391398443623e+00
@@ -735,7 +735,7 @@ Cs    S
       1.101996057600000e-02 -6.922987449021036e-01
       3.401222400000001e-03 -2.693535685156032e-01
 end
-basis "Ba_sap_helfem_small" 
+basis "Ba_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Ba    S
       4.335958657969762e+02 -4.938556355688945e+00
@@ -750,7 +750,7 @@ Ba    S
       1.101996057600000e-02 -1.620027395213597e+00
       3.401222400000001e-03 -1.746636998537827e-01
 end
-basis "La_sap_helfem_small" 
+basis "La_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 La    S
       4.335958657969762e+02 -5.100575510183326e+00
@@ -765,7 +765,7 @@ La    S
       1.101996057600000e-02 -1.313303898819797e+00
       3.401222400000001e-03 -1.887038366653897e-01
 end
-basis "Ce_sap_helfem_small" 
+basis "Ce_sap_helfem_small" SPHERICAL 
 #basis SET: (10s) -> [1s]
 Ce    S
       4.335958657969762e+02 -5.131503699652598e+00
@@ -779,7 +779,7 @@ Ce    S
       3.570467226624002e-02 -3.086347104148714e-01
       1.101996057600000e-02 -6.465253122794401e-01
 end
-basis "Pr_sap_helfem_small" 
+basis "Pr_sap_helfem_small" SPHERICAL 
 #basis SET: (10s) -> [1s]
 Pr    S
       4.335958657969762e+02 -5.310142976216525e+00
@@ -793,7 +793,7 @@ Pr    S
       3.570467226624002e-02  1.131518830846275e+00
       1.101996057600000e-02 -1.934852304951580e+00
 end
-basis "Nd_sap_helfem_small" 
+basis "Nd_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Nd    S
       4.335958657969762e+02 -5.391042353650477e+00
@@ -808,7 +808,7 @@ Nd    S
       1.101996057600000e-02 -6.534326653293192e-01
       3.401222400000001e-03 -1.997409311994129e-01
 end
-basis "Pm_sap_helfem_small" 
+basis "Pm_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Pm    S
       4.335958657969762e+02 -5.531401494348671e+00
@@ -823,7 +823,7 @@ Pm    S
       1.101996057600000e-02  6.683010275914683e-01
       3.401222400000001e-03 -5.829826573062142e-01
 end
-basis "Sm_sap_helfem_small" 
+basis "Sm_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Sm    S
       4.335958657969762e+02 -5.595885386857319e+00
@@ -838,7 +838,7 @@ Sm    S
       1.101996057600000e-02 -6.806267626233762e-01
       3.401222400000001e-03 -1.917778720210084e-01
 end
-basis "Eu_sap_helfem_small" 
+basis "Eu_sap_helfem_small" SPHERICAL 
 #basis SET: (10s) -> [1s]
 Eu    S
       4.335958657969762e+02 -5.735750582404336e+00
@@ -852,7 +852,7 @@ Eu    S
       3.570467226624002e-02  8.931355092544990e-01
       1.101996057600000e-02 -1.805696371266375e+00
 end
-basis "Gd_sap_helfem_small" 
+basis "Gd_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Gd    S
       4.335958657969762e+02 -5.843933066653328e+00
@@ -867,7 +867,7 @@ Gd    S
       1.101996057600000e-02 -9.902390123481553e-01
       3.401222400000001e-03 -2.133501962123674e-01
 end
-basis "Tb_sap_helfem_small" 
+basis "Tb_sap_helfem_small" SPHERICAL 
 #basis SET: (10s) -> [1s]
 Tb    S
       4.335958657969762e+02 -5.754851335102458e+00
@@ -881,7 +881,7 @@ Tb    S
       3.570467226624002e-02 -2.897692791359461e-01
       1.101996057600000e-02 -6.059220470053965e-01
 end
-basis "Dy_sap_helfem_small" 
+basis "Dy_sap_helfem_small" SPHERICAL 
 #basis SET: (14s) -> [1s]
 Dy    S
       1.404850605182203e+03 -2.060216449916453e+00
@@ -899,7 +899,7 @@ Dy    S
       1.049760000000000e-03 -7.984460681399410e-01
       3.240000000000001e-04  7.694958423857917e-02
 end
-basis "Ho_sap_helfem_small" 
+basis "Ho_sap_helfem_small" SPHERICAL 
 #basis SET: (13s) -> [1s]
 Ho    S
       1.404850605182203e+03 -2.230858506941900e+00
@@ -916,7 +916,7 @@ Ho    S
       3.401222400000001e-03  1.158426070992391e-01
       1.049760000000000e-03 -3.503572323696744e-01
 end
-basis "Er_sap_helfem_small" 
+basis "Er_sap_helfem_small" SPHERICAL 
 #basis SET: (12s) -> [1s]
 Er    S
       4.335958657969762e+02 -5.989350302753792e+00
@@ -932,7 +932,7 @@ Er    S
       3.401222400000001e-03 -3.525303453402699e-01
       1.049760000000000e-03 -1.437877995864305e-01
 end
-basis "Tm_sap_helfem_small" 
+basis "Tm_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Tm    S
       4.335958657969762e+02 -6.061973489522821e+00
@@ -947,7 +947,7 @@ Tm    S
       1.101996057600000e-02 -6.927340804622446e-01
       3.401222400000001e-03 -1.563622009758561e-01
 end
-basis "Yb_sap_helfem_small" 
+basis "Yb_sap_helfem_small" SPHERICAL 
 #basis SET: (10s) -> [1s]
 Yb    S
       4.335958657969762e+02 -6.197464474426624e+00
@@ -961,7 +961,7 @@ Yb    S
       3.570467226624002e-02  3.787112264143317e-01
       1.101996057600000e-02 -1.547149174321950e+00
 end
-basis "Lu_sap_helfem_small" 
+basis "Lu_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Lu    S
       4.335958657969762e+02 -6.281155731741990e+00
@@ -976,7 +976,7 @@ Lu    S
       1.101996057600000e-02 -6.646738755393642e-01
       3.401222400000001e-03 -3.359415453323678e-01
 end
-basis "Hf_sap_helfem_small" 
+basis "Hf_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Hf    S
       1.404850605182203e+03 -2.961926637372073e+00
@@ -991,7 +991,7 @@ Hf    S
       3.570467226624002e-02 -7.509168359436558e-02
       1.101996057600000e-02 -6.916612283364216e-01
 end
-basis "Ta_sap_helfem_small" 
+basis "Ta_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Ta    S
       1.404850605182203e+03 -3.084664592688682e+00
@@ -1006,7 +1006,7 @@ Ta    S
       3.570467226624002e-02 -5.830415802310682e-01
       1.101996057600000e-02 -3.561921928970158e-01
 end
-basis "W_sap_helfem_small" 
+basis "W_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 W    S
       1.404850605182203e+03 -3.209299453341004e+00
@@ -1021,7 +1021,7 @@ W    S
       3.570467226624002e-02 -4.524511190912648e-01
       1.101996057600000e-02 -4.690672408373544e-01
 end
-basis "Re_sap_helfem_small" 
+basis "Re_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Re    S
       1.404850605182203e+03 -3.312344187031599e+00
@@ -1036,7 +1036,7 @@ Re    S
       3.570467226624002e-02 -6.411148651126837e-01
       1.101996057600000e-02 -9.194349519417102e-01
 end
-basis "Os_sap_helfem_small" 
+basis "Os_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Os    S
       1.404850605182203e+03 -3.449550792259529e+00
@@ -1051,7 +1051,7 @@ Os    S
       3.570467226624002e-02 -7.066296007992605e-01
       1.101996057600000e-02 -8.482139503927222e-01
 end
-basis "Ir_sap_helfem_small" 
+basis "Ir_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Ir    S
       1.404850605182203e+03 -3.609921261520697e+00
@@ -1066,7 +1066,7 @@ Ir    S
       3.570467226624002e-02 -1.052037785638305e+00
       1.101996057600000e-02 -2.962158935649484e-01
 end
-basis "Pt_sap_helfem_small" 
+basis "Pt_sap_helfem_small" SPHERICAL 
 #basis SET: (10s) -> [1s]
 Pt    S
       1.404850605182203e+03 -3.677558583874060e+00
@@ -1080,7 +1080,7 @@ Pt    S
       1.156831381426176e-01  5.041729140094944e-01
       3.570467226624002e-02 -1.648924160045953e+00
 end
-basis "Au_sap_helfem_small" 
+basis "Au_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Au    S
       1.404850605182203e+03 -3.769745498137439e+00
@@ -1095,7 +1095,7 @@ Au    S
       3.570467226624002e-02 -7.508473336037724e-01
       1.101996057600000e-02 -4.696779350180300e-01
 end
-basis "Hg_sap_helfem_small" 
+basis "Hg_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Hg    S
       1.404850605182203e+03 -3.766786519297312e+00
@@ -1110,7 +1110,7 @@ Hg    S
       3.570467226624002e-02 -8.375545627052361e-01
       1.101996057600000e-02 -6.557844325484190e-01
 end
-basis "Tl_sap_helfem_small" 
+basis "Tl_sap_helfem_small" SPHERICAL 
 #basis SET: (12s) -> [1s]
 Tl    S
       1.404850605182203e+03 -3.815739419862823e+00
@@ -1126,7 +1126,7 @@ Tl    S
       1.101996057600000e-02 -4.579387114637825e-01
       3.401222400000001e-03 -2.139651093389325e-01
 end
-basis "Pb_sap_helfem_small" 
+basis "Pb_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Pb    S
       1.404850605182203e+03 -3.795991722068976e+00
@@ -1141,7 +1141,7 @@ Pb    S
       3.570467226624002e-02 -8.718352522854218e-01
       1.101996057600000e-02 -3.592808750522671e-01
 end
-basis "Bi_sap_helfem_small" 
+basis "Bi_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Bi    S
       1.404850605182203e+03 -3.804197592239248e+00
@@ -1156,7 +1156,7 @@ Bi    S
       3.570467226624002e-02 -1.402791335053735e+00
       1.101996057600000e-02 -3.482362438371531e-01
 end
-basis "Po_sap_helfem_small" 
+basis "Po_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Po    S
       1.404850605182203e+03 -3.824457025402211e+00
@@ -1171,7 +1171,7 @@ Po    S
       3.570467226624002e-02 -8.234756587920344e-01
       1.101996057600000e-02 -6.675306485821544e-01
 end
-basis "At_sap_helfem_small" 
+basis "At_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 At    S
       1.404850605182203e+03 -3.810151038916004e+00
@@ -1186,7 +1186,7 @@ At    S
       3.570467226624002e-02 -1.356097498758857e+00
       1.101996057600000e-02 -3.772038183751505e-01
 end
-basis "Rn_sap_helfem_small" 
+basis "Rn_sap_helfem_small" SPHERICAL 
 #basis SET: (10s) -> [1s]
 Rn    S
       1.404850605182203e+03 -3.761120409308589e+00
@@ -1200,7 +1200,7 @@ Rn    S
       1.156831381426176e-01 -1.046287990685911e+00
       3.570467226624002e-02 -2.150476685092233e+00
 end
-basis "Fr_sap_helfem_small" 
+basis "Fr_sap_helfem_small" SPHERICAL 
 #basis SET: (12s) -> [1s]
 Fr    S
       1.404850605182203e+03 -3.894481825863210e+00
@@ -1216,7 +1216,7 @@ Fr    S
       1.101996057600000e-02 -6.399977995926633e-01
       3.401222400000001e-03 -3.252771854274989e-01
 end
-basis "Ra_sap_helfem_small" 
+basis "Ra_sap_helfem_small" SPHERICAL 
 #basis SET: (12s) -> [1s]
 Ra    S
       1.404850605182203e+03 -3.880856123759315e+00
@@ -1232,7 +1232,7 @@ Ra    S
       1.101996057600000e-02 -1.646604962208244e+00
       3.401222400000001e-03 -2.451465997194191e-01
 end
-basis "Ac_sap_helfem_small" 
+basis "Ac_sap_helfem_small" SPHERICAL 
 #basis SET: (12s) -> [1s]
 Ac    S
       1.404850605182203e+03 -3.840876204277862e+00
@@ -1248,7 +1248,7 @@ Ac    S
       1.101996057600000e-02 -1.467871107699011e+00
       3.401222400000001e-03 -2.140072686890697e-01
 end
-basis "Th_sap_helfem_small" 
+basis "Th_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Th    S
       1.404850605182203e+03 -3.850397610896650e+00
@@ -1263,7 +1263,7 @@ Th    S
       3.570467226624002e-02 -3.800415054794541e-01
       1.101996057600000e-02 -7.095585001822435e-01
 end
-basis "Pa_sap_helfem_small" 
+basis "Pa_sap_helfem_small" SPHERICAL 
 #basis SET: (12s) -> [1s]
 Pa    S
       1.404850605182203e+03 -3.870062694232729e+00
@@ -1279,7 +1279,7 @@ Pa    S
       1.101996057600000e-02 -4.641527925413413e-01
       3.401222400000001e-03 -3.071168562976005e-01
 end
-basis "U_sap_helfem_small" 
+basis "U_sap_helfem_small" SPHERICAL 
 #basis SET: (12s) -> [1s]
 U    S
       1.404850605182203e+03 -3.826941856888695e+00
@@ -1295,7 +1295,7 @@ U    S
       1.101996057600000e-02  5.190521732672835e-01
       3.401222400000001e-03 -5.190865296370220e-01
 end
-basis "Np_sap_helfem_small" 
+basis "Np_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Np    S
       1.404850605182203e+03 -3.833987221316676e+00
@@ -1310,7 +1310,7 @@ Np    S
       3.570467226624002e-02 -5.833935201937379e-01
       1.101996057600000e-02 -3.901881443470430e-01
 end
-basis "Pu_sap_helfem_small" 
+basis "Pu_sap_helfem_small" SPHERICAL 
 #basis SET: (12s) -> [1s]
 Pu    S
       1.404850605182203e+03 -3.839159814774490e+00
@@ -1326,7 +1326,7 @@ Pu    S
       1.101996057600000e-02 -7.138833579314792e-01
       3.401222400000001e-03 -2.247305865765057e-01
 end
-basis "Am_sap_helfem_small" 
+basis "Am_sap_helfem_small" SPHERICAL 
 #basis SET: (12s) -> [1s]
 Am    S
       1.404850605182203e+03 -3.772153239896411e+00
@@ -1342,7 +1342,7 @@ Am    S
       1.101996057600000e-02 -1.605557901311073e+00
       3.401222400000001e-03 -1.490089650004727e-01
 end
-basis "Cm_sap_helfem_small" 
+basis "Cm_sap_helfem_small" SPHERICAL 
 #basis SET: (12s) -> [1s]
 Cm    S
       1.404850605182203e+03 -3.746660070268291e+00
@@ -1358,7 +1358,7 @@ Cm    S
       1.101996057600000e-02 -1.428380346094372e+00
       3.401222400000001e-03 -1.314605457594062e-01
 end
-basis "Bk_sap_helfem_small" 
+basis "Bk_sap_helfem_small" SPHERICAL 
 #basis SET: (12s) -> [1s]
 Bk    S
       1.404850605182203e+03 -3.741189446428308e+00
@@ -1374,7 +1374,7 @@ Bk    S
       1.101996057600000e-02 -1.576825669990086e+00
       3.401222400000001e-03 -1.274911945536168e-01
 end
-basis "Cf_sap_helfem_small" 
+basis "Cf_sap_helfem_small" SPHERICAL 
 #basis SET: (12s) -> [1s]
 Cf    S
       1.404850605182203e+03 -3.789538212922693e+00
@@ -1390,7 +1390,7 @@ Cf    S
       1.101996057600000e-02 -8.694359995986076e-01
       3.401222400000001e-03 -2.088429989368983e-01
 end
-basis "Es_sap_helfem_small" 
+basis "Es_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Es    S
       1.404850605182203e+03 -3.794016316212094e+00
@@ -1405,7 +1405,7 @@ Es    S
       3.570467226624002e-02 -4.065904918535921e-01
       1.101996057600000e-02 -3.221797305040397e-01
 end
-basis "Fm_sap_helfem_small" 
+basis "Fm_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Fm    S
       1.404850605182203e+03 -3.785501357521042e+00
@@ -1420,7 +1420,7 @@ Fm    S
       3.570467226624002e-02 -8.376116046055131e-01
       1.101996057600000e-02 -1.185440774549704e-01
 end
-basis "Md_sap_helfem_small" 
+basis "Md_sap_helfem_small" SPHERICAL 
 #basis SET: (12s) -> [1s]
 Md    S
       1.404850605182203e+03 -3.812344585946889e+00
@@ -1436,7 +1436,7 @@ Md    S
       1.101996057600000e-02 -7.299860575906223e-01
       3.401222400000001e-03 -1.914442144765864e-01
 end
-basis "No_sap_helfem_small" 
+basis "No_sap_helfem_small" SPHERICAL 
 #basis SET: (13s) -> [1s]
 No    S
       4.551715960790338e+03 -2.372863976784856e+00
@@ -1453,7 +1453,7 @@ No    S
       1.101996057600000e-02 -1.528565737266035e+00
       3.401222400000001e-03 -1.017575469943495e-01
 end
-basis "Lr_sap_helfem_small" 
+basis "Lr_sap_helfem_small" SPHERICAL 
 #basis SET: (13s) -> [1s]
 Lr    S
       4.551715960790338e+03 -2.449780863440310e+00
@@ -1470,7 +1470,7 @@ Lr    S
       1.101996057600000e-02 -9.017444382752728e-01
       3.401222400000001e-03 -3.400633789153744e-01
 end
-basis "Rf_sap_helfem_small" 
+basis "Rf_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Rf    S
       1.404850605182203e+03 -3.977282659685741e+00
@@ -1485,7 +1485,7 @@ Rf    S
       3.570467226624002e-02 -1.028569947387723e-01
       1.101996057600000e-02 -6.581470405811736e-01
 end
-basis "Db_sap_helfem_small" 
+basis "Db_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Db    S
       1.404850605182203e+03 -4.051812712090808e+00
@@ -1500,7 +1500,7 @@ Db    S
       3.570467226624002e-02 -5.583526047043392e-01
       1.101996057600000e-02 -3.613857668144504e-01
 end
-basis "Sg_sap_helfem_small" 
+basis "Sg_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Sg    S
       1.404850605182203e+03 -4.167202117366742e+00
@@ -1515,7 +1515,7 @@ Sg    S
       3.570467226624002e-02 -1.715450570792143e-01
       1.101996057600000e-02 -6.227807181713487e-01
 end
-basis "Bh_sap_helfem_small" 
+basis "Bh_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Bh    S
       1.404850605182203e+03 -4.236960566215032e+00
@@ -1530,7 +1530,7 @@ Bh    S
       3.570467226624002e-02 -1.598190868905363e-01
       1.101996057600000e-02 -1.180765814894361e+00
 end
-basis "Hs_sap_helfem_small" 
+basis "Hs_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Hs    S
       1.404850605182203e+03 -4.462718941596137e+00
@@ -1545,7 +1545,7 @@ Hs    S
       3.570467226624002e-02 -5.970337470940308e-01
       1.101996057600000e-02 -5.890015857583322e-01
 end
-basis "Mt_sap_helfem_small" 
+basis "Mt_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Mt    S
       1.404850605182203e+03 -4.611228853902219e+00
@@ -1560,7 +1560,7 @@ Mt    S
       3.570467226624002e-02 -1.125172272556938e+00
       1.101996057600000e-02 -2.918970290239216e-01
 end
-basis "Ds_sap_helfem_small" 
+basis "Ds_sap_helfem_small" SPHERICAL 
 #basis SET: (10s) -> [1s]
 Ds    S
       1.404850605182203e+03 -4.752609262022290e+00
@@ -1574,7 +1574,7 @@ Ds    S
       1.156831381426176e-01  1.921279512435348e-01
       3.570467226624002e-02 -1.759346684968509e+00
 end
-basis "Rg_sap_helfem_small" 
+basis "Rg_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Rg    S
       1.404850605182203e+03 -4.952923407068582e+00
@@ -1589,7 +1589,7 @@ Rg    S
       3.570467226624002e-02 -6.536824041961040e-01
       1.101996057600000e-02 -5.930773108522516e-01
 end
-basis "Cn_sap_helfem_small" 
+basis "Cn_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Cn    S
       1.404850605182203e+03 -5.050508063571982e+00
@@ -1604,7 +1604,7 @@ Cn    S
       3.570467226624002e-02 -6.235376551353795e-01
       1.101996057600000e-02 -8.488393951519200e-01
 end
-basis "Nh_sap_helfem_small" 
+basis "Nh_sap_helfem_small" SPHERICAL 
 #basis SET: (12s) -> [1s]
 Nh    S
       1.404850605182203e+03 -5.209004330072545e+00
@@ -1620,7 +1620,7 @@ Nh    S
       1.101996057600000e-02 -5.448012642200979e-01
       3.401222400000001e-03 -2.270166811588439e-01
 end
-basis "Fl_sap_helfem_small" 
+basis "Fl_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Fl    S
       1.404850605182203e+03 -5.355135911911674e+00
@@ -1635,7 +1635,7 @@ Fl    S
       3.570467226624002e-02 -1.073987975288503e+00
       1.101996057600000e-02 -4.282783777144630e-01
 end
-basis "Mc_sap_helfem_small" 
+basis "Mc_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Mc    S
       1.404850605182203e+03 -5.454367719181619e+00
@@ -1650,7 +1650,7 @@ Mc    S
       3.570467226624002e-02 -1.565616723752754e+00
       1.101996057600000e-02 -4.611121225579780e-01
 end
-basis "Lv_sap_helfem_small" 
+basis "Lv_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Lv    S
       1.404850605182203e+03 -5.608428330563569e+00
@@ -1665,7 +1665,7 @@ Lv    S
       3.570467226624002e-02 -9.803142396565363e-01
       1.101996057600000e-02 -7.786498218827269e-01
 end
-basis "Ts_sap_helfem_small" 
+basis "Ts_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Ts    S
       1.404850605182203e+03 -5.722317120215152e+00
@@ -1680,7 +1680,7 @@ Ts    S
       3.570467226624002e-02 -1.556690451085473e+00
       1.101996057600000e-02 -4.850186543275612e-01
 end
-basis "Og_sap_helfem_small" 
+basis "Og_sap_helfem_small" SPHERICAL 
 #basis SET: (11s) -> [1s]
 Og    S
       1.404850605182203e+03 -5.852324271772630e+00

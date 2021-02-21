@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # pcj-0_2006 version number 0
 # Description: pcJ-0_2006
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -46,18 +46,18 @@
 #     Jensen, Frank
 #     The Basis Set Convergence of Spin-Spin Coupling Constants Calculated
 #             by Density Functional Methods
-#     J. Chem. Theory Comput., 2, 1360-1369 (2006)
+#     J. Chem. Theory Comput. 2, 1360-1369 (2006)
 #     10.1021/ct600166u
 # 
 # jensen2007a
 #     Jensen, Frank
 #     Polarization Consistent Basis Sets. 4: The Elements He, Li, Be, B, Ne,
 #             Na, Mg, Al, and Ar
-#     J. Phys. Chem. A, 111, 11198-11204 (2007)
+#     J. Phys. Chem. A 111, 11198-11204 (2007)
 #     10.1021/jp068677h
 # 
 # # 
-basis "H_pcj-0_2006" 
+basis "H_pcj-0_2006" SPHERICAL 
 #basis SET: (5s) -> [3s]
 H    S
       0.135775E+04           0.662272E-03
@@ -68,7 +68,7 @@ H    S
 H    S
       0.136687E+00           0.100000E+01
 end
-basis "He_pcj-0_2006" 
+basis "He_pcj-0_2006" SPHERICAL 
 #basis SET: (5s) -> [3s]
 He    S
       0.412812E+04           0.691643E-03
@@ -79,7 +79,7 @@ He    S
 He    S
       0.354434E+00           0.100000E+01
 end
-basis "B_pcj-0_2006" 
+basis "B_pcj-0_2006" SPHERICAL 
 #basis SET: (7s,4p) -> [4s,3p]
 B    S
       0.949153E+05           0.901807E-04
@@ -100,7 +100,7 @@ B    P
 B    P
       0.118759E+00           0.100000E+01
 end
-basis "C_pcj-0_2006" 
+basis "C_pcj-0_2006" SPHERICAL 
 #basis SET: (7s,4p) -> [4s,3p]
 C    S
       0.139534E+06           0.896135E-04
@@ -121,7 +121,7 @@ C    P
 C    P
       0.188934E+00           0.100000E+01
 end
-basis "N_pcj-0_2006" 
+basis "N_pcj-0_2006" SPHERICAL 
 #basis SET: (7s,4p) -> [4s,3p]
 N    S
       0.192453E+06           0.892391E-04
@@ -142,7 +142,7 @@ N    P
 N    P
       0.273903E+00           0.100000E+01
 end
-basis "O_pcj-0_2006" 
+basis "O_pcj-0_2006" SPHERICAL 
 #basis SET: (7s,4p) -> [4s,3p]
 O    S
       0.253789E+06           0.889624E-04
@@ -163,7 +163,7 @@ O    P
 O    P
       0.350672E+00           0.100000E+01
 end
-basis "F_pcj-0_2006" 
+basis "F_pcj-0_2006" SPHERICAL 
 #basis SET: (7s,4p) -> [4s,3p]
 F    S
       0.323467E+06           0.887559E-04
@@ -184,7 +184,7 @@ F    P
 F    P
       0.448707E+00           0.100000E+01
 end
-basis "Ne_pcj-0_2006" 
+basis "Ne_pcj-0_2006" SPHERICAL 
 #basis SET: (7s,4p) -> [4s,3p]
 Ne    S
       0.401394E+06           0.886012E-04
@@ -205,7 +205,7 @@ Ne    P
 Ne    P
       0.564341E+00           0.100000E+01
 end
-basis "Al_pcj-0_2006" 
+basis "Al_pcj-0_2006" SPHERICAL 
 #basis SET: (15s,7p) -> [5s,4p]
 Al    S
       0.205847E+07           0.107743E-04
@@ -239,7 +239,7 @@ Al    P
 Al    P
       0.698563E-01           0.100000E+01
 end
-basis "Si_pcj-0_2006" 
+basis "Si_pcj-0_2006" SPHERICAL 
 #basis SET: (15s,7p) -> [5s,4p]
 Si    S
       0.241969E+07           0.106115E-04
@@ -273,7 +273,7 @@ Si    P
 Si    P
       0.128240E+00           0.100000E+01
 end
-basis "P_pcj-0_2006" 
+basis "P_pcj-0_2006" SPHERICAL 
 #basis SET: (15s,7p) -> [5s,4p]
 P    S
       0.280963E+07           0.104905E-04
@@ -307,7 +307,7 @@ P    P
 P    P
       0.147479E+00           0.100000E+01
 end
-basis "S_pcj-0_2006" 
+basis "S_pcj-0_2006" SPHERICAL 
 #basis SET: (15s,7p) -> [5s,4p]
 S    S
       0.322806E+07           0.104069E-04
@@ -341,7 +341,7 @@ S    P
 S    P
       0.169552E+00           0.100000E+01
 end
-basis "Cl_pcj-0_2006" 
+basis "Cl_pcj-0_2006" SPHERICAL 
 #basis SET: (15s,7p) -> [5s,4p]
 Cl    S
       0.367469E+07           0.103491E-04
@@ -375,7 +375,7 @@ Cl    P
 Cl    P
       0.202894E+00           0.100000E+01
 end
-basis "Ar_pcj-0_2006" 
+basis "Ar_pcj-0_2006" SPHERICAL 
 #basis SET: (15s,7p) -> [5s,4p]
 Ar    S
       0.414912E+07           0.103145E-04

@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # aug-mcc-pv6z version number 0
 # Description: aug-mcc-pV6Z
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -42,12 +42,18 @@
 #     Mielke, Steven L., Garrett, Bruce C., Peterson, Kirk A.
 #     The utility of many-body decompositions for the accurate basis set
 #             extrapolation of ab initio data
-#     J. Chem. Phys., 111, 3806-3811 (1999)
+#     J. Chem. Phys. 111, 3806-3811 (1999)
 #     10.1063/1.479683
 # 
 # # 
-basis "H_aug-mcc-pv6z" 
+basis "H_aug-mcc-pv6z" SPHERICAL 
 #basis SET: (14s,6p,5d,4f,3g,2h) -> [7s,6p,5d,4f,3g,2h]
+H    S
+      2.6799000              1.0000000
+H    S
+      1.0787000              1.0000000
+H    S
+      0.4342000              1.0000000
 H    S
     402.0000000              0.0002790
      60.2400000              0.0021650
@@ -57,12 +63,6 @@ H    S
       0.4655000              0.3309790
       0.1811000              0.4362690
       0.0727900              0.1764400
-H    S
-      2.6799000              1.0000000
-H    S
-      1.0787000              1.0000000
-H    S
-      0.4342000              1.0000000
 H    S
       0.1748000              1.0000000
 H    S

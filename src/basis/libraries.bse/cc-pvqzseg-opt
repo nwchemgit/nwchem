@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # cc-pvqz(seg-opt) version number 0
 # Description: VQZ3P   Valence Quadruple Zeta + Polarization on All Atoms
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -46,18 +46,18 @@
 #     Dunning, Thom H.
 #     Gaussian basis sets for use in correlated molecular calculations. I.
 #             The atoms boron through neon and hydrogen
-#     J. Chem. Phys., 90, 1007-1023 (1989)
+#     J. Chem. Phys. 90, 1007-1023 (1989)
 #     10.1063/1.456153
 # 
 # woon1994a
 #     Woon, David E., Dunning, Thom H.
 #     Gaussian basis sets for use in correlated molecular calculations. IV.
 #             Calculation of static electrical response properties
-#     J. Chem. Phys., 100, 2975-2988 (1994)
+#     J. Chem. Phys. 100, 2975-2988 (1994)
 #     10.1063/1.466439
 # 
 # # 
-basis "H_cc-pvqz(seg-opt)" 
+basis "H_cc-pvqz(seg-opt)" SPHERICAL 
 #basis SET: (6s,3p,2d,1f) -> [4s,3p,2d,1f]
 H    S
      82.64                   0.002006
@@ -82,7 +82,7 @@ H    D
 H    F
       1.397                  1.000000
 end
-basis "He_cc-pvqz(seg-opt)" 
+basis "He_cc-pvqz(seg-opt)" SPHERICAL 
 #basis SET: (7s,3p,2d,1f) -> [4s,3p,2d,1f]
 He    S
     528.5                    0.000940
@@ -108,7 +108,7 @@ He    D
 He    F
       2.680                  1.000000
 end
-basis "C_cc-pvqz(seg-opt)" 
+basis "C_cc-pvqz(seg-opt)" SPHERICAL 
 #basis SET: (19s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
 C    S
   33980.000                  0.00009204
@@ -157,7 +157,7 @@ C    F
 C    G
       1.011                  1.000000
 end
-basis "O_cc-pvqz(seg-opt)" 
+basis "O_cc-pvqz(seg-opt)" SPHERICAL 
 #basis SET: (19s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
 O    S
   61420.000                  0.00009156

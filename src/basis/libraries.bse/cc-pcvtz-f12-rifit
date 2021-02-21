@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # cc-pcvtz-f12-rifit version number 0
 # Description: cc-pCVTZ-F12 RI Fitting
 # Role: rifit
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -42,11 +42,11 @@
 #     Kritikou, Stella, Hill, J. Grant
 #     Auxiliary Basis Sets for Density Fitting in Explicitly Correlated
 #             Calculations: The Atoms H-Ar
-#     J. Chem. Theory Comput., 11, 5269-5276 (2015)
+#     J. Chem. Theory Comput. 11, 5269-5276 (2015)
 #     10.1021/acs.jctc.5b00816
 # 
 # # 
-basis "Li_cc-pcvtz-f12-rifit" 
+basis "Li_cc-pcvtz-f12-rifit" SPHERICAL 
 #basis SET: (13s,12p,10d,6f,4g,1h) -> [13s,12p,10d,6f,4g,1h]
 Li    S
     131.4810000              1.0000000
@@ -141,7 +141,7 @@ Li    G
 Li    H
       0.6727010              1.0000000
 end
-basis "Be_cc-pcvtz-f12-rifit" 
+basis "Be_cc-pcvtz-f12-rifit" SPHERICAL 
 #basis SET: (13s,12p,10d,6f,4g,1h) -> [13s,12p,10d,6f,4g,1h]
 Be    S
     138.6750000              1.0000000
@@ -236,7 +236,7 @@ Be    G
 Be    H
       0.7901350              1.0000000
 end
-basis "B_cc-pcvtz-f12-rifit" 
+basis "B_cc-pcvtz-f12-rifit" SPHERICAL 
 #basis SET: (13s,12p,10d,6f,4g,1h) -> [13s,12p,10d,6f,4g,1h]
 B    S
     143.9500000              1.0000000
@@ -331,7 +331,7 @@ B    G
 B    H
       0.8631380              1.0000000
 end
-basis "C_cc-pcvtz-f12-rifit" 
+basis "C_cc-pcvtz-f12-rifit" SPHERICAL 
 #basis SET: (13s,12p,10d,6f,4g,1h) -> [13s,12p,10d,6f,4g,1h]
 C    S
     186.6680000              1.0000000
@@ -426,7 +426,7 @@ C    G
 C    H
       1.0175100              1.0000000
 end
-basis "N_cc-pcvtz-f12-rifit" 
+basis "N_cc-pcvtz-f12-rifit" SPHERICAL 
 #basis SET: (13s,12p,10d,6f,4g,1h) -> [13s,12p,10d,6f,4g,1h]
 N    S
     227.7310000              1.0000000
@@ -521,7 +521,7 @@ N    G
 N    H
       1.3093900              1.0000000
 end
-basis "O_cc-pcvtz-f12-rifit" 
+basis "O_cc-pcvtz-f12-rifit" SPHERICAL 
 #basis SET: (13s,12p,10d,6f,4g,1h) -> [13s,12p,10d,6f,4g,1h]
 O    S
     518.6990000              1.0000000
@@ -616,7 +616,7 @@ O    G
 O    H
       1.5535700              1.0000000
 end
-basis "F_cc-pcvtz-f12-rifit" 
+basis "F_cc-pcvtz-f12-rifit" SPHERICAL 
 #basis SET: (13s,12p,10d,6f,4g,1h) -> [13s,12p,10d,6f,4g,1h]
 F    S
     758.6230000              1.0000000
@@ -711,7 +711,7 @@ F    G
 F    H
       2.3305100              1.0000000
 end
-basis "Ne_cc-pcvtz-f12-rifit" 
+basis "Ne_cc-pcvtz-f12-rifit" SPHERICAL 
 #basis SET: (13s,12p,10d,6f,4g,1h) -> [13s,12p,10d,6f,4g,1h]
 Ne    S
     827.0740000              1.0000000
@@ -806,7 +806,7 @@ Ne    G
 Ne    H
       3.2652200              1.0000000
 end
-basis "Na_cc-pcvtz-f12-rifit" 
+basis "Na_cc-pcvtz-f12-rifit" SPHERICAL 
 #basis SET: (16s,14p,12d,8f,5g,1h) -> [16s,14p,12d,8f,5g,1h]
 Na    S
     320.7170000              1.0000000
@@ -921,7 +921,7 @@ Na    G
 Na    H
       0.2800670              1.0000000
 end
-basis "Mg_cc-pcvtz-f12-rifit" 
+basis "Mg_cc-pcvtz-f12-rifit" SPHERICAL 
 #basis SET: (16s,14p,12d,8f,5g,1h) -> [16s,14p,12d,8f,5g,1h]
 Mg    S
     371.2850000              1.0000000
@@ -1036,7 +1036,7 @@ Mg    G
 Mg    H
       0.3160560              1.0000000
 end
-basis "Al_cc-pcvtz-f12-rifit" 
+basis "Al_cc-pcvtz-f12-rifit" SPHERICAL 
 #basis SET: (16s,14p,12d,8f,5g,1h) -> [16s,14p,12d,8f,5g,1h]
 Al    S
     438.6040000              1.0000000
@@ -1151,7 +1151,7 @@ Al    G
 Al    H
       0.4003130              1.0000000
 end
-basis "Si_cc-pcvtz-f12-rifit" 
+basis "Si_cc-pcvtz-f12-rifit" SPHERICAL 
 #basis SET: (16s,14p,12d,8f,5g,1h) -> [16s,14p,12d,8f,5g,1h]
 Si    S
     550.8810000              1.0000000
@@ -1266,7 +1266,7 @@ Si    G
 Si    H
       0.5471930              1.0000000
 end
-basis "P_cc-pcvtz-f12-rifit" 
+basis "P_cc-pcvtz-f12-rifit" SPHERICAL 
 #basis SET: (16s,14p,12d,8f,5g,1h) -> [16s,14p,12d,8f,5g,1h]
 P    S
     679.8820000              1.0000000
@@ -1381,7 +1381,7 @@ P    G
 P    H
       0.6669470              1.0000000
 end
-basis "S_cc-pcvtz-f12-rifit" 
+basis "S_cc-pcvtz-f12-rifit" SPHERICAL 
 #basis SET: (16s,14p,12d,8f,5g,1h) -> [16s,14p,12d,8f,5g,1h]
 S    S
     817.6830000              1.0000000
@@ -1496,7 +1496,7 @@ S    G
 S    H
       0.7384480              1.0000000
 end
-basis "Cl_cc-pcvtz-f12-rifit" 
+basis "Cl_cc-pcvtz-f12-rifit" SPHERICAL 
 #basis SET: (16s,14p,12d,8f,5g,1h) -> [16s,14p,12d,8f,5g,1h]
 Cl    S
    1026.7700000              1.0000000
@@ -1611,7 +1611,7 @@ Cl    G
 Cl    H
       0.8684000              1.0000000
 end
-basis "Ar_cc-pcvtz-f12-rifit" 
+basis "Ar_cc-pcvtz-f12-rifit" SPHERICAL 
 #basis SET: (16s,14p,12d,8f,5g,1h) -> [16s,14p,12d,8f,5g,1h]
 Ar    S
    1224.7100000              1.0000000

@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # partridge uncontracted 4 version number 0
 # Description: Partridge Uncontracted 4
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -42,11 +42,11 @@
 #     Partridge, Harry
 #     Near Hartree-Fock quality GTO basis sets for the first- and third-row
 #             atoms
-#     J. Chem. Phys., 90, 1043-1047 (1989)
+#     J. Chem. Phys. 90, 1043-1047 (1989)
 #     10.1063/1.456157
 # 
 # # 
-basis "Sc_partridge uncontracted 4" 
+basis "Sc_partridge uncontracted 4" SPHERICAL 
 #basis SET: (23s,15p,11d) -> [23s,15p,11d]
 Sc    S
 14228140.0000000             1.0000000
@@ -147,7 +147,7 @@ Sc    D
 Sc    D
       0.0572870              1.0000000
 end
-basis "Ti_partridge uncontracted 4" 
+basis "Ti_partridge uncontracted 4" SPHERICAL 
 #basis SET: (23s,15p,11d) -> [23s,15p,11d]
 Ti    S
 15688460.0000000             1.0000000
@@ -248,7 +248,7 @@ Ti    D
 Ti    D
       0.0746870              1.0000000
 end
-basis "V_partridge uncontracted 4" 
+basis "V_partridge uncontracted 4" SPHERICAL 
 #basis SET: (23s,15p,11d) -> [23s,15p,11d]
 V    S
 17242380.0000000             1.0000000
@@ -349,7 +349,7 @@ V    D
 V    D
       0.0875540              1.0000000
 end
-basis "Cr_partridge uncontracted 4" 
+basis "Cr_partridge uncontracted 4" SPHERICAL 
 #basis SET: (23s,15p,11d) -> [23s,15p,11d]
 Cr    S
 18273400.0000000             1.0000000
@@ -450,7 +450,7 @@ Cr    D
 Cr    D
       0.0699560              1.0000000
 end
-basis "Mn_partridge uncontracted 4" 
+basis "Mn_partridge uncontracted 4" SPHERICAL 
 #basis SET: (23s,15p,11d) -> [23s,15p,11d]
 Mn    S
 20492660.0000000             1.0000000
@@ -551,7 +551,7 @@ Mn    D
 Mn    D
       0.1138010              1.0000000
 end
-basis "Fe_partridge uncontracted 4" 
+basis "Fe_partridge uncontracted 4" SPHERICAL 
 #basis SET: (23s,15p,11d) -> [23s,15p,11d]
 Fe    S
 22219490.0000000             1.0000000
@@ -652,7 +652,7 @@ Fe    D
 Fe    D
       0.1198400              1.0000000
 end
-basis "Co_partridge uncontracted 4" 
+basis "Co_partridge uncontracted 4" SPHERICAL 
 #basis SET: (23s,15p,11d) -> [23s,15p,11d]
 Co    S
 24078730.0000000             1.0000000
@@ -753,7 +753,7 @@ Co    D
 Co    D
       0.1287160              1.0000000
 end
-basis "Ni_partridge uncontracted 4" 
+basis "Ni_partridge uncontracted 4" SPHERICAL 
 #basis SET: (23s,15p,11d) -> [23s,15p,11d]
 Ni    S
 26074180.0000000             1.0000000
@@ -854,7 +854,7 @@ Ni    D
 Ni    D
       0.1381830              1.0000000
 end
-basis "Cu_partridge uncontracted 4" 
+basis "Cu_partridge uncontracted 4" SPHERICAL 
 #basis SET: (23s,15p,11d) -> [23s,15p,11d]
 Cu    S
 26284110.0000000             1.0000000
@@ -955,7 +955,7 @@ Cu    D
 Cu    D
       0.1095070              1.0000000
 end
-basis "Zn_partridge uncontracted 4" 
+basis "Zn_partridge uncontracted 4" SPHERICAL 
 #basis SET: (23s,15p,11d) -> [23s,15p,11d]
 Zn    S
 29917080.0000000             1.0000000

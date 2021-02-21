@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # cc-pvdz(pt_sl_sf_sl_fw) version number 0
 # Description: VDZP    Relativistic Valence Double Zeta + Polarization
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -54,7 +54,7 @@
 #     Dunning, Thom H.
 #     Gaussian basis sets for use in correlated molecular calculations. I.
 #             The atoms boron through neon and hydrogen
-#     J. Chem. Phys., 90, 1007-1023 (1989)
+#     J. Chem. Phys. 90, 1007-1023 (1989)
 #     10.1063/1.456153
 # 
 # dyallXXXXa
@@ -66,25 +66,25 @@
 #     Wilson, Angela K., Woon, David E., Peterson, Kirk A., Dunning, Thom H.
 #     Gaussian basis sets for use in correlated molecular calculations. IX.
 #             The atoms gallium through krypton
-#     J. Chem. Phys., 110, 7667-7676 (1999)
+#     J. Chem. Phys. 110, 7667-7676 (1999)
 #     10.1063/1.478678
 # 
 # woon1993a
 #     Woon, David E., Dunning, Thom H.
 #     Gaussian basis sets for use in correlated molecular calculations. III.
 #             The atoms aluminum through argon
-#     J. Chem. Phys., 98, 1358-1371 (1993)
+#     J. Chem. Phys. 98, 1358-1371 (1993)
 #     10.1063/1.464303
 # 
 # woon1994a
 #     Woon, David E., Dunning, Thom H.
 #     Gaussian basis sets for use in correlated molecular calculations. IV.
 #             Calculation of static electrical response properties
-#     J. Chem. Phys., 100, 2975-2988 (1994)
+#     J. Chem. Phys. 100, 2975-2988 (1994)
 #     10.1063/1.466439
 # 
 # # 
-basis "H_cc-pvdz(pt_sl_sf_sl_fw)" 
+basis "H_cc-pvdz(pt_sl_sf_sl_fw)" SPHERICAL 
 #basis SET: (4s,1p) -> [2s,1p]
 H    S
       1.3010000E+01          1.96897753121E-02
@@ -95,7 +95,7 @@ H    S
 H    P
       7.2700000E-01          1.00000000000E+00
 end
-basis "He_cc-pvdz(pt_sl_sf_sl_fw)" 
+basis "He_cc-pvdz(pt_sl_sf_sl_fw)" SPHERICAL 
 #basis SET: (4s,1p) -> [2s,1p]
 He    S
       3.8360000E+01          2.38290660819E-02
@@ -106,7 +106,7 @@ He    S
 He    P
       1.2750000E+00          1.00000000000E+00
 end
-basis "B_cc-pvdz(pt_sl_sf_sl_fw)" 
+basis "B_cc-pvdz(pt_sl_sf_sl_fw)" SPHERICAL 
 #basis SET: (17s,4p,1d) -> [3s,2p,1d]
 B    S
       4.5700000E+03          6.73072716265E-04
@@ -137,7 +137,7 @@ B    P
 B    D
       3.4300000E-01          1.00000000000E+00
 end
-basis "C_cc-pvdz(pt_sl_sf_sl_fw)" 
+basis "C_cc-pvdz(pt_sl_sf_sl_fw)" SPHERICAL 
 #basis SET: (17s,4p,1d) -> [3s,2p,1d]
 C    S
       6.6650000E+03          6.68730609369E-04
@@ -168,7 +168,7 @@ C    P
 C    D
       5.5000000E-01          1.00000000000E+00
 end
-basis "N_cc-pvdz(pt_sl_sf_sl_fw)" 
+basis "N_cc-pvdz(pt_sl_sf_sl_fw)" SPHERICAL 
 #basis SET: (17s,4p,1d) -> [3s,2p,1d]
 N    S
       9.0460000E+03          6.79640673134E-04
@@ -199,7 +199,7 @@ N    P
 N    D
       8.1700000E-01          1.00000000000E+00
 end
-basis "O_cc-pvdz(pt_sl_sf_sl_fw)" 
+basis "O_cc-pvdz(pt_sl_sf_sl_fw)" SPHERICAL 
 #basis SET: (17s,4p,1d) -> [3s,2p,1d]
 O    S
       1.1720000E+04          6.97868054935E-04
@@ -230,7 +230,7 @@ O    P
 O    D
       1.1850000E+00          1.00000000000E+00
 end
-basis "F_cc-pvdz(pt_sl_sf_sl_fw)" 
+basis "F_cc-pvdz(pt_sl_sf_sl_fw)" SPHERICAL 
 #basis SET: (17s,4p,1d) -> [3s,2p,1d]
 F    S
       1.4710000E+04          7.20163898255E-04
@@ -261,7 +261,7 @@ F    P
 F    D
       1.6400000E+00          1.00000000000E+00
 end
-basis "Ne_cc-pvdz(pt_sl_sf_sl_fw)" 
+basis "Ne_cc-pvdz(pt_sl_sf_sl_fw)" SPHERICAL 
 #basis SET: (17s,4p,1d) -> [3s,2p,1d]
 Ne    S
       1.7880000E+04          7.53011031531E-04
@@ -292,7 +292,7 @@ Ne    P
 Ne    D
       2.2020000E+00          1.00000000000E+00
 end
-basis "Al_cc-pvdz(pt_sl_sf_sl_fw)" 
+basis "Al_cc-pvdz(pt_sl_sf_sl_fw)" SPHERICAL 
 #basis SET: (34s,15p,1d) -> [4s,3p,1d]
 Al    S
       6.4150000E+04          3.42030632815E-04
@@ -353,7 +353,7 @@ Al    P
 Al    D
       1.8900000E-01          1.00000000000E+00
 end
-basis "Si_cc-pvdz(pt_sl_sf_sl_fw)" 
+basis "Si_cc-pvdz(pt_sl_sf_sl_fw)" SPHERICAL 
 #basis SET: (34s,15p,1d) -> [4s,3p,1d]
 Si    S
       7.8860000E+04          3.40129375820E-04
@@ -414,7 +414,7 @@ Si    P
 Si    D
       2.7500000E-01          1.00000000000E+00
 end
-basis "P_cc-pvdz(pt_sl_sf_sl_fw)" 
+basis "P_cc-pvdz(pt_sl_sf_sl_fw)" SPHERICAL 
 #basis SET: (34s,15p,1d) -> [4s,3p,1d]
 P    S
       9.4840000E+04          3.44099301375E-04
@@ -475,7 +475,7 @@ P    P
 P    D
       3.7300000E-01          1.00000000000E+00
 end
-basis "S_cc-pvdz(pt_sl_sf_sl_fw)" 
+basis "S_cc-pvdz(pt_sl_sf_sl_fw)" SPHERICAL 
 #basis SET: (34s,15p,1d) -> [4s,3p,1d]
 S    S
       1.1080000E+05          3.57043326440E-04
@@ -536,7 +536,7 @@ S    P
 S    D
       4.7900000E-01          1.00000000000E+00
 end
-basis "Cl_cc-pvdz(pt_sl_sf_sl_fw)" 
+basis "Cl_cc-pvdz(pt_sl_sf_sl_fw)" SPHERICAL 
 #basis SET: (34s,15p,1d) -> [4s,3p,1d]
 Cl    S
       1.2790000E+05          3.72575525842E-04
@@ -597,7 +597,7 @@ Cl    P
 Cl    D
       6.0000000E-01          1.00000000000E+00
 end
-basis "Ar_cc-pvdz(pt_sl_sf_sl_fw)" 
+basis "Ar_cc-pvdz(pt_sl_sf_sl_fw)" SPHERICAL 
 #basis SET: (34s,15p,1d) -> [4s,3p,1d]
 Ar    S
       1.4570000E+05          3.91617551751E-04
@@ -658,7 +658,7 @@ Ar    P
 Ar    D
       7.3800000E-01          1.00000000000E+00
 end
-basis "Ga_cc-pvdz(pt_sl_sf_sl_fw)" 
+basis "Ga_cc-pvdz(pt_sl_sf_sl_fw)" SPHERICAL 
 #basis SET: (53s,31p,6d) -> [5s,4p,2d]
 Ga    S
       4.8513000E+05          7.74140531916E-04
@@ -762,7 +762,7 @@ Ga    D
 Ga    D
       1.8840000E-01          1.00000000000E+00
 end
-basis "Ge_cc-pvdz(pt_sl_sf_sl_fw)" 
+basis "Ge_cc-pvdz(pt_sl_sf_sl_fw)" SPHERICAL 
 #basis SET: (53s,31p,6d) -> [5s,4p,2d]
 Ge    S
       5.2180000E+05          8.10932884367E-04
@@ -866,7 +866,7 @@ Ge    D
 Ge    D
       2.4700000E-01          1.00000000000E+00
 end
-basis "As_cc-pvdz(pt_sl_sf_sl_fw)" 
+basis "As_cc-pvdz(pt_sl_sf_sl_fw)" SPHERICAL 
 #basis SET: (53s,31p,6d) -> [5s,4p,2d]
 As    S
       5.5958379E+05          8.49536798478E-04
@@ -970,7 +970,7 @@ As    D
 As    D
       3.0980000E-01          1.00000000000E+00
 end
-basis "Se_cc-pvdz(pt_sl_sf_sl_fw)" 
+basis "Se_cc-pvdz(pt_sl_sf_sl_fw)" SPHERICAL 
 #basis SET: (53s,31p,6d) -> [5s,4p,2d]
 Se    S
       5.9899000E+05          8.89396027957E-04
@@ -1074,7 +1074,7 @@ Se    D
 Se    D
       3.6820000E-01          1.00000000000E+00
 end
-basis "Br_cc-pvdz(pt_sl_sf_sl_fw)" 
+basis "Br_cc-pvdz(pt_sl_sf_sl_fw)" SPHERICAL 
 #basis SET: (53s,31p,6d) -> [5s,4p,2d]
 Br    S
       6.4010000E+05          9.30483720041E-04
@@ -1178,7 +1178,7 @@ Br    D
 Br    D
       4.0980000E-01          1.00000000000E+00
 end
-basis "Kr_cc-pvdz(pt_sl_sf_sl_fw)" 
+basis "Kr_cc-pvdz(pt_sl_sf_sl_fw)" SPHERICAL 
 #basis SET: (53s,31p,6d) -> [5s,4p,2d]
 Kr    S
       6.8135882E+05          9.74581802494E-04

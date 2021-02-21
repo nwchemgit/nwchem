@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # nlo-v version number 0
 # Description: NLO-V (V=1-3) used to calculate linear and mainly nonlinear optical properties for molecules
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -43,11 +43,11 @@
 #     Assessing the quantum mechanical level of theory for prediction of
 #             linear and nonlinear optical properties of push-pull organic
 #             molecules
-#     J. Mol. Model., 19, 2079-2090 (2013)
+#     J. Mol. Model. 19, 2079-2090 (2013)
 #     10.1007/s00894-012-1644-4
 # 
 # # 
-basis "H_nlo-v" 
+basis "H_nlo-v" SPHERICAL 
 #basis SET: (6s,2p) -> [2s,1p]
 H    S
      13.01070100000          0.0175900
@@ -61,7 +61,7 @@ H    P
       2.616630000000         0.0023400
       0.462800000000         0.5239200
 end
-basis "B_nlo-v" 
+basis "B_nlo-v" SPHERICAL 
 #basis SET: (10s,8p,2d) -> [3s,2p,1d]
 B    S
     839.3183008600           0.0056800
@@ -90,7 +90,7 @@ B    D
       1.013920000000         0.0072900
       0.253290000000         0.0435300
 end
-basis "C_nlo-v" 
+basis "C_nlo-v" SPHERICAL 
 #basis SET: (10s,8p,2d) -> [3s,2p,1d]
 C    S
    1238.401693800            0.0012100
@@ -119,7 +119,7 @@ C    D
       2.486000000000         0.0022600
       0.164120000000         0.0099700
 end
-basis "N_nlo-v" 
+basis "N_nlo-v" SPHERICAL 
 #basis SET: (10s,8p,2d) -> [3s,2p,1d]
 N    S
    1712.841585300            0.0055400
@@ -148,7 +148,7 @@ N    D
       8.522000000000         0.0007400
       2.803000000000         0.0055000
 end
-basis "O_nlo-v" 
+basis "O_nlo-v" SPHERICAL 
 #basis SET: (10s,8p,2d) -> [3s,2p,1d]
 O    S
    2266.176778500            0.0054900
@@ -177,7 +177,7 @@ O    D
       7.198000000000         0.0013300
       0.282200000000         0.0085500
 end
-basis "F_nlo-v" 
+basis "F_nlo-v" SPHERICAL 
 #basis SET: (10s,8p,2d) -> [3s,2p,1d]
 F    S
    2894.832599000            0.0054400
@@ -206,7 +206,7 @@ F    D
       5.275600000000         0.0019200
       1.258140000000         0.0098600
 end
-basis "Si_nlo-v" 
+basis "Si_nlo-v" SPHERICAL 
 #basis SET: (14s,12p,2d) -> [4s,3p,1d]
 Si    S
    6903.711868600            0.0055600
@@ -245,7 +245,7 @@ Si    D
       1.890000000000         0.0001200
       0.095830000000         0.0154200
 end
-basis "P_nlo-v" 
+basis "P_nlo-v" SPHERICAL 
 #basis SET: (14s,12p,2d) -> [4s,3p,1d]
 P    S
    8002.479510600            0.0055000
@@ -284,7 +284,7 @@ P    D
       0.986950000000         0.0071000
       0.256409000000         0.0335700
 end
-basis "S_nlo-v" 
+basis "S_nlo-v" SPHERICAL 
 #basis SET: (14s,12p,2d) -> [4s,3p,1d]
 S    S
    9184.930301000            0.0054500
@@ -323,7 +323,7 @@ S    D
       2.920600000000         0.0015900
       0.124270000000         0.0106600
 end
-basis "Cl_nlo-v" 
+basis "Cl_nlo-v" SPHERICAL 
 #basis SET: (14s,12p,2d) -> [4s,3p,1d]
 Cl    S
   10449.82756600             0.0054000

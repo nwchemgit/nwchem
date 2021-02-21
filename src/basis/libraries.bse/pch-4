@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # pch-4 version number 1
 # Description: pcH-4
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -42,11 +42,11 @@
 #     Jakobsen, Philip, Jensen, Frank
 #     Probing basis set requirements for calculating hyperfine coupling
 #             constants
-#     J. Chem. Phys., 151, 174107 (2019)
+#     J. Chem. Phys. 151, 174107 (2019)
 #     10.1063/1.5128286
 # 
 # # 
-basis "H_pch-4" 
+basis "H_pch-4" SPHERICAL 
 #basis SET: (13s,7p,4d,2f,1g) -> [13s,7p,4d,2f,1g]
 H    S
       0.962396E+06           1.0000000
@@ -103,7 +103,7 @@ H    F
 H    G
       0.320000E+01           1.0000000
 end
-basis "He_pch-4" 
+basis "He_pch-4" SPHERICAL 
 #basis SET: (13s,7p,4d,2f,1g) -> [13s,7p,4d,2f,1g]
 He    S
       0.274382E+08           1.0000000
@@ -160,7 +160,7 @@ He    F
 He    G
       0.465000E+01           1.0000000
 end
-basis "B_pch-4" 
+basis "B_pch-4" SPHERICAL 
 #basis SET: (20s,12p,7d,4f,2g,1h) -> [20s,12p,7d,4f,2g,1h]
 B    S
       0.100865E+09           1.0000000
@@ -255,7 +255,7 @@ B    G
 B    H
       0.175000E+01           1.0000000
 end
-basis "C_pch-4" 
+basis "C_pch-4" SPHERICAL 
 #basis SET: (20s,12p,7d,4f,2g,1h) -> [20s,12p,7d,4f,2g,1h]
 C    S
       0.164930E+09           1.0000000
@@ -350,7 +350,7 @@ C    G
 C    H
       0.185000E+01           1.0000000
 end
-basis "N_pch-4" 
+basis "N_pch-4" SPHERICAL 
 #basis SET: (20s,12p,7d,4f,2g,1h) -> [20s,12p,7d,4f,2g,1h]
 N    S
       0.279611E+09           1.0000000
@@ -445,7 +445,7 @@ N    G
 N    H
       0.195000E+01           1.0000000
 end
-basis "O_pch-4" 
+basis "O_pch-4" SPHERICAL 
 #basis SET: (20s,12p,7d,4f,2g,1h) -> [20s,12p,7d,4f,2g,1h]
 O    S
       0.393663E+09           1.0000000
@@ -540,7 +540,7 @@ O    G
 O    H
       0.205000E+01           1.0000000
 end
-basis "F_pch-4" 
+basis "F_pch-4" SPHERICAL 
 #basis SET: (20s,12p,7d,4f,2g,1h) -> [20s,12p,7d,4f,2g,1h]
 F    S
       0.580006E+09           1.0000000
@@ -635,7 +635,7 @@ F    G
 F    H
       0.215000E+01           1.0000000
 end
-basis "Ne_pch-4" 
+basis "Ne_pch-4" SPHERICAL 
 #basis SET: (20s,12p,7d,4f,2g,1h) -> [20s,12p,7d,4f,2g,1h]
 Ne    S
       0.788312E+09           1.0000000
@@ -730,7 +730,7 @@ Ne    G
 Ne    H
       0.225000E+01           1.0000000
 end
-basis "Al_pch-4" 
+basis "Al_pch-4" SPHERICAL 
 #basis SET: (23s,17p,7d,4f,2g,1h) -> [23s,17p,7d,4f,2g,1h]
 Al    S
       0.120162E+10           1.0000000
@@ -841,7 +841,7 @@ Al    G
 Al    H
       0.690000E+00           1.0000000
 end
-basis "Si_pch-4" 
+basis "Si_pch-4" SPHERICAL 
 #basis SET: (23s,17p,7d,4f,2g,1h) -> [23s,17p,7d,4f,2g,1h]
 Si    S
       0.144244E+10           1.0000000
@@ -952,7 +952,7 @@ Si    G
 Si    H
       0.780000E+00           1.0000000
 end
-basis "P_pch-4" 
+basis "P_pch-4" SPHERICAL 
 #basis SET: (23s,17p,7d,4f,2g,1h) -> [23s,17p,7d,4f,2g,1h]
 P    S
       0.164453E+10           1.0000000
@@ -1063,7 +1063,7 @@ P    G
 P    H
       0.870000E+00           1.0000000
 end
-basis "S_pch-4" 
+basis "S_pch-4" SPHERICAL 
 #basis SET: (23s,17p,7d,4f,2g,1h) -> [23s,17p,7d,4f,2g,1h]
 S    S
       0.198725E+10           1.0000000
@@ -1174,7 +1174,7 @@ S    G
 S    H
       0.950000E+00           1.0000000
 end
-basis "Cl_pch-4" 
+basis "Cl_pch-4" SPHERICAL 
 #basis SET: (23s,17p,7d,4f,2g,1h) -> [23s,17p,7d,4f,2g,1h]
 Cl    S
       0.231912E+10           1.0000000
@@ -1285,7 +1285,7 @@ Cl    G
 Cl    H
       0.104000E+01           1.0000000
 end
-basis "Ar_pch-4" 
+basis "Ar_pch-4" SPHERICAL 
 #basis SET: (23s,17p,7d,4f,2g,1h) -> [23s,17p,7d,4f,2g,1h]
 Ar    S
       0.295160E+10           1.0000000

@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # ahlrichs pvdz version number 0
 # Description: VDZP    Valence Double Zeta + Polarization on All Atoms
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -44,11 +44,11 @@
 # schafer1992a
 #     Schäfer, Ansgar, Horn, Hans, Ahlrichs, Reinhart
 #     Fully optimized contracted Gaussian basis sets for atoms Li to Kr
-#     J. Chem. Phys., 97, 2571-2577 (1992)
+#     J. Chem. Phys. 97, 2571-2577 (1992)
 #     10.1063/1.463096
 # 
 # # 
-basis "H_ahlrichs pvdz" 
+basis "H_ahlrichs pvdz" SPHERICAL 
 #basis SET: (4s,1p) -> [2s,1p]
 H    S
      13.010701               0.19682158E-01
@@ -59,7 +59,7 @@ H    S
 H    P
       0.800000               1.000000
 end
-basis "He_ahlrichs pvdz" 
+basis "He_ahlrichs pvdz" SPHERICAL 
 #basis SET: (4s,1p) -> [2s,1p]
 He    S
      38.354936737            0.23814288905E-01
@@ -70,7 +70,7 @@ He    S
 He    P
       1.000000               1.000000
 end
-basis "Li_ahlrichs pvdz" 
+basis "Li_ahlrichs pvdz" SPHERICAL 
 #basis SET: (7s,1p) -> [3s,1p]
 Li    S
     266.27785516             0.64920150325E-02
@@ -85,7 +85,7 @@ Li    S
 Li    P
       0.170000               1.000000
 end
-basis "Be_ahlrichs pvdz" 
+basis "Be_ahlrichs pvdz" SPHERICAL 
 #basis SET: (7s,4p) -> [3s,2p]
 Be    S
     515.18616125             0.55615307983E-02
@@ -104,7 +104,7 @@ Be    P
 Be    P
       0.06051546589          1.0000000000
 end
-basis "B_ahlrichs pvdz" 
+basis "B_ahlrichs pvdz" SPHERICAL 
 #basis SET: (7s,4p,1d) -> [3s,2p,1d]
 B    S
     839.31830086            -0.55929201074E-02
@@ -125,7 +125,7 @@ B    P
 B    D
       0.500000               1.000000
 end
-basis "C_ahlrichs pvdz" 
+basis "C_ahlrichs pvdz" SPHERICAL 
 #basis SET: (7s,4p,1d) -> [3s,2p,1d]
 C    S
    1238.4016938              0.0054568832082
@@ -146,7 +146,7 @@ C    P
 C    D
       0.800000               1.000000
 end
-basis "N_ahlrichs pvdz" 
+basis "N_ahlrichs pvdz" SPHERICAL 
 #basis SET: (7s,4p,1d) -> [3s,2p,1d]
 N    S
    1712.8415853             -0.53934125305E-02
@@ -167,7 +167,7 @@ N    P
 N    D
       1.000000               1.000000
 end
-basis "O_ahlrichs pvdz" 
+basis "O_ahlrichs pvdz" SPHERICAL 
 #basis SET: (7s,4p,1d) -> [3s,2p,1d]
 O    S
    2266.1767785             -0.53431809926E-02
@@ -188,7 +188,7 @@ O    P
 O    D
       1.200000               1.000000
 end
-basis "F_ahlrichs pvdz" 
+basis "F_ahlrichs pvdz" SPHERICAL 
 #basis SET: (7s,4p,1d) -> [3s,2p,1d]
 F    S
    2894.8325990             -0.53408255515E-02
@@ -209,7 +209,7 @@ F    P
 F    D
       1.400000               1.000000
 end
-basis "Ne_ahlrichs pvdz" 
+basis "Ne_ahlrichs pvdz" SPHERICAL 
 #basis SET: (7s,4p,1d) -> [3s,2p,1d]
 Ne    S
    3598.9736625             -0.53259297003E-02
@@ -230,7 +230,7 @@ Ne    P
 Ne    D
       1.888000               1.000000
 end
-basis "Na_ahlrichs pvdz" 
+basis "Na_ahlrichs pvdz" SPHERICAL 
 #basis SET: (10s,6p) -> [4s,2p]
 Na    S
    4098.2003908             -0.58535911879E-02
@@ -255,7 +255,7 @@ Na    P
 Na    P
       0.052000               1.000000
 end
-basis "Mg_ahlrichs pvdz" 
+basis "Mg_ahlrichs pvdz" SPHERICAL 
 #basis SET: (10s,6p) -> [4s,2p]
 Mg    S
    4953.8339196             -0.57778967498E-02
@@ -280,7 +280,7 @@ Mg    P
 Mg    P
        .18914796195          1.0000
 end
-basis "Al_ahlrichs pvdz" 
+basis "Al_ahlrichs pvdz" SPHERICAL 
 #basis SET: (10s,7p,1d) -> [4s,3p,1d]
 Al    S
    5887.5727030              0.13483347987E-02
@@ -309,7 +309,7 @@ Al    P
 Al    D
       0.300000               1.000000
 end
-basis "Si_ahlrichs pvdz" 
+basis "Si_ahlrichs pvdz" SPHERICAL 
 #basis SET: (10s,7p,1d) -> [4s,3p,1d]
 Si    S
    6903.7118686              0.13373962995E-02
@@ -338,7 +338,7 @@ Si    P
 Si    D
       0.350000               1.000000
 end
-basis "P_ahlrichs pvdz" 
+basis "P_ahlrichs pvdz" SPHERICAL 
 #basis SET: (10s,7p,1d) -> [4s,3p,1d]
 P    S
    8002.4795106              0.57503489302E-02
@@ -367,7 +367,7 @@ P    P
 P    D
       0.450000               1.000000
 end
-basis "S_ahlrichs pvdz" 
+basis "S_ahlrichs pvdz" SPHERICAL 
 #basis SET: (10s,7p,1d) -> [4s,3p,1d]
 S    S
    9184.9303010             -0.22294387756E-02
@@ -396,7 +396,7 @@ S    P
 S    D
       0.550000               1.000000
 end
-basis "Cl_ahlrichs pvdz" 
+basis "Cl_ahlrichs pvdz" SPHERICAL 
 #basis SET: (10s,7p,1d) -> [4s,3p,1d]
 Cl    S
   10449.827566               0.19708362484E-02
@@ -425,7 +425,7 @@ Cl    P
 Cl    D
       0.650000               1.000000
 end
-basis "Ar_ahlrichs pvdz" 
+basis "Ar_ahlrichs pvdz" SPHERICAL 
 #basis SET: (10s,7p,1d) -> [4s,3p,1d]
 Ar    S
   11797.119765               0.0020214479973
@@ -454,7 +454,7 @@ Ar    P
 Ar    D
       0.969000               1.000000
 end
-basis "K_ahlrichs pvdz" 
+basis "K_ahlrichs pvdz" SPHERICAL 
 #basis SET: (14s,9p) -> [5s,3p]
 K    S
   31478.746764               0.39838653994E-02
@@ -488,7 +488,7 @@ K    P
 K    P
       0.041737               1.000000
 end
-basis "Ca_ahlrichs pvdz" 
+basis "Ca_ahlrichs pvdz" SPHERICAL 
 #basis SET: (14s,9p) -> [5s,3p]
 Ca    S
   35138.713929               0.39482520740E-02
@@ -522,7 +522,7 @@ Ca    P
 Ca    P
       0.074979               1.000000
 end
-basis "Sc_ahlrichs pvdz" 
+basis "Sc_ahlrichs pvdz" SPHERICAL 
 #basis SET: (14s,9p,5d) -> [5s,3p,2d]
 Sc    S
   38956.081804               0.39293205858E-02
@@ -563,7 +563,7 @@ Sc    D
 Sc    D
       0.16211214518          1.0
 end
-basis "Ti_ahlrichs pvdz" 
+basis "Ti_ahlrichs pvdz" SPHERICAL 
 #basis SET: (14s,9p,5d) -> [5s,3p,2d]
 Ti    S
   42961.512185               0.39127635355E-02
@@ -604,7 +604,7 @@ Ti    D
 Ti    D
       0.21088738554          0.33026314258
 end
-basis "V_ahlrichs pvdz" 
+basis "V_ahlrichs pvdz" SPHERICAL 
 #basis SET: (14s,9p,5d) -> [5s,3p,2d]
 V    S
   47160.376060               0.14498688908E-02
@@ -645,7 +645,7 @@ V    D
 V    D
       0.25257904742          0.32332844995
 end
-basis "Cr_ahlrichs pvdz" 
+basis "Cr_ahlrichs pvdz" SPHERICAL 
 #basis SET: (14s,9p,5d) -> [5s,3p,2d]
 Cr    S
   51528.086349               0.14405823106E-02
@@ -686,7 +686,7 @@ Cr    D
 Cr    D
       0.21995774311          0.33941649889
 end
-basis "Mn_ahlrichs pvdz" 
+basis "Mn_ahlrichs pvdz" SPHERICAL 
 #basis SET: (14s,9p,5d) -> [5s,3p,2d]
 Mn    S
   56137.009037               0.14321304702E-02
@@ -727,7 +727,7 @@ Mn    D
 Mn    D
       0.33743205934          0.31458754360
 end
-basis "Fe_ahlrichs pvdz" 
+basis "Fe_ahlrichs pvdz" SPHERICAL 
 #basis SET: (14s,9p,5d) -> [5s,3p,2d]
 Fe    S
   60923.640643               0.14302254466E-02
@@ -768,7 +768,7 @@ Fe    D
 Fe    D
       0.36524393170          0.31418142304
 end
-basis "Co_ahlrichs pvdz" 
+basis "Co_ahlrichs pvdz" SPHERICAL 
 #basis SET: (14s,9p,5d) -> [5s,3p,2d]
 Co    S
   65902.208257               0.14284614936E-02
@@ -809,7 +809,7 @@ Co    D
 Co    D
       0.40015009743          0.31346831424
 end
-basis "Ni_ahlrichs pvdz" 
+basis "Ni_ahlrichs pvdz" SPHERICAL 
 #basis SET: (14s,9p,5d) -> [5s,3p,2d]
 Ni    S
   71074.803211               0.14260386729E-02
@@ -850,7 +850,7 @@ Ni    D
 Ni    D
       0.43735921792          0.31247837833
 end
-basis "Cu_ahlrichs pvdz" 
+basis "Cu_ahlrichs pvdz" SPHERICAL 
 #basis SET: (14s,9p,5d) -> [5s,3p,2d]
 Cu    S
   76381.348056               0.14336079896E-02
@@ -891,7 +891,7 @@ Cu    D
 Cu    D
       0.38878001452          0.32388873258
 end
-basis "Zn_ahlrichs pvdz" 
+basis "Zn_ahlrichs pvdz" SPHERICAL 
 #basis SET: (14s,9p,5d) -> [5s,3p,2d]
 Zn    S
   82000.711629               0.14210764000E-02
@@ -932,7 +932,7 @@ Zn    D
 Zn    D
       0.51975583665          0.309071490776
 end
-basis "Ga_ahlrichs pvdz" 
+basis "Ga_ahlrichs pvdz" SPHERICAL 
 #basis SET: (14s,10p,6d) -> [5s,4p,3d]
 Ga    S
   87842.126296               0.14271588798E-02
@@ -977,7 +977,7 @@ Ga    D
 Ga    D
       0.2070                 1.000000
 end
-basis "Ge_ahlrichs pvdz" 
+basis "Ge_ahlrichs pvdz" SPHERICAL 
 #basis SET: (14s,10p,6d) -> [5s,4p,3d]
 Ge    S
   93889.836642               0.14233976060E-02
@@ -1022,7 +1022,7 @@ Ge    D
 Ge    D
       0.2460                 1.000000
 end
-basis "As_ahlrichs pvdz" 
+basis "As_ahlrichs pvdz" SPHERICAL 
 #basis SET: (14s,10p,6d) -> [5s,4p,3d]
 As    S
  100146.52554                0.14258349617E-02
@@ -1067,7 +1067,7 @@ As    D
 As    D
       0.2930                 1.000000
 end
-basis "Se_ahlrichs pvdz" 
+basis "Se_ahlrichs pvdz" SPHERICAL 
 #basis SET: (14s,10p,6d) -> [5s,4p,3d]
 Se    S
  106612.20027                0.14274889113E-02
@@ -1112,7 +1112,7 @@ Se    D
 Se    D
       0.3380                 1.000000
 end
-basis "Br_ahlrichs pvdz" 
+basis "Br_ahlrichs pvdz" SPHERICAL 
 #basis SET: (14s,10p,6d) -> [5s,4p,3d]
 Br    S
  113286.38776                0.14283037779E-02
@@ -1157,7 +1157,7 @@ Br    D
 Br    D
       0.3890                 1.000000
 end
-basis "Kr_ahlrichs pvdz" 
+basis "Kr_ahlrichs pvdz" SPHERICAL 
 #basis SET: (14s,10p,6d) -> [5s,4p,3d]
 Kr    S
  120165.64875                0.0014294234496

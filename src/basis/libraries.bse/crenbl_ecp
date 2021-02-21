@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # crenbl ecp version number 0
 # Description: CRENBL ECP (Large ECP orbital basis for use with small core potentials)
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -66,7 +66,7 @@
 #     Ermler, W. C., Ross, R. B., Christiansen, P. A.
 #     Ab initio relativistic effective potentials with spin-orbit operators.
 #             VI. Fr through Pu
-#     Int. J. Quantum Chem., 40, 829-846 (1991)
+#     Int. J. Quantum Chem. 40, 829-846 (1991)
 #     10.1002/qua.560400611
 # 
 # hurley1986a
@@ -74,7 +74,7 @@
 #             B., Ermler, W. C.
 #     Ab initio relativistic effective potentials with spin-orbit operators.
 #             II. K through Kr
-#     J. Chem. Phys., 84, 6840-6853 (1986)
+#     J. Chem. Phys. 84, 6840-6853 (1986)
 #     10.1063/1.450689
 # 
 # lajohn1987a
@@ -82,14 +82,14 @@
 #             W. C.
 #     Abinitiorelativistic effective potentials with spin-orbit operators.
 #             III. Rb through Xe
-#     J. Chem. Phys., 87, 2812-2824 (1987)
+#     J. Chem. Phys. 87, 2812-2824 (1987)
 #     10.1063/1.453069
 # 
 # nash1997a
 #     Nash, Clinton S., Bursten, Bruce E., Ermler, Walter C.
 #     Ab initio relativistic effective potentials with spin-orbit operators.
 #             VII. Am through element 118
-#     J. Chem. Phys., 106, 5133-5142 (1997)
+#     J. Chem. Phys. 106, 5133-5142 (1997)
 #     10.1063/1.473992
 # 
 # nash1999a
@@ -97,14 +97,14 @@
 #     Erratum: 'Ab initio relativistic effective potentials with spin-orbit
 #             operators. VII. Am through element 118' [J. Chem. Phys. 106,
 #             5133 (1997)]
-#     J. Chem. Phys., 111, 2347-2347 (1999)
+#     J. Chem. Phys. 111, 2347-2347 (1999)
 #     10.1063/1.479506
 # 
 # pacios1985a
 #     Pacios, Luis Fernandez, Christiansen, P. A.
 #     Ab initio relativistic effective potentials with spin-orbit operators.
 #             I. Li through Ar
-#     J. Chem. Phys., 82, 2664-2671 (1985)
+#     J. Chem. Phys. 82, 2664-2671 (1985)
 #     10.1063/1.448263
 # 
 # ross1990a
@@ -112,14 +112,14 @@
 #             A., Christiansen, P. A.
 #     Abinitiorelativistic effective potentials with spin-orbit operators.
 #             IV. Cs through Rn
-#     J. Chem. Phys., 93, 6654-6670 (1990)
+#     J. Chem. Phys. 93, 6654-6670 (1990)
 #     10.1063/1.458934
 # 
 # ross1994a
 #     Ross, R. B., Gayen, Sanjukta, Ermler, W. C.
 #     Ab initio relativistic effective potentials with spin-orbit operators.
 #             V. Ce through Lu
-#     J. Chem. Phys., 100, 8145- (1994)
+#     J. Chem. Phys. 100, 8145- (1994)
 #     10.1063/1.466809
 # 
 # # 

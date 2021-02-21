@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # midi version number 0
 # Description: Huzinaga MIDI
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -48,7 +48,7 @@
 #     Gaussian Basis Sets
 #     in 'Gaussian Basis Sets for Molecular Calculations'
 #     ed. S. Huzinaga
-#     Physical Sciences Data, 16, 27-426 (1984)
+#     Physical Sciences Data 16, 27-426 (1984)
 #     10.1016/B978-0-444-42254-5.50008-0
 # 
 # duijneveldt1971a
@@ -60,7 +60,7 @@
 #     Technical Report RJ 945, 1971
 # 
 # # 
-basis "H_midi" 
+basis "H_midi" SPHERICAL 
 #basis SET: (3s) -> [2s]
 H    S
       4.501800               0.070452
@@ -68,7 +68,7 @@ H    S
 H    S
       0.151398               1.000000
 end
-basis "He_midi" 
+basis "He_midi" SPHERICAL 
 #basis SET: (3s) -> [2s]
 He    S
      13.626736               0.080241
@@ -76,7 +76,7 @@ He    S
 He    S
       0.382993               0.657278
 end
-basis "Li_midi" 
+basis "Li_midi" SPHERICAL 
 #basis SET: (6s) -> [3s]
 Li    S
      35.04615                0.073760
@@ -88,7 +88,7 @@ Li    S
 Li    S
       0.027350               1.000000
 end
-basis "Be_midi" 
+basis "Be_midi" SPHERICAL 
 #basis SET: (6s) -> [3s]
 Be    S
      66.953540               0.070200
@@ -100,7 +100,7 @@ Be    S
 Be    S
       0.055240               1.000000
 end
-basis "B_midi" 
+basis "B_midi" SPHERICAL 
 #basis SET: (6s,3p) -> [3s,2p]
 B    S
     108.43704                0.068651
@@ -117,7 +117,7 @@ B    P
 B    P
       0.123140               1.000000
 end
-basis "C_midi" 
+basis "C_midi" SPHERICAL 
 #basis SET: (6s,3p) -> [3s,2p]
 C    S
     153.17226                0.070740
@@ -134,7 +134,7 @@ C    P
 C    P
       0.201350               1.000000
 end
-basis "N_midi" 
+basis "N_midi" SPHERICAL 
 #basis SET: (6s,3p) -> [3s,2p]
 N    S
     218.36449                0.067870
@@ -151,7 +151,7 @@ N    P
 N    P
       0.291450               1.000000
 end
-basis "O_midi" 
+basis "O_midi" SPHERICAL 
 #basis SET: (6s,3p) -> [3s,2p]
 O    S
     281.86658                0.069060
@@ -168,7 +168,7 @@ O    P
 O    P
       0.372510               1.000000
 end
-basis "F_midi" 
+basis "F_midi" SPHERICAL 
 #basis SET: (6s,3p) -> [3s,2p]
 F    S
     368.37112                0.067040
@@ -185,7 +185,7 @@ F    P
 F    P
       0.479370               1.000000
 end
-basis "Ne_midi" 
+basis "Ne_midi" SPHERICAL 
 #basis SET: (6s,3p) -> [3s,2p]
 Ne    S
     456.95285                0.066910
@@ -202,7 +202,7 @@ Ne    P
 Ne    P
       0.600970               1.000000
 end
-basis "Na_midi" 
+basis "Na_midi" SPHERICAL 
 #basis SET: (9s,3p) -> [4s,1p]
 Na    S
     542.76053                0.068410
@@ -222,7 +222,7 @@ Na    P
       3.795690               0.480461
       0.877510               0.602281
 end
-basis "Al_midi" 
+basis "Al_midi" SPHERICAL 
 #basis SET: (9s,6p) -> [4s,3p]
 Al    S
     777.44334                0.066887
@@ -242,12 +242,12 @@ Al    P
       6.644701               0.467467
       1.654395               0.609782
 Al    P
+      0.115848               1.000000
+Al    P
       0.299651               0.226433
       0.044652               0.396470
-Al    P
-      0.115848               1.000000
 end
-basis "Si_midi" 
+basis "Si_midi" SPHERICAL 
 #basis SET: (9s,6p) -> [4s,3p]
 Si    S
     909.23487                0.066405
@@ -267,12 +267,12 @@ Si    P
       8.304598               0.463515
       2.120792               0.611334
 Si    P
+      0.170838               1.000000
+Si    P
       0.447802               0.238913
       0.062362               0.345453
-Si    P
-      0.170838               1.000000
 end
-basis "P_midi" 
+basis "P_midi" SPHERICAL 
 #basis SET: (9s,6p) -> [4s,3p]
 P    S
    1053.2658                 0.065865
@@ -297,7 +297,7 @@ P    P
 P    P
       0.086447               1.000000
 end
-basis "S_midi" 
+basis "S_midi" SPHERICAL 
 #basis SET: (9s,6p) -> [4s,3p]
 S    S
    1201.4584                 0.065765
@@ -317,12 +317,12 @@ S    P
      12.122902               0.458190
       3.2065040              0.613400
 S    P
+      0.318130               1.000000
+S    P
       0.863274               0.229436
       0.108679               0.353700
-S    P
-      0.318130               1.000000
 end
-basis "Cl_midi" 
+basis "Cl_midi" SPHERICAL 
 #basis SET: (9s,6p) -> [4s,3p]
 Cl    S
    1362.0220                 0.065544
@@ -342,12 +342,12 @@ Cl    P
      14.287139               0.456107
       3.828135               0.614282
 Cl    P
+      0.396004               1.000000
+Cl    P
       1.095126               0.235903
       0.132176               0.346600
-Cl    P
-      0.396004               1.000000
 end
-basis "Ar_midi" 
+basis "Ar_midi" SPHERICAL 
 #basis SET: (9s,6p) -> [4s,3p]
 Ar    S
    1536.9325                 0.065159
@@ -372,7 +372,7 @@ Ar    P
 Ar    P
       0.162126               1.000000
 end
-basis "K_midi" 
+basis "K_midi" SPHERICAL 
 #basis SET: (12s,6p) -> [5s,2p]
 K    S
    1721.1755                 0.064875
@@ -400,7 +400,7 @@ K    P
       0.625809               0.571057
       0.223898               0.316536
 end
-basis "Cs_midi" 
+basis "Cs_midi" CARTESIAN 
 #basis SET: (18s,12p,6d) -> [7s,4p,2d]
 Cs    S
   15525.866                  0.060724

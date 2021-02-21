@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # stuttgart rlc ecp version number 0
 # Description: Stuttgart RLC ECP
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -79,7 +79,7 @@
 #             Preuß, Heinzwerner
 #     Ab initio energy-adjusted pseudopotentials for elements of groups
 #             13-17
-#     Mol. Phys., 80, 1431-1441 (1993)
+#     Mol. Phys. 80, 1431-1441 (1993)
 #     10.1080/00268979300103121
 # 
 # fuentealba1982a
@@ -87,7 +87,7 @@
 #             László Von
 #     A proper account of core-polarization with pseudopotentials: single
 #             valence-electron alkali compounds
-#     Chem. Phys. Lett., 89, 418-422 (1982)
+#     Chem. Phys. Lett. 89, 418-422 (1982)
 #     10.1016/0009-2614(82)80012-2
 # 
 # fuentealba1983a
@@ -95,13 +95,13 @@
 #             Preuss, H.
 #     On the reliability of semi-empirical pseudopotentials: simulation of
 #             Hartree-Fock and Dirac-Fock results
-#     J. Phys. B, 16, L323-L328 (1983)
+#     J. Phys. B 16, L323-L328 (1983)
 #     10.1088/0022-3700/16/11/001
 # 
 # fuentealba1985a
 #     Fuentealba, P, Szentpaly, L von, Preuss, H, Stoll, H
 #     Pseudopotential calculations for alkaline-earth atoms
-#     J. Phys. B-At. Mol. Phys., 18, 1287-1296 (1985)
+#     J. Phys. B-At. Mol. Phys. 18, 1287-1296 (1985)
 #     10.1088/0022-3700/18/7/010
 # 
 # igelmann1987a
@@ -114,14 +114,14 @@
 # kuchle1991a
 #     Küchle, W., Dolg, M., Stoll, H., Preuss, H.
 #     Ab initiopseudopotentials for Hg through Rn
-#     Mol. Phys., 74, 1245-1263 (1991)
+#     Mol. Phys. 74, 1245-1263 (1991)
 #     10.1080/00268979100102941
 # 
 # leininger1997a
 #     Leininger, Thierry, Berning, Andreas, Nicklass, Andreas, Stoll,
 #             Hermann, Werner, Hans-Joachim, Flad, Heinz-Jürgen
 #     Spin-orbit interaction in heavy group 13 atoms and TlAr
-#     Chemical Physics, 217, 19-27 (1997)
+#     Chemical Physics 217, 19-27 (1997)
 #     10.1016/s0301-0104(97)00043-8
 # 
 # nicklass1995a
@@ -129,7 +129,7 @@
 #     Ab initio energy‐adjusted pseudopotentials for the noble gases Ne
 #             through Xe: Calculation of atomic dipole and quadrupole
 #             polarizabilities
-#     J. Chem. Phys., 102, 8942-8952 (1995)
+#     J. Chem. Phys. 102, 8942-8952 (1995)
 #     10.1063/1.468948
 # 
 # szentpaly1982a
@@ -137,7 +137,7 @@
 #             Stoll, Hermann
 #     Pseudopotential calculations on Rb+2, Cs+2, RbH+, CsH+ and the mixed
 #             alkali dimer ions
-#     Chem. Phys. Lett., 93, 555-559 (1982)
+#     Chem. Phys. Lett. 93, 555-559 (1982)
 #     10.1016/0009-2614(82)83728-7
 # 
 # # 

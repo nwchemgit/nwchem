@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # ugbs version number 0
 # Description: Universal Gaussian Basis Set
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -42,11 +42,11 @@
 #     de Castro, E. V. R., Jorge, F. E.
 #     Accurate universal Gaussian basis set for all atoms of the Periodic
 #             Table
-#     J. Chem. Phys., 108, 5225-5229 (1998)
+#     J. Chem. Phys. 108, 5225-5229 (1998)
 #     10.1063/1.475959
 # 
 # # 
-basis "H_ugbs" 
+basis "H_ugbs" SPHERICAL 
 #basis SET: (20s) -> [20s]
 H    S
   13739.0854166734           1.0000000
@@ -89,7 +89,7 @@ H    S
 H    S
       3.916389509898707E-002 1.0000000
 end
-basis "He_ugbs" 
+basis "He_ugbs" SPHERICAL 
 #basis SET: (21s) -> [21s]
 He    S
   52680.4659115022           1.0000000
@@ -134,7 +134,7 @@ He    S
 He    S
       7.668876968794860E-002 1.0000000
 end
-basis "Li_ugbs" 
+basis "Li_ugbs" SPHERICAL 
 #basis SET: (25s) -> [25s]
 Li    S
  201995.358823884            1.0000000
@@ -187,7 +187,7 @@ Li    S
 Li    S
       2.000046011385546E-002 1.0000000
 end
-basis "Be_ugbs" 
+basis "Be_ugbs" SPHERICAL 
 #basis SET: (25s) -> [25s]
 Be    S
  201995.358823884            1.0000000
@@ -240,7 +240,7 @@ Be    S
 Be    S
       2.000046011385546E-002 1.0000000
 end
-basis "B_ugbs" 
+basis "B_ugbs" SPHERICAL 
 #basis SET: (25s,15p) -> [25s,15p]
 B    S
  395537.152566831            1.0000000
@@ -323,7 +323,7 @@ B    P
 B    P
       3.916389509898707E-002 1.0000000
 end
-basis "C_ugbs" 
+basis "C_ugbs" SPHERICAL 
 #basis SET: (23s,15p) -> [23s,15p]
 C    S
  201995.358823884            1.0000000
@@ -402,7 +402,7 @@ C    P
 C    P
       3.916389509898707E-002 1.0000000
 end
-basis "N_ugbs" 
+basis "N_ugbs" SPHERICAL 
 #basis SET: (23s,16p) -> [23s,16p]
 N    S
  201995.358823884            1.0000000
@@ -483,7 +483,7 @@ N    P
 N    P
       7.668876968794860E-002 1.0000000
 end
-basis "O_ugbs" 
+basis "O_ugbs" SPHERICAL 
 #basis SET: (23s,16p) -> [23s,16p]
 O    S
  395537.152566831            1.0000000
@@ -564,7 +564,7 @@ O    P
 O    P
       7.668876968794860E-002 1.0000000
 end
-basis "F_ugbs" 
+basis "F_ugbs" SPHERICAL 
 #basis SET: (24s,16p) -> [24s,16p]
 F    S
  774520.959152738            1.0000000
@@ -647,7 +647,7 @@ F    P
 F    P
       7.668876968794860E-002 1.0000000
 end
-basis "Ne_ugbs" 
+basis "Ne_ugbs" SPHERICAL 
 #basis SET: (23s,16p) -> [23s,16p]
 Ne    S
  395537.152566831            1.0000000
@@ -728,7 +728,7 @@ Ne    P
 Ne    P
       7.668876968794860E-002 1.0000000
 end
-basis "Na_ugbs" 
+basis "Na_ugbs" SPHERICAL 
 #basis SET: (27s,16p) -> [27s,16p]
 Na    S
  774520.959152735            1.0000000
@@ -817,7 +817,7 @@ Na    P
 Na    P
       0.150168091845475      1.0000000
 end
-basis "Mg_ugbs" 
+basis "Mg_ugbs" SPHERICAL 
 #basis SET: (27s,16p) -> [27s,16p]
 Mg    S
  774520.959152735            1.0000000
@@ -906,7 +906,7 @@ Mg    P
 Mg    P
       0.150168091845475      1.0000000
 end
-basis "Al_ugbs" 
+basis "Al_ugbs" SPHERICAL 
 #basis SET: (27s,19p) -> [27s,19p]
 Al    S
 1516627.98873367             1.0000000
@@ -1001,7 +1001,7 @@ Al    P
 Al    P
       3.916389509898707E-002 1.0000000
 end
-basis "Si_ugbs" 
+basis "Si_ugbs" SPHERICAL 
 #basis SET: (27s,19p) -> [27s,19p]
 Si    S
 1516627.98873367             1.0000000
@@ -1096,7 +1096,7 @@ Si    P
 Si    P
       3.916389509898707E-002 1.0000000
 end
-basis "P_ugbs" 
+basis "P_ugbs" SPHERICAL 
 #basis SET: (27s,19p) -> [27s,19p]
 P    S
 2969784.65079438             1.0000000
@@ -1191,7 +1191,7 @@ P    P
 P    P
       3.916389509898707E-002 1.0000000
 end
-basis "S_ugbs" 
+basis "S_ugbs" SPHERICAL 
 #basis SET: (27s,19p) -> [27s,19p]
 S    S
 2969784.65079438             1.0000000
@@ -1286,7 +1286,7 @@ S    P
 S    P
       3.916389509898707E-002 1.0000000
 end
-basis "Cl_ugbs" 
+basis "Cl_ugbs" SPHERICAL 
 #basis SET: (27s,19p) -> [27s,19p]
 Cl    S
 2969784.65079438             1.0000000
@@ -1381,7 +1381,7 @@ Cl    P
 Cl    P
       7.668876968794860E-002 1.0000000
 end
-basis "Ar_ugbs" 
+basis "Ar_ugbs" SPHERICAL 
 #basis SET: (26s,19p) -> [26s,19p]
 Ar    S
 2969784.65079439             1.0000000
@@ -1474,7 +1474,7 @@ Ar    P
 Ar    P
       7.668876968794860E-002 1.0000000
 end
-basis "K_ugbs" 
+basis "K_ugbs" SPHERICAL 
 #basis SET: (29s,19p) -> [29s,19p]
 K    S
 2969784.65079438             1.0000000
@@ -1573,7 +1573,7 @@ K    P
 K    P
       7.668876968794860E-002 1.0000000
 end
-basis "Ca_ugbs" 
+basis "Ca_ugbs" SPHERICAL 
 #basis SET: (29s,19p) -> [29s,19p]
 Ca    S
 2969784.65079438             1.0000000
@@ -1672,7 +1672,7 @@ Ca    P
 Ca    P
       7.668876968794860E-002 1.0000000
 end
-basis "Sc_ugbs" 
+basis "Sc_ugbs" SPHERICAL 
 #basis SET: (30s,20p,14d) -> [30s,20p,14d]
 Sc    S
 5815282.94190191             1.0000000
@@ -1803,7 +1803,7 @@ Sc    D
 Sc    D
       7.668876968794860E-002 1.0000000
 end
-basis "Ti_ugbs" 
+basis "Ti_ugbs" SPHERICAL 
 #basis SET: (30s,20p,14d) -> [30s,20p,14d]
 Ti    S
 5815282.94190191             1.0000000
@@ -1934,7 +1934,7 @@ Ti    D
 Ti    D
       7.668876968794860E-002 1.0000000
 end
-basis "V_ugbs" 
+basis "V_ugbs" SPHERICAL 
 #basis SET: (30s,20p,14d) -> [30s,20p,14d]
 V    S
 5815282.94190191             1.0000000
@@ -2065,7 +2065,7 @@ V    D
 V    D
       7.668876968794860E-002 1.0000000
 end
-basis "Cr_ugbs" 
+basis "Cr_ugbs" SPHERICAL 
 #basis SET: (30s,20p,14d) -> [30s,20p,14d]
 Cr    S
 5815282.94190191             1.0000000
@@ -2196,7 +2196,7 @@ Cr    D
 Cr    D
       7.668876968794860E-002 1.0000000
 end
-basis "Mn_ugbs" 
+basis "Mn_ugbs" SPHERICAL 
 #basis SET: (30s,20p,15d) -> [30s,20p,15d]
 Mn    S
 5815282.94190191             1.0000000
@@ -2329,7 +2329,7 @@ Mn    D
 Mn    D
       7.668876968794860E-002 1.0000000
 end
-basis "Fe_ugbs" 
+basis "Fe_ugbs" SPHERICAL 
 #basis SET: (31s,20p,15d) -> [31s,20p,15d]
 Fe    S
 11387194.5850786             1.0000000
@@ -2464,7 +2464,7 @@ Fe    D
 Fe    D
       7.668876968794860E-002 1.0000000
 end
-basis "Co_ugbs" 
+basis "Co_ugbs" SPHERICAL 
 #basis SET: (31s,20p,15d) -> [31s,20p,15d]
 Co    S
 11387194.5850786             1.0000000
@@ -2599,7 +2599,7 @@ Co    D
 Co    D
       7.668876968794860E-002 1.0000000
 end
-basis "Ni_ugbs" 
+basis "Ni_ugbs" SPHERICAL 
 #basis SET: (30s,20p,15d) -> [30s,20p,15d]
 Ni    S
 11387194.5850786             1.0000000
@@ -2732,7 +2732,7 @@ Ni    D
 Ni    D
       7.668876968794860E-002 1.0000000
 end
-basis "Cu_ugbs" 
+basis "Cu_ugbs" SPHERICAL 
 #basis SET: (30s,20p,15d) -> [30s,20p,15d]
 Cu    S
 11387194.5850786             1.0000000
@@ -2865,7 +2865,7 @@ Cu    D
 Cu    D
       7.668876968794860E-002 1.0000000
 end
-basis "Zn_ugbs" 
+basis "Zn_ugbs" SPHERICAL 
 #basis SET: (30s,21p,15d) -> [30s,21p,15d]
 Zn    S
 11387194.5850786             1.0000000
@@ -3000,7 +3000,7 @@ Zn    D
 Zn    D
       0.150168091845475      1.0000000
 end
-basis "Ga_ugbs" 
+basis "Ga_ugbs" SPHERICAL 
 #basis SET: (30s,22p,14d) -> [30s,22p,14d]
 Ga    S
 11387194.5850786             1.0000000
@@ -3135,7 +3135,7 @@ Ga    D
 Ga    D
       0.150168091845475      1.0000000
 end
-basis "Ge_ugbs" 
+basis "Ge_ugbs" SPHERICAL 
 #basis SET: (30s,22p,14d) -> [30s,22p,14d]
 Ge    S
 11387194.5850786             1.0000000
@@ -3270,7 +3270,7 @@ Ge    D
 Ge    D
       0.150168091845475      1.0000000
 end
-basis "As_ugbs" 
+basis "As_ugbs" SPHERICAL 
 #basis SET: (30s,22p,14d) -> [30s,22p,14d]
 As    S
 22297831.7330223             1.0000000
@@ -3405,7 +3405,7 @@ As    D
 As    D
       0.294051604951678      1.0000000
 end
-basis "Se_ugbs" 
+basis "Se_ugbs" SPHERICAL 
 #basis SET: (30s,21p,14d) -> [30s,21p,14d]
 Se    S
 22297831.7330223             1.0000000
@@ -3538,7 +3538,7 @@ Se    D
 Se    D
       0.294051604951678      1.0000000
 end
-basis "Br_ugbs" 
+basis "Br_ugbs" SPHERICAL 
 #basis SET: (30s,21p,14d) -> [30s,21p,14d]
 Br    S
 22297831.7330223             1.0000000
@@ -3671,7 +3671,7 @@ Br    D
 Br    D
       0.294051604951678      1.0000000
 end
-basis "Kr_ugbs" 
+basis "Kr_ugbs" SPHERICAL 
 #basis SET: (30s,20p,14d) -> [30s,20p,14d]
 Kr    S
 22297831.7330223             1.0000000
@@ -3802,7 +3802,7 @@ Kr    D
 Kr    D
       0.294051604951678      1.0000000
 end
-basis "Rb_ugbs" 
+basis "Rb_ugbs" SPHERICAL 
 #basis SET: (30s,20p,14d) -> [30s,20p,14d]
 Rb    S
 5815282.94190191             1.0000000
@@ -3933,7 +3933,7 @@ Rb    D
 Rb    D
       0.294051604951678      1.0000000
 end
-basis "Sr_ugbs" 
+basis "Sr_ugbs" SPHERICAL 
 #basis SET: (30s,21p,14d) -> [30s,21p,14d]
 Sr    S
 5815282.94190191             1.0000000
@@ -4066,7 +4066,7 @@ Sr    D
 Sr    D
       0.294051604951678      1.0000000
 end
-basis "Y_ugbs" 
+basis "Y_ugbs" SPHERICAL 
 #basis SET: (30s,22p,18d) -> [30s,22p,18d]
 Y    S
 5815282.94190191             1.0000000
@@ -4209,7 +4209,7 @@ Y    D
 Y    D
       3.916389509898707E-002 1.0000000
 end
-basis "Zr_ugbs" 
+basis "Zr_ugbs" SPHERICAL 
 #basis SET: (30s,22p,18d) -> [30s,22p,18d]
 Zr    S
 5815282.94190191             1.0000000
@@ -4352,7 +4352,7 @@ Zr    D
 Zr    D
       3.916389509898707E-002 1.0000000
 end
-basis "Nb_ugbs" 
+basis "Nb_ugbs" SPHERICAL 
 #basis SET: (31s,23p,18d) -> [31s,23p,18d]
 Nb    S
 11387194.5850786             1.0000000
@@ -4499,7 +4499,7 @@ Nb    D
 Nb    D
       3.916389509898707E-002 1.0000000
 end
-basis "Mo_ugbs" 
+basis "Mo_ugbs" SPHERICAL 
 #basis SET: (30s,23p,18d) -> [30s,23p,18d]
 Mo    S
 11387194.5850786             1.0000000
@@ -4644,7 +4644,7 @@ Mo    D
 Mo    D
       3.916389509898707E-002 1.0000000
 end
-basis "Tc_ugbs" 
+basis "Tc_ugbs" SPHERICAL 
 #basis SET: (32s,22p,17d) -> [32s,22p,17d]
 Tc    S
 22297831.7330222             1.0000000
@@ -4789,7 +4789,7 @@ Tc    D
 Tc    D
       7.668876968794860E-002 1.0000000
 end
-basis "Ru_ugbs" 
+basis "Ru_ugbs" SPHERICAL 
 #basis SET: (31s,22p,17d) -> [31s,22p,17d]
 Ru    S
 11387194.5850786             1.0000000
@@ -4932,7 +4932,7 @@ Ru    D
 Ru    D
       7.668876968794860E-002 1.0000000
 end
-basis "Rh_ugbs" 
+basis "Rh_ugbs" SPHERICAL 
 #basis SET: (32s,21p,17d) -> [32s,21p,17d]
 Rh    S
 22297831.7330222             1.0000000
@@ -5075,7 +5075,7 @@ Rh    D
 Rh    D
       7.668876968794860E-002 1.0000000
 end
-basis "Pd_ugbs" 
+basis "Pd_ugbs" SPHERICAL 
 #basis SET: (29s,22p,18d) -> [29s,22p,18d]
 Pd    S
 22297831.7330223             1.0000000
@@ -5216,7 +5216,7 @@ Pd    D
 Pd    D
       7.668876968794860E-002 1.0000000
 end
-basis "Ag_ugbs" 
+basis "Ag_ugbs" SPHERICAL 
 #basis SET: (31s,21p,17d) -> [31s,21p,17d]
 Ag    S
 11387194.5850786             1.0000000
@@ -5357,7 +5357,7 @@ Ag    D
 Ag    D
       7.668876968794860E-002 1.0000000
 end
-basis "Cd_ugbs" 
+basis "Cd_ugbs" SPHERICAL 
 #basis SET: (31s,20p,16d) -> [31s,20p,16d]
 Cd    S
 22297831.7330222             1.0000000
@@ -5494,7 +5494,7 @@ Cd    D
 Cd    D
       0.150168091845475      1.0000000
 end
-basis "In_ugbs" 
+basis "In_ugbs" SPHERICAL 
 #basis SET: (30s,22p,16d) -> [30s,22p,16d]
 In    S
 11387194.5850786             1.0000000
@@ -5633,7 +5633,7 @@ In    D
 In    D
       0.150168091845475      1.0000000
 end
-basis "Sn_ugbs" 
+basis "Sn_ugbs" SPHERICAL 
 #basis SET: (30s,22p,16d) -> [30s,22p,16d]
 Sn    S
 11387194.5850786             1.0000000
@@ -5772,7 +5772,7 @@ Sn    D
 Sn    D
       0.150168091845475      1.0000000
 end
-basis "Sb_ugbs" 
+basis "Sb_ugbs" SPHERICAL 
 #basis SET: (30s,22p,16d) -> [30s,22p,16d]
 Sb    S
 22297831.7330223             1.0000000
@@ -5911,7 +5911,7 @@ Sb    D
 Sb    D
       0.150168091845475      1.0000000
 end
-basis "Te_ugbs" 
+basis "Te_ugbs" SPHERICAL 
 #basis SET: (30s,23p,16d) -> [30s,23p,16d]
 Te    S
 22297831.7330223             1.0000000
@@ -6052,7 +6052,7 @@ Te    D
 Te    D
       0.150168091845475      1.0000000
 end
-basis "I_ugbs" 
+basis "I_ugbs" SPHERICAL 
 #basis SET: (30s,22p,16d) -> [30s,22p,16d]
 I    S
 22297831.7330223             1.0000000
@@ -6191,7 +6191,7 @@ I    D
 I    D
       0.150168091845475      1.0000000
 end
-basis "Xe_ugbs" 
+basis "Xe_ugbs" SPHERICAL 
 #basis SET: (31s,22p,16d) -> [31s,22p,16d]
 Xe    S
 43662492.6604555             1.0000000
@@ -6332,7 +6332,7 @@ Xe    D
 Xe    D
       0.150168091845475      1.0000000
 end
-basis "Cs_ugbs" 
+basis "Cs_ugbs" SPHERICAL 
 #basis SET: (32s,22p,15d) -> [32s,22p,15d]
 Cs    S
 22297831.7330222             1.0000000
@@ -6473,7 +6473,7 @@ Cs    D
 Cs    D
       0.294051604951678      1.0000000
 end
-basis "Ba_ugbs" 
+basis "Ba_ugbs" SPHERICAL 
 #basis SET: (32s,22p,16d) -> [32s,22p,16d]
 Ba    S
 22297831.7330222             1.0000000
@@ -6616,7 +6616,7 @@ Ba    D
 Ba    D
       0.294051604951678      1.0000000
 end
-basis "La_ugbs" 
+basis "La_ugbs" SPHERICAL 
 #basis SET: (32s,24p,19d) -> [32s,24p,19d]
 La    S
 22297831.7330222             1.0000000
@@ -6769,7 +6769,7 @@ La    D
 La    D
       3.916389509898707E-002 1.0000000
 end
-basis "Ce_ugbs" 
+basis "Ce_ugbs" SPHERICAL 
 #basis SET: (32s,22p,16d,11f) -> [32s,22p,16d,11f]
 Ce    S
 22297831.7330222             1.0000000
@@ -6934,7 +6934,7 @@ Ce    F
 Ce    F
       0.294051604951678      1.0000000
 end
-basis "Pr_ugbs" 
+basis "Pr_ugbs" SPHERICAL 
 #basis SET: (32s,22p,16d,12f) -> [32s,22p,16d,12f]
 Pr    S
 22297831.7330222             1.0000000
@@ -7101,7 +7101,7 @@ Pr    F
 Pr    F
       0.150168091845475      1.0000000
 end
-basis "Nd_ugbs" 
+basis "Nd_ugbs" SPHERICAL 
 #basis SET: (32s,22p,16d,12f) -> [32s,22p,16d,12f]
 Nd    S
 22297831.7330222             1.0000000
@@ -7268,7 +7268,7 @@ Nd    F
 Nd    F
       0.150168091845475      1.0000000
 end
-basis "Pm_ugbs" 
+basis "Pm_ugbs" SPHERICAL 
 #basis SET: (31s,23p,16d,13f) -> [31s,23p,16d,13f]
 Pm    S
 11387194.5850786             1.0000000
@@ -7437,7 +7437,7 @@ Pm    F
 Pm    F
       0.150168091845475      1.0000000
 end
-basis "Sm_ugbs" 
+basis "Sm_ugbs" SPHERICAL 
 #basis SET: (33s,22p,16d,12f) -> [33s,22p,16d,12f]
 Sm    S
 43662492.6604555             1.0000000
@@ -7606,7 +7606,7 @@ Sm    F
 Sm    F
       0.150168091845475      1.0000000
 end
-basis "Eu_ugbs" 
+basis "Eu_ugbs" SPHERICAL 
 #basis SET: (32s,23p,16d,13f) -> [32s,23p,16d,13f]
 Eu    S
 22297831.7330222             1.0000000
@@ -7777,7 +7777,7 @@ Eu    F
 Eu    F
       0.150168091845475      1.0000000
 end
-basis "Gd_ugbs" 
+basis "Gd_ugbs" SPHERICAL 
 #basis SET: (32s,23p,16d,13f) -> [32s,23p,16d,13f]
 Gd    S
 22297831.7330222             1.0000000
@@ -7948,7 +7948,7 @@ Gd    F
 Gd    F
       0.150168091845475      1.0000000
 end
-basis "Tb_ugbs" 
+basis "Tb_ugbs" SPHERICAL 
 #basis SET: (33s,23p,16d,13f) -> [33s,23p,16d,13f]
 Tb    S
 43662492.6604555             1.0000000
@@ -8121,7 +8121,7 @@ Tb    F
 Tb    F
       0.150168091845475      1.0000000
 end
-basis "Dy_ugbs" 
+basis "Dy_ugbs" SPHERICAL 
 #basis SET: (32s,22p,16d,14f) -> [32s,22p,16d,14f]
 Dy    S
 22297831.7330222             1.0000000
@@ -8292,7 +8292,7 @@ Dy    F
 Dy    F
       0.150168091845475      1.0000000
 end
-basis "Ho_ugbs" 
+basis "Ho_ugbs" SPHERICAL 
 #basis SET: (32s,23p,16d,14f) -> [32s,23p,16d,14f]
 Ho    S
 22297831.7330222             1.0000000
@@ -8465,7 +8465,7 @@ Ho    F
 Ho    F
       0.150168091845475      1.0000000
 end
-basis "Er_ugbs" 
+basis "Er_ugbs" SPHERICAL 
 #basis SET: (33s,22p,16d,13f) -> [33s,22p,16d,13f]
 Er    S
 43662492.6604555             1.0000000
@@ -8636,7 +8636,7 @@ Er    F
 Er    F
       0.150168091845475      1.0000000
 end
-basis "Tm_ugbs" 
+basis "Tm_ugbs" SPHERICAL 
 #basis SET: (32s,22p,17d,14f) -> [32s,22p,17d,14f]
 Tm    S
 22297831.7330222             1.0000000
@@ -8809,7 +8809,7 @@ Tm    F
 Tm    F
       0.150168091845475      1.0000000
 end
-basis "Yb_ugbs" 
+basis "Yb_ugbs" SPHERICAL 
 #basis SET: (32s,22p,17d,13f) -> [32s,22p,17d,13f]
 Yb    S
 22297831.7330222             1.0000000
@@ -8980,7 +8980,7 @@ Yb    F
 Yb    F
       0.150168091845475      1.0000000
 end
-basis "Lu_ugbs" 
+basis "Lu_ugbs" SPHERICAL 
 #basis SET: (32s,23p,19d,12f) -> [32s,23p,19d,12f]
 Lu    S
 22297831.7330222             1.0000000
@@ -9155,7 +9155,7 @@ Lu    F
 Lu    F
       0.294051604951678      1.0000000
 end
-basis "Hf_ugbs" 
+basis "Hf_ugbs" SPHERICAL 
 #basis SET: (32s,22p,18d,12f) -> [32s,22p,18d,12f]
 Hf    S
 43662492.6604555             1.0000000
@@ -9326,7 +9326,7 @@ Hf    F
 Hf    F
       0.294051604951678      1.0000000
 end
-basis "Ta_ugbs" 
+basis "Ta_ugbs" SPHERICAL 
 #basis SET: (31s,23p,19d,13f) -> [31s,23p,19d,13f]
 Ta    S
 22297831.7330222             1.0000000
@@ -9501,7 +9501,7 @@ Ta    F
 Ta    F
       0.294051604951678      1.0000000
 end
-basis "W_ugbs" 
+basis "W_ugbs" SPHERICAL 
 #basis SET: (31s,23p,19d,12f) -> [31s,23p,19d,12f]
 W    S
 22297831.7330222             1.0000000
@@ -9674,7 +9674,7 @@ W    F
 W    F
       0.575797063890464      1.0000000
 end
-basis "Re_ugbs" 
+basis "Re_ugbs" SPHERICAL 
 #basis SET: (31s,23p,19d,12f) -> [31s,23p,19d,12f]
 Re    S
 22297831.7330222             1.0000000
@@ -9847,7 +9847,7 @@ Re    F
 Re    F
       0.575797063890464      1.0000000
 end
-basis "Os_ugbs" 
+basis "Os_ugbs" SPHERICAL 
 #basis SET: (32s,23p,18d,12f) -> [32s,23p,18d,12f]
 Os    S
 22297831.7330222             1.0000000
@@ -10020,7 +10020,7 @@ Os    F
 Os    F
       0.575797063890464      1.0000000
 end
-basis "Ir_ugbs" 
+basis "Ir_ugbs" SPHERICAL 
 #basis SET: (32s,22p,18d,13f) -> [32s,22p,18d,13f]
 Ir    S
 43662492.6604555             1.0000000
@@ -10193,7 +10193,7 @@ Ir    F
 Ir    F
       0.575797063890464      1.0000000
 end
-basis "Pt_ugbs" 
+basis "Pt_ugbs" SPHERICAL 
 #basis SET: (32s,23p,18d,13f) -> [32s,23p,18d,13f]
 Pt    S
 43662492.6604555             1.0000000
@@ -10368,7 +10368,7 @@ Pt    F
 Pt    F
       0.575797063890464      1.0000000
 end
-basis "Au_ugbs" 
+basis "Au_ugbs" SPHERICAL 
 #basis SET: (32s,22p,18d,12f) -> [32s,22p,18d,12f]
 Au    S
 43662492.6604555             1.0000000
@@ -10539,7 +10539,7 @@ Au    F
 Au    F
       0.575797063890464      1.0000000
 end
-basis "Hg_ugbs" 
+basis "Hg_ugbs" SPHERICAL 
 #basis SET: (32s,23p,17d,13f) -> [32s,23p,17d,13f]
 Hg    S
 43662492.6604555             1.0000000
@@ -10712,7 +10712,7 @@ Hg    F
 Hg    F
       0.575797063890464      1.0000000
 end
-basis "Tl_ugbs" 
+basis "Tl_ugbs" SPHERICAL 
 #basis SET: (32s,23p,18d,13f) -> [32s,23p,18d,13f]
 Tl    S
 43662492.6604555             1.0000000
@@ -10887,7 +10887,7 @@ Tl    F
 Tl    F
       0.575797063890464      1.0000000
 end
-basis "Pb_ugbs" 
+basis "Pb_ugbs" SPHERICAL 
 #basis SET: (32s,23p,17d,13f) -> [32s,23p,17d,13f]
 Pb    S
 43662492.6604555             1.0000000
@@ -11060,7 +11060,7 @@ Pb    F
 Pb    F
       0.575797063890464      1.0000000
 end
-basis "Bi_ugbs" 
+basis "Bi_ugbs" SPHERICAL 
 #basis SET: (32s,25p,17d,12f) -> [32s,25p,17d,12f]
 Bi    S
 43662492.6604555             1.0000000
@@ -11235,7 +11235,7 @@ Bi    F
 Bi    F
       1.12749685157938       1.0000000
 end
-basis "Po_ugbs" 
+basis "Po_ugbs" SPHERICAL 
 #basis SET: (32s,23p,18d,13f) -> [32s,23p,18d,13f]
 Po    S
 43662492.6604555             1.0000000
@@ -11410,7 +11410,7 @@ Po    F
 Po    F
       0.575797063890464      1.0000000
 end
-basis "At_ugbs" 
+basis "At_ugbs" SPHERICAL 
 #basis SET: (32s,24p,18d,13f) -> [32s,24p,18d,13f]
 At    S
 85497697.1819645             1.0000000
@@ -11587,7 +11587,7 @@ At    F
 At    F
       0.575797063890464      1.0000000
 end
-basis "Rn_ugbs" 
+basis "Rn_ugbs" SPHERICAL 
 #basis SET: (32s,25p,17d,13f) -> [32s,25p,17d,13f]
 Rn    S
 43662492.6604555             1.0000000
@@ -11764,7 +11764,7 @@ Rn    F
 Rn    F
       1.12749685157938       1.0000000
 end
-basis "Fr_ugbs" 
+basis "Fr_ugbs" SPHERICAL 
 #basis SET: (33s,24p,18d,14f) -> [33s,24p,18d,14f]
 Fr    S
 43662492.6604555             1.0000000
@@ -11945,7 +11945,7 @@ Fr    F
 Fr    F
       1.12749685157938       1.0000000
 end
-basis "Ra_ugbs" 
+basis "Ra_ugbs" SPHERICAL 
 #basis SET: (33s,23p,18d,14f) -> [33s,23p,18d,14f]
 Ra    S
 43662492.6604555             1.0000000
@@ -12124,7 +12124,7 @@ Ra    F
 Ra    F
       0.294051604951678      1.0000000
 end
-basis "Ac_ugbs" 
+basis "Ac_ugbs" SPHERICAL 
 #basis SET: (33s,24p,20d,13f) -> [33s,24p,20d,13f]
 Ac    S
 43662492.6604555             1.0000000
@@ -12307,7 +12307,7 @@ Ac    F
 Ac    F
       1.12749685157938       1.0000000
 end
-basis "Th_ugbs" 
+basis "Th_ugbs" SPHERICAL 
 #basis SET: (33s,25p,20d,14f) -> [33s,25p,20d,14f]
 Th    S
 43662492.6604555             1.0000000
@@ -12494,7 +12494,7 @@ Th    F
 Th    F
       1.12749685157938       1.0000000
 end
-basis "Pu_ugbs" 
+basis "Pu_ugbs" SPHERICAL 
 #basis SET: (33s,25p,19d,15f) -> [33s,25p,19d,15f]
 Pu    S
 43662492.6604555             1.0000000
@@ -12681,7 +12681,7 @@ Pu    F
 Pu    F
       0.150168091845475      1.0000000
 end
-basis "Am_ugbs" 
+basis "Am_ugbs" SPHERICAL 
 #basis SET: (33s,25p,19d,14f) -> [33s,25p,19d,14f]
 Am    S
 43662492.6604555             1.0000000
@@ -12866,7 +12866,7 @@ Am    F
 Am    F
       0.150168091845475      1.0000000
 end
-basis "Cf_ugbs" 
+basis "Cf_ugbs" SPHERICAL 
 #basis SET: (33s,25p,19d,15f) -> [33s,25p,19d,15f]
 Cf    S
 43662492.6604555             1.0000000
@@ -13053,7 +13053,7 @@ Cf    F
 Cf    F
       0.150168091845475      1.0000000
 end
-basis "Es_ugbs" 
+basis "Es_ugbs" SPHERICAL 
 #basis SET: (33s,25p,19d,15f) -> [33s,25p,19d,15f]
 Es    S
 43662492.6604555             1.0000000
@@ -13240,7 +13240,7 @@ Es    F
 Es    F
       0.150168091845475      1.0000000
 end
-basis "Fm_ugbs" 
+basis "Fm_ugbs" SPHERICAL 
 #basis SET: (33s,25p,19d,15f) -> [33s,25p,19d,15f]
 Fm    S
 43662492.6604555             1.0000000
@@ -13427,7 +13427,7 @@ Fm    F
 Fm    F
       0.150168091845475      1.0000000
 end
-basis "Md_ugbs" 
+basis "Md_ugbs" SPHERICAL 
 #basis SET: (33s,25p,19d,15f) -> [33s,25p,19d,15f]
 Md    S
 43662492.6604555             1.0000000
@@ -13614,7 +13614,7 @@ Md    F
 Md    F
       0.150168091845475      1.0000000
 end
-basis "No_ugbs" 
+basis "No_ugbs" SPHERICAL 
 #basis SET: (32s,25p,19d,15f) -> [32s,25p,19d,15f]
 No    S
 43662492.6604555             1.0000000
@@ -13799,7 +13799,7 @@ No    F
 No    F
       0.150168091845475      1.0000000
 end
-basis "Lr_ugbs" 
+basis "Lr_ugbs" SPHERICAL 
 #basis SET: (32s,25p,20d,15f) -> [32s,25p,20d,15f]
 Lr    S
 43662492.6604555             1.0000000

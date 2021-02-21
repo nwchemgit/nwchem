@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # 3-21g version number 1
 # Description: 3-21G Split-valence basis set
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -72,7 +72,7 @@
 #     Binkley, J. Stephen, Pople, John A., Hehre, Warren J.
 #     Self-consistent molecular orbital methods. 21. Small split-valence
 #             basis sets for first-row elements
-#     J. Am. Chem. Soc., 102, 939-947 (1980)
+#     J. Am. Chem. Soc. 102, 939-947 (1980)
 #     10.1021/ja00523a008
 # 
 # dobbs1986a
@@ -80,7 +80,7 @@
 #     Molecular orbital theory of the properties of inorganic and
 #             organometallic compounds 4. Extended basis sets for third-and
 #             fourth-row, main-group elements
-#     J. Comput. Chem., 7, 359-378 (1986)
+#     J. Comput. Chem. 7, 359-378 (1986)
 #     10.1002/jcc.540070313
 # 
 # dobbs1987a
@@ -88,7 +88,7 @@
 #     Molecular orbital theory of the properties of inorganic and
 #             organometallic compounds 5. Extended basis sets for first-row
 #             transition metals
-#     J. Comput. Chem., 8, 861-879 (1987)
+#     J. Comput. Chem. 8, 861-879 (1987)
 #     10.1002/jcc.540080614
 # 
 # dobbs1987b
@@ -96,14 +96,14 @@
 #     Molecular orbital theory of the properties of inorganic and
 #             organometallic compounds. 6. Extended basis sets for second-
 #             row transition metals
-#     J. Comput. Chem., 8, 880-893 (1987)
+#     J. Comput. Chem. 8, 880-893 (1987)
 #     10.1002/jcc.540080615
 # 
 # glendening1995a
 #     Glendening, Eric D., Feller, David
 #     Cation-Water Interactions: The M+(H2O)n Clusters for Alkali Metals, M
 #             = Li, Na, K, Rb, and Cs
-#     J. Phys. Chem., 99, 3060-3067 (1995)
+#     J. Phys. Chem. 99, 3060-3067 (1995)
 #     10.1021/j100010a015
 # 
 # gordon1982a
@@ -111,11 +111,11 @@
 #             J., Hehre, Warren J.
 #     Self-consistent molecular-orbital methods. 22. Small split-valence
 #             basis sets for second-row elements
-#     J. Am. Chem. Soc., 104, 2797-2803 (1982)
+#     J. Am. Chem. Soc. 104, 2797-2803 (1982)
 #     10.1021/ja00374a017
 # 
 # # 
-basis "H_3-21g" 
+basis "H_3-21g" SPHERICAL 
 #basis SET: (3s) -> [2s]
 H    S
       0.5447178000E+01       0.1562849787E+00
@@ -123,7 +123,7 @@ H    S
 H    S
       0.1831915800E+00       1.0000000
 end
-basis "He_3-21g" 
+basis "He_3-21g" SPHERICAL 
 #basis SET: (3s) -> [2s]
 He    S
       0.1362670000E+02       0.1752298718E+00
@@ -131,7 +131,7 @@ He    S
 He    S
       0.3829930000E+00       1.0000000
 end
-basis "Li_3-21g" 
+basis "Li_3-21g" SPHERICAL 
 #basis SET: (6s,3p) -> [3s,2p]
 Li    S
       0.3683820000E+02       0.6966866381E-01
@@ -143,7 +143,7 @@ Li    SP
 Li    SP
       0.2856450000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "Be_3-21g" 
+basis "Be_3-21g" SPHERICAL 
 #basis SET: (6s,3p) -> [3s,2p]
 Be    S
       0.7188760000E+02       0.6442630975E-01
@@ -155,7 +155,7 @@ Be    SP
 Be    SP
       0.7735010000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "B_3-21g" 
+basis "B_3-21g" SPHERICAL 
 #basis SET: (6s,3p) -> [3s,2p]
 B    S
       0.1164340000E+03       0.6296046589E-01
@@ -167,7 +167,7 @@ B    SP
 B    SP
       0.1243280000E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "C_3-21g" 
+basis "C_3-21g" SPHERICAL 
 #basis SET: (6s,3p) -> [3s,2p]
 C    S
       0.1722560000E+03       0.6176690738E-01
@@ -179,7 +179,7 @@ C    SP
 C    SP
       0.1958570000E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "N_3-21g" 
+basis "N_3-21g" SPHERICAL 
 #basis SET: (6s,3p) -> [3s,2p]
 N    S
       0.2427660000E+03       0.5986570051E-01
@@ -191,7 +191,7 @@ N    SP
 N    SP
       0.2832050000E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "O_3-21g" 
+basis "O_3-21g" SPHERICAL 
 #basis SET: (6s,3p) -> [3s,2p]
 O    S
       0.3220370000E+03       0.5923939339E-01
@@ -203,7 +203,7 @@ O    SP
 O    SP
       0.3736840000E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "F_3-21g" 
+basis "F_3-21g" SPHERICAL 
 #basis SET: (6s,3p) -> [3s,2p]
 F    S
       0.4138010000E+03       0.5854830293E-01
@@ -215,7 +215,7 @@ F    SP
 F    SP
       0.4823830000E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "Ne_3-21g" 
+basis "Ne_3-21g" SPHERICAL 
 #basis SET: (6s,3p) -> [3s,2p]
 Ne    S
       0.5157240000E+03       0.5814303044E-01
@@ -227,7 +227,7 @@ Ne    SP
 Ne    SP
       0.6062500000E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "Na_3-21g" 
+basis "Na_3-21g" SPHERICAL 
 #basis SET: (9s,6p) -> [4s,3p]
 Na    S
       0.5476130000E+03       0.6749111801E-01
@@ -243,7 +243,7 @@ Na    SP
 Na    SP
       0.2443490000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "Mg_3-21g" 
+basis "Mg_3-21g" SPHERICAL 
 #basis SET: (9s,6p) -> [4s,3p]
 Mg    S
       0.6528410000E+03       0.6759814295E-01
@@ -259,7 +259,7 @@ Mg    SP
 Mg    SP
       0.4640110000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "Al_3-21g" 
+basis "Al_3-21g" SPHERICAL 
 #basis SET: (9s,6p) -> [4s,3p]
 Al    S
       0.7757370000E+03       0.6683469647E-01
@@ -275,7 +275,7 @@ Al    SP
 Al    SP
       0.6390880000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "Si_3-21g" 
+basis "Si_3-21g" SPHERICAL 
 #basis SET: (9s,6p) -> [4s,3p]
 Si    S
       0.9106550000E+03       0.6608223959E-01
@@ -291,7 +291,7 @@ Si    SP
 Si    SP
       0.9333920000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "P_3-21g" 
+basis "P_3-21g" SPHERICAL 
 #basis SET: (9s,6p) -> [4s,3p]
 P    S
       0.1054900000E+04       0.6554071355E-01
@@ -307,7 +307,7 @@ P    SP
 P    SP
       0.1228110000E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "S_3-21g" 
+basis "S_3-21g" SPHERICAL 
 #basis SET: (9s,6p) -> [4s,3p]
 S    S
       0.1210620000E+04       0.6500708187E-01
@@ -323,7 +323,7 @@ S    SP
 S    SP
       0.1422690000E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "Cl_3-21g" 
+basis "Cl_3-21g" SPHERICAL 
 #basis SET: (9s,6p) -> [4s,3p]
 Cl    S
       0.1376400000E+04       0.6458270228E-01
@@ -339,7 +339,7 @@ Cl    SP
 Cl    SP
       0.1667140000E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "Ar_3-21g" 
+basis "Ar_3-21g" SPHERICAL 
 #basis SET: (9s,6p) -> [4s,3p]
 Ar    S
       0.1553710000E+04       0.6417071258E-01
@@ -355,7 +355,7 @@ Ar    SP
 Ar    SP
       0.1953730000E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "K_3-21g" 
+basis "K_3-21g" SPHERICAL 
 #basis SET: (12s,9p) -> [5s,4p]
 K    S
       0.1721175500E+04       0.6487469617E-01
@@ -375,7 +375,7 @@ K    SP
 K    SP
       0.1606254630E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "Ca_3-21g" 
+basis "Ca_3-21g" SPHERICAL 
 #basis SET: (12s,9p) -> [5s,4p]
 Ca    S
       0.1915434800E+04       0.6462369791E-01
@@ -395,7 +395,7 @@ Ca    SP
 Ca    SP
       0.2389701170E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "Sc_3-21g" 
+basis "Sc_3-21g" CARTESIAN 
 #basis SET: (12s,9p,3d) -> [5s,4p,2d]
 Sc    S
       0.2119887400E+04       0.6442079848E-01
@@ -420,7 +420,7 @@ Sc    D
 Sc    D
       0.3226516200E+00       1.0000000
 end
-basis "Ti_3-21g" 
+basis "Ti_3-21g" CARTESIAN 
 #basis SET: (12s,9p,3d) -> [5s,4p,2d]
 Ti    S
       0.2335019800E+04       0.6421660118E-01
@@ -445,7 +445,7 @@ Ti    D
 Ti    D
       0.4141224800E+00       1.0000000
 end
-basis "V_3-21g" 
+basis "V_3-21g" CARTESIAN 
 #basis SET: (12s,9p,3d) -> [5s,4p,2d]
 V    S
       0.2563877200E+04       0.6394750087E-01
@@ -470,7 +470,7 @@ V    D
 V    D
       0.4957115400E+00       1.0000000
 end
-basis "Cr_3-21g" 
+basis "Cr_3-21g" CARTESIAN 
 #basis SET: (12s,9p,3d) -> [5s,4p,2d]
 Cr    S
       0.2798294400E+04       0.6382379506E-01
@@ -495,7 +495,7 @@ Cr    D
 Cr    D
       0.5770944000E+00       1.0000000
 end
-basis "Mn_3-21g" 
+basis "Mn_3-21g" CARTESIAN 
 #basis SET: (12s,9p,3d) -> [5s,4p,2d]
 Mn    S
       0.3041685900E+04       0.6374489896E-01
@@ -520,7 +520,7 @@ Mn    D
 Mn    D
       0.6685094800E+00       1.0000000
 end
-basis "Fe_3-21g" 
+basis "Fe_3-21g" CARTESIAN 
 #basis SET: (12s,9p,3d) -> [5s,4p,2d]
 Fe    S
       0.3299183700E+04       0.6358589971E-01
@@ -545,7 +545,7 @@ Fe    D
 Fe    D
       0.7385908900E+00       1.0000000
 end
-basis "Co_3-21g" 
+basis "Co_3-21g" CARTESIAN 
 #basis SET: (12s,9p,3d) -> [5s,4p,2d]
 Co    S
       0.3564762200E+04       0.6348660328E-01
@@ -570,7 +570,7 @@ Co    D
 Co    D
       0.8186409500E+00       1.0000000
 end
-basis "Ni_3-21g" 
+basis "Ni_3-21g" CARTESIAN 
 #basis SET: (12s,9p,3d) -> [5s,4p,2d]
 Ni    S
       0.3848005100E+04       0.6326609847E-01
@@ -595,7 +595,7 @@ Ni    D
 Ni    D
       0.9045573900E+00       1.0000000
 end
-basis "Cu_3-21g" 
+basis "Cu_3-21g" CARTESIAN 
 #basis SET: (12s,9p,3d) -> [5s,4p,2d]
 Cu    S
       0.4134302200E+04       0.6318780134E-01
@@ -620,7 +620,7 @@ Cu    D
 Cu    D
       0.9943270400E+00       1.0000000
 end
-basis "Zn_3-21g" 
+basis "Zn_3-21g" CARTESIAN 
 #basis SET: (12s,9p,3d) -> [5s,4p,2d]
 Zn    S
       0.4432288500E+04       0.6309280449E-01
@@ -645,7 +645,7 @@ Zn    D
 Zn    D
       0.1090202600E+01       1.0000000
 end
-basis "Ga_3-21g" 
+basis "Ga_3-21g" CARTESIAN 
 #basis SET: (12s,9p,3d) -> [5s,4p,1d]
 Ga    S
       0.4751897900E+04       0.6283960439E-01
@@ -669,7 +669,7 @@ Ga    D
       0.5393166200E+01       0.5116739083E+00
       0.1333882800E+01       0.5898732096E+00
 end
-basis "Ge_3-21g" 
+basis "Ge_3-21g" CARTESIAN 
 #basis SET: (12s,9p,3d) -> [5s,4p,1d]
 Ge    S
       0.5073749900E+04       0.6272490086E-01
@@ -693,7 +693,7 @@ Ge    D
       0.6223813500E+01       0.5114921980E+00
       0.1588737500E+01       0.5857702977E+00
 end
-basis "As_3-21g" 
+basis "As_3-21g" CARTESIAN 
 #basis SET: (12s,9p,3d) -> [5s,4p,1d]
 As    S
       0.5407613800E+04       0.6260110038E-01
@@ -717,7 +717,7 @@ As    D
       0.7084044000E+01       0.5114318176E+00
       0.1855822600E+01       0.5821935201E+00
 end
-basis "Se_3-21g" 
+basis "Se_3-21g" CARTESIAN 
 #basis SET: (12s,9p,3d) -> [5s,4p,1d]
 Se    S
       0.5751321500E+04       0.6249340240E-01
@@ -741,7 +741,7 @@ Se    D
       0.7971276400E+01       0.5116402873E+00
       0.2134809700E+01       0.5786935856E+00
 end
-basis "Br_3-21g" 
+basis "Br_3-21g" CARTESIAN 
 #basis SET: (12s,9p,3d) -> [5s,4p,1d]
 Br    S
       0.6103289900E+04       0.6241750453E-01
@@ -765,7 +765,7 @@ Br    D
       0.8900831200E+01       0.5117474993E+00
       0.2428436000E+01       0.5759147992E+00
 end
-basis "Kr_3-21g" 
+basis "Kr_3-21g" CARTESIAN 
 #basis SET: (12s,9p,3d) -> [5s,4p,1d]
 Kr    S
       0.6446630700E+04       0.6253980013E-01
@@ -789,7 +789,7 @@ Kr    D
       0.9854313100E+01       0.5121719185E+00
       0.2732795500E+01       0.5729498207E+00
 end
-basis "Rb_3-21g" 
+basis "Rb_3-21g" CARTESIAN 
 #basis SET: (15s,12p,3d) -> [6s,5p,1d]
 Rb    S
       0.6816722500E+04       0.6249620050E-01
@@ -817,7 +817,7 @@ Rb    D
       0.1084088500E+02       0.5127252025E+00
       0.3050834100E+01       0.5699804027E+00
 end
-basis "Sr_3-21g" 
+basis "Sr_3-21g" CARTESIAN 
 #basis SET: (15s,12p,3d) -> [6s,5p,1d]
 Sr    S
       0.7215473500E+04       0.6228180400E-01
@@ -845,7 +845,7 @@ Sr    D
       0.1188148900E+02       0.5130676936E+00
       0.3387557900E+01       0.5676639929E+00
 end
-basis "Y_3-21g" 
+basis "Y_3-21g" CARTESIAN 
 #basis SET: (15s,12p,6d) -> [6s,5p,3d]
 Y    S
       0.7646421000E+04       0.6189049853E-01
@@ -878,7 +878,7 @@ Y    D
 Y    D
       0.2165884300E+00       1.0000000
 end
-basis "Zr_3-21g" 
+basis "Zr_3-21g" CARTESIAN 
 #basis SET: (15s,12p,6d) -> [6s,5p,3d]
 Zr    S
       0.8084591900E+04       0.6157760047E-01
@@ -911,7 +911,7 @@ Zr    D
 Zr    D
       0.1993953800E+00       1.0000000
 end
-basis "Nb_3-21g" 
+basis "Nb_3-21g" CARTESIAN 
 #basis SET: (15s,12p,6d) -> [6s,5p,3d]
 Nb    S
       0.8466517300E+04       0.6180380361E-01
@@ -944,7 +944,7 @@ Nb    D
 Nb    D
       0.2059971900E+00       1.0000000
 end
-basis "Mo_3-21g" 
+basis "Mo_3-21g" CARTESIAN 
 #basis SET: (15s,12p,6d) -> [6s,5p,3d]
 Mo    S
       0.8899491100E+04       0.6170640004E-01
@@ -977,7 +977,7 @@ Mo    D
 Mo    D
       0.2351422000E+00       1.0000000
 end
-basis "Tc_3-21g" 
+basis "Tc_3-21g" CARTESIAN 
 #basis SET: (15s,12p,6d) -> [6s,5p,3d]
 Tc    S
       0.9329481900E+04       0.6171189806E-01
@@ -1010,7 +1010,7 @@ Tc    D
 Tc    D
       0.2706072700E+00       1.0000000
 end
-basis "Ru_3-21g" 
+basis "Ru_3-21g" CARTESIAN 
 #basis SET: (15s,12p,6d) -> [6s,5p,3d]
 Ru    S
       0.9786161500E+04       0.6160520028E-01
@@ -1043,7 +1043,7 @@ Ru    D
 Ru    D
       0.2958807000E+00       1.0000000
 end
-basis "Rh_3-21g" 
+basis "Rh_3-21g" CARTESIAN 
 #basis SET: (15s,12p,6d) -> [6s,5p,3d]
 Rh    S
       0.1021771400E+05       0.6173240004E-01
@@ -1076,7 +1076,7 @@ Rh    D
 Rh    D
       0.3260790600E+00       1.0000000
 end
-basis "Pd_3-21g" 
+basis "Pd_3-21g" CARTESIAN 
 #basis SET: (15s,12p,6d) -> [6s,5p,3d]
 Pd    S
       0.1072874000E+05       0.6142950043E-01
@@ -1109,7 +1109,7 @@ Pd    D
 Pd    D
       0.3548105800E+00       1.0000000
 end
-basis "Ag_3-21g" 
+basis "Ag_3-21g" CARTESIAN 
 #basis SET: (15s,12p,6d) -> [6s,5p,3d]
 Ag    S
       0.1119078400E+05       0.6149480212E-01
@@ -1142,7 +1142,7 @@ Ag    D
 Ag    D
       0.3881333100E+00       1.0000000
 end
-basis "Cd_3-21g" 
+basis "Cd_3-21g" CARTESIAN 
 #basis SET: (15s,12p,6d) -> [6s,5p,3d]
 Cd    S
       0.1168608600E+05       0.6142649617E-01
@@ -1175,7 +1175,7 @@ Cd    D
 Cd    D
       0.4208307600E+00       1.0000000
 end
-basis "In_3-21g" 
+basis "In_3-21g" CARTESIAN 
 #basis SET: (15s,12p,6d) -> [6s,5p,2d]
 In    S
       0.1221454700E+05       0.6124759985E-01
@@ -1207,7 +1207,7 @@ In    D
       0.1537148100E+01       0.5693113154E+00
       0.4994922600E+00       0.3840635104E+00
 end
-basis "Sn_3-21g" 
+basis "Sn_3-21g" CARTESIAN 
 #basis SET: (15s,12p,6d) -> [6s,5p,2d]
 Sn    S
       0.1274167400E+05       0.6113529959E-01
@@ -1239,7 +1239,7 @@ Sn    D
       0.1712082900E+01       0.5727612080E+00
       0.5771945100E+00       0.3690387051E+00
 end
-basis "Sb_3-21g" 
+basis "Sb_3-21g" CARTESIAN 
 #basis SET: (15s,12p,6d) -> [6s,5p,2d]
 Sb    S
       0.1328938300E+05       0.6098430000E-01
@@ -1271,7 +1271,7 @@ Sb    D
       0.1921619600E+01       0.5743153928E+00
       0.6660626500E+00       0.3643043954E+00
 end
-basis "Te_3-21g" 
+basis "Te_3-21g" CARTESIAN 
 #basis SET: (15s,12p,6d) -> [6s,5p,2d]
 Te    S
       0.1379656000E+05       0.6108620183E-01
@@ -1303,7 +1303,7 @@ Te    D
       0.2058065800E+01       0.5797757888E+00
       0.7328302100E+00       0.3405579934E+00
 end
-basis "I_3-21g" 
+basis "I_3-21g" CARTESIAN 
 #basis SET: (15s,12p,6d) -> [6s,5p,2d]
 I    S
       0.1435118600E+05       0.6100280121E-01
@@ -1335,7 +1335,7 @@ I    D
       0.2220937000E+01       0.5800614130E+00
       0.8099120200E+00       0.3262263073E+00
 end
-basis "Xe_3-21g" 
+basis "Xe_3-21g" CARTESIAN 
 #basis SET: (15s,12p,6d) -> [6s,5p,2d]
 Xe    S
       0.1490223600E+05       0.6099689663E-01
@@ -1367,7 +1367,7 @@ Xe    D
       0.2398051300E+01       0.5855569025E+00
       0.8864823900E+00       0.3127456013E+00
 end
-basis "Cs_3-21g" 
+basis "Cs_3-21g" CARTESIAN 
 #basis SET: (18s,12p,6d) -> [7s,6p,2d]
 Cs    S
   15525.8660000              0.0607240

@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # 6-311+g_st__st_ version number 0
 # Description: VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO with diffuse on heavy atoms, polarization on all atoms
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -103,7 +103,7 @@
 #             Leo
 #     Extension of Gaussian-2 (G2) theory to molecules containing third-row
 #             atoms K and Ca
-#     J. Chem. Phys., 107, 5016-5021 (1997)
+#     J. Chem. Phys. 107, 5016-5021 (1997)
 #     10.1063/1.474865
 # 
 # clark1983a
@@ -112,7 +112,7 @@
 #     Efficient diffuse function-augmented basis sets for anion
 #             calculations. III. The 3-21+G basis set for first-row
 #             elements, Li-F
-#     J. Comput. Chem., 4, 294-301 (1983)
+#     J. Comput. Chem. 4, 294-301 (1983)
 #     10.1002/jcc.540040303
 # 
 # francl1982a
@@ -120,7 +120,7 @@
 #             Stephen, Gordon, Mark S., DeFrees, Douglas J., Pople, John A.
 #     Self-consistent molecular orbital methods. XXIII. A polarization-type
 #             basis set for second-row elements
-#     J. Chem. Phys., 77, 3654-3665 (1982)
+#     J. Chem. Phys. 77, 3654-3665 (1982)
 #     10.1063/1.444267
 # 
 # gaussian09e01
@@ -149,21 +149,21 @@
 #             J.
 #     The performance of the Becke-Lee-Yang-Parr (B-LYP) density functional
 #             theory with various basis sets
-#     Chem. Phys. Lett., 197, 499-505 (1992)
+#     Chem. Phys. Lett. 197, 499-505 (1992)
 #     10.1016/0009-2614(92)85807-m
 # 
 # krishnan1980a
 #     Krishnan, R., Binkley, J. S., Seeger, R., Pople, J. A.
 #     Self-consistent molecular orbital methods. XX. A basis set for
 #             correlated wave functions
-#     J. Chem. Phys., 72, 650-654 (1980)
+#     J. Chem. Phys. 72, 650-654 (1980)
 #     10.1063/1.438955
 # 
 # mclean1980a
 #     McLean, A. D., Chandler, G. S.
 #     Contracted Gaussian basis sets for molecular calculations. I. Second
 #             row atoms, Z=11-18
-#     J. Chem. Phys., 72, 5639-5648 (1980)
+#     J. Chem. Phys. 72, 5639-5648 (1980)
 #     10.1063/1.438980
 # 
 # spitznagel1987a
@@ -171,11 +171,11 @@
 #             Hehre, Warren J.
 #     An evaluation of the performance of diffuse function-augmented basis
 #             sets for second row elements, Na-Cl
-#     J. Comput. Chem., 8, 1109-1116 (1987)
+#     J. Comput. Chem. 8, 1109-1116 (1987)
 #     10.1002/jcc.540080807
 # 
 # # 
-basis "H_6-311+g_st__st_" 
+basis "H_6-311+g_st__st_" SPHERICAL 
 #basis SET: (5s,1p) -> [3s,1p]
 H    S
      33.86500                0.0254938
@@ -188,7 +188,7 @@ H    S
 H    P
       0.750                  1.000000
 end
-basis "He_6-311+g_st__st_" 
+basis "He_6-311+g_st__st_" SPHERICAL 
 #basis SET: (5s,1p) -> [3s,1p]
 He    S
      98.12430                0.0287452
@@ -201,7 +201,7 @@ He    S
 He    P
       0.750                  1.000000
 end
-basis "Li_6-311+g_st__st_" 
+basis "Li_6-311+g_st__st_" SPHERICAL 
 #basis SET: (12s,6p,1d) -> [5s,4p,1d]
 Li    S
     900.4600                 0.00228704
@@ -223,7 +223,7 @@ Li    SP
 Li    D
       0.200                  1.000000
 end
-basis "Be_6-311+g_st__st_" 
+basis "Be_6-311+g_st__st_" SPHERICAL 
 #basis SET: (12s,6p,1d) -> [5s,4p,1d]
 Be    S
    1682.800                  0.00228574
@@ -245,7 +245,7 @@ Be    SP
 Be    D
       0.255                  1.000000
 end
-basis "B_6-311+g_st__st_" 
+basis "B_6-311+g_st__st_" SPHERICAL 
 #basis SET: (12s,6p,1d) -> [5s,4p,1d]
 B    S
    2858.890                  0.00215375
@@ -267,7 +267,7 @@ B    SP
 B    D
       0.401                  1.000000
 end
-basis "C_6-311+g_st__st_" 
+basis "C_6-311+g_st__st_" SPHERICAL 
 #basis SET: (12s,6p,1d) -> [5s,4p,1d]
 C    S
    4563.240                  0.00196665
@@ -289,7 +289,7 @@ C    SP
 C    D
       0.626                  1.000000
 end
-basis "N_6-311+g_st__st_" 
+basis "N_6-311+g_st__st_" SPHERICAL 
 #basis SET: (12s,6p,1d) -> [5s,4p,1d]
 N    S
    6293.480                  0.00196979
@@ -311,7 +311,7 @@ N    SP
 N    D
       0.913                  1.000000
 end
-basis "O_6-311+g_st__st_" 
+basis "O_6-311+g_st__st_" SPHERICAL 
 #basis SET: (12s,6p,1d) -> [5s,4p,1d]
 O    S
    8588.500                  0.00189515
@@ -333,7 +333,7 @@ O    SP
 O    D
       1.292                  1.000000
 end
-basis "F_6-311+g_st__st_" 
+basis "F_6-311+g_st__st_" SPHERICAL 
 #basis SET: (12s,6p,1d) -> [5s,4p,1d]
 F    S
   11427.10                   0.00180093
@@ -355,7 +355,7 @@ F    SP
 F    D
       1.750                  1.000000
 end
-basis "Ne_6-311+g_st__st_" 
+basis "Ne_6-311+g_st__st_" SPHERICAL 
 #basis SET: (12s,6p,1d) -> [5s,4p,1d]
 Ne    S
   13995.70                   0.00183276
@@ -377,7 +377,7 @@ Ne    SP
 Ne    D
       2.304                  1.000000
 end
-basis "Na_6-311+g_st__st_" 
+basis "Na_6-311+g_st__st_" CARTESIAN 
 #basis SET: (14s,10p,1d) -> [7s,6p,1d]
 Na    S
   36166.4                    0.001032
@@ -406,18 +406,18 @@ Na    P
 Na    P
       1.44429                0.638506
       0.552621               0.425365
-Na    SP
-      0.0076000              1.0000000              1.0000000
 Na    P
       0.188720               1.000000
 Na    P
       0.046501               1.000000
 Na    P
       0.016285               1.000000
+Na    SP
+      0.0076000              1.0000000              1.0000000
 Na    D
       0.1750000              1.0000000
 end
-basis "Mg_6-311+g_st__st_" 
+basis "Mg_6-311+g_st__st_" CARTESIAN 
 #basis SET: (14s,10p,1d) -> [7s,6p,1d]
 Mg    S
   43866.5                    0.000918
@@ -446,18 +446,18 @@ Mg    P
 Mg    P
       1.888610               0.667339
       0.722652               0.394649
-Mg    SP
-      0.0146000              1.0000000              1.0000000
 Mg    P
       0.236417               1.000000
 Mg    P
       0.093358               1.000000
 Mg    P
       0.034809               1.000000
+Mg    SP
+      0.0146000              1.0000000              1.0000000
 Mg    D
       0.1750000              1.0000000
 end
-basis "Al_6-311+g_st__st_" 
+basis "Al_6-311+g_st__st_" CARTESIAN 
 #basis SET: (14s,10p,1d) -> [7s,6p,1d]
 Al    S
   54866.489                  0.000839
@@ -486,18 +486,18 @@ Al    P
 Al    P
       2.6738650              0.644467
       1.0365960              0.417413
-Al    SP
-      0.0318000              1.0000000              1.0000000
 Al    P
       0.3168190              1.000000
 Al    P
       0.1142570              1.000000
+Al    SP
+      0.0318000              1.0000000              1.0000000
 Al    P
       0.041397               1.000000
 Al    D
       0.3250000              1.0000000
 end
-basis "Si_6-311+g_st__st_" 
+basis "Si_6-311+g_st__st_" CARTESIAN 
 #basis SET: (14s,10p,1d) -> [7s,6p,1d]
 Si    S
   69379.230                  0.000757
@@ -526,18 +526,18 @@ Si    P
 Si    P
       3.6211400              0.619879
       1.4513100              0.439148
-Si    SP
-      0.0331000              1.0000000              1.0000000
 Si    P
       0.504977               1.000000
 Si    P
       0.186317               1.000000
 Si    P
       0.065432               1.000000
+Si    SP
+      0.0331000              1.0000000              1.0000000
 Si    D
       0.4500000              1.0000000
 end
-basis "P_6-311+g_st__st_" 
+basis "P_6-311+g_st__st_" CARTESIAN 
 #basis SET: (14s,10p,1d) -> [7s,6p,1d]
 P    S
   77492.4                    0.000781
@@ -566,18 +566,18 @@ P    P
 P    P
       4.35259                0.628349
       1.77706                0.428044
-P    SP
-      0.0348000              1.0000000              1.0000000
 P    P
       0.697005               1.000000
 P    P
       0.253532               1.000000
 P    P
       0.068493               1.000000
+P    SP
+      0.0348000              1.0000000              1.0000000
 P    D
       0.5500000              1.0000000
 end
-basis "S_6-311+g_st__st_" 
+basis "S_6-311+g_st__st_" CARTESIAN 
 #basis SET: (14s,10p,1d) -> [7s,6p,1d]
 S    S
   93413.4                    0.000743
@@ -606,18 +606,18 @@ S    P
 S    P
       5.56574                0.613712
       2.26297                0.443818
-S    SP
-      0.0405000              1.0000000              1.0000000
 S    P
       0.807994               1.000000
 S    P
       0.277460               1.000000
 S    P
       0.077141               1.000000
+S    SP
+      0.0405000              1.0000000              1.0000000
 S    D
       0.6500000              1.0000000
 end
-basis "Cl_6-311+g_st__st_" 
+basis "Cl_6-311+g_st__st_" CARTESIAN 
 #basis SET: (14s,11p,1d) -> [7s,6p,1d]
 Cl    S
  105819.0                    0.000738
@@ -647,18 +647,18 @@ Cl    P
 Cl    P
       6.741100              -1.572244
       2.771520               0.992389
-Cl    SP
-      0.0483000              1.0000000              1.0000000
 Cl    P
       1.023870               1.000000
 Cl    P
       0.381368               1.000000
 Cl    P
       0.109437               1.000000
+Cl    SP
+      0.0483000              1.0000000              1.0000000
 Cl    D
       0.7500000              1.0000000
 end
-basis "Ar_6-311+g_st__st_" 
+basis "Ar_6-311+g_st__st_" CARTESIAN 
 #basis SET: (14s,11p,1d) -> [7s,6p,1d]
 Ar    S
  118022.38                   0.000747
@@ -688,18 +688,18 @@ Ar    P
 Ar    P
       7.4465370             -0.1214482
       3.0956980              0.1632370
-Ar    SP
-      0.0600000              1.0000000              1.0000000
 Ar    P
       1.1064630              1.000000
 Ar    P
       0.4156010              1.000000
 Ar    P
       0.1454490              1.000000
+Ar    SP
+      0.0600000              1.0000000              1.0000000
 Ar    D
       0.8500000              1.0000000
 end
-basis "K_6-311+g_st__st_" 
+basis "K_6-311+g_st__st_" SPHERICAL 
 #basis SET: (15s,12p,4d) -> [9s,8p,2d]
 K    S
  182594.                     0.000227747
@@ -731,8 +731,6 @@ K    P
      25.2715                 0.245656
      10.1390                 0.433984
       4.20186                0.362377
-K    SP
-      0.0047000              1.0000000              1.0000000
 K    P
       1.62507                1.000000
 K    P
@@ -743,6 +741,8 @@ K    P
       0.04544                1.000000
 K    P
       0.01616                1.000000
+K    SP
+      0.0047000              1.0000000              1.0000000
 K    D
      13.37                   0.0316016
       3.421                  0.156879
@@ -750,7 +750,7 @@ K    D
 K    D
       0.229000               1.000000
 end
-basis "Ca_6-311+g_st__st_" 
+basis "Ca_6-311+g_st__st_" SPHERICAL 
 #basis SET: (15s,12p,4d) -> [9s,8p,2d]
 Ca    S
  202699.                     0.000222964
@@ -782,8 +782,6 @@ Ca    P
      29.1154                 0.241806
      11.7626                 0.432578
       4.92289                0.367325
-Ca    SP
-      0.0071000              1.0000000              1.0000000
 Ca    P
       1.90645                1.000000
 Ca    P
@@ -794,6 +792,8 @@ Ca    P
       0.06027                1.000000
 Ca    P
       0.01791                1.000000
+Ca    SP
+      0.0071000              1.0000000              1.0000000
 Ca    D
      15.08                   0.0368947
       3.926                  0.1778200

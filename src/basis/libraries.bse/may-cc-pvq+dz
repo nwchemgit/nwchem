@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # may-cc-pv(q+d)z version number 0
 # Description: may-cc-pV(Q+d)Z basis of Papajak/Truhlar
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -70,21 +70,21 @@
 #     Dunning, Thom H.
 #     Gaussian basis sets for use in correlated molecular calculations. I.
 #             The atoms boron through neon and hydrogen
-#     J. Chem. Phys., 90, 1007-1023 (1989)
+#     J. Chem. Phys. 90, 1007-1023 (1989)
 #     10.1063/1.456153
 # 
 # dunning2001a
 #     Dunning, Thom H., Peterson, Kirk A., Wilson, Angela K.
 #     Gaussian basis sets for use in correlated molecular calculations. X.
 #             The atoms aluminum through argon revisited
-#     J. Chem. Phys., 114, 9244-9253 (2001)
+#     J. Chem. Phys. 114, 9244-9253 (2001)
 #     10.1063/1.1367373
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # papajak2011a
@@ -92,32 +92,32 @@
 #     Convergent Partially Augmented Basis Sets for Post-Hartree-Fock
 #             Calculations of Molecular Properties and Reaction Barrier
 #             Heights
-#     J. Chem. Theory Comput., 7, 10-18 (2011)
+#     J. Chem. Theory Comput. 7, 10-18 (2011)
 #     10.1021/ct1005533
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # woon1993a
 #     Woon, David E., Dunning, Thom H.
 #     Gaussian basis sets for use in correlated molecular calculations. III.
 #             The atoms aluminum through argon
-#     J. Chem. Phys., 98, 1358-1371 (1993)
+#     J. Chem. Phys. 98, 1358-1371 (1993)
 #     10.1063/1.464303
 # 
 # woon1994a
 #     Woon, David E., Dunning, Thom H.
 #     Gaussian basis sets for use in correlated molecular calculations. IV.
 #             Calculation of static electrical response properties
-#     J. Chem. Phys., 100, 2975-2988 (1994)
+#     J. Chem. Phys. 100, 2975-2988 (1994)
 #     10.1063/1.466439
 # 
 # # 
-basis "H_may-cc-pv(q+d)z" 
+basis "H_may-cc-pv(q+d)z" SPHERICAL 
 #basis SET: (6s,3p,2d,1f) -> [4s,3p,2d,1f]
 H    S
      82.6400000              0.0020060
@@ -142,7 +142,7 @@ H    D
 H    F
       1.3970000              1.0000000
 end
-basis "He_may-cc-pv(q+d)z" 
+basis "He_may-cc-pv(q+d)z" SPHERICAL 
 #basis SET: (7s,3p,2d,1f) -> [4s,3p,2d,1f]
 He    S
     528.5000000              0.0009400
@@ -168,7 +168,7 @@ He    D
 He    F
       2.6800000              1.0000000
 end
-basis "Li_may-cc-pv(q+d)z" 
+basis "Li_may-cc-pv(q+d)z" SPHERICAL 
 #basis SET: (22s,7p,4d,2f,1g) -> [6s,5p,4d,2f,1g]
 Li    S
    6601.0000000              0.0001170
@@ -225,7 +225,7 @@ Li    F
 Li    G
       0.2380000              1.0000000
 end
-basis "Be_may-cc-pv(q+d)z" 
+basis "Be_may-cc-pv(q+d)z" SPHERICAL 
 #basis SET: (22s,7p,4d,2f,1g) -> [6s,5p,4d,2f,1g]
 Be    S
   14630.0000000              0.0000920
@@ -282,7 +282,7 @@ Be    F
 Be    G
       0.4150000              1.0000000
 end
-basis "B_may-cc-pv(q+d)z" 
+basis "B_may-cc-pv(q+d)z" SPHERICAL 
 #basis SET: (22s,7p,4d,2f,1g) -> [6s,5p,4d,2f,1g]
 B    S
   23870.0000000              0.0000880
@@ -339,7 +339,7 @@ B    F
 B    G
       0.6730000              1.0000000
 end
-basis "C_may-cc-pv(q+d)z" 
+basis "C_may-cc-pv(q+d)z" SPHERICAL 
 #basis SET: (22s,7p,4d,2f,1g) -> [6s,5p,4d,2f,1g]
 C    S
   33980.0000000              0.0000910
@@ -396,7 +396,7 @@ C    F
 C    G
       1.0110000              1.0000000
 end
-basis "N_may-cc-pv(q+d)z" 
+basis "N_may-cc-pv(q+d)z" SPHERICAL 
 #basis SET: (22s,7p,4d,2f,1g) -> [6s,5p,4d,2f,1g]
 N    S
   45840.0000000              0.0000920
@@ -453,7 +453,7 @@ N    F
 N    G
       1.4270000              1.0000000
 end
-basis "O_may-cc-pv(q+d)z" 
+basis "O_may-cc-pv(q+d)z" SPHERICAL 
 #basis SET: (22s,7p,4d,2f,1g) -> [6s,5p,4d,2f,1g]
 O    S
   61420.0000000              0.0000900
@@ -510,7 +510,7 @@ O    F
 O    G
       1.8460000              1.0000000
 end
-basis "F_may-cc-pv(q+d)z" 
+basis "F_may-cc-pv(q+d)z" SPHERICAL 
 #basis SET: (22s,7p,4d,2f,1g) -> [6s,5p,4d,2f,1g]
 F    S
   74530.0000000              0.0000950
@@ -567,7 +567,7 @@ F    F
 F    G
       2.3760000              1.0000000
 end
-basis "Ne_may-cc-pv(q+d)z" 
+basis "Ne_may-cc-pv(q+d)z" SPHERICAL 
 #basis SET: (22s,7p,4d,2f,1g) -> [6s,5p,4d,2f,1g]
 Ne    S
   99920.0000000              0.0000860
@@ -624,7 +624,7 @@ Ne    F
 Ne    G
       2.9830000              1.0000000
 end
-basis "Na_may-cc-pv(q+d)z" 
+basis "Na_may-cc-pv(q+d)z" SPHERICAL 
 #basis SET: (52s,22p,4d,2f,1g) -> [7s,6p,4d,2f,1g]
 Na    S
 1224000.0000000              0.478894E-05
@@ -686,16 +686,6 @@ Na    S
 Na    S
       0.0050300              1.0000000
 Na    P
-    413.4000000              0.908196E-03
-     97.9800000              0.741773E-02
-     31.3700000              0.357464E-01
-     11.6200000              0.118520E+00
-      4.6710000              0.261403E+00
-      1.9180000              0.378395E+00
-      0.7775000              0.334632E+00
-      0.3013000              0.126844E+00
-      0.2275000             -0.147117E-01
-Na    P
     413.4000000             -0.901741E-04
      97.9800000             -0.739342E-03
      31.3700000             -0.357309E-02
@@ -705,6 +695,16 @@ Na    P
       0.7775000             -0.376083E-01
       0.3013000             -0.433228E-01
       0.2275000              0.518003E-01
+Na    P
+    413.4000000              0.908196E-03
+     97.9800000              0.741773E-02
+     31.3700000              0.357464E-01
+     11.6200000              0.118520E+00
+      4.6710000              0.261403E+00
+      1.9180000              0.378395E+00
+      0.7775000              0.334632E+00
+      0.3013000              0.126844E+00
+      0.2275000             -0.147117E-01
 Na    P
       0.0752700              1.0000000
 Na    P
@@ -728,7 +728,7 @@ Na    F
 Na    G
       0.1722000              1.0000000
 end
-basis "Mg_may-cc-pv(q+d)z" 
+basis "Mg_may-cc-pv(q+d)z" SPHERICAL 
 #basis SET: (43s,22p,4d,2f,1g) -> [7s,6p,4d,2f,1g]
 Mg    S
  327600.0000000              0.309608E-04
@@ -823,7 +823,7 @@ Mg    F
 Mg    G
       0.3070000              1.0000000
 end
-basis "Al_may-cc-pv(q+d)z" 
+basis "Al_may-cc-pv(q+d)z" SPHERICAL 
 #basis SET: (43s,20p,5d,2f,1g) -> [7s,6p,5d,2f,1g]
 Al    S
  419600.0000000              0.278219E-04
@@ -876,15 +876,6 @@ Al    S
 Al    S
       0.0183000              1.0000000
 Al    P
-    891.3000000              0.491755E-03
-    211.3000000              0.415843E-02
-     68.2800000              0.212538E-01
-     25.7000000              0.764058E-01
-     10.6300000              0.194277E+00
-      4.6020000              0.334428E+00
-      2.0150000              0.375026E+00
-      0.8706000              0.204041E+00
-Al    P
     891.3000000             -0.888695E-04
     211.3000000             -0.745823E-03
      68.2800000             -0.387025E-02
@@ -893,6 +884,15 @@ Al    P
       4.6020000             -0.627797E-01
       2.0150000             -0.789602E-01
       0.8706000             -0.288589E-01
+Al    P
+    891.3000000              0.491755E-03
+    211.3000000              0.415843E-02
+     68.2800000              0.212538E-01
+     25.7000000              0.764058E-01
+     10.6300000              0.194277E+00
+      4.6020000              0.334428E+00
+      2.0150000              0.375026E+00
+      0.8706000              0.204041E+00
 Al    P
       0.2972000              1.0000000
 Al    P
@@ -918,7 +918,7 @@ Al    F
 Al    G
       0.3570000              1.0000000
 end
-basis "Si_may-cc-pv(q+d)z" 
+basis "Si_may-cc-pv(q+d)z" SPHERICAL 
 #basis SET: (43s,20p,5d,2f,1g) -> [7s,6p,5d,2f,1g]
 Si    S
  513000.0000000              0.260920E-04
@@ -971,15 +971,6 @@ Si    S
 Si    S
       0.0275000              1.0000000
 Si    P
-   1122.0000000              0.448143E-03
-    266.0000000              0.381639E-02
-     85.9200000              0.198105E-01
-     32.3300000              0.727017E-01
-     13.3700000              0.189839E+00
-      5.8000000              0.335672E+00
-      2.5590000              0.379365E+00
-      1.1240000              0.201193E+00
-Si    P
    1122.0000000             -0.964883E-04
     266.0000000             -0.811971E-03
      85.9200000             -0.430087E-02
@@ -988,6 +979,15 @@ Si    P
       5.8000000             -0.752574E-01
       2.5590000             -0.971446E-01
       1.1240000             -0.227507E-01
+Si    P
+   1122.0000000              0.448143E-03
+    266.0000000              0.381639E-02
+     85.9200000              0.198105E-01
+     32.3300000              0.727017E-01
+     13.3700000              0.189839E+00
+      5.8000000              0.335672E+00
+      2.5590000              0.379365E+00
+      1.1240000              0.201193E+00
 Si    P
       0.3988000              1.0000000
 Si    P
@@ -1013,7 +1013,7 @@ Si    F
 Si    G
       0.4610000              1.0000000
 end
-basis "P_may-cc-pv(q+d)z" 
+basis "P_may-cc-pv(q+d)z" SPHERICAL 
 #basis SET: (43s,20p,5d,2f,1g) -> [7s,6p,5d,2f,1g]
 P    S
  615200.0000000              0.247450E-04
@@ -1066,15 +1066,6 @@ P    S
 P    S
       0.0354000              1.0000000
 P    P
-   1367.0000000              0.421015E-03
-    324.0000000              0.360985E-02
-    104.6000000              0.189217E-01
-     39.3700000              0.705560E-01
-     16.2600000              0.188157E+00
-      7.0560000              0.338709E+00
-      3.1300000              0.381943E+00
-      1.3940000              0.195261E+00
-P    P
    1367.0000000             -0.100827E-03
     324.0000000             -0.854499E-03
     104.6000000             -0.457116E-02
@@ -1083,6 +1074,15 @@ P    P
       7.0560000             -0.852786E-01
       3.1300000             -0.109676E+00
       1.3940000             -0.161181E-01
+P    P
+   1367.0000000              0.421015E-03
+    324.0000000              0.360985E-02
+    104.6000000              0.189217E-01
+     39.3700000              0.705560E-01
+     16.2600000              0.188157E+00
+      7.0560000              0.338709E+00
+      3.1300000              0.381943E+00
+      1.3940000              0.195261E+00
 P    P
       0.5179000              1.0000000
 P    P
@@ -1108,7 +1108,7 @@ P    F
 P    G
       0.5970000              1.0000000
 end
-basis "S_may-cc-pv(q+d)z" 
+basis "S_may-cc-pv(q+d)z" SPHERICAL 
 #basis SET: (43s,20p,5d,2f,1g) -> [7s,6p,5d,2f,1g]
 S    S
  727800.0000000              0.236025E-04
@@ -1161,15 +1161,6 @@ S    S
 S    S
       0.0428000              1.0000000
 S    P
-   1546.0000000              0.441183E-03
-    366.4000000              0.377571E-02
-    118.4000000              0.198360E-01
-     44.5300000              0.742063E-01
-     18.3800000              0.197327E+00
-      7.9650000              0.351851E+00
-      3.5410000              0.378687E+00
-      1.5910000              0.170931E+00
-S    P
    1546.0000000             -0.113110E-03
     366.4000000             -0.958581E-03
     118.4000000             -0.513471E-02
@@ -1178,6 +1169,15 @@ S    P
       7.9650000             -0.960333E-01
       3.5410000             -0.118183E+00
       1.5910000              0.923194E-02
+S    P
+   1546.0000000              0.441183E-03
+    366.4000000              0.377571E-02
+    118.4000000              0.198360E-01
+     44.5300000              0.742063E-01
+     18.3800000              0.197327E+00
+      7.9650000              0.351851E+00
+      3.5410000              0.378687E+00
+      1.5910000              0.170931E+00
 S    P
       0.6205000              1.0000000
 S    P
@@ -1203,7 +1203,7 @@ S    F
 S    G
       0.6830000              1.0000000
 end
-basis "Cl_may-cc-pv(q+d)z" 
+basis "Cl_may-cc-pv(q+d)z" SPHERICAL 
 #basis SET: (43s,20p,5d,2f,1g) -> [7s,6p,5d,2f,1g]
 Cl    S
  834900.0000000              0.231688E-04
@@ -1256,15 +1256,6 @@ Cl    S
 Cl    S
       0.0519000              1.0000000
 Cl    P
-   1703.0000000              0.474039E-03
-    403.6000000              0.406412E-02
-    130.3000000              0.213355E-01
-     49.0500000              0.794611E-01
-     20.2600000              0.208927E+00
-      8.7870000              0.364945E+00
-      3.9190000              0.371725E+00
-      1.7650000              0.146292E+00
-Cl    P
    1703.0000000             -0.128266E-03
     403.6000000             -0.109356E-02
     130.3000000             -0.583429E-02
@@ -1273,6 +1264,15 @@ Cl    P
       8.7870000             -0.106929E+00
       3.9190000             -0.122454E+00
       1.7650000              0.383619E-01
+Cl    P
+   1703.0000000              0.474039E-03
+    403.6000000              0.406412E-02
+    130.3000000              0.213355E-01
+     49.0500000              0.794611E-01
+     20.2600000              0.208927E+00
+      8.7870000              0.364945E+00
+      3.9190000              0.371725E+00
+      1.7650000              0.146292E+00
 Cl    P
       0.7207000              1.0000000
 Cl    P
@@ -1298,7 +1298,7 @@ Cl    F
 Cl    G
       0.8270000              1.0000000
 end
-basis "Ar_may-cc-pv(q+d)z" 
+basis "Ar_may-cc-pv(q+d)z" SPHERICAL 
 #basis SET: (43s,20p,5d,2f,1g) -> [7s,6p,5d,2f,1g]
 Ar    S
  950600.0000000              0.227545E-04
@@ -1351,15 +1351,6 @@ Ar    S
 Ar    S
       0.0610000              1.0000000
 Ar    P
-   1890.0000000              0.495752E-03
-    447.8000000              0.425172E-02
-    144.6000000              0.223277E-01
-     54.4600000              0.830878E-01
-     22.5100000              0.217110E+00
-      9.7740000              0.374507E+00
-      4.3680000              0.366445E+00
-      1.9590000              0.129245E+00
-Ar    P
    1890.0000000             -0.138863E-03
     447.8000000             -0.118870E-02
     144.6000000             -0.632553E-02
@@ -1368,6 +1359,15 @@ Ar    P
       9.7740000             -0.115444E+00
       4.3680000             -0.123651E+00
       1.9590000              0.649055E-01
+Ar    P
+   1890.0000000              0.495752E-03
+    447.8000000              0.425172E-02
+    144.6000000              0.223277E-01
+     54.4600000              0.830878E-01
+     22.5100000              0.217110E+00
+      9.7740000              0.374507E+00
+      4.3680000              0.366445E+00
+      1.9590000              0.129245E+00
 Ar    P
       0.8260000              1.0000000
 Ar    P

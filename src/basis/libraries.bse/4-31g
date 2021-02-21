@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # 4-31g version number 1
 # Description: 4-31G valence double-zeta basis set
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -62,7 +62,7 @@
 #     Ditchfield, R., Hehre, W. J., Pople, J. A.
 #     Self-Consistent Molecular-Orbital Methods. IX. An Extended Gaussian-
 #             Type Basis for Molecular-Orbital Studies of Organic Molecules
-#     J. Chem. Phys., 54, 724-728 (1971)
+#     J. Chem. Phys. 54, 724-728 (1971)
 #     10.1063/1.1674902
 # 
 # gaussian09e01
@@ -91,18 +91,18 @@
 #     Self-Consistent Molecular Orbital Methods. XIV. An Extended Gaussian-
 #             Type Basis for Molecular Orbital Studies of Organic Molecules.
 #             Inclusion of Second Row Elements
-#     J. Chem. Phys., 56, 5255-5257 (1972)
+#     J. Chem. Phys. 56, 5255-5257 (1972)
 #     10.1063/1.1677028
 # 
 # hehre1972c
 #     Hehre, W. J., Pople, J. A.
 #     Self-Consistent Molecular Orbital Methods. XIII. An Extended Gaussian-
 #             Type Basis for Boron
-#     J. Chem. Phys., 56, 4233-4234 (1972)
+#     J. Chem. Phys. 56, 4233-4234 (1972)
 #     10.1063/1.1677844
 # 
 # # 
-basis "H_4-31g" 
+basis "H_4-31g" SPHERICAL 
 #basis SET: (4s) -> [2s]
 H    S
       0.1873113696E+02       0.3349460434E-01
@@ -111,7 +111,7 @@ H    S
 H    S
       0.1612777588E+00       1.0000000
 end
-basis "He_4-31g" 
+basis "He_4-31g" SPHERICAL 
 #basis SET: (4s) -> [2s]
 He    S
       0.3842163400E+02       0.4013973935E-01
@@ -120,7 +120,7 @@ He    S
 He    S
       0.2979640000E+00       1.0000000
 end
-basis "B_4-31g" 
+basis "B_4-31g" SPHERICAL 
 #basis SET: (8s,4p) -> [3s,2p]
 B    S
       0.3307528520E+03       0.1799417960E-01
@@ -134,7 +134,7 @@ B    SP
 B    SP
       0.1442191733E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "C_4-31g" 
+basis "C_4-31g" SPHERICAL 
 #basis SET: (8s,4p) -> [3s,2p]
 C    S
       0.4869669280E+03       0.1772582290E-01
@@ -148,7 +148,7 @@ C    SP
 C    SP
       0.1835578298E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "N_4-31g" 
+basis "N_4-31g" SPHERICAL 
 #basis SET: (8s,4p) -> [3s,2p]
 N    S
       0.6712795030E+03       0.1759825111E-01
@@ -162,7 +162,7 @@ N    SP
 N    SP
       0.2259641730E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "O_4-31g" 
+basis "O_4-31g" SPHERICAL 
 #basis SET: (8s,4p) -> [3s,2p]
 O    S
       0.8832728600E+03       0.1755062799E-01
@@ -176,7 +176,7 @@ O    SP
 O    SP
       0.2838798407E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "F_4-31g" 
+basis "F_4-31g" SPHERICAL 
 #basis SET: (8s,4p) -> [3s,2p]
 F    S
       0.1126162690E+04       0.1747576090E-01
@@ -190,7 +190,7 @@ F    SP
 F    SP
       0.3730318350E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "Ne_4-31g" 
+basis "Ne_4-31g" SPHERICAL 
 #basis SET: (8s,4p) -> [3s,2p]
 Ne    S
       0.1397932080E+04       0.1742380540E-01
@@ -204,7 +204,7 @@ Ne    SP
 Ne    SP
       0.4618669920E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "P_4-31g" 
+basis "P_4-31g" SPHERICAL 
 #basis SET: (12s,8p) -> [4s,3p]
 P    S
       0.3018671780E+04       0.1852131372E-01
@@ -223,7 +223,7 @@ P    SP
 P    SP
       0.1670160070E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "S_4-31g" 
+basis "S_4-31g" SPHERICAL 
 #basis SET: (12s,8p) -> [4s,3p]
 S    S
       0.3442124410E+04       0.1849212362E-01
@@ -242,7 +242,7 @@ S    SP
 S    SP
       0.1703809050E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "Cl_4-31g" 
+basis "Cl_4-31g" SPHERICAL 
 #basis SET: (12s,8p) -> [4s,3p]
 Cl    S
       0.3910302690E+04       0.1837943112E-01

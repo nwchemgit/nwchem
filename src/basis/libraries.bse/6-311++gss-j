@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # 6-311++g_st__st_-j version number 0
 # Description: 6-311++G**-J
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -42,11 +42,11 @@
 #     Kjær, Hanna, Sauer, Stephan P. A.
 #     Pople Style Basis Sets for the Calculation of NMR Spin-Spin Coupling
 #             Constants: the 6-31G-J and 6-311G-J Basis Sets
-#     J. Chem. Theory Comput., 7, 4070-4076 (2011)
+#     J. Chem. Theory Comput. 7, 4070-4076 (2011)
 #     10.1021/ct200546q
 # 
 # # 
-basis "H_6-311++g_st__st_-j" 
+basis "H_6-311++g_st__st_-j" SPHERICAL 
 #basis SET: (9s,1p) -> [7s,1p]
 H    S
  118753.0892189              0.00000034
@@ -67,16 +67,8 @@ H    S
 H    P
       0.7500000              1.00000000
 end
-basis "C_6-311++g_st__st_-j" 
+basis "C_6-311++g_st__st_-j" SPHERICAL 
 #basis SET: (15s,7p,1d) -> [9s,4p,1d]
-C    S
-16876193.1394200             0.00000006
- 717812.0184378              0.00000265
-  46416.99275025             0.00006807
-   4563.2400000              0.00105552
-    682.0240000              0.00866603
-    154.9730000              0.04301032
-      1.8277300              0.43340136
 C    S
      44.4553000              1.00000000
 C    S
@@ -85,6 +77,14 @@ C    S
      13.0290000              1.00000000
 C    S
       4.8033100              1.00000000
+C    S
+16876193.1394200             0.00000006
+ 717812.0184378              0.00000265
+  46416.99275025             0.00006807
+   4563.2400000              0.00105552
+    682.0240000              0.00866603
+    154.9730000              0.04301032
+      1.8277300              0.43340136
 C    S
       1.4593300              1.00000000
 C    S
@@ -107,16 +107,8 @@ C    P
 C    D
       0.6260000              1.00000000
 end
-basis "N_6-311++g_st__st_-j" 
+basis "N_6-311++g_st__st_-j" SPHERICAL 
 #basis SET: (15s,7p,1d) -> [9s,4p,1d]
-N    S
-23421322.3838400             0.00000006
- 988674.6264273              0.00000262
-  63798.90182836             0.00006752
-   6293.4800000              0.00103995
-    949.0440000              0.00840880
-    218.7760000              0.04094490
-      2.7202300              0.43311373
 N    S
      63.6916000              1.00000000
 N    S
@@ -125,6 +117,14 @@ N    S
      18.8282000              1.00000000
 N    S
       7.0261400              1.00000000
+N    S
+23421322.3838400             0.00000006
+ 988674.6264273              0.00000262
+  63798.90182836             0.00006752
+   6293.4800000              0.00103995
+    949.0440000              0.00840880
+    218.7760000              0.04094490
+      2.7202300              0.43311373
 N    S
       2.1120500              1.00000000
 N    S
@@ -147,16 +147,8 @@ N    P
 N    D
       0.9130000              1.00000000
 end
-basis "O_6-311++g_st__st_-j" 
+basis "O_6-311++g_st__st_-j" SPHERICAL 
 #basis SET: (15s,7p,1d) -> [9s,4p,1d]
-O    S
-31660948.4326500             0.00000005
-1341747.4801660              0.00000251
-  86856.41933057             0.00006440
-   8588.5000000              0.00098884
-   1297.2300000              0.00798975
-    299.2960000              0.03894177
-      3.7400400              0.43596773
 O    S
      87.3771000              1.00000000
 O    S
@@ -165,6 +157,14 @@ O    S
      25.6789000              1.00000000
 O    S
       9.6283700              1.00000000
+O    S
+31660948.4326500             0.00000005
+1341747.4801660              0.00000251
+  86856.41933057             0.00006440
+   8588.5000000              0.00098884
+   1297.2300000              0.00798975
+    299.2960000              0.03894177
+      3.7400400              0.43596773
 O    S
       2.8533200              1.00000000
 O    S

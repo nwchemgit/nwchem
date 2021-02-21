@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # cc-pvtz-pp-rifit version number 0
 # Description: cc-pVTZ-PP-RIFIT
 # Role: rifit
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -50,14 +50,14 @@
 #     Hill, J. Grant, Platts, James A.
 #     Calculating interaction energies in transition metal complexes with
 #             local electron correlation methods
-#     J. Chem. Phys., 129, 134101 (2008)
+#     J. Chem. Phys. 129, 134101 (2008)
 #     10.1063/1.2982790
 # 
 # hill2009a
 #     Hill, J. Grant, Platts, James A.
 #     Auxiliary Basis Sets for Density-Fitted MP2 Calculations: Correlation-
 #             Consistent Basis Sets for the 4d Elements
-#     J. Chem. Theory Comput., 5, 500-505 (2009)
+#     J. Chem. Theory Comput. 5, 500-505 (2009)
 #     10.1021/ct8005584
 # 
 # hill2011a
@@ -65,11 +65,11 @@
 #     Auxiliary basis sets for density fitting second-order Møller-Plesset
 #             perturbation theory: Correlation consistent basis sets for the
 #             5d elements Hf-Pt
-#     J. Chem. Phys., 135, 044105 (2011)
+#     J. Chem. Phys. 135, 044105 (2011)
 #     10.1063/1.3615062
 # 
 # # 
-basis "Y_cc-pvtz-pp-rifit" 
+basis "Y_cc-pvtz-pp-rifit" SPHERICAL 
 #basis SET: (10s,10p,9d,7f,6g,3h,2i) -> [10s,10p,9d,7f,6g,3h,2i]
 Y    S
       9.9304689              1.0000000
@@ -166,7 +166,7 @@ Y    I
 Y    I
       0.5138865              1.0000000
 end
-basis "Zr_cc-pvtz-pp-rifit" 
+basis "Zr_cc-pvtz-pp-rifit" SPHERICAL 
 #basis SET: (10s,10p,9d,7f,6g,3h,2i) -> [10s,10p,9d,7f,6g,3h,2i]
 Zr    S
       9.9663256              1.0000000
@@ -263,7 +263,7 @@ Zr    I
 Zr    I
       0.6739883              1.0000000
 end
-basis "Nb_cc-pvtz-pp-rifit" 
+basis "Nb_cc-pvtz-pp-rifit" SPHERICAL 
 #basis SET: (10s,10p,9d,7f,6g,3h,2i) -> [10s,10p,9d,7f,6g,3h,2i]
 Nb    S
       9.9831610              1.0000000
@@ -360,7 +360,7 @@ Nb    I
 Nb    I
       0.8877399              1.0000000
 end
-basis "Mo_cc-pvtz-pp-rifit" 
+basis "Mo_cc-pvtz-pp-rifit" SPHERICAL 
 #basis SET: (10s,10p,9d,7f,6g,3h,2i) -> [10s,10p,9d,7f,6g,3h,2i]
 Mo    S
       9.9902909              1.0000000
@@ -457,7 +457,7 @@ Mo    I
 Mo    I
       1.0417108              1.0000000
 end
-basis "Tc_cc-pvtz-pp-rifit" 
+basis "Tc_cc-pvtz-pp-rifit" SPHERICAL 
 #basis SET: (10s,10p,9d,7f,6g,3h,2i) -> [10s,10p,9d,7f,6g,3h,2i]
 Tc    S
       9.9364949              1.0000000
@@ -554,7 +554,7 @@ Tc    I
 Tc    I
       1.2765657              1.0000000
 end
-basis "Ru_cc-pvtz-pp-rifit" 
+basis "Ru_cc-pvtz-pp-rifit" SPHERICAL 
 #basis SET: (10s,10p,9d,7f,6g,3h,2i) -> [10s,10p,9d,7f,6g,3h,2i]
 Ru    S
       9.2096900503           1.0000000
@@ -651,7 +651,7 @@ Ru    I
 Ru    I
       1.5225827714           1.0000000
 end
-basis "Rh_cc-pvtz-pp-rifit" 
+basis "Rh_cc-pvtz-pp-rifit" SPHERICAL 
 #basis SET: (10s,10p,9d,7f,6g,3h,2i) -> [10s,10p,9d,7f,6g,3h,2i]
 Rh    S
       8.6500071              1.0000000
@@ -748,7 +748,7 @@ Rh    I
 Rh    I
       1.8142929              1.0000000
 end
-basis "Pd_cc-pvtz-pp-rifit" 
+basis "Pd_cc-pvtz-pp-rifit" SPHERICAL 
 #basis SET: (10s,10p,9d,7f,6g,3h,2i) -> [10s,10p,9d,7f,6g,3h,2i]
 Pd    S
       9.0382975              1.0000000
@@ -845,7 +845,7 @@ Pd    I
 Pd    I
       1.9861364              1.0000000
 end
-basis "Hf_cc-pvtz-pp-rifit" 
+basis "Hf_cc-pvtz-pp-rifit" SPHERICAL 
 #basis SET: (10s,10p,9d,7f,6g,3h,2i) -> [10s,10p,9d,7f,6g,3h,2i]
 Hf    S
       3.1198300              1.0000000
@@ -942,7 +942,7 @@ Hf    I
 Hf    I
       0.5264930              1.0000000
 end
-basis "Ta_cc-pvtz-pp-rifit" 
+basis "Ta_cc-pvtz-pp-rifit" SPHERICAL 
 #basis SET: (10s,10p,9d,7f,6g,3h,2i) -> [10s,10p,9d,7f,6g,3h,2i]
 Ta    S
       3.2388700              1.0000000
@@ -1039,7 +1039,7 @@ Ta    I
 Ta    I
       0.7056150              1.0000000
 end
-basis "W_cc-pvtz-pp-rifit" 
+basis "W_cc-pvtz-pp-rifit" SPHERICAL 
 #basis SET: (10s,10p,9d,7f,6g,3h,2i) -> [10s,10p,9d,7f,6g,3h,2i]
 W    S
       3.6136100              1.0000000
@@ -1136,7 +1136,7 @@ W    I
 W    I
       0.8995830              1.0000000
 end
-basis "Re_cc-pvtz-pp-rifit" 
+basis "Re_cc-pvtz-pp-rifit" SPHERICAL 
 #basis SET: (10s,10p,9d,7f,6g,3h,2i) -> [10s,10p,9d,7f,6g,3h,2i]
 Re    S
       4.7716400              1.0000000
@@ -1233,7 +1233,7 @@ Re    I
 Re    I
       1.1004900              1.0000000
 end
-basis "Os_cc-pvtz-pp-rifit" 
+basis "Os_cc-pvtz-pp-rifit" SPHERICAL 
 #basis SET: (10s,10p,9d,7f,6g,3h,2i) -> [10s,10p,9d,7f,6g,3h,2i]
 Os    S
       4.4739700              1.0000000
@@ -1330,7 +1330,7 @@ Os    I
 Os    I
       1.1995900              1.0000000
 end
-basis "Ir_cc-pvtz-pp-rifit" 
+basis "Ir_cc-pvtz-pp-rifit" SPHERICAL 
 #basis SET: (10s,10p,9d,7f,6g,3h,2i) -> [10s,10p,9d,7f,6g,3h,2i]
 Ir    S
       5.1767200              1.0000000
@@ -1427,7 +1427,7 @@ Ir    I
 Ir    I
       1.3909700              1.0000000
 end
-basis "Pt_cc-pvtz-pp-rifit" 
+basis "Pt_cc-pvtz-pp-rifit" SPHERICAL 
 #basis SET: (10s,10p,9d,7f,6g,3h,2i) -> [10s,10p,9d,7f,6g,3h,2i]
 Pt    S
       6.1305200              1.0000000

@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # sarc-dkh2 version number 0
 # Description: SARC-DKH2
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -55,29 +55,29 @@
 #             Frank
 #     All-Electron Scalar Relativistic Basis Sets for Third-Row Transition
 #             Metal Atoms
-#     J. Chem. Theory Comput., 4, 908-919 (2008)
+#     J. Chem. Theory Comput. 4, 908-919 (2008)
 #     10.1021/ct800047t
 # 
 # pantazis2009a
 #     Pantazis, Dimitrios A., Neese, Frank
 #     All-Electron Scalar Relativistic Basis Sets for the Lanthanides
-#     J. Chem. Theory Comput., 5, 2229-2238 (2009)
+#     J. Chem. Theory Comput. 5, 2229-2238 (2009)
 #     10.1021/ct900090f
 # 
 # pantazis2011a
 #     Pantazis, Dimitrios A., Neese, Frank
 #     All-Electron Scalar Relativistic Basis Sets for the Actinides
-#     J. Chem. Theory Comput., 7, 677-684 (2011)
+#     J. Chem. Theory Comput. 7, 677-684 (2011)
 #     10.1021/ct100736b
 # 
 # pantazis2012a
 #     Pantazis, Dimitrios A., Neese, Frank
 #     All-electron scalar relativistic basis sets for the 6p elements
-#     Theor. Chem. Acc., 131, 1292 (2012)
+#     Theor. Chem. Acc. 131, 1292 (2012)
 #     10.1007/s00214-012-1292-x
 # 
 # # 
-basis "La_sarc-dkh2" 
+basis "La_sarc-dkh2" SPHERICAL 
 #basis SET: (23s,16p,12d) -> [18s,12p,9d]
 La    S
  896770.4166840000           0.0795111541
@@ -170,7 +170,7 @@ La    D
 La    D
       0.0117230000           1.0000000000
 end
-basis "Ce_sarc-dkh2" 
+basis "Ce_sarc-dkh2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Ce    S
  928839.8476080000           0.0806755672
@@ -272,7 +272,7 @@ Ce    F
 Ce    F
       0.0905880000           1.0000000000
 end
-basis "Pr_sarc-dkh2" 
+basis "Pr_sarc-dkh2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Pr    S
  961538.7552820000           0.0818487018
@@ -374,7 +374,7 @@ Pr    F
 Pr    F
       0.0861310000           1.0000000000
 end
-basis "Nd_sarc-dkh2" 
+basis "Nd_sarc-dkh2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Nd    S
  994735.7959840000           0.0830299653
@@ -476,7 +476,7 @@ Nd    F
 Nd    F
       0.0948730000           1.0000000000
 end
-basis "Pm_sarc-dkh2" 
+basis "Pm_sarc-dkh2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Pm    S
 1028523.650946000            0.0842209460
@@ -578,7 +578,7 @@ Pm    F
 Pm    F
       0.1034160000           1.0000000000
 end
-basis "Sm_sarc-dkh2" 
+basis "Sm_sarc-dkh2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Sm    S
 1062932.540176000            0.0854225644
@@ -680,7 +680,7 @@ Sm    F
 Sm    F
       0.1118520000           1.0000000000
 end
-basis "Eu_sarc-dkh2" 
+basis "Eu_sarc-dkh2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Eu    S
 1097819.871374000            0.0866343429
@@ -782,7 +782,7 @@ Eu    F
 Eu    F
       0.1202390000           1.0000000000
 end
-basis "Gd_sarc-dkh2" 
+basis "Gd_sarc-dkh2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Gd    S
 1133304.941480000            0.0878579984
@@ -884,7 +884,7 @@ Gd    F
 Gd    F
       0.1428510000           1.0000000000
 end
-basis "Tb_sarc-dkh2" 
+basis "Tb_sarc-dkh2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Tb    S
 1169335.032050000            0.0890938110
@@ -986,7 +986,7 @@ Tb    F
 Tb    F
       0.1324330000           1.0000000000
 end
-basis "Dy_sarc-dkh2" 
+basis "Dy_sarc-dkh2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Dy    S
 1205955.486947000            0.0903428630
@@ -1088,7 +1088,7 @@ Dy    F
 Dy    F
       0.1392470000           1.0000000000
 end
-basis "Ho_sarc-dkh2" 
+basis "Ho_sarc-dkh2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Ho    S
 1243224.036239000            0.0916062304
@@ -1190,7 +1190,7 @@ Ho    F
 Ho    F
       0.1463930000           1.0000000000
 end
-basis "Er_sarc-dkh2" 
+basis "Er_sarc-dkh2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Er    S
 1280982.1879360001           0.0928836082
@@ -1292,7 +1292,7 @@ Er    F
 Er    F
       0.1538100000           1.0000000000
 end
-basis "Tm_sarc-dkh2" 
+basis "Tm_sarc-dkh2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Tm    S
 1319284.994790000            0.0941761439
@@ -1394,7 +1394,7 @@ Tm    F
 Tm    F
       0.1614560000           1.0000000000
 end
-basis "Yb_sarc-dkh2" 
+basis "Yb_sarc-dkh2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Yb    S
 1358076.401925000            0.0954843109
@@ -1496,7 +1496,7 @@ Yb    F
 Yb    F
       0.1693040000           1.0000000000
 end
-basis "Lu_sarc-dkh2" 
+basis "Lu_sarc-dkh2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Lu    S
 1397555.920017000            0.0968100207
@@ -1598,7 +1598,7 @@ Lu    F
 Lu    F
       0.1925030000           1.0000000000
 end
-basis "Hf_sarc-dkh2" 
+basis "Hf_sarc-dkh2" SPHERICAL 
 #basis SET: (22s,15p,11d,6f) -> [17s,11p,8d,2f]
 Hf    S
 1437551.9123199999           0.0981530873
@@ -1693,7 +1693,7 @@ Hf    F
 Hf    F
       0.2150880000           1.0000000000
 end
-basis "Ta_sarc-dkh2" 
+basis "Ta_sarc-dkh2" SPHERICAL 
 #basis SET: (22s,15p,11d,6f) -> [17s,11p,8d,2f]
 Ta    S
 1478149.4660030000           0.0995147765
@@ -1788,7 +1788,7 @@ Ta    F
 Ta    F
       0.2373280000           1.0000000000
 end
-basis "W_sarc-dkh2" 
+basis "W_sarc-dkh2" SPHERICAL 
 #basis SET: (22s,15p,11d,6f) -> [17s,11p,8d,2f]
 W    S
 1519303.1478090000           0.1008956737
@@ -1883,7 +1883,7 @@ W    F
 W    F
       0.2595890000           1.0000000000
 end
-basis "Re_sarc-dkh2" 
+basis "Re_sarc-dkh2" SPHERICAL 
 #basis SET: (22s,15p,11d,6f) -> [17s,11p,8d,2f]
 Re    S
 1560962.2775310001           0.1022964040
@@ -1978,7 +1978,7 @@ Re    F
 Re    F
       0.2817580000           1.0000000000
 end
-basis "Os_sarc-dkh2" 
+basis "Os_sarc-dkh2" SPHERICAL 
 #basis SET: (22s,15p,11d,6f) -> [17s,11p,8d,2f]
 Os    S
 1603231.6630050000           0.1037183016
@@ -2073,7 +2073,7 @@ Os    F
 Os    F
       0.3043380000           1.0000000000
 end
-basis "Ir_sarc-dkh2" 
+basis "Ir_sarc-dkh2" SPHERICAL 
 #basis SET: (22s,15p,11d,6f) -> [17s,11p,8d,2f]
 Ir    S
 1646069.0655050001           0.1051620473
@@ -2168,7 +2168,7 @@ Ir    F
 Ir    F
       0.3272140000           1.0000000000
 end
-basis "Pt_sarc-dkh2" 
+basis "Pt_sarc-dkh2" SPHERICAL 
 #basis SET: (22s,15p,11d,6f) -> [17s,11p,8d,2f]
 Pt    S
 1689601.5675860001           0.1066290063
@@ -2263,7 +2263,7 @@ Pt    F
 Pt    F
       0.3503780000           1.0000000000
 end
-basis "Au_sarc-dkh2" 
+basis "Au_sarc-dkh2" SPHERICAL 
 #basis SET: (22s,15p,11d,6f) -> [17s,11p,8d,2f]
 Au    S
 1733435.9475050000           0.1081186416
@@ -2358,7 +2358,7 @@ Au    F
 Au    F
       0.3738410000           1.0000000000
 end
-basis "Hg_sarc-dkh2" 
+basis "Hg_sarc-dkh2" SPHERICAL 
 #basis SET: (22s,15p,11d,6f) -> [17s,11p,8d,2f]
 Hg    S
 1778058.5043390000           0.1096336834
@@ -2453,7 +2453,7 @@ Hg    F
 Hg    F
       0.3979050000           1.0000000000
 end
-basis "Tl_sarc-dkh2" 
+basis "Tl_sarc-dkh2" SPHERICAL 
 #basis SET: (29s,21p,15d,11f) -> [22s,14p,9d,4f]
 Tl    S
 45576498.9005310014          0.0471708019
@@ -2581,7 +2581,7 @@ Tl    F
 Tl    F
       0.1246380000           1.0000000000
 end
-basis "Pb_sarc-dkh2" 
+basis "Pb_sarc-dkh2" SPHERICAL 
 #basis SET: (29s,21p,15d,11f) -> [22s,14p,9d,4f]
 Pb    S
 46719469.9828549996          0.0478633222
@@ -2709,7 +2709,7 @@ Pb    F
 Pb    F
       0.1320080000           1.0000000000
 end
-basis "Bi_sarc-dkh2" 
+basis "Bi_sarc-dkh2" SPHERICAL 
 #basis SET: (29s,21p,15d,11f) -> [22s,14p,9d,4f]
 Bi    S
 47874457.7203579992          0.0485735032
@@ -2837,7 +2837,7 @@ Bi    F
 Bi    F
       0.1395150000           1.0000000000
 end
-basis "Po_sarc-dkh2" 
+basis "Po_sarc-dkh2" SPHERICAL 
 #basis SET: (29s,21p,15d,11f) -> [22s,14p,9d,4f]
 Po    S
 49045573.2325550020          0.0493021815
@@ -2965,7 +2965,7 @@ Po    F
 Po    F
       0.1471610000           1.0000000000
 end
-basis "At_sarc-dkh2" 
+basis "At_sarc-dkh2" SPHERICAL 
 #basis SET: (29s,21p,15d,11f) -> [22s,14p,9d,4f]
 At    S
 50231960.3244210035          0.0500500782
@@ -3093,7 +3093,7 @@ At    F
 At    F
       0.1549450000           1.0000000000
 end
-basis "Rn_sarc-dkh2" 
+basis "Rn_sarc-dkh2" SPHERICAL 
 #basis SET: (29s,21p,15d,11f) -> [22s,14p,9d,4f]
 Rn    S
 51426823.3837089986          0.0508178147
@@ -3221,7 +3221,7 @@ Rn    F
 Rn    F
       0.1628670000           1.0000000000
 end
-basis "Ac_sarc-dkh2" 
+basis "Ac_sarc-dkh2" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Ac    S
 55109808.74124400            0.0312766245
@@ -3352,7 +3352,7 @@ Ac    F
 Ac    F
       0.1051890000           1.0000000000
 end
-basis "Th_sarc-dkh2" 
+basis "Th_sarc-dkh2" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Th    S
 56363088.88971600            0.0318759066
@@ -3483,7 +3483,7 @@ Th    F
 Th    F
       0.1099580000           1.0000000000
 end
-basis "Pa_sarc-dkh2" 
+basis "Pa_sarc-dkh2" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Pa    S
 57631858.17253400            0.0324936320
@@ -3614,7 +3614,7 @@ Pa    F
 Pa    F
       0.1147680000           1.0000000000
 end
-basis "U_sarc-dkh2" 
+basis "U_sarc-dkh2" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 U    S
 58915269.20406200            0.0331306134
@@ -3745,7 +3745,7 @@ U    F
 U    F
       0.1196610000           1.0000000000
 end
-basis "Np_sarc-dkh2" 
+basis "Np_sarc-dkh2" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Np    S
 60212393.78258100            0.0337877053
@@ -3876,7 +3876,7 @@ Np    F
 Np    F
       0.1246250000           1.0000000000
 end
-basis "Pu_sarc-dkh2" 
+basis "Pu_sarc-dkh2" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Pu    S
 61522220.62252900            0.0344658099
@@ -4007,7 +4007,7 @@ Pu    F
 Pu    F
       0.1296570000           1.0000000000
 end
-basis "Am_sarc-dkh2" 
+basis "Am_sarc-dkh2" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Am    S
 62843653.32610500            0.0351658825
@@ -4138,7 +4138,7 @@ Am    F
 Am    F
       0.1347790000           1.0000000000
 end
-basis "Cm_sarc-dkh2" 
+basis "Cm_sarc-dkh2" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Cm    S
 64183659.71228800            0.0358890046
@@ -4269,7 +4269,7 @@ Cm    F
 Cm    F
       0.1399860000           1.0000000000
 end
-basis "Bk_sarc-dkh2" 
+basis "Bk_sarc-dkh2" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Bk    S
 65541743.54207900            0.0366362262
@@ -4400,7 +4400,7 @@ Bk    F
 Bk    F
       0.1451590000           1.0000000000
 end
-basis "Cf_sarc-dkh2" 
+basis "Cf_sarc-dkh2" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Cf    S
 66908672.67153500            0.0374085968
@@ -4531,7 +4531,7 @@ Cf    F
 Cf    F
       0.1504550000           1.0000000000
 end
-basis "Es_sarc-dkh2" 
+basis "Es_sarc-dkh2" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Es    S
 68291966.01786400            0.0382073668
@@ -4662,7 +4662,7 @@ Es    F
 Es    F
       0.1558200000           1.0000000000
 end
-basis "Fm_sarc-dkh2" 
+basis "Fm_sarc-dkh2" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Fm    S
 69690927.07216800            0.0390337818
@@ -4793,7 +4793,7 @@ Fm    F
 Fm    F
       0.1612580000           1.0000000000
 end
-basis "Md_sarc-dkh2" 
+basis "Md_sarc-dkh2" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Md    S
 71095290.12593000            0.0398891130
@@ -4924,7 +4924,7 @@ Md    F
 Md    F
       0.1667650000           1.0000000000
 end
-basis "No_sarc-dkh2" 
+basis "No_sarc-dkh2" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 No    S
 72522948.25117100            0.0407748606
@@ -5055,7 +5055,7 @@ No    F
 No    F
       0.1725850000           1.0000000000
 end
-basis "Lr_sarc-dkh2" 
+basis "Lr_sarc-dkh2" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Lr    S
 73963782.78320600            0.0416924538

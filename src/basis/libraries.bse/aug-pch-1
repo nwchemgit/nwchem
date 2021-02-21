@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # aug-pch-1 version number 1
 # Description: aug-pcH-1
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -42,11 +42,11 @@
 #     Jakobsen, Philip, Jensen, Frank
 #     Probing basis set requirements for calculating hyperfine coupling
 #             constants
-#     J. Chem. Phys., 151, 174107 (2019)
+#     J. Chem. Phys. 151, 174107 (2019)
 #     10.1063/1.5128286
 # 
 # # 
-basis "H_aug-pch-1" 
+basis "H_aug-pch-1" SPHERICAL 
 #basis SET: (7s,3p) -> [5s,3p]
 H    S
       0.382870E+04           0.110954E-01
@@ -67,7 +67,7 @@ H    P
 H    P
       0.768840E-01           1.0000000
 end
-basis "He_aug-pch-1" 
+basis "He_aug-pch-1" SPHERICAL 
 #basis SET: (7s,3p) -> [5s,3p]
 He    S
       0.115203E+05           0.111006E-01
@@ -88,7 +88,7 @@ He    P
 He    P
       0.174200E+00           1.0000000
 end
-basis "B_aug-pch-1" 
+basis "B_aug-pch-1" SPHERICAL 
 #basis SET: (10s,6p,3d) -> [7s,4p,3d]
 B    S
       0.263742E+06           0.632564E-03
@@ -124,7 +124,7 @@ B    D
 B    D
       0.648800E-01           1.0000000
 end
-basis "C_aug-pch-1" 
+basis "C_aug-pch-1" SPHERICAL 
 #basis SET: (10s,6p,3d) -> [7s,4p,3d]
 C    S
       0.391450E+06           0.632124E-03
@@ -160,7 +160,7 @@ C    D
 C    D
       0.100550E+00           1.0000000
 end
-basis "N_aug-pch-1" 
+basis "N_aug-pch-1" SPHERICAL 
 #basis SET: (10s,6p,3d) -> [7s,4p,3d]
 N    S
       0.544421E+06           0.632180E-03
@@ -196,7 +196,7 @@ N    D
 N    D
       0.143120E+00           1.0000000
 end
-basis "O_aug-pch-1" 
+basis "O_aug-pch-1" SPHERICAL 
 #basis SET: (10s,6p,3d) -> [7s,4p,3d]
 O    S
       0.720858E+06           0.632074E-03
@@ -232,7 +232,7 @@ O    D
 O    D
       0.172850E+00           1.0000000
 end
-basis "F_aug-pch-1" 
+basis "F_aug-pch-1" SPHERICAL 
 #basis SET: (10s,6p,3d) -> [7s,4p,3d]
 F    S
       0.923324E+06           0.631987E-03
@@ -268,7 +268,7 @@ F    D
 F    D
       0.216160E+00           1.0000000
 end
-basis "Ne_aug-pch-1" 
+basis "Ne_aug-pch-1" SPHERICAL 
 #basis SET: (10s,6p,3d) -> [7s,4p,3d]
 Ne    S
       0.115003E+07           0.631922E-03
@@ -304,7 +304,7 @@ Ne    D
 Ne    D
       0.268500E+00           1.0000000
 end
-basis "Al_aug-pch-1" 
+basis "Al_aug-pch-1" SPHERICAL 
 #basis SET: (14s,10p,3d) -> [8s,7p,3d]
 Al    S
       0.108444E+08           0.397050E-05
@@ -352,7 +352,7 @@ Al    D
 Al    D
       0.441900E-01           1.0000000
 end
-basis "Si_aug-pch-1" 
+basis "Si_aug-pch-1" SPHERICAL 
 #basis SET: (14s,10p,3d) -> [8s,7p,3d]
 Si    S
       0.128947E+08           0.394872E-05
@@ -400,7 +400,7 @@ Si    D
 Si    D
       0.663320E-01           1.0000000
 end
-basis "P_aug-pch-1" 
+basis "P_aug-pch-1" SPHERICAL 
 #basis SET: (14s,10p,3d) -> [8s,7p,3d]
 P    S
       0.150228E+08           0.394397E-05
@@ -448,7 +448,7 @@ P    D
 P    D
       0.911570E-01           1.0000000
 end
-basis "S_aug-pch-1" 
+basis "S_aug-pch-1" SPHERICAL 
 #basis SET: (14s,10p,3d) -> [8s,7p,3d]
 S    S
       0.173469E+08           0.393435E-05
@@ -496,7 +496,7 @@ S    D
 S    D
       0.106090E+00           1.0000000
 end
-basis "Cl_aug-pch-1" 
+basis "Cl_aug-pch-1" SPHERICAL 
 #basis SET: (14s,10p,3d) -> [8s,7p,3d]
 Cl    S
       0.198356E+08           0.392624E-05
@@ -544,7 +544,7 @@ Cl    D
 Cl    D
       0.124400E+00           1.0000000
 end
-basis "Ar_aug-pch-1" 
+basis "Ar_aug-pch-1" SPHERICAL 
 #basis SET: (14s,10p,3d) -> [8s,7p,3d]
 Ar    S
       0.224862E+08           0.391941E-05

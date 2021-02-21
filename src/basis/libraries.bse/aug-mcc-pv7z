@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # aug-mcc-pv7z version number 0
 # Description: aug-mcc-pV7Z
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -43,12 +43,20 @@
 #     A hierarchical family of global analytic Born-Oppenheimer potential
 #             energy surfaces for the H+H2 reaction ranging in quality from
 #             double-zeta to the complete basis set limit
-#     J. Chem. Phys., 116, 4142-4161 (2002)
+#     J. Chem. Phys. 116, 4142-4161 (2002)
 #     10.1063/1.1432319
 # 
 # # 
-basis "H_aug-mcc-pv7z" 
+basis "H_aug-mcc-pv7z" SPHERICAL 
 #basis SET: (16s,7p,6d,5f,4g,3h,2i) -> [8s,7p,6d,5f,4g,3h,2i]
+H    S
+      4.9682600              1.0000000
+H    S
+      2.0843320              1.0000000
+H    S
+      0.8744390              1.0000000
+H    S
+      0.3668530              1.0000000
 H    S
     884.1687000              0.0001040
     132.3019000              0.0008120
@@ -59,14 +67,6 @@ H    S
       0.3889190              0.3496490
       0.1595940              0.4028080
       0.0668510              0.1386980
-H    S
-      4.9682600              1.0000000
-H    S
-      2.0843320              1.0000000
-H    S
-      0.8744390              1.0000000
-H    S
-      0.3668530              1.0000000
 H    S
       0.1539060              1.0000000
 H    S

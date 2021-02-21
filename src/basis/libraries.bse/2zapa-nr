@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # 2zapa-nr version number 1
 # Description: Double Zeta augmented + polarization (nonrelativistic)
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -41,11 +41,11 @@
 # ranasinghe2013a
 #     Ranasinghe, Duminda S., Petersson, George A.
 #     CCSD(T)/CBS atomic and molecular benchmarks for H through Ar
-#     J. Chem. Phys., 138, 144104 (2013)
+#     J. Chem. Phys. 138, 144104 (2013)
 #     10.1063/1.4798707
 # 
 # # 
-basis "H_2zapa-nr" 
+basis "H_2zapa-nr" SPHERICAL 
 #basis SET: (6s,1p) -> [3s,1p]
 H    S
       0.1298677400E+02       0.1972161440E-01
@@ -59,8 +59,10 @@ H    S
 H    P
       0.8111606153E+00       0.1000000000E+01
 end
-basis "He_2zapa-nr" 
+basis "He_2zapa-nr" SPHERICAL 
 #basis SET: (7s,1p) -> [3s,1p]
+He    S
+      0.6844347900E-00       0.1000000000E+01
 He    S
       0.9801372830E+02       0.7586225690E-02
       0.1475700946E+02       0.5487230740E-01
@@ -68,13 +70,11 @@ He    S
       0.8739514321E+00       0.4874323260E+00
       0.2445736623E+00       0.3974345400E+00
 He    S
-      0.6844347900E-00       0.1000000000E+01
-He    S
       0.2280097319E+00       0.1000000000E+01
 He    P
       0.1365291063E+01       0.1000000000E+01
 end
-basis "Li_2zapa-nr" 
+basis "Li_2zapa-nr" SPHERICAL 
 #basis SET: (11s,5p,1d) -> [4s,3p,1d]
 Li    S
       0.3657435440E+03       0.4356163519E-02
@@ -84,11 +84,11 @@ Li    S
       0.1059143000E+01       0.4901731100E+00
       0.3155200000E+00       0.1090884707E+00
 Li    S
+      0.6386889034E-01       0.1000000000E+01
+Li    S
       0.1059143000E+01      -0.7386141829E-01
       0.3155200000E+00      -0.1038627878E-01
       0.4751800000E-01       0.1021752008E+01
-Li    S
-      0.6386889034E-01       0.1000000000E+01
 Li    S
       0.9018346536E-02       0.1000000000E+01
 Li    P
@@ -102,7 +102,7 @@ Li    P
 Li    D
       0.1218831751E+00       0.1000000000E+01
 end
-basis "Be_2zapa-nr" 
+basis "Be_2zapa-nr" SPHERICAL 
 #basis SET: (13s,5p,1d) -> [4s,3p,1d]
 Be    S
       0.8693164010E+03       0.3061668346E-02
@@ -132,7 +132,7 @@ Be    P
 Be    D
       0.2518234584E+00       0.1000000000E+01
 end
-basis "B_2zapa-nr" 
+basis "B_2zapa-nr" SPHERICAL 
 #basis SET: (14s,6p,1d) -> [4s,3p,1d]
 B    S
       0.1420825823E+04       0.2928350492E-02
@@ -164,7 +164,7 @@ B    P
 B    D
       0.3915530981E+00       0.1000000000E+01
 end
-basis "C_2zapa-nr" 
+basis "C_2zapa-nr" SPHERICAL 
 #basis SET: (15s,6p,1d) -> [4s,3p,1d]
 C    S
       0.4431768960E+04       0.1126061671E-02
@@ -197,7 +197,7 @@ C    P
 C    D
       0.6074318765E+00       0.1000000000E+01
 end
-basis "N_2zapa-nr" 
+basis "N_2zapa-nr" SPHERICAL 
 #basis SET: (15s,7p,1d) -> [4s,3p,1d]
 N    S
       0.6086361610E+04       0.1121346695E-02
@@ -231,7 +231,7 @@ N    P
 N    D
       0.8853992832E+00       0.1000000000E+01
 end
-basis "O_2zapa-nr" 
+basis "O_2zapa-nr" SPHERICAL 
 #basis SET: (15s,7p,1d) -> [4s,3p,1d]
 O    S
       0.8037107558E+04       0.1112674636E-02
@@ -265,7 +265,7 @@ O    P
 O    D
       0.1253413556E+01       0.1000000000E+01
 end
-basis "F_2zapa-nr" 
+basis "F_2zapa-nr" SPHERICAL 
 #basis SET: (15s,8p,1d) -> [4s,3p,1d]
 F    S
       0.1024537363E+05       0.1107583316E-02
@@ -300,7 +300,7 @@ F    P
 F    D
       0.1703134082E+01       0.1000000000E+01
 end
-basis "Ne_2zapa-nr" 
+basis "Ne_2zapa-nr" SPHERICAL 
 #basis SET: (15s,8p,1d) -> [4s,3p,1d]
 Ne    S
       0.1271663197E+05       0.1103964353E-02
@@ -335,7 +335,7 @@ Ne    P
 Ne    D
       0.2230500121E+01       0.1000000000E+01
 end
-basis "Na_2zapa-nr" 
+basis "Na_2zapa-nr" SPHERICAL 
 #basis SET: (21s,12p,2d) -> [5s,4p,2d]
 Na    S
       0.3834447581E+05       0.3602940889E-03
@@ -355,12 +355,12 @@ Na    S
       0.8109900000E+00       0.5945038867E+00
       0.2244100000E+00       0.6484867676E-01
 Na    S
+      0.5874356130E-01       0.1000000000E+01
+Na    S
       0.2356424000E+01      -0.8871285426E-03
       0.8109900000E+00      -0.1058069179E+00
       0.2244100000E+00      -0.1835987973E-01
       0.4095000000E-01       0.1034516090E+01
-Na    S
-      0.5874356130E-01       0.1000000000E+01
 Na    S
       0.8379234234E-02       0.1000000000E+01
 Na    P
@@ -371,12 +371,12 @@ Na    P
       0.7666220000E+00       0.4104067114E+00
       0.2156310000E+00       0.8284299222E-01
 Na    P
+      0.7746176482E-01       0.1000000000E+01
+Na    P
       0.2301503000E+01       0.4507931390E-02
       0.7666220000E+00      -0.2224968413E-01
       0.2156310000E+00       0.9176752119E-01
       0.3260500000E-01       0.9649449913E+00
-Na    P
-      0.7746176482E-01       0.1000000000E+01
 Na    P
       0.4930117000E-02       0.1000000000E+01
 Na    D
@@ -384,7 +384,7 @@ Na    D
 Na    D
       0.1008476556E+00       0.1000000000E+01
 end
-basis "Mg_2zapa-nr" 
+basis "Mg_2zapa-nr" SPHERICAL 
 #basis SET: (22s,12p,2d) -> [6s,4p,2d]
 Mg    S
       0.3273235380E+05       0.5365397390E-03
@@ -422,12 +422,12 @@ Mg    P
       0.1059175000E+01       0.4107565086E+00
       0.3191520000E+00       0.7603532943E-01
 Mg    P
+      0.1523890037E+00       0.1000000000E+01
+Mg    P
       0.3101314000E+01       0.5199500791E-02
       0.1059175000E+01      -0.3335058622E-01
       0.3191520000E+00       0.1789309935E+00
       0.6469000000E-01       0.9084654408E+00
-Mg    P
-      0.1523890037E+00       0.1000000000E+01
 Mg    P
       0.1311223500E-01       0.1000000000E+01
 Mg    D
@@ -435,7 +435,7 @@ Mg    D
 Mg    D
       0.1702595179E+00       0.1000000000E+01
 end
-basis "Al_2zapa-nr" 
+basis "Al_2zapa-nr" SPHERICAL 
 #basis SET: (21s,13p,2d) -> [5s,4p,2d]
 Al    S
       0.4082547901E+05       0.4987480205E-03
@@ -485,7 +485,7 @@ Al    D
 Al    D
       0.2063660192E+00       0.1000000000E+01
 end
-basis "Si_2zapa-nr" 
+basis "Si_2zapa-nr" SPHERICAL 
 #basis SET: (21s,13p,2d) -> [5s,4p,2d]
 Si    S
       0.4960155294E+05       0.4725011324E-03
@@ -535,7 +535,7 @@ Si    D
 Si    D
       0.2835946390E+00       0.1000000000E+01
 end
-basis "P_2zapa-nr" 
+basis "P_2zapa-nr" SPHERICAL 
 #basis SET: (21s,13p,2d) -> [5s,4p,2d]
 P    S
       0.5909335023E+05       0.4527086341E-03
@@ -585,7 +585,7 @@ P    D
 P    D
       0.3761010137E+00       0.1000000000E+01
 end
-basis "S_2zapa-nr" 
+basis "S_2zapa-nr" SPHERICAL 
 #basis SET: (21s,13p,2d) -> [5s,4p,2d]
 S    S
       0.6909063871E+05       0.4387995563E-03
@@ -635,7 +635,7 @@ S    D
 S    D
       0.4771591702E+00       0.1000000000E+01
 end
-basis "Cl_2zapa-nr" 
+basis "Cl_2zapa-nr" SPHERICAL 
 #basis SET: (22s,13p,2d) -> [5s,4p,2d]
 Cl    S
       0.7979453309E+05       0.4275413947E-03
@@ -686,7 +686,7 @@ Cl    D
 Cl    D
       0.5932966344E+00       0.1000000000E+01
 end
-basis "Ar_2zapa-nr" 
+basis "Ar_2zapa-nr" SPHERICAL 
 #basis SET: (24s,14p,2d) -> [5s,4p,2d]
 Ar    S
       0.9108072877E+05       0.4188709077E-03
@@ -707,14 +707,14 @@ Ar    S
       0.5787508000E+01       0.6587496584E+00
       0.2191690000E+01       0.3862703852E+00
 Ar    S
+      0.8192685943E+00       0.1000000000E+01
+Ar    S
       0.3905749900E+02       0.5091331303E-04
       0.1501248800E+02       0.3183357322E-02
       0.5787508000E+01      -0.9313800065E-01
       0.2191690000E+01      -0.2117032651E+00
       0.7896030000E+00       0.5792393623E+00
       0.2569330000E+00       0.6380094534E+00
-Ar    S
-      0.8192685943E+00       0.1000000000E+01
 Ar    S
       0.8360475600E-01       0.1000000000E+01
 Ar    P
@@ -725,14 +725,14 @@ Ar    P
       0.4700524000E+01       0.4564647737E+00
       0.1747099000E+01       0.1292381689E+00
 Ar    P
+      0.1004779280E+01       0.1000000000E+01
+Ar    P
       0.3429081400E+02      -0.2173526680E-02
       0.1241350700E+02      -0.7888769039E-02
       0.4700524000E+01      -0.2483474690E-01
       0.1747099000E+01       0.1590366970E+00
       0.6080710000E+00       0.5609591239E+00
       0.1890840000E+00       0.4336519009E+00
-Ar    P
-      0.1004779280E+01       0.1000000000E+01
 Ar    P
       0.5879701400E-01       0.1000000000E+01
 Ar    D

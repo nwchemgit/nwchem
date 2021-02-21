@@ -1,5 +1,5 @@
-# BSE Version v0.8.13
-# Data downloaded on 2021-02-19T12:41
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T19:21
 # s6-31g_st_ version number 0
 # Description: s6-31G*
 # Role: orbital
@@ -12,21 +12,21 @@
 #             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     J. Chem. Inf. Model., 59, 4814-4820 (2019)
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
 #     10.1021/acs.jcim.9b00725
 # 
 # feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
 # schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
 # 
@@ -41,11 +41,11 @@
 # swart2010a
 #     Swart, Marcel, Güell, Mireia, Luis, Josep M., Solà, Miquel
 #     Spin-State-Corrected Gaussian-Type Orbital Basis Sets
-#     J. Phys. Chem. A, 114, 7191-7197 (2010)
+#     J. Phys. Chem. A 114, 7191-7197 (2010)
 #     10.1021/jp102712z
 # 
 # # 
-basis "Sc_s6-31g_st_" 
+basis "Sc_s6-31g_st_" SPHERICAL 
 #basis SET: (22s,16p,5d,1f) -> [5s,4p,3d,1f]
 Sc    S
   39088.980000000            0.00180326
@@ -85,7 +85,7 @@ Sc    D
 Sc    F
       0.80000000             1.00000000
 end
-basis "Ti_s6-31g_st_" 
+basis "Ti_s6-31g_st_" SPHERICAL 
 #basis SET: (22s,16p,5d,1f) -> [5s,4p,3d,1f]
 Ti    S
   43152.950000000            0.00179187
@@ -125,7 +125,7 @@ Ti    D
 Ti    F
       0.80000000             1.00000000
 end
-basis "V_s6-31g_st_" 
+basis "V_s6-31g_st_" SPHERICAL 
 #basis SET: (22s,16p,5d,1f) -> [5s,4p,3d,1f]
 V    S
   47354.330000000            0.00178451
@@ -165,7 +165,7 @@ V    D
 V    F
       0.80000000             1.00000000
 end
-basis "Cr_s6-31g_st_" 
+basis "Cr_s6-31g_st_" SPHERICAL 
 #basis SET: (22s,16p,5d,1f) -> [5s,4p,3d,1f]
 Cr    S
   51789.810000000            0.00177618
@@ -205,7 +205,7 @@ Cr    D
 Cr    F
       0.80000000             1.00000000
 end
-basis "Mn_s6-31g_st_" 
+basis "Mn_s6-31g_st_" SPHERICAL 
 #basis SET: (22s,16p,5d,1f) -> [5s,4p,3d,1f]
 Mn    S
   56347.140000000            0.00177158
@@ -245,7 +245,7 @@ Mn    D
 Mn    F
       0.80000000             1.00000000
 end
-basis "Fe_s6-31g_st_" 
+basis "Fe_s6-31g_st_" SPHERICAL 
 #basis SET: (22s,16p,5d,1f) -> [5s,4p,3d,1f]
 Fe    S
   61132.620000000            0.00176611
@@ -285,7 +285,7 @@ Fe    D
 Fe    F
       0.80000000             1.00000000
 end
-basis "Co_s6-31g_st_" 
+basis "Co_s6-31g_st_" SPHERICAL 
 #basis SET: (22s,16p,5d,1f) -> [5s,4p,3d,1f]
 Co    S
   66148.990000000            0.00175979
@@ -325,7 +325,7 @@ Co    D
 Co    F
       0.80000000             1.00000000
 end
-basis "Ni_s6-31g_st_" 
+basis "Ni_s6-31g_st_" SPHERICAL 
 #basis SET: (22s,16p,5d,1f) -> [5s,4p,3d,1f]
 Ni    S
   71396.350000000            0.00175300
@@ -365,7 +365,7 @@ Ni    D
 Ni    F
       0.80000000             1.00000000
 end
-basis "Cu_s6-31g_st_" 
+basis "Cu_s6-31g_st_" SPHERICAL 
 #basis SET: (22s,16p,5d,1f) -> [5s,4p,3d,1f]
 Cu    S
   76794.380000000            0.00174816
@@ -405,7 +405,7 @@ Cu    D
 Cu    F
       0.80000000             1.00000000
 end
-basis "Zn_s6-31g_st_" 
+basis "Zn_s6-31g_st_" SPHERICAL 
 #basis SET: (22s,16p,5d,1f) -> [5s,4p,3d,1f]
 Zn    S
   82400.940000000            0.00174333
