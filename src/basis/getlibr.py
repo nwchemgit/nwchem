@@ -20,21 +20,22 @@ today = datetime.now().isoformat(timespec='minutes')
 print(today)
 all_bs = bse.get_all_basis_names()
 md = bse.get_metadata()
+summary_file = open('summary.txt','w')
 for bas_name in all_bs:
     #get version and list of elements
     #new conventiosn for bas_name
     #>>> md = bse.filter_basis_sets('6-31++g')
     #>>> md.keys()
-    bas_name = bas_name.lower()
-    bas_name = bas_name.replace("*","_st_")
-    bas_name = bas_name.replace("/","_sl_")
+    md_bas_name = bas_name.lower()
+    md_bas_name = md_bas_name.replace("*","_st_")
+    md_bas_name = md_bas_name.replace("/","_sl_")
+    print(' md_bas_name '+md_bas_name+"\n")
     print(' bas_name '+bas_name+"\n")
-    version_bs = md[bas_name]['latest_version']
-    elements_list = md[bas_name]['versions'][version_bs]['elements']
+    version_bs = md[md_bas_name]['latest_version']
+    elements_list = md[md_bas_name]['versions'][version_bs]['elements']
     #open file
     # get rid of asterisks
-    #file_name = bas_name.replace("*","s")
-    file_name = bas_name.replace("_st_","s")
+    file_name = bas_name.replace("*","s")
     #get rid of parenthesis
     file_name = file_name.replace("(","")
     file_name = file_name.replace(")","")
@@ -43,17 +44,22 @@ for bas_name in all_bs:
     #replace whitespace with underscore
     file_name = file_name.replace(" ","_")
     #replace forward slash with underscore
-    #file_name = file_name.replace("/","_")
-    file_name = file_name.replace("_sl_","_")
+    file_name = file_name.replace("/","_")
+    #lowercase
+    file_name = file_name.lower()
     print(' file name is '+file_name+"\n")
     output_file = open(file_name,'w')
     output_file.write('# BSE Version '+bse.version()+'\n')
     output_file.write('# Data downloaded on '+today+'\n')
     output_file.write('# '+bas_name+' version number '+version_bs+'\n')
-    output_file.write('# Description: '+md[bas_name]['description']+'\n')
-    output_file.write('# Role: '+md[bas_name]['role']+'\n')
+    output_file.write('# Description: '+md[md_bas_name]['description']+'\n')
+    output_file.write('# Role: '+md[md_bas_name]['role']+'\n')
     output_file.write('# '+bse.get_references(bas_name,fmt='txt').replace('\n','\n# '))
     output_file.write('# \n')
+    n_elements=0
+    for element in elements_list:
+        n_elements = n_elements + 1
+    summary_file.write('Basis set \"'+bas_name+'\" (number of atoms '+str(n_elements)+')\n')
     for element in elements_list:
         #element='h'
         try:
