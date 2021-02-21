@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# aug-cc-pwcvdz-pp-rifit version number 0
+# Data downloaded on 2021-02-20T21:21
+# aug-cc-pwCVDZ-PP-RIFIT version number 0
 # Description: aug-cc-pwCVDZ-PP-RIFIT
 # Role: rifit
 # 
@@ -50,7 +50,7 @@
 #     10.1002/jcc.23372
 # 
 # # 
-basis "Y_aug-cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Y_aug-cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (10s,10p,9d,9f,7g,4h) -> [10s,10p,9d,9f,7g,4h]
 Y    S
       7.0381800              1.0000000
@@ -151,7 +151,7 @@ Y    H
 Y    H
       0.1126090              1.0000000
 end
-basis "Zr_aug-cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Zr_aug-cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (10s,10p,9d,9f,7g,4h) -> [10s,10p,9d,9f,7g,4h]
 Zr    S
       7.5560500              1.0000000
@@ -252,7 +252,7 @@ Zr    H
 Zr    H
       0.1926820              1.0000000
 end
-basis "Nb_aug-cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Nb_aug-cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (10s,10p,9d,9f,7g,4h) -> [10s,10p,9d,9f,7g,4h]
 Nb    S
       8.6138600              1.0000000
@@ -353,7 +353,7 @@ Nb    H
 Nb    H
       0.2741690              1.0000000
 end
-basis "Mo_aug-cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Mo_aug-cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (10s,10p,9d,9f,7g,4h) -> [10s,10p,9d,9f,7g,4h]
 Mo    S
       9.2109700              1.0000000
@@ -454,7 +454,7 @@ Mo    H
 Mo    H
       0.3757910              1.0000000
 end
-basis "Tc_aug-cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Tc_aug-cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (10s,10p,9d,9f,7g,4h) -> [10s,10p,9d,9f,7g,4h]
 Tc    S
       9.8017100              1.0000000
@@ -555,7 +555,7 @@ Tc    H
 Tc    H
       0.4544760              1.0000000
 end
-basis "Ru_aug-cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Ru_aug-cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (10s,10p,9d,9f,7g,4h) -> [10s,10p,9d,9f,7g,4h]
 Ru    S
      10.1988000              1.0000000
@@ -656,7 +656,7 @@ Ru    H
 Ru    H
       0.5335170              1.0000000
 end
-basis "Rh_aug-cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Rh_aug-cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (10s,10p,9d,9f,7g,4h) -> [10s,10p,9d,9f,7g,4h]
 Rh    S
      10.8856000              1.0000000
@@ -757,7 +757,7 @@ Rh    H
 Rh    H
       0.6010140              1.0000000
 end
-basis "Pd_aug-cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Pd_aug-cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (10s,10p,9d,9f,7g,4h) -> [10s,10p,9d,9f,7g,4h]
 Pd    S
      11.4019000              1.0000000

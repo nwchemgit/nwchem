@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# 2zapa-nr version number 1
+# Data downloaded on 2021-02-20T21:21
+# 2ZaPa-NR version number 1
 # Description: Double Zeta augmented + polarization (nonrelativistic)
 # Role: orbital
 # 
@@ -45,7 +45,7 @@
 #     10.1063/1.4798707
 # 
 # # 
-basis "H_2zapa-nr" SPHERICAL 
+basis "H_2ZaPa-NR" SPHERICAL 
 #basis SET: (6s,1p) -> [3s,1p]
 H    S
       0.1298677400E+02       0.1972161440E-01
@@ -59,7 +59,7 @@ H    S
 H    P
       0.8111606153E+00       0.1000000000E+01
 end
-basis "He_2zapa-nr" SPHERICAL 
+basis "He_2ZaPa-NR" SPHERICAL 
 #basis SET: (7s,1p) -> [3s,1p]
 He    S
       0.6844347900E-00       0.1000000000E+01
@@ -74,7 +74,7 @@ He    S
 He    P
       0.1365291063E+01       0.1000000000E+01
 end
-basis "Li_2zapa-nr" SPHERICAL 
+basis "Li_2ZaPa-NR" SPHERICAL 
 #basis SET: (11s,5p,1d) -> [4s,3p,1d]
 Li    S
       0.3657435440E+03       0.4356163519E-02
@@ -102,7 +102,7 @@ Li    P
 Li    D
       0.1218831751E+00       0.1000000000E+01
 end
-basis "Be_2zapa-nr" SPHERICAL 
+basis "Be_2ZaPa-NR" SPHERICAL 
 #basis SET: (13s,5p,1d) -> [4s,3p,1d]
 Be    S
       0.8693164010E+03       0.3061668346E-02
@@ -132,7 +132,7 @@ Be    P
 Be    D
       0.2518234584E+00       0.1000000000E+01
 end
-basis "B_2zapa-nr" SPHERICAL 
+basis "B_2ZaPa-NR" SPHERICAL 
 #basis SET: (14s,6p,1d) -> [4s,3p,1d]
 B    S
       0.1420825823E+04       0.2928350492E-02
@@ -164,7 +164,7 @@ B    P
 B    D
       0.3915530981E+00       0.1000000000E+01
 end
-basis "C_2zapa-nr" SPHERICAL 
+basis "C_2ZaPa-NR" SPHERICAL 
 #basis SET: (15s,6p,1d) -> [4s,3p,1d]
 C    S
       0.4431768960E+04       0.1126061671E-02
@@ -197,7 +197,7 @@ C    P
 C    D
       0.6074318765E+00       0.1000000000E+01
 end
-basis "N_2zapa-nr" SPHERICAL 
+basis "N_2ZaPa-NR" SPHERICAL 
 #basis SET: (15s,7p,1d) -> [4s,3p,1d]
 N    S
       0.6086361610E+04       0.1121346695E-02
@@ -231,7 +231,7 @@ N    P
 N    D
       0.8853992832E+00       0.1000000000E+01
 end
-basis "O_2zapa-nr" SPHERICAL 
+basis "O_2ZaPa-NR" SPHERICAL 
 #basis SET: (15s,7p,1d) -> [4s,3p,1d]
 O    S
       0.8037107558E+04       0.1112674636E-02
@@ -265,7 +265,7 @@ O    P
 O    D
       0.1253413556E+01       0.1000000000E+01
 end
-basis "F_2zapa-nr" SPHERICAL 
+basis "F_2ZaPa-NR" SPHERICAL 
 #basis SET: (15s,8p,1d) -> [4s,3p,1d]
 F    S
       0.1024537363E+05       0.1107583316E-02
@@ -300,7 +300,7 @@ F    P
 F    D
       0.1703134082E+01       0.1000000000E+01
 end
-basis "Ne_2zapa-nr" SPHERICAL 
+basis "Ne_2ZaPa-NR" SPHERICAL 
 #basis SET: (15s,8p,1d) -> [4s,3p,1d]
 Ne    S
       0.1271663197E+05       0.1103964353E-02
@@ -335,7 +335,7 @@ Ne    P
 Ne    D
       0.2230500121E+01       0.1000000000E+01
 end
-basis "Na_2zapa-nr" SPHERICAL 
+basis "Na_2ZaPa-NR" SPHERICAL 
 #basis SET: (21s,12p,2d) -> [5s,4p,2d]
 Na    S
       0.3834447581E+05       0.3602940889E-03
@@ -384,7 +384,7 @@ Na    D
 Na    D
       0.1008476556E+00       0.1000000000E+01
 end
-basis "Mg_2zapa-nr" SPHERICAL 
+basis "Mg_2ZaPa-NR" SPHERICAL 
 #basis SET: (22s,12p,2d) -> [6s,4p,2d]
 Mg    S
       0.3273235380E+05       0.5365397390E-03
@@ -435,7 +435,7 @@ Mg    D
 Mg    D
       0.1702595179E+00       0.1000000000E+01
 end
-basis "Al_2zapa-nr" SPHERICAL 
+basis "Al_2ZaPa-NR" SPHERICAL 
 #basis SET: (21s,13p,2d) -> [5s,4p,2d]
 Al    S
       0.4082547901E+05       0.4987480205E-03
@@ -485,7 +485,7 @@ Al    D
 Al    D
       0.2063660192E+00       0.1000000000E+01
 end
-basis "Si_2zapa-nr" SPHERICAL 
+basis "Si_2ZaPa-NR" SPHERICAL 
 #basis SET: (21s,13p,2d) -> [5s,4p,2d]
 Si    S
       0.4960155294E+05       0.4725011324E-03
@@ -535,7 +535,7 @@ Si    D
 Si    D
       0.2835946390E+00       0.1000000000E+01
 end
-basis "P_2zapa-nr" SPHERICAL 
+basis "P_2ZaPa-NR" SPHERICAL 
 #basis SET: (21s,13p,2d) -> [5s,4p,2d]
 P    S
       0.5909335023E+05       0.4527086341E-03
@@ -585,7 +585,7 @@ P    D
 P    D
       0.3761010137E+00       0.1000000000E+01
 end
-basis "S_2zapa-nr" SPHERICAL 
+basis "S_2ZaPa-NR" SPHERICAL 
 #basis SET: (21s,13p,2d) -> [5s,4p,2d]
 S    S
       0.6909063871E+05       0.4387995563E-03
@@ -635,7 +635,7 @@ S    D
 S    D
       0.4771591702E+00       0.1000000000E+01
 end
-basis "Cl_2zapa-nr" SPHERICAL 
+basis "Cl_2ZaPa-NR" SPHERICAL 
 #basis SET: (22s,13p,2d) -> [5s,4p,2d]
 Cl    S
       0.7979453309E+05       0.4275413947E-03
@@ -686,7 +686,7 @@ Cl    D
 Cl    D
       0.5932966344E+00       0.1000000000E+01
 end
-basis "Ar_2zapa-nr" SPHERICAL 
+basis "Ar_2ZaPa-NR" SPHERICAL 
 #basis SET: (24s,14p,2d) -> [5s,4p,2d]
 Ar    S
       0.9108072877E+05       0.4188709077E-03

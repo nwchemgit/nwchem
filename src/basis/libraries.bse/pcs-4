@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# pcs-4 version number 0
+# Data downloaded on 2021-02-20T21:21
+# pcS-4 version number 0
 # Description: pcS-4
 # Role: orbital
 # 
@@ -46,7 +46,7 @@
 #     10.1021/ct800013z
 # 
 # # 
-basis "H_pcs-4" SPHERICAL 
+basis "H_pcS-4" SPHERICAL 
 #basis SET: (11s,7p,3d,2f,1g) -> [7s,6p,3d,2f,1g]
 H    S
       0.307967E+04           0.815918E-03
@@ -92,7 +92,7 @@ H    F
 H    G
       0.320000E+01           0.100000E+01
 end
-basis "He_pcs-4" SPHERICAL 
+basis "He_pcS-4" SPHERICAL 
 #basis SET: (11s,7p,3d,2f,1g) -> [7s,6p,3d,2f,1g]
 He    S
       0.878017E+04           0.826480E-03
@@ -138,7 +138,7 @@ He    F
 He    G
       0.465000E+01           0.100000E+01
 end
-basis "Li_pcs-4" SPHERICAL 
+basis "Li_pcS-4" SPHERICAL 
 #basis SET: (28s,9p,3d,2f,1g) -> [8s,8p,3d,2f,1g]
 Li    S
       0.706806E+05           0.109522E-04
@@ -206,7 +206,7 @@ Li    F
 Li    G
       0.550000E+00           0.100000E+01
 end
-basis "Be_pcs-4" SPHERICAL 
+basis "Be_pcS-4" SPHERICAL 
 #basis SET: (28s,9p,3d,2f,1g) -> [8s,8p,3d,2f,1g]
 Be    S
       0.139328E+06           0.100003E-04
@@ -274,7 +274,7 @@ Be    F
 Be    G
       0.800000E+00           0.100000E+01
 end
-basis "B_pcs-4" SPHERICAL 
+basis "B_pcS-4" SPHERICAL 
 #basis SET: (26s,12p,6d,3f,2g,1h) -> [8s,10p,6d,3f,2g,1h]
 B    S
       0.742499E+06           0.743340E-05
@@ -357,7 +357,7 @@ B    G
 B    H
       0.175000E+01           0.100000E+01
 end
-basis "C_pcs-4" SPHERICAL 
+basis "C_pcS-4" SPHERICAL 
 #basis SET: (27s,12p,6d,3f,2g,1h) -> [8s,10p,6d,3f,2g,1h]
 C    S
       0.527777E+06           0.687310E-05
@@ -441,7 +441,7 @@ C    G
 C    H
       0.185000E+01           0.100000E+01
 end
-basis "N_pcs-4" SPHERICAL 
+basis "N_pcS-4" SPHERICAL 
 #basis SET: (27s,12p,6d,3f,2g,1h) -> [8s,10p,6d,3f,2g,1h]
 N    S
       0.894758E+06           0.709450E-05
@@ -525,7 +525,7 @@ N    G
 N    H
       0.195000E+01           0.100000E+01
 end
-basis "O_pcs-4" SPHERICAL 
+basis "O_pcS-4" SPHERICAL 
 #basis SET: (27s,12p,6d,3f,2g,1h) -> [8s,10p,6d,3f,2g,1h]
 O    S
       0.125972E+07           0.657930E-05
@@ -609,7 +609,7 @@ O    G
 O    H
       0.205000E+01           0.100000E+01
 end
-basis "F_pcs-4" SPHERICAL 
+basis "F_pcS-4" SPHERICAL 
 #basis SET: (27s,12p,6d,3f,2g,1h) -> [8s,10p,6d,3f,2g,1h]
 F    S
       0.185602E+07           0.619890E-05
@@ -693,7 +693,7 @@ F    G
 F    H
       0.215000E+01           0.100000E+01
 end
-basis "Ne_pcs-4" SPHERICAL 
+basis "Ne_pcS-4" SPHERICAL 
 #basis SET: (26s,12p,6d,3f,2g,1h) -> [8s,10p,6d,3f,2g,1h]
 Ne    S
       0.252258E+07           0.538210E-05
@@ -776,7 +776,7 @@ Ne    G
 Ne    H
       0.225000E+01           0.100000E+01
 end
-basis "Na_pcs-4" SPHERICAL 
+basis "Na_pcS-4" SPHERICAL 
 #basis SET: (40s,16p,3d,2f,1g) -> [10s,11p,3d,2f,1g]
 Na    S
       0.191871E+07           0.186930E-05
@@ -868,7 +868,7 @@ Na    F
 Na    G
       0.300000E+00           0.100000E+01
 end
-basis "Mg_pcs-4" SPHERICAL 
+basis "Mg_pcS-4" SPHERICAL 
 #basis SET: (40s,16p,3d,2f,1g) -> [10s,11p,3d,2f,1g]
 Mg    S
       0.319915E+07           0.391890E-05
@@ -960,7 +960,7 @@ Mg    F
 Mg    G
       0.350000E+00           0.100000E+01
 end
-basis "Al_pcs-4" SPHERICAL 
+basis "Al_pcS-4" SPHERICAL 
 #basis SET: (39s,22p,6d,3f,2g,1h) -> [10s,12p,6d,3f,2g,1h]
 Al    S
       0.384517E+07           0.387910E-05
@@ -1070,7 +1070,7 @@ Al    G
 Al    H
       0.690000E+00           0.100000E+01
 end
-basis "Si_pcs-4" SPHERICAL 
+basis "Si_pcS-4" SPHERICAL 
 #basis SET: (39s,22p,6d,3f,2g,1h) -> [10s,12p,6d,3f,2g,1h]
 Si    S
       0.461583E+07           0.410860E-05
@@ -1180,7 +1180,7 @@ Si    G
 Si    H
       0.780000E+00           0.100000E+01
 end
-basis "P_pcs-4" SPHERICAL 
+basis "P_pcS-4" SPHERICAL 
 #basis SET: (39s,22p,6d,3f,2g,1h) -> [10s,12p,6d,3f,2g,1h]
 P    S
       0.526252E+07           0.430550E-05
@@ -1290,7 +1290,7 @@ P    G
 P    H
       0.870000E+00           0.100000E+01
 end
-basis "S_pcs-4" SPHERICAL 
+basis "S_pcS-4" SPHERICAL 
 #basis SET: (39s,22p,6d,3f,2g,1h) -> [10s,12p,6d,3f,2g,1h]
 S    S
       0.635920E+07           0.403580E-05
@@ -1400,7 +1400,7 @@ S    G
 S    H
       0.950000E+00           0.100000E+01
 end
-basis "Cl_pcs-4" SPHERICAL 
+basis "Cl_pcS-4" SPHERICAL 
 #basis SET: (40s,22p,6d,3f,2g,1h) -> [10s,12p,6d,3f,2g,1h]
 Cl    S
       0.742123E+07           0.390420E-05
@@ -1511,7 +1511,7 @@ Cl    G
 Cl    H
       0.104000E+01           0.100000E+01
 end
-basis "Ar_pcs-4" SPHERICAL 
+basis "Ar_pcS-4" SPHERICAL 
 #basis SET: (41s,22p,6d,3f,2g,1h) -> [10s,12p,6d,3f,2g,1h]
 Ar    S
       0.944513E+07           0.168500E-05

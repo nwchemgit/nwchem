@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# cc-pv5z-pp-rifit version number 0
+# Data downloaded on 2021-02-20T21:21
+# cc-pV5Z-PP-RIFIT version number 0
 # Description: cc-pV5Z-PP-RIFIT
 # Role: rifit
 # 
@@ -69,7 +69,7 @@
 #     10.1063/1.3615062
 # 
 # # 
-basis "Y_cc-pv5z-pp-rifit" SPHERICAL 
+basis "Y_cc-pV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (12s,12p,11d,10f,9g,6h,5i,3k,2l) -> [12s,12p,11d,10f,9g,6h,5i,3k,2l]
 Y    S
      16.8246470              1.0000000
@@ -212,7 +212,7 @@ Y    L
 Y    L
       0.6442392              1.0000000
 end
-basis "Zr_cc-pv5z-pp-rifit" SPHERICAL 
+basis "Zr_cc-pV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (12s,12p,11d,10f,9g,6h,5i,3k,2l) -> [12s,12p,11d,10f,9g,6h,5i,3k,2l]
 Zr    S
      16.5202467              1.0000000
@@ -355,7 +355,7 @@ Zr    L
 Zr    L
       0.8693344              1.0000000
 end
-basis "Nb_cc-pv5z-pp-rifit" SPHERICAL 
+basis "Nb_cc-pV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (12s,12p,11d,10f,9g,6h,5i,3k,2l) -> [12s,12p,11d,10f,9g,6h,5i,3k,2l]
 Nb    S
      15.9021692              1.0000000
@@ -498,7 +498,7 @@ Nb    L
 Nb    L
       1.1216793              1.0000000
 end
-basis "Mo_cc-pv5z-pp-rifit" SPHERICAL 
+basis "Mo_cc-pV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (12s,12p,11d,10f,9g,6h,5i,3k,2l) -> [12s,12p,11d,10f,9g,6h,5i,3k,2l]
 Mo    S
      15.7785952              1.0000000
@@ -641,7 +641,7 @@ Mo    L
 Mo    L
       1.4266553              1.0000000
 end
-basis "Tc_cc-pv5z-pp-rifit" SPHERICAL 
+basis "Tc_cc-pV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (12s,12p,11d,10f,9g,6h,5i,3k,2l) -> [12s,12p,11d,10f,9g,6h,5i,3k,2l]
 Tc    S
      16.2033380              1.0000000
@@ -784,7 +784,7 @@ Tc    L
 Tc    L
       1.8371400              1.0000000
 end
-basis "Ru_cc-pv5z-pp-rifit" SPHERICAL 
+basis "Ru_cc-pV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (12s,12p,11d,10f,9g,6h,5i,3k,2l) -> [12s,12p,11d,10f,9g,6h,5i,3k,2l]
 Ru    S
      15.495800952            1.0000000
@@ -927,7 +927,7 @@ Ru    L
 Ru    L
       2.0189585916           1.0000000
 end
-basis "Rh_cc-pv5z-pp-rifit" SPHERICAL 
+basis "Rh_cc-pV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (12s,12p,11d,10f,9g,6h,5i,3k,2l) -> [12s,12p,11d,10f,9g,6h,5i,3k,2l]
 Rh    S
      10.5695861              1.0000000
@@ -1070,7 +1070,7 @@ Rh    L
 Rh    L
       2.4216942              1.0000000
 end
-basis "Pd_cc-pv5z-pp-rifit" SPHERICAL 
+basis "Pd_cc-pV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (12s,12p,11d,10f,9g,6h,5i,3k,2l) -> [12s,12p,11d,10f,9g,6h,5i,3k,2l]
 Pd    S
       9.8850208              1.0000000
@@ -1213,7 +1213,7 @@ Pd    L
 Pd    L
       2.7255316              1.0000000
 end
-basis "Hf_cc-pv5z-pp-rifit" SPHERICAL 
+basis "Hf_cc-pV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (12s,12p,11d,10f,9g,6h,4i,3k,2l) -> [12s,12p,11d,10f,9g,6h,4i,3k,2l]
 Hf    S
       8.2645400              1.0000000
@@ -1354,7 +1354,7 @@ Hf    L
 Hf    L
       0.7506310              1.0000000
 end
-basis "Ta_cc-pv5z-pp-rifit" SPHERICAL 
+basis "Ta_cc-pV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (12s,12p,11d,10f,9g,6h,4i,3k,2l) -> [12s,12p,11d,10f,9g,6h,4i,3k,2l]
 Ta    S
       8.9624000              1.0000000
@@ -1495,7 +1495,7 @@ Ta    L
 Ta    L
       0.8952040              1.0000000
 end
-basis "W_cc-pv5z-pp-rifit" SPHERICAL 
+basis "W_cc-pV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (12s,12p,11d,10f,9g,6h,4i,3k,2l) -> [12s,12p,11d,10f,9g,6h,4i,3k,2l]
 W    S
       9.7399500              1.0000000
@@ -1636,7 +1636,7 @@ W    L
 W    L
       1.0992290              1.0000000
 end
-basis "Re_cc-pv5z-pp-rifit" SPHERICAL 
+basis "Re_cc-pV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (12s,12p,11d,10f,9g,6h,4i,3k,2l) -> [12s,12p,11d,10f,9g,6h,4i,3k,2l]
 Re    S
      10.3269000              1.0000000
@@ -1777,7 +1777,7 @@ Re    L
 Re    L
       1.4693060              1.0000000
 end
-basis "Os_cc-pv5z-pp-rifit" SPHERICAL 
+basis "Os_cc-pV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (12s,12p,11d,10f,9g,6h,4i,3k,2l) -> [12s,12p,11d,10f,9g,6h,4i,3k,2l]
 Os    S
      11.8129000              1.0000000
@@ -1918,7 +1918,7 @@ Os    L
 Os    L
       1.6791850              1.0000000
 end
-basis "Ir_cc-pv5z-pp-rifit" SPHERICAL 
+basis "Ir_cc-pV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (12s,12p,11d,10f,9g,6h,4i,3k,2l) -> [12s,12p,11d,10f,9g,6h,4i,3k,2l]
 Ir    S
      12.8742000              1.0000000
@@ -2059,7 +2059,7 @@ Ir    L
 Ir    L
       1.8871810              1.0000000
 end
-basis "Pt_cc-pv5z-pp-rifit" SPHERICAL 
+basis "Pt_cc-pV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (12s,12p,11d,10f,9g,6h,4i,3k,2l) -> [12s,12p,11d,10f,9g,6h,4i,3k,2l]
 Pt    S
      13.7298000              1.0000000

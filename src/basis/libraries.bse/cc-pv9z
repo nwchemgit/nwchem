@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# cc-pv9z version number 0
+# Data downloaded on 2021-02-20T21:21
+# cc-pV9Z version number 0
 # Description: V7Z6P   Valence Octuple Zeta + Polarization on All Atoms
 # Role: orbital
 # 
@@ -46,7 +46,7 @@
 #     10.1063/1.2137323
 # 
 # # 
-basis "Ne_cc-pv9z" SPHERICAL 
+basis "Ne_cc-pV9Z" SPHERICAL 
 #basis SET: (36s,16p,8d,7f,6g,5h,4i,3k,2l,1m) -> [10s,9p,8d,7f,6g,5h,4i,3k,2l,1m]
 Ne    S
 23015748.                    0.96756722E-07

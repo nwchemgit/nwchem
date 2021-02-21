@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# def2-qzvp version number 1
+# Data downloaded on 2021-02-20T21:21
+# def2-QZVP version number 1
 # Description: def2-QZVP
 # Role: orbital
 # 
@@ -231,7 +231,7 @@
 #     10.1039/b508541a
 # 
 # # 
-basis "H_def2-qzvp" SPHERICAL 
+basis "H_def2-QZVP" SPHERICAL 
 #basis SET: (7s,3p,2d,1f) -> [4s,3p,2d,1f]
 H    S
     190.6916900              0.70815167E-03
@@ -257,7 +257,7 @@ H    D
 H    F
       1.39700000             1.0000000
 end
-basis "He_def2-qzvp" SPHERICAL 
+basis "He_def2-QZVP" SPHERICAL 
 #basis SET: (8s,3p,2d,1f) -> [4s,3p,2d,1f]
 He    S
    1144.6470809              0.35861578618E-03
@@ -284,7 +284,7 @@ He    D
 He    F
       2.68000000             1.0000000
 end
-basis "Li_def2-qzvp" SPHERICAL 
+basis "Li_def2-QZVP" SPHERICAL 
 #basis SET: (15s,6p,2d,1f) -> [6s,4p,2d,1f]
 Li    S
   14853.9770850              0.42711388815E-04
@@ -324,7 +324,7 @@ Li    D
 Li    F
       0.1350000              1.0000000
 end
-basis "Be_def2-qzvp" SPHERICAL 
+basis "Be_def2-QZVP" SPHERICAL 
 #basis SET: (15s,7p,2d,1f) -> [7s,4p,2d,1f]
 Be    S
   29646.7044070              0.37943320869E-04
@@ -366,7 +366,7 @@ Be    D
 Be    F
       0.2900000              1.0000000
 end
-basis "B_def2-qzvp" SPHERICAL 
+basis "B_def2-QZVP" SPHERICAL 
 #basis SET: (15s,8p,3d,2f,1g) -> [7s,4p,3d,2f,1g]
 B    S
   46447.6670560              0.38388681014E-04
@@ -415,7 +415,7 @@ B    F
 B    G
       0.67300000             1.0000000
 end
-basis "C_def2-qzvp" SPHERICAL 
+basis "C_def2-QZVP" SPHERICAL 
 #basis SET: (15s,8p,3d,2f,1g) -> [7s,4p,3d,2f,1g]
 C    S
   67025.0710290              0.38736308501E-04
@@ -464,7 +464,7 @@ C    F
 C    G
       1.01100000             1.0000000
 end
-basis "N_def2-qzvp" SPHERICAL 
+basis "N_def2-QZVP" SPHERICAL 
 #basis SET: (15s,8p,3d,2f,1g) -> [7s,4p,3d,2f,1g]
 N    S
   90726.8892100              0.39257887368E-04
@@ -513,7 +513,7 @@ N    F
 N    G
       1.42700000             1.0000000
 end
-basis "O_def2-qzvp" SPHERICAL 
+basis "O_def2-QZVP" SPHERICAL 
 #basis SET: (15s,8p,3d,2f,1g) -> [7s,4p,3d,2f,1g]
 O    S
  116506.4690800              0.40383857939E-04
@@ -562,7 +562,7 @@ O    F
 O    G
       1.84600000             1.0000000
 end
-basis "F_def2-qzvp" SPHERICAL 
+basis "F_def2-QZVP" SPHERICAL 
 #basis SET: (15s,8p,3d,2f,1g) -> [7s,4p,3d,2f,1g]
 F    S
  132535.9734500              0.47387482743E-04
@@ -611,7 +611,7 @@ F    F
 F    G
       2.37600000             1.0000000
 end
-basis "Ne_def2-qzvp" SPHERICAL 
+basis "Ne_def2-QZVP" SPHERICAL 
 #basis SET: (15s,9p,3d,2f,1g) -> [7s,4p,3d,2f,1g]
 Ne    S
  160676.2795500              0.47387482743E-04
@@ -661,7 +661,7 @@ Ne    F
 Ne    G
       2.98300000             1.0000000
 end
-basis "Na_def2-qzvp" SPHERICAL 
+basis "Na_def2-QZVP" SPHERICAL 
 #basis SET: (20s,12p,3d,1f) -> [9s,5p,3d,1f]
 Na    S
  379852.2008100              0.20671384468E-04
@@ -718,7 +718,7 @@ Na    D
 Na    F
       0.1350000              1.0000000
 end
-basis "Mg_def2-qzvp" SPHERICAL 
+basis "Mg_def2-QZVP" SPHERICAL 
 #basis SET: (20s,12p,4d,1f) -> [9s,5p,4d,1f]
 Mg    S
  605967.7875300              0.14430176617E-04
@@ -777,7 +777,7 @@ Mg    D
 Mg    F
       0.1600000              1.0000000
 end
-basis "Al_def2-qzvp" SPHERICAL 
+basis "Al_def2-QZVP" SPHERICAL 
 #basis SET: (20s,14p,4d,2f,1g) -> [9s,6p,4d,2f,1g]
 Al    S
  754550.7826500              0.13421335886E-04
@@ -843,7 +843,7 @@ Al    F
 Al    G
       0.3570000000           1.0000000
 end
-basis "Si_def2-qzvp" SPHERICAL 
+basis "Si_def2-QZVP" SPHERICAL 
 #basis SET: (20s,14p,4d,2f,1g) -> [9s,6p,4d,2f,1g]
 Si    S
  918070.6956500              0.12658787192E-04
@@ -909,7 +909,7 @@ Si    F
 Si    G
       0.461000000            1.0000000
 end
-basis "P_def2-qzvp" SPHERICAL 
+basis "P_def2-QZVP" SPHERICAL 
 #basis SET: (20s,14p,4d,2f,1g) -> [9s,6p,4d,2f,1g]
 P    S
 1090561.7138000              0.12142449664E-04
@@ -975,7 +975,7 @@ P    F
 P    G
       0.597000000            1.0000000
 end
-basis "S_def2-qzvp" SPHERICAL 
+basis "S_def2-QZVP" SPHERICAL 
 #basis SET: (20s,14p,4d,2f,1g) -> [9s,6p,4d,2f,1g]
 S    S
 1273410.9023000              0.11767088246E-04
@@ -1041,7 +1041,7 @@ S    F
 S    G
       0.683000000            1.0000000
 end
-basis "Cl_def2-qzvp" SPHERICAL 
+basis "Cl_def2-QZVP" SPHERICAL 
 #basis SET: (20s,14p,4d,2f,1g) -> [9s,6p,4d,2f,1g]
 Cl    S
 1467459.0095000              0.11478257194E-04
@@ -1107,7 +1107,7 @@ Cl    F
 Cl    G
       0.827000000            1.0000000
 end
-basis "Ar_def2-qzvp" SPHERICAL 
+basis "Ar_def2-QZVP" SPHERICAL 
 #basis SET: (20s,14p,4d,2f,1g) -> [9s,6p,4d,2f,1g]
 Ar    S
 1673421.9494000              0.11245990413E-04
@@ -1173,7 +1173,7 @@ Ar    F
 Ar    G
       1.00700000             1.0000000
 end
-basis "K_def2-qzvp" SPHERICAL 
+basis "K_def2-QZVP" SPHERICAL 
 #basis SET: (24s,18p,4d,1f) -> [11s,6p,4d,1f]
 K    S
 2022075.1391000              0.10144874011E-04
@@ -1245,7 +1245,7 @@ K    D
 K    F
       0.2670000              1.0000000
 end
-basis "Ca_def2-qzvp" SPHERICAL 
+basis "Ca_def2-QZVP" SPHERICAL 
 #basis SET: (24s,18p,6d,1f) -> [11s,6p,4d,1f]
 Ca    S
 2433075.4304000              0.91625196182E-05
@@ -1319,7 +1319,7 @@ Ca    D
 Ca    F
       0.3210000              1.0000000
 end
-basis "Sc_def2-qzvp" SPHERICAL 
+basis "Sc_def2-QZVP" SPHERICAL 
 #basis SET: (24s,18p,9d,3f,1g) -> [11s,6p,5d,3f,1g]
 Sc    S
 2855231.1264000              0.84862794535E-05
@@ -1403,7 +1403,7 @@ Sc    F
 Sc    G
       0.2470000              1.0000000
 end
-basis "Ti_def2-qzvp" SPHERICAL 
+basis "Ti_def2-QZVP" SPHERICAL 
 #basis SET: (24s,18p,9d,3f,1g) -> [11s,6p,5d,3f,1g]
 Ti    S
 3070548.8651000              0.86954016630E-05
@@ -1487,7 +1487,7 @@ Ti    F
 Ti    G
       0.6340000              1.0000000
 end
-basis "V_def2-qzvp" SPHERICAL 
+basis "V_def2-QZVP" SPHERICAL 
 #basis SET: (24s,18p,9d,3f,1g) -> [11s,6p,5d,3f,1g]
 V    S
 3360380.0382000              0.87027840678E-05
@@ -1571,7 +1571,7 @@ V    F
 V    G
       1.0090000              1.0000000
 end
-basis "Cr_def2-qzvp" SPHERICAL 
+basis "Cr_def2-QZVP" SPHERICAL 
 #basis SET: (24s,18p,9d,3f,1g) -> [11s,6p,5d,3f,1g]
 Cr    S
 3637838.6820000              0.87693297699E-05
@@ -1655,7 +1655,7 @@ Cr    F
 Cr    G
       1.3820000              1.0000000
 end
-basis "Mn_def2-qzvp" SPHERICAL 
+basis "Mn_def2-QZVP" SPHERICAL 
 #basis SET: (24s,18p,10d,3f,1g) -> [11s,6p,5d,3f,1g]
 Mn    S
 4289357.6441000              0.79360554972E-05
@@ -1740,7 +1740,7 @@ Mn    F
 Mn    G
       1.7550000              1.0000000
 end
-basis "Fe_def2-qzvp" SPHERICAL 
+basis "Fe_def2-QZVP" SPHERICAL 
 #basis SET: (24s,18p,10d,3f,1g) -> [11s,6p,5d,3f,1g]
 Fe    S
 4313154.4338000              0.86712290122E-05
@@ -1825,7 +1825,7 @@ Fe    F
 Fe    G
       2.1280000              1.0000000
 end
-basis "Co_def2-qzvp" SPHERICAL 
+basis "Co_def2-QZVP" SPHERICAL 
 #basis SET: (24s,18p,10d,3f,1g) -> [11s,6p,5d,3f,1g]
 Co    S
 4658206.5032000              0.86609506454E-05
@@ -1910,7 +1910,7 @@ Co    F
 Co    G
       2.5000000              1.0000000
 end
-basis "Ni_def2-qzvp" SPHERICAL 
+basis "Ni_def2-QZVP" SPHERICAL 
 #basis SET: (24s,18p,10d,3f,1g) -> [11s,6p,5d,3f,1g]
 Ni    S
 5037649.9532000              0.86072778771E-05
@@ -1995,7 +1995,7 @@ Ni    F
 Ni    G
       2.8720000              1.0000000
 end
-basis "Cu_def2-qzvp" SPHERICAL 
+basis "Cu_def2-QZVP" SPHERICAL 
 #basis SET: (24s,18p,10d,3f,1g) -> [11s,6p,5d,3f,1g]
 Cu    S
 5056467.8898000              0.93501916365E-05
@@ -2080,7 +2080,7 @@ Cu    F
 Cu    G
       3.2450000              1.0000000
 end
-basis "Zn_def2-qzvp" SPHERICAL 
+basis "Zn_def2-QZVP" SPHERICAL 
 #basis SET: (24s,18p,10d,3f,1g) -> [11s,6p,5d,3f,1g]
 Zn    S
 5742307.1507000              0.86864381562E-05
@@ -2165,7 +2165,7 @@ Zn    F
 Zn    G
       3.6170000              1.0000000
 end
-basis "Ga_def2-qzvp" SPHERICAL 
+basis "Ga_def2-QZVP" SPHERICAL 
 #basis SET: (24s,19p,10d,2f,1g) -> [11s,7p,4d,2f,1g]
 Ga    S
 6623802.0274000              0.79091326051E-05
@@ -2249,7 +2249,7 @@ Ga    F
 Ga    G
       0.40320000000          1.0000000
 end
-basis "Ge_def2-qzvp" SPHERICAL 
+basis "Ge_def2-QZVP" SPHERICAL 
 #basis SET: (24s,19p,10d,2f,1g) -> [11s,7p,4d,2f,1g]
 Ge    S
 7233056.0346000              0.76638751457E-05
@@ -2333,7 +2333,7 @@ Ge    F
 Ge    G
       0.46810000000          1.0000000
 end
-basis "As_def2-qzvp" SPHERICAL 
+basis "As_def2-QZVP" SPHERICAL 
 #basis SET: (24s,20p,10d,2f,1g) -> [11s,7p,4d,2f,1g]
 As    S
 8217482.6198000              0.70590618422E-05
@@ -2418,7 +2418,7 @@ As    F
 As    G
       0.54650000000          1.0000000
 end
-basis "Se_def2-qzvp" SPHERICAL 
+basis "Se_def2-QZVP" SPHERICAL 
 #basis SET: (24s,20p,10d,2f,1g) -> [11s,7p,4d,2f,1g]
 Se    S
 9520446.7743000              0.63309690150E-05
@@ -2503,7 +2503,7 @@ Se    F
 Se    G
       0.57300000000          1.0000000
 end
-basis "Br_def2-qzvp" SPHERICAL 
+basis "Br_def2-QZVP" SPHERICAL 
 #basis SET: (24s,20p,10d,2f,1g) -> [11s,7p,4d,2f,1g]
 Br    S
 10629044.2640000             0.59322104325E-05
@@ -2588,7 +2588,7 @@ Br    F
 Br    G
       0.64910000000          1.0000000
 end
-basis "Kr_def2-qzvp" SPHERICAL 
+basis "Kr_def2-QZVP" SPHERICAL 
 #basis SET: (24s,20p,10d,2f,1g) -> [11s,7p,4d,2f,1g]
 Kr    S
 11713823.0080000             0.56915790360E-05
@@ -2673,7 +2673,7 @@ Kr    F
 Kr    G
       0.73950000000          1.0000000
 end
-basis "Rb_def2-qzvp" SPHERICAL 
+basis "Rb_def2-QZVP" SPHERICAL 
 #basis SET: (8s,8p,5d,1f) -> [7s,5p,4d,1f]
 Rb    S
       7.4744618040           0.26999390986
@@ -2717,7 +2717,7 @@ Rb    F
 end
 
 
-ecp "Rb_def2-qzvp"
+ecp "Rb_def2-QZVP"
 Rb nelec 28
 Rb ul
 2       3.8431140            -12.3169000
@@ -2734,7 +2734,7 @@ Rb D
 2       0.6503830              0.9628390
 2       3.8431140             12.3169000
 end
-basis "Sr_def2-qzvp" SPHERICAL 
+basis "Sr_def2-QZVP" SPHERICAL 
 #basis SET: (8s,8p,5d,1f) -> [7s,5p,4d,1f]
 Sr    S
      11.000000000           -0.26157031021
@@ -2778,7 +2778,7 @@ Sr    F
 end
 
 
-ecp "Sr_def2-qzvp"
+ecp "Sr_def2-QZVP"
 Sr nelec 28
 Sr ul
 2       4.6339750            -15.8059920
@@ -2795,7 +2795,7 @@ Sr D
 2       2.2469040              6.6594140
 2       4.6339750             15.8059920
 end
-basis "Y_def2-qzvp" SPHERICAL 
+basis "Y_def2-QZVP" SPHERICAL 
 #basis SET: (8s,8p,7d,3f,1g) -> [7s,5p,4d,3f,1g]
 Y    S
      12.000000000           -0.27445870024
@@ -2847,7 +2847,7 @@ Y    G
 end
 
 
-ecp "Y_def2-qzvp"
+ecp "Y_def2-QZVP"
 Y nelec 28
 Y ul
 2       6.5842120            -19.12219811
@@ -2868,7 +2868,7 @@ Y D
 2       6.5842120             19.12219811
 2       3.2921060              2.43637543
 end
-basis "Zr_def2-qzvp" SPHERICAL 
+basis "Zr_def2-QZVP" SPHERICAL 
 #basis SET: (8s,8p,7d,3f,1g) -> [7s,5p,4d,3f,1g]
 Zr    S
      13.000000000            0.30219052022
@@ -2920,7 +2920,7 @@ Zr    G
 end
 
 
-ecp "Zr_def2-qzvp"
+ecp "Zr_def2-QZVP"
 Zr nelec 28
 Zr ul
 2       7.5400000            -21.09377605
@@ -2941,7 +2941,7 @@ Zr D
 2       7.5400000             21.09377605
 2       3.7700000              3.08069427
 end
-basis "Nb_def2-qzvp" SPHERICAL 
+basis "Nb_def2-QZVP" SPHERICAL 
 #basis SET: (8s,8p,7d,3f,1g) -> [7s,5p,4d,3f,1g]
 Nb    S
      13.500000000           -0.32410606901
@@ -2993,7 +2993,7 @@ Nb    G
 end
 
 
-ecp "Nb_def2-qzvp"
+ecp "Nb_def2-QZVP"
 Nb nelec 28
 Nb ul
 2       8.4900000            -22.92954996
@@ -3014,7 +3014,7 @@ Nb D
 2       8.4900000             22.92954996
 2       4.2500000              3.66630986
 end
-basis "Mo_def2-qzvp" SPHERICAL 
+basis "Mo_def2-QZVP" SPHERICAL 
 #basis SET: (9s,8p,7d,3f,1g) -> [7s,5p,4d,3f,1g]
 Mo    S
      15.000000000            0.57082903143E-01
@@ -3067,7 +3067,7 @@ Mo    G
 end
 
 
-ecp "Mo_def2-qzvp"
+ecp "Mo_def2-QZVP"
 Mo nelec 28
 Mo ul
 2       9.4500000            -24.80517707
@@ -3088,7 +3088,7 @@ Mo D
 2       9.4500000             24.80517707
 2       4.7200000              4.15378155
 end
-basis "Tc_def2-qzvp" SPHERICAL 
+basis "Tc_def2-QZVP" SPHERICAL 
 #basis SET: (9s,8p,7d,3f,1g) -> [7s,5p,4d,3f,1g]
 Tc    S
      15.000000000           -0.31349221639
@@ -3141,7 +3141,7 @@ Tc    G
 end
 
 
-ecp "Tc_def2-qzvp"
+ecp "Tc_def2-QZVP"
 Tc nelec 28
 Tc ul
 2      10.4000000            -26.56244747
@@ -3162,7 +3162,7 @@ Tc D
 2      10.4000000             26.56244747
 2       5.2000000              4.58568054
 end
-basis "Ru_def2-qzvp" SPHERICAL 
+basis "Ru_def2-QZVP" SPHERICAL 
 #basis SET: (9s,8p,7d,3f,1g) -> [7s,5p,4d,3f,1g]
 Ru    S
      15.000000000            0.40205707045
@@ -3215,7 +3215,7 @@ Ru    G
 end
 
 
-ecp "Ru_def2-qzvp"
+ecp "Ru_def2-QZVP"
 Ru nelec 28
 Ru ul
 2      11.3600000            -28.34061627
@@ -3236,7 +3236,7 @@ Ru D
 2      11.3600000             28.34061627
 2       5.6800000              4.94462923
 end
-basis "Rh_def2-qzvp" SPHERICAL 
+basis "Rh_def2-QZVP" SPHERICAL 
 #basis SET: (9s,8p,7d,3f,1g) -> [7s,5p,4d,3f,1g]
 Rh    S
       4.5131696431           1.0000000
@@ -3289,7 +3289,7 @@ Rh    G
 end
 
 
-ecp "Rh_def2-qzvp"
+ecp "Rh_def2-QZVP"
 Rh nelec 28
 Rh ul
 2      12.3100000            -30.09345572
@@ -3310,7 +3310,7 @@ Rh D
 2      12.3100000             30.09345572
 2       6.1600000              5.21848192
 end
-basis "Pd_def2-qzvp" SPHERICAL 
+basis "Pd_def2-QZVP" SPHERICAL 
 #basis SET: (9s,8p,7d,3f,1g) -> [7s,5p,4d,3f,1g]
 Pd    S
       8.7309326588           1.0000000
@@ -3363,7 +3363,7 @@ Pd    G
 end
 
 
-ecp "Pd_def2-qzvp"
+ecp "Pd_def2-QZVP"
 Pd nelec 28
 Pd ul
 2      13.2700000            -31.92955431
@@ -3384,7 +3384,7 @@ Pd D
 2      13.2700000             31.92955431
 2       6.6300000              5.39821694
 end
-basis "Ag_def2-qzvp" SPHERICAL 
+basis "Ag_def2-QZVP" SPHERICAL 
 #basis SET: (10s,8p,7d,3f,1g) -> [7s,5p,4d,3f,1g]
 Ag    S
     256.50898381             0.73215128094E-03
@@ -3438,7 +3438,7 @@ Ag    G
 end
 
 
-ecp "Ag_def2-qzvp"
+ecp "Ag_def2-QZVP"
 Ag nelec 28
 Ag ul
 2      14.2200000            -33.68992012
@@ -3459,7 +3459,7 @@ Ag D
 2      14.2200000             33.68992012
 2       7.1100000              5.53112021
 end
-basis "Cd_def2-qzvp" SPHERICAL 
+basis "Cd_def2-QZVP" SPHERICAL 
 #basis SET: (10s,8p,7d,3f,1g) -> [7s,5p,4d,3f,1g]
 Cd    S
     269.30016289             0.62688949336E-03
@@ -3513,7 +3513,7 @@ Cd    G
 end
 
 
-ecp "Cd_def2-qzvp"
+ecp "Cd_def2-QZVP"
 Cd nelec 28
 Cd ul
 2      15.1847957            -35.47662555
@@ -3534,7 +3534,7 @@ Cd D
 2      15.1847957             35.47662555
 2       7.5923978              5.61767685
 end
-basis "In_def2-qzvp" SPHERICAL 
+basis "In_def2-QZVP" SPHERICAL 
 #basis SET: (17s,14p,11d,4f,1g) -> [7s,6p,4d,4f,1g]
 In    S
      20.245544208            0.29650296199E-01
@@ -3608,7 +3608,7 @@ In    G
 end
 
 
-ecp "In_def2-qzvp"
+ecp "In_def2-QZVP"
 In nelec 28
 In ul
 2      12.53905600           -13.72807800
@@ -3633,7 +3633,7 @@ In D
 2      12.53905600            13.72807800
 2      12.55256100            18.20686600
 end
-basis "Sn_def2-qzvp" SPHERICAL 
+basis "Sn_def2-QZVP" SPHERICAL 
 #basis SET: (17s,14p,11d,4f,1g) -> [7s,6p,4d,4f,1g]
 Sn    S
      20.197961274            0.22393937317E-01
@@ -3707,7 +3707,7 @@ Sn    G
 end
 
 
-ecp "Sn_def2-qzvp"
+ecp "Sn_def2-QZVP"
 Sn nelec 28
 Sn ul
 2      12.28234800           -12.57633300
@@ -3732,7 +3732,7 @@ Sn D
 2      12.28234800            12.57633300
 2      12.27215000            16.59594400
 end
-basis "Sb_def2-qzvp" SPHERICAL 
+basis "Sb_def2-QZVP" SPHERICAL 
 #basis SET: (17s,14p,11d,4f,1g) -> [7s,6p,4d,4f,1g]
 Sb    S
      25.336266601            0.22414355064E-01
@@ -3806,7 +3806,7 @@ Sb    G
 end
 
 
-ecp "Sb_def2-qzvp"
+ecp "Sb_def2-QZVP"
 Sb nelec 28
 Sb ul
 2      14.44497800           -15.36680100
@@ -3831,7 +3831,7 @@ Sb D
 2      14.44497800            15.36680100
 2      14.44929500            20.29613800
 end
-basis "Te_def2-qzvp" SPHERICAL 
+basis "Te_def2-QZVP" SPHERICAL 
 #basis SET: (17s,14p,11d,4f,1g) -> [7s,6p,4d,4f,1g]
 Te    S
      29.383253023            0.30079778033E-01
@@ -3905,7 +3905,7 @@ Te    G
 end
 
 
-ecp "Te_def2-qzvp"
+ecp "Te_def2-QZVP"
 Te nelec 28
 Te ul
 2      15.20616800           -15.74545000
@@ -3930,7 +3930,7 @@ Te D
 2      15.20616800            15.74545000
 2      15.20170200            20.74244800
 end
-basis "I_def2-qzvp" SPHERICAL 
+basis "I_def2-QZVP" SPHERICAL 
 #basis SET: (17s,14p,11d,4f,1g) -> [7s,6p,4d,4f,1g]
 I    S
      25.058617933            0.40897754402E-01
@@ -4004,7 +4004,7 @@ I    G
 end
 
 
-ecp "I_def2-qzvp"
+ecp "I_def2-QZVP"
 I nelec 28
 I ul
 2      19.45860900           -21.84204000
@@ -4040,7 +4040,7 @@ I D
 2       4.82376700             0.24371300
 2       4.88431500             0.32080400
 end
-basis "Xe_def2-qzvp" SPHERICAL 
+basis "Xe_def2-QZVP" SPHERICAL 
 #basis SET: (17s,14p,11d,4f,1g) -> [7s,6p,4d,4f,1g]
 Xe    S
      27.052171835            0.11189611954
@@ -4114,7 +4114,7 @@ Xe    G
 end
 
 
-ecp "Xe_def2-qzvp"
+ecp "Xe_def2-QZVP"
 Xe nelec 28
 Xe ul
 2      20.88155700           -23.08929500
@@ -4150,7 +4150,7 @@ Xe D
 2       5.25338900             0.28822700
 2       5.36118800             0.38692400
 end
-basis "Cs_def2-qzvp" SPHERICAL 
+basis "Cs_def2-QZVP" SPHERICAL 
 #basis SET: (8s,7p,5d,1f) -> [6s,5p,4d,1f]
 Cs    S
       5.8684829520           0.12906631816
@@ -4192,7 +4192,7 @@ Cs    F
 end
 
 
-ecp "Cs_def2-qzvp"
+ecp "Cs_def2-QZVP"
 Cs nelec 46
 Cs ul
 2       3.1232690            -28.8843090
@@ -4209,7 +4209,7 @@ Cs D
 2       0.8581820              3.3428330
 2       3.1232690             28.8843090
 end
-basis "Ba_def2-qzvp" SPHERICAL 
+basis "Ba_def2-QZVP" SPHERICAL 
 #basis SET: (8s,8p,5d,5f,1g) -> [7s,5p,3d,2f,1g]
 Ba    S
       5.7000000000           1.3292982002
@@ -4259,7 +4259,7 @@ Ba    G
 end
 
 
-ecp "Ba_def2-qzvp"
+ecp "Ba_def2-QZVP"
 Ba nelec 46
 Ba ul
 2       3.5894650            -33.4731740
@@ -4276,7 +4276,7 @@ Ba D
 2       2.8748420            181.7826210
 2       3.5894650             33.4731740
 end
-basis "La_def2-qzvp" SPHERICAL 
+basis "La_def2-QZVP" SPHERICAL 
 #basis SET: (9s,8p,6d,3f,1g) -> [7s,5p,4d,3f,1g]
 La    S
      26.077272000            0.23198684846E-02
@@ -4328,7 +4328,7 @@ La    G
 end
 
 
-ecp "La_def2-qzvp"
+ecp "La_def2-QZVP"
 La nelec 46
 La ul
 2       4.0286000            -36.0100160
@@ -4345,7 +4345,7 @@ La D
 2       1.0107000              0.2191140
 2       4.0286000             36.0100160
 end
-basis "Ce_def2-qzvp" SPHERICAL 
+basis "Ce_def2-QZVP" SPHERICAL 
 #basis SET: (16s,18p,11d,10f,3g) -> [11s,9p,6d,5f,2g]
 Ce    S
  171849.79026                0.13908080135E-05
@@ -4441,7 +4441,7 @@ Ce    G
 end
 
 
-ecp "Ce_def2-qzvp"
+ecp "Ce_def2-QZVP"
 Ce nelec 28
 Ce ul
 2       1.00000000             0.00000000
@@ -4456,7 +4456,7 @@ Ce F
 Ce G
 2      16.57055300           -21.33187900
 end
-basis "Pr_def2-qzvp" SPHERICAL 
+basis "Pr_def2-QZVP" SPHERICAL 
 #basis SET: (16s,18p,11d,10f,3g) -> [11s,8p,6d,5f,2g]
 Pr    S
  171878.36005                0.24068265411E-05
@@ -4551,7 +4551,7 @@ Pr    G
 end
 
 
-ecp "Pr_def2-qzvp"
+ecp "Pr_def2-QZVP"
 Pr nelec 28
 Pr ul
 2       1.00000000             0.00000000
@@ -4566,7 +4566,7 @@ Pr F
 Pr G
 2      17.44713800           -22.32948800
 end
-basis "Nd_def2-qzvp" SPHERICAL 
+basis "Nd_def2-QZVP" SPHERICAL 
 #basis SET: (16s,18p,11d,10f,3g) -> [11s,8p,6d,5f,2g]
 Nd    S
  171860.72214                0.46203498379E-05
@@ -4661,7 +4661,7 @@ Nd    G
 end
 
 
-ecp "Nd_def2-qzvp"
+ecp "Nd_def2-QZVP"
 Nd nelec 28
 Nd ul
 2       1.00000000             0.00000000
@@ -4676,7 +4676,7 @@ Nd F
 Nd G
 2      18.34417400           -23.34458700
 end
-basis "Pm_def2-qzvp" SPHERICAL 
+basis "Pm_def2-QZVP" SPHERICAL 
 #basis SET: (16s,18p,11d,10f,3g) -> [11s,8p,6d,5f,2g]
 Pm    S
  171857.15103                0.93031336434E-05
@@ -4771,7 +4771,7 @@ Pm    G
 end
 
 
-ecp "Pm_def2-qzvp"
+ecp "Pm_def2-QZVP"
 Pm nelec 28
 Pm ul
 2       1.00000000             0.00000000
@@ -4786,7 +4786,7 @@ Pm F
 Pm G
 2      19.26024500           -24.37251000
 end
-basis "Sm_def2-qzvp" SPHERICAL 
+basis "Sm_def2-QZVP" SPHERICAL 
 #basis SET: (16s,18p,11d,10f,3g) -> [11s,9p,6d,5f,2g]
 Sm    S
  171856.23394                0.31669243023E-04
@@ -4882,7 +4882,7 @@ Sm    G
 end
 
 
-ecp "Sm_def2-qzvp"
+ecp "Sm_def2-QZVP"
 Sm nelec 28
 Sm ul
 2       1.00000000             0.00000000
@@ -4897,7 +4897,7 @@ Sm F
 Sm G
 2      20.19724900           -25.42188500
 end
-basis "Eu_def2-qzvp" SPHERICAL 
+basis "Eu_def2-QZVP" SPHERICAL 
 #basis SET: (16s,18p,11d,10f,3g) -> [11s,8p,6d,5f,2g]
 Eu    S
  171703.52697                0.31844528330E-04
@@ -4992,7 +4992,7 @@ Eu    G
 end
 
 
-ecp "Eu_def2-qzvp"
+ecp "Eu_def2-QZVP"
 Eu nelec 28
 Eu ul
 2       1.00000000             0.00000000
@@ -5007,7 +5007,7 @@ Eu F
 Eu G
 2      21.23245800           -26.74827300
 end
-basis "Gd_def2-qzvp" SPHERICAL 
+basis "Gd_def2-QZVP" SPHERICAL 
 #basis SET: (16s,18p,11d,10f,3g) -> [11s,8p,6d,5f,2g]
 Gd    S
  171712.82510                0.44815158883E-04
@@ -5102,7 +5102,7 @@ Gd    G
 end
 
 
-ecp "Gd_def2-qzvp"
+ecp "Gd_def2-QZVP"
 Gd nelec 28
 Gd ul
 2       1.00000000             0.00000000
@@ -5117,7 +5117,7 @@ Gd F
 Gd G
 2      22.13188700           -27.57963000
 end
-basis "Tb_def2-qzvp" SPHERICAL 
+basis "Tb_def2-QZVP" SPHERICAL 
 #basis SET: (17s,18p,11d,10f,3g) -> [11s,8p,6d,5f,2g]
 Tb    S
  586481.52505                0.11498543766E-04
@@ -5213,7 +5213,7 @@ Tb    G
 end
 
 
-ecp "Tb_def2-qzvp"
+ecp "Tb_def2-QZVP"
 Tb nelec 28
 Tb ul
 2       1.00000000             0.00000000
@@ -5228,7 +5228,7 @@ Tb F
 Tb G
 2      23.13067200           -28.69426800
 end
-basis "Dy_def2-qzvp" SPHERICAL 
+basis "Dy_def2-QZVP" SPHERICAL 
 #basis SET: (17s,18p,11d,10f,3g) -> [11s,8p,6d,5f,2g]
 Dy    S
  564101.58987                0.12807759783E-04
@@ -5324,7 +5324,7 @@ Dy    G
 end
 
 
-ecp "Dy_def2-qzvp"
+ecp "Dy_def2-QZVP"
 Dy nelec 28
 Dy ul
 2       1.00000000             0.00000000
@@ -5339,7 +5339,7 @@ Dy F
 Dy G
 2      24.14875300           -29.82827700
 end
-basis "Ho_def2-qzvp" SPHERICAL 
+basis "Ho_def2-QZVP" SPHERICAL 
 #basis SET: (16s,18p,11d,10f,3g) -> [11s,8p,6d,5f,2g]
 Ho    S
  104917.85877                0.62041027623E-04
@@ -5434,7 +5434,7 @@ Ho    G
 end
 
 
-ecp "Ho_def2-qzvp"
+ecp "Ho_def2-QZVP"
 Ho nelec 28
 Ho ul
 2       1.00000000             0.00000000
@@ -5449,7 +5449,7 @@ Ho F
 Ho G
 2      25.18850100           -30.99112500
 end
-basis "Er_def2-qzvp" SPHERICAL 
+basis "Er_def2-QZVP" SPHERICAL 
 #basis SET: (16s,18p,11d,10f,3g) -> [11s,8p,6d,5f,2g]
 Er    S
  105311.47949                0.50820855780E-04
@@ -5544,7 +5544,7 @@ Er    G
 end
 
 
-ecp "Er_def2-qzvp"
+ecp "Er_def2-QZVP"
 Er nelec 28
 Er ul
 2       1.00000000             0.00000000
@@ -5559,7 +5559,7 @@ Er F
 Er G
 2      26.25073500           -32.18527800
 end
-basis "Tm_def2-qzvp" SPHERICAL 
+basis "Tm_def2-QZVP" SPHERICAL 
 #basis SET: (16s,18p,11d,10f,3g) -> [11s,8p,6d,5f,2g]
 Tm    S
  113927.44000                0.42342379000E-04
@@ -5654,7 +5654,7 @@ Tm    G
 end
 
 
-ecp "Tm_def2-qzvp"
+ecp "Tm_def2-QZVP"
 Tm nelec 28
 Tm ul
 2       1.00000000             0.00000000
@@ -5669,7 +5669,7 @@ Tm F
 Tm G
 2      27.32978100           -33.39549600
 end
-basis "Yb_def2-qzvp" SPHERICAL 
+basis "Yb_def2-QZVP" SPHERICAL 
 #basis SET: (16s,18p,11d,10f,3g) -> [11s,9p,6d,5f,2g]
 Yb    S
  172414.35241                0.22588319725E-04
@@ -5765,7 +5765,7 @@ Yb    G
 end
 
 
-ecp "Yb_def2-qzvp"
+ecp "Yb_def2-QZVP"
 Yb nelec 28
 Yb ul
 2       1.00000000             0.00000000
@@ -5780,7 +5780,7 @@ Yb F
 Yb G
 2      28.43102800           -34.63863800
 end
-basis "Lu_def2-qzvp" SPHERICAL 
+basis "Lu_def2-QZVP" SPHERICAL 
 #basis SET: (16s,18p,11d,10f,3g) -> [11s,8p,6d,5f,2g]
 Lu    S
  160368.94053                0.10497052419E-04
@@ -5875,7 +5875,7 @@ Lu    G
 end
 
 
-ecp "Lu_def2-qzvp"
+ecp "Lu_def2-QZVP"
 Lu nelec 28
 Lu ul
 2       1.00000000             0.00000000
@@ -5890,7 +5890,7 @@ Lu F
 Lu G
 2      29.41223800           -35.55714600
 end
-basis "Hf_def2-qzvp" SPHERICAL 
+basis "Hf_def2-QZVP" SPHERICAL 
 #basis SET: (10s,8p,6d,3f,1g) -> [7s,5p,4d,3f,1g]
 Hf    S
      24.000000000            0.19369448644
@@ -5943,7 +5943,7 @@ Hf    G
 end
 
 
-ecp "Hf_def2-qzvp"
+ecp "Hf_def2-QZVP"
 Hf nelec 60
 Hf ul
 2       1.78576984            10.04672251
@@ -5960,7 +5960,7 @@ Hf D
 2       3.04837820             5.87343821
 2       1.78576984           -10.04672251
 end
-basis "Ta_def2-qzvp" SPHERICAL 
+basis "Ta_def2-QZVP" SPHERICAL 
 #basis SET: (10s,8p,6d,3f,1g) -> [7s,5p,4d,3f,1g]
 Ta    S
      24.473650944            0.20537515818
@@ -6013,7 +6013,7 @@ Ta    G
 end
 
 
-ecp "Ta_def2-qzvp"
+ecp "Ta_def2-QZVP"
 Ta nelec 60
 Ta ul
 2       2.01788111            12.01796094
@@ -6030,7 +6030,7 @@ Ta D
 2       3.17368846             8.75584805
 2       2.01788111           -12.01796094
 end
-basis "W_def2-qzvp" SPHERICAL 
+basis "W_def2-QZVP" SPHERICAL 
 #basis SET: (10s,8p,6d,3f,1g) -> [7s,5p,4d,3f,1g]
 W    S
      22.106487883            0.66320504570
@@ -6083,7 +6083,7 @@ W    G
 end
 
 
-ecp "W_def2-qzvp"
+ecp "W_def2-QZVP"
 W nelec 60
 W ul
 2       2.25888846            14.15257947
@@ -6100,7 +6100,7 @@ W D
 2       3.29899871            10.98252827
 2       2.25888846           -14.15257947
 end
-basis "Re_def2-qzvp" SPHERICAL 
+basis "Re_def2-QZVP" SPHERICAL 
 #basis SET: (10s,8p,6d,3f,1g) -> [7s,5p,4d,3f,1g]
 Re    S
      24.000000000            0.26968047163
@@ -6153,7 +6153,7 @@ Re    G
 end
 
 
-ecp "Re_def2-qzvp"
+ecp "Re_def2-QZVP"
 Re nelec 60
 Re ul
 2       2.50865059            16.44985227
@@ -6170,7 +6170,7 @@ Re D
 2       3.42430897            12.62432927
 2       2.50865059           -16.44985227
 end
-basis "Os_def2-qzvp" SPHERICAL 
+basis "Os_def2-QZVP" SPHERICAL 
 #basis SET: (10s,8p,6d,3f,1g) -> [7s,5p,4d,3f,1g]
 Os    S
      24.000000000            0.24559132972
@@ -6223,7 +6223,7 @@ Os    G
 end
 
 
-ecp "Os_def2-qzvp"
+ecp "Os_def2-QZVP"
 Os nelec 60
 Os ul
 2       2.76707510            18.90945701
@@ -6240,7 +6240,7 @@ Os D
 2       3.54961923            13.62257457
 2       2.76707510           -18.90945701
 end
-basis "Ir_def2-qzvp" SPHERICAL 
+basis "Ir_def2-QZVP" SPHERICAL 
 #basis SET: (10s,8p,6d,3f,1g) -> [7s,5p,4d,3f,1g]
 Ir    S
       4.5196120103           1.0000000
@@ -6293,7 +6293,7 @@ Ir    G
 end
 
 
-ecp "Ir_def2-qzvp"
+ecp "Ir_def2-QZVP"
 Ir nelec 60
 Ir ul
 2       3.03407192            21.53103107
@@ -6310,7 +6310,7 @@ Ir D
 2       3.67492949            14.03599518
 2       3.03407192           -21.53103107
 end
-basis "Pt_def2-qzvp" SPHERICAL 
+basis "Pt_def2-QZVP" SPHERICAL 
 #basis SET: (10s,8p,6d,3f,1g) -> [7s,5p,4d,3f,1g]
 Pt    S
       4.6667116243           1.0000000
@@ -6363,7 +6363,7 @@ Pt    G
 end
 
 
-ecp "Pt_def2-qzvp"
+ecp "Pt_def2-QZVP"
 Pt nelec 60
 Pt ul
 2       3.30956857            24.31437573
@@ -6380,7 +6380,7 @@ Pt D
 2       3.80023974            15.81092058
 2       3.30956857           -24.31437573
 end
-basis "Au_def2-qzvp" SPHERICAL 
+basis "Au_def2-QZVP" SPHERICAL 
 #basis SET: (9s,8p,6d,3f,1g) -> [7s,5p,4d,3f,1g]
 Au    S
      24.200000000            1.4645004443
@@ -6432,7 +6432,7 @@ Au    G
 end
 
 
-ecp "Au_def2-qzvp"
+ecp "Au_def2-QZVP"
 Au nelec 60
 Au ul
 2       4.78982000            30.49008890
@@ -6453,7 +6453,7 @@ Au D
 2       4.78982000           -30.49008890
 2       2.39491000            -5.17107381
 end
-basis "Hg_def2-qzvp" SPHERICAL 
+basis "Hg_def2-QZVP" SPHERICAL 
 #basis SET: (9s,8p,7d,3f,1g) -> [7s,5p,4d,3f,1g]
 Hg    S
      48.013786990            0.56241403333E-02
@@ -6506,7 +6506,7 @@ Hg    G
 end
 
 
-ecp "Hg_def2-qzvp"
+ecp "Hg_def2-QZVP"
 Hg nelec 60
 Hg ul
 2       3.88579112            30.36499643
@@ -6523,7 +6523,7 @@ Hg D
 2       4.05086026            16.60831151
 2       3.88579112           -30.36499643
 end
-basis "Tl_def2-qzvp" SPHERICAL 
+basis "Tl_def2-QZVP" SPHERICAL 
 #basis SET: (17s,14p,10d,4f,1g) -> [7s,6p,4d,4f,1g]
 Tl    S
      13.432924081            0.16050252545
@@ -6596,7 +6596,7 @@ Tl    G
 end
 
 
-ecp "Tl_def2-qzvp"
+ecp "Tl_def2-QZVP"
 Tl nelec 60
 Tl ul
 2       5.62639900            15.82548800
@@ -6629,7 +6629,7 @@ Tl D
 2       2.87494600            -2.91512700
 2       2.82145100            -3.89690300
 end
-basis "Pb_def2-qzvp" SPHERICAL 
+basis "Pb_def2-QZVP" SPHERICAL 
 #basis SET: (17s,14p,10d,4f,1g) -> [7s,6p,4d,4f,1g]
 Pb    S
      13.559944213            0.15955164155
@@ -6702,7 +6702,7 @@ Pb    G
 end
 
 
-ecp "Pb_def2-qzvp"
+ecp "Pb_def2-QZVP"
 Pb nelec 60
 Pb ul
 2       3.88751200            12.20989200
@@ -6727,7 +6727,7 @@ Pb D
 2       3.88751200           -12.20989200
 2       3.81196300           -16.19029100
 end
-basis "Bi_def2-qzvp" SPHERICAL 
+basis "Bi_def2-QZVP" SPHERICAL 
 #basis SET: (17s,14p,10d,4f,1g) -> [7s,6p,4d,4f,1g]
 Bi    S
      13.614284474            0.15800789319
@@ -6800,7 +6800,7 @@ Bi    G
 end
 
 
-ecp "Bi_def2-qzvp"
+ecp "Bi_def2-QZVP"
 Bi nelec 60
 Bi ul
 2       4.21454600            13.71338300
@@ -6825,7 +6825,7 @@ Bi D
 2       4.21454600           -13.71338300
 2       4.13340000           -18.19430800
 end
-basis "Po_def2-qzvp" SPHERICAL 
+basis "Po_def2-QZVP" SPHERICAL 
 #basis SET: (17s,14p,10d,4f,1g) -> [7s,6p,4d,4f,1g]
 Po    S
      14.787766907            0.15929033129
@@ -6898,7 +6898,7 @@ Po    G
 end
 
 
-ecp "Po_def2-qzvp"
+ecp "Po_def2-QZVP"
 Po nelec 60
 Po ul
 2       5.01327000            17.42829500
@@ -6931,7 +6931,7 @@ Po D
 2       1.32676000            -0.16339200
 2       1.52875800            -0.32456600
 end
-basis "At_def2-qzvp" SPHERICAL 
+basis "At_def2-QZVP" SPHERICAL 
 #basis SET: (17s,14p,10d,4f,1g) -> [7s,6p,4d,4f,1g]
 At    S
      14.805780876            0.15771473639
@@ -7004,7 +7004,7 @@ At    G
 end
 
 
-ecp "At_def2-qzvp"
+ecp "At_def2-QZVP"
 At nelec 60
 At ul
 2       5.81216300            19.87019800
@@ -7038,7 +7038,7 @@ At D
 2       2.51347200            -0.99497000
 2       2.53626100            -1.49070100
 end
-basis "Rn_def2-qzvp" SPHERICAL 
+basis "Rn_def2-QZVP" SPHERICAL 
 #basis SET: (17s,14p,11d,4f,1g) -> [7s,6p,4d,4f,1g]
 Rn    S
      17.195195341            0.16333005101
@@ -7112,7 +7112,7 @@ Rn    G
 end
 
 
-ecp "Rn_def2-qzvp"
+ecp "Rn_def2-QZVP"
 Rn nelec 60
 Rn ul
 2       6.34857100            21.79729000

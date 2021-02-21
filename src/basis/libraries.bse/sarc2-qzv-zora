@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# sarc2-qzv-zora version number 0
+# Data downloaded on 2021-02-20T21:21
+# SARC2-QZV-ZORA version number 0
 # Description: SARC2-QZV-ZORA
 # Role: orbital
 # 
@@ -46,7 +46,7 @@
 #     10.1021/acs.jctc.5b01048
 # 
 # # 
-basis "La_sarc2-qzv-zora" SPHERICAL 
+basis "La_SARC2-QZV-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 La    S
 3851889.1210000              0.000668781692
@@ -150,7 +150,7 @@ La    F
 La    F
       0.08887687             1.0000000
 end
-basis "Ce_sarc2-qzv-zora" SPHERICAL 
+basis "Ce_SARC2-QZV-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Ce    S
 4136438.9501500              0.000679301049
@@ -254,7 +254,7 @@ Ce    F
 Ce    F
       0.23504636             1.0000000
 end
-basis "Pr_sarc2-qzv-zora" SPHERICAL 
+basis "Pr_SARC2-QZV-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Pr    S
 4449443.7620000              0.000689008461
@@ -358,7 +358,7 @@ Pr    F
 Pr    F
       0.24966331             1.0000000
 end
-basis "Nd_sarc2-qzv-zora" SPHERICAL 
+basis "Nd_SARC2-QZV-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Nd    S
 4762448.5741900              0.000701579811
@@ -462,7 +462,7 @@ Nd    F
 Nd    F
       0.26755833             1.0000000
 end
-basis "Pm_sarc2-qzv-zora" SPHERICAL 
+basis "Pm_SARC2-QZV-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Pm    S
 5118728.4620000              0.00071188271
@@ -566,7 +566,7 @@ Pm    F
 Pm    F
       0.28376952             1.0000000
 end
-basis "Sm_sarc2-qzv-zora" SPHERICAL 
+basis "Sm_SARC2-QZV-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Sm    S
 5503685.8220000              0.000721863127
@@ -670,7 +670,7 @@ Sm    F
 Sm    F
       0.29838647             1.0000000
 end
-basis "Eu_sarc2-qzv-zora" SPHERICAL 
+basis "Eu_SARC2-QZV-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Eu    S
 5815282.9420000              0.000742252919
@@ -774,7 +774,7 @@ Eu    F
 Eu    F
       0.31300342             1.0000000
 end
-basis "Gd_sarc2-qzv-zora" SPHERICAL 
+basis "Gd_SARC2-QZV-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Gd    S
 6205316.7570000              0.000757272185
@@ -878,7 +878,7 @@ Gd    F
 Gd    F
       0.32762036             1.0000000
 end
-basis "Tb_sarc2-qzv-zora" SPHERICAL 
+basis "Tb_SARC2-QZV-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Tb    S
 6703767.5350000              0.000764940161
@@ -982,7 +982,7 @@ Tb    F
 Tb    F
       0.33249268             1.0000000
 end
-basis "Dy_sarc2-qzv-zora" SPHERICAL 
+basis "Dy_SARC2-QZV-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Dy    S
 7096822.6200000              0.000785329528
@@ -1086,7 +1086,7 @@ Dy    F
 Dy    F
       0.33249268             1.0000000
 end
-basis "Ho_sarc2-qzv-zora" SPHERICAL 
+basis "Ho_SARC2-QZV-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Ho    S
 7598294.6680000              0.000799136378
@@ -1190,7 +1190,7 @@ Ho    F
 Ho    F
       0.34223731             1.0000000
 end
-basis "Er_sarc2-qzv-zora" SPHERICAL 
+basis "Er_SARC2-QZV-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Er    S
 8122045.9220000              0.000813812339
@@ -1294,7 +1294,7 @@ Er    F
 Er    F
       0.34710963             1.0000000
 end
-basis "Tm_sarc2-qzv-zora" SPHERICAL 
+basis "Tm_SARC2-QZV-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Tm    S
 8656957.8800000              0.000831277524
@@ -1398,7 +1398,7 @@ Tm    F
 Tm    F
       0.36172658             1.0000000
 end
-basis "Yb_sarc2-qzv-zora" SPHERICAL 
+basis "Yb_SARC2-QZV-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Yb    S
 9269868.1610000              0.000845740823
@@ -1502,7 +1502,7 @@ Yb    F
 Yb    F
       0.36172658             1.0000000
 end
-basis "Lu_sarc2-qzv-zora" SPHERICAL 
+basis "Lu_SARC2-QZV-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Lu    S
 9882778.4410000              0.00086651621

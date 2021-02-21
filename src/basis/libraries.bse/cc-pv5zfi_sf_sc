@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# cc-pv5z(fi_sl_sf_sl_sc) version number 0
+# Data downloaded on 2021-02-20T21:21
+# cc-pV5Z(fi/sf/sc) version number 0
 # Description: V5Z4P   Relativistic Valence Quintuple Zeta + Polarization
 # Role: orbital
 # 
@@ -84,7 +84,7 @@
 #     10.1063/1.466439
 # 
 # # 
-basis "H_cc-pv5z(fi_sl_sf_sl_sc)" SPHERICAL 
+basis "H_cc-pV5Z(fi/sf/sc)" SPHERICAL 
 #basis SET: (8s,4p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
 H    S
       4.0200000E+02          2.79447478618E-04
@@ -120,7 +120,7 @@ H    F
 H    G
       2.3580000E+00          9.99482498881E-01
 end
-basis "He_cc-pv5z(fi_sl_sf_sl_sc)" SPHERICAL 
+basis "He_cc-pV5Z(fi/sf/sc)" SPHERICAL 
 #basis SET: (8s,4p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
 He    S
       1.1450000E+03          3.58669217454E-04
@@ -156,7 +156,7 @@ He    F
 He    G
       3.4300000E+00          9.99247535971E-01
 end
-basis "B_cc-pv5z(fi_sl_sf_sl_sc)" SPHERICAL 
+basis "B_cc-pV5Z(fi/sf/sc)" SPHERICAL 
 #basis SET: (24s,8p,4d,3f,2g,1h) -> [6s,5p,4d,3f,2g,1h]
 B    S
       6.8260000E+04          2.38569906176E-05
@@ -222,7 +222,7 @@ B    G
 B    H
       8.3400000E-01          9.99783573969E-01
 end
-basis "C_cc-pv5z(fi_sl_sf_sl_sc)" SPHERICAL 
+basis "C_cc-pV5Z(fi/sf/sc)" SPHERICAL 
 #basis SET: (24s,8p,4d,3f,2g,1h) -> [6s,5p,4d,3f,2g,1h]
 C    S
       9.6770000E+04          2.46218490302E-05
@@ -288,7 +288,7 @@ C    G
 C    H
       1.2590000E+00          9.99673346961E-01
 end
-basis "N_cc-pv5z(fi_sl_sf_sl_sc)" SPHERICAL 
+basis "N_cc-pV5Z(fi/sf/sc)" SPHERICAL 
 #basis SET: (24s,8p,4d,3f,2g,1h) -> [6s,5p,4d,3f,2g,1h]
 N    S
       1.2920000E+05          2.54592771313E-05
@@ -354,7 +354,7 @@ N    G
 N    H
       1.7680000E+00          9.99541388974E-01
 end
-basis "O_cc-pv5z(fi_sl_sf_sl_sc)" SPHERICAL 
+basis "O_cc-pV5Z(fi/sf/sc)" SPHERICAL 
 #basis SET: (24s,8p,4d,3f,2g,1h) -> [6s,5p,4d,3f,2g,1h]
 O    S
       1.6420000E+05          2.65325747973E-05
@@ -420,7 +420,7 @@ O    G
 O    H
       2.3190000E+00          9.99398610110E-01
 end
-basis "F_cc-pv5z(fi_sl_sf_sl_sc)" SPHERICAL 
+basis "F_cc-pV5Z(fi/sf/sc)" SPHERICAL 
 #basis SET: (24s,8p,4d,3f,2g,1h) -> [6s,5p,4d,3f,2g,1h]
 F    S
       2.1140000E+05          2.61313714653E-05
@@ -486,7 +486,7 @@ F    G
 F    H
       2.9950000E+00          9.99223536311E-01
 end
-basis "Ne_cc-pv5z(fi_sl_sf_sl_sc)" SPHERICAL 
+basis "Ne_cc-pV5Z(fi/sf/sc)" SPHERICAL 
 #basis SET: (24s,8p,4d,3f,2g,1h) -> [6s,5p,4d,3f,2g,1h]
 Ne    S
       2.6270000E+05          2.60702775423E-05
@@ -552,7 +552,7 @@ Ne    G
 Ne    H
       3.7760000E+00          9.99021400544E-01
 end
-basis "Al_cc-pv5z(fi_sl_sf_sl_sc)" SPHERICAL 
+basis "Al_cc-pV5Z(fi/sf/sc)" SPHERICAL 
 #basis SET: (52s,20p,4d,3f,2g,1h) -> [7s,6p,4d,3f,2g,1h]
 Al    S
       3.2690000E+06          2.17460493289E-06
@@ -660,7 +660,7 @@ Al    G
 Al    H
       4.4600000E-01          9.99884241308E-01
 end
-basis "Si_cc-pv5z(fi_sl_sf_sl_sc)" SPHERICAL 
+basis "Si_cc-pV5Z(fi/sf/sc)" SPHERICAL 
 #basis SET: (52s,20p,4d,3f,2g,1h) -> [7s,6p,4d,3f,2g,1h]
 Si    S
       3.9480000E+06          2.07433602070E-06
@@ -768,7 +768,7 @@ Si    G
 Si    H
       5.8300000E-01          9.99848692410E-01
 end
-basis "P_cc-pv5z(fi_sl_sf_sl_sc)" SPHERICAL 
+basis "P_cc-pV5Z(fi/sf/sc)" SPHERICAL 
 #basis SET: (52s,20p,4d,3f,2g,1h) -> [7s,6p,4d,3f,2g,1h]
 P    S
       4.6660000E+06          2.00625948693E-06
@@ -876,7 +876,7 @@ P    G
 P    H
       7.4500000E-01          9.99806662103E-01
 end
-basis "S_cc-pv5z(fi_sl_sf_sl_sc)" SPHERICAL 
+basis "S_cc-pV5Z(fi/sf/sc)" SPHERICAL 
 #basis SET: (52s,20p,4d,3f,2g,1h) -> [7s,6p,4d,3f,2g,1h]
 S    S
       5.4810000E+06          1.93404348483E-06
@@ -984,7 +984,7 @@ S    G
 S    H
       8.7200000E-01          9.99773716674E-01
 end
-basis "Cl_cc-pv5z(fi_sl_sf_sl_sc)" SPHERICAL 
+basis "Cl_cc-pV5Z(fi/sf/sc)" SPHERICAL 
 #basis SET: (52s,20p,4d,3f,2g,1h) -> [7s,6p,4d,3f,2g,1h]
 Cl    S
       6.4100000E+06          1.85392970406E-06
@@ -1092,7 +1092,7 @@ Cl    G
 Cl    H
       1.0530000E+00          9.99726769413E-01
 end
-basis "Ar_cc-pv5z(fi_sl_sf_sl_sc)" SPHERICAL 
+basis "Ar_cc-pV5Z(fi/sf/sc)" SPHERICAL 
 #basis SET: (52s,20p,4d,3f,2g,1h) -> [7s,6p,4d,3f,2g,1h]
 Ar    S
       7.4010000E+06          1.78855199174E-06
@@ -1200,7 +1200,7 @@ Ar    G
 Ar    H
       1.2640000E+00          9.99672050421E-01
 end
-basis "Ga_cc-pv5z(fi_sl_sf_sl_sc)" SPHERICAL 
+basis "Ga_cc-pV5Z(fi/sf/sc)" SPHERICAL 
 #basis SET: (92s,43p,13d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
 Ga    S
       1.0861522E+08          1.54352828219E-07
@@ -1383,7 +1383,7 @@ Ga    G
 Ga    H
       4.9860000E-01          9.99870592092E-01
 end
-basis "Ge_cc-pv5z(fi_sl_sf_sl_sc)" SPHERICAL 
+basis "Ge_cc-pV5Z(fi/sf/sc)" SPHERICAL 
 #basis SET: (92s,43p,13d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
 Ge    S
       1.2200119E+08          1.32226326978E-07
@@ -1566,7 +1566,7 @@ Ge    G
 Ge    H
       5.8150000E-01          9.99849081608E-01
 end
-basis "As_cc-pv5z(fi_sl_sf_sl_sc)" SPHERICAL 
+basis "As_cc-pV5Z(fi/sf/sc)" SPHERICAL 
 #basis SET: (92s,43p,13d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
 As    S
       1.3750753E+08          1.13465136480E-07
@@ -1749,7 +1749,7 @@ As    G
 As    H
       6.7730000E-01          9.99824225880E-01
 end
-basis "Se_cc-pv5z(fi_sl_sf_sl_sc)" SPHERICAL 
+basis "Se_cc-pV5Z(fi/sf/sc)" SPHERICAL 
 #basis SET: (92s,43p,13d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
 Se    S
       1.5443225E+08          9.35927592818E-08
@@ -1932,7 +1932,7 @@ Se    G
 Se    H
       7.2350000E-01          9.99812239849E-01
 end
-basis "Br_cc-pv5z(fi_sl_sf_sl_sc)" SPHERICAL 
+basis "Br_cc-pV5Z(fi/sf/sc)" SPHERICAL 
 #basis SET: (92s,43p,13d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
 Br    S
       1.6573515E+08          8.79166977131E-08
@@ -2115,7 +2115,7 @@ Br    G
 Br    H
       8.1930000E-01          9.99787387276E-01
 end
-basis "Kr_cc-pv5z(fi_sl_sf_sl_sc)" SPHERICAL 
+basis "Kr_cc-pV5Z(fi/sf/sc)" SPHERICAL 
 #basis SET: (92s,43p,13d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
 Kr    S
       1.8282209E+08          7.32129433614E-08

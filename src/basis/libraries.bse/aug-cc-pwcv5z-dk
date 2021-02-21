@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# aug-cc-pwcv5z-dk version number 0
+# Data downloaded on 2021-02-20T21:21
+# aug-cc-pwCV5Z-DK version number 0
 # Description: V5ZPD   All-electron Douglas-Kroll Core-Valence Quintuple Zeta + Polarization
 # Role: orbital
 # 
@@ -50,7 +50,7 @@
 #     10.1063/1.1998907
 # 
 # # 
-basis "Sc_aug-cc-pwcv5z-dk" SPHERICAL 
+basis "Sc_aug-cc-pwCV5Z-DK" SPHERICAL 
 #basis SET: (220s,137p,59d,6f,5g,4h,3i) -> [12s,11p,9d,6f,5g,4h,3i]
 Sc    S
       1.19495E+08            5.919535E-06
@@ -537,7 +537,7 @@ Sc    I
 Sc    I
       0.4381000              1.0000000
 end
-basis "Ti_aug-cc-pwcv5z-dk" SPHERICAL 
+basis "Ti_aug-cc-pwCV5Z-DK" SPHERICAL 
 #basis SET: (220s,137p,59d,6f,5g,4h,3i) -> [12s,11p,9d,6f,5g,4h,3i]
 Ti    S
       1.22647E+08            6.653555E-06
@@ -1024,7 +1024,7 @@ Ti    I
 Ti    I
       0.3084200              1.0000000
 end
-basis "V_aug-cc-pwcv5z-dk" SPHERICAL 
+basis "V_aug-cc-pwCV5Z-DK" SPHERICAL 
 #basis SET: (220s,137p,59d,6f,5g,4h,3i) -> [12s,11p,9d,6f,5g,4h,3i]
 V    S
       1.28349E+08            7.356705E-06
@@ -1511,7 +1511,7 @@ V    I
 V    I
       0.5665000              1.0000000
 end
-basis "Cr_aug-cc-pwcv5z-dk" SPHERICAL 
+basis "Cr_aug-cc-pwCV5Z-DK" SPHERICAL 
 #basis SET: (220s,137p,59d,6f,5g,4h,3i) -> [12s,11p,9d,6f,5g,4h,3i]
 Cr    S
       1.35540E+08            7.988356E-06
@@ -1998,7 +1998,7 @@ Cr    I
 Cr    I
       0.8369200              1.0000000
 end
-basis "Mn_aug-cc-pwcv5z-dk" SPHERICAL 
+basis "Mn_aug-cc-pwCV5Z-DK" SPHERICAL 
 #basis SET: (220s,137p,59d,6f,5g,4h,3i) -> [12s,11p,9d,6f,5g,4h,3i]
 Mn    S
       1.37766E+08            9.175881E-06
@@ -2485,7 +2485,7 @@ Mn    I
 Mn    I
       1.0885500              1.0000000
 end
-basis "Fe_aug-cc-pwcv5z-dk" SPHERICAL 
+basis "Fe_aug-cc-pwCV5Z-DK" SPHERICAL 
 #basis SET: (220s,137p,59d,6f,5g,4h,2i) -> [12s,11p,9d,6f,5g,4h,2i]
 Fe    S
       1.497690E+08           9.531119E-06
@@ -2970,7 +2970,7 @@ Fe    I
 Fe    I
       1.3776500              1.0000000
 end
-basis "Co_aug-cc-pwcv5z-dk" SPHERICAL 
+basis "Co_aug-cc-pwCV5Z-DK" SPHERICAL 
 #basis SET: (220s,137p,59d,6f,5g,4h,3i) -> [12s,11p,9d,6f,5g,4h,3i]
 Co    S
       1.61030E+08            1.005831E-05
@@ -3457,7 +3457,7 @@ Co    I
 Co    I
       1.6727100              1.0000000
 end
-basis "Ni_aug-cc-pwcv5z-dk" SPHERICAL 
+basis "Ni_aug-cc-pwCV5Z-DK" SPHERICAL 
 #basis SET: (220s,137p,59d,6f,5g,4h,3i) -> [12s,11p,9d,6f,5g,4h,3i]
 Ni    S
       1.68793E+08            1.11455E-05
@@ -3944,7 +3944,7 @@ Ni    I
 Ni    I
       1.9903300              1.0000000
 end
-basis "Cu_aug-cc-pwcv5z-dk" SPHERICAL 
+basis "Cu_aug-cc-pwCV5Z-DK" SPHERICAL 
 #basis SET: (220s,137p,59d,6f,5g,4h,3i) -> [12s,11p,9d,6f,5g,4h,3i]
 Cu    S
       1.93188E+08            1.077111E-05
@@ -4431,7 +4431,7 @@ Cu    I
 Cu    I
       2.3947200              1.0000000
 end
-basis "Zn_aug-cc-pwcv5z-dk" SPHERICAL 
+basis "Zn_aug-cc-pwCV5Z-DK" SPHERICAL 
 #basis SET: (220s,137p,59d,6f,5g,4h,3i) -> [12s,11p,9d,6f,5g,4h,3i]
 Zn    S
       1.87413E+08            1.32955E-05

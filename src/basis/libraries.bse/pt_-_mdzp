@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# pt - mdzp version number 0
+# Data downloaded on 2021-02-20T21:21
+# Pt - mDZP version number 0
 # Description: Pt - mDZP
 # Role: orbital
 # 
@@ -47,7 +47,7 @@
 #     10.1002/jcc.23061
 # 
 # # 
-basis "Pt_pt - mdzp" SPHERICAL 
+basis "Pt_Pt - mDZP" SPHERICAL 
 #basis SET: (20s,16p,10d,5f) -> [8s,7p,5d,2f]
 Pt    S
 2791808.07651936             0.0001912

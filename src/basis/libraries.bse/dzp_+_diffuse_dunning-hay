@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# dzp + diffuse (dunning-hay) version number 0
+# Data downloaded on 2021-02-20T21:21
+# DZP + Diffuse (Dunning-Hay) version number 0
 # Description: DZPD    Double Zeta + Polarization + Diffuse
 # Role: orbital
 # 
@@ -102,7 +102,7 @@
 #     Gaussian, Inc., Wallingford, CT, 2009
 # 
 # # 
-basis "H_dzp + diffuse (dunning-hay)" SPHERICAL 
+basis "H_DZP + Diffuse (Dunning-Hay)" SPHERICAL 
 #basis SET: (5s,1p) -> [3s,1p]
 H    S
      19.2406                 0.032828
@@ -115,7 +115,7 @@ H    S
 H    P
       1.000000               1.000000
 end
-basis "Li_dzp + diffuse (dunning-hay)" SPHERICAL 
+basis "Li_DZP + Diffuse (Dunning-Hay)" SPHERICAL 
 #basis SET: (10s,5p,1d) -> [5s,3p,1d]
 Li    S
     921.30                   0.001367
@@ -143,7 +143,7 @@ Li    P
 Li    D
       0.200000               1.000000
 end
-basis "B_dzp + diffuse (dunning-hay)" SPHERICAL 
+basis "B_DZP + Diffuse (Dunning-Hay)" SPHERICAL 
 #basis SET: (9s,6p,1d) -> [4s,3p,1d]
 B    S
    2788.41                   0.002122
@@ -170,7 +170,7 @@ B    P
 B    D
       0.700000               1.000000
 end
-basis "C_dzp + diffuse (dunning-hay)" SPHERICAL 
+basis "C_DZP + Diffuse (Dunning-Hay)" SPHERICAL 
 #basis SET: (9s,6p,1d) -> [4s,3p,1d]
 C    S
    4232.61                   0.002029
@@ -197,7 +197,7 @@ C    P
 C    D
       0.750000               1.000000
 end
-basis "N_dzp + diffuse (dunning-hay)" SPHERICAL 
+basis "N_DZP + Diffuse (Dunning-Hay)" SPHERICAL 
 #basis SET: (9s,6p,1d) -> [4s,3p,1d]
 N    S
    5909.44                   0.002004
@@ -224,7 +224,7 @@ N    P
 N    D
       0.800000               1.000000
 end
-basis "O_dzp + diffuse (dunning-hay)" SPHERICAL 
+basis "O_DZP + Diffuse (Dunning-Hay)" SPHERICAL 
 #basis SET: (9s,6p,1d) -> [4s,3p,1d]
 O    S
    7816.54                   0.002031
@@ -251,7 +251,7 @@ O    P
 O    D
       0.850000               1.000000
 end
-basis "F_dzp + diffuse (dunning-hay)" SPHERICAL 
+basis "F_DZP + Diffuse (Dunning-Hay)" SPHERICAL 
 #basis SET: (9s,6p,1d) -> [4s,3p,1d]
 F    S
    9994.79                   0.002017
@@ -278,7 +278,7 @@ F    P
 F    D
       0.900000               1.000000
 end
-basis "Ne_dzp + diffuse (dunning-hay)" SPHERICAL 
+basis "Ne_DZP + Diffuse (Dunning-Hay)" SPHERICAL 
 #basis SET: (9s,6p,1d) -> [4s,3p,1d]
 Ne    S
   12100.                     0.001200

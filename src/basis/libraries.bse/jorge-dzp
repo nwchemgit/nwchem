@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# jorge-dzp version number 1
+# Data downloaded on 2021-02-20T21:21
+# jorge-DZP version number 1
 # Description: DZP: Double zeta valence quality plus polarization
 # Role: orbital
 # 
@@ -126,7 +126,7 @@
 #     10.1016/j.cplett.2013.07.045
 # 
 # # 
-basis "H_jorge-dzp" SPHERICAL 
+basis "H_jorge-DZP" SPHERICAL 
 #basis SET: (4s,1p) -> [2s,1p]
 H    S
      12.98511484             0.0310449
@@ -137,7 +137,7 @@ H    S
 H    P
       0.80305095             1.0000000
 end
-basis "He_jorge-dzp" SPHERICAL 
+basis "He_jorge-DZP" SPHERICAL 
 #basis SET: (4s,1p) -> [2s,1p]
 He    S
      38.38483920             0.0366871
@@ -148,7 +148,7 @@ He    S
 He    P
       1.36433710             1.0000000
 end
-basis "Li_jorge-dzp" SPHERICAL 
+basis "Li_jorge-DZP" SPHERICAL 
 #basis SET: (9s,5p,1d) -> [4s,2p,1d]
 Li    S
    1467.55426442             0.0007642
@@ -173,7 +173,7 @@ Li    P
 Li    D
       0.09489967             1.0000000
 end
-basis "Be_jorge-dzp" SPHERICAL 
+basis "Be_jorge-DZP" SPHERICAL 
 #basis SET: (9s,5p,1d) -> [4s,2p,1d]
 Be    S
    2155.37917119             0.0019582
@@ -198,7 +198,7 @@ Be    P
 Be    D
       0.18014085             1.0000000
 end
-basis "B_jorge-dzp" SPHERICAL 
+basis "B_jorge-DZP" SPHERICAL 
 #basis SET: (9s,5p,1d) -> [4s,2p,1d]
 B    S
    3361.97459803             0.0020090
@@ -223,7 +223,7 @@ B    P
 B    D
       0.39184349             1.0000000
 end
-basis "C_jorge-dzp" SPHERICAL 
+basis "C_jorge-DZP" SPHERICAL 
 #basis SET: (9s,5p,1d) -> [4s,2p,1d]
 C    S
    4949.46032594             0.0019796
@@ -248,7 +248,7 @@ C    P
 C    D
       0.61467289             1.0000000
 end
-basis "N_jorge-dzp" SPHERICAL 
+basis "N_jorge-DZP" SPHERICAL 
 #basis SET: (9s,5p,1d) -> [4s,2p,1d]
 N    S
    6711.76398036             0.0019838
@@ -273,7 +273,7 @@ N    P
 N    D
       0.89591019             1.0000000
 end
-basis "O_jorge-dzp" SPHERICAL 
+basis "O_jorge-DZP" SPHERICAL 
 #basis SET: (9s,5p,1d) -> [4s,2p,1d]
 O    S
    8897.19445619             0.0019631
@@ -298,7 +298,7 @@ O    P
 O    D
       1.25011953             1.0000000
 end
-basis "F_jorge-dzp" SPHERICAL 
+basis "F_jorge-DZP" SPHERICAL 
 #basis SET: (9s,5p,1d) -> [4s,2p,1d]
 F    S
   11245.07427445             0.0019652
@@ -323,7 +323,7 @@ F    P
 F    D
       1.68949991             1.0000000
 end
-basis "Ne_jorge-dzp" SPHERICAL 
+basis "Ne_jorge-DZP" SPHERICAL 
 #basis SET: (9s,5p,1d) -> [4s,2p,1d]
 Ne    S
   13940.69029299             0.0019579
@@ -348,7 +348,7 @@ Ne    P
 Ne    D
       2.22806812             1.0000000
 end
-basis "Na_jorge-dzp" SPHERICAL 
+basis "Na_jorge-DZP" SPHERICAL 
 #basis SET: (12s,9p,1d) -> [7s,4p,1d]
 Na    S
   16553.56559413             0.0027214
@@ -385,7 +385,7 @@ Na    P
 Na    D
       0.06545380             1.0000000
 end
-basis "Mg_jorge-dzp" SPHERICAL 
+basis "Mg_jorge-DZP" SPHERICAL 
 #basis SET: (12s,9p,1d) -> [7s,4p,1d]
 Mg    S
   29634.03849710             0.0018130
@@ -422,7 +422,7 @@ Mg    P
 Mg    D
       0.10301691             1.0000000
 end
-basis "Al_jorge-dzp" SPHERICAL 
+basis "Al_jorge-DZP" SPHERICAL 
 #basis SET: (12s,9p,1d) -> [7s,4p,1d]
 Al    S
   46957.58327979             0.0015703
@@ -459,7 +459,7 @@ Al    P
 Al    D
       0.20240321             1.0000000
 end
-basis "Si_jorge-dzp" SPHERICAL 
+basis "Si_jorge-DZP" SPHERICAL 
 #basis SET: (12s,9p,1d) -> [7s,4p,1d]
 Si    S
   57033.21769392             0.0016413
@@ -496,7 +496,7 @@ Si    P
 Si    D
       0.28065207             1.0000000
 end
-basis "P_jorge-dzp" SPHERICAL 
+basis "P_jorge-DZP" SPHERICAL 
 #basis SET: (12s,9p,1d) -> [7s,4p,1d]
 P    S
   77974.00242233             0.0015060
@@ -533,7 +533,7 @@ P    P
 P    D
       0.37291129             1.0000000
 end
-basis "S_jorge-dzp" SPHERICAL 
+basis "S_jorge-DZP" SPHERICAL 
 #basis SET: (12s,9p,1d) -> [7s,4p,1d]
 S    S
   88298.52965731             0.0015640
@@ -570,7 +570,7 @@ S    P
 S    D
       0.47158905             1.0000000
 end
-basis "Cl_jorge-dzp" SPHERICAL 
+basis "Cl_jorge-DZP" SPHERICAL 
 #basis SET: (12s,9p,1d) -> [7s,4p,1d]
 Cl    S
  123346.03036366             0.0013572
@@ -607,7 +607,7 @@ Cl    P
 Cl    D
       0.58736175             1.0000000
 end
-basis "Ar_jorge-dzp" SPHERICAL 
+basis "Ar_jorge-DZP" SPHERICAL 
 #basis SET: (12s,9p,1d) -> [7s,4p,1d]
 Ar    S
  138627.59405679             0.0013713
@@ -644,7 +644,7 @@ Ar    P
 Ar    D
       0.71707157             1.0000000
 end
-basis "K_jorge-dzp" SPHERICAL 
+basis "K_jorge-DZP" SPHERICAL 
 #basis SET: (15s,12p,1d) -> [8s,6p,1d]
 K    S
  354250.51554442             0.0003827
@@ -690,7 +690,7 @@ K    P
 K    D
       0.06287033             1.0000000
 end
-basis "Ca_jorge-dzp" SPHERICAL 
+basis "Ca_jorge-DZP" SPHERICAL 
 #basis SET: (15s,12p,1d) -> [8s,6p,1d]
 Ca    S
  342873.48752706             0.0004017
@@ -736,7 +736,7 @@ Ca    P
 Ca    D
       0.10202800             1.0000000
 end
-basis "Sc_jorge-dzp" SPHERICAL 
+basis "Sc_jorge-DZP" SPHERICAL 
 #basis SET: (15s,12p,5d,1f) -> [8s,6p,2d,1f]
 Sc    S
  348385.79779449             0.0004500
@@ -789,7 +789,7 @@ Sc    D
 Sc    F
       0.29438000             1.0000000
 end
-basis "Ti_jorge-dzp" SPHERICAL 
+basis "Ti_jorge-DZP" SPHERICAL 
 #basis SET: (15s,12p,5d,1f) -> [8s,6p,2d,1f]
 Ti    S
  385301.69222246             0.0004500
@@ -842,7 +842,7 @@ Ti    D
 Ti    F
       0.57441900             1.0000000
 end
-basis "V_jorge-dzp" SPHERICAL 
+basis "V_jorge-DZP" SPHERICAL 
 #basis SET: (15s,12p,5d,1f) -> [8s,6p,2d,1f]
 V    S
  300243.52821680             0.0005213
@@ -895,7 +895,7 @@ V    D
 V    F
       0.85941251             1.0000000
 end
-basis "Cr_jorge-dzp" SPHERICAL 
+basis "Cr_jorge-DZP" SPHERICAL 
 #basis SET: (15s,12p,5d,1f) -> [8s,6p,2d,1f]
 Cr    S
  295305.79172778             0.0005975
@@ -948,7 +948,7 @@ Cr    D
 Cr    F
       1.19589540             1.0000000
 end
-basis "Mn_jorge-dzp" SPHERICAL 
+basis "Mn_jorge-DZP" SPHERICAL 
 #basis SET: (15s,12p,5d,1f) -> [8s,6p,2d,1f]
 Mn    S
  324800.75972747             0.0005347
@@ -1001,7 +1001,7 @@ Mn    D
 Mn    F
       0.28451417             1.0000000
 end
-basis "Fe_jorge-dzp" SPHERICAL 
+basis "Fe_jorge-DZP" SPHERICAL 
 #basis SET: (15s,12p,5d,1f) -> [8s,6p,2d,1f]
 Fe    S
  461969.33436343             0.0004899
@@ -1054,7 +1054,7 @@ Fe    D
 Fe    F
       1.81278863             1.0000000
 end
-basis "Co_jorge-dzp" SPHERICAL 
+basis "Co_jorge-DZP" SPHERICAL 
 #basis SET: (15s,12p,5d,1f) -> [8s,6p,2d,1f]
 Co    S
  448380.14006766             0.0005515
@@ -1107,7 +1107,7 @@ Co    D
 Co    F
       2.01884004             1.0000000
 end
-basis "Ni_jorge-dzp" SPHERICAL 
+basis "Ni_jorge-DZP" SPHERICAL 
 #basis SET: (15s,12p,5d,1f) -> [8s,6p,2d,1f]
 Ni    S
  278445.52629893             0.0007714
@@ -1160,7 +1160,7 @@ Ni    D
 Ni    F
       2.52918191             1.0000000
 end
-basis "Cu_jorge-dzp" SPHERICAL 
+basis "Cu_jorge-DZP" SPHERICAL 
 #basis SET: (15s,12p,5d,1f) -> [8s,6p,2d,1f]
 Cu    S
  313264.61190740             0.0059246
@@ -1213,7 +1213,7 @@ Cu    D
 Cu    F
       2.64507327             1.0000000
 end
-basis "Zn_jorge-dzp" SPHERICAL 
+basis "Zn_jorge-DZP" SPHERICAL 
 #basis SET: (15s,12p,5d,1f) -> [8s,6p,2d,1f]
 Zn    S
  373543.86255941             0.0005783
@@ -1266,7 +1266,7 @@ Zn    D
 Zn    F
       3.13654236             1.0000000
 end
-basis "Ga_jorge-dzp" SPHERICAL 
+basis "Ga_jorge-DZP" SPHERICAL 
 #basis SET: (15s,12p,5d,1f) -> [8s,6p,2d,1f]
 Ga    S
  910353.71566745             0.0004026
@@ -1319,7 +1319,7 @@ Ga    D
 Ga    F
       3.64114000             1.0000000
 end
-basis "Ge_jorge-dzp" SPHERICAL 
+basis "Ge_jorge-DZP" SPHERICAL 
 #basis SET: (15s,12p,5d,1f) -> [8s,6p,2d,1f]
 Ge    S
  983203.98198795             0.0004046
@@ -1372,7 +1372,7 @@ Ge    D
 Ge    F
       4.22499990             1.0000000
 end
-basis "As_jorge-dzp" SPHERICAL 
+basis "As_jorge-DZP" SPHERICAL 
 #basis SET: (15s,12p,5d,1f) -> [8s,6p,2d,1f]
 As    S
 1029997.20547216             0.0004263
@@ -1425,7 +1425,7 @@ As    D
 As    F
       4.82609999             1.0000000
 end
-basis "Se_jorge-dzp" SPHERICAL 
+basis "Se_jorge-DZP" SPHERICAL 
 #basis SET: (15s,12p,5d,1f) -> [8s,6p,2d,1f]
 Se    S
 1049998.04204542             0.0004570
@@ -1478,7 +1478,7 @@ Se    D
 Se    F
       5.44729999             1.0000000
 end
-basis "Br_jorge-dzp" SPHERICAL 
+basis "Br_jorge-DZP" SPHERICAL 
 #basis SET: (15s,12p,5d,1f) -> [8s,6p,2d,1f]
 Br    S
 1051997.63461650             0.0004559
@@ -1531,7 +1531,7 @@ Br    D
 Br    F
       6.14739999             1.0000000
 end
-basis "Kr_jorge-dzp" SPHERICAL 
+basis "Kr_jorge-DZP" SPHERICAL 
 #basis SET: (15s,12p,5d,1f) -> [8s,6p,2d,1f]
 Kr    S
 1088999.64660512             0.0005085
@@ -1584,7 +1584,7 @@ Kr    D
 Kr    F
       6.88509000             1.0000000
 end
-basis "Rb_jorge-dzp" SPHERICAL 
+basis "Rb_jorge-DZP" SPHERICAL 
 #basis SET: (19s,15p,6d) -> [8s,6p,2d]
 Rb    S
 1859845.62249653             0.0001617
@@ -1643,7 +1643,7 @@ Rb    D
 Rb    D
       0.37762000             1.0000000
 end
-basis "Sr_jorge-dzp" SPHERICAL 
+basis "Sr_jorge-DZP" SPHERICAL 
 #basis SET: (19s,15p,6d) -> [8s,6p,2d]
 Sr    S
 2202166.80600460             0.0001473
@@ -1702,7 +1702,7 @@ Sr    D
 Sr    D
       0.36891000             1.0000000
 end
-basis "Y_jorge-dzp" SPHERICAL 
+basis "Y_jorge-DZP" SPHERICAL 
 #basis SET: (19s,15p,8d,1f) -> [8s,6p,3d,1f]
 Y    S
 2522141.32102006             0.0001405
@@ -1766,7 +1766,7 @@ Y    D
 Y    F
       0.18507000             1.0000000
 end
-basis "Zr_jorge-dzp" SPHERICAL 
+basis "Zr_jorge-DZP" SPHERICAL 
 #basis SET: (19s,15p,8d,1f) -> [8s,6p,3d,1f]
 Zr    S
 2781833.79470530             0.0001440
@@ -1830,7 +1830,7 @@ Zr    D
 Zr    F
       0.33388700             1.0000000
 end
-basis "Nb_jorge-dzp" SPHERICAL 
+basis "Nb_jorge-DZP" SPHERICAL 
 #basis SET: (19s,15p,8d,1f) -> [8s,6p,3d,1f]
 Nb    S
 2647176.52961261             0.0001420
@@ -1894,7 +1894,7 @@ Nb    D
 Nb    F
       0.39939000             1.0000000
 end
-basis "Mo_jorge-dzp" SPHERICAL 
+basis "Mo_jorge-DZP" SPHERICAL 
 #basis SET: (19s,15p,8d,1f) -> [8s,6p,3d,1f]
 Mo    S
 2026740.93270436             0.0002054
@@ -1958,7 +1958,7 @@ Mo    D
 Mo    F
       0.51453000             1.0000000
 end
-basis "Tc_jorge-dzp" SPHERICAL 
+basis "Tc_jorge-DZP" SPHERICAL 
 #basis SET: (19s,15p,8d,1f) -> [8s,6p,3d,1f]
 Tc    S
 3139140.58329154             0.0001410
@@ -2022,7 +2022,7 @@ Tc    D
 Tc    F
       0.60719950             1.0000000
 end
-basis "Ru_jorge-dzp" SPHERICAL 
+basis "Ru_jorge-DZP" SPHERICAL 
 #basis SET: (19s,15p,8d,1f) -> [8s,6p,3d,1f]
 Ru    S
 2570066.23316876             0.0001583
@@ -2086,7 +2086,7 @@ Ru    D
 Ru    F
       0.52322280             1.0000000
 end
-basis "Rh_jorge-dzp" SPHERICAL 
+basis "Rh_jorge-DZP" SPHERICAL 
 #basis SET: (19s,15p,8d,1f) -> [8s,6p,3d,1f]
 Rh    S
 2884494.52746520            -0.0001575
@@ -2150,7 +2150,7 @@ Rh    D
 Rh    F
       0.74820000             1.0000000
 end
-basis "Pd_jorge-dzp" SPHERICAL 
+basis "Pd_jorge-DZP" SPHERICAL 
 #basis SET: (19s,15p,8d,1f) -> [8s,6p,3d,1f]
 Pd    S
 11437261.29738128           -0.0000541
@@ -2214,7 +2214,7 @@ Pd    D
 Pd    F
       0.85200000             1.0000000
 end
-basis "Ag_jorge-dzp" SPHERICAL 
+basis "Ag_jorge-DZP" SPHERICAL 
 #basis SET: (19s,15p,8d,1f) -> [8s,6p,3d,1f]
 Ag    S
 3713780.93731371             0.0001624
@@ -2278,7 +2278,7 @@ Ag    D
 Ag    F
       1.09946300             1.0000000
 end
-basis "Cd_jorge-dzp" SPHERICAL 
+basis "Cd_jorge-DZP" SPHERICAL 
 #basis SET: (19s,15p,8d,1f) -> [8s,6p,3d,1f]
 Cd    S
 3155085.06499701             0.0001752
@@ -2342,7 +2342,7 @@ Cd    D
 Cd    F
       1.11780000             1.0000000
 end
-basis "In_jorge-dzp" SPHERICAL 
+basis "In_jorge-DZP" SPHERICAL 
 #basis SET: (19s,15p,8d,1f) -> [8s,6p,3d,1f]
 In    S
 3911387.99396017             0.0001126
@@ -2406,7 +2406,7 @@ In    D
 In    F
       1.26738000             1.0000000
 end
-basis "Sn_jorge-dzp" SPHERICAL 
+basis "Sn_jorge-DZP" SPHERICAL 
 #basis SET: (19s,15p,8d,1f) -> [8s,6p,3d,1f]
 Sn    S
 4238589.38529473             0.0001263
@@ -2470,7 +2470,7 @@ Sn    D
 Sn    F
       1.48030000             1.0000000
 end
-basis "Sb_jorge-dzp" SPHERICAL 
+basis "Sb_jorge-DZP" SPHERICAL 
 #basis SET: (19s,15p,8d,1f) -> [8s,6p,3d,1f]
 Sb    S
 4576912.39461047            -0.0001233
@@ -2534,7 +2534,7 @@ Sb    D
 Sb    F
       1.74680100             1.0000000
 end
-basis "Te_jorge-dzp" SPHERICAL 
+basis "Te_jorge-DZP" SPHERICAL 
 #basis SET: (19s,15p,8d,1f) -> [8s,6p,3d,1f]
 Te    S
 4650601.62944046            -0.0001291
@@ -2598,7 +2598,7 @@ Te    D
 Te    F
       1.97211000             1.0000000
 end
-basis "I_jorge-dzp" SPHERICAL 
+basis "I_jorge-DZP" SPHERICAL 
 #basis SET: (19s,15p,8d,1f) -> [8s,6p,3d,1f]
 I    S
 5464702.08060097             0.0001093
@@ -2662,7 +2662,7 @@ I    D
 I    F
       2.20029999             1.0000000
 end
-basis "Xe_jorge-dzp" SPHERICAL 
+basis "Xe_jorge-DZP" SPHERICAL 
 #basis SET: (19s,15p,8d,1f) -> [8s,6p,3d,1f]
 Xe    S
 5300603.64553030             0.0001206
@@ -2726,7 +2726,7 @@ Xe    D
 Xe    F
       2.37949999             1.0000000
 end
-basis "Cs_jorge-dzp" SPHERICAL 
+basis "Cs_jorge-DZP" SPHERICAL 
 #basis SET: (20s,15p,8d) -> [8s,6p,3d]
 Cs    S
 6358555.97315775             0.0000765
@@ -2789,7 +2789,7 @@ Cs    D
       3.16805389             0.6112763
       1.14608490             0.2590980
 end
-basis "Ba_jorge-dzp" SPHERICAL 
+basis "Ba_jorge-DZP" SPHERICAL 
 #basis SET: (20s,15p,8d) -> [8s,6p,3d]
 Ba    S
 4105408.77527210             0.0000626
@@ -2852,7 +2852,7 @@ Ba    D
       3.50661153             0.6982762
       1.28254997             0.3925171
 end
-basis "La_jorge-dzp" SPHERICAL 
+basis "La_jorge-DZP" SPHERICAL 
 #basis SET: (20s,15p,9d,1f) -> [8s,6p,4d,1f]
 La    S
 3998130.73722109             0.0002266
@@ -2919,7 +2919,7 @@ La    D
 La    F
       0.24598370             1.0000000
 end
-basis "Ce_jorge-dzp" SPHERICAL 
+basis "Ce_jorge-DZP" SPHERICAL 
 #basis SET: (20s,14p,9d,5f,1g) -> [8s,5p,4d,2f,1g]
 Ce    S
 4719420.47505108             0.0001812
@@ -2991,7 +2991,7 @@ Ce    F
 Ce    G
       0.01366166             1.0000000
 end
-basis "Pr_jorge-dzp" SPHERICAL 
+basis "Pr_jorge-DZP" SPHERICAL 
 #basis SET: (20s,14p,10d,5f,1g) -> [8s,5p,5d,2f,1g]
 Pr    S
 6082901.55030674             0.0001297
@@ -3065,7 +3065,7 @@ Pr    F
 Pr    G
       2.72429693             1.0000000
 end
-basis "Nd_jorge-dzp" SPHERICAL 
+basis "Nd_jorge-DZP" SPHERICAL 
 #basis SET: (20s,14p,10d,5f,1g) -> [8s,5p,5d,2f,1g]
 Nd    S
 7629692.69241403             0.0000347
@@ -3139,7 +3139,7 @@ Nd    F
 Nd    G
       3.27784979             1.0000000
 end
-basis "Pm_jorge-dzp" SPHERICAL 
+basis "Pm_jorge-DZP" SPHERICAL 
 #basis SET: (20s,14p,10d,5f,1g) -> [8s,5p,5d,2f,1g]
 Pm    S
 6400130.76760463             0.0000440
@@ -3213,7 +3213,7 @@ Pm    F
 Pm    G
       3.65053210             1.0000000
 end
-basis "Sm_jorge-dzp" SPHERICAL 
+basis "Sm_jorge-DZP" SPHERICAL 
 #basis SET: (20s,14p,10d,5f,1g) -> [8s,5p,5d,2f,1g]
 Sm    S
 6541509.04394762             0.0000446
@@ -3287,7 +3287,7 @@ Sm    F
 Sm    G
       3.93354823             1.0000000
 end
-basis "Eu_jorge-dzp" SPHERICAL 
+basis "Eu_jorge-DZP" SPHERICAL 
 #basis SET: (20s,14p,10d,5f,1g) -> [8s,5p,5d,2f,1g]
 Eu    S
 6687569.69227167             0.0000451
@@ -3361,7 +3361,7 @@ Eu    F
 Eu    G
       4.25287139             1.0000000
 end
-basis "Gd_jorge-dzp" SPHERICAL 
+basis "Gd_jorge-DZP" SPHERICAL 
 #basis SET: (20s,14p,10d,5f,1g) -> [8s,5p,5d,2f,1g]
 Gd    S
 6416188.26707012             0.0000489
@@ -3435,7 +3435,7 @@ Gd    F
 Gd    G
       4.40863893             1.0000000
 end
-basis "Tb_jorge-dzp" SPHERICAL 
+basis "Tb_jorge-DZP" SPHERICAL 
 #basis SET: (20s,14p,10d,5f,1g) -> [8s,5p,5d,2f,1g]
 Tb    S
 6178901.45703743             0.0000532
@@ -3509,7 +3509,7 @@ Tb    F
 Tb    G
       4.63807812             1.0000000
 end
-basis "Dy_jorge-dzp" SPHERICAL 
+basis "Dy_jorge-DZP" SPHERICAL 
 #basis SET: (20s,14p,10d,5f,1g) -> [8s,5p,5d,2f,1g]
 Dy    S
 7127100.61355756             0.0000450
@@ -3583,7 +3583,7 @@ Dy    F
 Dy    G
       4.99085410             1.0000000
 end
-basis "Ho_jorge-dzp" SPHERICAL 
+basis "Ho_jorge-DZP" SPHERICAL 
 #basis SET: (20s,14p,10d,5f,1g) -> [8s,5p,5d,2f,1g]
 Ho    S
 4864057.52252861             0.0000794
@@ -3657,7 +3657,7 @@ Ho    F
 Ho    G
       5.22816113             1.0000000
 end
-basis "Er_jorge-dzp" SPHERICAL 
+basis "Er_jorge-DZP" SPHERICAL 
 #basis SET: (20s,14p,10d,5f,1g) -> [8s,5p,5d,2f,1g]
 Er    S
 5514745.70275983             0.0000694
@@ -3731,7 +3731,7 @@ Er    F
 Er    G
       5.55309406             1.0000000
 end
-basis "Tm_jorge-dzp" SPHERICAL 
+basis "Tm_jorge-DZP" SPHERICAL 
 #basis SET: (20s,14p,10d,5f,1g) -> [8s,5p,5d,2f,1g]
 Tm    S
 4987828.56714243             0.0000817
@@ -3805,7 +3805,7 @@ Tm    F
 Tm    G
       5.89384222             1.0000000
 end
-basis "Yb_jorge-dzp" SPHERICAL 
+basis "Yb_jorge-DZP" SPHERICAL 
 #basis SET: (20s,14p,10d,5f,1g) -> [8s,5p,5d,2f,1g]
 Yb    S
 5827201.47920233            -0.0000697
@@ -3879,7 +3879,7 @@ Yb    F
 Yb    G
       6.05596780             1.0000000
 end
-basis "Lu_jorge-dzp" SPHERICAL 
+basis "Lu_jorge-DZP" SPHERICAL 
 #basis SET: (20s,14p,9d,5f,1g) -> [8s,5p,4d,2f,1g]
 Lu    S
 5622421.80649015            -0.0000761
@@ -3951,7 +3951,7 @@ Lu    F
 Lu    G
       7.27944114             1.0000000
 end
-basis "Hf_jorge-dzp" SPHERICAL 
+basis "Hf_jorge-DZP" SPHERICAL 
 #basis SET: (20s,15p,9d,5f) -> [8s,6p,4d,2f]
 Hf    S
 6410731.86049468             0.0002293
@@ -4023,7 +4023,7 @@ Hf    F
 Hf    F
       2.12707466             1.0000000
 end
-basis "Ta_jorge-dzp" SPHERICAL 
+basis "Ta_jorge-DZP" SPHERICAL 
 #basis SET: (20s,15p,9d,5f) -> [8s,6p,4d,2f]
 Ta    S
 6597232.23193603             0.0000677
@@ -4095,7 +4095,7 @@ Ta    F
 Ta    F
       2.52369700             1.0000000
 end
-basis "W_jorge-dzp" SPHERICAL 
+basis "W_jorge-DZP" SPHERICAL 
 #basis SET: (20s,15p,9d,5f) -> [8s,6p,4d,2f]
 W    S
 6418565.18753791             0.0002448
@@ -4167,7 +4167,7 @@ W    F
 W    F
       0.55804402             1.0000000
 end
-basis "Re_jorge-dzp" SPHERICAL 
+basis "Re_jorge-DZP" SPHERICAL 
 #basis SET: (20s,15p,9d,5f) -> [8s,6p,4d,2f]
 Re    S
 7353173.11873758             0.0000630
@@ -4239,7 +4239,7 @@ Re    F
 Re    F
       0.79685276             1.0000000
 end
-basis "Os_jorge-dzp" SPHERICAL 
+basis "Os_jorge-DZP" SPHERICAL 
 #basis SET: (20s,15p,9d,5f) -> [8s,6p,4d,2f]
 Os    S
 6920939.29740365             0.0000703
@@ -4311,7 +4311,7 @@ Os    F
 Os    F
       0.74229121             1.0000000
 end
-basis "Ir_jorge-dzp" SPHERICAL 
+basis "Ir_jorge-DZP" SPHERICAL 
 #basis SET: (20s,15p,9d,5f) -> [8s,6p,4d,2f]
 Ir    S
 7355062.27296250             0.0002383
@@ -4383,7 +4383,7 @@ Ir    F
 Ir    F
       0.71360987             1.0000000
 end
-basis "Pt_jorge-dzp" SPHERICAL 
+basis "Pt_jorge-DZP" SPHERICAL 
 #basis SET: (20s,16p,9d,5f) -> [8s,7p,4d,2f]
 Pt    S
 2791808.07651936             0.0001912
@@ -4457,7 +4457,7 @@ Pt    F
 Pt    F
       0.84883040             1.0000000
 end
-basis "Au_jorge-dzp" SPHERICAL 
+basis "Au_jorge-DZP" SPHERICAL 
 #basis SET: (20s,16p,9d,5f) -> [8s,7p,4d,2f]
 Au    S
 14703222.86676416            0.0000848
@@ -4531,7 +4531,7 @@ Au    F
 Au    F
       0.84103480             1.0000000
 end
-basis "Hg_jorge-dzp" SPHERICAL 
+basis "Hg_jorge-DZP" SPHERICAL 
 #basis SET: (20s,15p,9d,5f) -> [8s,6p,4d,2f]
 Hg    S
 8239950.19726132            -0.0002309
@@ -4603,7 +4603,7 @@ Hg    F
 Hg    F
       0.89764211             1.0000000
 end
-basis "Tl_jorge-dzp" SPHERICAL 
+basis "Tl_jorge-DZP" SPHERICAL 
 #basis SET: (20s,16p,9d,5f) -> [8s,7p,4d,2f]
 Tl    S
 13591197.89947213            0.0000920
@@ -4677,7 +4677,7 @@ Tl    F
 Tl    F
       4.94284240             1.0000000
 end
-basis "Pb_jorge-dzp" SPHERICAL 
+basis "Pb_jorge-DZP" SPHERICAL 
 #basis SET: (20s,16p,9d,5f) -> [8s,7p,4d,2f]
 Pb    S
 16101817.42696378            0.0000867
@@ -4751,7 +4751,7 @@ Pb    F
 Pb    F
       1.09555956             1.0000000
 end
-basis "Bi_jorge-dzp" SPHERICAL 
+basis "Bi_jorge-DZP" SPHERICAL 
 #basis SET: (20s,16p,9d,5f) -> [8s,7p,4d,2f]
 Bi    S
 16677003.69404605            0.0000293
@@ -4825,7 +4825,7 @@ Bi    F
 Bi    F
       1.15386394             1.0000000
 end
-basis "Po_jorge-dzp" SPHERICAL 
+basis "Po_jorge-DZP" SPHERICAL 
 #basis SET: (20s,16p,9d,5f) -> [8s,7p,4d,2f]
 Po    S
 15993836.50553319            0.0000952
@@ -4899,7 +4899,7 @@ Po    F
 Po    F
       1.23246688             1.0000000
 end
-basis "At_jorge-dzp" SPHERICAL 
+basis "At_jorge-DZP" SPHERICAL 
 #basis SET: (20s,16p,9d,5f) -> [8s,7p,4d,2f]
 At    S
 18822494.94677222            0.0000815
@@ -4973,7 +4973,7 @@ At    F
 At    F
       1.31073925             1.0000000
 end
-basis "Rn_jorge-dzp" SPHERICAL 
+basis "Rn_jorge-DZP" SPHERICAL 
 #basis SET: (20s,16p,9d,5f) -> [8s,7p,4d,2f]
 Rn    S
 18681058.46033585           -0.0000903
@@ -5047,7 +5047,7 @@ Rn    F
 Rn    F
       2.54229829             1.0000000
 end
-basis "Fr_jorge-dzp" SPHERICAL 
+basis "Fr_jorge-DZP" SPHERICAL 
 #basis SET: (21s,16p,10d,4f) -> [9s,7p,4d,1f]
 Fr    S
 16088609.27817986            0.0001107
@@ -5122,7 +5122,7 @@ Fr    F
      15.18556859             0.5459232
       5.43278575             0.3675166
 end
-basis "Ra_jorge-dzp" SPHERICAL 
+basis "Ra_jorge-DZP" SPHERICAL 
 #basis SET: (21s,15p,10d,4f) -> [9s,6p,4d,1f]
 Ra    S
 11440151.35820776            0.0001530
@@ -5195,7 +5195,7 @@ Ra    F
      16.01561512             0.5463538
       5.75462718             0.3711353
 end
-basis "Ac_jorge-dzp" SPHERICAL 
+basis "Ac_jorge-DZP" SPHERICAL 
 #basis SET: (21s,15p,11d,5f) -> [9s,6p,5d,2f]
 Ac    S
 14532023.39739304            0.0001219
@@ -5272,7 +5272,7 @@ Ac    F
 Ac    F
       1.62683523             1.0000000
 end
-basis "Th_jorge-dzp" SPHERICAL 
+basis "Th_jorge-DZP" SPHERICAL 
 #basis SET: (21s,15p,11d,6f,1g) -> [9s,6p,5d,3f,1g]
 Th    S
 11416073.93278007            0.0001701
@@ -5353,7 +5353,7 @@ Th    F
 Th    G
       0.25958311             1.0000000
 end
-basis "Pa_jorge-dzp" SPHERICAL 
+basis "Pa_jorge-DZP" SPHERICAL 
 #basis SET: (21s,15p,12d,6f,1g) -> [9s,6p,6d,3f,1g]
 Pa    S
 10882778.44144914            0.0001494
@@ -5436,7 +5436,7 @@ Pa    F
 Pa    G
       1.49561036             1.0000000
 end
-basis "U_jorge-dzp" SPHERICAL 
+basis "U_jorge-DZP" SPHERICAL 
 #basis SET: (21s,15p,12d,6f,1g) -> [9s,6p,6d,3f,1g]
 U    S
 10963790.07749409            0.0000631
@@ -5519,7 +5519,7 @@ U    F
 U    G
       1.57189144             1.0000000
 end
-basis "Np_jorge-dzp" SPHERICAL 
+basis "Np_jorge-DZP" SPHERICAL 
 #basis SET: (21s,15p,12d,6f,1g) -> [9s,6p,6d,3f,1g]
 Np    S
 11076739.53452973            0.0001522
@@ -5602,7 +5602,7 @@ Np    F
 Np    G
       1.80282220             1.0000000
 end
-basis "Pu_jorge-dzp" SPHERICAL 
+basis "Pu_jorge-DZP" SPHERICAL 
 #basis SET: (21s,15p,12d,6f,1g) -> [9s,6p,6d,3f,1g]
 Pu    S
 11351209.03773889            0.0000633
@@ -5685,7 +5685,7 @@ Pu    F
 Pu    G
       2.05074089             1.0000000
 end
-basis "Am_jorge-dzp" SPHERICAL 
+basis "Am_jorge-DZP" SPHERICAL 
 #basis SET: (21s,15p,12d,6f,1g) -> [9s,6p,6d,3f,1g]
 Am    S
 9999976.57679788             0.0001786
@@ -5768,7 +5768,7 @@ Am    F
 Am    G
       2.07772653             1.0000000
 end
-basis "Cm_jorge-dzp" SPHERICAL 
+basis "Cm_jorge-DZP" SPHERICAL 
 #basis SET: (21s,15p,12d,6f,1g) -> [9s,6p,6d,3f,1g]
 Cm    S
 11490036.70277716            0.0000643
@@ -5851,7 +5851,7 @@ Cm    F
 Cm    G
       2.12253973             1.0000000
 end
-basis "Bk_jorge-dzp" SPHERICAL 
+basis "Bk_jorge-DZP" SPHERICAL 
 #basis SET: (21s,15p,12d,6f,1g) -> [9s,6p,6d,3f,1g]
 Bk    S
 12047309.05313469            0.0000644
@@ -5934,7 +5934,7 @@ Bk    F
 Bk    G
       2.23174071             1.0000000
 end
-basis "Cf_jorge-dzp" SPHERICAL 
+basis "Cf_jorge-DZP" SPHERICAL 
 #basis SET: (21s,15p,12d,6f,1g) -> [9s,6p,6d,3f,1g]
 Cf    S
 12727481.25491127            0.0001478
@@ -6017,7 +6017,7 @@ Cf    F
 Cf    G
       2.25632335             1.0000000
 end
-basis "Es_jorge-dzp" SPHERICAL 
+basis "Es_jorge-DZP" SPHERICAL 
 #basis SET: (21s,15p,12d,6f,1g) -> [9s,6p,6d,3f,1g]
 Es    S
 9999974.17407147             0.0000814
@@ -6100,7 +6100,7 @@ Es    F
 Es    G
       2.38072226             1.0000000
 end
-basis "Fm_jorge-dzp" SPHERICAL 
+basis "Fm_jorge-DZP" SPHERICAL 
 #basis SET: (21s,15p,12d,6f,1g) -> [9s,6p,6d,3f,1g]
 Fm    S
 14135942.40798940            0.0001380
@@ -6183,7 +6183,7 @@ Fm    F
 Fm    G
       2.28710012             1.0000000
 end
-basis "Md_jorge-dzp" SPHERICAL 
+basis "Md_jorge-DZP" SPHERICAL 
 #basis SET: (21s,15p,12d,6f,1g) -> [9s,6p,6d,3f,1g]
 Md    S
 13208694.43490987            0.0001538
@@ -6266,7 +6266,7 @@ Md    F
 Md    G
       2.69079401             1.0000000
 end
-basis "No_jorge-dzp" SPHERICAL 
+basis "No_jorge-DZP" SPHERICAL 
 #basis SET: (21s,15p,12d,6f,1g) -> [9s,6p,6d,3f,1g]
 No    S
 12868061.70790547            0.0000673
@@ -6349,7 +6349,7 @@ No    F
 No    G
       2.91737265             1.0000000
 end
-basis "Lr_jorge-dzp" SPHERICAL 
+basis "Lr_jorge-DZP" SPHERICAL 
 #basis SET: (21s,15p,11d,6f,1g) -> [9s,6p,5d,3f,1g]
 Lr    S
 14911525.52407372            0.0000582

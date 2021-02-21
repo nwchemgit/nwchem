@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# cc-pwcvdz-pp-rifit version number 0
+# Data downloaded on 2021-02-20T21:21
+# cc-pwCVDZ-PP-RIFIT version number 0
 # Description: cc-pwCVDZ-PP-RIFIT
 # Role: rifit
 # 
@@ -68,7 +68,7 @@
 #     10.1002/jcc.23372
 # 
 # # 
-basis "Cu_cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Cu_cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,7d,7f,6g,3h) -> [9s,9p,7d,7f,6g,3h]
 Cu    S
      22.054400000            1.0000000
@@ -153,7 +153,7 @@ Cu    H
 Cu    H
       4.1872700000           1.0000000
 end
-basis "Zn_cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Zn_cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,7d,7f,6g,3h) -> [9s,9p,7d,7f,6g,3h]
 Zn    S
      24.190800000            1.0000000
@@ -238,7 +238,7 @@ Zn    H
 Zn    H
       4.9365000000           1.0000000
 end
-basis "Y_cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Y_cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,8d,8f,6g,3h) -> [9s,9p,8d,8f,6g,3h]
 Y    S
       7.0381800              1.0000000
@@ -327,7 +327,7 @@ Y    H
 Y    H
       0.3738270              1.0000000
 end
-basis "Zr_cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Zr_cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,8d,8f,6g,3h) -> [9s,9p,8d,8f,6g,3h]
 Zr    S
       7.5560500              1.0000000
@@ -416,7 +416,7 @@ Zr    H
 Zr    H
       0.5723240              1.0000000
 end
-basis "Nb_cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Nb_cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,8d,8f,6g,3h) -> [9s,9p,8d,8f,6g,3h]
 Nb    S
       8.6138600              1.0000000
@@ -505,7 +505,7 @@ Nb    H
 Nb    H
       0.7150310              1.0000000
 end
-basis "Mo_cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Mo_cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,8d,8f,6g,3h) -> [9s,9p,8d,8f,6g,3h]
 Mo    S
       9.2109700              1.0000000
@@ -594,7 +594,7 @@ Mo    H
 Mo    H
       0.9210930              1.0000000
 end
-basis "Tc_cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Tc_cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,8d,8f,6g,3h) -> [9s,9p,8d,8f,6g,3h]
 Tc    S
       9.8017100              1.0000000
@@ -683,7 +683,7 @@ Tc    H
 Tc    H
       1.1149900              1.0000000
 end
-basis "Ru_cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Ru_cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,8d,8f,6g,3h) -> [9s,9p,8d,8f,6g,3h]
 Ru    S
      10.1988000              1.0000000
@@ -772,7 +772,7 @@ Ru    H
 Ru    H
       1.2850400              1.0000000
 end
-basis "Rh_cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Rh_cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,8d,8f,6g,3h) -> [9s,9p,8d,8f,6g,3h]
 Rh    S
      10.8856000              1.0000000
@@ -861,7 +861,7 @@ Rh    H
 Rh    H
       1.4967600              1.0000000
 end
-basis "Pd_cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Pd_cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,8d,8f,6g,3h) -> [9s,9p,8d,8f,6g,3h]
 Pd    S
      11.4019000              1.0000000
@@ -950,7 +950,7 @@ Pd    H
 Pd    H
       1.6903900              1.0000000
 end
-basis "Ag_cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Ag_cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,7d,7f,5g,3h) -> [9s,9p,7d,7f,5g,3h]
 Ag    S
      17.072600000            1.0000000
@@ -1033,7 +1033,7 @@ Ag    H
 Ag    H
       1.8984000000           1.0000000
 end
-basis "Cd_cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Cd_cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,7d,7f,5g,3h) -> [9s,9p,7d,7f,5g,3h]
 Cd    S
      19.662400000            1.0000000
@@ -1116,7 +1116,7 @@ Cd    H
 Cd    H
       2.1920600000           1.0000000
 end
-basis "Hf_cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Hf_cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,7d,7f,6g,3h) -> [9s,9p,7d,7f,6g,3h]
 Hf    S
       4.8708500              1.0000000
@@ -1201,7 +1201,7 @@ Hf    H
 Hf    H
       0.4155770              1.0000000
 end
-basis "Ta_cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Ta_cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,7d,7f,6g,3h) -> [9s,9p,7d,7f,6g,3h]
 Ta    S
       5.1400300              1.0000000
@@ -1286,7 +1286,7 @@ Ta    H
 Ta    H
       0.5755710              1.0000000
 end
-basis "W_cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "W_cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,7d,7f,6g,3h) -> [9s,9p,7d,7f,6g,3h]
 W    S
       5.3503200              1.0000000
@@ -1371,7 +1371,7 @@ W    H
 W    H
       0.7104880              1.0000000
 end
-basis "Re_cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Re_cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,7d,7f,6g,3h) -> [9s,9p,7d,7f,6g,3h]
 Re    S
       5.5342800              1.0000000
@@ -1456,7 +1456,7 @@ Re    H
 Re    H
       0.8918020              1.0000000
 end
-basis "Os_cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Os_cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,7d,7f,6g,3h) -> [9s,9p,7d,7f,6g,3h]
 Os    S
       5.6066600              1.0000000
@@ -1541,7 +1541,7 @@ Os    H
 Os    H
       0.9588360              1.0000000
 end
-basis "Ir_cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Ir_cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,7d,7f,6g,3h) -> [9s,9p,7d,7f,6g,3h]
 Ir    S
       6.2549400              1.0000000
@@ -1626,7 +1626,7 @@ Ir    H
 Ir    H
       1.0876800              1.0000000
 end
-basis "Pt_cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Pt_cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,7d,7f,6g,3h) -> [9s,9p,7d,7f,6g,3h]
 Pt    S
       6.7300000              1.0000000
@@ -1711,7 +1711,7 @@ Pt    H
 Pt    H
       1.1949300              1.0000000
 end
-basis "Au_cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Au_cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,7d,7f,6g,3h) -> [9s,9p,7d,7f,6g,3h]
 Au    S
      12.137900000            1.0000000
@@ -1796,7 +1796,7 @@ Au    H
 Au    H
       1.3853800000           1.0000000
 end
-basis "Hg_cc-pwcvdz-pp-rifit" SPHERICAL 
+basis "Hg_cc-pwCVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,7d,7f,6g,3h) -> [9s,9p,7d,7f,6g,3h]
 Hg    S
      14.322700000            1.0000000

@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# acv4z-j version number 1
+# Data downloaded on 2021-02-20T21:21
+# acv4z-J version number 1
 # Description: acv4z-J basis for indirect nuclear spin-spin coupling
 # Role: orbital
 # 
@@ -47,7 +47,7 @@
 #     10.1021/acs.jpca.9b05276
 # 
 # # 
-basis "Se_acv4z-j" SPHERICAL 
+basis "Se_acv4z-J" SPHERICAL 
 #basis SET: (54s,34p,14d,6f,4g) -> [18s,12p,7d,6f,4g]
 Se    S
       2.028486E+10           3.6294E-10
@@ -209,7 +209,7 @@ Se    G
 Se    G
       2.641887E-01           1.00000000
 end
-basis "Te_acv4z-j" SPHERICAL 
+basis "Te_acv4z-J" SPHERICAL 
 #basis SET: (51s,44p,30d,8f,4g) -> [21s,14p,10d,8f,4g]
 Te    S
       2.874614E+08           1.9808E-07

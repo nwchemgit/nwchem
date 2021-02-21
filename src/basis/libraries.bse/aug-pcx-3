@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# aug-pcx-3 version number 1
+# Data downloaded on 2021-02-20T21:21
+# aug-pcX-3 version number 1
 # Description: Jensen aug-pcX basis set (containing diffuse functions) optimized for core-spectroscopy
 # Role: orbital
 # 
@@ -47,7 +47,7 @@
 #     10.1021/acs.jctc.8b01071
 # 
 # # 
-basis "Li_aug-pcx-3" SPHERICAL 
+basis "Li_aug-pcX-3" SPHERICAL 
 #basis SET: (15s,7p,3d,2f) -> [15s,7p,3d,2f]
 Li    S
       0.130183E+05           1.0000000
@@ -104,7 +104,7 @@ Li    F
 Li    F
       0.335700E-01           1.0000000
 end
-basis "Be_aug-pcx-3" SPHERICAL 
+basis "Be_aug-pcX-3" SPHERICAL 
 #basis SET: (15s,7p,3d,2f) -> [15s,7p,3d,2f]
 Be    S
       0.266729E+05           1.0000000
@@ -161,7 +161,7 @@ Be    F
 Be    F
       0.630000E-01           1.0000000
 end
-basis "B_aug-pcx-3" SPHERICAL 
+basis "B_aug-pcX-3" SPHERICAL 
 #basis SET: (15s,10p,5d,3f,2g) -> [15s,10p,5d,3f,2g]
 B    S
       0.574148E+05           1.0000000
@@ -234,7 +234,7 @@ B    G
 B    G
       0.616800E-01           1.0000000
 end
-basis "C_aug-pcx-3" SPHERICAL 
+basis "C_aug-pcX-3" SPHERICAL 
 #basis SET: (15s,10p,5d,3f,2g) -> [15s,10p,5d,3f,2g]
 C    S
       0.871412E+05           1.0000000
@@ -307,7 +307,7 @@ C    G
 C    G
       0.943650E-01           1.0000000
 end
-basis "N_aug-pcx-3" SPHERICAL 
+basis "N_aug-pcX-3" SPHERICAL 
 #basis SET: (15s,10p,5d,3f,2g) -> [15s,10p,5d,3f,2g]
 N    S
       0.124546E+06           1.0000000
@@ -380,7 +380,7 @@ N    G
 N    G
       0.131940E+00           1.0000000
 end
-basis "O_aug-pcx-3" SPHERICAL 
+basis "O_aug-pcX-3" SPHERICAL 
 #basis SET: (15s,10p,5d,3f,2g) -> [15s,10p,5d,3f,2g]
 O    S
       0.164030E+06           1.0000000
@@ -453,7 +453,7 @@ O    G
 O    G
       0.147390E+00           1.0000000
 end
-basis "F_aug-pcx-3" SPHERICAL 
+basis "F_aug-pcX-3" SPHERICAL 
 #basis SET: (15s,10p,5d,3f,2g) -> [15s,10p,5d,3f,2g]
 F    S
       0.215659E+06           1.0000000
@@ -526,7 +526,7 @@ F    G
 F    G
       0.189280E+00           1.0000000
 end
-basis "Ne_aug-pcx-3" SPHERICAL 
+basis "Ne_aug-pcX-3" SPHERICAL 
 #basis SET: (15s,10p,5d,3f,2g) -> [15s,10p,5d,3f,2g]
 Ne    S
       0.270664E+06           1.0000000
@@ -599,7 +599,7 @@ Ne    G
 Ne    G
       0.236000E+00           1.0000000
 end
-basis "Na_aug-pcx-3" SPHERICAL 
+basis "Na_aug-pcX-3" SPHERICAL 
 #basis SET: (18s,13p,3d,2f) -> [18s,13p,3d,2f]
 Na    S
       0.421841E+06           1.0000000
@@ -674,7 +674,7 @@ Na    F
 Na    F
       0.382900E-01           1.0000000
 end
-basis "Mg_aug-pcx-3" SPHERICAL 
+basis "Mg_aug-pcX-3" SPHERICAL 
 #basis SET: (18s,13p,3d,2f) -> [18s,13p,3d,2f]
 Mg    S
       0.564794E+06           1.0000000
@@ -749,7 +749,7 @@ Mg    F
 Mg    F
       0.577450E-01           1.0000000
 end
-basis "Al_aug-pcx-3" SPHERICAL 
+basis "Al_aug-pcX-3" SPHERICAL 
 #basis SET: (18s,14p,5d,3f,2g) -> [18s,14p,5d,3f,2g]
 Al    S
       0.721495E+06           1.0000000
@@ -836,7 +836,7 @@ Al    G
 Al    G
       0.492000E-01           1.0000000
 end
-basis "Si_aug-pcx-3" SPHERICAL 
+basis "Si_aug-pcX-3" SPHERICAL 
 #basis SET: (18s,14p,5d,3f,2g) -> [18s,14p,5d,3f,2g]
 Si    S
       0.877445E+06           1.0000000
@@ -923,7 +923,7 @@ Si    G
 Si    G
       0.728000E-01           1.0000000
 end
-basis "P_aug-pcx-3" SPHERICAL 
+basis "P_aug-pcX-3" SPHERICAL 
 #basis SET: (18s,14p,5d,3f,2g) -> [18s,14p,5d,3f,2g]
 P    S
       0.106369E+07           1.0000000
@@ -1010,7 +1010,7 @@ P    G
 P    G
       0.939990E-01           1.0000000
 end
-basis "S_aug-pcx-3" SPHERICAL 
+basis "S_aug-pcX-3" SPHERICAL 
 #basis SET: (18s,14p,5d,3f,2g) -> [18s,14p,5d,3f,2g]
 S    S
       0.125044E+07           1.0000000
@@ -1097,7 +1097,7 @@ S    G
 S    G
       0.109100E+00           1.0000000
 end
-basis "Cl_aug-pcx-3" SPHERICAL 
+basis "Cl_aug-pcX-3" SPHERICAL 
 #basis SET: (18s,14p,5d,3f,2g) -> [18s,14p,5d,3f,2g]
 Cl    S
       0.146109E+07           1.0000000
@@ -1184,7 +1184,7 @@ Cl    G
 Cl    G
       0.134520E+00           1.0000000
 end
-basis "Ar_aug-pcx-3" SPHERICAL 
+basis "Ar_aug-pcX-3" SPHERICAL 
 #basis SET: (18s,14p,5d,3f,2g) -> [18s,14p,5d,3f,2g]
 Ar    S
       0.170216E+07           1.0000000

@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# cc-pcvqz-f12-rifit version number 0
+# Data downloaded on 2021-02-20T21:21
+# cc-pCVQZ-F12-RIFIT version number 0
 # Description: cc-pCVQZ-F12 RI Fitting
 # Role: rifit
 # 
@@ -46,7 +46,7 @@
 #     10.1021/acs.jctc.5b00816
 # 
 # # 
-basis "Li_cc-pcvqz-f12-rifit" SPHERICAL 
+basis "Li_cc-pCVQZ-F12-RIFIT" SPHERICAL 
 #basis SET: (16s,15p,13d,9f,7g,3h,1i) -> [16s,15p,13d,9f,7g,3h,1i]
 Li    S
     306.6630000              1.0000000
@@ -177,7 +177,7 @@ Li    H
 Li    I
       0.7450520              1.0000000
 end
-basis "Be_cc-pcvqz-f12-rifit" SPHERICAL 
+basis "Be_cc-pCVQZ-F12-RIFIT" SPHERICAL 
 #basis SET: (16s,15p,13d,9f,7g,3h,1i) -> [16s,15p,13d,9f,7g,3h,1i]
 Be    S
     379.0510000              1.0000000
@@ -308,7 +308,7 @@ Be    H
 Be    I
       1.2251900              1.0000000
 end
-basis "B_cc-pcvqz-f12-rifit" SPHERICAL 
+basis "B_cc-pCVQZ-F12-RIFIT" SPHERICAL 
 #basis SET: (16s,15p,13d,9f,7g,3h,1i) -> [16s,15p,13d,9f,7g,3h,1i]
 B    S
     456.0710000              1.0000000
@@ -439,7 +439,7 @@ B    H
 B    I
       1.9653800              1.0000000
 end
-basis "C_cc-pcvqz-f12-rifit" SPHERICAL 
+basis "C_cc-pCVQZ-F12-RIFIT" SPHERICAL 
 #basis SET: (16s,15p,13d,9f,7g,3h,1i) -> [16s,15p,13d,9f,7g,3h,1i]
 C    S
     569.0740000              1.0000000
@@ -570,7 +570,7 @@ C    H
 C    I
       2.5671900              1.0000000
 end
-basis "N_cc-pcvqz-f12-rifit" SPHERICAL 
+basis "N_cc-pCVQZ-F12-RIFIT" SPHERICAL 
 #basis SET: (16s,15p,13d,9f,7g,3h,1i) -> [16s,15p,13d,9f,7g,3h,1i]
 N    S
     709.0910000              1.0000000
@@ -701,7 +701,7 @@ N    H
 N    I
       3.0638400              1.0000000
 end
-basis "O_cc-pcvqz-f12-rifit" SPHERICAL 
+basis "O_cc-pCVQZ-F12-RIFIT" SPHERICAL 
 #basis SET: (16s,15p,13d,9f,7g,3h,1i) -> [16s,15p,13d,9f,7g,3h,1i]
 O    S
     847.8020000              1.0000000
@@ -832,7 +832,7 @@ O    H
 O    I
       3.2371000              1.0000000
 end
-basis "F_cc-pcvqz-f12-rifit" SPHERICAL 
+basis "F_cc-pCVQZ-F12-RIFIT" SPHERICAL 
 #basis SET: (16s,15p,13d,9f,7g,3h,1i) -> [16s,15p,13d,9f,7g,3h,1i]
 F    S
    1020.9500000              1.0000000
@@ -963,7 +963,7 @@ F    H
 F    I
       3.9899500              1.0000000
 end
-basis "Ne_cc-pcvqz-f12-rifit" SPHERICAL 
+basis "Ne_cc-pCVQZ-F12-RIFIT" SPHERICAL 
 #basis SET: (16s,15p,13d,9f,7g,3h,1i) -> [16s,15p,13d,9f,7g,3h,1i]
 Ne    S
    1231.8600000              1.0000000
@@ -1094,7 +1094,7 @@ Ne    H
 Ne    I
       5.7952900              1.0000000
 end
-basis "Na_cc-pcvqz-f12-rifit" SPHERICAL 
+basis "Na_cc-pCVQZ-F12-RIFIT" SPHERICAL 
 #basis SET: (18s,16p,14d,10f,7g,3h,1i) -> [18s,16p,14d,10f,7g,3h,1i]
 Na    S
     264.2420000              1.0000000
@@ -1235,7 +1235,7 @@ Na    H
 Na    I
       0.7049410              1.0000000
 end
-basis "Mg_cc-pcvqz-f12-rifit" SPHERICAL 
+basis "Mg_cc-pCVQZ-F12-RIFIT" SPHERICAL 
 #basis SET: (18s,16p,14d,10f,7g,3h,1i) -> [18s,16p,14d,10f,7g,3h,1i]
 Mg    S
     313.6520000              1.0000000
@@ -1376,7 +1376,7 @@ Mg    H
 Mg    I
       0.9075080              1.0000000
 end
-basis "Al_cc-pcvqz-f12-rifit" SPHERICAL 
+basis "Al_cc-pCVQZ-F12-RIFIT" SPHERICAL 
 #basis SET: (18s,16p,14d,10f,7g,3h,1i) -> [18s,16p,14d,10f,7g,3h,1i]
 Al    S
     417.2660000              1.0000000
@@ -1517,7 +1517,7 @@ Al    H
 Al    I
       0.9135330              1.0000000
 end
-basis "Si_cc-pcvqz-f12-rifit" SPHERICAL 
+basis "Si_cc-pCVQZ-F12-RIFIT" SPHERICAL 
 #basis SET: (18s,16p,14d,10f,7g,3h,1i) -> [18s,16p,14d,10f,7g,3h,1i]
 Si    S
     503.0280000              1.0000000
@@ -1658,7 +1658,7 @@ Si    H
 Si    I
       1.3051300              1.0000000
 end
-basis "P_cc-pcvqz-f12-rifit" SPHERICAL 
+basis "P_cc-pCVQZ-F12-RIFIT" SPHERICAL 
 #basis SET: (18s,16p,14d,10f,7g,3h,1i) -> [18s,16p,14d,10f,7g,3h,1i]
 P    S
     635.5220000              1.0000000
@@ -1799,7 +1799,7 @@ P    H
 P    I
       1.5945800              1.0000000
 end
-basis "S_cc-pcvqz-f12-rifit" SPHERICAL 
+basis "S_cc-pCVQZ-F12-RIFIT" SPHERICAL 
 #basis SET: (18s,16p,14d,10f,7g,3h,1i) -> [18s,16p,14d,10f,7g,3h,1i]
 S    S
     795.9930000              1.0000000
@@ -1940,7 +1940,7 @@ S    H
 S    I
       1.9257900              1.0000000
 end
-basis "Cl_cc-pcvqz-f12-rifit" SPHERICAL 
+basis "Cl_cc-pCVQZ-F12-RIFIT" SPHERICAL 
 #basis SET: (18s,16p,14d,10f,7g,3h,1i) -> [18s,16p,14d,10f,7g,3h,1i]
 Cl    S
     904.2610000              1.0000000
@@ -2081,7 +2081,7 @@ Cl    H
 Cl    I
       2.2523000              1.0000000
 end
-basis "Ar_cc-pcvqz-f12-rifit" SPHERICAL 
+basis "Ar_cc-pCVQZ-F12-RIFIT" SPHERICAL 
 #basis SET: (18s,16p,14d,10f,7g,3h,1i) -> [18s,16p,14d,10f,7g,3h,1i]
 Ar    S
    1129.8500000              1.0000000

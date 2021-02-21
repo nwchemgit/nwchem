@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# cc-pcvdz-f12 version number 0
+# Data downloaded on 2021-02-20T21:21
+# cc-pCVDZ-F12 version number 0
 # Description: cc-pCVDZ-F12
 # Role: orbital
 # 
@@ -59,7 +59,7 @@
 #     10.1039/c0cp00020e
 # 
 # # 
-basis "Li_cc-pcvdz-f12" SPHERICAL 
+basis "Li_cc-pCVDZ-F12" SPHERICAL 
 #basis SET: (22s,7p,2d) -> [6s,6p,2d]
 Li    S
    5988.0000000              0.0001330
@@ -107,7 +107,7 @@ Li    D
 Li    D
       0.0684730              1.0000000
 end
-basis "Be_cc-pcvdz-f12" SPHERICAL 
+basis "Be_cc-pCVDZ-F12" SPHERICAL 
 #basis SET: (22s,7p,2d) -> [6s,6p,2d]
 Be    S
    6863.0000000              0.0002360
@@ -155,7 +155,7 @@ Be    D
 Be    D
       0.1250500              1.0000000
 end
-basis "B_cc-pcvdz-f12" SPHERICAL 
+basis "B_cc-pCVDZ-F12" SPHERICAL 
 #basis SET: (20s,7p,2d) -> [6s,6p,2d]
 B    S
    5473.0000000              0.0005550
@@ -201,7 +201,7 @@ B    D
 B    D
       0.2434000              1.0000000
 end
-basis "C_cc-pcvdz-f12" SPHERICAL 
+basis "C_cc-pCVDZ-F12" SPHERICAL 
 #basis SET: (20s,7p,2d) -> [6s,6p,2d]
 C    S
    8236.0000000              0.0005310
@@ -247,7 +247,7 @@ C    D
 C    D
       0.2977000              1.0000000
 end
-basis "N_cc-pcvdz-f12" SPHERICAL 
+basis "N_cc-pCVDZ-F12" SPHERICAL 
 #basis SET: (20s,7p,2d) -> [6s,6p,2d]
 N    S
   11420.0000000              0.0005230
@@ -293,7 +293,7 @@ N    D
 N    D
       0.4237000              1.0000000
 end
-basis "O_cc-pcvdz-f12" SPHERICAL 
+basis "O_cc-pCVDZ-F12" SPHERICAL 
 #basis SET: (20s,7p,2d) -> [6s,6p,2d]
 O    S
   15330.0000000              0.0005080
@@ -339,7 +339,7 @@ O    D
 O    D
       0.4799000              1.0000000
 end
-basis "F_cc-pcvdz-f12" SPHERICAL 
+basis "F_cc-pCVDZ-F12" SPHERICAL 
 #basis SET: (20s,7p,2d) -> [6s,6p,2d]
 F    S
   19500.0000000              0.0005070
@@ -385,7 +385,7 @@ F    D
 F    D
       0.5846000              1.0000000
 end
-basis "Ne_cc-pcvdz-f12" SPHERICAL 
+basis "Ne_cc-pCVDZ-F12" SPHERICAL 
 #basis SET: (20s,7p,2d) -> [6s,6p,2d]
 Ne    S
   24350.0000000              0.0005020
@@ -431,7 +431,7 @@ Ne    D
 Ne    D
       0.7471000              1.0000000
 end
-basis "Na_cc-pcvdz-f12" SPHERICAL 
+basis "Na_cc-pCVDZ-F12" SPHERICAL 
 #basis SET: (46s,23p,4d) -> [7s,7p,4d]
 Na    S
  423000.0000000              0.0000181
@@ -525,7 +525,7 @@ Na    D
 Na    D
       0.0561760              1.0000000
 end
-basis "Mg_cc-pcvdz-f12" SPHERICAL 
+basis "Mg_cc-pCVDZ-F12" SPHERICAL 
 #basis SET: (43s,23p,4d) -> [7s,7p,4d]
 Mg    S
  164900.0000000              0.0000730
@@ -616,7 +616,7 @@ Mg    D
 Mg    D
       0.0909370              1.0000000
 end
-basis "Al_cc-pcvdz-f12" SPHERICAL 
+basis "Al_cc-pCVDZ-F12" SPHERICAL 
 #basis SET: (43s,21p,4d) -> [7s,7p,4d]
 Al    S
  205500.0000000              0.0000679
@@ -705,7 +705,7 @@ Al    D
 Al    D
       0.1363000              1.0000000
 end
-basis "Si_cc-pcvdz-f12" SPHERICAL 
+basis "Si_cc-pCVDZ-F12" SPHERICAL 
 #basis SET: (43s,21p,4d) -> [7s,7p,4d]
 Si    S
  254900.0000000              0.0000625
@@ -794,7 +794,7 @@ Si    D
 Si    D
       0.1821000              1.0000000
 end
-basis "P_cc-pcvdz-f12" SPHERICAL 
+basis "P_cc-pCVDZ-F12" SPHERICAL 
 #basis SET: (43s,21p,4d) -> [7s,7p,4d]
 P    S
  312400.0000000              0.0000577
@@ -883,7 +883,7 @@ P    D
 P    D
       0.2205000              1.0000000
 end
-basis "S_cc-pcvdz-f12" SPHERICAL 
+basis "S_cc-pCVDZ-F12" SPHERICAL 
 #basis SET: (43s,21p,4d) -> [7s,7p,4d]
 S    S
  374100.0000000              0.0000542
@@ -972,7 +972,7 @@ S    D
 S    D
       0.2532000              1.0000000
 end
-basis "Cl_cc-pcvdz-f12" SPHERICAL 
+basis "Cl_cc-pCVDZ-F12" SPHERICAL 
 #basis SET: (43s,21p,4d) -> [7s,7p,4d]
 Cl    S
  456100.0000000              0.0000493
@@ -1061,7 +1061,7 @@ Cl    D
 Cl    D
       0.3064000              1.0000000
 end
-basis "Ar_cc-pcvdz-f12" SPHERICAL 
+basis "Ar_cc-pCVDZ-F12" SPHERICAL 
 #basis SET: (43s,21p,4d) -> [7s,7p,4d]
 Ar    S
  545000.0000000              0.0000456

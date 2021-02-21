@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# aug-cc-pwcvqz-x2c version number 1
+# Data downloaded on 2021-02-20T21:21
+# aug-cc-pwCVQZ-X2C version number 1
 # Description: aug-cc-pwCVQZ-X2C
 # Role: orbital
 # 
@@ -47,7 +47,7 @@
 #     10.1063/1.5010587
 # 
 # # 
-basis "K_aug-cc-pwcvqz-x2c" SPHERICAL 
+basis "K_aug-cc-pwCVQZ-X2C" SPHERICAL 
 #basis SET: (111s,60p,12d,5f,3g) -> [11s,10p,8d,5f,3g]
 K    S
       1.135491E+08           4.000000E-06
@@ -278,7 +278,7 @@ K    G
 K    G
       3.595000E-02           1.000000E+00
 end
-basis "Ca_aug-cc-pwcvqz-x2c" SPHERICAL 
+basis "Ca_aug-cc-pwCVQZ-X2C" SPHERICAL 
 #basis SET: (113s,57p,11d,6f,3g) -> [11s,10p,8d,6f,3g]
 Ca    S
       1.042287E+08           5.000000E-06
@@ -509,7 +509,7 @@ Ca    G
 Ca    G
       5.421000E-02           1.000000E+00
 end
-basis "Rb_aug-cc-pwcvqz-x2c" SPHERICAL 
+basis "Rb_aug-cc-pwCVQZ-X2C" SPHERICAL 
 #basis SET: (160s,92p,35d,5f,3g) -> [12s,11p,9d,5f,3g]
 Rb    S
       9.739582E+07           3.900000E-05
@@ -847,7 +847,7 @@ Rb    G
 Rb    G
       3.256000E-02           1.000000E+00
 end
-basis "Sr_aug-cc-pwcvqz-x2c" SPHERICAL 
+basis "Sr_aug-cc-pwCVQZ-X2C" SPHERICAL 
 #basis SET: (156s,92p,35d,5f,3g) -> [12s,11p,9d,5f,3g]
 Sr    S
       9.553723E+07           4.300000E-05
@@ -1181,7 +1181,7 @@ Sr    G
 Sr    G
       4.803000E-02           1.000000E+00
 end
-basis "Cs_aug-cc-pwcvqz-x2c" SPHERICAL 
+basis "Cs_aug-cc-pwCVQZ-X2C" SPHERICAL 
 #basis SET: (211s,140p,59d,8f,3g) -> [13s,12p,10d,6f,3g]
 Cs    S
       7.569936E+07           2.070000E-04
@@ -1649,7 +1649,7 @@ Cs    G
 Cs    G
       2.669000E-02           1.000000E+00
 end
-basis "Ba_aug-cc-pwcvqz-x2c" SPHERICAL 
+basis "Ba_aug-cc-pwCVQZ-X2C" SPHERICAL 
 #basis SET: (198s,136p,58d,8f,3g) -> [13s,12p,10d,6f,3g]
 Ba    S
       7.373883E+07           2.270000E-04
@@ -2099,7 +2099,7 @@ Ba    G
 Ba    G
       5.204000E-02           1.000000E+00
 end
-basis "Fr_aug-cc-pwcvqz-x2c" SPHERICAL 
+basis "Fr_aug-cc-pwCVQZ-X2C" SPHERICAL 
 #basis SET: (245s,193p,93d,35f,3g) -> [14s,13p,11d,7f,3g]
 Fr    S
       5.843710E+07           2.087000E-03
@@ -2719,7 +2719,7 @@ Fr    G
 Fr    G
       2.480000E-02           1.000000E+00
 end
-basis "Ra_aug-cc-pwcvqz-x2c" SPHERICAL 
+basis "Ra_aug-cc-pwCVQZ-X2C" SPHERICAL 
 #basis SET: (245s,189p,90d,35f,3g) -> [14s,13p,11d,7f,3g]
 Ra    S
       5.806374E+07           2.230000E-03

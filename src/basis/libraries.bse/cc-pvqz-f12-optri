@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# cc-pvqz-f12-optri version number 0
+# Data downloaded on 2021-02-20T21:21
+# cc-pVQZ-F12-OPTRI version number 0
 # Description: cc-pVQZ-F12-OPTRI
 # Role: optri
 # 
@@ -57,7 +57,7 @@
 #     10.1063/1.3009271
 # 
 # # 
-basis "H_cc-pvqz-f12-optri" SPHERICAL 
+basis "H_cc-pVQZ-F12-OPTRI" SPHERICAL 
 #basis SET: (3s,3p,3d,2f,1g) -> [3s,3p,3d,2f,1g]
 H    S
       4.5036230              1.0000000
@@ -84,7 +84,7 @@ H    F
 H    G
       1.2607870              1.0000000
 end
-basis "Li_cc-pvqz-f12-optri" SPHERICAL 
+basis "Li_cc-pVQZ-F12-OPTRI" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,2g,1h) -> [4s,4p,4d,3f,2g,1h]
 Li    S
       0.8451985              1.0000000
@@ -123,7 +123,7 @@ Li    G
 Li    H
       0.2146354              1.0000000
 end
-basis "Be_cc-pvqz-f12-optri" SPHERICAL 
+basis "Be_cc-pVQZ-F12-OPTRI" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,2g,1h) -> [4s,4p,4d,3f,2g,1h]
 Be    S
       1.1538476              1.0000000
@@ -162,7 +162,7 @@ Be    G
 Be    H
       0.4737481              1.0000000
 end
-basis "B_cc-pvqz-f12-optri" SPHERICAL 
+basis "B_cc-pVQZ-F12-OPTRI" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,2g,1h) -> [4s,4p,4d,3f,2g,1h]
 B    S
       2.1105330              1.0000000
@@ -201,7 +201,7 @@ B    G
 B    H
       0.7913280              1.0000000
 end
-basis "C_cc-pvqz-f12-optri" SPHERICAL 
+basis "C_cc-pVQZ-F12-OPTRI" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,2g,1h) -> [4s,4p,4d,3f,2g,1h]
 C    S
       2.6044130              1.0000000
@@ -240,7 +240,7 @@ C    G
 C    H
       1.2280910              1.0000000
 end
-basis "N_cc-pvqz-f12-optri" SPHERICAL 
+basis "N_cc-pVQZ-F12-OPTRI" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,2g,1h) -> [4s,4p,4d,3f,2g,1h]
 N    S
       3.3139220              1.0000000
@@ -279,7 +279,7 @@ N    G
 N    H
       1.6475850              1.0000000
 end
-basis "O_cc-pvqz-f12-optri" SPHERICAL 
+basis "O_cc-pVQZ-F12-OPTRI" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,2g,1h) -> [4s,4p,4d,3f,2g,1h]
 O    S
       4.1702850              1.0000000
@@ -318,7 +318,7 @@ O    G
 O    H
       2.1440060              1.0000000
 end
-basis "F_cc-pvqz-f12-optri" SPHERICAL 
+basis "F_cc-pVQZ-F12-OPTRI" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,2g,1h) -> [4s,4p,4d,3f,2g,1h]
 F    S
       5.3056940              1.0000000
@@ -357,7 +357,7 @@ F    G
 F    H
       2.8076760              1.0000000
 end
-basis "Ne_cc-pvqz-f12-optri" SPHERICAL 
+basis "Ne_cc-pVQZ-F12-OPTRI" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,2g,1h) -> [4s,4p,4d,3f,2g,1h]
 Ne    S
       7.3610750              1.0000000
@@ -396,7 +396,7 @@ Ne    G
 Ne    H
       3.4504930              1.0000000
 end
-basis "Na_cc-pvqz-f12-optri" SPHERICAL 
+basis "Na_cc-pVQZ-F12-OPTRI" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,2g,1h) -> [4s,4p,4d,3f,2g,1h]
 Na    S
       0.9707935              1.0000000
@@ -435,7 +435,7 @@ Na    G
 Na    H
       0.0919160              1.0000000
 end
-basis "Mg_cc-pvqz-f12-optri" SPHERICAL 
+basis "Mg_cc-pVQZ-F12-OPTRI" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,2g,1h) -> [4s,4p,4d,3f,2g,1h]
 Mg    S
       1.3130881              1.0000000
@@ -474,7 +474,7 @@ Mg    G
 Mg    H
       0.1189690              1.0000000
 end
-basis "Al_cc-pvqz-f12-optri" SPHERICAL 
+basis "Al_cc-pVQZ-F12-OPTRI" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,2g,1h) -> [4s,4p,4d,3f,2g,1h]
 Al    S
       1.5831250              1.0000000
@@ -513,7 +513,7 @@ Al    G
 Al    H
       0.4259410              1.0000000
 end
-basis "Si_cc-pvqz-f12-optri" SPHERICAL 
+basis "Si_cc-pVQZ-F12-OPTRI" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,2g,1h) -> [4s,4p,4d,3f,2g,1h]
 Si    S
       2.1372760              1.0000000
@@ -552,7 +552,7 @@ Si    G
 Si    H
       0.5748240              1.0000000
 end
-basis "P_cc-pvqz-f12-optri" SPHERICAL 
+basis "P_cc-pVQZ-F12-OPTRI" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,2g,1h) -> [4s,4p,4d,3f,2g,1h]
 P    S
       2.6534790              1.0000000
@@ -591,7 +591,7 @@ P    G
 P    H
       0.7461110              1.0000000
 end
-basis "S_cc-pvqz-f12-optri" SPHERICAL 
+basis "S_cc-pVQZ-F12-OPTRI" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,2g,1h) -> [4s,4p,4d,3f,2g,1h]
 S    S
       3.0754480              1.0000000
@@ -630,7 +630,7 @@ S    G
 S    H
       0.9044160              1.0000000
 end
-basis "Cl_cc-pvqz-f12-optri" SPHERICAL 
+basis "Cl_cc-pVQZ-F12-OPTRI" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,2g,1h) -> [4s,4p,4d,3f,2g,1h]
 Cl    S
       3.6457060              1.0000000
@@ -669,7 +669,7 @@ Cl    G
 Cl    H
       1.0828430              1.0000000
 end
-basis "Ar_cc-pvqz-f12-optri" SPHERICAL 
+basis "Ar_cc-pVQZ-F12-OPTRI" SPHERICAL 
 #basis SET: (4s,4p,4d,3f,2g,1h) -> [4s,4p,4d,3f,2g,1h]
 Ar    S
       4.2449090              1.0000000

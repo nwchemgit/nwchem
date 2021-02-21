@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# fano-5z version number 1
+# Data downloaded on 2021-02-20T21:21
+# FANO-5Z version number 1
 # Description: Frozen Atomic Natural Orbital - 5-Zeta
 # Role: orbital
 # 
@@ -47,7 +47,7 @@
 #     10.1063/1.5039741
 # 
 # # 
-basis "H_fano-5z" SPHERICAL 
+basis "H_FANO-5Z" SPHERICAL 
 #basis SET: (45s,20p,12d,6f,2g) -> [5s,4p,3d,2f,1g]
 H    S
     837.3565790              0.0000078
@@ -150,7 +150,7 @@ H    G
       3.1447840              0.0051647
       1.1461000              0.0345248
 end
-basis "He_fano-5z" SPHERICAL 
+basis "He_FANO-5Z" SPHERICAL 
 #basis SET: (50s,24p,15d,8f,3g) -> [5s,4p,3d,2f,1g]
 He    S
    4830.0398640              0.0001051
@@ -268,7 +268,7 @@ He    G
       3.7558540              0.6250740
       1.4637000              0.7796133
 end
-basis "B_fano-5z" SPHERICAL 
+basis "B_FANO-5Z" SPHERICAL 
 #basis SET: (84s,40p,24d,12f,6g,3h) -> [6s,5p,4d,3f,2g,1h]
 B    S
   33713.2090900              0.0000969
@@ -461,7 +461,7 @@ B    H
       0.8474740              0.7968586
       0.4190860              0.5999942
 end
-basis "C_fano-5z" SPHERICAL 
+basis "C_FANO-5Z" SPHERICAL 
 #basis SET: (84s,40p,24d,15f,8g,3h) -> [6s,5p,4d,3f,2g,1h]
 C    S
   50386.7510900              0.0000934
@@ -659,7 +659,7 @@ C    H
       1.4255790              0.6977855
       0.6366120              0.7159180
 end
-basis "N_fano-5z" SPHERICAL 
+basis "N_FANO-5Z" SPHERICAL 
 #basis SET: (84s,45p,24d,15f,8g,4h) -> [6s,5p,4d,3f,2g,1h]
 N    S
   73027.0995300              0.0000861
@@ -863,7 +863,7 @@ N    H
       1.4513740              0.8690717
       0.6864650              0.4321221
 end
-basis "O_fano-5z" SPHERICAL 
+basis "O_FANO-5Z" SPHERICAL 
 #basis SET: (84s,45p,24d,18f,10g,4h) -> [6s,5p,4d,3f,2g,1h]
 O    S
  104579.4181000              0.0000774
@@ -1072,7 +1072,7 @@ O    H
       1.9512990              0.8010017
       0.9483130              0.5475840
 end
-basis "F_fano-5z" SPHERICAL 
+basis "F_FANO-5Z" SPHERICAL 
 #basis SET: (84s,50p,28d,18f,10g,5h) -> [6s,5p,4d,3f,2g,1h]
 F    S
  121062.9455000              0.0000921
@@ -1291,7 +1291,7 @@ F    H
       1.8756310              0.6689875
       1.0466760              0.4285985
 end
-basis "Ne_fano-5z" SPHERICAL 
+basis "Ne_FANO-5Z" SPHERICAL 
 #basis SET: (90s,50p,28d,18f,12g,5h) -> [6s,5p,4d,3f,2g,1h]
 Ne    S
  312544.6873000              0.0000295

@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# ccj-pvtz version number 0
+# Data downloaded on 2021-02-20T21:21
+# ccJ-pVTZ version number 0
 # Description: ccJ-pVTZ
 # Role: orbital
 # 
@@ -46,7 +46,7 @@
 #     10.1063/1.2962973
 # 
 # # 
-basis "H_ccj-pvtz" SPHERICAL 
+basis "H_ccJ-pVTZ" SPHERICAL 
 #basis SET: (7s,3p,2d) -> [5s,3p,2d]
 H    S
    8941.6800000              0.0251117
@@ -71,7 +71,7 @@ H    D
 H    D
       1.0570000              1.0000000
 end
-basis "He_ccj-pvtz" SPHERICAL 
+basis "He_ccJ-pVTZ" SPHERICAL 
 #basis SET: (8s,3p,2d) -> [6s,3p,2d]
 He    S
   61776.0000000              0.0251338
@@ -98,7 +98,7 @@ He    D
 He    D
       1.9650000              1.0000000
 end
-basis "B_ccj-pvtz" SPHERICAL 
+basis "B_ccJ-pVTZ" SPHERICAL 
 #basis SET: (12s,6p,3d,1f) -> [7s,4p,3d,1f]
 B    S
 1565278.0000000              0.0014072
@@ -138,7 +138,7 @@ B    D
 B    F
       0.4900000              1.0000000
 end
-basis "C_ccj-pvtz" SPHERICAL 
+basis "C_ccJ-pVTZ" SPHERICAL 
 #basis SET: (12s,6p,3d,1f) -> [7s,4p,3d,1f]
 C    S
 2355496.0000000              0.0014070
@@ -178,7 +178,7 @@ C    D
 C    F
       0.7610000              1.0000000
 end
-basis "N_ccj-pvtz" SPHERICAL 
+basis "N_ccJ-pVTZ" SPHERICAL 
 #basis SET: (12s,6p,3d,1f) -> [7s,4p,3d,1f]
 N    S
 3266120.0000000              0.0014068
@@ -218,7 +218,7 @@ N    D
 N    F
       1.0930000              1.0000000
 end
-basis "O_ccj-pvtz" SPHERICAL 
+basis "O_ccJ-pVTZ" SPHERICAL 
 #basis SET: (12s,6p,3d,1f) -> [7s,4p,3d,1f]
 O    S
 4384380.0000000              0.0014069
@@ -258,7 +258,7 @@ O    D
 O    F
       1.4280000              1.0000000
 end
-basis "F_ccj-pvtz" SPHERICAL 
+basis "F_ccJ-pVTZ" SPHERICAL 
 #basis SET: (12s,6p,3d,1f) -> [7s,4p,3d,1f]
 F    S
 5577000.0000000              0.0014066
@@ -298,7 +298,7 @@ F    D
 F    F
       1.9170000              1.0000000
 end
-basis "Ne_ccj-pvtz" SPHERICAL 
+basis "Ne_ccJ-pVTZ" SPHERICAL 
 #basis SET: (12s,6p,3d,1f) -> [7s,4p,3d,1f]
 Ne    S
 6964100.0000000              0.0014066

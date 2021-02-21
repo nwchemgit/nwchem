@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# def2-svpd version number 1
+# Data downloaded on 2021-02-20T21:21
+# def2-SVPD version number 1
 # Description: def2-SVPD
 # Role: orbital
 # 
@@ -206,7 +206,7 @@
 #     10.1039/b508541a
 # 
 # # 
-basis "H_def2-svpd" SPHERICAL 
+basis "H_def2-SVPD" SPHERICAL 
 #basis SET: (4s,2p) -> [2s,2p]
 H    S
      13.0107010              0.19682158E-01
@@ -219,7 +219,7 @@ H    P
 H    P
       0.11704099050          1.0000000
 end
-basis "He_def2-svpd" SPHERICAL 
+basis "He_def2-SVPD" SPHERICAL 
 #basis SET: (4s,2p) -> [2s,2p]
 He    S
      38.354936737            0.23814288905E-01
@@ -232,7 +232,7 @@ He    P
 He    P
       0.22039119441          1.0000000
 end
-basis "Li_def2-svpd" SPHERICAL 
+basis "Li_def2-SVPD" SPHERICAL 
 #basis SET: (7s,4p) -> [3s,3p]
 Li    S
     266.27785516             0.64920150325E-02
@@ -252,7 +252,7 @@ Li    P
 Li    P
       0.26347662457E-01      1.0000000
 end
-basis "Be_def2-svpd" SPHERICAL 
+basis "Be_def2-SVPD" SPHERICAL 
 #basis SET: (7s,5p) -> [3s,3p]
 Be    S
     515.18616125             0.55615307983E-02
@@ -273,7 +273,7 @@ Be    P
 Be    P
       0.30181880660E-01      1.0000000
 end
-basis "B_def2-svpd" SPHERICAL 
+basis "B_def2-SVPD" SPHERICAL 
 #basis SET: (8s,4p,2d) -> [4s,2p,2d]
 B    S
     839.31830086            -0.55929201074E-02
@@ -298,7 +298,7 @@ B    D
 B    D
       0.74392443101E-01      1.0000000
 end
-basis "C_def2-svpd" SPHERICAL 
+basis "C_def2-SVPD" SPHERICAL 
 #basis SET: (8s,4p,2d) -> [4s,2p,2d]
 C    S
    1238.4016938              0.54568832082E-02
@@ -323,7 +323,7 @@ C    D
 C    D
       0.11713185140          1.0000000
 end
-basis "N_def2-svpd" SPHERICAL 
+basis "N_def2-SVPD" SPHERICAL 
 #basis SET: (8s,4p,2d) -> [4s,2p,2d]
 N    S
    1712.8415853             -0.53934125305E-02
@@ -348,7 +348,7 @@ N    D
 N    D
       0.16697708112          1.0000000
 end
-basis "O_def2-svpd" SPHERICAL 
+basis "O_def2-SVPD" SPHERICAL 
 #basis SET: (8s,5p,2d) -> [4s,3p,2d]
 O    S
    2266.1767785             -0.53431809926E-02
@@ -375,7 +375,7 @@ O    D
 O    D
       0.17992024323          1.0000000
 end
-basis "F_def2-svpd" SPHERICAL 
+basis "F_def2-SVPD" SPHERICAL 
 #basis SET: (8s,5p,2d) -> [4s,3p,2d]
 F    S
    2894.8325990             -0.53408255515E-02
@@ -402,7 +402,7 @@ F    D
 F    D
       0.22301361948          1.0000000
 end
-basis "Ne_def2-svpd" SPHERICAL 
+basis "Ne_def2-SVPD" SPHERICAL 
 #basis SET: (8s,5p,2d) -> [4s,3p,2d]
 Ne    S
    3598.9736625             -0.53259297003E-02
@@ -429,7 +429,7 @@ Ne    D
 Ne    D
       0.28026803041          1.0000000
 end
-basis "Na_def2-svpd" SPHERICAL 
+basis "Na_def2-SVPD" SPHERICAL 
 #basis SET: (10s,7p,1d) -> [4s,3p,1d]
 Na    S
    4098.2003908             -0.58535911879E-02
@@ -458,7 +458,7 @@ Na    P
 Na    D
       0.1310000              1.0000000
 end
-basis "Mg_def2-svpd" SPHERICAL 
+basis "Mg_def2-SVPD" SPHERICAL 
 #basis SET: (10s,8p,1d) -> [4s,4p,1d]
 Mg    S
    4953.8339196             -0.57778967498E-02
@@ -489,7 +489,7 @@ Mg    P
 Mg    D
       0.1010000              1.0000000
 end
-basis "Al_def2-svpd" SPHERICAL 
+basis "Al_def2-SVPD" SPHERICAL 
 #basis SET: (11s,7p,2d) -> [5s,3p,2d]
 Al    S
    5887.5727030              0.13483347987E-02
@@ -522,7 +522,7 @@ Al    D
 Al    D
       0.53071685831E-01      1.0000000
 end
-basis "Si_def2-svpd" SPHERICAL 
+basis "Si_def2-SVPD" SPHERICAL 
 #basis SET: (11s,7p,2d) -> [5s,3p,2d]
 Si    S
    6903.7118686              0.13373962995E-02
@@ -555,7 +555,7 @@ Si    D
 Si    D
       0.74117707708E-01      1.0000000
 end
-basis "P_def2-svpd" SPHERICAL 
+basis "P_def2-SVPD" SPHERICAL 
 #basis SET: (11s,7p,2d) -> [5s,3p,2d]
 P    S
    8002.4795106              0.57503489302E-02
@@ -588,7 +588,7 @@ P    D
 P    D
       0.99587311089E-01      1.0000000
 end
-basis "S_def2-svpd" SPHERICAL 
+basis "S_def2-SVPD" SPHERICAL 
 #basis SET: (11s,8p,2d) -> [5s,4p,2d]
 S    S
    9184.9303010             -0.22294387756E-02
@@ -623,7 +623,7 @@ S    D
 S    D
       0.10172853717          1.0000000
 end
-basis "Cl_def2-svpd" SPHERICAL 
+basis "Cl_def2-SVPD" SPHERICAL 
 #basis SET: (11s,8p,2d) -> [5s,4p,2d]
 Cl    S
   10449.8275660              0.19708362484E-02
@@ -658,7 +658,7 @@ Cl    D
 Cl    D
       0.12284803390          1.0000000
 end
-basis "Ar_def2-svpd" SPHERICAL 
+basis "Ar_def2-SVPD" SPHERICAL 
 #basis SET: (11s,8p,2d) -> [5s,4p,2d]
 Ar    S
   11797.1197650              0.20214479973E-02
@@ -693,7 +693,7 @@ Ar    D
 Ar    D
       0.14309493859          1.0000000
 end
-basis "K_def2-svpd" SPHERICAL 
+basis "K_def2-SVPD" SPHERICAL 
 #basis SET: (14s,10p,2d) -> [5s,4p,2d]
 K    S
   31478.7467640              0.39838653994E-02
@@ -733,7 +733,7 @@ K    D
 K    D
       0.0980000              1.0000000
 end
-basis "Ca_def2-svpd" SPHERICAL 
+basis "Ca_def2-SVPD" SPHERICAL 
 #basis SET: (14s,10p,4d) -> [5s,4p,2d]
 Ca    S
   35138.7139290              0.39482520740E-02
@@ -775,7 +775,7 @@ Ca    D
 Ca    D
       0.70528614919E-01      1.0000000
 end
-basis "Sc_def2-svpd" SPHERICAL 
+basis "Sc_def2-SVPD" SPHERICAL 
 #basis SET: (14s,10p,5d,1f) -> [5s,4p,2d,1f]
 Sc    S
   38956.0818040              0.39293205858E-02
@@ -820,7 +820,7 @@ Sc    D
 Sc    F
       0.3450000              1.0000000
 end
-basis "Ti_def2-svpd" SPHERICAL 
+basis "Ti_def2-SVPD" SPHERICAL 
 #basis SET: (14s,10p,5d,1f) -> [5s,4p,2d,1f]
 Ti    S
   42961.5121850              0.39127635355E-02
@@ -865,7 +865,7 @@ Ti    D
 Ti    F
       0.5620000              1.0000000
 end
-basis "V_def2-svpd" SPHERICAL 
+basis "V_def2-SVPD" SPHERICAL 
 #basis SET: (14s,10p,5d,1f) -> [5s,4p,2d,1f]
 V    S
   47160.3760600              0.14498688908E-02
@@ -910,7 +910,7 @@ V    D
 V    F
       0.8310000              1.0000000
 end
-basis "Cr_def2-svpd" SPHERICAL 
+basis "Cr_def2-SVPD" SPHERICAL 
 #basis SET: (14s,10p,5d,1f) -> [5s,4p,2d,1f]
 Cr    S
   51528.0863490              0.14405823106E-02
@@ -955,7 +955,7 @@ Cr    D
 Cr    F
       1.1470000              1.0000000
 end
-basis "Mn_def2-svpd" SPHERICAL 
+basis "Mn_def2-SVPD" SPHERICAL 
 #basis SET: (14s,10p,5d,1f) -> [5s,4p,2d,1f]
 Mn    S
   56137.0090370              0.14321304702E-02
@@ -1000,7 +1000,7 @@ Mn    D
 Mn    F
       1.3260000              1.0000000
 end
-basis "Fe_def2-svpd" SPHERICAL 
+basis "Fe_def2-SVPD" SPHERICAL 
 #basis SET: (14s,10p,5d,1f) -> [5s,4p,2d,1f]
 Fe    S
   60923.6406430              0.14302254466E-02
@@ -1045,7 +1045,7 @@ Fe    D
 Fe    F
       1.5980000              1.0000000
 end
-basis "Co_def2-svpd" SPHERICAL 
+basis "Co_def2-SVPD" SPHERICAL 
 #basis SET: (14s,10p,5d,1f) -> [5s,4p,2d,1f]
 Co    S
   65902.2082570              0.14284614936E-02
@@ -1090,7 +1090,7 @@ Co    D
 Co    F
       1.9030000              1.0000000
 end
-basis "Ni_def2-svpd" SPHERICAL 
+basis "Ni_def2-SVPD" SPHERICAL 
 #basis SET: (14s,10p,5d,1f) -> [5s,4p,2d,1f]
 Ni    S
   71074.8032110              0.14260386729E-02
@@ -1135,7 +1135,7 @@ Ni    D
 Ni    F
       2.1740000              1.0000000
 end
-basis "Cu_def2-svpd" SPHERICAL 
+basis "Cu_def2-SVPD" SPHERICAL 
 #basis SET: (14s,10p,5d,1f) -> [5s,4p,2d,1f]
 Cu    S
   76381.3480560              0.14336079896E-02
@@ -1180,7 +1180,7 @@ Cu    D
 Cu    F
       2.2330000              1.0000000
 end
-basis "Zn_def2-svpd" SPHERICAL 
+basis "Zn_def2-SVPD" SPHERICAL 
 #basis SET: (14s,10p,5d,1f) -> [5s,4p,2d,1f]
 Zn    S
   82000.7116290              0.14210764000E-02
@@ -1225,7 +1225,7 @@ Zn    D
 Zn    F
       2.6140000              1.0000000
 end
-basis "Ga_def2-svpd" SPHERICAL 
+basis "Ga_def2-SVPD" SPHERICAL 
 #basis SET: (15s,10p,7d) -> [6s,4p,4d]
 Ga    S
   87842.1262960              0.14271588798E-02
@@ -1274,7 +1274,7 @@ Ga    D
 Ga    D
       0.49799390975E-01      1.0000000
 end
-basis "Ge_def2-svpd" SPHERICAL 
+basis "Ge_def2-SVPD" SPHERICAL 
 #basis SET: (15s,10p,7d) -> [6s,4p,4d]
 Ge    S
   93889.8366420              0.14233976060E-02
@@ -1323,7 +1323,7 @@ Ge    D
 Ge    D
       0.66328328796E-01      1.0000000
 end
-basis "As_def2-svpd" SPHERICAL 
+basis "As_def2-SVPD" SPHERICAL 
 #basis SET: (15s,10p,7d) -> [6s,4p,4d]
 As    S
  100146.5255400              0.14258349617E-02
@@ -1372,7 +1372,7 @@ As    D
 As    D
       0.84097628016E-01      1.0000000
 end
-basis "Se_def2-svpd" SPHERICAL 
+basis "Se_def2-SVPD" SPHERICAL 
 #basis SET: (15s,11p,7d) -> [6s,5p,4d]
 Se    S
  106612.2002700              0.14274889113E-02
@@ -1423,7 +1423,7 @@ Se    D
 Se    D
       0.82767380906E-01      1.0000000
 end
-basis "Br_def2-svpd" SPHERICAL 
+basis "Br_def2-SVPD" SPHERICAL 
 #basis SET: (15s,11p,7d) -> [6s,5p,4d]
 Br    S
  113286.3877600              0.14283037779E-02
@@ -1474,7 +1474,7 @@ Br    D
 Br    D
       0.96543342393E-01      1.0000000
 end
-basis "Kr_def2-svpd" SPHERICAL 
+basis "Kr_def2-SVPD" SPHERICAL 
 #basis SET: (15s,11p,7d) -> [6s,5p,4d]
 Kr    S
  120165.6487500              0.14294234496E-02
@@ -1525,7 +1525,7 @@ Kr    D
 Kr    D
       0.11235044486          1.0000000
 end
-basis "Rb_def2-svpd" SPHERICAL 
+basis "Rb_def2-SVPD" SPHERICAL 
 #basis SET: (7s,7p,2d) -> [5s,4p,2d]
 Rb    S
       0.45147933555          1.0000000
@@ -1557,7 +1557,7 @@ Rb    D
 end
 
 
-ecp "Rb_def2-svpd"
+ecp "Rb_def2-SVPD"
 Rb nelec 28
 Rb ul
 2       3.8431140            -12.3169000
@@ -1574,7 +1574,7 @@ Rb D
 2       0.6503830              0.9628390
 2       3.8431140             12.3169000
 end
-basis "Sr_def2-svpd" SPHERICAL 
+basis "Sr_def2-SVPD" SPHERICAL 
 #basis SET: (6s,7p,5d) -> [4s,4p,2d]
 Sr    S
       5.9276428767           0.19698765364
@@ -1607,7 +1607,7 @@ Sr    D
 end
 
 
-ecp "Sr_def2-svpd"
+ecp "Sr_def2-SVPD"
 Sr nelec 28
 Sr ul
 2       4.6339750            -15.8059920
@@ -1624,7 +1624,7 @@ Sr D
 2       2.2469040              6.6594140
 2       4.6339750             15.8059920
 end
-basis "Y_def2-svpd" SPHERICAL 
+basis "Y_def2-SVPD" SPHERICAL 
 #basis SET: (7s,7p,5d,1f) -> [5s,4p,2d,1f]
 Y    S
       5.1329580000          -1.3864845457
@@ -1661,7 +1661,7 @@ Y    F
 end
 
 
-ecp "Y_def2-svpd"
+ecp "Y_def2-SVPD"
 Y nelec 28
 Y ul
 2       6.5842120            -19.12219811
@@ -1682,7 +1682,7 @@ Y D
 2       6.5842120             19.12219811
 2       3.2921060              2.43637543
 end
-basis "Zr_def2-svpd" SPHERICAL 
+basis "Zr_def2-SVPD" SPHERICAL 
 #basis SET: (7s,7p,5d,1f) -> [5s,4p,2d,1f]
 Zr    S
       5.8737890000           0.54255558714
@@ -1719,7 +1719,7 @@ Zr    F
 end
 
 
-ecp "Zr_def2-svpd"
+ecp "Zr_def2-SVPD"
 Zr nelec 28
 Zr ul
 2       7.5400000            -21.09377605
@@ -1740,7 +1740,7 @@ Zr D
 2       7.5400000             21.09377605
 2       3.7700000              3.08069427
 end
-basis "Nb_def2-svpd" SPHERICAL 
+basis "Nb_def2-SVPD" SPHERICAL 
 #basis SET: (7s,7p,5d,1f) -> [5s,4p,2d,1f]
 Nb    S
       6.5663010000          -0.94917907866
@@ -1777,7 +1777,7 @@ Nb    F
 end
 
 
-ecp "Nb_def2-svpd"
+ecp "Nb_def2-SVPD"
 Nb nelec 28
 Nb ul
 2       8.4900000            -22.92954996
@@ -1798,7 +1798,7 @@ Nb D
 2       8.4900000             22.92954996
 2       4.2500000              3.66630986
 end
-basis "Mo_def2-svpd" SPHERICAL 
+basis "Mo_def2-SVPD" SPHERICAL 
 #basis SET: (7s,7p,5d,1f) -> [5s,4p,2d,1f]
 Mo    S
       7.2033800000          -0.89310617237
@@ -1835,7 +1835,7 @@ Mo    F
 end
 
 
-ecp "Mo_def2-svpd"
+ecp "Mo_def2-SVPD"
 Mo nelec 28
 Mo ul
 2       9.4500000            -24.80517707
@@ -1856,7 +1856,7 @@ Mo D
 2       9.4500000             24.80517707
 2       4.7200000              4.15378155
 end
-basis "Tc_def2-svpd" SPHERICAL 
+basis "Tc_def2-SVPD" SPHERICAL 
 #basis SET: (7s,7p,5d,1f) -> [5s,4p,2d,1f]
 Tc    S
       7.4344020000          -1.1436289973
@@ -1893,7 +1893,7 @@ Tc    F
 end
 
 
-ecp "Tc_def2-svpd"
+ecp "Tc_def2-SVPD"
 Tc nelec 28
 Tc ul
 2      10.4000000            -26.56244747
@@ -1914,7 +1914,7 @@ Tc D
 2      10.4000000             26.56244747
 2       5.2000000              4.58568054
 end
-basis "Ru_def2-svpd" SPHERICAL 
+basis "Ru_def2-SVPD" SPHERICAL 
 #basis SET: (7s,7p,5d,1f) -> [5s,4p,2d,1f]
 Ru    S
       7.9365700000          -1.1772083350
@@ -1951,7 +1951,7 @@ Ru    F
 end
 
 
-ecp "Ru_def2-svpd"
+ecp "Ru_def2-SVPD"
 Ru nelec 28
 Ru ul
 2      11.3600000            -28.34061627
@@ -1972,7 +1972,7 @@ Ru D
 2      11.3600000             28.34061627
 2       5.6800000              4.94462923
 end
-basis "Rh_def2-svpd" SPHERICAL 
+basis "Rh_def2-SVPD" SPHERICAL 
 #basis SET: (7s,7p,5d,1f) -> [5s,4p,2d,1f]
 Rh    S
       7.9177440000           0.14014042010165E+01
@@ -2009,7 +2009,7 @@ Rh    F
 end
 
 
-ecp "Rh_def2-svpd"
+ecp "Rh_def2-SVPD"
 Rh nelec 28
 Rh ul
 2      12.3100000            -30.09345572
@@ -2030,7 +2030,7 @@ Rh D
 2      12.3100000             30.09345572
 2       6.1600000              5.21848192
 end
-basis "Pd_def2-svpd" SPHERICAL 
+basis "Pd_def2-SVPD" SPHERICAL 
 #basis SET: (7s,7p,5d,1f) -> [5s,4p,2d,1f]
 Pd    S
       8.4756400000           1.2392391076
@@ -2067,7 +2067,7 @@ Pd    F
 end
 
 
-ecp "Pd_def2-svpd"
+ecp "Pd_def2-SVPD"
 Pd nelec 28
 Pd ul
 2      13.2700000            -31.92955431
@@ -2088,7 +2088,7 @@ Pd D
 2      13.2700000             31.92955431
 2       6.6300000              5.39821694
 end
-basis "Ag_def2-svpd" SPHERICAL 
+basis "Ag_def2-SVPD" SPHERICAL 
 #basis SET: (7s,7p,5d,1f) -> [5s,4p,2d,1f]
 Ag    S
       9.0884420000          -1.9808918797
@@ -2125,7 +2125,7 @@ Ag    F
 end
 
 
-ecp "Ag_def2-svpd"
+ecp "Ag_def2-SVPD"
 Ag nelec 28
 Ag ul
 2      14.2200000            -33.68992012
@@ -2146,7 +2146,7 @@ Ag D
 2      14.2200000             33.68992012
 2       7.1100000              5.53112021
 end
-basis "Cd_def2-svpd" SPHERICAL 
+basis "Cd_def2-SVPD" SPHERICAL 
 #basis SET: (7s,7p,5d,1f) -> [5s,4p,2d,1f]
 Cd    S
       9.7270110000          -1.7930075316
@@ -2183,7 +2183,7 @@ Cd    F
 end
 
 
-ecp "Cd_def2-svpd"
+ecp "Cd_def2-SVPD"
 Cd nelec 28
 Cd ul
 2      15.1847957            -35.47662555
@@ -2204,7 +2204,7 @@ Cd D
 2      15.1847957             35.47662555
 2       7.5923978              5.61767685
 end
-basis "In_def2-svpd" SPHERICAL 
+basis "In_def2-SVPD" SPHERICAL 
 #basis SET: (11s,7p,7d) -> [5s,4p,3d]
 In    S
       1.8276654775          -0.34151640249
@@ -2246,7 +2246,7 @@ In    D
 end
 
 
-ecp "In_def2-svpd"
+ecp "In_def2-SVPD"
 In nelec 28
 In ul
 2      12.53905600           -13.72807800
@@ -2271,7 +2271,7 @@ In D
 2      12.53905600            13.72807800
 2      12.55256100            18.20686600
 end
-basis "Sn_def2-svpd" SPHERICAL 
+basis "Sn_def2-SVPD" SPHERICAL 
 #basis SET: (11s,7p,7d) -> [5s,4p,3d]
 Sn    S
      10.341549887           -0.90331119154E-02
@@ -2313,7 +2313,7 @@ Sn    D
 end
 
 
-ecp "Sn_def2-svpd"
+ecp "Sn_def2-SVPD"
 Sn nelec 28
 Sn ul
 2      12.28234800           -12.57633300
@@ -2338,7 +2338,7 @@ Sn D
 2      12.28234800            12.57633300
 2      12.27215000            16.59594400
 end
-basis "Sb_def2-svpd" SPHERICAL 
+basis "Sb_def2-SVPD" SPHERICAL 
 #basis SET: (11s,7p,7d) -> [5s,4p,3d]
 Sb    S
      10.584496987           -0.14845336778E-01
@@ -2380,7 +2380,7 @@ Sb    D
 end
 
 
-ecp "Sb_def2-svpd"
+ecp "Sb_def2-SVPD"
 Sb nelec 28
 Sb ul
 2      14.44497800           -15.36680100
@@ -2405,7 +2405,7 @@ Sb D
 2      14.44497800            15.36680100
 2      14.44929500            20.29613800
 end
-basis "Te_def2-svpd" SPHERICAL 
+basis "Te_def2-SVPD" SPHERICAL 
 #basis SET: (11s,8p,7d) -> [5s,5p,3d]
 Te    S
      11.263563841           -0.15212984183E-01
@@ -2449,7 +2449,7 @@ Te    D
 end
 
 
-ecp "Te_def2-svpd"
+ecp "Te_def2-SVPD"
 Te nelec 28
 Te ul
 2      15.20616800           -15.74545000
@@ -2474,7 +2474,7 @@ Te D
 2      15.20616800            15.74545000
 2      15.20170200            20.74244800
 end
-basis "I_def2-svpd" SPHERICAL 
+basis "I_def2-SVPD" SPHERICAL 
 #basis SET: (11s,8p,7d) -> [5s,5p,3d]
 I    S
      11.720547572           -0.16160234511E-01
@@ -2518,7 +2518,7 @@ I    D
 end
 
 
-ecp "I_def2-svpd"
+ecp "I_def2-SVPD"
 I nelec 28
 I ul
 2      19.45860900           -21.84204000
@@ -2554,7 +2554,7 @@ I D
 2       4.82376700             0.24371300
 2       4.88431500             0.32080400
 end
-basis "Xe_def2-svpd" SPHERICAL 
+basis "Xe_def2-SVPD" SPHERICAL 
 #basis SET: (12s,11p,9d,2f) -> [7s,6p,4d,2f]
 Xe    S
    6420.2481656              0.25092173886E-03
@@ -2612,7 +2612,7 @@ Xe    F
 end
 
 
-ecp "Xe_def2-svpd"
+ecp "Xe_def2-SVPD"
 Xe nelec 28
 Xe ul
 2      20.88155700           -23.08929500
@@ -2648,7 +2648,7 @@ Xe D
 2       5.25338900             0.28822700
 2       5.36118800             0.38692400
 end
-basis "Cs_def2-svpd" SPHERICAL 
+basis "Cs_def2-SVPD" SPHERICAL 
 #basis SET: (7s,7p,2d) -> [5s,4p,2d]
 Cs    S
       5.8778113443           0.12859994983
@@ -2680,7 +2680,7 @@ Cs    D
 end
 
 
-ecp "Cs_def2-svpd"
+ecp "Cs_def2-SVPD"
 Cs nelec 46
 Cs ul
 2       3.1232690            -28.8843090
@@ -2697,7 +2697,7 @@ Cs D
 2       0.8581820              3.3428330
 2       3.1232690             28.8843090
 end
-basis "Ba_def2-svpd" SPHERICAL 
+basis "Ba_def2-SVPD" SPHERICAL 
 #basis SET: (6s,7p,5d,4f) -> [4s,4p,2d,1f]
 Ba    S
       2.3961900000          -5.9554766710
@@ -2735,7 +2735,7 @@ Ba    F
 end
 
 
-ecp "Ba_def2-svpd"
+ecp "Ba_def2-SVPD"
 Ba nelec 46
 Ba ul
 2       3.5894650            -33.4731740
@@ -2752,7 +2752,7 @@ Ba D
 2       2.8748420            181.7826210
 2       3.5894650             33.4731740
 end
-basis "La_def2-svpd" SPHERICAL 
+basis "La_def2-SVPD" SPHERICAL 
 #basis SET: (7s,7p,5d,1f) -> [6s,4p,2d,1f]
 La    S
       5.0873990000          -0.44173707857
@@ -2790,7 +2790,7 @@ La    F
 end
 
 
-ecp "La_def2-svpd"
+ecp "La_def2-SVPD"
 La nelec 46
 La ul
 2       4.0286000            -36.0100160
@@ -2807,7 +2807,7 @@ La D
 2       1.0107000              0.2191140
 2       4.0286000             36.0100160
 end
-basis "Hf_def2-svpd" SPHERICAL 
+basis "Hf_def2-SVPD" SPHERICAL 
 #basis SET: (7s,7p,5d,1f) -> [6s,4p,2d,1f]
 Hf    S
      14.592485000           -0.80196298812
@@ -2845,7 +2845,7 @@ Hf    F
 end
 
 
-ecp "Hf_def2-svpd"
+ecp "Hf_def2-SVPD"
 Hf nelec 60
 Hf ul
 2       1.78576984            10.04672251
@@ -2862,7 +2862,7 @@ Hf D
 2       3.04837820             5.87343821
 2       1.78576984           -10.04672251
 end
-basis "Ta_def2-svpd" SPHERICAL 
+basis "Ta_def2-SVPD" SPHERICAL 
 #basis SET: (7s,7p,5d,1f) -> [6s,4p,2d,1f]
 Ta    S
      14.400000000            0.99343296745
@@ -2900,7 +2900,7 @@ Ta    F
 end
 
 
-ecp "Ta_def2-svpd"
+ecp "Ta_def2-SVPD"
 Ta nelec 60
 Ta ul
 2       2.01788111            12.01796094
@@ -2917,7 +2917,7 @@ Ta D
 2       3.17368846             8.75584805
 2       2.01788111           -12.01796094
 end
-basis "W_def2-svpd" SPHERICAL 
+basis "W_def2-SVPD" SPHERICAL 
 #basis SET: (7s,7p,5d,1f) -> [6s,4p,2d,1f]
 W    S
      15.000000000           -0.53315505392
@@ -2955,7 +2955,7 @@ W    F
 end
 
 
-ecp "W_def2-svpd"
+ecp "W_def2-SVPD"
 W nelec 60
 W ul
 2       2.25888846            14.15257947
@@ -2972,7 +2972,7 @@ W D
 2       3.29899871            10.98252827
 2       2.25888846           -14.15257947
 end
-basis "Re_def2-svpd" SPHERICAL 
+basis "Re_def2-SVPD" SPHERICAL 
 #basis SET: (7s,7p,5d,1f) -> [6s,4p,2d,1f]
 Re    S
      14.781862000           -1.1395193885
@@ -3010,7 +3010,7 @@ Re    F
 end
 
 
-ecp "Re_def2-svpd"
+ecp "Re_def2-SVPD"
 Re nelec 60
 Re ul
 2       2.50865059            16.44985227
@@ -3027,7 +3027,7 @@ Re D
 2       3.42430897            12.62432927
 2       2.50865059           -16.44985227
 end
-basis "Os_def2-svpd" SPHERICAL 
+basis "Os_def2-SVPD" SPHERICAL 
 #basis SET: (7s,7p,5d,1f) -> [6s,4p,2d,1f]
 Os    S
      15.286736000           -1.0647114485
@@ -3065,7 +3065,7 @@ Os    F
 end
 
 
-ecp "Os_def2-svpd"
+ecp "Os_def2-SVPD"
 Os nelec 60
 Os ul
 2       2.76707510            18.90945701
@@ -3082,7 +3082,7 @@ Os D
 2       3.54961923            13.62257457
 2       2.76707510           -18.90945701
 end
-basis "Ir_def2-svpd" SPHERICAL 
+basis "Ir_def2-SVPD" SPHERICAL 
 #basis SET: (7s,7p,5d,1f) -> [6s,4p,2d,1f]
 Ir    S
      15.293709000           -1.6731899791
@@ -3120,7 +3120,7 @@ Ir    F
 end
 
 
-ecp "Ir_def2-svpd"
+ecp "Ir_def2-SVPD"
 Ir nelec 60
 Ir ul
 2       3.03407192            21.53103107
@@ -3137,7 +3137,7 @@ Ir D
 2       3.67492949            14.03599518
 2       3.03407192           -21.53103107
 end
-basis "Pt_def2-svpd" SPHERICAL 
+basis "Pt_def2-SVPD" SPHERICAL 
 #basis SET: (7s,7p,5d,1f) -> [6s,4p,2d,1f]
 Pt    S
      16.559563000           -0.53808800717
@@ -3175,7 +3175,7 @@ Pt    F
 end
 
 
-ecp "Pt_def2-svpd"
+ecp "Pt_def2-SVPD"
 Pt nelec 60
 Pt ul
 2       3.30956857            24.31437573
@@ -3192,7 +3192,7 @@ Pt D
 2       3.80023974            15.81092058
 2       3.30956857           -24.31437573
 end
-basis "Au_def2-svpd" SPHERICAL 
+basis "Au_def2-SVPD" SPHERICAL 
 #basis SET: (7s,7p,5d,1f) -> [6s,4p,2d,1f]
 Au    S
      20.115299000           -0.15910719389
@@ -3230,7 +3230,7 @@ Au    F
 end
 
 
-ecp "Au_def2-svpd"
+ecp "Au_def2-SVPD"
 Au nelec 60
 Au ul
 2       4.78982000            30.49008890
@@ -3251,7 +3251,7 @@ Au D
 2       4.78982000           -30.49008890
 2       2.39491000            -5.17107381
 end
-basis "Hg_def2-svpd" SPHERICAL 
+basis "Hg_def2-SVPD" SPHERICAL 
 #basis SET: (7s,7p,5d,1f) -> [6s,4p,2d,1f]
 Hg    S
      26.842049000           -0.26845096483E-01
@@ -3289,7 +3289,7 @@ Hg    F
 end
 
 
-ecp "Hg_def2-svpd"
+ecp "Hg_def2-SVPD"
 Hg nelec 60
 Hg ul
 2       3.88579112            30.36499643
@@ -3306,7 +3306,7 @@ Hg D
 2       4.05086026            16.60831151
 2       3.88579112           -30.36499643
 end
-basis "Tl_def2-svpd" SPHERICAL 
+basis "Tl_def2-SVPD" SPHERICAL 
 #basis SET: (11s,7p,7d) -> [5s,4p,3d]
 Tl    S
       7.8193195283          -0.18828631537E-01
@@ -3348,7 +3348,7 @@ Tl    D
 end
 
 
-ecp "Tl_def2-svpd"
+ecp "Tl_def2-SVPD"
 Tl nelec 60
 Tl ul
 2       5.62639900            15.82548800
@@ -3381,7 +3381,7 @@ Tl D
 2       2.87494600            -2.91512700
 2       2.82145100            -3.89690300
 end
-basis "Pb_def2-svpd" SPHERICAL 
+basis "Pb_def2-SVPD" SPHERICAL 
 #basis SET: (11s,7p,7d) -> [5s,4p,3d]
 Pb    S
       8.0719473648          -0.20412061217E-01
@@ -3423,7 +3423,7 @@ Pb    D
 end
 
 
-ecp "Pb_def2-svpd"
+ecp "Pb_def2-SVPD"
 Pb nelec 60
 Pb ul
 2       3.88751200            12.20989200
@@ -3448,7 +3448,7 @@ Pb D
 2       3.88751200           -12.20989200
 2       3.81196300           -16.19029100
 end
-basis "Bi_def2-svpd" SPHERICAL 
+basis "Bi_def2-SVPD" SPHERICAL 
 #basis SET: (11s,7p,7d) -> [5s,4p,3d]
 Bi    S
       8.4636832909          -0.20037183144E-01
@@ -3490,7 +3490,7 @@ Bi    D
 end
 
 
-ecp "Bi_def2-svpd"
+ecp "Bi_def2-SVPD"
 Bi nelec 60
 Bi ul
 2       4.21454600            13.71338300
@@ -3515,7 +3515,7 @@ Bi D
 2       4.21454600           -13.71338300
 2       4.13340000           -18.19430800
 end
-basis "Po_def2-svpd" SPHERICAL 
+basis "Po_def2-SVPD" SPHERICAL 
 #basis SET: (11s,8p,7d) -> [5s,5p,3d]
 Po    S
       8.7584161749          -0.21561417525E-01
@@ -3559,7 +3559,7 @@ Po    D
 end
 
 
-ecp "Po_def2-svpd"
+ecp "Po_def2-SVPD"
 Po nelec 60
 Po ul
 2       5.01327000            17.42829500
@@ -3592,7 +3592,7 @@ Po D
 2       1.32676000            -0.16339200
 2       1.52875800            -0.32456600
 end
-basis "At_def2-svpd" SPHERICAL 
+basis "At_def2-SVPD" SPHERICAL 
 #basis SET: (11s,8p,7d) -> [5s,5p,3d]
 At    S
       8.9610112498          -0.23092977605E-01
@@ -3636,7 +3636,7 @@ At    D
 end
 
 
-ecp "At_def2-svpd"
+ecp "At_def2-SVPD"
 At nelec 60
 At ul
 2       5.81216300            19.87019800
@@ -3670,7 +3670,7 @@ At D
 2       2.51347200            -0.99497000
 2       2.53626100            -1.49070100
 end
-basis "Rn_def2-svpd" SPHERICAL 
+basis "Rn_def2-SVPD" SPHERICAL 
 #basis SET: (12s,11p,9d,2f) -> [7s,6p,4d,2f]
 Rn    S
    5187.7442468              0.16097034848E-03
@@ -3728,7 +3728,7 @@ Rn    F
 end
 
 
-ecp "Rn_def2-svpd"
+ecp "Rn_def2-SVPD"
 Rn nelec 60
 Rn ul
 2       6.34857100            21.79729000

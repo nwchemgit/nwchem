@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# def2-tzvpd-rifit version number 1
+# Data downloaded on 2021-02-20T21:21
+# def2-TZVPD-RIFIT version number 1
 # Description: def2-TZVPD-RIFIT
 # Role: rifit
 # 
@@ -94,7 +94,7 @@
 #     10.1016/S0009-2614(98)00862-8
 # 
 # # 
-basis "H_def2-tzvpd-rifit" SPHERICAL 
+basis "H_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (5s,4p,3d) -> [5s,3p,2d]
 H    S
       9.33521609              .64609379
@@ -119,7 +119,7 @@ H    D
 H    D
       0.416309               1.0000000
 end
-basis "He_def2-tzvpd-rifit" SPHERICAL 
+basis "He_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (5s,4p,1d) -> [5s,4p,1d]
 He    S
      24.71889717              .26232950
@@ -142,7 +142,7 @@ He    P
 He    D
       0.25054                1.0000000
 end
-basis "Li_def2-tzvpd-rifit" SPHERICAL 
+basis "Li_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (10s,6p,4d) -> [10s,6p,4d]
 Li    S
      85.45104308              .25324236
@@ -185,7 +185,7 @@ Li    D
 Li    D
       0.0503427              1.0000000
 end
-basis "Be_def2-tzvpd-rifit" SPHERICAL 
+basis "Be_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (10s,7p,4d,1f) -> [10s,7p,4d,1f]
 Be    S
      86.811                  1.0000000
@@ -232,7 +232,7 @@ Be    D
 Be    F
       0.222911               1.0000000
 end
-basis "B_def2-tzvpd-rifit" SPHERICAL 
+basis "B_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (9s,7p,6d,4f,1g) -> [9s,7p,5d,4f,1g]
 B    S
     146.41098372              .75852308
@@ -288,7 +288,7 @@ B    F
 B    G
        .76379684             1.0000000
 end
-basis "C_def2-tzvpd-rifit" SPHERICAL 
+basis "C_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (9s,7p,6d,4f,1g) -> [9s,7p,5d,4f,1g]
 C    S
     281.47693316              .48911748
@@ -344,7 +344,7 @@ C    F
 C    G
       1.22884707             1.0000000
 end
-basis "N_def2-tzvpd-rifit" SPHERICAL 
+basis "N_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (9s,7p,6d,4f,1g) -> [9s,7p,5d,4f,1g]
 N    S
     291.18394257              .56533084
@@ -400,7 +400,7 @@ N    F
 N    G
       1.78131415             1.0000000
 end
-basis "O_def2-tzvpd-rifit" SPHERICAL 
+basis "O_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (9s,7p,6d,4f,1g) -> [9s,7p,5d,4f,1g]
 O    S
     364.91291000              .58060340
@@ -456,7 +456,7 @@ O    F
 O    G
       2.33831070             1.0000000
 end
-basis "F_def2-tzvpd-rifit" SPHERICAL 
+basis "F_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (9s,7p,6d,4f,1g) -> [9s,7p,5d,4f,1g]
 F    S
     423.09461295              .76390649
@@ -512,7 +512,7 @@ F    F
 F    G
       3.12578867             1.0000000
 end
-basis "Ne_def2-tzvpd-rifit" SPHERICAL 
+basis "Ne_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (9s,7p,6d,4f,1g) -> [9s,7p,5d,4f,1g]
 Ne    S
     626.227                  1.0000000
@@ -568,7 +568,7 @@ Ne    F
 Ne    G
       4.10996                1.0000000
 end
-basis "Na_def2-tzvpd-rifit" SPHERICAL 
+basis "Na_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (11s,9p,7d,5f) -> [11s,9p,7d,5f]
 Na    S
     217.13                   1.0000000
@@ -635,7 +635,7 @@ Na    F
 Na    F
       0.199753               1.0000000
 end
-basis "Mg_def2-tzvpd-rifit" SPHERICAL 
+basis "Mg_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (11s,9p,7d,4f) -> [11s,9p,7d,4f]
 Mg    S
     217.78                   1.0000000
@@ -700,7 +700,7 @@ Mg    F
 Mg    F
       0.307075               1.0000000
 end
-basis "Al_def2-tzvpd-rifit" SPHERICAL 
+basis "Al_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (11s,8p,8d,6f,2g) -> [10s,8p,7d,6f,2g]
 Al    S
     300.70420000             1.18256078
@@ -771,7 +771,7 @@ Al    G
 Al    G
       0.35111239426          1.0000000
 end
-basis "Si_def2-tzvpd-rifit" SPHERICAL 
+basis "Si_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (11s,8p,8d,6f,2g) -> [10s,8p,7d,6f,2g]
 Si    S
     252.95316000             1.51090391
@@ -842,7 +842,7 @@ Si    G
 Si    G
       0.51224369309          1.0000000
 end
-basis "P_def2-tzvpd-rifit" SPHERICAL 
+basis "P_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (11s,8p,8d,6f,2g) -> [10s,8p,7d,6f,2g]
 P    S
     299.02239127             1.18280040
@@ -913,7 +913,7 @@ P    G
 P    G
       0.69630924691          1.0000000
 end
-basis "S_def2-tzvpd-rifit" SPHERICAL 
+basis "S_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (11s,8p,8d,6f,2g) -> [10s,8p,7d,6f,2g]
 S    S
     345.09162253             1.48919937
@@ -984,7 +984,7 @@ S    G
 S    G
       0.86383824993          1.0000000
 end
-basis "Cl_def2-tzvpd-rifit" SPHERICAL 
+basis "Cl_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (11s,8p,8d,6f,2g) -> [10s,8p,7d,6f,2g]
 Cl    S
     385.89005709             1.48825989
@@ -1055,7 +1055,7 @@ Cl    G
 Cl    G
       1.0946908098           1.0000000
 end
-basis "Ar_def2-tzvpd-rifit" SPHERICAL 
+basis "Ar_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (11s,8p,8d,6f,2g) -> [10s,8p,7d,6f,2g]
 Ar    S
     581.184                 -1.01628
@@ -1126,7 +1126,7 @@ Ar    G
 Ar    G
       1.3740549263           1.0000000
 end
-basis "K_def2-tzvpd-rifit" SPHERICAL 
+basis "K_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (12s,9p,8d,4f) -> [12s,9p,8d,4f]
 K    S
      81.1062                 1.0000000
@@ -1195,7 +1195,7 @@ K    F
 K    F
       0.0977427              1.0000000
 end
-basis "Ca_def2-tzvpd-rifit" SPHERICAL 
+basis "Ca_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (11s,8p,7d,5f) -> [11s,8p,7d,5f]
 Ca    S
      84.4903                 1.0000000
@@ -1260,7 +1260,7 @@ Ca    F
 Ca    F
       0.357715               1.0000000
 end
-basis "Sc_def2-tzvpd-rifit" SPHERICAL 
+basis "Sc_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (12s,10p,9d,6f,5g,2h) -> [10s,9p,9d,6f,5g,2h]
 Sc    S
     142.82775400            -1.00001234
@@ -1348,7 +1348,7 @@ Sc    H
 Sc    H
       0.721097               1.0000000
 end
-basis "Ti_def2-tzvpd-rifit" SPHERICAL 
+basis "Ti_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (12s,10p,9d,6f,5g,2h) -> [10s,9p,9d,6f,5g,2h]
 Ti    S
      81.16794300             -.46912465
@@ -1436,7 +1436,7 @@ Ti    H
 Ti    H
       1.06577                1.0000000
 end
-basis "V_def2-tzvpd-rifit" SPHERICAL 
+basis "V_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (12s,10p,9d,6f,5g,2h) -> [10s,9p,9d,6f,5g,2h]
 V    S
      88.60643600             -.46912392
@@ -1524,7 +1524,7 @@ V    H
 V    H
       1.40425                1.0000000
 end
-basis "Cr_def2-tzvpd-rifit" SPHERICAL 
+basis "Cr_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (12s,10p,9d,6f,5g,2h) -> [10s,9p,9d,6f,5g,2h]
 Cr    S
     104.80967800             -.54197522
@@ -1612,7 +1612,7 @@ Cr    H
 Cr    H
       1.79226                1.0000000
 end
-basis "Mn_def2-tzvpd-rifit" SPHERICAL 
+basis "Mn_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (12s,10p,9d,6f,5g,2h) -> [10s,9p,9d,6f,5g,2h]
 Mn    S
      99.36791000             -.46910932
@@ -1700,7 +1700,7 @@ Mn    H
 Mn    H
       2.14468                1.0000000
 end
-basis "Fe_def2-tzvpd-rifit" SPHERICAL 
+basis "Fe_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (12s,10p,9d,6f,5g,2h) -> [10s,9p,9d,6f,5g,2h]
 Fe    S
     103.85349100             -.37210225
@@ -1788,7 +1788,7 @@ Fe    H
 Fe    H
       2.4715                 1.0000000
 end
-basis "Co_def2-tzvpd-rifit" SPHERICAL 
+basis "Co_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (12s,10p,9d,6f,5g,2h) -> [10s,9p,9d,6f,5g,2h]
 Co    S
      87.91374750             -.09861927
@@ -1876,7 +1876,7 @@ Co    H
 Co    H
       3.01199                1.0000000
 end
-basis "Ni_def2-tzvpd-rifit" SPHERICAL 
+basis "Ni_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (12s,10p,9d,6f,5g,2h) -> [10s,9p,9d,6f,5g,2h]
 Ni    S
      71.97400400              .12969177
@@ -1964,7 +1964,7 @@ Ni    H
 Ni    H
       3.35958                1.0000000
 end
-basis "Cu_def2-tzvpd-rifit" SPHERICAL 
+basis "Cu_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (12s,10p,9d,6f,5g,2h) -> [10s,9p,9d,6f,5g,2h]
 Cu    S
      76.61888700              .22127009
@@ -2052,7 +2052,7 @@ Cu    H
 Cu    H
       3.52638                1.0000000
 end
-basis "Zn_def2-tzvpd-rifit" SPHERICAL 
+basis "Zn_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (12s,11p,9d,6f,5g,2h) -> [10s,10p,9d,6f,5g,2h]
 Zn    S
      91.330088000            0.19671369000
@@ -2142,7 +2142,7 @@ Zn    H
 Zn    H
       4.0911084613           1.0000000
 end
-basis "Ga_def2-tzvpd-rifit" SPHERICAL 
+basis "Ga_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (11s,10p,9d,7f,4g,1h) -> [11s,10p,9d,6f,4g,1h]
 Ga    S
      55.38833600             1.0000000
@@ -2228,7 +2228,7 @@ Ga    G
 Ga    H
       1.18156470             1.0000000
 end
-basis "Ge_def2-tzvpd-rifit" SPHERICAL 
+basis "Ge_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (11s,10p,9d,7f,4g,1h) -> [11s,10p,9d,6f,4g,1h]
 Ge    S
      63.52744568             1.0000000
@@ -2314,7 +2314,7 @@ Ge    G
 Ge    H
       1.39529036             1.0000000
 end
-basis "As_def2-tzvpd-rifit" SPHERICAL 
+basis "As_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (11s,10p,9d,7f,4g,1h) -> [11s,10p,9d,6f,4g,1h]
 As    S
      83.55947554             1.0000000
@@ -2400,7 +2400,7 @@ As    G
 As    H
       1.81356600             1.0000000
 end
-basis "Se_def2-tzvpd-rifit" SPHERICAL 
+basis "Se_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (11s,10p,9d,7f,4g,1h) -> [11s,10p,9d,6f,4g,1h]
 Se    S
      88.95366100             1.0000000
@@ -2486,7 +2486,7 @@ Se    G
 Se    H
       1.99370380             1.0000000
 end
-basis "Br_def2-tzvpd-rifit" SPHERICAL 
+basis "Br_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (11s,10p,9d,7f,4g,1h) -> [11s,10p,9d,6f,4g,1h]
 Br    S
      95.83565078             1.0000000
@@ -2572,7 +2572,7 @@ Br    G
 Br    H
       2.35538758             1.0000000
 end
-basis "Kr_def2-tzvpd-rifit" SPHERICAL 
+basis "Kr_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (11s,10p,9d,7f,4g,1h) -> [11s,10p,9d,6f,4g,1h]
 Kr    S
      82.1068                 1.0000000
@@ -2658,7 +2658,7 @@ Kr    G
 Kr    H
       2.68783                1.0000000
 end
-basis "Rb_def2-tzvpd-rifit" SPHERICAL 
+basis "Rb_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (9s,8p,5d,3f) -> [9s,8p,5d,3f]
 Rb    S
       8.55473                1.0000000
@@ -2711,7 +2711,7 @@ Rb    F
 Rb    F
       0.20528                1.0000000
 end
-basis "Sr_def2-tzvpd-rifit" SPHERICAL 
+basis "Sr_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (9s,8p,5d,3f) -> [9s,8p,5d,3f]
 Sr    S
       9.21595                1.0000000
@@ -2764,7 +2764,7 @@ Sr    F
 Sr    F
       0.318658               1.0000000
 end
-basis "Y_def2-tzvpd-rifit" SPHERICAL 
+basis "Y_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (8s,7p,6d,5f,3g,2h) -> [8s,7p,6d,5f,3g,2h]
 Y    S
       4.35593                1.0000000
@@ -2829,7 +2829,7 @@ Y    H
 Y    H
       0.359427               1.0000000
 end
-basis "Zr_def2-tzvpd-rifit" SPHERICAL 
+basis "Zr_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (8s,7p,6d,5f,3g,2h) -> [8s,7p,6d,5f,3g,2h]
 Zr    S
       4.54991                1.0000000
@@ -2894,7 +2894,7 @@ Zr    H
 Zr    H
       0.611054               1.0000000
 end
-basis "Nb_def2-tzvpd-rifit" SPHERICAL 
+basis "Nb_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (8s,7p,6d,5f,3g,2h) -> [8s,7p,6d,5f,3g,2h]
 Nb    S
       4.16538                1.0000000
@@ -2959,7 +2959,7 @@ Nb    H
 Nb    H
       0.723199               1.0000000
 end
-basis "Mo_def2-tzvpd-rifit" SPHERICAL 
+basis "Mo_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (8s,7p,6d,5f,3g,2h) -> [8s,7p,6d,5f,3g,2h]
 Mo    S
       5.11888                1.0000000
@@ -3024,7 +3024,7 @@ Mo    H
 Mo    H
       0.867584               1.0000000
 end
-basis "Tc_def2-tzvpd-rifit" SPHERICAL 
+basis "Tc_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (8s,7p,6d,5f,3g,2h) -> [8s,7p,6d,5f,3g,2h]
 Tc    S
       6.32448                1.0000000
@@ -3089,7 +3089,7 @@ Tc    H
 Tc    H
       1.05624                1.0000000
 end
-basis "Ru_def2-tzvpd-rifit" SPHERICAL 
+basis "Ru_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (8s,7p,6d,5f,3g,2h) -> [8s,7p,6d,5f,3g,2h]
 Ru    S
       8.00136                1.0000000
@@ -3154,7 +3154,7 @@ Ru    H
 Ru    H
       1.20738                1.0000000
 end
-basis "Rh_def2-tzvpd-rifit" SPHERICAL 
+basis "Rh_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (8s,7p,6d,5f,3g,2h) -> [8s,7p,6d,5f,3g,2h]
 Rh    S
       8.78169                1.0000000
@@ -3219,7 +3219,7 @@ Rh    H
 Rh    H
       1.43761                1.0000000
 end
-basis "Pd_def2-tzvpd-rifit" SPHERICAL 
+basis "Pd_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (8s,7p,6d,5f,3g,2h) -> [8s,7p,6d,5f,3g,2h]
 Pd    S
       7.52823                1.0000000
@@ -3284,7 +3284,7 @@ Pd    H
 Pd    H
       1.62925                1.0000000
 end
-basis "Ag_def2-tzvpd-rifit" SPHERICAL 
+basis "Ag_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (8s,7p,6d,5f,3g,2h) -> [8s,7p,6d,5f,3g,2h]
 Ag    S
       7.79685                1.0000000
@@ -3349,7 +3349,7 @@ Ag    H
 Ag    H
       1.90221                1.0000000
 end
-basis "Cd_def2-tzvpd-rifit" SPHERICAL 
+basis "Cd_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (8s,7p,6d,5f,3g,2h) -> [8s,7p,6d,5f,3g,2h]
 Cd    S
       7.141                  1.0000000
@@ -3414,7 +3414,7 @@ Cd    H
 Cd    H
       2.241                  1.0000000
 end
-basis "In_def2-tzvpd-rifit" SPHERICAL 
+basis "In_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,9d,7f,4g,3h) -> [10s,9p,9d,7f,4g,3h]
 In    S
      16.3552                 1.0000000
@@ -3501,7 +3501,7 @@ In    H
 In    H
       0.669118               1.0000000
 end
-basis "Sn_def2-tzvpd-rifit" SPHERICAL 
+basis "Sn_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,9d,7f,4g,3h) -> [10s,9p,9d,7f,4g,3h]
 Sn    S
      17.5395                 1.0000000
@@ -3588,7 +3588,7 @@ Sn    H
 Sn    H
       0.769966               1.0000000
 end
-basis "Sb_def2-tzvpd-rifit" SPHERICAL 
+basis "Sb_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,9d,7f,4g,3h) -> [10s,9p,9d,7f,4g,3h]
 Sb    S
      18.6898                 1.0000000
@@ -3675,7 +3675,7 @@ Sb    H
 Sb    H
       0.88811                1.0000000
 end
-basis "Te_def2-tzvpd-rifit" SPHERICAL 
+basis "Te_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,9d,7f,4g,3h) -> [10s,9p,9d,7f,4g,3h]
 Te    S
      19.5695                 1.0000000
@@ -3762,7 +3762,7 @@ Te    H
 Te    H
       1.12162                1.0000000
 end
-basis "I_def2-tzvpd-rifit" SPHERICAL 
+basis "I_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,9d,7f,4g,3h) -> [10s,9p,9d,7f,4g,3h]
 I    S
      19.8451                 1.0000000
@@ -3849,7 +3849,7 @@ I    H
 I    H
       1.27087                1.0000000
 end
-basis "Xe_def2-tzvpd-rifit" SPHERICAL 
+basis "Xe_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,9d,7f,4g,3h) -> [10s,9p,9d,7f,4g,3h]
 Xe    S
      19.9553                 1.0000000
@@ -3936,7 +3936,7 @@ Xe    H
 Xe    H
       1.42564                1.0000000
 end
-basis "Cs_def2-tzvpd-rifit" SPHERICAL 
+basis "Cs_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,5d,2f) -> [10s,9p,5d,2f]
 Cs    S
       7.5537                 1.0000000
@@ -3991,7 +3991,7 @@ Cs    F
 Cs    F
       0.223912               1.0000000
 end
-basis "Ba_def2-tzvpd-rifit" SPHERICAL 
+basis "Ba_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (9s,8p,6d,4f,2g) -> [9s,8p,6d,4f,2g]
 Ba    S
       5.6082                 1.0000000
@@ -4052,7 +4052,7 @@ Ba    G
 Ba    G
       0.378449               1.0000000
 end
-basis "La_def2-tzvpd-rifit" SPHERICAL 
+basis "La_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,8d,5f,3g,2h) -> [9s,9p,8d,5f,3g,2h]
 La    S
       4.63761                1.0000000
@@ -4127,7 +4127,7 @@ La    H
 La    H
       0.333037               1.0000000
 end
-basis "Hf_def2-tzvpd-rifit" SPHERICAL 
+basis "Hf_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,8d,5f,3g,2h) -> [9s,9p,8d,5f,3g,2h]
 Hf    S
       5.09283                1.0000000
@@ -4202,7 +4202,7 @@ Hf    H
 Hf    H
       0.419572               1.0000000
 end
-basis "Ta_def2-tzvpd-rifit" SPHERICAL 
+basis "Ta_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,8d,5f,3g,2h) -> [9s,9p,8d,5f,3g,2h]
 Ta    S
       4.60845                1.0000000
@@ -4277,7 +4277,7 @@ Ta    H
 Ta    H
       0.552796               1.0000000
 end
-basis "W_def2-tzvpd-rifit" SPHERICAL 
+basis "W_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,8d,5f,3g,2h) -> [9s,9p,8d,5f,3g,2h]
 W    S
       5.45793                1.0000000
@@ -4352,7 +4352,7 @@ W    H
 W    H
       0.66091                1.0000000
 end
-basis "Re_def2-tzvpd-rifit" SPHERICAL 
+basis "Re_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,8d,5f,3g,2h) -> [9s,9p,8d,5f,3g,2h]
 Re    S
       5.35691                1.0000000
@@ -4427,7 +4427,7 @@ Re    H
 Re    H
       0.825067               1.0000000
 end
-basis "Os_def2-tzvpd-rifit" SPHERICAL 
+basis "Os_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,8d,5f,3g,2h) -> [9s,9p,8d,5f,3g,2h]
 Os    S
       5.79093                1.0000000
@@ -4502,7 +4502,7 @@ Os    H
 Os    H
       0.940731               1.0000000
 end
-basis "Ir_def2-tzvpd-rifit" SPHERICAL 
+basis "Ir_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,8d,5f,3g,2h) -> [9s,9p,8d,5f,3g,2h]
 Ir    S
       6.23964                1.0000000
@@ -4577,7 +4577,7 @@ Ir    H
 Ir    H
       1.00715                1.0000000
 end
-basis "Pt_def2-tzvpd-rifit" SPHERICAL 
+basis "Pt_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,8d,5f,3g,2h) -> [9s,9p,8d,5f,3g,2h]
 Pt    S
       7.00131                1.0000000
@@ -4652,7 +4652,7 @@ Pt    H
 Pt    H
       1.0371                 1.0000000
 end
-basis "Au_def2-tzvpd-rifit" SPHERICAL 
+basis "Au_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,8d,5f,3g,2h) -> [9s,9p,8d,5f,3g,2h]
 Au    S
       7.74842                1.0000000
@@ -4727,7 +4727,7 @@ Au    H
 Au    H
       1.14864                1.0000000
 end
-basis "Hg_def2-tzvpd-rifit" SPHERICAL 
+basis "Hg_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,8d,5f,3g,2h) -> [9s,9p,8d,5f,3g,2h]
 Hg    S
       4.83454                1.0000000
@@ -4802,7 +4802,7 @@ Hg    H
 Hg    H
       1.32855                1.0000000
 end
-basis "Tl_def2-tzvpd-rifit" SPHERICAL 
+basis "Tl_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,9d,7f,4g,3h) -> [10s,9p,9d,7f,4g,3h]
 Tl    S
      13.9052                 1.0000000
@@ -4889,7 +4889,7 @@ Tl    H
 Tl    H
       0.637027               1.0000000
 end
-basis "Pb_def2-tzvpd-rifit" SPHERICAL 
+basis "Pb_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,9d,7f,4g,3h) -> [10s,9p,9d,7f,4g,3h]
 Pb    S
      13.9193                 1.0000000
@@ -4976,7 +4976,7 @@ Pb    H
 Pb    H
       0.711337               1.0000000
 end
-basis "Bi_def2-tzvpd-rifit" SPHERICAL 
+basis "Bi_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,9d,7f,4g,3h) -> [10s,9p,9d,7f,4g,3h]
 Bi    S
      15.2944                 1.0000000
@@ -5063,7 +5063,7 @@ Bi    H
 Bi    H
       0.788285               1.0000000
 end
-basis "Po_def2-tzvpd-rifit" SPHERICAL 
+basis "Po_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,9d,7f,4g,3h) -> [10s,9p,9d,7f,4g,3h]
 Po    S
      15.8209                 1.0000000
@@ -5150,7 +5150,7 @@ Po    H
 Po    H
       0.860392               1.0000000
 end
-basis "At_def2-tzvpd-rifit" SPHERICAL 
+basis "At_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,9d,7f,4g,3h) -> [10s,9p,9d,7f,4g,3h]
 At    S
      16.5975                 1.0000000
@@ -5237,7 +5237,7 @@ At    H
 At    H
       0.992127               1.0000000
 end
-basis "Rn_def2-tzvpd-rifit" SPHERICAL 
+basis "Rn_def2-TZVPD-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,9d,7f,4g,3h) -> [10s,9p,9d,7f,4g,3h]
 Rn    S
      17.191                  1.0000000

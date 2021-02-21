@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# sbo4-dz(d)-3g version number 1
+# Data downloaded on 2021-02-20T21:21
+# SBO4-DZ(d)-3G version number 1
 # Description: SBO4-DZ(d,p)-3G Double-zeta expansion of simplified box orbitals
 # Role: orbital
 # 
@@ -47,7 +47,7 @@
 #     10.1002/qua.26129
 # 
 # # 
-basis "H_sbo4-dz(d)-3g" SPHERICAL 
+basis "H_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (6s,3p) -> [2s,1p]
 H    S
       4.38202002             0.149781336149
@@ -62,7 +62,7 @@ H    P
       0.68102669968          0.557659446851
       0.22560207424          0.443521318585
 end
-basis "He_sbo4-dz(d)-3g" SPHERICAL 
+basis "He_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (6s,3p) -> [2s,1p]
 He    S
      18.9444416545568        0.149781336149
@@ -77,7 +77,7 @@ He    P
       0.73114725952          0.557659446851
       0.24220539136          0.443521318585
 end
-basis "Li_sbo4-dz(d)-3g" SPHERICAL 
+basis "Li_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (12s,6p,3d) -> [4s,2p,1d]
 Li    S
      47.653908571969         0.149781336149
@@ -108,7 +108,7 @@ Li    D
       0.12458215377344       0.563663064924
       0.04682852006976       0.452878219325
 end
-basis "Be_sbo4-dz(d)-3g" SPHERICAL 
+basis "Be_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (12s,6p,3d) -> [4s,2p,1d]
 Be    S
      69.8891566433931        0.14978133614
@@ -139,7 +139,7 @@ Be    D
       0.24736249953776       0.563663064924
       0.09297976815504       0.452878219325
 end
-basis "B_sbo4-dz(d)-3g" SPHERICAL 
+basis "B_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (12s,6p,3d) -> [4s,2p,1d]
 B    S
      96.4041086450829        0.14978133614
@@ -170,7 +170,7 @@ B    D
       0.26968864626          0.5636616437
       0.09597822471          0.4528855198
 end
-basis "C_sbo4-dz(d)-3g" SPHERICAL 
+basis "C_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (12s,6p,3d) -> [4s,2p,1d]
 C    S
     126.509166910552         0.14978133614
@@ -201,7 +201,7 @@ C    D
       0.65233881421916       0.563663064924
       0.24520415106564       0.452878219325
 end
-basis "N_sbo4-dz(d)-3g" SPHERICAL 
+basis "N_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (12s,6p,3d) -> [4s,2p,1d]
 N    S
     161.377999484066         0.14978133614
@@ -232,7 +232,7 @@ N    D
       0.92501914056176       0.563663064924
       0.34770050185104       0.452878219325
 end
-basis "O_sbo4-dz(d)-3g" SPHERICAL 
+basis "O_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (12s,6p,3d) -> [4s,2p,1d]
 O    S
     200.347303825207         0.14978133614
@@ -263,7 +263,7 @@ O    D
       0.8627572976           0.563663064924
       0.3242972304           0.452878219325
 end
-basis "F_sbo4-dz(d)-3g" SPHERICAL 
+basis "F_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (12s,6p,3d) -> [4s,2p,1d]
 F    S
     242.956685627335         0.14978133614
@@ -294,7 +294,7 @@ F    D
       0.98106841795824       0.563663064924
       0.36876856522896       0.452878219325
 end
-basis "Ne_sbo4-dz(d)-3g" SPHERICAL 
+basis "Ne_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (12s,6p,3d) -> [4s,2p,1d]
 Ne    S
     291.656916556915         0.14978133614
@@ -325,7 +325,7 @@ Ne    D
       1.2994836156           0.563663064924
       0.4884559524           0.452878219325
 end
-basis "Na_sbo4-dz(d)-3g" SPHERICAL 
+basis "Na_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (18s,12p,3d) -> [6s,4p,1d]
 Na    S
     354.059713012147         0.14978133614
@@ -372,7 +372,7 @@ Na    D
       0.509115933404         0.563663064924
       0.191368867716         0.452878219325
 end
-basis "Mg_sbo4-dz(d)-3g" SPHERICAL 
+basis "Mg_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (18s,12p,3d) -> [6s,4p,1d]
 Mg    S
     397.478124425794         0.14978133614
@@ -419,7 +419,7 @@ Mg    D
       0.15650292599516       0.563663064924
       0.05882704856964       0.452878219325
 end
-basis "Al_sbo4-dz(d)-3g" SPHERICAL 
+basis "Al_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (18s,12p,3d) -> [6s,4p,1d]
 Al    S
     452.521215312061         0.14978133614
@@ -466,7 +466,7 @@ Al    D
       0.13430207731136       0.563663064924
       0.05048209018944       0.452878219325
 end
-basis "Si_sbo4-dz(d)-3g" SPHERICAL 
+basis "Si_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (18s,12p,3d) -> [6s,4p,1d]
 Si    S
     512.979853705966         0.14978133614
@@ -513,7 +513,7 @@ Si    D
       0.3747824831           0.563663064924
       0.1408749849           0.452878219325
 end
-basis "P_sbo4-dz(d)-3g" SPHERICAL 
+basis "P_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (18s,12p,3d) -> [6s,4p,1d]
 P    S
     579.781479246774         0.149781336112
@@ -560,7 +560,7 @@ P    D
       0.47128580846064       0.563663064924
       0.17714910419856       0.452878219325
 end
-basis "S_sbo4-dz(d)-3g" SPHERICAL 
+basis "S_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (18s,12p,3d) -> [6s,4p,1d]
 S    S
     652.006186375899         0.14978133614
@@ -607,7 +607,7 @@ S    D
       0.542792880191         0.563663064924
       0.204027515289         0.452878219325
 end
-basis "Cl_sbo4-dz(d)-3g" SPHERICAL 
+basis "Cl_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (18s,12p,3d) -> [6s,4p,1d]
 Cl    S
     728.444986797406         0.149781336149
@@ -654,7 +654,7 @@ Cl    D
       0.590453981936         0.563663064924
       0.221942592144         0.452878219325
 end
-basis "Ar_sbo4-dz(d)-3g" SPHERICAL 
+basis "Ar_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (18s,12p,3d) -> [6s,4p,1d]
 Ar    S
     809.519650100725         0.149781336149
@@ -701,7 +701,7 @@ Ar    D
       0.45149876396199       0.563663064924
       0.16971145777521       0.452878219325
 end
-basis "K_sbo4-dz(d)-3g" SPHERICAL 
+basis "K_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (24s,18p,9d) -> [8s,6p,3d]
 K    S
     895.676694645336         0.14978133614
@@ -772,7 +772,7 @@ K    D
       0.043716780032         0.341233341651
       0.020497235968         0.518240345822
 end
-basis "Ca_sbo4-dz(d)-3g" SPHERICAL 
+basis "Ca_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (24s,18p,9d) -> [8s,6p,3d]
 Ca    S
     986.997304288004         0.14978133614
@@ -843,7 +843,7 @@ Ca    D
       0.16783529313672       0.341233341651
       0.07869197147328       0.518240345822
 end
-basis "Sc_sbo4-dz(d)-3g" SPHERICAL 
+basis "Sc_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (24s,18p,9d) -> [8s,6p,3d]
 Sc    S
    1082.84850587291          0.14978133614
@@ -914,7 +914,7 @@ Sc    D
       0.08974843614338       0.341233341651
       0.04207983460912       0.518240345822
 end
-basis "Ti_sbo4-dz(d)-3g" SPHERICAL 
+basis "Ti_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (24s,18p,9d) -> [8s,6p,3d]
 Ti    S
    1183.17166230217          0.14978133614
@@ -985,7 +985,7 @@ Ti    D
       0.1187936257205        0.341233341651
       0.055698086092         0.518240345822
 end
-basis "V_sbo4-dz(d)-3g" SPHERICAL 
+basis "V_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (24s,18p,9d) -> [8s,6p,3d]
 V    S
    1288.614802989            0.14978133614
@@ -1056,7 +1056,7 @@ V    D
       0.1536918048           0.341233341651
       0.0720605952           0.518240345822
 end
-basis "Cr_sbo4-dz(d)-3g" SPHERICAL 
+basis "Cr_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (24s,18p,9d) -> [8s,6p,3d]
 Cr    S
    1397.09339623245          0.14978133614
@@ -1127,7 +1127,7 @@ Cr    D
       0.1845609105245        0.341233341651
       0.086534015788         0.518240345822
 end
-basis "Mn_sbo4-dz(d)-3g" SPHERICAL 
+basis "Mn_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (24s,18p,9d) -> [8s,6p,3d]
 Mn    S
    1515.14249061303          0.14978133614
@@ -1198,7 +1198,7 @@ Mn    D
       0.17907499056384       0.494194408895
       0.083904359328         0.398211264523
 end
-basis "Fe_sbo4-dz(d)-3g" SPHERICAL 
+basis "Fe_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (24s,18p,9d) -> [8s,6p,3d]
 Fe    S
    1633.89047518358          0.14978133614
@@ -1269,7 +1269,7 @@ Fe    D
       0.212190748002         0.341233341651
       0.099488659248         0.518240345822
 end
-basis "Co_sbo4-dz(d)-3g" SPHERICAL 
+basis "Co_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (24s,18p,9d) -> [8s,6p,3d]
 Co    S
    1757.11796202609          0.14978133614
@@ -1340,7 +1340,7 @@ Co    D
       0.2017872003125        0.341233341651
       0.0946108075           0.518240345822
 end
-basis "Ni_sbo4-dz(d)-3g" SPHERICAL 
+basis "Ni_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (24s,18p,9d) -> [8s,6p,3d]
 Ni    S
    1884.94179985549          0.14978133614
@@ -1411,7 +1411,7 @@ Ni    D
       0.22008837216032       0.341233341651
       0.10319157299968       0.518240345822
 end
-basis "Cu_sbo4-dz(d)-3g" SPHERICAL 
+basis "Cu_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (24s,18p,9d) -> [8s,6p,3d]
 Cu    S
    2015.15845422427          0.14978133614
@@ -1482,7 +1482,7 @@ Cu    D
       0.23000661663008       0.341233341651
       0.10784188340992       0.518240345822
 end
-basis "Zn_sbo4-dz(d)-3g" SPHERICAL 
+basis "Zn_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (24s,18p,9d) -> [8s,6p,3d]
 Zn    S
    2149.10010310262          0.14978133614
@@ -1553,7 +1553,7 @@ Zn    D
       0.206213844482         0.341233341651
       0.096686302768         0.518240345822
 end
-basis "Ga_sbo4-dz(d)-3g" SPHERICAL 
+basis "Ga_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (24s,18p,9d) -> [8s,6p,3d]
 Ga    S
    2292.00165034538          0.14978133614
@@ -1624,7 +1624,7 @@ Ga    D
       0.27050440719488       0.341233341651
       0.12682985024512       0.518240345822
 end
-basis "Ge_sbo4-dz(d)-3g" SPHERICAL 
+basis "Ge_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (24s,18p,9d) -> [8s,6p,3d]
 Ge    S
    2439.56162005955          0.14978133614
@@ -1695,7 +1695,7 @@ Ge    D
       0.32239460279048       0.341233341651
       0.15115930869952       0.518240345822
 end
-basis "As_sbo4-dz(d)-3g" SPHERICAL 
+basis "As_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (24s,18p,9d) -> [8s,6p,3d]
 As    S
    2587.75257404173          0.14978133614
@@ -1766,7 +1766,7 @@ As    D
       0.39058733638898       0.341233341651
       0.18313244466352       0.518240345822
 end
-basis "Se_sbo4-dz(d)-3g" SPHERICAL 
+basis "Se_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (24s,18p,9d) -> [8s,6p,3d]
 Se    S
    2744.47776714146          0.149781336149
@@ -1837,7 +1837,7 @@ Se    D
       0.48604563654152       0.341233341651
       0.22788943046848       0.518240345822
 end
-basis "Br_sbo4-dz(d)-3g" SPHERICAL 
+basis "Br_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (24s,18p,9d) -> [8s,6p,3d]
 Br    S
    2903.39420338051          0.14978133614
@@ -1908,7 +1908,7 @@ Br    D
       0.526010201928         0.341233341651
       0.246627387072         0.518240345822
 end
-basis "Kr_sbo4-dz(d)-3g" SPHERICAL 
+basis "Kr_SBO4-DZ(d)-3G" SPHERICAL 
 #basis SET: (24s,18p,9d) -> [8s,6p,3d]
 Kr    S
    3069.53205045274          0.14978133614

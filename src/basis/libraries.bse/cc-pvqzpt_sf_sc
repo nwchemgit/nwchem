@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# cc-pvqz(pt_sl_sf_sl_sc) version number 0
+# Data downloaded on 2021-02-20T21:21
+# cc-pVQZ(pt/sf/sc) version number 0
 # Description: VQZ3P   Relativistic Valence Quadruple Zeta + Polarization
 # Role: orbital
 # 
@@ -84,7 +84,7 @@
 #     10.1063/1.466439
 # 
 # # 
-basis "H_cc-pvqz(pt_sl_sf_sl_sc)" SPHERICAL 
+basis "H_cc-pVQZ(pt/sf/sc)" SPHERICAL 
 #basis SET: (6s,3p,2d,1f) -> [4s,3p,2d,1f]
 H    S
       8.2640000E+01          2.00645661753E-03
@@ -109,7 +109,7 @@ H    D
 H    F
       1.3970000E+00          9.99749034995E-01
 end
-basis "He_cc-pvqz(pt_sl_sf_sl_sc)" SPHERICAL 
+basis "He_cc-pVQZ(pt/sf/sc)" SPHERICAL 
 #basis SET: (7s,3p,2d,1f) -> [4s,3p,2d,1f]
 He    S
       5.2850000E+02          9.40032963886E-04
@@ -135,7 +135,7 @@ He    D
 He    F
       2.6800000E+00          9.99518740591E-01
 end
-basis "B_cc-pvqz(pt_sl_sf_sl_sc)" SPHERICAL 
+basis "B_cc-pVQZ(pt/sf/sc)" SPHERICAL 
 #basis SET: (21s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
 B    S
       2.3870000E+04          8.86767312948E-05
@@ -186,7 +186,7 @@ B    F
 B    G
       6.7300000E-01          9.99852205190E-01
 end
-basis "C_cc-pvqz(pt_sl_sf_sl_sc)" SPHERICAL 
+basis "C_cc-pVQZ(pt/sf/sc)" SPHERICAL 
 #basis SET: (21s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
 C    S
       3.3980000E+04          9.10481699961E-05
@@ -237,7 +237,7 @@ C    F
 C    G
       1.0110000E+00          9.99778006751E-01
 end
-basis "N_cc-pvqz(pt_sl_sf_sl_sc)" SPHERICAL 
+basis "N_cc-pVQZ(pt/sf/sc)" SPHERICAL 
 #basis SET: (21s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
 N    S
       4.5840000E+04          9.28545698982E-05
@@ -288,7 +288,7 @@ N    F
 N    G
       1.4270000E+00          9.99686711626E-01
 end
-basis "O_cc-pvqz(pt_sl_sf_sl_sc)" SPHERICAL 
+basis "O_cc-pVQZ(pt/sf/sc)" SPHERICAL 
 #basis SET: (21s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
 O    S
       6.1420000E+04          9.06048982491E-05
@@ -339,7 +339,7 @@ O    F
 O    G
       1.8460000E+00          9.99594787140E-01
 end
-basis "F_cc-pvqz(pt_sl_sf_sl_sc)" SPHERICAL 
+basis "F_cc-pVQZ(pt/sf/sc)" SPHERICAL 
 #basis SET: (21s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
 F    S
       7.4530000E+04          9.60639686975E-05
@@ -390,7 +390,7 @@ F    F
 F    G
       2.3760000E+00          9.99478552038E-01
 end
-basis "Ne_cc-pvqz(pt_sl_sf_sl_sc)" SPHERICAL 
+basis "Ne_cc-pVQZ(pt/sf/sc)" SPHERICAL 
 #basis SET: (21s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
 Ne    S
       9.9920000E+04          8.72075071008E-05
@@ -441,7 +441,7 @@ Ne    F
 Ne    G
       2.9830000E+00          9.99345487118E-01
 end
-basis "Al_cc-pvqz(pt_sl_sf_sl_sc)" SPHERICAL 
+basis "Al_cc-pVQZ(pt/sf/sc)" SPHERICAL 
 #basis SET: (42s,19p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
 Al    S
       4.1960000E+05          2.84696313334E-05
@@ -528,7 +528,7 @@ Al    F
 Al    G
       3.5700000E-01          9.99921591302E-01
 end
-basis "Si_cc-pvqz(pt_sl_sf_sl_sc)" SPHERICAL 
+basis "Si_cc-pVQZ(pt/sf/sc)" SPHERICAL 
 #basis SET: (42s,19p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
 Si    S
       5.1300000E+05          2.68021216880E-05
@@ -615,7 +615,7 @@ Si    F
 Si    G
       4.6100000E-01          9.99898753536E-01
 end
-basis "P_cc-pvqz(pt_sl_sf_sl_sc)" SPHERICAL 
+basis "P_cc-pVQZ(pt/sf/sc)" SPHERICAL 
 #basis SET: (42s,19p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
 P    S
       6.1520000E+05          2.55236673397E-05
@@ -702,7 +702,7 @@ P    F
 P    G
       5.9700000E-01          9.99868891474E-01
 end
-basis "S_cc-pvqz(pt_sl_sf_sl_sc)" SPHERICAL 
+basis "S_cc-pVQZ(pt/sf/sc)" SPHERICAL 
 #basis SET: (42s,19p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
 S    S
       7.2780000E+05          2.44530168188E-05
@@ -789,7 +789,7 @@ S    F
 S    G
       6.8300000E-01          9.99850009697E-01
 end
-basis "Cl_cc-pvqz(pt_sl_sf_sl_sc)" SPHERICAL 
+basis "Cl_cc-pVQZ(pt/sf/sc)" SPHERICAL 
 #basis SET: (42s,19p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
 Cl    S
       8.3490000E+05          2.41154956612E-05
@@ -876,7 +876,7 @@ Cl    F
 Cl    G
       8.2700000E-01          9.99818396448E-01
 end
-basis "Ar_cc-pvqz(pt_sl_sf_sl_sc)" SPHERICAL 
+basis "Ar_cc-pVQZ(pt/sf/sc)" SPHERICAL 
 #basis SET: (42s,19p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
 Ar    S
       9.5060000E+05          2.38015195329E-05
@@ -963,7 +963,7 @@ Ar    F
 Ar    G
       1.0070000E+00          9.99778884728E-01
 end
-basis "Ga_cc-pvqz(pt_sl_sf_sl_sc)" SPHERICAL 
+basis "Ga_cc-pVQZ(pt/sf/sc)" SPHERICAL 
 #basis SET: (75s,42p,12d,2f,1g) -> [7s,6p,4d,2f,1g]
 Ga    S
       1.1274496E+07          4.73293662416E-06
@@ -1118,7 +1118,7 @@ Ga    F
 Ga    G
       4.0320000E-01          9.99911445842E-01
 end
-basis "Ge_cc-pvqz(pt_sl_sf_sl_sc)" SPHERICAL 
+basis "Ge_cc-pVQZ(pt/sf/sc)" SPHERICAL 
 #basis SET: (75s,42p,12d,2f,1g) -> [7s,6p,4d,2f,1g]
 Ge    S
       1.2360507E+07          4.61766367119E-06
@@ -1273,7 +1273,7 @@ Ge    F
 Ge    G
       4.6810000E-01          9.99897194484E-01
 end
-basis "As_cc-pvqz(pt_sl_sf_sl_sc)" SPHERICAL 
+basis "As_cc-pVQZ(pt/sf/sc)" SPHERICAL 
 #basis SET: (75s,42p,12d,2f,1g) -> [7s,6p,4d,2f,1g]
 As    S
       1.3600341E+07          4.47580557980E-06
@@ -1428,7 +1428,7 @@ As    F
 As    G
       5.4650000E-01          9.99879979602E-01
 end
-basis "Se_cc-pvqz(pt_sl_sf_sl_sc)" SPHERICAL 
+basis "Se_cc-pVQZ(pt/sf/sc)" SPHERICAL 
 #basis SET: (75s,42p,12d,2f,1g) -> [7s,6p,4d,2f,1g]
 Se    S
       1.5011000E+07          4.31390160019E-06
@@ -1583,7 +1583,7 @@ Se    F
 Se    G
       5.7300000E-01          9.99874161027E-01
 end
-basis "Br_cc-pvqz(pt_sl_sf_sl_sc)" SPHERICAL 
+basis "Br_cc-pVQZ(pt/sf/sc)" SPHERICAL 
 #basis SET: (75s,42p,12d,2f,1g) -> [7s,6p,4d,2f,1g]
 Br    S
       1.6475000E+07          4.17949144104E-06
@@ -1738,7 +1738,7 @@ Br    F
 Br    G
       6.4910000E-01          9.99857452484E-01
 end
-basis "Kr_cc-pvqz(pt_sl_sf_sl_sc)" SPHERICAL 
+basis "Kr_cc-pVQZ(pt/sf/sc)" SPHERICAL 
 #basis SET: (75s,42p,12d,2f,1g) -> [7s,6p,4d,2f,1g]
 Kr    S
       1.8226108E+07          4.00315952630E-06

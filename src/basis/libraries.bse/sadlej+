@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# sadlej+ version number 1
+# Data downloaded on 2021-02-20T21:21
+# Sadlej+ version number 1
 # Description: Sadlej+
 # Role: orbital
 # 
@@ -59,7 +59,7 @@
 #     10.1135/cccc19881995
 # 
 # # 
-basis "H_sadlej+" SPHERICAL 
+basis "H_Sadlej+" SPHERICAL 
 #basis SET: (8s,5p) -> [5s,3p]
 H    S
      33.685014                .006068
@@ -83,7 +83,7 @@ H    P
 H    P
       0.0102000              1.0000000
 end
-basis "C_sadlej+" SPHERICAL 
+basis "C_Sadlej+" SPHERICAL 
 #basis SET: (12s,7p,5d) -> [7s,4p,3d]
 C    S
    5240.6353                  .000937
@@ -124,7 +124,7 @@ C    D
 C    D
       0.0120000              1.0000000
 end
-basis "N_sadlej+" SPHERICAL 
+basis "N_Sadlej+" SPHERICAL 
 #basis SET: (12s,7p,5d) -> [7s,4p,3d]
 N    S
    8104.0716                  .000802
@@ -165,7 +165,7 @@ N    D
 N    D
       0.0173000              1.0000000
 end
-basis "O_sadlej+" SPHERICAL 
+basis "O_Sadlej+" SPHERICAL 
 #basis SET: (12s,7p,5d) -> [7s,4p,3d]
 O    S
   10662.285                   .000799

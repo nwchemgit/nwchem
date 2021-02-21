@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# 6-311+g version number 0
+# Data downloaded on 2021-02-20T21:21
+# 6-311+G version number 0
 # Description: VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO with diffuse on heavy atoms
 # Role: orbital
 # 
@@ -146,7 +146,7 @@
 #     10.1002/jcc.540080807
 # 
 # # 
-basis "H_6-311+g" SPHERICAL 
+basis "H_6-311+G" SPHERICAL 
 #basis SET: (5s) -> [3s]
 H    S
      33.86500                0.0254938
@@ -157,7 +157,7 @@ H    S
 H    S
       0.102741               1.000000
 end
-basis "He_6-311+g" SPHERICAL 
+basis "He_6-311+G" SPHERICAL 
 #basis SET: (5s) -> [3s]
 He    S
      98.12430                0.0287452
@@ -168,7 +168,7 @@ He    S
 He    S
       0.244564               1.000000
 end
-basis "Li_6-311+g" SPHERICAL 
+basis "Li_6-311+G" SPHERICAL 
 #basis SET: (12s,6p) -> [5s,4p]
 Li    S
     900.4600                 0.00228704
@@ -188,7 +188,7 @@ Li    SP
 Li    SP
       0.0074000              1.0000000              1.0000000
 end
-basis "Be_6-311+g" SPHERICAL 
+basis "Be_6-311+G" SPHERICAL 
 #basis SET: (12s,6p) -> [5s,4p]
 Be    S
    1682.800                  0.00228574
@@ -208,7 +208,7 @@ Be    SP
 Be    SP
       0.0207000              1.0000000              1.0000000
 end
-basis "B_6-311+g" SPHERICAL 
+basis "B_6-311+G" SPHERICAL 
 #basis SET: (12s,6p) -> [5s,4p]
 B    S
    2858.890                  0.00215375
@@ -228,7 +228,7 @@ B    SP
 B    SP
       0.0315000              1.0000000              1.0000000
 end
-basis "C_6-311+g" SPHERICAL 
+basis "C_6-311+G" SPHERICAL 
 #basis SET: (12s,6p) -> [5s,4p]
 C    S
    4563.240                  0.00196665
@@ -248,7 +248,7 @@ C    SP
 C    SP
       0.0438000              1.0000000              1.0000000
 end
-basis "N_6-311+g" SPHERICAL 
+basis "N_6-311+G" SPHERICAL 
 #basis SET: (12s,6p) -> [5s,4p]
 N    S
    6293.480                  0.00196979
@@ -268,7 +268,7 @@ N    SP
 N    SP
       0.0639000              1.0000000              1.0000000
 end
-basis "O_6-311+g" SPHERICAL 
+basis "O_6-311+G" SPHERICAL 
 #basis SET: (12s,6p) -> [5s,4p]
 O    S
    8588.500                  0.00189515
@@ -288,7 +288,7 @@ O    SP
 O    SP
       0.0845000              1.0000000              1.0000000
 end
-basis "F_6-311+g" SPHERICAL 
+basis "F_6-311+G" SPHERICAL 
 #basis SET: (12s,6p) -> [5s,4p]
 F    S
   11427.10                   0.00180093
@@ -308,7 +308,7 @@ F    SP
 F    SP
       0.1076000              1.0000000              1.0000000
 end
-basis "Ne_6-311+g" SPHERICAL 
+basis "Ne_6-311+G" SPHERICAL 
 #basis SET: (12s,6p) -> [5s,4p]
 Ne    S
   13995.70                   0.00183276
@@ -328,7 +328,7 @@ Ne    SP
 Ne    SP
       0.1300000              1.0000000              1.0000000
 end
-basis "Na_6-311+g" SPHERICAL 
+basis "Na_6-311+G" SPHERICAL 
 #basis SET: (14s,10p) -> [7s,6p]
 Na    S
   36166.4                    0.001032
@@ -366,7 +366,7 @@ Na    P
 Na    SP
       0.0076000              1.0000000              1.0000000
 end
-basis "Mg_6-311+g" SPHERICAL 
+basis "Mg_6-311+G" SPHERICAL 
 #basis SET: (14s,10p) -> [7s,6p]
 Mg    S
   43866.5                    0.000918
@@ -404,7 +404,7 @@ Mg    P
 Mg    SP
       0.0146000              1.0000000              1.0000000
 end
-basis "Al_6-311+g" SPHERICAL 
+basis "Al_6-311+G" SPHERICAL 
 #basis SET: (14s,10p) -> [7s,6p]
 Al    S
   54866.489                  0.000839
@@ -442,7 +442,7 @@ Al    SP
 Al    P
       0.041397               1.000000
 end
-basis "Si_6-311+g" SPHERICAL 
+basis "Si_6-311+G" SPHERICAL 
 #basis SET: (14s,10p) -> [7s,6p]
 Si    S
   69379.230                  0.000757
@@ -480,7 +480,7 @@ Si    P
 Si    SP
       0.0331000              1.0000000              1.0000000
 end
-basis "P_6-311+g" SPHERICAL 
+basis "P_6-311+G" SPHERICAL 
 #basis SET: (14s,10p) -> [7s,6p]
 P    S
   77492.4                    0.000781
@@ -518,7 +518,7 @@ P    P
 P    SP
       0.0348000              1.0000000              1.0000000
 end
-basis "S_6-311+g" SPHERICAL 
+basis "S_6-311+G" SPHERICAL 
 #basis SET: (14s,10p) -> [7s,6p]
 S    S
   93413.4                    0.000743
@@ -556,7 +556,7 @@ S    P
 S    SP
       0.0405000              1.0000000              1.0000000
 end
-basis "Cl_6-311+g" SPHERICAL 
+basis "Cl_6-311+G" SPHERICAL 
 #basis SET: (14s,11p) -> [7s,6p]
 Cl    S
  105819.0                    0.000738
@@ -595,7 +595,7 @@ Cl    P
 Cl    SP
       0.0483000              1.0000000              1.0000000
 end
-basis "Ar_6-311+g" SPHERICAL 
+basis "Ar_6-311+G" SPHERICAL 
 #basis SET: (14s,11p) -> [7s,6p]
 Ar    S
  118022.38                   0.000747
@@ -634,7 +634,7 @@ Ar    P
 Ar    SP
       0.0600000              1.0000000              1.0000000
 end
-basis "K_6-311+g" SPHERICAL 
+basis "K_6-311+G" SPHERICAL 
 #basis SET: (15s,12p,3d) -> [9s,8p,1d]
 K    S
  182594.                     0.000227747
@@ -683,7 +683,7 @@ K    D
       3.421                  0.156879
       1.063                  0.390582
 end
-basis "Ca_6-311+g" SPHERICAL 
+basis "Ca_6-311+G" SPHERICAL 
 #basis SET: (15s,12p,3d) -> [9s,8p,1d]
 Ca    S
  202699.                     0.000222964

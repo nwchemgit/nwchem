@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# may-cc-pv(t+d)z version number 0
+# Data downloaded on 2021-02-20T21:21
+# may-cc-pV(T+d)Z version number 0
 # Description: may-cc-pV(T+d)Z basis of Papajak/Truhlar
 # Role: orbital
 # 
@@ -117,7 +117,7 @@
 #     10.1063/1.466439
 # 
 # # 
-basis "H_may-cc-pv(t+d)z" SPHERICAL 
+basis "H_may-cc-pV(T+d)Z" SPHERICAL 
 #basis SET: (5s,2p,1d) -> [3s,2p,1d]
 H    S
      33.8700000              0.0060680
@@ -134,7 +134,7 @@ H    P
 H    D
       1.0570000              1.0000000
 end
-basis "He_may-cc-pv(t+d)z" SPHERICAL 
+basis "He_may-cc-pV(T+d)Z" SPHERICAL 
 #basis SET: (6s,2p,1d) -> [3s,2p,1d]
 He    S
     234.0000000              0.0025870
@@ -152,7 +152,7 @@ He    P
 He    D
       1.9650000              1.0000000
 end
-basis "Li_may-cc-pv(t+d)z" SPHERICAL 
+basis "Li_may-cc-pV(T+d)Z" SPHERICAL 
 #basis SET: (21s,6p,2d,1f) -> [5s,4p,2d,1f]
 Li    S
    5988.0000000              0.0001330
@@ -197,7 +197,7 @@ Li    D
 Li    F
       0.1829000              1.0000000
 end
-basis "Be_may-cc-pv(t+d)z" SPHERICAL 
+basis "Be_may-cc-pV(T+d)Z" SPHERICAL 
 #basis SET: (21s,6p,2d,1f) -> [5s,4p,2d,1f]
 Be    S
    6863.0000000              0.0002360
@@ -242,7 +242,7 @@ Be    D
 Be    F
       0.3250000              1.0000000
 end
-basis "B_may-cc-pv(t+d)z" SPHERICAL 
+basis "B_may-cc-pV(T+d)Z" SPHERICAL 
 #basis SET: (19s,6p,2d,1f) -> [5s,4p,2d,1f]
 B    S
    5473.0000000              0.0005550
@@ -285,7 +285,7 @@ B    D
 B    F
       0.4900000              1.0000000
 end
-basis "C_may-cc-pv(t+d)z" SPHERICAL 
+basis "C_may-cc-pV(T+d)Z" SPHERICAL 
 #basis SET: (19s,6p,2d,1f) -> [5s,4p,2d,1f]
 C    S
    8236.0000000              0.0005310
@@ -328,7 +328,7 @@ C    D
 C    F
       0.7610000              1.0000000
 end
-basis "N_may-cc-pv(t+d)z" SPHERICAL 
+basis "N_may-cc-pV(T+d)Z" SPHERICAL 
 #basis SET: (19s,6p,2d,1f) -> [5s,4p,2d,1f]
 N    S
   11420.0000000              0.0005230
@@ -371,7 +371,7 @@ N    D
 N    F
       1.0930000              1.0000000
 end
-basis "O_may-cc-pv(t+d)z" SPHERICAL 
+basis "O_may-cc-pV(T+d)Z" SPHERICAL 
 #basis SET: (19s,6p,2d,1f) -> [5s,4p,2d,1f]
 O    S
   15330.0000000              0.0005080
@@ -414,7 +414,7 @@ O    D
 O    F
       1.4280000              1.0000000
 end
-basis "F_may-cc-pv(t+d)z" SPHERICAL 
+basis "F_may-cc-pV(T+d)Z" SPHERICAL 
 #basis SET: (19s,6p,2d,1f) -> [5s,4p,2d,1f]
 F    S
   19500.0000000              0.0005070
@@ -457,7 +457,7 @@ F    D
 F    F
       1.9170000              1.0000000
 end
-basis "Ne_may-cc-pv(t+d)z" SPHERICAL 
+basis "Ne_may-cc-pV(T+d)Z" SPHERICAL 
 #basis SET: (19s,6p,2d,1f) -> [5s,4p,2d,1f]
 Ne    S
   24350.0000000              0.0005020
@@ -500,7 +500,7 @@ Ne    D
 Ne    F
       2.5440000              1.0000000
 end
-basis "Na_may-cc-pv(t+d)z" SPHERICAL 
+basis "Na_may-cc-pV(T+d)Z" SPHERICAL 
 #basis SET: (45s,19p,2d,1f) -> [6s,5p,2d,1f]
 Na    S
  423000.0000000              0.180618E-04
@@ -584,7 +584,7 @@ Na    D
 Na    F
       0.1397000              1.0000000
 end
-basis "Mg_may-cc-pv(t+d)z" SPHERICAL 
+basis "Mg_may-cc-pV(T+d)Z" SPHERICAL 
 #basis SET: (42s,19p,2d,1f) -> [6s,5p,2d,1f]
 Mg    S
  164900.0000000              0.729929E-04
@@ -665,7 +665,7 @@ Mg    D
 Mg    F
       0.2520000              1.0000000
 end
-basis "Al_may-cc-pv(t+d)z" SPHERICAL 
+basis "Al_may-cc-pV(T+d)Z" SPHERICAL 
 #basis SET: (42s,17p,3d,1f) -> [6s,5p,3d,1f]
 Al    S
  205500.0000000              0.678836E-04
@@ -746,7 +746,7 @@ Al    D
 Al    F
       0.2440000              1.0000000
 end
-basis "Si_may-cc-pv(t+d)z" SPHERICAL 
+basis "Si_may-cc-pV(T+d)Z" SPHERICAL 
 #basis SET: (42s,17p,3d,1f) -> [6s,5p,3d,1f]
 Si    S
  254900.0000000              0.625101E-04
@@ -827,7 +827,7 @@ Si    D
 Si    F
       0.3360000              1.0000000
 end
-basis "P_may-cc-pv(t+d)z" SPHERICAL 
+basis "P_may-cc-pV(T+d)Z" SPHERICAL 
 #basis SET: (42s,17p,3d,1f) -> [6s,5p,3d,1f]
 P    S
  312400.0000000              0.576960E-04
@@ -908,7 +908,7 @@ P    D
 P    F
       0.4520000              1.0000000
 end
-basis "S_may-cc-pv(t+d)z" SPHERICAL 
+basis "S_may-cc-pV(T+d)Z" SPHERICAL 
 #basis SET: (42s,17p,3d,1f) -> [6s,5p,3d,1f]
 S    S
  374100.0000000              0.542140E-04
@@ -989,7 +989,7 @@ S    D
 S    F
       0.5570000              1.0000000
 end
-basis "Cl_may-cc-pv(t+d)z" SPHERICAL 
+basis "Cl_may-cc-pV(T+d)Z" SPHERICAL 
 #basis SET: (42s,17p,3d,1f) -> [6s,5p,3d,1f]
 Cl    S
  456100.0000000              0.492970E-04
@@ -1070,7 +1070,7 @@ Cl    D
 Cl    F
       0.7060000              1.0000000
 end
-basis "Ar_may-cc-pv(t+d)z" SPHERICAL 
+basis "Ar_may-cc-pV(T+d)Z" SPHERICAL 
 #basis SET: (42s,17p,3d,1f) -> [6s,5p,3d,1f]
 Ar    S
  545000.0000000              0.455828E-04

@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# sto-4g version number 1
+# Data downloaded on 2021-02-20T21:21
+# STO-4G version number 1
 # Description: STO-4G Minimal Basis (4 functions/AO)
 # Role: orbital
 # 
@@ -100,7 +100,7 @@
 #     10.1002/jcc.540040215
 # 
 # # 
-basis "H_sto-4g" SPHERICAL 
+basis "H_STO-4G" SPHERICAL 
 #basis SET: (4s) -> [1s]
 H    S
       0.8021420155E+01       0.5675242080E-01
@@ -108,7 +108,7 @@ H    S
       0.4077767635E+00       0.5328461143E+00
       0.1353374420E+00       0.2916254405E+00
 end
-basis "He_sto-4g" SPHERICAL 
+basis "He_STO-4G" SPHERICAL 
 #basis SET: (4s) -> [1s]
 He    S
       0.1489982967E+02       0.5675242080E-01
@@ -116,7 +116,7 @@ He    S
       0.7574474599E+00       0.5328461143E+00
       0.2513900027E+00       0.2916254405E+00
 end
-basis "Li_sto-4g" SPHERICAL 
+basis "Li_STO-4G" SPHERICAL 
 #basis SET: (8s,4p) -> [2s,1p]
 Li    S
       0.3774960873E+02       0.5675242080E-01
@@ -129,7 +129,7 @@ Li    SP
       0.1046660300E+00       0.5588549221E+00       0.5835753141E+00
       0.4019868296E-01       0.4977673218E+00       0.2463134378E+00
 end
-basis "Be_sto-4g" SPHERICAL 
+basis "Be_STO-4G" SPHERICAL 
 #basis SET: (8s,4p) -> [2s,1p]
 Be    S
       0.7064859542E+02       0.5675242080E-01
@@ -142,7 +142,7 @@ Be    SP
       0.2162825386E+00       0.5588549221E+00       0.5835753141E+00
       0.8306680972E-01       0.4977673218E+00       0.2463134378E+00
 end
-basis "B_sto-4g" SPHERICAL 
+basis "B_STO-4G" SPHERICAL 
 #basis SET: (8s,4p) -> [2s,1p]
 B    S
       0.1142614157E+03       0.5675242080E-01
@@ -155,7 +155,7 @@ B    SP
       0.3679665118E+00       0.5588549221E+00       0.5835753141E+00
       0.1413234948E+00       0.4977673218E+00       0.2463134378E+00
 end
-basis "C_sto-4g" SPHERICAL 
+basis "C_STO-4G" SPHERICAL 
 #basis SET: (8s,4p) -> [2s,1p]
 C    S
       0.1677158132E+03       0.5675242080E-01
@@ -168,7 +168,7 @@ C    SP
       0.4838187237E+00       0.5588549221E+00       0.5835753141E+00
       0.1858184120E+00       0.4977673218E+00       0.2463134378E+00
 end
-basis "N_sto-4g" SPHERICAL 
+basis "N_STO-4G" SPHERICAL 
 #basis SET: (8s,4p) -> [2s,1p]
 N    S
       0.2320916748E+03       0.5675242080E-01
@@ -181,7 +181,7 @@ N    SP
       0.6218634049E+00       0.5588549221E+00       0.5835753141E+00
       0.2388367062E+00       0.4977673218E+00       0.2463134378E+00
 end
-basis "O_sto-4g" SPHERICAL 
+basis "O_STO-4G" SPHERICAL 
 #basis SET: (8s,4p) -> [2s,1p]
 O    S
       0.3061014831E+03       0.5675242080E-01
@@ -194,7 +194,7 @@ O    SP
       0.8279246515E+00       0.5588549221E+00       0.5835753141E+00
       0.3179778633E+00       0.4977673218E+00       0.2463134378E+00
 end
-basis "F_sto-4g" SPHERICAL 
+basis "F_STO-4G" SPHERICAL 
 #basis SET: (8s,4p) -> [2s,1p]
 F    S
       0.3903373501E+03       0.5675242080E-01
@@ -207,7 +207,7 @@ F    SP
       0.1063423219E+01       0.5588549221E+00       0.5835753141E+00
       0.4084249000E+00       0.4977673218E+00       0.2463134378E+00
 end
-basis "Ne_sto-4g" SPHERICAL 
+basis "Ne_STO-4G" SPHERICAL 
 #basis SET: (8s,4p) -> [2s,1p]
 Ne    S
       0.4847992758E+03       0.5675242080E-01
@@ -220,7 +220,7 @@ Ne    SP
       0.1356471749E+01       0.5588549221E+00       0.5835753141E+00
       0.5209749312E+00       0.4977673218E+00       0.2463134378E+00
 end
-basis "Na_sto-4g" SPHERICAL 
+basis "Na_STO-4G" SPHERICAL 
 #basis SET: (12s,8p) -> [3s,2p]
 Na    S
       0.5872711446E+03       0.5675242080E-01
@@ -238,7 +238,7 @@ Na    SP
       0.3055295920E+00       0.5920843928E+00       0.6409553151E+00
       0.1359747193E+00       0.6115584746E+00       0.2779508957E+00
 end
-basis "Mg_sto-4g" SPHERICAL 
+basis "Mg_STO-4G" SPHERICAL 
 #basis SET: (12s,8p) -> [3s,2p]
 Mg    S
       0.7007688142E+03       0.5675242080E-01
@@ -256,7 +256,7 @@ Mg    SP
       0.2883201700E+00       0.5920843928E+00       0.6409553151E+00
       0.1283157351E+00       0.6115584746E+00       0.2779508957E+00
 end
-basis "Al_sto-4g" SPHERICAL 
+basis "Al_STO-4G" SPHERICAL 
 #basis SET: (12s,8p) -> [3s,2p]
 Al    S
       0.8229760059E+03       0.5675242080E-01
@@ -274,7 +274,7 @@ Al    SP
       0.2883201700E+00       0.5920843928E+00       0.6409553151E+00
       0.1283157351E+00       0.6115584746E+00       0.2779508957E+00
 end
-basis "Si_sto-4g" SPHERICAL 
+basis "Si_STO-4G" SPHERICAL 
 #basis SET: (12s,8p) -> [3s,2p]
 Si    S
       0.9550002556E+03       0.5675242080E-01
@@ -292,7 +292,7 @@ Si    SP
       0.3055295920E+00       0.5920843928E+00       0.6409553151E+00
       0.1359747193E+00       0.6115584746E+00       0.2779508957E+00
 end
-basis "P_sto-4g" SPHERICAL 
+basis "P_STO-4G" SPHERICAL 
 #basis SET: (12s,8p) -> [3s,2p]
 P    S
       0.1096841563E+04       0.5675242080E-01
@@ -310,7 +310,7 @@ P    SP
       0.3601508006E+00       0.5920843928E+00       0.6409553151E+00
       0.1602836691E+00       0.6115584746E+00       0.2779508957E+00
 end
-basis "S_sto-4g" SPHERICAL 
+basis "S_STO-4G" SPHERICAL 
 #basis SET: (12s,8p) -> [3s,2p]
 S    S
       0.1248499929E+04       0.5675242080E-01
@@ -328,7 +328,7 @@ S    SP
       0.4192614237E+00       0.5920843928E+00       0.6409553151E+00
       0.1865906148E+00       0.6115584746E+00       0.2779508957E+00
 end
-basis "Cl_sto-4g" SPHERICAL 
+basis "Cl_STO-4G" SPHERICAL 
 #basis SET: (12s,8p) -> [3s,2p]
 Cl    S
       0.1408260576E+04       0.5675242080E-01
@@ -346,7 +346,7 @@ Cl    SP
       0.4399626124E+00       0.5920843928E+00       0.6409553151E+00
       0.1958035957E+00       0.6115584746E+00       0.2779508957E+00
 end
-basis "Ar_sto-4g" SPHERICAL 
+basis "Ar_STO-4G" SPHERICAL 
 #basis SET: (12s,8p) -> [3s,2p]
 Ar    S
       0.1579451851E+04       0.5675242080E-01
@@ -364,7 +364,7 @@ Ar    SP
       0.5416129312E+00       0.5920843928E+00       0.6409553151E+00
       0.2410426623E+00       0.6115584746E+00       0.2779508957E+00
 end
-basis "K_sto-4g" SPHERICAL 
+basis "K_STO-4G" SPHERICAL 
 #basis SET: (16s,12p) -> [4s,3p]
 K    S
       0.1806760723E+04       0.5675242080E-01
@@ -387,7 +387,7 @@ K    SP
       0.1428153329E+00       0.5472998468E+00       0.6965842249E+00
       0.7094176507E-01       0.7853692030E+00       0.3310236850E+00
 end
-basis "Ca_sto-4g" SPHERICAL 
+basis "Ca_STO-4G" SPHERICAL 
 #basis SET: (16s,12p) -> [4s,3p]
 Ca    S
       0.2000015077E+04       0.5675242080E-01
@@ -410,7 +410,7 @@ Ca    SP
       0.1291756270E+00       0.5472998468E+00       0.6965842249E+00
       0.6416640847E-01       0.7853692030E+00       0.3310236850E+00
 end
-basis "Sc_sto-4g" SPHERICAL 
+basis "Sc_STO-4G" SPHERICAL 
 #basis SET: (16s,12p,4d) -> [4s,3p,1d]
 Sc    S
       0.2205231134E+04       0.5675242080E-01
@@ -438,7 +438,7 @@ Sc    D
       0.1241869954E+00       0.5664092659E+00
       0.5520982190E-01       0.1585946537E+00
 end
-basis "Ti_sto-4g" SPHERICAL 
+basis "Ti_STO-4G" SPHERICAL 
 #basis SET: (16s,12p,4d) -> [4s,3p,1d]
 Ti    S
       0.2420467705E+04       0.5675242080E-01
@@ -466,7 +466,7 @@ Ti    D
       0.3705083086E+00       0.5664092659E+00
       0.1647169066E+00       0.1585946537E+00
 end
-basis "V_sto-4g" SPHERICAL 
+basis "V_STO-4G" SPHERICAL 
 #basis SET: (16s,12p,4d) -> [4s,3p,1d]
 V    S
       0.2648074981E+04       0.5675242080E-01
@@ -494,7 +494,7 @@ V    D
       0.6673768080E+00       0.5664092659E+00
       0.2966957577E+00       0.1585946537E+00
 end
-basis "Cr_sto-4g" SPHERICAL 
+basis "Cr_STO-4G" SPHERICAL 
 #basis SET: (16s,12p,4d) -> [4s,3p,1d]
 Cr    S
       0.2885908315E+04       0.5675242080E-01
@@ -522,7 +522,7 @@ Cr    D
       0.9547516734E+00       0.5664092659E+00
       0.4244540233E+00       0.1585946537E+00
 end
-basis "Mn_sto-4g" SPHERICAL 
+basis "Mn_STO-4G" SPHERICAL 
 #basis SET: (16s,12p,4d) -> [4s,3p,1d]
 Mn    S
       0.3131410932E+04       0.5675242080E-01
@@ -550,7 +550,7 @@ Mn    D
       0.1221599763E+01       0.5664092659E+00
       0.5430866984E+00       0.1585946537E+00
 end
-basis "Fe_sto-4g" SPHERICAL 
+basis "Fe_STO-4G" SPHERICAL 
 #basis SET: (16s,12p,4d) -> [4s,3p,1d]
 Fe    S
       0.3389593089E+04       0.5675242080E-01
@@ -578,7 +578,7 @@ Fe    D
       0.1443288945E+01       0.5664092659E+00
       0.6416430747E+00       0.1585946537E+00
 end
-basis "Co_sto-4g" SPHERICAL 
+basis "Co_STO-4G" SPHERICAL 
 #basis SET: (16s,12p,4d) -> [4s,3p,1d]
 Co    S
       0.3655238986E+04       0.5675242080E-01
@@ -606,7 +606,7 @@ Co    D
       0.1725275531E+01       0.5664092659E+00
       0.7670058728E+00       0.1585946537E+00
 end
-basis "Ni_sto-4g" SPHERICAL 
+basis "Ni_STO-4G" SPHERICAL 
 #basis SET: (16s,12p,4d) -> [4s,3p,1d]
 Ni    S
       0.3933769968E+04       0.5675242080E-01
@@ -634,7 +634,7 @@ Ni    D
       0.1942089604E+01       0.5664092659E+00
       0.8633949213E+00       0.1585946537E+00
 end
-basis "Cu_sto-4g" SPHERICAL 
+basis "Cu_STO-4G" SPHERICAL 
 #basis SET: (16s,12p,4d) -> [4s,3p,1d]
 Cu    S
       0.4219559145E+04       0.5675242080E-01
@@ -662,7 +662,7 @@ Cu    D
       0.2171732911E+01       0.5664092659E+00
       0.9654874639E+00       0.1585946537E+00
 end
-basis "Zn_sto-4g" SPHERICAL 
+basis "Zn_STO-4G" SPHERICAL 
 #basis SET: (16s,12p,4d) -> [4s,3p,1d]
 Zn    S
       0.4518438950E+04       0.5675242080E-01
@@ -690,7 +690,7 @@ Zn    D
       0.2464239471E+01       0.5664092659E+00
       0.1095527127E+01       0.1585946537E+00
 end
-basis "Ga_sto-4g" SPHERICAL 
+basis "Ga_STO-4G" SPHERICAL 
 #basis SET: (16s,12p,4d) -> [4s,3p,1d]
 Ga    S
       0.4827544814E+04       0.5675242080E-01
@@ -718,7 +718,7 @@ Ga    D
       0.2839633152E+01       0.5664092659E+00
       0.1262415924E+01       0.1585946537E+00
 end
-basis "Ge_sto-4g" SPHERICAL 
+basis "Ge_STO-4G" SPHERICAL 
 #basis SET: (16s,12p,4d) -> [4s,3p,1d]
 Ge    S
       0.5143600037E+04       0.5675242080E-01
@@ -746,7 +746,7 @@ Ge    D
       0.3195649557E+01       0.5664092659E+00
       0.1420690164E+01       0.1585946537E+00
 end
-basis "As_sto-4g" SPHERICAL 
+basis "As_STO-4G" SPHERICAL 
 #basis SET: (16s,12p,4d) -> [4s,3p,1d]
 As    S
       0.5473054724E+04       0.5675242080E-01
@@ -774,7 +774,7 @@ As    D
       0.3572685380E+01       0.5664092659E+00
       0.1588309008E+01       0.1585946537E+00
 end
-basis "Se_sto-4g" SPHERICAL 
+basis "Se_STO-4G" SPHERICAL 
 #basis SET: (16s,12p,4d) -> [4s,3p,1d]
 Se    S
       0.5809253227E+04       0.5675242080E-01
@@ -802,7 +802,7 @@ Se    D
       0.3970740622E+01       0.5664092659E+00
       0.1765272457E+01       0.1585946537E+00
 end
-basis "Br_sto-4g" SPHERICAL 
+basis "Br_STO-4G" SPHERICAL 
 #basis SET: (16s,12p,4d) -> [4s,3p,1d]
 Br    S
       0.6159056739E+04       0.5675242080E-01
@@ -830,7 +830,7 @@ Br    D
       0.4389815283E+01       0.5664092659E+00
       0.1951580511E+01       0.1585946537E+00
 end
-basis "Kr_sto-4g" SPHERICAL 
+basis "Kr_STO-4G" SPHERICAL 
 #basis SET: (16s,12p,4d) -> [4s,3p,1d]
 Kr    S
       0.6515398521E+04       0.5675242080E-01
@@ -858,7 +858,7 @@ Kr    D
       0.4829909363E+01       0.5664092659E+00
       0.2147233169E+01       0.1585946537E+00
 end
-basis "Rb_sto-4g" SPHERICAL 
+basis "Rb_STO-4G" SPHERICAL 
 #basis SET: (20s,16p,4d) -> [5s,4p,1d]
 Rb    S
       0.6881760819E+04       0.5675242080E-01
@@ -891,7 +891,7 @@ Rb    D
       0.5291022861E+01       0.5664092659E+00
       0.2352230432E+01       0.1585946537E+00
 end
-basis "Sr_sto-4g" SPHERICAL 
+basis "Sr_STO-4G" SPHERICAL 
 #basis SET: (20s,16p,4d) -> [5s,4p,1d]
 Sr    S
       0.7262035919E+04       0.5675242080E-01
@@ -924,7 +924,7 @@ Sr    D
       0.5757770959E+01       0.5664092659E+00
       0.2559732669E+01       0.1585946537E+00
 end
-basis "Y_sto-4g" SPHERICAL 
+basis "Y_STO-4G" SPHERICAL 
 #basis SET: (20s,16p,8d) -> [5s,4p,2d]
 Y    S
       0.7648541497E+04       0.5675242080E-01
@@ -962,7 +962,7 @@ Y    D
       0.1404041498E+00       0.6203734570E+00
       0.6882501088E-01       0.1735534933E+00
 end
-basis "Zr_sto-4g" SPHERICAL 
+basis "Zr_STO-4G" SPHERICAL 
 #basis SET: (20s,16p,8d) -> [5s,4p,2d]
 Zr    S
       0.8045067590E+04       0.5675242080E-01
@@ -1000,7 +1000,7 @@ Zr    D
       0.2723912142E+00       0.6203734570E+00
       0.1335240326E+00       0.1735534933E+00
 end
-basis "Nb_sto-4g" SPHERICAL 
+basis "Nb_STO-4G" SPHERICAL 
 #basis SET: (20s,16p,8d) -> [5s,4p,2d]
 Nb    S
       0.8455814279E+04       0.5675242080E-01
@@ -1038,7 +1038,7 @@ Nb    D
       0.4126162771E+00       0.6203734570E+00
       0.2022612565E+00       0.1735534933E+00
 end
-basis "Mo_sto-4g" SPHERICAL 
+basis "Mo_STO-4G" SPHERICAL 
 #basis SET: (20s,16p,8d) -> [5s,4p,2d]
 Mo    S
       0.8872483652E+04       0.5675242080E-01
@@ -1076,7 +1076,7 @@ Mo    D
       0.5222174757E+00       0.6203734570E+00
       0.2559869027E+00       0.1735534933E+00
 end
-basis "Tc_sto-4g" SPHERICAL 
+basis "Tc_STO-4G" SPHERICAL 
 #basis SET: (20s,16p,8d) -> [5s,4p,2d]
 Tc    S
       0.9299173540E+04       0.5675242080E-01
@@ -1114,7 +1114,7 @@ Tc    D
       0.6447129330E+00       0.6203734570E+00
       0.3160332132E+00       0.1735534933E+00
 end
-basis "Ru_sto-4g" SPHERICAL 
+basis "Ru_STO-4G" SPHERICAL 
 #basis SET: (20s,16p,8d) -> [5s,4p,2d]
 Ru    S
       0.9740391818E+04       0.5675242080E-01
@@ -1152,7 +1152,7 @@ Ru    D
       0.7335400482E+00       0.6203734570E+00
       0.3595755671E+00       0.1735534933E+00
 end
-basis "Rh_sto-4g" SPHERICAL 
+basis "Rh_STO-4G" SPHERICAL 
 #basis SET: (20s,16p,8d) -> [5s,4p,2d]
 Rh    S
       0.1018722499E+05       0.5675242080E-01
@@ -1190,7 +1190,7 @@ Rh    D
       0.8526328539E+00       0.6203734570E+00
       0.4179539245E+00       0.1735534933E+00
 end
-basis "Pd_sto-4g" SPHERICAL 
+basis "Pd_STO-4G" SPHERICAL 
 #basis SET: (20s,16p,8d) -> [5s,4p,2d]
 Pd    S
       0.1064407867E+05       0.5675242080E-01
@@ -1228,7 +1228,7 @@ Pd    D
       0.9283866235E+00       0.6203734570E+00
       0.4550878271E+00       0.1735534933E+00
 end
-basis "Ag_sto-4g" SPHERICAL 
+basis "Ag_STO-4G" SPHERICAL 
 #basis SET: (20s,16p,8d) -> [5s,4p,2d]
 Ag    S
       0.1111095287E+05       0.5675242080E-01
@@ -1266,7 +1266,7 @@ Ag    D
       0.1007363958E+01       0.6203734570E+00
       0.4938018957E+00       0.1735534933E+00
 end
-basis "Cd_sto-4g" SPHERICAL 
+basis "Cd_STO-4G" SPHERICAL 
 #basis SET: (20s,16p,8d) -> [5s,4p,2d]
 Cd    S
       0.1159276550E+05       0.5675242080E-01
@@ -1304,7 +1304,7 @@ Cd    D
       0.1117681504E+01       0.6203734570E+00
       0.5478786899E+00       0.1735534933E+00
 end
-basis "In_sto-4g" SPHERICAL 
+basis "In_STO-4G" SPHERICAL 
 #basis SET: (20s,16p,8d) -> [5s,4p,2d]
 In    S
       0.1207978298E+05       0.5675242080E-01
@@ -1342,7 +1342,7 @@ In    D
       0.1548922821E+01       0.6203734570E+00
       0.7592697948E+00       0.1735534933E+00
 end
-basis "Sn_sto-4g" SPHERICAL 
+basis "Sn_STO-4G" SPHERICAL 
 #basis SET: (20s,16p,8d) -> [5s,4p,2d]
 Sn    S
       0.1257682097E+05       0.5675242080E-01
@@ -1380,7 +1380,7 @@ Sn    D
       0.1712937792E+01       0.6203734570E+00
       0.8396686442E+00       0.1735534933E+00
 end
-basis "Sb_sto-4g" SPHERICAL 
+basis "Sb_STO-4G" SPHERICAL 
 #basis SET: (20s,16p,8d) -> [5s,4p,2d]
 Sb    S
       0.1308387948E+05       0.5675242080E-01
@@ -1418,7 +1418,7 @@ Sb    D
       0.1877862523E+01       0.6203734570E+00
       0.9205134517E+00       0.1735534933E+00
 end
-basis "Te_sto-4g" SPHERICAL 
+basis "Te_STO-4G" SPHERICAL 
 #basis SET: (20s,16p,8d) -> [5s,4p,2d]
 Te    S
       0.1360628647E+05       0.5675242080E-01
@@ -1456,7 +1456,7 @@ Te    D
       0.2058038298E+01       0.6203734570E+00
       0.1008834200E+01       0.1735534933E+00
 end
-basis "I_sto-4g" SPHERICAL 
+basis "I_STO-4G" SPHERICAL 
 #basis SET: (20s,16p,8d) -> [5s,4p,2d]
 I    S
       0.1413348825E+05       0.5675242080E-01
@@ -1494,7 +1494,7 @@ I    D
       0.2238450467E+01       0.6203734570E+00
       0.1097270828E+01       0.1735534933E+00
 end
-basis "Xe_sto-4g" SPHERICAL 
+basis "Xe_STO-4G" SPHERICAL 
 #basis SET: (20s,16p,8d) -> [5s,4p,2d]
 Xe    S
       0.1467071056E+05       0.5675242080E-01

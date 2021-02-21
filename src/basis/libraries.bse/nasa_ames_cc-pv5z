@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# nasa ames cc-pv5z version number 0
+# Data downloaded on 2021-02-20T21:21
+# NASA Ames cc-pV5Z version number 0
 # Description: NASA Ames cc-pV5Z
 # Role: orbital
 # 
@@ -56,7 +56,7 @@
 #     10.1007/s002140100279
 # 
 # # 
-basis "Ti_nasa ames cc-pv5z" SPHERICAL 
+basis "Ti_NASA Ames cc-pV5Z" SPHERICAL 
 #basis SET: (54s,26p,9d,4f,3g,2h,1i) -> [7s,8p,6d,4f,3g,2h,1i]
 Ti    S
 5309148.1000000              0.0000040
@@ -189,7 +189,7 @@ Ti    H
 Ti    I
       0.7400000              1.0000000
 end
-basis "Fe_nasa ames cc-pv5z" SPHERICAL 
+basis "Fe_NASA Ames cc-pV5Z" SPHERICAL 
 #basis SET: (73s,24p,10d,4f,3g,2h,1i) -> [6s,8p,6d,4f,3g,2h,1i]
 Fe    S
 4316265.3000000              0.0000090

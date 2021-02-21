@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# cc-pcvdz-f12-rifit version number 0
+# Data downloaded on 2021-02-20T21:21
+# cc-pCVDZ-F12-RIFIT version number 0
 # Description: cc-pCVDZ-F12 RI Fitting
 # Role: rifit
 # 
@@ -46,7 +46,7 @@
 #     10.1021/acs.jctc.5b00816
 # 
 # # 
-basis "Li_cc-pcvdz-f12-rifit" SPHERICAL 
+basis "Li_cc-pCVDZ-F12-RIFIT" SPHERICAL 
 #basis SET: (11s,10p,8d,3f,2g) -> [11s,10p,8d,3f,2g]
 Li    S
     128.0050000              1.0000000
@@ -117,7 +117,7 @@ Li    G
 Li    G
       0.3416250              1.0000000
 end
-basis "Be_cc-pcvdz-f12-rifit" SPHERICAL 
+basis "Be_cc-pCVDZ-F12-RIFIT" SPHERICAL 
 #basis SET: (11s,10p,8d,3f,2g) -> [11s,10p,8d,3f,2g]
 Be    S
     153.4780000              1.0000000
@@ -188,7 +188,7 @@ Be    G
 Be    G
       0.4385830              1.0000000
 end
-basis "B_cc-pcvdz-f12-rifit" SPHERICAL 
+basis "B_cc-pCVDZ-F12-RIFIT" SPHERICAL 
 #basis SET: (11s,10p,8d,3f,2g) -> [11s,10p,8d,3f,2g]
 B    S
     194.3250000              1.0000000
@@ -259,7 +259,7 @@ B    G
 B    G
       0.5858750              1.0000000
 end
-basis "C_cc-pcvdz-f12-rifit" SPHERICAL 
+basis "C_cc-pCVDZ-F12-RIFIT" SPHERICAL 
 #basis SET: (11s,10p,8d,3f,2g) -> [11s,10p,8d,3f,2g]
 C    S
     248.1650000              1.0000000
@@ -330,7 +330,7 @@ C    G
 C    G
       0.8350910              1.0000000
 end
-basis "N_cc-pcvdz-f12-rifit" SPHERICAL 
+basis "N_cc-pCVDZ-F12-RIFIT" SPHERICAL 
 #basis SET: (11s,10p,8d,3f,2g) -> [11s,10p,8d,3f,2g]
 N    S
     314.0690000              1.0000000
@@ -401,7 +401,7 @@ N    G
 N    G
       1.1270900              1.0000000
 end
-basis "O_cc-pcvdz-f12-rifit" SPHERICAL 
+basis "O_cc-pCVDZ-F12-RIFIT" SPHERICAL 
 #basis SET: (11s,10p,8d,3f,2g) -> [11s,10p,8d,3f,2g]
 O    S
     371.3260000              1.0000000
@@ -472,7 +472,7 @@ O    G
 O    G
       1.3362800              1.0000000
 end
-basis "F_cc-pcvdz-f12-rifit" SPHERICAL 
+basis "F_cc-pCVDZ-F12-RIFIT" SPHERICAL 
 #basis SET: (11s,10p,8d,3f,2g) -> [11s,10p,8d,3f,2g]
 F    S
     419.9820000              1.0000000
@@ -543,7 +543,7 @@ F    G
 F    G
       1.6877400              1.0000000
 end
-basis "Ne_cc-pcvdz-f12-rifit" SPHERICAL 
+basis "Ne_cc-pCVDZ-F12-RIFIT" SPHERICAL 
 #basis SET: (11s,10p,8d,3f,2g) -> [11s,10p,8d,3f,2g]
 Ne    S
     512.7520000              1.0000000
@@ -614,7 +614,7 @@ Ne    G
 Ne    G
       2.2577600              1.0000000
 end
-basis "Na_cc-pcvdz-f12-rifit" SPHERICAL 
+basis "Na_cc-pCVDZ-F12-RIFIT" SPHERICAL 
 #basis SET: (14s,12p,10d,6f,2g) -> [14s,12p,10d,6f,2g]
 Na    S
     251.1210000              1.0000000
@@ -705,7 +705,7 @@ Na    G
 Na    G
       0.1055000              1.0000000
 end
-basis "Mg_cc-pcvdz-f12-rifit" SPHERICAL 
+basis "Mg_cc-pCVDZ-F12-RIFIT" SPHERICAL 
 #basis SET: (14s,12p,10d,6f,2g) -> [14s,12p,10d,6f,2g]
 Mg    S
     278.6580000              1.0000000
@@ -796,7 +796,7 @@ Mg    G
 Mg    G
       0.1351080              1.0000000
 end
-basis "Al_cc-pcvdz-f12-rifit" SPHERICAL 
+basis "Al_cc-pCVDZ-F12-RIFIT" SPHERICAL 
 #basis SET: (14s,12p,10d,6f,2g) -> [14s,12p,10d,6f,2g]
 Al    S
     303.8650000              1.0000000
@@ -887,7 +887,7 @@ Al    G
 Al    G
       0.3585140              1.0000000
 end
-basis "Si_cc-pcvdz-f12-rifit" SPHERICAL 
+basis "Si_cc-pCVDZ-F12-RIFIT" SPHERICAL 
 #basis SET: (14s,12p,10d,6f,2g) -> [14s,12p,10d,6f,2g]
 Si    S
     346.7380000              1.0000000
@@ -978,7 +978,7 @@ Si    G
 Si    G
       0.5029910              1.0000000
 end
-basis "P_cc-pcvdz-f12-rifit" SPHERICAL 
+basis "P_cc-pCVDZ-F12-RIFIT" SPHERICAL 
 #basis SET: (14s,12p,10d,6f,2g) -> [14s,12p,10d,6f,2g]
 P    S
     451.7590000              1.0000000
@@ -1069,7 +1069,7 @@ P    G
 P    G
       0.6351500              1.0000000
 end
-basis "S_cc-pcvdz-f12-rifit" SPHERICAL 
+basis "S_cc-pCVDZ-F12-RIFIT" SPHERICAL 
 #basis SET: (14s,12p,10d,6f,2g) -> [14s,12p,10d,6f,2g]
 S    S
     494.1330000              1.0000000
@@ -1160,7 +1160,7 @@ S    G
 S    G
       0.7479460              1.0000000
 end
-basis "Cl_cc-pcvdz-f12-rifit" SPHERICAL 
+basis "Cl_cc-pCVDZ-F12-RIFIT" SPHERICAL 
 #basis SET: (14s,12p,10d,6f,2g) -> [14s,12p,10d,6f,2g]
 Cl    S
     520.5260000              1.0000000
@@ -1251,7 +1251,7 @@ Cl    G
 Cl    G
       0.9252300              1.0000000
 end
-basis "Ar_cc-pcvdz-f12-rifit" SPHERICAL 
+basis "Ar_cc-pCVDZ-F12-RIFIT" SPHERICAL 
 #basis SET: (14s,12p,10d,6f,2g) -> [14s,12p,10d,6f,2g]
 Ar    S
     573.1970000              1.0000000

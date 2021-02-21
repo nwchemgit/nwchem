@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# ano-vt-qz version number 2
+# Data downloaded on 2021-02-20T21:21
+# ANO-VT-QZ version number 2
 # Description: ANO-VT-QZ (Atomic Natural Orbital - Virial Theorem - Quadruple Zeta)
 # Role: orbital
 # 
@@ -52,7 +52,7 @@
 #     10.1063/1.4954989
 # 
 # # 
-basis "H_ano-vt-qz" SPHERICAL 
+basis "H_ANO-VT-QZ" SPHERICAL 
 #basis SET: (24s,9p,4d,1f) -> [4s,3p,2d,1f]
 H    S
      82.6596760              0.0020060
@@ -103,7 +103,7 @@ H    D
 H    F
       1.3973330              1.0000000
 end
-basis "He_ano-vt-qz" SPHERICAL 
+basis "He_ANO-VT-QZ" SPHERICAL 
 #basis SET: (28s,9p,4d,1f) -> [4s,3p,2d,1f]
 He    S
     530.1042740              0.0009415
@@ -158,7 +158,7 @@ He    D
 He    F
       2.6881350              1.0000000
 end
-basis "Li_ano-vt-qz" SPHERICAL 
+basis "Li_ANO-VT-QZ" SPHERICAL 
 #basis SET: (60s,24p,9d,4f,1g) -> [5s,4p,3d,2f,1g]
 Li    S
    6601.0505390              0.0001170
@@ -274,7 +274,7 @@ Li    F
 Li    G
       0.2380020              1.0000000
 end
-basis "Be_ano-vt-qz" SPHERICAL 
+basis "Be_ANO-VT-QZ" SPHERICAL 
 #basis SET: (60s,24p,9d,4f,1g) -> [5s,4p,3d,2f,1g]
 Be    S
   14630.4535340              0.0000777
@@ -390,7 +390,7 @@ Be    F
 Be    G
       0.4150130              1.0000000
 end
-basis "B_ano-vt-qz" SPHERICAL 
+basis "B_ANO-VT-QZ" SPHERICAL 
 #basis SET: (60s,24p,9d,4f,1g) -> [5s,4p,3d,2f,1g]
 B    S
   23871.6231880              0.0000021
@@ -506,7 +506,7 @@ B    F
 B    G
       0.6730460              1.0000000
 end
-basis "C_ano-vt-qz" SPHERICAL 
+basis "C_ANO-VT-QZ" SPHERICAL 
 #basis SET: (60s,24p,9d,4f,1g) -> [5s,4p,3d,2f,1g]
 C    S
   33980.9174660              0.0001739
@@ -622,7 +622,7 @@ C    F
 C    G
       1.0110270              1.0000000
 end
-basis "N_ano-vt-qz" SPHERICAL 
+basis "N_ANO-VT-QZ" SPHERICAL 
 #basis SET: (60s,24p,9d,4f,1g) -> [5s,4p,3d,2f,1g]
 N    S
   45838.0289010              0.0000014
@@ -738,7 +738,7 @@ N    F
 N    G
       1.4269390              1.0000000
 end
-basis "O_ano-vt-qz" SPHERICAL 
+basis "O_ANO-VT-QZ" SPHERICAL 
 #basis SET: (60s,24p,9d,4f,1g) -> [5s,4p,3d,2f,1g]
 O    S
   61415.7129590              0.0001646
@@ -854,7 +854,7 @@ O    F
 O    G
       1.8458710              1.0000000
 end
-basis "F_ano-vt-qz" SPHERICAL 
+basis "F_ANO-VT-QZ" SPHERICAL 
 #basis SET: (60s,24p,9d,4f,1g) -> [5s,4p,3d,2f,1g]
 F    S
   74528.2709140              0.0000791
@@ -970,7 +970,7 @@ F    F
 F    G
       2.3759450              1.0000000
 end
-basis "Ne_ano-vt-qz" SPHERICAL 
+basis "Ne_ANO-VT-QZ" SPHERICAL 
 #basis SET: (60s,24p,9d,4f,1g) -> [5s,4p,3d,2f,1g]
 Ne    S
   99918.7010440              0.0000713
@@ -1086,7 +1086,7 @@ Ne    F
 Ne    G
       2.9829610              1.0000000
 end
-basis "Na_ano-vt-qz" SPHERICAL 
+basis "Na_ANO-VT-QZ" SPHERICAL 
 #basis SET: (113s,60p,9d,4f,1g) -> [6s,5p,3d,2f,1g]
 Na    S
 1224000.470266               0.0000048
@@ -1293,7 +1293,7 @@ Na    F
 Na    G
       0.172200               1.0000000
 end
-basis "Mg_ano-vt-qz" SPHERICAL 
+basis "Mg_ANO-VT-QZ" SPHERICAL 
 #basis SET: (96s,60p,9d,4f,1g) -> [6s,5p,3d,2f,1g]
 Mg    S
  327601.4118240              0.0000234
@@ -1483,7 +1483,7 @@ Mg    F
 Mg    G
       0.3070010              1.0000000
 end
-basis "Al_ano-vt-qz" SPHERICAL 
+basis "Al_ANO-VT-QZ" SPHERICAL 
 #basis SET: (96s,55p,9d,4f,1g) -> [6s,5p,3d,2f,1g]
 Al    S
  419600.5021190              0.0000203
@@ -1668,7 +1668,7 @@ Al    F
 Al    G
       0.3570000              1.0000000
 end
-basis "Si_ano-vt-qz" SPHERICAL 
+basis "Si_ANO-VT-QZ" SPHERICAL 
 #basis SET: (96s,55p,9d,4f,1g) -> [6s,5p,3d,2f,1g]
 Si    S
  513000.8630780              0.0000187
@@ -1853,7 +1853,7 @@ Si    F
 Si    G
       0.4610010              1.0000000
 end
-basis "P_ano-vt-qz" SPHERICAL 
+basis "P_ANO-VT-QZ" SPHERICAL 
 #basis SET: (96s,55p,9d,4f,1g) -> [6s,5p,3d,2f,1g]
 P    S
  615201.2536710              0.0000175
@@ -2038,7 +2038,7 @@ P    F
 P    G
       0.5970010              1.0000000
 end
-basis "S_ano-vt-qz" SPHERICAL 
+basis "S_ANO-VT-QZ" SPHERICAL 
 #basis SET: (96s,55p,9d,4f,1g) -> [6s,5p,3d,2f,1g]
 S    S
  727801.4958000              0.0000166
@@ -2223,7 +2223,7 @@ S    F
 S    G
       0.6830010              1.0000000
 end
-basis "Cl_ano-vt-qz" SPHERICAL 
+basis "Cl_ANO-VT-QZ" SPHERICAL 
 #basis SET: (96s,55p,9d,4f,1g) -> [6s,5p,3d,2f,1g]
 Cl    S
  834905.4712400              0.0000162
@@ -2408,7 +2408,7 @@ Cl    F
 Cl    G
       0.8270050              1.0000000
 end
-basis "Ar_ano-vt-qz" SPHERICAL 
+basis "Ar_ANO-VT-QZ" SPHERICAL 
 #basis SET: (96s,55p,9d,4f,1g) -> [6s,5p,3d,2f,1g]
 Ar    S
  950608.4127900              0.0000159

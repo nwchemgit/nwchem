@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# def2-qzvpp-rifit version number 1
+# Data downloaded on 2021-02-20T21:21
+# def2-QZVPP-RIFIT version number 1
 # Description: RIMP2 auxiliary basis for def2-QZVPP
 # Role: rifit
 # 
@@ -58,7 +58,7 @@
 #     10.1007/s00214-007-0250-5
 # 
 # # 
-basis "H_def2-qzvpp-rifit" SPHERICAL 
+basis "H_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (6s,4p,3d,2f,1g) -> [6s,4p,3d,2f,1g]
 H    S
      45.3144                 1.0000000
@@ -93,7 +93,7 @@ H    F
 H    G
       2.13088265             1.0000000
 end
-basis "He_def2-qzvpp-rifit" SPHERICAL 
+basis "He_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (6s,4p,3d,2f) -> [6s,4p,3d,2f]
 He    S
      73.1306                 1.0000000
@@ -126,7 +126,7 @@ He    F
 He    F
       2.7082979618           1.0000000
 end
-basis "Li_def2-qzvpp-rifit" SPHERICAL 
+basis "Li_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (9s,7p,5d,4f,2g) -> [9s,7p,5d,4f,2g]
 Li    S
     108.617                  1.0000000
@@ -183,7 +183,7 @@ Li    G
 Li    G
       0.207545               1.0000000
 end
-basis "Be_def2-qzvpp-rifit" SPHERICAL 
+basis "Be_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (9s,7p,5d,4f,2g) -> [9s,7p,5d,4f,2g]
 Be    S
     176.628                  1.0000000
@@ -240,7 +240,7 @@ Be    G
 Be    G
       0.151419               1.0000000
 end
-basis "B_def2-qzvpp-rifit" SPHERICAL 
+basis "B_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (9s,8p,7d,5f,3g,1h) -> [9s,8p,7d,5f,3g,1h]
 B    S
     252.54                   1.0000000
@@ -309,7 +309,7 @@ B    G
 B    H
       0.96144483             1.0000000
 end
-basis "C_def2-qzvpp-rifit" SPHERICAL 
+basis "C_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (9s,8p,7d,5f,3g,1h) -> [9s,8p,7d,5f,3g,1h]
 C    S
     202.295                  1.0000000
@@ -378,7 +378,7 @@ C    G
 C    H
       1.48693611             1.0000000
 end
-basis "N_def2-qzvpp-rifit" SPHERICAL 
+basis "N_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (9s,8p,7d,5f,3g,1h) -> [9s,8p,7d,5f,3g,1h]
 N    S
     270.16                   1.0000000
@@ -447,7 +447,7 @@ N    G
 N    H
       2.12819152             1.0000000
 end
-basis "O_def2-qzvpp-rifit" SPHERICAL 
+basis "O_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (9s,8p,7d,5f,3g,1h) -> [9s,8p,7d,5f,3g,1h]
 O    S
     343.426                  1.0000000
@@ -516,7 +516,7 @@ O    G
 O    H
       2.7655405000           1.0000000
 end
-basis "F_def2-qzvpp-rifit" SPHERICAL 
+basis "F_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (9s,8p,7d,5f,3g,1h) -> [9s,8p,7d,5f,3g,1h]
 F    S
     418.432                  1.0000000
@@ -585,7 +585,7 @@ F    G
 F    H
       3.56949324             1.0000000
 end
-basis "Ne_def2-qzvpp-rifit" SPHERICAL 
+basis "Ne_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (9s,8p,7d,5f,3g,1h) -> [9s,8p,7d,5f,3g,1h]
 Ne    S
     522.238                  1.0000000
@@ -654,7 +654,7 @@ Ne    G
 Ne    H
       4.49231                1.0000000
 end
-basis "Na_def2-qzvpp-rifit" SPHERICAL 
+basis "Na_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (12s,11p,9d,7f,3g) -> [12s,11p,9d,7f,3g]
 Na    S
     738.39                   1.0000000
@@ -741,7 +741,7 @@ Na    G
 Na    G
       0.307837               1.0000000
 end
-basis "Mg_def2-qzvpp-rifit" SPHERICAL 
+basis "Mg_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (12s,11p,8d,6f,3g) -> [12s,11p,8d,6f,3g]
 Mg    S
     847.92                   1.0000000
@@ -824,7 +824,7 @@ Mg    G
 Mg    G
       0.226548               1.0000000
 end
-basis "Al_def2-qzvpp-rifit" SPHERICAL 
+basis "Al_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (12s,10p,9d,6f,3g,1h) -> [12s,10p,9d,6f,3g,1h]
 Al    S
     514.142                  1.0000000
@@ -909,7 +909,7 @@ Al    G
 Al    H
       0.50872988782          1.0000000
 end
-basis "Si_def2-qzvpp-rifit" SPHERICAL 
+basis "Si_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (12s,10p,9d,6f,3g,1h) -> [12s,10p,9d,6f,3g,1h]
 Si    S
     602.823                  1.0000000
@@ -994,7 +994,7 @@ Si    G
 Si    H
       0.66825252207          1.0000000
 end
-basis "P_def2-qzvpp-rifit" SPHERICAL 
+basis "P_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (12s,10p,9d,6f,3g,1h) -> [12s,10p,9d,6f,3g,1h]
 P    S
     709.717                  1.0000000
@@ -1079,7 +1079,7 @@ P    G
 P    H
       0.87573835694          1.0000000
 end
-basis "S_def2-qzvpp-rifit" SPHERICAL 
+basis "S_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (12s,10p,9d,6f,3g,1h) -> [12s,10p,9d,6f,3g,1h]
 S    S
     816.228                  1.0000000
@@ -1164,7 +1164,7 @@ S    G
 S    H
       1.0179355003           1.0000000
 end
-basis "Cl_def2-qzvpp-rifit" SPHERICAL 
+basis "Cl_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (12s,10p,9d,6f,3g,1h) -> [12s,10p,9d,6f,3g,1h]
 Cl    S
     926.611                  1.0000000
@@ -1249,7 +1249,7 @@ Cl    G
 Cl    H
       1.2422554159           1.0000000
 end
-basis "Ar_def2-qzvpp-rifit" SPHERICAL 
+basis "Ar_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (12s,10p,9d,6f,3g,1h) -> [12s,10p,9d,6f,3g,1h]
 Ar    S
    1018.62                   1.0000000
@@ -1334,7 +1334,7 @@ Ar    G
 Ar    H
       1.5143551014           1.0000000
 end
-basis "K_def2-qzvpp-rifit" SPHERICAL 
+basis "K_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (14s,13p,9d,8f,5g) -> [14s,13p,9d,8f,5g]
 K    S
    1035.39                   1.0000000
@@ -1435,7 +1435,7 @@ K    G
 K    G
       0.161273               1.0000000
 end
-basis "Ca_def2-qzvpp-rifit" SPHERICAL 
+basis "Ca_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (14s,13p,9d,8f,5g) -> [14s,13p,9d,8f,5g]
 Ca    S
    1090.37                   1.0000000
@@ -1536,7 +1536,7 @@ Ca    G
 Ca    G
       0.263661               1.0000000
 end
-basis "Sc_def2-qzvpp-rifit" SPHERICAL 
+basis "Sc_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (15s,13p,11d,8f,7g,5h,2i) -> [15s,13p,11d,8f,7g,5h,2i]
 Sc    S
    1229.48                   1.0000000
@@ -1661,7 +1661,7 @@ Sc    I
 Sc    I
       0.254642               1.0000000
 end
-basis "Ti_def2-qzvpp-rifit" SPHERICAL 
+basis "Ti_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (15s,13p,11d,8f,7g,5h,2i) -> [15s,13p,11d,8f,7g,5h,2i]
 Ti    S
    1342.34                   1.0000000
@@ -1786,7 +1786,7 @@ Ti    I
 Ti    I
       0.566805               1.0000000
 end
-basis "V_def2-qzvpp-rifit" SPHERICAL 
+basis "V_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (15s,13p,11d,8f,7g,5h,2i) -> [15s,13p,11d,8f,7g,5h,2i]
 V    S
    1482.85                   1.0000000
@@ -1911,7 +1911,7 @@ V    I
 V    I
       0.933421               1.0000000
 end
-basis "Cr_def2-qzvpp-rifit" SPHERICAL 
+basis "Cr_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (15s,13p,11d,8f,7g,5h,2i) -> [15s,13p,11d,8f,7g,5h,2i]
 Cr    S
    1549.39                   1.0000000
@@ -2036,7 +2036,7 @@ Cr    I
 Cr    I
       1.29788                1.0000000
 end
-basis "Mn_def2-qzvpp-rifit" SPHERICAL 
+basis "Mn_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (15s,13p,11d,8f,7g,5h,2i) -> [15s,13p,11d,8f,7g,5h,2i]
 Mn    S
    1718.79                   1.0000000
@@ -2161,7 +2161,7 @@ Mn    I
 Mn    I
       1.70882                1.0000000
 end
-basis "Fe_def2-qzvpp-rifit" SPHERICAL 
+basis "Fe_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (15s,13p,11d,8f,7g,5h,2i) -> [15s,13p,11d,8f,7g,5h,2i]
 Fe    S
    2008.5                    1.0000000
@@ -2286,7 +2286,7 @@ Fe    I
 Fe    I
       2.04129                1.0000000
 end
-basis "Co_def2-qzvpp-rifit" SPHERICAL 
+basis "Co_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (15s,13p,11d,8f,7g,5h,2i) -> [15s,13p,11d,8f,7g,5h,2i]
 Co    S
    2789.13                   1.0000000
@@ -2411,7 +2411,7 @@ Co    I
 Co    I
       2.38936                1.0000000
 end
-basis "Ni_def2-qzvpp-rifit" SPHERICAL 
+basis "Ni_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (15s,13p,11d,9f,7g,5h,2i) -> [15s,13p,11d,9f,7g,5h,2i]
 Ni    S
    3564.51                   1.0000000
@@ -2538,7 +2538,7 @@ Ni    I
 Ni    I
       2.73499                1.0000000
 end
-basis "Cu_def2-qzvpp-rifit" SPHERICAL 
+basis "Cu_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (15s,13p,11d,9f,7g,5h,2i) -> [15s,13p,11d,9f,7g,5h,2i]
 Cu    S
    4392.26                   1.0000000
@@ -2665,7 +2665,7 @@ Cu    I
 Cu    I
       3.03326                1.0000000
 end
-basis "Zn_def2-qzvpp-rifit" SPHERICAL 
+basis "Zn_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (15s,13p,11d,9f,7g,5h,2i) -> [15s,13p,11d,9f,7g,5h,2i]
 Zn    S
    5362.56                   1.0000000
@@ -2792,7 +2792,7 @@ Zn    I
 Zn    I
       3.45842                1.0000000
 end
-basis "Ga_def2-qzvpp-rifit" SPHERICAL 
+basis "Ga_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (13s,12p,11d,9f,7g,5h,1i) -> [13s,12p,11d,9f,7g,5h,1i]
 Ga    S
    3031.09                   1.0000000
@@ -2911,7 +2911,7 @@ Ga    H
 Ga    I
       1.17255                1.0000000
 end
-basis "Ge_def2-qzvpp-rifit" SPHERICAL 
+basis "Ge_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (13s,12p,11d,9f,7g,5h,1i) -> [13s,12p,11d,9f,7g,5h,1i]
 Ge    S
    3251.49                   1.0000000
@@ -3030,7 +3030,7 @@ Ge    H
 Ge    I
       1.42591                1.0000000
 end
-basis "As_def2-qzvpp-rifit" SPHERICAL 
+basis "As_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (13s,12p,11d,9f,7g,5h,1i) -> [13s,12p,11d,9f,7g,5h,1i]
 As    S
    3707.87                   1.0000000
@@ -3149,7 +3149,7 @@ As    H
 As    I
       1.72989                1.0000000
 end
-basis "Se_def2-qzvpp-rifit" SPHERICAL 
+basis "Se_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (13s,12p,11d,9f,7g,5h,1i) -> [13s,12p,11d,9f,7g,5h,1i]
 Se    S
    3878.49                   1.0000000
@@ -3268,7 +3268,7 @@ Se    H
 Se    I
       1.89765                1.0000000
 end
-basis "Br_def2-qzvpp-rifit" SPHERICAL 
+basis "Br_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (13s,12p,11d,9f,7g,5h,1i) -> [13s,12p,11d,9f,7g,5h,1i]
 Br    S
    4153.29                   1.0000000
@@ -3387,7 +3387,7 @@ Br    H
 Br    I
       2.20212                1.0000000
 end
-basis "Kr_def2-qzvpp-rifit" SPHERICAL 
+basis "Kr_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (13s,12p,11d,9f,7g,5h,1i) -> [13s,12p,11d,9f,7g,5h,1i]
 Kr    S
    4407.16                   1.0000000
@@ -3506,7 +3506,7 @@ Kr    H
 Kr    I
       2.58368                1.0000000
 end
-basis "Rb_def2-qzvpp-rifit" SPHERICAL 
+basis "Rb_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,7f,6g) -> [10s,9p,8d,7f,6g]
 Rb    S
       2.40932                1.0000000
@@ -3589,7 +3589,7 @@ Rb    G
 Rb    G
       0.114433               1.0000000
 end
-basis "Sr_def2-qzvpp-rifit" SPHERICAL 
+basis "Sr_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,7f,6g) -> [10s,9p,8d,7f,6g]
 Sr    S
       2.85124                1.0000000
@@ -3672,7 +3672,7 @@ Sr    G
 Sr    G
       0.134089               1.0000000
 end
-basis "Y_def2-qzvpp-rifit" SPHERICAL 
+basis "Y_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,7f,5g,5h,2i) -> [10s,9p,8d,7f,5g,5h,2i]
 Y    S
       3.27522                1.0000000
@@ -3767,7 +3767,7 @@ Y    I
 Y    I
       0.200585               1.0000000
 end
-basis "Zr_def2-qzvpp-rifit" SPHERICAL 
+basis "Zr_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,7f,5g,5h,2i) -> [10s,9p,8d,7f,5g,5h,2i]
 Zr    S
       3.81017                1.0000000
@@ -3862,7 +3862,7 @@ Zr    I
 Zr    I
       0.360251               1.0000000
 end
-basis "Nb_def2-qzvpp-rifit" SPHERICAL 
+basis "Nb_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,7f,5g,5h,2i) -> [10s,9p,8d,7f,5g,5h,2i]
 Nb    S
       3.97593                1.0000000
@@ -3957,7 +3957,7 @@ Nb    I
 Nb    I
       0.46139                1.0000000
 end
-basis "Mo_def2-qzvpp-rifit" SPHERICAL 
+basis "Mo_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,7f,5g,5h,2i) -> [10s,9p,8d,7f,5g,5h,2i]
 Mo    S
       4.28085                1.0000000
@@ -4052,7 +4052,7 @@ Mo    I
 Mo    I
       0.619009               1.0000000
 end
-basis "Tc_def2-qzvpp-rifit" SPHERICAL 
+basis "Tc_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,7f,5g,5h,2i) -> [10s,9p,8d,7f,5g,5h,2i]
 Tc    S
       4.49193                1.0000000
@@ -4147,7 +4147,7 @@ Tc    I
 Tc    I
       0.766407               1.0000000
 end
-basis "Ru_def2-qzvpp-rifit" SPHERICAL 
+basis "Ru_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,7f,5g,5h,2i) -> [10s,9p,8d,7f,5g,5h,2i]
 Ru    S
       5.0036                 1.0000000
@@ -4242,7 +4242,7 @@ Ru    I
 Ru    I
       0.966762               1.0000000
 end
-basis "Rh_def2-qzvpp-rifit" SPHERICAL 
+basis "Rh_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,7f,5g,5h,2i) -> [10s,9p,8d,7f,5g,5h,2i]
 Rh    S
       5.32371                1.0000000
@@ -4337,7 +4337,7 @@ Rh    I
 Rh    I
       1.14292                1.0000000
 end
-basis "Pd_def2-qzvpp-rifit" SPHERICAL 
+basis "Pd_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,7f,5g,5h,2i) -> [10s,9p,8d,7f,5g,5h,2i]
 Pd    S
       5.2038                 1.0000000
@@ -4432,7 +4432,7 @@ Pd    I
 Pd    I
       1.34429                1.0000000
 end
-basis "Ag_def2-qzvpp-rifit" SPHERICAL 
+basis "Ag_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,7f,5g,5h,2i) -> [10s,9p,8d,7f,5g,5h,2i]
 Ag    S
       7.99193                1.0000000
@@ -4527,7 +4527,7 @@ Ag    I
 Ag    I
       1.57098                1.0000000
 end
-basis "Cd_def2-qzvpp-rifit" SPHERICAL 
+basis "Cd_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,7f,5g,5h,2i) -> [10s,9p,8d,7f,5g,5h,2i]
 Cd    S
      11.1498                 1.0000000
@@ -4622,7 +4622,7 @@ Cd    I
 Cd    I
       1.81328                1.0000000
 end
-basis "In_def2-qzvpp-rifit" SPHERICAL 
+basis "In_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,10p,9d,8f,6g,5h,2i) -> [10s,10p,9d,8f,6g,5h,2i]
 In    S
       9.8683                 1.0000000
@@ -4725,7 +4725,7 @@ In    I
 In    I
       0.781933               1.0000000
 end
-basis "Sn_def2-qzvpp-rifit" SPHERICAL 
+basis "Sn_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,10p,9d,8f,6g,5h,2i) -> [10s,10p,9d,8f,6g,5h,2i]
 Sn    S
      10.1362                 1.0000000
@@ -4828,7 +4828,7 @@ Sn    I
 Sn    I
       0.900978               1.0000000
 end
-basis "Sb_def2-qzvpp-rifit" SPHERICAL 
+basis "Sb_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,10p,9d,8f,6g,5h,2i) -> [10s,10p,9d,8f,6g,5h,2i]
 Sb    S
      11.361                  1.0000000
@@ -4931,7 +4931,7 @@ Sb    I
 Sb    I
       1.04552                1.0000000
 end
-basis "Te_def2-qzvpp-rifit" SPHERICAL 
+basis "Te_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,10p,9d,8f,6g,5h,2i) -> [10s,10p,9d,8f,6g,5h,2i]
 Te    S
      13.2219                 1.0000000
@@ -5034,7 +5034,7 @@ Te    I
 Te    I
       1.12366                1.0000000
 end
-basis "I_def2-qzvpp-rifit" SPHERICAL 
+basis "I_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,10p,9d,8f,6g,5h,2i) -> [10s,10p,9d,8f,6g,5h,2i]
 I    S
      13.5384                 1.0000000
@@ -5137,7 +5137,7 @@ I    I
 I    I
       1.21688                1.0000000
 end
-basis "Xe_def2-qzvpp-rifit" SPHERICAL 
+basis "Xe_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,10p,9d,8f,6g,5h,2i) -> [10s,10p,9d,8f,6g,5h,2i]
 Xe    S
      14.8669                 1.0000000
@@ -5240,7 +5240,7 @@ Xe    I
 Xe    I
       1.36558                1.0000000
 end
-basis "Cs_def2-qzvpp-rifit" SPHERICAL 
+basis "Cs_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,7f,5g) -> [10s,9p,8d,7f,5g]
 Cs    S
       3.65344                1.0000000
@@ -5321,7 +5321,7 @@ Cs    G
 Cs    G
       0.163061               1.0000000
 end
-basis "Ba_def2-qzvpp-rifit" SPHERICAL 
+basis "Ba_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,7f,4g,2h) -> [10s,9p,8d,7f,4g,2h]
 Ba    S
       4.65993                1.0000000
@@ -5404,7 +5404,7 @@ Ba    H
 Ba    H
       0.181189               1.0000000
 end
-basis "La_def2-qzvpp-rifit" SPHERICAL 
+basis "La_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,7f,5g,5h,2i) -> [10s,9p,8d,7f,5g,5h,2i]
 La    S
       3.42084                1.0000000
@@ -5499,7 +5499,7 @@ La    I
 La    I
       0.247257               1.0000000
 end
-basis "Hf_def2-qzvpp-rifit" SPHERICAL 
+basis "Hf_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,7f,5g,5h,2i) -> [10s,9p,8d,7f,5g,5h,2i]
 Hf    S
       3.6222                 1.0000000
@@ -5594,7 +5594,7 @@ Hf    I
 Hf    I
       0.322739               1.0000000
 end
-basis "Ta_def2-qzvpp-rifit" SPHERICAL 
+basis "Ta_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,7f,5g,5h,2i) -> [10s,9p,8d,7f,5g,5h,2i]
 Ta    S
       4.0079                 1.0000000
@@ -5689,7 +5689,7 @@ Ta    I
 Ta    I
       0.415338               1.0000000
 end
-basis "W_def2-qzvpp-rifit" SPHERICAL 
+basis "W_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,7f,5g,5h,2i) -> [10s,9p,8d,7f,5g,5h,2i]
 W    S
       4.06352                1.0000000
@@ -5784,7 +5784,7 @@ W    I
 W    I
       0.522482               1.0000000
 end
-basis "Re_def2-qzvpp-rifit" SPHERICAL 
+basis "Re_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,7f,5g,5h,2i) -> [10s,9p,8d,7f,5g,5h,2i]
 Re    S
       3.96623                1.0000000
@@ -5879,7 +5879,7 @@ Re    I
 Re    I
       0.641608               1.0000000
 end
-basis "Os_def2-qzvpp-rifit" SPHERICAL 
+basis "Os_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,7f,5g,5h,2i) -> [10s,9p,8d,7f,5g,5h,2i]
 Os    S
       4.1286                 1.0000000
@@ -5974,7 +5974,7 @@ Os    I
 Os    I
       0.766244               1.0000000
 end
-basis "Ir_def2-qzvpp-rifit" SPHERICAL 
+basis "Ir_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,7f,5g,5h,2i) -> [10s,9p,8d,7f,5g,5h,2i]
 Ir    S
       5.32371                1.0000000
@@ -6069,7 +6069,7 @@ Ir    I
 Ir    I
       0.890077               1.0000000
 end
-basis "Pt_def2-qzvpp-rifit" SPHERICAL 
+basis "Pt_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,7f,5g,5h,2i) -> [10s,9p,8d,7f,5g,5h,2i]
 Pt    S
       5.2038                 1.0000000
@@ -6164,7 +6164,7 @@ Pt    I
 Pt    I
       1.00135                1.0000000
 end
-basis "Au_def2-qzvpp-rifit" SPHERICAL 
+basis "Au_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,7f,5g,5h,2i) -> [10s,9p,8d,7f,5g,5h,2i]
 Au    S
       7.99195                1.0000000
@@ -6259,7 +6259,7 @@ Au    I
 Au    I
       1.14798                1.0000000
 end
-basis "Hg_def2-qzvpp-rifit" SPHERICAL 
+basis "Hg_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,7f,5g,5h,2i) -> [10s,9p,8d,7f,5g,5h,2i]
 Hg    S
      10.2059                 1.0000000
@@ -6354,7 +6354,7 @@ Hg    I
 Hg    I
       1.2728                 1.0000000
 end
-basis "Tl_def2-qzvpp-rifit" SPHERICAL 
+basis "Tl_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,10p,9d,8f,6g,4h,2i) -> [10s,10p,9d,8f,6g,4h,2i]
 Tl    S
       9.34394                1.0000000
@@ -6455,7 +6455,7 @@ Tl    I
 Tl    I
       0.770785               1.0000000
 end
-basis "Pb_def2-qzvpp-rifit" SPHERICAL 
+basis "Pb_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,10p,9d,8f,6g,4h,2i) -> [10s,10p,9d,8f,6g,4h,2i]
 Pb    S
       9.25278                1.0000000
@@ -6556,7 +6556,7 @@ Pb    I
 Pb    I
       0.857734               1.0000000
 end
-basis "Bi_def2-qzvpp-rifit" SPHERICAL 
+basis "Bi_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,10p,9d,8f,6g,4h,2i) -> [10s,10p,9d,8f,6g,4h,2i]
 Bi    S
       9.93359                1.0000000
@@ -6657,7 +6657,7 @@ Bi    I
 Bi    I
       0.968553               1.0000000
 end
-basis "Po_def2-qzvpp-rifit" SPHERICAL 
+basis "Po_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,10p,9d,8f,6g,4h,2i) -> [10s,10p,9d,8f,6g,4h,2i]
 Po    S
       9.60456                1.0000000
@@ -6758,7 +6758,7 @@ Po    I
 Po    I
       0.987606               1.0000000
 end
-basis "At_def2-qzvpp-rifit" SPHERICAL 
+basis "At_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,10p,9d,8f,6g,4h,2i) -> [10s,10p,9d,8f,6g,4h,2i]
 At    S
       9.60943                1.0000000
@@ -6859,7 +6859,7 @@ At    I
 At    I
       1.0992                 1.0000000
 end
-basis "Rn_def2-qzvpp-rifit" SPHERICAL 
+basis "Rn_def2-QZVPP-RIFIT" SPHERICAL 
 #basis SET: (10s,10p,9d,8f,6g,4h,2i) -> [10s,10p,9d,8f,6g,4h,2i]
 Rn    S
      11.5239                 1.0000000

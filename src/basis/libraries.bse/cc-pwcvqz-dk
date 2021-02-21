@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# cc-pwcvqz-dk version number 0
+# Data downloaded on 2021-02-20T21:21
+# cc-pwCVQZ-DK version number 0
 # Description: QZ3P    All-electron Douglas-Kroll Core-Valence Quadruple Zeta + Polarization
 # Role: orbital
 # 
@@ -47,7 +47,7 @@
 #     10.1063/1.1998907
 # 
 # # 
-basis "Sc_cc-pwcvqz-dk" SPHERICAL 
+basis "Sc_cc-pwCVQZ-DK" SPHERICAL 
 #basis SET: (150s,105p,43d,4f,3g,2h) -> [10s,9p,7d,4f,3g,2h]
 Sc    S
 8417909.                     0.000045
@@ -392,7 +392,7 @@ Sc    H
 Sc    H
       0.4934                 1.0
 end
-basis "Ti_cc-pwcvqz-dk" SPHERICAL 
+basis "Ti_cc-pwCVQZ-DK" SPHERICAL 
 #basis SET: (150s,105p,43d,4f,3g,2h) -> [10s,9p,7d,4f,3g,2h]
 Ti    S
 9317034.0                    0.000048
@@ -737,7 +737,7 @@ Ti    H
 Ti    H
       0.8524                 1.0
 end
-basis "V_cc-pwcvqz-dk" SPHERICAL 
+basis "V_cc-pwCVQZ-DK" SPHERICAL 
 #basis SET: (150s,105p,43d,4f,3g,2h) -> [10s,9p,7d,4f,3g,2h]
 V    S
 10251780.0                   0.000051
@@ -1082,7 +1082,7 @@ V    H
 V    H
       1.2875                 1.0
 end
-basis "Cr_cc-pwcvqz-dk" SPHERICAL 
+basis "Cr_cc-pwCVQZ-DK" SPHERICAL 
 #basis SET: (150s,105p,43d,4f,3g,2h) -> [10s,9p,7d,4f,3g,2h]
 Cr    S
 11016640.0                   0.000054
@@ -1427,7 +1427,7 @@ Cr    H
 Cr    H
       1.6472                 1.0
 end
-basis "Mn_cc-pwcvqz-dk" SPHERICAL 
+basis "Mn_cc-pwCVQZ-DK" SPHERICAL 
 #basis SET: (150s,105p,43d,4f,3g,2h) -> [10s,9p,7d,4f,3g,2h]
 Mn    S
 12210500.0                   0.000058
@@ -1772,7 +1772,7 @@ Mn    H
 Mn    H
       1.9660                 1.0
 end
-basis "Fe_cc-pwcvqz-dk" SPHERICAL 
+basis "Fe_cc-pwCVQZ-DK" SPHERICAL 
 #basis SET: (150s,105p,43d,4f,3g,2h) -> [10s,9p,7d,4f,3g,2h]
 Fe    S
       0.1327714E+08          0.000060
@@ -2117,7 +2117,7 @@ Fe    H
 Fe    H
       2.3448                 1.0
 end
-basis "Co_cc-pwcvqz-dk" SPHERICAL 
+basis "Co_cc-pwCVQZ-DK" SPHERICAL 
 #basis SET: (150s,105p,43d,4f,3g,2h) -> [10s,9p,7d,4f,3g,2h]
 Co    S
       0.1437022E+08          0.000063
@@ -2462,7 +2462,7 @@ Co    H
 Co    H
       2.7485                 1.0
 end
-basis "Ni_cc-pwcvqz-dk" SPHERICAL 
+basis "Ni_cc-pwCVQZ-DK" SPHERICAL 
 #basis SET: (148s,105p,43d,4f,3g,2h) -> [10s,9p,7d,4f,3g,2h]
 Ni    S
 15503020.0                   0.000068
@@ -2805,7 +2805,7 @@ Ni    H
 Ni    H
       3.1948                 1.0
 end
-basis "Cu_cc-pwcvqz-dk" SPHERICAL 
+basis "Cu_cc-pwCVQZ-DK" SPHERICAL 
 #basis SET: (150s,104p,43d,4f,3g,2h) -> [10s,9p,7d,4f,3g,2h]
 Cu    S
 16665490.0                   0.000069
@@ -3149,7 +3149,7 @@ Cu    H
 Cu    H
       3.7293                 1.0
 end
-basis "Zn_cc-pwcvqz-dk" SPHERICAL 
+basis "Zn_cc-pwCVQZ-DK" SPHERICAL 
 #basis SET: (150s,105p,43d,4f,3g,2h) -> [10s,9p,7d,4f,3g,2h]
 Zn    S
       0.1785293E+08          0.000079

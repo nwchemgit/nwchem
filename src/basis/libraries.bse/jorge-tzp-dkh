@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# jorge-tzp-dkh version number 1
+# Data downloaded on 2021-02-20T21:21
+# jorge-TZP-DKH version number 1
 # Description: TZP-DKH: Triple zeta valence quality plus polarization (DKH)
 # Role: orbital
 # 
@@ -105,7 +105,7 @@
 #     10.1007/s00894-019-3924-8
 # 
 # # 
-basis "H_jorge-tzp-dkh" SPHERICAL 
+basis "H_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (5s,2p,1d) -> [3s,2p,1d]
 H    S
      34.87758369             0.0233625
@@ -122,7 +122,7 @@ H    P
 H    D
       1.07506000             1.0000000
 end
-basis "He_jorge-tzp-dkh" SPHERICAL 
+basis "He_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (5s,2p,1d) -> [3s,2p,1d]
 He    S
      99.46133990             0.0267360
@@ -139,7 +139,7 @@ He    P
 He    D
       1.88911999             1.0000000
 end
-basis "Li_jorge-tzp-dkh" SPHERICAL 
+basis "Li_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (10s,6p,2d,1f) -> [5s,3p,2d,1f]
 Li    S
    2027.47420535             0.0007830
@@ -172,7 +172,7 @@ Li    D
 Li    F
       0.05461251             1.0000000
 end
-basis "Be_jorge-tzp-dkh" SPHERICAL 
+basis "Be_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (10s,6p,2d,1f) -> [5s,3p,2d,1f]
 Be    S
    3912.17914788             0.0007855
@@ -205,7 +205,7 @@ Be    D
 Be    F
       0.29209000             1.0000000
 end
-basis "B_jorge-tzp-dkh" SPHERICAL 
+basis "B_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (10s,6p,2d,1f) -> [5s,3p,2d,1f]
 B    S
    5171.25825998             0.0008902
@@ -238,7 +238,7 @@ B    D
 B    F
       0.53240400             1.0000000
 end
-basis "C_jorge-tzp-dkh" SPHERICAL 
+basis "C_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (10s,6p,2d,1f) -> [5s,3p,2d,1f]
 C    S
    7615.05999110             0.0020534
@@ -271,7 +271,7 @@ C    D
 C    F
       0.81931200             1.0000000
 end
-basis "N_jorge-tzp-dkh" SPHERICAL 
+basis "N_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (10s,6p,2d,1f) -> [5s,3p,2d,1f]
 N    S
   10259.65669438             0.0021856
@@ -304,7 +304,7 @@ N    D
 N    F
       1.16358040             1.0000000
 end
-basis "O_jorge-tzp-dkh" SPHERICAL 
+basis "O_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (10s,6p,2d,1f) -> [5s,3p,2d,1f]
 O    S
   12870.84508387             0.0023837
@@ -337,7 +337,7 @@ O    D
 O    F
       1.51094800             1.0000000
 end
-basis "F_jorge-tzp-dkh" SPHERICAL 
+basis "F_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (10s,6p,2d,1f) -> [5s,3p,2d,1f]
 F    S
   16736.04332217             0.0024626
@@ -370,7 +370,7 @@ F    D
 F    F
       1.99355999             1.0000000
 end
-basis "Ne_jorge-tzp-dkh" SPHERICAL 
+basis "Ne_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (10s,6p,2d,1f) -> [5s,3p,2d,1f]
 Ne    S
   21250.97587273             0.0025962
@@ -403,7 +403,7 @@ Ne    D
 Ne    F
       2.60614994             1.0000000
 end
-basis "Na_jorge-tzp-dkh" SPHERICAL 
+basis "Na_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (13s,10p,2d,1f) -> [8s,5p,2d,1f]
 Na    S
   46910.10147426             0.0028260
@@ -448,7 +448,7 @@ Na    D
 Na    F
       0.14135000             1.0000000
 end
-basis "Mg_jorge-tzp-dkh" SPHERICAL 
+basis "Mg_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (13s,10p,2d,1f) -> [8s,5p,2d,1f]
 Mg    S
   55205.89651437             0.0035315
@@ -493,7 +493,7 @@ Mg    D
 Mg    F
       0.15381000             1.0000000
 end
-basis "Al_jorge-tzp-dkh" SPHERICAL 
+basis "Al_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (13s,10p,2d,1f) -> [8s,5p,2d,1f]
 Al    S
   57132.22963598             0.0039425
@@ -538,7 +538,7 @@ Al    D
 Al    F
       0.27994400             1.0000000
 end
-basis "Si_jorge-tzp-dkh" SPHERICAL 
+basis "Si_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (13s,10p,2d,1f) -> [8s,5p,2d,1f]
 Si    S
   90425.63194729             0.0036641
@@ -583,7 +583,7 @@ Si    D
 Si    F
       0.37499200             1.0000000
 end
-basis "P_jorge-tzp-dkh" SPHERICAL 
+basis "P_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (13s,10p,2d,1f) -> [8s,5p,2d,1f]
 P    S
  105893.20737920             0.0040973
@@ -628,7 +628,7 @@ P    D
 P    F
       0.48623040             1.0000000
 end
-basis "S_jorge-tzp-dkh" SPHERICAL 
+basis "S_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (13s,10p,2d,1f) -> [8s,5p,2d,1f]
 S    S
  131334.98114592             0.0045222
@@ -673,7 +673,7 @@ S    D
 S    F
       0.58379000             1.0000000
 end
-basis "Cl_jorge-tzp-dkh" SPHERICAL 
+basis "Cl_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (13s,10p,2d,1f) -> [8s,5p,2d,1f]
 Cl    S
  181678.82698244             0.0042914
@@ -718,7 +718,7 @@ Cl    D
 Cl    F
       0.72996999             1.0000000
 end
-basis "Ar_jorge-tzp-dkh" SPHERICAL 
+basis "Ar_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (13s,10p,2d,1f) -> [8s,5p,2d,1f]
 Ar    S
  163430.88636138             0.0055979
@@ -763,7 +763,7 @@ Ar    D
 Ar    F
       0.90998994             1.0000000
 end
-basis "K_jorge-tzp-dkh" SPHERICAL 
+basis "K_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (16s,13p,2d,1f) -> [9s,6p,2d,1f]
 K    S
  428242.30424475             0.0008807
@@ -816,7 +816,7 @@ K    D
 K    F
       0.45136500             1.0000000
 end
-basis "Ca_jorge-tzp-dkh" SPHERICAL 
+basis "Ca_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (16s,13p,2d,1f) -> [9s,6p,2d,1f]
 Ca    S
  502156.43635907             0.0009455
@@ -869,7 +869,7 @@ Ca    D
 Ca    F
       0.12801489             1.0000000
 end
-basis "Sc_jorge-tzp-dkh" SPHERICAL 
+basis "Sc_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (16s,13p,6d,2f,1g) -> [9s,6p,3d,2f,1g]
 Sc    S
  605916.52556560             0.0009744
@@ -931,7 +931,7 @@ Sc    F
 Sc    G
       0.25087235             1.0000000
 end
-basis "Ti_jorge-tzp-dkh" SPHERICAL 
+basis "Ti_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (16s,13p,6d,2f,1g) -> [9s,6p,3d,2f,1g]
 Ti    S
  646272.54553265             0.0010200
@@ -993,7 +993,7 @@ Ti    F
 Ti    G
       0.41782879             1.0000000
 end
-basis "V_jorge-tzp-dkh" SPHERICAL 
+basis "V_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (16s,13p,6d,2f,1g) -> [9s,6p,3d,2f,1g]
 V    S
  382796.54437530             0.0084747
@@ -1055,7 +1055,7 @@ V    F
 V    G
       0.65232930             1.0000000
 end
-basis "Cr_jorge-tzp-dkh" SPHERICAL 
+basis "Cr_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (16s,13p,6d,2f,1g) -> [9s,6p,3d,2f,1g]
 Cr    S
  371840.83425175            -0.0096352
@@ -1117,7 +1117,7 @@ Cr    F
 Cr    G
       1.65808166             1.0000000
 end
-basis "Mn_jorge-tzp-dkh" SPHERICAL 
+basis "Mn_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (16s,13p,6d,2f,1g) -> [9s,6p,3d,2f,1g]
 Mn    S
  429540.06806178             0.0027002
@@ -1179,7 +1179,7 @@ Mn    F
 Mn    G
       1.78996503             1.0000000
 end
-basis "Fe_jorge-tzp-dkh" SPHERICAL 
+basis "Fe_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (16s,13p,6d,2f,1g) -> [9s,6p,3d,2f,1g]
 Fe    S
  489363.91999756             0.0030585
@@ -1241,7 +1241,7 @@ Fe    F
 Fe    G
       2.25265017             1.0000000
 end
-basis "Co_jorge-tzp-dkh" SPHERICAL 
+basis "Co_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (16s,13p,6d,2f,1g) -> [9s,6p,3d,2f,1g]
 Co    S
  515660.56296198             0.0029128
@@ -1303,7 +1303,7 @@ Co    F
 Co    G
       2.44212370             1.0000000
 end
-basis "Ni_jorge-tzp-dkh" SPHERICAL 
+basis "Ni_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (16s,13p,6d,2f,1g) -> [9s,6p,3d,2f,1g]
 Ni    S
  373105.93515555             0.0042652
@@ -1365,7 +1365,7 @@ Ni    F
 Ni    G
       2.88175814             1.0000000
 end
-basis "Cu_jorge-tzp-dkh" SPHERICAL 
+basis "Cu_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (16s,13p,6d,2f,1g) -> [9s,6p,3d,2f,1g]
 Cu    S
  514669.00652938             0.0034482
@@ -1427,7 +1427,7 @@ Cu    F
 Cu    G
       3.82922469             1.0000000
 end
-basis "Zn_jorge-tzp-dkh" SPHERICAL 
+basis "Zn_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (16s,13p,6d,2f,1g) -> [9s,6p,3d,2f,1g]
 Zn    S
  632269.42234494             0.0032296
@@ -1489,7 +1489,7 @@ Zn    F
 Zn    G
       4.40963490             1.0000000
 end
-basis "Ga_jorge-tzp-dkh" SPHERICAL 
+basis "Ga_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (16s,13p,6d,2f,1g) -> [9s,6p,3d,2f,1g]
 Ga    S
 1102887.70666042             0.0016175
@@ -1551,7 +1551,7 @@ Ga    F
 Ga    G
       5.07201575             1.0000000
 end
-basis "Ge_jorge-tzp-dkh" SPHERICAL 
+basis "Ge_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (16s,13p,6d,2f,1g) -> [9s,6p,3d,2f,1g]
 Ge    S
 1401429.17054334             0.0016996
@@ -1613,7 +1613,7 @@ Ge    F
 Ge    G
       5.83168488             1.0000000
 end
-basis "As_jorge-tzp-dkh" SPHERICAL 
+basis "As_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (16s,13p,6d,2f,1g) -> [9s,6p,3d,2f,1g]
 As    S
 1620090.77430984             0.0047756
@@ -1675,7 +1675,7 @@ As    F
 As    G
       6.66377991             1.0000000
 end
-basis "Se_jorge-tzp-dkh" SPHERICAL 
+basis "Se_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (16s,13p,6d,2f,1g) -> [9s,6p,3d,2f,1g]
 Se    S
 1685431.27012521             0.0019200
@@ -1737,7 +1737,7 @@ Se    F
 Se    G
       7.47528684             1.0000000
 end
-basis "Br_jorge-tzp-dkh" SPHERICAL 
+basis "Br_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (16s,13p,6d,2f,1g) -> [9s,6p,3d,2f,1g]
 Br    S
 1891721.28453019             0.0019998
@@ -1799,7 +1799,7 @@ Br    F
 Br    G
       8.36545878             1.0000000
 end
-basis "Kr_jorge-tzp-dkh" SPHERICAL 
+basis "Kr_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (16s,13p,6d,2f,1g) -> [9s,6p,3d,2f,1g]
 Kr    S
 2022523.35400365             0.0020918
@@ -1861,7 +1861,7 @@ Kr    F
 Kr    G
       9.31937391             1.0000000
 end
-basis "Rb_jorge-tzp-dkh" SPHERICAL 
+basis "Rb_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,16p,7d,1f) -> [9s,7p,3d,1f]
 Rb    S
 3739746.25060054             0.0012369
@@ -1928,7 +1928,7 @@ Rb    D
 Rb    F
       0.07757084             1.0000000
 end
-basis "Sr_jorge-tzp-dkh" SPHERICAL 
+basis "Sr_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,16p,7d,1f) -> [9s,7p,3d,1f]
 Sr    S
 3972749.15755940             0.0014475
@@ -1995,7 +1995,7 @@ Sr    D
 Sr    F
       1.71100000             1.0000000
 end
-basis "Y_jorge-tzp-dkh" SPHERICAL 
+basis "Y_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,15p,9d,2f,1g) -> [9s,6p,4d,2f,1g]
 Y    S
 1019175.12509795             0.0036935
@@ -2067,7 +2067,7 @@ Y    F
 Y    G
       0.20361000             1.0000000
 end
-basis "Zr_jorge-tzp-dkh" SPHERICAL 
+basis "Zr_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,15p,9d,2f,1g) -> [9s,6p,4d,2f,1g]
 Zr    S
 2881766.00843883             0.0017273
@@ -2139,7 +2139,7 @@ Zr    F
 Zr    G
       0.29826220             1.0000000
 end
-basis "Nb_jorge-tzp-dkh" SPHERICAL 
+basis "Nb_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,16p,9d,2f,1g) -> [9s,7p,4d,2f,1g]
 Nb    S
 8581145.70489003             0.0007186
@@ -2213,7 +2213,7 @@ Nb    F
 Nb    G
       0.65339081             1.0000000
 end
-basis "Mo_jorge-tzp-dkh" SPHERICAL 
+basis "Mo_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,16p,9d,2f,1g) -> [9s,7p,4d,2f,1g]
 Mo    S
 2026740.93270436             0.0024008
@@ -2287,7 +2287,7 @@ Mo    F
 Mo    G
       0.84607000             1.0000000
 end
-basis "Tc_jorge-tzp-dkh" SPHERICAL 
+basis "Tc_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,15p,9d,2f,1g) -> [9s,6p,4d,2f,1g]
 Tc    S
 3851442.12082243             0.0017364
@@ -2359,7 +2359,7 @@ Tc    F
 Tc    G
       0.93323847             1.0000000
 end
-basis "Ru_jorge-tzp-dkh" SPHERICAL 
+basis "Ru_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,16p,9d,2f,1g) -> [9s,7p,4d,2f,1g]
 Ru    S
 3451353.77133021             0.0010323
@@ -2433,7 +2433,7 @@ Ru    F
 Ru    G
       1.08232217             1.0000000
 end
-basis "Rh_jorge-tzp-dkh" SPHERICAL 
+basis "Rh_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,15p,9d,2f,1g) -> [9s,6p,4d,2f,1g]
 Rh    S
 3804470.52408509             0.0006692
@@ -2505,7 +2505,7 @@ Rh    F
 Rh    G
       1.25202413             1.0000000
 end
-basis "Pd_jorge-tzp-dkh" SPHERICAL 
+basis "Pd_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,15p,9d,2f,1g) -> [9s,6p,4d,2f,1g]
 Pd    S
 16394098.88131892            0.0012659
@@ -2577,7 +2577,7 @@ Pd    F
 Pd    G
       1.35057114             1.0000000
 end
-basis "Ag_jorge-tzp-dkh" SPHERICAL 
+basis "Ag_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,16p,9d,2f,1g) -> [9s,7p,4d,2f,1g]
 Ag    S
 1933354.71623145             0.0033552
@@ -2651,7 +2651,7 @@ Ag    F
 Ag    G
       1.64516300             1.0000000
 end
-basis "Cd_jorge-tzp-dkh" SPHERICAL 
+basis "Cd_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,16p,9d,2f,1g) -> [9s,7p,4d,2f,1g]
 Cd    S
 1834021.92579924             0.0035530
@@ -2725,7 +2725,7 @@ Cd    F
 Cd    G
       1.80940000             1.0000000
 end
-basis "In_jorge-tzp-dkh" SPHERICAL 
+basis "In_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,16p,9d,2f,1g) -> [9s,7p,4d,2f,1g]
 In    S
 3911387.99396017             0.0019106
@@ -2799,7 +2799,7 @@ In    F
 In    G
       2.03993000             1.0000000
 end
-basis "Sn_jorge-tzp-dkh" SPHERICAL 
+basis "Sn_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,16p,9d,2f,1g) -> [9s,7p,4d,2f,1g]
 Sn    S
 4238589.38529473             0.0021979
@@ -2873,7 +2873,7 @@ Sn    F
 Sn    G
       2.30250000             1.0000000
 end
-basis "Sb_jorge-tzp-dkh" SPHERICAL 
+basis "Sb_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,16p,10d,2f,1g) -> [9s,7p,4d,2f,1g]
 Sb    S
 5582873.01532240            -0.0052025
@@ -2948,7 +2948,7 @@ Sb    F
 Sb    G
       2.49959355             1.0000000
 end
-basis "Te_jorge-tzp-dkh" SPHERICAL 
+basis "Te_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,16p,9d,2f,1g) -> [9s,7p,4d,2f,1g]
 Te    S
 4650601.62944046            -0.0023907
@@ -3022,7 +3022,7 @@ Te    F
 Te    G
       2.75355000             1.0000000
 end
-basis "I_jorge-tzp-dkh" SPHERICAL 
+basis "I_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,16p,9d,2f,1g) -> [9s,7p,4d,2f,1g]
 I    S
 5464702.08060097             0.0022010
@@ -3096,7 +3096,7 @@ I    F
 I    G
       2.97888999             1.0000000
 end
-basis "Xe_jorge-tzp-dkh" SPHERICAL 
+basis "Xe_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,16p,9d,2f,1g) -> [9s,7p,4d,2f,1g]
 Xe    S
 5300603.64553030             0.0024061
@@ -3170,7 +3170,7 @@ Xe    F
 Xe    G
       3.24381999             1.0000000
 end
-basis "Cs_jorge-tzp-dkh" SPHERICAL 
+basis "Cs_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,14p,9d,1f) -> [9s,5p,4d,1f]
 Cs    S
 4179012.02834243             0.0035077
@@ -3237,7 +3237,7 @@ Cs    D
 Cs    F
       0.39996897             1.0000000
 end
-basis "Ba_jorge-tzp-dkh" SPHERICAL 
+basis "Ba_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,14p,9d,1f) -> [9s,5p,4d,1f]
 Ba    S
 5797830.32678798             0.0029392
@@ -3303,7 +3303,7 @@ Ba    D
 Ba    F
       0.08212788             1.0000000
 end
-basis "La_jorge-tzp-dkh" SPHERICAL 
+basis "La_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,14p,10d,2f,1g) -> [9s,5p,5d,2f,1g]
 La    S
 10940001.11697411            0.0020308
@@ -3375,7 +3375,7 @@ La    F
 La    G
       0.17894163             1.0000000
 end
-basis "Ce_jorge-tzp-dkh" SPHERICAL 
+basis "Ce_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,15p,11d,6f,2g) -> [9s,6p,6d,3f,2g]
 Ce    S
 4452721.32631985             0.0041476
@@ -3458,7 +3458,7 @@ Ce    G
 Ce    G
       1.19870221             1.0000000
 end
-basis "Pr_jorge-tzp-dkh" SPHERICAL 
+basis "Pr_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,15p,11d,6f,2g) -> [9s,6p,6d,3f,2g]
 Pr    S
 6034936.93989009            -0.0035172
@@ -3542,7 +3542,7 @@ Pr    G
 Pr    G
       2.53276232             1.0000000
 end
-basis "Nd_jorge-tzp-dkh" SPHERICAL 
+basis "Nd_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,15p,11d,6f,2g) -> [9s,6p,6d,3f,2g]
 Nd    S
 8218621.55783234             0.0029910
@@ -3625,7 +3625,7 @@ Nd    G
 Nd    G
       1.77040562             1.0000000
 end
-basis "Pm_jorge-tzp-dkh" SPHERICAL 
+basis "Pm_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,15p,11d,6f,2g) -> [9s,6p,6d,3f,2g]
 Pm    S
 8385572.01067621             0.0030917
@@ -3709,7 +3709,7 @@ Pm    G
 Pm    G
       2.09137156             1.0000000
 end
-basis "Sm_jorge-tzp-dkh" SPHERICAL 
+basis "Sm_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,15p,11d,6f,2g) -> [9s,6p,6d,3f,2g]
 Sm    S
 6521986.49904413             0.0038021
@@ -3793,7 +3793,7 @@ Sm    G
 Sm    G
       2.78472787             1.0000000
 end
-basis "Eu_jorge-tzp-dkh" SPHERICAL 
+basis "Eu_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,15p,11d,6f,2g) -> [9s,6p,6d,3f,2g]
 Eu    S
 6642112.16884365             0.0039589
@@ -3877,7 +3877,7 @@ Eu    G
 Eu    G
       2.37182108             1.0000000
 end
-basis "Gd_jorge-tzp-dkh" SPHERICAL 
+basis "Gd_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,15p,11d,6f,2g) -> [9s,6p,6d,3f,2g]
 Gd    S
 6835387.25190136             0.0040797
@@ -3961,7 +3961,7 @@ Gd    G
 Gd    G
       2.26452521             1.0000000
 end
-basis "Tb_jorge-tzp-dkh" SPHERICAL 
+basis "Tb_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,15p,11d,6f,2g) -> [9s,6p,6d,3f,2g]
 Tb    S
 7277866.69252350             0.0040269
@@ -4045,7 +4045,7 @@ Tb    G
 Tb    G
       2.63119999             1.0000000
 end
-basis "Dy_jorge-tzp-dkh" SPHERICAL 
+basis "Dy_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,15p,11d,6f,2g) -> [9s,6p,6d,3f,2g]
 Dy    S
 7138407.53214442             0.0041855
@@ -4129,7 +4129,7 @@ Dy    G
 Dy    G
       2.76752984             1.0000000
 end
-basis "Ho_jorge-tzp-dkh" SPHERICAL 
+basis "Ho_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,15p,11d,6f,2g) -> [9s,6p,6d,3f,2g]
 Ho    S
 7212833.36150841             0.0044590
@@ -4213,7 +4213,7 @@ Ho    G
 Ho    G
       2.70954991             1.0000000
 end
-basis "Er_jorge-tzp-dkh" SPHERICAL 
+basis "Er_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,15p,11d,6f,2g) -> [9s,6p,6d,3f,2g]
 Er    S
 6862125.99401731             0.0017437
@@ -4297,7 +4297,7 @@ Er    G
 Er    G
       1.81675560             1.0000000
 end
-basis "Tm_jorge-tzp-dkh" SPHERICAL 
+basis "Tm_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,15p,11d,6f,2g) -> [9s,6p,6d,3f,2g]
 Tm    S
 7157988.74611159             0.0017861
@@ -4381,7 +4381,7 @@ Tm    G
 Tm    G
       3.01801694             1.0000000
 end
-basis "Yb_jorge-tzp-dkh" SPHERICAL 
+basis "Yb_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,15p,11d,6f,2g) -> [9s,6p,6d,3f,2g]
 Yb    S
 7518484.95547668             0.0049867
@@ -4465,7 +4465,7 @@ Yb    G
 Yb    G
       3.40219996             1.0000000
 end
-basis "Lu_jorge-tzp-dkh" SPHERICAL 
+basis "Lu_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,15p,10d,6f,2g) -> [9s,6p,5d,3f,2g]
 Lu    S
 7838727.70998532            -0.0050482
@@ -4547,7 +4547,7 @@ Lu    G
 Lu    G
       2.45790172             1.0000000
 end
-basis "Hf_jorge-tzp-dkh" SPHERICAL 
+basis "Hf_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,15p,10d,5f,1g) -> [9s,6p,5d,3f,1g]
 Hf    S
 16470218.84550643            0.0029992
@@ -4626,7 +4626,7 @@ Hf    F
 Hf    G
       6.86106516             1.0000000
 end
-basis "Ta_jorge-tzp-dkh" SPHERICAL 
+basis "Ta_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,15p,10d,6f,1g) -> [9s,6p,5d,3f,1g]
 Ta    S
 16301874.94559313            0.0031855
@@ -4706,7 +4706,7 @@ Ta    F
 Ta    G
       5.89240917             1.0000000
 end
-basis "W_jorge-tzp-dkh" SPHERICAL 
+basis "W_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,14p,10d,6f,1g) -> [9s,5p,5d,3f,1g]
 W    S
 15539575.40940405            0.0034765
@@ -4784,7 +4784,7 @@ W    F
 W    G
       6.54764408             1.0000000
 end
-basis "Re_jorge-tzp-dkh" SPHERICAL 
+basis "Re_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,14p,10d,6f,1g) -> [9s,5p,5d,3f,1g]
 Re    S
 16672183.66268397            0.0034454
@@ -4861,7 +4861,7 @@ Re    F
 Re    G
       7.40997263             1.0000000
 end
-basis "Os_jorge-tzp-dkh" SPHERICAL 
+basis "Os_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,14p,10d,6f,1g) -> [9s,6p,5d,3f,1g]
 Os    S
 17967592.93952243            0.0033817
@@ -4940,7 +4940,7 @@ Os    F
 Os    G
       7.88933242             1.0000000
 end
-basis "Ir_jorge-tzp-dkh" SPHERICAL 
+basis "Ir_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,13p,10d,6f,1g) -> [9s,5p,5d,3f,1g]
 Ir    S
 16613974.94559311            0.0034852
@@ -5017,7 +5017,7 @@ Ir    F
 Ir    G
       8.21796086             1.0000000
 end
-basis "Pt_jorge-tzp-dkh" SPHERICAL 
+basis "Pt_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,14p,10d,6f,1g) -> [9s,5p,5d,3f,1g]
 Pt    S
 13290538.02632256           -0.0047980
@@ -5095,7 +5095,7 @@ Pt    F
 Pt    G
       1.89406337             1.0000000
 end
-basis "Au_jorge-tzp-dkh" SPHERICAL 
+basis "Au_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,15p,10d,6f,1g) -> [9s,6p,5d,3f,1g]
 Au    S
 20162259.58330972            0.0035038
@@ -5175,7 +5175,7 @@ Au    F
 Au    G
       1.98804717             1.0000000
 end
-basis "Hg_jorge-tzp-dkh" SPHERICAL 
+basis "Hg_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,15p,10d,6f,1g) -> [9s,6p,5d,3f,1g]
 Hg    S
 20389832.62840338            0.0036149
@@ -5255,7 +5255,7 @@ Hg    F
 Hg    G
       2.13211483             1.0000000
 end
-basis "Tl_jorge-tzp-dkh" SPHERICAL 
+basis "Tl_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,17p,10d,6f,1g) -> [9s,8p,5d,3f,1g]
 Tl    S
 40518514.71077224            0.0017549
@@ -5339,7 +5339,7 @@ Tl    F
 Tl    G
       2.17993105             1.0000000
 end
-basis "Pb_jorge-tzp-dkh" SPHERICAL 
+basis "Pb_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,17p,10d,6f,1g) -> [9s,8p,5d,3f,1g]
 Pb    S
 21771065.51950591            0.0022690
@@ -5422,7 +5422,7 @@ Pb    F
 Pb    G
       2.30045679             1.0000000
 end
-basis "Bi_jorge-tzp-dkh" SPHERICAL 
+basis "Bi_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,17p,10d,6f,1g) -> [9s,8p,5d,3f,1g]
 Bi    S
 32032470.76750181            0.0020430
@@ -5505,7 +5505,7 @@ Bi    F
 Bi    G
       2.36824529             1.0000000
 end
-basis "Po_jorge-tzp-dkh" SPHERICAL 
+basis "Po_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,17p,10d,6f,1g) -> [9s,8p,5d,3f,1g]
 Po    S
 37103275.58244303            0.0019827
@@ -5588,7 +5588,7 @@ Po    F
 Po    G
       2.59565157             1.0000000
 end
-basis "At_jorge-tzp-dkh" SPHERICAL 
+basis "At_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,17p,10d,6f,1g) -> [9s,8p,5d,3f,1g]
 At    S
 40008514.71077223            0.0019625
@@ -5671,7 +5671,7 @@ At    F
 At    G
       2.75288997             1.0000000
 end
-basis "Rn_jorge-tzp-dkh" SPHERICAL 
+basis "Rn_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (20s,17p,10d,6f,1g) -> [9s,8p,5d,3f,1g]
 Rn    S
 41068326.05358889            0.0019931
@@ -5754,7 +5754,7 @@ Rn    F
 Rn    G
       2.92472407             1.0000000
 end
-basis "Fr_jorge-tzp-dkh" SPHERICAL 
+basis "Fr_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (22s,15p,12d,5f) -> [10s,6p,5d,2f]
 Fr    S
 5489839.91612553            -0.0126568
@@ -5834,7 +5834,7 @@ Fr    F
 Fr    F
       1.59366969             1.0000000
 end
-basis "Ra_jorge-tzp-dkh" SPHERICAL 
+basis "Ra_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,15p,12d,5f) -> [10s,6p,5d,2f]
 Ra    S
 16260371.62610645            0.0062024
@@ -5913,7 +5913,7 @@ Ra    F
 Ra    F
       1.68891999             1.0000000
 end
-basis "Ac_jorge-tzp-dkh" SPHERICAL 
+basis "Ac_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,15p,13d,6f,1g) -> [10s,6p,6d,3f,1g]
 Ac    S
 15230423.69469437            0.0068068
@@ -5998,7 +5998,7 @@ Ac    F
 Ac    G
       0.22314475             1.0000000
 end
-basis "Th_jorge-tzp-dkh" SPHERICAL 
+basis "Th_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,15p,13d,7f,2g) -> [10s,6p,6d,4f,2g]
 Th    S
 16043244.65738062            0.0068383
@@ -6087,7 +6087,7 @@ Th    G
 Th    G
       0.20779157             1.0000000
 end
-basis "Pa_jorge-tzp-dkh" SPHERICAL 
+basis "Pa_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,15p,14d,7f,2g) -> [10s,6p,7d,4f,2g]
 Pa    S
 12258554.33445824           -0.0083006
@@ -6178,7 +6178,7 @@ Pa    G
 Pa    G
       0.77820199             1.0000000
 end
-basis "U_jorge-tzp-dkh" SPHERICAL 
+basis "U_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (19s,15p,14d,7f,2g) -> [10s,6p,7d,4f,2g]
 U    S
 16067111.08858358            0.0073166
@@ -6267,7 +6267,7 @@ U    G
 U    G
       0.91750999             1.0000000
 end
-basis "Np_jorge-tzp-dkh" SPHERICAL 
+basis "Np_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (19s,15p,14d,7f,2g) -> [10s,6p,7d,4f,2g]
 Np    S
 17639351.71510452            0.0073479
@@ -6356,7 +6356,7 @@ Np    G
 Np    G
       0.95279511             1.0000000
 end
-basis "Pu_jorge-tzp-dkh" SPHERICAL 
+basis "Pu_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,15p,14d,7f,2g) -> [10s,6p,7d,4f,2g]
 Pu    S
 12019212.90824650            0.0058477
@@ -6447,7 +6447,7 @@ Pu    G
 Pu    G
       1.09178807             1.0000000
 end
-basis "Am_jorge-tzp-dkh" SPHERICAL 
+basis "Am_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (21s,15p,14d,7f,2g) -> [10s,6p,7d,4f,2g]
 Am    S
 22580395.20486813            0.0061385
@@ -6538,7 +6538,7 @@ Am    G
 Am    G
       1.38101032             1.0000000
 end
-basis "Cm_jorge-tzp-dkh" SPHERICAL 
+basis "Cm_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (19s,15p,14d,7f,2g) -> [10s,6p,7d,4f,2g]
 Cm    S
 19471672.63522664            0.0073870
@@ -6627,7 +6627,7 @@ Cm    G
 Cm    G
       1.23459071             1.0000000
 end
-basis "Bk_jorge-tzp-dkh" SPHERICAL 
+basis "Bk_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (19s,15p,14d,7f,2g) -> [10s,6p,7d,4f,2g]
 Bk    S
 16792639.23420981            0.0085282
@@ -6716,7 +6716,7 @@ Bk    G
 Bk    G
       1.20190558             1.0000000
 end
-basis "Cf_jorge-tzp-dkh" SPHERICAL 
+basis "Cf_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (19s,15p,14d,7f,2g) -> [10s,6p,7d,4f,2g]
 Cf    S
 16494536.75164134            0.0088637
@@ -6805,7 +6805,7 @@ Cf    G
 Cf    G
       1.03981630             1.0000000
 end
-basis "Es_jorge-tzp-dkh" SPHERICAL 
+basis "Es_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (19s,15p,14d,7f,2g) -> [10s,6p,7d,4f,2g]
 Es    S
 19805644.01965259            0.0081208
@@ -6894,7 +6894,7 @@ Es    G
 Es    G
       1.10872236             1.0000000
 end
-basis "Fm_jorge-tzp-dkh" SPHERICAL 
+basis "Fm_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (19s,15p,14d,7f,2g) -> [10s,6p,7d,4f,2g]
 Fm    S
 17295328.49947310           -0.0094477
@@ -6983,7 +6983,7 @@ Fm    G
 Fm    G
       1.18504941             1.0000000
 end
-basis "Md_jorge-tzp-dkh" SPHERICAL 
+basis "Md_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (19s,15p,14d,7f,2g) -> [10s,6p,7d,4f,2g]
 Md    S
 20789746.88293033            0.0085593
@@ -7072,7 +7072,7 @@ Md    G
 Md    G
       1.52938348             1.0000000
 end
-basis "No_jorge-tzp-dkh" SPHERICAL 
+basis "No_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (19s,15p,14d,7f,2g) -> [10s,6p,7d,4f,2g]
 No    S
 22229055.80706710            0.0083065
@@ -7161,7 +7161,7 @@ No    G
 No    G
       1.69479999             1.0000000
 end
-basis "Lr_jorge-tzp-dkh" SPHERICAL 
+basis "Lr_jorge-TZP-DKH" SPHERICAL 
 #basis SET: (19s,15p,13d,7f,2g) -> [10s,6p,6d,4f,2g]
 Lr    S
 20381510.58092603            0.0093476

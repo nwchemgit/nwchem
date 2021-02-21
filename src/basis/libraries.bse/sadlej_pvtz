@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# sadlej pvtz version number 1
+# Data downloaded on 2021-02-20T21:21
+# Sadlej pVTZ version number 1
 # Description: Sadlej polarized-valence-triple-zeta
 # Role: orbital
 # 
@@ -90,7 +90,7 @@
 #     10.1007/bf01118573
 # 
 # # 
-basis "H_sadlej pvtz" SPHERICAL 
+basis "H_Sadlej pVTZ" SPHERICAL 
 #basis SET: (6s,4p) -> [3s,2p]
 H    S
      33.685014                .006068
@@ -108,7 +108,7 @@ H    P
       0.1027                  .117800
       0.0324                  .004200
 end
-basis "Li_sadlej pvtz" SPHERICAL 
+basis "Li_Sadlej pVTZ" SPHERICAL 
 #basis SET: (10s,6p,4d) -> [5s,3p,2d]
 Li    S
    1359.4466                  .000844
@@ -141,7 +141,7 @@ Li    D
       0.02607                 .370578
       0.007331                .017847
 end
-basis "Be_sadlej pvtz" SPHERICAL 
+basis "Be_Sadlej pVTZ" SPHERICAL 
 #basis SET: (10s,6p,4d) -> [5s,3p,2d]
 Be    S
    2732.3281                  .000745
@@ -174,7 +174,7 @@ Be    D
       0.027108                .422364
       0.006616                .060033
 end
-basis "C_sadlej pvtz" SPHERICAL 
+basis "C_Sadlej pVTZ" SPHERICAL 
 #basis SET: (10s,6p,4d) -> [5s,3p,2d]
 C    S
    5240.6353                  .000937
@@ -207,7 +207,7 @@ C    D
       0.121940                .653500
       0.038658                .863600
 end
-basis "N_sadlej pvtz" SPHERICAL 
+basis "N_Sadlej pVTZ" SPHERICAL 
 #basis SET: (10s,6p,4d) -> [5s,3p,2d]
 N    S
    8104.0716                  .000802
@@ -240,7 +240,7 @@ N    D
       0.175948                .871355
       0.055231                .704217
 end
-basis "O_sadlej pvtz" SPHERICAL 
+basis "O_Sadlej pVTZ" SPHERICAL 
 #basis SET: (10s,6p,4d) -> [5s,3p,2d]
 O    S
   10662.285                   .000799
@@ -273,7 +273,7 @@ O    D
       0.2149                  .78545
       0.0639                  .53387
 end
-basis "F_sadlej pvtz" SPHERICAL 
+basis "F_Sadlej pVTZ" SPHERICAL 
 #basis SET: (10s,6p,4d) -> [5s,3p,2d]
 F    S
   13521.523                   .000801
@@ -306,7 +306,7 @@ F    D
       0.2668                  .699250
       0.0775                  .429260
 end
-basis "Na_sadlej pvtz" SPHERICAL 
+basis "Na_Sadlej pVTZ" SPHERICAL 
 #basis SET: (14s,10p,4d) -> [7s,5p,2d]
 Na    S
   36166.4                     .001032
@@ -351,7 +351,7 @@ Na    D
       0.1887                  .011180
       0.0465                  .278751
 end
-basis "Mg_sadlej pvtz" SPHERICAL 
+basis "Mg_Sadlej pVTZ" SPHERICAL 
 #basis SET: (14s,10p,4d) -> [7s,5p,2d]
 Mg    S
   43866.5                     .000918
@@ -396,7 +396,7 @@ Mg    D
       0.2364                  .028044
       0.0934                  .178554
 end
-basis "Si_sadlej pvtz" SPHERICAL 
+basis "Si_Sadlej pVTZ" SPHERICAL 
 #basis SET: (14s,10p,4d) -> [7s,5p,2d]
 Si    S
   69379.23                    .000757
@@ -441,7 +441,7 @@ Si    D
       0.0654                  .1636
       0.0230                  .1077
 end
-basis "P_sadlej pvtz" SPHERICAL 
+basis "P_Sadlej pVTZ" SPHERICAL 
 #basis SET: (14s,10p,4d) -> [7s,5p,2d]
 P    S
   77492.43                    .000787
@@ -486,7 +486,7 @@ P    D
       0.0838                  .1278
       0.0306                  .0774
 end
-basis "S_sadlej pvtz" SPHERICAL 
+basis "S_Sadlej pVTZ" SPHERICAL 
 #basis SET: (14s,10p,4d) -> [7s,5p,2d]
 S    S
   99413.4                     .000742
@@ -531,7 +531,7 @@ S    D
       0.1029                  .1138
       0.0363                  .0568
 end
-basis "Cl_sadlej pvtz" SPHERICAL 
+basis "Cl_Sadlej pVTZ" SPHERICAL 
 #basis SET: (14s,10p,4d) -> [7s,5p,2d]
 Cl    S
  105818.80                    .000743
@@ -576,7 +576,7 @@ Cl    D
       0.1250                  .101343
       0.0436                  .043054
 end
-basis "K_sadlej pvtz" SPHERICAL 
+basis "K_Sadlej pVTZ" SPHERICAL 
 #basis SET: (33s,21p,4d) -> [9s,7p,2d]
 K    S
  151351.9                    0.0002585
@@ -655,7 +655,7 @@ K    D
       0.02961                 .3765800
       0.01079                 .3729500
 end
-basis "Ca_sadlej pvtz" SPHERICAL 
+basis "Ca_Sadlej pVTZ" SPHERICAL 
 #basis SET: (33s,21p,4d) -> [9s,7p,2d]
 Ca    S
  171297.15                    .0002510
@@ -734,7 +734,7 @@ Ca    D
       0.04166                 .33335
       0.01569                 .14089
 end
-basis "Ge_sadlej pvtz" SPHERICAL 
+basis "Ge_Sadlej pVTZ" SPHERICAL 
 #basis SET: (45s,28p,9d,4f) -> [9s,7p,4d,2f]
 Ge    S
  348299.8                     .0003383
@@ -845,7 +845,7 @@ Ge    F
       2.28841                0.31091
       0.74115                0.29311
 end
-basis "As_sadlej pvtz" SPHERICAL 
+basis "As_Sadlej pVTZ" SPHERICAL 
 #basis SET: (45s,28p,9d,4f) -> [9s,7p,4d,2f]
 As    S
  373201.1                     .0003371
@@ -956,7 +956,7 @@ As    F
       2.56930                0.29045
       0.86394                0.25202
 end
-basis "Se_sadlej pvtz" SPHERICAL 
+basis "Se_Sadlej pVTZ" SPHERICAL 
 #basis SET: (45s,28p,9d,4f) -> [9s,7p,4d,2f]
 Se    S
  373064.5                     .0003645
@@ -1067,7 +1067,7 @@ Se    F
       2.86378                0.27334
       0.99035                0.21968
 end
-basis "Br_sadlej pvtz" SPHERICAL 
+basis "Br_Sadlej pVTZ" SPHERICAL 
 #basis SET: (45s,28p,9d,4f) -> [9s,7p,4d,2f]
 Br    S
  379677.7                     .0003842
@@ -1178,7 +1178,7 @@ Br    F
       3.61019                0.252771
       1.25154                0.221579
 end
-basis "Rb_sadlej pvtz" SPHERICAL 
+basis "Rb_Sadlej pVTZ" SPHERICAL 
 #basis SET: (51s,33p,10d) -> [11s,9p,4d]
 Rb    S
  432918.4                     .0003702
@@ -1299,7 +1299,7 @@ Rb    D
       0.02549                 .44488
       0.00886                 .37698
 end
-basis "Sr_sadlej pvtz" SPHERICAL 
+basis "Sr_Sadlej pVTZ" SPHERICAL 
 #basis SET: (51s,33p,10d) -> [11s,9p,4d]
 Sr    S
  447503.8                     .0003798
@@ -1420,7 +1420,7 @@ Sr    D
       0.03304                 .39400
       0.01230                 .11109
 end
-basis "Sn_sadlej pvtz" SPHERICAL 
+basis "Sn_Sadlej pVTZ" SPHERICAL 
 #basis SET: (71s,45p,20d,4f) -> [11s,9p,6d,2f]
 Sn    S
  899821.66                    .0003171
@@ -1591,7 +1591,7 @@ Sn    F
       1.15345                 .47375
       0.42870                 .35040
 end
-basis "Sb_sadlej pvtz" SPHERICAL 
+basis "Sb_Sadlej pVTZ" SPHERICAL 
 #basis SET: (71s,45p,20d,4f) -> [11s,9p,6d,2f]
 Sb    S
  937375.11                   -.0003163
@@ -1762,7 +1762,7 @@ Sb    F
       1.29517                 .451003
       0.49325                 .312806
 end
-basis "Te_sadlej pvtz" SPHERICAL 
+basis "Te_Sadlej pVTZ" SPHERICAL 
 #basis SET: (71s,45p,20d,4f) -> [11s,9p,6d,2f]
 Te    S
  978822.88                   -.0003143
@@ -1933,7 +1933,7 @@ Te    F
       1.443587                .429852
       0.560171                .283734
 end
-basis "I_sadlej pvtz" SPHERICAL 
+basis "I_Sadlej pVTZ" SPHERICAL 
 #basis SET: (71s,45p,20d,4f) -> [11s,9p,6d,2f]
 I    S
 1024924.8                    -.0003112

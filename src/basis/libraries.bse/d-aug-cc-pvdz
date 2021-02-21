@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# d-aug-cc-pvdz version number 0
+# Data downloaded on 2021-02-20T21:21
+# d-aug-cc-pVDZ version number 0
 # Description: VDZ2PD  Valence Double Zeta + Polarization + Diffuse
 # Role: orbital
 # 
@@ -76,7 +76,7 @@
 #     10.1063/1.466439
 # 
 # # 
-basis "H_d-aug-cc-pvdz" SPHERICAL 
+basis "H_d-aug-cc-pVDZ" SPHERICAL 
 #basis SET: (6s,3p) -> [4s,3p]
 H    S
      13.0100000              0.0196850
@@ -95,7 +95,7 @@ H    P
 H    P
       0.02730                1.000000
 end
-basis "He_d-aug-cc-pvdz" SPHERICAL 
+basis "He_d-aug-cc-pVDZ" SPHERICAL 
 #basis SET: (6s,3p) -> [4s,3p]
 He    S
      38.3600000              0.0238090
@@ -114,7 +114,7 @@ He    P
 He    P
       0.0480                 1.000000
 end
-basis "B_d-aug-cc-pvdz" SPHERICAL 
+basis "B_d-aug-cc-pVDZ" SPHERICAL 
 #basis SET: (19s,6p,3d) -> [5s,4p,3d]
 B    S
    4570.0000000              0.0006960
@@ -157,7 +157,7 @@ B    D
 B    D
       0.02380                1.000000
 end
-basis "C_d-aug-cc-pvdz" SPHERICAL 
+basis "C_d-aug-cc-pVDZ" SPHERICAL 
 #basis SET: (19s,6p,3d) -> [5s,4p,3d]
 C    S
    6665.0000000              0.0006920
@@ -200,7 +200,7 @@ C    D
 C    D
       0.0415                 1.000000
 end
-basis "N_d-aug-cc-pvdz" SPHERICAL 
+basis "N_d-aug-cc-pVDZ" SPHERICAL 
 #basis SET: (19s,6p,3d) -> [5s,4p,3d]
 N    S
    9046.0000000              0.0007000
@@ -243,7 +243,7 @@ N    D
 N    D
       0.0647                 1.000000
 end
-basis "O_d-aug-cc-pvdz" SPHERICAL 
+basis "O_d-aug-cc-pVDZ" SPHERICAL 
 #basis SET: (19s,6p,3d) -> [5s,4p,3d]
 O    S
   11720.0000000              0.0007100
@@ -286,7 +286,7 @@ O    D
 O    D
       0.0930                 1.000000
 end
-basis "F_d-aug-cc-pvdz" SPHERICAL 
+basis "F_d-aug-cc-pVDZ" SPHERICAL 
 #basis SET: (19s,6p,3d) -> [5s,4p,3d]
 F    S
   14710.0000000              0.0007210
@@ -329,7 +329,7 @@ F    D
 F    D
       0.1310                 1.000000
 end
-basis "Ne_d-aug-cc-pvdz" SPHERICAL 
+basis "Ne_d-aug-cc-pVDZ" SPHERICAL 
 #basis SET: (19s,6p,3d) -> [5s,4p,3d]
 Ne    S
   17880.0000000              0.0007380

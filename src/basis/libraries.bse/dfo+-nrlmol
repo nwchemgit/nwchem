@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# dfo+-nrlmol version number 1
+# Data downloaded on 2021-02-20T21:21
+# DFO+-NRLMOL version number 1
 # Description: DFO+ basis from NRLMOL
 # Role: orbital
 # 
@@ -46,7 +46,7 @@
 #     10.1103/PhysRevA.60.2840
 # 
 # # 
-basis "H_dfo+-nrlmol" CARTESIAN 
+basis "H_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (6s,4p,2d) -> [4s,4p,2d]
 H    S
       0.77840802E+02         1.43693654e-03
@@ -71,7 +71,7 @@ H    D
 H    D
       0.22838190E+00         1.00000000e+00
 end
-basis "He_dfo+-nrlmol" CARTESIAN 
+basis "He_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (8s,4p,2d) -> [4s,4p,2d]
 He    S
       0.10643281E+04         2.77064903e-04
@@ -98,7 +98,7 @@ He    D
 He    D
       0.39566135E+00         1.00000000e+00
 end
-basis "Li_dfo+-nrlmol" CARTESIAN 
+basis "Li_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (17s,4p,2d) -> [5s,4p,2d]
 Li    S
       0.32002407E+04         2.04756296e-04
@@ -135,7 +135,7 @@ Li    D
 Li    D
       0.76047880E-01         1.00000000e+00
 end
-basis "Be_dfo+-nrlmol" CARTESIAN 
+basis "Be_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (17s,4p,2d) -> [5s,4p,2d]
 Be    S
       0.58595071E+04         2.02583117e-04
@@ -172,7 +172,7 @@ Be    D
 Be    D
       0.18170392E+00         1.00000000e+00
 end
-basis "B_dfo+-nrlmol" CARTESIAN 
+basis "B_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (21s,12p,4d) -> [5s,4p,4d]
 B    S
       0.17151547E+05         9.46938469e-05
@@ -225,7 +225,7 @@ B    D
 B    D
       0.54761140E-01         1.00000000e+00
 end
-basis "C_dfo+-nrlmol" CARTESIAN 
+basis "C_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (21s,12p,4d) -> [5s,4p,4d]
 C    S
       0.22213361E+05         1.08776340e-04
@@ -278,7 +278,7 @@ C    D
 C    D
       0.77209650E-01         1.00000000e+00
 end
-basis "N_dfo+-nrlmol" CARTESIAN 
+basis "N_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (23s,13p,4d) -> [5s,4p,4d]
 N    S
       0.51750624E+05         5.59517600e-05
@@ -334,7 +334,7 @@ N    D
 N    D
       0.94111740E-01         1.00000000e+00
 end
-basis "O_dfo+-nrlmol" CARTESIAN 
+basis "O_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (23s,13p,4d) -> [5s,4p,4d]
 O    S
       0.61209952E+05         6.38446278e-05
@@ -390,7 +390,7 @@ O    D
 O    D
       0.10491740E+00         1.00000000e+00
 end
-basis "F_dfo+-nrlmol" CARTESIAN 
+basis "F_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (25s,14p,4d) -> [5s,4p,4d]
 F    S
       0.12317422E+06         3.58295857e-05
@@ -449,7 +449,7 @@ F    D
 F    D
       0.11818616E+00         1.00000000e+00
 end
-basis "Ne_dfo+-nrlmol" CARTESIAN 
+basis "Ne_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (25s,14p,4d) -> [5s,4p,4d]
 Ne    S
       0.15700642E+06         3.46954482e-05
@@ -508,7 +508,7 @@ Ne    D
 Ne    D
       0.14433262E+00         1.00000000e+00
 end
-basis "Na_dfo+-nrlmol" CARTESIAN 
+basis "Na_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (42s,16p,4d) -> [6s,4p,4d]
 Na    S
       0.25145499E+06         2.44534981e-05
@@ -587,7 +587,7 @@ Na    D
 Na    D
       0.26857900E-01         1.00000000e+00
 end
-basis "Mg_dfo+-nrlmol" CARTESIAN 
+basis "Mg_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (42s,16p,4d) -> [6s,4p,4d]
 Mg    S
       0.31533219E+06         2.29697297e-05
@@ -666,7 +666,7 @@ Mg    D
 Mg    D
       0.42680060E-01         1.00000000e+00
 end
-basis "Al_dfo+-nrlmol" CARTESIAN 
+basis "Al_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (42s,29p,4d) -> [6s,5p,4d]
 Al    S
       0.29121791E+06         3.12394889e-05
@@ -759,7 +759,7 @@ Al    D
 Al    D
       0.38403550E-01         1.00000000e+00
 end
-basis "Si_dfo+-nrlmol" CARTESIAN 
+basis "Si_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (42s,29p,4d) -> [6s,5p,4d]
 Si    S
       0.34381747E+06         3.05319898e-05
@@ -852,7 +852,7 @@ Si    D
 Si    D
       0.53955800E-01         1.00000000e+00
 end
-basis "P_dfo+-nrlmol" CARTESIAN 
+basis "P_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (45s,31p,4d) -> [6s,5p,4d]
 P    S
       0.60954694E+06         1.76843978e-05
@@ -950,7 +950,7 @@ P    D
 P    D
       0.64460950E-01         1.00000000e+00
 end
-basis "S_dfo+-nrlmol" CARTESIAN 
+basis "S_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (45s,31p,4d) -> [6s,5p,4d]
 S    S
       0.67258568E+06         1.84517946e-05
@@ -1048,7 +1048,7 @@ S    D
 S    D
       0.71385870E-01         1.00000000e+00
 end
-basis "Cl_dfo+-nrlmol" CARTESIAN 
+basis "Cl_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (45s,31p,4d) -> [6s,5p,4d]
 Cl    S
       0.76480249E+06         1.82988098e-05
@@ -1146,7 +1146,7 @@ Cl    D
 Cl    D
       0.85490840E-01         1.00000000e+00
 end
-basis "Ar_dfo+-nrlmol" CARTESIAN 
+basis "Ar_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (45s,31p,4d) -> [6s,5p,4d]
 Ar    S
       0.86961319E+06         1.80088448e-05
@@ -1244,7 +1244,7 @@ Ar    D
 Ar    D
       0.10038419E+00         1.00000000e+00
 end
-basis "K_dfo+-nrlmol" CARTESIAN 
+basis "K_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (67s,35p,4d) -> [7s,5p,4d]
 K    S
       0.13966588E+07         1.14778207e-05
@@ -1369,7 +1369,7 @@ K    D
 K    D
       0.20960330E-01         1.00000000e+00
 end
-basis "Ca_dfo+-nrlmol" CARTESIAN 
+basis "Ca_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (67s,35p,4d) -> [7s,5p,4d]
 Ca    S
       0.17771786E+07         9.77631220e-06
@@ -1494,7 +1494,7 @@ Ca    D
 Ca    D
       0.30317930E-01         1.00000000e+00
 end
-basis "Sc_dfo+-nrlmol" CARTESIAN 
+basis "Sc_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (67s,35p,19d) -> [7s,5p,5d]
 Sc    S
       0.15652910E+07         1.27569524e-05
@@ -1635,7 +1635,7 @@ Sc    D
 Sc    D
       0.35242560E-01         1.00000000e+00
 end
-basis "Ti_dfo+-nrlmol" CARTESIAN 
+basis "Ti_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (67s,35p,19d) -> [7s,5p,5d]
 Ti    S
       0.16563474E+07         1.33424621e-05
@@ -1776,7 +1776,7 @@ Ti    D
 Ti    D
       0.37872190E-01         1.00000000e+00
 end
-basis "V_dfo+-nrlmol" CARTESIAN 
+basis "V_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (71s,37p,20d) -> [7s,5p,5d]
 V    S
       0.31082369E+07         6.92136391e-06
@@ -1924,7 +1924,7 @@ V    D
 V    D
       0.37831090E-01         1.00000000e+00
 end
-basis "Cr_dfo+-nrlmol" CARTESIAN 
+basis "Cr_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (71s,37p,20d) -> [7s,5p,5d]
 Cr    S
       0.34895641E+07         6.63949043e-06
@@ -2072,7 +2072,7 @@ Cr    D
 Cr    D
       0.41415260E-01         1.00000000e+00
 end
-basis "Mn_dfo+-nrlmol" CARTESIAN 
+basis "Mn_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (71s,37p,20d) -> [7s,5p,5d]
 Mn    S
       0.35848985E+07         7.16633953e-06
@@ -2220,7 +2220,7 @@ Mn    D
 Mn    D
       0.41615370E-01         1.00000000e+00
 end
-basis "Fe_dfo+-nrlmol" CARTESIAN 
+basis "Fe_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (71s,37p,20d) -> [7s,5p,5d]
 Fe    S
       0.38667485E+07         7.19519864e-06
@@ -2368,7 +2368,7 @@ Fe    D
 Fe    D
       0.45179020E-01         1.00000000e+00
 end
-basis "Co_dfo+-nrlmol" CARTESIAN 
+basis "Co_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (71s,37p,20d) -> [7s,5p,5d]
 Co    S
       0.42084724E+07         7.12307919e-06
@@ -2516,7 +2516,7 @@ Co    D
 Co    D
       0.48280270E-01         1.00000000e+00
 end
-basis "Ni_dfo+-nrlmol" CARTESIAN 
+basis "Ni_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (71s,37p,20d) -> [7s,5p,5d]
 Ni    S
       0.44486352E+07         7.28659566e-06
@@ -2664,7 +2664,7 @@ Ni    D
 Ni    D
       0.50828290E-01         1.00000000e+00
 end
-basis "Cu_dfo+-nrlmol" CARTESIAN 
+basis "Cu_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (71s,37p,20d) -> [7s,5p,5d]
 Cu    S
       0.47628820E+07         7.31299906e-06
@@ -2812,7 +2812,7 @@ Cu    D
 Cu    D
       0.50374740E-01         1.00000000e+00
 end
-basis "Zn_dfo+-nrlmol" CARTESIAN 
+basis "Zn_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (71s,37p,20d) -> [7s,5p,5d]
 Zn    S
       0.50080369E+07         7.48864295e-06
@@ -2960,7 +2960,7 @@ Zn    D
 Zn    D
       0.55405010E-01         1.00000000e+00
 end
-basis "Ga_dfo+-nrlmol" CARTESIAN 
+basis "Ga_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (75s,57p,21d) -> [7s,6p,5d]
 Ga    S
       0.59739487E+07         6.40726554e-06
@@ -3134,7 +3134,7 @@ Ga    D
 Ga    D
       0.38340310E-01         1.00000000e+00
 end
-basis "Ge_dfo+-nrlmol" CARTESIAN 
+basis "Ge_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (75s,57p,21d) -> [7s,6p,5d]
 Ge    S
       0.64656667E+07         6.26114532e-06
@@ -3308,7 +3308,7 @@ Ge    D
 Ge    D
       0.49439570E-01         1.00000000e+00
 end
-basis "As_dfo+-nrlmol" CARTESIAN 
+basis "As_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (75s,57p,21d) -> [7s,6p,5d]
 As    S
       0.69614505E+07         6.14544509e-06
@@ -3482,7 +3482,7 @@ As    D
 As    D
       0.60745900E-01         1.00000000e+00
 end
-basis "Se_dfo+-nrlmol" CARTESIAN 
+basis "Se_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (75s,57p,21d) -> [7s,6p,5d]
 Se    S
       0.74272840E+07         6.10215229e-06
@@ -3656,7 +3656,7 @@ Se    D
 Se    D
       0.67462350E-01         1.00000000e+00
 end
-basis "Br_dfo+-nrlmol" CARTESIAN 
+basis "Br_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (75s,57p,21d) -> [7s,6p,5d]
 Br    S
       0.79040792E+07         6.06383520e-06
@@ -3830,7 +3830,7 @@ Br    D
 Br    D
       0.78085480E-01         1.00000000e+00
 end
-basis "Kr_dfo+-nrlmol" CARTESIAN 
+basis "Kr_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (75s,57p,21d) -> [7s,6p,5d]
 Kr    S
       0.84147112E+07         6.01011608e-06
@@ -4004,7 +4004,7 @@ Kr    D
 Kr    D
       0.89091420E-01         1.00000000e+00
 end
-basis "Rb_dfo+-nrlmol" CARTESIAN 
+basis "Rb_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (98s,60p,22d) -> [8s,6p,5d]
 Rb    S
       0.84105046E+07         6.54100836e-06
@@ -4206,7 +4206,7 @@ Rb    D
 Rb    D
       0.21135120E-01         1.00000000e+00
 end
-basis "Sr_dfo+-nrlmol" CARTESIAN 
+basis "Sr_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (103s,63p,23d) -> [8s,6p,5d]
 Sr    S
       0.99953569E+07         5.41299143e-06
@@ -4417,7 +4417,7 @@ Sr    D
 Sr    D
       0.26570300E-01         1.00000000e+00
 end
-basis "Y_dfo+-nrlmol" CARTESIAN 
+basis "Y_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (103s,63p,42d) -> [8s,6p,6d]
 Y    S
       0.10462156E+08         5.46814790e-06
@@ -4648,7 +4648,7 @@ Y    D
 Y    D
       0.32174730E-01         1.00000000e+00
 end
-basis "Zr_dfo+-nrlmol" CARTESIAN 
+basis "Zr_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (103s,63p,42d) -> [8s,6p,6d]
 Zr    S
       0.10996250E+08         5.48384628e-06
@@ -4879,7 +4879,7 @@ Zr    D
 Zr    D
       0.34574660E-01         1.00000000e+00
 end
-basis "Nb_dfo+-nrlmol" CARTESIAN 
+basis "Nb_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (103s,63p,42d) -> [8s,6p,6d]
 Nb    S
       0.11571516E+08         5.46378244e-06
@@ -5110,7 +5110,7 @@ Nb    D
 Nb    D
       0.38604840E-01         1.00000000e+00
 end
-basis "Mo_dfo+-nrlmol" CARTESIAN 
+basis "Mo_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (103s,63p,42d) -> [8s,6p,6d]
 Mo    S
       0.12139905E+08         5.47624637e-06
@@ -5341,7 +5341,7 @@ Mo    D
 Mo    D
       0.40453130E-01         1.00000000e+00
 end
-basis "Tc_dfo+-nrlmol" CARTESIAN 
+basis "Tc_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (103s,63p,42d) -> [8s,6p,6d]
 Tc    S
       0.12723122E+08         5.47713893e-06
@@ -5572,7 +5572,7 @@ Tc    D
 Tc    D
       0.41457660E-01         1.00000000e+00
 end
-basis "Ru_dfo+-nrlmol" CARTESIAN 
+basis "Ru_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (103s,63p,42d) -> [8s,6p,6d]
 Ru    S
       0.13205436E+08         5.55341307e-06
@@ -5803,7 +5803,7 @@ Ru    D
 Ru    D
       0.42415590E-01         1.00000000e+00
 end
-basis "Rh_dfo+-nrlmol" CARTESIAN 
+basis "Rh_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (103s,63p,42d) -> [8s,6p,6d]
 Rh    S
       0.13775966E+08         5.57788491e-06
@@ -6034,7 +6034,7 @@ Rh    D
 Rh    D
       0.43065690E-01         1.00000000e+00
 end
-basis "Pd_dfo+-nrlmol" CARTESIAN 
+basis "Pd_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (83s,63p,42d) -> [7s,6p,6d]
 Pd    S
       0.14939130E+08         5.25095400e-06
@@ -6244,7 +6244,7 @@ Pd    D
 Pd    D
       0.66783530E-01         1.00000000e+00
 end
-basis "Ag_dfo+-nrlmol" CARTESIAN 
+basis "Ag_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (103s,63p,42d) -> [8s,6p,6d]
 Ag    S
       0.14982977E+08         5.61736155e-06
@@ -6475,7 +6475,7 @@ Ag    D
 Ag    D
       0.44403920E-01         1.00000000e+00
 end
-basis "Cd_dfo+-nrlmol" CARTESIAN 
+basis "Cd_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (103s,63p,42d) -> [8s,6p,6d]
 Cd    S
       0.15610540E+08         5.62867774e-06
@@ -6706,7 +6706,7 @@ Cd    D
 Cd    D
       0.48315580E-01         1.00000000e+00
 end
-basis "In_dfo+-nrlmol" CARTESIAN 
+basis "In_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (108s,87p,44d) -> [8s,7p,6d]
 In    S
       0.17170057E+08         5.13632443e-06
@@ -6969,7 +6969,7 @@ In    D
 In    D
       0.35980400E-01         1.00000000e+00
 end
-basis "Sn_dfo+-nrlmol" CARTESIAN 
+basis "Sn_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (108s,87p,44d) -> [8s,7p,6d]
 Sn    S
       0.17875934E+08         5.13802867e-06
@@ -7232,7 +7232,7 @@ Sn    D
 Sn    D
       0.44436960E-01         1.00000000e+00
 end
-basis "Sb_dfo+-nrlmol" CARTESIAN 
+basis "Sb_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (108s,87p,44d) -> [8s,7p,6d]
 Sb    S
       0.18607382E+08         5.13524348e-06
@@ -7495,7 +7495,7 @@ Sb    D
 Sb    D
       0.52335140E-01         1.00000000e+00
 end
-basis "Te_dfo+-nrlmol" CARTESIAN 
+basis "Te_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (108s,87p,44d) -> [8s,7p,6d]
 Te    S
       0.19295976E+08         5.15818086e-06
@@ -7758,7 +7758,7 @@ Te    D
 Te    D
       0.56741510E-01         1.00000000e+00
 end
-basis "I_dfo+-nrlmol" CARTESIAN 
+basis "I_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (93s,65p,30d) -> [8s,7p,6d]
 I    S
       0.35065992E+08         2.68476422e-06
@@ -7970,7 +7970,7 @@ I    D
 I    D
       0.65822616E-01         1.00000000e+00
 end
-basis "Xe_dfo+-nrlmol" CARTESIAN 
+basis "Xe_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (94s,64p,30d) -> [8s,7p,6d]
 Xe    S
       0.38345496E+08         2.51994047e-06
@@ -8182,7 +8182,7 @@ Xe    D
 Xe    D
       0.74272811E-01         1.00000000e+00
 end
-basis "Cs_dfo+-nrlmol" CARTESIAN 
+basis "Cs_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (113s,67p,30d) -> [9s,7p,6d]
 Cs    S
       0.34122892E+08         3.05163216e-06
@@ -8417,7 +8417,7 @@ Cs    D
 Cs    D
       0.18980417E-01         1.00000000e+00
 end
-basis "Ba_dfo+-nrlmol" CARTESIAN 
+basis "Ba_DFO+-NRLMOL" CARTESIAN 
 #basis SET: (113s,66p,30d) -> [9s,7p,6d]
 Ba    S
       0.36583168E+08         2.92612215e-06

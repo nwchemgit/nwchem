@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# stuttgart rlc version number 0
+# Data downloaded on 2021-02-20T21:21
+# Stuttgart RLC version number 0
 # Description: Stuttgart RLC ECP + Valence basis
 # Role: orbital
 # 
@@ -182,7 +182,7 @@
 #     10.1016/0009-2614(82)83728-7
 # 
 # # 
-basis "Li_stuttgart rlc" SPHERICAL 
+basis "Li_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Li    S
       3.0473270              0.0065550
@@ -199,7 +199,7 @@ Li    P
 end
 
 
-ecp "Li_stuttgart rlc"
+ecp "Li_Stuttgart RLC"
 Li nelec 2
 Li ul
 2       1.000000000            0.000000000
@@ -208,7 +208,7 @@ Li S
 Li P
 2       1.607000000           -1.065000000
 end
-basis "Be_stuttgart rlc" SPHERICAL 
+basis "Be_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Be    S
       1.1106443             -0.1718890
@@ -225,7 +225,7 @@ Be    P
 end
 
 
-ecp "Be_stuttgart rlc"
+ecp "Be_Stuttgart RLC"
 Be nelec 2
 Be ul
 2       1.000000000            0.000000000
@@ -234,7 +234,7 @@ Be S
 Be P
 2       3.120000000           -1.574000000
 end
-basis "B_stuttgart rlc" SPHERICAL 
+basis "B_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 B    S
       1.6905600             -0.2722080
@@ -251,7 +251,7 @@ B    P
 end
 
 
-ecp "B_stuttgart rlc"
+ecp "B_Stuttgart RLC"
 B nelec 2
 B ul
 2       1.000000000            0.000000000
@@ -262,7 +262,7 @@ B P
 B D
 2       0.010800000           -0.001754000
 end
-basis "C_stuttgart rlc" SPHERICAL 
+basis "C_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 C    S
       2.2631010              0.4965480
@@ -279,7 +279,7 @@ C    P
 end
 
 
-ecp "C_stuttgart rlc"
+ecp "C_Stuttgart RLC"
 C nelec 2
 C ul
 2       1.000000000            0.000000000
@@ -290,7 +290,7 @@ C P
 C D
 2       5.961796000           -9.454318000
 end
-basis "N_stuttgart rlc" SPHERICAL 
+basis "N_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 N    S
      32.6568390             -0.0137940
@@ -307,7 +307,7 @@ N    P
 end
 
 
-ecp "N_stuttgart rlc"
+ecp "N_Stuttgart RLC"
 N nelec 2
 N ul
 2       1.000000000            0.000000000
@@ -318,7 +318,7 @@ N P
 N D
 2      11.559947000           -2.995545000
 end
-basis "O_stuttgart rlc" SPHERICAL 
+basis "O_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,5p) -> [2s,3p]
 O    S
      47.1055180             -0.0144080
@@ -337,7 +337,7 @@ O    P
 end
 
 
-ecp "O_stuttgart rlc"
+ecp "O_Stuttgart RLC"
 O nelec 2
 O ul
 2       1.000000000            0.000000000
@@ -348,7 +348,7 @@ O P
 O D
 2       8.164798000           -3.312124000
 end
-basis "F_stuttgart rlc" SPHERICAL 
+basis "F_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,5p) -> [2s,3p]
 F    S
      51.6427630              0.0085660
@@ -367,7 +367,7 @@ F    P
 end
 
 
-ecp "F_stuttgart rlc"
+ecp "F_Stuttgart RLC"
 F nelec 2
 F ul
 2       1.000000000            0.000000000
@@ -380,7 +380,7 @@ F P
 F D
 2       0.031600000           -0.001863000
 end
-basis "Ne_stuttgart rlc" SPHERICAL 
+basis "Ne_Stuttgart RLC" SPHERICAL 
 #basis SET: (7s,7p,3d,1f) -> [4s,4p,3d,1f]
 Ne    S
     612.0024370             -0.0061070
@@ -415,7 +415,7 @@ Ne    F
 end
 
 
-ecp "Ne_stuttgart rlc"
+ecp "Ne_Stuttgart RLC"
 Ne nelec 2
 Ne ul
 2       1.000000000            0.000000000
@@ -428,7 +428,7 @@ Ne P
 Ne D
 2       0.850385000           -0.184089210
 end
-basis "Na_stuttgart rlc" SPHERICAL 
+basis "Na_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Na    S
       2.6033363              0.0088240
@@ -445,7 +445,7 @@ Na    P
 end
 
 
-ecp "Na_stuttgart rlc"
+ecp "Na_Stuttgart RLC"
 Na nelec 10
 Na ul
 2       1.000000000            0.000000000
@@ -456,7 +456,7 @@ Na P
 Na D
 2       0.924900000           -1.777000000
 end
-basis "Mg_stuttgart rlc" SPHERICAL 
+basis "Mg_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Mg    S
       2.4257193              0.0267640
@@ -473,7 +473,7 @@ Mg    P
 end
 
 
-ecp "Mg_stuttgart rlc"
+ecp "Mg_Stuttgart RLC"
 Mg nelec 10
 Mg ul
 2       1.000000000            0.000000000
@@ -484,7 +484,7 @@ Mg P
 Mg D
 2       1.203000000           -1.816000000
 end
-basis "Al_stuttgart rlc" SPHERICAL 
+basis "Al_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Al    S
       2.7863370             -0.0464110
@@ -501,7 +501,7 @@ Al    P
 end
 
 
-ecp "Al_stuttgart rlc"
+ecp "Al_Stuttgart RLC"
 Al nelec 10
 Al ul
 2       1.000000000            0.000000000
@@ -512,7 +512,7 @@ Al P
 Al D
 2       1.499026000           -1.970411000
 end
-basis "Si_stuttgart rlc" SPHERICAL 
+basis "Si_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Si    S
       4.0143780             -0.0395080
@@ -529,7 +529,7 @@ Si    P
 end
 
 
-ecp "Si_stuttgart rlc"
+ecp "Si_Stuttgart RLC"
 Si nelec 10
 Si ul
 2       1.000000000            0.000000000
@@ -540,7 +540,7 @@ Si P
 Si D
 2       2.710016000           -4.669412000
 end
-basis "P_stuttgart rlc" SPHERICAL 
+basis "P_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 P    S
       6.7223080             -0.0324550
@@ -557,7 +557,7 @@ P    P
 end
 
 
-ecp "P_stuttgart rlc"
+ecp "P_Stuttgart RLC"
 P nelec 10
 P ul
 2       1.000000000            0.000000000
@@ -568,7 +568,7 @@ P P
 P D
 2       5.661706000          -16.772780000
 end
-basis "S_stuttgart rlc" SPHERICAL 
+basis "S_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,5p) -> [2s,3p]
 S    S
       6.8335180             -0.0438750
@@ -587,7 +587,7 @@ S    P
 end
 
 
-ecp "S_stuttgart rlc"
+ecp "S_Stuttgart RLC"
 S nelec 10
 S ul
 2       1.000000000            0.000000000
@@ -598,7 +598,7 @@ S P
 S D
 2       4.862414000           -7.837964000
 end
-basis "Cl_stuttgart rlc" SPHERICAL 
+basis "Cl_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,5p) -> [2s,3p]
 Cl    S
      14.0730760              0.0203450
@@ -617,7 +617,7 @@ Cl    P
 end
 
 
-ecp "Cl_stuttgart rlc"
+ecp "Cl_Stuttgart RLC"
 Cl nelec 10
 Cl ul
 2       1.000000000            0.000000000
@@ -630,7 +630,7 @@ Cl P
 Cl D
 2       5.338100000           -8.587649000
 end
-basis "Ar_stuttgart rlc" SPHERICAL 
+basis "Ar_Stuttgart RLC" SPHERICAL 
 #basis SET: (6s,6p,3d,1f) -> [4s,4p,3d,1f]
 Ar    S
     174.6696550              0.0025870
@@ -663,7 +663,7 @@ Ar    F
 end
 
 
-ecp "Ar_stuttgart rlc"
+ecp "Ar_Stuttgart RLC"
 Ar nelec 10
 Ar ul
 2       1.000000000            0.000000000
@@ -679,7 +679,7 @@ Ar D
 Ar F
 2       5.208459000           -3.400098450
 end
-basis "K_stuttgart rlc" SPHERICAL 
+basis "K_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 K    S
       1.1054926              0.0251350
@@ -696,7 +696,7 @@ K    P
 end
 
 
-ecp "K_stuttgart rlc"
+ecp "K_Stuttgart RLC"
 K nelec 18
 K ul
 2       1.000000000            0.000000000
@@ -707,7 +707,7 @@ K P
 K D
 2       0.663900000           -4.517000000
 end
-basis "Ca_stuttgart rlc" SPHERICAL 
+basis "Ca_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Ca    S
       0.8382650              0.1068310
@@ -724,7 +724,7 @@ Ca    P
 end
 
 
-ecp "Ca_stuttgart rlc"
+ecp "Ca_Stuttgart RLC"
 Ca nelec 18
 Ca ul
 2       1.000000000            0.000000000
@@ -735,7 +735,7 @@ Ca P
 Ca D
 2       1.119000000           -7.709000000
 end
-basis "Zn_stuttgart rlc" SPHERICAL 
+basis "Zn_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,2p) -> [3s,2p]
 Zn    S
       1.5727550              0.3138620
@@ -751,7 +751,7 @@ Zn    P
 end
 
 
-ecp "Zn_stuttgart rlc"
+ecp "Zn_Stuttgart RLC"
 Zn nelec 28
 Zn ul
 2       1.000000000            0.000000000
@@ -765,7 +765,7 @@ Zn D
 2       0.750000000            1.169000000
 2       0.375000000            0.370700000
 end
-basis "Ga_stuttgart rlc" SPHERICAL 
+basis "Ga_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Ga    S
       3.4847750              0.1143940
@@ -782,7 +782,7 @@ Ga    P
 end
 
 
-ecp "Ga_stuttgart rlc"
+ecp "Ga_Stuttgart RLC"
 Ga nelec 28
 Ga ul
 2       1.000000000            0.000000000
@@ -795,7 +795,7 @@ Ga D
 Ga F
 2       1.715170000          -10.673735000
 end
-basis "Ge_stuttgart rlc" SPHERICAL 
+basis "Ge_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Ge    S
       3.2312530              0.2221800
@@ -812,7 +812,7 @@ Ge    P
 end
 
 
-ecp "Ge_stuttgart rlc"
+ecp "Ge_Stuttgart RLC"
 Ge nelec 28
 Ge ul
 2       1.000000000            0.000000000
@@ -825,7 +825,7 @@ Ge D
 Ge F
 2       1.791770000           -7.044223000
 end
-basis "As_stuttgart rlc" SPHERICAL 
+basis "As_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 As    S
       3.4314740              0.1481660
@@ -842,7 +842,7 @@ As    P
 end
 
 
-ecp "As_stuttgart rlc"
+ecp "As_Stuttgart RLC"
 As nelec 28
 As ul
 2       1.000000000            0.000000000
@@ -855,7 +855,7 @@ As D
 As F
 2       1.773434000           -4.704815000
 end
-basis "Se_stuttgart rlc" SPHERICAL 
+basis "Se_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,5p) -> [2s,3p]
 Se    S
       3.5881800              0.2496300
@@ -874,7 +874,7 @@ Se    P
 end
 
 
-ecp "Se_stuttgart rlc"
+ecp "Se_Stuttgart RLC"
 Se nelec 28
 Se ul
 2       1.000000000            0.000000000
@@ -887,7 +887,7 @@ Se D
 Se F
 2       2.254639000           -6.546875000
 end
-basis "Br_stuttgart rlc" SPHERICAL 
+basis "Br_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,5p) -> [2s,3p]
 Br    S
       4.7218810              0.1072970
@@ -906,7 +906,7 @@ Br    P
 end
 
 
-ecp "Br_stuttgart rlc"
+ecp "Br_Stuttgart RLC"
 Br nelec 28
 Br ul
 2       1.000000000            0.000000000
@@ -922,7 +922,7 @@ Br D
 Br F
 2       2.720700000           -8.161493000
 end
-basis "Kr_stuttgart rlc" SPHERICAL 
+basis "Kr_Stuttgart RLC" SPHERICAL 
 #basis SET: (6s,6p,3d,1f) -> [4s,4p,3d,1f]
 Kr    S
      35.4029610              0.0204950
@@ -955,7 +955,7 @@ Kr    F
 end
 
 
-ecp "Kr_stuttgart rlc"
+ecp "Kr_Stuttgart RLC"
 Kr nelec 28
 Kr ul
 2       1.000000000            0.000000000
@@ -974,7 +974,7 @@ Kr F
 Kr G
 2       3.180775000           -6.833158770
 end
-basis "Rb_stuttgart rlc" SPHERICAL 
+basis "Rb_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Rb    S
       0.7182880              0.0772200
@@ -991,7 +991,7 @@ Rb    P
 end
 
 
-ecp "Rb_stuttgart rlc"
+ecp "Rb_Stuttgart RLC"
 Rb nelec 36
 Rb ul
 2       1.000000000            0.000000000
@@ -1002,7 +1002,7 @@ Rb P
 Rb D
 2       0.383800000           -1.975000000
 end
-basis "Sr_stuttgart rlc" SPHERICAL 
+basis "Sr_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Sr    S
       0.7917400              0.0835140
@@ -1019,7 +1019,7 @@ Sr    P
 end
 
 
-ecp "Sr_stuttgart rlc"
+ecp "Sr_Stuttgart RLC"
 Sr nelec 36
 Sr ul
 2       1.000000000            0.000000000
@@ -1030,7 +1030,7 @@ Sr P
 Sr D
 2       0.492700000           -2.248000000
 end
-basis "In_stuttgart rlc" SPHERICAL 
+basis "In_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 In    S
       1.5325620              0.2617740
@@ -1047,7 +1047,7 @@ In    P
 end
 
 
-ecp "In_stuttgart rlc"
+ecp "In_Stuttgart RLC"
 In nelec 46
 In ul
 2       1.000000000            0.000000000
@@ -1062,7 +1062,7 @@ In D
 In F
 2       0.884369000           -6.019092000
 end
-basis "Sn_stuttgart rlc" SPHERICAL 
+basis "Sn_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Sn    S
       1.6003220              0.6357680
@@ -1079,7 +1079,7 @@ Sn    P
 end
 
 
-ecp "Sn_stuttgart rlc"
+ecp "Sn_Stuttgart RLC"
 Sn nelec 46
 Sn ul
 2       1.000000000            0.000000000
@@ -1094,7 +1094,7 @@ Sn D
 Sn F
 2       1.230880000          -10.109253000
 end
-basis "Sb_stuttgart rlc" SPHERICAL 
+basis "Sb_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Sb    S
       2.2207990              0.2567130
@@ -1111,7 +1111,7 @@ Sb    P
 end
 
 
-ecp "Sb_stuttgart rlc"
+ecp "Sb_Stuttgart RLC"
 Sb nelec 46
 Sb ul
 2       1.000000000            0.000000000
@@ -1126,7 +1126,7 @@ Sb D
 Sb F
 2       1.609251000          -14.517687000
 end
-basis "Te_stuttgart rlc" SPHERICAL 
+basis "Te_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,5p) -> [2s,3p]
 Te    S
       2.4712220              0.2419560
@@ -1145,7 +1145,7 @@ Te    P
 end
 
 
-ecp "Te_stuttgart rlc"
+ecp "Te_Stuttgart RLC"
 Te nelec 46
 Te ul
 2       1.000000000            0.000000000
@@ -1160,7 +1160,7 @@ Te D
 Te F
 2       1.939270000          -17.864641000
 end
-basis "I_stuttgart rlc" SPHERICAL 
+basis "I_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,5p) -> [2s,3p]
 I    S
       2.1227650              1.1040280
@@ -1179,7 +1179,7 @@ I    P
 end
 
 
-ecp "I_stuttgart rlc"
+ecp "I_Stuttgart RLC"
 I nelec 46
 I ul
 2       1.000000000            0.000000000
@@ -1195,7 +1195,7 @@ I D
 I F
 2       2.30750000           -21.47793600
 end
-basis "Xe_stuttgart rlc" SPHERICAL 
+basis "Xe_Stuttgart RLC" SPHERICAL 
 #basis SET: (6s,6p,3d,1f) -> [4s,4p,3d,1f]
 Xe    S
       7.8580150              0.0599280
@@ -1228,7 +1228,7 @@ Xe    F
 end
 
 
-ecp "Xe_stuttgart rlc"
+ecp "Xe_Stuttgart RLC"
 Xe nelec 46
 Xe ul
 2       1.000000000            0.000000000
@@ -1247,7 +1247,7 @@ Xe F
 Xe G
 2       1.847892000           -7.105850600
 end
-basis "Cs_stuttgart rlc" SPHERICAL 
+basis "Cs_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Cs    S
       0.3974310              0.2396470
@@ -1264,7 +1264,7 @@ Cs    P
 end
 
 
-ecp "Cs_stuttgart rlc"
+ecp "Cs_Stuttgart RLC"
 Cs nelec 54
 Cs ul
 2       1.000000000            0.000000000
@@ -1275,7 +1275,7 @@ Cs P
 Cs D
 2       0.242700000           -1.138000000
 end
-basis "Ba_stuttgart rlc" SPHERICAL 
+basis "Ba_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p) -> [2s,2p]
 Ba    S
       0.4928470              0.2289670
@@ -1292,7 +1292,7 @@ Ba    P
 end
 
 
-ecp "Ba_stuttgart rlc"
+ecp "Ba_Stuttgart RLC"
 Ba nelec 54
 Ba ul
 2       1.000000000            0.000000000
@@ -1303,7 +1303,7 @@ Ba P
 Ba D
 2       0.240300000           -0.842700000
 end
-basis "Hg_stuttgart rlc" SPHERICAL 
+basis "Hg_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p,1d) -> [2s,2p,1d]
 Hg    S
       1.3548420              0.2364940
@@ -1322,7 +1322,7 @@ Hg    D
 end
 
 
-ecp "Hg_stuttgart rlc"
+ecp "Hg_Stuttgart RLC"
 Hg nelec 78
 Hg ul
 2       1.000000000            0.000000000
@@ -1341,7 +1341,7 @@ Hg F
 Hg G
 2       0.800756000          -13.393716000
 end
-basis "Tl_stuttgart rlc" SPHERICAL 
+basis "Tl_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p,1d) -> [2s,2p,1d]
 Tl    S
       1.4633390              0.4254620
@@ -1360,7 +1360,7 @@ Tl    D
 end
 
 
-ecp "Tl_stuttgart rlc"
+ecp "Tl_Stuttgart RLC"
 Tl nelec 78
 Tl ul
 2       1.000000000            0.000000000
@@ -1379,7 +1379,7 @@ Tl F
 Tl G
 2       0.820617000          -12.270540000
 end
-basis "Pb_stuttgart rlc" SPHERICAL 
+basis "Pb_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p,1d) -> [2s,2p,1d]
 Pb    S
       1.3051750              1.0104020
@@ -1398,7 +1398,7 @@ Pb    D
 end
 
 
-ecp "Pb_stuttgart rlc"
+ecp "Pb_Stuttgart RLC"
 Pb nelec 78
 Pb ul
 2       1.000000000            0.000000000
@@ -1417,7 +1417,7 @@ Pb F
 Pb G
 2       0.999941000           -7.484184000
 end
-basis "Bi_stuttgart rlc" SPHERICAL 
+basis "Bi_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p,1d) -> [2s,2p,1d]
 Bi    S
       1.4253880              0.0760080
@@ -1436,7 +1436,7 @@ Bi    D
 end
 
 
-ecp "Bi_stuttgart rlc"
+ecp "Bi_Stuttgart RLC"
 Bi nelec 78
 Bi ul
 2       1.000000000            0.000000000
@@ -1455,7 +1455,7 @@ Bi F
 Bi G
 2       1.088195000           -6.656064000
 end
-basis "Po_stuttgart rlc" SPHERICAL 
+basis "Po_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,5p,1d) -> [2s,3p,1d]
 Po    S
       1.9570300              0.3567870
@@ -1476,7 +1476,7 @@ Po    D
 end
 
 
-ecp "Po_stuttgart rlc"
+ecp "Po_Stuttgart RLC"
 Po nelec 78
 Po ul
 2       1.000000000            0.000000000
@@ -1495,7 +1495,7 @@ Po F
 Po G
 2       1.122096000           -5.515441000
 end
-basis "At_stuttgart rlc" SPHERICAL 
+basis "At_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,5p,1d) -> [2s,3p,1d]
 At    S
       1.9624200              0.5190180
@@ -1516,7 +1516,7 @@ At    D
 end
 
 
-ecp "At_stuttgart rlc"
+ecp "At_Stuttgart RLC"
 At nelec 78
 At ul
 2       1.000000000            0.000000000
@@ -1535,7 +1535,7 @@ At F
 At G
 2       1.345115000           -7.613039000
 end
-basis "Rn_stuttgart rlc" SPHERICAL 
+basis "Rn_Stuttgart RLC" SPHERICAL 
 #basis SET: (4s,4p,1d) -> [2s,2p,1d]
 Rn    S
       1.9783250              0.6789880
@@ -1554,7 +1554,7 @@ Rn    D
 end
 
 
-ecp "Rn_stuttgart rlc"
+ecp "Rn_Stuttgart RLC"
 Rn nelec 78
 Rn ul
 2       1.000000000            0.000000000
@@ -1573,7 +1573,7 @@ Rn F
 Rn G
 2       1.576469000           -9.915662000
 end
-basis "Ac_stuttgart rlc" SPHERICAL 
+basis "Ac_Stuttgart RLC" SPHERICAL 
 #basis SET: (8s,8p,6d,5f,2g) -> [5s,5p,4d,3f,2g]
 Ac    S
       1.5294510              1.0000000
@@ -1626,7 +1626,7 @@ Ac    G
 end
 
 
-ecp "Ac_stuttgart rlc"
+ecp "Ac_Stuttgart RLC"
 Ac nelec 78
 Ac ul
 2       1.000000000            0.000000000
@@ -1650,7 +1650,7 @@ Ac G
 2       2.858599000          -25.140209000
 2       0.887502000           -0.341970000
 end
-basis "Th_stuttgart rlc" SPHERICAL 
+basis "Th_Stuttgart RLC" SPHERICAL 
 #basis SET: (8s,8p,6d,5f,2g) -> [5s,5p,4d,3f,2g]
 Th    S
      10.5166570              0.0330960
@@ -1703,7 +1703,7 @@ Th    G
 end
 
 
-ecp "Th_stuttgart rlc"
+ecp "Th_Stuttgart RLC"
 Th nelec 78
 Th ul
 2       1.000000000            0.000000000
@@ -1727,7 +1727,7 @@ Th G
 2       3.166379000          -28.595941000
 2       0.860105000           -0.309653000
 end
-basis "Pa_stuttgart rlc" SPHERICAL 
+basis "Pa_Stuttgart RLC" SPHERICAL 
 #basis SET: (8s,8p,6d,5f,2g) -> [5s,5p,4d,3f,2g]
 Pa    S
      11.3479200              0.0253300
@@ -1780,7 +1780,7 @@ Pa    G
 end
 
 
-ecp "Pa_stuttgart rlc"
+ecp "Pa_Stuttgart RLC"
 Pa nelec 78
 Pa ul
 2       1.000000000            0.000000000
@@ -1804,7 +1804,7 @@ Pa G
 2       3.480650000          -31.873318000
 2       0.860105000           -0.311399000
 end
-basis "U_stuttgart rlc" SPHERICAL 
+basis "U_Stuttgart RLC" SPHERICAL 
 #basis SET: (8s,8p,6d,5f,2g) -> [5s,5p,4d,3f,2g]
 U    S
      12.1252530              0.0219210
@@ -1857,7 +1857,7 @@ U    G
 end
 
 
-ecp "U_stuttgart rlc"
+ecp "U_Stuttgart RLC"
 U nelec 78
 U ul
 2       1.000000000            0.000000000
@@ -1881,7 +1881,7 @@ U G
 2       3.817422000          -36.040977000
 2       0.262501000           -0.090511000
 end
-basis "Np_stuttgart rlc" SPHERICAL 
+basis "Np_Stuttgart RLC" SPHERICAL 
 #basis SET: (8s,8p,6d,5f,2g) -> [5s,5p,4d,3f,2g]
 Np    S
      13.4609030              0.0196310
@@ -1934,7 +1934,7 @@ Np    G
 end
 
 
-ecp "Np_stuttgart rlc"
+ecp "Np_Stuttgart RLC"
 Np nelec 78
 Np ul
 2       1.000000000            0.000000000
@@ -1958,7 +1958,7 @@ Np G
 2       4.201531000          -39.834114000
 2       0.345078000           -0.141655000
 end
-basis "Pu_stuttgart rlc" SPHERICAL 
+basis "Pu_Stuttgart RLC" SPHERICAL 
 #basis SET: (8s,8p,6d,5f,2g) -> [5s,5p,4d,3f,2g]
 Pu    S
      12.9393940              0.0087160
@@ -2011,7 +2011,7 @@ Pu    G
 end
 
 
-ecp "Pu_stuttgart rlc"
+ecp "Pu_Stuttgart RLC"
 Pu nelec 78
 Pu ul
 2       1.000000000            0.000000000
@@ -2035,7 +2035,7 @@ Pu G
 2       3.479904000          -32.535111000
 2       0.163718000            0.235917000
 end
-basis "Am_stuttgart rlc" SPHERICAL 
+basis "Am_Stuttgart RLC" SPHERICAL 
 #basis SET: (8s,8p,6d,5f,2g) -> [5s,5p,4d,3f,2g]
 Am    S
       8.0784100             -0.1888230
@@ -2088,7 +2088,7 @@ Am    G
 end
 
 
-ecp "Am_stuttgart rlc"
+ecp "Am_Stuttgart RLC"
 Am nelec 78
 Am ul
 2       1.000000000            0.000000000
@@ -2112,7 +2112,7 @@ Am G
 2       3.940205000          -37.955572000
 2       0.174609000            0.249659000
 end
-basis "Cm_stuttgart rlc" SPHERICAL 
+basis "Cm_Stuttgart RLC" SPHERICAL 
 #basis SET: (8s,8p,6d,5f,2g) -> [5s,5p,4d,3f,2g]
 Cm    S
      10.3780570              0.1489790
@@ -2165,7 +2165,7 @@ Cm    G
 end
 
 
-ecp "Cm_stuttgart rlc"
+ecp "Cm_Stuttgart RLC"
 Cm nelec 78
 Cm ul
 2       1.000000000            0.000000000
@@ -2189,7 +2189,7 @@ Cm G
 2       4.082153000          -39.543894000
 2       0.274182000            0.430726000
 end
-basis "Bk_stuttgart rlc" SPHERICAL 
+basis "Bk_Stuttgart RLC" SPHERICAL 
 #basis SET: (8s,8p,6d,5f,2g) -> [5s,5p,4d,3f,2g]
 Bk    S
      11.1885950              0.1082070
@@ -2242,7 +2242,7 @@ Bk    G
 end
 
 
-ecp "Bk_stuttgart rlc"
+ecp "Bk_Stuttgart RLC"
 Bk nelec 78
 Bk ul
 2       1.000000000            0.000000000
@@ -2266,7 +2266,7 @@ Bk G
 2       4.546792000          -44.641695000
 2       0.295253000            0.440153000
 end
-basis "Cf_stuttgart rlc" SPHERICAL 
+basis "Cf_Stuttgart RLC" SPHERICAL 
 #basis SET: (8s,8p,6d,5f,2g) -> [5s,5p,4d,3f,2g]
 Cf    S
      10.4687000              0.1846040
@@ -2319,7 +2319,7 @@ Cf    G
 end
 
 
-ecp "Cf_stuttgart rlc"
+ecp "Cf_Stuttgart RLC"
 Cf nelec 78
 Cf ul
 2       1.000000000            0.000000000
@@ -2343,7 +2343,7 @@ Cf G
 2       5.232491000          -52.587008000
 2       0.243751000            0.352044000
 end
-basis "Es_stuttgart rlc" SPHERICAL 
+basis "Es_Stuttgart RLC" SPHERICAL 
 #basis SET: (8s,8p,6d,5f,2g) -> [5s,5p,4d,3f,2g]
 Es    S
      10.6465220              0.1761280
@@ -2396,7 +2396,7 @@ Es    G
 end
 
 
-ecp "Es_stuttgart rlc"
+ecp "Es_Stuttgart RLC"
 Es nelec 78
 Es ul
 2       1.000000000            0.000000000
@@ -2420,7 +2420,7 @@ Es G
 2       5.674539000          -57.407820000
 2       0.271730000            0.393800000
 end
-basis "Fm_stuttgart rlc" SPHERICAL 
+basis "Fm_Stuttgart RLC" SPHERICAL 
 #basis SET: (8s,8p,6d,5f,2g) -> [5s,5p,4d,3f,2g]
 Fm    S
      10.7588270              0.1814860
@@ -2473,7 +2473,7 @@ Fm    G
 end
 
 
-ecp "Fm_stuttgart rlc"
+ecp "Fm_Stuttgart RLC"
 Fm nelec 78
 Fm ul
 2       1.000000000            0.000000000
@@ -2497,7 +2497,7 @@ Fm G
 2       6.119053000          -62.126836000
 2       0.303551000            0.439572000
 end
-basis "Md_stuttgart rlc" SPHERICAL 
+basis "Md_Stuttgart RLC" SPHERICAL 
 #basis SET: (8s,8p,6d,5f,2g) -> [5s,5p,4d,3f,2g]
 Md    S
      10.4785060              0.2443880
@@ -2550,7 +2550,7 @@ Md    G
 end
 
 
-ecp "Md_stuttgart rlc"
+ecp "Md_Stuttgart RLC"
 Md nelec 78
 Md ul
 2       1.000000000            0.000000000
@@ -2574,7 +2574,7 @@ Md G
 2       6.582119000          -67.006765000
 2       0.334542000            0.486220000
 end
-basis "No_stuttgart rlc" SPHERICAL 
+basis "No_Stuttgart RLC" SPHERICAL 
 #basis SET: (8s,8p,6d,5f,2g) -> [5s,5p,4d,3f,2g]
 No    S
      10.5500640              0.2460360
@@ -2627,7 +2627,7 @@ No    G
 end
 
 
-ecp "No_stuttgart rlc"
+ecp "No_Stuttgart RLC"
 No nelec 78
 No ul
 2       1.000000000            0.000000000
@@ -2651,7 +2651,7 @@ No G
 2       7.081770000          -72.344985000
 2       0.359223000            0.530597000
 end
-basis "Lr_stuttgart rlc" SPHERICAL 
+basis "Lr_Stuttgart RLC" SPHERICAL 
 #basis SET: (8s,8p,6d,5f,2g) -> [5s,5p,4d,3f,2g]
 Lr    S
      10.1456750              0.3039820
@@ -2704,7 +2704,7 @@ Lr    G
 end
 
 
-ecp "Lr_stuttgart rlc"
+ecp "Lr_Stuttgart RLC"
 Lr nelec 78
 Lr ul
 2       1.000000000            0.000000000

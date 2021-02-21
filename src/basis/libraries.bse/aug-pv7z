@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# aug-pv7z version number 0
+# Data downloaded on 2021-02-20T21:21
+# aug-pV7Z version number 0
 # Description: V7Z6P   Valence Septuple Zeta + Polarization on All Atoms
 # Role: orbital
 # 
@@ -62,7 +62,7 @@
 #     10.1063/1.481827
 # 
 # # 
-basis "C_aug-pv7z" SPHERICAL 
+basis "C_aug-pV7Z" SPHERICAL 
 #basis SET: (31s,13p,7d,6f,5g,4h,3i,2k) -> [9s,8p,7d,6f,5g,4h,3i,2k]
 C    S
  949028.8000000              0.0000014
@@ -180,7 +180,7 @@ C    K
 C    K
       0.9780                 1.0000
 end
-basis "N_aug-pv7z" SPHERICAL 
+basis "N_aug-pV7Z" SPHERICAL 
 #basis SET: (31s,13p,7d,6f,5g,4h,3i,2k) -> [9s,8p,7d,6f,5g,4h,3i,2k]
 N    S
 1296296.0000000              0.0000014
@@ -298,7 +298,7 @@ N    K
 N    K
       0.977000               1.0000
 end
-basis "O_aug-pv7z" SPHERICAL 
+basis "O_aug-pV7Z" SPHERICAL 
 #basis SET: (31s,13p,7d,6f,5g,4h,3i,2k) -> [9s,8p,7d,6f,5g,4h,3i,2k]
 O    S
 1678789.0000000              0.0000014
@@ -416,7 +416,7 @@ O    K
 O    K
       1.232000               1.0000
 end
-basis "F_aug-pv7z" SPHERICAL 
+basis "F_aug-pV7Z" SPHERICAL 
 #basis SET: (31s,13p,7d,6f,5g,4h,3i,2k) -> [9s,8p,7d,6f,5g,4h,3i,2k]
 F    S
 2115112.0000000              0.0000015
@@ -534,7 +534,7 @@ F    K
 F    K
       1.597000               1.0000
 end
-basis "S_aug-pv7z" SPHERICAL 
+basis "S_aug-pV7Z" SPHERICAL 
 #basis SET: (70s,31p,7d,6f,5g,4h,3i,2k) -> [10s,9p,7d,6f,5g,4h,3i,2k]
 S    S
 7010036.0000000              0.14393981E-5

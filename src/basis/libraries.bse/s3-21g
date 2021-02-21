@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# s3-21g version number 0
+# Data downloaded on 2021-02-20T21:21
+# s3-21G version number 0
 # Description: s3-21G
 # Role: orbital
 # 
@@ -45,7 +45,7 @@
 #     10.1021/jp102712z
 # 
 # # 
-basis "Sc_s3-21g" SPHERICAL 
+basis "Sc_s3-21G" SPHERICAL 
 #basis SET: (12s,9p,4d) -> [5s,4p,3d]
 Sc    S
    2119.887000000            0.06442100
@@ -72,7 +72,7 @@ Sc    D
 Sc    D
       0.076620000            1.00000000
 end
-basis "Ti_s3-21g" SPHERICAL 
+basis "Ti_s3-21G" SPHERICAL 
 #basis SET: (12s,9p,4d) -> [5s,4p,3d]
 Ti    S
    2335.020000000            0.06421700
@@ -99,7 +99,7 @@ Ti    D
 Ti    D
       0.100130000            1.00000000
 end
-basis "V_s3-21g" SPHERICAL 
+basis "V_s3-21G" SPHERICAL 
 #basis SET: (12s,9p,4d) -> [5s,4p,3d]
 V    S
    2563.877000000            0.06394800
@@ -126,7 +126,7 @@ V    D
 V    D
       0.120830000            1.00000000
 end
-basis "Cr_s3-21g" SPHERICAL 
+basis "Cr_s3-21G" SPHERICAL 
 #basis SET: (12s,9p,4d) -> [5s,4p,3d]
 Cr    S
    2798.294000000            0.06382400
@@ -153,7 +153,7 @@ Cr    D
 Cr    D
       0.141310000            1.00000000
 end
-basis "Mn_s3-21g" SPHERICAL 
+basis "Mn_s3-21G" SPHERICAL 
 #basis SET: (12s,9p,4d) -> [5s,4p,3d]
 Mn    S
    3041.686000000            0.06374500
@@ -180,7 +180,7 @@ Mn    D
 Mn    D
       0.164290000            1.00000000
 end
-basis "Fe_s3-21g" SPHERICAL 
+basis "Fe_s3-21G" SPHERICAL 
 #basis SET: (12s,9p,4d) -> [5s,4p,3d]
 Fe    S
    3299.184000000            0.06358600
@@ -207,7 +207,7 @@ Fe    D
 Fe    D
       0.180600000            1.00000000
 end
-basis "Co_s3-21g" SPHERICAL 
+basis "Co_s3-21G" SPHERICAL 
 #basis SET: (12s,9p,4d) -> [5s,4p,3d]
 Co    S
    3564.762000000            0.06348700
@@ -234,7 +234,7 @@ Co    D
 Co    D
       0.199850000            1.00000000
 end
-basis "Ni_s3-21g" SPHERICAL 
+basis "Ni_s3-21G" SPHERICAL 
 #basis SET: (12s,9p,4d) -> [5s,4p,3d]
 Ni    S
    3848.005000000            0.06326600
@@ -261,7 +261,7 @@ Ni    D
 Ni    D
       0.220560000            1.00000000
 end
-basis "Cu_s3-21g" SPHERICAL 
+basis "Cu_s3-21G" SPHERICAL 
 #basis SET: (12s,9p,4d) -> [5s,4p,3d]
 Cu    S
    4134.302000000            0.06318800
@@ -288,7 +288,7 @@ Cu    D
 Cu    D
       0.242260000            1.00000000
 end
-basis "Zn_s3-21g" SPHERICAL 
+basis "Zn_s3-21G" SPHERICAL 
 #basis SET: (12s,9p,4d) -> [5s,4p,3d]
 Zn    S
    4432.288000000            0.06309300

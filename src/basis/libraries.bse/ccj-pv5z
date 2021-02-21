@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# ccj-pv5z version number 0
+# Data downloaded on 2021-02-20T21:21
+# ccJ-pV5Z version number 0
 # Description: ccJ-pV5Z
 # Role: orbital
 # 
@@ -46,7 +46,7 @@
 #     10.1063/1.2962973
 # 
 # # 
-basis "H_ccj-pv5z" SPHERICAL 
+basis "H_ccJ-pV5Z" SPHERICAL 
 #basis SET: (10s,5p,4d,2f,1g) -> [8s,5p,4d,2f,1g]
 H    S
  106128.0000000              0.0251887
@@ -91,7 +91,7 @@ H    F
 H    G
       2.3580000              1.0000000
 end
-basis "He_ccj-pv5z" SPHERICAL 
+basis "He_ccJ-pV5Z" SPHERICAL 
 #basis SET: (10s,5p,4d,2f,1g) -> [8s,5p,4d,2f,1g]
 He    S
  302280.0000000              0.0251774
@@ -136,7 +136,7 @@ He    F
 He    G
       3.4300000              1.0000000
 end
-basis "B_ccj-pv5z" SPHERICAL 
+basis "B_ccJ-pV5Z" SPHERICAL 
 #basis SET: (16s,9p,5d,3f,2g,1h) -> [11s,7p,5d,3f,2g,1h]
 B    S
 19522360.0000000             0.0014057
@@ -204,7 +204,7 @@ B    G
 B    H
       0.8340000              1.0000000
 end
-basis "C_ccj-pv5z" SPHERICAL 
+basis "C_ccJ-pV5Z" SPHERICAL 
 #basis SET: (16s,9p,5d,3f,2g,1h) -> [11s,7p,5d,3f,2g,1h]
 C    S
 27676220.0000000             0.0014055
@@ -272,7 +272,7 @@ C    G
 C    H
       1.2590000              1.0000000
 end
-basis "N_ccj-pv5z" SPHERICAL 
+basis "N_ccJ-pV5Z" SPHERICAL 
 #basis SET: (16s,9p,5d,3f,2g,1h) -> [11s,7p,5d,3f,2g,1h]
 N    S
 36951200.0000000             0.0014052
@@ -340,7 +340,7 @@ N    G
 N    H
       1.7680000              1.0000000
 end
-basis "O_ccj-pv5z" SPHERICAL 
+basis "O_ccJ-pV5Z" SPHERICAL 
 #basis SET: (16s,9p,5d,3f,2g,1h) -> [11s,7p,5d,3f,2g,1h]
 O    S
 46961200.0000000             0.0014053
@@ -408,7 +408,7 @@ O    G
 O    H
       2.3190000              1.0000000
 end
-basis "F_ccj-pv5z" SPHERICAL 
+basis "F_ccJ-pV5Z" SPHERICAL 
 #basis SET: (16s,9p,5d,3f,2g,1h) -> [11s,7p,5d,3f,2g,1h]
 F    S
 60460400.0000000             0.0014054
@@ -476,7 +476,7 @@ F    G
 F    H
       2.9950000              1.0000000
 end
-basis "Ne_ccj-pv5z" SPHERICAL 
+basis "Ne_ccJ-pV5Z" SPHERICAL 
 #basis SET: (16s,9p,5d,3f,2g,1h) -> [11s,7p,5d,3f,2g,1h]
 Ne    S
 75132200.0000000             0.0014053

@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# aug-cc-pwcvqz-pp version number 0
+# Data downloaded on 2021-02-20T21:21
+# aug-cc-pwCVQZ-PP version number 0
 # Description: aug-cc-pwCVQZ-PP
 # Role: orbital
 # 
@@ -206,7 +206,7 @@
 #     10.1063/1.3503659
 # 
 # # 
-basis "Cu_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Cu_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (69s,54p,44d,5f,4g,3h) -> [9s,9p,8d,5f,4g,3h]
 Cu    S
       5.0913000              1.0000000
@@ -428,7 +428,7 @@ Cu    H
 end
 
 
-ecp "Cu_aug-cc-pwcvqz-pp"
+ecp "Cu_aug-cc-pwCVQZ-PP"
 Cu nelec 10
 Cu ul
 2       1.0000000              0.0000000
@@ -449,7 +449,7 @@ Cu F
 2       6.1901020             -0.2272640
 2       8.1187800             -0.4687730
 end
-basis "Zn_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Zn_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (69s,54p,44d,5f,4g,3h) -> [9s,9p,8d,5f,4g,3h]
 Zn    S
       5.8361000              1.0000000
@@ -671,7 +671,7 @@ Zn    H
 end
 
 
-ecp "Zn_aug-cc-pwcvqz-pp"
+ecp "Zn_aug-cc-pwCVQZ-PP"
 Zn nelec 10
 Zn ul
 2       1.0000000              0.0000000
@@ -692,7 +692,7 @@ Zn F
 2       8.1600140             -0.3703600
 2      12.2284220             -1.0629430
 end
-basis "Ga_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Ga_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (18s,23p,16d,6f,4g,1h) -> [10s,9p,8d,6f,4g,1h]
 Ga    S
      19.3680000              1.000000E+00
@@ -803,7 +803,7 @@ Ga    H
 end
 
 
-ecp "Ga_aug-cc-pwcvqz-pp"
+ecp "Ga_aug-cc-pwCVQZ-PP"
 Ga nelec 10
 Ga ul
 2       1.0000000              0.0000000
@@ -826,7 +826,7 @@ Ga F
 2      10.7622630             -0.6169900
 2      19.8529390             -3.1385840
 end
-basis "Ge_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Ge_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (18s,23p,16d,6f,4g,1h) -> [10s,9p,8d,6f,4g,1h]
 Ge    S
      20.1619000              1.000000E+00
@@ -937,7 +937,7 @@ Ge    H
 end
 
 
-ecp "Ge_aug-cc-pwcvqz-pp"
+ecp "Ge_aug-cc-pwCVQZ-PP"
 Ge nelec 10
 Ge ul
 2       1.0000000              0.0000000
@@ -960,7 +960,7 @@ Ge F
 2      11.4073780             -0.7056800
 2      18.4290540             -2.4759510
 end
-basis "As_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "As_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (18s,23p,16d,6f,4g,1h) -> [10s,9p,8d,6f,4g,1h]
 As    S
      20.4343000              1.000000E+00
@@ -1071,7 +1071,7 @@ As    H
 end
 
 
-ecp "As_aug-cc-pwcvqz-pp"
+ecp "As_aug-cc-pwCVQZ-PP"
 As nelec 10
 As ul
 2       1.0000000              0.0000000
@@ -1094,7 +1094,7 @@ As F
 2      11.9405840             -0.7752300
 2      17.7611600             -2.1572590
 end
-basis "Se_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Se_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (18s,23p,16d,6f,4g,1h) -> [10s,9p,8d,6f,4g,1h]
 Se    S
      22.7601000              1.000000E+00
@@ -1205,7 +1205,7 @@ Se    H
 end
 
 
-ecp "Se_aug-cc-pwcvqz-pp"
+ecp "Se_aug-cc-pwCVQZ-PP"
 Se nelec 10
 Se ul
 2       1.0000000              0.0000000
@@ -1228,7 +1228,7 @@ Se F
 2      11.9508670             -0.7662620
 2      17.8107800             -2.1027420
 end
-basis "Br_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Br_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (18s,23p,16d,6f,4g,1h) -> [10s,9p,8d,6f,4g,1h]
 Br    S
      24.0586000              1.000000E+00
@@ -1339,7 +1339,7 @@ Br    H
 end
 
 
-ecp "Br_aug-cc-pwcvqz-pp"
+ecp "Br_aug-cc-pwCVQZ-PP"
 Br nelec 10
 Br ul
 2       1.0000000              0.0000000
@@ -1363,7 +1363,7 @@ Br F
 2      14.4656060             -1.0912690
 2      21.2340650             -2.8876910
 end
-basis "Kr_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Kr_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (18s,23p,16d,6f,4g,1h) -> [10s,9p,8d,6f,4g,1h]
 Kr    S
      26.5014000              1.000000E+00
@@ -1474,7 +1474,7 @@ Kr    H
 end
 
 
-ecp "Kr_aug-cc-pwcvqz-pp"
+ecp "Kr_aug-cc-pwCVQZ-PP"
 Kr nelec 10
 Kr ul
 2       1.0000000              0.0000000
@@ -1498,7 +1498,7 @@ Kr F
 2      15.4375670             -1.2233890
 2      22.0557420             -2.9912330
 end
-basis "Y_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Y_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (69s,54p,40d,5f,4g,3h) -> [9s,9p,8d,5f,4g,3h]
 Y    S
       3.1372000              1.0000000
@@ -1716,7 +1716,7 @@ Y    H
 end
 
 
-ecp "Y_aug-cc-pwcvqz-pp"
+ecp "Y_aug-cc-pwCVQZ-PP"
 Y nelec 28
 Y ul
 2       1.0000000              0.0000000
@@ -1737,7 +1737,7 @@ Y F
 2       5.02859000            -6.92807800
 2       5.00558200            -9.15509900
 end
-basis "Zr_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Zr_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (69s,54p,40d,5f,4g,3h) -> [9s,9p,8d,5f,4g,3h]
 Zr    S
       1.3259000              1.0000000
@@ -1955,7 +1955,7 @@ Zr    H
 end
 
 
-ecp "Zr_aug-cc-pwcvqz-pp"
+ecp "Zr_aug-cc-pwCVQZ-PP"
 Zr nelec 28
 Zr ul
 2       1.0000000              0.0000000
@@ -1976,7 +1976,7 @@ Zr F
 2       4.80021500            -5.23932000
 2       4.79899200            -6.98742400
 end
-basis "Nb_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Nb_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (69s,54p,40d,5f,4g,3h) -> [9s,9p,8d,5f,4g,3h]
 Nb    S
       1.5380000              1.0000000
@@ -2194,7 +2194,7 @@ Nb    H
 end
 
 
-ecp "Nb_aug-cc-pwcvqz-pp"
+ecp "Nb_aug-cc-pwCVQZ-PP"
 Nb nelec 28
 Nb ul
 2       1.0000000              0.0000000
@@ -2215,7 +2215,7 @@ Nb F
 2       5.56828500            -6.28135400
 2       5.67137200            -8.75564400
 end
-basis "Mo_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Mo_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (69s,54p,40d,5f,4g,3h) -> [9s,9p,8d,5f,4g,3h]
 Mo    S
       1.7274000              1.0000000
@@ -2433,7 +2433,7 @@ Mo    H
 end
 
 
-ecp "Mo_aug-cc-pwcvqz-pp"
+ecp "Mo_aug-cc-pwCVQZ-PP"
 Mo nelec 28
 Mo ul
 2       1.0000000              0.0000000
@@ -2454,7 +2454,7 @@ Mo F
 2       6.30663300            -7.17888800
 2       6.35644800            -9.74597800
 end
-basis "Tc_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Tc_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (69s,54p,40d,5f,4g,3h) -> [9s,9p,8d,5f,4g,3h]
 Tc    S
       1.9264000              1.0000000
@@ -2672,7 +2672,7 @@ Tc    H
 end
 
 
-ecp "Tc_aug-cc-pwcvqz-pp"
+ecp "Tc_aug-cc-pwCVQZ-PP"
 Tc nelec 28
 Tc ul
 2       1.0000000              0.0000000
@@ -2693,7 +2693,7 @@ Tc F
 2       7.04094000            -7.99562300
 2       7.06947300           -10.74569600
 end
-basis "Ru_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Ru_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (69s,54p,40d,5f,4g,3h) -> [9s,9p,8d,5f,4g,3h]
 Ru    S
       2.1257000              1.0000000
@@ -2911,7 +2911,7 @@ Ru    H
 end
 
 
-ecp "Ru_aug-cc-pwcvqz-pp"
+ecp "Ru_aug-cc-pwCVQZ-PP"
 Ru nelec 28
 Ru ul
 2       1.0000000              0.0000000
@@ -2932,7 +2932,7 @@ Ru F
 2       7.82024900            -8.84752500
 2       7.83964700           -11.83551800
 end
-basis "Rh_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Rh_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (69s,54p,40d,5f,4g,3h) -> [9s,9p,8d,5f,4g,3h]
 Rh    S
       2.3096000              1.0000000
@@ -3150,7 +3150,7 @@ Rh    H
 end
 
 
-ecp "Rh_aug-cc-pwcvqz-pp"
+ecp "Rh_aug-cc-pwCVQZ-PP"
 Rh nelec 28
 Rh ul
 2       1.0000000              0.0000000
@@ -3171,7 +3171,7 @@ Rh F
 2       8.61622800            -9.67356800
 2       8.62943500           -12.89984700
 end
-basis "Pd_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Pd_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (69s,54p,40d,5f,4g,3h) -> [9s,9p,8d,5f,4g,3h]
 Pd    S
       2.5834000              1.0000000
@@ -3389,7 +3389,7 @@ Pd    H
 end
 
 
-ecp "Pd_aug-cc-pwcvqz-pp"
+ecp "Pd_aug-cc-pwCVQZ-PP"
 Pd nelec 28
 Pd ul
 2       1.0000000              0.0000000
@@ -3410,7 +3410,7 @@ Pd F
 2       9.67957100           -10.98725500
 2       9.69134900           -14.62619000
 end
-basis "Ag_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Ag_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (69s,54p,40d,5f,4g,3h) -> [9s,9p,8d,5f,4g,3h]
 Ag    S
       2.5613000              1.0000000
@@ -3628,7 +3628,7 @@ Ag    H
 end
 
 
-ecp "Ag_aug-cc-pwcvqz-pp"
+ecp "Ag_aug-cc-pwCVQZ-PP"
 Ag nelec 28
 Ag ul
 2       1.0000000              0.0000000
@@ -3649,7 +3649,7 @@ Ag F
 2      11.0129130            -12.6234030
 2      11.0198980            -16.7643270
 end
-basis "Cd_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Cd_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (69s,54p,40d,5f,4g,3h) -> [9s,9p,8d,5f,4g,3h]
 Cd    S
       2.8823000              1.0000000
@@ -3867,7 +3867,7 @@ Cd    H
 end
 
 
-ecp "Cd_aug-cc-pwcvqz-pp"
+ecp "Cd_aug-cc-pwCVQZ-PP"
 Cd nelec 28
 Cd ul
 2       1.0000000              0.0000000
@@ -3888,7 +3888,7 @@ Cd F
 2      11.4789860            -12.6327850
 2      11.4870270            -16.7601710
 end
-basis "In_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "In_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (18s,15p,16d,6f,4g,1h) -> [10s,10p,8d,6f,4g,1h]
 In    S
      17.6048000              1.000000E+00
@@ -3992,7 +3992,7 @@ In    H
 end
 
 
-ecp "In_aug-cc-pwcvqz-pp"
+ecp "In_aug-cc-pwCVQZ-PP"
 In nelec 28
 In ul
 2       1.0000000              0.0000000
@@ -4013,7 +4013,7 @@ In F
 2      12.5390560            -13.7280780
 2      12.5525610            -18.2068660
 end
-basis "Sn_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Sn_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (18s,15p,16d,6f,4g,1h) -> [10s,10p,8d,6f,4g,1h]
 Sn    S
      19.6685000              1.000000E+00
@@ -4117,7 +4117,7 @@ Sn    H
 end
 
 
-ecp "Sn_aug-cc-pwcvqz-pp"
+ecp "Sn_aug-cc-pwCVQZ-PP"
 Sn nelec 28
 Sn ul
 2       1.0000000              0.0000000
@@ -4138,7 +4138,7 @@ Sn F
 2      12.2823480            -12.5763330
 2      12.2721500            -16.5959440
 end
-basis "Sb_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Sb_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (18s,15p,16d,6f,4g,1h) -> [10s,10p,8d,6f,4g,1h]
 Sb    S
      17.8648000              1.000000E+00
@@ -4242,7 +4242,7 @@ Sb    H
 end
 
 
-ecp "Sb_aug-cc-pwcvqz-pp"
+ecp "Sb_aug-cc-pwCVQZ-PP"
 Sb nelec 28
 Sb ul
 2       1.0000000              0.0000000
@@ -4263,7 +4263,7 @@ Sb F
 2      14.4449780            -15.3668010
 2      14.4492950            -20.2961380
 end
-basis "Te_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Te_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (28s,15p,16d,6f,4g,1h) -> [10s,10p,8d,6f,4g,1h]
 Te    S
       8.063600E+00           1.000000E+00
@@ -4377,7 +4377,7 @@ Te    H
 end
 
 
-ecp "Te_aug-cc-pwcvqz-pp"
+ecp "Te_aug-cc-pwCVQZ-PP"
 Te nelec 28
 Te ul
 2       1.0000000              0.0000000
@@ -4398,7 +4398,7 @@ Te F
 2      15.2061680            -15.7454500
 2      15.2017020            -20.7424480
 end
-basis "I_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "I_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (28s,15p,16d,6f,4g,1h) -> [10s,10p,8d,6f,4g,1h]
 I    S
       8.028600E+00           1.000000E+00
@@ -4512,7 +4512,7 @@ I    H
 end
 
 
-ecp "I_aug-cc-pwcvqz-pp"
+ecp "I_aug-cc-pwCVQZ-PP"
 I nelec 28
 I ul
 2       1.00000000             0.00000000
@@ -4536,7 +4536,7 @@ I F
 2       7.55790100            -0.22043400
 2       7.59740400            -0.22164600
 end
-basis "Xe_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Xe_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (28s,15p,16d,6f,4g,1h) -> [10s,10p,8d,6f,4g,1h]
 Xe    S
       9.749700E+00           1.000000E+00
@@ -4650,7 +4650,7 @@ Xe    H
 end
 
 
-ecp "Xe_aug-cc-pwcvqz-pp"
+ecp "Xe_aug-cc-pwCVQZ-PP"
 Xe nelec 28
 Xe ul
 2       1.0000000              0.0000000
@@ -4676,7 +4676,7 @@ Xe F
 2       5.2533890             -0.2882270
 2       5.3611880             -0.3869240
 end
-basis "Hf_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Hf_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (69s,54p,40d,5f,4g,3h) -> [9s,9p,8d,5f,4g,3h]
 Hf    S
       0.5875000              1.0000000
@@ -4894,7 +4894,7 @@ Hf    H
 end
 
 
-ecp "Hf_aug-cc-pwcvqz-pp"
+ecp "Hf_aug-cc-pwCVQZ-PP"
 Hf nelec 60
 Hf ul
 2       1.00000000             0.00000000
@@ -4923,7 +4923,7 @@ Hf G
 2       2.72418000            -4.63658500
 2       2.70895300            -5.76728800
 end
-basis "Ta_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Ta_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (69s,54p,40d,5f,4g,3h) -> [9s,9p,8d,5f,4g,3h]
 Ta    S
       0.6237000              1.0000000
@@ -5141,7 +5141,7 @@ Ta    H
 end
 
 
-ecp "Ta_aug-cc-pwcvqz-pp"
+ecp "Ta_aug-cc-pwCVQZ-PP"
 Ta nelec 60
 Ta ul
 2       1.00000000             0.00000000
@@ -5170,7 +5170,7 @@ Ta G
 2       3.14592000            -5.68406600
 2       3.12794200            -7.06231300
 end
-basis "W_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "W_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (69s,54p,39d,5f,4g,3h) -> [9s,9p,8d,5f,4g,3h]
 W    S
       0.6676000              1.0000000
@@ -5387,7 +5387,7 @@ W    H
 end
 
 
-ecp "W_aug-cc-pwcvqz-pp"
+ecp "W_aug-cc-pwCVQZ-PP"
 W nelec 60
 W ul
 2       1.00000000             0.00000000
@@ -5415,7 +5415,7 @@ W G
 2       3.58349100            -6.80294400
 2       3.56251500            -8.44323200
 end
-basis "Re_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Re_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (69s,54p,40d,5f,4g,3h) -> [9s,9p,8d,5f,4g,3h]
 Re    S
       0.7895000              1.0000000
@@ -5633,7 +5633,7 @@ Re    H
 end
 
 
-ecp "Re_aug-cc-pwcvqz-pp"
+ecp "Re_aug-cc-pwCVQZ-PP"
 Re nelec 60
 Re ul
 2       1.00000000             0.00000000
@@ -5657,7 +5657,7 @@ Re G
 2       4.03459900            -7.97494000
 2       4.00962800            -9.88273600
 end
-basis "Os_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Os_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (69s,54p,40d,5f,4g,3h) -> [9s,9p,8d,5f,4g,3h]
 Os    S
       0.9417000              1.0000000
@@ -5875,7 +5875,7 @@ Os    H
 end
 
 
-ecp "Os_aug-cc-pwcvqz-pp"
+ecp "Os_aug-cc-pwCVQZ-PP"
 Os nelec 60
 Os ul
 2       1.00000000             0.00000000
@@ -5899,7 +5899,7 @@ Os G
 2       4.49698100            -9.18134300
 2       4.46773800           -11.36160400
 end
-basis "Ir_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Ir_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (69s,54p,40d,5f,4g,3h) -> [9s,9p,8d,5f,4g,3h]
 Ir    S
       1.0614000              1.0000000
@@ -6117,7 +6117,7 @@ Ir    H
 end
 
 
-ecp "Ir_aug-cc-pwcvqz-pp"
+ecp "Ir_aug-cc-pwCVQZ-PP"
 Ir nelec 60
 Ir ul
 2       1.00000000             0.00000000
@@ -6141,7 +6141,7 @@ Ir G
 2       4.96979000           -10.41069700
 2       4.93561400           -12.86319600
 end
-basis "Pt_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Pt_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (69s,54p,40d,5f,4g,3h) -> [9s,9p,8d,5f,4g,3h]
 Pt    S
       1.1588000              1.0000000
@@ -6359,7 +6359,7 @@ Pt    H
 end
 
 
-ecp "Pt_aug-cc-pwcvqz-pp"
+ecp "Pt_aug-cc-pwCVQZ-PP"
 Pt nelec 60
 Pt ul
 2       1.00000000             0.00000000
@@ -6383,7 +6383,7 @@ Pt G
 2       5.45202000           -11.65174900
 2       5.41258500           -14.37552500
 end
-basis "Au_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Au_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (69s,54p,40d,5f,4g,3h) -> [9s,9p,8d,5f,4g,3h]
 Au    S
       1.2340000              1.0000000
@@ -6601,7 +6601,7 @@ Au    H
 end
 
 
-ecp "Au_aug-cc-pwcvqz-pp"
+ecp "Au_aug-cc-pwCVQZ-PP"
 Au nelec 60
 Au ul
 2       1.0000000              0.0000000
@@ -6625,7 +6625,7 @@ Au G
 2       3.9784420             -5.2343370
 2       4.0114910             -6.7381420
 end
-basis "Hg_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Hg_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (69s,54p,40d,5f,4g,3h) -> [9s,9p,8d,5f,4g,3h]
 Hg    S
       1.3570000              1.0000000
@@ -6843,7 +6843,7 @@ Hg    H
 end
 
 
-ecp "Hg_aug-cc-pwcvqz-pp"
+ecp "Hg_aug-cc-pwCVQZ-PP"
 Hg nelec 60
 Hg ul
 2       1.0000000              0.0000000
@@ -6867,7 +6867,7 @@ Hg G
 2       4.4852960             -6.3384140
 2       4.5132000             -8.0998630
 end
-basis "Tl_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Tl_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (18s,15p,15d,6f,4g,1h) -> [10s,10p,8d,6f,4g,1h]
 Tl    S
      13.2091000              1.000000E+00
@@ -6970,7 +6970,7 @@ Tl    H
 end
 
 
-ecp "Tl_aug-cc-pwcvqz-pp"
+ecp "Tl_aug-cc-pwCVQZ-PP"
 Tl nelec 60
 Tl ul
 2       1.0000000              0.0000000
@@ -6998,7 +6998,7 @@ Tl G
 2       7.2092840             -7.7979920
 2       7.0709640             -9.2595240
 end
-basis "Pb_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Pb_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (18s,15p,15d,6f,4g,1h) -> [10s,10p,8d,6f,4g,1h]
 Pb    S
      13.6200000              1.000000E+00
@@ -7101,7 +7101,7 @@ Pb    H
 end
 
 
-ecp "Pb_aug-cc-pwcvqz-pp"
+ecp "Pb_aug-cc-pwCVQZ-PP"
 Pb nelec 60
 Pb ul
 2       1.0000000              0.0000000
@@ -7125,7 +7125,7 @@ Pb G
 2       5.6915770             -9.0966650
 2       5.7155670            -11.5319960
 end
-basis "Bi_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Bi_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (28s,22p,15d,6f,4g,1h) -> [10s,10p,8d,6f,4g,1h]
 Bi    S
       5.754100E+00           1.000000E+00
@@ -7245,7 +7245,7 @@ Bi    H
 end
 
 
-ecp "Bi_aug-cc-pwcvqz-pp"
+ecp "Bi_aug-cc-pwCVQZ-PP"
 Bi nelec 60
 Bi ul
 2       1.0000000              0.0000000
@@ -7269,7 +7269,7 @@ Bi G
 2       6.2057090            -10.2474430
 2       6.2277820            -12.9557100
 end
-basis "Po_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Po_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (28s,22p,15d,6f,4g,1h) -> [10s,10p,8d,6f,4g,1h]
 Po    S
       6.030400E+00           1.000000E+00
@@ -7389,7 +7389,7 @@ Po    H
 end
 
 
-ecp "Po_aug-cc-pwcvqz-pp"
+ecp "Po_aug-cc-pwCVQZ-PP"
 Po nelec 60
 Po ul
 2       1.0000000              0.0000000
@@ -7415,7 +7415,7 @@ Po G
 2       6.7715260            -11.5632940
 2       6.7779250            -14.5097880
 end
-basis "At_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "At_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (28s,22p,15d,6f,4g,1h) -> [10s,10p,8d,6f,4g,1h]
 At    S
       6.150500E+00           1.000000E+00
@@ -7535,7 +7535,7 @@ At    H
 end
 
 
-ecp "At_aug-cc-pwcvqz-pp"
+ecp "At_aug-cc-pwCVQZ-PP"
 At nelec 60
 At ul
 2       1.0000000              0.0000000
@@ -7564,7 +7564,7 @@ At G
 2       3.0133310             -0.3730440
 2       3.0977630             -0.4859460
 end
-basis "Rn_aug-cc-pwcvqz-pp" SPHERICAL 
+basis "Rn_aug-cc-pwCVQZ-PP" SPHERICAL 
 #basis SET: (28s,22p,15d,6f,4g,1h) -> [10s,10p,8d,6f,4g,1h]
 Rn    S
       6.389600E+00           1.000000E+00
@@ -7684,7 +7684,7 @@ Rn    H
 end
 
 
-ecp "Rn_aug-cc-pwcvqz-pp"
+ecp "Rn_aug-cc-pwCVQZ-PP"
 Rn nelec 60
 Rn ul
 2       1.0000000              0.0000000

@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# dhf-ecp version number 0
+# Data downloaded on 2021-02-20T21:21
+# dhf-ECP version number 0
 # Description: dhf-ECP
 # Role: orbital
 # 
@@ -143,7 +143,7 @@
 # # 
 
 
-ecp "Rb_dhf-ecp"
+ecp "Rb_dhf-ECP"
 Rb nelec 28
 Rb ul
 2       1.00000000             0.00000000
@@ -166,7 +166,7 @@ Rb F
 end
 
 
-ecp "Sr_dhf-ecp"
+ecp "Sr_dhf-ECP"
 Sr nelec 28
 Sr ul
 2       1.00000000             0.00000000
@@ -189,7 +189,7 @@ Sr F
 end
 
 
-ecp "Y_dhf-ecp"
+ecp "Y_dhf-ECP"
 Y nelec 28
 Y ul
 2       1.00000000             0.00000000
@@ -212,7 +212,7 @@ Y F
 end
 
 
-ecp "Zr_dhf-ecp"
+ecp "Zr_dhf-ECP"
 Zr nelec 28
 Zr ul
 2       1.00000000             0.00000000
@@ -235,7 +235,7 @@ Zr F
 end
 
 
-ecp "Nb_dhf-ecp"
+ecp "Nb_dhf-ECP"
 Nb nelec 28
 Nb ul
 2       1.00000000             0.00000000
@@ -258,7 +258,7 @@ Nb F
 end
 
 
-ecp "Mo_dhf-ecp"
+ecp "Mo_dhf-ECP"
 Mo nelec 28
 Mo ul
 2       1.00000000             0.00000000
@@ -281,7 +281,7 @@ Mo F
 end
 
 
-ecp "Tc_dhf-ecp"
+ecp "Tc_dhf-ECP"
 Tc nelec 28
 Tc ul
 2       1.00000000             0.00000000
@@ -304,7 +304,7 @@ Tc F
 end
 
 
-ecp "Ru_dhf-ecp"
+ecp "Ru_dhf-ECP"
 Ru nelec 28
 Ru ul
 2       1.00000000             0.00000000
@@ -327,7 +327,7 @@ Ru F
 end
 
 
-ecp "Rh_dhf-ecp"
+ecp "Rh_dhf-ECP"
 Rh nelec 28
 Rh ul
 2       1.00000000             0.00000000
@@ -350,7 +350,7 @@ Rh F
 end
 
 
-ecp "Pd_dhf-ecp"
+ecp "Pd_dhf-ECP"
 Pd nelec 28
 Pd ul
 2       1.00000000             0.00000000
@@ -373,7 +373,7 @@ Pd F
 end
 
 
-ecp "Ag_dhf-ecp"
+ecp "Ag_dhf-ECP"
 Ag nelec 28
 Ag ul
 2       1.00000000             0.00000000
@@ -396,7 +396,7 @@ Ag F
 end
 
 
-ecp "Cd_dhf-ecp"
+ecp "Cd_dhf-ECP"
 Cd nelec 28
 Cd ul
 2       1.00000000             0.00000000
@@ -419,7 +419,7 @@ Cd F
 end
 
 
-ecp "In_dhf-ecp"
+ecp "In_dhf-ECP"
 In nelec 28
 In ul
 2       1.00000000             0.00000000
@@ -442,7 +442,7 @@ In F
 end
 
 
-ecp "Sn_dhf-ecp"
+ecp "Sn_dhf-ECP"
 Sn nelec 28
 Sn ul
 2       1.00000000             0.00000000
@@ -465,7 +465,7 @@ Sn F
 end
 
 
-ecp "Sb_dhf-ecp"
+ecp "Sb_dhf-ECP"
 Sb nelec 28
 Sb ul
 2       1.00000000             0.00000000
@@ -488,7 +488,7 @@ Sb F
 end
 
 
-ecp "Te_dhf-ecp"
+ecp "Te_dhf-ECP"
 Te nelec 28
 Te ul
 2       1.00000000             0.00000000
@@ -511,7 +511,7 @@ Te F
 end
 
 
-ecp "I_dhf-ecp"
+ecp "I_dhf-ECP"
 I nelec 28
 I ul
 2       1.00000000             0.00000000
@@ -537,7 +537,7 @@ I F
 end
 
 
-ecp "Xe_dhf-ecp"
+ecp "Xe_dhf-ECP"
 Xe nelec 28
 Xe ul
 2       1.00000000             0.00000000
@@ -565,7 +565,7 @@ Xe F
 end
 
 
-ecp "Cs_dhf-ecp"
+ecp "Cs_dhf-ECP"
 Cs nelec 46
 Cs ul
 2       1.00000000             0.00000000
@@ -593,7 +593,7 @@ Cs G
 end
 
 
-ecp "Ba_dhf-ecp"
+ecp "Ba_dhf-ECP"
 Ba nelec 46
 Ba ul
 2       1.00000000             0.00000000
@@ -621,7 +621,7 @@ Ba G
 end
 
 
-ecp "Hf_dhf-ecp"
+ecp "Hf_dhf-ECP"
 Hf nelec 60
 Hf ul
 2       1.00000000             0.00000000
@@ -652,7 +652,7 @@ Hf G
 end
 
 
-ecp "Ta_dhf-ecp"
+ecp "Ta_dhf-ECP"
 Ta nelec 60
 Ta ul
 2       1.00000000             0.00000000
@@ -683,7 +683,7 @@ Ta G
 end
 
 
-ecp "W_dhf-ecp"
+ecp "W_dhf-ECP"
 W nelec 60
 W ul
 2       1.00000000             0.00000000
@@ -713,7 +713,7 @@ W G
 end
 
 
-ecp "Re_dhf-ecp"
+ecp "Re_dhf-ECP"
 Re nelec 60
 Re ul
 2       1.00000000             0.00000000
@@ -739,7 +739,7 @@ Re G
 end
 
 
-ecp "Os_dhf-ecp"
+ecp "Os_dhf-ECP"
 Os nelec 60
 Os ul
 2       1.00000000             0.00000000
@@ -765,7 +765,7 @@ Os G
 end
 
 
-ecp "Ir_dhf-ecp"
+ecp "Ir_dhf-ECP"
 Ir nelec 60
 Ir ul
 2       1.00000000             0.00000000
@@ -791,7 +791,7 @@ Ir G
 end
 
 
-ecp "Pt_dhf-ecp"
+ecp "Pt_dhf-ECP"
 Pt nelec 60
 Pt ul
 2       1.00000000             0.00000000
@@ -817,7 +817,7 @@ Pt G
 end
 
 
-ecp "Au_dhf-ecp"
+ecp "Au_dhf-ECP"
 Au nelec 60
 Au ul
 2       1.00000000             0.00000000
@@ -843,7 +843,7 @@ Au G
 end
 
 
-ecp "Hg_dhf-ecp"
+ecp "Hg_dhf-ECP"
 Hg nelec 60
 Hg ul
 2       1.00000000             0.00000000
@@ -869,7 +869,7 @@ Hg G
 end
 
 
-ecp "Tl_dhf-ecp"
+ecp "Tl_dhf-ECP"
 Tl nelec 60
 Tl ul
 2       1.00000000             0.00000000
@@ -899,7 +899,7 @@ Tl G
 end
 
 
-ecp "Pb_dhf-ecp"
+ecp "Pb_dhf-ECP"
 Pb nelec 60
 Pb ul
 2       1.00000000             0.00000000
@@ -925,7 +925,7 @@ Pb G
 end
 
 
-ecp "Bi_dhf-ecp"
+ecp "Bi_dhf-ECP"
 Bi nelec 60
 Bi ul
 2       1.00000000             0.00000000
@@ -951,7 +951,7 @@ Bi G
 end
 
 
-ecp "Po_dhf-ecp"
+ecp "Po_dhf-ECP"
 Po nelec 60
 Po ul
 2       1.00000000             0.00000000
@@ -979,7 +979,7 @@ Po G
 end
 
 
-ecp "At_dhf-ecp"
+ecp "At_dhf-ECP"
 At nelec 60
 At ul
 2       1.00000000             0.00000000
@@ -1010,7 +1010,7 @@ At G
 end
 
 
-ecp "Rn_dhf-ecp"
+ecp "Rn_dhf-ECP"
 Rn nelec 60
 Rn ul
 2       1.00000000             0.00000000

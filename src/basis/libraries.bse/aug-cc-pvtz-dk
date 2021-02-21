@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# aug-cc-pvtz-dk version number 0
+# Data downloaded on 2021-02-20T21:21
+# aug-cc-pVTZ-DK version number 0
 # Description: VTZ2P   All-electron Douglas-Kroll Valence Triple Zeta + Polarization
 # Role: orbital
 # 
@@ -151,7 +151,7 @@
 #     10.1063/1.466439
 # 
 # # 
-basis "H_aug-cc-pvtz-dk" SPHERICAL 
+basis "H_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (6s,3p,2d) -> [4s,3p,2d]
 H    S
      33.8700000              0.0060773
@@ -174,7 +174,7 @@ H    D
 H    D
       0.2470000              1.0000000
 end
-basis "He_aug-cc-pvtz-dk" SPHERICAL 
+basis "He_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (7s,3p,2d) -> [4s,3p,2d]
 He    S
     234.0000000              0.0026127
@@ -198,7 +198,7 @@ He    D
 He    D
       0.4592000              1.0000000
 end
-basis "Li_aug-cc-pvtz-dk" SPHERICAL 
+basis "Li_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (21s,6p,3d,2f) -> [5s,4p,3d,2f]
 Li    S
    5988.0000000              0.0001590
@@ -247,7 +247,7 @@ Li    F
 Li    F
       0.0816000              1.0000000
 end
-basis "Be_aug-cc-pvtz-dk" SPHERICAL 
+basis "Be_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (21s,6p,3d,2f) -> [5s,4p,3d,2f]
 Be    S
    6863.0000000              0.0002897
@@ -296,7 +296,7 @@ Be    F
 Be    F
       0.1533000              1.0000000
 end
-basis "B_aug-cc-pvtz-dk" SPHERICAL 
+basis "B_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (19s,6p,3d,2f) -> [5s,4p,3d,2f]
 B    S
    5473.0000000              0.0006618
@@ -343,7 +343,7 @@ B    F
 B    F
       0.1630000              1.0000000
 end
-basis "C_aug-cc-pvtz-dk" SPHERICAL 
+basis "C_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (19s,6p,3d,2f) -> [5s,4p,3d,2f]
 C    S
    8236.0000000              0.0006772
@@ -390,7 +390,7 @@ C    F
 C    F
       0.2680000              1.0000000
 end
-basis "N_aug-cc-pvtz-dk" SPHERICAL 
+basis "N_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (19s,6p,3d,2f) -> [5s,4p,3d,2f]
 N    S
   11420.0000000              0.0007127
@@ -437,7 +437,7 @@ N    F
 N    F
       0.3640000              1.0000000
 end
-basis "O_aug-cc-pvtz-dk" SPHERICAL 
+basis "O_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (19s,6p,3d,2f) -> [5s,4p,3d,2f]
 O    S
   15330.0000000              0.0007428
@@ -484,7 +484,7 @@ O    F
 O    F
       0.5000000              1.0000000
 end
-basis "F_aug-cc-pvtz-dk" SPHERICAL 
+basis "F_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (19s,6p,3d,2f) -> [5s,4p,3d,2f]
 F    S
   19500.0000000              0.0007913
@@ -531,7 +531,7 @@ F    F
 F    F
       0.7240000              1.0000000
 end
-basis "Ne_aug-cc-pvtz-dk" SPHERICAL 
+basis "Ne_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (19s,6p,3d,2f) -> [5s,4p,3d,2f]
 Ne    S
   24350.0000000              0.0008358
@@ -578,7 +578,7 @@ Ne    F
 Ne    F
       1.0840000              1.0000000
 end
-basis "Na_aug-cc-pvtz-dk" SPHERICAL 
+basis "Na_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (45s,19p,3d,2f) -> [6s,5p,3d,2f]
 Na    S
  423000.0000000              0.0000890
@@ -666,7 +666,7 @@ Na    F
 Na    F
       0.0714000              1.0000000
 end
-basis "Mg_aug-cc-pvtz-dk" SPHERICAL 
+basis "Mg_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (42s,19p,3d,2f) -> [6s,5p,3d,2f]
 Mg    S
  164900.0000000              0.0002422
@@ -751,7 +751,7 @@ Mg    F
 Mg    F
       0.0940000              1.0000000
 end
-basis "Al_aug-cc-pvtz-dk" SPHERICAL 
+basis "Al_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (42s,17p,3d,2f) -> [6s,5p,3d,2f]
 Al    S
  205500.0000000              0.0002486
@@ -834,7 +834,7 @@ Al    F
 Al    F
       0.0858000              1.0000000
 end
-basis "Si_aug-cc-pvtz-dk" SPHERICAL 
+basis "Si_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (42s,17p,3d,2f) -> [6s,5p,3d,2f]
 Si    S
  254900.0000000              0.0002529
@@ -917,7 +917,7 @@ Si    F
 Si    F
       0.1250000              1.0000000
 end
-basis "P_aug-cc-pvtz-dk" SPHERICAL 
+basis "P_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (42s,17p,3d,2f) -> [6s,5p,3d,2f]
 P    S
  312400.0000000              0.0002571
@@ -1000,7 +1000,7 @@ P    F
 P    F
       0.1650000              1.0000000
 end
-basis "S_aug-cc-pvtz-dk" SPHERICAL 
+basis "S_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (42s,17p,3d,2f) -> [6s,5p,3d,2f]
 S    S
  374100.0000000              0.0002638
@@ -1083,7 +1083,7 @@ S    F
 S    F
       0.2180000              1.0000000
 end
-basis "Cl_aug-cc-pvtz-dk" SPHERICAL 
+basis "Cl_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (42s,17p,3d,2f) -> [6s,5p,3d,2f]
 Cl    S
  456100.0000000              0.0002645
@@ -1166,7 +1166,7 @@ Cl    F
 Cl    F
       0.3120000              1.0000000
 end
-basis "Ar_aug-cc-pvtz-dk" SPHERICAL 
+basis "Ar_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (42s,17p,3d,2f) -> [6s,5p,3d,2f]
 Ar    S
  545000.0000000              0.0002676
@@ -1249,7 +1249,7 @@ Ar    F
 Ar    F
       0.4060000              1.0000000
 end
-basis "Sc_aug-cc-pvtz-dk" SPHERICAL 
+basis "Sc_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (116s,77p,23d,3f,2g) -> [8s,7p,5d,3f,2g]
 Sc    S
 2715278.0000000              0.0001060
@@ -1498,7 +1498,7 @@ Sc    G
 Sc    G
       0.0947300              1.0000000
 end
-basis "Ti_aug-cc-pvtz-dk" SPHERICAL 
+basis "Ti_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (116s,77p,23d,3f,2g) -> [8s,7p,5d,3f,2g]
 Ti    S
 3014643.0000000              0.0001120
@@ -1747,7 +1747,7 @@ Ti    G
 Ti    G
       0.2041300              1.0000000
 end
-basis "V_aug-cc-pvtz-dk" SPHERICAL 
+basis "V_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (116s,77p,23d,3f,2g) -> [8s,7p,5d,3f,2g]
 V    S
 3321857.0000000              0.0001180
@@ -1996,7 +1996,7 @@ V    G
 V    G
       0.3721200              1.0000000
 end
-basis "Cr_aug-cc-pvtz-dk" SPHERICAL 
+basis "Cr_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (116s,77p,23d,3f,2g) -> [8s,7p,5d,3f,2g]
 Cr    S
 6177194.0000000              0.0000840
@@ -2245,7 +2245,7 @@ Cr    G
 Cr    G
       0.4989600              1.0000000
 end
-basis "Mn_aug-cc-pvtz-dk" SPHERICAL 
+basis "Mn_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (116s,77p,23d,3f,2g) -> [8s,7p,5d,3f,2g]
 Mn    S
 3960805.0000000              0.0001350
@@ -2494,7 +2494,7 @@ Mn    G
 Mn    G
       0.6143600              1.0000000
 end
-basis "Fe_aug-cc-pvtz-dk" SPHERICAL 
+basis "Fe_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (116s,77p,23d,3f,2g) -> [8s,7p,5d,3f,2g]
 Fe    S
 4316265.0000000              0.0001400
@@ -2743,7 +2743,7 @@ Fe    G
 Fe    G
       0.7642600              1.0000000
 end
-basis "Co_aug-cc-pvtz-dk" SPHERICAL 
+basis "Co_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (116s,77p,23d,3f,2g) -> [8s,7p,5d,3f,2g]
 Co    S
 4675675.0000000              0.0001460
@@ -2992,7 +2992,7 @@ Co    G
 Co    G
       0.9281600              1.0000000
 end
-basis "Ni_aug-cc-pvtz-dk" SPHERICAL 
+basis "Ni_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (116s,77p,23d,3f,2g) -> [8s,7p,5d,3f,2g]
 Ni    S
 5045991.0000000              0.0001570
@@ -3241,7 +3241,7 @@ Ni    G
 Ni    G
       1.1744600              1.0000000
 end
-basis "Cu_aug-cc-pvtz-dk" SPHERICAL 
+basis "Cu_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (116s,77p,23d,3f,2g) -> [8s,7p,5d,3f,2g]
 Cu    S
 5430321.0000000              0.0001580
@@ -3490,7 +3490,7 @@ Cu    G
 Cu    G
       1.4055600              1.0000000
 end
-basis "Zn_aug-cc-pvtz-dk" SPHERICAL 
+basis "Zn_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (116s,77p,23d,3f,2g) -> [8s,7p,5d,3f,2g]
 Zn    S
 5820021.0000000              0.0001810
@@ -3739,7 +3739,7 @@ Zn    G
 Zn    G
       1.7512600              1.0000000
 end
-basis "Ga_aug-cc-pvtz-dk" SPHERICAL 
+basis "Ga_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (75s,36p,10d,2f) -> [7s,6p,4d,2f]
 Ga    S
 6558157.3000000              0.0001824
@@ -3884,7 +3884,7 @@ Ga    F
 Ga    F
       0.0980000              1.0000000
 end
-basis "Ge_aug-cc-pvtz-dk" SPHERICAL 
+basis "Ge_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (75s,36p,10d,2f) -> [7s,6p,4d,2f]
 Ge    S
 7447966.8000000              0.0001822
@@ -4029,7 +4029,7 @@ Ge    F
 Ge    F
       0.1323000              1.0000000
 end
-basis "As_aug-cc-pvtz-dk" SPHERICAL 
+basis "As_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (75s,36p,10d,2f) -> [7s,6p,4d,2f]
 As    S
 8482339.6000000              0.0001814
@@ -4174,7 +4174,7 @@ As    F
 As    F
       0.1690000              1.0000000
 end
-basis "Se_aug-cc-pvtz-dk" SPHERICAL 
+basis "Se_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (75s,36p,10d,2f) -> [7s,6p,4d,2f]
 Se    S
 9563600.0000000              0.0001815
@@ -4319,7 +4319,7 @@ Se    F
 Se    F
       0.1880000              1.0000000
 end
-basis "Br_aug-cc-pvtz-dk" SPHERICAL 
+basis "Br_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (75s,36p,10d,2f) -> [7s,6p,4d,2f]
 Br    S
 10639000.0000000             0.0001832
@@ -4464,7 +4464,7 @@ Br    F
 Br    F
       0.2580000              1.0000000
 end
-basis "Kr_aug-cc-pvtz-dk" SPHERICAL 
+basis "Kr_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (75s,36p,10d,2f) -> [7s,6p,4d,2f]
 Kr    S
 11718113.0000000             0.0001859
@@ -4609,7 +4609,7 @@ Kr    F
 Kr    F
       0.3280000              1.0000000
 end
-basis "Y_aug-cc-pvtz-dk" SPHERICAL 
+basis "Y_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (177s,122p,54d,3f,2g) -> [9s,8p,6d,3f,2g]
 Y    S
 125652000.0000000            0.0000380
@@ -4998,7 +4998,7 @@ Y    G
 Y    G
       0.0792000              1.0000000
 end
-basis "Zr_aug-cc-pvtz-dk" SPHERICAL 
+basis "Zr_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (177s,122p,54d,3f,2g) -> [9s,8p,6d,3f,2g]
 Zr    S
 137465000.0000000            0.0000390
@@ -5387,7 +5387,7 @@ Zr    G
 Zr    G
       0.1377000              1.0000000
 end
-basis "Nb_aug-cc-pvtz-dk" SPHERICAL 
+basis "Nb_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (177s,122p,54d,3f,2g) -> [9s,8p,6d,3f,2g]
 Nb    S
 148730000.0000000            0.0000410
@@ -5776,7 +5776,7 @@ Nb    G
 Nb    G
       0.2175000              1.0000000
 end
-basis "Mo_aug-cc-pvtz-dk" SPHERICAL 
+basis "Mo_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (177s,122p,54d,3f,2g) -> [9s,8p,6d,3f,2g]
 Mo    S
 162227000.0000000            0.0000430
@@ -6165,7 +6165,7 @@ Mo    G
 Mo    G
       0.2855000              1.0000000
 end
-basis "Tc_aug-cc-pvtz-dk" SPHERICAL 
+basis "Tc_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (177s,122p,54d,3f,2g) -> [9s,8p,6d,3f,2g]
 Tc    S
 178961000.0000000            0.0000430
@@ -6554,7 +6554,7 @@ Tc    G
 Tc    G
       0.3554000              1.0000000
 end
-basis "Ru_aug-cc-pvtz-dk" SPHERICAL 
+basis "Ru_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (177s,122p,54d,3f,2g) -> [9s,8p,6d,3f,2g]
 Ru    S
 192708000.0000000            0.0000430
@@ -6943,7 +6943,7 @@ Ru    G
 Ru    G
       0.4376000              1.0000000
 end
-basis "Rh_aug-cc-pvtz-dk" SPHERICAL 
+basis "Rh_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (177s,122p,54d,3f,2g) -> [9s,8p,6d,3f,2g]
 Rh    S
 213061000.0000000            0.0000410
@@ -7332,7 +7332,7 @@ Rh    G
 Rh    G
       0.5224000              1.0000000
 end
-basis "Pd_aug-cc-pvtz-dk" SPHERICAL 
+basis "Pd_aug-cc-pVTZ-DK" SPHERICAL 
 #basis SET: (177s,122p,54d,3f,2g) -> [9s,8p,6d,3f,2g]
 Pd    S
 231969000.0000000            0.0000380

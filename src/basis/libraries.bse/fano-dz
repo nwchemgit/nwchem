@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# fano-dz version number 1
+# Data downloaded on 2021-02-20T21:21
+# FANO-DZ version number 1
 # Description: Frozen Atomic Natural Orbital - Double Zeta
 # Role: orbital
 # 
@@ -47,7 +47,7 @@
 #     10.1063/1.5039741
 # 
 # # 
-basis "H_fano-dz" SPHERICAL 
+basis "H_FANO-DZ" SPHERICAL 
 #basis SET: (18s,5p) -> [2s,1p]
 H    S
     837.3565790              0.0000942
@@ -76,7 +76,7 @@ H    P
       0.5089170              0.2287702
       0.2325790              0.1881628
 end
-basis "He_fano-dz" SPHERICAL 
+basis "He_FANO-DZ" SPHERICAL 
 #basis SET: (20s,6p) -> [2s,1p]
 He    S
    4830.0398640              0.0001051
@@ -108,7 +108,7 @@ He    P
       0.7934520              0.7619289
       0.3372230              0.3189612
 end
-basis "B_fano-dz" SPHERICAL 
+basis "B_FANO-DZ" SPHERICAL 
 #basis SET: (42s,16p,6d) -> [3s,2p,1d]
 B    S
   33713.2090900              0.0000969
@@ -181,7 +181,7 @@ B    D
       0.1913630              0.6321608
       0.0915980              0.2652015
 end
-basis "C_fano-dz" SPHERICAL 
+basis "C_FANO-DZ" SPHERICAL 
 #basis SET: (42s,16p,6d) -> [3s,2p,1d]
 C    S
   50386.7510900              0.0000934
@@ -254,7 +254,7 @@ C    D
       0.3082480              0.6067801
       0.1518360              0.3243620
 end
-basis "N_fano-dz" SPHERICAL 
+basis "N_FANO-DZ" SPHERICAL 
 #basis SET: (42s,18p,6d) -> [3s,2p,1d]
 N    S
   73027.0995300              0.0000861
@@ -329,7 +329,7 @@ N    D
       0.5237720              0.6803181
       0.2413760              0.4053391
 end
-basis "O_fano-dz" SPHERICAL 
+basis "O_FANO-DZ" SPHERICAL 
 #basis SET: (42s,18p,6d) -> [3s,2p,1d]
 O    S
  104579.4181000              0.0000774
@@ -404,7 +404,7 @@ O    D
       0.6460460              0.6576428
       0.2962490              0.3322214
 end
-basis "F_fano-dz" SPHERICAL 
+basis "F_FANO-DZ" SPHERICAL 
 #basis SET: (42s,20p,7d) -> [3s,2p,1d]
 F    S
  121062.9455000              0.0000921
@@ -482,7 +482,7 @@ F    D
       0.5624700              0.4188931
       0.2881620              0.1821107
 end
-basis "Ne_fano-dz" SPHERICAL 
+basis "Ne_FANO-DZ" SPHERICAL 
 #basis SET: (45s,20p,7d) -> [3s,2p,1d]
 Ne    S
  312544.6873000              0.0000295

@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# modified-lanl2dz version number 0
+# Data downloaded on 2021-02-20T21:21
+# modified-LANL2DZ version number 0
 # Description: Couty-Hall Modified LANL2DZ Basis Sets for Transition Metals
 # Role: orbital
 # 
@@ -55,7 +55,7 @@
 #     10.1063/1.448975
 # 
 # # 
-basis "Sc_modified-lanl2dz" SPHERICAL 
+basis "Sc_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,5d) -> [3s,3p,2d]
 Sc    S
       0.3717000000E+01      -0.3926292000E+00
@@ -89,7 +89,7 @@ Sc    D
 end
 
 
-ecp "Sc_modified-lanl2dz"
+ecp "Sc_modified-LANL2DZ"
 Sc nelec 10
 Sc ul
 1     237.3166528            -10.0000000
@@ -109,7 +109,7 @@ Sc P
 2       4.7970573             68.0945974
 2       4.4142925            -41.6469108
 end
-basis "Ti_modified-lanl2dz" SPHERICAL 
+basis "Ti_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,5d) -> [3s,3p,2d]
 Ti    S
       0.4372000000E+01      -0.3637098000E+00
@@ -143,7 +143,7 @@ Ti    D
 end
 
 
-ecp "Ti_modified-lanl2dz"
+ecp "Ti_modified-LANL2DZ"
 Ti nelec 10
 Ti ul
 1     265.3263909            -10.0000000
@@ -162,7 +162,7 @@ Ti P
 2       5.6022573            107.4207153
 2       5.2171069            -71.9065902
 end
-basis "V_modified-lanl2dz" SPHERICAL 
+basis "V_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,5d) -> [3s,3p,2d]
 V    S
       0.4590000000E+01      -0.4277302000E+00
@@ -196,7 +196,7 @@ V    D
 end
 
 
-ecp "V_modified-lanl2dz"
+ecp "V_modified-LANL2DZ"
 V nelec 10
 V ul
 1     296.4487582            -10.0000000
@@ -215,7 +215,7 @@ V P
 2       6.2352020            117.2756226
 2       5.8139909            -78.5829134
 end
-basis "Cr_modified-lanl2dz" SPHERICAL 
+basis "Cr_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,5d) -> [3s,3p,2d]
 Cr    S
       0.5361000000E+01      -0.3805689000E+00
@@ -249,7 +249,7 @@ Cr    D
 end
 
 
-ecp "Cr_modified-lanl2dz"
+ecp "Cr_modified-LANL2DZ"
 Cr nelec 10
 Cr ul
 1     329.2720539            -10.0000000
@@ -268,7 +268,7 @@ Cr P
 2       6.5582692            106.0168018
 2       6.1268236            -69.8585468
 end
-basis "Mn_modified-lanl2dz" SPHERICAL 
+basis "Mn_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,5d) -> [3s,3p,2d]
 Mn    S
       0.5914000000E+01      -0.3764508000E+00
@@ -302,7 +302,7 @@ Mn    D
 end
 
 
-ecp "Mn_modified-lanl2dz"
+ecp "Mn_modified-LANL2DZ"
 Mn nelec 10
 Mn ul
 1     357.3914469            -10.0000000
@@ -321,7 +321,7 @@ Mn P
 2       8.0098457            143.4222647
 2       7.3390928            -88.7031851
 end
-basis "Fe_modified-lanl2dz" SPHERICAL 
+basis "Fe_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,5d) -> [3s,3p,2d]
 Fe    S
       0.6422000000E+01      -0.3927882000E+00
@@ -355,7 +355,7 @@ Fe    D
 end
 
 
-ecp "Fe_modified-lanl2dz"
+ecp "Fe_modified-LANL2DZ"
 Fe nelec 10
 Fe ul
 1     392.6149787            -10.0000000
@@ -374,7 +374,7 @@ Fe P
 2       8.7701805            154.4244635
 2       8.0397818            -95.3164249
 end
-basis "Co_modified-lanl2dz" SPHERICAL 
+basis "Co_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,5d) -> [3s,3p,2d]
 Co    S
       0.7176000000E+01      -0.3856734000E+00
@@ -408,7 +408,7 @@ Co    D
 end
 
 
-ecp "Co_modified-lanl2dz"
+ecp "Co_modified-LANL2DZ"
 Co nelec 10
 Co ul
 1     434.1076104            -10.0000000
@@ -425,7 +425,7 @@ Co P
 2      48.6265909            326.3215919
 2      11.9966971             73.8788970
 end
-basis "Ni_modified-lanl2dz" SPHERICAL 
+basis "Ni_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,5d) -> [3s,3p,2d]
 Ni    S
       0.7620000000E+01      -0.4082550000E+00
@@ -459,7 +459,7 @@ Ni    D
 end
 
 
-ecp "Ni_modified-lanl2dz"
+ecp "Ni_modified-LANL2DZ"
 Ni nelec 10
 Ni ul
 1     469.9324331            -10.0000000
@@ -476,7 +476,7 @@ Ni P
 2      47.1315453            256.6945853
 2      12.9874075             78.4754450
 end
-basis "Cu_modified-lanl2dz" SPHERICAL 
+basis "Cu_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,5d) -> [3s,3p,2d]
 Cu    S
       0.8176000000E+01      -0.4210260000E+00
@@ -510,7 +510,7 @@ Cu    D
 end
 
 
-ecp "Cu_modified-lanl2dz"
+ecp "Cu_modified-LANL2DZ"
 Cu nelec 10
 Cu ul
 1     511.9951763            -10.0000000
@@ -527,7 +527,7 @@ Cu P
 2      53.8683720            351.4605395
 2      14.0989469             85.5016036
 end
-basis "Y_modified-lanl2dz" SPHERICAL 
+basis "Y_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,4d) -> [3s,3p,2d]
 Y    S
       0.1751000000E+01      -0.1161790000E+01
@@ -560,7 +560,7 @@ Y    D
 end
 
 
-ecp "Y_modified-lanl2dz"
+ecp "Y_modified-LANL2DZ"
 Y nelec 28
 Y ul
 0     578.4310349             -0.0404817
@@ -585,7 +585,7 @@ Y D
 2       7.3062400             48.7792568
 2       2.4051635             11.4535104
 end
-basis "Zr_modified-lanl2dz" SPHERICAL 
+basis "Zr_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,4d) -> [3s,3p,2d]
 Zr    S
       0.1976000000E+01      -0.9206745000E+00
@@ -618,7 +618,7 @@ Zr    D
 end
 
 
-ecp "Zr_modified-lanl2dz"
+ecp "Zr_modified-LANL2DZ"
 Zr nelec 28
 Zr ul
 0     645.9321873             -0.0425843
@@ -642,7 +642,7 @@ Zr D
 2       9.6835718             70.7634022
 2       2.7995666             15.0492822
 end
-basis "Nb_modified-lanl2dz" SPHERICAL 
+basis "Nb_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,4d) -> [3s,3p,2d]
 Nb    S
       0.2182000000E+01      -0.8846144000E+00
@@ -675,7 +675,7 @@ Nb    D
 end
 
 
-ecp "Nb_modified-lanl2dz"
+ecp "Nb_modified-LANL2DZ"
 Nb nelec 28
 Nb ul
 0     342.9638405             -0.0447401
@@ -699,7 +699,7 @@ Nb D
 2      12.0708574             92.9577490
 2       3.1575323             18.4744256
 end
-basis "Mo_modified-lanl2dz" SPHERICAL 
+basis "Mo_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,4d) -> [3s,3p,2d]
 Mo    S
       0.2361000000E+01      -0.9121760000E+00
@@ -732,7 +732,7 @@ Mo    D
 end
 
 
-ecp "Mo_modified-lanl2dz"
+ecp "Mo_modified-LANL2DZ"
 Mo nelec 28
 Mo ul
 0     537.9667807             -0.0469492
@@ -756,7 +756,7 @@ Mo D
 2      13.1164437             98.4453068
 2       3.6280263             22.4901377
 end
-basis "Tc_modified-lanl2dz" SPHERICAL 
+basis "Tc_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,4d) -> [3s,3p,2d]
 Tc    S
       0.2342000000E+01      -0.1491178000E+01
@@ -789,7 +789,7 @@ Tc    D
 end
 
 
-ecp "Tc_modified-lanl2dz"
+ecp "Tc_modified-LANL2DZ"
 Tc nelec 28
 Tc ul
 0     501.1199409             -0.0492115
@@ -813,7 +813,7 @@ Tc D
 2      15.7089115            121.1894325
 2       3.9484576             25.5866973
 end
-basis "Ru_modified-lanl2dz" SPHERICAL 
+basis "Ru_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,4d) -> [3s,3p,2d]
 Ru    S
       0.2565000000E+01      -0.1043106000E+01
@@ -846,7 +846,7 @@ Ru    D
 end
 
 
-ecp "Ru_modified-lanl2dz"
+ecp "Ru_modified-LANL2DZ"
 Ru nelec 28
 Ru ul
 0     554.3796303             -0.0515270
@@ -872,7 +872,7 @@ Ru D
 2      19.1190074            146.0926620
 2       4.2712090             28.9129770
 end
-basis "Rh_modified-lanl2dz" SPHERICAL 
+basis "Rh_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,4d) -> [3s,3p,2d]
 Rh    S
       0.2646000000E+01      -0.1355408000E+01
@@ -905,7 +905,7 @@ Rh    D
 end
 
 
-ecp "Rh_modified-lanl2dz"
+ecp "Rh_modified-LANL2DZ"
 Rh nelec 28
 Rh ul
 0     600.3243032             -0.0538958
@@ -931,7 +931,7 @@ Rh D
 2      19.4020301            142.6844289
 2       4.6879328             32.1406857
 end
-basis "Pd_modified-lanl2dz" SPHERICAL 
+basis "Pd_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,4d) -> [3s,3p,2d]
 Pd    S
       0.2787000000E+01      -0.1610239000E+01
@@ -964,7 +964,7 @@ Pd    D
 end
 
 
-ecp "Pd_modified-lanl2dz"
+ecp "Pd_modified-LANL2DZ"
 Pd nelec 28
 Pd ul
 0     598.3336444             -0.0563177
@@ -991,7 +991,7 @@ Pd D
 2       9.1790080          -1040.8554048
 2       7.5624429            505.9375147
 end
-basis "Ag_modified-lanl2dz" SPHERICAL 
+basis "Ag_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,4d) -> [3s,3p,2d]
 Ag    S
       0.2950000000E+01      -0.1791056000E+01
@@ -1024,7 +1024,7 @@ Ag    D
 end
 
 
-ecp "Ag_modified-lanl2dz"
+ecp "Ag_modified-LANL2DZ"
 Ag nelec 28
 Ag ul
 0     568.7006237             -0.0587930
@@ -1051,7 +1051,7 @@ Ag D
 2       9.7528183          -1238.8602423
 2       8.1788997            608.0677121
 end
-basis "La_modified-lanl2dz" SPHERICAL 
+basis "La_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,3d) -> [3s,3p,2d]
 La    S
       0.9167000000E+00      -0.3024075000E+01
@@ -1083,7 +1083,7 @@ La    D
 end
 
 
-ecp "La_modified-lanl2dz"
+ecp "La_modified-LANL2DZ"
 La nelec 46
 La ul
 0     740.9166034             -0.0864727
@@ -1109,7 +1109,7 @@ La D
 2       5.8051185             63.4945183
 2       1.4583220             18.0998654
 end
-basis "Hf_modified-lanl2dz" SPHERICAL 
+basis "Hf_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,3d) -> [3s,3p,2d]
 Hf    S
       0.1950000000E+01      -0.1226085000E+01
@@ -1141,7 +1141,7 @@ Hf    D
 end
 
 
-ecp "Hf_modified-lanl2dz"
+ecp "Hf_modified-LANL2DZ"
 Hf nelec 60
 Hf ul
 1     685.5502931            -60.0000000
@@ -1177,7 +1177,7 @@ Hf F
 2       6.0777120             82.0077173
 2       1.4776693              6.3063943
 end
-basis "Ta_modified-lanl2dz" SPHERICAL 
+basis "Ta_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,3d) -> [3s,3p,2d]
 Ta    S
       0.2044000000E+01      -0.1310478000E+01
@@ -1209,7 +1209,7 @@ Ta    D
 end
 
 
-ecp "Ta_modified-lanl2dz"
+ecp "Ta_modified-LANL2DZ"
 Ta nelec 60
 Ta ul
 1     768.2267533            -60.0000000
@@ -1245,7 +1245,7 @@ Ta F
 2       5.6785931             72.0619298
 2       1.5814041              6.0009895
 end
-basis "W_modified-lanl2dz" SPHERICAL 
+basis "W_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,3d) -> [3s,3p,2d]
 W    S
       0.2137000000E+01      -0.1391615000E+01
@@ -1277,7 +1277,7 @@ W    D
 end
 
 
-ecp "W_modified-lanl2dz"
+ecp "W_modified-LANL2DZ"
 W nelec 60
 W ul
 1     839.4489120            -60.0000000
@@ -1313,7 +1313,7 @@ W F
 2       6.9810413             91.7605552
 2       1.8380480              8.4247312
 end
-basis "Re_modified-lanl2dz" SPHERICAL 
+basis "Re_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,3d) -> [3s,3p,2d]
 Re    S
       0.2185000000E+01      -0.1622373000E+01
@@ -1345,7 +1345,7 @@ Re    D
 end
 
 
-ecp "Re_modified-lanl2dz"
+ecp "Re_modified-LANL2DZ"
 Re nelec 60
 Re ul
 1    1833.8143836             -0.1497104
@@ -1381,7 +1381,7 @@ Re F
 2       8.5734158            116.5787266
 2       2.0892721             11.1050530
 end
-basis "Os_modified-lanl2dz" SPHERICAL 
+basis "Os_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,3d) -> [3s,3p,2d]
 Os    S
       0.2222000000E+01      -0.1653804000E+01
@@ -1413,7 +1413,7 @@ Os    D
 end
 
 
-ecp "Os_modified-lanl2dz"
+ecp "Os_modified-LANL2DZ"
 Os nelec 60
 Os ul
 1     848.8743292             -0.1537293
@@ -1447,7 +1447,7 @@ Os F
 2      10.5337695            147.1839894
 2       2.3338246             13.9622947
 end
-basis "Ir_modified-lanl2dz" SPHERICAL 
+basis "Ir_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,3d) -> [3s,3p,2d]
 Ir    S
       0.2350000000E+01      -0.1678464000E+01
@@ -1479,7 +1479,7 @@ Ir    D
 end
 
 
-ecp "Ir_modified-lanl2dz"
+ecp "Ir_modified-LANL2DZ"
 Ir nelec 60
 Ir ul
 1     823.5880147             -0.1578014
@@ -1513,7 +1513,7 @@ Ir F
 2      10.1995721            137.2047338
 2       2.5409702             14.8633305
 end
-basis "Pt_modified-lanl2dz" SPHERICAL 
+basis "Pt_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,3d) -> [3s,3p,2d]
 Pt    S
       0.2547000000E+01      -0.1473918000E+01
@@ -1545,7 +1545,7 @@ Pt    D
 end
 
 
-ecp "Pt_modified-lanl2dz"
+ecp "Pt_modified-LANL2DZ"
 Pt nelec 60
 Pt ul
 1     728.9394056             -0.1619268
@@ -1578,7 +1578,7 @@ Pt F
 2       9.8811751            127.8187976
 2       2.7319874             15.3772046
 end
-basis "Au_modified-lanl2dz" SPHERICAL 
+basis "Au_modified-LANL2DZ" SPHERICAL 
 #basis SET: (8s,8p,3d) -> [3s,3p,2d]
 Au    S
       0.2809000000E+01      -0.1202156000E+01
@@ -1610,7 +1610,7 @@ Au    D
 end
 
 
-ecp "Au_modified-lanl2dz"
+ecp "Au_modified-LANL2DZ"
 Au nelec 60
 Au ul
 1     622.6287956            -60.0000000

@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# ano-vt-tz version number 1
+# Data downloaded on 2021-02-20T21:21
+# ANO-VT-TZ version number 1
 # Description: ANO-VT-TZ (Atomic Natural Orbital - Virial Theorem - Triple Zeta)
 # Role: orbital
 # 
@@ -52,7 +52,7 @@
 #     10.1063/1.4954989
 # 
 # # 
-basis "H_ano-vt-tz" SPHERICAL 
+basis "H_ANO-VT-TZ" SPHERICAL 
 #basis SET: (15s,4p,1d) -> [3s,2p,1d]
 H    S
      33.8864400              0.0060680
@@ -81,7 +81,7 @@ H    P
 H    D
       1.0575130              1.0000000
 end
-basis "He_ano-vt-tz" SPHERICAL 
+basis "He_ANO-VT-TZ" SPHERICAL 
 #basis SET: (18s,4p,1d) -> [3s,2p,1d]
 He    S
     234.8431580              0.0025918
@@ -113,7 +113,7 @@ He    P
 He    D
       1.9720800              1.0000000
 end
-basis "Li_ano-vt-tz" SPHERICAL 
+basis "Li_ANO-VT-TZ" SPHERICAL 
 #basis SET: (44s,15p,4d,1f) -> [4s,3p,2d,1f]
 Li    S
    5988.1167540              0.0001330
@@ -190,7 +190,7 @@ Li    D
 Li    F
       0.1829040              1.0000000
 end
-basis "Be_ano-vt-tz" SPHERICAL 
+basis "Be_ANO-VT-TZ" SPHERICAL 
 #basis SET: (44s,15p,4d,1f) -> [4s,3p,2d,1f]
 Be    S
    6863.2813860              0.0001934
@@ -267,7 +267,7 @@ Be    D
 Be    F
       0.3250130              1.0000000
 end
-basis "B_ano-vt-tz" SPHERICAL 
+basis "B_ANO-VT-TZ" SPHERICAL 
 #basis SET: (40s,15p,4d,1f) -> [4s,3p,2d,1f]
 B    S
    5473.6053310              0.0004508
@@ -340,7 +340,7 @@ B    D
 B    F
       0.4900540              1.0000000
 end
-basis "C_ano-vt-tz" SPHERICAL 
+basis "C_ANO-VT-TZ" SPHERICAL 
 #basis SET: (40s,15p,4d,1f) -> [4s,3p,2d,1f]
 C    S
    8236.6177120              0.0004263
@@ -413,7 +413,7 @@ C    D
 C    F
       0.7610570              1.0000000
 end
-basis "N_ano-vt-tz" SPHERICAL 
+basis "N_ANO-VT-TZ" SPHERICAL 
 #basis SET: (40s,15p,4d,1f) -> [4s,3p,2d,1f]
 N    S
   11419.9840120              0.0004182
@@ -486,7 +486,7 @@ N    D
 N    F
       1.0929980              1.0000000
 end
-basis "O_ano-vt-tz" SPHERICAL 
+basis "O_ANO-VT-TZ" SPHERICAL 
 #basis SET: (40s,15p,4d,1f) -> [4s,3p,2d,1f]
 O    S
   15329.8543650              0.0004052
@@ -559,7 +559,7 @@ O    D
 O    F
       1.4279860              1.0000000
 end
-basis "F_ano-vt-tz" SPHERICAL 
+basis "F_ANO-VT-TZ" SPHERICAL 
 #basis SET: (40s,15p,4d,1f) -> [4s,3p,2d,1f]
 F    S
   19501.1232160              0.0004036
@@ -632,7 +632,7 @@ F    D
 F    F
       1.9171100              1.0000000
 end
-basis "Ne_ano-vt-tz" SPHERICAL 
+basis "Ne_ANO-VT-TZ" SPHERICAL 
 #basis SET: (40s,15p,4d,1f) -> [4s,3p,2d,1f]
 Ne    S
   24352.4935040              0.0003986
@@ -705,7 +705,7 @@ Ne    D
 Ne    F
       2.5442610              1.0000000
 end
-basis "Na_ano-vt-tz" SPHERICAL 
+basis "Na_ANO-VT-TZ" SPHERICAL 
 #basis SET: (80s,40p,4d,1f) -> [5s,4p,2d,1f]
 Na    S
  423007.4095200              0.0000181
@@ -845,7 +845,7 @@ Na    D
 Na    F
       0.1397020              1.0000000
 end
-basis "Mg_ano-vt-tz" SPHERICAL 
+basis "Mg_ANO-VT-TZ" SPHERICAL 
 #basis SET: (75s,40p,4d,1f) -> [5s,4p,2d,1f]
 Mg    S
  164902.0998420              0.0000530
@@ -980,7 +980,7 @@ Mg    D
 Mg    F
       0.2520030              1.0000000
 end
-basis "Al_ano-vt-tz" SPHERICAL 
+basis "Al_ANO-VT-TZ" SPHERICAL 
 #basis SET: (75s,36p,4d,1f) -> [5s,4p,2d,1f]
 Al    S
  205502.9893830              0.0000502
@@ -1111,7 +1111,7 @@ Al    D
 Al    F
       0.2440040              1.0000000
 end
-basis "Si_ano-vt-tz" SPHERICAL 
+basis "Si_ANO-VT-TZ" SPHERICAL 
 #basis SET: (75s,36p,4d,1f) -> [5s,4p,2d,1f]
 Si    S
  254902.4094320              0.0000459
@@ -1242,7 +1242,7 @@ Si    D
 Si    F
       0.3360030              1.0000000
 end
-basis "P_ano-vt-tz" SPHERICAL 
+basis "P_ANO-VT-TZ" SPHERICAL 
 #basis SET: (75s,36p,4d,1f) -> [5s,4p,2d,1f]
 P    S
  312400.7105760              0.0000426
@@ -1373,7 +1373,7 @@ P    D
 P    F
       0.4520010              1.0000000
 end
-basis "S_ano-vt-tz" SPHERICAL 
+basis "S_ANO-VT-TZ" SPHERICAL 
 #basis SET: (75s,36p,4d,1f) -> [5s,4p,2d,1f]
 S    S
  374099.8420430              0.0000400
@@ -1504,7 +1504,7 @@ S    D
 S    F
       0.5570000              1.0000000
 end
-basis "Cl_ano-vt-tz" SPHERICAL 
+basis "Cl_ANO-VT-TZ" SPHERICAL 
 #basis SET: (75s,36p,4d,1f) -> [5s,4p,2d,1f]
 Cl    S
  456098.2745960              0.0000363
@@ -1635,7 +1635,7 @@ Cl    D
 Cl    F
       0.7059970              1.0000000
 end
-basis "Ar_ano-vt-tz" SPHERICAL 
+basis "Ar_ANO-VT-TZ" SPHERICAL 
 #basis SET: (75s,36p,4d,1f) -> [5s,4p,2d,1f]
 Ar    S
  545003.8765520              0.0000336

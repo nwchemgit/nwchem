@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# lanl2tz+ version number 0
+# Data downloaded on 2021-02-20T21:21
+# LANL2TZ+ version number 0
 # Description: LANL2TZ+ with diffuse d functions
 # Role: orbital
 # 
@@ -75,7 +75,7 @@
 #     10.1021/ct8000409
 # 
 # # 
-basis "Sc_lanl2tz+" SPHERICAL 
+basis "Sc_LANL2TZ+" SPHERICAL 
 #basis SET: (5s,5p,6d) -> [5s,5p,4d]
 Sc    S
       3.7170000              1.0000000
@@ -110,7 +110,7 @@ Sc    D
 end
 
 
-ecp "Sc_lanl2tz+"
+ecp "Sc_LANL2TZ+"
 Sc nelec 10
 Sc ul
 1     237.3166528            -10.0000000
@@ -130,7 +130,7 @@ Sc P
 2       4.7970573             68.0945974
 2       4.4142925            -41.6469108
 end
-basis "Ti_lanl2tz+" SPHERICAL 
+basis "Ti_LANL2TZ+" SPHERICAL 
 #basis SET: (5s,5p,6d) -> [5s,5p,4d]
 Ti    S
       4.3720000              1.0000000
@@ -165,7 +165,7 @@ Ti    D
 end
 
 
-ecp "Ti_lanl2tz+"
+ecp "Ti_LANL2TZ+"
 Ti nelec 10
 Ti ul
 1     265.3263909            -10.0000000
@@ -184,7 +184,7 @@ Ti P
 2       5.6022573            107.4207153
 2       5.2171069            -71.9065902
 end
-basis "V_lanl2tz+" SPHERICAL 
+basis "V_LANL2TZ+" SPHERICAL 
 #basis SET: (5s,5p,6d) -> [5s,5p,4d]
 V    S
       4.5900000              1.0000000
@@ -219,7 +219,7 @@ V    D
 end
 
 
-ecp "V_lanl2tz+"
+ecp "V_LANL2TZ+"
 V nelec 10
 V ul
 1     296.4487582            -10.0000000
@@ -238,7 +238,7 @@ V P
 2       6.2352020            117.2756226
 2       5.8139909            -78.5829134
 end
-basis "Cr_lanl2tz+" SPHERICAL 
+basis "Cr_LANL2TZ+" SPHERICAL 
 #basis SET: (5s,5p,6d) -> [5s,5p,4d]
 Cr    S
       5.3610000              1.0000000
@@ -273,7 +273,7 @@ Cr    D
 end
 
 
-ecp "Cr_lanl2tz+"
+ecp "Cr_LANL2TZ+"
 Cr nelec 10
 Cr ul
 1     329.2720539            -10.0000000
@@ -292,7 +292,7 @@ Cr P
 2       6.5582692            106.0168018
 2       6.1268236            -69.8585468
 end
-basis "Mn_lanl2tz+" SPHERICAL 
+basis "Mn_LANL2TZ+" SPHERICAL 
 #basis SET: (5s,5p,6d) -> [5s,5p,4d]
 Mn    S
       5.9140000              1.0000000
@@ -327,7 +327,7 @@ Mn    D
 end
 
 
-ecp "Mn_lanl2tz+"
+ecp "Mn_LANL2TZ+"
 Mn nelec 10
 Mn ul
 1     357.3914469            -10.0000000
@@ -346,7 +346,7 @@ Mn P
 2       8.0098457            143.4222647
 2       7.3390928            -88.7031851
 end
-basis "Fe_lanl2tz+" SPHERICAL 
+basis "Fe_LANL2TZ+" SPHERICAL 
 #basis SET: (5s,5p,6d) -> [5s,5p,4d]
 Fe    S
       6.4220000              1.0000000
@@ -381,7 +381,7 @@ Fe    D
 end
 
 
-ecp "Fe_lanl2tz+"
+ecp "Fe_LANL2TZ+"
 Fe nelec 10
 Fe ul
 1     392.6149787            -10.0000000
@@ -400,7 +400,7 @@ Fe P
 2       8.7701805            154.4244635
 2       8.0397818            -95.3164249
 end
-basis "Co_lanl2tz+" SPHERICAL 
+basis "Co_LANL2TZ+" SPHERICAL 
 #basis SET: (5s,5p,6d) -> [5s,5p,4d]
 Co    S
       7.1760000              1.0000000
@@ -435,7 +435,7 @@ Co    D
 end
 
 
-ecp "Co_lanl2tz+"
+ecp "Co_LANL2TZ+"
 Co nelec 10
 Co ul
 1     434.1076104            -10.0000000
@@ -452,7 +452,7 @@ Co P
 2      48.6265909            326.3215919
 2      11.9966971             73.8788970
 end
-basis "Ni_lanl2tz+" SPHERICAL 
+basis "Ni_LANL2TZ+" SPHERICAL 
 #basis SET: (5s,5p,6d) -> [5s,5p,4d]
 Ni    S
       7.6200000              1.0000000
@@ -487,7 +487,7 @@ Ni    D
 end
 
 
-ecp "Ni_lanl2tz+"
+ecp "Ni_LANL2TZ+"
 Ni nelec 10
 Ni ul
 1     469.9324331            -10.0000000
@@ -504,7 +504,7 @@ Ni P
 2      47.1315453            256.6945853
 2      12.9874075             78.4754450
 end
-basis "Cu_lanl2tz+" SPHERICAL 
+basis "Cu_LANL2TZ+" SPHERICAL 
 #basis SET: (5s,5p,6d) -> [5s,5p,4d]
 Cu    S
       8.1760000              1.0000000
@@ -539,7 +539,7 @@ Cu    D
 end
 
 
-ecp "Cu_lanl2tz+"
+ecp "Cu_LANL2TZ+"
 Cu nelec 10
 Cu ul
 1     511.9951763            -10.0000000
@@ -556,7 +556,7 @@ Cu P
 2      53.8683720            351.4605395
 2      14.0989469             85.5016036
 end
-basis "Zn_lanl2tz+" SPHERICAL 
+basis "Zn_LANL2TZ+" SPHERICAL 
 #basis SET: (3s,2p,6d) -> [3s,2p,4d]
 Zn    S
       0.7997000              1.0000000
@@ -581,7 +581,7 @@ Zn    D
 end
 
 
-ecp "Zn_lanl2tz+"
+ecp "Zn_LANL2TZ+"
 Zn nelec 18
 Zn ul
 1     386.7379660            -18.0000000

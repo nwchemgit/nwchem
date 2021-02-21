@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# cc-pvtz(seg-opt) version number 0
+# Data downloaded on 2021-02-20T21:21
+# cc-pVTZ(seg-opt) version number 0
 # Description: VTZ2P   Valence Triple Zeta + Polarization on All Atoms
 # Role: orbital
 # 
@@ -97,7 +97,7 @@
 #     10.1063/1.466439
 # 
 # # 
-basis "H_cc-pvtz(seg-opt)" SPHERICAL 
+basis "H_cc-pVTZ(seg-opt)" SPHERICAL 
 #basis SET: (5s,2p,1d) -> [3s,2p,1d]
 H    S
      33.87                   0.006068
@@ -114,7 +114,7 @@ H    P
 H    D
       1.057                  1.000000
 end
-basis "He_cc-pvtz(seg-opt)" SPHERICAL 
+basis "He_cc-pVTZ(seg-opt)" SPHERICAL 
 #basis SET: (6s,2p,1d) -> [3s,2p,1d]
 He    S
     234.0                    0.002587
@@ -132,7 +132,7 @@ He    P
 He    D
       1.965                  1.000000
 end
-basis "Li_cc-pvtz(seg-opt)" SPHERICAL 
+basis "Li_cc-pVTZ(seg-opt)" SPHERICAL 
 #basis SET: (18s,5p,2d,1f) -> [4s,3p,2d,1f]
 Li    S
    5988.                     0.00013237
@@ -171,7 +171,7 @@ Li    D
 Li    F
       0.1829                 1.000000
 end
-basis "Be_cc-pvtz(seg-opt)" SPHERICAL 
+basis "Be_cc-pVTZ(seg-opt)" SPHERICAL 
 #basis SET: (18s,5p,2d,1f) -> [4s,3p,2d,1f]
 Be    S
    6863.0000                 0.00023697
@@ -210,7 +210,7 @@ Be    D
 Be    F
       0.325                  1.000000
 end
-basis "B_cc-pvtz(seg-opt)" SPHERICAL 
+basis "B_cc-pVTZ(seg-opt)" SPHERICAL 
 #basis SET: (16s,5p,2d,1f) -> [4s,3p,2d,1f]
 B    S
    5473.                     0.00056047
@@ -247,7 +247,7 @@ B    D
 B    F
       0.490                  1.000000
 end
-basis "C_cc-pvtz(seg-opt)" SPHERICAL 
+basis "C_cc-pVTZ(seg-opt)" SPHERICAL 
 #basis SET: (16s,5p,2d,1f) -> [4s,3p,2d,1f]
 C    S
    8236.0                    0.00053670
@@ -284,7 +284,7 @@ C    D
 C    F
       0.761                  1.000000
 end
-basis "N_cc-pvtz(seg-opt)" SPHERICAL 
+basis "N_cc-pVTZ(seg-opt)" SPHERICAL 
 #basis SET: (16s,5p,2d,1f) -> [4s,3p,2d,1f]
 N    S
   11420.                     0.00052898
@@ -321,7 +321,7 @@ N    D
 N    F
       1.093                  1.000000
 end
-basis "O_cc-pvtz(seg-opt)" SPHERICAL 
+basis "O_cc-pVTZ(seg-opt)" SPHERICAL 
 #basis SET: (16s,5p,2d,1f) -> [4s,3p,2d,1f]
 O    S
   15330.                     0.00051408
@@ -358,7 +358,7 @@ O    D
 O    F
       1.428                  1.000000
 end
-basis "F_cc-pvtz(seg-opt)" SPHERICAL 
+basis "F_cc-pVTZ(seg-opt)" SPHERICAL 
 #basis SET: (16s,5p,2d,1f) -> [4s,3p,2d,1f]
 F    S
   19500.                     0.00051317
@@ -395,7 +395,7 @@ F    D
 F    F
       1.917                  1.000000
 end
-basis "Ne_cc-pvtz(seg-opt)" SPHERICAL 
+basis "Ne_cc-pVTZ(seg-opt)" SPHERICAL 
 #basis SET: (16s,5p,2d,1f) -> [4s,3p,2d,1f]
 Ne    S
   24350.                     0.00050823
@@ -432,7 +432,7 @@ Ne    D
 Ne    F
       2.544                  1.000000
 end
-basis "Na_cc-pvtz(seg-opt)" SPHERICAL 
+basis "Na_cc-pVTZ(seg-opt)" SPHERICAL 
 #basis SET: (38s,16p,2d,1f) -> [5s,4p,2d,1f]
 Na    S
  423000.                     0.00001806
@@ -504,7 +504,7 @@ Na    D
 Na    F
       0.1397                 1.000000
 end
-basis "Mg_cc-pvtz(seg-opt)" SPHERICAL 
+basis "Mg_cc-pVTZ(seg-opt)" SPHERICAL 
 #basis SET: (35s,16p,2d,1f) -> [5s,4p,2d,1f]
 Mg    S
  164900.                     0.00007299
@@ -573,7 +573,7 @@ Mg    D
 Mg    F
       0.2520                 1.000000
 end
-basis "Al_cc-pvtz(seg-opt)" SPHERICAL 
+basis "Al_cc-pVTZ(seg-opt)" SPHERICAL 
 #basis SET: (35s,14p,2d,1f) -> [5s,4p,2d,1f]
 Al    S
  205500.                     0.00006788
@@ -640,7 +640,7 @@ Al    D
 Al    F
       0.24400                1.0
 end
-basis "Si_cc-pvtz(seg-opt)" SPHERICAL 
+basis "Si_cc-pVTZ(seg-opt)" SPHERICAL 
 #basis SET: (35s,14p,2d,1f) -> [5s,4p,2d,1f]
 Si    S
  254900.                     0.00006251
@@ -707,7 +707,7 @@ Si    D
 Si    F
       0.33600                1.0
 end
-basis "P_cc-pvtz(seg-opt)" SPHERICAL 
+basis "P_cc-pVTZ(seg-opt)" SPHERICAL 
 #basis SET: (35s,14p,2d,1f) -> [5s,4p,2d,1f]
 P    S
  312400.                     0.00005769
@@ -774,7 +774,7 @@ P    D
 P    F
       0.45200                1.0
 end
-basis "S_cc-pvtz(seg-opt)" SPHERICAL 
+basis "S_cc-pVTZ(seg-opt)" SPHERICAL 
 #basis SET: (35s,14p,2d,1f) -> [5s,4p,2d,1f]
 S    S
  374100.                     0.00005421
@@ -841,7 +841,7 @@ S    D
 S    F
       0.55700                1.0
 end
-basis "Cl_cc-pvtz(seg-opt)" SPHERICAL 
+basis "Cl_cc-pVTZ(seg-opt)" SPHERICAL 
 #basis SET: (35s,14p,2d,1f) -> [5s,4p,2d,1f]
 Cl    S
  456100.                     0.00004930
@@ -908,7 +908,7 @@ Cl    D
 Cl    F
       0.70600                1.0
 end
-basis "Ar_cc-pvtz(seg-opt)" SPHERICAL 
+basis "Ar_cc-pVTZ(seg-opt)" SPHERICAL 
 #basis SET: (35s,14p,2d,1f) -> [5s,4p,2d,1f]
 Ar    S
  545000.                     0.00004558
@@ -975,7 +975,7 @@ Ar    D
 Ar    F
       0.89000                1.0
 end
-basis "Ga_cc-pvtz(seg-opt)" SPHERICAL 
+basis "Ga_cc-pVTZ(seg-opt)" SPHERICAL 
 #basis SET: (61s,29p,9d,1f) -> [6s,5p,3d,1f]
 Ga    S
 6558157.300000               0.00000800
@@ -1093,7 +1093,7 @@ Ga    D
 Ga    F
       0.2881000              1.0000000
 end
-basis "Ge_cc-pvtz(seg-opt)" SPHERICAL 
+basis "Ge_cc-pVTZ(seg-opt)" SPHERICAL 
 #basis SET: (60s,29p,9d,1f) -> [6s,5p,3d,1f]
 Ge    S
 7447966.800000               0.00000740
@@ -1210,7 +1210,7 @@ Ge    D
 Ge    F
       0.345800               1.0
 end
-basis "As_cc-pvtz(seg-opt)" SPHERICAL 
+basis "As_cc-pVTZ(seg-opt)" SPHERICAL 
 #basis SET: (61s,29p,9d,1f) -> [6s,5p,3d,1f]
 As    S
 8482339.600000               0.00000680
@@ -1328,7 +1328,7 @@ As    D
 As    F
       0.415800               1.000000
 end
-basis "Se_cc-pvtz(seg-opt)" SPHERICAL 
+basis "Se_cc-pVTZ(seg-opt)" SPHERICAL 
 #basis SET: (61s,29p,9d,1f) -> [6s,5p,3d,1f]
 Se    S
 9563600.00000                0.00000630
@@ -1446,7 +1446,7 @@ Se    D
 Se    F
       0.462000               1.0000000
 end
-basis "Br_cc-pvtz(seg-opt)" SPHERICAL 
+basis "Br_cc-pVTZ(seg-opt)" SPHERICAL 
 #basis SET: (62s,29p,9d,1f) -> [6s,5p,3d,1f]
 Br    S
 10639000.00000               0.00000590
@@ -1565,7 +1565,7 @@ Br    D
 Br    F
       0.551500               1.0000000
 end
-basis "Kr_cc-pvtz(seg-opt)" SPHERICAL 
+basis "Kr_cc-pVTZ(seg-opt)" SPHERICAL 
 #basis SET: (62s,29p,9d,1f) -> [6s,5p,3d,1f]
 Kr    S
 11718113.000000              0.00000560

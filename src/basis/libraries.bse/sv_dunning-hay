@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# sv (dunning-hay) version number 0
+# Data downloaded on 2021-02-20T21:21
+# SV (Dunning-Hay) version number 0
 # Description: VDZ     Valence Double Zeta: 2 Funct.'s/Valence AO
 # Role: orbital
 # 
@@ -47,7 +47,7 @@
 #     10.1007/978-1-4757-0887-5
 # 
 # # 
-basis "H_sv (dunning-hay)" SPHERICAL 
+basis "H_SV (Dunning-Hay)" SPHERICAL 
 #basis SET: (4s) -> [2s]
 H    S
      19.2384                 0.032828
@@ -56,7 +56,7 @@ H    S
 H    S
       0.17760                1.000000
 end
-basis "Li_sv (dunning-hay)" SPHERICAL 
+basis "Li_SV (Dunning-Hay)" SPHERICAL 
 #basis SET: (10s,4p) -> [3s,2p]
 Li    S
     921.30                   0.001367
@@ -78,7 +78,7 @@ Li    P
 Li    P
       0.023700               1.000000
 end
-basis "Be_sv (dunning-hay)" SPHERICAL 
+basis "Be_SV (Dunning-Hay)" SPHERICAL 
 #basis SET: (10s,5p) -> [3s,2p]
 Be    S
    1741.0                    0.001305
@@ -101,7 +101,7 @@ Be    P
 Be    P
       0.049220               1.000000
 end
-basis "B_sv (dunning-hay)" SPHERICAL 
+basis "B_SV (Dunning-Hay)" SPHERICAL 
 #basis SET: (10s,5p) -> [3s,2p]
 B    S
    2788.0                    0.001288
@@ -124,7 +124,7 @@ B    P
 B    P
       0.07011                1.000000
 end
-basis "C_sv (dunning-hay)" SPHERICAL 
+basis "C_SV (Dunning-Hay)" SPHERICAL 
 #basis SET: (10s,5p) -> [3s,2p]
 C    S
    4233.0                    0.001220
@@ -147,7 +147,7 @@ C    P
 C    P
       0.1146                 1.000000
 end
-basis "N_sv (dunning-hay)" SPHERICAL 
+basis "N_SV (Dunning-Hay)" SPHERICAL 
 #basis SET: (10s,5p) -> [3s,2p]
 N    S
    5909.0                    0.001190
@@ -170,7 +170,7 @@ N    P
 N    P
       0.1654                 1.000000
 end
-basis "O_sv (dunning-hay)" SPHERICAL 
+basis "O_SV (Dunning-Hay)" SPHERICAL 
 #basis SET: (10s,5p) -> [3s,2p]
 O    S
    7817.0                    0.001176
@@ -193,7 +193,7 @@ O    P
 O    P
       0.2137                 1.000000
 end
-basis "F_sv (dunning-hay)" SPHERICAL 
+basis "F_SV (Dunning-Hay)" SPHERICAL 
 #basis SET: (10s,5p) -> [3s,2p]
 F    S
    9995.0                    0.001166
@@ -216,7 +216,7 @@ F    P
 F    P
       0.2733                 1.000000
 end
-basis "Ne_sv (dunning-hay)" SPHERICAL 
+basis "Ne_SV (Dunning-Hay)" SPHERICAL 
 #basis SET: (10s,5p) -> [3s,2p]
 Ne    S
   12100.                     0.001200

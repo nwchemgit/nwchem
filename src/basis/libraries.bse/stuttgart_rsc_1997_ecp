@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# stuttgart rsc 1997 ecp version number 0
+# Data downloaded on 2021-02-20T21:21
+# Stuttgart RSC 1997 ECP version number 0
 # Description: Stuttgart RSC 1997 ECP
 # Role: orbital
 # 
@@ -174,7 +174,7 @@
 # # 
 
 
-ecp "K_stuttgart rsc 1997 ecp"
+ecp "K_Stuttgart RSC 1997 ECP"
 K nelec 10
 K ul
 2       1.000000000            0.000000000
@@ -189,7 +189,7 @@ K F
 end
 
 
-ecp "Ca_stuttgart rsc 1997 ecp"
+ecp "Ca_Stuttgart RSC 1997 ECP"
 Ca nelec 10
 Ca ul
 2       1.000000000            0.000000000
@@ -207,7 +207,7 @@ Ca F
 end
 
 
-ecp "Sc_stuttgart rsc 1997 ecp"
+ecp "Sc_Stuttgart RSC 1997 ECP"
 Sc nelec 10
 Sc ul
 2       1.000000000            0.000000000
@@ -223,7 +223,7 @@ Sc D
 end
 
 
-ecp "Ti_stuttgart rsc 1997 ecp"
+ecp "Ti_Stuttgart RSC 1997 ECP"
 Ti nelec 10
 Ti ul
 2       1.000000000            0.000000000
@@ -239,7 +239,7 @@ Ti D
 end
 
 
-ecp "V_stuttgart rsc 1997 ecp"
+ecp "V_Stuttgart RSC 1997 ECP"
 V nelec 10
 V ul
 2       1.000000000            0.000000000
@@ -255,7 +255,7 @@ V D
 end
 
 
-ecp "Cr_stuttgart rsc 1997 ecp"
+ecp "Cr_Stuttgart RSC 1997 ECP"
 Cr nelec 10
 Cr ul
 2       1.000000000            0.000000000
@@ -271,7 +271,7 @@ Cr D
 end
 
 
-ecp "Mn_stuttgart rsc 1997 ecp"
+ecp "Mn_Stuttgart RSC 1997 ECP"
 Mn nelec 10
 Mn ul
 2       1.000000000            0.000000000
@@ -287,7 +287,7 @@ Mn D
 end
 
 
-ecp "Fe_stuttgart rsc 1997 ecp"
+ecp "Fe_Stuttgart RSC 1997 ECP"
 Fe nelec 10
 Fe ul
 2       1.000000000            0.000000000
@@ -303,7 +303,7 @@ Fe D
 end
 
 
-ecp "Co_stuttgart rsc 1997 ecp"
+ecp "Co_Stuttgart RSC 1997 ECP"
 Co nelec 10
 Co ul
 2       1.000000000            0.000000000
@@ -319,7 +319,7 @@ Co D
 end
 
 
-ecp "Ni_stuttgart rsc 1997 ecp"
+ecp "Ni_Stuttgart RSC 1997 ECP"
 Ni nelec 10
 Ni ul
 2       1.000000000            0.000000000
@@ -335,7 +335,7 @@ Ni D
 end
 
 
-ecp "Cu_stuttgart rsc 1997 ecp"
+ecp "Cu_Stuttgart RSC 1997 ECP"
 Cu nelec 10
 Cu ul
 2       1.000000000            0.000000000
@@ -351,7 +351,7 @@ Cu D
 end
 
 
-ecp "Zn_stuttgart rsc 1997 ecp"
+ecp "Zn_Stuttgart RSC 1997 ECP"
 Zn nelec 10
 Zn ul
 2       1.000000000            0.000000000
@@ -367,7 +367,7 @@ Zn D
 end
 
 
-ecp "Rb_stuttgart rsc 1997 ecp"
+ecp "Rb_Stuttgart RSC 1997 ECP"
 Rb nelec 28
 Rb ul
 2       1.000000000            0.000000000
@@ -385,7 +385,7 @@ Rb F
 end
 
 
-ecp "Sr_stuttgart rsc 1997 ecp"
+ecp "Sr_Stuttgart RSC 1997 ECP"
 Sr nelec 28
 Sr ul
 2       1.000000000            0.000000000
@@ -403,7 +403,7 @@ Sr F
 end
 
 
-ecp "Y_stuttgart rsc 1997 ecp"
+ecp "Y_Stuttgart RSC 1997 ECP"
 Y nelec 28
 Y ul
 2       1.000000000            0.000000000
@@ -422,7 +422,7 @@ Y F
 end
 
 
-ecp "Zr_stuttgart rsc 1997 ecp"
+ecp "Zr_Stuttgart RSC 1997 ECP"
 Zr nelec 28
 Zr ul
 2       1.000000000            0.000000000
@@ -441,7 +441,7 @@ Zr F
 end
 
 
-ecp "Nb_stuttgart rsc 1997 ecp"
+ecp "Nb_Stuttgart RSC 1997 ECP"
 Nb nelec 28
 Nb ul
 2       1.000000000            0.000000000
@@ -460,7 +460,7 @@ Nb F
 end
 
 
-ecp "Mo_stuttgart rsc 1997 ecp"
+ecp "Mo_Stuttgart RSC 1997 ECP"
 Mo nelec 28
 Mo ul
 2       1.000000000            0.000000000
@@ -479,7 +479,7 @@ Mo F
 end
 
 
-ecp "Tc_stuttgart rsc 1997 ecp"
+ecp "Tc_Stuttgart RSC 1997 ECP"
 Tc nelec 28
 Tc ul
 2       1.000000000            0.000000000
@@ -498,7 +498,7 @@ Tc F
 end
 
 
-ecp "Ru_stuttgart rsc 1997 ecp"
+ecp "Ru_Stuttgart RSC 1997 ECP"
 Ru nelec 28
 Ru ul
 2       1.000000000            0.000000000
@@ -517,7 +517,7 @@ Ru F
 end
 
 
-ecp "Rh_stuttgart rsc 1997 ecp"
+ecp "Rh_Stuttgart RSC 1997 ECP"
 Rh nelec 28
 Rh ul
 2       1.000000000            0.000000000
@@ -536,7 +536,7 @@ Rh F
 end
 
 
-ecp "Pd_stuttgart rsc 1997 ecp"
+ecp "Pd_Stuttgart RSC 1997 ECP"
 Pd nelec 28
 Pd ul
 2       1.000000000            0.000000000
@@ -555,7 +555,7 @@ Pd F
 end
 
 
-ecp "Ag_stuttgart rsc 1997 ecp"
+ecp "Ag_Stuttgart RSC 1997 ECP"
 Ag nelec 28
 Ag ul
 2       1.000000000            0.000000000
@@ -574,7 +574,7 @@ Ag F
 end
 
 
-ecp "Cd_stuttgart rsc 1997 ecp"
+ecp "Cd_Stuttgart RSC 1997 ECP"
 Cd nelec 28
 Cd ul
 2       1.000000000            0.000000000
@@ -593,7 +593,7 @@ Cd F
 end
 
 
-ecp "Cs_stuttgart rsc 1997 ecp"
+ecp "Cs_Stuttgart RSC 1997 ECP"
 Cs nelec 46
 Cs ul
 2       1.000000000            0.000000000
@@ -611,7 +611,7 @@ Cs F
 end
 
 
-ecp "Ba_stuttgart rsc 1997 ecp"
+ecp "Ba_Stuttgart RSC 1997 ECP"
 Ba nelec 46
 Ba ul
 2       1.000000000            0.000000000
@@ -629,7 +629,7 @@ Ba F
 end
 
 
-ecp "La_stuttgart rsc 1997 ecp"
+ecp "La_Stuttgart RSC 1997 ECP"
 La nelec 28
 La ul
 2       1.000000000            0.000000000
@@ -646,7 +646,7 @@ La G
 end
 
 
-ecp "Ce_stuttgart rsc 1997 ecp"
+ecp "Ce_Stuttgart RSC 1997 ECP"
 Ce nelec 28
 Ce ul
 2       1.000000000            0.000000000
@@ -663,7 +663,7 @@ Ce G
 end
 
 
-ecp "Pr_stuttgart rsc 1997 ecp"
+ecp "Pr_Stuttgart RSC 1997 ECP"
 Pr nelec 28
 Pr ul
 2       1.000000000            0.000000000
@@ -680,7 +680,7 @@ Pr G
 end
 
 
-ecp "Nd_stuttgart rsc 1997 ecp"
+ecp "Nd_Stuttgart RSC 1997 ECP"
 Nd nelec 28
 Nd ul
 2       1.000000000            0.000000000
@@ -697,7 +697,7 @@ Nd G
 end
 
 
-ecp "Pm_stuttgart rsc 1997 ecp"
+ecp "Pm_Stuttgart RSC 1997 ECP"
 Pm nelec 28
 Pm ul
 2       1.000000000            0.000000000
@@ -714,7 +714,7 @@ Pm G
 end
 
 
-ecp "Sm_stuttgart rsc 1997 ecp"
+ecp "Sm_Stuttgart RSC 1997 ECP"
 Sm nelec 28
 Sm ul
 2       1.000000000            0.000000000
@@ -731,7 +731,7 @@ Sm G
 end
 
 
-ecp "Eu_stuttgart rsc 1997 ecp"
+ecp "Eu_Stuttgart RSC 1997 ECP"
 Eu nelec 28
 Eu ul
 2       1.000000000            0.000000000
@@ -748,7 +748,7 @@ Eu G
 end
 
 
-ecp "Gd_stuttgart rsc 1997 ecp"
+ecp "Gd_Stuttgart RSC 1997 ECP"
 Gd nelec 28
 Gd ul
 2       1.000000000            0.000000000
@@ -765,7 +765,7 @@ Gd G
 end
 
 
-ecp "Tb_stuttgart rsc 1997 ecp"
+ecp "Tb_Stuttgart RSC 1997 ECP"
 Tb nelec 28
 Tb ul
 2       1.000000000            0.000000000
@@ -782,7 +782,7 @@ Tb G
 end
 
 
-ecp "Dy_stuttgart rsc 1997 ecp"
+ecp "Dy_Stuttgart RSC 1997 ECP"
 Dy nelec 28
 Dy ul
 2       1.000000000            0.000000000
@@ -799,7 +799,7 @@ Dy G
 end
 
 
-ecp "Ho_stuttgart rsc 1997 ecp"
+ecp "Ho_Stuttgart RSC 1997 ECP"
 Ho nelec 28
 Ho ul
 2       1.000000000            0.000000000
@@ -816,7 +816,7 @@ Ho G
 end
 
 
-ecp "Er_stuttgart rsc 1997 ecp"
+ecp "Er_Stuttgart RSC 1997 ECP"
 Er nelec 28
 Er ul
 2       1.000000000            0.000000000
@@ -833,7 +833,7 @@ Er G
 end
 
 
-ecp "Tm_stuttgart rsc 1997 ecp"
+ecp "Tm_Stuttgart RSC 1997 ECP"
 Tm nelec 28
 Tm ul
 2       1.000000000            0.000000000
@@ -850,7 +850,7 @@ Tm G
 end
 
 
-ecp "Yb_stuttgart rsc 1997 ecp"
+ecp "Yb_Stuttgart RSC 1997 ECP"
 Yb nelec 28
 Yb ul
 2       1.000000000            0.000000000
@@ -867,7 +867,7 @@ Yb G
 end
 
 
-ecp "Lu_stuttgart rsc 1997 ecp"
+ecp "Lu_Stuttgart RSC 1997 ECP"
 Lu nelec 28
 Lu ul
 2       1.000000000            0.000000000
@@ -884,7 +884,7 @@ Lu G
 end
 
 
-ecp "Hf_stuttgart rsc 1997 ecp"
+ecp "Hf_Stuttgart RSC 1997 ECP"
 Hf nelec 60
 Hf ul
 2       1.000000000            0.000000000
@@ -904,7 +904,7 @@ Hf G
 end
 
 
-ecp "Ta_stuttgart rsc 1997 ecp"
+ecp "Ta_Stuttgart RSC 1997 ECP"
 Ta nelec 60
 Ta ul
 2       1.000000000            0.000000000
@@ -924,7 +924,7 @@ Ta G
 end
 
 
-ecp "W_stuttgart rsc 1997 ecp"
+ecp "W_Stuttgart RSC 1997 ECP"
 W nelec 60
 W ul
 2       1.000000000            0.000000000
@@ -944,7 +944,7 @@ W G
 end
 
 
-ecp "Re_stuttgart rsc 1997 ecp"
+ecp "Re_Stuttgart RSC 1997 ECP"
 Re nelec 60
 Re ul
 2       1.000000000            0.000000000
@@ -964,7 +964,7 @@ Re G
 end
 
 
-ecp "Os_stuttgart rsc 1997 ecp"
+ecp "Os_Stuttgart RSC 1997 ECP"
 Os nelec 60
 Os ul
 2       1.000000000            0.000000000
@@ -984,7 +984,7 @@ Os G
 end
 
 
-ecp "Ir_stuttgart rsc 1997 ecp"
+ecp "Ir_Stuttgart RSC 1997 ECP"
 Ir nelec 60
 Ir ul
 2       1.000000000            0.000000000
@@ -1004,7 +1004,7 @@ Ir G
 end
 
 
-ecp "Pt_stuttgart rsc 1997 ecp"
+ecp "Pt_Stuttgart RSC 1997 ECP"
 Pt nelec 60
 Pt ul
 2       1.000000000            0.000000000
@@ -1024,7 +1024,7 @@ Pt G
 end
 
 
-ecp "Au_stuttgart rsc 1997 ecp"
+ecp "Au_Stuttgart RSC 1997 ECP"
 Au nelec 60
 Au ul
 2       1.000000000            0.000000000
@@ -1043,7 +1043,7 @@ Au F
 end
 
 
-ecp "Hg_stuttgart rsc 1997 ecp"
+ecp "Hg_Stuttgart RSC 1997 ECP"
 Hg nelec 60
 Hg ul
 2       1.000000000            0.000000000
@@ -1063,7 +1063,7 @@ Hg G
 end
 
 
-ecp "Ac_stuttgart rsc 1997 ecp"
+ecp "Ac_Stuttgart RSC 1997 ECP"
 Ac nelec 60
 Ac ul
 2       1.000000000            0.000000000
@@ -1080,7 +1080,7 @@ Ac G
 end
 
 
-ecp "Th_stuttgart rsc 1997 ecp"
+ecp "Th_Stuttgart RSC 1997 ECP"
 Th nelec 60
 Th ul
 2       1.000000000            0.000000000
@@ -1097,7 +1097,7 @@ Th G
 end
 
 
-ecp "Pa_stuttgart rsc 1997 ecp"
+ecp "Pa_Stuttgart RSC 1997 ECP"
 Pa nelec 60
 Pa ul
 2       1.000000000            0.000000000
@@ -1114,7 +1114,7 @@ Pa G
 end
 
 
-ecp "U_stuttgart rsc 1997 ecp"
+ecp "U_Stuttgart RSC 1997 ECP"
 U nelec 60
 U ul
 2       1.000000000            0.000000000
@@ -1131,7 +1131,7 @@ U G
 end
 
 
-ecp "Np_stuttgart rsc 1997 ecp"
+ecp "Np_Stuttgart RSC 1997 ECP"
 Np nelec 60
 Np ul
 2       1.000000000            0.000000000
@@ -1148,7 +1148,7 @@ Np G
 end
 
 
-ecp "Pu_stuttgart rsc 1997 ecp"
+ecp "Pu_Stuttgart RSC 1997 ECP"
 Pu nelec 60
 Pu ul
 2       1.000000000            0.000000000
@@ -1165,7 +1165,7 @@ Pu G
 end
 
 
-ecp "Am_stuttgart rsc 1997 ecp"
+ecp "Am_Stuttgart RSC 1997 ECP"
 Am nelec 60
 Am ul
 2       1.000000000            0.000000000
@@ -1182,7 +1182,7 @@ Am G
 end
 
 
-ecp "Cm_stuttgart rsc 1997 ecp"
+ecp "Cm_Stuttgart RSC 1997 ECP"
 Cm nelec 60
 Cm ul
 2       1.000000000            0.000000000
@@ -1199,7 +1199,7 @@ Cm G
 end
 
 
-ecp "Bk_stuttgart rsc 1997 ecp"
+ecp "Bk_Stuttgart RSC 1997 ECP"
 Bk nelec 60
 Bk ul
 2       1.000000000            0.000000000
@@ -1216,7 +1216,7 @@ Bk G
 end
 
 
-ecp "Cf_stuttgart rsc 1997 ecp"
+ecp "Cf_Stuttgart RSC 1997 ECP"
 Cf nelec 60
 Cf ul
 2       1.000000000            0.000000000
@@ -1233,7 +1233,7 @@ Cf G
 end
 
 
-ecp "Es_stuttgart rsc 1997 ecp"
+ecp "Es_Stuttgart RSC 1997 ECP"
 Es nelec 60
 Es ul
 2       1.000000000            0.000000000
@@ -1250,7 +1250,7 @@ Es G
 end
 
 
-ecp "Fm_stuttgart rsc 1997 ecp"
+ecp "Fm_Stuttgart RSC 1997 ECP"
 Fm nelec 60
 Fm ul
 2       1.000000000            0.000000000
@@ -1267,7 +1267,7 @@ Fm G
 end
 
 
-ecp "Md_stuttgart rsc 1997 ecp"
+ecp "Md_Stuttgart RSC 1997 ECP"
 Md nelec 60
 Md ul
 2       1.000000000            0.000000000
@@ -1284,7 +1284,7 @@ Md G
 end
 
 
-ecp "No_stuttgart rsc 1997 ecp"
+ecp "No_Stuttgart RSC 1997 ECP"
 No nelec 60
 No ul
 2       1.000000000            0.000000000
@@ -1301,7 +1301,7 @@ No G
 end
 
 
-ecp "Lr_stuttgart rsc 1997 ecp"
+ecp "Lr_Stuttgart RSC 1997 ECP"
 Lr nelec 60
 Lr ul
 2       1.000000000            0.000000000
@@ -1318,7 +1318,7 @@ Lr G
 end
 
 
-ecp "Db_stuttgart rsc 1997 ecp"
+ecp "Db_Stuttgart RSC 1997 ECP"
 Db nelec 92
 Db ul
 2       1.000000000            0.000000000

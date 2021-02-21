@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# lanl08(d) version number 0
+# Data downloaded on 2021-02-20T21:21
+# LANL08(d) version number 0
 # Description: LANL08 + polarization and diffuse
 # Role: orbital
 # 
@@ -82,7 +82,7 @@
 #     10.1063/1.448800
 # 
 # # 
-basis "Si_lanl08(d)" SPHERICAL 
+basis "Si_LANL08(d)" SPHERICAL 
 #basis SET: (3s,4p,1d) -> [3s,4p,1d]
 Si    S
       1.2220000              1.0000000
@@ -103,7 +103,7 @@ Si    D
 end
 
 
-ecp "Si_lanl08(d)"
+ecp "Si_LANL08(d)"
 Si nelec 10
 Si ul
 1     505.3137693            -10.0000000
@@ -125,7 +125,7 @@ Si P
 2       6.8277276             47.4617107
 2       2.1001192             11.7376574
 end
-basis "P_lanl08(d)" SPHERICAL 
+basis "P_LANL08(d)" SPHERICAL 
 #basis SET: (3s,4p,1d) -> [3s,4p,1d]
 P    S
       1.5160000              1.0000000
@@ -146,7 +146,7 @@ P    D
 end
 
 
-ecp "P_lanl08(d)"
+ecp "P_LANL08(d)"
 P nelec 10
 P ul
 1     462.1211423            -10.0000000
@@ -168,7 +168,7 @@ P P
 2       5.9414190             40.3944144
 2       1.8487507              6.4483233
 end
-basis "S_lanl08(d)" SPHERICAL 
+basis "S_LANL08(d)" SPHERICAL 
 #basis SET: (3s,4p,1d) -> [3s,4p,1d]
 S    S
       1.8500000              1.0000000
@@ -189,7 +189,7 @@ S    D
 end
 
 
-ecp "S_lanl08(d)"
+ecp "S_LANL08(d)"
 S nelec 10
 S ul
 1     532.6685222            -10.0000000
@@ -211,7 +211,7 @@ S P
 2       7.8120535             53.6569778
 2       2.3112730              8.9249559
 end
-basis "Cl_lanl08(d)" SPHERICAL 
+basis "Cl_LANL08(d)" SPHERICAL 
 #basis SET: (3s,4p,1d) -> [3s,4p,1d]
 Cl    S
       2.2310000              1.0000000
@@ -232,7 +232,7 @@ Cl    D
 end
 
 
-ecp "Cl_lanl08(d)"
+ecp "Cl_LANL08(d)"
 Cl nelec 10
 Cl ul
 1      94.8130000            -10.0000000
@@ -254,7 +254,7 @@ Cl P
 2      13.2096000            107.8788240
 2       3.1831000             15.3439560
 end
-basis "Ge_lanl08(d)" SPHERICAL 
+basis "Ge_LANL08(d)" SPHERICAL 
 #basis SET: (3s,4p,1d) -> [3s,4p,1d]
 Ge    S
       0.8935000              1.0000000
@@ -275,7 +275,7 @@ Ge    D
 end
 
 
-ecp "Ge_lanl08(d)"
+ecp "Ge_LANL08(d)"
 Ge nelec 28
 Ge ul
 1     318.2167583            -28.0000000
@@ -302,7 +302,7 @@ Ge D
 2       3.3282907             25.8901835
 2       0.8522331              3.0229836
 end
-basis "As_lanl08(d)" SPHERICAL 
+basis "As_LANL08(d)" SPHERICAL 
 #basis SET: (3s,4p,1d) -> [3s,4p,1d]
 As    S
       0.9635000              1.0000000
@@ -323,7 +323,7 @@ As    D
 end
 
 
-ecp "As_lanl08(d)"
+ecp "As_LANL08(d)"
 As nelec 28
 As ul
 1     375.4748803            -28.0000000
@@ -350,7 +350,7 @@ As D
 2       4.7973194             40.2681347
 2       1.1062763              4.8332790
 end
-basis "Se_lanl08(d)" SPHERICAL 
+basis "Se_LANL08(d)" SPHERICAL 
 #basis SET: (3s,4p,1d) -> [3s,4p,1d]
 Se    S
       1.0330000              1.0000000
@@ -371,7 +371,7 @@ Se    D
 end
 
 
-ecp "Se_lanl08(d)"
+ecp "Se_LANL08(d)"
 Se nelec 28
 Se ul
 1     433.1931336            -28.0000000
@@ -398,7 +398,7 @@ Se D
 2       7.1705822             63.5781835
 2       1.3639538              7.0753614
 end
-basis "Br_lanl08(d)" SPHERICAL 
+basis "Br_LANL08(d)" SPHERICAL 
 #basis SET: (3s,4p,1d) -> [3s,4p,1d]
 Br    S
       1.1590000              1.0000000
@@ -419,7 +419,7 @@ Br    D
 end
 
 
-ecp "Br_lanl08(d)"
+ecp "Br_LANL08(d)"
 Br nelec 28
 Br ul
 1     213.6143969            -28.0000000
@@ -444,7 +444,7 @@ Br D
 2       8.7537199             76.9924162
 2       1.6633189              9.4818270
 end
-basis "Sn_lanl08(d)" SPHERICAL 
+basis "Sn_LANL08(d)" SPHERICAL 
 #basis SET: (3s,4p,1d) -> [3s,4p,1d]
 Sn    S
       0.5418000              1.0000000
@@ -465,7 +465,7 @@ Sn    D
 end
 
 
-ecp "Sn_lanl08(d)"
+ecp "Sn_LANL08(d)"
 Sn nelec 46
 Sn ul
 0       0.2169021             -0.0665380
@@ -492,7 +492,7 @@ Sn D
 2       2.6103790             29.1123764
 2       0.6501317              5.8428577
 end
-basis "Sb_lanl08(d)" SPHERICAL 
+basis "Sb_LANL08(d)" SPHERICAL 
 #basis SET: (3s,4p,1d) -> [3s,4p,1d]
 Sb    S
       0.5863000              1.0000000
@@ -513,7 +513,7 @@ Sb    D
 end
 
 
-ecp "Sb_lanl08(d)"
+ecp "Sb_LANL08(d)"
 Sb nelec 46
 Sb ul
 0     227.2723558             -0.0692261
@@ -541,7 +541,7 @@ Sb D
 2       3.6961611             42.3187857
 2       0.7711144              7.9413503
 end
-basis "Te_lanl08(d)" SPHERICAL 
+basis "Te_LANL08(d)" SPHERICAL 
 #basis SET: (3s,4p,1d) -> [3s,4p,1d]
 Te    S
       0.6938000              1.0000000
@@ -562,7 +562,7 @@ Te    D
 end
 
 
-ecp "Te_lanl08(d)"
+ecp "Te_LANL08(d)"
 Te nelec 46
 Te ul
 0     285.0323292             -0.0719675
@@ -590,7 +590,7 @@ Te D
 2       1.7766992           -321.1963746
 2       1.4251666            152.4853001
 end
-basis "I_lanl08(d)" SPHERICAL 
+basis "I_LANL08(d)" SPHERICAL 
 #basis SET: (3s,4p,1d) -> [3s,4p,1d]
 I    S
       0.7242000              1.0000000
@@ -611,7 +611,7 @@ I    D
 end
 
 
-ecp "I_lanl08(d)"
+ecp "I_LANL08(d)"
 I nelec 46
 I ul
 0       1.0715702             -0.0747621
@@ -638,7 +638,7 @@ I D
 2       4.1442856             71.9688361
 2       0.9377235              9.3630657
 end
-basis "Pb_lanl08(d)" SPHERICAL 
+basis "Pb_LANL08(d)" SPHERICAL 
 #basis SET: (3s,4p,1d) -> [3s,4p,1d]
 Pb    S
       0.5135000              1.0000000
@@ -659,7 +659,7 @@ Pb    D
 end
 
 
-ecp "Pb_lanl08(d)"
+ecp "Pb_LANL08(d)"
 Pb nelec 78
 Pb ul
 0     376.5803786             -0.1789605
@@ -697,7 +697,7 @@ Pb F
 2       1.6931290             34.1680201
 2       0.7670500             -6.5531956
 end
-basis "Bi_lanl08(d)" SPHERICAL 
+basis "Bi_LANL08(d)" SPHERICAL 
 #basis SET: (3s,4p,1d) -> [3s,4p,1d]
 Bi    S
       0.5744000              1.0000000
@@ -718,7 +718,7 @@ Bi    D
 end
 
 
-ecp "Bi_lanl08(d)"
+ecp "Bi_LANL08(d)"
 Bi nelec 78
 Bi ul
 0     223.3091971             -0.1833520

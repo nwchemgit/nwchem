@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# aug-cc-pwcv5z version number 0
+# Data downloaded on 2021-02-20T21:21
+# aug-cc-pwCV5Z version number 0
 # Description: 5Z4P    Quintuple Zeta + Polarization + Tight Core + Diffuse
 # Role: orbital
 # 
@@ -99,7 +99,7 @@
 #     10.1063/1.464303
 # 
 # # 
-basis "B_aug-cc-pwcv5z" SPHERICAL 
+basis "B_aug-cc-pwCV5Z" SPHERICAL 
 #basis SET: (29s,13p,8d,6f,4g,2h) -> [11s,10p,8d,6f,4g,2h]
 B    S
      63.419                  1.000000
@@ -205,7 +205,7 @@ B    H
 B    H
       0.3840000              1.0000000
 end
-basis "C_aug-cc-pwcv5z" SPHERICAL 
+basis "C_aug-cc-pwCV5Z" SPHERICAL 
 #basis SET: (29s,13p,8d,6f,4g,2h) -> [11s,10p,8d,6f,4g,2h]
 C    S
      83.731                  1.000000
@@ -311,7 +311,7 @@ C    H
 C    H
       0.5860000              1.0000000
 end
-basis "N_aug-cc-pwcv5z" SPHERICAL 
+basis "N_aug-cc-pwCV5Z" SPHERICAL 
 #basis SET: (29s,13p,8d,6f,4g,2h) -> [11s,10p,8d,6f,4g,2h]
 N    S
     106.226                  1.000000
@@ -417,7 +417,7 @@ N    H
 N    H
       0.7880000              1.0000000
 end
-basis "O_aug-cc-pwcv5z" SPHERICAL 
+basis "O_aug-cc-pwCV5Z" SPHERICAL 
 #basis SET: (29s,13p,8d,6f,4g,2h) -> [11s,10p,8d,6f,4g,2h]
 O    S
     133.900                  1.000000
@@ -523,7 +523,7 @@ O    H
 O    H
       1.0240000              1.0000000
 end
-basis "F_aug-cc-pwcv5z" SPHERICAL 
+basis "F_aug-cc-pwCV5Z" SPHERICAL 
 #basis SET: (29s,13p,8d,6f,4g,2h) -> [11s,10p,8d,6f,4g,2h]
 F    S
     162.845                  1.000000
@@ -629,7 +629,7 @@ F    H
 F    H
       1.3260000              1.0000000
 end
-basis "Ne_aug-cc-pwcv5z" SPHERICAL 
+basis "Ne_aug-cc-pwCV5Z" SPHERICAL 
 #basis SET: (29s,13p,8d,6f,4g,2h) -> [11s,10p,8d,6f,4g,2h]
 Ne    S
     195.256                  1.000000
@@ -735,7 +735,7 @@ Ne    H
 Ne    H
       1.6280000              1.0000000
 end
-basis "Al_aug-cc-pwcv5z" SPHERICAL 
+basis "Al_aug-cc-pwCV5Z" SPHERICAL 
 #basis SET: (32s,13p,9d,7f,5g,3h) -> [12s,11p,9d,7f,5g,3h]
 Al    S
 3269000.0000000              0.213962E-05
@@ -854,7 +854,7 @@ Al    H
 Al    H
       0.2270000              1.0000000
 end
-basis "Si_aug-cc-pwcv5z" SPHERICAL 
+basis "Si_aug-cc-pwCV5Z" SPHERICAL 
 #basis SET: (32s,13p,9d,7f,5g,3h) -> [12s,11p,9d,7f,5g,3h]
 Si    S
 3948000.0000000              0.203712E-05
@@ -973,7 +973,7 @@ Si    H
 Si    H
       0.3230000              1.0000000
 end
-basis "P_aug-cc-pwcv5z" SPHERICAL 
+basis "P_aug-cc-pwCV5Z" SPHERICAL 
 #basis SET: (32s,13p,9d,7f,5g,3h) -> [12s,11p,9d,7f,5g,3h]
 P    S
 4666000.0000000              0.196759E-05
@@ -1092,7 +1092,7 @@ P    H
 P    H
       0.3720000              1.0000000
 end
-basis "S_aug-cc-pwcv5z" SPHERICAL 
+basis "S_aug-cc-pwCV5Z" SPHERICAL 
 #basis SET: (32s,13p,9d,7f,5g,3h) -> [12s,11p,9d,7f,5g,3h]
 S    S
 5481000.0000000              0.189338E-05
@@ -1211,7 +1211,7 @@ S    H
 S    H
       0.4720000              1.0000000
 end
-basis "Cl_aug-cc-pwcv5z" SPHERICAL 
+basis "Cl_aug-cc-pwCV5Z" SPHERICAL 
 #basis SET: (32s,13p,9d,7f,5g,3h) -> [12s,11p,9d,7f,5g,3h]
 Cl    S
 6410000.0000000              0.181350E-05
@@ -1330,7 +1330,7 @@ Cl    H
 Cl    H
       0.6070000              1.0000000
 end
-basis "Ar_aug-cc-pwcv5z" SPHERICAL 
+basis "Ar_aug-cc-pwCV5Z" SPHERICAL 
 #basis SET: (32s,13p,9d,7f,5g,3h) -> [12s,11p,9d,7f,5g,3h]
 Ar    S
 7401000.0000000              0.00000175
@@ -1449,7 +1449,7 @@ Ar    H
 Ar    H
       0.7420000              1.0000000
 end
-basis "Sc_aug-cc-pwcv5z" SPHERICAL 
+basis "Sc_aug-cc-pwCV5Z" SPHERICAL 
 #basis SET: (220s,133p,59d,6f,5g,4h,3i) -> [12s,11p,9d,6f,5g,4h,3i]
 Sc    S
       1.194950E+08           6.485949E-08
@@ -1932,7 +1932,7 @@ Sc    I
 Sc    I
       0.1386300              1.0000000
 end
-basis "Ti_aug-cc-pwcv5z" SPHERICAL 
+basis "Ti_aug-cc-pwCV5Z" SPHERICAL 
 #basis SET: (220s,135p,59d,6f,5g,4h,3i) -> [12s,11p,9d,6f,5g,4h,3i]
 Ti    S
       1.22647E+08            7.095361E-08
@@ -2417,7 +2417,7 @@ Ti    I
 Ti    I
       0.3208900              1.0000000
 end
-basis "V_aug-cc-pwcv5z" SPHERICAL 
+basis "V_aug-cc-pwCV5Z" SPHERICAL 
 #basis SET: (220s,135p,59d,6f,5g,4h,3i) -> [12s,11p,9d,6f,5g,4h,3i]
 V    S
       1.28349E+08            7.559082E-08
@@ -2902,7 +2902,7 @@ V    I
 V    I
       0.5895900              1.0000000
 end
-basis "Cr_aug-cc-pwcv5z" SPHERICAL 
+basis "Cr_aug-cc-pwCV5Z" SPHERICAL 
 #basis SET: (220s,135p,59d,6f,5g,4h,3i) -> [12s,11p,9d,6f,5g,4h,3i]
 Cr    S
       1.35540E+08            7.860909E-08
@@ -3387,7 +3387,7 @@ Cr    I
 Cr    I
       0.8588900              1.0000000
 end
-basis "Mn_aug-cc-pwcv5z" SPHERICAL 
+basis "Mn_aug-cc-pwCV5Z" SPHERICAL 
 #basis SET: (220s,135p,59d,6f,5g,4h,3i) -> [12s,11p,9d,6f,5g,4h,3i]
 Mn    S
       1.37766E+08            8.842975E-08
@@ -3872,7 +3872,7 @@ Mn    I
 Mn    I
       1.1122100              1.0000000
 end
-basis "Fe_aug-cc-pwcv5z" SPHERICAL 
+basis "Fe_aug-cc-pwCV5Z" SPHERICAL 
 #basis SET: (220s,135p,59d,6f,5g,4h,3i) -> [12s,11p,9d,6f,5g,4h,3i]
 Fe    S
       1.49769E+08            8.65756E-08
@@ -4357,7 +4357,7 @@ Fe    I
 Fe    I
       1.4049900              1.0000000
 end
-basis "Co_aug-cc-pwcv5z" SPHERICAL 
+basis "Co_aug-cc-pwCV5Z" SPHERICAL 
 #basis SET: (220s,135p,59d,6f,5g,4h,3i) -> [12s,11p,9d,6f,5g,4h,3i]
 Co    S
       1.61030E+08            8.662183E-08
@@ -4842,7 +4842,7 @@ Co    I
 Co    I
       1.7051400              1.0000000
 end
-basis "Ni_aug-cc-pwcv5z" SPHERICAL 
+basis "Ni_aug-cc-pwCV5Z" SPHERICAL 
 #basis SET: (220s,135p,59d,6f,5g,4h,3i) -> [12s,11p,9d,6f,5g,4h,3i]
 Ni    S
       1.68793E+08            9.544814E-08
@@ -5327,7 +5327,7 @@ Ni    I
 Ni    I
       2.1037100              1.0000000
 end
-basis "Cu_aug-cc-pwcv5z" SPHERICAL 
+basis "Cu_aug-cc-pwCV5Z" SPHERICAL 
 #basis SET: (220s,135p,59d,6f,5g,4h,3i) -> [12s,11p,9d,6f,5g,4h,3i]
 Cu    S
       1.93188E+08            8.189248E-08
@@ -5812,7 +5812,7 @@ Cu    I
 Cu    I
       2.4474100              1.0000000
 end
-basis "Zn_aug-cc-pwcv5z" SPHERICAL 
+basis "Zn_aug-cc-pwCV5Z" SPHERICAL 
 #basis SET: (220s,135p,59d,6f,5g,4h,3i) -> [12s,11p,9d,6f,5g,4h,3i]
 Zn    S
       1.87413E+08            1.009014E-07

@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# sarc2-qzv-dkh2-jkfit version number 0
+# Data downloaded on 2021-02-20T21:21
+# SARC2-QZV-DKH2-JKFIT version number 0
 # Description: JK fitting basis for use with SARC2-QZV-DKH2
 # Role: jkfit
 # 
@@ -46,7 +46,7 @@
 #     10.1021/acs.jctc.5b01048
 # 
 # # 
-basis "La_sarc2-qzv-dkh2-jkfit" SPHERICAL 
+basis "La_SARC2-QZV-DKH2-JKFIT" SPHERICAL 
 #basis SET: (29s,27p,27d,26f,18g,13h,10i) -> [29s,27p,27d,26f,18g,13h,10i]
 La    S
 7817598.1740000              1.0000000
@@ -349,7 +349,7 @@ La    I
 La    I
       0.17539736             1.0000000
 end
-basis "Ce_sarc2-qzv-dkh2-jkfit" SPHERICAL 
+basis "Ce_SARC2-QZV-DKH2-JKFIT" SPHERICAL 
 #basis SET: (29s,27p,27d,27f,18g,12h,9i) -> [29s,27p,27d,27f,18g,12h,9i]
 Ce    S
 8329787.8660000              1.0000000
@@ -650,7 +650,7 @@ Ce    I
 Ce    I
       0.46837446             1.0000000
 end
-basis "Pr_sarc2-qzv-dkh2-jkfit" SPHERICAL 
+basis "Pr_SARC2-QZV-DKH2-JKFIT" SPHERICAL 
 #basis SET: (29s,27p,27d,26f,18g,12h,9i) -> [29s,27p,27d,26f,18g,12h,9i]
 Pr    S
 8898887.5240000              1.0000000
@@ -949,7 +949,7 @@ Pr    I
 Pr    I
       0.50092748             1.0000000
 end
-basis "Nd_sarc2-qzv-dkh2-jkfit" SPHERICAL 
+basis "Nd_SARC2-QZV-DKH2-JKFIT" SPHERICAL 
 #basis SET: (29s,27p,27d,26f,18g,12h,9i) -> [29s,27p,27d,26f,18g,12h,9i]
 Nd    S
 9467987.1820000              1.0000000
@@ -1248,7 +1248,7 @@ Nd    I
 Nd    I
       0.53754962             1.0000000
 end
-basis "Pm_sarc2-qzv-dkh2-jkfit" SPHERICAL 
+basis "Pm_SARC2-QZV-DKH2-JKFIT" SPHERICAL 
 #basis SET: (29s,27p,27d,26f,18g,12h,9i) -> [29s,27p,27d,26f,18g,12h,9i]
 Pm    S
 9726014.1940000              1.0000000
@@ -1547,7 +1547,7 @@ Pm    I
 Pm    I
       0.57010262             1.0000000
 end
-basis "Sm_sarc2-qzv-dkh2-jkfit" SPHERICAL 
+basis "Sm_SARC2-QZV-DKH2-JKFIT" SPHERICAL 
 #basis SET: (29s,27p,27d,27f,18g,12h,9i) -> [29s,27p,27d,27f,18g,12h,9i]
 Sm    S
 11225568.3200000             1.0000000
@@ -1848,7 +1848,7 @@ Sm    I
 Sm    I
       0.59858652             1.0000000
 end
-basis "Eu_sarc2-qzv-dkh2-jkfit" SPHERICAL 
+basis "Eu_SARC2-QZV-DKH2-JKFIT" SPHERICAL 
 #basis SET: (29s,27p,27d,26f,18g,12h,9i) -> [29s,27p,27d,26f,18g,12h,9i]
 Eu    S
 11402926.0200000             1.0000000
@@ -2147,7 +2147,7 @@ Eu    I
 Eu    I
       0.63113952             1.0000000
 end
-basis "Gd_sarc2-qzv-dkh2-jkfit" SPHERICAL 
+basis "Gd_SARC2-QZV-DKH2-JKFIT" SPHERICAL 
 #basis SET: (30s,27p,27d,26f,18g,12h,9i) -> [30s,27p,27d,26f,18g,12h,9i]
 Gd    S
 12076318.8160000             1.0000000
@@ -2448,7 +2448,7 @@ Gd    I
 Gd    I
       0.6596234              1.0000000
 end
-basis "Tb_sarc2-qzv-dkh2-jkfit" SPHERICAL 
+basis "Tb_SARC2-QZV-DKH2-JKFIT" SPHERICAL 
 #basis SET: (30s,28p,27d,27f,18g,12h,9i) -> [30s,28p,27d,27f,18g,12h,9i]
 Tb    S
 13516633.4060000             1.0000000
@@ -2753,7 +2753,7 @@ Tb    I
 Tb    I
       0.66369254             1.0000000
 end
-basis "Dy_sarc2-qzv-dkh2-jkfit" SPHERICAL 
+basis "Dy_SARC2-QZV-DKH2-JKFIT" SPHERICAL 
 #basis SET: (30s,28p,27d,27f,18g,12h,9i) -> [30s,28p,27d,27f,18g,12h,9i]
 Dy    S
 13636454.0760000             1.0000000
@@ -3058,7 +3058,7 @@ Dy    I
 Dy    I
       0.66776166             1.0000000
 end
-basis "Ho_sarc2-qzv-dkh2-jkfit" SPHERICAL 
+basis "Ho_SARC2-QZV-DKH2-JKFIT" SPHERICAL 
 #basis SET: (30s,28p,27d,27f,18g,12h,9i) -> [30s,28p,27d,27f,18g,12h,9i]
 Ho    S
 14527959.9380000             1.0000000
@@ -3363,7 +3363,7 @@ Ho    I
 Ho    I
       0.68403816             1.0000000
 end
-basis "Er_sarc2-qzv-dkh2-jkfit" SPHERICAL 
+basis "Er_SARC2-QZV-DKH2-JKFIT" SPHERICAL 
 #basis SET: (30s,28p,27d,27f,18g,12h,10i) -> [30s,28p,27d,27f,18g,12h,10i]
 Er    S
 16134993.5060000             1.0000000
@@ -3670,7 +3670,7 @@ Er    I
 Er    I
       0.69217642             1.0000000
 end
-basis "Tm_sarc2-qzv-dkh2-jkfit" SPHERICAL 
+basis "Tm_SARC2-QZV-DKH2-JKFIT" SPHERICAL 
 #basis SET: (30s,28p,27d,27f,19g,12h,10i) -> [30s,28p,27d,27f,19g,12h,10i]
 Tm    S
 16422409.8960000             1.0000000
@@ -3979,7 +3979,7 @@ Tm    I
 Tm    I
       0.7206603              1.0000000
 end
-basis "Yb_sarc2-qzv-dkh2-jkfit" SPHERICAL 
+basis "Yb_SARC2-QZV-DKH2-JKFIT" SPHERICAL 
 #basis SET: (30s,28p,27d,27f,19g,12h,10i) -> [30s,28p,27d,27f,19g,12h,10i]
 Yb    S
 17425353.9920000             1.0000000
@@ -4288,7 +4288,7 @@ Yb    I
 Yb    I
       0.7206603              1.0000000
 end
-basis "Lu_sarc2-qzv-dkh2-jkfit" SPHERICAL 
+basis "Lu_SARC2-QZV-DKH2-JKFIT" SPHERICAL 
 #basis SET: (30s,28p,27d,28f,19g,12h,10i) -> [30s,28p,27d,28f,19g,12h,10i]
 Lu    S
 18428298.0880000             1.0000000

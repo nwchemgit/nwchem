@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# cc-pvqz(seg-opt) version number 0
+# Data downloaded on 2021-02-20T21:21
+# cc-pVQZ(seg-opt) version number 0
 # Description: VQZ3P   Valence Quadruple Zeta + Polarization on All Atoms
 # Role: orbital
 # 
@@ -57,7 +57,7 @@
 #     10.1063/1.466439
 # 
 # # 
-basis "H_cc-pvqz(seg-opt)" SPHERICAL 
+basis "H_cc-pVQZ(seg-opt)" SPHERICAL 
 #basis SET: (6s,3p,2d,1f) -> [4s,3p,2d,1f]
 H    S
      82.64                   0.002006
@@ -82,7 +82,7 @@ H    D
 H    F
       1.397                  1.000000
 end
-basis "He_cc-pvqz(seg-opt)" SPHERICAL 
+basis "He_cc-pVQZ(seg-opt)" SPHERICAL 
 #basis SET: (7s,3p,2d,1f) -> [4s,3p,2d,1f]
 He    S
     528.5                    0.000940
@@ -108,7 +108,7 @@ He    D
 He    F
       2.680                  1.000000
 end
-basis "C_cc-pvqz(seg-opt)" SPHERICAL 
+basis "C_cc-pVQZ(seg-opt)" SPHERICAL 
 #basis SET: (19s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
 C    S
   33980.000                  0.00009204
@@ -157,7 +157,7 @@ C    F
 C    G
       1.011                  1.000000
 end
-basis "O_cc-pvqz(seg-opt)" SPHERICAL 
+basis "O_cc-pVQZ(seg-opt)" SPHERICAL 
 #basis SET: (19s,6p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
 O    S
   61420.000                  0.00009156

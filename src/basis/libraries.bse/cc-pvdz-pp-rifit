@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# cc-pvdz-pp-rifit version number 0
+# Data downloaded on 2021-02-20T21:21
+# cc-pVDZ-PP-RIFIT version number 0
 # Description: cc-pVDZ-PP-RIFIT
 # Role: rifit
 # 
@@ -69,7 +69,7 @@
 #     10.1063/1.3615062
 # 
 # # 
-basis "Y_cc-pvdz-pp-rifit" SPHERICAL 
+basis "Y_cc-pVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (8s,8p,6d,6f,4g,2h) -> [8s,8p,6d,6f,4g,2h]
 Y    S
       9.9998959              1.0000000
@@ -140,7 +140,7 @@ Y    H
 Y    H
       0.4049849              1.0000000
 end
-basis "Zr_cc-pvdz-pp-rifit" SPHERICAL 
+basis "Zr_cc-pVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (8s,8p,6d,6f,4g,2h) -> [8s,8p,6d,6f,4g,2h]
 Zr    S
      10.8639406              1.0000000
@@ -211,7 +211,7 @@ Zr    H
 Zr    H
       0.5575380              1.0000000
 end
-basis "Nb_cc-pvdz-pp-rifit" SPHERICAL 
+basis "Nb_cc-pVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (8s,8p,6d,6f,4g,2h) -> [8s,8p,6d,6f,4g,2h]
 Nb    S
       9.9827729              1.0000000
@@ -282,7 +282,7 @@ Nb    H
 Nb    H
       0.7440554              1.0000000
 end
-basis "Mo_cc-pvdz-pp-rifit" SPHERICAL 
+basis "Mo_cc-pVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (8s,8p,6d,6f,4g,2h) -> [8s,8p,6d,6f,4g,2h]
 Mo    S
       9.9696105              1.0000000
@@ -353,7 +353,7 @@ Mo    H
 Mo    H
       0.9203771              1.0000000
 end
-basis "Tc_cc-pvdz-pp-rifit" SPHERICAL 
+basis "Tc_cc-pVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (8s,8p,6d,6f,4g,2h) -> [8s,8p,6d,6f,4g,2h]
 Tc    S
       9.7366579              1.0000000
@@ -424,7 +424,7 @@ Tc    H
 Tc    H
       1.1303991              1.0000000
 end
-basis "Ru_cc-pvdz-pp-rifit" SPHERICAL 
+basis "Ru_cc-pVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (8s,8p,6d,6f,4g,2h) -> [8s,8p,6d,6f,4g,2h]
 Ru    S
       9.5123655322           1.0000000
@@ -495,7 +495,7 @@ Ru    H
 Ru    H
       1.3005446166           1.0000000
 end
-basis "Rh_cc-pvdz-pp-rifit" SPHERICAL 
+basis "Rh_cc-pVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (8s,8p,6d,6f,4g,2h) -> [8s,8p,6d,6f,4g,2h]
 Rh    S
       8.7506295              1.0000000
@@ -566,7 +566,7 @@ Rh    H
 Rh    H
       1.5432585              1.0000000
 end
-basis "Pd_cc-pvdz-pp-rifit" SPHERICAL 
+basis "Pd_cc-pVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (8s,8p,6d,6f,4g,2h) -> [8s,8p,6d,6f,4g,2h]
 Pd    S
       9.9785321              1.0000000
@@ -637,7 +637,7 @@ Pd    H
 Pd    H
       1.7586391              1.0000000
 end
-basis "Hf_cc-pvdz-pp-rifit" SPHERICAL 
+basis "Hf_cc-pVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (8s,8p,6d,6f,4g,2h) -> [8s,8p,6d,6f,4g,2h]
 Hf    S
       2.9433000              1.0000000
@@ -708,7 +708,7 @@ Hf    H
 Hf    H
       0.4218780              1.0000000
 end
-basis "Ta_cc-pvdz-pp-rifit" SPHERICAL 
+basis "Ta_cc-pVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (8s,8p,6d,6f,4g,2h) -> [8s,8p,6d,6f,4g,2h]
 Ta    S
       3.1415900              1.0000000
@@ -779,7 +779,7 @@ Ta    H
 Ta    H
       0.5924630              1.0000000
 end
-basis "W_cc-pvdz-pp-rifit" SPHERICAL 
+basis "W_cc-pVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (8s,8p,6d,6f,4g,2h) -> [8s,8p,6d,6f,4g,2h]
 W    S
       3.7314400              1.0000000
@@ -850,7 +850,7 @@ W    H
 W    H
       0.7350120              1.0000000
 end
-basis "Re_cc-pvdz-pp-rifit" SPHERICAL 
+basis "Re_cc-pVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (8s,8p,6d,6f,4g,2h) -> [8s,8p,6d,6f,4g,2h]
 Re    S
       4.6526200              1.0000000
@@ -921,7 +921,7 @@ Re    H
 Re    H
       0.8517510              1.0000000
 end
-basis "Os_cc-pvdz-pp-rifit" SPHERICAL 
+basis "Os_cc-pVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (8s,8p,6d,6f,4g,2h) -> [8s,8p,6d,6f,4g,2h]
 Os    S
       5.0987200              1.0000000
@@ -992,7 +992,7 @@ Os    H
 Os    H
       0.9700810              1.0000000
 end
-basis "Ir_cc-pvdz-pp-rifit" SPHERICAL 
+basis "Ir_cc-pVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (8s,8p,6d,6f,4g,2h) -> [8s,8p,6d,6f,4g,2h]
 Ir    S
       5.2418300              1.0000000
@@ -1063,7 +1063,7 @@ Ir    H
 Ir    H
       1.1166000              1.0000000
 end
-basis "Pt_cc-pvdz-pp-rifit" SPHERICAL 
+basis "Pt_cc-pVDZ-PP-RIFIT" SPHERICAL 
 #basis SET: (8s,8p,6d,6f,4g,2h) -> [8s,8p,6d,6f,4g,2h]
 Pt    S
       5.3850900              1.0000000

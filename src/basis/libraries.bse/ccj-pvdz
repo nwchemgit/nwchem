@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# ccj-pvdz version number 0
+# Data downloaded on 2021-02-20T21:21
+# ccJ-pVDZ version number 0
 # Description: ccJ-pVDZ
 # Role: orbital
 # 
@@ -46,7 +46,7 @@
 #     10.1063/1.2962973
 # 
 # # 
-basis "H_ccj-pvdz" SPHERICAL 
+basis "H_ccJ-pVDZ" SPHERICAL 
 #basis SET: (6s,2p) -> [4s,2p]
 H    S
    3434.6400000              0.0250607
@@ -63,7 +63,7 @@ H    P
 H    P
       0.7270000              1.0000000
 end
-basis "He_ccj-pvdz" SPHERICAL 
+basis "He_ccJ-pVDZ" SPHERICAL 
 #basis SET: (6s,2p) -> [4s,2p]
 He    S
   10127.0400000              0.0250452
@@ -80,7 +80,7 @@ He    P
 He    P
       1.2750000              1.0000000
 end
-basis "B_ccj-pvdz" SPHERICAL 
+basis "B_ccJ-pVDZ" SPHERICAL 
 #basis SET: (11s,5p,2d) -> [6s,3p,2d]
 B    S
 1307020.0000000              0.0014071
@@ -112,7 +112,7 @@ B    D
 B    D
       0.3430000              1.0000000
 end
-basis "C_ccj-pvdz" SPHERICAL 
+basis "C_ccJ-pVDZ" SPHERICAL 
 #basis SET: (11s,5p,2d) -> [6s,3p,2d]
 C    S
 1906190.0000000              0.0014070
@@ -144,7 +144,7 @@ C    D
 C    D
       0.5500000              1.0000000
 end
-basis "N_ccj-pvdz" SPHERICAL 
+basis "N_ccJ-pVDZ" SPHERICAL 
 #basis SET: (11s,5p,2d) -> [6s,3p,2d]
 N    S
 2587156.0000000              0.0014069
@@ -176,7 +176,7 @@ N    D
 N    D
       0.8170000              1.0000000
 end
-basis "O_ccj-pvdz" SPHERICAL 
+basis "O_ccJ-pVDZ" SPHERICAL 
 #basis SET: (11s,5p,2d) -> [6s,3p,2d]
 O    S
 3351920.0000000              0.0014072
@@ -208,7 +208,7 @@ O    D
 O    D
       1.1850000              1.0000000
 end
-basis "F_ccj-pvdz" SPHERICAL 
+basis "F_ccJ-pVDZ" SPHERICAL 
 #basis SET: (11s,5p,2d) -> [6s,3p,2d]
 F    S
 4207060.0000000              0.0014070
@@ -240,7 +240,7 @@ F    D
 F    D
       1.6400000              1.0000000
 end
-basis "Ne_ccj-pvdz" SPHERICAL 
+basis "Ne_ccJ-pVDZ" SPHERICAL 
 #basis SET: (11s,5p,2d) -> [6s,3p,2d]
 Ne    S
 5113680.0000000              0.0014070

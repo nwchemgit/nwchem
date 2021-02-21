@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# aug-mcc-pv6z version number 0
+# Data downloaded on 2021-02-20T21:21
+# aug-mcc-pV6Z version number 0
 # Description: aug-mcc-pV6Z
 # Role: orbital
 # 
@@ -46,7 +46,7 @@
 #     10.1063/1.479683
 # 
 # # 
-basis "H_aug-mcc-pv6z" SPHERICAL 
+basis "H_aug-mcc-pV6Z" SPHERICAL 
 #basis SET: (14s,6p,5d,4f,3g,2h) -> [7s,6p,5d,4f,3g,2h]
 H    S
       2.6799000              1.0000000

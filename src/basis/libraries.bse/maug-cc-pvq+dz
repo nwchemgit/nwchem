@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# maug-cc-pv(q+d)z version number 0
+# Data downloaded on 2021-02-20T21:21
+# maug-cc-pV(Q+d)Z version number 0
 # Description: apr-cc-pV(Q+d)Z basis of Papajak/Truhlar
 # Role: orbital
 # 
@@ -117,7 +117,7 @@
 #     10.1063/1.466439
 # 
 # # 
-basis "H_maug-cc-pv(q+d)z" SPHERICAL 
+basis "H_maug-cc-pV(Q+d)Z" SPHERICAL 
 #basis SET: (6s,3p,2d,1f) -> [4s,3p,2d,1f]
 H    S
      82.6400000              0.0020060
@@ -142,7 +142,7 @@ H    D
 H    F
       1.3970000              1.0000000
 end
-basis "He_maug-cc-pv(q+d)z" SPHERICAL 
+basis "He_maug-cc-pV(Q+d)Z" SPHERICAL 
 #basis SET: (7s,3p,2d,1f) -> [4s,3p,2d,1f]
 He    S
     528.5000000              0.0009400
@@ -168,7 +168,7 @@ He    D
 He    F
       2.6800000              1.0000000
 end
-basis "Li_maug-cc-pv(q+d)z" SPHERICAL 
+basis "Li_maug-cc-pV(Q+d)Z" SPHERICAL 
 #basis SET: (22s,7p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
 Li    S
    6601.0000000              0.0001170
@@ -223,7 +223,7 @@ Li    F
 Li    G
       0.2380000              1.0000000
 end
-basis "Be_maug-cc-pv(q+d)z" SPHERICAL 
+basis "Be_maug-cc-pV(Q+d)Z" SPHERICAL 
 #basis SET: (22s,7p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
 Be    S
   14630.0000000              0.0000920
@@ -278,7 +278,7 @@ Be    F
 Be    G
       0.4150000              1.0000000
 end
-basis "B_maug-cc-pv(q+d)z" SPHERICAL 
+basis "B_maug-cc-pV(Q+d)Z" SPHERICAL 
 #basis SET: (22s,7p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
 B    S
   23870.0000000              0.0000880
@@ -333,7 +333,7 @@ B    F
 B    G
       0.6730000              1.0000000
 end
-basis "C_maug-cc-pv(q+d)z" SPHERICAL 
+basis "C_maug-cc-pV(Q+d)Z" SPHERICAL 
 #basis SET: (22s,7p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
 C    S
   33980.0000000              0.0000910
@@ -388,7 +388,7 @@ C    F
 C    G
       1.0110000              1.0000000
 end
-basis "N_maug-cc-pv(q+d)z" SPHERICAL 
+basis "N_maug-cc-pV(Q+d)Z" SPHERICAL 
 #basis SET: (22s,7p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
 N    S
   45840.0000000              0.0000920
@@ -443,7 +443,7 @@ N    F
 N    G
       1.4270000              1.0000000
 end
-basis "O_maug-cc-pv(q+d)z" SPHERICAL 
+basis "O_maug-cc-pV(Q+d)Z" SPHERICAL 
 #basis SET: (22s,7p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
 O    S
   61420.0000000              0.0000900
@@ -498,7 +498,7 @@ O    F
 O    G
       1.8460000              1.0000000
 end
-basis "F_maug-cc-pv(q+d)z" SPHERICAL 
+basis "F_maug-cc-pV(Q+d)Z" SPHERICAL 
 #basis SET: (22s,7p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
 F    S
   74530.0000000              0.0000950
@@ -553,7 +553,7 @@ F    F
 F    G
       2.3760000              1.0000000
 end
-basis "Ne_maug-cc-pv(q+d)z" SPHERICAL 
+basis "Ne_maug-cc-pV(Q+d)Z" SPHERICAL 
 #basis SET: (22s,7p,3d,2f,1g) -> [6s,5p,3d,2f,1g]
 Ne    S
   99920.0000000              0.0000860
@@ -608,7 +608,7 @@ Ne    F
 Ne    G
       2.9830000              1.0000000
 end
-basis "Na_maug-cc-pv(q+d)z" SPHERICAL 
+basis "Na_maug-cc-pV(Q+d)Z" SPHERICAL 
 #basis SET: (52s,22p,3d,2f,1g) -> [7s,6p,3d,2f,1g]
 Na    S
 1224000.0000000              0.478894E-05
@@ -710,7 +710,7 @@ Na    F
 Na    G
       0.1722000              1.0000000
 end
-basis "Mg_maug-cc-pv(q+d)z" SPHERICAL 
+basis "Mg_maug-cc-pV(Q+d)Z" SPHERICAL 
 #basis SET: (43s,22p,3d,2f,1g) -> [7s,6p,3d,2f,1g]
 Mg    S
  327600.0000000              0.309608E-04
@@ -803,7 +803,7 @@ Mg    F
 Mg    G
       0.3070000              1.0000000
 end
-basis "Al_maug-cc-pv(q+d)z" SPHERICAL 
+basis "Al_maug-cc-pV(Q+d)Z" SPHERICAL 
 #basis SET: (43s,20p,4d,2f,1g) -> [7s,6p,4d,2f,1g]
 Al    S
  419600.0000000              0.278219E-04
@@ -896,7 +896,7 @@ Al    F
 Al    G
       0.3570000              1.0000000
 end
-basis "Si_maug-cc-pv(q+d)z" SPHERICAL 
+basis "Si_maug-cc-pV(Q+d)Z" SPHERICAL 
 #basis SET: (43s,20p,4d,2f,1g) -> [7s,6p,4d,2f,1g]
 Si    S
  513000.0000000              0.260920E-04
@@ -989,7 +989,7 @@ Si    F
 Si    G
       0.4610000              1.0000000
 end
-basis "P_maug-cc-pv(q+d)z" SPHERICAL 
+basis "P_maug-cc-pV(Q+d)Z" SPHERICAL 
 #basis SET: (43s,20p,4d,2f,1g) -> [7s,6p,4d,2f,1g]
 P    S
  615200.0000000              0.247450E-04
@@ -1082,7 +1082,7 @@ P    F
 P    G
       0.5970000              1.0000000
 end
-basis "S_maug-cc-pv(q+d)z" SPHERICAL 
+basis "S_maug-cc-pV(Q+d)Z" SPHERICAL 
 #basis SET: (43s,20p,4d,2f,1g) -> [7s,6p,4d,2f,1g]
 S    S
  727800.0000000              0.236025E-04
@@ -1175,7 +1175,7 @@ S    F
 S    G
       0.6830000              1.0000000
 end
-basis "Cl_maug-cc-pv(q+d)z" SPHERICAL 
+basis "Cl_maug-cc-pV(Q+d)Z" SPHERICAL 
 #basis SET: (43s,20p,4d,2f,1g) -> [7s,6p,4d,2f,1g]
 Cl    S
  834900.0000000              0.231688E-04
@@ -1268,7 +1268,7 @@ Cl    F
 Cl    G
       0.8270000              1.0000000
 end
-basis "Ar_maug-cc-pv(q+d)z" SPHERICAL 
+basis "Ar_maug-cc-pV(Q+d)Z" SPHERICAL 
 #basis SET: (43s,20p,4d,2f,1g) -> [7s,6p,4d,2f,1g]
 Ar    S
  950600.0000000              0.227545E-04

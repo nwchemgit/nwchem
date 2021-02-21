@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# dfo-2 version number 1
+# Data downloaded on 2021-02-20T21:21
+# DFO-2 version number 1
 # Description: Optimized gaussian basis set for Density-functional calculations
 # Role: orbital
 # 
@@ -46,7 +46,7 @@
 #     10.1103/PhysRevA.60.2840
 # 
 # # 
-basis "H_dfo-2" SPHERICAL 
+basis "H_DFO-2" SPHERICAL 
 #basis SET: (8s,4p) -> [3s,3p]
 H    S
       9.15598e+01            1.81139e-03
@@ -67,7 +67,7 @@ H    P
 H    P
       7.30646e-02            1.00000e-00
 end
-basis "B_dfo-2" SPHERICAL 
+basis "B_DFO-2" SPHERICAL 
 #basis SET: (16s,9p,4d) -> [4s,3p,3d]
 B    S
       2.18389e+04            1.03563e-04
@@ -109,7 +109,7 @@ B    D
 B    D
       5.47076e-02            1.00000e+00
 end
-basis "C_dfo-2" SPHERICAL 
+basis "C_DFO-2" SPHERICAL 
 #basis SET: (16s,10p,4d) -> [4s,3p,3d]
 C    S
       2.14204e+04            1.60673e-04
@@ -152,7 +152,7 @@ C    D
 C    D
       7.55708e-02            1.00000e+00
 end
-basis "N_dfo-2" SPHERICAL 
+basis "N_DFO-2" SPHERICAL 
 #basis SET: (18s,11p,4d) -> [4s,3p,3d]
 N    S
       3.70601e+04            1.16757e-04
@@ -198,7 +198,7 @@ N    D
 N    D
       8.89669e-02            1.00000e+00
 end
-basis "O_dfo-2" SPHERICAL 
+basis "O_DFO-2" SPHERICAL 
 #basis SET: (20s,11p,4d) -> [4s,3p,3d]
 O    S
       5.72530e+04            9.79215e-05
@@ -246,7 +246,7 @@ O    D
 O    D
       1.02423e-01            1.00000e+00
 end
-basis "F_dfo-2" SPHERICAL 
+basis "F_DFO-2" SPHERICAL 
 #basis SET: (20s,12p,4d) -> [4s,3p,3d]
 F    S
       6.98417e+04            1.01828e-04
@@ -295,7 +295,7 @@ F    D
 F    D
       1.30561e-01            1.00000e+00
 end
-basis "Al_dfo-2" SPHERICAL 
+basis "Al_DFO-2" SPHERICAL 
 #basis SET: (26s,16p,4d) -> [5s,4p,3d]
 Al    S
       2.91426e+05            4.41732e-05
@@ -356,7 +356,7 @@ Al    D
 Al    D
       3.79303e-02            1.00000e+00
 end
-basis "Si_dfo-2" SPHERICAL 
+basis "Si_DFO-2" SPHERICAL 
 #basis SET: (27s,17p,4d) -> [5s,4p,3d]
 Si    S
       3.13514e+05            4.77621e-05
@@ -419,7 +419,7 @@ Si    D
 Si    D
       5.33772e-02            1.00000e-00
 end
-basis "Mn_dfo-2" SPHERICAL 
+basis "Mn_DFO-2" SPHERICAL 
 #basis SET: (36s,25p,15d) -> [6s,5p,4d]
 Mn    S
       2.92726e+06            1.26973e-05
@@ -513,7 +513,7 @@ Mn    D
 Mn    D
       4.07869e-02            1.00000e+00
 end
-basis "Cu_dfo-2" SPHERICAL 
+basis "Cu_DFO-2" SPHERICAL 
 #basis SET: (36s,24p,15d) -> [6s,5p,4d]
 Cu    S
       3.86242e+06            1.30238e-05

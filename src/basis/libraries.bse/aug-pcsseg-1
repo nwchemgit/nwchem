@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# aug-pcsseg-1 version number 1
+# Data downloaded on 2021-02-20T21:21
+# aug-pcSseg-1 version number 1
 # Description: Segmented contracted version of the aug-pcS-1 basis
 # Role: orbital
 # 
@@ -46,7 +46,7 @@
 #     10.1021/ct5009526
 # 
 # # 
-basis "H_aug-pcsseg-1" SPHERICAL 
+basis "H_aug-pcSseg-1" SPHERICAL 
 #basis SET: (5s,3p) -> [3s,2p]
 H    S
       0.122518E+02           0.233371E-01
@@ -62,7 +62,7 @@ H    P
 H    P
       0.795750E-01           1.0000000
 end
-basis "He_aug-pcsseg-1" SPHERICAL 
+basis "He_aug-pcSseg-1" SPHERICAL 
 #basis SET: (5s,3p) -> [3s,2p]
 He    S
       0.368654E+02           0.273556E-01
@@ -78,7 +78,7 @@ He    P
 He    P
       0.201690E+00           1.0000000
 end
-basis "Li_aug-pcsseg-1" SPHERICAL 
+basis "Li_aug-pcSseg-1" SPHERICAL 
 #basis SET: (9s,5p) -> [4s,4p]
 Li    S
       0.266550E+03           0.692856E-02
@@ -103,7 +103,7 @@ Li    P
 Li    P
       0.290780E-01           1.0000000
 end
-basis "Be_aug-pcsseg-1" SPHERICAL 
+basis "Be_aug-pcSseg-1" SPHERICAL 
 #basis SET: (9s,5p) -> [4s,4p]
 Be    S
       0.513214E+03           0.644549E-02
@@ -128,7 +128,7 @@ Be    P
 Be    P
       0.533650E-01           1.0000000
 end
-basis "B_aug-pcsseg-1" SPHERICAL 
+basis "B_aug-pcSseg-1" SPHERICAL 
 #basis SET: (9s,6p,2d) -> [4s,4p,2d]
 B    S
       0.838694E+03           0.619052E-02
@@ -158,7 +158,7 @@ B    D
 B    D
       0.650020E-01           1.0000000
 end
-basis "C_aug-pcsseg-1" SPHERICAL 
+basis "C_aug-pcSseg-1" SPHERICAL 
 #basis SET: (9s,6p,2d) -> [4s,4p,2d]
 C    S
       0.124320E+04           0.603366E-02
@@ -188,7 +188,7 @@ C    D
 C    D
       0.102240E+00           1.0000000
 end
-basis "N_aug-pcsseg-1" SPHERICAL 
+basis "N_aug-pcSseg-1" SPHERICAL 
 #basis SET: (9s,6p,2d) -> [4s,4p,2d]
 N    S
       0.172632E+04           0.593077E-02
@@ -218,7 +218,7 @@ N    D
 N    D
       0.146960E+00           1.0000000
 end
-basis "O_aug-pcsseg-1" SPHERICAL 
+basis "O_aug-pcSseg-1" SPHERICAL 
 #basis SET: (9s,6p,2d) -> [4s,4p,2d]
 O    S
       0.228864E+04           0.585468E-02
@@ -248,7 +248,7 @@ O    D
 O    D
       0.183690E+00           1.0000000
 end
-basis "F_aug-pcsseg-1" SPHERICAL 
+basis "F_aug-pcSseg-1" SPHERICAL 
 #basis SET: (9s,6p,2d) -> [4s,4p,2d]
 F    S
       0.293155E+04           0.579504E-02
@@ -278,7 +278,7 @@ F    D
 F    D
       0.233670E+00           1.0000000
 end
-basis "Ne_aug-pcsseg-1" SPHERICAL 
+basis "Ne_aug-pcSseg-1" SPHERICAL 
 #basis SET: (9s,6p,2d) -> [4s,4p,2d]
 Ne    S
       0.365269E+04           0.575083E-02
@@ -308,7 +308,7 @@ Ne    D
 Ne    D
       0.292640E+00           1.0000000
 end
-basis "Na_aug-pcsseg-1" SPHERICAL 
+basis "Na_aug-pcSseg-1" SPHERICAL 
 #basis SET: (13s,9p) -> [5s,5p]
 Na    S
       0.219036E+05           0.796012E-03
@@ -343,7 +343,7 @@ Na    P
 Na    P
       0.187500E-01           1.0000000
 end
-basis "Mg_aug-pcsseg-1" SPHERICAL 
+basis "Mg_aug-pcSseg-1" SPHERICAL 
 #basis SET: (13s,9p) -> [5s,5p]
 Mg    S
       0.264576E+05           0.783649E-03
@@ -378,7 +378,7 @@ Mg    P
 Mg    P
       0.337500E-01           1.0000000
 end
-basis "Al_aug-pcsseg-1" SPHERICAL 
+basis "Al_aug-pcSseg-1" SPHERICAL 
 #basis SET: (13s,10p,2d) -> [5s,6p,2d]
 Al    S
       0.314940E+05           0.772030E-03
@@ -419,7 +419,7 @@ Al    D
 Al    D
       0.444870E-01           1.0000000
 end
-basis "Si_aug-pcsseg-1" SPHERICAL 
+basis "Si_aug-pcSseg-1" SPHERICAL 
 #basis SET: (13s,10p,2d) -> [5s,6p,2d]
 Si    S
       0.369702E+05           0.762250E-03
@@ -460,7 +460,7 @@ Si    D
 Si    D
       0.665960E-01           1.0000000
 end
-basis "P_aug-pcsseg-1" SPHERICAL 
+basis "P_aug-pcSseg-1" SPHERICAL 
 #basis SET: (13s,10p,2d) -> [5s,6p,2d]
 P    S
       0.429350E+05           0.752785E-03
@@ -501,7 +501,7 @@ P    D
 P    D
       0.914300E-01           1.0000000
 end
-basis "S_aug-pcsseg-1" SPHERICAL 
+basis "S_aug-pcSseg-1" SPHERICAL 
 #basis SET: (13s,10p,2d) -> [5s,6p,2d]
 S    S
       0.492971E+05           0.745668E-03
@@ -542,7 +542,7 @@ S    D
 S    D
       0.106490E+00           1.0000000
 end
-basis "Cl_aug-pcsseg-1" SPHERICAL 
+basis "Cl_aug-pcSseg-1" SPHERICAL 
 #basis SET: (13s,10p,2d) -> [5s,6p,2d]
 Cl    S
       0.560994E+05           0.739546E-03
@@ -583,7 +583,7 @@ Cl    D
 Cl    D
       0.126510E+00           1.0000000
 end
-basis "Ar_aug-pcsseg-1" SPHERICAL 
+basis "Ar_aug-pcSseg-1" SPHERICAL 
 #basis SET: (13s,10p,2d) -> [5s,6p,2d]
 Ar    S
       0.634058E+05           0.733149E-03
@@ -624,7 +624,7 @@ Ar    D
 Ar    D
       0.149170E+00           1.0000000
 end
-basis "K_aug-pcsseg-1" SPHERICAL 
+basis "K_aug-pcSseg-1" SPHERICAL 
 #basis SET: (15s,11p,5d) -> [6s,7p,4d]
 K    S
       0.316128E+05           0.192539E-02
@@ -675,7 +675,7 @@ K    D
 K    D
       0.243350E-01           1.0000000
 end
-basis "Ca_aug-pcsseg-1" SPHERICAL 
+basis "Ca_aug-pcSseg-1" SPHERICAL 
 #basis SET: (15s,11p,5d) -> [6s,7p,4d]
 Ca    S
       0.352777E+05           0.191272E-02
@@ -726,7 +726,7 @@ Ca    D
 Ca    D
       0.331400E-01           1.0000000
 end
-basis "Sc_aug-pcsseg-1" SPHERICAL 
+basis "Sc_aug-pcSseg-1" SPHERICAL 
 #basis SET: (15s,11p,7d,2f) -> [6s,7p,4d,2f]
 Sc    S
       0.391019E+05           0.190342E-02
@@ -783,7 +783,7 @@ Sc    F
 Sc    F
       0.780000E-01           1.0000000
 end
-basis "Ti_aug-pcsseg-1" SPHERICAL 
+basis "Ti_aug-pcSseg-1" SPHERICAL 
 #basis SET: (15s,11p,7d,2f) -> [6s,7p,4d,2f]
 Ti    S
       0.431217E+05           0.189506E-02
@@ -840,7 +840,7 @@ Ti    F
 Ti    F
       0.900000E-01           1.0000000
 end
-basis "V_aug-pcsseg-1" SPHERICAL 
+basis "V_aug-pcSseg-1" SPHERICAL 
 #basis SET: (15s,11p,7d,2f) -> [6s,7p,4d,2f]
 V    S
       0.473311E+05           0.188778E-02
@@ -897,7 +897,7 @@ V    F
 V    F
       0.101000E+00           1.0000000
 end
-basis "Cr_aug-pcsseg-1" SPHERICAL 
+basis "Cr_aug-pcSseg-1" SPHERICAL 
 #basis SET: (15s,11p,7d,2f) -> [6s,7p,4d,2f]
 Cr    S
       0.517154E+05           0.188210E-02
@@ -954,7 +954,7 @@ Cr    F
 Cr    F
       0.113000E+00           1.0000000
 end
-basis "Mn_aug-pcsseg-1" SPHERICAL 
+basis "Mn_aug-pcSseg-1" SPHERICAL 
 #basis SET: (15s,11p,7d,2f) -> [6s,7p,4d,2f]
 Mn    S
       0.563228E+05           0.187564E-02
@@ -1011,7 +1011,7 @@ Mn    F
 Mn    F
       0.125000E+00           1.0000000
 end
-basis "Fe_aug-pcsseg-1" SPHERICAL 
+basis "Fe_aug-pcSseg-1" SPHERICAL 
 #basis SET: (15s,11p,7d,2f) -> [6s,7p,4d,2f]
 Fe    S
       0.611165E+05           0.187010E-02
@@ -1068,7 +1068,7 @@ Fe    F
 Fe    F
       0.138000E+00           1.0000000
 end
-basis "Co_aug-pcsseg-1" SPHERICAL 
+basis "Co_aug-pcSseg-1" SPHERICAL 
 #basis SET: (15s,11p,7d,2f) -> [6s,7p,4d,2f]
 Co    S
       0.661042E+05           0.186498E-02
@@ -1125,7 +1125,7 @@ Co    F
 Co    F
       0.151000E+00           1.0000000
 end
-basis "Ni_aug-pcsseg-1" SPHERICAL 
+basis "Ni_aug-pcSseg-1" SPHERICAL 
 #basis SET: (15s,11p,7d,2f) -> [6s,7p,4d,2f]
 Ni    S
       0.712776E+05           0.186062E-02
@@ -1182,7 +1182,7 @@ Ni    F
 Ni    F
       0.165000E+00           1.0000000
 end
-basis "Cu_aug-pcsseg-1" SPHERICAL 
+basis "Cu_aug-pcSseg-1" SPHERICAL 
 #basis SET: (15s,11p,7d,2f) -> [6s,7p,4d,2f]
 Cu    S
       0.766434E+05           0.185667E-02
@@ -1239,7 +1239,7 @@ Cu    F
 Cu    F
       0.180000E+00           1.0000000
 end
-basis "Zn_aug-pcsseg-1" SPHERICAL 
+basis "Zn_aug-pcSseg-1" SPHERICAL 
 #basis SET: (15s,11p,7d,2f) -> [6s,7p,4d,2f]
 Zn    S
       0.821882E+05           0.185336E-02
@@ -1296,7 +1296,7 @@ Zn    F
 Zn    F
       0.195000E+00           1.0000000
 end
-basis "Ga_aug-pcsseg-1" SPHERICAL 
+basis "Ga_aug-pcSseg-1" SPHERICAL 
 #basis SET: (15s,12p,8d) -> [6s,8p,4d]
 Ga    S
       0.880370E+05           0.184792E-02
@@ -1352,7 +1352,7 @@ Ga    D
 Ga    D
       0.471210E-01           1.0000000
 end
-basis "Ge_aug-pcsseg-1" SPHERICAL 
+basis "Ge_aug-pcSseg-1" SPHERICAL 
 #basis SET: (15s,12p,8d) -> [6s,8p,4d]
 Ge    S
       0.940750E+05           0.184313E-02
@@ -1408,7 +1408,7 @@ Ge    D
 Ge    D
       0.606410E-01           1.0000000
 end
-basis "As_aug-pcsseg-1" SPHERICAL 
+basis "As_aug-pcSseg-1" SPHERICAL 
 #basis SET: (15s,12p,8d) -> [6s,8p,4d]
 As    S
       0.100324E+06           0.183850E-02
@@ -1464,7 +1464,7 @@ As    D
 As    D
       0.738050E-01           1.0000000
 end
-basis "Se_aug-pcsseg-1" SPHERICAL 
+basis "Se_aug-pcSseg-1" SPHERICAL 
 #basis SET: (15s,12p,8d) -> [6s,8p,4d]
 Se    S
       0.106786E+06           0.183388E-02
@@ -1520,7 +1520,7 @@ Se    D
 Se    D
       0.896370E-01           1.0000000
 end
-basis "Br_aug-pcsseg-1" SPHERICAL 
+basis "Br_aug-pcSseg-1" SPHERICAL 
 #basis SET: (15s,12p,8d) -> [6s,8p,4d]
 Br    S
       0.113451E+06           0.182955E-02
@@ -1576,7 +1576,7 @@ Br    D
 Br    D
       0.105100E+00           1.0000000
 end
-basis "Kr_aug-pcsseg-1" SPHERICAL 
+basis "Kr_aug-pcSseg-1" SPHERICAL 
 #basis SET: (15s,12p,8d) -> [6s,8p,4d]
 Kr    S
       0.120316E+06           0.182555E-02

@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# aug-cc-pwcvtz-pp-optri version number 0
+# Data downloaded on 2021-02-20T21:21
+# aug-cc-pwCVTZ-PP-OPTRI version number 0
 # Description: aug-cc-pwCVTZ-PP-OPTRI
 # Role: optri
 # 
@@ -48,7 +48,7 @@
 #     10.1021/ct200856f
 # 
 # # 
-basis "Cu_aug-cc-pwcvtz-pp-optri" SPHERICAL 
+basis "Cu_aug-cc-pwCVTZ-PP-OPTRI" SPHERICAL 
 #basis SET: (5s,4p,4d,4f,4g,4h,1i) -> [5s,4p,4d,4f,4g,4h,1i]
 Cu    S
      15.7721900              1.0000000
@@ -103,7 +103,7 @@ Cu    H
 Cu    I
       5.4682390              1.0000000
 end
-basis "Zn_aug-cc-pwcvtz-pp-optri" SPHERICAL 
+basis "Zn_aug-cc-pwCVTZ-PP-OPTRI" SPHERICAL 
 #basis SET: (5s,4p,4d,4f,4g,4h,1i) -> [5s,4p,4d,4f,4g,4h,1i]
 Zn    S
      18.0156600              1.0000000
@@ -158,7 +158,7 @@ Zn    H
 Zn    I
       6.4232100              1.0000000
 end
-basis "Ag_aug-cc-pwcvtz-pp-optri" SPHERICAL 
+basis "Ag_aug-cc-pwCVTZ-PP-OPTRI" SPHERICAL 
 #basis SET: (5s,4p,4d,4f,4g,4h,1i) -> [5s,4p,4d,4f,4g,4h,1i]
 Ag    S
      12.9880100              1.0000000
@@ -213,7 +213,7 @@ Ag    H
 Ag    I
       2.2677190              1.0000000
 end
-basis "Cd_aug-cc-pwcvtz-pp-optri" SPHERICAL 
+basis "Cd_aug-cc-pwCVTZ-PP-OPTRI" SPHERICAL 
 #basis SET: (5s,4p,4d,4f,4g,4h,1i) -> [5s,4p,4d,4f,4g,4h,1i]
 Cd    S
      14.0033000              1.0000000
@@ -268,7 +268,7 @@ Cd    H
 Cd    I
       2.5584550              1.0000000
 end
-basis "Au_aug-cc-pwcvtz-pp-optri" SPHERICAL 
+basis "Au_aug-cc-pwCVTZ-PP-OPTRI" SPHERICAL 
 #basis SET: (5s,4p,4d,4f,4g,4h,1i) -> [5s,4p,4d,4f,4g,4h,1i]
 Au    S
      15.8646600              1.0000000
@@ -323,7 +323,7 @@ Au    H
 Au    I
       1.7233740              1.0000000
 end
-basis "Hg_aug-cc-pwcvtz-pp-optri" SPHERICAL 
+basis "Hg_aug-cc-pwCVTZ-PP-OPTRI" SPHERICAL 
 #basis SET: (5s,4p,4d,4f,4g,4h,1i) -> [5s,4p,4d,4f,4g,4h,1i]
 Hg    S
      20.3403200              1.0000000

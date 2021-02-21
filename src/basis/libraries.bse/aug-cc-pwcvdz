@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# aug-cc-pwcvdz version number 0
+# Data downloaded on 2021-02-20T21:21
+# aug-cc-pwCVDZ version number 0
 # Description: DZP     Double Zeta + Polarization + Tight Core + Diffuse
 # Role: orbital
 # 
@@ -87,7 +87,7 @@
 #     10.1063/1.464303
 # 
 # # 
-basis "B_aug-cc-pwcvdz" SPHERICAL 
+basis "B_aug-cc-pwCVDZ" SPHERICAL 
 #basis SET: (19s,6p,2d) -> [5s,4p,2d]
 B    S
    4570.0000000              0.0006960
@@ -128,7 +128,7 @@ B    D
 B    D
       0.0904000              1.0000000
 end
-basis "C_aug-cc-pwcvdz" SPHERICAL 
+basis "C_aug-cc-pwCVDZ" SPHERICAL 
 #basis SET: (19s,6p,2d) -> [5s,4p,2d]
 C    S
    6665.0000000              0.0006920
@@ -169,7 +169,7 @@ C    D
 C    D
       0.1510000              1.0000000
 end
-basis "N_aug-cc-pwcvdz" SPHERICAL 
+basis "N_aug-cc-pwCVDZ" SPHERICAL 
 #basis SET: (19s,6p,2d) -> [5s,4p,2d]
 N    S
    9046.0000000              0.0007000
@@ -210,7 +210,7 @@ N    D
 N    D
       0.2300000              1.0000000
 end
-basis "O_aug-cc-pwcvdz" SPHERICAL 
+basis "O_aug-cc-pwCVDZ" SPHERICAL 
 #basis SET: (19s,6p,2d) -> [5s,4p,2d]
 O    S
   11720.0000000              0.0007100
@@ -251,7 +251,7 @@ O    D
 O    D
       0.3320000              1.0000000
 end
-basis "F_aug-cc-pwcvdz" SPHERICAL 
+basis "F_aug-cc-pwCVDZ" SPHERICAL 
 #basis SET: (19s,6p,2d) -> [5s,4p,2d]
 F    S
   14710.0000000              0.0007210
@@ -292,7 +292,7 @@ F    D
 F    D
       0.4640000              1.0000000
 end
-basis "Ne_aug-cc-pwcvdz" SPHERICAL 
+basis "Ne_aug-cc-pwCVDZ" SPHERICAL 
 #basis SET: (19s,6p,2d) -> [5s,4p,2d]
 Ne    S
   17880.0000000              0.0007380
@@ -333,7 +333,7 @@ Ne    D
 Ne    D
       0.6310000              1.0000000
 end
-basis "Al_aug-cc-pwcvdz" SPHERICAL 
+basis "Al_aug-cc-pwCVDZ" SPHERICAL 
 #basis SET: (36s,17p,3d) -> [6s,5p,3d]
 Al    S
   64150.0000000              0.290250E-03
@@ -406,7 +406,7 @@ Al    D
 Al    D
       0.0535000              1.0000000
 end
-basis "Si_aug-cc-pwcvdz" SPHERICAL 
+basis "Si_aug-cc-pwCVDZ" SPHERICAL 
 #basis SET: (36s,17p,3d) -> [6s,5p,3d]
 Si    S
   78860.0000000              0.270443E-03
@@ -479,7 +479,7 @@ Si    D
 Si    D
       0.0823000              1.0000000
 end
-basis "P_aug-cc-pwcvdz" SPHERICAL 
+basis "P_aug-cc-pwCVDZ" SPHERICAL 
 #basis SET: (36s,17p,3d) -> [6s,5p,3d]
 P    S
   94840.0000000              0.255509E-03
@@ -552,7 +552,7 @@ P    D
 P    D
       0.1130000              1.0000000
 end
-basis "S_aug-cc-pwcvdz" SPHERICAL 
+basis "S_aug-cc-pwCVDZ" SPHERICAL 
 #basis SET: (36s,17p,3d) -> [6s,5p,3d]
 S    S
  110800.0000000              0.247635E-03
@@ -625,7 +625,7 @@ S    D
 S    D
       0.1520000              1.0000000
 end
-basis "Cl_aug-cc-pwcvdz" SPHERICAL 
+basis "Cl_aug-cc-pwCVDZ" SPHERICAL 
 #basis SET: (36s,17p,3d) -> [6s,5p,3d]
 Cl    S
  127900.0000000              0.241153E-03
@@ -698,7 +698,7 @@ Cl    D
 Cl    D
       0.1960000              1.0000000
 end
-basis "Ar_aug-cc-pwcvdz" SPHERICAL 
+basis "Ar_aug-cc-pwCVDZ" SPHERICAL 
 #basis SET: (36s,17p,3d) -> [6s,5p,3d]
 Ar    S
  145700.0000000              0.236700E-03

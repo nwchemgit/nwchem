@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# cc-pwcvtz-dk3 version number 1
+# Data downloaded on 2021-02-20T21:21
+# cc-pwCVTZ-DK3 version number 1
 # Description: cc-pwCVTZ-DK3
 # Role: orbital
 # 
@@ -81,7 +81,7 @@
 #     10.1063/1.4959280
 # 
 # # 
-basis "In_cc-pwcvtz-dk3" SPHERICAL 
+basis "In_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (124s,72p,24d,3f,1g) -> [9s,8p,6d,3f,1g]
 In    S
       4.436065E+08           3.4614600E-05
@@ -335,7 +335,7 @@ In    F
 In    G
       9.708986E-01           1.0000000E+00
 end
-basis "Sn_cc-pwcvtz-dk3" SPHERICAL 
+basis "Sn_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (124s,72p,24d,3f,1g) -> [9s,8p,6d,3f,1g]
 Sn    S
       4.682122E+08           3.6354200E-05
@@ -589,7 +589,7 @@ Sn    F
 Sn    G
       1.079443E+00           1.0000000E+00
 end
-basis "Sb_cc-pwcvtz-dk3" SPHERICAL 
+basis "Sb_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (124s,72p,24d,3f,1g) -> [9s,8p,6d,3f,1g]
 Sb    S
       4.900122E+08           3.8391300E-05
@@ -843,7 +843,7 @@ Sb    F
 Sb    G
       1.089600E+00           1.0000000E+00
 end
-basis "Te_cc-pwcvtz-dk3" SPHERICAL 
+basis "Te_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (124s,72p,24d,3f,1g) -> [9s,8p,6d,3f,1g]
 Te    S
       5.537122E+08           3.7558500E-05
@@ -1097,7 +1097,7 @@ Te    F
 Te    G
       1.362028E+00           1.0000000E+00
 end
-basis "I_cc-pwcvtz-dk3" SPHERICAL 
+basis "I_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (124s,72p,24d,3f,1g) -> [9s,8p,6d,3f,1g]
 I    S
       5.994467E+08           3.8312000E-05
@@ -1351,7 +1351,7 @@ I    F
 I    G
       1.522385E+00           1.0000000E+00
 end
-basis "Xe_cc-pwcvtz-dk3" SPHERICAL 
+basis "Xe_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (124s,72p,24d,3f,1g) -> [9s,8p,6d,3f,1g]
 Xe    S
       6.957302E+08           3.6992100E-05
@@ -1605,7 +1605,7 @@ Xe    F
 Xe    G
       1.695820E+00           1.0000000E+00
 end
-basis "Cs_cc-pwcvtz-dk3" SPHERICAL 
+basis "Cs_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (178s,117p,52d,5f) -> [10s,9p,7d,3f]
 Cs    S
       7.460140E+07           1.810000E-04
@@ -1989,7 +1989,7 @@ Cs    F
 Cs    F
       7.169754E-02           1.000000E+00
 end
-basis "Ba_cc-pwcvtz-dk3" SPHERICAL 
+basis "Ba_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (171s,113p,49d,5f) -> [10s,9p,7d,3f]
 Ba    S
       7.280870E+07           1.970000E-04
@@ -2359,7 +2359,7 @@ Ba    F
 Ba    F
       7.815789E-02           1.000000E+00
 end
-basis "La_cc-pwcvtz-dk3" SPHERICAL 
+basis "La_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (264s,179p,81d,43f,4g,1h) -> [12s,11p,9d,7f,4g,1h]
 La    S
       7.283381E+07           1.9384500E-04
@@ -2978,7 +2978,7 @@ La    G
 La    H
       9.399887E-01           1.0000000E+00
 end
-basis "Ce_cc-pwcvtz-dk3" SPHERICAL 
+basis "Ce_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (264s,179p,81d,43f,4g,1h) -> [12s,11p,9d,7f,4g,1h]
 Ce    S
       7.266821E+07           2.0825800E-04
@@ -3597,7 +3597,7 @@ Ce    G
 Ce    H
       1.100037E+00           1.0000000E+00
 end
-basis "Pr_cc-pwcvtz-dk3" SPHERICAL 
+basis "Pr_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (264s,179p,81d,43f,4g,1h) -> [12s,11p,9d,7f,4g,1h]
 Pr    S
       7.254764E+07           2.2109500E-04
@@ -4216,7 +4216,7 @@ Pr    G
 Pr    H
       1.236190E+00           1.0000000E+00
 end
-basis "Nd_cc-pwcvtz-dk3" SPHERICAL 
+basis "Nd_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (264s,179p,81d,43f,4g,1h) -> [12s,11p,9d,7f,4g,1h]
 Nd    S
       7.249950E+07           2.3586100E-04
@@ -4835,7 +4835,7 @@ Nd    G
 Nd    H
       1.361088E+00           1.0000000E+00
 end
-basis "Pm_cc-pwcvtz-dk3" SPHERICAL 
+basis "Pm_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (264s,179p,81d,43f,4g,1h) -> [12s,11p,9d,7f,4g,1h]
 Pm    S
       7.178467E+07           2.5442600E-04
@@ -5454,7 +5454,7 @@ Pm    G
 Pm    H
       1.504259E+00           1.0000000E+00
 end
-basis "Sm_cc-pwcvtz-dk3" SPHERICAL 
+basis "Sm_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (264s,179p,81d,43f,4g,1h) -> [12s,11p,9d,7f,4g,1h]
 Sm    S
       7.002800E+07           2.7690400E-04
@@ -6073,7 +6073,7 @@ Sm    G
 Sm    H
       1.658852E+00           1.0000000E+00
 end
-basis "Eu_cc-pwcvtz-dk3" SPHERICAL 
+basis "Eu_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (264s,179p,81d,43f,4g,1h) -> [12s,11p,9d,7f,4g,1h]
 Eu    S
       6.985560E+07           2.9653300E-04
@@ -6692,7 +6692,7 @@ Eu    G
 Eu    H
       1.801534E+00           1.0000000E+00
 end
-basis "Gd_cc-pwcvtz-dk3" SPHERICAL 
+basis "Gd_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (264s,179p,81d,43f,4g,1h) -> [12s,11p,9d,7f,4g,1h]
 Gd    S
       6.871750E+07           3.2016100E-04
@@ -7311,7 +7311,7 @@ Gd    G
 Gd    H
       2.053103E+00           1.0000000E+00
 end
-basis "Tb_cc-pwcvtz-dk3" SPHERICAL 
+basis "Tb_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (264s,179p,81d,43f,4g,1h) -> [12s,11p,9d,7f,4g,1h]
 Tb    S
       6.868916E+07           3.3911000E-04
@@ -7930,7 +7930,7 @@ Tb    G
 Tb    H
       2.300638E+00           1.0000000E+00
 end
-basis "Dy_cc-pwcvtz-dk3" SPHERICAL 
+basis "Dy_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (264s,179p,81d,43f,4g,1h) -> [12s,11p,9d,7f,4g,1h]
 Dy    S
       6.755441E+07           3.6635000E-04
@@ -8549,7 +8549,7 @@ Dy    G
 Dy    H
       2.534780E+00           1.0000000E+00
 end
-basis "Ho_cc-pwcvtz-dk3" SPHERICAL 
+basis "Ho_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (264s,179p,81d,43f,4g,1h) -> [12s,11p,9d,7f,4g,1h]
 Ho    S
       6.743969E+07           3.8777500E-04
@@ -9168,7 +9168,7 @@ Ho    G
 Ho    H
       2.804476E+00           1.0000000E+00
 end
-basis "Er_cc-pwcvtz-dk3" SPHERICAL 
+basis "Er_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (264s,179p,81d,43f,4g,1h) -> [12s,11p,9d,7f,4g,1h]
 Er    S
       6.674815E+07           4.1657000E-04
@@ -9787,7 +9787,7 @@ Er    G
 Er    H
       3.147649E+00           1.0000000E+00
 end
-basis "Tm_cc-pwcvtz-dk3" SPHERICAL 
+basis "Tm_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (264s,179p,81d,43f,4g,1h) -> [12s,11p,9d,7f,4g,1h]
 Tm    S
       6.667370E+07           4.4776100E-04
@@ -10406,7 +10406,7 @@ Tm    G
 Tm    H
       3.476534E+00           1.0000000E+00
 end
-basis "Yb_cc-pwcvtz-dk3" SPHERICAL 
+basis "Yb_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (264s,179p,81d,43f,4g,1h) -> [12s,11p,9d,7f,4g,1h]
 Yb    S
       6.566675E+07           4.8021500E-04
@@ -11025,7 +11025,7 @@ Yb    G
 Yb    H
       3.725460E+00           1.0000000E+00
 end
-basis "Lu_cc-pwcvtz-dk3" SPHERICAL 
+basis "Lu_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (264s,179p,81d,43f,4g,1h) -> [12s,11p,9d,7f,4g,1h]
 Lu    S
       6.556501E+07           5.4524800E-04
@@ -11644,7 +11644,7 @@ Lu    G
 Lu    H
       4.130526E+00           1.0000000E+00
 end
-basis "Tl_cc-pwcvtz-dk3" SPHERICAL 
+basis "Tl_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (154s,134p,49d,13f,1g) -> [10s,9p,7d,4f,1g]
 Tl    S
       2.883713E+08           3.6778800E-04
@@ -12029,7 +12029,7 @@ Tl    F
 Tl    G
       8.469080E-01           1.0000000E+00
 end
-basis "Pb_cc-pwcvtz-dk3" SPHERICAL 
+basis "Pb_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (154s,134p,49d,13f,1g) -> [10s,9p,7d,4f,1g]
 Pb    S
       3.132459E+08           3.6999400E-04
@@ -12414,7 +12414,7 @@ Pb    F
 Pb    G
       9.059445E-01           1.0000000E+00
 end
-basis "Bi_cc-pwcvtz-dk3" SPHERICAL 
+basis "Bi_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (154s,134p,49d,13f,1g) -> [10s,9p,7d,4f,1g]
 Bi    S
       2.723573E+08           4.3567900E-04
@@ -12799,7 +12799,7 @@ Bi    F
 Bi    G
       9.917724E-01           1.0000000E+00
 end
-basis "Po_cc-pwcvtz-dk3" SPHERICAL 
+basis "Po_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (154s,134p,49d,13f,1g) -> [10s,9p,7d,4f,1g]
 Po    S
       2.863230E+08           4.4814000E-04
@@ -13184,7 +13184,7 @@ Po    F
 Po    G
       1.088363E+00           1.0000000E+00
 end
-basis "At_cc-pwcvtz-dk3" SPHERICAL 
+basis "At_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (154s,134p,49d,13f,1g) -> [10s,9p,7d,4f,1g]
 At    S
       2.970681E+08           4.6580100E-04
@@ -13569,7 +13569,7 @@ At    F
 At    G
       1.194924E+00           1.0000000E+00
 end
-basis "Rn_cc-pwcvtz-dk3" SPHERICAL 
+basis "Rn_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (154s,134p,49d,13f,1g) -> [10s,9p,7d,4f,1g]
 Rn    S
       3.398612E+08           4.5453800E-04
@@ -13954,7 +13954,7 @@ Rn    F
 Rn    G
       1.311496E+00           1.0000000E+00
 end
-basis "Fr_cc-pwcvtz-dk3" SPHERICAL 
+basis "Fr_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (220s,170p,76d,28f) -> [11s,10p,8d,4f]
 Fr    S
       5.841962E+07           1.529000E-03
@@ -14484,7 +14484,7 @@ Fr    F
 Fr    F
       6.593848E-02           1.000000E+00
 end
-basis "Ra_cc-pwcvtz-dk3" SPHERICAL 
+basis "Ra_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (221s,164p,76d,28f) -> [11s,10p,8d,4f]
 Ra    S
       5.805656E+07           1.628000E-03
@@ -15009,7 +15009,7 @@ Ra    F
 Ra    F
       8.044955E-02           1.000000E+00
 end
-basis "Ac_cc-pwcvtz-dk3" SPHERICAL 
+basis "Ac_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (323s,255p,129d,58f,4g,1h) -> [13s,12p,10d,8f,4g,1h]
 Ac    S
       5.801308E+07           1.7800300E-03
@@ -15830,7 +15830,7 @@ Ac    G
 Ac    H
       8.077280E-01           1.0000000E+00
 end
-basis "Th_cc-pwcvtz-dk3" SPHERICAL 
+basis "Th_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (303s,237p,136d,63f,4g,1h) -> [13s,12p,10d,8f,4g,1h]
 Th    S
       5.735470E+07           1.7629100E-03
@@ -16625,7 +16625,7 @@ Th    G
 Th    H
       8.994000E-01           1.0000000E+00
 end
-basis "Pa_cc-pwcvtz-dk3" SPHERICAL 
+basis "Pa_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (303s,237p,136d,63f,4g,1h) -> [13s,12p,10d,8f,4g,1h]
 Pa    S
       5.760666E+07           1.9989500E-03
@@ -17420,7 +17420,7 @@ Pa    G
 Pa    H
       9.978000E-01           1.0000000E+00
 end
-basis "U_cc-pwcvtz-dk3" SPHERICAL 
+basis "U_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (303s,237p,136d,63f,4g,1h) -> [13s,12p,10d,8f,4g,1h]
 U    S
       5.668863E+07           2.0434700E-03
@@ -18215,7 +18215,7 @@ U    G
 U    H
       1.102800E+00           1.0000000E+00
 end
-basis "Np_cc-pwcvtz-dk3" SPHERICAL 
+basis "Np_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (303s,237p,136d,63f,4g,1h) -> [13s,12p,10d,8f,4g,1h]
 Np    S
       5.693839E+07           2.0317600E-03
@@ -19010,7 +19010,7 @@ Np    G
 Np    H
       1.214800E+00           1.0000000E+00
 end
-basis "Pu_cc-pwcvtz-dk3" SPHERICAL 
+basis "Pu_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (303s,237p,136d,63f,4g,1h) -> [13s,12p,10d,8f,4g,1h]
 Pu    S
       5.605206E+07           2.4576300E-03
@@ -19805,7 +19805,7 @@ Pu    G
 Pu    H
       1.326296E+00           1.0000000E+00
 end
-basis "Am_cc-pwcvtz-dk3" SPHERICAL 
+basis "Am_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (303s,237p,136d,63f,4g,1h) -> [13s,12p,10d,8f,4g,1h]
 Am    S
       5.629216E+07           2.4193600E-03
@@ -20600,7 +20600,7 @@ Am    G
 Am    H
       1.446907E+00           1.0000000E+00
 end
-basis "Cm_cc-pwcvtz-dk3" SPHERICAL 
+basis "Cm_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (303s,237p,136d,63f,4g,1h) -> [13s,12p,10d,8f,4g,1h]
 Cm    S
       5.584416E+07           2.6224900E-03
@@ -21395,7 +21395,7 @@ Cm    G
 Cm    H
       1.661361E+00           1.0000000E+00
 end
-basis "Bk_cc-pwcvtz-dk3" SPHERICAL 
+basis "Bk_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (303s,237p,136d,63f,4g,1h) -> [13s,12p,10d,8f,4g,1h]
 Bk    S
       5.594253E+07           2.7362800E-03
@@ -22190,7 +22190,7 @@ Bk    G
 Bk    H
       1.786343E+00           1.0000000E+00
 end
-basis "Cf_cc-pwcvtz-dk3" SPHERICAL 
+basis "Cf_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (303s,237p,136d,53f,4g,1h) -> [13s,12p,10d,8f,4g,1h]
 Cf    S
       5.551155E+07           3.1680500E-03
@@ -22975,7 +22975,7 @@ Cf    G
 Cf    H
       1.953768E+00           1.0000000E+00
 end
-basis "Es_cc-pwcvtz-dk3" SPHERICAL 
+basis "Es_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (303s,246p,136d,53f,4g,1h) -> [13s,12p,10d,8f,4g,1h]
 Es    S
       5.548210E+07           3.3225300E-03
@@ -23769,7 +23769,7 @@ Es    G
 Es    H
       2.131580E+00           1.0000000E+00
 end
-basis "Fm_cc-pwcvtz-dk3" SPHERICAL 
+basis "Fm_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (323s,246p,136d,53f,4g,1h) -> [13s,12p,10d,8f,4g,1h]
 Fm    S
       5.493493E+07           3.1799300E-03
@@ -24583,7 +24583,7 @@ Fm    G
 Fm    H
       2.323026E+00           1.0000000E+00
 end
-basis "Md_cc-pwcvtz-dk3" SPHERICAL 
+basis "Md_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (323s,246p,136d,53f,4g,1h) -> [13s,12p,10d,8f,4g,1h]
 Md    S
       5.490604E+07           3.4042100E-03
@@ -25397,7 +25397,7 @@ Md    G
 Md    H
       2.515022E+00           1.0000000E+00
 end
-basis "No_cc-pwcvtz-dk3" SPHERICAL 
+basis "No_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (323s,255p,122d,58f,4g,1h) -> [13s,12p,10d,8f,4g,1h]
 No    S
       5.488733E+07           3.7612100E-03
@@ -26211,7 +26211,7 @@ No    G
 No    H
       2.701806E+00           1.0000000E+00
 end
-basis "Lr_cc-pwcvtz-dk3" SPHERICAL 
+basis "Lr_cc-pwCVTZ-DK3" SPHERICAL 
 #basis SET: (323s,255p,136d,63f,4g,1h) -> [13s,12p,10d,8f,4g,1h]
 Lr    S
       5.461185E+07           4.3315000E-03

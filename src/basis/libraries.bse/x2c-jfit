@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# x2c-jfit version number 1
+# Data downloaded on 2021-02-20T21:21
+# x2c-JFIT version number 1
 # Description: x2c coulomb fitting
 # Role: jfit
 # 
@@ -47,7 +47,7 @@
 #     10.1021/acs.jctc.0c00546
 # 
 # # 
-basis "H_x2c-jfit" SPHERICAL 
+basis "H_x2c-JFIT" SPHERICAL 
 #basis SET: (5s,2p,1d) -> [3s,1p,1d]
 H    S
      15.6752927              0.0186886
@@ -63,7 +63,7 @@ H    P
 H    D
       2.2165124              0.0033116
 end
-basis "He_x2c-jfit" SPHERICAL 
+basis "He_x2c-JFIT" SPHERICAL 
 #basis SET: (5s,2p,1d) -> [3s,1p,1d]
 He    S
      50.6720580              0.0651007
@@ -79,7 +79,7 @@ He    P
 He    D
       4.0                    1.0
 end
-basis "Li_x2c-jfit" SPHERICAL 
+basis "Li_x2c-JFIT" SPHERICAL 
 #basis SET: (12s,5p,4d,2f,1g) -> [12s,5p,4d,2f,1g]
 Li    S
     552.30180588             1.0
@@ -130,7 +130,7 @@ Li    F
 Li    G
       1.04601300             1.0
 end
-basis "Be_x2c-jfit" SPHERICAL 
+basis "Be_x2c-JFIT" SPHERICAL 
 #basis SET: (12s,5p,4d,2f,1g) -> [12s,5p,4d,2f,1g]
 Be    S
     994.53503381             1.0
@@ -181,7 +181,7 @@ Be    F
 Be    G
       1.38933410             1.0
 end
-basis "B_x2c-jfit" SPHERICAL 
+basis "B_x2c-JFIT" SPHERICAL 
 #basis SET: (12s,5p,4d,2f,1g) -> [12s,5p,4d,2f,1g]
 B    S
    1581.41285360             1.0
@@ -232,7 +232,7 @@ B    F
 B    G
       0.65143000             1.0
 end
-basis "C_x2c-jfit" SPHERICAL 
+basis "C_x2c-JFIT" SPHERICAL 
 #basis SET: (12s,5p,4d,2f,1g) -> [12s,5p,4d,2f,1g]
 C    S
    2048.91451084             1.0
@@ -283,7 +283,7 @@ C    F
 C    G
       1.00246000             1.0
 end
-basis "N_x2c-jfit" SPHERICAL 
+basis "N_x2c-JFIT" SPHERICAL 
 #basis SET: (12s,5p,4d,2f,1g) -> [12s,5p,4d,2f,1g]
 N    S
    2436.11653118             1.0
@@ -334,7 +334,7 @@ N    F
 N    G
       1.40377000             1.0
 end
-basis "O_x2c-jfit" SPHERICAL 
+basis "O_x2c-JFIT" SPHERICAL 
 #basis SET: (12s,5p,4d,2f,1g) -> [12s,5p,4d,2f,1g]
 O    S
    2201.19604186             1.0
@@ -385,7 +385,7 @@ O    F
 O    G
       1.39310000             1.0
 end
-basis "F_x2c-jfit" SPHERICAL 
+basis "F_x2c-JFIT" SPHERICAL 
 #basis SET: (12s,5p,4d,2f,1g) -> [12s,5p,4d,2f,1g]
 F    S
    2284.46165759             1.0
@@ -436,7 +436,7 @@ F    F
 F    G
       1.60975000             1.0
 end
-basis "Ne_x2c-jfit" SPHERICAL 
+basis "Ne_x2c-JFIT" SPHERICAL 
 #basis SET: (12s,5p,4d,2f,1g) -> [12s,5p,4d,2f,1g]
 Ne    S
    2839.61372094             1.0
@@ -487,7 +487,7 @@ Ne    F
 Ne    G
       2.00000000             1.0
 end
-basis "Na_x2c-jfit" SPHERICAL 
+basis "Na_x2c-JFIT" SPHERICAL 
 #basis SET: (14s,5p,5d,2f,1g) -> [14s,5p,5d,2f,1g]
 Na    S
    6988.00669526             1.0
@@ -544,7 +544,7 @@ Na    F
 Na    G
       0.07016000             1.0
 end
-basis "Mg_x2c-jfit" SPHERICAL 
+basis "Mg_x2c-JFIT" SPHERICAL 
 #basis SET: (14s,5p,5d,2f,1g) -> [14s,5p,5d,2f,1g]
 Mg    S
    8383.69564497             1.0
@@ -601,7 +601,7 @@ Mg    F
 Mg    G
       0.80876040             1.0
 end
-basis "Al_x2c-jfit" SPHERICAL 
+basis "Al_x2c-JFIT" SPHERICAL 
 #basis SET: (14s,5p,5d,2f,1g) -> [14s,5p,5d,2f,1g]
 Al    S
    6265.11989623             1.0
@@ -658,7 +658,7 @@ Al    F
 Al    G
       0.32620000             1.0
 end
-basis "Si_x2c-jfit" SPHERICAL 
+basis "Si_x2c-JFIT" SPHERICAL 
 #basis SET: (14s,5p,5d,2f,1g) -> [14s,5p,5d,2f,1g]
 Si    S
    6721.72695157             1.0
@@ -715,7 +715,7 @@ Si    F
 Si    G
       0.40149000             1.0
 end
-basis "P_x2c-jfit" SPHERICAL 
+basis "P_x2c-JFIT" SPHERICAL 
 #basis SET: (14s,5p,5d,2f,1g) -> [14s,5p,5d,2f,1g]
 P    S
    8950.44518779             1.0
@@ -772,7 +772,7 @@ P    F
 P    G
       0.55108440             1.0
 end
-basis "S_x2c-jfit" SPHERICAL 
+basis "S_x2c-JFIT" SPHERICAL 
 #basis SET: (14s,5p,5d,2f,1g) -> [14s,5p,5d,2f,1g]
 S    S
   10441.31391379             1.0
@@ -829,7 +829,7 @@ S    F
 S    G
       0.67071000             1.0
 end
-basis "Cl_x2c-jfit" SPHERICAL 
+basis "Cl_x2c-JFIT" SPHERICAL 
 #basis SET: (14s,5p,5d,2f,1g) -> [14s,5p,5d,2f,1g]
 Cl    S
   11974.41762270             1.0
@@ -886,7 +886,7 @@ Cl    F
 Cl    G
       0.75211000             1.0
 end
-basis "Ar_x2c-jfit" SPHERICAL 
+basis "Ar_x2c-JFIT" SPHERICAL 
 #basis SET: (14s,5p,5d,2f,1g) -> [14s,5p,5d,2f,1g]
 Ar    S
   13353.33716886             1.0
@@ -943,7 +943,7 @@ Ar    F
 Ar    G
       0.87000000             1.0
 end
-basis "K_x2c-jfit" SPHERICAL 
+basis "K_x2c-JFIT" SPHERICAL 
 #basis SET: (19s,5p,5d,3f,1g) -> [19s,5p,5d,3f,1g]
 K    S
   41471.34609536             1.0
@@ -1012,7 +1012,7 @@ K    F
 K    G
       0.28146060             1.0
 end
-basis "Ca_x2c-jfit" SPHERICAL 
+basis "Ca_x2c-JFIT" SPHERICAL 
 #basis SET: (19s,5p,5d,3f,1g) -> [19s,5p,5d,3f,1g]
 Ca    S
   43561.38920064             1.0
@@ -1081,7 +1081,7 @@ Ca    F
 Ca    G
       0.98548750             1.0
 end
-basis "Sc_x2c-jfit" SPHERICAL 
+basis "Sc_x2c-JFIT" SPHERICAL 
 #basis SET: (19s,5p,5d,4f,5g) -> [19s,5p,5d,4f,5g]
 Sc    S
   50618.26563904             1.0
@@ -1160,7 +1160,7 @@ Sc    G
 Sc    G
       0.15000000             1.0
 end
-basis "Ti_x2c-jfit" SPHERICAL 
+basis "Ti_x2c-JFIT" SPHERICAL 
 #basis SET: (19s,5p,5d,3f,5g) -> [19s,5p,5d,3f,5g]
 Ti    S
   56714.33328168             1.0
@@ -1237,7 +1237,7 @@ Ti    G
 Ti    G
       0.20000000             1.0
 end
-basis "V_x2c-jfit" SPHERICAL 
+basis "V_x2c-JFIT" SPHERICAL 
 #basis SET: (19s,5p,5d,3f,4g) -> [19s,5p,5d,3f,4g]
 V    S
   52440.44736055             1.0
@@ -1312,7 +1312,7 @@ V    G
 V    G
       0.509745975            1.0
 end
-basis "Cr_x2c-jfit" SPHERICAL 
+basis "Cr_x2c-JFIT" SPHERICAL 
 #basis SET: (19s,5p,5d,3f,3g) -> [19s,5p,5d,3f,3g]
 Cr    S
   91197.49495611             1.0
@@ -1385,7 +1385,7 @@ Cr    G
 Cr    G
       1.64271980             1.0
 end
-basis "Mn_x2c-jfit" SPHERICAL 
+basis "Mn_x2c-JFIT" SPHERICAL 
 #basis SET: (19s,5p,5d,3f,3g) -> [19s,5p,5d,3f,3g]
 Mn    S
   60933.86947863             1.0
@@ -1458,7 +1458,7 @@ Mn    G
 Mn    G
       0.34651920             1.0
 end
-basis "Fe_x2c-jfit" SPHERICAL 
+basis "Fe_x2c-JFIT" SPHERICAL 
 #basis SET: (19s,5p,6d,3f,5g) -> [19s,5p,6d,3f,5g]
 Fe    S
   67092.34353575             1.0
@@ -1537,7 +1537,7 @@ Fe    G
 Fe    G
       0.200000000            1.0
 end
-basis "Co_x2c-jfit" SPHERICAL 
+basis "Co_x2c-JFIT" SPHERICAL 
 #basis SET: (19s,5p,6d,3f,5g) -> [19s,5p,6d,3f,5g]
 Co    S
   78827.22910384             1.0
@@ -1616,7 +1616,7 @@ Co    G
 Co    G
       0.300000000            1.0
 end
-basis "Ni_x2c-jfit" SPHERICAL 
+basis "Ni_x2c-JFIT" SPHERICAL 
 #basis SET: (19s,5p,7d,3f,5g) -> [19s,5p,7d,3f,5g]
 Ni    S
   74029.28669805             1.0
@@ -1697,7 +1697,7 @@ Ni    G
 Ni    G
       0.33000000             1.0
 end
-basis "Cu_x2c-jfit" SPHERICAL 
+basis "Cu_x2c-JFIT" SPHERICAL 
 #basis SET: (19s,5p,5d,3f,3g) -> [19s,5p,5d,3f,3g]
 Cu    S
   55372.56981426             1.0
@@ -1770,7 +1770,7 @@ Cu    G
 Cu    G
       1.19264920             1.0
 end
-basis "Zn_x2c-jfit" SPHERICAL 
+basis "Zn_x2c-JFIT" SPHERICAL 
 #basis SET: (19s,5p,5d,3f,3g) -> [19s,5p,5d,3f,3g]
 Zn    S
   69119.90567639             1.0
@@ -1843,7 +1843,7 @@ Zn    G
 Zn    G
       0.83526740             1.0
 end
-basis "Ga_x2c-jfit" SPHERICAL 
+basis "Ga_x2c-JFIT" SPHERICAL 
 #basis SET: (19s,5p,5d,3f,1g) -> [19s,5p,5d,3f,1g]
 Ga    S
   89491.90030880             1.0
@@ -1912,7 +1912,7 @@ Ga    F
 Ga    G
       0.98255670             1.0
 end
-basis "Ge_x2c-jfit" SPHERICAL 
+basis "Ge_x2c-JFIT" SPHERICAL 
 #basis SET: (19s,5p,5d,3f,1g) -> [19s,5p,5d,3f,1g]
 Ge    S
   92188.75056967             1.0
@@ -1981,7 +1981,7 @@ Ge    F
 Ge    G
       0.89946050             1.0
 end
-basis "As_x2c-jfit" SPHERICAL 
+basis "As_x2c-JFIT" SPHERICAL 
 #basis SET: (19s,5p,5d,3f,1g) -> [19s,5p,5d,3f,1g]
 As    S
   96178.40364610             1.0
@@ -2050,7 +2050,7 @@ As    F
 As    G
       0.89207260             1.0
 end
-basis "Se_x2c-jfit" SPHERICAL 
+basis "Se_x2c-JFIT" SPHERICAL 
 #basis SET: (19s,5p,5d,3f,1g) -> [19s,5p,5d,3f,1g]
 Se    S
  103142.50328564             1.0
@@ -2119,7 +2119,7 @@ Se    F
 Se    G
       0.96161900             1.0
 end
-basis "Br_x2c-jfit" SPHERICAL 
+basis "Br_x2c-JFIT" SPHERICAL 
 #basis SET: (19s,5p,5d,3f,1g) -> [19s,5p,5d,3f,1g]
 Br    S
  106972.86073518             1.0
@@ -2188,7 +2188,7 @@ Br    F
 Br    G
       1.10785750             1.0
 end
-basis "Kr_x2c-jfit" SPHERICAL 
+basis "Kr_x2c-JFIT" SPHERICAL 
 #basis SET: (19s,5p,5d,3f,1g) -> [19s,5p,5d,3f,1g]
 Kr    S
  120985.14521102             1.0
@@ -2257,7 +2257,7 @@ Kr    F
 Kr    G
       1.27000000             1.0
 end
-basis "Rb_x2c-jfit" SPHERICAL 
+basis "Rb_x2c-JFIT" SPHERICAL 
 #basis SET: (25s,5p,5d,3f,1g) -> [25s,5p,5d,3f,1g]
 Rb    S
  411411.02398470             1.0
@@ -2338,7 +2338,7 @@ Rb    F
 Rb    G
       0.18081750             1.0
 end
-basis "Sr_x2c-jfit" SPHERICAL 
+basis "Sr_x2c-JFIT" SPHERICAL 
 #basis SET: (25s,5p,5d,3f,1g) -> [25s,5p,5d,3f,1g]
 Sr    S
  403308.60506740             1.0
@@ -2419,7 +2419,7 @@ Sr    F
 Sr    G
       0.58311660             1.0
 end
-basis "Y_x2c-jfit" SPHERICAL 
+basis "Y_x2c-JFIT" SPHERICAL 
 #basis SET: (25s,5p,6d,3f,5g) -> [25s,5p,6d,3f,5g]
 Y    S
  591347.08107064             1.0
@@ -2510,7 +2510,7 @@ Y    G
 Y    G
       0.220639729            1.0
 end
-basis "Zr_x2c-jfit" SPHERICAL 
+basis "Zr_x2c-JFIT" SPHERICAL 
 #basis SET: (25s,5p,6d,3f,5g) -> [25s,5p,6d,3f,5g]
 Zr    S
  605474.25166138             1.0
@@ -2601,7 +2601,7 @@ Zr    G
 Zr    G
       0.28107970             1.0
 end
-basis "Nb_x2c-jfit" SPHERICAL 
+basis "Nb_x2c-JFIT" SPHERICAL 
 #basis SET: (25s,5p,6d,3f,5g) -> [25s,5p,6d,3f,5g]
 Nb    S
  720006.28221063             1.0
@@ -2692,7 +2692,7 @@ Nb    G
 Nb    G
       0.24464940             1.0
 end
-basis "Mo_x2c-jfit" SPHERICAL 
+basis "Mo_x2c-JFIT" SPHERICAL 
 #basis SET: (25s,5p,5d,3f,5g) -> [25s,5p,5d,3f,5g]
 Mo    S
  763747.49819832             1.0
@@ -2781,7 +2781,7 @@ Mo    G
 Mo    G
       0.27514540             1.0
 end
-basis "Tc_x2c-jfit" SPHERICAL 
+basis "Tc_x2c-JFIT" SPHERICAL 
 #basis SET: (25s,5p,6d,3f,5g) -> [25s,5p,6d,3f,5g]
 Tc    S
  771272.48484947             1.0
@@ -2872,7 +2872,7 @@ Tc    G
 Tc    G
       0.29515460             1.0
 end
-basis "Ru_x2c-jfit" SPHERICAL 
+basis "Ru_x2c-JFIT" SPHERICAL 
 #basis SET: (25s,5p,7d,3f,5g) -> [25s,5p,7d,3f,5g]
 Ru    S
  800587.49555559             1.0
@@ -2965,7 +2965,7 @@ Ru    G
 Ru    G
       0.33851440             1.0
 end
-basis "Rh_x2c-jfit" SPHERICAL 
+basis "Rh_x2c-JFIT" SPHERICAL 
 #basis SET: (25s,5p,6d,3f,5g) -> [25s,5p,6d,3f,5g]
 Rh    S
  855667.95393669             1.0
@@ -3056,7 +3056,7 @@ Rh    G
 Rh    G
       0.48410108             1.0
 end
-basis "Pd_x2c-jfit" SPHERICAL 
+basis "Pd_x2c-JFIT" SPHERICAL 
 #basis SET: (25s,5p,5d,3f,5g) -> [25s,5p,5d,3f,5g]
 Pd    S
 1174753.82983152             1.0
@@ -3145,7 +3145,7 @@ Pd    G
 Pd    G
       0.33000000             1.0
 end
-basis "Ag_x2c-jfit" SPHERICAL 
+basis "Ag_x2c-JFIT" SPHERICAL 
 #basis SET: (25s,5p,5d,3f,5g) -> [25s,5p,5d,3f,5g]
 Ag    S
  929894.96793863             1.0
@@ -3234,7 +3234,7 @@ Ag    G
 Ag    G
       0.33000000             1.0
 end
-basis "Cd_x2c-jfit" SPHERICAL 
+basis "Cd_x2c-JFIT" SPHERICAL 
 #basis SET: (25s,5p,5d,3f,5g) -> [25s,5p,5d,3f,5g]
 Cd    S
 1001125.90814993             1.0
@@ -3323,7 +3323,7 @@ Cd    G
 Cd    G
       0.25000000             1.0
 end
-basis "In_x2c-jfit" SPHERICAL 
+basis "In_x2c-JFIT" SPHERICAL 
 #basis SET: (26s,5p,5d,3f,1g) -> [26s,5p,5d,3f,1g]
 In    S
  670797.32826745             1.0
@@ -3406,7 +3406,7 @@ In    F
 In    G
       0.63325930             1.0
 end
-basis "Sn_x2c-jfit" SPHERICAL 
+basis "Sn_x2c-JFIT" SPHERICAL 
 #basis SET: (26s,5p,5d,3f,1g) -> [26s,5p,5d,3f,1g]
 Sn    S
  919419.39481898             1.0
@@ -3489,7 +3489,7 @@ Sn    F
 Sn    G
       0.57471570             1.0
 end
-basis "Sb_x2c-jfit" SPHERICAL 
+basis "Sb_x2c-JFIT" SPHERICAL 
 #basis SET: (26s,5p,5d,3f,1g) -> [26s,5p,5d,3f,1g]
 Sb    S
 1098493.89438264             1.0
@@ -3572,7 +3572,7 @@ Sb    F
 Sb    G
       0.70404010             1.0
 end
-basis "Te_x2c-jfit" SPHERICAL 
+basis "Te_x2c-JFIT" SPHERICAL 
 #basis SET: (26s,5p,5d,3f,1g) -> [26s,5p,5d,3f,1g]
 Te    S
 1165498.22236854             1.0
@@ -3655,7 +3655,7 @@ Te    F
 Te    G
       0.73451320             1.0
 end
-basis "I_x2c-jfit" SPHERICAL 
+basis "I_x2c-JFIT" SPHERICAL 
 #basis SET: (26s,5p,5d,3f,1g) -> [26s,5p,5d,3f,1g]
 I    S
 1548438.75895620             1.0
@@ -3738,7 +3738,7 @@ I    F
 I    G
       0.90978670             1.0
 end
-basis "Xe_x2c-jfit" SPHERICAL 
+basis "Xe_x2c-JFIT" SPHERICAL 
 #basis SET: (26s,5p,5d,3f,1g) -> [26s,5p,5d,3f,1g]
 Xe    S
 1490798.57287416             1.0
@@ -3821,7 +3821,7 @@ Xe    F
 Xe    G
       1.03000000             1.0
 end
-basis "Cs_x2c-jfit" SPHERICAL 
+basis "Cs_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,5p,5d,3f,1g) -> [34s,5p,5d,3f,1g]
 Cs    S
 3271346.46073168             1.0
@@ -3920,7 +3920,7 @@ Cs    F
 Cs    G
       0.28554160             1.0
 end
-basis "Ba_x2c-jfit" SPHERICAL 
+basis "Ba_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,5p,5d,3f,1g) -> [34s,5p,5d,3f,1g]
 Ba    S
 4242246.44186462             1.0
@@ -4019,7 +4019,7 @@ Ba    F
 Ba    G
       0.52960550             1.0
 end
-basis "La_x2c-jfit" SPHERICAL 
+basis "La_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,5p,5d,4f,5g,1h) -> [34s,5p,5d,4f,5g,1h]
 La    S
 2547639.35029582             1.0
@@ -4130,7 +4130,7 @@ La    G
 La    H
       0.90000000             1.0
 end
-basis "Ce_x2c-jfit" SPHERICAL 
+basis "Ce_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,7p,6d,6f,6g,3h,5i) -> [34s,7p,6d,6f,6g,3h,5i]
 Ce    S
 3557132.96723902             1.0
@@ -4267,7 +4267,7 @@ Ce    I
 Ce    I
       0.75305130             1.0
 end
-basis "Pr_x2c-jfit" SPHERICAL 
+basis "Pr_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,7p,6d,6f,6g,3h,5i) -> [34s,7p,6d,6f,6g,3h,5i]
 Pr    S
 6012505.86624339             1.0
@@ -4404,7 +4404,7 @@ Pr    I
 Pr    I
       0.87044630             1.0
 end
-basis "Nd_x2c-jfit" SPHERICAL 
+basis "Nd_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,7p,6d,6f,6g,3h,5i) -> [34s,7p,6d,6f,6g,3h,5i]
 Nd    S
 40950117.22760624            1.0
@@ -4541,7 +4541,7 @@ Nd    I
 Nd    I
       0.97411470             1.0
 end
-basis "Pm_x2c-jfit" SPHERICAL 
+basis "Pm_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,7p,6d,6f,6g,3h,5i) -> [34s,7p,6d,6f,6g,3h,5i]
 Pm    S
 5173367.62431173             1.0
@@ -4678,7 +4678,7 @@ Pm    I
 Pm    I
       1.11130110             1.0
 end
-basis "Sm_x2c-jfit" SPHERICAL 
+basis "Sm_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,7p,6d,6f,6g,3h,5i) -> [34s,7p,6d,6f,6g,3h,5i]
 Sm    S
 6529489.96099184             1.0
@@ -4815,7 +4815,7 @@ Sm    I
 Sm    I
       1.49708740             1.0
 end
-basis "Eu_x2c-jfit" SPHERICAL 
+basis "Eu_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,7p,6d,6f,6g,3h,5i) -> [34s,7p,6d,6f,6g,3h,5i]
 Eu    S
 6559278.60596204             1.0
@@ -4952,7 +4952,7 @@ Eu    I
 Eu    I
       1.08040390             1.0
 end
-basis "Gd_x2c-jfit" SPHERICAL 
+basis "Gd_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,7p,6d,6f,7g,3h,5i) -> [34s,7p,6d,6f,7g,3h,5i]
 Gd    S
 10773695.68747680            1.0
@@ -5091,7 +5091,7 @@ Gd    I
 Gd    I
       1.08040390             1.0
 end
-basis "Tb_x2c-jfit" SPHERICAL 
+basis "Tb_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,7p,6d,6f,6g,3h,5i) -> [34s,7p,6d,6f,6g,3h,5i]
 Tb    S
 12948466.88487450            1.0
@@ -5228,7 +5228,7 @@ Tb    I
 Tb    I
       1.08040390             1.0
 end
-basis "Dy_x2c-jfit" SPHERICAL 
+basis "Dy_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,7p,6d,6f,6g,3h,5i) -> [34s,7p,6d,6f,6g,3h,5i]
 Dy    S
 12664615.26117540            1.0
@@ -5365,7 +5365,7 @@ Dy    I
 Dy    I
       1.61699970             1.0
 end
-basis "Ho_x2c-jfit" SPHERICAL 
+basis "Ho_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,7p,6d,6f,6g,3h,5i) -> [34s,7p,6d,6f,6g,3h,5i]
 Ho    S
 19933091.33893467            1.0
@@ -5502,7 +5502,7 @@ Ho    I
 Ho    I
       1.41610780             1.0
 end
-basis "Er_x2c-jfit" SPHERICAL 
+basis "Er_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,7p,6d,6f,6g,3h,5i) -> [34s,7p,6d,6f,6g,3h,5i]
 Er    S
 10909700.21623878            1.0
@@ -5639,7 +5639,7 @@ Er    I
 Er    I
       1.40633850             1.0
 end
-basis "Tm_x2c-jfit" SPHERICAL 
+basis "Tm_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,7p,6d,6f,6g,3h,5i) -> [34s,7p,6d,6f,6g,3h,5i]
 Tm    S
 13149793.34152001            1.0
@@ -5776,7 +5776,7 @@ Tm    I
 Tm    I
       1.84312460             1.0
 end
-basis "Yb_x2c-jfit" SPHERICAL 
+basis "Yb_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,7p,6d,6f,6g,3h,5i) -> [34s,7p,6d,6f,6g,3h,5i]
 Yb    S
 11776694.73706663            1.0
@@ -5913,7 +5913,7 @@ Yb    I
 Yb    I
       0.26395150             1.0
 end
-basis "Lu_x2c-jfit" SPHERICAL 
+basis "Lu_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,7p,6d,6f,6g,3h,5i) -> [34s,7p,6d,6f,6g,3h,5i]
 Lu    S
 55849356.61626719            1.0
@@ -6050,7 +6050,7 @@ Lu    I
 Lu    I
       0.19531200             1.0
 end
-basis "Hf_x2c-jfit" SPHERICAL 
+basis "Hf_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,5p,5d,3f,5g) -> [34s,5p,5d,3f,5g]
 Hf    S
 15383335.08927115            1.0
@@ -6157,7 +6157,7 @@ Hf    G
 Hf    G
       0.27668051             1.0
 end
-basis "Ta_x2c-jfit" SPHERICAL 
+basis "Ta_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,5p,5d,3f,5g) -> [34s,5p,5d,3f,5g]
 Ta    S
 7965189.31272093             1.0
@@ -6264,7 +6264,7 @@ Ta    G
 Ta    G
       0.32529600             1.0
 end
-basis "W_x2c-jfit" SPHERICAL 
+basis "W_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,6p,5d,3f,5g) -> [34s,6p,5d,3f,5g]
 W    S
 66130707.32195435            1.0
@@ -6373,7 +6373,7 @@ W    G
 W    G
       0.35000000             1.0
 end
-basis "Re_x2c-jfit" SPHERICAL 
+basis "Re_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,5p,5d,3f,5g) -> [34s,5p,5d,3f,5g]
 Re    S
 29899564.40936204            1.0
@@ -6480,7 +6480,7 @@ Re    G
 Re    G
       0.34763900             1.0
 end
-basis "Os_x2c-jfit" SPHERICAL 
+basis "Os_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,5p,5d,3f,5g) -> [34s,5p,5d,3f,5g]
 Os    S
 20695654.13458940            1.0
@@ -6587,7 +6587,7 @@ Os    G
 Os    G
       0.37958266             1.0
 end
-basis "Ir_x2c-jfit" SPHERICAL 
+basis "Ir_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,5p,7d,3f,5g) -> [34s,5p,7d,3f,5g]
 Ir    S
 10561901.05881671            1.0
@@ -6698,7 +6698,7 @@ Ir    G
 Ir    G
       0.40641623             1.0
 end
-basis "Pt_x2c-jfit" SPHERICAL 
+basis "Pt_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,5p,5d,3f,5g) -> [34s,5p,5d,3f,5g]
 Pt    S
 22746001.58862425            1.0
@@ -6805,7 +6805,7 @@ Pt    G
 Pt    G
       0.39866068             1.0
 end
-basis "Au_x2c-jfit" SPHERICAL 
+basis "Au_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,5p,5d,3f,5g) -> [34s,5p,5d,3f,5g]
 Au    S
 23068655.14411806            1.0
@@ -6912,7 +6912,7 @@ Au    G
 Au    G
       0.39600000             1.0
 end
-basis "Hg_x2c-jfit" SPHERICAL 
+basis "Hg_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,5p,5d,3f,5g) -> [34s,5p,5d,3f,5g]
 Hg    S
 13293028.40761965            1.0
@@ -7019,7 +7019,7 @@ Hg    G
 Hg    G
       0.39600000             1.0
 end
-basis "Tl_x2c-jfit" SPHERICAL 
+basis "Tl_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,5p,5d,3f,1g) -> [34s,5p,5d,3f,1g]
 Tl    S
 22142936.09187117            1.0
@@ -7118,7 +7118,7 @@ Tl    F
 Tl    G
       0.56230240             1.0
 end
-basis "Pb_x2c-jfit" SPHERICAL 
+basis "Pb_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,5p,5d,3f,1g) -> [34s,5p,5d,3f,1g]
 Pb    S
 28010416.08522443            1.0
@@ -7217,7 +7217,7 @@ Pb    F
 Pb    G
       0.58807190             1.0
 end
-basis "Bi_x2c-jfit" SPHERICAL 
+basis "Bi_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,5p,5d,3f,1g) -> [34s,5p,5d,3f,1g]
 Bi    S
 27910683.54805496            1.0
@@ -7316,7 +7316,7 @@ Bi    F
 Bi    G
       0.60870020             1.0
 end
-basis "Po_x2c-jfit" SPHERICAL 
+basis "Po_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,5p,5d,3f,1g) -> [34s,5p,5d,3f,1g]
 Po    S
 27234902.48208287            1.0
@@ -7415,7 +7415,7 @@ Po    F
 Po    G
       0.68419170             1.0
 end
-basis "At_x2c-jfit" SPHERICAL 
+basis "At_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,5p,5d,3f,1g) -> [34s,5p,5d,3f,1g]
 At    S
 31666585.53887367            1.0
@@ -7514,7 +7514,7 @@ At    F
 At    G
       0.82235220             1.0
 end
-basis "Rn_x2c-jfit" SPHERICAL 
+basis "Rn_x2c-JFIT" SPHERICAL 
 #basis SET: (34s,5p,5d,3f,1g) -> [34s,5p,5d,3f,1g]
 Rn    S
 31326914.47102905            1.0

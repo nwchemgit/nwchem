@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# cc-pcvtz-f12 version number 0
+# Data downloaded on 2021-02-20T21:21
+# cc-pCVTZ-F12 version number 0
 # Description: cc-pCVTZ-F12
 # Role: orbital
 # 
@@ -59,7 +59,7 @@
 #     10.1039/c0cp00020e
 # 
 # # 
-basis "Li_cc-pcvtz-f12" SPHERICAL 
+basis "Li_cc-pCVTZ-F12" SPHERICAL 
 #basis SET: (23s,8p,4d,2f) -> [7s,7p,4d,2f]
 Li    S
    6601.0000000              0.0001170
@@ -119,7 +119,7 @@ Li    F
 Li    F
       0.0759100              1.0000000
 end
-basis "Be_cc-pcvtz-f12" SPHERICAL 
+basis "Be_cc-pCVTZ-F12" SPHERICAL 
 #basis SET: (23s,8p,4d,2f) -> [7s,7p,4d,2f]
 Be    S
   14630.0000000              0.0000920
@@ -179,7 +179,7 @@ Be    F
 Be    F
       0.1457880              1.0000000
 end
-basis "B_cc-pcvtz-f12" SPHERICAL 
+basis "B_cc-pCVTZ-F12" SPHERICAL 
 #basis SET: (23s,8p,4d,2f) -> [7s,7p,4d,2f]
 B    S
   23870.0000000              0.0000880
@@ -239,7 +239,7 @@ B    F
 B    F
       0.2484000              1.0000000
 end
-basis "C_cc-pcvtz-f12" SPHERICAL 
+basis "C_cc-pCVTZ-F12" SPHERICAL 
 #basis SET: (23s,8p,4d,2f) -> [7s,7p,4d,2f]
 C    S
   33980.0000000              0.0000910
@@ -299,7 +299,7 @@ C    F
 C    F
       0.3459000              1.0000000
 end
-basis "N_cc-pcvtz-f12" SPHERICAL 
+basis "N_cc-pCVTZ-F12" SPHERICAL 
 #basis SET: (23s,8p,4d,2f) -> [7s,7p,4d,2f]
 N    S
   45840.0000000              0.0000920
@@ -359,7 +359,7 @@ N    F
 N    F
       0.4638000              1.0000000
 end
-basis "O_cc-pcvtz-f12" SPHERICAL 
+basis "O_cc-pCVTZ-F12" SPHERICAL 
 #basis SET: (23s,8p,4d,2f) -> [7s,7p,4d,2f]
 O    S
   61420.0000000              0.0000900
@@ -419,7 +419,7 @@ O    F
 O    F
       0.5379000              1.0000000
 end
-basis "F_cc-pcvtz-f12" SPHERICAL 
+basis "F_cc-pCVTZ-F12" SPHERICAL 
 #basis SET: (23s,8p,4d,2f) -> [7s,7p,4d,2f]
 F    S
   74530.0000000              0.0000950
@@ -479,7 +479,7 @@ F    F
 F    F
       0.8514000              1.0000000
 end
-basis "Ne_cc-pcvtz-f12" SPHERICAL 
+basis "Ne_cc-pCVTZ-F12" SPHERICAL 
 #basis SET: (23s,8p,4d,2f) -> [7s,7p,4d,2f]
 Ne    S
   99920.0000000              0.0000860
@@ -539,7 +539,7 @@ Ne    F
 Ne    F
       0.9443000              1.0000000
 end
-basis "Na_cc-pcvtz-f12" SPHERICAL 
+basis "Na_cc-pCVTZ-F12" SPHERICAL 
 #basis SET: (53s,24p,5d,3f) -> [8s,8p,5d,3f]
 Na    S
 1224000.0000000              0.0000048
@@ -651,7 +651,7 @@ Na    F
 Na    F
       0.0695240              1.0000000
 end
-basis "Mg_cc-pcvtz-f12" SPHERICAL 
+basis "Mg_cc-pCVTZ-F12" SPHERICAL 
 #basis SET: (44s,24p,5d,3f) -> [8s,8p,5d,3f]
 Mg    S
  327600.0000000              0.0000310
@@ -754,7 +754,7 @@ Mg    F
 Mg    F
       0.1091400              1.0000000
 end
-basis "Al_cc-pcvtz-f12" SPHERICAL 
+basis "Al_cc-pCVTZ-F12" SPHERICAL 
 #basis SET: (44s,22p,5d,3f) -> [8s,8p,5d,3f]
 Al    S
  419600.0000000              0.0000278
@@ -855,7 +855,7 @@ Al    F
 Al    F
       0.1538000              1.0000000
 end
-basis "Si_cc-pcvtz-f12" SPHERICAL 
+basis "Si_cc-pCVTZ-F12" SPHERICAL 
 #basis SET: (44s,22p,5d,3f) -> [8s,8p,5d,3f]
 Si    S
  513000.0000000              0.0000261
@@ -956,7 +956,7 @@ Si    F
 Si    F
       0.2141000              1.0000000
 end
-basis "P_cc-pcvtz-f12" SPHERICAL 
+basis "P_cc-pCVTZ-F12" SPHERICAL 
 #basis SET: (44s,22p,5d,3f) -> [8s,8p,5d,3f]
 P    S
  615200.0000000              0.0000247
@@ -1057,7 +1057,7 @@ P    F
 P    F
       0.2522000              1.0000000
 end
-basis "S_cc-pcvtz-f12" SPHERICAL 
+basis "S_cc-pCVTZ-F12" SPHERICAL 
 #basis SET: (44s,22p,5d,3f) -> [8s,8p,5d,3f]
 S    S
  727800.0000000              0.0000236
@@ -1158,7 +1158,7 @@ S    F
 S    F
       0.2776000              1.0000000
 end
-basis "Cl_cc-pcvtz-f12" SPHERICAL 
+basis "Cl_cc-pCVTZ-F12" SPHERICAL 
 #basis SET: (44s,22p,5d,3f) -> [8s,8p,5d,3f]
 Cl    S
  834900.0000000              0.0000232
@@ -1259,7 +1259,7 @@ Cl    F
 Cl    F
       0.3289000              1.0000000
 end
-basis "Ar_cc-pcvtz-f12" SPHERICAL 
+basis "Ar_cc-pCVTZ-F12" SPHERICAL 
 #basis SET: (44s,22p,5d,3f) -> [8s,8p,5d,3f]
 Ar    S
  950600.0000000              0.0000228

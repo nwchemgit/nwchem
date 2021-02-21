@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# aug-cc-pv7z version number 0
+# Data downloaded on 2021-02-20T21:21
+# aug-cc-pV7Z version number 0
 # Description: aug-cc-pV7Z
 # Role: orbital
 # 
@@ -39,7 +39,7 @@
 # 
 # 
 # # 
-basis "B_aug-cc-pv7z" SPHERICAL 
+basis "B_aug-cc-pV7Z" SPHERICAL 
 #basis SET: (31s,13p,7d,6f,5g,4h,3i,2k) -> [9s,8p,7d,6f,5g,4h,3i,2k]
 B    S
  639096.48000000             0.000001450000
@@ -157,7 +157,7 @@ B    K
 B    K
       0.57420000             1.000000000000
 end
-basis "C_aug-cc-pv7z" SPHERICAL 
+basis "C_aug-cc-pV7Z" SPHERICAL 
 #basis SET: (31s,13p,7d,6f,5g,4h,3i,2k) -> [9s,8p,7d,6f,5g,4h,3i,2k]
 C    S
  949028.80000000             0.000001400000
@@ -275,7 +275,7 @@ C    K
 C    K
       0.97800000             1.000000000000
 end
-basis "N_aug-cc-pv7z" SPHERICAL 
+basis "N_aug-cc-pV7Z" SPHERICAL 
 #basis SET: (31s,13p,7d,6f,5g,4h,3i,2k) -> [9s,8p,7d,6f,5g,4h,3i,2k]
 N    S
 1296296.00000000             0.000001400000
@@ -393,7 +393,7 @@ N    K
 N    K
       0.97700000             1.000000000000
 end
-basis "O_aug-cc-pv7z" SPHERICAL 
+basis "O_aug-cc-pV7Z" SPHERICAL 
 #basis SET: (31s,13p,7d,6f,5g,4h,3i,2k) -> [9s,8p,7d,6f,5g,4h,3i,2k]
 O    S
 1678789.00000000             0.000001400000
@@ -511,7 +511,7 @@ O    K
 O    K
       1.23200000             1.000000000000
 end
-basis "F_aug-cc-pv7z" SPHERICAL 
+basis "F_aug-cc-pV7Z" SPHERICAL 
 #basis SET: (31s,13p,7d,6f,5g,4h,3i,2k) -> [9s,8p,7d,6f,5g,4h,3i,2k]
 F    S
 2115112.00000000             0.000001500000
@@ -629,7 +629,7 @@ F    K
 F    K
       1.59700000             1.000000000000
 end
-basis "Ne_aug-cc-pv7z" SPHERICAL 
+basis "Ne_aug-cc-pV7Z" SPHERICAL 
 #basis SET: (31s,13p,7d,6f,5g,4h,3i,2k) -> [9s,8p,7d,6f,5g,4h,3i,2k]
 Ne    S
 2636740.00000000             0.000001440000

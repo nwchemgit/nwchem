@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# pcs-0 version number 0
+# Data downloaded on 2021-02-20T21:21
+# pcS-0 version number 0
 # Description: pcS-0
 # Role: orbital
 # 
@@ -46,7 +46,7 @@
 #     10.1021/ct800013z
 # 
 # # 
-basis "H_pcs-0" SPHERICAL 
+basis "H_pcS-0" SPHERICAL 
 #basis SET: (3s) -> [2s]
 H    S
       0.434480E+01           0.906615E-01
@@ -54,7 +54,7 @@ H    S
 H    S
       0.136687E+00           0.100000E+01
 end
-basis "He_pcs-0" SPHERICAL 
+basis "He_pcS-0" SPHERICAL 
 #basis SET: (3s) -> [2s]
 He    S
       0.132100E+02           0.102573E+00
@@ -62,7 +62,7 @@ He    S
 He    S
       0.354434E+00           0.100000E+01
 end
-basis "Li_pcs-0" SPHERICAL 
+basis "Li_pcS-0" SPHERICAL 
 #basis SET: (7s,2p) -> [3s,1p]
 Li    S
       0.975848E+02           0.296280E-01
@@ -78,7 +78,7 @@ Li    P
       0.214500E+01           0.175367E-01
       0.330000E+00           0.500000E+00
 end
-basis "Be_pcs-0" SPHERICAL 
+basis "Be_pcS-0" SPHERICAL 
 #basis SET: (7s,2p) -> [3s,1p]
 Be    S
       0.187544E+03           0.330690E-01
@@ -94,7 +94,7 @@ Be    P
       0.279500E+01           0.387621E-01
       0.430000E+00           0.500000E+00
 end
-basis "B_pcs-0" SPHERICAL 
+basis "B_pcS-0" SPHERICAL 
 #basis SET: (7s,4p) -> [3s,2p]
 B    S
       0.303729E+03           0.360008E-01
@@ -113,7 +113,7 @@ B    P
 B    P
       0.118759E+00           0.100000E+01
 end
-basis "C_pcs-0" SPHERICAL 
+basis "C_pcS-0" SPHERICAL 
 #basis SET: (7s,4p) -> [3s,2p]
 C    S
       0.446509E+03           0.399403E-01
@@ -132,7 +132,7 @@ C    P
 C    P
       0.188934E+00           0.100000E+01
 end
-basis "N_pcs-0" SPHERICAL 
+basis "N_pcS-0" SPHERICAL 
 #basis SET: (7s,4p) -> [3s,2p]
 N    S
       0.615850E+03           0.453562E-01
@@ -151,7 +151,7 @@ N    P
 N    P
       0.273903E+00           0.100000E+01
 end
-basis "O_pcs-0" SPHERICAL 
+basis "O_pcS-0" SPHERICAL 
 #basis SET: (7s,4p) -> [3s,2p]
 O    S
       0.812125E+03           0.524568E-01
@@ -170,7 +170,7 @@ O    P
 O    P
       0.350672E+00           0.100000E+01
 end
-basis "F_pcs-0" SPHERICAL 
+basis "F_pcS-0" SPHERICAL 
 #basis SET: (7s,4p) -> [3s,2p]
 F    S
       0.103509E+04           0.618260E-01
@@ -189,7 +189,7 @@ F    P
 F    P
       0.448707E+00           0.100000E+01
 end
-basis "Ne_pcs-0" SPHERICAL 
+basis "Ne_pcS-0" SPHERICAL 
 #basis SET: (7s,4p) -> [3s,2p]
 Ne    S
       0.128446E+04           0.657922E-01
@@ -208,7 +208,7 @@ Ne    P
 Ne    P
       0.564341E+00           0.100000E+01
 end
-basis "Na_pcs-0" SPHERICAL 
+basis "Na_pcS-0" SPHERICAL 
 #basis SET: (16s,6p) -> [4s,2p]
 Na    S
       0.455347E+04           0.563471E-02
@@ -239,7 +239,7 @@ Na    P
 Na    P
       0.950000E-01           0.100000E+01
 end
-basis "Mg_pcs-0" SPHERICAL 
+basis "Mg_pcS-0" SPHERICAL 
 #basis SET: (16s,6p) -> [4s,2p]
 Mg    S
       0.552080E+04           0.550754E-02
@@ -270,7 +270,7 @@ Mg    P
 Mg    P
       0.160000E+00           0.100000E+01
 end
-basis "Al_pcs-0" SPHERICAL 
+basis "Al_pcS-0" SPHERICAL 
 #basis SET: (16s,10p) -> [4s,3p]
 Al    S
       0.658711E+04           0.530939E-02
@@ -306,7 +306,7 @@ Al    P
 Al    P
       0.698563E-01           0.100000E+01
 end
-basis "Si_pcs-0" SPHERICAL 
+basis "Si_pcS-0" SPHERICAL 
 #basis SET: (16s,11p) -> [4s,3p]
 Si    S
       0.774301E+04           0.513973E-02
@@ -343,7 +343,7 @@ Si    P
 Si    P
       0.128240E+00           0.100000E+01
 end
-basis "P_pcs-0" SPHERICAL 
+basis "P_pcS-0" SPHERICAL 
 #basis SET: (16s,11p) -> [4s,3p]
 P    S
       0.899080E+04           0.498263E-02
@@ -380,7 +380,7 @@ P    P
 P    P
       0.147479E+00           0.100000E+01
 end
-basis "S_pcs-0" SPHERICAL 
+basis "S_pcS-0" SPHERICAL 
 #basis SET: (16s,11p) -> [4s,3p]
 S    S
       0.103298E+05           0.483130E-02
@@ -417,7 +417,7 @@ S    P
 S    P
       0.169552E+00           0.100000E+01
 end
-basis "Cl_pcs-0" SPHERICAL 
+basis "Cl_pcS-0" SPHERICAL 
 #basis SET: (16s,11p) -> [4s,3p]
 Cl    S
       0.117590E+05           0.466299E-02
@@ -454,7 +454,7 @@ Cl    P
 Cl    P
       0.202894E+00           0.100000E+01
 end
-basis "Ar_pcs-0" SPHERICAL 
+basis "Ar_pcS-0" SPHERICAL 
 #basis SET: (16s,11p) -> [4s,3p]
 Ar    S
       0.132772E+05           0.443033E-02

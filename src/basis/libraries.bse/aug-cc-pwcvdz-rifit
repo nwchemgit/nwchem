@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# aug-cc-pwcvdz-rifit version number 1
+# Data downloaded on 2021-02-20T21:21
+# aug-cc-pwCVDZ-RIFIT version number 1
 # Description: RI Fitting basis for use with aug-cc-pwCVDZ
 # Role: rifit
 # 
@@ -75,7 +75,7 @@
 #     10.1063/1.1445115
 # 
 # # 
-basis "B_aug-cc-pwcvdz-rifit" SPHERICAL 
+basis "B_aug-cc-pwCVDZ-RIFIT" SPHERICAL 
 #basis SET: (11s,8p,6d,3f) -> [11s,8p,6d,3f]
 B    S
     160.6830000              1.0000000
@@ -134,7 +134,7 @@ B    F
 B    F
       0.18476071951          1.0000000000
 end
-basis "C_aug-cc-pwcvdz-rifit" SPHERICAL 
+basis "C_aug-cc-pwCVDZ-RIFIT" SPHERICAL 
 #basis SET: (11s,8p,6d,3f) -> [11s,8p,6d,3f]
 C    S
     275.8860000              1.0000000
@@ -193,7 +193,7 @@ C    F
 C    F
       0.31714624829          1.0000000000
 end
-basis "N_aug-cc-pwcvdz-rifit" SPHERICAL 
+basis "N_aug-cc-pwCVDZ-RIFIT" SPHERICAL 
 #basis SET: (11s,8p,6d,3f) -> [11s,8p,6d,3f]
 N    S
     418.2000000              1.0000000
@@ -252,7 +252,7 @@ N    F
 N    F
       0.41976031664          1.0000000000
 end
-basis "O_aug-cc-pwcvdz-rifit" SPHERICAL 
+basis "O_aug-cc-pwCVDZ-RIFIT" SPHERICAL 
 #basis SET: (11s,8p,6d,3f) -> [11s,8p,6d,3f]
 O    S
     506.5590000              1.0000000
@@ -311,7 +311,7 @@ O    F
 O    F
       0.58460963107          1.0000000000
 end
-basis "F_aug-cc-pwcvdz-rifit" SPHERICAL 
+basis "F_aug-cc-pwCVDZ-RIFIT" SPHERICAL 
 #basis SET: (11s,8p,6d,3f) -> [11s,8p,6d,3f]
 F    S
     582.3270000              1.0000000
@@ -370,7 +370,7 @@ F    F
 F    F
       0.80661320779          1.0000000000
 end
-basis "Ne_aug-cc-pwcvdz-rifit" SPHERICAL 
+basis "Ne_aug-cc-pwCVDZ-RIFIT" SPHERICAL 
 #basis SET: (11s,8p,6d,3f) -> [11s,8p,6d,3f]
 Ne    S
     726.7080000              1.0000000
@@ -429,7 +429,7 @@ Ne    F
 Ne    F
       1.1649184234           1.0000000000
 end
-basis "Al_aug-cc-pwcvdz-rifit" SPHERICAL 
+basis "Al_aug-cc-pwCVDZ-RIFIT" SPHERICAL 
 #basis SET: (13s,11p,9d,6f) -> [13s,11p,9d,6f]
 Al    S
     499.0370000              1.0000000
@@ -510,7 +510,7 @@ Al    F
 Al    F
       0.10610172981          1.0000000000
 end
-basis "Si_aug-cc-pwcvdz-rifit" SPHERICAL 
+basis "Si_aug-cc-pwCVDZ-RIFIT" SPHERICAL 
 #basis SET: (13s,11p,9d,6f) -> [13s,11p,9d,6f]
 Si    S
     501.1960000              1.0000000
@@ -591,7 +591,7 @@ Si    F
 Si    F
       0.17204670462          1.0000000000
 end
-basis "P_aug-cc-pwcvdz-rifit" SPHERICAL 
+basis "P_aug-cc-pwCVDZ-RIFIT" SPHERICAL 
 #basis SET: (13s,11p,9d,6f) -> [13s,11p,9d,6f]
 P    S
    1139.2200000              1.0000000
@@ -672,7 +672,7 @@ P    F
 P    F
       0.20573460411          1.0000000000
 end
-basis "S_aug-cc-pwcvdz-rifit" SPHERICAL 
+basis "S_aug-cc-pwCVDZ-RIFIT" SPHERICAL 
 #basis SET: (13s,11p,9d,6f) -> [13s,11p,9d,6f]
 S    S
     900.7350000              1.0000000
@@ -753,7 +753,7 @@ S    F
 S    F
       0.28690347409          1.0000000000
 end
-basis "Cl_aug-cc-pwcvdz-rifit" SPHERICAL 
+basis "Cl_aug-cc-pwCVDZ-RIFIT" SPHERICAL 
 #basis SET: (13s,11p,9d,6f) -> [13s,11p,9d,6f]
 Cl    S
    2000.1600000              1.0000000
@@ -834,7 +834,7 @@ Cl    F
 Cl    F
       0.37253684337          1.0000000000
 end
-basis "Ar_aug-cc-pwcvdz-rifit" SPHERICAL 
+basis "Ar_aug-cc-pwCVDZ-RIFIT" SPHERICAL 
 #basis SET: (13s,11p,9d,6f) -> [13s,11p,9d,6f]
 Ar    S
    1501.0100000              1.0000000
@@ -915,7 +915,7 @@ Ar    F
 Ar    F
       0.48841517019          1.0000000000
 end
-basis "Ga_aug-cc-pwcvdz-rifit" SPHERICAL 
+basis "Ga_aug-cc-pwCVDZ-RIFIT" SPHERICAL 
 #basis SET: (14s,13p,12d,8f,5g,3h) -> [14s,13p,12d,8f,5g,3h]
 Ga    S
     790.998                  1.0
@@ -1028,7 +1028,7 @@ Ga    H
 Ga    H
       2.32075                1.0
 end
-basis "Ge_aug-cc-pwcvdz-rifit" SPHERICAL 
+basis "Ge_aug-cc-pwCVDZ-RIFIT" SPHERICAL 
 #basis SET: (14s,13p,12d,8f,5g,3h) -> [14s,13p,12d,8f,5g,3h]
 Ge    S
     986.87                   1.0
@@ -1141,7 +1141,7 @@ Ge    H
 Ge    H
       2.92198                1.0
 end
-basis "As_aug-cc-pwcvdz-rifit" SPHERICAL 
+basis "As_aug-cc-pwCVDZ-RIFIT" SPHERICAL 
 #basis SET: (14s,13p,12d,8f,5g,3h) -> [14s,13p,12d,8f,5g,3h]
 As    S
    1194.88                   1.0
@@ -1254,7 +1254,7 @@ As    H
 As    H
       3.51935                1.0
 end
-basis "Se_aug-cc-pwcvdz-rifit" SPHERICAL 
+basis "Se_aug-cc-pwCVDZ-RIFIT" SPHERICAL 
 #basis SET: (14s,13p,12d,8f,5g,3h) -> [14s,13p,12d,8f,5g,3h]
 Se    S
    1180.23                   1.0
@@ -1367,7 +1367,7 @@ Se    H
 Se    H
       4.32993                1.0
 end
-basis "Br_aug-cc-pwcvdz-rifit" SPHERICAL 
+basis "Br_aug-cc-pwCVDZ-RIFIT" SPHERICAL 
 #basis SET: (14s,13p,12d,8f,5g,3h) -> [14s,13p,12d,8f,5g,3h]
 Br    S
    1175.65                   1.0
@@ -1480,7 +1480,7 @@ Br    H
 Br    H
       5.10184                1.0
 end
-basis "Kr_aug-cc-pwcvdz-rifit" SPHERICAL 
+basis "Kr_aug-cc-pwCVDZ-RIFIT" SPHERICAL 
 #basis SET: (14s,13p,12d,8f,5g,3h) -> [14s,13p,12d,8f,5g,3h]
 Kr    S
    1647.7                    1.0

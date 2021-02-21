@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# cc-pcvdz-f12-optri version number 0
+# Data downloaded on 2021-02-20T21:21
+# cc-pCVDZ-F12-OPTRI version number 0
 # Description: cc-pCVDZ-F12-OPTRI
 # Role: optri
 # 
@@ -59,7 +59,7 @@
 #     10.1039/c0cp00020e
 # 
 # # 
-basis "Li_cc-pcvdz-f12-optri" SPHERICAL 
+basis "Li_cc-pCVDZ-F12-OPTRI" SPHERICAL 
 #basis SET: (6s,7p,5d,3f,1g) -> [6s,7p,5d,3f,1g]
 Li    S
      15.1750978              1.0000000
@@ -106,7 +106,7 @@ Li    F
 Li    G
       0.2690192              1.0000000
 end
-basis "Be_cc-pcvdz-f12-optri" SPHERICAL 
+basis "Be_cc-pCVDZ-F12-OPTRI" SPHERICAL 
 #basis SET: (6s,7p,5d,3f,1g) -> [6s,7p,5d,3f,1g]
 Be    S
      12.7268379              1.0000000
@@ -153,7 +153,7 @@ Be    F
 Be    G
       0.5609638              1.0000000
 end
-basis "B_cc-pcvdz-f12-optri" SPHERICAL 
+basis "B_cc-pCVDZ-F12-OPTRI" SPHERICAL 
 #basis SET: (6s,7p,5d,3f,1g) -> [6s,7p,5d,3f,1g]
 B    S
      29.5893220              1.0000000
@@ -200,7 +200,7 @@ B    F
 B    G
       0.6940200              1.0000000
 end
-basis "C_cc-pcvdz-f12-optri" SPHERICAL 
+basis "C_cc-pCVDZ-F12-OPTRI" SPHERICAL 
 #basis SET: (6s,7p,5d,3f,1g) -> [6s,7p,5d,3f,1g]
 C    S
     120.9583790              1.0000000
@@ -247,7 +247,7 @@ C    F
 C    G
       1.0423780              1.0000000
 end
-basis "N_cc-pcvdz-f12-optri" SPHERICAL 
+basis "N_cc-pCVDZ-F12-OPTRI" SPHERICAL 
 #basis SET: (6s,7p,5d,3f,1g) -> [6s,7p,5d,3f,1g]
 N    S
     122.9618160              1.0000000
@@ -294,7 +294,7 @@ N    F
 N    G
       1.4040600              1.0000000
 end
-basis "O_cc-pcvdz-f12-optri" SPHERICAL 
+basis "O_cc-pCVDZ-F12-OPTRI" SPHERICAL 
 #basis SET: (6s,7p,5d,3f,1g) -> [6s,7p,5d,3f,1g]
 O    S
     166.2672330              1.0000000
@@ -341,7 +341,7 @@ O    F
 O    G
       1.8374740              1.0000000
 end
-basis "F_cc-pcvdz-f12-optri" SPHERICAL 
+basis "F_cc-pCVDZ-F12-OPTRI" SPHERICAL 
 #basis SET: (6s,7p,5d,3f,1g) -> [6s,7p,5d,3f,1g]
 F    S
     228.1262130              1.0000000
@@ -388,7 +388,7 @@ F    F
 F    G
       2.3745340              1.0000000
 end
-basis "Ne_cc-pcvdz-f12-optri" SPHERICAL 
+basis "Ne_cc-pCVDZ-F12-OPTRI" SPHERICAL 
 #basis SET: (6s,7p,5d,3f,1g) -> [6s,7p,5d,3f,1g]
 Ne    S
     125.5484000              1.0000000
@@ -435,7 +435,7 @@ Ne    F
 Ne    G
       2.8677250              1.0000000
 end
-basis "Na_cc-pcvdz-f12-optri" SPHERICAL 
+basis "Na_cc-pCVDZ-F12-OPTRI" SPHERICAL 
 #basis SET: (8s,7p,6d,6f,2g) -> [8s,7p,6d,6f,2g]
 Na    S
      34.3021055              1.0000000
@@ -496,7 +496,7 @@ Na    G
 Na    G
       2.3826961              1.0000000
 end
-basis "Mg_cc-pcvdz-f12-optri" SPHERICAL 
+basis "Mg_cc-pCVDZ-F12-OPTRI" SPHERICAL 
 #basis SET: (8s,7p,6d,6f,2g) -> [8s,7p,6d,6f,2g]
 Mg    S
      54.8688755              1.0000000
@@ -557,7 +557,7 @@ Mg    G
 Mg    G
       0.2660970              1.0000000
 end
-basis "Al_cc-pcvdz-f12-optri" SPHERICAL 
+basis "Al_cc-pCVDZ-F12-OPTRI" SPHERICAL 
 #basis SET: (8s,7p,6d,6f,2g) -> [8s,7p,6d,6f,2g]
 Al    S
      61.4710530              1.0000000
@@ -618,7 +618,7 @@ Al    G
 Al    G
       0.3255080              1.0000000
 end
-basis "Si_cc-pcvdz-f12-optri" SPHERICAL 
+basis "Si_cc-pCVDZ-F12-OPTRI" SPHERICAL 
 #basis SET: (8s,7p,6d,6f,2g) -> [8s,7p,6d,6f,2g]
 Si    S
      82.9683260              1.0000000
@@ -679,7 +679,7 @@ Si    G
 Si    G
       0.4564510              1.0000000
 end
-basis "P_cc-pcvdz-f12-optri" SPHERICAL 
+basis "P_cc-pCVDZ-F12-OPTRI" SPHERICAL 
 #basis SET: (8s,7p,6d,6f,2g) -> [8s,7p,6d,6f,2g]
 P    S
     261.1455350              1.0000000
@@ -740,7 +740,7 @@ P    G
 P    G
       0.5961850              1.0000000
 end
-basis "S_cc-pcvdz-f12-optri" SPHERICAL 
+basis "S_cc-pCVDZ-F12-OPTRI" SPHERICAL 
 #basis SET: (8s,7p,6d,6f,2g) -> [8s,7p,6d,6f,2g]
 S    S
     323.0502650              1.0000000
@@ -801,7 +801,7 @@ S    G
 S    G
       0.7478690              1.0000000
 end
-basis "Cl_cc-pcvdz-f12-optri" SPHERICAL 
+basis "Cl_cc-pCVDZ-F12-OPTRI" SPHERICAL 
 #basis SET: (8s,7p,6d,6f,2g) -> [8s,7p,6d,6f,2g]
 Cl    S
      70.9645540              1.0000000
@@ -862,7 +862,7 @@ Cl    G
 Cl    G
       0.9124370              1.0000000
 end
-basis "Ar_cc-pcvdz-f12-optri" SPHERICAL 
+basis "Ar_cc-pCVDZ-F12-OPTRI" SPHERICAL 
 #basis SET: (8s,7p,6d,6f,2g) -> [8s,7p,6d,6f,2g]
 Ar    S
     156.7285090              1.0000000

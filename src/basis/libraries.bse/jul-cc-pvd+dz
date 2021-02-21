@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# jul-cc-pv(d+d)z version number 0
+# Data downloaded on 2021-02-20T21:21
+# jul-cc-pV(D+d)Z version number 0
 # Description: jul-cc-pV(D+d)Z basis of Papajak/Truhlar
 # Role: orbital
 # 
@@ -117,7 +117,7 @@
 #     10.1063/1.466439
 # 
 # # 
-basis "H_jul-cc-pv(d+d)z" SPHERICAL 
+basis "H_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (4s,1p) -> [2s,1p]
 H    S
      13.0100000              0.0196850
@@ -128,7 +128,7 @@ H    S
 H    P
       0.7270000              1.0000000
 end
-basis "He_jul-cc-pv(d+d)z" SPHERICAL 
+basis "He_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (4s,1p) -> [2s,1p]
 He    S
      38.3600000              0.0238090
@@ -139,7 +139,7 @@ He    S
 He    P
       1.2750000              1.0000000
 end
-basis "Li_jul-cc-pv(d+d)z" SPHERICAL 
+basis "Li_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (18s,5p,2d) -> [4s,3p,2d]
 Li    S
    1469.0000000              0.0007660
@@ -176,7 +176,7 @@ Li    D
 Li    D
       0.0725000              1.0000000
 end
-basis "Be_jul-cc-pv(d+d)z" SPHERICAL 
+basis "Be_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (18s,5p,2d) -> [4s,3p,2d]
 Be    S
    2940.0000000              0.0006800
@@ -213,7 +213,7 @@ Be    D
 Be    D
       0.0740000              1.0000000
 end
-basis "B_jul-cc-pv(d+d)z" SPHERICAL 
+basis "B_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (18s,5p,2d) -> [4s,3p,2d]
 B    S
    4570.0000000              0.0006960
@@ -250,7 +250,7 @@ B    D
 B    D
       0.0904000              1.0000000
 end
-basis "C_jul-cc-pv(d+d)z" SPHERICAL 
+basis "C_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (18s,5p,2d) -> [4s,3p,2d]
 C    S
    6665.0000000              0.0006920
@@ -287,7 +287,7 @@ C    D
 C    D
       0.1510000              1.0000000
 end
-basis "N_jul-cc-pv(d+d)z" SPHERICAL 
+basis "N_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (18s,5p,2d) -> [4s,3p,2d]
 N    S
    9046.0000000              0.0007000
@@ -324,7 +324,7 @@ N    D
 N    D
       0.2300000              1.0000000
 end
-basis "O_jul-cc-pv(d+d)z" SPHERICAL 
+basis "O_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (18s,5p,2d) -> [4s,3p,2d]
 O    S
   11720.0000000              0.0007100
@@ -361,7 +361,7 @@ O    D
 O    D
       0.3320000              1.0000000
 end
-basis "F_jul-cc-pv(d+d)z" SPHERICAL 
+basis "F_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (18s,5p,2d) -> [4s,3p,2d]
 F    S
   14710.0000000              0.0007210
@@ -398,7 +398,7 @@ F    D
 F    D
       0.4640000              1.0000000
 end
-basis "Ne_jul-cc-pv(d+d)z" SPHERICAL 
+basis "Ne_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (18s,5p,2d) -> [4s,3p,2d]
 Ne    S
   17880.0000000              0.0007380
@@ -435,7 +435,7 @@ Ne    D
 Ne    D
       0.6310000              1.0000000
 end
-basis "Na_jul-cc-pv(d+d)z" SPHERICAL 
+basis "Na_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (35s,16p,2d) -> [5s,4p,2d]
 Na    S
   31700.0000000              0.458878E-03
@@ -502,7 +502,7 @@ Na    D
 Na    D
       0.0468000              1.0000000
 end
-basis "Mg_jul-cc-pv(d+d)z" SPHERICAL 
+basis "Mg_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (35s,16p,2d) -> [5s,4p,2d]
 Mg    S
   47390.0000000              0.346023E-03
@@ -569,7 +569,7 @@ Mg    D
 Mg    D
       0.0595000              1.0000000
 end
-basis "Al_jul-cc-pv(d+d)z" SPHERICAL 
+basis "Al_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (35s,16p,3d) -> [5s,4p,3d]
 Al    S
   64150.0000000              0.290250E-03
@@ -638,7 +638,7 @@ Al    D
 Al    D
       0.0552000              1.0000000
 end
-basis "Si_jul-cc-pv(d+d)z" SPHERICAL 
+basis "Si_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (35s,16p,3d) -> [5s,4p,3d]
 Si    S
   78860.0000000              0.270443E-03
@@ -707,7 +707,7 @@ Si    D
 Si    D
       0.0840000              1.0000000
 end
-basis "P_jul-cc-pv(d+d)z" SPHERICAL 
+basis "P_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (35s,16p,3d) -> [5s,4p,3d]
 P    S
   94840.0000000              0.255509E-03
@@ -776,7 +776,7 @@ P    D
 P    D
       0.1160000              1.0000000
 end
-basis "S_jul-cc-pv(d+d)z" SPHERICAL 
+basis "S_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (35s,16p,3d) -> [5s,4p,3d]
 S    S
  110800.0000000              0.247635E-03
@@ -845,7 +845,7 @@ S    D
 S    D
       0.1550000              1.0000000
 end
-basis "Cl_jul-cc-pv(d+d)z" SPHERICAL 
+basis "Cl_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (35s,16p,3d) -> [5s,4p,3d]
 Cl    S
  127900.0000000              0.241153E-03
@@ -914,7 +914,7 @@ Cl    D
 Cl    D
       0.1980000              1.0000000
 end
-basis "Ar_jul-cc-pv(d+d)z" SPHERICAL 
+basis "Ar_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (35s,16p,3d) -> [5s,4p,3d]
 Ar    S
  145700.0000000              0.236700E-03

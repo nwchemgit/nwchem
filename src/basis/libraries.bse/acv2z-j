@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# acv2z-j version number 1
+# Data downloaded on 2021-02-20T21:21
+# acv2z-J version number 1
 # Description: acv2z-J basis for indirect nuclear spin-spin coupling
 # Role: orbital
 # 
@@ -47,7 +47,7 @@
 #     10.1021/acs.jpca.9b05276
 # 
 # # 
-basis "Se_acv2z-j" SPHERICAL 
+basis "Se_acv2z-J" SPHERICAL 
 #basis SET: (29s,18p,8d,4f) -> [11s,8p,5d,4f]
 Se    S
       2.080442E+09           6.7143E-09
@@ -137,7 +137,7 @@ Se    F
 Se    F
       3.754415E-01           1.00000000
 end
-basis "Te_acv2z-j" SPHERICAL 
+basis "Te_acv2z-J" SPHERICAL 
 #basis SET: (36s,24p,18d,5f) -> [14s,10p,8d,5f]
 Te    S
       1.360735E+09           3.4110E-08

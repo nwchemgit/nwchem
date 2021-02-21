@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# 3zapa-nr-cv version number 1
+# Data downloaded on 2021-02-20T21:21
+# 3ZaPa-NR-CV version number 1
 # Description: Triple zeta augmented + polarization (nonrelativistic + core-valence)
 # Role: orbital
 # 
@@ -59,7 +59,7 @@
 #     10.1063/1.4935972
 # 
 # # 
-basis "H_3zapa-nr-cv" SPHERICAL 
+basis "H_3ZaPa-NR-CV" SPHERICAL 
 #basis SET: (9s,3p,1d) -> [4s,3p,1d]
 H    S
       0.3103180000E+00       0.1000000000E+01
@@ -83,7 +83,7 @@ H    P
 H    D
       0.1064733810E+01       0.1000000000E+01
 end
-basis "He_3zapa-nr-cv" SPHERICAL 
+basis "He_3ZaPa-NR-CV" SPHERICAL 
 #basis SET: (10s,3p,1d) -> [4s,3p,1d]
 He    S
       0.9425970000E+00       0.1000000000E+01
@@ -108,7 +108,7 @@ He    P
 He    D
       0.1885921988E+01       0.1000000000E+01
 end
-basis "Li_3zapa-nr-cv" SPHERICAL 
+basis "Li_3ZaPa-NR-CV" SPHERICAL 
 #basis SET: (19s,11p,6d,1f) -> [9s,7p,6d,1f]
 Li    S
       0.6189724700E+02       1.0000000
@@ -171,7 +171,7 @@ Li    D
 Li    F
       0.1607629495E+00       0.1000000000E+01
 end
-basis "Be_3zapa-nr-cv" SPHERICAL 
+basis "Be_3ZaPa-NR-CV" SPHERICAL 
 #basis SET: (21s,12p,6d,1f) -> [9s,8p,6d,1f]
 Be    S
       0.1107412210E+03       1.0000000
@@ -238,7 +238,7 @@ Be    D
 Be    F
       0.3201466944E+00       0.1000000000E+01
 end
-basis "B_3zapa-nr-cv" SPHERICAL 
+basis "B_3ZaPa-NR-CV" SPHERICAL 
 #basis SET: (22s,13p,6d,1f) -> [9s,8p,6d,1f]
 B    S
       0.1780574380E+03       1.0000000
@@ -307,7 +307,7 @@ B    D
 B    F
       0.5364897445E+00       0.1000000000E+01
 end
-basis "C_3zapa-nr-cv" SPHERICAL 
+basis "C_3ZaPa-NR-CV" SPHERICAL 
 #basis SET: (23s,13p,6d,1f) -> [9s,8p,6d,1f]
 C    S
       0.6034054420E+03       1.0000000
@@ -377,7 +377,7 @@ C    D
 C    F
       0.8081965655E+00       0.1000000000E+01
 end
-basis "N_3zapa-nr-cv" SPHERICAL 
+basis "N_3ZaPa-NR-CV" SPHERICAL 
 #basis SET: (23s,14p,6d,1f) -> [9s,8p,6d,1f]
 N    S
       0.8210285030E+03       1.0000000
@@ -448,7 +448,7 @@ N    D
 N    F
       0.1135972813E+01       0.1000000000E+01
 end
-basis "O_3zapa-nr-cv" SPHERICAL 
+basis "O_3ZaPa-NR-CV" SPHERICAL 
 #basis SET: (23s,14p,6d,1f) -> [9s,8p,6d,1f]
 O    S
       0.1062355837E+04       1.0000000
@@ -519,7 +519,7 @@ O    D
 O    F
       0.1491326602E+01       0.1000000000E+01
 end
-basis "F_3zapa-nr-cv" SPHERICAL 
+basis "F_3ZaPa-NR-CV" SPHERICAL 
 #basis SET: (23s,15p,6d,1f) -> [9s,8p,6d,1f]
 F    S
       0.1329007935E+04       1.0000000
@@ -591,7 +591,7 @@ F    D
 F    F
       0.1976769772E+01       0.1000000000E+01
 end
-basis "Ne_3zapa-nr-cv" SPHERICAL 
+basis "Ne_3ZaPa-NR-CV" SPHERICAL 
 #basis SET: (23s,15p,6d,1f) -> [9s,8p,6d,1f]
 Ne    S
       0.1617779327E+04       1.0000000
@@ -663,7 +663,7 @@ Ne    D
 Ne    F
       0.2606249795E+01       0.1000000000E+01
 end
-basis "Na_3zapa-nr-cv" SPHERICAL 
+basis "Na_3ZaPa-NR-CV" SPHERICAL 
 #basis SET: (32s,23p,9d,3f) -> [12s,11p,9d,3f]
 Na    S
       0.6735601200E+02       1.0000000
@@ -768,7 +768,7 @@ Na    F
 Na    F
       0.1388577157E+00       0.1000000000E+01
 end
-basis "Mg_3zapa-nr-cv" SPHERICAL 
+basis "Mg_3ZaPa-NR-CV" SPHERICAL 
 #basis SET: (31s,22p,8d,4f) -> [11s,11p,8d,4f]
 Mg    S
       0.4416719700E+02       1.0000000
@@ -870,7 +870,7 @@ Mg    F
 Mg    F
       0.2150036814E+00       0.1000000000E+01
 end
-basis "Al_3zapa-nr-cv" SPHERICAL 
+basis "Al_3ZaPa-NR-CV" SPHERICAL 
 #basis SET: (32s,23p,9d,4f) -> [12s,11p,9d,4f]
 Al    S
       0.1224417550E+03       1.0000000
@@ -977,7 +977,7 @@ Al    F
 Al    F
       0.2867304497E+00       0.1000000000E+01
 end
-basis "Si_3zapa-nr-cv" SPHERICAL 
+basis "Si_3ZaPa-NR-CV" SPHERICAL 
 #basis SET: (32s,23p,8d,4f) -> [12s,11p,8d,4f]
 Si    S
       0.1505959220E+03       1.0000000
@@ -1082,7 +1082,7 @@ Si    F
 Si    F
       0.3775452844E+00       0.1000000000E+01
 end
-basis "P_3zapa-nr-cv" SPHERICAL 
+basis "P_3ZaPa-NR-CV" SPHERICAL 
 #basis SET: (32s,23p,9d,4f) -> [12s,11p,9d,4f]
 P    S
       0.1806447910E+03       1.0000000
@@ -1189,7 +1189,7 @@ P    F
 P    F
       0.4855346950E+00       0.1000000000E+01
 end
-basis "S_3zapa-nr-cv" SPHERICAL 
+basis "S_3ZaPa-NR-CV" SPHERICAL 
 #basis SET: (32s,23p,9d,4f) -> [12s,11p,9d,4f]
 S    S
       0.2147610360E+03       1.0000000
@@ -1296,7 +1296,7 @@ S    F
 S    F
       0.5810631407E+00       0.1000000000E+01
 end
-basis "Cl_3zapa-nr-cv" SPHERICAL 
+basis "Cl_3ZaPa-NR-CV" SPHERICAL 
 #basis SET: (33s,24p,9d,4f) -> [12s,11p,9d,4f]
 Cl    S
       0.2513909910E+03       1.0000000
@@ -1405,7 +1405,7 @@ Cl    F
 Cl    F
       0.7268856502E+00       0.1000000000E+01
 end
-basis "Ar_3zapa-nr-cv" SPHERICAL 
+basis "Ar_3ZaPa-NR-CV" SPHERICAL 
 #basis SET: (34s,25p,8d,4f) -> [12s,11p,8d,4f]
 Ar    S
       0.2688077970E+03       1.0000000

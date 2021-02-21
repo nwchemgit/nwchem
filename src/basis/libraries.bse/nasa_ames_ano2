@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# nasa ames ano2 version number 0
+# Data downloaded on 2021-02-20T21:21
+# NASA Ames ANO2 version number 0
 # Description: VQZ3P   Valence Quadruple Zeta + Polarization on All Atoms
 # Role: orbital
 # 
@@ -46,7 +46,7 @@
 #     10.1007/s002140050120
 # 
 # # 
-basis "Sc_nasa ames ano2" SPHERICAL 
+basis "Sc_NASA Ames ANO2" SPHERICAL 
 #basis SET: (119s,76p,36d,18f,8g) -> [7s,6p,4d,3f,2g]
 Sc    S
 4789458.00                   0.000004
@@ -328,7 +328,7 @@ Sc    G
        .227600000            0.568172
        .091060000            0.252334
 end
-basis "Ti_nasa ames ano2" SPHERICAL 
+basis "Ti_NASA Ames ANO2" SPHERICAL 
 #basis SET: (119s,76p,36d,18f,8g) -> [7s,6p,4d,3f,2g]
 Ti    S
 5309148.10                   0.000004
@@ -610,7 +610,7 @@ Ti    G
        .417600000            0.062454
        .167000000            0.636111
 end
-basis "V_nasa ames ano2" SPHERICAL 
+basis "V_NASA Ames ANO2" SPHERICAL 
 #basis SET: (114s,71p,50d,18f,8g) -> [7s,6p,5d,3f,2g]
 V    S
 3321857.00                   0.000009

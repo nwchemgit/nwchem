@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# cc-pvtz-f12(rev2) version number 1
+# Data downloaded on 2021-02-20T21:21
+# cc-pVTZ-F12(rev2) version number 1
 # Description: cc-pVTZ-F12(rev2)
 # Role: orbital
 # 
@@ -46,7 +46,7 @@
 #     10.1080/00268976.2014.985755
 # 
 # # 
-basis "H_cc-pvtz-f12(rev2)" SPHERICAL 
+basis "H_cc-pVTZ-F12(rev2)" SPHERICAL 
 #basis SET: (6s,3p,2d) -> [4s,3p,2d]
 H    S
       8.264000E+01           2.0060000E-03

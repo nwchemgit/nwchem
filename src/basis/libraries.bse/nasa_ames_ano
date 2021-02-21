@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# nasa ames ano version number 0
+# Data downloaded on 2021-02-20T21:21
+# NASA Ames ANO version number 0
 # Description: VQZ3P   Valence Quadruple Zeta + Polarization on All Atoms
 # Role: orbital
 # 
@@ -56,7 +56,7 @@
 #     10.1007/bf01116550
 # 
 # # 
-basis "H_nasa ames ano" SPHERICAL 
+basis "H_NASA Ames ANO" SPHERICAL 
 #basis SET: (32s,18p,8d,3f) -> [4s,3p,2d,1f]
 H    S
     402.0099                -0.000242
@@ -130,7 +130,7 @@ H    F
       1.00                  -0.261579
       0.40                  -0.104000
 end
-basis "B_nasa ames ano" SPHERICAL 
+basis "B_NASA Ames ANO" SPHERICAL 
 #basis SET: (65s,32p,18d,8f,2g) -> [5s,4p,3d,2f,1g]
 B    S
   46535.63                   0.000038
@@ -273,7 +273,7 @@ B    G
       1.14                   0.022612
       0.46                   0.061839
 end
-basis "C_nasa ames ano" SPHERICAL 
+basis "C_NASA Ames ANO" SPHERICAL 
 #basis SET: (65s,32p,18d,8f,2g) -> [5s,4p,3d,2f,1g]
 C    S
   50557.50                  -0.000055
@@ -416,7 +416,7 @@ C    G
       1.64                   0.220774
       0.66                   0.502049
 end
-basis "N_nasa ames ano" SPHERICAL 
+basis "N_NASA Ames ANO" SPHERICAL 
 #basis SET: (65s,32p,18d,8f,2g) -> [5s,4p,3d,2f,1g]
 N    S
   74761.72                  -0.000050
@@ -559,7 +559,7 @@ N    G
       2.28                  -0.101690
       0.91                  -0.218289
 end
-basis "O_nasa ames ano" SPHERICAL 
+basis "O_NASA Ames ANO" SPHERICAL 
 #basis SET: (65s,32p,18d,8f,2g) -> [5s,4p,3d,2f,1g]
 O    S
  105374.9                   -0.000046
@@ -702,7 +702,7 @@ O    G
       3.11                   0.206885
       1.24                   0.514253
 end
-basis "F_nasa ames ano" SPHERICAL 
+basis "F_NASA Ames ANO" SPHERICAL 
 #basis SET: (65s,32p,18d,8f,2g) -> [5s,4p,3d,2f,1g]
 F    S
  103109.5                   -0.000064
@@ -845,7 +845,7 @@ F    G
       3.69                   0.242250
       1.48                   0.484800
 end
-basis "Ne_nasa ames ano" SPHERICAL 
+basis "Ne_NASA Ames ANO" SPHERICAL 
 #basis SET: (65s,32p,18d,8f,2g) -> [5s,4p,3d,2f,1g]
 Ne    S
  166165.1                   -0.000047
@@ -988,7 +988,7 @@ Ne    G
       4.55                  -0.251480
       1.82                  -0.477401
 end
-basis "Al_nasa ames ano" SPHERICAL 
+basis "Al_NASA Ames ANO" SPHERICAL 
 #basis SET: (117s,65p,18d,8f,2g) -> [6s,5p,3d,2f,1g]
 Al    S
  446287.3                   -0.000022
@@ -1218,7 +1218,7 @@ Al    G
       1.06                  -0.084737
       0.42                  -0.232140
 end
-basis "P_nasa ames ano" SPHERICAL 
+basis "P_NASA Ames ANO" SPHERICAL 
 #basis SET: (107s,65p,18d,8f,2g) -> [6s,5p,3d,2f,1g]
 P    S
 1948462.                     0.000006
@@ -1438,7 +1438,7 @@ P    G
       1.06                  -0.084737
       0.42                  -0.232140
 end
-basis "Ti_nasa ames ano" SPHERICAL 
+basis "Ti_NASA Ames ANO" SPHERICAL 
 #basis SET: (119s,76p,28d,12f) -> [7s,6p,4d,2f]
 Ti    S
 5309148.1                    0.000004
@@ -1695,7 +1695,7 @@ Ti    F
       0.139                  0.541599
       0.056                  0.265375
 end
-basis "Fe_nasa ames ano" SPHERICAL 
+basis "Fe_NASA Ames ANO" SPHERICAL 
 #basis SET: (113s,71p,40d,18f,8g) -> [7s,6p,4d,3f,2g]
 Fe    S
 4316265.30                   0.000009
@@ -1970,7 +1970,7 @@ Fe    G
       1.305                  0.020599
       0.522                 -0.152931
 end
-basis "Ni_nasa ames ano" SPHERICAL 
+basis "Ni_NASA Ames ANO" SPHERICAL 
 #basis SET: (114s,71p,40d,12f) -> [7s,6p,4d,2f]
 Ni    S
 5048010.4                    0.000009

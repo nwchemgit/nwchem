@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# ccj-pvqz version number 0
+# Data downloaded on 2021-02-20T21:21
+# ccJ-pVQZ version number 0
 # Description: ccJ-pVQZ
 # Role: orbital
 # 
@@ -46,7 +46,7 @@
 #     10.1063/1.2962973
 # 
 # # 
-basis "H_ccj-pvqz" SPHERICAL 
+basis "H_ccJ-pVQZ" SPHERICAL 
 #basis SET: (8s,4p,3d,1f) -> [6s,4p,3d,1f]
 H    S
   21816.9600000              0.0251443
@@ -79,7 +79,7 @@ H    D
 H    F
       1.3970000              1.0000000
 end
-basis "He_ccj-pvqz" SPHERICAL 
+basis "He_ccJ-pVQZ" SPHERICAL 
 #basis SET: (9s,4p,3d,1f) -> [7s,4p,3d,1f]
 He    S
  139524.0000000              0.0251593
@@ -114,7 +114,7 @@ He    D
 He    F
       2.6800000              1.0000000
 end
-basis "B_ccj-pvqz" SPHERICAL 
+basis "B_ccJ-pVQZ" SPHERICAL 
 #basis SET: (14s,7p,4d,2f,1g) -> [9s,5p,4d,2f,1g]
 B    S
 6826820.0000000              0.0014054
@@ -166,7 +166,7 @@ B    F
 B    G
       0.6730000              1.0000000
 end
-basis "C_ccj-pvqz" SPHERICAL 
+basis "C_ccJ-pVQZ" SPHERICAL 
 #basis SET: (14s,7p,4d,2f,1g) -> [9s,5p,4d,2f,1g]
 C    S
 9718280.0000000              0.0014052
@@ -218,7 +218,7 @@ C    F
 C    G
       1.0110000              1.0000000
 end
-basis "N_ccj-pvqz" SPHERICAL 
+basis "N_ccJ-pVQZ" SPHERICAL 
 #basis SET: (14s,7p,4d,2f,1g) -> [9s,5p,4d,2f,1g]
 N    S
 13110240.0000000             0.0014055
@@ -270,7 +270,7 @@ N    F
 N    G
       1.4270000              1.0000000
 end
-basis "O_ccj-pvqz" SPHERICAL 
+basis "O_ccJ-pVQZ" SPHERICAL 
 #basis SET: (14s,7p,4d,2f,1g) -> [9s,5p,4d,2f,1g]
 O    S
 17566120.0000000             0.0014054
@@ -322,7 +322,7 @@ O    F
 O    G
       1.8460000              1.0000000
 end
-basis "F_ccj-pvqz" SPHERICAL 
+basis "F_ccJ-pVQZ" SPHERICAL 
 #basis SET: (14s,7p,4d,2f,1g) -> [9s,5p,4d,2f,1g]
 F    S
 21315580.0000000             0.0014057
@@ -374,7 +374,7 @@ F    F
 F    G
       2.3760000              1.0000000
 end
-basis "Ne_ccj-pvqz" SPHERICAL 
+basis "Ne_ccJ-pVQZ" SPHERICAL 
 #basis SET: (14s,7p,4d,2f,1g) -> [9s,5p,4d,2f,1g]
 Ne    S
 28577120.0000000             0.0014051

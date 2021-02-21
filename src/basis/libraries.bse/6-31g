@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# 6-31g version number 1
+# Data downloaded on 2021-02-20T21:21
+# 6-31G version number 1
 # Description: 6-31G valence double-zeta
 # Role: orbital
 # 
@@ -154,7 +154,7 @@
 #     10.1002/jcc.1058.abs
 # 
 # # 
-basis "H_6-31g" SPHERICAL 
+basis "H_6-31G" SPHERICAL 
 #basis SET: (4s) -> [2s]
 H    S
       0.1873113696E+02       0.3349460434E-01
@@ -163,7 +163,7 @@ H    S
 H    S
       0.1612777588E+00       1.0000000
 end
-basis "He_6-31g" SPHERICAL 
+basis "He_6-31G" SPHERICAL 
 #basis SET: (4s) -> [2s]
 He    S
       0.3842163400E+02       0.4013973935E-01
@@ -172,7 +172,7 @@ He    S
 He    S
       0.2979640000E+00       1.0000000
 end
-basis "Li_6-31g" SPHERICAL 
+basis "Li_6-31G" SPHERICAL 
 #basis SET: (10s,4p) -> [3s,2p]
 Li    S
       0.6424189150E+03       0.2142607810E-02
@@ -188,7 +188,7 @@ Li    SP
 Li    SP
       0.3596197175E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "Be_6-31g" SPHERICAL 
+basis "Be_6-31G" SPHERICAL 
 #basis SET: (10s,4p) -> [3s,2p]
 Be    S
       0.1264585690E+04       0.1944757590E-02
@@ -204,7 +204,7 @@ Be    SP
 Be    SP
       0.8230990070E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "B_6-31g" SPHERICAL 
+basis "B_6-31G" SPHERICAL 
 #basis SET: (10s,4p) -> [3s,2p]
 B    S
       0.2068882250E+04       0.1866274590E-02
@@ -220,7 +220,7 @@ B    SP
 B    SP
       0.1267512469E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "C_6-31g" SPHERICAL 
+basis "C_6-31G" SPHERICAL 
 #basis SET: (10s,4p) -> [3s,2p]
 C    S
       0.3047524880E+04       0.1834737132E-02
@@ -236,7 +236,7 @@ C    SP
 C    SP
       0.1687144782E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "N_6-31g" SPHERICAL 
+basis "N_6-31G" SPHERICAL 
 #basis SET: (10s,4p) -> [3s,2p]
 N    S
       0.4173511460E+04       0.1834772160E-02
@@ -252,7 +252,7 @@ N    SP
 N    SP
       0.2120314975E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "O_6-31g" SPHERICAL 
+basis "O_6-31G" SPHERICAL 
 #basis SET: (10s,4p) -> [3s,2p]
 O    S
       0.5484671660E+04       0.1831074430E-02
@@ -268,7 +268,7 @@ O    SP
 O    SP
       0.2700058226E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "F_6-31g" SPHERICAL 
+basis "F_6-31G" SPHERICAL 
 #basis SET: (10s,4p) -> [3s,2p]
 F    S
       0.7001713090E+04       0.1819616901E-02
@@ -284,7 +284,7 @@ F    SP
 F    SP
       0.3581513930E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "Ne_6-31g" SPHERICAL 
+basis "Ne_6-31G" SPHERICAL 
 #basis SET: (10s,4p) -> [3s,2p]
 Ne    S
       0.8425851530E+04       0.1884348050E-02
@@ -300,7 +300,7 @@ Ne    SP
 Ne    SP
       0.4458187000E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "Na_6-31g" SPHERICAL 
+basis "Na_6-31G" SPHERICAL 
 #basis SET: (16s,10p) -> [4s,3p]
 Na    S
       0.9993200000E+04       0.1937659277E-02
@@ -323,7 +323,7 @@ Na    SP
 Na    SP
       0.2595440000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "Mg_6-31g" SPHERICAL 
+basis "Mg_6-31G" SPHERICAL 
 #basis SET: (16s,10p) -> [4s,3p]
 Mg    S
       0.1172280000E+05       0.1977829317E-02
@@ -346,7 +346,7 @@ Mg    SP
 Mg    SP
       0.4210610000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "Al_6-31g" SPHERICAL 
+basis "Al_6-31G" SPHERICAL 
 #basis SET: (16s,10p) -> [4s,3p]
 Al    S
       0.1398310000E+05       0.1942669947E-02
@@ -369,7 +369,7 @@ Al    SP
 Al    SP
       0.5565770000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "Si_6-31g" SPHERICAL 
+basis "Si_6-31G" SPHERICAL 
 #basis SET: (16s,10p) -> [4s,3p]
 Si    S
       0.1611590000E+05       0.1959480216E-02
@@ -392,7 +392,7 @@ Si    SP
 Si    SP
       0.7783690000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "P_6-31g" SPHERICAL 
+basis "P_6-31G" SPHERICAL 
 #basis SET: (16s,10p) -> [4s,3p]
 P    S
       0.1941330000E+05       0.1851598923E-02
@@ -415,7 +415,7 @@ P    SP
 P    SP
       0.9983170000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "S_6-31g" SPHERICAL 
+basis "S_6-31G" SPHERICAL 
 #basis SET: (16s,10p) -> [4s,3p]
 S    S
       0.2191710000E+05       0.1869240849E-02
@@ -438,7 +438,7 @@ S    SP
 S    SP
       0.1171670000E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "Cl_6-31g" SPHERICAL 
+basis "Cl_6-31G" SPHERICAL 
 #basis SET: (16s,10p) -> [4s,3p]
 Cl    S
       0.2518010000E+05       0.1832959848E-02
@@ -461,7 +461,7 @@ Cl    SP
 Cl    SP
       0.1426570000E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "Ar_6-31g" SPHERICAL 
+basis "Ar_6-31G" SPHERICAL 
 #basis SET: (16s,10p) -> [4s,3p]
 Ar    S
       0.2834830000E+05       0.1825260192E-02
@@ -484,7 +484,7 @@ Ar    SP
 Ar    SP
       0.1738880000E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "K_6-31g" CARTESIAN 
+basis "K_6-31G" CARTESIAN 
 #basis SET: (22s,16p,4d) -> [5s,4p,2d]
 K    S
       0.3159442000E+05       0.1828009922E-02
@@ -520,7 +520,7 @@ K    D
 K    D
       0.1793890000E+00       1.0000000
 end
-basis "Ca_6-31g" CARTESIAN 
+basis "Ca_6-31G" CARTESIAN 
 #basis SET: (22s,16p,4d) -> [5s,4p,2d]
 Ca    S
       0.3526486000E+05       0.1813501124E-02
@@ -556,7 +556,7 @@ Ca    D
 Ca    D
       0.2008780000E+00       1.0000000
 end
-basis "Sc_6-31g" CARTESIAN 
+basis "Sc_6-31G" CARTESIAN 
 #basis SET: (22s,16p,4d) -> [5s,4p,2d]
 Sc    S
       0.3908898000E+05       0.1803262955E-02
@@ -592,7 +592,7 @@ Sc    D
 Sc    D
       0.2214680000E+00       1.0000000
 end
-basis "Ti_6-31g" CARTESIAN 
+basis "Ti_6-31G" CARTESIAN 
 #basis SET: (22s,16p,4d) -> [5s,4p,2d]
 Ti    S
       0.4315295000E+05       0.1791871976E-02
@@ -628,7 +628,7 @@ Ti    D
 Ti    D
       0.2869620000E+00       1.0000000
 end
-basis "V_6-31g" CARTESIAN 
+basis "V_6-31G" CARTESIAN 
 #basis SET: (22s,16p,4d) -> [5s,4p,2d]
 V    S
       0.4735433000E+05       0.1784512997E-02
@@ -664,7 +664,7 @@ V    D
 V    D
       0.3442770000E+00       1.0000000
 end
-basis "Cr_6-31g" CARTESIAN 
+basis "Cr_6-31G" CARTESIAN 
 #basis SET: (22s,16p,4d) -> [5s,4p,2d]
 Cr    S
       0.5178981000E+05       0.1776181956E-02
@@ -700,7 +700,7 @@ Cr    D
 Cr    D
       0.4004130000E+00       1.0000000
 end
-basis "Mn_6-31g" CARTESIAN 
+basis "Mn_6-31G" CARTESIAN 
 #basis SET: (22s,16p,4d) -> [5s,4p,2d]
 Mn    S
       0.5634714000E+05       0.1771579986E-02
@@ -736,7 +736,7 @@ Mn    D
 Mn    D
       0.4617330000E+00       1.0000000
 end
-basis "Fe_6-31g" CARTESIAN 
+basis "Fe_6-31G" CARTESIAN 
 #basis SET: (22s,16p,4d) -> [5s,4p,2d]
 Fe    S
       0.6113262000E+05       0.1766110976E-02
@@ -772,7 +772,7 @@ Fe    D
 Fe    D
       0.5043610000E+00       1.0000000
 end
-basis "Co_6-31g" CARTESIAN 
+basis "Co_6-31G" CARTESIAN 
 #basis SET: (22s,16p,4d) -> [5s,4p,2d]
 Co    S
       0.6614899000E+05       0.1759787106E-02
@@ -808,7 +808,7 @@ Co    D
 Co    D
       0.5556710000E+00       1.0000000
 end
-basis "Ni_6-31g" CARTESIAN 
+basis "Ni_6-31G" CARTESIAN 
 #basis SET: (22s,16p,4d) -> [5s,4p,2d]
 Ni    S
       0.7139635000E+05       0.1753002902E-02
@@ -844,7 +844,7 @@ Ni    D
 Ni    D
       0.6116030000E+00       1.0000000
 end
-basis "Cu_6-31g" CARTESIAN 
+basis "Cu_6-31G" CARTESIAN 
 #basis SET: (22s,16p,4d) -> [5s,4p,2d]
 Cu    S
       0.7679438000E+05       0.1748161083E-02
@@ -880,7 +880,7 @@ Cu    D
 Cu    D
       0.6676580000E+00       1.0000000
 end
-basis "Zn_6-31g" CARTESIAN 
+basis "Zn_6-31G" CARTESIAN 
 #basis SET: (22s,16p,4d) -> [5s,4p,2d]
 Zn    S
       0.8240094000E+05       0.1743328988E-02
@@ -916,7 +916,7 @@ Zn    D
 Zn    D
       0.7302940000E+00       1.0000000
 end
-basis "Ga_6-31g" CARTESIAN 
+basis "Ga_6-31G" CARTESIAN 
 #basis SET: (22s,16p,4d) -> [5s,4p,2d]
 Ga    S
       0.8828461000E+05       0.1736921000E-02
@@ -952,7 +952,7 @@ Ga    D
 Ga    D
       0.9156600000E+00       1.0000000
 end
-basis "Ge_6-31g" CARTESIAN 
+basis "Ge_6-31G" CARTESIAN 
 #basis SET: (22s,16p,4d) -> [5s,4p,2d]
 Ge    S
       0.9428132000E+05       0.1732993000E-02
@@ -988,7 +988,7 @@ Ge    D
 Ge    D
       0.1108831000E+01       1.0000000
 end
-basis "As_6-31g" CARTESIAN 
+basis "As_6-31G" CARTESIAN 
 #basis SET: (22s,16p,4d) -> [5s,4p,2d]
 As    S
       0.1005955000E+06       0.1726750000E-02
@@ -1024,7 +1024,7 @@ As    D
 As    D
       0.1310755000E+01       1.0000000
 end
-basis "Se_6-31g" CARTESIAN 
+basis "Se_6-31G" CARTESIAN 
 #basis SET: (22s,16p,4d) -> [5s,4p,2d]
 Se    S
       0.1070273000E+06       0.1722646000E-02
@@ -1060,7 +1060,7 @@ Se    D
 Se    D
       0.1523844000E+01       1.0000000
 end
-basis "Br_6-31g" CARTESIAN 
+basis "Br_6-31G" CARTESIAN 
 #basis SET: (22s,16p,4d) -> [5s,4p,2d]
 Br    S
       0.1137182000E+06       0.1717696000E-02
@@ -1096,7 +1096,7 @@ Br    D
 Br    D
       0.1746486000E+01       1.0000000
 end
-basis "Kr_6-31g" CARTESIAN 
+basis "Kr_6-31G" CARTESIAN 
 #basis SET: (22s,16p,4d) -> [5s,4p,2d]
 Kr    S
       0.1205524000E+06       0.1714050000E-02

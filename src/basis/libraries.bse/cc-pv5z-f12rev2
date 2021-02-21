@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# cc-pv5z-f12(rev2) version number 1
+# Data downloaded on 2021-02-20T21:21
+# cc-pV5Z-F12(rev2) version number 1
 # Description: cc-pV5Z-F12(rev2)
 # Role: orbital
 # 
@@ -46,7 +46,7 @@
 #     10.1080/00268976.2014.985755
 # 
 # # 
-basis "H_cc-pv5z-f12(rev2)" SPHERICAL 
+basis "H_cc-pV5Z-F12(rev2)" SPHERICAL 
 #basis SET: (10s,5p,4d,3f,2g) -> [6s,5p,4d,3f,2g]
 H    S
       1.776776E+03           4.4000000E-05

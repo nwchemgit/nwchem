@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# pv6z version number 0
+# Data downloaded on 2021-02-20T21:21
+# pV6Z version number 0
 # Description: V6Z5P   Valence Sextuple Zeta + Polarization on All Atoms
 # Role: orbital
 # 
@@ -70,7 +70,7 @@
 #     10.1063/1.467503
 # 
 # # 
-basis "H_pv6z" SPHERICAL 
+basis "H_pV6Z" SPHERICAL 
 #basis SET: (10s,5p,4d,3f,2g,1h) -> [6s,5p,4d,3f,2g,1h]
 H    S
    1776.77556                0.000044
@@ -119,7 +119,7 @@ H    G
 H    H
       2.7580                 1.0
 end
-basis "C_pv6z" SPHERICAL 
+basis "C_pV6Z" SPHERICAL 
 #basis SET: (27s,11p,5d,4f,3g,2h,1i) -> [7s,6p,5d,4f,3g,2h,1i]
 C    S
  312229.0                    0.000006
@@ -203,7 +203,7 @@ C    H
 C    I
       1.50900                1.0
 end
-basis "N_pv6z" SPHERICAL 
+basis "N_pV6Z" SPHERICAL 
 #basis SET: (27s,11p,5d,4f,3g,2h,1i) -> [7s,6p,5d,4f,3g,2h,1i]
 N    S
  432381.1                    0.000006
@@ -287,7 +287,7 @@ N    H
 N    I
       2.22200                1.0
 end
-basis "O_pv6z" SPHERICAL 
+basis "O_pV6Z" SPHERICAL 
 #basis SET: (27s,10p,5d,4f,3g,2h,1i) -> [7s,6p,5d,4f,3g,2h,1i]
 O    S
  570979.8                    0.000006

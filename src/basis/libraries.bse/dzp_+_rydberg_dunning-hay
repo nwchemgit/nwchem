@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# dzp + rydberg (dunning-hay) version number 0
+# Data downloaded on 2021-02-20T21:21
+# DZP + Rydberg (Dunning-Hay) version number 0
 # Description: DZP1R   Double Zeta + Polarization on All Atoms
 # Role: orbital
 # 
@@ -119,7 +119,7 @@
 #     10.1063/1.449647
 # 
 # # 
-basis "B_dzp + rydberg (dunning-hay)" SPHERICAL 
+basis "B_DZP + Rydberg (Dunning-Hay)" SPHERICAL 
 #basis SET: (10s,6p,2d) -> [5s,3p,2d]
 B    S
    2788.41                   0.002122
@@ -150,7 +150,7 @@ B    D
 B    D
       0.015000               1.000000
 end
-basis "C_dzp + rydberg (dunning-hay)" SPHERICAL 
+basis "C_DZP + Rydberg (Dunning-Hay)" SPHERICAL 
 #basis SET: (10s,6p,2d) -> [5s,3p,2d]
 C    S
    4232.61                   0.002029
@@ -181,7 +181,7 @@ C    D
 C    D
       0.015000               1.000000
 end
-basis "N_dzp + rydberg (dunning-hay)" SPHERICAL 
+basis "N_DZP + Rydberg (Dunning-Hay)" SPHERICAL 
 #basis SET: (10s,6p,2d) -> [5s,3p,2d]
 N    S
    5909.44                   0.002004
@@ -212,7 +212,7 @@ N    D
 N    D
       0.015000               1.000000
 end
-basis "O_dzp + rydberg (dunning-hay)" SPHERICAL 
+basis "O_DZP + Rydberg (Dunning-Hay)" SPHERICAL 
 #basis SET: (10s,6p,2d) -> [5s,3p,2d]
 O    S
    7816.54                   0.002031
@@ -243,7 +243,7 @@ O    D
 O    D
       0.015000               1.000000
 end
-basis "F_dzp + rydberg (dunning-hay)" SPHERICAL 
+basis "F_DZP + Rydberg (Dunning-Hay)" SPHERICAL 
 #basis SET: (10s,6p,2d) -> [5s,3p,2d]
 F    S
    9994.79                   0.002017
@@ -274,7 +274,7 @@ F    D
 F    D
       0.015000               1.000000
 end
-basis "Ne_dzp + rydberg (dunning-hay)" SPHERICAL 
+basis "Ne_DZP + Rydberg (Dunning-Hay)" SPHERICAL 
 #basis SET: (10s,6p,2d) -> [5s,3p,2d]
 Ne    S
   12100.                     0.001200
@@ -305,7 +305,7 @@ Ne    D
 Ne    D
       0.015000               1.000000
 end
-basis "Al_dzp + rydberg (dunning-hay)" SPHERICAL 
+basis "Al_DZP + Rydberg (Dunning-Hay)" SPHERICAL 
 #basis SET: (13s,9p,2d) -> [7s,5p,2d]
 Al    S
   23490.00                   0.002509
@@ -346,7 +346,7 @@ Al    D
 Al    D
       0.01500                1.000000
 end
-basis "Si_dzp + rydberg (dunning-hay)" SPHERICAL 
+basis "Si_DZP + Rydberg (Dunning-Hay)" SPHERICAL 
 #basis SET: (13s,9p,2d) -> [7s,5p,2d]
 Si    S
   26740.00                   0.002583
@@ -387,7 +387,7 @@ Si    D
 Si    D
       0.01500                1.000000
 end
-basis "P_dzp + rydberg (dunning-hay)" SPHERICAL 
+basis "P_DZP + Rydberg (Dunning-Hay)" SPHERICAL 
 #basis SET: (13s,9p,2d) -> [7s,5p,2d]
 P    S
   30630.00                   0.002619
@@ -428,7 +428,7 @@ P    D
 P    D
       0.01500                1.000000
 end
-basis "S_dzp + rydberg (dunning-hay)" SPHERICAL 
+basis "S_DZP + Rydberg (Dunning-Hay)" SPHERICAL 
 #basis SET: (13s,9p,2d) -> [7s,5p,2d]
 S    S
   35710.00                   0.002565
@@ -469,7 +469,7 @@ S    D
 S    D
       0.01500                1.000000
 end
-basis "Cl_dzp + rydberg (dunning-hay)" SPHERICAL 
+basis "Cl_DZP + Rydberg (Dunning-Hay)" SPHERICAL 
 #basis SET: (13s,9p,2d) -> [7s,5p,2d]
 Cl    S
   40850.00                   0.002532

@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# cc-pcvdz-dk version number 0
+# Data downloaded on 2021-02-20T21:21
+# cc-pCVDZ-DK version number 0
 # Description: VDZP Douglas-Kroll Valence Double Zeta + Polarization + Tight core
 # Role: orbital
 # 
@@ -116,7 +116,7 @@
 #     10.1063/1.470645
 # 
 # # 
-basis "Li_cc-pcvdz-dk" SPHERICAL 
+basis "Li_cc-pCVDZ-DK" SPHERICAL 
 #basis SET: (18s,5p,1d) -> [4s,3p,1d]
 Li    S
    1469.0000000              0.0008088
@@ -151,7 +151,7 @@ Li    P
 Li    D
       0.1239000              1.0000000
 end
-basis "Be_cc-pcvdz-dk" SPHERICAL 
+basis "Be_cc-pCVDZ-DK" SPHERICAL 
 #basis SET: (18s,5p,1d) -> [4s,3p,1d]
 Be    S
    2940.0000000              0.0007540
@@ -186,7 +186,7 @@ Be    P
 Be    D
       0.2380000              1.0000000
 end
-basis "B_cc-pcvdz-dk" SPHERICAL 
+basis "B_cc-pCVDZ-DK" SPHERICAL 
 #basis SET: (18s,5p,1d) -> [4s,3p,1d]
 B    S
    4570.0000000              0.0008100
@@ -221,7 +221,7 @@ B    P
 B    D
       0.3430000              1.0000000
 end
-basis "C_cc-pcvdz-dk" SPHERICAL 
+basis "C_cc-pCVDZ-DK" SPHERICAL 
 #basis SET: (18s,5p,1d) -> [4s,3p,1d]
 C    S
    6665.0000000              0.0008517
@@ -256,7 +256,7 @@ C    P
 C    D
       0.5500000              1.0000000
 end
-basis "N_cc-pcvdz-dk" SPHERICAL 
+basis "N_cc-pCVDZ-DK" SPHERICAL 
 #basis SET: (18s,5p,1d) -> [4s,3p,1d]
 N    S
    9046.0000000              0.0009106
@@ -291,7 +291,7 @@ N    P
 N    D
       0.8170000              1.0000000
 end
-basis "O_cc-pcvdz-dk" SPHERICAL 
+basis "O_cc-pCVDZ-DK" SPHERICAL 
 #basis SET: (18s,5p,1d) -> [4s,3p,1d]
 O    S
   11720.0000000              0.0009775
@@ -326,7 +326,7 @@ O    P
 O    D
       1.1850000              1.0000000
 end
-basis "F_cc-pcvdz-dk" SPHERICAL 
+basis "F_cc-pCVDZ-DK" SPHERICAL 
 #basis SET: (18s,5p,1d) -> [4s,3p,1d]
 F    S
   14710.0000000              0.0010485
@@ -361,7 +361,7 @@ F    P
 F    D
       1.6400000              1.0000000
 end
-basis "Ne_cc-pcvdz-dk" SPHERICAL 
+basis "Ne_cc-pCVDZ-DK" SPHERICAL 
 #basis SET: (18s,5p,1d) -> [4s,3p,1d]
 Ne    S
   17880.0000000              0.0011307
@@ -396,7 +396,7 @@ Ne    P
 Ne    D
       2.2020000              1.0000000
 end
-basis "Na_cc-pcvdz-dk" SPHERICAL 
+basis "Na_cc-pCVDZ-DK" SPHERICAL 
 #basis SET: (35s,16p,2d) -> [5s,4p,2d]
 Na    S
   31700.0000000              0.0008311
@@ -463,7 +463,7 @@ Na    D
 Na    D
       0.0973000              1.0000000
 end
-basis "Mg_cc-pcvdz-dk" SPHERICAL 
+basis "Mg_cc-pCVDZ-DK" SPHERICAL 
 #basis SET: (35s,16p,2d) -> [5s,4p,2d]
 Mg    S
   47390.0000000              0.0007178
@@ -530,7 +530,7 @@ Mg    D
 Mg    D
       0.1870000              1.0000000
 end
-basis "Al_cc-pcvdz-dk" SPHERICAL 
+basis "Al_cc-pCVDZ-DK" SPHERICAL 
 #basis SET: (35s,16p,2d) -> [5s,4p,2d]
 Al    S
   64150.0000000              0.0006736
@@ -597,7 +597,7 @@ Al    D
 Al    D
       0.1890000              1.0000000
 end
-basis "Si_cc-pcvdz-dk" SPHERICAL 
+basis "Si_cc-pCVDZ-DK" SPHERICAL 
 #basis SET: (35s,16p,2d) -> [5s,4p,2d]
 Si    S
   78860.0000000              0.0006815
@@ -664,7 +664,7 @@ Si    D
 Si    D
       0.2750000              1.0000000
 end
-basis "P_cc-pcvdz-dk" SPHERICAL 
+basis "P_cc-pCVDZ-DK" SPHERICAL 
 #basis SET: (35s,16p,2d) -> [5s,4p,2d]
 P    S
   94840.0000000              0.0006956
@@ -731,7 +731,7 @@ P    D
 P    D
       0.3730000              1.0000000
 end
-basis "S_cc-pcvdz-dk" SPHERICAL 
+basis "S_cc-pCVDZ-DK" SPHERICAL 
 #basis SET: (35s,16p,2d) -> [5s,4p,2d]
 S    S
  110800.0000000              0.0007215
@@ -798,7 +798,7 @@ S    D
 S    D
       0.4790000              1.0000000
 end
-basis "Cl_cc-pcvdz-dk" SPHERICAL 
+basis "Cl_cc-pCVDZ-DK" SPHERICAL 
 #basis SET: (35s,16p,2d) -> [5s,4p,2d]
 Cl    S
  127900.0000000              0.0007497
@@ -865,7 +865,7 @@ Cl    D
 Cl    D
       0.6000000              1.0000000
 end
-basis "Ar_cc-pcvdz-dk" SPHERICAL 
+basis "Ar_cc-pCVDZ-DK" SPHERICAL 
 #basis SET: (35s,16p,2d) -> [5s,4p,2d]
 Ar    S
  145700.0000000              0.0007819

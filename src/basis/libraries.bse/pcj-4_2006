@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# pcj-4_2006 version number 0
+# Data downloaded on 2021-02-20T21:21
+# pcJ-4_2006 version number 0
 # Description: pcJ-4_2006
 # Role: orbital
 # 
@@ -57,7 +57,7 @@
 #     10.1021/jp068677h
 # 
 # # 
-basis "H_pcj-4_2006" SPHERICAL 
+basis "H_pcJ-4_2006" SPHERICAL 
 #basis SET: (12s,7p,4d,2f,1g) -> [10s,7p,4d,2f,1g]
 H    S
       0.615934E+05           0.244497E-02
@@ -110,7 +110,7 @@ H    F
 H    G
       0.320000E+01           0.100000E+01
 end
-basis "He_pcj-4_2006" SPHERICAL 
+basis "He_pcJ-4_2006" SPHERICAL 
 #basis SET: (12s,7p,4d,2f,1g) -> [10s,7p,4d,2f,1g]
 He    S
       0.175603E+06           0.244583E-02
@@ -163,7 +163,7 @@ He    F
 He    G
       0.465000E+01           0.100000E+01
 end
-basis "B_pcj-4_2006" SPHERICAL 
+basis "B_pcJ-4_2006" SPHERICAL 
 #basis SET: (19s,12p,7d,4f,2g,1h) -> [15s,10p,7d,4f,2g,1h]
 B    S
       0.148500E+08           0.109128E-03
@@ -250,7 +250,7 @@ B    G
 B    H
       0.175000E+01           0.100000E+01
 end
-basis "C_pcj-4_2006" SPHERICAL 
+basis "C_pcJ-4_2006" SPHERICAL 
 #basis SET: (19s,12p,7d,4f,2g,1h) -> [15s,10p,7d,4f,2g,1h]
 C    S
       0.105555E+08           0.110362E-03
@@ -337,7 +337,7 @@ C    G
 C    H
       0.185000E+01           0.100000E+01
 end
-basis "N_pcj-4_2006" SPHERICAL 
+basis "N_pcJ-4_2006" SPHERICAL 
 #basis SET: (19s,12p,7d,4f,2g,1h) -> [15s,10p,7d,4f,2g,1h]
 N    S
       0.178952E+08           0.112286E-03
@@ -424,7 +424,7 @@ N    G
 N    H
       0.195000E+01           0.100000E+01
 end
-basis "O_pcj-4_2006" SPHERICAL 
+basis "O_pcJ-4_2006" SPHERICAL 
 #basis SET: (19s,12p,7d,4f,2g,1h) -> [15s,10p,7d,4f,2g,1h]
 O    S
       0.251945E+08           0.112511E-03
@@ -511,7 +511,7 @@ O    G
 O    H
       0.205000E+01           0.100000E+01
 end
-basis "F_pcj-4_2006" SPHERICAL 
+basis "F_pcJ-4_2006" SPHERICAL 
 #basis SET: (19s,12p,7d,4f,2g,1h) -> [15s,10p,7d,4f,2g,1h]
 F    S
       0.371204E+08           0.112736E-03
@@ -598,7 +598,7 @@ F    G
 F    H
       0.215000E+01           0.100000E+01
 end
-basis "Ne_pcj-4_2006" SPHERICAL 
+basis "Ne_pcJ-4_2006" SPHERICAL 
 #basis SET: (19s,12p,7d,4f,2g,1h) -> [15s,10p,7d,4f,2g,1h]
 Ne    S
       0.504516E+08           0.109582E-03
@@ -685,7 +685,7 @@ Ne    G
 Ne    H
       0.225000E+01           0.100000E+01
 end
-basis "Al_pcj-4_2006" SPHERICAL 
+basis "Al_pcJ-4_2006" SPHERICAL 
 #basis SET: (28s,17p,7d,4f,2g,1h) -> [16s,12p,7d,4f,2g,1h]
 Al    S
       0.769034E+08           0.241009E-04
@@ -789,7 +789,7 @@ Al    G
 Al    H
       0.690000E+00           0.100000E+01
 end
-basis "Si_pcj-4_2006" SPHERICAL 
+basis "Si_pcJ-4_2006" SPHERICAL 
 #basis SET: (28s,17p,7d,4f,2g,1h) -> [16s,12p,7d,4f,2g,1h]
 Si    S
       0.923166E+08           0.174890E-04
@@ -893,7 +893,7 @@ Si    G
 Si    H
       0.780000E+00           0.100000E+01
 end
-basis "P_pcj-4_2006" SPHERICAL 
+basis "P_pcJ-4_2006" SPHERICAL 
 #basis SET: (28s,17p,7d,4f,2g,1h) -> [16s,12p,7d,4f,2g,1h]
 P    S
       0.105250E+09           0.173787E-04
@@ -997,7 +997,7 @@ P    G
 P    H
       0.870000E+00           0.100000E+01
 end
-basis "S_pcj-4_2006" SPHERICAL 
+basis "S_pcJ-4_2006" SPHERICAL 
 #basis SET: (28s,17p,7d,4f,2g,1h) -> [16s,12p,7d,4f,2g,1h]
 S    S
       0.127184E+09           0.169729E-04
@@ -1101,7 +1101,7 @@ S    G
 S    H
       0.950000E+00           0.100000E+01
 end
-basis "Cl_pcj-4_2006" SPHERICAL 
+basis "Cl_pcJ-4_2006" SPHERICAL 
 #basis SET: (28s,17p,7d,4f,2g,1h) -> [16s,12p,7d,4f,2g,1h]
 Cl    S
       0.148425E+09           0.167413E-04
@@ -1205,7 +1205,7 @@ Cl    G
 Cl    H
       0.104000E+01           0.100000E+01
 end
-basis "Ar_pcj-4_2006" SPHERICAL 
+basis "Ar_pcJ-4_2006" SPHERICAL 
 #basis SET: (28s,17p,7d,4f,2g,1h) -> [16s,12p,7d,4f,2g,1h]
 Ar    S
       0.188903E+09           0.141389E-04

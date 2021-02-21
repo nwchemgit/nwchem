@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# nmr-dkh (tz2p) version number 0
+# Data downloaded on 2021-02-20T21:21
+# NMR-DKH (TZ2P) version number 0
 # Description: NMR-DKH (TZ2P) triple-zeta doubly-polarized
 # Role: orbital
 # 
@@ -47,7 +47,7 @@
 #     10.1002/jcc.24461
 # 
 # # 
-basis "H_nmr-dkh (tz2p)" SPHERICAL 
+basis "H_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (7s,2p) -> [3s,2p]
 H    S
     282.952156333090         0.0004300
@@ -64,7 +64,7 @@ H    P
 H    P
       0.17989200000000       1.0000000
 end
-basis "He_nmr-dkh (tz2p)" SPHERICAL 
+basis "He_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (7s,2p) -> [3s,2p]
 He    S
     740.476789898990         0.0006100
@@ -81,7 +81,7 @@ He    P
 He    P
       0.10300500000000       1.0000000
 end
-basis "Li_nmr-dkh (tz2p)" SPHERICAL 
+basis "Li_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (11s,6p,2d) -> [6s,3p,2d]
 Li    S
    1938.64066093683          0.0004700
@@ -114,7 +114,7 @@ Li    D
 Li    D
       0.02515190000000       1.0000000
 end
-basis "Be_nmr-dkh (tz2p)" SPHERICAL 
+basis "Be_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (11s,6p,2d) -> [6s,3p,2d]
 Be    S
    3698.37837673510          0.0004700
@@ -147,7 +147,7 @@ Be    D
 Be    D
       0.03369000000000       1.0000000
 end
-basis "B_nmr-dkh (tz2p)" SPHERICAL 
+basis "B_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (11s,6p,2d) -> [6s,3p,2d]
 B    S
    5999.94392789177          0.0004900
@@ -180,7 +180,7 @@ B    D
 B    D
       0.07482900000000       1.0000000
 end
-basis "C_nmr-dkh (tz2p)" SPHERICAL 
+basis "C_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (11s,6p,2d) -> [6s,3p,2d]
 C    S
    8846.12353391750          0.0005300
@@ -213,7 +213,7 @@ C    D
 C    D
       0.11998000000000       1.0000000
 end
-basis "N_nmr-dkh (tz2p)" SPHERICAL 
+basis "N_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (11s,6p,2d) -> [6s,3p,2d]
 N    S
   12238.3269689590           0.0005600
@@ -246,7 +246,7 @@ N    D
 N    D
       0.15026000000000       1.0000000
 end
-basis "O_nmr-dkh (tz2p)" SPHERICAL 
+basis "O_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (11s,6p,2d) -> [6s,3p,2d]
 O    S
   16178.1182314232           0.0006000
@@ -279,7 +279,7 @@ O    D
 O    D
       0.22975000000000       1.0000000
 end
-basis "F_nmr-dkh (tz2p)" SPHERICAL 
+basis "F_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (11s,6p,2d) -> [6s,3p,2d]
 F    S
   20667.2444707645           0.0006400
@@ -312,7 +312,7 @@ F    D
 F    D
       1.26196000000000       1.0000000
 end
-basis "Ne_nmr-dkh (tz2p)" SPHERICAL 
+basis "Ne_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (11s,6p,2d) -> [6s,3p,2d]
 Ne    S
   25707.6640864843           0.0006900
@@ -345,7 +345,7 @@ Ne    D
 Ne    D
       0.33900000000000       1.0000000
 end
-basis "Na_nmr-dkh (tz2p)" SPHERICAL 
+basis "Na_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (15s,10p,2d) -> [9s,6p,2d]
 Na    S
   31321.7882062675           0.0007500
@@ -392,7 +392,7 @@ Na    D
 Na    D
       0.02200700000000       1.0000000
 end
-basis "Mg_nmr-dkh (tz2p)" SPHERICAL 
+basis "Mg_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (15s,10p,2d) -> [9s,6p,2d]
 Mg    S
   37510.6242965580           0.0008000
@@ -439,7 +439,7 @@ Mg    D
 Mg    D
       0.02476000000000       1.0000000
 end
-basis "Al_nmr-dkh (tz2p)" SPHERICAL 
+basis "Al_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (15s,10p,2d) -> [9s,6p,2d]
 Al    S
   44273.8728850149           0.0008500
@@ -486,7 +486,7 @@ Al    D
 Al    D
       0.03523030000000       1.0000000
 end
-basis "Si_nmr-dkh (tz2p)" SPHERICAL 
+basis "Si_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (15s,10p,2d) -> [9s,6p,2d]
 Si    S
   51615.1902970292           0.0009000
@@ -533,7 +533,7 @@ Si    D
 Si    D
       0.05745000000000       1.0000000
 end
-basis "P_nmr-dkh (tz2p)" SPHERICAL 
+basis "P_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (15s,10p,2d) -> [9s,6p,2d]
 P    S
   59538.0043013517           0.0009500
@@ -580,7 +580,7 @@ P    D
 P    D
       0.08909800000000       1.0000000
 end
-basis "S_nmr-dkh (tz2p)" SPHERICAL 
+basis "S_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (15s,10p,2d) -> [9s,6p,2d]
 S    S
   68045.9311288506           0.0010100
@@ -627,7 +627,7 @@ S    D
 S    D
       0.09856000000000       1.0000000
 end
-basis "Cl_nmr-dkh (tz2p)" SPHERICAL 
+basis "Cl_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (15s,10p,2d) -> [9s,6p,2d]
 Cl    S
   77142.8171643825           0.0010600
@@ -674,7 +674,7 @@ Cl    D
 Cl    D
       0.15619100000000       1.0000000
 end
-basis "Ar_nmr-dkh (tz2p)" SPHERICAL 
+basis "Ar_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (15s,10p,2d) -> [9s,6p,2d]
 Ar    S
   86832.7508045278           0.0011200
@@ -721,7 +721,7 @@ Ar    D
 Ar    D
       0.17390000000000       1.0000000
 end
-basis "K_nmr-dkh (tz2p)" SPHERICAL 
+basis "K_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (18s,13p,2d) -> [12s,9p,2d]
 K    S
   97125.5380804180           0.0012500
@@ -780,7 +780,7 @@ K    D
 K    D
       0.01475200000000       1.0000000
 end
-basis "Ca_nmr-dkh (tz2p)" SPHERICAL 
+basis "Ca_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (18s,13p,2d) -> [12s,9p,2d]
 Ca    S
  108024.462565608            0.0013100
@@ -839,7 +839,7 @@ Ca    D
 Ca    D
       0.01626400000000       1.0000000
 end
-basis "Ga_nmr-dkh (tz2p)" SPHERICAL 
+basis "Ga_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (18s,13p,6d,2f) -> [12s,9p,3d,2f]
 Ga    S
  269795.949467113            0.0020800
@@ -907,7 +907,7 @@ Ga    F
 Ga    F
       0.29500000000000       1.0000000
 end
-basis "Ge_nmr-dkh (tz2p)" SPHERICAL 
+basis "Ge_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (18s,13p,6d,2f) -> [12s,9p,3d,2f]
 Ge    S
  288464.300807374            0.0021600
@@ -975,7 +975,7 @@ Ge    F
 Ge    F
       0.37080000000000       1.0000000
 end
-basis "As_nmr-dkh (tz2p)" SPHERICAL 
+basis "As_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (18s,13p,6d,2f) -> [12s,9p,3d,2f]
 As    S
  307826.456351107            0.0022400
@@ -1043,7 +1043,7 @@ As    F
 As    F
       0.52800000000000       1.0000000
 end
-basis "Se_nmr-dkh (tz2p)" SPHERICAL 
+basis "Se_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (18s,13p,6d,2f) -> [12s,9p,3d,2f]
 Se    S
  327891.906565205            0.0023200
@@ -1111,7 +1111,7 @@ Se    F
 Se    F
       0.37750000000000       1.0000000
 end
-basis "Br_nmr-dkh (tz2p)" SPHERICAL 
+basis "Br_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (18s,13p,6d,2f) -> [12s,9p,3d,2f]
 Br    S
  348670.995115554            0.0024100
@@ -1179,7 +1179,7 @@ Br    F
 Br    F
       0.45490000000000       1.0000000
 end
-basis "Kr_nmr-dkh (tz2p)" SPHERICAL 
+basis "Kr_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (18s,13p,6d,2f) -> [12s,9p,3d,2f]
 Kr    S
  370173.663818035            0.0024900
@@ -1247,7 +1247,7 @@ Kr    F
 Kr    F
       1.92000000000000       1.0000000
 end
-basis "Rb_nmr-dkh (tz2p)" SPHERICAL 
+basis "Rb_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (22s,16p,9d,2f) -> [15s,12p,6d,2f]
 Rb    S
  392413.538871747            0.0029100
@@ -1334,7 +1334,7 @@ Rb    F
 Rb    F
       0.04480000000000       1.0000000
 end
-basis "Sr_nmr-dkh (tz2p)" SPHERICAL 
+basis "Sr_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (22s,16p,9d,2f) -> [15s,12p,6d,2f]
 Sr    S
  415400.951303001            0.0030100
@@ -1421,7 +1421,7 @@ Sr    F
 Sr    F
       0.36000000000000       1.0000000
 end
-basis "In_nmr-dkh (tz2p)" SPHERICAL 
+basis "In_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (22s,16p,9d,2f) -> [15s,12p,6d,2f]
 In    S
  721440.197342146            0.0043000
@@ -1508,7 +1508,7 @@ In    F
 In    F
       0.15700000000000       1.0000000
 end
-basis "Sn_nmr-dkh (tz2p)" SPHERICAL 
+basis "Sn_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (22s,16p,9d,2f) -> [15s,12p,6d,2f]
 Sn    S
  754482.145507175            0.0044300
@@ -1595,7 +1595,7 @@ Sn    F
 Sn    F
       0.19993000000000       1.0000000
 end
-basis "Sb_nmr-dkh (tz2p)" SPHERICAL 
+basis "Sb_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (22s,16p,9d,2f) -> [15s,12p,6d,2f]
 Sb    S
  788469.880369889            0.0045700
@@ -1682,7 +1682,7 @@ Sb    F
 Sb    F
       0.24980000000000       1.0000000
 end
-basis "Te_nmr-dkh (tz2p)" SPHERICAL 
+basis "Te_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (22s,16p,9d,2f) -> [15s,12p,6d,2f]
 Te    S
  823421.739133200            0.0047100
@@ -1769,7 +1769,7 @@ Te    F
 Te    F
       0.27850000000000       1.0000000
 end
-basis "I_nmr-dkh (tz2p)" SPHERICAL 
+basis "I_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (22s,16p,9d,2f) -> [15s,12p,6d,2f]
 I    S
  859363.607413965            0.0048500
@@ -1856,7 +1856,7 @@ I    F
 I    F
       0.33030000000000       1.0000000
 end
-basis "Xe_nmr-dkh (tz2p)" SPHERICAL 
+basis "Xe_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (22s,16p,9d,2f) -> [15s,12p,6d,2f]
 Xe    S
  896311.370071247            0.0050000
@@ -1943,7 +1943,7 @@ Xe    F
 Xe    F
       0.23200000000000       1.0000000
 end
-basis "Pt_nmr-dkh (tz2p)" SPHERICAL 
+basis "Pt_NMR-DKH (TZ2P)" SPHERICAL 
 #basis SET: (26s,18p,13d,6f,2g) -> [18s,12p,9d,3f,2g]
 Pt    S
 2164481.60896527             0.0123200

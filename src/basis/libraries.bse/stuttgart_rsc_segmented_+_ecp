@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# stuttgart rsc segmented + ecp version number 0
+# Data downloaded on 2021-02-20T21:21
+# Stuttgart RSC Segmented + ECP version number 0
 # Description: Stuttgart RSC 1997 + Quadruple Zeta Basis Set designed for an ECP
 # Role: orbital
 # 
@@ -69,7 +69,7 @@
 #     10.1063/1.456066
 # 
 # # 
-basis "La_stuttgart rsc segmented + ecp" SPHERICAL 
+basis "La_Stuttgart RSC Segmented + ecp "La_Stuttgart RSC Segmented + ECP"" SPHERICAL 
 #basis SET: (14s,13p,10d,8f,6g) -> [10s,8p,5d,4f,3g]
 La    S
   60228.61300                0.000003
@@ -155,7 +155,7 @@ La    G
 end
 
 
-ecp "La_stuttgart rsc segmented + ecp"
+ecp "La_Stuttgart RSC Segmented + ECP"
 La nelec 28
 La ul
 2       1.000000000            0.000000000
@@ -170,7 +170,7 @@ La F
 La G
 2      15.639020000          -20.123020000
 end
-basis "Ce_stuttgart rsc segmented + ecp" SPHERICAL 
+basis "Ce_Stuttgart RSC Segmented + ecp "Ce_Stuttgart RSC Segmented + ECP"" SPHERICAL 
 #basis SET: (14s,13p,10d,8f,6g) -> [10s,8p,5d,4f,3g]
 Ce    S
   66920.68100                0.000005
@@ -256,7 +256,7 @@ Ce    G
 end
 
 
-ecp "Ce_stuttgart rsc segmented + ecp"
+ecp "Ce_Stuttgart RSC Segmented + ECP"
 Ce nelec 28
 Ce ul
 2       1.000000000            0.000000000
@@ -271,7 +271,7 @@ Ce F
 Ce G
 2      16.570553000          -21.331879000
 end
-basis "Pr_stuttgart rsc segmented + ecp" SPHERICAL 
+basis "Pr_Stuttgart RSC Segmented + ecp "Pr_Stuttgart RSC Segmented + ECP"" SPHERICAL 
 #basis SET: (14s,13p,10d,8f,6g) -> [10s,8p,5d,4f,3g]
 Pr    S
   66920.68100                0.000008
@@ -357,7 +357,7 @@ Pr    G
 end
 
 
-ecp "Pr_stuttgart rsc segmented + ecp"
+ecp "Pr_Stuttgart RSC Segmented + ECP"
 Pr nelec 28
 Pr ul
 2       1.000000000            0.000000000
@@ -372,7 +372,7 @@ Pr F
 Pr G
 2      17.447138000          -22.329488000
 end
-basis "Nd_stuttgart rsc segmented + ecp" SPHERICAL 
+basis "Nd_Stuttgart RSC Segmented + ecp "Nd_Stuttgart RSC Segmented + ECP"" SPHERICAL 
 #basis SET: (14s,13p,10d,8f,6g) -> [10s,8p,5d,4f,3g]
 Nd    S
   67945.59000                0.000015
@@ -458,7 +458,7 @@ Nd    G
 end
 
 
-ecp "Nd_stuttgart rsc segmented + ecp"
+ecp "Nd_Stuttgart RSC Segmented + ECP"
 Nd nelec 28
 Nd ul
 2       1.000000000            0.000000000
@@ -473,7 +473,7 @@ Nd F
 Nd G
 2      18.344174000          -23.344587000
 end
-basis "Pm_stuttgart rsc segmented + ecp" SPHERICAL 
+basis "Pm_Stuttgart RSC Segmented + ecp "Pm_Stuttgart RSC Segmented + ECP"" SPHERICAL 
 #basis SET: (14s,13p,10d,8f,6g) -> [10s,8p,5d,4f,3g]
 Pm    S
   69642.71500                0.000029
@@ -559,7 +559,7 @@ Pm    G
 end
 
 
-ecp "Pm_stuttgart rsc segmented + ecp"
+ecp "Pm_Stuttgart RSC Segmented + ECP"
 Pm nelec 28
 Pm ul
 2       1.000000000            0.000000000
@@ -574,7 +574,7 @@ Pm F
 Pm G
 2      19.260245000          -24.372510000
 end
-basis "Sm_stuttgart rsc segmented + ecp" SPHERICAL 
+basis "Sm_Stuttgart RSC Segmented + ecp "Sm_Stuttgart RSC Segmented + ECP"" SPHERICAL 
 #basis SET: (14s,13p,10d,8f,6g) -> [10s,8p,5d,4f,3g]
 Sm    S
   70078.17100                0.000097
@@ -660,7 +660,7 @@ Sm    G
 end
 
 
-ecp "Sm_stuttgart rsc segmented + ecp"
+ecp "Sm_Stuttgart RSC Segmented + ECP"
 Sm nelec 28
 Sm ul
 2       1.000000000            0.000000000
@@ -675,7 +675,7 @@ Sm F
 Sm G
 2      20.197249000          -25.421885000
 end
-basis "Eu_stuttgart rsc segmented + ecp" SPHERICAL 
+basis "Eu_Stuttgart RSC Segmented + ecp "Eu_Stuttgart RSC Segmented + ECP"" SPHERICAL 
 #basis SET: (14s,13p,10d,8f,6g) -> [10s,8p,5d,4f,3g]
 Eu    S
   70059.42000                0.000097
@@ -761,7 +761,7 @@ Eu    G
 end
 
 
-ecp "Eu_stuttgart rsc segmented + ecp"
+ecp "Eu_Stuttgart RSC Segmented + ECP"
 Eu nelec 28
 Eu ul
 2       1.000000000            0.000000000
@@ -776,7 +776,7 @@ Eu F
 Eu G
 2      21.232458000          -26.748273000
 end
-basis "Gd_stuttgart rsc segmented + ecp" SPHERICAL 
+basis "Gd_Stuttgart RSC Segmented + ecp "Gd_Stuttgart RSC Segmented + ECP"" SPHERICAL 
 #basis SET: (14s,13p,10d,8f,6g) -> [10s,8p,5d,4f,3g]
 Gd    S
   70672.98200                0.000135
@@ -862,7 +862,7 @@ Gd    G
 end
 
 
-ecp "Gd_stuttgart rsc segmented + ecp"
+ecp "Gd_Stuttgart RSC Segmented + ECP"
 Gd nelec 28
 Gd ul
 2       1.000000000            0.000000000
@@ -877,7 +877,7 @@ Gd F
 Gd G
 2      22.131887000          -27.579630000
 end
-basis "Tb_stuttgart rsc segmented + ecp" SPHERICAL 
+basis "Tb_Stuttgart RSC Segmented + ecp "Tb_Stuttgart RSC Segmented + ECP"" SPHERICAL 
 #basis SET: (14s,13p,10d,8f,6g) -> [10s,8p,5d,4f,3g]
 Tb    S
   72672.98200                0.000145
@@ -963,7 +963,7 @@ Tb    G
 end
 
 
-ecp "Tb_stuttgart rsc segmented + ecp"
+ecp "Tb_Stuttgart RSC Segmented + ECP"
 Tb nelec 28
 Tb ul
 2       1.000000000            0.000000000
@@ -978,7 +978,7 @@ Tb F
 Tb G
 2      23.130672000          -28.694268000
 end
-basis "Dy_stuttgart rsc segmented + ecp" SPHERICAL 
+basis "Dy_Stuttgart RSC Segmented + ecp "Dy_Stuttgart RSC Segmented + ECP"" SPHERICAL 
 #basis SET: (14s,13p,10d,8f,6g) -> [10s,8p,5d,4f,3g]
 Dy    S
   78529.74300                0.000138
@@ -1064,7 +1064,7 @@ Dy    G
 end
 
 
-ecp "Dy_stuttgart rsc segmented + ecp"
+ecp "Dy_Stuttgart RSC Segmented + ECP"
 Dy nelec 28
 Dy ul
 2       1.000000000            0.000000000
@@ -1079,7 +1079,7 @@ Dy F
 Dy G
 2      24.148753000          -29.828277000
 end
-basis "Ho_stuttgart rsc segmented + ecp" SPHERICAL 
+basis "Ho_Stuttgart RSC Segmented + ecp "Ho_Stuttgart RSC Segmented + ECP"" SPHERICAL 
 #basis SET: (14s,13p,10d,8f,6g) -> [10s,8p,5d,4f,3g]
 Ho    S
   86373.95500                0.000078
@@ -1165,7 +1165,7 @@ Ho    G
 end
 
 
-ecp "Ho_stuttgart rsc segmented + ecp"
+ecp "Ho_Stuttgart RSC Segmented + ECP"
 Ho nelec 28
 Ho ul
 2       1.000000000            0.000000000
@@ -1180,7 +1180,7 @@ Ho F
 Ho G
 2      25.188501000          -30.991125000
 end
-basis "Er_stuttgart rsc segmented + ecp" SPHERICAL 
+basis "Er_Stuttgart RSC Segmented + ecp "Er_Stuttgart RSC Segmented + ECP"" SPHERICAL 
 #basis SET: (14s,13p,10d,8f,6g) -> [10s,8p,5d,4f,3g]
 Er    S
   89904.83500                0.000063
@@ -1266,7 +1266,7 @@ Er    G
 end
 
 
-ecp "Er_stuttgart rsc segmented + ecp"
+ecp "Er_Stuttgart RSC Segmented + ECP"
 Er nelec 28
 Er ul
 2       1.000000000            0.000000000
@@ -1281,7 +1281,7 @@ Er F
 Er G
 2      26.250735000          -32.185278000
 end
-basis "Tm_stuttgart rsc segmented + ecp" SPHERICAL 
+basis "Tm_Stuttgart RSC Segmented + ecp "Tm_Stuttgart RSC Segmented + ECP"" SPHERICAL 
 #basis SET: (14s,13p,10d,8f,6g) -> [10s,8p,5d,4f,3g]
 Tm    S
   91965.74100                0.000056
@@ -1367,7 +1367,7 @@ Tm    G
 end
 
 
-ecp "Tm_stuttgart rsc segmented + ecp"
+ecp "Tm_Stuttgart RSC Segmented + ECP"
 Tm nelec 28
 Tm ul
 2       1.000000000            0.000000000
@@ -1382,7 +1382,7 @@ Tm F
 Tm G
 2      27.329781000          -33.395496000
 end
-basis "Yb_stuttgart rsc segmented + ecp" SPHERICAL 
+basis "Yb_Stuttgart RSC Segmented + ecp "Yb_Stuttgart RSC Segmented + ECP"" SPHERICAL 
 #basis SET: (14s,13p,10d,8f,6g) -> [10s,8p,5d,4f,3g]
 Yb    S
   91972.90300                0.000051
@@ -1468,7 +1468,7 @@ Yb    G
 end
 
 
-ecp "Yb_stuttgart rsc segmented + ecp"
+ecp "Yb_Stuttgart RSC Segmented + ECP"
 Yb nelec 28
 Yb ul
 2       1.000000000            0.000000000
@@ -1483,7 +1483,7 @@ Yb F
 Yb G
 2      28.431028000          -34.638638000
 end
-basis "Lu_stuttgart rsc segmented + ecp" SPHERICAL 
+basis "Lu_Stuttgart RSC Segmented + ecp "Lu_Stuttgart RSC Segmented + ECP"" SPHERICAL 
 #basis SET: (14s,13p,10d,8f,6g) -> [10s,8p,5d,4f,3g]
 Lu    S
   95169.76700                0.000022
@@ -1569,7 +1569,7 @@ Lu    G
 end
 
 
-ecp "Lu_stuttgart rsc segmented + ecp"
+ecp "Lu_Stuttgart RSC Segmented + ECP"
 Lu nelec 28
 Lu ul
 2       1.000000000            0.000000000

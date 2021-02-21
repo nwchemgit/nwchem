@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# d-aug-cc-pvqz version number 0
+# Data downloaded on 2021-02-20T21:21
+# d-aug-cc-pVQZ version number 0
 # Description: VQZ3PD  Valence Quadruple Zeta + Polarization + Diffuse
 # Role: orbital
 # 
@@ -76,7 +76,7 @@
 #     10.1063/1.466439
 # 
 # # 
-basis "H_d-aug-cc-pvqz" SPHERICAL 
+basis "H_d-aug-cc-pVQZ" SPHERICAL 
 #basis SET: (8s,5p,4d,3f) -> [6s,5p,4d,3f]
 H    S
      82.6400000              0.0020060
@@ -117,7 +117,7 @@ H    F
 H    F
       0.0928                 1.000000
 end
-basis "He_d-aug-cc-pvqz" SPHERICAL 
+basis "He_d-aug-cc-pVQZ" SPHERICAL 
 #basis SET: (9s,5p,4d,3f) -> [6s,5p,4d,3f]
 He    S
     528.5000000              0.0009400
@@ -159,7 +159,7 @@ He    F
 He    F
       0.178                  1.000000
 end
-basis "B_d-aug-cc-pvqz" SPHERICAL 
+basis "B_d-aug-cc-pVQZ" SPHERICAL 
 #basis SET: (23s,8p,5d,4f,3g) -> [7s,6p,5d,4f,3g]
 B    S
   23870.0000000              0.0000880
@@ -230,7 +230,7 @@ B    G
 B    G
       0.111                  1.000000
 end
-basis "C_d-aug-cc-pvqz" SPHERICAL 
+basis "C_d-aug-cc-pVQZ" SPHERICAL 
 #basis SET: (23s,8p,5d,4f,3g) -> [7s,6p,5d,4f,3g]
 C    S
   33980.0000000              0.0000910
@@ -301,7 +301,7 @@ C    G
 C    G
       0.178                  1.000000
 end
-basis "N_d-aug-cc-pvqz" SPHERICAL 
+basis "N_d-aug-cc-pVQZ" SPHERICAL 
 #basis SET: (23s,8p,5d,4f,3g) -> [7s,6p,5d,4f,3g]
 N    S
   45840.0000000              0.0000920
@@ -372,7 +372,7 @@ N    G
 N    G
       0.219                  1.000000
 end
-basis "O_d-aug-cc-pvqz" SPHERICAL 
+basis "O_d-aug-cc-pVQZ" SPHERICAL 
 #basis SET: (23s,8p,5d,4f,3g) -> [7s,6p,5d,4f,3g]
 O    S
   61420.0000000              0.0000900
@@ -443,7 +443,7 @@ O    G
 O    G
       0.276                  1.000000
 end
-basis "F_d-aug-cc-pvqz" SPHERICAL 
+basis "F_d-aug-cc-pVQZ" SPHERICAL 
 #basis SET: (23s,8p,5d,4f,3g) -> [7s,6p,5d,4f,3g]
 F    S
   74530.0000000              0.0000950
@@ -514,7 +514,7 @@ F    G
 F    G
       0.359                  1.000000
 end
-basis "Ne_d-aug-cc-pvqz" SPHERICAL 
+basis "Ne_d-aug-cc-pVQZ" SPHERICAL 
 #basis SET: (23s,8p,5d,4f,3g) -> [7s,6p,5d,4f,3g]
 Ne    S
   99920.0000000              0.0000860

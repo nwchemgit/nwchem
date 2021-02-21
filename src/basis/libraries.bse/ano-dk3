@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# ano-dk3 version number 1
+# Data downloaded on 2021-02-20T21:21
+# ANO-DK3 version number 1
 # Description: ANO-DK3
 # Role: orbital
 # 
@@ -47,7 +47,7 @@
 #     10.1063/1.1390515
 # 
 # # 
-basis "H_ano-dk3" SPHERICAL 
+basis "H_ANO-DK3" SPHERICAL 
 #basis SET: (6s) -> [1s]
 H    S
       8.2932759E+01          0.0020043
@@ -57,7 +57,7 @@ H    S
       2.5859498E-01          0.4976187
       8.9969184E-02          0.2967561
 end
-basis "He_ano-dk3" SPHERICAL 
+basis "He_ANO-DK3" SPHERICAL 
 #basis SET: (6s) -> [1s]
 He    S
       2.3423121E+02          0.0026101
@@ -67,7 +67,7 @@ He    S
       6.6706612E-01          0.4780090
       2.0894799E-01          0.3078198
 end
-basis "Li_ano-dk3" SPHERICAL 
+basis "Li_ANO-DK3" SPHERICAL 
 #basis SET: (24s) -> [2s]
 Li    S
       7.2374275E+03          0.0001294
@@ -96,7 +96,7 @@ Li    S
       4.5958947E-02          0.5511039
       2.1498396E-02          0.2512361
 end
-basis "Be_ano-dk3" SPHERICAL 
+basis "Be_ANO-DK3" SPHERICAL 
 #basis SET: (24s) -> [2s]
 Be    S
       1.4682369E+04          0.0001303
@@ -125,7 +125,7 @@ Be    S
       1.0516439E-01          0.5818290
       4.2606883E-02          0.2916449
 end
-basis "B_ano-dk3" SPHERICAL 
+basis "B_ANO-DK3" SPHERICAL 
 #basis SET: (24s,8p) -> [2s,1p]
 B    S
       1.3480560E+06          0.0000090
@@ -163,7 +163,7 @@ B    P
       1.1731410E-01          0.4175701
       4.3559860E-02          0.1106621
 end
-basis "C_ano-dk3" SPHERICAL 
+basis "C_ANO-DK3" SPHERICAL 
 #basis SET: (24s,7p) -> [2s,1p]
 C    S
       4.5124820E+04          0.0001294
@@ -200,7 +200,7 @@ C    P
       2.1711960E-01          0.4103445
       8.0478260E-02          0.1616921
 end
-basis "N_ano-dk3" SPHERICAL 
+basis "N_ANO-DK3" SPHERICAL 
 #basis SET: (24s,8p) -> [2s,1p]
 N    S
       4.8826840E+04          0.0001741
@@ -238,7 +238,7 @@ N    P
       3.2919430E-01          0.4093448
       1.2069820E-01          0.1759819
 end
-basis "O_ano-dk3" SPHERICAL 
+basis "O_ANO-DK3" SPHERICAL 
 #basis SET: (24s,8p) -> [2s,1p]
 O    S
       1.0923490E+05          0.0001217
@@ -276,7 +276,7 @@ O    P
       3.6884010E-01          0.3689625
       1.3644960E-01          0.1495526
 end
-basis "F_ano-dk3" SPHERICAL 
+basis "F_ANO-DK3" SPHERICAL 
 #basis SET: (24s,8p) -> [2s,1p]
 F    S
       1.1049550E+05          0.0001633
@@ -314,7 +314,7 @@ F    P
       4.6432470E-01          0.3603010
       1.6923000E-01          0.1512699
 end
-basis "Ne_ano-dk3" SPHERICAL 
+basis "Ne_ANO-DK3" SPHERICAL 
 #basis SET: (24s,8p) -> [2s,1p]
 Ne    S
       1.0027703E+05          0.0002301
@@ -352,7 +352,7 @@ Ne    P
       5.1743659E-01          0.3298036
       1.9198390E-01          0.1281071
 end
-basis "Na_ano-dk3" SPHERICAL 
+basis "Na_ANO-DK3" SPHERICAL 
 #basis SET: (47s,11p) -> [3s,1p]
 Na    S
       5.0537790E+08          0.0000009
@@ -417,7 +417,7 @@ Na    P
       3.3142390E-01          0.0928687
       1.5156870E-01          0.0131758
 end
-basis "Mg_ano-dk3" SPHERICAL 
+basis "Mg_ANO-DK3" SPHERICAL 
 #basis SET: (48s,11p) -> [3s,1p]
 Mg    S
       1.6940680E+06          0.0000409
@@ -483,7 +483,7 @@ Mg    P
       5.8515990E-01         -0.1675183
       2.3001770E-01         -0.0184309
 end
-basis "Al_ano-dk3" SPHERICAL 
+basis "Al_ANO-DK3" SPHERICAL 
 #basis SET: (48s,22p) -> [3s,2p]
 Al    S
       1.4629480E+06          0.0000535
@@ -561,7 +561,7 @@ Al    P
       1.2119170E-01          0.5530354
       4.2488240E-02          0.3990669
 end
-basis "Si_ano-dk3" SPHERICAL 
+basis "Si_ANO-DK3" SPHERICAL 
 #basis SET: (48s,22p) -> [3s,2p]
 Si    S
       1.4532050E+06          0.0000667
@@ -639,7 +639,7 @@ Si    P
       1.6047890E-01          0.5526579
       5.9297820E-02          0.3192874
 end
-basis "P_ano-dk3" SPHERICAL 
+basis "P_ANO-DK3" SPHERICAL 
 #basis SET: (48s,22p) -> [3s,2p]
 P    S
       1.4602470E+06          0.0000799
@@ -717,7 +717,7 @@ P    P
       2.1177930E-01          0.5516408
       7.9410370E-02          0.2866630
 end
-basis "S_ano-dk3" SPHERICAL 
+basis "S_ANO-DK3" SPHERICAL 
 #basis SET: (48s,22p) -> [3s,2p]
 S    S
       1.4624900E+06          0.0000949
@@ -795,7 +795,7 @@ S    P
       2.6217470E-01         -0.5439183
       9.5072720E-02         -0.2792492
 end
-basis "Cl_ano-dk3" SPHERICAL 
+basis "Cl_ANO-DK3" SPHERICAL 
 #basis SET: (48s,22p) -> [3s,2p]
 Cl    S
       1.4681380E+06          0.0001118
@@ -873,7 +873,7 @@ Cl    P
       3.0360500E-01         -0.5226703
       1.1144440E-01         -0.2519793
 end
-basis "Ar_ano-dk3" SPHERICAL 
+basis "Ar_ANO-DK3" SPHERICAL 
 #basis SET: (48s,22p) -> [3s,2p]
 Ar    S
       9.0594654E+05          0.0001793
@@ -951,7 +951,7 @@ Ar    P
       3.2961519E-01         -0.4897753
       1.2421539E-01         -0.2085800
 end
-basis "K_ano-dk3" SPHERICAL 
+basis "K_ANO-DK3" SPHERICAL 
 #basis SET: (80s,30p) -> [4s,2p]
 K    S
       1.4612300E+07          0.0000266
@@ -1070,7 +1070,7 @@ K    P
       3.1792930E-01          0.3791873
       1.3372930E-01          0.0896727
 end
-basis "Ca_ano-dk3" SPHERICAL 
+basis "Ca_ANO-DK3" SPHERICAL 
 #basis SET: (80s,30p) -> [4s,2p]
 Ca    S
       1.5429060E+07          0.0000301
@@ -1189,7 +1189,7 @@ Ca    P
       4.2021050E-01          0.3898355
       1.7575970E-01          0.0852798
 end
-basis "Sc_ano-dk3" SPHERICAL 
+basis "Sc_ANO-DK3" SPHERICAL 
 #basis SET: (80s,30p,9d) -> [4s,2p,1d]
 Sc    S
       1.2809350E+07          0.0000387
@@ -1318,7 +1318,7 @@ Sc    D
       1.8104010E-01          0.2624935
       7.0556810E-02          0.0872456
 end
-basis "Ti_ano-dk3" SPHERICAL 
+basis "Ti_ANO-DK3" SPHERICAL 
 #basis SET: (80s,30p,9d) -> [4s,2p,1d]
 Ti    S
       1.6528400E+07          0.0000371
@@ -1447,7 +1447,7 @@ Ti    D
       2.4441550E-01          0.2615004
       9.5591120E-02          0.0867170
 end
-basis "V_ano-dk3" SPHERICAL 
+basis "V_ANO-DK3" SPHERICAL 
 #basis SET: (80s,30p,9d) -> [4s,2p,1d]
 V    S
       1.6668050E+07          0.0000418
@@ -1576,7 +1576,7 @@ V    D
       3.0065250E-01          0.2597313
       1.1757850E-01          0.0893638
 end
-basis "Cr_ano-dk3" SPHERICAL 
+basis "Cr_ANO-DK3" SPHERICAL 
 #basis SET: (80s,30p,9d) -> [4s,2p,1d]
 Cr    S
       1.6720450E+07          0.0000471
@@ -1705,7 +1705,7 @@ Cr    D
       2.6032020E-01          0.2604911
       9.6010580E-02          0.1046237
 end
-basis "Mn_ano-dk3" SPHERICAL 
+basis "Mn_ANO-DK3" SPHERICAL 
 #basis SET: (80s,30p,9d) -> [4s,2p,1d]
 Mn    S
       1.6703496E+07          0.0000527
@@ -1834,7 +1834,7 @@ Mn    D
       3.7511423E-01          0.2363987
       1.4742170E-01          0.0762480
 end
-basis "Fe_ano-dk3" SPHERICAL 
+basis "Fe_ANO-DK3" SPHERICAL 
 #basis SET: (80s,30p,9d) -> [4s,2p,1d]
 Fe    S
       6.7207850E+07          0.0000212
@@ -1963,7 +1963,7 @@ Fe    D
       4.5984990E-01          0.2644092
       1.7386000E-01          0.0971127
 end
-basis "Co_ano-dk3" SPHERICAL 
+basis "Co_ANO-DK3" SPHERICAL 
 #basis SET: (80s,30p,9d) -> [4s,2p,1d]
 Co    S
       6.8378190E+07          0.0000234
@@ -2092,7 +2092,7 @@ Co    D
       4.6148340E-01          0.2422901
       1.7550980E-01          0.0843201
 end
-basis "Ni_ano-dk3" SPHERICAL 
+basis "Ni_ANO-DK3" SPHERICAL 
 #basis SET: (80s,30p,9d) -> [4s,2p,1d]
 Ni    S
       6.8573180E+07          0.0000260
@@ -2221,7 +2221,7 @@ Ni    D
       4.6236340E-01          0.2218121
       1.7701300E-01          0.0728789
 end
-basis "Cu_ano-dk3" SPHERICAL 
+basis "Cu_ANO-DK3" SPHERICAL 
 #basis SET: (80s,30p,9d) -> [4s,2p,1d]
 Cu    S
       6.7793730E+07          0.0000289
@@ -2350,7 +2350,7 @@ Cu    D
       4.1568650E-01          0.2296603
       1.4785470E-01          0.0883465
 end
-basis "Zn_ano-dk3" SPHERICAL 
+basis "Zn_ANO-DK3" SPHERICAL 
 #basis SET: (80s,30p,9d) -> [4s,2p,1d]
 Zn    S
       7.0817880E+07          0.0000311
@@ -2479,7 +2479,7 @@ Zn    D
       5.6523940E-01          0.2245023
       2.1251050E-01          0.0777623
 end
-basis "Ga_ano-dk3" SPHERICAL 
+basis "Ga_ANO-DK3" SPHERICAL 
 #basis SET: (80s,45p,9d) -> [4s,3p,1d]
 Ga    S
       7.0959040E+07          0.0000342
@@ -2624,7 +2624,7 @@ Ga    D
       7.7932260E-01          0.2400633
       2.9996760E-01          0.0768475
 end
-basis "Ge_ano-dk3" SPHERICAL 
+basis "Ge_ANO-DK3" SPHERICAL 
 #basis SET: (80s,45p,9d) -> [4s,3p,1d]
 Ge    S
       6.7849860E+07          0.0000387
@@ -2769,7 +2769,7 @@ Ge    D
       8.9021290E-01          0.2196249
       3.5348260E-01          0.0601296
 end
-basis "As_ano-dk3" SPHERICAL 
+basis "As_ANO-DK3" SPHERICAL 
 #basis SET: (80s,45p,9d) -> [4s,3p,1d]
 As    S
       7.2421890E+07          0.0000408
@@ -2914,7 +2914,7 @@ As    D
       1.4173160E+00          0.2979159
       5.4472730E-01          0.0987108
 end
-basis "Se_ano-dk3" SPHERICAL 
+basis "Se_ANO-DK3" SPHERICAL 
 #basis SET: (80s,45p,9d) -> [4s,3p,1d]
 Se    S
       7.0126910E+07          0.0000455
@@ -3059,7 +3059,7 @@ Se    D
       1.4637820E+00          0.2624861
       5.8195150E-01          0.0732443
 end
-basis "Br_ano-dk3" SPHERICAL 
+basis "Br_ANO-DK3" SPHERICAL 
 #basis SET: (80s,45p,9d) -> [4s,3p,1d]
 Br    S
       7.2009610E+07          0.0000490
@@ -3204,7 +3204,7 @@ Br    D
       1.5923600E+00          0.2427944
       6.4640880E-01          0.0617789
 end
-basis "Kr_ano-dk3" SPHERICAL 
+basis "Kr_ANO-DK3" SPHERICAL 
 #basis SET: (80s,45p,9d) -> [4s,3p,1d]
 Kr    S
       1.1707591E+07          0.0001848
@@ -3349,7 +3349,7 @@ Kr    D
       1.6359300E+00          0.2097290
       6.7822592E-01          0.0463290
 end
-basis "Rb_ano-dk3" SPHERICAL 
+basis "Rb_ANO-DK3" SPHERICAL 
 #basis SET: (115s,57p,12d) -> [5s,3p,1d]
 Rb    S
       9.6419450E+08          0.0000090
@@ -3545,7 +3545,7 @@ Rb    D
       5.3515490E-01          0.0070359
       3.3548550E-01          0.0016445
 end
-basis "Sr_ano-dk3" SPHERICAL 
+basis "Sr_ANO-DK3" SPHERICAL 
 #basis SET: (115s,57p,12d) -> [5s,3p,1d]
 Sr    S
       1.3569260E+09          0.0000074
@@ -3741,7 +3741,7 @@ Sr    D
       4.2661020E-01          0.0031847
       3.6121430E-01         -0.0000796
 end
-basis "Y_ano-dk3" SPHERICAL 
+basis "Y_ANO-DK3" SPHERICAL 
 #basis SET: (115s,57p,24d) -> [5s,3p,2d]
 Y    S
       1.3196340E+09          0.0000083
@@ -3950,7 +3950,7 @@ Y    D
       2.3255920E-01          0.4966035
       7.6305080E-02          0.3066013
 end
-basis "Zr_ano-dk3" SPHERICAL 
+basis "Zr_ANO-DK3" SPHERICAL 
 #basis SET: (115s,57p,24d) -> [5s,3p,2d]
 Zr    S
       1.3409480E+09          0.0000089
@@ -4159,7 +4159,7 @@ Zr    D
       2.6663750E-01          0.4705723
       9.3592730E-02          0.2379564
 end
-basis "Nb_ano-dk3" SPHERICAL 
+basis "Nb_ANO-DK3" SPHERICAL 
 #basis SET: (115s,57p,24d) -> [5s,3p,2d]
 Nb    S
       1.2048890E+09          0.0000103
@@ -4368,7 +4368,7 @@ Nb    D
       2.3968880E-01          0.4290008
       8.3414910E-02          0.2123339
 end
-basis "Mo_ano-dk3" SPHERICAL 
+basis "Mo_ANO-DK3" SPHERICAL 
 #basis SET: (115s,57p,24d) -> [5s,3p,2d]
 Mo    S
       1.4423010E+09          0.0000102
@@ -4577,7 +4577,7 @@ Mo    D
       3.5013850E-01          0.4712928
       1.1727850E-01          0.2554680
 end
-basis "Tc_ano-dk3" SPHERICAL 
+basis "Tc_ANO-DK3" SPHERICAL 
 #basis SET: (115s,57p,24d) -> [5s,3p,2d]
 Tc    S
       1.2434930E+09          0.0000118
@@ -4786,7 +4786,7 @@ Tc    D
       4.0170000E-01          0.4418038
       1.4688780E-01          0.1839687
 end
-basis "Ru_ano-dk3" SPHERICAL 
+basis "Ru_ANO-DK3" SPHERICAL 
 #basis SET: (115s,56p,24d) -> [5s,3p,2d]
 Ru    S
       2.2913010E+09          0.0000088
@@ -4994,7 +4994,7 @@ Ru    D
       3.9065710E-01          0.4272681
       1.3326060E-01          0.2038036
 end
-basis "Rh_ano-dk3" SPHERICAL 
+basis "Rh_ANO-DK3" SPHERICAL 
 #basis SET: (115s,57p,24d) -> [5s,3p,2d]
 Rh    S
       9.2937800E+08          0.0000167
@@ -5203,7 +5203,7 @@ Rh    D
       4.0469550E-01          0.3988519
       1.4147220E-01          0.1799559
 end
-basis "Pd_ano-dk3" SPHERICAL 
+basis "Pd_ANO-DK3" SPHERICAL 
 #basis SET: (92s,57p,24d) -> [4s,3p,2d]
 Pd    S
       1.0514600E+09          0.0000166
@@ -5388,7 +5388,7 @@ Pd    D
       3.6940300E-01          0.3732542
       1.2267130E-01          0.1769291
 end
-basis "Ag_ano-dk3" SPHERICAL 
+basis "Ag_ANO-DK3" SPHERICAL 
 #basis SET: (115s,57p,24d) -> [5s,3p,2d]
 Ag    S
       1.4242040E+09          0.0000153
@@ -5597,7 +5597,7 @@ Ag    D
       4.3477530E-01          0.3546122
       1.5732580E-01          0.1411457
 end
-basis "Cd_ano-dk3" SPHERICAL 
+basis "Cd_ANO-DK3" SPHERICAL 
 #basis SET: (115s,57p,24d) -> [5s,3p,2d]
 Cd    S
       1.2809250E+09          0.0000172
@@ -5806,7 +5806,7 @@ Cd    D
       5.6989430E-01          0.3799833
       2.1089270E-01          0.1443811
 end
-basis "In_ano-dk3" SPHERICAL 
+basis "In_ANO-DK3" SPHERICAL 
 #basis SET: (115s,76p,24d) -> [5s,4p,2d]
 In    S
       1.3098780E+09          0.0000183
@@ -6035,7 +6035,7 @@ In    D
       6.4948000E-01          0.3678310
       2.5233690E-01          0.1224939
 end
-basis "Sn_ano-dk3" SPHERICAL 
+basis "Sn_ANO-DK3" SPHERICAL 
 #basis SET: (115s,76p,24d) -> [5s,4p,2d]
 Sn    S
       1.3432880E+09          0.0000192
@@ -6264,7 +6264,7 @@ Sn    D
       7.8774250E-01          0.3883591
       3.0855790E-01          0.1228287
 end
-basis "Sb_ano-dk3" SPHERICAL 
+basis "Sb_ANO-DK3" SPHERICAL 
 #basis SET: (115s,76p,24d) -> [5s,4p,2d]
 Sb    S
       1.3192050E+09          0.0000210
@@ -6493,7 +6493,7 @@ Sb    D
       8.7427330E-01          0.3759226
       3.5112610E-01          0.1102929
 end
-basis "Te_ano-dk3" SPHERICAL 
+basis "Te_ANO-DK3" SPHERICAL 
 #basis SET: (115s,76p,24d) -> [5s,4p,2d]
 Te    S
       1.3679460E+09          0.0000221
@@ -6722,7 +6722,7 @@ Te    D
       8.9960090E-01          0.3386363
       3.6986900E-01          0.0848022
 end
-basis "I_ano-dk3" SPHERICAL 
+basis "I_ANO-DK3" SPHERICAL 
 #basis SET: (115s,76p,24d) -> [5s,4p,2d]
 I    S
       1.3507610E+09          0.0000238
@@ -6951,7 +6951,7 @@ I    D
       1.0106490E+00          0.3365636
       4.2059200E-01          0.0825416
 end
-basis "Xe_ano-dk3" SPHERICAL 
+basis "Xe_ANO-DK3" SPHERICAL 
 #basis SET: (115s,76p,24d) -> [5s,4p,2d]
 Xe    S
       1.5571750E+09          0.0000237
@@ -7180,7 +7180,7 @@ Xe    D
       1.0300830E+00          0.2985182
       4.3499870E-01          0.0640163
 end
-basis "Cs_ano-dk3" SPHERICAL 
+basis "Cs_ANO-DK3" SPHERICAL 
 #basis SET: (161s,92p,30d) -> [6s,4p,2d]
 Cs    S
       3.3751277E+10          0.0000028
@@ -7478,7 +7478,7 @@ Cs    D
       6.2040623E-01          0.0780012
       2.9841162E-01          0.0100478
 end
-basis "Ba_ano-dk3" SPHERICAL 
+basis "Ba_ANO-DK3" SPHERICAL 
 #basis SET: (161s,92p,30d) -> [6s,4p,2d]
 Ba    S
       2.3173338E+10          0.0000034
@@ -7776,7 +7776,7 @@ Ba    D
       6.5557124E-01          0.0584945
       3.3802366E-01          0.0084974
 end
-basis "La_ano-dk3" SPHERICAL 
+basis "La_ANO-DK3" SPHERICAL 
 #basis SET: (161s,92p,45d) -> [6s,4p,3d]
 La    S
       6.1193083E+10          0.0000021
@@ -8090,7 +8090,7 @@ La    D
       2.3008974E-01          0.5631635
       7.6359519E-02          0.3761203
 end
-basis "Ce_ano-dk3" SPHERICAL 
+basis "Ce_ANO-DK3" SPHERICAL 
 #basis SET: (161s,92p,45d,10f) -> [6s,4p,3d,1f]
 Ce    S
       3.4002773E+10          0.0000033
@@ -8415,7 +8415,7 @@ Ce    F
       5.5124383E-01         -0.2410269
       2.0550452E-01         -0.0936654
 end
-basis "Pr_ano-dk3" SPHERICAL 
+basis "Pr_ANO-DK3" SPHERICAL 
 #basis SET: (161s,92p,30d,10f) -> [6s,4p,2d,1f]
 Pr    S
       4.9230765E+10          0.0000030
@@ -8724,7 +8724,7 @@ Pr    F
       5.3607490E-01         -0.2439819
       1.9322252E-01         -0.0977491
 end
-basis "Nd_ano-dk3" SPHERICAL 
+basis "Nd_ANO-DK3" SPHERICAL 
 #basis SET: (161s,92p,30d,10f) -> [6s,4p,2d,1f]
 Nd    S
       2.9095464E+10          0.0000041
@@ -9033,7 +9033,7 @@ Nd    F
       5.6686572E-01         -0.2286271
       2.0819149E-01         -0.0909939
 end
-basis "Pm_ano-dk3" SPHERICAL 
+basis "Pm_ANO-DK3" SPHERICAL 
 #basis SET: (161s,92p,30d,10f) -> [6s,4p,2d,1f]
 Pm    S
       6.9230958E+10          0.0000029
@@ -9342,7 +9342,7 @@ Pm    F
       5.6853097E-01         -0.2119487
       2.1117426E-01         -0.0803619
 end
-basis "Sm_ano-dk3" SPHERICAL 
+basis "Sm_ANO-DK3" SPHERICAL 
 #basis SET: (161s,92p,30d,10f) -> [6s,4p,2d,1f]
 Sm    S
       4.1998563E+10          0.0000037
@@ -9651,7 +9651,7 @@ Sm    F
       5.6805858E-01         -0.1977897
       2.1060250E-01         -0.0695974
 end
-basis "Eu_ano-dk3" SPHERICAL 
+basis "Eu_ANO-DK3" SPHERICAL 
 #basis SET: (161s,92p,30d,10f) -> [6s,4p,2d,1f]
 Eu    S
       4.1753920E+10          0.0000041
@@ -9960,7 +9960,7 @@ Eu    F
       6.3278294E-01         -0.1979628
       2.3742282E-01         -0.0736616
 end
-basis "Gd_ano-dk3" SPHERICAL 
+basis "Gd_ANO-DK3" SPHERICAL 
 #basis SET: (161s,92p,45d,10f) -> [6s,4p,3d,1f]
 Gd    S
       3.7001721E+10          0.0000046
@@ -10285,7 +10285,7 @@ Gd    F
       6.5277113E-01         -0.1574307
       2.6165607E-01         -0.0456485
 end
-basis "Tb_ano-dk3" SPHERICAL 
+basis "Tb_ANO-DK3" SPHERICAL 
 #basis SET: (161s,92p,30d,10f) -> [6s,4p,2d,1f]
 Tb    S
       4.9360640E+10          0.0000040
@@ -10594,7 +10594,7 @@ Tb    F
       6.2713883E-01         -0.1810361
       2.3443126E-01         -0.0678210
 end
-basis "Dy_ano-dk3" SPHERICAL 
+basis "Dy_ANO-DK3" SPHERICAL 
 #basis SET: (161s,92p,30d,10f) -> [6s,4p,2d,1f]
 Dy    S
       6.7214502E+10          0.0000037
@@ -10903,7 +10903,7 @@ Dy    F
       6.2963362E-01          0.1729950
       2.3567072E-01          0.0645683
 end
-basis "Ho_ano-dk3" SPHERICAL 
+basis "Ho_ANO-DK3" SPHERICAL 
 #basis SET: (161s,92p,30d,10f) -> [6s,4p,2d,1f]
 Ho    S
       5.7876523E+10          0.0000042
@@ -11212,7 +11212,7 @@ Ho    F
       6.3169612E-01          0.1659881
       2.3710188E-01          0.0617090
 end
-basis "Er_ano-dk3" SPHERICAL 
+basis "Er_ANO-DK3" SPHERICAL 
 #basis SET: (161s,92p,30d,10f) -> [6s,4p,2d,1f]
 Er    S
       6.8154237E+10          0.0000042
@@ -11521,7 +11521,7 @@ Er    F
       6.3280707E-01         -0.1595331
       2.3624462E-01         -0.0591904
 end
-basis "Tm_ano-dk3" SPHERICAL 
+basis "Tm_ANO-DK3" SPHERICAL 
 #basis SET: (161s,92p,30d,10f) -> [6s,4p,2d,1f]
 Tm    S
       6.9527140E+10          0.0000044
@@ -11830,7 +11830,7 @@ Tm    F
       6.3595283E-01         -0.1528909
       2.3902390E-01         -0.0569822
 end
-basis "Yb_ano-dk3" SPHERICAL 
+basis "Yb_ANO-DK3" SPHERICAL 
 #basis SET: (161s,92p,30d,10f) -> [6s,4p,2d,1f]
 Yb    S
       7.1671917E+10          0.0000047
@@ -12139,7 +12139,7 @@ Yb    F
       7.5881066E-01         -0.1793203
       2.7270801E-01         -0.0689486
 end
-basis "Lu_ano-dk3" SPHERICAL 
+basis "Lu_ANO-DK3" SPHERICAL 
 #basis SET: (161s,92p,45d,10f) -> [6s,4p,3d,1f]
 Lu    S
       6.7013119E+10          0.0000051
@@ -12464,7 +12464,7 @@ Lu    F
       9.9952257E-01         -0.1869062
       3.8102157E-01         -0.0690409
 end
-basis "Hf_ano-dk3" SPHERICAL 
+basis "Hf_ANO-DK3" SPHERICAL 
 #basis SET: (161s,92p,45d,10f) -> [6s,4p,3d,1f]
 Hf    S
       8.7704213E+10          0.0000048
@@ -12789,7 +12789,7 @@ Hf    F
       1.2933181E+00         -0.2106655
       4.9178595E-01         -0.0734901
 end
-basis "Ta_ano-dk3" SPHERICAL 
+basis "Ta_ANO-DK3" SPHERICAL 
 #basis SET: (162s,91p,45d,10f) -> [6s,4p,3d,1f]
 Ta    S
       7.7668131E+10          0.0000053
@@ -13114,7 +13114,7 @@ Ta    F
       1.3376813E+00         -0.1869815
       5.2922518E-01         -0.0574666
 end
-basis "W_ano-dk3" SPHERICAL 
+basis "W_ANO-DK3" SPHERICAL 
 #basis SET: (162s,92p,45d,10f) -> [6s,4p,3d,1f]
 W    S
       7.7444361E+10          0.0000058
@@ -13440,7 +13440,7 @@ W    F
       1.5857610E+00         -0.2008781
       6.2238864E-01         -0.0585080
 end
-basis "Re_ano-dk3" SPHERICAL 
+basis "Re_ANO-DK3" SPHERICAL 
 #basis SET: (162s,92p,45d,10f) -> [6s,4p,3d,1f]
 Re    S
       1.0105214E+11          0.0000051
@@ -13766,7 +13766,7 @@ Re    F
       1.9191791E+00          0.2169076
       7.6395347E-01          0.0668083
 end
-basis "Os_ano-dk3" SPHERICAL 
+basis "Os_ANO-DK3" SPHERICAL 
 #basis SET: (161s,92p,45d,10f) -> [6s,4p,3d,1f]
 Os    S
       1.6533730E+11          0.0000039
@@ -14091,7 +14091,7 @@ Os    F
       1.9824156E+00          0.1988272
       8.0765539E-01          0.0563222
 end
-basis "Ir_ano-dk3" SPHERICAL 
+basis "Ir_ANO-DK3" SPHERICAL 
 #basis SET: (161s,92p,45d,10f) -> [6s,4p,3d,1f]
 Ir    S
       1.5407728E+11          0.0000043
@@ -14416,7 +14416,7 @@ Ir    F
       2.0738695E+00          0.1849582
       8.5810590E-01          0.0493539
 end
-basis "Pt_ano-dk3" SPHERICAL 
+basis "Pt_ANO-DK3" SPHERICAL 
 #basis SET: (161s,92p,45d,10f) -> [6s,4p,3d,1f]
 Pt    S
       1.8472855E+11          0.0000043
@@ -14741,7 +14741,7 @@ Pt    F
       2.1117028E+00          0.1709260
       8.7343243E-01          0.0408919
 end
-basis "Au_ano-dk3" SPHERICAL 
+basis "Au_ANO-DK3" SPHERICAL 
 #basis SET: (162s,92p,45d,10f) -> [6s,4p,3d,1f]
 Au    S
       1.8292916E+11          0.0000046
@@ -15067,7 +15067,7 @@ Au    F
       2.4860055E+00          0.1917093
       1.0232078E+00          0.0476742
 end
-basis "Hg_ano-dk3" SPHERICAL 
+basis "Hg_ANO-DK3" SPHERICAL 
 #basis SET: (162s,92p,45d,10f) -> [6s,4p,3d,1f]
 Hg    S
       1.9277921E+11          0.0000048
@@ -15393,7 +15393,7 @@ Hg    F
       2.5606799E+00          0.1767002
       1.0806275E+00          0.0414019
 end
-basis "Tl_ano-dk3" SPHERICAL 
+basis "Tl_ANO-DK3" SPHERICAL 
 #basis SET: (162s,115p,45d,10f) -> [6s,5p,3d,1f]
 Tl    S
       2.0232234E+11          0.0000049
@@ -15743,7 +15743,7 @@ Tl    F
       2.6447503E+00          0.1636205
       1.1422553E+00          0.0363133
 end
-basis "Pb_ano-dk3" SPHERICAL 
+basis "Pb_ANO-DK3" SPHERICAL 
 #basis SET: (162s,115p,45d,10f) -> [6s,5p,3d,1f]
 Pb    S
       2.3499268E+11          0.0000049
@@ -16093,7 +16093,7 @@ Pb    F
       3.3099138E+00          0.2060610
       1.4143033E+00          0.0510319
 end
-basis "Bi_ano-dk3" SPHERICAL 
+basis "Bi_ANO-DK3" SPHERICAL 
 #basis SET: (162s,115p,45d,10f) -> [6s,5p,3d,1f]
 Bi    S
       2.4062858E+11          0.0000052
@@ -16443,7 +16443,7 @@ Bi    F
       3.4247290E+00          0.1915664
       1.5159795E+00          0.0472214
 end
-basis "Po_ano-dk3" SPHERICAL 
+basis "Po_ANO-DK3" SPHERICAL 
 #basis SET: (162s,115p,45d,10f) -> [6s,5p,3d,1f]
 Po    S
       3.0382570E+11          0.0000048
@@ -16793,7 +16793,7 @@ Po    F
       3.4346690E+00          0.1758852
       1.5357901E+00          0.0385673
 end
-basis "At_ano-dk3" SPHERICAL 
+basis "At_ANO-DK3" SPHERICAL 
 #basis SET: (162s,115p,45d,10f) -> [6s,5p,3d,1f]
 At    S
       3.7414834E+11          0.0000045
@@ -17143,7 +17143,7 @@ At    F
       3.5328137E+00          0.1646575
       1.6070145E+00          0.0343919
 end
-basis "Rn_ano-dk3" SPHERICAL 
+basis "Rn_ANO-DK3" SPHERICAL 
 #basis SET: (162s,115p,45d,10f) -> [6s,5p,3d,1f]
 Rn    S
       3.8309454E+11          0.0000047
@@ -17493,7 +17493,7 @@ Rn    F
       3.6330615E+00          0.1522115
       1.6982621E+00          0.0313477
 end
-basis "Fr_ano-dk3" SPHERICAL 
+basis "Fr_ANO-DK3" SPHERICAL 
 #basis SET: (242s,130p,54d,13f) -> [7s,5p,3d,1f]
 Fr    S
       3.2244469E+12          0.0000011
@@ -17951,7 +17951,7 @@ Fr    F
       1.7493609E+00         -0.0213332
       8.1676479E-01         -0.0011920
 end
-basis "Ra_ano-dk3" SPHERICAL 
+basis "Ra_ANO-DK3" SPHERICAL 
 #basis SET: (242s,130p,54d,13f) -> [7s,5p,3d,1f]
 Ra    S
       3.2244469E+12          0.0000013
@@ -18409,7 +18409,7 @@ Ra    F
       1.7461726E+00          0.0167009
       8.0733808E-01          0.0007418
 end
-basis "Ac_ano-dk3" SPHERICAL 
+basis "Ac_ANO-DK3" SPHERICAL 
 #basis SET: (242s,130p,72d,13f) -> [7s,5p,4d,1f]
 Ac    S
       3.2665313E+12          0.0000014
@@ -18886,7 +18886,7 @@ Ac    F
       1.7413061E+00          0.0128728
       8.0470069E-01          0.0004371
 end
-basis "Th_ano-dk3" SPHERICAL 
+basis "Th_ANO-DK3" SPHERICAL 
 #basis SET: (242s,130p,72d,13f) -> [7s,5p,4d,1f]
 Th    S
       3.2665313E+12          0.0000015
@@ -19363,7 +19363,7 @@ Th    F
       1.7251519E+00          0.0096799
       8.3161755E-01          0.0002221
 end
-basis "Pa_ano-dk3" SPHERICAL 
+basis "Pa_ANO-DK3" SPHERICAL 
 #basis SET: (242s,130p,72d,26f) -> [7s,5p,4d,2f]
 Pa    S
       3.2665313E+12          0.0000016
@@ -19854,7 +19854,7 @@ Pa    F
       3.9388383E-01          0.3311042
       1.3942158E-01          0.1518744
 end
-basis "U_ano-dk3" SPHERICAL 
+basis "U_ANO-DK3" SPHERICAL 
 #basis SET: (242s,130p,72d,26f) -> [7s,5p,4d,2f]
 U    S
       3.2665313E+12          0.0000018
@@ -20345,7 +20345,7 @@ U    F
       4.9108127E-01          0.3448273
       1.7513845E-01          0.1494555
 end
-basis "Np_ano-dk3" SPHERICAL 
+basis "Np_ANO-DK3" SPHERICAL 
 #basis SET: (243s,130p,72d,26f) -> [7s,5p,4d,2f]
 Np    S
       3.2870111E+12          0.0000020
@@ -20837,7 +20837,7 @@ Np    F
       5.0721115E-01          0.3170303
       1.8654913E-01          0.1268060
 end
-basis "Pu_ano-dk3" SPHERICAL 
+basis "Pu_ANO-DK3" SPHERICAL 
 #basis SET: (243s,130p,54d,26f) -> [7s,5p,3d,2f]
 Pu    S
       3.2883756E+12          0.0000022
@@ -21310,7 +21310,7 @@ Pu    F
       4.8925043E-01          0.3081926
       1.7438974E-01          0.1269109
 end
-basis "Am_ano-dk3" SPHERICAL 
+basis "Am_ANO-DK3" SPHERICAL 
 #basis SET: (242s,130p,54d,26f) -> [7s,5p,3d,2f]
 Am    S
       3.2883756E+12          0.0000024
@@ -21782,7 +21782,7 @@ Am    F
       5.4874312E-01          0.3071814
       1.9793159E-01          0.1263013
 end
-basis "Cm_ano-dk3" SPHERICAL 
+basis "Cm_ANO-DK3" SPHERICAL 
 #basis SET: (242s,130p,72d,26f) -> [7s,5p,4d,2f]
 Cm    S
       3.2883756E+12          0.0000026
@@ -22273,7 +22273,7 @@ Cm    F
       5.7117533E-01          0.2676461
       2.1883797E-01          0.0904281
 end
-basis "Bk_ano-dk3" SPHERICAL 
+basis "Bk_ANO-DK3" SPHERICAL 
 #basis SET: (243s,130p,72d,26f) -> [7s,5p,4d,2f]
 Bk    S
       3.2892027E+12          0.0000029
@@ -22765,7 +22765,7 @@ Bk    F
       5.7146932E-01          0.2510685
       2.2045794E-01          0.0822315
 end
-basis "Cf_ano-dk3" SPHERICAL 
+basis "Cf_ANO-DK3" SPHERICAL 
 #basis SET: (244s,130p,54d,26f) -> [7s,5p,3d,2f]
 Cf    S
       3.2892027E+12          0.0000032
@@ -23239,7 +23239,7 @@ Cf    F
       5.5123261E-01          0.2564310
       2.0257310E-01          0.0949711
 end
-basis "Es_ano-dk3" SPHERICAL 
+basis "Es_ANO-DK3" SPHERICAL 
 #basis SET: (244s,130p,54d,26f) -> [7s,5p,3d,2f]
 Es    S
       3.2892005E+12          0.0000036
@@ -23713,7 +23713,7 @@ Es    F
       5.6699566E-01         -0.2451651
       2.1033925E-01         -0.0904500
 end
-basis "Fm_ano-dk3" SPHERICAL 
+basis "Fm_ANO-DK3" SPHERICAL 
 #basis SET: (243s,130p,54d,26f) -> [7s,5p,3d,2f]
 Fm    S
       3.3123875E+12          0.0000040
@@ -24186,7 +24186,7 @@ Fm    F
       5.6756884E-01         -0.2314568
       2.1186365E-01         -0.0823569
 end
-basis "Md_ano-dk3" SPHERICAL 
+basis "Md_ANO-DK3" SPHERICAL 
 #basis SET: (244s,130p,54d,26f) -> [7s,5p,3d,2f]
 Md    S
       3.3197211E+12          0.0000044
@@ -24660,7 +24660,7 @@ Md    F
       5.6835306E-01         -0.2181243
       2.1330351E-01         -0.0748662
 end
-basis "No_ano-dk3" SPHERICAL 
+basis "No_ANO-DK3" SPHERICAL 
 #basis SET: (244s,130p,54d,26f) -> [7s,5p,3d,2f]
 No    S
       3.2489842E+12          0.0000049
@@ -25134,7 +25134,7 @@ No    F
       6.8635396E-01         -0.2471784
       2.5311325E-01         -0.0921750
 end
-basis "Lr_ano-dk3" SPHERICAL 
+basis "Lr_ANO-DK3" SPHERICAL 
 #basis SET: (244s,130p,72d,26f) -> [7s,5p,4d,2f]
 Lr    S
       3.9674449E+12          0.0000051

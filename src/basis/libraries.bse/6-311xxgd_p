@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# 6-311xxg(d,p) version number 1
+# Data downloaded on 2021-02-20T21:21
+# 6-311xxG(d,p) version number 1
 # Description: 6-311xxG(d,p) basis set
 # Role: orbital
 # 
@@ -47,7 +47,7 @@
 #     10.1021/acs.jpca.0c01342
 # 
 # # 
-basis "H_6-311xxg(d,p)" SPHERICAL 
+basis "H_6-311xxG(d,p)" SPHERICAL 
 #basis SET: (6s,2p) -> [4s,2p]
 H    S
       0.3386500000E+02       0.2549381454E-01
@@ -62,7 +62,7 @@ H    P
 H    SP
       0.0202E+00             0.1000000000E+01       0.1000000000E+01
 end
-basis "Li_6-311xxg(d,p)" SPHERICAL 
+basis "Li_6-311xxG(d,p)" SPHERICAL 
 #basis SET: (12s,6p,1d) -> [5s,4p,1d]
 Li    S
       0.9004600000E+03       0.2287040374E-02
@@ -84,7 +84,7 @@ Li    SP
 Li    D
       0.2000000000E+00       0.1000000000E+01
 end
-basis "Be_6-311xxg(d,p)" SPHERICAL 
+basis "Be_6-311xxG(d,p)" SPHERICAL 
 #basis SET: (12s,6p,1d) -> [5s,4p,1d]
 Be    S
       0.1682800000E+04       0.2285740532E-02
@@ -106,7 +106,7 @@ Be    SP
 Be    D
       0.2550000000E+00       0.1000000000E+01
 end
-basis "B_6-311xxg(d,p)" SPHERICAL 
+basis "B_6-311xxG(d,p)" SPHERICAL 
 #basis SET: (12s,6p,1d) -> [5s,4p,1d]
 B    S
       0.2858890000E+04       0.2153749067E-02
@@ -128,7 +128,7 @@ B    SP
 B    D
       0.4010000000E+00       0.1000000000E+01
 end
-basis "C_6-311xxg(d,p)" SPHERICAL 
+basis "C_6-311xxG(d,p)" SPHERICAL 
 #basis SET: (12s,6p,1d) -> [5s,4p,1d]
 C    S
       0.4563240000E+04       0.1966650249E-02
@@ -150,7 +150,7 @@ C    SP
 C    D
       0.6260000000E+00       0.1000000000E+01
 end
-basis "N_6-311xxg(d,p)" SPHERICAL 
+basis "N_6-311xxG(d,p)" SPHERICAL 
 #basis SET: (12s,6p,1d) -> [5s,4p,1d]
 N    S
       0.6293480000E+04       0.1969788147E-02
@@ -172,7 +172,7 @@ N    SP
 N    D
       0.9130000000E+00       0.1000000000E+01
 end
-basis "O_6-311xxg(d,p)" SPHERICAL 
+basis "O_6-311xxG(d,p)" SPHERICAL 
 #basis SET: (12s,6p,1d) -> [5s,4p,1d]
 O    S
       0.8588500000E+04       0.1895150083E-02
@@ -194,7 +194,7 @@ O    SP
 O    D
       0.1292000000E+01       0.1000000000E+01
 end
-basis "F_6-311xxg(d,p)" SPHERICAL 
+basis "F_6-311xxG(d,p)" SPHERICAL 
 #basis SET: (12s,6p,1d) -> [5s,4p,1d]
 F    S
       0.1142710000E+05       0.1800930156E-02
@@ -216,7 +216,7 @@ F    SP
 F    D
       0.1750000000E+01       0.1000000000E+01
 end
-basis "Na_6-311xxg(d,p)" SPHERICAL 
+basis "Na_6-311xxG(d,p)" SPHERICAL 
 #basis SET: (14s,10p,1d) -> [7s,6p,1d]
 Na    S
       0.3616640000E+05       0.1032000455E-02
@@ -256,7 +256,7 @@ Na    SP
 Na    D
       0.1750000000E+00       0.1000000000E+01
 end
-basis "Mg_6-311xxg(d,p)" SPHERICAL 
+basis "Mg_6-311xxG(d,p)" SPHERICAL 
 #basis SET: (14s,10p,1d) -> [7s,6p,1d]
 Mg    S
       0.4386650000E+05       0.9179994236E-03
@@ -296,7 +296,7 @@ Mg    SP
 Mg    D
       0.1750000000E+00       0.1000000000E+01
 end
-basis "Al_6-311xxg(d,p)" SPHERICAL 
+basis "Al_6-311xxG(d,p)" SPHERICAL 
 #basis SET: (14s,10p,1d) -> [7s,6p,1d]
 Al    S
       0.5486648900E+05       0.8389998342E-03
@@ -336,7 +336,7 @@ Al    SP
 Al    D
       0.3250000000E+00       0.1000000000E+01
 end
-basis "Si_6-311xxg(d,p)" SPHERICAL 
+basis "Si_6-311xxG(d,p)" SPHERICAL 
 #basis SET: (14s,10p,1d) -> [7s,6p,1d]
 Si    S
       0.6937923000E+05       0.7570004081E-03
@@ -376,7 +376,7 @@ Si    P
 Si    D
       0.4500000000E+00       0.1000000000E+01
 end
-basis "P_6-311xxg(d,p)" SPHERICAL 
+basis "P_6-311xxG(d,p)" SPHERICAL 
 #basis SET: (14s,10p,1d) -> [7s,6p,1d]
 P    S
       0.7749240000E+05       0.7810001470E-03
@@ -416,7 +416,7 @@ P    SP
 P    D
       0.5500000000E+00       0.1000000000E+01
 end
-basis "S_6-311xxg(d,p)" SPHERICAL 
+basis "S_6-311xxG(d,p)" SPHERICAL 
 #basis SET: (14s,10p,1d) -> [7s,6p,1d]
 S    S
       0.9341340000E+05       0.7429999567E-03
@@ -456,7 +456,7 @@ S    P
 S    D
       0.6500000000E+00       0.1000000000E+01
 end
-basis "Cl_6-311xxg(d,p)" SPHERICAL 
+basis "Cl_6-311xxG(d,p)" SPHERICAL 
 #basis SET: (14s,11p,1d) -> [7s,6p,1d]
 Cl    S
       0.1058190000E+06       0.7380002465E-03

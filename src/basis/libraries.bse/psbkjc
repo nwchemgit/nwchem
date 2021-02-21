@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# psbkjc version number 0
+# Data downloaded on 2021-02-20T21:21
+# pSBKJC version number 0
 # Description: Electrically polarized valence basis sets for the SBKJC effective core potential developed for calculations of dynamic polarizabilities and Raman intensities
 # Role: orbital
 # 
@@ -72,7 +72,7 @@
 #     10.1007/s00214-012-1111-4
 # 
 # # 
-basis "C_psbkjc" SPHERICAL 
+basis "C_pSBKJC" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [3s,3p,2d]
 C    S
       4.2860000             -0.14722000
@@ -99,7 +99,7 @@ C    D
 end
 
 
-ecp "C_psbkjc"
+ecp "C_pSBKJC"
 C nelec 2
 C ul
 1       8.5646800             -0.8937100
@@ -107,7 +107,7 @@ C S
 0       2.8149700              1.9292600
 2       8.1129600             14.8819900
 end
-basis "N_psbkjc" SPHERICAL 
+basis "N_pSBKJC" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [3s,3p,2d]
 N    S
       6.4030000             -0.13955000
@@ -134,7 +134,7 @@ N    D
 end
 
 
-ecp "N_psbkjc"
+ecp "N_pSBKJC"
 N nelec 2
 N ul
 1      11.9968600             -0.9121200
@@ -142,7 +142,7 @@ N S
 0       3.8389500              1.9356500
 2      11.7324700             21.7335500
 end
-basis "O_psbkjc" SPHERICAL 
+basis "O_pSBKJC" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [3s,3p,2d]
 O    S
       8.5190000             -0.14551000
@@ -169,7 +169,7 @@ O    D
 end
 
 
-ecp "O_psbkjc"
+ecp "O_pSBKJC"
 O nelec 2
 O ul
 1      16.1171800             -0.9255000
@@ -177,7 +177,7 @@ O S
 0       5.0534800              1.9606900
 2      15.9533300             29.1344200
 end
-basis "F_psbkjc" SPHERICAL 
+basis "F_pSBKJC" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [3s,3p,2d]
 F    S
      11.1200000             -0.14451000
@@ -204,7 +204,7 @@ F    D
 end
 
 
-ecp "F_psbkjc"
+ecp "F_pSBKJC"
 F nelec 2
 F ul
 1      20.7395900             -0.9325800
@@ -212,7 +212,7 @@ F S
 0       6.6048800              2.0364900
 2      18.2409200             27.8627900
 end
-basis "Si_psbkjc" SPHERICAL 
+basis "Si_pSBKJC" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [3s,3p,2d]
 Si    S
       1.1670000             -0.32403000
@@ -239,7 +239,7 @@ Si    D
 end
 
 
-ecp "Si_psbkjc"
+ecp "Si_pSBKJC"
 Si nelec 10
 Si ul
 1       2.4627200             -2.9824000
@@ -250,7 +250,7 @@ Si P
 0       3.8258500              3.2034500
 2       1.8302600              9.8643800
 end
-basis "P_psbkjc" SPHERICAL 
+basis "P_pSBKJC" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [3s,3p,2d]
 P    S
       1.4590000             -0.34091000
@@ -277,7 +277,7 @@ P    D
 end
 
 
-ecp "P_psbkjc"
+ecp "P_pSBKJC"
 P nelec 10
 P ul
 1       3.1894500             -3.1636100
@@ -288,7 +288,7 @@ P P
 0       4.9636800              3.2408400
 2       2.3186500             13.1077800
 end
-basis "S_psbkjc" SPHERICAL 
+basis "S_pSBKJC" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [3s,3p,2d]
 S    S
       1.8170000             -0.34015000
@@ -315,7 +315,7 @@ S    D
 end
 
 
-ecp "S_psbkjc"
+ecp "S_pSBKJC"
 S nelec 10
 S ul
 1       3.9893000             -3.2983900
@@ -326,7 +326,7 @@ S P
 0       6.8854000              3.3570500
 2       2.9069000             17.5423700
 end
-basis "Cl_psbkjc" SPHERICAL 
+basis "Cl_pSBKJC" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [3s,3p,2d]
 Cl    S
       2.2250000             -0.33098000
@@ -353,7 +353,7 @@ Cl    D
 end
 
 
-ecp "Cl_psbkjc"
+ecp "Cl_pSBKJC"
 Cl nelec 10
 Cl ul
 1       4.8748300             -3.4073800
@@ -364,7 +364,7 @@ Cl P
 0       8.9002900              3.4286000
 2       3.5264800             22.1525600
 end
-basis "Ge_psbkjc" SPHERICAL 
+basis "Ge_pSBKJC" SPHERICAL 
 #basis SET: (8s,8p,4d) -> [3s,3p,2d]
 Ge    S
       1.8340000              0.49386000
@@ -397,7 +397,7 @@ Ge    D
 end
 
 
-ecp "Ge_psbkjc"
+ecp "Ge_pSBKJC"
 Ge nelec 28
 Ge ul
 1       0.8275100             -1.2685900
@@ -411,7 +411,7 @@ Ge D
 0       3.0697000              1.6236000
 2       0.8052500              3.2066000
 end
-basis "As_psbkjc" SPHERICAL 
+basis "As_pSBKJC" SPHERICAL 
 #basis SET: (8s,8p,4d) -> [3s,3p,2d]
 As    S
       2.7090000              0.12147900
@@ -444,7 +444,7 @@ As    D
 end
 
 
-ecp "As_psbkjc"
+ecp "As_pSBKJC"
 As nelec 28
 As ul
 1       1.6458300             -4.7702800
@@ -458,7 +458,7 @@ As D
 0       1.1208600              2.2350800
 2       1.1214000              4.6072100
 end
-basis "Se_psbkjc" SPHERICAL 
+basis "Se_pSBKJC" SPHERICAL 
 #basis SET: (8s,8p,4d) -> [3s,3p,2d]
 Se    S
       3.7110000              0.05574400
@@ -491,7 +491,7 @@ Se    D
 end
 
 
-ecp "Se_psbkjc"
+ecp "Se_pSBKJC"
 Se nelec 28
 Se ul
 1       2.0935600             -5.5849800
@@ -505,7 +505,7 @@ Se D
 0       1.3829000              2.4000100
 2       1.4267100              6.5994800
 end
-basis "Br_psbkjc" SPHERICAL 
+basis "Br_pSBKJC" SPHERICAL 
 #basis SET: (8s,8p,4d) -> [3s,3p,2d]
 Br    S
       3.2760000              0.20057000
@@ -538,7 +538,7 @@ Br    D
 end
 
 
-ecp "Br_psbkjc"
+ecp "Br_pSBKJC"
 Br nelec 28
 Br ul
 1       2.1211600             -4.7820600
@@ -552,7 +552,7 @@ Br D
 0       1.7316800              1.7937500
 2       1.7324600             10.0466000
 end
-basis "Sn_psbkjc" SPHERICAL 
+basis "Sn_pSBKJC" SPHERICAL 
 #basis SET: (8s,8p,4d) -> [3s,3p,2d]
 Sn    S
       2.6040000              0.03104200
@@ -585,7 +585,7 @@ Sn    D
 end
 
 
-ecp "Sn_psbkjc"
+ecp "Sn_pSBKJC"
 Sn nelec 46
 Sn ul
 1       0.8205000             -5.6068200
@@ -601,7 +601,7 @@ Sn D
 0       1.6543000              5.1024300
 2       0.6030100              5.2746600
 end
-basis "Sb_psbkjc" SPHERICAL 
+basis "Sb_pSBKJC" SPHERICAL 
 #basis SET: (8s,8p,4d) -> [3s,3p,2d]
 Sb    S
       0.9922000              0.69007600
@@ -634,7 +634,7 @@ Sb    D
 end
 
 
-ecp "Sb_psbkjc"
+ecp "Sb_pSBKJC"
 Sb nelec 46
 Sb ul
 1       0.7549000             -2.9095100
@@ -651,7 +651,7 @@ Sb D
 0       2.4598100              9.2218200
 2       0.7641500              7.9212900
 end
-basis "Te_psbkjc" SPHERICAL 
+basis "Te_pSBKJC" SPHERICAL 
 #basis SET: (8s,8p,4d) -> [3s,3p,2d]
 Te    S
       2.3640000              0.08717900
@@ -684,7 +684,7 @@ Te    D
 end
 
 
-ecp "Te_psbkjc"
+ecp "Te_pSBKJC"
 Te nelec 46
 Te ul
 1       0.9484700             -3.9598400
@@ -701,7 +701,7 @@ Te D
 0       3.6661800             11.5466300
 2       0.9318900             11.2377600
 end
-basis "I_psbkjc" SPHERICAL 
+basis "I_pSBKJC" SPHERICAL 
 #basis SET: (8s,8p,4d) -> [3s,3p,2d]
 I    S
       2.6250000              0.07366000
@@ -734,7 +734,7 @@ I    D
 end
 
 
-ecp "I_psbkjc"
+ecp "I_pSBKJC"
 I nelec 46
 I ul
 1       0.9762800             -3.6963900

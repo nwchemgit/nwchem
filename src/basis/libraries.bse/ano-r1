@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# ano-r1 version number 1
+# Data downloaded on 2021-02-20T21:21
+# ANO-R1 version number 1
 # Description: ANO-R1
 # Role: orbital
 # 
@@ -45,7 +45,7 @@
 #     10.1021/acs.jctc.9b00873
 # 
 # # 
-basis "H_ano-r1" SPHERICAL 
+basis "H_ANO-R1" SPHERICAL 
 #basis SET: (14s,4p) -> [2s,1p]
 H    S
     107.20423474             0.0007959672
@@ -69,7 +69,7 @@ H    P
       0.50662208             0.5090260709
       0.21338213             0.3637470263
 end
-basis "He_ano-r1" SPHERICAL 
+basis "He_ANO-R1" SPHERICAL 
 #basis SET: (16s,4p) -> [2s,1p]
 He    S
     532.15974499             0.0010481741
@@ -95,7 +95,7 @@ He    P
       0.88610328             0.5069630977
       0.36143462             0.2353799198
 end
-basis "Li_ano-r1" SPHERICAL 
+basis "Li_ANO-R1" SPHERICAL 
 #basis SET: (33s,5p) -> [3s,1p]
 Li    S
    2088.61150300             0.0005072796
@@ -140,7 +140,7 @@ Li    P
       0.40537766            -0.0100779085
       0.11844697             0.9838392498
 end
-basis "Be_ano-r1" SPHERICAL 
+basis "Be_ANO-R1" SPHERICAL 
 #basis SET: (33s,7p) -> [3s,1p]
 Be    S
    3691.66806090             0.0005536332
@@ -187,7 +187,7 @@ Be    P
       0.22167796             0.2750553945
       0.09053350             0.6220399470
 end
-basis "B_ano-r1" SPHERICAL 
+basis "B_ANO-R1" SPHERICAL 
 #basis SET: (36s,14p,3d) -> [3s,2p,1d]
 B    S
   10431.23000000             0.0003066844
@@ -249,7 +249,7 @@ B    D
       0.30774984             0.4338143627
       0.12377580             0.3583217393
 end
-basis "C_ano-r1" SPHERICAL 
+basis "C_ANO-R1" SPHERICAL 
 #basis SET: (36s,14p,3d) -> [3s,2p,1d]
 C    S
   15566.69000000             0.0003189872
@@ -311,7 +311,7 @@ C    D
       0.46411596             0.4340023798
       0.18218655             0.3318497793
 end
-basis "N_ano-r1" SPHERICAL 
+basis "N_ANO-R1" SPHERICAL 
 #basis SET: (39s,16p,4d) -> [3s,2p,1d]
 N    S
   45831.05000000             0.0001578820
@@ -379,7 +379,7 @@ N    D
       0.54288641             0.5057232195
       0.21898562             0.1875027648
 end
-basis "O_ano-r1" SPHERICAL 
+basis "O_ANO-R1" SPHERICAL 
 #basis SET: (39s,16p,4d) -> [3s,2p,1d]
 O    S
   60090.63000000             0.0001692081
@@ -447,7 +447,7 @@ O    D
       0.67466607             0.4968855570
       0.27128932             0.1543978747
 end
-basis "F_ano-r1" SPHERICAL 
+basis "F_ANO-R1" SPHERICAL 
 #basis SET: (39s,16p,4d) -> [3s,2p,1d]
 F    S
   78598.25000000             0.0001779897
@@ -515,7 +515,7 @@ F    D
       0.88682786             0.4967811922
       0.35216904             0.1562751073
 end
-basis "Ne_ano-r1" SPHERICAL 
+basis "Ne_ANO-R1" SPHERICAL 
 #basis SET: (42s,16p,4d) -> [3s,2p,1d]
 Ne    S
  196432.10000000             0.0001004027
@@ -586,7 +586,7 @@ Ne    D
       1.12029771             0.4920010614
       0.44262106             0.1528671630
 end
-basis "Na_ano-r1" SPHERICAL 
+basis "Na_ANO-R1" SPHERICAL 
 #basis SET: (64s,16p,4d) -> [4s,2p,1d]
 Na    S
  201993.95564000             0.0001249887
@@ -680,7 +680,7 @@ Na    D
       1.08275000             0.4373851014
       0.43058634             0.0690006247
 end
-basis "Mg_ano-r1" SPHERICAL 
+basis "Mg_ANO-R1" SPHERICAL 
 #basis SET: (64s,27p,6d) -> [4s,3p,1d]
 Mg    S
  261636.94402000             0.0001254661
@@ -788,7 +788,7 @@ Mg    D
       0.30239105             0.0527369354
       0.11977549             0.0619153728
 end
-basis "Al_ano-r1" SPHERICAL 
+basis "Al_ANO-R1" SPHERICAL 
 #basis SET: (64s,33p,7d) -> [4s,3p,1d]
 Al    S
  351795.40000000             0.0001207878
@@ -903,7 +903,7 @@ Al    D
       0.24425845             0.4103614928
       0.09241781             0.2361777776
 end
-basis "Si_ano-r1" SPHERICAL 
+basis "Si_ANO-R1" SPHERICAL 
 #basis SET: (64s,33p,7d) -> [4s,3p,1d]
 Si    S
  458452.85720000             0.0001188294
@@ -1018,7 +1018,7 @@ Si    D
       0.30429641             0.5394856414
       0.11856060             0.4027877520
 end
-basis "P_ano-r1" SPHERICAL 
+basis "P_ANO-R1" SPHERICAL 
 #basis SET: (64s,33p,7d) -> [4s,3p,1d]
 P    S
  570424.45527000             0.0001199845
@@ -1133,7 +1133,7 @@ P    D
       0.38684225             0.5585813822
       0.15239846             0.3473321263
 end
-basis "S_ano-r1" SPHERICAL 
+basis "S_ANO-R1" SPHERICAL 
 #basis SET: (68s,33p,7d) -> [4s,3p,1d]
 S    S
 1302321.28220000             0.0000730548
@@ -1252,7 +1252,7 @@ S    D
       0.43449440             0.5404825589
       0.17574472             0.2828428979
 end
-basis "Cl_ano-r1" SPHERICAL 
+basis "Cl_ANO-R1" SPHERICAL 
 #basis SET: (68s,33p,7d) -> [4s,3p,1d]
 Cl    S
 1565493.47430000             0.0000751764
@@ -1371,7 +1371,7 @@ Cl    D
       0.52452431             0.5334042765
       0.21310861             0.2635690628
 end
-basis "Ar_ano-r1" SPHERICAL 
+basis "Ar_ANO-R1" SPHERICAL 
 #basis SET: (68s,36p,7d) -> [4s,3p,1d]
 Ar    S
 1932006.32560000             0.0000749748
@@ -1493,7 +1493,7 @@ Ar    D
       0.59195048             0.5077945735
       0.24509847             0.2274904236
 end
-basis "K_ano-r1" SPHERICAL 
+basis "K_ANO-R1" SPHERICAL 
 #basis SET: (76s,36p,6d) -> [4s,3p,1d]
 K    S
 2068748.91180000             0.0000829158
@@ -1622,7 +1622,7 @@ K    D
       0.36608062             0.2841285917
       0.16839574             0.0249935207
 end
-basis "Ca_ano-r1" SPHERICAL 
+basis "Ca_ANO-R1" SPHERICAL 
 #basis SET: (76s,39p,6d) -> [4s,3p,1d]
 Ca    S
 2300423.37720000             0.0000905885
@@ -1754,7 +1754,7 @@ Ca    D
       0.37044395             0.1980780804
       0.15788017             0.0223510878
 end
-basis "Sc_ano-r1" SPHERICAL 
+basis "Sc_ANO-R1" SPHERICAL 
 #basis SET: (95s,48p,16d,5f) -> [5s,4p,2d,1f]
 Sc    S
 2727602.05170000             0.0000836838
@@ -1933,7 +1933,7 @@ Sc    F
       0.78184382             0.4050158272
       0.29566203             0.4144928581
 end
-basis "Ti_ano-r1" SPHERICAL 
+basis "Ti_ANO-R1" SPHERICAL 
 #basis SET: (95s,48p,24d,5f) -> [5s,4p,3d,1f]
 Ti    S
 3133560.87260000             0.0000904030
@@ -2121,7 +2121,7 @@ Ti    F
       0.43973065             0.4601579520
       0.10137065             0.1809020953
 end
-basis "V_ano-r1" SPHERICAL 
+basis "V_ANO-R1" SPHERICAL 
 #basis SET: (100s,36p,24d,5f) -> [5s,3p,3d,1f]
 V    S
 6131334.30070000             0.0000625681
@@ -2301,7 +2301,7 @@ V    F
       0.70117813             0.4304265446
       0.24744122             0.2767403988
 end
-basis "Cr_ano-r1" SPHERICAL 
+basis "Cr_ANO-R1" SPHERICAL 
 #basis SET: (100s,36p,27d,5f) -> [5s,3p,3d,1f]
 Cr    S
 7188854.72340000             0.0000640000
@@ -2484,7 +2484,7 @@ Cr    F
       0.63021672             0.4091890746
       0.22147556             0.1947626641
 end
-basis "Mn_ano-r1" SPHERICAL 
+basis "Mn_ANO-R1" SPHERICAL 
 #basis SET: (100s,36p,27d,5f) -> [5s,3p,3d,1f]
 Mn    S
 7856301.29860000             0.0000676896
@@ -2667,7 +2667,7 @@ Mn    F
       0.57575109             0.3505982077
       0.21318610             0.1444459572
 end
-basis "Fe_ano-r1" SPHERICAL 
+basis "Fe_ANO-R1" SPHERICAL 
 #basis SET: (100s,48p,18d,5f) -> [5s,4p,2d,1f]
 Fe    S
 8687133.23130000             0.0000698879
@@ -2853,7 +2853,7 @@ Fe    F
       0.66286853             0.3544937865
       0.24576115             0.1412416009
 end
-basis "Co_ano-r1" SPHERICAL 
+basis "Co_ANO-R1" SPHERICAL 
 #basis SET: (100s,36p,18d,5f) -> [5s,3p,2d,1f]
 Co    S
 9616751.79660000             0.0000732402
@@ -3026,7 +3026,7 @@ Co    F
       0.75497508             0.3646746135
       0.27731876             0.1514304084
 end
-basis "Ni_ano-r1" SPHERICAL 
+basis "Ni_ANO-R1" SPHERICAL 
 #basis SET: (100s,48p,18d,5f) -> [5s,4p,2d,1f]
 Ni    S
 10669978.08800000            0.0000757112
@@ -3212,7 +3212,7 @@ Ni    F
       0.83940592             0.3586308116
       0.31147589             0.1435997034
 end
-basis "Cu_ano-r1" SPHERICAL 
+basis "Cu_ANO-R1" SPHERICAL 
 #basis SET: (105s,39p,18d,5f) -> [5s,3p,2d,1f]
 Cu    S
 12928090.33600000            0.0000727271
@@ -3393,7 +3393,7 @@ Cu    F
       1.09016477             0.3952181267
       0.39901038             0.1980863806
 end
-basis "Zn_ano-r1" SPHERICAL 
+basis "Zn_ANO-R1" SPHERICAL 
 #basis SET: (100s,52p,18d,5f) -> [5s,4p,2d,1f]
 Zn    S
 12740314.87800000            0.0000789665
@@ -3583,7 +3583,7 @@ Zn    F
       1.10953637             0.3764408782
       0.40899898             0.1577202331
 end
-basis "Ga_ano-r1" SPHERICAL 
+basis "Ga_ANO-R1" SPHERICAL 
 #basis SET: (100s,60p,27d,6f) -> [5s,4p,3d,1f]
 Ga    S
 14171032.01100000            0.0000798609
@@ -3792,7 +3792,7 @@ Ga    F
       0.56181661             0.1877543537
       0.20750195             0.0214492601
 end
-basis "Ge_ano-r1" SPHERICAL 
+basis "Ge_ANO-R1" SPHERICAL 
 #basis SET: (100s,60p,27d,6f) -> [5s,4p,3d,1f]
 Ge    S
 15871072.23500000            0.0000800705
@@ -4001,7 +4001,7 @@ Ge    F
       0.60658606             0.1572021157
       0.23061999             0.0247608542
 end
-basis "As_ano-r1" SPHERICAL 
+basis "As_ANO-R1" SPHERICAL 
 #basis SET: (105s,60p,27d,6f) -> [5s,4p,3d,1f]
 As    S
 27099775.34900000            0.0000558903
@@ -4215,7 +4215,7 @@ As    F
       0.67754877             0.1548762902
       0.26530413             0.0391283094
 end
-basis "Se_ano-r1" SPHERICAL 
+basis "Se_ANO-R1" SPHERICAL 
 #basis SET: (105s,60p,27d,6f) -> [5s,4p,3d,1f]
 Se    S
 28322299.72200000            0.0000595359
@@ -4429,7 +4429,7 @@ Se    F
       0.67585076             0.1633444972
       0.27225129             0.0643385019
 end
-basis "Br_ano-r1" SPHERICAL 
+basis "Br_ANO-R1" SPHERICAL 
 #basis SET: (105s,60p,27d,7f) -> [5s,4p,3d,1f]
 Br    S
 30473376.47500000            0.0000611414
@@ -4644,7 +4644,7 @@ Br    F
       0.75109844             0.2248317473
       0.31111010             0.1310999542
 end
-basis "Kr_ano-r1" SPHERICAL 
+basis "Kr_ANO-R1" SPHERICAL 
 #basis SET: (105s,60p,27d,6f) -> [5s,4p,3d,1f]
 Kr    S
 32307585.85900000            0.0000626443
@@ -4858,7 +4858,7 @@ Kr    F
       0.80169797             0.2920179048
       0.34340772             0.1409343666
 end
-basis "Rb_ano-r1" SPHERICAL 
+basis "Rb_ANO-R1" SPHERICAL 
 #basis SET: (110s,60p,20d) -> [5s,4p,2d]
 Rb    S
 27058471.77400000            0.0000831299
@@ -5062,7 +5062,7 @@ Rb    D
       0.32601479             0.5414429021
       0.12468590             0.0229975155
 end
-basis "Sr_ano-r1" SPHERICAL 
+basis "Sr_ANO-R1" SPHERICAL 
 #basis SET: (110s,60p,20d) -> [5s,4p,2d]
 Sr    S
 25550573.96800000            0.0001002885
@@ -5266,7 +5266,7 @@ Sr    D
       0.11732827             0.1185253930
       0.02672566             0.0030742914
 end
-basis "Y_ano-r1" SPHERICAL 
+basis "Y_ANO-R1" SPHERICAL 
 #basis SET: (115s,60p,36d,7f) -> [5s,4p,3d,1f]
 Y    S
 36602179.16000000            0.0000671353
@@ -5500,7 +5500,7 @@ Y    F
       0.20838876             0.3121979183
       0.08946387             0.2063945472
 end
-basis "Zr_ano-r1" SPHERICAL 
+basis "Zr_ANO-R1" SPHERICAL 
 #basis SET: (138s,60p,36d,6f) -> [6s,4p,3d,1f]
 Zr    S
 38151598.11900000            0.0000785949
@@ -5757,7 +5757,7 @@ Zr    F
       0.21705007             0.3286507400
       0.09303601             0.1268054624
 end
-basis "Nb_ano-r1" SPHERICAL 
+basis "Nb_ANO-R1" SPHERICAL 
 #basis SET: (138s,60p,36d,6f) -> [6s,4p,3d,1f]
 Nb    S
 40014825.56500000            0.0000818602
@@ -6014,7 +6014,7 @@ Nb    F
       0.26594954             0.3472558865
       0.10375085             0.1177603401
 end
-basis "Mo_ano-r1" SPHERICAL 
+basis "Mo_ANO-R1" SPHERICAL 
 #basis SET: (138s,64p,36d,6f) -> [6s,4p,3d,1f]
 Mo    S
 40864736.00400000            0.0000858051
@@ -6275,7 +6275,7 @@ Mo    F
       0.32086498             0.3512492761
       0.12870999             0.1212972945
 end
-basis "Tc_ano-r1" SPHERICAL 
+basis "Tc_ANO-R1" SPHERICAL 
 #basis SET: (138s,64p,36d,6f) -> [6s,4p,3d,1f]
 Tc    S
 41231534.24200000            0.0000936158
@@ -6536,7 +6536,7 @@ Tc    F
       0.31044657             0.2810455060
       0.13519652             0.0909268029
 end
-basis "Ru_ano-r1" SPHERICAL 
+basis "Ru_ANO-R1" SPHERICAL 
 #basis SET: (138s,64p,36d,6f) -> [6s,4p,3d,1f]
 Ru    S
 42793248.83300000            0.0000976342
@@ -6797,7 +6797,7 @@ Ru    F
       0.43818525             0.3739925982
       0.17861166             0.1298056860
 end
-basis "Rh_ano-r1" SPHERICAL 
+basis "Rh_ANO-R1" SPHERICAL 
 #basis SET: (138s,64p,36d,6f) -> [6s,4p,3d,1f]
 Rh    S
 43870360.59700000            0.0001030153
@@ -7058,7 +7058,7 @@ Rh    F
       0.49163324             0.3662464525
       0.20324554             0.1289751385
 end
-basis "Pd_ano-r1" SPHERICAL 
+basis "Pd_ANO-R1" SPHERICAL 
 #basis SET: (132s,64p,36d,6f) -> [6s,4p,3d,1f]
 Pd    S
 45902421.47500000            0.0000981166
@@ -7313,7 +7313,7 @@ Pd    F
       0.49518160             0.3445767726
       0.19897167             0.1030163244
 end
-basis "Ag_ano-r1" SPHERICAL 
+basis "Ag_ANO-R1" SPHERICAL 
 #basis SET: (138s,64p,36d,6f) -> [6s,4p,3d,1f]
 Ag    S
 37824054.15500000            0.0001407309
@@ -7574,7 +7574,7 @@ Ag    F
       0.62708673             0.3673470764
       0.26066728             0.1217098218
 end
-basis "Cd_ano-r1" SPHERICAL 
+basis "Cd_ANO-R1" SPHERICAL 
 #basis SET: (138s,64p,36d,6f) -> [6s,4p,3d,1f]
 Cd    S
 45247966.44200000            0.0001145473
@@ -7835,7 +7835,7 @@ Cd    F
       0.43917302             0.2413590896
       0.18400886             0.0352639336
 end
-basis "In_ano-r1" SPHERICAL 
+basis "In_ANO-R1" SPHERICAL 
 #basis SET: (138s,90p,36d,6f) -> [6s,5p,3d,1f]
 In    S
 47126051.59700000            0.0001172059
@@ -8123,7 +8123,7 @@ In    F
       0.39261359             0.1589293883
       0.15775919             0.0078345719
 end
-basis "Sn_ano-r1" SPHERICAL 
+basis "Sn_ANO-R1" SPHERICAL 
 #basis SET: (138s,90p,36d,6f) -> [6s,5p,3d,1f]
 Sn    S
 48062593.30800000            0.0001218283
@@ -8411,7 +8411,7 @@ Sn    F
       0.43211983             0.1417542632
       0.17432971             0.0071825200
 end
-basis "Sb_ano-r1" SPHERICAL 
+basis "Sb_ANO-R1" SPHERICAL 
 #basis SET: (138s,90p,36d,6f) -> [6s,5p,3d,1f]
 Sb    S
 49749918.11700000            0.0001259997
@@ -8699,7 +8699,7 @@ Sb    F
       0.50718381             0.1476091684
       0.20741942             0.0144279273
 end
-basis "Te_ano-r1" SPHERICAL 
+basis "Te_ANO-R1" SPHERICAL 
 #basis SET: (138s,90p,36d,6f) -> [6s,5p,3d,1f]
 Te    S
 49657577.53900000            0.0001330517
@@ -8987,7 +8987,7 @@ Te    F
       0.46847556             0.1114901441
       0.19944371             0.0163140557
 end
-basis "I_ano-r1" SPHERICAL 
+basis "I_ANO-R1" SPHERICAL 
 #basis SET: (138s,90p,36d,6f) -> [6s,5p,3d,1f]
 I    S
 51820322.36400000            0.0001376124
@@ -9275,7 +9275,7 @@ I    F
       0.48262057             0.1168948069
       0.21327875             0.0268513924
 end
-basis "Xe_ano-r1" SPHERICAL 
+basis "Xe_ANO-R1" SPHERICAL 
 #basis SET: (138s,90p,36d,6f) -> [6s,5p,3d,1f]
 Xe    S
 51951380.49100000            0.0001448987
@@ -9563,7 +9563,7 @@ Xe    F
       0.58131479             0.1424560186
       0.25835160             0.0379372880
 end
-basis "Cs_ano-r1" SPHERICAL 
+basis "Cs_ANO-R1" SPHERICAL 
 #basis SET: (175s,90p,36d,5f) -> [7s,5p,3d,1f]
 Cs    S
 53318371.16400000            0.0001527244
@@ -9888,7 +9888,7 @@ Cs    F
       0.40327426             0.4911359011
       0.18608174             0.0953553609
 end
-basis "Ba_ano-r1" SPHERICAL 
+basis "Ba_ANO-R1" SPHERICAL 
 #basis SET: (168s,108p,36d,6f) -> [7s,6p,3d,1f]
 Ba    S
 45942451.98300000            0.0001903100
@@ -10226,7 +10226,7 @@ Ba    F
       0.16441387             0.1708036485
       0.07485925            -0.0148282133
 end
-basis "La_ano-r1" SPHERICAL 
+basis "La_ANO-R1" SPHERICAL 
 #basis SET: (175s,90p,56d,6f) -> [7s,5p,4d,1f]
 La    S
 59549903.80000000            0.0001370750
@@ -10573,7 +10573,7 @@ La    F
       0.23453055             0.3214954811
       0.08937661             0.1578280205
 end
-basis "Ce_ano-r1" SPHERICAL 
+basis "Ce_ANO-R1" SPHERICAL 
 #basis SET: (175s,90p,56d,18f) -> [7s,5p,4d,2f]
 Ce    S
 55681021.99800000            0.0001901117
@@ -10933,7 +10933,7 @@ Ce    F
       0.21396590             0.5076756373
       0.07774427             0.2524708446
 end
-basis "Pr_ano-r1" SPHERICAL 
+basis "Pr_ANO-R1" SPHERICAL 
 #basis SET: (175s,95p,36d,20f) -> [7s,5p,3d,2f]
 Pr    S
 56301535.24800000            0.0001924634
@@ -11279,7 +11279,7 @@ Pr    F
       0.16689626             0.3736436275
       0.06253452            -0.0005307893
 end
-basis "Nd_ano-r1" SPHERICAL 
+basis "Nd_ANO-R1" SPHERICAL 
 #basis SET: (175s,95p,36d,20f) -> [7s,5p,3d,2f]
 Nd    S
 57001920.61800000            0.0002023029
@@ -11625,7 +11625,7 @@ Nd    F
       0.18459266             0.3974915444
       0.06945763             0.0120514500
 end
-basis "Pm_ano-r1" SPHERICAL 
+basis "Pm_ANO-R1" SPHERICAL 
 #basis SET: (175s,95p,36d,20f) -> [7s,5p,3d,2f]
 Pm    S
 57275336.34100000            0.0002135370
@@ -11971,7 +11971,7 @@ Pm    F
       0.19880091             0.3953709090
       0.07475930             0.0559709934
 end
-basis "Sm_ano-r1" SPHERICAL 
+basis "Sm_ANO-R1" SPHERICAL 
 #basis SET: (175s,95p,36d,20f) -> [7s,5p,3d,2f]
 Sm    S
 56819909.79700000            0.0002328434
@@ -12317,7 +12317,7 @@ Sm    F
       0.21413714             0.2905479866
       0.08057263             0.6131635809
 end
-basis "Eu_ano-r1" SPHERICAL 
+basis "Eu_ANO-R1" SPHERICAL 
 #basis SET: (175s,95p,36d,20f) -> [7s,5p,3d,2f]
 Eu    S
 57413592.07900000            0.0002481556
@@ -12663,7 +12663,7 @@ Eu    F
       0.23101017             0.1492856489
       0.08708589             0.8207898944
 end
-basis "Gd_ano-r1" SPHERICAL 
+basis "Gd_ANO-R1" SPHERICAL 
 #basis SET: (175s,95p,56d,20f) -> [7s,5p,4d,2f]
 Gd    S
 57467933.07600000            0.0002617205
@@ -13030,7 +13030,7 @@ Gd    F
       0.30010095             0.3940338937
       0.11679977             0.1498940483
 end
-basis "Tb_ano-r1" SPHERICAL 
+basis "Tb_ANO-R1" SPHERICAL 
 #basis SET: (175s,95p,36d,20f) -> [7s,5p,3d,2f]
 Tb    S
 57910053.72500000            0.0002648862
@@ -13376,7 +13376,7 @@ Tb    F
       0.23911952             0.3299547723
       0.08847348             0.0565141394
 end
-basis "Dy_ano-r1" SPHERICAL 
+basis "Dy_ANO-R1" SPHERICAL 
 #basis SET: (175s,95p,36d,20f) -> [7s,5p,3d,2f]
 Dy    S
 57719596.19700000            0.0002802889
@@ -13722,7 +13722,7 @@ Dy    F
       0.24682084             0.3080928003
       0.09080020             0.0357814334
 end
-basis "Ho_ano-r1" SPHERICAL 
+basis "Ho_ANO-R1" SPHERICAL 
 #basis SET: (175s,95p,36d,20f) -> [7s,5p,3d,2f]
 Ho    S
 58269752.48400000           -0.0002672614
@@ -14068,7 +14068,7 @@ Ho    F
       0.25384993             0.2970163290
       0.09281590             0.0344818894
 end
-basis "Er_ano-r1" SPHERICAL 
+basis "Er_ANO-R1" SPHERICAL 
 #basis SET: (175s,95p,36d,20f) -> [7s,5p,3d,2f]
 Er    S
 58741043.59500000            0.0003095617
@@ -14414,7 +14414,7 @@ Er    F
       0.26038487             0.2828111484
       0.09459118             0.0230907024
 end
-basis "Tm_ano-r1" SPHERICAL 
+basis "Tm_ANO-R1" SPHERICAL 
 #basis SET: (175s,95p,36d,20f) -> [7s,5p,3d,2f]
 Tm    S
 58862318.57200000            0.0003237408
@@ -14760,7 +14760,7 @@ Tm    F
       0.26793332             0.2779210319
       0.09680918             0.0192235877
 end
-basis "Yb_ano-r1" SPHERICAL 
+basis "Yb_ANO-R1" SPHERICAL 
 #basis SET: (175s,100p,36d,20f) -> [7s,5p,3d,2f]
 Yb    S
 58582440.75300000            0.0003403871
@@ -15111,7 +15111,7 @@ Yb    F
       0.27688805             0.2657301579
       0.09963690             0.0248496089
 end
-basis "Lu_ano-r1" SPHERICAL 
+basis "Lu_ANO-R1" SPHERICAL 
 #basis SET: (175s,100p,60d,20f) -> [7s,5p,4d,2f]
 Lu    S
 59266668.40000000            0.0003249054
@@ -15487,7 +15487,7 @@ Lu    F
       0.36369625             0.2479203217
       0.13710658             0.0267239088
 end
-basis "Hf_ano-r1" SPHERICAL 
+basis "Hf_ANO-R1" SPHERICAL 
 #basis SET: (175s,100p,60d,20f) -> [7s,5p,4d,2f]
 Hf    S
 59109346.55800000            0.0003813172
@@ -15863,7 +15863,7 @@ Hf    F
       0.44341616             0.3840866578
       0.17159161             0.4335677175
 end
-basis "Ta_ano-r1" SPHERICAL 
+basis "Ta_ANO-R1" SPHERICAL 
 #basis SET: (175s,100p,60d,20f) -> [7s,5p,4d,2f]
 Ta    S
 59549903.80000000            0.0003143582
@@ -16239,7 +16239,7 @@ Ta    F
       0.52256047             0.4113672663
       0.20606575             0.5062717461
 end
-basis "W_ano-r1" SPHERICAL 
+basis "W_ANO-R1" SPHERICAL 
 #basis SET: (175s,100p,60d,20f) -> [7s,5p,4d,2f]
 W    S
 59608214.42800000            0.0004329089
@@ -16615,7 +16615,7 @@ W    F
       0.60113833             0.4399910167
       0.24047489             0.5173470175
 end
-basis "Re_ano-r1" SPHERICAL 
+basis "Re_ANO-R1" SPHERICAL 
 #basis SET: (175s,100p,60d,20f) -> [7s,5p,4d,2f]
 Re    S
 59568587.09400000            0.0003403380
@@ -16991,7 +16991,7 @@ Re    F
       0.68198313             0.5197257618
       0.27622686             0.4406841068
 end
-basis "Os_ano-r1" SPHERICAL 
+basis "Os_ANO-R1" SPHERICAL 
 #basis SET: (175s,100p,60d,20f) -> [7s,5p,4d,2f]
 Os    S
 59236594.26600000            0.0003606148
@@ -17367,7 +17367,7 @@ Os    F
       0.76272317             0.5253722803
       0.31202440             0.4448356827
 end
-basis "Ir_ano-r1" SPHERICAL 
+basis "Ir_ANO-R1" SPHERICAL 
 #basis SET: (175s,100p,60d,20f) -> [7s,5p,4d,2f]
 Ir    S
 59493132.10200000            0.0005203068
@@ -17743,7 +17743,7 @@ Ir    F
       0.84342773             0.5282020648
       0.34789725             0.4505545870
 end
-basis "Pt_ano-r1" SPHERICAL 
+basis "Pt_ANO-R1" SPHERICAL 
 #basis SET: (182s,100p,60d,20f) -> [7s,5p,4d,2f]
 Pt    S
 61117418.40900000            0.0004862641
@@ -18126,7 +18126,7 @@ Pt    F
       0.90509854             0.5403879733
       0.37301808             0.4352616247
 end
-basis "Au_ano-r1" SPHERICAL 
+basis "Au_ANO-R1" SPHERICAL 
 #basis SET: (182s,100p,60d,20f) -> [7s,5p,4d,2f]
 Au    S
 61066379.26800000            0.0003989620
@@ -18509,7 +18509,7 @@ Au    F
       0.98081976             0.5490337731
       0.40585883             0.4264641100
 end
-basis "Hg_ano-r1" SPHERICAL 
+basis "Hg_ANO-R1" SPHERICAL 
 #basis SET: (175s,100p,60d,18f) -> [7s,5p,4d,2f]
 Hg    S
 59141309.44500000            0.0006420095
@@ -18883,7 +18883,7 @@ Hg    F
       1.27687842             0.4926163754
       0.52302352             0.5676194104
 end
-basis "Tl_ano-r1" SPHERICAL 
+basis "Tl_ANO-R1" SPHERICAL 
 #basis SET: (175s,132p,64d,18f) -> [7s,6p,4d,2f]
 Tl    S
 59499141.79100000            0.0004498959
@@ -19294,7 +19294,7 @@ Tl    F
       1.40481901             0.5044159696
       0.58334640             0.5534106343
 end
-basis "Pb_ano-r1" SPHERICAL 
+basis "Pb_ANO-R1" SPHERICAL 
 #basis SET: (175s,132p,60d,18f) -> [7s,6p,4d,2f]
 Pb    S
 59593444.14100000            0.0005568129
@@ -19701,7 +19701,7 @@ Pb    F
       1.53856106             0.5202136906
       0.64711395             0.5341608275
 end
-basis "Bi_ano-r1" SPHERICAL 
+basis "Bi_ANO-R1" SPHERICAL 
 #basis SET: (175s,132p,56d,18f) -> [7s,6p,4d,2f]
 Bi    S
 59901876.51000000            0.0006525883
@@ -20104,7 +20104,7 @@ Bi    F
       1.67725377             0.5283716800
       0.71379102             0.5230731712
 end
-basis "Po_ano-r1" SPHERICAL 
+basis "Po_ANO-R1" SPHERICAL 
 #basis SET: (175s,132p,56d,18f) -> [7s,6p,4d,2f]
 Po    S
 60304906.71400000            0.0006442690
@@ -20507,7 +20507,7 @@ Po    F
       1.82054971             0.5286483051
       0.78317977             0.5202214387
 end
-basis "At_ano-r1" SPHERICAL 
+basis "At_ANO-R1" SPHERICAL 
 #basis SET: (175s,132p,56d,18f) -> [7s,6p,4d,2f]
 At    S
 60477702.16400000            0.0006770730
@@ -20910,7 +20910,7 @@ At    F
       1.96809198             0.5206602257
       0.85504677             0.5256134728
 end
-basis "Rn_ano-r1" SPHERICAL 
+basis "Rn_ANO-R1" SPHERICAL 
 #basis SET: (175s,132p,56d,18f) -> [7s,6p,4d,2f]
 Rn    S
 58881611.41000000            0.0006772939

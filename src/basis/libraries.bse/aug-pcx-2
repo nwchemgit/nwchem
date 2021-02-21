@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# aug-pcx-2 version number 1
+# Data downloaded on 2021-02-20T21:21
+# aug-pcX-2 version number 1
 # Description: Jensen aug-pcX basis set (containing diffuse functions) optimized for core-spectroscopy
 # Role: orbital
 # 
@@ -47,7 +47,7 @@
 #     10.1021/acs.jctc.8b01071
 # 
 # # 
-basis "Li_aug-pcx-2" SPHERICAL 
+basis "Li_aug-pcX-2" SPHERICAL 
 #basis SET: (11s,5p,2d) -> [11s,5p,2d]
 Li    S
       0.214674E+04           1.0000000
@@ -86,7 +86,7 @@ Li    D
 Li    D
       0.438345E-01           1.0000000
 end
-basis "Be_aug-pcx-2" SPHERICAL 
+basis "Be_aug-pcX-2" SPHERICAL 
 #basis SET: (11s,5p,2d) -> [11s,5p,2d]
 Be    S
       0.400157E+04           1.0000000
@@ -125,7 +125,7 @@ Be    D
 Be    D
       0.324172E-01           1.0000000
 end
-basis "B_aug-pcx-2" SPHERICAL 
+basis "B_aug-pcX-2" SPHERICAL 
 #basis SET: (11s,7p,3d,2f) -> [11s,7p,3d,2f]
 B    S
       0.640449E+04           1.0000000
@@ -174,7 +174,7 @@ B    F
 B    F
       0.839925E-01           1.0000000
 end
-basis "C_aug-pcx-2" SPHERICAL 
+basis "C_aug-pcX-2" SPHERICAL 
 #basis SET: (11s,7p,3d,2f) -> [11s,7p,3d,2f]
 C    S
       0.933941E+04           1.0000000
@@ -223,7 +223,7 @@ C    F
 C    F
       0.123470E+00           1.0000000
 end
-basis "N_aug-pcx-2" SPHERICAL 
+basis "N_aug-pcX-2" SPHERICAL 
 #basis SET: (11s,7p,3d,2f) -> [11s,7p,3d,2f]
 N    S
       0.128103E+05           1.0000000
@@ -272,7 +272,7 @@ N    F
 N    F
       0.155345E+00           1.0000000
 end
-basis "O_aug-pcx-2" SPHERICAL 
+basis "O_aug-pcX-2" SPHERICAL 
 #basis SET: (11s,7p,3d,2f) -> [11s,7p,3d,2f]
 O    S
       0.168149E+05           1.0000000
@@ -321,7 +321,7 @@ O    F
 O    F
       0.187320E+00           1.0000000
 end
-basis "F_aug-pcx-2" SPHERICAL 
+basis "F_aug-pcX-2" SPHERICAL 
 #basis SET: (11s,7p,3d,2f) -> [11s,7p,3d,2f]
 F    S
       0.213716E+05           1.0000000
@@ -370,7 +370,7 @@ F    F
 F    F
       0.232719E+00           1.0000000
 end
-basis "Ne_aug-pcx-2" SPHERICAL 
+basis "Ne_aug-pcX-2" SPHERICAL 
 #basis SET: (11s,7p,3d,2f) -> [11s,7p,3d,2f]
 Ne    S
       0.266819E+05           1.0000000
@@ -419,7 +419,7 @@ Ne    F
 Ne    F
       0.287137E+00           1.0000000
 end
-basis "Na_aug-pcx-2" SPHERICAL 
+basis "Na_aug-pcX-2" SPHERICAL 
 #basis SET: (14s,10p,2d) -> [14s,10p,2d]
 Na    S
       0.722735E+05           1.0000000
@@ -474,7 +474,7 @@ Na    D
 Na    D
       0.435579E-01           1.0000000
 end
-basis "Mg_aug-pcx-2" SPHERICAL 
+basis "Mg_aug-pcX-2" SPHERICAL 
 #basis SET: (14s,10p,2d) -> [14s,10p,2d]
 Mg    S
       0.898924E+05           1.0000000
@@ -529,7 +529,7 @@ Mg    D
 Mg    D
       0.610655E-01           1.0000000
 end
-basis "Al_aug-pcx-2" SPHERICAL 
+basis "Al_aug-pcX-2" SPHERICAL 
 #basis SET: (14s,11p,3d,2f) -> [14s,11p,3d,2f]
 Al    S
       0.109419E+06           1.0000000
@@ -592,7 +592,7 @@ Al    F
 Al    F
       0.590400E-01           1.0000000
 end
-basis "Si_aug-pcx-2" SPHERICAL 
+basis "Si_aug-pcX-2" SPHERICAL 
 #basis SET: (14s,11p,3d,2f) -> [14s,11p,3d,2f]
 Si    S
       0.132240E+06           1.0000000
@@ -655,7 +655,7 @@ Si    F
 Si    F
       0.817772E-01           1.0000000
 end
-basis "P_aug-pcx-2" SPHERICAL 
+basis "P_aug-pcX-2" SPHERICAL 
 #basis SET: (14s,11p,3d,2f) -> [14s,11p,3d,2f]
 P    S
       0.158310E+06           1.0000000
@@ -718,7 +718,7 @@ P    F
 P    F
       0.102946E+00           1.0000000
 end
-basis "S_aug-pcx-2" SPHERICAL 
+basis "S_aug-pcX-2" SPHERICAL 
 #basis SET: (14s,11p,3d,2f) -> [14s,11p,3d,2f]
 S    S
       0.186023E+06           1.0000000
@@ -781,7 +781,7 @@ S    F
 S    F
       0.122867E+00           1.0000000
 end
-basis "Cl_aug-pcx-2" SPHERICAL 
+basis "Cl_aug-pcX-2" SPHERICAL 
 #basis SET: (14s,11p,3d,2f) -> [14s,11p,3d,2f]
 Cl    S
       0.216264E+06           1.0000000
@@ -844,7 +844,7 @@ Cl    F
 Cl    F
       0.149279E+00           1.0000000
 end
-basis "Ar_aug-pcx-2" SPHERICAL 
+basis "Ar_aug-pcX-2" SPHERICAL 
 #basis SET: (14s,11p,3d,2f) -> [14s,11p,3d,2f]
 Ar    S
       0.249975E+06           1.0000000

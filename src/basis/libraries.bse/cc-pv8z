@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# cc-pv8z version number 0
+# Data downloaded on 2021-02-20T21:21
+# cc-pV8Z version number 0
 # Description: cc-pV8Z
 # Role: orbital
 # 
@@ -50,7 +50,7 @@
 #     10.1063/1.1532314
 # 
 # # 
-basis "H_cc-pv8z" SPHERICAL 
+basis "H_cc-pV8Z" SPHERICAL 
 #basis SET: (15s,7p,6d,5f,4g,3h,2i,1k) -> [8s,7p,6d,5f,4g,3h,2i,1k]
 H    S
   13940.8000000              0.00000301
@@ -132,7 +132,7 @@ H    I
 H    K
       4.1600000              1.0000000
 end
-basis "Ne_cc-pv8z" SPHERICAL 
+basis "Ne_cc-pV8Z" SPHERICAL 
 #basis SET: (33s,14p,7d,6f,5g,4h,3i,2k,1l) -> [9s,8p,7d,6f,5g,4h,3i,2k,1l]
 Ne    S
 7741600.0000000              0.00000037

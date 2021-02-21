@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# iglo-iii version number 0
+# Data downloaded on 2021-02-20T21:21
+# IGLO-III version number 0
 # Description: VTZP Valence Triple Zeta + Polarization on All Atoms
 # Role: orbital
 # 
@@ -48,7 +48,7 @@
 #     10.1007/978-3-642-75932-1_3
 # 
 # # 
-basis "H_iglo-iii" SPHERICAL 
+basis "H_IGLO-III" SPHERICAL 
 #basis SET: (6s,2p) -> [4s,2p]
 H    S
      68.160000                .25500000E-02
@@ -65,7 +65,7 @@ H    P
 H    P
       0.33                   1.0
 end
-basis "B_iglo-iii" SPHERICAL 
+basis "B_IGLO-III" SPHERICAL 
 #basis SET: (11s,7p,2d) -> [7s,6p,2d]
 B    S
   10624.888                   .24298378E-03
@@ -103,7 +103,7 @@ B    D
 B    D
       0.35                   1.000000
 end
-basis "C_iglo-iii" SPHERICAL 
+basis "C_IGLO-III" SPHERICAL 
 #basis SET: (11s,7p,2d) -> [7s,6p,2d]
 C    S
   16371.074                   .22641833E-03
@@ -141,7 +141,7 @@ C    D
 C    D
       0.35                   1.000000
 end
-basis "N_iglo-iii" SPHERICAL 
+basis "N_IGLO-III" SPHERICAL 
 #basis SET: (11s,7p,2d) -> [7s,6p,2d]
 N    S
   23274.857                   .21521253E-03
@@ -179,7 +179,7 @@ N    D
 N    D
       0.35                   1.000000
 end
-basis "O_iglo-iii" SPHERICAL 
+basis "O_IGLO-III" SPHERICAL 
 #basis SET: (11s,7p,2d) -> [7s,6p,2d]
 O    S
   30664.503                   .21413900E-03
@@ -217,7 +217,7 @@ O    D
 O    D
       0.35                   1.000000
 end
-basis "F_iglo-iii" SPHERICAL 
+basis "F_IGLO-III" SPHERICAL 
 #basis SET: (11s,7p,2d) -> [7s,6p,2d]
 F    S
   37736.000                   .21824900E-03
@@ -255,7 +255,7 @@ F    D
 F    D
       0.35                   1.000000
 end
-basis "Al_iglo-iii" SPHERICAL 
+basis "Al_IGLO-III" SPHERICAL 
 #basis SET: (12s,8p,3d) -> [8s,7p,3d]
 Al    S
   55112.7                     .35193712E-03
@@ -299,7 +299,7 @@ Al    D
 Al    D
       0.15                   1.000000
 end
-basis "Si_iglo-iii" SPHERICAL 
+basis "Si_IGLO-III" SPHERICAL 
 #basis SET: (12s,8p,3d) -> [8s,7p,3d]
 Si    S
   69989.3                     .31440692E-03
@@ -343,7 +343,7 @@ Si    D
 Si    D
       0.15                   1.000000
 end
-basis "P_iglo-iii" SPHERICAL 
+basis "P_IGLO-III" SPHERICAL 
 #basis SET: (12s,8p,3d) -> [8s,7p,3d]
 P    S
   77492.398                   .32906400E-03
@@ -387,7 +387,7 @@ P    D
 P    D
       0.25                   1.000000
 end
-basis "S_iglo-iii" SPHERICAL 
+basis "S_IGLO-III" SPHERICAL 
 #basis SET: (12s,8p,3d) -> [8s,7p,3d]
 S    S
   94181.100                   .30557100E-03
@@ -431,7 +431,7 @@ S    D
 S    D
       0.25                   1.000000
 end
-basis "Cl_iglo-iii" SPHERICAL 
+basis "Cl_IGLO-III" SPHERICAL 
 #basis SET: (12s,8p,3d) -> [8s,7p,3d]
 Cl    S
  105818.82                    .30547500E-03

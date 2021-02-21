@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# nasa ames cc-pvtz version number 0
+# Data downloaded on 2021-02-20T21:21
+# NASA Ames cc-pVTZ version number 0
 # Description: NASA Ames cc-pVTZ
 # Role: orbital
 # 
@@ -56,7 +56,7 @@
 #     10.1007/s002140100279
 # 
 # # 
-basis "Ti_nasa ames cc-pvtz" SPHERICAL 
+basis "Ti_NASA Ames cc-pVTZ" SPHERICAL 
 #basis SET: (54s,26p,9d,2f,1g) -> [7s,8p,6d,2f,1g]
 Ti    S
 5309148.1000000              0.0000040
@@ -175,7 +175,7 @@ Ti    F
 Ti    G
       0.6300000              1.0000000
 end
-basis "Fe_nasa ames cc-pvtz" SPHERICAL 
+basis "Fe_NASA Ames cc-pVTZ" SPHERICAL 
 #basis SET: (73s,24p,10d,2f,1g) -> [6s,8p,6d,2f,1g]
 Fe    S
 4316265.3000000              0.0000090

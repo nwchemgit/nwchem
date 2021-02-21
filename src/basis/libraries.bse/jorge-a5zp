@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# jorge-a5zp version number 1
+# Data downloaded on 2021-02-20T21:21
+# jorge-A5ZP version number 1
 # Description: A5ZP: Augmented 5 zeta valence quality plus polarization
 # Role: orbital
 # 
@@ -47,7 +47,7 @@
 #     10.1016/j.cplett.2008.08.004
 # 
 # # 
-basis "H_jorge-a5zp" SPHERICAL 
+basis "H_jorge-A5ZP" SPHERICAL 
 #basis SET: (8s,5p,4d,3f,2g) -> [6s,5p,4d,3f,2g]
 H    S
     161.83169173             0.0253937
@@ -92,7 +92,7 @@ H    G
 H    G
       0.41870000             1.0000000
 end
-basis "Li_jorge-a5zp" SPHERICAL 
+basis "Li_jorge-A5ZP" SPHERICAL 
 #basis SET: (15s,8p,4d,4f,3g,2h) -> [8s,5p,4d,4f,3g,2h]
 Li    S
   17127.93537420             0.0001547
@@ -157,7 +157,7 @@ Li    H
 Li    H
       0.07883550             1.0000000
 end
-basis "Be_jorge-a5zp" SPHERICAL 
+basis "Be_jorge-A5ZP" SPHERICAL 
 #basis SET: (15s,9p,5d,4f,3g,2h) -> [8s,6p,5d,4f,3g,2h]
 Be    S
   35113.73237001             0.0002905
@@ -226,7 +226,7 @@ Be    H
 Be    H
       0.20415190             1.0000000
 end
-basis "B_jorge-a5zp" SPHERICAL 
+basis "B_jorge-A5ZP" SPHERICAL 
 #basis SET: (15s,9p,5d,4f,3g,2h) -> [8s,6p,5d,4f,3g,2h]
 B    S
   44619.05176262             0.0002914
@@ -295,7 +295,7 @@ B    H
 B    H
       0.35671000             1.0000000
 end
-basis "C_jorge-a5zp" SPHERICAL 
+basis "C_jorge-A5ZP" SPHERICAL 
 #basis SET: (15s,9p,5d,4f,3g,2h) -> [8s,6p,5d,4f,3g,2h]
 C    S
   99843.71445783             0.0002042
@@ -364,7 +364,7 @@ C    H
 C    H
       0.68698600             1.0000000
 end
-basis "N_jorge-a5zp" SPHERICAL 
+basis "N_jorge-A5ZP" SPHERICAL 
 #basis SET: (15s,9p,5d,4f,3g,2h) -> [8s,6p,5d,4f,3g,2h]
 N    S
  110875.80119773             0.0002114
@@ -433,7 +433,7 @@ N    H
 N    H
       0.80616160             1.0000000
 end
-basis "O_jorge-a5zp" SPHERICAL 
+basis "O_jorge-A5ZP" SPHERICAL 
 #basis SET: (15s,9p,5d,4f,3g,2h) -> [8s,6p,5d,4f,3g,2h]
 O    S
  156894.60157870             0.0001913
@@ -502,7 +502,7 @@ O    H
 O    H
       0.97511000             1.0000000
 end
-basis "F_jorge-a5zp" SPHERICAL 
+basis "F_jorge-A5ZP" SPHERICAL 
 #basis SET: (15s,9p,5d,4f,3g,2h) -> [8s,6p,5d,4f,3g,2h]
 F    S
  201780.46087009             0.0001869
@@ -571,7 +571,7 @@ F    H
 F    H
       1.26286500             1.0000000
 end
-basis "Ne_jorge-a5zp" SPHERICAL 
+basis "Ne_jorge-A5ZP" SPHERICAL 
 #basis SET: (15s,9p,5d,4f,3g,2h) -> [8s,6p,5d,4f,3g,2h]
 Ne    S
  296875.44742524             0.0001572
@@ -640,7 +640,7 @@ Ne    H
 Ne    H
       1.50204479             1.0000000
 end
-basis "Na_jorge-a5zp" SPHERICAL 
+basis "Na_jorge-A5ZP" SPHERICAL 
 #basis SET: (19s,13p,5d,4f,3g,2h) -> [11s,8p,5d,4f,3g,2h]
 Na    S
  549632.88956726             0.0000780
@@ -722,7 +722,7 @@ Na    H
 Na    H
       0.07322226             1.0000000
 end
-basis "Mg_jorge-a5zp" SPHERICAL 
+basis "Mg_jorge-A5ZP" SPHERICAL 
 #basis SET: (19s,13p,5d,4f,3g,2h) -> [11s,8p,5d,4f,3g,2h]
 Mg    S
  664680.24662198             0.0000778
@@ -804,7 +804,7 @@ Mg    H
 Mg    H
       0.14721860             1.0000000
 end
-basis "Al_jorge-a5zp" SPHERICAL 
+basis "Al_jorge-A5ZP" SPHERICAL 
 #basis SET: (19s,13p,5d,4f,3g,2h) -> [11s,8p,5d,4f,3g,2h]
 Al    S
  935084.31288260             0.0000796
@@ -886,7 +886,7 @@ Al    H
 Al    H
       0.21690000             1.0000000
 end
-basis "Si_jorge-a5zp" SPHERICAL 
+basis "Si_jorge-A5ZP" SPHERICAL 
 #basis SET: (19s,13p,4d,4f,3g,2h) -> [11s,8p,4d,4f,3g,2h]
 Si    S
 1060955.95691063             0.0000905
@@ -966,7 +966,7 @@ Si    H
 Si    H
       0.28724000             1.0000000
 end
-basis "P_jorge-a5zp" SPHERICAL 
+basis "P_jorge-A5ZP" SPHERICAL 
 #basis SET: (19s,13p,4d,4f,3g,2h) -> [11s,8p,4d,4f,3g,2h]
 P    S
 1179999.98661496             0.0001238
@@ -1046,7 +1046,7 @@ P    H
 P    H
       0.38496510             1.0000000
 end
-basis "S_jorge-a5zp" SPHERICAL 
+basis "S_jorge-A5ZP" SPHERICAL 
 #basis SET: (19s,13p,5d,4f,3g,2h) -> [11s,8p,5d,4f,3g,2h]
 S    S
 1212999.21922839             0.0001513
@@ -1128,7 +1128,7 @@ S    H
 S    H
       0.44979000             1.0000000
 end
-basis "Cl_jorge-a5zp" SPHERICAL 
+basis "Cl_jorge-A5ZP" SPHERICAL 
 #basis SET: (19s,13p,5d,4f,3g,2h) -> [11s,8p,5d,4f,3g,2h]
 Cl    S
 1239999.57729787             0.0001672
@@ -1210,7 +1210,7 @@ Cl    H
 Cl    H
       0.57370000             1.0000000
 end
-basis "Ar_jorge-a5zp" SPHERICAL 
+basis "Ar_jorge-A5ZP" SPHERICAL 
 #basis SET: (19s,13p,5d,4f,3g,2h) -> [11s,8p,5d,4f,3g,2h]
 Ar    S
 1251999.04959334             0.0001956

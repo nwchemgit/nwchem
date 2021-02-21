@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# pv7z version number 0
+# Data downloaded on 2021-02-20T21:21
+# pV7Z version number 0
 # Description: pV7Z
 # Role: orbital
 # 
@@ -70,7 +70,7 @@
 #     As referenced in the original Basis Set Exchange
 # 
 # # 
-basis "H_pv7z" SPHERICAL 
+basis "H_pV7Z" SPHERICAL 
 #basis SET: (14s,6p,5d,4f,3g,2h,1i) -> [7s,6p,5d,4f,3g,2h,1i]
 H    S
    2762.5161400              0.0000220
@@ -136,7 +136,7 @@ H    H
 H    I
       3.4140000              1.0000000
 end
-basis "C_pv7z" SPHERICAL 
+basis "C_pV7Z" SPHERICAL 
 #basis SET: (30s,12p,6d,5f,4g,3h,2i,1k) -> [8s,7p,6d,5f,4g,3h,2i,1k]
 C    S
  949028.8000000              0.0000014
@@ -238,7 +238,7 @@ C    I
 C    K
       1.9560000              1.0000000
 end
-basis "N_pv7z" SPHERICAL 
+basis "N_pV7Z" SPHERICAL 
 #basis SET: (30s,12p,6d,5f,4g,3h,2i,1k) -> [8s,7p,6d,5f,4g,3h,2i,1k]
 N    S
 1296296.0000000              0.0000014
@@ -340,7 +340,7 @@ N    I
 N    K
       2.3790000              1.0000000
 end
-basis "O_pv7z" SPHERICAL 
+basis "O_pV7Z" SPHERICAL 
 #basis SET: (30s,12p,6d,5f,4g,3h,2i,1k) -> [8s,7p,6d,5f,4g,3h,2i,1k]
 O    S
 1678789.0000000              0.0000014
@@ -442,7 +442,7 @@ O    I
 O    K
       3.1230000              1.0000000
 end
-basis "F_pv7z" SPHERICAL 
+basis "F_pV7Z" SPHERICAL 
 #basis SET: (30s,12p,6d,5f,4g,3h,2i,1k) -> [8s,7p,6d,5f,4g,3h,2i,1k]
 F    S
 2115112.0000000              0.0000015
@@ -544,7 +544,7 @@ F    I
 F    K
       4.2560000              1.0000000
 end
-basis "Ne_pv7z" SPHERICAL 
+basis "Ne_pV7Z" SPHERICAL 
 #basis SET: (30s,12p,6d,5f,4g,3h,2i,1k) -> [8s,7p,6d,5f,4g,3h,2i,1k]
 Ne    S
 2636740.0000000              0.00000144
@@ -646,7 +646,7 @@ Ne    I
 Ne    K
       5.2560000              1.0000000
 end
-basis "S_pv7z" SPHERICAL 
+basis "S_pV7Z" SPHERICAL 
 #basis SET: (69s,30p,6d,5f,4g,3h,2i,1k) -> [9s,8p,6d,5f,4g,3h,2i,1k]
 S    S
 7010036.0000000              0.14393981E-5

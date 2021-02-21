@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# wachters+f version number 0
+# Data downloaded on 2021-02-20T21:21
+# Wachters+f version number 0
 # Description: VDZP    Valence Double Zeta + Polarization on All Atoms
 # Role: orbital
 # 
@@ -78,7 +78,7 @@
 #     10.1063/1.1673095
 # 
 # # 
-basis "Sc_wachters+f" SPHERICAL 
+basis "Sc_Wachters+f" SPHERICAL 
 #basis SET: (14s,11p,6d,3f) -> [8s,6p,4d,1f]
 Sc    S
  188961.0000000              0.0002500
@@ -134,7 +134,7 @@ Sc    F
       0.3198414              0.5973381
       0.1369599              0.3929396
 end
-basis "Ti_wachters+f" SPHERICAL 
+basis "Ti_Wachters+f" SPHERICAL 
 #basis SET: (14s,11p,6d,3f) -> [8s,6p,4d,1f]
 Ti    S
  206082.0000000              0.0002500
@@ -190,7 +190,7 @@ Ti    F
       0.4997522              0.5973381
       0.2139998              0.3929396
 end
-basis "V_wachters+f" SPHERICAL 
+basis "V_Wachters+f" SPHERICAL 
 #basis SET: (14s,11p,6d,3f) -> [8s,6p,4d,1f]
 V    S
  226878.0000000              0.0002500
@@ -246,7 +246,7 @@ V    F
       0.7196432              0.5973381
       0.3081598              0.3929396
 end
-basis "Cr_wachters+f" SPHERICAL 
+basis "Cr_Wachters+f" SPHERICAL 
 #basis SET: (14s,11p,6d,3f) -> [8s,6p,4d,1f]
 Cr    S
  236658.0000000              0.0002700
@@ -302,7 +302,7 @@ Cr    F
       0.9795143              0.5973381
       0.4194397              0.3929396
 end
-basis "Mn_wachters+f" SPHERICAL 
+basis "Mn_Wachters+f" SPHERICAL 
 #basis SET: (14s,11p,6d,3f) -> [8s,6p,4d,1f]
 Mn    S
  243694.0000000              0.0002900
@@ -358,7 +358,7 @@ Mn    F
       1.2793657              0.5973381
       0.5478396              0.3929396
 end
-basis "Fe_wachters+f" SPHERICAL 
+basis "Fe_Wachters+f" SPHERICAL 
 #basis SET: (14s,11p,6d,3f) -> [8s,6p,4d,1f]
 Fe    S
  257539.0000000              0.0002900
@@ -414,7 +414,7 @@ Fe    F
       1.6191972              0.5973381
       0.6933595              0.3929396
 end
-basis "Co_wachters+f" SPHERICAL 
+basis "Co_Wachters+f" SPHERICAL 
 #basis SET: (14s,11p,6d,3f) -> [8s,6p,4d,1f]
 Co    S
  270991.0000000              0.0003100
@@ -470,7 +470,7 @@ Co    F
       1.9990089              0.5973381
       0.8559993              0.3929396
 end
-basis "Ni_wachters+f" SPHERICAL 
+basis "Ni_Wachters+f" SPHERICAL 
 #basis SET: (14s,11p,6d,3f) -> [8s,6p,4d,1f]
 Ni    S
  284878.0000000              0.0003200
@@ -526,7 +526,7 @@ Ni    F
       2.4188007              0.5973381
       1.0357592              0.3929396
 end
-basis "Cu_wachters+f" SPHERICAL 
+basis "Cu_Wachters+f" SPHERICAL 
 #basis SET: (14s,11p,6d,3f) -> [8s,6p,4d,1f]
 Cu    S
  337200.0000000              0.0002800

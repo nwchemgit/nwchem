@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# aug-cc-pwcvdz-dk3 version number 1
+# Data downloaded on 2021-02-20T21:21
+# aug-cc-pwCVDZ-DK3 version number 1
 # Description: aug-cc-pwCVDZ-DK3
 # Role: orbital
 # 
@@ -47,7 +47,7 @@
 #     10.1063/1.5010587
 # 
 # # 
-basis "Cs_aug-cc-pwcvdz-dk3" SPHERICAL 
+basis "Cs_aug-cc-pwCVDZ-DK3" SPHERICAL 
 #basis SET: (141s,93p,42d) -> [9s,8p,6d]
 Cs    S
       5.684199E+07           2.200000E-04
@@ -349,7 +349,7 @@ Cs    D
 Cs    D
       6.370000E-03           1.000000E+00
 end
-basis "Ba_aug-cc-pwcvdz-dk3" SPHERICAL 
+basis "Ba_aug-cc-pwCVDZ-DK3" SPHERICAL 
 #basis SET: (141s,88p,42d) -> [9s,8p,6d]
 Ba    S
       5.691350E+07           2.350000E-04
@@ -646,7 +646,7 @@ Ba    D
 Ba    D
       1.240000E-02           1.000000E+00
 end
-basis "Fr_aug-cc-pwcvdz-dk3" SPHERICAL 
+basis "Fr_aug-cc-pwCVDZ-DK3" SPHERICAL 
 #basis SET: (178s,140p,67d,8f) -> [10s,9p,7d,1f]
 Fr    S
       5.696310E+07           1.542000E-03
@@ -1069,7 +1069,7 @@ Fr    F
       4.984043E+00           2.385640E-01
       2.217811E+00           5.910000E-02
 end
-basis "Ra_aug-cc-pwcvdz-dk3" SPHERICAL 
+basis "Ra_aug-cc-pwCVDZ-DK3" SPHERICAL 
 #basis SET: (178s,134p,67d,8f) -> [10s,9p,7d,1f]
 Ra    S
       5.676373E+07           1.640000E-03

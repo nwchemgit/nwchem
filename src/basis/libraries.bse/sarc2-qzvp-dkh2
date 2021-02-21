@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# sarc2-qzvp-dkh2 version number 0
+# Data downloaded on 2021-02-20T21:21
+# SARC2-QZVP-DKH2 version number 0
 # Description: SARC2-QZVP-DKH2
 # Role: orbital
 # 
@@ -46,7 +46,7 @@
 #     10.1021/acs.jctc.5b01048
 # 
 # # 
-basis "La_sarc2-qzvp-dkh2" SPHERICAL 
+basis "La_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 La    S
 3908799.0870000              0.001979610978
@@ -160,7 +160,7 @@ La    H
 La    H
       3.7200000              1.0000000
 end
-basis "Ce_sarc2-qzvp-dkh2" SPHERICAL 
+basis "Ce_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Ce    S
 4164893.9330000              0.002015077737
@@ -274,7 +274,7 @@ Ce    H
 Ce    H
       3.79113924051          1.0000000
 end
-basis "Pr_sarc2-qzvp-dkh2" SPHERICAL 
+basis "Pr_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Pr    S
 4449443.7620000              0.002034356477
@@ -388,7 +388,7 @@ Pr    H
 Pr    H
       3.79754601227          1.0000000
 end
-basis "Nd_sarc2-qzvp-dkh2" SPHERICAL 
+basis "Nd_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Nd    S
 4733993.5910000              0.002064076832
@@ -502,7 +502,7 @@ Nd    H
 Nd    H
       3.91515151515          1.0000000
 end
-basis "Pm_sarc2-qzvp-dkh2" SPHERICAL 
+basis "Pm_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Pm    S
 4863007.0970000              0.002151082427
@@ -616,7 +616,7 @@ Pm    H
 Pm    H
       4.0000000              1.0000000
 end
-basis "Sm_sarc2-qzvp-dkh2" SPHERICAL 
+basis "Sm_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Sm    S
 5612784.1600000              0.002053819344
@@ -730,7 +730,7 @@ Sm    H
 Sm    H
       4.05325443787          1.0000000
 end
-basis "Eu_sarc2-qzvp-dkh2" SPHERICAL 
+basis "Eu_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Eu    S
 5701463.0100000              0.00215685505
@@ -844,7 +844,7 @@ Eu    H
 Eu    H
       4.18235294118          1.0000000
 end
-basis "Gd_sarc2-qzvp-dkh2" SPHERICAL 
+basis "Gd_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Gd    S
 6038159.4080000              0.002193720338
@@ -958,7 +958,7 @@ Gd    H
 Gd    H
       4.43529411765          1.0000000
 end
-basis "Tb_sarc2-qzvp-dkh2" SPHERICAL 
+basis "Tb_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Tb    S
 6758316.7030000              0.002142945089
@@ -1072,7 +1072,7 @@ Tb    H
 Tb    H
       4.58479532164          1.0000000
 end
-basis "Dy_sarc2-qzvp-dkh2" SPHERICAL 
+basis "Dy_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Dy    S
 6818227.0380000              0.002259663318
@@ -1186,7 +1186,7 @@ Dy    H
 Dy    H
       4.72674418605          1.0000000
 end
-basis "Ho_sarc2-qzvp-dkh2" SPHERICAL 
+basis "Ho_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Ho    S
 7263979.9690000              0.002288525832
@@ -1300,7 +1300,7 @@ Ho    H
 Ho    H
       4.92441860465          1.0000000
 end
-basis "Er_sarc2-qzvp-dkh2" SPHERICAL 
+basis "Er_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Er    S
 8067496.7530000              0.002248164873
@@ -1414,7 +1414,7 @@ Er    H
 Er    H
       5.10465116279          1.0000000
 end
-basis "Tm_sarc2-qzvp-dkh2" SPHERICAL 
+basis "Tm_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Tm    S
 8211204.9480000              0.002352350661
@@ -1528,7 +1528,7 @@ Tm    H
 Tm    H
       5.30057803468          1.0000000
 end
-basis "Yb_sarc2-qzvp-dkh2" SPHERICAL 
+basis "Yb_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Yb    S
 8712676.9960000              0.002388797142
@@ -1642,7 +1642,7 @@ Yb    H
 Yb    H
       5.52601156069          1.0000000
 end
-basis "Lu_sarc2-qzvp-dkh2" SPHERICAL 
+basis "Lu_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Lu    S
 9214149.0440000              0.002443454077

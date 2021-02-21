@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# sapporo-tzp version number 1
+# Data downloaded on 2021-02-20T21:21
+# Sapporo-TZP version number 1
 # Description: Sapporo-TZP [deprecated]
 # Role: orbital
 # 
@@ -179,7 +179,7 @@
 #     In Japanese. Citation at https://ci.nii.ac.jp/naid/40004737908/en/
 # 
 # # 
-basis "H_sapporo-tzp" SPHERICAL 
+basis "H_Sapporo-TZP" SPHERICAL 
 #basis SET: (6s,3p,2d) -> [3s,2p,1d]
 H    S
      82.9217781              0.0061626
@@ -199,7 +199,7 @@ H    D
       1.7706130              0.3816542
       0.5930810              0.7212254
 end
-basis "He_sapporo-tzp" SPHERICAL 
+basis "He_Sapporo-TZP" SPHERICAL 
 #basis SET: (6s,3p,2d) -> [3s,2p,1d]
 He    S
     234.0633630              0.0072908
@@ -219,7 +219,7 @@ He    D
       3.4141020              0.3691401
       1.0144490              0.7499262
 end
-basis "Li_sapporo-tzp" SPHERICAL 
+basis "Li_Sapporo-TZP" SPHERICAL 
 #basis SET: (9s,4p,3d) -> [6s,4p,2d]
 Li    S
    1426.8109690              0.0056220
@@ -250,7 +250,7 @@ Li    D
 Li    D
       0.1034250              1.0000000
 end
-basis "Be_sapporo-tzp" SPHERICAL 
+basis "Be_Sapporo-TZP" SPHERICAL 
 #basis SET: (9s,4p,3d) -> [6s,4p,2d]
 Be    S
    2716.7092860              0.0055280
@@ -281,7 +281,7 @@ Be    D
 Be    D
       0.2148440              1.0000000
 end
-basis "B_sapporo-tzp" SPHERICAL 
+basis "B_Sapporo-TZP" SPHERICAL 
 #basis SET: (10s,5p,3d,2f) -> [4s,3p,2d,1f]
 B    S
    1919.1700597              0.0020424
@@ -314,7 +314,7 @@ B    F
       0.7633700              0.4803262
       0.2851460              0.6377783
 end
-basis "C_sapporo-tzp" SPHERICAL 
+basis "C_Sapporo-TZP" SPHERICAL 
 #basis SET: (10s,5p,3d,2f) -> [4s,3p,2d,1f]
 C    S
    2806.9439975              0.0020238
@@ -347,7 +347,7 @@ C    F
       1.2468250              0.4396850
       0.4390430              0.6863390
 end
-basis "N_sapporo-tzp" SPHERICAL 
+basis "N_Sapporo-TZP" SPHERICAL 
 #basis SET: (10s,5p,3d,2f) -> [4s,3p,2d,1f]
 N    S
    3856.2068586              0.0020149
@@ -380,7 +380,7 @@ N    F
       1.8264550              0.4239548
       0.6221640              0.7064247
 end
-basis "O_sapporo-tzp" SPHERICAL 
+basis "O_Sapporo-TZP" SPHERICAL 
 #basis SET: (10s,5p,3d,2f) -> [4s,3p,2d,1f]
 O    S
    5077.7107079              0.0020052
@@ -413,7 +413,7 @@ O    F
       2.4143370              0.4240903
       0.7676600              0.7194055
 end
-basis "F_sapporo-tzp" SPHERICAL 
+basis "F_Sapporo-TZP" SPHERICAL 
 #basis SET: (10s,5p,3d,2f) -> [4s,3p,2d,1f]
 F    S
    6459.8229236              0.0020004
@@ -446,7 +446,7 @@ F    F
       3.1505920              0.4253502
       1.0122970              0.7163584
 end
-basis "Ne_sapporo-tzp" SPHERICAL 
+basis "Ne_Sapporo-TZP" SPHERICAL 
 #basis SET: (10s,5p,3d,2f) -> [4s,3p,2d,1f]
 Ne    S
    8004.7277676              0.0019976
@@ -479,7 +479,7 @@ Ne    F
       3.9890710              0.4269790
       1.3435140              0.7059891
 end
-basis "Na_sapporo-tzp" SPHERICAL 
+basis "Na_Sapporo-TZP" SPHERICAL 
 #basis SET: (15s,9p,4d,1f) -> [7s,6p,3d,1f]
 Na    S
   21941.3488620              0.0007260
@@ -528,7 +528,7 @@ Na    D
 Na    F
       2.6242290              1.0000000
 end
-basis "Mg_sapporo-tzp" SPHERICAL 
+basis "Mg_Sapporo-TZP" SPHERICAL 
 #basis SET: (15s,9p,4d,1f) -> [7s,6p,3d,1f]
 Mg    S
   26504.8909260              0.0007140
@@ -577,7 +577,7 @@ Mg    D
 Mg    F
       3.4676550              1.0000000
 end
-basis "Al_sapporo-tzp" SPHERICAL 
+basis "Al_Sapporo-TZP" SPHERICAL 
 #basis SET: (13s,9p,4d,2f) -> [5s,4p,2d,1f]
 Al    S
   14022.8007570              0.0019230
@@ -620,7 +620,7 @@ Al    F
       0.3431380              0.6162932
       0.1358570              0.4907372
 end
-basis "Si_sapporo-tzp" SPHERICAL 
+basis "Si_Sapporo-TZP" SPHERICAL 
 #basis SET: (13s,9p,4d,2f) -> [5s,4p,2d,1f]
 Si    S
   16433.9521400              0.0019010
@@ -663,7 +663,7 @@ Si    F
       0.4827630              0.5662898
       0.1909740              0.5424908
 end
-basis "P_sapporo-tzp" SPHERICAL 
+basis "P_Sapporo-TZP" SPHERICAL 
 #basis SET: (13s,9p,4d,2f) -> [5s,4p,2d,1f]
 P    S
   19038.3395300              0.0018820
@@ -706,7 +706,7 @@ P    F
       0.6507130              0.5440485
       0.2573490              0.5647975
 end
-basis "S_sapporo-tzp" SPHERICAL 
+basis "S_Sapporo-TZP" SPHERICAL 
 #basis SET: (13s,9p,4d,2f) -> [5s,4p,2d,1f]
 S    S
   21839.6967750              0.0018650
@@ -749,7 +749,7 @@ S    F
       0.8167390              0.5249389
       0.3085280              0.5930879
 end
-basis "Cl_sapporo-tzp" SPHERICAL 
+basis "Cl_Sapporo-TZP" SPHERICAL 
 #basis SET: (13s,9p,4d,2f) -> [5s,4p,2d,1f]
 Cl    S
   24832.4328910              0.0018500
@@ -792,7 +792,7 @@ Cl    F
       1.0150010              0.5328189
       0.3906680              0.5815049
 end
-basis "Ar_sapporo-tzp" SPHERICAL 
+basis "Ar_Sapporo-TZP" SPHERICAL 
 #basis SET: (13s,9p,4d,2f) -> [5s,4p,2d,1f]
 Ar    S
   28018.4811690              0.0018380
@@ -835,7 +835,7 @@ Ar    F
       1.2360160              0.5490838
       0.4991920              0.5554608
 end
-basis "K_sapporo-tzp" SPHERICAL 
+basis "K_Sapporo-TZP" SPHERICAL 
 #basis SET: (18s,13p,4d,1f) -> [8s,6p,3d,1f]
 K    S
   71110.4385300              0.0006630
@@ -892,7 +892,7 @@ K    D
 K    F
       1.0072210              1.0000000
 end
-basis "Ca_sapporo-tzp" SPHERICAL 
+basis "Ca_Sapporo-TZP" SPHERICAL 
 #basis SET: (18s,13p,4d,1f) -> [8s,6p,3d,1f]
 Ca    S
   79415.2985660              0.0006570
@@ -949,7 +949,7 @@ Ca    D
 Ca    F
       1.2497640              1.0000000
 end
-basis "Sc_sapporo-tzp" SPHERICAL 
+basis "Sc_Sapporo-TZP" SPHERICAL 
 #basis SET: (18s,13p,10d,3f,2g) -> [8s,6p,4d,2f,1g]
 Sc    S
   88064.5764670              0.0006530
@@ -1019,7 +1019,7 @@ Sc    G
       0.8465500              0.3503930
       0.2234860              0.8310949
 end
-basis "Ti_sapporo-tzp" SPHERICAL 
+basis "Ti_Sapporo-TZP" SPHERICAL 
 #basis SET: (18s,13p,10d,3f,2g) -> [8s,6p,4d,2f,1g]
 Ti    S
   97160.2033760              0.0006490
@@ -1089,7 +1089,7 @@ Ti    G
       1.3668140              0.3519929
       0.3456480              0.8367578
 end
-basis "V_sapporo-tzp" SPHERICAL 
+basis "V_Sapporo-TZP" SPHERICAL 
 #basis SET: (18s,13p,10d,3f,2g) -> [8s,6p,4d,2f,1g]
 V    S
  106650.1579680              0.0006460
@@ -1159,7 +1159,7 @@ V    G
       1.8694220              0.3732388
       0.4646340              0.8256995
 end
-basis "Cr_sapporo-tzp" SPHERICAL 
+basis "Cr_Sapporo-TZP" SPHERICAL 
 #basis SET: (18s,13p,10d,3f,2g) -> [8s,6p,4d,2f,1g]
 Cr    S
  116521.9810020              0.0006440
@@ -1229,7 +1229,7 @@ Cr    G
       2.3740690              0.3957520
       0.6000340              0.8078271
 end
-basis "Mn_sapporo-tzp" SPHERICAL 
+basis "Mn_Sapporo-TZP" SPHERICAL 
 #basis SET: (18s,13p,10d,3f,2g) -> [8s,6p,4d,2f,1g]
 Mn    S
  126987.6347050              0.0006410
@@ -1299,7 +1299,7 @@ Mn    G
       2.6569970              0.4130879
       0.6957410              0.7894408
 end
-basis "Fe_sapporo-tzp" SPHERICAL 
+basis "Fe_Sapporo-TZP" SPHERICAL 
 #basis SET: (18s,13p,10d,3f,2g) -> [8s,6p,4d,2f,1g]
 Fe    S
  137853.7493220              0.0006380
@@ -1369,7 +1369,7 @@ Fe    G
       3.1098950              0.4286160
       0.8477510              0.7705390
 end
-basis "Co_sapporo-tzp" SPHERICAL 
+basis "Co_Sapporo-TZP" SPHERICAL 
 #basis SET: (18s,13p,10d,3f,2g) -> [8s,6p,4d,2f,1g]
 Co    S
  149189.9401190              0.0006360
@@ -1439,7 +1439,7 @@ Co    G
       3.4797440              0.4391250
       0.9751950              0.7571280
 end
-basis "Ni_sapporo-tzp" SPHERICAL 
+basis "Ni_Sapporo-TZP" SPHERICAL 
 #basis SET: (18s,13p,10d,3f,2g) -> [8s,6p,4d,2f,1g]
 Ni    S
  160910.5133710              0.0006340
@@ -1509,7 +1509,7 @@ Ni    G
       3.9190010              0.4451743
       1.1181150              0.7488214
 end
-basis "Cu_sapporo-tzp" SPHERICAL 
+basis "Cu_Sapporo-TZP" SPHERICAL 
 #basis SET: (18s,13p,10d,3f,2g) -> [8s,6p,4d,2f,1g]
 Cu    S
  172950.3153690              0.0006330
@@ -1579,7 +1579,7 @@ Cu    G
       4.3341390              0.4526293
       1.2704060              0.7373415
 end
-basis "Zn_sapporo-tzp" SPHERICAL 
+basis "Zn_Sapporo-TZP" SPHERICAL 
 #basis SET: (18s,13p,10d,3f,2g) -> [8s,6p,4d,2f,1g]
 Zn    S
  185712.9179590              0.0006300
@@ -1649,7 +1649,7 @@ Zn    G
       4.8735040              0.4668970
       1.4351420              0.7247570
 end
-basis "Ga_sapporo-tzp" SPHERICAL 
+basis "Ga_Sapporo-TZP" SPHERICAL 
 #basis SET: (18s,14p,10d,2f) -> [6s,5p,3d,1f]
 Ga    S
  198935.3716650              0.0006280
@@ -1711,7 +1711,7 @@ Ga    F
       0.4305660              0.5124341
       0.1691000              0.5971581
 end
-basis "Ge_sapporo-tzp" SPHERICAL 
+basis "Ge_Sapporo-TZP" SPHERICAL 
 #basis SET: (18s,14p,10d,2f) -> [6s,5p,3d,1f]
 Ge    S
  212680.3963650              0.0006260
@@ -1773,7 +1773,7 @@ Ge    F
       0.5057890              0.5161208
       0.2009450              0.5912448
 end
-basis "As_sapporo-tzp" SPHERICAL 
+basis "As_Sapporo-TZP" SPHERICAL 
 #basis SET: (18s,14p,10d,2f) -> [6s,5p,3d,1f]
 As    S
  226850.4945170              0.0006240
@@ -1835,7 +1835,7 @@ As    F
       0.6010040              0.5222640
       0.2432960              0.5814570
 end
-basis "Se_sapporo-tzp" SPHERICAL 
+basis "Se_Sapporo-TZP" SPHERICAL 
 #basis SET: (18s,14p,10d,2f) -> [6s,5p,3d,1f]
 Se    S
  241498.6382410              0.0006220
@@ -1897,7 +1897,7 @@ Se    F
       0.6865420              0.5092920
       0.2649740              0.6037440
 end
-basis "Br_sapporo-tzp" SPHERICAL 
+basis "Br_Sapporo-TZP" SPHERICAL 
 #basis SET: (18s,14p,10d,2f) -> [6s,5p,3d,1f]
 Br    S
  256645.2030350              0.0006200
@@ -1959,7 +1959,7 @@ Br    F
       0.8018640              0.5219562
       0.3191430              0.5852083
 end
-basis "Kr_sapporo-tzp" SPHERICAL 
+basis "Kr_Sapporo-TZP" SPHERICAL 
 #basis SET: (18s,14p,10d,2f) -> [6s,5p,3d,1f]
 Kr    S
  272273.9516540              0.0006180
@@ -2021,7 +2021,7 @@ Kr    F
       0.9159510              0.5532517
       0.3882050              0.5415027
 end
-basis "Rb_sapporo-tzp" SPHERICAL 
+basis "Rb_Sapporo-TZP" SPHERICAL 
 #basis SET: (21s,16p,11d,1f) -> [9s,7p,4d,1f]
 Rb    S
  288418.4721290              0.0006160
@@ -2094,7 +2094,7 @@ Rb    D
 Rb    F
       0.7350060              1.0000000
 end
-basis "Sr_sapporo-tzp" SPHERICAL 
+basis "Sr_Sapporo-TZP" SPHERICAL 
 #basis SET: (21s,16p,11d,1f) -> [9s,7p,4d,1f]
 Sr    S
  305119.4249670              0.0006140
@@ -2167,7 +2167,7 @@ Sr    D
 Sr    F
       0.8776220              1.0000000
 end
-basis "Y_sapporo-tzp" SPHERICAL 
+basis "Y_Sapporo-TZP" SPHERICAL 
 #basis SET: (21s,16p,12d,3f,2g) -> [9s,7p,5d,2f,1g]
 Y    S
  322188.8035650              0.0006120
@@ -2248,7 +2248,7 @@ Y    G
       0.5564680              0.3932039
       0.1620490              0.7843988
 end
-basis "Zr_sapporo-tzp" SPHERICAL 
+basis "Zr_Sapporo-TZP" SPHERICAL 
 #basis SET: (21s,16p,12d,3f,2g) -> [9s,7p,5d,2f,1g]
 Zr    S
  339772.6394300              0.0006100
@@ -2329,7 +2329,7 @@ Zr    G
       0.7711820              0.4109063
       0.2311760              0.7655545
 end
-basis "Nb_sapporo-tzp" SPHERICAL 
+basis "Nb_Sapporo-TZP" SPHERICAL 
 #basis SET: (21s,16p,12d,3f,2g) -> [9s,7p,5d,2f,1g]
 Nb    S
  357699.0464980              0.0006090
@@ -2410,7 +2410,7 @@ Nb    G
       1.0030480              0.4294001
       0.3126300              0.7432301
 end
-basis "Mo_sapporo-tzp" SPHERICAL 
+basis "Mo_Sapporo-TZP" SPHERICAL 
 #basis SET: (21s,16p,12d,3f,2g) -> [9s,7p,5d,2f,1g]
 Mo    S
  376188.2918800              0.0006070
@@ -2491,7 +2491,7 @@ Mo    G
       1.1523510              0.4535213
       0.3650670              0.7201225
 end
-basis "Tc_sapporo-tzp" SPHERICAL 
+basis "Tc_Sapporo-TZP" SPHERICAL 
 #basis SET: (21s,16p,12d,3f,2g) -> [9s,7p,5d,2f,1g]
 Tc    S
  395174.3686530              0.0006060
@@ -2572,7 +2572,7 @@ Tc    G
       1.3128380              0.4705890
       0.4292380              0.6987679
 end
-basis "Ru_sapporo-tzp" SPHERICAL 
+basis "Ru_Sapporo-TZP" SPHERICAL 
 #basis SET: (21s,16p,12d,3f,2g) -> [9s,7p,5d,2f,1g]
 Ru    S
  414397.8908360              0.0006050
@@ -2653,7 +2653,7 @@ Ru    G
       1.5046560              0.4860281
       0.5070420              0.6784621
 end
-basis "Rh_sapporo-tzp" SPHERICAL 
+basis "Rh_Sapporo-TZP" SPHERICAL 
 #basis SET: (21s,15p,12d,3f,2g) -> [9s,7p,5d,2f,1g]
 Rh    S
  434258.1127950              0.0006040
@@ -2733,7 +2733,7 @@ Rh    G
       1.6912560              0.4980613
       0.5817460              0.6629515
 end
-basis "Pd_sapporo-tzp" SPHERICAL 
+basis "Pd_Sapporo-TZP" SPHERICAL 
 #basis SET: (21s,15p,12d,3f,2g) -> [9s,7p,5d,2f,1g]
 Pd    S
  454415.1326110              0.0006030
@@ -2813,7 +2813,7 @@ Pd    G
       1.8897640              0.5082998
       0.6673400              0.6474368
 end
-basis "Ag_sapporo-tzp" SPHERICAL 
+basis "Ag_Sapporo-TZP" SPHERICAL 
 #basis SET: (21s,15p,12d,3f,2g) -> [9s,7p,5d,2f,1g]
 Ag    S
  475385.2472330              0.0006010
@@ -2893,7 +2893,7 @@ Ag    G
       2.1472470              0.5192351
       0.7714800              0.6331741
 end
-basis "Cd_sapporo-tzp" SPHERICAL 
+basis "Cd_Sapporo-TZP" SPHERICAL 
 #basis SET: (21s,15p,13d,3f,2g) -> [9s,7p,5d,2f,1g]
 Cd    S
  496798.3727430              0.0006000
@@ -2974,7 +2974,7 @@ Cd    G
       2.3836110              0.5341490
       0.8657520              0.6164621
 end
-basis "In_sapporo-tzp" SPHERICAL 
+basis "In_Sapporo-TZP" SPHERICAL 
 #basis SET: (21s,17p,13d,2f) -> [7s,6p,4d,1f]
 In    S
  518633.1882300              0.0005990
@@ -3048,7 +3048,7 @@ In    F
       0.5809330              0.2233770
       0.1888940              0.8676600
 end
-basis "Sn_sapporo-tzp" SPHERICAL 
+basis "Sn_Sapporo-TZP" SPHERICAL 
 #basis SET: (21s,17p,13d,2f) -> [7s,6p,4d,1f]
 Sn    S
  540999.4978900              0.0005970
@@ -3122,7 +3122,7 @@ Sn    F
       0.6851490              0.2052071
       0.2183000              0.8820092
 end
-basis "Sb_sapporo-tzp" SPHERICAL 
+basis "Sb_Sapporo-TZP" SPHERICAL 
 #basis SET: (21s,17p,13d,2f) -> [7s,6p,4d,1f]
 Sb    S
  563818.2540380              0.0005960
@@ -3196,7 +3196,7 @@ Sb    F
       1.6752170              0.0852980
       0.2970870              0.9776399
 end
-basis "Te_sapporo-tzp" SPHERICAL 
+basis "Te_Sapporo-TZP" SPHERICAL 
 #basis SET: (21s,17p,13d,2f) -> [7s,6p,4d,1f]
 Te    S
  587168.2359690              0.0005950
@@ -3270,7 +3270,7 @@ Te    F
       2.2902960              0.0881210
       0.3300540              0.9822861
 end
-basis "I_sapporo-tzp" SPHERICAL 
+basis "I_Sapporo-TZP" SPHERICAL 
 #basis SET: (21s,17p,13d,2f) -> [7s,6p,4d,1f]
 I    S
  610985.9012390              0.0005940
@@ -3344,7 +3344,7 @@ I    F
       3.2144430              0.0841220
       0.3953320              0.9863902
 end
-basis "Xe_sapporo-tzp" SPHERICAL 
+basis "Xe_Sapporo-TZP" SPHERICAL 
 #basis SET: (21s,17p,13d,2f) -> [7s,6p,4d,1f]
 Xe    S
  635194.9968560              0.0005930

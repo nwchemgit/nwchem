@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# stuttgart rsc 1997 version number 0
+# Data downloaded on 2021-02-20T21:21
+# Stuttgart RSC 1997 version number 0
 # Description: Stuttgart RSC 1997 ECP + Valence basis
 # Role: orbital
 # 
@@ -220,7 +220,7 @@
 #     10.1063/1.457082
 # 
 # # 
-basis "K_stuttgart rsc 1997" SPHERICAL 
+basis "K_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (7s,6p) -> [5s,4p]
 K    S
       8.2233620              0.1041450
@@ -247,7 +247,7 @@ K    P
 end
 
 
-ecp "K_stuttgart rsc 1997"
+ecp "K_Stuttgart RSC 1997"
 K nelec 10
 K ul
 2       1.000000000            0.000000000
@@ -260,7 +260,7 @@ K D
 K F
 2       6.123613000           -3.858320000
 end
-basis "Ca_stuttgart rsc 1997" SPHERICAL 
+basis "Ca_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (6s,6p,5d) -> [4s,4p,2d]
 Ca    S
      12.3075210              0.0587400
@@ -292,7 +292,7 @@ Ca    D
 end
 
 
-ecp "Ca_stuttgart rsc 1997"
+ecp "Ca_Stuttgart RSC 1997"
 Ca nelec 10
 Ca ul
 2       1.000000000            0.000000000
@@ -308,7 +308,7 @@ Ca D
 Ca F
 2      12.765846000          -26.728178000
 end
-basis "Sc_stuttgart rsc 1997" SPHERICAL 
+basis "Sc_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d,1f) -> [6s,5p,3d,1f]
 Sc    S
      10.0092600              1.0078960
@@ -350,7 +350,7 @@ Sc    F
 end
 
 
-ecp "Sc_stuttgart rsc 1997"
+ecp "Sc_Stuttgart RSC 1997"
 Sc nelec 10
 Sc ul
 2       1.000000000            0.000000000
@@ -364,7 +364,7 @@ Sc D
 2      13.470000000          -16.129862000
 2       4.375000000           -0.534690000
 end
-basis "Ti_stuttgart rsc 1997" SPHERICAL 
+basis "Ti_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d,1f) -> [6s,5p,3d,1f]
 Ti    S
      10.7803650              1.7838920
@@ -406,7 +406,7 @@ Ti    F
 end
 
 
-ecp "Ti_stuttgart rsc 1997"
+ecp "Ti_Stuttgart RSC 1997"
 Ti nelec 10
 Ti ul
 2       1.000000000            0.000000000
@@ -420,7 +420,7 @@ Ti D
 2      15.350000000          -17.568861000
 2       4.980000000           -0.587256000
 end
-basis "V_stuttgart rsc 1997" SPHERICAL 
+basis "V_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d,1f) -> [6s,5p,3d,1f]
 V    S
      12.8432080              1.1406430
@@ -462,7 +462,7 @@ V    F
 end
 
 
-ecp "V_stuttgart rsc 1997"
+ecp "V_Stuttgart RSC 1997"
 V nelec 10
 V ul
 2       1.000000000            0.000000000
@@ -476,7 +476,7 @@ V D
 2      17.480000000          -19.219657000
 2       5.709000000           -0.642775000
 end
-basis "Cr_stuttgart rsc 1997" SPHERICAL 
+basis "Cr_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d,1f) -> [6s,5p,3d,1f]
 Cr    S
      14.0534500              0.8856240
@@ -518,7 +518,7 @@ Cr    F
 end
 
 
-ecp "Cr_stuttgart rsc 1997"
+ecp "Cr_Stuttgart RSC 1997"
 Cr nelec 10
 Cr ul
 2       1.000000000            0.000000000
@@ -532,7 +532,7 @@ Cr D
 2      19.930000000          -20.827421000
 2       6.598000000           -0.834368000
 end
-basis "Mn_stuttgart rsc 1997" SPHERICAL 
+basis "Mn_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d,1f) -> [6s,5p,3d,1f]
 Mn    S
      15.5640010              1.0997890
@@ -574,7 +574,7 @@ Mn    F
 end
 
 
-ecp "Mn_stuttgart rsc 1997"
+ecp "Mn_Stuttgart RSC 1997"
 Mn nelec 10
 Mn ul
 2       1.000000000            0.000000000
@@ -588,7 +588,7 @@ Mn D
 2      22.720000000          -22.568119000
 2       7.640000000           -1.205810000
 end
-basis "Fe_stuttgart rsc 1997" SPHERICAL 
+basis "Fe_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d,1f) -> [6s,5p,3d,1f]
 Fe    S
      20.5130280              0.2347140
@@ -630,7 +630,7 @@ Fe    F
 end
 
 
-ecp "Fe_stuttgart rsc 1997"
+ecp "Fe_Stuttgart RSC 1997"
 Fe nelec 10
 Fe ul
 2       1.000000000            0.000000000
@@ -644,7 +644,7 @@ Fe D
 2      25.900000000          -24.431276000
 2       8.835000000           -1.434251000
 end
-basis "Co_stuttgart rsc 1997" SPHERICAL 
+basis "Co_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d,1f) -> [6s,5p,3d,1f]
 Co    S
      20.9080010              0.3980530
@@ -686,7 +686,7 @@ Co    F
 end
 
 
-ecp "Co_stuttgart rsc 1997"
+ecp "Co_Stuttgart RSC 1997"
 Co nelec 10
 Co ul
 2       1.000000000            0.000000000
@@ -700,7 +700,7 @@ Co D
 2      29.540000000          -26.475333000
 2      10.180000000           -1.825787000
 end
-basis "Ni_stuttgart rsc 1997" SPHERICAL 
+basis "Ni_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d,1f) -> [6s,5p,3d,1f]
 Ni    S
      23.4579910              0.3454240
@@ -742,7 +742,7 @@ Ni    F
 end
 
 
-ecp "Ni_stuttgart rsc 1997"
+ecp "Ni_Stuttgart RSC 1997"
 Ni nelec 10
 Ni ul
 2       1.000000000            0.000000000
@@ -756,7 +756,7 @@ Ni D
 2      33.700000000          -18.522955000
 2      11.660000000           -4.557668000
 end
-basis "Cu_stuttgart rsc 1997" SPHERICAL 
+basis "Cu_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Cu    S
      27.6963200              0.2311320
@@ -796,7 +796,7 @@ Cu    D
 end
 
 
-ecp "Cu_stuttgart rsc 1997"
+ecp "Cu_Stuttgart RSC 1997"
 Cu nelec 10
 Cu ul
 2       1.000000000            0.000000000
@@ -810,7 +810,7 @@ Cu D
 2      38.420000000          -31.272165000
 2      13.260000000           -2.741104000
 end
-basis "Zn_stuttgart rsc 1997" SPHERICAL 
+basis "Zn_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Zn    S
      30.3241270              0.2191430
@@ -850,7 +850,7 @@ Zn    D
 end
 
 
-ecp "Zn_stuttgart rsc 1997"
+ecp "Zn_Stuttgart RSC 1997"
 Zn nelec 10
 Zn ul
 2       1.000000000            0.000000000
@@ -864,7 +864,7 @@ Zn D
 2      43.800000000          -34.149349000
 2      14.980000000           -3.291831000
 end
-basis "Rb_stuttgart rsc 1997" SPHERICAL 
+basis "Rb_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (7s,6p) -> [5s,4p]
 Rb    S
       0.4662440              1.0000000
@@ -891,7 +891,7 @@ Rb    P
 end
 
 
-ecp "Rb_stuttgart rsc 1997"
+ecp "Rb_Stuttgart RSC 1997"
 Rb nelec 28
 Rb ul
 2       1.000000000            0.000000000
@@ -907,7 +907,7 @@ Rb D
 Rb F
 2       3.843114710          -12.316900650
 end
-basis "Sr_stuttgart rsc 1997" SPHERICAL 
+basis "Sr_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (6s,6p,5d) -> [4s,4p,2d]
 Sr    S
       5.8791570              0.1967090
@@ -939,7 +939,7 @@ Sr    D
 end
 
 
-ecp "Sr_stuttgart rsc 1997"
+ecp "Sr_Stuttgart RSC 1997"
 Sr nelec 28
 Sr ul
 2       1.000000000            0.000000000
@@ -955,7 +955,7 @@ Sr D
 Sr F
 2       4.633975000          -15.805992000
 end
-basis "Y_stuttgart rsc 1997" SPHERICAL 
+basis "Y_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Y    S
       5.1329580             -1.3875107
@@ -995,7 +995,7 @@ Y    D
 end
 
 
-ecp "Y_stuttgart rsc 1997"
+ecp "Y_Stuttgart RSC 1997"
 Y nelec 28
 Y ul
 2       1.000000000            0.000000000
@@ -1012,7 +1012,7 @@ Y F
 2       6.584212000          -19.122198000
 2       3.292106000           -2.436375000
 end
-basis "Zr_stuttgart rsc 1997" SPHERICAL 
+basis "Zr_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Zr    S
       5.8737890             -0.9736630
@@ -1052,7 +1052,7 @@ Zr    D
 end
 
 
-ecp "Zr_stuttgart rsc 1997"
+ecp "Zr_Stuttgart RSC 1997"
 Zr nelec 28
 Zr ul
 2       1.000000000            0.000000000
@@ -1069,7 +1069,7 @@ Zr F
 2       7.540000000          -21.093776000
 2       3.770000000           -3.080694000
 end
-basis "Nb_stuttgart rsc 1997" SPHERICAL 
+basis "Nb_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Nb    S
       6.5663010             -0.8582654
@@ -1109,7 +1109,7 @@ Nb    D
 end
 
 
-ecp "Nb_stuttgart rsc 1997"
+ecp "Nb_Stuttgart RSC 1997"
 Nb nelec 28
 Nb ul
 2       1.000000000            0.000000000
@@ -1126,7 +1126,7 @@ Nb F
 2       8.490000000          -22.929550000
 2       4.250000000           -3.666310000
 end
-basis "Mo_stuttgart rsc 1997" SPHERICAL 
+basis "Mo_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Mo    S
       7.2033800             -0.8262973
@@ -1166,7 +1166,7 @@ Mo    D
 end
 
 
-ecp "Mo_stuttgart rsc 1997"
+ecp "Mo_Stuttgart RSC 1997"
 Mo nelec 28
 Mo ul
 2       1.000000000            0.000000000
@@ -1183,7 +1183,7 @@ Mo F
 2       9.450000000          -24.805177000
 2       4.720000000           -4.153782000
 end
-basis "Tc_stuttgart rsc 1997" SPHERICAL 
+basis "Tc_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Tc    S
       7.4344020             -1.1125180
@@ -1223,7 +1223,7 @@ Tc    D
 end
 
 
-ecp "Tc_stuttgart rsc 1997"
+ecp "Tc_Stuttgart RSC 1997"
 Tc nelec 28
 Tc ul
 2       1.000000000            0.000000000
@@ -1240,7 +1240,7 @@ Tc F
 2      10.400000000          -26.562447000
 2       5.200000000           -4.585681000
 end
-basis "Ru_stuttgart rsc 1997" SPHERICAL 
+basis "Ru_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Ru    S
       7.9365700             -1.1196656
@@ -1280,7 +1280,7 @@ Ru    D
 end
 
 
-ecp "Ru_stuttgart rsc 1997"
+ecp "Ru_Stuttgart RSC 1997"
 Ru nelec 28
 Ru ul
 2       1.000000000            0.000000000
@@ -1297,7 +1297,7 @@ Ru F
 2      11.360000000          -28.340616000
 2       5.680000000           -4.944629000
 end
-basis "Rh_stuttgart rsc 1997" SPHERICAL 
+basis "Rh_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Rh    S
       7.9177440             -2.4155775
@@ -1337,7 +1337,7 @@ Rh    D
 end
 
 
-ecp "Rh_stuttgart rsc 1997"
+ecp "Rh_Stuttgart RSC 1997"
 Rh nelec 28
 Rh ul
 2       1.000000000            0.000000000
@@ -1354,7 +1354,7 @@ Rh F
 2      12.310000000          -30.093456000
 2       6.160000000           -5.218482000
 end
-basis "Pd_stuttgart rsc 1997" SPHERICAL 
+basis "Pd_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Pd    S
       8.4756400             -2.1642497
@@ -1394,7 +1394,7 @@ Pd    D
 end
 
 
-ecp "Pd_stuttgart rsc 1997"
+ecp "Pd_Stuttgart RSC 1997"
 Pd nelec 28
 Pd ul
 2       1.000000000            0.000000000
@@ -1411,7 +1411,7 @@ Pd F
 2      13.270000000          -31.929554000
 2       6.630000000           -5.398217000
 end
-basis "Ag_stuttgart rsc 1997" SPHERICAL 
+basis "Ag_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Ag    S
       9.0884420             -1.9648132
@@ -1451,7 +1451,7 @@ Ag    D
 end
 
 
-ecp "Ag_stuttgart rsc 1997"
+ecp "Ag_Stuttgart RSC 1997"
 Ag nelec 28
 Ag ul
 2       1.000000000            0.000000000
@@ -1468,7 +1468,7 @@ Ag F
 2      14.220000000          -33.689920000
 2       7.110000000           -5.531120000
 end
-basis "Cd_stuttgart rsc 1997" SPHERICAL 
+basis "Cd_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Cd    S
       9.7270110             -1.7864259
@@ -1508,7 +1508,7 @@ Cd    D
 end
 
 
-ecp "Cd_stuttgart rsc 1997"
+ecp "Cd_Stuttgart RSC 1997"
 Cd nelec 28
 Cd ul
 2       1.000000000            0.000000000
@@ -1525,7 +1525,7 @@ Cd F
 2      15.184796000          -35.476626000
 2       7.592398000           -5.617677000
 end
-basis "Cs_stuttgart rsc 1997" SPHERICAL 
+basis "Cs_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (7s,6p) -> [5s,4p]
 Cs    S
       5.8006590              0.1273450
@@ -1552,7 +1552,7 @@ Cs    P
 end
 
 
-ecp "Cs_stuttgart rsc 1997"
+ecp "Cs_Stuttgart RSC 1997"
 Cs nelec 46
 Cs ul
 2       1.000000000            0.000000000
@@ -1568,7 +1568,7 @@ Cs D
 Cs F
 2       3.123269060          -28.884309170
 end
-basis "Ba_stuttgart rsc 1997" SPHERICAL 
+basis "Ba_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (6s,6p,5d,1f) -> [4s,4p,2d,1f]
 Ba    S
       2.3961900             -5.9288950
@@ -1602,7 +1602,7 @@ Ba    F
 end
 
 
-ecp "Ba_stuttgart rsc 1997"
+ecp "Ba_Stuttgart RSC 1997"
 Ba nelec 46
 Ba ul
 2       1.000000000            0.000000000
@@ -1618,7 +1618,7 @@ Ba D
 Ba F
 2       3.589465000          -33.473174000
 end
-basis "Ce_stuttgart rsc 1997" SPHERICAL 
+basis "Ce_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,19p,9d,8f) -> [5s,5p,4d,3f]
 Ce    S
    3898.5983000              0.0001397
@@ -1708,7 +1708,7 @@ Ce    F
 end
 
 
-ecp "Ce_stuttgart rsc 1997"
+ecp "Ce_Stuttgart RSC 1997"
 Ce nelec 28
 Ce ul
 2       1.000000000            0.000000000
@@ -1723,7 +1723,7 @@ Ce F
 Ce G
 2      16.570553000          -21.331879000
 end
-basis "Pr_stuttgart rsc 1997" SPHERICAL 
+basis "Pr_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,19p,9d,8f) -> [5s,5p,4d,3f]
 Pr    S
    3975.1773000              0.0002373
@@ -1813,7 +1813,7 @@ Pr    F
 end
 
 
-ecp "Pr_stuttgart rsc 1997"
+ecp "Pr_Stuttgart RSC 1997"
 Pr nelec 28
 Pr ul
 2       1.000000000            0.000000000
@@ -1828,7 +1828,7 @@ Pr F
 Pr G
 2      17.447138000          -22.329488000
 end
-basis "Nd_stuttgart rsc 1997" SPHERICAL 
+basis "Nd_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,17p,8d,8f) -> [5s,5p,4d,3f]
 Nd    S
    6051.8923000              0.0002765
@@ -1915,7 +1915,7 @@ Nd    F
 end
 
 
-ecp "Nd_stuttgart rsc 1997"
+ecp "Nd_Stuttgart RSC 1997"
 Nd nelec 28
 Nd ul
 2       1.000000000            0.000000000
@@ -1930,7 +1930,7 @@ Nd F
 Nd G
 2      18.344174000          -23.344587000
 end
-basis "Pm_stuttgart rsc 1997" SPHERICAL 
+basis "Pm_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,19p,9d,8f) -> [5s,5p,4d,3f]
 Pm    S
    8586.5898000              0.0003653
@@ -2020,7 +2020,7 @@ Pm    F
 end
 
 
-ecp "Pm_stuttgart rsc 1997"
+ecp "Pm_Stuttgart RSC 1997"
 Pm nelec 28
 Pm ul
 2       1.000000000            0.000000000
@@ -2035,7 +2035,7 @@ Pm F
 Pm G
 2      19.260245000          -24.372510000
 end
-basis "Sm_stuttgart rsc 1997" SPHERICAL 
+basis "Sm_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,19p,9d,8f) -> [5s,5p,4d,3f]
 Sm    S
    8882.9526000              0.0011941
@@ -2125,7 +2125,7 @@ Sm    F
 end
 
 
-ecp "Sm_stuttgart rsc 1997"
+ecp "Sm_Stuttgart RSC 1997"
 Sm nelec 28
 Sm ul
 2       1.000000000            0.000000000
@@ -2140,7 +2140,7 @@ Sm F
 Sm G
 2      20.197249000          -25.421885000
 end
-basis "Eu_stuttgart rsc 1997" SPHERICAL 
+basis "Eu_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,19p,9d,8f) -> [5s,5p,4d,3f]
 Eu    S
    9690.5531000              0.0010812
@@ -2230,7 +2230,7 @@ Eu    F
 end
 
 
-ecp "Eu_stuttgart rsc 1997"
+ecp "Eu_Stuttgart RSC 1997"
 Eu nelec 28
 Eu ul
 2       1.000000000            0.000000000
@@ -2245,7 +2245,7 @@ Eu F
 Eu G
 2      21.232458000          -26.748273000
 end
-basis "Gd_stuttgart rsc 1997" SPHERICAL 
+basis "Gd_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,19p,9d,8f) -> [5s,5p,4d,3f]
 Gd    S
    9364.7015000              0.0015216
@@ -2335,7 +2335,7 @@ Gd    F
 end
 
 
-ecp "Gd_stuttgart rsc 1997"
+ecp "Gd_Stuttgart RSC 1997"
 Gd nelec 28
 Gd ul
 2       1.000000000            0.000000000
@@ -2350,7 +2350,7 @@ Gd F
 Gd G
 2      22.131887000          -27.579630000
 end
-basis "Tb_stuttgart rsc 1997" SPHERICAL 
+basis "Tb_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,19p,9d,8f) -> [5s,5p,4d,3f]
 Tb    S
    9271.4027000              0.0016799
@@ -2440,7 +2440,7 @@ Tb    F
 end
 
 
-ecp "Tb_stuttgart rsc 1997"
+ecp "Tb_Stuttgart RSC 1997"
 Tb nelec 28
 Tb ul
 2       1.000000000            0.000000000
@@ -2455,7 +2455,7 @@ Tb F
 Tb G
 2      23.130672000          -28.694268000
 end
-basis "Dy_stuttgart rsc 1997" SPHERICAL 
+basis "Dy_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,19p,9d,8f) -> [5s,5p,4d,3f]
 Dy    S
   25734.6320000              0.0005629
@@ -2545,7 +2545,7 @@ Dy    F
 end
 
 
-ecp "Dy_stuttgart rsc 1997"
+ecp "Dy_Stuttgart RSC 1997"
 Dy nelec 28
 Dy ul
 2       1.000000000            0.000000000
@@ -2560,7 +2560,7 @@ Dy F
 Dy G
 2      24.148753000          -29.828277000
 end
-basis "Ho_stuttgart rsc 1997" SPHERICAL 
+basis "Ho_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,19p,9d,8f) -> [5s,5p,4d,3f]
 Ho    S
    3496.2941000              0.0028125
@@ -2650,7 +2650,7 @@ Ho    F
 end
 
 
-ecp "Ho_stuttgart rsc 1997"
+ecp "Ho_Stuttgart RSC 1997"
 Ho nelec 28
 Ho ul
 2       1.000000000            0.000000000
@@ -2665,7 +2665,7 @@ Ho F
 Ho G
 2      25.188501000          -30.991125000
 end
-basis "Er_stuttgart rsc 1997" SPHERICAL 
+basis "Er_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,17p,8d,8f) -> [5s,5p,4d,3f]
 Er    S
    3681.2327160              0.0023105
@@ -2752,7 +2752,7 @@ Er    F
 end
 
 
-ecp "Er_stuttgart rsc 1997"
+ecp "Er_Stuttgart RSC 1997"
 Er nelec 28
 Er ul
 2       1.000000000            0.000000000
@@ -2767,7 +2767,7 @@ Er F
 Er G
 2      26.250735000          -32.185278000
 end
-basis "Tm_stuttgart rsc 1997" SPHERICAL 
+basis "Tm_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,17p,8d,8f) -> [5s,5p,4d,3f]
 Tm    S
    3848.7352510              0.0020315
@@ -2854,7 +2854,7 @@ Tm    F
 end
 
 
-ecp "Tm_stuttgart rsc 1997"
+ecp "Tm_Stuttgart RSC 1997"
 Tm nelec 28
 Tm ul
 2       1.000000000            0.000000000
@@ -2869,7 +2869,7 @@ Tm F
 Tm G
 2      27.329781000          -33.395496000
 end
-basis "Yb_stuttgart rsc 1997" SPHERICAL 
+basis "Yb_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,17p,8d,8f) -> [5s,5p,4d,3f]
 Yb    S
    3904.9209000              0.0018267
@@ -2956,7 +2956,7 @@ Yb    F
 end
 
 
-ecp "Yb_stuttgart rsc 1997"
+ecp "Yb_Stuttgart RSC 1997"
 Yb nelec 28
 Yb ul
 2       1.000000000            0.000000000
@@ -2971,7 +2971,7 @@ Yb F
 Yb G
 2      28.431028000          -34.638638000
 end
-basis "Hf_stuttgart rsc 1997" SPHERICAL 
+basis "Hf_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Hf    S
      14.5924850             -0.7993444
@@ -3011,7 +3011,7 @@ Hf    D
 end
 
 
-ecp "Hf_stuttgart rsc 1997"
+ecp "Hf_Stuttgart RSC 1997"
 Hf nelec 60
 Hf ul
 2       1.000000000            0.000000000
@@ -3029,7 +3029,7 @@ Hf F
 Hf G
 2       2.632400000           -9.558244000
 end
-basis "Ta_stuttgart rsc 1997" SPHERICAL 
+basis "Ta_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Ta    S
      13.9511050             -1.4929085
@@ -3069,7 +3069,7 @@ Ta    D
 end
 
 
-ecp "Ta_stuttgart rsc 1997"
+ecp "Ta_Stuttgart RSC 1997"
 Ta nelec 60
 Ta ul
 2       1.000000000            0.000000000
@@ -3087,7 +3087,7 @@ Ta F
 Ta G
 2       3.040330000          -11.728933000
 end
-basis "W_stuttgart rsc 1997" SPHERICAL 
+basis "W_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 W    S
      14.2907290             -1.4086099
@@ -3127,7 +3127,7 @@ W    D
 end
 
 
-ecp "W_stuttgart rsc 1997"
+ecp "W_Stuttgart RSC 1997"
 W nelec 60
 W ul
 2       1.000000000            0.000000000
@@ -3145,7 +3145,7 @@ W F
 W G
 2       3.464110000          -14.056435000
 end
-basis "Re_stuttgart rsc 1997" SPHERICAL 
+basis "Re_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Re    S
      14.7818620             -1.1410382
@@ -3185,7 +3185,7 @@ Re    D
 end
 
 
-ecp "Re_stuttgart rsc 1997"
+ecp "Re_Stuttgart RSC 1997"
 Re nelec 60
 Re ul
 2       1.000000000            0.000000000
@@ -3203,7 +3203,7 @@ Re F
 Re G
 2       3.901245000          -16.501120000
 end
-basis "Os_stuttgart rsc 1997" SPHERICAL 
+basis "Os_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Os    S
      15.2867360             -1.0664147
@@ -3243,7 +3243,7 @@ Os    D
 end
 
 
-ecp "Os_stuttgart rsc 1997"
+ecp "Os_Stuttgart RSC 1997"
 Os nelec 60
 Os ul
 2       1.000000000            0.000000000
@@ -3261,7 +3261,7 @@ Os F
 Os G
 2       4.349905000          -19.027595000
 end
-basis "Ir_stuttgart rsc 1997" SPHERICAL 
+basis "Ir_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Ir    S
      15.2937090             -1.6750339
@@ -3301,7 +3301,7 @@ Ir    D
 end
 
 
-ecp "Ir_stuttgart rsc 1997"
+ecp "Ir_Stuttgart RSC 1997"
 Ir nelec 60
 Ir ul
 2       1.000000000            0.000000000
@@ -3319,7 +3319,7 @@ Ir F
 Ir G
 2       4.808857000          -21.607597000
 end
-basis "Pt_stuttgart rsc 1997" SPHERICAL 
+basis "Pt_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Pt    S
      16.5595630             -0.8849447
@@ -3359,7 +3359,7 @@ Pt    D
 end
 
 
-ecp "Pt_stuttgart rsc 1997"
+ecp "Pt_Stuttgart RSC 1997"
 Pt nelec 60
 Pt ul
 2       1.000000000            0.000000000
@@ -3377,7 +3377,7 @@ Pt F
 Pt G
 2       5.277289000          -24.218675000
 end
-basis "Au_stuttgart rsc 1997" SPHERICAL 
+basis "Au_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,6p,5d) -> [7s,3p,4d]
 Au    S
      30.1965370              0.0047330
@@ -3415,7 +3415,7 @@ Au    D
 end
 
 
-ecp "Au_stuttgart rsc 1997"
+ecp "Au_Stuttgart RSC 1997"
 Au nelec 60
 Au ul
 2       1.000000000            0.000000000
@@ -3432,7 +3432,7 @@ Au F
 2       4.789800000           30.568475000
 2       2.394910000            5.183774000
 end
-basis "Hg_stuttgart rsc 1997" SPHERICAL 
+basis "Hg_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,8p,7d) -> [6s,6p,4d]
 Hg    S
      20.4111810             -0.0449360
@@ -3476,7 +3476,7 @@ Hg    D
 end
 
 
-ecp "Hg_stuttgart rsc 1997"
+ecp "Hg_Stuttgart RSC 1997"
 Hg nelec 60
 Hg ul
 2       1.000000000            0.000000000
@@ -3494,7 +3494,7 @@ Hg F
 Hg G
 2       6.241000000          -29.473118000
 end
-basis "Ac_stuttgart rsc 1997" SPHERICAL 
+basis "Ac_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 Ac    S
    1572.4818000              0.0000950
@@ -3591,7 +3591,7 @@ Ac    F
 end
 
 
-ecp "Ac_stuttgart rsc 1997"
+ecp "Ac_Stuttgart RSC 1997"
 Ac nelec 60
 Ac ul
 2       1.000000000            0.000000000
@@ -3606,7 +3606,7 @@ Ac F
 Ac G
 2      11.027732330          -51.615241810
 end
-basis "Th_stuttgart rsc 1997" SPHERICAL 
+basis "Th_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 Th    S
    1834.8687000              0.0005130
@@ -3703,7 +3703,7 @@ Th    F
 end
 
 
-ecp "Th_stuttgart rsc 1997"
+ecp "Th_Stuttgart RSC 1997"
 Th nelec 60
 Th ul
 2       1.000000000            0.000000000
@@ -3718,7 +3718,7 @@ Th F
 Th G
 2      11.609024620          -55.126419060
 end
-basis "Pa_stuttgart rsc 1997" SPHERICAL 
+basis "Pa_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 Pa    S
    2002.4053000              0.0008760
@@ -3815,7 +3815,7 @@ Pa    F
 end
 
 
-ecp "Pa_stuttgart rsc 1997"
+ecp "Pa_Stuttgart RSC 1997"
 Pa nelec 60
 Pa ul
 2       1.000000000            0.000000000
@@ -3830,7 +3830,7 @@ Pa F
 Pa G
 2      12.201056010          -57.630599890
 end
-basis "U_stuttgart rsc 1997" SPHERICAL 
+basis "U_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 U    S
    1534.9336000              0.0002230
@@ -3927,7 +3927,7 @@ U    F
 end
 
 
-ecp "U_stuttgart rsc 1997"
+ecp "U_Stuttgart RSC 1997"
 U nelec 60
 U ul
 2       1.000000000            0.000000000
@@ -3942,7 +3942,7 @@ U F
 U G
 2      12.804088440          -60.129989580
 end
-basis "Np_stuttgart rsc 1997" SPHERICAL 
+basis "Np_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 Np    S
    2190.2397000              0.0005830
@@ -4039,7 +4039,7 @@ Np    F
 end
 
 
-ecp "Np_stuttgart rsc 1997"
+ecp "Np_Stuttgart RSC 1997"
 Np nelec 60
 Np ul
 2       1.000000000            0.000000000
@@ -4054,7 +4054,7 @@ Np F
 Np G
 2      13.418322530          -62.626185080
 end
-basis "Pu_stuttgart rsc 1997" SPHERICAL 
+basis "Pu_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 Pu    S
     948.6802700              0.0000900
@@ -4151,7 +4151,7 @@ Pu    F
 end
 
 
-ecp "Pu_stuttgart rsc 1997"
+ecp "Pu_Stuttgart RSC 1997"
 Pu nelec 60
 Pu ul
 2       1.000000000            0.000000000
@@ -4166,7 +4166,7 @@ Pu F
 Pu G
 2      14.043996550          -65.121216110
 end
-basis "Am_stuttgart rsc 1997" SPHERICAL 
+basis "Am_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 Am    S
    1000.1312000             -0.0001300
@@ -4263,7 +4263,7 @@ Am    F
 end
 
 
-ecp "Am_stuttgart rsc 1997"
+ecp "Am_Stuttgart RSC 1997"
 Am nelec 60
 Am ul
 2       1.000000000            0.000000000
@@ -4278,7 +4278,7 @@ Am F
 Am G
 2      14.681332890          -67.616942080
 end
-basis "Cm_stuttgart rsc 1997" SPHERICAL 
+basis "Cm_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 Cm    S
    2284.1055000             -0.0003740
@@ -4375,7 +4375,7 @@ Cm    F
 end
 
 
-ecp "Cm_stuttgart rsc 1997"
+ecp "Cm_Stuttgart RSC 1997"
 Cm nelec 60
 Cm ul
 2       1.000000000            0.000000000
@@ -4390,7 +4390,7 @@ Cm F
 Cm G
 2      15.330525650          -70.114975500
 end
-basis "Bk_stuttgart rsc 1997" SPHERICAL 
+basis "Bk_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 Bk    S
    1574.0475000             -0.0002870
@@ -4487,7 +4487,7 @@ Bk    F
 end
 
 
-ecp "Bk_stuttgart rsc 1997"
+ecp "Bk_Stuttgart RSC 1997"
 Bk nelec 60
 Bk ul
 2       1.000000000            0.000000000
@@ -4502,7 +4502,7 @@ Bk F
 Bk G
 2      15.991805280          -72.617188800
 end
-basis "Cf_stuttgart rsc 1997" SPHERICAL 
+basis "Cf_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 Cf    S
     658.1933200             -0.0000860
@@ -4599,7 +4599,7 @@ Cf    F
 end
 
 
-ecp "Cf_stuttgart rsc 1997"
+ecp "Cf_Stuttgart RSC 1997"
 Cf nelec 60
 Cf ul
 2       1.000000000            0.000000000
@@ -4614,7 +4614,7 @@ Cf F
 Cf G
 2      16.665369730          -75.125254930
 end
-basis "Es_stuttgart rsc 1997" SPHERICAL 
+basis "Es_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 Es    S
     569.4898400              0.0000680
@@ -4711,7 +4711,7 @@ Es    F
 end
 
 
-ecp "Es_stuttgart rsc 1997"
+ecp "Es_Stuttgart RSC 1997"
 Es nelec 60
 Es ul
 2       1.000000000            0.000000000
@@ -4726,7 +4726,7 @@ Es F
 Es G
 2      17.351456180          -77.641074780
 end
-basis "Fm_stuttgart rsc 1997" SPHERICAL 
+basis "Fm_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 Fm    S
    1342.5680000             -0.0000190
@@ -4823,7 +4823,7 @@ Fm    F
 end
 
 
-ecp "Fm_stuttgart rsc 1997"
+ecp "Fm_Stuttgart RSC 1997"
 Fm nelec 60
 Fm ul
 2       1.000000000            0.000000000
@@ -4838,7 +4838,7 @@ Fm F
 Fm G
 2      18.050160510          -80.165201550
 end
-basis "Md_stuttgart rsc 1997" SPHERICAL 
+basis "Md_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 Md    S
    2405.6265000              0.0000140
@@ -4935,7 +4935,7 @@ Md    F
 end
 
 
-ecp "Md_stuttgart rsc 1997"
+ecp "Md_Stuttgart RSC 1997"
 Md nelec 60
 Md ul
 2       1.000000000            0.000000000
@@ -4950,7 +4950,7 @@ Md F
 Md G
 2      18.761791720          -82.700152850
 end
-basis "No_stuttgart rsc 1997" SPHERICAL 
+basis "No_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 No    S
    2330.0311000             -0.0000190
@@ -5047,7 +5047,7 @@ No    F
 end
 
 
-ecp "No_stuttgart rsc 1997"
+ecp "No_Stuttgart RSC 1997"
 No nelec 60
 No ul
 2       1.000000000            0.000000000
@@ -5062,7 +5062,7 @@ No F
 No G
 2      19.486525440          -85.247367410
 end
-basis "Lr_stuttgart rsc 1997" SPHERICAL 
+basis "Lr_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 Lr    S
    1982.7739000              0.0000270
@@ -5159,7 +5159,7 @@ Lr    F
 end
 
 
-ecp "Lr_stuttgart rsc 1997"
+ecp "Lr_Stuttgart RSC 1997"
 Lr nelec 60
 Lr ul
 2       1.000000000            0.000000000
@@ -5174,7 +5174,7 @@ Lr F
 Lr G
 2      20.224533420          -87.807982520
 end
-basis "Db_stuttgart rsc 1997" SPHERICAL 
+basis "Db_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d,2f,1g) -> [6s,5p,4d,2f,1g]
 Db    S
      19.8692310              0.0749940
@@ -5221,7 +5221,7 @@ Db    G
 end
 
 
-ecp "Db_stuttgart rsc 1997"
+ecp "Db_Stuttgart RSC 1997"
 Db nelec 92
 Db ul
 2       1.000000000            0.000000000

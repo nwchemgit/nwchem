@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# roos augmented triple zeta ano version number 0
+# Data downloaded on 2021-02-20T21:21
+# Roos Augmented Triple Zeta ANO version number 0
 # Description: Roos Augmented Triple Zeta ANO
 # Role: orbital
 # 
@@ -82,7 +82,7 @@
 #     10.1007/bf01112569
 # 
 # # 
-basis "H_roos augmented triple zeta ano" SPHERICAL 
+basis "H_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (32s,12p,6d) -> [4s,3p,2d]
 H    S
     188.61445                0.0009639
@@ -144,7 +144,7 @@ H    D
       0.7276000             -0.0914252
       0.2910400              0.8620033
 end
-basis "He_roos augmented triple zeta ano" SPHERICAL 
+basis "He_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (36s,12p,6d) -> [4s,3p,2d]
 He    S
    1149.2705                 0.00035774
@@ -210,7 +210,7 @@ He    D
       1.3600000              0.18505878
       0.5440000              0.69874000
 end
-basis "Li_roos augmented triple zeta ano" SPHERICAL 
+basis "Li_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (70s,36p,12d,6f) -> [5s,4p,3d,2f]
 Li    S
    9497.9344                 0.0000747
@@ -351,7 +351,7 @@ Li    F
       0.0960000             -0.6103086
       0.0384000              1.0900688
 end
-basis "Be_roos augmented triple zeta ano" SPHERICAL 
+basis "Be_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (70s,36p,12d,6f) -> [5s,4p,3d,2f]
 Be    S
   22628.599                  0.0000533
@@ -492,7 +492,7 @@ Be    F
       0.2000000              0.6502298
       0.0800000              0.3520145
 end
-basis "B_roos augmented triple zeta ano" SPHERICAL 
+basis "B_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (70s,36p,12d,6f) -> [5s,4p,3d,2f]
 B    S
   33360.217                  0.0000583
@@ -633,7 +633,7 @@ B    F
       0.3400000             -0.6578114
       0.1360000              0.9513672
 end
-basis "C_roos augmented triple zeta ano" SPHERICAL 
+basis "C_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (70s,36p,12d,6f) -> [5s,4p,3d,2f]
 C    S
   50557.501                  0.0000553
@@ -774,7 +774,7 @@ C    F
       0.5000000             -0.4373719
       0.2000000              1.0147246
 end
-basis "N_roos augmented triple zeta ano" SPHERICAL 
+basis "N_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (70s,36p,12d,6f) -> [5s,4p,3d,2f]
 N    S
   74761.715                  0.0000502
@@ -915,7 +915,7 @@ N    F
       0.7200000             -0.0111511
       0.2880000              0.80193318
 end
-basis "O_roos augmented triple zeta ano" SPHERICAL 
+basis "O_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (70s,36p,12d,6f) -> [5s,4p,3d,2f]
 O    S
  105374.95                   0.0000459
@@ -1056,7 +1056,7 @@ O    F
       0.9400000              0.2262408
       0.3760000              0.6722325
 end
-basis "F_roos augmented triple zeta ano" SPHERICAL 
+basis "F_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (70s,36p,12d,6f) -> [5s,4p,3d,2f]
 F    S
  103109.46                   0.0000637
@@ -1197,7 +1197,7 @@ F    F
       1.2800000              0.2624802
       0.5120000              0.6517354
 end
-basis "Ne_roos augmented triple zeta ano" SPHERICAL 
+basis "Ne_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (70s,36p,12d,6f) -> [5s,4p,3d,2f]
 Ne    S
  166165.08                   0.0000472
@@ -1338,7 +1338,7 @@ Ne    F
       1.6760000              0.3366642
       0.6704000              0.6035397
 end
-basis "Na_roos augmented triple zeta ano" SPHERICAL 
+basis "Na_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (102s,60p,15d,8f) -> [6s,5p,3d,2f]
 Na    S
  138773.72                    .00007636
@@ -1542,7 +1542,7 @@ Na    F
       0.0754489             -0.64602910
       0.0301796              1.1242100
 end
-basis "Mg_roos augmented triple zeta ano" SPHERICAL 
+basis "Mg_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (102s,60p,15d,8f) -> [6s,5p,3d,2f]
 Mg    S
  169973.87                    .00007417
@@ -1746,7 +1746,7 @@ Mg    F
       0.1613144              1.1067098
       0.0645258              0.30597008
 end
-basis "Al_roos augmented triple zeta ano" SPHERICAL 
+basis "Al_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (102s,60p,15d,8f) -> [6s,5p,3d,2f]
 Al    S
  208459.49                    .00007078
@@ -1950,7 +1950,7 @@ Al    F
       0.1303803             -0.17522960
       0.0521521              0.97536728
 end
-basis "Si_roos augmented triple zeta ano" SPHERICAL 
+basis "Si_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (102s,60p,15d,8f) -> [6s,5p,3d,2f]
 Si    S
  250095.97                    .00006815
@@ -2154,7 +2154,7 @@ Si    F
       0.1680153             -0.47263890
       0.0672061              1.1086961
 end
-basis "P_roos augmented triple zeta ano" SPHERICAL 
+basis "P_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (102s,60p,15d,8f) -> [6s,5p,3d,2f]
 P    S
  296647.55                    .00006562
@@ -2358,7 +2358,7 @@ P    F
       0.2173166              0.26674267
       0.0869266              0.76247795
 end
-basis "S_roos augmented triple zeta ano" SPHERICAL 
+basis "S_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (102s,60p,15d,8f) -> [6s,5p,3d,2f]
 S    S
  346348.23                    .00006370
@@ -2562,7 +2562,7 @@ S    F
       0.2526627              0.71034940
       0.1010651              0.35946202
 end
-basis "Cl_roos augmented triple zeta ano" SPHERICAL 
+basis "Cl_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (102s,60p,15d,8f) -> [6s,5p,3d,2f]
 Cl    S
  399432.47                    .00006215
@@ -2766,7 +2766,7 @@ Cl    F
       0.3223556              0.82343588
       0.1289422              0.21671325
 end
-basis "Ar_roos augmented triple zeta ano" SPHERICAL 
+basis "Ar_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (102s,60p,15d,8f) -> [6s,5p,3d,2f]
 Ar    S
  455476.77                    .00006096
@@ -2970,7 +2970,7 @@ Ar    F
       0.4125491              0.84810472
       0.1650196              0.16638315
 end
-basis "Sc_roos augmented triple zeta ano" SPHERICAL 
+basis "Sc_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (168s,105p,50d,18f,8g) -> [8s,7p,5d,3f,2g]
 Sc    S
 2715278.00000                0.0000090
@@ -3347,7 +3347,7 @@ Sc    G
       0.2483000              0.0551703
       0.0976000              0.4427408
 end
-basis "Ti_roos augmented triple zeta ano" SPHERICAL 
+basis "Ti_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (168s,105p,50d,18f,8g) -> [8s,7p,5d,3f,2g]
 Ti    S
 3014643.00000                0.0000089
@@ -3724,7 +3724,7 @@ Ti    G
       0.3710000              0.1803736
       0.1458000              0.6041549
 end
-basis "V_roos augmented triple zeta ano" SPHERICAL 
+basis "V_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (168s,105p,50d,18f,8g) -> [8s,7p,5d,3f,2g]
 V    S
 3321857.                     0.0000088
@@ -4101,7 +4101,7 @@ V    G
       0.5161000              0.1916713
       0.2028000              0.5527966
 end
-basis "Cr_roos augmented triple zeta ano" SPHERICAL 
+basis "Cr_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (168s,105p,50d,18f,8g) -> [8s,7p,5d,3f,2g]
 Cr    S
 6177194.0000000              0.0000045
@@ -4478,7 +4478,7 @@ Cr    G
       0.6740000             -0.1214369
       0.2649000             -0.4941415
 end
-basis "Mn_roos augmented triple zeta ano" SPHERICAL 
+basis "Mn_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (168s,105p,50d,18f,8g) -> [8s,7p,5d,3f,2g]
 Mn    S
 3960805.                     0.0000087
@@ -4855,7 +4855,7 @@ Mn    G
       0.8337000              0.1118580
       0.3277000              0.6521647
 end
-basis "Fe_roos augmented triple zeta ano" SPHERICAL 
+basis "Fe_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (168s,105p,50d,18f,8g) -> [8s,7p,5d,3f,2g]
 Fe    S
 4316265.                     0.0000087
@@ -5232,7 +5232,7 @@ Fe    G
       0.9851000              0.1617909
       0.3872000              0.6225390
 end
-basis "Co_roos augmented triple zeta ano" SPHERICAL 
+basis "Co_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (168s,105p,50d,18f,8g) -> [8s,7p,5d,3f,2g]
 Co    S
 4676708.                     0.0000086
@@ -5609,7 +5609,7 @@ Co    G
       1.1219000             -0.2105011
       0.4410000             -0.6000994
 end
-basis "Ni_roos augmented triple zeta ano" SPHERICAL 
+basis "Ni_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (168s,105p,50d,18f,8g) -> [8s,7p,5d,3f,2g]
 Ni    S
 5048010.                     0.0000086
@@ -5986,7 +5986,7 @@ Ni    G
       1.2421000             -0.1801696
       0.4882000             -0.4040997
 end
-basis "Cu_roos augmented triple zeta ano" SPHERICAL 
+basis "Cu_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (168s,105p,50d,18f,8g) -> [8s,7p,5d,3f,2g]
 Cu    S
 9148883.                     0.0000045
@@ -6363,7 +6363,7 @@ Cu    G
       1.3485000              0.3613781
       0.5300000              0.5126784
 end
-basis "Zn_roos augmented triple zeta ano" SPHERICAL 
+basis "Zn_Roos Augmented Triple Zeta ANO" SPHERICAL 
 #basis SET: (168s,105p,50d,18f,8g) -> [8s,7p,5d,3f,2g]
 Zn    S
 5820021.00000                0.0000086

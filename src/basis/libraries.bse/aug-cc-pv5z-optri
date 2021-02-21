@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# aug-cc-pv5z-optri version number 0
+# Data downloaded on 2021-02-20T21:21
+# aug-cc-pV5Z-OPTRI version number 0
 # Description: aug-cc-pV5Z-OPTRI
 # Role: optri
 # 
@@ -46,7 +46,7 @@
 #     10.1016/j.cplett.2009.06.003
 # 
 # # 
-basis "H_aug-cc-pv5z-optri" SPHERICAL 
+basis "H_aug-cc-pV5Z-OPTRI" SPHERICAL 
 #basis SET: (4s,4p,3d,3f,2g,1h) -> [4s,4p,3d,3f,2g,1h]
 H    S
       7.2570890              1.0000000
@@ -83,7 +83,7 @@ H    G
 H    H
       2.5109650              1.0000000
 end
-basis "He_aug-cc-pv5z-optri" SPHERICAL 
+basis "He_aug-cc-pV5Z-OPTRI" SPHERICAL 
 #basis SET: (4s,4p,3d,3f,2g,1h) -> [4s,4p,3d,3f,2g,1h]
 He    S
      18.0833410              1.0000000
@@ -120,7 +120,7 @@ He    G
 He    H
       3.9184220              1.0000000
 end
-basis "B_aug-cc-pv5z-optri" SPHERICAL 
+basis "B_aug-cc-pV5Z-OPTRI" SPHERICAL 
 #basis SET: (4s,5p,4d,3f,3g,2h,1i) -> [4s,5p,4d,3f,3g,2h,1i]
 B    S
       3.0318070              1.0000000
@@ -167,7 +167,7 @@ B    H
 B    I
       0.8507250              1.0000000
 end
-basis "C_aug-cc-pv5z-optri" SPHERICAL 
+basis "C_aug-cc-pV5Z-OPTRI" SPHERICAL 
 #basis SET: (4s,5p,4d,3f,3g,2h,1i) -> [4s,5p,4d,3f,3g,2h,1i]
 C    S
       4.5004950              1.0000000
@@ -214,7 +214,7 @@ C    H
 C    I
       1.2459670              1.0000000
 end
-basis "N_aug-cc-pv5z-optri" SPHERICAL 
+basis "N_aug-cc-pV5Z-OPTRI" SPHERICAL 
 #basis SET: (4s,5p,4d,3f,3g,2h,1i) -> [4s,5p,4d,3f,3g,2h,1i]
 N    S
       6.3232820              1.0000000
@@ -261,7 +261,7 @@ N    H
 N    I
       1.9414710              1.0000000
 end
-basis "O_aug-cc-pv5z-optri" SPHERICAL 
+basis "O_aug-cc-pV5Z-OPTRI" SPHERICAL 
 #basis SET: (4s,5p,4d,3f,3g,2h,1i) -> [4s,5p,4d,3f,3g,2h,1i]
 O    S
       8.4797640              1.0000000
@@ -308,7 +308,7 @@ O    H
 O    I
       2.2264960              1.0000000
 end
-basis "F_aug-cc-pv5z-optri" SPHERICAL 
+basis "F_aug-cc-pV5Z-OPTRI" SPHERICAL 
 #basis SET: (4s,5p,4d,3f,2g,2h,1i) -> [4s,5p,4d,3f,2g,2h,1i]
 F    S
      11.1095380              1.0000000
@@ -353,7 +353,7 @@ F    H
 F    I
       3.0264800              1.0000000
 end
-basis "Ne_aug-cc-pv5z-optri" SPHERICAL 
+basis "Ne_aug-cc-pV5Z-OPTRI" SPHERICAL 
 #basis SET: (4s,5p,4d,3f,2g,2h,1i) -> [4s,5p,4d,3f,2g,2h,1i]
 Ne    S
      13.9417590              1.0000000
@@ -398,7 +398,7 @@ Ne    H
 Ne    I
       4.0123390              1.0000000
 end
-basis "Al_aug-cc-pv5z-optri" SPHERICAL 
+basis "Al_aug-cc-pV5Z-OPTRI" SPHERICAL 
 #basis SET: (5s,5p,5d,3f,3g,2h,1i) -> [5s,5p,5d,3f,3g,2h,1i]
 Al    S
       9.4362200              1.0000000
@@ -449,7 +449,7 @@ Al    H
 Al    I
       0.4357790              1.0000000
 end
-basis "Si_aug-cc-pv5z-optri" SPHERICAL 
+basis "Si_aug-cc-pV5Z-OPTRI" SPHERICAL 
 #basis SET: (5s,5p,5d,3f,3g,2h,1i) -> [5s,5p,5d,3f,3g,2h,1i]
 Si    S
      12.9457190              1.0000000
@@ -500,7 +500,7 @@ Si    H
 Si    I
       0.5998810              1.0000000
 end
-basis "P_aug-cc-pv5z-optri" SPHERICAL 
+basis "P_aug-cc-pV5Z-OPTRI" SPHERICAL 
 #basis SET: (5s,5p,5d,3f,3g,2h,1i) -> [5s,5p,5d,3f,3g,2h,1i]
 P    S
      16.3192770              1.0000000
@@ -551,7 +551,7 @@ P    H
 P    I
       0.7728960              1.0000000
 end
-basis "S_aug-cc-pv5z-optri" SPHERICAL 
+basis "S_aug-cc-pV5Z-OPTRI" SPHERICAL 
 #basis SET: (5s,5p,5d,3f,3g,2h,1i) -> [5s,5p,5d,3f,3g,2h,1i]
 S    S
      18.1292330              1.0000000
@@ -602,7 +602,7 @@ S    H
 S    I
       0.9676010              1.0000000
 end
-basis "Cl_aug-cc-pv5z-optri" SPHERICAL 
+basis "Cl_aug-cc-pV5Z-OPTRI" SPHERICAL 
 #basis SET: (5s,5p,5d,3f,3g,2h,1i) -> [5s,5p,5d,3f,3g,2h,1i]
 Cl    S
      29.2370080              1.0000000
@@ -653,7 +653,7 @@ Cl    H
 Cl    I
       1.1796890              1.0000000
 end
-basis "Ar_aug-cc-pv5z-optri" SPHERICAL 
+basis "Ar_aug-cc-pV5Z-OPTRI" SPHERICAL 
 #basis SET: (5s,5p,5d,3f,3g,2h,1i) -> [5s,5p,5d,3f,3g,2h,1i]
 Ar    S
      35.8877110              1.0000000

@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# midi version number 0
+# Data downloaded on 2021-02-20T21:21
+# MIDI version number 0
 # Description: Huzinaga MIDI
 # Role: orbital
 # 
@@ -60,7 +60,7 @@
 #     Technical Report RJ 945, 1971
 # 
 # # 
-basis "H_midi" SPHERICAL 
+basis "H_MIDI" SPHERICAL 
 #basis SET: (3s) -> [2s]
 H    S
       4.501800               0.070452
@@ -68,7 +68,7 @@ H    S
 H    S
       0.151398               1.000000
 end
-basis "He_midi" SPHERICAL 
+basis "He_MIDI" SPHERICAL 
 #basis SET: (3s) -> [2s]
 He    S
      13.626736               0.080241
@@ -76,7 +76,7 @@ He    S
 He    S
       0.382993               0.657278
 end
-basis "Li_midi" SPHERICAL 
+basis "Li_MIDI" SPHERICAL 
 #basis SET: (6s) -> [3s]
 Li    S
      35.04615                0.073760
@@ -88,7 +88,7 @@ Li    S
 Li    S
       0.027350               1.000000
 end
-basis "Be_midi" SPHERICAL 
+basis "Be_MIDI" SPHERICAL 
 #basis SET: (6s) -> [3s]
 Be    S
      66.953540               0.070200
@@ -100,7 +100,7 @@ Be    S
 Be    S
       0.055240               1.000000
 end
-basis "B_midi" SPHERICAL 
+basis "B_MIDI" SPHERICAL 
 #basis SET: (6s,3p) -> [3s,2p]
 B    S
     108.43704                0.068651
@@ -117,7 +117,7 @@ B    P
 B    P
       0.123140               1.000000
 end
-basis "C_midi" SPHERICAL 
+basis "C_MIDI" SPHERICAL 
 #basis SET: (6s,3p) -> [3s,2p]
 C    S
     153.17226                0.070740
@@ -134,7 +134,7 @@ C    P
 C    P
       0.201350               1.000000
 end
-basis "N_midi" SPHERICAL 
+basis "N_MIDI" SPHERICAL 
 #basis SET: (6s,3p) -> [3s,2p]
 N    S
     218.36449                0.067870
@@ -151,7 +151,7 @@ N    P
 N    P
       0.291450               1.000000
 end
-basis "O_midi" SPHERICAL 
+basis "O_MIDI" SPHERICAL 
 #basis SET: (6s,3p) -> [3s,2p]
 O    S
     281.86658                0.069060
@@ -168,7 +168,7 @@ O    P
 O    P
       0.372510               1.000000
 end
-basis "F_midi" SPHERICAL 
+basis "F_MIDI" SPHERICAL 
 #basis SET: (6s,3p) -> [3s,2p]
 F    S
     368.37112                0.067040
@@ -185,7 +185,7 @@ F    P
 F    P
       0.479370               1.000000
 end
-basis "Ne_midi" SPHERICAL 
+basis "Ne_MIDI" SPHERICAL 
 #basis SET: (6s,3p) -> [3s,2p]
 Ne    S
     456.95285                0.066910
@@ -202,7 +202,7 @@ Ne    P
 Ne    P
       0.600970               1.000000
 end
-basis "Na_midi" SPHERICAL 
+basis "Na_MIDI" SPHERICAL 
 #basis SET: (9s,3p) -> [4s,1p]
 Na    S
     542.76053                0.068410
@@ -222,7 +222,7 @@ Na    P
       3.795690               0.480461
       0.877510               0.602281
 end
-basis "Al_midi" SPHERICAL 
+basis "Al_MIDI" SPHERICAL 
 #basis SET: (9s,6p) -> [4s,3p]
 Al    S
     777.44334                0.066887
@@ -247,7 +247,7 @@ Al    P
       0.299651               0.226433
       0.044652               0.396470
 end
-basis "Si_midi" SPHERICAL 
+basis "Si_MIDI" SPHERICAL 
 #basis SET: (9s,6p) -> [4s,3p]
 Si    S
     909.23487                0.066405
@@ -272,7 +272,7 @@ Si    P
       0.447802               0.238913
       0.062362               0.345453
 end
-basis "P_midi" SPHERICAL 
+basis "P_MIDI" SPHERICAL 
 #basis SET: (9s,6p) -> [4s,3p]
 P    S
    1053.2658                 0.065865
@@ -297,7 +297,7 @@ P    P
 P    P
       0.086447               1.000000
 end
-basis "S_midi" SPHERICAL 
+basis "S_MIDI" SPHERICAL 
 #basis SET: (9s,6p) -> [4s,3p]
 S    S
    1201.4584                 0.065765
@@ -322,7 +322,7 @@ S    P
       0.863274               0.229436
       0.108679               0.353700
 end
-basis "Cl_midi" SPHERICAL 
+basis "Cl_MIDI" SPHERICAL 
 #basis SET: (9s,6p) -> [4s,3p]
 Cl    S
    1362.0220                 0.065544
@@ -347,7 +347,7 @@ Cl    P
       1.095126               0.235903
       0.132176               0.346600
 end
-basis "Ar_midi" SPHERICAL 
+basis "Ar_MIDI" SPHERICAL 
 #basis SET: (9s,6p) -> [4s,3p]
 Ar    S
    1536.9325                 0.065159
@@ -372,7 +372,7 @@ Ar    P
 Ar    P
       0.162126               1.000000
 end
-basis "K_midi" SPHERICAL 
+basis "K_MIDI" SPHERICAL 
 #basis SET: (12s,6p) -> [5s,2p]
 K    S
    1721.1755                 0.064875
@@ -400,7 +400,7 @@ K    P
       0.625809               0.571057
       0.223898               0.316536
 end
-basis "Cs_midi" CARTESIAN 
+basis "Cs_MIDI" CARTESIAN 
 #basis SET: (18s,12p,6d) -> [7s,4p,2d]
 Cs    S
   15525.866                  0.060724

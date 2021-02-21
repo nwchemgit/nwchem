@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# cc-pv5z-jkfit version number 1
+# Data downloaded on 2021-02-20T21:21
+# cc-pV5Z-JKFIT version number 1
 # Description: JK Fitting basis for use with cc-pV5Z
 # Role: jkfit
 # 
@@ -46,7 +46,7 @@
 #     10.1039/B204199P
 # 
 # # 
-basis "H_cc-pv5z-jkfit" SPHERICAL 
+basis "H_cc-pV5Z-JKFIT" SPHERICAL 
 #basis SET: (4s,3p,4d,3f,2g,1h) -> [4s,3p,4d,3f,2g,1h]
 H    S
       9.5302493327           1.0000000
@@ -83,7 +83,7 @@ H    G
 H    H
       2.6004730858           1.0000000
 end
-basis "B_cc-pv5z-jkfit" SPHERICAL 
+basis "B_cc-pV5Z-JKFIT" SPHERICAL 
 #basis SET: (10s,7p,5d,4f,3g,2h,1i) -> [10s,7p,5d,4f,3g,2h,1i]
 B    S
     441.88913157             1.0000000
@@ -150,7 +150,7 @@ B    H
 B    I
        .89343000000000000000 1.0000000
 end
-basis "C_cc-pv5z-jkfit" SPHERICAL 
+basis "C_cc-pV5Z-JKFIT" SPHERICAL 
 #basis SET: (10s,7p,5d,4f,3g,2h,1i) -> [10s,7p,5d,4f,3g,2h,1i]
 C    S
    1113.9867719              1.0000000
@@ -217,7 +217,7 @@ C    H
 C    I
       1.34798000000000000000 1.0000000
 end
-basis "N_cc-pv5z-jkfit" SPHERICAL 
+basis "N_cc-pV5Z-JKFIT" SPHERICAL 
 #basis SET: (10s,7p,5d,4f,3g,2h,1i) -> [10s,7p,5d,4f,3g,2h,1i]
 N    S
    1102.8622453              1.0000000
@@ -284,7 +284,7 @@ N    H
 N    I
       1.89120000000000000000 1.0000000
 end
-basis "O_cc-pv5z-jkfit" SPHERICAL 
+basis "O_cc-pV5Z-JKFIT" SPHERICAL 
 #basis SET: (10s,7p,5d,4f,3g,2h,1i) -> [10s,7p,5d,4f,3g,2h,1i]
 O    S
    1517.8667506              1.0000000
@@ -351,7 +351,7 @@ O    H
 O    I
       2.47470000000000000000 1.0000000
 end
-basis "F_cc-pv5z-jkfit" SPHERICAL 
+basis "F_cc-pV5Z-JKFIT" SPHERICAL 
 #basis SET: (10s,7p,5d,4f,3g,2h,1i) -> [10s,7p,5d,4f,3g,2h,1i]
 F    S
    1885.0661216              1.0000000
@@ -418,7 +418,7 @@ F    H
 F    I
       3.18990000000000000000 1.0000000
 end
-basis "Al_cc-pv5z-jkfit" SPHERICAL 
+basis "Al_cc-pV5Z-JKFIT" SPHERICAL 
 #basis SET: (13s,11p,9d,4f,3g,2h,1i) -> [13s,11p,9d,4f,3g,2h,1i]
 Al    S
    3155.1928168              1.0000000
@@ -507,7 +507,7 @@ Al    H
 Al    I
        .48781000000000000000 1.0000000
 end
-basis "Si_cc-pv5z-jkfit" SPHERICAL 
+basis "Si_cc-pV5Z-JKFIT" SPHERICAL 
 #basis SET: (13s,11p,9d,4f,3g,2h,1i) -> [13s,11p,9d,4f,3g,2h,1i]
 Si    S
    3966.7823006              1.0000000
@@ -596,7 +596,7 @@ Si    H
 Si    I
        .64188000000000000000 1.0000000
 end
-basis "P_cc-pv5z-jkfit" SPHERICAL 
+basis "P_cc-pV5Z-JKFIT" SPHERICAL 
 #basis SET: (13s,11p,9d,4f,3g,2h,1i) -> [13s,11p,9d,4f,3g,2h,1i]
 P    S
    5107.3657113              1.0000000
@@ -685,7 +685,7 @@ P    H
 P    I
        .82192500000000000000 1.0000000
 end
-basis "S_cc-pv5z-jkfit" SPHERICAL 
+basis "S_cc-pV5Z-JKFIT" SPHERICAL 
 #basis SET: (13s,11p,9d,4f,3g,2h,1i) -> [13s,11p,9d,4f,3g,2h,1i]
 S    S
    6402.4580816              1.0000000
@@ -774,7 +774,7 @@ S    H
 S    I
        .96350500000000000000 1.0000000
 end
-basis "Cl_cc-pv5z-jkfit" SPHERICAL 
+basis "Cl_cc-pV5Z-JKFIT" SPHERICAL 
 #basis SET: (13s,11p,9d,4f,3g,2h,1i) -> [13s,11p,9d,4f,3g,2h,1i]
 Cl    S
    7082.7970581              1.0000000
@@ -863,7 +863,7 @@ Cl    H
 Cl    I
       1.16226000000000000000 1.0000000
 end
-basis "Ga_cc-pv5z-jkfit" SPHERICAL 
+basis "Ga_cc-pV5Z-JKFIT" SPHERICAL 
 #basis SET: (16s,14p,12d,11f,8g,2h,1i) -> [14s,13p,11d,10f,5g,2h,1i]
 Ga    S
   24344.920346               0.12728313141
@@ -986,7 +986,7 @@ Ga    H
 Ga    I
        .54003750000000000000 1.0000000
 end
-basis "Ge_cc-pv5z-jkfit" SPHERICAL 
+basis "Ge_cc-pV5Z-JKFIT" SPHERICAL 
 #basis SET: (16s,14p,12d,11f,8g,2h,1i) -> [14s,13p,11d,10f,5g,2h,1i]
 Ge    S
   22773.560455               0.10689370951
@@ -1109,7 +1109,7 @@ Ge    H
 Ge    I
        .63481200000000000000 1.0000000
 end
-basis "As_cc-pv5z-jkfit" SPHERICAL 
+basis "As_cc-pV5Z-JKFIT" SPHERICAL 
 #basis SET: (16s,14p,12d,11f,8g,2h,1i) -> [14s,13p,11d,10f,5g,2h,1i]
 As    S
   29056.449630               0.16649242459
@@ -1232,7 +1232,7 @@ As    H
 As    I
        .74255950000000000000 1.0000000
 end
-basis "Se_cc-pv5z-jkfit" SPHERICAL 
+basis "Se_cc-pV5Z-JKFIT" SPHERICAL 
 #basis SET: (16s,14p,12d,11f,8g,2h,1i) -> [14s,13p,11d,10f,5g,2h,1i]
 Se    S
   30873.025070               0.13468070994
@@ -1355,7 +1355,7 @@ Se    H
 Se    I
        .79778100000000000000 1.0000000
 end
-basis "Br_cc-pv5z-jkfit" SPHERICAL 
+basis "Br_cc-pV5Z-JKFIT" SPHERICAL 
 #basis SET: (16s,14p,12d,11f,8g,2h,1i) -> [14s,13p,11d,10f,5g,2h,1i]
 Br    S
   40743.582696               0.82819206326E-01

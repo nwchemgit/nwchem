@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# dhf-tzvpp version number 0
+# Data downloaded on 2021-02-20T21:21
+# dhf-TZVPP version number 0
 # Description: dhf-TZVPP
 # Role: orbital
 # 
@@ -175,7 +175,7 @@
 #     10.1063/1.3495681
 # 
 # # 
-basis "Rb_dhf-tzvpp" SPHERICAL 
+basis "Rb_dhf-TZVPP" SPHERICAL 
 #basis SET: (7s,7p,4d,2f,1g) -> [6s,5p,3d,2f,1g]
 Rb    S
       7.4744618040           0.26971657922
@@ -218,7 +218,7 @@ Rb    G
 end
 
 
-ecp "Rb_dhf-tzvpp"
+ecp "Rb_dhf-TZVPP"
 Rb nelec 28
 Rb ul
 2       1.00000000             0.00000000
@@ -239,7 +239,7 @@ Rb F
 2       3.57440341            -4.47828443
 2       3.56571059            -5.95690751
 end
-basis "Sr_dhf-tzvpp" SPHERICAL 
+basis "Sr_dhf-TZVPP" SPHERICAL 
 #basis SET: (8s,8p,5d,2f,1g) -> [6s,5p,3d,2f,1g]
 Sr    S
      20.000000000           -0.17049922921E-02
@@ -285,7 +285,7 @@ Sr    G
 end
 
 
-ecp "Sr_dhf-tzvpp"
+ecp "Sr_dhf-TZVPP"
 Sr nelec 28
 Sr ul
 2       1.00000000             0.00000000
@@ -306,7 +306,7 @@ Sr F
 2       4.24419840            -5.50933325
 2       4.22916447            -7.30464169
 end
-basis "Y_dhf-tzvpp" SPHERICAL 
+basis "Y_dhf-TZVPP" SPHERICAL 
 #basis SET: (7s,7p,6d,2f,1g) -> [6s,5p,3d,2f,1g]
 Y    S
      10.000000000           -0.17013635782
@@ -351,7 +351,7 @@ Y    G
 end
 
 
-ecp "Y_dhf-tzvpp"
+ecp "Y_dhf-TZVPP"
 Y nelec 28
 Y ul
 2       1.00000000             0.00000000
@@ -372,7 +372,7 @@ Y F
 2       5.02859000            -6.92807800
 2       5.00558200            -9.15509900
 end
-basis "Zr_dhf-tzvpp" SPHERICAL 
+basis "Zr_dhf-TZVPP" SPHERICAL 
 #basis SET: (7s,7p,6d,2f,1g) -> [6s,5p,3d,2f,1g]
 Zr    S
      11.000000000           -0.18767989836
@@ -417,7 +417,7 @@ Zr    G
 end
 
 
-ecp "Zr_dhf-tzvpp"
+ecp "Zr_dhf-TZVPP"
 Zr nelec 28
 Zr ul
 2       1.00000000             0.00000000
@@ -438,7 +438,7 @@ Zr F
 2       4.80021500            -5.23932000
 2       4.79899200            -6.98742400
 end
-basis "Nb_dhf-tzvpp" SPHERICAL 
+basis "Nb_dhf-TZVPP" SPHERICAL 
 #basis SET: (7s,7p,6d,2f,1g) -> [6s,5p,3d,2f,1g]
 Nb    S
      12.000000000           -0.19999214494
@@ -483,7 +483,7 @@ Nb    G
 end
 
 
-ecp "Nb_dhf-tzvpp"
+ecp "Nb_dhf-TZVPP"
 Nb nelec 28
 Nb ul
 2       1.00000000             0.00000000
@@ -504,7 +504,7 @@ Nb F
 2       5.56828500            -6.28135400
 2       5.67137200            -8.75564400
 end
-basis "Mo_dhf-tzvpp" SPHERICAL 
+basis "Mo_dhf-TZVPP" SPHERICAL 
 #basis SET: (7s,7p,6d,2f,1g) -> [6s,5p,3d,2f,1g]
 Mo    S
      14.000000000           -0.22836327704
@@ -549,7 +549,7 @@ Mo    G
 end
 
 
-ecp "Mo_dhf-tzvpp"
+ecp "Mo_dhf-TZVPP"
 Mo nelec 28
 Mo ul
 2       1.00000000             0.00000000
@@ -570,7 +570,7 @@ Mo F
 2       6.30663300            -7.17888800
 2       6.35644800            -9.74597800
 end
-basis "Tc_dhf-tzvpp" SPHERICAL 
+basis "Tc_dhf-TZVPP" SPHERICAL 
 #basis SET: (7s,7p,6d,2f,1g) -> [6s,5p,3d,2f,1g]
 Tc    S
      15.000000000           -0.20497356066
@@ -615,7 +615,7 @@ Tc    G
 end
 
 
-ecp "Tc_dhf-tzvpp"
+ecp "Tc_dhf-TZVPP"
 Tc nelec 28
 Tc ul
 2       1.00000000             0.00000000
@@ -636,7 +636,7 @@ Tc F
 2       7.04094000            -7.99562300
 2       7.06947300           -10.74569600
 end
-basis "Ru_dhf-tzvpp" SPHERICAL 
+basis "Ru_dhf-TZVPP" SPHERICAL 
 #basis SET: (7s,7p,6d,2f,1g) -> [6s,5p,3d,2f,1g]
 Ru    S
      16.000000000           -0.20394782657
@@ -681,7 +681,7 @@ Ru    G
 end
 
 
-ecp "Ru_dhf-tzvpp"
+ecp "Ru_dhf-TZVPP"
 Ru nelec 28
 Ru ul
 2       1.00000000             0.00000000
@@ -702,7 +702,7 @@ Ru F
 2       7.82024900            -8.84752500
 2       7.83964700           -11.83551800
 end
-basis "Rh_dhf-tzvpp" SPHERICAL 
+basis "Rh_dhf-TZVPP" SPHERICAL 
 #basis SET: (7s,7p,6d,2f,1g) -> [6s,5p,3d,2f,1g]
 Rh    S
      17.000000000           -0.16525939464
@@ -747,7 +747,7 @@ Rh    G
 end
 
 
-ecp "Rh_dhf-tzvpp"
+ecp "Rh_dhf-TZVPP"
 Rh nelec 28
 Rh ul
 2       1.00000000             0.00000000
@@ -768,7 +768,7 @@ Rh F
 2       8.61622800            -9.67356800
 2       8.62943500           -12.89984700
 end
-basis "Pd_dhf-tzvpp" SPHERICAL 
+basis "Pd_dhf-TZVPP" SPHERICAL 
 #basis SET: (7s,7p,6d,2f,1g) -> [6s,5p,3d,2f,1g]
 Pd    S
      18.000000000           -0.16407607652
@@ -813,7 +813,7 @@ Pd    G
 end
 
 
-ecp "Pd_dhf-tzvpp"
+ecp "Pd_dhf-TZVPP"
 Pd nelec 28
 Pd ul
 2       1.00000000             0.00000000
@@ -834,7 +834,7 @@ Pd F
 2       9.67957100           -10.98725500
 2       9.69134900           -14.62619000
 end
-basis "Ag_dhf-tzvpp" SPHERICAL 
+basis "Ag_dhf-TZVPP" SPHERICAL 
 #basis SET: (7s,7p,6d,2f,1g) -> [6s,5p,3d,2f,1g]
 Ag    S
      19.000000000           -0.17074642766
@@ -879,7 +879,7 @@ Ag    G
 end
 
 
-ecp "Ag_dhf-tzvpp"
+ecp "Ag_dhf-TZVPP"
 Ag nelec 28
 Ag ul
 2       1.00000000             0.00000000
@@ -900,7 +900,7 @@ Ag F
 2      11.01291300           -12.62340300
 2      11.01989800           -16.76432700
 end
-basis "Cd_dhf-tzvpp" SPHERICAL 
+basis "Cd_dhf-TZVPP" SPHERICAL 
 #basis SET: (7s,7p,6d,2f,1g) -> [6s,5p,3d,2f,1g]
 Cd    S
      20.000000000           -0.17823944467
@@ -945,7 +945,7 @@ Cd    G
 end
 
 
-ecp "Cd_dhf-tzvpp"
+ecp "Cd_dhf-TZVPP"
 Cd nelec 28
 Cd ul
 2       1.00000000             0.00000000
@@ -966,7 +966,7 @@ Cd F
 2      11.47898600           -12.63278500
 2      11.48702700           -16.76017100
 end
-basis "In_dhf-tzvpp" SPHERICAL 
+basis "In_dhf-TZVPP" SPHERICAL 
 #basis SET: (10s,9p,8d,2f) -> [6s,5p,3d,2f]
 In    S
     847.79276774             0.12432052471E-03
@@ -1016,7 +1016,7 @@ In    F
 end
 
 
-ecp "In_dhf-tzvpp"
+ecp "In_dhf-TZVPP"
 In nelec 28
 In ul
 2       1.00000000             0.00000000
@@ -1037,7 +1037,7 @@ In F
 2      12.53905600           -13.72807800
 2      12.55256100           -18.20686600
 end
-basis "Sn_dhf-tzvpp" SPHERICAL 
+basis "Sn_dhf-TZVPP" SPHERICAL 
 #basis SET: (10s,9p,8d,2f) -> [6s,5p,3d,2f]
 Sn    S
    1577.0715931              0.17042767713E-03
@@ -1087,7 +1087,7 @@ Sn    F
 end
 
 
-ecp "Sn_dhf-tzvpp"
+ecp "Sn_dhf-TZVPP"
 Sn nelec 28
 Sn ul
 2       1.00000000             0.00000000
@@ -1108,7 +1108,7 @@ Sn F
 2      12.28234800           -12.57633300
 2      12.27215000           -16.59594400
 end
-basis "Sb_dhf-tzvpp" SPHERICAL 
+basis "Sb_dhf-TZVPP" SPHERICAL 
 #basis SET: (10s,9p,8d,2f) -> [6s,5p,3d,2f]
 Sb    S
    1612.4199933              0.28540380783E-03
@@ -1158,7 +1158,7 @@ Sb    F
 end
 
 
-ecp "Sb_dhf-tzvpp"
+ecp "Sb_dhf-TZVPP"
 Sb nelec 28
 Sb ul
 2       1.00000000             0.00000000
@@ -1179,7 +1179,7 @@ Sb F
 2      14.44497800           -15.36680100
 2      14.44929500           -20.29613800
 end
-basis "Te_dhf-tzvpp" SPHERICAL 
+basis "Te_dhf-TZVPP" SPHERICAL 
 #basis SET: (11s,9p,8d,2f) -> [6s,5p,3d,2f]
 Te    S
    6213.2001650              0.17392073280E-03
@@ -1230,7 +1230,7 @@ Te    F
 end
 
 
-ecp "Te_dhf-tzvpp"
+ecp "Te_dhf-TZVPP"
 Te nelec 28
 Te ul
 2       1.00000000             0.00000000
@@ -1251,7 +1251,7 @@ Te F
 2      15.20616800           -15.74545000
 2      15.20170200           -20.74244800
 end
-basis "I_dhf-tzvpp" SPHERICAL 
+basis "I_dhf-TZVPP" SPHERICAL 
 #basis SET: (11s,10p,8d,2f) -> [6s,5p,3d,2f]
 I    S
    5899.5791533              0.24188269271E-03
@@ -1303,7 +1303,7 @@ I    F
 end
 
 
-ecp "I_dhf-tzvpp"
+ecp "I_dhf-TZVPP"
 I nelec 28
 I ul
 2       1.00000000             0.00000000
@@ -1327,7 +1327,7 @@ I F
 2       7.55790100            -0.22043400
 2       7.59740400            -0.22164600
 end
-basis "Xe_dhf-tzvpp" SPHERICAL 
+basis "Xe_dhf-TZVPP" SPHERICAL 
 #basis SET: (11s,10p,8d,2f) -> [6s,5p,3d,2f]
 Xe    S
    6420.2481656              0.25092173886E-03
@@ -1379,7 +1379,7 @@ Xe    F
 end
 
 
-ecp "Xe_dhf-tzvpp"
+ecp "Xe_dhf-TZVPP"
 Xe nelec 28
 Xe ul
 2       1.00000000             0.00000000
@@ -1405,7 +1405,7 @@ Xe F
 2       5.25338900            -0.28822700
 2       5.36118800            -0.38692400
 end
-basis "Cs_dhf-tzvpp" SPHERICAL 
+basis "Cs_dhf-TZVPP" SPHERICAL 
 #basis SET: (8s,6p,3d,5f,1g) -> [6s,4p,3d,2f,1g]
 Cs    S
       5.8778113443           0.12782201133
@@ -1449,7 +1449,7 @@ Cs    G
 end
 
 
-ecp "Cs_dhf-tzvpp"
+ecp "Cs_dhf-TZVPP"
 Cs nelec 46
 Cs ul
 2       1.00000000             0.00000000
@@ -1475,7 +1475,7 @@ Cs G
 2       1.80773982            -2.50419872
 2       1.80506131            -3.13824452
 end
-basis "Ba_dhf-tzvpp" SPHERICAL 
+basis "Ba_dhf-TZVPP" SPHERICAL 
 #basis SET: (8s,8p,5d,5f,1g) -> [6s,5p,3d,2f,1g]
 Ba    S
       5.7000000000          -0.52447767129
@@ -1524,7 +1524,7 @@ Ba    G
 end
 
 
-ecp "Ba_dhf-tzvpp"
+ecp "Ba_dhf-TZVPP"
 Ba nelec 46
 Ba ul
 2       1.00000000             0.00000000
@@ -1550,7 +1550,7 @@ Ba G
 2       2.14238100            -3.31660276
 2       2.15998111            -4.27564702
 end
-basis "Hf_dhf-tzvpp" SPHERICAL 
+basis "Hf_dhf-TZVPP" SPHERICAL 
 #basis SET: (9s,7p,6d,2f,1g) -> [6s,5p,3d,2f,1g]
 Hf    S
      24.000000000            0.22105582070
@@ -1597,7 +1597,7 @@ Hf    G
 end
 
 
-ecp "Hf_dhf-tzvpp"
+ecp "Hf_dhf-TZVPP"
 Hf nelec 60
 Hf ul
 2       1.00000000             0.00000000
@@ -1626,7 +1626,7 @@ Hf G
 2       2.72418010            -4.63658493
 2       2.70895290            -5.76728839
 end
-basis "Ta_dhf-tzvpp" SPHERICAL 
+basis "Ta_dhf-TZVPP" SPHERICAL 
 #basis SET: (9s,7p,6d,2f,1g) -> [6s,5p,3d,2f,1g]
 Ta    S
      24.473650944            0.25035108815
@@ -1673,7 +1673,7 @@ Ta    G
 end
 
 
-ecp "Ta_dhf-tzvpp"
+ecp "Ta_dhf-TZVPP"
 Ta nelec 60
 Ta ul
 2       1.00000000             0.00000000
@@ -1702,7 +1702,7 @@ Ta G
 2       3.14592010            -5.68406551
 2       3.12794180            -7.06231256
 end
-basis "W_dhf-tzvpp" SPHERICAL 
+basis "W_dhf-TZVPP" SPHERICAL 
 #basis SET: (8s,7p,6d,2f,1g) -> [6s,5p,3d,2f,1g]
 W    S
      30.000000000            0.33646094896
@@ -1748,7 +1748,7 @@ W    G
 end
 
 
-ecp "W_dhf-tzvpp"
+ecp "W_dhf-TZVPP"
 W nelec 60
 W ul
 2       1.00000000             0.00000000
@@ -1776,7 +1776,7 @@ W G
 2       3.58349080            -6.80294404
 2       3.56251490            -8.44323222
 end
-basis "Re_dhf-tzvpp" SPHERICAL 
+basis "Re_dhf-TZVPP" SPHERICAL 
 #basis SET: (8s,7p,6d,2f,1g) -> [6s,5p,3d,2f,1g]
 Re    S
      30.000000000            0.32736959901
@@ -1822,7 +1822,7 @@ Re    G
 end
 
 
-ecp "Re_dhf-tzvpp"
+ecp "Re_dhf-TZVPP"
 Re nelec 60
 Re ul
 2       1.00000000             0.00000000
@@ -1846,7 +1846,7 @@ Re G
 2       4.03459850            -7.97494049
 2       4.00962760            -9.88273633
 end
-basis "Os_dhf-tzvpp" SPHERICAL 
+basis "Os_dhf-TZVPP" SPHERICAL 
 #basis SET: (8s,7p,6d,2f,1g) -> [6s,5p,3d,2f,1g]
 Os    S
      30.000000000            0.33141866297
@@ -1892,7 +1892,7 @@ Os    G
 end
 
 
-ecp "Os_dhf-tzvpp"
+ecp "Os_dhf-TZVPP"
 Os nelec 60
 Os ul
 2       1.00000000             0.00000000
@@ -1916,7 +1916,7 @@ Os G
 2       4.49698090            -9.18134298
 2       4.46773820           -11.36160383
 end
-basis "Ir_dhf-tzvpp" SPHERICAL 
+basis "Ir_dhf-TZVPP" SPHERICAL 
 #basis SET: (8s,7p,6d,2f,1g) -> [6s,5p,3d,2f,1g]
 Ir    S
      30.000000000            0.31200447363
@@ -1962,7 +1962,7 @@ Ir    G
 end
 
 
-ecp "Ir_dhf-tzvpp"
+ecp "Ir_dhf-TZVPP"
 Ir nelec 60
 Ir ul
 2       1.00000000             0.00000000
@@ -1986,7 +1986,7 @@ Ir G
 2       4.96978970           -10.41069653
 2       4.93561390           -12.86319600
 end
-basis "Pt_dhf-tzvpp" SPHERICAL 
+basis "Pt_dhf-TZVPP" SPHERICAL 
 #basis SET: (8s,7p,6d,2f,1g) -> [6s,5p,3d,2f,1g]
 Pt    S
      30.000000000            0.27425994299
@@ -2032,7 +2032,7 @@ Pt    G
 end
 
 
-ecp "Pt_dhf-tzvpp"
+ecp "Pt_dhf-TZVPP"
 Pt nelec 60
 Pt ul
 2       1.00000000             0.00000000
@@ -2056,7 +2056,7 @@ Pt G
 2       5.45201960           -11.65174880
 2       5.41258490           -14.37552483
 end
-basis "Au_dhf-tzvpp" SPHERICAL 
+basis "Au_dhf-TZVPP" SPHERICAL 
 #basis SET: (8s,7p,6d,2f,1g) -> [6s,5p,3d,2f,1g]
 Au    S
      30.000000000            0.20199617249
@@ -2102,7 +2102,7 @@ Au    G
 end
 
 
-ecp "Au_dhf-tzvpp"
+ecp "Au_dhf-TZVPP"
 Au nelec 60
 Au ul
 2       1.00000000             0.00000000
@@ -2126,7 +2126,7 @@ Au G
 2       3.97844200            -5.23433700
 2       4.01149100            -6.73814200
 end
-basis "Hg_dhf-tzvpp" SPHERICAL 
+basis "Hg_dhf-TZVPP" SPHERICAL 
 #basis SET: (8s,8p,6d,2f,1g) -> [6s,6p,3d,2f,1g]
 Hg    S
      48.013786990            0.58613168385E-02
@@ -2174,7 +2174,7 @@ Hg    G
 end
 
 
-ecp "Hg_dhf-tzvpp"
+ecp "Hg_dhf-TZVPP"
 Hg nelec 60
 Hg ul
 2       1.00000000             0.00000000
@@ -2198,7 +2198,7 @@ Hg G
 2       4.48529600            -6.33841400
 2       4.51320000            -8.09986300
 end
-basis "Tl_dhf-tzvpp" SPHERICAL 
+basis "Tl_dhf-TZVPP" SPHERICAL 
 #basis SET: (10s,9p,8d,2f) -> [6s,5p,3d,2f]
 Tl    S
     729.65038145             0.13672829828E-03
@@ -2248,7 +2248,7 @@ Tl    F
 end
 
 
-ecp "Tl_dhf-tzvpp"
+ecp "Tl_dhf-TZVPP"
 Tl nelec 60
 Tl ul
 2       1.00000000             0.00000000
@@ -2276,7 +2276,7 @@ Tl G
 2       7.20928400            -7.79799200
 2       7.07096400            -9.25952400
 end
-basis "Pb_dhf-tzvpp" SPHERICAL 
+basis "Pb_dhf-TZVPP" SPHERICAL 
 #basis SET: (10s,9p,8d,2f) -> [6s,5p,3d,2f]
 Pb    S
     591.61124370             0.22126521076E-03
@@ -2326,7 +2326,7 @@ Pb    F
 end
 
 
-ecp "Pb_dhf-tzvpp"
+ecp "Pb_dhf-TZVPP"
 Pb nelec 60
 Pb ul
 2       1.00000000             0.00000000
@@ -2350,7 +2350,7 @@ Pb G
 2       5.69157700            -9.09666500
 2       5.71556700           -11.53199600
 end
-basis "Bi_dhf-tzvpp" SPHERICAL 
+basis "Bi_dhf-TZVPP" SPHERICAL 
 #basis SET: (10s,9p,8d,2f) -> [6s,5p,3d,2f]
 Bi    S
     716.41435310             0.31254307133E-03
@@ -2400,7 +2400,7 @@ Bi    F
 end
 
 
-ecp "Bi_dhf-tzvpp"
+ecp "Bi_dhf-TZVPP"
 Bi nelec 60
 Bi ul
 2       1.00000000             0.00000000
@@ -2424,7 +2424,7 @@ Bi G
 2       6.20570900           -10.24744300
 2       6.22778200           -12.95571000
 end
-basis "Po_dhf-tzvpp" SPHERICAL 
+basis "Po_dhf-TZVPP" SPHERICAL 
 #basis SET: (11s,10p,8d,2f) -> [6s,5p,3d,2f]
 Po    S
    6744.8211765              0.76891556363E-04
@@ -2476,7 +2476,7 @@ Po    F
 end
 
 
-ecp "Po_dhf-tzvpp"
+ecp "Po_dhf-TZVPP"
 Po nelec 60
 Po ul
 2       1.00000000             0.00000000
@@ -2502,7 +2502,7 @@ Po G
 2       6.77152600           -11.56329400
 2       6.77792500           -14.50978800
 end
-basis "At_dhf-tzvpp" SPHERICAL 
+basis "At_dhf-TZVPP" SPHERICAL 
 #basis SET: (11s,10p,8d,2f) -> [6s,5p,3d,2f]
 At    S
    3635.9809356              0.12571463494E-03
@@ -2554,7 +2554,7 @@ At    F
 end
 
 
-ecp "At_dhf-tzvpp"
+ecp "At_dhf-TZVPP"
 At nelec 60
 At ul
 2       1.00000000             0.00000000
@@ -2583,7 +2583,7 @@ At G
 2       3.01333100            -0.37304400
 2       3.09776300            -0.48594600
 end
-basis "Rn_dhf-tzvpp" SPHERICAL 
+basis "Rn_dhf-TZVPP" SPHERICAL 
 #basis SET: (11s,10p,8d,2f) -> [6s,5p,3d,2f]
 Rn    S
    5187.7442468              0.16097034848E-03
@@ -2635,7 +2635,7 @@ Rn    F
 end
 
 
-ecp "Rn_dhf-tzvpp"
+ecp "Rn_dhf-TZVPP"
 Rn nelec 60
 Rn ul
 2       1.00000000             0.00000000

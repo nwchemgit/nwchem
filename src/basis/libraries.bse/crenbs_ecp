@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# crenbs ecp version number 0
+# Data downloaded on 2021-02-20T21:21
+# CRENBS ECP version number 0
 # Description: CRENBS ECP (Small ECP orbital basis for use with relativistic, large core ECPs)
 # Role: orbital
 # 
@@ -92,7 +92,7 @@
 # # 
 
 
-ecp "Sc_crenbs ecp"
+ecp "Sc_CRENBS ECP"
 Sc nelec 18
 Sc ul
 2       0.29840001            -0.27631900
@@ -117,7 +117,7 @@ Sc P
 end
 
 
-ecp "Ti_crenbs ecp"
+ecp "Ti_CRENBS ECP"
 Ti nelec 18
 Ti ul
 2       0.33790001            -0.30006000
@@ -142,7 +142,7 @@ Ti P
 end
 
 
-ecp "V_crenbs ecp"
+ecp "V_CRENBS ECP"
 V nelec 18
 V ul
 2       0.37729999            -0.31635800
@@ -167,7 +167,7 @@ V P
 end
 
 
-ecp "Cr_crenbs ecp"
+ecp "Cr_CRENBS ECP"
 Cr nelec 18
 Cr ul
 2       0.33739999            -0.18984801
@@ -192,7 +192,7 @@ Cr P
 end
 
 
-ecp "Mn_crenbs ecp"
+ecp "Mn_CRENBS ECP"
 Mn nelec 18
 Mn ul
 2       0.45190001            -0.32237199
@@ -217,7 +217,7 @@ Mn P
 end
 
 
-ecp "Fe_crenbs ecp"
+ecp "Fe_CRENBS ECP"
 Fe nelec 18
 Fe ul
 2       0.49520001            -0.33538201
@@ -242,7 +242,7 @@ Fe P
 end
 
 
-ecp "Co_crenbs ecp"
+ecp "Co_CRENBS ECP"
 Co nelec 18
 Co ul
 2       0.53230000            -0.32827699
@@ -267,7 +267,7 @@ Co P
 end
 
 
-ecp "Ni_crenbs ecp"
+ecp "Ni_CRENBS ECP"
 Ni nelec 18
 Ni ul
 2       0.60470003            -0.39820799
@@ -292,7 +292,7 @@ Ni P
 end
 
 
-ecp "Cu_crenbs ecp"
+ecp "Cu_CRENBS ECP"
 Cu nelec 18
 Cu ul
 2       0.47510001            -0.17287099
@@ -317,7 +317,7 @@ Cu P
 end
 
 
-ecp "Zn_crenbs ecp"
+ecp "Zn_CRENBS ECP"
 Zn nelec 18
 Zn ul
 2       0.70620000            -0.42563301
@@ -342,7 +342,7 @@ Zn P
 end
 
 
-ecp "Ga_crenbs ecp"
+ecp "Ga_CRENBS ECP"
 Ga nelec 28
 Ga ul
 2       0.58810002            -0.31997699
@@ -374,7 +374,7 @@ Ga D
 end
 
 
-ecp "Ge_crenbs ecp"
+ecp "Ge_CRENBS ECP"
 Ge nelec 28
 Ge ul
 2       0.76770002            -0.39433101
@@ -406,7 +406,7 @@ Ge D
 end
 
 
-ecp "As_crenbs ecp"
+ecp "As_CRENBS ECP"
 As nelec 28
 As ul
 2       0.95889997            -0.47301701
@@ -438,7 +438,7 @@ As D
 end
 
 
-ecp "Se_crenbs ecp"
+ecp "Se_CRENBS ECP"
 Se nelec 28
 Se ul
 2       1.16499996            -0.56005198
@@ -470,7 +470,7 @@ Se D
 end
 
 
-ecp "Br_crenbs ecp"
+ecp "Br_CRENBS ECP"
 Br nelec 28
 Br ul
 2       1.40190005            -0.68962199
@@ -502,7 +502,7 @@ Br D
 end
 
 
-ecp "Kr_crenbs ecp"
+ecp "Kr_CRENBS ECP"
 Kr nelec 28
 Kr ul
 2       1.67750001            -0.86767399
@@ -534,7 +534,7 @@ Kr D
 end
 
 
-ecp "Y_crenbs ecp"
+ecp "Y_CRENBS ECP"
 Y nelec 36
 Y ul
 2       0.40310001            -0.38814399
@@ -570,7 +570,7 @@ Y D
 end
 
 
-ecp "Zr_crenbs ecp"
+ecp "Zr_CRENBS ECP"
 Zr nelec 36
 Zr ul
 2       0.50849998            -0.65333903
@@ -605,7 +605,7 @@ Zr D
 end
 
 
-ecp "Nb_crenbs ecp"
+ecp "Nb_CRENBS ECP"
 Nb nelec 36
 Nb ul
 2       0.65390003            -1.18631494
@@ -640,7 +640,7 @@ Nb D
 end
 
 
-ecp "Mo_crenbs ecp"
+ecp "Mo_CRENBS ECP"
 Mo nelec 36
 Mo ul
 2       0.67839998            -0.97851598
@@ -675,7 +675,7 @@ Mo D
 end
 
 
-ecp "Tc_crenbs ecp"
+ecp "Tc_CRENBS ECP"
 Tc nelec 36
 Tc ul
 2       0.70050001            -0.79472297
@@ -710,7 +710,7 @@ Tc D
 end
 
 
-ecp "Ru_crenbs ecp"
+ecp "Ru_CRENBS ECP"
 Ru nelec 36
 Ru ul
 2       0.76889998            -0.84380198
@@ -745,7 +745,7 @@ Ru D
 end
 
 
-ecp "Rh_crenbs ecp"
+ecp "Rh_CRENBS ECP"
 Rh nelec 36
 Rh ul
 2       0.84579998            -0.92449600
@@ -780,7 +780,7 @@ Rh D
 end
 
 
-ecp "Pd_crenbs ecp"
+ecp "Pd_CRENBS ECP"
 Pd nelec 36
 Pd ul
 2       0.98809999            -1.46114802
@@ -811,7 +811,7 @@ Pd D
 end
 
 
-ecp "Ag_crenbs ecp"
+ecp "Ag_CRENBS ECP"
 Ag nelec 36
 Ag ul
 2       1.07079995            -1.54570901
@@ -842,7 +842,7 @@ Ag D
 end
 
 
-ecp "Cd_crenbs ecp"
+ecp "Cd_CRENBS ECP"
 Cd nelec 36
 Cd ul
 2       1.20790005            -1.77006102
@@ -873,7 +873,7 @@ Cd D
 end
 
 
-ecp "In_crenbs ecp"
+ecp "In_CRENBS ECP"
 In nelec 46
 In ul
 2       0.48310000            -0.72688198
@@ -904,7 +904,7 @@ In D
 end
 
 
-ecp "Sn_crenbs ecp"
+ecp "Sn_CRENBS ECP"
 Sn nelec 46
 Sn ul
 2       0.53570002            -0.61962098
@@ -935,7 +935,7 @@ Sn D
 end
 
 
-ecp "Sb_crenbs ecp"
+ecp "Sb_CRENBS ECP"
 Sb nelec 46
 Sb ul
 2       0.71869999            -1.16371298
@@ -966,7 +966,7 @@ Sb D
 end
 
 
-ecp "Te_crenbs ecp"
+ecp "Te_CRENBS ECP"
 Te nelec 46
 Te ul
 2       0.82090002            -1.30625105
@@ -997,7 +997,7 @@ Te D
 end
 
 
-ecp "I_crenbs ecp"
+ecp "I_CRENBS ECP"
 I nelec 46
 I ul
 2       0.92250001            -1.44700503
@@ -1028,7 +1028,7 @@ I D
 end
 
 
-ecp "Xe_crenbs ecp"
+ecp "Xe_CRENBS ECP"
 Xe nelec 46
 Xe ul
 2       1.01709998            -1.55970502
@@ -1059,7 +1059,7 @@ Xe D
 end
 
 
-ecp "La_crenbs ecp"
+ecp "La_CRENBS ECP"
 La nelec 54
 La ul
 2       0.20420000            -0.22267400
@@ -1098,7 +1098,7 @@ La D
 end
 
 
-ecp "Hf_crenbs ecp"
+ecp "Hf_CRENBS ECP"
 Hf nelec 68
 Hf ul
 2       0.56110001            -0.63135999
@@ -1146,7 +1146,7 @@ Hf F
 end
 
 
-ecp "Ta_crenbs ecp"
+ecp "Ta_CRENBS ECP"
 Ta nelec 68
 Ta ul
 2       0.62690002            -0.71255600
@@ -1194,7 +1194,7 @@ Ta F
 end
 
 
-ecp "W_crenbs ecp"
+ecp "W_CRENBS ECP"
 W nelec 68
 W ul
 2       0.68370003            -0.75037998
@@ -1242,7 +1242,7 @@ W F
 end
 
 
-ecp "Re_crenbs ecp"
+ecp "Re_CRENBS ECP"
 Re nelec 68
 Re ul
 2       0.74460000            -0.80902398
@@ -1290,7 +1290,7 @@ Re F
 end
 
 
-ecp "Os_crenbs ecp"
+ecp "Os_CRENBS ECP"
 Os nelec 68
 Os ul
 2       0.80779999            -0.87657899
@@ -1338,7 +1338,7 @@ Os F
 end
 
 
-ecp "Ir_crenbs ecp"
+ecp "Ir_CRENBS ECP"
 Ir nelec 68
 Ir ul
 2       0.86720002            -0.91868699
@@ -1386,7 +1386,7 @@ Ir F
 end
 
 
-ecp "Pt_crenbs ecp"
+ecp "Pt_CRENBS ECP"
 Pt nelec 68
 Pt ul
 2       0.91210002            -0.97492802
@@ -1434,7 +1434,7 @@ Pt F
 end
 
 
-ecp "Au_crenbs ecp"
+ecp "Au_CRENBS ECP"
 Au nelec 68
 Au ul
 2       0.96569997            -0.98690200
@@ -1482,7 +1482,7 @@ Au F
 end
 
 
-ecp "Hg_crenbs ecp"
+ecp "Hg_CRENBS ECP"
 Hg nelec 68
 Hg ul
 2       1.06610000            -1.12559295
@@ -1530,7 +1530,7 @@ Hg F
 end
 
 
-ecp "Tl_crenbs ecp"
+ecp "Tl_CRENBS ECP"
 Tl nelec 78
 Tl ul
 2       0.46190000            -0.92260802
@@ -1578,7 +1578,7 @@ Tl F
 end
 
 
-ecp "Pb_crenbs ecp"
+ecp "Pb_CRENBS ECP"
 Pb nelec 78
 Pb ul
 2       0.50800002            -0.74859297
@@ -1626,7 +1626,7 @@ Pb F
 end
 
 
-ecp "Bi_crenbs ecp"
+ecp "Bi_CRENBS ECP"
 Bi nelec 78
 Bi ul
 2       0.56889999            -0.70747900
@@ -1674,7 +1674,7 @@ Bi F
 end
 
 
-ecp "Po_crenbs ecp"
+ecp "Po_CRENBS ECP"
 Po nelec 78
 Po ul
 2       0.62919998            -0.68128300
@@ -1722,7 +1722,7 @@ Po F
 end
 
 
-ecp "At_crenbs ecp"
+ecp "At_CRENBS ECP"
 At nelec 78
 At ul
 2       0.71289998            -0.77448499
@@ -1770,7 +1770,7 @@ At F
 end
 
 
-ecp "Rn_crenbs ecp"
+ecp "Rn_CRENBS ECP"
 Rn nelec 78
 Rn ul
 2       0.76840001            -0.72139901
@@ -1818,7 +1818,7 @@ Rn F
 end
 
 
-ecp "Rf_crenbs ecp"
+ecp "Rf_CRENBS ECP"
 Rf nelec 78
 Rf ul
 2       0.64980000            -0.53734702
@@ -1866,7 +1866,7 @@ Rf F
 end
 
 
-ecp "Db_crenbs ecp"
+ecp "Db_CRENBS ECP"
 Db nelec 78
 Db ul
 2       0.77600002            -0.65471399
@@ -1913,7 +1913,7 @@ Db F
 end
 
 
-ecp "Sg_crenbs ecp"
+ecp "Sg_CRENBS ECP"
 Sg nelec 78
 Sg ul
 2       0.79670000            -0.47456899
@@ -1961,7 +1961,7 @@ Sg F
 end
 
 
-ecp "Bh_crenbs ecp"
+ecp "Bh_CRENBS ECP"
 Bh nelec 78
 Bh ul
 2       0.98379999            -0.80100000
@@ -2009,7 +2009,7 @@ Bh F
 end
 
 
-ecp "Hs_crenbs ecp"
+ecp "Hs_CRENBS ECP"
 Hs nelec 78
 Hs ul
 2       0.89690000            -0.40707099
@@ -2057,7 +2057,7 @@ Hs F
 end
 
 
-ecp "Mt_crenbs ecp"
+ecp "Mt_CRENBS ECP"
 Mt nelec 78
 Mt ul
 2       1.09500003            -0.74297798
@@ -2105,7 +2105,7 @@ Mt F
 end
 
 
-ecp "Ds_crenbs ecp"
+ecp "Ds_CRENBS ECP"
 Ds nelec 78
 Ds ul
 2       0.97039998            -0.38488799
@@ -2153,7 +2153,7 @@ Ds F
 end
 
 
-ecp "Rg_crenbs ecp"
+ecp "Rg_CRENBS ECP"
 Rg nelec 78
 Rg ul
 2       0.95310003            -0.32236299
@@ -2201,7 +2201,7 @@ Rg F
 end
 
 
-ecp "Cn_crenbs ecp"
+ecp "Cn_CRENBS ECP"
 Cn nelec 78
 Cn ul
 2       0.84310001            -0.18449500
@@ -2248,7 +2248,7 @@ Cn F
 end
 
 
-ecp "Nh_crenbs ecp"
+ecp "Nh_CRENBS ECP"
 Nh nelec 78
 Nh ul
 2       1.12349999            -0.37092099
@@ -2301,7 +2301,7 @@ Nh F
 end
 
 
-ecp "Fl_crenbs ecp"
+ecp "Fl_CRENBS ECP"
 Fl nelec 78
 Fl ul
 2       0.96170002            -0.18338300
@@ -2354,7 +2354,7 @@ Fl F
 end
 
 
-ecp "Mc_crenbs ecp"
+ecp "Mc_CRENBS ECP"
 Mc nelec 78
 Mc ul
 2       1.03629994            -0.23717099
@@ -2407,7 +2407,7 @@ Mc F
 end
 
 
-ecp "Lv_crenbs ecp"
+ecp "Lv_CRENBS ECP"
 Lv nelec 78
 Lv ul
 2       0.93030000            -0.15050000
@@ -2460,7 +2460,7 @@ Lv F
 end
 
 
-ecp "Ts_crenbs ecp"
+ecp "Ts_CRENBS ECP"
 Ts nelec 78
 Ts ul
 2       0.83279997            -0.09704300
@@ -2513,7 +2513,7 @@ Ts F
 end
 
 
-ecp "Og_crenbs ecp"
+ecp "Og_CRENBS ECP"
 Og nelec 78
 Og ul
 2       3.0473000             -0.0180510

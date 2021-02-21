@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# partridge uncontracted 3 version number 0
+# Data downloaded on 2021-02-20T21:21
+# Partridge Uncontracted 3 version number 0
 # Description: Partridge Uncontracted 3
 # Role: orbital
 # 
@@ -56,7 +56,7 @@
 #     10.1063/1.456157
 # 
 # # 
-basis "Li_partridge uncontracted 3" SPHERICAL 
+basis "Li_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (18s) -> [18s]
 Li    S
  305117.9000000              1.0000000
@@ -95,7 +95,7 @@ Li    S
 Li    S
       0.0204620              1.0000000
 end
-basis "Be_partridge uncontracted 3" SPHERICAL 
+basis "Be_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (18s) -> [18s]
 Be    S
  408935.4000000              1.0000000
@@ -134,7 +134,7 @@ Be    S
 Be    S
       0.0324180              1.0000000
 end
-basis "B_partridge uncontracted 3" SPHERICAL 
+basis "B_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (18s,13p) -> [18s,13p]
 B    S
  653630.4000000              1.0000000
@@ -199,7 +199,7 @@ B    P
 B    P
       0.0328320              1.0000000
 end
-basis "C_partridge uncontracted 3" SPHERICAL 
+basis "C_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (18s,13p) -> [18s,13p]
 C    S
  949028.8000000              1.0000000
@@ -264,7 +264,7 @@ C    P
 C    P
       0.0485870              1.0000000
 end
-basis "N_partridge uncontracted 3" SPHERICAL 
+basis "N_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (18s,13p) -> [18s,13p]
 N    S
 1296296.0000000              1.0000000
@@ -329,7 +329,7 @@ N    P
 N    P
       0.0667450              1.0000000
 end
-basis "O_partridge uncontracted 3" SPHERICAL 
+basis "O_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (18s,13p) -> [18s,13p]
 O    S
 1678789.0000000              1.0000000
@@ -394,7 +394,7 @@ O    P
 O    P
       0.0795510              1.0000000
 end
-basis "F_partridge uncontracted 3" SPHERICAL 
+basis "F_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (18s,13p) -> [18s,13p]
 F    S
 2115112.0000000              1.0000000
@@ -459,7 +459,7 @@ F    P
 F    P
       0.0959820              1.0000000
 end
-basis "Ne_partridge uncontracted 3" SPHERICAL 
+basis "Ne_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (18s,13p) -> [18s,13p]
 Ne    S
 2598845.0000000              1.0000000
@@ -524,7 +524,7 @@ Ne    P
 Ne    P
       0.1157080              1.0000000
 end
-basis "Na_partridge uncontracted 3" SPHERICAL 
+basis "Na_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (20s,12p) -> [20s,12p]
 Na    S
 2185572.0000000              1.0000000
@@ -591,7 +591,7 @@ Na    P
 Na    P
       0.1697170              1.0000000
 end
-basis "Mg_partridge uncontracted 3" SPHERICAL 
+basis "Mg_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (20s,12p) -> [20s,12p]
 Mg    S
 2967534.0000000              1.0000000
@@ -658,7 +658,7 @@ Mg    P
 Mg    P
       0.2086790              1.0000000
 end
-basis "Al_partridge uncontracted 3" SPHERICAL 
+basis "Al_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (20s,15p) -> [20s,15p]
 Al    S
 3626225.0000000              1.0000000
@@ -731,7 +731,7 @@ Al    P
 Al    P
       0.0280990              1.0000000
 end
-basis "Si_partridge uncontracted 3" SPHERICAL 
+basis "Si_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (20s,15p) -> [20s,15p]
 Si    S
 4200908.0000000              1.0000000
@@ -804,7 +804,7 @@ Si    P
 Si    P
       0.0404750              1.0000000
 end
-basis "P_partridge uncontracted 3" SPHERICAL 
+basis "P_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (20s,15p) -> [20s,15p]
 P    S
 4754316.0000000              1.0000000
@@ -877,7 +877,7 @@ P    P
 P    P
       0.0540910              1.0000000
 end
-basis "S_partridge uncontracted 3" SPHERICAL 
+basis "S_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (20s,15p) -> [20s,15p]
 S    S
 5352410.0000000              1.0000000
@@ -950,7 +950,7 @@ S    P
 S    P
       0.0620630              1.0000000
 end
-basis "Cl_partridge uncontracted 3" SPHERICAL 
+basis "Cl_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (20s,15p) -> [20s,15p]
 Cl    S
 6086151.0000000              1.0000000
@@ -1023,7 +1023,7 @@ Cl    P
 Cl    P
       0.0727210              1.0000000
 end
-basis "Ar_partridge uncontracted 3" SPHERICAL 
+basis "Ar_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (20s,15p) -> [20s,15p]
 Ar    S
 6928373.0000000              1.0000000
@@ -1096,7 +1096,7 @@ Ar    P
 Ar    P
       0.0855670              1.0000000
 end
-basis "K_partridge uncontracted 3" SPHERICAL 
+basis "K_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (25s,16p) -> [25s,16p]
 K    S
 25145540.0000000             1.0000000
@@ -1181,7 +1181,7 @@ K    P
 K    P
       0.0924910              1.0000000
 end
-basis "Ca_partridge uncontracted 3" SPHERICAL 
+basis "Ca_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (23s,16p) -> [23s,16p]
 Ca    S
 12937860.0000000             1.0000000
@@ -1262,7 +1262,7 @@ Ca    P
 Ca    P
       0.1240860              1.0000000
 end
-basis "Sc_partridge uncontracted 3" SPHERICAL 
+basis "Sc_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (23s,16p,8d) -> [23s,16p,8d]
 Sc    S
 13927590.0000000             1.0000000
@@ -1359,7 +1359,7 @@ Sc    D
 Sc    D
       0.0853090              1.0000000
 end
-basis "Ti_partridge uncontracted 3" SPHERICAL 
+basis "Ti_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (23s,16p,8d) -> [23s,16p,8d]
 Ti    S
 15697450.0000000             1.0000000
@@ -1456,7 +1456,7 @@ Ti    D
 Ti    D
       0.1108270              1.0000000
 end
-basis "V_partridge uncontracted 3" SPHERICAL 
+basis "V_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (23s,16p,8d) -> [23s,16p,8d]
 V    S
 17228890.0000000             1.0000000
@@ -1553,7 +1553,7 @@ V    D
 V    D
       0.1316710              1.0000000
 end
-basis "Cr_partridge uncontracted 3" SPHERICAL 
+basis "Cr_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (23s,15p,11d) -> [23s,15p,11d]
 Cr    S
 18273400.0000000             1.0000000
@@ -1654,7 +1654,7 @@ Cr    D
 Cr    D
       0.0699560              1.0000000
 end
-basis "Mn_partridge uncontracted 3" SPHERICAL 
+basis "Mn_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (23s,16p,8d) -> [23s,16p,8d]
 Mn    S
 20494330.0000000             1.0000000
@@ -1751,7 +1751,7 @@ Mn    D
 Mn    D
       0.1734490              1.0000000
 end
-basis "Fe_partridge uncontracted 3" SPHERICAL 
+basis "Fe_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (23s,16p,8d) -> [23s,16p,8d]
 Fe    S
 22200400.0000000             1.0000000
@@ -1848,7 +1848,7 @@ Fe    D
 Fe    D
       0.1842680              1.0000000
 end
-basis "Co_partridge uncontracted 3" SPHERICAL 
+basis "Co_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (23s,16p,8d) -> [23s,16p,8d]
 Co    S
 24075750.0000000             1.0000000
@@ -1945,7 +1945,7 @@ Co    D
 Co    D
       0.1993190              1.0000000
 end
-basis "Ni_partridge uncontracted 3" SPHERICAL 
+basis "Ni_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (23s,16p,10d) -> [23s,16p,10d]
 Ni    S
 25983870.0000000             1.0000000
@@ -2046,7 +2046,7 @@ Ni    D
 Ni    D
       0.1572730              1.0000000
 end
-basis "Cu_partridge uncontracted 3" SPHERICAL 
+basis "Cu_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (23s,15p,8d) -> [23s,15p,8d]
 Cu    S
 26448990.0000000             1.0000000
@@ -2141,7 +2141,7 @@ Cu    D
 Cu    D
       0.1769810              1.0000000
 end
-basis "Zn_partridge uncontracted 3" SPHERICAL 
+basis "Zn_Partridge Uncontracted 3" SPHERICAL 
 #basis SET: (23s,16p,8d) -> [23s,16p,8d]
 Zn    S
 29563910.0000000             1.0000000

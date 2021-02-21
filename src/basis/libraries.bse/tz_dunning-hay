@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# tz (dunning-hay) version number 0
+# Data downloaded on 2021-02-20T21:21
+# TZ (Dunning-Hay) version number 0
 # Description: TZ (Dunning-Hay)
 # Role: orbital
 # 
@@ -47,7 +47,7 @@
 #     10.1063/1.1676139
 # 
 # # 
-basis "H_tz (dunning-hay)" SPHERICAL 
+basis "H_TZ (Dunning-Hay)" SPHERICAL 
 #basis SET: (5s) -> [3s]
 H    S
      74.6900000              0.0253740
@@ -58,7 +58,7 @@ H    S
 H    S
       0.2249000              1.0000000
 end
-basis "Li_tz (dunning-hay)" SPHERICAL 
+basis "Li_TZ (Dunning-Hay)" SPHERICAL 
 #basis SET: (10s) -> [4s]
 Li    S
    1783.0000000              0.0008240
@@ -75,7 +75,7 @@ Li    S
 Li    S
       0.0285400              1.0000000
 end
-basis "Be_tz (dunning-hay)" SPHERICAL 
+basis "Be_TZ (Dunning-Hay)" SPHERICAL 
 #basis SET: (11s) -> [5s]
 Be    S
    3630.0000000              0.0008390
@@ -94,7 +94,7 @@ Be    S
 Be    S
       0.0524100              1.0000000
 end
-basis "B_tz (dunning-hay)" SPHERICAL 
+basis "B_TZ (Dunning-Hay)" SPHERICAL 
 #basis SET: (11s,6p) -> [5s,3p]
 B    S
    6250.0000000              0.0007980
@@ -122,7 +122,7 @@ B    P
 B    P
       0.0572200              1.0000000
 end
-basis "C_tz (dunning-hay)" SPHERICAL 
+basis "C_TZ (Dunning-Hay)" SPHERICAL 
 #basis SET: (11s,6p) -> [5s,3p]
 C    S
    9471.0000000              0.0007760
@@ -150,7 +150,7 @@ C    P
 C    P
       0.0910600              1.0000000
 end
-basis "N_tz (dunning-hay)" SPHERICAL 
+basis "N_TZ (Dunning-Hay)" SPHERICAL 
 #basis SET: (11s,6p) -> [5s,3p]
 N    S
   13520.0000000              0.0007600
@@ -178,7 +178,7 @@ N    P
 N    P
       0.1346000              1.0000000
 end
-basis "O_tz (dunning-hay)" SPHERICAL 
+basis "O_TZ (Dunning-Hay)" SPHERICAL 
 #basis SET: (11s,6p) -> [5s,3p]
 O    S
   18050.0000000              0.0007570
@@ -206,7 +206,7 @@ O    P
 O    P
       0.1651000              1.0000000
 end
-basis "F_tz (dunning-hay)" SPHERICAL 
+basis "F_TZ (Dunning-Hay)" SPHERICAL 
 #basis SET: (11s,6p) -> [5s,3p]
 F    S
   23340.0000000              0.0007570
@@ -234,7 +234,7 @@ F    P
 F    P
       0.2070000              1.0000000
 end
-basis "Ne_tz (dunning-hay)" SPHERICAL 
+basis "Ne_TZ (Dunning-Hay)" SPHERICAL 
 #basis SET: (11s,6p) -> [5s,3p]
 Ne    S
   28660.0000000              0.0007670

@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# cc-pwcv5z-rifit version number 1
+# Data downloaded on 2021-02-20T21:21
+# cc-pwCV5Z-RIFIT version number 1
 # Description: RI Fitting basis for use with cc-pwCV5Z
 # Role: rifit
 # 
@@ -71,7 +71,7 @@
 #     As referenced in the Turbomole basis set library
 # 
 # # 
-basis "Li_cc-pwcv5z-rifit" SPHERICAL 
+basis "Li_cc-pwCV5Z-RIFIT" SPHERICAL 
 #basis SET: (14s,12p,11d,9f,6g,4h,1i) -> [14s,12p,11d,9f,6g,4h,1i]
 Li    S
     225.350                  1.0
@@ -188,7 +188,7 @@ Li    H
 Li    I
       0.598672               1.0
 end
-basis "Be_cc-pwcv5z-rifit" SPHERICAL 
+basis "Be_cc-pwCV5Z-RIFIT" SPHERICAL 
 #basis SET: (14s,12p,11d,9f,6g,4h,1i) -> [14s,12p,11d,9f,6g,4h,1i]
 Be    S
     958.879                  1.0
@@ -305,7 +305,7 @@ Be    H
 Be    I
       0.672211               1.0
 end
-basis "B_cc-pwcv5z-rifit" SPHERICAL 
+basis "B_cc-pwCV5Z-RIFIT" SPHERICAL 
 #basis SET: (14s,12p,11d,9f,6g,4h,1i) -> [14s,12p,11d,9f,6g,4h,1i]
 B    S
     598.3310000              1.0000000
@@ -422,7 +422,7 @@ B    H
 B    I
       1.1301800000           1.0000000000
 end
-basis "C_cc-pwcv5z-rifit" SPHERICAL 
+basis "C_cc-pwCV5Z-RIFIT" SPHERICAL 
 #basis SET: (14s,12p,11d,9f,6g,4h,1i) -> [14s,12p,11d,9f,6g,4h,1i]
 C    S
    1042.4100000              1.0000000
@@ -539,7 +539,7 @@ C    H
 C    I
       1.7025800000           1.0000000000
 end
-basis "N_cc-pwcv5z-rifit" SPHERICAL 
+basis "N_cc-pwCV5Z-RIFIT" SPHERICAL 
 #basis SET: (14s,12p,11d,9f,6g,4h,1i) -> [14s,12p,11d,9f,6g,4h,1i]
 N    S
    1521.1700000              1.0000000
@@ -656,7 +656,7 @@ N    H
 N    I
       2.4870900000           1.0000000000
 end
-basis "O_cc-pwcv5z-rifit" SPHERICAL 
+basis "O_cc-pwCV5Z-RIFIT" SPHERICAL 
 #basis SET: (14s,12p,11d,9f,6g,4h,1i) -> [14s,12p,11d,9f,6g,4h,1i]
 O    S
    2010.9300000              1.0000000
@@ -773,7 +773,7 @@ O    H
 O    I
       3.2612300000           1.0000000000
 end
-basis "F_cc-pwcv5z-rifit" SPHERICAL 
+basis "F_cc-pwCV5Z-RIFIT" SPHERICAL 
 #basis SET: (14s,12p,11d,9f,6g,4h,1i) -> [14s,12p,11d,9f,6g,4h,1i]
 F    S
    2156.2200000              1.0000000
@@ -890,7 +890,7 @@ F    H
 F    I
       4.2237200000           1.0000000000
 end
-basis "Ne_cc-pwcv5z-rifit" SPHERICAL 
+basis "Ne_cc-pwCV5Z-RIFIT" SPHERICAL 
 #basis SET: (14s,12p,11d,9f,6g,4h,1i) -> [14s,12p,11d,9f,6g,4h,1i]
 Ne    S
    3511.0300000              1.0000000
@@ -1007,7 +1007,7 @@ Ne    H
 Ne    I
       5.3352800000           1.0000000000
 end
-basis "Al_cc-pwcv5z-rifit" SPHERICAL 
+basis "Al_cc-pwCV5Z-RIFIT" SPHERICAL 
 #basis SET: (16s,15p,13d,10f,8g,5h,3i) -> [16s,15p,13d,10f,8g,5h,3i]
 Al    S
    1500.0000000              1.0000000
@@ -1150,7 +1150,7 @@ Al    I
 Al    I
       0.59945500000          1.0000000000
 end
-basis "Si_cc-pwcv5z-rifit" SPHERICAL 
+basis "Si_cc-pwCV5Z-RIFIT" SPHERICAL 
 #basis SET: (16s,15p,13d,10f,8g,5h,3i) -> [16s,15p,13d,10f,8g,5h,3i]
 Si    S
    1800.0000000              1.0000000
@@ -1293,7 +1293,7 @@ Si    I
 Si    I
       0.79431600000          1.0000000000
 end
-basis "P_cc-pwcv5z-rifit" SPHERICAL 
+basis "P_cc-pwCV5Z-RIFIT" SPHERICAL 
 #basis SET: (16s,15p,13d,10f,8g,5h,3i) -> [16s,15p,13d,10f,8g,5h,3i]
 P    S
    2400.0000000              1.0000000
@@ -1436,7 +1436,7 @@ P    I
 P    I
       1.0264700000           1.0000000000
 end
-basis "S_cc-pwcv5z-rifit" SPHERICAL 
+basis "S_cc-pwCV5Z-RIFIT" SPHERICAL 
 #basis SET: (16s,15p,13d,10f,8g,5h,3i) -> [16s,15p,13d,10f,8g,5h,3i]
 S    S
    2900.0000000              1.0000000
@@ -1579,7 +1579,7 @@ S    I
 S    I
       1.2176100000           1.0000000000
 end
-basis "Cl_cc-pwcv5z-rifit" SPHERICAL 
+basis "Cl_cc-pwCV5Z-RIFIT" SPHERICAL 
 #basis SET: (16s,15p,13d,10f,8g,5h,3i) -> [16s,15p,13d,10f,8g,5h,3i]
 Cl    S
    3451.3000000              1.0000000
@@ -1722,7 +1722,7 @@ Cl    I
 Cl    I
       1.4813300000           1.0000000000
 end
-basis "Ar_cc-pwcv5z-rifit" SPHERICAL 
+basis "Ar_cc-pwCV5Z-RIFIT" SPHERICAL 
 #basis SET: (16s,15p,13d,10f,8g,5h,3i) -> [16s,15p,13d,10f,8g,5h,3i]
 Ar    S
    4500.0000000              1.0000000
@@ -1865,7 +1865,7 @@ Ar    I
 Ar    I
       1.7849100000           1.0000000000
 end
-basis "Ga_cc-pwcv5z-rifit" SPHERICAL 
+basis "Ga_cc-pwCV5Z-RIFIT" SPHERICAL 
 #basis SET: (20s,19p,17d,16f,13g,10h,6i,4k,2l) -> [20s,19p,17d,16f,13g,10h,6i,4k,2l]
 Ga    S
    4986.35                   1.0
@@ -2082,7 +2082,7 @@ Ga    L
 Ga    L
       2.66331                1.0
 end
-basis "Ge_cc-pwcv5z-rifit" SPHERICAL 
+basis "Ge_cc-pwCV5Z-RIFIT" SPHERICAL 
 #basis SET: (20s,19p,17d,16f,13g,10h,6i,4k,2l) -> [20s,19p,17d,16f,13g,10h,6i,4k,2l]
 Ge    S
    5629.96                   1.0
@@ -2299,7 +2299,7 @@ Ge    L
 Ge    L
       3.09714                1.0
 end
-basis "As_cc-pwcv5z-rifit" SPHERICAL 
+basis "As_cc-pwCV5Z-RIFIT" SPHERICAL 
 #basis SET: (20s,19p,17d,16f,13g,10h,6i,4k,2l) -> [20s,19p,17d,16f,13g,10h,6i,4k,2l]
 As    S
    6375.8                    1.0
@@ -2516,7 +2516,7 @@ As    L
 As    L
       3.60207                1.0
 end
-basis "Se_cc-pwcv5z-rifit" SPHERICAL 
+basis "Se_cc-pwCV5Z-RIFIT" SPHERICAL 
 #basis SET: (20s,19p,17d,16f,13g,10h,6i,4k,2l) -> [20s,19p,17d,16f,13g,10h,6i,4k,2l]
 Se    S
    6911.82                   1.0
@@ -2733,7 +2733,7 @@ Se    L
 Se    L
       4.05586                1.0
 end
-basis "Br_cc-pwcv5z-rifit" SPHERICAL 
+basis "Br_cc-pwCV5Z-RIFIT" SPHERICAL 
 #basis SET: (20s,19p,17d,16f,13g,10h,6i,4k,2l) -> [20s,19p,17d,16f,13g,10h,6i,4k,2l]
 Br    S
    7615.89                   1.0
@@ -2950,7 +2950,7 @@ Br    L
 Br    L
       4.50114                1.0
 end
-basis "Kr_cc-pwcv5z-rifit" SPHERICAL 
+basis "Kr_cc-pwCV5Z-RIFIT" SPHERICAL 
 #basis SET: (20s,19p,17d,16f,13g,10h,6i,4k,2l) -> [20s,19p,17d,16f,13g,10h,6i,4k,2l]
 Kr    S
    8106.85                   1.0

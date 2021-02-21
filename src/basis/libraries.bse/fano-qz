@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# fano-qz version number 1
+# Data downloaded on 2021-02-20T21:21
+# FANO-QZ version number 1
 # Description: Frozen Atomic Natural Orbital - Quadruple Zeta
 # Role: orbital
 # 
@@ -47,7 +47,7 @@
 #     10.1063/1.5039741
 # 
 # # 
-basis "H_fano-qz" SPHERICAL 
+basis "H_FANO-QZ" SPHERICAL 
 #basis SET: (36s,15p,8d,3f) -> [4s,3p,2d,1f]
 H    S
     837.3565790              0.0000942
@@ -122,7 +122,7 @@ H    F
       1.4603800              0.0410083
       0.6399000              0.0703727
 end
-basis "He_fano-qz" SPHERICAL 
+basis "He_FANO-QZ" SPHERICAL 
 #basis SET: (40s,18p,10d,4f) -> [4s,3p,2d,1f]
 He    S
    4830.0398640              0.0001051
@@ -207,7 +207,7 @@ He    F
       2.0505500              0.8556312
       0.8226830              0.4567815
 end
-basis "B_fano-qz" SPHERICAL 
+basis "B_FANO-QZ" SPHERICAL 
 #basis SET: (70s,32p,18d,8f,3g) -> [5s,4p,3d,2f,1g]
 B    S
   33713.2090900              0.0000969
@@ -356,7 +356,7 @@ B    G
       0.7332410              0.7652107
       0.3338550              0.6395116
 end
-basis "C_fano-qz" SPHERICAL 
+basis "C_FANO-QZ" SPHERICAL 
 #basis SET: (70s,32p,18d,10f,4g) -> [5s,4p,3d,2f,1g]
 C    S
   50386.7510900              0.0000934
@@ -508,7 +508,7 @@ C    G
       0.7642110              0.7939631
       0.3886000              0.4070004
 end
-basis "N_fano-qz" SPHERICAL 
+basis "N_FANO-QZ" SPHERICAL 
 #basis SET: (70s,36p,18d,10f,4g) -> [5s,4p,3d,2f,1g]
 N    S
   73027.0995300              0.0000861
@@ -664,7 +664,7 @@ N    G
       1.3119100              0.7746242
       0.6294740              0.5850023
 end
-basis "O_fano-qz" SPHERICAL 
+basis "O_FANO-QZ" SPHERICAL 
 #basis SET: (70s,36p,18d,12f,5g) -> [5s,4p,3d,2f,1g]
 O    S
  104579.4181000              0.0000774
@@ -823,7 +823,7 @@ O    G
       1.0700820              0.6583858
       0.5591110              0.3295665
 end
-basis "F_fano-qz" SPHERICAL 
+basis "F_FANO-QZ" SPHERICAL 
 #basis SET: (70s,40p,21d,12f,5g) -> [5s,4p,3d,2f,1g]
 F    S
  121062.9455000              0.0000921
@@ -989,7 +989,7 @@ F    G
       1.3922750              0.6768477
       0.7141440              0.3484394
 end
-basis "Ne_fano-qz" SPHERICAL 
+basis "Ne_FANO-QZ" SPHERICAL 
 #basis SET: (75s,40p,21d,12f,6g) -> [5s,4p,3d,2f,1g]
 Ne    S
  312544.6873000              0.0000295

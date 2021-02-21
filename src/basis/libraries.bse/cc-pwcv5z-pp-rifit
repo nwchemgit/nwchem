@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# cc-pwcv5z-pp-rifit version number 0
+# Data downloaded on 2021-02-20T21:21
+# cc-pwCV5Z-PP-RIFIT version number 0
 # Description: cc-pwCV5Z-PP-RIFIT
 # Role: rifit
 # 
@@ -68,7 +68,7 @@
 #     10.1002/jcc.23372
 # 
 # # 
-basis "Cu_cc-pwcv5z-pp-rifit" SPHERICAL 
+basis "Cu_cc-pwCV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (13s,13p,12d,11f,10g,7h,6i,4k,3l) -> [13s,13p,12d,11f,10g,7h,6i,4k,3l]
 Cu    S
      42.877000000            1.0000000
@@ -229,7 +229,7 @@ Cu    L
 Cu    L
       6.1802900000           1.0000000
 end
-basis "Zn_cc-pwcv5z-pp-rifit" SPHERICAL 
+basis "Zn_cc-pwCV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (13s,13p,12d,11f,10g,7h,6i,4k,3l) -> [13s,13p,12d,11f,10g,7h,6i,4k,3l]
 Zn    S
      47.115200000            1.0000000
@@ -390,7 +390,7 @@ Zn    L
 Zn    L
       7.1843300000           1.0000000
 end
-basis "Y_cc-pwcv5z-pp-rifit" SPHERICAL 
+basis "Y_cc-pwCV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (13s,13p,12d,11f,11g,8h,6i,4k,3l) -> [13s,13p,12d,11f,11g,8h,6i,4k,3l]
 Y    S
      12.8787000              1.0000000
@@ -555,7 +555,7 @@ Y    L
 Y    L
       0.5866530              1.0000000
 end
-basis "Zr_cc-pwcv5z-pp-rifit" SPHERICAL 
+basis "Zr_cc-pwCV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (13s,13p,12d,11f,11g,8h,6i,4k,3l) -> [13s,13p,12d,11f,11g,8h,6i,4k,3l]
 Zr    S
      19.0753000              1.0000000
@@ -720,7 +720,7 @@ Zr    L
 Zr    L
       0.8482040              1.0000000
 end
-basis "Nb_cc-pwcv5z-pp-rifit" SPHERICAL 
+basis "Nb_cc-pwCV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (13s,13p,12d,11f,11g,8h,6i,4k,3l) -> [13s,13p,12d,11f,11g,8h,6i,4k,3l]
 Nb    S
      26.6966000              1.0000000
@@ -885,7 +885,7 @@ Nb    L
 Nb    L
       1.0996500              1.0000000
 end
-basis "Mo_cc-pwcv5z-pp-rifit" SPHERICAL 
+basis "Mo_cc-pwCV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (13s,13p,12d,11f,11g,8h,6i,4k,3l) -> [13s,13p,12d,11f,11g,8h,6i,4k,3l]
 Mo    S
      39.7298000              1.0000000
@@ -1050,7 +1050,7 @@ Mo    L
 Mo    L
       1.4539600              1.0000000
 end
-basis "Tc_cc-pwcv5z-pp-rifit" SPHERICAL 
+basis "Tc_cc-pwCV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (13s,13p,12d,11f,11g,8h,6i,4k,3l) -> [13s,13p,12d,11f,11g,8h,6i,4k,3l]
 Tc    S
      52.7540000              1.0000000
@@ -1215,7 +1215,7 @@ Tc    L
 Tc    L
       1.7928200              1.0000000
 end
-basis "Ru_cc-pwcv5z-pp-rifit" SPHERICAL 
+basis "Ru_cc-pwCV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (13s,13p,12d,11f,11g,8h,6i,4k,3l) -> [13s,13p,12d,11f,11g,8h,6i,4k,3l]
 Ru    S
      62.1757000              1.0000000
@@ -1380,7 +1380,7 @@ Ru    L
 Ru    L
       2.0653300              1.0000000
 end
-basis "Rh_cc-pwcv5z-pp-rifit" SPHERICAL 
+basis "Rh_cc-pwCV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (13s,13p,12d,11f,11g,8h,6i,4k,3l) -> [13s,13p,12d,11f,11g,8h,6i,4k,3l]
 Rh    S
      69.2700000              1.0000000
@@ -1545,7 +1545,7 @@ Rh    L
 Rh    L
       2.3779300              1.0000000
 end
-basis "Pd_cc-pwcv5z-pp-rifit" SPHERICAL 
+basis "Pd_cc-pwCV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (13s,13p,12d,11f,11g,8h,6i,4k,3l) -> [13s,13p,12d,11f,11g,8h,6i,4k,3l]
 Pd    S
      78.1650000              1.0000000
@@ -1710,7 +1710,7 @@ Pd    L
 Pd    L
       2.6724400              1.0000000
 end
-basis "Ag_cc-pwcv5z-pp-rifit" SPHERICAL 
+basis "Ag_cc-pwCV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (13s,13p,12d,11f,10g,7h,6i,4k,3l) -> [13s,13p,12d,11f,10g,7h,6i,4k,3l]
 Ag    S
      20.698400000            1.0000000
@@ -1871,7 +1871,7 @@ Ag    L
 Ag    L
       3.0158300000           1.0000000
 end
-basis "Cd_cc-pwcv5z-pp-rifit" SPHERICAL 
+basis "Cd_cc-pwCV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (13s,13p,12d,11f,10g,7h,6i,4k,3l) -> [13s,13p,12d,11f,10g,7h,6i,4k,3l]
 Cd    S
      25.737800000            1.0000000
@@ -2032,7 +2032,7 @@ Cd    L
 Cd    L
       3.4944500000           1.0000000
 end
-basis "Hf_cc-pwcv5z-pp-rifit" SPHERICAL 
+basis "Hf_cc-pwCV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (13s,13p,13d,11f,10g,7h,6i,4k,3l) -> [13s,13p,13d,11f,10g,7h,6i,4k,3l]
 Hf    S
      18.7743000              1.0000000
@@ -2195,7 +2195,7 @@ Hf    L
 Hf    L
       0.7168770              1.0000000
 end
-basis "Ta_cc-pwcv5z-pp-rifit" SPHERICAL 
+basis "Ta_cc-pwCV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (13s,13p,13d,11f,10g,7h,6i,4k,3l) -> [13s,13p,13d,11f,10g,7h,6i,4k,3l]
 Ta    S
      20.9852000              1.0000000
@@ -2358,7 +2358,7 @@ Ta    L
 Ta    L
       0.8886350              1.0000000
 end
-basis "W_cc-pwcv5z-pp-rifit" SPHERICAL 
+basis "W_cc-pwCV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (13s,13p,13d,11f,10g,7h,6i,4k,3l) -> [13s,13p,13d,11f,10g,7h,6i,4k,3l]
 W    S
      26.2838000              1.0000000
@@ -2521,7 +2521,7 @@ W    L
 W    L
       1.0877980              1.0000000
 end
-basis "Re_cc-pwcv5z-pp-rifit" SPHERICAL 
+basis "Re_cc-pwCV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (13s,13p,13d,11f,10g,7h,6i,4k,3l) -> [13s,13p,13d,11f,10g,7h,6i,4k,3l]
 Re    S
      27.9317000              1.0000000
@@ -2684,7 +2684,7 @@ Re    L
 Re    L
       1.4342100              1.0000000
 end
-basis "Os_cc-pwcv5z-pp-rifit" SPHERICAL 
+basis "Os_cc-pwCV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (13s,13p,13d,11f,10g,7h,6i,4k,3l) -> [13s,13p,13d,11f,10g,7h,6i,4k,3l]
 Os    S
      29.7686000              1.0000000
@@ -2847,7 +2847,7 @@ Os    L
 Os    L
       1.6691910              1.0000000
 end
-basis "Ir_cc-pwcv5z-pp-rifit" SPHERICAL 
+basis "Ir_cc-pwCV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (13s,13p,13d,11f,10g,7h,6i,4k,3l) -> [13s,13p,13d,11f,10g,7h,6i,4k,3l]
 Ir    S
      31.0673000              1.0000000
@@ -3010,7 +3010,7 @@ Ir    L
 Ir    L
       1.8911770              1.0000000
 end
-basis "Pt_cc-pwcv5z-pp-rifit" SPHERICAL 
+basis "Pt_cc-pwCV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (13s,13p,13d,11f,10g,7h,6i,4k,3l) -> [13s,13p,13d,11f,10g,7h,6i,4k,3l]
 Pt    S
      33.2518000              1.0000000
@@ -3173,7 +3173,7 @@ Pt    L
 Pt    L
       2.0915780              1.0000000
 end
-basis "Au_cc-pwcv5z-pp-rifit" SPHERICAL 
+basis "Au_cc-pwCV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (13s,13p,13d,11f,10g,7h,6i,4k,2l) -> [13s,13p,13d,11f,10g,7h,6i,4k,2l]
 Au    S
      14.857300000            1.0000000
@@ -3334,7 +3334,7 @@ Au    L
 Au    L
       2.3989800000           1.0000000
 end
-basis "Hg_cc-pwcv5z-pp-rifit" SPHERICAL 
+basis "Hg_cc-pwCV5Z-PP-RIFIT" SPHERICAL 
 #basis SET: (13s,13p,13d,11f,10g,7h,6i,4k,2l) -> [13s,13p,13d,11f,10g,7h,6i,4k,2l]
 Hg    S
      16.486800000            1.0000000

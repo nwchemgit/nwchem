@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# 6-31g_st_-blaudeau version number 0
+# Data downloaded on 2021-02-20T21:21
+# 6-31G*-Blaudeau version number 0
 # Description: VDZP    Valence Double Zeta + Polarization on All Atoms
 # Role: orbital
 # 
@@ -50,7 +50,7 @@
 #     10.1063/1.474865
 # 
 # # 
-basis "K_6-31g_st_-blaudeau" SPHERICAL 
+basis "K_6-31G*-Blaudeau" SPHERICAL 
 #basis SET: (14s,9p,4d) -> [5s,3p,2d]
 K    S
   31478.7                    0.00398387
@@ -90,7 +90,7 @@ K    D
 K    D
       0.235000               1.000000
 end
-basis "Ca_6-31g_st_-blaudeau" SPHERICAL 
+basis "Ca_6-31G*-Blaudeau" SPHERICAL 
 #basis SET: (14s,9p,4d) -> [5s,3p,2d]
 Ca    S
   35138.7                    0.00394825

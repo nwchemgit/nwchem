@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# aug-cc-pcvqz-dk version number 0
+# Data downloaded on 2021-02-20T21:21
+# aug-cc-pCVQZ-DK version number 0
 # Description: QZ3PD Douglas-Kroll Valence Double Zeta + Polarization + Tight core + Diffuse
 # Role: orbital
 # 
@@ -132,7 +132,7 @@
 #     10.1063/1.470645
 # 
 # # 
-basis "Li_aug-cc-pcvqz-dk" SPHERICAL 
+basis "Li_aug-cc-pCVQZ-DK" SPHERICAL 
 #basis SET: (25s,10p,6d,4f,2g) -> [9s,8p,6d,4f,2g]
 Li    S
       5.6140000              1.0000000
@@ -211,7 +211,7 @@ Li    G
 Li    G
       0.1050000              1.0000000
 end
-basis "Be_aug-cc-pcvqz-dk" SPHERICAL 
+basis "Be_aug-cc-pCVQZ-DK" SPHERICAL 
 #basis SET: (25s,10p,6d,4f,2g) -> [9s,8p,6d,4f,2g]
 Be    S
      21.7260000              1.0000000
@@ -290,7 +290,7 @@ Be    G
 Be    G
       0.1834000              1.0000000
 end
-basis "B_aug-cc-pcvqz-dk" SPHERICAL 
+basis "B_aug-cc-pCVQZ-DK" SPHERICAL 
 #basis SET: (25s,10p,6d,4f,2g) -> [9s,8p,6d,4f,2g]
 B    S
      36.3040000              1.0000000
@@ -369,7 +369,7 @@ B    G
 B    G
       0.2730000              1.0000000
 end
-basis "C_aug-cc-pcvqz-dk" SPHERICAL 
+basis "C_aug-cc-pCVQZ-DK" SPHERICAL 
 #basis SET: (25s,10p,6d,4f,2g) -> [9s,8p,6d,4f,2g]
 C    S
      53.0730000              1.0000000
@@ -448,7 +448,7 @@ C    G
 C    G
       0.4240000              1.0000000
 end
-basis "N_aug-cc-pcvqz-dk" SPHERICAL 
+basis "N_aug-cc-pCVQZ-DK" SPHERICAL 
 #basis SET: (25s,10p,6d,4f,2g) -> [9s,8p,6d,4f,2g]
 N    S
      71.8940000              1.0000000
@@ -527,7 +527,7 @@ N    G
 N    G
       0.5590000              1.0000000
 end
-basis "O_aug-cc-pcvqz-dk" SPHERICAL 
+basis "O_aug-cc-pCVQZ-DK" SPHERICAL 
 #basis SET: (25s,10p,6d,4f,2g) -> [9s,8p,6d,4f,2g]
 O    S
      93.8810000              1.0000000
@@ -606,7 +606,7 @@ O    G
 O    G
       0.7140000              1.0000000
 end
-basis "F_aug-cc-pcvqz-dk" SPHERICAL 
+basis "F_aug-cc-pCVQZ-DK" SPHERICAL 
 #basis SET: (25s,10p,6d,4f,2g) -> [9s,8p,6d,4f,2g]
 F    S
     117.4720000              1.0000000
@@ -685,7 +685,7 @@ F    G
 F    G
       0.9240000              1.0000000
 end
-basis "Ne_aug-cc-pcvqz-dk" SPHERICAL 
+basis "Ne_aug-cc-pCVQZ-DK" SPHERICAL 
 #basis SET: (25s,10p,6d,4f,2g) -> [9s,8p,6d,4f,2g]
 Ne    S
     144.7250000              1.0000000
@@ -764,7 +764,7 @@ Ne    G
 Ne    G
       1.2240000              1.0000000
 end
-basis "Na_aug-cc-pcvqz-dk" SPHERICAL 
+basis "Na_aug-cc-pCVQZ-DK" SPHERICAL 
 #basis SET: (55s,25p,7d,5f,3g) -> [10s,9p,7d,5f,3g]
 Na    S
 1224000.0000000              0.0000384
@@ -896,7 +896,7 @@ Na    G
 Na    G
       0.0866000              1.0000000
 end
-basis "Mg_aug-cc-pcvqz-dk" SPHERICAL 
+basis "Mg_aug-cc-pCVQZ-DK" SPHERICAL 
 #basis SET: (46s,25p,7d,5f,3g) -> [10s,9p,7d,5f,3g]
 Mg    S
  327600.0000000              0.0001374
@@ -1019,7 +1019,7 @@ Mg    G
 Mg    G
       0.1480000              1.0000000
 end
-basis "Al_aug-cc-pcvqz-dk" SPHERICAL 
+basis "Al_aug-cc-pCVQZ-DK" SPHERICAL 
 #basis SET: (46s,23p,7d,5f,3g) -> [10s,9p,7d,5f,3g]
 Al    S
  419600.0000000              0.0001389
@@ -1140,7 +1140,7 @@ Al    G
 Al    G
       0.1530000              1.0000000
 end
-basis "Si_aug-cc-pcvqz-dk" SPHERICAL 
+basis "Si_aug-cc-pCVQZ-DK" SPHERICAL 
 #basis SET: (46s,23p,7d,5f,3g) -> [10s,9p,7d,5f,3g]
 Si    S
  513000.0000000              0.0001438
@@ -1261,7 +1261,7 @@ Si    G
 Si    G
       0.2120000              1.0000000
 end
-basis "P_aug-cc-pcvqz-dk" SPHERICAL 
+basis "P_aug-cc-pCVQZ-DK" SPHERICAL 
 #basis SET: (46s,23p,7d,5f,3g) -> [10s,9p,7d,5f,3g]
 P    S
  615200.0000000              0.0001494
@@ -1382,7 +1382,7 @@ P    G
 P    G
       0.2500000              1.0000000
 end
-basis "S_aug-cc-pcvqz-dk" SPHERICAL 
+basis "S_aug-cc-pCVQZ-DK" SPHERICAL 
 #basis SET: (46s,23p,7d,5f,3g) -> [10s,9p,7d,5f,3g]
 S    S
  727800.0000000              0.0001554
@@ -1503,7 +1503,7 @@ S    G
 S    G
       0.2970000              1.0000000
 end
-basis "Cl_aug-cc-pcvqz-dk" SPHERICAL 
+basis "Cl_aug-cc-pCVQZ-DK" SPHERICAL 
 #basis SET: (46s,23p,7d,5f,3g) -> [10s,9p,7d,5f,3g]
 Cl    S
  834900.0000000              0.0001641
@@ -1624,7 +1624,7 @@ Cl    G
 Cl    G
       0.3780000              1.0000000
 end
-basis "Ar_aug-cc-pcvqz-dk" SPHERICAL 
+basis "Ar_aug-cc-pCVQZ-DK" SPHERICAL 
 #basis SET: (46s,23p,7d,5f,3g) -> [10s,9p,7d,5f,3g]
 Ar    S
  950600.0000000              0.0001729

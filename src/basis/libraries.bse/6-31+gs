@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# 6-31+g_st_ version number 1
+# Data downloaded on 2021-02-20T21:21
+# 6-31+G* version number 1
 # Description: 6-31G + diffuse and polarization functions on heavy atoms
 # Role: orbital
 # 
@@ -207,7 +207,7 @@
 #     10.1002/jcc.540080807
 # 
 # # 
-basis "H_6-31+g_st_" SPHERICAL 
+basis "H_6-31+G*" SPHERICAL 
 #basis SET: (4s) -> [2s]
 H    S
       0.1873113696E+02       0.3349460434E-01
@@ -216,7 +216,7 @@ H    S
 H    S
       0.1612777588E+00       1.0000000
 end
-basis "He_6-31+g_st_" SPHERICAL 
+basis "He_6-31+G*" SPHERICAL 
 #basis SET: (4s) -> [2s]
 He    S
       0.3842163400E+02       0.4013973935E-01
@@ -225,7 +225,7 @@ He    S
 He    S
       0.2979640000E+00       1.0000000
 end
-basis "Li_6-31+g_st_" CARTESIAN 
+basis "Li_6-31+G*" CARTESIAN 
 #basis SET: (11s,5p,1d) -> [4s,3p,1d]
 Li    S
       0.6424189150E+03       0.2142607810E-02
@@ -245,7 +245,7 @@ Li    SP
 Li    D
       0.2000000000E+00       1.0000000
 end
-basis "Be_6-31+g_st_" CARTESIAN 
+basis "Be_6-31+G*" CARTESIAN 
 #basis SET: (11s,5p,1d) -> [4s,3p,1d]
 Be    S
       0.1264585690E+04       0.1944757590E-02
@@ -265,7 +265,7 @@ Be    SP
 Be    D
       0.4000000000E+00       1.0000000
 end
-basis "B_6-31+g_st_" CARTESIAN 
+basis "B_6-31+G*" CARTESIAN 
 #basis SET: (11s,5p,1d) -> [4s,3p,1d]
 B    S
       0.2068882250E+04       0.1866274590E-02
@@ -285,7 +285,7 @@ B    SP
 B    D
       0.6000000000E+00       1.0000000
 end
-basis "C_6-31+g_st_" CARTESIAN 
+basis "C_6-31+G*" CARTESIAN 
 #basis SET: (11s,5p,1d) -> [4s,3p,1d]
 C    S
       0.3047524880E+04       0.1834737132E-02
@@ -305,7 +305,7 @@ C    SP
 C    D
       0.8000000000E+00       1.0000000
 end
-basis "N_6-31+g_st_" CARTESIAN 
+basis "N_6-31+G*" CARTESIAN 
 #basis SET: (11s,5p,1d) -> [4s,3p,1d]
 N    S
       0.4173511460E+04       0.1834772160E-02
@@ -325,7 +325,7 @@ N    SP
 N    D
       0.8000000000E+00       1.0000000
 end
-basis "O_6-31+g_st_" CARTESIAN 
+basis "O_6-31+G*" CARTESIAN 
 #basis SET: (11s,5p,1d) -> [4s,3p,1d]
 O    S
       0.5484671660E+04       0.1831074430E-02
@@ -345,7 +345,7 @@ O    SP
 O    D
       0.8000000000E+00       1.0000000
 end
-basis "F_6-31+g_st_" CARTESIAN 
+basis "F_6-31+G*" CARTESIAN 
 #basis SET: (11s,5p,1d) -> [4s,3p,1d]
 F    S
       0.7001713090E+04       0.1819616901E-02
@@ -365,7 +365,7 @@ F    SP
 F    D
       0.8000000000E+00       1.0000000
 end
-basis "Ne_6-31+g_st_" CARTESIAN 
+basis "Ne_6-31+G*" CARTESIAN 
 #basis SET: (11s,5p,1d) -> [4s,3p,1d]
 Ne    S
       0.8425851530E+04       0.1884348050E-02
@@ -385,7 +385,7 @@ Ne    SP
 Ne    D
       0.8000000000E+00       1.0000000
 end
-basis "Na_6-31+g_st_" CARTESIAN 
+basis "Na_6-31+G*" CARTESIAN 
 #basis SET: (17s,11p,1d) -> [5s,4p,1d]
 Na    S
       0.9993200000E+04       0.1937659277E-02
@@ -412,7 +412,7 @@ Na    SP
 Na    D
       0.1750000000E+00       1.0000000
 end
-basis "Mg_6-31+g_st_" CARTESIAN 
+basis "Mg_6-31+G*" CARTESIAN 
 #basis SET: (17s,11p,1d) -> [5s,4p,1d]
 Mg    S
       0.1172280000E+05       0.1977829317E-02
@@ -439,7 +439,7 @@ Mg    SP
 Mg    D
       0.1750000000E+00       1.0000000
 end
-basis "Al_6-31+g_st_" CARTESIAN 
+basis "Al_6-31+G*" CARTESIAN 
 #basis SET: (17s,11p,1d) -> [5s,4p,1d]
 Al    S
       0.1398310000E+05       0.1942669947E-02
@@ -466,7 +466,7 @@ Al    SP
 Al    D
       0.3250000000E+00       1.0000000
 end
-basis "Si_6-31+g_st_" CARTESIAN 
+basis "Si_6-31+G*" CARTESIAN 
 #basis SET: (17s,11p,1d) -> [5s,4p,1d]
 Si    S
       0.1611590000E+05       0.1959480216E-02
@@ -493,7 +493,7 @@ Si    SP
 Si    D
       0.4500000000E+00       1.0000000
 end
-basis "P_6-31+g_st_" CARTESIAN 
+basis "P_6-31+G*" CARTESIAN 
 #basis SET: (17s,11p,1d) -> [5s,4p,1d]
 P    S
       0.1941330000E+05       0.1851598923E-02
@@ -520,7 +520,7 @@ P    SP
 P    D
       0.5500000000E+00       1.0000000
 end
-basis "S_6-31+g_st_" CARTESIAN 
+basis "S_6-31+G*" CARTESIAN 
 #basis SET: (17s,11p,1d) -> [5s,4p,1d]
 S    S
       0.2191710000E+05       0.1869240849E-02
@@ -547,7 +547,7 @@ S    SP
 S    D
       0.6500000000E+00       1.0000000
 end
-basis "Cl_6-31+g_st_" CARTESIAN 
+basis "Cl_6-31+G*" CARTESIAN 
 #basis SET: (17s,11p,1d) -> [5s,4p,1d]
 Cl    S
       0.2518010000E+05       0.1832959848E-02
@@ -574,7 +574,7 @@ Cl    SP
 Cl    D
       0.7500000000E+00       1.0000000
 end
-basis "Ar_6-31+g_st_" CARTESIAN 
+basis "Ar_6-31+G*" CARTESIAN 
 #basis SET: (17s,11p,1d) -> [5s,4p,1d]
 Ar    S
       0.2834830000E+05       0.1825260192E-02

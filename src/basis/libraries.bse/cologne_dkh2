@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# cologne dkh2 version number 0
+# Data downloaded on 2021-02-20T21:21
+# Cologne DKH2 version number 0
 # Description: Cologne DKH2
 # Role: orbital
 # 
@@ -46,7 +46,7 @@
 #     10.1021/ct200504u
 # 
 # # 
-basis "La_cologne dkh2" SPHERICAL 
+basis "La_Cologne DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 La    S
 12210086.5187960             0.0008480
@@ -148,7 +148,7 @@ La    F
 La    F
       0.1174890              1.0000000
 end
-basis "Ce_cologne dkh2" SPHERICAL 
+basis "Ce_Cologne DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Ce    S
 12989481.7062490             0.0008640
@@ -250,7 +250,7 @@ Ce    F
 Ce    F
       0.1582140              1.0000000
 end
-basis "Pr_cologne dkh2" SPHERICAL 
+basis "Pr_Cologne DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Pr    S
 13830867.2637570             0.0008790
@@ -352,7 +352,7 @@ Pr    F
 Pr    F
       0.1841470              1.0000000
 end
-basis "Nd_cologne dkh2" SPHERICAL 
+basis "Nd_Cologne DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Nd    S
 14737614.8461170             0.0008940
@@ -454,7 +454,7 @@ Nd    F
 Nd    F
       0.2029900              1.0000000
 end
-basis "Pm_cologne dkh2" SPHERICAL 
+basis "Pm_Cologne DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Pm    S
 15723330.5739100             0.0009080
@@ -556,7 +556,7 @@ Pm    F
 Pm    F
       0.2194180              1.0000000
 end
-basis "Sm_cologne dkh2" SPHERICAL 
+basis "Sm_Cologne DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Sm    S
 16794768.5817400             0.0009220
@@ -658,7 +658,7 @@ Sm    F
 Sm    F
       0.2361570              1.0000000
 end
-basis "Eu_cologne dkh2" SPHERICAL 
+basis "Eu_Cologne DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Eu    S
 17920908.7872370             0.0009360
@@ -760,7 +760,7 @@ Eu    F
 Eu    F
       0.2669540              1.0000000
 end
-basis "Gd_cologne dkh2" SPHERICAL 
+basis "Gd_Cologne DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Gd    S
 19134212.3139960             0.0009490
@@ -862,7 +862,7 @@ Gd    F
 Gd    F
       0.2657210              1.0000000
 end
-basis "Tb_cologne dkh2" SPHERICAL 
+basis "Tb_Cologne DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Tb    S
 20443382.2110210             0.0009630
@@ -964,7 +964,7 @@ Tb    F
 Tb    F
       0.2751540              1.0000000
 end
-basis "Dy_cologne dkh2" SPHERICAL 
+basis "Dy_Cologne DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Dy    S
 21841438.1922420             0.0009760
@@ -1066,7 +1066,7 @@ Dy    F
 Dy    F
       0.2866140              1.0000000
 end
-basis "Ho_cologne dkh2" SPHERICAL 
+basis "Ho_Cologne DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Ho    S
 23354455.5413030             0.0009130
@@ -1168,7 +1168,7 @@ Ho    F
 Ho    F
       0.2987010              1.0000000
 end
-basis "Er_cologne dkh2" SPHERICAL 
+basis "Er_Cologne DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Er    S
 24972619.2146850             0.0009200
@@ -1270,7 +1270,7 @@ Er    F
 Er    F
       0.3100820              1.0000000
 end
-basis "Tm_cologne dkh2" SPHERICAL 
+basis "Tm_Cologne DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Tm    S
 26729126.8848670             0.0009380
@@ -1372,7 +1372,7 @@ Tm    F
 Tm    F
       0.3221370              1.0000000
 end
-basis "Yb_cologne dkh2" SPHERICAL 
+basis "Yb_Cologne DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Yb    S
 28608027.0846480             0.0009430
@@ -1474,7 +1474,7 @@ Yb    F
 Yb    F
       0.3349160              1.0000000
 end
-basis "Lu_cologne dkh2" SPHERICAL 
+basis "Lu_Cologne DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Lu    S
 30342371.9052100             0.0010470

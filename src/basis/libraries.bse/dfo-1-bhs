@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# dfo-1-bhs version number 1
+# Data downloaded on 2021-02-20T21:21
+# DFO-1-BHS version number 1
 # Description: Optimized gaussian basis set for Density-functional calculations (requiring pseudopotential)
 # Role: orbital
 # 
@@ -46,7 +46,7 @@
 #     10.1103/PhysRevA.60.2840
 # 
 # # 
-basis "Si_dfo-1-bhs" SPHERICAL 
+basis "Si_DFO-1-BHS" SPHERICAL 
 #basis SET: (7s,7p,2d) -> [2s,2p,1d]
 Si    S
       2.23626e+00            1.23450e-01

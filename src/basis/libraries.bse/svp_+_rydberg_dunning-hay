@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# svp + rydberg (dunning-hay) version number 0
+# Data downloaded on 2021-02-20T21:21
+# SVP + Rydberg (Dunning-Hay) version number 0
 # Description: VDZP1R  Valence Double Zeta + Polarization + Rydberg
 # Role: orbital
 # 
@@ -53,7 +53,7 @@
 #     10.1007/978-1-4757-0887-5
 # 
 # # 
-basis "B_svp + rydberg (dunning-hay)" SPHERICAL 
+basis "B_SVP + Rydberg (Dunning-Hay)" SPHERICAL 
 #basis SET: (11s,6p,2d) -> [4s,3p,2d]
 B    S
    2788.0                    0.001288
@@ -84,7 +84,7 @@ B    D
 B    D
       0.015000               1.000000
 end
-basis "C_svp + rydberg (dunning-hay)" SPHERICAL 
+basis "C_SVP + Rydberg (Dunning-Hay)" SPHERICAL 
 #basis SET: (11s,6p,2d) -> [4s,3p,2d]
 C    S
    4233.0                    0.001220
@@ -115,7 +115,7 @@ C    D
 C    D
       0.015000               1.000000
 end
-basis "N_svp + rydberg (dunning-hay)" SPHERICAL 
+basis "N_SVP + Rydberg (Dunning-Hay)" SPHERICAL 
 #basis SET: (11s,6p,2d) -> [4s,3p,2d]
 N    S
    5909.0                    0.001190
@@ -146,7 +146,7 @@ N    D
 N    D
       0.015000               1.000000
 end
-basis "O_svp + rydberg (dunning-hay)" SPHERICAL 
+basis "O_SVP + Rydberg (Dunning-Hay)" SPHERICAL 
 #basis SET: (11s,6p,2d) -> [4s,3p,2d]
 O    S
    7817.0                    0.001176
@@ -177,7 +177,7 @@ O    D
 O    D
       0.015000               1.000000
 end
-basis "F_svp + rydberg (dunning-hay)" SPHERICAL 
+basis "F_SVP + Rydberg (Dunning-Hay)" SPHERICAL 
 #basis SET: (11s,6p,2d) -> [4s,3p,2d]
 F    S
    9995.0                    0.001166
@@ -208,7 +208,7 @@ F    D
 F    D
       0.015000               1.000000
 end
-basis "Ne_svp + rydberg (dunning-hay)" SPHERICAL 
+basis "Ne_SVP + Rydberg (Dunning-Hay)" SPHERICAL 
 #basis SET: (11s,6p,2d) -> [4s,3p,2d]
 Ne    S
   12100.                     0.001200

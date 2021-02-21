@@ -1,6 +1,6 @@
 # BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T19:21
-# 6-31g-j version number 0
+# Data downloaded on 2021-02-20T21:21
+# 6-31G-J version number 0
 # Description: 6-31G-J
 # Role: orbital
 # 
@@ -46,7 +46,7 @@
 #     10.1021/ct200546q
 # 
 # # 
-basis "H_6-31g-j" SPHERICAL 
+basis "H_6-31G-J" SPHERICAL 
 #basis SET: (7s) -> [4s]
 H    S
   62666.02044953             0.00000075
@@ -60,7 +60,7 @@ H    S
 H    S
       0.16127780             1.00000000
 end
-basis "C_6-31g-j" SPHERICAL 
+basis "C_6-31G-J" SPHERICAL 
 #basis SET: (13s,5p) -> [6s,2p]
 C    S
      29.2101550              1.00000000
@@ -89,7 +89,7 @@ C    P
 C    P
       0.1687144              1.00000000
 end
-basis "N_6-31g-j" SPHERICAL 
+basis "N_6-31G-J" SPHERICAL 
 #basis SET: (13s,5p) -> [6s,2p]
 N    S
      40.23433000             1.00000000
@@ -118,7 +118,7 @@ N    P
 N    P
       0.21203130             1.00000000
 end
-basis "O_6-31g-j" SPHERICAL 
+basis "O_6-31G-J" SPHERICAL 
 #basis SET: (13s,5p) -> [6s,2p]
 O    S
      52.9645000              1.00000000
