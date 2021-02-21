@@ -3076,6 +3076,9 @@ endif
 ifeq ($(shell echo $(BLASOPT) |awk '/flexiblas/ {print "Y"; exit}'),Y)
       DEFINES += -DFLEXIBLAS
 endif
+ifeq ($(shell echo $(BLASOPT) |awk '/Accelerate/ {print "Y"; exit}'),Y)
+      DEFINES += -DACCELERATE
+endif
 
 #
 # Define known suffixes mostly so that .p files don\'t cause pc to be invoked
