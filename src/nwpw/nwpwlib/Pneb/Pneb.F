@@ -1618,6 +1618,7 @@ c     ****************************************
       integer nb,nb1,nb2,ms,ms1,ms2,n
       integer shift,shiftso,shift2,ishift2,ishift3
 
+
       if (parallelized_j) then
          if (mb.eq.0) then
             ms1 = 1
@@ -4936,7 +4937,7 @@ c     ****************************************
          end if
          !call dcopy(4*(ne(1)*ne(1)+ne(2)*ne(2)),0.0d0,0,T,1)
          call Parallel_shared_vector_zero(.true.,
-     >                       4*(ne(1)*ne(1)+ne(2)*ne(2))*nbsize*2,T)
+     >                       8*(ne(1)*ne(1)+ne(2)*ne(2))*nbsize,T)
          do nb=nb1,nb2
          do ms=ms1,ms2
              shift1 = 1+(ms-1)*ishift1+(nb-1)*ishift3
@@ -5678,34 +5679,40 @@ c     ****************************************
 *            Sigma: eigenvalues
 *
 *
-      subroutine Pneb_4w_FactorSkew(mb,nbb,K,U,Sigma)
+      subroutine Pneb_4w_FactorSkew(mb,nbb,K,U,S,max_sigma)
       implicit none
       integer    mb,nbb
       complex*16 K(*),U(*)
-      real*8     Sigma(*)
+      real*8     S(*),max_sigma
       
 #include "bafdecls.fh"
-#include "errquit.fh"
 #include "Pneb.fh"                       
+#include "errquit.fh"
 
 *     **** local variables ****         
       logical value
       integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2
-      integer nb,nb1,nb2,ishift3,ishift4,nbsize
-      integer work(2),rwork(2),lwork,ierr
+      integer nb,nb1,nb2,ishift3,ishift4,nbsize,nn,i
+      integer f4wwork(2),f4wrwork(2),f4wlwork,ierr
 
       call nwpw_timing_start(17)  
 
-c     **** get temp memory from stack ****
-      lwork=4*ne(1)*ne(1)
-      value =BA_push_get(mt_dbl,lwork,'rwork',rwork(2),rwork(1))
-      value =value.and.BA_push_get(mt_dcpl,lwork,'work',work(2),work(1))
-      if (.not.value) 
-     >   call errquit('Pneb_4w_FactorSkewg: out of stack',0,MA_ERR)
 
+c     **** get temp memory from stack ****
+      ierr = 0
+      f4wlwork=4*ne(1)*ne(1)
+      value = BA_push_get(mt_dbl,f4wlwork,'f4wrwork',
+     >                   f4wrwork(2),f4wrwork(1))
+      value = value.and.
+     >        BA_push_get(mt_dcpl,f4wlwork,'f4wwork',
+     >                    f4wwork(2),f4wwork(1))
+      if (.not.value) 
+     >   call errquit('Pneb_4w_FactorSkew: out of stack',0,MA_ERR)
+
+      max_sigma = -1.2e22
 
       if (mparallelized) then
-        call errquit('Dneall_4m_FactorSkew: mparallel not finished',0,0)
+        call errquit('Pneb_4m_FactorSkew: mparallel not finished',0,0)
       else 
          if (nbb.eq.0) then
             nb1 = 1
@@ -5732,28 +5739,38 @@ c     **** get temp memory from stack ****
          end if
 
          call Parallel_shared_vector_copy(.true.,
-     >                       nbsize*4*(ne(1)*ne(1)+ne(2)*ne(2)),K,U)
+     >                       nbsize*8*(ne(1)*ne(1)+ne(2)*ne(2)),K,U)
          call ZSCAL_OMP(nbsize*4*(ne(1)*ne(1)+ne(2)*ne(2)),
      >              dcmplx(0.0d0,1.0d0),U,1)
 
          do nb=nb1,nb2
          do ms=ms1,ms2
+            nn = 2*ne(ms)
             shift1 = 1 + (ms-1)*ishift1 + (nb-1)*ishift3
             shift2 = 1 + (ms-1)*ishift2 + (nb-1)*ishift4
-            call ZHEEV('V','L',2*ne(ms),
-     >                 U(shift2),2*ne(ms),
-     >                 Sigma(shift1),
-     >                 dcpl_mb(work(1)),lwork,dbl_mb(rwork),ierr)
-             if (ierr.ne.0) 
-     >          call errquit("Pneb_4w_FactorSkew: ZHEEV failed",ierr,0)
-
+            call ZHEEV('V','L',nn,
+     >                 U(shift2),nn,
+     >                 S(shift1),
+     >                 dcpl_mb(f4wwork(1)),f4wlwork,
+     >                 dbl_mb(f4wrwork(1)),ierr)
+            if (ierr.ne.0) 
+     >         call errquit("Pneb_4w_FactorSkew: ZHEEV failed",ierr,0)
+            do i=1,nn
+               if (S(shift1+i-1).gt.max_sigma) max_sigma=S(shift1+i-1)
+            end do
          end do
          end do
       end if
 
+      value = BA_pop_stack(f4wwork(2))
+      value = value.and.BA_pop_stack(f4wrwork(2))
+      if (.not.value) 
+     >   call errquit('Pneb_4w_FactorSkew: pop stack',0,MA_ERR)
+
       call nwpw_timing_end(17)
       return
       end
+
 
 c     ****************************************
 c     *                                      *
@@ -5809,8 +5826,8 @@ c     ****************************************
  30        continue
          end do
          end do
-         call Pneb_4www_Multiply3(0,0,dcmplx(1.0d0,0.0d0),U,AB,
-     >                            dcmplx(0.0d0,0.0d0),R)
+         call Pneb_4www_Multiply3(0,0,U,AB,dcmplx(1.0d0,0.0d0),
+     >                            R,dcmplx(0.0d0,0.0d0))
       end if
 
       return

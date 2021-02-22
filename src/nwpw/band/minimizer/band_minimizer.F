@@ -311,7 +311,11 @@ c      call center_mass(gx,gy,gz)
 
 *     **** electron and geodesic data structures ****
       call c_electron_init()
-      call c_geodesic_init()
+      if ((minimizer.eq.4).or.(minimizer.eq.7)) then  !debug
+         call c_geodesic2_init()
+      else
+         call c_geodesic_init()
+      end if
 
 
 *     **** initialize QM/MM ****
@@ -678,7 +682,11 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
 
 *     **** deallocate heap memory ****
       call c_electron_finalize()
-      call c_geodesic_finalize()
+      if ((minimizer.eq.4).or.(minimizer.eq.7)) then
+         call c_geodesic2_finalize()
+      else
+         call c_geodesic_finalize()
+      end if
       call ewald_end()
       call cstrfac_end()
       call c_coulomb_end()

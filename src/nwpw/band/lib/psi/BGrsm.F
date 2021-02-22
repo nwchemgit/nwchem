@@ -41,7 +41,8 @@
       integer nsize
 
       nsize = 2*nbrillq*(neq(1)+neq(2))*npack1
-      call dcopy(nsize,A,1,C,1)
+      !call dcopy(nsize,A,1,C,1)
+      call Parallel_shared_vector_copy(.true.,nsize,A,C)
       return
       end
 

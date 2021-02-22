@@ -548,10 +548,10 @@ cccccccccccccccccc
 
 *     **** external functions *****
       integer  cpsi_data_get_chnk,cpsi_data_nsize,Pneb_convert_nb
-      integer  cpsi_data_get_next
-      real*8   brillioun_weight
       external cpsi_data_get_chnk,cpsi_data_nsize,Pneb_convert_nb
+      integer  cpsi_data_get_next
       external cpsi_data_get_next
+      real*8   brillioun_weight
       external brillioun_weight
 
       neall = neq(1) + neq(2)

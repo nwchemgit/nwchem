@@ -1414,10 +1414,28 @@ c     >                       tmp1_tag)
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *       cpsi_1geodesic2_start     *
+*     *                                 *
+*     ***********************************
+      subroutine cpsi_1geodesic2_start(H0_tag,max_sigma,dE)
+      implicit none
+      integer H0_tag
+      real*8 max_sigma,dE
+
+#include "bafdecls.fh"
+#include "cpsi_common.fh"
+
+      call c_geodesic2_start(psi1_tag,H0_tag,max_sigma,dE)
+      return
+      end
+
+
 
 *     ***********************************
 *     *                                 *
-*     *         cpsi_geodesic2_energy    *
+*     *        cpsi_geodesic2_energy    *
 *     *                                 *
 *     ***********************************
       real*8 function cpsi_geodesic2_energy(t)
@@ -1437,7 +1455,6 @@ c     >                       tmp1_tag)
       call c_geodesic2_get(t,psi1_tag,
      >                       psi2_tag)
 
-
       call c_electron_run(psi2_tag,
      >                    dbl_mb(rho2(1)),
      >                    dcpl_mb(dng2(1)),
@@ -1448,7 +1465,6 @@ c     >                       tmp1_tag)
      >                           dbl_mb(rho2(1)),
      >                           dcpl_mb(dng2(1)),
      >                           dbl_mb(rho2_all(1)))
-
 
       cpsi_geodesic2_energy = e_new
       return
