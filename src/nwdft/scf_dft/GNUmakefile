@@ -64,7 +64,7 @@ GOTGAPZHEEVD= Y
 ifeq ($(GOTGAPZHEEVD),Y)
  LIB_DEFINES += -DUSE_GAPZHEEVD
 endif
-_PDSYEVR = $(shell [ -e ${NWCHEM_TOP}/src/tools/install/lib/libga.a ] &&  nm ${NWCHEM_TOP}/src/tools/install/lib/libga.a|egrep T\ ga_pdsyevr |awk '/ga_pdsyevr/ {print "Y"}')
+_PDSYEVR = $(shell [ -e ${NWCHEM_TOP}/src/tools/install/lib/libga.a ] &&  nm ${NWCHEM_TOP}/src/tools/install/lib/libga.a|egrep T |egrep  ga_pdsyevr |awk '/ga_pdsyevr/ {print "Y"}')
 ifeq ($(_PDSYEVR),Y) 
  LIB_DEFINES += -DUSE_PDSYEVR
 endif
