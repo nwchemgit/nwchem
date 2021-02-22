@@ -486,6 +486,7 @@ cccccccccccccccccc
            
 *     **** get coulomb energy ****
       ehartr = c_coulomb_e(dng)
+
               
 *     **** get exchange-correlation energy ****
       call C3dB_rr_dot(1,dnall(1),

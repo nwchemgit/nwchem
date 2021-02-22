@@ -97,6 +97,7 @@ c      complex*16 G1(nfft3d,nemax)
 c      G0_tag = cpsi_data_push_stack(nbrill,neall,2*npack1)
       G1_tag = cpsi_data_push_stack(nbrill,neall,2*npack1)
 
+
       Estart = Enew
       Eold   = Enew
 
@@ -120,9 +121,8 @@ c      G0_tag = cpsi_data_push_stack(nbrill,neall,2*npack1)
 
       do it=2,it_in
 
-*        **** initialize the geoedesic line data structure ****
+*        **** initialize the geodesic line data structure ****
          call cpsi_1geodesic2_start(H0_tag,max_sigma,dE0)
-
 
 *        ******* line search *********
          if (tmin.gt.0.0d0) then
@@ -189,9 +189,7 @@ c         call BGrsm_fff_Sub_tag(G1_tag,G0_tag,G0_tag)
 
       end do
 
-*     **** initialize the geoedesic line data structure ****
-
-      !call c_geodesic2_start(H0_tag,max_sigma,dE0)
+*     **** initialize the geodesic line data structure ****
       call cpsi_1geodesic2_start(H0_tag,max_sigma,dE0)
 
 *     ******* line search *********

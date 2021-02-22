@@ -1427,9 +1427,30 @@ c     >                       tmp1_tag)
 #include "bafdecls.fh"
 #include "cpsi_common.fh"
 
+      integer  cpsi_data_get_next
+      external cpsi_data_get_next
+
+      call cpsi_data_set_next(H0_tag,cpsi_data_get_next(psi1_tag))
+      call cpsi_data_copyall(cpsi_data_get_next(psi1_tag),
+     >                       cpsi_data_get_next(psi2_tag))
+
       call c_geodesic2_start(psi1_tag,H0_tag,max_sigma,dE)
       return
       end
+
+c      subroutine cpsi_1geodesic2_assign_occ(H0_tag)
+c      implicit none
+c      integer H0_tag
+c
+c#include "bafdecls.fh"
+c#include "cpsi_common.fh"
+c
+c      integer  cpsi_data_set_next
+c      external cpsi_data_set_next
+c
+c      call cpsi_data_set_next(H0_tag,cpsi_data_get_next(psi1_tag))
+c      return
+c      end
 
 
 

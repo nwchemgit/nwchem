@@ -2954,8 +2954,9 @@ c         **** modified Gram-Schmidt ****
                indxj = 1+(j-1)*npack1 + (ms-1)*ishift1+(nb-1)*ishift11
                indxm = k+(j-1)*ne(ms) + (ms-1)*ishift2+(nb-1)*ishift3
                call Cram_cc_zdot(nb,Q(indxk),Q(indxj),wc)
+               !call Cram_cc_zdot(nb,Q(indxj),Q(indxk),wc)
                R(indxm) = wc
-               w = -wc
+               wc = -wc
                call Cram_cc_zaxpy(1,wc,Q(indxk),Q(indxj))
             end do
          end do

@@ -105,8 +105,8 @@
 *     **** external functions **** 
       integer  Pneb_4w_size
       external Pneb_4w_size
-      integer  cpsi_ispin,cpsi_neq,cpsi_nbrillq
-      external cpsi_ispin,cpsi_neq,cpsi_nbrillq
+      integer  cpsi_ispin,cpsi_neq,cpsi_nbrillq,cpsi_ne
+      external cpsi_ispin,cpsi_neq,cpsi_nbrillq,cpsi_ne
       integer  cpsi_data_push_stack,cpsi_data_get_allptr
       external cpsi_data_push_stack,cpsi_data_get_allptr
       !real*8   c_electron_eorbit_noocc
@@ -120,8 +120,8 @@
       call Cram_max_npack(npack1)
       neall = cpsi_neq(1) + cpsi_neq(2)
       ispin = cpsi_ispin()
-      ne(1) = cpsi_neq(1)
-      ne(2) = cpsi_neq(2)
+      ne(1) = cpsi_ne(1)
+      ne(2) = cpsi_ne(2)
       nbrillq = cpsi_nbrillq()
 
 
@@ -135,7 +135,7 @@
      >                    dbl_mb(cpsi_data_get_allptr(Hold_tag)))
 
 
-*     **** calculate A=<Y|H> ****
+*     **** calculate A=<Y|H>??? ****
       call Pneb_ffw_Multiply(0,0,
      >                       dbl_mb(cpsi_data_get_allptr(Y_tag)),
      >                       dbl_mb(cpsi_data_get_allptr(H_tag)),npack1,
@@ -179,7 +179,6 @@
      >                        dbl_mb(cpsi_data_get_allptr(U_tag)),
      >                        dbl_mb(cpsi_data_get_allptr(S_tag)),
      >                        max_sigma)
-
 
 *     **** calculate dE ****
       !dE = 2.0d0*c_electron_eorbit_noocc(H)
@@ -297,8 +296,8 @@
       integer MM_tag,NN_tag
 
 *     **** external functions ****
-      integer  cpsi_nbrillq
-      external cpsi_nbrillq
+      integer  cpsi_nbrillq,cpsi_ne
+      external cpsi_nbrillq,cpsi_ne
       integer  cpsi_data_push_stack,cpsi_data_get_allptr
       external cpsi_data_push_stack,cpsi_data_get_allptr
       integer  Pneb_w_size
