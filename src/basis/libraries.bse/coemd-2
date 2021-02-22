@@ -1,43 +1,52 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
 # coemd-2 version number 0
-# Description: coemd-2
+# Description: coemd-2: completness-optimized for electron momentum density
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H-Ar
-#     ## coemd-2
+# 
+#  References for the basis set
+# 
+#  H-Ar
+#      coemd-2
+#          lehtola2012a
+# 
+# 
+# 
+# lehtola2012a
 #     Lehtola, Jussi, Manninen, Pekka, Hakala, Mikko, Hämäläinen, Keijo
 #     Completeness-optimized basis sets: Application to ground-state
 #             electron momentum densities
-#     J. Chem. Phys., 137, 104105 (2012)
+#     J. Chem. Phys. 137, 104105 (2012)
 #     10.1063/1.4749272
 # 
 # # 
-basis "H_coemd-2" 
+basis "H_coemd-2" SPHERICAL 
 #basis SET: (7s) -> [7s]
 H    S
       1.5027606996212728E+02 1.0000000
@@ -54,7 +63,7 @@ H    S
 H    S
       3.3897298888684209E-02 1.0000000
 end
-basis "He_coemd-2" 
+basis "He_coemd-2" SPHERICAL 
 #basis SET: (7s) -> [7s]
 He    S
       1.5027606996212728E+02 1.0000000
@@ -71,7 +80,7 @@ He    S
 He    S
       3.3897298888684209E-02 1.0000000
 end
-basis "Li_coemd-2" 
+basis "Li_coemd-2" SPHERICAL 
 #basis SET: (9s,2p) -> [9s,2p]
 Li    S
       3.7747099799328936E+02 1.0000000
@@ -96,7 +105,7 @@ Li    P
 Li    P
       6.3463489956445920E-02 1.0000000
 end
-basis "Be_coemd-2" 
+basis "Be_coemd-2" SPHERICAL 
 #basis SET: (9s,2p) -> [9s,2p]
 Be    S
       3.7747099799328936E+02 1.0000000
@@ -121,7 +130,7 @@ Be    P
 Be    P
       6.3463489956445920E-02 1.0000000
 end
-basis "B_coemd-2" 
+basis "B_coemd-2" SPHERICAL 
 #basis SET: (9s,6p) -> [9s,6p]
 B    S
       1.1093762012649642E+04 1.0000000
@@ -154,7 +163,7 @@ B    P
 B    P
       1.0681306229937416E-01 1.0000000
 end
-basis "C_coemd-2" 
+basis "C_coemd-2" SPHERICAL 
 #basis SET: (9s,6p) -> [9s,6p]
 C    S
       1.1093762012649642E+04 1.0000000
@@ -187,7 +196,7 @@ C    P
 C    P
       1.0681306229937416E-01 1.0000000
 end
-basis "N_coemd-2" 
+basis "N_coemd-2" SPHERICAL 
 #basis SET: (9s,6p) -> [9s,6p]
 N    S
       1.1093762012649642E+04 1.0000000
@@ -220,7 +229,7 @@ N    P
 N    P
       1.0681306229937416E-01 1.0000000
 end
-basis "O_coemd-2" 
+basis "O_coemd-2" SPHERICAL 
 #basis SET: (9s,6p) -> [9s,6p]
 O    S
       1.1093762012649642E+04 1.0000000
@@ -253,7 +262,7 @@ O    P
 O    P
       1.0681306229937416E-01 1.0000000
 end
-basis "F_coemd-2" 
+basis "F_coemd-2" SPHERICAL 
 #basis SET: (9s,6p) -> [9s,6p]
 F    S
       1.1093762012649642E+04 1.0000000
@@ -286,7 +295,7 @@ F    P
 F    P
       1.0681306229937416E-01 1.0000000
 end
-basis "Ne_coemd-2" 
+basis "Ne_coemd-2" SPHERICAL 
 #basis SET: (9s,6p) -> [9s,6p]
 Ne    S
       1.1093762012649642E+04 1.0000000
@@ -319,7 +328,7 @@ Ne    P
 Ne    P
       1.0681306229937416E-01 1.0000000
 end
-basis "Na_coemd-2" 
+basis "Na_coemd-2" SPHERICAL 
 #basis SET: (11s,4p) -> [11s,4p]
 Na    S
       4.9929578012952534E+03 1.0000000
@@ -352,7 +361,7 @@ Na    P
 Na    P
       5.2148562116547803E-01 1.0000000
 end
-basis "Mg_coemd-2" 
+basis "Mg_coemd-2" SPHERICAL 
 #basis SET: (11s,4p) -> [11s,4p]
 Mg    S
       4.9929578012952534E+03 1.0000000
@@ -385,7 +394,7 @@ Mg    P
 Mg    P
       5.2148562116547803E-01 1.0000000
 end
-basis "Al_coemd-2" 
+basis "Al_coemd-2" SPHERICAL 
 #basis SET: (10s,8p) -> [10s,8p]
 Al    S
       1.1410605755812843E+04 1.0000000
@@ -424,7 +433,7 @@ Al    P
 Al    P
       2.0522054733976915E-02 1.0000000
 end
-basis "Si_coemd-2" 
+basis "Si_coemd-2" SPHERICAL 
 #basis SET: (10s,8p) -> [10s,8p]
 Si    S
       1.1410605755812843E+04 1.0000000
@@ -463,7 +472,7 @@ Si    P
 Si    P
       2.0522054733976915E-02 1.0000000
 end
-basis "P_coemd-2" 
+basis "P_coemd-2" SPHERICAL 
 #basis SET: (10s,8p) -> [10s,8p]
 P    S
       1.1410605755812843E+04 1.0000000
@@ -502,7 +511,7 @@ P    P
 P    P
       2.0522054733976915E-02 1.0000000
 end
-basis "S_coemd-2" 
+basis "S_coemd-2" SPHERICAL 
 #basis SET: (10s,8p) -> [10s,8p]
 S    S
       1.1410605755812843E+04 1.0000000
@@ -541,7 +550,7 @@ S    P
 S    P
       2.0522054733976915E-02 1.0000000
 end
-basis "Cl_coemd-2" 
+basis "Cl_coemd-2" SPHERICAL 
 #basis SET: (10s,8p) -> [10s,8p]
 Cl    S
       1.1410605755812843E+04 1.0000000
@@ -580,7 +589,7 @@ Cl    P
 Cl    P
       2.0522054733976915E-02 1.0000000
 end
-basis "Ar_coemd-2" 
+basis "Ar_coemd-2" SPHERICAL 
 #basis SET: (10s,8p) -> [10s,8p]
 Ar    S
       1.1410605755812843E+04 1.0000000

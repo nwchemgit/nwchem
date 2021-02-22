@@ -1,190 +1,226 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# stuttgart rsc 1997 version number 0
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# Stuttgart RSC 1997 version number 0
 # Description: Stuttgart RSC 1997 ECP + Valence basis
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# K,Rb
-#     ## Stuttgart RSC 1997 ECP
-#     Bergner, Andreas
 # 
+#  References for the basis set
+# 
+#  K,Rb
+#      Stuttgart RSC 1997 ECP
+#          bergner1990a
+# 
+#      Stuttgart RSC 1997 ECP
+#          leininger1996a
+# 
+#  Ca,Sr,Ba
+#      Stuttgart RSC 1997 ECP
+#          kaupp1991a
+# 
+#      Stuttgart RSC 1997 ECP
+#          kaupp1991a
+# 
+#  Sc-Zn
+#      Stuttgart RSC 1997 ECP
+#          dolg1987a martin2001a
+# 
+#      Stuttgart RSC 1997 ECP
+#          dolg1987a
+# 
+#  Y-Cd,Hf-Pt
+#      Stuttgart RSC 1997 ECP
+#          martin2001a andrae1990a
+# 
+#      Stuttgart RSC 1997 ECP
+#          andrae1990a
+# 
+#  Cs
+#      Stuttgart RSC 1997 ECP
+#          bergner1990b
+# 
+#      Stuttgart RSC 1997 ECP
+#          leininger1996a
+# 
+#  Ce-Yb
+#      Stuttgart RSC 1997 ECP
+#          (...no reference...)
+# 
+#      Stuttgart RSC 1997 ECP
+#          dolg1989b
+# 
+#  Au
+#      Stuttgart RSC 1997 ECP
+#          schwerdtfeger1989a
+# 
+#      Stuttgart RSC 1997 ECP
+#          schwerdtfeger1989a
+# 
+#  Hg
+#      Stuttgart RSC 1997 ECP
+#          haussermann1988a
+# 
+#      Stuttgart RSC 1997 ECP
+#          haussermann1993a
+# 
+#  Ac-No
+#      Stuttgart RSC 1997 ECP
+#          (...no reference...)
+# 
+#      Stuttgart RSC 1997 ECP
+#          kuchle1994a cao2004a cao2003a
+# 
+#  Lr
+#      Stuttgart RSC 1997 ECP
+#          (...no reference...)
+# 
+#      Stuttgart RSC 1997 ECP
+#          (...no reference...)
+# 
+#  Db
+#      Stuttgart RSC 1997 ECP
+#          dolg1993a
+# 
+#      Stuttgart RSC 1997 ECP
+#          dolg1993a
+# 
+# 
+# 
+# andrae1990a
+#     Andrae, D., Häußermann, U., Dolg, M., Stoll, H., Preuß, H.
+#     Energy-adjustedab initio pseudopotentials for the second and third row
+#             transition elements
+#     Theor. Chim. Acta 77, 123-141 (1990)
+#     10.1007/bf01114537
+# 
+# bergner1990a
+#     Bergner, Andreas
+#     
 #     <unknown title>
 #     '<unknown institution>'
 #     Arbeitsbericht, 1990
 #     As referenced in the Stuttgart ECP database/website
 # 
-#     ## Stuttgart RSC 1997 ECP
-#     Leininger, Thierry, Nicklass, Andreas, Küchle, Wolfgang, Stoll,
-#             Hermann, Dolg, Michael, Bergner, Andreas
-#     The accuracy of the pseudopotential approximation: non-frozen-core
-#             effects for spectroscopic constants of alkali fluorides XF (X
-#             = K, Rb, Cs)
-#     Chem. Phys. Lett., 255, 274-280 (1996)
-#     10.1016/0009-2614(96)00382-x
-# 
-# Ca,Sr,Ba
-#     ## Stuttgart RSC 1997 ECP
-#     Kaupp, M., Schleyer, P. v. R., Stoll, H., Preuss, H.
-#     Pseudopotential approaches to Ca, Sr, and Ba hydrides. Why are some
-#             alkaline earth MX2compounds bent?
-#     J. Chem. Phys., 94, 1360-1366 (1991)
-#     10.1063/1.459993
-# 
-# Sc-Zn
-#     ## Stuttgart RSC 1997 ECP
-#     Dolg, M., Wedig, U., Stoll, H., Preuss, H.
-#     Energy‐adjustedabinitiopseudopotentials for the first row transition
-#             elements
-#     J. Chem. Phys., 86, 866-872 (1987)
-#     10.1063/1.452288
-# 
-#     Martin, Jan M. L., Sundermann, Andreas
-#     Correlation consistent valence basis sets for use with the Stuttgart-
-#             Dresden-Bonn relativistic effective core potentials: The atoms
-#             Ga-Kr and In-Xe
-#     J. Chem. Phys., 114, 3408-3420 (2001)
-#     10.1063/1.1337864
-# 
-#     ## Stuttgart RSC 1997 ECP
-#     Dolg, M., Wedig, U., Stoll, H., Preuss, H.
-#     Energy‐adjustedabinitiopseudopotentials for the first row transition
-#             elements
-#     J. Chem. Phys., 86, 866-872 (1987)
-#     10.1063/1.452288
-# 
-# Y-Cd,Hf-Pt
-#     ## Stuttgart RSC 1997 ECP
-#     Martin, Jan M. L., Sundermann, Andreas
-#     Correlation consistent valence basis sets for use with the Stuttgart-
-#             Dresden-Bonn relativistic effective core potentials: The atoms
-#             Ga-Kr and In-Xe
-#     J. Chem. Phys., 114, 3408-3420 (2001)
-#     10.1063/1.1337864
-# 
-#     Andrae, D., Häußermann, U., Dolg, M., Stoll, H., Preuß, H.
-#     Energy-adjustedab initio pseudopotentials for the second and third row
-#             transition elements
-#     Theor. Chim. Acta, 77, 123-141 (1990)
-#     10.1007/bf01114537
-# 
-#     ## Stuttgart RSC 1997 ECP
-#     Andrae, D., Häußermann, U., Dolg, M., Stoll, H., Preuß, H.
-#     Energy-adjustedab initio pseudopotentials for the second and third row
-#             transition elements
-#     Theor. Chim. Acta, 77, 123-141 (1990)
-#     10.1007/bf01114537
-# 
-# Cs
-#     ## Stuttgart RSC 1997 ECP
+# bergner1990b
 #     Bergner, A.
 #     unpublished
 #     As referenced in the Stuttgart ECP database/website
 # 
-#     ## Stuttgart RSC 1997 ECP
-#     Leininger, Thierry, Nicklass, Andreas, Küchle, Wolfgang, Stoll,
-#             Hermann, Dolg, Michael, Bergner, Andreas
-#     The accuracy of the pseudopotential approximation: non-frozen-core
-#             effects for spectroscopic constants of alkali fluorides XF (X
-#             = K, Rb, Cs)
-#     Chem. Phys. Lett., 255, 274-280 (1996)
-#     10.1016/0009-2614(96)00382-x
+# cao2003a
+#     Cao, Xiaoyan, Dolg, Michael, Stoll, Hermann
+#     Valence basis sets for relativistic energy-consistent small-core
+#             actinide pseudopotentials
+#     J. Chem. Phys. 118, 487-496 (2003)
+#     10.1063/1.1521431
 # 
-# Ce-Yb
-#     ## Stuttgart RSC 1997 ECP
-#     (...no reference...)
+# cao2004a
+#     Cao, Xiaoyan, Dolg, Michael
+#     Segmented contraction scheme for small-core actinide pseudopotential
+#             basis sets
+#     J. Mol. Struc-THEOCHEM 673, 203-209 (2004)
+#     10.1016/j.theochem.2003.12.015
 # 
-#     ## Stuttgart RSC 1997 ECP
+# dolg1987a
+#     Dolg, M., Wedig, U., Stoll, H., Preuss, H.
+#     Energy‐adjustedabinitiopseudopotentials for the first row transition
+#             elements
+#     J. Chem. Phys. 86, 866-872 (1987)
+#     10.1063/1.452288
+# 
+# dolg1989b
 #     Dolg, M., Stoll, H., Preuss, H.
 #     Energy-adjusted ab initio pseudopotentials for the rare earth elements
-#     J. Chem. Phys., 90, 1730-1734 (1989)
+#     J. Chem. Phys. 90, 1730-1734 (1989)
 #     10.1063/1.456066
 # 
-# Au
-#     ## Stuttgart RSC 1997 ECP
-#     Schwerdtfeger, Peter, Dolg, Michael, Schwarz, W. H. Eugen, Bowmaker,
-#             Graham A., Boyd, Peter D. W.
-#     Relativistic effects in gold chemistry. I. Diatomic gold compounds
-#     J. Chem. Phys., 91, 1762-1774 (1989)
-#     10.1063/1.457082
+# dolg1993a
+#     Dolg, Michael, Stoll, Hermann, Preuss, Heinzwerner, Pitzer, Russell M.
+#     Relativistic and correlation effects for element 105 (hahnium, Ha): a
+#             comparative study of M and MO (M = Nb, Ta, Ha) using energy-
+#             adjusted ab initio pseudopotentials
+#     J. Phys. Chem. 97, 5852-5859 (1993)
+#     10.1021/j100124a012
 # 
-# Hg
-#     ## Stuttgart RSC 1997 ECP
+# haussermann1988a
 #     Häussermann, U.
-# 
+#     
 #     <unknown title>
 #     '<unknown institution>'
 #     Arbeitsbericht, 1988
 #     As referenced in the Stuttgart ECP database/website
 # 
-#     ## Stuttgart RSC 1997 ECP
+# haussermann1993a
 #     Häussermann, U., Dolg, M., Stoll, H., Preuss, H., Schwerdtfeger, P.,
 #             Pitzer, R.M.
 #     Accuracy of energy-adjusted quasirelativisticab initiopseudopotentials
-#     Molecular Physics, 78, 1211-1224 (1993)
+#     Molecular Physics 78, 1211-1224 (1993)
 #     10.1080/00268979300100801
 # 
-# Ac-No
-#     ## Stuttgart RSC 1997 ECP
-#     (...no reference...)
+# kaupp1991a
+#     Kaupp, M., Schleyer, P. v. R., Stoll, H., Preuss, H.
+#     Pseudopotential approaches to Ca, Sr, and Ba hydrides. Why are some
+#             alkaline earth MX2compounds bent?
+#     J. Chem. Phys. 94, 1360-1366 (1991)
+#     10.1063/1.459993
 # 
-#     ## Stuttgart RSC 1997 ECP
+# kuchle1994a
 #     Küchle, W., Dolg, M., Stoll, H., Preuss, H.
 #     Energy‐adjusted pseudopotentials for the actinides. Parameter sets and
 #             test calculations for thorium and thorium monoxide
-#     J. Chem. Phys., 100, 7535-7542 (1994)
+#     J. Chem. Phys. 100, 7535-7542 (1994)
 #     10.1063/1.466847
 # 
-#     Cao, Xiaoyan, Dolg, Michael
-#     Segmented contraction scheme for small-core actinide pseudopotential
-#             basis sets
-#     J. Mol. Struc-THEOCHEM, 673, 203-209 (2004)
-#     10.1016/j.theochem.2003.12.015
+# leininger1996a
+#     Leininger, Thierry, Nicklass, Andreas, Küchle, Wolfgang, Stoll,
+#             Hermann, Dolg, Michael, Bergner, Andreas
+#     The accuracy of the pseudopotential approximation: non-frozen-core
+#             effects for spectroscopic constants of alkali fluorides XF (X
+#             = K, Rb, Cs)
+#     Chem. Phys. Lett. 255, 274-280 (1996)
+#     10.1016/0009-2614(96)00382-x
 # 
-#     Cao, Xiaoyan, Dolg, Michael, Stoll, Hermann
-#     Valence basis sets for relativistic energy-consistent small-core
-#             actinide pseudopotentials
-#     J. Chem. Phys., 118, 487-496 (2003)
-#     10.1063/1.1521431
+# martin2001a
+#     Martin, Jan M. L., Sundermann, Andreas
+#     Correlation consistent valence basis sets for use with the Stuttgart-
+#             Dresden-Bonn relativistic effective core potentials: The atoms
+#             Ga-Kr and In-Xe
+#     J. Chem. Phys. 114, 3408-3420 (2001)
+#     10.1063/1.1337864
 # 
-# Lr
-#     ## Stuttgart RSC 1997 ECP
-#     (...no reference...)
-# 
-# Db
-#     ## Stuttgart RSC 1997 ECP
-#     Dolg, Michael, Stoll, Hermann, Preuss, Heinzwerner, Pitzer, Russell M.
-#     Relativistic and correlation effects for element 105 (hahnium, Ha): a
-#             comparative study of M and MO (M = Nb, Ta, Ha) using energy-
-#             adjusted ab initio pseudopotentials
-#     J. Phys. Chem., 97, 5852-5859 (1993)
-#     10.1021/j100124a012
+# schwerdtfeger1989a
+#     Schwerdtfeger, Peter, Dolg, Michael, Schwarz, W. H. Eugen, Bowmaker,
+#             Graham A., Boyd, Peter D. W.
+#     Relativistic effects in gold chemistry. I. Diatomic gold compounds
+#     J. Chem. Phys. 91, 1762-1774 (1989)
+#     10.1063/1.457082
 # 
 # # 
-basis "K_stuttgart rsc 1997" 
+basis "K_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (7s,6p) -> [5s,4p]
 K    S
       8.2233620              0.1041450
@@ -211,7 +247,7 @@ K    P
 end
 
 
-ecp "K_stuttgart rsc 1997"
+ecp "K_Stuttgart RSC 1997"
 K nelec 10
 K ul
 2       1.000000000            0.000000000
@@ -224,7 +260,7 @@ K D
 K F
 2       6.123613000           -3.858320000
 end
-basis "Ca_stuttgart rsc 1997" 
+basis "Ca_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (6s,6p,5d) -> [4s,4p,2d]
 Ca    S
      12.3075210              0.0587400
@@ -256,7 +292,7 @@ Ca    D
 end
 
 
-ecp "Ca_stuttgart rsc 1997"
+ecp "Ca_Stuttgart RSC 1997"
 Ca nelec 10
 Ca ul
 2       1.000000000            0.000000000
@@ -272,7 +308,7 @@ Ca D
 Ca F
 2      12.765846000          -26.728178000
 end
-basis "Sc_stuttgart rsc 1997" 
+basis "Sc_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d,1f) -> [6s,5p,3d,1f]
 Sc    S
      10.0092600              1.0078960
@@ -314,7 +350,7 @@ Sc    F
 end
 
 
-ecp "Sc_stuttgart rsc 1997"
+ecp "Sc_Stuttgart RSC 1997"
 Sc nelec 10
 Sc ul
 2       1.000000000            0.000000000
@@ -328,7 +364,7 @@ Sc D
 2      13.470000000          -16.129862000
 2       4.375000000           -0.534690000
 end
-basis "Ti_stuttgart rsc 1997" 
+basis "Ti_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d,1f) -> [6s,5p,3d,1f]
 Ti    S
      10.7803650              1.7838920
@@ -370,7 +406,7 @@ Ti    F
 end
 
 
-ecp "Ti_stuttgart rsc 1997"
+ecp "Ti_Stuttgart RSC 1997"
 Ti nelec 10
 Ti ul
 2       1.000000000            0.000000000
@@ -384,7 +420,7 @@ Ti D
 2      15.350000000          -17.568861000
 2       4.980000000           -0.587256000
 end
-basis "V_stuttgart rsc 1997" 
+basis "V_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d,1f) -> [6s,5p,3d,1f]
 V    S
      12.8432080              1.1406430
@@ -426,7 +462,7 @@ V    F
 end
 
 
-ecp "V_stuttgart rsc 1997"
+ecp "V_Stuttgart RSC 1997"
 V nelec 10
 V ul
 2       1.000000000            0.000000000
@@ -440,7 +476,7 @@ V D
 2      17.480000000          -19.219657000
 2       5.709000000           -0.642775000
 end
-basis "Cr_stuttgart rsc 1997" 
+basis "Cr_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d,1f) -> [6s,5p,3d,1f]
 Cr    S
      14.0534500              0.8856240
@@ -482,7 +518,7 @@ Cr    F
 end
 
 
-ecp "Cr_stuttgart rsc 1997"
+ecp "Cr_Stuttgart RSC 1997"
 Cr nelec 10
 Cr ul
 2       1.000000000            0.000000000
@@ -496,7 +532,7 @@ Cr D
 2      19.930000000          -20.827421000
 2       6.598000000           -0.834368000
 end
-basis "Mn_stuttgart rsc 1997" 
+basis "Mn_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d,1f) -> [6s,5p,3d,1f]
 Mn    S
      15.5640010              1.0997890
@@ -538,7 +574,7 @@ Mn    F
 end
 
 
-ecp "Mn_stuttgart rsc 1997"
+ecp "Mn_Stuttgart RSC 1997"
 Mn nelec 10
 Mn ul
 2       1.000000000            0.000000000
@@ -552,7 +588,7 @@ Mn D
 2      22.720000000          -22.568119000
 2       7.640000000           -1.205810000
 end
-basis "Fe_stuttgart rsc 1997" 
+basis "Fe_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d,1f) -> [6s,5p,3d,1f]
 Fe    S
      20.5130280              0.2347140
@@ -594,7 +630,7 @@ Fe    F
 end
 
 
-ecp "Fe_stuttgart rsc 1997"
+ecp "Fe_Stuttgart RSC 1997"
 Fe nelec 10
 Fe ul
 2       1.000000000            0.000000000
@@ -608,7 +644,7 @@ Fe D
 2      25.900000000          -24.431276000
 2       8.835000000           -1.434251000
 end
-basis "Co_stuttgart rsc 1997" 
+basis "Co_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d,1f) -> [6s,5p,3d,1f]
 Co    S
      20.9080010              0.3980530
@@ -650,7 +686,7 @@ Co    F
 end
 
 
-ecp "Co_stuttgart rsc 1997"
+ecp "Co_Stuttgart RSC 1997"
 Co nelec 10
 Co ul
 2       1.000000000            0.000000000
@@ -664,7 +700,7 @@ Co D
 2      29.540000000          -26.475333000
 2      10.180000000           -1.825787000
 end
-basis "Ni_stuttgart rsc 1997" 
+basis "Ni_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d,1f) -> [6s,5p,3d,1f]
 Ni    S
      23.4579910              0.3454240
@@ -706,7 +742,7 @@ Ni    F
 end
 
 
-ecp "Ni_stuttgart rsc 1997"
+ecp "Ni_Stuttgart RSC 1997"
 Ni nelec 10
 Ni ul
 2       1.000000000            0.000000000
@@ -720,7 +756,7 @@ Ni D
 2      33.700000000          -18.522955000
 2      11.660000000           -4.557668000
 end
-basis "Cu_stuttgart rsc 1997" 
+basis "Cu_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Cu    S
      27.6963200              0.2311320
@@ -760,7 +796,7 @@ Cu    D
 end
 
 
-ecp "Cu_stuttgart rsc 1997"
+ecp "Cu_Stuttgart RSC 1997"
 Cu nelec 10
 Cu ul
 2       1.000000000            0.000000000
@@ -774,7 +810,7 @@ Cu D
 2      38.420000000          -31.272165000
 2      13.260000000           -2.741104000
 end
-basis "Zn_stuttgart rsc 1997" 
+basis "Zn_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Zn    S
      30.3241270              0.2191430
@@ -814,7 +850,7 @@ Zn    D
 end
 
 
-ecp "Zn_stuttgart rsc 1997"
+ecp "Zn_Stuttgart RSC 1997"
 Zn nelec 10
 Zn ul
 2       1.000000000            0.000000000
@@ -828,14 +864,14 @@ Zn D
 2      43.800000000          -34.149349000
 2      14.980000000           -3.291831000
 end
-basis "Rb_stuttgart rsc 1997" 
+basis "Rb_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (7s,6p) -> [5s,4p]
+Rb    S
+      0.4662440              1.0000000
 Rb    S
       4.7274610              0.2813290
       2.9308250             -0.6748920
       0.6018490              0.4587790
-Rb    S
-      0.4662440              1.0000000
 Rb    S
       0.2464630              1.0000000
 Rb    S
@@ -855,7 +891,7 @@ Rb    P
 end
 
 
-ecp "Rb_stuttgart rsc 1997"
+ecp "Rb_Stuttgart RSC 1997"
 Rb nelec 28
 Rb ul
 2       1.000000000            0.000000000
@@ -871,7 +907,7 @@ Rb D
 Rb F
 2       3.843114710          -12.316900650
 end
-basis "Sr_stuttgart rsc 1997" 
+basis "Sr_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (6s,6p,5d) -> [4s,4p,2d]
 Sr    S
       5.8791570              0.1967090
@@ -903,7 +939,7 @@ Sr    D
 end
 
 
-ecp "Sr_stuttgart rsc 1997"
+ecp "Sr_Stuttgart RSC 1997"
 Sr nelec 28
 Sr ul
 2       1.000000000            0.000000000
@@ -919,7 +955,7 @@ Sr D
 Sr F
 2       4.633975000          -15.805992000
 end
-basis "Y_stuttgart rsc 1997" 
+basis "Y_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Y    S
       5.1329580             -1.3875107
@@ -959,7 +995,7 @@ Y    D
 end
 
 
-ecp "Y_stuttgart rsc 1997"
+ecp "Y_Stuttgart RSC 1997"
 Y nelec 28
 Y ul
 2       1.000000000            0.000000000
@@ -976,7 +1012,7 @@ Y F
 2       6.584212000          -19.122198000
 2       3.292106000           -2.436375000
 end
-basis "Zr_stuttgart rsc 1997" 
+basis "Zr_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Zr    S
       5.8737890             -0.9736630
@@ -1016,7 +1052,7 @@ Zr    D
 end
 
 
-ecp "Zr_stuttgart rsc 1997"
+ecp "Zr_Stuttgart RSC 1997"
 Zr nelec 28
 Zr ul
 2       1.000000000            0.000000000
@@ -1033,7 +1069,7 @@ Zr F
 2       7.540000000          -21.093776000
 2       3.770000000           -3.080694000
 end
-basis "Nb_stuttgart rsc 1997" 
+basis "Nb_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Nb    S
       6.5663010             -0.8582654
@@ -1073,7 +1109,7 @@ Nb    D
 end
 
 
-ecp "Nb_stuttgart rsc 1997"
+ecp "Nb_Stuttgart RSC 1997"
 Nb nelec 28
 Nb ul
 2       1.000000000            0.000000000
@@ -1090,7 +1126,7 @@ Nb F
 2       8.490000000          -22.929550000
 2       4.250000000           -3.666310000
 end
-basis "Mo_stuttgart rsc 1997" 
+basis "Mo_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Mo    S
       7.2033800             -0.8262973
@@ -1130,7 +1166,7 @@ Mo    D
 end
 
 
-ecp "Mo_stuttgart rsc 1997"
+ecp "Mo_Stuttgart RSC 1997"
 Mo nelec 28
 Mo ul
 2       1.000000000            0.000000000
@@ -1147,7 +1183,7 @@ Mo F
 2       9.450000000          -24.805177000
 2       4.720000000           -4.153782000
 end
-basis "Tc_stuttgart rsc 1997" 
+basis "Tc_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Tc    S
       7.4344020             -1.1125180
@@ -1187,7 +1223,7 @@ Tc    D
 end
 
 
-ecp "Tc_stuttgart rsc 1997"
+ecp "Tc_Stuttgart RSC 1997"
 Tc nelec 28
 Tc ul
 2       1.000000000            0.000000000
@@ -1204,7 +1240,7 @@ Tc F
 2      10.400000000          -26.562447000
 2       5.200000000           -4.585681000
 end
-basis "Ru_stuttgart rsc 1997" 
+basis "Ru_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Ru    S
       7.9365700             -1.1196656
@@ -1244,7 +1280,7 @@ Ru    D
 end
 
 
-ecp "Ru_stuttgart rsc 1997"
+ecp "Ru_Stuttgart RSC 1997"
 Ru nelec 28
 Ru ul
 2       1.000000000            0.000000000
@@ -1261,7 +1297,7 @@ Ru F
 2      11.360000000          -28.340616000
 2       5.680000000           -4.944629000
 end
-basis "Rh_stuttgart rsc 1997" 
+basis "Rh_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Rh    S
       7.9177440             -2.4155775
@@ -1301,7 +1337,7 @@ Rh    D
 end
 
 
-ecp "Rh_stuttgart rsc 1997"
+ecp "Rh_Stuttgart RSC 1997"
 Rh nelec 28
 Rh ul
 2       1.000000000            0.000000000
@@ -1318,7 +1354,7 @@ Rh F
 2      12.310000000          -30.093456000
 2       6.160000000           -5.218482000
 end
-basis "Pd_stuttgart rsc 1997" 
+basis "Pd_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Pd    S
       8.4756400             -2.1642497
@@ -1358,7 +1394,7 @@ Pd    D
 end
 
 
-ecp "Pd_stuttgart rsc 1997"
+ecp "Pd_Stuttgart RSC 1997"
 Pd nelec 28
 Pd ul
 2       1.000000000            0.000000000
@@ -1375,7 +1411,7 @@ Pd F
 2      13.270000000          -31.929554000
 2       6.630000000           -5.398217000
 end
-basis "Ag_stuttgart rsc 1997" 
+basis "Ag_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Ag    S
       9.0884420             -1.9648132
@@ -1415,7 +1451,7 @@ Ag    D
 end
 
 
-ecp "Ag_stuttgart rsc 1997"
+ecp "Ag_Stuttgart RSC 1997"
 Ag nelec 28
 Ag ul
 2       1.000000000            0.000000000
@@ -1432,7 +1468,7 @@ Ag F
 2      14.220000000          -33.689920000
 2       7.110000000           -5.531120000
 end
-basis "Cd_stuttgart rsc 1997" 
+basis "Cd_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Cd    S
       9.7270110             -1.7864259
@@ -1472,7 +1508,7 @@ Cd    D
 end
 
 
-ecp "Cd_stuttgart rsc 1997"
+ecp "Cd_Stuttgart RSC 1997"
 Cd nelec 28
 Cd ul
 2       1.000000000            0.000000000
@@ -1489,7 +1525,7 @@ Cd F
 2      15.184796000          -35.476626000
 2       7.592398000           -5.617677000
 end
-basis "Cs_stuttgart rsc 1997" 
+basis "Cs_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (7s,6p) -> [5s,4p]
 Cs    S
       5.8006590              0.1273450
@@ -1516,7 +1552,7 @@ Cs    P
 end
 
 
-ecp "Cs_stuttgart rsc 1997"
+ecp "Cs_Stuttgart RSC 1997"
 Cs nelec 46
 Cs ul
 2       1.000000000            0.000000000
@@ -1532,7 +1568,7 @@ Cs D
 Cs F
 2       3.123269060          -28.884309170
 end
-basis "Ba_stuttgart rsc 1997" 
+basis "Ba_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (6s,6p,5d,1f) -> [4s,4p,2d,1f]
 Ba    S
       2.3961900             -5.9288950
@@ -1566,7 +1602,7 @@ Ba    F
 end
 
 
-ecp "Ba_stuttgart rsc 1997"
+ecp "Ba_Stuttgart RSC 1997"
 Ba nelec 46
 Ba ul
 2       1.000000000            0.000000000
@@ -1582,7 +1618,7 @@ Ba D
 Ba F
 2       3.589465000          -33.473174000
 end
-basis "Ce_stuttgart rsc 1997" 
+basis "Ce_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,19p,9d,8f) -> [5s,5p,4d,3f]
 Ce    S
    3898.5983000              0.0001397
@@ -1672,7 +1708,7 @@ Ce    F
 end
 
 
-ecp "Ce_stuttgart rsc 1997"
+ecp "Ce_Stuttgart RSC 1997"
 Ce nelec 28
 Ce ul
 2       1.000000000            0.000000000
@@ -1687,7 +1723,7 @@ Ce F
 Ce G
 2      16.570553000          -21.331879000
 end
-basis "Pr_stuttgart rsc 1997" 
+basis "Pr_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,19p,9d,8f) -> [5s,5p,4d,3f]
 Pr    S
    3975.1773000              0.0002373
@@ -1777,7 +1813,7 @@ Pr    F
 end
 
 
-ecp "Pr_stuttgart rsc 1997"
+ecp "Pr_Stuttgart RSC 1997"
 Pr nelec 28
 Pr ul
 2       1.000000000            0.000000000
@@ -1792,7 +1828,7 @@ Pr F
 Pr G
 2      17.447138000          -22.329488000
 end
-basis "Nd_stuttgart rsc 1997" 
+basis "Nd_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,17p,8d,8f) -> [5s,5p,4d,3f]
 Nd    S
    6051.8923000              0.0002765
@@ -1832,14 +1868,6 @@ Nd    S
 Nd    S
       0.0216880              1.0000000
 Nd    P
-    651.6898600              0.0600000
-    152.6745800             -0.0003917
-     25.7209520             -0.0021433
-     12.6525050             -0.0625062
-      9.0166860              0.4201090
-      3.8439910             -0.2219939
-      1.9018100             -0.6589373
-Nd    P
     651.6898600             -0.0004320
     152.6745800             -0.0001679
      25.7209520             -0.0011275
@@ -1847,6 +1875,14 @@ Nd    P
       9.0166860              0.2001852
       3.8439910             -0.1332287
       1.9018100             -0.3519744
+Nd    P
+    651.6898600              0.0600000
+    152.6745800             -0.0003917
+     25.7209520             -0.0021433
+     12.6525050             -0.0625062
+      9.0166860              0.4201090
+      3.8439910             -0.2219939
+      1.9018100             -0.6589373
 Nd    P
       0.8270980              1.0000000
 Nd    P
@@ -1879,7 +1915,7 @@ Nd    F
 end
 
 
-ecp "Nd_stuttgart rsc 1997"
+ecp "Nd_Stuttgart RSC 1997"
 Nd nelec 28
 Nd ul
 2       1.000000000            0.000000000
@@ -1894,7 +1930,7 @@ Nd F
 Nd G
 2      18.344174000          -23.344587000
 end
-basis "Pm_stuttgart rsc 1997" 
+basis "Pm_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,19p,9d,8f) -> [5s,5p,4d,3f]
 Pm    S
    8586.5898000              0.0003653
@@ -1984,7 +2020,7 @@ Pm    F
 end
 
 
-ecp "Pm_stuttgart rsc 1997"
+ecp "Pm_Stuttgart RSC 1997"
 Pm nelec 28
 Pm ul
 2       1.000000000            0.000000000
@@ -1999,7 +2035,7 @@ Pm F
 Pm G
 2      19.260245000          -24.372510000
 end
-basis "Sm_stuttgart rsc 1997" 
+basis "Sm_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,19p,9d,8f) -> [5s,5p,4d,3f]
 Sm    S
    8882.9526000              0.0011941
@@ -2089,7 +2125,7 @@ Sm    F
 end
 
 
-ecp "Sm_stuttgart rsc 1997"
+ecp "Sm_Stuttgart RSC 1997"
 Sm nelec 28
 Sm ul
 2       1.000000000            0.000000000
@@ -2104,7 +2140,7 @@ Sm F
 Sm G
 2      20.197249000          -25.421885000
 end
-basis "Eu_stuttgart rsc 1997" 
+basis "Eu_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,19p,9d,8f) -> [5s,5p,4d,3f]
 Eu    S
    9690.5531000              0.0010812
@@ -2194,7 +2230,7 @@ Eu    F
 end
 
 
-ecp "Eu_stuttgart rsc 1997"
+ecp "Eu_Stuttgart RSC 1997"
 Eu nelec 28
 Eu ul
 2       1.000000000            0.000000000
@@ -2209,7 +2245,7 @@ Eu F
 Eu G
 2      21.232458000          -26.748273000
 end
-basis "Gd_stuttgart rsc 1997" 
+basis "Gd_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,19p,9d,8f) -> [5s,5p,4d,3f]
 Gd    S
    9364.7015000              0.0015216
@@ -2299,7 +2335,7 @@ Gd    F
 end
 
 
-ecp "Gd_stuttgart rsc 1997"
+ecp "Gd_Stuttgart RSC 1997"
 Gd nelec 28
 Gd ul
 2       1.000000000            0.000000000
@@ -2314,7 +2350,7 @@ Gd F
 Gd G
 2      22.131887000          -27.579630000
 end
-basis "Tb_stuttgart rsc 1997" 
+basis "Tb_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,19p,9d,8f) -> [5s,5p,4d,3f]
 Tb    S
    9271.4027000              0.0016799
@@ -2404,7 +2440,7 @@ Tb    F
 end
 
 
-ecp "Tb_stuttgart rsc 1997"
+ecp "Tb_Stuttgart RSC 1997"
 Tb nelec 28
 Tb ul
 2       1.000000000            0.000000000
@@ -2419,7 +2455,7 @@ Tb F
 Tb G
 2      23.130672000          -28.694268000
 end
-basis "Dy_stuttgart rsc 1997" 
+basis "Dy_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,19p,9d,8f) -> [5s,5p,4d,3f]
 Dy    S
   25734.6320000              0.0005629
@@ -2509,7 +2545,7 @@ Dy    F
 end
 
 
-ecp "Dy_stuttgart rsc 1997"
+ecp "Dy_Stuttgart RSC 1997"
 Dy nelec 28
 Dy ul
 2       1.000000000            0.000000000
@@ -2524,7 +2560,7 @@ Dy F
 Dy G
 2      24.148753000          -29.828277000
 end
-basis "Ho_stuttgart rsc 1997" 
+basis "Ho_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,19p,9d,8f) -> [5s,5p,4d,3f]
 Ho    S
    3496.2941000              0.0028125
@@ -2614,7 +2650,7 @@ Ho    F
 end
 
 
-ecp "Ho_stuttgart rsc 1997"
+ecp "Ho_Stuttgart RSC 1997"
 Ho nelec 28
 Ho ul
 2       1.000000000            0.000000000
@@ -2629,7 +2665,7 @@ Ho F
 Ho G
 2      25.188501000          -30.991125000
 end
-basis "Er_stuttgart rsc 1997" 
+basis "Er_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,17p,8d,8f) -> [5s,5p,4d,3f]
 Er    S
    3681.2327160              0.0023105
@@ -2669,14 +2705,6 @@ Er    S
 Er    S
       0.0216620              1.0000000
 Er    P
-   1817.3023890              0.0006906
-    433.8723000              0.0050165
-    140.1999780              0.0161626
-     44.8217270              0.0463275
-     15.7038740             -0.2032972
-      6.9506630              0.4950100
-      3.2975840              0.5957159
-Er    P
    1817.3023890             -0.0003937
     433.8723000             -0.0025574
     140.1999780             -0.0097092
@@ -2684,6 +2712,14 @@ Er    P
      15.7038740              0.0833318
       6.9506630             -0.3034462
       3.2975840             -0.2809445
+Er    P
+   1817.3023890              0.0006906
+    433.8723000              0.0050165
+    140.1999780              0.0161626
+     44.8217270              0.0463275
+     15.7038740             -0.2032972
+      6.9506630              0.4950100
+      3.2975840              0.5957159
 Er    P
       1.2682820              1.0000000
 Er    P
@@ -2716,7 +2752,7 @@ Er    F
 end
 
 
-ecp "Er_stuttgart rsc 1997"
+ecp "Er_Stuttgart RSC 1997"
 Er nelec 28
 Er ul
 2       1.000000000            0.000000000
@@ -2731,7 +2767,7 @@ Er F
 Er G
 2      26.250735000          -32.185278000
 end
-basis "Tm_stuttgart rsc 1997" 
+basis "Tm_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,17p,8d,8f) -> [5s,5p,4d,3f]
 Tm    S
    3848.7352510              0.0020315
@@ -2771,14 +2807,6 @@ Tm    S
 Tm    S
       0.0219900              1.0000000
 Tm    P
-   2080.7927150              0.0007364
-    494.9666950              0.0054991
-    158.3405590              0.0193020
-     51.6367510              0.0478429
-     13.8972510             -0.2603774
-      7.9923310              0.5031765
-      3.5902200              0.6346706
-Tm    P
    2080.7927150             -0.0004310
     494.9666950             -0.0029714
     158.3405590             -0.0116924
@@ -2786,6 +2814,14 @@ Tm    P
      13.8972510              0.1117222
       7.9923310             -0.3033181
       3.5902200             -0.3165912
+Tm    P
+   2080.7927150              0.0007364
+    494.9666950              0.0054991
+    158.3405590              0.0193020
+     51.6367510              0.0478429
+     13.8972510             -0.2603774
+      7.9923310              0.5031765
+      3.5902200              0.6346706
 Tm    P
       1.4315150              1.0000000
 Tm    P
@@ -2818,7 +2854,7 @@ Tm    F
 end
 
 
-ecp "Tm_stuttgart rsc 1997"
+ecp "Tm_Stuttgart RSC 1997"
 Tm nelec 28
 Tm ul
 2       1.000000000            0.000000000
@@ -2833,7 +2869,7 @@ Tm F
 Tm G
 2      27.329781000          -33.395496000
 end
-basis "Yb_stuttgart rsc 1997" 
+basis "Yb_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (32s,17p,8d,8f) -> [5s,5p,4d,3f]
 Yb    S
    3904.9209000              0.0018267
@@ -2873,14 +2909,6 @@ Yb    S
 Yb    S
       0.0213480              1.0000000
 Yb    P
-   2181.7019000              0.0008167
-    518.8123000              0.0061056
-    165.8531600              0.0215928
-     54.6092410              0.0512497
-     14.0623580             -0.2651420
-      8.3744620              0.5179153
-      3.7346160              0.6290642
-Yb    P
    2181.7019000             -0.0004861
     518.8123000             -0.0033905
     165.8531600             -0.0132652
@@ -2888,6 +2916,14 @@ Yb    P
      14.0623580              0.1128065
       8.3744620             -0.3134685
       3.7346160             -0.3107733
+Yb    P
+   2181.7019000              0.0008167
+    518.8123000              0.0061056
+    165.8531600              0.0215928
+     54.6092410              0.0512497
+     14.0623580             -0.2651420
+      8.3744620              0.5179153
+      3.7346160              0.6290642
 Yb    P
       1.4920890              1.0000000
 Yb    P
@@ -2920,7 +2956,7 @@ Yb    F
 end
 
 
-ecp "Yb_stuttgart rsc 1997"
+ecp "Yb_Stuttgart RSC 1997"
 Yb nelec 28
 Yb ul
 2       1.000000000            0.000000000
@@ -2935,7 +2971,7 @@ Yb F
 Yb G
 2      28.431028000          -34.638638000
 end
-basis "Hf_stuttgart rsc 1997" 
+basis "Hf_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Hf    S
      14.5924850             -0.7993444
@@ -2975,7 +3011,7 @@ Hf    D
 end
 
 
-ecp "Hf_stuttgart rsc 1997"
+ecp "Hf_Stuttgart RSC 1997"
 Hf nelec 60
 Hf ul
 2       1.000000000            0.000000000
@@ -2993,7 +3029,7 @@ Hf F
 Hf G
 2       2.632400000           -9.558244000
 end
-basis "Ta_stuttgart rsc 1997" 
+basis "Ta_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Ta    S
      13.9511050             -1.4929085
@@ -3033,7 +3069,7 @@ Ta    D
 end
 
 
-ecp "Ta_stuttgart rsc 1997"
+ecp "Ta_Stuttgart RSC 1997"
 Ta nelec 60
 Ta ul
 2       1.000000000            0.000000000
@@ -3051,7 +3087,7 @@ Ta F
 Ta G
 2       3.040330000          -11.728933000
 end
-basis "W_stuttgart rsc 1997" 
+basis "W_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 W    S
      14.2907290             -1.4086099
@@ -3091,7 +3127,7 @@ W    D
 end
 
 
-ecp "W_stuttgart rsc 1997"
+ecp "W_Stuttgart RSC 1997"
 W nelec 60
 W ul
 2       1.000000000            0.000000000
@@ -3109,7 +3145,7 @@ W F
 W G
 2       3.464110000          -14.056435000
 end
-basis "Re_stuttgart rsc 1997" 
+basis "Re_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Re    S
      14.7818620             -1.1410382
@@ -3149,7 +3185,7 @@ Re    D
 end
 
 
-ecp "Re_stuttgart rsc 1997"
+ecp "Re_Stuttgart RSC 1997"
 Re nelec 60
 Re ul
 2       1.000000000            0.000000000
@@ -3167,7 +3203,7 @@ Re F
 Re G
 2       3.901245000          -16.501120000
 end
-basis "Os_stuttgart rsc 1997" 
+basis "Os_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Os    S
      15.2867360             -1.0664147
@@ -3207,7 +3243,7 @@ Os    D
 end
 
 
-ecp "Os_stuttgart rsc 1997"
+ecp "Os_Stuttgart RSC 1997"
 Os nelec 60
 Os ul
 2       1.000000000            0.000000000
@@ -3225,7 +3261,7 @@ Os F
 Os G
 2       4.349905000          -19.027595000
 end
-basis "Ir_stuttgart rsc 1997" 
+basis "Ir_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Ir    S
      15.2937090             -1.6750339
@@ -3265,7 +3301,7 @@ Ir    D
 end
 
 
-ecp "Ir_stuttgart rsc 1997"
+ecp "Ir_Stuttgart RSC 1997"
 Ir nelec 60
 Ir ul
 2       1.000000000            0.000000000
@@ -3283,7 +3319,7 @@ Ir F
 Ir G
 2       4.808857000          -21.607597000
 end
-basis "Pt_stuttgart rsc 1997" 
+basis "Pt_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d) -> [6s,5p,3d]
 Pt    S
      16.5595630             -0.8849447
@@ -3323,7 +3359,7 @@ Pt    D
 end
 
 
-ecp "Pt_stuttgart rsc 1997"
+ecp "Pt_Stuttgart RSC 1997"
 Pt nelec 60
 Pt ul
 2       1.000000000            0.000000000
@@ -3341,7 +3377,7 @@ Pt F
 Pt G
 2       5.277289000          -24.218675000
 end
-basis "Au_stuttgart rsc 1997" 
+basis "Au_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,6p,5d) -> [7s,3p,4d]
 Au    S
      30.1965370              0.0047330
@@ -3379,7 +3415,7 @@ Au    D
 end
 
 
-ecp "Au_stuttgart rsc 1997"
+ecp "Au_Stuttgart RSC 1997"
 Au nelec 60
 Au ul
 2       1.000000000            0.000000000
@@ -3396,7 +3432,7 @@ Au F
 2       4.789800000           30.568475000
 2       2.394910000            5.183774000
 end
-basis "Hg_stuttgart rsc 1997" 
+basis "Hg_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,8p,7d) -> [6s,6p,4d]
 Hg    S
      20.4111810             -0.0449360
@@ -3440,7 +3476,7 @@ Hg    D
 end
 
 
-ecp "Hg_stuttgart rsc 1997"
+ecp "Hg_Stuttgart RSC 1997"
 Hg nelec 60
 Hg ul
 2       1.000000000            0.000000000
@@ -3458,16 +3494,16 @@ Hg F
 Hg G
 2       6.241000000          -29.473118000
 end
-basis "Ac_stuttgart rsc 1997" 
+basis "Ac_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 Ac    S
-   1572.4818000              0.0004210
-    194.8882200              0.0021330
-     22.8237570             -0.4599690
-     17.6917400              1.1257390
-      9.4616520             -1.3780600
-      2.3686830              1.0913790
-      1.2406030              0.3671320
+   1572.4818000              0.0000950
+    194.8882200              0.0003550
+     22.8237570             -0.0720010
+     17.6917400              0.1879730
+      9.4616520             -0.2638450
+      2.3686830              0.3672530
+      1.2406030              0.1634170
 Ac    S
    1572.4818000             -0.0002820
     194.8882200             -0.0010860
@@ -3477,13 +3513,13 @@ Ac    S
       2.3686830             -1.0226250
       1.2406030             -0.4158320
 Ac    S
-   1572.4818000              0.0000950
-    194.8882200              0.0003550
-     22.8237570             -0.0720010
-     17.6917400              0.1879730
-      9.4616520             -0.2638450
-      2.3686830              0.3672530
-      1.2406030              0.1634170
+   1572.4818000              0.0004210
+    194.8882200              0.0021330
+     22.8237570             -0.4599690
+     17.6917400              1.1257390
+      9.4616520             -1.3780600
+      2.3686830              1.0913790
+      1.2406030              0.3671320
 Ac    S
       0.5507620              1.0000000
 Ac    S
@@ -3495,19 +3531,19 @@ Ac    S
 Ac    S
       0.0100000              1.0000000
 Ac    P
-    395.6559300              0.0006360
-     90.7673010              0.0033780
-     13.1937000              0.1628330
-      9.0364760             -0.3429890
-      7.4036260             -0.0864890
-      2.8751460              0.6162380
-Ac    P
     395.6559300             -0.0003570
      90.7673010             -0.0021120
      13.1937000             -0.0940830
       9.0364760              0.2621430
       7.4036260             -0.0430210
       2.8751460             -0.4221520
+Ac    P
+    395.6559300              0.0006360
+     90.7673010              0.0033780
+     13.1937000              0.1628330
+      9.0364760             -0.3429890
+      7.4036260             -0.0864890
+      2.8751460              0.6162380
 Ac    P
       1.4671050              1.0000000
 Ac    P
@@ -3519,19 +3555,19 @@ Ac    P
 Ac    P
       0.0100000              1.0000000
 Ac    D
-     80.6989110              0.0006710
-     62.8261320             -0.0006570
-     14.7760670              0.0443170
-      9.7071180             -0.1533040
-      3.2974940              0.3803140
-      1.7049140              0.5137960
-Ac    D
      80.6989110              0.0000460
      62.8261320             -0.0001620
      14.7760670             -0.0103830
       9.7071180              0.0396380
       3.2974940             -0.1158890
       1.7049140             -0.1615060
+Ac    D
+     80.6989110              0.0006710
+     62.8261320             -0.0006570
+     14.7760670              0.0443170
+      9.7071180             -0.1533040
+      3.2974940              0.3803140
+      1.7049140              0.5137960
 Ac    D
       0.8304790              1.0000000
 Ac    D
@@ -3555,7 +3591,7 @@ Ac    F
 end
 
 
-ecp "Ac_stuttgart rsc 1997"
+ecp "Ac_Stuttgart RSC 1997"
 Ac nelec 60
 Ac ul
 2       1.000000000            0.000000000
@@ -3570,16 +3606,16 @@ Ac F
 Ac G
 2      11.027732330          -51.615241810
 end
-basis "Th_stuttgart rsc 1997" 
+basis "Th_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 Th    S
-   1834.8687000              0.0014680
-    274.5242800              0.0060940
-     22.1589870             -0.4781150
-     17.4471510              1.2447620
-     10.0221390             -1.4731330
-      2.4475020              1.1370390
-      1.2480240              0.3262195
+   1834.8687000              0.0005130
+    274.5242800              0.0020420
+     22.1589870             -0.0720310
+     17.4471510              0.2128480
+     10.0221390             -0.2992180
+      2.4475020              0.4298010
+      1.2480240              0.1453152
 Th    S
    1834.8687000             -0.0013650
     274.5242800             -0.0054400
@@ -3589,13 +3625,13 @@ Th    S
       2.4475020             -1.1352220
       1.2480240             -0.3403006
 Th    S
-   1834.8687000              0.0005130
-    274.5242800              0.0020420
-     22.1589870             -0.0720310
-     17.4471510              0.2128480
-     10.0221390             -0.2992180
-      2.4475020              0.4298010
-      1.2480240              0.1453152
+   1834.8687000              0.0014680
+    274.5242800              0.0060940
+     22.1589870             -0.4781150
+     17.4471510              1.2447620
+     10.0221390             -1.4731330
+      2.4475020              1.1370390
+      1.2480240              0.3262195
 Th    S
       0.5715760              1.0000000
 Th    S
@@ -3607,19 +3643,19 @@ Th    S
 Th    S
       0.0100000              1.0000000
 Th    P
-    368.6037500              0.0011550
-     84.9639590              0.0058000
-     14.3363210              0.1258890
-      9.0364760             -0.3137010
-      7.0510730             -0.0676230
-      2.9648710              0.6216730
-Th    P
     368.6037500             -0.0007210
      84.9639590             -0.0038530
      14.3363210             -0.0789750
       9.0364760              0.2632260
       7.0510730             -0.0721940
       2.9648710             -0.4279380
+Th    P
+    368.6037500              0.0011550
+     84.9639590              0.0058000
+     14.3363210              0.1258890
+      9.0364760             -0.3137010
+      7.0510730             -0.0676230
+      2.9648710              0.6216730
 Th    P
       1.5694130              1.0000000
 Th    P
@@ -3631,19 +3667,19 @@ Th    P
 Th    P
       0.0500000              1.0000000
 Th    D
-     83.1947540              0.0006530
-     64.7692080             -0.0004340
-     14.4198460              0.0691860
-     10.6616640             -0.1694730
-      3.3354580              0.4239950
-      1.7019680              0.5092150
-Th    D
      83.1947540              0.0001160
      64.7692080             -0.0003410
      14.4198460             -0.0181450
      10.6616640              0.0485630
       3.3354580             -0.1497090
       1.7019680             -0.1832080
+Th    D
+     83.1947540              0.0006530
+     64.7692080             -0.0004340
+     14.4198460              0.0691860
+     10.6616640             -0.1694730
+      3.3354580              0.4239950
+      1.7019680              0.5092150
 Th    D
       0.8260270              1.0000000
 Th    D
@@ -3667,7 +3703,7 @@ Th    F
 end
 
 
-ecp "Th_stuttgart rsc 1997"
+ecp "Th_Stuttgart RSC 1997"
 Th nelec 60
 Th ul
 2       1.000000000            0.000000000
@@ -3682,16 +3718,16 @@ Th F
 Th G
 2      11.609024620          -55.126419060
 end
-basis "Pa_stuttgart rsc 1997" 
+basis "Pa_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 Pa    S
-   2002.4053000              0.0020910
-    299.1098700              0.0086910
-     22.3722920             -0.3477450
-     16.3292010              1.4614710
-     10.8605010             -1.8224580
-      2.5491750              1.1422390
-      1.3035050              0.3217640
+   2002.4053000              0.0008760
+    299.1098700              0.0036310
+     22.3722920             -0.0378980
+     16.3292010              0.2194210
+     10.8605010             -0.3247570
+      2.5491750              0.3901500
+      1.3035050              0.1243260
 Pa    S
    2002.4053000             -0.0023790
     299.1098700             -0.0098360
@@ -3701,13 +3737,13 @@ Pa    S
       2.5491750             -1.1234090
       1.3035050             -0.3266520
 Pa    S
-   2002.4053000              0.0008760
-    299.1098700              0.0036310
-     22.3722920             -0.0378980
-     16.3292010              0.2194210
-     10.8605010             -0.3247570
-      2.5491750              0.3901500
-      1.3035050              0.1243260
+   2002.4053000              0.0020910
+    299.1098700              0.0086910
+     22.3722920             -0.3477450
+     16.3292010              1.4614710
+     10.8605010             -1.8224580
+      2.5491750              1.1422390
+      1.3035050              0.3217640
 Pa    S
       0.5939180              1.0000000
 Pa    S
@@ -3719,19 +3755,19 @@ Pa    S
 Pa    S
       0.0100000              1.0000000
 Pa    P
-    417.6154400             -0.0006950
-     96.6970660             -0.0034960
-     13.3311120             -0.2784190
-     10.1692480              0.5134830
-      7.5624840              0.0283740
-      3.0145770             -0.6699550
-Pa    P
     417.6154400             -0.0004030
      96.6970660             -0.0022190
      13.3311120             -0.1691020
      10.1692480              0.3620800
       7.5624840             -0.0756240
       3.0145770             -0.4532580
+Pa    P
+    417.6154400             -0.0006950
+     96.6970660             -0.0034960
+     13.3311120             -0.2784190
+     10.1692480              0.5134830
+      7.5624840              0.0283740
+      3.0145770             -0.6699550
 Pa    P
       1.5665160              1.0000000
 Pa    P
@@ -3743,19 +3779,19 @@ Pa    P
 Pa    P
       0.0100000              1.0000000
 Pa    D
-     83.2578540             -0.0009380
-     17.3591040             -0.1691020
-      9.6420720              0.3620800
-      3.7121730             -0.3535420
-      1.9839250             -0.5060410
-      0.9917990             -0.2584600
-Pa    D
      83.2578540             -0.0003880
      17.3591040             -0.0232680
       9.6420720              0.1120820
       3.7121730             -0.1328340
       1.9839250             -0.1819370
       0.9917990             -0.0076770
+Pa    D
+     83.2578540             -0.0009380
+     17.3591040             -0.1691020
+      9.6420720              0.3620800
+      3.7121730             -0.3535420
+      1.9839250             -0.5060410
+      0.9917990             -0.2584600
 Pa    D
       0.4329420              1.0000000
 Pa    D
@@ -3779,7 +3815,7 @@ Pa    F
 end
 
 
-ecp "Pa_stuttgart rsc 1997"
+ecp "Pa_Stuttgart RSC 1997"
 Pa nelec 60
 Pa ul
 2       1.000000000            0.000000000
@@ -3794,16 +3830,16 @@ Pa F
 Pa G
 2      12.201056010          -57.630599890
 end
-basis "U_stuttgart rsc 1997" 
+basis "U_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 U    S
-   1534.9336000              0.0009200
-    227.7483800              0.0036820
-     30.6968310             -0.1502310
-     18.1706260              0.9039950
-     10.8135370             -1.4859220
-      2.7332980              1.1244040
-      1.4314980              0.3510760
+   1534.9336000              0.0002230
+    227.7483800              0.0007220
+     30.6968310             -0.0217020
+     18.1706260              0.1497960
+     10.8135370             -0.2761100
+      2.7332980              0.3765790
+      1.4314980              0.1244080
 U    S
    1534.9336000             -0.0006950
     227.7483800             -0.0022930
@@ -3813,13 +3849,13 @@ U    S
       2.7332980             -1.1157580
       1.4314980             -0.3336500
 U    S
-   1534.9336000              0.0002230
-    227.7483800              0.0007220
-     30.6968310             -0.0217020
-     18.1706260              0.1497960
-     10.8135370             -0.2761100
-      2.7332980              0.3765790
-      1.4314980              0.1244080
+   1534.9336000              0.0009200
+    227.7483800              0.0036820
+     30.6968310             -0.1502310
+     18.1706260              0.9039950
+     10.8135370             -1.4859220
+      2.7332980              1.1244040
+      1.4314980              0.3510760
 U    S
       0.6152980              1.0000000
 U    S
@@ -3831,19 +3867,19 @@ U    S
 U    S
       0.0050000              1.0000000
 U    P
-    553.3452500             -0.0016100
-    109.2550100             -0.0110870
-     23.4760300             -0.0466190
-      6.7944720              0.6441530
-      5.4323190             -0.5204550
-      2.7021690             -0.6311540
-U    P
     553.3452500             -0.0010750
     109.2550100             -0.0080420
      23.4760300             -0.0279690
       6.7944720              0.4690490
       5.4323190             -0.4926390
       2.7021690             -0.3757660
+U    P
+    553.3452500             -0.0016100
+    109.2550100             -0.0110870
+     23.4760300             -0.0466190
+      6.7944720              0.6441530
+      5.4323190             -0.5204550
+      2.7021690             -0.6311540
 U    P
       1.4938570              1.0000000
 U    P
@@ -3855,19 +3891,19 @@ U    P
 U    P
       0.0050000              1.0000000
 U    D
-     81.2028580             -0.0016200
-     18.3255750             -0.0251810
-     10.4546990              0.0896320
-      3.6663120             -0.4094290
-      1.9233490             -0.4822600
-      0.9896380             -0.2109030
-U    D
      81.2028580             -0.0006390
      18.3255750             -0.0070210
      10.4546990              0.0266420
       3.6663120             -0.1571320
       1.9233490             -0.1575720
       0.9896380             -0.0011000
+U    D
+     81.2028580             -0.0016200
+     18.3255750             -0.0251810
+     10.4546990              0.0896320
+      3.6663120             -0.4094290
+      1.9233490             -0.4822600
+      0.9896380             -0.2109030
 U    D
       0.4953460              1.0000000
 U    D
@@ -3891,7 +3927,7 @@ U    F
 end
 
 
-ecp "U_stuttgart rsc 1997"
+ecp "U_Stuttgart RSC 1997"
 U nelec 60
 U ul
 2       1.000000000            0.000000000
@@ -3906,16 +3942,16 @@ U F
 U G
 2      12.804088440          -60.129989580
 end
-basis "Np_stuttgart rsc 1997" 
+basis "Np_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 Np    S
-   2190.2397000              0.0016290
-    327.2110000              0.0066780
-     23.4184550             -0.7538880
-     19.1654450              1.7777570
-     11.8053650             -1.7432160
-      2.7789240              1.1741170
-      1.3880840              0.3000390
+   2190.2397000              0.0005830
+    327.2110000              0.0023370
+     23.4184550             -0.1004000
+     19.1654450              0.2663740
+     11.8053650             -0.3083690
+      2.7789240              0.3941790
+      1.3880840              0.0965120
 Np    S
    2190.2397000             -0.0017020
     327.2110000             -0.0068140
@@ -3925,13 +3961,13 @@ Np    S
       2.7789240             -1.1804790
       1.3880840             -0.2595090
 Np    S
-   2190.2397000              0.0005830
-    327.2110000              0.0023370
-     23.4184550             -0.1004000
-     19.1654450              0.2663740
-     11.8053650             -0.3083690
-      2.7789240              0.3941790
-      1.3880840              0.0965120
+   2190.2397000              0.0016290
+    327.2110000              0.0066780
+     23.4184550             -0.7538880
+     19.1654450              1.7777570
+     11.8053650             -1.7432160
+      2.7789240              1.1741170
+      1.3880840              0.3000390
 Np    S
       0.6355180              1.0000000
 Np    S
@@ -3943,19 +3979,19 @@ Np    S
 Np    S
       0.0050000              1.0000000
 Np    P
-    416.5659100             -0.0018040
-     96.8955320             -0.0090630
-     17.7830130             -0.0995790
-     10.5868080              0.2030910
-      7.5137870              0.1564380
-      3.2744940             -0.7138790
-Np    P
     416.5659100             -0.0011790
      96.8955320             -0.0061830
      17.7830130             -0.0651970
      10.5868080              0.1826590
       7.5137870             -0.0099950
       3.2744940             -0.4917930
+Np    P
+    416.5659100             -0.0018040
+     96.8955320             -0.0090630
+     17.7830130             -0.0995790
+     10.5868080              0.2030910
+      7.5137870              0.1564380
+      3.2744940             -0.7138790
 Np    P
       1.6177210              1.0000000
 Np    P
@@ -3967,19 +4003,19 @@ Np    P
 Np    P
       0.0050000              1.0000000
 Np    D
-     86.2184090             -0.0017010
-     19.7704340             -0.0225000
-     10.5590790              0.0877190
-      3.8534690             -0.4011110
-      2.0447940             -0.4834120
-      1.0429010             -0.2228560
-Np    D
      86.2184090             -0.0006770
      19.7704340             -0.0063200
      10.5590790              0.0261920
       3.8534690             -0.1548970
       2.0447940             -0.1632410
       1.0429010              0.0126180
+Np    D
+     86.2184090             -0.0017010
+     19.7704340             -0.0225000
+     10.5590790              0.0877190
+      3.8534690             -0.4011110
+      2.0447940             -0.4834120
+      1.0429010             -0.2228560
 Np    D
       0.4789090              1.0000000
 Np    D
@@ -4003,7 +4039,7 @@ Np    F
 end
 
 
-ecp "Np_stuttgart rsc 1997"
+ecp "Np_Stuttgart RSC 1997"
 Np nelec 60
 Np ul
 2       1.000000000            0.000000000
@@ -4018,16 +4054,16 @@ Np F
 Np G
 2      13.418322530          -62.626185080
 end
-basis "Pu_stuttgart rsc 1997" 
+basis "Pu_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 Pu    S
-    948.6802700              0.0004970
-     54.7157830              0.0586090
-     35.2962050             -0.4447490
-     24.2905010              0.9364490
-     11.2927920             -1.3158550
-      3.0681880              1.1328390
-      1.5936980              0.3727500
+    948.6802700              0.0000900
+     54.7157830              0.0069550
+     35.2962050             -0.0620050
+     24.2905010              0.1449640
+     11.2927920             -0.2418270
+      3.0681880              0.3646010
+      1.5936980              0.1371870
 Pu    S
     948.6802700             -0.0002970
      54.7157830             -0.0243420
@@ -4037,13 +4073,13 @@ Pu    S
       3.0681880             -1.1133380
       1.5936980             -0.3754250
 Pu    S
-    948.6802700              0.0000900
-     54.7157830              0.0069550
-     35.2962050             -0.0620050
-     24.2905010              0.1449640
-     11.2927920             -0.2418270
-      3.0681880              0.3646010
-      1.5936980              0.1371870
+    948.6802700              0.0004970
+     54.7157830              0.0586090
+     35.2962050             -0.4447490
+     24.2905010              0.9364490
+     11.2927920             -1.3158550
+      3.0681880              1.1328390
+      1.5936980              0.3727500
 Pu    S
       0.6944740              1.0000000
 Pu    S
@@ -4055,19 +4091,19 @@ Pu    S
 Pu    S
       0.0050000              1.0000000
 Pu    P
-    451.8370400             -0.0029490
-    105.1251900             -0.0149530
-     25.3262620             -0.0501300
-      6.7690460              1.0068580
-      5.7127970             -0.9841680
-      2.4639650             -0.7396360
-Pu    P
     451.8370400             -0.0020620
     105.1251900             -0.0114820
      25.3262620             -0.0308290
       6.7690460              0.7155240
       5.7127970             -0.8065390
       2.4639650             -0.4680630
+Pu    P
+    451.8370400             -0.0029490
+    105.1251900             -0.0149530
+     25.3262620             -0.0501300
+      6.7690460              1.0068580
+      5.7127970             -0.9841680
+      2.4639650             -0.7396360
 Pu    P
       1.1565570              1.0000000
 Pu    P
@@ -4115,7 +4151,7 @@ Pu    F
 end
 
 
-ecp "Pu_stuttgart rsc 1997"
+ecp "Pu_Stuttgart RSC 1997"
 Pu nelec 60
 Pu ul
 2       1.000000000            0.000000000
@@ -4130,16 +4166,16 @@ Pu F
 Pu G
 2      14.043996550          -65.121216110
 end
-basis "Am_stuttgart rsc 1997" 
+basis "Am_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 Am    S
-   1000.1312000              0.0007160
-     62.3077550              0.0571560
-     43.5832070             -0.2089470
-     21.9188100              0.8411990
-     12.1795800             -1.4450590
-      3.1646970              1.1495110
-      1.6284870              0.3491380
+   1000.1312000             -0.0001300
+     62.3077550             -0.0067790
+     43.5832070              0.0276880
+     21.9188100             -0.1341420
+     12.1795800              0.2624010
+      3.1646970             -0.3739470
+      1.6284870             -0.1157300
 Am    S
    1000.1312000             -0.0004340
      62.3077550             -0.0239700
@@ -4149,13 +4185,13 @@ Am    S
       3.1646970             -1.1514680
       1.6284870             -0.3161580
 Am    S
-   1000.1312000             -0.0001300
-     62.3077550             -0.0067790
-     43.5832070              0.0276880
-     21.9188100             -0.1341420
-     12.1795800              0.2624010
-      3.1646970             -0.3739470
-      1.6284870             -0.1157300
+   1000.1312000              0.0007160
+     62.3077550              0.0571560
+     43.5832070             -0.2089470
+     21.9188100              0.8411990
+     12.1795800             -1.4450590
+      3.1646970              1.1495110
+      1.6284870              0.3491380
 Am    S
       0.7098630              1.0000000
 Am    S
@@ -4167,19 +4203,19 @@ Am    S
 Am    S
       0.0050000              1.0000000
 Am    P
-    768.9059700             -0.0020090
-    140.8458100             -0.0161210
-     32.9380810             -0.0484820
-      6.0613440              2.1278730
-      5.4935050             -2.2579390
-      2.1982260             -0.7071510
-Am    P
     768.9059700             -0.0014770
     140.8458100             -0.0128150
      32.9380810             -0.0325530
       6.0613440              1.4833640
       5.4935050             -1.6893400
       2.1982260             -0.4138320
+Am    P
+    768.9059700             -0.0020090
+    140.8458100             -0.0161210
+     32.9380810             -0.0484820
+      6.0613440              2.1278730
+      5.4935050             -2.2579390
+      2.1982260             -0.7071510
 Am    P
       0.8908370              1.0000000
 Am    P
@@ -4227,7 +4263,7 @@ Am    F
 end
 
 
-ecp "Am_stuttgart rsc 1997"
+ecp "Am_Stuttgart RSC 1997"
 Am nelec 60
 Am ul
 2       1.000000000            0.000000000
@@ -4242,16 +4278,16 @@ Am F
 Am G
 2      14.681332890          -67.616942080
 end
-basis "Cm_stuttgart rsc 1997" 
+basis "Cm_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 Cm    S
-   2284.1055000              0.0012030
-    348.2173600              0.0051800
-     35.7104130             -0.1662490
-     21.2385120              1.0211320
-     13.0272630             -1.5954780
-      3.2603980              1.1286570
-      1.7066440              0.3578400
+   2284.1055000             -0.0003740
+    348.2173600             -0.0014020
+     35.7104130              0.0226120
+     21.2385120             -0.1633930
+     13.0272630              0.2860860
+      3.2603980             -0.3722970
+      1.7066440             -0.1045490
 Cm    S
    2284.1055000             -0.0011570
     348.2173600             -0.0043860
@@ -4261,13 +4297,13 @@ Cm    S
       3.2603980             -1.1527320
       1.7066440             -0.2890340
 Cm    S
-   2284.1055000             -0.0003740
-    348.2173600             -0.0014020
-     35.7104130              0.0226120
-     21.2385120             -0.1633930
-     13.0272630              0.2860860
-      3.2603980             -0.3722970
-      1.7066440             -0.1045490
+   2284.1055000              0.0012030
+    348.2173600              0.0051800
+     35.7104130             -0.1662490
+     21.2385120              1.0211320
+     13.0272630             -1.5954780
+      3.2603980              1.1286570
+      1.7066440              0.3578400
 Cm    S
       0.7236940              1.0000000
 Cm    S
@@ -4279,19 +4315,19 @@ Cm    S
 Cm    S
       0.0050000              1.0000000
 Cm    P
-    499.6142600             -0.0041510
-    116.6066300             -0.0211870
-     29.9707930             -0.0555130
-      6.8534290              0.9725640
-      5.7350640             -1.0033270
-      2.5508660             -0.7089510
-Cm    P
     499.6142600             -0.0031530
     116.6066300             -0.0174030
      29.9707930             -0.0379120
       6.8534290              0.6955950
       5.7350640             -0.8435490
       2.5508660             -0.4161010
+Cm    P
+    499.6142600             -0.0041510
+    116.6066300             -0.0211870
+     29.9707930             -0.0555130
+      6.8534290              0.9725640
+      5.7350640             -1.0033270
+      2.5508660             -0.7089510
 Cm    P
       1.2041380              1.0000000
 Cm    P
@@ -4339,7 +4375,7 @@ Cm    F
 end
 
 
-ecp "Cm_stuttgart rsc 1997"
+ecp "Cm_Stuttgart RSC 1997"
 Cm nelec 60
 Cm ul
 2       1.000000000            0.000000000
@@ -4354,16 +4390,16 @@ Cm F
 Cm G
 2      15.330525650          -70.114975500
 end
-basis "Bk_stuttgart rsc 1997" 
+basis "Bk_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 Bk    S
-   1574.0475000              0.0012910
-    202.9041000              0.0047410
-     36.3576810             -0.2108880
-     22.5742040              1.0599600
-     13.5688940             -1.6021150
-      3.4370830              1.1297280
-      1.8144610              0.3606940
+   1574.0475000             -0.0002870
+    202.9041000             -0.0008210
+     36.3576810              0.0304850
+     22.5742040             -0.1712280
+     13.5688940              0.2890220
+      3.4370830             -0.3717670
+      1.8144610             -0.1049380
 Bk    S
    1574.0475000             -0.0009400
     202.9041000             -0.0027580
@@ -4373,13 +4409,13 @@ Bk    S
       3.4370830             -1.1554560
       1.8144610             -0.2884240
 Bk    S
-   1574.0475000             -0.0002870
-    202.9041000             -0.0008210
-     36.3576810              0.0304850
-     22.5742040             -0.1712280
-     13.5688940              0.2890220
-      3.4370830             -0.3717670
-      1.8144610             -0.1049380
+   1574.0475000              0.0012910
+    202.9041000              0.0047410
+     36.3576810             -0.2108880
+     22.5742040              1.0599600
+     13.5688940             -1.6021150
+      3.4370830              1.1297280
+      1.8144610              0.3606940
 Bk    S
       0.7549600              1.0000000
 Bk    S
@@ -4391,19 +4427,19 @@ Bk    S
 Bk    S
       0.0050000              1.0000000
 Bk    P
-    664.8985800             -0.0032050
-    172.1981600             -0.0164610
-     57.9488000             -0.0327960
-     18.1567190             -0.1028350
-      9.4021150              0.3559200
-      4.5569430             -0.4521250
-Bk    P
     664.8985800             -0.0026970
     172.1981600             -0.0132290
      57.9488000             -0.0297340
      18.1567190             -0.0556150
       9.4021150              0.1947610
       4.5569430             -0.4217750
+Bk    P
+    664.8985800             -0.0032050
+    172.1981600             -0.0164610
+     57.9488000             -0.0327960
+     18.1567190             -0.1028350
+      9.4021150              0.3559200
+      4.5569430             -0.4521250
 Bk    P
       2.2945720              1.0000000
 Bk    P
@@ -4451,7 +4487,7 @@ Bk    F
 end
 
 
-ecp "Bk_stuttgart rsc 1997"
+ecp "Bk_Stuttgart RSC 1997"
 Bk nelec 60
 Bk ul
 2       1.000000000            0.000000000
@@ -4466,16 +4502,16 @@ Bk F
 Bk G
 2      15.991805280          -72.617188800
 end
-basis "Cf_stuttgart rsc 1997" 
+basis "Cf_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 Cf    S
-    658.1933200              0.0003390
-    126.1414500              0.0043460
-     35.2623720             -0.5836920
-     27.5784430              1.2496800
-     13.8876110             -1.4277890
-      3.6188820              1.1311520
-      1.8612300              0.3654090
+    658.1933200             -0.0000860
+    126.1414500             -0.0004070
+     35.2623720              0.0859760
+     27.5784430             -0.1944570
+     13.8876110              0.2557450
+      3.6188820             -0.3573290
+      1.8612300             -0.1236040
 Cf    S
     658.1933200             -0.0002890
     126.1414500             -0.0015150
@@ -4485,13 +4521,13 @@ Cf    S
       3.6188820             -1.1277180
       1.8612300             -0.3291180
 Cf    S
-    658.1933200             -0.0000860
-    126.1414500             -0.0004070
-     35.2623720              0.0859760
-     27.5784430             -0.1944570
-     13.8876110              0.2557450
-      3.6188820             -0.3573290
-      1.8612300             -0.1236040
+    658.1933200              0.0003390
+    126.1414500              0.0043460
+     35.2623720             -0.5836920
+     27.5784430              1.2496800
+     13.8876110             -1.4277890
+      3.6188820              1.1311520
+      1.8612300              0.3654090
 Cf    S
       0.8064390              1.0000000
 Cf    S
@@ -4503,19 +4539,19 @@ Cf    S
 Cf    S
       0.0050000              1.0000000
 Cf    P
-   1240.2831000             -0.0027720
-    294.3207800             -0.0198540
-     93.1567900             -0.0607420
-     30.4657690             -0.0979510
-      5.7999470              0.7730290
-      4.5703300             -1.0243860
-Cf    P
    1240.2831000             -0.0033250
     294.3207800             -0.0230160
      93.1567900             -0.0748220
      30.4657690             -0.1044700
       5.7999470              0.3716790
       4.5703300             -0.7432980
+Cf    P
+   1240.2831000             -0.0027720
+    294.3207800             -0.0198540
+     93.1567900             -0.0607420
+     30.4657690             -0.0979510
+      5.7999470              0.7730290
+      4.5703300             -1.0243860
 Cf    P
       1.9876320              1.0000000
 Cf    P
@@ -4527,19 +4563,19 @@ Cf    P
 Cf    P
       0.0050000              1.0000000
 Cf    D
-    124.8161600             -0.0037850
-     34.5764380             -0.0217620
-      6.3220140              0.1373750
-      4.9375690             -0.5471010
-      2.3132900             -0.5041500
-      1.0768920             -0.1680350
-Cf    D
     124.8161600              0.0012210
      34.5764380              0.0066830
       6.3220140             -0.0191070
       4.9375690              0.1544640
       2.3132900              0.1448410
       1.0768920             -0.1012240
+Cf    D
+    124.8161600             -0.0037850
+     34.5764380             -0.0217620
+      6.3220140              0.1373750
+      4.9375690             -0.5471010
+      2.3132900             -0.5041500
+      1.0768920             -0.1680350
 Cf    D
       0.4205030              1.0000000
 Cf    D
@@ -4563,7 +4599,7 @@ Cf    F
 end
 
 
-ecp "Cf_stuttgart rsc 1997"
+ecp "Cf_Stuttgart RSC 1997"
 Cf nelec 60
 Cf ul
 2       1.000000000            0.000000000
@@ -4578,16 +4614,8 @@ Cf F
 Cf G
 2      16.665369730          -75.125254930
 end
-basis "Es_stuttgart rsc 1997" 
+basis "Es_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
-Es    S
-    569.4898400             -0.0002510
-    126.1414500              0.0063860
-     36.6929340             -1.1705770
-     31.3443970              1.8415260
-     14.6949640             -1.4426230
-      3.7519800              1.1592920
-      1.8603970              0.3436210
 Es    S
     569.4898400              0.0000680
     126.1414500             -0.0027200
@@ -4605,6 +4633,14 @@ Es    S
       3.7519800             -0.3536640
       1.8603970             -0.1462040
 Es    S
+    569.4898400             -0.0002510
+    126.1414500              0.0063860
+     36.6929340             -1.1705770
+     31.3443970              1.8415260
+     14.6949640             -1.4426230
+      3.7519800              1.1592920
+      1.8603970              0.3436210
+Es    S
       0.8827170              1.0000000
 Es    S
       0.4022900              1.0000000
@@ -4615,19 +4651,19 @@ Es    S
 Es    S
       0.0050000              1.0000000
 Es    P
-   1225.7624000             -0.0036260
-    291.8689100             -0.0253370
-     92.9556850             -0.0747990
-     30.6940510             -0.1106240
-      5.1786030              1.2768250
-      4.4342190             -1.5650020
-Es    P
    1225.7624000             -0.0049870
     291.8689100             -0.0339570
      92.9556850             -0.1053000
      30.6940510             -0.1376940
       5.1786030              0.4690360
       4.4342190             -0.8650480
+Es    P
+   1225.7624000             -0.0036260
+    291.8689100             -0.0253370
+     92.9556850             -0.0747990
+     30.6940510             -0.1106240
+      5.1786030              1.2768250
+      4.4342190             -1.5650020
 Es    P
       1.8485390              1.0000000
 Es    P
@@ -4675,7 +4711,7 @@ Es    F
 end
 
 
-ecp "Es_stuttgart rsc 1997"
+ecp "Es_Stuttgart RSC 1997"
 Es nelec 60
 Es ul
 2       1.000000000            0.000000000
@@ -4690,16 +4726,8 @@ Es F
 Es G
 2      17.351456180          -77.641074780
 end
-basis "Fm_stuttgart rsc 1997" 
+basis "Fm_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
-Fm    S
-   1342.5680000              0.0000260
-     71.7280120              0.0822670
-     51.7813830             -0.3287910
-     28.3542540              1.0576970
-     15.7898240             -1.5608810
-      3.7574600              1.2227070
-      1.6557160              0.2905620
 Fm    S
    1342.5680000             -0.0000190
      71.7280120             -0.0388090
@@ -4717,6 +4745,14 @@ Fm    S
       3.7574600             -0.3783580
       1.6557160             -0.1314320
 Fm    S
+   1342.5680000              0.0000260
+     71.7280120              0.0822670
+     51.7813830             -0.3287910
+     28.3542540              1.0576970
+     15.7898240             -1.5608810
+      3.7574600              1.2227070
+      1.6557160              0.2905620
+Fm    S
       0.9042190              1.0000000
 Fm    S
       0.3989770              1.0000000
@@ -4727,19 +4763,19 @@ Fm    S
 Fm    S
       0.0051000              1.0000000
 Fm    P
-    610.4278800             -0.0133440
-    143.3444600             -0.0707280
-     41.1646390             -0.1305020
-      6.9146200             -0.7311060
-      5.6745470              1.9397490
-      4.2306310             -1.6132120
-Fm    P
     610.4278800              0.0199090
     143.3444600              0.1081790
      41.1646390              0.1905960
       6.9146200              0.5834550
       5.6745470             -1.1664560
       4.2306310              1.0801960
+Fm    P
+    610.4278800             -0.0133440
+    143.3444600             -0.0707280
+     41.1646390             -0.1305020
+      6.9146200             -0.7311060
+      5.6745470              1.9397490
+      4.2306310             -1.6132120
 Fm    P
       1.5173890              1.0000000
 Fm    P
@@ -4751,19 +4787,19 @@ Fm    P
 Fm    P
       0.0539070              1.0000000
 Fm    D
-    102.8469600             -0.0076110
-     31.1541730             -0.0315700
-      4.8008030             -0.5506070
-      3.7037030              0.2647500
-      2.7275390             -0.5890270
-      1.2871730             -0.2003160
-Fm    D
     102.8469600              0.0023540
      31.1541730              0.0102050
       4.8008030              0.2425790
       3.7037030             -0.1966520
       2.7275390              0.2294360
       1.2871730             -0.0713400
+Fm    D
+    102.8469600             -0.0076110
+     31.1541730             -0.0315700
+      4.8008030             -0.5506070
+      3.7037030              0.2647500
+      2.7275390             -0.5890270
+      1.2871730             -0.2003160
 Fm    D
       0.5586510              1.0000000
 Fm    D
@@ -4787,7 +4823,7 @@ Fm    F
 end
 
 
-ecp "Fm_stuttgart rsc 1997"
+ecp "Fm_Stuttgart RSC 1997"
 Fm nelec 60
 Fm ul
 2       1.000000000            0.000000000
@@ -4802,16 +4838,16 @@ Fm F
 Fm G
 2      18.050160510          -80.165201550
 end
-basis "Md_stuttgart rsc 1997" 
+basis "Md_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 Md    S
-   2405.6265000              0.0001090
-     64.7784960              0.2139870
-     48.4573510             -1.0859220
-     37.7800170              1.3511640
-     14.4301320             -1.3057440
-      4.4823100              1.0023400
-      2.4176700              0.5410740
+   2405.6265000              0.0000140
+     64.7784960              0.0287210
+     48.4573510             -0.1555990
+     37.7800170              0.2031250
+     14.4301320             -0.2343660
+      4.4823100              0.2904520
+      2.4176700              0.1990580
 Md    S
    2405.6265000             -0.0000530
      64.7784960             -0.1041070
@@ -4821,13 +4857,13 @@ Md    S
       4.4823100             -0.9598440
       2.4176700             -0.5401580
 Md    S
-   2405.6265000              0.0000140
-     64.7784960              0.0287210
-     48.4573510             -0.1555990
-     37.7800170              0.2031250
-     14.4301320             -0.2343660
-      4.4823100              0.2904520
-      2.4176700              0.1990580
+   2405.6265000              0.0001090
+     64.7784960              0.2139870
+     48.4573510             -1.0859220
+     37.7800170              1.3511640
+     14.4301320             -1.3057440
+      4.4823100              1.0023400
+      2.4176700              0.5410740
 Md    S
       0.9327690              1.0000000
 Md    S
@@ -4839,19 +4875,19 @@ Md    S
 Md    S
       0.0050000              1.0000000
 Md    P
-   1313.5069000             -0.0038760
-    312.4028800             -0.0270190
-     99.2732730             -0.0781210
-     32.7088600             -0.1117520
-      5.7153710              0.9002390
-      4.6020670             -1.1740350
-Md    P
    1313.5069000              0.0055800
     312.4028800              0.0378740
      99.2732730              0.1151780
      32.7088600              0.1443460
       5.7153710             -0.2988840
       4.6020670              0.6930950
+Md    P
+   1313.5069000             -0.0038760
+    312.4028800             -0.0270190
+     99.2732730             -0.0781210
+     32.7088600             -0.1117520
+      5.7153710              0.9002390
+      4.6020670             -1.1740350
 Md    P
       1.9718670              1.0000000
 Md    P
@@ -4863,19 +4899,19 @@ Md    P
 Md    P
       0.0050000              1.0000000
 Md    D
-    307.4572900             -0.0010710
-     91.3151920             -0.0077870
-     32.0211440             -0.0299950
-      5.0237610             -0.4381790
-      2.5736490             -0.4570870
-      1.2901400             -0.1779730
-Md    D
     307.4572900              0.0003550
      91.3151920              0.0022930
      32.0211440              0.0098680
       5.0237610              0.1630010
       2.5736490              0.0675120
       1.2901400              0.0347940
+Md    D
+    307.4572900             -0.0010710
+     91.3151920             -0.0077870
+     32.0211440             -0.0299950
+      5.0237610             -0.4381790
+      2.5736490             -0.4570870
+      1.2901400             -0.1779730
 Md    D
       0.6001520              1.0000000
 Md    D
@@ -4899,7 +4935,7 @@ Md    F
 end
 
 
-ecp "Md_stuttgart rsc 1997"
+ecp "Md_Stuttgart RSC 1997"
 Md nelec 60
 Md ul
 2       1.000000000            0.000000000
@@ -4914,16 +4950,16 @@ Md F
 Md G
 2      18.761791720          -82.700152850
 end
-basis "No_stuttgart rsc 1997" 
+basis "No_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 No    S
-   2330.0311000              0.0001480
-     81.8588950              0.0532530
-     51.0497040             -0.4178460
-     34.1150630              0.9091170
-     15.1988470             -1.3705530
-      4.7625830              0.9202520
-      2.6571780              0.6131350
+   2330.0311000             -0.0000190
+     81.8588950             -0.0067770
+     51.0497040              0.0597370
+     34.1150630             -0.1405690
+     15.1988470              0.2467820
+      4.7625830             -0.2673790
+      2.6571780             -0.2217780
 No    S
    2330.0311000             -0.0000730
      81.8588950             -0.0246500
@@ -4933,13 +4969,13 @@ No    S
       4.7625830             -0.8791340
       2.6571780             -0.6267760
 No    S
-   2330.0311000             -0.0000190
-     81.8588950             -0.0067770
-     51.0497040              0.0597370
-     34.1150630             -0.1405690
-     15.1988470              0.2467820
-      4.7625830             -0.2673790
-      2.6571780             -0.2217780
+   2330.0311000              0.0001480
+     81.8588950              0.0532530
+     51.0497040             -0.4178460
+     34.1150630              0.9091170
+     15.1988470             -1.3705530
+      4.7625830              0.9202520
+      2.6571780              0.6131350
 No    S
       1.0089230              1.0000000
 No    S
@@ -4951,19 +4987,19 @@ No    S
 No    S
       0.0050000              1.0000000
 No    P
-   1370.5020000             -0.0037300
-    325.7601500             -0.0260230
-    103.3824500             -0.0747960
-     33.9045800             -0.1078780
-      6.2312720              0.8930080
-      5.0642990             -1.1059360
-No    P
    1370.5020000              0.0051890
     325.7601500              0.0351590
     103.3824500              0.1067540
      33.9045800              0.1330720
       6.2312720             -0.3737440
       5.0642990              0.7306030
+No    P
+   1370.5020000             -0.0037300
+    325.7601500             -0.0260230
+    103.3824500             -0.0747960
+     33.9045800             -0.1078780
+      6.2312720              0.8930080
+      5.0642990             -1.1059360
 No    P
       2.2178180              1.0000000
 No    P
@@ -4975,19 +5011,19 @@ No    P
 No    P
       0.0050000              1.0000000
 No    D
-    274.4613600             -0.0016490
-     82.0386510             -0.0110350
-     29.5684250             -0.0364500
-      5.3492280             -0.3860160
-      2.8495450             -0.4579230
-      1.4656530             -0.2148440
-No    D
     274.4613600              0.0005220
      82.0386510              0.0030800
      29.5684250              0.0115950
       5.3492280              0.1331040
       2.8495450              0.0958040
       1.4656530              0.0027280
+No    D
+    274.4613600             -0.0016490
+     82.0386510             -0.0110350
+     29.5684250             -0.0364500
+      5.3492280             -0.3860160
+      2.8495450             -0.4579230
+      1.4656530             -0.2148440
 No    D
       0.7045840              1.0000000
 No    D
@@ -5011,7 +5047,7 @@ No    F
 end
 
 
-ecp "No_stuttgart rsc 1997"
+ecp "No_Stuttgart RSC 1997"
 No nelec 60
 No ul
 2       1.000000000            0.000000000
@@ -5026,16 +5062,16 @@ No F
 No G
 2      19.486525440          -85.247367410
 end
-basis "Lr_stuttgart rsc 1997" 
+basis "Lr_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (26s,17p,16d,8f) -> [8s,7p,6d,4f]
 Lr    S
-   1982.7739000             -0.0001510
-     74.7268880              0.5335930
-     56.1481870             -2.6608360
-     45.3463310              2.9002800
-     18.1773180             -1.5760560
-      4.5023640              1.1202220
-      2.5335700              0.3614000
+   1982.7739000              0.0000270
+     74.7268880             -0.0826640
+     56.1481870              0.4127780
+     45.3463310             -0.4526750
+     18.1773180              0.2675200
+      4.5023640             -0.3027570
+      2.5335700             -0.1810730
 Lr    S
    1982.7739000              0.0000920
      74.7268880             -0.2888620
@@ -5045,13 +5081,13 @@ Lr    S
       4.5023640             -0.9975640
       2.5335700             -0.4948920
 Lr    S
-   1982.7739000              0.0000270
-     74.7268880             -0.0826640
-     56.1481870              0.4127780
-     45.3463310             -0.4526750
-     18.1773180              0.2675200
-      4.5023640             -0.3027570
-      2.5335700             -0.1810730
+   1982.7739000             -0.0001510
+     74.7268880              0.5335930
+     56.1481870             -2.6608360
+     45.3463310              2.9002800
+     18.1773180             -1.5760560
+      4.5023640              1.1202220
+      2.5335700              0.3614000
 Lr    S
       1.1084820              1.0000000
 Lr    S
@@ -5063,19 +5099,19 @@ Lr    S
 Lr    S
       0.0130000              1.0000000
 Lr    P
-   1460.1221000             -0.0039250
-    346.6720100             -0.0275910
-    109.6248700             -0.0811490
-     35.8281330             -0.1146720
-      5.8068130              0.9940360
-      4.7083540             -1.3038040
-Lr    P
    1460.1221000              0.0059800
     346.6720100              0.0409870
     109.6248700              0.1263740
      35.8281330              0.1580190
       5.8068130             -0.2647330
       4.7083540              0.6699550
+Lr    P
+   1460.1221000             -0.0039250
+    346.6720100             -0.0275910
+    109.6248700             -0.0811490
+     35.8281330             -0.1146720
+      5.8068130              0.9940360
+      4.7083540             -1.3038040
 Lr    P
       1.9829860              1.0000000
 Lr    P
@@ -5087,19 +5123,19 @@ Lr    P
 Lr    P
       0.0500000              1.0000000
 Lr    D
-    225.5357800             -0.0044740
-     67.4038890             -0.0274530
-     24.3988100             -0.0745630
-      7.0827880             -0.1942270
-      3.6935840             -0.5037500
-      1.8145620             -0.3234790
-Lr    D
     225.5357800              0.0013800
      67.4038890              0.0086260
      24.3988100              0.0228940
       7.0827880              0.0770090
       3.6935840              0.1233010
       1.8145620              0.0407740
+Lr    D
+    225.5357800             -0.0044740
+     67.4038890             -0.0274530
+     24.3988100             -0.0745630
+      7.0827880             -0.1942270
+      3.6935840             -0.5037500
+      1.8145620             -0.3234790
 Lr    D
       0.8176850              1.0000000
 Lr    D
@@ -5123,7 +5159,7 @@ Lr    F
 end
 
 
-ecp "Lr_stuttgart rsc 1997"
+ecp "Lr_Stuttgart RSC 1997"
 Lr nelec 60
 Lr ul
 2       1.000000000            0.000000000
@@ -5138,7 +5174,7 @@ Lr F
 Lr G
 2      20.224533420          -87.807982520
 end
-basis "Db_stuttgart rsc 1997" 
+basis "Db_Stuttgart RSC 1997" SPHERICAL 
 #basis SET: (8s,7p,6d,2f,1g) -> [6s,5p,4d,2f,1g]
 Db    S
      19.8692310              0.0749940
@@ -5185,7 +5221,7 @@ Db    G
 end
 
 
-ecp "Db_stuttgart rsc 1997"
+ecp "Db_Stuttgart RSC 1997"
 Db nelec 92
 Db ul
 2       1.000000000            0.000000000

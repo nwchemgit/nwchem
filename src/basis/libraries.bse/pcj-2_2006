@@ -1,51 +1,63 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# pcj-2_2006 version number 0
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# pcJ-2_2006 version number 0
 # Description: pcJ-2_2006
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H,C-F,Si-Cl
-#     ## pcJ-2_2006
+# 
+#  References for the basis set
+# 
+#  H,C-F,Si-Cl
+#      pcJ-2_2006
+#          jensen2006a
+# 
+#  He,B,Ne,Al,Ar
+#      pcJ-2_2006
+#          jensen2007a
+# 
+# 
+# 
+# jensen2006a
 #     Jensen, Frank
 #     The Basis Set Convergence of Spin-Spin Coupling Constants Calculated
 #             by Density Functional Methods
-#     J. Chem. Theory Comput., 2, 1360-1369 (2006)
+#     J. Chem. Theory Comput. 2, 1360-1369 (2006)
 #     10.1021/ct600166u
 # 
-# He,B,Ne,Al,Ar
-#     ## pcJ-2_2006
+# jensen2007a
 #     Jensen, Frank
 #     Polarization Consistent Basis Sets. 4: The Elements He, Li, Be, B, Ne,
 #             Na, Mg, Al, and Ar
-#     J. Phys. Chem. A, 111, 11198-11204 (2007)
+#     J. Phys. Chem. A 111, 11198-11204 (2007)
 #     10.1021/jp068677h
 # 
 # # 
-basis "H_pcj-2_2006" 
+basis "H_pcJ-2_2006" SPHERICAL 
 #basis SET: (8s,3p,2d) -> [5s,3p,2d]
 H    S
       0.235696E+05           0.783660E-04
@@ -71,7 +83,7 @@ H    D
 H    D
       0.125000E+01           0.100000E+01
 end
-basis "He_pcj-2_2006" 
+basis "He_pcJ-2_2006" SPHERICAL 
 #basis SET: (8s,3p,2d) -> [5s,3p,2d]
 He    S
       0.693030E+05           0.797878E-04
@@ -97,7 +109,7 @@ He    D
 He    D
       0.180000E+01           0.100000E+01
 end
-basis "B_pcj-2_2006" 
+basis "B_pcJ-2_2006" SPHERICAL 
 #basis SET: (12s,7p,3d,2f) -> [7s,5p,3d,2f]
 B    S
       0.163139E+07           0.398080E-05
@@ -141,7 +153,7 @@ B    F
 B    F
       0.870000E+00           0.100000E+01
 end
-basis "C_pcj-2_2006" 
+basis "C_pcJ-2_2006" SPHERICAL 
 #basis SET: (12s,7p,3d,2f) -> [7s,5p,3d,2f]
 C    S
       0.245534E+07           0.394790E-05
@@ -185,7 +197,7 @@ C    F
 C    F
       0.950000E+00           0.100000E+01
 end
-basis "N_pcj-2_2006" 
+basis "N_pcJ-2_2006" SPHERICAL 
 #basis SET: (12s,7p,3d,2f) -> [7s,5p,3d,2f]
 N    S
       0.346918E+07           0.392260E-05
@@ -229,7 +241,7 @@ N    F
 N    F
       0.102000E+01           0.100000E+01
 end
-basis "O_pcj-2_2006" 
+basis "O_pcJ-2_2006" SPHERICAL 
 #basis SET: (12s,7p,3d,2f) -> [7s,5p,3d,2f]
 O    S
       0.461950E+07           0.390900E-05
@@ -273,7 +285,7 @@ O    F
 O    F
       0.110000E+01           0.100000E+01
 end
-basis "F_pcj-2_2006" 
+basis "F_pcJ-2_2006" SPHERICAL 
 #basis SET: (12s,7p,3d,2f) -> [7s,5p,3d,2f]
 F    S
       0.597718E+07           0.389500E-05
@@ -317,7 +329,7 @@ F    F
 F    F
       0.120000E+01           0.100000E+01
 end
-basis "Ne_pcj-2_2006" 
+basis "Ne_pcJ-2_2006" SPHERICAL 
 #basis SET: (12s,7p,3d,2f) -> [7s,5p,3d,2f]
 Ne    S
       0.746237E+07           0.388760E-05
@@ -361,7 +373,7 @@ Ne    F
 Ne    F
       0.130000E+01           0.100000E+01
 end
-basis "Al_pcj-2_2006" 
+basis "Al_pcJ-2_2006" SPHERICAL 
 #basis SET: (22s,11p,3d,2f) -> [8s,6p,3d,2f]
 Al    S
       0.311689E+08           0.666700E-06
@@ -421,7 +433,7 @@ Al    F
 Al    F
       0.480000E+00           0.100000E+01
 end
-basis "Si_pcj-2_2006" 
+basis "Si_pcJ-2_2006" SPHERICAL 
 #basis SET: (22s,11p,3d,2f) -> [8s,6p,3d,2f]
 Si    S
       0.375113E+08           0.665600E-06
@@ -481,7 +493,7 @@ Si    F
 Si    F
       0.540000E+00           0.100000E+01
 end
-basis "P_pcj-2_2006" 
+basis "P_pcJ-2_2006" SPHERICAL 
 #basis SET: (22s,11p,3d,2f) -> [8s,6p,3d,2f]
 P    S
       0.455262E+08           0.669000E-06
@@ -541,7 +553,7 @@ P    F
 P    F
       0.600000E+00           0.100000E+01
 end
-basis "S_pcj-2_2006" 
+basis "S_pcJ-2_2006" SPHERICAL 
 #basis SET: (22s,11p,3d,2f) -> [8s,6p,3d,2f]
 S    S
       0.537596E+08           0.669600E-06
@@ -601,7 +613,7 @@ S    F
 S    F
       0.660000E+00           0.100000E+01
 end
-basis "Cl_pcj-2_2006" 
+basis "Cl_pcJ-2_2006" SPHERICAL 
 #basis SET: (22s,11p,3d,2f) -> [8s,6p,3d,2f]
 Cl    S
       0.628606E+08           0.670500E-06
@@ -661,7 +673,7 @@ Cl    F
 Cl    F
       0.720000E+00           0.100000E+01
 end
-basis "Ar_pcj-2_2006" 
+basis "Ar_pcJ-2_2006" SPHERICAL 
 #basis SET: (22s,11p,3d,2f) -> [8s,6p,3d,2f]
 Ar    S
       0.726592E+08           0.672100E-06

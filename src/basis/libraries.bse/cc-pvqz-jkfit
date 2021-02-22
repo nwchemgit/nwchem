@@ -1,43 +1,52 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# cc-pvqz-jkfit version number 1
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# cc-pVQZ-JKFIT version number 1
 # Description: JK Fitting basis for use with cc-pVQZ
 # Role: jkfit
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H,B-F,Al-Cl,Ga-Br
-#     ## JK Fitting basis for use with cc-pVQZ
+# 
+#  References for the basis set
+# 
+#  H,B-F,Al-Cl,Ga-Br
+#      JK Fitting basis for use with cc-pVQZ
+#          weigend2002b
+# 
+# 
+# 
+# weigend2002b
 #     Weigend, Florian
 #     A fully direct RI-HF algorithm: Implementation, optimised auxiliary
 #             basis sets, demonstration of accuracy and efficiency
-#     Phys. Chem. Chem. Phys., 4, 4285-4291 (2002)
+#     Phys. Chem. Chem. Phys. 4, 4285-4291 (2002)
 #     10.1039/B204199P
 # 
 # # 
-basis "H_cc-pvqz-jkfit" 
+basis "H_cc-pVQZ-JKFIT" SPHERICAL 
 #basis SET: (4s,3p,3d,2f,1g) -> [4s,3p,3d,2f,1g]
 H    S
       9.5302493327           1.0000000
@@ -66,7 +75,7 @@ H    F
 H    G
       1.4752662714           1.0000000
 end
-basis "B_cc-pvqz-jkfit" 
+basis "B_cc-pVQZ-JKFIT" SPHERICAL 
 #basis SET: (10s,7p,5d,3f,2g,1h) -> [10s,7p,5d,3f,2g,1h]
 B    S
     441.88913157             1.0000000
@@ -125,7 +134,7 @@ B    G
 B    H
        .74228500000000000000 1.0000000
 end
-basis "C_cc-pvqz-jkfit" 
+basis "C_cc-pVQZ-JKFIT" SPHERICAL 
 #basis SET: (10s,7p,5d,3f,2g,1h) -> [10s,7p,5d,3f,2g,1h]
 C    S
    1113.9867719              1.0000000
@@ -184,7 +193,7 @@ C    G
 C    H
       1.11690000000000000000 1.0000000
 end
-basis "N_cc-pvqz-jkfit" 
+basis "N_cc-pVQZ-JKFIT" SPHERICAL 
 #basis SET: (10s,7p,5d,3f,2g,1h) -> [10s,7p,5d,3f,2g,1h]
 N    S
    1102.8622453              1.0000000
@@ -243,7 +252,7 @@ N    G
 N    H
       1.57600000000000000000 1.0000000
 end
-basis "O_cc-pvqz-jkfit" 
+basis "O_cc-pVQZ-JKFIT" SPHERICAL 
 #basis SET: (10s,7p,5d,3f,2g,1h) -> [10s,7p,5d,3f,2g,1h]
 O    S
    1517.8667506              1.0000000
@@ -302,7 +311,7 @@ O    G
 O    H
       2.03685000000000000000 1.0000000
 end
-basis "F_cc-pvqz-jkfit" 
+basis "F_cc-pVQZ-JKFIT" SPHERICAL 
 #basis SET: (10s,7p,5d,3f,2g,1h) -> [10s,7p,5d,3f,2g,1h]
 F    S
    1885.0661216              1.0000000
@@ -361,7 +370,7 @@ F    G
 F    H
       2.61615000000000000000 1.0000000
 end
-basis "Al_cc-pvqz-jkfit" 
+basis "Al_cc-pVQZ-JKFIT" SPHERICAL 
 #basis SET: (13s,11p,9d,4f,2g,1h) -> [13s,11p,9d,4f,2g,1h]
 Al    S
    3155.1928168              1.0000000
@@ -444,7 +453,7 @@ Al    G
 Al    H
        .40205000000000000000 1.0000000
 end
-basis "Si_cc-pvqz-jkfit" 
+basis "Si_cc-pVQZ-JKFIT" SPHERICAL 
 #basis SET: (13s,11p,9d,4f,2g,1h) -> [13s,11p,9d,4f,2g,1h]
 Si    S
    3966.7823006              1.0000000
@@ -527,7 +536,7 @@ Si    G
 Si    H
        .52497000000000000000 1.0000000
 end
-basis "P_cc-pvqz-jkfit" 
+basis "P_cc-pVQZ-JKFIT" SPHERICAL 
 #basis SET: (13s,11p,9d,4f,2g,1h) -> [13s,11p,9d,4f,2g,1h]
 P    S
    5107.3657113              1.0000000
@@ -610,7 +619,7 @@ P    G
 P    H
        .68214500000000000000 1.0000000
 end
-basis "S_cc-pvqz-jkfit" 
+basis "S_cc-pVQZ-JKFIT" SPHERICAL 
 #basis SET: (13s,11p,9d,4f,2g,1h) -> [13s,11p,9d,4f,2g,1h]
 S    S
    6402.4580816              1.0000000
@@ -693,7 +702,7 @@ S    G
 S    H
        .78667000000000000000 1.0000000
 end
-basis "Cl_cc-pvqz-jkfit" 
+basis "Cl_cc-pVQZ-JKFIT" SPHERICAL 
 #basis SET: (13s,11p,9d,4f,2g,1h) -> [13s,11p,9d,4f,2g,1h]
 Cl    S
    7082.7970581              1.0000000
@@ -776,7 +785,7 @@ Cl    G
 Cl    H
        .95155000000000000000 1.0000000
 end
-basis "Ga_cc-pvqz-jkfit" 
+basis "Ga_cc-pVQZ-JKFIT" SPHERICAL 
 #basis SET: (16s,14p,12d,10f,7g,1h) -> [14s,13p,11d,9f,4g,1h]
 Ga    S
   24344.920346               0.12728313141
@@ -891,7 +900,7 @@ Ga    G
 Ga    H
        .44767600000000000000 1.0000000
 end
-basis "Ge_cc-pvqz-jkfit" 
+basis "Ge_cc-pVQZ-JKFIT" SPHERICAL 
 #basis SET: (16s,14p,12d,10f,7g,1h) -> [14s,13p,11d,9f,4g,1h]
 Ge    S
   22773.560455               0.10689370951
@@ -1006,7 +1015,7 @@ Ge    G
 Ge    H
        .52742400000000000000 1.0000000
 end
-basis "As_cc-pvqz-jkfit" 
+basis "As_cc-pVQZ-JKFIT" SPHERICAL 
 #basis SET: (16s,14p,12d,10f,7g,1h) -> [14s,13p,11d,9f,4g,1h]
 As    S
   29056.449630               0.16649242459
@@ -1121,7 +1130,7 @@ As    G
 As    H
        .62112550000000000000 1.0000000
 end
-basis "Se_cc-pvqz-jkfit" 
+basis "Se_cc-pVQZ-JKFIT" SPHERICAL 
 #basis SET: (16s,14p,12d,10f,7g,1h) -> [14s,13p,11d,9f,4g,1h]
 Se    S
   30873.025070               0.13468070994
@@ -1236,7 +1245,7 @@ Se    G
 Se    H
        .65851650000000000000 1.0000000
 end
-basis "Br_cc-pvqz-jkfit" 
+basis "Br_cc-pVQZ-JKFIT" SPHERICAL 
 #basis SET: (16s,14p,12d,10f,7g,1h) -> [14s,13p,11d,9f,4g,1h]
 Br    S
   40743.582696               0.82819206326E-01

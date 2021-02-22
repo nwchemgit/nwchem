@@ -1,44 +1,53 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# pcx-3 version number 1
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# pcX-3 version number 1
 # Description: Jensen pcX basis set optimized for core-spectroscopy
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# Li-Ar
-#     ## Jensen pcX basis set optimized for core-spectroscopy
+# 
+#  References for the basis set
+# 
+#  Li-Ar
+#      Jensen pcX basis set optimized for core-spectroscopy
+#          ambroise2019a
+# 
+# 
+# 
+# ambroise2019a
 #     Ambroise, Maximilien A., Jensen, Frank
 #     Probing Basis Set Requirements for Calculating Core Ionization and
 #             Core Excitation Spectroscopy by the Δ Self-Consistent-Field
 #             Approach
-#     J. Chem. Theory Comput., 15, 325-337 (2019)
+#     J. Chem. Theory Comput. 15, 325-337 (2019)
 #     10.1021/acs.jctc.8b01071
 # 
 # # 
-basis "Li_pcx-3" 
+basis "Li_pcX-3" SPHERICAL 
 #basis SET: (14s,6p,2d,1f) -> [14s,6p,2d,1f]
 Li    S
       0.130183E+05           1.0000000
@@ -87,7 +96,7 @@ Li    D
 Li    F
       0.350000E+00           1.0000000
 end
-basis "Be_pcx-3" 
+basis "Be_pcX-3" SPHERICAL 
 #basis SET: (14s,6p,2d,1f) -> [14s,6p,2d,1f]
 Be    S
       0.266729E+05           1.0000000
@@ -136,7 +145,7 @@ Be    D
 Be    F
       0.550000E+00           1.0000000
 end
-basis "B_pcx-3" 
+basis "B_pcX-3" SPHERICAL 
 #basis SET: (14s,9p,4d,2f,1g) -> [14s,9p,4d,2f,1g]
 B    S
       0.574148E+05           1.0000000
@@ -199,7 +208,7 @@ B    F
 B    G
       0.130000E+01           1.0000000
 end
-basis "C_pcx-3" 
+basis "C_pcX-3" SPHERICAL 
 #basis SET: (14s,9p,4d,2f,1g) -> [14s,9p,4d,2f,1g]
 C    S
       0.871412E+05           1.0000000
@@ -262,7 +271,7 @@ C    F
 C    G
       0.140000E+01           1.0000000
 end
-basis "N_pcx-3" 
+basis "N_pcX-3" SPHERICAL 
 #basis SET: (14s,9p,4d,2f,1g) -> [14s,9p,4d,2f,1g]
 N    S
       0.124546E+06           1.0000000
@@ -325,7 +334,7 @@ N    F
 N    G
       0.150000E+01           1.0000000
 end
-basis "O_pcx-3" 
+basis "O_pcX-3" SPHERICAL 
 #basis SET: (14s,9p,4d,2f,1g) -> [14s,9p,4d,2f,1g]
 O    S
       0.164030E+06           1.0000000
@@ -388,7 +397,7 @@ O    F
 O    G
       0.160000E+01           1.0000000
 end
-basis "F_pcx-3" 
+basis "F_pcX-3" SPHERICAL 
 #basis SET: (14s,9p,4d,2f,1g) -> [14s,9p,4d,2f,1g]
 F    S
       0.215659E+06           1.0000000
@@ -451,7 +460,7 @@ F    F
 F    G
       0.170000E+01           1.0000000
 end
-basis "Ne_pcx-3" 
+basis "Ne_pcX-3" SPHERICAL 
 #basis SET: (14s,9p,4d,2f,1g) -> [14s,9p,4d,2f,1g]
 Ne    S
       0.270664E+06           1.0000000
@@ -514,7 +523,7 @@ Ne    F
 Ne    G
       0.180000E+01           1.0000000
 end
-basis "Na_pcx-3" 
+basis "Na_pcX-3" SPHERICAL 
 #basis SET: (17s,12p,2d,1f) -> [17s,12p,2d,1f]
 Na    S
       0.421841E+06           1.0000000
@@ -581,7 +590,7 @@ Na    D
 Na    F
       0.270000E+00           1.0000000
 end
-basis "Mg_pcx-3" 
+basis "Mg_pcX-3" SPHERICAL 
 #basis SET: (17s,12p,2d,1f) -> [17s,12p,2d,1f]
 Mg    S
       0.564794E+06           1.0000000
@@ -648,7 +657,7 @@ Mg    D
 Mg    F
       0.330000E+00           1.0000000
 end
-basis "Al_pcx-3" 
+basis "Al_pcX-3" SPHERICAL 
 #basis SET: (17s,13p,4d,2f,1g) -> [17s,13p,4d,2f,1g]
 Al    S
       0.721495E+06           1.0000000
@@ -725,7 +734,7 @@ Al    F
 Al    G
       0.580000E+00           1.0000000
 end
-basis "Si_pcx-3" 
+basis "Si_pcX-3" SPHERICAL 
 #basis SET: (17s,13p,4d,2f,1g) -> [17s,13p,4d,2f,1g]
 Si    S
       0.877445E+06           1.0000000
@@ -802,7 +811,7 @@ Si    F
 Si    G
       0.650000E+00           1.0000000
 end
-basis "P_pcx-3" 
+basis "P_pcX-3" SPHERICAL 
 #basis SET: (17s,13p,4d,2f,1g) -> [17s,13p,4d,2f,1g]
 P    S
       0.106369E+07           1.0000000
@@ -879,7 +888,7 @@ P    F
 P    G
       0.720000E+00           1.0000000
 end
-basis "S_pcx-3" 
+basis "S_pcX-3" SPHERICAL 
 #basis SET: (17s,13p,4d,2f,1g) -> [17s,13p,4d,2f,1g]
 S    S
       0.125044E+07           1.0000000
@@ -956,7 +965,7 @@ S    F
 S    G
       0.790000E+00           1.0000000
 end
-basis "Cl_pcx-3" 
+basis "Cl_pcX-3" SPHERICAL 
 #basis SET: (17s,13p,4d,2f,1g) -> [17s,13p,4d,2f,1g]
 Cl    S
       0.146109E+07           1.0000000
@@ -1033,7 +1042,7 @@ Cl    F
 Cl    G
       0.860000E+00           1.0000000
 end
-basis "Ar_pcx-3" 
+basis "Ar_pcX-3" SPHERICAL 
 #basis SET: (17s,13p,4d,2f,1g) -> [17s,13p,4d,2f,1g]
 Ar    S
       0.170216E+07           1.0000000

@@ -1,44 +1,53 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# fano-dz version number 1
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# FANO-DZ version number 1
 # Description: Frozen Atomic Natural Orbital - Double Zeta
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H,He,B-Ne
-#     ## Frozen Atomic Natural Orbital - Double Zeta
+# 
+#  References for the basis set
+# 
+#  H,He,B-Ne
+#      Frozen Atomic Natural Orbital - Double Zeta
+#          claudino2018a
+# 
+# 
+# 
+# claudino2018a
 #     Claudino, Daniel, Bartlett, Rodney J.
 #     Coupled-cluster based basis sets for valence correlation calculations.
 #             New primitives, frozen atomic natural orbitals, and basis sets
 #             from double to hextuple zeta for atoms H, He, and B-Ne
-#     J. Chem. Phys., 149, 064105 (2018)
+#     J. Chem. Phys. 149, 064105 (2018)
 #     10.1063/1.5039741
 # 
 # # 
-basis "H_fano-dz" 
+basis "H_FANO-DZ" SPHERICAL 
 #basis SET: (18s,5p) -> [2s,1p]
 H    S
     837.3565790              0.0000942
@@ -67,7 +76,7 @@ H    P
       0.5089170              0.2287702
       0.2325790              0.1881628
 end
-basis "He_fano-dz" 
+basis "He_FANO-DZ" SPHERICAL 
 #basis SET: (20s,6p) -> [2s,1p]
 He    S
    4830.0398640              0.0001051
@@ -99,7 +108,7 @@ He    P
       0.7934520              0.7619289
       0.3372230              0.3189612
 end
-basis "B_fano-dz" 
+basis "B_FANO-DZ" SPHERICAL 
 #basis SET: (42s,16p,6d) -> [3s,2p,1d]
 B    S
   33713.2090900              0.0000969
@@ -147,15 +156,6 @@ B    S
       0.1595430              0.2901479
       0.0663110              0.5109936
 B    P
-     55.5985150              0.0020086
-     12.5957260              0.0156263
-      3.9252440              0.0646204
-      1.4127370              0.2075692
-      0.5524420              0.4700048
-      0.2327110              0.6433904
-      0.1037760              0.5388558
-      0.0448880              0.1651352
-B    P
      55.5985150              0.0017813
      12.5957260              0.0137498
       3.9252440              0.0506776
@@ -164,6 +164,15 @@ B    P
       0.2327110              0.7335476
       0.1037760              0.2341586
       0.0448880             -0.1365318
+B    P
+     55.5985150              0.0020086
+     12.5957260              0.0156263
+      3.9252440              0.0646204
+      1.4127370              0.2075692
+      0.5524420              0.4700048
+      0.2327110              0.6433904
+      0.1037760              0.5388558
+      0.0448880              0.1651352
 B    D
       3.6455150              0.0122038
       1.7449540              0.0373810
@@ -172,7 +181,7 @@ B    D
       0.1913630              0.6321608
       0.0915980              0.2652015
 end
-basis "C_fano-dz" 
+basis "C_FANO-DZ" SPHERICAL 
 #basis SET: (42s,16p,6d) -> [3s,2p,1d]
 C    S
   50386.7510900              0.0000934
@@ -220,15 +229,6 @@ C    S
       0.2344430              0.3065725
       0.0954250              0.5208148
 C    P
-     83.1513210              0.0021274
-     19.5924490              0.0166142
-      6.0476250              0.0734270
-      2.1892240              0.2282381
-      0.8700640              0.4839788
-      0.3648050              0.6479795
-      0.1562410              0.5172421
-      0.0654550              0.1434680
-C    P
      83.1513210              0.0018118
      19.5924490              0.0138614
       6.0476250              0.0555838
@@ -237,6 +237,15 @@ C    P
       0.3648050              0.6241665
       0.1562410              0.1099289
       0.0654550             -0.4021779
+C    P
+     83.1513210              0.0021274
+     19.5924490              0.0166142
+      6.0476250              0.0734270
+      2.1892240              0.2282381
+      0.8700640              0.4839788
+      0.3648050              0.6479795
+      0.1562410              0.5172421
+      0.0654550              0.1434680
 C    D
       5.2360130              0.0170162
       2.5791440              0.0514396
@@ -245,7 +254,7 @@ C    D
       0.3082480              0.6067801
       0.1518360              0.3243620
 end
-basis "N_fano-dz" 
+basis "N_FANO-DZ" SPHERICAL 
 #basis SET: (42s,18p,6d) -> [3s,2p,1d]
 N    S
   73027.0995300              0.0000861
@@ -320,7 +329,7 @@ N    D
       0.5237720              0.6803181
       0.2413760              0.4053391
 end
-basis "O_fano-dz" 
+basis "O_FANO-DZ" SPHERICAL 
 #basis SET: (42s,18p,6d) -> [3s,2p,1d]
 O    S
  104579.4181000              0.0000774
@@ -395,7 +404,7 @@ O    D
       0.6460460              0.6576428
       0.2962490              0.3322214
 end
-basis "F_fano-dz" 
+basis "F_FANO-DZ" SPHERICAL 
 #basis SET: (42s,20p,7d) -> [3s,2p,1d]
 F    S
  121062.9455000              0.0000921
@@ -473,24 +482,8 @@ F    D
       0.5624700              0.4188931
       0.2881620              0.1821107
 end
-basis "Ne_fano-dz" 
+basis "Ne_FANO-DZ" SPHERICAL 
 #basis SET: (45s,20p,7d) -> [3s,2p,1d]
-Ne    S
- 312544.6873000              0.0000106
-  50787.7069200              0.0000778
-  11399.4429700              0.0004237
-   3219.2939940              0.0017529
-   1067.0663660              0.0060636
-    395.0140650              0.0181540
-    157.9071280              0.0468455
-     66.7089680              0.0974566
-     29.3859170              0.1384550
-     13.3753880              0.0740060
-      6.2357970             -0.0030151
-      2.9415450              0.2580262
-      1.3766260              0.6259235
-      0.6196670              0.6779816
-      0.2561770              0.2127571
 Ne    S
  312544.6873000              0.0000295
   50787.7069200              0.0002163
@@ -507,6 +500,22 @@ Ne    S
       1.3766260             -0.3201745
       0.6196670             -0.3500175
       0.2561770             -0.1097327
+Ne    S
+ 312544.6873000              0.0000106
+  50787.7069200              0.0000778
+  11399.4429700              0.0004237
+   3219.2939940              0.0017529
+   1067.0663660              0.0060636
+    395.0140650              0.0181540
+    157.9071280              0.0468455
+     66.7089680              0.0974566
+     29.3859170              0.1384550
+     13.3753880              0.0740060
+      6.2357970             -0.0030151
+      2.9415450              0.2580262
+      1.3766260              0.6259235
+      0.6196670              0.6779816
+      0.2561770              0.2127571
 Ne    S
  312544.6873000              0.0000036
   50787.7069200              0.0000266

@@ -1,227 +1,194 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# cc-pwcvdz-pp version number 0
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# cc-pwCVDZ-PP version number 0
 # Description: cc-pwCVDZ-PP
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# Cu,Zn,Ag,Cd,Au,Hg
-#     ## cc-pVDZ-PP
-#     Peterson, Kirk A, Puzzarini, Cristina
-#     Systematically convergent basis sets for transition metals. II.
-#             Pseudopotential-based correlation consistent basis sets for
-#             the group 11 (Cu, Ag, Au) and 12 (Zn, Cd, Hg) elements
-#     Theor. Chem. Acc., 114, 283-296 (2005)
-#     10.1007/s00214-005-0681-9
 # 
-#     ## cc-pwCVDZ-PP
-#     Peterson, Kirk A, Puzzarini, Cristina
-#     Systematically convergent basis sets for transition metals. II.
-#             Pseudopotential-based correlation consistent basis sets for
-#             the group 11 (Cu, Ag, Au) and 12 (Zn, Cd, Hg) elements
-#     Theor. Chem. Acc., 114, 283-296 (2005)
-#     10.1007/s00214-005-0681-9
+#  References for the basis set
 # 
-#     ## Stuttgart-Koeln MCDHF RSC ECP
+#  Cu,Zn,Ag,Cd,Au,Hg
+#      cc-pVDZ-PP
+#          peterson2005a
+# 
+#      cc-pwCVDZ-PP
+#          peterson2005a
+# 
+#      Stuttgart-Koeln MCDHF RSC ECP
+#          figgen2005a
+# 
+#  Ga-As,In-Sb,Pb,Bi
+#      cc-pVDZ-PP
+#          peterson2003a
+# 
+#      cc-pwCVDZ-PP
+#          peterson2010a
+# 
+#      Stuttgart-Koeln MCDHF RSC ECP
+#          metz2000a
+# 
+#  Se-Kr,Te,Xe,Po-Rn
+#      cc-pVDZ-PP
+#          peterson2003b
+# 
+#      cc-pwCVDZ-PP
+#          peterson2010a
+# 
+#      Stuttgart-Koeln MCDHF RSC ECP
+#          peterson2003b
+# 
+#  Y-Pd
+#      cc-pVDZ-PP
+#          peterson2007a
+# 
+#      cc-pwCVDZ-PP
+#          peterson2007a
+# 
+#      Stuttgart-Koeln MCDHF RSC ECP
+#          peterson2007a
+# 
+#  I
+#      cc-pVDZ-PP
+#          peterson2003b peterson2006a
+# 
+#      cc-pwCVDZ-PP
+#          peterson2010a
+# 
+#      Stuttgart-Koeln MCDHF RSC ECP
+#          peterson2003b peterson2006a
+# 
+#  Hf-Pt
+#      cc-pVDZ-PP
+#          figgen2009a
+# 
+#      cc-pwCVDZ-PP
+#          figgen2009a
+# 
+#      Stuttgart-Koeln MCDHF RSC ECP
+#          figgen2009a
+# 
+#  Tl
+#      cc-pVDZ-PP
+#          peterson2003a
+# 
+#      cc-pwCVDZ-PP
+#          peterson2010a
+# 
+#      Stuttgart-Koeln MCDHF RSC ECP
+#          metz2000b
+# 
+# 
+# 
+# figgen2005a
 #     Figgen, Detlev, Rauhut, Guntram, Dolg, Michael, Stoll, Hermann
 #     Energy-consistent pseudopotentials for group 11 and 12 atoms:
 #             adjustment to multi-configuration Dirac-Hartree-Fock data
-#     J. Chem. Phys., 311, 227-244 (2005)
+#     J. Chem. Phys. 311, 227-244 (2005)
 #     10.1016/j.chemphys.2004.10.005
 # 
-# Ga-As,In-Sb,Pb,Bi
-#     ## cc-pVDZ-PP
-#     Peterson, Kirk A.
-#     Systematically convergent basis sets with relativistic
-#             pseudopotentials. I. Correlation consistent basis sets for the
-#             post-d group 13-15 elements
-#     J. Chem. Phys., 119, 11099-11112 (2003)
-#     10.1063/1.1622923
+# figgen2009a
+#     Figgen, Detlev, Peterson, Kirk A., Dolg, Michael, Stoll, Hermann
+#     Energy-consistent pseudopotentials and correlation consistent basis
+#             sets for the 5d elements Hf-Pt
+#     J. Chem. Phys. 130, 164108 (2009)
+#     10.1063/1.3119665
 # 
-#     ## cc-pwCVDZ-PP
-#     Peterson, Kirk A., Yousaf, Kazim E.
-#     Molecular core-valence correlation effects involving the post-d
-#             elements Ga-Rn: Benchmarks and new pseudopotential-based
-#             correlation consistent basis sets
-#     J. Chem. Phys., 133, 174116 (2010)
-#     10.1063/1.3503659
-# 
-#     ## Stuttgart-Koeln MCDHF RSC ECP
+# metz2000a
 #     Metz, Bernhard, Stoll, Hermann, Dolg, Michael
 #     Small-core multiconfiguration-Dirac-Hartree-Fock-adjusted
 #             pseudopotentials for post-d main group elements: Application
 #             to PbH and PbO
-#     J. Chem. Phys., 113, 2563-2569 (2000)
+#     J. Chem. Phys. 113, 2563-2569 (2000)
 #     10.1063/1.1305880
 # 
-# Se-Kr,Te,Xe,Po-Rn
-#     ## cc-pVDZ-PP
-#     Peterson, Kirk A., Figgen, Detlev, Goll, Erich, Stoll, Hermann, Dolg,
-#             Michael
-#     Systematically convergent basis sets with relativistic
-#             pseudopotentials. II. Small-core pseudopotentials and
-#             correlation consistent basis sets for the post-d group 16-18
-#             elements
-#     J. Chem. Phys., 119, 11113-11123 (2003)
-#     10.1063/1.1622924
-# 
-#     ## cc-pwCVDZ-PP
-#     Peterson, Kirk A., Yousaf, Kazim E.
-#     Molecular core-valence correlation effects involving the post-d
-#             elements Ga-Rn: Benchmarks and new pseudopotential-based
-#             correlation consistent basis sets
-#     J. Chem. Phys., 133, 174116 (2010)
-#     10.1063/1.3503659
-# 
-#     ## Stuttgart-Koeln MCDHF RSC ECP
-#     Peterson, Kirk A., Figgen, Detlev, Goll, Erich, Stoll, Hermann, Dolg,
-#             Michael
-#     Systematically convergent basis sets with relativistic
-#             pseudopotentials. II. Small-core pseudopotentials and
-#             correlation consistent basis sets for the post-d group 16-18
-#             elements
-#     J. Chem. Phys., 119, 11113-11123 (2003)
-#     10.1063/1.1622924
-# 
-# Y-Pd
-#     ## cc-pVDZ-PP
-#     Peterson, Kirk A., Figgen, Detlev, Dolg, Michael, Stoll, Hermann
-#     Energy-consistent relativistic pseudopotentials and correlation
-#             consistent basis sets for the 4d elements Y-Pd
-#     J. Chem. Phys., 126, 124101 (2007)
-#     10.1063/1.2647019
-# 
-#     ## cc-pwCVDZ-PP
-#     Peterson, Kirk A., Figgen, Detlev, Dolg, Michael, Stoll, Hermann
-#     Energy-consistent relativistic pseudopotentials and correlation
-#             consistent basis sets for the 4d elements Y-Pd
-#     J. Chem. Phys., 126, 124101 (2007)
-#     10.1063/1.2647019
-# 
-#     ## Stuttgart-Koeln MCDHF RSC ECP
-#     Peterson, Kirk A., Figgen, Detlev, Dolg, Michael, Stoll, Hermann
-#     Energy-consistent relativistic pseudopotentials and correlation
-#             consistent basis sets for the 4d elements Y-Pd
-#     J. Chem. Phys., 126, 124101 (2007)
-#     10.1063/1.2647019
-# 
-# I
-#     ## cc-pVDZ-PP
-#     Peterson, Kirk A., Figgen, Detlev, Goll, Erich, Stoll, Hermann, Dolg,
-#             Michael
-#     Systematically convergent basis sets with relativistic
-#             pseudopotentials. II. Small-core pseudopotentials and
-#             correlation consistent basis sets for the post-d group 16-18
-#             elements
-#     J. Chem. Phys., 119, 11113-11123 (2003)
-#     10.1063/1.1622924
-# 
-#     Peterson, Kirk A., Shepler, Benjamin C., Figgen, Detlev, Stoll,
-#             Hermann
-#     On the Spectroscopic and Thermochemical Properties of ClO, BrO, IO,
-#             and Their Anions
-#     J. Phys. Chem. A, 110, 13877-13883 (2006)
-#     10.1021/jp065887l
-# 
-#     ## cc-pwCVDZ-PP
-#     Peterson, Kirk A., Yousaf, Kazim E.
-#     Molecular core-valence correlation effects involving the post-d
-#             elements Ga-Rn: Benchmarks and new pseudopotential-based
-#             correlation consistent basis sets
-#     J. Chem. Phys., 133, 174116 (2010)
-#     10.1063/1.3503659
-# 
-#     ## Stuttgart-Koeln MCDHF RSC ECP
-#     Peterson, Kirk A., Figgen, Detlev, Goll, Erich, Stoll, Hermann, Dolg,
-#             Michael
-#     Systematically convergent basis sets with relativistic
-#             pseudopotentials. II. Small-core pseudopotentials and
-#             correlation consistent basis sets for the post-d group 16-18
-#             elements
-#     J. Chem. Phys., 119, 11113-11123 (2003)
-#     10.1063/1.1622924
-# 
-#     Peterson, Kirk A., Shepler, Benjamin C., Figgen, Detlev, Stoll,
-#             Hermann
-#     On the Spectroscopic and Thermochemical Properties of ClO, BrO, IO,
-#             and Their Anions
-#     J. Phys. Chem. A, 110, 13877-13883 (2006)
-#     10.1021/jp065887l
-# 
-# Hf-Pt
-#     ## cc-pVDZ-PP
-#     Figgen, Detlev, Peterson, Kirk A., Dolg, Michael, Stoll, Hermann
-#     Energy-consistent pseudopotentials and correlation consistent basis
-#             sets for the 5d elements Hf-Pt
-#     J. Chem. Phys., 130, 164108 (2009)
-#     10.1063/1.3119665
-# 
-#     ## cc-pwCVDZ-PP
-#     Figgen, Detlev, Peterson, Kirk A., Dolg, Michael, Stoll, Hermann
-#     Energy-consistent pseudopotentials and correlation consistent basis
-#             sets for the 5d elements Hf-Pt
-#     J. Chem. Phys., 130, 164108 (2009)
-#     10.1063/1.3119665
-# 
-#     ## Stuttgart-Koeln MCDHF RSC ECP
-#     Figgen, Detlev, Peterson, Kirk A., Dolg, Michael, Stoll, Hermann
-#     Energy-consistent pseudopotentials and correlation consistent basis
-#             sets for the 5d elements Hf-Pt
-#     J. Chem. Phys., 130, 164108 (2009)
-#     10.1063/1.3119665
-# 
-# Tl
-#     ## cc-pVDZ-PP
-#     Peterson, Kirk A.
-#     Systematically convergent basis sets with relativistic
-#             pseudopotentials. I. Correlation consistent basis sets for the
-#             post-d group 13-15 elements
-#     J. Chem. Phys., 119, 11099-11112 (2003)
-#     10.1063/1.1622923
-# 
-#     ## cc-pwCVDZ-PP
-#     Peterson, Kirk A., Yousaf, Kazim E.
-#     Molecular core-valence correlation effects involving the post-d
-#             elements Ga-Rn: Benchmarks and new pseudopotential-based
-#             correlation consistent basis sets
-#     J. Chem. Phys., 133, 174116 (2010)
-#     10.1063/1.3503659
-# 
-#     ## Stuttgart-Koeln MCDHF RSC ECP
+# metz2000b
 #     Metz, Bernhard, Schweizer, Marcus, Stoll, Hermann, Dolg, Michael, Liu,
 #             Wenjian
 #     A small-core multiconfiguration Dirac-Hartree-Fock-adjusted
 #             pseudopotential for Tl - application to Tl X ( X = F, Cl, Br,
 #             I)
-#     Theor. Chim. Acta, 104, 22-28 (2000)
+#     Theor. Chim. Acta 104, 22-28 (2000)
 #     10.1007/s002149900101
 # 
+# peterson2003a
+#     Peterson, Kirk A.
+#     Systematically convergent basis sets with relativistic
+#             pseudopotentials. I. Correlation consistent basis sets for the
+#             post-d group 13-15 elements
+#     J. Chem. Phys. 119, 11099-11112 (2003)
+#     10.1063/1.1622923
+# 
+# peterson2003b
+#     Peterson, Kirk A., Figgen, Detlev, Goll, Erich, Stoll, Hermann, Dolg,
+#             Michael
+#     Systematically convergent basis sets with relativistic
+#             pseudopotentials. II. Small-core pseudopotentials and
+#             correlation consistent basis sets for the post-d group 16-18
+#             elements
+#     J. Chem. Phys. 119, 11113-11123 (2003)
+#     10.1063/1.1622924
+# 
+# peterson2005a
+#     Peterson, Kirk A, Puzzarini, Cristina
+#     Systematically convergent basis sets for transition metals. II.
+#             Pseudopotential-based correlation consistent basis sets for
+#             the group 11 (Cu, Ag, Au) and 12 (Zn, Cd, Hg) elements
+#     Theor. Chem. Acc. 114, 283-296 (2005)
+#     10.1007/s00214-005-0681-9
+# 
+# peterson2006a
+#     Peterson, Kirk A., Shepler, Benjamin C., Figgen, Detlev, Stoll,
+#             Hermann
+#     On the Spectroscopic and Thermochemical Properties of ClO, BrO, IO,
+#             and Their Anions
+#     J. Phys. Chem. A 110, 13877-13883 (2006)
+#     10.1021/jp065887l
+# 
+# peterson2007a
+#     Peterson, Kirk A., Figgen, Detlev, Dolg, Michael, Stoll, Hermann
+#     Energy-consistent relativistic pseudopotentials and correlation
+#             consistent basis sets for the 4d elements Y-Pd
+#     J. Chem. Phys. 126, 124101 (2007)
+#     10.1063/1.2647019
+# 
+# peterson2010a
+#     Peterson, Kirk A., Yousaf, Kazim E.
+#     Molecular core-valence correlation effects involving the post-d
+#             elements Ga-Rn: Benchmarks and new pseudopotential-based
+#             correlation consistent basis sets
+#     J. Chem. Phys. 133, 174116 (2010)
+#     10.1063/1.3503659
+# 
 # # 
-basis "Cu_cc-pwcvdz-pp" 
+basis "Cu_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (23s,20p,12d,2f) -> [5s,5p,4d,2f]
+Cu    S
+      4.6986000              1.0000000
 Cu    S
     560.0880000              0.0006370
      56.6486000             -0.0097350
@@ -231,14 +198,6 @@ Cu    S
       0.9514290              0.4621730
       0.1451840              0.0159830
 Cu    S
-    560.0880000             -0.0001360
-     56.6486000              0.0014010
-     35.4258000             -0.0131740
-     11.0546000              0.0956950
-      2.3068200             -0.2118740
-      0.9514290             -0.2359440
-      0.1451840              0.5081150
-Cu    S
     560.0880000             -0.0003330
      56.6486000              0.0059300
      35.4258000             -0.0325490
@@ -247,9 +206,17 @@ Cu    S
       0.9514290              0.1772420
       0.1451840              1.7148730
 Cu    S
-      4.6986000              1.0000000
+    560.0880000             -0.0001360
+     56.6486000              0.0014010
+     35.4258000             -0.0131740
+     11.0546000              0.0956950
+      2.3068200             -0.2118740
+      0.9514290             -0.2359440
+      0.1451840              0.5081150
 Cu    S
       0.0503250              1.0000000
+Cu    P
+      4.9315000              1.0000000
 Cu    P
      70.9739000              0.0036820
      17.8510000             -0.0821280
@@ -258,13 +225,6 @@ Cu    P
       0.7933350              0.2390950
       0.1934760              0.0158500
 Cu    P
-     70.9739000             -0.0006280
-     17.8510000              0.0165630
-      4.2467900             -0.0845720
-      1.8776000             -0.1412830
-      0.7933350             -0.0035710
-      0.1934760              0.5190050
-Cu    P
      70.9739000             -0.0009100
      17.8510000              0.0299140
       4.2467900             -0.1660940
@@ -272,15 +232,14 @@ Cu    P
       0.7933350              0.1575840
       0.1934760              0.8304880
 Cu    P
-      4.9315000              1.0000000
+     70.9739000             -0.0006280
+     17.8510000              0.0165630
+      4.2467900             -0.0845720
+      1.8776000             -0.1412830
+      0.7933350             -0.0035710
+      0.1934760              0.5190050
 Cu    P
       0.0573930              1.0000000
-Cu    D
-     60.3804000              0.0175640
-     19.1121000              0.0991340
-      6.9528800              0.2711710
-      2.6099400              0.4061800
-      0.9225670              0.3814270
 Cu    D
      60.3804000             -0.0222860
      19.1121000             -0.1282740
@@ -290,6 +249,12 @@ Cu    D
 Cu    D
       2.7920000              1.0000000
 Cu    D
+     60.3804000              0.0175640
+     19.1121000              0.0991340
+      6.9528800              0.2711710
+      2.6099400              0.4061800
+      0.9225670              0.3814270
+Cu    D
       0.2836420              1.0000000
 Cu    F
       8.3307000              1.0000000
@@ -298,7 +263,7 @@ Cu    F
 end
 
 
-ecp "Cu_cc-pwcvdz-pp"
+ecp "Cu_cc-pwCVDZ-PP"
 Cu nelec 10
 Cu ul
 2       1.0000000              0.0000000
@@ -319,8 +284,10 @@ Cu F
 2       6.1901020             -0.2272640
 2       8.1187800             -0.4687730
 end
-basis "Zn_cc-pwcvdz-pp" 
+basis "Zn_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (23s,20p,12d,2f) -> [5s,5p,4d,2f]
+Zn    S
+      5.0733000              1.0000000
 Zn    S
     629.1260000              0.0005590
      62.9635000             -0.0096800
@@ -330,14 +297,6 @@ Zn    S
       1.0301900              0.4589960
       0.1540020              0.0116640
 Zn    S
-    629.1260000             -0.0001210
-     62.9635000              0.0014890
-     39.5791000             -0.0127370
-     11.9173000              0.0972460
-      2.5082400             -0.2199170
-      1.0301900             -0.2364740
-      0.1540020              0.5812910
-Zn    S
     629.1260000              0.0004210
      62.9635000             -0.0051090
      39.5791000              0.0414470
@@ -346,9 +305,17 @@ Zn    S
       1.0301900             -0.9824290
       0.1540020             -1.1876310
 Zn    S
-      5.0733000              1.0000000
+    629.1260000             -0.0001210
+     62.9635000              0.0014890
+     39.5791000             -0.0127370
+     11.9173000              0.0972460
+      2.5082400             -0.2199170
+      1.0301900             -0.2364740
+      0.1540020              0.5812910
 Zn    S
       0.0527950              1.0000000
+Zn    P
+      5.3705000              1.0000000
 Zn    P
      92.9034000              0.0024880
      19.7452000             -0.0791360
@@ -357,13 +324,6 @@ Zn    P
       0.8438790              0.2245750
       0.2033810              0.0126800
 Zn    P
-     92.9034000             -0.0004030
-     19.7452000              0.0154470
-      4.5507300             -0.0843250
-      2.0019000             -0.1364890
-      0.8438790              0.0008020
-      0.2033810              0.5157920
-Zn    P
      92.9034000             -0.0005300
      19.7452000              0.0247430
       4.5507300             -0.1424780
@@ -371,15 +331,14 @@ Zn    P
       0.8438790              0.0921870
       0.2033810              0.8377700
 Zn    P
-      5.3705000              1.0000000
+     92.9034000             -0.0004030
+     19.7452000              0.0154470
+      4.5507300             -0.0843250
+      2.0019000             -0.1364890
+      0.8438790              0.0008020
+      0.2033810              0.5157920
 Zn    P
       0.0595720              1.0000000
-Zn    D
-     71.2766000              0.0158950
-     22.7604000              0.0924540
-      8.3236900              0.2594720
-      3.1687500              0.4033140
-      1.1470300              0.3878340
 Zn    D
      71.2766000             -0.0225160
      22.7604000             -0.1333030
@@ -389,6 +348,12 @@ Zn    D
 Zn    D
       3.3188000              1.0000000
 Zn    D
+     71.2766000              0.0158950
+     22.7604000              0.0924540
+      8.3236900              0.2594720
+      3.1687500              0.4033140
+      1.1470300              0.3878340
+Zn    D
       0.3666430              1.0000000
 Zn    F
       9.5199000              1.0000000
@@ -397,7 +362,7 @@ Zn    F
 end
 
 
-ecp "Zn_cc-pwcvdz-pp"
+ecp "Zn_cc-pwCVDZ-PP"
 Zn nelec 10
 Zn ul
 2       1.0000000              0.0000000
@@ -418,7 +383,7 @@ Zn F
 2       8.1600140             -0.3703600
 2      12.2284220             -1.0629430
 end
-basis "Ga_cc-pwcvdz-pp" 
+basis "Ga_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (15s,14p,8d,1f) -> [5s,4p,3d,1f]
 Ga    S
    2848.2000000              0.0003620
@@ -448,14 +413,14 @@ Ga    P
       0.9019130              0.2075200
       0.2020040              0.0078250
 Ga    P
+      6.607000E-01           1.000000E+00
+Ga    P
     109.6240000             -0.0002880
      21.0855000              0.0135550
       4.9226000             -0.0736290
       2.1559100             -0.1208600
       0.9019130             -0.0019600
       0.2020040              0.4932060
-Ga    P
-      6.607000E-01           1.000000E+00
 Ga    P
       0.0574620              1.0000000
 Ga    D
@@ -474,7 +439,7 @@ Ga    F
 end
 
 
-ecp "Ga_cc-pwcvdz-pp"
+ecp "Ga_cc-pwCVDZ-PP"
 Ga nelec 10
 Ga ul
 2       1.0000000              0.0000000
@@ -497,7 +462,7 @@ Ga F
 2      10.7622630             -0.6169900
 2      19.8529390             -3.1385840
 end
-basis "Ge_cc-pwcvdz-pp" 
+basis "Ge_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (15s,14p,8d,1f) -> [5s,4p,3d,1f]
 Ge    S
    2611.7400000              0.0006560
@@ -527,14 +492,14 @@ Ge    P
       1.0045800              0.1984560
       0.2608400              0.0074040
 Ge    P
+      9.116000E-01           1.000000E+00
+Ge    P
     108.3790000             -0.0004610
      22.6697000              0.0166580
       5.3689700             -0.0917910
       2.3602500             -0.1485590
       1.0045800              0.0003080
       0.2608400              0.5385500
-Ge    P
-      9.116000E-01           1.000000E+00
 Ge    P
       0.0792270              1.0000000
 Ge    D
@@ -553,7 +518,7 @@ Ge    F
 end
 
 
-ecp "Ge_cc-pwcvdz-pp"
+ecp "Ge_cc-pwCVDZ-PP"
 Ge nelec 10
 Ge ul
 2       1.0000000              0.0000000
@@ -576,7 +541,7 @@ Ge F
 2      11.4073780             -0.7056800
 2      18.4290540             -2.4759510
 end
-basis "As_cc-pwcvdz-pp" 
+basis "As_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (15s,14p,8d,1f) -> [5s,4p,3d,1f]
 As    S
    2542.8100000              0.0011370
@@ -606,14 +571,14 @@ As    P
       1.0930800              0.1840120
       0.3184240              0.0057640
 As    P
+      1.180300E+00           1.000000E+00
+As    P
      99.5349000             -0.0007720
      24.1195000              0.0199410
       5.8419600             -0.1072100
       2.5601000             -0.1722590
       1.0930800              0.0087610
       0.3184240              0.5697440
-As    P
-      1.180300E+00           1.000000E+00
 As    P
       0.1009720              1.0000000
 As    D
@@ -632,7 +597,7 @@ As    F
 end
 
 
-ecp "As_cc-pwcvdz-pp"
+ecp "As_cc-pwCVDZ-PP"
 As nelec 10
 As ul
 2       1.0000000              0.0000000
@@ -655,7 +620,7 @@ As F
 2      11.9405840             -0.7752300
 2      17.7611600             -2.1572590
 end
-basis "Se_cc-pwcvdz-pp" 
+basis "Se_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (15s,14p,8d,1f) -> [5s,4p,3d,1f]
 Se    S
    2609.7200000              0.0018290
@@ -685,14 +650,14 @@ Se    P
       1.0929000              0.1492830
       0.3597000              0.0010710
 Se    P
+      1.440500E+00           1.000000E+00
+Se    P
     100.0192000             -0.0010580
      25.8909000              0.0217090
       6.2093000             -0.1262430
       2.6613000             -0.1935450
       1.0929000              0.0473730
       0.3597000              0.5918060
-Se    P
-      1.440500E+00           1.000000E+00
 Se    P
       0.1137000              1.0000000
 Se    D
@@ -711,7 +676,7 @@ Se    F
 end
 
 
-ecp "Se_cc-pwcvdz-pp"
+ecp "Se_cc-pwCVDZ-PP"
 Se nelec 10
 Se ul
 2       1.0000000              0.0000000
@@ -734,15 +699,8 @@ Se F
 2      11.9508670             -0.7662620
 2      17.8107800             -2.1027420
 end
-basis "Br_cc-pwcvdz-pp" 
+basis "Br_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (15s,14p,8d,1f) -> [5s,4p,3d,1f]
-Br    S
-   2808.6000000              0.0016060
-    421.1800000              0.0083930
-     50.3457000              0.0695780
-     17.9133000             -0.3899080
-      3.8053100              0.6944970
-      1.7496800              0.4913540
 Br    S
    2808.6000000             -0.0006350
     421.1800000             -0.0034920
@@ -750,6 +708,13 @@ Br    S
      17.9133000              0.1501130
       3.8053100             -0.3662260
       1.7496800             -0.3834220
+Br    S
+   2808.6000000              0.0016060
+    421.1800000              0.0083930
+     50.3457000              0.0695780
+     17.9133000             -0.3899080
+      3.8053100              0.6944970
+      1.7496800              0.4913540
 Br    S
       1.834900E+00           1.000000E+00
 Br    S
@@ -764,14 +729,14 @@ Br    P
       1.0781200              0.1235000
       0.3935370             -0.0037710
 Br    P
+      1.705000E+00           1.000000E+00
+Br    P
     105.7520000             -0.0013080
      27.6368000              0.0229210
       6.5965600             -0.1450290
       2.7852200             -0.2090370
       1.0781200              0.0937300
       0.3935370              0.6050210
-Br    P
-      1.705000E+00           1.000000E+00
 Br    P
       0.1274690              1.0000000
 Br    D
@@ -790,7 +755,7 @@ Br    F
 end
 
 
-ecp "Br_cc-pwcvdz-pp"
+ecp "Br_cc-pwCVDZ-PP"
 Br nelec 10
 Br ul
 2       1.0000000              0.0000000
@@ -814,15 +779,8 @@ Br F
 2      14.4656060             -1.0912690
 2      21.2340650             -2.8876910
 end
-basis "Kr_cc-pwcvdz-pp" 
+basis "Kr_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (15s,14p,8d,1f) -> [5s,4p,3d,1f]
-Kr    S
-   2953.7500000              0.0024390
-    443.1400000              0.0128680
-     60.2268000              0.0634630
-     18.2113000             -0.3849140
-      4.2286600              0.6677030
-      1.9670300              0.5244550
 Kr    S
    2953.7500000             -0.0010480
     443.1400000             -0.0058030
@@ -830,6 +788,13 @@ Kr    S
      18.2113000              0.1562020
       4.2286600             -0.3742040
       1.9670300             -0.4126360
+Kr    S
+   2953.7500000              0.0024390
+    443.1400000              0.0128680
+     60.2268000              0.0634630
+     18.2113000             -0.3849140
+      4.2286600              0.6677030
+      1.9670300              0.5244550
 Kr    S
       2.066400E+00           1.000000E+00
 Kr    S
@@ -844,14 +809,14 @@ Kr    P
       1.1049100              0.1106640
       0.4287160             -0.0078940
 Kr    P
+      1.972200E+00           1.000000E+00
+Kr    P
     111.0130000             -0.0016020
      29.1923000              0.0243160
       7.0812000             -0.1594620
       2.9808900             -0.2199440
       1.1049100              0.1369710
       0.4287160              0.6096080
-Kr    P
-      1.972200E+00           1.000000E+00
 Kr    P
       0.1428910              1.0000000
 Kr    D
@@ -870,7 +835,7 @@ Kr    F
 end
 
 
-ecp "Kr_cc-pwcvdz-pp"
+ecp "Kr_cc-pwCVDZ-PP"
 Kr nelec 10
 Kr ul
 2       1.0000000              0.0000000
@@ -894,7 +859,7 @@ Kr F
 2      15.4375670             -1.2233890
 2      22.0557420             -2.9912330
 end
-basis "Y_cc-pwcvdz-pp" 
+basis "Y_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (23s,20p,12d,2f) -> [5s,5p,4d,2f]
 Y    S
      29.2935000              0.0066660
@@ -905,13 +870,7 @@ Y    S
       0.3225670              0.4639580
       0.0690850              0.0204860
 Y    S
-     29.2935000             -0.0013580
-     16.6827000              0.0123920
-     10.4235000             -0.0375720
-      3.0952600              0.1741090
-      0.7079710             -0.3385090
-      0.3225670             -0.3354170
-      0.0690850              0.6581470
+      0.2984000              1.0000000
 Y    S
      29.2935000              0.0112420
      16.6827000             -0.0574010
@@ -921,7 +880,13 @@ Y    S
       0.3225670             -0.4875820
       0.0690850             -1.8636390
 Y    S
-      0.2984000              1.0000000
+     29.2935000             -0.0013580
+     16.6827000              0.0123920
+     10.4235000             -0.0375720
+      3.0952600              0.1741090
+      0.7079710             -0.3385090
+      0.3225670             -0.3354170
+      0.0690850              0.6581470
 Y    S
       0.0274150              1.0000000
 Y    P
@@ -932,12 +897,7 @@ Y    P
       0.2197340              0.1957420
       0.0800880              0.0140830
 Y    P
-      9.0271500             -0.0056190
-      4.0242700              0.0465110
-      0.9906740             -0.1495270
-      0.4727970             -0.2243370
-      0.2197340             -0.0114700
-      0.0800880              0.6364970
+      0.3327000              1.0000000
 Y    P
       9.0271500              0.0111310
       4.0242700             -0.0963010
@@ -946,15 +906,16 @@ Y    P
       0.2197340             -1.4854780
       0.0800880             -0.1131120
 Y    P
-      0.3327000              1.0000000
+      9.0271500             -0.0056190
+      4.0242700              0.0465110
+      0.9906740             -0.1495270
+      0.4727970             -0.2243370
+      0.2197340             -0.0114700
+      0.0800880              0.6364970
 Y    P
       0.0306400              1.0000000
 Y    D
-      4.3045000             -0.0043910
-      1.3201900              0.1196820
-      0.5614050              0.2962740
-      0.2267020              0.3908730
-      0.0879490              0.3539610
+      0.9830000              1.0000000
 Y    D
       4.3045000              0.0044330
       1.3201900             -0.1499100
@@ -962,7 +923,11 @@ Y    D
       0.2267020             -0.3129870
       0.0879490              0.4218970
 Y    D
-      0.9830000              1.0000000
+      4.3045000             -0.0043910
+      1.3201900              0.1196820
+      0.5614050              0.2962740
+      0.2267020              0.3908730
+      0.0879490              0.3539610
 Y    D
       0.0323050              1.0000000
 Y    F
@@ -972,7 +937,7 @@ Y    F
 end
 
 
-ecp "Y_cc-pwcvdz-pp"
+ecp "Y_cc-pwCVDZ-PP"
 Y nelec 28
 Y ul
 2       1.0000000              0.0000000
@@ -993,7 +958,7 @@ Y F
 2       5.02859000            -6.92807800
 2       5.00558200            -9.15509900
 end
-basis "Zr_cc-pwcvdz-pp" 
+basis "Zr_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (23s,20p,12d,2f) -> [5s,5p,4d,2f]
 Zr    S
      53.4460000              0.0014860
@@ -1004,13 +969,7 @@ Zr    S
       0.3599820              0.4583040
       0.0777920              0.0203880
 Zr    S
-     53.4460000             -0.0003080
-     17.0981000              0.0096310
-     10.6875000             -0.0390430
-      3.3913400              0.1847170
-      0.7884750             -0.3584690
-      0.3599820             -0.3208280
-      0.0777920              0.6560480
+      0.2998000              1.0000000
 Zr    S
      53.4460000              0.0028110
      17.0981000             -0.0412920
@@ -1020,7 +979,13 @@ Zr    S
       0.3599820             -0.7286190
       0.0777920             -1.6769590
 Zr    S
-      0.2998000              1.0000000
+     53.4460000             -0.0003080
+     17.0981000              0.0096310
+     10.6875000             -0.0390430
+      3.3913400              0.1847170
+      0.7884750             -0.3584690
+      0.3599820             -0.3208280
+      0.0777920              0.6560480
 Zr    S
       0.0302340              1.0000000
 Zr    P
@@ -1031,12 +996,7 @@ Zr    P
       0.2363630              0.1777830
       0.0847070              0.0104040
 Zr    P
-      9.9011600             -0.0058310
-      4.4181900              0.0481520
-      1.0931000             -0.1600800
-      0.5187860             -0.2201350
-      0.2363630              0.0355150
-      0.0847070              0.6181780
+      0.2476000              1.0000000
 Zr    P
       9.9011600             -0.0078290
       4.4181900              0.0660080
@@ -1045,9 +1005,16 @@ Zr    P
       0.2363630              0.1703870
       0.0847070              0.8518400
 Zr    P
-      0.2476000              1.0000000
+      9.9011600             -0.0058310
+      4.4181900              0.0481520
+      1.0931000             -0.1600800
+      0.5187860             -0.2201350
+      0.2363630              0.0355150
+      0.0847070              0.6181780
 Zr    P
       0.0311380              1.0000000
+Zr    D
+      1.1606000              1.0000000
 Zr    D
       4.3948700             -0.0082920
       1.5708900              0.1278490
@@ -1061,8 +1028,6 @@ Zr    D
       0.2904140             -0.2555990
       0.1158780              0.4914180
 Zr    D
-      1.1606000              1.0000000
-Zr    D
       0.0429250              1.0000000
 Zr    F
       1.2022000              1.0000000
@@ -1071,7 +1036,7 @@ Zr    F
 end
 
 
-ecp "Zr_cc-pwcvdz-pp"
+ecp "Zr_cc-pwCVDZ-PP"
 Zr nelec 28
 Zr ul
 2       1.0000000              0.0000000
@@ -1092,7 +1057,7 @@ Zr F
 2       4.80021500            -5.23932000
 2       4.79899200            -6.98742400
 end
-basis "Nb_cc-pwcvdz-pp" 
+basis "Nb_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (23s,20p,12d,2f) -> [5s,5p,4d,2f]
 Nb    S
      80.8096000              0.0008890
@@ -1103,13 +1068,7 @@ Nb    S
       0.3974440              0.4547970
       0.0854690              0.0200510
 Nb    S
-     80.8096000             -0.0002000
-     17.9220000              0.0093020
-     11.2050000             -0.0414910
-      3.6990100              0.1923710
-      0.8712090             -0.3713520
-      0.3974440             -0.3068350
-      0.0854690              0.6546160
+      0.3119000              1.0000000
 Nb    S
      80.8096000              0.0015640
      17.9220000             -0.0382840
@@ -1119,7 +1078,13 @@ Nb    S
       0.3974440             -0.8262330
       0.0854690             -1.5845850
 Nb    S
-      0.3119000              1.0000000
+     80.8096000             -0.0002000
+     17.9220000              0.0093020
+     11.2050000             -0.0414910
+      3.6990100              0.1923710
+      0.8712090             -0.3713520
+      0.3974440             -0.3068350
+      0.0854690              0.6546160
 Nb    S
       0.0326640              1.0000000
 Nb    P
@@ -1130,12 +1095,7 @@ Nb    P
       0.2569700              0.1675400
       0.0929460              0.0087660
 Nb    P
-     10.6457000             -0.0064960
-      4.8235100              0.0513810
-      1.2030900             -0.1706080
-      0.5695080             -0.2198720
-      0.2569700              0.0561670
-      0.0929460              0.6165950
+      0.3413000              1.0000000
 Nb    P
      10.6457000             -0.0091300
       4.8235100              0.0732300
@@ -1144,9 +1104,16 @@ Nb    P
       0.2569700              0.2364390
       0.0929460              0.8267330
 Nb    P
-      0.3413000              1.0000000
+     10.6457000             -0.0064960
+      4.8235100              0.0513810
+      1.2030900             -0.1706080
+      0.5695080             -0.2198720
+      0.2569700              0.0561670
+      0.0929460              0.6165950
 Nb    P
       0.0338800              1.0000000
+Nb    D
+      1.3397000              1.0000000
 Nb    D
       4.5456300             -0.0104650
       1.8272300              0.1305530
@@ -1160,8 +1127,6 @@ Nb    D
       0.3551560             -0.2117820
       0.1447240              0.4861590
 Nb    D
-      1.3397000              1.0000000
-Nb    D
       0.0543230              1.0000000
 Nb    F
       1.5856000              1.0000000
@@ -1170,7 +1135,7 @@ Nb    F
 end
 
 
-ecp "Nb_cc-pwcvdz-pp"
+ecp "Nb_cc-pwCVDZ-PP"
 Nb nelec 28
 Nb ul
 2       1.0000000              0.0000000
@@ -1191,7 +1156,7 @@ Nb F
 2       5.56828500            -6.28135400
 2       5.67137200            -8.75564400
 end
-basis "Mo_cc-pwcvdz-pp" 
+basis "Mo_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (23s,20p,12d,2f) -> [5s,5p,4d,2f]
 Mo    S
     106.9780000              0.0007350
@@ -1202,13 +1167,7 @@ Mo    S
       0.4356920              0.4523110
       0.0925180              0.0190550
 Mo    S
-    106.9780000             -0.0001760
-     18.8824000              0.0093320
-     11.8077000             -0.0438110
-      4.0211800              0.1972320
-      0.9568160             -0.3773110
-      0.4356920             -0.2939670
-      0.0925180              0.6498330
+      0.3328000              1.0000000
 Mo    S
     106.9780000              0.0011660
      18.8824000             -0.0376070
@@ -1218,7 +1177,13 @@ Mo    S
       0.4356920             -0.8223450
       0.0925180             -1.5606240
 Mo    S
-      0.3328000              1.0000000
+    106.9780000             -0.0001760
+     18.8824000              0.0093320
+     11.8077000             -0.0438110
+      4.0211800              0.1972320
+      0.9568160             -0.3773110
+      0.4356920             -0.2939670
+      0.0925180              0.6498330
 Mo    S
       0.0348540              1.0000000
 Mo    P
@@ -1229,12 +1194,7 @@ Mo    P
       0.2791080              0.1595550
       0.1005260              0.0075430
 Mo    P
-     11.4118000             -0.0070220
-      5.2453500              0.0533390
-      1.3188400             -0.1756430
-      0.6229830             -0.2162130
-      0.2791080              0.0679580
-      0.1005260              0.6128160
+      0.4371000              1.0000000
 Mo    P
      11.4118000             -0.0104200
       5.2453500              0.0798670
@@ -1243,9 +1203,16 @@ Mo    P
       0.2791080              0.2866730
       0.1005260              0.8002580
 Mo    P
-      0.4371000              1.0000000
+     11.4118000             -0.0070220
+      5.2453500              0.0533390
+      1.3188400             -0.1756430
+      0.6229830             -0.2162130
+      0.2791080              0.0679580
+      0.1005260              0.6128160
 Mo    P
       0.0362770              1.0000000
+Mo    D
+      1.5039000              1.0000000
 Mo    D
       5.2576100             -0.0147610
       2.1046200              0.1319820
@@ -1259,8 +1226,6 @@ Mo    D
       0.4140470             -0.1923390
       0.1684500              0.5314590
 Mo    D
-      1.5039000              1.0000000
-Mo    D
       0.0623420              1.0000000
 Mo    F
       1.9502000              1.0000000
@@ -1269,7 +1234,7 @@ Mo    F
 end
 
 
-ecp "Mo_cc-pwcvdz-pp"
+ecp "Mo_cc-pwCVDZ-PP"
 Mo nelec 28
 Mo ul
 2       1.0000000              0.0000000
@@ -1290,8 +1255,10 @@ Mo F
 2       6.30663300            -7.17888800
 2       6.35644800            -9.74597800
 end
-basis "Tc_cc-pwcvdz-pp" 
+basis "Tc_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (23s,20p,12d,2f) -> [5s,5p,4d,2f]
+Tc    S
+      1.8559000              1.0000000
 Tc    S
     132.6560000              0.0006860
      19.8986000             -0.0360010
@@ -1301,14 +1268,6 @@ Tc    S
       0.4741590              0.4490550
       0.0987360              0.0183780
 Tc    S
-    132.6560000             -0.0001680
-     19.8986000              0.0093110
-     12.4450000             -0.0455350
-      4.3605000              0.1986020
-      1.0443600             -0.3749740
-      0.4741590             -0.2817600
-      0.0987360              0.6329980
-Tc    S
     132.6560000              0.0009800
      19.8986000             -0.0378410
      12.4450000              0.1317670
@@ -1317,9 +1276,17 @@ Tc    S
       0.4741590             -0.8047310
       0.0987360             -1.5511910
 Tc    S
-      1.8559000              1.0000000
+    132.6560000             -0.0001680
+     19.8986000              0.0093110
+     12.4450000             -0.0455350
+      4.3605000              0.1986020
+      1.0443600             -0.3749740
+      0.4741590             -0.2817600
+      0.0987360              0.6329980
 Tc    S
       0.0367360              1.0000000
+Tc    P
+      1.8254000              1.0000000
 Tc    P
      12.1789000              0.0273140
       5.6848400             -0.1814030
@@ -1328,13 +1295,6 @@ Tc    P
       0.3025150              0.1532990
       0.1073070              0.0067000
 Tc    P
-     12.1789000             -0.0074300
-      5.6848400              0.0541370
-      1.4398300             -0.1762270
-      0.6789090             -0.2096540
-      0.3025150              0.0734980
-      0.1073070              0.6070490
-Tc    P
      12.1789000             -0.0116300
       5.6848400              0.0854050
       1.4398300             -0.2844050
@@ -1342,9 +1302,16 @@ Tc    P
       0.3025150              0.3260330
       0.1073070              0.7801240
 Tc    P
-      1.8254000              1.0000000
+     12.1789000             -0.0074300
+      5.6848400              0.0541370
+      1.4398300             -0.1762270
+      0.6789090             -0.2096540
+      0.3025150              0.0734980
+      0.1073070              0.6070490
 Tc    P
       0.0381770              1.0000000
+Tc    D
+      1.7067000              1.0000000
 Tc    D
       5.7601300             -0.0164110
       2.3642400              0.1344070
@@ -1358,8 +1325,6 @@ Tc    D
       0.4740600             -0.1789920
       0.1936070              0.5346560
 Tc    D
-      1.7067000              1.0000000
-Tc    D
       0.0714600              1.0000000
 Tc    F
       2.2992000              1.0000000
@@ -1368,7 +1333,7 @@ Tc    F
 end
 
 
-ecp "Tc_cc-pwcvdz-pp"
+ecp "Tc_cc-pwCVDZ-PP"
 Tc nelec 28
 Tc ul
 2       1.0000000              0.0000000
@@ -1389,8 +1354,10 @@ Tc F
 2       7.04094000            -7.99562300
 2       7.06947300           -10.74569600
 end
-basis "Ru_cc-pwcvdz-pp" 
+basis "Ru_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (23s,20p,12d,2f) -> [5s,5p,4d,2f]
+Ru    S
+      2.0049000              1.0000000
 Ru    S
     159.3720000              0.0006730
      20.9016000             -0.0371610
@@ -1400,14 +1367,6 @@ Ru    S
       0.5154640              0.4477630
       0.1067670              0.0184450
 Ru    S
-    159.3720000             -0.0001690
-     20.9016000              0.0093920
-     13.0741000             -0.0477130
-      4.7147400              0.2011130
-      1.1361200             -0.3734210
-      0.5154640             -0.2738590
-      0.1067670              0.6093840
-Ru    S
     159.3720000              0.0008950
      20.9016000             -0.0396350
      13.0741000              0.1442430
@@ -1416,9 +1375,17 @@ Ru    S
       0.5154640             -0.9082030
       0.1067670             -1.4720020
 Ru    S
-      2.0049000              1.0000000
+    159.3720000             -0.0001690
+     20.9016000              0.0093920
+     13.0741000             -0.0477130
+      4.7147400              0.2011130
+      1.1361200             -0.3734210
+      0.5154640             -0.2738590
+      0.1067670              0.6093840
 Ru    S
       0.0392180              1.0000000
+Ru    P
+      2.0058000              1.0000000
 Ru    P
      12.8738000              0.0299680
       6.1475000             -0.1879300
@@ -1427,13 +1394,6 @@ Ru    P
       0.3263170              0.1475150
       0.1124070              0.0060880
 Ru    P
-     12.8738000             -0.0078010
-      6.1475000              0.0536560
-      1.5652400             -0.1719400
-      0.7361940             -0.1991700
-      0.3263170              0.0744110
-      0.1124070              0.5971370
-Ru    P
      12.8738000             -0.0135020
       6.1475000              0.0937330
       1.5652400             -0.3159100
@@ -1441,9 +1401,16 @@ Ru    P
       0.3263170              0.4008770
       0.1124070              0.7537660
 Ru    P
-      2.0058000              1.0000000
+     12.8738000             -0.0078010
+      6.1475000              0.0536560
+      1.5652400             -0.1719400
+      0.7361940             -0.1991700
+      0.3263170              0.0744110
+      0.1124070              0.5971370
 Ru    P
       0.0391720              1.0000000
+Ru    D
+      1.9189000              1.0000000
 Ru    D
       6.2126500             -0.0245970
       2.7853900              0.1273340
@@ -1457,8 +1424,6 @@ Ru    D
       0.5517900             -0.1690200
       0.2247310              0.5052370
 Ru    D
-      1.9189000              1.0000000
-Ru    D
       0.0824110              1.0000000
 Ru    F
       2.6573000              1.0000000
@@ -1467,7 +1432,7 @@ Ru    F
 end
 
 
-ecp "Ru_cc-pwcvdz-pp"
+ecp "Ru_cc-pwCVDZ-PP"
 Ru nelec 28
 Ru ul
 2       1.0000000              0.0000000
@@ -1488,8 +1453,10 @@ Ru F
 2       7.82024900            -8.84752500
 2       7.83964700           -11.83551800
 end
-basis "Rh_cc-pwcvdz-pp" 
+basis "Rh_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (23s,20p,12d,2f) -> [5s,5p,4d,2f]
+Rh    S
+      2.1539000              1.0000000
 Rh    S
     184.6660000              0.0006920
      21.9974000             -0.0383930
@@ -1499,14 +1466,6 @@ Rh    S
       0.5568140              0.4457290
       0.1140670              0.0182040
 Rh    S
-    184.6660000             -0.0001780
-     21.9974000              0.0094560
-     13.7616000             -0.0494720
-      5.0872000              0.2018670
-      1.2294000             -0.3698090
-      0.5568140             -0.2653310
-      0.1140670              0.5891540
-Rh    S
     184.6660000              0.0008370
      21.9974000             -0.0402860
      13.7616000              0.1506490
@@ -1515,9 +1474,17 @@ Rh    S
       0.5568140             -0.8876430
       0.1140670             -1.4709450
 Rh    S
-      2.1539000              1.0000000
+    184.6660000             -0.0001780
+     21.9974000              0.0094560
+     13.7616000             -0.0494720
+      5.0872000              0.2018670
+      1.2294000             -0.3698090
+      0.5568140             -0.2653310
+      0.1140670              0.5891540
 Rh    S
       0.0414150              1.0000000
+Rh    P
+      2.2173000              1.0000000
 Rh    P
      13.6985000              0.0318210
       6.6247600             -0.1930280
@@ -1526,13 +1493,6 @@ Rh    P
       0.3520340              0.1440300
       0.1233420              0.0056080
 Rh    P
-     13.6985000             -0.0085830
-      6.6247600              0.0568110
-      1.6961300             -0.1801720
-      0.7973510             -0.2034110
-      0.3520340              0.0848180
-      0.1233420              0.6010570
-Rh    P
      13.6985000             -0.0151640
       6.6247600              0.1011250
       1.6961300             -0.3456410
@@ -1540,15 +1500,16 @@ Rh    P
       0.3520340              0.4221020
       0.1233420              0.7304790
 Rh    P
-      2.2173000              1.0000000
+     13.6985000             -0.0085830
+      6.6247600              0.0568110
+      1.6961300             -0.1801720
+      0.7973510             -0.2034110
+      0.3520340              0.0848180
+      0.1233420              0.6010570
 Rh    P
       0.0431300              1.0000000
 Rh    D
-     18.7370000              0.0064810
-     11.7046000             -0.0139420
-      2.2555800              0.2506820
-      0.9494110              0.4511110
-      0.3661640              0.3839990
+      2.2449000              1.0000000
 Rh    D
      18.7370000             -0.0075900
      11.7046000              0.0162940
@@ -1556,7 +1517,11 @@ Rh    D
       0.9494110             -0.4463960
       0.3661640              0.3299670
 Rh    D
-      2.2449000              1.0000000
+     18.7370000              0.0064810
+     11.7046000             -0.0139420
+      2.2555800              0.2506820
+      0.9494110              0.4511110
+      0.3661640              0.3839990
 Rh    D
       0.1239770              1.0000000
 Rh    F
@@ -1566,7 +1531,7 @@ Rh    F
 end
 
 
-ecp "Rh_cc-pwcvdz-pp"
+ecp "Rh_cc-pwCVDZ-PP"
 Rh nelec 28
 Rh ul
 2       1.0000000              0.0000000
@@ -1587,8 +1552,10 @@ Rh F
 2       8.61622800            -9.67356800
 2       8.62943500           -12.89984700
 end
-basis "Pd_cc-pwcvdz-pp" 
+basis "Pd_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (23s,20p,12d,2f) -> [5s,5p,4d,2f]
+Pd    S
+      2.2956000              1.0000000
 Pd    S
     208.1230000              0.0007270
      22.8525000             -0.0409280
@@ -1598,14 +1565,6 @@ Pd    S
       0.5989570              0.4438760
       0.1209830              0.0178500
 Pd    S
-    208.1230000             -0.0001890
-     22.8525000              0.0098180
-     14.2986000             -0.0528760
-      5.4880100              0.2035110
-      1.3253200             -0.3639350
-      0.5989570             -0.2582190
-      0.1209830              0.5704320
-Pd    S
     208.1230000              0.0008000
      22.8525000             -0.0417810
      14.2986000              0.1593620
@@ -1614,9 +1573,17 @@ Pd    S
       0.5989570             -0.7916960
       0.1209830             -1.5172540
 Pd    S
-      2.2956000              1.0000000
+    208.1230000             -0.0001890
+     22.8525000              0.0098180
+     14.2986000             -0.0528760
+      5.4880100              0.2035110
+      1.3253200             -0.3639350
+      0.5989570             -0.2582190
+      0.1209830              0.5704320
 Pd    S
       0.0434590              1.0000000
+Pd    P
+      2.3900000              1.0000000
 Pd    P
      14.0509000              0.0379970
       7.1390600             -0.2040770
@@ -1625,13 +1592,6 @@ Pd    P
       0.3772750              0.1402910
       0.1256960              0.0051570
 Pd    P
-     14.0509000             -0.0093130
-      7.1390600              0.0546710
-      1.8300700             -0.1661610
-      0.8583350             -0.1858420
-      0.3772750              0.0731610
-      0.1256960              0.5861720
-Pd    P
      14.0509000             -0.0186030
       7.1390600              0.1098650
       1.8300700             -0.3664000
@@ -1639,15 +1599,16 @@ Pd    P
       0.3772750              0.4820340
       0.1256960              0.7096400
 Pd    P
-      2.3900000              1.0000000
+     14.0509000             -0.0093130
+      7.1390600              0.0546710
+      1.8300700             -0.1661610
+      0.8583350             -0.1858420
+      0.3772750              0.0731610
+      0.1256960              0.5861720
 Pd    P
       0.0426590              1.0000000
 Pd    D
-     19.2539000              0.0066240
-     10.5848000             -0.0184110
-      2.4561900              0.2633960
-      1.0352900              0.4524480
-      0.4020080              0.3758330
+      2.4699000              1.0000000
 Pd    D
      19.2539000             -0.0078390
      10.5848000              0.0218380
@@ -1655,7 +1616,11 @@ Pd    D
       1.0352900             -0.4309590
       0.4020080              0.3749650
 Pd    D
-      2.4699000              1.0000000
+     19.2539000              0.0066240
+     10.5848000             -0.0184110
+      2.4561900              0.2633960
+      1.0352900              0.4524480
+      0.4020080              0.3758330
 Pd    D
       0.1370570              1.0000000
 Pd    F
@@ -1665,7 +1630,7 @@ Pd    F
 end
 
 
-ecp "Pd_cc-pwcvdz-pp"
+ecp "Pd_cc-pwCVDZ-PP"
 Pd nelec 28
 Pd ul
 2       1.0000000              0.0000000
@@ -1686,8 +1651,10 @@ Pd F
 2       9.67957100           -10.98725500
 2       9.69134900           -14.62619000
 end
-basis "Ag_cc-pwcvdz-pp" 
+basis "Ag_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (23s,20p,12d,2f) -> [5s,5p,4d,2f]
+Ag    S
+      2.3985000              1.0000000
 Ag    S
     180.0750000              0.0008490
      21.8987000             -0.0654500
@@ -1713,9 +1680,9 @@ Ag    S
       0.6483820              0.5393730
       0.1288820              1.6533910
 Ag    S
-      2.3985000              1.0000000
-Ag    S
       0.0457380              1.0000000
+Ag    P
+      2.5852000              1.0000000
 Ag    P
      11.8751000              0.1162480
       8.0024500             -0.3072860
@@ -1724,13 +1691,6 @@ Ag    P
       0.4231180              0.1420950
       0.1358850              0.0051530
 Ag    P
-     11.8751000             -0.0282840
-      8.0024500              0.0783470
-      2.0176600             -0.1567410
-      0.9542300             -0.1886250
-      0.4231180              0.0635650
-      0.1358850              0.5817780
-Ag    P
      11.8751000             -0.0528570
       8.0024500              0.1470390
       2.0176600             -0.3129730
@@ -1738,15 +1698,16 @@ Ag    P
       0.4231180              0.4236290
       0.1358850              0.7536550
 Ag    P
-      2.5852000              1.0000000
+     11.8751000             -0.0282840
+      8.0024500              0.0783470
+      2.0176600             -0.1567410
+      0.9542300             -0.1886250
+      0.4231180              0.0635650
+      0.1358850              0.5817780
 Ag    P
       0.0454010              1.0000000
 Ag    D
-     26.4320000              0.0034790
-     11.0345000             -0.0138480
-      2.7378700              0.2545990
-      1.1957500              0.4498490
-      0.4820420              0.3757380
+      2.8365000              1.0000000
 Ag    D
      26.4320000             -0.0047330
      11.0345000              0.0190700
@@ -1754,7 +1715,11 @@ Ag    D
       1.1957500             -0.4445680
       0.4820420              0.4914420
 Ag    D
-      2.8365000              1.0000000
+     26.4320000              0.0034790
+     11.0345000             -0.0138480
+      2.7378700              0.2545990
+      1.1957500              0.4498490
+      0.4820420              0.3757380
 Ag    D
       0.1729080              1.0000000
 Ag    F
@@ -1764,7 +1729,7 @@ Ag    F
 end
 
 
-ecp "Ag_cc-pwcvdz-pp"
+ecp "Ag_cc-pwCVDZ-PP"
 Ag nelec 28
 Ag ul
 2       1.0000000              0.0000000
@@ -1785,8 +1750,10 @@ Ag F
 2      11.0129130            -12.6234030
 2      11.0198980            -16.7643270
 end
-basis "Cd_cc-pwcvdz-pp" 
+basis "Cd_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (23s,20p,12d,2f) -> [5s,5p,4d,2f]
+Cd    S
+      2.6738000              1.0000000
 Cd    S
     223.8530000              0.0008710
      23.0948000             -0.0643070
@@ -1796,14 +1763,6 @@ Cd    S
       0.6909840              0.4278790
       0.1349130              0.0101880
 Cd    S
-    223.8530000             -0.0002290
-     23.0948000              0.0155940
-     14.6522000             -0.0810470
-      6.5704440              0.2272510
-      1.5378300             -0.3625630
-      0.6909840             -0.2507830
-      0.1349130              0.6135330
-Cd    S
     223.8530000              0.0010770
      23.0948000             -0.0716490
      14.6522000              0.2889750
@@ -1812,9 +1771,17 @@ Cd    S
       0.6909840             -1.3519510
       0.1349130             -1.1186740
 Cd    S
-      2.6738000              1.0000000
+    223.8530000             -0.0002290
+     23.0948000              0.0155940
+     14.6522000             -0.0810470
+      6.5704440              0.2272510
+      1.5378300             -0.3625630
+      0.6909840             -0.2507830
+      0.1349130              0.6135330
 Cd    S
       0.0474420              1.0000000
+Cd    P
+      2.7157000              1.0000000
 Cd    P
      13.7175000              0.0776160
       8.4632200             -0.2579430
@@ -1823,13 +1790,6 @@ Cd    P
       0.4317810              0.1231090
       0.1391600              0.0032100
 Cd    P
-     13.7175000             -0.0180110
-      8.4632200              0.0637170
-      2.1182000             -0.1587410
-      0.9892620             -0.1762800
-      0.4317810              0.0710060
-      0.1391600              0.5775860
-Cd    P
      13.7175000             -0.0307300
       8.4632200              0.1087440
       2.1182000             -0.2782310
@@ -1837,15 +1797,16 @@ Cd    P
       0.4317810              0.3546300
       0.1391600              0.7814580
 Cd    P
-      2.7157000              1.0000000
+     13.7175000             -0.0180110
+      8.4632200              0.0637170
+      2.1182000             -0.1587410
+      0.9892620             -0.1762800
+      0.4317810              0.0710060
+      0.1391600              0.5775860
 Cd    P
       0.0461490              1.0000000
 Cd    D
-     31.6697000              0.0031630
-     12.2214000             -0.0117910
-      3.1219900              0.2411940
-      1.3894100              0.4489980
-      0.5732030              0.3802110
+      3.3125000              1.0000000
 Cd    D
      31.6697000             -0.0048710
      12.2214000              0.0185820
@@ -1853,7 +1814,11 @@ Cd    D
       1.3894100             -0.4576040
       0.5732030              0.5714620
 Cd    D
-      3.3125000              1.0000000
+     31.6697000              0.0031630
+     12.2214000             -0.0117910
+      3.1219900              0.2411940
+      1.3894100              0.4489980
+      0.5732030              0.3802110
 Cd    D
       0.2117080              1.0000000
 Cd    F
@@ -1863,7 +1828,7 @@ Cd    F
 end
 
 
-ecp "Cd_cc-pwcvdz-pp"
+ecp "Cd_cc-pwCVDZ-PP"
 Cd nelec 28
 Cd ul
 2       1.0000000              0.0000000
@@ -1884,15 +1849,8 @@ Cd F
 2      11.4789860            -12.6327850
 2      11.4870270            -16.7601710
 end
-basis "In_cc-pwcvdz-pp" 
+basis "In_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (15s,12p,7d,1f) -> [5s,4p,3d,1f]
-In    S
-    265.1310000              0.0007700
-     25.5694000             -0.0527910
-     16.0041000              0.2593430
-      6.8188500             -0.7392890
-      1.6667600              0.8857730
-      0.7692320              0.4425920
 In    S
     265.1310000             -0.0002300
      25.5694000              0.0140880
@@ -1900,6 +1858,13 @@ In    S
       6.8188500              0.2528640
       1.6667600             -0.4155450
       0.7692320             -0.2966470
+In    S
+    265.1310000              0.0007700
+     25.5694000             -0.0527910
+     16.0041000              0.2593430
+      6.8188500             -0.7392890
+      1.6667600              0.8857730
+      0.7692320              0.4425920
 In    S
       6.629000E-01           1.000000E+00
 In    S
@@ -1913,13 +1878,13 @@ In    P
       0.8443140              0.4616900
       0.1869000              0.0270590
 In    P
+      4.939000E-01           1.000000E+00
+In    P
      14.4691000             -0.0190230
       9.2808300              0.0591570
       2.0820100             -0.1807490
       0.8443140             -0.1145820
       0.1869000              0.4407390
-In    P
-      4.939000E-01           1.000000E+00
 In    P
       0.0547770              1.0000000
 In    D
@@ -1937,7 +1902,7 @@ In    F
 end
 
 
-ecp "In_cc-pwcvdz-pp"
+ecp "In_cc-pwCVDZ-PP"
 In nelec 28
 In ul
 2       1.0000000              0.0000000
@@ -1958,15 +1923,8 @@ In F
 2      12.5390560            -13.7280780
 2      12.5525610            -18.2068660
 end
-basis "Sn_cc-pwcvdz-pp" 
+basis "Sn_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (15s,12p,7d,1f) -> [5s,4p,3d,1f]
-Sn    S
-    380.3660000              0.0011650
-     28.5822000             -0.0260060
-     17.8892000              0.1660430
-      6.9286200             -0.6589140
-      1.7839100              0.8693360
-      0.8431380              0.4521320
 Sn    S
     380.3660000             -0.0004420
      28.5822000              0.0057020
@@ -1974,6 +1932,13 @@ Sn    S
       6.9286200              0.2520870
       1.7839100             -0.4703430
       0.8431380             -0.3161440
+Sn    S
+    380.3660000              0.0011650
+     28.5822000             -0.0260060
+     17.8892000              0.1660430
+      6.9286200             -0.6589140
+      1.7839100              0.8693360
+      0.8431380              0.4521320
 Sn    S
       7.784000E-01           1.000000E+00
 Sn    S
@@ -1987,13 +1952,13 @@ Sn    P
       0.9214590              0.4555060
       0.2178580              0.0272160
 Sn    P
+      5.984000E-01           1.000000E+00
+Sn    P
      18.5489000             -0.0090520
       9.5669600              0.0517620
       2.2186100             -0.2217430
       0.9214590             -0.1242790
       0.2178580              0.5218530
-Sn    P
-      5.984000E-01           1.000000E+00
 Sn    P
       0.0693200              1.0000000
 Sn    D
@@ -2011,7 +1976,7 @@ Sn    F
 end
 
 
-ecp "Sn_cc-pwcvdz-pp"
+ecp "Sn_cc-pwCVDZ-PP"
 Sn nelec 28
 Sn ul
 2       1.0000000              0.0000000
@@ -2032,15 +1997,8 @@ Sn F
 2      12.2823480            -12.5763330
 2      12.2721500            -16.5959440
 end
-basis "Sb_cc-pwcvdz-pp" 
+basis "Sb_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (15s,12p,7d,1f) -> [5s,4p,3d,1f]
-Sb    S
-    371.5840000              0.0015910
-     26.5392000             -0.0416840
-     16.6213000              0.2733430
-      7.7355100             -0.7676850
-      1.8923400              0.8994960
-      0.9104310              0.4313870
 Sb    S
     371.5840000              0.0006540
      26.5392000             -0.0109620
@@ -2048,6 +2006,13 @@ Sb    S
       7.7355100             -0.3040090
       1.8923400              0.5084090
       0.9104310              0.3392390
+Sb    S
+    371.5840000              0.0015910
+     26.5392000             -0.0416840
+     16.6213000              0.2733430
+      7.7355100             -0.7676850
+      1.8923400              0.8994960
+      0.9104310              0.4313870
 Sb    S
       8.601000E-01           1.000000E+00
 Sb    S
@@ -2061,13 +2026,13 @@ Sb    P
       1.0336000              0.4668920
       0.2594400              0.0285110
 Sb    P
+      6.770000E-01           1.000000E+00
+Sb    P
      16.0509000             -0.0253130
      10.2621000              0.0797960
       2.4283200             -0.2420940
       1.0336000             -0.1486050
       0.2594400              0.5489440
-Sb    P
-      6.770000E-01           1.000000E+00
 Sb    P
       0.0861080              1.0000000
 Sb    D
@@ -2085,7 +2050,7 @@ Sb    F
 end
 
 
-ecp "Sb_cc-pwcvdz-pp"
+ecp "Sb_cc-pwCVDZ-PP"
 Sb nelec 28
 Sb ul
 2       1.0000000              0.0000000
@@ -2106,15 +2071,8 @@ Sb F
 2      14.4449780            -15.3668010
 2      14.4492950            -20.2961380
 end
-basis "Te_cc-pwcvdz-pp" 
+basis "Te_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (15s,12p,7d,1f) -> [5s,4p,3d,1f]
-Te    S
-   2111.1900000              0.0006120
-    311.6910000              0.0032070
-     13.8226000              0.4055120
-      8.7174800             -0.9325880
-      1.9830300              0.9196570
-      0.9703770              0.4046710
 Te    S
    2111.1900000              0.0002510
     311.6910000              0.0014570
@@ -2122,6 +2080,13 @@ Te    S
       8.7174800             -0.3984550
       1.9830300              0.5780740
       0.9703770              0.3271240
+Te    S
+   2111.1900000              0.0006120
+    311.6910000              0.0032070
+     13.8226000              0.4055120
+      8.7174800             -0.9325880
+      1.9830300              0.9196570
+      0.9703770              0.4046710
 Te    S
       9.701000E-01           1.000000E+00
 Te    S
@@ -2135,13 +2100,13 @@ Te    P
       1.1267600              0.4607440
       0.3001760              0.0288090
 Te    P
+      7.747000E-01           1.000000E+00
+Te    P
      17.0629000             -0.0268610
      10.8306000              0.0863040
       2.5938000             -0.2735020
       1.1267600             -0.1513900
       0.3001760              0.5839760
-Te    P
-      7.747000E-01           1.000000E+00
 Te    P
       0.0975510              1.0000000
 Te    D
@@ -2159,7 +2124,7 @@ Te    F
 end
 
 
-ecp "Te_cc-pwcvdz-pp"
+ecp "Te_cc-pwCVDZ-PP"
 Te nelec 28
 Te ul
 2       1.0000000              0.0000000
@@ -2180,15 +2145,8 @@ Te F
 2      15.2061680            -15.7454500
 2      15.2017020            -20.7424480
 end
-basis "I_cc-pwcvdz-pp" 
+basis "I_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (15s,12p,7d,1f) -> [5s,4p,3d,1f]
-I    S
-      2.449790E+03           4.190000E-04
-      3.598080E+02           2.240000E-03
-      1.440580E+01           3.972230E-01
-      9.076320E+00          -9.322490E-01
-      2.088100E+00           9.371380E-01
-      1.034980E+00           3.920860E-01
 I    S
       2.449790E+03           1.750000E-04
       3.598080E+02           1.057000E-03
@@ -2196,6 +2154,13 @@ I    S
       9.076320E+00          -4.217930E-01
       2.088100E+00           6.388640E-01
       1.034980E+00           3.201150E-01
+I    S
+      2.449790E+03           4.190000E-04
+      3.598080E+02           2.240000E-03
+      1.440580E+01           3.972230E-01
+      9.076320E+00          -9.322490E-01
+      2.088100E+00           9.371380E-01
+      1.034980E+00           3.920860E-01
 I    S
       1.064800E+00           1.000000E+00
 I    S
@@ -2209,13 +2174,13 @@ I    P
       1.204300E+00           4.506730E-01
       3.399450E-01           2.898000E-02
 I    P
+      8.790000E-01           1.000000E+00
+I    P
       1.953010E+01          -1.883600E-02
       1.108820E+01           8.000600E-02
       2.715630E+00          -3.066520E-01
       1.204300E+00          -1.475940E-01
       3.399450E-01           6.075060E-01
-I    P
-      8.790000E-01           1.000000E+00
 I    P
       1.108810E-01           1.000000E+00
 I    D
@@ -2233,7 +2198,7 @@ I    F
 end
 
 
-ecp "I_cc-pwcvdz-pp"
+ecp "I_cc-pwCVDZ-PP"
 I nelec 28
 I ul
 2       1.00000000             0.00000000
@@ -2257,15 +2222,8 @@ I F
 2       7.55790100            -0.22043400
 2       7.59740400            -0.22164600
 end
-basis "Xe_cc-pwcvdz-pp" 
+basis "Xe_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (15s,12p,7d,1f) -> [5s,4p,3d,1f]
-Xe    S
-   2058.3200000              0.0009380
-    307.4270000              0.0044200
-     15.7815000              0.3543950
-      9.5447000             -0.8885140
-      2.2296900              0.9496240
-      1.1120000              0.3810660
 Xe    S
    2058.3200000             -0.0004380
     307.4270000             -0.0022770
@@ -2273,6 +2231,13 @@ Xe    S
       9.5447000              0.4175780
       2.2296900             -0.6793250
       1.1120000             -0.3183090
+Xe    S
+   2058.3200000              0.0009380
+    307.4270000              0.0044200
+     15.7815000              0.3543950
+      9.5447000             -0.8885140
+      2.2296900              0.9496240
+      1.1120000              0.3810660
 Xe    S
       1.178500E+00           1.000000E+00
 Xe    S
@@ -2286,13 +2251,13 @@ Xe    P
       1.3189000              0.4501800
       0.3858160              0.0286890
 Xe    P
+      9.819000E-01           1.000000E+00
+Xe    P
      20.1725000             -0.0229670
      11.8122000              0.0881150
       2.9346000             -0.3233110
       1.3189000             -0.1542280
       0.3858160              0.6228820
-Xe    P
-      9.819000E-01           1.000000E+00
 Xe    P
       0.1269610              1.0000000
 Xe    D
@@ -2310,7 +2275,7 @@ Xe    F
 end
 
 
-ecp "Xe_cc-pwcvdz-pp"
+ecp "Xe_cc-pwCVDZ-PP"
 Xe nelec 28
 Xe ul
 2       1.0000000              0.0000000
@@ -2336,8 +2301,10 @@ Xe F
 2       5.2533890             -0.2882270
 2       5.3611880             -0.3869240
 end
-basis "Hf_cc-pwcvdz-pp" 
+basis "Hf_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (23s,20p,12d,2f) -> [5s,5p,4d,2f]
+Hf    S
+      1.1074000              1.0000000
 Hf    S
      29.2650000              0.0294330
      18.3491000             -0.1987340
@@ -2347,14 +2314,6 @@ Hf    S
       0.4057400              0.4202920
       0.0950670              0.0131930
 Hf    S
-     29.2650000             -0.0090770
-     18.3491000              0.0611920
-     11.5257000             -0.1354740
-      4.3859900              0.2530470
-      0.8910800             -0.3699320
-      0.4057400             -0.3314430
-      0.0950670              0.6577990
-Hf    S
      29.2650000              0.0309420
      18.3491000             -0.1631770
      11.5257000              0.3100050
@@ -2363,9 +2322,17 @@ Hf    S
       0.4057400             -0.4970260
       0.0950670             -1.8102840
 Hf    S
-      1.1074000              1.0000000
+     29.2650000             -0.0090770
+     18.3491000              0.0611920
+     11.5257000             -0.1354740
+      4.3859900              0.2530470
+      0.8910800             -0.3699320
+      0.4057400             -0.3314430
+      0.0950670              0.6577990
 Hf    S
       0.0358680              1.0000000
+Hf    P
+      1.8632000              1.0000000
 Hf    P
       7.1199600              0.1786130
       4.6018200             -0.5085500
@@ -2388,15 +2355,9 @@ Hf    P
       0.3915000             -0.1743340
       0.1071520              0.9190410
 Hf    P
-      1.8632000              1.0000000
-Hf    P
       0.0367710              1.0000000
 Hf    D
-      7.4982700              0.0144910
-      4.6961800             -0.0529680
-      1.0636000              0.2380440
-      0.4188210              0.4352750
-      0.1545660              0.4244200
+      1.0566000              1.0000000
 Hf    D
       7.4982700             -0.0165460
       4.6961800              0.0618730
@@ -2404,7 +2365,11 @@ Hf    D
       0.4188210             -0.5274120
       0.1545660              0.3428660
 Hf    D
-      1.0566000              1.0000000
+      7.4982700              0.0144910
+      4.6961800             -0.0529680
+      1.0636000              0.2380440
+      0.4188210              0.4352750
+      0.1545660              0.4244200
 Hf    D
       0.0526440              1.0000000
 Hf    F
@@ -2414,7 +2379,7 @@ Hf    F
 end
 
 
-ecp "Hf_cc-pwcvdz-pp"
+ecp "Hf_cc-pwCVDZ-PP"
 Hf nelec 60
 Hf ul
 2       1.00000000             0.00000000
@@ -2443,8 +2408,10 @@ Hf G
 2       2.72418000            -4.63658500
 2       2.70895300            -5.76728800
 end
-basis "Ta_cc-pwcvdz-pp" 
+basis "Ta_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (23s,20p,12d,2f) -> [5s,5p,4d,2f]
+Ta    S
+      1.2903000              1.0000000
 Ta    S
      29.8670000              0.0287250
      18.7203000             -0.1985810
@@ -2454,14 +2421,6 @@ Ta    S
       0.4340380              0.4136940
       0.1050310              0.0121460
 Ta    S
-     29.8670000             -0.0091320
-     18.7203000              0.0630170
-     11.7533000             -0.1437480
-      4.5708900              0.2705360
-      0.9478400             -0.4015970
-      0.4340380             -0.3195670
-      0.1050310              0.6651050
-Ta    S
      29.8670000              0.0324720
      18.7203000             -0.1723550
      11.7533000              0.3341840
@@ -2470,9 +2429,17 @@ Ta    S
       0.4340380             -0.6032250
       0.1050310             -1.7315730
 Ta    S
-      1.2903000              1.0000000
+     29.8670000             -0.0091320
+     18.7203000              0.0630170
+     11.7533000             -0.1437480
+      4.5708900              0.2705360
+      0.9478400             -0.4015970
+      0.4340380             -0.3195670
+      0.1050310              0.6651050
 Ta    S
       0.0389480              1.0000000
+Ta    P
+      1.8881000              1.0000000
 Ta    P
       7.3652400              0.1796820
       4.7544000             -0.5211000
@@ -2495,15 +2462,9 @@ Ta    P
       0.4196000             -0.1275720
       0.1182390              0.9415430
 Ta    P
-      1.8881000              1.0000000
-Ta    P
       0.0401010              1.0000000
 Ta    D
-      7.5616000              0.0178690
-      4.7408700             -0.0661360
-      1.1697500              0.2554580
-      0.4793100              0.4454920
-      0.1837040              0.4029670
+      1.1858000              1.0000000
 Ta    D
       7.5616000             -0.0205840
       4.7408700              0.0780240
@@ -2511,7 +2472,11 @@ Ta    D
       0.4793100             -0.5155940
       0.1837040              0.4207610
 Ta    D
-      1.1858000              1.0000000
+      7.5616000              0.0178690
+      4.7408700             -0.0661360
+      1.1697500              0.2554580
+      0.4793100              0.4454920
+      0.1837040              0.4029670
 Ta    D
       0.0644090              1.0000000
 Ta    F
@@ -2521,7 +2486,7 @@ Ta    F
 end
 
 
-ecp "Ta_cc-pwcvdz-pp"
+ecp "Ta_cc-pwCVDZ-PP"
 Ta nelec 60
 Ta ul
 2       1.00000000             0.00000000
@@ -2550,8 +2515,10 @@ Ta G
 2       3.14592000            -5.68406600
 2       3.12794200            -7.06231300
 end
-basis "W_cc-pwcvdz-pp" 
+basis "W_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (23s,20p,12d,2f) -> [5s,5p,4d,2f]
+W    S
+      1.4039000              1.0000000
 W    S
      31.1844000              0.0268990
      19.5385000             -0.1892380
@@ -2561,14 +2528,6 @@ W    S
       0.4634560              0.4101950
       0.1137920              0.0110440
 W    S
-     31.1844000             -0.0086330
-     19.5385000              0.0609770
-     12.2602000             -0.1418640
-      4.7203700              0.2797320
-      1.0095700             -0.4285050
-      0.4634560             -0.3050150
-      0.1137920              0.6713040
-W    S
      31.1844000              0.0314780
      19.5385000             -0.1676990
      12.2602000              0.3282920
@@ -2577,9 +2536,17 @@ W    S
       0.4634560             -0.6488270
       0.1137920             -1.6892530
 W    S
-      1.4039000              1.0000000
+     31.1844000             -0.0086330
+     19.5385000              0.0609770
+     12.2602000             -0.1418640
+      4.7203700              0.2797320
+      1.0095700             -0.4285050
+      0.4634560             -0.3050150
+      0.1137920              0.6713040
 W    S
       0.0416420              1.0000000
+W    P
+      1.9787000              1.0000000
 W    P
       7.7873800              0.1852090
       5.0493000             -0.5283120
@@ -2602,15 +2569,9 @@ W    P
       0.4491060             -0.0766750
       0.1276250              0.9477960
 W    P
-      1.9787000              1.0000000
-W    P
       0.0427440              1.0000000
 W    D
-      8.3098300              0.0219490
-      5.2246300             -0.0773760
-      1.2952900              0.2632410
-      0.5397610              0.4595460
-      0.2089270              0.3922120
+      1.3398000              1.0000000
 W    D
       8.3098300             -0.0263810
       5.2246300              0.0952520
@@ -2618,7 +2579,11 @@ W    D
       0.5397610             -0.5079960
       0.2089270              0.5236000
 W    D
-      1.3398000              1.0000000
+      8.3098300              0.0219490
+      5.2246300             -0.0773760
+      1.2952900              0.2632410
+      0.5397610              0.4595460
+      0.2089270              0.3922120
 W    D
       0.0731130              1.0000000
 W    F
@@ -2628,7 +2593,7 @@ W    F
 end
 
 
-ecp "W_cc-pwcvdz-pp"
+ecp "W_cc-pwCVDZ-PP"
 W nelec 60
 W ul
 2       1.00000000             0.00000000
@@ -2656,8 +2621,10 @@ W G
 2       3.58349100            -6.80294400
 2       3.56251500            -8.44323200
 end
-basis "Re_cc-pwcvdz-pp" 
+basis "Re_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (23s,20p,12d,2f) -> [5s,5p,4d,2f]
+Re    S
+      1.5499000              1.0000000
 Re    S
      33.0133000              0.0221330
      20.6658000             -0.1618310
@@ -2667,14 +2634,6 @@ Re    S
       0.5000250              0.4224690
       0.1210690              0.0172060
 Re    S
-     33.0133000             -0.0070680
-     20.6658000              0.0530520
-     12.9498000             -0.1282310
-      4.7782300              0.2853960
-      1.0858000             -0.4487810
-      0.5000250             -0.2976680
-      0.1210690              0.6634730
-Re    S
      33.0133000              0.0274240
      20.6658000             -0.1468310
      12.9498000              0.2908580
@@ -2683,9 +2642,17 @@ Re    S
       0.5000250             -0.6321790
       0.1210690             -1.6875030
 Re    S
-      1.5499000              1.0000000
+     33.0133000             -0.0070680
+     20.6658000              0.0530520
+     12.9498000             -0.1282310
+      4.7782300              0.2853960
+      1.0858000             -0.4487810
+      0.5000250             -0.2976680
+      0.1210690              0.6634730
 Re    S
       0.0438810              1.0000000
+Re    P
+      1.7900000              1.0000000
 Re    P
       8.6759800              0.1394900
       5.6538200             -0.3569770
@@ -2694,13 +2661,6 @@ Re    P
       0.3163520              0.1708180
       0.1093090              0.0097820
 Re    P
-      8.6759800             -0.0412390
-      5.6538200              0.1083450
-      1.4063900             -0.1688840
-      0.6920560             -0.2386860
-      0.3163520              0.0632430
-      0.1093090              0.6102210
-Re    P
       8.6759800             -0.0651350
       5.6538200              0.1725300
       1.4063900             -0.2649320
@@ -2708,15 +2668,16 @@ Re    P
       0.3163520              0.3991830
       0.1093090              0.8030920
 Re    P
-      1.7900000              1.0000000
+      8.6759800             -0.0412390
+      5.6538200              0.1083450
+      1.4063900             -0.1688840
+      0.6920560             -0.2386860
+      0.3163520              0.0632430
+      0.1093090              0.6102210
 Re    P
       0.0385810              1.0000000
 Re    D
-      8.6719700              0.0171910
-      5.4414200             -0.0665390
-      1.3750800              0.2711570
-      0.5838300              0.4487710
-      0.2293620              0.3778590
+      1.4130000              1.0000000
 Re    D
       8.6719700             -0.0203340
       5.4414200              0.0775390
@@ -2724,7 +2685,11 @@ Re    D
       0.5838300             -0.4745880
       0.2293620              0.4599950
 Re    D
-      1.4130000              1.0000000
+      8.6719700              0.0171910
+      5.4414200             -0.0665390
+      1.3750800              0.2711570
+      0.5838300              0.4487710
+      0.2293620              0.3778590
 Re    D
       0.0808850              1.0000000
 Re    F
@@ -2734,7 +2699,7 @@ Re    F
 end
 
 
-ecp "Re_cc-pwcvdz-pp"
+ecp "Re_cc-pwCVDZ-PP"
 Re nelec 60
 Re ul
 2       1.00000000             0.00000000
@@ -2758,8 +2723,10 @@ Re G
 2       4.03459900            -7.97494000
 2       4.00962800            -9.88273600
 end
-basis "Os_cc-pwcvdz-pp" 
+basis "Os_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (23s,20p,12d,2f) -> [5s,5p,4d,2f]
+Os    S
+      1.7294000              1.0000000
 Os    S
      34.5933000              0.0194050
      21.6442000             -0.1468750
@@ -2769,14 +2736,6 @@ Os    S
       0.5380840              0.4302560
       0.1306730              0.0181640
 Os    S
-     34.5933000             -0.0059240
-     21.6442000              0.0475810
-     13.5521000             -0.1198590
-      4.8950800              0.2905900
-      1.1634600             -0.4633260
-      0.5380840             -0.2910580
-      0.1306730              0.6489970
-Os    S
      34.5933000              0.0286790
      21.6442000             -0.1533520
      13.5521000              0.3066570
@@ -2785,9 +2744,17 @@ Os    S
       0.5380840             -0.9098660
       0.1306730             -1.5178370
 Os    S
-      1.7294000              1.0000000
+     34.5933000             -0.0059240
+     21.6442000              0.0475810
+     13.5521000             -0.1198590
+      4.8950800              0.2905900
+      1.1634600             -0.4633260
+      0.5380840             -0.2910580
+      0.1306730              0.6489970
 Os    S
       0.0469820              1.0000000
+Os    P
+      1.8897000              1.0000000
 Os    P
       9.1259400              0.1316100
       5.8907300             -0.3487910
@@ -2796,13 +2763,6 @@ Os    P
       0.3084380              0.1387070
       0.1086800              0.0055910
 Os    P
-      9.1259400             -0.0379630
-      5.8907300              0.1036120
-      1.4397800             -0.1857190
-      0.6929760             -0.2213770
-      0.3084380              0.0960590
-      0.1086800              0.6029380
-Os    P
       9.1259400             -0.0676070
       5.8907300              0.1858450
       1.4397800             -0.3480470
@@ -2810,9 +2770,16 @@ Os    P
       0.3084380              0.5586130
       0.1086800              0.7068530
 Os    P
-      1.8897000              1.0000000
+      9.1259400             -0.0379630
+      5.8907300              0.1036120
+      1.4397800             -0.1857190
+      0.6929760             -0.2213770
+      0.3084380              0.0960590
+      0.1086800              0.6029380
 Os    P
       0.0381830              1.0000000
+Os    D
+      1.5402000              1.0000000
 Os    D
       9.3395000              0.0158420
       5.8557100             -0.0635100
@@ -2826,8 +2793,6 @@ Os    D
       0.6312200             -0.4620180
       0.2506620              0.5555660
 Os    D
-      1.5402000              1.0000000
-Os    D
       0.0891640              1.0000000
 Os    F
       1.5904000              1.0000000
@@ -2836,7 +2801,7 @@ Os    F
 end
 
 
-ecp "Os_cc-pwcvdz-pp"
+ecp "Os_cc-pwCVDZ-PP"
 Os nelec 60
 Os ul
 2       1.00000000             0.00000000
@@ -2860,8 +2825,10 @@ Os G
 2       4.49698100            -9.18134300
 2       4.46773800           -11.36160400
 end
-basis "Ir_cc-pwcvdz-pp" 
+basis "Ir_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (23s,20p,12d,2f) -> [5s,5p,4d,2f]
+Ir    S
+      1.8375000              1.0000000
 Ir    S
      36.0577000              0.0172890
      22.5516000             -0.1359910
@@ -2871,14 +2838,6 @@ Ir    S
       0.5769240              0.4378070
       0.1394660              0.0187690
 Ir    S
-     36.0577000             -0.0049480
-     22.5516000              0.0431240
-     14.1116000             -0.1138030
-      5.0447500              0.2953180
-      1.2441700             -0.4732180
-      0.5769240             -0.2840000
-      0.1394660              0.6351880
-Ir    S
      36.0577000              0.0290550
      22.5516000             -0.1546790
      14.1116000              0.3116730
@@ -2887,9 +2846,17 @@ Ir    S
       0.5769240             -1.0291110
       0.1394660             -1.4393180
 Ir    S
-      1.8375000              1.0000000
+     36.0577000             -0.0049480
+     22.5516000              0.0431240
+     14.1116000             -0.1138030
+      5.0447500              0.2953180
+      1.2441700             -0.4732180
+      0.5769240             -0.2840000
+      0.1394660              0.6351880
 Ir    S
       0.0497400              1.0000000
+Ir    P
+      2.0406000              1.0000000
 Ir    P
       9.5858000              0.1256510
       6.1408800             -0.3433060
@@ -2898,13 +2865,6 @@ Ir    P
       0.3120660              0.1228370
       0.1151600              0.0033780
 Ir    P
-      9.5858000             -0.0379390
-      6.1408800              0.1069870
-      1.4976000             -0.2083670
-      0.7141440             -0.2217720
-      0.3120660              0.1266520
-      0.1151600              0.6103680
-Ir    P
       9.5858000             -0.0740030
       6.1408800              0.2101790
       1.4976000             -0.4612670
@@ -2912,15 +2872,16 @@ Ir    P
       0.3120660              0.6521120
       0.1151600              0.6073860
 Ir    P
-      2.0406000              1.0000000
+      9.5858000             -0.0379390
+      6.1408800              0.1069870
+      1.4976000             -0.2083670
+      0.7141440             -0.2217720
+      0.3120660              0.1266520
+      0.1151600              0.6103680
 Ir    P
       0.0412770              1.0000000
 Ir    D
-      9.9606900              0.0154630
-      6.2430300             -0.0631200
-      1.5631700              0.2923090
-      0.6819400              0.4527480
-      0.2734460              0.3571590
+      1.6689000              1.0000000
 Ir    D
       9.9606900             -0.0198010
       6.2430300              0.0777020
@@ -2928,7 +2889,11 @@ Ir    D
       0.6819400             -0.4331870
       0.2734460              0.4752470
 Ir    D
-      1.6689000              1.0000000
+      9.9606900              0.0154630
+      6.2430300             -0.0631200
+      1.5631700              0.2923090
+      0.6819400              0.4527480
+      0.2734460              0.3571590
 Ir    D
       0.0980080              1.0000000
 Ir    F
@@ -2938,7 +2903,7 @@ Ir    F
 end
 
 
-ecp "Ir_cc-pwcvdz-pp"
+ecp "Ir_cc-pwCVDZ-PP"
 Ir nelec 60
 Ir ul
 2       1.00000000             0.00000000
@@ -2962,8 +2927,10 @@ Ir G
 2       4.96979000           -10.41069700
 2       4.93561400           -12.86319600
 end
-basis "Pt_cc-pwcvdz-pp" 
+basis "Pt_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (23s,20p,12d,2f) -> [5s,5p,4d,2f]
+Pt    S
+      1.9414000              1.0000000
 Pt    S
      37.3750000              0.0156980
      23.3685000             -0.1285150
@@ -2973,14 +2940,6 @@ Pt    S
       0.6163210              0.4444260
       0.1480680              0.0192250
 Pt    S
-     37.3750000             -0.0041400
-     23.3685000              0.0396870
-     14.6164000             -0.1100630
-      5.2209620              0.3003960
-      1.3267320             -0.4809750
-      0.6163210             -0.2769970
-      0.1480680              0.6216130
-Pt    S
      37.3750000              0.0303040
      23.3685000             -0.1595530
      14.6164000              0.3222870
@@ -2989,9 +2948,17 @@ Pt    S
       0.6163210             -1.1164460
       0.1480680             -1.3836520
 Pt    S
-      1.9414000              1.0000000
+     37.3750000             -0.0041400
+     23.3685000              0.0396870
+     14.6164000             -0.1100630
+      5.2209620              0.3003960
+      1.3267320             -0.4809750
+      0.6163210             -0.2769970
+      0.1480680              0.6216130
 Pt    S
       0.0523910              1.0000000
+Pt    P
+      2.1481000              1.0000000
 Pt    P
       9.9926800              0.1240460
       6.3831700             -0.3446320
@@ -3000,13 +2967,6 @@ Pt    P
       0.3180200              0.1119590
       0.1141460              0.0019280
 Pt    P
-      9.9926800             -0.0346870
-      6.3831700              0.0999320
-      1.5696500             -0.2018840
-      0.7427790             -0.1984590
-      0.3180200              0.1230340
-      0.1141460              0.5955770
-Pt    P
       9.9926800             -0.0771530
       6.3831700              0.2234940
       1.5696500             -0.5228040
@@ -3014,9 +2974,16 @@ Pt    P
       0.3180200              0.7297730
       0.1141460              0.5372880
 Pt    P
-      2.1481000              1.0000000
+      9.9926800             -0.0346870
+      6.3831700              0.0999320
+      1.5696500             -0.2018840
+      0.7427790             -0.1984590
+      0.3180200              0.1230340
+      0.1141460              0.5955770
 Pt    P
       0.0398630              1.0000000
+Pt    D
+      1.8047000              1.0000000
 Pt    D
      10.4126000              0.0150800
       6.5226600             -0.0622950
@@ -3030,8 +2997,6 @@ Pt    D
       0.7342080             -0.4051740
       0.2974070              0.5192890
 Pt    D
-      1.8047000              1.0000000
-Pt    D
       0.1075990              1.0000000
 Pt    F
       1.9149000              1.0000000
@@ -3040,7 +3005,7 @@ Pt    F
 end
 
 
-ecp "Pt_cc-pwcvdz-pp"
+ecp "Pt_cc-pwCVDZ-PP"
 Pt nelec 60
 Pt ul
 2       1.00000000             0.00000000
@@ -3064,8 +3029,10 @@ Pt G
 2       5.45202000           -11.65174900
 2       5.41258500           -14.37552500
 end
-basis "Au_cc-pwcvdz-pp" 
+basis "Au_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (23s,20p,12d,2f) -> [5s,5p,4d,2f]
+Au    S
+      2.0643000              1.0000000
 Au    S
      38.0008000              0.0200090
      23.9725000             -0.1516790
@@ -3075,14 +3042,6 @@ Au    S
       0.6424610              0.4235270
       0.1564960              0.0162500
 Au    S
-     38.0008000             -0.0053040
-     23.9725000              0.0463180
-     15.2182000             -0.1199400
-      5.5399900              0.3040620
-      1.3855100             -0.4945010
-      0.6424610             -0.2555160
-      0.1564960              0.6091630
-Au    S
      38.0008000              0.0323400
      23.9725000             -0.1717620
      15.2182000              0.3395030
@@ -3091,9 +3050,17 @@ Au    S
       0.6424610             -1.1299310
       0.1564960             -1.3662840
 Au    S
-      2.0643000              1.0000000
+     38.0008000             -0.0053040
+     23.9725000              0.0463180
+     15.2182000             -0.1199400
+      5.5399900              0.3040620
+      1.3855100             -0.4945010
+      0.6424610             -0.2555160
+      0.1564960              0.6091630
 Au    S
       0.0549100              1.0000000
+Au    P
+      2.2606000              1.0000000
 Au    P
      10.3092000              0.1282170
       6.6276500             -0.3537900
@@ -3102,13 +3069,6 @@ Au    P
       0.3468790              0.1137750
       0.1227010              0.0025340
 Au    P
-     10.3092000             -0.0358850
-      6.6276500              0.1028900
-      1.6744700             -0.2009880
-      0.8011160             -0.2010450
-      0.3468790              0.1165490
-      0.1227010              0.5949690
-Au    P
      10.3092000             -0.0772420
       6.6276500              0.2226110
       1.6744700             -0.4953530
@@ -3116,9 +3076,16 @@ Au    P
       0.3468790              0.7100000
       0.1227010              0.5688390
 Au    P
-      2.2606000              1.0000000
+     10.3092000             -0.0358850
+      6.6276500              0.1028900
+      1.6744700             -0.2009880
+      0.8011160             -0.2010450
+      0.3468790              0.1165490
+      0.1227010              0.5949690
 Au    P
       0.0424280              1.0000000
+Au    D
+      2.0167000              1.0000000
 Au    D
      11.0027000              0.0164670
       6.8916600             -0.0680130
@@ -3132,8 +3099,6 @@ Au    D
       0.8210510             -0.3955330
       0.3441610              0.6191650
 Au    D
-      2.0167000              1.0000000
-Au    D
       0.1297430              1.0000000
 Au    F
       2.0995000              1.0000000
@@ -3142,7 +3107,7 @@ Au    F
 end
 
 
-ecp "Au_cc-pwcvdz-pp"
+ecp "Au_cc-pwCVDZ-PP"
 Au nelec 60
 Au ul
 2       1.0000000              0.0000000
@@ -3166,8 +3131,10 @@ Au G
 2       3.9784420             -5.2343370
 2       4.0114910             -6.7381420
 end
-basis "Hg_cc-pwcvdz-pp" 
+basis "Hg_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (23s,20p,12d,2f) -> [5s,5p,4d,2f]
+Hg    S
+      2.3359000              1.0000000
 Hg    S
      41.4804000              0.0100720
      22.5328000             -0.1147810
@@ -3177,14 +3144,6 @@ Hg    S
       0.6882660              0.4353290
       0.1641810              0.0131780
 Hg    S
-     41.4804000              0.0020320
-     22.5328000             -0.0323140
-     14.0790000              0.1153500
-      5.7247400             -0.3177630
-      1.4794800              0.5135230
-      0.6882660              0.2500500
-      0.1641810             -0.6488410
-Hg    S
      41.4804000              0.0218280
      22.5328000             -0.1555640
      14.0790000              0.3860250
@@ -3193,9 +3152,17 @@ Hg    S
       0.6882660             -1.5976600
       0.1641810             -1.0536460
 Hg    S
-      2.3359000              1.0000000
+     41.4804000              0.0020320
+     22.5328000             -0.0323140
+     14.0790000              0.1153500
+      5.7247400             -0.3177630
+      1.4794800              0.5135230
+      0.6882660              0.2500500
+      0.1641810             -0.6488410
 Hg    S
       0.0572230              1.0000000
+Hg    P
+      2.3585000              1.0000000
 Hg    P
      10.5805000              0.1286920
       6.8053900             -0.3608420
@@ -3204,13 +3171,6 @@ Hg    P
       0.3752770              0.1137850
       0.1284210              0.0029390
 Hg    P
-     10.5805000             -0.0344430
-      6.8053900              0.1009290
-      1.7901600             -0.1924390
-      0.8622610             -0.1960690
-      0.3752770              0.1042040
-      0.1284210              0.5873870
-Hg    P
      10.5805000              0.0714680
       6.8053900             -0.2108590
       1.7901600              0.4452040
@@ -3218,9 +3178,16 @@ Hg    P
       0.3752770             -0.6670830
       0.1284210             -0.6195740
 Hg    P
-      2.3585000              1.0000000
+     10.5805000             -0.0344430
+      6.8053900              0.1009290
+      1.7901600             -0.1924390
+      0.8622610             -0.1960690
+      0.3752770              0.1042040
+      0.1284210              0.5873870
 Hg    P
       0.0434470              1.0000000
+Hg    D
+      2.2228000              1.0000000
 Hg    D
      11.5841000              0.0167290
       7.2487900             -0.0695580
@@ -3234,8 +3201,6 @@ Hg    D
       0.8987480             -0.3538260
       0.3869310              0.6872800
 Hg    D
-      2.2228000              1.0000000
-Hg    D
       0.1504660              1.0000000
 Hg    F
       2.2727000              1.0000000
@@ -3244,7 +3209,7 @@ Hg    F
 end
 
 
-ecp "Hg_cc-pwcvdz-pp"
+ecp "Hg_cc-pwCVDZ-PP"
 Hg nelec 60
 Hg ul
 2       1.0000000              0.0000000
@@ -3268,15 +3233,8 @@ Hg G
 2       4.4852960             -6.3384140
 2       4.5132000             -8.0998630
 end
-basis "Tl_cc-pwcvdz-pp" 
+basis "Tl_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (15s,12p,7d,1f) -> [5s,4p,3d,1f]
-Tl    S
-     36.1096000              0.0229790
-     22.5732000             -0.1728970
-     14.1144000              0.4807030
-      6.1597600             -0.9532140
-      1.5706900              0.9608670
-      0.7459610              0.4319720
 Tl    S
      36.1096000              0.0059010
      22.5732000             -0.0544410
@@ -3284,6 +3242,13 @@ Tl    S
       6.1597600             -0.3868060
       1.5706900              0.5717530
       0.7459610              0.2895580
+Tl    S
+     36.1096000              0.0229790
+     22.5732000             -0.1728970
+     14.1144000              0.4807030
+      6.1597600             -0.9532140
+      1.5706900              0.9608670
+      0.7459610              0.4319720
 Tl    S
       6.052000E-01           1.000000E+00
 Tl    S
@@ -3297,13 +3262,13 @@ Tl    P
       0.7479420              0.4664960
       0.1768080              0.0280130
 Tl    P
+      4.342000E-01           1.000000E+00
+Tl    P
      10.3856000             -0.0391990
       7.0093900              0.1017260
       1.7768800             -0.2199420
       0.7479420             -0.1194500
       0.1768080              0.4597680
-Tl    P
-      4.342000E-01           1.000000E+00
 Tl    P
       0.0515320              1.0000000
 Tl    D
@@ -3321,7 +3286,7 @@ Tl    F
 end
 
 
-ecp "Tl_cc-pwcvdz-pp"
+ecp "Tl_cc-pwCVDZ-PP"
 Tl nelec 60
 Tl ul
 2       1.0000000              0.0000000
@@ -3349,15 +3314,8 @@ Tl G
 2       7.2092840             -7.7979920
 2       7.0709640             -9.2595240
 end
-basis "Pb_cc-pwcvdz-pp" 
+basis "Pb_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (15s,12p,7d,1f) -> [5s,4p,3d,1f]
-Pb    S
-     37.4583000              0.0248240
-     23.3170000             -0.1810620
-     14.5759000              0.5007060
-      6.4337600             -0.9797370
-      1.6671900              0.9666300
-      0.8077320              0.4364870
 Pb    S
      37.4583000              0.0067850
      23.3170000             -0.0601870
@@ -3365,6 +3323,13 @@ Pb    S
       6.4337600             -0.4248380
       1.6671900              0.6220350
       0.8077320              0.3160880
+Pb    S
+     37.4583000              0.0248240
+     23.3170000             -0.1810620
+     14.5759000              0.5007060
+      6.4337600             -0.9797370
+      1.6671900              0.9666300
+      0.8077320              0.4364870
 Pb    S
       6.807000E-01           1.000000E+00
 Pb    S
@@ -3378,13 +3343,13 @@ Pb    P
       0.8167090              0.4737730
       0.2036880              0.0290470
 Pb    P
+      4.905000E-01           1.000000E+00
+Pb    P
      10.6186000             -0.0479540
       7.1878100              0.1245560
       1.8943900             -0.2597760
       0.8167090             -0.1414800
       0.2036880              0.5317690
-Pb    P
-      4.905000E-01           1.000000E+00
 Pb    P
       0.0649730              1.0000000
 Pb    D
@@ -3402,7 +3367,7 @@ Pb    F
 end
 
 
-ecp "Pb_cc-pwcvdz-pp"
+ecp "Pb_cc-pwCVDZ-PP"
 Pb nelec 60
 Pb ul
 2       1.0000000              0.0000000
@@ -3426,15 +3391,8 @@ Pb G
 2       5.6915770             -9.0966650
 2       5.7155670            -11.5319960
 end
-basis "Bi_cc-pwcvdz-pp" 
+basis "Bi_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (15s,12p,7d,1f) -> [5s,4p,3d,1f]
-Bi    S
-    211.8210000              0.0010880
-     21.3262000             -0.1058620
-     13.3654000              0.5308080
-      6.9461000             -1.0502650
-      1.7122900              0.9958560
-      0.8391070              0.3989520
 Bi    S
     211.8210000              0.0004220
      21.3262000             -0.0385370
@@ -3442,6 +3400,13 @@ Bi    S
       6.9461000             -0.4810970
       1.7122900              0.7015950
       0.8391070              0.2905200
+Bi    S
+    211.8210000              0.0010880
+     21.3262000             -0.1058620
+     13.3654000              0.5308080
+      6.9461000             -1.0502650
+      1.7122900              0.9958560
+      0.8391070              0.3989520
 Bi    S
       7.626000E-01           1.000000E+00
 Bi    S
@@ -3455,13 +3420,13 @@ Bi    P
       0.8883210              0.4753740
       0.2363690              0.0298590
 Bi    P
+      5.558000E-01           1.000000E+00
+Bi    P
      11.0644000             -0.0522010
       7.4500000              0.1390830
       2.0106900             -0.2935560
       0.8883210             -0.1585740
       0.2363690              0.5743620
-Bi    P
-      5.558000E-01           1.000000E+00
 Bi    P
       0.0792900              1.0000000
 Bi    D
@@ -3479,7 +3444,7 @@ Bi    F
 end
 
 
-ecp "Bi_cc-pwcvdz-pp"
+ecp "Bi_cc-pwCVDZ-PP"
 Bi nelec 60
 Bi ul
 2       1.0000000              0.0000000
@@ -3503,15 +3468,8 @@ Bi G
 2       6.2057090            -10.2474430
 2       6.2277820            -12.9557100
 end
-basis "Po_cc-pwcvdz-pp" 
+basis "Po_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (15s,12p,7d,1f) -> [5s,4p,3d,1f]
-Po    S
-    295.3900000              0.0013830
-     21.2683000             -0.1050610
-     13.3379000              0.5914250
-      7.3652100             -1.1156970
-      1.7892000              1.0191620
-      0.8849940              0.3798790
 Po    S
     295.3900000              0.0006830
      21.2683000             -0.0385730
@@ -3519,6 +3477,13 @@ Po    S
       7.3652100             -0.5330160
       1.7892000              0.7669010
       0.8849940              0.2818780
+Po    S
+    295.3900000              0.0013830
+     21.2683000             -0.1050610
+     13.3379000              0.5914250
+      7.3652100             -1.1156970
+      1.7892000              1.0191620
+      0.8849940              0.3798790
 Po    S
       8.403000E-01           1.000000E+00
 Po    S
@@ -3532,13 +3497,13 @@ Po    P
       0.9553230              0.4713590
       0.2683520              0.0299870
 Po    P
+      6.191000E-01           1.000000E+00
+Po    P
      11.5069000             -0.0559100
       7.7299100              0.1511230
       2.1189400             -0.3261600
       0.9553230             -0.1614090
       0.2683520              0.6016150
-Po    P
-      6.191000E-01           1.000000E+00
 Po    P
       0.0884940              1.0000000
 Po    D
@@ -3556,7 +3521,7 @@ Po    F
 end
 
 
-ecp "Po_cc-pwcvdz-pp"
+ecp "Po_cc-pwCVDZ-PP"
 Po nelec 60
 Po ul
 2       1.0000000              0.0000000
@@ -3582,15 +3547,8 @@ Po G
 2       6.7715260            -11.5632940
 2       6.7779250            -14.5097880
 end
-basis "At_cc-pwcvdz-pp" 
+basis "At_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (15s,12p,7d,1f) -> [5s,4p,3d,1f]
-At    S
-    304.0310000              0.0010310
-     22.4085000             -0.1018690
-     14.0490000              0.5632730
-      7.5895000             -1.1045120
-      1.8949400              1.0263640
-      0.9523580              0.3833240
 At    S
     304.0310000              0.0004960
      22.4085000             -0.0387430
@@ -3598,6 +3556,13 @@ At    S
       7.5895000             -0.5516910
       1.8949400              0.8155580
       0.9523580              0.2868020
+At    S
+    304.0310000              0.0010310
+     22.4085000             -0.1018690
+     14.0490000              0.5632730
+      7.5895000             -1.1045120
+      1.8949400              1.0263640
+      0.9523580              0.3833240
 At    S
       9.177000E-01           1.000000E+00
 At    S
@@ -3611,13 +3576,13 @@ At    P
       1.0213300              0.4641680
       0.3012660              0.0302600
 At    P
+      6.854000E-01           1.000000E+00
+At    P
      12.0093000             -0.0583630
       8.0330000              0.1606310
       2.2239300             -0.3589420
       1.0213300             -0.1621230
       0.3012660              0.6248880
-At    P
-      6.854000E-01           1.000000E+00
 At    P
       0.0999030              1.0000000
 At    D
@@ -3635,7 +3600,7 @@ At    F
 end
 
 
-ecp "At_cc-pwcvdz-pp"
+ecp "At_cc-pwCVDZ-PP"
 At nelec 60
 At ul
 2       1.0000000              0.0000000
@@ -3664,15 +3629,8 @@ At G
 2       3.0133310             -0.3730440
 2       3.0977630             -0.4859460
 end
-basis "Rn_cc-pwcvdz-pp" 
+basis "Rn_cc-pwCVDZ-PP" SPHERICAL 
 #basis SET: (15s,12p,7d,1f) -> [5s,4p,3d,1f]
-Rn    S
-    383.5850000              0.0015720
-     23.2936000             -0.0761810
-     14.6096000              0.4785080
-      7.7319900             -1.0439020
-      1.9942400              1.0190710
-      1.0240700              0.3914520
 Rn    S
     383.5850000              0.0009020
      23.2936000             -0.0265350
@@ -3680,6 +3638,13 @@ Rn    S
       7.7319900             -0.5453780
       1.9942400              0.8694020
       1.0240700              0.2728620
+Rn    S
+    383.5850000              0.0015720
+     23.2936000             -0.0761810
+     14.6096000              0.4785080
+      7.7319900             -1.0439020
+      1.9942400              1.0190710
+      1.0240700              0.3914520
 Rn    S
       1.016000E+00           1.000000E+00
 Rn    S
@@ -3693,13 +3658,13 @@ Rn    P
       1.0901900              0.4580860
       0.3348980              0.0292130
 Rn    P
+      7.528000E-01           1.000000E+00
+Rn    P
      12.4992000             -0.0609340
       8.3397600              0.1694830
       2.3359100             -0.3880550
       1.0901900             -0.1612760
       0.3348980              0.6446740
-Rn    P
-      7.528000E-01           1.000000E+00
 Rn    P
       0.1125460              1.0000000
 Rn    D
@@ -3717,7 +3682,7 @@ Rn    F
 end
 
 
-ecp "Rn_cc-pwcvdz-pp"
+ecp "Rn_cc-pwCVDZ-PP"
 Rn nelec 60
 Rn ul
 2       1.0000000              0.0000000

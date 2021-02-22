@@ -1,43 +1,52 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# ccj-pvqz version number 0
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# ccJ-pVQZ version number 0
 # Description: ccJ-pVQZ
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H,He,B-Ne
-#     ## ccJ-pVQZ
+# 
+#  References for the basis set
+# 
+#  H,He,B-Ne
+#      ccJ-pVQZ
+#          benedikt2008a
+# 
+# 
+# 
+# benedikt2008a
 #     Benedikt, Udo, Auer, Alexander A., Jensen, Frank
 #     Optimization of augmentation functions for correlated calculations of
 #             spin-spin coupling constants and related properties
-#     J. Chem. Phys., 129, 064111 (2008)
+#     J. Chem. Phys. 129, 064111 (2008)
 #     10.1063/1.2962973
 # 
 # # 
-basis "H_ccj-pvqz" 
+basis "H_ccJ-pVQZ" SPHERICAL 
 #basis SET: (8s,4p,3d,1f) -> [6s,4p,3d,1f]
 H    S
   21816.9600000              0.0251443
@@ -70,7 +79,7 @@ H    D
 H    F
       1.3970000              1.0000000
 end
-basis "He_ccj-pvqz" 
+basis "He_ccJ-pVQZ" SPHERICAL 
 #basis SET: (9s,4p,3d,1f) -> [7s,4p,3d,1f]
 He    S
  139524.0000000              0.0251593
@@ -105,7 +114,7 @@ He    D
 He    F
       2.6800000              1.0000000
 end
-basis "B_ccj-pvqz" 
+basis "B_ccJ-pVQZ" SPHERICAL 
 #basis SET: (14s,7p,4d,2f,1g) -> [9s,5p,4d,2f,1g]
 B    S
 6826820.0000000              0.0014054
@@ -157,7 +166,7 @@ B    F
 B    G
       0.6730000              1.0000000
 end
-basis "C_ccj-pvqz" 
+basis "C_ccJ-pVQZ" SPHERICAL 
 #basis SET: (14s,7p,4d,2f,1g) -> [9s,5p,4d,2f,1g]
 C    S
 9718280.0000000              0.0014052
@@ -209,7 +218,7 @@ C    F
 C    G
       1.0110000              1.0000000
 end
-basis "N_ccj-pvqz" 
+basis "N_ccJ-pVQZ" SPHERICAL 
 #basis SET: (14s,7p,4d,2f,1g) -> [9s,5p,4d,2f,1g]
 N    S
 13110240.0000000             0.0014055
@@ -261,7 +270,7 @@ N    F
 N    G
       1.4270000              1.0000000
 end
-basis "O_ccj-pvqz" 
+basis "O_ccJ-pVQZ" SPHERICAL 
 #basis SET: (14s,7p,4d,2f,1g) -> [9s,5p,4d,2f,1g]
 O    S
 17566120.0000000             0.0014054
@@ -313,7 +322,7 @@ O    F
 O    G
       1.8460000              1.0000000
 end
-basis "F_ccj-pvqz" 
+basis "F_ccJ-pVQZ" SPHERICAL 
 #basis SET: (14s,7p,4d,2f,1g) -> [9s,5p,4d,2f,1g]
 F    S
 21315580.0000000             0.0014057
@@ -365,7 +374,7 @@ F    F
 F    G
       2.3760000              1.0000000
 end
-basis "Ne_ccj-pvqz" 
+basis "Ne_ccJ-pVQZ" SPHERICAL 
 #basis SET: (14s,7p,4d,2f,1g) -> [9s,5p,4d,2f,1g]
 Ne    S
 28577120.0000000             0.0014051

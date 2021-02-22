@@ -1,121 +1,155 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# def2-ecp version number 1
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# def2-ECP version number 1
 # Description: ECP for use with Ahlrichs def2 basis sets
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# Rb,Cs
-#     ## ECP basis set for Ahlrichs def2
+# 
+#  References for the basis set
+# 
+#  Rb,Cs
+#      ECP basis set for Ahlrichs def2
+#          leininger1996a
+# 
+#  Sr,Ba
+#      ECP basis set for Ahlrichs def2
+#          kaupp1991a
+# 
+#  Y-Cd,Hf-Hg
+#      ECP basis set for Ahlrichs def2
+#          andrae1990a
+# 
+#  In-Sb,Pb,Bi
+#      ECP basis set for Ahlrichs def2
+#          metz2000a
+# 
+#  Te-Xe,Po-Rn
+#      ECP basis set for Ahlrichs def2
+#          peterson2003b
+# 
+#  La
+#      ECP basis set for Ahlrichs def2
+#          dolg1989a dolg1993b
+# 
+#  Ce-Yb
+#      ECP basis set for Ahlrichs def2
+#          dolg1989b
+# 
+#  Lu
+#      ECP basis set for Ahlrichs def2
+#          cao2001a
+# 
+#  Tl
+#      ECP basis set for Ahlrichs def2
+#          metz2000b
+# 
+# 
+# 
+# andrae1990a
+#     Andrae, D., Häußermann, U., Dolg, M., Stoll, H., Preuß, H.
+#     Energy-adjustedab initio pseudopotentials for the second and third row
+#             transition elements
+#     Theor. Chim. Acta 77, 123-141 (1990)
+#     10.1007/bf01114537
+# 
+# cao2001a
+#     Cao, Xiaoyan, Dolg, Michael
+#     Valence basis sets for relativistic energy-consistent small-core
+#             lanthanide pseudopotentials
+#     J. Chem. Phys. 115, 7348 (2001)
+#     10.1063/1.1406535
+# 
+# dolg1989a
+#     Dolg, M., Stoll, H., Savin, A., Preuss, H.
+#     Energy-adjusted pseudopotentials for the rare earth elements
+#     Theor. Chim. Acta 75, 173-194 (1989)
+#     10.1007/BF00528565
+# 
+# dolg1989b
+#     Dolg, M., Stoll, H., Preuss, H.
+#     Energy-adjusted ab initio pseudopotentials for the rare earth elements
+#     J. Chem. Phys. 90, 1730-1734 (1989)
+#     10.1063/1.456066
+# 
+# dolg1993b
+#     Dolg, M., Stoll, H., Preuss, H.
+#     A combination of quasirelativistic pseudopotential and ligand field
+#             calculations for lanthanoid compounds
+#     Theor. Chim. Acta 85, 441-450 (1993)
+#     10.1007/BF01112983
+# 
+# kaupp1991a
+#     Kaupp, M., Schleyer, P. v. R., Stoll, H., Preuss, H.
+#     Pseudopotential approaches to Ca, Sr, and Ba hydrides. Why are some
+#             alkaline earth MX2compounds bent?
+#     J. Chem. Phys. 94, 1360-1366 (1991)
+#     10.1063/1.459993
+# 
+# leininger1996a
 #     Leininger, Thierry, Nicklass, Andreas, Küchle, Wolfgang, Stoll,
 #             Hermann, Dolg, Michael, Bergner, Andreas
 #     The accuracy of the pseudopotential approximation: non-frozen-core
 #             effects for spectroscopic constants of alkali fluorides XF (X
 #             = K, Rb, Cs)
-#     Chem. Phys. Lett., 255, 274-280 (1996)
+#     Chem. Phys. Lett. 255, 274-280 (1996)
 #     10.1016/0009-2614(96)00382-x
 # 
-# Sr,Ba
-#     ## ECP basis set for Ahlrichs def2
-#     Kaupp, M., Schleyer, P. v. R., Stoll, H., Preuss, H.
-#     Pseudopotential approaches to Ca, Sr, and Ba hydrides. Why are some
-#             alkaline earth MX2compounds bent?
-#     J. Chem. Phys., 94, 1360-1366 (1991)
-#     10.1063/1.459993
-# 
-# Y-Cd,Hf-Hg
-#     ## ECP basis set for Ahlrichs def2
-#     Andrae, D., Häußermann, U., Dolg, M., Stoll, H., Preuß, H.
-#     Energy-adjustedab initio pseudopotentials for the second and third row
-#             transition elements
-#     Theor. Chim. Acta, 77, 123-141 (1990)
-#     10.1007/bf01114537
-# 
-# In-Sb,Pb,Bi
-#     ## ECP basis set for Ahlrichs def2
+# metz2000a
 #     Metz, Bernhard, Stoll, Hermann, Dolg, Michael
 #     Small-core multiconfiguration-Dirac-Hartree-Fock-adjusted
 #             pseudopotentials for post-d main group elements: Application
 #             to PbH and PbO
-#     J. Chem. Phys., 113, 2563-2569 (2000)
+#     J. Chem. Phys. 113, 2563-2569 (2000)
 #     10.1063/1.1305880
 # 
-# Te-Xe,Po-Rn
-#     ## ECP basis set for Ahlrichs def2
+# metz2000b
+#     Metz, Bernhard, Schweizer, Marcus, Stoll, Hermann, Dolg, Michael, Liu,
+#             Wenjian
+#     A small-core multiconfiguration Dirac-Hartree-Fock-adjusted
+#             pseudopotential for Tl - application to Tl X ( X = F, Cl, Br,
+#             I)
+#     Theor. Chim. Acta 104, 22-28 (2000)
+#     10.1007/s002149900101
+# 
+# peterson2003b
 #     Peterson, Kirk A., Figgen, Detlev, Goll, Erich, Stoll, Hermann, Dolg,
 #             Michael
 #     Systematically convergent basis sets with relativistic
 #             pseudopotentials. II. Small-core pseudopotentials and
 #             correlation consistent basis sets for the post-d group 16-18
 #             elements
-#     J. Chem. Phys., 119, 11113-11123 (2003)
+#     J. Chem. Phys. 119, 11113-11123 (2003)
 #     10.1063/1.1622924
-# 
-# La
-#     ## ECP basis set for Ahlrichs def2
-#     Dolg, M., Stoll, H., Savin, A., Preuss, H.
-#     Energy-adjusted pseudopotentials for the rare earth elements
-#     Theor. Chim. Acta, 75, 173-194 (1989)
-#     10.1007/BF00528565
-# 
-#     Dolg, M., Stoll, H., Preuss, H.
-#     A combination of quasirelativistic pseudopotential and ligand field
-#             calculations for lanthanoid compounds
-#     Theor. Chim. Acta, 85, 441-450 (1993)
-#     10.1007/BF01112983
-# 
-# Ce-Yb
-#     ## ECP basis set for Ahlrichs def2
-#     Dolg, M., Stoll, H., Preuss, H.
-#     Energy-adjusted ab initio pseudopotentials for the rare earth elements
-#     J. Chem. Phys., 90, 1730-1734 (1989)
-#     10.1063/1.456066
-# 
-# Lu
-#     ## ECP basis set for Ahlrichs def2
-#     Cao, Xiaoyan, Dolg, Michael
-#     Valence basis sets for relativistic energy-consistent small-core
-#             lanthanide pseudopotentials
-#     J. Chem. Phys., 115, 7348 (2001)
-#     10.1063/1.1406535
-# 
-# Tl
-#     ## ECP basis set for Ahlrichs def2
-#     Metz, Bernhard, Schweizer, Marcus, Stoll, Hermann, Dolg, Michael, Liu,
-#             Wenjian
-#     A small-core multiconfiguration Dirac-Hartree-Fock-adjusted
-#             pseudopotential for Tl - application to Tl X ( X = F, Cl, Br,
-#             I)
-#     Theor. Chim. Acta, 104, 22-28 (2000)
-#     10.1007/s002149900101
 # 
 # # 
 
 
-ecp "Rb_def2-ecp"
+ecp "Rb_def2-ECP"
 Rb nelec 28
 Rb ul
 2       3.8431140            -12.3169000
@@ -134,7 +168,7 @@ Rb D
 end
 
 
-ecp "Sr_def2-ecp"
+ecp "Sr_def2-ECP"
 Sr nelec 28
 Sr ul
 2       4.6339750            -15.8059920
@@ -153,7 +187,7 @@ Sr D
 end
 
 
-ecp "Y_def2-ecp"
+ecp "Y_def2-ECP"
 Y nelec 28
 Y ul
 2       6.5842120            -19.12219811
@@ -176,7 +210,7 @@ Y D
 end
 
 
-ecp "Zr_def2-ecp"
+ecp "Zr_def2-ECP"
 Zr nelec 28
 Zr ul
 2       7.5400000            -21.09377605
@@ -199,7 +233,7 @@ Zr D
 end
 
 
-ecp "Nb_def2-ecp"
+ecp "Nb_def2-ECP"
 Nb nelec 28
 Nb ul
 2       8.4900000            -22.92954996
@@ -222,7 +256,7 @@ Nb D
 end
 
 
-ecp "Mo_def2-ecp"
+ecp "Mo_def2-ECP"
 Mo nelec 28
 Mo ul
 2       9.4500000            -24.80517707
@@ -245,7 +279,7 @@ Mo D
 end
 
 
-ecp "Tc_def2-ecp"
+ecp "Tc_def2-ECP"
 Tc nelec 28
 Tc ul
 2      10.4000000            -26.56244747
@@ -268,7 +302,7 @@ Tc D
 end
 
 
-ecp "Ru_def2-ecp"
+ecp "Ru_def2-ECP"
 Ru nelec 28
 Ru ul
 2      11.3600000            -28.34061627
@@ -291,7 +325,7 @@ Ru D
 end
 
 
-ecp "Rh_def2-ecp"
+ecp "Rh_def2-ECP"
 Rh nelec 28
 Rh ul
 2      12.3100000            -30.09345572
@@ -314,7 +348,7 @@ Rh D
 end
 
 
-ecp "Pd_def2-ecp"
+ecp "Pd_def2-ECP"
 Pd nelec 28
 Pd ul
 2      13.2700000            -31.92955431
@@ -337,7 +371,7 @@ Pd D
 end
 
 
-ecp "Ag_def2-ecp"
+ecp "Ag_def2-ECP"
 Ag nelec 28
 Ag ul
 2      14.2200000            -33.68992012
@@ -360,7 +394,7 @@ Ag D
 end
 
 
-ecp "Cd_def2-ecp"
+ecp "Cd_def2-ECP"
 Cd nelec 28
 Cd ul
 2      15.1847957            -35.47662555
@@ -383,7 +417,7 @@ Cd D
 end
 
 
-ecp "In_def2-ecp"
+ecp "In_def2-ECP"
 In nelec 28
 In ul
 2      12.53905600           -13.72807800
@@ -410,7 +444,7 @@ In D
 end
 
 
-ecp "Sn_def2-ecp"
+ecp "Sn_def2-ECP"
 Sn nelec 28
 Sn ul
 2      12.28234800           -12.57633300
@@ -437,7 +471,7 @@ Sn D
 end
 
 
-ecp "Sb_def2-ecp"
+ecp "Sb_def2-ECP"
 Sb nelec 28
 Sb ul
 2      14.44497800           -15.36680100
@@ -464,7 +498,7 @@ Sb D
 end
 
 
-ecp "Te_def2-ecp"
+ecp "Te_def2-ECP"
 Te nelec 28
 Te ul
 2      15.20616800           -15.74545000
@@ -491,7 +525,7 @@ Te D
 end
 
 
-ecp "I_def2-ecp"
+ecp "I_def2-ECP"
 I nelec 28
 I ul
 2      19.45860900           -21.84204000
@@ -529,7 +563,7 @@ I D
 end
 
 
-ecp "Xe_def2-ecp"
+ecp "Xe_def2-ECP"
 Xe nelec 28
 Xe ul
 2      20.88155700           -23.08929500
@@ -567,7 +601,7 @@ Xe D
 end
 
 
-ecp "Cs_def2-ecp"
+ecp "Cs_def2-ECP"
 Cs nelec 46
 Cs ul
 2       3.1232690            -28.8843090
@@ -586,7 +620,7 @@ Cs D
 end
 
 
-ecp "Ba_def2-ecp"
+ecp "Ba_def2-ECP"
 Ba nelec 46
 Ba ul
 2       3.5894650            -33.4731740
@@ -605,7 +639,7 @@ Ba D
 end
 
 
-ecp "La_def2-ecp"
+ecp "La_def2-ECP"
 La nelec 46
 La ul
 2       4.0286000            -36.0100160
@@ -624,7 +658,7 @@ La D
 end
 
 
-ecp "Ce_def2-ecp"
+ecp "Ce_def2-ECP"
 Ce nelec 28
 Ce ul
 2       1.00000000             0.00000000
@@ -641,7 +675,7 @@ Ce G
 end
 
 
-ecp "Pr_def2-ecp"
+ecp "Pr_def2-ECP"
 Pr nelec 28
 Pr ul
 2       1.00000000             0.00000000
@@ -658,7 +692,7 @@ Pr G
 end
 
 
-ecp "Nd_def2-ecp"
+ecp "Nd_def2-ECP"
 Nd nelec 28
 Nd ul
 2       1.00000000             0.00000000
@@ -675,7 +709,7 @@ Nd G
 end
 
 
-ecp "Pm_def2-ecp"
+ecp "Pm_def2-ECP"
 Pm nelec 28
 Pm ul
 2       1.00000000             0.00000000
@@ -692,7 +726,7 @@ Pm G
 end
 
 
-ecp "Sm_def2-ecp"
+ecp "Sm_def2-ECP"
 Sm nelec 28
 Sm ul
 2       1.00000000             0.00000000
@@ -709,7 +743,7 @@ Sm G
 end
 
 
-ecp "Eu_def2-ecp"
+ecp "Eu_def2-ECP"
 Eu nelec 28
 Eu ul
 2       1.00000000             0.00000000
@@ -726,7 +760,7 @@ Eu G
 end
 
 
-ecp "Gd_def2-ecp"
+ecp "Gd_def2-ECP"
 Gd nelec 28
 Gd ul
 2       1.00000000             0.00000000
@@ -743,7 +777,7 @@ Gd G
 end
 
 
-ecp "Tb_def2-ecp"
+ecp "Tb_def2-ECP"
 Tb nelec 28
 Tb ul
 2       1.00000000             0.00000000
@@ -760,7 +794,7 @@ Tb G
 end
 
 
-ecp "Dy_def2-ecp"
+ecp "Dy_def2-ECP"
 Dy nelec 28
 Dy ul
 2       1.00000000             0.00000000
@@ -777,7 +811,7 @@ Dy G
 end
 
 
-ecp "Ho_def2-ecp"
+ecp "Ho_def2-ECP"
 Ho nelec 28
 Ho ul
 2       1.00000000             0.00000000
@@ -794,7 +828,7 @@ Ho G
 end
 
 
-ecp "Er_def2-ecp"
+ecp "Er_def2-ECP"
 Er nelec 28
 Er ul
 2       1.00000000             0.00000000
@@ -811,7 +845,7 @@ Er G
 end
 
 
-ecp "Tm_def2-ecp"
+ecp "Tm_def2-ECP"
 Tm nelec 28
 Tm ul
 2       1.00000000             0.00000000
@@ -828,7 +862,7 @@ Tm G
 end
 
 
-ecp "Yb_def2-ecp"
+ecp "Yb_def2-ECP"
 Yb nelec 28
 Yb ul
 2       1.00000000             0.00000000
@@ -845,7 +879,7 @@ Yb G
 end
 
 
-ecp "Lu_def2-ecp"
+ecp "Lu_def2-ECP"
 Lu nelec 28
 Lu ul
 2       1.00000000             0.00000000
@@ -862,7 +896,7 @@ Lu G
 end
 
 
-ecp "Hf_def2-ecp"
+ecp "Hf_def2-ECP"
 Hf nelec 60
 Hf ul
 2       1.78576984            10.04672251
@@ -881,7 +915,7 @@ Hf D
 end
 
 
-ecp "Ta_def2-ecp"
+ecp "Ta_def2-ECP"
 Ta nelec 60
 Ta ul
 2       2.01788111            12.01796094
@@ -900,7 +934,7 @@ Ta D
 end
 
 
-ecp "W_def2-ecp"
+ecp "W_def2-ECP"
 W nelec 60
 W ul
 2       2.25888846            14.15257947
@@ -919,7 +953,7 @@ W D
 end
 
 
-ecp "Re_def2-ecp"
+ecp "Re_def2-ECP"
 Re nelec 60
 Re ul
 2       2.50865059            16.44985227
@@ -938,7 +972,7 @@ Re D
 end
 
 
-ecp "Os_def2-ecp"
+ecp "Os_def2-ECP"
 Os nelec 60
 Os ul
 2       2.76707510            18.90945701
@@ -957,7 +991,7 @@ Os D
 end
 
 
-ecp "Ir_def2-ecp"
+ecp "Ir_def2-ECP"
 Ir nelec 60
 Ir ul
 2       3.03407192            21.53103107
@@ -976,7 +1010,7 @@ Ir D
 end
 
 
-ecp "Pt_def2-ecp"
+ecp "Pt_def2-ECP"
 Pt nelec 60
 Pt ul
 2       3.30956857            24.31437573
@@ -995,7 +1029,7 @@ Pt D
 end
 
 
-ecp "Au_def2-ecp"
+ecp "Au_def2-ECP"
 Au nelec 60
 Au ul
 2       4.78982000            30.49008890
@@ -1018,7 +1052,7 @@ Au D
 end
 
 
-ecp "Hg_def2-ecp"
+ecp "Hg_def2-ECP"
 Hg nelec 60
 Hg ul
 2       3.88579112            30.36499643
@@ -1037,7 +1071,7 @@ Hg D
 end
 
 
-ecp "Tl_def2-ecp"
+ecp "Tl_def2-ECP"
 Tl nelec 60
 Tl ul
 2       5.62639900            15.82548800
@@ -1072,7 +1106,7 @@ Tl D
 end
 
 
-ecp "Pb_def2-ecp"
+ecp "Pb_def2-ECP"
 Pb nelec 60
 Pb ul
 2       3.88751200            12.20989200
@@ -1099,7 +1133,7 @@ Pb D
 end
 
 
-ecp "Bi_def2-ecp"
+ecp "Bi_def2-ECP"
 Bi nelec 60
 Bi ul
 2       4.21454600            13.71338300
@@ -1126,7 +1160,7 @@ Bi D
 end
 
 
-ecp "Po_def2-ecp"
+ecp "Po_def2-ECP"
 Po nelec 60
 Po ul
 2       5.01327000            17.42829500
@@ -1161,7 +1195,7 @@ Po D
 end
 
 
-ecp "At_def2-ecp"
+ecp "At_def2-ECP"
 At nelec 60
 At ul
 2       5.81216300            19.87019800
@@ -1197,7 +1231,7 @@ At D
 end
 
 
-ecp "Rn_def2-ecp"
+ecp "Rn_def2-ECP"
 Rn nelec 60
 Rn ul
 2       6.34857100            21.79729000
