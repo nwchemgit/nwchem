@@ -53,9 +53,6 @@ if [[ "$os" == "Linux" ]]; then
 fi
 export OMP_NUM_THREADS=1
 export USE_NOIO=1
-if [[ "$BLAS_SIZE" == "4" ]]; then
-  export USE_64TO32=y
-fi
 
 if [[ "$DISTR" == "fedora" ]] || [[ "$DISTR" == "centos" ]]; then
     export PATH=/usr/lib64/"$MPI_IMPL"/bin:$PATH
@@ -67,6 +64,15 @@ if [[ "$BLAS_ENV" == "internal" ]]; then
 elif [[ "$BLAS_ENV" == "build_openblas" ]]; then
     export BUILD_OPENBLAS="y"
     export BLAS_SIZE=8
+elif [[ "$BLAS_ENV" == "accelerate" ]]; then
+    export BLASOPT="-framework Accelerate"
+    export BLAS_LIB=${BLASOPT}
+    export LAPACK_LIB=${BLASOPT}
+    export BLAS_SIZE=4
+    export SCALAPACK_SIZE=4
+fi
+if [[ "$BLAS_SIZE" == "4" ]]; then
+  export USE_64TO32=y
 fi
 if [[ -z "$USE_INTERNALBLAS" ]]; then
     if [[ -z "$BLASOPT" ]] ; then
@@ -82,10 +88,17 @@ if [[ -z "$USE_INTERNALBLAS" ]]; then
     else
 	if [[ -z "$SCALAPACK" ]] ; then
 	    export BUILD_SCALAPACK="y"
-	    export SCALAPACK_SIZE=8
+	    if [[ -z "$SCALAPACK_SIZE" ]] ; then
+		export SCALAPACK_SIZE=8
+	    fi
 	else
 	    unset BUILD_SCALAPACK
 	fi
     fi
 fi
+#summary
+echo "from nwchem.bashrc"
+echo "BLAS_SIZE = " "$BLAS_SIZE"
+echo "SCALAPACK_SIZE = " "$SCALAPACK_SIZE"
+echo "USE_64TO32 = " "$USE_64TO32"
 export NWCHEM_EXECUTABLE=$TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET/nwchem_"$arch"_`echo $NWCHEM_MODULES|sed 's/ /-/g'`_"$MPI_IMPL"
