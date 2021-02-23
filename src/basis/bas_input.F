@@ -382,6 +382,7 @@ cc AJL/End
 c
 #include "ecpso_sfnP.fh"
 c
+      read_sphere=.false.
       oIs_ecp = Is_ECP_in(basis)
       oIs_so  = Is_SO_in(basis)
 c
