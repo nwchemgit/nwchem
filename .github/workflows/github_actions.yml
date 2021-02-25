@@ -106,7 +106,7 @@ jobs:
             nwchem_modules: "qmandpw qmd"
             fc: gfortran-10
             xcode_version: 12.3
-          - os: macos-10.15
+          - os: macos-11.0
             experimental: true
             mpi_impl: openmpi
             armci_network: mpi-pr
