@@ -37,9 +37,14 @@ else
 	export SCALAPACK_SIZE=8
 	unset BUILD_OPENBLAS
 	unset BUILD_SCALAPACK
-    elif [[ "$FC" == "flang" ]] ; then
+    elif [[ "$FC" == "flang" ]] || [[ "$(basename -- $FC | cut -d \- -f 1)" == "nvfortran" ]] ; then
 	export BUILD_MPICH=1
-	FOPT="-O2  -ffast-math"
+        if [[ "$FC" == "flang" ]]; then
+	    FOPT="-O2  -ffast-math"
+	fi
+        if [[ "$FC" == "nvfortran" ]]; then
+	    export USE_FPICF=1
+	fi
     fi
 fi    
  if [[ "$os" == "Darwin" ]]; then 
