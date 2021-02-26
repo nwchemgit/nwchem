@@ -165,6 +165,10 @@ c      external      cpsp_comment
       logical  control_parallel_io
       external control_parallel_io
 
+      real*8 E0
+      real*8   cpsi_1energy,cpsi_smearcorrection
+      external cpsi_1energy,cpsi_smearcorrection
+
 
 *****************************|  PROLOGUE  |****************************
 
@@ -672,6 +676,7 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
 
 *     **** write geometry to rtdb ****
       call ion_write(rtdb)
+
 
 *     **** write wavefunctions to file and finalize psi ****
       if (flag.eq.-1) then

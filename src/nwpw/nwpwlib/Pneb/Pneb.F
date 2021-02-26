@@ -2508,11 +2508,13 @@ c     *           Pneb_orthoCheckMake_tag       *
 c     *                                         *
 c     ccccccccccccccccccccccccccccccccccccccccccc
 
-      subroutine Pneb_orthoCheckMake_tag(coutput,mb,nbb,npack1,A_tag)
+      subroutine Pneb_orthoCheckMake_tag(coutput,mb,nbb,npack1,A_tag,
+     >                                   failed)
       implicit none
       logical coutput
       integer mb,nbb,npack1
       integer A_tag
+      logical failed
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -2535,9 +2537,10 @@ c     ccccc local variables ccccc
       external control_print
       external cpsi_data_nsize,cpsi_data_get_chnk
 
+      failed = .false.
       call Parallel_taskid(taskid)
       oprint = ((taskid.eq.MASTER).and.control_print(print_high))
-      oprint = (taskid.eq.MASTER)
+      !oprint = (taskid.eq.MASTER)
 
       if (nbb.eq.0) then
          nb1=1
@@ -2572,6 +2575,7 @@ c     ccccc local variables ccccc
      >                         dbl_mb(a_shift),npack1,
      >                         sum2)
             if (dabs(sum2-sum1).gt.1.d-10) then
+              failed = .true.
               call Pneb_makeOrtho(ms,nbq,npack1,dbl_mb(a_shift))
               call Pneb_ff_trace(ms,nbq,
      >                         dbl_mb(a_shift),
@@ -2907,8 +2911,8 @@ c     **** local variables ****
       integer nb,nb1,nb2,ishift3,ishift1,ishift11
      
       integer jj,kk,rr,ss,jcur,kcur,rcur,scur
-      integer tmp(2)
-      real*8 w
+      integer tmp(2),irsize,i
+      real*8 w,rscal,ar,ai,aa
       complex*16 wc
 
       if (mparallelized) then
@@ -2920,54 +2924,73 @@ c     **** not mparallized ****
             nb1=1
             nb2=nbrillq
             ishift3 = ne(1)*ne(1)+ne(2)*ne(2)*(ispinq-1)
+            irsize = nbrillq
          else
             ishift3 = 0
             nb1=nbb
             nb2=nbb
+            irsize = 1
          end if
          if (mb.eq.0) then
             ms1 = 1
             ms2 = ispin
             ishift2 = ne(1)*ne(1)
+            irsize = irsize*(ne(1)*ne(1) + ne(2)*ne(2))
          else
             ms1 = mb
             ms2 = mb
             ishift2 = 0
+            irsize = irsize*(ne(mb)*ne(mb))
          end if
          ishift1  = neq(1)*npack1
          ishift11 = (neq(1)+neq(2))*npack1
 
 c         **** modified Gram-Schmidt ****
-         call Parallel_shared_vector_zero(.true.,
-     >                              2*(ne(1)*ne(1)+ne(2)*ne(2)),R)
+         call Parallel_shared_vector_zero(.true.,2*irsize,R)
          do nb=nb1,nb2
          do ms=ms1,ms2
-         do k=1,ne(ms)
-            indxk = 1 + (k-1)*npack1 + (ms-1)*ishift1 + (nb-1)*ishift11
-            indxm = k + (k-1)*ne(ms) + (ms-1)*ishift2  + (nb-1)*ishift3
-            call Cram_cc_dot(nb,Q(indxk),Q(indxk),w)
-            R(indxm) = dcmplx(dsqrt(w),0.0d0)
-            w        = 1.0d0/R(indxm)
-            call Cram_c_SMul1(nb,w,Q(indxk))
 
-            do j=k+1,ne(ms)
-               indxj = 1+(j-1)*npack1 + (ms-1)*ishift1+(nb-1)*ishift11
-               indxm = k+(j-1)*ne(ms) + (ms-1)*ishift2+(nb-1)*ishift3
-               call Cram_cc_zdot(nb,Q(indxk),Q(indxj),wc)
-               !call Cram_cc_zdot(nb,Q(indxj),Q(indxk),wc)
-               R(indxm) = wc
-               wc = -wc
-               call Cram_cc_zaxpy(1,wc,Q(indxk),Q(indxj))
+            indxk = (ms-1)*ishift1 + (nb-1)*ishift11
+            rscal = 0.0d0
+            do i=1,neq(ms)*npack1
+               ar = dble( Q(indxk+i))
+               ai = dimag(Q(indxk+i))
+               aa = ar*ar + ai*ai
+               if (aa.gt.rscal) rscal = aa
             end do
-         end do
+            rscal = dsqrt(rscal)
+            call C3dB_MaxAll(rscal)
+            !write(*,*) "nb,ms,rscal=",nb,ms,rscal
+            call DSCAL_OMP(2*neq(ms)*npack1,1.0d0/rscal,Q(indxk+1),1)
+    
+    
+            do k=1,ne(ms)
+               indxk = 1+(k-1)*npack1 + (ms-1)*ishift1 + (nb-1)*ishift11
+               indxm = k+(k-1)*ne(ms) + (ms-1)*ishift2 + (nb-1)*ishift3
+               call Cram_cc_dot(nb,Q(indxk),Q(indxk),w)
+               R(indxm) = dcmplx(dsqrt(w),0.0d0)
+               w        = 1.0d0/R(indxm)
+               call Cram_c_SMul1(nb,w,Q(indxk))
+
+               do j=k+1,ne(ms)
+                  indxj = 1+(j-1)*npack1 +(ms-1)*ishift1+(nb-1)*ishift11
+                  indxm = k+(j-1)*ne(ms) +(ms-1)*ishift2+(nb-1)*ishift3
+                  call Cram_cc_zdot(nb,Q(indxk),Q(indxj),wc)
+                  !call Cram_cc_zdot(nb,Q(indxj),Q(indxk),wc)
+                  R(indxm) = wc
+                  wc = -wc
+                  call Cram_cc_zaxpy(1,wc,Q(indxk),Q(indxj))
+               end do
+            end do
+   
+            indxm = 1 + (ms-1)*ishift2+(nb-1)*ishift3
+            call DSCAL_OMP(2*ne(ms)*ne(ms),rscal,R(indxm),1)
          end do
          end do
       end if
 
       return
       end 
-
-
 
 
 

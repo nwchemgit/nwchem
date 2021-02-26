@@ -35,7 +35,7 @@ c      complex*16 G1(nfft3d,nemax)
       real*8     Enew,Eold,Estart
       common / c_cgsd_block / Enew,Eold,Estart
 
-      logical value
+      logical value,failed
       integer it
       real*8 tmin,deltat
       real*8 max_sigma,ehfx,phfx
@@ -76,10 +76,12 @@ c      complex*16 G1(nfft3d,nemax)
       external ewald_e
       external cpsi_1eorbit
       external linesearch
-      real*8   ion_disp_energy
-      external ion_disp_energy
-      logical  ion_disp_on
-      external ion_disp_on
+      real*8   ion_disp_energy,cpsi_smearcorrection
+      external ion_disp_energy,cpsi_smearcorrection
+      logical  ion_disp_on,control_fractional
+      external ion_disp_on,control_fractional
+      real*8   cpsi_1energy
+      external cpsi_1energy
        
   
       call C3dB_nfft3d(1,nfft3d)
@@ -105,7 +107,6 @@ c      G0_tag = cpsi_data_push_stack(nbrill,neall,2*npack1)
       call cpsi_1get_TSgradient(G1_tag,E0)
 
       call Pneb_ff_traceall_tag(0,0,G1_tag,G1_tag,sum1)
-
       call BGrsm_ff_Copy_tag(G1_tag,H0_tag)
 
 
@@ -171,20 +172,19 @@ c         call BGrsm_fff_Sub_tag(G1_tag,G0_tag,G0_tag)
          if ( (dabs(deltae).le.(1.0d-2)).and.
      >        (tmin.gt.deltat_min)) then
 
-           if (sum0.gt.1.0d-15) then
-              scale = sum1/sum0
-           else
-              scale = 0.0d0
-           end if
+            if (sum0.gt.1.0d-15) then
+               scale = sum1/sum0
+            else
+               scale = 0.0d0
+            end if
+            if (scale.gt.10.0d0) scale = 0.0d0
 
-           call BGrsm_f_dscale_tag(scale,H0_tag)
-
-           call BGrsm_fff_sum_tag(G1_tag,H0_tag,H0_tag)
+            call BGrsm_f_dscale_tag(scale,H0_tag)
+            call BGrsm_fff_Sum_tag(G1_tag,H0_tag,H0_tag)
 
 *        **** the new direction using steepest-descent ****
          else
-              call BGrsm_ff_Copy_tag(G1_tag,H0_tag)
-
+            call BGrsm_ff_Copy_tag(G1_tag,H0_tag)
          end if
 
       end do
@@ -215,7 +215,6 @@ c      call cpsi_data_pop_stack(G0_tag)
 
       call cpsi_2to1()
       call cpsi_1toelectron() 
-      call cpsi_check()
 
       eion     = ewald_e()
       eorbit   = cpsi_1eorbit()
@@ -246,6 +245,13 @@ c      call cpsi_data_pop_stack(G0_tag)
       if (ion_disp_on()) then
          E(33) = ion_disp_energy()
          E(1)  = E(1) + E(33)
+      end if
+
+      if (control_fractional()) then
+        call cpsi_1gen_hml()
+        call cpsi_1define_occupation(0.0d0,.true.)
+        E(12) = cpsi_smearcorrection()
+        E(1)  = E(1) + E(12)
       end if
 
       return
