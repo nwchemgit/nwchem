@@ -134,18 +134,23 @@ jobs:
         DEVELOPER_DIR: /Applications/Xcode_${{ matrix.xcode_version}}.app/Contents/Developer
         BLAS_ENV:  ${{ matrix.blas }}
     continue-on-error: ${{ matrix.experimental }}
-    steps: 
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 40
+      - name: Get Instruction
+        id: get-simd
+        run: |
+          echo "::set-output name=simd::$(./travis/guess_simd.sh)"
+        shell: bash
       - name: Setup cache
         id: setup-cache
         uses: actions/cache@v2
         with:
           path: |
             ~/cache
-          key: ${{ matrix.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-blas${{ matrix.blas}}-nwchemcache-v004
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 40
+          key: ${{ matrix.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-blas${{ matrix.blas}}-simd${{ steps.get-simd.outputs.simd }}-nwchemcache-v004
       - name: build environment
         run: |
           pwd
