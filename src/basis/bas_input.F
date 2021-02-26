@@ -993,7 +993,6 @@ c 1. user defined file -> do not do anything, just read file
 c 2. default path or user defined path -> append a file, check if it exists
 c
       filestring = filename
-      write(6,*) ' filename ',filename,'@'
       lenn = inp_strlen(filename)
 #ifdef WIN32
       if (filestring(lenn:lenn) .eq. '\') then

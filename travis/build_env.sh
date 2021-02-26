@@ -78,6 +78,23 @@ fi
 	wget https://github.com/ROCm-Developer-Tools/aomp/releases/download/rel_11.12-0/aomp_Ubuntu2004_11.12-0_amd64.deb
 	sudo dpkg -i aomp_Ubuntu2004_11.12-0_amd64.deb
 	export PATH=/usr/lib/aomp_11.12-0/bin/:$PATH
+	flang -v
+	which flang
+    fi
+    if [[ "$FC" == "nvfortran" ]]; then
+	sudo apt-get -y install lmod
+	wget https://developer.download.nvidia.com/hpc-sdk/21.2/nvhpc-21-2_21.2_amd64.deb
+	wget https://developer.download.nvidia.com/hpc-sdk/21.2/nvhpc-2021_21.2_amd64.deb
+	sudo dpkg -i nvhpc-21-2_21.2_amd64.deb nvhpc-2021_21.2_amd64.deb
+	source /etc/profile.d/lmod.sh
+        module use /opt/nvidia/hpc_sdk/modulefiles
+	module load nvhpc
+	export FC=nvfortran
+	export CC=gcc
+	env | grep FC || true
+	nvfortran -v
+	nvfortran
+	which nvfortran
     fi
     fi
 fi

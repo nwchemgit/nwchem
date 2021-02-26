@@ -17,6 +17,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        blas: [build_openblas]
         os: [ubuntu-18.04, macos-10.15]
         experimental: [false]
         mpi_impl:
@@ -98,13 +99,21 @@ jobs:
             nwchem_modules: "qmandpw qmd"
             fc: gfortran-10
             xcode_version: 12.3
-          - os: macos-10.15
+          - os: macos-11.0
             experimental: true
             mpi_impl: openmpi
             armci_network: mpi-pr
             nwchem_modules: "tce"
             fc: gfortran-10
             xcode_version: 12.3
+          - os: macos-10.15
+            experimental: true
+            mpi_impl: openmpi
+            armci_network: mpi-ts
+            nwchem_modules: "tinyqmpw"
+            fc: gfortran-9
+            blas: "accelerate"
+            xcode_version: 12.1
       fail-fast: false
     env:
         MPI_IMPL: ${{ matrix.mpi_impl }}
@@ -116,6 +125,7 @@ jobs:
         SIMINT_MAXAM: 3
         SIMINT_VECTOR: avx2
         DEVELOPER_DIR: /Applications/Xcode_${{ matrix.xcode_version}}.app/Contents/Developer
+        BLAS_ENV:  ${{ matrix.blas }}
     continue-on-error: ${{ matrix.experimental }}
     steps: 
       - name: Setup cache
@@ -124,7 +134,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ matrix.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-nwchemcache-v003
+          key: ${{ matrix.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-blas${{ matrix.blas}}-nwchemcache-v004
       - name: Checkout code
         uses: actions/checkout@v2
         with:
@@ -147,6 +157,7 @@ jobs:
         id: compile
         run: |
           cc -v
+          ./travis/config_nwchem.sh
           ./travis/compile_nwchem.sh
       - name: Check compilation result
         if: ${{ failure() }}
@@ -163,7 +174,7 @@ jobs:
           [ -d "src/NWints/simint/libsimint_source/simint_install/lib" ] && rsync -av src/NWints/simint/libsimint_source/simint_install/* ~/cache/simint/simint_install/.  || true
           mkdir -p ~/cache/libext/mpich/mpich || true
           echo "cache stored"
-          ls -Rla ~/cache 
+          ls -Rla ~/cache
       - name: qa_test
         id: qa_test
         if: steps.compile.conclusion == 'success'
@@ -184,6 +195,8 @@ jobs:
           tail -490 QA/testoutputs/h2o2-response.out || true; fi
           if [[ -f QA/testoutputs/prop_mep_gcube.out ]]; then \
           tail -30 QA/testoutputs/prop_mep_gcube.out || true; fi
+          if [[ -f QA/testoutputs/pspw.out ]]; then \
+          tail -490 QA/testoutputs/pspw.out || true; fi
   
 
 
