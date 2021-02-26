@@ -90,7 +90,7 @@ fi
         module use /opt/nvidia/hpc_sdk/modulefiles
 	module load nvhpc
 	export FC=nvfortran
-	export CC=gcc
+#	export CC=gcc
 	env | grep FC || true
 	nvfortran -v
 	nvfortran

@@ -25,7 +25,7 @@ if [[ "$FC" == "nvfortran" ]]; then
     module use /opt/nvidia/hpc_sdk/modulefiles
     module load nvhpc
     export FC=nvfortran
-    export CC=gcc
+#    export CC=gcc
 fi
 if [[ "$FC" == "ifort" ]]; then
     source /opt/intel/oneapi/compiler/latest/env/vars.sh
