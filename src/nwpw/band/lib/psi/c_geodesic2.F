@@ -98,13 +98,13 @@
 *     **** local variables ****
       logical value
       integer npack1,neall,nbrillq
-      integer ms,n,ispin,ne(2)
+      integer ms,n,ispin,ne(2),nb
       integer shift,shift2,i,j
       integer T_tag
 
 *     **** external functions **** 
-      integer  Pneb_4w_size
-      external Pneb_4w_size
+      integer  Pneb_4w_size,Pneb_w_size
+      external Pneb_4w_size,Pneb_w_size
       integer  cpsi_ispin,cpsi_neq,cpsi_nbrillq,cpsi_ne
       external cpsi_ispin,cpsi_neq,cpsi_nbrillq,cpsi_ne
       integer  cpsi_data_push_stack,cpsi_data_get_allptr
@@ -115,6 +115,8 @@
       external c_electron_eorbit
       integer  cpsi_data_nsize
       external cpsi_data_nsize
+      integer  cpsi_data_get_chnk
+      external cpsi_data_get_chnk
 
       call nwpw_timing_start(10)
       call Cram_max_npack(npack1)
@@ -183,6 +185,28 @@
 *     **** calculate dE ****
       !dE = 2.0d0*c_electron_eorbit_noocc(H)
       dE = 2.0d0*c_electron_eorbit(H_tag)
+
+      call Pneb_ffw_Multiply(0,0,
+     >                       dbl_mb(cpsi_data_get_allptr(Y_tag)),
+     >                       dbl_mb(cpsi_data_get_allptr(Y_tag)),npack1,
+     >                       dbl_mb(cpsi_data_get_allptr(R_tag)))
+      call Pneb_ffw_Multiply(0,0,
+     >                       dbl_mb(cpsi_data_get_allptr(Q_tag)),
+     >                       dbl_mb(cpsi_data_get_allptr(Q_tag)),npack1,
+     >                       dbl_mb(cpsi_data_get_allptr(T_tag)))
+
+c      do nb=1,nbrillq
+c       write(*,*) "nb=",nb
+c       call write_UU("A=",ne(1),
+c     >     dbl_mb(cpsi_data_get_allptr(A_tag)+(nb-1)*2*ne(1)*ne(1)))
+c       call write_UU("YtY=",ne(1),
+c     >     dbl_mb(cpsi_data_get_allptr(R_tag)+(nb-1)*2*ne(1)*ne(1)))
+c       call write_UU("QtQ=",ne(1),
+c     >     dbl_mb(cpsi_data_get_allptr(T_tag)+(nb-1)*2*ne(1)*ne(1)))
+c       write(*,*) "Sigma=",
+c     >  (dbl_mb(cpsi_data_get_allptr(S_tag)+(nb-1)*ne(1)+i-1),i=1,ne(1))
+c       write(*,*)
+c      end do
 
 
 *     **** deallocate tmp space ****     

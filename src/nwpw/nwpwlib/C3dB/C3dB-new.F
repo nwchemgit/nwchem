@@ -3090,6 +3090,79 @@ c      call Parallel3d_np_i(np)
 
 *     ***********************************
 *     *                                 *
+*     *          C3dB_r_ABSMAX          *
+*     *                                 *
+*     ***********************************
+c amax is assumed to be global??
+      subroutine C3dB_r_ABSMAX(nb,A,amax)
+      implicit none
+      integer nb
+      real*8 A(*)
+      real*8 amax
+
+#include "C3dB.fh"
+
+      integer i
+      real*8 aa
+
+!$OMP MASTER
+      amax = 0.0d0
+!$OMP END MASTER
+!$OMP BARRIER
+
+!$OMP DO REDUCTION(max: amax)
+      do i=1,n2ft3d_map(nb)
+         aa = dabs(A(i))
+         if (aa.gt.amax) amax = aa
+      end do
+!$OMP END DO 
+      call C3dB_MaxAll(amax)
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *          C3dB_c_ABSMAX          *
+*     *                                 *
+*     ***********************************
+c amax is assumed to be global??
+      subroutine C3dB_c_ABSMAX(nb,A,amax)
+      implicit none
+      integer nb
+      complex*16 A(*)
+      real*8 amax
+
+#include "C3dB.fh"
+
+      integer i
+      real*8 aa
+
+!$OMP MASTER
+      amax = 0.0d0
+!$OMP END MASTER
+!$OMP BARRIER
+      
+!$OMP DO REDUCTION(max: amax)
+      do i=1,n2ft3d_map(nb)
+         aa = dble(A(i))**2 + dimag(A(i))**2
+         if (aa.gt.amax) amax = aa
+      end do
+!$OMP END DO
+
+!OMP MASTER
+      amax = dsqrt(amax)
+!OMP END MASTER
+
+      call C3dB_MaxAll(amax)
+
+      return
+      end
+
+
+
+
+*     ***********************************
+*     *                                 *
 *     *          C3dB_r_abs1             *
 *     *                                 *
 *     ***********************************

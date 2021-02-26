@@ -72,6 +72,10 @@
       integer  control_ks_algorithm
       external control_ks_algorithm
 
+      real*8 E0
+      real*8   cpsi_smearcorrection
+      external cpsi_smearcorrection
+
       call Parallel_taskid(taskid)
 
       mprint = (taskid.eq.MASTER).and.control_print(print_medium)
@@ -124,24 +128,27 @@
       if ((minimizer.eq.5).or.(minimizer.eq.8)) it_out = 1
 
       if (newpsi) then
-         call c_sdminimize(10)
+         if (minimizer.ne.4) call c_sdminimize(10)
          call c_bybminimize0()
          if (control_fractional()) then
             Enew  = cpsi_1energy()
-            !write(*,*) "ENEW = ",enew + ewald_e()
-            !!call cpsi_1toelectron()
             call cpsi_1gen_hml()
-            call cpsi_diagonalize_hml()
-            call cpsi_1rotate2()
-            call cpsi_2to1()
-            call cpsi_1define_occupation(0.0d0,.false.)
+            write(*,*) "Start ENEW = ",enew + ewald_e()
+            if (minimizer.ne.4) then
+               call cpsi_diagonalize_hml()
+               call cpsi_1rotate2()
+               call cpsi_2to1()
+               call cpsi_1define_occupation(-1.0d0,.false.)
+            else
+               call cpsi_1define_occupation(-1.0d0,.true.)
+            end if
          end if
       end if
 
    2  continue
          icount = icount + 1
          if (stalled) then
-           call c_sdminimize(0)
+           if (minimizer.ne.4) call c_sdminimize(0)
            bfgscount = 0
          end if
 
@@ -162,13 +169,14 @@
          else if (minimizer.eq.4) then
            bfgscount = bfgscount + 1
            call c_cgminimize2(E,deltae,deltac,bfgscount,it_in)
-c           if (control_fractional()) then
-c              call psi_1gen_hml()
-c              call psi_diagonalize_hml_assending()
-c              call psi_1define_occupation(-1.0d0,.false.)
-c              !call psi_1rotate2()
-c              !call psi_2to1()
-c           end if
+
+           if (control_fractional().and.
+     >        (icount.lt.it_out)   .and.
+     >        (deltae.le.0.0d0)    .and.
+     >        ((dabs(deltae).ge.tole).or.(deltac.ge.tolc))) then
+              call cpsi_1define_occupation(-1.0d0,.true.)
+           end if
+
          else if (minimizer.eq.5) then
            bfgscount = bfgscount + 1
            call c_bybminimize(E,deltae,deltac,bfgscount,.false.,1)
@@ -199,7 +207,7 @@ c           end if
            write(luout,1310) icount*it_in,E(1),deltae,deltac
            call util_flush(luout)
          end if
-         if (deltae.gt.0.0d0) then
+         if ((deltae.gt.0.0d0).and.(minimizer.ne.4)) then
             if (mprint) 
      >       write(luout,*) 
      >       ' *** energy going up. iteration terminated.'
@@ -234,6 +242,7 @@ c           end if
 
       call cpsi_spin_density(en)
 
+
 *     **** diagonalize hamiltonian and rotate psi ****
       call cpsi_1gen_hml()
       call cpsi_diagonalize_hml()
@@ -241,7 +250,7 @@ c           end if
          call cpsi_1rotate2()
          call cpsi_2to1()
       end if
-      !if (control_fractional()) call cpsi_1define_occupation(.false.,1)
+      
 
 *     *** generate svectors ***
       if (cpsi_spin_orbit()) call cpsi_1gen_svector()

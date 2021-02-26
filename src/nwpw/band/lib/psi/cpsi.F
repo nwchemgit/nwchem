@@ -96,6 +96,25 @@
       end
 
 
+*     ***************************
+*     *                         *
+*     *        cpsi_2check      *
+*     *                         *
+*     ***************************
+      subroutine cpsi_2check()
+      implicit none
+
+#include "bafdecls.fh"
+#include "cpsi_common.fh"
+
+      logical failed
+      call Pneb_orthoCheckMake_tag(.true.,0,0,npack1,psi2_tag,failed)
+      return
+      end
+
+
+
+
 
 *     ***************************
 *     *		            	*
@@ -108,10 +127,44 @@
 #include "bafdecls.fh"
 #include "cpsi_common.fh"
 
-      call Pneb_orthoCheckMake_tag(.true.,0,0,npack1,psi1_tag)
+      logical failed
+      call Pneb_orthoCheckMake_tag(.true.,0,0,npack1,psi1_tag,failed)
+      return
+      end
+
+
+*     ***************************
+*     *		            	*
+*     *	    cpsi_checkrotate   	*
+*     *			        *
+*     ***************************
+      subroutine cpsi_checkrotate(failed)
+      implicit none
+      logical failed
+
+#include "bafdecls.fh"
+#include "cpsi_common.fh"
+
+*     **** local variables ****
+      real*8 Enew
+
+*     **** external functions ****
+      real*8   cpsi_1energy
+      external cpsi_1energy
+
+      call Pneb_orthoCheckMake_tag(.true.,0,0,npack1,psi1_tag,failed)
+      if (failed) then
+         Enew  = cpsi_1energy()
+         write(*,*) "cpsi_checkrotate, ENEW = ",Enew 
+         call cpsi_1gen_hml()
+         call cpsi_diagonalize_hml()
+         call cpsi_1rotate2()
+         call cpsi_2to1()
+      end if
 
       return
       end
+
 
 *     ***************************
 *     *		            	*
@@ -125,7 +178,9 @@
 #include "bafdecls.fh"
 #include "cpsi_common.fh"
 
-      call Pneb_orthoCheck_tag(indx,0,0,npack1,psi1_tag)
+      logical failed
+
+      call Pneb_orthoCheck_tag(indx,0,0,npack1,psi1_tag,failed)
       return
       end
 
@@ -1427,12 +1482,24 @@ c     >                       tmp1_tag)
 #include "bafdecls.fh"
 #include "cpsi_common.fh"
 
+      integer i,occ_tag
+
       integer  cpsi_data_get_next
       external cpsi_data_get_next
+c      integer  cpsi_data_get_allptr
+c      external cpsi_data_get_allptr
 
       call cpsi_data_set_next(H0_tag,cpsi_data_get_next(psi1_tag))
       call cpsi_data_copyall(cpsi_data_get_next(psi1_tag),
      >                       cpsi_data_get_next(psi2_tag))
+
+c      occ_tag = cpsi_data_get_next(psi1_tag)
+c      if (occ_tag.gt.0) then
+c         do i=1,ne(1)
+c            write(*,*) "geodesic2_start i,occ=",i,
+c     >      dbl_mb(cpsi_data_get_allptr(occ_tag)+i-1)
+c         end do
+c      end if
 
       call c_geodesic2_start(psi1_tag,H0_tag,max_sigma,dE)
       return
@@ -1473,8 +1540,9 @@ c      end
       real*8   c_electron_energy
       external c_electron_energy
 
-      call c_geodesic2_get(t,psi1_tag,
-     >                       psi2_tag)
+      call c_geodesic2_get(t,psi1_tag,psi2_tag)
+      call cpsi_2check()
+
 
       call c_electron_run(psi2_tag,
      >                    dbl_mb(rho2(1)),
@@ -1544,6 +1612,7 @@ c      end
 #include "cpsi_common.fh"
 
       call c_geodesic2_get(t,psi1_tag,psi2_tag)
+      call cpsi_2check()
       return
       end
 
@@ -3161,7 +3230,7 @@ c     *****  read initial wavefunctions into psi1  ****
 
 *     **** Ortho Check ****
       call Pneb_orthoCheckMake_tag(.true.,0,0,npack1,
-     >                             psi1_tag)
+     >                             psi1_tag,value)
 
       ne_excited(1) = 0
       ne_excited(2) = 0
