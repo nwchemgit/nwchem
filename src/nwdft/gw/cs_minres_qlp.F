@@ -192,7 +192,7 @@ c      r2(:) = b(:)
         if (iter.gt.2) ul2 = (taul2-etal2*ul4-veplnl2*ul3)/gamal2
         if (iter.gt.1) ul = (taul-etal*ul3-veplnl*ul2)/gamal
         xnorm_tmp = dznrm2(3,
-     $      [double complex:: dcmplx(xl2norm,0d0),ul2,ul],1)
+     $      [dcmplx(xl2norm,0d0),ul2,ul],1)
         if (abs(gama) > pnorm*realmin .and. xnorm_tmp .lt.maxxnorm)then
           u = (tau - eta*ul2 - vepln*ul)/gama
           if (dsqrt(xnorm_tmp**2 + dble(u*conjg(u))).gt.maxxnorm )then
@@ -204,7 +204,7 @@ c      r2(:) = b(:)
           flag = 9
         endif
         xl2norm = dsqrt( xl2norm**2 + dble(ul2*conjg(ul2)))
-        xnorm = dznrm2(3,[double complex:: dcmplx(xl2norm,0d0),ul,u],1)
+        xnorm = dznrm2(3,[dcmplx(xl2norm,0d0),ul,u],1)
 
         if ((Acond.lt.TranCond).and.(flag.eq.flag0).and.
      $      (QLPiter.eq.0)) then
@@ -275,7 +275,7 @@ c      r2(:) = b(:)
         relresl = relres
         if (flag.ne.9) rnorm = abs(phi)
         relres = rnorm/(Anorm*xnorm + beta1)
-        rootl = dznrm2( 2, [ double complex:: gbar, dltan ], 1 )
+        rootl = dznrm2( 2, [ gbar, dltan ], 1 )
         Arnorml = rnorml*rootl
         relAresl = rootl/Anorm
         epsx = Anorm*xnorm*eps
