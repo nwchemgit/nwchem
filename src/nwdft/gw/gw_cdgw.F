@@ -27,7 +27,7 @@ c
       integer g_epsilon(pars%ngl)
       integer igl,ngl,nqp
 
-      integer nprocs, maxqp, lsize, maxpoles
+      integer nprocs, maxqp, lsize, maxpoles, temp
       integer eviter, i, j, ibf, ilo, ihi, lo2, ipole, iqp, lo4, mynmo
       integer oolo,oohi,jlo,jhi,vvlo,vvhi,kiW,liW,kiWidx,liWidx
 
@@ -154,8 +154,15 @@ c
      $                    pars%nvir(i),mynmo,pars%nqp(i),pars%llmo(i))
       enddo
 
-      if(.not.(ga_create(mt_dbl,nri,pars%nmo,'sols',nri,0,pars%g_sols)))
+#ifdef GWCMPLX
+      if(.not.(ga_create(mt_dcpl,nri,pars%nmo,'sols',nri,0,
+     $    pars%g_sols)))
+#else
+      if(.not.(ga_create(mt_dbl,nri,pars%nmo,'sols',nri,0,
+     $    pars%g_sols)))
+#endif
      $  call errquit('gw_cdgw_newton: cannot create GA',0,GA_ERR) 
+
 
       call gw_buildiw(pars,dbl_mb(kEia),dbl_mb(pars%k_glx),dbl_mb(kiW),
      $    int_mb(kiWidx),pars%nmo,nri,pars%ngl,mynmo,maxpoles,maxqp,
@@ -292,7 +299,7 @@ c
 
       enddo
 
-      call dgop(mt_dbl,sigmax,nmo*pars%ipol,'+')
+      call ga_dgop(mt_dbl,sigmax,nmo*pars%ipol,'+')
 
       end subroutine
 

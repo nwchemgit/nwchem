@@ -59,7 +59,7 @@ c
 c
       resp = resp + resm
 
-      call dgop(mt_dbl,resp,3,'+')
+      call ga_dgop(mt_dbl,resp,3,'+')
       sigma = resp(1)
       dsigma = resp(2)
       d2sigma = resp(3)

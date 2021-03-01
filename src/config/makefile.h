@@ -3016,6 +3016,19 @@ ifdef USE_F90_ALLOCATABLE
   DEFINES += -DUSE_F90_ALLOCATABLE
 endif
 
+ifdef GWCMPLX
+  ifdef GWMINRES
+    errorgw:
+$(info  GWCMPLX and GWMINRES are incompatible )
+$(error )
+  endif
+  DEFINES += -DGWCMPLX
+endif
+
+ifdef GWMINRES
+  DEFINES += -DGWMINRES
+endif
+
 # lower level libs used by communication libraries 
 #case guard against case when tools have not been compiled yet
 #  ifeq ("$(wildcard ${GA_PATH}/bin/ga-config)","")

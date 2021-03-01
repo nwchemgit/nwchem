@@ -25,6 +25,11 @@
       double precision fac, arg, w, arg2, dfac, sgn
       double precision factor(maxpoles,ipol), vector(nri), vector2(nri)
       double precision vector3(nri)
+#ifdef GWCMPLX      
+      double complex   solvector(nri)
+#else      
+      double precision solvector(nri)
+#endif      
       double precision dfactor(maxpoles,ipol)
 
       logical main, ok, parallel_diag
@@ -135,22 +140,12 @@
         call gw_buildpi('r',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
      $                   factor,nri,nri,pars%mynpoles,main,ipol,
      $                   maxpoles)
-        call dgop(mt_dbl,dbl_mb(k_pi),nri**2,'+')
+        call ga_dgop(mt_dbl,dbl_mb(k_pi),nri**2,'+')
 
         root = mod((imo-off-1)*nspace+jmo-off-1,nprocs)
         idx = ((imo-off-1)*nspace+jmo-off-1)/nprocs + spacelo
 
-! for now, deactivate MINRES        
-!        if (jmo.ne.first) then
-        if (jmo.eq.-1) then
-!        if (.true.) then
-          if (me.eq.root) then
-            call ga_get(ga,1,nri,idx,idx,vector,nri)
-            vector2 = 0d0
-            call minres(dbl_mb(k_pi),vector2,vector,nri)
-          endif
-          call ga_brdcst(mt_dbl,vector2,mdtob(nri),root)
-        else if (parallel_diag) then
+        if (parallel_diag) then
           call gw_symmat(dbl_mb(k_pi),nri,pilo,pihi)
           call ga_brdcst(mt_int,idx,mitob(1),root)
           call ga_get(ga,1,nri,idx,idx,vector,nri)
@@ -163,7 +158,7 @@
           call gw_invdiag(g_pi,g_pi,nri)
           call dgemv('t',nri,mynri,1d0,dbl_mb(addrPi),nri,vector,1,
      $                0d0,vector2(pilo),1)
-          call dgop(mt_dbl,vector2,nri,'+')
+          call ga_dgop(mt_dbl,vector2,nri,'+')
 #endif
         else
           if (me.eq.root) then
@@ -179,7 +174,12 @@
 
         if (.not.ga_locate(gb,1,jmo,owner))
      $    call errquit('gw_buildrn: cannot locate owner',0,GA_ERR)
-        if (owner.eq.me) call ga_put(gb,1,nri,jmo,jmo,vector2,nri)
+#ifdef GWCMPLX        
+        solvector = dcmplx(vector2,0d0)
+#else
+        solvector = vector2
+#endif
+        if (owner.eq.me) call ga_put(gb,1,nri,jmo,jmo,solvector,nri)
 
         if (arg.ne.0d0) then
           do jsp=1,ipol

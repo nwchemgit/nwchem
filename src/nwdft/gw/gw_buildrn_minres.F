@@ -23,12 +23,20 @@
       integer pihi, pilo, kOV(2), ga, first, second, step
       integer spacelo, addr, gb, owner
       double precision fac, arg, w, arg2, dfac, sgn
-      double precision factor(maxpoles,ipol), vector(nri), vector2(nri)
-      double precision vector3(nri)
-      double precision dfactor(maxpoles,ipol)
+      double precision vector(nri), vector3(nri)
+#ifdef GWCMPLX
+      double complex factor(maxpoles,ipol),dfactor(maxpoles,ipol)
+      double complex xvec(nri)
+      double precision, parameter :: eta = 0.003d0
+      double complex, parameter :: ieta = dcmplx(0d0,eta)
+#else
+      double precision factor(maxpoles,ipol),dfactor(maxpoles,ipol)
+      double precision xvec(nri)
+      double precision,parameter :: ieta = 0d0
+#endif      
+      double precision, parameter :: shift = 0.00001d0
 
       logical main, ok, parallel_diag
-      double precision, parameter :: shift = 0.00001d0
       double precision, external :: ddot
       logical, external :: is_near, nga_create, ga_duplicate, ga_destroy
       logical, external :: ga_create, ga_copy, ga_locate
@@ -95,9 +103,10 @@
 !$omp   parallel do collapse(2)
         do jsp=1,ipol
           do ipole=1,pars%mynpoles(jsp)
-            factor(ipole,jsp) = Eia(ipole,jsp)/(Eia(ipole,jsp)**2-arg2)
-            dfactor(ipole,jsp) = -dfac*arg*factor(ipole,jsp)**2/
-     $                           Eia(ipole,jsp)
+            factor(ipole,jsp) = (Eia(ipole,jsp)+ieta)/
+     $                          ((Eia(ipole,jsp)+ieta)**2-arg2)
+            dfactor(ipole,jsp) = -dfac*arg*factor(ipole,jsp)/
+     $                          ((Eia(ipole,jsp)+ieta)**2-arg2)
           enddo
         enddo
 !$omp   end parallel do        
@@ -110,21 +119,36 @@
         if (.not.ga_locate(gb,1,jmo,owner))
      $  call errquit('gw_buildrn_minres: cannot locate owner',0,GA_ERR)
 
-        call ga_get(gb,1,nri,jmo,jmo,vector2,nri)
+        call ga_get(gb,1,nri,jmo,jmo,xvec,nri)
         call ga_get(ga,1,nri,idx,idx,vector,nri)
-        call gw_minres(dbl_mb(kOV(1)),dbl_mb(kOV(2)),factor,vector2,
-     $                 vector,pars%mynpoles,maxpoles,nri,ipol)
-        if (owner.eq.me) call ga_put(gb,1,nri,jmo,jmo,vector2,nri)
+
+#ifdef GWCMPLX
+        call cs_minres_qlp(dbl_mb(kOV(1)),dbl_mb(kOV(2)),factor,xvec,
+     $                     vector,pars%mynpoles,maxpoles,nri,ipol)
+#elif GWMINRES
+        call gw_minres(dbl_mb(kOV(1)),dbl_mb(kOV(2)),factor,xvec,
+     $            vector,pars%mynpoles,maxpoles,nri,ipol,20,.true.)
+#else
+        call gw_en(dbl_mb(kOV(1)),dbl_mb(kOV(2)),factor,xvec,
+     $                 vector,pars%mynpoles,maxpoles,nri,ipol,
+     $                 20,.true.)
+#endif        
+        if (owner.eq.me) call ga_put(gb,1,nri,jmo,jmo,xvec,nri)
 
         if (arg.ne.0d0) then
           do jsp=1,ipol
             addr = kOV(jsp)
+#ifdef GWCMPLX            
+            call dgemm('n','n',2,pars%mynpoles(jsp),nri,1d0,xvec,2,
+     $                  dbl_mb(addr),nri,0d0,factor,2)
+#else
             call dgemv('t',nri,pars%mynpoles(jsp),1d0,dbl_mb(addr),nri,
-     $                  vector2,1,0d0,factor(1,jsp),1)
+     $                  xvec,1,0d0,factor,1)
+#endif            
 
 !$omp       parallel do reduction(+:dR)
             do ipole=1,pars%mynpoles(jsp)
-              dR = dR + dfactor(ipole,jsp)*factor(ipole,jsp)**2
+               dR = dR + dble(dfactor(ipole,jsp)*factor(ipole,1)**2)
             enddo
 !$omp       end parallel do
 
@@ -133,7 +157,7 @@
 
         if (root.ne.me) cycle
 
-        w = dot_product(vector,vector2) - dot_product(vector,vector)
+        w = dot_product(vector,dble(xvec)) - dot_product(vector,vector)
         R = R + fac*w
 
         if (abs(fac).lt.1d0) dR = dR + w

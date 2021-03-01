@@ -33,7 +33,7 @@ c
       ma_mb = ma_dbl*dbl2mb
       ga_mb = ga_dbl*dbl2mb
 
-      call dgop(mt_dbl,ga_mb,1,"+")
+      call ga_dgop(mt_dbl,ga_mb,1,"+")
 
       if (pars%me.eq.0) then
         write(luout,*)

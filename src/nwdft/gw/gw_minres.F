@@ -204,14 +204,16 @@ c     $  call errquit('gw_minres: minres did not converge',0,0)
 
 
 
-      subroutine gw_minres(OV1,OV2,factor,x,b,npoles,maxpoles,n,ipol)
+      subroutine gw_minres(OV1,OV2,factor,x,b,npoles,maxpoles,n,ipol,
+     $                     maxiter,lprint)
       implicit none
 #include "errquit.fh"
 #include "global.fh"      
 #include "mafdecls.fh"
 #include "tcgmsg.fh"      
+      logical,intent(in) :: lprint
       integer,intent(in) :: ipol
-      integer,intent(in) :: npoles(ipol),maxpoles,n
+      integer,intent(in) :: npoles(ipol),maxpoles,n,maxiter
       double precision,intent(in) :: factor(maxpoles,ipol)
       double precision,intent(in) :: OV1(n,maxpoles),OV2(n,maxpoles)
       double precision,dimension(n),intent(in)   :: b
@@ -224,14 +226,13 @@ c     $  call errquit('gw_minres: minres did not converge',0,0)
       double precision :: gbar, gmax, gmin, oldb, oldeps, grnorm, phi
       double precision :: phibar, rhs1, rhs2, rnorml, rootl, Arnorml
       double precision :: relArnorml, s, sn, t, tnorm2, ynorm2, z
+      double precision :: t1, t2, test1, test2, root, bnorm, dxnorm
       double precision,dimension(n) :: r1, r2, sol, v, w, w1, w2, y
       double precision,dimension(n) :: precon
 
       logical main,converged
       integer iter, istop, i
-      integer,parameter :: maxiter = 20
-      double precision,parameter :: rtol = 1d-4
-      double precision,parameter :: shift = 0.000d0
+      double precision,parameter :: shift = 0.000d0, rtol=1d-3
 
       call ga_sync()
 
@@ -252,38 +253,36 @@ c     $  call errquit('gw_minres: minres did not converge',0,0)
         call gw_aprod(OV1,factor,x,y,-2d0,0d0,npoles,n)
         call gw_aprod(OV2,factor(1,2),x,y,-2d0,1d0,npoles(2),n)
       endif
-      call dgop(mt_dbl,y,n,'+')
+      call ga_dgop(mt_dbl,y,n,'+')
 
       y(:) = y(:) + b(:) - x(:)
       r1(:) = y(:)
 
+      bnorm = dsqrt(dot_product(b,b))
       beta1 = dsqrt(dot_product(r1,r1))
       call ga_brdcst(mt_dbl,beta1,mdtob(1),0)
 
       ! Solution already converged
       if (beta1.lt.rtol) then
+        rnorm = beta1
         istop = -1
         goto 2000
       endif
 
-      precon(:) = 0d0
-      if (ipol.eq.1) then
-        call gw_precon(ov1,factor,precon,4d0,npoles,n)
-      else
-        call gw_precon(ov1,factor,precon,2d0,npoles,n)
-        call gw_precon(ov2,factor(1,2),precon,2d0,npoles(2),n)
-      endif
-      call dgop(mt_dbl,precon,n,'+')
-      precon(:) = abs(precon)
-      where(precon.gt.1d2)
-        precon = 1d0/precon
-      elsewhere
-        precon = 1d-2
-      endwhere
+c      precon(:) = 0d0
+c      if (ipol.eq.1) then
+c        call gw_precon(ov1,factor,precon,4d0,npoles,n)
+c      else
+c        call gw_precon(ov1,factor,precon,2d0,npoles,n)
+c        call gw_precon(ov2,factor(1,2),precon,2d0,npoles(2),n)
+c      endif
+c      call ga_dgop(mt_dbl,precon,n,'+')
+c      precon(:) = abs(1d0+precon)
+c      precon = 1d0/precon
+      precon = 1d0
 
       y(:) = r1(:)*precon(:)
       beta1 = dsqrt(dot_product(y,r1))
-
 
       oldb = 0d0
       beta = beta1
@@ -301,6 +300,9 @@ c     $  call errquit('gw_minres: minres did not converge',0,0)
       w1(:) = 0d0
       w2(:) = 0d0
       r2(:) = r1(:)
+      gmax = 0d0
+      gmin = huge(1d0)
+      sol(:) = 0d0
 
       do
         iter = iter + 1
@@ -314,15 +316,15 @@ c     $  call errquit('gw_minres: minres did not converge',0,0)
           call gw_aprod(OV1,factor,v,y,2d0,0d0,npoles,n)
           call gw_aprod(OV2,factor(1,2),v,y,2d0,1d0,npoles(2),n)
         endif
-        call dgop(mt_dbl,y,n,'+')
+        call ga_dgop(mt_dbl,y,n,'+')
 
-        y(:) = y(:) + v(:)
+        y(:) = (y(:) + v(:))
 
         if (iter.ge.2) call daxpy(n,-beta/oldb,r1,1,y,1)
 
         alpha = dot_product(v,y)
-        r1(:) = r2(:)
         call daxpy(n,-alpha/beta,r2,1,y,1)
+        r1(:) = r2(:)
         r2(:) = y(:)
 
         y(:) = r2(:)*precon(:)
@@ -335,8 +337,6 @@ c     $  call errquit('gw_minres: minres did not converge',0,0)
           if (beta/beta1 .le. 10d0*eps) then
             istop = -1
           endif
-          gmax = abs(alpha)
-          gmin = gmax
         endif
 
         oldeps = epsln
@@ -344,65 +344,79 @@ c     $  call errquit('gw_minres: minres did not converge',0,0)
         gbar  = sn*dbar - cs*alpha
         epsln = sn*beta
         dbar  = -cs*beta
+        root = dsqrt(gbar**2 + dbar**2)
+        Arnorm = phibar*root
 
-        gam    = dsqrt( gbar**2 + beta**2 )
-        gam    = max(gam,eps)
-        cs     = gbar/gam
-        sn     = beta/gam
+        if (beta.eq.0d0) then
+          cs = sign(1d0,gbar)
+          sn = 0d0
+          gam = abs(gbar)
+        elseif (gbar.eq.0d0) then
+          cs = 0d0
+          sn = 1d0
+          gam = beta
+        elseif (beta.gt.abs(gbar)) then
+          t = gbar/beta
+          sn = 1d0/dsqrt(1d0 + t**2)
+          cs = sn*t
+          gam = beta/sn
+        else
+          t = beta/gbar
+          cs = sign(1d0,gbar)/dsqrt(1d0+t**2)
+          sn = cs*t
+          gam = gbar/cs
+        endif
+
+c        cs     = gbar/gam
+c        sn     = beta/gam
         phi    = cs*phibar
         phibar = sn*phibar
 
         w1(:) = w2(:)
         w2(:) = w(:)
         w(:) = (v(:) - oldeps*w1(:) - delta*w(:))/gam
-        call daxpy(n,phi,w,1,x,1)
+        call daxpy(n,phi,w,1,sol,1)
 
         gmax = max(gmax,gam)
         gmin = min(gmin,gam)
         z    = rhs1/gam
-        ynorm2 = z**2 + ynorm2
         rhs1 = rhs2 - delta*z
         rhs2 = -epsln*z
 
         Anorm = dsqrt(tnorm2)
-        ynorm = dsqrt(ynorm2)
-        epsa = Anorm*eps
-        epsx = Anorm*ynorm*eps
-        epsr = Anorm*ynorm*rtol
-        diag = gbar
-        if (diag.eq.0) diag = epsa
-
-        grnorm = phibar
-        rnorml = rnorm
-        rnorm  = grnorm
-        rootl  = dsqrt(gbar**2 + dbar**2)
-        Arnorml = rnorml*rootl
-        relArnorml = rootl/Anorm
+        dxnorm =dsqrt(dot_product(sol,sol))
+        rnorm = phibar
 
         Acond = gmax/gmin
+        if (istop.ne.0) exit
 
-        if (istop .eq. 0) then
-          if (iter .ge. maxiter) istop = 5
-          if (Acond .ge. 0.1d0/eps) istop=4
-          if (epsx  .ge. beta1    ) istop=3
-          if (grnorm .le. epsx .or. relArnorml .le. epsx) istop = 2
-          if (grnorm .le. epsr .or. relArnorml .le. epsr) istop = 1
-          if (grnorm .le. rtol) istop = 1
-        endif
+        epsx = (Anorm*dxnorm + beta1)*eps
+        epsr = (Anorm*dxnorm + beta1)*rtol
+        test1 = rnorm/(Anorm*dxnorm + bnorm)
+        test2 = Arnorm/(Anorm*(rnorm + eps))
+        t1 = 1d0 + test1
+        t2 = 1d0 + test2
+
+        if (t2    .le. 1d0      ) istop=2
+        if (t1    .le. 1d0      ) istop=1
+        if (iter  .ge. maxiter  ) istop=6
+        if (Acond .ge. 0.1d0/eps) istop=5
+        if (epsx  .ge. beta1    ) istop=3
+        if (test2 .le. rtol     ) istop=2
+        if (test1 .le. rtol     ) istop=1
+        if (rnorm .le. rtol     ) istop=8
 
         call ga_brdcst(mt_int,istop,mitob(1),0)
 
         if (istop.ne.0) exit
       enddo
 
+      x(:) = x(:) + sol(:)
+
  1000 Arnorm = Arnorml
+ 2000 continue
 
-
-      
- 2000 if (istop.eq.4) 
-     $  call errquit('gw_minres: matrix is very ill-conditioned',0,0)
-
-      if (main) write(*,*) iter,grnorm
+      if (main.and.lprint) write(*,*) iter,istop,rnorm
 
       end subroutine
 
