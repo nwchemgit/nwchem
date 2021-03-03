@@ -114,16 +114,32 @@
         nspace = pars%nvir(isp)
       endif
 
+      if (omega.lt.0d0) then
+        sgn = -1d0
+      else
+        sgn = 1d0
+      endif
+
        
       do jmo=first,second,step
-        if ( abs(eig(jmo)) .gt. abs(omega+sgn*shift) ) exit
+c        if ( abs(eig(jmo)) .gt. abs(omega+sgn*shift) ) exit
+
+        if (omega.lt.0d0) then
+          if (eig(jmo) .lt. omega-shift) cycle
+          if (eig(jmo) .gt. 0d0) cycle
+        else
+          if (eig(jmo) .gt. omega+shift) cycle
+          if (eig(jmo) .lt. 0d0) cycle
+        endif
+
         if (is_near(eig(jmo),omega,shift)) then
           fac = sgn*0.5d0
           arg = 0d0
           arg2 = 0d0
         else
           fac = sgn
-          arg = sgn*(omega - eig(jmo))
+c          arg = sgn*(omega - eig(jmo))
+          arg = eig(jmo) - omega
           arg2 = arg**2
         endif
 

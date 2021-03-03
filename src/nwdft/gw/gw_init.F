@@ -228,13 +228,14 @@ c
 
         pars%llmo(i) = pars%nocc(i) - pars%noqp(i) + 1
         pars%nqp(i) = pars%noqp(i) + pars%nvqp(i)
+c      
 
       enddo
 c
-      if (pars%evgw.or.pars%evgw0) then
-        pars%noqp(:) = pars%nocc(:)
-        pars%nvqp(:) = pars%nvir(:)
-      endif
+c      if (pars%evgw.or.pars%evgw0) then
+c        pars%noqp(:) = pars%nocc(:)
+c        pars%nvqp(:) = pars%nvir(:)
+c      endif
 c
       if (sum(pars%noqp)+sum(pars%nvqp).eq.0)
      $  call errquit(pname//'no quasiparticle energies to obtain',0,0)

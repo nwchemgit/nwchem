@@ -147,7 +147,7 @@ c
                   idy = idy/nprocs*nri + kOV(isp)
                 else
                   idy = ((imo-pars%nocc(isp)-1)*pars%nvir(isp)+lmo-
-     $                    pars%nocc(isp)-1)/nprocs + kVV(isp)
+     $                    pars%nocc(isp)-1)/nprocs*nri + kVV(isp)
                 endif
                 call dcopy(nri,dbl_mb(idy),1,dbl_mb(idx),1)
               enddo

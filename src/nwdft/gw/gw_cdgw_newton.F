@@ -1,4 +1,4 @@
-      subroutine gw_cdgw_newton(pars,Sigmax,Sigma,Eold,Enew,Eia,iW,
+      subroutine gw_cdgw_newton(pars,Sigmax,Sigma,Eref,Eold,Enew,Eia,iW,
      $                          iWidx,Efermi,nri,mynmo,maxqp,maxpoles,
      $                          EViter)
 
@@ -14,6 +14,7 @@
       integer,intent(in) :: iWidx(0:mynmo,maxqp,pars%ipol)
       double precision,intent(in) :: Efermi(pars%ipol)
       double precision,intent(in) :: Sigmax(pars%nmo,pars%ipol)
+      double precision,intent(in) :: Eref(pars%nmo,pars%ipol)
       double precision,intent(in) :: Eold(pars%nmo,pars%ipol)
       double precision,intent(in) :: Eia(maxpoles,pars%ipol)
       double precision,intent(in) :: iW(mynmo,pars%ngl,maxqp,pars%ipol)
@@ -25,8 +26,8 @@
       double precision timer
       double precision Ein, Eout, SigmaOld, Sigma_X, SigmaC, Z
       double precision d2SigmaC, dSigmaC, Linear
-      double precision residual, residualOld, dresidual, d2residual
-      double precision quadratic, dquadratic, d2quadratic
+      double precision residual, residualOld, dresidual, d2residual,Etmp
+      double precision quadratic, dquadratic, d2quadratic, dquadraticold
       double precision quadraticstep, linearstep, step
       double precision I,dI,d2I,R,dR,d2R
 
@@ -54,7 +55,11 @@
           Sigma_X  = Sigmax(llmo+iqp-1,isp)
           residualOld = 1d100 
 
-          if (EViter.eq.0) Eout = Eout + 0.10d0*(Sigma_X - SigmaOld)
+          if (eviter.eq.0) then
+            Eout = Eout + 0.12d0*(Sigma_X - SigmaOld)
+          else
+            Eout = Eout + sign(0.01d0,Eout)
+          endif
 
           call ga_zero(pars%g_sols)
 c        
@@ -89,34 +94,42 @@ c
             dSigmaC  = dI + dR
             d2SigmaC = d2I + d2R
 
-            Z = min(1d0,1d0/(1d0-dSigmaC))
+            Z = 1d0/(1d0-dSigmaC)
 
-            residual = Eold(llmo+iqp-1,isp) + 
+            residual = Eref(llmo+iqp-1,isp) + 
      $                 SigmaC + Sigma_X - SigmaOld - Ein
+
+
             quadratic = residual**2
             dresidual = dSigmaC - 1d0
             d2residual = d2SigmaC
             dquadratic = 2d0*residual*dresidual
-            d2quadratic = 2d0*d2residual*dresidual**2
+            d2quadratic = 2d0*d2residual*residual + 2d0*dresidual**2
 
             linearstep    = Z*residual
             quadraticstep = -dquadratic/d2quadratic
-
-            step = 0.6180d0*linearstep
-
-            Eout = Ein + step
-
             if (iter.eq.1) Linear = Ein + linearstep
 
-            residualOld = residual
+            step = 0.6180d0*linearstep
 
             if (main) converged = abs(residual).lt.pars%thresh
             call ga_brdcst(mt_log,converged,mitob(1),0)
             call ga_brdcst(mt_dbl,Eout,mdtob(1),0)
             if (converged) exit
+
+            if (iter.le.3) then
+              Eout = Ein + step
+            else
+              Eout = Ein + linearstep
+            endif
+
+            Etmp = Ein
+            residualOld = residual
+            dquadraticold = dquadratic
+
           enddo
           Enew(llmo+iqp-1,isp)  = Eout
-          Sigma(llmo+iqp-1,isp) = SigmaC + Sigma_X
+c          Sigma(llmo+iqp-1,isp) = SigmaC + Sigma_X
 
           if (main) then
             write(luout,9020) llmo+iqp-1,

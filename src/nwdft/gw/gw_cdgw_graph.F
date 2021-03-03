@@ -1,4 +1,4 @@
-      subroutine gw_cdgw_graph(pars,Sigmax,Sigma,Eold,Enew,Eia,iW,
+      subroutine gw_cdgw_graph(pars,Sigmax,Sigma,Eref,Eold,Enew,Eia,iW,
      $                         iWidx,efermi,nri,mynmo,maxqp,maxpoles)
 
       implicit none
@@ -10,6 +10,7 @@
       double precision,intent(in) :: efermi(pars%ipol)
       double precision,intent(in) :: Sigmax(pars%nmo,pars%ipol)
       double precision,intent(in) :: Sigma(pars%nmo,pars%ipol)
+      double precision,intent(in) :: Eref(pars%nmo,pars%ipol)
       double precision,intent(in) :: Eold(pars%nmo,pars%ipol)
       double precision,intent(in) :: Enew(pars%nmo,pars%ipol)
       double precision,intent(in) :: Eia(maxpoles,pars%ipol)

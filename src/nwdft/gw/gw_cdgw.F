@@ -20,8 +20,8 @@ c
       integer nri_me, istart, iend, ld
       logical main, oactive
 
-      integer k_eriij,k_eriia,kSigma,kSigmax,kEold,kEnew
-      integer l_eriij,l_eriia,lSigma,lSigmax,lEold,lEnew
+      integer k_eriij,k_eriia,kSigma,kSigmax,kEref,kEnew,kEmod
+      integer l_eriij,l_eriia,lSigma,lSigmax,lEref,lEnew,lEmod
       integer k_omega,kEia
       integer l_omega,lEia
       integer g_epsilon(pars%ngl)
@@ -102,7 +102,10 @@ c
      $  call errquit(pname//'can''t create iw index',0,MA_ERR)
 
       lSize = ipol*pars%nmo
-      if (.not.ma_push_get(mt_dbl,lSize,'evals old',lEold,kEold))
+      if (.not.ma_push_get(mt_dbl,lSize,'evals ref',lEref,kEref))
+     $  call errquit(pname//'failed to allocate old evals',0,MA_ERR)
+
+      if (.not.ma_push_get(mt_dbl,lSize,'evals mod',lEmod,kEmod))
      $  call errquit(pname//'failed to allocate old evals',0,MA_ERR)
 
       if (.not.ma_push_get(mt_dbl,lSize,'evals new',lEnew,kEnew))
@@ -121,8 +124,19 @@ c
 c
 c     Shift eigenvalues
 c
-      call gw_shift(dbl_mb(pars%k_evals),dbl_mb(kEold),efermi,
+      call gw_shift(dbl_mb(pars%k_evals),dbl_mb(kEref),efermi,
      $              nbf_ao,pars%nmo,pars%ipol)
+
+      call dcopy(nmo*ipol,dbl_mb(kEref),1,dbl_mb(kEmod),1)
+c
+#ifdef GWCMPLX
+      if(.not.(ga_create(mt_dcpl,nri,pars%nmo,'sols',nri,0,
+     $    pars%g_sols)))
+#else
+      if(.not.(ga_create(mt_dbl,nri,pars%nmo,'sols',nri,0,
+     $    pars%g_sols)))
+#endif
+     $  call errquit('gw_cdgw_newton: cannot create GA',0,GA_ERR) 
 c
       eviter = 0
 c
@@ -137,7 +151,7 @@ c     Obtain eigenvalue difference
 c
       do i=1,ipol
         lSize = (i-1)*maxpoles
-        call gw_get_eia(dbl_mb(kEold+(i-1)*pars%nmo),dbl_mb(kEia+lSize),
+        call gw_get_eia(dbl_mb(kEmod+(i-1)*pars%nmo),dbl_mb(kEia+lSize),
      $                  pars%nocc(i),pars%nvir(i))
       enddo
 c
@@ -153,16 +167,6 @@ c
         call gw_get_iwidx(int_mb(kiWidx+lSize),pars%nmo,pars%nocc(i),
      $                    pars%nvir(i),mynmo,pars%nqp(i),pars%llmo(i))
       enddo
-
-#ifdef GWCMPLX
-      if(.not.(ga_create(mt_dcpl,nri,pars%nmo,'sols',nri,0,
-     $    pars%g_sols)))
-#else
-      if(.not.(ga_create(mt_dbl,nri,pars%nmo,'sols',nri,0,
-     $    pars%g_sols)))
-#endif
-     $  call errquit('gw_cdgw_newton: cannot create GA',0,GA_ERR) 
-
 
       call gw_buildiw(pars,dbl_mb(kEia),dbl_mb(pars%k_glx),dbl_mb(kiW),
      $    int_mb(kiWidx),pars%nmo,nri,pars%ngl,mynmo,maxpoles,maxqp,
@@ -187,27 +191,33 @@ c
 
       if (pars%graph) then
         call gw_cdgw_graph(pars,dbl_mb(kSigmax),dbl_mb(kSigma),
-     $                          dbl_mb(kEold),dbl_mb(kEnew),
+     $                          dbl_mb(kEref),dbl_mb(kEmod),
+     $                          dbl_mb(kEnew),
      $                          dbl_mb(kEia),dbl_mb(kiW),int_mb(kiWidx),
      $                          efermi,nri,mynmo,maxqp,maxpoles)
       elseif (pars%newton) then
         call gw_cdgw_newton(pars,dbl_mb(kSigmax),dbl_mb(kSigma),
-     $                      dbl_mb(kEold),dbl_mb(kEnew),dbl_mb(kEia),
+     $                      dbl_mb(kEref),dbl_mb(kEmod),dbl_mb(kEnew),
+     $                      dbl_mb(kEia),
      $                      dbl_mb(kiW),int_mb(kiWidx),efermi,nri,
      $                      mynmo,maxqp,maxpoles,eviter)
       else
         call gw_cdgw_linear(pars,dbl_mb(kSigmax),dbl_mb(kSigma),
-     $                      dbl_mb(kEold),dbl_mb(kEnew),dbl_mb(kEia),
+     $                      dbl_mb(kEref),dbl_mb(kEmod),dbl_mb(kEnew),
+     $                      dbl_mb(kEia),
      $                      dbl_mb(kiW),int_mb(kiWidx),efermi,nri,
      $                      mynmo,maxqp,maxpoles)
       endif
 
       if (pars%evgw0.or.pars%evgw) then
+        call gw_scissor(dbl_mb(kEnew),dbl_mb(kEmod),pars%nmo,pars%nocc,
+     $                  pars%nvir,pars%noqp,pars%nvqp,pars%ipol,pars%me)
+
         call ga_brdcst(mt_dbl,dbl_mb(kEnew),
-     $       ma_sizeof(mt_dbl,nmo,mt_byte),0)
+     $       ma_sizeof(mt_dbl,nmo*pars%ipol,mt_byte),0)
         call ga_brdcst(mt_dbl,dbl_mb(kSigma),
-     $       ma_sizeof(mt_dbl,nmo,mt_byte),0)
-        call dcopy(nmo,dbl_mb(kEnew),1,dbl_mb(kEold),1)
+     $       ma_sizeof(mt_dbl,nmo*pars%ipol,mt_byte),0)
+        call dcopy(nmo*pars%ipol,dbl_mb(kEnew),1,dbl_mb(kEmod),1)
         eviter = eviter + 1      
         if (eviter.lt.pars%eviter) then
           if (pars%evgw0) goto 200
@@ -272,25 +282,21 @@ c     *****************************************************************
 
           if (imo.le.pars%nocc(ipol)) then
 c
-!$omp       parallel do private(idx) reduction(+:temp)
             do kmo=1,pars%nocc(ipol)
               idx = (imo-1)*pars%nocc(ipol)+kmo-1
               if (pars%me.ne.mod(idx,pars%nprocs)) cycle
               idx = (idx/pars%nprocs)*nri + addrOO
               temp = temp - ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
             enddo
-!$omp       end parallel do
 c
           else
 c
-!$omp       parallel do private(idx) reduction(+:temp)
             do kmo=1,pars%nocc(ipol)
               idx = (kmo-1)*pars%nvir(ipol)+imo-pars%nocc(ipol)-1
               if (pars%me.ne.mod(idx,pars%nprocs)) cycle
               idx = (idx/pars%nprocs)*nri + addrOV
               temp = temp - ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
             enddo
-!$omp       end parallel do
 c
           endif
           sigmax(imo,ipol) = temp
@@ -538,7 +544,9 @@ c
           enddo
         endif
         idx(0,jmo) = lmo
+
       enddo
+
       return
       end subroutine
 
@@ -553,4 +561,49 @@ c
       enddo
 
       return
+      end subroutine
+
+      subroutine gw_scissor(enew,eold,nmo,nocc,nvir,noqp,nvqp,ipol,me)
+      implicit none
+      integer,intent(in) :: ipol, nmo, me
+      integer,intent(in),dimension(ipol) :: nocc,nvir,noqp,nvqp
+      double precision,intent(in),dimension(nmo,ipol) :: eold
+      double precision,intent(out),dimension(nmo,ipol) :: enew
+
+      integer isp,imo
+      double precision shift
+
+      do isp=1,ipol
+
+        ! shift occupied states as HOMO
+        if (noqp(isp).lt.nocc(isp)) then
+          shift = 0d0
+          do imo=nocc(isp),nocc(isp)-noqp(isp)+1,-1
+            shift = shift + enew(nocc(isp),isp) - eold(nocc(isp),isp)
+          enddo
+          shift = shift/noqp(isp)
+          if (me.eq.0) write(*,9000) shift*27.2114d0
+          do imo=nocc(isp)-noqp(isp),1,-1
+            enew(imo,isp) = eold(imo,isp) + shift
+          enddo
+        endif
+
+        ! shift unoccupied states as LUMO
+        if (nvqp(isp).lt.nvir(isp)) then
+          shift = 0d0
+          do imo=nocc(isp)+1,nocc(isp)+nvqp(isp)
+            shift = shift + enew(nocc(isp)+1,isp)-eold(nocc(isp)+1,isp)
+          enddo
+          shift = shift/nvqp(isp)
+          if (me.eq.0) write(*,9010) shift*27.2114d0
+          do imo=nocc(isp)+nvqp(isp)+1,nmo
+            enew(imo,isp) = eold(imo,isp) + shift
+          enddo
+        endif
+      enddo
+
+ 9000 format(/,3X,'Applying ',F8.4,' eV scissor-shift to rest of ',
+     $         'particle states',/)
+ 9010 format(/,3X,'Applying ',F8.4,' eV scissor-shift to rest of ',
+     $         'hole states',/)
       end subroutine

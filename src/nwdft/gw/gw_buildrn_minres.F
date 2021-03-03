@@ -87,16 +87,29 @@
         nspace = pars%nvir(isp)
       endif
 
+      if (omega.lt.0d0) then
+        sgn = -1d0
+      else
+        sgn = 1d0
+      endif
        
       do jmo=first,second,step
-        if ( abs(eig(jmo)) .gt. abs(omega+sgn*shift) ) exit
+        if (omega.lt.0d0) then
+          if (eig(jmo) .lt. omega-shift) cycle
+          if (eig(jmo) .gt. 0d0) cycle
+        else
+          if (eig(jmo) .gt. omega+shift) cycle
+          if (eig(jmo) .lt. 0d0) cycle
+        endif
+
         if (is_near(eig(jmo),omega,shift)) then
           fac = sgn*0.5d0
           arg = 0d0
           arg2 = 0d0
         else
           fac = sgn
-          arg = sgn*(omega - eig(jmo))
+c          arg = sgn*(omega - eig(jmo))
+          arg = eig(jmo) - omega
           arg2 = arg**2
         endif
 
@@ -105,7 +118,7 @@
           do ipole=1,pars%mynpoles(jsp)
             factor(ipole,jsp) = (Eia(ipole,jsp)+ieta)/
      $                          ((Eia(ipole,jsp)+ieta)**2-arg2)
-            dfactor(ipole,jsp) = -dfac*arg*factor(ipole,jsp)/
+            dfactor(ipole,jsp) = dfac*arg*factor(ipole,jsp)/
      $                          ((Eia(ipole,jsp)+ieta)**2-arg2)
           enddo
         enddo
@@ -131,7 +144,7 @@
 #else
         call gw_en(dbl_mb(kOV(1)),dbl_mb(kOV(2)),factor,xvec,
      $                 vector,pars%mynpoles,maxpoles,nri,ipol,
-     $                 20,.true.)
+     $                 25,.true.)
 #endif        
         if (owner.eq.me) call ga_put(gb,1,nri,jmo,jmo,xvec,nri)
 
@@ -148,7 +161,7 @@
 
 !$omp       parallel do reduction(+:dR)
             do ipole=1,pars%mynpoles(jsp)
-               dR = dR + dble(dfactor(ipole,jsp)*factor(ipole,1)**2)
+               dR = dR + fac*dble(dfactor(ipole,jsp)*factor(ipole,1)**2)
             enddo
 !$omp       end parallel do
 
@@ -160,7 +173,7 @@
         w = dot_product(vector,dble(xvec)) - dot_product(vector,vector)
         R = R + fac*w
 
-        if (abs(fac).lt.1d0) dR = dR + w
+        if (abs(fac).lt.1d0) dR = dR + sign(1d0,fac)*w
 
       enddo
 

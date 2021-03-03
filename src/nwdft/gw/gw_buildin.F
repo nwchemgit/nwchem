@@ -15,8 +15,9 @@
       double precision,dimension(iwidx(0)) :: vector,wmo
       double precision,dimension(iwidx(0)) :: factor, dfactor, d2factor
       double precision,dimension(0:2)     :: res
+      double precision,parameter :: eta = 0.000d0
 
-      double precision,external :: ddot
+      integer,external :: ga_nodeid
 
       mynmo = iwidx(0)
       do jmo=1,iwidx(0)
@@ -26,14 +27,19 @@
       res(:) = 0d0
 
       do igl=1,ngl
-        w2 = x(igl)
+        if (iwidx(0).eq.0) exit
+
+        w2 = dsqrt(x(igl))
         wmo(:) = iW(1:iwidx(0),igl)
 
         do jmo=1,iwidx(0)
-          a = 1d0/(vector(jmo)**2 + w2)
+          a = 1d0/(vector(jmo)**2 + 
+     $        (w2-sign(eta,evals(iwidx(jmo))))**2)
           factor(jmo) =  vector(jmo)*a
-          dfactor(jmo) = (w2 - vector(jmo)**2)*a**2
-          d2factor(jmo) = 2d0*vector(jmo)*(vector(jmo)**2 - 3d0*w2)*a**3
+          dfactor(jmo) = ((w2-sign(eta,evals(iwidx(jmo))))**2 - 
+     $                     vector(jmo)**2)*a**2
+          d2factor(jmo) = 2d0*vector(jmo)*(vector(jmo)**2 - 
+     $                    3d0*w2**2)*a**3
         enddo
         res(0) = res(0) - w(igl)*dot_product(wmo,factor)
         res(1) = res(1) - w(igl)*dot_product(wmo,dfactor)

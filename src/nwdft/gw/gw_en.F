@@ -8,8 +8,8 @@
       double precision,intent(in) :: factor(maxpoles,*),b(n)
       double precision,intent(out) :: x(n)
 
-      integer,parameter :: maxres = 20
-      double precision,parameter :: rtol = 1d-4
+      integer,parameter :: maxres = 25
+      double precision,parameter :: rtol = 1d-5
 
       double precision,dimension(n) :: ahr,hr,r,w,eta,xi,precon
       double precision :: u(n,maxres),c(n,maxres),beta(maxres)
@@ -129,7 +129,7 @@ c        u(:,iter) = precon(:)*xi(:)
 
   200 continue    
 
-      if (precond.and.(ga_nodeid().eq.0)) write(*,*) totiter,rnorm
+c      if (precond.and.(ga_nodeid().eq.0)) write(*,*) totiter,rnorm
 c      if ((ga_nodeid().eq.0)) write(*,*) totiter,rnorm
 
 

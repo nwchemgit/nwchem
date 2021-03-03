@@ -1,4 +1,4 @@
-      subroutine gw_cdgw_linear(pars,Sigmax,Sigma,Eold,Enew,Eia,iW,
+      subroutine gw_cdgw_linear(pars,Sigmax,Sigma,Eref,Eold,Enew,Eia,iW,
      $                          iWidx,efermi,nri,mynmo,maxqp,maxpoles)
 
       implicit none
@@ -13,6 +13,7 @@
       integer,intent(in) :: iWidx(0:mynmo,maxqp,pars%ipol)
       double precision,intent(in) :: efermi(pars%ipol)
       double precision,intent(in) :: Sigmax(pars%nmo,pars%ipol)
+      double precision,intent(in) :: Eref(pars%nmo,pars%ipol)
       double precision,intent(in) :: Eold(pars%nmo,pars%ipol)
       double precision,intent(in) :: Eia(maxpoles,pars%ipol)
       double precision,intent(in) :: iW(mynmo,pars%ngl,maxqp,pars%ipol)
@@ -46,7 +47,7 @@
 
         do iqp=1,totalqp
 
-          Eout     = Eold(llmo+iqp-1,isp)
+          Eout     = Eref(llmo+iqp-1,isp)
           SigmaOld = Sigma(llmo+iqp-1,isp)
           Sigma_X  = Sigmax(llmo+iqp-1,isp)
           residualOld = 1d100 
@@ -94,7 +95,7 @@ c
           call ga_brdcst(mt_dbl,Eout,mdtob(1),0)
 
           Enew(llmo+iqp-1,isp)  = Eout
-          Sigma(llmo+iqp-1,isp) = SigmaC + Sigma_X
+c          Sigma(llmo+iqp-1,isp) = SigmaC + Sigma_X
 
           if (main) then
             write(luout,9020) llmo+iqp-1,
