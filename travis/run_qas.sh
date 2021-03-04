@@ -77,6 +77,7 @@ fi
  fi
  if [[ "$NWCHEM_MODULES" == "tce" ]]; then
    cd $TRAVIS_BUILD_DIR/QA &&  ./runtests.mpi.unix procs $nprocs tce_n2 tce_ccsd_t_h2o tce_h2o_eomcc
+   cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs tce_cc2_c2
    cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs ducc_be
  if  [[ "$do_largeqas" == 1 ]]; then
 	cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs tce_ipccsd_f2 tce_eaccsd_ozone
