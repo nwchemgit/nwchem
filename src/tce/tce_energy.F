@@ -833,7 +833,7 @@ c
 !
        if (.not.rtdb_get(rtdb,'tce:nts',mt_log,1,res_log)) 
      c      res_log=.true.
-       if(res_log) ccsd_var='ic'
+       if(res_log.and.(ccsd_var.eq.'none')) ccsd_var='ic'
 !
        slice=.false.
        if (rtdb_get(rtdb,'tce:xmem',mt_int,1,xmem))slice=.true. 
