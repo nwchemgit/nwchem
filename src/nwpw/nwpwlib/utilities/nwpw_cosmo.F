@@ -1358,10 +1358,10 @@ c     $ f22.12,' (',f8.2,' kcal/mol)')
  826  format(5x,
      $' G(SMD-CDS) energy contribution                    : ',
      $ e19.10,
-     $     ' (',f8.3,' kcal/mol)')
+     $     ' (',f9.3,' kcal/mol)')
  827  format(5x,
      $' 1 M fixed-concentration free energy of solvation  : ',
-     $ e19.10,' (',f8.3,' kcal/mol)'                       )
+     $ e19.10,' (',f9.3,' kcal/mol)'                       )
 
 
       return
