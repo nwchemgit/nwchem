@@ -4156,7 +4156,7 @@ c     *****  read initial wavefunctions into psi1  ****
       
       call band_gen_APC(ispin,ne,dcpl_mb(dng1(1)))
       call band_print_APC(luout)
-      call band_gen_Efield(rtdb,ispin,dcpl_mb(dng1(1)))
+      call band_gen_atom_Efield(rtdb,ispin,dcpl_mb(dng1(1)))
      
 
       return
