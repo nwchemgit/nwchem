@@ -236,7 +236,7 @@ c
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
      >       6700,6800,6900,7000,4250,7100,7200,7300,7400,7500,7600,
      >       7700,7800,7900,8000,8100,6650,8200,8300,8400,8500,8600,
-     >       8700,8800,8900,9000,9010,9020,9030,1810,1811,1812,
+     >       8700,8800,8900,9000,9010,9020,9030,1810,1811,1812,9040,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -2274,6 +2274,12 @@ c
      >   call errquit('nwpw_input:error writing to rtdb',9030,RTDB_ERR)
       end if
 
+      goto 10
+
+c
+c Efield ex ey ez [center cx cy cz] [periodic APC rgrid]
+c
+ 9040 if (.not.inp_i(nx)) nx = 50
       goto 10
 
 
