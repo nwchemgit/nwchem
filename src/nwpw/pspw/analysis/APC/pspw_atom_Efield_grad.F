@@ -3,19 +3,18 @@ c $Id$
 c
 ********************************************************************
 *
-*	pspw_gen_Efield_grad module: used to generate electric gradients fields at atoms
+*  pspw_gen_atom_Efield_grad module: used to generate electric gradients fields at atoms
 *
 *
-*	Data structure
-*
+*  Data structure
 ********************************************************************
 
 *     ***********************************
 *     *					*
-*     *		pspw_gen_Efield_grad	*
+*     *	   pspw_gen_atom_Efield_grad	*
 *     *					*
 *     ***********************************
-      subroutine pspw_gen_Efield_grad(rtdb,ispin,ne,psi,dng)
+      subroutine pspw_gen_atom_Efield_grad(rtdb,ispin,ne,psi,dng)
       implicit none
       integer rtdb
       integer ispin,ne(2)
@@ -42,7 +41,7 @@ c
       integer  ion_nion,control_version
       external ion_nion,control_version
 
-      if (.not.btdb_get(rtdb,'nwpw:efield_grad',mt_log,1,doefield)) 
+      if(.not.btdb_get(rtdb,'nwpw:atom_efield_grad',mt_log,1,doefield)) 
      >  doefield=.false.
 
       if (doefield) then
@@ -60,7 +59,7 @@ c
        value = value.and.BA_push_get(mt_dbl,9*nion,'efg_paw',
      >                               efg_paw(2),efg_paw(1))
        if (.not.value) 
-     >    call errquit('pspw_gen_Efield_grad:out of stack memory',0,
+     >   call errquit('pspw_gen_atom_Efield_grad:out of stack memory',0,
      >                 MA_ERR)
 
        call dcopy(9*nion,0.0d0,0,dbl_mb(efg_ion(1)),1)
@@ -79,7 +78,7 @@ c
 !       call daxpy(9*nion,1.d0,dbl_mb(efg_paw(1)),1,dbl_mb(efg(1)),1)
 
        if (taskid.eq.MASTER) then
-         call pspw_final_Efield_grad(luout,
+         call pspw_final_atom_Efield_grad(luout,
      >                               nion,
      >                               dbl_mb(efg(1)),
      >                               dbl_mb(efg_ion(1)),
@@ -95,8 +94,9 @@ c
        value = value.and.BA_pop_stack(efg_ion(2))
        value = value.and.BA_pop_stack(efg(2))
        if (.not.value) 
-     >    call errquit('pspw_gen_Efield_grad:popping of stack memory',0,
-     >                 MA_ERR)
+     >    call errquit(
+     >         'pspw_gen_atom_Efield_grad:popping of stack memory',0,
+     >          MA_ERR)
 
       end if
 
@@ -105,10 +105,10 @@ c
 
 *     ***********************************
 *     *					*
-*     *	    pspw_final_Efield_grad	*
+*     *	  pspw_final_atom_Efield_grad	*
 *     *					*
 *     ***********************************
-      subroutine pspw_final_Efield_grad(unit,nion,efg,
+      subroutine pspw_final_atom_Efield_grad(unit,nion,efg,
      >                                  efg_ion,efg_smooth,efg_paw)
       implicit none
 
