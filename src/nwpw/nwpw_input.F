@@ -23,7 +23,7 @@ c#include "nwpwxc.fh"
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 131)
+      parameter (num_dirs = 132)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -85,7 +85,7 @@ c
      >            'zone_structure_name',
      >            'dos-grid',
      >            'dos_filename',
-     >            'efield',
+     >            'atom_efield',
      >            'occupations',
      >            'expand_cell',
      >            'mapping',
@@ -127,7 +127,7 @@ c
      >            'pspspin',
      >            'Fei',
      >            'parallel_io',
-     >            'efield_grad',
+     >            'atom_efield_grad',
      >            'uterm',
      >            'et',
      >            'cpmd_properties',
@@ -155,6 +155,7 @@ c
      >            'zone_fft_name',
      >            'dos-fft-grid',
      >            'director',
+     >            'efield',
      >            'end'/
 
       double precision kb
@@ -974,17 +975,17 @@ c
 
 
 c
-c  EFIELD
+c  ATOM_EFIELD
 c
- 4200 if (.not.rtdb_put(rtdb,'nwpw:efield',mt_log,1,.true.))
+ 4200 if (.not.rtdb_put(rtdb,'nwpw:atom_efield',mt_log,1,.true.))
      >  call errquit('nwpw_input: error writing to rtdb',4200,RTDB_ERR)
 
       goto 10
 
 c
-c  EFIELD_GRAD
+c  ATOM_EFIELD_GRAD
 c
- 4250 if (.not.rtdb_put(rtdb,'nwpw:efield_grad',mt_log,1,.true.))
+ 4250 if (.not.rtdb_put(rtdb,'nwpw:atom_efield_grad',mt_log,1,.true.))
      >  call errquit('nwpw_input: error writing to rtdb',4250,RTDB_ERR)
 
       goto 10
