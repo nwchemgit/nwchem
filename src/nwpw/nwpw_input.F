@@ -2277,9 +2277,51 @@ c
       goto 10
 
 c
-c Efield ex ey ez [center cx cy cz] [periodic APC rgrid]
+c Efield  true/false ex ey ez [center cx cy cz] [periodic APC rgrid]
 c
- 9040 if (.not.inp_i(nx)) nx = 50
+ 9040 if (inp_a(zone_name)) then
+         move = nwpw_parse_boolean(zone_name,.true.)
+         if (move) then
+            if (.not.inp_f(tolerances(1))) tolerances(1) = 0.0 
+            if (.not.inp_f(tolerances(2))) tolerances(2) = 0.0 
+            if (.not.inp_f(tolerances(3))) tolerances(3) = 0.0 
+            if (.not.rtdb_put(rtdb,'nwpw:efield_vector',mt_dbl,3,
+     >                        tolerances))
+     >      call errquit('nwpw_input:error writing rtdb',9040,RTDB_ERR)
+
+*           *** look for center ***
+            do while (inp_a(zone_name)) 
+               if (inp_compare(.false.,zone_name,'center')) then
+                  if (.not.inp_f(tolerances(1))) tolerances(1) = 0.0 
+                  if (.not.inp_f(tolerances(2))) tolerances(2) = 0.0 
+                  if (.not.inp_f(tolerances(3))) tolerances(3) = 0.0 
+                  if (.not.rtdb_put(rtdb,'nwpw:efield_center',mt_dbl,3,
+     >                              tolerances))
+     >            call errquit('nwpw_input:error writing rtdb',9040,
+     >                         RTDB_ERR)
+               end if
+               if (inp_compare(.false.,zone_name,'periodic')) then
+                  if (.not.rtdb_put(rtdb,'nwpw:efield_type',mt_int,1,0))
+     >            call errquit('nwpw_input:error writing rtdb',9040,
+     >                         RTDB_ERR)
+               end if
+               if (inp_compare(.false.,zone_name,'APC')) then
+                  if (.not.rtdb_put(rtdb,'nwpw:efield_type',mt_int,1,1))
+     >            call errquit('nwpw_input:error writing rtdb',9040,
+     >                         RTDB_ERR)
+               end if
+               if (inp_compare(.false.,zone_name,'rgrid')) then
+                  if (.not.rtdb_put(rtdb,'nwpw:efield_type',mt_int,1,2))
+     >            call errquit('nwpw_input:error writing rtdb',9040,
+     >                         RTDB_ERR)
+               end if
+            end do
+
+         end if
+      end if
+      if (.not.rtdb_put(rtdb,'nwpw:efield',mt_log,1, move))
+     >  call errquit('nwpw_input: error writing to rtdb',9040,RTDB_ERR)
+
       goto 10
 
 
