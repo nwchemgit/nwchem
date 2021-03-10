@@ -72,6 +72,10 @@
       integer  control_ks_algorithm
       external control_ks_algorithm
 
+      real*8 E0
+      real*8   cpsi_smearcorrection
+      external cpsi_smearcorrection
+
       call Parallel_taskid(taskid)
 
       mprint = (taskid.eq.MASTER).and.control_print(print_medium)
@@ -91,8 +95,12 @@
          write(luout,1304)
          if (minimizer.eq.1) write(luout,1305)
          if (minimizer.eq.2) write(luout,1306)
+         if (minimizer.eq.3) write(luout,1307)
+         if (minimizer.eq.4) write(luout,1308)
          if (minimizer.eq.5) write(luout,1309)
-         if (minimizer.eq.8) write(luout,1311)
+         if (minimizer.eq.6) write(luout,1311)
+         if (minimizer.eq.7) write(luout,1312)
+         if (minimizer.eq.8) write(luout,1313)
          call util_flush(luout)
       end if
 
@@ -120,24 +128,27 @@
       if ((minimizer.eq.5).or.(minimizer.eq.8)) it_out = 1
 
       if (newpsi) then
-         call c_sdminimize(10)
+         if (minimizer.ne.4) call c_sdminimize(10)
          call c_bybminimize0()
          if (control_fractional()) then
             Enew  = cpsi_1energy()
-            !write(*,*) "ENEW = ",enew + ewald_e()
-            !!call cpsi_1toelectron()
             call cpsi_1gen_hml()
-            call cpsi_diagonalize_hml()
-            call cpsi_1rotate2()
-            call cpsi_2to1()
-            call cpsi_1define_occupation(0.0d0,.false.)
+            write(*,*) "Start ENEW = ",enew + ewald_e()
+            if (minimizer.ne.4) then
+               call cpsi_diagonalize_hml()
+               call cpsi_1rotate2()
+               call cpsi_2to1()
+               call cpsi_1define_occupation(-1.0d0,.false.)
+            else
+               call cpsi_1define_occupation(-1.0d0,.true.)
+            end if
          end if
       end if
 
    2  continue
          icount = icount + 1
          if (stalled) then
-           call c_sdminimize(0)
+           if (minimizer.ne.4) call c_sdminimize(0)
            bfgscount = 0
          end if
 
@@ -157,8 +168,15 @@
            stop
          else if (minimizer.eq.4) then
            bfgscount = bfgscount + 1
-           write(*,*) "Bundled Stiefel minimizer not implemented"
-           stop
+           call c_cgminimize2(E,deltae,deltac,bfgscount,it_in)
+
+           if (control_fractional().and.
+     >        (icount.lt.it_out)   .and.
+     >        (deltae.le.0.0d0)    .and.
+     >        ((dabs(deltae).ge.tole).or.(deltac.ge.tolc))) then
+              call cpsi_1define_occupation(-1.0d0,.true.)
+           end if
+
          else if (minimizer.eq.5) then
            bfgscount = bfgscount + 1
            call c_bybminimize(E,deltae,deltac,bfgscount,.false.,1)
@@ -189,7 +207,7 @@
            write(luout,1310) icount*it_in,E(1),deltae,deltac
            call util_flush(luout)
          end if
-         if (deltae.gt.0.0d0) then
+         if ((deltae.gt.0.0d0).and.(minimizer.ne.4)) then
             if (mprint) 
      >       write(luout,*) 
      >       ' *** energy going up. iteration terminated.'
@@ -224,6 +242,7 @@
 
       call cpsi_spin_density(en)
 
+
 *     **** diagonalize hamiltonian and rotate psi ****
       call cpsi_1gen_hml()
       call cpsi_diagonalize_hml()
@@ -231,7 +250,7 @@
          call cpsi_1rotate2()
          call cpsi_2to1()
       end if
-      !if (control_fractional()) call cpsi_1define_occupation(.false.,1)
+      
 
 *     *** generate svectors ***
       if (cpsi_spin_orbit()) call cpsi_1gen_svector()
@@ -361,7 +380,9 @@ c          if (mprint) write(luout,1511)
  1308 FORMAT(10X,'=== bundled Stiefel conjugate gradient iteration ===')
  1309 FORMAT(10X,'=========== scf minimization (potential) ===========')
  1310 FORMAT(I8,E20.10,3E15.5)
- 1311 FORMAT(10X,'=========== scf minimization (density)  ============')
+ 1311 FORMAT(10X,'=== Projected bundled Grassmann lmbfgs iteration ===')
+ 1312 FORMAT(10X,'========= bundled Stiefel lmbfgs iteration =========')
+ 1313 FORMAT(10X,'============ scf minimization (density) ============')
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
  1340 FORMAT(I3,2I3,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)

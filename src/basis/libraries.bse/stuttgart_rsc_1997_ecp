@@ -1,141 +1,180 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# stuttgart rsc 1997 ecp version number 0
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# Stuttgart RSC 1997 ECP version number 0
 # Description: Stuttgart RSC 1997 ECP
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# K,Rb,Cs
-#     ## Stuttgart RSC 1997 ECP
+# 
+#  References for the basis set
+# 
+#  K,Rb,Cs
+#      Stuttgart RSC 1997 ECP
+#          leininger1996a
+# 
+#  Ca,Sr,Ba
+#      Stuttgart RSC 1997 ECP
+#          kaupp1991a
+# 
+#  Sc-Zn
+#      Stuttgart RSC 1997 ECP
+#          dolg1987a
+# 
+#  Y-Cd,Hf-Pt
+#      Stuttgart RSC 1997 ECP
+#          andrae1990a
+# 
+#  La,Lu
+#      Stuttgart RSC 1997 ECP
+#          cao2002a cao2001a
+# 
+#  Ce-Yb
+#      Stuttgart RSC 1997 ECP
+#          dolg1989b
+# 
+#  Au
+#      Stuttgart RSC 1997 ECP
+#          schwerdtfeger1989a
+# 
+#  Hg
+#      Stuttgart RSC 1997 ECP
+#          haussermann1993a
+# 
+#  Ac-No
+#      Stuttgart RSC 1997 ECP
+#          kuchle1994a cao2004a cao2003a
+# 
+#  Lr
+#      Stuttgart RSC 1997 ECP
+#          (...no reference...)
+# 
+#  Db
+#      Stuttgart RSC 1997 ECP
+#          dolg1993a
+# 
+# 
+# 
+# andrae1990a
+#     Andrae, D., Häußermann, U., Dolg, M., Stoll, H., Preuß, H.
+#     Energy-adjustedab initio pseudopotentials for the second and third row
+#             transition elements
+#     Theor. Chim. Acta 77, 123-141 (1990)
+#     10.1007/bf01114537
+# 
+# cao2001a
+#     Cao, Xiaoyan, Dolg, Michael
+#     Valence basis sets for relativistic energy-consistent small-core
+#             lanthanide pseudopotentials
+#     J. Chem. Phys. 115, 7348 (2001)
+#     10.1063/1.1406535
+# 
+# cao2002a
+#     Cao, Xiaoyan, Dolg, Michael
+#     Segmented contraction scheme for small-core lanthanide pseudopotential
+#             basis sets
+#     J. Mol. Struc-THEOCHEM 581, 139-147 (2002)
+#     10.1016/s0166-1280(01)00751-5
+# 
+# cao2003a
+#     Cao, Xiaoyan, Dolg, Michael, Stoll, Hermann
+#     Valence basis sets for relativistic energy-consistent small-core
+#             actinide pseudopotentials
+#     J. Chem. Phys. 118, 487-496 (2003)
+#     10.1063/1.1521431
+# 
+# cao2004a
+#     Cao, Xiaoyan, Dolg, Michael
+#     Segmented contraction scheme for small-core actinide pseudopotential
+#             basis sets
+#     J. Mol. Struc-THEOCHEM 673, 203-209 (2004)
+#     10.1016/j.theochem.2003.12.015
+# 
+# dolg1987a
+#     Dolg, M., Wedig, U., Stoll, H., Preuss, H.
+#     Energy‐adjustedabinitiopseudopotentials for the first row transition
+#             elements
+#     J. Chem. Phys. 86, 866-872 (1987)
+#     10.1063/1.452288
+# 
+# dolg1989b
+#     Dolg, M., Stoll, H., Preuss, H.
+#     Energy-adjusted ab initio pseudopotentials for the rare earth elements
+#     J. Chem. Phys. 90, 1730-1734 (1989)
+#     10.1063/1.456066
+# 
+# dolg1993a
+#     Dolg, Michael, Stoll, Hermann, Preuss, Heinzwerner, Pitzer, Russell M.
+#     Relativistic and correlation effects for element 105 (hahnium, Ha): a
+#             comparative study of M and MO (M = Nb, Ta, Ha) using energy-
+#             adjusted ab initio pseudopotentials
+#     J. Phys. Chem. 97, 5852-5859 (1993)
+#     10.1021/j100124a012
+# 
+# haussermann1993a
+#     Häussermann, U., Dolg, M., Stoll, H., Preuss, H., Schwerdtfeger, P.,
+#             Pitzer, R.M.
+#     Accuracy of energy-adjusted quasirelativisticab initiopseudopotentials
+#     Molecular Physics 78, 1211-1224 (1993)
+#     10.1080/00268979300100801
+# 
+# kaupp1991a
+#     Kaupp, M., Schleyer, P. v. R., Stoll, H., Preuss, H.
+#     Pseudopotential approaches to Ca, Sr, and Ba hydrides. Why are some
+#             alkaline earth MX2compounds bent?
+#     J. Chem. Phys. 94, 1360-1366 (1991)
+#     10.1063/1.459993
+# 
+# kuchle1994a
+#     Küchle, W., Dolg, M., Stoll, H., Preuss, H.
+#     Energy‐adjusted pseudopotentials for the actinides. Parameter sets and
+#             test calculations for thorium and thorium monoxide
+#     J. Chem. Phys. 100, 7535-7542 (1994)
+#     10.1063/1.466847
+# 
+# leininger1996a
 #     Leininger, Thierry, Nicklass, Andreas, Küchle, Wolfgang, Stoll,
 #             Hermann, Dolg, Michael, Bergner, Andreas
 #     The accuracy of the pseudopotential approximation: non-frozen-core
 #             effects for spectroscopic constants of alkali fluorides XF (X
 #             = K, Rb, Cs)
-#     Chem. Phys. Lett., 255, 274-280 (1996)
+#     Chem. Phys. Lett. 255, 274-280 (1996)
 #     10.1016/0009-2614(96)00382-x
 # 
-# Ca,Sr,Ba
-#     ## Stuttgart RSC 1997 ECP
-#     Kaupp, M., Schleyer, P. v. R., Stoll, H., Preuss, H.
-#     Pseudopotential approaches to Ca, Sr, and Ba hydrides. Why are some
-#             alkaline earth MX2compounds bent?
-#     J. Chem. Phys., 94, 1360-1366 (1991)
-#     10.1063/1.459993
-# 
-# Sc-Zn
-#     ## Stuttgart RSC 1997 ECP
-#     Dolg, M., Wedig, U., Stoll, H., Preuss, H.
-#     Energy‐adjustedabinitiopseudopotentials for the first row transition
-#             elements
-#     J. Chem. Phys., 86, 866-872 (1987)
-#     10.1063/1.452288
-# 
-# Y-Cd,Hf-Pt
-#     ## Stuttgart RSC 1997 ECP
-#     Andrae, D., Häußermann, U., Dolg, M., Stoll, H., Preuß, H.
-#     Energy-adjustedab initio pseudopotentials for the second and third row
-#             transition elements
-#     Theor. Chim. Acta, 77, 123-141 (1990)
-#     10.1007/bf01114537
-# 
-# La,Lu
-#     ## Stuttgart RSC 1997 ECP
-#     Cao, Xiaoyan, Dolg, Michael
-#     Segmented contraction scheme for small-core lanthanide pseudopotential
-#             basis sets
-#     J. Mol. Struc-THEOCHEM, 581, 139-147 (2002)
-#     10.1016/s0166-1280(01)00751-5
-# 
-#     Cao, Xiaoyan, Dolg, Michael
-#     Valence basis sets for relativistic energy-consistent small-core
-#             lanthanide pseudopotentials
-#     J. Chem. Phys., 115, 7348 (2001)
-#     10.1063/1.1406535
-# 
-# Ce-Yb
-#     ## Stuttgart RSC 1997 ECP
-#     Dolg, M., Stoll, H., Preuss, H.
-#     Energy-adjusted ab initio pseudopotentials for the rare earth elements
-#     J. Chem. Phys., 90, 1730-1734 (1989)
-#     10.1063/1.456066
-# 
-# Au
-#     ## Stuttgart RSC 1997 ECP
+# schwerdtfeger1989a
 #     Schwerdtfeger, Peter, Dolg, Michael, Schwarz, W. H. Eugen, Bowmaker,
 #             Graham A., Boyd, Peter D. W.
 #     Relativistic effects in gold chemistry. I. Diatomic gold compounds
-#     J. Chem. Phys., 91, 1762-1774 (1989)
+#     J. Chem. Phys. 91, 1762-1774 (1989)
 #     10.1063/1.457082
-# 
-# Hg
-#     ## Stuttgart RSC 1997 ECP
-#     Häussermann, U., Dolg, M., Stoll, H., Preuss, H., Schwerdtfeger, P.,
-#             Pitzer, R.M.
-#     Accuracy of energy-adjusted quasirelativisticab initiopseudopotentials
-#     Molecular Physics, 78, 1211-1224 (1993)
-#     10.1080/00268979300100801
-# 
-# Ac-No
-#     ## Stuttgart RSC 1997 ECP
-#     Küchle, W., Dolg, M., Stoll, H., Preuss, H.
-#     Energy‐adjusted pseudopotentials for the actinides. Parameter sets and
-#             test calculations for thorium and thorium monoxide
-#     J. Chem. Phys., 100, 7535-7542 (1994)
-#     10.1063/1.466847
-# 
-#     Cao, Xiaoyan, Dolg, Michael
-#     Segmented contraction scheme for small-core actinide pseudopotential
-#             basis sets
-#     J. Mol. Struc-THEOCHEM, 673, 203-209 (2004)
-#     10.1016/j.theochem.2003.12.015
-# 
-#     Cao, Xiaoyan, Dolg, Michael, Stoll, Hermann
-#     Valence basis sets for relativistic energy-consistent small-core
-#             actinide pseudopotentials
-#     J. Chem. Phys., 118, 487-496 (2003)
-#     10.1063/1.1521431
-# 
-# Lr
-#     ## Stuttgart RSC 1997 ECP
-#     (...no reference...)
-# 
-# Db
-#     ## Stuttgart RSC 1997 ECP
-#     Dolg, Michael, Stoll, Hermann, Preuss, Heinzwerner, Pitzer, Russell M.
-#     Relativistic and correlation effects for element 105 (hahnium, Ha): a
-#             comparative study of M and MO (M = Nb, Ta, Ha) using energy-
-#             adjusted ab initio pseudopotentials
-#     J. Phys. Chem., 97, 5852-5859 (1993)
-#     10.1021/j100124a012
 # 
 # # 
 
 
-ecp "K_stuttgart rsc 1997 ecp"
+ecp "K_Stuttgart RSC 1997 ECP"
 K nelec 10
 K ul
 2       1.000000000            0.000000000
@@ -150,7 +189,7 @@ K F
 end
 
 
-ecp "Ca_stuttgart rsc 1997 ecp"
+ecp "Ca_Stuttgart RSC 1997 ECP"
 Ca nelec 10
 Ca ul
 2       1.000000000            0.000000000
@@ -168,7 +207,7 @@ Ca F
 end
 
 
-ecp "Sc_stuttgart rsc 1997 ecp"
+ecp "Sc_Stuttgart RSC 1997 ECP"
 Sc nelec 10
 Sc ul
 2       1.000000000            0.000000000
@@ -184,7 +223,7 @@ Sc D
 end
 
 
-ecp "Ti_stuttgart rsc 1997 ecp"
+ecp "Ti_Stuttgart RSC 1997 ECP"
 Ti nelec 10
 Ti ul
 2       1.000000000            0.000000000
@@ -200,7 +239,7 @@ Ti D
 end
 
 
-ecp "V_stuttgart rsc 1997 ecp"
+ecp "V_Stuttgart RSC 1997 ECP"
 V nelec 10
 V ul
 2       1.000000000            0.000000000
@@ -216,7 +255,7 @@ V D
 end
 
 
-ecp "Cr_stuttgart rsc 1997 ecp"
+ecp "Cr_Stuttgart RSC 1997 ECP"
 Cr nelec 10
 Cr ul
 2       1.000000000            0.000000000
@@ -232,7 +271,7 @@ Cr D
 end
 
 
-ecp "Mn_stuttgart rsc 1997 ecp"
+ecp "Mn_Stuttgart RSC 1997 ECP"
 Mn nelec 10
 Mn ul
 2       1.000000000            0.000000000
@@ -248,7 +287,7 @@ Mn D
 end
 
 
-ecp "Fe_stuttgart rsc 1997 ecp"
+ecp "Fe_Stuttgart RSC 1997 ECP"
 Fe nelec 10
 Fe ul
 2       1.000000000            0.000000000
@@ -264,7 +303,7 @@ Fe D
 end
 
 
-ecp "Co_stuttgart rsc 1997 ecp"
+ecp "Co_Stuttgart RSC 1997 ECP"
 Co nelec 10
 Co ul
 2       1.000000000            0.000000000
@@ -280,7 +319,7 @@ Co D
 end
 
 
-ecp "Ni_stuttgart rsc 1997 ecp"
+ecp "Ni_Stuttgart RSC 1997 ECP"
 Ni nelec 10
 Ni ul
 2       1.000000000            0.000000000
@@ -296,7 +335,7 @@ Ni D
 end
 
 
-ecp "Cu_stuttgart rsc 1997 ecp"
+ecp "Cu_Stuttgart RSC 1997 ECP"
 Cu nelec 10
 Cu ul
 2       1.000000000            0.000000000
@@ -312,7 +351,7 @@ Cu D
 end
 
 
-ecp "Zn_stuttgart rsc 1997 ecp"
+ecp "Zn_Stuttgart RSC 1997 ECP"
 Zn nelec 10
 Zn ul
 2       1.000000000            0.000000000
@@ -328,7 +367,7 @@ Zn D
 end
 
 
-ecp "Rb_stuttgart rsc 1997 ecp"
+ecp "Rb_Stuttgart RSC 1997 ECP"
 Rb nelec 28
 Rb ul
 2       1.000000000            0.000000000
@@ -346,7 +385,7 @@ Rb F
 end
 
 
-ecp "Sr_stuttgart rsc 1997 ecp"
+ecp "Sr_Stuttgart RSC 1997 ECP"
 Sr nelec 28
 Sr ul
 2       1.000000000            0.000000000
@@ -364,7 +403,7 @@ Sr F
 end
 
 
-ecp "Y_stuttgart rsc 1997 ecp"
+ecp "Y_Stuttgart RSC 1997 ECP"
 Y nelec 28
 Y ul
 2       1.000000000            0.000000000
@@ -383,7 +422,7 @@ Y F
 end
 
 
-ecp "Zr_stuttgart rsc 1997 ecp"
+ecp "Zr_Stuttgart RSC 1997 ECP"
 Zr nelec 28
 Zr ul
 2       1.000000000            0.000000000
@@ -402,7 +441,7 @@ Zr F
 end
 
 
-ecp "Nb_stuttgart rsc 1997 ecp"
+ecp "Nb_Stuttgart RSC 1997 ECP"
 Nb nelec 28
 Nb ul
 2       1.000000000            0.000000000
@@ -421,7 +460,7 @@ Nb F
 end
 
 
-ecp "Mo_stuttgart rsc 1997 ecp"
+ecp "Mo_Stuttgart RSC 1997 ECP"
 Mo nelec 28
 Mo ul
 2       1.000000000            0.000000000
@@ -440,7 +479,7 @@ Mo F
 end
 
 
-ecp "Tc_stuttgart rsc 1997 ecp"
+ecp "Tc_Stuttgart RSC 1997 ECP"
 Tc nelec 28
 Tc ul
 2       1.000000000            0.000000000
@@ -459,7 +498,7 @@ Tc F
 end
 
 
-ecp "Ru_stuttgart rsc 1997 ecp"
+ecp "Ru_Stuttgart RSC 1997 ECP"
 Ru nelec 28
 Ru ul
 2       1.000000000            0.000000000
@@ -478,7 +517,7 @@ Ru F
 end
 
 
-ecp "Rh_stuttgart rsc 1997 ecp"
+ecp "Rh_Stuttgart RSC 1997 ECP"
 Rh nelec 28
 Rh ul
 2       1.000000000            0.000000000
@@ -497,7 +536,7 @@ Rh F
 end
 
 
-ecp "Pd_stuttgart rsc 1997 ecp"
+ecp "Pd_Stuttgart RSC 1997 ECP"
 Pd nelec 28
 Pd ul
 2       1.000000000            0.000000000
@@ -516,7 +555,7 @@ Pd F
 end
 
 
-ecp "Ag_stuttgart rsc 1997 ecp"
+ecp "Ag_Stuttgart RSC 1997 ECP"
 Ag nelec 28
 Ag ul
 2       1.000000000            0.000000000
@@ -535,7 +574,7 @@ Ag F
 end
 
 
-ecp "Cd_stuttgart rsc 1997 ecp"
+ecp "Cd_Stuttgart RSC 1997 ECP"
 Cd nelec 28
 Cd ul
 2       1.000000000            0.000000000
@@ -554,7 +593,7 @@ Cd F
 end
 
 
-ecp "Cs_stuttgart rsc 1997 ecp"
+ecp "Cs_Stuttgart RSC 1997 ECP"
 Cs nelec 46
 Cs ul
 2       1.000000000            0.000000000
@@ -572,7 +611,7 @@ Cs F
 end
 
 
-ecp "Ba_stuttgart rsc 1997 ecp"
+ecp "Ba_Stuttgart RSC 1997 ECP"
 Ba nelec 46
 Ba ul
 2       1.000000000            0.000000000
@@ -590,7 +629,7 @@ Ba F
 end
 
 
-ecp "La_stuttgart rsc 1997 ecp"
+ecp "La_Stuttgart RSC 1997 ECP"
 La nelec 28
 La ul
 2       1.000000000            0.000000000
@@ -607,7 +646,7 @@ La G
 end
 
 
-ecp "Ce_stuttgart rsc 1997 ecp"
+ecp "Ce_Stuttgart RSC 1997 ECP"
 Ce nelec 28
 Ce ul
 2       1.000000000            0.000000000
@@ -624,7 +663,7 @@ Ce G
 end
 
 
-ecp "Pr_stuttgart rsc 1997 ecp"
+ecp "Pr_Stuttgart RSC 1997 ECP"
 Pr nelec 28
 Pr ul
 2       1.000000000            0.000000000
@@ -641,7 +680,7 @@ Pr G
 end
 
 
-ecp "Nd_stuttgart rsc 1997 ecp"
+ecp "Nd_Stuttgart RSC 1997 ECP"
 Nd nelec 28
 Nd ul
 2       1.000000000            0.000000000
@@ -658,7 +697,7 @@ Nd G
 end
 
 
-ecp "Pm_stuttgart rsc 1997 ecp"
+ecp "Pm_Stuttgart RSC 1997 ECP"
 Pm nelec 28
 Pm ul
 2       1.000000000            0.000000000
@@ -675,7 +714,7 @@ Pm G
 end
 
 
-ecp "Sm_stuttgart rsc 1997 ecp"
+ecp "Sm_Stuttgart RSC 1997 ECP"
 Sm nelec 28
 Sm ul
 2       1.000000000            0.000000000
@@ -692,7 +731,7 @@ Sm G
 end
 
 
-ecp "Eu_stuttgart rsc 1997 ecp"
+ecp "Eu_Stuttgart RSC 1997 ECP"
 Eu nelec 28
 Eu ul
 2       1.000000000            0.000000000
@@ -709,7 +748,7 @@ Eu G
 end
 
 
-ecp "Gd_stuttgart rsc 1997 ecp"
+ecp "Gd_Stuttgart RSC 1997 ECP"
 Gd nelec 28
 Gd ul
 2       1.000000000            0.000000000
@@ -726,7 +765,7 @@ Gd G
 end
 
 
-ecp "Tb_stuttgart rsc 1997 ecp"
+ecp "Tb_Stuttgart RSC 1997 ECP"
 Tb nelec 28
 Tb ul
 2       1.000000000            0.000000000
@@ -743,7 +782,7 @@ Tb G
 end
 
 
-ecp "Dy_stuttgart rsc 1997 ecp"
+ecp "Dy_Stuttgart RSC 1997 ECP"
 Dy nelec 28
 Dy ul
 2       1.000000000            0.000000000
@@ -760,7 +799,7 @@ Dy G
 end
 
 
-ecp "Ho_stuttgart rsc 1997 ecp"
+ecp "Ho_Stuttgart RSC 1997 ECP"
 Ho nelec 28
 Ho ul
 2       1.000000000            0.000000000
@@ -777,7 +816,7 @@ Ho G
 end
 
 
-ecp "Er_stuttgart rsc 1997 ecp"
+ecp "Er_Stuttgart RSC 1997 ECP"
 Er nelec 28
 Er ul
 2       1.000000000            0.000000000
@@ -794,7 +833,7 @@ Er G
 end
 
 
-ecp "Tm_stuttgart rsc 1997 ecp"
+ecp "Tm_Stuttgart RSC 1997 ECP"
 Tm nelec 28
 Tm ul
 2       1.000000000            0.000000000
@@ -811,7 +850,7 @@ Tm G
 end
 
 
-ecp "Yb_stuttgart rsc 1997 ecp"
+ecp "Yb_Stuttgart RSC 1997 ECP"
 Yb nelec 28
 Yb ul
 2       1.000000000            0.000000000
@@ -828,7 +867,7 @@ Yb G
 end
 
 
-ecp "Lu_stuttgart rsc 1997 ecp"
+ecp "Lu_Stuttgart RSC 1997 ECP"
 Lu nelec 28
 Lu ul
 2       1.000000000            0.000000000
@@ -845,7 +884,7 @@ Lu G
 end
 
 
-ecp "Hf_stuttgart rsc 1997 ecp"
+ecp "Hf_Stuttgart RSC 1997 ECP"
 Hf nelec 60
 Hf ul
 2       1.000000000            0.000000000
@@ -865,7 +904,7 @@ Hf G
 end
 
 
-ecp "Ta_stuttgart rsc 1997 ecp"
+ecp "Ta_Stuttgart RSC 1997 ECP"
 Ta nelec 60
 Ta ul
 2       1.000000000            0.000000000
@@ -885,7 +924,7 @@ Ta G
 end
 
 
-ecp "W_stuttgart rsc 1997 ecp"
+ecp "W_Stuttgart RSC 1997 ECP"
 W nelec 60
 W ul
 2       1.000000000            0.000000000
@@ -905,7 +944,7 @@ W G
 end
 
 
-ecp "Re_stuttgart rsc 1997 ecp"
+ecp "Re_Stuttgart RSC 1997 ECP"
 Re nelec 60
 Re ul
 2       1.000000000            0.000000000
@@ -925,7 +964,7 @@ Re G
 end
 
 
-ecp "Os_stuttgart rsc 1997 ecp"
+ecp "Os_Stuttgart RSC 1997 ECP"
 Os nelec 60
 Os ul
 2       1.000000000            0.000000000
@@ -945,7 +984,7 @@ Os G
 end
 
 
-ecp "Ir_stuttgart rsc 1997 ecp"
+ecp "Ir_Stuttgart RSC 1997 ECP"
 Ir nelec 60
 Ir ul
 2       1.000000000            0.000000000
@@ -965,7 +1004,7 @@ Ir G
 end
 
 
-ecp "Pt_stuttgart rsc 1997 ecp"
+ecp "Pt_Stuttgart RSC 1997 ECP"
 Pt nelec 60
 Pt ul
 2       1.000000000            0.000000000
@@ -985,7 +1024,7 @@ Pt G
 end
 
 
-ecp "Au_stuttgart rsc 1997 ecp"
+ecp "Au_Stuttgart RSC 1997 ECP"
 Au nelec 60
 Au ul
 2       1.000000000            0.000000000
@@ -1004,7 +1043,7 @@ Au F
 end
 
 
-ecp "Hg_stuttgart rsc 1997 ecp"
+ecp "Hg_Stuttgart RSC 1997 ECP"
 Hg nelec 60
 Hg ul
 2       1.000000000            0.000000000
@@ -1024,7 +1063,7 @@ Hg G
 end
 
 
-ecp "Ac_stuttgart rsc 1997 ecp"
+ecp "Ac_Stuttgart RSC 1997 ECP"
 Ac nelec 60
 Ac ul
 2       1.000000000            0.000000000
@@ -1041,7 +1080,7 @@ Ac G
 end
 
 
-ecp "Th_stuttgart rsc 1997 ecp"
+ecp "Th_Stuttgart RSC 1997 ECP"
 Th nelec 60
 Th ul
 2       1.000000000            0.000000000
@@ -1058,7 +1097,7 @@ Th G
 end
 
 
-ecp "Pa_stuttgart rsc 1997 ecp"
+ecp "Pa_Stuttgart RSC 1997 ECP"
 Pa nelec 60
 Pa ul
 2       1.000000000            0.000000000
@@ -1075,7 +1114,7 @@ Pa G
 end
 
 
-ecp "U_stuttgart rsc 1997 ecp"
+ecp "U_Stuttgart RSC 1997 ECP"
 U nelec 60
 U ul
 2       1.000000000            0.000000000
@@ -1092,7 +1131,7 @@ U G
 end
 
 
-ecp "Np_stuttgart rsc 1997 ecp"
+ecp "Np_Stuttgart RSC 1997 ECP"
 Np nelec 60
 Np ul
 2       1.000000000            0.000000000
@@ -1109,7 +1148,7 @@ Np G
 end
 
 
-ecp "Pu_stuttgart rsc 1997 ecp"
+ecp "Pu_Stuttgart RSC 1997 ECP"
 Pu nelec 60
 Pu ul
 2       1.000000000            0.000000000
@@ -1126,7 +1165,7 @@ Pu G
 end
 
 
-ecp "Am_stuttgart rsc 1997 ecp"
+ecp "Am_Stuttgart RSC 1997 ECP"
 Am nelec 60
 Am ul
 2       1.000000000            0.000000000
@@ -1143,7 +1182,7 @@ Am G
 end
 
 
-ecp "Cm_stuttgart rsc 1997 ecp"
+ecp "Cm_Stuttgart RSC 1997 ECP"
 Cm nelec 60
 Cm ul
 2       1.000000000            0.000000000
@@ -1160,7 +1199,7 @@ Cm G
 end
 
 
-ecp "Bk_stuttgart rsc 1997 ecp"
+ecp "Bk_Stuttgart RSC 1997 ECP"
 Bk nelec 60
 Bk ul
 2       1.000000000            0.000000000
@@ -1177,7 +1216,7 @@ Bk G
 end
 
 
-ecp "Cf_stuttgart rsc 1997 ecp"
+ecp "Cf_Stuttgart RSC 1997 ECP"
 Cf nelec 60
 Cf ul
 2       1.000000000            0.000000000
@@ -1194,7 +1233,7 @@ Cf G
 end
 
 
-ecp "Es_stuttgart rsc 1997 ecp"
+ecp "Es_Stuttgart RSC 1997 ECP"
 Es nelec 60
 Es ul
 2       1.000000000            0.000000000
@@ -1211,7 +1250,7 @@ Es G
 end
 
 
-ecp "Fm_stuttgart rsc 1997 ecp"
+ecp "Fm_Stuttgart RSC 1997 ECP"
 Fm nelec 60
 Fm ul
 2       1.000000000            0.000000000
@@ -1228,7 +1267,7 @@ Fm G
 end
 
 
-ecp "Md_stuttgart rsc 1997 ecp"
+ecp "Md_Stuttgart RSC 1997 ECP"
 Md nelec 60
 Md ul
 2       1.000000000            0.000000000
@@ -1245,7 +1284,7 @@ Md G
 end
 
 
-ecp "No_stuttgart rsc 1997 ecp"
+ecp "No_Stuttgart RSC 1997 ECP"
 No nelec 60
 No ul
 2       1.000000000            0.000000000
@@ -1262,7 +1301,7 @@ No G
 end
 
 
-ecp "Lr_stuttgart rsc 1997 ecp"
+ecp "Lr_Stuttgart RSC 1997 ECP"
 Lr nelec 60
 Lr ul
 2       1.000000000            0.000000000
@@ -1279,7 +1318,7 @@ Lr G
 end
 
 
-ecp "Db_stuttgart rsc 1997 ecp"
+ecp "Db_Stuttgart RSC 1997 ECP"
 Db nelec 92
 Db ul
 2       1.000000000            0.000000000

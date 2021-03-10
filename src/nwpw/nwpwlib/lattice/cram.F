@@ -1119,7 +1119,7 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
       call Parallel3d_np_i(np)
       npack1 = int_mb(nidb2_list(1)+nb)
 
-      call DGEMM('T','N',n,m,2*npack1,
+      call DGEMM_OMP('T','N',n,m,2*npack1,
      >           alpha,
      >           A, 2*npack_max,
      >           B, 2*npack_max,
@@ -1157,7 +1157,7 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
       call nwpw_timing_start(2)
       npack1 = int_mb(nidb2_list(1)+nb)
 
-      call ZGEMM('C','N',n,m,npack1,
+      call ZGEMM_OMP('C','N',n,m,npack1,
      >           alpha,
      >           A, npack_max,
      >           B, npack_max,
@@ -1195,7 +1195,7 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
       npack1 = int_mb(nidb2_list(1)+nb)
 
       do k=1,n
-        call ZGEMM('C','N',k,1,npack1,
+        call ZGEMM_OMP('C','N',k,1,npack1,
      >           alpha,
      >           A, npack_max,
      >           B(1+(k-1)*npack_max), npack_max,
@@ -1250,7 +1250,7 @@ c      end do
       call Parallel3d_np_i(np)
       npack1 = int_mb(nidb2_list(1)+nb)
 
-      call ZGEMM('N','N',npack1,n,m,
+      call ZGEMM_OMP('N','N',npack1,n,m,
      >           alpha,
      >           A, npack_max,
      >           hml,n,

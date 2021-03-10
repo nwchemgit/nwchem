@@ -1,41 +1,53 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# aug-cc-pv6z-rifit version number 1
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# aug-cc-pV6Z-RIFIT version number 1
 # Description: RI Fitting basis for use with aug-cc-pV6Z
 # Role: rifit
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H,He,B-Ne,Al-Ar
-#     ## RI Fitting basis for use with aug-cc-pV6Z
+# 
+#  References for the basis set
+# 
+#  H,He,B-Ne,Al-Ar
+#      RI Fitting basis for use with cc-pV6Z
+#          hattigXXXXa
+# 
+#      RI Fitting basis for use with aug-cc-pV6Z
+#          hattigXXXXa
+# 
+# 
+# 
+# hattigXXXXa
 #     Hattig, Christof
 #     unpublished
 #     As referenced by the original BSE
 # 
 # # 
-basis "H_aug-cc-pv6z-rifit" 
+basis "H_aug-cc-pV6Z-RIFIT" SPHERICAL 
 #basis SET: (8s,7p,6d,5f,4g,3h,2i) -> [8s,7p,6d,5f,4g,3h,2i]
 H    S
      19.551                  1.0000000
@@ -108,7 +120,7 @@ H    I
 H    I
       1.16583                1.0000000
 end
-basis "He_aug-cc-pv6z-rifit" 
+basis "He_aug-cc-pV6Z-RIFIT" SPHERICAL 
 #basis SET: (8s,7p,6d,5f,4g,3h,2i) -> [8s,7p,6d,5f,4g,3h,2i]
 He    S
      97.8505                 1.0000000
@@ -181,7 +193,7 @@ He    I
 He    I
       2.59399                1.0000000
 end
-basis "B_aug-cc-pv6z-rifit" 
+basis "B_aug-cc-pV6Z-RIFIT" SPHERICAL 
 #basis SET: (13s,11p,9d,8f,7g,5h,4i,2k) -> [13s,11p,9d,8f,7g,5h,4i,2k]
 B    S
     390.176                  1.0000000
@@ -302,7 +314,7 @@ B    K
 B    K
       0.641524               1.0000000
 end
-basis "C_aug-cc-pv6z-rifit" 
+basis "C_aug-cc-pV6Z-RIFIT" SPHERICAL 
 #basis SET: (13s,11p,9d,8f,7g,5h,4i,2k) -> [13s,11p,9d,8f,7g,5h,4i,2k]
 C    S
     504.364                  1.0000000
@@ -423,7 +435,7 @@ C    K
 C    K
       0.989427               1.0000000
 end
-basis "N_aug-cc-pv6z-rifit" 
+basis "N_aug-cc-pV6Z-RIFIT" SPHERICAL 
 #basis SET: (13s,11p,9d,8f,7g,5h,4i,2k) -> [13s,11p,9d,8f,7g,5h,4i,2k]
 N    S
     650.814                  1.0000000
@@ -544,7 +556,7 @@ N    K
 N    K
       1.40219                1.0000000
 end
-basis "O_aug-cc-pv6z-rifit" 
+basis "O_aug-cc-pV6Z-RIFIT" SPHERICAL 
 #basis SET: (13s,11p,9d,8f,7g,5h,4i,2k) -> [13s,11p,9d,8f,7g,5h,4i,2k]
 O    S
     834.216                  1.0000000
@@ -665,7 +677,7 @@ O    K
 O    K
       1.76995                1.0000000
 end
-basis "F_aug-cc-pv6z-rifit" 
+basis "F_aug-cc-pV6Z-RIFIT" SPHERICAL 
 #basis SET: (13s,11p,9d,8f,7g,5h,4i,2k) -> [13s,11p,9d,8f,7g,5h,4i,2k]
 F    S
    1079.96                   1.0000000
@@ -786,7 +798,7 @@ F    K
 F    K
       2.30244                1.0000000
 end
-basis "Ne_aug-cc-pv6z-rifit" 
+basis "Ne_aug-cc-pV6Z-RIFIT" SPHERICAL 
 #basis SET: (13s,11p,9d,8f,7g,5h,4i,2k) -> [13s,11p,9d,8f,7g,5h,4i,2k]
 Ne    S
    1341.74                   1.0000000
@@ -907,7 +919,7 @@ Ne    K
 Ne    K
       2.94994                1.0000000
 end
-basis "Al_aug-cc-pv6z-rifit" 
+basis "Al_aug-cc-pV6Z-RIFIT" SPHERICAL 
 #basis SET: (14s,14p,12d,10f,8g,6h,4i,2k) -> [14s,14p,12d,10f,8g,6h,4i,2k]
 Al    S
    1219.62                   1.0000000
@@ -1050,7 +1062,7 @@ Al    K
 Al    K
       0.380337               1.0000000
 end
-basis "Si_aug-cc-pv6z-rifit" 
+basis "Si_aug-cc-pV6Z-RIFIT" SPHERICAL 
 #basis SET: (14s,14p,12d,10f,8g,6h,4i,2k) -> [14s,14p,12d,10f,8g,6h,4i,2k]
 Si    S
    1449.53                   1.0000000
@@ -1193,7 +1205,7 @@ Si    K
 Si    K
       0.569667               1.0000000
 end
-basis "P_aug-cc-pv6z-rifit" 
+basis "P_aug-cc-pV6Z-RIFIT" SPHERICAL 
 #basis SET: (14s,14p,12d,10f,8g,6h,4i,2k) -> [14s,14p,12d,10f,8g,6h,4i,2k]
 P    S
    1686.74                   1.0000000
@@ -1336,7 +1348,7 @@ P    K
 P    K
       0.687652               1.0000000
 end
-basis "S_aug-cc-pv6z-rifit" 
+basis "S_aug-cc-pV6Z-RIFIT" SPHERICAL 
 #basis SET: (14s,14p,12d,10f,8g,6h,4i,2k) -> [14s,14p,12d,10f,8g,6h,4i,2k]
 S    S
    1932.75                   1.0000000
@@ -1479,7 +1491,7 @@ S    K
 S    K
       0.841914               1.0000000
 end
-basis "Cl_aug-cc-pv6z-rifit" 
+basis "Cl_aug-cc-pV6Z-RIFIT" SPHERICAL 
 #basis SET: (14s,14p,12d,10f,8g,6h,4i,2k) -> [14s,14p,12d,10f,8g,6h,4i,2k]
 Cl    S
    2213.43                   1.0000000
@@ -1622,7 +1634,7 @@ Cl    K
 Cl    K
       1.09806                1.0000000
 end
-basis "Ar_aug-cc-pv6z-rifit" 
+basis "Ar_aug-cc-pV6Z-RIFIT" SPHERICAL 
 #basis SET: (14s,14p,12d,10f,8g,6h,4i,2k) -> [14s,14p,12d,10f,8g,6h,4i,2k]
 Ar    S
    2692.68                   1.0000000

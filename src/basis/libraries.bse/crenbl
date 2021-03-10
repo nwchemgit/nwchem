@@ -1,110 +1,162 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# crenbl version number 0
-# Description: CRENBL
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# CRENBL version number 0
+# Description: CRENBL designed for use with small core potentials
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H
-#     ## CRENBL ECP
+# 
+#  References for the basis set
+# 
+#  H
+#      CRENBL ECP
+#          dunning1977b
+# 
+#  Li-Ar
+#      CRENBL ECP
+#          pacios1985a
+# 
+#      CRENBL ECP
+#          pacios1985a
+# 
+#  K-Kr
+#      CRENBL ECP
+#          hurley1986a
+# 
+#      CRENBL ECP
+#          hurley1986a
+# 
+#  Rb-Xe
+#      CRENBL ECP
+#          lajohn1987a
+# 
+#      CRENBL ECP
+#          lajohn1987a
+# 
+#  Cs-La,Hf-Rn
+#      CRENBL ECP
+#          ross1990a
+# 
+#      CRENBL ECP
+#          ross1990a
+# 
+#  Ce-Lu
+#      CRENBL ECP
+#          ross1994a
+# 
+#      CRENBL ECP
+#          ross1994a
+# 
+#  Fr-Pu
+#      CRENBL ECP
+#          ermler1991a
+# 
+#      CRENBL ECP
+#          ermler1991a
+# 
+#  Am-Og
+#      CRENBL ECP
+#          nash1997a nash1999a
+# 
+#      CRENBL ECP
+#          nash1997a nash1999a
+# 
+# 
+# 
+# dunning1977b
 #     Dunning, Thom H., Hay, P. Jeffrey
 #     Gaussian basis sets for molecular calculations
 #     in 'Methods of Electronic Structure Theory'
 #     ed. Henry F. Schaefer
-#     Modern Theoretical Chemistry, 3, 1-27 (1977)
+#     Modern Theoretical Chemistry 3, 1-27 (1977)
 #     10.1007/978-1-4757-0887-5
 # 
-# Li-Ar
-#     ## CRENBL ECP
-#     Pacios, Luis Fernandez, Christiansen, P. A.
+# ermler1991a
+#     Ermler, W. C., Ross, R. B., Christiansen, P. A.
 #     Ab initio relativistic effective potentials with spin-orbit operators.
-#             I. Li through Ar
-#     J. Chem. Phys., 82, 2664-2671 (1985)
-#     10.1063/1.448263
+#             VI. Fr through Pu
+#     Int. J. Quantum Chem. 40, 829-846 (1991)
+#     10.1002/qua.560400611
 # 
-# K-Kr
-#     ## CRENBL ECP
+# hurley1986a
 #     Hurley, M. M., Pacios, Luis Fernandez, Christiansen, P. A., Ross, R.
 #             B., Ermler, W. C.
 #     Ab initio relativistic effective potentials with spin-orbit operators.
 #             II. K through Kr
-#     J. Chem. Phys., 84, 6840-6853 (1986)
+#     J. Chem. Phys. 84, 6840-6853 (1986)
 #     10.1063/1.450689
 # 
-# Rb-Xe
-#     ## CRENBL ECP
+# lajohn1987a
 #     LaJohn, L. A., Christiansen, P. A., Ross, R. B., Atashroo, T., Ermler,
 #             W. C.
 #     Abinitiorelativistic effective potentials with spin-orbit operators.
 #             III. Rb through Xe
-#     J. Chem. Phys., 87, 2812-2824 (1987)
+#     J. Chem. Phys. 87, 2812-2824 (1987)
 #     10.1063/1.453069
 # 
-# Cs-La,Hf-Rn
-#     ## CRENBL ECP
-#     Ross, R. B., Powers, J. M., Atashroo, T., Ermler, W. C., LaJohn, L.
-#             A., Christiansen, P. A.
-#     Abinitiorelativistic effective potentials with spin-orbit operators.
-#             IV. Cs through Rn
-#     J. Chem. Phys., 93, 6654-6670 (1990)
-#     10.1063/1.458934
-# 
-# Ce-Lu
-#     ## CRENBL ECP
-#     Ross, R. B., Gayen, Sanjukta, Ermler, W. C.
-#     Ab initio relativistic effective potentials with spin-orbit operators.
-#             V. Ce through Lu
-#     J. Chem. Phys., 100, 8145- (1994)
-#     10.1063/1.466809
-# 
-# Fr-Pu
-#     ## CRENBL ECP
-#     Ermler, W. C., Ross, R. B., Christiansen, P. A.
-#     Ab initio relativistic effective potentials with spin-orbit operators.
-#             VI. Fr through Pu
-#     Int. J. Quantum Chem., 40, 829-846 (1991)
-#     10.1002/qua.560400611
-# 
-# Am-Og
-#     ## CRENBL ECP
+# nash1997a
 #     Nash, Clinton S., Bursten, Bruce E., Ermler, Walter C.
 #     Ab initio relativistic effective potentials with spin-orbit operators.
 #             VII. Am through element 118
-#     J. Chem. Phys., 106, 5133-5142 (1997)
+#     J. Chem. Phys. 106, 5133-5142 (1997)
 #     10.1063/1.473992
 # 
+# nash1999a
 #     Nash, Clinton S., Bursten, Bruce E., Ermler, Walter C.
 #     Erratum: 'Ab initio relativistic effective potentials with spin-orbit
 #             operators. VII. Am through element 118' [J. Chem. Phys. 106,
 #             5133 (1997)]
-#     J. Chem. Phys., 111, 2347-2347 (1999)
+#     J. Chem. Phys. 111, 2347-2347 (1999)
 #     10.1063/1.479506
 # 
+# pacios1985a
+#     Pacios, Luis Fernandez, Christiansen, P. A.
+#     Ab initio relativistic effective potentials with spin-orbit operators.
+#             I. Li through Ar
+#     J. Chem. Phys. 82, 2664-2671 (1985)
+#     10.1063/1.448263
+# 
+# ross1990a
+#     Ross, R. B., Powers, J. M., Atashroo, T., Ermler, W. C., LaJohn, L.
+#             A., Christiansen, P. A.
+#     Abinitiorelativistic effective potentials with spin-orbit operators.
+#             IV. Cs through Rn
+#     J. Chem. Phys. 93, 6654-6670 (1990)
+#     10.1063/1.458934
+# 
+# ross1994a
+#     Ross, R. B., Gayen, Sanjukta, Ermler, W. C.
+#     Ab initio relativistic effective potentials with spin-orbit operators.
+#             V. Ce through Lu
+#     J. Chem. Phys. 100, 8145- (1994)
+#     10.1063/1.466809
+# 
 # # 
-basis "H_crenbl" 
+basis "H_CRENBL" SPHERICAL 
 #basis SET: (4s) -> [4s]
 H    S
      13.3600000              1.0000000
@@ -115,7 +167,7 @@ H    S
 H    S
       0.1233000              1.0000000
 end
-basis "Li_crenbl" 
+basis "Li_CRENBL" SPHERICAL 
 #basis SET: (4s,4p) -> [4s,4p]
 Li    S
       3.7640000              1.0000000
@@ -136,7 +188,7 @@ Li    P
 end
 
 
-ecp "Li_crenbl"
+ecp "Li_CRENBL"
 Li nelec 2
 Li ul
 2       0.80780000            -0.11866700
@@ -148,7 +200,7 @@ Li S
 1       1.19430000            -1.14289200
 0       2.19990000             2.99401900
 end
-basis "Be_crenbl" 
+basis "Be_CRENBL" SPHERICAL 
 #basis SET: (4s,4p) -> [4s,4p]
 Be    S
       7.8900000              1.0000000
@@ -169,7 +221,7 @@ Be    P
 end
 
 
-ecp "Be_crenbl"
+ecp "Be_CRENBL"
 Be nelec 2
 Be ul
 2       1.88230000            -0.25828800
@@ -181,7 +233,7 @@ Be S
 1       2.30910000            -1.31942100
 0       4.20010000             2.96972500
 end
-basis "B_crenbl" 
+basis "B_CRENBL" SPHERICAL 
 #basis SET: (4s,4p) -> [4s,4p]
 B    S
       2.9260000              1.0000000
@@ -202,7 +254,7 @@ B    P
 end
 
 
-ecp "B_crenbl"
+ecp "B_CRENBL"
 B nelec 2
 B ul
 2       3.56130004            -0.43494600
@@ -214,7 +266,7 @@ B S
 1       3.95619988            -2.38443398
 0       7.41090012             2.97974205
 end
-basis "C_crenbl" 
+basis "C_CRENBL" SPHERICAL 
 #basis SET: (4s,4p) -> [4s,4p]
 C    S
       4.3620000              1.0000000
@@ -235,7 +287,7 @@ C    P
 end
 
 
-ecp "C_crenbl"
+ecp "C_CRENBL"
 C nelec 2
 C ul
 2       5.35280001            -0.55931300
@@ -247,7 +299,7 @@ C S
 1       6.27069998            -4.67536402
 0      12.21120000             3.03797001
 end
-basis "N_crenbl" 
+basis "N_CRENBL" SPHERICAL 
 #basis SET: (4s,4p) -> [4s,4p]
 N    S
       6.2610000              1.0000000
@@ -268,7 +320,7 @@ N    P
 end
 
 
-ecp "N_crenbl"
+ecp "N_CRENBL"
 N nelec 2
 N ul
 2       7.47939998            -0.67093700
@@ -280,7 +332,7 @@ N S
 1       8.16100001            -9.60874701
 0       2.38600001             3.27333000
 end
-basis "O_crenbl" 
+basis "O_CRENBL" SPHERICAL 
 #basis SET: (4s,4p) -> [4s,4p]
 O    S
       8.6570000              1.0000000
@@ -301,7 +353,7 @@ O    P
 end
 
 
-ecp "O_crenbl"
+ecp "O_CRENBL"
 O nelec 2
 O ul
 2      10.02859998            -0.79842000
@@ -313,7 +365,7 @@ O S
 1       4.37400001             1.04294400
 0       2.18920001             2.19389099
 end
-basis "F_crenbl" 
+basis "F_CRENBL" SPHERICAL 
 #basis SET: (4s,4p) -> [4s,4p]
 F    S
      11.3800000              1.0000000
@@ -334,7 +386,7 @@ F    P
 end
 
 
-ecp "F_crenbl"
+ecp "F_CRENBL"
 F nelec 2
 F ul
 2      44.51660013            -6.72302401
@@ -346,7 +398,7 @@ F S
 1       5.61220002             1.00217900
 0       2.81459999             2.24534899
 end
-basis "Ne_crenbl" 
+basis "Ne_CRENBL" SPHERICAL 
 #basis SET: (4s,4p) -> [4s,4p]
 Ne    S
      14.3000000              1.0000000
@@ -367,7 +419,7 @@ Ne    P
 end
 
 
-ecp "Ne_crenbl"
+ecp "Ne_CRENBL"
 Ne nelec 2
 Ne ul
 2      16.20239997            -1.05784200
@@ -379,7 +431,7 @@ Ne S
 1       6.98530000             0.92151100
 0       3.48379999             2.28758100
 end
-basis "Na_crenbl" 
+basis "Na_CRENBL" SPHERICAL 
 #basis SET: (6s,4p) -> [6s,4p]
 Na    S
      15.6800000              1.0000000
@@ -404,7 +456,7 @@ Na    P
 end
 
 
-ecp "Na_crenbl"
+ecp "Na_CRENBL"
 Na nelec 2
 Na ul
 2       1.60680000            -0.00010200
@@ -417,7 +469,7 @@ Na S
 1       8.21659994             3.14094701
 0       1.50080000             1.87765500
 end
-basis "Mg_crenbl" 
+basis "Mg_CRENBL" SPHERICAL 
 #basis SET: (6s,4p) -> [6s,4p]
 Mg    S
      19.3300000              1.0000000
@@ -442,7 +494,7 @@ Mg    P
 end
 
 
-ecp "Mg_crenbl"
+ecp "Mg_CRENBL"
 Mg nelec 2
 Mg ul
 2       1.13200000            -0.00005300
@@ -455,7 +507,7 @@ Mg S
 1       9.91949999             3.12963399
 0       1.81850000             1.93843301
 end
-basis "Al_crenbl" 
+basis "Al_CRENBL" SPHERICAL 
 #basis SET: (4s,4p) -> [4s,4p]
 Al    S
       9.3510000              1.0000000
@@ -476,7 +528,7 @@ Al    P
 end
 
 
-ecp "Al_crenbl"
+ecp "Al_CRENBL"
 Al nelec 10
 Al ul
 2       1.22110000            -0.53798100
@@ -496,7 +548,7 @@ Al P
 1       1.75749999             4.19959599
 0       6.76929998             5.00335598
 end
-basis "Si_crenbl" 
+basis "Si_CRENBL" SPHERICAL 
 #basis SET: (4s,4p) -> [4s,4p]
 Si    S
      11.0700000              1.0000000
@@ -517,7 +569,7 @@ Si    P
 end
 
 
-ecp "Si_crenbl"
+ecp "Si_CRENBL"
 Si nelec 10
 Si ul
 2       1.62109999            -0.67587200
@@ -537,7 +589,7 @@ Si P
 1       5.56639999             2.85250399
 0      10.31330001             5.07075799
 end
-basis "P_crenbl" 
+basis "P_CRENBL" SPHERICAL 
 #basis SET: (4s,4p) -> [4s,4p]
 P    S
      14.1000000              1.0000000
@@ -558,7 +610,7 @@ P    P
 end
 
 
-ecp "P_crenbl"
+ecp "P_CRENBL"
 P nelec 10
 P ul
 2       2.10920000            -0.86027200
@@ -578,7 +630,7 @@ P P
 1       4.28490001             3.93873200
 0      13.30770004             5.00513297
 end
-basis "S_crenbl" 
+basis "S_CRENBL" SPHERICAL 
 #basis SET: (4s,4p) -> [4s,4p]
 S    S
      17.0300000              1.0000000
@@ -599,7 +651,7 @@ S    P
 end
 
 
-ecp "S_crenbl"
+ecp "S_CRENBL"
 S nelec 10
 S ul
 2       2.69159999            -1.09096500
@@ -619,7 +671,7 @@ S P
 1       5.23589998             4.19983298
 0       3.34340000             4.77143699
 end
-basis "Cl_crenbl" 
+basis "Cl_CRENBL" SPHERICAL 
 #basis SET: (4s,4p) -> [4s,4p]
 Cl    S
      21.5100000              1.0000000
@@ -640,7 +692,7 @@ Cl    P
 end
 
 
-ecp "Cl_crenbl"
+ecp "Cl_CRENBL"
 Cl nelec 10
 Cl ul
 2       3.35940000            -1.33688600
@@ -660,7 +712,7 @@ Cl P
 1       6.57059997             5.19199800
 0       4.28479999             4.67078602
 end
-basis "Ar_crenbl" 
+basis "Ar_CRENBL" SPHERICAL 
 #basis SET: (4s,4p) -> [4s,4p]
 Ar    S
      25.9900000              1.0000000
@@ -681,7 +733,7 @@ Ar    P
 end
 
 
-ecp "Ar_crenbl"
+ecp "Ar_CRENBL"
 Ar nelec 10
 Ar ul
 2       4.16430002            -1.63101099
@@ -701,7 +753,7 @@ Ar P
 1       7.93089998             3.61798900
 0       1.48770000             4.84710997
 end
-basis "K_crenbl" 
+basis "K_CRENBL" SPHERICAL 
 #basis SET: (5s,4p) -> [5s,4p]
 K    S
       2.8890000              1.0000000
@@ -724,7 +776,7 @@ K    P
 end
 
 
-ecp "K_crenbl"
+ecp "K_CRENBL"
 K nelec 10
 K ul
 2       4.99889994            -1.96356797
@@ -744,7 +796,7 @@ K P
 1      11.33360004             4.43228197
 0       1.74329996             4.74835920
 end
-basis "Ca_crenbl" 
+basis "Ca_CRENBL" SPHERICAL 
 #basis SET: (5s,4p) -> [5s,4p]
 Ca    S
       3.3350000              1.0000000
@@ -767,7 +819,7 @@ Ca    P
 end
 
 
-ecp "Ca_crenbl"
+ecp "Ca_CRENBL"
 Ca nelec 10
 Ca ul
 2       5.92140007            -2.26729298
@@ -787,7 +839,7 @@ Ca P
 1       2.20009995             5.88094378
 0       6.12169981             4.76948595
 end
-basis "Sc_crenbl" 
+basis "Sc_CRENBL" SPHERICAL 
 #basis SET: (7s,6p,6d) -> [7s,6p,6d]
 Sc    S
      36.5800000              1.0000000
@@ -830,7 +882,7 @@ Sc    D
 end
 
 
-ecp "Sc_crenbl"
+ecp "Sc_CRENBL"
 Sc nelec 10
 Sc ul
 2       6.93090010            -2.56915808
@@ -852,7 +904,7 @@ Sc P
 1      12.81589985             5.76216221
 0       4.66620016             4.66992807
 end
-basis "Ti_crenbl" 
+basis "Ti_CRENBL" SPHERICAL 
 #basis SET: (7s,6p,6d) -> [7s,6p,6d]
 Ti    S
      39.8100000              1.0000000
@@ -895,7 +947,7 @@ Ti    D
 end
 
 
-ecp "Ti_crenbl"
+ecp "Ti_CRENBL"
 Ti nelec 10
 Ti ul
 2       8.02050018            -2.92140889
@@ -917,7 +969,7 @@ Ti P
 1      11.05430031             5.54500103
 0       3.26570010             4.74136782
 end
-basis "V_crenbl" 
+basis "V_CRENBL" SPHERICAL 
 #basis SET: (7s,6p,6d) -> [7s,6p,6d]
 V    S
      43.2500000              1.0000000
@@ -960,7 +1012,7 @@ V    D
 end
 
 
-ecp "V_crenbl"
+ecp "V_CRENBL"
 V nelec 10
 V ul
 2       8.96249962            -3.13644791
@@ -982,7 +1034,7 @@ V P
 1       8.18389988            -5.63639116
 0      17.38699913             5.50943995
 end
-basis "Cr_crenbl" 
+basis "Cr_CRENBL" SPHERICAL 
 #basis SET: (7s,6p,6d) -> [7s,6p,6d]
 Cr    S
      46.3700000              1.0000000
@@ -1025,7 +1077,7 @@ Cr    D
 end
 
 
-ecp "Cr_crenbl"
+ecp "Cr_CRENBL"
 Cr nelec 10
 Cr ul
 2      10.01910019            -3.35951304
@@ -1047,7 +1099,7 @@ Cr P
 1       8.93529987            -4.18536377
 0      18.83979988             5.40804720
 end
-basis "Mn_crenbl" 
+basis "Mn_CRENBL" SPHERICAL 
 #basis SET: (7s,6p,6d) -> [7s,6p,6d]
 Mn    S
      49.1200000              1.0000000
@@ -1090,7 +1142,7 @@ Mn    D
 end
 
 
-ecp "Mn_crenbl"
+ecp "Mn_CRENBL"
 Mn nelec 10
 Mn ul
 2      11.27060032            -3.68953991
@@ -1112,7 +1164,7 @@ Mn P
 1       9.85439968            -2.76534510
 0      20.32609940             5.31945705
 end
-basis "Fe_crenbl" 
+basis "Fe_CRENBL" SPHERICAL 
 #basis SET: (7s,6p,6d) -> [7s,6p,6d]
 Fe    S
      53.5000000              1.0000000
@@ -1155,7 +1207,7 @@ Fe    D
 end
 
 
-ecp "Fe_crenbl"
+ecp "Fe_CRENBL"
 Fe nelec 10
 Fe ul
 2      12.42240047            -3.92273593
@@ -1177,7 +1229,7 @@ Fe P
 1      10.56540012            -1.59960997
 0      21.84390068             5.25198078
 end
-basis "Co_crenbl" 
+basis "Co_CRENBL" SPHERICAL 
 #basis SET: (7s,6p,6d) -> [7s,6p,6d]
 Co    S
      56.1200000              1.0000000
@@ -1220,7 +1272,7 @@ Co    D
 end
 
 
-ecp "Co_crenbl"
+ecp "Co_CRENBL"
 Co nelec 10
 Co ul
 2      13.73709965            -4.21805000
@@ -1242,7 +1294,7 @@ Co P
 1       1.70739996             1.21656799
 0      24.11779976             5.09922504
 end
-basis "Ni_crenbl" 
+basis "Ni_CRENBL" SPHERICAL 
 #basis SET: (7s,6p,6d) -> [7s,6p,6d]
 Ni    S
      59.2600000              1.0000000
@@ -1285,7 +1337,7 @@ Ni    D
 end
 
 
-ecp "Ni_crenbl"
+ecp "Ni_CRENBL"
 Ni nelec 10
 Ni ul
 2      14.88280010            -4.43806982
@@ -1307,7 +1359,7 @@ Ni P
 1       2.22440004            -6.76423597
 0      30.32270050             5.44540691
 end
-basis "Cu_crenbl" 
+basis "Cu_CRENBL" SPHERICAL 
 #basis SET: (7s,6p,6d) -> [7s,6p,6d]
 Cu    S
      64.6300000              1.0000000
@@ -1350,7 +1402,7 @@ Cu    D
 end
 
 
-ecp "Cu_crenbl"
+ecp "Cu_CRENBL"
 Cu nelec 10
 Cu ul
 2      16.30159950            -4.73227501
@@ -1372,7 +1424,7 @@ Cu P
 1      14.67029953            -5.66128206
 0      30.43350029             5.39882612
 end
-basis "Zn_crenbl" 
+basis "Zn_CRENBL" SPHERICAL 
 #basis SET: (7s,6p,6d) -> [7s,6p,6d]
 Zn    S
      68.5900000              1.0000000
@@ -1415,7 +1467,7 @@ Zn    D
 end
 
 
-ecp "Zn_crenbl"
+ecp "Zn_CRENBL"
 Zn nelec 10
 Zn ul
 2      17.70450020            -4.95285416
@@ -1437,7 +1489,7 @@ Zn P
 1       5.86420012            -3.59432101
 0      34.27420044             5.29285192
 end
-basis "Ga_crenbl" 
+basis "Ga_CRENBL" SPHERICAL 
 #basis SET: (3s,3p,4d) -> [3s,3p,4d]
 Ga    S
       0.9738000              1.0000000
@@ -1462,7 +1514,7 @@ Ga    D
 end
 
 
-ecp "Ga_crenbl"
+ecp "Ga_CRENBL"
 Ga nelec 18
 Ga ul
 2       0.97359997            -0.77471000
@@ -1485,7 +1537,7 @@ Ga P
 1       6.94740009            13.53756237
 0       9.34539986             5.37063789
 end
-basis "Ge_crenbl" 
+basis "Ge_CRENBL" SPHERICAL 
 #basis SET: (3s,3p,4d) -> [3s,3p,4d]
 Ge    S
       1.0180000              1.0000000
@@ -1510,7 +1562,7 @@ Ge    D
 end
 
 
-ecp "Ge_crenbl"
+ecp "Ge_CRENBL"
 Ge nelec 18
 Ge ul
 2       1.35459995            -1.40196705
@@ -1533,7 +1585,7 @@ Ge P
 1       8.26930046            13.02904606
 0      10.14990044             5.37435579
 end
-basis "As_crenbl" 
+basis "As_CRENBL" SPHERICAL 
 #basis SET: (3s,3p,4d) -> [3s,3p,4d]
 As    S
       1.2210000              1.0000000
@@ -1558,7 +1610,7 @@ As    D
 end
 
 
-ecp "As_crenbl"
+ecp "As_CRENBL"
 As nelec 18
 As ul
 2       1.74109995            -2.03465605
@@ -1581,7 +1633,7 @@ As P
 1      11.13199997            12.12996483
 0      11.22399998             5.37297487
 end
-basis "Se_crenbl" 
+basis "Se_CRENBL" SPHERICAL 
 #basis SET: (3s,3p,4d) -> [3s,3p,4d]
 Se    S
       1.3400000              1.0000000
@@ -1606,7 +1658,7 @@ Se    D
 end
 
 
-ecp "Se_crenbl"
+ecp "Se_CRENBL"
 Se nelec 18
 Se ul
 2       2.11820006            -2.58638692
@@ -1629,7 +1681,7 @@ Se P
 1      14.74899960            12.05568886
 0      13.46450043             5.31686020
 end
-basis "Br_crenbl" 
+basis "Br_CRENBL" SPHERICAL 
 #basis SET: (3s,3p,4d) -> [3s,3p,4d]
 Br    S
       1.3800000              1.0000000
@@ -1654,7 +1706,7 @@ Br    D
 end
 
 
-ecp "Br_crenbl"
+ecp "Br_CRENBL"
 Br nelec 18
 Br ul
 2       2.54780006            -3.20746708
@@ -1677,7 +1729,7 @@ Br P
 1      15.22420025            13.39648247
 0      14.20930004             5.33779001
 end
-basis "Kr_crenbl" 
+basis "Kr_CRENBL" SPHERICAL 
 #basis SET: (3s,3p,4d) -> [3s,3p,4d]
 Kr    S
       1.5970000              1.0000000
@@ -1702,7 +1754,7 @@ Kr    D
 end
 
 
-ecp "Kr_crenbl"
+ecp "Kr_CRENBL"
 Kr nelec 18
 Kr ul
 2       3.05509996            -3.98946905
@@ -1725,7 +1777,7 @@ Kr P
 1      19.63229942            13.32087612
 0      17.43339920             5.26835585
 end
-basis "Rb_crenbl" 
+basis "Rb_CRENBL" SPHERICAL 
 #basis SET: (5s,5p) -> [5s,5p]
 Rb    S
       1.3850000              1.0000000
@@ -1750,7 +1802,7 @@ Rb    P
 end
 
 
-ecp "Rb_crenbl"
+ecp "Rb_CRENBL"
 Rb nelec 28
 Rb ul
 2       1.96459997            -1.04400003
@@ -1783,7 +1835,7 @@ Rb D
 1      10.62069988             9.91743755
 0       9.28610039             7.41062880
 end
-basis "Sr_crenbl" 
+basis "Sr_CRENBL" SPHERICAL 
 #basis SET: (5s,5p) -> [5s,5p]
 Sr    S
       1.5530000              1.0000000
@@ -1808,7 +1860,7 @@ Sr    P
 end
 
 
-ecp "Sr_crenbl"
+ecp "Sr_CRENBL"
 Sr nelec 28
 Sr ul
 2       2.23399997            -1.16187501
@@ -1841,7 +1893,7 @@ Sr D
 1      12.52390003            10.14631939
 0      10.88269997             7.38135815
 end
-basis "Y_crenbl" 
+basis "Y_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,4d]
 Y    S
       2.0630000              1.0000000
@@ -1874,7 +1926,7 @@ Y    D
 end
 
 
-ecp "Y_crenbl"
+ecp "Y_CRENBL"
 Y nelec 28
 Y ul
 2       2.90050006            -2.22248793
@@ -1907,7 +1959,7 @@ Y D
 1      15.23060036            10.78762054
 0      13.37300015             7.32198191
 end
-basis "Zr_crenbl" 
+basis "Zr_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,4d]
 Zr    S
       1.8540000              1.0000000
@@ -1940,7 +1992,7 @@ Zr    D
 end
 
 
-ecp "Zr_crenbl"
+ecp "Zr_CRENBL"
 Zr nelec 28
 Zr ul
 2       1.96560001            -0.27778301
@@ -1973,7 +2025,7 @@ Zr D
 1      18.74440002            11.23965740
 0      16.13680077             7.27583790
 end
-basis "Nb_crenbl" 
+basis "Nb_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,4d]
 Nb    S
       1.9860000              1.0000000
@@ -2006,7 +2058,7 @@ Nb    D
 end
 
 
-ecp "Nb_crenbl"
+ecp "Nb_CRENBL"
 Nb nelec 28
 Nb ul
 2       3.44460011            -2.12992907
@@ -2039,7 +2091,7 @@ Nb D
 1      18.43989944            11.01616001
 0      15.86740017             7.31999588
 end
-basis "Mo_crenbl" 
+basis "Mo_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,4d]
 Mo    S
       2.4300000              1.0000000
@@ -2072,7 +2124,7 @@ Mo    D
 end
 
 
-ecp "Mo_crenbl"
+ecp "Mo_CRENBL"
 Mo nelec 28
 Mo ul
 2       3.86059999            -2.39912391
@@ -2105,7 +2157,7 @@ Mo D
 1      22.86809921            11.67608738
 0      19.53870010             7.26251984
 end
-basis "Tc_crenbl" 
+basis "Tc_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,4d]
 Tc    S
       2.8970000              1.0000000
@@ -2138,7 +2190,7 @@ Tc    D
 end
 
 
-ecp "Tc_crenbl"
+ecp "Tc_CRENBL"
 Tc nelec 28
 Tc ul
 2       4.28879976            -2.68787909
@@ -2171,7 +2223,7 @@ Tc D
 1      28.75009918            12.69731045
 0      24.47260094             7.19261312
 end
-basis "Ru_crenbl" 
+basis "Ru_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,4d]
 Ru    S
       2.9320000              1.0000000
@@ -2204,7 +2256,7 @@ Ru    D
 end
 
 
-ecp "Ru_crenbl"
+ecp "Ru_CRENBL"
 Ru nelec 28
 Ru ul
 2       4.78420019            -3.01680589
@@ -2237,7 +2289,7 @@ Ru D
 1      28.46680069            12.31614971
 0      24.18630028             7.23575020
 end
-basis "Rh_crenbl" 
+basis "Rh_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,4d]
 Rh    S
       3.0500000              1.0000000
@@ -2270,7 +2322,7 @@ Rh    D
 end
 
 
-ecp "Rh_crenbl"
+ecp "Rh_CRENBL"
 Rh nelec 28
 Rh ul
 2       5.26849985            -3.34650707
@@ -2303,7 +2355,7 @@ Rh D
 1      36.28559875            13.58090496
 0      30.69669914             7.15987301
 end
-basis "Pd_crenbl" 
+basis "Pd_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,4d]
 Pd    S
       3.3170000              1.0000000
@@ -2336,7 +2388,7 @@ Pd    D
 end
 
 
-ecp "Pd_crenbl"
+ecp "Pd_CRENBL"
 Pd nelec 28
 Pd ul
 2       5.79349995            -3.67986703
@@ -2369,7 +2421,7 @@ Pd D
 1      36.10689926            13.18474102
 0      30.47970009             7.19891405
 end
-basis "Ag_crenbl" 
+basis "Ag_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,4d]
 Ag    S
       2.7550000              1.0000000
@@ -2402,7 +2454,7 @@ Ag    D
 end
 
 
-ecp "Ag_crenbl"
+ecp "Ag_CRENBL"
 Ag nelec 28
 Ag ul
 2       6.26410007            -3.58370399
@@ -2435,7 +2487,7 @@ Ag D
 1      36.31949997            12.95428467
 0      30.56290054             7.22897387
 end
-basis "Cd_crenbl" 
+basis "Cd_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,4d]
 Cd    S
       3.4160000              1.0000000
@@ -2468,7 +2520,7 @@ Cd    D
 end
 
 
-ecp "Cd_crenbl"
+ecp "Cd_CRENBL"
 Cd nelec 28
 Cd ul
 2       6.88749981            -4.22736502
@@ -2501,7 +2553,7 @@ Cd D
 1      12.15629959            17.66106606
 0      40.44020081             7.21160984
 end
-basis "In_crenbl" 
+basis "In_CRENBL" SPHERICAL 
 #basis SET: (3s,3p,4d) -> [3s,3p,4d]
 In    S
       0.5332000              1.0000000
@@ -2526,7 +2578,7 @@ In    D
 end
 
 
-ecp "In_crenbl"
+ecp "In_CRENBL"
 In nelec 36
 In ul
 2       1.34599996            -1.94056201
@@ -2555,7 +2607,7 @@ In D
 1       1.45360005             8.59886932
 0      13.23980045             7.80331993
 end
-basis "Sn_crenbl" 
+basis "Sn_CRENBL" SPHERICAL 
 #basis SET: (3s,3p,4d) -> [3s,3p,4d]
 Sn    S
       0.5541000              1.0000000
@@ -2580,7 +2632,7 @@ Sn    D
 end
 
 
-ecp "Sn_crenbl"
+ecp "Sn_CRENBL"
 Sn nelec 36
 Sn ul
 2       1.49080002            -2.08150506
@@ -2609,7 +2661,7 @@ Sn D
 1       1.00779998             8.33738613
 0      14.44050026             7.81764507
 end
-basis "Sb_crenbl" 
+basis "Sb_CRENBL" SPHERICAL 
 #basis SET: (3s,3p,4d) -> [3s,3p,4d]
 Sb    S
       0.5598000              1.0000000
@@ -2634,7 +2686,7 @@ Sb    D
 end
 
 
-ecp "Sb_crenbl"
+ecp "Sb_CRENBL"
 Sb nelec 36
 Sb ul
 2       1.64499998            -2.23113608
@@ -2663,7 +2715,7 @@ Sb D
 1       6.62400007             0.34869000
 0      14.89630032             8.32599354
 end
-basis "Te_crenbl" 
+basis "Te_CRENBL" SPHERICAL 
 #basis SET: (3s,3p,4d) -> [3s,3p,4d]
 Te    S
       0.6387000              1.0000000
@@ -2688,7 +2740,7 @@ Te    D
 end
 
 
-ecp "Te_crenbl"
+ecp "Te_CRENBL"
 Te nelec 36
 Te ul
 2       1.81439996            -2.38358688
@@ -2717,7 +2769,7 @@ Te D
 1       7.17479992             2.66751909
 0      15.52460003             8.15157413
 end
-basis "I_crenbl" 
+basis "I_CRENBL" SPHERICAL 
 #basis SET: (3s,3p,4d) -> [3s,3p,4d]
 I    S
       0.6803000              1.0000000
@@ -2742,7 +2794,7 @@ I    D
 end
 
 
-ecp "I_crenbl"
+ecp "I_CRENBL"
 I nelec 36
 I ul
 2       2.00659990            -2.60678697
@@ -2771,7 +2823,7 @@ I D
 1      22.20800018            18.01509857
 0      19.14010048             6.86909294
 end
-basis "Xe_crenbl" 
+basis "Xe_CRENBL" SPHERICAL 
 #basis SET: (3s,3p,4d) -> [3s,3p,4d]
 Xe    S
       0.7127000              1.0000000
@@ -2796,7 +2848,7 @@ Xe    D
 end
 
 
-ecp "Xe_crenbl"
+ecp "Xe_CRENBL"
 Xe nelec 36
 Xe ul
 2       2.24699998            -2.98907089
@@ -2825,7 +2877,7 @@ Xe D
 1       8.73659992            -0.88147599
 0      18.91500092             8.33844185
 end
-basis "Cs_crenbl" 
+basis "Cs_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,4d]
 Cs    S
       0.8433000              1.0000000
@@ -2858,7 +2910,7 @@ Cs    D
 end
 
 
-ecp "Cs_crenbl"
+ecp "Cs_CRENBL"
 Cs nelec 46
 Cs ul
 2       0.93849999            -0.78916699
@@ -2891,7 +2943,7 @@ Cs D
 1       6.21829987            34.42418671
 0      17.38809967             7.19875193
 end
-basis "Ba_crenbl" 
+basis "Ba_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,4d]
 Ba    S
       0.8292000              1.0000000
@@ -2924,7 +2976,7 @@ Ba    D
 end
 
 
-ecp "Ba_crenbl"
+ecp "Ba_CRENBL"
 Ba nelec 46
 Ba ul
 2       0.97610003            -0.88013703
@@ -2957,7 +3009,7 @@ Ba D
 1       7.33769989            37.01747894
 0      20.39410019             7.09744883
 end
-basis "La_crenbl" 
+basis "La_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,4d]
 La    S
       0.8937000              1.0000000
@@ -2990,7 +3042,7 @@ La    D
 end
 
 
-ecp "La_crenbl"
+ecp "La_CRENBL"
 La nelec 46
 La ul
 2       1.30850005            -1.78271198
@@ -3023,7 +3075,7 @@ La D
 1       9.00669956            41.21611023
 0      25.81089973             6.93647718
 end
-basis "Ce_crenbl" 
+basis "Ce_CRENBL" SPHERICAL 
 #basis SET: (6s,6p,6d,6f) -> [6s,6p,6d,6f]
 Ce    S
       0.9018000              1.0000000
@@ -3076,7 +3128,7 @@ Ce    F
 end
 
 
-ecp "Ce_crenbl"
+ecp "Ce_CRENBL"
 Ce nelec 54
 Ce ul
 2       0.18850000            -0.31545401
@@ -3113,7 +3165,7 @@ Ce D
 1      10.85770040            45.45883560
 0      31.21439930             6.81029177
 end
-basis "Pr_crenbl" 
+basis "Pr_CRENBL" SPHERICAL 
 #basis SET: (6s,6p,6d,6f) -> [6s,6p,6d,6f]
 Pr    S
       2.5680000              1.0000000
@@ -3166,7 +3218,7 @@ Pr    F
 end
 
 
-ecp "Pr_crenbl"
+ecp "Pr_CRENBL"
 Pr nelec 54
 Pr ul
 2       0.18340001            -0.28507000
@@ -3203,7 +3255,7 @@ Pr D
 1       8.52200031            22.06917950
 0      12.37780000             7.82782602
 end
-basis "Nd_crenbl" 
+basis "Nd_CRENBL" SPHERICAL 
 #basis SET: (6s,6p,6d,6f) -> [6s,6p,6d,6f]
 Nd    S
       2.5290000              1.0000000
@@ -3256,7 +3308,7 @@ Nd    F
 end
 
 
-ecp "Nd_crenbl"
+ecp "Nd_CRENBL"
 Nd nelec 54
 Nd ul
 2       0.18470000            -0.27911800
@@ -3293,7 +3345,7 @@ Nd D
 1      11.78209970            47.79472730
 0      34.12229920             6.79056502
 end
-basis "Pm_crenbl" 
+basis "Pm_CRENBL" SPHERICAL 
 #basis SET: (6s,6p,6d,6f) -> [6s,6p,6d,6f]
 Pm    S
       2.3480000              1.0000000
@@ -3346,7 +3398,7 @@ Pm    F
 end
 
 
-ecp "Pm_crenbl"
+ecp "Pm_CRENBL"
 Pm nelec 54
 Pm ul
 2       0.18629999            -0.27581099
@@ -3383,7 +3435,7 @@ Pm D
 1       9.34249973            36.84980780
 0      21.38209920             7.18157816
 end
-basis "Sm_crenbl" 
+basis "Sm_CRENBL" SPHERICAL 
 #basis SET: (6s,6p,6d,6f) -> [6s,6p,6d,6f]
 Sm    S
      21.5900000              1.0000000
@@ -3436,7 +3488,7 @@ Sm    F
 end
 
 
-ecp "Sm_crenbl"
+ecp "Sm_CRENBL"
 Sm nelec 54
 Sm ul
 2       0.18820000            -0.26969901
@@ -3473,7 +3525,7 @@ Sm D
 1       8.39239979            28.46022030
 0      15.12339970             7.62672281
 end
-basis "Eu_crenbl" 
+basis "Eu_CRENBL" SPHERICAL 
 #basis SET: (6s,6p,6d,6f) -> [6s,6p,6d,6f]
 Eu    S
      16.4800000              1.0000000
@@ -3526,7 +3578,7 @@ Eu    F
 end
 
 
-ecp "Eu_crenbl"
+ecp "Eu_CRENBL"
 Eu nelec 54
 Eu ul
 2       0.19030000            -0.26617599
@@ -3563,7 +3615,7 @@ Eu D
 1       9.48239994            26.45060160
 0      14.85340020             7.73455191
 end
-basis "Gd_crenbl" 
+basis "Gd_CRENBL" SPHERICAL 
 #basis SET: (6s,6p,6d,6f) -> [6s,6p,6d,6f]
 Gd    S
      17.4000000              1.0000000
@@ -3616,7 +3668,7 @@ Gd    F
 end
 
 
-ecp "Gd_crenbl"
+ecp "Gd_CRENBL"
 Gd nelec 54
 Gd ul
 2       0.19360000            -0.26610100
@@ -3653,7 +3705,7 @@ Gd D
 1       9.75979995            27.62781720
 0      15.58259960             7.72167111
 end
-basis "Tb_crenbl" 
+basis "Tb_CRENBL" SPHERICAL 
 #basis SET: (6s,6p,6d,6f) -> [6s,6p,6d,6f]
 Tb    S
      17.5500000              1.0000000
@@ -3706,7 +3758,7 @@ Tb    F
 end
 
 
-ecp "Tb_crenbl"
+ecp "Tb_CRENBL"
 Tb nelec 54
 Tb ul
 2       0.19800000            -0.26984900
@@ -3743,7 +3795,7 @@ Tb D
 1      10.22750000            30.36456680
 0      17.35890010             7.63114309
 end
-basis "Dy_crenbl" 
+basis "Dy_CRENBL" SPHERICAL 
 #basis SET: (6s,6p,6d,6f) -> [6s,6p,6d,6f]
 Dy    S
      14.8900000              1.0000000
@@ -3796,7 +3848,7 @@ Dy    F
 end
 
 
-ecp "Dy_crenbl"
+ecp "Dy_CRENBL"
 Dy nelec 54
 Dy ul
 2       0.19589999            -0.24610400
@@ -3833,7 +3885,7 @@ Dy D
 1      12.15419960            25.64606860
 0      15.88690000             7.84217119
 end
-basis "Ho_crenbl" 
+basis "Ho_CRENBL" SPHERICAL 
 #basis SET: (6s,6p,6d,6f) -> [6s,6p,6d,6f]
 Ho    S
      11.0700000              1.0000000
@@ -3886,7 +3938,7 @@ Ho    F
 end
 
 
-ecp "Ho_crenbl"
+ecp "Ho_CRENBL"
 Ho nelec 54
 Ho ul
 2       0.19880000            -0.24419101
@@ -3923,7 +3975,7 @@ Ho D
 1      12.70359990            26.41877370
 0      16.47439960             7.84279013
 end
-basis "Er_crenbl" 
+basis "Er_CRENBL" SPHERICAL 
 #basis SET: (6s,6p,6d,6f) -> [6s,6p,6d,6f]
 Er    S
      18.0900000              1.0000000
@@ -3976,7 +4028,7 @@ Er    F
 end
 
 
-ecp "Er_crenbl"
+ecp "Er_CRENBL"
 Er nelec 54
 Er ul
 2       0.20420000            -0.24749100
@@ -4013,7 +4065,7 @@ Er D
 1      16.07609940            60.33625410
 0      49.35649870             6.67504692
 end
-basis "Tm_crenbl" 
+basis "Tm_CRENBL" SPHERICAL 
 #basis SET: (6s,6p,6d,6f) -> [6s,6p,6d,6f]
 Tm    S
      13.2500000              1.0000000
@@ -4066,7 +4118,7 @@ Tm    F
 end
 
 
-ecp "Tm_crenbl"
+ecp "Tm_CRENBL"
 Tm nelec 54
 Tm ul
 2       0.20750000            -0.24459700
@@ -4103,7 +4155,7 @@ Tm D
 1      13.21090030            29.72262000
 0      18.70999910             7.77486515
 end
-basis "Yb_crenbl" 
+basis "Yb_CRENBL" SPHERICAL 
 #basis SET: (6s,6p,6d,6f) -> [6s,6p,6d,6f]
 Yb    S
      15.0100000              1.0000000
@@ -4156,7 +4208,7 @@ Yb    F
 end
 
 
-ecp "Yb_crenbl"
+ecp "Yb_CRENBL"
 Yb nelec 54
 Yb ul
 2       0.20919999            -0.23695500
@@ -4193,7 +4245,7 @@ Yb D
 1      15.53549960            60.07494360
 0      46.52880100             6.73838902
 end
-basis "Lu_crenbl" 
+basis "Lu_CRENBL" SPHERICAL 
 #basis SET: (6s,6p,6d,6f) -> [6s,6p,6d,6f]
 Lu    S
       5.4060000              1.0000000
@@ -4246,7 +4298,7 @@ Lu    F
 end
 
 
-ecp "Lu_crenbl"
+ecp "Lu_CRENBL"
 Lu nelec 54
 Lu ul
 2       0.25189999            -0.31990600
@@ -4283,7 +4335,7 @@ Lu D
 1       4.62179995            54.65802380
 0      24.98469930             6.87314081
 end
-basis "Hf_crenbl" 
+basis "Hf_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,4d]
 Hf    S
       2.5550000              1.0000000
@@ -4316,7 +4368,7 @@ Hf    D
 end
 
 
-ecp "Hf_crenbl"
+ecp "Hf_CRENBL"
 Hf nelec 60
 Hf ul
 2       0.77789998            -0.33688599
@@ -4362,7 +4414,7 @@ Hf F
 1      33.07509995            33.17300034
 0      73.49960327             0.93162602
 end
-basis "Ta_crenbl" 
+basis "Ta_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,4d]
 Ta    S
       5.2740000              1.0000000
@@ -4395,7 +4447,7 @@ Ta    D
 end
 
 
-ecp "Ta_crenbl"
+ecp "Ta_CRENBL"
 Ta nelec 60
 Ta ul
 2       0.97380000            -0.45041099
@@ -4441,7 +4493,7 @@ Ta F
 1      26.51479912            32.28345489
 0      58.97980118             1.07911205
 end
-basis "W_crenbl" 
+basis "W_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,4d]
 W    S
       2.8533000              1.0000000
@@ -4474,7 +4526,7 @@ W    D
 end
 
 
-ecp "W_crenbl"
+ecp "W_CRENBL"
 W nelec 60
 W ul
 2       1.16069996            -0.54709101
@@ -4520,7 +4572,7 @@ W F
 1      28.34440041            33.22473145
 0      66.98750305             1.05253196
 end
-basis "Re_crenbl" 
+basis "Re_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,4d]
 Re    S
       2.6760000              1.0000000
@@ -4553,7 +4605,7 @@ Re    D
 end
 
 
-ecp "Re_crenbl"
+ecp "Re_CRENBL"
 Re nelec 60
 Re ul
 2       1.34420002            -0.63006300
@@ -4599,7 +4651,7 @@ Re F
 1      57.28340149            37.84556961
 0     142.22329712             0.79649299
 end
-basis "Os_crenbl" 
+basis "Os_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,4d]
 Os    S
       2.2173000              1.0000000
@@ -4632,7 +4684,7 @@ Os    D
 end
 
 
-ecp "Os_crenbl"
+ecp "Os_CRENBL"
 Os nelec 60
 Os ul
 2       1.53260005            -0.71941298
@@ -4678,7 +4730,7 @@ Os F
 1      50.93960190            29.86117363
 0       4.61829996             0.96181101
 end
-basis "Ir_crenbl" 
+basis "Ir_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,4d]
 Ir    S
       2.1794000              1.0000000
@@ -4711,7 +4763,7 @@ Ir    D
 end
 
 
-ecp "Ir_crenbl"
+ecp "Ir_CRENBL"
 Ir nelec 60
 Ir ul
 2       1.70930004            -0.77600998
@@ -4757,7 +4809,7 @@ Ir F
 1      21.42609978            34.77194977
 0      35.98310089             4.84190178
 end
-basis "Pt_crenbl" 
+basis "Pt_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,4d]
 Pt    S
       2.3654000              1.0000000
@@ -4790,7 +4842,7 @@ Pt    D
 end
 
 
-ecp "Pt_crenbl"
+ecp "Pt_CRENBL"
 Pt nelec 60
 Pt ul
 2       1.86479998            -0.81254202
@@ -4836,7 +4888,7 @@ Pt F
 1      27.73590088            43.59355164
 0      54.84930038             4.53264999
 end
-basis "Au_crenbl" 
+basis "Au_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,4d]
 Au    S
       2.4651000              1.0000000
@@ -4869,7 +4921,7 @@ Au    D
 end
 
 
-ecp "Au_crenbl"
+ecp "Au_CRENBL"
 Au nelec 60
 Au ul
 2       2.07069993            -0.90820301
@@ -4915,7 +4967,7 @@ Au F
 1      10.14780045            53.49130630
 0      47.02579880             4.28036213
 end
-basis "Hg_crenbl" 
+basis "Hg_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,4d]
 Hg    S
       2.4957000              1.0000000
@@ -4948,7 +5000,7 @@ Hg    D
 end
 
 
-ecp "Hg_crenbl"
+ecp "Hg_CRENBL"
 Hg nelec 60
 Hg ul
 2       2.26189995            -0.94575602
@@ -4994,7 +5046,7 @@ Hg F
 1      12.02680016            56.03879929
 0      55.55799866             4.22023201
 end
-basis "Tl_crenbl" 
+basis "Tl_CRENBL" SPHERICAL 
 #basis SET: (3s,3p,4d) -> [3s,3p,4d]
 Tl    S
       0.5736000              1.0000000
@@ -5019,7 +5071,7 @@ Tl    D
 end
 
 
-ecp "Tl_crenbl"
+ecp "Tl_CRENBL"
 Tl nelec 68
 Tl ul
 2       1.19519997            -1.34873199
@@ -5065,7 +5117,7 @@ Tl F
 1       8.76599979            43.93479538
 0      22.35759926             5.08869219
 end
-basis "Pb_crenbl" 
+basis "Pb_CRENBL" SPHERICAL 
 #basis SET: (3s,3p,4d) -> [3s,3p,4d]
 Pb    S
       0.5920000              1.0000000
@@ -5090,7 +5142,7 @@ Pb    D
 end
 
 
-ecp "Pb_crenbl"
+ecp "Pb_CRENBL"
 Pb nelec 68
 Pb ul
 2       1.30009997            -1.41434395
@@ -5136,7 +5188,7 @@ Pb F
 1       8.44530010            39.91782379
 0      19.77610016             5.47486877
 end
-basis "Bi_crenbl" 
+basis "Bi_CRENBL" SPHERICAL 
 #basis SET: (3s,3p,4d) -> [3s,3p,4d]
 Bi    S
       0.7002000              1.0000000
@@ -5161,7 +5213,7 @@ Bi    D
 end
 
 
-ecp "Bi_crenbl"
+ecp "Bi_CRENBL"
 Bi nelec 68
 Bi ul
 2       1.38310003            -1.29633200
@@ -5207,7 +5259,7 @@ Bi F
 1       9.57050037            42.52275085
 0      20.95170021             5.20974779
 end
-basis "Po_crenbl" 
+basis "Po_CRENBL" SPHERICAL 
 #basis SET: (3s,3p,4d) -> [3s,3p,4d]
 Po    S
       0.6658000              1.0000000
@@ -5232,7 +5284,7 @@ Po    D
 end
 
 
-ecp "Po_crenbl"
+ecp "Po_CRENBL"
 Po nelec 68
 Po ul
 2       1.51339996            -1.45787299
@@ -5278,7 +5330,7 @@ Po F
 1       2.82629991            38.18548203
 0      14.08730030             5.00899792
 end
-basis "At_crenbl" 
+basis "At_CRENBL" SPHERICAL 
 #basis SET: (3s,3p,4d) -> [3s,3p,4d]
 At    S
       0.7185000              1.0000000
@@ -5303,7 +5355,7 @@ At    D
 end
 
 
-ecp "At_crenbl"
+ecp "At_CRENBL"
 At nelec 68
 At ul
 2       0.03180000            -0.31176600
@@ -5349,7 +5401,7 @@ At F
 1       5.49179983            81.44644165
 0       0.08980000             9.42089081
 end
-basis "Rn_crenbl" 
+basis "Rn_CRENBL" SPHERICAL 
 #basis SET: (3s,3p,4d) -> [3s,3p,4d]
 Rn    S
       0.7022000              1.0000000
@@ -5374,7 +5426,7 @@ Rn    D
 end
 
 
-ecp "Rn_crenbl"
+ecp "Rn_CRENBL"
 Rn nelec 68
 Rn ul
 2       1.65950000            -1.11443496
@@ -5420,7 +5472,7 @@ Rn F
 1      10.49590015            99.77916718
 0      22.45910072             7.89272690
 end
-basis "Fr_crenbl" 
+basis "Fr_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,4d]
 Fr    S
       0.7475000              1.0000000
@@ -5453,7 +5505,7 @@ Fr    D
 end
 
 
-ecp "Fr_crenbl"
+ecp "Fr_CRENBL"
 Fr nelec 78
 Fr ul
 2       0.88870001            -0.89879203
@@ -5499,7 +5551,7 @@ Fr F
 1      21.98730087            27.28302383
 0      19.46669960             9.93384647
 end
-basis "Ra_crenbl" 
+basis "Ra_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,4d]
 Ra    S
       0.8573000              1.0000000
@@ -5532,7 +5584,7 @@ Ra    D
 end
 
 
-ecp "Ra_crenbl"
+ecp "Ra_CRENBL"
 Ra nelec 78
 Ra ul
 2       1.02110004            -1.14673400
@@ -5578,7 +5630,7 @@ Ra F
 1      26.79529953            27.88471031
 0      22.44179916             9.85942745
 end
-basis "Ac_crenbl" 
+basis "Ac_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d,4f) -> [5s,5p,4d,4f]
 Ac    S
       0.9636000              1.0000000
@@ -5619,7 +5671,7 @@ Ac    F
 end
 
 
-ecp "Ac_crenbl"
+ecp "Ac_CRENBL"
 Ac nelec 78
 Ac ul
 2       1.11780000            -1.20669997
@@ -5665,7 +5717,7 @@ Ac F
 1      27.43889999            27.73361969
 0      23.89990044             9.87891960
 end
-basis "Th_crenbl" 
+basis "Th_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d,4f) -> [5s,5p,4d,4f]
 Th    S
       0.8559000              1.0000000
@@ -5706,7 +5758,7 @@ Th    F
 end
 
 
-ecp "Th_crenbl"
+ecp "Th_CRENBL"
 Th nelec 78
 Th ul
 2       1.20299995            -1.18738997
@@ -5752,7 +5804,7 @@ Th F
 1      30.56329918            28.42512512
 0      26.41230011             9.84213829
 end
-basis "Pa_crenbl" 
+basis "Pa_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d,4f) -> [5s,5p,4d,4f]
 Pa    S
       0.9652000              1.0000000
@@ -5793,7 +5845,7 @@ Pa    F
 end
 
 
-ecp "Pa_crenbl"
+ecp "Pa_CRENBL"
 Pa nelec 78
 Pa ul
 2       1.27950001            -1.13092303
@@ -5839,7 +5891,7 @@ Pa F
 1      32.51839828            28.40286064
 0      28.10650063             9.84354782
 end
-basis "U_crenbl" 
+basis "U_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d,4f) -> [5s,5p,4d,4f]
 U    S
       0.9978000              1.0000000
@@ -5880,7 +5932,7 @@ U    F
 end
 
 
-ecp "U_crenbl"
+ecp "U_CRENBL"
 U nelec 78
 U ul
 2       1.22290003            -0.95164698
@@ -5931,7 +5983,7 @@ U F
 1      28.92289925           116.52574158
 0     137.56460571             8.05050755
 end
-basis "Np_crenbl" 
+basis "Np_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d,4f) -> [5s,5p,4d,4f]
 Np    S
       1.0012000              1.0000000
@@ -5972,7 +6024,7 @@ Np    F
 end
 
 
-ecp "Np_crenbl"
+ecp "Np_CRENBL"
 Np nelec 78
 Np ul
 2       1.16480005            -0.59611499
@@ -6023,7 +6075,7 @@ Np F
 1      28.38409996           114.44293976
 0     130.11839294             8.04148579
 end
-basis "Pu_crenbl" 
+basis "Pu_CRENBL" SPHERICAL 
 #basis SET: (5s,5p,4d,4f) -> [5s,5p,4d,4f]
 Pu    S
       1.0817000              1.0000000
@@ -6064,7 +6116,7 @@ Pu    F
 end
 
 
-ecp "Pu_crenbl"
+ecp "Pu_CRENBL"
 Pu nelec 78
 Pu ul
 2       1.31490004            -0.88483602
@@ -6115,7 +6167,7 @@ Pu F
 1      29.48049927           108.53334045
 0     120.29889679             8.09724331
 end
-basis "Am_crenbl" 
+basis "Am_CRENBL" SPHERICAL 
 #basis SET: (,2p,6d,5f) -> [,2p,6d,5f]
 Am    P
       0.0433588              1.0000000
@@ -6146,7 +6198,7 @@ Am    F
 end
 
 
-ecp "Am_crenbl"
+ecp "Am_CRENBL"
 Am nelec 78
 Am ul
 2       1.44700003            -1.17866504
@@ -6192,7 +6244,7 @@ Am F
 1      44.86399841            30.38970375
 0      38.13169861             9.76973534
 end
-basis "Cm_crenbl" 
+basis "Cm_CRENBL" SPHERICAL 
 #basis SET: (,2p,6d,5f) -> [,2p,6d,5f]
 Cm    P
       0.0426398              1.0000000
@@ -6223,7 +6275,7 @@ Cm    F
 end
 
 
-ecp "Cm_crenbl"
+ecp "Cm_CRENBL"
 Cm nelec 78
 Cm ul
 2       1.54879999            -1.27089500
@@ -6269,7 +6321,7 @@ Cm F
 1      44.62329864            30.03723907
 0      37.61240005             9.80161095
 end
-basis "Bk_crenbl" 
+basis "Bk_CRENBL" SPHERICAL 
 #basis SET: (,2p,6d,5f) -> [,2p,6d,5f]
 Bk    P
       0.0439084              1.0000000
@@ -6300,7 +6352,7 @@ Bk    F
 end
 
 
-ecp "Bk_crenbl"
+ecp "Bk_CRENBL"
 Bk nelec 78
 Bk ul
 2       1.77400005            -1.91033494
@@ -6346,7 +6398,7 @@ Bk F
 1      45.85969925            30.15993309
 0      41.15259933             9.81385136
 end
-basis "Cf_crenbl" 
+basis "Cf_CRENBL" SPHERICAL 
 #basis SET: (,2p,6d,5f) -> [,2p,6d,5f]
 Cf    P
       0.0482689              1.0000000
@@ -6377,7 +6429,7 @@ Cf    F
 end
 
 
-ecp "Cf_crenbl"
+ecp "Cf_CRENBL"
 Cf nelec 78
 Cf ul
 2       1.32210000            -0.50920300
@@ -6428,7 +6480,7 @@ Cf F
 1      66.24380000            30.75042700
 0      42.51790000             9.69840400
 end
-basis "Es_crenbl" 
+basis "Es_CRENBL" SPHERICAL 
 #basis SET: (,2p,6d,5f) -> [,2p,6d,5f]
 Es    P
       0.0489932              1.0000000
@@ -6459,7 +6511,7 @@ Es    F
 end
 
 
-ecp "Es_crenbl"
+ecp "Es_CRENBL"
 Es nelec 78
 Es ul
 2       1.35410000            -0.45818400
@@ -6510,7 +6562,7 @@ Es F
 1      57.46590000            30.30674700
 0      44.99410000             9.78402800
 end
-basis "Fm_crenbl" 
+basis "Fm_CRENBL" SPHERICAL 
 #basis SET: (,2p,6d,5f) -> [,2p,6d,5f]
 Fm    P
       0.0486447              1.0000000
@@ -6541,7 +6593,7 @@ Fm    F
 end
 
 
-ecp "Fm_crenbl"
+ecp "Fm_CRENBL"
 Fm nelec 78
 Fm ul
 2       1.42430000            -0.47688000
@@ -6592,7 +6644,7 @@ Fm F
 1      53.52900000            30.71112400
 0      47.11880000             9.82504800
 end
-basis "Md_crenbl" 
+basis "Md_CRENBL" SPHERICAL 
 #basis SET: (,2p,6d,5f) -> [,2p,6d,5f]
 Md    P
       0.0516183              1.0000000
@@ -6623,7 +6675,7 @@ Md    F
 end
 
 
-ecp "Md_crenbl"
+ecp "Md_CRENBL"
 Md nelec 78
 Md ul
 2       1.50940000            -0.51814700
@@ -6674,7 +6726,7 @@ Md F
 1      64.41130000            28.37933700
 0      46.46340000             9.84948500
 end
-basis "No_crenbl" 
+basis "No_CRENBL" SPHERICAL 
 #basis SET: (,2p,6d,5f) -> [,2p,6d,5f]
 No    P
       0.0501206              1.0000000
@@ -6705,7 +6757,7 @@ No    F
 end
 
 
-ecp "No_crenbl"
+ecp "No_CRENBL"
 No nelec 78
 No ul
 2       2.02789998            -1.75959897
@@ -6749,7 +6801,7 @@ No F
 1      17.62080002           104.37260437
 0     102.36190033             8.08529472
 end
-basis "Lr_crenbl" 
+basis "Lr_CRENBL" SPHERICAL 
 #basis SET: (,2p,6d,5f) -> [,2p,6d,5f]
 Lr    P
       0.0563985              1.0000000
@@ -6780,7 +6832,7 @@ Lr    F
 end
 
 
-ecp "Lr_crenbl"
+ecp "Lr_CRENBL"
 Lr nelec 78
 Lr ul
 2       2.02850008            -1.44170296
@@ -6825,7 +6877,7 @@ Lr F
 1      17.35169983           106.51850891
 0     109.06250000             8.20704937
 end
-basis "Rf_crenbl" 
+basis "Rf_CRENBL" SPHERICAL 
 #basis SET: (,2p,6d,5f) -> [,2p,6d,5f]
 Rf    P
       0.0594585              1.0000000
@@ -6856,7 +6908,7 @@ Rf    F
 end
 
 
-ecp "Rf_crenbl"
+ecp "Rf_CRENBL"
 Rf nelec 78
 Rf ul
 2       2.43889999            -2.84647894
@@ -6902,7 +6954,7 @@ Rf F
 1      57.55149841            31.49756622
 0      58.81669998             9.87949371
 end
-basis "Db_crenbl" 
+basis "Db_CRENBL" SPHERICAL 
 #basis SET: (,2p,6d,5f) -> [,2p,6d,5f]
 Db    P
       0.0636712              1.0000000
@@ -6933,7 +6985,7 @@ Db    F
 end
 
 
-ecp "Db_crenbl"
+ecp "Db_CRENBL"
 Db nelec 78
 Db ul
 2       2.06940007            -1.07285404
@@ -6978,7 +7030,7 @@ Db F
 1      19.00629997           108.77323914
 0     112.81549835             8.11930275
 end
-basis "Sg_crenbl" 
+basis "Sg_CRENBL" SPHERICAL 
 #basis SET: (,2p,6d,5f) -> [,2p,6d,5f]
 Sg    P
       0.0670770              1.0000000
@@ -7009,7 +7061,7 @@ Sg    F
 end
 
 
-ecp "Sg_crenbl"
+ecp "Sg_CRENBL"
 Sg nelec 78
 Sg ul
 2       2.64319992            -2.86417007
@@ -7055,7 +7107,7 @@ Sg F
 1      19.37109947           110.25409698
 0     119.08460236             8.23139000
 end
-basis "Bh_crenbl" 
+basis "Bh_CRENBL" SPHERICAL 
 #basis SET: (,2p,6d,5f) -> [,2p,6d,5f]
 Bh    P
       0.0734333              1.0000000
@@ -7086,7 +7138,7 @@ Bh    F
 end
 
 
-ecp "Bh_crenbl"
+ecp "Bh_CRENBL"
 Bh nelec 78
 Bh ul
 2       2.89560008            -3.35290790
@@ -7132,7 +7184,7 @@ Bh F
 1      21.30069923           118.62665558
 0     142.67070007             8.21459579
 end
-basis "Hs_crenbl" 
+basis "Hs_CRENBL" SPHERICAL 
 #basis SET: (,2p,6d,5f) -> [,2p,6d,5f]
 Hs    P
       0.0769110              1.0000000
@@ -7163,7 +7215,7 @@ Hs    F
 end
 
 
-ecp "Hs_crenbl"
+ecp "Hs_CRENBL"
 Hs nelec 78
 Hs ul
 2       3.04859996            -3.52126193
@@ -7208,7 +7260,7 @@ Hs F
 1      21.78809929           113.65402985
 0     122.95120239             8.01900768
 end
-basis "Mt_crenbl" 
+basis "Mt_CRENBL" SPHERICAL 
 #basis SET: (,2p,6d,5f) -> [,2p,6d,5f]
 Mt    P
       0.0783220              1.0000000
@@ -7239,7 +7291,7 @@ Mt    F
 end
 
 
-ecp "Mt_crenbl"
+ecp "Mt_CRENBL"
 Mt nelec 78
 Mt ul
 2       3.21989989            -3.78520894
@@ -7285,7 +7337,7 @@ Mt F
 1      22.29000092           115.67070007
 0     135.26950073             8.22783756
 end
-basis "Ds_crenbl" 
+basis "Ds_CRENBL" SPHERICAL 
 #basis SET: (,2p,6d,5f) -> [,2p,6d,5f]
 Ds    P
       0.1277398              1.0000000
@@ -7316,7 +7368,7 @@ Ds    F
 end
 
 
-ecp "Ds_crenbl"
+ecp "Ds_CRENBL"
 Ds nelec 78
 Ds ul
 2       2.32279992            -0.94269902
@@ -7367,7 +7419,7 @@ Ds F
 1      31.52849960           112.13120270
 0     201.21879578             5.49799919
 end
-basis "Rg_crenbl" 
+basis "Rg_CRENBL" SPHERICAL 
 #basis SET: (,2p,6d,5f) -> [,2p,6d,5f]
 Rg    P
       0.0902311              1.0000000
@@ -7398,7 +7450,7 @@ Rg    F
 end
 
 
-ecp "Rg_crenbl"
+ecp "Rg_CRENBL"
 Rg nelec 78
 Rg ul
 2       3.58710003            -3.96670699
@@ -7443,7 +7495,7 @@ Rg F
 1      25.05120087           119.50780487
 0     149.48849487             8.24896336
 end
-basis "Cn_crenbl" 
+basis "Cn_CRENBL" SPHERICAL 
 #basis SET: (,2p,6d,5f) -> [,2p,6d,5f]
 Cn    P
       0.0903696              1.0000000
@@ -7474,7 +7526,7 @@ Cn    F
 end
 
 
-ecp "Cn_crenbl"
+ecp "Cn_CRENBL"
 Cn nelec 78
 Cn ul
 2       3.86159992            -4.68075991
@@ -7519,7 +7571,7 @@ Cn F
 1      25.44899940           118.58946228
 0     146.29719543             8.24507046
 end
-basis "Nh_crenbl" 
+basis "Nh_CRENBL" SPHERICAL 
 #basis SET: (,3p,6d,5f) -> [,3p,6d,5f]
 Nh    P
       2.2429884              1.0000000
@@ -7552,7 +7604,7 @@ Nh    F
 end
 
 
-ecp "Nh_crenbl"
+ecp "Nh_CRENBL"
 Nh nelec 78
 Nh ul
 2       3.86430001            -3.57477403
@@ -7596,7 +7648,7 @@ Nh F
 1      28.38339996           125.84226990
 0     168.69960022             8.17749882
 end
-basis "Fl_crenbl" 
+basis "Fl_CRENBL" SPHERICAL 
 #basis SET: (,3p,6d,5f) -> [,3p,6d,5f]
 Fl    P
       1.7935886              1.0000000
@@ -7629,7 +7681,7 @@ Fl    F
 end
 
 
-ecp "Fl_crenbl"
+ecp "Fl_CRENBL"
 Fl nelec 78
 Fl ul
 2       4.19299984            -4.39426422
@@ -7675,7 +7727,7 @@ Fl F
 1      28.36210060           124.26380157
 0     160.97000122             8.14029789
 end
-basis "Mc_crenbl" 
+basis "Mc_CRENBL" SPHERICAL 
 #basis SET: (,3p,6d,5f) -> [,3p,6d,5f]
 Mc    P
       4.6364816              1.0000000
@@ -7708,7 +7760,7 @@ Mc    F
 end
 
 
-ecp "Mc_crenbl"
+ecp "Mc_CRENBL"
 Mc nelec 78
 Mc ul
 2       4.57310009            -5.45129013
@@ -7754,7 +7806,7 @@ Mc F
 1      35.18830109           119.36280060
 0     219.72839355             6.38079405
 end
-basis "Lv_crenbl" 
+basis "Lv_CRENBL" SPHERICAL 
 #basis SET: (,2p,6d,4f) -> [,2p,6d,4f]
 Lv    P
       7.6428803              1.0000000
@@ -7783,7 +7835,7 @@ Lv    F
 end
 
 
-ecp "Lv_crenbl"
+ecp "Lv_CRENBL"
 Lv nelec 78
 Lv ul
 2       4.77169991            -6.15212011
@@ -7832,7 +7884,7 @@ Lv F
 1      49.04800034           116.73788452
 0     488.52600098             4.03654385
 end
-basis "Ts_crenbl" 
+basis "Ts_CRENBL" SPHERICAL 
 #basis SET: (,3p,6d,5f) -> [,3p,6d,5f]
 Ts    P
       5.6847500              1.0000000
@@ -7865,7 +7917,7 @@ Ts    F
 end
 
 
-ecp "Ts_crenbl"
+ecp "Ts_CRENBL"
 Ts nelec 78
 Ts ul
 2       5.21229982            -7.44620419
@@ -7910,7 +7962,7 @@ Ts F
 1      41.78810120           120.32824707
 0     229.11650085             5.34835291
 end
-basis "Og_crenbl" 
+basis "Og_CRENBL" SPHERICAL 
 #basis SET: (,6p,6d) -> [,6p,6d]
 Og    P
       4.2348018              1.0000000
@@ -7939,7 +7991,7 @@ Og    D
 end
 
 
-ecp "Og_crenbl"
+ecp "Og_CRENBL"
 Og nelec 92
 Og ul
 2       1.0374000             -0.2116660

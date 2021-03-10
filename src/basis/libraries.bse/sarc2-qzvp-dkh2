@@ -1,43 +1,52 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# sarc2-qzvp-dkh2 version number 0
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# SARC2-QZVP-DKH2 version number 0
 # Description: SARC2-QZVP-DKH2
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# La-Lu
-#     ## SARC2-QZVP-DKH2
+# 
+#  References for the basis set
+# 
+#  La-Lu
+#      SARC2-QZVP-DKH2
+#          aravena2016a
+# 
+# 
+# 
+# aravena2016a
 #     Aravena, Daniel, Neese, Frank, Pantazis, Dimitrios A.
 #     Improved Segmented All-Electron Relativistically Contracted Basis Sets
 #             for the Lanthanides
-#     J. Chem. Theory Comput., 12, 1148-1156 (2016)
+#     J. Chem. Theory Comput. 12, 1148-1156 (2016)
 #     10.1021/acs.jctc.5b01048
 # 
 # # 
-basis "La_sarc2-qzvp-dkh2" 
+basis "La_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 La    S
 3908799.0870000              0.001979610978
@@ -151,7 +160,7 @@ La    H
 La    H
       3.7200000              1.0000000
 end
-basis "Ce_sarc2-qzvp-dkh2" 
+basis "Ce_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Ce    S
 4164893.9330000              0.002015077737
@@ -265,7 +274,7 @@ Ce    H
 Ce    H
       3.79113924051          1.0000000
 end
-basis "Pr_sarc2-qzvp-dkh2" 
+basis "Pr_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Pr    S
 4449443.7620000              0.002034356477
@@ -379,7 +388,7 @@ Pr    H
 Pr    H
       3.79754601227          1.0000000
 end
-basis "Nd_sarc2-qzvp-dkh2" 
+basis "Nd_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Nd    S
 4733993.5910000              0.002064076832
@@ -493,7 +502,7 @@ Nd    H
 Nd    H
       3.91515151515          1.0000000
 end
-basis "Pm_sarc2-qzvp-dkh2" 
+basis "Pm_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Pm    S
 4863007.0970000              0.002151082427
@@ -607,7 +616,7 @@ Pm    H
 Pm    H
       4.0000000              1.0000000
 end
-basis "Sm_sarc2-qzvp-dkh2" 
+basis "Sm_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Sm    S
 5612784.1600000              0.002053819344
@@ -721,7 +730,7 @@ Sm    H
 Sm    H
       4.05325443787          1.0000000
 end
-basis "Eu_sarc2-qzvp-dkh2" 
+basis "Eu_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Eu    S
 5701463.0100000              0.00215685505
@@ -835,7 +844,7 @@ Eu    H
 Eu    H
       4.18235294118          1.0000000
 end
-basis "Gd_sarc2-qzvp-dkh2" 
+basis "Gd_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Gd    S
 6038159.4080000              0.002193720338
@@ -949,7 +958,7 @@ Gd    H
 Gd    H
       4.43529411765          1.0000000
 end
-basis "Tb_sarc2-qzvp-dkh2" 
+basis "Tb_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Tb    S
 6758316.7030000              0.002142945089
@@ -1063,7 +1072,7 @@ Tb    H
 Tb    H
       4.58479532164          1.0000000
 end
-basis "Dy_sarc2-qzvp-dkh2" 
+basis "Dy_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Dy    S
 6818227.0380000              0.002259663318
@@ -1177,7 +1186,7 @@ Dy    H
 Dy    H
       4.72674418605          1.0000000
 end
-basis "Ho_sarc2-qzvp-dkh2" 
+basis "Ho_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Ho    S
 7263979.9690000              0.002288525832
@@ -1291,7 +1300,7 @@ Ho    H
 Ho    H
       4.92441860465          1.0000000
 end
-basis "Er_sarc2-qzvp-dkh2" 
+basis "Er_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Er    S
 8067496.7530000              0.002248164873
@@ -1405,7 +1414,7 @@ Er    H
 Er    H
       5.10465116279          1.0000000
 end
-basis "Tm_sarc2-qzvp-dkh2" 
+basis "Tm_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Tm    S
 8211204.9480000              0.002352350661
@@ -1519,7 +1528,7 @@ Tm    H
 Tm    H
       5.30057803468          1.0000000
 end
-basis "Yb_sarc2-qzvp-dkh2" 
+basis "Yb_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Yb    S
 8712676.9960000              0.002388797142
@@ -1633,7 +1642,7 @@ Yb    H
 Yb    H
       5.52601156069          1.0000000
 end
-basis "Lu_sarc2-qzvp-dkh2" 
+basis "Lu_SARC2-QZVP-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f,3g,2h) -> [18s,12p,9d,4f,3g,2h]
 Lu    S
 9214149.0440000              0.002443454077

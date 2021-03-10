@@ -78,12 +78,12 @@ c      call cphafac_k()
 
 *     **** diagonalize hamiltonian ****
       call cpsi_1gen_hml()
-      call cpsi_diagonalize_hml()
       if (control_fractional()) then
-         call cpsi_1define_occupation(0.0d0,.false.)
+         call cpsi_1define_occupation(0.0d0,.true.)
          E(12) = cpsi_smearcorrection()
          E(1)  = E(1) + E(12)
       end if
+      call cpsi_diagonalize_hml()
 
 
 *     **** generate svectors ****

@@ -486,6 +486,7 @@ cccccccccccccccccc
            
 *     **** get coulomb energy ****
       ehartr = c_coulomb_e(dng)
+
               
 *     **** get exchange-correlation energy ****
       call C3dB_rr_dot(1,dnall(1),
@@ -548,10 +549,10 @@ cccccccccccccccccc
 
 *     **** external functions *****
       integer  cpsi_data_get_chnk,cpsi_data_nsize,Pneb_convert_nb
-      integer  cpsi_data_get_next
-      real*8   brillioun_weight
       external cpsi_data_get_chnk,cpsi_data_nsize,Pneb_convert_nb
+      integer  cpsi_data_get_next
       external cpsi_data_get_next
+      real*8   brillioun_weight
       external brillioun_weight
 
       neall = neq(1) + neq(2)
@@ -1200,6 +1201,43 @@ c     > call errquit('c_electron_get_TMgradient:popping stack',1,MA_ERR)
 
       return
       end
+
+*     ***************************
+*     *                         *
+*     *    c_electron_gen_hmlt  *
+*     *                         *
+*     ***************************
+      subroutine c_electron_gen_hmlt(psi_k_tag,hmlt_tag)
+      implicit none
+      integer psi_k_tag
+      integer hmlt_tag    
+     
+#include "bafdecls.fh"   
+#include "c_electron_common.fh"
+     
+*     **** local variables ****
+      integer nb,psi_shift,hpsi_shift,hmlt_shift
+      
+*     **** external functions ****
+      integer  cpsi_data_get_chnk
+      external cpsi_data_get_chnk
+     
+      call cpsi_data_update(hmlt_tag)
+      do nb=1,nbrillq
+         psi_shift  = cpsi_data_get_chnk(psi_k_tag,nb)
+         hpsi_shift = cpsi_data_get_chnk(Hpsi_k_tag,nb)
+         hmlt_shift  = cpsi_data_get_chnk(hmlt_tag,nb)
+         call Pneb_ffw_hermit_Multiply(0,nb,
+     >                  dbl_mb(psi_shift),
+     >                  dbl_mb(hpsi_shift),npack1,
+     >                  dbl_mb(hmlt_shift))
+      end do
+      call cpsi_data_noupdate(hmlt_tag)
+
+      return
+      end
+
+
 
       subroutine c_electron_print_hml(hml_tag)
       implicit none

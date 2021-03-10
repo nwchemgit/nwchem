@@ -1,43 +1,52 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# aug-pcj-4 version number 1
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# aug-pcJ-4 version number 1
 # Description: Contracted version of the aug-pcJ-4 basis
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H-Ar
-#     ## Contracted version of the aug-pcJ-4 basis
+# 
+#  References for the basis set
+# 
+#  H-Ar
+#      Contracted version of the aug-pcJ-4 basis
+#          jensen2010a
+# 
+# 
+# 
+# jensen2010a
 #     Jensen, Frank
 #     The optimum contraction of basis sets for calculating spin-spin
 #             coupling constants
-#     Theor. Chem. Acc., 126, 371-382 (2010)
+#     Theor. Chem. Acc. 126, 371-382 (2010)
 #     10.1007/s00214-009-0699-5
 # 
 # # 
-basis "H_aug-pcj-4" 
+basis "H_aug-pcJ-4" SPHERICAL 
 #basis SET: (13s,8p,5d,3f,2g) -> [9s,8p,5d,3f,2g]
 H    S
       0.615934E+05           0.244505E-02
@@ -98,7 +107,7 @@ H    G
 H    G
       0.102790E+00           1.0000000
 end
-basis "He_aug-pcj-4" 
+basis "He_aug-pcJ-4" SPHERICAL 
 #basis SET: (13s,8p,5d,3f,2g) -> [9s,8p,5d,3f,2g]
 He    S
       0.175603E+06           0.244582E-02
@@ -159,7 +168,7 @@ He    G
 He    G
       0.235200E+00           1.0000000
 end
-basis "Li_aug-pcj-4" 
+basis "Li_aug-pcJ-4" SPHERICAL 
 #basis SET: (21s,9p,4d,3f,2g) -> [12s,6p,4d,3f,2g]
 Li    S
       0.141362E+07           0.246865E-06
@@ -228,7 +237,7 @@ Li    G
 Li    G
       0.355800E-01           1.0000000
 end
-basis "Be_aug-pcj-4" 
+basis "Be_aug-pcJ-4" SPHERICAL 
 #basis SET: (21s,9p,4d,3f,2g) -> [12s,6p,4d,3f,2g]
 Be    S
       0.278660E+07           0.221805E-06
@@ -297,7 +306,7 @@ Be    G
 Be    G
       0.663600E-01           1.0000000
 end
-basis "B_aug-pcj-4" 
+basis "B_aug-pcJ-4" SPHERICAL 
 #basis SET: (20s,13p,8d,5f,3g,2h) -> [12s,10p,8d,5f,3g,2h]
 B    S
       0.148500E+08           0.299259E-04
@@ -391,7 +400,7 @@ B    H
 B    H
       0.634100E-01           1.0000000
 end
-basis "C_aug-pcj-4" 
+basis "C_aug-pcJ-4" SPHERICAL 
 #basis SET: (20s,13p,8d,5f,3g,2h) -> [12s,10p,8d,5f,3g,2h]
 C    S
       0.105555E+08           0.303871E-04
@@ -485,7 +494,7 @@ C    H
 C    H
       0.972440E-01           1.0000000
 end
-basis "N_aug-pcj-4" 
+basis "N_aug-pcJ-4" SPHERICAL 
 #basis SET: (20s,13p,8d,5f,3g,2h) -> [12s,10p,8d,5f,3g,2h]
 N    S
       0.178952E+08           0.309822E-04
@@ -579,7 +588,7 @@ N    H
 N    H
       0.136110E+00           1.0000000
 end
-basis "O_aug-pcj-4" 
+basis "O_aug-pcJ-4" SPHERICAL 
 #basis SET: (20s,13p,8d,5f,3g,2h) -> [12s,10p,8d,5f,3g,2h]
 O    S
       0.251945E+08           0.310467E-04
@@ -673,7 +682,7 @@ O    H
 O    H
       0.149800E+00           1.0000000
 end
-basis "F_aug-pcj-4" 
+basis "F_aug-pcJ-4" SPHERICAL 
 #basis SET: (20s,13p,8d,5f,3g,2h) -> [12s,10p,8d,5f,3g,2h]
 F    S
       0.371204E+08           0.311126E-04
@@ -767,7 +776,7 @@ F    H
 F    H
       0.194450E+00           1.0000000
 end
-basis "Ne_aug-pcj-4" 
+basis "Ne_aug-pcJ-4" SPHERICAL 
 #basis SET: (20s,13p,8d,5f,3g,2h) -> [12s,10p,8d,5f,3g,2h]
 Ne    S
       0.504516E+08           0.300832E-04
@@ -861,7 +870,7 @@ Ne    H
 Ne    H
       0.243400E+00           1.0000000
 end
-basis "Na_aug-pcj-4" 
+basis "Na_aug-pcJ-4" SPHERICAL 
 #basis SET: (23s,16p,4d,3f,2g) -> [12s,7p,4d,3f,2g]
 Na    S
       0.383740E+08           0.104322E-06
@@ -940,7 +949,7 @@ Na    G
 Na    G
       0.291400E-01           1.0000000
 end
-basis "Mg_aug-pcj-4" 
+basis "Mg_aug-pcJ-4" SPHERICAL 
 #basis SET: (23s,16p,4d,3f,2g) -> [12s,7p,4d,3f,2g]
 Mg    S
       0.639820E+08           0.685957E-07
@@ -1019,7 +1028,7 @@ Mg    G
 Mg    G
       0.583600E-01           1.0000000
 end
-basis "Al_aug-pcj-4" 
+basis "Al_aug-pcJ-4" SPHERICAL 
 #basis SET: (23s,18p,8d,5f,3g,2h) -> [12s,10p,8d,5f,3g,2h]
 Al    S
       0.769034E+08           0.115467E-05
@@ -1121,7 +1130,7 @@ Al    H
 Al    H
       0.487700E-01           1.0000000
 end
-basis "Si_aug-pcj-4" 
+basis "Si_aug-pcJ-4" SPHERICAL 
 #basis SET: (23s,18p,8d,5f,3g,2h) -> [12s,10p,8d,5f,3g,2h]
 Si    S
       0.923166E+08           0.138015E-05
@@ -1223,7 +1232,7 @@ Si    H
 Si    H
       0.686530E-01           1.0000000
 end
-basis "P_aug-pcj-4" 
+basis "P_aug-pcJ-4" SPHERICAL 
 #basis SET: (23s,18p,8d,5f,3g,2h) -> [12s,10p,8d,5f,3g,2h]
 P    S
       0.105250E+09           0.139970E-05
@@ -1325,7 +1334,7 @@ P    H
 P    H
       0.941610E-01           1.0000000
 end
-basis "S_aug-pcj-4" 
+basis "S_aug-pcJ-4" SPHERICAL 
 #basis SET: (23s,18p,8d,5f,3g,2h) -> [12s,10p,8d,5f,3g,2h]
 S    S
       0.127184E+09           0.132081E-05
@@ -1427,7 +1436,7 @@ S    H
 S    H
       0.108210E+00           1.0000000
 end
-basis "Cl_aug-pcj-4" 
+basis "Cl_aug-pcJ-4" SPHERICAL 
 #basis SET: (23s,18p,8d,5f,3g,2h) -> [12s,10p,8d,5f,3g,2h]
 Cl    S
       0.148425E+09           0.127032E-05
@@ -1529,7 +1538,7 @@ Cl    H
 Cl    H
       0.135940E+00           1.0000000
 end
-basis "Ar_aug-pcj-4" 
+basis "Ar_aug-pcJ-4" SPHERICAL 
 #basis SET: (23s,18p,8d,5f,3g,2h) -> [12s,10p,8d,5f,3g,2h]
 Ar    S
       0.188903E+09           0.113680E-05

@@ -9,6 +9,7 @@
 				c_cgsd_energy_stress.o \
 				c_cgsd_excited.o \
 				c_cgminimize.o \
+				c_cgminimize2.o \
 				c_bfgsminimize.o \
 				c_bybminimize0.o \
 				c_bybminimize.o \

@@ -1279,7 +1279,7 @@ c
      &              tag_in_lib = tag_to_add
                  call bas_tag_lib(basisin,star_segment,tag_to_add, 
      &                tag_in_lib, star_bas_typ(istar), star_file(istar), 
-     &                star_rel(istar))
+     &                star_rel(istar),.false.)
               endif
 00011         continue
            enddo

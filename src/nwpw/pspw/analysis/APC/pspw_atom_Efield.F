@@ -5,7 +5,7 @@ c
 
 ********************************************************************
 *
-*	pspw_gen_Efield module: used to generate electric fields at atoms
+*	pspw_gen_atom_Efield module: used to generate electric fields at atoms
 *
 *
 *	Data structure
@@ -14,10 +14,10 @@ c
 
 *     ***********************************
 *     *					*
-*     *		pspw_gen_Efield		*
+*     *	     pspw_gen_atom_Efield	*
 *     *					*
 *     ***********************************
-      subroutine pspw_gen_Efield(rtdb,ispin,dn,dng)
+      subroutine pspw_gen_atom_Efield(rtdb,ispin,dn,dng)
       implicit none
       integer rtdb
       integer ispin
@@ -51,7 +51,7 @@ c
       external control_version
       external lattice_omega,psp_zv,ion_rion
 
-      if (.not.btdb_get(rtdb,'nwpw:efield',mt_log,1,doefield)) 
+      if (.not.btdb_get(rtdb,'nwpw:atom_efield',mt_log,1,doefield)) 
      >  doefield=.true.
 
       if (doefield) then
@@ -165,7 +165,7 @@ c        call Pack_c_pack(0,dcpl_mb(tmp1(1)))
 
 
        if (taskid.eq.MASTER) then
-         call pspw_print_Efield(luout,nion,dbl_mb(E1(1)),
+         call pspw_print_atom_Efield(luout,nion,dbl_mb(E1(1)),
      >                                dbl_mb(Ea(1)),
      >                                dbl_mb(Ee(1)))
        end if
@@ -182,7 +182,7 @@ c        call Pack_c_pack(0,dcpl_mb(tmp1(1)))
        value = value.and.BA_pop_stack(tmpx(2))
        value = value.and.BA_pop_stack(vc(2))
        if (.not. value) 
-     >    call errquit('pspw_gen_Efield:popping of stack memory',0,
+     >    call errquit('pspw_gen_atom_Efield:popping of stack memory',0,
      >    MA_ERR)
 
 
@@ -193,10 +193,10 @@ c        call Pack_c_pack(0,dcpl_mb(tmp1(1)))
 
 *     ***********************************
 *     *					*
-*     *		pspw_print_Efield	*
+*     *	     pspw_print_atom_Efield	*
 *     *					*
 *     ***********************************
-      subroutine pspw_print_Efield(unit,nion,E1,Ea,Ee)
+      subroutine pspw_print_atom_Efield(unit,nion,E1,Ea,Ee)
       implicit none
       integer unit
       integer nion
