@@ -106,13 +106,20 @@ c
             dquadratic = 2d0*residual*dresidual
             d2quadratic = 2d0*d2residual*residual + 2d0*dresidual**2
 
-            linearstep    = Z*residual
+            if (abs(dresidual).lt.1d-8) then
+              linearstep = 0d0
+            else
+              linearstep = Z*residual
+            endif
+
             quadraticstep = -dquadratic/d2quadratic
             if (iter.eq.1) Linear = Ein + linearstep
 
             step = 0.6180d0*linearstep
 
-            if (main) converged = abs(residual).lt.pars%thresh
+            converged = abs(residual).lt.pars%thresh .or. 
+     $                  abs(step/Ein).lt.1d-14
+
             call ga_brdcst(mt_log,converged,mitob(1),0)
             call ga_brdcst(mt_dbl,Eout,mdtob(1),0)
             if (converged) exit

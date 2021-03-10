@@ -144,7 +144,7 @@ c          arg = sgn*(omega - eig(jmo))
 #else
         call gw_en(dbl_mb(kOV(1)),dbl_mb(kOV(2)),factor,xvec,
      $                 vector,pars%mynpoles,maxpoles,nri,ipol,
-     $                 25,.true.)
+     $                 10,1d-3,.true.)
 #endif        
         if (owner.eq.me) call ga_put(gb,1,nri,jmo,jmo,xvec,nri)
 

@@ -1,16 +1,17 @@
       recursive subroutine gw_en(ov1,ov2,factor,x,b,npoles,maxpoles,n,
-     $                           ipol,maxiter,precond)
+     $                           ipol,maxiter,rtol,precond)
       implicit none
 #include "mafdecls.fh"      
       logical,intent(in) :: precond
       integer,intent(in) :: n,npoles(*),maxpoles,ipol,maxiter
-      double precision,intent(in) :: ov1(n,*),ov2(n,*)
+      double precision,intent(in) :: ov1(n,*),ov2(n,*),rtol
       double precision,intent(in) :: factor(maxpoles,*),b(n)
       double precision,intent(out) :: x(n)
 
       integer,parameter :: maxres = 25
-      double precision,parameter :: rtol = 1d-5
+c      double precision,parameter :: rtol = 1d-4
 
+      logical :: converged
       double precision,dimension(n) :: ahr,hr,r,w,eta,xi,precon
       double precision :: u(n,maxres),c(n,maxres),beta(maxres)
       double precision :: alpha(maxres)
@@ -21,8 +22,9 @@
 
       iter = 0
       totiter = 0
-      hr = 0d0
-      u(:,1) = 0d0
+c      hr = 0d0
+c      u(:,:) = 0d0
+      converged = .false.
 
       if (ipol.eq.1) then
         call gw_aprod(OV1,factor,x,r,-4d0,0d0,npoles,n)
@@ -37,18 +39,6 @@
       rnorm = dsqrt(dot_product(r,r))
       if (precond.and.(rnorm.lt.rtol)) goto 200
 
-      
-c      precon(:) = 0d0
-c      if (ipol.eq.1) then
-c        call gw_precon(ov1,factor,precon,4d0,npoles,n)
-c      else
-c        call gw_precon(ov1,factor,precon,2d0,npoles,n)
-c        call gw_precon(ov2,factor(1,2),precon,2d0,npoles(2),n)
-c      endif
-c      call ga_dgop(mt_dbl,precon,n,'+')
-c      precon = 1d0+precon
-c      precon = 1d0/precon
-
 
   100 continue
 
@@ -56,8 +46,9 @@ c      precon = 1d0/precon
       totiter = totiter + 1
 
       if (precond) then
-        call gw_en(ov1,ov2,factor,hr,r,npoles,maxpoles,n,ipol,20,
-     $             .false.)
+        hr(:) = 0d0
+        call gw_en(ov1,ov2,factor,hr,r,npoles,maxpoles,n,ipol,25,
+     $             1d-4,.false.)
 c        call gw_minres(ov1,ov2,factor,hr,r,npoles,maxpoles,n,ipol,2,
 c     $                 .false.)
       else
@@ -72,9 +63,11 @@ c        hr(:) = precon(:)*r(:)
         call gw_aprod(OV2,factor(1,2),hr,ahr,2d0,1d0,npoles(2),n)
       endif
       call ga_dgop(mt_dbl,ahr,n,'+')
-      ahr(:) = (ahr(:) + hr(:))
+      ahr(:) = (ahr(:) + hr(:))      
 
-      norm = dot_product(ahr,r)/dot_product(ahr,ahr)
+      norm = max(dot_product(ahr,ahr),1d-14)
+      norm = dot_product(ahr,r)/norm
+
       xi(:) = r(:) - norm*ahr(:)
       eta(:) = norm*hr(:)
 
@@ -87,8 +80,9 @@ c        hr(:) = precon(:)*r(:)
       if (precond) then
 c        call gw_minres(ov1,ov2,factor,u(1,iter),xi,npoles,maxpoles,
 c     $                 n,ipol,2,.false.)
+        u(:,iter) = 0d0
         call gw_en(ov1,ov2,factor,u(1,iter),xi,npoles,maxpoles,
-     $                 n,ipol,20,.false.)
+     $             n,ipol,25,1d-4,.false.)
       else
 c        u(:,iter) = precon(:)*xi(:)
         u(:,iter) = xi(:)
@@ -110,7 +104,8 @@ c        u(:,iter) = precon(:)*xi(:)
         u(:,iter) = u(:,iter) + beta(jiter)*u(:,jiter)
       enddo
 
-      norm = max(dsqrt(dot_product(c(:,iter),c(:,iter))),1d-50)
+      norm = max(dsqrt(dot_product(c(:,iter),c(:,iter))),1d-14)
+
       c(:,iter) = c(:,iter)/norm
       u(:,iter) = u(:,iter)/norm
 
