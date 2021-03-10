@@ -153,8 +153,8 @@ cccc#include "frac_occ.fh"
       character*12 control_boundry
       external     control_boundry
 
-      logical      pspw_HFX_localize2
-      external     pspw_HFX_localize2
+      logical      pspw_HFX_localize2,pspw_charge_found
+      external     pspw_HFX_localize2,pspw_charge_found
       logical      pspw_SIC,pspw_SIC_relaxed,pspw_qmmm_found
       logical      pspw_HFX,pspw_HFX_relaxed,psp_pawexist
       logical      psp_semicore,control_Mulliken
@@ -523,6 +523,7 @@ c         end if
 *     **** initialize QM/MM ****
       call pspw_init_APC(rtdb)
       call pspw_qmmm_init(rtdb)
+      call pspw_charge_init(rtdb)
       !call pspw_cdft_init(rtdb)
 
 *     **** initialize frac_occ data structure ****
@@ -628,6 +629,7 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
          write(luout,1210) gx,gy,gz
          write(luout,1211) ion_nconstraints(),ion_ndof()
 
+         call pspw_charge_Print(luout)
 
          if (fractional) then
            write(luout,1219) en(1),en(ispin),' (   fractional)'
@@ -975,6 +977,7 @@ c         end do
          write(luout,1210) gx,gy,gz
          write(luout,1211) ion_nconstraints(),ion_ndof()
 
+         call pspw_charge_Print(luout)
 
          write(luout,*)
          write(luout,1320) en(1),en(ispin),' (real space)'
@@ -993,6 +996,13 @@ c         end do
             write(luout,1432) 
             write(luout,1433) (E(1)-E(11)),
      >                    (E(1)-E(11))/ion_nion()
+         end if
+
+         if (pspw_charge_found()) then
+            write(luout,1431)
+            write(luout,1432)
+            write(luout,1433) (E(1)-E(19)-E(20)-E(21)),
+     >         (E(1)-E(19)-E(20)-E(21))/ion_nion()
          end if
 
          !*** print out total paw energy including core energies ****
@@ -1083,6 +1093,15 @@ c            write(luout,1706) E(18)
         end if
         if (ion_disp_on()) then
             write(luout,1720) E(33)
+        end if
+
+        if (pspw_charge_found()) then
+           write(luout,1800)
+           write(luout,1801)
+           write(luout,1805) E(19)+E(20)+E(21)
+           write(luout,1802) E(19)
+           write(luout,1803) E(20)
+           write(luout,1804) E(21)
         end if
 
 
@@ -1218,6 +1237,7 @@ c            write(luout,1706) E(18)
      >               smearoccupation,dbl_mb(occ2(1)))
  
 *     **** write geometry to rtdb ****
+      call pspw_charge_write(rtdb)
       call ion_write(rtdb)
 
 
@@ -1230,9 +1250,6 @@ c            write(luout,1706) E(18)
       call mask_end()
       call Pack_end()
       call G_end()
-      call ion_end()
-      call psp_end()
-      call ion_end_FixIon()
       call psp_U_end()
       call vdw_DF_end()
       call nwpw_meta_gga_end()
@@ -1241,8 +1258,13 @@ c            write(luout,1706) E(18)
       call pspw_end_HFX()
       call pspw_end_APC()
       call pspw_qmmm_end()
+      call pspw_charge_end()
       call meta_finalize(rtdb)
       if (psp_pawexist()) call nwpw_gintegrals_end()
+
+      call ion_end()
+      call psp_end()
+      call ion_end_FixIon()
 
 c      call frac_occ_end()
 
@@ -1491,6 +1513,13 @@ c      call frac_occ_end()
      >   ' (',F8.3,' kcal/mol)')
  1736 FORMAT(5x,' solvation energy (w/  QM polarization) :',E19.10,
      >   ' (',F8.3,' kcal/mol)')
+
+ 1800 FORMAT(/' Charge Field Energies')
+ 1801 FORMAT( ' ---------------------')
+ 1802 FORMAT( ' - Charge Field/Electron    :',E19.10)
+ 1803 FORMAT( ' - Charge Field/Ion         :',E19.10)
+ 1804 FORMAT( ' - Charge Field/Charge Field:',E19.10)
+ 1805 FORMAT( ' Charge Field Energy        :',E19.10)
 
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 

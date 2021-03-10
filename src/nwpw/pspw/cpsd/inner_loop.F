@@ -115,12 +115,21 @@ c     real*8     fion(3,natmx)
       external Dneall_m_push_get_block,Dneall_m_pop_stack
 
 *     ***** QM/MM external functions ****
-      logical  pspw_charge_found,pspw_qmmm_found
+      logical  pspw_qmmm_found
       real*8   pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
       real*8   pspw_qmmm_LJ_Emix,pspw_qmmm_Q_Emix
-      external pspw_charge_found,pspw_qmmm_found
+      external pspw_qmmm_found
       external pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
       external pspw_qmmm_LJ_Emix,pspw_qmmm_Q_Emix
+
+*     ***** pspw_charge external functions ****
+      logical  pspw_charge_found
+      external pspw_charge_found
+      real*8   pspw_charge_Energy_ion,pspw_charge_Energy_charge
+      external pspw_charge_Energy_ion,pspw_charge_Energy_charge
+      real*8   electron_psi_v_field_ave
+      external electron_psi_v_field_ave
+
 
       logical  psp_U_psputerm,meta_found
       external psp_U_psputerm,meta_found
@@ -785,6 +794,18 @@ c      if (ispin.eq.1) enlocal = 2.0d0*enlocal
          end if
          E(14) = E(14) + elocal
       end if
+
+*     **** get pspw_charge energies ****
+         !psi_1v_field()
+      if (pspw_charge_found()) then
+         E(19)  = electron_psi_v_field_ave(psi1,dn)
+         E(20)  = pspw_charge_Energy_ion()
+         E(21)  = pspw_charge_Energy_charge()
+         E(1)   = E(1) + E(20) + E(21)
+      end if
+
+
+
 
 *     **** PAW ee terms ****
       if (psp_pawexist()) then
