@@ -148,9 +148,9 @@ cccc#include "frac_occ.fh"
       character*12 control_boundry
       external     control_boundry
 
-      logical      psp_semicore,pspw_qmmm_found
+      logical      psp_semicore,pspw_qmmm_found,pspw_charge_found
       real*8       psp_rcore,psp_ncore,psp_rlocal
-      external     psp_semicore,pspw_qmmm_found
+      external     psp_semicore,pspw_qmmm_found,pspw_charge_found
       external     psp_rcore,psp_ncore,psp_rlocal
 
       logical  control_Nose,control_Mulliken,Nose_restart
@@ -389,6 +389,7 @@ cccc#include "frac_occ.fh"
       
 *     **** initialize QM/MM ****
       call pspw_qmmm_init(rtdb)
+      call pspw_charge_init(rtdb)
 
 *     ******************************
 *     **** scaling psi velocity ****
@@ -590,6 +591,8 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
          write(luout,1200) vcx,vcy,vcz
          write(luout,1210) vgx,vgy,vgz
          write(luout,1211) ion_nconstraints(),ion_ndof()
+
+         call pspw_charge_Print(luout)
 
 
          if (fractional) then
@@ -1191,6 +1194,7 @@ c         end if
          write(luout,1210) vgx,vgy,vgz
          write(luout,1211) ion_nconstraints(),ion_ndof()
 
+         call pspw_charge_Print(luout)
 
          write(luout,*)
          write(luout,1320) en(1),en(ispin),' (real space)'
@@ -1246,6 +1250,14 @@ c         end if
             write(luout,1720) E(33)
         end if
 
+        if (pspw_charge_found()) then
+           write(luout,1800)
+           write(luout,1801)
+           write(luout,1805) E(19)+E(20)+E(21)
+           write(luout,1802) E(19)
+           write(luout,1803) E(20)
+           write(luout,1804) E(21)
+        end if
 
          if (control_Nose()) then
            write(luout,1473) E(9),E(9)/n2(ispin)
@@ -1352,6 +1364,7 @@ c         end if
       call v_psi_write(ispin,ne,dcpl_mb(psi0(1)))
 
 *     **** write geometry to rtdb ****
+      call pspw_charge_write(rtdb)
       call ion_write(rtdb)
 
 *     **** deallocate heap memory ****
@@ -1363,9 +1376,6 @@ c         end if
       call mask_end()
       call Pack_end()
       call G_end()
-      call ion_end()
-      call psp_end()
-      call ion_end_FixIon()
       call psp_U_end()
       call vdw_DF_end()
       call nwpw_meta_gga_end()
@@ -1375,10 +1385,15 @@ c         end if
       call meta_finalize(rtdb)
       call tamd_finalize(rtdb)
       call dplot_iteration_end()
+      call pspw_charge_end()
 c      call frac_occ_end()
       if (control_Nose()) call Nose_end()
       if (psp_pawexist()) call nwpw_gintegrals_end()
       !if (psp_pawexist()) call nwpw_cgintegrals_end()
+
+      call ion_end()
+      call psp_end()
+      call ion_end_FixIon()
 
       value = BA_free_heap(psir(2))
       value = BA_free_heap(Hpsi(2))
@@ -1585,6 +1600,8 @@ c     >        ' set nwpw:makehmass2 .false.')
  1420 FORMAT(/' final position of ions:')
  1421 FORMAT(/' final velocity of ions:')
  1430 FORMAT(/' total     energy    :',E19.10,' (',E15.5,'/ion)')
+ 1431 FORMAT(/' QM Energies')
+ 1432 FORMAT( '------------')
  1434 FORMAT(//' total paw energy    :',E19.10,' (',E15.5,'/ion)')
  1440 FORMAT( ' total orbital energy:',E19.10,' (',E15.5,'/electron)')
  1450 FORMAT( ' hartree   energy    :',E19.10,' (',E15.5,'/electron)')
@@ -1628,6 +1645,13 @@ c     >        ' set nwpw:makehmass2 .false.')
  1707 FORMAT( ' QM/MM coupling param.  :',E19.10)
 
  1720 FORMAT(/' Dispersion energy   :',E19.10)
+
+ 1800 FORMAT(/' Charge Field Energies')
+ 1801 FORMAT( ' ---------------------')
+ 1802 FORMAT( ' - Charge Field/Electron    :',E19.10)
+ 1803 FORMAT( ' - Charge Field/Ion         :',E19.10)
+ 1804 FORMAT( ' - Charge Field/Charge Field:',E19.10)
+ 1805 FORMAT( ' Charge Field Energy        :',E19.10)
 
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 

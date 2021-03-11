@@ -90,6 +90,7 @@ c     real*8     fion(3,natmx)
       integer natmx,fion(2),ftest(2)
       integer sumi(2)
       integer npack0
+      integer nion1
 
 *     ***** external functions ****
       logical  control_move,psp_semicore,psp_pawexist
@@ -123,13 +124,14 @@ c     real*8     fion(3,natmx)
       external pspw_qmmm_LJ_Emix,pspw_qmmm_Q_Emix
 
 *     ***** pspw_charge external functions ****
-      logical  pspw_charge_found
-      external pspw_charge_found
+      logical  pspw_charge_found,pspw_bqext
+      external pspw_charge_found,pspw_bqext
+      integer  pspw_charge_nion
+      external pspw_charge_nion
       real*8   pspw_charge_Energy_ion,pspw_charge_Energy_charge
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
       real*8   electron_psi_v_field_ave
       external electron_psi_v_field_ave
-
 
       logical  psp_U_psputerm,meta_found
       external psp_U_psputerm,meta_found
@@ -238,6 +240,8 @@ c     real*8     fion(3,natmx)
       value = value.and.
      >        BA_push_get(mt_dbl,(4*nfft3d),'dnall',dnall(2),dnall(1))
       natmx = ion_nion()
+      if (pspw_charge_found().and.
+     >    (.not.pspw_bqext())) natmx = natmx + pspw_charge_nion()
       value = value.and.
      >        BA_push_get(mt_dbl,(3*natmx),'fion',fion(2),fion(1))
       value = value.and.
@@ -609,6 +613,21 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
 *          **** get dispersion force ****
            if (ion_disp_on()) call ion_disp_force(dbl_mb(fion(1)))
 
+*          **** get forces from external charges ****
+           if (pspw_charge_found()) then
+              if(pspw_bqext()) then
+                 call pspw_charge_charge_Fion(dbl_mb(fion(1)))
+              else
+                 nion1 = ion_nion()
+                 call pspw_charge_Fion_Fcharge(dbl_mb(fion(1)),
+     >                                         dbl_mb(fion(1)+3*nion1))
+                 call pspw_charge_Fcharge(dbl_mb(fion(1)+3*nion1))
+                 call pspw_charge_rho_Fcharge(n2ft3d,dbl_mb(r_grid(1)),
+     >                             dbl_mb(rho(1)),
+     >                             dv,dbl_mb(fion(1)+3*nion1))
+              end if
+           end if
+
 *          **** remove ion forces using ion_FixIon ****
            call ion_FixIon(dbl_mb(fion(1)))
 
@@ -803,7 +822,6 @@ c      if (ispin.eq.1) enlocal = 2.0d0*enlocal
          E(21)  = pspw_charge_Energy_charge()
          E(1)   = E(1) + E(20) + E(21)
       end if
-
 
 
 
