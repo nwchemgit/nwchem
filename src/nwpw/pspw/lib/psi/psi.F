@@ -5571,7 +5571,6 @@ c      end
       call D3dB_nz(1,nz)
       dv = lattice_omega()/dble(nx*ny*nz)
 
-
 *     **** Push memory ****
       value = BA_push_get(mt_dbl,(3*n2ft3d),'r_grid',
      >                       r_grid(2),r_grid(1))
@@ -5580,7 +5579,7 @@ c      end
      >                       rho(2),rho(1))
       if (.not. value) call errquit(
      >     'rho_1Fcharge: out of stack memory',0, MA_ERR)
-      call dcopy(3*n2ft3d,0.0d0,dbl_mb(rho(1)),1)
+      call Parallel_shared_vector_zero(.true.,3*n2ft3d,dbl_mb(rho(1)))
 
 
 *     **** Get r_grid and rho ****
