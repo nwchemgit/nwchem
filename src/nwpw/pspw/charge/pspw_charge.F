@@ -344,7 +344,7 @@ c     >                              dbl_mb(vc2_charge(1)))
 
 *     **********************************
 *     *	                               *
-*     *         pspw_charge_found        *
+*     *        pspw_charge_found       *
 *     *                                *
 *     **********************************
       logical function pspw_charge_found()
@@ -927,6 +927,7 @@ c     >                                              dcpl_mb(tmp(1)))
       external  ion_rion,psp_zv
 
       energy = 0.0d0
+      if (nion.gt.0) then
       do ii=1,ion_nion()
          ia = ion_katm(ii)
          qii = psp_zv(ia)
@@ -943,6 +944,7 @@ c     >                                              dcpl_mb(tmp(1)))
             energy = energy + qi*qii/r
          end do
       end do
+      end if
 
 
       pspw_charge_Energy_ion = energy

@@ -14,16 +14,37 @@ c
 *     *                                *
 *     **********************************
  
-      subroutine pspw_Efield_init()
+      subroutine pspw_Efield_init(rtdb)
       implicit none
       integer rtdb
 
 #include "bafdecls.fh"
+#include "btdb.fh"
 #include "pspw_efield.fh"
 #include "errquit.fh"
 
-*     **** local variables ****
-      logical value
+      if (.not.btdb_get(rtdb,'nwpw:efield',mt_log,1,efield_on))
+     >   efield_on = .false.
+
+      if (efield_on) then
+         if(.not.btdb_get(rtdb,'nwpw:efield_type',mt_int,1,efield_type))
+     >      efield_type = 2
+
+         if(.not.btdb_get(rtdb,'nwpw:efield_vector',
+     >                    mt_dbl,3,efield)) then
+            efield(1) = 0.0d0
+            efield(2) = 0.0d0
+            efield(3) = 0.0d0
+         end if
+
+         if(.not.btdb_get(rtdb,'nwpw:efield_center',
+     >                    mt_dbl,3,efield_center)) then
+            efield_center(1) = 0.0d0
+            efield_center(2) = 0.0d0
+            efield_center(3) = 0.0d0
+         end if
+
+      end if
 
       return
       end
@@ -42,11 +63,50 @@ c
 #include "pspw_efield.fh"
 #include "errquit.fh"
 
-*     **** local variables ****
-      logical value
-
       return
       end
+
+
+*     **********************************
+*     *                                *
+*     *       pspw_Efield_Print        *
+*     *                                *
+*     **********************************
+
+      subroutine pspw_Efield_Print(unit)
+      implicit none
+      integer unit
+
+#include "bafdecls.fh"
+#include "pspw_efield.fh"
+#include "errquit.fh"
+
+*     ***** local variables ****
+      integer taskid,MASTER
+      parameter (MASTER=0)
+
+      if (efield_on) then
+         call Parallel_taskid(taskid)
+
+         if (taskid.eq.MASTER) then
+            if (efield_type.eq.0) write(unit,1160)
+            if (efield_type.eq.1) write(unit,1170)
+            if (efield_type.eq.2) write(unit,1180)
+            write(unit,1190) efield
+            write(unit,1191) efield_center
+         end if
+      end if
+
+      return
+ 1160 format(/' periodic Electric Field used:')
+ 1170 format(/' APC Electric field used:')
+ 1180 format(/' real space Electric Field used:')
+ 1190 format(5X, 'Electric Field (au) (',3F11.5,' )')
+ 1191 format(5X, '        Center (au) (',3F11.5,' )')
+      end
+
+
+
 
 *     **********************************
 *     *	                               *
@@ -101,17 +161,64 @@ c
       external  ion_rion,psp_zv
 
       energy = 0.0d0
-      do ii=1,ion_nion()
-         ia = ion_katm(ii)
-         qii = psp_zv(ia)
-         energy = -qii*efield(1)*(ion_rion(1,ii) - efield_center(1))
-     >           - qii*efield(2)*(ion_rion(2,ii) - efield_center(2))
-     >           - qii*efield(3)*(ion_rion(3,ii) - efield_center(3))
-      end do
+      if (efield_on) then
+         do ii=1,ion_nion()
+            ia = ion_katm(ii)
+            qii = psp_zv(ia)
+            energy = energy 
+     >              - qii*efield(1)*(ion_rion(1,ii) - efield_center(1))
+     >              - qii*efield(2)*(ion_rion(2,ii) - efield_center(2))
+     >              - qii*efield(3)*(ion_rion(3,ii) - efield_center(3))
+         end do
+      end if
 
       pspw_Efield_Energy_ion = energy
       return
       end
+
+*     **********************************
+*     *                                *
+*     *         pspw_Efield_Fion       *
+*     *                                *
+*     **********************************
+
+*    This routine calculates the forces between the QM ions and efield
+*
+*     Exit - fion: force on the QM ions
+*
+*     Uses - ion_nion,Q_Electrostatic_Force
+*
+*     Author - Eric Bylaska
+
+      subroutine pspw_Efield_Fion(fion)
+      implicit none
+      real*8 fion(3,*)
+
+#include "bafdecls.fh"
+#include "pspw_efield.fh"
+
+*     **** local variables ****
+      integer i
+      real*8  qii
+
+*     **** external functions ****
+      integer  ion_katm,ion_nion
+      external ion_katm,ion_nion
+      real*8   psp_zv,ion_rion
+      external psp_zv,ion_rion
+
+      if (efield_on) then
+         do i=1,ion_nion()
+            qii = psp_zv(ion_katm(i))
+            fion(1,i) = fion(1,i) + qii*efield(1)
+            fion(2,i) = fion(2,i) + qii*efield(2)
+            fion(3,i) = fion(3,i) + qii*efield(3)
+         end do
+      end if
+
+      return
+      end
+
 
 
 
@@ -121,7 +228,7 @@ c
 *     *                                *
 *     **********************************
 
-      subroutine pspw_charge_Generate_V(n2ft3d,rgrid,Vqm)
+      subroutine pspw_Efield_Generate_V(n2ft3d,rgrid,Vqm)
       implicit none
       integer n2ft3d
       real*8 rgrid(3,*)
@@ -134,13 +241,15 @@ c
 *     ***** local variables ****
       integer k
 
+      if (efield_on) then
 !$OMP DO
-      do k=1,n2ft3d
-        Vqm(k) = Vqm(k) - efield(1)*(rgrid(1,k)-efield_center(1))
-     >                  - efield(2)*(rgrid(2,k)-efield_center(2))
-     >                  - efield(3)*(rgrid(3,k)-efield_center(3))
-      end do
+         do k=1,n2ft3d
+            Vqm(k) = Vqm(k) - efield(1)*(rgrid(1,k)-efield_center(1))
+     >                      - efield(2)*(rgrid(2,k)-efield_center(2))
+     >                      - efield(3)*(rgrid(3,k)-efield_center(3))
+         end do
 !$OMP END DO
+      end if
 
       return
       end
