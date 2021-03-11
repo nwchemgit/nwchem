@@ -290,10 +290,10 @@ c     >                              dbl_mb(vc2_charge(1)))
 
 *     **********************************
 *     *	                               *
-*     *         pspw_charge_aname        *
+*     *         pspw_charge_aname      *
 *     *                                *
 *     **********************************
-      character*2 function pspw_charge_aname(i)
+      character*4 function pspw_charge_aname(i)
       implicit none
 #include "errquit.fh"
       integer i
@@ -303,19 +303,20 @@ c     >                              dbl_mb(vc2_charge(1)))
 #include "pspw_charge.fh"
 
 *     **** local variables ****
-      character*2  symbol
-      character*16 t,name
+      character*4  symbol
+      character*16 t,ename
       real*8 q
 
+      symbol = '    '
       if (bqgeom) then
-        if (.not. geom_cent_tag(geom,i,t))
+        if (.not.geom_cent_tag(geom,i,t))
      >        call errquit(' pspw_charge_aname: failed ',i, GEOM_ERR)
 
-        if (.not. geom_tag_to_element(t,symbol,name,q)) then
-          symbol = 'bq'
+        if (.not.geom_tag_to_element(t,symbol,ename,q)) then
+          symbol = 'bq  '
         end if
       else
-         symbol = 'bq'
+         symbol = 'bq  '
       end if
 
       pspw_charge_aname = symbol
@@ -438,7 +439,7 @@ c
       parameter (MASTER=0)
       integer ii,k
 
-      character*2 pspw_charge_aname
+      character*4 pspw_charge_aname
       real*8      pspw_charge_charge
       external    pspw_charge_aname
       external    pspw_charge_charge
@@ -482,7 +483,7 @@ c
  1177 format(/' periodic charges used:')
  1178 format(5x,' s_sigma=',E11.3)
  1180 FORMAT(/' position of point charges (au): ')
- 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - charge = ',F10.3)
+ 1190 FORMAT(5X, I4,1x,A4  ,' (',3F11.5,' ) - charge = ',F10.3)
       end
 
 
@@ -506,7 +507,7 @@ c
       parameter (MASTER=0)
       integer ii,k
 
-      character*2 pspw_charge_aname
+      character*4 pspw_charge_aname
       external    pspw_charge_aname
 
       if (nion.gt.0) then
