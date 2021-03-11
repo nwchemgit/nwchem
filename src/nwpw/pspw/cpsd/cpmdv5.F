@@ -86,6 +86,7 @@ cccc#include "frac_occ.fh"
 
 *     **** local variables ****
       logical verlet,mulliken,SA,found,calc_pressure,found_bak
+      logical field_exist
       integer ms
       real*8  gx,gy,gz,cx,cy,cz
       real*8  vgx,vgy,vgz,vcx,vcy,vcz
@@ -148,10 +149,12 @@ cccc#include "frac_occ.fh"
       character*12 control_boundry
       external     control_boundry
 
-      logical      psp_semicore,pspw_qmmm_found,pspw_charge_found
-      real*8       psp_rcore,psp_ncore,psp_rlocal
-      external     psp_semicore,pspw_qmmm_found,pspw_charge_found
-      external     psp_rcore,psp_ncore,psp_rlocal
+      logical  psp_semicore,pspw_qmmm_found,pspw_charge_found
+      external psp_semicore,pspw_qmmm_found,pspw_charge_found
+      real*8   psp_rcore,psp_ncore,psp_rlocal
+      external psp_rcore,psp_ncore,psp_rlocal
+      logical  pspw_Efield_found
+      external pspw_Efield_found
 
       logical  control_Nose,control_Mulliken,Nose_restart
       external control_Nose,control_Mulliken,Nose_restart
@@ -390,6 +393,8 @@ cccc#include "frac_occ.fh"
 *     **** initialize QM/MM ****
       call pspw_qmmm_init(rtdb)
       call pspw_charge_init(rtdb)
+      call pspw_Efield_init(rtdb)
+      field_exist = pspw_charge_found().or.pspw_Efield_found()
 
 *     ******************************
 *     **** scaling psi velocity ****
@@ -593,7 +598,7 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
          write(luout,1211) ion_nconstraints(),ion_ndof()
 
          call pspw_charge_Print(luout)
-
+         call pspw_Efield_Print(luout)
 
          if (fractional) then
            write(luout,1219) en(1),en(ispin),' (   fractional)'
@@ -1195,6 +1200,7 @@ c         end if
          write(luout,1211) ion_nconstraints(),ion_ndof()
 
          call pspw_charge_Print(luout)
+         call pspw_Efield_Print(luout)
 
          write(luout,*)
          write(luout,1320) en(1),en(ispin),' (real space)'
@@ -1250,7 +1256,7 @@ c         end if
             write(luout,1720) E(33)
         end if
 
-        if (pspw_charge_found()) then
+        if (field_exist) then
            write(luout,1800)
            write(luout,1801)
            write(luout,1805) E(19)+E(20)+E(21)
@@ -1386,6 +1392,7 @@ c         end if
       call tamd_finalize(rtdb)
       call dplot_iteration_end()
       call pspw_charge_end()
+      call pspw_Efield_end()
 c      call frac_occ_end()
       if (control_Nose()) call Nose_end()
       if (psp_pawexist()) call nwpw_gintegrals_end()

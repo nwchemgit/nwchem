@@ -142,7 +142,9 @@ c
 *     *     pspw_Efield_Energy_ion     *
 *     *                                *
 *     **********************************
-
+*    This routine calculates the energybetween the QM ions and efield
+*  Note the ions are positive.
+*
       real*8 function pspw_Efield_Energy_ion()
       implicit none
 
@@ -160,19 +162,24 @@ c
       external  ion_nion,ion_katm
       external  ion_rion,psp_zv
 
-      energy = 0.0d0
       if (efield_on) then
+!$OMP MASTER
+      eetmp = 0.0d0
+!$OMP END MASTER
+!$OMP BARRIER
+!$OMP DO reduction(+:eetmp)
          do ii=1,ion_nion()
             ia = ion_katm(ii)
             qii = psp_zv(ia)
-            energy = energy 
-     >              - qii*efield(1)*(ion_rion(1,ii) - efield_center(1))
-     >              - qii*efield(2)*(ion_rion(2,ii) - efield_center(2))
-     >              - qii*efield(3)*(ion_rion(3,ii) - efield_center(3))
+            eetmp = eetmp
+     >              + qii*efield(1)*(ion_rion(1,ii) - efield_center(1))
+     >              + qii*efield(2)*(ion_rion(2,ii) - efield_center(2))
+     >              + qii*efield(3)*(ion_rion(3,ii) - efield_center(3))
          end do
+!$OMP END DO
       end if
 
-      pspw_Efield_Energy_ion = energy
+      pspw_Efield_Energy_ion = eetmp
       return
       end
 
@@ -181,8 +188,8 @@ c
 *     *         pspw_Efield_Fion       *
 *     *                                *
 *     **********************************
-
 *    This routine calculates the forces between the QM ions and efield
+*  Note the ions are positive.
 *
 *     Exit - fion: force on the QM ions
 *
@@ -208,12 +215,14 @@ c
       external psp_zv,ion_rion
 
       if (efield_on) then
+!$OMP DO
          do i=1,ion_nion()
             qii = psp_zv(ion_katm(i))
-            fion(1,i) = fion(1,i) + qii*efield(1)
-            fion(2,i) = fion(2,i) + qii*efield(2)
-            fion(3,i) = fion(3,i) + qii*efield(3)
+            fion(1,i) = fion(1,i) - qii*efield(1)
+            fion(2,i) = fion(2,i) - qii*efield(2)
+            fion(3,i) = fion(3,i) - qii*efield(3)
          end do
+!$OMP END DO
       end if
 
       return
@@ -227,7 +236,10 @@ c
 *     *     pspw_Efield_Generate_V     *
 *     *                                *
 *     **********************************
-
+*
+*   Applying Efield on to electron density.  
+* Note the minus charge is because the charge is negative.
+*
       subroutine pspw_Efield_Generate_V(n2ft3d,rgrid,Vqm)
       implicit none
       integer n2ft3d

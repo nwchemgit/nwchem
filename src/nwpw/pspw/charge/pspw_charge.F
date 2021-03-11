@@ -991,6 +991,7 @@ c     >                                              dcpl_mb(tmp(1)))
      
         nion_ion = ion_nion()
 
+!$OMP DO
         do i=1,nion_ion
            qi = psp_zv(ion_katm(i))
            ri(1) = ion_rion(1,i)
@@ -1005,6 +1006,7 @@ c     >                                              dcpl_mb(tmp(1)))
      >                                 rj,qj,fcharge(1,j))
            end do
         end do
+!$OMP END DO
 
       end if
       return
@@ -1051,6 +1053,7 @@ c     >                                              dcpl_mb(tmp(1)))
         fcharge(3) = 0.0d0
         nion_ion = ion_nion()
 
+!$OMP DO
         do i=1,nion_ion
            qi = psp_zv(ion_katm(i))
            ri(1) = ion_rion(1,i)
@@ -1065,6 +1068,7 @@ c     >                                              dcpl_mb(tmp(1)))
      >                                 rj,qj,fcharge)
            end do
         end do
+!$OMP END DO
 
       end if
       return
@@ -1149,6 +1153,7 @@ c     >                                              dcpl_mb(tmp(1)))
 
       if ((nion.gt.0).and.(nwpw_bqbq())) then      
      
+!$OMP DO
         do j=1,nion
            qj = dbl_mb(charge(1)+j-1)            
            rj(1) = dbl_mb(r1(1)+3*(j-1))
@@ -1163,6 +1168,7 @@ c     >                                              dcpl_mb(tmp(1)))
      >                                   rj,qj,fcharge(1,j))
            end do
         end do
+!$OMP END DO
 
       end if
       return
@@ -1218,6 +1224,7 @@ c           a way to define covalent radius
             !rc1 = abs(q1)*rc**p1
             rc1 = rc**p1
             rc2 = rc**p2
+!$OMP DO
             do k=1,n2ft3d
                r2 = (rgrid(1,k)-x1)**2
      >            + (rgrid(2,k)-y1)**2
@@ -1230,6 +1237,7 @@ c           a way to define covalent radius
 
                Vqm(k) = Vqm(k) - q1*(ttt/sss)
             end do
+!$OMP END DO
          end do   
 
 
@@ -1439,6 +1447,7 @@ c         write(*,*) "fq-elc e,",j,fx*dv,fy*dv,fz*dv
      
         nion_ion = ion_nion()
 
+!$OMP DO
         do i=1,nion_ion
            qi = psp_zv(ion_katm(i))
            ri(1) = ion_rion(1,i)
@@ -1453,6 +1462,7 @@ c         write(*,*) "fq-elc e,",j,fx*dv,fy*dv,fz*dv
      >                                 rj,qj,fcharge(1,j))
            end do
         end do
+!$OMP END DO
 
       end if
       return
@@ -1497,6 +1507,7 @@ c         write(*,*) "fq-elc e,",j,fx*dv,fy*dv,fz*dv
      
         nion_ion = ion_nion()
 
+!$OMP DO
         do i=1,nion_ion
            qi = psp_zv(ion_katm(i))
            ri(1) = ion_rion(1,i)
@@ -1511,6 +1522,7 @@ c         write(*,*) "fq-elc e,",j,fx*dv,fy*dv,fz*dv
      >                                 rj,qj,fcharge(1,j))
            end do
         end do
+!$OMP END DO
 
       end if
       return

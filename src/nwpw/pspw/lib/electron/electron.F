@@ -27,8 +27,10 @@
 
 *     **** external functions ****
       logical  ion_chargeexist,ion_mmexist,psp_pawexist
-      integer  psi_ispin,psi_ne,psi_neq,control_version
       external ion_chargeexist,ion_mmexist,psp_pawexist
+      logical  control_Efield_on
+      external control_Efield_on
+      integer  psi_ispin,psi_ne,psi_neq,control_version
       external psi_ispin,psi_ne,psi_neq,control_version
 
 !$OMP MASTER
@@ -40,7 +42,9 @@
       ne(2) = psi_ne(2)
       neq(1) = psi_neq(1)
       neq(2) = psi_neq(2)
-      field_exist = ion_chargeexist().or.ion_mmexist()
+      field_exist = ion_chargeexist().or.
+     >              ion_mmexist()    .or.
+     >              control_Efield_on()
       confine_exist = .false.
 
 *     **** get nfft3d, and n2ft3d ****
@@ -2608,11 +2612,12 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
       integer r_grid(2)
 
 *     **** external functions *****
-      logical  pspw_charge_found
-      external pspw_charge_found
+      logical  pspw_charge_found,pspw_Efield_found
+      external pspw_charge_found,pspw_Efield_found
       integer  control_version
       external control_version
 
+      field_exist = pspw_charge_found().or.pspw_Efield_found()
       value = BA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1)) 
       value = value.and.
      >        BA_push_get(mt_dbl,(3),'tmp2',tmp2(2),tmp2(1))
@@ -2634,8 +2639,7 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
      &       MA_ERR)
 
 *     **** generate real-space fields ****
-      if ((control_version().eq.4).or.
-     >    (pspw_charge_found()))    then
+      if ((control_version().eq.4).or.field_exist) then
 
          value = BA_push_get(mt_dbl,(6*nfft3d),'r_grid',
      >                       r_grid(2),r_grid(1)) 
@@ -2653,13 +2657,18 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
          call Parallel_shared_vector_zero(.true.,
      >               2*nfft3d,dbl_mb(v_field(1)))
 
-*        **** generate charge potential ****
-         if (pspw_charge_found()) then
+*        **** generate other realspace fields ****
+         if (field_exist) then
            field_exist = .true.
            n2ft3d = 2*nfft3d
+*          **** generate charge potential ****
            call pspw_charge_Generate_V(n2ft3d,
      >                                 dbl_mb(r_grid(1)),
      >                                 dbl_mb(v_field(1)))
+*          **** generate Efield potential ****
+           call pspw_Efield_Generate_V(n2ft3d,
+     >                                    dbl_mb(r_grid(1)),
+     >                                    dbl_mb(v_field(1)))
          end if
 
          value = BA_pop_stack(r_grid(2))

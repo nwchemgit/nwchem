@@ -125,6 +125,10 @@ c     real*8     fion(3,natmx)
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
       real*8   electron_psi_v_field_ave
       external electron_psi_v_field_ave
+      logical  pspw_Efield_found
+      external pspw_Efield_found
+      real*8   pspw_Efield_Energy_ion
+      external pspw_Efield_Energy_ion
 
 
       logical  dplot_iteration_check
@@ -162,7 +166,7 @@ c     real*8     fion(3,natmx)
       call Pack_npack(0,npack0)
 
       n2ft3d = 2*nfft3d
-      field_exist       = pspw_charge_found()
+      field_exist       = pspw_charge_found().or.pspw_Efield_found()
       sic               = pspw_SIC()
       gga               = control_gga()
       allow_translation = control_allow_translation()
@@ -439,6 +443,13 @@ c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
      >                               dbl_mb(r_grid(1)),
      >                               dbl_mb(v_field(1)))
            end if
+
+*          **** generate Efield potential ****
+           if (pspw_Efield_found()) then
+            call pspw_Efield_Generate_V(n2ft3d,
+     >                               dbl_mb(r_grid(1)),
+     >                               dbl_mb(v_field(1)))
+           end if
         end if
 
 
@@ -522,6 +533,13 @@ c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
      >                          dbl_mb(rho(1)),
      >                          dv,dbl_mb(fion(1)+3*nion1))
            end if
+        end if
+
+*       *****************************************
+*       **** get forces from external Efield ****
+*       *****************************************
+        if (pspw_Efield_found()) then
+           call pspw_Efield_Fion(dbl_mb(fion(1)))
         end if
 
 
@@ -830,9 +848,10 @@ c              call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
 
 *     **** get pspw_charge energies ****
          !psi_1v_field()
-      if (pspw_charge_found()) then
+      if (field_exist) then
          E(19)  = electron_psi_v_field_ave(psi1,dn)
          E(20)  = pspw_charge_Energy_ion()
+     >          + pspw_Efield_Energy_ion()
          E(21)  = pspw_charge_Energy_charge()
          E(1)   = E(1) + E(20) + E(21)
       end if
