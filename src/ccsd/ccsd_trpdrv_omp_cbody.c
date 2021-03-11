@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <ga.h>
 
 #if defined(MKL)
 # include <mkl.h>
@@ -10,9 +10,12 @@
   /* The location of cblas.h is not in the system include path when -framework Accelerate is provided. */
 # include <Accelerate/Accelerate.h>
   typedef int cblas_int;
-#else
+#elif defined(OTHER_CBLAS)
 # include <cblas.h>
   typedef int cblas_int;
+#else
+#warning No CBLAS implementation found - disabling C99 trpdrv code.
+#define DISABLE_TRPDRV_CBLAS
 #endif
 
 void ccsd_trpdrv_omp_cbody_(double * restrict f1n, double * restrict f1t,
@@ -52,6 +55,10 @@ void ccsd_trpdrv_omp_cbody_(double * restrict f1n, double * restrict f1t,
         /* convert from Fortran to C offset convention... */
         const int k   = *k_ - 1;
         const int klo = *klo_ - 1;
+
+#ifdef DISABLE_TRPDRV_CBLAS
+        GA_Error("Please recompile semidirect CCSD with CBLAS headers in BLASOPT", 33);
+#else
 
         /* Performance Note:
            By definition, the following does not scale to more than 8 threads
@@ -121,6 +128,8 @@ void ccsd_trpdrv_omp_cbody_(double * restrict f1n, double * restrict f1t,
                             nv, nv, no, -1.0, &xka[(k-klo)*lnov], nv, jij, no, 1.0, f4t, nv);
             }
         }
+
+#endif
 
         /* convert from Fortran to C offset convention... */
         const int a   = *a_ - 1;

@@ -1285,7 +1285,8 @@ endif
         FOPTIONS += -i8 
         endif
         FOPTIONS += -fpp -g -no-save-temps #-warn all
-        COPTIONS += -DMKL -std=c99 -qopenmp
+# add CBLAS to BLASOPT e.g. "-DMKL -mkl"
+        COPTIONS += -std=c99 -qopenmp $(BLASOPT)
         FDEBUG    = -O2 -g
         FOPTIMIZE = -O3 -xHost
         ifdef USE_OPENMP
