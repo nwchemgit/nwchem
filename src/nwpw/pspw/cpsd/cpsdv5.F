@@ -96,7 +96,7 @@ cccc#include "frac_occ.fh"
       character*255 full_filename
       integer tmp1(2)
 
-      logical value,psi_nogrid
+      logical value,psi_nogrid,field_exist
       integer hversion,hnfft(3),hispin,hne(2)
       real*8 hunita(3,3)
       integer ind
@@ -153,22 +153,22 @@ cccc#include "frac_occ.fh"
       character*12 control_boundry
       external     control_boundry
 
-      logical      pspw_HFX_localize2,pspw_charge_found
-      external     pspw_HFX_localize2,pspw_charge_found
-      logical      pspw_SIC,pspw_SIC_relaxed,pspw_qmmm_found
-      logical      pspw_HFX,pspw_HFX_relaxed,psp_pawexist
-      logical      psp_semicore,control_Mulliken
-      real*8       psp_rcore,psp_ncore,psp_rlocal
-      external     pspw_SIC,pspw_SIC_relaxed,pspw_qmmm_found
-      external     pspw_HFX,pspw_HFX_relaxed,psp_pawexist
-      external     psp_semicore,control_Mulliken
-      external     psp_rcore,psp_ncore,psp_rlocal
-      logical      control_check_charge_multiplicity
-      external     control_check_charge_multiplicity
-      real*8       nwpw_timing
-      external     nwpw_timing
-      integer      control_np_orbital,control_mapping,control_mapping1d
-      external     control_np_orbital,control_mapping,control_mapping1d
+      logical  pspw_HFX_localize2,pspw_charge_found,pspw_Efield_found
+      external pspw_HFX_localize2,pspw_charge_found,pspw_Efield_found
+      logical  pspw_SIC,pspw_SIC_relaxed,pspw_qmmm_found
+      logical  pspw_HFX,pspw_HFX_relaxed,psp_pawexist
+      logical  psp_semicore,control_Mulliken
+      real*8   psp_rcore,psp_ncore,psp_rlocal
+      external pspw_SIC,pspw_SIC_relaxed,pspw_qmmm_found
+      external pspw_HFX,pspw_HFX_relaxed,psp_pawexist
+      external psp_semicore,control_Mulliken
+      external psp_rcore,psp_ncore,psp_rlocal
+      logical  control_check_charge_multiplicity
+      external control_check_charge_multiplicity
+      real*8   nwpw_timing
+      external nwpw_timing
+      integer  control_np_orbital,control_mapping,control_mapping1d
+      external control_np_orbital,control_mapping,control_mapping1d
 
       logical  control_translation,control_rotation,control_balance
       external control_translation,control_rotation,control_balance
@@ -524,7 +524,9 @@ c         end if
       call pspw_init_APC(rtdb)
       call pspw_qmmm_init(rtdb)
       call pspw_charge_init(rtdb)
+      call pspw_Efield_init(rtdb)
       !call pspw_cdft_init(rtdb)
+      field_exist = pspw_charge_found().or.pspw_Efield_found()
 
 *     **** initialize frac_occ data structure ****
 c      call frac_occ_init(rtdb,ispin,ne)
@@ -630,6 +632,7 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
          write(luout,1211) ion_nconstraints(),ion_ndof()
 
          call pspw_charge_Print(luout)
+         call pspw_Efield_Print(luout)
 
          if (fractional) then
            write(luout,1219) en(1),en(ispin),' (   fractional)'
@@ -998,7 +1001,7 @@ c         end do
      >                    (E(1)-E(11))/ion_nion()
          end if
 
-         if (pspw_charge_found()) then
+         if (field_exist) then
             write(luout,1431)
             write(luout,1432)
             write(luout,1433) (E(1)-E(19)-E(20)-E(21)),
@@ -1074,7 +1077,6 @@ c        **** paw energies ****
          write(luout,1690) E(45),E(45)/ion_nion()
          end if
 
- 
       if (pspw_qmmm_found()) then
             write(luout,1700)
             write(luout,1701)
@@ -1095,7 +1097,7 @@ c            write(luout,1706) E(18)
             write(luout,1720) E(33)
         end if
 
-        if (pspw_charge_found()) then
+        if (field_exist) then
            write(luout,1800)
            write(luout,1801)
            write(luout,1805) E(19)+E(20)+E(21)
@@ -1259,6 +1261,7 @@ c            write(luout,1706) E(18)
       call pspw_end_APC()
       call pspw_qmmm_end()
       call pspw_charge_end()
+      call pspw_Efield_end()
       call meta_finalize(rtdb)
       if (psp_pawexist()) call nwpw_gintegrals_end()
 
@@ -1514,12 +1517,12 @@ c      call frac_occ_end()
  1736 FORMAT(5x,' solvation energy (w/  QM polarization) :',E19.10,
      >   ' (',F8.3,' kcal/mol)')
 
- 1800 FORMAT(/' Charge Field Energies')
- 1801 FORMAT( ' ---------------------')
- 1802 FORMAT( ' - Charge Field/Electron    :',E19.10)
- 1803 FORMAT( ' - Charge Field/Ion         :',E19.10)
- 1804 FORMAT( ' - Charge Field/Charge Field:',E19.10)
- 1805 FORMAT( ' Charge Field Energy        :',E19.10)
+ 1800 FORMAT(/' Charge+Electric Field Energies')
+ 1801 FORMAT( ' ------------------------------')
+ 1802 FORMAT( ' - Charge+Electric Field/Electron    :',E19.10)
+ 1803 FORMAT( ' - Charge+Electric Field/Ion         :',E19.10)
+ 1804 FORMAT( ' - Charge+Electric Field/Charge Field:',E19.10)
+ 1805 FORMAT( ' Charge+Electric Field Energy        :',E19.10)
 
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 

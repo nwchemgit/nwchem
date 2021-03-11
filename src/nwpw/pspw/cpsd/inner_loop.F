@@ -124,14 +124,14 @@ c     real*8     fion(3,natmx)
       external pspw_qmmm_LJ_Emix,pspw_qmmm_Q_Emix
 
 *     ***** pspw_charge external functions ****
-      logical  pspw_charge_found,pspw_bqext
-      external pspw_charge_found,pspw_bqext
+      logical  pspw_charge_found,pspw_bqext,pspw_Efield_found
+      external pspw_charge_found,pspw_bqext,pspw_Efield_found
       integer  pspw_charge_nion
       external pspw_charge_nion
       real*8   pspw_charge_Energy_ion,pspw_charge_Energy_charge
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
-      real*8   electron_psi_v_field_ave
-      external electron_psi_v_field_ave
+      real*8   electron_psi_v_field_ave,pspw_Efield_Energy_ion
+      external electron_psi_v_field_ave,pspw_Efield_Energy_ion
 
       logical  psp_U_psputerm,meta_found
       external psp_U_psputerm,meta_found
@@ -191,7 +191,7 @@ c     real*8     fion(3,natmx)
       n2ft3d = 2*nfft3d
       deltamm = 0.0d0
 
-      field_exist = pspw_charge_found()
+      field_exist = pspw_charge_found().or.pspw_Efield_found()
       sic        = pspw_SIC()
       hfx        = pspw_HFX()
       gga = control_gga()
@@ -520,17 +520,16 @@ c        call mask_C(0,dcpl_mb(dng(1)))
 *       ***** generate other real-space fields ****
 *       *******************************************
         if (field_exist) then
-
-           !call dcopy(n2ft3d,0.0d0,0,dbl_mb(v_field(1)),1)
            call D3dB_r_Zero(1,dbl_mb(v_field(1)))
 
-
 *          **** generate charge potential ****
-           if (pspw_charge_found()) then
-              call pspw_charge_Generate_V(n2ft3d,
+           call pspw_charge_Generate_V(n2ft3d,
      >                                    dbl_mb(r_grid(1)),
      >                                    dbl_mb(v_field(1)))
-           end if
+*          **** generate Efield potential ****
+           call pspw_Efield_Generate_V(n2ft3d,
+     >                                    dbl_mb(r_grid(1)),
+     >                                    dbl_mb(v_field(1)))
         end if
 
 
@@ -626,6 +625,11 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
      >                             dbl_mb(rho(1)),
      >                             dv,dbl_mb(fion(1)+3*nion1))
               end if
+           end if
+
+*          **** get forces from external Efield ****
+           if (pspw_Efield_found()) then
+              call pspw_Efield_Fion(dbl_mb(fion(1)))
            end if
 
 *          **** remove ion forces using ion_FixIon ****
@@ -814,11 +818,12 @@ c      if (ispin.eq.1) enlocal = 2.0d0*enlocal
          E(14) = E(14) + elocal
       end if
 
-*     **** get pspw_charge energies ****
+*     **** get pspw_charge and pspw_Efield energies ****
          !psi_1v_field()
-      if (pspw_charge_found()) then
+      if (field_exist) then
          E(19)  = electron_psi_v_field_ave(psi1,dn)
          E(20)  = pspw_charge_Energy_ion()
+     >          + pspw_Efield_Energy_ion()
          E(21)  = pspw_charge_Energy_charge()
          E(1)   = E(1) + E(20) + E(21)
       end if
