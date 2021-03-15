@@ -27,12 +27,14 @@
 #ifdef GWCMPLX
       double complex factor(maxpoles,ipol),dfactor(maxpoles,ipol)
       double complex xvec(nri)
-      double precision, parameter :: eta = 0.003d0
+      double precision, parameter :: eta = 0.001d0
       double complex, parameter :: ieta = dcmplx(0d0,eta)
 #else
       double precision factor(maxpoles,ipol),dfactor(maxpoles,ipol)
       double precision xvec(nri)
-      double precision,parameter :: ieta = 0d0
+      double precision, parameter :: eta = 0.001d0
+      double complex, parameter :: ieta = dcmplx(0d0,eta)
+      double complex :: temp
 #endif      
       double precision, parameter :: shift = 0.00001d0
 
@@ -113,13 +115,28 @@ c          arg = sgn*(omega - eig(jmo))
           arg2 = arg**2
         endif
 
-!$omp   parallel do collapse(2)
+!$omp   parallel do collapse(2) private(temp)
         do jsp=1,ipol
           do ipole=1,pars%mynpoles(jsp)
-            factor(ipole,jsp) = (Eia(ipole,jsp)+ieta)/
-     $                          ((Eia(ipole,jsp)+ieta)**2-arg2)
-            dfactor(ipole,jsp) = dfac*arg*factor(ipole,jsp)/
-     $                          ((Eia(ipole,jsp)+ieta)**2-arg2)
+c            factor(ipole,jsp) = (Eia(ipole,jsp)+ieta)/
+c     $                          ((Eia(ipole,jsp)+ieta)**2-arg2)
+c            dfactor(ipole,jsp) = dfac*arg*factor(ipole,jsp)/
+c     $                          ((Eia(ipole,jsp)+ieta)**2-arg2)
+            temp = (Eia(ipole,jsp) - ieta)/
+     $      ((Eia(ipole,jsp)**2-arg2)-2d0*ieta*(Eia(ipole,jsp)-sgn*arg))
+#ifdef GWCMPLX
+            factor(ipole,jsp) = temp
+#else            
+            factor(ipole,jsp) = dble(temp)
+#endif            
+
+            temp = temp*(arg+ieta*sgn)/
+     $      ((Eia(ipole,jsp)**2-arg2)-2d0*ieta*(Eia(ipole,jsp)-sgn*arg))
+#ifdef GWCMPLX
+            dfactor(ipole,jsp) = dfac*temp
+#else            
+            dfactor(ipole,jsp) = dfac*dble(temp)
+#endif            
           enddo
         enddo
 !$omp   end parallel do        
@@ -131,6 +148,7 @@ c          arg = sgn*(omega - eig(jmo))
 
         if (.not.ga_locate(gb,1,jmo,owner))
      $  call errquit('gw_buildrn_minres: cannot locate owner',0,GA_ERR)
+
 
         call ga_get(gb,1,nri,jmo,jmo,xvec,nri)
         call ga_get(ga,1,nri,idx,idx,vector,nri)
@@ -144,7 +162,7 @@ c          arg = sgn*(omega - eig(jmo))
 #else
         call gw_en(dbl_mb(kOV(1)),dbl_mb(kOV(2)),factor,xvec,
      $                 vector,pars%mynpoles,maxpoles,nri,ipol,
-     $                 10,1d-3,.true.)
+     $                 15,1d-4,.false.)
 #endif        
         if (owner.eq.me) call ga_put(gb,1,nri,jmo,jmo,xvec,nri)
 

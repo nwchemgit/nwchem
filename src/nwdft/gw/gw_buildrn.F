@@ -34,6 +34,9 @@
 
       logical main, ok, parallel_diag
       double precision, parameter :: shift = 0.00001d0
+      double precision, parameter :: eta = 0.001d0
+      double complex, parameter :: ieta = dcmplx(0d0,eta)
+      double complex :: temp
       double precision, external :: ddot
       logical, external :: is_near, nga_create, ga_duplicate, ga_destroy
       logical, external :: ga_create, ga_copy, ga_locate
@@ -143,12 +146,20 @@ c          arg = sgn*(omega - eig(jmo))
           arg2 = arg**2
         endif
 
-!$omp   parallel do collapse(2)
+!$omp   parallel do collapse(2) private(temp)
         do jsp=1,ipol
           do ipole=1,pars%mynpoles(jsp)
-            factor(ipole,jsp) = Eia(ipole,jsp)/(Eia(ipole,jsp)**2-arg2)
-            dfactor(ipole,jsp) = -dfac*arg*factor(ipole,jsp)**2/
-     $                           Eia(ipole,jsp)
+            temp = (Eia(ipole,jsp) - ieta)/
+     $      ((Eia(ipole,jsp)**2-arg2)-2d0*ieta*(Eia(ipole,jsp)-sgn*arg))
+c            factor(ipole,jsp) = Eia(ipole,jsp)/(Eia(ipole,jsp)**2-arg2)
+            factor(ipole,jsp) = dble(temp)
+
+
+c            dfactor(ipole,jsp) = -dfac*arg*factor(ipole,jsp)**2/
+c     $                           Eia(ipole,jsp)
+            temp = temp*(arg+ieta*sgn)/
+     $      ((Eia(ipole,jsp)**2-arg2)-2d0*ieta*(Eia(ipole,jsp)-sgn*arg))
+            dfactor(ipole,jsp) = -dfac*dble(temp)
           enddo
         enddo
 !$omp   end parallel do        

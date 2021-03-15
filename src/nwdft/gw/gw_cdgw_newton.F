@@ -21,7 +21,7 @@
       double precision,intent(inout) :: Sigma(pars%nmo,pars%ipol)
       double precision,intent(out) :: Enew(pars%nmo,pars%ipol)
 
-      logical main, converged
+      logical main, converged, bracket, warning
       integer isp, totalqp, llmo, iqp, iter
       double precision timer
       double precision Ein, Eout, SigmaOld, Sigma_X, SigmaC, Z
@@ -31,12 +31,18 @@
       double precision quadraticstep, linearstep, step
       double precision I,dI,d2I,R,dR,d2R
 
+      integer idiis
+      integer,parameter :: nbrack = 3
+      double precision upper,lower,resupper,reslower
+
       logical,external :: ga_create, ga_destroy
 
       main = pars%me .eq. 0
 
 
       do isp=1,pars%ipol
+        warning = .false.
+
         totalqp = pars%noqp(isp) + pars%nvqp(isp)
         if (totalqp.lt.1) cycle
 
@@ -53,17 +59,18 @@
           Eout     = Eold(llmo+iqp-1,isp)
           SigmaOld = Sigma(llmo+iqp-1,isp)
           Sigma_X  = Sigmax(llmo+iqp-1,isp)
-          residualOld = 1d100 
+          residualOld = 0d0
 
           if (eviter.eq.0) then
-            Eout = Eout + 0.12d0*(Sigma_X - SigmaOld)
+            Eout = Eout + 0.30d0*(Sigma_X - SigmaOld)
           else
-            Eout = Eout + sign(0.01d0,Eout)
+            Eout = Eout + sign(0.001d0,Eout)
           endif
 
           call ga_zero(pars%g_sols)
+          bracket = .false.
 c        
-          do iter=1,pars%qpiter
+          do iter=1,pars%qpiter+5
 
             Ein = Eout
 
@@ -98,13 +105,35 @@ c
 
             residual = Eref(llmo+iqp-1,isp) + 
      $                 SigmaC + Sigma_X - SigmaOld - Ein
-
-
-            quadratic = residual**2
             dresidual = dSigmaC - 1d0
-            d2residual = d2SigmaC
-            dquadratic = 2d0*residual*dresidual
-            d2quadratic = 2d0*d2residual*residual + 2d0*dresidual**2
+
+            if (.not.bracket) then
+              if (residual*residualold.lt.0d0) then
+                bracket = .true.
+                if (ein.gt.etmp) then
+                  upper = ein
+                  lower = etmp
+                  resupper = residual
+                  reslower = residualold
+                else
+                  upper = etmp
+                  lower = ein
+                  resupper = residualold
+                  reslower = residual
+                endif
+              if (main) write(*,'(4F16.8)')lower,upper,reslower,resupper
+              endif
+            else
+              if (residual*resupper.lt.0d0) then
+                lower = ein
+                reslower = residual
+              elseif (residual*reslower.lt.0d0) then
+                upper = ein
+                resupper = residual
+              endif
+              if (main) write(*,'(4F16.8)')lower,upper,reslower,resupper
+            endif
+
 
             if (abs(dresidual).lt.1d-8) then
               linearstep = 0d0
@@ -112,23 +141,28 @@ c
               linearstep = Z*residual
             endif
 
-            quadraticstep = -dquadratic/d2quadratic
             if (iter.eq.1) Linear = Ein + linearstep
 
-            step = 0.6180d0*linearstep
+            step = 0.61803d0*linearstep
 
             converged = abs(residual).lt.pars%thresh .or. 
-     $                  abs(step/Ein).lt.1d-14
+     $                  abs(step/Ein).lt.1d-14 .or. 
+     $                  (bracket .and. abs(upper-lower).lt.pars%thresh)
 
             call ga_brdcst(mt_log,converged,mitob(1),0)
             call ga_brdcst(mt_dbl,Eout,mdtob(1),0)
             if (converged) exit
 
-            if (iter.le.3) then
-              Eout = Ein + step
-            else
-              Eout = Ein + linearstep
+            if (iter.gt.3) step = linearstep
+
+            Eout = Ein + step
+
+            if (bracket) then
+              if (eout.gt.upper) eout = upper - (upper-lower)/1.61803d0
+              if (eout.lt.lower) eout = lower + (upper-lower)/1.61803d0
             endif
+
+            if (main) write(*,*) eout
 
             Etmp = Ein
             residualOld = residual
@@ -139,13 +173,28 @@ c
 c          Sigma(llmo+iqp-1,isp) = SigmaC + Sigma_X
 
           if (main) then
-            write(luout,9020) llmo+iqp-1,
-     $                       (Eout+efermi(isp))*ha2ev,
-     $                        z,
-     $                       (linear+efermi(isp))*ha2ev,
-     $                        residual*ha2ev
+            if (bracket .and. abs(residual).gt.pars%thresh .and. 
+     $          converged) then
+              warning = .true.
+              write(luout,9030) llmo+iqp-1,
+     $                         (Eout+efermi(isp))*ha2ev,
+     $                          z,
+     $                         (linear+efermi(isp))*ha2ev,
+     $                          residual*ha2ev
+            else
+              write(luout,9020) llmo+iqp-1,
+     $                         (Eout+efermi(isp))*ha2ev,
+     $                          z,
+     $                         (linear+efermi(isp))*ha2ev,
+     $                          residual*ha2ev
+            endif
           endif
         enddo
+        if (warning.and.main) then
+          write(luout,*)
+          write(luout,*) ' * Residual is still large but solution'
+          write(luout,*) '   was bracketed within 10 meV.'
+        endif
       enddo
 
 
@@ -154,5 +203,66 @@ c          Sigma(llmo+iqp-1,isp) = SigmaC + Sigma_X
  9010 format(/,31x,' Beta Orbitals',/,10x,'State',5x,'Energy (eV)',
      $       5x,'Z',8x,'Elin (eV)',6x,'Res.',/,10x,55('-'))
  9020 format(10x,I3,6x,F8.3,6x,F6.3,6x,F8.3,3x,F8.3)
+ 9030 format(10x,I3,6x,F8.3,6x,F6.3,6x,F8.3,3x,F8.3,' *')
 
       end subroutine
+
+      subroutine gw_diis(error,values,step,ndiis)
+      implicit none
+      integer,intent(inout) :: ndiis
+      double precision,intent(in) :: error(ndiis),values(ndiis)
+      double precision,intent(out) :: step
+      double precision :: a(ndiis+1,ndiis+1),w(ndiis+1),b(ndiis+1)
+      double precision :: z(ndiis+1,ndiis+1)
+
+      integer :: ipiv(ndiis+1)
+      double precision :: work(3*(ndiis+1))
+
+      integer idiis,jdiis,info
+
+      a(1:ndiis,ndiis+1) = 1d0
+      a(ndiis+1,1:ndiis) = 1d0
+      a(ndiis+1,ndiis+1) = 0d0
+
+      do idiis=1,ndiis
+        do jdiis=1,ndiis
+          a(jdiis,idiis) = error(jdiis)*error(idiis)
+        enddo
+      enddo
+
+      b(1:ndiis) = 0d0
+      b(ndiis+1) = 1d0
+
+      call dsyev('v','l',ndiis+1,a,ndiis+1,w,work,3*(ndiis+1),info)
+
+      if (abs(w(idiis)).lt.1d-3) then
+        ndiis = 0
+        write(*,*) 'ill-defined'
+        return
+      endif
+
+      a(1:ndiis,ndiis+1) = 1d0
+      a(ndiis+1,1:ndiis) = 1d0
+      a(ndiis+1,ndiis+1) = 0d0
+
+      do idiis=1,ndiis
+        do jdiis=1,ndiis
+          a(jdiis,idiis) = error(jdiis)*error(idiis)
+        enddo
+      enddo
+
+      call dgesv(ndiis+1,1,a,ndiis+1,ipiv,b,ndiis+1,info)
+
+      step = 0d0
+      do idiis=1,ndiis
+        step = step + b(idiis)*values(idiis)
+      enddo
+
+      end subroutine
+
+
+
+
+
+
+

@@ -230,14 +230,19 @@ c     $  call errquit('gw_minres: minres did not converge',0,0)
       double precision,dimension(n) :: r1, r2, sol, v, w, w1, w2, y
       double precision,dimension(n) :: precon
 
-      logical main,converged
-      integer iter, istop, i
-      double precision,parameter :: shift = 0.000d0, rtol=1d-3
+      logical main,converged,oactive
+      integer iter, istop, i, gy, me, lo ,hi, ld
+      double precision,parameter :: shift = 0.000d0, rtol=1d-4
 
-      call ga_sync()
-
-      main = ga_nodeid().eq.0
+      me = ga_nodeid()
+      main = me.eq.0
       converged = .false.
+
+      if (.not.nga_create(mt_dbl,1,n,'minres',500,gy))
+     $  call errquit('gw_minres: can''t create array',0,GA_ERR) 
+      call nga_distribution(gy,me,lo,hi)
+      ld = hi - lo + 1
+      oactive = ld.gt.0
 
       eps  = epsilon(eps)
       iter = 0
@@ -247,42 +252,46 @@ c     $  call errquit('gw_minres: minres did not converge',0,0)
       rnorm = 0d0
       ynorm = 0d0
 
+      precon = 0d0
+c      if (ipol.eq.1) then
+c        call gw_precon(ov1,factor,precon,4d0,npoles,n)
+c      endif
+c      call ga_dgop(mt_dbl,precon,n,'+')
+c      precon = precon + 1d0
+
+
+      call ga_zero(gy)
+      if (oactive) call nga_acc(gy,lo,hi,b(lo:hi)-x(lo:hi),ld,1d0)
+
       if (ipol.eq.1) then
         call gw_aprod(OV1,factor,x,y,-4d0,0d0,npoles,n)
       else
         call gw_aprod(OV1,factor,x,y,-2d0,0d0,npoles,n)
         call gw_aprod(OV2,factor(1,2),x,y,-2d0,1d0,npoles(2),n)
       endif
-      call ga_dgop(mt_dbl,y,n,'+')
+      call nga_acc(gy,1,n,y,n,1d0)
+      call ga_sync()
+      if (main) then
+        call nga_get(gy,1,n,y,n)
+        beta1 = dsqrt(dot_product(y,y))
+c        write(*,*) 'start:',beta1,dsqrt(dot_product(precon,precon)),n
+c        write(*,*) maxval(precon),minval(precon)
+      endif
 
-      y(:) = y(:) + b(:) - x(:)
-      r1(:) = y(:)
-
-      bnorm = dsqrt(dot_product(b,b))
-      beta1 = dsqrt(dot_product(r1,r1))
-      call ga_brdcst(mt_dbl,beta1,mdtob(1),0)
+      call ga_brdcst(mt_dbl,beta1,ma_sizeof(mt_dbl,1,mt_byte),0)
 
       ! Solution already converged
       if (beta1.lt.rtol) then
         rnorm = beta1
         istop = -1
         goto 2000
+      elseif (.not.main) then
+        call nga_get(gy,1,n,y,n)
+        beta1 = dsqrt(dot_product(y,y))
       endif
 
-c      precon(:) = 0d0
-c      if (ipol.eq.1) then
-c        call gw_precon(ov1,factor,precon,4d0,npoles,n)
-c      else
-c        call gw_precon(ov1,factor,precon,2d0,npoles,n)
-c        call gw_precon(ov2,factor(1,2),precon,2d0,npoles(2),n)
-c      endif
-c      call ga_dgop(mt_dbl,precon,n,'+')
-c      precon(:) = abs(1d0+precon)
-c      precon = 1d0/precon
-      precon = 1d0
-
-      y(:) = r1(:)*precon(:)
-      beta1 = dsqrt(dot_product(y,r1))
+      r1(:) = y(:)
+      bnorm = dsqrt(dot_product(b,b))
 
       oldb = 0d0
       beta = beta1
@@ -304,21 +313,26 @@ c      precon = 1d0/precon
       gmin = huge(1d0)
       sol(:) = 0d0
 
+
+
       do
         iter = iter + 1
         s = 1d0/beta
 
 
         v(:) = s*y(:)
+        call ga_zero(gy)
+        if (oactive) call nga_acc(gy,lo,hi,v(lo),ld,1d0)
+
         if (ipol.eq.1) then
           call gw_aprod(OV1,factor,v,y,4d0,0d0,npoles,n)
         else
           call gw_aprod(OV1,factor,v,y,2d0,0d0,npoles,n)
           call gw_aprod(OV2,factor(1,2),v,y,2d0,1d0,npoles(2),n)
         endif
-        call ga_dgop(mt_dbl,y,n,'+')
-
-        y(:) = (y(:) + v(:))
+        call nga_acc(gy,1,n,y,n,1d0)
+        call ga_sync()
+        call nga_get(gy,1,n,y,n)
 
         if (iter.ge.2) call daxpy(n,-beta/oldb,r1,1,y,1)
 
@@ -327,10 +341,8 @@ c      precon = 1d0/precon
         r1(:) = r2(:)
         r2(:) = y(:)
 
-        y(:) = r2(:)*precon(:)
-
         oldb = beta
-        beta = dsqrt(dot_product(r2,y))
+        beta = dsqrt(dot_product(r2,r2))
         tnorm2 = tnorm2 + alpha**2 + oldb**2 + beta**2
 
         if (iter.eq.1) then
@@ -406,7 +418,7 @@ c        sn     = beta/gam
         if (test1 .le. rtol     ) istop=1
         if (rnorm .le. rtol     ) istop=8
 
-        call ga_brdcst(mt_int,istop,mitob(1),0)
+c        call ga_brdcst(mt_int,istop,mitob(1),0)
 
         if (istop.ne.0) exit
       enddo
@@ -417,6 +429,9 @@ c        sn     = beta/gam
  2000 continue
 
       if (main.and.lprint) write(*,*) iter,istop,rnorm
+
+      if (.not.ga_destroy(gy))
+     $  call errquit('gw_minres: can''t destroy array',0,GA_ERR) 
 
       end subroutine
 
