@@ -3,7 +3,9 @@
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
-#include "tcgmsg.fh"      
+#include "util.fh"
+#include "global.fh"
+#include "stdio.fh"
 #include "gw.fh"
       type(gw_params_t) :: pars
       integer,intent(in) :: nmo,nri,ngl,mynmo,maxpoles,maxqp,ipol
@@ -25,9 +27,8 @@
       double precision factor(maxpoles,ipol)
 
       logical cholesky
-      double precision,external :: ddot
-      integer,external :: ga_nodeid, ga_nnodes,ilaenv
-      logical,external :: ga_locate
+      double precision t0, t1
+      integer,external :: ilaenv
 
 #ifdef USE_OPENMP
       integer iMaxThreads,ithread
@@ -82,7 +83,7 @@
       else
         kOV(2) = 1
       endif
-
+      t0=util_wallsec()
       do igl=ngl,1,-1
 c
         w2 = x(igl)
@@ -100,7 +101,22 @@ c
         call gw_buildpi('w',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
      $                  factor,ldpi,nri,pars%mynpoles,main,ipol,
      $                  maxpoles)
+        if(me.eq.0) then
+ 1234      format(a,i3,a,i3,a,f20.3)
+           write(luout,1234) ' ##  igl ',igl,' out of ',ngl,
+     C          ' calling dgop at ',
+     T          util_wallsec()-t0
+        endif
         call ga_dgop(mt_dbl,dbl_mb(k_pi),sizepi,'+')
+        if(me.eq.0) then
+           write(luout,1234) ' ##  igl ',igl,' out of ',ngl,
+     C          ' called dgop at ',
+     T          util_wallsec()-t0
+        endif
+        !
+        ! All cores invert the same matrix in order to avoid
+        ! communication. This is good for small matrices but
+        ! will be very slow for large ones.
         !
 
         cholesky = .true.
