@@ -246,10 +246,10 @@ c     $  call errquit('gw_minres: minres did not converge',0,0)
       istop = 0
       Anorm = 0d0
       Acond = 0d0
-      rnorm = 0d0
       ynorm = 0d0
+      gmin  = 1d0
+      test3 = 0d0
 
-      precon = 0d0
 
       if (ipol.eq.1) then
         call gw_aprod(OV1,factor,x,y,-4d0,0d0,npoles,n)
@@ -258,8 +258,18 @@ c     $  call errquit('gw_minres: minres did not converge',0,0)
         call gw_aprod(OV2,factor(1,2),x,y,-2d0,1d0,npoles(2),n)
       endif
       call dgop(mt_dbl,y,n,'+')
-      y = y + b - x 
-      beta1 = dsqrt(dot_product(y,y))
+
+      beta1 = 0d0
+      xnorm = 0d0
+!$omp parallel do reduction(+:beta1,xnorm)
+      do i=1,n
+        y(i) = y(i) + b(i) - x(i)
+        beta1 = beta1 + y(i)**2
+        xnorm = xnorm + x(i)**2
+      enddo
+!$omp end parallel do
+      beta1 = dsqrt(beta1)
+      xnorm = dsqrt(xnorm)
 
       ! Solution already converged
       if (beta1.lt.rtol) then
@@ -268,9 +278,7 @@ c     $  call errquit('gw_minres: minres did not converge',0,0)
         goto 2000
       endif
 
-      r1(:) = y(:)
-      bnorm = dsqrt(dot_product(b,b))
-
+      bnorm = 0d0
       oldb = 0d0
       beta = beta1
       dbar = 0d0
@@ -283,13 +291,40 @@ c     $  call errquit('gw_minres: minres did not converge',0,0)
       ynorm2 = 0d0
       cs = -1d0
       sn = 0d0
-      w(:) = 0d0
-      w1(:) = 0d0
-      w2(:) = 0d0
-      r2(:) = r1(:)
       gmax = 0d0
-      gmin = huge(1d0)
-      sol(:) = 0d0
+      gmin = 1d0
+
+!$omp parallel
+!$omp do
+      do i=1,n
+        r1(i) = y(i)
+      enddo
+!$omp do
+      do i=1,n
+        r2(i) = y(i)
+      enddo
+!$omp do      
+      do i=1,n
+        w(i) = 0d0
+      enddo
+!$omp do      
+      do i=1,n
+        w1(i) = 0d0
+      enddo
+!$omp do      
+      do i=1,n
+        w2(i) = 0d0
+      enddo
+!$omp do      
+      do i=1,n
+        sol(i) = 0d0
+      enddo
+!$omp do reduction(+: bnorm)
+      do i=1,n
+        bnorm = bnorm + b(i)**2
+      enddo
+!$omp end parallel      
+      bnorm = dsqrt(bnorm)
 
 
 
@@ -299,8 +334,6 @@ c     $  call errquit('gw_minres: minres did not converge',0,0)
 
 
         v(:) = s*y(:)
-c        call ga_zero(gy)
-c        if (oactive) call nga_acc(gy,lo,hi,v(lo),ld,1d0)
 
         if (ipol.eq.1) then
           call gw_aprod(OV1,factor,v,y,4d0,0d0,npoles,n)
@@ -309,17 +342,66 @@ c        if (oactive) call nga_acc(gy,lo,hi,v(lo),ld,1d0)
           call gw_aprod(OV2,factor(1,2),v,y,2d0,1d0,npoles(2),n)
         endif
         call dgop(mt_dbl,y,n,'+')
-        y(:) = y(:) + v(:)
 
-        if (iter.ge.2) call daxpy(n,-beta/oldb,r1,1,y,1)
+!$omp   parallel
+!$omp   do        
+        do i=1,n
+          y(i) = y(i) + v(i)
+        enddo
+!$omp   end do        
 
-        alpha = dot_product(v,y)
-        call daxpy(n,-alpha/beta,r2,1,y,1)
-        r1(:) = r2(:)
-        r2(:) = y(:)
+        if (iter.ge.2) then
+!$omp     do          
+          do i=1,n
+            y(i) = y(i) - beta/oldb*r1(i)
+          enddo
+!$omp     enddo        
+        endif
 
+!$omp   single
+        alpha = 0d0
+!$omp   end single
+
+!$omp   do reduction(+:alpha)
+        do i=1,n
+          alpha = alpha + v(i)*y(i)
+        enddo
+!$omp   end do
+
+!$omp   do
+        do i=1,n
+          y(i) = y(i) - alpha/beta*r2(i)
+        enddo
+!$omp   end do
+
+!$omp   do
+        do i=1,n
+          r1(i) = r2(i)
+        enddo
+!$omp   end do
+
+!$omp   do
+        do i=1,n
+          r2(i) = y(i)
+        enddo
+!$omp   end do          
+
+
+!$omp   single        
         oldb = beta
-        beta = dsqrt(dot_product(r2,r2))
+        beta = 0d0
+!$omp   end single
+
+
+!$omp   do reduction(+:beta)
+        do i=1,n
+          beta = beta + r2(i)**2
+        enddo
+!$omp   end do
+
+!$omp   single
+        beta = dsqrt(beta)
+
         tnorm2 = tnorm2 + alpha**2 + oldb**2 + beta**2
 
         if (iter.eq.1) then
@@ -355,14 +437,46 @@ c        if (oactive) call nga_acc(gy,lo,hi,v(lo),ld,1d0)
           sn = cs*t
           gam = gbar/cs
         endif
+        gam = max(gam,eps)
 
         phi    = cs*phibar
         phibar = sn*phibar
+!$omp   end single
 
-        w1(:) = w2(:)
-        w2(:) = w(:)
-        w(:) = (v(:) - oldeps*w1(:) - delta*w(:))/gam
-        call daxpy(n,phi,w,1,sol,1)
+!$omp   do
+        do i=1,n
+          w1(i) = w2(i)
+        enddo
+!$omp   end do
+!$omp   do
+        do i=1,n
+          w2(i) = w(i)
+        enddo
+!$omp   end do
+!$omp   do
+        do i=1,n
+          w(i) = (v(i) - oldeps*w1(i) - delta*w(i))/gam
+        enddo
+!$omp   end do
+!$omp   do
+        do i=1,n
+          sol(i) = sol(i) + phi*w(i)
+        enddo
+!$omp   end do
+!$omp   single
+        dxnorm = 0d0
+        xnorm = 0d0
+!$omp   end single
+!$omp   do reduction(+:dxnorm,xnorm)
+        do i=1,n
+          dxnorm = dxnorm + sol(i)**2
+          xnorm = xnorm + (sol(i)+x(i))**2
+        enddo
+!$omp   end do        
+!$omp   end parallel
+
+        dxnorm = dsqrt(dxnorm)
+        xnorm  = dsqrt(xnorm)
 
         gmax = max(gmax,gam)
         gmin = min(gmin,gam)
@@ -371,8 +485,6 @@ c        if (oactive) call nga_acc(gy,lo,hi,v(lo),ld,1d0)
         rhs2 = -epsln*z
 
         Anorm = dsqrt(tnorm2)
-        dxnorm =dsqrt(dot_product(sol,sol))
-        xnorm = dsqrt(dot_product(x+sol,x+sol))
         rnorm = phibar
 
         Acond = gmax/gmin
@@ -383,6 +495,7 @@ c        if (oactive) call nga_acc(gy,lo,hi,v(lo),ld,1d0)
         test1 = rnorm/(Anorm*dxnorm + bnorm)
         test2 = Arnorm/(Anorm*(rnorm + eps))
         test3 = xnorm*rnorm + rnorm**2/gmin
+        test3 = max(test3, Anorm*(test3/gmin+rnorm*xnorm/gmin))
         t1 = 1d0 + test1
         t2 = 1d0 + test2
 
@@ -391,7 +504,7 @@ c        if (oactive) call nga_acc(gy,lo,hi,v(lo),ld,1d0)
         if (t2    .le. 1d0      ) istop=2
         if (t1    .le. 1d0      ) istop=1
         if (epsx  .ge. beta1    ) istop=3
-        if (test3 .le. rtol/10d0) istop=10
+        if (iter.gt.1 .and. test3 .le. rtol/10d0) istop=10
         if (test2 .le. rtol     ) istop=2
         if (test1 .le. rtol     ) istop=1
         if (rnorm .le. rtol     ) istop=8
@@ -434,8 +547,7 @@ c        call gw_lu_solve(dbl_mb(k_pi),x,n)
       endif
 
 
-      if (main.and.lprint) write(*,*) xnorm*bnorm,dot_product(b,x),
-     $                     rnorm**2/gmin,xnorm*rnorm
+c      if (main.and.lprint) write(*,*) istop,test3
 
       end subroutine
 

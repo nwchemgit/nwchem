@@ -152,7 +152,7 @@ c              if (main) write(*,'(4F16.8)')lower,upper,reslower,resupper
 
             converged = abs(residual).lt.pars%thresh .or. 
      $                  abs(step/Ein).lt.1d-14 .or. 
-     $                  sum(rms3)/3d0.lt.pars%thresh .or.
+     $                  sum(rms3)/3d0.lt.pars%thresh/10d0 .or.
      $                  (bracket .and. abs(upper-lower).lt.pars%thresh)
 
             call ga_brdcst(mt_log,converged,mitob(1),0)
@@ -168,7 +168,7 @@ c              if (main) write(*,'(4F16.8)')lower,upper,reslower,resupper
               if (eout.lt.lower) eout = lower + (upper-lower)/1.61803d0
             endif
 
-c            if (main) write(*,*) eout
+            if (main) write(*,*) eout
 
             Etmp = Ein
             residualOld = residual
