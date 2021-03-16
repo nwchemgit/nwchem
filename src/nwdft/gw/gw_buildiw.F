@@ -20,7 +20,7 @@
       integer ilo,ihi,me,ld,mynpoles,igl,ipole,info,k_ipiv,l_ipiv
       integer pilo,pihi,k_pi,l_pi,idx,idy,l_tmp,tmp
       integer imo,jmo,kmo,lmo,nprocs,kOV1,kOV2,isp,addr,idz,kOO(2)
-      integer kVV(2),kOV(2),mynvir,mynocc
+      integer kVV(2),kOV(2),mynvir,mynocc,nlocal,nmod
       double precision w2
       double precision factor(maxpoles,ipol)
 
@@ -30,8 +30,8 @@
       logical,external :: ga_locate
 
 #ifdef USE_OPENMP
-      integer iMaxThreads
-      integer,external :: omp_get_max_threads
+      integer iMaxThreads,ithread
+      integer,external :: omp_get_max_threads,omp_get_thread_num
       iMaxThreads = omp_get_max_threads()
       call util_blas_set_num_threads(iMaxThreads)
 #endif
@@ -102,10 +102,6 @@ c
      $                  maxpoles)
         call ga_dgop(mt_dbl,dbl_mb(k_pi),sizepi,'+')
         !
-        ! All cores invert the same matrix in order to avoid
-        ! communication. This is good for small matrices but
-        ! will be very slow for large ones.
-        !
 
         cholesky = .true.
         call dpftrf('n','l',nri,dbl_mb(k_pi),info)
@@ -114,12 +110,12 @@ c
 
           do imo=pars%llmo(isp),pars%llmo(isp)+pars%nqp(isp)-1
             jmo = imo - pars%llmo(isp) + 1
+            
 
 #ifdef USE_OPENMP
             call util_blas_set_num_threads(1)
 #endif
             if (imo.le.pars%nocc(isp)) then
-
 
 !$omp         parallel do private(kmo,lmo,idx,idy)
               do kmo=1,iwidx(0,jmo,isp)
@@ -163,7 +159,6 @@ c
 
             call dtfsm('n','l','l','n','n',nri,iwidx(0,jmo,isp),1d0,
      $                 dbl_mb(k_pi),dbl_mb(k_sol),nri)       
-            addr = k_sol
 c
 #ifdef USE_OPENMP
             call util_blas_set_num_threads(1)

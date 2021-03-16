@@ -62,7 +62,8 @@
           residualOld = 0d0
 
           if (eviter.eq.0) then
-            Eout = Eout + 0.30d0*(Sigma_X - SigmaOld)
+c            Eout = Eout + 0.30d0*(Sigma_X - SigmaOld)
+            Eout = Eout + sign(0.01d0,Eout)
           else
             Eout = Eout + sign(0.001d0,Eout)
           endif
@@ -122,7 +123,9 @@ c
                   resupper = residualold
                   reslower = residual
                 endif
-c              if (main) write(*,'(4F16.8)')lower,upper,reslower,resupper
+                if (main) write(*,'(3F16.8)')ein,lower,upper
+              else
+                if (main) write(*,'(F16.8)') ein
               endif
             else
               if (residual*resupper.lt.0d0) then
@@ -132,7 +135,7 @@ c              if (main) write(*,'(4F16.8)')lower,upper,reslower,resupper
                 upper = ein
                 resupper = residual
               endif
-c              if (main) write(*,'(4F16.8)')lower,upper,reslower,resupper
+              if (main) write(*,'(3F16.8)') ein,lower,upper
             endif
 
 
@@ -144,7 +147,7 @@ c              if (main) write(*,'(4F16.8)')lower,upper,reslower,resupper
 
             if (iter.eq.1) Linear = Ein + linearstep
 
-            step = 0.61803d0*linearstep
+            step = 0.6180d0*linearstep
 
             rms3(1) = rms3(2)
             rms3(2) = rms3(3)
@@ -155,11 +158,12 @@ c              if (main) write(*,'(4F16.8)')lower,upper,reslower,resupper
      $                  sum(rms3)/3d0.lt.pars%thresh/10d0 .or.
      $                  (bracket .and. abs(upper-lower).lt.pars%thresh)
 
+
             call ga_brdcst(mt_log,converged,mitob(1),0)
             call ga_brdcst(mt_dbl,Eout,mdtob(1),0)
             if (converged) exit
 
-            if (iter.gt.3) step = linearstep
+            if (iter.gt.1) step = linearstep
 
             Eout = Ein + step
 
@@ -168,7 +172,6 @@ c              if (main) write(*,'(4F16.8)')lower,upper,reslower,resupper
               if (eout.lt.lower) eout = lower + (upper-lower)/1.61803d0
             endif
 
-            if (main) write(*,*) eout
 
             Etmp = Ein
             residualOld = residual

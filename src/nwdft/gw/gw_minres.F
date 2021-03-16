@@ -234,9 +234,22 @@ c     $  call errquit('gw_minres: minres did not converge',0,0)
 
       
       logical main,converged,oactive
-      integer iter, istop, i, gy, me, lo ,hi, ld
+      integer iter, istop, i, gy, me, lo ,hi, ld, nmax, nlocal, ithread
       double precision,parameter :: shift = 0.000d0, rtol=1d-4
 
+#ifdef USE_OPENMP      
+      integer,external :: omp_get_max_threads, omp_get_num_threads
+      integer,external :: omp_get_thread_num
+      nmax = omp_get_max_threads()
+      nlocal = n/nmax
+#else
+      nmax = 1
+      nlocal = n
+      lo = 1
+      hi = n
+#endif      
+
+      call ga_sync()
       me = ga_nodeid()
       main = me.eq.0
       converged = .false.
@@ -261,13 +274,20 @@ c     $  call errquit('gw_minres: minres did not converge',0,0)
 
       beta1 = 0d0
       xnorm = 0d0
-!$omp parallel do reduction(+:beta1,xnorm)
-      do i=1,n
-        y(i) = y(i) + b(i) - x(i)
-        beta1 = beta1 + y(i)**2
-        xnorm = xnorm + x(i)**2
-      enddo
-!$omp end parallel do
+!$omp parallel private(lo,hi,ithread)
+#ifdef USE_OPENMP
+      ithread = omp_get_thread_num()
+      lo = ithread*nlocal + 1
+      hi = (ithread+1)*nlocal
+      if ((ithread+1).eq.nmax) hi = n
+#endif      
+      y(lo:hi) = y(lo:hi) + b(lo:hi) - x(lo:hi)
+!$omp atomic update
+      beta1 = beta1 + dot_product(y(lo:hi),y(lo:hi))
+!$omp atomic update
+      xnorm = xnorm + dot_product(x(lo:hi),x(lo:hi))
+!$omp end parallel
+
       beta1 = dsqrt(beta1)
       xnorm = dsqrt(xnorm)
 
@@ -292,37 +312,22 @@ c     $  call errquit('gw_minres: minres did not converge',0,0)
       cs = -1d0
       sn = 0d0
       gmax = 0d0
-      gmin = 1d0
 
-!$omp parallel
-!$omp do
-      do i=1,n
-        r1(i) = y(i)
-      enddo
-!$omp do
-      do i=1,n
-        r2(i) = y(i)
-      enddo
-!$omp do      
-      do i=1,n
-        w(i) = 0d0
-      enddo
-!$omp do      
-      do i=1,n
-        w1(i) = 0d0
-      enddo
-!$omp do      
-      do i=1,n
-        w2(i) = 0d0
-      enddo
-!$omp do      
-      do i=1,n
-        sol(i) = 0d0
-      enddo
-!$omp do reduction(+: bnorm)
-      do i=1,n
-        bnorm = bnorm + b(i)**2
-      enddo
+!$omp parallel private(lo,hi,ithread)
+#ifdef USE_OPENMP
+      ithread = omp_get_thread_num()
+      lo = ithread*nlocal + 1
+      hi = (ithread+1)*nlocal
+      if ((ithread+1).eq.nmax) hi = n
+#endif
+      r1(lo:hi) = y(lo:hi)
+      r2(lo:hi) = y(lo:hi)
+      w(lo:hi) = 0d0
+      w1(lo:hi) = 0d0
+      w2(lo:hi) = 0d0
+      sol(lo:hi) = 0d0
+!$omp atomic update
+      bnorm = bnorm + dot_product(b(lo:hi),b(lo:hi))
 !$omp end parallel      
       bnorm = dsqrt(bnorm)
 
@@ -343,61 +348,36 @@ c     $  call errquit('gw_minres: minres did not converge',0,0)
         endif
         call dgop(mt_dbl,y,n,'+')
 
-!$omp   parallel
-!$omp   do        
-        do i=1,n
-          y(i) = y(i) + v(i)
-        enddo
-!$omp   end do        
-
-        if (iter.ge.2) then
-!$omp     do          
-          do i=1,n
-            y(i) = y(i) - beta/oldb*r1(i)
-          enddo
-!$omp     enddo        
-        endif
-
-!$omp   single
         alpha = 0d0
-!$omp   end single
+!$omp   parallel private(lo,hi,ithread)
 
-!$omp   do reduction(+:alpha)
-        do i=1,n
-          alpha = alpha + v(i)*y(i)
-        enddo
-!$omp   end do
+#ifdef USE_OPENMP
+        ithread = omp_get_thread_num()
+        lo = ithread*nlocal + 1
+        hi = (ithread+1)*nlocal
+        if ((ithread+1).eq.nmax) hi = n
+#endif
 
-!$omp   do
-        do i=1,n
-          y(i) = y(i) - alpha/beta*r2(i)
-        enddo
-!$omp   end do
+        y(lo:hi) = y(lo:hi) + v(lo:hi)
+        if (iter.ge.2) y(lo:hi) = y(lo:hi) - beta/oldb*r1(lo:hi)
 
-!$omp   do
-        do i=1,n
-          r1(i) = r2(i)
-        enddo
-!$omp   end do
+!$omp   atomic update
+        alpha = alpha + dot_product(v(lo:hi),y(lo:hi))
+!$omp   barrier        
 
-!$omp   do
-        do i=1,n
-          r2(i) = y(i)
-        enddo
-!$omp   end do          
+        y(lo:hi) = y(lo:hi) - alpha/beta*r2(lo:hi)
+        r1(lo:hi) = r2(lo:hi)
+        r2(lo:hi) = y(lo:hi)
 
-
+!$omp   barrier        
 !$omp   single        
         oldb = beta
         beta = 0d0
 !$omp   end single
 
-
-!$omp   do reduction(+:beta)
-        do i=1,n
-          beta = beta + r2(i)**2
-        enddo
-!$omp   end do
+!$omp   atomic update
+        beta = beta + dot_product(r2(lo:hi),r2(lo:hi))
+!$omp   barrier
 
 !$omp   single
         beta = dsqrt(beta)
@@ -441,38 +421,20 @@ c     $  call errquit('gw_minres: minres did not converge',0,0)
 
         phi    = cs*phibar
         phibar = sn*phibar
+        dxnorm = 0d0
+        xnorm  = 0d0
 !$omp   end single
 
-!$omp   do
-        do i=1,n
-          w1(i) = w2(i)
-        enddo
-!$omp   end do
-!$omp   do
-        do i=1,n
-          w2(i) = w(i)
-        enddo
-!$omp   end do
-!$omp   do
-        do i=1,n
-          w(i) = (v(i) - oldeps*w1(i) - delta*w(i))/gam
-        enddo
-!$omp   end do
-!$omp   do
-        do i=1,n
-          sol(i) = sol(i) + phi*w(i)
-        enddo
-!$omp   end do
-!$omp   single
-        dxnorm = 0d0
-        xnorm = 0d0
-!$omp   end single
-!$omp   do reduction(+:dxnorm,xnorm)
-        do i=1,n
-          dxnorm = dxnorm + sol(i)**2
-          xnorm = xnorm + (sol(i)+x(i))**2
-        enddo
-!$omp   end do        
+        w1(lo:hi) = w2(lo:hi)
+        w2(lo:hi) = w(lo:hi)
+        w(lo:hi) = (v(lo:hi)-oldeps*w1(lo:hi)-delta*w(lo:hi))/gam
+        sol(lo:hi) = sol(lo:hi) + phi*w(lo:hi)
+        
+!$omp   atomic update
+        dxnorm = dxnorm + dot_product(sol(lo:hi),sol(lo:hi))
+!$omp   atomic update        
+        xnorm = xnorm + dot_product(x(lo:hi)+sol(lo:hi),
+     $                              x(lo:hi)+sol(lo:hi))
 !$omp   end parallel
 
         dxnorm = dsqrt(dxnorm)
@@ -495,7 +457,7 @@ c     $  call errquit('gw_minres: minres did not converge',0,0)
         test1 = rnorm/(Anorm*dxnorm + bnorm)
         test2 = Arnorm/(Anorm*(rnorm + eps))
         test3 = xnorm*rnorm + rnorm**2/gmin
-        test3 = max(test3, Anorm*(test3/gmin+rnorm*xnorm/gmin))
+c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
         t1 = 1d0 + test1
         t2 = 1d0 + test2
 
@@ -504,7 +466,7 @@ c     $  call errquit('gw_minres: minres did not converge',0,0)
         if (t2    .le. 1d0      ) istop=2
         if (t1    .le. 1d0      ) istop=1
         if (epsx  .ge. beta1    ) istop=3
-        if (iter.gt.1 .and. test3 .le. rtol/10d0) istop=10
+        if (iter.gt.2 .and. test3 .le. rtol/10d0) istop=10
         if (test2 .le. rtol     ) istop=2
         if (test1 .le. rtol     ) istop=1
         if (rnorm .le. rtol     ) istop=8
@@ -547,7 +509,7 @@ c        call gw_lu_solve(dbl_mb(k_pi),x,n)
       endif
 
 
-c      if (main.and.lprint) write(*,*) istop,test3
+c      if (main.and.lprint) write(*,*) istop,test3,rnorm
 
       end subroutine
 
