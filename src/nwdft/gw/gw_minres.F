@@ -219,6 +219,7 @@ c     $  call errquit('gw_minres: minres did not converge',0,0)
       double precision,dimension(n),intent(in)   :: b
       double precision,dimension(n),intent(inout)  :: x
 
+      integer l_pi, k_pi, l_ipiv, k_ipiv, lscr, l_scr, k_scr, info
       double precision :: eps
       double precision :: Anorm, Acond, Arnorm, rnorm, ynorm
       double precision :: alpha, beta, beta1, cs, dbar, delta, denom
@@ -227,9 +228,11 @@ c     $  call errquit('gw_minres: minres did not converge',0,0)
       double precision :: phibar, rhs1, rhs2, rnorml, rootl, Arnorml
       double precision :: relArnorml, s, sn, t, tnorm2, ynorm2, z
       double precision :: t1, t2, test1, test2, root, bnorm, dxnorm
+      double precision :: test3, xnorm
       double precision,dimension(n) :: r1, r2, sol, v, w, w1, w2, y
       double precision,dimension(n) :: precon
 
+      
       logical main,converged,oactive
       integer iter, istop, i, gy, me, lo ,hi, ld
       double precision,parameter :: shift = 0.000d0, rtol=1d-4
@@ -237,12 +240,6 @@ c     $  call errquit('gw_minres: minres did not converge',0,0)
       me = ga_nodeid()
       main = me.eq.0
       converged = .false.
-
-      if (.not.nga_create(mt_dbl,1,n,'minres',500,gy))
-     $  call errquit('gw_minres: can''t create array',0,GA_ERR) 
-      call nga_distribution(gy,me,lo,hi)
-      ld = hi - lo + 1
-      oactive = ld.gt.0
 
       eps  = epsilon(eps)
       iter = 0
@@ -253,15 +250,6 @@ c     $  call errquit('gw_minres: minres did not converge',0,0)
       ynorm = 0d0
 
       precon = 0d0
-c      if (ipol.eq.1) then
-c        call gw_precon(ov1,factor,precon,4d0,npoles,n)
-c      endif
-c      call ga_dgop(mt_dbl,precon,n,'+')
-c      precon = precon + 1d0
-
-
-      call ga_zero(gy)
-      if (oactive) call nga_acc(gy,lo,hi,b(lo:hi)-x(lo:hi),ld,1d0)
 
       if (ipol.eq.1) then
         call gw_aprod(OV1,factor,x,y,-4d0,0d0,npoles,n)
@@ -269,25 +257,15 @@ c      precon = precon + 1d0
         call gw_aprod(OV1,factor,x,y,-2d0,0d0,npoles,n)
         call gw_aprod(OV2,factor(1,2),x,y,-2d0,1d0,npoles(2),n)
       endif
-      call nga_acc(gy,1,n,y,n,1d0)
-      call ga_sync()
-      if (main) then
-        call nga_get(gy,1,n,y,n)
-        beta1 = dsqrt(dot_product(y,y))
-c        write(*,*) 'start:',beta1,dsqrt(dot_product(precon,precon)),n
-c        write(*,*) maxval(precon),minval(precon)
-      endif
-
-      call ga_brdcst(mt_dbl,beta1,ma_sizeof(mt_dbl,1,mt_byte),0)
+      call dgop(mt_dbl,y,n,'+')
+      y = y + b - x 
+      beta1 = dsqrt(dot_product(y,y))
 
       ! Solution already converged
       if (beta1.lt.rtol) then
         rnorm = beta1
         istop = -1
         goto 2000
-      elseif (.not.main) then
-        call nga_get(gy,1,n,y,n)
-        beta1 = dsqrt(dot_product(y,y))
       endif
 
       r1(:) = y(:)
@@ -321,8 +299,8 @@ c        write(*,*) maxval(precon),minval(precon)
 
 
         v(:) = s*y(:)
-        call ga_zero(gy)
-        if (oactive) call nga_acc(gy,lo,hi,v(lo),ld,1d0)
+c        call ga_zero(gy)
+c        if (oactive) call nga_acc(gy,lo,hi,v(lo),ld,1d0)
 
         if (ipol.eq.1) then
           call gw_aprod(OV1,factor,v,y,4d0,0d0,npoles,n)
@@ -330,9 +308,8 @@ c        write(*,*) maxval(precon),minval(precon)
           call gw_aprod(OV1,factor,v,y,2d0,0d0,npoles,n)
           call gw_aprod(OV2,factor(1,2),v,y,2d0,1d0,npoles(2),n)
         endif
-        call nga_acc(gy,1,n,y,n,1d0)
-        call ga_sync()
-        call nga_get(gy,1,n,y,n)
+        call dgop(mt_dbl,y,n,'+')
+        y(:) = y(:) + v(:)
 
         if (iter.ge.2) call daxpy(n,-beta/oldb,r1,1,y,1)
 
@@ -379,8 +356,6 @@ c        write(*,*) maxval(precon),minval(precon)
           gam = gbar/cs
         endif
 
-c        cs     = gbar/gam
-c        sn     = beta/gam
         phi    = cs*phibar
         phibar = sn*phibar
 
@@ -397,6 +372,7 @@ c        sn     = beta/gam
 
         Anorm = dsqrt(tnorm2)
         dxnorm =dsqrt(dot_product(sol,sol))
+        xnorm = dsqrt(dot_product(x+sol,x+sol))
         rnorm = phibar
 
         Acond = gmax/gmin
@@ -406,32 +382,60 @@ c        sn     = beta/gam
         epsr = (Anorm*dxnorm + beta1)*rtol
         test1 = rnorm/(Anorm*dxnorm + bnorm)
         test2 = Arnorm/(Anorm*(rnorm + eps))
+        test3 = xnorm*rnorm + rnorm**2/gmin
         t1 = 1d0 + test1
         t2 = 1d0 + test2
 
-        if (t2    .le. 1d0      ) istop=2
-        if (t1    .le. 1d0      ) istop=1
         if (iter  .ge. maxiter  ) istop=6
         if (Acond .ge. 0.1d0/eps) istop=5
+        if (t2    .le. 1d0      ) istop=2
+        if (t1    .le. 1d0      ) istop=1
         if (epsx  .ge. beta1    ) istop=3
+        if (test3 .le. rtol/10d0) istop=10
         if (test2 .le. rtol     ) istop=2
         if (test1 .le. rtol     ) istop=1
         if (rnorm .le. rtol     ) istop=8
 
-c        call ga_brdcst(mt_int,istop,mitob(1),0)
 
         if (istop.ne.0) exit
       enddo
 
       x(:) = x(:) + sol(:)
 
- 1000 Arnorm = Arnorml
+ 1000 continue
  2000 continue
 
-      if (main.and.lprint) write(*,*) iter,istop,rnorm
+      if (istop.eq.6) then
+        if (.not.ma_alloc_get(mt_dbl,n**2,'pi',l_pi,k_pi))
+     $    call errquit('gw_en: can''t allocate pi matrix',0,MA_ERR) 
+        if (.not.ma_push_get(mt_int,n,'ipiv',l_ipiv,k_ipiv))
+     $    call errquit('gw_en: can''t allocate ipiv',0,MA_ERR) 
+        call dsytrf('l',n,dbl_mb(k_pi),n,int_mb(k_ipiv),
+     $              x,-1,info)
+        lscr = max(n,int(x(1)))
+        x(:) = b(:)
+        if (.not.ma_push_get(mt_dbl,lscr,'scr',l_scr,k_scr))
+     $    call errquit('gw_en: can''t allocate scratch',0,MA_ERR) 
 
-      if (.not.ga_destroy(gy))
-     $  call errquit('gw_minres: can''t destroy array',0,GA_ERR) 
+        call gw_buildpi('r',ov1,ov2,dbl_mb(k_pi),factor,n,n,npoles,
+     $                   main,ipol,maxpoles)
+        call ga_dgop(mt_dbl,dbl_mb(k_pi),n**2,'+')
+        call dsysv('l',n,1,dbl_mb(k_pi),n,int_mb(k_ipiv),x,n,
+     $              dbl_mb(k_scr),lscr,info)
+#ifdef SCALAPACK
+c        call gw_symmat(dbl_mb(k_pi),n,1,n)
+c        call gw_lu_solve(dbl_mb(k_pi),x,n)
+#endif
+        if (.not.ma_chop_stack(l_ipiv))
+     $    call errquit('gw_en: can''t chop stack',0,MA_ERR)
+        if (.not.ma_free_heap(l_pi))
+     $    call errquit('gw_en: can''t deallocate pi matrix',0,MA_ERR)   
+        rnorm = 0d0
+      endif
+
+
+      if (main.and.lprint) write(*,*) xnorm*bnorm,dot_product(b,x),
+     $                     rnorm**2/gmin,xnorm*rnorm
 
       end subroutine
 
@@ -449,7 +453,11 @@ c        call ga_brdcst(mt_int,istop,mitob(1),0)
 
       call dgemv('t',n,npoles,scal,ov,n,x,1,0d0,tmp,1)
 
-      tmp(:) = tmp(:)*factor(:)
+!$omp parallel do
+      do i=1,npoles
+        tmp(i) = tmp(i)*factor(i)
+      enddo
+!$omp end parallel do
 
       call dgemv('n',n,npoles,1d0,ov,n,tmp,1,mult,y,1)
 

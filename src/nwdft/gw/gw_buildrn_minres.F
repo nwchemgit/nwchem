@@ -144,6 +144,7 @@ c     $                          ((Eia(ipole,jsp)+ieta)**2-arg2)
         root = mod((imo-off-1)*nspace+jmo-off-1,nprocs)
         idx = ((imo-off-1)*nspace+jmo-off-1)/nprocs + spacelo
 
+
         call ga_brdcst(mt_int,idx,mitob(1),root)
 
         if (.not.ga_locate(gb,1,jmo,owner))
@@ -158,7 +159,7 @@ c     $                          ((Eia(ipole,jsp)+ieta)**2-arg2)
      $                     vector,pars%mynpoles,maxpoles,nri,ipol)
 #elif GWMINRES
         call gw_minres(dbl_mb(kOV(1)),dbl_mb(kOV(2)),factor,xvec,
-     $            vector,pars%mynpoles,maxpoles,nri,ipol,20,.true.)
+     $            vector,pars%mynpoles,maxpoles,nri,ipol,10,.true.)
 #else
         call gw_en(dbl_mb(kOV(1)),dbl_mb(kOV(2)),factor,xvec,
      $                 vector,pars%mynpoles,maxpoles,nri,ipol,

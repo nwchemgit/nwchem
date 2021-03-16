@@ -50,10 +50,12 @@ c      double precision,parameter :: rtol = 1d-4
           call gw_aprod(OV1,factor,x,r,-2d0,0d0,npoles,n)
           call gw_aprod(OV2,factor(1,2),x,r,-2d0,1d0,npoles(2),n)
         endif
-        call nga_acc(ga,1,n,r,n,1d0)
-        call ga_sync()
-        call nga_get(ga,1,n,r,n)
-        call ga_sync()
+c        call nga_acc(ga,1,n,r,n,1d0)
+c        call ga_sync()
+c        call nga_get(ga,1,n,r,n)
+c        call ga_sync()
+        call dgop(mt_dbl,r,n,'+')
+        r = r + b - x
       endif
 
       rnorm = dsqrt(dot_product(r,r))
@@ -112,9 +114,11 @@ c        call gw_lu_solve(dbl_mb(k_pi),x,n)
         call gw_aprod(OV1,factor,hr,ahr,2d0,0d0,npoles,n)
         call gw_aprod(OV2,factor(1,2),hr,ahr,2d0,1d0,npoles(2),n)
       endif
-      call nga_acc(ga,1,n,ahr,n,1d0)
-      call ga_sync()
-      call nga_get(ga,1,n,ahr,n)
+      call dgop(mt_dbl,ahr,n,'+')
+      ahr = ahr + hr
+c      call nga_acc(ga,1,n,ahr,n,1d0)
+c      call ga_sync()
+c      call nga_get(ga,1,n,ahr,n)
 
 
       norm = max(dot_product(ahr,ahr),1d-14)
@@ -150,9 +154,11 @@ c        call gw_lu_solve(dbl_mb(k_pi),x,n)
         call gw_aprod(OV2,factor(1,2),u(1,iter),c(1,iter),2d0,1d0,
      $                npoles(2),n)
       endif
-      call nga_acc(gb,1,n,c(1,iter),n,1d0)
-      call ga_sync()
-      call nga_get(gb,1,n,c(1,iter),n)
+      call dgop(mt_dbl,c(1,iter),n,'+')
+      c(:,iter) = c(:,iter) + u(:,iter)
+c      call nga_acc(gb,1,n,c(1,iter),n,1d0)
+c      call ga_sync()
+c      call nga_get(gb,1,n,c(1,iter),n)
 
       do jiter=1,iter-1
         beta = -dot_product(c(:,iter),c(:,jiter))
@@ -187,7 +193,7 @@ c        call gw_lu_solve(dbl_mb(k_pi),x,n)
      &  call errquit('gw_en: cannot destroy array',0,GA_ERR)
 
 c      if (precond.and.(ga_nodeid().eq.0)) write(*,*) totiter,rnorm
-      if ((ga_nodeid().eq.0)) write(*,*) totiter,rnorm
+c      if ((ga_nodeid().eq.0)) write(*,*) totiter,rnorm
 
 
       end subroutine

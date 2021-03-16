@@ -23,7 +23,7 @@
 
       logical main, converged, bracket, warning
       integer isp, totalqp, llmo, iqp, iter
-      double precision timer
+      double precision timer, rms3(3)
       double precision Ein, Eout, SigmaOld, Sigma_X, SigmaC, Z
       double precision d2SigmaC, dSigmaC, Linear
       double precision residual, residualOld, dresidual, d2residual,Etmp
@@ -69,6 +69,7 @@
 
           call ga_zero(pars%g_sols)
           bracket = .false.
+          rms3 = 1d100
 c        
           do iter=1,pars%qpiter+5
 
@@ -121,7 +122,7 @@ c
                   resupper = residualold
                   reslower = residual
                 endif
-              if (main) write(*,'(4F16.8)')lower,upper,reslower,resupper
+c              if (main) write(*,'(4F16.8)')lower,upper,reslower,resupper
               endif
             else
               if (residual*resupper.lt.0d0) then
@@ -131,7 +132,7 @@ c
                 upper = ein
                 resupper = residual
               endif
-              if (main) write(*,'(4F16.8)')lower,upper,reslower,resupper
+c              if (main) write(*,'(4F16.8)')lower,upper,reslower,resupper
             endif
 
 
@@ -145,8 +146,13 @@ c
 
             step = 0.61803d0*linearstep
 
+            rms3(1) = rms3(2)
+            rms3(2) = rms3(3)
+            rms3(3) = abs(linearstep)
+
             converged = abs(residual).lt.pars%thresh .or. 
      $                  abs(step/Ein).lt.1d-14 .or. 
+     $                  sum(rms3)/3d0.lt.pars%thresh .or.
      $                  (bracket .and. abs(upper-lower).lt.pars%thresh)
 
             call ga_brdcst(mt_log,converged,mitob(1),0)
@@ -162,7 +168,7 @@ c
               if (eout.lt.lower) eout = lower + (upper-lower)/1.61803d0
             endif
 
-            if (main) write(*,*) eout
+c            if (main) write(*,*) eout
 
             Etmp = Ein
             residualOld = residual
