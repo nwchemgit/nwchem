@@ -4,9 +4,9 @@
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
-#include "tcgmsg.fh"
 #include "util.fh"
 #include "stdio.fh"
+#include "global.fh"      
 #include "gw.fh"
       type(gw_params_t)  :: pars
       integer,intent(in) :: nri,maxpoles,EViter
@@ -19,7 +19,7 @@
 
       logical main, converged
       integer isp, totalqp, llmo, iqp, iter, g_wmn, plus, imo
-      integer l_sw,k_sw
+      integer l_sw,k_sw,dbls,logs
       double precision timer
       double precision Ein, Eout, SigmaOld, Sigma_X, SigmaC, Z
       double precision d2SigmaC, dSigmaC, Linear
@@ -27,9 +27,9 @@
       double precision quadratic, dquadratic, d2quadratic
       double precision quadraticstep, linearstep, step
 
-      logical,external :: ga_create, ga_destroy
-
       main = pars%me .eq. 0
+      dbls = ma_sizeof(mt_dbl,1,mt_byte)
+      logs = ma_sizeof(mt_log,1,mt_byte)
 
       do isp=1,pars%ipol
         totalqp = pars%noqp(isp) + pars%nvqp(isp)
@@ -116,8 +116,8 @@ c
             residualOld = residual
 
             if (main) converged = abs(residual).lt.pars%thresh
-            call ga_brdcst(mt_log,converged,mitob(1),0)
-            call ga_brdcst(mt_dbl,Eout,mdtob(1),0)
+            call ga_brdcst(mt_log,converged,logs,0)
+            call ga_brdcst(mt_dbl,Eout,dbls,0)
             if (converged) exit
           enddo
           Enew(llmo+iqp-1,isp)  = Eout

@@ -3,7 +3,8 @@
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
-#include "tcgmsg.fh"      
+#include "global.fh"
+#include "util.fh"      
 #include "gw.fh"
       type(gw_params_t) :: pars
       integer,intent(in) :: nmo,nri,ngl,mynmo,maxpoles,maxqp,ipol
@@ -25,9 +26,7 @@
       double precision factor(maxpoles,ipol)
 
       logical cholesky
-      double precision,external :: ddot
-      integer,external :: ga_nodeid, ga_nnodes,ilaenv
-      logical,external :: ga_locate
+      integer,external :: ilaenv
 
 #ifdef USE_OPENMP
       integer iMaxThreads,ithread

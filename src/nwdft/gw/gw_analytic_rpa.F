@@ -1,8 +1,8 @@
       subroutine gw_analytic_rpa(pars,eia,omega,maxpoles,maxnpoles,nri)
       implicit none
 #include "mafdecls.fh"
-#include "tcgmsg.fh"
 #include "errquit.fh"
+#include "global.fh"      
 #include "gw.fh"
 #ifdef SCALAPACK
 #include "dft_scaleig.fh"
@@ -20,7 +20,6 @@
 
       character(len=17),parameter :: pname = 'gw_analytic_rpa: '
 
-      logical,external :: ga_create, ga_destroy, ga_duplicate
 #ifdef USE_OPENMP
       integer,external :: omp_get_max_threads
       iMaxThreads = omp_get_max_threads()

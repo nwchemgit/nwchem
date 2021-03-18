@@ -6,7 +6,6 @@
 #include "util.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
-#include "tcgmsg.fh"
 #include "gw.fh"
       type(gw_params_t)  :: pars
       integer,intent(in) :: nri, mynmo, maxqp, maxpoles
@@ -92,7 +91,7 @@ c
 
           Eout = Ein + linearstep
 
-          call ga_brdcst(mt_dbl,Eout,mdtob(1),0)
+          call ga_brdcst(mt_dbl,Eout,ma_sizeof(mt_dbl,1,mt_byte),0)
 
           Enew(llmo+iqp-1,isp)  = Eout
 c          Sigma(llmo+iqp-1,isp) = SigmaC + Sigma_X

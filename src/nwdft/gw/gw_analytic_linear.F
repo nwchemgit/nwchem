@@ -4,9 +4,9 @@
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
-#include "tcgmsg.fh"
 #include "util.fh"
 #include "stdio.fh"
+#include "global.fh"
 #include "gw.fh"
       type(gw_params_t)  :: pars
       integer,intent(in) :: nri,maxpoles
@@ -19,7 +19,7 @@
 
       logical main, converged
       integer isp, totalqp, llmo, iqp, iter, g_wmn, plus, imo
-      integer l_sw,k_sw,l_scr,k_scr
+      integer l_sw,k_sw,l_scr,k_scr,dbls
       double precision timer
       double precision Ein, Eout, SigmaOld, Sigma_X, SigmaC, Z
       double precision d2SigmaC, dSigmaC, Linear
@@ -27,12 +27,11 @@
       double precision quadratic, dquadratic, d2quadratic
       double precision quadraticstep, linearstep, step
 
-      logical,external :: ga_create, ga_destroy
-
       if (.not.ma_alloc_get(mt_dbl,5*pars%nmo,'scratch',l_scr,k_scr))
      $  call errquit('can''t allocate scratch',0,MA_ERR)
 
       main = pars%me .eq. 0
+      dbls = ma_sizeof(mt_dbl,1,mt_byte)
 
       do isp=1,pars%ipol
         totalqp = pars%noqp(isp) + pars%nvqp(isp)
@@ -99,7 +98,7 @@ c
 
           residualOld = residual
 
-          call ga_brdcst(mt_dbl,Eout,mdtob(1),0)
+          call ga_brdcst(mt_dbl,Eout,dbls,0)
 
           Enew(llmo+iqp-1,isp)  = Eout
           Sigma(llmo+iqp-1,isp) = SigmaC + Sigma_X

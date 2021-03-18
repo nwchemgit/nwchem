@@ -3,7 +3,8 @@
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
-#include "tcgmsg.fh"
+#include "util.fh"
+#include "global.fh"
 #include "gw.fh"
       type(gw_params_t) :: pars
       integer,intent(in) :: imo, maxpoles, nri, me, nmo, ipol, isp
@@ -39,10 +40,7 @@
       double precision, parameter :: shift = 0.00001d0
 
       logical main, ok, parallel_diag
-      double precision, external :: ddot
-      logical, external :: is_near, nga_create, ga_duplicate, ga_destroy
-      logical, external :: ga_create, ga_copy, ga_locate
-      integer,external :: ga_nodeid,ga_nnodes
+      logical, external :: is_near
 #ifdef USE_OPENMP      
       integer iMaxThreads
       integer,external :: omp_get_max_threads
@@ -145,7 +143,7 @@ c     $                          ((Eia(ipole,jsp)+ieta)**2-arg2)
         idx = ((imo-off-1)*nspace+jmo-off-1)/nprocs + spacelo
 
 
-        call ga_brdcst(mt_int,idx,mitob(1),root)
+        call ga_brdcst(mt_int,idx,ma_sizeof(mt_int,1,mt_byte),root)
 
         if (.not.ga_locate(gb,1,jmo,owner))
      $  call errquit('gw_buildrn_minres: cannot locate owner',0,GA_ERR)
