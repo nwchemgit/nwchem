@@ -26,14 +26,9 @@ c
 #include "errquit.fh"
 #include "global.fh"
 #include "rtdb.fh"
-#include "geom.fh"
-#include "mafdecls.fh"
-#include "bas.fh"
 #include "stdio.fh"
 #include "cdft.fh"
-#include "case.fh"
 #include "util.fh"
-#include "tcgmsg.fh"
 #include "gw.fh"
 
       integer, intent(in) :: rtdb

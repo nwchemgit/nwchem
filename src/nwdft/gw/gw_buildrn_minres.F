@@ -1,48 +1,52 @@
-      subroutine gw_buildrn_minres(pars,Eig,Eia,omega,R,dR,d2R,imo,
+#ifdef GWCMPLX
+#define GWTYP double complex
+#define SOLVER cs_minres_qlp
+#else
+#define GWTYP double precision
+#ifdef GWEN
+#define SOLVER gw_en
+#else
+#define SOLVER gw_minres
+#endif
+#endif
+
+      subroutine gw_buildrn_minres(pars,Eig,Eia,omega,R,dR,imo,
      $                      maxpoles,nri,me,nmo,ipol,isp)
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
-#include "tcgmsg.fh"
+#include "util.fh"
+#include "global.fh"
 #include "gw.fh"
       type(gw_params_t) :: pars
       integer,intent(in) :: imo, maxpoles, nri, me, nmo, ipol, isp
       double precision, intent(in) :: omega
       double precision, intent(in), dimension(nmo) :: Eig
       double precision, intent(in), dimension(maxpoles,ipol) :: Eia
-      double precision, intent(out) :: R,dR,d2R
+      double precision, intent(out) :: R,dR
 
       character(len=12), parameter :: pname = 'gw_buildrn: '
 
-      integer mynpoles, root2
-      integer root, oolo, oohi, vvlo, vvhi, nrisize, ovlo, ovhi, nspace
-      integer g_a, g_b, g_c, g_d, g_e, g_epsilon, k_eps, k_sol, nprocs
-      integer jmo, ipole, ilo, ihi, jlo, jhi, info, ld, mynri, idx, jsp
-      integer l_pi, k_pi, l_ipiv, k_ipiv, l_scr, k_scr, k_ov, lscr
-      integer g_pi, g_sol, addrPi, addrSol, llpi, off
-      integer pihi, pilo, kOV(2), ga, first, second, step
+      integer root, oolo, vvlo, ovlo, ovhi, nspace
+      integer nprocs
+      integer jmo, ipole, info, ld, mynri, idx, jsp
+      integer k_ipiv, l_scr, k_scr, lscr
+      integer g_pi, g_sol, off
+      integer kOV(2), ga, first, second, step
       integer spacelo, addr, gb, owner
       double precision fac, arg, w, arg2, dfac, sgn
-      double precision vector(nri), vector3(nri)
-#ifdef GWCMPLX
-      double complex factor(maxpoles,ipol),dfactor(maxpoles,ipol)
-      double complex xvec(nri)
-      double precision, parameter :: eta = 0.001d0
-      double complex, parameter :: ieta = dcmplx(0d0,eta)
-#else
-      double precision factor(maxpoles,ipol),dfactor(maxpoles,ipol)
-      double precision xvec(nri)
-      double precision, parameter :: eta = 0.001d0
-      double complex, parameter :: ieta = dcmplx(0d0,eta)
+      double precision vector(nri)
       double complex :: temp
-#endif      
-      double precision, parameter :: shift = 0.00001d0
+      GWTYP,dimension(maxpoles,ipol) :: factor, dfactor
+      GWTYP,dimension(nri) :: xvec
 
       logical main, ok, parallel_diag
-      double precision, external :: ddot
-      logical, external :: is_near, nga_create, ga_duplicate, ga_destroy
-      logical, external :: ga_create, ga_copy, ga_locate
-      integer,external :: ga_nodeid,ga_nnodes
+      logical, external :: is_near
+
+      double precision, parameter :: eta = 0.001d0
+      double precision, parameter :: shift = 0.00001d0
+      double complex, parameter :: ieta = dcmplx(0d0,eta)
+
 #ifdef USE_OPENMP      
       integer iMaxThreads
       integer,external :: omp_get_max_threads
@@ -62,7 +66,6 @@
 
       R = 0d0
       dR = 0d0
-      d2R = 0d0
 
       dfac = 4d0
       if (ipol.eq.1) dfac = 2d0*dfac
@@ -110,7 +113,6 @@
           arg2 = 0d0
         else
           fac = sgn
-c          arg = sgn*(omega - eig(jmo))
           arg = eig(jmo) - omega
           arg2 = arg**2
         endif
@@ -118,10 +120,6 @@ c          arg = sgn*(omega - eig(jmo))
 !$omp   parallel do collapse(2) private(temp)
         do jsp=1,ipol
           do ipole=1,pars%mynpoles(jsp)
-c            factor(ipole,jsp) = (Eia(ipole,jsp)+ieta)/
-c     $                          ((Eia(ipole,jsp)+ieta)**2-arg2)
-c            dfactor(ipole,jsp) = dfac*arg*factor(ipole,jsp)/
-c     $                          ((Eia(ipole,jsp)+ieta)**2-arg2)
             temp = (Eia(ipole,jsp) - ieta)/
      $      ((Eia(ipole,jsp)**2-arg2)-2d0*ieta*(Eia(ipole,jsp)-sgn*arg))
 #ifdef GWCMPLX
@@ -145,7 +143,7 @@ c     $                          ((Eia(ipole,jsp)+ieta)**2-arg2)
         idx = ((imo-off-1)*nspace+jmo-off-1)/nprocs + spacelo
 
 
-        call ga_brdcst(mt_int,idx,mitob(1),root)
+        call ga_brdcst(mt_int,idx,ma_sizeof(mt_int,1,mt_byte),root)
 
         if (.not.ga_locate(gb,1,jmo,owner))
      $  call errquit('gw_buildrn_minres: cannot locate owner',0,GA_ERR)
@@ -154,17 +152,9 @@ c     $                          ((Eia(ipole,jsp)+ieta)**2-arg2)
         call ga_get(gb,1,nri,jmo,jmo,xvec,nri)
         call ga_get(ga,1,nri,idx,idx,vector,nri)
 
-#ifdef GWCMPLX
-        call cs_minres_qlp(dbl_mb(kOV(1)),dbl_mb(kOV(2)),factor,xvec,
-     $                     vector,pars%mynpoles,maxpoles,nri,ipol)
-#elif GWMINRES
-        call gw_minres(dbl_mb(kOV(1)),dbl_mb(kOV(2)),factor,xvec,
-     $            vector,pars%mynpoles,maxpoles,nri,ipol,10,.true.)
-#else
-        call gw_en(dbl_mb(kOV(1)),dbl_mb(kOV(2)),factor,xvec,
-     $                 vector,pars%mynpoles,maxpoles,nri,ipol,
-     $                 15,1d-4,.false.)
-#endif        
+        call SOLVER(dbl_mb(kOV(1)),dbl_mb(kOV(2)),factor,xvec,vector,
+     $              pars%mynpoles,maxpoles,nri,ipol)
+
         if (owner.eq.me) call ga_put(gb,1,nri,jmo,jmo,xvec,nri)
 
         if (arg.ne.0d0) then

@@ -1,16 +1,23 @@
-      subroutine gw_buildrn(pars,Eig,Eia,omega,R,dR,d2R,imo,maxpoles,
+#ifdef GWCMPLX
+#define GWTYP double complex
+#else
+#define GWTYP double precision
+#endif
+
+      subroutine gw_buildrn(pars,Eig,Eia,omega,R,dR,imo,maxpoles,
      $                      nri,me,nmo,ipol,isp)
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
-#include "tcgmsg.fh"
+#include "global.fh"
+#include "util.fh"
 #include "gw.fh"
       type(gw_params_t) :: pars
       integer,intent(in) :: imo, maxpoles, nri, me, nmo, ipol, isp
       double precision, intent(in) :: omega
       double precision, intent(in), dimension(nmo) :: Eig
       double precision, intent(in), dimension(maxpoles,ipol) :: Eia
-      double precision, intent(out) :: R,dR,d2R
+      double precision, intent(out) :: R,dR
 
       character(len=12), parameter :: pname = 'gw_buildrn: '
 
@@ -21,26 +28,20 @@
       integer l_pi, k_pi, l_ipiv, k_ipiv, l_scr, k_scr, k_ov, lscr
       integer g_pi, g_sol, addrPi, addrSol, llpi, off
       integer pihi, pilo, kOV(2), ga, first, second, step
-      integer spacelo, addr, gb, owner
+      integer spacelo, addr, gb, owner, ints, nris
       double precision fac, arg, w, arg2, dfac, sgn
       double precision factor(maxpoles,ipol), vector(nri), vector2(nri)
       double precision vector3(nri)
-#ifdef GWCMPLX      
-      double complex   solvector(nri)
-#else      
-      double precision solvector(nri)
-#endif      
       double precision dfactor(maxpoles,ipol)
+
+      GWTYP,dimension(nri) ::   solvector
 
       logical main, ok, parallel_diag
       double precision, parameter :: shift = 0.00001d0
       double precision, parameter :: eta = 0.001d0
       double complex, parameter :: ieta = dcmplx(0d0,eta)
       double complex :: temp
-      double precision, external :: ddot
-      logical, external :: is_near, nga_create, ga_duplicate, ga_destroy
-      logical, external :: ga_create, ga_copy, ga_locate
-      integer,external :: ga_nodeid,ga_nnodes
+      logical, external :: is_near
 #ifdef USE_OPENMP      
       integer iMaxThreads
       integer,external :: omp_get_max_threads
@@ -51,6 +52,9 @@
 
       main = me.eq.0
       nprocs = ga_nnodes()
+      ints = ma_sizeof(mt_int,1,mt_byte)
+      nris = ma_sizeof(mt_dbl,nri,mt_byte)
+
 
       if (.not.ma_alloc_get(mt_dbl,nri**2,'pi',l_pi,k_pi))
      $  call errquit(pname//'can''t allocate pi matri',0,MA_ERR) 
@@ -90,7 +94,6 @@
 
       R = 0d0
       dR = 0d0
-      d2R = 0d0
 
       dfac = 4d0
       if (ipol.eq.1) dfac = 2d0*dfac
@@ -125,7 +128,6 @@
 
        
       do jmo=first,second,step
-c        if ( abs(eig(jmo)) .gt. abs(omega+sgn*shift) ) exit
 
         if (omega.lt.0d0) then
           if (eig(jmo) .lt. omega-shift) cycle
@@ -141,7 +143,6 @@ c        if ( abs(eig(jmo)) .gt. abs(omega+sgn*shift) ) exit
           arg2 = 0d0
         else
           fac = sgn
-c          arg = sgn*(omega - eig(jmo))
           arg = eig(jmo) - omega
           arg2 = arg**2
         endif
@@ -151,12 +152,8 @@ c          arg = sgn*(omega - eig(jmo))
           do ipole=1,pars%mynpoles(jsp)
             temp = (Eia(ipole,jsp) - ieta)/
      $      ((Eia(ipole,jsp)**2-arg2)-2d0*ieta*(Eia(ipole,jsp)-sgn*arg))
-c            factor(ipole,jsp) = Eia(ipole,jsp)/(Eia(ipole,jsp)**2-arg2)
             factor(ipole,jsp) = dble(temp)
 
-
-c            dfactor(ipole,jsp) = -dfac*arg*factor(ipole,jsp)**2/
-c     $                           Eia(ipole,jsp)
             temp = temp*(arg+ieta*sgn)/
      $      ((Eia(ipole,jsp)**2-arg2)-2d0*ieta*(Eia(ipole,jsp)-sgn*arg))
             dfactor(ipole,jsp) = -dfac*dble(temp)
@@ -174,7 +171,7 @@ c     $                           Eia(ipole,jsp)
 
         if (parallel_diag) then
           call gw_symmat(dbl_mb(k_pi),nri,pilo,pihi)
-          call ga_brdcst(mt_int,idx,mitob(1),root)
+          call ga_brdcst(mt_int,idx,ints,root)
           call ga_get(ga,1,nri,idx,idx,vector,nri)
 #ifdef SCALAPACK
           call dcopy(nri,vector,1,vector2,1)
@@ -196,7 +193,7 @@ c     $                           Eia(ipole,jsp)
             call dsytrs('l',nri,1,dbl_mb(k_pi),nri,int_mb(k_ipiv),
      $                   vector2,nri,info)
           end if
-          call ga_brdcst(mt_dbl,vector2,mdtob(nri),root)
+          call ga_brdcst(mt_dbl,vector2,nris,root)
         endif
 
         if (.not.ga_locate(gb,1,jmo,owner))

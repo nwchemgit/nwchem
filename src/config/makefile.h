@@ -3030,16 +3030,16 @@ ifdef USE_F90_ALLOCATABLE
 endif
 
 ifdef GWCMPLX
-  ifdef GWMINRES
+  ifdef GWEN
     errorgw:
-$(info  GWCMPLX and GWMINRES are incompatible )
+$(info  GWCMPLX and GWEN are incompatible )
 $(error )
   endif
   DEFINES += -DGWCMPLX
 endif
 
-ifdef GWMINRES
-  DEFINES += -DGWMINRES
+ifdef GWEN
+  DEFINES += -DGWEN
 endif
 
 # lower level libs used by communication libraries 
