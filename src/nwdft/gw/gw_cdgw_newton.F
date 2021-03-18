@@ -107,19 +107,19 @@ c
             timer = util_wallsec()
             call gw_buildin(iW(1,1,iqp,isp),Eold(1,isp),
      $                      dbl_mb(pars%k_glx),dbl_mb(pars%k_glw),
-     $                      iWidx(0,iqp,isp),Ein,I,dI,d2I,
-     $                      pars%fdstep,pars%ngl,mynmo)
+     $                      iWidx(0,iqp,isp),Ein,I,dI,
+     $                      pars%ngl,mynmo)
             pars%timer%in = pars%timer%in + util_wallsec() - timer
 
             call ga_sync()
             timer = util_wallsec()
 
             if (iter.eq.1) then
-              call gw_buildrn(pars,Eold(1,isp),Eia,Ein,R,dR,d2R,
+              call gw_buildrn(pars,Eold(1,isp),Eia,Ein,R,dR,
      $                      llmo+iqp-1,maxpoles,nri,pars%me,pars%nmo,
      $                      pars%ipol,isp)
             else
-              call gw_buildrn_minres(pars,Eold(1,isp),Eia,Ein,R,dR,d2R,
+              call gw_buildrn_minres(pars,Eold(1,isp),Eia,Ein,R,dR,
      $                      llmo+iqp-1,maxpoles,nri,pars%me,pars%nmo,
      $                      pars%ipol,isp)
             endif

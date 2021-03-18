@@ -1,16 +1,16 @@
-      subroutine gw_minres(OV1,OV2,factor,x,b,npoles,maxpoles,n,ipol,
-     $                     maxiter,lprint)
+      subroutine gw_minres(OV1,OV2,factor,x,b,npoles,maxpoles,n,ipol)
       implicit none
 #include "errquit.fh"
 #include "global.fh"      
 #include "mafdecls.fh"
-      logical,intent(in) :: lprint
       integer,intent(in) :: ipol
-      integer,intent(in) :: npoles(ipol),maxpoles,n,maxiter
+      integer,intent(in) :: npoles(ipol),maxpoles,n
       double precision,intent(in) :: factor(maxpoles,ipol)
       double precision,intent(in) :: OV1(n,maxpoles),OV2(n,maxpoles)
       double precision,dimension(n),intent(in)   :: b
       double precision,dimension(n),intent(inout)  :: x
+
+      integer,parameter :: maxiter = 10
 
       integer l_pi, k_pi, l_ipiv, k_ipiv, lscr, l_scr, k_scr, info
       double precision :: eps
@@ -23,7 +23,6 @@
       double precision :: t1, t2, test1, test2, root, bnorm, dxnorm
       double precision :: test3, xnorm
       double precision,dimension(n) :: r1, r2, sol, v, w, w1, w2, y
-      double precision,dimension(n) :: precon
 
       
       logical main,converged,oactive
@@ -302,8 +301,6 @@ c        call gw_lu_solve(dbl_mb(k_pi),x,n)
       endif
 
 
-c      if (main.and.lprint) write(*,*) istop,test3,rnorm
-
       end subroutine
 
 
@@ -329,24 +326,4 @@ c      if (main.and.lprint) write(*,*) istop,test3,rnorm
       call dgemv('n',n,npoles,1d0,ov,n,tmp,1,mult,y,1)
 
       end subroutine
-
-      subroutine gw_precon(ov,factor,precon,scal,npoles,n)
-      implicit none
-      integer,intent(in) :: npoles, n
-      double precision,intent(in) :: scal
-      double precision,intent(in) :: ov(n,npoles), factor(npoles)
-      double precision,intent(out) :: precon(n)
-
-      integer i
-      double precision :: temp(n)
-
-      temp(:) = factor(1)*ov(:,1)**2
-
-      do i=2,npoles
-        temp(:) = temp(:) + factor(i)*ov(:,i)**2
-      enddo
-      call daxpy(n,scal,temp,1,precon,1)
-
-      end subroutine
-
 

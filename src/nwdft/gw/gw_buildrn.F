@@ -1,4 +1,10 @@
-      subroutine gw_buildrn(pars,Eig,Eia,omega,R,dR,d2R,imo,maxpoles,
+#ifdef GWCMPLX
+#define GWTYP double complex
+#else
+#define GWTYP double precision
+#endif
+
+      subroutine gw_buildrn(pars,Eig,Eia,omega,R,dR,imo,maxpoles,
      $                      nri,me,nmo,ipol,isp)
       implicit none
 #include "mafdecls.fh"
@@ -11,7 +17,7 @@
       double precision, intent(in) :: omega
       double precision, intent(in), dimension(nmo) :: Eig
       double precision, intent(in), dimension(maxpoles,ipol) :: Eia
-      double precision, intent(out) :: R,dR,d2R
+      double precision, intent(out) :: R,dR
 
       character(len=12), parameter :: pname = 'gw_buildrn: '
 
@@ -26,12 +32,9 @@
       double precision fac, arg, w, arg2, dfac, sgn
       double precision factor(maxpoles,ipol), vector(nri), vector2(nri)
       double precision vector3(nri)
-#ifdef GWCMPLX      
-      double complex   solvector(nri)
-#else      
-      double precision solvector(nri)
-#endif      
       double precision dfactor(maxpoles,ipol)
+
+      GWTYP,dimension(nri) ::   solvector
 
       logical main, ok, parallel_diag
       double precision, parameter :: shift = 0.00001d0
@@ -91,7 +94,6 @@
 
       R = 0d0
       dR = 0d0
-      d2R = 0d0
 
       dfac = 4d0
       if (ipol.eq.1) dfac = 2d0*dfac
@@ -126,7 +128,6 @@
 
        
       do jmo=first,second,step
-c        if ( abs(eig(jmo)) .gt. abs(omega+sgn*shift) ) exit
 
         if (omega.lt.0d0) then
           if (eig(jmo) .lt. omega-shift) cycle
@@ -142,7 +143,6 @@ c        if ( abs(eig(jmo)) .gt. abs(omega+sgn*shift) ) exit
           arg2 = 0d0
         else
           fac = sgn
-c          arg = sgn*(omega - eig(jmo))
           arg = eig(jmo) - omega
           arg2 = arg**2
         endif
@@ -152,12 +152,8 @@ c          arg = sgn*(omega - eig(jmo))
           do ipole=1,pars%mynpoles(jsp)
             temp = (Eia(ipole,jsp) - ieta)/
      $      ((Eia(ipole,jsp)**2-arg2)-2d0*ieta*(Eia(ipole,jsp)-sgn*arg))
-c            factor(ipole,jsp) = Eia(ipole,jsp)/(Eia(ipole,jsp)**2-arg2)
             factor(ipole,jsp) = dble(temp)
 
-
-c            dfactor(ipole,jsp) = -dfac*arg*factor(ipole,jsp)**2/
-c     $                           Eia(ipole,jsp)
             temp = temp*(arg+ieta*sgn)/
      $      ((Eia(ipole,jsp)**2-arg2)-2d0*ieta*(Eia(ipole,jsp)-sgn*arg))
             dfactor(ipole,jsp) = -dfac*dble(temp)

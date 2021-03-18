@@ -114,19 +114,19 @@ c            Eout = Eout + sign(5d0*pars%thresh,Eout)
             timer = util_wallsec()
             call gw_buildin(iW(1,1,iqp,isp),Eold(1,isp),
      $                      dbl_mb(pars%k_glx),dbl_mb(pars%k_glw),
-     $                      iWidx(0,iqp,isp),Ein,I,dI,d2I,
-     $                      pars%fdstep,pars%ngl,mynmo)
+     $                      iWidx(0,iqp,isp),Ein,I,dI,
+     $                      pars%ngl,mynmo)
             call ga_sync()
             pars%timer%in = pars%timer%in + util_wallsec() - timer
 
             ! Contribution from the poles enclosed by the contour
             timer = util_wallsec()
             if (iter.eq.1) then
-              call gw_buildrn(pars,Eold(1,isp),Eia,Ein,R,dR,d2R,
+              call gw_buildrn(pars,Eold(1,isp),Eia,Ein,R,dR,
      $                      llmo+iqp-1,maxpoles,nri,pars%me,pars%nmo,
      $                      pars%ipol,isp)
             else
-              call gw_buildrn_minres(pars,Eold(1,isp),Eia,Ein,R,dR,d2R,
+              call gw_buildrn_minres(pars,Eold(1,isp),Eia,Ein,R,dR,
      $                      llmo+iqp-1,maxpoles,nri,pars%me,pars%nmo,
      $                      pars%ipol,isp)
             endif
@@ -246,16 +246,19 @@ c            Eout = Eout + sign(5d0*pars%thresh,Eout)
             do iqp=myll,myul
               if (fixed(iqp)) cycle
 
+              ! Finish up building the residual
               resmat(ipoints,iqp) = resmat(ipoints,iqp) +
      $          Eref(llmo+iqp-1,isp) + sigmax(llmo+iqp-1,isp) -
      $          sigma(llmo+iqp-1,isp)
 
+              ! If residual is small, solution has been found
               if (abs(resmat(ipoints,iqp)).lt.pars%thresh) then
                 fixed(iqp) = .true.
                 enew(llmo+iqp-1,isp) = omega(ipoints) 
                 cycle
               endif
 
+              ! See if there is a fixed point solution
               if (ipoints.gt.1) then
                 if(resmat(ipoints-1,iqp)*resmat(ipoints,iqp).lt.0d0)then
                   fixed(iqp) = .true.
@@ -271,7 +274,6 @@ c            Eout = Eout + sign(5d0*pars%thresh,Eout)
             if (done) exit
           enddo
 
-          !find fixed point solution for each qp in cluster
  200      continue
 
           if (.not.main) cycle
