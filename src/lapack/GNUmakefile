@@ -83,7 +83,8 @@ OBJ_OPTIMIZE = dbdsqr.o      dgebd2.o      dgebrd.o       dgelq2.o     \
                dhseqr.o dorghr.o dtrevc.o dlaln2.o dlahqr.o dgehd2.o \
                dlanhs.o dlarfx.o dlahrd.o dlanv2.o \
                dlarra.o dlarrb.o dlarrc.o dlarrd.o dlarrf.o dlarrk.o dlarrv.o\
-               dlar1v.o dlaneg.o dgelss.o dormtr.o dormql.o dorm2l.o
+               dlar1v.o dlaneg.o dgelss.o dormtr.o dormql.o dorm2l.o \
+               dsfrk.o dsytrf.o dtrtrs.o
 
 #pgf77 on Linux, hpux (and possibly others) puts dlamch routines into infinite loop
         OBJ = $(OBJ_DLAMCH)
@@ -133,7 +134,8 @@ OBJ_OPTIMIZE = sbdsqr.o      sgebd2.o      sgebrd.o       sgelq2.o     \
                chseqr.o clacpy.o clahqr.o clange.o clanhs.o clarfx.o \
                clatrs.o ctrevc.o cunghr.o slabad.o claswp.o \
                sgebak.o sgebal.o sgehrd.o shseqr.o sorghr.o strevc.o \
-	       dormtr.o dormql.o dorm2l.o
+	       dormtr.o dormql.o dorm2l.o \
+               dsfrk.o dsytrf.o dtrtrs.o
 endif
 
 include ../config/makelib.h
