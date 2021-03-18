@@ -49,7 +49,6 @@
       if(stat_alloc.ne.0)
      &     call errquit(' gw_buildiw: allocate failed for size',
      M     maxpoles*ipol, MA_ERR)
-      write(6,*)  ' stat_alloc ',stat_alloc
 #endif
       call ga_sync()
 
@@ -222,7 +221,6 @@ c
       if(stat_alloc.ne.0)
      &     call errquit(' gw_buildiw: deallocate failed for size',
      M     maxpoles*ipol, MA_ERR)
-      write(6,*)  ' stat_alloc ',stat_alloc 
       if (.not.(ma_free_heap(l_sol)))
      $  call errquit(pname//'can''t free SOL heap',me,MA_ERR) 
       if (.not.(ma_free_heap(l_tmp)))
