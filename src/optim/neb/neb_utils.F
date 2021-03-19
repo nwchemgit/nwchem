@@ -828,7 +828,9 @@ c
 
       !*** try neb_end, then endgeom ****
       if (.not.geom_rtdb_load(rtdb,geom,'neb_end')) then
-         value = value.and.geom_rtdb_load(rtdb,geom,'endgeom')
+         if (.not.geom_rtdb_load(rtdb,geom,'ENDGEOM')) then
+            value = value.and.geom_rtdb_load(rtdb,geom,'endgeom')
+         endif
       end if
       value = value.and.geom_cart_coords_get(geom,dbl_mb(r2(1)))
 
