@@ -1646,6 +1646,108 @@ c     *        Dneall_w_determinant          *
 c     *                                      *
 c     ****************************************
 
+c     ****************************************
+c     *                                      *
+c     *     Dneall_w_eigenvaluesvectors      *
+c     *                                      *
+c     ****************************************
+
+c  This routine compute the complex eigenvalues and left and right eigenvectors of a complex matrix.
+
+      subroutine Dneall_w_eigenvaluesvectors(mb,hml,eig,U,V)
+      implicit none
+      integer    mb
+      complex*16 hml(*),eig(*)
+      complex*16 U(*),V(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "Dne.fh"
+
+*     ***** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
+      logical value
+      integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2,ierr
+      integer tmp1(2),tmp2(2),tmp3(2),tmp4(2),tmp5(2)
+
+      call nwpw_timing_start(17)
+
+      if (mparallelized) then
+         write(*,*) " WARNING : NEEDS to be fixed for distributed m"
+         call errquit(
+     >        'WARNING Dneall_w_eigenvaluesvectors failed',0,MA_ERR)
+      else
+         if (mb.eq.0) then
+            ms1 = 1
+            ms2 = ispin
+            ishift1 = ne(1)
+            ishift2 = ne(1)*ne(1)
+            call Parallel_shared_vector_zero(.true.,2*(ne(1)+ne(2)),eig)
+         else
+            ms1 = mb
+            ms2 = mb
+            ishift1 = 0
+            ishift2 = 0
+            call Parallel_shared_vector_zero(.true.,2*ne(mb),eig)
+         end if
+
+         value = BA_push_get(mt_dcpl,(ne(1)*ne(1)),
+     >                       'tmp1',tmp1(2),tmp1(1))
+c         value = value.and.
+c     >           BA_push_get(mt_dcpl,(ne(1)*ne(1)),
+c     >                       'tmp2',tmp2(2),tmp2(1))
+c         value = value.and.
+c     >           BA_push_get(mt_dcpl,(ne(1)*ne(1)),
+c     >                       'tmp3',tmp3(2),tmp3(1))
+         value = value.and.
+     >           BA_push_get(mt_dcpl,(2*ne(1)*ne(1)),
+     >                       'tmp4',tmp4(2),tmp4(1))
+         value = value.and.
+     >           BA_push_get(mt_dbl,(2*ne(1)),
+     >                       'tmp5',tmp5(2),tmp5(1))
+         if (.not. value)
+     >      call errquit('Dneall_w_eigenvaluesvectors:out of stack',
+     >                    1,MA_ERR)
+
+*        ***** diagonalize the matrix *****
+         do ms=ms1,ms2
+            shift1 = 1+(ms-1)*ishift1
+            shift2 = 1+(ms-1)*ishift2
+            if (ne(ms).le.0) go to 30
+!$OMP MASTER
+            call Parallel_shared_vector_copy(.true.,2*ne(ms)*ne(ms),
+     >                                 hml(shift1),dcpl_mb(tmp1(1)))
+            call ZGEEV('V','V',ne(ms),
+     >                 dcpl_mb(tmp1(1)),ne(ms),
+     >                 eig(shift1),
+     >                 U(shift2),ne(ms),
+     >                 V(shift2),ne(ms),
+     >                 dcpl_mb(tmp4(1)),2*ne(1)*ne(1),
+     >                 dbl_mb(tmp5(1)),
+     >                 ierr)
+!$OMP END MASTER
+!$OMP BARRIER
+  30        continue
+         end do
+
+         value =           BA_pop_stack(tmp5(2))
+         value = value.and.BA_pop_stack(tmp4(2))
+         !value = value.and.BA_pop_stack(tmp3(2))
+         !value = value.and.BA_pop_stack(tmp2(2))
+         value = value.and.BA_pop_stack(tmp1(2))
+         if (.not.value)
+     >    call errquit(
+     >         'error popping stack in Dneall_w_eigenvaluesvectors',
+     >         0,MA_ERR)
+
+      end if
+
+      call nwpw_timing_end(17)
+      return
+      end
+
+
 
 c     ****************************************
 c     *                                      *
@@ -7893,6 +7995,7 @@ c     ****************************************
       call nwpw_timing_end(15)
       return
       end
+
 
 
 
