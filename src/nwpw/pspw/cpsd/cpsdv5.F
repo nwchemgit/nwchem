@@ -524,7 +524,7 @@ c         end if
       call pspw_init_APC(rtdb)
       call pspw_qmmm_init(rtdb)
       call pspw_charge_init(rtdb)
-      call pspw_Efield_init(rtdb)
+      call pspw_Efield_init(rtdb,ispin,ne)
       !call pspw_cdft_init(rtdb)
       field_exist = pspw_charge_found().or.pspw_Efield_found()
 
@@ -1104,6 +1104,7 @@ c            write(luout,1706) E(18)
            write(luout,1802) E(19)
            write(luout,1803) E(20)
            write(luout,1804) E(21)
+           call dipole_Efield_print(luout)
         end if
 
 

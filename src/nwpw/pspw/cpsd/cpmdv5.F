@@ -393,7 +393,7 @@ cccc#include "frac_occ.fh"
 *     **** initialize QM/MM ****
       call pspw_qmmm_init(rtdb)
       call pspw_charge_init(rtdb)
-      call pspw_Efield_init(rtdb)
+      call pspw_Efield_init(rtdb,ispin,ne)
       field_exist = pspw_charge_found().or.pspw_Efield_found()
 
 *     ******************************

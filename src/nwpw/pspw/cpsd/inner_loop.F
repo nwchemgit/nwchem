@@ -66,6 +66,7 @@ cccccccc#include "frac_occ.fh"
       real*8  e_lj, e_q, e_spring,Eapc,Papc
       real*8  ehartree_atom,ecmp_cmp,ecmp_pw,exc_atom,pxc_atom
       !real*8 e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
+      real*8 dipole(3)
 
 
 
@@ -126,12 +127,16 @@ c     real*8     fion(3,natmx)
 *     ***** pspw_charge external functions ****
       logical  pspw_charge_found,pspw_bqext,pspw_Efield_found
       external pspw_charge_found,pspw_bqext,pspw_Efield_found
-      integer  pspw_charge_nion
-      external pspw_charge_nion
+      integer  pspw_charge_nion,pspw_Efield_type
+      external pspw_charge_nion,pspw_Efield_type
       real*8   pspw_charge_Energy_ion,pspw_charge_Energy_charge
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
       real*8   electron_psi_v_field_ave,pspw_Efield_Energy_ion
       external electron_psi_v_field_ave,pspw_Efield_Energy_ion
+      real*8   pspw_Efield_Energy_dipole
+      external pspw_Efield_Energy_dipole
+      real*8   dipole_Efield_e,dipole_Efield_p
+      external dipole_Efield_e,dipole_Efield_p
 
       logical  psp_U_psputerm,meta_found
       external psp_U_psputerm,meta_found
@@ -821,11 +826,26 @@ c      if (ispin.eq.1) enlocal = 2.0d0*enlocal
 *     **** get pspw_charge and pspw_Efield energies ****
          !psi_1v_field()
       if (field_exist) then
-         E(19)  = electron_psi_v_field_ave(psi1,dn)
-         E(20)  = pspw_charge_Energy_ion()
-     >          + pspw_Efield_Energy_ion()
-         E(21)  = pspw_charge_Energy_charge()
-         E(1)   = E(1) + E(20) + E(21)
+         if (pspw_Efield_type().eq.0) then
+            call Calculate_Resta_Dipole(.false.,ispin,ne,ne,
+     >                                  npack1,nfft3d,psi1,dipole)
+
+            !write(*,*) "dipole=",dipole  
+            !write(*,*) " EP=",pspw_Efield_Energy_dipole(dipole) 
+
+            elocal = dipole_Efield_e()
+            e_q    = pspw_Efield_Energy_ion()
+            E(19) = elocal - e_q
+            E(20) = e_q
+            E(21) = 0.0d0
+            E(1) = E(1) + elocal - dipole_Efield_p()
+         else
+            E(19)  = electron_psi_v_field_ave(psi1,dn)
+            E(20)  = pspw_charge_Energy_ion()
+     >             + pspw_Efield_Energy_ion()
+            E(21)  = pspw_charge_Energy_charge()
+            E(1)   = E(1) + E(20) + E(21)
+         end if
       end if
 
 

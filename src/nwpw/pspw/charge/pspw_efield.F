@@ -14,9 +14,10 @@ c
 *     *                                *
 *     **********************************
  
-      subroutine pspw_Efield_init(rtdb)
+      subroutine pspw_Efield_init(rtdb,ispin,ne)
       implicit none
       integer rtdb
+      integer ispin,ne(2)
 
 #include "bafdecls.fh"
 #include "btdb.fh"
@@ -43,6 +44,8 @@ c
             efield_center(2) = 0.0d0
             efield_center(3) = 0.0d0
          end if
+         if (efield_type.eq.0) 
+     >      call dipole_Efield_init(ispin,ne,efield,efield_center)
 
       end if
 
@@ -62,6 +65,10 @@ c
 #include "bafdecls.fh"
 #include "pspw_efield.fh"
 #include "errquit.fh"
+
+      if (efield_on) then
+         if (efield_type.eq.0)  call dipole_Efield_end()
+      end  if
 
       return
       end
@@ -139,6 +146,41 @@ c
 
 *     **********************************
 *     *                                *
+*     *    pspw_Efield_Energy_dipole   *
+*     *                                *
+*     **********************************
+*    This routine calculates the energybetween the QM ions and efield
+*  Note the ions are positive.
+*
+      real*8 function pspw_Efield_Energy_dipole(dipole)
+      implicit none
+      real*8 dipole(3)
+
+#include "bafdecls.fh"
+#include "pspw_efield.fh"
+
+*     **** local variables ****
+      integer ii,ia
+      real*8  qii
+      real*8  r,energy
+
+*     **** external functions ****
+      integer   ion_nion,ion_katm
+      real*8    ion_rion,psp_zv
+      external  ion_nion,ion_katm
+      external  ion_rion,psp_zv
+
+      energy = dipole(1)*efield(1)
+     >       + dipole(2)*efield(2)
+     >       + dipole(3)*efield(3)
+
+      pspw_Efield_Energy_dipole = energy
+      return
+      end
+
+
+*     **********************************
+*     *                                *
 *     *     pspw_Efield_Energy_ion     *
 *     *                                *
 *     **********************************
@@ -162,11 +204,12 @@ c
       external  ion_nion,ion_katm
       external  ion_rion,psp_zv
 
-      if (efield_on) then
 !$OMP MASTER
       eetmp = 0.0d0
 !$OMP END MASTER
 !$OMP BARRIER
+
+      if (efield_on) then
 !$OMP DO reduction(+:eetmp)
          do ii=1,ion_nion()
             ia = ion_katm(ii)
@@ -214,7 +257,7 @@ c
       real*8   psp_zv,ion_rion
       external psp_zv,ion_rion
 
-      if (efield_on) then
+      if (efield_on.and.(efield_type.eq.2)) then
 !$OMP DO
          do i=1,ion_nion()
             qii = psp_zv(ion_katm(i))
@@ -253,7 +296,7 @@ c
 *     ***** local variables ****
       integer k
 
-      if (efield_on) then
+      if (efield_on.and.(efield_type.eq.2)) then
 !$OMP DO
          do k=1,n2ft3d
             Vqm(k) = Vqm(k) - efield(1)*(rgrid(1,k)-efield_center(1))

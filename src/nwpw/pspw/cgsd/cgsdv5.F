@@ -339,7 +339,7 @@
       call pspw_init_APC(rtdb)
       call pspw_qmmm_init(rtdb)
       call pspw_charge_init(rtdb)
-      call pspw_Efield_init(rtdb)
+      call pspw_Efield_init(rtdb,psi_ispin(),ne)
 
 *     **** initialize SIC and HFX ****
       ne(1) = psi_ne(1)
