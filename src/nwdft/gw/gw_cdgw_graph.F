@@ -29,7 +29,7 @@
       double precision d2SigmaC, dSigmaC, Linear
       double precision residual, residualOld, dresidual, d2residual,Etmp
       double precision linearstep, step, der
-      double precision I,dI,d2I,R,dR,d2R,a,b,fa,fb
+      double precision I,dI,R,dR,a,b,fa,fb
 
       integer nclusters, clusters(pars%nmo),myll,myul
       double precision upper,lower,resupper,reslower,interval
@@ -93,6 +93,9 @@ c            Eout = Eout + sign(5d0*pars%thresh,Eout)
           else
             Eout = Eout + sign(1.2d0*pars%thresh,Eout)
           endif
+
+          !Trying to enhance reproducibility by rounding-off to 4 digits
+          eout = nint(eout*1d3)/1d3
 
           !initialize variables
           call ga_zero(pars%g_sols)
@@ -159,29 +162,8 @@ c            Eout = Eout + sign(5d0*pars%thresh,Eout)
               exit
             endif
 
-            !take next step
-            if (z.gt.0.3d0) then 
-              !take full newton step for large z
-              eout = ein + z*residual
-            elseif (z.gt.0.1d0) then
-              !take smaller step for intermediate z
-              eout = ein + 0.61803d0*z*residual
-            elseif (bracket) then
-              !use bisection method
-              eout = 0.5d0*(a + b)
-            else
-              !use a small newton step
-              eout = ein + 0.3d0*z*residual
-            endif
-
-            !check that energy is inside bracket
-            if (bracket) then
-              if ( eout.gt.b ) then
-                eout = ein + 0.8d0*(b-a)
-              elseif (eout.lt.a) then
-                eout = ein + 0.2d0*(b-a)
-              endif
-            endif
+            call gw_donewton(ein,eout,residual,dresidual,a,b,fa,fb,
+     $                       bracket,pars%thresh)
 
             !save information
             residualold = residual

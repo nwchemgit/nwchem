@@ -263,6 +263,7 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
         if (test1 .le. rtol     ) istop=1
         if (rnorm .le. rtol     ) istop=8
 
+        call ga_brdcst(mt_int,istop,ma_sizeof(mt_int,1,mt_byte),0)
 
         if (istop.ne.0) exit
       enddo
@@ -272,7 +273,7 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
  1000 continue
  2000 continue
 
-      if (istop.eq.6 .and. rnorm.gt.0.005d0) then
+      if (istop.eq.6 .and. rnorm.gt.0.001d0) then
         if (.not.ma_alloc_get(mt_dbl,n**2,'pi',l_pi,k_pi))
      $    call errquit('gw_en: can''t allocate pi matrix',0,MA_ERR) 
         if (.not.ma_push_get(mt_int,n,'ipiv',l_ipiv,k_ipiv))
@@ -298,6 +299,8 @@ c        call gw_lu_solve(dbl_mb(k_pi),x,n)
         if (.not.ma_free_heap(l_pi))
      $    call errquit('gw_en: can''t deallocate pi matrix',0,MA_ERR)   
         rnorm = 0d0
+      else
+        call ga_brdcst(mt_dbl,x,ma_sizeof(mt_dbl,n,mt_byte),0)
       endif
 
 

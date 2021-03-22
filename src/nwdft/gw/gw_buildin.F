@@ -14,7 +14,7 @@
       double precision,dimension(iwidx(0)) :: vector,wmo,etavec
       double precision,dimension(iwidx(0)) :: factor, dfactor
       double precision,dimension(2)     :: res
-      double precision,parameter :: eta = 0.001d0
+      double precision,parameter :: eta = 0.000d0
 
       integer,external :: ga_nodeid
 
@@ -24,7 +24,7 @@
 
       do jmo=1,iwidx(0)
         vector(jmo) = omega - Evals(iwidx(jmo))
-        etavec(jmo) = sign(eta,-evals(iwidx(jmo)))
+        etavec(jmo) = sign(eta,evals(iwidx(jmo)))
       enddo
 
 
@@ -34,16 +34,16 @@
         wmo(:) = iW(1:iwidx(0),igl)
 
         do jmo=1,iwidx(0)
-          a = 1d0/(vector(jmo)**2 + (w2-etavec(jmo))**2)
+          a = 1d0/(vector(jmo)**2 + (w2+etavec(jmo))**2)
           factor(jmo) =  vector(jmo)*a
-          dfactor(jmo) = ((w2-etavec(jmo))**2 - vector(jmo)**2)*a**2
+          dfactor(jmo) = ((w2+etavec(jmo))**2 - vector(jmo)**2)*a**2
         enddo
         res(1) = res(1) - w(igl)*dot_product(wmo,factor)
         res(2) = res(2) - w(igl)*dot_product(wmo,dfactor)
 
       enddo
 
- 100  call ga_dgop(mt_dbl,res,3,'+')
+ 100  call ga_dgop(mt_dbl,res,2,'+')
 
       I = res(1)
       dI = res(2)

@@ -1,8 +1,8 @@
-
       subroutine gw_buildpi(which,ovup,ovdw,pi,factor,ldpi,nri,npoles,
      $                      main,ipol,maxpoles)
       implicit none
 #include "mafdecls.fh"      
+#include "errquit.fh"
       logical,intent(in) :: main
       integer,intent(in) :: ldpi, nri, maxpoles, ipol
       character(len=1),intent(in) :: which
@@ -77,16 +77,26 @@
 
         scal = scal/2d0
         ma_dbl = ma_inquire_avail(mt_dbl)/nri
-        nbatch = npoles(1)/ma_dbl + 1
-        mymax = min(npoles(1)/nbatch + 1,npoles(1))
+
+        if (ma_dbl.eq.0) 
+     $    call errquit('gw_buildpi: not enough memory',0,MA_ERR)
+
+        nbatch = npoles(1)/ma_dbl
+        if (mod(npoles(1),ma_dbl).ne.0) nbatch = nbatch + 1
+
+        mymax = npoles(1)/nbatch
+        if (mod(npoles(1),nbatch).ne.0) mymax = mymax + 1
+
+        mymax = min(npoles(1),mymax)
         ok = ma_alloc_get(mt_dbl,nri*mymax,'scratch',l_scr,k_scr)
 
         call dcopy(nri*mymax,ovup,1,dbl_mb(k_scr),1)
         do ipole=1,mymax
           call dscal(nri,factor(ipole,1),dbl_mb(k_scr+(ipole-1)*nri),1)
         enddo
-        call dsyr2k('l','n',nri,mymax,scal,ovup,nri,dbl_mb(k_scr),nri,
-     $               0d0,pi,nri)
+        call dgemm('n','t',nri,nri,mymax,2d0*scal,dbl_mb(k_scr),nri,
+     $              ovup,nri,0d0,pi,nri)
+
 
         do ibatch=2,nbatch
           llpole = (ibatch-1)*mymax + 1
@@ -97,8 +107,9 @@
             call dscal(nri,factor(llpole+ipole-1,1),
      $                 dbl_mb(k_scr+(ipole-1)*nri),1)
           enddo
-          call dsyr2k('l','n',nri,mynpoles,scal,ovup(1,llpole),nri,
-     $                 dbl_mb(k_scr),nri,1d0,pi,nri)     
+          call dgemm('n','t',nri,nri,mynpoles,2d0*scal,dbl_mb(k_scr),
+     $                nri,ovup(1,llpole),nri,1d0,pi,nri)
+          
         enddo
 
         ok = ma_free_heap(l_scr)

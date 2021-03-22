@@ -14,7 +14,7 @@
 
       type(gw_params_t) :: pars
       integer,intent(in) :: nmo
-      double precision,intent(out) :: vxc(nmo,ipol)
+      double precision,intent(out) :: vxc(nmo,*)
 c
       character(len=8), parameter :: pname = 'gw_vxc: '
 c
@@ -97,6 +97,9 @@ c
       call util_ga_mat_reduce(nbf_ao, natoms, int_mb(k_cetobfr), g_dens,
      $                        ipol, dbl_mb(k_rdens_atom), 'absmax',
      $                        dbl_mb(k_scr),nbf_ao_mxnbf_ce,.true.) 
+
+      ok = ma_verify_allocator_stuff()
+
       if (.not.ma_pop_stack(l_scr))
      $  call errquit(pname//'failed to pop stack',0,MA_ERR)
 c

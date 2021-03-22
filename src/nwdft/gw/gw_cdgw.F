@@ -34,10 +34,7 @@ c
       double precision efermi(ipol)
       double precision timer
 
-
       logical converged,ok
-
-      double precision, parameter :: fdstep = 0.002d0
       double precision, external :: gw_efermi
 c
 c     -----------------------------------------------------------------
@@ -45,7 +42,8 @@ c
       ngl = pars%ngl
       nri = nbf_cd
       nmo = pars%nmo
-      
+     
+
       do i=1,ipol
         nocc(i) = pars%nocc(i)
         nvir(i) = pars%nvir(i)
@@ -69,6 +67,7 @@ c
       lSize = ipol*nmo
       if (.not.ma_push_get(mt_dbl,lSize,'Sigma',lSigma,kSigma))
      $    call errquit(pname//'can''t create Sigma',0,MA_ERR)
+      call dfill(lSize,0d0,dbl_mb(kSigma),1)
 
       call gw_vxc(dbl_mb(kSigma),nmo,pars)
 
@@ -110,6 +109,7 @@ c
 
       if (.not.ma_push_get(mt_dbl,lSize,'evals new',lEnew,kEnew))
      $  call errquit(pname//'failed to allocate old evals',0,MA_ERR)
+      call dfill(lSize,0d0,dbl_mb(kEnew),1)
 
       lSize = ipol*maxpoles
       if (.not.ma_push_get(mt_dbl,lSize,'eval_ia',lEia,kEia))
@@ -136,7 +136,7 @@ c
       if(.not.(ga_create(mt_dbl,nri,pars%nmo,'sols',nri,0,
      $    pars%g_sols)))
 #endif
-     $  call errquit('gw_cdgw_newton: cannot create GA',0,GA_ERR) 
+     $  call errquit('gw_cdgw: cannot create GA',0,GA_ERR) 
 c
       eviter = 0
 c
@@ -341,15 +341,17 @@ c     *****************************************************************
       integer,intent(in) :: nocc,nvir
       double precision,intent(in),dimension(nocc+nvir) :: eig
       double precision,intent(out),dimension(*) :: eia
-      integer ipole,imo,jmo,me,nprocs
+      integer ipole,imo,jmo,me,nprocs,jpole
 
       me = ga_nodeid()
       nprocs = ga_nnodes()
 c
       ipole = 0
+      jpole = 0
       do imo=1,nocc
         do jmo=nocc+1,nocc+nvir
-          if (me.ne.mod((imo-1)*nvir+jmo-nocc-1,nprocs)) cycle
+          jpole = jpole + 1
+          if (me.ne.mod(jpole-1,nprocs)) cycle
           ipole = ipole + 1
           eia(ipole) = eig(jmo) - eig(imo)
         enddo

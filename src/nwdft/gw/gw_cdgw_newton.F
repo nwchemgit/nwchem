@@ -28,12 +28,11 @@
       double precision d2SigmaC, dSigmaC, Linear
       double precision residual, residualOld, dresidual, d2residual,Etmp
       double precision quadratic, dquadratic, d2quadratic, dquadraticold
-      double precision quadraticstep, linearstep, step
-      double precision I,dI,d2I,R,dR,d2R
+      double precision quadraticstep, linearstep, step, dsigmacold
+      double precision I,dI,d2I,R,dR,d2R,disgmacold
 
       integer idiis, nclusters, clusters(pars%nmo),myll,myul
       integer llqp,ulqp,icluster
-      integer,parameter :: nbrack = 3
       double precision upper,lower,resupper,reslower,const
 
 
@@ -84,17 +83,19 @@
           if (myul.lt.ulqp) then
             Eout = Enew(llmo+iqp,isp)
           elseif (myll.gt.llqp) then
-            Eout = Enew(llmo+iqp-2,isp)
+            Eout = Enew(llmo+iqp-2,isp) 
           elseif (eviter.eq.0) then
             Eout = Eout + 0.10d0*(sigma_x - sigmaold)
           else
             Eout = Eout + sign(1.2d0*pars%thresh,Eout)
           endif
 
+
           call ga_zero(pars%g_sols)
           bracket = .false.
           rms3 = 1d100
           residualOld = 0d0
+          dsigmacold = 0d0
           const = Eref(llmo+iqp-1,isp) + Sigma_X - sigmaold
           lower = 0d0
           upper = 0d0
@@ -131,53 +132,36 @@ c
 
             residual = const + SigmaC - Ein
             dresidual = dSigmaC - 1d0
-            Z = -1d0/dresidual
 
+            ! Find out if we have bracketed the solution
             if (iter.gt.1) then
               call gw_findbracket(bracket,ein,residual,etmp,residualold,
      $                            lower,upper,reslower,resupper)
             endif
 
+ 1234       format(5(F15.8))
+
+            ! Check convergence of QP equation
             converged = abs(residual).lt.pars%thresh .or. 
      $                  sum(rms3)/3d0.lt.pars%thresh .or.
      $                  (bracket .and. abs(upper-lower).lt.pars%thresh)
 
 
+            ! Exit if converged
             call ga_brdcst(mt_log,converged,logs,0)
             if (converged) then
               Eout = Ein
               exit
             endif
 
-            !take next step
-            if (z.gt.0.3d0) then 
-              !take full newton step for large z
-              eout = ein + z*residual
-            elseif (z.gt.0.1d0) then
-              !take smaller step for intermediate z
-              eout = ein + 0.61803d0*z*residual
-            elseif (bracket) then
-              !use bisection method
-              eout = 0.5d0*(lower + upper)
-            else
-              !use a small newton step
-              eout = ein + 0.3d0*z*residual
-            endif
+            ! Take next newton step
+            call gw_donewton(ein,eout,residual,dresidual,lower,upper,
+     $                       reslower,resupper,bracket,pars%thresh)
 
-            !check that energy is inside bracket
-            if (bracket) then
-              if ( eout.gt.upper ) then
-                eout = ein + 0.8d0*(upper-lower)
-              elseif (eout.lt.lower ) then
-                eout = ein + 0.2d0*(lower-upper)
-              endif
-            endif
 
-            call ga_brdcst(mt_dbl,Eout,dbls,0)
-
+            ! Save information
             etmp = ein
             residualold = residual
-
             rms3(1) = rms3(2)
             rms3(2) = rms3(3)
             rms3(3) = abs(eout-ein)
@@ -205,7 +189,7 @@ c
      $                       (Enew(llmo+iqp-1,isp)+efermi(isp))*ha2ev
               else
                 warning = .true.
-                write(luout,9020) llmo+iqp-1,
+                write(luout,9030) llmo+iqp-1,
      $                       (Enew(llmo+iqp-1,isp)+efermi(isp))*ha2ev
               endif
             enddo

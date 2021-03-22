@@ -37,6 +37,7 @@
 
       call ga_sync()
 
+
       me = ga_nodeid()
       nprocs = ga_nnodes()
       main = me.eq.0
@@ -96,6 +97,8 @@ c
 !$omp   end parallel do        
 
 c
+        if (igl.eq.1) call dfill(sizepi,0d0,dbl_mb(k_pi),1)
+
         call gw_buildpi('w',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
      $                  factor,ldpi,nri,pars%mynpoles,main,ipol,
      $                  maxpoles)

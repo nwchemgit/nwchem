@@ -110,26 +110,24 @@
         if (is_near(eig(jmo),omega,shift)) then
           fac = sgn*0.5d0
           arg = 0d0
-          arg2 = 0d0
         else
           fac = sgn
           arg = eig(jmo) - omega
-          arg2 = arg**2
         endif
 
 !$omp   parallel do collapse(2) private(temp)
         do jsp=1,ipol
           do ipole=1,pars%mynpoles(jsp)
-            temp = (Eia(ipole,jsp) - ieta)/
-     $      ((Eia(ipole,jsp)**2-arg2)-2d0*ieta*(Eia(ipole,jsp)-sgn*arg))
+            temp = Eia(ipole,jsp) - ieta
+            temp = 0.5d0/(arg + temp) + 0.5d0/(temp - arg)
 #ifdef GWCMPLX
             factor(ipole,jsp) = temp
 #else            
             factor(ipole,jsp) = dble(temp)
 #endif            
 
-            temp = temp*(arg+ieta*sgn)/
-     $      ((Eia(ipole,jsp)**2-arg2)-2d0*ieta*(Eia(ipole,jsp)-sgn*arg))
+            temp = Eia(ipole,jsp) - ieta
+            temp = -(0.5d0/(arg + temp))**2 + (0.5d0/(temp - arg))**2
 #ifdef GWCMPLX
             dfactor(ipole,jsp) = dfac*temp
 #else            
@@ -182,7 +180,7 @@
         w = dot_product(vector,dble(xvec)) - dot_product(vector,vector)
         R = R + fac*w
 
-        if (abs(fac).lt.1d0) dR = dR + sign(1d0,fac)*w
+        if (abs(fac).lt.0.6d0) dR = dR + sign(1d0,fac)*w
 
       enddo
 
