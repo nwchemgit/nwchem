@@ -1,10 +1,15 @@
+#define USE_ALLOC 1
       subroutine gw_buildiw(pars,eia,x,iw,iwidx,nmo,nri,ngl,mynmo,
-     $                      maxpoles,maxqp,ipol)
+     $     maxpoles,maxqp,ipol)
+#ifdef USE_ALLOC
+      USE ISO_C_BINDING
+#endif
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
+#include "util.fh"
 #include "global.fh"
-#include "util.fh"      
+#include "stdio.fh"
 #include "gw.fh"
       type(gw_params_t) :: pars
       integer,intent(in) :: nmo,nri,ngl,mynmo,maxpoles,maxqp,ipol
@@ -23,9 +28,14 @@
       integer imo,jmo,kmo,lmo,nprocs,kOV1,kOV2,isp,addr,idz,kOO(2)
       integer kVV(2),kOV(2),mynvir,mynocc,nlocal,nmod
       double precision w2
+#ifdef USE_ALLOC
+      real(kind=C_DOUBLE), allocatable    :: factor(:,:)
+      integer(kind=c_int)         :: stat_alloc
+#else
       double precision factor(maxpoles,ipol)
-
+#endif
       logical cholesky
+      double precision t0, t1
       integer,external :: ilaenv
 
 #ifdef USE_OPENMP
@@ -34,7 +44,12 @@
       iMaxThreads = omp_get_max_threads()
       call util_blas_set_num_threads(iMaxThreads)
 #endif
-
+#ifdef USE_ALLOC
+      allocate(factor(maxpoles,ipol),STAT = stat_alloc)
+      if(stat_alloc.ne.0)
+     &     call errquit(' gw_buildiw: allocate failed for size',
+     M     maxpoles*ipol, MA_ERR)
+#endif
       call ga_sync()
 
 
@@ -82,19 +97,24 @@
       else
         kOV(2) = 1
       endif
-
+      t0=util_wallsec()
       do igl=ngl,1,-1
 c
         w2 = x(igl)
 
-!$omp   parallel do collapse(2)        
         do isp=1,ipol
-          do ipole=1,pars%mynpoles(isp)
+!$omp   parallel do
+           do ipole=1,pars%mynpoles(isp)
+              if(eia(ipole,isp).le.0d0) then
+                 write(6,123) ' negative eia',ipole,eia(ipole,isp),w2,
+     P                (eia(ipole,isp)/(eia(ipole,isp)**2 + w2))
+              endif
+ 123          format(i5,3e12.2)
               factor(ipole,isp) = 
      $            dsqrt(eia(ipole,isp)/(eia(ipole,isp)**2 + w2))
           enddo
-        enddo
 !$omp   end parallel do        
+        enddo
 
 c
         if (igl.eq.1) call dfill(sizepi,0d0,dbl_mb(k_pi),1)
@@ -102,7 +122,22 @@ c
         call gw_buildpi('w',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
      $                  factor,ldpi,nri,pars%mynpoles,main,ipol,
      $                  maxpoles)
+        if(me.eq.0) then
+ 1234      format(a,i3,a,i3,a,f20.3)
+           write(luout,1234) ' ##  igl ',igl,' out of ',ngl,
+     C          ' calling dgop at ',
+     T          util_wallsec()-t0
+        endif
         call ga_dgop(mt_dbl,dbl_mb(k_pi),sizepi,'+')
+        if(me.eq.0) then
+           write(luout,1234) ' ##  igl ',igl,' out of ',ngl,
+     C          ' called dgop at ',
+     T          util_wallsec()-t0
+        endif
+        !
+        ! All cores invert the same matrix in order to avoid
+        ! communication. This is good for small matrices but
+        ! will be very slow for large ones.
         !
 
         cholesky = .true.
@@ -185,7 +220,10 @@ c
 c
         enddo
       enddo
-
+      deallocate(factor,STAT = stat_alloc)
+      if(stat_alloc.ne.0)
+     &     call errquit(' gw_buildiw: deallocate failed for size',
+     M     maxpoles*ipol, MA_ERR)
       if (.not.(ma_free_heap(l_sol)))
      $  call errquit(pname//'can''t free SOL heap',me,MA_ERR) 
       if (.not.(ma_free_heap(l_tmp)))
