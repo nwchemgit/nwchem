@@ -168,9 +168,9 @@ c
      $                    pars%nvir(i),mynmo,pars%nqp(i),pars%llmo(i))
       enddo
 
-      call gw_buildiw(pars,dbl_mb(kEia),dbl_mb(pars%k_glx),dbl_mb(kiW),
-     $    int_mb(kiWidx),pars%nmo,nri,pars%ngl,mynmo,maxpoles,maxqp,
-     $    pars%ipol)
+      call gw_buildiw(pars,dbl_mb(kEia),dbl_mb(pars%k_glx),
+     $          dbl_mb(pars%k_glw),dbl_mb(kiW),int_mb(kiWidx),
+     $          pars%nmo,nri,pars%ngl,mynmo,maxpoles,maxqp,pars%ipol)
 
 c      call gw_buildiw_minres(pars,dbl_mb(kEia),dbl_mb(pars%k_glx),
 c     $     dbl_mb(kiW),

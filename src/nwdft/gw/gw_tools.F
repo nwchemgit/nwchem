@@ -148,3 +148,55 @@
 
 
       end subroutine
+
+
+      subroutine gw_cdgw_ecrpa(pi,ldpi,nri,ecrpa)
+        implicit none
+        integer,intent(in) :: ldpi,nri
+        double precision,intent(in) :: pi(ldpi,nri)
+        double precision,intent(out) :: ecrpa
+
+        integer iri
+        double precision det
+
+
+        if ( mod(nri,2) .eq. 0 ) then
+          det = 1d0
+          do iri=1,nri/2
+            det = det*(pi(iri,iri)*pi(iri+1,iri))**2
+          enddo
+        else
+          det = pi(1,1)**2
+          do iri=2,nri/2+1
+            det = det*(pi(iri-1,iri)*pi(iri,iri))**2
+          enddo
+        endif
+
+        ecrpa = log(det)
+
+
+      end subroutine
+
+
+      subroutine gw_analytic_ecrpa(rpa,eia,mynpoles,lpole,ecrpa)
+      implicit none
+      integer,intent(in) :: mynpoles,lpole
+      double precision,intent(in) :: eia(mynpoles),rpa(mynpoles,*)
+      double precision,intent(out) :: ecrpa
+
+      integer ipole
+
+      ecrpa = 0d0
+!$omp parallel do reduction(+: ecrpa)
+      do ipole=lpole,lpole+mynpoles-1
+        ecrpa = ecrpa + eia(ipole-lpole+1) + 
+     $    (rpa(ipole-lpole+1,ipole)/eia(ipole-lpole+1) -
+     $    eia(ipole-lpole+1))/2d0
+      enddo
+!$omp end parallel do
+
+      ecrpa = -0.5d0*ecrpa
+
+      call dgop(1,ecrpa,1,'+')
+
+      end subroutine

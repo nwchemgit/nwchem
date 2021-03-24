@@ -40,7 +40,7 @@
       integer root, idx, nspace, nprocs, first, second, step
       integer info, ld, jsp, off, spacelo, owner,mynmo
       integer l_pi, k_pi, l_ipiv, k_ipiv, l_scr, k_scr, lscr
-      double precision fac, arg, w, arg2, dfac, sgn
+      double precision fac, arg, w, arg2, dfac, sgn, dummy
 
       GWTYPE :: factor(maxpoles,ipol),dfactor(maxpoles,ipol)
       GWTYPE :: vectors2(nri,nqp)
@@ -168,7 +168,7 @@
 #else        
         call gw_buildpi('r',dbl_mb(kOV(1)),dbl_mb(kOV(2)),GWMB(k_pi),
      $                   factor,nri,nri,pars%mynpoles,main,ipol,
-     $                   maxpoles)
+     $                   maxpoles,dummy)
 #endif        
         call GWGOP(GWMT,GWMB(k_pi),nri**2,'+')
 

@@ -1,6 +1,6 @@
 #define USE_ALLOC 1
-      subroutine gw_buildiw(pars,eia,x,iw,iwidx,nmo,nri,ngl,mynmo,
-     $     maxpoles,maxqp,ipol)
+      subroutine gw_buildiw(pars,eia,x,wgt,iw,iwidx,nmo,nri,ngl,mynmo,
+     $                      maxpoles,maxqp,ipol)
 #ifdef USE_ALLOC
       USE ISO_C_BINDING
 #endif
@@ -14,7 +14,7 @@
       type(gw_params_t) :: pars
       integer,intent(in) :: nmo,nri,ngl,mynmo,maxpoles,maxqp,ipol
 
-      double precision,intent(in)    :: eia(maxpoles,*),x(ngl)
+      double precision,intent(in)    :: eia(maxpoles,*),x(ngl),wgt(ngl)
       integer,intent(in)             :: iwidx(0:mynmo,maxqp,*)
       double precision,intent(out)   :: iw(mynmo,ngl,maxqp,*)
 
@@ -27,7 +27,7 @@
       integer pilo,pihi,k_pi,l_pi,idx,idy,l_tmp,tmp
       integer imo,jmo,kmo,lmo,nprocs,kOV1,kOV2,isp,addr,idz,kOO(2)
       integer kVV(2),kOV(2),mynvir,mynocc,nlocal,nmod
-      double precision w2
+      double precision w2,ecrpa
 #ifdef USE_ALLOC
       real(kind=C_DOUBLE), allocatable    :: factor(:,:)
       integer(kind=c_int)         :: stat_alloc
@@ -98,6 +98,9 @@
         kOV(2) = 1
       endif
       t0=util_wallsec()
+
+      pars%ecrpa = 0d0
+
       do igl=ngl,1,-1
 c
         w2 = x(igl)
@@ -121,7 +124,9 @@ c
 
         call gw_buildpi('w',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
      $                  factor,ldpi,nri,pars%mynpoles,main,ipol,
-     $                  maxpoles)
+     $                  maxpoles,ecrpa)
+        pars%ecrpa = pars%ecrpa + wgt(igl)*ecrpa
+
         if(me.eq.0) then
  1234      format(a,i3,a,i3,a,f20.3)
            write(luout,1234) ' ##  igl ',igl,' out of ',ngl,
@@ -142,6 +147,11 @@ c
 
         cholesky = .true.
         call dpftrf('n','l',nri,dbl_mb(k_pi),info)
+        !
+        if (me.eq.0) then
+          call gw_cdgw_ecrpa(dbl_mb(k_pi),ldpi,nri,ecrpa)
+          pars%ecrpa = pars%ecrpa + wgt(igl)*ecrpa
+        endif
         !
         do isp=1,ipol
 
@@ -234,6 +244,9 @@ c
      $  call errquit(pname//'can''t free IPIV heap',me,MA_ERR) 
       if (.not.(ma_free_heap(l_work)))
      $  call errquit(pname//'can''t free WORK heap',me,MA_ERR) 
+
+      pars%ecrpa = pars%ecrpa*0.5d0
+      call dgop(mt_dbl,pars%ecrpa,1,'+')
 
 #ifdef USE_OPENMP
       call util_blas_set_num_threads(1)

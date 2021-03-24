@@ -42,6 +42,8 @@ c
         logical          :: graph, newton, anaw, linear
         double precision :: thresh, fdstep
 
+	double precision :: ecrpa
+
         type(gwtimer)    :: timer
 
       end type gw_params_t

@@ -31,7 +31,7 @@
       integer g_pi, g_sol, addrPi, addrSol, llpi, off, g_inv
       integer pihi, pilo, kOV(2), ga, first, second, step
       integer spacelo, addr, gb, owner, ints, nris
-      double precision fac, w, arg2, dfac, sgn
+      double precision fac, w, arg2, dfac, sgn, dummy
       double precision vector(nri), vector2(nri)
       double precision vector3(nri)
 
@@ -180,7 +180,7 @@
 
         call gw_buildpi('r',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
      $                   dbl_mb(kfac),nri,nri,pars%mynpoles,main,ipol,
-     $                   maxpoles)
+     $                   maxpoles,dummy)
         call ga_dgop(mt_dbl,dbl_mb(k_pi),nri**2,'+')
 
         root = mod((imo-off-1)*nspace+jmo-off-1,nprocs)

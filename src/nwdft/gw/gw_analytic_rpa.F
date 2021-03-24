@@ -60,6 +60,8 @@
      $                 pars%g_eriov(1),pars%g_eriov(1),0d0,g_rpa)
         call gw_analytic_addrpa(dbl_mb(kRPA),eia(1,1),mynpoles,
      $                          pars%ovlo(1))
+        call gw_analytic_ecrpa(dbl_mb(kRPA),eia(1,1),mynpoles,
+     $                         pars%ovlo(1),pars%ecrpa)
 
 
 #ifdef PARALLEL_DIAG
@@ -78,6 +80,8 @@
           omega(ipole,1) = dsqrt(omega(ipole,1))
         enddo
 !$omp   end parallel do
+
+        pars%ecrpa = pars%ecrpa + 0.5d0*sum(omega(1:npoles,1))
 
         if (.not.ga_duplicate(pars%g_eriov(1),pars%g_erim(1),
      $                        'transformed eri alpha'))

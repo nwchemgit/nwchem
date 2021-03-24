@@ -50,6 +50,9 @@ c
       pars%timer%total = util_wallsec() - pars%timer%total
 
       if (pars%me.eq.0) then
+ 1000   format(" RPA correlation energy   = ",F25.12)
+        write(luout,*)
+        write(luout,1000) pars%ecrpa
         write(luout,*)
         write(luout,*) "    GW Timing Statistics"
         write(luout,*) "  ------------------------"
