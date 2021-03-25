@@ -168,7 +168,7 @@
 #else        
         call gw_buildpi('r',dbl_mb(kOV(1)),dbl_mb(kOV(2)),GWMB(k_pi),
      $                   factor,nri,nri,pars%mynpoles,main,ipol,
-     $                   maxpoles,dummy)
+     $                   maxpoles)
 #endif        
         call GWGOP(GWMT,GWMB(k_pi),nri**2,'+')
 

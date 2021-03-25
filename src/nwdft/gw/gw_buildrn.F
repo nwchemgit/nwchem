@@ -180,7 +180,7 @@
 
         call gw_buildpi('r',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
      $                   dbl_mb(kfac),nri,nri,pars%mynpoles,main,ipol,
-     $                   maxpoles,dummy)
+     $                   maxpoles)
         call ga_dgop(mt_dbl,dbl_mb(k_pi),nri**2,'+')
 
         root = mod((imo-off-1)*nspace+jmo-off-1,nprocs)

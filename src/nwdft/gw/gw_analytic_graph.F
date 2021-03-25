@@ -31,6 +31,7 @@
       main = pars%me .eq. 0
       dbls = ma_sizeof(mt_dbl,1,mt_byte)
       logs = ma_sizeof(mt_log,1,mt_byte)
+      pars%ecgm = 0d0
 
       do isp=1,pars%ipol
         totalqp = pars%noqp(isp) + pars%nvqp(isp)
@@ -75,6 +76,12 @@
           call gw_analytic_wmn(pars,g_wmn,iqp+llmo-1,isp,nri)
           pars%timer%wm = pars%timer%wm - timer + util_wallsec()
 c        
+          if (llmo+iqp-1.le.pars%nocc(isp)) then
+            call gw_analytic_ecgm(pars%ecgm,Eold(llmo+iqp-1,isp),Eold,
+     $                          omega(1,isp),g_wmn,0.003d0**2,
+     $                          pars%npoles(isp),pars%nmo,plus,pars%me)
+          endif
+c          
           ! Try just five steps and then use graphical solver
           do iter=1,5
 

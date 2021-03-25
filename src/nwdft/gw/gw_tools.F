@@ -224,23 +224,11 @@
 #endif      
 
       call ga_distribution(wmn, me, ilo, ihi, jlo , jhi)
+      call ga_access(wmn, ilo, ihi ,jlo, jhi, adrWMN, ld)
 
       tecgm = 0d0
 
-      call ga_access(wmn, ilo, ihi ,jlo, jhi, adrWMN, ld)
-
 !$omp parallel private(omega,w,denom) reduction(+: tecgm)
-c!$omp do collapse(2)
-c      do imo=1,plus
-c        do ipole=jlo,jhi
-c          omega = omegain - Eold(imo) + omegam(ipole)
-c          w = dbl_mb(adrWMN + (ipole-jlo)*ld + imo - 1)
-c          denom = omega**2 + eta
-c          tecgm = tecgm + w*omega/denom
-c        enddo
-c      enddo
-c!$omp end do      
-c
 !$omp do collapse(2)
       do imo=plus+1,nmo
         do ipole=jlo,jhi
@@ -261,3 +249,48 @@ c
 #endif      
 
       end subroutine
+
+
+      subroutine gw_cdgw_ecgm(pi,vx,nri,ldpi,ecgm,ecrpa)
+        implicit none
+        integer nri,ldpi
+        double precision pi(ldpi,*),vx(ldpi,*),ecgm,ecrpa
+        integer info,iri,jri
+        double precision evals(nri),temp
+        double precision work(nri,nri),work2(nri,nri)
+
+        ecgm = 0d0
+        ecrpa = 0d0
+        iri = (nri*(nri+1))/2/ldpi
+
+        call dpftri('n','l',nri,vx,info)
+
+        if ( mod(nri,2) .eq. 0 ) then
+          do iri=1,nri/2
+            do jri=1,iri-1
+              ecgm = ecgm + 2d0*pi(jri,iri)*vx(jri,iri)
+            enddo
+            do jri=iri+2,nri+1
+              ecgm = ecgm + 2d0*pi(jri,iri)*vx(jri,iri)
+            enddo
+            ecgm = ecgm + (pi(iri,iri)-1d0)*(vx(iri,iri)-1d0)
+            ecgm = ecgm + (pi(iri+1,iri)-1d0)*(vx(iri+1,iri)-1d0)
+            ecrpa = ecrpa - pi(iri,iri) - pi(iri+1,iri)
+          enddo
+        else
+          do iri=1,nri/2+1
+            ecgm = ecgm+2d0*dot_product(pi(:,iri),vx(:,iri))
+            ecgm = ecgm-pi(iri,iri)-vx(iri,iri)-pi(iri,iri)*vx(iri,iri)
+            ecrpa = ecrpa - pi(iri,iri)
+            if (iri.gt.1) then
+              ecgm=ecgm-pi(iri-1,iri)-vx(iri-1,iri)-
+     $                  pi(iri-1,iri)*vx(iri-1,iri)
+              ecrpa = ecrpa - pi(iri-1,iri)
+            endif
+          enddo
+          ecgm = ecgm + dble(nri)
+        endif
+
+        ecrpa = ecrpa + dble(nri)
+
+        end subroutine

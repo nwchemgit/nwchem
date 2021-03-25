@@ -42,7 +42,7 @@ c
         logical          :: graph, newton, anaw, linear
         double precision :: thresh, fdstep
 
-	double precision :: ecrpa,ecgm,ex
+	double precision :: ecrpa,ecgm,ex,exscf,ecscf,escf
 
         type(gwtimer)    :: timer
 

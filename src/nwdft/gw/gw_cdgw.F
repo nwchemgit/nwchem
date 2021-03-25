@@ -267,6 +267,8 @@ c     *****************************************************************
       integer addrOO, addrOV, addrVV
       integer,external :: omp_get_num_threads,omp_get_thread_num
 
+      pars%ex = 0d0
+
       do ipol=1,pars%ipol
         if (pars%nqp(ipol).eq.0) cycle
 
@@ -288,7 +290,6 @@ c
               idx = (idx/pars%nprocs)*nri + addrOO
               temp = temp - ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
             enddo
-            pars%ex = pars%ex + temp
 c
           else
 c
@@ -307,6 +308,10 @@ c
       enddo
 
       call ga_dgop(mt_dbl,sigmax,nmo*pars%ipol,'+')
+
+      do ipol=1,pars%ipol
+        pars%ex = pars%ex+sum(sigmax(1:pars%nocc(ipol),ipol))/pars%ipol
+      enddo
 
       end subroutine
 

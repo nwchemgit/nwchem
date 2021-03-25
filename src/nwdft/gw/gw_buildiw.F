@@ -24,10 +24,10 @@
       logical main
       integer molo,mohi,ldpi,sizepi,l_sol,k_sol,k_work,l_work,lwork
       integer ilo,ihi,me,ld,mynpoles,igl,ipole,info,k_ipiv,l_ipiv
-      integer pilo,pihi,k_pi,l_pi,idx,idy,l_tmp,tmp
+      integer pilo,pihi,k_pi,l_pi,idx,idy,l_tmp,tmp,l_vx,k_vx
       integer imo,jmo,kmo,lmo,nprocs,kOV1,kOV2,isp,addr,idz,kOO(2)
       integer kVV(2),kOV(2),mynvir,mynocc,nlocal,nmod
-      double precision w2,ecrpa
+      double precision w2,ecrpa,ecgm
 #ifdef USE_ALLOC
       real(kind=C_DOUBLE), allocatable    :: factor(:,:)
       integer(kind=c_int)         :: stat_alloc
@@ -56,6 +56,8 @@
       me = ga_nodeid()
       nprocs = ga_nnodes()
       main = me.eq.0
+      pars%ecrpa = 0d0
+      pars%ecgm = 0d0
 
       if (mod(nri,2).eq.0) then
         ldpi = nri + 1
@@ -64,8 +66,10 @@
       endif
       sizepi = (nri*(nri+1))/2
 
-      if (.not.ma_alloc_get(mt_dbl,nri**2,'Pi',l_pi,k_pi))
+      if (.not.ma_alloc_get(mt_dbl,sizepi,'Pi',l_pi,k_pi))
      $  call errquit(pname//'can''t allocate Pi',0,MA_ERR) 
+      if (.not.ma_alloc_get(mt_dbl,sizepi,'vx',l_vx,k_vx))
+     $  call errquit(pname//'can''t allocate vx',0,MA_ERR) 
       if (.not.ma_alloc_get(mt_dbl,nri*mynmo,'temp',l_tmp,tmp))
      $  call errquit(pname//'can''t allocate tmp',0,MA_ERR) 
       if (.not.ma_alloc_get(mt_dbl,nri*mynmo,'sol',l_sol,k_sol))
@@ -99,7 +103,6 @@
       endif
       t0=util_wallsec()
 
-      pars%ecrpa = 0d0
 
       do igl=ngl,1,-1
 c
@@ -124,8 +127,7 @@ c
 
         call gw_buildpi('w',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
      $                  factor,ldpi,nri,pars%mynpoles,main,ipol,
-     $                  maxpoles,ecrpa)
-        pars%ecrpa = pars%ecrpa + wgt(igl)*ecrpa
+     $                  maxpoles)
 
         if(me.eq.0) then
  1234      format(a,i3,a,i3,a,f20.3)
@@ -139,13 +141,14 @@ c
      C          ' called dgop at ',
      T          util_wallsec()-t0
         endif
+
+        call dcopy(sizepi,dbl_mb(k_pi),1,dbl_mb(k_vx),1)
         !
         ! All cores invert the same matrix in order to avoid
         ! communication. This is good for small matrices but
         ! will be very slow for large ones.
         !
 
-        cholesky = .true.
         call dpftrf('n','l',nri,dbl_mb(k_pi),info)
         !
         if (me.eq.0) then
@@ -229,7 +232,16 @@ c
           enddo
 c
         enddo
+
+        if (me.eq.0) then
+          call gw_cdgw_ecgm(dbl_mb(k_vx),dbl_mb(k_pi),nri,ldpi,ecgm,
+     $                      ecrpa)
+          pars%ecgm = pars%ecgm + wgt(igl)*ecgm
+          pars%ecrpa = pars%ecrpa + wgt(igl)*ecrpa
+        endif
+
       enddo
+
       deallocate(factor,STAT = stat_alloc)
       if(stat_alloc.ne.0)
      &     call errquit(' gw_buildiw: deallocate failed for size',
@@ -244,9 +256,11 @@ c
      $  call errquit(pname//'can''t free IPIV heap',me,MA_ERR) 
       if (.not.(ma_free_heap(l_work)))
      $  call errquit(pname//'can''t free WORK heap',me,MA_ERR) 
+      if (.not.(ma_free_heap(l_vx)))
+     $  call errquit(pname//'can''t free vX heap',me,MA_ERR) 
 
       pars%ecrpa = pars%ecrpa*0.5d0
-      call dgop(mt_dbl,pars%ecrpa,1,'+')
+      pars%ecgm  = pars%ecgm*0.25d0
 
 #ifdef USE_OPENMP
       call util_blas_set_num_threads(1)

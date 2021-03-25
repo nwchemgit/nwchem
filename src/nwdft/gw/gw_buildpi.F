@@ -1,5 +1,5 @@
       subroutine gw_buildpi(which,ovup,ovdw,pi,factor,ldpi,nri,npoles,
-     $                      main,ipol,maxpoles,ecrpa)
+     $                      main,ipol,maxpoles)
       implicit none
 #include "mafdecls.fh"      
 #include "errquit.fh"
@@ -8,7 +8,6 @@
       character(len=1),intent(in) :: which
       integer,intent(in),dimension(ipol) :: npoles
       double precision,intent(inout),dimension(nri,*) :: ovup,ovdw
-      double precision,intent(out) :: ecrpa
 
       double precision,intent(in),dimension(maxpoles,ipol) :: factor
       double precision,intent(out),dimension(ldpi,*) :: pi
@@ -56,21 +55,17 @@
         endif
 
         if (main) then
-          ecrpa = 0d0
           if ( mod(nri,2) .eq. 0 ) then
-!$omp       parallel do reduction(+: ecrpa)
+!$omp       parallel do
             do iri=1,nri/2
-              ecrpa = ecrpa - pi(iri,iri) - pi(iri+1,iri)
               pi(iri,iri) = pi(iri,iri) + 1d0
               pi(iri+1,iri) = pi(iri+1,iri) + 1d0
             enddo
 !$omp       end parallel do
           else
-            ecrpa = ecrpa - pi(1,1)
             pi(1,1) = pi(1,1) + 1d0
-!$omp       parallel do reduction(+:ecrpa)
+!$omp       parallel do
             do iri=2,nri/2+1
-              ecrpa = ecrpa - pi(iri-1,iri) - pi(iri,iri)
               pi(iri-1,iri) = pi(iri-1,iri) + 1d0
               pi(iri,iri) = pi(iri,iri) + 1d0
             enddo

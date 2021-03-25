@@ -53,10 +53,17 @@ c
   900   format("  Exact exchange energy   = ",F25.12)
  1000   format(" RPA correlation energy   = ",F25.12)
  1010   format("  GM correlation energy   = ",F25.12)
+ 1020   format("       Total RPA energy   = ",F25.12)
+ 1030   format("        Total GM energy   = ",F25.12)
         write(luout,*)
         write(luout,900) pars%ex
         write(luout,1000) pars%ecrpa
-        if (.not.pars%cdgw) write(luout,1010) pars%ecgm
+        write(luout,1010) pars%ecgm
+        write(luout,*)
+        write(luout,1020) pars%escf-pars%exscf-pars%ecscf+
+     $                    pars%ex+pars%ecrpa
+        write(luout,1030) pars%escf-pars%exscf-pars%ecscf+
+     $                    pars%ex+pars%ecgm
         write(luout,*)
         write(luout,*) "    GW Timing Statistics"
         write(luout,*) "  ------------------------"

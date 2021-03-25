@@ -40,7 +40,6 @@
       dbls = ma_sizeof(mt_dbl,1,mt_byte)
       logs = ma_sizeof(mt_log,1,mt_byte)
 
-
       do isp=1,pars%ipol
         warning = .false.
 
