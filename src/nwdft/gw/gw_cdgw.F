@@ -288,6 +288,7 @@ c
               idx = (idx/pars%nprocs)*nri + addrOO
               temp = temp - ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
             enddo
+            pars%ex = pars%ex + temp
 c
           else
 c

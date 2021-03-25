@@ -200,3 +200,64 @@
       call dgop(1,ecrpa,1,'+')
 
       end subroutine
+
+
+      subroutine gw_analytic_ecgm(ecgm,omegain,Eold,Omegam,wmn,eta,
+     $                            npoles,nmo,plus,me)
+      implicit none
+#include "gw.fh"
+#include "errquit.fh"
+#include "mafdecls.fh"
+
+      integer,intent(in) :: wmn,npoles,nmo,plus,me
+      double precision,intent(in) :: omegain,Eold(nmo)
+      double precision,intent(in) :: eta,Omegam(npoles)
+      double precision,intent(out) :: ecgm
+
+      integer :: ilo, ihi, jlo, jhi, ipole, imo, ld, adrWMN
+      double precision :: omega,w,denom,tecgm
+#ifdef USE_OPENMP
+      integer iMaxThreads
+      integer,external :: omp_get_max_threads
+      iMaxThreads = omp_get_max_threads()
+      call util_blas_set_num_threads(iMaxThreads)
+#endif      
+
+      call ga_distribution(wmn, me, ilo, ihi, jlo , jhi)
+
+      tecgm = 0d0
+
+      call ga_access(wmn, ilo, ihi ,jlo, jhi, adrWMN, ld)
+
+!$omp parallel private(omega,w,denom) reduction(+: tecgm)
+c!$omp do collapse(2)
+c      do imo=1,plus
+c        do ipole=jlo,jhi
+c          omega = omegain - Eold(imo) + omegam(ipole)
+c          w = dbl_mb(adrWMN + (ipole-jlo)*ld + imo - 1)
+c          denom = omega**2 + eta
+c          tecgm = tecgm + w*omega/denom
+c        enddo
+c      enddo
+c!$omp end do      
+c
+!$omp do collapse(2)
+      do imo=plus+1,nmo
+        do ipole=jlo,jhi
+          omega = omegain - Eold(imo) - omegam(ipole)
+          w = dbl_mb(adrWMN + (ipole-jlo)*ld + imo - 1)
+          denom = omega**2 + eta
+          tecgm = tecgm + w*omega/denom
+        enddo
+      enddo
+!$omp end  do      
+!$omp end parallel
+c
+      call ga_dgop(mt_dbl,tecgm,1,'+')
+      ecgm = ecgm + tecgm
+
+#ifdef USE_OPENMP
+      call util_blas_set_num_threads(1)
+#endif      
+
+      end subroutine

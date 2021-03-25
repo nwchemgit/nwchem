@@ -55,6 +55,10 @@ c
       pars%timer%iw    = 0d0
       pars%timer%vmo   = 0d0
 
+      pars%ecrpa = 0d0
+      pars%ecgm  = 0d0
+      pars%ex    = 0d0
+
       pars%me = ga_nodeid()
       pars%nprocs = ga_nnodes()
 

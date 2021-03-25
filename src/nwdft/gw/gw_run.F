@@ -179,6 +179,10 @@ c
 
 c
       if (pars%evgw0.or.pars%evgw) then
+        call gw_scissor(dbl_mb(k_Enew),dbl_mb(k_Eold),pars%nmo,
+     $                  pars%nocc,pars%nvir,pars%noqp,pars%nvqp,
+     $                  pars%ipol,pars%me)
+
         call ga_brdcst(mt_dbl,dbl_mb(k_enew),
      $       ma_sizeof(mt_dbl,nmo,mt_byte),0)
         call ga_brdcst(mt_dbl,dbl_mb(k_sigma),
