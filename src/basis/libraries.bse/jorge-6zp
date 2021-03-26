@@ -1,43 +1,52 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# jorge-6zp version number 1
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# jorge-6ZP version number 1
 # Description: 6ZP: 6 zeta valence quality plus polarization
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H-Ar
-#     ## TODO
+# 
+#  References for the basis set
+# 
+#  H-Ar
+#      TODO
+#          campos2011a
+# 
+# 
+# 
+# campos2011a
 #     Campos, C. T., Ceolin, G. A., Neto, A. Canal, Jorge, F. E., Pansini,
 #             F. N. N.
 #     Gaussian basis set of sextuple zeta quality for hydrogen through argon
-#     Chem. Phys. Lett., 516, 125-130 (2011)
+#     Chem. Phys. Lett. 516, 125-130 (2011)
 #     10.1016/j.cplett.2011.09.073
 # 
 # # 
-basis "H_jorge-6zp" 
+basis "H_jorge-6ZP" SPHERICAL 
 #basis SET: (8s,5p,4d,3f,2g,1h) -> [6s,5p,4d,3f,2g,1h]
 H    S
     413.36997159             0.0002692
@@ -84,7 +93,7 @@ H    G
 H    H
       2.57312199             1.0000000
 end
-basis "He_jorge-6zp" 
+basis "He_jorge-6ZP" SPHERICAL 
 #basis SET: (8s,5p,4d,3f,2g,1h) -> [6s,5p,4d,3f,2g,1h]
 He    S
    1086.49524300             0.0003803
@@ -131,7 +140,7 @@ He    G
 He    H
       3.60489999             1.0000000
 end
-basis "Li_jorge-6zp" 
+basis "Li_jorge-6ZP" SPHERICAL 
 #basis SET: (15s,9p,5d,4f,3g,2h,1i) -> [8s,6p,5d,4f,3g,2h,1i]
 Li    S
    9382.29798748             0.0016192
@@ -202,7 +211,7 @@ Li    H
 Li    I
       0.25178871             1.0000000
 end
-basis "Be_jorge-6zp" 
+basis "Be_jorge-6ZP" SPHERICAL 
 #basis SET: (15s,9p,4d,3f,3g,2h,1i) -> [8s,6p,4d,3f,3g,2h,1i]
 Be    S
   31968.62665712             0.0005404
@@ -269,7 +278,7 @@ Be    H
 Be    I
       0.53963000             1.0000000
 end
-basis "B_jorge-6zp" 
+basis "B_jorge-6ZP" SPHERICAL 
 #basis SET: (15s,9p,5d,4f,3g,2h,1i) -> [8s,6p,5d,4f,3g,2h,1i]
 B    S
   47300.94134989             0.0004750
@@ -340,7 +349,7 @@ B    H
 B    I
       0.91575100             1.0000000
 end
-basis "C_jorge-6zp" 
+basis "C_jorge-6ZP" SPHERICAL 
 #basis SET: (15s,9p,5d,4f,3g,2h,1i) -> [8s,6p,5d,4f,3g,2h,1i]
 C    S
   80913.54334832             0.0003604
@@ -411,7 +420,7 @@ C    H
 C    I
       1.43347400             1.0000000
 end
-basis "N_jorge-6zp" 
+basis "N_jorge-6ZP" SPHERICAL 
 #basis SET: (15s,9p,5d,4f,3g,2h,1i) -> [8s,6p,5d,4f,3g,2h,1i]
 N    S
   95844.68625705             0.0005273
@@ -482,7 +491,7 @@ N    H
 N    I
       2.04885226             1.0000000
 end
-basis "O_jorge-6zp" 
+basis "O_jorge-6ZP" SPHERICAL 
 #basis SET: (15s,9p,5d,4f,3g,2h,1i) -> [8s,6p,5d,4f,3g,2h,1i]
 O    S
  123363.37458064             0.0005029
@@ -553,7 +562,7 @@ O    H
 O    I
       2.69806252             1.0000000
 end
-basis "F_jorge-6zp" 
+basis "F_jorge-6ZP" SPHERICAL 
 #basis SET: (15s,9p,5d,4f,3g,2h,1i) -> [8s,6p,5d,4f,3g,2h,1i]
 F    S
  148481.28032177             0.0005493
@@ -624,7 +633,7 @@ F    H
 F    I
       3.49001956             1.0000000
 end
-basis "Ne_jorge-6zp" 
+basis "Ne_jorge-6ZP" SPHERICAL 
 #basis SET: (15s,9p,5d,4f,3g,2h,1i) -> [8s,6p,5d,4f,3g,2h,1i]
 Ne    S
  162323.16145893             0.0005859
@@ -695,7 +704,7 @@ Ne    H
 Ne    I
       4.44094529             1.0000000
 end
-basis "Na_jorge-6zp" 
+basis "Na_jorge-6ZP" SPHERICAL 
 #basis SET: (19s,13p,5d,3f,3g,2h,1i) -> [11s,8p,5d,3f,3g,2h,1i]
 Na    S
  316686.45250194             0.0002483
@@ -777,7 +786,7 @@ Na    H
 Na    I
       0.04788914             1.0000000
 end
-basis "Mg_jorge-6zp" 
+basis "Mg_jorge-6ZP" SPHERICAL 
 #basis SET: (19s,13p,5d,4f,3g,2h,1i) -> [11s,8p,5d,4f,3g,2h,1i]
 Mg    S
  414294.10757962             0.0002991
@@ -861,7 +870,7 @@ Mg    H
 Mg    I
       0.27671341             1.0000000
 end
-basis "Al_jorge-6zp" 
+basis "Al_jorge-6ZP" SPHERICAL 
 #basis SET: (19s,13p,5d,3f,2g,2h,1i) -> [11s,8p,5d,3f,2g,2h,1i]
 Al    S
  546279.09136914             0.0000920
@@ -941,7 +950,7 @@ Al    H
 Al    I
       0.49265953             1.0000000
 end
-basis "Si_jorge-6zp" 
+basis "Si_jorge-6ZP" SPHERICAL 
 #basis SET: (19s,13p,5d,3f,3g,2h,1i) -> [11s,8p,5d,3f,3g,2h,1i]
 Si    S
  685707.15108147             0.0000982
@@ -1023,7 +1032,7 @@ Si    H
 Si    I
       0.66397068             1.0000000
 end
-basis "P_jorge-6zp" 
+basis "P_jorge-6ZP" SPHERICAL 
 #basis SET: (19s,13p,4d,3f,2g,2h,1i) -> [11s,8p,4d,3f,2g,2h,1i]
 P    S
  788223.02864540             0.0002629
@@ -1101,7 +1110,7 @@ P    H
 P    I
       0.87031540             1.0000000
 end
-basis "S_jorge-6zp" 
+basis "S_jorge-6ZP" SPHERICAL 
 #basis SET: (19s,13p,5d,3f,3g,2h,1i) -> [11s,8p,5d,3f,3g,2h,1i]
 S    S
  836526.17706889             0.0002897
@@ -1183,7 +1192,7 @@ S    H
 S    I
       1.02290437             1.0000000
 end
-basis "Cl_jorge-6zp" 
+basis "Cl_jorge-6ZP" SPHERICAL 
 #basis SET: (19s,13p,4d,3f,3g,2h,1i) -> [11s,8p,4d,3f,3g,2h,1i]
 Cl    S
  764476.25660476             0.0005577
@@ -1263,7 +1272,7 @@ Cl    H
 Cl    I
       1.24374527             1.0000000
 end
-basis "Ar_jorge-6zp" 
+basis "Ar_jorge-6ZP" SPHERICAL 
 #basis SET: (19s,13p,5d,3f,3g,2h,1i) -> [11s,8p,5d,3f,3g,2h,1i]
 Ar    S
  881301.20187978             0.0005750

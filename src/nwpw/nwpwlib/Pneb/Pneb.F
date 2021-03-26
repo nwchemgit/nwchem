@@ -1618,6 +1618,7 @@ c     ****************************************
       integer nb,nb1,nb2,ms,ms1,ms2,n
       integer shift,shiftso,shift2,ishift2,ishift3
 
+
       if (parallelized_j) then
          if (mb.eq.0) then
             ms1 = 1
@@ -2507,11 +2508,13 @@ c     *           Pneb_orthoCheckMake_tag       *
 c     *                                         *
 c     ccccccccccccccccccccccccccccccccccccccccccc
 
-      subroutine Pneb_orthoCheckMake_tag(coutput,mb,nbb,npack1,A_tag)
+      subroutine Pneb_orthoCheckMake_tag(coutput,mb,nbb,npack1,A_tag,
+     >                                   failed)
       implicit none
       logical coutput
       integer mb,nbb,npack1
       integer A_tag
+      logical failed
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -2534,9 +2537,10 @@ c     ccccc local variables ccccc
       external control_print
       external cpsi_data_nsize,cpsi_data_get_chnk
 
+      failed = .false.
       call Parallel_taskid(taskid)
       oprint = ((taskid.eq.MASTER).and.control_print(print_high))
-      oprint = (taskid.eq.MASTER)
+      !oprint = (taskid.eq.MASTER)
 
       if (nbb.eq.0) then
          nb1=1
@@ -2571,6 +2575,7 @@ c     ccccc local variables ccccc
      >                         dbl_mb(a_shift),npack1,
      >                         sum2)
             if (dabs(sum2-sum1).gt.1.d-10) then
+              failed = .true.
               call Pneb_makeOrtho(ms,nbq,npack1,dbl_mb(a_shift))
               call Pneb_ff_trace(ms,nbq,
      >                         dbl_mb(a_shift),
@@ -2906,8 +2911,8 @@ c     **** local variables ****
       integer nb,nb1,nb2,ishift3,ishift1,ishift11
      
       integer jj,kk,rr,ss,jcur,kcur,rcur,scur
-      integer tmp(2)
-      real*8 w
+      integer tmp(2),irsize,i
+      real*8 w,rscal,ar,ai,aa
       complex*16 wc
 
       if (mparallelized) then
@@ -2919,53 +2924,73 @@ c     **** not mparallized ****
             nb1=1
             nb2=nbrillq
             ishift3 = ne(1)*ne(1)+ne(2)*ne(2)*(ispinq-1)
+            irsize = nbrillq
          else
             ishift3 = 0
             nb1=nbb
             nb2=nbb
+            irsize = 1
          end if
          if (mb.eq.0) then
             ms1 = 1
             ms2 = ispin
             ishift2 = ne(1)*ne(1)
+            irsize = irsize*(ne(1)*ne(1) + ne(2)*ne(2))
          else
             ms1 = mb
             ms2 = mb
             ishift2 = 0
+            irsize = irsize*(ne(mb)*ne(mb))
          end if
          ishift1  = neq(1)*npack1
          ishift11 = (neq(1)+neq(2))*npack1
 
 c         **** modified Gram-Schmidt ****
-         call Parallel_shared_vector_zero(.true.,
-     >                              2*(ne(1)*ne(1)+ne(2)*ne(2)),R)
+         call Parallel_shared_vector_zero(.true.,2*irsize,R)
          do nb=nb1,nb2
          do ms=ms1,ms2
-         do k=1,ne(ms)
-            indxk = 1 + (k-1)*npack1 + (ms-1)*ishift1 + (nb-1)*ishift11
-            indxm = k + (k-1)*ne(ms) + (ms-1)*ishift2  + (nb-1)*ishift3
-            call Cram_cc_dot(nb,Q(indxk),Q(indxk),w)
-            R(indxm) = dcmplx(dsqrt(w),0.0d0)
-            w        = 1.0d0/R(indxm)
-            call Cram_c_SMul1(nb,w,Q(indxk))
 
-            do j=k+1,ne(ms)
-               indxj = 1+(j-1)*npack1 + (ms-1)*ishift1+(nb-1)*ishift11
-               indxm = k+(j-1)*ne(ms) + (ms-1)*ishift2+(nb-1)*ishift3
-               call Cram_cc_zdot(nb,Q(indxk),Q(indxj),wc)
-               R(indxm) = wc
-               w = -wc
-               call Cram_cc_zaxpy(1,wc,Q(indxk),Q(indxj))
+            indxk = (ms-1)*ishift1 + (nb-1)*ishift11
+            rscal = 0.0d0
+            do i=1,neq(ms)*npack1
+               ar = dble( Q(indxk+i))
+               ai = dimag(Q(indxk+i))
+               aa = ar*ar + ai*ai
+               if (aa.gt.rscal) rscal = aa
             end do
-         end do
+            rscal = dsqrt(rscal)
+            call C3dB_MaxAll(rscal)
+            !write(*,*) "nb,ms,rscal=",nb,ms,rscal
+            call DSCAL_OMP(2*neq(ms)*npack1,1.0d0/rscal,Q(indxk+1),1)
+    
+    
+            do k=1,ne(ms)
+               indxk = 1+(k-1)*npack1 + (ms-1)*ishift1 + (nb-1)*ishift11
+               indxm = k+(k-1)*ne(ms) + (ms-1)*ishift2 + (nb-1)*ishift3
+               call Cram_cc_dot(nb,Q(indxk),Q(indxk),w)
+               R(indxm) = dcmplx(dsqrt(w),0.0d0)
+               w        = 1.0d0/R(indxm)
+               call Cram_c_SMul1(nb,w,Q(indxk))
+
+               do j=k+1,ne(ms)
+                  indxj = 1+(j-1)*npack1 +(ms-1)*ishift1+(nb-1)*ishift11
+                  indxm = k+(j-1)*ne(ms) +(ms-1)*ishift2+(nb-1)*ishift3
+                  call Cram_cc_zdot(nb,Q(indxk),Q(indxj),wc)
+                  !call Cram_cc_zdot(nb,Q(indxj),Q(indxk),wc)
+                  R(indxm) = wc
+                  wc = -wc
+                  call Cram_cc_zaxpy(1,wc,Q(indxk),Q(indxj))
+               end do
+            end do
+   
+            indxm = 1 + (ms-1)*ishift2+(nb-1)*ishift3
+            call DSCAL_OMP(2*ne(ms)*ne(ms),rscal,R(indxm),1)
          end do
          end do
       end if
 
       return
       end 
-
-
 
 
 
@@ -4936,7 +4961,7 @@ c     ****************************************
          end if
          !call dcopy(4*(ne(1)*ne(1)+ne(2)*ne(2)),0.0d0,0,T,1)
          call Parallel_shared_vector_zero(.true.,
-     >                       4*(ne(1)*ne(1)+ne(2)*ne(2))*nbsize*2,T)
+     >                       8*(ne(1)*ne(1)+ne(2)*ne(2))*nbsize,T)
          do nb=nb1,nb2
          do ms=ms1,ms2
              shift1 = 1+(ms-1)*ishift1+(nb-1)*ishift3
@@ -5678,34 +5703,40 @@ c     ****************************************
 *            Sigma: eigenvalues
 *
 *
-      subroutine Pneb_4w_FactorSkew(mb,nbb,K,U,Sigma)
+      subroutine Pneb_4w_FactorSkew(mb,nbb,K,U,S,max_sigma)
       implicit none
       integer    mb,nbb
       complex*16 K(*),U(*)
-      real*8     Sigma(*)
+      real*8     S(*),max_sigma
       
 #include "bafdecls.fh"
-#include "errquit.fh"
 #include "Pneb.fh"                       
+#include "errquit.fh"
 
 *     **** local variables ****         
       logical value
       integer ms,ms1,ms2,shift1,shift2,ishift1,ishift2
-      integer nb,nb1,nb2,ishift3,ishift4,nbsize
-      integer work(2),rwork(2),lwork,ierr
+      integer nb,nb1,nb2,ishift3,ishift4,nbsize,nn,i
+      integer f4wwork(2),f4wrwork(2),f4wlwork,ierr
 
       call nwpw_timing_start(17)  
 
-c     **** get temp memory from stack ****
-      lwork=4*ne(1)*ne(1)
-      value =BA_push_get(mt_dbl,lwork,'rwork',rwork(2),rwork(1))
-      value =value.and.BA_push_get(mt_dcpl,lwork,'work',work(2),work(1))
-      if (.not.value) 
-     >   call errquit('Pneb_4w_FactorSkewg: out of stack',0,MA_ERR)
 
+c     **** get temp memory from stack ****
+      ierr = 0
+      f4wlwork=4*ne(1)*ne(1)
+      value = BA_push_get(mt_dbl,f4wlwork,'f4wrwork',
+     >                   f4wrwork(2),f4wrwork(1))
+      value = value.and.
+     >        BA_push_get(mt_dcpl,f4wlwork,'f4wwork',
+     >                    f4wwork(2),f4wwork(1))
+      if (.not.value) 
+     >   call errquit('Pneb_4w_FactorSkew: out of stack',0,MA_ERR)
+
+      max_sigma = -1.2e22
 
       if (mparallelized) then
-        call errquit('Dneall_4m_FactorSkew: mparallel not finished',0,0)
+        call errquit('Pneb_4m_FactorSkew: mparallel not finished',0,0)
       else 
          if (nbb.eq.0) then
             nb1 = 1
@@ -5732,28 +5763,38 @@ c     **** get temp memory from stack ****
          end if
 
          call Parallel_shared_vector_copy(.true.,
-     >                       nbsize*4*(ne(1)*ne(1)+ne(2)*ne(2)),K,U)
+     >                       nbsize*8*(ne(1)*ne(1)+ne(2)*ne(2)),K,U)
          call ZSCAL_OMP(nbsize*4*(ne(1)*ne(1)+ne(2)*ne(2)),
      >              dcmplx(0.0d0,1.0d0),U,1)
 
          do nb=nb1,nb2
          do ms=ms1,ms2
+            nn = 2*ne(ms)
             shift1 = 1 + (ms-1)*ishift1 + (nb-1)*ishift3
             shift2 = 1 + (ms-1)*ishift2 + (nb-1)*ishift4
-            call ZHEEV('V','L',2*ne(ms),
-     >                 U(shift2),2*ne(ms),
-     >                 Sigma(shift1),
-     >                 dcpl_mb(work(1)),lwork,dbl_mb(rwork),ierr)
-             if (ierr.ne.0) 
-     >          call errquit("Pneb_4w_FactorSkew: ZHEEV failed",ierr,0)
-
+            call ZHEEV('V','L',nn,
+     >                 U(shift2),nn,
+     >                 S(shift1),
+     >                 dcpl_mb(f4wwork(1)),f4wlwork,
+     >                 dbl_mb(f4wrwork(1)),ierr)
+            if (ierr.ne.0) 
+     >         call errquit("Pneb_4w_FactorSkew: ZHEEV failed",ierr,0)
+            do i=1,nn
+               if (S(shift1+i-1).gt.max_sigma) max_sigma=S(shift1+i-1)
+            end do
          end do
          end do
       end if
 
+      value = BA_pop_stack(f4wwork(2))
+      value = value.and.BA_pop_stack(f4wrwork(2))
+      if (.not.value) 
+     >   call errquit('Pneb_4w_FactorSkew: pop stack',0,MA_ERR)
+
       call nwpw_timing_end(17)
       return
       end
+
 
 c     ****************************************
 c     *                                      *
@@ -5809,8 +5850,8 @@ c     ****************************************
  30        continue
          end do
          end do
-         call Pneb_4www_Multiply3(0,0,dcmplx(1.0d0,0.0d0),U,AB,
-     >                            dcmplx(0.0d0,0.0d0),R)
+         call Pneb_4www_Multiply3(0,0,U,AB,dcmplx(1.0d0,0.0d0),
+     >                            R,dcmplx(0.0d0,0.0d0))
       end if
 
       return

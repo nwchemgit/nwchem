@@ -1,130 +1,149 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# stuttgart rlc ecp version number 0
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# Stuttgart RLC ECP version number 0
 # Description: Stuttgart RLC ECP
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# Li,Na,K
-#     ## Stuttgart RLC ECP
-#     Fuentealba, Patricio, Preuss, Heinzwerner, Stoll, Hermann, Szentpály,
-#             László Von
-#     A proper account of core-polarization with pseudopotentials: single
-#             valence-electron alkali compounds
-#     Chem. Phys. Lett., 89, 418-422 (1982)
-#     10.1016/0009-2614(82)80012-2
 # 
-# Be,Mg,Ca,Sr,Ba
-#     ## Stuttgart RLC ECP
-#     Fuentealba, P, Szentpaly, L von, Preuss, H, Stoll, H
-#     Pseudopotential calculations for alkaline-earth atoms
-#     J. Phys. B-At. Mol. Phys., 18, 1287-1296 (1985)
-#     10.1088/0022-3700/18/7/010
+#  References for the basis set
 # 
-# B-F,Al-Cl,Ge-Br,Sn-I
-#     ## Stuttgart RLC ECP
+#  Li,Na,K
+#      Stuttgart RLC ECP
+#          fuentealba1982a
+# 
+#  Be,Mg,Ca,Sr,Ba
+#      Stuttgart RLC ECP
+#          fuentealba1985a
+# 
+#  B-F,Al-Cl,Ge-Br,Sn-I
+#      Stuttgart RLC ECP
+#          bergner1993a
+# 
+#  Ne,Ar,Kr,Xe
+#      Stuttgart RLC ECP
+#          nicklass1995a
+# 
+#  Zn
+#      Stuttgart RLC ECP
+#          igelmann1987a
+# 
+#  Ga,In
+#      Stuttgart RLC ECP
+#          leininger1997a bergner1993a
+# 
+#  Rb
+#      Stuttgart RLC ECP
+#          szentpaly1982a fuentealba1983a
+# 
+#  Cs
+#      Stuttgart RLC ECP
+#          szentpaly1982a
+# 
+#  Hg-Rn
+#      Stuttgart RLC ECP
+#          kuchle1991a
+# 
+#  Ac-Lr
+#      Stuttgart RLC ECP
+#          (...no reference...)
+# 
+# 
+# 
+# bergner1993a
 #     Bergner, Andreas, Dolg, Michael, Küchle, Wolfgang, Stoll, Hermann,
 #             Preuß, Heinzwerner
 #     Ab initio energy-adjusted pseudopotentials for elements of groups
 #             13-17
-#     Mol. Phys., 80, 1431-1441 (1993)
+#     Mol. Phys. 80, 1431-1441 (1993)
 #     10.1080/00268979300103121
 # 
-# Ne,Ar,Kr,Xe
-#     ## Stuttgart RLC ECP
-#     Nicklass, Andreas, Dolg, Michael, Stoll, Hermann, Preuss, Heinzwerner
-#     Ab initio energy‐adjusted pseudopotentials for the noble gases Ne
-#             through Xe: Calculation of atomic dipole and quadrupole
-#             polarizabilities
-#     J. Chem. Phys., 102, 8942-8952 (1995)
-#     10.1063/1.468948
+# fuentealba1982a
+#     Fuentealba, Patricio, Preuss, Heinzwerner, Stoll, Hermann, Szentpály,
+#             László Von
+#     A proper account of core-polarization with pseudopotentials: single
+#             valence-electron alkali compounds
+#     Chem. Phys. Lett. 89, 418-422 (1982)
+#     10.1016/0009-2614(82)80012-2
 # 
-# Zn
-#     ## Stuttgart RLC ECP
+# fuentealba1983a
+#     Fuentealba, P., Stoll, H., Szentpály, L. Von, Schwerdtfeger, P.,
+#             Preuss, H.
+#     On the reliability of semi-empirical pseudopotentials: simulation of
+#             Hartree-Fock and Dirac-Fock results
+#     J. Phys. B 16, L323-L328 (1983)
+#     10.1088/0022-3700/16/11/001
+# 
+# fuentealba1985a
+#     Fuentealba, P, Szentpaly, L von, Preuss, H, Stoll, H
+#     Pseudopotential calculations for alkaline-earth atoms
+#     J. Phys. B-At. Mol. Phys. 18, 1287-1296 (1985)
+#     10.1088/0022-3700/18/7/010
+# 
+# igelmann1987a
 #     Igel-Mann, Gundrun
 #     Semiempirische Pseudopotentiale : Unters. an Hauptgruppenelementen u.
 #             Nebengruppenelementen mit abgeschlossener d-Schale
 #     Doktorarbeit, Institut für Theoretische Chemie, Universität Stuttgart
 #     As referenced in the Stuttgart ECP database/website
 # 
-# Ga,In
-#     ## Stuttgart RLC ECP
+# kuchle1991a
+#     Küchle, W., Dolg, M., Stoll, H., Preuss, H.
+#     Ab initiopseudopotentials for Hg through Rn
+#     Mol. Phys. 74, 1245-1263 (1991)
+#     10.1080/00268979100102941
+# 
+# leininger1997a
 #     Leininger, Thierry, Berning, Andreas, Nicklass, Andreas, Stoll,
 #             Hermann, Werner, Hans-Joachim, Flad, Heinz-Jürgen
 #     Spin-orbit interaction in heavy group 13 atoms and TlAr
-#     Chemical Physics, 217, 19-27 (1997)
+#     Chemical Physics 217, 19-27 (1997)
 #     10.1016/s0301-0104(97)00043-8
 # 
-#     Bergner, Andreas, Dolg, Michael, Küchle, Wolfgang, Stoll, Hermann,
-#             Preuß, Heinzwerner
-#     Ab initio energy-adjusted pseudopotentials for elements of groups
-#             13-17
-#     Mol. Phys., 80, 1431-1441 (1993)
-#     10.1080/00268979300103121
+# nicklass1995a
+#     Nicklass, Andreas, Dolg, Michael, Stoll, Hermann, Preuss, Heinzwerner
+#     Ab initio energy‐adjusted pseudopotentials for the noble gases Ne
+#             through Xe: Calculation of atomic dipole and quadrupole
+#             polarizabilities
+#     J. Chem. Phys. 102, 8942-8952 (1995)
+#     10.1063/1.468948
 # 
-# Rb
-#     ## Stuttgart RLC ECP
+# szentpaly1982a
 #     Szentpály, László Von, Fuentealba, Patricio, Preuss, Heinzwerner,
 #             Stoll, Hermann
 #     Pseudopotential calculations on Rb+2, Cs+2, RbH+, CsH+ and the mixed
 #             alkali dimer ions
-#     Chem. Phys. Lett., 93, 555-559 (1982)
+#     Chem. Phys. Lett. 93, 555-559 (1982)
 #     10.1016/0009-2614(82)83728-7
-# 
-#     Fuentealba, P., Stoll, H., Szentpály, L. Von, Schwerdtfeger, P.,
-#             Preuss, H.
-#     On the reliability of semi-empirical pseudopotentials: simulation of
-#             Hartree-Fock and Dirac-Fock results
-#     J. Phys. B, 16, L323-L328 (1983)
-#     10.1088/0022-3700/16/11/001
-# 
-# Cs
-#     ## Stuttgart RLC ECP
-#     Szentpály, László Von, Fuentealba, Patricio, Preuss, Heinzwerner,
-#             Stoll, Hermann
-#     Pseudopotential calculations on Rb+2, Cs+2, RbH+, CsH+ and the mixed
-#             alkali dimer ions
-#     Chem. Phys. Lett., 93, 555-559 (1982)
-#     10.1016/0009-2614(82)83728-7
-# 
-# Hg-Rn
-#     ## Stuttgart RLC ECP
-#     Küchle, W., Dolg, M., Stoll, H., Preuss, H.
-#     Ab initiopseudopotentials for Hg through Rn
-#     Mol. Phys., 74, 1245-1263 (1991)
-#     10.1080/00268979100102941
-# 
-# Ac-Lr
-#     ## Stuttgart RLC ECP
-#     (...no reference...)
 # 
 # # 
 
 
-ecp "Li_stuttgart rlc ecp"
+ecp "Li_Stuttgart RLC ECP"
 Li nelec 2
 Li ul
 2       1.000000000            0.000000000
@@ -135,7 +154,7 @@ Li P
 end
 
 
-ecp "Be_stuttgart rlc ecp"
+ecp "Be_Stuttgart RLC ECP"
 Be nelec 2
 Be ul
 2       1.000000000            0.000000000
@@ -146,7 +165,7 @@ Be P
 end
 
 
-ecp "B_stuttgart rlc ecp"
+ecp "B_Stuttgart RLC ECP"
 B nelec 2
 B ul
 2       1.000000000            0.000000000
@@ -159,7 +178,7 @@ B D
 end
 
 
-ecp "C_stuttgart rlc ecp"
+ecp "C_Stuttgart RLC ECP"
 C nelec 2
 C ul
 2       1.000000000            0.000000000
@@ -172,7 +191,7 @@ C D
 end
 
 
-ecp "N_stuttgart rlc ecp"
+ecp "N_Stuttgart RLC ECP"
 N nelec 2
 N ul
 2       1.000000000            0.000000000
@@ -185,7 +204,7 @@ N D
 end
 
 
-ecp "O_stuttgart rlc ecp"
+ecp "O_Stuttgart RLC ECP"
 O nelec 2
 O ul
 2       1.000000000            0.000000000
@@ -198,7 +217,7 @@ O D
 end
 
 
-ecp "F_stuttgart rlc ecp"
+ecp "F_Stuttgart RLC ECP"
 F nelec 2
 F ul
 2       1.000000000            0.000000000
@@ -213,7 +232,7 @@ F D
 end
 
 
-ecp "Ne_stuttgart rlc ecp"
+ecp "Ne_Stuttgart RLC ECP"
 Ne nelec 2
 Ne ul
 2       1.000000000            0.000000000
@@ -228,7 +247,7 @@ Ne D
 end
 
 
-ecp "Na_stuttgart rlc ecp"
+ecp "Na_Stuttgart RLC ECP"
 Na nelec 10
 Na ul
 2       1.000000000            0.000000000
@@ -241,7 +260,7 @@ Na D
 end
 
 
-ecp "Mg_stuttgart rlc ecp"
+ecp "Mg_Stuttgart RLC ECP"
 Mg nelec 10
 Mg ul
 2       1.000000000            0.000000000
@@ -254,7 +273,7 @@ Mg D
 end
 
 
-ecp "Al_stuttgart rlc ecp"
+ecp "Al_Stuttgart RLC ECP"
 Al nelec 10
 Al ul
 2       1.000000000            0.000000000
@@ -267,7 +286,7 @@ Al D
 end
 
 
-ecp "Si_stuttgart rlc ecp"
+ecp "Si_Stuttgart RLC ECP"
 Si nelec 10
 Si ul
 2       1.000000000            0.000000000
@@ -280,7 +299,7 @@ Si D
 end
 
 
-ecp "P_stuttgart rlc ecp"
+ecp "P_Stuttgart RLC ECP"
 P nelec 10
 P ul
 2       1.000000000            0.000000000
@@ -293,7 +312,7 @@ P D
 end
 
 
-ecp "S_stuttgart rlc ecp"
+ecp "S_Stuttgart RLC ECP"
 S nelec 10
 S ul
 2       1.000000000            0.000000000
@@ -306,7 +325,7 @@ S D
 end
 
 
-ecp "Cl_stuttgart rlc ecp"
+ecp "Cl_Stuttgart RLC ECP"
 Cl nelec 10
 Cl ul
 2       1.000000000            0.000000000
@@ -321,7 +340,7 @@ Cl D
 end
 
 
-ecp "Ar_stuttgart rlc ecp"
+ecp "Ar_Stuttgart RLC ECP"
 Ar nelec 10
 Ar ul
 2       1.000000000            0.000000000
@@ -339,7 +358,7 @@ Ar F
 end
 
 
-ecp "K_stuttgart rlc ecp"
+ecp "K_Stuttgart RLC ECP"
 K nelec 18
 K ul
 2       1.000000000            0.000000000
@@ -352,7 +371,7 @@ K D
 end
 
 
-ecp "Ca_stuttgart rlc ecp"
+ecp "Ca_Stuttgart RLC ECP"
 Ca nelec 18
 Ca ul
 2       1.000000000            0.000000000
@@ -365,7 +384,7 @@ Ca D
 end
 
 
-ecp "Zn_stuttgart rlc ecp"
+ecp "Zn_Stuttgart RLC ECP"
 Zn nelec 28
 Zn ul
 2       1.000000000            0.000000000
@@ -381,7 +400,7 @@ Zn D
 end
 
 
-ecp "Ga_stuttgart rlc ecp"
+ecp "Ga_Stuttgart RLC ECP"
 Ga nelec 28
 Ga ul
 2       1.000000000            0.000000000
@@ -396,7 +415,7 @@ Ga F
 end
 
 
-ecp "Ge_stuttgart rlc ecp"
+ecp "Ge_Stuttgart RLC ECP"
 Ge nelec 28
 Ge ul
 2       1.000000000            0.000000000
@@ -411,7 +430,7 @@ Ge F
 end
 
 
-ecp "As_stuttgart rlc ecp"
+ecp "As_Stuttgart RLC ECP"
 As nelec 28
 As ul
 2       1.000000000            0.000000000
@@ -426,7 +445,7 @@ As F
 end
 
 
-ecp "Se_stuttgart rlc ecp"
+ecp "Se_Stuttgart RLC ECP"
 Se nelec 28
 Se ul
 2       1.000000000            0.000000000
@@ -441,7 +460,7 @@ Se F
 end
 
 
-ecp "Br_stuttgart rlc ecp"
+ecp "Br_Stuttgart RLC ECP"
 Br nelec 28
 Br ul
 2       1.000000000            0.000000000
@@ -459,7 +478,7 @@ Br F
 end
 
 
-ecp "Kr_stuttgart rlc ecp"
+ecp "Kr_Stuttgart RLC ECP"
 Kr nelec 28
 Kr ul
 2       1.000000000            0.000000000
@@ -480,7 +499,7 @@ Kr G
 end
 
 
-ecp "Rb_stuttgart rlc ecp"
+ecp "Rb_Stuttgart RLC ECP"
 Rb nelec 36
 Rb ul
 2       1.000000000            0.000000000
@@ -493,7 +512,7 @@ Rb D
 end
 
 
-ecp "Sr_stuttgart rlc ecp"
+ecp "Sr_Stuttgart RLC ECP"
 Sr nelec 36
 Sr ul
 2       1.000000000            0.000000000
@@ -506,7 +525,7 @@ Sr D
 end
 
 
-ecp "In_stuttgart rlc ecp"
+ecp "In_Stuttgart RLC ECP"
 In nelec 46
 In ul
 2       1.000000000            0.000000000
@@ -523,7 +542,7 @@ In F
 end
 
 
-ecp "Sn_stuttgart rlc ecp"
+ecp "Sn_Stuttgart RLC ECP"
 Sn nelec 46
 Sn ul
 2       1.000000000            0.000000000
@@ -540,7 +559,7 @@ Sn F
 end
 
 
-ecp "Sb_stuttgart rlc ecp"
+ecp "Sb_Stuttgart RLC ECP"
 Sb nelec 46
 Sb ul
 2       1.000000000            0.000000000
@@ -557,7 +576,7 @@ Sb F
 end
 
 
-ecp "Te_stuttgart rlc ecp"
+ecp "Te_Stuttgart RLC ECP"
 Te nelec 46
 Te ul
 2       1.000000000            0.000000000
@@ -574,7 +593,7 @@ Te F
 end
 
 
-ecp "I_stuttgart rlc ecp"
+ecp "I_Stuttgart RLC ECP"
 I nelec 46
 I ul
 2       1.000000000            0.000000000
@@ -592,7 +611,7 @@ I F
 end
 
 
-ecp "Xe_stuttgart rlc ecp"
+ecp "Xe_Stuttgart RLC ECP"
 Xe nelec 46
 Xe ul
 2       1.000000000            0.000000000
@@ -613,7 +632,7 @@ Xe G
 end
 
 
-ecp "Cs_stuttgart rlc ecp"
+ecp "Cs_Stuttgart RLC ECP"
 Cs nelec 54
 Cs ul
 2       1.000000000            0.000000000
@@ -626,7 +645,7 @@ Cs D
 end
 
 
-ecp "Ba_stuttgart rlc ecp"
+ecp "Ba_Stuttgart RLC ECP"
 Ba nelec 54
 Ba ul
 2       1.000000000            0.000000000
@@ -639,7 +658,7 @@ Ba D
 end
 
 
-ecp "Hg_stuttgart rlc ecp"
+ecp "Hg_Stuttgart RLC ECP"
 Hg nelec 78
 Hg ul
 2       1.000000000            0.000000000
@@ -660,7 +679,7 @@ Hg G
 end
 
 
-ecp "Tl_stuttgart rlc ecp"
+ecp "Tl_Stuttgart RLC ECP"
 Tl nelec 78
 Tl ul
 2       1.000000000            0.000000000
@@ -681,7 +700,7 @@ Tl G
 end
 
 
-ecp "Pb_stuttgart rlc ecp"
+ecp "Pb_Stuttgart RLC ECP"
 Pb nelec 78
 Pb ul
 2       1.000000000            0.000000000
@@ -702,7 +721,7 @@ Pb G
 end
 
 
-ecp "Bi_stuttgart rlc ecp"
+ecp "Bi_Stuttgart RLC ECP"
 Bi nelec 78
 Bi ul
 2       1.000000000            0.000000000
@@ -723,7 +742,7 @@ Bi G
 end
 
 
-ecp "Po_stuttgart rlc ecp"
+ecp "Po_Stuttgart RLC ECP"
 Po nelec 78
 Po ul
 2       1.000000000            0.000000000
@@ -744,7 +763,7 @@ Po G
 end
 
 
-ecp "At_stuttgart rlc ecp"
+ecp "At_Stuttgart RLC ECP"
 At nelec 78
 At ul
 2       1.000000000            0.000000000
@@ -765,7 +784,7 @@ At G
 end
 
 
-ecp "Rn_stuttgart rlc ecp"
+ecp "Rn_Stuttgart RLC ECP"
 Rn nelec 78
 Rn ul
 2       1.000000000            0.000000000
@@ -786,7 +805,7 @@ Rn G
 end
 
 
-ecp "Ac_stuttgart rlc ecp"
+ecp "Ac_Stuttgart RLC ECP"
 Ac nelec 78
 Ac ul
 2       1.000000000            0.000000000
@@ -812,7 +831,7 @@ Ac G
 end
 
 
-ecp "Th_stuttgart rlc ecp"
+ecp "Th_Stuttgart RLC ECP"
 Th nelec 78
 Th ul
 2       1.000000000            0.000000000
@@ -838,7 +857,7 @@ Th G
 end
 
 
-ecp "Pa_stuttgart rlc ecp"
+ecp "Pa_Stuttgart RLC ECP"
 Pa nelec 78
 Pa ul
 2       1.000000000            0.000000000
@@ -864,7 +883,7 @@ Pa G
 end
 
 
-ecp "U_stuttgart rlc ecp"
+ecp "U_Stuttgart RLC ECP"
 U nelec 78
 U ul
 2       1.000000000            0.000000000
@@ -890,7 +909,7 @@ U G
 end
 
 
-ecp "Np_stuttgart rlc ecp"
+ecp "Np_Stuttgart RLC ECP"
 Np nelec 78
 Np ul
 2       1.000000000            0.000000000
@@ -916,7 +935,7 @@ Np G
 end
 
 
-ecp "Pu_stuttgart rlc ecp"
+ecp "Pu_Stuttgart RLC ECP"
 Pu nelec 78
 Pu ul
 2       1.000000000            0.000000000
@@ -942,7 +961,7 @@ Pu G
 end
 
 
-ecp "Am_stuttgart rlc ecp"
+ecp "Am_Stuttgart RLC ECP"
 Am nelec 78
 Am ul
 2       1.000000000            0.000000000
@@ -968,7 +987,7 @@ Am G
 end
 
 
-ecp "Cm_stuttgart rlc ecp"
+ecp "Cm_Stuttgart RLC ECP"
 Cm nelec 78
 Cm ul
 2       1.000000000            0.000000000
@@ -994,7 +1013,7 @@ Cm G
 end
 
 
-ecp "Bk_stuttgart rlc ecp"
+ecp "Bk_Stuttgart RLC ECP"
 Bk nelec 78
 Bk ul
 2       1.000000000            0.000000000
@@ -1020,7 +1039,7 @@ Bk G
 end
 
 
-ecp "Cf_stuttgart rlc ecp"
+ecp "Cf_Stuttgart RLC ECP"
 Cf nelec 78
 Cf ul
 2       1.000000000            0.000000000
@@ -1046,7 +1065,7 @@ Cf G
 end
 
 
-ecp "Es_stuttgart rlc ecp"
+ecp "Es_Stuttgart RLC ECP"
 Es nelec 78
 Es ul
 2       1.000000000            0.000000000
@@ -1072,7 +1091,7 @@ Es G
 end
 
 
-ecp "Fm_stuttgart rlc ecp"
+ecp "Fm_Stuttgart RLC ECP"
 Fm nelec 78
 Fm ul
 2       1.000000000            0.000000000
@@ -1098,7 +1117,7 @@ Fm G
 end
 
 
-ecp "Md_stuttgart rlc ecp"
+ecp "Md_Stuttgart RLC ECP"
 Md nelec 78
 Md ul
 2       1.000000000            0.000000000
@@ -1124,7 +1143,7 @@ Md G
 end
 
 
-ecp "No_stuttgart rlc ecp"
+ecp "No_Stuttgart RLC ECP"
 No nelec 78
 No ul
 2       1.000000000            0.000000000
@@ -1150,7 +1169,7 @@ No G
 end
 
 
-ecp "Lr_stuttgart rlc ecp"
+ecp "Lr_Stuttgart RLC ECP"
 Lr nelec 78
 Lr ul
 2       1.000000000            0.000000000

@@ -55,6 +55,10 @@ c
       pars%timer%iw    = 0d0
       pars%timer%vmo   = 0d0
 
+      pars%ecrpa = 0d0
+      pars%ecgm  = 0d0
+      pars%ex    = 0d0
+
       pars%me = ga_nodeid()
       pars%nprocs = ga_nnodes()
 
@@ -66,6 +70,9 @@ c
 
       if (.not.rtdb_get(pars%rtdb,'gw:init',mt_log,1,init))
      $  call gw_defaults(pars%rtdb) 
+
+      if (.not.rtdb_get(pars%rtdb,'dft:energy',mt_dbl,1,pars%escf))
+     $  call errquit(pname//'failed to read DFT energy',0,RTDB_ERR) 
 
       if (.not.rtdb_get(pars%rtdb,'gw:evgw0',mt_log,1,pars%evgw0))
      $  call errquit(pname//'failed to read evgw0',0,RTDB_ERR)
@@ -228,13 +235,14 @@ c
 
         pars%llmo(i) = pars%nocc(i) - pars%noqp(i) + 1
         pars%nqp(i) = pars%noqp(i) + pars%nvqp(i)
+c      
 
       enddo
 c
-      if (pars%evgw.or.pars%evgw0) then
-        pars%noqp(:) = pars%nocc(:)
-        pars%nvqp(:) = pars%nvir(:)
-      endif
+c      if (pars%evgw.or.pars%evgw0) then
+c        pars%noqp(:) = pars%nocc(:)
+c        pars%nvqp(:) = pars%nvir(:)
+c      endif
 c
       if (sum(pars%noqp)+sum(pars%nvqp).eq.0)
      $  call errquit(pname//'no quasiparticle energies to obtain',0,0)
@@ -290,7 +298,6 @@ c
      &     nb=32
 #endif
 
-
       return
       end subroutine gw_init
 
@@ -330,6 +337,7 @@ c
         w(igl) = 0.5d0 * 2d0 * w(igl) / (1d0-x(igl))**2 / pi
         x(igl) = (0.5d0 * ((1d0 + x(igl))/(1d0 - x(igl))))**2
       enddo
+
 
       end subroutine
 

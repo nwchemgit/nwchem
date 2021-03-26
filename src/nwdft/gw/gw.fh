@@ -33,7 +33,7 @@ c
 c
         integer          :: fd
 c
-        integer          :: g_movecs(2), g_moeris
+        integer          :: g_movecs(2), g_moeris, g_sols
 	integer          :: g_erioo(2), g_eriov(2), g_erivv(2), g_erim(2)
         logical          :: noio
 c
@@ -41,6 +41,8 @@ c
         logical          :: evgw, evgw0, analyticw, cdgw, acgw
         logical          :: graph, newton, anaw, linear
         double precision :: thresh, fdstep
+
+	double precision :: ecrpa,ecgm,ex,exscf,ecscf,escf
 
         type(gwtimer)    :: timer
 

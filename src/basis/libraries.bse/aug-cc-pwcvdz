@@ -1,81 +1,93 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# aug-cc-pwcvdz version number 0
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# aug-cc-pwCVDZ version number 0
 # Description: DZP     Double Zeta + Polarization + Tight Core + Diffuse
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# B-Ne
-#     ## cc-pVDZ
+# 
+#  References for the basis set
+# 
+#  B-Ne
+#      cc-pVDZ
+#          dunning1989a
+# 
+#      aug-cc-pVDZ Diffuse
+#          kendall1992a
+# 
+#      1T      Tight Functions
+#          peterson2002a
+# 
+#  Al-Ar
+#      cc-pVDZ
+#          woon1993a
+# 
+#      cc-pVDZ
+#          woon1993a
+# 
+#      aug-cc-pVDZ Diffuse
+#          woon1993a
+# 
+#      1T      Tight Functions
+#          peterson2002a
+# 
+# 
+# 
+# dunning1989a
 #     Dunning, Thom H.
 #     Gaussian basis sets for use in correlated molecular calculations. I.
 #             The atoms boron through neon and hydrogen
-#     J. Chem. Phys., 90, 1007-1023 (1989)
+#     J. Chem. Phys. 90, 1007-1023 (1989)
 #     10.1063/1.456153
 # 
-#     ## aug-cc-pVDZ Diffuse
+# kendall1992a
 #     Kendall, Rick A., Dunning, Thom H., Harrison, Robert J.
 #     Electron affinities of the first-row atoms revisited. Systematic basis
 #             sets and wave functions
-#     J. Chem. Phys., 96, 6796-6806 (1992)
+#     J. Chem. Phys. 96, 6796-6806 (1992)
 #     10.1063/1.462569
 # 
-#     ## 1T      Tight Functions
+# peterson2002a
 #     Peterson, Kirk A., Dunning, Thom H.
 #     Accurate correlation consistent basis sets for molecular core-valence
 #             correlation effects: The second row atoms Al-Ar, and the first
 #             row atoms B-Ne revisited
-#     J. Chem. Phys., 117, 10548-10560 (2002)
+#     J. Chem. Phys. 117, 10548-10560 (2002)
 #     10.1063/1.1520138
 # 
-# Al-Ar
-#     ## cc-pVDZ
+# woon1993a
 #     Woon, David E., Dunning, Thom H.
 #     Gaussian basis sets for use in correlated molecular calculations. III.
 #             The atoms aluminum through argon
-#     J. Chem. Phys., 98, 1358-1371 (1993)
+#     J. Chem. Phys. 98, 1358-1371 (1993)
 #     10.1063/1.464303
-# 
-#     ## aug-cc-pVDZ Diffuse
-#     Woon, David E., Dunning, Thom H.
-#     Gaussian basis sets for use in correlated molecular calculations. III.
-#             The atoms aluminum through argon
-#     J. Chem. Phys., 98, 1358-1371 (1993)
-#     10.1063/1.464303
-# 
-#     ## 1T      Tight Functions
-#     Peterson, Kirk A., Dunning, Thom H.
-#     Accurate correlation consistent basis sets for molecular core-valence
-#             correlation effects: The second row atoms Al-Ar, and the first
-#             row atoms B-Ne revisited
-#     J. Chem. Phys., 117, 10548-10560 (2002)
-#     10.1063/1.1520138
 # 
 # # 
-basis "B_aug-cc-pwcvdz" 
+basis "B_aug-cc-pwCVDZ" SPHERICAL 
 #basis SET: (19s,6p,2d) -> [5s,4p,2d]
 B    S
    4570.0000000              0.0006960
@@ -87,6 +99,8 @@ B    S
       1.8980000              0.2901230
       0.3329000              0.0143220
 B    S
+      2.463000               1.000000
+B    S
    4570.0000000             -0.0001390
     685.9000000             -0.0010970
     156.5000000             -0.0054440
@@ -96,17 +110,15 @@ B    S
       1.8980000             -0.1314820
       0.3329000              0.5395260
 B    S
-      2.463000               1.000000
-B    S
       0.1043000              1.0000000
 B    S
       0.0310500              1.0000000
 B    P
+      4.566000               1.000000
+B    P
       6.0010000              0.0354810
       1.2410000              0.1980720
       0.3364000              0.5052300
-B    P
-      4.566000               1.000000
 B    P
       0.0953800              1.0000000
 B    P
@@ -116,7 +128,7 @@ B    D
 B    D
       0.0904000              1.0000000
 end
-basis "C_aug-cc-pwcvdz" 
+basis "C_aug-cc-pwCVDZ" SPHERICAL 
 #basis SET: (19s,6p,2d) -> [5s,4p,2d]
 C    S
    6665.0000000              0.0006920
@@ -128,6 +140,8 @@ C    S
       2.7970000              0.2850740
       0.5215000              0.0152040
 C    S
+      3.339000               1.000000
+C    S
    6665.0000000             -0.0001460
    1000.0000000             -0.0011540
     228.0000000             -0.0057250
@@ -137,17 +151,15 @@ C    S
       2.7970000             -0.1272620
       0.5215000              0.5445290
 C    S
-      3.339000               1.000000
-C    S
       0.1596000              1.0000000
 C    S
       0.0469000              1.0000000
 C    P
+      7.235000               1.000000
+C    P
       9.4390000              0.0381090
       2.0020000              0.2094800
       0.5456000              0.5085570
-C    P
-      7.235000               1.000000
 C    P
       0.1517000              1.0000000
 C    P
@@ -157,7 +169,7 @@ C    D
 C    D
       0.1510000              1.0000000
 end
-basis "N_aug-cc-pwcvdz" 
+basis "N_aug-cc-pwCVDZ" SPHERICAL 
 #basis SET: (19s,6p,2d) -> [5s,4p,2d]
 N    S
    9046.0000000              0.0007000
@@ -169,6 +181,8 @@ N    S
       3.8380000              0.2782380
       0.7466000              0.0154400
 N    S
+      4.320000               1.000000
+N    S
    9046.0000000             -0.0001530
    1357.0000000             -0.0012080
     309.3000000             -0.0059920
@@ -178,17 +192,15 @@ N    S
       3.8380000             -0.1218310
       0.7466000              0.5490030
 N    S
-      4.320000               1.000000
-N    S
       0.2248000              1.0000000
 N    S
       0.0612400              1.0000000
 N    P
+     10.23900                1.000000
+N    P
      13.5500000              0.0399190
       2.9170000              0.2171690
       0.7973000              0.5103190
-N    P
-     10.23900                1.000000
 N    P
       0.2185000              1.0000000
 N    P
@@ -198,7 +210,7 @@ N    D
 N    D
       0.2300000              1.0000000
 end
-basis "O_aug-cc-pwcvdz" 
+basis "O_aug-cc-pwCVDZ" SPHERICAL 
 #basis SET: (19s,6p,2d) -> [5s,4p,2d]
 O    S
   11720.0000000              0.0007100
@@ -210,6 +222,8 @@ O    S
       5.0250000              0.2709520
       1.0130000              0.0154580
 O    S
+      5.459000               1.000000
+O    S
   11720.0000000             -0.0001600
    1759.0000000             -0.0012630
     400.8000000             -0.0062670
@@ -219,17 +233,15 @@ O    S
       5.0250000             -0.1169550
       1.0130000              0.5573680
 O    S
-      5.459000               1.000000
-O    S
       0.3023000              1.0000000
 O    S
       0.0789600              1.0000000
 O    P
+     13.32000                1.000000
+O    P
      17.7000000              0.0430180
       3.8540000              0.2289130
       1.0460000              0.5087280
-O    P
-     13.32000                1.000000
 O    P
       0.2753000              1.0000000
 O    P
@@ -239,7 +251,7 @@ O    D
 O    D
       0.3320000              1.0000000
 end
-basis "F_aug-cc-pwcvdz" 
+basis "F_aug-cc-pwCVDZ" SPHERICAL 
 #basis SET: (19s,6p,2d) -> [5s,4p,2d]
 F    S
   14710.0000000              0.0007210
@@ -251,6 +263,8 @@ F    S
       6.3560000              0.2647610
       1.3160000              0.0153330
 F    S
+      6.724000               1.000000
+F    S
   14710.0000000             -0.0001650
    2207.0000000             -0.0013080
     502.8000000             -0.0064950
@@ -260,17 +274,15 @@ F    S
       6.3560000             -0.1123270
       1.3160000              0.5628140
 F    S
-      6.724000               1.000000
-F    S
       0.3897000              1.0000000
 F    S
       0.0986300              1.0000000
 F    P
+     16.80300                1.000000
+F    P
      22.6700000              0.0448780
       4.9770000              0.2357180
       1.3470000              0.5085210
-F    P
-     16.80300                1.000000
 F    P
       0.3471000              1.0000000
 F    P
@@ -280,7 +292,7 @@ F    D
 F    D
       0.4640000              1.0000000
 end
-basis "Ne_aug-cc-pwcvdz" 
+basis "Ne_aug-cc-pwCVDZ" SPHERICAL 
 #basis SET: (19s,6p,2d) -> [5s,4p,2d]
 Ne    S
   17880.0000000              0.0007380
@@ -292,6 +304,8 @@ Ne    S
       7.8100000              0.2580260
       1.6530000              0.0150630
 Ne    S
+      8.116000               1.000000
+Ne    S
   17880.0000000             -0.0001720
    2683.0000000             -0.0013570
     611.5000000             -0.0067370
@@ -301,17 +315,15 @@ Ne    S
       7.8100000             -0.1070380
       1.6530000              0.5670500
 Ne    S
-      8.116000               1.000000
-Ne    S
       0.4869000              1.0000000
 Ne    S
       0.1230000              1.0000000
 Ne    P
+     20.65800                1.000000
+Ne    P
      28.3900000              0.0460870
       6.2700000              0.2401810
       1.6950000              0.5087440
-Ne    P
-     20.65800                1.000000
 Ne    P
       0.4317000              1.0000000
 Ne    P
@@ -321,7 +333,7 @@ Ne    D
 Ne    D
       0.6310000              1.0000000
 end
-basis "Al_aug-cc-pwcvdz" 
+basis "Al_aug-cc-pwCVDZ" SPHERICAL 
 #basis SET: (36s,17p,3d) -> [6s,5p,3d]
 Al    S
   64150.0000000              0.290250E-03
@@ -335,6 +347,8 @@ Al    S
       3.3000000              0.115889E-01
       1.1730000             -0.128385E-02
       0.1752000              0.425883E-03
+Al    S
+      3.599000               1.000000
 Al    S
   64150.0000000             -0.758048E-04
    9617.0000000             -0.581791E-03
@@ -360,8 +374,6 @@ Al    S
       1.1730000             -0.311694E+00
       0.1752000              0.620147E+00
 Al    S
-      3.599000               1.000000
-Al    S
       0.0647300              1.0000000
 Al    S
       0.0231000              1.0000000
@@ -374,6 +386,8 @@ Al    P
       0.9572000              0.275066E+00
       0.2099000              0.190807E-01
 Al    P
+      0.928000               1.000000
+Al    P
     258.8000000             -0.748053E-03
      60.8900000             -0.545796E-02
      19.1400000             -0.245371E-01
@@ -381,8 +395,6 @@ Al    P
       2.5740000             -0.983756E-01
       0.9572000             -0.260064E-01
       0.2099000              0.464020E+00
-Al    P
-      0.928000               1.000000
 Al    P
       0.0598600              1.0000000
 Al    P
@@ -394,7 +406,7 @@ Al    D
 Al    D
       0.0535000              1.0000000
 end
-basis "Si_aug-cc-pwcvdz" 
+basis "Si_aug-cc-pwCVDZ" SPHERICAL 
 #basis SET: (36s,17p,3d) -> [6s,5p,3d]
 Si    S
   78860.0000000              0.270443E-03
@@ -408,6 +420,8 @@ Si    S
       4.0530000              0.144952E-01
       1.4820000             -0.203590E-02
       0.2517000              0.624186E-03
+Si    S
+      4.499000               1.000000
 Si    S
   78860.0000000             -0.723177E-04
   11820.0000000             -0.555116E-03
@@ -433,8 +447,6 @@ Si    S
       1.4820000             -0.346874E+00
       0.2517000              0.623020E+00
 Si    S
-      4.499000               1.000000
-Si    S
       0.0924300              1.0000000
 Si    S
       0.0332000              1.0000000
@@ -447,6 +459,8 @@ Si    P
       1.2290000              0.268563E+00
       0.2964000              0.188336E-01
 Si    P
+      1.388000               1.000000
+Si    P
     315.9000000             -0.858302E-03
      74.4200000             -0.630328E-02
      23.4800000             -0.288255E-01
@@ -454,8 +468,6 @@ Si    P
       3.2170000             -0.119493E+00
       1.2290000             -0.199581E-01
       0.2964000              0.510268E+00
-Si    P
-      1.388000               1.000000
 Si    P
       0.0876800              1.0000000
 Si    P
@@ -467,7 +479,7 @@ Si    D
 Si    D
       0.0823000              1.0000000
 end
-basis "P_aug-cc-pwcvdz" 
+basis "P_aug-cc-pwCVDZ" SPHERICAL 
 #basis SET: (36s,17p,3d) -> [6s,5p,3d]
 P    S
   94840.0000000              0.255509E-03
@@ -481,6 +493,8 @@ P    S
       4.8580000              0.164035E-01
       1.8180000             -0.254255E-02
       0.3372000              0.748050E-03
+P    S
+      5.474000               1.000000
 P    S
   94840.0000000             -0.696939E-04
   14220.0000000             -0.535266E-03
@@ -506,8 +520,6 @@ P    S
       1.8180000             -0.372097E+00
       0.3372000              0.624246E+00
 P    S
-      5.474000               1.000000
-P    S
       0.1232000              1.0000000
 P    S
       0.0417000              1.0000000
@@ -520,6 +532,8 @@ P    P
       1.4940000              0.253086E+00
       0.3921000              0.168798E-01
 P    P
+      1.939000               1.000000
+P    P
     370.5000000             -0.959832E-03
      87.3300000             -0.711177E-02
      27.5900000             -0.327122E-01
@@ -527,8 +541,6 @@ P    P
       3.8250000             -0.135016E+00
       1.4940000             -0.910585E-02
       0.3921000              0.537802E+00
-P    P
-      1.939000               1.000000
 P    P
       0.1186000              1.0000000
 P    P
@@ -540,7 +552,7 @@ P    D
 P    D
       0.1130000              1.0000000
 end
-basis "S_aug-cc-pwcvdz" 
+basis "S_aug-cc-pwCVDZ" SPHERICAL 
 #basis SET: (36s,17p,3d) -> [6s,5p,3d]
 S    S
  110800.0000000              0.247635E-03
@@ -554,6 +566,8 @@ S    S
       5.7200000              0.178971E-01
       2.1820000             -0.297516E-02
       0.4327000              0.849522E-03
+S    S
+      6.501000               1.000000
 S    S
  110800.0000000             -0.687039E-04
   16610.0000000             -0.527681E-03
@@ -579,8 +593,6 @@ S    S
       2.1820000             -0.392889E+00
       0.4327000              0.632840E+00
 S    S
-      6.501000               1.000000
-S    S
       0.1570000              1.0000000
 S    S
       0.0507000              1.0000000
@@ -593,6 +605,8 @@ S    P
       1.6250000              0.206383E+00
       0.4726000              0.102141E-01
 S    P
+      2.503000               1.000000
+S    P
     399.7000000             -0.116251E-02
      94.1900000             -0.865664E-02
      29.7500000             -0.390886E-01
@@ -600,8 +614,6 @@ S    P
       4.1190000             -0.147994E+00
       1.6250000              0.301904E-01
       0.4726000              0.561573E+00
-S    P
-      2.503000               1.000000
 S    P
       0.1407000              1.0000000
 S    P
@@ -613,7 +625,7 @@ S    D
 S    D
       0.1520000              1.0000000
 end
-basis "Cl_aug-cc-pwcvdz" 
+basis "Cl_aug-cc-pwCVDZ" SPHERICAL 
 #basis SET: (36s,17p,3d) -> [6s,5p,3d]
 Cl    S
  127900.0000000              0.241153E-03
@@ -627,6 +639,8 @@ Cl    S
       6.6440000              0.191531E-01
       2.5750000             -0.334792E-02
       0.5371000              0.929883E-03
+Cl    S
+      7.591000               1.000000
 Cl    S
  127900.0000000             -0.678922E-04
   19170.0000000             -0.521836E-03
@@ -652,8 +666,6 @@ Cl    S
       2.5750000             -0.408773E+00
       0.5371000              0.638465E+00
 Cl    S
-      7.591000               1.000000
-Cl    S
       0.1938000              1.0000000
 Cl    S
       0.0608000              1.0000000
@@ -666,6 +678,8 @@ Cl    P
       1.6240000              0.151636E+00
       0.5322000              0.181615E-02
 Cl    P
+      3.092000               1.000000
+Cl    P
     417.6000000             -0.143570E-02
      98.3300000             -0.107796E-01
      31.0400000             -0.470075E-01
@@ -673,8 +687,6 @@ Cl    P
       4.2490000             -0.153275E+00
       1.6240000              0.894609E-01
       0.5322000              0.579444E+00
-Cl    P
-      3.092000               1.000000
 Cl    P
       0.1620000              1.0000000
 Cl    P
@@ -686,7 +698,7 @@ Cl    D
 Cl    D
       0.1960000              1.0000000
 end
-basis "Ar_aug-cc-pwcvdz" 
+basis "Ar_aug-cc-pwCVDZ" SPHERICAL 
 #basis SET: (36s,17p,3d) -> [6s,5p,3d]
 Ar    S
  145700.0000000              0.236700E-03
@@ -700,6 +712,8 @@ Ar    S
       7.6280000              0.200509E-01
       2.9960000             -0.361000E-02
       0.6504000              0.975607E-03
+Ar    S
+      8.742000               1.000000
 Ar    S
  145700.0000000             -0.674910E-04
   21840.0000000             -0.518522E-03
@@ -725,8 +739,6 @@ Ar    S
       2.9960000             -0.421006E+00
       0.6504000              0.642331E+00
 Ar    S
-      8.742000               1.000000
-Ar    S
       0.2337000              1.0000000
 Ar    S
       0.0709000              1.0000000
@@ -739,6 +751,8 @@ Ar    P
       1.6780000              0.122801E+00
       0.5909000             -0.445996E-02
 Ar    P
+      3.711000               1.000000
+Ar    P
     453.7000000             -0.160655E-02
     106.8000000             -0.121714E-01
      33.7300000             -0.520789E-01
@@ -746,8 +760,6 @@ Ar    P
       4.5940000             -0.151619E+00
       1.6780000              0.142425E+00
       0.5909000              0.584501E+00
-Ar    P
-      3.711000               1.000000
 Ar    P
       0.1852000              1.0000000
 Ar    P

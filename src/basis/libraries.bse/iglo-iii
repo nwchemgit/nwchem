@@ -1,45 +1,54 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# iglo-iii version number 0
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# IGLO-III version number 0
 # Description: VTZP Valence Triple Zeta + Polarization on All Atoms
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H,B-F,Al-Cl
-#     ## VTZP Valence Triple Zeta + Polarization on All Atoms
+# 
+#  References for the basis set
+# 
+#  H,B-F,Al-Cl
+#      VTZP Valence Triple Zeta + Polarization on All Atoms
+#          kutzelnigg1991a
+# 
+# 
+# 
+# kutzelnigg1991a
 #     Kutzelnigg, Werner, Fleischer, Ulrich, Schindler, Michael
 #     The IGLO-Method: Ab-initio Calculation and Interpretation of NMR
 #             Chemical Shifts and Magnetic Susceptibilities
 #     in 'Deuterium and Shift Calculation'
 #     ed. Maryvonne L. Martin, Gérard J. Martin
-#     NMR Basic Principles and Progress, 16, 165-262 (1991)
+#     NMR Basic Principles and Progress 16, 165-262 (1991)
 #     10.1007/978-3-642-75932-1_3
 # 
 # # 
-basis "H_iglo-iii" 
+basis "H_IGLO-III" SPHERICAL 
 #basis SET: (6s,2p) -> [4s,2p]
 H    S
      68.160000                .25500000E-02
@@ -56,7 +65,7 @@ H    P
 H    P
       0.33                   1.0
 end
-basis "B_iglo-iii" 
+basis "B_IGLO-III" SPHERICAL 
 #basis SET: (11s,7p,2d) -> [7s,6p,2d]
 B    S
   10624.888                   .24298378E-03
@@ -94,7 +103,7 @@ B    D
 B    D
       0.35                   1.000000
 end
-basis "C_iglo-iii" 
+basis "C_IGLO-III" SPHERICAL 
 #basis SET: (11s,7p,2d) -> [7s,6p,2d]
 C    S
   16371.074                   .22641833E-03
@@ -132,7 +141,7 @@ C    D
 C    D
       0.35                   1.000000
 end
-basis "N_iglo-iii" 
+basis "N_IGLO-III" SPHERICAL 
 #basis SET: (11s,7p,2d) -> [7s,6p,2d]
 N    S
   23274.857                   .21521253E-03
@@ -170,7 +179,7 @@ N    D
 N    D
       0.35                   1.000000
 end
-basis "O_iglo-iii" 
+basis "O_IGLO-III" SPHERICAL 
 #basis SET: (11s,7p,2d) -> [7s,6p,2d]
 O    S
   30664.503                   .21413900E-03
@@ -208,7 +217,7 @@ O    D
 O    D
       0.35                   1.000000
 end
-basis "F_iglo-iii" 
+basis "F_IGLO-III" SPHERICAL 
 #basis SET: (11s,7p,2d) -> [7s,6p,2d]
 F    S
   37736.000                   .21824900E-03
@@ -246,7 +255,7 @@ F    D
 F    D
       0.35                   1.000000
 end
-basis "Al_iglo-iii" 
+basis "Al_IGLO-III" SPHERICAL 
 #basis SET: (12s,8p,3d) -> [8s,7p,3d]
 Al    S
   55112.7                     .35193712E-03
@@ -290,7 +299,7 @@ Al    D
 Al    D
       0.15                   1.000000
 end
-basis "Si_iglo-iii" 
+basis "Si_IGLO-III" SPHERICAL 
 #basis SET: (12s,8p,3d) -> [8s,7p,3d]
 Si    S
   69989.3                     .31440692E-03
@@ -334,7 +343,7 @@ Si    D
 Si    D
       0.15                   1.000000
 end
-basis "P_iglo-iii" 
+basis "P_IGLO-III" SPHERICAL 
 #basis SET: (12s,8p,3d) -> [8s,7p,3d]
 P    S
   77492.398                   .32906400E-03
@@ -378,7 +387,7 @@ P    D
 P    D
       0.25                   1.000000
 end
-basis "S_iglo-iii" 
+basis "S_IGLO-III" SPHERICAL 
 #basis SET: (12s,8p,3d) -> [8s,7p,3d]
 S    S
   94181.100                   .30557100E-03
@@ -422,7 +431,7 @@ S    D
 S    D
       0.25                   1.000000
 end
-basis "Cl_iglo-iii" 
+basis "Cl_IGLO-III" SPHERICAL 
 #basis SET: (12s,8p,3d) -> [8s,7p,3d]
 Cl    S
  105818.82                    .30547500E-03

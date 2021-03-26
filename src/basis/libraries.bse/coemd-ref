@@ -1,43 +1,52 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
 # coemd-ref version number 0
-# Description: coemd-ref
+# Description: coemd-ref: completness-optimized for electron momentum density
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H-Ar
-#     ## 
+# 
+#  References for the basis set
+# 
+#  H-Ar
+#      
+#          lehtola2012a
+# 
+# 
+# 
+# lehtola2012a
 #     Lehtola, Jussi, Manninen, Pekka, Hakala, Mikko, Hämäläinen, Keijo
 #     Completeness-optimized basis sets: Application to ground-state
 #             electron momentum densities
-#     J. Chem. Phys., 137, 104105 (2012)
+#     J. Chem. Phys. 137, 104105 (2012)
 #     10.1063/1.4749272
 # 
 # # 
-basis "H_coemd-ref" 
+basis "H_coemd-ref" SPHERICAL 
 #basis SET: (17s,5p,1d) -> [17s,5p,1d]
 H    S
       7.2133178967035583E+03 1.0000000
@@ -86,7 +95,7 @@ H    P
 H    D
       2.6926244265980035E+00 1.0000000
 end
-basis "He_coemd-ref" 
+basis "He_coemd-ref" SPHERICAL 
 #basis SET: (17s,5p,1d) -> [17s,5p,1d]
 He    S
       7.2133178967035583E+03 1.0000000
@@ -135,7 +144,7 @@ He    P
 He    D
       2.6926244265980035E+00 1.0000000
 end
-basis "Li_coemd-ref" 
+basis "Li_coemd-ref" SPHERICAL 
 #basis SET: (20s,9p,2d) -> [20s,9p,2d]
 Li    S
       1.6984682499221093E+04 1.0000000
@@ -200,7 +209,7 @@ Li    D
 Li    D
       1.6076130618823509E-01 1.0000000
 end
-basis "Be_coemd-ref" 
+basis "Be_coemd-ref" SPHERICAL 
 #basis SET: (20s,9p,2d) -> [20s,9p,2d]
 Be    S
       1.6984682499221093E+04 1.0000000
@@ -265,7 +274,7 @@ Be    D
 Be    D
       1.6076130618823509E-01 1.0000000
 end
-basis "B_coemd-ref" 
+basis "B_coemd-ref" SPHERICAL 
 #basis SET: (20s,13p,5d,1f) -> [20s,13p,5d,1f]
 B    S
       1.3346578121514965E+05 1.0000000
@@ -346,7 +355,7 @@ B    D
 B    F
       9.9887632267126736E-01 1.0000000
 end
-basis "C_coemd-ref" 
+basis "C_coemd-ref" SPHERICAL 
 #basis SET: (20s,13p,5d,1f) -> [20s,13p,5d,1f]
 C    S
       1.3346578121514965E+05 1.0000000
@@ -427,7 +436,7 @@ C    D
 C    F
       9.9887632267126736E-01 1.0000000
 end
-basis "N_coemd-ref" 
+basis "N_coemd-ref" SPHERICAL 
 #basis SET: (20s,13p,5d,1f) -> [20s,13p,5d,1f]
 N    S
       1.3346578121514965E+05 1.0000000
@@ -508,7 +517,7 @@ N    D
 N    F
       9.9887632267126736E-01 1.0000000
 end
-basis "O_coemd-ref" 
+basis "O_coemd-ref" SPHERICAL 
 #basis SET: (20s,13p,5d,1f) -> [20s,13p,5d,1f]
 O    S
       1.3346578121514965E+05 1.0000000
@@ -589,7 +598,7 @@ O    D
 O    F
       9.9887632267126736E-01 1.0000000
 end
-basis "F_coemd-ref" 
+basis "F_coemd-ref" SPHERICAL 
 #basis SET: (20s,13p,5d,1f) -> [20s,13p,5d,1f]
 F    S
       1.3346578121514965E+05 1.0000000
@@ -670,7 +679,7 @@ F    D
 F    F
       9.9887632267126736E-01 1.0000000
 end
-basis "Ne_coemd-ref" 
+basis "Ne_coemd-ref" SPHERICAL 
 #basis SET: (20s,13p,5d,1f) -> [20s,13p,5d,1f]
 Ne    S
       1.3346578121514965E+05 1.0000000
@@ -751,7 +760,7 @@ Ne    D
 Ne    F
       9.9887632267126736E-01 1.0000000
 end
-basis "Na_coemd-ref" 
+basis "Na_coemd-ref" SPHERICAL 
 #basis SET: (23s,12p,1d) -> [23s,12p,1d]
 Na    S
       2.1487380707701918E+05 1.0000000
@@ -826,7 +835,7 @@ Na    P
 Na    D
       7.1129667939531815E-01 1.0000000
 end
-basis "Mg_coemd-ref" 
+basis "Mg_coemd-ref" SPHERICAL 
 #basis SET: (23s,12p,1d) -> [23s,12p,1d]
 Mg    S
       2.1487380707701918E+05 1.0000000
@@ -901,7 +910,7 @@ Mg    P
 Mg    D
       7.1129667939531815E-01 1.0000000
 end
-basis "Al_coemd-ref" 
+basis "Al_coemd-ref" SPHERICAL 
 #basis SET: (21s,16p,7d,1f) -> [21s,16p,7d,1f]
 Al    S
       5.3518957282104727E+05 1.0000000
@@ -994,7 +1003,7 @@ Al    D
 Al    F
       3.1801046089085366E-01 1.0000000
 end
-basis "Si_coemd-ref" 
+basis "Si_coemd-ref" SPHERICAL 
 #basis SET: (21s,16p,7d,1f) -> [21s,16p,7d,1f]
 Si    S
       5.3518957282104727E+05 1.0000000
@@ -1087,7 +1096,7 @@ Si    D
 Si    F
       3.1801046089085366E-01 1.0000000
 end
-basis "P_coemd-ref" 
+basis "P_coemd-ref" SPHERICAL 
 #basis SET: (21s,16p,7d,1f) -> [21s,16p,7d,1f]
 P    S
       5.3518957282104727E+05 1.0000000
@@ -1180,7 +1189,7 @@ P    D
 P    F
       3.1801046089085366E-01 1.0000000
 end
-basis "S_coemd-ref" 
+basis "S_coemd-ref" SPHERICAL 
 #basis SET: (21s,16p,7d,1f) -> [21s,16p,7d,1f]
 S    S
       5.3518957282104727E+05 1.0000000
@@ -1273,7 +1282,7 @@ S    D
 S    F
       3.1801046089085366E-01 1.0000000
 end
-basis "Cl_coemd-ref" 
+basis "Cl_coemd-ref" SPHERICAL 
 #basis SET: (21s,16p,7d,1f) -> [21s,16p,7d,1f]
 Cl    S
       5.3518957282104727E+05 1.0000000
@@ -1366,7 +1375,7 @@ Cl    D
 Cl    F
       3.1801046089085366E-01 1.0000000
 end
-basis "Ar_coemd-ref" 
+basis "Ar_coemd-ref" SPHERICAL 
 #basis SET: (21s,16p,7d,1f) -> [21s,16p,7d,1f]
 Ar    S
       5.3518957282104727E+05 1.0000000

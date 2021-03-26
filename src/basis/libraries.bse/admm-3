@@ -1,44 +1,53 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
 # admm-3 version number 1
 # Description: Auxilliary basis with diffuse functions for use with pcseg-3 and the Auxiliary-Density Matrix Method (ADMM)
 # Role: admmfit
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H,Li-Ar
-#     ## Auxilliary basis with diffuse functions for use with pcseg-3 and the Auxiliary-Density Matrix Method (ADMM)
+# 
+#  References for the basis set
+# 
+#  H,Li-Ar
+#      Auxilliary basis with diffuse functions for use with pcseg-3 and the Auxiliary-Density Matrix Method (ADMM)
+#          kumar2018a
+# 
+# 
+# 
+# kumar2018a
 #     Kumar, Chandan, Fliegl, Heike, Jensen, Frank, Teale, Andrew M., Reine,
 #             Simen, Kjaergaard, Thomas
 #     Accelerating Kohn-Sham response theory using density fitting and the
 #             auxiliary-density-matrix method
-#     Int. J. Quantum Chem., 118, e25639 (2018)
+#     Int. J. Quantum Chem. 118, e25639 (2018)
 #     10.1002/qua.25639
 # 
 # # 
-basis "H_admm-3" 
+basis "H_admm-3" SPHERICAL 
 #basis SET: (5s,2p,1d) -> [4s,2p,1d]
 H    S
       0.141219E+02           0.912047E-01
@@ -56,7 +65,7 @@ H    P
 H    D
       0.125000E+01           1.0000000
 end
-basis "Li_admm-3" 
+basis "Li_admm-3" SPHERICAL 
 #basis SET: (8s,4p,1d) -> [5s,2p,1d]
 Li    S
       0.130825E+03           0.163357E-01
@@ -80,7 +89,7 @@ Li    P
 Li    D
       0.260000E+00           1.0000000
 end
-basis "Be_admm-3" 
+basis "Be_admm-3" SPHERICAL 
 #basis SET: (8s,4p,1d) -> [5s,2p,1d]
 Be    S
       0.270898E+03           0.139324E-01
@@ -104,7 +113,7 @@ Be    P
 Be    D
       0.390000E+00           1.0000000
 end
-basis "B_admm-3" 
+basis "B_admm-3" SPHERICAL 
 #basis SET: (8s,5p,2d,1f) -> [5s,3p,2d,1f]
 B    S
       0.459763E+03           0.128695E-01
@@ -134,7 +143,7 @@ B    D
 B    F
       0.870000E+00           1.0000000
 end
-basis "C_admm-3" 
+basis "C_admm-3" SPHERICAL 
 #basis SET: (8s,5p,2d,1f) -> [5s,3p,2d,1f]
 C    S
       0.692847E+03           0.123077E-01
@@ -164,7 +173,7 @@ C    D
 C    F
       0.950000E+00           1.0000000
 end
-basis "N_admm-3" 
+basis "N_admm-3" SPHERICAL 
 #basis SET: (8s,5p,2d,1f) -> [5s,3p,2d,1f]
 N    S
       0.970645E+03           0.119870E-01
@@ -194,7 +203,7 @@ N    D
 N    F
       0.102000E+01           1.0000000
 end
-basis "O_admm-3" 
+basis "O_admm-3" SPHERICAL 
 #basis SET: (8s,5p,2d,1f) -> [5s,3p,2d,1f]
 O    S
       0.130500E+04           0.117650E-01
@@ -224,7 +233,7 @@ O    D
 O    F
       0.110000E+01           1.0000000
 end
-basis "F_admm-3" 
+basis "F_admm-3" SPHERICAL 
 #basis SET: (8s,5p,2d,1f) -> [5s,3p,2d,1f]
 F    S
       0.168954E+04           0.116011E-01
@@ -254,7 +263,7 @@ F    D
 F    F
       0.120000E+01           1.0000000
 end
-basis "Ne_admm-3" 
+basis "Ne_admm-3" SPHERICAL 
 #basis SET: (8s,5p,2d,1f) -> [5s,3p,2d,1f]
 Ne    S
       0.211439E+04           0.114979E-01
@@ -284,7 +293,7 @@ Ne    D
 Ne    F
       0.130000E+01           1.0000000
 end
-basis "Na_admm-3" 
+basis "Na_admm-3" SPHERICAL 
 #basis SET: (8s,7p,1d) -> [6s,6p,1d]
 Na    S
       0.983994E+03           0.348376E-01
@@ -316,7 +325,7 @@ Na    P
 Na    D
       0.240000E+00           1.0000000
 end
-basis "Mg_admm-3" 
+basis "Mg_admm-3" SPHERICAL 
 #basis SET: (8s,7p,1d) -> [6s,6p,1d]
 Mg    S
       0.119749E+04           0.342363E-01
@@ -348,7 +357,7 @@ Mg    P
 Mg    D
       0.300000E+00           1.0000000
 end
-basis "Al_admm-3" 
+basis "Al_admm-3" SPHERICAL 
 #basis SET: (8s,7p,2d,1f) -> [6s,6p,2d,1f]
 Al    S
       0.143533E+04           0.336589E-01
@@ -384,7 +393,7 @@ Al    D
 Al    F
       0.480000E+00           1.0000000
 end
-basis "Si_admm-3" 
+basis "Si_admm-3" SPHERICAL 
 #basis SET: (8s,7p,2d,1f) -> [6s,6p,2d,1f]
 Si    S
       0.169035E+04           0.333204E-01
@@ -420,7 +429,7 @@ Si    D
 Si    F
       0.540000E+00           1.0000000
 end
-basis "P_admm-3" 
+basis "P_admm-3" SPHERICAL 
 #basis SET: (8s,7p,2d,1f) -> [6s,6p,2d,1f]
 P    S
       0.195965E+04           0.332109E-01
@@ -456,7 +465,7 @@ P    D
 P    F
       0.600000E+00           1.0000000
 end
-basis "S_admm-3" 
+basis "S_admm-3" SPHERICAL 
 #basis SET: (8s,7p,2d,1f) -> [6s,6p,2d,1f]
 S    S
       0.225235E+04           0.331223E-01
@@ -492,7 +501,7 @@ S    D
 S    F
       0.660000E+00           1.0000000
 end
-basis "Cl_admm-3" 
+basis "Cl_admm-3" SPHERICAL 
 #basis SET: (8s,7p,2d,1f) -> [6s,6p,2d,1f]
 Cl    S
       0.256927E+04           0.328916E-01
@@ -528,7 +537,7 @@ Cl    D
 Cl    F
       0.720000E+00           1.0000000
 end
-basis "Ar_admm-3" 
+basis "Ar_admm-3" SPHERICAL 
 #basis SET: (8s,7p,2d,1f) -> [6s,6p,2d,1f]
 Ar    S
       0.290717E+04           0.326879E-01

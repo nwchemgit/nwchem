@@ -1,49 +1,59 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# wtbs version number 0
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# WTBS version number 0
 # Description: MB      Minimal Basis: 1 Function/AO
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# He-Rn
-#     ## MB      Minimal Basis: 1 Function/AO
+# 
+#  References for the basis set
+# 
+#  He-Rn
+#      MB      Minimal Basis: 1 Function/AO
+#          huzinaga1990a huzinaga1993a
+# 
+# 
+# 
+# huzinaga1990a
 #     Huzinaga, S., Miguel, B.
 #     A comparison of the geometrical sequence formula and the well-tempered
 #             formulas for generating GTO basis orbital exponents
-#     Chem. Phys. Lett., 175, 289-291 (1990)
+#     Chem. Phys. Lett. 175, 289-291 (1990)
 #     10.1016/0009-2614(90)80112-q
 # 
+# huzinaga1993a
 #     Huzinaga, Sigeru, Klobukowski, Mariusz
 #     Well-tempered Gaussian basis sets for the calculation of matrix
 #             Hartree-Fock wavefunctions
-#     Chem. Phys. Lett., 212, 260-264 (1993)
+#     Chem. Phys. Lett. 212, 260-264 (1993)
 #     10.1016/0009-2614(93)89323-a
 # 
 # # 
-basis "He_wtbs" 
+basis "He_WTBS" SPHERICAL 
 #basis SET: (17s) -> [1s]
 He    S
  279303.60                   3.27396332E-07
@@ -64,7 +74,7 @@ He    S
       0.17267382             1.38076192E-01
       0.86282949E-01         1.94005977E-02
 end
-basis "Li_wtbs" 
+basis "Li_WTBS" SPHERICAL 
 #basis SET: (40s) -> [2s]
 Li    S
  483307.72                   4.85854775E-07
@@ -109,7 +119,7 @@ Li    S
       0.35101438E-01        -4.76348120E-01
       0.17483139E-01        -1.18268922E-01
 end
-basis "Be_wtbs" 
+basis "Be_WTBS" SPHERICAL 
 #basis SET: (40s) -> [2s]
 Be    S
  791926.49                   5.48140344E-07
@@ -154,7 +164,7 @@ Be    S
       0.57441599E-01        -3.48685098E-01
       0.28686125E-01        -7.24784277E-02
 end
-basis "B_wtbs" 
+basis "B_WTBS" SPHERICAL 
 #basis SET: (40s,13p) -> [2s,1p]
 B    S
 1262544.2                    5.37676932E-07
@@ -213,7 +223,7 @@ B    P
       0.74814128E-01         2.09049700E-01
       0.36730086E-01         4.89645649E-02
 end
-basis "C_wtbs" 
+basis "C_WTBS" SPHERICAL 
 #basis SET: (40s,13p) -> [2s,1p]
 C    S
 2158490.7                    4.37542282E-07
@@ -272,7 +282,7 @@ C    P
       0.10998858             1.84611355E-01
       0.53523003E-01         4.05258192E-02
 end
-basis "N_wtbs" 
+basis "N_WTBS" SPHERICAL 
 #basis SET: (40s,13p) -> [2s,1p]
 N    S
 3260308.3                    3.83143251E-07
@@ -331,7 +341,7 @@ N    P
       0.15008774             1.68692665E-01
       0.72797882E-01         3.62965476E-02
 end
-basis "O_wtbs" 
+basis "O_WTBS" SPHERICAL 
 #basis SET: (40s,13p) -> [2s,1p]
 O    S
 4585516.2                    3.52527752E-07
@@ -390,7 +400,7 @@ O    P
       0.17799002             1.57170157E-01
       0.85507949E-01         3.55116239E-02
 end
-basis "F_wtbs" 
+basis "F_WTBS" SPHERICAL 
 #basis SET: (40s,13p) -> [2s,1p]
 F    S
 6059261.1                    3.34744155E-07
@@ -449,7 +459,7 @@ F    P
       0.21468142             1.48605055E-01
       0.10261793             3.42894227E-02
 end
-basis "Ne_wtbs" 
+basis "Ne_WTBS" SPHERICAL 
 #basis SET: (40s,13p) -> [2s,1p]
 Ne    S
 8133616.4                    3.02773315E-07
@@ -508,7 +518,7 @@ Ne    P
       0.25813094             1.41945715E-01
       0.12306969             3.30682749E-02
 end
-basis "Na_wtbs" 
+basis "Na_WTBS" SPHERICAL 
 #basis SET: (69s,13p) -> [3s,1p]
 Na    S
 10841861.                    2.68835285E-07
@@ -597,7 +607,7 @@ Na    P
       0.35064238             1.10002562E-01
       0.16881043             1.61711305E-02
 end
-basis "Mg_wtbs" 
+basis "Mg_WTBS" SPHERICAL 
 #basis SET: (69s,13p) -> [3s,1p]
 Mg    S
 13213988.                    2.59078550E-07
@@ -686,7 +696,7 @@ Mg    P
       0.44388387             8.16888903E-02
       0.21632024             1.03046689E-02
 end
-basis "Al_wtbs" 
+basis "Al_WTBS" SPHERICAL 
 #basis SET: (69s,32p) -> [3s,2p]
 Al    S
 17742122.                    2.22092075E-07
@@ -795,7 +805,7 @@ Al    P
       0.59798846E-01        -3.62204428E-01
       0.28853202E-01        -1.44262558E-01
 end
-basis "Si_wtbs" 
+basis "Si_WTBS" SPHERICAL 
 #basis SET: (69s,32p) -> [3s,2p]
 Si    S
 23376525.                    1.89509624E-07
@@ -904,7 +914,7 @@ Si    P
       0.83171700E-01        -3.24624270E-01
       0.40532515E-01        -1.06952516E-01
 end
-basis "P_wtbs" 
+basis "P_WTBS" SPHERICAL 
 #basis SET: (69s,32p) -> [3s,2p]
 P    S
 28578316.                    1.74753230E-07
@@ -1013,7 +1023,7 @@ P    P
       0.10784200            -2.94136557E-01
       0.53007719E-01        -8.55927616E-02
 end
-basis "S_wtbs" 
+basis "S_WTBS" SPHERICAL 
 #basis SET: (69s,32p) -> [3s,2p]
 S    S
 32280958.                    1.76030531E-07
@@ -1122,7 +1132,7 @@ S    P
       0.12100584            -2.53698884E-01
       0.59737830E-01        -7.10414125E-02
 end
-basis "Cl_wtbs" 
+basis "Cl_WTBS" SPHERICAL 
 #basis SET: (69s,32p) -> [3s,2p]
 Cl    S
 36414299.                    1.75659213E-07
@@ -1231,7 +1241,7 @@ Cl    P
       0.14067574            -2.29905721E-01
       0.69812057E-01        -6.24540079E-02
 end
-basis "Ar_wtbs" 
+basis "Ar_WTBS" SPHERICAL 
 #basis SET: (69s,32p) -> [3s,2p]
 Ar    S
 42167954.                    1.68684940E-07
@@ -1340,7 +1350,7 @@ Ar    P
       0.16450060            -2.14166136E-01
       0.81964165E-01        -5.63510565E-02
 end
-basis "K_wtbs" 
+basis "K_WTBS" SPHERICAL 
 #basis SET: (104s,32p) -> [4s,2p]
 K    S
 45541929.                    1.74040033E-07
@@ -1485,7 +1495,7 @@ K    P
       0.21035757            -1.80003858E-01
       0.10664212            -3.40695477E-02
 end
-basis "Ca_wtbs" 
+basis "Ca_WTBS" SPHERICAL 
 #basis SET: (104s,32p) -> [4s,2p]
 Ca    S
 53505253.                    1.62160749E-07
@@ -1630,7 +1640,7 @@ Ca    P
       0.24668572            -1.37308303E-01
       0.12526678            -2.16010684E-02
 end
-basis "Sc_wtbs" 
+basis "Sc_WTBS" SPHERICAL 
 #basis SET: (104s,34p,13d) -> [4s,2p,1d]
 Sc    S
 27624024.                    4.19417704E-07
@@ -1791,7 +1801,7 @@ Sc    D
       0.12150088             1.25642900E-01
       0.62427778E-01         4.82123941E-02
 end
-basis "Ti_wtbs" 
+basis "Ti_WTBS" SPHERICAL 
 #basis SET: (104s,34p,13d) -> [4s,2p,1d]
 Ti    S
 31974270.                    3.92301821E-07
@@ -1952,7 +1962,7 @@ Ti    D
       0.14305645             1.05798294E-01
       0.73618023E-01         3.33607341E-02
 end
-basis "V_wtbs" 
+basis "V_WTBS" SPHERICAL 
 #basis SET: (104s,34p,13d) -> [4s,2p,1d]
 V    S
 36641923.                    3.70089325E-07
@@ -2113,7 +2123,7 @@ V    D
       0.16215594             9.54780442E-02
       0.83380992E-01         2.79455133E-02
 end
-basis "Cr_wtbs" 
+basis "Cr_WTBS" SPHERICAL 
 #basis SET: (104s,34p,13d) -> [4s,2p,1d]
 Cr    S
 39452193.                    3.79596174E-07
@@ -2274,7 +2284,7 @@ Cr    D
       0.14148265             1.06790122E-01
       0.71501358E-01         4.16396689E-02
 end
-basis "Mn_wtbs" 
+basis "Mn_WTBS" SPHERICAL 
 #basis SET: (104s,34p,13d) -> [4s,2p,1d]
 Mn    S
 47145111.                    3.33643235E-07
@@ -2435,7 +2445,7 @@ Mn    D
       0.19929586             8.20067663E-02
       0.10209183             2.16462685E-02
 end
-basis "Fe_wtbs" 
+basis "Fe_WTBS" SPHERICAL 
 #basis SET: (104s,34p,13d) -> [4s,2p,1d]
 Fe    S
 53946029.                    3.12878672E-07
@@ -2596,7 +2606,7 @@ Fe    D
       0.21226448             8.14357013E-02
       0.10823916             2.25938480E-02
 end
-basis "Co_wtbs" 
+basis "Co_WTBS" SPHERICAL 
 #basis SET: (104s,34p,13d) -> [4s,2p,1d]
 Co    S
 60672000.                    2.97902029E-07
@@ -2757,7 +2767,7 @@ Co    D
       0.22800723             7.95998462E-02
       0.11593649             2.24873972E-02
 end
-basis "Ni_wtbs" 
+basis "Ni_WTBS" SPHERICAL 
 #basis SET: (104s,34p,13d) -> [4s,2p,1d]
 Ni    S
 67393769.                    2.86751356E-07
@@ -2918,7 +2928,7 @@ Ni    D
       0.24428887             7.76690701E-02
       0.12390783             2.21980798E-02
 end
-basis "Cu_wtbs" 
+basis "Cu_WTBS" SPHERICAL 
 #basis SET: (104s,34p,14d) -> [4s,2p,1d]
 Cu    S
 32285234.                    7.89339724E-07
@@ -3080,7 +3090,7 @@ Cu    D
       0.15985137             5.68967346E-02
       0.81716807E-01         1.56562081E-02
 end
-basis "Zn_wtbs" 
+basis "Zn_WTBS" SPHERICAL 
 #basis SET: (104s,34p,14d) -> [4s,2p,1d]
 Zn    S
 68088788.                    3.38211660E-07
@@ -3242,7 +3252,7 @@ Zn    D
       0.26154957             6.54579042E-02
       0.13390619             1.79813615E-02
 end
-basis "Ga_wtbs" 
+basis "Ga_WTBS" SPHERICAL 
 #basis SET: (104s,60p,14d) -> [4s,3p,1d]
 Ga    S
 73580197.                    3.36002775E-07
@@ -3431,7 +3441,7 @@ Ga    D
       0.25427675             3.27704000E-02
       0.12935744             4.56892322E-03
 end
-basis "Ge_wtbs" 
+basis "Ge_WTBS" SPHERICAL 
 #basis SET: (104s,60p,14d) -> [4s,3p,1d]
 Ge    S
 83575245.                    3.08972407E-07
@@ -3620,7 +3630,7 @@ Ge    D
       0.32191423             2.93241782E-02
       0.16557091             4.11969096E-03
 end
-basis "As_wtbs" 
+basis "As_WTBS" SPHERICAL 
 #basis SET: (104s,60p,14d) -> [4s,3p,1d]
 As    S
 92628131.                    2.92236336E-07
@@ -3809,7 +3819,7 @@ As    D
       0.38845433             2.62092168E-02
       0.20123686             3.66589773E-03
 end
-basis "Se_wtbs" 
+basis "Se_WTBS" SPHERICAL 
 #basis SET: (104s,60p,14d) -> [4s,3p,1d]
 Se    S
 97160301.                    2.95488321E-07
@@ -3998,7 +4008,7 @@ Se    D
       0.41794260             1.83796011E-02
       0.21643308             2.35224030E-03
 end
-basis "Br_wtbs" 
+basis "Br_WTBS" SPHERICAL 
 #basis SET: (104s,60p,14d) -> [4s,3p,1d]
 Br    S
       0.10420402E+09         2.90433571E-07
@@ -4187,7 +4197,7 @@ Br    D
       0.46573585             1.48946909E-02
       0.24203248             1.91084728E-03
 end
-basis "Kr_wtbs" 
+basis "Kr_WTBS" SPHERICAL 
 #basis SET: (104s,60p,14d) -> [4s,3p,1d]
 Kr    S
       0.11119931E+09         2.86460425E-07
@@ -4376,7 +4386,7 @@ Kr    D
       0.52163173             1.28916215E-02
       0.27221705             1.68568403E-03
 end
-basis "Rb_wtbs" 
+basis "Rb_WTBS" SPHERICAL 
 #basis SET: (140s,60p,14d) -> [5s,3p,1d]
 Rb    S
 29578241.                    1.65883125E-06
@@ -4602,7 +4612,7 @@ Rb    D
       0.70630824             2.09296985E-02
       0.36530005             2.19805632E-03
 end
-basis "Sr_wtbs" 
+basis "Sr_WTBS" SPHERICAL 
 #basis SET: (135s,60p,17d) -> [5s,3p,1d]
 Sr    S
 29642329.                    1.88427397E-06
@@ -4826,7 +4836,7 @@ Sr    D
       0.96948686E-01        -6.59451986E-05
       0.50125844E-01         3.44925173E-05
 end
-basis "Y_wtbs" 
+basis "Y_WTBS" SPHERICAL 
 #basis SET: (135s,60p,34d) -> [5s,3p,2d]
 Y    S
 29642329.                    1.88427397E-06
@@ -5068,7 +5078,7 @@ Y    D
       0.96948686E-01        -1.87208064E-01
       0.50125844E-01        -9.64297263E-02
 end
-basis "Zr_wtbs" 
+basis "Zr_WTBS" SPHERICAL 
 #basis SET: (135s,60p,34d) -> [5s,3p,2d]
 Zr    S
 29410970.                    2.02860338E-06
@@ -5310,7 +5320,7 @@ Zr    D
       0.92814145E-01        -1.73063181E-01
       0.47864292E-01        -8.21049357E-02
 end
-basis "Nb_wtbs" 
+basis "Nb_WTBS" SPHERICAL 
 #basis SET: (135s,60p,34d) -> [5s,3p,2d]
 Nb    S
 31685643.                    1.96006738E-06
@@ -5552,7 +5562,7 @@ Nb    D
       0.10719905            -1.51771720E-01
       0.55613501E-01        -6.43725216E-02
 end
-basis "Mo_wtbs" 
+basis "Mo_WTBS" SPHERICAL 
 #basis SET: (135s,60p,34d) -> [5s,3p,2d]
 Mo    S
 34840341.                    1.84903188E-06
@@ -5794,7 +5804,7 @@ Mo    D
       0.12154561            -1.35437512E-01
       0.63207392E-01        -5.06688844E-02
 end
-basis "Tc_wtbs" 
+basis "Tc_WTBS" SPHERICAL 
 #basis SET: (135s,60p,34d) -> [5s,3p,2d]
 Tc    S
 44249855.                    1.45040940E-06
@@ -6036,7 +6046,7 @@ Tc    D
       0.17418454            -1.28631492E-01
       0.91429124E-01        -4.11067331E-02
 end
-basis "Ru_wtbs" 
+basis "Ru_WTBS" SPHERICAL 
 #basis SET: (140s,60p,34d) -> [5s,3p,2d]
 Ru    S
 58766883.                    1.06877588E-06
@@ -6283,7 +6293,7 @@ Ru    D
       0.11608413            -8.48789489E-02
       0.60964779E-01        -2.22268704E-02
 end
-basis "Rh_wtbs" 
+basis "Rh_WTBS" SPHERICAL 
 #basis SET: (140s,60p,34d) -> [5s,3p,2d]
 Rh    S
 62334830.                    1.04882004E-06
@@ -6530,7 +6540,7 @@ Rh    D
       0.12647318            -7.83748962E-02
       0.66583883E-01        -2.00687121E-02
 end
-basis "Pd_wtbs" 
+basis "Pd_WTBS" SPHERICAL 
 #basis SET: (100s,60p,34d) -> [4s,3p,2d]
 Pd    S
 130626290.                   4.33992912E-07
@@ -6736,7 +6746,7 @@ Pd    D
       0.12186891            -8.63159389E-02
       0.64111928E-01        -3.35991391E-02
 end
-basis "Ag_wtbs" 
+basis "Ag_WTBS" SPHERICAL 
 #basis SET: (140s,60p,34d) -> [5s,3p,2d]
 Ag    S
 45797651.                    1.72861338E-06
@@ -6983,7 +6993,7 @@ Ag    D
       0.18509546            -9.55447496E-02
       0.97600734E-01        -3.23047059E-02
 end
-basis "Cd_wtbs" 
+basis "Cd_WTBS" SPHERICAL 
 #basis SET: (140s,60p,34d) -> [5s,3p,2d]
 Cd    S
 52606084.                    1.52994255E-06
@@ -7230,7 +7240,7 @@ Cd    D
       0.23055552            -8.93096871E-02
       0.12236787            -2.48161522E-02
 end
-basis "In_wtbs" 
+basis "In_WTBS" SPHERICAL 
 #basis SET: (140s,92p,34d) -> [5s,4p,2d]
 In    S
 87470639.                    8.45950970E-07
@@ -7510,7 +7520,7 @@ In    D
       0.33720751            -1.14176776E-01
       0.17909250            -3.54248677E-02
 end
-basis "Sn_wtbs" 
+basis "Sn_WTBS" SPHERICAL 
 #basis SET: (140s,92p,34d) -> [5s,4p,2d]
 Sn    S
 92533822.                    8.25814813E-07
@@ -7790,7 +7800,7 @@ Sn    D
       0.38988551            -1.05725317E-01
       0.20885248            -2.98028593E-02
 end
-basis "Sb_wtbs" 
+basis "Sb_WTBS" SPHERICAL 
 #basis SET: (140s,92p,34d) -> [5s,4p,2d]
 Sb    S
 98892387.                    7.96488146E-07
@@ -8070,7 +8080,7 @@ Sb    D
       0.44027269            -9.75577926E-02
       0.23701377            -2.54259165E-02
 end
-basis "Te_wtbs" 
+basis "Te_WTBS" SPHERICAL 
 #basis SET: (140s,92p,34d) -> [5s,4p,2d]
 Te    S
       0.10493087E+09         7.74828211E-07
@@ -8350,7 +8360,7 @@ Te    D
       0.48746838            -8.87741252E-02
       0.26342291            -2.14170959E-02
 end
-basis "I_wtbs" 
+basis "I_WTBS" SPHERICAL 
 #basis SET: (140s,92p,34d) -> [5s,4p,2d]
 I    S
       0.10906689E+09         7.69868740E-07
@@ -8630,7 +8640,7 @@ I    D
       0.53771464            -8.17530426E-02
       0.29205999            -1.89451895E-02
 end
-basis "Xe_wtbs" 
+basis "Xe_WTBS" SPHERICAL 
 #basis SET: (140s,92p,34d) -> [5s,4p,2d]
 Xe    S
       0.11588472E+09         7.48027749E-07
@@ -8910,7 +8920,7 @@ Xe    D
       0.58786286            -7.56933579E-02
       0.32022498            -1.69009563E-02
 end
-basis "Cs_wtbs" 
+basis "Cs_WTBS" SPHERICAL 
 #basis SET: (180s,92p,34d) -> [6s,4p,2d]
 Cs    S
 87417998.                    1.14209039E-06
@@ -9231,7 +9241,7 @@ Cs    D
       0.28882433            -5.84427536E-03
       0.15228219            -4.04568438E-04
 end
-basis "Ba_wtbs" 
+basis "Ba_WTBS" SPHERICAL 
 #basis SET: (180s,92p,34d) -> [6s,4p,2d]
 Ba    S
 69697296.                    1.58207368E-06
@@ -9552,7 +9562,7 @@ Ba    D
       0.63969178            -5.52665477E-02
       0.34323202            -6.76114558E-03
 end
-basis "La_wtbs" 
+basis "La_WTBS" SPHERICAL 
 #basis SET: (180s,92p,34d,14f) -> [6s,4p,2d,1f]
 La    S
 72852697.                    1.55857254E-06
@@ -9888,7 +9898,7 @@ La    F
       0.20558174             6.49292172E-02
       0.11097641             3.08282568E-02
 end
-basis "Ce_wtbs" 
+basis "Ce_WTBS" SPHERICAL 
 #basis SET: (180s,92p,34d,14f) -> [6s,4p,2d,1f]
 Ce    S
 76389852.                    1.53487366E-06
@@ -10224,7 +10234,7 @@ Ce    F
       0.21569072             5.35222324E-02
       0.11643060             1.97300274E-02
 end
-basis "Pr_wtbs" 
+basis "Pr_WTBS" SPHERICAL 
 #basis SET: (180s,92p,34d,14f) -> [6s,4p,2d,1f]
 Pr    S
 80038348.                    1.51034167E-06
@@ -10560,7 +10570,7 @@ Pr    F
       0.22969136             4.73223084E-02
       0.12416667             1.53318485E-02
 end
-basis "Nd_wtbs" 
+basis "Nd_WTBS" SPHERICAL 
 #basis SET: (180s,92p,34d,14f) -> [6s,4p,2d,1f]
 Nd    S
 83873014.                    1.48272111E-06
@@ -10896,7 +10906,7 @@ Nd    F
       0.25039108             4.63272084E-02
       0.13584319             1.51053410E-02
 end
-basis "Pm_wtbs" 
+basis "Pm_WTBS" SPHERICAL 
 #basis SET: (180s,92p,34d,14f) -> [6s,4p,2d,1f]
 Pm    S
 87698351.                    1.46055574E-06
@@ -11232,7 +11242,7 @@ Pm    F
       0.26599802             4.51532306E-02
       0.14452159             1.47934554E-02
 end
-basis "Sm_wtbs" 
+basis "Sm_WTBS" SPHERICAL 
 #basis SET: (180s,92p,34d,14f) -> [6s,4p,2d,1f]
 Sm    S
 91563325.                    1.44177102E-06
@@ -11568,7 +11578,7 @@ Sm    F
       0.27716212             4.27739252E-02
       0.15055888             1.35339022E-02
 end
-basis "Eu_wtbs" 
+basis "Eu_WTBS" SPHERICAL 
 #basis SET: (180s,92p,34d,14f) -> [6s,4p,2d,1f]
 Eu    S
 95573524.                    1.42281356E-06
@@ -11904,7 +11914,7 @@ Eu    F
       0.28857580             4.03480315E-02
       0.15672251             1.22015989E-02
 end
-basis "Gd_wtbs" 
+basis "Gd_WTBS" SPHERICAL 
 #basis SET: (180s,92p,34d,14f) -> [6s,4p,2d,1f]
 Gd    S
 99561132.                    1.40356110E-06
@@ -12240,7 +12250,7 @@ Gd    F
       0.31019857             4.35956513E-02
       0.16897651             1.51111014E-02
 end
-basis "Tb_wtbs" 
+basis "Tb_WTBS" SPHERICAL 
 #basis SET: (180s,92p,34d,14f) -> [6s,4p,2d,1f]
 Tb    S
       0.10475391E+09         1.37146155E-06
@@ -12576,7 +12586,7 @@ Tb    F
       0.32753146             4.48871404E-02
       0.17843556             1.66026421E-02
 end
-basis "Dy_wtbs" 
+basis "Dy_WTBS" SPHERICAL 
 #basis SET: (174s,88p,32d,13f) -> [6s,4p,2d,1f]
 Dy    S
 89049143.                    1.76319874E-06
@@ -12899,7 +12909,7 @@ Dy    F
       0.40513184             6.00065751E-02
       0.21575706             2.53973920E-02
 end
-basis "Ho_wtbs" 
+basis "Ho_WTBS" SPHERICAL 
 #basis SET: (174s,88p,32d,13f) -> [6s,4p,2d,1f]
 Ho    S
 92107305.                    1.75416431E-06
@@ -13222,7 +13232,7 @@ Ho    F
       0.42420547             6.01280789E-02
       0.22622566             2.66291964E-02
 end
-basis "Er_wtbs" 
+basis "Er_WTBS" SPHERICAL 
 #basis SET: (174s,88p,32d,13f) -> [6s,4p,2d,1f]
 Er    S
 94399000.                    1.76381162E-06
@@ -13545,7 +13555,7 @@ Er    F
       0.42791071             5.80047391E-02
       0.22788619             2.55510829E-02
 end
-basis "Tm_wtbs" 
+basis "Tm_WTBS" SPHERICAL 
 #basis SET: (174s,88p,32d,13f) -> [6s,4p,2d,1f]
 Tm    S
       0.10117777E+09         1.68269367E-06
@@ -13868,7 +13878,7 @@ Tm    F
       0.44610181             5.84665802E-02
       0.23683695             2.61732309E-02
 end
-basis "Yb_wtbs" 
+basis "Yb_WTBS" SPHERICAL 
 #basis SET: (174s,88p,32d,13f) -> [6s,4p,2d,1f]
 Yb    S
       0.10067493E+09         1.74773195E-06
@@ -14191,7 +14201,7 @@ Yb    F
       0.45676054             5.65556152E-02
       0.24335468             2.57620531E-02
 end
-basis "Lu_wtbs" 
+basis "Lu_WTBS" SPHERICAL 
 #basis SET: (168s,84p,54d,12f) -> [6s,4p,3d,1f]
 Lu    S
 57801052.                    3.60458181E-06
@@ -14526,7 +14536,7 @@ Lu    F
       0.71628937             8.06005075E-02
       0.37480036             3.64542976E-02
 end
-basis "Hf_wtbs" 
+basis "Hf_WTBS" SPHERICAL 
 #basis SET: (168s,84p,54d,12f) -> [6s,4p,3d,1f]
 Hf    S
 68974306.                    3.00711338E-06
@@ -14861,7 +14871,7 @@ Hf    F
       0.89929932             8.75044623E-02
       0.47211784             3.81889163E-02
 end
-basis "Ta_wtbs" 
+basis "Ta_WTBS" SPHERICAL 
 #basis SET: (168s,84p,54d,12f) -> [6s,4p,3d,1f]
 Ta    S
 76966188.                    2.72148667E-06
@@ -15196,7 +15206,7 @@ Ta    F
       1.0158805              8.61814001E-02
       0.53325039             3.35742955E-02
 end
-basis "W_wtbs" 
+basis "W_WTBS" SPHERICAL 
 #basis SET: (168s,84p,54d,12f) -> [6s,4p,3d,1f]
 W    S
 81884798.                    2.60003146E-06
@@ -15531,7 +15541,7 @@ W    F
       1.1299396              8.34600638E-02
       0.59602305             3.01621727E-02
 end
-basis "Re_wtbs" 
+basis "Re_WTBS" SPHERICAL 
 #basis SET: (168s,84p,54d,12f) -> [6s,4p,3d,1f]
 Re    S
 86861663.                    2.49653793E-06
@@ -15866,7 +15876,7 @@ Re    F
       1.2251404              7.92933103E-02
       0.64755668             2.62106013E-02
 end
-basis "Os_wtbs" 
+basis "Os_WTBS" SPHERICAL 
 #basis SET: (168s,84p,54d,12f) -> [6s,4p,3d,1f]
 Os    S
 91549282.                    2.41807711E-06
@@ -16201,7 +16211,7 @@ Os    F
       1.3008853              7.36386624E-02
       0.68784262             2.18615428E-02
 end
-basis "Ir_wtbs" 
+basis "Ir_WTBS" SPHERICAL 
 #basis SET: (168s,84p,54d,12f) -> [6s,4p,3d,1f]
 Ir    S
 94689771.                    2.38854663E-06
@@ -16536,7 +16546,7 @@ Ir    F
       1.3842960              6.86732579E-02
       0.73442114             1.89478008E-02
 end
-basis "Pt_wtbs" 
+basis "Pt_WTBS" SPHERICAL 
 #basis SET: (168s,84p,54d,12f) -> [6s,4p,3d,1f]
 Pt    S
 97069151.                    2.37020879E-06
@@ -16871,7 +16881,7 @@ Pt    F
       1.5026560              6.65558951E-02
       0.80231679             1.79704250E-02
 end
-basis "Au_wtbs" 
+basis "Au_WTBS" SPHERICAL 
 #basis SET: (168s,84p,54d,12f) -> [6s,4p,3d,1f]
 Au    S
 103551660.                   2.27539465E-06
@@ -17206,7 +17216,7 @@ Au    F
       1.5733993              6.18198480E-02
       0.83820185             1.52639836E-02
 end
-basis "Hg_wtbs" 
+basis "Hg_WTBS" SPHERICAL 
 #basis SET: (174s,84p,57d,13f) -> [6s,4p,3d,1f]
 Hg    S
 96293620.                    2.57855259E-06
@@ -17551,7 +17561,7 @@ Hg    F
       1.5838295              5.26540240E-02
       0.84642317             1.17324360E-02
 end
-basis "Tl_wtbs" 
+basis "Tl_WTBS" SPHERICAL 
 #basis SET: (168s,120p,54d,12f) -> [6s,5p,3d,1f]
 Tl    S
       0.10945911E+09         2.26158117E-06
@@ -17923,7 +17933,7 @@ Tl    F
       2.2857507              9.27865781E-02
       1.2158331              2.67116280E-02
 end
-basis "Pb_wtbs" 
+basis "Pb_WTBS" SPHERICAL 
 #basis SET: (168s,120p,54d,12f) -> [6s,5p,3d,1f]
 Pb    S
 73753376.                    3.82918923E-06
@@ -18295,7 +18305,7 @@ Pb    F
       2.2703218              7.98722378E-02
       1.2161428              1.99406166E-02
 end
-basis "Bi_wtbs" 
+basis "Bi_WTBS" SPHERICAL 
 #basis SET: (168s,120p,54d,12f) -> [6s,5p,3d,1f]
 Bi    S
 81466050.                    3.47871658E-06
@@ -18667,7 +18677,7 @@ Bi    F
       2.5866598              8.95419716E-02
       1.3897663              2.29928131E-02
 end
-basis "Po_wtbs" 
+basis "Po_WTBS" SPHERICAL 
 #basis SET: (168s,120p,54d,12f) -> [6s,5p,3d,1f]
 Po    S
 89054877.                    3.20115333E-06
@@ -19039,7 +19049,7 @@ Po    F
       2.8879084              9.73124899E-02
       1.5550123              2.52379839E-02
 end
-basis "At_wtbs" 
+basis "At_WTBS" SPHERICAL 
 #basis SET: (168s,120p,54d,12f) -> [6s,5p,3d,1f]
 At    S
 92596223.                    3.11131056E-06
@@ -19411,7 +19421,7 @@ At    F
       3.1262002              9.99036540E-02
       1.6921404              2.56369879E-02
 end
-basis "Rn_wtbs" 
+basis "Rn_WTBS" SPHERICAL 
 #basis SET: (168s,120p,54d,12f) -> [6s,5p,3d,1f]
 Rn    S
 98695815.                    2.94483336E-06

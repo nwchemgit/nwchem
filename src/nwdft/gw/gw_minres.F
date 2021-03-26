@@ -1,12 +1,18 @@
-      subroutine minres(A,x,b,n)
-
+      subroutine gw_minres(OV1,OV2,factor,x,b,npoles,maxpoles,n,ipol)
       implicit none
 #include "errquit.fh"
-      integer,intent(in) :: n
-      double precision,dimension(n,n),intent(in) :: A
+#include "global.fh"      
+#include "mafdecls.fh"
+      integer,intent(in) :: ipol
+      integer,intent(in) :: npoles(ipol),maxpoles,n
+      double precision,intent(in) :: factor(maxpoles,ipol)
+      double precision,intent(in) :: OV1(n,maxpoles),OV2(n,maxpoles)
       double precision,dimension(n),intent(in)   :: b
       double precision,dimension(n),intent(inout)  :: x
 
+      integer,parameter :: maxiter = 10
+
+      integer l_pi, k_pi, l_ipiv, k_ipiv, lscr, l_scr, k_scr, info
       double precision :: eps
       double precision :: Anorm, Acond, Arnorm, rnorm, ynorm
       double precision :: alpha, beta, beta1, cs, dbar, delta, denom
@@ -14,57 +20,77 @@
       double precision :: gbar, gmax, gmin, oldb, oldeps, grnorm, phi
       double precision :: phibar, rhs1, rhs2, rnorml, rootl, Arnorml
       double precision :: relArnorml, s, sn, t, tnorm2, ynorm2, z
+      double precision :: t1, t2, test1, test2, root, bnorm, dxnorm
+      double precision :: test3, xnorm
       double precision,dimension(n) :: r1, r2, sol, v, w, w1, w2, y
 
-      integer iter, istop, i
-      integer,parameter :: maxiter = 30
-      double precision,parameter :: rtol = 1d-5
-      double precision,parameter :: shift = 0.0d0
-#ifdef USE_OPENMP
-      integer iMaxThreads
-      integer, external :: omp_get_max_threads
-      iMaxThreads = omp_get_max_threads()
-      call util_blas_set_num_threads(iMaxThreads)
-#endif
+      
+      logical main,converged,oactive
+      integer iter, istop, i, gy, me, lo ,hi, ld, nmax, nlocal, ithread
+      double precision,parameter :: shift = 0.000d0, rtol=1d-4
 
+#ifdef USE_OPENMP      
+      integer,external :: omp_get_max_threads, omp_get_num_threads
+      integer,external :: omp_get_thread_num
+      nmax = omp_get_max_threads()
+      nlocal = n/nmax
+#else
+      nmax = 1
+      nlocal = n
+      lo = 1
+      hi = n
+#endif      
+
+      call ga_sync()
+      me = ga_nodeid()
+      main = me.eq.0
+      converged = .false.
 
       eps  = epsilon(eps)
       iter = 0
       istop = 0
       Anorm = 0d0
       Acond = 0d0
-      rnorm = 0d0
       ynorm = 0d0
+      gmin  = 1d0
+      test3 = 0d0
 
-      ! Setup y and v for the first Lanczos vector v1
 
-!$omp parallel do      
-      do i=1,n
-        y(i) = b(i)
-      enddo
-!$omp end parallel do      
-
-      call dsymv('l',n,-1d0,A,n,x,1,1d0,y,1)
-
-!$omp parallel do      
-      do i=1,n
-        r1(i) = y(i)
-      enddo
-!$omp end parallel do
-
-      beta1 = dot_product(r1,r1)
-
-      ! Solution already converged
-      if (beta1.eq.0d0) then
-        goto 1000
-        istop = -1
+      if (ipol.eq.1) then
+        call gw_aprod(OV1,factor,x,y,-4d0,0d0,npoles,n)
+      else
+        call gw_aprod(OV1,factor,x,y,-2d0,0d0,npoles,n)
+        call gw_aprod(OV2,factor(1,2),x,y,-2d0,1d0,npoles(2),n)
       endif
+      call dgop(mt_dbl,y,n,'+')
+
+      beta1 = 0d0
+      xnorm = 0d0
+!$omp parallel private(lo,hi,ithread)
+#ifdef USE_OPENMP
+      ithread = omp_get_thread_num()
+      lo = ithread*nlocal + 1
+      hi = (ithread+1)*nlocal
+      if ((ithread+1).eq.nmax) hi = n
+#endif      
+      y(lo:hi) = y(lo:hi) + b(lo:hi) - x(lo:hi)
+!$omp atomic update
+      beta1 = beta1 + dot_product(y(lo:hi),y(lo:hi))
+!$omp atomic update
+      xnorm = xnorm + dot_product(x(lo:hi),x(lo:hi))
+!$omp end parallel
 
       beta1 = dsqrt(beta1)
+      xnorm = dsqrt(xnorm)
 
-      call dsymv('l',n,1d0,A,n,y,1,0d0,w,1)
-      Arnorml = dsqrt(dot_product(w,w))
+      ! Solution already converged
+      if (beta1.lt.rtol) then
+        rnorm = beta1
+        istop = -1
+        goto 2000
+      endif
 
+      bnorm = 0d0
       oldb = 0d0
       beta = beta1
       dbar = 0d0
@@ -77,58 +103,83 @@
       ynorm2 = 0d0
       cs = -1d0
       sn = 0d0
-      w(:) = 0d0
-      w1(:) = 0d0
-      w2(:) = 0d0
-      r2(:) = r1
-      sol = 0d0
+      gmax = 0d0
+
+!$omp parallel private(lo,hi,ithread)
+#ifdef USE_OPENMP
+      ithread = omp_get_thread_num()
+      lo = ithread*nlocal + 1
+      hi = (ithread+1)*nlocal
+      if ((ithread+1).eq.nmax) hi = n
+#endif
+      r1(lo:hi) = y(lo:hi)
+      r2(lo:hi) = y(lo:hi)
+      w(lo:hi) = 0d0
+      w1(lo:hi) = 0d0
+      w2(lo:hi) = 0d0
+      sol(lo:hi) = 0d0
+!$omp atomic update
+      bnorm = bnorm + dot_product(b(lo:hi),b(lo:hi))
+!$omp end parallel      
+      bnorm = dsqrt(bnorm)
+
+
 
       do
         iter = iter + 1
         s = 1d0/beta
 
-!$omp   parallel do        
-        do i=1,n
-          v(i) = s*y(i)
-        enddo
-!$omp   end parallel do        
 
-        call dsymv('l',n,1d0,A,n,v,1,0d0,y,1)
+        v(:) = s*y(:)
 
-!$omp   parallel do
-        do i=1,n
-          y(i) = y(i) - shift*v(i)
-        enddo
-!$omp   end parallel do        
-
-        if (iter.ge.2) then
-!$omp     parallel do
-          do i=1,n
-            y(i) = y(i) - (beta/oldb)*r1(i)
-          enddo
-!$omp     end parallel do          
+        if (ipol.eq.1) then
+          call gw_aprod(OV1,factor,v,y,4d0,0d0,npoles,n)
+        else
+          call gw_aprod(OV1,factor,v,y,2d0,0d0,npoles,n)
+          call gw_aprod(OV2,factor(1,2),v,y,2d0,1d0,npoles(2),n)
         endif
+        call dgop(mt_dbl,y,n,'+')
 
-        alpha = dot_product(v,y)
+        alpha = 0d0
+!$omp   parallel private(lo,hi,ithread)
 
-!$omp   parallel do 
-        do i=1,n
-          r1(i) = r2(i)
-          y(i) = y(i) - (alpha/beta)*r2(i)
-          r2(i) = y(i)
-        enddo
-!$omp   end parallel do
+#ifdef USE_OPENMP
+        ithread = omp_get_thread_num()
+        lo = ithread*nlocal + 1
+        hi = (ithread+1)*nlocal
+        if ((ithread+1).eq.nmax) hi = n
+#endif
 
+        y(lo:hi) = y(lo:hi) + v(lo:hi)
+        if (iter.ge.2) y(lo:hi) = y(lo:hi) - beta/oldb*r1(lo:hi)
+
+!$omp   atomic update
+        alpha = alpha + dot_product(v(lo:hi),y(lo:hi))
+!$omp   barrier        
+
+        y(lo:hi) = y(lo:hi) - alpha/beta*r2(lo:hi)
+        r1(lo:hi) = r2(lo:hi)
+        r2(lo:hi) = y(lo:hi)
+
+!$omp   barrier        
+!$omp   single        
         oldb = beta
-        beta = dsqrt(dot_product(r2,y))
+        beta = 0d0
+!$omp   end single
+
+!$omp   atomic update
+        beta = beta + dot_product(r2(lo:hi),r2(lo:hi))
+!$omp   barrier
+
+!$omp   single
+        beta = dsqrt(beta)
+
         tnorm2 = tnorm2 + alpha**2 + oldb**2 + beta**2
 
         if (iter.eq.1) then
           if (beta/beta1 .le. 10d0*eps) then
             istop = -1
           endif
-          gmax = abs(alpha)
-          gmin = gmax
         endif
 
         oldeps = epsln
@@ -136,81 +187,146 @@
         gbar  = sn*dbar - cs*alpha
         epsln = sn*beta
         dbar  = -cs*beta
+        root = dsqrt(gbar**2 + dbar**2)
+        Arnorm = phibar*root
 
-        gam    = dsqrt( gbar**2 + beta**2 )
-        gam    = max(gam,eps)
-        cs     = gbar/gam
-        sn     = beta/gam
+        if (beta.eq.0d0) then
+          cs = sign(1d0,gbar)
+          sn = 0d0
+          gam = abs(gbar)
+        elseif (gbar.eq.0d0) then
+          cs = 0d0
+          sn = 1d0
+          gam = beta
+        elseif (beta.gt.abs(gbar)) then
+          t = gbar/beta
+          sn = 1d0/dsqrt(1d0 + t**2)
+          cs = sn*t
+          gam = beta/sn
+        else
+          t = beta/gbar
+          cs = sign(1d0,gbar)/dsqrt(1d0+t**2)
+          sn = cs*t
+          gam = gbar/cs
+        endif
+        gam = max(gam,eps)
+
         phi    = cs*phibar
         phibar = sn*phibar
+        dxnorm = 0d0
+        xnorm  = 0d0
+!$omp   end single
 
-!$omp   parallel do        
-        do i=1,n
-          w1(i) = w2(i)
-          w2(i) = w(i)
-          w(i) = (v(i) - oldeps*w1(i) - delta*w2(i))/gam
-          sol(i) = sol(i) + phi*w(i)
-        enddo
-!$omp   end parallel do        
+        w1(lo:hi) = w2(lo:hi)
+        w2(lo:hi) = w(lo:hi)
+        w(lo:hi) = (v(lo:hi)-oldeps*w1(lo:hi)-delta*w(lo:hi))/gam
+        sol(lo:hi) = sol(lo:hi) + phi*w(lo:hi)
+        
+!$omp   atomic update
+        dxnorm = dxnorm + dot_product(sol(lo:hi),sol(lo:hi))
+!$omp   atomic update        
+        xnorm = xnorm + dot_product(x(lo:hi)+sol(lo:hi),
+     $                              x(lo:hi)+sol(lo:hi))
+!$omp   end parallel
+
+        dxnorm = dsqrt(dxnorm)
+        xnorm  = dsqrt(xnorm)
 
         gmax = max(gmax,gam)
         gmin = min(gmin,gam)
         z    = rhs1/gam
-        ynorm2 = z**2 + ynorm2
         rhs1 = rhs2 - delta*z
         rhs2 = -epsln*z
 
         Anorm = dsqrt(tnorm2)
-        ynorm = dsqrt(ynorm2)
-        epsa = Anorm*eps
-        epsx = Anorm*ynorm*eps
-        epsr = Anorm*ynorm*rtol
-        diag = gbar
-        if (diag.eq.0) diag = epsa
-
-        grnorm = phibar
-        rnorml = rnorm
-        rnorm  = grnorm
-        rootl  = dsqrt(gbar**2 + dbar**2)
-        Arnorml = rnorml*rootl
-        relArnorml = rootl/Anorm
+        rnorm = phibar
 
         Acond = gmax/gmin
+        if (istop.ne.0) exit
 
-        if (istop .eq. 0) then
-          if (iter .ge. maxiter) istop = 5
-          if (Acond .ge. 0.1d0/eps) istop=4
-          if (epsx  .ge. beta1    ) istop=3
-          if (grnorm .le. epsx .or. relArnorml .le. epsx) istop = 2
-          if (grnorm .le. epsr .or. relArnorml .le. epsr) istop = 1
-c          if (grnorm/dsqrt(dble(n)) .le. rtol ) istop = 1
-        endif
+        epsx = (Anorm*dxnorm + beta1)*eps
+        epsr = (Anorm*dxnorm + beta1)*rtol
+        test1 = rnorm/(Anorm*dxnorm + bnorm)
+        test2 = Arnorm/(Anorm*(rnorm + eps))
+        test3 = xnorm*rnorm + rnorm**2/gmin
+c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
+        t1 = 1d0 + test1
+        t2 = 1d0 + test2
+
+        if (iter  .ge. maxiter  ) istop=6
+        if (Acond .ge. 0.1d0/eps) istop=5
+        if (t2    .le. 1d0      ) istop=2
+        if (t1    .le. 1d0      ) istop=1
+        if (epsx  .ge. beta1    ) istop=3
+        if (iter.gt.2 .and. test3 .le. rtol/10d0) istop=10
+        if (test2 .le. rtol     ) istop=2
+        if (test1 .le. rtol     ) istop=1
+        if (rnorm .le. rtol     ) istop=8
+
+        call ga_brdcst(mt_int,istop,ma_sizeof(mt_int,1,mt_byte),0)
 
         if (istop.ne.0) exit
       enddo
 
- 1000 Arnorm = Arnorml
+      x(:) = x(:) + sol(:)
 
-!$omp parallel do      
-      do i=1,n
-        x(i) = x(i) + sol(i)
-      enddo
-!$omp end parallel do      
+ 1000 continue
+ 2000 continue
 
-      if (istop.eq.4) 
-     $  call errquit('gw_minres: matrix is very ill-conditioned',0,0)
+      if (istop.eq.6 .and. rnorm.gt.0.001d0) then
+        if (.not.ma_alloc_get(mt_dbl,n**2,'pi',l_pi,k_pi))
+     $    call errquit('gw_en: can''t allocate pi matrix',0,MA_ERR) 
+        if (.not.ma_push_get(mt_int,n,'ipiv',l_ipiv,k_ipiv))
+     $    call errquit('gw_en: can''t allocate ipiv',0,MA_ERR) 
+        call dsytrf('l',n,dbl_mb(k_pi),n,int_mb(k_ipiv),
+     $              x,-1,info)
+        lscr = max(n,int(x(1)))
+        x(:) = b(:)
+        if (.not.ma_push_get(mt_dbl,lscr,'scr',l_scr,k_scr))
+     $    call errquit('gw_en: can''t allocate scratch',0,MA_ERR) 
 
-      if (istop.eq.5)
-     $  call errquit('gw_minres: minres did not converge',0,0)
+        call gw_buildpi('r',ov1,ov2,dbl_mb(k_pi),factor,n,n,npoles,
+     $                   main,ipol,maxpoles)
+        call ga_dgop(mt_dbl,dbl_mb(k_pi),n**2,'+')
+        call dsysv('l',n,1,dbl_mb(k_pi),n,int_mb(k_ipiv),x,n,
+     $              dbl_mb(k_scr),lscr,info)
+#ifdef SCALAPACK
+c        call gw_symmat(dbl_mb(k_pi),n,1,n)
+c        call gw_lu_solve(dbl_mb(k_pi),x,n)
+#endif
+        if (.not.ma_chop_stack(l_ipiv))
+     $    call errquit('gw_en: can''t chop stack',0,MA_ERR)
+        if (.not.ma_free_heap(l_pi))
+     $    call errquit('gw_en: can''t deallocate pi matrix',0,MA_ERR)   
+        rnorm = 0d0
+      else
+        call ga_brdcst(mt_dbl,x,ma_sizeof(mt_dbl,n,mt_byte),0)
+      endif
 
-
-#ifdef USE_OPENMP
-      call util_blas_set_num_threads(1)
-#endif      
 
       end subroutine
 
 
+      subroutine gw_aprod(ov,factor,x,y,scal,mult,npoles,n)
+      implicit none
+      integer,intent(in) :: npoles, n
+      double precision, intent(in) :: scal, mult
+      double precision, intent(in) :: ov(n,npoles),factor(npoles)
+      double precision, intent(in) :: x(n)
+      double precision, intent(out) :: y(n)
 
+      integer :: i
+      double precision :: tmp(npoles)
 
+      call dgemv('t',n,npoles,scal,ov,n,x,1,0d0,tmp,1)
+
+!$omp parallel do
+      do i=1,npoles
+        tmp(i) = tmp(i)*factor(i)
+      enddo
+!$omp end parallel do
+
+      call dgemv('n',n,npoles,1d0,ov,n,tmp,1,mult,y,1)
+
+      end subroutine
 

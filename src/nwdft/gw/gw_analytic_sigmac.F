@@ -29,8 +29,8 @@
       call ga_access(wmn, ilo, ihi ,jlo, jhi, adrWMN, ld)
       eta3 = 3d0*eta
 
-!$omp parallel do collapse(2) private(delta,omega,w,denom) 
-!$omp&                        reduction(+: resp )
+!$omp parallel private(delta,omega,w,denom)
+!$omp do collapse(2) reduction(+: resp )
       do imo=1,plus
         do ipole=jlo,jhi
           omega = omegain - Eold(imo) + omegam(ipole)
@@ -41,10 +41,9 @@
           resp(3) = resp(3) + w*2d0*omega*(omega**2-eta3)/denom**3
         enddo
       enddo
-!$omp end parallel do      
+!$omp end do      
 c
-!$omp parallel do collapse(2) private(delta,omega,w,denom) 
-!$omp&                        reduction(+: resm )
+!$omp do collapse(2) reduction(+: resm )
       do imo=plus+1,nmo
         do ipole=jlo,jhi
           omega = omegain - Eold(imo) - omegam(ipole)
@@ -55,11 +54,12 @@ c
           resm(3) = resm(3) + w*2d0*omega*(omega**2-eta3)/denom**3
         enddo
       enddo
-!$omp end parallel do      
+!$omp end  do      
+!$omp end parallel
 c
       resp = resp + resm
 
-      call dgop(mt_dbl,resp,3,'+')
+      call ga_dgop(mt_dbl,resp,3,'+')
       sigma = resp(1)
       dsigma = resp(2)
       d2sigma = resp(3)

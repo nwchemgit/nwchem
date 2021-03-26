@@ -1,0 +1,147 @@
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# aug-mcc-pV8Z version number 0
+# Description: aug-mcc-pV8Z
+# Role: orbital
+# 
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
+# 
+# feller1996a
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem. 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+# schuchardt2007a
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# 
+#  References for the basis set
+# 
+#  H
+#      aug-mcc-pV8Z
+#          mielke2005a
+# 
+# 
+# 
+# mielke2005a
+#     Mielke, Steven L., Schwenke, David W., Peterson, Kirk A.
+#     Benchmark calculations of the complete configuration-interaction limit
+#             of Born-Oppenheimer diagonal corrections to the saddle points
+#             of isotopomers of the H+H2 reaction
+#     J. Chem. Phys. 122, 224313 (2005)
+#     10.1063/1.1917838
+# 
+# # 
+basis "H_aug-mcc-pV8Z" SPHERICAL 
+#basis SET: (16s,8p,7d,6f,5g,4h,3i,2k) -> [9s,8p,7d,6f,5g,4h,3i,2k]
+H    S
+  13940.8000000              0.00000301
+   3471.4300000              0.00000544
+   1903.1800000              0.00001785
+    623.2860000              0.00007195
+    290.3600000              0.00012055
+    126.5850000              0.00052527
+     44.6955000              0.00201384
+     16.0038000              0.00687086
+H    S
+      6.0805600              1.0000000
+H    S
+      2.4762200              1.0000000
+H    S
+      1.0757100              1.0000000
+H    S
+      0.4896820              1.0000000
+H    S
+      0.2297860              1.0000000
+H    S
+      0.1099655              1.0000000
+H    S
+      0.0523230              1.0000000
+H    S
+      0.0137700              1.0000000
+H    P
+     17.3691000              1.0000000
+H    P
+      7.9252700              1.0000000
+H    P
+      3.6161900              1.0000000
+H    P
+      1.6500200              1.0000000
+H    P
+      0.7528800              1.0000000
+H    P
+      0.3435300              1.0000000
+H    P
+      0.1567500              1.0000000
+H    P
+      0.0528300              1.0000000
+H    D
+      8.7070200              1.0000000
+H    D
+      4.4505600              1.0000000
+H    D
+      2.2748800              1.0000000
+H    D
+      1.1628000              1.0000000
+H    D
+      0.5943600              1.0000000
+H    D
+      0.3038000              1.0000000
+H    D
+      0.1044300              1.0000000
+H    F
+     10.6097000              1.0000000
+H    F
+      5.2422900              1.0000000
+H    F
+      2.5902400              1.0000000
+H    F
+      1.2798500              1.0000000
+H    F
+      0.6323800              1.0000000
+H    F
+      0.2108200              1.0000000
+H    G
+      5.8235900              1.0000000
+H    G
+      3.0535100              1.0000000
+H    G
+      1.6010500              1.0000000
+H    G
+      0.8394900              1.0000000
+H    G
+      0.2933900              1.0000000
+H    H
+      5.9887600              1.0000000
+H    H
+      2.9543500              1.0000000
+H    H
+      1.4574300              1.0000000
+H    H
+      0.4894600              1.0000000
+H    I
+      4.0598700              1.0000000
+H    I
+      1.6950300              1.0000000
+H    I
+      0.6178700              1.0000000
+H    K
+      4.1600000              1.0000000
+H    K
+      1.0170000              1.0000000
+end

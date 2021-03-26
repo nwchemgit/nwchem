@@ -41,7 +41,8 @@
       integer nsize
 
       nsize = 2*nbrillq*(neq(1)+neq(2))*npack1
-      call dcopy(nsize,A,1,C,1)
+      !call dcopy(nsize,A,1,C,1)
+      call Parallel_shared_vector_copy(.true.,nsize,A,C)
       return
       end
 
@@ -424,11 +425,11 @@
 
 *     ****************************
 *     *                          *
-*     *      BGrsm_f_dScale_tag  *
+*     *      BGrsm_f_dscale_tag  *
 *     *                          *
 *     ****************************
 *     A = alpha*A
-      subroutine BGrsm_f_dScale_tag(scale,A_tag)
+      subroutine BGrsm_f_dscale_tag(scale,A_tag)
       implicit none
       real*8 scale
       integer    A_tag
@@ -448,7 +449,7 @@
       call cpsi_data_update(A_tag)
       do nb=1,nbrillq
          A_shift  = cpsi_data_get_chnk(A_tag,nb)
-         call dscal(nsize,scale,dbl_mb(A_shift),1)
+         call DSCAL_OMP(nsize,scale,dbl_mb(A_shift),1)
       end do
       call cpsi_data_noupdate(A_tag)
       return

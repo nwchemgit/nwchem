@@ -260,12 +260,12 @@ c
       if (.not.bas_add_ucnt_init(basis)) call errquit
      &    ('bas_input: failed to init add_ucnt ',911,
      &       BASIS_ERR)
-      call bas_input_body(basis, osegment, oIs_rel, oHas_Star)
-c
       if (.not. bas_set_spherical(basis, ospherical))
      &      call errquit
      &      (' bas_set_spherical failed ',911, BASIS_ERR)
       
+      call bas_input_body(basis, osegment, oIs_rel, oHas_Star)
+c
 c
 c     Now have processed the entire basis directive.  Print out
 c     info if desired, write it to the data base, tidy up and go home
@@ -302,7 +302,8 @@ c
 c
 10000 write(LuOut,10001)
 10001 format(' basis|ecp|so [<name>] [library <standard set>] \\',/,
-     $    '      [file <filename>] [spherical|cartesian] [segment]\\',
+     $    '      [file <filename>] [segment]\\',
+     $    '      [spherical|cartesian]\\',
      &    '      [print|noprint] [rel] [ecpset name_of_ecp]',
      &    ' [soset name_of_so_potential]')
       call errquit('bas_input: invalid format for basis directive', 0,
@@ -357,7 +358,7 @@ c
       integer nltypes           ! No. of known angular momentum types
       integer nsptypes          ! No. of known sp type shells
       integer nopts             ! No. of options
-      parameter (nltypes = 7, nsptypes = 3, nopts = 5)
+      parameter (nltypes = 7, nsptypes = 3, nopts = 6)
       character*1 ltypes(nltypes)
       character*2 sptypes(nsptypes)
       character*8 opts(nopts)
@@ -366,6 +367,7 @@ c
       logical oIs_rel
       logical oshell_is_rel
       logical oIs_star
+      logical read_sphere       !< [Input] flag for reading spherical from library
       integer spvalues(nsptypes)
       integer num_elec
       integer l_value, ind, icount
@@ -375,10 +377,12 @@ cc AJL/End
       data ltypes /'s','p','d','f','g','h','i'/
       data sptypes / 'sp', 'l ', 'ul'/
       data spvalues/  -1 , -1 ,   -1 /
-      data opts / 'except', 'library', 'file', 'rel', 'nelec' /
+      data opts / 'except', 'library', 'file', 'rel', 'nelec' ,
+     A     'details' /
 c
 #include "ecpso_sfnP.fh"
 c
+      read_sphere=.false.
       oIs_ecp = Is_ECP_in(basis)
       oIs_so  = Is_SO_in(basis)
 c
@@ -506,7 +510,7 @@ c
          call inp_prev_field
  22      if (inp_a(field)) then
             if (inp_match(nopts, .false., field, opts, ind)) then
-               goto (23, 25, 26, 27, 28) ind
+               goto (23, 25, 26, 27, 28, 101) ind
 c     
 c     except
 c     
@@ -554,6 +558,11 @@ c
  27            oshell_is_rel = .true.
                goto 22
 c
+c     details, ie read spherical from library
+c
+ 101           read_sphere = .true.
+               goto 22
+c
 c...  nelec  ...  =>  number of electrons for ecp
 c
  28            if (.not.inp_i(num_elec)) goto 10000
@@ -594,7 +603,7 @@ c
 c
       if (standard .ne. ' ') then
          call bas_tag_lib(basis, osegment, tag, tag_in_lib, standard,
-     $        filename, oshell_is_rel)
+     $        filename, oshell_is_rel, read_sphere)
          goto 10
       endif
 c
@@ -885,7 +894,7 @@ c
       end
 *.....................................................................
       subroutine bas_tag_lib(basis, osegment, tag, tag_in_lib, 
-     $     standard, filename, oshell_is_rel)
+     $     standard, filename, oshell_is_rel,read_sphere)
       implicit none
 #include "errquit.fh"
 #include "bas.fh"
@@ -904,6 +913,7 @@ c
       character*(*) standard    !< [Input] name of standard basis set
       character*(*) filename    !< [Input] name of library file
       logical oshell_is_rel     !< [Input] flag for relativistic shell(s)
+      logical read_sphere       !< [Input] flag for reading spherical from library
 c
       character*5 id_string
       character*14 id_str_ecp
@@ -928,6 +938,8 @@ c
       integer spvalues(nsptypes)
       integer l_value, ind
       integer num_elec
+      logical bas_set_spherical
+      external bas_set_spherical
       data ltypes /'s','p','d','f','g','h','i'/
       data sptypes / 'sp', 'l ', 'ul'/
       data spvalues/  -1 , -1  ,  -1 /
@@ -1106,7 +1118,16 @@ c
 c     Now read the basis for this magical atom type in using
 c     the given tag
 c
- 10   if (.not. inp_read()) call errquit
+ 10   if (.not. inp_a(field)) field=' '
+      if(read_sphere) then
+         if (inp_compare(.false., 'spherical', field)) then
+c            write(0,*) ' setting basis spherical'
+            if (.not. bas_set_spherical(basis, .true.))
+     &           call errquit
+     &           (' bas_set_spherical failed ',911, BASIS_ERR)
+         endif
+      endif
+      if (.not. inp_read()) call errquit
      $     ('bas_tag_lib: premature EOF', 0, INPUT_ERR)
 c     
 c     Start parsing current line

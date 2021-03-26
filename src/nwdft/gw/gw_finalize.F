@@ -4,7 +4,6 @@ c
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "cdft.fh"
-#include "tcgmsg.fh"
 #include "global.fh"
 #include "bas.fh"
 #include "geom.fh"
@@ -24,9 +23,12 @@ c
       do i=1,ipol
         if (.not.ga_destroy(pars%g_movecs(i)))
      $    call errquit(pname//'failed to destroy g_movecs',0,GA_ERR)
-        if (.not.ga_destroy(pars%g_erioo(i)))
-     $    call errquit(pname//'failed to destroy g_moeris',0,GA_ERR) 
+        if (pars%npoles(i).gt.0) then
         if (.not.ga_destroy(pars%g_eriov(i)))
+     $    call errquit(pname//'failed to destroy g_moeris',0,GA_ERR) 
+        endif
+        if (pars%nstates(i).eq.0) cycle
+        if (.not.ga_destroy(pars%g_erioo(i)))
      $    call errquit(pname//'failed to destroy g_moeris',0,GA_ERR) 
         if (pars%nstates(i).gt.pars%nocc(i)) then
           if (.not.ga_destroy(pars%g_erivv(i)))
@@ -51,6 +53,20 @@ c
       pars%timer%total = util_wallsec() - pars%timer%total
 
       if (pars%me.eq.0) then
+  900   format("  Exact exchange energy   = ",F25.12)
+ 1000   format(" RPA correlation energy   = ",F25.12)
+ 1010   format("  GM correlation energy   = ",F25.12)
+ 1020   format("       Total RPA energy   = ",F25.12)
+ 1030   format("        Total GM energy   = ",F25.12)
+        write(luout,*)
+        write(luout,900) pars%ex
+        write(luout,1000) pars%ecrpa
+        write(luout,1010) pars%ecgm
+        write(luout,*)
+        write(luout,1020) pars%escf-pars%exscf-pars%ecscf+
+     $                    pars%ex+pars%ecrpa
+        write(luout,1030) pars%escf-pars%exscf-pars%ecscf+
+     $                    pars%ex+pars%ecgm
         write(luout,*)
         write(luout,*) "    GW Timing Statistics"
         write(luout,*) "  ------------------------"

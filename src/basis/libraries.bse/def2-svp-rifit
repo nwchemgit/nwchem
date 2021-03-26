@@ -1,74 +1,82 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# def2-svp-rifit version number 1
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# def2-SVP-RIFIT version number 1
 # Description: def2-SVP-RIFIT
 # Role: rifit
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H,Y-Cd,La,Hf-Hg
-#     ## def2-SVP-RIFIT
-#     Weigend, Florian, Häser, Marco, Patzelt, Holger, Ahlrichs, Reinhart
-#     RI-MP2: optimized auxiliary basis sets and demonstration of efficiency
-#     Chem. Phys. Lett., 294, 143-152 (1998)
-#     10.1016/S0009-2614(98)00862-8
 # 
-# He,Ne,Ar,Kr
-#     ## def2-SV(P)-RIFIT
+#  References for the basis set
+# 
+#  H,Y-Cd,La,Hf-Hg
+#      def2-SVP-RIFIT
+#          weigend1998a
+# 
+#  He,Ne,Ar,Kr
+#      def2-SV(P)-RIFIT
+#          hattig2005a
+# 
+#  Li,Na,Mg,K,Rb,In-Cs,Tl-Rn
+#      def2-SV(P)-RIFIT
+#          hellweg2007a
+# 
+#  Be-F,Al-Cl,Ca,Ga-Br,Sr,Ba
+#      def2-SV(P)-RIFIT
+#          weigend1998a
+# 
+#  Sc-Zn
+#      def2-SVP-RIFIT
+#          hellweg2007a
+# 
+# 
+# 
+# hattig2005a
 #     Hättig, Christof
 #     Optimization of auxiliary basis sets for RI-MP2 and RI-CC2
 #             calculations: Core-valence and quintuple-ζ basis sets for H to
 #             Ar and QZVPP basis sets for Li to Kr
-#     Phys. Chem. Chem. Phys., 7, 59-66 (2005)
+#     Phys. Chem. Chem. Phys. 7, 59-66 (2005)
 #     10.1039/b415208e
 # 
-# Li,Na,Mg,K,Rb,In-Cs,Tl-Rn
-#     ## def2-SV(P)-RIFIT
+# hellweg2007a
 #     Hellweg, Arnim, Hättig, Christof, Höfener, Sebastian, Klopper, Wim
 #     Optimized accurate auxiliary basis sets for RI-MP2 and RI-CC2
 #             calculations for the atoms Rb to Rn
-#     Theor. Chem. Acc., 117, 587-597 (2007)
+#     Theor. Chem. Acc. 117, 587-597 (2007)
 #     10.1007/s00214-007-0250-5
 # 
-# Be-F,Al-Cl,Ca,Ga-Br,Sr,Ba
-#     ## def2-SV(P)-RIFIT
+# weigend1998a
 #     Weigend, Florian, Häser, Marco, Patzelt, Holger, Ahlrichs, Reinhart
 #     RI-MP2: optimized auxiliary basis sets and demonstration of efficiency
-#     Chem. Phys. Lett., 294, 143-152 (1998)
+#     Chem. Phys. Lett. 294, 143-152 (1998)
 #     10.1016/S0009-2614(98)00862-8
 # 
-# Sc-Zn
-#     ## def2-SVP-RIFIT
-#     Hellweg, Arnim, Hättig, Christof, Höfener, Sebastian, Klopper, Wim
-#     Optimized accurate auxiliary basis sets for RI-MP2 and RI-CC2
-#             calculations for the atoms Rb to Rn
-#     Theor. Chem. Acc., 117, 587-597 (2007)
-#     10.1007/s00214-007-0250-5
-# 
 # # 
-basis "H_def2-svp-rifit" 
+basis "H_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (4s,3p,2d) -> [3s,2p,1d]
 H    S
       9.33521609              .64609379
@@ -86,7 +94,7 @@ H    D
       1.58163766             1.49367397
        .62743960             -.01070690
 end
-basis "He_def2-svp-rifit" 
+basis "He_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (4s,3p) -> [3s,2p]
 He    S
      24.71889717              .26232950
@@ -101,7 +109,7 @@ He    P
 He    P
       1.23998485             1.0000000
 end
-basis "Li_def2-svp-rifit" 
+basis "Li_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,5p,3d) -> [5s,5p,1d]
 Li    S
      85.451043080            0.25324236000
@@ -132,7 +140,7 @@ Li    D
       0.63295635000          1.7744968200
       0.14763175000          1.2301801800
 end
-basis "Be_def2-svp-rifit" 
+basis "Be_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,5p,3d) -> [5s,4p,2d]
 Be    S
      86.81101212             1.18820240
@@ -163,7 +171,7 @@ Be    D
 Be    D
        .17384257             1.0000000
 end
-basis "B_def2-svp-rifit" 
+basis "B_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,6p,5d,3f) -> [6s,5p,4d,1f]
 B    S
     146.41098372              .75852308
@@ -204,7 +212,7 @@ B    F
        .74288816             1.75975495
        .39772732              .33568155
 end
-basis "C_def2-svp-rifit" 
+basis "C_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,6p,5d,3f) -> [6s,5p,4d,1f]
 C    S
     281.47693316              .48911748
@@ -245,7 +253,7 @@ C    F
       1.16067992             1.39179984
        .55289817              .10532469
 end
-basis "N_def2-svp-rifit" 
+basis "N_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,6p,5d,3f) -> [6s,5p,4d,1f]
 N    S
     291.18394257              .56533084
@@ -286,7 +294,7 @@ N    F
       1.66865042             1.65562725
        .80947600              .24984638
 end
-basis "O_def2-svp-rifit" 
+basis "O_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,6p,5d,3f) -> [6s,5p,4d,1f]
 O    S
     364.91291000              .58060367
@@ -327,7 +335,7 @@ O    F
       2.32046420             1.78671278
       1.09128040              .32923623
 end
-basis "F_def2-svp-rifit" 
+basis "F_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,6p,5d,3f) -> [6s,5p,4d,1f]
 F    S
     423.09461295              .76390649
@@ -368,7 +376,7 @@ F    F
       3.08300338             1.44883740
       1.43439592              .43282911
 end
-basis "Ne_def2-svp-rifit" 
+basis "Ne_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,6p,5d,3f) -> [6s,5p,4d,1f]
 Ne    S
     626.227                  1.00000
@@ -409,7 +417,7 @@ Ne    F
       4.20953                3.18117
       1.90355                1.31756
 end
-basis "Na_def2-svp-rifit" 
+basis "Na_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (10s,8p,5d,2f) -> [7s,5p,3d,2f]
 Na    S
     201.74164995             0.57112470
@@ -454,7 +462,7 @@ Na    F
 Na    F
        .63654146             1.0000000
 end
-basis "Mg_def2-svp-rifit" 
+basis "Mg_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (10s,8p,5d,1f) -> [7s,5p,3d,1f]
 Mg    S
     217.7794018              0.5711247
@@ -497,7 +505,7 @@ Mg    D
 Mg    F
        .9737840700           1.0000000
 end
-basis "Al_def2-svp-rifit" 
+basis "Al_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (10s,7p,7d,3f) -> [8s,5p,5d,2f]
 Al    S
     300.70420000             1.18256078
@@ -542,12 +550,12 @@ Al    D
 Al    D
        .19549324             1.0000000
 Al    F
+      1.93789568             1.0000000
+Al    F
        .37925249              .25942180
        .24982981             -.08455754
-Al    F
-      1.93789568             1.0000000
 end
-basis "Si_def2-svp-rifit" 
+basis "Si_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (10s,7p,7d,3f) -> [8s,5p,5d,2f]
 Si    S
     252.95316000             1.51090391
@@ -592,12 +600,12 @@ Si    D
 Si    D
        .15916560             1.0000000
 Si    F
+      2.58191110              .08379133
+Si    F
        .61244748             1.91327985
        .32303395              .30322173
-Si    F
-      2.58191110              .08379133
 end
-basis "P_def2-svp-rifit" 
+basis "P_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (10s,7p,7d,3f) -> [8s,5p,5d,2f]
 P    S
     299.02239127             1.18280040
@@ -642,12 +650,12 @@ P    D
 P    D
        .20388351             1.0000000
 P    F
+      3.34501984             1.0000000
+P    F
        .86641104             1.93653653
        .43258777              .47879898
-P    F
-      3.34501984             1.0000000
 end
-basis "S_def2-svp-rifit" 
+basis "S_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (10s,7p,7d,3f) -> [8s,5p,5d,2f]
 S    S
     345.09162253             1.48919937
@@ -692,12 +700,12 @@ S    D
 S    D
        .24224219             1.0000000
 S    F
+      4.12518509             1.0000000
+S    F
       1.13232061             2.11288130
        .52933986              .58306401
-S    F
-      4.12518509             1.0000000
 end
-basis "Cl_def2-svp-rifit" 
+basis "Cl_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (10s,7p,7d,3f) -> [8s,5p,5d,2f]
 Cl    S
     385.89005709             1.48825989
@@ -742,12 +750,12 @@ Cl    D
 Cl    D
        .29102728             1.0000000
 Cl    F
+      5.11540688             1.0000000
+Cl    F
       1.46396661             1.71390252
        .66657108              .70983780
-Cl    F
-      5.11540688             1.0000000
 end
-basis "Ar_def2-svp-rifit" 
+basis "Ar_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (10s,7p,7d,3f) -> [8s,5p,5d,2f]
 Ar    S
     581.184                 -1.01628
@@ -792,12 +800,12 @@ Ar    D
 Ar    D
       0.347932               1.0000000
 Ar    F
+      6.02016                1.0000000
+Ar    F
       1.78948                1.00000
       0.790978               0.558162
-Ar    F
-      6.02016                1.0000000
 end
-basis "K_def2-svp-rifit" 
+basis "K_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (11s,8p,4d,2f) -> [8s,6p,4d,2f]
 K    S
      81.106186230           -1.23750809
@@ -845,7 +853,7 @@ K    F
 K    F
       0.34961847544          1.0000000
 end
-basis "Ca_def2-svp-rifit" 
+basis "Ca_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (11s,8p,6d,2f) -> [8s,8p,6d,2f]
 Ca    S
      84.490299430           -0.86023361000
@@ -899,7 +907,7 @@ Ca    F
 Ca    F
       0.74798521407          1.0000000
 end
-basis "Sc_def2-svp-rifit" 
+basis "Sc_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,6d,4f,3g,2h) -> [9s,9p,6d,4f,3g,2h]
 Sc    S
      13.1191                 1.0000000
@@ -968,7 +976,7 @@ Sc    H
 Sc    H
       0.700543               1.0000000
 end
-basis "Ti_def2-svp-rifit" 
+basis "Ti_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,6d,4f,3g,2h) -> [9s,9p,6d,4f,3g,2h]
 Ti    S
      16.1322                 1.0000000
@@ -1037,7 +1045,7 @@ Ti    H
 Ti    H
       1.02944                1.0000000
 end
-basis "V_def2-svp-rifit" 
+basis "V_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,6d,4f,3g,2h) -> [9s,9p,6d,4f,3g,2h]
 V    S
      18.4195                 1.0000000
@@ -1106,7 +1114,7 @@ V    H
 V    H
       1.44948                1.0000000
 end
-basis "Cr_def2-svp-rifit" 
+basis "Cr_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,6d,4f,3g,2h) -> [9s,9p,6d,4f,3g,2h]
 Cr    S
      21.5267                 1.0000000
@@ -1175,7 +1183,7 @@ Cr    H
 Cr    H
       1.80379                1.0000000
 end
-basis "Mn_def2-svp-rifit" 
+basis "Mn_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,6d,4f,3g,2h) -> [9s,9p,6d,4f,3g,2h]
 Mn    S
      25.1561                 1.0000000
@@ -1244,7 +1252,7 @@ Mn    H
 Mn    H
       2.0794                 1.0000000
 end
-basis "Fe_def2-svp-rifit" 
+basis "Fe_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,6d,4f,3g,2h) -> [9s,9p,6d,4f,3g,2h]
 Fe    S
      27.4596                 1.0000000
@@ -1313,7 +1321,7 @@ Fe    H
 Fe    H
       2.51445                1.0000000
 end
-basis "Co_def2-svp-rifit" 
+basis "Co_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,6d,4f,3g,2h) -> [9s,9p,6d,4f,3g,2h]
 Co    S
      30.7127                 1.0000000
@@ -1382,7 +1390,7 @@ Co    H
 Co    H
       3.00791                1.0000000
 end
-basis "Ni_def2-svp-rifit" 
+basis "Ni_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,6d,4f,3g,2h) -> [9s,9p,6d,4f,3g,2h]
 Ni    S
      34.2679                 1.0000000
@@ -1451,7 +1459,7 @@ Ni    H
 Ni    H
       3.41227                1.0000000
 end
-basis "Cu_def2-svp-rifit" 
+basis "Cu_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,6d,4f,3g,2h) -> [9s,9p,6d,4f,3g,2h]
 Cu    S
      36.6845                 1.0000000
@@ -1520,7 +1528,7 @@ Cu    H
 Cu    H
       3.45734                1.0000000
 end
-basis "Zn_def2-svp-rifit" 
+basis "Zn_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,9p,6d,4f,3g,2h) -> [9s,9p,6d,4f,3g,2h]
 Zn    S
      39.1765                 1.0000000
@@ -1589,7 +1597,7 @@ Zn    H
 Zn    H
       4.09814                1.0000000
 end
-basis "Ga_def2-svp-rifit" 
+basis "Ga_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,6f,4g) -> [10s,9p,7d,4f,3g]
 Ga    S
      55.38833600             1.0000000
@@ -1648,12 +1656,12 @@ Ga    F
      76.08465924             -.40316365
       9.73887532             1.00245201
 Ga    F
-       .45130423             1.37043873
-       .23682010              .72729864
-Ga    F
       2.51193572             1.0000000
 Ga    F
       1.41529035             1.0000000
+Ga    F
+       .45130423             1.37043873
+       .23682010              .72729864
 Ga    G
      18.32230794             1.01074910
       5.93531424              .44760739
@@ -1662,7 +1670,7 @@ Ga    G
 Ga    G
        .51916968             1.0000000
 end
-basis "Ge_def2-svp-rifit" 
+basis "Ge_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,6f,4g) -> [10s,9p,7d,4f,3g]
 Ge    S
      63.52744568             1.0000000
@@ -1721,12 +1729,12 @@ Ge    F
      81.51939766             -.41433903
      10.62837474             1.03220719
 Ge    F
-       .52866445             1.49348530
-       .25984182              .57532109
-Ge    F
       2.87988043             1.0000000
 Ge    F
       1.30952965             1.0000000
+Ge    F
+       .52866445             1.49348530
+       .25984182              .57532109
 Ge    G
      20.22323040             1.64027713
       6.52793590              .66603472
@@ -1735,7 +1743,7 @@ Ge    G
 Ge    G
        .56623179             1.0000000
 end
-basis "As_def2-svp-rifit" 
+basis "As_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,6f,4g) -> [10s,9p,7d,4f,3g]
 As    S
      83.55947554             1.0000000
@@ -1794,12 +1802,12 @@ As    F
      98.43681000             -.40606138
      11.16915000              .99999301
 As    F
-       .60958268             1.49851781
-       .29600963              .35620094
-As    F
       2.53766240             1.0000000
 As    F
       1.49946210             1.0000000
+As    F
+       .60958268             1.49851781
+       .29600963              .35620094
 As    G
      22.83288198             1.29896232
       7.52199032              .53990149
@@ -1808,7 +1816,7 @@ As    G
 As    G
        .67087982             1.0000000
 end
-basis "Se_def2-svp-rifit" 
+basis "Se_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,6f,4g) -> [10s,9p,7d,4f,3g]
 Se    S
      88.95366100             1.0000000
@@ -1867,12 +1875,12 @@ Se    F
      98.67863700             -.40633906
      12.08261000             1.00454950
 Se    F
-       .71106020             1.51108462
-       .33015467              .23614718
-Se    F
       2.73267160             1.0000000
 Se    F
       1.49264610             1.0000000
+Se    F
+       .71106020             1.51108462
+       .33015467              .23614718
 Se    G
      24.83552800             1.32344275
       8.05276810              .50893400
@@ -1881,7 +1889,7 @@ Se    G
 Se    G
        .76283655             1.0000000
 end
-basis "Br_def2-svp-rifit" 
+basis "Br_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,6f,4g) -> [10s,9p,7d,4f,3g]
 Br    S
      95.83565078             1.0000000
@@ -1940,12 +1948,12 @@ Br    F
     103.32685318             -.53239629
      13.29052387             1.28358500
 Br    F
-       .84306755             1.41844250
-       .39193927              .24365182
-Br    F
       3.19472597             1.0000000
 Br    F
       1.72183930             1.0000000
+Br    F
+       .84306755             1.41844250
+       .39193927              .24365182
 Br    G
      27.21759449             1.64808852
       8.75930726              .69184278
@@ -1954,7 +1962,7 @@ Br    G
 Br    G
        .89030648             1.0000000
 end
-basis "Kr_def2-svp-rifit" 
+basis "Kr_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (10s,9p,8d,6f,4g) -> [10s,9p,7d,4f,3g]
 Kr    S
      82.1068                 1.0000000
@@ -2013,12 +2021,12 @@ Kr    F
     111.443                 -0.620223
      14.4995                 1.57075
 Kr    F
-      0.962979               1.00000
-      0.451834               0.168298
-Kr    F
       3.68851                1.0000000
 Kr    F
       1.95195                1.0000000
+Kr    F
+      0.962979               1.00000
+      0.451834               0.168298
 Kr    G
      29.1944                 1.27370
       9.35819                0.615732
@@ -2027,7 +2035,7 @@ Kr    G
 Kr    G
       0.994893               1.0000000
 end
-basis "Rb_def2-svp-rifit" 
+basis "Rb_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,8p,5d,2f) -> [9s,8p,5d,2f]
 Rb    S
       8.15638                1.0000000
@@ -2078,7 +2086,7 @@ Rb    F
 Rb    F
       0.321721               1.0000000
 end
-basis "Sr_def2-svp-rifit" 
+basis "Sr_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,6p,5d,3f,1g) -> [8s,6p,5d,3f,1g]
 Sr    S
       4.67294354             1.0000000
@@ -2127,7 +2135,7 @@ Sr    F
 Sr    G
        .48                   1.0000000
 end
-basis "Y_def2-svp-rifit" 
+basis "Y_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,7p,6d,5f,3g,1h) -> [8s,7p,6d,5f,3g,1h]
 Y    S
       4.6898                 1.0000000
@@ -2190,7 +2198,7 @@ Y    G
 Y    H
       0.506601               1.0000000
 end
-basis "Zr_def2-svp-rifit" 
+basis "Zr_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,7p,6d,5f,3g,1h) -> [8s,7p,6d,5f,3g,1h]
 Zr    S
       4.57327                1.0000000
@@ -2253,7 +2261,7 @@ Zr    G
 Zr    H
       0.750847               1.0000000
 end
-basis "Nb_def2-svp-rifit" 
+basis "Nb_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,7p,6d,5f,3g,1h) -> [8s,7p,6d,5f,3g,1h]
 Nb    S
       4.45346                1.0000000
@@ -2316,7 +2324,7 @@ Nb    G
 Nb    H
       0.969242               1.0000000
 end
-basis "Mo_def2-svp-rifit" 
+basis "Mo_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,7p,6d,5f,3g,1h) -> [8s,7p,6d,5f,3g,1h]
 Mo    S
       5.56997                1.0000000
@@ -2379,7 +2387,7 @@ Mo    G
 Mo    H
       1.23574                1.0000000
 end
-basis "Tc_def2-svp-rifit" 
+basis "Tc_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,7p,6d,5f,3g,1h) -> [8s,7p,6d,5f,3g,1h]
 Tc    S
       6.59986                1.0000000
@@ -2442,7 +2450,7 @@ Tc    G
 Tc    H
       1.46984                1.0000000
 end
-basis "Ru_def2-svp-rifit" 
+basis "Ru_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,7p,6d,5f,3g,1h) -> [8s,7p,6d,5f,3g,1h]
 Ru    S
       7.877                  1.0000000
@@ -2505,7 +2513,7 @@ Ru    G
 Ru    H
       1.71103                1.0000000
 end
-basis "Rh_def2-svp-rifit" 
+basis "Rh_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,7p,6d,5f,3g,1h) -> [8s,7p,6d,5f,3g,1h]
 Rh    S
       8.63424                1.0000000
@@ -2568,7 +2576,7 @@ Rh    G
 Rh    H
       1.9775                 1.0000000
 end
-basis "Pd_def2-svp-rifit" 
+basis "Pd_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,7p,6d,5f,3g,1h) -> [8s,7p,6d,5f,3g,1h]
 Pd    S
       7.6686                 1.0000000
@@ -2631,7 +2639,7 @@ Pd    G
 Pd    H
       2.24369                1.0000000
 end
-basis "Ag_def2-svp-rifit" 
+basis "Ag_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,7p,6d,5f,3g,1h) -> [8s,7p,6d,5f,3g,1h]
 Ag    S
       8.28179                1.0000000
@@ -2694,7 +2702,7 @@ Ag    G
 Ag    H
       2.53117                1.0000000
 end
-basis "Cd_def2-svp-rifit" 
+basis "Cd_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,7p,6d,5f,3g,1h) -> [8s,7p,6d,5f,3g,1h]
 Cd    S
       7.96701                1.0000000
@@ -2757,7 +2765,7 @@ Cd    G
 Cd    H
       2.89487                1.0000000
 end
-basis "In_def2-svp-rifit" 
+basis "In_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,8p,7d,4f,2g) -> [9s,8p,7d,4f,2g]
 In    S
      16.7262                 1.0000000
@@ -2820,7 +2828,7 @@ In    G
 In    G
       0.560987               1.0000000
 end
-basis "Sn_def2-svp-rifit" 
+basis "Sn_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,8p,7d,4f,2g) -> [9s,8p,7d,4f,2g]
 Sn    S
      16.7245                 1.0000000
@@ -2883,7 +2891,7 @@ Sn    G
 Sn    G
       0.665381               1.0000000
 end
-basis "Sb_def2-svp-rifit" 
+basis "Sb_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,8p,7d,4f,2g) -> [9s,8p,7d,4f,2g]
 Sb    S
      16.6811                 1.0000000
@@ -2946,7 +2954,7 @@ Sb    G
 Sb    G
       0.771426               1.0000000
 end
-basis "Te_def2-svp-rifit" 
+basis "Te_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,8p,7d,4f,2g) -> [9s,8p,7d,4f,2g]
 Te    S
      16.5223                 1.0000000
@@ -3009,7 +3017,7 @@ Te    G
 Te    G
       0.872745               1.0000000
 end
-basis "I_def2-svp-rifit" 
+basis "I_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,8p,7d,4f,2g) -> [9s,8p,7d,4f,2g]
 I    S
      15.3295                 1.0000000
@@ -3072,7 +3080,7 @@ I    G
 I    G
       1.03334                1.0000000
 end
-basis "Xe_def2-svp-rifit" 
+basis "Xe_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,8p,8d,6f,4g,3h) -> [9s,8p,8d,6f,4g,3h]
 Xe    S
      19.9553                 1.0000000
@@ -3151,7 +3159,7 @@ Xe    H
 Xe    H
       1.42564                1.0000000
 end
-basis "Cs_def2-svp-rifit" 
+basis "Cs_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,8p,4d,2f) -> [9s,8p,4d,2f]
 Cs    S
       7.62648                1.0000000
@@ -3200,7 +3208,7 @@ Cs    F
 Cs    F
       0.195717               1.0000000
 end
-basis "Ba_def2-svp-rifit" 
+basis "Ba_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,7p,7d,3f,2g) -> [8s,7p,7d,3f,2g]
 Ba    S
       1.84739                1.0000000
@@ -3257,7 +3265,7 @@ Ba    G
 Ba    G
       0.573056               1.0000000
 end
-basis "La_def2-svp-rifit" 
+basis "La_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,8p,7d,5f,3g,1h) -> [8s,8p,7d,5f,3g,1h]
 La    S
       4.63761                1.0000000
@@ -3324,7 +3332,7 @@ La    G
 La    H
       0.471769               1.0000000
 end
-basis "Hf_def2-svp-rifit" 
+basis "Hf_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,8p,7d,5f,3g,1h) -> [8s,8p,7d,5f,3g,1h]
 Hf    S
       5.09283                1.0000000
@@ -3391,7 +3399,7 @@ Hf    G
 Hf    H
       0.613569               1.0000000
 end
-basis "Ta_def2-svp-rifit" 
+basis "Ta_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,8p,7d,5f,3g,1h) -> [8s,8p,7d,5f,3g,1h]
 Ta    S
       4.60845                1.0000000
@@ -3458,7 +3466,7 @@ Ta    G
 Ta    H
       0.721713               1.0000000
 end
-basis "W_def2-svp-rifit" 
+basis "W_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,8p,7d,5f,3g,1h) -> [8s,8p,7d,5f,3g,1h]
 W    S
       5.45793                1.0000000
@@ -3525,7 +3533,7 @@ W    G
 W    H
       0.87271                1.0000000
 end
-basis "Re_def2-svp-rifit" 
+basis "Re_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,8p,7d,5f,3g,1h) -> [8s,8p,7d,5f,3g,1h]
 Re    S
       5.35691                1.0000000
@@ -3592,7 +3600,7 @@ Re    G
 Re    H
       0.983285               1.0000000
 end
-basis "Os_def2-svp-rifit" 
+basis "Os_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,8p,7d,5f,3g,1h) -> [8s,8p,7d,5f,3g,1h]
 Os    S
       5.79093                1.0000000
@@ -3659,7 +3667,7 @@ Os    G
 Os    H
       1.10088                1.0000000
 end
-basis "Ir_def2-svp-rifit" 
+basis "Ir_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,8p,7d,5f,3g,1h) -> [8s,8p,7d,5f,3g,1h]
 Ir    S
       6.23964                1.0000000
@@ -3726,7 +3734,7 @@ Ir    G
 Ir    H
       1.2137                 1.0000000
 end
-basis "Pt_def2-svp-rifit" 
+basis "Pt_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,8p,7d,5f,3g,1h) -> [8s,8p,7d,5f,3g,1h]
 Pt    S
       7.00131                1.0000000
@@ -3793,7 +3801,7 @@ Pt    G
 Pt    H
       1.31614                1.0000000
 end
-basis "Au_def2-svp-rifit" 
+basis "Au_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,8p,7d,5f,3g,1h) -> [8s,8p,7d,5f,3g,1h]
 Au    S
       7.74842                1.0000000
@@ -3860,7 +3868,7 @@ Au    G
 Au    H
       1.451                  1.0000000
 end
-basis "Hg_def2-svp-rifit" 
+basis "Hg_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (8s,8p,7d,5f,3g,1h) -> [8s,8p,7d,5f,3g,1h]
 Hg    S
       4.83454                1.0000000
@@ -3927,7 +3935,7 @@ Hg    G
 Hg    H
       1.61141                1.0000000
 end
-basis "Tl_def2-svp-rifit" 
+basis "Tl_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,8p,7d,5f,2g) -> [9s,8p,7d,5f,2g]
 Tl    S
      13.9132                 1.0000000
@@ -3992,7 +4000,7 @@ Tl    G
 Tl    G
       0.470349               1.0000000
 end
-basis "Pb_def2-svp-rifit" 
+basis "Pb_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,8p,7d,5f,2g) -> [9s,8p,7d,5f,2g]
 Pb    S
      13.8189                 1.0000000
@@ -4057,7 +4065,7 @@ Pb    G
 Pb    G
       0.548736               1.0000000
 end
-basis "Bi_def2-svp-rifit" 
+basis "Bi_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,8p,7d,5f,2g) -> [9s,8p,7d,5f,2g]
 Bi    S
      15.1774                 1.0000000
@@ -4122,7 +4130,7 @@ Bi    G
 Bi    G
       0.635959               1.0000000
 end
-basis "Po_def2-svp-rifit" 
+basis "Po_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,8p,7d,5f,2g) -> [9s,8p,7d,5f,2g]
 Po    S
      15.7263                 1.0000000
@@ -4187,7 +4195,7 @@ Po    G
 Po    G
       0.71087                1.0000000
 end
-basis "At_def2-svp-rifit" 
+basis "At_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,8p,7d,5f,2g) -> [9s,8p,7d,5f,2g]
 At    S
      16.4482                 1.0000000
@@ -4252,7 +4260,7 @@ At    G
 At    G
       0.795024               1.0000000
 end
-basis "Rn_def2-svp-rifit" 
+basis "Rn_def2-SVP-RIFIT" SPHERICAL 
 #basis SET: (9s,8p,8d,6f,4g,3h) -> [9s,8p,8d,6f,4g,3h]
 Rn    S
      17.191                  1.0000000

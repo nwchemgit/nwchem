@@ -1,44 +1,53 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# x2c-svpall version number 0
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# x2c-SVPall version number 0
 # Description: x2c-SVPall
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H-Rn
-#     ## x2c-SVPall
+# 
+#  References for the basis set
+# 
+#  H-Rn
+#      x2c-SVPall
+#          pollak2017a
+# 
+# 
+# 
+# pollak2017a
 #     Pollak, Patrik, Weigend, Florian
 #     Segmented Contracted Error-Consistent Basis Sets of Double- and
 #             Triple-ζ Valence Quality for One- and Two-Component
 #             Relativistic All-Electron Calculations
-#     J. Chem. Theory Comput., 13, 3696-3705 (2017)
+#     J. Chem. Theory Comput. 13, 3696-3705 (2017)
 #     10.1021/acs.jctc.7b00593
 # 
 # # 
-basis "H_x2c-svpall" 
+basis "H_x2c-SVPall" SPHERICAL 
 #basis SET: (4s,1p) -> [2s,1p]
 H    S
      13.0107010              0.19682158E-01
@@ -49,7 +58,7 @@ H    S
 H    P
       0.8000000              1.0000000
 end
-basis "He_x2c-svpall" 
+basis "He_x2c-SVPall" SPHERICAL 
 #basis SET: (4s,1p) -> [2s,1p]
 He    S
      38.354936737            0.23814288905E-01
@@ -60,7 +69,7 @@ He    S
 He    P
       1.0000000              1.0000000
 end
-basis "Li_x2c-svpall" 
+basis "Li_x2c-SVPall" SPHERICAL 
 #basis SET: (7s,3p) -> [3s,2p]
 Li    S
     265.34577088             0.64440255985E-02
@@ -78,7 +87,7 @@ Li    P
 Li    P
       0.82000000000E-01      1.0000000000
 end
-basis "Be_x2c-svpall" 
+basis "Be_x2c-SVPall" SPHERICAL 
 #basis SET: (7s,4p) -> [3s,2p]
 Be    S
     511.48843534             0.60181324917E-02
@@ -97,7 +106,7 @@ Be    P
 Be    P
       0.60515465890E-01      1.0000000000
 end
-basis "B_x2c-svpall" 
+basis "B_x2c-SVPall" SPHERICAL 
 #basis SET: (7s,4p,1d) -> [3s,2p,1d]
 B    S
     833.28485742             0.58802740943E-02
@@ -118,7 +127,7 @@ B    P
 B    D
       0.50000000000          1.0000000000
 end
-basis "C_x2c-svpall" 
+basis "C_x2c-SVPall" SPHERICAL 
 #basis SET: (7s,4p,1d) -> [3s,2p,1d]
 C    S
    1231.7975026              0.58423195663E-02
@@ -139,7 +148,7 @@ C    P
 C    D
       0.80000000000          1.0000000000
 end
-basis "N_x2c-svpall" 
+basis "N_x2c-SVPall" SPHERICAL 
 #basis SET: (7s,4p,1d) -> [3s,2p,1d]
 N    S
    1706.0150550              0.58639452724E-02
@@ -160,7 +169,7 @@ N    P
 N    D
       1.0000000000           1.0000000000
 end
-basis "O_x2c-svpall" 
+basis "O_x2c-SVPall" SPHERICAL 
 #basis SET: (7s,4p,1d) -> [3s,2p,1d]
 O    S
    2256.4894524              0.59167514970E-02
@@ -181,7 +190,7 @@ O    P
 O    D
       1.2000000000           1.0000000000
 end
-basis "F_x2c-svpall" 
+basis "F_x2c-SVPall" SPHERICAL 
 #basis SET: (7s,4p,1d) -> [3s,2p,1d]
 F    S
    2881.7300152              0.59969309678E-02
@@ -202,7 +211,7 @@ F    P
 F    D
       1.4000000000           1.0000000000
 end
-basis "Ne_x2c-svpall" 
+basis "Ne_x2c-SVPall" SPHERICAL 
 #basis SET: (7s,4p,1d) -> [3s,2p,1d]
 Ne    S
    3583.9335827              0.60985947584E-02
@@ -223,7 +232,7 @@ Ne    P
 Ne    D
       1.8880000000           1.0000000000
 end
-basis "Na_x2c-svpall" 
+basis "Na_x2c-SVPall" SPHERICAL 
 #basis SET: (10s,6p,1d) -> [4s,2p,1d]
 Na    S
    4193.9182539              0.65949910041E-02
@@ -250,7 +259,7 @@ Na    P
 Na    D
       0.13100000000          1.0000000000
 end
-basis "Mg_x2c-svpall" 
+basis "Mg_x2c-SVPall" SPHERICAL 
 #basis SET: (10s,7p,1d) -> [4s,3p,1d]
 Mg    S
    5220.1995340              0.65350245853E-02
@@ -279,7 +288,7 @@ Mg    P
 Mg    D
       0.10100000000          1.0000000000
 end
-basis "Al_x2c-svpall" 
+basis "Al_x2c-SVPall" SPHERICAL 
 #basis SET: (10s,7p,1d) -> [4s,3p,1d]
 Al    S
    6249.8678235              0.65461451830E-02
@@ -308,7 +317,7 @@ Al    P
 Al    D
       0.30000000000          1.0000000000
 end
-basis "Si_x2c-svpall" 
+basis "Si_x2c-SVPall" SPHERICAL 
 #basis SET: (10s,7p,1d) -> [4s,3p,1d]
 Si    S
    7407.8794566              0.65954999887E-02
@@ -337,7 +346,7 @@ Si    P
 Si    D
       0.35000000000          1.0000000000
 end
-basis "P_x2c-svpall" 
+basis "P_x2c-SVPall" SPHERICAL 
 #basis SET: (10s,7p,1d) -> [4s,3p,1d]
 P    S
    8683.7671681              0.66685962634E-02
@@ -366,7 +375,7 @@ P    P
 P    D
       0.45000000000          1.0000000000
 end
-basis "S_x2c-svpall" 
+basis "S_x2c-SVPall" SPHERICAL 
 #basis SET: (10s,7p,1d) -> [4s,3p,1d]
 S    S
   10081.3659290              0.67330718484E-02
@@ -395,7 +404,7 @@ S    P
 S    D
       0.55000000000          1.0000000000
 end
-basis "Cl_x2c-svpall" 
+basis "Cl_x2c-SVPall" SPHERICAL 
 #basis SET: (10s,7p,1d) -> [4s,3p,1d]
 Cl    S
   11624.9755560              0.70624801841E-02
@@ -424,7 +433,7 @@ Cl    P
 Cl    D
       0.65000000000          1.0000000000
 end
-basis "Ar_x2c-svpall" 
+basis "Ar_x2c-SVPall" SPHERICAL 
 #basis SET: (10s,7p,1d) -> [4s,3p,1d]
 Ar    S
   13298.3178270              0.70393183604E-02
@@ -453,7 +462,7 @@ Ar    P
 Ar    D
       0.69600000000          1.0000000000
 end
-basis "K_x2c-svpall" 
+basis "K_x2c-SVPall" SPHERICAL 
 #basis SET: (14s,9p,2d) -> [5s,3p,2d]
 K    S
   38392.9310470              0.28735937471E-02
@@ -491,7 +500,7 @@ K    D
 K    D
       0.98000000000E-01      1.0000000000
 end
-basis "Ca_x2c-svpall" 
+basis "Ca_x2c-SVPall" SPHERICAL 
 #basis SET: (14s,9p,4d) -> [5s,3p,2d]
 Ca    S
   43920.6588180              0.29012004610E-02
@@ -531,7 +540,7 @@ Ca    D
 Ca    D
       0.70528614919E-01      1.0000000000
 end
-basis "Sc_x2c-svpall" 
+basis "Sc_x2c-SVPall" SPHERICAL 
 #basis SET: (14s,9p,6d,1f) -> [5s,3p,3d,1f]
 Sc    S
   49487.2321600              0.29568447992E-02
@@ -576,7 +585,7 @@ Sc    D
 Sc    F
       0.3450000              1.0000000000
 end
-basis "Ti_x2c-svpall" 
+basis "Ti_x2c-SVPall" SPHERICAL 
 #basis SET: (14s,9p,6d,1f) -> [5s,3p,3d,1f]
 Ti    S
   56096.0434860              0.30603461235E-02
@@ -621,7 +630,7 @@ Ti    D
 Ti    F
       0.5620000              1.0000000000
 end
-basis "V_x2c-svpall" 
+basis "V_x2c-SVPall" SPHERICAL 
 #basis SET: (14s,9p,6d,1f) -> [5s,3p,3d,1f]
 V    S
   62829.5194850              0.31031093543E-02
@@ -631,13 +640,13 @@ V    S
     158.28200967             0.52192590532
      52.918207003            0.41601226761
 V    S
-      7.7817726103          -0.23056662624
-      1.2712251713           0.75254838693
-      0.53947475366          0.47116507278
-V    S
     101.48466030            -0.10698455825
      11.611012913            0.64602721836
       4.7083208046           0.49076668907
+V    S
+      7.7817726103          -0.23056662624
+      1.2712251713           0.75254838693
+      0.53947475366          0.47116507278
 V    S
       0.73583971282E-01      1.0000000000
 V    S
@@ -666,7 +675,7 @@ V    D
 V    F
       0.8310000              1.0000000
 end
-basis "Cr_x2c-svpall" 
+basis "Cr_x2c-SVPall" SPHERICAL 
 #basis SET: (14s,9p,6d,1f) -> [5s,3p,3d,1f]
 Cr    S
   69435.9829570              0.31489470668E-02
@@ -676,13 +685,13 @@ Cr    S
     173.42699902             0.51585790928
      57.975089353            0.41275948957
 Cr    S
-      8.7077118405          -0.23191280366
-      1.4261720076           0.75304546927
-      0.60105061220          0.47184691236
-Cr    S
     111.38936850            -0.10845050927
      12.787016705            0.65686465056
       5.1968200026           0.49246467644
+Cr    S
+      8.7077118405          -0.23191280366
+      1.4261720076           0.75304546927
+      0.60105061220          0.47184691236
 Cr    S
       0.80703347315E-01      1.0000000000
 Cr    S
@@ -711,7 +720,7 @@ Cr    D
 Cr    F
       1.1470000              1.0000000000
 end
-basis "Mn_x2c-svpall" 
+basis "Mn_x2c-SVPall" SPHERICAL 
 #basis SET: (14s,9p,6d,1f) -> [5s,3p,3d,1f]
 Mn    S
   77112.6169430              0.31646122015E-02
@@ -721,13 +730,13 @@ Mn    S
     189.99536021             0.50839719257
      63.428567646            0.41000215652
 Mn    S
-      9.6874477342          -0.22686088949
-      1.5862451231           0.73512832125
-      0.66306436532          0.45944228621
-Mn    S
     121.82962157            -0.10557144051
      14.036165464            0.64005476188
       5.7172370691           0.47623403795
+Mn    S
+      9.6874477342          -0.22686088949
+      1.5862451231           0.73512832125
+      0.66306436532          0.45944228621
 Mn    S
       0.86697904312E-01      1.0000000000
 Mn    S
@@ -756,7 +765,7 @@ Mn    D
 Mn    F
       1.3260000              1.0000000000
 end
-basis "Fe_x2c-svpall" 
+basis "Fe_x2c-SVPall" SPHERICAL 
 #basis SET: (14s,9p,6d,1f) -> [5s,3p,3d,1f]
 Fe    S
   82876.6803030              0.34926260925E-02
@@ -766,13 +775,13 @@ Fe    S
     210.69294962             0.53144196959
      70.043096855            0.44307290418
 Fe    S
-     10.729378512           -0.23797842811
-      1.7442422017           0.78110688683
-      0.72108678778          0.46749017379
-Fe    S
     132.98136535            -0.11002604516
      15.321222166            0.66991158020
       6.2487552137           0.49144623524
+Fe    S
+     10.729378512           -0.23797842811
+      1.7442422017           0.78110688683
+      0.72108678778          0.46749017379
 Fe    S
       0.95538971735E-01      1.0000000000
 Fe    S
@@ -801,7 +810,7 @@ Fe    D
 Fe    F
       1.5980000              1.0000000000
 end
-basis "Co_x2c-svpall" 
+basis "Co_x2c-SVPall" SPHERICAL 
 #basis SET: (14s,9p,6d,1f) -> [5s,3p,3d,1f]
 Co    S
   95002.1197380              0.33447716998E-02
@@ -811,13 +820,13 @@ Co    S
     225.88354271             0.52028826061
      75.172230787            0.42594865178
 Co    S
-     11.799106552           -0.23027778861
-      1.9361083053           0.74358301272
-      0.80164588787          0.46192138855
-Co    S
     144.21431448            -0.10519039806
      16.733936495            0.63914233102
       6.8436193990           0.47094980627
+Co    S
+     11.799106552           -0.23027778861
+      1.9361083053           0.74358301272
+      0.80164588787          0.46192138855
 Co    S
       0.10273968188          1.0000000000
 Co    S
@@ -846,7 +855,7 @@ Co    D
 Co    F
       1.9030000              1.0000000000
 end
-basis "Ni_x2c-svpall" 
+basis "Ni_x2c-SVPall" SPHERICAL 
 #basis SET: (14s,9p,6d,1f) -> [5s,3p,3d,1f]
 Ni    S
  105040.0623800              0.35171970183E-02
@@ -891,7 +900,7 @@ Ni    D
 Ni    F
       2.1740000              1.0000000000
 end
-basis "Cu_x2c-svpall" 
+basis "Cu_x2c-SVPall" SPHERICAL 
 #basis SET: (14s,9p,6d,1f) -> [5s,3p,3d,1f]
 Cu    S
  115563.7070900              0.34676018281E-02
@@ -936,7 +945,7 @@ Cu    D
 Cu    F
       2.2330000              1.0000000
 end
-basis "Zn_x2c-svpall" 
+basis "Zn_x2c-SVPall" SPHERICAL 
 #basis SET: (14s,9p,6d,1f) -> [5s,3p,3d,1f]
 Zn    S
  127809.9189600              0.37730159861E-02
@@ -981,7 +990,7 @@ Zn    D
 Zn    F
       2.6140000              1.0000000000
 end
-basis "Ga_x2c-svpall" 
+basis "Ga_x2c-SVPall" SPHERICAL 
 #basis SET: (14s,10p,6d) -> [5s,4p,3d]
 Ga    S
  139497.0394100              0.35635170220E-02
@@ -1026,7 +1035,7 @@ Ga    D
 Ga    D
       0.20700000000          1.0000000000
 end
-basis "Ge_x2c-svpall" 
+basis "Ge_x2c-SVPall" SPHERICAL 
 #basis SET: (14s,10p,6d) -> [5s,4p,3d]
 Ge    S
  152400.2901600              0.36135238925E-02
@@ -1071,7 +1080,7 @@ Ge    D
 Ge    D
       0.24600000000          1.0000000000
 end
-basis "As_x2c-svpall" 
+basis "As_x2c-SVPall" SPHERICAL 
 #basis SET: (14s,10p,6d) -> [5s,4p,3d]
 As    S
  166398.6211300              0.37050451368E-02
@@ -1116,7 +1125,7 @@ As    D
 As    D
       0.29300000000          1.0000000000
 end
-basis "Se_x2c-svpall" 
+basis "Se_x2c-SVPall" SPHERICAL 
 #basis SET: (14s,10p,6d) -> [5s,4p,3d]
 Se    S
  181663.9407100              0.37599714146E-02
@@ -1161,7 +1170,7 @@ Se    D
 Se    D
       0.33800000000          1.0000000000
 end
-basis "Br_x2c-svpall" 
+basis "Br_x2c-SVPall" SPHERICAL 
 #basis SET: (14s,10p,6d) -> [5s,4p,3d]
 Br    S
  193714.9071500              0.40473930941E-02
@@ -1206,7 +1215,7 @@ Br    D
 Br    D
       0.38900000000          1.0000000000
 end
-basis "Kr_x2c-svpall" 
+basis "Kr_x2c-SVPall" SPHERICAL 
 #basis SET: (14s,10p,6d) -> [5s,4p,3d]
 Kr    S
  215766.7794100              0.39187982913E-02
@@ -1251,7 +1260,7 @@ Kr    D
 Kr    D
       0.44300000000          1.0000000000
 end
-basis "Rb_x2c-svpall" 
+basis "Rb_x2c-SVPall" SPHERICAL 
 #basis SET: (18s,13p,10d,1f) -> [6s,4p,5d,1f]
 Rb    S
  579449.8634800              0.18327508058E-02
@@ -1312,7 +1321,7 @@ Rb    D
 Rb    F
       0.4000000              1.0000000000
 end
-basis "Sr_x2c-svpall" 
+basis "Sr_x2c-SVPall" SPHERICAL 
 #basis SET: (18s,13p,10d,1f) -> [6s,4p,5d,1f]
 Sr    S
  677778.5500600              0.19948077457E-02
@@ -1373,7 +1382,7 @@ Sr    D
 Sr    F
       0.5000000              1.0000000000
 end
-basis "Y_x2c-svpall" 
+basis "Y_x2c-SVPall" SPHERICAL 
 #basis SET: (18s,14p,10d,1f) -> [6s,5p,5d,1f]
 Y    S
  712078.6990500              0.20145518374E-02
@@ -1436,7 +1445,7 @@ Y    D
 Y    F
       0.2651500              1.0000000
 end
-basis "Zr_x2c-svpall" 
+basis "Zr_x2c-SVPall" SPHERICAL 
 #basis SET: (18s,14p,10d,1f) -> [6s,5p,5d,1f]
 Zr    S
  733375.3555500              0.20702460585E-02
@@ -1499,7 +1508,7 @@ Zr    D
 Zr    F
       0.3926100              1.0000000
 end
-basis "Nb_x2c-svpall" 
+basis "Nb_x2c-SVPall" SPHERICAL 
 #basis SET: (18s,14p,10d,1f) -> [6s,5p,5d,1f]
 Nb    S
  780023.3739700              0.19096056254E-02
@@ -1533,13 +1542,13 @@ Nb    P
      54.857153307            0.51710747772
      21.569961210            0.30503345130
 Nb    P
-      8.1880020953          -0.98347065442E-01
-      1.0987535049           0.64599347369
-      0.39416282808          0.44807555758
-Nb    P
     102.40445625            -0.23723841728E-01
      11.065566286            0.56105292590
       4.0580571537           0.65532618858
+Nb    P
+      8.1880020953          -0.98347065442E-01
+      1.0987535049           0.64599347369
+      0.39416282808          0.44807555758
 Nb    P
       0.21897934893          1.0000000000
 Nb    P
@@ -1562,7 +1571,7 @@ Nb    D
 Nb    F
       0.5227000              1.0000000
 end
-basis "Mo_x2c-svpall" 
+basis "Mo_x2c-SVPall" SPHERICAL 
 #basis SET: (18s,14p,10d,1f) -> [6s,5p,5d,1f]
 Mo    S
  825421.5597600              0.19585879826E-02
@@ -1596,13 +1605,13 @@ Mo    P
      56.752347623            0.49321499503
      22.519210191            0.28403786319
 Mo    P
-      8.3865905458          -0.57540892592E-01
-      1.3253929815           0.61904522396
-      0.47571193756          0.54598942907
-Mo    P
     107.02686526            -0.23588545957E-01
      11.819628863            0.53411269208
       4.3599028531           0.62740027654
+Mo    P
+      8.3865905458          -0.57540892592E-01
+      1.3253929815           0.61904522396
+      0.47571193756          0.54598942907
 Mo    P
       0.26428440976          1.0000000000
 Mo    P
@@ -1625,7 +1634,7 @@ Mo    D
 Mo    F
       0.6554500              1.0000000
 end
-basis "Tc_x2c-svpall" 
+basis "Tc_x2c-SVPall" SPHERICAL 
 #basis SET: (18s,14p,10d,1f) -> [6s,5p,5d,1f]
 Tc    S
  916220.3909100              0.19697279032E-02
@@ -1659,13 +1668,13 @@ Tc    P
      60.626923023            0.48778937593
      24.057224771            0.28490672264
 Tc    P
-      9.3050351713          -0.73915294734E-01
-      1.4250646711           0.64502673269
-      0.51323320937          0.52422342017
-Tc    P
     114.19086418            -0.23201277510E-01
      12.622927085            0.53197220290
       4.6908379899           0.61972655896
+Tc    P
+      9.3050351713          -0.73915294734E-01
+      1.4250646711           0.64502673269
+      0.51323320937          0.52422342017
 Tc    P
       0.28512956076          1.0000000000
 Tc    P
@@ -1688,7 +1697,7 @@ Tc    D
 Tc    F
       0.7908500              1.0000000
 end
-basis "Ru_x2c-svpall" 
+basis "Ru_x2c-SVPall" SPHERICAL 
 #basis SET: (18s,14p,10d,1f) -> [6s,5p,5d,1f]
 Ru    S
  982474.0146400              0.20124648519E-02
@@ -1722,13 +1731,13 @@ Ru    P
      64.538286953            0.50110772563
      25.701579445            0.30108192764
 Ru    P
-     10.161336489           -0.92432173180E-01
-      1.5093056450           0.66733385319
-      0.54643824515          0.50128137739
-Ru    P
     120.32651836            -0.23645259627E-01
      13.351046542            0.54540175387
       5.0069408746           0.63547173536
+Ru    P
+     10.161336489           -0.92432173180E-01
+      1.5093056450           0.66733385319
+      0.54643824515          0.50128137739
 Ru    P
       0.30357680286          1.0000000000
 Ru    P
@@ -1751,7 +1760,7 @@ Ru    D
 Ru    F
       0.9431400              1.0000000
 end
-basis "Rh_x2c-svpall" 
+basis "Rh_x2c-SVPall" SPHERICAL 
 #basis SET: (18s,14p,10d,1f) -> [6s,5p,5d,1f]
 Rh    S
 1112286.9076000              0.20873684753E-02
@@ -1785,13 +1794,13 @@ Rh    P
      69.064931408            0.54679070821
      27.148690902            0.32761003048
 Rh    P
-     10.723824868           -0.97609437502E-01
-      1.6566700529           0.66854256679
-      0.60137096264          0.50829232371
-Rh    P
     125.78232697            -0.24407941092E-01
      14.298336331            0.56352042479
       5.3874447799           0.67003179302
+Rh    P
+     10.723824868           -0.97609437502E-01
+      1.6566700529           0.66854256679
+      0.60137096264          0.50829232371
 Rh    P
       0.33409497924          1.0000000000
 Rh    P
@@ -1814,7 +1823,7 @@ Rh    D
 Rh    F
       1.0949900              1.0000000
 end
-basis "Pd_x2c-svpall" 
+basis "Pd_x2c-SVPall" SPHERICAL 
 #basis SET: (18s,14p,10d,1f) -> [6s,5p,5d,1f]
 Pd    S
 1179849.0545000              0.20850008018E-02
@@ -1848,13 +1857,13 @@ Pd    P
      72.165031679            0.52501453621
      28.664343474            0.31694268651
 Pd    P
-     11.309965589           -0.71697814262E-01
-      1.8553651864           0.66790619605
-      0.67003451912          0.55375101661
-Pd    P
     132.88398034            -0.24860000708E-01
      15.050375287            0.56342673730
       5.7029857994           0.65841002606
+Pd    P
+     11.309965589           -0.71697814262E-01
+      1.8553651864           0.66790619605
+      0.67003451912          0.55375101661
 Pd    P
       0.37224139951          1.0000000000
 Pd    P
@@ -1877,7 +1886,7 @@ Pd    D
 Pd    F
       1.2462900              1.0000000
 end
-basis "Ag_x2c-svpall" 
+basis "Ag_x2c-SVPall" SPHERICAL 
 #basis SET: (18s,14p,10d,1f) -> [6s,5p,5d,1f]
 Ag    S
 1249822.7262000              0.21278697370E-02
@@ -1911,13 +1920,13 @@ Ag    P
      75.111427956            0.50104934338
      30.062535288            0.29849079005
 Ag    P
-     12.047307611           -0.88445319185E-01
-      1.9813937116           0.66640279405
-      0.70393040318          0.55048374921
-Ag    P
     140.13088947            -0.24194464242E-01
      15.932386953            0.54229237676
       6.1003404515           0.64339850100
+Ag    P
+     12.047307611           -0.88445319185E-01
+      1.9813937116           0.66640279405
+      0.70393040318          0.55048374921
 Ag    P
       0.39107244621          1.0000000000
 Ag    P
@@ -1940,7 +1949,7 @@ Ag    D
 Ag    F
       1.3971100              1.0000000
 end
-basis "Cd_x2c-svpall" 
+basis "Cd_x2c-SVPall" SPHERICAL 
 #basis SET: (18s,15p,10d,1f) -> [6s,6p,5d,1f]
 Cd    S
 1303614.8099000              0.21860937616E-02
@@ -2005,7 +2014,7 @@ Cd    D
 Cd    F
       1.5981300              1.0000000
 end
-basis "In_x2c-svpall" 
+basis "In_x2c-SVPall" SPHERICAL 
 #basis SET: (18s,14p,9d) -> [6s,5p,3d]
 In    S
 1515102.7136000              0.22620186508E-02
@@ -2039,13 +2048,13 @@ In    P
      88.266266946            0.52442102066
      34.635670622            0.33509568586
 In    P
-      9.9655748073          -0.10958158771E-01
-      2.8434354623           0.10974275939
-      1.0856818783           0.14724156181
-In    P
     151.32969121            -0.28043630911E-01
      17.936518243            0.64887133191
       6.9374365248           0.77360576424
+In    P
+      9.9655748073          -0.10958158771E-01
+      2.8434354623           0.10974275939
+      1.0856818783           0.14724156181
 In    P
       0.24318491447          1.0000000000
 In    P
@@ -2063,7 +2072,7 @@ In    D
 In    D
       0.16000000000          1.0000000000
 end
-basis "Sn_x2c-svpall" 
+basis "Sn_x2c-SVPall" SPHERICAL 
 #basis SET: (18s,14p,9d) -> [6s,5p,3d]
 Sn    S
 1604877.6858000              0.23293033651E-02
@@ -2121,7 +2130,7 @@ Sn    D
 Sn    D
       0.18300000000          1.0000000000
 end
-basis "Sb_x2c-svpall" 
+basis "Sb_x2c-SVPall" SPHERICAL 
 #basis SET: (18s,14p,9d) -> [6s,5p,3d]
 Sb    S
 1699194.6706000              0.24097066145E-02
@@ -2179,7 +2188,7 @@ Sb    D
 Sb    D
       0.21100000000          1.0000000000
 end
-basis "Te_x2c-svpall" 
+basis "Te_x2c-SVPall" SPHERICAL 
 #basis SET: (18s,14p,9d) -> [6s,5p,3d]
 Te    S
 1847317.0893000              0.23014484915E-02
@@ -2237,7 +2246,7 @@ Te    D
 Te    D
       0.23700000000          1.0000000000
 end
-basis "I_x2c-svpall" 
+basis "I_x2c-SVPall" SPHERICAL 
 #basis SET: (18s,14p,9d) -> [6s,5p,3d]
 I    S
 1987125.5948000              0.22937219336E-02
@@ -2295,7 +2304,7 @@ I    D
 I    D
       0.26600000000          1.0000000000
 end
-basis "Xe_x2c-svpall" 
+basis "Xe_x2c-SVPall" SPHERICAL 
 #basis SET: (18s,14p,9d) -> [6s,5p,3d]
 Xe    S
 2087580.6463000              0.23259460517E-02
@@ -2353,7 +2362,7 @@ Xe    D
 Xe    D
       0.26000000000          1.0000000000
 end
-basis "Cs_x2c-svpall" 
+basis "Cs_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,18p,10d,4f) -> [7s,5p,5d,1f]
 Cs    S
 5570668.2649000              0.12515688751E-02
@@ -2429,7 +2438,7 @@ Cs    F
       0.90000000000          0.17800000000
       0.29000000000          0.26100000000
 end
-basis "Ba_x2c-svpall" 
+basis "Ba_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,18p,10d,4f) -> [7s,5p,5d,1f]
 Ba    S
 5894604.5078000              0.12829998755E-02
@@ -2505,7 +2514,7 @@ Ba    F
       1.0000000000           0.35000000000
       0.32000000000          0.36000000000
 end
-basis "La_x2c-svpall" 
+basis "La_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,18p,13d,5f) -> [7s,5p,6d,2f]
 La    S
 6195862.2947000              0.13227469258E-02
@@ -2587,7 +2596,7 @@ La    F
 La    F
       0.2568300              1.0000000
 end
-basis "Ce_x2c-svpall" 
+basis "Ce_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,18p,13d,7f,1g) -> [7s,6p,6d,3f,1g]
 Ce    S
 6527636.4249000              0.13618736168E-02
@@ -2675,7 +2684,7 @@ Ce    F
 Ce    G
       0.37110000000          1.0000000000
 end
-basis "Pr_x2c-svpall" 
+basis "Pr_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,18p,13d,7f,1g) -> [7s,6p,6d,3f,1g]
 Pr    S
 6876990.1466000              0.13984594300E-02
@@ -2763,7 +2772,7 @@ Pr    F
 Pr    G
       0.40950000000          1.0000000000
 end
-basis "Nd_x2c-svpall" 
+basis "Nd_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,18p,13d,7f,1g) -> [7s,6p,6d,3f,1g]
 Nd    S
 7172468.4753000              0.14460907131E-02
@@ -2851,7 +2860,7 @@ Nd    F
 Nd    G
       0.43120000000          1.0000000000
 end
-basis "Pm_x2c-svpall" 
+basis "Pm_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,18p,13d,7f,1g) -> [7s,6p,6d,3f,1g]
 Pm    S
 7604746.3322000              0.14769689291E-02
@@ -2939,7 +2948,7 @@ Pm    F
 Pm    G
       0.45190000000          1.0000000000
 end
-basis "Sm_x2c-svpall" 
+basis "Sm_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,18p,13d,7f,1g) -> [7s,6p,6d,3f,1g]
 Sm    S
 7954257.0181000              0.15233008835E-02
@@ -3027,7 +3036,7 @@ Sm    F
 Sm    G
       0.46380000000          1.0000000000
 end
-basis "Eu_x2c-svpall" 
+basis "Eu_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,18p,13d,7f,1g) -> [7s,6p,6d,3f,1g]
 Eu    S
 8232823.2841000              0.15826496678E-02
@@ -3115,7 +3124,7 @@ Eu    F
 Eu    G
       0.47520000000          1.0000000000
 end
-basis "Gd_x2c-svpall" 
+basis "Gd_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,18p,13d,7f,1g) -> [7s,6p,6d,3f,1g]
 Gd    S
 8618732.6233000              0.16265258880E-02
@@ -3203,7 +3212,7 @@ Gd    F
 Gd    G
       0.47570000000          1.0000000000
 end
-basis "Tb_x2c-svpall" 
+basis "Tb_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,18p,13d,7f,1g) -> [7s,6p,6d,3f,1g]
 Tb    S
 8973755.3932000              0.16811893567E-02
@@ -3291,7 +3300,7 @@ Tb    F
 Tb    G
       0.47760000000          1.0000000000
 end
-basis "Dy_x2c-svpall" 
+basis "Dy_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,18p,13d,7f,1g) -> [7s,6p,6d,3f,1g]
 Dy    S
 9486418.0664000              0.17143833195E-02
@@ -3379,7 +3388,7 @@ Dy    F
 Dy    G
       0.47820000000          1.0000000000
 end
-basis "Ho_x2c-svpall" 
+basis "Ho_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,18p,13d,7f,1g) -> [7s,6p,6d,3f,1g]
 Ho    S
 9959956.0723000              0.17561754243E-02
@@ -3467,7 +3476,7 @@ Ho    F
 Ho    G
       0.49850000000          1.0000000000
 end
-basis "Er_x2c-svpall" 
+basis "Er_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,18p,13d,7f,1g) -> [7s,6p,6d,3f,1g]
 Er    S
 10410053.7010000             0.18046015444E-02
@@ -3555,7 +3564,7 @@ Er    F
 Er    G
       0.50180000000          1.0000000000
 end
-basis "Tm_x2c-svpall" 
+basis "Tm_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,18p,13d,7f,1g) -> [7s,6p,6d,3f,1g]
 Tm    S
 10772504.8870000             0.18684564617E-02
@@ -3643,7 +3652,7 @@ Tm    F
 Tm    G
       0.50660000000          1.0000000000
 end
-basis "Yb_x2c-svpall" 
+basis "Yb_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,18p,13d,7f,1g) -> [7s,6p,6d,3f,1g]
 Yb    S
 11068673.1430000             0.19409464017E-02
@@ -3731,7 +3740,7 @@ Yb    F
 Yb    G
       0.51330000000          1.0000000000
 end
-basis "Lu_x2c-svpall" 
+basis "Lu_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,18p,13d,6f,1g) -> [7s,6p,6d,2f,1g]
 Lu    S
 11598321.2140000             0.19908311768E-02
@@ -3817,7 +3826,7 @@ Lu    F
 Lu    G
       0.70090000000          1.0000000000
 end
-basis "Hf_x2c-svpall" 
+basis "Hf_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,18p,13d,6f) -> [7s,5p,6d,2f]
 Hf    S
 11951955.9120000             0.20702900832E-02
@@ -3900,7 +3909,7 @@ Hf    F
 Hf    F
       0.31547000000          1.0000000000
 end
-basis "Ta_x2c-svpall" 
+basis "Ta_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,18p,13d,6f) -> [7s,5p,6d,2f]
 Ta    S
 12509296.9960000             0.21191722595E-02
@@ -3983,7 +3992,7 @@ Ta    F
 Ta    F
       0.37386000000          1.0000000000
 end
-basis "W_x2c-svpall" 
+basis "W_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,18p,13d,6f) -> [7s,5p,6d,2f]
 W    S
 13130023.8160000             0.21581825448E-02
@@ -4066,7 +4075,7 @@ W    F
 W    F
       0.43199000000          1.0000000000
 end
-basis "Re_x2c-svpall" 
+basis "Re_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,18p,13d,6f) -> [7s,5p,6d,2f]
 Re    S
 13407808.2260000             0.22542939940E-02
@@ -4149,7 +4158,7 @@ Re    F
 Re    F
       0.48989000000          1.0000000000
 end
-basis "Os_x2c-svpall" 
+basis "Os_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,18p,13d,6f) -> [7s,5p,6d,2f]
 Os    S
 13674403.0220000             0.23373673308E-02
@@ -4232,7 +4241,7 @@ Os    F
 Os    F
       0.55065000000          1.0000000000
 end
-basis "Ir_x2c-svpall" 
+basis "Ir_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,18p,13d,6f) -> [7s,5p,6d,2f]
 Ir    S
 14300206.5920000             0.24075542285E-02
@@ -4315,7 +4324,7 @@ Ir    F
 Ir    F
       0.61008000000          1.0000000000
 end
-basis "Pt_x2c-svpall" 
+basis "Pt_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,18p,13d,6f) -> [7s,5p,6d,2f]
 Pt    S
 14608416.1630000             0.25015955763E-02
@@ -4398,7 +4407,7 @@ Pt    F
 Pt    F
       0.66813000000          1.0000000000
 end
-basis "Au_x2c-svpall" 
+basis "Au_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,18p,13d,6f) -> [7s,5p,6d,2f]
 Au    S
 14882537.5980000             0.26105194889E-02
@@ -4481,7 +4490,7 @@ Au    F
 Au    F
       0.72482000000          1.0000000000
 end
-basis "Hg_x2c-svpall" 
+basis "Hg_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,19p,13d,6f) -> [7s,6p,6d,2f]
 Hg    S
 15834347.5040000             0.26479664499E-02
@@ -4527,13 +4536,13 @@ Hg    P
      37.042924139            0.59685316892
      18.261586256            0.29281290476
 Hg    P
-      9.7134349837          -0.12752043021
-      1.7296848337           0.75679868148
-      0.64465736098          0.47185803024
-Hg    P
      20.439371289            0.49537596354E-01
      10.852665629            0.70148532375
       4.7526389611           0.54494853575
+Hg    P
+      9.7134349837          -0.12752043021
+      1.7296848337           0.75679868148
+      0.64465736098          0.47185803024
 Hg    P
       0.10500000000          1.0000000000
 Hg    P
@@ -4566,7 +4575,7 @@ Hg    F
 Hg    F
       0.79569000000          1.0000000000
 end
-basis "Tl_x2c-svpall" 
+basis "Tl_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,19p,12d,6f) -> [7s,7p,4d,2f]
 Tl    S
 16068064.9720000             0.27590188943E-02
@@ -4649,7 +4658,7 @@ Tl    F
 Tl    F
       0.95000000000          1.0000000000
 end
-basis "Pb_x2c-svpall" 
+basis "Pb_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,19p,12d,6f) -> [7s,7p,4d,2f]
 Pb    S
 16528541.3690000             0.28198770606E-02
@@ -4732,7 +4741,7 @@ Pb    F
 Pb    F
       1.0000000000           1.0000000000
 end
-basis "Bi_x2c-svpall" 
+basis "Bi_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,19p,12d,6f) -> [7s,7p,4d,2f]
 Bi    S
 17145565.6800000             0.28990485831E-02
@@ -4815,7 +4824,7 @@ Bi    F
 Bi    F
       1.0500000000           1.0000000000
 end
-basis "Po_x2c-svpall" 
+basis "Po_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,19p,12d,6f) -> [7s,7p,4d,2f]
 Po    S
 17660431.8780000             0.29944974474E-02
@@ -4898,7 +4907,7 @@ Po    F
 Po    F
       1.4000000000           1.0000000000
 end
-basis "At_x2c-svpall" 
+basis "At_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,19p,12d,6f) -> [7s,7p,4d,2f]
 At    S
 18059733.9420000             0.31143742093E-02
@@ -4919,13 +4928,13 @@ At    S
      39.755994107            0.93055307224
      19.566991739            0.38452979712
 At    S
-      8.0671513654          -0.48567191534
-      1.9836715070           1.0825846926
-      1.0029550972           0.46469682986
-At    S
      37.298043329           -0.50763492691
      10.042854990            0.98749324754
       5.4235778811           0.66395988059
+At    S
+      8.0671513654          -0.48567191534
+      1.9836715070           1.0825846926
+      1.0029550972           0.46469682986
 At    S
       0.31382651570          1.0000000000
 At    S
@@ -4981,7 +4990,7 @@ At    F
 At    F
       1.8000000000           1.0000000000
 end
-basis "Rn_x2c-svpall" 
+basis "Rn_x2c-SVPall" SPHERICAL 
 #basis SET: (23s,19p,12d,6f) -> [7s,7p,4d,2f]
 Rn    S
 18394343.5710000             0.32098080169E-02
@@ -5002,13 +5011,13 @@ Rn    S
      41.227285027            0.91491731715
      20.668310455            0.39614360469
 Rn    S
-      8.4209553382          -0.49793675765
-      2.0671504801           1.1242414000
-      1.0452273005           0.43588569215
-Rn    S
      38.474964979           -0.50462649696
      10.448898834            0.98861187022
       5.6426606392           0.66420157774
+Rn    S
+      8.4209553382          -0.49793675765
+      2.0671504801           1.1242414000
+      1.0452273005           0.43588569215
 Rn    S
       0.34978965209          1.0000000000
 Rn    S

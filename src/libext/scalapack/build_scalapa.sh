@@ -77,7 +77,9 @@ pwd
 #    exit 1
 #fi
 if [[ "$BLAS_SIZE" != "$SCALAPACK_SIZE"  ]] ; then
-    echo BLAS_SIZE must be the same as SCALAPACK_SIZE
+    echo "BLAS_SIZE must be the same as SCALAPACK_SIZE"
+    echo "BLAS_SIZE = " "$BLAS_SIZE"
+    echo "SCALAPACK_SIZE = " "$SCALAPACK_SIZE"
     exit 1
 fi
 if [[ "$BLAS_SIZE" == 4 ]] && [[ -z "$USE_64TO32"   ]] ; then
@@ -108,6 +110,10 @@ ln -sf scalapack-$COMMIT scalapack
 #curl -L http://www.netlib.org/scalapack/scalapack-${VERSION}.tgz -o scalapack.tgz
 #tar xzf scalapack.tgz
 cd scalapack
+# macos accelerate does not contain dcombossq
+if [[ $(echo "$BLASOPT" |awk '/Accelerate/ {print "Y"; exit}' ) == "Y" ]]; then
+    export USE_DCOMBSSQ=1
+fi
 if [[  -z "$USE_DCOMBSSQ" ]]; then
     patch -p0 -s -N < ../dcombssq.patch
 fi

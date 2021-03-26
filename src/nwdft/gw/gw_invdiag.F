@@ -13,7 +13,7 @@ c
 #include "tcgmsg.fh"
 #include "stdio.fh"
 c
-      integer me,nproc,i,j,g_tmp2
+      integer me,nproc,i,j,g_tmp2,g_tmp3
       integer lev,iev,ltmp,itmp,ll,ul,idum,ld,addrA
       double precision toll,THRESHOLD
       parameter (toll=1.d-6,THRESHOLD=1.D-12)
@@ -24,6 +24,8 @@ c
 *ga:1:0
       if (.not. ga_create(mt_dbl, n, n, 'ga_temp2', n, 0, g_tmp2)) 
      &   call errquit('dft_main0d: error creating g_xcinv',0, GA_ERR)
+      if (.not. ga_create(mt_dbl, n, n, 'ga_temp2', n, 0, g_tmp3)) 
+     &   call errquit('dft_main0d: error creating g_xcinv',0, GA_ERR)
       call ga_distribution(g_tmp2,me,idum,idum,ll,ul)
 c
       if(.not.MA_Push_Get(MT_Dbl,n,'evals',lev,iev))
@@ -32,6 +34,7 @@ c
      &  call errquit('dft_invdiag: cannot allocate itmp',0, MA_ERR)
       
 C     diag
+      call ga_copy(g_a,g_tmp3)
       call ga_sync
 #if defined(PARALLEL_DIAG)         
 #ifdef SCALAPACK
@@ -69,7 +72,7 @@ C     (U * sigma^-1)
 
 C     (U * sigma^-1) * U(transp) 
       
-      call ga_dgemm('N','T',n,n,n,1.d0,g_tmp2,g_A,0.d0,g_cdinv)
+      call ga_dgemm('N','T',n,n,n,1.d0,g_tmp2,g_tmp3,0.d0,g_cdinv)
 
       if(.not.ma_pop_stack(ltmp))
      &  call errquit('dft_invdiag: cannot pop stack',0, MA_ERR)
@@ -78,6 +81,8 @@ C     (U * sigma^-1) * U(transp)
       call ga_SYNC
 c      call gadest(g_tmp2)
       if (.not. ga_destroy(g_tmp2)) call errquit
+     &   ('dft_invdiag: could not destroy g_tmp2', 0, GA_ERR)
+      if (.not. ga_destroy(g_tmp3)) call errquit
      &   ('dft_invdiag: could not destroy g_tmp2', 0, GA_ERR)
       return
       end

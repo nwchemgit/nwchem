@@ -1,60 +1,74 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# 6-21g version number 1
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# 6-21G version number 1
 # Description: 6-21G Split-valence basis set
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H,He
-#     ## 21G Split-valence basis set for H,He
+# 
+#  References for the basis set
+# 
+#  H,He
+#      21G Split-valence basis set for H,He
+#          binkley1980a
+# 
+#  Li-Ne
+#      6-21G Split-valence basis set
+#          binkley1980a
+# 
+#      6-21G Split-valence basis set
+#          binkley1980a
+# 
+#  Na-Ar
+#      6-21G Split-valence basis set
+#          gordon1982a
+# 
+#      6-21G Split-valence basis set
+#          gordon1982a
+# 
+# 
+# 
+# binkley1980a
 #     Binkley, J. Stephen, Pople, John A., Hehre, Warren J.
 #     Self-consistent molecular orbital methods. 21. Small split-valence
 #             basis sets for first-row elements
-#     J. Am. Chem. Soc., 102, 939-947 (1980)
+#     J. Am. Chem. Soc. 102, 939-947 (1980)
 #     10.1021/ja00523a008
 # 
-# Li-Ne
-#     ## 6-21G Split-valence basis set
-#     Binkley, J. Stephen, Pople, John A., Hehre, Warren J.
-#     Self-consistent molecular orbital methods. 21. Small split-valence
-#             basis sets for first-row elements
-#     J. Am. Chem. Soc., 102, 939-947 (1980)
-#     10.1021/ja00523a008
-# 
-# Na-Ar
-#     ## 6-21G Split-valence basis set
+# gordon1982a
 #     Gordon, Mark S., Binkley, J. Stephen, Pople, John A., Pietro, William
 #             J., Hehre, Warren J.
 #     Self-consistent molecular-orbital methods. 22. Small split-valence
 #             basis sets for second-row elements
-#     J. Am. Chem. Soc., 104, 2797-2803 (1982)
+#     J. Am. Chem. Soc. 104, 2797-2803 (1982)
 #     10.1021/ja00374a017
 # 
 # # 
-basis "H_6-21g" 
+basis "H_6-21G" SPHERICAL 
 #basis SET: (3s) -> [2s]
 H    S
       0.5447178000E+01       0.1562849787E+00
@@ -62,7 +76,7 @@ H    S
 H    S
       0.1831915800E+00       1.0000000
 end
-basis "He_6-21g" 
+basis "He_6-21G" SPHERICAL 
 #basis SET: (3s) -> [2s]
 He    S
       0.1362670000E+02       0.1752298718E+00
@@ -70,7 +84,7 @@ He    S
 He    S
       0.3829930000E+00       1.0000000
 end
-basis "Li_6-21g" 
+basis "Li_6-21G" SPHERICAL 
 #basis SET: (9s,3p) -> [3s,2p]
 Li    S
       0.6424180000E+03       0.2150958879E-02
@@ -85,7 +99,7 @@ Li    SP
 Li    SP
       0.2856450000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "Be_6-21g" 
+basis "Be_6-21G" SPHERICAL 
 #basis SET: (9s,3p) -> [3s,2p]
 Be    S
       0.1264500000E+04       0.1943360627E-02
@@ -100,7 +114,7 @@ Be    SP
 Be    SP
       0.7735010000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "B_6-21g" 
+basis "B_6-21G" SPHERICAL 
 #basis SET: (9s,3p) -> [3s,2p]
 B    S
       0.2082120000E+04       0.1849858779E-02
@@ -115,7 +129,7 @@ B    SP
 B    SP
       0.1243280000E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "C_6-21g" 
+basis "C_6-21G" SPHERICAL 
 #basis SET: (9s,3p) -> [3s,2p]
 C    S
       0.3047520000E+04       0.1825880123E-02
@@ -130,7 +144,7 @@ C    SP
 C    SP
       0.1958570000E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "N_6-21g" 
+basis "N_6-21G" SPHERICAL 
 #basis SET: (9s,3p) -> [3s,2p]
 N    S
       0.4150110000E+04       0.1845409911E-02
@@ -145,7 +159,7 @@ N    SP
 N    SP
       0.2832050000E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "O_6-21g" 
+basis "O_6-21G" SPHERICAL 
 #basis SET: (9s,3p) -> [3s,2p]
 O    S
       0.5472270000E+04       0.1832168810E-02
@@ -160,7 +174,7 @@ O    SP
 O    SP
       0.3736840000E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "F_6-21g" 
+basis "F_6-21G" SPHERICAL 
 #basis SET: (9s,3p) -> [3s,2p]
 F    S
       0.6783190000E+04       0.1884629875E-02
@@ -175,7 +189,7 @@ F    SP
 F    SP
       0.4823830000E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "Ne_6-21g" 
+basis "Ne_6-21G" SPHERICAL 
 #basis SET: (9s,3p) -> [3s,2p]
 Ne    S
       0.9993200000E+04       0.1937659277E-02
@@ -190,7 +204,7 @@ Ne    SP
 Ne    SP
       0.6062500000E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "Na_6-21g" 
+basis "Na_6-21G" SPHERICAL 
 #basis SET: (15s,9p) -> [4s,3p]
 Na    S
       0.9993200000E+04       0.1937659277E-02
@@ -212,7 +226,7 @@ Na    SP
 Na    SP
       0.2443490000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "Mg_6-21g" 
+basis "Mg_6-21G" SPHERICAL 
 #basis SET: (15s,9p) -> [4s,3p]
 Mg    S
       0.1172280000E+05       0.1977829317E-02
@@ -234,7 +248,7 @@ Mg    SP
 Mg    SP
       0.4640110000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "Al_6-21g" 
+basis "Al_6-21G" SPHERICAL 
 #basis SET: (15s,9p) -> [4s,3p]
 Al    S
       0.1398310000E+05       0.1942669947E-02
@@ -256,7 +270,7 @@ Al    SP
 Al    SP
       0.6390880000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "Si_6-21g" 
+basis "Si_6-21G" SPHERICAL 
 #basis SET: (15s,9p) -> [4s,3p]
 Si    S
       0.1611590000E+05       0.1959480216E-02
@@ -278,7 +292,7 @@ Si    SP
 Si    SP
       0.9333920000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "P_6-21g" 
+basis "P_6-21G" SPHERICAL 
 #basis SET: (15s,9p) -> [4s,3p]
 P    S
       0.1941330000E+05       0.1851598923E-02
@@ -300,7 +314,7 @@ P    SP
 P    SP
       0.1228110000E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "S_6-21g" 
+basis "S_6-21G" SPHERICAL 
 #basis SET: (15s,9p) -> [4s,3p]
 S    S
       0.2191710000E+05       0.1869240849E-02
@@ -322,7 +336,7 @@ S    SP
 S    SP
       0.1422690000E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "Cl_6-21g" 
+basis "Cl_6-21G" SPHERICAL 
 #basis SET: (15s,9p) -> [4s,3p]
 Cl    S
       0.2518010000E+05       0.1832959848E-02
@@ -344,7 +358,7 @@ Cl    SP
 Cl    SP
       0.1667140000E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "Ar_6-21g" 
+basis "Ar_6-21G" SPHERICAL 
 #basis SET: (15s,9p) -> [4s,3p]
 Ar    S
       0.2834830000E+05       0.1825260192E-02

@@ -9871,9 +9871,10 @@ c      end if
       call pspw_gen_APC(ispin,ne,dcpl_mb(dng1(1)))
       call pspw_print_APC(luout)
 
-      call pspw_gen_Efield(rtdb,ispin,dbl_mb(rho1(1)),dcpl_mb(dng1(1)))
+      call pspw_gen_atom_Efield(rtdb,ispin,dbl_mb(rho1(1)),
+     >                          dcpl_mb(dng1(1)))
 
-      call pspw_gen_Efield_grad(rtdb,ispin,ne,
+      call pspw_gen_atom_Efield_grad(rtdb,ispin,ne,
      >                          dcpl_mb(psi1(1)),
      >                          dcpl_mb(dng1(1)))
 

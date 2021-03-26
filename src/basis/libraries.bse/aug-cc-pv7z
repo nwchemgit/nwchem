@@ -1,39 +1,45 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# aug-cc-pv7z version number 0
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# aug-cc-pV7Z version number 0
 # Description: aug-cc-pV7Z
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# B-Ne
-#     ## aug-cc-pV7Z
-#     (...no reference...)
+# 
+#  References for the basis set
+# 
+#  B-Ne
+#      aug-cc-pV7Z
+#          (...no reference...)
+# 
+# 
 # 
 # # 
-basis "B_aug-cc-pv7z" 
+basis "B_aug-cc-pV7Z" SPHERICAL 
 #basis SET: (31s,13p,7d,6f,5g,4h,3i,2k) -> [9s,8p,7d,6f,5g,4h,3i,2k]
 B    S
  639096.48000000             0.000001450000
@@ -151,7 +157,7 @@ B    K
 B    K
       0.57420000             1.000000000000
 end
-basis "C_aug-cc-pv7z" 
+basis "C_aug-cc-pV7Z" SPHERICAL 
 #basis SET: (31s,13p,7d,6f,5g,4h,3i,2k) -> [9s,8p,7d,6f,5g,4h,3i,2k]
 C    S
  949028.80000000             0.000001400000
@@ -269,7 +275,7 @@ C    K
 C    K
       0.97800000             1.000000000000
 end
-basis "N_aug-cc-pv7z" 
+basis "N_aug-cc-pV7Z" SPHERICAL 
 #basis SET: (31s,13p,7d,6f,5g,4h,3i,2k) -> [9s,8p,7d,6f,5g,4h,3i,2k]
 N    S
 1296296.00000000             0.000001400000
@@ -387,7 +393,7 @@ N    K
 N    K
       0.97700000             1.000000000000
 end
-basis "O_aug-cc-pv7z" 
+basis "O_aug-cc-pV7Z" SPHERICAL 
 #basis SET: (31s,13p,7d,6f,5g,4h,3i,2k) -> [9s,8p,7d,6f,5g,4h,3i,2k]
 O    S
 1678789.00000000             0.000001400000
@@ -505,7 +511,7 @@ O    K
 O    K
       1.23200000             1.000000000000
 end
-basis "F_aug-cc-pv7z" 
+basis "F_aug-cc-pV7Z" SPHERICAL 
 #basis SET: (31s,13p,7d,6f,5g,4h,3i,2k) -> [9s,8p,7d,6f,5g,4h,3i,2k]
 F    S
 2115112.00000000             0.000001500000
@@ -623,7 +629,7 @@ F    K
 F    K
       1.59700000             1.000000000000
 end
-basis "Ne_aug-cc-pv7z" 
+basis "Ne_aug-cc-pV7Z" SPHERICAL 
 #basis SET: (31s,13p,7d,6f,5g,4h,3i,2k) -> [9s,8p,7d,6f,5g,4h,3i,2k]
 Ne    S
 2636740.00000000             0.000001440000

@@ -1,38 +1,48 @@
-      subroutine gw_cdgw_newton(pars,Sigmax,Sigma,Eold,Enew,Eia,iW,
+      subroutine gw_cdgw_newton(pars,Sigmax,Sigma,Eref,Eold,Enew,Eia,iW,
      $                          iWidx,Efermi,nri,mynmo,maxqp,maxpoles,
      $                          EViter)
 
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
-#include "tcgmsg.fh"
 #include "util.fh"
 #include "stdio.fh"
+#include "global.fh"
 #include "gw.fh"
       type(gw_params_t)  :: pars
       integer,intent(in) :: nri, mynmo, maxqp, maxpoles, EViter
       integer,intent(in) :: iWidx(0:mynmo,maxqp,pars%ipol)
       double precision,intent(in) :: Efermi(pars%ipol)
       double precision,intent(in) :: Sigmax(pars%nmo,pars%ipol)
+      double precision,intent(in) :: Eref(pars%nmo,pars%ipol)
       double precision,intent(in) :: Eold(pars%nmo,pars%ipol)
       double precision,intent(in) :: Eia(maxpoles,pars%ipol)
       double precision,intent(in) :: iW(mynmo,pars%ngl,maxqp,pars%ipol)
       double precision,intent(inout) :: Sigma(pars%nmo,pars%ipol)
       double precision,intent(out) :: Enew(pars%nmo,pars%ipol)
 
-      logical main, converged
-      integer isp, totalqp, llmo, iqp, iter
-      double precision timer
+      logical main, converged, bracket, warning, fixed(maxqp)
+      integer isp, totalqp, llmo, iqp, iter, logs, dbls
+      double precision timer, rms3(3), m
       double precision Ein, Eout, SigmaOld, Sigma_X, SigmaC, Z
       double precision d2SigmaC, dSigmaC, Linear
-      double precision residual, residualOld, dresidual, d2residual
-      double precision quadratic, dquadratic, d2quadratic
-      double precision quadraticstep, linearstep, step
-      double precision I,dI,d2I,R,dR,d2R
+      double precision residual, residualOld, dresidual, d2residual,Etmp
+      double precision quadratic, dquadratic, d2quadratic, dquadraticold
+      double precision quadraticstep, linearstep, step, dsigmacold
+      double precision I,dI,d2I,R,dR,d2R,disgmacold
+
+      integer idiis, nclusters, clusters(pars%nmo),myll,myul
+      integer llqp,ulqp,icluster
+      double precision upper,lower,resupper,reslower,const
+
 
       main = pars%me .eq. 0
+      dbls = ma_sizeof(mt_dbl,1,mt_byte)
+      logs = ma_sizeof(mt_log,1,mt_byte)
 
       do isp=1,pars%ipol
+        warning = .false.
+
         totalqp = pars%noqp(isp) + pars%nvqp(isp)
         if (totalqp.lt.1) cycle
 
@@ -43,17 +53,53 @@
         endif
 
         llmo = pars%llmo(isp)
+        fixed(:) = .false.
 
-        do iqp=1,totalqp
+        call gw_findclusters(Eold(llmo,isp),clusters,nclusters,totalqp,
+     $                       0.05d0)
 
+        ulqp = 0
+        do icluster=1,nclusters
+
+          llqp = ulqp + 1
+          ulqp = ulqp + clusters(icluster)
+
+          myul = ulqp
+          myll = llqp
+
+ 100      continue
+
+          if (llmo+llqp-1.le.pars%nocc(isp)) then
+            iqp  = myul
+          else
+            iqp  = myll
+          endif
+            
           Eout     = Eold(llmo+iqp-1,isp)
           SigmaOld = Sigma(llmo+iqp-1,isp)
           Sigma_X  = Sigmax(llmo+iqp-1,isp)
-          residualOld = 1d100 
 
-          if (EViter.eq.0) Eout = Eout + 0.10d0*(Sigma_X - SigmaOld)
+          if (myul.lt.ulqp) then
+            Eout = Enew(llmo+iqp,isp)
+          elseif (myll.gt.llqp) then
+            Eout = Enew(llmo+iqp-2,isp) 
+          elseif (eviter.eq.0) then
+            Eout = Eout + 0.10d0*(sigma_x - sigmaold)
+          else
+            Eout = Eout + sign(1.2d0*pars%thresh,Eout)
+          endif
+
+
+          call ga_zero(pars%g_sols)
+          bracket = .false.
+          rms3 = 1d100
+          residualOld = 0d0
+          dsigmacold = 0d0
+          const = Eref(llmo+iqp-1,isp) + Sigma_X - sigmaold
+          lower = 0d0
+          upper = 0d0
 c        
-          do iter=1,pars%qpiter
+          do iter=1,pars%qpiter+5
 
             Ein = Eout
 
@@ -61,64 +107,114 @@ c
             timer = util_wallsec()
             call gw_buildin(iW(1,1,iqp,isp),Eold(1,isp),
      $                      dbl_mb(pars%k_glx),dbl_mb(pars%k_glw),
-     $                      iWidx(0,iqp,isp),Ein,I,dI,d2I,
-     $                      pars%fdstep,pars%ngl,mynmo)
+     $                      iWidx(0,iqp,isp),Ein,I,dI,
+     $                      pars%ngl,mynmo)
             pars%timer%in = pars%timer%in + util_wallsec() - timer
 
             call ga_sync()
             timer = util_wallsec()
-            call gw_buildrn(pars,Eold(1,isp),Eia,Ein,R,dR,d2R,
+
+            if (iter.eq.1) then
+              call gw_buildrn(pars,Eold(1,isp),Eia,Ein,R,dR,
      $                      llmo+iqp-1,maxpoles,nri,pars%me,pars%nmo,
      $                      pars%ipol,isp)
+            else
+              call gw_buildrn_minres(pars,Eold(1,isp),Eia,Ein,R,dR,
+     $                      llmo+iqp-1,maxpoles,nri,pars%me,pars%nmo,
+     $                      pars%ipol,isp)
+            endif
+
             pars%timer%rn = pars%timer%rn + util_wallsec() - timer
 
             SigmaC   = I + R
             dSigmaC  = dI + dR
-            d2SigmaC = d2I + d2R
 
-            Z = min(1d0,1d0/(1d0-dSigmaC))
-
-            residual = Eold(llmo+iqp-1,isp) + 
-     $                 SigmaC + Sigma_X - SigmaOld - Ein
-            quadratic = residual**2
+            residual = const + SigmaC - Ein
             dresidual = dSigmaC - 1d0
-            d2residual = d2SigmaC
-            dquadratic = 2d0*residual*dresidual
-            d2quadratic = 2d0*d2residual*dresidual**2
 
-            linearstep    = Z*residual
-            quadraticstep = -dquadratic/d2quadratic
+            ! Find out if we have bracketed the solution
+            if (iter.gt.1) then
+              call gw_findbracket(bracket,ein,residual,etmp,residualold,
+     $                            lower,upper,reslower,resupper)
+            endif
 
-            step = 0.6180d0*linearstep
+ 1234       format(5(F15.8))
 
-            Eout = Ein + step
+            ! Check convergence of QP equation
+            converged = abs(residual).lt.pars%thresh .or. 
+     $                  sum(rms3)/3d0.lt.pars%thresh .or.
+     $                  (bracket .and. abs(upper-lower).lt.pars%thresh)
 
-            if (iter.eq.1) Linear = Ein + linearstep
 
-            residualOld = residual
+            ! Exit if converged
+            call ga_brdcst(mt_log,converged,logs,0)
+            if (converged) then
+              Eout = Ein
+              exit
+            endif
 
-            if (main) converged = abs(residual).lt.pars%thresh
-            call ga_brdcst(mt_log,converged,mitob(1),0)
-            call ga_brdcst(mt_dbl,Eout,mdtob(1),0)
-            if (converged) exit
+            ! Take next newton step
+            call gw_donewton(ein,eout,residual,dresidual,lower,upper,
+     $                       reslower,resupper,bracket,pars%thresh)
+
+
+            ! Save information
+            etmp = ein
+            residualold = residual
+            rms3(1) = rms3(2)
+            rms3(2) = rms3(3)
+            rms3(3) = abs(eout-ein)
+
           enddo
+
+          ! Save last energy
           Enew(llmo+iqp-1,isp)  = Eout
-          Sigma(llmo+iqp-1,isp) = SigmaC + Sigma_X
+
+          ! check convergence info
+          if (converged) fixed(iqp) = .true.
+
+          if (llmo+iqp-1.le.pars%nocc(isp)) then
+            myul = myul - 1
+          else
+            myll = myll + 1
+          endif
+
+          if (myll.le.myul) goto 100
 
           if (main) then
-            write(luout,9020) llmo+iqp-1,
-     $                       (Eout+efermi(isp))*ha2ev,
-     $                        z,
-     $                       (linear+efermi(isp))*ha2ev,
-     $                        residual*ha2ev
+            do iqp=llqp,ulqp
+              if (fixed(iqp)) then
+                write(luout,9020) llmo+iqp-1,
+     $                       (Enew(llmo+iqp-1,isp)+efermi(isp))*ha2ev
+              else
+                warning = .true.
+                write(luout,9030) llmo+iqp-1,
+     $                       (Enew(llmo+iqp-1,isp)+efermi(isp))*ha2ev
+              endif
+            enddo
           endif
+
         enddo
+        if (warning.and.main) then
+          write(luout,*)
+          write(luout,*) ' * Result did not converge'
+          write(luout,*)
+        endif
       enddo
 
- 9000 format(/,31x,'Alpha Orbitals',/,10x,'State',5x,'Energy (eV)',
-     $       5x,'Z',8x,'Elin (eV)',6x,'Res.',/,10x,55('-'))
- 9010 format(/,31x,' Beta Orbitals',/,10x,'State',5x,'Energy (eV)',
-     $       5x,'Z',8x,'Elin (eV)',6x,'Res.',/,10x,55('-'))
- 9020 format(10x,I3,6x,F8.3,6x,F6.3,6x,F8.3,3x,F8.3)
+
+ 9000 format(/,15x,'Alpha Orbitals',/,10x,'State',5x,'Energy (eV)',
+     $       /,10x,25('-'))
+ 9010 format(/,15x,' Beta Orbitals',/,10x,'State',5x,'Energy (eV)',
+     $       /,10x,25('-'))
+ 9020 format(10x,I3,7x,F8.3)
+ 9030 format(10x,I3,7x,F8.3,' *')
 
       end subroutine
+
+
+
+
+
+
+

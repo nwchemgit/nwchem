@@ -1,43 +1,52 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# aug-pcj-4_2006 version number 0
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# aug-pcJ-4_2006 version number 0
 # Description: aug-pcJ-4_2006
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H,He,B-Ne,Al-Ar
-#     ## aug-pcJ-4_2006
+# 
+#  References for the basis set
+# 
+#  H,He,B-Ne,Al-Ar
+#      aug-pcJ-4_2006
+#          jensen2006a
+# 
+# 
+# 
+# jensen2006a
 #     Jensen, Frank
 #     The Basis Set Convergence of Spin-Spin Coupling Constants Calculated
 #             by Density Functional Methods
-#     J. Chem. Theory Comput., 2, 1360-1369 (2006)
+#     J. Chem. Theory Comput. 2, 1360-1369 (2006)
 #     10.1021/ct600166u
 # 
 # # 
-basis "H_aug-pcj-4_2006" 
+basis "H_aug-pcJ-4_2006" SPHERICAL 
 #basis SET: (13s,8p,5d,3f,2g) -> [11s,8p,5d,3f,2g]
 H    S
       0.615934E+05           0.244497E-02
@@ -100,7 +109,7 @@ H    G
 H    G
       0.102790E+00           0.100000E+01
 end
-basis "He_aug-pcj-4_2006" 
+basis "He_aug-pcJ-4_2006" SPHERICAL 
 #basis SET: (13s,8p,5d,3f,2g) -> [11s,8p,5d,3f,2g]
 He    S
       0.175603E+06           0.244583E-02
@@ -163,7 +172,7 @@ He    G
 He    G
       0.235200E+00           0.100000E+01
 end
-basis "B_aug-pcj-4_2006" 
+basis "B_aug-pcJ-4_2006" SPHERICAL 
 #basis SET: (20s,13p,8d,5f,3g,2h) -> [16s,11p,8d,5f,3g,2h]
 B    S
       0.148500E+08           0.109128E-03
@@ -262,7 +271,7 @@ B    H
 B    H
       0.634100E-01           0.100000E+01
 end
-basis "C_aug-pcj-4_2006" 
+basis "C_aug-pcJ-4_2006" SPHERICAL 
 #basis SET: (20s,13p,8d,5f,3g,2h) -> [16s,11p,8d,5f,3g,2h]
 C    S
       0.105555E+08           0.110362E-03
@@ -361,7 +370,7 @@ C    H
 C    H
       0.972440E-01           0.100000E+01
 end
-basis "N_aug-pcj-4_2006" 
+basis "N_aug-pcJ-4_2006" SPHERICAL 
 #basis SET: (20s,13p,8d,5f,3g,2h) -> [16s,11p,8d,5f,3g,2h]
 N    S
       0.178952E+08           0.112286E-03
@@ -460,7 +469,7 @@ N    H
 N    H
       0.136110E+00           0.100000E+01
 end
-basis "O_aug-pcj-4_2006" 
+basis "O_aug-pcJ-4_2006" SPHERICAL 
 #basis SET: (20s,13p,8d,5f,3g,2h) -> [16s,11p,8d,5f,3g,2h]
 O    S
       0.251945E+08           0.112511E-03
@@ -559,7 +568,7 @@ O    H
 O    H
       0.149800E+00           0.100000E+01
 end
-basis "F_aug-pcj-4_2006" 
+basis "F_aug-pcJ-4_2006" SPHERICAL 
 #basis SET: (20s,13p,8d,5f,3g,2h) -> [16s,11p,8d,5f,3g,2h]
 F    S
       0.371204E+08           0.112736E-03
@@ -658,7 +667,7 @@ F    H
 F    H
       0.194450E+00           0.100000E+01
 end
-basis "Ne_aug-pcj-4_2006" 
+basis "Ne_aug-pcJ-4_2006" SPHERICAL 
 #basis SET: (20s,13p,8d,5f,3g,2h) -> [16s,11p,8d,5f,3g,2h]
 Ne    S
       0.504516E+08           0.109582E-03
@@ -757,7 +766,7 @@ Ne    H
 Ne    H
       0.243400E+00           0.100000E+01
 end
-basis "Al_aug-pcj-4_2006" 
+basis "Al_aug-pcJ-4_2006" SPHERICAL 
 #basis SET: (29s,18p,8d,5f,3g,2h) -> [17s,13p,8d,5f,3g,2h]
 Al    S
       0.769034E+08           0.241009E-04
@@ -873,7 +882,7 @@ Al    H
 Al    H
       0.487700E-01           0.100000E+01
 end
-basis "Si_aug-pcj-4_2006" 
+basis "Si_aug-pcJ-4_2006" SPHERICAL 
 #basis SET: (29s,18p,8d,5f,3g,2h) -> [17s,13p,8d,5f,3g,2h]
 Si    S
       0.923166E+08           0.174890E-04
@@ -989,7 +998,7 @@ Si    H
 Si    H
       0.686530E-01           0.100000E+01
 end
-basis "P_aug-pcj-4_2006" 
+basis "P_aug-pcJ-4_2006" SPHERICAL 
 #basis SET: (29s,18p,8d,5f,3g,2h) -> [17s,13p,8d,5f,3g,2h]
 P    S
       0.105250E+09           0.173787E-04
@@ -1105,7 +1114,7 @@ P    H
 P    H
       0.941610E-01           0.100000E+01
 end
-basis "S_aug-pcj-4_2006" 
+basis "S_aug-pcJ-4_2006" SPHERICAL 
 #basis SET: (29s,18p,8d,5f,3g,2h) -> [17s,13p,8d,5f,3g,2h]
 S    S
       0.127184E+09           0.169729E-04
@@ -1221,7 +1230,7 @@ S    H
 S    H
       0.108210E+00           0.100000E+01
 end
-basis "Cl_aug-pcj-4_2006" 
+basis "Cl_aug-pcJ-4_2006" SPHERICAL 
 #basis SET: (29s,18p,8d,5f,3g,2h) -> [17s,13p,8d,5f,3g,2h]
 Cl    S
       0.148425E+09           0.167413E-04
@@ -1337,7 +1346,7 @@ Cl    H
 Cl    H
       0.135940E+00           0.100000E+01
 end
-basis "Ar_aug-pcj-4_2006" 
+basis "Ar_aug-pcJ-4_2006" SPHERICAL 
 #basis SET: (29s,18p,8d,5f,3g,2h) -> [17s,13p,8d,5f,3g,2h]
 Ar    S
       0.188903E+09           0.141389E-04

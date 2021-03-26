@@ -1,16 +1,24 @@
-      subroutine gw_buildrn(pars,Eig,Eia,omega,R,dR,d2R,imo,maxpoles,
+#ifdef GWCMPLX
+#define GWTYP double complex
+#else
+#define GWTYP double precision
+#endif
+
+      subroutine gw_buildrn(pars,Eig,Eia,omega,R,dR,imo,maxpoles,
      $                      nri,me,nmo,ipol,isp)
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
-#include "tcgmsg.fh"
+#include "global.fh"
+#include "util.fh"
+#include "stdio.fh"
 #include "gw.fh"
       type(gw_params_t) :: pars
       integer,intent(in) :: imo, maxpoles, nri, me, nmo, ipol, isp
       double precision, intent(in) :: omega
       double precision, intent(in), dimension(nmo) :: Eig
       double precision, intent(in), dimension(maxpoles,ipol) :: Eia
-      double precision, intent(out) :: R,dR,d2R
+      double precision, intent(out) :: R,dR
 
       character(len=12), parameter :: pname = 'gw_buildrn: '
 
@@ -19,20 +27,27 @@
       integer g_a, g_b, g_c, g_d, g_e, g_epsilon, k_eps, k_sol, nprocs
       integer jmo, ipole, ilo, ihi, jlo, jhi, info, ld, mynri, idx, jsp
       integer l_pi, k_pi, l_ipiv, k_ipiv, l_scr, k_scr, k_ov, lscr
-      integer g_pi, g_sol, addrPi, addrSol, llpi, off
+      integer lfac, kfac, ldfac, kdfac, jpole
+      integer g_pi, g_sol, addrPi, addrSol, llpi, off, g_inv
       integer pihi, pilo, kOV(2), ga, first, second, step
-      integer spacelo, addr
-      double precision fac, arg, w, arg2, dfac, sgn
-      double precision factor(maxpoles,ipol), vector(nri), vector2(nri)
+      integer spacelo, addr, gb, owner, ints, nris
+      double precision fac, w, arg2, dfac, sgn, dummy
+      double precision vector(nri), vector2(nri)
       double precision vector3(nri)
-      double precision dfactor(maxpoles,ipol)
+
+      GWTYP,dimension(nri) ::   solvector
 
       logical main, ok, parallel_diag
       double precision, parameter :: shift = 0.00001d0
-      double precision, external :: ddot
-      logical, external :: is_near, nga_create, ga_duplicate, ga_destroy
-      logical, external :: ga_create, ga_copy
-      integer,external :: ga_nodeid,ga_nnodes
+      double precision, parameter :: eta = 0.000d0
+      double complex, parameter :: ieta = dcmplx(0d0,eta)
+      double complex :: temp, arg
+      logical, external :: is_near
+
+      double precision, parameter :: one = 1d0
+      double precision, parameter :: qnan = 
+     $            transfer(z'7FF0000000000001',one)
+
 #ifdef USE_OPENMP      
       integer iMaxThreads
       integer,external :: omp_get_max_threads
@@ -43,18 +58,34 @@
 
       main = me.eq.0
       nprocs = ga_nnodes()
+      ints = ma_sizeof(mt_int,1,mt_byte)
+      nris = ma_sizeof(mt_dbl,nri,mt_byte)
+
 
       if (.not.ma_alloc_get(mt_dbl,nri**2,'pi',l_pi,k_pi))
      $  call errquit(pname//'can''t allocate pi matri',0,MA_ERR) 
       if (.not.ma_push_get(mt_int,nri,'ipiv',l_ipiv,k_ipiv))
      $  call errquit(pname//'can''t allocate ipiv',0,MA_ERR) 
+
+      if (.not.ma_push_get(mt_dbl,maxpoles*ipol,'factor',lfac,kfac))
+     $  call errquit(pname//'can''t allocate factor',0,MA_ERR)
+      if (.not.ma_push_get(mt_dbl,maxpoles*ipol,'dfactor',ldfac,kdfac))
+     $  call errquit(pname//'can''t allocate factor',0,MA_ERR)
+
+
       call dsytrf('l',nri,dbl_mb(k_pi),nri,int_mb(k_ipiv),
-     $            factor,-1,info)
-      lscr = int(factor(1,1))
+     $            dbl_mb(kfac),-1,info)
+      lscr = int(dbl_mb(kfac))
       if (.not.ma_push_get(mt_dbl,lscr,'scr',l_scr,k_scr))
      $  call errquit(pname//'can''t allocate scratch',0,MA_ERR) 
 
+
+      call dfill(nri**2,qnan,dbl_mb(k_pi),1)
+      call dfill(lscr,qnan,dbl_mb(k_scr),1)
+
+
       do jsp=1,ipol
+        if (pars%mynpoles(jsp).eq.0) cycle
         call ga_access(pars%g_eriov(jsp),1,nri,pars%ovlo(jsp),
      $                 pars%ovhi(jsp),kOV(jsp),ld)   
       enddo
@@ -66,12 +97,12 @@
       parallel_diag = .false.
 #endif
 
-
       if (parallel_diag) then
         pilo = 1
         pihi = nri
 #ifndef SCALAPACK
         ok = ga_create(mt_dbl,nri,nri,'Pi',nri,0,g_pi)
+        ok = ga_duplicate(g_pi,g_inv,'inverse')
         if (.not.ok) call errquit(pname//'can''t create Pi',0,GA_ERR)
         call ga_distribution(g_pi,me,ilo,ihi,pilo,pihi)
         call ga_access(g_pi,1,nri,pilo,pihi,addrPi,ld)
@@ -82,10 +113,11 @@
 
       R = 0d0
       dR = 0d0
-      d2R = 0d0
 
       dfac = 4d0
       if (ipol.eq.1) dfac = 2d0*dfac
+
+      gb = pars%g_sols
 
       if (imo.le.pars%nocc(isp)) then
         sgn = -1d0
@@ -107,48 +139,57 @@
         nspace = pars%nvir(isp)
       endif
 
+      if (omega.lt.0d0) then
+        sgn = -1d0
+      else
+        sgn = 1d0
+      endif
+
        
       do jmo=first,second,step
-        if ( abs(eig(jmo)) .gt. abs(omega+sgn*shift) ) exit
-        if (is_near(eig(jmo),omega,shift)) then
-          fac = sgn*0.5d0
-          arg = 0d0
-          arg2 = 0d0
+
+        if (omega.lt.0d0) then
+          if (eig(jmo) .lt. omega-shift) cycle
+          if (eig(jmo) .gt. 0d0) cycle
         else
-          fac = sgn
-          arg = sgn*(omega - eig(jmo))
-          arg2 = arg**2
+          if (eig(jmo) .gt. omega+shift) cycle
+          if (eig(jmo) .lt. 0d0) cycle
         endif
 
-!$omp   parallel do collapse(2)
+        if (is_near(eig(jmo),omega,shift)) then
+          fac = sgn*0.5d0
+          arg = -sgn*ieta
+        else
+          fac = sgn
+          arg = eig(jmo) - omega - sgn*ieta
+        endif
+
+
+!$omp   parallel do collapse(2) private(temp)
         do jsp=1,ipol
           do ipole=1,pars%mynpoles(jsp)
-            factor(ipole,jsp) = Eia(ipole,jsp)/(Eia(ipole,jsp)**2-arg2)
-            dfactor(ipole,jsp) = -dfac*arg*factor(ipole,jsp)**2/
-     $                           Eia(ipole,jsp)
+            temp = Eia(ipole,jsp) - ieta
+            temp = 0.5d0/(arg + temp) + 0.5d0/(temp - arg)
+            dbl_mb(kfac+(jsp-1)*maxpoles+ipole-1) = dble(temp)
+
+            temp = Eia(ipole,jsp) - ieta
+            temp = -(0.5d0/(arg + temp))**2 + (0.5d0/(temp - arg))**2
+            dbl_mb(kdfac+(jsp-1)*maxpoles+ipole-1) = dfac*dble(temp)
           enddo
         enddo
-!$omp   end parallel do        
+!$omp   end parallel do
 
         call gw_buildpi('r',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
-     $                   factor,nri,nri,pars%mynpoles,main,ipol,
+     $                   dbl_mb(kfac),nri,nri,pars%mynpoles,main,ipol,
      $                   maxpoles)
-        call dgop(mt_dbl,dbl_mb(k_pi),nri**2,'+')
+        call ga_dgop(mt_dbl,dbl_mb(k_pi),nri**2,'+')
 
         root = mod((imo-off-1)*nspace+jmo-off-1,nprocs)
         idx = ((imo-off-1)*nspace+jmo-off-1)/nprocs + spacelo
 
-! for now, deactivate MINRES        
-!        if (jmo.ne.first) then
-        if (jmo.eq.-1) then
-          if (me.eq.root) then
-            call ga_get(ga,1,nri,idx,idx,vector,nri)
-            call minres(dbl_mb(k_pi),vector2,vector,nri)
-          endif
-          call ga_brdcst(mt_dbl,vector2,mdtob(nri),root)
-        else if (parallel_diag) then
+        if (parallel_diag) then
           call gw_symmat(dbl_mb(k_pi),nri,pilo,pihi)
-          call ga_brdcst(mt_int,idx,mitob(1),root)
+          call ga_brdcst(mt_int,idx,ints,root)
           call ga_get(ga,1,nri,idx,idx,vector,nri)
 #ifdef SCALAPACK
           call dcopy(nri,vector,1,vector2,1)
@@ -156,50 +197,53 @@
 #else
           vector2(:) = 0d0
           call dcopy(mynri*nri,dbl_mb(llpi),1,dbl_mb(addrPi),1)
-          call gw_invdiag(g_pi,g_pi,nri)
+          call dft_invdiag(g_pi,g_inv,nri)
+          call ga_copy(g_inv,g_pi)
           call dgemv('t',nri,mynri,1d0,dbl_mb(addrPi),nri,vector,1,
      $                0d0,vector2(pilo),1)
-          call dgop(mt_dbl,vector2,nri,'+')
+          call ga_dgop(mt_dbl,vector2,nri,'+')
 #endif
         else
           if (me.eq.root) then
             call ga_get(ga,1,nri,idx,idx,vector,nri)
-            call dcopy(nri,vector,1,vector2,1)
-            call dsytrf('l',nri,dbl_mb(k_pi),nri,int_mb(k_ipiv),
-     $                   dbl_mb(k_scr),lscr,info)
-            call dsytrs('l',nri,1,dbl_mb(k_pi),nri,int_mb(k_ipiv),
-     $                   vector2,nri,info)
+            vector2(:) = vector(:)
+            call dsysv('l',nri,1,dbl_mb(k_pi),nri,int_mb(k_ipiv),
+     $                  vector2,nri,dbl_mb(k_scr),lscr,info)
           end if
-          call ga_brdcst(mt_dbl,vector2,mdtob(nri),root)
+          call ga_brdcst(mt_dbl,vector2,nris,root)
         endif
 
-        if (arg.ne.0d0) then
-          do jsp=1,ipol
-            addr = kOV(jsp)
-            call dgemv('t',nri,pars%mynpoles(jsp),1d0,dbl_mb(addr),nri,
-     $                  vector2,1,0d0,factor(1,jsp),1)
+        if (.not.ga_locate(gb,1,jmo,owner))
+     $    call errquit('gw_buildrn: cannot locate owner',0,GA_ERR)
+#ifdef GWCMPLX        
+        solvector = dcmplx(vector2,0d0)
+#else
+        solvector = vector2
+#endif
+        if (owner.eq.me) call ga_put(gb,1,nri,jmo,jmo,solvector,nri)
 
-!$omp       parallel do reduction(+:dR)
-            do ipole=1,pars%mynpoles(jsp)
-              dR = dR + dfactor(ipole,jsp)*factor(ipole,jsp)**2
-            enddo
-!$omp       end parallel do
-
+        do jsp=1,ipol
+          if (pars%mynpoles(jsp).eq.0) cycle
+          addr = kOV(jsp)
+          call dgemv('t',nri,pars%mynpoles(jsp),1d0,dbl_mb(addr),nri,
+     $                vector2,1,0d0,dbl_mb(kfac),1)
+          do ipole=0,pars%mynpoles(jsp)-1
+            dR = dR + fac*dbl_mb(kdfac+(jsp-1)*maxpoles+ipole)*
+     $                dbl_mb(kfac+ipole)**2
           enddo
-        endif
+        enddo
 
         if (root.ne.me) cycle
 
         w = dot_product(vector,vector2) - dot_product(vector,vector)
         R = R + fac*w
 
-        if (abs(fac).lt.1d0) dR = dR + w
+        if (abs(fac).lt.0.6d0) dR = dR + sgn*w
 
       enddo
 
       call ga_dgop(mt_dbl,R,1,'+')
       call ga_dgop(mt_dbl,dR,1,'+')
-
 
       if (.not.ma_chop_stack(l_ipiv))
      $   call errquit(pname//'can''t chop stack',0,MA_ERR)

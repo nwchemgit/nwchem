@@ -1,78 +1,100 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
 # pc-1 version number 0
 # Description: pc-1
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H,C-F
-#     ## pc-1
+# 
+#  References for the basis set
+# 
+#  H,C-F
+#      pc-1
+#          jensen2001a jensen2002a
+# 
+#  He-B,Ne-Al,Ar
+#      pc-1
+#          jensen2007a
+# 
+#  Si-Cl
+#      pc-1
+#          jensen2004a
+# 
+#  K,Ca,Ga-Kr
+#      pc-1
+#          jensen2012a
+# 
+#  Sc-Zn
+#      pc-1
+#          jensen2013a
+# 
+# 
+# 
+# jensen2001a
 #     Jensen, Frank
 #     Polarization consistent basis sets: Principles
-#     J. Chem. Phys., 115, 9113-9125 (2001)
+#     J. Chem. Phys. 115, 9113-9125 (2001)
 #     10.1063/1.1413524
 # 
+# jensen2002a
 #     Jensen, Frank
 #     Polarization consistent basis sets. II. Estimating the Kohn-Sham basis
 #             set limit
-#     J. Chem. Phys., 116, 7372-7379 (2002)
+#     J. Chem. Phys. 116, 7372-7379 (2002)
 #     10.1063/1.1465405
 # 
-# He-B,Ne-Al,Ar
-#     ## pc-1
+# jensen2004a
+#     Jensen, Frank, Helgaker, Trygve
+#     Polarization consistent basis sets. V. The elements Si-Cl
+#     J. Chem. Phys. 121, 3463-3470 (2004)
+#     10.1063/1.1756866
+# 
+# jensen2007a
 #     Jensen, Frank
 #     Polarization Consistent Basis Sets. 4: The Elements He, Li, Be, B, Ne,
 #             Na, Mg, Al, and Ar
-#     J. Phys. Chem. A, 111, 11198-11204 (2007)
+#     J. Phys. Chem. A 111, 11198-11204 (2007)
 #     10.1021/jp068677h
 # 
-# Si-Cl
-#     ## pc-1
-#     Jensen, Frank, Helgaker, Trygve
-#     Polarization consistent basis sets. V. The elements Si-Cl
-#     J. Chem. Phys., 121, 3463-3470 (2004)
-#     10.1063/1.1756866
-# 
-# K,Ca,Ga-Kr
-#     ## pc-1
+# jensen2012a
 #     Jensen, Frank
 #     Polarization consistent basis sets. VII. The elements K, Ca, Ga, Ge,
 #             As, Se, Br, and Kr
-#     J. Chem. Phys., 136, 114107 (2012)
+#     J. Chem. Phys. 136, 114107 (2012)
 #     10.1063/1.3690460
 # 
-# Sc-Zn
-#     ## pc-1
+# jensen2013a
 #     Jensen, Frank
 #     Polarization consistent basis sets. VIII. The transition metals Sc-Zn
-#     J. Chem. Phys., 138, 014107 (2013)
+#     J. Chem. Phys. 138, 014107 (2013)
 #     10.1063/1.4773017
 # 
 # # 
-basis "H_pc-1" 
+basis "H_pc-1" SPHERICAL 
 #basis SET: (4s,1p) -> [2s,1p]
 H    S
       0.122520E+02           0.228220E-01
@@ -83,7 +105,7 @@ H    S
 H    P
       0.100000E+01           0.100000E+01
 end
-basis "He_pc-1" 
+basis "He_pc-1" SPHERICAL 
 #basis SET: (4s,1p) -> [2s,1p]
 He    S
       0.368650E+02           0.130620E-01
@@ -94,7 +116,7 @@ He    S
 He    P
       0.145000E+01           0.100000E+01
 end
-basis "Li_pc-1" 
+basis "Li_pc-1" SPHERICAL 
 #basis SET: (11s,3p) -> [3s,2p]
 Li    S
       0.266430E+03           0.652680E-02
@@ -116,7 +138,7 @@ Li    P
 Li    P
       0.900000E-01           0.100000E+01
 end
-basis "Be_pc-1" 
+basis "Be_pc-1" SPHERICAL 
 #basis SET: (11s,3p) -> [3s,2p]
 Be    S
       0.514900E+03           0.300310E-02
@@ -138,7 +160,7 @@ Be    P
 Be    P
       0.190000E+00           0.100000E+01
 end
-basis "B_pc-1" 
+basis "B_pc-1" SPHERICAL 
 #basis SET: (11s,4p,1d) -> [3s,2p,1d]
 B    S
       0.843980E+03           0.573610E-02
@@ -163,7 +185,7 @@ B    P
 B    D
       0.700000E+00           0.100000E+01
 end
-basis "C_pc-1" 
+basis "C_pc-1" SPHERICAL 
 #basis SET: (11s,4p,1d) -> [3s,2p,1d]
 C    S
       0.125260E+04           0.557360E-02
@@ -188,7 +210,7 @@ C    P
 C    D
       0.800000E+00           0.100000E+01
 end
-basis "N_pc-1" 
+basis "N_pc-1" SPHERICAL 
 #basis SET: (11s,4p,1d) -> [3s,2p,1d]
 N    S
       0.174220E+04           0.546030E-02
@@ -213,7 +235,7 @@ N    P
 N    D
       0.900000E+00           0.100000E+01
 end
-basis "O_pc-1" 
+basis "O_pc-1" SPHERICAL 
 #basis SET: (11s,4p,1d) -> [3s,2p,1d]
 O    S
       0.230670E+04           0.539400E-02
@@ -238,7 +260,7 @@ O    P
 O    D
       0.100000E+01           0.100000E+01
 end
-basis "F_pc-1" 
+basis "F_pc-1" SPHERICAL 
 #basis SET: (11s,4p,1d) -> [3s,2p,1d]
 F    S
       0.295460E+04           0.533370E-02
@@ -263,7 +285,7 @@ F    P
 F    D
       0.110000E+01           0.100000E+01
 end
-basis "Ne_pc-1" 
+basis "Ne_pc-1" SPHERICAL 
 #basis SET: (11s,4p,1d) -> [3s,2p,1d]
 Ne    S
       0.368010E+04           0.264540E-02
@@ -288,7 +310,7 @@ Ne    P
 Ne    D
       0.120000E+01           0.100000E+01
 end
-basis "Na_pc-1" 
+basis "Na_pc-1" SPHERICAL 
 #basis SET: (25s,7p) -> [4s,2p]
 Na    S
       0.232070E+05           0.681000E-03
@@ -329,7 +351,7 @@ Na    P
 Na    P
       0.750000E-01           0.100000E+01
 end
-basis "Mg_pc-1" 
+basis "Mg_pc-1" SPHERICAL 
 #basis SET: (25s,7p) -> [4s,2p]
 Mg    S
       0.287060E+05           0.325130E-03
@@ -370,7 +392,7 @@ Mg    P
 Mg    P
       0.135000E+00           0.100000E+01
 end
-basis "Al_pc-1" 
+basis "Al_pc-1" SPHERICAL 
 #basis SET: (25s,13p,1d) -> [4s,3p,1d]
 Al    S
       0.347020E+05           0.627780E-03
@@ -420,7 +442,7 @@ Al    P
 Al    D
       0.400000E+00           0.100000E+01
 end
-basis "Si_pc-1" 
+basis "Si_pc-1" SPHERICAL 
 #basis SET: (25s,13p,1d) -> [4s,3p,1d]
 Si    S
       0.412630E+05           0.609480E-03
@@ -470,7 +492,7 @@ Si    P
 Si    D
       0.450000E+00           0.100000E+01
 end
-basis "P_pc-1" 
+basis "P_pc-1" SPHERICAL 
 #basis SET: (25s,13p,1d) -> [4s,3p,1d]
 P    S
       0.480730E+05           0.599190E-03
@@ -520,7 +542,7 @@ P    P
 P    D
       0.500000E+00           0.100000E+01
 end
-basis "S_pc-1" 
+basis "S_pc-1" SPHERICAL 
 #basis SET: (25s,13p,1d) -> [4s,3p,1d]
 S    S
       0.555100E+05           0.588990E-03
@@ -570,7 +592,7 @@ S    P
 S    D
       0.550000E+00           0.100000E+01
 end
-basis "Cl_pc-1" 
+basis "Cl_pc-1" SPHERICAL 
 #basis SET: (25s,13p,1d) -> [4s,3p,1d]
 Cl    S
       0.634740E+05           0.580280E-03
@@ -620,7 +642,7 @@ Cl    P
 Cl    D
       0.600000E+00           0.100000E+01
 end
-basis "Ar_pc-1" 
+basis "Ar_pc-1" SPHERICAL 
 #basis SET: (25s,13p,1d) -> [4s,3p,1d]
 Ar    S
       0.719560E+05           0.286430E-03
@@ -670,7 +692,7 @@ Ar    P
 Ar    D
       0.650000E+00           0.100000E+01
 end
-basis "K_pc-1" 
+basis "K_pc-1" SPHERICAL 
 #basis SET: (45s,17p,4d) -> [5s,3p,2d]
 K    S
       0.36920E+05            0.17096E-02
@@ -749,7 +771,7 @@ K    D
 K    D
       0.61100E-01            0.10000E+01
 end
-basis "Ca_pc-1" 
+basis "Ca_pc-1" SPHERICAL 
 #basis SET: (45s,17p,4d) -> [5s,3p,2d]
 Ca    S
       0.41453E+05            0.16916E-02
@@ -828,7 +850,7 @@ Ca    D
 Ca    D
       0.11300E+00            0.10000E+01
 end
-basis "Sc_pc-1" 
+basis "Sc_pc-1" SPHERICAL 
 #basis SET: (45s,17p,6d,1f) -> [5s,3p,2d,1f]
 Sc    S
       0.46097E+05            0.16801E-02
@@ -911,7 +933,7 @@ Sc    D
 Sc    F
       0.931000E+00           0.100000E+01
 end
-basis "Ti_pc-1" 
+basis "Ti_pc-1" SPHERICAL 
 #basis SET: (45s,17p,6d,1f) -> [5s,3p,2d,1f]
 Ti    S
       0.50936E+05            0.16712E-02
@@ -994,7 +1016,7 @@ Ti    D
 Ti    F
       1.025000E+00           0.100000E+01
 end
-basis "V_pc-1" 
+basis "V_pc-1" SPHERICAL 
 #basis SET: (45s,17p,6d,1f) -> [5s,3p,2d,1f]
 V    S
       0.56021E+05            0.16631E-02
@@ -1077,7 +1099,7 @@ V    D
 V    F
       1.127000E+00           0.100000E+01
 end
-basis "Cr_pc-1" 
+basis "Cr_pc-1" SPHERICAL 
 #basis SET: (45s,17p,6d,1f) -> [5s,3p,2d,1f]
 Cr    S
       0.61342E+05            0.16558E-02
@@ -1160,7 +1182,7 @@ Cr    D
 Cr    F
       1.240000E+00           0.100000E+01
 end
-basis "Mn_pc-1" 
+basis "Mn_pc-1" SPHERICAL 
 #basis SET: (45s,17p,6d,1f) -> [5s,3p,2d,1f]
 Mn    S
       0.66883E+05            0.16496E-02
@@ -1243,7 +1265,7 @@ Mn    D
 Mn    F
       1.364000E+00           0.100000E+01
 end
-basis "Fe_pc-1" 
+basis "Fe_pc-1" SPHERICAL 
 #basis SET: (45s,17p,6d,1f) -> [5s,3p,2d,1f]
 Fe    S
       0.72674E+05            0.16437E-02
@@ -1326,7 +1348,7 @@ Fe    D
 Fe    F
       1.500000E+00           0.100000E+01
 end
-basis "Co_pc-1" 
+basis "Co_pc-1" SPHERICAL 
 #basis SET: (45s,17p,6d,1f) -> [5s,3p,2d,1f]
 Co    S
       0.78699E+05            0.16384E-02
@@ -1409,7 +1431,7 @@ Co    D
 Co    F
       1.650000E+00           0.100000E+01
 end
-basis "Ni_pc-1" 
+basis "Ni_pc-1" SPHERICAL 
 #basis SET: (45s,17p,6d,1f) -> [5s,3p,2d,1f]
 Ni    S
       0.84924E+05            0.16342E-02
@@ -1492,7 +1514,7 @@ Ni    D
 Ni    F
       1.815000E+00           0.100000E+01
 end
-basis "Cu_pc-1" 
+basis "Cu_pc-1" SPHERICAL 
 #basis SET: (45s,17p,6d,1f) -> [5s,3p,2d,1f]
 Cu    S
       0.91409E+05            0.16300E-02
@@ -1575,7 +1597,7 @@ Cu    D
 Cu    F
       1.997000E+00           0.100000E+01
 end
-basis "Zn_pc-1" 
+basis "Zn_pc-1" SPHERICAL 
 #basis SET: (45s,17p,6d,1f) -> [5s,3p,2d,1f]
 Zn    S
       0.98135E+05            0.16259E-02
@@ -1658,7 +1680,7 @@ Zn    D
 Zn    F
       2.196000E+00           0.100000E+01
 end
-basis "Ga_pc-1" 
+basis "Ga_pc-1" SPHERICAL 
 #basis SET: (45s,28p,7d) -> [5s,4p,2d]
 Ga    S
       0.10548E+06            0.16178E-02
@@ -1752,7 +1774,7 @@ Ga    D
 Ga    D
       0.15100E+00            0.10000E+01
 end
-basis "Ge_pc-1" 
+basis "Ge_pc-1" SPHERICAL 
 #basis SET: (45s,28p,7d) -> [5s,4p,2d]
 Ge    S
       0.11318E+06            0.16091E-02
@@ -1846,7 +1868,7 @@ Ge    D
 Ge    D
       0.19400E+00            0.10000E+01
 end
-basis "As_pc-1" 
+basis "As_pc-1" SPHERICAL 
 #basis SET: (45s,28p,7d) -> [5s,4p,2d]
 As    S
       0.12114E+06            0.16014E-02
@@ -1940,7 +1962,7 @@ As    D
 As    D
       0.23800E+00            0.10000E+01
 end
-basis "Se_pc-1" 
+basis "Se_pc-1" SPHERICAL 
 #basis SET: (45s,28p,7d) -> [5s,4p,2d]
 Se    S
       0.12944E+06            0.15937E-02
@@ -2034,7 +2056,7 @@ Se    D
 Se    D
       0.28700E+00            0.10000E+01
 end
-basis "Br_pc-1" 
+basis "Br_pc-1" SPHERICAL 
 #basis SET: (45s,28p,7d) -> [5s,4p,2d]
 Br    S
       0.13806E+06            0.15859E-02
@@ -2128,7 +2150,7 @@ Br    D
 Br    D
       0.33700E+00            0.10000E+01
 end
-basis "Kr_pc-1" 
+basis "Kr_pc-1" SPHERICAL 
 #basis SET: (45s,28p,7d) -> [5s,4p,2d]
 Kr    S
       0.14705E+06            0.15678E-02

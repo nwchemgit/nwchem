@@ -1169,8 +1169,8 @@ ifeq ($(TARGET),MACX64)
      FC = gfortran
      _FC = gfortran
    endif
-   ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran-6 gfortran-7 gfortran-8 gfortran-9 gfortran-10 gfortran-11 gfortran-12))
-     _FC = gfortran
+   ifeq ($(shell $(CNFDIR)/strip_compiler.sh $(FC)),gfortran)
+     _FC := gfortran
    endif
 #
 # MacOSX 64bit
@@ -1359,13 +1359,21 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
      FC = gfortran
      _FC = gfortran
    endif
-   ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran-6 gfortran-7 gfortran-8 gfortran-9 gfortran-10 gfortran-11 gfortran-12 i686-w64-mingw32.static-gfortran))
+   ifeq ($(shell $(CNFDIR)/strip_compiler.sh $(FC)),gfortran)
+     _FC := gfortran
+   endif
+   ifeq ($(FC),$(findstring $(FC),i686-w64-mingw32.static-gfortran))
      _FC = gfortran
    endif
-   ifeq ($(CC),$(findstring $(CC),gcc gcc-4 gcc-5 gcc-6 gcc-7 gcc-8 gcc-9 gcc-10 gcc-11 gcc-12 i686-w64-mingw32.static-gcc))
-   ifneq ($(CC),cc)
-     _CC = gcc
+   ifeq ($(shell $(CNFDIR)/strip_compiler.sh $(CC)),gcc)
+     ifneq ($(CC),cc)
+       _CC = gcc
+     endif
    endif
+   ifeq ($(CC),$(findstring $(CC),i686-w64-mingw32.static-gcc))
+     ifneq ($(CC),cc)
+       _CC = gcc
+     endif
    endif
 
          LINUXCPU = $(shell uname -m |\
@@ -1733,8 +1741,8 @@ endif
       ifeq ($(FC),pgf90)
         _FC=pgf90
       endif
-      ifeq ($(FC),nvfortran)
-        _FC=pgf90
+      ifeq ($(shell $(CNFDIR)/strip_compiler.sh $(FC)),nvfortran)
+        _FC := pgf90
       endif
       ifeq ($(FC),pgf77)
         _FC=pgf90
@@ -1748,22 +1756,27 @@ endif
       ifeq ($(FC),ifx)
        _FC=ifx
       endif
-     ifeq ($(FC),$(findstring $(FC),gfortran gfortran-4 gfortran-5 gfortran6 gfortran-6 gfortran-7 gfortran7 gfortran-8 gfortran8 gfortran-9 gfortran9 gfortran-10 gfortran10 gfortran-11 gfortran-12 i686-w64-mingw32.static-gfortran x86_64-w64-mingw32-gfortran-win32))
-       _FC= gfortran
-     endif
-     ifeq ($(CC),$(findstring $(CC),gcc gcc-4 gcc-5 gcc6 gcc-6 gcc-7 gcc7 gcc-8 gcc8 gcc-9 gcc9 gcc-10 gcc10 gcc-11 gcc-12 i686-w64-mingw32.static-gcc x86_64-w64-mingw32-gcc-win32))
-     ifneq ($(CC),cc)
-       _CC= gcc
-     endif
-     endif
-      ifeq ($(FC),gfortran)
-       _FC=gfortran
+      ifeq ($(shell $(CNFDIR)/strip_compiler.sh $(FC)),gfortran)
+        _FC := gfortran
+      endif
+      ifeq ($(FC),$(findstring $(FC),i686-w64-mingw32.static-gfortran x86_64-w64-mingw32-gfortran-win32))
+        _FC := gfortran
+      endif
+      ifeq ($(shell $(CNFDIR)/strip_compiler.sh $(CC)),gcc)
+	ifneq ($(CC),cc)
+          _CC := gcc
+        endif
+      endif
+      ifeq ($(CC),$(findstring $(CC),i686-w64-mingw32.static-gcc x86_64-w64-mingw32-gcc-win32))
+        ifneq ($(CC),cc)
+          _CC= gcc
+        endif
       endif
       ifeq ($(FC),armflang)
        _FC=armflang
        USE_FLANG=1
       endif
-      ifeq ($(FC),flang)
+      ifeq ($(shell $(CNFDIR)/strip_compiler.sh $(FC)),flang)
        _FC=gfortran
        USE_FLANG=1
       endif
@@ -3016,6 +3029,19 @@ ifdef USE_F90_ALLOCATABLE
   DEFINES += -DUSE_F90_ALLOCATABLE
 endif
 
+ifdef GWCMPLX
+  ifdef GWEN
+    errorgw:
+$(info  GWCMPLX and GWEN are incompatible )
+$(error )
+  endif
+  DEFINES += -DGWCMPLX
+endif
+
+ifdef GWEN
+  DEFINES += -DGWEN
+endif
+
 # lower level libs used by communication libraries 
 #case guard against case when tools have not been compiled yet
 #  ifeq ("$(wildcard ${GA_PATH}/bin/ga-config)","")
@@ -3075,6 +3101,9 @@ ifeq ($(shell echo $(BLASOPT) |awk '/blis/ {print "Y"; exit}'),Y)
 endif
 ifeq ($(shell echo $(BLASOPT) |awk '/flexiblas/ {print "Y"; exit}'),Y)
       DEFINES += -DFLEXIBLAS
+endif
+ifeq ($(shell echo $(BLASOPT) |awk '/Accelerate/ {print "Y"; exit}'),Y)
+      DEFINES += -DACCELERATE
 endif
 
 #

@@ -455,7 +455,7 @@ c     **** allocate other variables ****
       !end do
 
 *     **** Ortho Check ****
-      call Pneb_orthoCheckMake_tag(.true.,0,0,npack1,psi2_tag)
+      call Pneb_orthoCheckMake_tag(.true.,0,0,npack1,psi2_tag,value)
 
 
 *     **** initialize two-electron Gaussian integrals ****

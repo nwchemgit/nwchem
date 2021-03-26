@@ -1,227 +1,194 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# 6-31++g version number 1
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# 6-31++G version number 1
 # Description: 6-31G + diffuse on all atoms
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H
-#     ## 31G Split-valence basis set for H,He
-#     Ditchfield, R., Hehre, W. J., Pople, J. A.
-#     Self-Consistent Molecular-Orbital Methods. IX. An Extended Gaussian-
-#             Type Basis for Molecular-Orbital Studies of Organic Molecules
-#     J. Chem. Phys., 54, 724-728 (1971)
-#     10.1063/1.1674902
 # 
-#     ## Diffuse functions for 6-31G split-valence basis set
-#     Clark, Timothy, Chandrasekhar, Jayaraman, Spitznagel, Günther W.,
-#             Schleyer, Paul Von Ragué
-#     Efficient diffuse function-augmented basis sets for anion
-#             calculations. III. The 3-21+G basis set for first-row
-#             elements, Li-F
-#     J. Comput. Chem., 4, 294-301 (1983)
-#     10.1002/jcc.540040303
+#  References for the basis set
 # 
-# He
-#     ## 31G Split-valence basis set for H,He
-#     Frisch, M. J., Trucks, G. W., Schlegel, H. B., Scuseria, G. E., Robb,
-#             M. A., Cheeseman, J. R., Scalmani, G., Barone, V., Mennucci,
-#             B., Petersson, G. A., Nakatsuji, H., Caricato, M., Li, X.,
-#             Hratchian, H. P., Izmaylov, A. F., Bloino, J., Zheng, G.,
-#             Sonnenberg, J. L., Hada, M., Ehara, M., Toyota, K., Fukuda,
-#             R., Hasegawa, J., Ishida, M., Nakajima, T., Honda, Y., Kitao,
-#             O., Nakai, H., Vreven, T., Montgomery, J. A., Jr., Peralta, J.
-#             E., Ogliaro, F., Bearpark, M., Heyd, J. J., Brothers, E.,
-#             Kudin, K. N., Staroverov, V. N., Kobayashi, R., Normand, J.,
-#             Raghavachari, K., Rendell, A., Burant, J. C., Iyengar, S. S.,
-#             Tomasi, J., Cossi, M., Rega, N., Millam, M. J., Klene, M.,
-#             Knox, J. E., Cross, J. B., Bakken, V., Adamo, C., Jaramillo,
-#             J., Gomperts, R., Stratmann, R. E., Yazyev, O., Austin, A. J.,
-#             Cammi, R., Pomelli, C., Ochterski, J. W., Martin, R. L.,
-#             Morokuma, K., Zakrzewski, V. G., Voth, G. A., Salvador, P.,
-#             Dannenberg, J. J., Dapprich, S., Daniels, A. D., Farkas, Ö.,
-#             Foresman, J. B., Ortiz, J. V., Cioslowski, J., Fox, D. J.
-#     Gaussian 09 Revision E.01
-#     Gaussian, Inc., Wallingford, CT, 2009
+#  H
+#      31G Split-valence basis set for H,He
+#          ditchfield1971a
 # 
-#     ## Diffuse functions for 6-31G split-valence basis set
-#     Frisch, M. J., Trucks, G. W., Schlegel, H. B., Scuseria, G. E., Robb,
-#             M. A., Cheeseman, J. R., Scalmani, G., Barone, V., Mennucci,
-#             B., Petersson, G. A., Nakatsuji, H., Caricato, M., Li, X.,
-#             Hratchian, H. P., Izmaylov, A. F., Bloino, J., Zheng, G.,
-#             Sonnenberg, J. L., Hada, M., Ehara, M., Toyota, K., Fukuda,
-#             R., Hasegawa, J., Ishida, M., Nakajima, T., Honda, Y., Kitao,
-#             O., Nakai, H., Vreven, T., Montgomery, J. A., Jr., Peralta, J.
-#             E., Ogliaro, F., Bearpark, M., Heyd, J. J., Brothers, E.,
-#             Kudin, K. N., Staroverov, V. N., Kobayashi, R., Normand, J.,
-#             Raghavachari, K., Rendell, A., Burant, J. C., Iyengar, S. S.,
-#             Tomasi, J., Cossi, M., Rega, N., Millam, M. J., Klene, M.,
-#             Knox, J. E., Cross, J. B., Bakken, V., Adamo, C., Jaramillo,
-#             J., Gomperts, R., Stratmann, R. E., Yazyev, O., Austin, A. J.,
-#             Cammi, R., Pomelli, C., Ochterski, J. W., Martin, R. L.,
-#             Morokuma, K., Zakrzewski, V. G., Voth, G. A., Salvador, P.,
-#             Dannenberg, J. J., Dapprich, S., Daniels, A. D., Farkas, Ö.,
-#             Foresman, J. B., Ortiz, J. V., Cioslowski, J., Fox, D. J.
-#     Gaussian 09 Revision E.01
-#     Gaussian, Inc., Wallingford, CT, 2009
+#      Diffuse functions for 6-31G split-valence basis set
+#          clark1983a
 # 
-# Li,B
-#     ## 6-31G Split-valence basis set
-#     Dill, James D., Pople, John A.
-#     Self-consistent molecular orbital methods. XV. Extended Gaussian-type
-#             basis sets for lithium, beryllium, and boron
-#     J. Chem. Phys., 62, 2921-2923 (1975)
-#     10.1063/1.430801
+#  He
+#      31G Split-valence basis set for H,He
+#          gaussian09e01
 # 
-#     ## Diffuse functions for 6-31G split-valence basis set
-#     Clark, Timothy, Chandrasekhar, Jayaraman, Spitznagel, Günther W.,
-#             Schleyer, Paul Von Ragué
-#     Efficient diffuse function-augmented basis sets for anion
-#             calculations. III. The 3-21+G basis set for first-row
-#             elements, Li-F
-#     J. Comput. Chem., 4, 294-301 (1983)
-#     10.1002/jcc.540040303
+#      Diffuse functions for 6-31G split-valence basis set
+#          gaussian09e01
 # 
-# Be
-#     ## 6-31G Split-valence basis set
+#  Li,B
+#      6-31G Split-valence basis set
+#          dill1975a
+# 
+#      Diffuse functions for 6-31G split-valence basis set
+#          clark1983a
+# 
+#  Be
+#      6-31G Split-valence basis set
+#          binkley1977a
+# 
+#      Diffuse functions for 6-31G split-valence basis set
+#          clark1983a
+# 
+#  C-F
+#      6-31G Split-valence basis set
+#          hehre1972a
+# 
+#      Diffuse functions for 6-31G split-valence basis set
+#          clark1983a
+# 
+#  Ne
+#      6-31G Split-valence basis set
+#          gaussian09e01
+# 
+#      Diffuse functions for 6-31G split-valence basis set
+#          gill1992a
+# 
+#  Na-Cl
+#      6-21G Split-valence basis set
+#          gordon1982a
+# 
+#      31G Split-valence part
+#          francl1982a
+# 
+#      Diffuse functions for 6-31G split-valence basis set
+#          spitznagel1987a
+# 
+#  Ar
+#      6-21G Split-valence basis set
+#          gordon1982a
+# 
+#      31G Split-valence part
+#          francl1982a
+# 
+#      Diffuse functions for 6-31G split-valence basis set
+#          gill1992a
+# 
+# 
+# 
+# binkley1977a
 #     Binkley, J. Stephen, Pople, John A.
 #     Self-consistent molecular orbital methods. XIX. Split-valence
 #             Gaussian-type basis sets for beryllium
-#     J. Chem. Phys., 66, 879-880 (1977)
+#     J. Chem. Phys. 66, 879-880 (1977)
 #     10.1063/1.433929
 # 
-#     ## Diffuse functions for 6-31G split-valence basis set
+# clark1983a
 #     Clark, Timothy, Chandrasekhar, Jayaraman, Spitznagel, Günther W.,
 #             Schleyer, Paul Von Ragué
 #     Efficient diffuse function-augmented basis sets for anion
 #             calculations. III. The 3-21+G basis set for first-row
 #             elements, Li-F
-#     J. Comput. Chem., 4, 294-301 (1983)
+#     J. Comput. Chem. 4, 294-301 (1983)
 #     10.1002/jcc.540040303
 # 
-# C-F
-#     ## 6-31G Split-valence basis set
+# dill1975a
+#     Dill, James D., Pople, John A.
+#     Self-consistent molecular orbital methods. XV. Extended Gaussian-type
+#             basis sets for lithium, beryllium, and boron
+#     J. Chem. Phys. 62, 2921-2923 (1975)
+#     10.1063/1.430801
+# 
+# ditchfield1971a
+#     Ditchfield, R., Hehre, W. J., Pople, J. A.
+#     Self-Consistent Molecular-Orbital Methods. IX. An Extended Gaussian-
+#             Type Basis for Molecular-Orbital Studies of Organic Molecules
+#     J. Chem. Phys. 54, 724-728 (1971)
+#     10.1063/1.1674902
+# 
+# francl1982a
+#     Francl, Michelle M., Pietro, William J., Hehre, Warren J., Binkley, J.
+#             Stephen, Gordon, Mark S., DeFrees, Douglas J., Pople, John A.
+#     Self-consistent molecular orbital methods. XXIII. A polarization-type
+#             basis set for second-row elements
+#     J. Chem. Phys. 77, 3654-3665 (1982)
+#     10.1063/1.444267
+# 
+# gaussian09e01
+#     Frisch, M. J., Trucks, G. W., Schlegel, H. B., Scuseria, G. E., Robb,
+#             M. A., Cheeseman, J. R., Scalmani, G., Barone, V., Mennucci,
+#             B., Petersson, G. A., Nakatsuji, H., Caricato, M., Li, X.,
+#             Hratchian, H. P., Izmaylov, A. F., Bloino, J., Zheng, G.,
+#             Sonnenberg, J. L., Hada, M., Ehara, M., Toyota, K., Fukuda,
+#             R., Hasegawa, J., Ishida, M., Nakajima, T., Honda, Y., Kitao,
+#             O., Nakai, H., Vreven, T., Montgomery, J. A., Jr., Peralta, J.
+#             E., Ogliaro, F., Bearpark, M., Heyd, J. J., Brothers, E.,
+#             Kudin, K. N., Staroverov, V. N., Kobayashi, R., Normand, J.,
+#             Raghavachari, K., Rendell, A., Burant, J. C., Iyengar, S. S.,
+#             Tomasi, J., Cossi, M., Rega, N., Millam, M. J., Klene, M.,
+#             Knox, J. E., Cross, J. B., Bakken, V., Adamo, C., Jaramillo,
+#             J., Gomperts, R., Stratmann, R. E., Yazyev, O., Austin, A. J.,
+#             Cammi, R., Pomelli, C., Ochterski, J. W., Martin, R. L.,
+#             Morokuma, K., Zakrzewski, V. G., Voth, G. A., Salvador, P.,
+#             Dannenberg, J. J., Dapprich, S., Daniels, A. D., Farkas, Ö.,
+#             Foresman, J. B., Ortiz, J. V., Cioslowski, J., Fox, D. J.
+#     Gaussian 09 Revision E.01
+#     Gaussian, Inc., Wallingford, CT, 2009
+# 
+# gill1992a
+#     Gill, Peter M. W., Johnson, Benny G., Pople, John A., Frisch, Michael
+#             J.
+#     The performance of the Becke-Lee-Yang-Parr (B-LYP) density functional
+#             theory with various basis sets
+#     Chem. Phys. Lett. 197, 499-505 (1992)
+#     10.1016/0009-2614(92)85807-m
+# 
+# gordon1982a
+#     Gordon, Mark S., Binkley, J. Stephen, Pople, John A., Pietro, William
+#             J., Hehre, Warren J.
+#     Self-consistent molecular-orbital methods. 22. Small split-valence
+#             basis sets for second-row elements
+#     J. Am. Chem. Soc. 104, 2797-2803 (1982)
+#     10.1021/ja00374a017
+# 
+# hehre1972a
 #     Hehre, W. J., Ditchfield, R., Pople, J. A.
 #     Self-Consistent Molecular Orbital Methods. XII. Further Extensions of
 #             Gaussian-Type Basis Sets for Use in Molecular Orbital Studies
 #             of Organic Molecules
-#     J. Chem. Phys., 56, 2257-2261 (1972)
+#     J. Chem. Phys. 56, 2257-2261 (1972)
 #     10.1063/1.1677527
 # 
-#     ## Diffuse functions for 6-31G split-valence basis set
-#     Clark, Timothy, Chandrasekhar, Jayaraman, Spitznagel, Günther W.,
-#             Schleyer, Paul Von Ragué
-#     Efficient diffuse function-augmented basis sets for anion
-#             calculations. III. The 3-21+G basis set for first-row
-#             elements, Li-F
-#     J. Comput. Chem., 4, 294-301 (1983)
-#     10.1002/jcc.540040303
-# 
-# Ne
-#     ## 6-31G Split-valence basis set
-#     Frisch, M. J., Trucks, G. W., Schlegel, H. B., Scuseria, G. E., Robb,
-#             M. A., Cheeseman, J. R., Scalmani, G., Barone, V., Mennucci,
-#             B., Petersson, G. A., Nakatsuji, H., Caricato, M., Li, X.,
-#             Hratchian, H. P., Izmaylov, A. F., Bloino, J., Zheng, G.,
-#             Sonnenberg, J. L., Hada, M., Ehara, M., Toyota, K., Fukuda,
-#             R., Hasegawa, J., Ishida, M., Nakajima, T., Honda, Y., Kitao,
-#             O., Nakai, H., Vreven, T., Montgomery, J. A., Jr., Peralta, J.
-#             E., Ogliaro, F., Bearpark, M., Heyd, J. J., Brothers, E.,
-#             Kudin, K. N., Staroverov, V. N., Kobayashi, R., Normand, J.,
-#             Raghavachari, K., Rendell, A., Burant, J. C., Iyengar, S. S.,
-#             Tomasi, J., Cossi, M., Rega, N., Millam, M. J., Klene, M.,
-#             Knox, J. E., Cross, J. B., Bakken, V., Adamo, C., Jaramillo,
-#             J., Gomperts, R., Stratmann, R. E., Yazyev, O., Austin, A. J.,
-#             Cammi, R., Pomelli, C., Ochterski, J. W., Martin, R. L.,
-#             Morokuma, K., Zakrzewski, V. G., Voth, G. A., Salvador, P.,
-#             Dannenberg, J. J., Dapprich, S., Daniels, A. D., Farkas, Ö.,
-#             Foresman, J. B., Ortiz, J. V., Cioslowski, J., Fox, D. J.
-#     Gaussian 09 Revision E.01
-#     Gaussian, Inc., Wallingford, CT, 2009
-# 
-#     ## Diffuse functions for 6-31G split-valence basis set
-#     Gill, Peter M. W., Johnson, Benny G., Pople, John A., Frisch, Michael
-#             J.
-#     The performance of the Becke-Lee-Yang-Parr (B-LYP) density functional
-#             theory with various basis sets
-#     Chem. Phys. Lett., 197, 499-505 (1992)
-#     10.1016/0009-2614(92)85807-m
-# 
-# Na-Cl
-#     ## 6-21G Split-valence basis set
-#     Gordon, Mark S., Binkley, J. Stephen, Pople, John A., Pietro, William
-#             J., Hehre, Warren J.
-#     Self-consistent molecular-orbital methods. 22. Small split-valence
-#             basis sets for second-row elements
-#     J. Am. Chem. Soc., 104, 2797-2803 (1982)
-#     10.1021/ja00374a017
-# 
-#     ## 31G Split-valence part
-#     Francl, Michelle M., Pietro, William J., Hehre, Warren J., Binkley, J.
-#             Stephen, Gordon, Mark S., DeFrees, Douglas J., Pople, John A.
-#     Self-consistent molecular orbital methods. XXIII. A polarization-type
-#             basis set for second-row elements
-#     J. Chem. Phys., 77, 3654-3665 (1982)
-#     10.1063/1.444267
-# 
-#     ## Diffuse functions for 6-31G split-valence basis set
+# spitznagel1987a
 #     Spitznagel, Günther W., Clark, Timothy, Schleyer, Paul von Ragué,
 #             Hehre, Warren J.
 #     An evaluation of the performance of diffuse function-augmented basis
 #             sets for second row elements, Na-Cl
-#     J. Comput. Chem., 8, 1109-1116 (1987)
+#     J. Comput. Chem. 8, 1109-1116 (1987)
 #     10.1002/jcc.540080807
 # 
-# Ar
-#     ## 6-21G Split-valence basis set
-#     Gordon, Mark S., Binkley, J. Stephen, Pople, John A., Pietro, William
-#             J., Hehre, Warren J.
-#     Self-consistent molecular-orbital methods. 22. Small split-valence
-#             basis sets for second-row elements
-#     J. Am. Chem. Soc., 104, 2797-2803 (1982)
-#     10.1021/ja00374a017
-# 
-#     ## 31G Split-valence part
-#     Francl, Michelle M., Pietro, William J., Hehre, Warren J., Binkley, J.
-#             Stephen, Gordon, Mark S., DeFrees, Douglas J., Pople, John A.
-#     Self-consistent molecular orbital methods. XXIII. A polarization-type
-#             basis set for second-row elements
-#     J. Chem. Phys., 77, 3654-3665 (1982)
-#     10.1063/1.444267
-# 
-#     ## Diffuse functions for 6-31G split-valence basis set
-#     Gill, Peter M. W., Johnson, Benny G., Pople, John A., Frisch, Michael
-#             J.
-#     The performance of the Becke-Lee-Yang-Parr (B-LYP) density functional
-#             theory with various basis sets
-#     Chem. Phys. Lett., 197, 499-505 (1992)
-#     10.1016/0009-2614(92)85807-m
-# 
 # # 
-basis "H_6-31++g" 
+basis "H_6-31++G" SPHERICAL 
 #basis SET: (5s) -> [3s]
 H    S
       0.1873113696E+02       0.3349460434E-01
@@ -232,7 +199,7 @@ H    S
 H    S
       0.3600000000E-01       0.1000000000E+01
 end
-basis "He_6-31++g" 
+basis "He_6-31++G" SPHERICAL 
 #basis SET: (5s) -> [3s]
 He    S
       0.3842163400E+02       0.4013973935E-01
@@ -243,7 +210,7 @@ He    S
 He    S
       0.8600000000E-01       0.1000000000E+01
 end
-basis "Li_6-31++g" 
+basis "Li_6-31++G" SPHERICAL 
 #basis SET: (11s,5p) -> [4s,3p]
 Li    S
       0.6424189150E+03       0.2142607810E-02
@@ -261,7 +228,7 @@ Li    SP
 Li    SP
       0.7400000000E-02       0.1000000000E+01       0.1000000000E+01
 end
-basis "Be_6-31++g" 
+basis "Be_6-31++G" SPHERICAL 
 #basis SET: (11s,5p) -> [4s,3p]
 Be    S
       0.1264585690E+04       0.1944757590E-02
@@ -279,7 +246,7 @@ Be    SP
 Be    SP
       0.2070000000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "B_6-31++g" 
+basis "B_6-31++G" SPHERICAL 
 #basis SET: (11s,5p) -> [4s,3p]
 B    S
       0.2068882250E+04       0.1866274590E-02
@@ -297,7 +264,7 @@ B    SP
 B    SP
       0.3150000000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "C_6-31++g" 
+basis "C_6-31++G" SPHERICAL 
 #basis SET: (11s,5p) -> [4s,3p]
 C    S
       0.3047524880E+04       0.1834737132E-02
@@ -315,7 +282,7 @@ C    SP
 C    SP
       0.4380000000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "N_6-31++g" 
+basis "N_6-31++G" SPHERICAL 
 #basis SET: (11s,5p) -> [4s,3p]
 N    S
       0.4173511460E+04       0.1834772160E-02
@@ -333,7 +300,7 @@ N    SP
 N    SP
       0.6390000000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "O_6-31++g" 
+basis "O_6-31++G" SPHERICAL 
 #basis SET: (11s,5p) -> [4s,3p]
 O    S
       0.5484671660E+04       0.1831074430E-02
@@ -351,7 +318,7 @@ O    SP
 O    SP
       0.8450000000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "F_6-31++g" 
+basis "F_6-31++G" SPHERICAL 
 #basis SET: (11s,5p) -> [4s,3p]
 F    S
       0.7001713090E+04       0.1819616901E-02
@@ -369,7 +336,7 @@ F    SP
 F    SP
       0.1076000000E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "Ne_6-31++g" 
+basis "Ne_6-31++G" SPHERICAL 
 #basis SET: (11s,5p) -> [4s,3p]
 Ne    S
       0.8425851530E+04       0.1884348050E-02
@@ -387,7 +354,7 @@ Ne    SP
 Ne    SP
       0.1300000000E+00       0.1000000000E+01       0.1000000000E+01
 end
-basis "Na_6-31++g" 
+basis "Na_6-31++G" SPHERICAL 
 #basis SET: (17s,11p) -> [5s,4p]
 Na    S
       0.9993200000E+04       0.1937659277E-02
@@ -412,7 +379,7 @@ Na    SP
 Na    SP
       0.7600000000E-02       0.1000000000E+01       0.1000000000E+01
 end
-basis "Mg_6-31++g" 
+basis "Mg_6-31++G" SPHERICAL 
 #basis SET: (17s,11p) -> [5s,4p]
 Mg    S
       0.1172280000E+05       0.1977829317E-02
@@ -437,7 +404,7 @@ Mg    SP
 Mg    SP
       0.1460000000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "Al_6-31++g" 
+basis "Al_6-31++G" SPHERICAL 
 #basis SET: (17s,11p) -> [5s,4p]
 Al    S
       0.1398310000E+05       0.1942669947E-02
@@ -462,7 +429,7 @@ Al    SP
 Al    SP
       0.3180000000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "Si_6-31++g" 
+basis "Si_6-31++G" SPHERICAL 
 #basis SET: (17s,11p) -> [5s,4p]
 Si    S
       0.1611590000E+05       0.1959480216E-02
@@ -487,7 +454,7 @@ Si    SP
 Si    SP
       0.3310000000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "P_6-31++g" 
+basis "P_6-31++G" SPHERICAL 
 #basis SET: (17s,11p) -> [5s,4p]
 P    S
       0.1941330000E+05       0.1851598923E-02
@@ -512,7 +479,7 @@ P    SP
 P    SP
       0.3480000000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "S_6-31++g" 
+basis "S_6-31++G" SPHERICAL 
 #basis SET: (17s,11p) -> [5s,4p]
 S    S
       0.2191710000E+05       0.1869240849E-02
@@ -537,7 +504,7 @@ S    SP
 S    SP
       0.4050000000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "Cl_6-31++g" 
+basis "Cl_6-31++G" SPHERICAL 
 #basis SET: (17s,11p) -> [5s,4p]
 Cl    S
       0.2518010000E+05       0.1832959848E-02
@@ -562,7 +529,7 @@ Cl    SP
 Cl    SP
       0.4830000000E-01       0.1000000000E+01       0.1000000000E+01
 end
-basis "Ar_6-31++g" 
+basis "Ar_6-31++G" SPHERICAL 
 #basis SET: (17s,11p) -> [5s,4p]
 Ar    S
       0.2834830000E+05       0.1825260192E-02
