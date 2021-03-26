@@ -3031,6 +3031,10 @@ ifdef GWEN
   DEFINES += -DGWEN
 endif
 
+ifdef GWDEBUG
+  DEFINES += -DGWDEBUG
+endif
+
 # lower level libs used by communication libraries 
 #case guard against case when tools have not been compiled yet
 #  ifeq ("$(wildcard ${GA_PATH}/bin/ga-config)","")

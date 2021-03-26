@@ -1,3 +1,9 @@
+#ifdef GWCMPLX
+#define GWTYP double complex
+#else
+#define GWTYP double precision
+#endif
+
       subroutine gw_cdgw_newton(pars,Sigmax,Sigma,Eref,Eold,Enew,Eia,iW,
      $                          iWidx,Efermi,nri,mynmo,maxqp,maxpoles,
      $                          EViter)
@@ -17,21 +23,20 @@
       double precision,intent(in) :: Eref(pars%nmo,pars%ipol)
       double precision,intent(in) :: Eold(pars%nmo,pars%ipol)
       double precision,intent(in) :: Eia(maxpoles,pars%ipol)
-      double precision,intent(in) :: iW(mynmo,pars%ngl,maxqp,pars%ipol)
+      GWTYP,intent(in) :: iW(mynmo,pars%ngl,maxqp,pars%ipol)
       double precision,intent(inout) :: Sigma(pars%nmo,pars%ipol)
       double precision,intent(out) :: Enew(pars%nmo,pars%ipol)
 
       logical main, converged, bracket, warning, fixed(maxqp)
       integer isp, totalqp, llmo, iqp, iter, logs, dbls
       double precision timer, rms3(3), m
-      double precision Ein, Eout, SigmaOld, Sigma_X, SigmaC, Z
-      double precision d2SigmaC, dSigmaC, Linear
-      double precision residual, residualOld, dresidual, d2residual,Etmp
-      double precision quadratic, dquadratic, d2quadratic, dquadraticold
-      double precision quadraticstep, linearstep, step, dsigmacold
-      double precision I,dI,d2I,R,dR,d2R,disgmacold
+      double precision Ein, Eout, SigmaOld, Sigma_X, Z
+      double precision Linear
+      double precision residual, residualOld, dresidual, Etmp
+      double precision dsigmacold
+      GWTYP :: I, dI, R, dR, SigmaC, dSigmaC
 
-      integer idiis, nclusters, clusters(pars%nmo),myll,myul
+      integer nclusters, clusters(pars%nmo),myll,myul
       integer llqp,ulqp,icluster
       double precision upper,lower,resupper,reslower,const
 

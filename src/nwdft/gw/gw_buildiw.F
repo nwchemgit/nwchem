@@ -22,8 +22,8 @@
 
       logical ok
       logical main
-      integer molo,mohi,ldpi,sizepi,l_sol,k_sol,k_work,l_work,lwork
-      integer ilo,ihi,me,ld,mynpoles,igl,ipole,info,k_ipiv,l_ipiv
+      integer molo,mohi,ldpi,sizepi,l_sol,k_sol
+      integer ilo,ihi,me,ld,mynpoles,igl,ipole,info
       integer pilo,pihi,k_pi,l_pi,idx,idy,l_tmp,tmp,l_vx,k_vx
       integer imo,jmo,kmo,lmo,nprocs,kOV1,kOV2,isp,addr,idz,kOO(2)
       integer kVV(2),kOV(2),mynvir,mynocc,nlocal,nmod
@@ -34,9 +34,7 @@
 #else
       double precision factor(maxpoles,ipol)
 #endif
-      logical cholesky
       double precision t0, t1
-      integer,external :: ilaenv
 
 #ifdef USE_OPENMP
       integer iMaxThreads,ithread
@@ -52,7 +50,7 @@
 #endif
       call ga_sync()
 
-
+      
       me = ga_nodeid()
       nprocs = ga_nnodes()
       main = me.eq.0
@@ -74,11 +72,6 @@
      $  call errquit(pname//'can''t allocate tmp',0,MA_ERR) 
       if (.not.ma_alloc_get(mt_dbl,nri*mynmo,'sol',l_sol,k_sol))
      $  call errquit(pname//'can''t allocate sol',0,MA_ERR) 
-      if (.not.ma_alloc_get(mt_int,nri,'IPIV',l_ipiv,k_ipiv))
-     $  call errquit(pname//'can''t allocate IPIV',0,MA_ERR)
-      lwork = ilaenv(1,'DSYTRF','L',nri,-1,-1,-1)*nri
-      if (.not.ma_alloc_get(mt_dbl,lwork,'Work',l_work,k_work))
-     $  call errquit(pname//'can''t allocate Work',0,MA_ERR) 
 
       call ga_access(pars%g_eriov(1),1,nri,pars%ovlo(1),pars%ovhi(1),
      $               kOV(1),ld)
@@ -130,18 +123,22 @@ c
      $                  factor,ldpi,nri,pars%mynpoles,main,ipol,
      $                  maxpoles)
 
+#ifdef GWDEBUG
         if(me.eq.0) then
  1234      format(a,i3,a,i3,a,f20.3)
            write(luout,1234) ' ##  igl ',igl,' out of ',ngl,
      C          ' calling dgop at ',
      T          util_wallsec()-t0
         endif
+#endif
         call ga_dgop(mt_dbl,dbl_mb(k_pi),sizepi,'+')
+#ifdef GWDEBUG
         if(me.eq.0) then
            write(luout,1234) ' ##  igl ',igl,' out of ',ngl,
      C          ' called dgop at ',
      T          util_wallsec()-t0
         endif
+#endif
 
         call dcopy(sizepi,dbl_mb(k_pi),1,dbl_mb(k_vx),1)
         !
@@ -254,10 +251,6 @@ c
      $  call errquit(pname//'can''t free TMP heap',me,MA_ERR) 
       if (.not.(ma_free_heap(l_pi)))
      $  call errquit(pname//'can''t free PI heap',me,MA_ERR) 
-      if (.not.(ma_free_heap(l_ipiv)))
-     $  call errquit(pname//'can''t free IPIV heap',me,MA_ERR) 
-      if (.not.(ma_free_heap(l_work)))
-     $  call errquit(pname//'can''t free WORK heap',me,MA_ERR) 
       if (.not.(ma_free_heap(l_vx)))
      $  call errquit(pname//'can''t free vX heap',me,MA_ERR) 
 

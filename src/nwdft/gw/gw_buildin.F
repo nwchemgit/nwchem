@@ -1,3 +1,9 @@
+#ifdef GWCMPLX
+#define GWTYP double complex
+#else
+#define GWTYP double precision
+#endif
+
       subroutine gw_buildin(iW,Evals,x,w,iWidx,omega,I,dI,ngl,myld)
       implicit none
 #include "mafdecls.fh"      
@@ -6,46 +12,54 @@
       double precision, intent(in) :: omega
       double precision, intent(in) :: Evals(*)
       double precision, intent(in) :: x(*), w(*)
-      double precision, intent(in), dimension(myld,ngl) :: iW
-      double precision, intent(out) :: I,dI
+      GWTYP, intent(in), dimension(myld,ngl) :: iW
+      GWTYP, intent(out) :: I,dI
 
-      integer igl,jmo,mynmo,istep
-      double precision w2,a
-      double precision,dimension(iwidx(0)) :: vector,wmo,etavec
-      double precision,dimension(iwidx(0)) :: factor, dfactor
-      double precision,dimension(2)     :: res
-      double precision,parameter :: eta = 0.000d0
+      integer igl,jmo,mynmo
+      GWTYP,dimension(iwidx(0)) :: etavec
+      double precision          :: vector(iwidx(0))
 
-      integer,external :: ga_nodeid
+      double complex             :: iomega, factor, res(2)
+      double complex, parameter  :: imag = dcmplx(0d0,1d0)
+#ifdef GWCMPLX
+      double precision,parameter :: eta = 0.001d0
+      double complex, parameter  :: ieta = dcmplx(0d0,eta)
+#else
+      double precision,parameter  :: eta = 0.000000d0
+      double precision, parameter :: ieta = eta
+#endif
+
 
       mynmo = iwidx(0)
-      res(:) = 0d0
+      res(:) = dcmplx(0d0,0d0)
       if (mynmo.eq.0) goto 100
 
-      do jmo=1,iwidx(0)
+      do jmo=1,mynmo
         vector(jmo) = omega - Evals(iwidx(jmo))
-        etavec(jmo) = sign(eta,evals(iwidx(jmo)))
+        etavec(jmo) = sign(ieta,evals(iwidx(jmo)))
       enddo
 
 
       do igl=1,ngl
 
-        w2 = dsqrt(x(igl))
-        wmo(:) = iW(1:iwidx(0),igl)
+        iomega = imag*dsqrt(x(igl))
 
-        do jmo=1,iwidx(0)
-          a = 1d0/(vector(jmo)**2 + (w2+etavec(jmo))**2)
-          factor(jmo) =  vector(jmo)*a
-          dfactor(jmo) = ((w2+etavec(jmo))**2 - vector(jmo)**2)*a**2
+        do jmo=1,mynmo
+          factor = 1d0/(vector(jmo) + iomega + etavec(jmo))
+          res(1) = res(1) - w(igl)*iw(jmo,igl)*factor
+          res(2) = res(2) + w(igl)*iw(jmo,igl)*factor**2
         enddo
-        res(1) = res(1) - w(igl)*dot_product(wmo,factor)
-        res(2) = res(2) - w(igl)*dot_product(wmo,dfactor)
 
       enddo
 
- 100  call ga_dgop(mt_dbl,res,2,'+')
+ 100  call ga_zgop(mt_dcpl,res,2,'+')
 
+#ifdef GWCMPLX
       I = res(1)
       dI = res(2)
+#else
+      I = dble(res(1))
+      dI = dble(res(2))
+#endif
      
       end subroutine
