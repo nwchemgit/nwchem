@@ -56,6 +56,13 @@ jobs:
             fc: ifort
           - os: ubuntu-20.04
             experimental: true
+            mpi_impl: mpich
+            armci_network: mpi-ts
+            nwchem_modules: "tinyqmpw python"
+            fc: nvfortran
+            cc: gcc
+          - os: ubuntu-20.04
+            experimental: true
             mpi_impl: intel
             armci_network: sockets
             nwchem_modules: "tce"

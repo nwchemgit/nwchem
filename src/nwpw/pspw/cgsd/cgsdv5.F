@@ -339,6 +339,7 @@
       call pspw_init_APC(rtdb)
       call pspw_qmmm_init(rtdb)
       call pspw_charge_init(rtdb)
+      call pspw_Efield_init(rtdb,psi_ispin(),ne)
 
 *     **** initialize SIC and HFX ****
       ne(1) = psi_ne(1)
@@ -459,6 +460,7 @@ c           call psp_check_print(ia)
 
          call pspw_charge_Print(luout)
          end if
+         call pspw_Efield_Print(luout)
 
          !write(luout,1220) psi_ne(1),psi_ne(psi_ispin()),' (Fourier space)'
          if (control_fractional()) then
@@ -775,6 +777,7 @@ c     end if
       call pspw_end_HFX()
       call pspw_end_APC()
       call pspw_charge_end()
+      call pspw_Efield_end()
       call pspw_qmmm_end()
 c      call frac_occ_end()
       call meta_finalize(rtdb)

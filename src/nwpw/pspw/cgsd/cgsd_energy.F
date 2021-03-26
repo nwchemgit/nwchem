@@ -22,7 +22,7 @@ c#include "global.fh"
       integer MASTER,taskid
       parameter (MASTER=0)
 
-      logical stalled,value,oprint,psitmp,failed
+      logical stalled,value,oprint,psitmp,failed,field_exist
       integer minimizer
       integer i,j,ms,neall,NN,nx,ny,nz,n2ft3d,tmp1(2)
       integer it_in,it_out,icount,bfgscount
@@ -66,8 +66,8 @@ c#include "global.fh"
       real*8   nwpw_cosmo_screen
       external nwpw_cosmo_screen
 
-      logical  control_hess_model
-      external control_hess_model
+      logical  control_hess_model,pspw_Efield_found
+      external control_hess_model,pspw_Efield_found
       real*8   ion_hess_energy
       external ion_hess_energy
       real*8   psi_1energy,control_gas_energy
@@ -87,6 +87,8 @@ c#include "global.fh"
       oprint = ((taskid.eq.MASTER).and.control_print(print_medium))
 
       psitmp = control_psi_tmp()
+
+      field_exist = pspw_charge_found().or.pspw_Efield_found()
 
 
 *     **** set the minimizer ****
@@ -379,7 +381,7 @@ c          **** reset minimizer if failed ****
      >                        (E(1)-E(11))/ion_nion()
          end if
 
-         if (pspw_charge_found()) then
+         if (field_exist) then
             write(luout,1431)
             write(luout,1432)
             write(luout,1433) (E(1)-E(19)-E(20)-E(21)),
@@ -484,7 +486,7 @@ c            write(luout,1706) E(18)
             write(luout,1720) E(33)
          end if
 
-         if (pspw_charge_found()) then
+         if (field_exist) then
             write(luout,1800)
             write(luout,1801)
             write(luout,1805) E(19)+E(20)+E(21)
@@ -800,12 +802,12 @@ c 1736 FORMAT(5x,' solvation energy (w/  QM polarization) :',E19.10,
 c     >   /45x,' (',F8.3,' kcal/mol)')
 
 
- 1800 FORMAT(/' Charge Field Energies')
- 1801 FORMAT( ' ---------------------')
- 1802 FORMAT( ' - Charge Field/Electron    :',E19.10)
- 1803 FORMAT( ' - Charge Field/Ion         :',E19.10)
- 1804 FORMAT( ' - Charge Field/Charge Field:',E19.10)
- 1805 FORMAT( ' Charge Field Energy        :',E19.10)
+ 1800 FORMAT(/' Charge+Electric Field Energies')
+ 1801 FORMAT( ' ------------------------------')
+ 1802 FORMAT( ' - Charge+Electric Field/Electron    :',E19.10)
+ 1803 FORMAT( ' - Charge+Electric Field/Ion         :',E19.10)
+ 1804 FORMAT( ' - Charge+Electric Field/Charge Field:',E19.10)
+ 1805 FORMAT( ' Charge+Electric Field Energy        :',E19.10)
    
       end
 
@@ -848,8 +850,8 @@ c     >   /45x,' (',F8.3,' kcal/mol)')
       external pspw_charge_charge
       logical  pspw_bqext,ion_disp_on
       external pspw_bqext,ion_disp_on
-      logical  control_hess_model
-      external control_hess_model
+      logical  control_hess_model,pspw_Efield_found
+      external control_hess_model,pspw_Efield_found
 
       !**** hack for implementing hessian model ****
       if (control_hess_model()) then
@@ -908,6 +910,7 @@ c*     **** debug ****
       if (ion_disp_on()) call ion_disp_force(G1)
 
 
+*     **** get forces from external charges ****
       if (pspw_charge_found()) then
         if(pspw_bqext()) then
            call pspw_charge_charge_Fion(G1)
@@ -917,6 +920,11 @@ c*     **** debug ****
            call pspw_charge_Fcharge(G1(1,nion1+1))
            call rho_1Fcharge(G1(1,nion1+1))
          end if
+      end if
+
+*     **** get forces from external Efield ****
+      if (pspw_Efield_found()) then
+         call pspw_Efield_Fion(G1)
       end if
 
 
@@ -1537,8 +1545,8 @@ c      write(*,*) "ewald p=",p1
       external pspw_charge_charge
       logical  pspw_bqext,ion_disp_on
       external pspw_bqext,ion_disp_on
-      logical  control_hess_model
-      external control_hess_model
+      logical  control_hess_model,pspw_Efield_found
+      external control_hess_model,pspw_Efield_found
 
       !**** hack for implementing hessian model ****
       if (control_hess_model()) then
@@ -1569,6 +1577,11 @@ c      write(*,*) "ewald p=",p1
            call pspw_charge_Fcharge(G1(1,nion1+1))
            call rho_1Fcharge(G1(1,nion1+1))
          end if
+      end if
+
+*     **** get forces from external Efield ****
+      if (pspw_Efield_found()) then
+         call pspw_Efield_Fion(G1)
       end if
 
 *     **** remove ion forces using ion_FixIon ****

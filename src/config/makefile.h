@@ -2165,18 +2165,6 @@ endif
      endif # _FC = ifort (i think)
 #
       ifeq ($(_FC),pgf90)
-        FOPTIONS   += -Mdalign -Mllalign -Kieee
-	FOPTIONS   += -Mbackslash
-#        FOPTIONS   += -tp k8-64  
-#        FOPTIONS   +=    -Ktrap=fp
-        FOPTIMIZE   = -O3 -fastsse -Mnounroll -Minfo=loop -Mipa=fast
-        FVECTORIZE   = -fast  -fastsse  -O3   -Mipa=fast
-        FDEBUG = -g -O2
-        DEFINES  += -DCHKUNDFLW -DPGLINUX
-        ifdef USE_OPENMP
-           FOPTIONS  += -mp -Minfo=mp
-           LDOPTIONS += -mp
-        endif
        ifeq ($(FC),ftn)
           LINK.f = ftn  $(LDFLAGS) $(FOPTIONS)
        endif
@@ -2474,8 +2462,9 @@ ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
 #     EXTRA_LIBS +=  -dynamic-linker /lib64/ld64.so.1 -melf64ppc -lxlf90_r -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lm -lc -lgcc -lm
     endif # end of ppc64 arch
       ifeq ($(_FC),pgf90)
+        FOPTIONS   += -Mdalign -Mllalign -Kieee
+	FOPTIONS   += -Mbackslash
         FOPTIONS   += -Mcache_align  # -Kieee 
-#        FOPTIMIZE   = -O3  -Mnounroll -Minfo=loop -Mipa=fast
         FOPTIMIZE   =  -fast -O3 -Mvect=simd  -Munroll -Minfo=loop # -Mipa=fast
         FVECTORIZE   = -fast    -O3   #-Mipa=fast
         FDEBUG = -g -O2
