@@ -39,7 +39,7 @@
 
       logical main, ok, parallel_diag
       double precision, parameter :: shift = 0.00001d0
-      double precision, parameter :: eta = 0.000d0
+      double precision, parameter :: eta = 0.00001d0
       double complex, parameter :: ieta = dcmplx(0d0,eta)
       double complex :: temp, arg
       logical, external :: is_near
@@ -158,10 +158,10 @@
 
         if (is_near(eig(jmo),omega,shift)) then
           fac = sgn*0.5d0
-          arg = -sgn*ieta
+          arg = -2d0*sgn*ieta
         else
           fac = sgn
-          arg = eig(jmo) - omega - sgn*ieta
+          arg = eig(jmo) - omega - 2d0*sgn*ieta
         endif
 
 

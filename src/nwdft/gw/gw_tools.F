@@ -242,7 +242,7 @@
 !$omp end parallel
 c
       call ga_dgop(mt_dbl,tecgm,1,'+')
-      ecgm = ecgm + tecgm
+      ecgm = ecgm + 2d0*tecgm
 
 #ifdef USE_OPENMP
       call util_blas_set_num_threads(1)

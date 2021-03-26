@@ -262,51 +262,11 @@ c
      $  call errquit(pname//'can''t free vX heap',me,MA_ERR) 
 
       pars%ecrpa = pars%ecrpa*0.5d0
-      pars%ecgm  = pars%ecgm*0.25d0
+      pars%ecgm  = pars%ecgm*0.5d0
 
 #ifdef USE_OPENMP
       call util_blas_set_num_threads(1)
 #endif      
 c
       end subroutine
-
-      subroutine gw_corrldl(matrix,ipiv,n,main)
-      implicit none
-      logical,intent(in) :: main
-      integer,intent(in) :: n
-      double precision,dimension(n,n) :: matrix
-      integer,dimension(n)            :: ipiv
-
-      integer i,s
-      double precision eig1,eig2,a,b,c
-
-      i = 1
-      do while (i.le.n)
-
-      if (ipiv(i).lt.0) then
-        s = 2
-      else
-        s = 1
-      endif
-
-      if ( (s.eq.1) .and. (matrix(i,i).lt.1d-6) ) then
-        matrix(i,i) = 1d-6
-      else if (s.eq.2) then
-        a = matrix(i,i)
-        b = matrix(i+1,i+1)
-        c = matrix(i+1,i)
-        eig1 = 0.5d0*(a+b+dsqrt((a-b)**2 + 4d0*c**2))
-        eig2 = 0.5d0*(a+b-dsqrt((a-b)**2 + 4d0*c**2))
-        if (main) write(*,*) eig1,eig2
-        if (eig2.lt.1d-6) then
-          matrix(i,i) = matrix(i,i) + 1d-6 - eig2
-          matrix(i+1,i+1) = matrix(i+1,i+1) + 1d-6 - eig2
-        endif
-      endif
-
-      i = i + s
-      end do
-
-      end subroutine
-
 
