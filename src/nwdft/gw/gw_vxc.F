@@ -85,7 +85,7 @@ c     density
 c
       do isp=1,ipol
         if (odftps) call pstat_on(ps_dgemm)
-        call ga_dgemm('n','t',nbf_ao,nbf_ao,noc(1),2d0/dble(ipol),
+        call ga_dgemm('n','t',nbf_ao,nbf_ao,noc(isp),2d0/dble(ipol),
      $                 pars%g_movecs(isp),pars%g_movecs(isp),0d0,
      $                 g_dens(isp))
         if (odftps) call pstat_off(ps_dgemm)
@@ -106,6 +106,7 @@ c
       rho_n = 0.0d0
       cdfit = .true.
       npol = (ipol*(ipol+1))/2
+      exc = 0d0
 c
       call xc_rep_init(pars%rtdb,geom,ao_bas_han,g_dens,g_vxc,nbf_ao,
      $                 ipol,.true.,.false.) 

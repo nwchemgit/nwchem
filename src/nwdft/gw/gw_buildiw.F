@@ -89,7 +89,7 @@
      $                 kVV(1),ld) 
       end if
 
-      if (ipol.gt.1) then
+      if (ipol.gt.1 .and. pars%mynpoles(2).gt.0 ) then
         call ga_access(pars%g_eriov(2),1,nri,pars%ovlo(2),pars%ovhi(2),
      $                 kOV(2),ld)
         call ga_access(pars%g_erioo(2),1,nri,pars%oolo(2),pars%oohi(2),
@@ -100,6 +100,7 @@
         endif
       else
         kOV(2) = 1
+        kOO(2) = 1
       endif
       t0=util_wallsec()
 
@@ -157,6 +158,7 @@ c
         endif
         !
         do isp=1,ipol
+          if (pars%nstates(isp).eq.0) cycle
 
           do imo=pars%llmo(isp),pars%llmo(isp)+pars%nqp(isp)-1
             jmo = imo - pars%llmo(isp) + 1

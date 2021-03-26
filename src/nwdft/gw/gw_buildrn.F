@@ -85,6 +85,7 @@
 
 
       do jsp=1,ipol
+        if (pars%mynpoles(jsp).eq.0) cycle
         call ga_access(pars%g_eriov(jsp),1,nri,pars%ovlo(jsp),
      $                 pars%ovhi(jsp),kOV(jsp),ld)   
       enddo
@@ -222,6 +223,7 @@
         if (owner.eq.me) call ga_put(gb,1,nri,jmo,jmo,solvector,nri)
 
         do jsp=1,ipol
+          if (pars%mynpoles(jsp).eq.0) cycle
           addr = kOV(jsp)
           call dgemv('t',nri,pars%mynpoles(jsp),1d0,dbl_mb(addr),nri,
      $                vector2,1,0d0,dbl_mb(kfac),1)

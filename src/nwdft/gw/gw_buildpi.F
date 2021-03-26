@@ -22,21 +22,25 @@
 
       if (which.eq.'w') then
 
-!$omp   parallel do
-        do ipole=1,npoles(1)
-          ovup(1:nri,ipole) = ovup(1:nri,ipole)*factor(ipole,1)
-        enddo
-!$omp   end parallel do
+        if (npoles(1).gt.0) then
 
-        call dsfrk('n','l','n',nri,npoles(1),scal,ovup,nri,0d0,pi)
+!$omp     parallel do
+          do ipole=1,npoles(1)
+            ovup(1:nri,ipole) = ovup(1:nri,ipole)*factor(ipole,1)
+          enddo
+!$omp     end parallel do
 
-!$omp   parallel do
-        do ipole=1,npoles(1)
-          ovup(1:nri,ipole) = ovup(1:nri,ipole)/factor(ipole,1)
-        enddo
-!$omp   end parallel do
+          call dsfrk('n','l','n',nri,npoles(1),scal,ovup,nri,0d0,pi)
 
-        if (ipol.gt.1) then
+!$omp     parallel do
+          do ipole=1,npoles(1)
+            ovup(1:nri,ipole) = ovup(1:nri,ipole)/factor(ipole,1)
+          enddo
+!$omp     end parallel do
+
+        endif
+
+        if (ipol.gt.1.and.npoles(2).gt.0) then
 
 !$omp     parallel do
           do ipole=1,npoles(2)
@@ -76,6 +80,9 @@
       else if (which.eq.'r') then
 
         scal = scal/2d0
+
+        if (npoles(1).eq.0) goto 200
+
         ma_dbl = ma_inquire_avail(mt_dbl)/nri
 
         if (ma_dbl.eq.0) 
@@ -114,7 +121,7 @@
 
         ok = ma_free_heap(l_scr)
 
-        if (ipol.gt.1) then
+  200   if (ipol.gt.1 .and. npoles(2).gt.0) then
           nbatch = npoles(2)/ma_dbl + 1
           mymax = min(npoles(2)/nbatch + 1,npoles(2))
           ok = ma_alloc_get(mt_dbl,nri*mymax,'scratch',l_scr,k_scr)
@@ -183,13 +190,16 @@
       if (ipol.eq.1) scal = 2d0*scal
 
       ma_dbl = ma_inquire_avail(mt_dcpl)/nri
+      fac = -one
 
       do isp=1,ipol
+
+        if (npoles(isp).eq.0) cycle
 
         nbatch = npoles(isp)/ma_dbl + 1
         mymax = min(npoles(isp)/nbatch + 1,npoles(isp))
         ok = ma_alloc_get(mt_dcpl,nri*mymax,'scratch',l_scr,k_scr)
-        fac = (isp-1)*one
+        fac = fac + one
 
         if (isp.eq.1) then
           call zlacp2('A',nri,mymax,ovup,nri,dcpl_mb(k_scr),nri)

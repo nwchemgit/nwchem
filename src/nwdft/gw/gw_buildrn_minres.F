@@ -59,6 +59,7 @@
       nprocs = ga_nnodes()
 
       do jsp=1,ipol
+        if (pars%mynpoles(jsp).eq.0) cycle
         call ga_access(pars%g_eriov(jsp),1,nri,pars%ovlo(jsp),
      $                 pars%ovhi(jsp),kOV(jsp),ld)   
       enddo
@@ -157,6 +158,7 @@
 
         if (arg.ne.0d0) then
           do jsp=1,ipol
+            if (pars%mynpoles(jsp).eq.0) cycle
             addr = kOV(jsp)
 #ifdef GWCMPLX            
             call dgemm('n','n',2,pars%mynpoles(jsp),nri,1d0,xvec,2,

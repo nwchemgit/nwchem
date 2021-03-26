@@ -437,7 +437,7 @@ c
       do isp=1,ipol
 
         ! shift occupied states as HOMO
-        if (noqp(isp).lt.nocc(isp)) then
+        if (noqp(isp).lt.nocc(isp) .and.noqp(isp).gt.0) then
           shift = 0d0
           do imo=nocc(isp),nocc(isp)-noqp(isp)+1,-1
             shift = shift + enew(nocc(isp),isp) - eold(nocc(isp),isp)
@@ -450,7 +450,7 @@ c
         endif
 
         ! shift unoccupied states as LUMO
-        if (nvqp(isp).lt.nvir(isp)) then
+        if (nvqp(isp).lt.nvir(isp) .and. nvqp(isp).gt.0) then
           shift = 0d0
           do imo=nocc(isp)+1,nocc(isp)+nvqp(isp)
             shift = shift + enew(nocc(isp)+1,isp)-eold(nocc(isp)+1,isp)

@@ -189,6 +189,7 @@ c
       addr = k_mo
       do isp=1,pars%ipol
         if (isp.eq.2) addr = k_mo + mopairs(1)*nri_me
+        if (pars%nstates(isp).eq.0) cycle
         call ga_get(pars%g_movecs(isp),1,nbf_ao,1,nmo,
      $              dbl_mb(k_vecs),nbf_ao)
         call gw_mo(dbl_mb(k_eri),dbl_mb(k_vecs),dbl_mb(addr),nbf_ao,nmo,
@@ -207,6 +208,7 @@ c
 
       addr = k_mo
       do isp=1,pars%ipol
+        if (pars%nstates(isp).eq.0) cycle
         if (isp.eq.2) addr = k_mo + mopairs(1)*nri_me
 
         ! OO block
@@ -238,6 +240,7 @@ c
      $  call errquit(pname//'failed to destroy g_2cinv',0,GA_ERR)
 
       do isp=1,pars%ipol
+        if (pars%nstates(isp).eq.0) cycle
 c
 c     Transform OO block
 c

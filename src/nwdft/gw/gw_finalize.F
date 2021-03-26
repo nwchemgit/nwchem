@@ -23,9 +23,12 @@ c
       do i=1,ipol
         if (.not.ga_destroy(pars%g_movecs(i)))
      $    call errquit(pname//'failed to destroy g_movecs',0,GA_ERR)
-        if (.not.ga_destroy(pars%g_erioo(i)))
-     $    call errquit(pname//'failed to destroy g_moeris',0,GA_ERR) 
+        if (pars%npoles(i).gt.0) then
         if (.not.ga_destroy(pars%g_eriov(i)))
+     $    call errquit(pname//'failed to destroy g_moeris',0,GA_ERR) 
+        endif
+        if (pars%nstates(i).eq.0) cycle
+        if (.not.ga_destroy(pars%g_erioo(i)))
      $    call errquit(pname//'failed to destroy g_moeris',0,GA_ERR) 
         if (pars%nstates(i).gt.pars%nocc(i)) then
           if (.not.ga_destroy(pars%g_erivv(i)))
