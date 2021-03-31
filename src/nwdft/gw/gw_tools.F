@@ -251,8 +251,9 @@ c
       end subroutine
 
 
-      subroutine gw_cdgw_ecgm(pi,vx,nri,ldpi,ecgm,ecrpa)
+      subroutine gw_cdgw_ecgm(pi,vx,nri,ldpi,ecgm,ecrpa,diag)
         implicit none
+        logical diag
         integer nri,ldpi
         double precision pi(ldpi,*),vx(ldpi,*),ecgm,ecrpa
         integer info,iri,jri
@@ -263,7 +264,9 @@ c
         ecrpa = 0d0
         iri = (nri*(nri+1))/2/ldpi
 
-        call dpftri('n','l',nri,vx,info)
+        if (.not.diag) then
+          call dpftri('n','l',nri,vx,info)
+        endif
 
         if ( mod(nri,2) .eq. 0 ) then
           do iri=1,nri/2
@@ -291,7 +294,11 @@ c
           ecgm = ecgm + dble(nri)
         endif
 
-        ecrpa = ecrpa + dble(nri)
+        if (diag) then
+          ecrpa = 0d0
+        else
+          ecrpa = ecrpa + dble(nri)
+        endif
 
       end subroutine
 
@@ -531,3 +538,34 @@ c
       return
       end subroutine
 
+      subroutine gw_rfpmm(rfp,vecsb,vecsc,ld,n,nvec,packed)
+      implicit none
+      logical,intent(in) :: packed
+      integer,intent(in) :: ld, n, nvec
+      double precision,intent(in) :: rfp(ld,*),vecsb(n,nvec)
+      double precision,intent(out) :: vecsc(n,nvec)
+
+
+      if (packed .and. mod(n,2).eq.0) then
+        call dsymm('l','u',n/2,nvec,1d0,rfp,n+1,vecsb(n/2+1,1),n,0d0,
+     $              vecsc(n/2+1,1),n)
+        call dsymm('l','l',n/2,nvec,1d0,rfp(2,1),n+1,vecsb,n,0d0,
+     $              vecsc,n)
+        call dgemm('n','n',n/2,nvec,n/2,1d0,rfp(n/2+2,1),n+1,vecsb,n,
+     $              1d0,vecsc(n/2+1,1),n)
+        call dgemm('t','n',n/2,nvec,n/2,1d0,rfp(n/2+1,1),n+1,
+     $              vecsb(n/2+1,1),n,1d0,vecsc,n)
+      else if (packed) then
+        call dsymm('l','l',n/2+1,nvec,1d0,rfp,n,vecsb,n,0d0,
+     $              vecsc,n)
+        call dsymm('l','u',n/2,nvec,1d0,rfp(1,2),n,vecsb(n/2+2,1),n,0d0,
+     $              vecsc(n/2+2,1),n)
+        call dgemm('n','n',n/2,nvec,n/2+1,1d0,rfp(n/2+2,1),n,vecsb,n,
+     $              1d0,vecsc(n/2+2,1),n)
+        call dgemm('t','n',n/2+1,nvec,n/2,1d0,rfp(n/2+2,1),n+1,
+     $              vecsb(n/2+2,1),n,1d0,vecsc,n)
+      else
+        call dgemm('n','n',n,nvec,n,1d0,rfp,n,vecsb,n,0d0,vecsc,n)
+      endif
+
+      end subroutine

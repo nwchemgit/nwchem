@@ -20,8 +20,7 @@
 
       character(len=12),parameter :: pname = 'gw_buildiw: '
 
-      logical ok
-      logical main
+      logical ok,main,diag
       integer molo,mohi,ldpi,sizepi,l_sol,k_sol
       integer ilo,ihi,me,ld,mynpoles,igl,ipole,info
       integer pilo,pihi,k_pi,l_pi,idx,idy,l_tmp,tmp,l_vx,k_vx
@@ -64,6 +63,9 @@
       endif
       sizepi = (nri*(nri+1))/2
 
+      diag = .false.
+      if (nri.gt.4000) diag = .true.
+
       if (.not.ma_alloc_get(mt_dbl,sizepi,'Pi',l_pi,k_pi))
      $  call errquit(pname//'can''t allocate Pi',0,MA_ERR) 
       if (.not.ma_alloc_get(mt_dbl,sizepi,'vx',l_vx,k_vx))
@@ -72,6 +74,7 @@
      $  call errquit(pname//'can''t allocate tmp',0,MA_ERR) 
       if (.not.ma_alloc_get(mt_dbl,nri*mynmo,'sol',l_sol,k_sol))
      $  call errquit(pname//'can''t allocate sol',0,MA_ERR) 
+
 
       call ga_access(pars%g_eriov(1),1,nri,pars%ovlo(1),pars%ovhi(1),
      $               kOV(1),ld)
@@ -147,12 +150,17 @@ c
         ! will be very slow for large ones.
         !
 
-        call dpftrf('n','l',nri,dbl_mb(k_pi),info)
-        !
-        if (me.eq.0) then
-          call gw_cdgw_ecrpa(dbl_mb(k_pi),ldpi,nri,ecrpa)
-          pars%ecrpa = pars%ecrpa + wgt(igl)*ecrpa
+        if (diag) then
+          call gw_invdiag(dbl_mb(k_vx),ldpi,nri,ecrpa,.true.)
+          if (me.eq.0) pars%ecrpa = pars%ecrpa + wgt(igl)*ecrpa
+        else
+          call dpftrf('n','l',nri,dbl_mb(k_pi),info)
+          if (me.eq.0) then
+            call gw_cdgw_ecrpa(dbl_mb(k_pi),ldpi,nri,ecrpa)
+            pars%ecrpa = pars%ecrpa + wgt(igl)*ecrpa
+          endif
         endif
+        !
         !
         do isp=1,ipol
           if (pars%nstates(isp).eq.0) cycle
@@ -203,11 +211,16 @@ c
 #endif
 
 
-            call dcopy(nri*iwidx(0,jmo,isp),dbl_mb(tmp),1,
-     $                 dbl_mb(k_sol),1)
+            if (diag) then
+              call gw_rfpmm(dbl_mb(k_vx),dbl_mb(tmp),dbl_mb(k_sol),
+     $                      ldpi,nri,iwidx(0,jmo,isp),.true.)
+            else
+              call dcopy(nri*iwidx(0,jmo,isp),dbl_mb(tmp),1,
+     $                   dbl_mb(k_sol),1)
 
-            call dtfsm('n','l','l','n','n',nri,iwidx(0,jmo,isp),1d0,
-     $                 dbl_mb(k_pi),dbl_mb(k_sol),nri)       
+              call dtfsm('n','l','l','n','n',nri,iwidx(0,jmo,isp),1d0,
+     $                   dbl_mb(k_pi),dbl_mb(k_sol),nri)       
+            endif
 c
 #ifdef USE_OPENMP
             call util_blas_set_num_threads(1)
@@ -218,9 +231,15 @@ c
             do kmo=1,iwidx(0,jmo,isp)
               idx = tmp + (kmo-1)*nri
               idy = k_sol + (kmo-1)*nri
-              iw(kmo,igl,jmo,isp) = 
+              if (diag) then
+                iw(kmo,igl,jmo,isp) = 
+     $            ddot(nri,dbl_mb(idx),1,dbl_mb(idy),1) -
+     $            ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
+              else
+                iw(kmo,igl,jmo,isp) = 
      $            ddot(nri,dbl_mb(idy),1,dbl_mb(idy),1) -
      $            ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
+              endif
             enddo
 !$omp       end parallel do
 
@@ -234,7 +253,7 @@ c
 
         if (me.eq.0) then
           call gw_cdgw_ecgm(dbl_mb(k_vx),dbl_mb(k_pi),nri,ldpi,ecgm,
-     $                      ecrpa)
+     $                      ecrpa,diag)
           pars%ecgm = pars%ecgm + wgt(igl)*ecgm
           pars%ecrpa = pars%ecrpa + wgt(igl)*ecrpa
         endif

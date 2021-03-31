@@ -92,23 +92,16 @@
       if (ipol.eq.1) kOV(2) = 1
 
 #if PARALLEL_DIAG
-      parallel_diag = nri .gt. 2000
+      parallel_diag = nri .gt. 4000
 #else
       parallel_diag = .false.
 #endif
 
       if (parallel_diag) then
-        pilo = 1
-        pihi = nri
-#ifndef SCALAPACK
-        ok = ga_create(mt_dbl,nri,nri,'Pi',nri,0,g_pi)
-        ok = ga_duplicate(g_pi,g_inv,'inverse')
-        if (.not.ok) call errquit(pname//'can''t create Pi',0,GA_ERR)
-        call ga_distribution(g_pi,me,ilo,ihi,pilo,pihi)
-        call ga_access(g_pi,1,nri,pilo,pihi,addrPi,ld)
-        mynri = pihi - pilo + 1
+        mynri = nri/nprocs
+        pilo = me*mynri + min(me,mod(nri,nprocs)) + 1
         llpi = k_pi + (pilo-1)*nri
-#endif
+        if (me.lt.mod(nri,nprocs)) mynri = mynri + 1
       endif
 
       R = 0d0
@@ -188,21 +181,13 @@
         idx = ((imo-off-1)*nspace+jmo-off-1)/nprocs + spacelo
 
         if (parallel_diag) then
-          call gw_symmat(dbl_mb(k_pi),nri,pilo,pihi)
           call ga_brdcst(mt_int,idx,ints,root)
           call ga_get(ga,1,nri,idx,idx,vector,nri)
-#ifdef SCALAPACK
-          call dcopy(nri,vector,1,vector2,1)
-          call gw_lu_solve(dbl_mb(k_pi),vector2,nri)
-#else
           vector2(:) = 0d0
-          call dcopy(mynri*nri,dbl_mb(llpi),1,dbl_mb(addrPi),1)
-          call dft_invdiag(g_pi,g_inv,nri)
-          call ga_copy(g_inv,g_pi)
-          call dgemv('t',nri,mynri,1d0,dbl_mb(addrPi),nri,vector,1,
+          call gw_invdiag(dbl_mb(k_pi),nri,nri,dummy,.false.)
+          call dgemv('t',nri,mynri,1d0,dbl_mb(llpi),nri,vector,1,
      $                0d0,vector2(pilo),1)
           call ga_dgop(mt_dbl,vector2,nri,'+')
-#endif
         else
           if (me.eq.root) then
             call ga_get(ga,1,nri,idx,idx,vector,nri)
@@ -250,14 +235,6 @@
       if (.not.ma_free_heap(l_pi))
      $   call errquit(pname//'can''t free heap',0,MA_ERR)
 c     
-
-      if (parallel_diag) then
-#ifndef SCALAPACK
-        ok = ga_destroy(g_pi)
-        if (.not.ok) call errquit(pname//'can''t destroy GAs',0,GA_ERR)
-#endif
-      endif
-
 #ifdef USE_OPENMP
       call util_blas_set_num_threads(1)
 #endif

@@ -292,10 +292,19 @@ c
 #if defined(PARALLEL_DIAG) && defined(SCALAPACK)
       call slexit
       call slexit2
+      call slexit3
+      call slexit4
       if (.not. rtdb_cget(pars%rtdb, 'dft:scaladiag',1,yev))
      &     yev='d'
       if (.not. rtdb_get(pars%rtdb, 'dft:scalanb',mt_int,1,nb))
      &     nb=32
+
+      if (pars%cdgw) then
+        call slinit2(nbf_cd)
+      else
+        call slinit2(pars%npoles(1))
+      endif
+
 #endif
 
       return
