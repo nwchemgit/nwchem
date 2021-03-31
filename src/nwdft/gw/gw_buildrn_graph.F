@@ -41,7 +41,7 @@
       integer root, idx, nspace, nprocs, first, second, step
       integer info, ld, jsp, off, spacelo, owner,mynmo
       integer l_pi, k_pi, l_ipiv, k_ipiv, l_scr, k_scr, lscr
-      integer mynri, llpi, pilo
+      integer mynri, llpi, pilo, myimo
       double precision fac, arg, w, arg2, dfac, sgn, dummy
 
       GWTYPE :: factor(maxpoles,ipol),dfactor(maxpoles,ipol)
@@ -83,7 +83,7 @@
       if (ipol.eq.1) kOV(2) = 1
 
 #if PARALLEL_DIAG
-      parallel_diag = nri .gt. 2000
+      parallel_diag = nri .gt. 4000
 #else
       parallel_diag = .false.
 #endif
@@ -201,8 +201,12 @@
           vectors2(:,1:mynmo) = vectors(:,1:mynmo)
 #endif
           !solve the linear equation systems
-          call GWSYSV('l',nri,mynmo,GWMB(k_pi),nri,int_mb(k_ipiv),
-     $                vectors2,nri,GWMB(k_scr),lscr,info)
+c          call GWSYSV('l',nri,mynmo,GWMB(k_pi),nri,int_mb(k_ipiv),
+c     $                vectors2,nri,GWMB(k_scr),lscr,info)
+          do myimo=1,mynmo
+            call minres(GWMB(k_pi),vectors2(1,myimo),vectors(1,myimo),
+     $                  nri)
+          enddo
         endif
 
         lmo = 0

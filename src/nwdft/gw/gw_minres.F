@@ -48,7 +48,7 @@
       converged = .false.
 
 #ifdef PARALLEL_DIAG
-      parallel_diag = n.gt.2000
+      parallel_diag = n.gt.4000
 #else
       parallel_diag = .false.
 #endif
@@ -359,3 +359,247 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
 
       end subroutine
 
+      
+      subroutine minres(A,x,b,n)
+      implicit none
+#include "errquit.fh"
+#include "global.fh"      
+#include "mafdecls.fh"
+#include "util.fh"
+      integer,intent(in) :: n
+      double precision,dimension(n),intent(in)   :: b
+      double precision,dimension(n,n),intent(in) :: A
+      double precision,dimension(n),intent(inout)  :: x
+
+      integer,parameter :: maxiter = 50
+
+      integer l_pi, k_pi, l_ipiv, k_ipiv, lscr, l_scr, k_scr, info
+      integer mynri, nprocs, llpi, pilo
+      double precision :: eps, dummy
+      double precision :: Anorm, Acond, Arnorm, rnorm, ynorm
+      double precision :: alpha, beta, beta1, cs, dbar, delta, denom
+      double precision :: diag, epsa, epsln, epsr, epsx, gam
+      double precision :: gbar, gmax, gmin, oldb, oldeps, grnorm, phi
+      double precision :: phibar, rhs1, rhs2, rnorml, rootl, Arnorml
+      double precision :: relArnorml, s, sn, t, tnorm2, ynorm2, z
+      double precision :: t1, t2, test1, test2, root, bnorm, dxnorm
+      double precision :: test3, xnorm
+      double precision,dimension(n) :: r1, r2, sol, v, w, w1, w2, y
+
+      
+      logical main,converged,oactive,parallel_diag
+      integer iter, istop, i, gy, me, lo ,hi, ld, nmax, nlocal, ithread
+      double precision,parameter :: shift = 0.000d0, rtol=1d-4
+
+#ifdef USE_OPENMP      
+      integer,external :: omp_get_max_threads, omp_get_num_threads
+      integer,external :: omp_get_thread_num
+      nmax = omp_get_max_threads()
+      nlocal = n/nmax
+#else
+      nmax = 1
+      nlocal = n
+      lo = 1
+      hi = n
+#endif      
+
+      converged = .false.
+
+      eps  = epsilon(eps)
+      iter = 0
+      istop = 0
+      Anorm = 0d0
+      Acond = 0d0
+      ynorm = 0d0
+      gmin  = 1d0
+      test3 = 0d0
+
+      xnorm = dsqrt(ddot(n,x,1,x,1))
+      bnorm = dsqrt(ddot(n,b,1,b,1))
+
+      call dcopy(n,b,1,y,1)
+      if (xnorm.gt.0d0) then
+        call dgemv('t',n,n,-1d0,A,n,x,1,1d0,y,1)
+        beta1 = dsqrt(ddot(n,y,1,y,1))
+      else
+        beta1 = bnorm
+      end if
+
+      ! Solution already converged
+      if (beta1.lt.rtol) then
+        rnorm = beta1
+        istop = -1
+        goto 2000
+      endif
+
+      ! Continue with MINRES
+      oldb = 0d0
+      beta = beta1
+      dbar = 0d0
+      epsln = 0d0
+      grnorm = beta1
+      phibar = beta1
+      rhs1 = beta1
+      rhs2 = 0d0
+      tnorm2 = 0d0
+      ynorm2 = 0d0
+      cs = -1d0
+      sn = 0d0
+      gmax = 0d0
+
+!$omp parallel private(lo,hi,ithread)
+#ifdef USE_OPENMP
+      ithread = omp_get_thread_num()
+      lo = ithread*nlocal + 1
+      hi = (ithread+1)*nlocal
+      if ((ithread+1).eq.nmax) hi = n
+#endif
+      r1(lo:hi) = y(lo:hi)
+      r2(lo:hi) = y(lo:hi)
+      w(lo:hi) = 0d0
+      w1(lo:hi) = 0d0
+      w2(lo:hi) = 0d0
+      sol(lo:hi) = 0d0
+!$omp end parallel
+
+
+      do
+        iter = iter + 1
+        s = 1d0/beta
+
+
+        v(:) = s*y(:)
+
+        call dgemv('t',n,n,1d0,A,n,v,1,0d0,y,1)
+
+        alpha = 0d0
+!$omp   parallel private(lo,hi,ithread)
+
+#ifdef USE_OPENMP
+        ithread = omp_get_thread_num()
+        lo = ithread*nlocal + 1
+        hi = (ithread+1)*nlocal
+        if ((ithread+1).eq.nmax) hi = n
+#endif
+
+        y(lo:hi) = y(lo:hi) + v(lo:hi)
+        if (iter.ge.2) y(lo:hi) = y(lo:hi) - beta/oldb*r1(lo:hi)
+
+!$omp   atomic update
+        alpha = alpha + dot_product(v(lo:hi),y(lo:hi))
+!$omp   barrier        
+
+        y(lo:hi) = y(lo:hi) - alpha/beta*r2(lo:hi)
+        r1(lo:hi) = r2(lo:hi)
+        r2(lo:hi) = y(lo:hi)
+
+!$omp   barrier        
+!$omp   single        
+        oldb = beta
+        beta = 0d0
+!$omp   end single
+
+!$omp   atomic update
+        beta = beta + dot_product(r2(lo:hi),r2(lo:hi))
+!$omp   barrier
+
+!$omp   single
+        beta = dsqrt(beta)
+
+        tnorm2 = tnorm2 + alpha**2 + oldb**2 + beta**2
+
+        if (iter.eq.1) then
+          if (beta/beta1 .le. 10d0*eps) then
+            istop = -1
+          endif
+        endif
+
+        oldeps = epsln
+        delta = cs*dbar + sn*alpha
+        gbar  = sn*dbar - cs*alpha
+        epsln = sn*beta
+        dbar  = -cs*beta
+        root = dsqrt(gbar**2 + dbar**2)
+        Arnorm = phibar*root
+
+        if (beta.eq.0d0) then
+          cs = sign(1d0,gbar)
+          sn = 0d0
+          gam = abs(gbar)
+        elseif (gbar.eq.0d0) then
+          cs = 0d0
+          sn = 1d0
+          gam = beta
+        elseif (beta.gt.abs(gbar)) then
+          t = gbar/beta
+          sn = 1d0/dsqrt(1d0 + t**2)
+          cs = sn*t
+          gam = beta/sn
+        else
+          t = beta/gbar
+          cs = sign(1d0,gbar)/dsqrt(1d0+t**2)
+          sn = cs*t
+          gam = gbar/cs
+        endif
+        gam = max(gam,eps)
+
+        phi    = cs*phibar
+        phibar = sn*phibar
+        dxnorm = 0d0
+        xnorm  = 0d0
+!$omp   end single
+
+        w1(lo:hi) = w2(lo:hi)
+        w2(lo:hi) = w(lo:hi)
+        w(lo:hi) = (v(lo:hi)-oldeps*w1(lo:hi)-delta*w(lo:hi))/gam
+        sol(lo:hi) = sol(lo:hi) + phi*w(lo:hi)
+        
+!$omp   atomic update
+        dxnorm = dxnorm + dot_product(sol(lo:hi),sol(lo:hi))
+!$omp   atomic update        
+        xnorm = xnorm + dot_product(x(lo:hi)+sol(lo:hi),
+     $                              x(lo:hi)+sol(lo:hi))
+!$omp   end parallel
+
+        dxnorm = dsqrt(dxnorm)
+        xnorm  = dsqrt(xnorm)
+
+        gmax = max(gmax,gam)
+        gmin = min(gmin,gam)
+        z    = rhs1/gam
+        rhs1 = rhs2 - delta*z
+        rhs2 = -epsln*z
+
+        Anorm = dsqrt(tnorm2)
+        rnorm = phibar
+
+        Acond = gmax/gmin
+        if (istop.ne.0) exit
+
+        epsx = (Anorm*dxnorm + beta1)*eps
+        epsr = (Anorm*dxnorm + beta1)*rtol
+        test1 = rnorm/(Anorm*dxnorm + bnorm)
+        test2 = Arnorm/(Anorm*(rnorm + eps))
+        test3 = xnorm*rnorm + rnorm**2/gmin
+        t1 = 1d0 + test1
+        t2 = 1d0 + test2
+
+        if (iter  .ge. maxiter  ) istop=6
+        if (Acond .ge. 0.1d0/eps) istop=5
+        if (t2    .le. 1d0      ) istop=2
+        if (t1    .le. 1d0      ) istop=1
+        if (epsx  .ge. beta1    ) istop=3
+        if (iter.gt.2 .and. test3 .le. rtol/10d0) istop=10
+        if (test2 .le. rtol     ) istop=2
+        if (test1 .le. rtol     ) istop=1
+        if (rnorm .le. rtol     ) istop=8
+
+        if (istop.ne.0) exit
+      enddo
+
+      x(:) = x(:) + sol(:)
+
+ 1000 continue
+ 2000 continue
+
+      end subroutine
