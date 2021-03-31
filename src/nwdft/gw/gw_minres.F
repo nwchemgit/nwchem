@@ -47,6 +47,12 @@
       main = me.eq.0
       converged = .false.
 
+#ifdef PARALLEL_DIAG
+      parallel_diag = n.gt.2000
+#else
+      parallel_diag = .false.
+#endif
+
       eps  = epsilon(eps)
       iter = 0
       istop = 0
@@ -91,6 +97,14 @@
         goto 2000
       endif
 
+      ! Use diagonalization instead
+      if (parallel_diag) then
+        istop = 6
+        rnorm = beta1
+        goto 2000
+      endif
+
+      ! Continue with MINRES
       bnorm = 0d0
       oldb = 0d0
       beta = beta1
@@ -274,14 +288,8 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
  1000 continue
  2000 continue
 
-c      if (istop.eq.6 .and. rnorm.gt.0.001d0) then
-       if (.true.) then
+      if (istop.eq.6 .and. rnorm.gt.0.001d0) then
 
-#ifdef PARALLEL_DIAG
-        parallel_diag = n.gt.4000
-#else
-        parallel_diag = .false.
-#endif
 
         if (.not.ma_alloc_get(mt_dbl,n**2,'pi',l_pi,k_pi))
      $    call errquit('gw_en: can''t allocate pi matrix',0,MA_ERR) 

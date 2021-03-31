@@ -150,6 +150,7 @@ C     (U * sigma^-1) * U(transp)
           enddo
         endif
       else
+        call dfill(n**2,0d0,rfp,1)
         call ga_get(g_tmp3,1,n,ll,ul,rfp(1,ll),ld)
       endif
 

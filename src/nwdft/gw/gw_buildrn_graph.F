@@ -34,12 +34,14 @@
 
       logical, external :: is_near
 
+      logical parallel_diag
       logical main, ok, active
       integer imo, jmo, kmo, lmo, ints
       integer mynpoles, ipole, kov(2), ga
       integer root, idx, nspace, nprocs, first, second, step
       integer info, ld, jsp, off, spacelo, owner,mynmo
       integer l_pi, k_pi, l_ipiv, k_ipiv, l_scr, k_scr, lscr
+      integer mynri, llpi, pilo
       double precision fac, arg, w, arg2, dfac, sgn, dummy
 
       GWTYPE :: factor(maxpoles,ipol),dfactor(maxpoles,ipol)
@@ -80,6 +82,18 @@
       enddo
       if (ipol.eq.1) kOV(2) = 1
 
+#if PARALLEL_DIAG
+      parallel_diag = nri .gt. 2000
+#else
+      parallel_diag = .false.
+#endif
+
+      if (parallel_diag) then
+        mynri = nri/nprocs
+        pilo = me*mynri + min(me,mod(nri,nprocs)) + 1
+        llpi = k_pi + (pilo-1)*nri
+        if (me.lt.mod(nri,nprocs)) mynri = mynri + 1
+      endif
 
       output(:,:) = 0d0
 
@@ -172,17 +186,24 @@
 #endif        
         call GWGOP(GWMT,GWMB(k_pi),nri**2,'+')
 
-        if (.not.active) cycle
 
+        if (parallel_diag) then
+          call gw_invdiag(dbl_mb(k_pi),nri,nri,dummy,.false.)
+          call GWGOP(GWMT,GWMB(k_pi),nri**2,'+')
+          if (.not.active) cycle
+          call dgemm('t',nri,mynmo,nri,1d0,GWMB(k_pi),nri,vectors,
+     $                nri,0d0,vectors2,nri)
+        else
+          if (.not.active) cycle
 #ifdef GWCMPLX        
-        vectors2(:,1:mynmo) = dcmplx(vectors(:,1:mynmo),0d0)
+          vectors2(:,1:mynmo) = dcmplx(vectors(:,1:mynmo),0d0)
 #else
-        vectors2(:,1:mynmo) = vectors(:,1:mynmo)
+          vectors2(:,1:mynmo) = vectors(:,1:mynmo)
 #endif
-
-        !solve the linear equation systems
-        call GWSYSV('l',nri,mynmo,GWMB(k_pi),nri,int_mb(k_ipiv),
-     $              vectors2,nri,GWMB(k_scr),lscr,info)
+          !solve the linear equation systems
+          call GWSYSV('l',nri,mynmo,GWMB(k_pi),nri,int_mb(k_ipiv),
+     $                vectors2,nri,GWMB(k_scr),lscr,info)
+        endif
 
         lmo = 0
         do imo=llmo,llmo+nqp-1

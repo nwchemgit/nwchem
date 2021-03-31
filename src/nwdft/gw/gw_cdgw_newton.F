@@ -29,7 +29,7 @@
 
       logical main, converged, bracket, warning, fixed(maxqp)
       integer isp, totalqp, llmo, iqp, iter, logs, dbls
-      double precision timer, rms3(3), m
+      double precision timer, timer2, rms3(3), m
       double precision Ein, Eout, SigmaOld, Sigma_X, Z
       double precision Linear
       double precision residual, residualOld, dresidual, Etmp
@@ -94,7 +94,6 @@
             Eout = Eout + sign(1.2d0*pars%thresh,Eout)
           endif
 
-
           call ga_zero(pars%g_sols)
           bracket = .false.
           rms3 = 1d100
@@ -105,6 +104,7 @@
           upper = 0d0
 c        
           do iter=1,pars%qpiter+5
+            timer2 = util_wallsec()
 
             Ein = Eout
 
@@ -143,13 +143,17 @@ c
      $                            lower,upper,reslower,resupper)
             endif
 
- 1234       format(5(F15.8))
-
             ! Check convergence of QP equation
             converged = abs(residual).lt.pars%thresh .or. 
      $                  sum(rms3)/3d0.lt.pars%thresh .or.
      $                  (bracket .and. abs(upper-lower).lt.pars%thresh)
 
+#ifdef GWDEBUG
+            if (main) write(luout,9901) iter,iqp,util_wallsec()-timer2,
+     $                                  Ein,Eout
+ 9901       format('  ## Finished iter',I3,' of qp ',I3,' in ',F12.2,'s'
+     $             ,/,'     Ein: ',F12.6,' Eout: ',F12.6)
+#endif
 
             ! Exit if converged
             call ga_brdcst(mt_log,converged,logs,0)

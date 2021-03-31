@@ -24,7 +24,7 @@
       logical main, converged, bracket, warning, fixed(pars%nmo), done
       integer llqp, ulqp, ipoints, icluster, qplimit, npoints
       integer isp, totalqp, llmo, iqp, iter, logs, dbls
-      double precision timer, rms3(3), const, nspace
+      double precision timer, timer2, rms3(3), const, nspace
       double precision Ein, Eout, SigmaOld, Sigma_X, SigmaC, Z
       double precision d2SigmaC, dSigmaC, Linear
       double precision residual, residualOld, dresidual, d2residual,Etmp
@@ -69,6 +69,7 @@
           myll = llqp
           fixed(myll:myul) = .false.
 
+
  100      continue
 
           !obtain a partial solution for one state in the cluster
@@ -109,6 +110,7 @@ c            Eout = Eout + sign(5d0*pars%thresh,Eout)
 
           ! we only need a guess
           do iter=1,5
+            timer2 = util_wallsec()
             Ein = Eout
 
             call ga_sync()
@@ -156,6 +158,12 @@ c            Eout = Eout + sign(5d0*pars%thresh,Eout)
      $                  (sum(rms3)/3d0.lt.pars%thresh)
             call ga_brdcst(mt_log,converged,logs,0)
 
+#ifdef GWDEBUG
+            if (main) write(luout,9901) iter,iqp,util_wallsec()-timer2,
+     $                                  Ein,Eout
+ 9901       format('  ## Finished iter',I3,' of qp ',I3,' in ',F12.2,'s'
+     $             ,/,'     Ein: ',F12.6,' Eout: ',F12.6)
+#endif
 
             if (converged) then
               eout = ein
@@ -201,6 +209,7 @@ c            Eout = Eout + sign(5d0*pars%thresh,Eout)
 
           omega(1) = eout - sign(0.0015d0,eout)
           do ipoints=1,npoints
+            timer2 = util_wallsec()
             if (ipoints.gt.1)
      $         omega(ipoints) = omega(ipoints-1) + nspace
 
@@ -253,6 +262,10 @@ c            Eout = Eout + sign(5d0*pars%thresh,Eout)
 
               done = .false.
             enddo
+#ifdef GWDEBUG
+            if (main) write(luout,9903) ipoints,util_wallsec()-timer2
+ 9903       format('  ## Finished point ',I3,' in ',F12.2,' s')
+#endif
             if (done) exit
           enddo
 

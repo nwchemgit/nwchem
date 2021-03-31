@@ -92,7 +92,7 @@
       if (ipol.eq.1) kOV(2) = 1
 
 #if PARALLEL_DIAG
-      parallel_diag = nri .gt. 4000
+      parallel_diag = nri .gt. 2000
 #else
       parallel_diag = .false.
 #endif
