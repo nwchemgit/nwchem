@@ -202,12 +202,12 @@ c            Eout = Eout + sign(5d0*pars%thresh,Eout)
           endif
 
           !Decide number of points
-          nspace = sign(0.0015d0,eout)
+          nspace = sign(0.00075d0,eout)
           interval = maxval(eold(llmo+myll-1:llmo+myul-1,isp)) -
-     $               minval(eold(llmo+myll-1:llmo+myul-1,isp)) + 0.007d0
-          npoints = min(int(interval/abs(nspace))+1,70)
+     $               minval(eold(llmo+myll-1:llmo+myul-1,isp)) + 0.004d0
+          npoints = min(int(interval/abs(nspace))+1,100)
 
-          omega(1) = eout - sign(0.0015d0,eout)
+          omega(1) = eout - sign(0.00075d0,eout)
           do ipoints=1,npoints
             timer2 = util_wallsec()
             if (ipoints.gt.1)

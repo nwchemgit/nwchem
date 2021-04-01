@@ -589,14 +589,16 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
         if (t2    .le. 1d0      ) istop=2
         if (t1    .le. 1d0      ) istop=1
         if (epsx  .ge. beta1    ) istop=3
-        if (iter.gt.2 .and. test3 .le. rtol/10d0) istop=10
+c        if (iter.gt.2 .and. test3 .le. rtol/10d0) istop=10
         if (test2 .le. rtol     ) istop=2
         if (test1 .le. rtol     ) istop=1
         if (rnorm .le. rtol     ) istop=8
 
         if (istop.ne.0) exit
       enddo
-
+#ifdef GWDEBUG
+c      write(*,*) istop,iter,rnorm
+#endif
       x(:) = x(:) + sol(:)
 
  1000 continue
