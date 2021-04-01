@@ -201,13 +201,13 @@
           vectors2(:,1:mynmo) = vectors(:,1:mynmo)
 #endif
           !solve the linear equation systems
-c          call GWSYSV('l',nri,mynmo,GWMB(k_pi),nri,int_mb(k_ipiv),
-c     $                vectors2,nri,GWMB(k_scr),lscr,info)
-          do myimo=1,mynmo
-            vectors2(:,myimo) = 0d0
-            call minres(GWMB(k_pi),vectors2(1,myimo),vectors(1,myimo),
-     $                  nri)
-          enddo
+          call GWSYSV('l',nri,mynmo,GWMB(k_pi),nri,int_mb(k_ipiv),
+     $                vectors2,nri,GWMB(k_scr),lscr,info)
+c          do myimo=1,mynmo
+c            vectors2(:,myimo) = 0d0
+c            call minres(GWMB(k_pi),vectors2(1,myimo),vectors(1,myimo),
+c     $                  nri)
+c          enddo
         endif
 
         lmo = 0

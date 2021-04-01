@@ -470,7 +470,7 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
 
         v(:) = s*y(:)
 
-        call dgemv('t',n,n,1d0,A,n,v,1,0d0,y,1)
+        call dgemv('n',n,n,1d0,A,n,v,1,0d0,y,1)
 
         alpha = 0d0
 !$omp   parallel private(lo,hi,ithread)

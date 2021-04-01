@@ -553,7 +553,7 @@ c
      $              vecsc,n)
         call dgemm('n','n',n/2,nvec,n/2,1d0,rfp(n/2+2,1),n+1,vecsb,n,
      $              1d0,vecsc(n/2+1,1),n)
-        call dgemm('t','n',n/2,nvec,n/2,1d0,rfp(n/2+1,1),n+1,
+        call dgemm('t','n',n/2,nvec,n/2,1d0,rfp(n/2+2,1),n+1,
      $              vecsb(n/2+1,1),n,1d0,vecsc,n)
       else if (packed) then
         call dsymm('l','l',n/2+1,nvec,1d0,rfp,n,vecsb,n,0d0,
@@ -562,7 +562,7 @@ c
      $              vecsc(n/2+2,1),n)
         call dgemm('n','n',n/2,nvec,n/2+1,1d0,rfp(n/2+2,1),n,vecsb,n,
      $              1d0,vecsc(n/2+2,1),n)
-        call dgemm('t','n',n/2+1,nvec,n/2,1d0,rfp(n/2+2,1),n+1,
+        call dgemm('t','n',n/2+1,nvec,n/2,1d0,rfp(n/2+2,1),n,
      $              vecsb(n/2+2,1),n,1d0,vecsc,n)
       else
         call dgemm('n','n',n,nvec,n,1d0,rfp,n,vecsb,n,0d0,vecsc,n)

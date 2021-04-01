@@ -57,7 +57,7 @@
         llmo = pars%llmo(isp)
 
         call gw_findclusters(Eold(llmo,isp),clusters,nclusters,totalqp,
-     $                       0.025d0)
+     $                       0.020d0)
 
         ulqp = 0
         do icluster=1,nclusters
@@ -202,12 +202,13 @@ c            Eout = Eout + sign(5d0*pars%thresh,Eout)
           endif
 
           !Decide number of points
-          nspace = sign(0.00075d0,eout)
+          nspace = sign(0.00037d0,eout)
           interval = maxval(eold(llmo+myll-1:llmo+myul-1,isp)) -
      $               minval(eold(llmo+myll-1:llmo+myul-1,isp)) + 0.004d0
           npoints = min(int(interval/abs(nspace))+1,100)
+          nspace = interval/dble(npoints)
 
-          omega(1) = eout - sign(0.00075d0,eout)
+          omega(1) = eout - sign(0.00037d0,eout)
           do ipoints=1,npoints
             timer2 = util_wallsec()
             if (ipoints.gt.1)
