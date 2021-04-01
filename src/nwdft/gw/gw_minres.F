@@ -389,7 +389,7 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
       
       logical main,converged,oactive,parallel_diag
       integer iter, istop, i, gy, me, lo ,hi, ld, nmax, nlocal, ithread
-      double precision,parameter :: shift = 0.000d0, rtol=1d-4
+      double precision,parameter :: shift = 0.000d0, rtol=1d-5
 
 #ifdef USE_OPENMP      
       integer,external :: omp_get_max_threads, omp_get_num_threads
@@ -580,7 +580,6 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
         epsr = (Anorm*dxnorm + beta1)*rtol
         test1 = rnorm/(Anorm*dxnorm + bnorm)
         test2 = Arnorm/(Anorm*(rnorm + eps))
-        test3 = xnorm*rnorm + rnorm**2/gmin
         t1 = 1d0 + test1
         t2 = 1d0 + test2
 
@@ -589,7 +588,6 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
         if (t2    .le. 1d0      ) istop=2
         if (t1    .le. 1d0      ) istop=1
         if (epsx  .ge. beta1    ) istop=3
-c        if (iter.gt.2 .and. test3 .le. rtol/10d0) istop=10
         if (test2 .le. rtol     ) istop=2
         if (test1 .le. rtol     ) istop=1
         if (rnorm .le. rtol     ) istop=8

@@ -27,13 +27,8 @@
       ! golden section or regula falsi method might work best
       elseif (bracket) then
 
-        ! use regula falsi if solution is very close to one point
-        if (abs(fxupp).lt.abs(fxlow)/10d0 .or.
-     $      abs(fxlow).lt.abs(fxupp)/10d0) then   
-          xout = (xlow*fxupp - xupp*fxlow)/(fxupp-fxlow)
-
         !use golden section for the others
-        elseif (fx.eq.fxupp) then
+        if (fx.eq.fxupp) then
           xout = xupp - 0.61803d0*(xupp-xlow)
         else
           xout = xlow + 0.61803d0*(xupp-xlow)
@@ -42,12 +37,12 @@
       ! take smaller step for intermediate z since
       ! the linear approximation might not work in
       ! this case
-      elseif (z.gt.0.1d0 .and. z.le.1d0 ) then
+      elseif (z.gt.0.1d0 .and. z.le.0.3d0 ) then
         xout = xin - 0.61803d0*fx/dfx
 
       ! use a small newton step for the rest
       else
-        xout = xin - 0.382d0*fx/dfx
+        xout = xin - 0.10d0*fx/dfx
 
       endif
 

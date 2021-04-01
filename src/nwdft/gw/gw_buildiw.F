@@ -65,6 +65,7 @@
 
       diag = .false.
       if (nri.gt.4000) diag = .true.
+      diag = .true.
 
       if (.not.ma_alloc_get(mt_dbl,sizepi,'Pi',l_pi,k_pi))
      $  call errquit(pname//'can''t allocate Pi',0,MA_ERR) 
@@ -144,10 +145,6 @@ c
 #endif
 
         call dcopy(sizepi,dbl_mb(k_pi),1,dbl_mb(k_vx),1)
-        !
-        ! All cores invert the same matrix in order to avoid
-        ! communication. This is good for small matrices but
-        ! will be very slow for large ones.
         !
 
         if (diag) then
