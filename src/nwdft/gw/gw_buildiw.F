@@ -65,7 +65,6 @@
 
       diag = .false.
       if (nri.gt.4000) diag = .true.
-      diag = .true.
 
       if (.not.ma_alloc_get(mt_dbl,sizepi,'Pi',l_pi,k_pi))
      $  call errquit(pname//'can''t allocate Pi',0,MA_ERR) 
@@ -107,7 +106,7 @@ c
         w2 = x(igl)
 
         do isp=1,ipol
-!$omp   parallel do
+!$omp      parallel do 
            do ipole=1,pars%mynpoles(isp)
               if(eia(ipole,isp).le.0d0) then
                  write(6,123) ' negative eia',ipole,eia(ipole,isp),w2,
@@ -117,7 +116,7 @@ c
               factor(ipole,isp) = 
      $            dsqrt(eia(ipole,isp)/(eia(ipole,isp)**2 + w2))
           enddo
-!$omp   end parallel do        
+!$omp     end parallel do        
         enddo
 
 c

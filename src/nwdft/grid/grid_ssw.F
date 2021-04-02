@@ -106,7 +106,7 @@ c
 c
 #ifdef USE_OPENMP
 !$omp parallel do 
-!$omp&  private(n,p)  shared(xyzw)
+!$omp&  private(n,p,wsum)  shared(xyzw)
 c1!$omp& default(shared) private(n,p) 
 cc!$omp& reduction(+:wsum)
 #endif
@@ -117,11 +117,8 @@ c
 c       compute sum of partitioning weights for normalization
 c       
 c       
-         wsum=0.d0
-         do i = 1, nctrs_pruned
-            wsum=wsum+p(i)
-         enddo
-         if(wsum.ne.0) then
+         wsum = sum(p(1:nctrs_pruned))
+         if(wsum.ne.0d0) then
             xyzw(4,n) = p(AA)*xyzw(4,n)/wsum
          else
             call errquit(' ssw : wsum .eq.0 ',0,0)

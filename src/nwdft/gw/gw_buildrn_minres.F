@@ -9,6 +9,7 @@
 #define SOLVER gw_minres
 #endif
 #endif
+#define USE_ALLOC 1
 
       subroutine gw_buildrn_minres(pars,Eig,Eia,omega,R,dR,imo,
      $                      maxpoles,nri,me,nmo,ipol,isp)
@@ -116,8 +117,8 @@
           arg = eig(jmo) - omega
         endif
 
-!$omp   parallel do collapse(2) private(temp)
         do jsp=1,ipol
+!$omp     parallel do private(temp)
           do ipole=1,pars%mynpoles(jsp)
             temp = Eia(ipole,jsp) - ieta
             temp = 0.5d0/(arg + temp) + 0.5d0/(temp - arg)
@@ -135,8 +136,8 @@
             dfactor(ipole,jsp) = dfac*dble(temp)
 #endif            
           enddo
+!$omp     end parallel do        
         enddo
-!$omp   end parallel do        
 
         root = mod((imo-off-1)*nspace+jmo-off-1,nprocs)
         idx = ((imo-off-1)*nspace+jmo-off-1)/nprocs + spacelo

@@ -10,7 +10,8 @@
       double precision,dimension(n),intent(in)   :: b
       double precision,dimension(n),intent(inout)  :: x
 
-      integer,parameter :: maxiter = 10
+      integer,parameter :: maxiter = 12
+      integer,parameter :: maxthreads = 1023
 
       integer l_pi, k_pi, l_ipiv, k_ipiv, lscr, l_scr, k_scr, info
       integer mynri, nprocs, llpi, pilo
@@ -27,19 +28,34 @@
 
       
       logical main,converged,oactive,parallel_diag
-      integer iter, istop, i, gy, me, lo ,hi, ld, nmax, nlocal, ithread
+      integer iter, istop, i, gy, me, ld, nmax, nlocal, ithread
+      integer los(0:maxthreads),his(0:maxthreads), lo, hi, jthread
+      double precision local(0:maxthreads),local2(0:maxthreads)
       double precision,parameter :: shift = 0.000d0, rtol=1d-4
 
 #ifdef USE_OPENMP      
       integer,external :: omp_get_max_threads, omp_get_num_threads
       integer,external :: omp_get_thread_num
-      nmax = omp_get_max_threads()
-      nlocal = n/nmax
+      nmax = min(omp_get_max_threads(),maxthreads+1)
+
+      !Align data to 8 doubles
+      nlocal = n/(nmax*8)
+      nlocal = nlocal*8
+
+      !Get limits
+!$omp parallel private(ithread)
+      ithread = omp_get_thread_num()
+      los(ithread) = ithread*nlocal + 1
+      his(ithread) = (ithread+1)*nlocal
+      if ((ithread+1).eq.nmax) his(ithread) = n
+      local(ithread) = 0d0
+      y(los(ithread):his(ithread)) = 0d0
+!$omp end parallel      
 #else
+      lo(0) = 1
+      hi(0) = n
+      ithread = 0
       nmax = 1
-      nlocal = n
-      lo = 1
-      hi = n
 #endif      
 
       call ga_sync()
@@ -73,17 +89,14 @@
 
       beta1 = 0d0
       xnorm = 0d0
-!$omp parallel private(lo,hi,ithread)
+!$omp parallel private(lo,hi,ithread) reduction(+: beta1,xnorm)
 #ifdef USE_OPENMP
       ithread = omp_get_thread_num()
-      lo = ithread*nlocal + 1
-      hi = (ithread+1)*nlocal
-      if ((ithread+1).eq.nmax) hi = n
 #endif      
+      lo = los(ithread)
+      hi = his(ithread)
       y(lo:hi) = y(lo:hi) + b(lo:hi) - x(lo:hi)
-!$omp atomic update
       beta1 = beta1 + dot_product(y(lo:hi),y(lo:hi))
-!$omp atomic update
       xnorm = xnorm + dot_product(x(lo:hi),x(lo:hi))
 !$omp end parallel
 
@@ -120,20 +133,18 @@
       sn = 0d0
       gmax = 0d0
 
-!$omp parallel private(lo,hi,ithread)
+!$omp parallel private(lo,hi,ithread) reduction(+: bnorm)
 #ifdef USE_OPENMP
       ithread = omp_get_thread_num()
-      lo = ithread*nlocal + 1
-      hi = (ithread+1)*nlocal
-      if ((ithread+1).eq.nmax) hi = n
 #endif
+      lo = los(ithread)
+      hi = his(ithread)
       r1(lo:hi) = y(lo:hi)
       r2(lo:hi) = y(lo:hi)
       w(lo:hi) = 0d0
       w1(lo:hi) = 0d0
       w2(lo:hi) = 0d0
       sol(lo:hi) = 0d0
-!$omp atomic update
       bnorm = bnorm + dot_product(b(lo:hi),b(lo:hi))
 !$omp end parallel      
       bnorm = dsqrt(bnorm)
@@ -145,7 +156,15 @@
         s = 1d0/beta
 
 
-        v(:) = s*y(:)
+!$omp parallel private(lo,hi,ithread)
+#ifdef USE_OPENMP
+        ithread = omp_get_thread_num()
+#endif
+        lo = los(ithread)
+        hi = his(ithread)
+        v(lo:hi) = s*y(lo:hi)
+!$omp   end parallel     
+
 
         if (ipol.eq.1) then
           call gw_aprod(OV1,factor,v,y,4d0,0d0,npoles,n)
@@ -154,39 +173,45 @@
           call gw_aprod(OV2,factor(1,2),v,y,2d0,1d0,npoles(2),n)
         endif
         call dgop(mt_dbl,y,n,'+')
-
         alpha = 0d0
-!$omp   parallel private(lo,hi,ithread)
 
+!$omp   parallel private(lo,hi,ithread)
 #ifdef USE_OPENMP
         ithread = omp_get_thread_num()
-        lo = ithread*nlocal + 1
-        hi = (ithread+1)*nlocal
-        if ((ithread+1).eq.nmax) hi = n
 #endif
+        lo = los(ithread)
+        hi = his(ithread)
 
         y(lo:hi) = y(lo:hi) + v(lo:hi)
         if (iter.ge.2) y(lo:hi) = y(lo:hi) - beta/oldb*r1(lo:hi)
 
-!$omp   atomic update
-        alpha = alpha + dot_product(v(lo:hi),y(lo:hi))
-!$omp   barrier        
+        local(ithread) = dot_product(v(lo:hi),y(lo:hi))
+!$omp   do schedule(static,1) reduction(+: alpha)
+        do jthread=0,nmax-1
+          alpha = alpha + local(jthread)
+        enddo
+!$omp   end do          
+
 
         y(lo:hi) = y(lo:hi) - alpha/beta*r2(lo:hi)
         r1(lo:hi) = r2(lo:hi)
         r2(lo:hi) = y(lo:hi)
 
 !$omp   barrier        
-!$omp   single        
+!$omp   master
         oldb = beta
         beta = 0d0
-!$omp   end single
-
-!$omp   atomic update
-        beta = beta + dot_product(r2(lo:hi),r2(lo:hi))
+!$omp   end master
 !$omp   barrier
 
-!$omp   single
+        local(ithread) = dot_product(r2(lo:hi),r2(lo:hi))
+!$omp   do schedule(static,1) reduction(+:beta)
+        do jthread=0,nmax-1
+          beta = beta + local(jthread)
+        enddo
+!$omp   end do
+
+!$omp   master
         beta = dsqrt(beta)
 
         tnorm2 = tnorm2 + alpha**2 + oldb**2 + beta**2
@@ -230,18 +255,24 @@
         phibar = sn*phibar
         dxnorm = 0d0
         xnorm  = 0d0
-!$omp   end single
+!$omp   end master
+!$omp   barrier        
 
         w1(lo:hi) = w2(lo:hi)
         w2(lo:hi) = w(lo:hi)
         w(lo:hi) = (v(lo:hi)-oldeps*w1(lo:hi)-delta*w(lo:hi))/gam
         sol(lo:hi) = sol(lo:hi) + phi*w(lo:hi)
         
-!$omp   atomic update
-        dxnorm = dxnorm + dot_product(sol(lo:hi),sol(lo:hi))
-!$omp   atomic update        
-        xnorm = xnorm + dot_product(x(lo:hi)+sol(lo:hi),
-     $                              x(lo:hi)+sol(lo:hi))
+        local(ithread) = dot_product(sol(lo:hi),sol(lo:hi))
+        local2(ithread) = dot_product(x(lo:hi)+sol(lo:hi),
+     $                                x(lo:hi)+sol(lo:hi))
+
+!$omp   do schedule(static,1) reduction(+:dxnorm,xnorm)
+        do jthread=0,nmax-1
+          dxnorm = dxnorm + local(ithread)
+          xnorm = xnorm + local2(ithread)
+        enddo
+!$omp   end do        
 !$omp   end parallel
 
         dxnorm = dsqrt(dxnorm)

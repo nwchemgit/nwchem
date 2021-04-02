@@ -3,9 +3,13 @@
 #else
 #define GWTYP double precision
 #endif
+#define USE_ALLOC 1
 
       subroutine gw_buildrn(pars,Eig,Eia,omega,R,dR,imo,maxpoles,
      $                      nri,me,nmo,ipol,isp)
+#ifdef USE_ALLOC
+      USE ISO_C_BINDING
+#endif
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -37,6 +41,13 @@
 
       GWTYP,dimension(nri) ::   solvector
 
+#ifdef USE_ALLOC
+      real(kind=C_DOUBLE), allocatable    :: factor(:,:), dfactor(:,:)
+      integer(kind=c_int)         :: stat_alloc
+#else
+      double precision factor(maxpoles,ipol)
+#endif
+
       logical main, ok, parallel_diag
       double precision, parameter :: shift = 0.00001d0
       double precision, parameter :: eta = 0.00001d0
@@ -61,16 +72,19 @@
       ints = ma_sizeof(mt_int,1,mt_byte)
       nris = ma_sizeof(mt_dbl,nri,mt_byte)
 
+#ifdef USE_ALLOC
+      allocate(factor(maxpoles,ipol),dfactor(maxpoles,ipol),
+     $         STAT = stat_alloc)
+      if(stat_alloc.ne.0)
+     &     call errquit(' gw_buildrn: allocate failed for size',
+     M     maxpoles*ipol, MA_ERR)
+#endif
+
 
       if (.not.ma_alloc_get(mt_dbl,nri**2,'pi',l_pi,k_pi))
      $  call errquit(pname//'can''t allocate pi matri',0,MA_ERR) 
       if (.not.ma_push_get(mt_int,nri,'ipiv',l_ipiv,k_ipiv))
      $  call errquit(pname//'can''t allocate ipiv',0,MA_ERR) 
-
-      if (.not.ma_push_get(mt_dbl,maxpoles*ipol,'factor',lfac,kfac))
-     $  call errquit(pname//'can''t allocate factor',0,MA_ERR)
-      if (.not.ma_push_get(mt_dbl,maxpoles*ipol,'dfactor',ldfac,kdfac))
-     $  call errquit(pname//'can''t allocate factor',0,MA_ERR)
 
 
       call dsytrf('l',nri,dbl_mb(k_pi),nri,int_mb(k_ipiv),
@@ -158,22 +172,22 @@
         endif
 
 
-!$omp   parallel do collapse(2) private(temp)
         do jsp=1,ipol
+!$omp     parallel do private(temp)
           do ipole=1,pars%mynpoles(jsp)
             temp = Eia(ipole,jsp) - ieta
             temp = 0.5d0/(arg + temp) + 0.5d0/(temp - arg)
-            dbl_mb(kfac+(jsp-1)*maxpoles+ipole-1) = dble(temp)
+            factor(ipole,jsp) = dble(temp)
 
             temp = Eia(ipole,jsp) - ieta
             temp = -(0.5d0/(arg + temp))**2 + (0.5d0/(temp - arg))**2
-            dbl_mb(kdfac+(jsp-1)*maxpoles+ipole-1) = dfac*dble(temp)
+            dfactor(ipole,jsp) = dfac*dble(temp)
           enddo
+!$omp     end parallel do
         enddo
-!$omp   end parallel do
 
         call gw_buildpi('r',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
-     $                   dbl_mb(kfac),nri,nri,pars%mynpoles,main,ipol,
+     $                   factor,nri,nri,pars%mynpoles,main,ipol,
      $                   maxpoles)
         call ga_dgop(mt_dbl,dbl_mb(k_pi),nri**2,'+')
 
@@ -211,11 +225,12 @@
           if (pars%mynpoles(jsp).eq.0) cycle
           addr = kOV(jsp)
           call dgemv('t',nri,pars%mynpoles(jsp),1d0,dbl_mb(addr),nri,
-     $                vector2,1,0d0,dbl_mb(kfac),1)
-          do ipole=0,pars%mynpoles(jsp)-1
-            dR = dR + fac*dbl_mb(kdfac+(jsp-1)*maxpoles+ipole)*
-     $                dbl_mb(kfac+ipole)**2
+     $                vector2,1,0d0,factor,1)
+!$omp     parallel do reduction(+: dR)
+          do ipole=1,pars%mynpoles(jsp)
+            dR = dR + fac*dfactor(ipole,jsp)*factor(ipole,1)**2
           enddo
+!$omp     end parallel do
         enddo
 
         if (root.ne.me) cycle
@@ -229,6 +244,13 @@
 
       call ga_dgop(mt_dbl,R,1,'+')
       call ga_dgop(mt_dbl,dR,1,'+')
+
+#ifdef USE_ALLOC
+      deallocate(factor, dfactor, STAT = stat_alloc)
+      if(stat_alloc.ne.0)
+     &     call errquit(' gw_buildrn: deallocate failed for size',
+     M     maxpoles*ipol, MA_ERR)
+#endif
 
       if (.not.ma_chop_stack(l_ipiv))
      $   call errquit(pname//'can''t chop stack',0,MA_ERR)
