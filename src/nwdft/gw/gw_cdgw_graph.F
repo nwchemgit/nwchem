@@ -109,7 +109,7 @@ c            Eout = Eout + sign(5d0*pars%thresh,Eout)
           const = Eref(llmo+iqp-1,isp) + Sigma_X -  SigmaOld
 
           ! we only need a guess
-          do iter=1,5
+          do iter=1,6
             timer2 = util_wallsec()
             Ein = Eout
 

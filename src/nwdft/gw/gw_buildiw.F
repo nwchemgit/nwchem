@@ -65,7 +65,6 @@
 
       diag = .false.
       if (nri.gt.4000) diag = .true.
-      diag = .true.
 
       if (.not.ma_alloc_get(mt_dbl,sizepi,'Pi',l_pi,k_pi))
      $  call errquit(pname//'can''t allocate Pi',0,MA_ERR) 

@@ -39,7 +39,7 @@
 
       logical main, ok, parallel_diag
       double precision, parameter :: shift = 0.00001d0
-      double precision, parameter :: eta = 0.00001d0
+      double precision, parameter :: eta = 0.0000001d0
       double complex, parameter :: ieta = dcmplx(0d0,eta)
       double complex :: temp, arg
       logical, external :: is_near
