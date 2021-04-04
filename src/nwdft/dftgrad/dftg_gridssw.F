@@ -128,7 +128,7 @@ c     all inside
          endif
       enddo
 32     continue
-#ifdef USE_OPENMP
+#ifdef USE_OPENMP_
 !$omp parallel do private(n,p)
 #endif
       do n=n1,n2
@@ -305,7 +305,7 @@ c
          endif
       enddo
       enddo ! n loop
-#ifdef USE_OPENMP
+#ifdef USE_OPENMP_
 !$omp end parallel do
 #endif
       return
