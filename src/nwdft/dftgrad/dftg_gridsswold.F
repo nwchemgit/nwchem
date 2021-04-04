@@ -1,6 +1,6 @@
       Subroutine dftg_gridsswold(grid_written,
      ,     d_qwght,qwght, qxyz, xyz, Rij, rq, p, 
-     ,     zeta, dzeta, d_p,
+     ,     dzeta, d_p,
      .     ictr, nctrs_pruned, nq_orig,nq, 
      ,     whichfunc,lscreen)
 c
@@ -25,8 +25,8 @@ c
       double precision qwght(nq_orig) ! weights [output]
       double precision d_qwght(3,nq_orig,*) ! weight deriv [output]
 c
-      double precision d_p(3,nq_orig,*), zeta(nq_orig),
-     &                 dzeta(3,nq_orig,*)
+      double precision d_p(3,*), 
+     &                 dzeta(3,*)
       integer i, j,  ij
       integer iind,jind,   AA,NN
       double precision mu, nu,radwgh
@@ -44,6 +44,7 @@ c
       double precision xi, yi, zi, dmu1, dmu2, dmu3
       double precision tmu, tmu1,mu1,mu14,dmu1dmu,dskdmu1,asqrtpi
       double precision xa,ya,za,alpha_erf
+      double precision  zetan
       integer A,B,n1
 #include "xc_erftab.fh"
 c     
@@ -56,9 +57,6 @@ c
       NN = 1
       iw = 0
       asqrtpi=1d0/sqrt(4*datan(1d0))
-      call dfill(nq*3*nctrs_pruned, 0.d0, dzeta, 1)
-      call dfill(nq, 0.d0, zeta, 1)
-      call dfill(nq*3*nctrs_pruned, 0.d0, d_p, 1)
       call dfill(nq*3*nctrs_pruned, 0.d0, d_qwght, 1)
       if(whichfunc.eq.'erf1') then
         ass=ass_erf1
@@ -126,13 +124,16 @@ c     all inside
       return
  31   continue
       do n=n1,nq
+         call dfill(3*nctrs_pruned, 0.d0, dzeta, 1)
+         call dfill(3*nctrs_pruned, 0.d0, d_p, 1)
+         zetan=0d0
 c
 c       compute mu_AN
 c
         mu=(rq(n,AA)-rq(n,nn))/sqrt(distnn)
         if (mu.gt.ass-eps) then
           p(AA)=0d0
-          zeta(n)=1d0
+          zetan=1d0
           goto 1100
         endif
 
@@ -191,7 +192,7 @@ c
           wsum=wsum+p(i)
         enddo
         if(abs(wsum).lt.toll) goto 300
-        zeta(n) = 1d0/wsum
+        zetan = 1d0/wsum
  1100   continue
       do A = 1, nctrs_pruned
          if(abs(p(A)).gt.toll) then
@@ -283,9 +284,9 @@ c
                      dBPA(2)= -tmu1*dbmuba(2)
                      dBPA(3)= -tmu1*dbmuba(3)
 c
-                     dzeta(1,n,B) = dzeta(1,n,B)+ dBPA(1)
-                     dzeta(2,n,B) = dzeta(2,n,B)+ dBPA(2)
-                     dzeta(3,n,B) = dzeta(3,n,B)+ dBPA(3)
+                     dzeta(1,B) = dzeta(1,B)+ dBPA(1)
+                     dzeta(2,B) = dzeta(2,B)+ dBPA(2)
+                     dzeta(3,B) = dzeta(3,B)+ dBPA(3)
 c
 
                      if (inota)then
@@ -298,13 +299,13 @@ c
                      damuab(1) = -(xA+mu*dmu1)*Rij(ij)
                      damuab(2) = -(yA+mu*dmu2)*Rij(ij)
                      damuab(3) = -(zA+mu*dmu3)*Rij(ij)
-                     dzeta(1,n,A) = dzeta(1,n,A)+tmu1*damuab(1)
-                     dzeta(2,n,A) = dzeta(2,n,A)+tmu1*damuab(2)
-                     dzeta(3,n,A) = dzeta(3,n,A)+tmu1*damuab(3)
+                     dzeta(1,A) = dzeta(1,A)+tmu1*damuab(1)
+                     dzeta(2,A) = dzeta(2,A)+tmu1*damuab(2)
+                     dzeta(3,A) = dzeta(3,A)+tmu1*damuab(3)
                    else
-                     d_p(1,n,B) =  dBPA(1)
-                     d_p(2,n,B) =  dBPA(2)
-                     d_p(3,n,B) =  dBPA(3)
+                     d_p(1,B) =  dBPA(1)
+                     d_p(2,B) =  dBPA(2)
+                     d_p(3,B) =  dBPA(3)
                    endif
                  endif
              endif
@@ -315,7 +316,7 @@ c
       if(.not.grid_written) then
 !         do n=1,nq
             if(abs(p(AA)).gt.toll)then
-               qwght(n) = (p(AA)*qwght(n))*zeta(n)
+               qwght(n) = (p(AA)*qwght(n))*zetan
             else
                qwght(n)=0d0
             endif
@@ -330,12 +331,12 @@ c
          if (B.ne.AA)then
 !            do n = 1, nq
                if(abs(p(AA)).gt.toll) then
-               d_qwght(1,n,b)= (d_p(1,n,B)/p(AA) -
-     &           dzeta(1,n,B)*zeta(n))*qwght(n)
-               d_qwght(2,n,b)= (d_p(2,n,B)/p(AA) -
-     &           dzeta(2,n,B)*zeta(n))*qwght(n)
-               d_qwght(3,n,b)= (d_p(3,n,B)/p(AA) -
-     &           dzeta(3,n,B)*zeta(n))*qwght(n)
+               d_qwght(1,n,b)= (d_p(1,B)/p(AA) -
+     &           dzeta(1,B)*zetan)*qwght(n)
+               d_qwght(2,n,b)= (d_p(2,B)/p(AA) -
+     &           dzeta(2,B)*zetan)*qwght(n)
+               d_qwght(3,n,b)= (d_p(3,B)/p(AA) -
+     &           dzeta(3,B)*zetan)*qwght(n)
               endif
 !            enddo
          endif
