@@ -27,6 +27,7 @@
       integer imo,jmo,kmo,lmo,nprocs,kOV1,kOV2,isp,addr,idz,kOO(2)
       integer kVV(2),kOV(2),mynvir,mynocc,nlocal,nmod
       double precision w2,ecrpa,ecgm
+      double precision, external :: gw_ddot
 #ifdef USE_ALLOC
       real(kind=C_DOUBLE), allocatable    :: factor(:,:)
       integer(kind=c_int)         :: stat_alloc
@@ -181,7 +182,8 @@ c
                   idy = ((imo-1)*pars%nvir(isp)+lmo-pars%nocc(isp)-1)
                   idy = idy/nprocs*nri + kOV(isp)
                 endif
-                call dcopy(nri,dbl_mb(idy),1,dbl_mb(idx),1)
+                call gw_copy(nri,dbl_mb(idy),dbl_mb(idx))
+c                call dcopy(nri,dbl_mb(idy),1,dbl_mb(idx),1)
               enddo
 !$omp         end parallel do
 
@@ -198,7 +200,8 @@ c
                   idy = ((imo-pars%nocc(isp)-1)*pars%nvir(isp)+lmo-
      $                    pars%nocc(isp)-1)/nprocs*nri + kVV(isp)
                 endif
-                call dcopy(nri,dbl_mb(idy),1,dbl_mb(idx),1)
+                call gw_copy(nri,dbl_mb(idy),dbl_mb(idx))
+c                call dcopy(nri,dbl_mb(idy),1,dbl_mb(idx),1)
               enddo
 !$omp         end parallel do
             endif
@@ -211,8 +214,10 @@ c
               call gw_rfpmm(dbl_mb(k_vx),dbl_mb(tmp),dbl_mb(k_sol),
      $                      ldpi,nri,iwidx(0,jmo,isp),.true.)
             else
-              call dcopy(nri*iwidx(0,jmo,isp),dbl_mb(tmp),1,
-     $                   dbl_mb(k_sol),1)
+c              call dcopy(nri*iwidx(0,jmo,isp),dbl_mb(tmp),1,
+c     $                   dbl_mb(k_sol),1)
+              call gw_copy(nri*iwidx(0,jmo,isp),dbl_mb(tmp),
+     $                     dbl_mb(k_sol))
 
               call dtfsm('n','l','l','n','n',nri,iwidx(0,jmo,isp),1d0,
      $                   dbl_mb(k_pi),dbl_mb(k_sol),nri)       
@@ -229,12 +234,17 @@ c
               idy = k_sol + (kmo-1)*nri
               if (diag) then
                 iw(kmo,igl,jmo,isp) = 
-     $            ddot(nri,dbl_mb(idx),1,dbl_mb(idy),1) -
-     $            ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
+     $           gw_ddot(nri,dbl_mb(idx),dbl_mb(idy)) - 
+     $           gw_ddot(nri,dbl_mb(idx),dbl_mb(idx))
+c
+c     $            ddot(nri,dbl_mb(idx),1,dbl_mb(idy),1) -
+c     $            ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
               else
                 iw(kmo,igl,jmo,isp) = 
-     $            ddot(nri,dbl_mb(idy),1,dbl_mb(idy),1) -
-     $            ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
+     $           gw_ddot(nri,dbl_mb(idy),dbl_mb(idy)) - 
+     $           gw_ddot(nri,dbl_mb(idx),dbl_mb(idx))
+c     $            ddot(nri,dbl_mb(idy),1,dbl_mb(idy),1) -
+c     $            ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
               endif
             enddo
 !$omp       end parallel do
@@ -278,3 +288,18 @@ c
 c
       end subroutine
 
+      subroutine gw_copy(n,from,to)
+      implicit none
+      integer :: n
+      double precision :: from(n), to(n)
+      
+      to(:) = from(:)
+
+      return
+      end subroutine
+
+      double precision function gw_ddot(n,a,b)
+      integer n
+      double precision a(n), b(n)
+      gw_ddot = dot_product(a,b)
+      end function

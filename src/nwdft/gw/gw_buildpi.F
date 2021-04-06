@@ -106,8 +106,10 @@
 
 !$omp   parallel do
         do ipole=1,mymax
-          call dcopy(nri,ovup(1,ipole),1,dbl_mb(k_scr+(ipole-1)*nri),1)
-          call dscal(nri,factor(ipole,1),dbl_mb(k_scr+(ipole-1)*nri),1)
+          call gw_scal(nri,ovup(1,ipole),dbl_mb(k_scr+(ipole-1)*nri),
+     $                 factor(ipole,1))
+c          call dcopy(nri,ovup(1,ipole),1,dbl_mb(k_scr+(ipole-1)*nri),1)
+c          call dscal(nri,factor(ipole,1),dbl_mb(k_scr+(ipole-1)*nri),1)
         enddo
 !$omp   end parallel do
         call dgemm('n','t',nri,nri,mymax,2d0*scal,dbl_mb(k_scr),nri,
@@ -121,10 +123,13 @@
 
 !$omp     parallel do
           do ipole=1,mynpoles
-            call dcopy(nri,ovup(1,llpole+ipole-1),1,
-     $                 dbl_mb(k_scr+(ipole-1)*nri),1)
-            call dscal(nri,factor(llpole+ipole-1,1),
-     $                 dbl_mb(k_scr+(ipole-1)*nri),1)
+            call gw_scal(nri,ovup(1,llpole+ipole-1),
+     $                   dbl_mb(k_scr+(ipole-1)*nri),
+     $                   factor(llpole+ipole-1,1))
+c            call dcopy(nri,ovup(1,llpole+ipole-1),1,
+c     $                 dbl_mb(k_scr+(ipole-1)*nri),1)
+c            call dscal(nri,factor(llpole+ipole-1,1),
+c     $                 dbl_mb(k_scr+(ipole-1)*nri),1)
           enddo
 !$omp     end parallel do
           call dgemm('n','t',nri,nri,mynpoles,2d0*scal,dbl_mb(k_scr),
@@ -261,5 +266,13 @@
 !$omp   end parallel do
       endif
 
+
+      end subroutine
+
+      subroutine gw_scal(n,from,to,scal)
+      integer n
+      double precision from(n),to(n),scal
+
+      to(1:n) = scal*from(1:n)
 
       end subroutine
