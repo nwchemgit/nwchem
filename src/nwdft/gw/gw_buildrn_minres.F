@@ -45,7 +45,7 @@
       logical, external :: is_near
 
       double precision, parameter :: eta = 0.001d0
-      double precision, parameter :: shift = 0.00001d0
+      double precision, parameter :: shift = 0.0000001d0
       double complex, parameter :: ieta = dcmplx(0d0,eta)
 
 #ifdef USE_OPENMP      

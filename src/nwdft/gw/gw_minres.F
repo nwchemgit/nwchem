@@ -37,26 +37,7 @@
       integer,external :: omp_get_max_threads, omp_get_num_threads
       integer,external :: omp_get_thread_num
       nmax = min(omp_get_max_threads(),maxthreads+1)
-
-      !Align data to 8 doubles
-      nlocal = n/(nmax*8)
-      nlocal = nlocal*8
-
-      !Get limits
-!$omp parallel private(ithread)
-      ithread = omp_get_thread_num()
-      los(ithread) = ithread*nlocal + 1
-      his(ithread) = (ithread+1)*nlocal
-      if ((ithread+1).eq.nmax) his(ithread) = n
-      local(ithread) = 0d0
-      y(los(ithread):his(ithread)) = 0d0
-!$omp end parallel      
-#else
-      lo(0) = 1
-      hi(0) = n
-      ithread = 0
-      nmax = 1
-#endif      
+#endif
 
       call ga_sync()
       me = ga_nodeid()
@@ -87,21 +68,9 @@
       endif
       call dgop(mt_dbl,y,n,'+')
 
-      beta1 = 0d0
-      xnorm = 0d0
-!$omp parallel private(lo,hi,ithread) reduction(+: beta1,xnorm)
-#ifdef USE_OPENMP
-      ithread = omp_get_thread_num()
-#endif      
-      lo = los(ithread)
-      hi = his(ithread)
-      y(lo:hi) = y(lo:hi) + b(lo:hi) - x(lo:hi)
-      beta1 = beta1 + dot_product(y(lo:hi),y(lo:hi))
-      xnorm = xnorm + dot_product(x(lo:hi),x(lo:hi))
-!$omp end parallel
-
-      beta1 = dsqrt(beta1)
-      xnorm = dsqrt(xnorm)
+      y(:) = y(:) + b(:) - x(:)
+      beta1 = dsqrt(dot_product(y,y))
+      xnorm = dsqrt(dot_product(x,x))
 
       ! Solution already converged
       if (beta1.lt.rtol) then
@@ -118,7 +87,6 @@
       endif
 
       ! Continue with MINRES
-      bnorm = 0d0
       oldb = 0d0
       beta = beta1
       dbar = 0d0
@@ -133,37 +101,19 @@
       sn = 0d0
       gmax = 0d0
 
-!$omp parallel private(lo,hi,ithread) reduction(+: bnorm)
-#ifdef USE_OPENMP
-      ithread = omp_get_thread_num()
-#endif
-      lo = los(ithread)
-      hi = his(ithread)
-      r1(lo:hi) = y(lo:hi)
-      r2(lo:hi) = y(lo:hi)
-      w(lo:hi) = 0d0
-      w1(lo:hi) = 0d0
-      w2(lo:hi) = 0d0
-      sol(lo:hi) = 0d0
-      bnorm = bnorm + dot_product(b(lo:hi),b(lo:hi))
-!$omp end parallel      
-      bnorm = dsqrt(bnorm)
-
-
+      r1(:) = y(:)
+      r2(:) = y(:)
+      w(:) = 0d0
+      w1(:) = 0d0
+      w2(:) = 0d0
+      sol(:) = 0d0
+      bnorm = dsqrt(dot_product(b,b))
 
       do
         iter = iter + 1
         s = 1d0/beta
 
-
-!$omp parallel private(lo,hi,ithread)
-#ifdef USE_OPENMP
-        ithread = omp_get_thread_num()
-#endif
-        lo = los(ithread)
-        hi = his(ithread)
-        v(lo:hi) = s*y(lo:hi)
-!$omp   end parallel     
+        v(:) = s*y(:)
 
 
         if (ipol.eq.1) then
@@ -175,44 +125,18 @@
         call dgop(mt_dbl,y,n,'+')
         alpha = 0d0
 
-!$omp   parallel private(lo,hi,ithread)
-#ifdef USE_OPENMP
-        ithread = omp_get_thread_num()
-#endif
-        lo = los(ithread)
-        hi = his(ithread)
 
-        y(lo:hi) = y(lo:hi) + v(lo:hi)
-        if (iter.ge.2) y(lo:hi) = y(lo:hi) - beta/oldb*r1(lo:hi)
+        y(:) = y(:) + v(:)
+        if (iter.ge.2) y(:) = y(:) - beta/oldb*r1(:)
 
-        local(ithread) = dot_product(v(lo:hi),y(lo:hi))
-!$omp   do schedule(static,1) reduction(+: alpha)
-        do jthread=0,nmax-1
-          alpha = alpha + local(jthread)
-        enddo
-!$omp   end do          
-
-
-        y(lo:hi) = y(lo:hi) - alpha/beta*r2(lo:hi)
-        r1(lo:hi) = r2(lo:hi)
-        r2(lo:hi) = y(lo:hi)
-
-!$omp   barrier        
-!$omp   master
+        alpha = dot_product(v,y)
         oldb = beta
-        beta = 0d0
-!$omp   end master
-!$omp   barrier
 
-        local(ithread) = dot_product(r2(lo:hi),r2(lo:hi))
-!$omp   do schedule(static,1) reduction(+:beta)
-        do jthread=0,nmax-1
-          beta = beta + local(jthread)
-        enddo
-!$omp   end do
+        y(:) = y(:) - alpha/beta*r2(:)
+        r1(:) = r2(:)
+        r2(:) = y(:)
 
-!$omp   master
-        beta = dsqrt(beta)
+        beta = dsqrt(dot_product(r2,r2))
 
         tnorm2 = tnorm2 + alpha**2 + oldb**2 + beta**2
 
@@ -255,29 +179,15 @@
         phibar = sn*phibar
         dxnorm = 0d0
         xnorm  = 0d0
-!$omp   end master
-!$omp   barrier        
 
-        w1(lo:hi) = w2(lo:hi)
-        w2(lo:hi) = w(lo:hi)
-        w(lo:hi) = (v(lo:hi)-oldeps*w1(lo:hi)-delta*w(lo:hi))/gam
-        sol(lo:hi) = sol(lo:hi) + phi*w(lo:hi)
+        w1(:) = w2(:)
+        w2(:) = w(:)
+        w(:) = (v(:)-oldeps*w1(:)-delta*w(:))/gam
+        sol(:) = sol(:) + phi*w(:)
+
+        dxnorm = dsqrt(dot_product(sol,sol))
+        xnorm = dsqrt(dot_product(x+sol,x+sol))
         
-        local(ithread) = dot_product(sol(lo:hi),sol(lo:hi))
-        local2(ithread) = dot_product(x(lo:hi)+sol(lo:hi),
-     $                                x(lo:hi)+sol(lo:hi))
-
-!$omp   do schedule(static,1) reduction(+:dxnorm,xnorm)
-        do jthread=0,nmax-1
-          dxnorm = dxnorm + local(ithread)
-          xnorm = xnorm + local2(ithread)
-        enddo
-!$omp   end do        
-!$omp   end parallel
-
-        dxnorm = dsqrt(dxnorm)
-        xnorm  = dsqrt(xnorm)
-
         gmax = max(gmax,gam)
         gmin = min(gmin,gam)
         z    = rhs1/gam

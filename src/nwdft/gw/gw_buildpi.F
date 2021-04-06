@@ -16,6 +16,13 @@
       integer ipole,iri,ma_dbl,l_scr,k_scr,mynpoles,llpole,mymax
       integer ulpole,nbatch,ibatch
       logical ok
+      integer nthreads
+#ifdef USE_OPENMP
+      integer, external :: omp_get_max_threads
+      nthreads = omp_get_max_threads()
+#else
+      nthreads = 1
+#endif
 
       scal = 2d0
       if (ipol.eq.1) scal = 2d0*scal
@@ -97,10 +104,12 @@
         mymax = min(npoles(1),mymax)
         ok = ma_alloc_get(mt_dbl,nri*mymax,'scratch',l_scr,k_scr)
 
-        call dcopy(nri*mymax,ovup,1,dbl_mb(k_scr),1)
+!$omp   parallel do
         do ipole=1,mymax
+          call dcopy(nri,ovup(1,ipole),1,dbl_mb(k_scr+(ipole-1)*nri),1)
           call dscal(nri,factor(ipole,1),dbl_mb(k_scr+(ipole-1)*nri),1)
         enddo
+!$omp   end parallel do
         call dgemm('n','t',nri,nri,mymax,2d0*scal,dbl_mb(k_scr),nri,
      $              ovup,nri,0d0,pi,nri)
 
@@ -109,11 +118,15 @@
           llpole = (ibatch-1)*mymax + 1
           ulpole = min(ibatch*mymax,npoles(1))
           mynpoles = ulpole - llpole + 1
-          call dcopy(nri*mynpoles,ovup(1,llpole),1,dbl_mb(k_scr),1)
+
+!$omp     parallel do
           do ipole=1,mynpoles
+            call dcopy(nri,ovup(1,llpole+ipole-1),1,
+     $                 dbl_mb(k_scr+(ipole-1)*nri),1)
             call dscal(nri,factor(llpole+ipole-1,1),
      $                 dbl_mb(k_scr+(ipole-1)*nri),1)
           enddo
+!$omp     end parallel do
           call dgemm('n','t',nri,nri,mynpoles,2d0*scal,dbl_mb(k_scr),
      $                nri,ovup(1,llpole),nri,1d0,pi,nri)
           
@@ -122,15 +135,19 @@
         ok = ma_free_heap(l_scr)
 
   200   if (ipol.gt.1 .and. npoles(2).gt.0) then
+
           nbatch = npoles(2)/ma_dbl + 1
           mymax = min(npoles(2)/nbatch + 1,npoles(2))
           ok = ma_alloc_get(mt_dbl,nri*mymax,'scratch',l_scr,k_scr)
 
-          call dcopy(nri*mymax,ovdw,1,dbl_mb(k_scr),1)
+!$omp     parallel do
           do ipole=1,mymax
+            call dcopy(nri,ovdw(1,ipole),1,
+     $                 dbl_mb(k_scr+(ipole-1)*nri),1)
             call dscal(nri,factor(ipole,2),
      $                 dbl_mb(k_scr+(ipole-1)*nri),1)
           enddo
+!$omp     end parallel do
           call dsyr2k('l','n',nri,mymax,scal,ovdw,nri,dbl_mb(k_scr),nri,
      $                 1d0,pi,nri)
 
@@ -138,11 +155,15 @@
             llpole = (ibatch-1)*mymax + 1
             ulpole = min(ibatch*mymax,npoles(2))
             mynpoles = ulpole - llpole + 1
-            call dcopy(nri*mynpoles,ovdw(1,llpole),1,dbl_mb(k_scr),1)
+
+!$omp       parallel do
             do ipole=1,mynpoles
+              call dcopy(nri,ovdw(1,llpole+ipole-1),1,
+     $                   dbl_mb(k_scr+(ipole-1)*nri),1)
               call dscal(nri,factor(llpole+ipole-1,2),
      $                   dbl_mb(k_scr+(ipole-1)*nri),1)
             enddo
+!$omp       end parallel do
             call dsyr2k('l','n',nri,mynpoles,scal,ovdw(1,llpole),nri,
      $                   dbl_mb(k_scr),nri,1d0,pi,nri)     
           enddo
@@ -152,11 +173,9 @@
         endif
 
         if (main) then
-!$omp     parallel do
           do iri=1,nri
             pi(iri,iri) = pi(iri,iri) + 1d0
           enddo
-!$omp     end parallel do
         endif
 
       endif

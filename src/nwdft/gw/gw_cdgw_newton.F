@@ -85,13 +85,13 @@
           Sigma_X  = Sigmax(llmo+iqp-1,isp)
 
           if (myul.lt.ulqp) then
-            Eout = Enew(llmo+iqp,isp)
+            Eout = Enew(llmo+iqp,isp) + 4d0*pars%thresh
           elseif (myll.gt.llqp) then
-            Eout = Enew(llmo+iqp-2,isp) 
+            Eout = Enew(llmo+iqp-2,isp) - 4d0*pars%thresh
           elseif (eviter.eq.0) then
             Eout = Eout + 0.10d0*(sigma_x - sigmaold)
           else
-            Eout = Eout + sign(1.2d0*pars%thresh,Eout)
+            Eout = Eout + sign(4d0*pars%thresh,Eout)
           endif
 
           call ga_zero(pars%g_sols)

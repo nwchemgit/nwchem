@@ -129,7 +129,8 @@ c     all inside
       enddo
 32     continue
 #ifdef USE_OPENMP
-!$omp parallel do private(n,p)
+!$omp parallel do default(firstprivate)
+!$omp&            shared(zeta,rq,qxyz,xyz,rij,dzeta,d_qwght,qwght)
 #endif
       do n=n1,n2
 c
