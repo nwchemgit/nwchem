@@ -176,7 +176,7 @@ c
 
             if (imo.le.pars%nocc(isp)) then
 
-!$omp         parallel do private(kmo,lmo,idx,idy)
+!$omp         parallel do private(kmo,lmo,idx,idy) schedule(static)
               do kmo=1,iwidx(0,jmo,isp)
                 lmo = iwidx(kmo,jmo,isp)
                 idx = tmp + (kmo-1)*nri
@@ -187,13 +187,13 @@ c
                   idy = ((imo-1)*pars%nvir(isp)+lmo-pars%nocc(isp)-1)
                   idy = idy/nprocs*nri + kOV(isp)
                 endif
-                call gw_copy(nri,dbl_mb(idy),dbl_mb(idx))
+                call dcopy(nri,dbl_mb(idy),1,dbl_mb(idx),1)
               enddo
 !$omp         end parallel do
 
             else
 
-!$omp         parallel do private(kmo,lmo,idx,idy)
+!$omp         parallel do private(kmo,lmo,idx,idy) schedule(static)
               do kmo=1,iwidx(0,jmo,isp)
                 lmo = iwidx(kmo,jmo,isp)
                 idx = tmp + (kmo-1)*nri
@@ -204,7 +204,7 @@ c
                   idy = ((imo-pars%nocc(isp)-1)*pars%nvir(isp)+lmo-
      $                    pars%nocc(isp)-1)/nprocs*nri + kVV(isp)
                 endif
-                call gw_copy(nri,dbl_mb(idy),dbl_mb(idx))
+                call dcopy(nri,dbl_mb(idy),1,dbl_mb(idx),1)
               enddo
 !$omp         end parallel do
             endif
@@ -219,7 +219,7 @@ c
      $                   dbl_mb(k_pi),dbl_mb(k_sol),nri)       
             endif
 c
-!$omp       parallel do private(kmo,idx,idy)
+!$omp       parallel do private(kmo,idx,idy) schedule(static)
             do kmo=1,iwidx(0,jmo,isp)
               idx = tmp + (kmo-1)*nri
               idy = k_sol + (kmo-1)*nri

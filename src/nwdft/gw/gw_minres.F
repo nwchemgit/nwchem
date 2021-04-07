@@ -43,7 +43,7 @@
       me = ga_nodeid()
       main = me.eq.0
       converged = .false.
-      doparallel = n > 400
+      doparallel = n > 32768
 
 #ifdef PARALLEL_DIAG
       parallel_diag = n.gt.4000
@@ -122,33 +122,33 @@
       sn = 0d0
       gmax = 0d0
 
-!$omp parallel      
-!$omp do simd if (doparallel) schedule(static)
+!$omp parallel if (doparallel)
+!$omp do simd schedule(static)
       do i=1,n
         r1(i) = y(i)
       enddo
 !$omp end do simd nowait
-!$omp do simd if (doparallel) schedule(static)
+!$omp do simd schedule(static)
       do i=1,n
         r2(i) = y(i)
       enddo
 !$omp end do simd nowait
-!$omp do simd if (doparallel) schedule(static)
+!$omp do simd schedule(static)
       do i=1,n
         w(i) = 0d0
       enddo
 !$omp end do simd nowait
-!$omp do simd if (doparallel) schedule(static)
+!$omp do simd schedule(static)
       do i=1,n
         w1(i) = 0d0
       enddo
 !$omp end do simd nowait
-!$omp do simd if (doparallel) schedule(static)
+!$omp do simd schedule(static)
       do i=1,n
         w2(i) = 0d0
       enddo
 !$omp end do simd nowait
-!$omp do simd if (doparallel) schedule(static)
+!$omp do simd schedule(static)
       do i=1,n
         sol(i) = 0d0
       enddo
@@ -189,13 +189,13 @@
 
         call daxpy(n,-alpha/beta,r2,1,y,1)
 
-!$omp   parallel 
-!$omp   do simd if (doparallel) schedule(static)
+!$omp   parallel if (doparallel)
+!$omp   do simd schedule(static)
         do i=1,n
           r1(i) = r2(i)
         enddo
 !$omp   end do simd nowait
-!$omp   do simd if (doparallel) schedule(static)
+!$omp   do simd schedule(static)
         do i=1,n
           r2(i) = y(i)
         enddo
@@ -244,18 +244,18 @@
         phi    = cs*phibar
         phibar = sn*phibar
 
-!$omp parallel
-!$omp   do simd if (doparallel) schedule(static)
+!$omp parallel if (doparallel)
+!$omp   do simd schedule(static)
         do i=1,n
           w1(i) = w2(i)
         enddo
 !$omp   end do simd nowait
-!$omp   do simd if (doparallel) schedule(static)
+!$omp   do simd schedule(static)
         do i=1,n
           w2(i) = w(i)
         enddo
 !$omp   end do simd nowait
-!$omp   do simd if (doparallel) schedule(static)
+!$omp   do simd schedule(static)
         do i=1,n
           w(i) = (v(i) - oldeps*w1(i) -delta*w(i))/gam
         enddo
@@ -380,7 +380,7 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
 
       call dgemv('t',n,npoles,scal,ov,n,x,1,0d0,tmp,1)
 
-!$omp parallel do simd if (npoles>400)
+!$omp parallel do simd
       do i=1,npoles
         tmp(i) = tmp(i)*factor(i)
       enddo

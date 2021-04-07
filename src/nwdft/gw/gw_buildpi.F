@@ -14,7 +14,7 @@
 
       double precision scal
       integer ipole,iri,ma_dbl,l_scr,k_scr,mynpoles,llpole,mymax
-      integer ulpole,nbatch,ibatch
+      integer ulpole,nbatch,ibatch,idx,idy
       logical ok
       integer nthreads
 #ifdef USE_OPENMP
@@ -32,7 +32,7 @@
 
 !$omp     parallel do simd schedule(static)
           do ipole=1,npoles(1)
-            ovup(1:nri,ipole) = ovup(1:nri,ipole)*factor(ipole,1)
+            call dscal(nri,factor(ipole,1),ovup(1,ipole),1)
           enddo
 !$omp     end parallel do simd
 
@@ -40,7 +40,7 @@
 
 !$omp     parallel do simd schedule(static)
           do ipole=1,npoles(1)
-            ovup(1:nri,ipole) = ovup(1:nri,ipole)/factor(ipole,1)
+            call dscal(nri,1d0/factor(ipole,1),ovup(1,ipole),1)
           enddo
 !$omp     end parallel do simd
 
@@ -50,7 +50,7 @@
 
 !$omp     parallel do simd schedule(static)
           do ipole=1,npoles(2)
-            ovdw(1:nri,ipole) = ovdw(1:nri,ipole)*factor(ipole,2)
+            call dscal(nri,factor(ipole,2),ovdw(1,ipole),1)
           enddo
 !$omp     end parallel do simd
 
@@ -58,7 +58,7 @@
 
 !$omp     parallel do simd schedule(static)
           do ipole=1,npoles(2)
-            ovdw(1:nri,ipole) = ovdw(1:nri,ipole)/factor(ipole,2)
+            call dscal(nri,1d0/factor(ipole,2),ovdw(1,ipole),1)
           enddo
 !$omp     end parallel do simd
 
@@ -99,10 +99,11 @@
         mymax = min(npoles(1),mymax)
         ok = ma_alloc_get(mt_dbl,nri*mymax,'scratch',l_scr,k_scr)
 
-!$omp   parallel do schedule(static)
+!$omp   parallel do schedule(static) private(idx)
         do ipole=1,mymax
-          call dcopy(nri,ovup(1,ipole),1,dbl_mb(k_scr+(ipole-1)*nri),1)
-          call dscal(nri,factor(ipole,1),dbl_mb(k_scr+(ipole-1)*nri),1)
+          idx = k_scr + (ipole-1)*nri
+          call dfill(nri,0d0,dbl_mb(idx),1)
+          call daxpy(nri,factor(ipole,1),ovup(1,ipol),1,dbl_mb(idx),1)
         enddo
 !$omp   end parallel do
         call dgemm('n','t',nri,nri,mymax,2d0*scal,dbl_mb(k_scr),nri,
@@ -114,12 +115,12 @@
           ulpole = min(ibatch*mymax,npoles(1))
           mynpoles = ulpole - llpole + 1
 
-!$omp     parallel do schedule(static)
+!$omp     parallel do schedule(static) private(idx,idy)
           do ipole=1,mynpoles
-            call dcopy(nri,ovup(1,llpole+ipole-1),1,
-     $                 dbl_mb(k_scr+(ipole-1)*nri),1)
-            call dscal(nri,factor(llpole+ipole-1,1),
-     $                 dbl_mb(k_scr+(ipole-1)*nri),1)
+            idx = k_scr + (ipole-1)*nri
+            idy = llpole + ipole - 1
+            call dfill(nri,0d0,dbl_mb(idx),1)
+            call daxpy(nri,factor(idy,1),ovup(1,idy),1,dbl_mb(idx),1)
           enddo
 !$omp     end parallel do
           call dgemm('n','t',nri,nri,mynpoles,2d0*scal,dbl_mb(k_scr),
