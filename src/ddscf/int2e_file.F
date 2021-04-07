@@ -93,7 +93,7 @@ c     Figure out sizes.  The -1 is to leave room for the end record
 c     which for semidirect may be written out after EOF has been reported.
 c
       if (cachesize .gt. 0) then
-         max_cache_rec = nint(dble(cachesize)/dble(rec_len_in_dbl))
+         max_cache_rec = ceiling(dble(cachesize)/dble(rec_len_in_dbl))
       else
          max_cache_rec = 0
       end if
@@ -129,7 +129,7 @@ c
 c
          if (filesize.gt.0)
      $        max_file_rec = min(max_file_rec,
-     N        nint(dble(filesize)/dble(rec_len_in_dbl)))
+     N        ceiling(dble(filesize)/dble(rec_len_in_dbl)))
       else 
 c
 c     Filesize < 0 means user forced no filespace at all.
