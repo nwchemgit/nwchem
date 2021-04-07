@@ -1,17 +1,21 @@
-      subroutine gw_minres(OV1,OV2,factor,x,b,npoles,maxpoles,n,ipol)
+      subroutine gw_minres(OV1,OV2,factor,x,b,npoles,maxpoles,n,ipol,
+     $                     los,his)
       implicit none
 #include "errquit.fh"
 #include "global.fh"      
 #include "mafdecls.fh"
+#include "util.fh"
+      integer,parameter :: maxiter = 12
+      integer,parameter :: maxthreads = 1024
+
       integer,intent(in) :: ipol
       integer,intent(in) :: npoles(ipol),maxpoles,n
+      integer,intent(in) :: los(maxthreads,ipol),his(maxthreads,ipol)
       double precision,intent(in) :: factor(maxpoles,ipol)
       double precision,intent(in) :: OV1(n,maxpoles),OV2(n,maxpoles)
       double precision,dimension(n),intent(in)   :: b
       double precision,dimension(n),intent(inout)  :: x
 
-      integer,parameter :: maxiter = 12
-      integer,parameter :: maxthreads = 1023
 
       integer l_pi, k_pi, l_ipiv, k_ipiv, lscr, l_scr, k_scr, info
       integer mynri, nprocs, llpi, pilo
@@ -23,20 +27,18 @@
       double precision :: phibar, rhs1, rhs2, rnorml, rootl, Arnorml
       double precision :: relArnorml, s, sn, t, tnorm2, ynorm2, z
       double precision :: t1, t2, test1, test2, root, bnorm, dxnorm
-      double precision :: test3, xnorm
+      double precision :: test3, xnorm, x0norm
       double precision,dimension(n) :: r1, r2, sol, v, w, w1, w2, y
+      double precision :: aprod,rest,t0,tdgop
 
       
       logical main,converged,oactive,parallel_diag
       integer iter, istop, i, gy, me, ld, nmax, nlocal, ithread
-      integer los(0:maxthreads),his(0:maxthreads), lo, hi, jthread
-      double precision local(0:maxthreads),local2(0:maxthreads)
+      integer lo, hi, jthread
       double precision,parameter :: shift = 0.000d0, rtol=1d-4
 
 #ifdef USE_OPENMP      
-      integer,external :: omp_get_max_threads, omp_get_num_threads
       integer,external :: omp_get_thread_num
-      nmax = min(omp_get_max_threads(),maxthreads+1)
 #endif
 
       call ga_sync()
@@ -58,19 +60,40 @@
       ynorm = 0d0
       gmin  = 1d0
       test3 = 0d0
+#ifdef GWDEBUG
+      aprod = 0d0
+      tdgop = 0d0
+      t0 = util_wallsec()
+      rest = t0
+#endif
 
+      x0norm = dot_product(x,x)
+
+      if (x0norm.eq.0d0) then
+        y(:) = b(:)
+        goto 1001
+      endif
 
       if (ipol.eq.1) then
-        call gw_aprod(OV1,factor,x,y,-4d0,0d0,npoles,n)
+        call gw_aprod(OV1,factor,x,y,-4d0,0d0,npoles,n,los,his)
       else
-        call gw_aprod(OV1,factor,x,y,-2d0,0d0,npoles,n)
-        call gw_aprod(OV2,factor(1,2),x,y,-2d0,1d0,npoles(2),n)
+        call gw_aprod(OV1,factor,x,y,-2d0,0d0,npoles,n,los,his)
+        call gw_aprod(OV2,factor(1,2),x,y,-2d0,1d0,npoles(2),n,
+     $                los(1,2),his(1,2))
       endif
-      call dgop(mt_dbl,y,n,'+')
-
       y(:) = y(:) + b(:) - x(:)
-      beta1 = dsqrt(dot_product(y,y))
-      xnorm = dsqrt(dot_product(x,x))
+
+#ifdef GWDEBUG
+      aprod = aprod + util_wallsec() - t0
+      t0 = util_wallsec()
+#endif
+      call dgop(mt_dbl,y,n,'+')
+#ifdef GWDEBUG
+      tdgop = tdgop + util_wallsec() - t0
+#endif
+
+
+1001  beta1 = dsqrt(dot_product(y,y))
 
       ! Solution already converged
       if (beta1.lt.rtol) then
@@ -115,24 +138,33 @@
 
         v(:) = s*y(:)
 
-
+#ifdef GWDEBUG
+        t0 = util_wallsec()
+#endif
         if (ipol.eq.1) then
-          call gw_aprod(OV1,factor,v,y,4d0,0d0,npoles,n)
+          call gw_aprod(OV1,factor,v,y,4d0,0d0,npoles,n,los,his)
         else
-          call gw_aprod(OV1,factor,v,y,2d0,0d0,npoles,n)
-          call gw_aprod(OV2,factor(1,2),v,y,2d0,1d0,npoles(2),n)
+          call gw_aprod(OV1,factor,v,y,2d0,0d0,npoles,n,los,his)
+          call gw_aprod(OV2,factor(1,2),v,y,2d0,1d0,npoles(2),n,
+     $                 los(1,2),his(1,2))
         endif
+#ifdef GWDEBUG
+        aprod = aprod + util_wallsec() - t0
+        t0 = util_wallsec()
+#endif
         call dgop(mt_dbl,y,n,'+')
+#ifdef GWDEBUG
+        tdgop = tdgop + util_wallsec() - t0
+#endif
         alpha = 0d0
 
-
-        y(:) = y(:) + v(:)
-        if (iter.ge.2) y(:) = y(:) - beta/oldb*r1(:)
+        call daxpy(n,1d0,v,1,y,1)
+        if (iter.ge.2) call daxpy(n,-beta/oldb,r1,1,y,1)
 
         alpha = dot_product(v,y)
         oldb = beta
 
-        y(:) = y(:) - alpha/beta*r2(:)
+        call daxpy(n,-alpha/beta,r2,1,y,1)
         r1(:) = r2(:)
         r2(:) = y(:)
 
@@ -177,16 +209,14 @@
 
         phi    = cs*phibar
         phibar = sn*phibar
-        dxnorm = 0d0
-        xnorm  = 0d0
 
         w1(:) = w2(:)
         w2(:) = w(:)
         w(:) = (v(:)-oldeps*w1(:)-delta*w(:))/gam
-        sol(:) = sol(:) + phi*w(:)
+        call daxpy(n,phi,w,1,sol,1)
 
         dxnorm = dsqrt(dot_product(sol,sol))
-        xnorm = dsqrt(dot_product(x+sol,x+sol))
+        xnorm = dsqrt(x0norm + dxnorm**2 + 2d0*dot_product(x,sol))
         
         gmax = max(gmax,gam)
         gmin = min(gmin,gam)
@@ -228,6 +258,16 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
 
  1000 continue
  2000 continue
+
+#ifdef GWDEBUG
+      rest = util_wallsec() - rest - tdgop - aprod
+      if (me.eq.0) then
+        write(*,'(a,f20.3)') 'aprod ',aprod
+        write(*,'(a,f20.3)') 'dgop ',tdgop
+        write(*,'(a,f20.3)') 'rest ',rest
+      endif
+#endif
+
 
       if (istop.eq.6 .and. rnorm.gt.0.001d0) then
 
@@ -277,24 +317,30 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
       end subroutine
 
 
-      subroutine gw_aprod(ov,factor,x,y,scal,mult,npoles,n)
+      subroutine gw_aprod(ov,factor,x,y,scal,mult,npoles,n,los,his)
       implicit none
-      integer,intent(in) :: npoles, n
+      integer,intent(in) :: npoles, n, los(*), his(*)
       double precision, intent(in) :: scal, mult
       double precision, intent(in) :: ov(n,npoles),factor(npoles)
       double precision, intent(in) :: x(n)
       double precision, intent(out) :: y(n)
 
-      integer :: i
+      integer :: i,tid,lo,hi
       double precision :: tmp(npoles)
+      integer,external :: omp_get_thread_num
 
       call dgemv('t',n,npoles,scal,ov,n,x,1,0d0,tmp,1)
 
-!$omp parallel do
-      do i=1,npoles
-        tmp(i) = tmp(i)*factor(i)
-      enddo
-!$omp end parallel do
+!$omp parallel 
+#ifdef USE_OPENMP
+      tid = omp_get_thread_num() + 1
+#else
+      tid = 1
+#endif
+      lo = los(tid)
+      hi = his(tid)
+      tmp(lo:hi) = tmp(lo:hi)*factor(lo:hi)
+!$omp end parallel
 
       call dgemv('n',n,npoles,1d0,ov,n,tmp,1,mult,y,1)
 

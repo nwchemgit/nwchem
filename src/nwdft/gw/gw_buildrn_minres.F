@@ -27,17 +27,19 @@
       double precision, intent(out) :: R,dR
 
       character(len=12), parameter :: pname = 'gw_buildrn: '
+      integer, parameter :: maxthread = 1024
 
+      integer tid,nt,los(maxthread,2),his(maxthread,2)
       integer root, oolo, vvlo, ovlo, ovhi, nspace
       integer nprocs
       integer jmo, ipole, info, ld, mynri, idx, jsp
       integer k_ipiv, l_scr, k_scr, lscr
       integer g_pi, g_sol, off
       integer kOV(2), ga, first, second, step
-      integer spacelo, addr, gb, owner
-      double precision fac, arg, w, arg2, dfac, sgn
+      integer spacelo, addr, gb, owner, lo, hi
+      double precision fac, arg, w, arg2, dfac, sgn, t1
       double precision vector(nri)
-      double complex :: temp
+      double complex :: temp(maxpoles)
       GWTYP,dimension(maxpoles,ipol) :: factor, dfactor
       GWTYP,dimension(nri) :: xvec
 
@@ -50,9 +52,28 @@
 
 #ifdef USE_OPENMP      
       integer iMaxThreads
-      integer,external :: omp_get_max_threads
+      integer,external :: omp_get_max_threads, omp_get_num_threads
+      integer,external :: omp_get_thread_num
       iMaxThreads = omp_get_max_threads()
       call util_blas_set_num_threads(iMaxThreads)
+!$omp parallel private(tid,jsp)
+      nt = omp_get_num_threads()
+      tid = omp_get_thread_num()
+      do jsp=1,ipol
+        los(tid+1,jsp) = tid*(pars%mynpoles(jsp)/nt) + 1
+        if (tid+1.eq.nt) then
+          his(tid+1,jsp) = pars%mynpoles(jsp)
+        else
+          his(tid+1,jsp) = (tid+1)*(pars%mynpoles(jsp)/nt)
+        endif
+      enddo
+!$omp end parallel
+#else
+      tid = 1
+      do jsp=1,ipol
+        los(1,jsp) = 1
+        his(1,jsp) = pars%mynpoles(jsp)
+      enddo
 #endif
 
 
@@ -117,43 +138,46 @@
           arg = eig(jmo) - omega
         endif
 
+!$omp   parallel private(jsp,ipole,tid)
+#ifdef USE_OPENMP
+        tid = omp_get_thread_num() + 1
+#endif
         do jsp=1,ipol
-!$omp     parallel do private(temp)
-          do ipole=1,pars%mynpoles(jsp)
-            temp = Eia(ipole,jsp) - ieta
-            temp = 0.5d0/(arg + temp) + 0.5d0/(temp - arg)
-#ifdef GWCMPLX
-            factor(ipole,jsp) = temp
-#else            
-            factor(ipole,jsp) = dble(temp)
-#endif            
+          lo = los(tid,jsp)
+          hi = his(tid,jsp)
+          temp(lo:hi) = Eia(lo:hi,jsp) - ieta
 
-            temp = Eia(ipole,jsp) - ieta
-            temp = -(0.5d0/(arg + temp))**2 + (0.5d0/(temp - arg))**2
 #ifdef GWCMPLX
-            dfactor(ipole,jsp) = dfac*temp
-#else            
-            dfactor(ipole,jsp) = dfac*dble(temp)
-#endif            
-          enddo
-!$omp     end parallel do        
+          factor(lo:hi,jsp) = ( 0.5d0/(arg+temp(lo:hi)) +
+     $                          0.5d0/(temp(lo:hi)-arg) )
+          dfactor(lo:hi,jsp) = dfac*(-(0.5d0/(arg+temp(lo:hi)))**2 +
+     $                              (0.5d0/(temp(lo:hi)-arg))**2 )
+#else
+          factor(lo:hi,jsp) = dble( 0.5d0/(arg+temp(lo:hi)) +
+     $                          0.5d0/(temp(lo:hi)-arg) )
+          dfactor(lo:hi,jsp) = dfac*dble(-(0.5d0/(arg+temp(lo:hi)))**2+
+     $                                  (0.5d0/(temp(lo:hi)-arg))**2 )
+#endif
         enddo
+!$omp   end parallel
 
         root = mod((imo-off-1)*nspace+jmo-off-1,nprocs)
         idx = ((imo-off-1)*nspace+jmo-off-1)/nprocs + spacelo
 
-
-        call ga_brdcst(mt_int,idx,ma_sizeof(mt_int,1,mt_byte),root)
-
+#ifdef GWDEBUG
+        if (me.eq.0) t1 = util_wallsec()
+#endif
         if (.not.ga_locate(gb,1,jmo,owner))
      $  call errquit('gw_buildrn_minres: cannot locate owner',0,GA_ERR)
-
-
         call ga_get(gb,1,nri,jmo,jmo,xvec,nri)
-        call ga_get(ga,1,nri,idx,idx,vector,nri)
+        if (root.eq.me) call ga_get(ga,1,nri,idx,idx,vector,nri)
+        call ga_brdcst(mt_dbl,vector,ma_sizeof(mt_dbl,nri,mt_byte),root)
+#ifdef GWDEBUG
+        if (me.eq.0) write(*,'(a,f20.3)') 'comm ',util_wallsec()-t1
+#endif
 
         call SOLVER(dbl_mb(kOV(1)),dbl_mb(kOV(2)),factor,xvec,vector,
-     $              pars%mynpoles,maxpoles,nri,ipol)
+     $              pars%mynpoles,maxpoles,nri,ipol,los,his)
 
         if (owner.eq.me) call ga_put(gb,1,nri,jmo,jmo,xvec,nri)
 
@@ -169,11 +193,13 @@
      $                  xvec,1,0d0,factor,1)
 #endif            
 
-!$omp       parallel do reduction(+:dR)
-            do ipole=1,pars%mynpoles(jsp)
-               dR = dR + fac*dble(dfactor(ipole,jsp)*factor(ipole,1)**2)
-            enddo
-!$omp       end parallel do
+!$omp       parallel reduction(+:dR)
+#ifdef USE_OPENMP
+            tid = omp_get_thread_num()
+#endif
+            dR = dR + fac*sum( dfactor(los(tid,jsp):his(tid,jsp),jsp) *
+     $                          factor(los(tid,jsp):his(tid,jsp),1)**2 )
+!$omp       end parallel
 
           enddo
         endif

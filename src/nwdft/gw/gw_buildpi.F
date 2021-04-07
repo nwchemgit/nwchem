@@ -67,20 +67,16 @@
 
         if (main) then
           if ( mod(nri,2) .eq. 0 ) then
-!$omp       parallel do
             do iri=1,nri/2
               pi(iri,iri) = pi(iri,iri) + 1d0
               pi(iri+1,iri) = pi(iri+1,iri) + 1d0
             enddo
-!$omp       end parallel do
           else
             pi(1,1) = pi(1,1) + 1d0
-!$omp       parallel do
             do iri=2,nri/2+1
               pi(iri-1,iri) = pi(iri-1,iri) + 1d0
               pi(iri,iri) = pi(iri,iri) + 1d0
             enddo
-!$omp       end parallel do
           endif
         endif
 
@@ -106,10 +102,8 @@
 
 !$omp   parallel do
         do ipole=1,mymax
-          call gw_scal(nri,ovup(1,ipole),dbl_mb(k_scr+(ipole-1)*nri),
-     $                 factor(ipole,1))
-c          call dcopy(nri,ovup(1,ipole),1,dbl_mb(k_scr+(ipole-1)*nri),1)
-c          call dscal(nri,factor(ipole,1),dbl_mb(k_scr+(ipole-1)*nri),1)
+          call dcopy(nri,ovup(1,ipole),1,dbl_mb(k_scr+(ipole-1)*nri),1)
+          call dscal(nri,factor(ipole,1),dbl_mb(k_scr+(ipole-1)*nri),1)
         enddo
 !$omp   end parallel do
         call dgemm('n','t',nri,nri,mymax,2d0*scal,dbl_mb(k_scr),nri,
@@ -123,13 +117,10 @@ c          call dscal(nri,factor(ipole,1),dbl_mb(k_scr+(ipole-1)*nri),1)
 
 !$omp     parallel do
           do ipole=1,mynpoles
-            call gw_scal(nri,ovup(1,llpole+ipole-1),
-     $                   dbl_mb(k_scr+(ipole-1)*nri),
-     $                   factor(llpole+ipole-1,1))
-c            call dcopy(nri,ovup(1,llpole+ipole-1),1,
-c     $                 dbl_mb(k_scr+(ipole-1)*nri),1)
-c            call dscal(nri,factor(llpole+ipole-1,1),
-c     $                 dbl_mb(k_scr+(ipole-1)*nri),1)
+            call dcopy(nri,ovup(1,llpole+ipole-1),1,
+     $                 dbl_mb(k_scr+(ipole-1)*nri),1)
+            call dscal(nri,factor(llpole+ipole-1,1),
+     $                 dbl_mb(k_scr+(ipole-1)*nri),1)
           enddo
 !$omp     end parallel do
           call dgemm('n','t',nri,nri,mynpoles,2d0*scal,dbl_mb(k_scr),
@@ -259,11 +250,9 @@ c     $                 dbl_mb(k_scr+(ipole-1)*nri),1)
       enddo
 
       if (main) then
-!$omp   parallel do
         do iri=1,nri
           pi(iri,iri) = pi(iri,iri) + one
         enddo
-!$omp   end parallel do
       endif
 
 
@@ -274,5 +263,6 @@ c     $                 dbl_mb(k_scr+(ipole-1)*nri),1)
       double precision from(n),to(n),scal
 
       to(1:n) = scal*from(1:n)
+
 
       end subroutine

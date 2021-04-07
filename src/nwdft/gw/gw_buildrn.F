@@ -37,7 +37,7 @@
       integer spacelo, addr, gb, owner, ints, nris
       double precision fac, w, arg2, dfac, sgn, dummy
       double precision vector(nri), vector2(nri)
-      double precision vector3(nri)
+      double precision vector3(nri),t1,t0
 
       GWTYP,dimension(nri) ::   solvector
 
@@ -93,9 +93,6 @@
       if (.not.ma_push_get(mt_dbl,lscr,'scr',l_scr,k_scr))
      $  call errquit(pname//'can''t allocate scratch',0,MA_ERR) 
 
-
-      call dfill(nri**2,qnan,dbl_mb(k_pi),1)
-      call dfill(lscr,qnan,dbl_mb(k_scr),1)
 
 
       do jsp=1,ipol
@@ -186,14 +183,23 @@
 !$omp     end parallel do
         enddo
 
+#ifdef GWDEBUG
+        if (me.eq.0) t1 = util_wallsec()
+#endif
         call gw_buildpi('r',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
      $                   factor,nri,nri,pars%mynpoles,main,ipol,
      $                   maxpoles)
+#ifdef GWDEBUG
+        if (me.eq.0) write(*,'(a,f20.3)') 'buildpi ',util_wallsec()-t1
+#endif
         call ga_dgop(mt_dbl,dbl_mb(k_pi),nri**2,'+')
 
         root = mod((imo-off-1)*nspace+jmo-off-1,nprocs)
         idx = ((imo-off-1)*nspace+jmo-off-1)/nprocs + spacelo
 
+#ifdef GWDEBUG
+        if (me.eq.0) t1 = util_wallsec()
+#endif
         if (parallel_diag) then
           call ga_brdcst(mt_int,idx,ints,root)
           call ga_get(ga,1,nri,idx,idx,vector,nri)
@@ -212,6 +218,10 @@
           call ga_brdcst(mt_dbl,vector2,nris,root)
         endif
 
+#ifdef GWDEBUG
+        if (me.eq.0) write(*,'(a,f20.3)') 'solver ',util_wallsec()-t1
+#endif
+
         if (.not.ga_locate(gb,1,jmo,owner))
      $    call errquit('gw_buildrn: cannot locate owner',0,GA_ERR)
 #ifdef GWCMPLX        
@@ -220,6 +230,7 @@
         solvector = vector2
 #endif
         if (owner.eq.me) call ga_put(gb,1,nri,jmo,jmo,solvector,nri)
+
 
         do jsp=1,ipol
           if (pars%mynpoles(jsp).eq.0) cycle
