@@ -15,7 +15,7 @@
       double precision scal
       integer ipole,iri,ma_dbl,l_scr,k_scr,mynpoles,llpole,mymax
       integer ulpole,nbatch,ibatch
-      logical ok
+      logical ok,doparallel
       integer nthreads
 #ifdef USE_OPENMP
       integer, external :: omp_get_max_threads
@@ -23,7 +23,6 @@
 #else
       nthreads = 1
 #endif
-
       scal = 2d0
       if (ipol.eq.1) scal = 2d0*scal
 
@@ -31,56 +30,56 @@
 
         if (npoles(1).gt.0) then
 
-!$omp     parallel do
+          doparallel = .true.
+
+!$omp     parallel do simd if (doparallel) schedule(static)
           do ipole=1,npoles(1)
             ovup(1:nri,ipole) = ovup(1:nri,ipole)*factor(ipole,1)
           enddo
-!$omp     end parallel do
+!$omp     end parallel do simd
 
           call dsfrk('n','l','n',nri,npoles(1),scal,ovup,nri,0d0,pi)
 
-!$omp     parallel do
+!$omp     parallel do simd if (doparallel) schedule(static)
           do ipole=1,npoles(1)
             ovup(1:nri,ipole) = ovup(1:nri,ipole)/factor(ipole,1)
           enddo
-!$omp     end parallel do
+!$omp     end parallel do simd
 
         endif
 
         if (ipol.gt.1.and.npoles(2).gt.0) then
 
-!$omp     parallel do
+          doparallel = .true.
+
+!$omp     parallel do simd if (doparallel) schedule(static)
           do ipole=1,npoles(2)
             ovdw(1:nri,ipole) = ovdw(1:nri,ipole)*factor(ipole,2)
           enddo
-!$omp     end parallel do
+!$omp     end parallel do simd
 
           call dsfrk('n','l','n',nri,npoles(2),scal,ovdw,nri,1d0,pi)
 
-!$omp     parallel do
+!$omp     parallel do simd if (doparallel) schedule(static)
           do ipole=1,npoles(2)
             ovdw(1:nri,ipole) = ovdw(1:nri,ipole)/factor(ipole,2)
           enddo
-!$omp     end parallel do
+!$omp     end parallel do simd
 
         endif
 
         if (main) then
           if ( mod(nri,2) .eq. 0 ) then
-!$omp       parallel do
             do iri=1,nri/2
               pi(iri,iri) = pi(iri,iri) + 1d0
               pi(iri+1,iri) = pi(iri+1,iri) + 1d0
             enddo
-!$omp       end parallel do
           else
             pi(1,1) = pi(1,1) + 1d0
-!$omp       parallel do
             do iri=2,nri/2+1
               pi(iri-1,iri) = pi(iri-1,iri) + 1d0
               pi(iri,iri) = pi(iri,iri) + 1d0
             enddo
-!$omp       end parallel do
           endif
         endif
 
@@ -104,7 +103,7 @@
         mymax = min(npoles(1),mymax)
         ok = ma_alloc_get(mt_dbl,nri*mymax,'scratch',l_scr,k_scr)
 
-!$omp   parallel do
+!$omp   parallel do schedule(static)
         do ipole=1,mymax
           call gw_scal(nri,ovup(1,ipole),dbl_mb(k_scr+(ipole-1)*nri),
      $                 factor(ipole,1))
@@ -121,7 +120,7 @@ c          call dscal(nri,factor(ipole,1),dbl_mb(k_scr+(ipole-1)*nri),1)
           ulpole = min(ibatch*mymax,npoles(1))
           mynpoles = ulpole - llpole + 1
 
-!$omp     parallel do
+!$omp     parallel do schedule(static)
           do ipole=1,mynpoles
             call gw_scal(nri,ovup(1,llpole+ipole-1),
      $                   dbl_mb(k_scr+(ipole-1)*nri),
@@ -145,7 +144,7 @@ c     $                 dbl_mb(k_scr+(ipole-1)*nri),1)
           mymax = min(npoles(2)/nbatch + 1,npoles(2))
           ok = ma_alloc_get(mt_dbl,nri*mymax,'scratch',l_scr,k_scr)
 
-!$omp     parallel do
+!$omp     parallel do schedule(static)
           do ipole=1,mymax
             call dcopy(nri,ovdw(1,ipole),1,
      $                 dbl_mb(k_scr+(ipole-1)*nri),1)
@@ -161,7 +160,7 @@ c     $                 dbl_mb(k_scr+(ipole-1)*nri),1)
             ulpole = min(ibatch*mymax,npoles(2))
             mynpoles = ulpole - llpole + 1
 
-!$omp       parallel do
+!$omp       parallel do schedule(static)
             do ipole=1,mynpoles
               call dcopy(nri,ovdw(1,llpole+ipole-1),1,
      $                   dbl_mb(k_scr+(ipole-1)*nri),1)
@@ -259,15 +258,14 @@ c     $                 dbl_mb(k_scr+(ipole-1)*nri),1)
       enddo
 
       if (main) then
-!$omp   parallel do
         do iri=1,nri
           pi(iri,iri) = pi(iri,iri) + one
         enddo
-!$omp   end parallel do
       endif
 
 
       end subroutine
+
 
       subroutine gw_scal(n,from,to,scal)
       integer n

@@ -26,6 +26,7 @@
 
       character(len=12), parameter :: pname = 'gw_buildrn: '
 
+      logical doparallel
       integer mynpoles, root2
       integer root, oolo, oohi, vvlo, vvhi, nrisize, ovlo, ovhi, nspace
       integer g_a, g_b, g_c, g_d, g_e, g_epsilon, k_eps, k_sol, nprocs
@@ -92,11 +93,6 @@
       lscr = int(dbl_mb(kfac))
       if (.not.ma_push_get(mt_dbl,lscr,'scr',l_scr,k_scr))
      $  call errquit(pname//'can''t allocate scratch',0,MA_ERR) 
-
-
-      call dfill(nri**2,qnan,dbl_mb(k_pi),1)
-      call dfill(lscr,qnan,dbl_mb(k_scr),1)
-
 
       do jsp=1,ipol
         if (pars%mynpoles(jsp).eq.0) cycle
@@ -173,17 +169,16 @@
 
 
         do jsp=1,ipol
-!$omp     parallel do private(temp)
+          doparallel = pars%mynpoles(jsp) > 4000
+!$omp     parallel do simd private(temp) if (doparallel)
           do ipole=1,pars%mynpoles(jsp)
             temp = Eia(ipole,jsp) - ieta
-            temp = 0.5d0/(arg + temp) + 0.5d0/(temp - arg)
-            factor(ipole,jsp) = dble(temp)
-
-            temp = Eia(ipole,jsp) - ieta
-            temp = -(0.5d0/(arg + temp))**2 + (0.5d0/(temp - arg))**2
-            dfactor(ipole,jsp) = dfac*dble(temp)
+            factor(ipole,jsp) = dble( 0.5d0/(arg + temp) + 
+     $                                0.5d0/(temp - arg) )
+            dfactor(ipole,jsp) = dble( -(0.5d0/(arg + temp))**2 +
+     $                                  (0.5d0/(temp - arg))**2 )
           enddo
-!$omp     end parallel do
+!$omp     end parallel do simd
         enddo
 
         call gw_buildpi('r',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
@@ -226,11 +221,11 @@
           addr = kOV(jsp)
           call dgemv('t',nri,pars%mynpoles(jsp),1d0,dbl_mb(addr),nri,
      $                vector2,1,0d0,factor,1)
-!$omp     parallel do reduction(+: dR)
+!$omp     parallel do simd reduction(+: dR) if (doparallel)
           do ipole=1,pars%mynpoles(jsp)
-            dR = dR + fac*dfactor(ipole,jsp)*factor(ipole,1)**2
+            dR = dR + dfac*fac*dfactor(ipole,jsp)*factor(ipole,1)**2
           enddo
-!$omp     end parallel do
+!$omp     end parallel do simd
         enddo
 
         if (root.ne.me) cycle

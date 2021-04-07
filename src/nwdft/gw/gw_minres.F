@@ -23,11 +23,11 @@
       double precision :: phibar, rhs1, rhs2, rnorml, rootl, Arnorml
       double precision :: relArnorml, s, sn, t, tnorm2, ynorm2, z
       double precision :: t1, t2, test1, test2, root, bnorm, dxnorm
-      double precision :: test3, xnorm
+      double precision :: test3, xnorm, x0norm
       double precision,dimension(n) :: r1, r2, sol, v, w, w1, w2, y
 
       
-      logical main,converged,oactive,parallel_diag
+      logical main,converged,oactive,parallel_diag,doparallel
       integer iter, istop, i, gy, me, ld, nmax, nlocal, ithread
       integer los(0:maxthreads),his(0:maxthreads), lo, hi, jthread
       double precision local(0:maxthreads),local2(0:maxthreads)
@@ -43,6 +43,7 @@
       me = ga_nodeid()
       main = me.eq.0
       converged = .false.
+      doparallel = n > 400
 
 #ifdef PARALLEL_DIAG
       parallel_diag = n.gt.4000
@@ -58,7 +59,12 @@
       ynorm = 0d0
       gmin  = 1d0
       test3 = 0d0
+      x0norm = dot_product(x,x)
 
+      if (x0norm.eq.0d0) then
+        y(:) = b(:)
+        goto 1001
+      endif
 
       if (ipol.eq.1) then
         call gw_aprod(OV1,factor,x,y,-4d0,0d0,npoles,n)
@@ -67,10 +73,9 @@
         call gw_aprod(OV2,factor(1,2),x,y,-2d0,1d0,npoles(2),n)
       endif
       call dgop(mt_dbl,y,n,'+')
-
       y(:) = y(:) + b(:) - x(:)
-      beta1 = dsqrt(dot_product(y,y))
-      xnorm = dsqrt(dot_product(x,x))
+
+ 1001 beta1 = dsqrt(dot_product(y,y))
 
       ! Solution already converged
       if (beta1.lt.rtol) then
@@ -101,12 +106,44 @@
       sn = 0d0
       gmax = 0d0
 
-      r1(:) = y(:)
-      r2(:) = y(:)
-      w(:) = 0d0
-      w1(:) = 0d0
-      w2(:) = 0d0
-      sol(:) = 0d0
+!$omp parallel      
+!$omp do simd if (doparallel) schedule(static)
+      do i=1,n
+        r1(i) = 0d0
+      enddo
+!$omp end do simd nowait
+!$omp do simd if (doparallel) schedule(static)
+      do i=1,n
+        r2(i) = y(i)
+      enddo
+!$omp end do simd nowait
+!$omp do simd if (doparallel) schedule(static)
+      do i=1,n
+        r2(i) = y(i)
+      enddo
+!$omp end do simd nowait
+!$omp do simd if (doparallel) schedule(static)
+      do i=1,n
+        w(i) = 0d0
+      enddo
+!$omp end do simd nowait
+!$omp do simd if (doparallel) schedule(static)
+      do i=1,n
+        w1(i) = 0d0
+      enddo
+!$omp end do simd nowait
+!$omp do simd if (doparallel) schedule(static)
+      do i=1,n
+        w2(i) = 0d0
+      enddo
+!$omp end do simd nowait
+!$omp do simd if (doparallel) schedule(static)
+      do i=1,n
+        sol(i) = 0d0
+      enddo
+!$omp end do simd nowait
+!$omp end parallel
+
       bnorm = dsqrt(dot_product(b,b))
 
       do
@@ -123,18 +160,28 @@
           call gw_aprod(OV2,factor(1,2),v,y,2d0,1d0,npoles(2),n)
         endif
         call dgop(mt_dbl,y,n,'+')
-        alpha = 0d0
 
 
-        y(:) = y(:) + v(:)
-        if (iter.ge.2) y(:) = y(:) - beta/oldb*r1(:)
+        call daxpy(n,1d0,v,1,y,1)
+        if (iter.ge.2) call daxpy(n,-beta/oldb,r1,1,y,1)
 
         alpha = dot_product(v,y)
         oldb = beta
 
-        y(:) = y(:) - alpha/beta*r2(:)
-        r1(:) = r2(:)
-        r2(:) = y(:)
+        call daxpy(n,-alpha/beta,r2,1,y,1)
+
+!$omp   parallel 
+!$omp   do simd if (doparallel) schedule(static)
+        do i=1,n
+          r1(i) = r2(i)
+        enddo
+!$omp   end do simd nowait
+!$omp   do simd if (doparallel) schedule(static)
+        do i=1,n
+          r2(i) = y(i)
+        enddo
+!$omp   end do simd
+!$omp   end parallel
 
         beta = dsqrt(dot_product(r2,r2))
 
@@ -177,16 +224,29 @@
 
         phi    = cs*phibar
         phibar = sn*phibar
-        dxnorm = 0d0
-        xnorm  = 0d0
 
-        w1(:) = w2(:)
-        w2(:) = w(:)
-        w(:) = (v(:)-oldeps*w1(:)-delta*w(:))/gam
-        sol(:) = sol(:) + phi*w(:)
+!$omp parallel
+!$omp   do simd if (doparallel) schedule(static)
+        do i=1,n
+          w1(i) = w2(i)
+        enddo
+!$omp   end do simd nowait
+!$omp   do simd if (doparallel) schedule(static)
+        do i=1,n
+          w2(i) = w(i)
+        enddo
+!$omp   end do simd nowait
+!$omp   do simd if (doparallel) schedule(static)
+        do i=1,n
+          w(i) = (v(i) - oldeps*w1(i) -delta*w(i))/gam
+        enddo
+!$omp   end do simd nowait
+!$omp end parallel
+
+        call daxpy(n,phi,w,1,sol,1)
 
         dxnorm = dsqrt(dot_product(sol,sol))
-        xnorm = dsqrt(dot_product(x+sol,x+sol))
+        xnorm = dsqrt(x0norm + dxnorm**2 + 2d0*dot_product(x,sol))
         
         gmax = max(gmax,gam)
         gmin = min(gmin,gam)
@@ -224,7 +284,7 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
         if (istop.ne.0) exit
       enddo
 
-      x(:) = x(:) + sol(:)
+      call daxpy(n,1d0,sol,1,x,1)
 
  1000 continue
  2000 continue
@@ -290,11 +350,11 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
 
       call dgemv('t',n,npoles,scal,ov,n,x,1,0d0,tmp,1)
 
-!$omp parallel do
+!$omp parallel do simd if (npoles>4000)
       do i=1,npoles
         tmp(i) = tmp(i)*factor(i)
       enddo
-!$omp end parallel do
+!$omp end parallel do simd
 
       call dgemv('n',n,npoles,1d0,ov,n,tmp,1,mult,y,1)
 

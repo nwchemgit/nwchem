@@ -119,7 +119,8 @@ c
             call ga_sync()
             timer = util_wallsec()
 
-            if (iter.eq.1) then
+c            if (iter.eq.1) then
+            if (.false.) then
               call gw_buildrn(pars,Eold(1,isp),Eia,Ein,R,dR,
      $                      llmo+iqp-1,maxpoles,nri,pars%me,pars%nmo,
      $                      pars%ipol,isp)

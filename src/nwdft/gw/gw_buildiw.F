@@ -20,7 +20,7 @@
 
       character(len=12),parameter :: pname = 'gw_buildiw: '
 
-      logical ok,main,diag
+      logical ok,main,diag,doparallel
       integer molo,mohi,ldpi,sizepi,l_sol,k_sol
       integer ilo,ihi,me,ld,mynpoles,igl,ipole,info
       integer pilo,pihi,k_pi,l_pi,idx,idy,l_tmp,tmp,l_vx,k_vx
@@ -107,17 +107,20 @@ c
         w2 = x(igl)
 
         do isp=1,ipol
-!$omp      parallel do 
+           doparallel = pars%mynpoles(isp) > 4000
+!$omp      parallel do simd if (doparallel)
            do ipole=1,pars%mynpoles(isp)
+#ifdef GWDEBUG
               if(eia(ipole,isp).le.0d0) then
                  write(6,123) ' negative eia',ipole,eia(ipole,isp),w2,
      P                (eia(ipole,isp)/(eia(ipole,isp)**2 + w2))
               endif
  123          format(i5,3e12.2)
+#endif
               factor(ipole,isp) = 
      $            dsqrt(eia(ipole,isp)/(eia(ipole,isp)**2 + w2))
           enddo
-!$omp     end parallel do        
+!$omp     end parallel do simd
         enddo
 
 c
@@ -166,9 +169,6 @@ c
             jmo = imo - pars%llmo(isp) + 1
             
 
-#ifdef USE_OPENMP
-            call util_blas_set_num_threads(1)
-#endif
             if (imo.le.pars%nocc(isp)) then
 
 !$omp         parallel do private(kmo,lmo,idx,idy)
@@ -183,7 +183,6 @@ c
                   idy = idy/nprocs*nri + kOV(isp)
                 endif
                 call gw_copy(nri,dbl_mb(idy),dbl_mb(idx))
-c                call dcopy(nri,dbl_mb(idy),1,dbl_mb(idx),1)
               enddo
 !$omp         end parallel do
 
@@ -201,33 +200,20 @@ c                call dcopy(nri,dbl_mb(idy),1,dbl_mb(idx),1)
      $                    pars%nocc(isp)-1)/nprocs*nri + kVV(isp)
                 endif
                 call gw_copy(nri,dbl_mb(idy),dbl_mb(idx))
-c                call dcopy(nri,dbl_mb(idy),1,dbl_mb(idx),1)
               enddo
 !$omp         end parallel do
             endif
-#ifdef USE_OPENMP
-            call util_blas_set_num_threads(iMaxThreads)
-#endif
-
 
             if (diag) then
               call gw_rfpmm(dbl_mb(k_vx),dbl_mb(tmp),dbl_mb(k_sol),
      $                      ldpi,nri,iwidx(0,jmo,isp),.true.)
             else
-c              call dcopy(nri*iwidx(0,jmo,isp),dbl_mb(tmp),1,
-c     $                   dbl_mb(k_sol),1)
               call gw_copy(nri*iwidx(0,jmo,isp),dbl_mb(tmp),
      $                     dbl_mb(k_sol))
-
               call dtfsm('n','l','l','n','n',nri,iwidx(0,jmo,isp),1d0,
      $                   dbl_mb(k_pi),dbl_mb(k_sol),nri)       
             endif
 c
-#ifdef USE_OPENMP
-            call util_blas_set_num_threads(1)
-#endif
-
-
 !$omp       parallel do private(kmo,idx,idy)
             do kmo=1,iwidx(0,jmo,isp)
               idx = tmp + (kmo-1)*nri
@@ -236,23 +222,14 @@ c
                 iw(kmo,igl,jmo,isp) = 
      $           gw_ddot(nri,dbl_mb(idx),dbl_mb(idy)) - 
      $           gw_ddot(nri,dbl_mb(idx),dbl_mb(idx))
-c
-c     $            ddot(nri,dbl_mb(idx),1,dbl_mb(idy),1) -
-c     $            ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
               else
                 iw(kmo,igl,jmo,isp) = 
      $           gw_ddot(nri,dbl_mb(idy),dbl_mb(idy)) - 
      $           gw_ddot(nri,dbl_mb(idx),dbl_mb(idx))
-c     $            ddot(nri,dbl_mb(idy),1,dbl_mb(idy),1) -
-c     $            ddot(nri,dbl_mb(idx),1,dbl_mb(idx),1)
               endif
             enddo
 !$omp       end parallel do
 
-
-#ifdef USE_OPENMP
-            call util_blas_set_num_threads(iMaxThreads)
-#endif            
           enddo
 c
         enddo

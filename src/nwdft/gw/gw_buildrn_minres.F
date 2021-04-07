@@ -28,6 +28,7 @@
 
       character(len=12), parameter :: pname = 'gw_buildrn: '
 
+      logical doparallel
       integer root, oolo, vvlo, ovlo, ovhi, nspace
       integer nprocs
       integer jmo, ipole, info, ld, mynri, idx, jsp
@@ -118,39 +119,35 @@
         endif
 
         do jsp=1,ipol
-!$omp     parallel do private(temp)
+          doparallel = pars%mynpoles(jsp) > 4000
+!$omp     parallel do simd private(temp) if (doparallel)
           do ipole=1,pars%mynpoles(jsp)
             temp = Eia(ipole,jsp) - ieta
-            temp = 0.5d0/(arg + temp) + 0.5d0/(temp - arg)
-#ifdef GWCMPLX
-            factor(ipole,jsp) = temp
-#else            
-            factor(ipole,jsp) = dble(temp)
-#endif            
 
-            temp = Eia(ipole,jsp) - ieta
-            temp = -(0.5d0/(arg + temp))**2 + (0.5d0/(temp - arg))**2
 #ifdef GWCMPLX
-            dfactor(ipole,jsp) = dfac*temp
-#else            
-            dfactor(ipole,jsp) = dfac*dble(temp)
-#endif            
+            factor(ipole,jsp) = 0.5d0/(arg + temp) + 0.5d0/(temp - arg)
+            dfactor(ipole,jsp) = dfac*(-(0.5d0/(arg + temp))**2 + 
+     $                                  (0.5d0/(temp - arg))**2)
+#else
+            factor(ipole,jsp) = dble( 0.5d0/(arg + temp) + 
+     $                                0.5d0/(temp - arg) )
+            dfactor(ipole,jsp) = dble( dfac*(-(0.5d0/(arg + temp))**2 +
+     $                                        (0.5d0/(temp - arg))**2) )
+#endif
           enddo
-!$omp     end parallel do        
+!$omp     end parallel do simd
         enddo
 
         root = mod((imo-off-1)*nspace+jmo-off-1,nprocs)
         idx = ((imo-off-1)*nspace+jmo-off-1)/nprocs + spacelo
 
-
-        call ga_brdcst(mt_int,idx,ma_sizeof(mt_int,1,mt_byte),root)
-
         if (.not.ga_locate(gb,1,jmo,owner))
-     $  call errquit('gw_buildrn_minres: cannot locate owner',0,GA_ERR)
+     $   call errquit('gw_buildrn_minres: cannot locate owner',0,GA_ERR)
 
 
         call ga_get(gb,1,nri,jmo,jmo,xvec,nri)
-        call ga_get(ga,1,nri,idx,idx,vector,nri)
+        if (me.eq.root) call ga_get(ga,1,nri,idx,idx,vector,nri)
+        call ga_brdcst(mt_dbl,vector,ma_sizeof(mt_dbl,nri,mt_byte),root)
 
         call SOLVER(dbl_mb(kOV(1)),dbl_mb(kOV(2)),factor,xvec,vector,
      $              pars%mynpoles,maxpoles,nri,ipol)
@@ -169,11 +166,11 @@
      $                  xvec,1,0d0,factor,1)
 #endif            
 
-!$omp       parallel do reduction(+:dR)
+!$omp       parallel do simd reduction(+:dR) if (doparallel)
             do ipole=1,pars%mynpoles(jsp)
                dR = dR + fac*dble(dfactor(ipole,jsp)*factor(ipole,1)**2)
             enddo
-!$omp       end parallel do
+!$omp       end parallel do simd
 
           enddo
         endif
