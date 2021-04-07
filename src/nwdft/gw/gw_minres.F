@@ -3,6 +3,10 @@
 #include "errquit.fh"
 #include "global.fh"      
 #include "mafdecls.fh"
+#include "util.fh"
+      integer,parameter :: maxiter = 12
+      integer,parameter :: maxthreads = 1024
+
       integer,intent(in) :: ipol
       integer,intent(in) :: npoles(ipol),maxpoles,n
       double precision,intent(in) :: factor(maxpoles,ipol)
@@ -10,8 +14,6 @@
       double precision,dimension(n),intent(in)   :: b
       double precision,dimension(n),intent(inout)  :: x
 
-      integer,parameter :: maxiter = 12
-      integer,parameter :: maxthreads = 1023
 
       integer l_pi, k_pi, l_ipiv, k_ipiv, lscr, l_scr, k_scr, info
       integer mynri, nprocs, llpi, pilo
@@ -25,18 +27,16 @@
       double precision :: t1, t2, test1, test2, root, bnorm, dxnorm
       double precision :: test3, xnorm, x0norm
       double precision,dimension(n) :: r1, r2, sol, v, w, w1, w2, y
+      double precision :: aprod,rest,t0,tdgop
 
       
       logical main,converged,oactive,parallel_diag,doparallel
       integer iter, istop, i, gy, me, ld, nmax, nlocal, ithread
-      integer los(0:maxthreads),his(0:maxthreads), lo, hi, jthread
-      double precision local(0:maxthreads),local2(0:maxthreads)
+      integer lo, hi, jthread
       double precision,parameter :: shift = 0.000d0, rtol=1d-4
 
 #ifdef USE_OPENMP      
-      integer,external :: omp_get_max_threads, omp_get_num_threads
       integer,external :: omp_get_thread_num
-      nmax = min(omp_get_max_threads(),maxthreads+1)
 #endif
 
       call ga_sync()
@@ -61,6 +61,13 @@
       test3 = 0d0
       x0norm = dot_product(x,x)
 
+#ifdef GWDEBUG
+      aprod = 0d0
+      tdgop = 0d0
+      t0 = util_wallsec()
+      rest = t0
+#endif
+
       if (x0norm.eq.0d0) then
         y(:) = b(:)
         goto 1001
@@ -72,7 +79,16 @@
         call gw_aprod(OV1,factor,x,y,-2d0,0d0,npoles,n)
         call gw_aprod(OV2,factor(1,2),x,y,-2d0,1d0,npoles(2),n)
       endif
+
+#ifdef GWDEBUG
+      aprod = aprod + util_wallsec() - t0
+      t0 = util_wallsec()
+#endif
       call dgop(mt_dbl,y,n,'+')
+#ifdef GWDEBUG
+      tdgop = tdgop + util_wallsec() - t0
+#endif
+
       y(:) = y(:) + b(:) - x(:)
 
  1001 beta1 = dsqrt(dot_product(y,y))
@@ -109,12 +125,7 @@
 !$omp parallel      
 !$omp do simd if (doparallel) schedule(static)
       do i=1,n
-        r1(i) = 0d0
-      enddo
-!$omp end do simd nowait
-!$omp do simd if (doparallel) schedule(static)
-      do i=1,n
-        r2(i) = y(i)
+        r1(i) = y(i)
       enddo
 !$omp end do simd nowait
 !$omp do simd if (doparallel) schedule(static)
@@ -152,15 +163,23 @@
 
         v(:) = s*y(:)
 
-
+#ifdef GWDEBUG
+        t0 = util_wallsec()
+#endif
         if (ipol.eq.1) then
           call gw_aprod(OV1,factor,v,y,4d0,0d0,npoles,n)
         else
           call gw_aprod(OV1,factor,v,y,2d0,0d0,npoles,n)
           call gw_aprod(OV2,factor(1,2),v,y,2d0,1d0,npoles(2),n)
         endif
+#ifdef GWDEBUG
+        aprod = aprod + util_wallsec() - t0
+        t0 = util_wallsec()
+#endif
         call dgop(mt_dbl,y,n,'+')
-
+#ifdef GWDEBUG
+        tdgop = tdgop + util_wallsec() - t0
+#endif
 
         call daxpy(n,1d0,v,1,y,1)
         if (iter.ge.2) call daxpy(n,-beta/oldb,r1,1,y,1)
@@ -289,6 +308,16 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
  1000 continue
  2000 continue
 
+#ifdef GWDEBUG
+      rest = util_wallsec() - rest - tdgop - aprod
+      if (me.eq.0) then
+        write(*,'(a,f20.3)') 'aprod ',aprod
+        write(*,'(a,f20.3)') 'dgop ',tdgop
+        write(*,'(a,f20.3)') 'rest ',rest
+      endif
+#endif
+
+
       if (istop.eq.6 .and. rnorm.gt.0.001d0) then
 
 
@@ -345,12 +374,13 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
       double precision, intent(in) :: x(n)
       double precision, intent(out) :: y(n)
 
-      integer :: i
+      integer :: i,tid,lo,hi
       double precision :: tmp(npoles)
+      integer,external :: omp_get_thread_num
 
       call dgemv('t',n,npoles,scal,ov,n,x,1,0d0,tmp,1)
 
-!$omp parallel do simd if (npoles>4000)
+!$omp parallel do simd if (npoles>400)
       do i=1,npoles
         tmp(i) = tmp(i)*factor(i)
       enddo

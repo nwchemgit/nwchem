@@ -19,7 +19,7 @@
       GWTYP,dimension(iwidx(0)) :: etavec
       double precision          :: vector(iwidx(0))
 
-      double complex             :: iomega, factor, res(2)
+      double complex             :: iomega, factor, res(2), tmp(2)
       double complex, parameter  :: imag = dcmplx(0d0,1d0)
 #ifdef GWCMPLX
       double precision,parameter :: eta = 0.001d0
@@ -32,6 +32,7 @@
 
       mynmo = iwidx(0)
       res(:) = dcmplx(0d0,0d0)
+      tmp(:) = dcmplx(0d0,0d0)
       if (mynmo.eq.0) goto 100
 
       do jmo=1,mynmo
@@ -39,7 +40,7 @@
         etavec(jmo) = sign(ieta,evals(iwidx(jmo)))
       enddo
 
-
+!$omp parallel do private(iomega,jmo,factor) reduction(+:res)
       do igl=1,ngl
 
         iomega = imag*dsqrt(x(igl))

@@ -27,16 +27,16 @@
       double precision, intent(out) :: R,dR
 
       character(len=12), parameter :: pname = 'gw_buildrn: '
+      integer, parameter :: maxthread = 1024
 
-      logical doparallel
       integer root, oolo, vvlo, ovlo, ovhi, nspace
       integer nprocs
       integer jmo, ipole, info, ld, mynri, idx, jsp
       integer k_ipiv, l_scr, k_scr, lscr
       integer g_pi, g_sol, off
       integer kOV(2), ga, first, second, step
-      integer spacelo, addr, gb, owner
-      double precision fac, arg, w, arg2, dfac, sgn
+      integer spacelo, addr, gb, owner, lo, hi
+      double precision fac, arg, w, arg2, dfac, sgn, t1
       double precision vector(nri)
       double complex :: temp
       GWTYP,dimension(maxpoles,ipol) :: factor, dfactor
@@ -51,7 +51,8 @@
 
 #ifdef USE_OPENMP      
       integer iMaxThreads
-      integer,external :: omp_get_max_threads
+      integer,external :: omp_get_max_threads, omp_get_num_threads
+      integer,external :: omp_get_thread_num
       iMaxThreads = omp_get_max_threads()
       call util_blas_set_num_threads(iMaxThreads)
 #endif
@@ -119,8 +120,7 @@
         endif
 
         do jsp=1,ipol
-          doparallel = pars%mynpoles(jsp) > 4000
-!$omp     parallel do simd private(temp) if (doparallel)
+!$omp   parallel do simd private(temp) schedule(static)
           do ipole=1,pars%mynpoles(jsp)
             temp = Eia(ipole,jsp) - ieta
 
@@ -131,23 +131,28 @@
 #else
             factor(ipole,jsp) = dble( 0.5d0/(arg + temp) + 
      $                                0.5d0/(temp - arg) )
-            dfactor(ipole,jsp) = dble( dfac*(-(0.5d0/(arg + temp))**2 +
-     $                                        (0.5d0/(temp - arg))**2) )
+            dfactor(ipole,jsp) = dfac*dble( (-(0.5d0/(arg + temp))**2 +
+     $                                      (0.5d0/(temp - arg))**2) )
 #endif
           enddo
-!$omp     end parallel do simd
+!$omp   end parallel do simd
         enddo
 
         root = mod((imo-off-1)*nspace+jmo-off-1,nprocs)
         idx = ((imo-off-1)*nspace+jmo-off-1)/nprocs + spacelo
 
+#ifdef GWDEBUG
+        if (me.eq.0) t1 = util_wallsec()
+#endif
         if (.not.ga_locate(gb,1,jmo,owner))
      $   call errquit('gw_buildrn_minres: cannot locate owner',0,GA_ERR)
-
-
         call ga_get(gb,1,nri,jmo,jmo,xvec,nri)
         if (me.eq.root) call ga_get(ga,1,nri,idx,idx,vector,nri)
         call ga_brdcst(mt_dbl,vector,ma_sizeof(mt_dbl,nri,mt_byte),root)
+#ifdef GWDEBUG
+        if (me.eq.0) write(*,'(a,f20.3)') 'comm ',util_wallsec()-t1
+#endif
+
 
         call SOLVER(dbl_mb(kOV(1)),dbl_mb(kOV(2)),factor,xvec,vector,
      $              pars%mynpoles,maxpoles,nri,ipol)
@@ -166,11 +171,11 @@
      $                  xvec,1,0d0,factor,1)
 #endif            
 
-!$omp       parallel do simd reduction(+:dR) if (doparallel)
+!$omp  parallel do simd reduction(+:dR) schedule(static)
             do ipole=1,pars%mynpoles(jsp)
                dR = dR + fac*dble(dfactor(ipole,jsp)*factor(ipole,1)**2)
             enddo
-!$omp       end parallel do simd
+!$omp  end parallel do simd
 
           enddo
         endif

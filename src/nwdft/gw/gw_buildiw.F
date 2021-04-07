@@ -20,7 +20,7 @@
 
       character(len=12),parameter :: pname = 'gw_buildiw: '
 
-      logical ok,main,diag,doparallel
+      logical ok,main,diag
       integer molo,mohi,ldpi,sizepi,l_sol,k_sol
       integer ilo,ihi,me,ld,mynpoles,igl,ipole,info
       integer pilo,pihi,k_pi,l_pi,idx,idy,l_tmp,tmp,l_vx,k_vx
@@ -107,8 +107,7 @@ c
         w2 = x(igl)
 
         do isp=1,ipol
-           doparallel = pars%mynpoles(isp) > 4000
-!$omp      parallel do simd if (doparallel)
+!$omp      parallel do simd schedule(static)
            do ipole=1,pars%mynpoles(isp)
 #ifdef GWDEBUG
               if(eia(ipole,isp).le.0d0) then
@@ -124,32 +123,31 @@ c
         enddo
 
 c
-        if (igl.eq.1) call dfill(sizepi,0d0,dbl_mb(k_pi),1)
-
+#ifdef GWDEBUG
+        if (me.eq.0) t1=util_wallsec()
+#endif
         call gw_buildpi('w',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
      $                  factor,ldpi,nri,pars%mynpoles,main,ipol,
-     $                  maxpoles)
+     $                  maxpoles) 
+#ifdef GWDEBUG
+        if (me.eq.0) 
+     $    write(luout,1234) igl,ngl,'buildpi',util_wallsec()-t1
+#endif
 
 #ifdef GWDEBUG
-        if(me.eq.0) then
- 1234      format(a,i3,a,i3,a,f20.3)
-           write(luout,1234) ' ##  igl ',igl,' out of ',ngl,
-     C          ' calling dgop at ',
-     T          util_wallsec()-t0
-        endif
+        if(me.eq.0) t1 = util_wallsec()
+ 1234   format(' ##  igl ',i3,' out of ',i3,' ',a,' time ',f20.3)
 #endif
         call ga_dgop(mt_dbl,dbl_mb(k_pi),sizepi,'+')
 #ifdef GWDEBUG
-        if(me.eq.0) then
-           write(luout,1234) ' ##  igl ',igl,' out of ',ngl,
-     C          ' called dgop at ',
-     T          util_wallsec()-t0
-        endif
+        if(me.eq.0) write(luout,1234) igl,ngl,'dgop',util_wallsec()-t1
 #endif
 
         call dcopy(sizepi,dbl_mb(k_pi),1,dbl_mb(k_vx),1)
         !
-
+#ifdef GWDEBUG
+        if (me.eq.0) t1=util_wallsec()
+#endif
         if (diag) then
           call gw_invdiag(dbl_mb(k_vx),ldpi,nri,ecrpa,.true.)
           if (me.eq.0) pars%ecrpa = pars%ecrpa + wgt(igl)*ecrpa
@@ -160,8 +158,15 @@ c
             pars%ecrpa = pars%ecrpa + wgt(igl)*ecrpa
           endif
         endif
+#ifdef GWDEBUG
+        if (me.eq.0) 
+     $    write(luout,1234) igl,ngl,'factor',util_wallsec()-t1
+#endif
         !
         !
+#ifdef GWDEBUG
+        if (me.eq.0) t1 = util_wallsec()
+#endif
         do isp=1,ipol
           if (pars%nstates(isp).eq.0) cycle
 
@@ -233,6 +238,10 @@ c
           enddo
 c
         enddo
+#ifdef GWDEBUG
+        if (me.eq.0) 
+     $    write(luout,1234) igl,ngl,'solver',util_wallsec()-t1
+#endif
 
         if (me.eq.0) then
           call gw_cdgw_ecgm(dbl_mb(k_vx),dbl_mb(k_pi),nri,ldpi,ecgm,
@@ -266,17 +275,13 @@ c
       end subroutine
 
       subroutine gw_copy(n,from,to)
-      implicit none
-      integer :: n
-      double precision :: from(n), to(n)
-      
+      integer n
+      double precision,dimension(n) :: from, to
       to(:) = from(:)
-
-      return
       end subroutine
 
       double precision function gw_ddot(n,a,b)
       integer n
-      double precision a(n), b(n)
+      double precision,dimension(n) :: a,b
       gw_ddot = dot_product(a,b)
       end function

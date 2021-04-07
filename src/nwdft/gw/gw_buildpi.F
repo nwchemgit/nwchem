@@ -15,7 +15,7 @@
       double precision scal
       integer ipole,iri,ma_dbl,l_scr,k_scr,mynpoles,llpole,mymax
       integer ulpole,nbatch,ibatch
-      logical ok,doparallel
+      logical ok
       integer nthreads
 #ifdef USE_OPENMP
       integer, external :: omp_get_max_threads
@@ -30,9 +30,7 @@
 
         if (npoles(1).gt.0) then
 
-          doparallel = .true.
-
-!$omp     parallel do simd if (doparallel) schedule(static)
+!$omp     parallel do simd schedule(static)
           do ipole=1,npoles(1)
             ovup(1:nri,ipole) = ovup(1:nri,ipole)*factor(ipole,1)
           enddo
@@ -40,7 +38,7 @@
 
           call dsfrk('n','l','n',nri,npoles(1),scal,ovup,nri,0d0,pi)
 
-!$omp     parallel do simd if (doparallel) schedule(static)
+!$omp     parallel do simd schedule(static)
           do ipole=1,npoles(1)
             ovup(1:nri,ipole) = ovup(1:nri,ipole)/factor(ipole,1)
           enddo
@@ -50,9 +48,7 @@
 
         if (ipol.gt.1.and.npoles(2).gt.0) then
 
-          doparallel = .true.
-
-!$omp     parallel do simd if (doparallel) schedule(static)
+!$omp     parallel do simd schedule(static)
           do ipole=1,npoles(2)
             ovdw(1:nri,ipole) = ovdw(1:nri,ipole)*factor(ipole,2)
           enddo
@@ -60,7 +56,7 @@
 
           call dsfrk('n','l','n',nri,npoles(2),scal,ovdw,nri,1d0,pi)
 
-!$omp     parallel do simd if (doparallel) schedule(static)
+!$omp     parallel do simd schedule(static)
           do ipole=1,npoles(2)
             ovdw(1:nri,ipole) = ovdw(1:nri,ipole)/factor(ipole,2)
           enddo
@@ -105,10 +101,8 @@
 
 !$omp   parallel do schedule(static)
         do ipole=1,mymax
-          call gw_scal(nri,ovup(1,ipole),dbl_mb(k_scr+(ipole-1)*nri),
-     $                 factor(ipole,1))
-c          call dcopy(nri,ovup(1,ipole),1,dbl_mb(k_scr+(ipole-1)*nri),1)
-c          call dscal(nri,factor(ipole,1),dbl_mb(k_scr+(ipole-1)*nri),1)
+          call dcopy(nri,ovup(1,ipole),1,dbl_mb(k_scr+(ipole-1)*nri),1)
+          call dscal(nri,factor(ipole,1),dbl_mb(k_scr+(ipole-1)*nri),1)
         enddo
 !$omp   end parallel do
         call dgemm('n','t',nri,nri,mymax,2d0*scal,dbl_mb(k_scr),nri,
@@ -122,13 +116,10 @@ c          call dscal(nri,factor(ipole,1),dbl_mb(k_scr+(ipole-1)*nri),1)
 
 !$omp     parallel do schedule(static)
           do ipole=1,mynpoles
-            call gw_scal(nri,ovup(1,llpole+ipole-1),
-     $                   dbl_mb(k_scr+(ipole-1)*nri),
-     $                   factor(llpole+ipole-1,1))
-c            call dcopy(nri,ovup(1,llpole+ipole-1),1,
-c     $                 dbl_mb(k_scr+(ipole-1)*nri),1)
-c            call dscal(nri,factor(llpole+ipole-1,1),
-c     $                 dbl_mb(k_scr+(ipole-1)*nri),1)
+            call dcopy(nri,ovup(1,llpole+ipole-1),1,
+     $                 dbl_mb(k_scr+(ipole-1)*nri),1)
+            call dscal(nri,factor(llpole+ipole-1,1),
+     $                 dbl_mb(k_scr+(ipole-1)*nri),1)
           enddo
 !$omp     end parallel do
           call dgemm('n','t',nri,nri,mynpoles,2d0*scal,dbl_mb(k_scr),
@@ -272,5 +263,6 @@ c     $                 dbl_mb(k_scr+(ipole-1)*nri),1)
       double precision from(n),to(n),scal
 
       to(1:n) = scal*from(1:n)
+
 
       end subroutine

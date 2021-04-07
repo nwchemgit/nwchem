@@ -26,7 +26,6 @@
 
       character(len=12), parameter :: pname = 'gw_buildrn: '
 
-      logical doparallel
       integer mynpoles, root2
       integer root, oolo, oohi, vvlo, vvhi, nrisize, ovlo, ovhi, nspace
       integer g_a, g_b, g_c, g_d, g_e, g_epsilon, k_eps, k_sol, nprocs
@@ -38,7 +37,7 @@
       integer spacelo, addr, gb, owner, ints, nris
       double precision fac, w, arg2, dfac, sgn, dummy
       double precision vector(nri), vector2(nri)
-      double precision vector3(nri)
+      double precision vector3(nri),t1,t0
 
       GWTYP,dimension(nri) ::   solvector
 
@@ -169,8 +168,7 @@
 
 
         do jsp=1,ipol
-          doparallel = pars%mynpoles(jsp) > 4000
-!$omp     parallel do simd private(temp) if (doparallel)
+!$omp   parallel do simd private(temp) schedule(static)
           do ipole=1,pars%mynpoles(jsp)
             temp = Eia(ipole,jsp) - ieta
             factor(ipole,jsp) = dble( 0.5d0/(arg + temp) + 
@@ -178,17 +176,26 @@
             dfactor(ipole,jsp) = dble( -(0.5d0/(arg + temp))**2 +
      $                                  (0.5d0/(temp - arg))**2 )
           enddo
-!$omp     end parallel do simd
+!$omp   end parallel do simd
         enddo
 
+#ifdef GWDEBUG
+        if (me.eq.0) t1 = util_wallsec()
+#endif
         call gw_buildpi('r',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
      $                   factor,nri,nri,pars%mynpoles,main,ipol,
      $                   maxpoles)
+#ifdef GWDEBUG
+        if (me.eq.0) write(*,'(a,f20.3)') 'buildpi ',util_wallsec()-t1
+#endif
         call ga_dgop(mt_dbl,dbl_mb(k_pi),nri**2,'+')
 
         root = mod((imo-off-1)*nspace+jmo-off-1,nprocs)
         idx = ((imo-off-1)*nspace+jmo-off-1)/nprocs + spacelo
 
+#ifdef GWDEBUG
+        if (me.eq.0) t1 = util_wallsec()
+#endif
         if (parallel_diag) then
           call ga_brdcst(mt_int,idx,ints,root)
           call ga_get(ga,1,nri,idx,idx,vector,nri)
@@ -207,6 +214,10 @@
           call ga_brdcst(mt_dbl,vector2,nris,root)
         endif
 
+#ifdef GWDEBUG
+        if (me.eq.0) write(*,'(a,f20.3)') 'solver ',util_wallsec()-t1
+#endif
+
         if (.not.ga_locate(gb,1,jmo,owner))
      $    call errquit('gw_buildrn: cannot locate owner',0,GA_ERR)
 #ifdef GWCMPLX        
@@ -216,12 +227,13 @@
 #endif
         if (owner.eq.me) call ga_put(gb,1,nri,jmo,jmo,solvector,nri)
 
+
         do jsp=1,ipol
           if (pars%mynpoles(jsp).eq.0) cycle
           addr = kOV(jsp)
           call dgemv('t',nri,pars%mynpoles(jsp),1d0,dbl_mb(addr),nri,
      $                vector2,1,0d0,factor,1)
-!$omp     parallel do simd reduction(+: dR) if (doparallel)
+!$omp     parallel do simd reduction(+: dR) schedule(static)
           do ipole=1,pars%mynpoles(jsp)
             dR = dR + dfac*fac*dfactor(ipole,jsp)*factor(ipole,1)**2
           enddo
