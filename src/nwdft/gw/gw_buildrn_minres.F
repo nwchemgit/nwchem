@@ -141,17 +141,11 @@
         root = mod((imo-off-1)*nspace+jmo-off-1,nprocs)
         idx = ((imo-off-1)*nspace+jmo-off-1)/nprocs + spacelo
 
-#ifdef GWDEBUG
-        if (me.eq.0) t1 = util_wallsec()
-#endif
         if (.not.ga_locate(gb,1,jmo,owner))
      $   call errquit('gw_buildrn_minres: cannot locate owner',0,GA_ERR)
         call ga_get(gb,1,nri,jmo,jmo,xvec,nri)
         if (me.eq.root) call ga_get(ga,1,nri,idx,idx,vector,nri)
         call ga_brdcst(mt_dbl,vector,ma_sizeof(mt_dbl,nri,mt_byte),root)
-#ifdef GWDEBUG
-        if (me.eq.0) write(*,'(a,f20.3)') 'comm ',util_wallsec()-t1
-#endif
 
 
         call SOLVER(dbl_mb(kOV(1)),dbl_mb(kOV(2)),factor,xvec,vector,

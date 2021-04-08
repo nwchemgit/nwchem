@@ -109,13 +109,6 @@ c
         do isp=1,ipol
 !$omp      parallel do simd schedule(static)
            do ipole=1,pars%mynpoles(isp)
-#ifdef GWDEBUG
-              if(eia(ipole,isp).le.0d0) then
-                 write(6,123) ' negative eia',ipole,eia(ipole,isp),w2,
-     P                (eia(ipole,isp)/(eia(ipole,isp)**2 + w2))
-              endif
- 123          format(i5,3e12.2)
-#endif
               factor(ipole,isp) = 
      $            dsqrt(eia(ipole,isp)/(eia(ipole,isp)**2 + w2))
           enddo
@@ -123,31 +116,14 @@ c
         enddo
 
 c
-#ifdef GWDEBUG
-        if (me.eq.0) t1=util_wallsec()
-#endif
         call gw_buildpi('w',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
      $                  factor,ldpi,nri,pars%mynpoles,main,ipol,
      $                  maxpoles) 
-#ifdef GWDEBUG
-        if (me.eq.0) 
-     $    write(luout,1234) igl,ngl,'buildpi',util_wallsec()-t1
-#endif
 
-#ifdef GWDEBUG
-        if(me.eq.0) t1 = util_wallsec()
- 1234   format(' ##  igl ',i3,' out of ',i3,' ',a,' time ',f20.3)
-#endif
         call ga_dgop(mt_dbl,dbl_mb(k_pi),sizepi,'+')
-#ifdef GWDEBUG
-        if(me.eq.0) write(luout,1234) igl,ngl,'dgop',util_wallsec()-t1
-#endif
 
         call dcopy(sizepi,dbl_mb(k_pi),1,dbl_mb(k_vx),1)
         !
-#ifdef GWDEBUG
-        if (me.eq.0) t1=util_wallsec()
-#endif
         if (diag) then
           call gw_invdiag(dbl_mb(k_vx),ldpi,nri,ecrpa,.true.)
           if (me.eq.0) pars%ecrpa = pars%ecrpa + wgt(igl)*ecrpa
@@ -158,15 +134,7 @@ c
             pars%ecrpa = pars%ecrpa + wgt(igl)*ecrpa
           endif
         endif
-#ifdef GWDEBUG
-        if (me.eq.0) 
-     $    write(luout,1234) igl,ngl,'factor',util_wallsec()-t1
-#endif
         !
-        !
-#ifdef GWDEBUG
-        if (me.eq.0) t1 = util_wallsec()
-#endif
         do isp=1,ipol
           if (pars%nstates(isp).eq.0) cycle
 
@@ -238,10 +206,6 @@ c
           enddo
 c
         enddo
-#ifdef GWDEBUG
-        if (me.eq.0) 
-     $    write(luout,1234) igl,ngl,'solver',util_wallsec()-t1
-#endif
 
         if (me.eq.0) then
           call gw_cdgw_ecgm(dbl_mb(k_vx),dbl_mb(k_pi),nri,ldpi,ecgm,

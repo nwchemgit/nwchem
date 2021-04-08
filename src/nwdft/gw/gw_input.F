@@ -105,7 +105,10 @@ c
      &    call errquit('gw_input: rtdb_put failed', 400, RTDB_ERR)
       elseif (inp_compare(.false.,'linear',test)) then
         if (.not.rtdb_put(rtdb, 'gw:linear', mt_log, 1, .true.))
-     &    call errquit('gw_input: rtdb_put failed', 108, RTDB_ERR)   
+     &    call errquit('gw_input: rtdb_put failed', 108, RTDB_ERR) 
+      elseif (inp_compare(.false.,'diis',test)) then
+        if (.not.rtdb_put(rtdb, 'gw:diis', mt_log, 1, .true.))
+     &    call errquit('gw_input: rtdb_put failed', 108, RTDB_ERR) 
       else
         goto 8000
       endif

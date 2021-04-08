@@ -179,23 +179,14 @@
 !$omp   end parallel do simd
         enddo
 
-#ifdef GWDEBUG
-        if (me.eq.0) t1 = util_wallsec()
-#endif
         call gw_buildpi('r',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
      $                   factor,nri,nri,pars%mynpoles,main,ipol,
      $                   maxpoles)
-#ifdef GWDEBUG
-        if (me.eq.0) write(*,'(a,f20.3)') 'buildpi ',util_wallsec()-t1
-#endif
         call ga_dgop(mt_dbl,dbl_mb(k_pi),nri**2,'+')
 
         root = mod((imo-off-1)*nspace+jmo-off-1,nprocs)
         idx = ((imo-off-1)*nspace+jmo-off-1)/nprocs + spacelo
 
-#ifdef GWDEBUG
-        if (me.eq.0) t1 = util_wallsec()
-#endif
         if (parallel_diag) then
           call ga_brdcst(mt_int,idx,ints,root)
           call ga_get(ga,1,nri,idx,idx,vector,nri)
@@ -214,9 +205,6 @@
           call ga_brdcst(mt_dbl,vector2,nris,root)
         endif
 
-#ifdef GWDEBUG
-        if (me.eq.0) write(*,'(a,f20.3)') 'solver ',util_wallsec()-t1
-#endif
 
         if (.not.ga_locate(gb,1,jmo,owner))
      $    call errquit('gw_buildrn: cannot locate owner',0,GA_ERR)

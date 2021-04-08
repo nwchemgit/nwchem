@@ -4,7 +4,7 @@
 #include "global.fh"      
 #include "mafdecls.fh"
 #include "util.fh"
-      integer,parameter :: maxiter = 12
+      integer,parameter :: maxiter = 18
       integer,parameter :: maxthreads = 1024
 
       integer,intent(in) :: ipol
@@ -35,10 +35,6 @@
       integer lo, hi, jthread
       double precision,parameter :: shift = 0.000d0, rtol=1d-4
 
-#ifdef USE_OPENMP      
-      integer,external :: omp_get_thread_num
-#endif
-
       call ga_sync()
       me = ga_nodeid()
       main = me.eq.0
@@ -61,13 +57,6 @@
       test3 = 0d0
       x0norm = dot_product(x,x)
 
-#ifdef GWDEBUG
-      aprod = 0d0
-      tdgop = 0d0
-      t0 = util_wallsec()
-      rest = t0
-#endif
-
       if (x0norm.eq.0d0) then
         y(:) = b(:)
         goto 1001
@@ -79,15 +68,7 @@
         call gw_aprod(OV1,factor,x,y,-2d0,0d0,npoles,n)
         call gw_aprod(OV2,factor(1,2),x,y,-2d0,1d0,npoles(2),n)
       endif
-
-#ifdef GWDEBUG
-      aprod = aprod + util_wallsec() - t0
-      t0 = util_wallsec()
-#endif
       call dgop(mt_dbl,y,n,'+')
-#ifdef GWDEBUG
-      tdgop = tdgop + util_wallsec() - t0
-#endif
 
       y(:) = y(:) + b(:) - x(:)
 
@@ -163,23 +144,13 @@
 
         v(:) = s*y(:)
 
-#ifdef GWDEBUG
-        t0 = util_wallsec()
-#endif
         if (ipol.eq.1) then
           call gw_aprod(OV1,factor,v,y,4d0,0d0,npoles,n)
         else
           call gw_aprod(OV1,factor,v,y,2d0,0d0,npoles,n)
           call gw_aprod(OV2,factor(1,2),v,y,2d0,1d0,npoles(2),n)
         endif
-#ifdef GWDEBUG
-        aprod = aprod + util_wallsec() - t0
-        t0 = util_wallsec()
-#endif
         call dgop(mt_dbl,y,n,'+')
-#ifdef GWDEBUG
-        tdgop = tdgop + util_wallsec() - t0
-#endif
 
         call daxpy(n,1d0,v,1,y,1)
         if (iter.ge.2) call daxpy(n,-beta/oldb,r1,1,y,1)
@@ -308,15 +279,6 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
  1000 continue
  2000 continue
 
-#ifdef GWDEBUG
-      rest = util_wallsec() - rest - tdgop - aprod
-      if (me.eq.0) then
-        write(*,'(a,f20.3)') 'aprod ',aprod
-        write(*,'(a,f20.3)') 'dgop ',tdgop
-        write(*,'(a,f20.3)') 'rest ',rest
-      endif
-#endif
-
 
       if (istop.eq.6 .and. rnorm.gt.0.001d0) then
 
@@ -376,7 +338,6 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
 
       integer :: i,tid,lo,hi
       double precision :: tmp(npoles)
-      integer,external :: omp_get_thread_num
 
       call dgemv('t',n,npoles,scal,ov,n,x,1,0d0,tmp,1)
 
@@ -414,27 +375,16 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
       double precision :: phibar, rhs1, rhs2, rnorml, rootl, Arnorml
       double precision :: relArnorml, s, sn, t, tnorm2, ynorm2, z
       double precision :: t1, t2, test1, test2, root, bnorm, dxnorm
-      double precision :: test3, xnorm
+      double precision :: test3, xnorm, x0norm
       double precision,dimension(n) :: r1, r2, sol, v, w, w1, w2, y
 
       
-      logical main,converged,oactive,parallel_diag
+      logical main,converged,oactive,parallel_diag,doparallel
       integer iter, istop, i, gy, me, lo ,hi, ld, nmax, nlocal, ithread
       double precision,parameter :: shift = 0.000d0, rtol=1d-5
 
-#ifdef USE_OPENMP      
-      integer,external :: omp_get_max_threads, omp_get_num_threads
-      integer,external :: omp_get_thread_num
-      nmax = omp_get_max_threads()
-      nlocal = n/nmax
-#else
-      nmax = 1
-      nlocal = n
-      lo = 1
-      hi = n
-#endif      
-
       converged = .false.
+      doparallel = n > 32768
 
       eps  = epsilon(eps)
       iter = 0
@@ -445,13 +395,13 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
       gmin  = 1d0
       test3 = 0d0
 
-      xnorm = dsqrt(ddot(n,x,1,x,1))
-      bnorm = dsqrt(ddot(n,b,1,b,1))
+      x0norm = dot_product(x,x)
+      bnorm = dsqrt(dot_product(b,b))
 
       call dcopy(n,b,1,y,1)
-      if (xnorm.gt.0d0) then
+      if (x0norm.gt.0d0) then
         call dgemv('t',n,n,-1d0,A,n,x,1,1d0,y,1)
-        beta1 = dsqrt(ddot(n,y,1,y,1))
+        beta1 = dsqrt(dot_product(y,y))
       else
         beta1 = bnorm
       end if
@@ -478,19 +428,37 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
       sn = 0d0
       gmax = 0d0
 
-!$omp parallel private(lo,hi,ithread)
-#ifdef USE_OPENMP
-      ithread = omp_get_thread_num()
-      lo = ithread*nlocal + 1
-      hi = (ithread+1)*nlocal
-      if ((ithread+1).eq.nmax) hi = n
-#endif
-      r1(lo:hi) = y(lo:hi)
-      r2(lo:hi) = y(lo:hi)
-      w(lo:hi) = 0d0
-      w1(lo:hi) = 0d0
-      w2(lo:hi) = 0d0
-      sol(lo:hi) = 0d0
+!$omp parallel if (doparallel)
+!$omp do simd schedule(static)
+      do i=1,n
+        r1(i) = y(i)
+      end do
+!$omp end do simd nowait
+!$omp do simd schedule(static)
+      do i=1,n
+        r2(i) = y(i)
+      end do
+!$omp end do simd nowait
+!$omp do simd schedule(static)
+      do i=1,n
+        w(i) = 0d0
+      end do
+!$omp end do simd nowait
+!$omp do simd schedule(static)
+      do i=1,n
+        w1(i) = 0d0
+      end do
+!$omp end do simd nowait
+!$omp do simd schedule(static)
+      do i=1,n
+        w2(i) = 0d0
+      end do
+!$omp end do simd nowait
+!$omp do simd schedule(static)
+      do i=1,n
+        sol(i) = 0d0
+      end do
+!$omp end do simd nowait
 !$omp end parallel
 
 
@@ -502,40 +470,15 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
         v(:) = s*y(:)
 
         call dgemv('n',n,n,1d0,A,n,v,1,0d0,y,1)
+        if (iter.ge.2) call daxpy(n,-beta/oldb,r1,1,y,1)
 
-        alpha = 0d0
-!$omp   parallel private(lo,hi,ithread)
+        alpha = dot_product(v,y)
+        call daxpy(n,-alpha/beta,r2,1,y,1)
+        r1(:) = r2(:)
+        r2(:) = y(:)
 
-#ifdef USE_OPENMP
-        ithread = omp_get_thread_num()
-        lo = ithread*nlocal + 1
-        hi = (ithread+1)*nlocal
-        if ((ithread+1).eq.nmax) hi = n
-#endif
-
-        y(lo:hi) = y(lo:hi) + v(lo:hi)
-        if (iter.ge.2) y(lo:hi) = y(lo:hi) - beta/oldb*r1(lo:hi)
-
-!$omp   atomic update
-        alpha = alpha + dot_product(v(lo:hi),y(lo:hi))
-!$omp   barrier        
-
-        y(lo:hi) = y(lo:hi) - alpha/beta*r2(lo:hi)
-        r1(lo:hi) = r2(lo:hi)
-        r2(lo:hi) = y(lo:hi)
-
-!$omp   barrier        
-!$omp   single        
         oldb = beta
-        beta = 0d0
-!$omp   end single
-
-!$omp   atomic update
-        beta = beta + dot_product(r2(lo:hi),r2(lo:hi))
-!$omp   barrier
-
-!$omp   single
-        beta = dsqrt(beta)
+        beta = dsqrt(dot_product(r2,r2))
 
         tnorm2 = tnorm2 + alpha**2 + oldb**2 + beta**2
 
@@ -576,24 +519,14 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
 
         phi    = cs*phibar
         phibar = sn*phibar
-        dxnorm = 0d0
-        xnorm  = 0d0
-!$omp   end single
 
-        w1(lo:hi) = w2(lo:hi)
-        w2(lo:hi) = w(lo:hi)
-        w(lo:hi) = (v(lo:hi)-oldeps*w1(lo:hi)-delta*w(lo:hi))/gam
-        sol(lo:hi) = sol(lo:hi) + phi*w(lo:hi)
-        
-!$omp   atomic update
-        dxnorm = dxnorm + dot_product(sol(lo:hi),sol(lo:hi))
-!$omp   atomic update        
-        xnorm = xnorm + dot_product(x(lo:hi)+sol(lo:hi),
-     $                              x(lo:hi)+sol(lo:hi))
-!$omp   end parallel
-
-        dxnorm = dsqrt(dxnorm)
-        xnorm  = dsqrt(xnorm)
+        w1(:) = w2(:)
+        w2(:) = w(:)
+        w(:) = (v(:) - oldeps*w1(:) - delta*w(:))/gam
+        call daxpy(n,phi,w,1,sol,1)
+      
+        dxnorm = dsqrt(dot_product(sol,sol))
+        xnorm = dsqrt(x0norm + dxnorm**2 + 2d0*dot_product(sol,x))
 
         gmax = max(gmax,gam)
         gmin = min(gmin,gam)
@@ -628,7 +561,7 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
 #ifdef GWDEBUG
 c      write(*,*) istop,iter,rnorm
 #endif
-      x(:) = x(:) + sol(:)
+      call daxpy(n,1d0,sol,1,x,1)
 
  1000 continue
  2000 continue

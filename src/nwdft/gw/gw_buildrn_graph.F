@@ -148,8 +148,8 @@
         endif
 
         !obtain the factor to build Pi matrix and its derivative
-!$omp   parallel do collapse(2) private(temp)
         do jsp=1,ipol
+!$omp     parallel do simd private(temp) schedule(static)
           do ipole=1,pars%mynpoles(jsp)
             temp = (Eia(ipole,jsp) - ieta)/
      $      ((Eia(ipole,jsp)**2-arg2)-2d0*ieta*(Eia(ipole,jsp)-sgn*arg))
@@ -159,8 +159,8 @@
             factor(ipole,jsp) = dble(temp)
 #endif            
           enddo
+!$omp   end parallel do simd
         enddo
-!$omp   end parallel do
 
         !get all active vectors
         mynmo = 0
@@ -201,13 +201,16 @@
           vectors2(:,1:mynmo) = vectors(:,1:mynmo)
 #endif
           !solve the linear equation systems
-          call GWSYSV('l',nri,mynmo,GWMB(k_pi),nri,int_mb(k_ipiv),
-     $                vectors2,nri,GWMB(k_scr),lscr,info)
-c          do myimo=1,mynmo
-c            vectors2(:,myimo) = 0d0
-c            call minres(GWMB(k_pi),vectors2(1,myimo),vectors(1,myimo),
-c     $                  nri)
-c          enddo
+          if (mynmo.gt.5) then
+            call GWSYSV('l',nri,mynmo,GWMB(k_pi),nri,int_mb(k_ipiv),
+     $                  vectors2,nri,GWMB(k_scr),lscr,info)
+          else
+            do myimo=1,mynmo
+              vectors2(:,myimo) = 0d0
+              call minres(GWMB(k_pi),vectors2(1,myimo),vectors(1,myimo),
+     $                    nri)
+            enddo
+          endif
         endif
 
         lmo = 0

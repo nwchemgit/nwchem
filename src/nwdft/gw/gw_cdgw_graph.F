@@ -85,18 +85,17 @@
 
           !use previous solution in cluster as guess
           if (myul.lt.ulqp) then
-            Eout = Enew(llmo+iqp,isp)
+            Eout = Enew(llmo+iqp,isp) + 4d0*pars%thresh
           elseif (myll.gt.llqp) then
-            Eout = Enew(llmo+iqp-2,isp)
+            Eout = Enew(llmo+iqp-2,isp) - 4d0*pars%thresh
           elseif (eviter.eq.0) then
             Eout = Eout + 0.075d0*(sigma_x - sigmaold)
-c            Eout = Eout + sign(5d0*pars%thresh,Eout)
           else
             Eout = Eout + sign(1.2d0*pars%thresh,Eout)
           endif
 
-          !Trying to enhance reproducibility by rounding-off to 4 digits
-          eout = nint(eout*1d3)/1d3
+          !Trying to enhance reproducibility by rounding-off to 8 digits
+          eout = nint(eout*1d8)/1d8
 
           !initialize variables
           call ga_zero(pars%g_sols)
@@ -126,15 +125,9 @@ c            Eout = Eout + sign(5d0*pars%thresh,Eout)
 
             ! Contribution from the poles enclosed by the contour
             timer = util_wallsec()
-            if (iter.eq.1) then
-              call gw_buildrn(pars,Eold(1,isp),Eia,Ein,R,dR,
+            call gw_buildrn_minres(pars,Eold(1,isp),Eia,Ein,R,dR,
      $                      llmo+iqp-1,maxpoles,nri,pars%me,pars%nmo,
      $                      pars%ipol,isp)
-            else
-              call gw_buildrn_minres(pars,Eold(1,isp),Eia,Ein,R,dR,
-     $                      llmo+iqp-1,maxpoles,nri,pars%me,pars%nmo,
-     $                      pars%ipol,isp)
-            endif
             call ga_sync()
             pars%timer%rn = pars%timer%rn + util_wallsec() - timer
 
@@ -158,18 +151,17 @@ c            Eout = Eout + sign(5d0*pars%thresh,Eout)
      $                  (sum(rms3)/3d0.lt.pars%thresh)
             call ga_brdcst(mt_log,converged,logs,0)
 
+            if (converged) then
+              eout = ein
+              exit
+            endif
+
 #ifdef GWDEBUG
             if (main) write(luout,9901) iter,iqp,util_wallsec()-timer2,
      $                                  Ein,Eout
  9901       format('  ## Finished iter',I3,' of qp ',I3,' in ',F12.2,'s'
      $             ,/,'     Ein: ',F12.6,' Eout: ',F12.6)
 #endif
-
-            if (converged) then
-              eout = ein
-              exit
-            endif
-
             call gw_donewton(ein,eout,residual,dresidual,a,b,fa,fb,
      $                       bracket,pars%thresh)
 

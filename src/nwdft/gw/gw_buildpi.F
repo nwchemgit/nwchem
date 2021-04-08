@@ -30,37 +30,37 @@
 
         if (npoles(1).gt.0) then
 
-!$omp     parallel do simd schedule(static)
+!$omp     parallel do schedule(static)
           do ipole=1,npoles(1)
             call dscal(nri,factor(ipole,1),ovup(1,ipole),1)
           enddo
-!$omp     end parallel do simd
+!$omp     end parallel do
 
           call dsfrk('n','l','n',nri,npoles(1),scal,ovup,nri,0d0,pi)
 
-!$omp     parallel do simd schedule(static)
+!$omp     parallel do schedule(static)
           do ipole=1,npoles(1)
             call dscal(nri,1d0/factor(ipole,1),ovup(1,ipole),1)
           enddo
-!$omp     end parallel do simd
+!$omp     end parallel do
 
         endif
 
         if (ipol.gt.1.and.npoles(2).gt.0) then
 
-!$omp     parallel do simd schedule(static)
+!$omp     parallel do schedule(static)
           do ipole=1,npoles(2)
             call dscal(nri,factor(ipole,2),ovdw(1,ipole),1)
           enddo
-!$omp     end parallel do simd
+!$omp     end parallel do 
 
           call dsfrk('n','l','n',nri,npoles(2),scal,ovdw,nri,1d0,pi)
 
-!$omp     parallel do simd schedule(static)
+!$omp     parallel do schedule(static)
           do ipole=1,npoles(2)
             call dscal(nri,1d0/factor(ipole,2),ovdw(1,ipole),1)
           enddo
-!$omp     end parallel do simd
+!$omp     end parallel do
 
         endif
 
@@ -103,7 +103,7 @@
         do ipole=1,mymax
           idx = k_scr + (ipole-1)*nri
           call dfill(nri,0d0,dbl_mb(idx),1)
-          call daxpy(nri,factor(ipole,1),ovup(1,ipol),1,dbl_mb(idx),1)
+          call daxpy(nri,factor(ipole,1),ovup(1,ipole),1,dbl_mb(idx),1)
         enddo
 !$omp   end parallel do
         call dgemm('n','t',nri,nri,mymax,2d0*scal,dbl_mb(k_scr),nri,

@@ -62,40 +62,25 @@
       subroutine gw_diis(error,values,step,ndiis)
       implicit none
       integer,intent(inout) :: ndiis
-      double precision,intent(in) :: error(ndiis),values(ndiis)
+      double precision,intent(inout) :: error(ndiis),values(ndiis)
       double precision,intent(out) :: step
       double precision :: a(ndiis+1,ndiis+1),w(ndiis+1),b(ndiis+1)
       double precision :: z(ndiis+1,ndiis+1)
 
-      integer :: ipiv(ndiis+1)
       double precision :: work(3*(ndiis+1))
 
       integer idiis,jdiis,info
 
-      a(1:ndiis,ndiis+1) = 1d0
-      a(ndiis+1,1:ndiis) = 1d0
-      a(ndiis+1,ndiis+1) = 0d0
+ 100  continue
 
-      do idiis=1,ndiis
-        do jdiis=1,ndiis
-          a(jdiis,idiis) = error(jdiis)*error(idiis)
-        enddo
-      enddo
-
-      b(1:ndiis) = 0d0
-      b(ndiis+1) = 1d0
-
-      call dsyev('v','l',ndiis+1,a,ndiis+1,w,work,3*(ndiis+1),info)
-
-      if (abs(w(idiis)).lt.1d-3) then
-        ndiis = 0
-        write(*,*) 'ill-defined'
+      if (ndiis.eq.1) then
+        step = 0.1d0*error(ndiis)
         return
       endif
 
-      a(1:ndiis,ndiis+1) = 1d0
-      a(ndiis+1,1:ndiis) = 1d0
-      a(ndiis+1,ndiis+1) = 0d0
+      a(1:ndiis,ndiis+1) = -1d0
+      a(ndiis+1,1:ndiis) = -1d0
+      a(ndiis+1,ndiis+1) =  0d0
 
       do idiis=1,ndiis
         do jdiis=1,ndiis
@@ -103,7 +88,25 @@
         enddo
       enddo
 
-      call dgesv(ndiis+1,1,a,ndiis+1,ipiv,b,ndiis+1,info)
+      b(1:ndiis) =  0d0
+      b(ndiis+1) = -1d0
+
+      call dsyev('v','l',ndiis+1,a,ndiis+1,w,work,3*(ndiis+1),info)
+
+      do idiis=1,ndiis+1
+        if (abs(w(idiis)).lt.1d-6) then
+          do jdiis=2,ndiis
+            error(jdiis-1) = error(jdiis)
+            values(jdiis-1) = values(jdiis)
+          enddo
+          ndiis = ndiis - 1
+          goto 100
+        endif
+        z(:,idiis) = a(:,idiis)/w(idiis)
+      enddo
+      
+      call dgemv('t',idiis+1,idiis+1,1d0,a,idiis+1,b,1,0d0,w,1)
+      call dgemv('n',idiis+1,idiis+1,1d0,z,idiis+1,w,1,0d0,b,1)
 
       step = 0d0
       do idiis=1,ndiis
@@ -111,6 +114,7 @@
       enddo
 
       end subroutine
+
       subroutine gw_findbracket(found,enew,resnew,eold,resold,
      $                          xlower,xupper,flower,fupper)
       implicit none

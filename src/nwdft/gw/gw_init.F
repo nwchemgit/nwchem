@@ -94,10 +94,14 @@ c
      $  call errquit(pname//'failed to read newton',0,RTDB_ERR)
       if (.not.rtdb_get(pars%rtdb,'gw:linear',mt_log,1,pars%linear))
      $  call errquit(pname//'failed to read linear',0,RTDB_ERR)
+      if (.not.rtdb_get(pars%rtdb,'gw:diis',mt_log,1,pars%diis))
+     $  call errquit(pname//'failed to read linear',0,RTDB_ERR)
 
-      if (pars%linear .or. pars%graph) pars%newton = .false.
+      if (pars%linear .or. pars%graph .or. pars%diis ) then
+        pars%newton = .false.
+      endif
 
-      if (pars%newton) then
+      if (pars%newton .or. pars%diis ) then
         if (.not.rtdb_get(pars%rtdb,'gw:qpiter',mt_int,1,pars%qpiter))
      $    call errquit(pname//'failed to read qpiter',0,RTDB_ERR)
       endif

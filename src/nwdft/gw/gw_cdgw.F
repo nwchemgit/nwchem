@@ -204,6 +204,12 @@ c
      $                      dbl_mb(kEia),
      $                      GWMB(kiW), int_mb(kiWidx),efermi,nri,
      $                      mynmo,maxqp,maxpoles,eviter)
+      elseif (pars%diis) then
+        call gw_cdgw_diis(pars,dbl_mb(kSigmax),dbl_mb(kSigma),
+     $                    dbl_mb(kEref),dbl_mb(kEmod),dbl_mb(kEnew),
+     $                    dbl_mb(kEia),
+     $                    GWMB(kiW), int_mb(kiWidx),efermi,nri,
+     $                    mynmo,maxqp,maxpoles,eviter)
       else
         call gw_cdgw_linear(pars,dbl_mb(kSigmax),dbl_mb(kSigma),
      $                      dbl_mb(kEref),dbl_mb(kEmod),dbl_mb(kEnew),

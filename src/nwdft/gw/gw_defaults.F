@@ -26,6 +26,7 @@ c
      &     rtdb_put(rtdb,'gw:newton',mt_log,1,.true.).and.
      &     rtdb_put(rtdb,'gw:graph',mt_log,1,.false.).and.
      &     rtdb_put(rtdb,'gw:linear',mt_log,1,.false.).and.
+     &     rtdb_put(rtdb,'gw:diis',mt_log,1,.false.).and.
      &     rtdb_put(rtdb,'gw:eviter',mt_int,1,4).and.
      &     rtdb_put(rtdb,'gw:qpiter',mt_int,1,10).and.
      &     rtdb_put(rtdb,'gw:noqp_alpha',mt_int,1,1).and.

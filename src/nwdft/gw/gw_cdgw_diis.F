@@ -4,7 +4,7 @@
 #define GWTYP double precision
 #endif
 
-      subroutine gw_cdgw_newton(pars,Sigmax,Sigma,Eref,Eold,Enew,Eia,iW,
+      subroutine gw_cdgw_diis(pars,Sigmax,Sigma,Eref,Eold,Enew,Eia,iW,
      $                          iWidx,Efermi,nri,mynmo,maxqp,maxpoles,
      $                          EViter)
 
@@ -38,8 +38,11 @@
 
       integer nclusters, clusters(pars%nmo),myll,myul
       integer llqp,ulqp,icluster
-      double precision upper,lower,resupper,reslower,const
+      double precision upper,lower,resupper,reslower,const,step
 
+      integer,parameter :: maxdiis = 12
+      integer           :: ndiis,idiis
+      double precision  :: values(maxdiis),errors(maxdiis)
 
       main = pars%me .eq. 0
       dbls = ma_sizeof(mt_dbl,1,mt_byte)
@@ -102,6 +105,7 @@
           const = Eref(llmo+iqp-1,isp) + Sigma_X - sigmaold
           lower = 0d0
           upper = 0d0
+          ndiis = 0
 c        
           do iter=1,pars%qpiter+5
             timer2 = util_wallsec()
@@ -128,19 +132,22 @@ c
             SigmaC   = I + R
             dSigmaC  = dI + dR
 
-            residual = const + SigmaC - Ein
-            dresidual = dSigmaC - 1d0
-
-            ! Find out if we have bracketed the solution
-            if (iter.gt.1) then
-              call gw_findbracket(bracket,ein,residual,etmp,residualold,
-     $                            lower,upper,reslower,resupper)
+            if (ndiis.eq.maxdiis) then
+              do idiis=2,ndiis
+                values(idiis-1) = values(idiis)
+                errors(idiis-1) = errors(idiis)
+              enddo
+            else
+              ndiis = ndiis + 1
             endif
+
+            values(ndiis) = Ein
+            errors(ndiis) = const + sigmac - ein
+            residual = errors(ndiis)
 
             ! Check convergence of QP equation
             converged = abs(residual).lt.pars%thresh .or. 
-     $                  sum(rms3)/3d0.lt.pars%thresh .or.
-     $                  (bracket .and. abs(upper-lower).lt.pars%thresh)
+     $                  sum(rms3)/3d0.lt.pars%thresh 
 
 
             ! Exit if converged
@@ -150,9 +157,10 @@ c
               exit
             endif
 
-            ! Take next newton step
-            call gw_donewton(ein,eout,residual,dresidual,lower,upper,
-     $                       reslower,resupper,bracket,pars%thresh)
+            call gw_diis(errors,values,step,ndiis)
+
+            Eout = Ein + step
+
 #ifdef GWDEBUG
             if (main) write(luout,9901) iter,iqp,util_wallsec()-timer2,
      $                                  Ein,Eout
@@ -160,10 +168,6 @@ c
      $             ,/,'     Ein: ',F12.6,' Eout: ',F12.6)
 #endif
 
-
-            ! Save information
-            etmp = ein
-            residualold = residual
             rms3(1) = rms3(2)
             rms3(2) = rms3(3)
             rms3(3) = abs(eout-ein)
