@@ -40,7 +40,7 @@
       integer llqp,ulqp,icluster
       double precision upper,lower,resupper,reslower,const,step
 
-      integer,parameter :: maxdiis = 12
+      integer,parameter :: maxdiis = 15
       integer           :: ndiis,idiis
       double precision  :: values(maxdiis),errors(maxdiis)
 
@@ -132,18 +132,9 @@ c
             SigmaC   = I + R
             dSigmaC  = dI + dR
 
-            if (ndiis.eq.maxdiis) then
-              do idiis=2,ndiis
-                values(idiis-1) = values(idiis)
-                errors(idiis-1) = errors(idiis)
-              enddo
-            else
-              ndiis = ndiis + 1
-            endif
-
-            values(ndiis) = Ein
-            errors(ndiis) = const + sigmac - ein
-            residual = errors(ndiis)
+            values(iter) = Ein
+            errors(iter) = const + sigmac - ein
+            residual = errors(iter)
 
             ! Check convergence of QP equation
             converged = abs(residual).lt.pars%thresh .or. 
@@ -157,7 +148,7 @@ c
               exit
             endif
 
-            call gw_diis(errors,values,step,ndiis)
+            call gw_diis(errors,values,step,ndiis,1,iter)
 
             Eout = Ein + step
 

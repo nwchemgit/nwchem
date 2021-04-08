@@ -175,11 +175,6 @@ c
      $          dbl_mb(pars%k_glw), GWMB(kiW), int_mb(kiWidx),
      $          pars%nmo,nri,pars%ngl,mynmo,maxpoles,maxqp,pars%ipol)
 
-c      call gw_buildiw_minres(pars,dbl_mb(kEia),dbl_mb(pars%k_glx),
-c     $     dbl_mb(kiW),
-c     $    int_mb(kiWidx),pars%nmo,nri,pars%ngl,mynmo,maxpoles,maxqp,
-c     $    pars%ipol)
-
       pars%timer%iw = pars%timer%iw + util_wallsec() - timer
 c
   200 continue ! evGW0
@@ -219,6 +214,7 @@ c
       endif
 
       if (pars%evgw0.or.pars%evgw) then
+
         call gw_scissor(dbl_mb(kEnew),dbl_mb(kEmod),pars%nmo,pars%nocc,
      $                  pars%nvir,pars%noqp,pars%nvqp,pars%ipol,pars%me)
 

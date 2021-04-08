@@ -59,59 +59,70 @@
       end subroutine
 
 
-      subroutine gw_diis(error,values,step,ndiis)
+      subroutine gw_diis(error,values,step,ndiis,nqp,niter)
       implicit none
-      integer,intent(inout) :: ndiis
-      double precision,intent(inout) :: error(ndiis),values(ndiis)
-      double precision,intent(out) :: step
-      double precision :: a(ndiis+1,ndiis+1),w(ndiis+1),b(ndiis+1)
-      double precision :: z(ndiis+1,ndiis+1)
+      integer,intent(inout) :: ndiis,nqp,niter
+      double precision,intent(inout) :: error(nqp,*),values(nqp,*)
+      double precision,intent(out) :: step(*)
+      double precision,allocatable :: deltax(:,:),deltaf(:,:)
+      double precision,allocatable :: work(:),f(:,:),b(:)
+      double precision,allocatable :: x(:,:)
+      integer, allocatable :: ipiv(:)
 
-      double precision :: work(3*(ndiis+1))
+      integer idiis,jdiis,info,j,iqp
 
-      integer idiis,jdiis,info
+      double precision,parameter :: beta = 0.2d0
+      double precision,parameter :: alpha = 0.2d0
+      integer,parameter :: m = 15
 
  100  continue
 
-      if (ndiis.eq.1) then
-        step = 0.1d0*error(ndiis)
+      if (niter-1.le.0) then
+        step(1:nqp) = beta*error(1:nqp,niter)
         return
       endif
 
-      a(1:ndiis,ndiis+1) = -1d0
-      a(ndiis+1,1:ndiis) = -1d0
-      a(ndiis+1,ndiis+1) =  0d0
+      if (mod(niter-1,m+1).eq.0) then
+        ndiis = 1
+      else
+        ndiis = ndiis + 1
+      endif
 
+      allocate(deltax(nqp,ndiis),deltaf(nqp,ndiis),
+     $         f(ndiis,ndiis),x(nqp,ndiis),b(ndiis),
+     $         work(10*ndiis),ipiv(10*ndiis))
+
+      j = 0
+      do idiis=ndiis,1,-1
+        deltax(:,idiis) = values(:,niter-j) - values(:,niter-j-1)
+        deltaf(:,idiis) = error(:,niter-j) - error(:,niter-j-1)
+        j = j + 1
+      enddo
+ 
       do idiis=1,ndiis
         do jdiis=1,ndiis
-          a(jdiis,idiis) = error(jdiis)*error(idiis)
+          F(jdiis,idiis) = dot_product(deltaf(:,idiis),deltaf(:,jdiis))
         enddo
+        x(:,idiis) = deltax(:,idiis) + alpha*deltaf(:,idiis)
+        b(idiis) = dot_product(deltaf(:,idiis),error(:,niter))
       enddo
 
-      b(1:ndiis) =  0d0
-      b(ndiis+1) = -1d0
+      call dsysv('u',ndiis,1,F,ndiis,ipiv,b,ndiis,work,10*ndiis,info)
 
-      call dsyev('v','l',ndiis+1,a,ndiis+1,w,work,3*(ndiis+1),info)
+      if (info.ne.0) then
+        write(*,*) 'info 0'
+        ndiis = 0
+        step(1:nqp) = beta*error(:,niter)
+        deallocate(deltax,deltaf,f,x,b,work,ipiv)
+        return
+      endif
 
-      do idiis=1,ndiis+1
-        if (abs(w(idiis)).lt.1d-6) then
-          do jdiis=2,ndiis
-            error(jdiis-1) = error(jdiis)
-            values(jdiis-1) = values(jdiis)
-          enddo
-          ndiis = ndiis - 1
-          goto 100
-        endif
-        z(:,idiis) = a(:,idiis)/w(idiis)
+      step(1:nqp) = alpha*error(1:nqp,niter)
+      do iqp=1,nqp
+        step(iqp) = step(iqp) - dot_product(x(iqp,:),b)
       enddo
-      
-      call dgemv('t',idiis+1,idiis+1,1d0,a,idiis+1,b,1,0d0,w,1)
-      call dgemv('n',idiis+1,idiis+1,1d0,z,idiis+1,w,1,0d0,b,1)
 
-      step = 0d0
-      do idiis=1,ndiis
-        step = step + b(idiis)*values(idiis)
-      enddo
+      deallocate(deltax,deltaf,f,x,b,work,ipiv)
 
       end subroutine
 
