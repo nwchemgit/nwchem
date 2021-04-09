@@ -24,7 +24,13 @@ os=`uname`
 arch=`uname -m`
 export NWCHEM_BASIS_LIBRARY=$TRAVIS_BUILD_DIR/.cachedir/files/libraries/
 export NWCHEM_NWPW_LIBRARY=$TRAVIS_BUILD_DIR/.cachedir/files/libraryps/
- nprocs=2
+nprocs=2
+if [[ ! -z "$USE_OPENMP" ]]; then
+    nprocs=1
+    export OMP_NUM_THREADS="$USE_OPENMP"
+    export OMP_STACKSIZE=32M
+fi
+env|egrep MP
  do_largeqas=1
 
  if [[ "$EXTRA_BUILD" == "1" ]] || [[ ! -z "$USE_SIMINT" ]] || [[ "$arch" == "aarch64" ]] || [[ "$arch" == "ppc64le" ]]; then
@@ -127,7 +133,10 @@ fi
 	   fi
        fi
        if [[ ! $(grep -i pspw $TRAVIS_BUILD_DIR/src/stubs.F| awk '/pspw_input/') ]]; then
-	   cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs pspw_md
+#skip pspw_md when openmp is on
+	   if [[ -z "$USE_OPENMP" ]]; then
+	       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs pspw_md
+	   fi
        fi
        if [[ ! $(grep -i dft_input $TRAVIS_BUILD_DIR/src/stubs.F| awk '/dft_input/') ]]; then
 	   if [[ ! $(grep -i prop_input $TRAVIS_BUILD_DIR/src/stubs.F| awk '/prop_input/') ]]; then
