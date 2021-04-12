@@ -186,6 +186,10 @@ c
      $                      l_mo,k_mo))
      $  call errquit(pname//'can''t get MO eris space',0,MA_ERR)
 c
+#ifdef GWDEBUG
+      if (pars%me.eq.0) write(*,*) '  Transform ERIs'
+#endif
+
       addr = k_mo
       do isp=1,pars%ipol
         if (isp.eq.2) addr = k_mo + mopairs(1)*nri_me
@@ -196,15 +200,22 @@ c
      $             pars%nstates(isp),aopairs,nri_me)
       enddo
 
+      call ga_sync()
+
       ok = ma_free_heap(l_vecs) .and. ga_destroy(g_3ceris)
       if (.not.ok)
      $  call errquit(pname//'can''t free heap',176,MA_ERR)
+c
+      call ga_sync()
 c
       pars%timer%eris = util_wallsec() - timer
 c
 c     Distribute and orthonormalize ERIs
 c
       timer = util_wallsec()
+#ifdef GWDEBUG
+      if (pars%me.eq.0) write(*,*) '  Distribute ERIs'
+#endif
 
       addr = k_mo
       do isp=1,pars%ipol
@@ -232,13 +243,24 @@ c
       enddo
 
       ok = ma_free_heap(l_mo)
+#ifdef GWDEBUG
+      if (pars%me.eq.0) write(*,*) '  Read inverse'
+#endif
 c
       if (.not.ma_alloc_get(mt_dbl,nri**2,'RI temporary',l_tmp,k_tmp))
      $  call errquit(pname//'can''t get temp space',0,MA_ERR)
-      call ga_get(g_2cinv,1,nbf_cd,1,nbf_cd,dbl_mb(k_tmp),nbf_cd)
+      if (pars%me.eq.0) then
+        call ga_get(g_2cinv,1,nbf_cd,1,nbf_cd,dbl_mb(k_tmp),nbf_cd)
+      endif
+      call ga_sync()
       if (.not. ga_destroy(g_2cinv))
      $  call errquit(pname//'failed to destroy g_2cinv',0,GA_ERR)
+      call ga_brdcst(mt_dbl,dbl_mb(k_tmp),ma_sizeof(mt_dbl,nri**2,
+     $               mt_byte),0)
 
+#ifdef GWDEBUG
+      if (pars%me.eq.0) write(*,*) '  Orthogonalize ERIs'
+#endif
       do isp=1,pars%ipol
         if (pars%nstates(isp).eq.0) cycle
 c
@@ -397,6 +419,7 @@ c     *****************************************************************
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
+#include "global.fh"
 
       character(len=2),intent(in) :: blk
       integer,intent(in) :: nmo, nstates, nri, nri_me, rilo
@@ -409,12 +432,14 @@ c     *****************************************************************
 
       integer ilo,ihi,jlo,jhi,imo,jmo,ipair,npairs,me,rihi
       integer ni,nj,l_tmp,k_tmp,k_loc,ld
+      integer l_pair,k_pair,mynpairs,jpair,iproc,nprocs,ulpair,llpair
+      integer ibatch,nbatch,myllpair,myulpair,ma_dbl
 
       logical ok
-      logical,external :: ga_create
-      integer,external :: ga_nodeid, gw_get_pair
+      integer,external :: gw_get_pair
 
       integer l_oo,k_oo,l_ov,k_ov,l_vv,k_vv
+      double precision temp(nri)
 
       ni = iupper - ilower + 1
       if (ni.lt.1) return
@@ -422,27 +447,52 @@ c     *****************************************************************
       nj = jupper - jlower + 1
       rihi = rilo + nri_me - 1
       me = ga_nodeid()
+      nprocs = ga_nnodes()
 
       erilabel = 'eri '//blk
       idxlabel = 'idx '//blk
 
       npairs = ni*nj
+      mynpairs = npairs/nprocs + 1
+
       if (.not.ga_create(mt_dbl,nri,npairs,erilabel,nri,0,eri))
      $  call errquit(pname//'can''t create '//blk//' block',0,GA_ERR)
-      if (.not.ma_alloc_get(mt_int,2*npairs,idxlabel,l_tmp,k_tmp))
+      if (.not.ma_push_get(mt_int,2*npairs,idxlabel,l_tmp,k_tmp))
      $  call errquit(pname//'can''t create '//blk//' index',0,MA_ERR)
+
+      ma_dbl = ma_inquire_avail(mt_dbl)/nri_me
+      nbatch = mynpairs/ma_dbl + 1
+      mynpairs = npairs/nbatch
+      if (mod(npairs,nbatch).ne.0) mynpairs = mynpairs + 1
+      mynpairs = min(npairs,mynpairs)
+
+      if (.not.ma_push_get(mt_dbl,mynpairs*nri_me,'temp',l_pair,k_pair))
+     $  call errquit(pname//'can''t create temporary array',0,MA_ERR)
 
       call gw_get_indeces(int_mb(k_tmp),npairs,ilower,iupper,jlower,
      $                    jupper)
 
-      do ipair=1,npairs
-        imo = gw_get_pair(int_mb(k_tmp),ipair,1,npairs)
-        jmo = gw_get_pair(int_mb(k_tmp),ipair,2,npairs)
-        call ga_put(eri,rilo,rihi,ipair,ipair,erimo(imo,jmo,1:nri_me),
-     $              nri_me)
+      ulpair = 0
+      do iproc=0,nprocs-1
+        llpair = ulpair + 1
+        ulpair = ulpair + npairs/nprocs
+        if (iproc.lt.mod(npairs,nprocs)) ulpair = ulpair  + 1
+        do ibatch=1,nbatch
+          myllpair = (ibatch-1)*mynpairs + llpair
+          myulpair = min(myllpair + mynpairs,ulpair)
+          do ipair=myllpair,myulpair
+            imo = gw_get_pair(int_mb(k_tmp),ipair,1,npairs)
+            jmo = gw_get_pair(int_mb(k_tmp),ipair,2,npairs)
+            call dcopy(nri_me,erimo(imo,jmo,1),nstates*nmo,
+     $                 dbl_mb(k_pair+(ipair-myllpair)*nri_me),1)
+          enddo
+          call ga_put(eri,rilo,rihi,myllpair,myulpair,dbl_mb(k_pair),
+     $                nri_me)
+        enddo
+        call ga_sync()
       enddo
 
-      ok = ma_free_heap(l_tmp)
+      ok = ma_chop_stack(l_tmp)
 
       call ga_distribution(eri,me,ld,ld,polelo,polehi)
 

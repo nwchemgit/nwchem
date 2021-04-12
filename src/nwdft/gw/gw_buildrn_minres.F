@@ -1,8 +1,8 @@
 #ifdef GWCMPLX
-#define GWTYP double complex
+#define GWTYP C_DOUBLE_COMPLEX
 #define SOLVER cs_minres_qlp
 #else
-#define GWTYP double precision
+#define GWTYP C_DOUBLE
 #ifdef GWEN
 #define SOLVER gw_en
 #else
@@ -13,6 +13,7 @@
 
       subroutine gw_buildrn_minres(pars,Eig,Eia,omega,R,dR,imo,
      $                      maxpoles,nri,me,nmo,ipol,isp)
+      USE ISO_C_BINDING
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -39,8 +40,9 @@
       double precision fac, arg, w, arg2, dfac, sgn, t1
       double precision vector(nri)
       double complex :: temp
-      GWTYP,dimension(maxpoles,ipol) :: factor, dfactor
-      GWTYP,dimension(nri) :: xvec
+      integer(kind=c_int)         :: stat_alloc
+      real(kind=GWTYP),allocatable,dimension(:,:) :: factor, dfactor
+      real(kind=GWTYP),dimension(nri) :: xvec
 
       logical main, ok, parallel_diag
       logical, external :: is_near
@@ -57,9 +59,16 @@
       call util_blas_set_num_threads(iMaxThreads)
 #endif
 
+      call ga_sync()
 
       main = me.eq.0
       nprocs = ga_nnodes()
+
+      allocate(factor(maxpoles,ipol),dfactor(maxpoles,ipol),
+     $         stat=stat_alloc)
+      if (stat_alloc.ne.0) then
+        call errquit('gw_buildrn: allocation failed',0,0)
+      endif
 
       do jsp=1,ipol
         if (pars%mynpoles(jsp).eq.0) cycle
@@ -186,6 +195,8 @@
       call ga_dgop(mt_dbl,R,1,'+')
       call ga_dgop(mt_dbl,dR,1,'+')
 
+
+      deallocate(factor,dfactor)
 
 #ifdef USE_OPENMP
       call util_blas_set_num_threads(1)

@@ -1,4 +1,5 @@
       subroutine gw_minres(OV1,OV2,factor,x,b,npoles,maxpoles,n,ipol)
+      use iso_c_binding
       implicit none
 #include "errquit.fh"
 #include "global.fh"      
@@ -26,8 +27,11 @@
       double precision :: relArnorml, s, sn, t, tnorm2, ynorm2, z
       double precision :: t1, t2, test1, test2, root, bnorm, dxnorm
       double precision :: test3, xnorm, x0norm
-      double precision,dimension(n) :: r1, r2, sol, v, w, w1, w2, y
       double precision :: aprod,rest,t0,tdgop
+
+      integer(kind=c_int) :: stat_alloc
+      real(kind=C_DOUBLE),allocatable,dimension(:) :: r1, r2, sol, v, w,
+     $                                                w1, w2, y
 
       
       logical main,converged,oactive,parallel_diag,doparallel
@@ -36,6 +40,13 @@
       double precision,parameter :: shift = 0.000d0, rtol=1d-4
 
       call ga_sync()
+
+      allocate(y(n), w(n), w1(n), w2(n), sol(n), r1(n), r2(n), v(n),
+     $         stat=stat_alloc)
+      if (stat_alloc.ne.0) then
+        call errquit('gw_minres: allocation failed',0,MA_ERR)
+      endif
+
       me = ga_nodeid()
       main = me.eq.0
       converged = .false.
@@ -322,6 +333,11 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
         rnorm = 0d0
       else
         call ga_brdcst(mt_dbl,x,ma_sizeof(mt_dbl,n,mt_byte),0)
+      endif
+
+      deallocate(r1, r2, y, w, w1, w2, v, sol, stat=stat_alloc)
+      if (stat_alloc.ne.0) then
+        call errquit('gw_minres: error deallocating',0,MA_ERR)
       endif
 
 
