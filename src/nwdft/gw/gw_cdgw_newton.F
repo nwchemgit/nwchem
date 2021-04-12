@@ -94,6 +94,9 @@
             Eout = Eout + sign(4d0*pars%thresh,Eout)
           endif
 
+          !Trying to enhance reproducibility by rounding-off to 8 digits
+          eout = nint(eout*1d8)/1d8
+
           call ga_zero(pars%g_sols)
           bracket = .false.
           rms3 = 1d100
