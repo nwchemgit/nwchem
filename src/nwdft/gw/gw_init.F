@@ -35,8 +35,13 @@ c
       logical ga_create_atom_blocked
       external ga_create_atom_blocked
 
+      integer, external :: findmycpu
+      integer resultlen,tid,cpu,ierr,iproc,itid
+      character(len=80) names
+
 #ifdef USE_OPENMP
-      integer,external :: omp_get_max_threads
+      integer,external :: omp_get_max_threads, omp_get_thread_num
+      integer,external :: omp_get_num_threads
 #endif      
 c
 c     -----------------------------------------------------------------
@@ -64,6 +69,25 @@ c
 
 #ifdef USE_OPENMP
       pars%iMaxThreads = omp_get_max_threads()
+      call mpi_get_processor_name(names,resultlen,ierr)
+      do iproc=0,pars%nprocs-1
+        if (iproc.eq.pars%me) then
+!$omp     parallel private(tid,cpu)
+            tid = omp_get_thread_num()
+            cpu = findmycpu()
+!$omp       do ordered schedule (static,1)
+            do itid=0,omp_get_num_threads()-1
+!$omp         ordered
+              write(luout,1234) pars%me,tid,names(1:resultlen),cpu
+!$omp         end ordered
+            enddo
+!$omp       end do
+!$omp     end parallel
+        endif
+        call ga_sync()
+        call util_flush(luout)
+      enddo
+ 1234 format(' rank',I5,' thread ',I5,' hostname ',A20,' cpu',I5)
 #else
       pars%iMaxThreads = 1
 #endif
