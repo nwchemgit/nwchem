@@ -86,8 +86,9 @@ fi
 	nv_minor=3
 	nverdot="$nv_major"."$nv_minor"
 	nverdash="$nv_major"-"$nv_minor"
-	nv_p1=nvhpc-"$nverdash"_"$nverdot"_amd64.deb
-	nv_p2=nvhpc-2021_"$nverdot"_amd64.deb
+	arch_dpkg=`dpkg --print-architecture`
+        nv_p1=nvhpc-"$nverdash"_"$nverdot"_"$arch_dpkg".deb
+	nv_p2=nvhpc-2021_"$nverdot"_"$arch_dpkg".deb
 	wget https://developer.download.nvidia.com/hpc-sdk/"$nverdot"/"$nv_p1"
 	wget https://developer.download.nvidia.com/hpc-sdk/"$nverdot"/"$nv_p2"
 	sudo dpkg -i "$nv_p1" "$nv_p2"
