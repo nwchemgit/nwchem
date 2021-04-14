@@ -6920,9 +6920,9 @@ c      end
       real*8   electron_eorbit_noocc
       external electron_eorbit_noocc
 
-
       call geodesic_transport(t,dcpl_mb(psi1(1)),
      >                          dcpl_mb(psi2(1)))
+
       psi_geodesic_denergy 
      > =  2.0d0*electron_eorbit_noocc(dcpl_mb(psi2(1)))
 
