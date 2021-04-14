@@ -290,7 +290,7 @@ c     *** Silvestrelli G3 ***
 
 *     ******************************
 *     *                            *
-*     *      dipole_efield_print   *
+*     *      dipole_Efield_print   *
 *     *                            *
 *     ******************************
       subroutine dipole_Efield_print(iunit)

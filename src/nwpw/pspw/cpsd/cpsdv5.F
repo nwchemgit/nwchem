@@ -215,6 +215,9 @@ c#include "Parallel.fh"
       real*8   control_fractional_alpha
       external control_fractional_alpha
 
+      integer  pspw_Efield_type
+      external pspw_Efield_type
+
 
 
 *                            |************|
@@ -1104,7 +1107,7 @@ c            write(luout,1706) E(18)
            write(luout,1802) E(19)
            write(luout,1803) E(20)
            write(luout,1804) E(21)
-           call dipole_Efield_print(luout)
+           if (pspw_Efield_type().eq.0) call dipole_Efield_print(luout)
         end if
 
 
