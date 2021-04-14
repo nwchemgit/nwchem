@@ -74,7 +74,7 @@ c
       real*8 e_lj,e_q,e_spring
       real*8 ehfx,phfx
       
-      logical cosmo_on,cosmo1_on,V_APC_on
+      logical cosmo_on,cosmo1_on,V_APC_on,field_exist
       real*8  eapc,papc
 
 
@@ -124,6 +124,10 @@ c
       external pspw_charge_found,control_precondition,pspw_HFX
       external pspw_HFX_relaxed,psp_U_psputerm,meta_found
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
+      logical  pspw_Efield_found
+      external pspw_Efield_found
+      real*8   pspw_Efield_Energy_ion
+      external pspw_Efield_Energy_ion
 
       real*8   psi_1_noupdate_energy,psi_eigenvalue
       external psi_1_noupdate_energy,psi_eigenvalue
@@ -151,6 +155,7 @@ c
       cosmo_on  = nwpw_cosmo_on()
       cosmo1_on = nwpw_cosmo1_on()
       V_APC_on  = pspw_V_APC_on()
+      field_exist = pspw_charge_found().or.pspw_Efield_found()
 
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
@@ -624,10 +629,11 @@ c         E(14) = E(14) + dng_1vl_mm()
       end if
 
 
-*     **** get pspw_charge  energies ****
-      if (pspw_charge_found()) then
+*     **** get pspw_charge and pspw_Efield  energies ****
+      if (field_exist) then
          evl  = psi_1v_field()
          evnl = pspw_charge_Energy_ion()
+     >        + pspw_Efield_Energy_ion()
          e00  = pspw_charge_Energy_charge()
 
 !$OMP MASTER

@@ -2636,13 +2636,13 @@ c     write(*,*) ciE(1),ciE(2),ciE(3),ciE(4)
       real*8 tmp1(2),tmp2(2),sum1,sum2
 
 *     **** external functions ****
-      logical  pspw_charge_found
-      external pspw_charge_found
+      logical  pspw_charge_found,pspw_Efield_found
+      external pspw_charge_found,pspw_Efield_found
       integer  control_version
       external control_version
 
       aperiodic   = (control_version().eq.4)
-      field_exist = pspw_charge_found()
+      field_exist = pspw_charge_found().or.pspw_Efield_found()
       nemaxq = neq(1)+neq(2)
 
       call Pack_npack(0,npack0)
@@ -2682,15 +2682,21 @@ c     write(*,*) ciE(1),ciE(2),ciE(3),ciE(4)
 
 *     ***** generate other real-space fields ****
       if (field_exist) then
-         call dcopy(n2ft3d,0.0d0,0,dbl_mb(v_field(1)),1)
+         !call dcopy(n2ft3d,0.0d0,0,dbl_mb(v_field(1)),1)
+         call Parallel_shared_vector_zero(.true.,n2ft3d,
+     >                                    dbl_mb(v_field(1)))
          call pspw_charge_Generate_V(n2ft3d,
+     >                               dbl_mb(r_grid(1)),
+     >                               dbl_mb(v_field(1)))
+         call pspw_Efield_Generate_V(n2ft3d,
      >                               dbl_mb(r_grid(1)),
      >                               dbl_mb(v_field(1)))
       end if
 
 
 *     **** get H1psi  ****
-      call dcopy(2*nemaxq*npack1,0.0d0,0,H1psi,1)
+      !call dcopy(2*nemaxq*npack1,0.0d0,0,H1psi,1)
+      call Parallel_shared_vector_zero(.true.,2*nemaxq*npack1,H1psi)
       if (aperiodic) then
          call psi_H1v4(ispin,neq,psi,psi_r,
      >             dcpl_mb(vl(1)),dbl_mb(vlr_l(1)),
@@ -5571,7 +5577,6 @@ c      end
       call D3dB_nz(1,nz)
       dv = lattice_omega()/dble(nx*ny*nz)
 
-
 *     **** Push memory ****
       value = BA_push_get(mt_dbl,(3*n2ft3d),'r_grid',
      >                       r_grid(2),r_grid(1))
@@ -5580,7 +5585,7 @@ c      end
      >                       rho(2),rho(1))
       if (.not. value) call errquit(
      >     'rho_1Fcharge: out of stack memory',0, MA_ERR)
-      call dcopy(3*n2ft3d,0.0d0,dbl_mb(rho(1)),1)
+      call Parallel_shared_vector_zero(.true.,3*n2ft3d,dbl_mb(rho(1)))
 
 
 *     **** Get r_grid and rho ****

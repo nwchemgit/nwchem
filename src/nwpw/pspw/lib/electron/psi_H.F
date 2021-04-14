@@ -50,10 +50,10 @@
 #include "errquit.fh"
 
 *     **** local variables ****
-      logical dosic,dohfx,dodftu,meta,tamd,meta_gga
+      logical dosic,dohfx,dodftu,meta,tamd,meta_gga,periodic_efield
       integer ms,n,n1(2),n2(2)
       integer nx,ny,nz
-      real*8  scal1,scal2
+      real*8  scal1,scal2,edpol
 
 *     **** tempory space ****
 c     complex*16 vall(nfft3d)
@@ -72,11 +72,17 @@ c     complex*16 vpsi(nfft3d)
       external pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm,meta_found
       external psp_pawexist,nwpw_meta_gga_on,tamd_found
       external lattice_omega
+      logical  pspw_Efield_found
+      external pspw_Efield_found
+      integer  pspw_Efield_type
+      external pspw_Efield_type
 
 
       dosic = (pspw_SIC().and.pspw_SIC_relaxed()) 
       dohfx = (pspw_HFX().and.pspw_HFX_relaxed()) 
       dodftu = psp_U_psputerm()
+      periodic_efield = pspw_Efield_found().and.
+     >                  (pspw_Efield_type().eq.0)
       meta = meta_found()
       tamd = tamd_found()
       meta_gga = nwpw_meta_gga_on()
@@ -92,7 +98,7 @@ c     complex*16 vpsi(nfft3d)
       value = value.and.
      >        BA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
      
-      if ((dosic).or.(dohfx)) then
+      if ((dosic).or.(dohfx).or.periodic_efield) then
          value = value.and.
      >           BA_push_get(mt_dbl,(neq(1)+neq(2))*n2ft3d,
      >                        'Hpsi_r',Hpsi_r(2),Hpsi_r(1))
@@ -193,8 +199,14 @@ c     complex*16 vpsi(nfft3d)
 *     ******************************
 c      if (field_exist)
 c     >  call D3dB_rr_Sum(1,dcpl_mb(vall(1)),v_field,dcpl_mb(vall(1)))
-      if (field_exist)
-     >  call D3dB_rr_Sum2(1,v_field,dcpl_mb(vall(1)))
+      if (field_exist) then
+        call D3dB_rr_Sum2(1,v_field,dcpl_mb(vall(1)))
+        if (periodic_efield) then
+           call dipole_efield_Vnl(ispin,neq,n2ft3d,psi_r,
+     >                            dbl_mb(Hpsi_r(1)),edpol)
+           !write(*,*) "EDPOL=",edpol
+        end if
+      end if
 
 
 *     **************************************************************
@@ -225,7 +237,7 @@ c            if ((dosic).or.(dohfx))
 c     >        call D3dB_rr_Sum(1,dcpl_mb(vpsi(1)),
 c     >                         dbl_mb(Hpsi_r(1)+(indx1-1)*n2ft3d),
 c     >                         dcpl_mb(vpsi(1)))
-            if ((dosic).or.(dohfx))
+            if ((dosic).or.(dohfx).or.(field_exist.and.periodic_efield))
      >        call D3dB_rr_Sum2(1,dbl_mb(Hpsi_r(1)+(indx1-1)*n2ft3d),
      >                            dcpl_mb(vpsi(1)))
 
@@ -253,7 +265,7 @@ c     >                         dcpl_mb(vpsi(1)))
       call nwpw_timing_start(12)
 
       value = .true.
-      if ((dosic).or.(dohfx)) 
+      if ((dosic).or.(dohfx).or.periodic_efield) 
      >  value = value.and.BA_pop_stack(Hpsi_r(2))
       value = value.and.BA_pop_stack(vpsi(2))
       value = value.and.BA_pop_stack(vall(2))

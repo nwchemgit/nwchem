@@ -66,6 +66,7 @@ cccccccc#include "frac_occ.fh"
       real*8  e_lj, e_q, e_spring,Eapc,Papc
       real*8  ehartree_atom,ecmp_cmp,ecmp_pw,exc_atom,pxc_atom
       !real*8 e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
+      real*8 dipole(3)
 
 
 
@@ -90,6 +91,7 @@ c     real*8     fion(3,natmx)
       integer natmx,fion(2),ftest(2)
       integer sumi(2)
       integer npack0
+      integer nion1
 
 *     ***** external functions ****
       logical  control_move,psp_semicore,psp_pawexist
@@ -115,12 +117,26 @@ c     real*8     fion(3,natmx)
       external Dneall_m_push_get_block,Dneall_m_pop_stack
 
 *     ***** QM/MM external functions ****
-      logical  pspw_charge_found,pspw_qmmm_found
+      logical  pspw_qmmm_found
       real*8   pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
       real*8   pspw_qmmm_LJ_Emix,pspw_qmmm_Q_Emix
-      external pspw_charge_found,pspw_qmmm_found
+      external pspw_qmmm_found
       external pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
       external pspw_qmmm_LJ_Emix,pspw_qmmm_Q_Emix
+
+*     ***** pspw_charge external functions ****
+      logical  pspw_charge_found,pspw_bqext,pspw_Efield_found
+      external pspw_charge_found,pspw_bqext,pspw_Efield_found
+      integer  pspw_charge_nion,pspw_Efield_type
+      external pspw_charge_nion,pspw_Efield_type
+      real*8   pspw_charge_Energy_ion,pspw_charge_Energy_charge
+      external pspw_charge_Energy_ion,pspw_charge_Energy_charge
+      real*8   electron_psi_v_field_ave,pspw_Efield_Energy_ion
+      external electron_psi_v_field_ave,pspw_Efield_Energy_ion
+      real*8   pspw_Efield_Energy_dipole
+      external pspw_Efield_Energy_dipole
+      real*8   dipole_Efield_e,dipole_Efield_p
+      external dipole_Efield_e,dipole_Efield_p
 
       logical  psp_U_psputerm,meta_found
       external psp_U_psputerm,meta_found
@@ -180,7 +196,7 @@ c     real*8     fion(3,natmx)
       n2ft3d = 2*nfft3d
       deltamm = 0.0d0
 
-      field_exist = pspw_charge_found()
+      field_exist = pspw_charge_found().or.pspw_Efield_found()
       sic        = pspw_SIC()
       hfx        = pspw_HFX()
       gga = control_gga()
@@ -229,6 +245,8 @@ c     real*8     fion(3,natmx)
       value = value.and.
      >        BA_push_get(mt_dbl,(4*nfft3d),'dnall',dnall(2),dnall(1))
       natmx = ion_nion()
+      if (pspw_charge_found().and.
+     >    (.not.pspw_bqext())) natmx = natmx + pspw_charge_nion()
       value = value.and.
      >        BA_push_get(mt_dbl,(3*natmx),'fion',fion(2),fion(1))
       value = value.and.
@@ -507,17 +525,16 @@ c        call mask_C(0,dcpl_mb(dng(1)))
 *       ***** generate other real-space fields ****
 *       *******************************************
         if (field_exist) then
-
-           !call dcopy(n2ft3d,0.0d0,0,dbl_mb(v_field(1)),1)
            call D3dB_r_Zero(1,dbl_mb(v_field(1)))
 
-
 *          **** generate charge potential ****
-           if (pspw_charge_found()) then
-              call pspw_charge_Generate_V(n2ft3d,
+           call pspw_charge_Generate_V(n2ft3d,
      >                                    dbl_mb(r_grid(1)),
      >                                    dbl_mb(v_field(1)))
-           end if
+*          **** generate Efield potential ****
+           call pspw_Efield_Generate_V(n2ft3d,
+     >                                    dbl_mb(r_grid(1)),
+     >                                    dbl_mb(v_field(1)))
         end if
 
 
@@ -599,6 +616,26 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
 
 *          **** get dispersion force ****
            if (ion_disp_on()) call ion_disp_force(dbl_mb(fion(1)))
+
+*          **** get forces from external charges ****
+           if (pspw_charge_found()) then
+              if(pspw_bqext()) then
+                 call pspw_charge_charge_Fion(dbl_mb(fion(1)))
+              else
+                 nion1 = ion_nion()
+                 call pspw_charge_Fion_Fcharge(dbl_mb(fion(1)),
+     >                                         dbl_mb(fion(1)+3*nion1))
+                 call pspw_charge_Fcharge(dbl_mb(fion(1)+3*nion1))
+                 call pspw_charge_rho_Fcharge(n2ft3d,dbl_mb(r_grid(1)),
+     >                             dbl_mb(rho(1)),
+     >                             dv,dbl_mb(fion(1)+3*nion1))
+              end if
+           end if
+
+*          **** get forces from external Efield ****
+           if (pspw_Efield_found()) then
+              call pspw_Efield_Fion(dbl_mb(fion(1)))
+           end if
 
 *          **** remove ion forces using ion_FixIon ****
            call ion_FixIon(dbl_mb(fion(1)))
@@ -785,6 +822,33 @@ c      if (ispin.eq.1) enlocal = 2.0d0*enlocal
          end if
          E(14) = E(14) + elocal
       end if
+
+*     **** get pspw_charge and pspw_Efield energies ****
+         !psi_1v_field()
+      if (field_exist) then
+         if (pspw_Efield_type().eq.0) then
+            call Calculate_Resta_Dipole(.false.,ispin,ne,ne,
+     >                                  npack1,nfft3d,psi1,dipole)
+
+            !write(*,*) "dipole=",dipole  
+            !write(*,*) " EP=",pspw_Efield_Energy_dipole(dipole) 
+
+            elocal = dipole_Efield_e()
+            e_q    = pspw_Efield_Energy_ion()
+            E(19) = elocal - e_q
+            E(20) = e_q
+            E(21) = 0.0d0
+            E(1) = E(1) + elocal - dipole_Efield_p()
+         else
+            E(19)  = electron_psi_v_field_ave(psi1,dn)
+            E(20)  = pspw_charge_Energy_ion()
+     >             + pspw_Efield_Energy_ion()
+            E(21)  = pspw_charge_Energy_charge()
+            E(1)   = E(1) + E(20) + E(21)
+         end if
+      end if
+
+
 
 *     **** PAW ee terms ****
       if (psp_pawexist()) then

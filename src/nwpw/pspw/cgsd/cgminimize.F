@@ -43,7 +43,7 @@ c      complex*16 G1(nfft3d,nemax)
       real*8 tmin,deltat
       real*8 max_sigma
 
-      logical value,pawexist
+      logical value,pawexist,field_exist
       integer neall,npack1
       real*8 e_lj,e_q,e_spring
       real*8 ehfx,phfx
@@ -99,9 +99,13 @@ c      complex*16 G1(nfft3d,nemax)
 
 *     ***** pspw_charge external functions ****
       logical  pspw_charge_found
-      real*8   pspw_charge_Energy_ion,pspw_charge_Energy_charge
       external pspw_charge_found
+      real*8   pspw_charge_Energy_ion,pspw_charge_Energy_charge
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
+      logical  pspw_Efield_found
+      external pspw_Efield_found
+      real*8   pspw_Efield_Energy_ion
+      external pspw_Efield_Energy_ion
 
 *     ***** PAW functions ****
       logical  psp_pawexist
@@ -136,6 +140,7 @@ c      complex*16 G1(nfft3d,nemax)
       cosmo_on  = nwpw_cosmo_on()
       cosmo1_on = nwpw_cosmo1_on()
       V_APC_on  = pspw_V_APC_on()
+      field_exist = pspw_charge_found().or.pspw_Efield_found()
 
       Estart = Enew
       if (current_iteration.eq.1) then
@@ -516,9 +521,10 @@ c     call psi_check()
       end if
 
 *     **** get pspw_charge  energies ****
-      if (pspw_charge_found()) then
+      if (field_exist) then
          E(19)  = psi_1v_field()
          E(20)  = pspw_charge_Energy_ion()
+     >          + pspw_Efield_Energy_ion()
          E(21)  = pspw_charge_Energy_charge()
          E(1)   = E(1) + E(20) + E(21)
       end if

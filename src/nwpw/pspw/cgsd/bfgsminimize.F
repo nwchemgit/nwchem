@@ -54,7 +54,7 @@ c
       real*8 ehfx,phfx
       real*8 exc_atom,pxc_atom,ehartree_atom,ecmp_cmp,ecmp_pw
 
-      logical cosmo_on,cosmo1_on,V_APC_on
+      logical cosmo_on,cosmo1_on,V_APC_on,field_exist
       real*8  eapc,papc
 
 
@@ -102,6 +102,10 @@ c
       real*8   pspw_charge_Energy_ion,pspw_charge_Energy_charge
       external pspw_charge_found
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
+      logical  pspw_Efield_found
+      external pspw_Efield_found
+      real*8   pspw_Efield_Energy_ion
+      external pspw_Efield_Energy_ion
 
 *     ***** PAW functions ****
       logical  psp_pawexist
@@ -154,6 +158,7 @@ c     dte = 1.0d0
       cosmo_on  = nwpw_cosmo_on()
       cosmo1_on = nwpw_cosmo1_on()
       V_APC_on  = pspw_V_APC_on()
+      field_exist = pspw_charge_found().or.pspw_Efield_found()
 
 
 *     **** allocate G0, S0 ****
@@ -475,10 +480,11 @@ c     call psi_check()
          E(14) = E(14) + dng_1vl_mm()
       end if
 
-*     **** get pspw_charge energies ****
-      if (pspw_charge_found()) then
+*     **** get pspw_charge  and pspw_Efield energies ****
+      if (field_exist) then
          E(19)  = psi_1v_field()
          E(20)  = pspw_charge_Energy_ion()
+     >          + pspw_Efield_Energy_ion()
          E(21)  = pspw_charge_Energy_charge()
          E(1)   = E(1) + E(20) + E(21)
       end if

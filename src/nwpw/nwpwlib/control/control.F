@@ -7336,3 +7336,28 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *        control_Efield_on        *
+*     *                                 *
+*     ***********************************
+      logical function control_Efield_on()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .true.
+      if (.not.btdb_get(rtdb,'nwpw:efield',mt_log,1,value))
+     >   value = .false.
+
+      control_Efield_on = value
+      return
+      end

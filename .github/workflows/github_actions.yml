@@ -56,6 +56,13 @@ jobs:
             fc: ifort
           - os: ubuntu-20.04
             experimental: true
+            mpi_impl: mpich
+            armci_network: mpi-ts
+            nwchem_modules: "tinyqmpw python"
+            fc: nvfortran
+            cc: gcc
+          - os: ubuntu-20.04
+            experimental: true
             mpi_impl: intel
             armci_network: sockets
             nwchem_modules: "tce"
@@ -114,6 +121,21 @@ jobs:
             fc: gfortran-9
             blas: "accelerate"
             xcode_version: 12.1
+          - os: ubuntu-20.04
+            experimental: true
+            mpi_impl: mpich
+            armci_network: mpi-ts
+            nwchem_modules: "qmandpw qmd"
+            fc: gfortran-10
+            use_openmp: 2
+            blas: "build_openblas"
+          - os: ubuntu-20.04
+            experimental: true
+            mpi_impl: intel
+            armci_network: mpi-ts
+            nwchem_modules: "qmandpw qmd"
+            fc: ifort
+            use_openmp: 2
       fail-fast: false
     env:
         MPI_IMPL: ${{ matrix.mpi_impl }}
@@ -126,6 +148,7 @@ jobs:
         SIMINT_VECTOR: avx2
         DEVELOPER_DIR: /Applications/Xcode_${{ matrix.xcode_version}}.app/Contents/Developer
         BLAS_ENV:  ${{ matrix.blas }}
+        USE_OPENMP:  ${{ matrix.use_openmp }}
     continue-on-error: ${{ matrix.experimental }}
     steps:
       - name: Checkout code
@@ -202,6 +225,12 @@ jobs:
           tail -30 QA/testoutputs/prop_mep_gcube.out || true; fi
           if [[ -f QA/testoutputs/pspw.out ]]; then \
           tail -490 QA/testoutputs/pspw.out || true; fi
+          if [[ -f QA/testoutputs/dft_smear.out ]]; then \
+          grep @ QA/testoutputs/dft_smear.out || true; fi
+          if [[ -f QA/testoutputs/dft_smear.out ]]; then \
+          egrep d=  QA/testoutputs/dft_smear.out || true; fi
+          if [[ -f QA/testoutputs/dft_smear.out ]]; then \
+          tail -2000  QA/testoutputs/dft_smear.out || true; fi
   
 
 
