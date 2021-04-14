@@ -1420,7 +1420,7 @@ c      call frac_occ_end()
  1280 FORMAT(5X, ' time step=',F10.2,5X,'fictitious mass=',F10.1)
  1281 FORMAT(5X, ' maximum iterations =',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
- 1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
+ 1290 FORMAT(5X, ' tolerance=',E9.3,' (energy)',E12.3,
      &        ' (electron)',E12.3,' (ion)')
  1297 FORMAT(/' fractional smearing parameters:')
  1298 FORMAT(5X, ' smearing algorithm   = ',A)
