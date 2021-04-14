@@ -827,24 +827,25 @@ c      if (ispin.eq.1) enlocal = 2.0d0*enlocal
          !psi_1v_field()
       if (field_exist) then
          if (pspw_Efield_type().eq.0) then
-            call Calculate_Resta_Dipole(.false.,ispin,ne,ne,
-     >                                  npack1,nfft3d,psi1,dipole)
-
-            !write(*,*) "dipole=",dipole  
-            !write(*,*) " EP=",pspw_Efield_Energy_dipole(dipole) 
+c            call Calculate_Resta_Dipole(.false.,ispin,ne,ne,
+c     >                                  npack1,nfft3d,psi1,dipole)
+c            write(*,*) "dipole=",dipole  
+c            write(*,*) " EP=",pspw_Efield_Energy_dipole(dipole) 
 
             elocal = dipole_Efield_e()
             e_q    = pspw_Efield_Energy_ion()
-            E(19) = elocal - e_q
-            E(20) = e_q
-            E(21) = 0.0d0
+            E(49) = elocal 
+            E(50) = 0.0d0
+            !E(49) = elocal - e_q
+            !E(50) = e_q
+            E(51) = 0.0d0
             E(1) = E(1) + elocal - dipole_Efield_p()
          else
-            E(19)  = electron_psi_v_field_ave(psi1,dn)
-            E(20)  = pspw_charge_Energy_ion()
+            E(49)  = electron_psi_v_field_ave(psi1,dn)
+            E(50)  = pspw_charge_Energy_ion()
      >             + pspw_Efield_Energy_ion()
-            E(21)  = pspw_charge_Energy_charge()
-            E(1)   = E(1) + E(20) + E(21)
+            E(51)  = pspw_charge_Energy_charge()
+            E(1)   = E(1) + E(50) + E(51)
          end if
       end if
 
