@@ -63,14 +63,18 @@
           SigmaOld = Sigma(llmo+iqp-1,isp)
           Sigma_X  = Sigmax(llmo+iqp-1,isp)
 
+          if (eviter.eq.0) then
+            Eout = Eout + 0.12d0*(sigma_x - sigmaold)
+          else
+            Eout = Eout + sign(0.0070d0,Eout)
+          endif
+
           bracket = .false.
           rms3 = 1d100
           residualOld = 0d0
           const = Eold(llmo+iqp-1,isp) + Sigma_X - sigmaold
           lower = 0d0
           upper = 0d0
-
-          if (EViter.eq.0) Eout = Eout + 0.075d0*(Sigma_X - SigmaOld)
 
           timer = util_wallsec()
           call gw_analytic_wmn(pars,g_wmn,iqp+llmo-1,isp,nri)

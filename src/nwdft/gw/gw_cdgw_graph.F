@@ -89,9 +89,9 @@
           elseif (myll.gt.llqp) then
             Eout = Enew(llmo+iqp-2,isp) - 4d0*pars%thresh
           elseif (eviter.eq.0) then
-            Eout = Eout + 0.075d0*(sigma_x - sigmaold)
+            Eout = Eout + 0.12d0*(sigma_x - sigmaold)
           else
-            Eout = Eout + sign(1.2d0*pars%thresh,Eout)
+             Eout = Eout + sign(0.0070d0,Eout)
           endif
 
           !Trying to enhance reproducibility by rounding-off to 8 digits

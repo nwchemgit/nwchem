@@ -61,7 +61,7 @@
         fixed(:) = .false.
 
         call gw_findclusters(Eold(llmo,isp),clusters,nclusters,totalqp,
-     $                       0.05d0)
+     $                       0.01d0)
 
         ulqp = 0
         do icluster=1,nclusters
@@ -89,14 +89,10 @@
           elseif (myll.gt.llqp) then
             Eout = Enew(llmo+iqp-2,isp) - 4d0*pars%thresh
           elseif (eviter.eq.0) then
-c            Eout = Eout + 0.10d0*(sigma_x - sigmaold)
-            Eout = Eout + sign(4d0*pars%thresh,Eout)
+            Eout = Eout + 0.12d0*(sigma_x - sigmaold)
           else
-            Eout = Eout + sign(4d0*pars%thresh,Eout)
+             Eout = Eout + sign(0.0070d0,Eout)
           endif
-
-          !Trying to enhance reproducibility by rounding-off to 10 digits
-c          eout = nint(eout*1d10)/1d10
 
           call ga_zero(pars%g_sols)
           bracket = .false.
