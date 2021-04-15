@@ -202,7 +202,7 @@ c     >  call D3dB_rr_Sum(1,dcpl_mb(vall(1)),v_field,dcpl_mb(vall(1)))
       if (field_exist) then
         call D3dB_rr_Sum2(1,v_field,dcpl_mb(vall(1)))
         if (periodic_efield) then
-           call dipole_efield_Vnl(ispin,neq,n2ft3d,psi_r,
+           call dipole_Efield_Vnl(ispin,neq,n2ft3d,psi_r,
      >                            dbl_mb(Hpsi_r(1)),edpol)
            !write(*,*) "EDPOL=",edpol
         end if
@@ -580,7 +580,8 @@ c     >  call D3dB_rr_Sum2(1,v_field,dcpl_mb(vall(1)))
       if (dohfx) then
          value = value.and.
      >           BA_push_get(mt_dbl,n2ft3d,'Horb_r',Horb_r(2),Horb_r(1))
-         call dcopy(n2ft3d,0.0d0,0,dbl_mb(Horb_r(1)),1)
+         !call dcopy(n2ft3d,0.0d0,0,dbl_mb(Horb_r(1)),1)
+         call D3dB_r_Zero(1,dbl_mb(Horb_r(1)))
       end if
       if (.not. value) 
      >  call errquit('psi_Horb:out of stack memory',0, MA_ERR)
@@ -751,11 +752,13 @@ c     >                      dcpl_mb(vpsi(1)))
       if (dohfx) then
          value = value.and.
      >           BA_push_get(mt_dbl,n2ft3d,'Horb_r',Horb_r(2),Horb_r(1))
-         call dcopy(n2ft3d,0.0d0,0,dbl_mb(Horb_r(1)),1)
+         !call dcopy(n2ft3d,0.0d0,0,dbl_mb(Horb_r(1)),1)
+         call D3dB_r_Zero(1,dbl_mb(Horb_r(1)))
       end if
       if (.not. value) 
      >  call errquit('psi_Horb:out of stack memory',0, MA_ERR)
-      call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(vpsi(1)),1)
+      !call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(vpsi(1)),1)
+      call D3dB_c_Zero(1,dcpl_mb(vpsi(1)))
       call nwpw_timing_end(12)
       
       if (ms.eq.1) then
@@ -921,8 +924,10 @@ c     complex*16 vpsi(nfft3d)
      >        BA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
       if (.not. value) call errquit('psi_H:out of stack memory',0,
      &       MA_ERR)
-      call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(vall(1)),1)
-      call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(vpsi(1)),1)
+      !call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(vall(1)),1)
+      !call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(vpsi(1)),1)
+      call D3dB_c_Zero(1,dcpl_mb(vall(1)))
+      call D3dB_c_Zero(1,dcpl_mb(vpsi(1)))
       call nwpw_timing_end(12)
       
 

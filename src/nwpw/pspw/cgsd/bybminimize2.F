@@ -615,7 +615,7 @@ c         E(14) = E(14) + dng_1vl_mm()
             E(48) = e00  !** E(q|q)
 
             !E(1)  = E(1) + E(22) - E(23) + E(47) + E(48)
-            E(1)  = E(1) + E(22) - E(23)
+            E(1)  = E(1) + E(22) - E(23) !*** probably NOT CORRECT ***
 !$OMP END MASTER
          end if
 
@@ -624,7 +624,7 @@ c         E(14) = E(14) + dng_1vl_mm()
 !$OMP MASTER
          E(22) = eapc
          E(23) = papc
-         E(1)  = E(1) + eapc - papc
+         E(1)  = E(1) + eapc - papc !*** probably NOT CORRECT ***
 !$OMP END MASTER
       end if
 
@@ -637,10 +637,10 @@ c         E(14) = E(14) + dng_1vl_mm()
          e00  = pspw_charge_Energy_charge()
 
 !$OMP MASTER
-         E(19)  = evl
-         E(20)  = evnl
-         E(21)  = e00
-         E(1)   = E(1) + E(20) + E(21)
+         E(49)  = evl
+         E(50)  = evnl
+         E(51)  = e00
+         E(1)   = E(1) + E(50) + E(51)
 !$OMP END MASTER
       end if
 

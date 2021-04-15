@@ -308,24 +308,24 @@ c     call psi_check()
             E(48) = nwpw_cosmo_Eqq()    !** E(q|q)
 
             !E(1)  = E(1) + E(22) - E(23) + E(47) + E(48)
-            E(1)  = E(1) + E(22) - E(23)
+            E(1)  = E(1) + E(22) - E(23) !*** probably NOT CORRECT ***
          end if
 
       else if (V_APC_on) then
          call electron_apc_energies(eapc,papc)
          E(22) = eapc
          E(23) = papc
-         E(1)  = E(1) + eapc - papc
+         E(1)  = E(1) + eapc - papc !*** probably NOT CORRECT ***
       end if
 
 
 *     **** get pspw_charge pspw_Efield energies ****
       if (field_exist) then
-         E(19)  = psi_1v_field()
-         E(20)  = pspw_charge_Energy_ion()
+         E(49)  = psi_1v_field()
+         E(50)  = pspw_charge_Energy_ion()
      >          + pspw_Efield_Energy_ion()
-         E(21)  = pspw_charge_Energy_charge()
-         E(1)   = E(1) + E(20) + E(21)
+         E(51)  = pspw_charge_Energy_charge()
+         E(1)   = E(1) + E(50) + E(51)
       end if
 
 *     **** HFX terms ****

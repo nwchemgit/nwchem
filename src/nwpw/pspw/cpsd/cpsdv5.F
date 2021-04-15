@@ -1007,8 +1007,13 @@ c         end do
          if (field_exist) then
             write(luout,1431)
             write(luout,1432)
-            write(luout,1433) (E(1)-E(49)-E(50)-E(51)),
+            if (pspw_Efield_type().eq.0) then
+               write(luout,1433) (E(1)-E(49)-E(51)),
+     >         (E(1)-E(49)-E(51))/ion_nion()
+            else
+               write(luout,1433) (E(1)-E(49)-E(50)-E(51)),
      >         (E(1)-E(49)-E(50)-E(51))/ion_nion()
+            end if
          end if
 
          !*** print out total paw energy including core energies ****
@@ -1103,11 +1108,14 @@ c            write(luout,1706) E(18)
         if (field_exist) then
            write(luout,1800)
            write(luout,1801)
-           write(luout,1805) E(49)+E(50)+E(51)
            if (pspw_Efield_type().eq.0) then
+              write(luout,1805) E(49)+E(51)
               write(luout,1806) E(49)
+              write(luout,1807) E(50)
+              !write(luout,1804) E(51)
               call dipole_Efield_print(luout)
            else
+              write(luout,1805) E(49)+E(50)+E(51)
               write(luout,1802) E(49)
               write(luout,1803) E(50)
               write(luout,1804) E(51)
@@ -1529,7 +1537,8 @@ c      call frac_occ_end()
  1803 FORMAT( ' - Charge+Electric Field/Ion         :',E19.10)
  1804 FORMAT( ' - Charge+Electric Field/Charge Field:',E19.10)
  1805 FORMAT( ' Charge+Electric Field Energy        :',E19.10)
- 1806 FORMAT( ' - Charge+Electric Field/Resta_Dipole:',E19.10)
+ 1806 FORMAT( ' - Electric Field/Resta_Dipole       :',E19.10)
+ 1807 FORMAT( ' - K.S. Electric Field/Resta_Dipole  :',E19.10)
 
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 

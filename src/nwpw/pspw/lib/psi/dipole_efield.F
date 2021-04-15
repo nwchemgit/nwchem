@@ -256,12 +256,12 @@ c     *** Silvestrelli G3 ***
 
 *     *** scal=(2*pi/L)**2 ***
       scal = lattice_omega()**(1.0d0/3.0d0)
-      scal = 8.0*datan(1.0d0)/scal
+      scal = 8.0d0*datan(1.0d0)/scal
       scal = scal*scal
       wts(1)=scal
       wts(4)=scal
       wts(6)=scal
-      call dgels('N',6,6,1,wrk,6,wts,6,tmp1,tmp_len,info)
+      call DGELS('N',6,6,1,wrk,6,wts,6,tmp1,tmp_len,info)
       if (info.ne.0) then
         write(*,*)"Illegal argument in call to dgels"
         call flush(6)
@@ -502,7 +502,7 @@ c      end
 
 
       scal = lattice_omega()**(1.0d0/3.0d0)
-      scal = 8.0*datan(1.0d0)/scal
+      scal = 8.0d0*datan(1.0d0)/scal
       scal = scal*scal
 
       !*** really just want complex eigenvalues of X here ***
@@ -535,14 +535,22 @@ c      end
       do j=1,N
          zzz = dcmplx(0.0d0,0.0d0)
          do k=1,N
+c            zzz = zzz
+c     >          + (dcmplx(-dimag(Z(k)),dble(Z(k)))
+c     >            /(dble(Z(k))**2 + dimag(Z(k))**2))
+c     >           * dconjg(U(i,k))*V(i,k)
+
             zzz = zzz
-     >          + (dcmplx(-dimag(Z(k)),dble(Z(k)))
+     >          + (dcmplx(dimag(Z(k)),dble(Z(k)))
      >            /(dble(Z(k))**2 + dimag(Z(k))**2))
      >           * dconjg(U(i,k))*V(i,k)
+         
          
          end do
          Creal(i,j) = dble(zzz)
          Cimg(i,j)  = dimag(zzz)
+         !Creal(i,j) = -dble(zzz)
+         !Cimg(i,j)  = dimag(zzz)
       end do
       end do
 
@@ -594,7 +602,7 @@ c      end
 
 
       scal = lattice_omega()**(1.0d0/3.0d0)
-      scal = 8.0*datan(1.0d0)/scal
+      scal = 8.0d0*datan(1.0d0)/scal
       scal = scal*scal
 
       alpha = wts(r)*( efield(1)*bv(1,r)
@@ -704,7 +712,7 @@ c      end
 
 *     *** scal=(2*pi/L)**2 ***
       scal = lattice_omega()**(1.0d0/3.0d0)
-      scal = 8.0*datan(1.0d0)/scal
+      scal = 8.0d0*datan(1.0d0)/scal
       scal = scal*scal
 
 *     ***** allocate X,Y,Z  ****
@@ -801,8 +809,6 @@ c            end do !* i *
       Pdipole = scal1*Dneall_m_trace(0,dbl_mb(Creal(1)))
      
 
-c      call Dneall_gmg_Multiply(0,dbl_mb(psi_r2(1)),n2ft3d,
-c     >                         dbl_mb(Cijr(1),1.0d0,hpsi_r,1.0d0)
 
 cccccccccccccccccccccccccccccccccccccccccccccc
 c  Molecular dipoles from Resta's theory!

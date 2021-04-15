@@ -832,14 +832,14 @@ c     >                                  npack1,nfft3d,psi1,dipole)
 c            write(*,*) "dipole=",dipole  
 c            write(*,*) " EP=",pspw_Efield_Energy_dipole(dipole) 
 
-            elocal = dipole_Efield_e()
-            e_q    = pspw_Efield_Energy_ion()
-            E(49) = elocal 
-            E(50) = 0.0d0
+            !elocal = dipole_Efield_e()
+            !e_q    = pspw_Efield_Energy_ion()
+            E(49) = dipole_Efield_e()
+            E(50) = dipole_Efield_p()
             !E(49) = elocal - e_q
             !E(50) = e_q
             E(51) = 0.0d0
-            E(1) = E(1) + elocal - dipole_Efield_p()
+            E(1) = E(1) + E(49) - E(50) !elocal - dipole_Efield_p()
          else
             E(49)  = electron_psi_v_field_ave(psi1,dn)
             E(50)  = pspw_charge_Energy_ion()
