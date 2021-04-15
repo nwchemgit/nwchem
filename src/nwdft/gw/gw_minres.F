@@ -37,7 +37,7 @@
       logical main,converged,oactive,parallel_diag,doparallel
       integer iter, istop, i, gy, me, ld, nmax, nlocal, ithread
       integer lo, hi, jthread
-      double precision,parameter :: shift = 0.000d0, rtol=1d-4
+      double precision,parameter :: shift = 0.000d0, rtol=1d-5
 
       call ga_sync()
 
@@ -291,7 +291,7 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
  2000 continue
 
 
-      if (istop.eq.6 .and. rnorm.gt.0.001d0) then
+      if (istop.eq.6 .and. rnorm.gt.0.0005d0) then
 
 
         if (.not.ma_alloc_get(mt_dbl,n**2,'pi',l_pi,k_pi))

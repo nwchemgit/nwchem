@@ -38,6 +38,7 @@ c
       integer, external :: findmycpu
       integer resultlen,tid,cpu,ierr,iproc,itid
       character(len=80) names
+      double precision t0
 
 #ifdef USE_OPENMP
       integer,external :: omp_get_max_threads, omp_get_thread_num
@@ -83,9 +84,12 @@ c
             enddo
 !$omp       end do
 !$omp     end parallel
+          call util_flush(luout)
         endif
+        t0 = util_wallsec()
         call ga_sync()
-        call util_flush(luout)
+        do while (util_wallsec()-t0 .lt. 0.1d0)
+        end do
       enddo
  1234 format(' rank',I5,' thread ',I5,' hostname ',A20,' cpu',I5)
 #else

@@ -89,13 +89,14 @@
           elseif (myll.gt.llqp) then
             Eout = Enew(llmo+iqp-2,isp) - 4d0*pars%thresh
           elseif (eviter.eq.0) then
-            Eout = Eout + 0.10d0*(sigma_x - sigmaold)
+c            Eout = Eout + 0.10d0*(sigma_x - sigmaold)
+            Eout = Eout + sign(4d0*pars%thresh,Eout)
           else
             Eout = Eout + sign(4d0*pars%thresh,Eout)
           endif
 
-          !Trying to enhance reproducibility by rounding-off to 8 digits
-          eout = nint(eout*1d8)/1d8
+          !Trying to enhance reproducibility by rounding-off to 10 digits
+c          eout = nint(eout*1d10)/1d10
 
           call ga_zero(pars%g_sols)
           bracket = .false.

@@ -128,6 +128,7 @@
           arg = eig(jmo) - omega
         endif
 
+
         do jsp=1,ipol
 !$omp   parallel do simd private(temp) schedule(static)
           do ipole=1,pars%mynpoles(jsp)
@@ -185,7 +186,8 @@
 
         if (root.ne.me) cycle
 
-        w = dot_product(vector,dble(xvec)) - dot_product(vector,vector)
+        w = ddot(nri,vector,1,xvec,1) - ddot(nri,vector,1,vector,1)
+c        w = dot_product(vector,dble(xvec)) - dot_product(vector,vector)
         R = R + fac*w
 
         if (abs(fac).lt.0.6d0) dR = dR + sign(1d0,fac)*w
