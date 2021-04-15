@@ -538,14 +538,13 @@ c      end
 c            zzz = zzz
 c     >          + (dcmplx(-dimag(Z(k)),dble(Z(k)))
 c     >            /(dble(Z(k))**2 + dimag(Z(k))**2))
-c     >           * dconjg(U(i,k))*V(i,k)
+c     >           * dconjg(U(i,k))*V(j,k)
 
             zzz = zzz
      >          + (dcmplx(dimag(Z(k)),dble(Z(k)))
      >            /(dble(Z(k))**2 + dimag(Z(k))**2))
-     >           * dconjg(U(i,k))*V(i,k)
-         
-         
+     >           * dconjg(U(i,k))*V(j,k)
+
          end do
          Creal(i,j) = dble(zzz)
          Cimg(i,j)  = dimag(zzz)
