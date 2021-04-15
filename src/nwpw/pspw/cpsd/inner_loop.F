@@ -131,8 +131,10 @@ c     real*8     fion(3,natmx)
       external pspw_charge_nion,pspw_Efield_type
       real*8   pspw_charge_Energy_ion,pspw_charge_Energy_charge
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
-      real*8   electron_psi_v_field_ave,pspw_Efield_Energy_ion
-      external electron_psi_v_field_ave,pspw_Efield_Energy_ion
+      !real*8   electron_psi_v_field_ave,pspw_Efield_Energy_ion
+      !external electron_psi_v_field_ave,pspw_Efield_Energy_ion
+      real*8   pspw_Efield_Energy_ion
+      external pspw_Efield_Energy_ion
       real*8   pspw_Efield_Energy_dipole
       external pspw_Efield_Energy_dipole
       real*8   dipole_Efield_e,dipole_Efield_p
@@ -841,7 +843,12 @@ c            write(*,*) " EP=",pspw_Efield_Energy_dipole(dipole)
             E(51) = 0.0d0
             E(1) = E(1) + E(49) - E(50) !elocal - dipole_Efield_p()
          else
-            E(49)  = electron_psi_v_field_ave(psi1,dn)
+            !E(49)  = electron_psi_v_field_ave(psi1,dn)
+            call D3dB_rr_dot(1,dn,dbl_mb(v_field(1)),sum)
+            E(49) = sum*dv
+            call D3dB_rr_dot(1,dn(1,ispin),dbl_mb(v_field(1)),sum)
+            E(49) = E(49) + sum*dv
+
             E(50)  = pspw_charge_Energy_ion()
      >             + pspw_Efield_Energy_ion()
             E(51)  = pspw_charge_Energy_charge()

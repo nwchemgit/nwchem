@@ -807,7 +807,17 @@ c            end do !* i *
       call Dneall_ggm_sym_Multiply(0,psi_r,hpsi_r,n2ft3d,
      >                             dbl_mb(Creal(1)))
       Pdipole = scal1*Dneall_m_trace(0,dbl_mb(Creal(1)))
-     
+
+
+c      write(*,*) "ggm psi_r'hpsi_r=",scal1*dbl_mb(Creal(1))
+c     
+c      call Dneall_ggm_sym_Multiply(0,hpsi_r,hpsi_r,n2ft3d,
+c     >                             dbl_mb(Creal(1)))
+c      write(*,*) "ggm hpsi_r'hpsi_r=",scal1*dbl_mb(Creal(1))
+c
+c      call Dneall_ggm_sym_Multiply(0,psi_r,psi_r,n2ft3d,
+c     >                             dbl_mb(Creal(1)))
+c      write(*,*) "ggm psi_r'psi_r=",scal1*dbl_mb(Creal(1))
 
 
 cccccccccccccccccccccccccccccccccccccccccccccc
@@ -841,7 +851,7 @@ c     **** pop stack ****
      >   call errquit('dipole_efield_vnl:pop stack',2,MA_ERR)
 
 
-      !write(*,*) "ms,r,Pdipole,Edipole = ", ms,r,Pdipole,Edipole
+      !write(*,*) "ispin,r,Pdipole,Edipole = ", ispin,r,Pdipole,Edipole
       !write(*,*) 
 
       return 
