@@ -521,15 +521,23 @@ c      end
 *     *    dipole_Efield_gen_Cij   *
 *     *                            *
 *     ******************************
-      subroutine  dipole_Efield_gen_Cij(N,Z,U,V,Creal,Cimg)
+      subroutine  dipole_Efield_gen_Cij(N,Z,U,V,ZENOM,Creal,Cimg)
       implicit none
       integer N
-      complex*16 Z(N),U(N,N),V(N,N)
+      complex*16 Z(N),U(N,N),V(N,N),ZENOM(N)
       real*8 Creal(N,N),Cimg(N,N)
 
 *     **** local variables ****
       integer i,j,k
       complex*16 zzz
+
+      do k=1,N
+         ZENOM(k) = dcmplx(0.0d0,0.0d0)
+         do i=1,N
+            ZENOM(k) = ZENOM(k) + dconjg(U(i,k))*V(i,k)
+         end do
+         !write(*,*) "k,ZENOM=",k,ZENOM(k)
+      end do
 
       do i=1,N
       do j=1,N
@@ -538,18 +546,16 @@ c      end
 c            zzz = zzz
 c     >          + (dcmplx(-dimag(Z(k)),dble(Z(k)))
 c     >            /(dble(Z(k))**2 + dimag(Z(k))**2))
-c     >           * dconjg(U(i,k))*V(j,k)
+c     >           * (dconjg(U(i,k))*V(j,k))/ZENOM(k)
 
             zzz = zzz
      >          + (dcmplx(dimag(Z(k)),dble(Z(k)))
      >            /(dble(Z(k))**2 + dimag(Z(k))**2))
-     >           * dconjg(U(i,k))*V(j,k)
+     >           * (dconjg(U(i,k))*V(j,k))/ZENOM(k)
 
          end do
          Creal(i,j) = dble(zzz)
          Cimg(i,j)  = dimag(zzz)
-         !Creal(i,j) = -dble(zzz)
-         !Cimg(i,j)  = dimag(zzz)
       end do
       end do
 
@@ -691,7 +697,7 @@ c     >           * dconjg(U(i,k))*V(j,k)
       complex*16 arg,wx
 
       integer X(2,6),Xeig(2,6)
-      integer U(2,6),V(2,6)
+      integer U(2,6),V(2,6),UV(2)
       integer Creal(2),Cimg(2)
       integer psi_r2(2)
 
@@ -723,6 +729,7 @@ c     >           * dconjg(U(i,k))*V(j,k)
          value = value.and.Dneall_w_push_get(1,U(1,j))
          value = value.and.Dneall_w_push_get(1,V(1,j))
       end do
+      value = value.and.BA_push_get(mt_dcpl,ne0(1),'UV',UV(2),UV(1))
       value = value.and.Dneall_m_push_get(1,Creal)
       value = value.and.Dneall_m_push_get(1,Cimg)
       value = value.and.
@@ -744,60 +751,23 @@ c     >           * dconjg(U(i,k))*V(j,k)
          do r=1,rank
             call dipole_Efield_set_TcTs(r,ms,neq,n2ft3d,
      >                 psi_r,dbl_mb(psi_r2(1)),dcpl_mb(X(1,r)))
-           !b(1) = bv(1,i)
-           !b(2) = bv(2,i)
-           !b(3) = bv(3,i)
-c           call silvestrelli_overlap2cs(
-c     >                   b,ms,ne0,neq,
-c     >                   psi_r,hpsi_rc,hpsi_rs,
-c     >                   dcpl_mb(X(1,i)))
             call Dneall_w_eigenvaluesvectors(ms,dcpl_mb(X(1,r)),
      >                              dcpl_mb(Xeig(1,r)),
      >                              dcpl_mb(U(1,r)),
      >                              dcpl_mb(V(1,r)))
-
-c            write(*,*) "rank,H,E,U,V=",r, 
-c     >                               dcpl_mb(X(1,r)),
-c     >                               dcpl_mb(Xeig(1,r)),
-c     >                               dcpl_mb(U(1,r)), 
-c     >                               dcpl_mb(V(1,r))
 
             call dipole_Efield_add_dipole(ms,r,dcpl_mb(Xeig(1,r)))
             call dipole_Efield_gen_Cij(ne0(ms),
      >                                 dcpl_mb(Xeig(1,r)),
      >                                 dcpl_mb(U(1,r)), 
      >                                 dcpl_mb(V(1,r)),
+     >                                 dcpl_mb(UV(1)),
      >                                 dbl_mb(Creal(1)),dbl_mb(Cimg(1)))
-             !write(*,*) "Creal_ij=",dbl_mb(Creal(1))
-             !write(*,*) "Cimg_ij =",dbl_mb(Cimg(1))
              call dipole_Efield_gen_hpsi_r(ms,r,neq,n2ft3d,
      >                                 psi_r,
      >                                 dbl_mb(psi_r2(1)),
      >                                 dbl_mb(Creal(1)),dbl_mb(Cimg(1)),
      >                                 hpsi_r)
-
-c            !*** really just want complex eigenvalues of X here ***
-c            do i=1,ne0(ms)
-c              arg = dcpl_mb(Xeig(1,r)+(i-1))
-c              arg = -wts(r)*datan2(dimag(arg),dble(arg))
-c
-c              dx(ms) = dx(ms) + bv(1,r)*arg/scal
-c              dy(ms) = dy(ms) + bv(2,r)*arg/scal
-c              dz(ms) = dz(ms) + bv(3,r)*arg/scal
-c
-c
-cc              z = dcpl_mb(Xeig(1,r)+(i-1))
-cc              z = dcmplx(0.0d0,1.0d0)*z/ (dble(z)**2+dimag(z)**2)
-cc              C = dconjg(dcpl_mb(U(1,r)+
-cc              C = wts(r)*( efield(1)*bv(1,r)
-cc                          +efield(2)*bv(2,r)
-cc                          +efield(3)*bv(2,r))
-cc                        * z * dconjg(U(i,i))*V(j,i)
-cc
-cc             hpsi(i) += C(i,j;r) T(r)*psi(j)
-cc             hpsi_r(i) += dble(C(i,j;r))*Tc*psi_r - dimag(C(i,j;r))*Ts*psi_r
-cc
-c            end do !* i *
 
          end do !* r *
       end do !* ms *
@@ -806,17 +776,6 @@ c            end do !* i *
       call Dneall_ggm_sym_Multiply(0,psi_r,hpsi_r,n2ft3d,
      >                             dbl_mb(Creal(1)))
       Pdipole = scal1*Dneall_m_trace(0,dbl_mb(Creal(1)))
-
-
-c      write(*,*) "ggm psi_r'hpsi_r=",scal1*dbl_mb(Creal(1))
-c     
-c      call Dneall_ggm_sym_Multiply(0,hpsi_r,hpsi_r,n2ft3d,
-c     >                             dbl_mb(Creal(1)))
-c      write(*,*) "ggm hpsi_r'hpsi_r=",scal1*dbl_mb(Creal(1))
-c
-c      call Dneall_ggm_sym_Multiply(0,psi_r,psi_r,n2ft3d,
-c     >                             dbl_mb(Creal(1)))
-c      write(*,*) "ggm psi_r'psi_r=",scal1*dbl_mb(Creal(1))
 
 
 cccccccccccccccccccccccccccccccccccccccccccccc
@@ -840,6 +799,7 @@ c     **** pop stack ****
       value = BA_pop_stack(psi_r2(2))
       value = value.and.Dneall_m_pop_stack(Cimg)
       value = value.and.Dneall_m_pop_stack(Creal)
+      value = value.and.BA_pop_stack(UV(2))
       do j=6,1,-1
          value = value.and.Dneall_w_pop_stack(V(1,j))
          value = value.and.Dneall_w_pop_stack(U(1,j))
