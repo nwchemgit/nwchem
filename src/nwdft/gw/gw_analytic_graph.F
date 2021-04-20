@@ -75,6 +75,7 @@
           const = Eold(llmo+iqp-1,isp) + Sigma_X - sigmaold
           lower = 0d0
           upper = 0d0
+          radius = 0.1d0
 
           timer = util_wallsec()
           call gw_analytic_wmn(pars,g_wmn,iqp+llmo-1,isp,nri)
