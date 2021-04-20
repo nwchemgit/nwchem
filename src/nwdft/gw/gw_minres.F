@@ -5,7 +5,7 @@
 #include "global.fh"      
 #include "mafdecls.fh"
 #include "util.fh"
-      integer,parameter :: maxiter = 30
+      integer,parameter :: maxiter = 20
       integer,parameter :: maxthreads = 1024
 
       integer,intent(in) :: ipol
@@ -37,7 +37,7 @@
       logical main,converged,oactive,parallel_diag,doparallel
       integer iter, istop, i, gy, me, ld, nmax, nlocal, ithread
       integer lo, hi, jthread
-      double precision,parameter :: shift = 0.000d0, rtol=1d-4
+      double precision,parameter :: shift = 0.000d0, rtol=5d-5
 
       call ga_sync()
 
@@ -69,8 +69,8 @@
       x0norm = dot_product(x,x)
 
       if (x0norm.eq.0d0) then
-        y(:) = b(:)
-        goto 1001
+        x(:) = b(:)
+        x0norm = dot_product(b,b)
       endif
 
       if (ipol.eq.1) then
@@ -83,19 +83,12 @@
 
       y(:) = y(:) + b(:) - x(:)
 
- 1001 beta1 = dsqrt(dot_product(y,y))
+      beta1 = dsqrt(dot_product(y,y))
 
       ! Solution already converged
       if (beta1.lt.rtol) then
         rnorm = beta1
         istop = -1
-        goto 2000
-      endif
-
-      ! Use diagonalization instead
-      if (parallel_diag) then
-        istop = 6
-        rnorm = beta1
         goto 2000
       endif
 
@@ -273,8 +266,8 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
 c       MINRES did not converge or is not going to 
 c       converge in 30 or less steps
         if (iter  .ge. maxiter  )                  istop = 101
-        if (iter  .ge. 12 .and. rnorm .ge. 0.1d0)  istop = 102
-        if (iter  .ge. 20 .and. rnorm .ge. 0.01d0) istop = 103
+        if (iter  .ge. 10 .and. rnorm .ge. 0.1d0)  istop = 102
+        if (iter  .ge. 15 .and. rnorm .ge. 0.01d0) istop = 103
 
         if (Acond .ge. 0.1d0/eps) istop=5
         if (t2    .le. 1d0      ) istop=2
@@ -298,13 +291,11 @@ c       converge in 30 or less steps
       if (main) then
         if (istop.gt.100) then
           write(*,*) ' MINRES : ',iter,rnorm
-        elseif (istop.ne.6 .and. iter.gt.20) then
-          write(*,*) ' MINRES : ',iter,rnorm
         endif
       end if
 #endif
 
-      if (istop.gt.100 .and. rnorm.gt.0.0001d0) then
+      if (istop.gt.100 .and. rnorm.gt.0.0005d0) then
 
 
         if (.not.ma_alloc_get(mt_dbl,n**2,'pi',l_pi,k_pi))

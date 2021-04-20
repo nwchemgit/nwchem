@@ -39,7 +39,7 @@
       integer nclusters, clusters(pars%nmo),myll,myul
       integer llqp,ulqp,icluster,ndiis
       double precision upper,lower,resupper,reslower,const
-      double precision values(20),errors(20)
+      double precision values(20),errors(20),radius
 
 
       main = pars%me .eq. 0
@@ -74,6 +74,8 @@
           myll = llqp
 
  100      continue
+
+          radius = 0.3d0
 
           if (llmo+llqp-1.le.pars%nocc(isp)) then
             iqp  = myul
@@ -160,11 +162,17 @@ c
               exit
             endif
 
-            if (iter.le.2) then
-               eout = ein + 0.1d0*residual
+            if (iter.eq.1) then
+              eout = ein + radius*residual
             else
+              if (abs(errors(iter)).gt.abs(errors(iter-1))) then
+                 radius = max(0.1d0,radius/1.5d0)
+              else
+                 radius = min(0.3d0,radius*1.5d0)
+              endif
               call gw_donewton(ein,eout,residual,dresidual,lower,upper,
-     $                         reslower,resupper,bracket,pars%thresh)
+     $                         reslower,resupper,bracket,pars%thresh,
+     $                         radius)
             endif
 
 

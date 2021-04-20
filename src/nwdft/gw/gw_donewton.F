@@ -1,10 +1,10 @@
       subroutine  gw_donewton(xin,xout,fx,idfx,xlow,xupp,fxlow,fxupp,
-     $                        bracket,thresh)
+     $                        bracket,thresh,radius)
       implicit none
       logical          :: bracket
       double precision :: xin, xout, xlow, xupp
       double precision :: fx, idfx, fxlow, fxupp
-      double precision :: thresh
+      double precision :: thresh, radius
 
       logical          :: pole
       double precision :: z
@@ -18,9 +18,8 @@
         pole = .true.
       endif  
 
-
       !take full newton step for large enough z
-      if (z.gt.0.4d0 .and. z.le.1d0 ) then 
+      if (z.gt.0.5d0 .and. z.le.1d0 ) then 
         xout = xin - fx*idfx
 
       ! when we have bracketed the solution, the
@@ -29,11 +28,12 @@
 
         xout = (xlow*fxupp - xupp*fxlow)/(fxupp-fxlow)
 
-      ! use a small newton step for the rest
-      elseif (z.gt.1d0) then
-        xout = xin - 0.3d0*fx
+      else if (z.gt.0.1d0) then
+        xout = xin - fx*idfx
+
       else
-        xout = xin - 1.0d0*fx*idfx
+        xout = xin + radius*fx
+
       endif
 
 
