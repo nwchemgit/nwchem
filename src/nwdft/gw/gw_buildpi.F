@@ -188,7 +188,7 @@
       integer,intent(in) :: ldpi, nri, maxpoles, ipol
       character(len=1),intent(in) :: which
       integer,intent(in),dimension(ipol) :: npoles
-      double precision,intent(inout),dimension(nri,*) :: ovup,ovdw
+      double precision,intent(in),dimension(nri,*) :: ovup,ovdw
 
       double complex,intent(in),dimension(maxpoles,ipol) :: factor
       double complex,intent(out),dimension(ldpi,*) :: pi
@@ -223,8 +223,8 @@
         endif
 
         do ipole=1,mymax
-          call zscal(nri,sqrt(factor(ipole,isp)),
-     $               dcpl_mb(k_scr+(ipole-1)*nri),1)
+          call zscal(nri,factor(ipole,isp),dcpl_mb(k_scr+(ipole-1)*nri),
+     $               1)
         enddo
         call zsyrk('l','n',nri,mymax,scal,dcpl_mb(k_scr),nri,fac,pi,nri)
 
@@ -234,9 +234,11 @@
           mynpoles = ulpole - llpole + 1
 
           if (isp.eq.1) then
-            call zlacp2('A',nri,mynpoles,ovup,nri,dcpl_mb(k_scr),nri)
+            call zlacp2('A',nri,mynpoles,ovup(1,llpole),nri,
+     $                  dcpl_mb(k_scr),nri)
           else
-            call zlacp2('A',nri,mynpoles,ovdw,nri,dcpl_mb(k_scr),nri)
+            call zlacp2('A',nri,mynpoles,ovdw(1,llpole),nri,
+     $                   dcpl_mb(k_scr),nri)
           endif
 
           do ipole=1,mynpoles

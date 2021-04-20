@@ -28,7 +28,7 @@
       double precision,intent(out) :: Enew(pars%nmo,pars%ipol)
 
       logical main, converged, bracket, warning, fixed(maxqp)
-      integer isp, totalqp, llmo, iqp, iter, logs, dbls
+      integer isp, totalqp, llmo, iqp, iter, logs, dbls, irms
       double precision timer, timer2, rms6(6), m
       double precision Ein, Eout, SigmaOld, Sigma_X, Z
       double precision Linear
@@ -90,7 +90,7 @@
           elseif (myll.gt.llqp) then
             Eout = Enew(llmo+iqp-2,isp) + 2d0*pars%thresh
           elseif (eviter.eq.0) then
-            Eout = Eout + sign(4d0*pars%thresh,Eout)
+            Eout = Eout + sign(1d0*pars%thresh,Eout)
           else
             Eout = Eout + sign(0.0070d0,Eout)
           endif
@@ -131,7 +131,7 @@ c
             dSigmaC  = dI + dR
 
             residual = const + dble(SigmaC) - Ein
-            dresidual = dble(1d0/(dSigmaC - 1d0))
+            dresidual =1d0/(dble(dSigmaC) - 1d0)
 
             values(iter) = Ein
             errors(iter) = residual
@@ -160,20 +160,28 @@ c
               exit
             endif
 
-            if (iter.gt.1) then
-              if (abs(errors(iter)).gt.abs(errors(iter-1))) then
-                step = values(iter) - values(iter-1)
-                eout = values(iter-1) + 0.6180d0*step
-                values(iter) = values(iter-1)
-                errors(iter) = errors(iter-1)
-              else
-               call gw_donewton(ein,eout,residual,dresidual,lower,upper,
-     $                          reslower,resupper,bracket,pars%thresh)
-              end if
+            if (iter.eq.1) then
+               eout = ein + 0.3d0*residual
             else
-             call gw_donewton(ein,eout,residual,dresidual,lower,upper,
-     $                        reslower,resupper,bracket,pars%thresh)
+              call gw_donewton(ein,eout,residual,dresidual,lower,upper,
+     $                         reslower,resupper,bracket,pars%thresh)
             endif
+
+c            if (iter.gt.1) then
+c              if (abs(errors(iter)).gt.abs(errors(iter-1))) then
+c                step = values(iter) - values(iter-1)
+c                eout = values(iter-1) + 0.6180d0*step
+c                values(iter) = values(iter-1)
+c                errors(iter) = errors(iter-1)
+c              else
+c               call gw_donewton(ein,eout,residual,dresidual,lower,upper,
+c     $                          reslower,resupper,bracket,pars%thresh)
+c              end if
+c            else
+c             eout = ein + 0.30d0*residual
+c             call gw_donewton(ein,eout,residual,dresidual,lower,upper,
+c     $                        reslower,resupper,bracket,pars%thresh)
+c            endif
 
 
 #ifdef GWDEBUG
@@ -191,8 +199,8 @@ c
             etmp = ein
             residualold = residual
 
-            do i=6,2,-1
-              rms6(i) = rms6(i-1)
+            do irms=6,2,-1
+              rms6(irms) = rms6(irms-1)
             enddo
             rms6(1) = abs(eout-ein)
 

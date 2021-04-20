@@ -2,7 +2,9 @@
 #define ISOGW complex(kind=C_DOUBLE_COMPLEX)
 #define GWTYP double complex
 #define SOLVER cs_minres_qlp
+
 #else
+
 #define ISOGW real(kind=C_DOUBLE)
 #define GWTYP double precision
 #ifdef GWEN
@@ -11,6 +13,7 @@
 #define SOLVER gw_minres
 #endif
 #endif
+
 #define USE_ALLOC 1
 
       subroutine gw_buildrn_minres(pars,Eig,Eia,omega,R,dR,imo,
@@ -49,7 +52,12 @@
       logical main, ok, parallel_diag
       logical, external :: is_near
 
-      double precision, parameter :: eta = 0.0000d0
+#ifdef GWCMPLX
+      double precision, parameter :: eta = 0.001d0
+#else
+      double precision, parameter :: eta = 0.00001d0
+#endif
+
       double precision, parameter :: shift = 0.00001d0
       double complex :: w, R1, dR1
       double complex, parameter :: ieta = dcmplx(0d0,eta)
@@ -80,8 +88,8 @@
       enddo
       if (ipol.eq.1) kOV(2) = 1
 
-      R1 = 0d0
-      dR1 = 0d0
+      R1 = (0d0,0d0)
+      dR1 = (0d0,0d0)
 
       dfac = 4d0
       if (ipol.eq.1) dfac = 2d0*dfac
@@ -135,7 +143,7 @@
         do jsp=1,ipol
 !$omp   parallel do simd private(temp) schedule(static)
           do ipole=1,pars%mynpoles(jsp)
-            temp = Eia(ipole,jsp) - ieta
+            temp = Eia(ipole,jsp) + ieta
 
 #ifdef GWCMPLX
             factor(ipole,jsp) = 0.5d0/(arg + temp) + 0.5d0/(temp - arg)
@@ -178,9 +186,15 @@
      $                  xvec,1,0d0,factor,1)
 #endif            
 
-!$omp  parallel do simd reduction(+:dR) schedule(static)
+!$omp  parallel do simd reduction(+:dR1) schedule(static)
             do ipole=1,pars%mynpoles(jsp)
-               dR = dR + fac*dble(dfactor(ipole,jsp)*factor(ipole,1)**2)
+#ifdef GWCMPLX
+               dR1 = dR1 + 
+     $               fac*dfactor(ipole,jsp)*factor(ipole,1)**2
+#else
+               dR1 = dR1 + 
+     $               fac*dble(dfactor(ipole,jsp)*factor(ipole,1)**2)
+#endif
             enddo
 !$omp  end parallel do simd
 
@@ -206,7 +220,7 @@ c        w = ddot(nri,vector,1,xvec,1) - ddot(nri,vector,1,vector,1)
       call util_blas_set_num_threads(1)
 #endif
 
-#ifdef GWTYP
+#ifdef GWCMPLX
       R = R1
       dR = dR1
 #else

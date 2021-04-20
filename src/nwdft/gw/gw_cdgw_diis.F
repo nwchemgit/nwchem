@@ -133,7 +133,7 @@ c
             dSigmaC  = dI + dR
 
             values(iter) = Ein
-            errors(iter) = const + sigmac - ein
+            errors(iter) = const + dble(sigmac) - ein
             residual = errors(iter)
 
             ! Check convergence of QP equation

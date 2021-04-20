@@ -25,7 +25,7 @@
       double precision,parameter :: eta = 0.001d0
       double complex, parameter  :: ieta = dcmplx(0d0,eta)
 #else
-      double precision,parameter  :: eta = 0.0000d0
+      double precision,parameter  :: eta = 0.001d0
       double precision, parameter :: ieta = eta
 #endif
 
@@ -37,7 +37,7 @@
 
       do jmo=1,mynmo
         vector(jmo) = omega - Evals(iwidx(jmo))
-        etavec(jmo) = sign(ieta,evals(iwidx(jmo)))
+        etavec(jmo) = sign(1d0,evals(iwidx(jmo)))*ieta
       enddo
 
 !$omp parallel do private(iomega,jmo,factor) reduction(+:res)

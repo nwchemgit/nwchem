@@ -9,7 +9,7 @@
 
       double complex, parameter :: zzero = (0d0,0d0)
       integer, parameter :: maxiter = 30
-      double precision, parameter :: rtol = 1d-3, maxxnorm=1d7,
+      double precision, parameter :: rtol = 1d-4, maxxnorm=1d7,
      $                               Acondlim = 1d15, TranCond=1d7 
       logical,parameter :: likeLS = .false.
 
@@ -56,7 +56,6 @@ c      r2(:) = b(:)
       beta1 = dsqrt(dble(dot_product(r2,r2)))
 
       if (beta1.lt.rtol) then
-        if (ga_nodeid().eq.0) write(*,*) 0,0,beta1
         return
       endif
 
@@ -249,7 +248,7 @@ c      r2(:) = b(:)
         endif
 
         gamal_tmp = gamal
-        call symortho(conjg(gamal),conjg(eplnn),cr2,sr2,gamal)
+        call symortho(conjg(gamal_tmp),conjg(eplnn),cr2,sr2,gamal)
         gamal = conjg(gamal)
 
         gamal_QLP = gamal_tmp
@@ -309,8 +308,6 @@ c      r2(:) = b(:)
 
       x = x + xbak
 
-      if(ga_nodeid().eq.0) write(*,*) iter, QLPiter, rnorm
-
       end subroutine
 
       subroutine symortho(a, b, c, s, r)
@@ -322,11 +319,13 @@ c      r2(:) = b(:)
       double complex signa, signb
       double complex, parameter :: zzero = (0d0, 0d0), zone = (1d0, 0d0)
 
+      signa = 1d0
+      signb = 1d0
       
       absa = abs(a)
       absb = abs(b)
-      signa = a/absa
-      signb = b/absb
+      if (absa.gt.0d0) signa = a/absa
+      if (absb.gt.0d0) signb = b/absb
 
       if (b.eq.zzero) then
         c = 1d0

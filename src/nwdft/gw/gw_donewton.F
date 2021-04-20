@@ -20,36 +20,26 @@
 
 
       !take full newton step for large enough z
-      if (z.gt.0.2d0 .and. z.le.1d0 ) then 
+      if (z.gt.0.4d0 .and. z.le.1d0 ) then 
         xout = xin - fx*idfx
 
       ! when we have bracketed the solution, the
       ! golden section or regula falsi method might work best
       elseif (bracket) then
 
-        !use golden section for the others
-        if (fx.eq.fxupp) then
-          xout = xupp - 0.61803d0*(xupp-xlow)
-        else
-          xout = xlow + 0.61803d0*(xupp-xlow)
-        endif
+        xout = (xlow*fxupp - xupp*fxlow)/(fxupp-fxlow)
 
       ! use a small newton step for the rest
-      elseif (z.gt.0.05d0) then
-        xout = xin - 1.0d0*fx*idfx
-
       else
-        xout = xin - 1.0d0*fx*idfx
+        xout = xin - 0.7d0*fx*idfx
 
       endif
 
 
       !check that energy is inside bracket
       if (bracket) then
-        if ( xout.gt.xupp ) then
-          xout = xupp - 1.1d0*thresh
-        elseif (xout.lt.xlow ) then
-          xout = xlow + 1.1d0*thresh
+        if ( xout.gt.xupp .or. xout.lt.xlow ) then
+          xout = (xlow*fxupp - xupp*fxlow)/(fxupp-fxlow)
         endif
       endif
 

@@ -1,9 +1,9 @@
 #ifdef GWCMPLX
 #define ISOGW complex(kind=c_double_complex)
-#define GWTYP double precision
+#define GWTYP double complex
 #else
 #define ISOGW real(kind=c_double)
-#define GWTYP double complex
+#define GWTYP double precision
 #endif 
 
 #define USE_ALLOC 1
@@ -34,6 +34,7 @@
       integer pilo,pihi,k_pi,l_pi,idx,idy,l_tmp,tmp,l_vx,k_vx
       integer imo,jmo,kmo,lmo,nprocs,kOV1,kOV2,isp,addr,idz,kOO(2)
       integer kVV(2),kOV(2),mynvir,mynocc,nlocal,nmod
+      integer l_work,work,l_ipiv,ipiv
       double precision w2,ecrpa,ecgm
       double precision, external :: gw_ddot
       double complex, external :: gw_ddot_cmplx
@@ -44,7 +45,11 @@
       GWTYP :: factor(maxpoles,ipol)
 #endif
       double complex :: imw
+#ifdef GWCMPLX
       double precision,parameter :: eta = 0.001d0
+#else
+      double precision,parameter :: eta = 0.00001d0
+#endif
       double complex,parameter :: ieta = dcmplx(0d0,eta)
       double precision t0, t1
 
@@ -83,6 +88,10 @@
       if (.not.ma_alloc_get(mt_dcpl,nri**2,'Pi',l_pi,k_pi))
      $  call errquit(pname//'can''t allocate Pi',0,MA_ERR) 
       if (.not.ma_alloc_get(mt_dcpl,nri*mynmo,'sol',l_sol,k_sol))
+     $  call errquit(pname//'can''t allocate sol',0,MA_ERR) 
+      if (.not.ma_alloc_get(mt_dcpl,32*nri,'work',l_work,work))
+     $  call errquit(pname//'can''t allocate sol',0,MA_ERR) 
+      if (.not.ma_alloc_get(mt_int,nri,'ipiv',l_ipiv,ipiv))
      $  call errquit(pname//'can''t allocate sol',0,MA_ERR) 
 #else
       if (.not.ma_alloc_get(mt_dbl,sizepi,'Pi',l_pi,k_pi))
@@ -146,7 +155,8 @@ c
      $                         dcpl_mb(k_pi),factor,nri,nri,
      $                         pars%mynpoles,main,ipol,maxpoles)
         call ga_zgop(mt_dcpl,dcpl_mb(k_pi),nri**2,'+')
-        call zpotrf('l',nri,dcpl_mb(k_pi),nri,info)
+        call zsytrf('l',nri,dcpl_mb(k_pi),nri,int_mb(ipiv),
+     $              dcpl_mb(work),32*nri,info)
 #else
 c
         call gw_buildpi('w',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
@@ -212,8 +222,8 @@ c
 #ifdef GWCMPLX
             call zlacp2('A',nri,iwidx(0,jmo,isp),dbl_mb(tmp),nri,
      $                   dcpl_mb(k_sol),nri)
-            call zpotrs('l',nri,iwidx(0,jmo,isp),dcpl_mb(k_pi),nri,
-     $                   dcpl_mb(k_sol),nri,info)
+            call zsytrs('l',nri,iwidx(0,jmo,isp),dcpl_mb(k_pi),nri,
+     $                   int_mb(ipiv),dcpl_mb(k_sol),nri,info)
 #else
             if (diag) then
               call gw_rfpmm(dbl_mb(k_vx),dbl_mb(tmp),dbl_mb(k_sol),
@@ -274,8 +284,15 @@ c
      $  call errquit(pname//'can''t free TMP heap',me,MA_ERR) 
       if (.not.(ma_free_heap(l_pi)))
      $  call errquit(pname//'can''t free PI heap',me,MA_ERR) 
+#ifdef GWCMPLX
+      if (.not.(ma_free_heap(l_ipiv)))
+     $  call errquit(pname//'can''t free vX heap',me,MA_ERR) 
+      if (.not.(ma_free_heap(l_work)))
+     $  call errquit(pname//'can''t free vX heap',me,MA_ERR) 
+#else
       if (.not.(ma_free_heap(l_vx)))
      $  call errquit(pname//'can''t free vX heap',me,MA_ERR) 
+#endif
 
       pars%ecrpa = pars%ecrpa*0.5d0
       pars%ecgm  = pars%ecgm*0.5d0
