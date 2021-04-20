@@ -3715,11 +3715,13 @@ c      call Parallel2d_np_i(np)
      >             matrix(1,k),k)
       end do
 
+!$OMP DO
       do k=1,n
       do j=k+1,n
         matrix(j,k) = matrix(k,j)
       end do
       end do
+!$OMP END DO
 
       if (np.gt.1) call D3dB_Vector_SumAll(n*n,matrix)
       call nwpw_timing_end(2)

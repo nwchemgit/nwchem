@@ -412,6 +412,7 @@ c     **** allocate memory from stack ****
 
 
       !*** generate Tc and Ts ***
+!$OMP DO
       do k=1,n2ft3d
          br = bv(1,i)*dbl_mb(rgrid(1)+(k-1)*3)
      >      + bv(2,i)*dbl_mb(rgrid(1)+(k-1)*3 + 1)
@@ -419,6 +420,7 @@ c     **** allocate memory from stack ****
          dbl_mb(Tc(1)+k-1) =  cos(br)
          dbl_mb(Ts(1)+k-1) = -sin(br)
       end do
+!$OMP END DO
 
 *     **** generate W = <psi_r(i)|exp(-i b*r)|psi_r(j)> ****
       do j=1,neq(ms)
@@ -430,6 +432,7 @@ c     **** allocate memory from stack ****
      >                             dbl_mb(Wc(1)))
 
       call Dneall_m_scal(ms,scal1,dbl_mb(Wc(1)))
+
       do j=1,neq(ms)
         call D3dB_rr_Mul(1,dbl_mb(Ts(1)),
      >                       psi_r(1+(j-1+(ms-1)*neq(1))*n2ft3d),
@@ -437,6 +440,7 @@ c     **** allocate memory from stack ****
       end do
       call Dneall_ggm_sym_Multiply(ms,psi_r,psi_r2,n2ft3d,
      >                             dbl_mb(Ws(1)))
+      
       call Dneall_m_scal(ms,scal1,dbl_mb(Ws(1)))
       call Dneall_mmtow_Cmplx(ms,dbl_mb(Wc(1)),dbl_mb(Ws(1)),W)
 
@@ -500,11 +504,11 @@ c      end
       real*8   lattice_omega
       external lattice_omega
 
-
       scal = lattice_omega()**(1.0d0/3.0d0)
       scal = 8.0d0*datan(1.0d0)/scal
       scal = scal*scal
 
+!$OMP MASTER
       !*** really just want complex eigenvalues of X here ***
       do i=1,ne0(ms)
          arg = -wts(r)*datan2(dimag(Z(i)),dble(Z(i)))
@@ -513,6 +517,8 @@ c      end
          dy(ms) = dy(ms) + bv(2,r)*arg/scal
          dz(ms) = dz(ms) + bv(3,r)*arg/scal
       end do !* i *
+!$OMP END MASTER
+
       return
       end
 
@@ -531,6 +537,7 @@ c      end
       integer i,j,k
       complex*16 zzz
 
+!$OMP DO
       do k=1,N
          ZENOM(k) = dcmplx(0.0d0,0.0d0)
          do i=1,N
@@ -538,7 +545,9 @@ c      end
          end do
          !write(*,*) "k,ZENOM=",k,ZENOM(k)
       end do
+!$OMP END DO
 
+!$OMP DO
       do i=1,N
       do j=1,N
          zzz = dcmplx(0.0d0,0.0d0)
@@ -558,6 +567,7 @@ c     >           * (dconjg(U(i,k))*V(j,k))/ZENOM(k)
          Cimg(i,j)  = dimag(zzz)
       end do
       end do
+!$OMP END DO 
 
       return
       end 
@@ -619,6 +629,7 @@ c     >           * (dconjg(U(i,k))*V(j,k))/ZENOM(k)
 
 
       !*** generate Tc and Ts ***
+!$OMP DO
       do k=1,n2ft3d
          br = bv(1,r)*dbl_mb(rgrid(1)+(k-1)*3)
      >      + bv(2,r)*dbl_mb(rgrid(1)+(k-1)*3 + 1)
@@ -626,6 +637,7 @@ c     >           * (dconjg(U(i,k))*V(j,k))/ZENOM(k)
          dbl_mb(Tc(1)+k-1) =  cos(br)
          dbl_mb(Ts(1)+k-1) = -sin(br)
       end do
+!$OMP END DO
 
 
 *     **** generate W = <psi_r(i)|exp(-i b*r)|psi_r(j)> ****
@@ -730,27 +742,30 @@ c     >           * (dconjg(U(i,k))*V(j,k))/ZENOM(k)
          value = value.and.Dneall_w_push_get(1,V(1,j))
       end do
       value = value.and.BA_push_get(mt_dcpl,ne0(1),'UV',UV(2),UV(1))
-      value = value.and.Dneall_m_push_get(1,Creal)
+      value = value.and.Dneall_m_push_get(0,Creal)
       value = value.and.Dneall_m_push_get(1,Cimg)
       value = value.and.
      >        BA_push_get(mt_dbl,(neq(1)+neq(2))*n2ft3d,
      >                    'Hpsi_r',psi_r2(2),psi_r2(1))
-
       if (.not.value) 
      >   call errquit('dipole_efield_Vnl:out of stack',0,MA_ERR)
 
 
+!$OMP MASTER
       dx(1)=0.0d0
       dy(1)=0.0d0
       dz(1)=0.0d0
       dx(2)=0.0d0
       dy(2)=0.0d0
       dz(2)=0.0d0
+!$OMP END MASTER
+
       
       do ms=1,ispin
          do r=1,rank
             call dipole_Efield_set_TcTs(r,ms,neq,n2ft3d,
      >                 psi_r,dbl_mb(psi_r2(1)),dcpl_mb(X(1,r)))
+
             call Dneall_w_eigenvaluesvectors(ms,dcpl_mb(X(1,r)),
      >                              dcpl_mb(Xeig(1,r)),
      >                              dcpl_mb(U(1,r)),
@@ -768,13 +783,12 @@ c     >           * (dconjg(U(i,k))*V(j,k))/ZENOM(k)
      >                                 dbl_mb(psi_r2(1)),
      >                                 dbl_mb(Creal(1)),dbl_mb(Cimg(1)),
      >                                 hpsi_r)
-
          end do !* r *
       end do !* ms *
 
-
       call Dneall_ggm_sym_Multiply(0,psi_r,hpsi_r,n2ft3d,
      >                             dbl_mb(Creal(1)))
+!$OMP MASTER
       Pdipole = scal1*Dneall_m_trace(0,dbl_mb(Creal(1)))
 
 
@@ -788,12 +802,16 @@ ccccccccccccccccccccccccccccccccccccccccccccc
       dipole(1) = tx
       dipole(2) = ty
       dipole(3) = tz
+!$OMP END MASTER
+!$OMP BARRIER
+
       !write(*,*) "DipOlE=",dipole
       edpol = dipole(1) * efield(1) 
      >      + dipole(2) * efield(2) 
      >      + dipole(3) * efield(3) 
 
       Edipole = edpol
+
 
 c     **** pop stack ****
       value = BA_pop_stack(psi_r2(2))
