@@ -207,8 +207,8 @@
           else
             do myimo=1,mynmo
               vectors2(:,myimo) = 0d0
-              call minres(GWMB(k_pi),vectors2(1,myimo),vectors(1,myimo),
-     $                    nri)
+              call minres(GWMB(k_pi),vectors2(1,myimo),
+     $                    vectors(1,myimo),nri)
             enddo
           endif
         endif
