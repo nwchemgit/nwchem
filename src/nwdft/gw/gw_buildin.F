@@ -25,7 +25,7 @@
       double precision,parameter :: eta = 0.001d0
       double complex, parameter  :: ieta = dcmplx(0d0,eta)
 #else
-      double precision,parameter  :: eta = 0.001d0
+      double precision,parameter  :: eta = 0.00001d0
       double precision, parameter :: ieta = eta
 #endif
 

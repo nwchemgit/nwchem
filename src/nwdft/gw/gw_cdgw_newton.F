@@ -160,28 +160,12 @@ c
               exit
             endif
 
-            if (iter.eq.1) then
-               eout = ein + 0.3d0*residual
+            if (iter.le.2) then
+               eout = ein + 0.1d0*residual
             else
               call gw_donewton(ein,eout,residual,dresidual,lower,upper,
      $                         reslower,resupper,bracket,pars%thresh)
             endif
-
-c            if (iter.gt.1) then
-c              if (abs(errors(iter)).gt.abs(errors(iter-1))) then
-c                step = values(iter) - values(iter-1)
-c                eout = values(iter-1) + 0.6180d0*step
-c                values(iter) = values(iter-1)
-c                errors(iter) = errors(iter-1)
-c              else
-c               call gw_donewton(ein,eout,residual,dresidual,lower,upper,
-c     $                          reslower,resupper,bracket,pars%thresh)
-c              end if
-c            else
-c             eout = ein + 0.30d0*residual
-c             call gw_donewton(ein,eout,residual,dresidual,lower,upper,
-c     $                        reslower,resupper,bracket,pars%thresh)
-c            endif
 
 
 #ifdef GWDEBUG

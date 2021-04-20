@@ -30,9 +30,10 @@
         xout = (xlow*fxupp - xupp*fxlow)/(fxupp-fxlow)
 
       ! use a small newton step for the rest
+      elseif (z.gt.1d0) then
+        xout = xin - 0.3d0*fx
       else
-        xout = xin - 0.7d0*fx*idfx
-
+        xout = xin - 1.0d0*fx*idfx
       endif
 
 
