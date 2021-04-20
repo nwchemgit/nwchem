@@ -29,7 +29,7 @@
       double precision d2SigmaC, dSigmaC, Linear
       double precision residual, residualOld, dresidual, d2residual,Etmp
       double precision linearstep, step, der
-      double precision I,dI,R,dR,a,b,fa,fb
+      double precision I,dI,R,dR,a,b,fa,fb,radius
 
       integer nclusters, clusters(pars%nmo),myll,myul
       double precision upper,lower,resupper,reslower,interval
@@ -85,13 +85,9 @@
 
           !use previous solution in cluster as guess
           if (myul.lt.ulqp) then
-            Eout = Enew(llmo+iqp,isp) + 4d0*pars%thresh
+            Eout = Enew(llmo+iqp,isp)
           elseif (myll.gt.llqp) then
-            Eout = Enew(llmo+iqp-2,isp) - 4d0*pars%thresh
-          elseif (eviter.eq.0) then
-            Eout = Eout + 0.12d0*(sigma_x - sigmaold)
-          else
-             Eout = Eout + sign(0.0070d0,Eout)
+            Eout = Enew(llmo+iqp-2,isp)
           endif
 
           !Trying to enhance reproducibility by rounding-off to 8 digits
@@ -103,6 +99,7 @@
           converged = .false.
           rms3(:) = 1d100
           residualold = 0d0
+          radius = 0.1d0
 
           !fixed contribution
           const = Eref(llmo+iqp-1,isp) + Sigma_X -  SigmaOld
@@ -156,15 +153,15 @@
               exit
             endif
 
+            call gw_donewton(ein,eout,residual,dresidual,a,b,fa,fb,
+     $                       bracket,pars%thresh,radius,iter)
+
 #ifdef GWDEBUG
             if (main) write(luout,9901) iter,iqp,util_wallsec()-timer2,
      $                                  Ein,Eout
  9901       format('  ## Finished iter',I3,' of qp ',I3,' in ',F12.2,'s'
      $             ,/,'     Ein: ',F12.6,' Eout: ',F12.6)
 #endif
-            call gw_donewton(ein,eout,residual,dresidual,a,b,fa,fb,
-     $                       bracket,pars%thresh)
-
             !save information
             residualold = residual
             etmp = ein

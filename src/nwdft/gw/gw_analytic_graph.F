@@ -22,7 +22,7 @@
       integer l_sw,k_sw,dbls,logs,iloc,ipoints,npoints
       double precision timer
       double precision Ein, Eout, SigmaOld, Sigma_X, SigmaC
-      double precision d2SigmaC, dSigmaC
+      double precision d2SigmaC, dSigmaC, radius
       double precision residual, residualOld, dresidual, d2residual
       double precision Etmp, lower, upper, resupper, reslower
       double precision rms3(3), const, nspace, der, interval
@@ -128,7 +128,8 @@ c
 
             ! Take next newton step
             call gw_donewton(ein,eout,residual,dresidual,lower,upper,
-     $                       reslower,resupper,bracket,pars%thresh)
+     $                       reslower,resupper,bracket,pars%thresh,
+     $                       radius,iter)
 
 
             ! Save information

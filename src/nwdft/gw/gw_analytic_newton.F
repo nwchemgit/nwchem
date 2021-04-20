@@ -25,7 +25,7 @@
       double precision d2SigmaC, dSigmaC
       double precision residual, residualOld, dresidual, d2residual
       double precision Etmp, lower, upper, resupper, reslower
-      double precision rms3(3), const
+      double precision rms3(3), const, radius
 
       main = pars%me .eq. 0
       dbls = ma_sizeof(mt_dbl,1,mt_byte)
@@ -62,18 +62,13 @@
           SigmaOld = Sigma(llmo+iqp-1,isp)
           Sigma_X  = Sigmax(llmo+iqp-1,isp)
 
-          if (eviter.eq.0) then
-            Eout = Eout + 0.12d0*(sigma_x - sigmaold)
-          else
-            Eout = Eout + sign(0.0070d0,Eout)
-          endif
-
           bracket = .false.
           rms3 = 1d100
           residualOld = 0d0
           const = Eold(llmo+iqp-1,isp) + Sigma_X - sigmaold
           lower = 0d0
           upper = 0d0
+          radius = 0.1d0
 
           timer = util_wallsec()
           call gw_analytic_wmn(pars,g_wmn,iqp+llmo-1,isp,nri)
@@ -127,7 +122,8 @@ c
 
             ! Take next newton step
             call gw_donewton(ein,eout,residual,dresidual,lower,upper,
-     $                       reslower,resupper,bracket,pars%thresh)
+     $                       reslower,resupper,bracket,pars%thresh,
+     $                       radius,iter)
 
 
             ! Save information
