@@ -8,7 +8,7 @@
       double complex,intent(inout) :: x(n)
 
       double complex, parameter :: zzero = (0d0,0d0)
-      integer, parameter :: maxiter = 20
+      integer, parameter :: maxiter = 30
       double precision, parameter :: rtol = 1d-3, maxxnorm=1d7,
      $                               Acondlim = 1d15, TranCond=1d7 
       logical,parameter :: likeLS = .false.
@@ -119,7 +119,7 @@ c      r2(:) = b(:)
          call gw_aprod_cmplx(OV1,factor,conjg(v),r3,4d0,0d0,npoles(1),n)
         else
          call gw_aprod_cmplx(OV1,factor,conjg(v),r3,2d0,0d0,npoles(1),n)
-          call gw_aprod_cmplx(OV2,factor(1,2),conjg(v),r3,2d0,1d0,
+         call gw_aprod_cmplx(OV2,factor(1,2),conjg(v),r3,2d0,1d0,
      $                        npoles(2),n)
         endif
         call ga_zgop(mt_dcpl,r3,n,'+')

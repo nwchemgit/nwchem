@@ -1,3 +1,11 @@
+#ifdef GWCMPLX
+#define ISOGW complex(kind=c_double_complex)
+#define GWTYP double precision
+#else
+#define ISOGW real(kind=c_double)
+#define GWTYP double complex
+#endif 
+
 #define USE_ALLOC 1
       subroutine gw_buildiw(pars,eia,x,wgt,iw,iwidx,nmo,nri,ngl,mynmo,
      $                      maxpoles,maxqp,ipol)
@@ -16,7 +24,7 @@
 
       double precision,intent(in)    :: eia(maxpoles,*),x(ngl),wgt(ngl)
       integer,intent(in)             :: iwidx(0:mynmo,maxqp,*)
-      double precision,intent(out)   :: iw(mynmo,ngl,maxqp,*)
+      GWTYP,intent(out)   :: iw(mynmo,ngl,maxqp,*)
 
       character(len=12),parameter :: pname = 'gw_buildiw: '
 
@@ -28,12 +36,16 @@
       integer kVV(2),kOV(2),mynvir,mynocc,nlocal,nmod
       double precision w2,ecrpa,ecgm
       double precision, external :: gw_ddot
+      double complex, external :: gw_ddot_cmplx
 #ifdef USE_ALLOC
-      real(kind=C_DOUBLE), allocatable    :: factor(:,:)
-      integer(kind=c_int)         :: stat_alloc
+      ISOGW, allocatable    :: factor(:,:)
+      integer(kind=c_int)   :: stat_alloc
 #else
-      double precision factor(maxpoles,ipol)
+      GWTYP :: factor(maxpoles,ipol)
 #endif
+      double complex :: imw
+      double precision,parameter :: eta = 0.001d0
+      double complex,parameter :: ieta = dcmplx(0d0,eta)
       double precision t0, t1
 
 #ifdef USE_OPENMP
@@ -67,14 +79,21 @@
       diag = .false.
       if (nri.gt.4000) diag = .true.
 
+#ifdef GWCMPLX
+      if (.not.ma_alloc_get(mt_dcpl,nri**2,'Pi',l_pi,k_pi))
+     $  call errquit(pname//'can''t allocate Pi',0,MA_ERR) 
+      if (.not.ma_alloc_get(mt_dcpl,nri*mynmo,'sol',l_sol,k_sol))
+     $  call errquit(pname//'can''t allocate sol',0,MA_ERR) 
+#else
       if (.not.ma_alloc_get(mt_dbl,sizepi,'Pi',l_pi,k_pi))
      $  call errquit(pname//'can''t allocate Pi',0,MA_ERR) 
-      if (.not.ma_alloc_get(mt_dbl,sizepi,'vx',l_vx,k_vx))
-     $  call errquit(pname//'can''t allocate vx',0,MA_ERR) 
-      if (.not.ma_alloc_get(mt_dbl,nri*mynmo,'temp',l_tmp,tmp))
-     $  call errquit(pname//'can''t allocate tmp',0,MA_ERR) 
       if (.not.ma_alloc_get(mt_dbl,nri*mynmo,'sol',l_sol,k_sol))
      $  call errquit(pname//'can''t allocate sol',0,MA_ERR) 
+      if (.not.ma_alloc_get(mt_dbl,sizepi,'vx',l_vx,k_vx))
+     $  call errquit(pname//'can''t allocate vx',0,MA_ERR)
+#endif 
+      if (.not.ma_alloc_get(mt_dbl,nri*mynmo,'temp',l_tmp,tmp))
+     $  call errquit(pname//'can''t allocate tmp',0,MA_ERR) 
 
 
       call ga_access(pars%g_eriov(1),1,nri,pars%ovlo(1),pars%ovhi(1),
@@ -105,25 +124,37 @@
       do igl=ngl,1,-1
 c
         w2 = x(igl)
+        imw = dcmplx(0d0,dsqrt(w2))
 
         do isp=1,ipol
 !$omp      parallel do simd schedule(static)
            do ipole=1,pars%mynpoles(isp)
+#ifdef GWCMPLX
+             factor(ipole,isp) = sqrt(
+     $                           0.5d0/(eia(ipole,isp) - imw + ieta) +
+     $                           0.5d0/(eia(ipole,isp) + imw + ieta) )
+#else
               factor(ipole,isp) = 
      $            dsqrt(eia(ipole,isp)/(eia(ipole,isp)**2 + w2))
+#endif
           enddo
 !$omp     end parallel do simd
         enddo
-
+c
+#ifdef GWCMPLX
+        call gw_buildpi_cmplx('w',dbl_mb(kOV(1)),dbl_mb(kOV(2)),
+     $                         dcpl_mb(k_pi),factor,nri,nri,
+     $                         pars%mynpoles,main,ipol,maxpoles)
+        call ga_zgop(mt_dcpl,dcpl_mb(k_pi),nri**2,'+')
+        call zpotrf('l',nri,dcpl_mb(k_pi),nri,info)
+#else
 c
         call gw_buildpi('w',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
      $                  factor,ldpi,nri,pars%mynpoles,main,ipol,
      $                  maxpoles) 
-
         call ga_dgop(mt_dbl,dbl_mb(k_pi),sizepi,'+')
-
         call dcopy(sizepi,dbl_mb(k_pi),1,dbl_mb(k_vx),1)
-        !
+
         if (diag) then
           call gw_invdiag(dbl_mb(k_vx),ldpi,nri,ecrpa,.true.)
           if (me.eq.0) pars%ecrpa = pars%ecrpa + wgt(igl)*ecrpa
@@ -134,6 +165,7 @@ c
             pars%ecrpa = pars%ecrpa + wgt(igl)*ecrpa
           endif
         endif
+#endif
         !
         do isp=1,ipol
           if (pars%nstates(isp).eq.0) cycle
@@ -177,6 +209,12 @@ c
 !$omp         end parallel do
             endif
 
+#ifdef GWCMPLX
+            call zlacp2('A',nri,iwidx(0,jmo,isp),dbl_mb(tmp),nri,
+     $                   dcpl_mb(k_sol),nri)
+            call zpotrs('l',nri,iwidx(0,jmo,isp),dcpl_mb(k_pi),nri,
+     $                   dcpl_mb(k_sol),nri,info)
+#else
             if (diag) then
               call gw_rfpmm(dbl_mb(k_vx),dbl_mb(tmp),dbl_mb(k_sol),
      $                      ldpi,nri,iwidx(0,jmo,isp),.true.)
@@ -186,11 +224,17 @@ c
               call dtfsm('n','l','l','n','n',nri,iwidx(0,jmo,isp),1d0,
      $                   dbl_mb(k_pi),dbl_mb(k_sol),nri)       
             endif
+#endif
 c
 !$omp       parallel do private(kmo,idx,idy) schedule(static)
             do kmo=1,iwidx(0,jmo,isp)
               idx = tmp + (kmo-1)*nri
               idy = k_sol + (kmo-1)*nri
+#ifdef GWCMPLX
+              iw(kmo,igl,jmo,isp) = 
+     $           gw_ddot_cmplx(nri,dbl_mb(idx),dcpl_mb(idy)) -
+     $           gw_ddot(nri,dbl_mb(idx),dbl_mb(idx))
+#else
               if (diag) then
                 iw(kmo,igl,jmo,isp) = 
      $           gw_ddot(nri,dbl_mb(idx),dbl_mb(idy)) - 
@@ -200,6 +244,7 @@ c
      $           gw_ddot(nri,dbl_mb(idy),dbl_mb(idy)) - 
      $           gw_ddot(nri,dbl_mb(idx),dbl_mb(idx))
               endif
+#endif
             enddo
 !$omp       end parallel do
 
@@ -207,12 +252,15 @@ c
 c
         enddo
 
+#ifdef GWCMPLX
+#else
         if (me.eq.0) then
           call gw_cdgw_ecgm(dbl_mb(k_vx),dbl_mb(k_pi),nri,ldpi,ecgm,
      $                      ecrpa,diag)
           pars%ecgm = pars%ecgm + wgt(igl)*ecgm
           pars%ecrpa = pars%ecrpa + wgt(igl)*ecrpa
         endif
+#endif
 
       enddo
 
@@ -248,4 +296,11 @@ c
       integer n
       double precision,dimension(n) :: a,b
       gw_ddot = dot_product(a,b)
+      end function
+
+      double complex function gw_ddot_cmplx(n,a,b)
+      integer n
+      double precision,dimension(n) :: a
+      double complex,dimension(n) :: b
+      gw_ddot_cmplx = sum(a(:)*b(:))
       end function

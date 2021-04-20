@@ -71,8 +71,8 @@
 
       integer idiis,jdiis,info,j,iqp
 
-      double precision,parameter :: beta = 0.2d0
-      double precision,parameter :: alpha = 0.2d0
+      double precision,parameter :: beta = 0.1d0
+      double precision,parameter :: alpha = 0.3d0
       integer,parameter :: m = 15
 
  100  continue

@@ -1,8 +1,10 @@
 #ifdef GWCMPLX
-#define GWTYP C_DOUBLE_COMPLEX
+#define ISOGW complex(kind=C_DOUBLE_COMPLEX)
+#define GWTYP double complex
 #define SOLVER cs_minres_qlp
 #else
-#define GWTYP C_DOUBLE
+#define ISOGW real(kind=C_DOUBLE)
+#define GWTYP double precision
 #ifdef GWEN
 #define SOLVER gw_en
 #else
@@ -25,7 +27,7 @@
       double precision, intent(in) :: omega
       double precision, intent(in), dimension(nmo) :: Eig
       double precision, intent(in), dimension(maxpoles,ipol) :: Eia
-      double precision, intent(out) :: R,dR
+      GWTYP, intent(out) :: R,dR
 
       character(len=12), parameter :: pname = 'gw_buildrn: '
       integer, parameter :: maxthread = 1024
@@ -37,18 +39,19 @@
       integer g_pi, g_sol, off
       integer kOV(2), ga, first, second, step
       integer spacelo, addr, gb, owner, lo, hi
-      double precision fac, arg, w, arg2, dfac, sgn, t1
+      double precision fac, arg, arg2, dfac, sgn, t1
       double precision vector(nri)
       double complex :: temp
       integer(kind=c_int)         :: stat_alloc
-      real(kind=GWTYP),allocatable,dimension(:,:) :: factor, dfactor
-      real(kind=GWTYP),dimension(nri) :: xvec
+      ISOGW,allocatable,dimension(:,:) :: factor, dfactor
+      ISOGW,dimension(nri) :: xvec
 
       logical main, ok, parallel_diag
       logical, external :: is_near
 
-      double precision, parameter :: eta = 0.001d0
-      double precision, parameter :: shift = 0.0000001d0
+      double precision, parameter :: eta = 0.0000d0
+      double precision, parameter :: shift = 0.00001d0
+      double complex :: w, R1, dR1
       double complex, parameter :: ieta = dcmplx(0d0,eta)
 
 #ifdef USE_OPENMP      
@@ -77,8 +80,8 @@
       enddo
       if (ipol.eq.1) kOV(2) = 1
 
-      R = 0d0
-      dR = 0d0
+      R1 = 0d0
+      dR1 = 0d0
 
       dfac = 4d0
       if (ipol.eq.1) dfac = 2d0*dfac
@@ -186,22 +189,29 @@
 
         if (root.ne.me) cycle
 
-        w = ddot(nri,vector,1,xvec,1) - ddot(nri,vector,1,vector,1)
-c        w = dot_product(vector,dble(xvec)) - dot_product(vector,vector)
-        R = R + fac*w
+c        w = ddot(nri,vector,1,xvec,1) - ddot(nri,vector,1,vector,1)
+        w = sum(vector(:)*xvec(:)) - dot_product(vector,vector)
 
-        if (abs(fac).lt.0.6d0) dR = dR + sign(1d0,fac)*w
+        R1 = R1 + fac*w
+        if (abs(fac).lt.0.6d0) dR1 = dR1 + sign(1d0,fac)*w
 
       enddo
 
-      call ga_dgop(mt_dbl,R,1,'+')
-      call ga_dgop(mt_dbl,dR,1,'+')
-
+      call ga_zgop(mt_dbl,R1,1,'+')
+      call ga_zgop(mt_dbl,dR1,1,'+')
 
       deallocate(factor,dfactor)
 
 #ifdef USE_OPENMP
       call util_blas_set_num_threads(1)
+#endif
+
+#ifdef GWTYP
+      R = R1
+      dR = dR1
+#else
+      R = dble(R1)
+      dR = dble(dR1)
 #endif
 
       return

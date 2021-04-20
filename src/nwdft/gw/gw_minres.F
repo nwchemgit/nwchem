@@ -5,7 +5,7 @@
 #include "global.fh"      
 #include "mafdecls.fh"
 #include "util.fh"
-      integer,parameter :: maxiter = 18
+      integer,parameter :: maxiter = 30
       integer,parameter :: maxthreads = 1024
 
       integer,intent(in) :: ipol
@@ -37,7 +37,7 @@
       logical main,converged,oactive,parallel_diag,doparallel
       integer iter, istop, i, gy, me, ld, nmax, nlocal, ithread
       integer lo, hi, jthread
-      double precision,parameter :: shift = 0.000d0, rtol=1d-5
+      double precision,parameter :: shift = 0.000d0, rtol=1d-4
 
       call ga_sync()
 
@@ -270,12 +270,16 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
         t1 = 1d0 + test1
         t2 = 1d0 + test2
 
-        if (iter  .ge. maxiter  ) istop=6
+c       MINRES did not converge or is not going to 
+c       converge in 30 or less steps
+        if (iter  .ge. maxiter  )                  istop = 101
+        if (iter  .ge. 12 .and. rnorm .ge. 0.1d0)  istop = 102
+        if (iter  .ge. 20 .and. rnorm .ge. 0.01d0) istop = 103
+
         if (Acond .ge. 0.1d0/eps) istop=5
         if (t2    .le. 1d0      ) istop=2
         if (t1    .le. 1d0      ) istop=1
         if (epsx  .ge. beta1    ) istop=3
-        if (iter.gt.2 .and. test3 .le. rtol/10d0) istop=10
         if (test2 .le. rtol     ) istop=2
         if (test1 .le. rtol     ) istop=1
         if (rnorm .le. rtol     ) istop=8
@@ -290,8 +294,17 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
  1000 continue
  2000 continue
 
+#ifdef GWDEBUG
+      if (main) then
+        if (istop.gt.100) then
+          write(*,*) ' MINRES : ',iter,rnorm
+        elseif (istop.ne.6 .and. iter.gt.20) then
+          write(*,*) ' MINRES : ',iter,rnorm
+        endif
+      end if
+#endif
 
-      if (istop.eq.6 .and. rnorm.gt.0.0005d0) then
+      if (istop.gt.100 .and. rnorm.gt.0.0001d0) then
 
 
         if (.not.ma_alloc_get(mt_dbl,n**2,'pi',l_pi,k_pi))
@@ -357,7 +370,7 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
 
       call dgemv('t',n,npoles,scal,ov,n,x,1,0d0,tmp,1)
 
-!$omp parallel do simd
+!$omp parallel do simd schedule(static)
       do i=1,npoles
         tmp(i) = tmp(i)*factor(i)
       enddo

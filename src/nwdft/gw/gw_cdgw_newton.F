@@ -29,16 +29,17 @@
 
       logical main, converged, bracket, warning, fixed(maxqp)
       integer isp, totalqp, llmo, iqp, iter, logs, dbls
-      double precision timer, timer2, rms3(3), m
+      double precision timer, timer2, rms6(6), m
       double precision Ein, Eout, SigmaOld, Sigma_X, Z
       double precision Linear
       double precision residual, residualOld, dresidual, Etmp
-      double precision dsigmacold
+      double precision dsigmacold, step
       GWTYP :: I, dI, R, dR, SigmaC, dSigmaC
 
       integer nclusters, clusters(pars%nmo),myll,myul
-      integer llqp,ulqp,icluster
+      integer llqp,ulqp,icluster,ndiis
       double precision upper,lower,resupper,reslower,const
+      double precision values(20),errors(20)
 
 
       main = pars%me .eq. 0
@@ -61,7 +62,7 @@
         fixed(:) = .false.
 
         call gw_findclusters(Eold(llmo,isp),clusters,nclusters,totalqp,
-     $                       0.01d0)
+     $                       0.05d0)
 
         ulqp = 0
         do icluster=1,nclusters
@@ -85,23 +86,24 @@
           Sigma_X  = Sigmax(llmo+iqp-1,isp)
 
           if (myul.lt.ulqp) then
-            Eout = Enew(llmo+iqp,isp) + 4d0*pars%thresh
+            Eout = Enew(llmo+iqp,isp) - 2d0*pars%thresh
           elseif (myll.gt.llqp) then
-            Eout = Enew(llmo+iqp-2,isp) - 4d0*pars%thresh
+            Eout = Enew(llmo+iqp-2,isp) + 2d0*pars%thresh
           elseif (eviter.eq.0) then
-            Eout = Eout + 0.12d0*(sigma_x - sigmaold)
+            Eout = Eout + sign(4d0*pars%thresh,Eout)
           else
-             Eout = Eout + sign(0.0070d0,Eout)
+            Eout = Eout + sign(0.0070d0,Eout)
           endif
 
           call ga_zero(pars%g_sols)
           bracket = .false.
-          rms3 = 1d100
+          rms6 = 1d100
           residualOld = 0d0
           dsigmacold = 0d0
           const = Eref(llmo+iqp-1,isp) + Sigma_X - sigmaold
           lower = 0d0
           upper = 0d0
+          ndiis = 0
 c        
           do iter=1,pars%qpiter+5
             timer2 = util_wallsec()
@@ -128,8 +130,11 @@ c
             SigmaC   = I + R
             dSigmaC  = dI + dR
 
-            residual = const + SigmaC - Ein
-            dresidual = dSigmaC - 1d0
+            residual = const + dble(SigmaC) - Ein
+            dresidual = dble(1d0/(dSigmaC - 1d0))
+
+            values(iter) = Ein
+            errors(iter) = residual
 
             ! Find out if we have bracketed the solution
             if (iter.gt.1) then
@@ -139,7 +144,7 @@ c
 
             ! Check convergence of QP equation
             converged = abs(residual).lt.pars%thresh .or. 
-     $                  sum(rms3)/3d0.lt.pars%thresh .or.
+     $                  sum(rms6)/6d0.lt.pars%thresh/10d0 .or.
      $                  (bracket .and. abs(upper-lower).lt.pars%thresh)
 
 
@@ -147,26 +152,49 @@ c
             call ga_brdcst(mt_log,converged,logs,0)
             if (converged) then
               Eout = Ein
+#ifdef GWDEBUG
+             if (main) write(luout,9901) iter,iqp,util_wallsec()-timer2,
+     $                                  Ein,Eout
+             if (main) write(luout,9902) residual,eout-ein,lower,upper
+#endif
               exit
             endif
 
-            ! Take next newton step
-            call gw_donewton(ein,eout,residual,dresidual,lower,upper,
-     $                       reslower,resupper,bracket,pars%thresh)
+            if (iter.gt.1) then
+              if (abs(errors(iter)).gt.abs(errors(iter-1))) then
+                step = values(iter) - values(iter-1)
+                eout = values(iter-1) + 0.6180d0*step
+                values(iter) = values(iter-1)
+                errors(iter) = errors(iter-1)
+              else
+               call gw_donewton(ein,eout,residual,dresidual,lower,upper,
+     $                          reslower,resupper,bracket,pars%thresh)
+              end if
+            else
+             call gw_donewton(ein,eout,residual,dresidual,lower,upper,
+     $                        reslower,resupper,bracket,pars%thresh)
+            endif
+
+
 #ifdef GWDEBUG
             if (main) write(luout,9901) iter,iqp,util_wallsec()-timer2,
      $                                  Ein,Eout
  9901       format('  ## Finished iter',I3,' of qp ',I3,' in ',F12.2,'s'
      $             ,/,'     Ein: ',F12.6,' Eout: ',F12.6)
+            if (main) write(luout,9902) residual,eout-ein,lower,upper
+ 9902       format('    res ',F12.6,' step ',F12.6,' lower ',F12.6,
+     $             ' upper ', F12.6)
 #endif
 
 
             ! Save information
             etmp = ein
             residualold = residual
-            rms3(1) = rms3(2)
-            rms3(2) = rms3(3)
-            rms3(3) = abs(eout-ein)
+
+            do i=6,2,-1
+              rms6(i) = rms6(i-1)
+            enddo
+            rms6(1) = abs(eout-ein)
 
           enddo
 
