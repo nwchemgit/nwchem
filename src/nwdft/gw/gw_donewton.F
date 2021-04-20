@@ -1,6 +1,7 @@
       subroutine  gw_donewton(xin,xout,fx,idfx,xlow,xupp,fxlow,fxupp,
-     $                        bracket,thresh,radius)
+     $                        bracket,thresh,radius,iter)
       implicit none
+      integer          :: iter
       logical          :: bracket
       double precision :: xin, xout, xlow, xupp
       double precision :: fx, idfx, fxlow, fxupp
@@ -19,20 +20,23 @@
       endif  
 
       !take full newton step for large enough z
-      if (z.gt.0.5d0 .and. z.le.1d0 ) then 
+      if (z.gt.0.4d0 .and. z.le.1d0 ) then 
         xout = xin - fx*idfx
 
       ! when we have bracketed the solution, the
       ! golden section or regula falsi method might work best
       elseif (bracket) then
 
-        xout = (xlow*fxupp - xupp*fxlow)/(fxupp-fxlow)
-
-      else if (z.gt.0.1d0) then
-        xout = xin - fx*idfx
+        if (mod(iter,2).eq.0) then
+          xout = (xlow*fxupp - xupp*fxlow)/(fxupp-fxlow)
+        elseif (abs(fxupp).lt.abs(fxlow)) then
+          xout = xlow + 0.6180d0*(xupp-xlow)
+        else
+          xout = xupp - 0.6180d0*(xupp-xlow)
+        endif
 
       else
-        xout = xin + radius*fx
+        xout = xin + radius*sign(min(abs(fx),0.4d0),fx)
 
       endif
 
@@ -40,7 +44,11 @@
       !check that energy is inside bracket
       if (bracket) then
         if ( xout.gt.xupp .or. xout.lt.xlow ) then
-          xout = (xlow*fxupp - xupp*fxlow)/(fxupp-fxlow)
+          if (fxupp*fxlow.lt.0d0) then
+            xout = (xlow*fxupp - xupp*fxlow)/(fxupp-fxlow)
+          else
+            xout = xlow + 0.6180d0*(xupp-xlow)
+          endif
         endif
       endif
 

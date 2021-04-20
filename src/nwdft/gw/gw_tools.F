@@ -135,7 +135,9 @@
 
       if (.not.found) then
         
-        if (resnew*resold.lt.0d0) then
+        if ( (resnew*resold.lt.0d0) .or. 
+     $       (resold.lt.0d0 .and. resnew.lt.resold) .or.
+     $       (resold.gt.0d0 .and. resnew.gt.resold) ) then
           found = .true.
           xlower = min(enew,eold)
           xupper = max(enew,eold)          
@@ -150,13 +152,32 @@
 
       else
 
-        !update intervals
-        if (resnew*fupper.lt.0d0) then
-          xlower = enew
-          flower = resnew
-        elseif (resnew*flower.lt.0d0) then
-          xupper = enew
-          fupper = resnew
+        if (abs(fupper).lt.abs(flower)) then
+          if (resnew*fupper.lt.0d0) then
+            xlower = enew
+            flower = resnew
+          elseif (resnew*flower.lt.0d0) then
+            xupper = enew
+            fupper = resnew
+          elseif (abs(fupper).lt.abs(resnew)) then
+            xlower = enew
+            flower = resnew
+          else
+            found = .false.
+          endif
+        else
+          if (resnew*flower.lt.0d0) then
+            xupper = enew
+            fupper = resnew
+          elseif (resnew*flower.lt.0d0) then
+            xlower = enew
+            flower = resnew
+          elseif (abs(flower).lt.abs(resnew)) then
+            xupper = enew
+            fupper = resnew
+          else
+            found = .false.
+          endif
         endif
 
       endif

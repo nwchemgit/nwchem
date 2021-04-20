@@ -55,7 +55,7 @@
 #ifdef GWCMPLX
       double precision, parameter :: eta = 0.001d0
 #else
-      double precision, parameter :: eta = 0.00001d0
+      double precision, parameter :: eta = 0.000001d0
 #endif
 
       double precision, parameter :: shift = 0.00001d0

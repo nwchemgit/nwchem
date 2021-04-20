@@ -73,9 +73,10 @@
           myul = ulqp
           myll = llqp
 
+
  100      continue
 
-          radius = 0.3d0
+          radius = 0.1d0
 
           if (llmo+llqp-1.le.pars%nocc(isp)) then
             iqp  = myul
@@ -88,13 +89,13 @@
           Sigma_X  = Sigmax(llmo+iqp-1,isp)
 
           if (myul.lt.ulqp) then
-            Eout = Enew(llmo+iqp,isp) - 2d0*pars%thresh
+            Eout = Enew(llmo+iqp,isp)
           elseif (myll.gt.llqp) then
-            Eout = Enew(llmo+iqp-2,isp) + 2d0*pars%thresh
-          elseif (eviter.eq.0) then
-            Eout = Eout + sign(1d0*pars%thresh,Eout)
-          else
-            Eout = Eout + sign(0.0070d0,Eout)
+            Eout = Enew(llmo+iqp-2,isp)
+c          elseif (eviter.eq.0) then
+c            Eout = Eout + sign(1d0*pars%thresh,Eout)
+c          else
+c            Eout = Eout + sign(0.0070d0,Eout)
           endif
 
           call ga_zero(pars%g_sols)
@@ -140,7 +141,8 @@ c
 
             ! Find out if we have bracketed the solution
             if (iter.gt.1) then
-              call gw_findbracket(bracket,ein,residual,etmp,residualold,
+              call gw_findbracket(bracket,values(iter),errors(iter),
+     $                            values(iter-1),errors(iter-1),
      $                            lower,upper,reslower,resupper)
             endif
 
@@ -162,18 +164,9 @@ c
               exit
             endif
 
-            if (iter.eq.1) then
-              eout = ein + radius*residual
-            else
-              if (abs(errors(iter)).gt.abs(errors(iter-1))) then
-                 radius = max(0.1d0,radius/1.5d0)
-              else
-                 radius = min(0.3d0,radius*1.5d0)
-              endif
-              call gw_donewton(ein,eout,residual,dresidual,lower,upper,
-     $                         reslower,resupper,bracket,pars%thresh,
-     $                         radius)
-            endif
+            call gw_donewton(ein,eout,residual,dresidual,lower,upper,
+     $                       reslower,resupper,bracket,pars%thresh,
+     $                       radius,iter)
 
 
 #ifdef GWDEBUG

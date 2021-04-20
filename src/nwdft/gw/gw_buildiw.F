@@ -48,7 +48,7 @@
 #ifdef GWCMPLX
       double precision,parameter :: eta = 0.001d0
 #else
-      double precision,parameter :: eta = 0.00001d0
+      double precision,parameter :: eta = 0.000001d0
 #endif
       double complex,parameter :: ieta = dcmplx(0d0,eta)
       double precision t0, t1
