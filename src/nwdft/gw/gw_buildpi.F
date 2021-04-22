@@ -125,9 +125,6 @@
      $                 dbl_mb(k_scr+nri/2+1),nri,0d0,pi(1,2),nri)
         endif
 
-c        call dgemm('n','t',nri,nri,mymax,2d0*scal,dbl_mb(k_scr),nri,
-c     $              ovup,nri,0d0,pi,nri)
-
 
         do ibatch=2,nbatch
           llpole = (ibatch-1)*mymax + 1
@@ -142,8 +139,24 @@ c     $              ovup,nri,0d0,pi,nri)
             call daxpy(nri,factor(idy,1),ovup(1,idy),1,dbl_mb(idx),1)
           enddo
 !$omp     end parallel do
-          call dgemm('n','t',nri,nri,mynpoles,2d0*scal,dbl_mb(k_scr),
-     $                nri,ovup(1,llpole),nri,1d0,pi,nri)
+          if (mod(nri,2).eq.0) then
+            call dgemm('n','t',nri/2,nri/2,mynpoles,2d0*scal,
+     $                  ovup(nri/2+1,llpole),nri,dbl_mb(k_scr),nri,1d0,
+     $                  pi(nri/2+1,1),nri)
+            call dsyr2k('l','n',nri/2,mynpoles,scal,ovup(1,llpole),nri,
+     $                   dbl_mb(k_scr),nri,1d0,pi,nri)
+            call dsyr2k('u','n',nri/2,mynpoles,scal,
+     $                   ovup(nri/2+1,llpole),nri,dbl_mb(k_scr+nri/2),
+     $                   nri,1d0,pi(1,2),nri)
+          else
+            call dgemm('n','t',nri/2,nri/2+1,mynpoles,2d0*scal,
+     $                  ovup(nri/2+2,llpole),nri,dbl_mb(k_scr),nri,1d0,
+     $                  pi(nri/2+2,1),nri)
+            call dsyr2k('l','n',nri/2+1,mynpoles,scal,ovup(1,llpole),
+     $                   nri,dbl_mb(k_scr),nri,1d0,pi,nri)
+            call dsyr2k('u','n',nri/2,mymax,scal,ovup(nri/2+2,llpole),
+     $                   nri,dbl_mb(k_scr+nri/2+1),nri,1d0,pi(1,2),nri)
+          endif
           
         enddo
 
@@ -163,8 +176,23 @@ c     $              ovup,nri,0d0,pi,nri)
      $                 dbl_mb(k_scr+(ipole-1)*nri),1)
           enddo
 !$omp     end parallel do
-          call dsyr2k('l','n',nri,mymax,scal,ovdw,nri,dbl_mb(k_scr),nri,
-     $                 1d0,pi,nri)
+          if (mod(nri,2).eq.0) then
+            call dgemm('n','t',nri/2,nri/2,mymax,2d0*scal,
+     $                  ovdw(nri/2+1,1),nri,dbl_mb(k_scr),nri,1d0,
+     $                  pi(nri/2+1,1),nri)
+            call dsyr2k('l','n',nri/2,mymax,scal,ovdw,nri,dbl_mb(k_scr),
+     $                   nri,1d0,pi,nri)
+            call dsyr2k('u','n',nri/2,mymax,scal,ovdw(nri/2+1,1),nri,
+     $                   dbl_mb(k_scr+nri/2),nri,1d0,pi(1,2),nri)
+          else
+            call dgemm('n','t',nri/2,nri/2+1,mymax,2d0*scal,
+     $                  ovdw(nri/2+2,1),nri,dbl_mb(k_scr),nri,1d0,
+     $                  pi(nri/2+2,1),nri)
+            call dsyr2k('l','n',nri/2+1,mymax,scal,ovdw,nri,
+     $                   dbl_mb(k_scr),nri,1d0,pi,nri)
+            call dsyr2k('u','n',nri/2,mymax,scal,ovdw(nri/2+2,1),nri,
+     $                   dbl_mb(k_scr+nri/2+1),nri,1d0,pi(1,2),nri)
+          endif
 
           do ibatch=2,nbatch
             llpole = (ibatch-1)*mymax + 1
@@ -179,8 +207,24 @@ c     $              ovup,nri,0d0,pi,nri)
      $                   dbl_mb(k_scr+(ipole-1)*nri),1)
             enddo
 !$omp       end parallel do
-            call dsyr2k('l','n',nri,mynpoles,scal,ovdw(1,llpole),nri,
-     $                   dbl_mb(k_scr),nri,1d0,pi,nri)     
+            if (mod(nri,2).eq.0) then
+              call dgemm('n','t',nri/2,nri/2,mynpoles,2d0*scal,
+     $                    ovdw(nri/2+1,llpole),nri,dbl_mb(k_scr),nri,
+     $                    1d0,pi(nri/2+1,1),nri)
+              call dsyr2k('l','n',nri/2,mynpoles,scal,ovdw(1,llpole),
+     $                     nri,dbl_mb(k_scr),nri,1d0,pi,nri)
+              call dsyr2k('u','n',nri/2,mynpoles,scal,
+     $                     ovdw(nri/2+1,llpole),nri,dbl_mb(k_scr+nri/2),
+     $                     nri,1d0,pi(1,2),nri)
+            else
+              call dgemm('n','t',nri/2,nri/2+1,mynpoles,2d0*scal,
+     $                  ovdw(nri/2+2,llpole),nri,dbl_mb(k_scr),nri,1d0,
+     $                  pi(nri/2+2,1),nri)
+              call dsyr2k('l','n',nri/2+1,mynpoles,scal,ovdw(1,llpole),
+     $                     nri,dbl_mb(k_scr),nri,1d0,pi,nri)
+              call dsyr2k('u','n',nri/2,mymax,scal,ovdw(nri/2+2,llpole),
+     $                   nri,dbl_mb(k_scr+nri/2+1),nri,1d0,pi(1,2),nri)
+            endif
           enddo
 
           ok = ma_chop_stack(l_scr)
