@@ -133,15 +133,15 @@
          if (control_fractional()) then
             Enew  = cpsi_1energy()
             call cpsi_1gen_hml()
-            write(*,*) "Start ENEW = ",enew + ewald_e()
-            if (minimizer.ne.4) then
+            !write(*,*) "Start ENEW = ",enew + ewald_e()
+            !if (minimizer.ne.4) then
                call cpsi_diagonalize_hml()
                call cpsi_1rotate2()
                call cpsi_2to1()
                call cpsi_1define_occupation(-1.0d0,.false.)
-            else
-               call cpsi_1define_occupation(-1.0d0,.true.)
-            end if
+            !else
+            !   call cpsi_1define_occupation(-1.0d0,.true.)
+            !end if
          end if
       end if
 
@@ -170,12 +170,15 @@
            bfgscount = bfgscount + 1
            call c_cgminimize2(E,deltae,deltac,bfgscount,it_in)
 
-           if (control_fractional().and.
-     >        (icount.lt.it_out)   .and.
-     >        (deltae.le.0.0d0)    .and.
-     >        ((dabs(deltae).ge.tole).or.(deltac.ge.tolc))) then
-              call cpsi_1define_occupation(-1.0d0,.true.)
-           end if
+c           if (control_fractional().and.
+c     >        (icount.lt.it_out)   .and.
+c     >        (deltae.le.0.0d0)    .and.
+c     >        ((dabs(deltae).ge.tole).or.(deltac.ge.tolc))) then
+c              call cpsi_diagonalize_hml()
+c              call cpsi_1rotate2()
+c              call cpsi_2to1()
+c              call cpsi_1define_occupation(-1.0d0,.false.)
+c           end if
 
          else if (minimizer.eq.5) then
            bfgscount = bfgscount + 1

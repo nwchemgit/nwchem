@@ -1149,13 +1149,13 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       n2 = int_mb(i2_start(1,nbb)+np) - 1
 
 *     **** pack A(i) array ****
-       call C3dB_pfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
+      call C3dB_pfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(i2_start(1,nbb)+2-1) - int_mb(i2_start(1,nbb)+1-1)
       call Parallel_shared_vector_copy(.true.,2*msglen,
-     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),1,
-     >           tmp2(int_mb(i2_start(1,nbb)+1-1)),1)
+     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),
+     >           tmp2(int_mb(i2_start(1,nbb)+1-1)))
          
 
 *     **** receive packed array data ****

@@ -381,9 +381,6 @@ c      common / c_cgsd_block / Enew,Eold,Estart
       logical value
 
       dt = control_time_step()
-c     dte = dt/dsqrt(control_fake_mass())
-c     dte = dsqrt(control_fake_mass())/dt
-c     dte = 1.0d0
 
       call Cram_max_npack(npack1)
       ispin = cpsi_ispin()
@@ -394,13 +391,9 @@ c     dte = 1.0d0
 
 
 *     **** allocate G0, S0 ****
-c      E0_tag  = cpsi_data_push_stack(nbrillq,1,1)
-c      dE0_tag = cpsi_data_push_stack(nbrillq,1,1)
       S0_tag  = cpsi_data_push_stack(nbrillq,neall,2*npack1)
       G0_tag  = cpsi_data_push_stack(nbrillq,neall,2*npack1)
 
-c      E0_shift  = cpsi_data_get_allptr(E0_tag)
-c      dE0_shift = cpsi_data_get_allptr(dE0_tag)
       S0_shift  = cpsi_data_get_allptr(S0_tag)
       G0_shift  = cpsi_data_get_allptr(G0_tag)
 
@@ -409,10 +402,8 @@ c      dE0_shift = cpsi_data_get_allptr(dE0_tag)
       if (precondition) then
          call cpsi_1get_TMgradient00(G0_tag,E0)
       else
-         !call cpsi_1get_Tgradient(G0_tag,E0)
          call cpsi_1get_Tgradient00(G0_tag,E0)
       end if
-      !write(*,*) "1 gradient E0=",E0
 
 
       if (current_iteration.eq.1) then
@@ -421,12 +412,8 @@ c      dE0_shift = cpsi_data_get_allptr(dE0_tag)
          call band_lmbfgs_init(control_lmbfgs_size(),dbl_mb(G0_shift))
          call BGrsm_ff_Copy_tag(G0_tag,S0_tag)
 
-         !do nb=1,nbrillq
-         !   tmin(nb)  = 10*deltat_min
-         !end do
          tmin  = 10*deltat_min
       else
-         !call band_lmbfgs0(tmin,dbl_mb(G0_shift),dbl_mb(S0_shift))
          call band_lmbfgs(tmin,dbl_mb(G0_shift),dbl_mb(S0_shift))
          call Pneb_ff_traceall_tag(0,0,G0_tag,S0_tag,sum1)
          if (dabs(sum1).gt.1.0d3) call BGrsm_ff_Copy_tag(G0_tag,S0_tag)
@@ -440,37 +427,6 @@ c      dE0_shift = cpsi_data_get_allptr(dE0_tag)
 *     ******************************************
       do it=2,maxit_orbs
 
-
-c*        **** initialize the geoedesic line data structure ****
-c         call c_geodesic_start0(S0_tag,max_sigma,dE0_tag)
-c
-c*        ******* line search *********
-c         do nb=1,nbrillq
-c            E0_shift  = cpsi_data_get_chnk(E0_tag,nb)
-c            dE0_shift = cpsi_data_get_chnk(dE0_tag,nb)
-c
-c            if ((tmin(nb).gt.deltat_min).and.(tmin(nb).lt.1.0d4)) then
-c               deltat = tmin(nb)
-c            else
-c               deltat = deltat_min
-c            end if
-c            if ((tmin(nb).gt.deltat_min).and.(tmin(nb).lt.1.0d4)) then
-c               deltat = tmin(nb)
-c            else
-c               deltat = deltat_min
-c            end if
-cc            deltat = 1.0d0  !** debug **
-c            call cpsi_geodesic0_setnb(nb)
-c            Enew(nb) = linesearch(0.0d0,
-c     >                            dbl_mb(E0_shift),dbl_mb(dE0_shift),
-c     >                            deltat,
-c     >                            cpsi_geodesic_energy0,
-c     >                            cpsi_geodesic_denergy0,
-c     >                            0.50d0,tmin(nb),deltae,2)
-c            call cpsi_geodesic_final0(nb,tmin(nb))
-c         end do
-c         !deltac = c_rho_error()
-
 *        **** initialize the geoedesic line data structure ****
          call c_geodesic_start00(S0_tag,max_sigma,dE0)
 
@@ -480,7 +436,6 @@ c         !deltac = c_rho_error()
          else
             deltat = deltat_min
          end if
-c         deltat = 1.0d0  !** debug **
          Enew = linesearch(0.0d0,E0,dE0,deltat,
      >                        cpsi_geodesic_energy00,
      >                        cpsi_geodesic_denergy00,
@@ -509,39 +464,9 @@ c         deltat = 1.0d0  !** debug **
        
 *        **** make psi1 <--- psi2(tmin) ****
          call cpsi_2to1()
-c        call c_rho_2to1()
-c        call c_dng_2to1()
 
       end do
 
-c*     **** initialize the geoedesic line data structure ****
-c      call c_geodesic_start0(S0_tag,max_sigma,dE0_tag)
-c
-c*     ******* line search *********
-c      call Parallel_taskid(taskid)
-c      do nb=1,nbrillq
-c         E0_shift  = cpsi_data_get_chnk(E0_tag,nb)
-c         dE0_shift = cpsi_data_get_chnk(dE0_tag,nb)
-c
-c         if ((tmin(nb).gt.deltat_min).and.(tmin(nb).lt.1.0d4)) then
-c            deltat = tmin(nb)
-c         else
-c            deltat = deltat_min
-c         end if
-c         call cpsi_geodesic0_setnb(nb)
-c         write(*,*) "nb,deltat=",nb,deltat
-c         Enew(nb) = linesearch(0.0d0,
-c     >                            dbl_mb(E0_shift),dbl_mb(dE0_shift),
-c     >                            deltat,
-c     >                            cpsi_geodesic_energy0,
-c     >                            cpsi_geodesic_denergy0,
-c     >                            0.50d0,tmin(nb),deltae,2)
-c         call cpsi_geodesic_final0(nb,tmin(nb))
-c         if (taskid.eq.0) then
-c            write(*,*) "nb,E0,Enew,tmin=",nb,dbl_mb(E0_shift),Enew(nb),
-c     >         tmin(nb)
-c         end if
-c      end do
 
 *     **** initialize the geoedesic line data structure ****
       call c_geodesic_start00(S0_tag,max_sigma,dE0)
@@ -557,22 +482,14 @@ c      end do
      >                        cpsi_geodesic_denergy00,
      >                        0.50d0,tmin,deltae,2)
       call cpsi_geodesic_final(tmin)
-c      deltac = c_rho_error()
-
 
 
 *     **** free memory ****
  30   call cpsi_data_pop_stack(G0_tag)
       call cpsi_data_pop_stack(S0_tag)
-      !call cpsi_data_pop_stack(dE0_tag)
-      !call cpsi_data_pop_stack(E0_tag)
 
       call cpsi_2to1()
       call cpsi_1toelectron00()
-
-      !sum1 = cpsi_1energy()
-      !write(*,*) "block final Energy=",sum1
-c     call c_rho_2to1()
 
       return
       end
@@ -712,7 +629,7 @@ c     >                      dbl_mb(psi1_shift))
            call Cram_c_SMul1(nb,sum,dbl_mb(psi1_shift))
 
 
-            call cpsi_KS_update_orb(psi_number,precondition,maxit_orb,
+           call cpsi_KS_update_orb(psi_number,precondition,maxit_orb,
      >                           maxerror,
      >                           0.1d0,nb,i,error_out)
 

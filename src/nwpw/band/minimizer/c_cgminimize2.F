@@ -249,7 +249,11 @@ c      call cpsi_data_pop_stack(G0_tag)
 
       if (control_fractional()) then
         call cpsi_1gen_hml()
-        call cpsi_1define_occupation(0.0d0,.true.)
+        call cpsi_diagonalize_hml()
+        call cpsi_1rotate2()
+        call cpsi_2to1()
+        call cpsi_1define_occupation(-1.0d0,.false.)
+        !call cpsi_1define_occupation(0.0d0,.true.)
         E(12) = cpsi_smearcorrection()
         E(1)  = E(1) + E(12)
       end if
