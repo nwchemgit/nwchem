@@ -97,7 +97,7 @@
         if (mod(npoles(1),nbatch).ne.0) mymax = mymax + 1
 
         mymax = min(npoles(1),mymax)
-        ok = ma_alloc_get(mt_dbl,nri*mymax,'scratch',l_scr,k_scr)
+        ok = ma_push_get(mt_dbl,nri*mymax,'scratch',l_scr,k_scr)
 
 !$omp   parallel do schedule(static) private(idx)
         do ipole=1,mymax
@@ -106,8 +106,27 @@
           call daxpy(nri,factor(ipole,1),ovup(1,ipole),1,dbl_mb(idx),1)
         enddo
 !$omp   end parallel do
-        call dgemm('n','t',nri,nri,mymax,2d0*scal,dbl_mb(k_scr),nri,
-     $              ovup,nri,0d0,pi,nri)
+
+        if (mod(nri,2).eq.0) then
+          call dgemm('n','t',nri/2,nri/2,mymax,2d0*scal,
+     $                ovup(nri/2+1,1),nri,dbl_mb(k_scr),nri,0d0,
+     $                pi(nri/2+1,1),nri)
+          call dsyr2k('l','n',nri/2,mymax,scal,ovup,nri,dbl_mb(k_scr),
+     $                 nri,0d0,pi,nri)
+          call dsyr2k('u','n',nri/2,mymax,scal,ovup(nri/2+1,1),nri,
+     $                 dbl_mb(k_scr+nri/2),nri,0d0,pi(1,2),nri)
+        else
+          call dgemm('n','t',nri/2,nri/2+1,mymax,2d0*scal,
+     $                ovup(nri/2+2,1),nri,dbl_mb(k_scr),nri,0d0,
+     $                pi(nri/2+2,1),nri)
+          call dsyr2k('l','n',nri/2+1,mymax,scal,ovup,nri,dbl_mb(k_scr),
+     $                 nri,0d0,pi,nri)
+          call dsyr2k('u','n',nri/2,mymax,scal,ovup(nri/2+2,1),nri,
+     $                 dbl_mb(k_scr+nri/2+1),nri,0d0,pi(1,2),nri)
+        endif
+
+c        call dgemm('n','t',nri,nri,mymax,2d0*scal,dbl_mb(k_scr),nri,
+c     $              ovup,nri,0d0,pi,nri)
 
 
         do ibatch=2,nbatch
@@ -128,13 +147,13 @@
           
         enddo
 
-        ok = ma_free_heap(l_scr)
+        ok = ma_chop_stack(l_scr)
 
   200   if (ipol.gt.1 .and. npoles(2).gt.0) then
 
           nbatch = npoles(2)/ma_dbl + 1
           mymax = min(npoles(2)/nbatch + 1,npoles(2))
-          ok = ma_alloc_get(mt_dbl,nri*mymax,'scratch',l_scr,k_scr)
+          ok = ma_push_get(mt_dbl,nri*mymax,'scratch',l_scr,k_scr)
 
 !$omp     parallel do schedule(static)
           do ipole=1,mymax
@@ -164,7 +183,7 @@
      $                   dbl_mb(k_scr),nri,1d0,pi,nri)     
           enddo
 
-          ok = ma_free_heap(l_scr)
+          ok = ma_chop_stack(l_scr)
 
         endif
 

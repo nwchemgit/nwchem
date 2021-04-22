@@ -15,11 +15,16 @@
       logical :: converged, main
       double precision,dimension(n) :: ahr,hr,r,w,eta,xi,precon
       double precision :: u(n,maxres),c(n,maxres),beta
-      double precision :: alpha
+      double precision :: alpha,dummy
       double precision norm, rnorm, xnorm
 
       integer iter, totiter, jiter, ga, gb
       integer l_pi, k_pi, l_ipiv, k_ipiv, l_scr, k_scr, lscr, info
+      integer me,nprocs,mynri,llpi,pilo
+      logical parallel_diag
+
+      parallel_diag = .false.
+      me = ga_nodeid()
 
       iter = 0
       totiter = 0
@@ -43,39 +48,6 @@
       endif
 
       rnorm = dsqrt(dot_product(r,r))
-
-      if (rnorm.lt.rtol) goto 200
-
-      if ((rnorm.gt.0.01d0)) then
-        if (.not.ma_alloc_get(mt_dbl,n**2,'pi',l_pi,k_pi))
-     $    call errquit('gw_en: can''t allocate pi matrix',0,MA_ERR) 
-        if (.not.ma_push_get(mt_int,n,'ipiv',l_ipiv,k_ipiv))
-     $    call errquit('gw_en: can''t allocate ipiv',0,MA_ERR) 
-        call dsytrf('l',n,dbl_mb(k_pi),n,int_mb(k_ipiv),
-     $              x,-1,info)
-        lscr = max(n,int(x(1)))
-        x(:) = b(:)
-        if (.not.ma_push_get(mt_dbl,lscr,'scr',l_scr,k_scr))
-     $    call errquit('gw_en: can''t allocate scratch',0,MA_ERR) 
-
-        call gw_buildpi('r',ov1,ov2,dbl_mb(k_pi),factor,n,n,npoles,
-     $                   main,ipol,maxpoles)
-        call ga_dgop(mt_dbl,dbl_mb(k_pi),n**2,'+')
-        call dsysv('l',n,1,dbl_mb(k_pi),n,int_mb(k_ipiv),x,n,
-     $              dbl_mb(k_scr),lscr,info)
-#ifdef SCALAPACK
-c        call gw_symmat(dbl_mb(k_pi),n,1,n)
-c        call gw_lu_solve(dbl_mb(k_pi),x,n)
-#endif
-        if (.not.ma_chop_stack(l_ipiv))
-     $    call errquit('gw_en: can''t chop stack',0,MA_ERR)
-        if (.not.ma_free_heap(l_pi))
-     $    call errquit('gw_en: can''t deallocate pi matrix',0,MA_ERR)   
-
-        goto 200
-      endif
-
-      hr = 0d0
 
   100 continue
 
@@ -106,8 +78,6 @@ c        call gw_lu_solve(dbl_mb(k_pi),x,n)
       enddo
 
       u(:,iter) = xi(:)
-
-
       if (ipol.eq.1) then
         call gw_aprod(OV1,factor,u(1,iter),c(1,iter),4d0,0d0,npoles,n)
       else
@@ -144,7 +114,47 @@ c        call gw_lu_solve(dbl_mb(k_pi),x,n)
 
       goto 100
 
-  200 continue    
+  200 if (totiter.ge.maxiter .and. rnorm.gt.0.001d0) then
 
+        if (.not.ma_alloc_get(mt_dbl,n**2,'pi',l_pi,k_pi))
+     $    call errquit('gw_en: can''t allocate pi matrix',0,MA_ERR) 
+
+        call gw_buildpi('r',ov1,ov2,dbl_mb(k_pi),factor,n,n,npoles,
+     $                   main,ipol,maxpoles)
+        call ga_dgop(mt_dbl,dbl_mb(k_pi),n**2,'+')
+
+        if (parallel_diag) then
+          nprocs = ga_nnodes()
+          mynri = n/nprocs
+          pilo = me*mynri + min(me,mod(n,nprocs)) + 1
+          llpi = k_pi + (pilo-1)*n
+          if (me.lt.mod(n,nprocs)) mynri = mynri + 1
+          x(:) = 0d0
+          call gw_invdiag(dbl_mb(k_pi),n,n,dummy,.false.)
+          call dgemv('t',n,mynri,1d0,dbl_mb(llpi),n,b,1,0d0,x(pilo),1)
+          call ga_dgop(mt_dbl,x,n,'+')
+        else
+          if (.not.ma_push_get(mt_int,n,'ipiv',l_ipiv,k_ipiv))
+     $      call errquit('gw_en: can''t allocate ipiv',0,MA_ERR) 
+          call dsytrf('l',n,dbl_mb(k_pi),n,int_mb(k_ipiv),
+     $                x,-1,info)
+          lscr = max(n,int(x(1)))
+          x(:) = b(:)
+          if (.not.ma_push_get(mt_dbl,lscr,'scr',l_scr,k_scr))
+     $      call errquit('gw_en: can''t allocate scratch',0,MA_ERR) 
+
+          call dsysv('l',n,1,dbl_mb(k_pi),n,int_mb(k_ipiv),x,n,
+     $                dbl_mb(k_scr),lscr,info)
+
+          if (.not.ma_chop_stack(l_ipiv))
+     $      call errquit('gw_en: can''t chop stack',0,MA_ERR)
+        endif
+
+        if (.not.ma_free_heap(l_pi))
+     $    call errquit('gw_en: can''t deallocate pi matrix',0,MA_ERR)   
+        rnorm = 0d0
+      else
+        call ga_brdcst(mt_dbl,x,ma_sizeof(mt_dbl,n,mt_byte),0)
+      endif
 
       end subroutine

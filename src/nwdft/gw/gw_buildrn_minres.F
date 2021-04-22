@@ -164,9 +164,11 @@
 
         if (.not.ga_locate(gb,1,jmo,owner))
      $   call errquit('gw_buildrn_minres: cannot locate owner',0,GA_ERR)
-        call ga_get(gb,1,nri,jmo,jmo,xvec,nri)
+
+        if (me.eq.owner) call ga_get(gb,1,nri,jmo,jmo,xvec,nri)
         if (me.eq.root) call ga_get(ga,1,nri,idx,idx,vector,nri)
         call ga_brdcst(mt_dbl,vector,ma_sizeof(mt_dbl,nri,mt_byte),root)
+        call ga_brdcst(mt_dbl,xvec,ma_sizeof(mt_dbl,nri,mt_byte),owner)
 
 
         call SOLVER(dbl_mb(kOV(1)),dbl_mb(kOV(2)),factor,xvec,

@@ -107,38 +107,12 @@
       sn = 0d0
       gmax = 0d0
 
-!$omp parallel if (doparallel)
-!$omp do simd schedule(static)
-      do i=1,n
-        r1(i) = y(i)
-      enddo
-!$omp end do simd nowait
-!$omp do simd schedule(static)
-      do i=1,n
-        r2(i) = y(i)
-      enddo
-!$omp end do simd nowait
-!$omp do simd schedule(static)
-      do i=1,n
-        w(i) = 0d0
-      enddo
-!$omp end do simd nowait
-!$omp do simd schedule(static)
-      do i=1,n
-        w1(i) = 0d0
-      enddo
-!$omp end do simd nowait
-!$omp do simd schedule(static)
-      do i=1,n
-        w2(i) = 0d0
-      enddo
-!$omp end do simd nowait
-!$omp do simd schedule(static)
-      do i=1,n
-        sol(i) = 0d0
-      enddo
-!$omp end do simd nowait
-!$omp end parallel
+      r1(:)  = y(:)
+      r2(:)  = y(:)
+      w(:)   = 0d0
+      w1(:)  = 0d0
+      w2(:)  = 0d0
+      sol(:) = 0d0
 
       bnorm = dsqrt(dot_product(b,b))
 
@@ -164,18 +138,8 @@
 
         call daxpy(n,-alpha/beta,r2,1,y,1)
 
-!$omp   parallel if (doparallel)
-!$omp   do simd schedule(static)
-        do i=1,n
-          r1(i) = r2(i)
-        enddo
-!$omp   end do simd nowait
-!$omp   do simd schedule(static)
-        do i=1,n
-          r2(i) = y(i)
-        enddo
-!$omp   end do simd
-!$omp   end parallel
+        r1(:) = r2(:)
+        r2(:) = y(:)
 
         beta = dsqrt(dot_product(r2,r2))
 
@@ -219,23 +183,9 @@
         phi    = cs*phibar
         phibar = sn*phibar
 
-!$omp parallel if (doparallel)
-!$omp   do simd schedule(static)
-        do i=1,n
-          w1(i) = w2(i)
-        enddo
-!$omp   end do simd nowait
-!$omp   do simd schedule(static)
-        do i=1,n
-          w2(i) = w(i)
-        enddo
-!$omp   end do simd nowait
-!$omp   do simd schedule(static)
-        do i=1,n
-          w(i) = (v(i) - oldeps*w1(i) -delta*w(i))/gam
-        enddo
-!$omp   end do simd nowait
-!$omp end parallel
+        w1(:) = w2(:)
+        w2(:) = w(:)
+        w(:) = (v(:) - oldeps*w1(:) - delta*w(:))/gam
 
         call daxpy(n,phi,w,1,sol,1)
 
@@ -264,11 +214,11 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
         t2 = 1d0 + test2
 
 c       MINRES did not converge or is not going to 
-c       converge in 30 or less steps
+c       converge in 20 or less steps
         if (iter  .ge. maxiter  )                   istop = 101
         if (iter  .ge.  5 .and. rnorm .ge. 5.0d0)   istop = 102
         if (iter  .ge. 10 .and. rnorm .ge. 0.5d0)   istop = 103
-        if (iter  .ge. 15 .and. rnorm .ge. 0.05d0)  istop = 104
+        if (iter  .ge. 15 .and. rnorm .ge. 0.1d0)  istop = 104
 
         if (Acond .ge. 0.1d0/eps) istop=5
         if (t2    .le. 1d0      ) istop=2
@@ -298,14 +248,23 @@ c      end if
       if (istop.gt.100 .and. rnorm.gt.0.001d0) then
 
 
-        if (.not.ma_alloc_get(mt_dbl,n**2,'pi',l_pi,k_pi))
+        if (.not.ma_push_get(mt_dbl,n**2,'pi',l_pi,k_pi))
      $    call errquit('gw_en: can''t allocate pi matrix',0,MA_ERR) 
-
+        t0 = util_wallsec()
         call gw_buildpi('r',ov1,ov2,dbl_mb(k_pi),factor,n,n,npoles,
      $                   main,ipol,maxpoles)
-        call ga_dgop(mt_dbl,dbl_mb(k_pi),n**2,'+')
+#ifdef GWDEBUG
+        if (main) write(*,'(A,F8.3)') 'BUILDPI: ',util_wallsec()-t0
+#endif
+        t0 = util_wallsec()
+        call ga_dgop(mt_dbl,dbl_mb(k_pi),(n*(n+1))/2+n,'+')
+#ifdef GWDEBUG
+        if (main) write(*,'(A,F8.3)') 'GOP: ',util_wallsec()-t0
+#endif
+        call rfp2std(dbl_mb(k_pi),n)
 
-        if (parallel_diag) then
+c        if (parallel_diag) then
+        if (.false.) then
           nprocs = ga_nnodes()
           mynri = n/nprocs
           pilo = me*mynri + min(me,mod(n,nprocs)) + 1
@@ -318,21 +277,20 @@ c      end if
         else
           if (.not.ma_push_get(mt_int,n,'ipiv',l_ipiv,k_ipiv))
      $      call errquit('gw_en: can''t allocate ipiv',0,MA_ERR) 
-          call dsytrf('l',n,dbl_mb(k_pi),n,int_mb(k_ipiv),
-     $                x,-1,info)
-          lscr = max(n,int(x(1)))
+          lscr = 64*n
           x(:) = b(:)
           if (.not.ma_push_get(mt_dbl,lscr,'scr',l_scr,k_scr))
      $      call errquit('gw_en: can''t allocate scratch',0,MA_ERR) 
 
+          t0 = util_wallsec()
           call dsysv('l',n,1,dbl_mb(k_pi),n,int_mb(k_ipiv),x,n,
      $                dbl_mb(k_scr),lscr,info)
-
-          if (.not.ma_chop_stack(l_ipiv))
-     $      call errquit('gw_en: can''t chop stack',0,MA_ERR)
+#ifdef GWDEBUG
+          if (main) write(*,'(A,F8.3)') 'DSYSV: ',util_wallsec()-t0
+#endif
         endif
 
-        if (.not.ma_free_heap(l_pi))
+        if (.not.ma_chop_stack(l_pi))
      $    call errquit('gw_en: can''t deallocate pi matrix',0,MA_ERR)   
         rnorm = 0d0
       else
@@ -586,4 +544,29 @@ c      write(*,*) istop,iter,rnorm
  1000 continue
  2000 continue
 
+      end subroutine
+
+      subroutine rfp2std(matrix,n)
+      implicit none
+      integer n
+      double precision matrix(n,n)
+      integer i,row,col
+
+      if (mod(n,2).eq.0) then
+        row = 0
+        col = 1
+        do i=n/2+1,n
+          row = row + 1
+          col = col + 1
+          matrix(i:,i) = matrix(row,col:col+n-i)
+        enddo
+      else
+        row = 0
+        col = 1
+        do i=n/2+2,n
+          row = row + 1
+          col = col + 1
+          matrix(i:,i) = matrix(row,col:col+n-i+1)
+        enddo
+      endif
       end subroutine

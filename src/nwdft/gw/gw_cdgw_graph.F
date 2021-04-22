@@ -23,7 +23,7 @@
       double precision,intent(in)  :: Eref(pars%nmo,pars%ipol)
       double precision,intent(in)  :: Eold(pars%nmo,pars%ipol)
       double precision,intent(in)  :: Eia(maxpoles,pars%ipol)
-      GWTYP,intent(in)             :: iW(mynmo,pars%ngl,maxqp,pars%ipol)
+      GWTYP,intent(in)  :: iW(mynmo,pars%ngl,maxqp,pars%ipol)
       double precision,intent(in)  :: Sigma(pars%nmo,pars%ipol)
       double precision,intent(out) :: Enew(pars%nmo,pars%ipol)
 
