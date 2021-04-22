@@ -245,7 +245,7 @@ c        endif
 c      end if
 #endif
 
-      if (istop.gt.100 .and. rnorm.gt.0.001d0) then
+      if ((istop.gt.100 .and. rnorm.gt.0.001d0)) then
 
 
         if (.not.ma_push_get(mt_dbl,n**2,'pi',l_pi,k_pi))

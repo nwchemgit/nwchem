@@ -188,9 +188,18 @@ c     $              ovup,nri,0d0,pi,nri)
         endif
 
         if (main) then
-          do iri=1,nri
-            pi(iri,iri) = pi(iri,iri) + 1d0
-          enddo
+          if ( mod(nri,2) .eq. 0 ) then
+            do iri=1,nri/2
+              pi(iri,iri) = pi(iri,iri) + 1d0
+              pi(iri,iri+1) = pi(iri,iri+1) + 1d0
+            enddo
+          else
+            pi(1,1) = pi(1,1) + 1d0
+            do iri=2,nri/2+1
+              pi(iri-1,iri) = pi(iri-1,iri) + 1d0
+              pi(iri,iri) = pi(iri,iri) + 1d0
+            enddo
+          endif
         endif
 
       endif
