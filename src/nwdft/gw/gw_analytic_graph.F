@@ -26,7 +26,7 @@
       double precision residual, residualOld, dresidual, d2residual
       double precision Etmp, lower, upper, resupper, reslower
       double precision rms3(3), const, nspace, der, interval
-      double precision resmat(2048),sigmamat(2048),omegamat(2048)
+      double precision resmat(8192),sigmamat(8192),omegamat(8192)
 
       main = pars%me .eq. 0
       dbls = ma_sizeof(mt_dbl,1,mt_byte)
@@ -63,19 +63,12 @@
           SigmaOld = Sigma(llmo+iqp-1,isp)
           Sigma_X  = Sigmax(llmo+iqp-1,isp)
 
-          if (eviter.eq.0) then
-            Eout = Eout + 0.12d0*(sigma_x - sigmaold)
-          else
-            Eout = Eout + sign(0.0070d0,Eout)
-          endif
-
           bracket = .false.
           rms3 = 1d100
           residualOld = 0d0
           const = Eold(llmo+iqp-1,isp) + Sigma_X - sigmaold
           lower = 0d0
           upper = 0d0
-          radius = 0.1d0
 
           timer = util_wallsec()
           call gw_analytic_wmn(pars,g_wmn,iqp+llmo-1,isp,nri)
@@ -87,8 +80,8 @@ c
      $                          pars%npoles(isp),pars%nmo,plus,pars%me)
           endif
 c          
-          ! Try just five steps and then use graphical solver
-          do iter=1,5
+          ! Try just six steps and then use graphical solver
+          do iter=1,6
 
             Ein = Eout
 
@@ -106,6 +99,7 @@ c
             dresidual = dSigmaC - 1d0
             d2residual = d2SigmaC
 
+            radius = min(0.1d0,0.1d0/residual**2)
 
             ! Find out if we have bracketed the solution
             if (iter.gt.1) then
@@ -116,7 +110,7 @@ c
  1234       format(5(F15.8))
 
             ! Check convergence of QP equation
-            converged = abs(residual).lt.pars%thresh/5d0 .or. 
+            converged = abs(residual).lt.pars%thresh .or. 
      $                  (bracket.and.abs(upper-lower).lt.pars%thresh)
 
 
@@ -137,30 +131,15 @@ c
             etmp = ein
             residualold = residual
 
-            rms3(1) = rms3(2)
-            rms3(2) = rms3(3)
-            rms3(3) = abs(eout-ein)
-
           enddo
 
-          ! Solution already converged, go to next QP
-          if (converged) then
-            Enew(llmo+iqp-1,isp)  = Eout
-            Sigma(llmo+iqp-1,isp) = SigmaC + Sigma_X
-            if (main) then
-              write(luout,9020) llmo+iqp-1,
-     $                         (Eout+efermi(isp))*ha2ev
-            endif
-            cycle
-          endif
-
           ! Try graphical solver
-          nspace   = sign(0.001d0/ha2ev,eout)
-          npoints  = 2048
+          nspace   = sign(1d-5,eout)
+          npoints  = 8192
           fixed = .false.
 
 
-          omegamat(1) = eout - sign(0.010d0,eout)
+          omegamat(1) = eout - sign(0.040d0,eout)
           do ipoints=2,npoints
             omegamat(ipoints) = omegamat(ipoints-1) + nspace
           enddo
@@ -175,7 +154,7 @@ c
           do ipoints=1,npoints
 
             ! If residual is already small, the solution has been found
-            if (abs(resmat(ipoints)).lt.pars%thresh/10d0) then
+            if (abs(resmat(ipoints)).lt.pars%thresh) then
               enew(llmo+iqp-1,isp) = omegamat(ipoints)
               sigma(llmo+iqp-1,isp) = sigmamat(ipoints) + sigma_x
               fixed = .true.
@@ -197,14 +176,16 @@ c
 
           if (main.and.fixed) then
              write(luout,9020) llmo+iqp-1,
-     $                         (Enew(llmo+iqp-1,isp)+efermi(isp))*ha2ev
+     $                         (Enew(llmo+iqp-1,isp)+efermi(isp))*ha2ev,
+     $                         1d-5*ha2ev/2d0
            elseif(main) then
              warning = .true.
              iloc = minloc(abs(resmat),dim=1)
              enew(llmo+iqp-1,isp) = omegamat(iloc)
              sigma(llmo+iqp-1,isp) = sigmamat(iloc) + sigma_x
              write(luout,9030) llmo+iqp-1,
-     $                         (Enew(llmo+iqp-1,isp)+efermi(isp))*ha2ev
+     $                         (Enew(llmo+iqp-1,isp)+efermi(isp))*ha2ev,
+     $                          abs(resmat(iloc))*ha2ev
           endif
         enddo
         if (.not.(ga_destroy(g_wmn)))
@@ -221,10 +202,10 @@ c
       enddo
 
  9000 format(/,15x,'Alpha Orbitals',/,10x,'State',5x,'Energy (eV)',
-     $       /,10x,25('-'))
+     $       5x,'Error (eV)',/,10x,36('-'))
  9010 format(/,15x,' Beta Orbitals',/,10x,'State',5x,'Energy (eV)',
-     $       /,10x,25('-'))
- 9020 format(10x,I3,7x,F8.3)
- 9030 format(10x,I3,7x,F8.3,' *')
+     $       5x,'Error (eV)',/,10x,36('-'))
+ 9020 format(10x,I3,7x,F8.3,8x,F8.3)
+ 9030 format(10x,I3,7x,F8.3,8x,F8.3,' *')
 
       end

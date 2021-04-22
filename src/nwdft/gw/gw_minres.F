@@ -37,7 +37,7 @@
       logical main,converged,oactive,parallel_diag,doparallel
       integer iter, istop, i, gy, me, ld, nmax, nlocal, ithread
       integer lo, hi, jthread
-      double precision,parameter :: shift = 0.000d0, rtol=5d-5
+      double precision,parameter :: shift = 0.000d0, rtol=1d-4
 
       call ga_sync()
 
@@ -69,8 +69,8 @@
       x0norm = dot_product(x,x)
 
       if (x0norm.eq.0d0) then
-        x(:) = b(:)
-        x0norm = dot_product(b,b)
+        y(:) = b(:)
+        goto 1000
       endif
 
       if (ipol.eq.1) then
@@ -83,7 +83,7 @@
 
       y(:) = y(:) + b(:) - x(:)
 
-      beta1 = dsqrt(dot_product(y,y))
+1000  beta1 = dsqrt(dot_product(y,y))
 
       ! Solution already converged
       if (beta1.lt.rtol) then
@@ -265,9 +265,10 @@ c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
 
 c       MINRES did not converge or is not going to 
 c       converge in 30 or less steps
-        if (iter  .ge. maxiter  )                  istop = 101
-        if (iter  .ge. 10 .and. rnorm .ge. 0.1d0)  istop = 102
-        if (iter  .ge. 15 .and. rnorm .ge. 0.01d0) istop = 103
+        if (iter  .ge. maxiter  )                   istop = 101
+        if (iter  .ge.  5 .and. rnorm .ge. 5.0d0)   istop = 102
+        if (iter  .ge. 10 .and. rnorm .ge. 0.5d0)   istop = 103
+        if (iter  .ge. 15 .and. rnorm .ge. 0.05d0)  istop = 104
 
         if (Acond .ge. 0.1d0/eps) istop=5
         if (t2    .le. 1d0      ) istop=2
@@ -284,18 +285,17 @@ c       converge in 30 or less steps
 
       call daxpy(n,1d0,sol,1,x,1)
 
- 1000 continue
  2000 continue
 
 #ifdef GWDEBUG
-      if (main) then
-        if (istop.gt.100) then
-          write(*,*) ' MINRES : ',iter,rnorm
-        endif
-      end if
+c      if (main) then
+c        if (istop.gt.100) then
+c          write(*,*) ' MINRES : ',iter,rnorm
+c        endif
+c      end if
 #endif
 
-      if (istop.gt.100 .and. rnorm.gt.0.0005d0) then
+      if (istop.gt.100 .and. rnorm.gt.0.001d0) then
 
 
         if (.not.ma_alloc_get(mt_dbl,n**2,'pi',l_pi,k_pi))

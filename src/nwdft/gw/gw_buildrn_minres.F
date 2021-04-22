@@ -169,8 +169,8 @@
         call ga_brdcst(mt_dbl,vector,ma_sizeof(mt_dbl,nri,mt_byte),root)
 
 
-        call SOLVER(dbl_mb(kOV(1)),dbl_mb(kOV(2)),factor,xvec,vector,
-     $              pars%mynpoles,maxpoles,nri,ipol)
+        call SOLVER(dbl_mb(kOV(1)),dbl_mb(kOV(2)),factor,xvec,
+     $              vector,pars%mynpoles,maxpoles,nri,ipol)
 
         if (owner.eq.me) call ga_put(gb,1,nri,jmo,jmo,xvec,nri)
 

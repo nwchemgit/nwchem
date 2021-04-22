@@ -8,9 +8,10 @@
       double precision :: thresh, radius
 
       logical          :: pole
-      double precision :: z
+      double precision :: z,step
 
-      z = -idfx
+      z = -1.0d0/idfx
+      step = z*fx
       pole = .false.
 
       ! when dfx is positive, we are sitting on a pole
@@ -20,23 +21,26 @@
       endif  
 
       !take full newton step for large enough z
-      if (z.gt.0.4d0 .and. z.le.1d0 ) then 
-        xout = xin - fx*idfx
+      if (z.gt.0.3d0 .and. z.le.1d0 ) then 
+        xout = xin + step
 
       ! when we have bracketed the solution, the
       ! golden section or regula falsi method might work best
       elseif (bracket) then
 
-        if (mod(iter,2).eq.0) then
+        if (mod(iter,3).eq.0) then
           xout = (xlow*fxupp - xupp*fxlow)/(fxupp-fxlow)
         elseif (abs(fxupp).lt.abs(fxlow)) then
-          xout = xlow + 0.6180d0*(xupp-xlow)
+          xout = xlow + 0.80d0*(xupp-xlow)
         else
-          xout = xupp - 0.6180d0*(xupp-xlow)
+          xout = xupp - 0.80d0*(xupp-xlow)
         endif
 
+      elseif (z.gt.0.1d0) then
+        xout = xin + 0.80d0*step
+
       else
-        xout = xin + radius*sign(min(abs(fx),0.4d0),fx)
+        xout = xin + radius*fx
 
       endif
 

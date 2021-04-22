@@ -27,17 +27,18 @@
       double precision,intent(inout) :: Sigma(pars%nmo,pars%ipol)
       double precision,intent(out) :: Enew(pars%nmo,pars%ipol)
 
-      logical main, converged, bracket, warning, fixed(maxqp)
+      logical,target  :: lvars(3)
+      logical,pointer :: converged, bracket, skipped
+      logical main, warning, fixed(maxqp)
       integer isp, totalqp, llmo, iqp, iter, logs, dbls, irms
       double precision timer, timer2, rms6(6), m
-      double precision Ein, Eout, SigmaOld, Sigma_X, Z
-      double precision Linear
-      double precision residual, residualOld, dresidual, Etmp
-      double precision dsigmacold, step
+      double precision Ein, Eout, SigmaOld, Sigma_X
+      double precision esterror(pars%nmo)
+      double precision residual, dresidual
       GWTYP :: I, dI, R, dR, SigmaC, dSigmaC
 
       integer nclusters, clusters(pars%nmo),myll,myul
-      integer llqp,ulqp,icluster,ndiis
+      integer llqp,ulqp,icluster
       double precision upper,lower,resupper,reslower,const
       double precision values(20),errors(20),radius
 
@@ -46,11 +47,17 @@
       dbls = ma_sizeof(mt_dbl,1,mt_byte)
       logs = ma_sizeof(mt_log,1,mt_byte)
 
+      converged => lvars(1)
+      bracket   => lvars(2)
+      skipped   => lvars(3)
+
       do isp=1,pars%ipol
         warning = .false.
 
         totalqp = pars%noqp(isp) + pars%nvqp(isp)
         if (totalqp.lt.1) cycle
+
+        esterror(:) = 0d0
 
         if ((isp.eq.1).and.main) then
           write(luout,9000)
@@ -76,8 +83,6 @@
 
  100      continue
 
-          radius = 0.1d0
-
           if (llmo+llqp-1.le.pars%nocc(isp)) then
             iqp  = myul
           else
@@ -92,26 +97,20 @@
             Eout = Enew(llmo+iqp,isp)
           elseif (myll.gt.llqp) then
             Eout = Enew(llmo+iqp-2,isp)
-c          elseif (eviter.eq.0) then
-c            Eout = Eout + sign(1d0*pars%thresh,Eout)
-c          else
-c            Eout = Eout + sign(0.0070d0,Eout)
           endif
 
           call ga_zero(pars%g_sols)
           bracket = .false.
           rms6 = 1d100
-          residualOld = 0d0
-          dsigmacold = 0d0
           const = Eref(llmo+iqp-1,isp) + Sigma_X - sigmaold
           lower = 0d0
           upper = 0d0
-          ndiis = 0
 c        
           do iter=1,pars%qpiter+5
             timer2 = util_wallsec()
 
             Ein = Eout
+            skipped = .false.
 
             call ga_sync()
             timer = util_wallsec()
@@ -134,13 +133,42 @@ c
             dSigmaC  = dI + dR
 
             residual = const + dble(SigmaC) - Ein
-            dresidual =1d0/(dble(dSigmaC) - 1d0)
+            dresidual = (dble(dSigmaC) - 1d0)
 
             values(iter) = Ein
             errors(iter) = residual
 
+            radius = min(0.1d0,0.1d0/residual**2)
+
+            ! Find out if we might have skipped a solution
+            if ((iter.gt.1) .and. (.not.bracket) .and. 
+     $          (dble(dsigmac).lt.0d0) .and.
+     $          (errors(iter)*errors(iter-1).gt.0d0)) then
+              if (errors(iter).lt.errors(iter-1)) then
+
+                bracket = .true.
+                if (values(iter).lt.values(iter-1)) then
+                  lower = values(iter)
+                  upper = values(iter-1)
+                  reslower = errors(iter)
+                  resupper = errors(iter-1)
+                else
+                  lower = values(iter-1)
+                  upper = values(iter)
+                  reslower = errors(iter-1)
+                  resupper = errors(iter)
+                endif
+
+                eout = values(iter) - 
+     $                 0.6180d0*(values(iter)-values(iter-1))
+                values(iter) = values(iter-1)
+                errors(iter) = errors(iter-1)
+                skipped = .true.
+              endif
+            endif
+
             ! Find out if we have bracketed the solution
-            if (iter.gt.1) then
+            if (iter.gt.1 .and. (.not.skipped) ) then
               call gw_findbracket(bracket,values(iter),errors(iter),
      $                            values(iter-1),errors(iter-1),
      $                            lower,upper,reslower,resupper)
@@ -148,12 +176,11 @@ c
 
             ! Check convergence of QP equation
             converged = abs(residual).lt.pars%thresh .or. 
-     $                  sum(rms6)/6d0.lt.pars%thresh/10d0 .or.
+     $                  sum(rms6)/6d0.lt.pars%thresh .or.
      $                  (bracket .and. abs(upper-lower).lt.pars%thresh)
 
-
             ! Exit if converged
-            call ga_brdcst(mt_log,converged,logs,0)
+            call ga_brdcst(mt_log,lvars,3*logs,0)
             if (converged) then
               Eout = Ein
 #ifdef GWDEBUG
@@ -164,10 +191,11 @@ c
               exit
             endif
 
-            call gw_donewton(ein,eout,residual,dresidual,lower,upper,
+            if (.not.skipped) then
+              call gw_donewton(ein,eout,residual,dresidual,lower,upper,
      $                       reslower,resupper,bracket,pars%thresh,
      $                       radius,iter)
-
+            endif
 
 #ifdef GWDEBUG
             if (main) write(luout,9901) iter,iqp,util_wallsec()-timer2,
@@ -177,13 +205,10 @@ c
             if (main) write(luout,9902) residual,eout-ein,lower,upper
  9902       format('    res ',F12.6,' step ',F12.6,' lower ',F12.6,
      $             ' upper ', F12.6)
+            call util_flush(luout)
 #endif
 
-
             ! Save information
-            etmp = ein
-            residualold = residual
-
             do irms=6,2,-1
               rms6(irms) = rms6(irms-1)
             enddo
@@ -195,7 +220,20 @@ c
           Enew(llmo+iqp-1,isp)  = Eout
 
           ! check convergence info
-          if (converged) fixed(iqp) = .true.
+          if (converged) then
+            fixed(iqp) = .true.
+            if (bracket) then
+              esterror(llmo+iqp-1) = min(upper-lower,abs(residual))
+            else
+              esterror(llmo+iqp-1) = abs(residual)
+            endif
+          else
+            if (bracket) then
+              esterror(llmo+iqp-1) = upper - lower
+            else
+              esterror(llmo+iqp-1) = abs(residual)
+            endif
+          endif
 
           if (llmo+iqp-1.le.pars%nocc(isp)) then
             myul = myul - 1
@@ -209,11 +247,13 @@ c
             do iqp=llqp,ulqp
               if (fixed(iqp)) then
                 write(luout,9020) llmo+iqp-1,
-     $                       (Enew(llmo+iqp-1,isp)+efermi(isp))*ha2ev
+     $                       (Enew(llmo+iqp-1,isp)+efermi(isp))*ha2ev,
+     $                       esterror(llmo+iqp-1)*ha2ev
               else
                 warning = .true.
                 write(luout,9030) llmo+iqp-1,
-     $                       (Enew(llmo+iqp-1,isp)+efermi(isp))*ha2ev
+     $                       (Enew(llmo+iqp-1,isp)+efermi(isp))*ha2ev,
+     $                       esterror(llmo+iqp-1)*ha2ev
               endif
             enddo
           endif
@@ -228,17 +268,10 @@ c
 
 
  9000 format(/,15x,'Alpha Orbitals',/,10x,'State',5x,'Energy (eV)',
-     $       /,10x,25('-'))
+     $       5x,'Error (eV)',/,10x,35('-'))
  9010 format(/,15x,' Beta Orbitals',/,10x,'State',5x,'Energy (eV)',
-     $       /,10x,25('-'))
- 9020 format(10x,I3,7x,F8.3)
- 9030 format(10x,I3,7x,F8.3,' *')
+     $       5x,'Error (eV)',/,10x,35('-'))
+ 9020 format(10x,I3,7x,F8.3,8x,F8.3)
+ 9030 format(10x,I3,7x,F8.3,8x,F8.3,' *')
 
       end subroutine
-
-
-
-
-
-
-
