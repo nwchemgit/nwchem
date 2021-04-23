@@ -5,7 +5,7 @@
 #include "global.fh"      
 #include "mafdecls.fh"
 #include "util.fh"
-      integer,parameter :: maxiter = 20
+      integer,parameter :: maxiter = 25
       integer,parameter :: maxthreads = 1024
 
       integer,intent(in) :: ipol
@@ -37,7 +37,7 @@
       logical main,converged,oactive,parallel_diag,doparallel
       integer iter, istop, i, gy, me, ld, nmax, nlocal, ithread
       integer lo, hi, jthread
-      double precision,parameter :: shift = 0.000d0, rtol=1d-4
+      double precision,parameter :: shift = 0.000d0, rtol=5d-5
 
       call ga_sync()
 
@@ -217,13 +217,15 @@ c       MINRES did not converge or is not going to
 c       converge in 20 or less steps
         if (iter  .ge. maxiter  )                   istop = 101
         if (iter  .ge.  5 .and. rnorm .ge. 5.0d0)   istop = 102
-        if (iter  .ge. 10 .and. rnorm .ge. 0.5d0)   istop = 103
-        if (iter  .ge. 15 .and. rnorm .ge. 0.1d0)  istop = 104
+        if (iter  .ge. 10 .and. rnorm .ge. 1.0d0)   istop = 103
+        if (iter  .ge. 15 .and. rnorm .ge. 0.5d0)   istop = 104
+        if (iter  .ge. 20 .and. rnorm .ge. 0.01d0)  istop = 105
 
         if (Acond .ge. 0.1d0/eps) istop=5
         if (t2    .le. 1d0      ) istop=2
         if (t1    .le. 1d0      ) istop=1
         if (epsx  .ge. beta1    ) istop=3
+        if (test3 .le. rtol     ) istop=4
         if (test2 .le. rtol     ) istop=2
         if (test1 .le. rtol     ) istop=1
         if (rnorm .le. rtol     ) istop=8
@@ -245,7 +247,7 @@ c        endif
 c      end if
 #endif
 
-      if ((istop.gt.100 .and. rnorm.gt.0.001d0)) then
+      if ((istop.gt.100 .and. rnorm.gt.10d0*rtol)) then
 
 
         if (.not.ma_push_get(mt_dbl,n**2,'pi',l_pi,k_pi))
@@ -263,8 +265,7 @@ c      end if
 #endif
         call rfp2std(dbl_mb(k_pi),n)
 
-c        if (parallel_diag) then
-        if (.false.) then
+        if (parallel_diag) then
           nprocs = ga_nnodes()
           mynri = n/nprocs
           pilo = me*mynri + min(me,mod(n,nprocs)) + 1
@@ -550,23 +551,15 @@ c      write(*,*) istop,iter,rnorm
       implicit none
       integer n
       double precision matrix(n,n)
-      integer i,row,col
+      integer i
 
       if (mod(n,2).eq.0) then
-        row = 0
-        col = 1
         do i=n/2+1,n
-          row = row + 1
-          col = col + 1
-          matrix(i:,i) = matrix(row,col:col+n-i)
+          matrix(i:,i) = matrix(i-n/2,i-n/2+1:n/2+1)
         enddo
       else
-        row = 0
-        col = 1
         do i=n/2+2,n
-          row = row + 1
-          col = col + 1
-          matrix(i:,i) = matrix(row,col:col+n-i+1)
+          matrix(i:,i) = matrix(i-n/2-1,i-n/2:n/2+1)
         enddo
       endif
       end subroutine

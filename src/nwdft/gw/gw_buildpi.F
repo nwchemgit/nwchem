@@ -15,7 +15,7 @@
       double precision scal
       integer ipole,iri,ma_dbl,l_scr,k_scr,mynpoles,llpole,mymax
       integer ulpole,nbatch,ibatch,idx,idy
-      logical ok
+      logical ok,dorfp
       integer nthreads
 #ifdef USE_OPENMP
       integer, external :: omp_get_max_threads
@@ -82,13 +82,15 @@
       else if (which.eq.'r') then
 
         scal = scal/2d0
-
-        if (npoles(1).eq.0) goto 200
-
         ma_dbl = ma_inquire_avail(mt_dbl)/nri
 
         if (ma_dbl.eq.0) 
      $    call errquit('gw_buildpi: not enough memory',0,MA_ERR)
+
+        if (npoles(1).eq.0) then
+          call dfill(nri**2,0d0,pi,1)
+          goto 200
+        endif
 
         nbatch = npoles(1)/ma_dbl
         if (mod(npoles(1),ma_dbl).ne.0) nbatch = nbatch + 1
@@ -99,6 +101,8 @@
         mymax = min(npoles(1),mymax)
         ok = ma_push_get(mt_dbl,nri*mymax,'scratch',l_scr,k_scr)
 
+        dorfp = (nri.le.2048) .and. (mymax.gt.512)
+
 !$omp   parallel do schedule(static) private(idx)
         do ipole=1,mymax
           idx = k_scr + (ipole-1)*nri
@@ -107,22 +111,14 @@
         enddo
 !$omp   end parallel do
 
-        if (mod(nri,2).eq.0) then
-          call dgemm('n','t',nri/2,nri/2,mymax,2d0*scal,
-     $                ovup(nri/2+1,1),nri,dbl_mb(k_scr),nri,0d0,
-     $                pi(nri/2+1,1),nri)
-          call dsyr2k('l','n',nri/2,mymax,scal,ovup,nri,dbl_mb(k_scr),
-     $                 nri,0d0,pi,nri)
-          call dsyr2k('u','n',nri/2,mymax,scal,ovup(nri/2+1,1),nri,
-     $                 dbl_mb(k_scr+nri/2),nri,0d0,pi(1,2),nri)
+        if (nri.gt.2048) then
+          call dsyr2k('l','n',nri,mymax,scal,ovup,nri,dbl_mb(k_scr),
+     $                 nri,0d0,pi,nri)     
+        elseif (dorfp) then
+          call dsfr2k_(ovup,dbl_mb(k_scr),pi,nri,mymax,scal,0d0)
         else
-          call dgemm('n','t',nri/2,nri/2+1,mymax,2d0*scal,
-     $                ovup(nri/2+2,1),nri,dbl_mb(k_scr),nri,0d0,
-     $                pi(nri/2+2,1),nri)
-          call dsyr2k('l','n',nri/2+1,mymax,scal,ovup,nri,dbl_mb(k_scr),
-     $                 nri,0d0,pi,nri)
-          call dsyr2k('u','n',nri/2,mymax,scal,ovup(nri/2+2,1),nri,
-     $                 dbl_mb(k_scr+nri/2+1),nri,0d0,pi(1,2),nri)
+          call dgemm('n','t',nri,nri,mymax,2d0*scal,ovup,nri,
+     $                dbl_mb(k_scr),nri,0d0,pi,nri)     
         endif
 
 
@@ -139,25 +135,18 @@
             call daxpy(nri,factor(idy,1),ovup(1,idy),1,dbl_mb(idx),1)
           enddo
 !$omp     end parallel do
-          if (mod(nri,2).eq.0) then
-            call dgemm('n','t',nri/2,nri/2,mynpoles,2d0*scal,
-     $                  ovup(nri/2+1,llpole),nri,dbl_mb(k_scr),nri,1d0,
-     $                  pi(nri/2+1,1),nri)
-            call dsyr2k('l','n',nri/2,mynpoles,scal,ovup(1,llpole),nri,
-     $                   dbl_mb(k_scr),nri,1d0,pi,nri)
-            call dsyr2k('u','n',nri/2,mynpoles,scal,
-     $                   ovup(nri/2+1,llpole),nri,dbl_mb(k_scr+nri/2),
-     $                   nri,1d0,pi(1,2),nri)
+
+          if (nri.gt.2048) then
+            call dsyr2k('l','n',nri,mynpoles,scal,ovup(1,llpole),nri,
+     $                   dbl_mb(k_scr),nri,1d0,pi,nri)     
+          elseif (dorfp) then
+            call dsfr2k_(ovup(1,llpole),dbl_mb(k_scr),pi,nri,mynpoles,
+     $                  scal,1d0)
           else
-            call dgemm('n','t',nri/2,nri/2+1,mynpoles,2d0*scal,
-     $                  ovup(nri/2+2,llpole),nri,dbl_mb(k_scr),nri,1d0,
-     $                  pi(nri/2+2,1),nri)
-            call dsyr2k('l','n',nri/2+1,mynpoles,scal,ovup(1,llpole),
-     $                   nri,dbl_mb(k_scr),nri,1d0,pi,nri)
-            call dsyr2k('u','n',nri/2,mymax,scal,ovup(nri/2+2,llpole),
-     $                   nri,dbl_mb(k_scr+nri/2+1),nri,1d0,pi(1,2),nri)
+            call dgemm('n','t',nri,nri,mynpoles,2d0*scal,ovup(1,llpole),
+     $                  nri,dbl_mb(k_scr),nri,1d0,pi,nri)
           endif
-          
+
         enddo
 
         ok = ma_chop_stack(l_scr)
@@ -176,22 +165,15 @@
      $                 dbl_mb(k_scr+(ipole-1)*nri),1)
           enddo
 !$omp     end parallel do
-          if (mod(nri,2).eq.0) then
-            call dgemm('n','t',nri/2,nri/2,mymax,2d0*scal,
-     $                  ovdw(nri/2+1,1),nri,dbl_mb(k_scr),nri,1d0,
-     $                  pi(nri/2+1,1),nri)
-            call dsyr2k('l','n',nri/2,mymax,scal,ovdw,nri,dbl_mb(k_scr),
+
+          if (nri.gt.2048) then
+            call dsyr2k('l','n',nri,mymax,scal,ovdw,nri,dbl_mb(k_scr),
      $                   nri,1d0,pi,nri)
-            call dsyr2k('u','n',nri/2,mymax,scal,ovdw(nri/2+1,1),nri,
-     $                   dbl_mb(k_scr+nri/2),nri,1d0,pi(1,2),nri)
+          elseif (dorfp) then
+            call dsfr2k_(ovdw,dbl_mb(k_scr),pi,nri,mymax,scal,1d0)
           else
-            call dgemm('n','t',nri/2,nri/2+1,mymax,2d0*scal,
-     $                  ovdw(nri/2+2,1),nri,dbl_mb(k_scr),nri,1d0,
-     $                  pi(nri/2+2,1),nri)
-            call dsyr2k('l','n',nri/2+1,mymax,scal,ovdw,nri,
-     $                   dbl_mb(k_scr),nri,1d0,pi,nri)
-            call dsyr2k('u','n',nri/2,mymax,scal,ovdw(nri/2+2,1),nri,
-     $                   dbl_mb(k_scr+nri/2+1),nri,1d0,pi(1,2),nri)
+            call dgemm('n','t',nri,nri,mymax,2d0*scal,ovdw,nri,
+     $                  dbl_mb(k_scr),nri,1d0,pi,nri)
           endif
 
           do ibatch=2,nbatch
@@ -207,29 +189,26 @@
      $                   dbl_mb(k_scr+(ipole-1)*nri),1)
             enddo
 !$omp       end parallel do
-            if (mod(nri,2).eq.0) then
-              call dgemm('n','t',nri/2,nri/2,mynpoles,2d0*scal,
-     $                    ovdw(nri/2+1,llpole),nri,dbl_mb(k_scr),nri,
-     $                    1d0,pi(nri/2+1,1),nri)
-              call dsyr2k('l','n',nri/2,mynpoles,scal,ovdw(1,llpole),
-     $                     nri,dbl_mb(k_scr),nri,1d0,pi,nri)
-              call dsyr2k('u','n',nri/2,mynpoles,scal,
-     $                     ovdw(nri/2+1,llpole),nri,dbl_mb(k_scr+nri/2),
-     $                     nri,1d0,pi(1,2),nri)
+
+            if (nri.gt.2048) then
+              call dsyr2k('l','n',nri,mynpoles,scal,ovdw(1,llpole),nri,
+     $                     dbl_mb(k_scr),nri,1d0,pi,nri)     
+            elseif (dorfp) then
+              call dsfr2k_(ovdw(1,llpole),dbl_mb(k_scr),pi,nri,mynpoles,
+     $                    scal,1d0)
             else
-              call dgemm('n','t',nri/2,nri/2+1,mynpoles,2d0*scal,
-     $                  ovdw(nri/2+2,llpole),nri,dbl_mb(k_scr),nri,1d0,
-     $                  pi(nri/2+2,1),nri)
-              call dsyr2k('l','n',nri/2+1,mynpoles,scal,ovdw(1,llpole),
-     $                     nri,dbl_mb(k_scr),nri,1d0,pi,nri)
-              call dsyr2k('u','n',nri/2,mymax,scal,ovdw(nri/2+2,llpole),
-     $                   nri,dbl_mb(k_scr+nri/2+1),nri,1d0,pi(1,2),nri)
+              call dgemm('n','t',nri,nri,mynpoles,2d0*scal,
+     $                    ovdw(1,llpole),nri,dbl_mb(k_scr),nri,1d0,
+     $                    pi,nri)
             endif
+
           enddo
 
           ok = ma_chop_stack(l_scr)
 
         endif
+
+        if (.not.dorfp) call std2rfp(pi,nri)
 
         if (main) then
           if ( mod(nri,2) .eq. 0 ) then
@@ -339,5 +318,45 @@
 
       to(1:n) = scal*from(1:n)
 
+
+      end subroutine
+
+      subroutine dsfr2k_(a,b,c,m,n,alpha,beta)
+      implicit none
+      integer m,n
+      double precision,intent(in) :: a(m,n),b(m,n),alpha,beta
+      double precision,intent(out) :: c(m,m)
+
+      if (mod(m,2).eq.0) then
+        call dsyr2k('l','n',m/2,n,alpha,a,m,b,m,beta,c,m)
+        call dsyr2k('u','n',m/2,n,alpha,a(m/2+1,1),m,b(m/2+1,1),m,beta,
+     $              c(1,2),m)
+        call dgemm('n','t',m/2,m/2,n,2d0*alpha,a(m/2+1,1),m,b,m,beta,
+     $              c(m/2+1,1),m)
+      else
+        call dsyr2k('l','n',m/2+1,n,alpha,a,m,b,m,beta,c,m)
+        call dsyr2k('u','n',m/2,n,alpha,a(m/2+2,1),m,b(m/2+2,1),m,beta,
+     $              c(1,2),m)
+        call dgemm('n','t',m/2,m/2+1,n,2d0*alpha,a(m/2+2,1),m,b,m,beta,
+     $             c(m/2+2,1),m)
+      endif
+
+      end subroutine
+
+      subroutine std2rfp(matrix,n)
+      implicit none
+      integer,intent(in) :: n
+      double precision   :: matrix(n,n)
+      integer i
+
+      if (mod(n,2).eq.0) then
+        do i=n/2+1,n
+          matrix(i-n/2,i-n/2+1:n/2+1) = matrix(i:,i)
+        enddo
+      else
+        do i=n/2+2,n
+          matrix(i-n/2-1,i-n/2:n/2+1) = matrix(i:,i)
+        enddo
+      endif
 
       end subroutine
