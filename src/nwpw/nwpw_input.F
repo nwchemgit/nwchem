@@ -23,7 +23,7 @@ c#include "nwpwxc.fh"
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 132)
+      parameter (num_dirs = 135)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -156,6 +156,9 @@ c
      >            'dos-fft-grid',
      >            'director',
      >            'efield',
+     >            '1d-slab',
+     >            '2d-hilbert',
+     >            '2d-hcurve',
      >            'end'/
 
       double precision kb
@@ -237,6 +240,7 @@ c
      >       6700,6800,6900,7000,4250,7100,7200,7300,7400,7500,7600,
      >       7700,7800,7900,8000,8100,6650,8200,8300,8400,8500,8600,
      >       8700,8800,8900,9000,9010,9020,9030,1810,1811,1812,9040,
+     >       4501,4502,4503,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -1017,6 +1021,34 @@ c
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 4500, RTDB_ERR)
       goto 10
+c
+c  1d-slab mapping
+c
+ 4501 cell_expand(1) = 1
+      value = rtdb_put(rtdb,'nwpw:mapping',mt_int,1,cell_expand)
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 4501, RTDB_ERR)
+      goto 10
+c
+c  2d-hilbert mapping
+c
+ 4502 cell_expand(1) = 2
+      value = rtdb_put(rtdb,'nwpw:mapping',mt_int,1,cell_expand)
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 4502, RTDB_ERR)
+      goto 10
+c
+c  2d-hcurve mapping
+c
+ 4503 cell_expand(1) = 3
+      value = rtdb_put(rtdb,'nwpw:mapping',mt_int,1,cell_expand)
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 4503, RTDB_ERR)
+      goto 10
+
 
 c
 c  CG minimizer
