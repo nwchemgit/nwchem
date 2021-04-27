@@ -9,52 +9,26 @@
 
         ! initialization
         clusters(:) = 0
-        nclusters = 1
-        average = evals(1)
         ll = 1
 
  100    continue
 
-        targ = average
-        average = 0d0
-        nevals = clusters(nclusters)
-        icluster = 0
-        do iqp=ll,nqp
-          delta = evals(iqp) - targ
-          if (iqp.gt.ll) then
-            if (evals(iqp)*evals(iqp-1).lt.0d0) exit
-          endif
-          if (abs(delta).gt.window) then
-            if (iqp.eq.ll) goto 200
+        nclusters = nclusters + 1
+        targ = evals(ll) + window
+        icluster = 1
+        
+        do iqp=ll+1,nqp
+          if (evals(iqp)*evals(iqp-1).lt.0d0) exit
+          if (evals(iqp).le.targ) then
+            icluster = icluster + 1
+          else
             exit
           endif
-          icluster = icluster + 1
-          average = average + evals(iqp)
         enddo
-
-        average = average/dble(icluster)
         clusters(nclusters) = icluster
+        ll = ll + icluster
 
- 200    continue       
-
-        if (nevals.eq.clusters(nclusters)) then
-          ll = ll + clusters(nclusters)
-          if (ll.gt.nqp) goto 300
-          nclusters = nclusters + 1
-          average = evals(ll) + window - 0.001d0
-        endif
-        
-        goto 100
-
- 300    continue
-
-        ul = 0
-        do icluster=1,nclusters
-          ll = ul + 1
-          ul = ul + clusters(icluster)
-          average=sum(evals(ll:ul))/dble(clusters(icluster))
-          stdev = maxval(evals(ll:ul))-minval(evals(ll:ul))
-        enddo
+        if (ll.le.nqp) goto 100
 
       end subroutine
 

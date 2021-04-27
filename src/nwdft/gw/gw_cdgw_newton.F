@@ -34,7 +34,7 @@
       double precision timer, timer2, rms6(6), m
       double precision Ein, Eout, SigmaOld, Sigma_X
       double precision esterror(pars%nmo)
-      double precision residual, dresidual
+      double precision residual, dresidual, maxradius
       GWTYP :: I, dI, R, dR, SigmaC, dSigmaC
 
       integer nclusters, clusters(pars%nmo),myll,myul
@@ -50,6 +50,12 @@
       converged => lvars(1)
       bracket   => lvars(2)
       skipped   => lvars(3)
+
+      if (eviter.gt.0) then 
+        maxradius = 0.05d0
+      else
+        maxradius = 0.1d0
+      endif
 
       do isp=1,pars%ipol
         warning = .false.
@@ -68,6 +74,7 @@
         llmo = pars%llmo(isp)
         fixed(:) = .false.
 
+        call ga_sync()
         call gw_findclusters(Eold(llmo,isp),clusters,nclusters,totalqp,
      $                       0.05d0)
 
@@ -138,13 +145,13 @@ c
             values(iter) = Ein
             errors(iter) = residual
 
-            radius = min(0.1d0,0.1d0/residual**2)
+            radius = min(maxradius,maxradius/residual**2)
 
             ! Find out if we might have skipped a solution
             if ((iter.gt.1) .and. (.not.bracket) .and. 
      $          (dble(dsigmac).lt.0d0) .and.
      $          (errors(iter)*errors(iter-1).gt.0d0)) then
-              if (errors(iter).lt.errors(iter-1)) then
+              if (abs(errors(iter)).gt.abs(errors(iter-1))) then
 
                 bracket = .true.
                 if (values(iter).lt.values(iter-1)) then
