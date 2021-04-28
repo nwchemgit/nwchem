@@ -54,7 +54,7 @@
 *     **** local variables ****
       logical newpsi,lprint,mprint,hprint
       real*8  gx,gy,gz,cx,cy,cz
-      real*8  EV,pi,weight
+      real*8  EV,EVQ,rs,pi,weight
       real*8  icharge,en(2)
       real*8  f0,f1,f2,f3,f4,f5,f6
       integer if1,if2
@@ -367,6 +367,9 @@ c      call center_mass(gx,gy,gz)
         en(cpsi_ispin()) =  cpsi_ne(cpsi_ispin())
       end if
 
+      icharge = icharge + ion_TotalCharge()
+      rs  = (3.0d0*lattice_omega()/(4.0d0*pi))**(1.0d0/3.0d0)
+      EVQ = 0.5d0*ewald_mandelung()*(icharge**2)/rs
 
       if (mprint) then
          write(luout,1111) np
@@ -411,7 +414,7 @@ c           write(luout,1154) cpsp_lmmax(ia)
            write(luout,1151) (cpsp_rc(i,ia),i=0,cpsp_lmax(ia))
          end do
 
-         icharge = icharge + ion_TotalCharge()
+c         icharge = icharge + ion_TotalCharge()
          write(luout,1159) icharge
 
 
@@ -460,8 +463,10 @@ c           write(luout,1154) cpsp_lmmax(ia)
          write(luout,1232) a,b,c,alpha,beta,gamma
          write(luout,1231) lattice_omega()
          write(luout,1260) ewald_rcut(),ewald_ncut()
-         write(luout,1261) ewald_mandelung()
-
+         !write(luout,1261) ewald_mandelung()
+         write(luout,1261) ewald_mandelung(),
+     >                     ewald_mandelung()
+     >                    *(4.0d0*pi/3.0)**(1.0d0/3.0d0),rs
          write(luout,1255)
          write(luout,1256) brillioun_nbrillioun(),
      >                     brillioun_nbrillioun0()
@@ -592,6 +597,9 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
 
 *     **** extra energy output for QA test ****
       if (lprint) write(luout,1600) EV
+      if (lprint) then
+         if (EVQ.gt.0.0d0) write(LuOut,1601) EV+EVQ
+      end if
 
 *     **** calculate the spin contamination ****
       if (flag.gt.-1) call cpsi_spin2(dipole(1))
@@ -811,9 +819,9 @@ c     >     .or.nwpwxc_is_on()) THEN
  1221 FORMAT( ' number of orbitals:  spin up=',I8,
      >                          '  spin down=',I8,A)
  1230 FORMAT(/' supercell:')
- 1231 FORMAT(5x,' volume : ',F10.1)
- 1232 FORMAT(/5x,' lattice:    a=',f8.3,'    b=',f8.3,'     c=',f8.3,
-     >       /5x,'         alpha=',f8.3,' beta=',f8.3,' gamma=',f8.3)
+ 1231 FORMAT(5x,'             omega=',F12.1)
+ 1232 FORMAT(5x,' lattice:    a=    ',f8.3,' b=   ',f8.3,' c=    ',f8.3,
+     >      /5x,'             alpha=',f8.3,' beta=',f8.3,' gamma=',f8.3)
  1241 FORMAT(5x,' lattice:    a1=<',3f8.3,' >')
  1242 FORMAT(5x,'             a2=<',3f8.3,' >')
  1243 FORMAT(5x,'             a3=<',3f8.3,' >')
@@ -839,8 +847,9 @@ c     >     .or.nwpwxc_is_on()) THEN
  1257 FORMAT(5x,' weight=',f8.3,'  ks=<',3f8.3,' >, k=<',3f8.3,'>')
  1258 FORMAT(5x,' number of k-points is very large')
 
- 1260 FORMAT(5X,' Ewald summation: cut radius=',F8.2,'  and',I3)
- 1261 FORMAT(5X,'                   madelung=',f14.8)
+ 1260 FORMAT(/5X,' Ewald summation: cut radius=',F8.2,'  and',I3)
+ 1261 FORMAT(5X,'                  Madelung Wigner-Seitz=',f14.8,
+     >                              ' (alpha=',f14.8,' rs=',f11.8,')')
  
  1270 FORMAT(/' technical parameters:')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'fictitious mass=',F10.1)
@@ -888,7 +897,9 @@ c     >     .or.nwpwxc_is_on()) THEN
  1500 FORMAT(/' orbital energies:')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  1600 FORMAT(/' Total BAND energy   :',E19.10)
-
+ 1601 FORMAT(/' Total PSPW energy ',
+     >        '(charge correction - E + 0.5*q**2*mandelung/rs) :',
+     >        E19.10)
  1801 FORMAT(//'== Timing ==')
  1802 FORMAT(/'cputime in seconds')
  1803 FORMAT( '  prologue    : ',E14.6)
