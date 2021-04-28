@@ -2654,7 +2654,7 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
       
       !*** local variables ***
       integer maxit_orb,taskid_k
-      integer ii,l,nb,epsi_ptr,eig_ptr
+      integer ii,l,l2,nb,epsi_ptr,eig_ptr
       real*8  sum,maxerror,error_out,e0
 
       !*** external functions ***
@@ -2669,10 +2669,12 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
 
       do nb=1,nbrillq
       do ii=1,(ne_excited(1)+ne_excited(2))
+         l2 = 0
          epsi_ptr = cpsi_data_get_ptr(psi1_excited_tag,nb,ii)
          eig_ptr  = cpsi_data_get_ptr(eig_excited_tag,nb,ii)
      
          !*** orthogonalize to lower orbitals  ****
+ 2       l2 = l2 + 1
          call cpsi_project_out_virtual1(nb,ii,dbl_mb(epsi_ptr))
 
          !*** normalize ****
@@ -2686,11 +2688,16 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
 
          !*** minimize orbital ****
           l = 0
- 2        call cpsi_KS_update_virtual(maxit_orb,
+ 3        call cpsi_KS_update_virtual(maxit_orb,
      >                               maxerror,
      >                               0.001d0,nb,ii,error_out,e0)
           l = l+1
-          if ((error_out.gt.maxerror).and.(l.le.4)) go to 2
+          if ((error_out.gt.maxerror).and.(l.le.(1+(l2-1)*3))) go to 3
+          if ((error_out.gt.maxerror).and.(l2.le.1)) then
+            call Cram_c_Zero(nb,dbl_mb(epsi_ptr))
+            call Cram_c_setzero(1,1.0d0,dbl_mb(epsi_ptr))
+            go to 2
+          end if 
 
           dbl_mb(eig_ptr) = e0
 
