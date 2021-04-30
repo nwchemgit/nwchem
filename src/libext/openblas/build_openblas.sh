@@ -37,6 +37,9 @@ if [[ "${GOTAVX512}" == "Y" ]]; then
     FORCETARGET=" TARGET=HASWELL "
 fi
 fi #FORCETARGET
+if [[  -z "${BLAS_SIZE}" ]]; then
+   BLAS_SIZE=8
+fi
 if [[ ${BLAS_SIZE} == 8 ]]; then
   sixty4_int=1
 else
@@ -100,7 +103,7 @@ if [[  ! -z "${USE_OPENMP}" ]]; then
     unset USE_OPENMP
     NWCHEM_USE_OPENMP=1
 fi
-echo make $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT"  libs netlib -j4
+echo make $FORCETARGET  LAPACK_FPFLAGS=$LAPACK_FPFLAGS_VAL  INTERFACE64=$sixty4_int BINARY=$binary NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD=$THREADOPT  libs netlib -j4
 if [[ ${_FC} == xlf ]]; then
  make FC="xlf -qextname" $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4
 else
