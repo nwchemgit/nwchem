@@ -2,18 +2,26 @@
 set -v
 arch=`uname -m`
 VERSION=0.3.13
-if [ -f  OpenBLAS-${VERSION}.tar.gz ]; then
-    echo "using existing"  OpenBLAS-${VERSION}.tar.gz
+#COMMIT=974acb39ff86121a5a94be4853f58bd728b56b81
+BRANCH=develop
+#if [ -f  OpenBLAS-${VERSION}.tar.gz ]; then
+#    echo "using existing"  OpenBLAS-${VERSION}.tar.gz
+if [ -f  OpenBLAS-$COMMIT.zip ]; then
+    echo "using existing"  OpenBLAS-${COMMIT}.zip
 else
     rm -rf OpenBLAS*
+#    curl -L https://github.com/xianyi/OpenBLAS/archive/$COMMIT.zip -o OpenBLAS-$COMMIT.zip
     curl -L https://github.com/xianyi/OpenBLAS/archive/v${VERSION}.tar.gz -o OpenBLAS-${VERSION}.tar.gz
 fi
-# patch for avx2 detection
+#unzip -n -q OpenBLAS-$COMMIT.zip
+#ln -sf OpenBLAS-$COMMIT OpenBLAS
 tar xzf OpenBLAS-${VERSION}.tar.gz
 ln -sf OpenBLAS-${VERSION} OpenBLAS
-cd OpenBLAS-${VERSION}
+cd OpenBLAS
 # patch for apple clang -fopenmp
 patch -p0 < ../clang_omp.patch
+# patch for pgi/nvfortran missing -march=armv8
+patch -p0 < ../arm64_fopt.patch
 if [[  -z "${FORCETARGET}" ]]; then
 FORCETARGET=" "
 UNAME_S=$(uname -s)
@@ -60,6 +68,12 @@ elif  [[ -n ${FC} ]] && [[ "${FC}" == "flang" ]]; then
     LAPACK_FPFLAGS_VAL=" -O1 -g -Kieee"
 elif  [[ -n ${FC} ]] && [[ "${FC}" == "pgf90" ]] || [[ "${FC}" == "nvfortran" ]]; then
     FORCETARGET+=' F_COMPILER=PGI '
+#    if [[ "$arch" == "aarch64" ]]; then
+	LAPACK_FLAGS="-O2  -Mrecursive -Kieee -fPIC"
+        if [[ ${BLAS_SIZE} == 8 ]]; then
+	    LAPACK_FLAGS+=" -i8"
+	fi
+#    fi
     LAPACK_FPFLAGS_VAL=" -O1 -g -Kieee"
 elif  [[ -n ${FC} ]] && [[ "${FC}" == "ifort" ]] || [[ "${FC}" == "ifx" ]]; then
     FORCETARGET+=' F_COMPILER=INTEL '
