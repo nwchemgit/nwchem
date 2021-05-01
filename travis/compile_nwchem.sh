@@ -21,10 +21,22 @@ fi
 cd $TRAVIS_BUILD_DIR/src
 FDOPT="-O0 -g"
 if [[ "$arch" == "aarch64" ]]; then 
-    if [[ "$NWCHEM_MODULES" == "tce" ]]; then 
-	FOPT="-O0 -fno-aggressive-loop-optimizations"
+    if [[ "$FC" == "flang" ]] || [[ "$(basename -- $FC | cut -d \- -f 1)" == "nvfortran" ]] ; then
+	export BUILD_MPICH=1
+        if [[ "$FC" == "flang" ]]; then
+	    FOPT="-O2  -ffast-math"
+#            export BUILD_MPICH=1
+	fi
+        if [[ "$(basename -- $FC | cut -d \- -f 1)" == "nvfortran" ]] ; then
+	    export USE_FPICF=1
+	fi
     else
-	FOPT="-O1 -fno-aggressive-loop-optimizations"
+#should be gfortran	
+	if [[ "$NWCHEM_MODULES" == "tce" ]]; then 
+	    FOPT="-O0 -fno-aggressive-loop-optimizations"
+	else
+	    FOPT="-O1 -fno-aggressive-loop-optimizations"
+	fi
     fi
 else
     if [[ "$FC" == "ifort" ]] ; then
@@ -44,6 +56,7 @@ else
 	fi
         if [[ "$FC" == "nvfortran" ]]; then
 	    export USE_FPICF=1
+#	    FOPT="-O2 -tp haswell"
 	fi
     fi
 fi    
