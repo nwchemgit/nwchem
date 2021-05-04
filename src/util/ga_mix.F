@@ -5,6 +5,8 @@ C$Id$
 #include "global.fh"
 #include "mafdecls.fh"
 #include "util.fh"
+      external ddot
+      double precision ddot
       integer g_a
       integer n, nvec, ld
       double precision b(ld,nvec)
