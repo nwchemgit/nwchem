@@ -106,6 +106,8 @@ c
       external control_ks_algorithm
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
       external control_ks_maxit_orb,control_ks_maxit_orbs
+      double precision ddot
+      external ddot
 
       Ein = E(1)
       call Parallel_taskid(taskid)

@@ -51,6 +51,8 @@ c
       logical otdebug
 c
       integer l_ia_uv, k_ia_uv, l_tmp, k_tmp, l_ia_jb, k_ia_jb
+      double precision ddot
+      external ddot
 c
 #include "bitops.fh"
 c

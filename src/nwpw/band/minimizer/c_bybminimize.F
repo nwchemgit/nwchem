@@ -86,6 +86,8 @@ c
       external cpsi_1_noupdate_energy,cpsi_eigenvalue,ion_disp_energy
       logical  ion_disp_on
       external ion_disp_on
+      double precision ddot
+      external ddot
    
 
       Ein = E(1)

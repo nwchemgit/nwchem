@@ -98,6 +98,8 @@ c
       double precision eps,dumd
       integer nx,nc,dumi
       parameter (eps=1.e-8)
+      double precision ddot
+      external ddot
 c
 c     Initialize the XC potential and energy sampling matrices.
 c

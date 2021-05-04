@@ -32,6 +32,8 @@ c
       double precision dotpj, dotpk, sinpj, sinpk
       double precision smi, smj, sml, sense, f1, f2, dot
       integer m, nocol1, nocol2, nocol3, nocol4
+      double precision ddot
+      external ddot
 C
 C
 C

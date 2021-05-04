@@ -101,6 +101,9 @@ c
       double precision StericEnergy_qm, StericEnergy_fde
       double precision StericEnergy_tot
 
+      double precision ddot
+      external ddot
+
       pname = 'grid_quadv0b: '
       mbf_fde = 0
 !      npol = 0

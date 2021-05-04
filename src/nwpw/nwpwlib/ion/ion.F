@@ -4797,6 +4797,8 @@ c
       double precision test_norm
       integer i, j, k, l, m, n, mu, nu, indx, iatom, iaxis, itemp
       integer nhess, nhesst,IMAX
+      double precision ddot
+      external ddot
 C****
       nhess = nat3*nat3
       nhesst =  nat3*(nat3+1)/2 ! dimension of lower triangular hessian

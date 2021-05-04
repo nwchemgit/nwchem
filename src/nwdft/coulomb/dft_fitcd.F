@@ -59,6 +59,8 @@ c
       integer LU,ierr,ilo,ihi,jlo,jhi,nnii
       integer adrc,ldc,iptr,intdum
       character*255 errmsg
+      double precision ddot
+      external ddot
       
 c     
 c     Fit electronic charge density. The fitting coefficients are obtained by 
@@ -383,6 +385,8 @@ c     write(*,*)' CD_coef = ',(CD_coef(i,ifit),i=1,nbf_cd)
       double precision cd_coef(nbf_cd), cgtf(nbf_cd)
       character*1 shell_labels(nshells), ang_mom_label(11)
       logical oprint_mull_fit
+      double precision ddot
+      external ddot
 c
 #include "bas.fh"
 #include "mafdecls.fh"
