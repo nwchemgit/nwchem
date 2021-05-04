@@ -30,6 +30,8 @@ cc      external nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
       logical nodezero
+      double precision ddot
+      external ddot
 c
 c     new
 c
@@ -139,6 +141,8 @@ cc      external nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
       logical nodezero
+      double precision ddot
+      external ddot
 c
 c     new
 c
@@ -252,6 +256,8 @@ cc      external nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
       logical nodezero
+      double precision ddot
+      external ddot
 c
 c     =====================
 c     Zero scratch residual

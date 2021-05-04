@@ -57,6 +57,8 @@ c
       integer k_at,l_at,atom_c_in,atom_d_in
       logical v_nonzero
       external nxtask
+      double precision ddot
+      external ddot
 c
       if(dermat) call errquit(
      C     'fitvc: dermat not coded yet',0,0)
