@@ -114,7 +114,6 @@ SOURCE="$(InputPath)"
 
 SOURCE=.\nwchem.F
 DEP_F90_NWCHE=\
-	".\include\bgj_common.fh"\
 	".\include\inp.fh"\
 	".\include\printlevels.fh"\
 	".\include\pstat.fh"\
