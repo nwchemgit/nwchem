@@ -135,7 +135,6 @@ HEADERS =      util.fh \
                bitops_decls.fh \
                bitops_funcs.fh \
                bgj.fh \
-               bgj_common.fh \
                errquit.fh \
                nwc_const.fh
 
