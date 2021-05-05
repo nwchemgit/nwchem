@@ -443,8 +443,8 @@ c
       Exc(1) = 0.0d0
       Exc(2) = 0.0d0
       if (xc_gotxc()) then
-        call fock_xc(geom, nbf, basis, nfockxc, iv_dens(4), iv_fock(4),
-     +               Exc, nExc,.false.)
+        call fock_xc(rtdb,geom, nbf, basis, nfockxc, iv_dens(4), 
+     +               iv_fock(4),Exc, nExc,.false.)
 c     AOR begin
         call xc_xdm_init(rtdb,ixdm_v,ixdm_ml)
         if (.not. rtdb_put(rtdb,'dft:xdmsave', mt_log, 1, .false.)) 

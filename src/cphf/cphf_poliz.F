@@ -45,7 +45,7 @@ c     Compute the SCF polarizability by solving the CPHF equations
 c
 c     Get MO vectors etc.
 c
-      hf_job = .not. bgj_have_xc()
+      hf_job = .not. bgj_have_xc(rtdb)
       if(.not.rtdb_cget(rtdb, 'title', 1, title)) title = ' '
       if(.not.geom_create(geom, 'geometry'))
      $     call errquit('cphf_poliz: geom_create?', 0, GEOM_ERR)
@@ -70,7 +70,7 @@ c         write(*,*)'*** cphf_poliz: dft case:'
      $        call errquit('cphf_poliz: no DFT MO vectors',0, RTDB_ERR)
 c         write(*,*)'*** cphf_poliz: dft movecs: ',movecs
 c !!! Hack to set up scftype properly for later code
-         if (bgj_restricted()) then
+         if (bgj_restricted(rtdb)) then
             scftype = 'RHF'
          else
             scftype = 'UHF'
@@ -142,7 +142,7 @@ c         write(*,*)'cphf_poliz: dft noc:',noc
             nob=noa
          endif
       endif
-      if (bgj_print() .gt. 0)
+      if (bgj_print(rtdb) .gt. 0)
      &     write(*,*)'*** cphf_poliz: noa nob',noa,nob
       nopen = 0
       nva=nmo-noa
@@ -152,7 +152,7 @@ c         write(*,*)'cphf_poliz: dft noc:',noc
       else if (scftype .eq. 'RHF' .or. scftype.eq.'ROHF') then
          nvirt = nmo - nclosed - nopen
          vlen = nclosed*(nopen+nvirt) + nopen*nvirt
-         if (bgj_print() .gt. 0)
+         if (bgj_print(rtdb) .gt. 0)
      &   write(*,*)'nvirt,nmo,nclosed,nopen',nvirt,nmo,nclosed,nopen
       else
          call errquit('cphf: unknown SCF type',0,
@@ -237,7 +237,7 @@ c
 c
       enddo
 c
-      if (bgj_print() .gt. 0)
+      if (bgj_print(rtdb) .gt. 0)
      &     write(*,*)'*** cphf_poliz: done with x y z loop'
       if (.not. ga_destroy(g_vecs_a)) call errquit('cphf_poliz: ga',1,
      &       GA_ERR)

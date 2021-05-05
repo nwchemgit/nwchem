@@ -219,7 +219,7 @@ c from hnd_giaox.F
 c Note: Just the exchange: jfac = 0.d0 (see above)
       if (.not.cam_exch) then
 
-         call shell_fock_build(geom, basis,0,ndir*npol*2,
+         call shell_fock_build(rtdb, geom, basis,0,ndir*npol*2,
      $                         jfac,kfac,tol2e,
      &                         g_d2,  ! input
      &                         g_fock,! output
@@ -227,7 +227,7 @@ c Note: Just the exchange: jfac = 0.d0 (see above)
 
       else
 
-         call shell_fock_build_cam(geom, basis,0,ndir*npol*2,
+         call shell_fock_build_cam(rtdb, geom, basis,0,ndir*npol*2,
      $                         jfac,kfac,tol2e,
      &                         g_d2,  ! input
      &                         g_fock,! output

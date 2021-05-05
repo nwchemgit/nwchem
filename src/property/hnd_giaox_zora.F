@@ -116,7 +116,7 @@ c
 c     If DFT get part of the exact exchange defined
 c
       xfac = 1.0d0
-      if (use_theory.eq.'dft') xfac = bgj_kfac()    
+      if (use_theory.eq.'dft') xfac = bgj_kfac(rtdb)    
       nind_jk=12
       do ifld = 1,nind_jk
         jfac(ifld) =  0.0d0       ! used in shell_fock_build()
@@ -372,13 +372,13 @@ c
 c     Note: Just the exchange: jfac = 0.d0 (see above)
 c
       if (.not.cam_exch) then
-         call shell_fock_build(geom, basis,0,3*npol*2,
+         call shell_fock_build(rtdb, geom, basis,0,3*npol*2,
      $                         jfac,kfac,tol2e,
      &                         g_d1,  ! input
      &                         g_fock,! output
      &                         .false.)
       else
-          call shell_fock_build_cam(geom, basis,0,3*npol*2,
+          call shell_fock_build_cam(rtdb, geom, basis,0,3*npol*2,
      $                              jfac,kfac,tol2e,
      &                              g_d1,  ! input
      &                              g_fock,! output

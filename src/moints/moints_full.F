@@ -438,7 +438,7 @@ c
      $        call ga_print(g_aodens)
 c
          call scf_get_fock_param(rtdb, tol2e)
-         call rhf_fock_2e(geom, basis, g_aodens, g_aofock, tol2e,
+         call rhf_fock_2e(rtdb, geom, basis, g_aodens, g_aofock, tol2e,
      $        .true., .true., osym )
          call scf_tidy(rtdb)
 c

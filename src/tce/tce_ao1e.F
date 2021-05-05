@@ -116,7 +116,7 @@ c
       if (ipol.eq.1) then
         jf(1)=1.0d0
         kf(1)=-0.5d0
-        call shell_fock_build(geom,ao_bas_han,0,1,
+        call shell_fock_build(rtdb, geom,ao_bas_han,0,1,
      1    jf,kf,tol2e,g_ndens,g_nfock,.true.)
       else if (ipol.eq.2) then
         jf(1)=1.0d0
@@ -127,7 +127,7 @@ c
         nfu=2
         call uhf_fock_setup(g_ndens,g_nfock,jf,kf,ndu,
      1    nfu,nbf,.false.)
-        call shell_fock_build(geom,ao_bas_han,0,ndu,
+        call shell_fock_build(rtdb, geom,ao_bas_han,0,ndu,
      1    jf,kf,tol2e,g_ndens,g_nfock,.true.)
         call uhf_fock_finish(g_ndens,g_nfock,jf,kf,ndu,
      1    nfu,nbf,.false.)

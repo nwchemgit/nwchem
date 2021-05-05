@@ -93,7 +93,7 @@ c     Current CPHF does not handle symmetry
 c     If DFT get part of the exact exchange defined
       
       xfac = 1.0d0
-      if (use_theory.eq.'dft') xfac = bgj_kfac()
+      if (use_theory.eq.'dft') xfac = bgj_kfac(rtdb)
 
       if (debug) write (luout,*) 'use_theory, xfac =', use_theory, xfac
       
@@ -275,7 +275,7 @@ c$$$        if(.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .false.))
 c$$$     $     call errquit('aorgiao: rtdb_put of j_derfit failed',0,
 c$$$     &     RTDB_ERR)
 c$$$      endif
-c$$$      call shell_fock_build(geom, basis, 0, 3,
+c$$$      call shell_fock_build(rtdb, geom, basis, 0, 3,
 c$$$     $   jfac, kfac,tol2e, g_d1, g_fock,.false.)
 c$$$      if(use_theory.eq.'dft') then
 c$$$        ifld = 0
@@ -298,7 +298,7 @@ c from new (2011) hnd_giaox:
      $     call errquit('aor_giao: rtdb_put of j_derfit failed',0,
      &       RTDB_ERR)
       endif
-      call shell_fock_build(geom, basis, 0, 3,
+      call shell_fock_build(rtdb, geom, basis, 0, 3,
      $     jfac, kfac,tol2e, g_d1, g_fock,.false.)
       if(use_theory.eq.'dft') then
          if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, 0))

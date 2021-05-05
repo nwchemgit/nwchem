@@ -9,6 +9,7 @@
 c     
 c     $Id$
 c
+      integer rtdb
       integer g_x, g_ax
       double precision acc
 c     
@@ -16,6 +17,10 @@ c
       integer icol,ilo(2),ihi(2)
       logical oprint, olprint
       double precision dnrm
+      integer rohf_get_rtdb
+      external rohf_get_rtdb
+c
+      rtdb = rohf_get_rtdb()
 c     
 c     Check
 c     
@@ -52,7 +57,7 @@ c
 c     
 c     Call internal routine
 c     
-      call rohf_hessv_xx2( basis, geom, nbf, nmo,
+      call rohf_hessv_xx2( rtdb, basis, geom, nbf, nmo,
      $     nclosed, nopen,
      $     pflg, g_movecs, oskel, noskew,
      $     crohf_g_fcv, crohf_g_fpv, crohf_g_fcp,
@@ -82,7 +87,8 @@ c
       endif
 c
       end
-      subroutine rohf_hessv_xx2( basis, geom, nbf, nmo, nclosed, nopen, 
+      subroutine rohf_hessv_xx2( rtdb, basis, geom, 
+     &     nbf, nmo, nclosed, nopen, 
      $     pflg,
      $     g_movecs, oskel, noskew, g_fcv, g_fpv, g_fcp,
      $     acc, lshift, g_x, g_ax )
@@ -94,7 +100,7 @@ C     $Id$
 #include "rtdb.fh"
 #include "bgj.fh"
 c     
-      integer basis, geom
+      integer rtdb, basis, geom
       integer nbf, nmo, nclosed, nopen
       integer pflg
       integer g_movecs(*)
@@ -116,15 +122,16 @@ c
       endif
  200  continue
       if (pflg .gt. 1) then
-         call rohf_hessv_2e2( basis, geom, nbf, nmo, nclosed, nopen,
+         call rohf_hessv_2e2( rtdb, basis, geom,
+     &        nbf, nmo, nclosed, nopen,
      $        g_movecs, oskel, noskew, g_x, acc, ! was min(1d-6,acc)
      $        g_ax )
       endif
 c
 c     
       end
-      subroutine rohf_hessv_2e2( basis, geom, nbf, nmo, nclosed, nopen,
-     $     g_movec, oskel, noskew, g_x, acc, g_ax )
+      subroutine rohf_hessv_2e2( rtdb, basis, geom, nbf, nmo, nclosed, 
+     $     nopen, g_movec, oskel, noskew, g_x, acc, g_ax )
 C     $Id$
       implicit none
 #include "errquit.fh"
@@ -142,6 +149,7 @@ c
 ccccccccccccccc This code does NOT work for open shell!!!!!ccccccccccccccccc
 c
 c
+      integer rtdb
       integer basis, geom       ! basis & geom handle
       integer nbf, nclosed, nopen ! Basis size and occupation
       integer nmo               ! No. of linearly dependent MOs
@@ -182,7 +190,7 @@ c
       parameter (one=1.0d0, mone=-1.0d0, zero=0.0d0, four=4.0d0)
       parameter (half=0.5d0, mhalf=-0.5d0, two=2.0d0, mtwo=-2.0d0)
       oprint= util_print('rohf_hessv2',print_debug)
-      xc_xfac1=bgj_kfac()
+      xc_xfac1=bgj_kfac(rtdb)
 c
 c     This get's cleaned up a lot when the Fock build accepts
 c     a single multiple dimension GA for its input.
@@ -399,11 +407,11 @@ c
 c     noskew is true, except for nmr perturbations (skew symmetric)
 c
       if (.not.cam_exch) then
-        call shell_fock_build(geom, basis, 0, nfock, 
+        call shell_fock_build(rtdb, geom, basis, 0, nfock, 
      $   dbl_mb(k_jfac), dbl_mb(k_kfac),
      $   tol2e, g_dens, g_fock, noskew)
       else   ! for attenuated calculations
-        call shell_fock_build_cam(geom, basis, 0, nfock, 
+        call shell_fock_build_cam(rtdb, geom, basis, 0, nfock, 
      $   dbl_mb(k_jfac), dbl_mb(k_kfac),
      $   tol2e, g_dens, g_fock, noskew)
       end if
@@ -421,12 +429,12 @@ c
       endif
 c
 c     DIM/QM JEM
-      if (.not.rtdb_get(bgj_get_rtdb_handle(), 'dimqm:lrsp', mt_log,
+      if (.not.rtdb_get(rtdb, 'dimqm:lrsp', mt_log,
      $                  1, ldimqm)) ldimqm = .false.
 c     Calculate DIM dipoles and DIM potential
       if (ldimqm) then
 c  jbecca START: added false variable to subroutine call
-        call dimqm_rohf_calcDIM(bgj_get_rtdb_handle(), geom, basis,
+        call dimqm_rohf_calcDIM(rtdb, geom, basis,
      $                          nbf, nfock, g_dens, g_dim, .false.)
 c jbecca END
       end if

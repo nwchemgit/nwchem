@@ -108,7 +108,7 @@ c
 c
 c     If DFT get part of the exact exchange defined
       xfac = 1.0d0
-      if (use_theory.eq.'dft') xfac = bgj_kfac()
+      if (use_theory.eq.'dft') xfac = bgj_kfac(rtdb)
       nind_jk=12
       do ifld = 1,nind_jk
         jfac(ifld) =  0.0d0       ! used in update_rhs_shfock()

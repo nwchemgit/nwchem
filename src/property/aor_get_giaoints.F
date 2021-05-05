@@ -129,7 +129,7 @@ c
 c     If DFT get part of the exact exchange defined
       
       xfac = 1.0d0
-      if (use_theory.eq.'dft') xfac = bgj_kfac()
+      if (use_theory.eq.'dft') xfac = bgj_kfac(rtdb)
 
       do idir = 1,ndir
         jfac(idir) =  0.0d0       
@@ -599,19 +599,19 @@ c       Note: Just the exchange: jfac = 0.d0 (see above)
         ifld = 3
         
         if (.not.cam_exch) then
-          call shell_fock_build(geom, basis, 0, ifld,
+          call shell_fock_build(rtdb, geom, basis, 0, ifld,
      &      jfac, kfac, tol2e, g_d1, g_fock, .false.)
         else
-          call shell_fock_build_cam(geom, basis, 0, ifld,
+          call shell_fock_build_cam(rtdb, geom, basis, 0, ifld,
      %      jfac, kfac, tol2e, g_d1, g_fock, .false.)
         end if
 
         if (lifetime) then
           if (.not.cam_exch) then
-            call shell_fock_build(geom, basis, 0, ifld,
+            call shell_fock_build(rtdb, geom, basis, 0, ifld,
      &        jfac, kfac, tol2e, g_d1_im, g_fock_im, .false.)
           else
-            call shell_fock_build_cam(geom, basis, 0, ifld,
+            call shell_fock_build_cam(rtdb, geom, basis, 0, ifld,
      %        jfac, kfac, tol2e, g_d1_im, g_fock_im, .false.)
           end if
         end if                  ! lifetime

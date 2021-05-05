@@ -96,7 +96,7 @@ c
      &         call errquit('dftg_getxc: could not allocate xc hessian',
      &                      1, MA_ERR)
             call dfill(9*natom*natom, 0.0d0, dbl_mb(k_hess), 1)
-            if (bgj_print() .gt. 0)
+            if (bgj_print(rtdb) .gt. 0)
      &           write(LuOut,*)'*** In dftg_getxc: calling xc_hessian'
             call xc_hessian(geom,rtdb,nbf_ao,ao_bas_han,
      .           iga_dens, oactive, nactive, dbl_mb(k_hess),
@@ -117,7 +117,7 @@ c
 c
 c           Allocate and initialize temp GA's for RHS
 c
-            if (bgj_print() .gt. 0)
+            if (bgj_print(rtdb) .gt. 0)
      &           write(*,*)'*** xc cpks rhs test: nactive =',nactive
             if (ipol*3*natom.gt.100)
      &           call errquit('dftg_getxc: dimension error in test',0,
@@ -158,7 +158,7 @@ c
              endif
             enddo
 
-            if (bgj_print() .gt. 0)
+            if (bgj_print(rtdb) .gt. 0)
      &           write(LuOut,*)'*** In dftg_getxc: calling xc_cpks_rhs'
             call xc_cpks_rhs(geom,rtdb,nbf_ao,ao_bas_han,
      .           iga_dens, oactive, nactive, g_rhs,

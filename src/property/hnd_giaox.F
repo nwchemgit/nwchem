@@ -72,7 +72,7 @@ c
 c     If DFT get part of the exact exchange defined
 c
       xfac = 1.0d0
-      if (use_theory.eq.'dft') xfac = bgj_kfac()
+      if (use_theory.eq.'dft') xfac = bgj_kfac(rtdb)
 c
 c     Integral initialization
 c
@@ -295,10 +295,10 @@ c
 c     Note: Just the exchange: jfac = 0.d0 (see above)
 c
       if (.not.cam_exch) then
-         call shell_fock_build(geom, basis, 0, 3,
+         call shell_fock_build(rtdb, geom, basis, 0, 3,
      $     jfac, kfac, tol2e, g_d1, g_fock, .false.)
       else
-         call shell_fock_build_cam(geom, basis, 0, 3,
+         call shell_fock_build_cam(rtdb, geom, basis, 0, 3,
      $     jfac, kfac, tol2e, g_d1, g_fock, .false.)
       end if
 c

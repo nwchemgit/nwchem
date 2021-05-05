@@ -1,7 +1,7 @@
 C>
 C> \brief Wrapper for AO-basis XC matrices without fitting
 C>
-      subroutine fock_xc(geom, nbf_ao, ao_bas_han,
+      subroutine fock_xc(rtdb, geom, nbf_ao, ao_bas_han,
      &   nfock, g_dens, g_xc, Exc, nExc, l3d)
 c
 c     $Id$
@@ -87,7 +87,6 @@ c will be related to No. of density matrices.
 c
       ndens=1
       if(xc_getipol().eq.2) ndens=2
-      rtdb = bgj_get_rtdb_handle()
       alo(2) = 1
       ahi(2) = nbf_ao
       alo(3) = 1
@@ -234,7 +233,7 @@ c     -----------------------
          if(ndens.eq.2) int_mb(igxcd+1)=g_dens(3)
       endif
       if (calc_type .eq. 2) then
-         if (.not. bgj_get_scf_dens(g_dens_scf))
+         if (.not. bgj_get_scf_dens(rtdb,g_dens_scf))
      &        call errquit('fock_xc: cant get scf density handles',0,
      &       UNKNOWN_ERR)
          alo(1) = 1

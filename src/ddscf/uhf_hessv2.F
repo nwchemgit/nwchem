@@ -1,4 +1,4 @@
-      subroutine uhf_hessv2(acc, g_x, g_ax)
+      subroutine uhf_hessv2(rtdb, acc, g_x, g_ax)
 *
 * $Id$
 *
@@ -14,6 +14,7 @@
 #include "global.fh"
 
 c     
+      integer rtdb
       double precision acc      ! [input] required accuracy of products
       integer g_x               ! [input] handle to input vectors
       integer g_ax              ! [input] handle to output products
@@ -68,7 +69,7 @@ c
  200  continue
 c
       if (pflg .gt. 1)then 
-         call uhf_hessv_2e2(acc, g_x, g_ax, nvec)
+         call uhf_hessv_2e2(rtdb, acc, g_x, g_ax, nvec)
       endif
 c
       if (oprint) then
@@ -87,7 +88,7 @@ c
 c
       end
 c
-      subroutine uhf_hessv_2e2(acc, g_x, g_ax, nvec)
+      subroutine uhf_hessv_2e2(rtdb, acc, g_x, g_ax, nvec)
       implicit none
 #include "errquit.fh"
 #include "cuhf.fh"
@@ -99,6 +100,7 @@ c
 #include "bgj.fh"
 #include "case.fh"
 c     
+      integer rtdb
       double precision acc      ! [input] required accuracy of products
       integer g_x               ! [input] handle to input vectors
       integer g_ax              ! [input] handle to output products
@@ -146,7 +148,7 @@ c     a single density array argument rather than an array of arrays
 c
 c     write(6,*)"in uhf_hessv2, g_x"
 c     call ga_print(g_x)
-      xc_xfac1=bgj_kfac() 
+      xc_xfac1=bgj_kfac(rtdb) 
 c
 c     allocate MAs for jfacs and kfacs
 c
@@ -250,7 +252,7 @@ c
 c
 c     DIM/QM JEM
 c     Calculate DIM dipoles and DIM potential from TOTAL density
-      if (.not.rtdb_get(bgj_get_rtdb_handle(), 'dimqm:lrsp', mt_log,
+      if (.not.rtdb_get(rtdb, 'dimqm:lrsp', mt_log,
      $                  1, ldimqm)) ldimqm = .false.
       if (ldimqm) then
         dims(1) = nvec
@@ -278,10 +280,10 @@ c       to match closed shell routine?
      $                     0.25d0, g_dens,  blo, bhi,
      $                             g_dens,  blo, bhi)
 c jbecca START: added .false. variable at end
-        call dimqm_rohf_calcDIM(bgj_get_rtdb_handle(), geom, basis,
+        call dimqm_rohf_calcDIM(rtdb, geom, basis,
      $                          nbf, nvec, g_dens, g_dim, .false.)
 c jbecca END
-c        call dimqm_indDipoles(bgj_get_rtdb_handle(), nbf, geom,
+c        call dimqm_indDipoles(rtdb, nbf, geom,
 c     $                          basis, g_dens)
 c        call ga_zero(g_dim)
 c        call fock_dim(geom, nbf, basis, nvec, g_dim, 0, 1)
@@ -331,11 +333,11 @@ c
 c     Actually do the Fock build
 c
       if (.not.cam_exch) then
-        call shell_fock_build(geom, basis, 0, nfock,
+        call shell_fock_build(rtdb, geom, basis, 0, nfock,
      $     dbl_mb(k_jfac), dbl_mb(k_kfac),
      $     tol2e, g_dens2, g_fock2, noskew_uhf)
       else
-        call shell_fock_build_cam(geom, basis, 0, nfock,
+        call shell_fock_build_cam(rtdb, geom, basis, 0, nfock,
      $     dbl_mb(k_jfac), dbl_mb(k_kfac),
      $     tol2e, g_dens2, g_fock2, noskew_uhf)
       end if ! cam_exch

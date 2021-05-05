@@ -339,7 +339,7 @@ c       separately here
 c     
       end
 
-      subroutine rohf_hessv3_cmplx(
+      subroutine rohf_hessv3_cmplx(rtdb,
      &                  acc,       ! in : accuracy
      &                  g_z,       ! in : z
      &                  g_Az1,     ! in : Az1
@@ -365,6 +365,7 @@ c     Note.-  Modifying rohf_hessv3 to handle complex vars
 #include "global.fh"
 c     
 c     $Id$
+      integer rtdb
       integer ncomp
       integer g_z(ncomp), ! [input]  A-matrix elements for density matrix
      &        g_Az(ncomp) ! [output] Perturbed Fock operator
@@ -414,7 +415,7 @@ c     Call internal routine
 c  
       if (debug) write (6,*) 'calling rohf_hessv_xx3_cmplx'
 
-      call rohf_hessv_xx3_cmplx(
+      call rohf_hessv_xx3_cmplx(rtdb,
      &     g_z,         ! in :
      &     g_Az1,
      &     nsub,
@@ -463,7 +464,7 @@ c      enddo
 
       end
 
-      subroutine rohf_hessv_xx3_cmplx(
+      subroutine rohf_hessv_xx3_cmplx(rtdb,
      &               g_z,     ! in :
      &               g_Az1,   ! ou : product: A x z
      &               nsub,    ! in : nr. subspace
@@ -500,6 +501,7 @@ c     $Id$
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "bgj.fh"
+      integer rtdb
       integer ipm,ncomp,iter_cphf
       integer ncompmx
       parameter(ncompmx=2)
@@ -717,7 +719,7 @@ c       separately here
       endif                     ! pflg.gt.1
 c
 c   DIM/QM JEM
-      if (.not.rtdb_get(bgj_get_rtdb_handle(), 'dimqm:lrsp', MT_LOG,
+      if (.not.rtdb_get(rtdb, 'dimqm:lrsp', MT_LOG,
      $                  1, ldimqm)) ldimqm = .false.
       if(ldimqm) then
 c       Transforming complex arrays to 2 real arrays to fit DIM structure

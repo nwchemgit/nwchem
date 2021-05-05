@@ -498,7 +498,7 @@ c
 c
       kfactor(1)=0.0
 c
-      call fock_2e(geom, all_bas_han, nfock, jfactor, kfactor,
+      call fock_2e(rtdb, geom, all_bas_han, nfock, jfactor, kfactor,
      $     tol2e, .false., iv_dens, iv_fock, .false.)
       call do_riscf (.true.)
       if ( nopen .eq. 0 ) call riscf_dovecs(.false., g_all)

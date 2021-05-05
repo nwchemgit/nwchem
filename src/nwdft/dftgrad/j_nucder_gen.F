@@ -92,16 +92,15 @@ c !!! Start BGJ temp test code
       integer l_ti_db, k_ti_db
 c !!! End BGJ temp test code
 c
-      if (bgj_print() .gt. 0)
+      if (bgj_print(rtdb) .gt. 0)
      &     write(*,*)'--------Entered j_deriv_gen-------------'
       do_hess = calc_type .eq. 2
       do_cpks_r = calc_type .eq. 3
       if (.not. (do_hess .or. do_cpks_r))
      &     call errquit('j_deriv_gen: illegal calculation type',0,
      &       INPUT_ERR)
-      if (bgj_print() .gt. 0)
+      if (bgj_print(rtdb) .gt. 0)
      &     write(*,*)'logicals ', do_hess, do_cpks_r
-      rtdb = bgj_get_rtdb_handle()
       if (.not. geom_ncent(geom, natoms))
      &   call errquit('j_deriv_gen: geom_ncent failed',1, GEOM_ERR)
 #if 0
@@ -147,7 +146,7 @@ c     of dftg_cdfit_gen (allocation is set up properly in j_nucder_alloc)
 c     The s34 array is used for the fitting coefficients in the
 c     fitted case (allocation is set up properly in j_nucder_alloc)
 c
-         if (bgj_print().gt.0) write(*,*)
+         if (bgj_print(rtdb).gt.0) write(*,*)
      &      ': what about oactive for fitted J?'
          call dftg_cdfit_gen(geom,AO_bas_han, CD_bas_han,
      &                       nbf_cd, natoms, tol2e,
@@ -247,7 +246,7 @@ c !!! BGJ test !!!
 c All the code from here to the next !!! BGJ test !!! can be removed once
 c the code is stable
 c
-      if (bgj_print() .gt. 0) then
+      if (bgj_print(rtdb) .gt. 0) then
          if (do_hess) then
 c
             write(LuOut,*) 'j_deriv_gen: j hessian'

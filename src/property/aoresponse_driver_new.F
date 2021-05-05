@@ -334,7 +334,7 @@ c     Making C1 geometry and store it on rtdb (oskel = .false.)
       
 c     If DFT get part of the exact exchange defined
       xfac = 1.0d0
-      if (use_theory.eq.'dft') xfac = bgj_kfac()
+      if (use_theory.eq.'dft') xfac = bgj_kfac(rtdb)
 c
 c     read number of frequencies from run-time database
 

@@ -132,20 +132,20 @@ c
         jf(1)=1.0d0*scale_j
         kf(1)=-kfac*0.5d0*scale_k
         if (.not.cam_exch) then            ! regular calculations
-          call shell_fock_build(geom,ao_bas_han,0,1,
+          call shell_fock_build(rtdb, geom,ao_bas_han,0,1,
      &      jf,kf,tol2e,g_ntrl,g_nprd,.true.)
         else                                  ! attenuated calculations
-          call shell_fock_build_cam(geom,ao_bas_han,0,1,
+          call shell_fock_build_cam(rtdb, geom,ao_bas_han,0,1,
      &      jf,kf,tol2e,g_ntrl,g_nprd,.true.)
         end if  ! cam_exch
       else if ((ipol.eq.1).and.(triplet)) then
         jf(1)=0.0d0*scale_j
         kf(1)=-kfac*0.5d0*scale_k
         if (.not.cam_exch) then            ! regular calculations
-          call shell_fock_build(geom,ao_bas_han,0,1,
+          call shell_fock_build(rtdb, geom,ao_bas_han,0,1,
      1      jf,kf,tol2e,g_ntrl,g_nprd,.true.)
         else                                  ! attenuated calculations
-          call shell_fock_build_cam(geom,ao_bas_han,0,1,
+          call shell_fock_build_cam(rtdb, geom,ao_bas_han,0,1,
      1      jf,kf,tol2e,g_ntrl,g_nprd,.true.)
         end if  ! cam_exch
       else if (ipol.eq.2) then
@@ -158,10 +158,10 @@ c
         call uhf_fock_setup(g_ntrl,g_nprd,jf,kf,ndu,
      1       nfu,nbf_ao,.false.)
         if (.not.cam_exch) then     ! regular calculations
-          call shell_fock_build(geom,ao_bas_han,0,ndu,
+          call shell_fock_build(rtdb, geom,ao_bas_han,0,ndu,
      1       jf,kf,tol2e,g_ntrl,g_nprd,.true.)
         else
-          call shell_fock_build_cam(geom,ao_bas_han,0,ndu,
+          call shell_fock_build_cam(rtdb, geom,ao_bas_han,0,ndu,
      1       jf,kf,tol2e,g_ntrl,g_nprd,.true.)
         end if  ! cam_exch
         call uhf_fock_finish(g_ntrl,g_nprd,jf,kf,ndu,
@@ -221,10 +221,10 @@ c
          jf(1)=0.0d0*scale_j
          kf(1)=-kfac*0.5d0*scale_k
          if (.not.cam_exch) then  ! regular calculations
-           call shell_fock_build(geom,ao_bas_han,0,1,
+           call shell_fock_build(rtdb, geom,ao_bas_han,0,1,
      &       jf,kf,tol2e,g_ntrl,g_nprd,.false.)
          else                        ! attenuated calculations
-           call shell_fock_build_cam(geom,ao_bas_han,0,1,
+           call shell_fock_build_cam(rtdb, geom,ao_bas_han,0,1,
      &       jf,kf,tol2e,g_ntrl,g_nprd,.false.)
          end if  ! cam_exch
         else
@@ -237,10 +237,10 @@ c
           call uhf_fock_setup(g_ntrl,g_nprd,jf,kf,ndu,
      1        nfu,nbf_ao,.false.)
           if (.not.cam_exch) then  ! regular calculations
-            call shell_fock_build(geom,ao_bas_han,0,ndu,
+            call shell_fock_build(rtdb, geom,ao_bas_han,0,ndu,
      1        jf,kf,tol2e,g_ntrl,g_nprd,.false.)
           else
-            call shell_fock_build_cam(geom,ao_bas_han,0,ndu,
+            call shell_fock_build_cam(rtdb, geom,ao_bas_han,0,ndu,
      1        jf,kf,tol2e,g_ntrl,g_nprd,.false.)
           end if ! cam_exch
           call uhf_fock_finish(g_ntrl,g_nprd,jf,kf,ndu,
@@ -458,12 +458,12 @@ c
        enddo
        if(.not.cam_exch) then ! normal calculations
 c        write(6,*)'HERE'
-        call shell_fock_build(geom,ao_bas_han,0,nvectors,
+        call shell_fock_build(rtdb, geom,ao_bas_han,0,nvectors,
      1    dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_p,.true.)
        else   ! attenuated calculations
 c        write(6,*)'NOT HERE'
 
-        call shell_fock_build_cam(geom,ao_bas_han,0,nvectors,
+        call shell_fock_build_cam(rtdb, geom,ao_bas_han,0,nvectors,
      1    dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_p,.true.)
        end if  ! cam_exch
       else if ((ipol.eq.1).and.(triplet)) then
@@ -472,10 +472,10 @@ c        write(6,*)'NOT HERE'
           dbl_mb(k_kf+n-1)=-kfac*0.5d0*scale_k
        enddo
        if (.not.cam_exch) then   ! normal calculations
-        call shell_fock_build(geom,ao_bas_han,0,nvectors,
+        call shell_fock_build(rtdb, geom,ao_bas_han,0,nvectors,
      1    dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_p,.true.)
        else   ! attenuated calculations
-        call shell_fock_build_cam(geom,ao_bas_han,0,nvectors,
+        call shell_fock_build_cam(rtdb, geom,ao_bas_han,0,nvectors,
      1    dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_p,.true.)
        end if  ! cam_exch
       else if (ipol.eq.2) then
@@ -488,10 +488,10 @@ c        write(6,*)'NOT HERE'
         call uhf_fock_setup(g_nsym,g_nprd_p,dbl_mb(k_jf),dbl_mb(k_kf),
      1    ndu,nfu,nbf_ao,.false.)
         if (.not.cam_exch) then   ! normal calculations
-          call shell_fock_build(geom,ao_bas_han,0,ndu,
+          call shell_fock_build(rtdb, geom,ao_bas_han,0,ndu,
      1    dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_p,.true.)
         else
-          call shell_fock_build_cam(geom,ao_bas_han,0,ndu,
+          call shell_fock_build_cam(rtdb, geom,ao_bas_han,0,ndu,
      1    dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_p,.true.)
         end if ! cam_exch
         call uhf_fock_finish(g_nsym,g_nprd_p,dbl_mb(k_jf),dbl_mb(k_kf),
@@ -544,11 +544,12 @@ c
           enddo
           if (tda) then
             if (.not.cam_exch) then ! normal calculations
-             call shell_fock_build(geom,ao_bas_han,0,nvectors,
+             call shell_fock_build(rtdb, geom,ao_bas_han,0,nvectors,
      1          dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_work,.false.)
             else  ! attenuated calculations
-             call shell_fock_build_cam(geom,ao_bas_han,0,nvectors,
-     1          dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_work,.false.)
+             call shell_fock_build_cam(rtdb, geom,ao_bas_han,0,
+     1           nvectors,dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_work,
+     2          .false.)
             end if  ! cam_exch
             alo(1)=1
             ahi(1)=ipol*nvectors
@@ -566,11 +567,11 @@ c
      1        g_nprd_p,blo,bhi,g_nprd_p,blo,bhi) 
           else
             if (.not.cam_exch) then ! normal calculations
-              call shell_fock_build(geom,ao_bas_han,0,nvectors,
-     1          dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_m,.false.)
+             call shell_fock_build(rtdb, geom,ao_bas_han,0,nvectors,
+     1         dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_m,.false.)
             else  ! attenuated calculations
-              call shell_fock_build_cam(geom,ao_bas_han,0,nvectors,
-     1          dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_m,.false.)
+             call shell_fock_build_cam(rtdb, geom,ao_bas_han,0,nvectors,
+     1         dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_m,.false.)
             end if  ! cam_exch
           endif ! tda
         else
@@ -584,10 +585,10 @@ c
            call uhf_fock_setup(g_nsym,g_work,
      1        dbl_mb(k_jf),dbl_mb(k_kf),ndu,nfu,nbf_ao,.false.)
            if (.not.cam_exch) then
-              call shell_fock_build(geom,ao_bas_han,0,ndu,
+              call shell_fock_build(rtdb, geom,ao_bas_han,0,ndu,
      1        dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_work,.false.)
            else
-              call shell_fock_build_cam(geom,ao_bas_han,0,ndu,
+              call shell_fock_build_cam(rtdb, geom,ao_bas_han,0,ndu,
      1        dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_work,.false.)
            end if ! cam_exch
            call uhf_fock_finish(g_nsym,g_work,
@@ -611,10 +612,10 @@ c
            call uhf_fock_setup(g_nsym,g_nprd_m,
      1        dbl_mb(k_jf),dbl_mb(k_kf),ndu,nfu,nbf_ao,.false.)
            if (.not.cam_exch) then
-             call shell_fock_build(geom,ao_bas_han,0,ndu,
+             call shell_fock_build(rtdb, geom,ao_bas_han,0,ndu,
      1        dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_m,.false.)
            else
-             call shell_fock_build_cam(geom,ao_bas_han,0,ndu,
+             call shell_fock_build_cam(rtdb, geom,ao_bas_han,0,ndu,
      1        dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_m,.false.)
            end if ! cam_exch
            call uhf_fock_finish(g_nsym,g_nprd_m,
