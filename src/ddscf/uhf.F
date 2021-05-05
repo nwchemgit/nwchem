@@ -722,7 +722,7 @@ c
       if ((grow.ne.cuhf_vlen).or.(gcol.ne.1))
      $     call errquit('uhf_energy: invalid vector length',0, GA_ERR)
       cphf_uhf = .false.
-      if (.not. rtdb_get(bgj_get_rtdb_handle(), 
+      if (.not. rtdb_get(rtdb, 
      &     'cphf_solve:cphf_uhf', mt_log, 1, cphf_uhf)) then
          cphf_uhf = .false.
       endif
@@ -844,7 +844,7 @@ c
       endif
       call do_riscf (.false.)
       if (.not.cam_exch) then
-        call fock_2e(geom, basis, nfock, jfac, kfac, tol2e,
+        call fock_2e(rtdb, geom, basis, nfock, jfac, kfac, tol2e,
      $     oskel, d, f, .false.)
       else ! for attenuated calculations
 c

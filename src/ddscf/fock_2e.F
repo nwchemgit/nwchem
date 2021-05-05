@@ -1,4 +1,4 @@
-      subroutine fock_2e( geom1, ao_basis, mfock, jfac, kfac,
+      subroutine fock_2e( rtdb, geom1, ao_basis, mfock, jfac, kfac,
      $                    tol2e1, oskel1, vg_dens, vg_fock, asym )
 c$Id$
 c
@@ -19,6 +19,7 @@ c     !!! BGJ test !!!
 #include "util.fh"
 #include "stdio.fh"
 
+      integer rtdb
       integer geom1, ao_basis        ! [input] parameter handles
       integer nfock,mfock            ! [input] number of Fock matrices
       double precision tol2e1        ! [input] integral selection threshold
@@ -41,7 +42,7 @@ c     !!! BGJ test !!!
       logical xc_active, jfit,oprint,odft,cphf_uhf
       oprint= util_print('fock_2e',print_debug)
       cphf_uhf = .false.
-      if (.not. rtdb_get(bgj_get_rtdb_handle(), 
+      if (.not. rtdb_get(rtdb, 
      &     'cphf_solve:cphf_uhf', mt_log, 1, cphf_uhf)) then
          cphf_uhf = .false.
       endif
@@ -59,15 +60,15 @@ c     !!! BGJ test !!!
 c
 c     See if XC is active for this call
 c
-      if (.not.rtdb_get(bgj_get_rtdb_handle(),'bgj:xc_active',MT_LOG,1,
+      if (.not.rtdb_get(rtdb,'bgj:xc_active',MT_LOG,1,
      &     xc_active)) xc_active = .false.
       if (oprint)
      &   write(luout,*)'*** fock_2e: xc_active ',xc_active
 c
 c     Set K contribution to be correct even for pure DFT and hybrids
 c
-      if (xc_active .and. bgj_have_xc()) then
-         call dscal(nfock, bgj_kfac(), kfac, 1)
+      if (xc_active .and. bgj_have_xc(rtdb)) then
+         call dscal(nfock, bgj_kfac(rtdb), kfac, 1)
          if (oprint)
      &      write(luout,*)'*** fock_2e: set kfac to ',
      &        (kfac(ifock),ifock=1,nfock)
@@ -75,7 +76,7 @@ c
 c
 c     Determine whether J fitting is involved
 c
-      jfit = bgj_have_j_fit().and.(jfac(1).ne.0d0)
+      jfit = bgj_have_j_fit(rtdb).and.(jfac(1).ne.0d0)
 c !!! Edo commented this out before since it caused bugs - ask him about
 c !!! it when it is necessary to turn back on for J fit CPKS
       jfit = .false.
@@ -90,8 +91,8 @@ c
      &      write(luout,*)'*** fock_2e: jfit case - original jfac = ',
      &        jfac(1)
 cold         jfac(1)=0d0
-cold         kfac(1)=-0.5d0*bgj_kfac()
-         call ao_fock_2e( geom1, ao_basis, 1, 0d0, -0.5d0*bgj_kfac(),
+cold         kfac(1)=-0.5d0*bgj_kfac(rtdb)
+         call ao_fock_2e(geom1, ao_basis, 1, 0d0, -0.5d0*bgj_kfac(rtdb),
      $        tol2e1, oskel1, vg_dens, vg_fock, asym )
 
          call fock_j_fit(nfock, vg_dens, vg_fockc)
@@ -137,7 +138,7 @@ c     !!! BGJ test !!!
 c !!! Exit if no XC part to do - this can be changed to just do XC
 c !!! part and print it out for comparison by removing xc_active
 c !!! from the test below
-      if (.not. (xc_active .and. bgj_have_xc())) then
+      if (.not. (xc_active .and. bgj_have_xc(rtdb))) then
 c         write(*,*)'*** fock_2e: no xc, returning'
          return
       endif
@@ -145,7 +146,7 @@ c         write(*,*)'*** fock_2e: no xc, returning'
          if(ga_nodeid().eq.0) then
             write(0,*) ' WARNING: likely restart: nfock = ',nfock
          endif
-         if (.not.rtdb_put(bgj_get_rtdb_handle(),'bgj:xc_active',
+         if (.not.rtdb_put(rtdb,'bgj:xc_active',
      M        MT_LOG,1,.false.)) 
      C        call errquit(' fock2e: bgjrtdbput failed',0,0)
          return
@@ -183,7 +184,7 @@ c
       Exc(1) = 0.0d0
       Exc(2) = 0.0d0
       nExc = 1
-      call fock_xc(geom1, nbf,ao_basis,
+      call fock_xc(rtdb,geom1, nbf,ao_basis,
      &             nfock, vg_dens, g_xc,Exc,nExc,.false.)
       ffac=1d0
       if (xc_active) then

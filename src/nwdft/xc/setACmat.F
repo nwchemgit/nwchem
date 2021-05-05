@@ -194,7 +194,7 @@ c
       endif
 c
 #if 0
-      if (bgj_print() .gt. 1) then
+      if (bgj_print(rtdb) .gt. 1) then
       write(LuOut,*) ' setACmat: AMAT out' 
       call output(amat, 1, nq, 1, ipol, nq, ipol, 1)
       if (grad) then
@@ -229,7 +229,7 @@ c
          enddo
       endif
 #if 0
-      if (bgj_print() .gt. 1) then
+      if (bgj_print(rtdb) .gt. 1) then
       write(LuOut,*) ' setACmat_d2: AMAT2 out'
       call output(amat2, 1, nq, 1, NCOL_AMAT2, nq, NCOL_AMAT2, 1)
       if (grad) then

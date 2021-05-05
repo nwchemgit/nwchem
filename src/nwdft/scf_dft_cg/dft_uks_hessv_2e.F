@@ -213,7 +213,6 @@ c
       if(util_print('dft timings', print_high))
      &      time1_xc=util_cpusec()   ! start xc build time
       if (xc_gotxc()) then
-        rtdb = bgj_get_rtdb_handle()
         if (.not.rtdb_get(rtdb,'fock_xc:calc_type',MT_INT,1,calc_type))
      +      calc_type = 1
         if (.not.rtdb_put(rtdb,'fock_xc:calc_type',MT_INT,1,2))
@@ -222,7 +221,8 @@ c
 c
 c       include hessian contribution only if second derivatives are available
         if(xc_got2nd()) then
-           call fock_xc(geom,nbf,basis,nfock,g_dd,g_ff,Exc,nExc,.true.)
+           call fock_xc(rtdb,geom,nbf,basis,nfock,g_dd,g_ff,Exc,nExc,
+     +                  .true.)
         end if
 c
         if (.not.rtdb_put(rtdb,'fock_xc:calc_type',MT_INT,1,calc_type))

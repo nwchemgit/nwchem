@@ -96,7 +96,7 @@ c
       nbases = 1
       bases(1) = basis
 #if 0
-      if (bgj_have_j_fit()) then
+      if (bgj_have_j_fit(rtdb)) then
         nbases = 2
         bases(2) = bgj_CD_bas_han()
         if (ga_nodeid().eq.0) then

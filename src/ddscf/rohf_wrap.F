@@ -12,6 +12,22 @@ c
      $     crohf_g_fcp/-1/,
      $     noskew/.true./
       end
+
+      subroutine rohf_set_rtdb(rtdb)
+      implicit none
+      integer rtdb
+      integer rtdbcopy
+      common /rohfrtdbcommon/ rtdbcopy
+      rtdbcopy = rtdb
+      end
+
+      integer function rohf_get_rtdb()
+      implicit none
+      integer rtdbcopy
+      common /rohfrtdbcommon/ rtdbcopy
+      rohf_get_rtdb = rtdbcopy
+      end
+
       subroutine rohf_init( rtdb)
       implicit none
 #include "errquit.fh"
@@ -27,6 +43,8 @@ c
       integer rtdb
       external crohf_data ! For T3D linker
 c     
+      call rohf_set_rtdb(rtdb)
+c
       if (crohf_init_flag.gt.0)
      $     call errquit('rohf internals already initialised?',0,
      &       UNKNOWN_ERR)
@@ -231,10 +249,16 @@ c
 c     
 c     $Id$
 c
+      integer rtdb
       integer g_x, g_ax
       double precision acc
 c     
       integer gtype,grow,gcol,growp,gcolp
+c
+      integer rohf_get_rtdb
+      external rohf_get_rtdb
+c
+      rtdb = rohf_get_rtdb()
 c     
 c     Check
 c     
@@ -255,7 +279,7 @@ c
 c     
 c     Call internal routine
 c     
-      call rohf_hessv_xx( basis, geom, nbf, nmo,
+      call rohf_hessv_xx( rtdb, basis, geom, nbf, nmo,
      $     nclosed, nopen,
      $     pflg, g_movecs, oskel, 
      $     crohf_g_fcv, crohf_g_fpv, crohf_g_fcp,

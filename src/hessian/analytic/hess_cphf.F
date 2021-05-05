@@ -1222,7 +1222,7 @@ c
      &            dbl_mb(k_jfac), dbl_mb(k_kfac), ndensity,
      &            nfock, nbf, ocphfprint)
 c
-      call shell_fock_build(geom,basis,0,ndensity,dbl_mb(k_jfac),
+      call shell_fock_build(rtdb, geom,basis,0,ndensity,dbl_mb(k_jfac),
      &            dbl_mb(k_kfac),tol2e,
      &            g_tmp,g_rhs_x,.true.)
 c

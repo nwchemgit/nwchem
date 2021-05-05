@@ -186,7 +186,7 @@ c
 c               calculate the exchange and coulomb parts
                 call ga_zero(g_vxc(2))
                 g_dens(2)=g_dens(1)
-                call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
+                call fock_2e(rtdb, geom, AO_bas_han, 2, jfac, kfac,
      &             tol2e, oskel, g_dens, g_vxc, .false.)
                 Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_vxc(1))
                 ecoul = 0.5d0*ga_ddot(g_dens(1),g_vxc(2)) 

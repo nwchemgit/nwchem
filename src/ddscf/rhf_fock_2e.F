@@ -1,4 +1,4 @@
-      subroutine rhf_fock_2e( geom, basis, g_dens, g_fock, tol2e,
+      subroutine rhf_fock_2e( rtdb, geom, basis, g_dens, g_fock, tol2e,
      $     ocoul, oexch, oskel )
 *
 * $Id$
@@ -12,7 +12,7 @@ c     guess routine with a superposition of atomic densities.
 c     Now also called from moints_full to generate an effective
 c     frozen-core hamiltonian
 c     
-      integer geom, basis
+      integer rtdb, geom, basis
       integer g_dens, g_fock    ! [input] handles
       double precision tol2e    ! [input] integral selection threshold
       logical ocoul, oexch      ! [input] compute coulomb/exchange 
@@ -38,7 +38,7 @@ c
       vg_dens(1) = g_dens
       vg_fock(1) = g_fock
 
-      call fock_2e( geom, basis, nfock, jfac, kfac, tol2e, oskel,
+      call fock_2e( rtdb, geom, basis, nfock, jfac, kfac, tol2e, oskel,
      $     vg_dens, vg_fock, .false.)
       
       return

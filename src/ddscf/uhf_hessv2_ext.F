@@ -1,5 +1,6 @@
 c ++++++++++++++++++ FA: uhf_hessv2_damp +++++++++++++++++++ START
-      subroutine uhf_hessv3(acc,     ! in: accuracy of products
+      subroutine uhf_hessv3(rtdb,
+     &                      acc,     ! in: accuracy of products
      &                      g_x,     ! in: A-matrix elements for density matrix REAL
      &                      g_ax,    ! in: Perturbed Fock operator REAL
      &                      g_x_im,  ! in: A-matrix elements for density matrix IMAG
@@ -26,6 +27,7 @@ c Modified from uhf_hessv2 and following rohf_hessv3 (located in rohf_hessv3.F)
 #include "mafdecls.fh"
 #include "global.fh"
 
+      integer rtdb
       logical limag,lifetime
       double precision omega,gamwidth
       integer ipm,ncomp
@@ -183,7 +185,8 @@ c ============== debug g_ax ==================== END
       if (pflg .gt. 1)then 
         if (ncomp.gt.1) then
 
-            call uhf_hessv_2e3(acc, 
+            call uhf_hessv_2e3(rtdb,
+     &                         acc, 
      &                         g_x, 
      &                         g_x_im,
      &                         g_ax,
@@ -766,7 +769,8 @@ c        g_dens(2) contains only transformations C g_x_im C^t
       return
       end
 
-      subroutine uhf_hessv_2e3(acc, 
+      subroutine uhf_hessv_2e3(rtdb,
+     &                         acc, 
      &                         g_x_re, 
      &                         g_x_im,
      &                         g_ax_re,
@@ -797,6 +801,7 @@ c        lifetime=T  --> g_x_re,g_ax_re g_x_im,g_ax_im
 #include "case.fh"
 #include "msgids.fh"
 c     
+      integer rtdb
       logical limag
       double precision acc      ! [input] required accuracy of products
       integer g_x_re(2),        ! [input] handle to input vectors
@@ -1006,7 +1011,7 @@ c                                                -----
 c     as written here, this has no extension to the damped (lifetime)
 c     case. This is okay because this routine is only called for
 c     FD no damping as of now
-      if (.not.rtdb_get(bgj_get_rtdb_handle(), 'dimqm:lrsp', mt_log,
+      if (.not.rtdb_get(rtdb, 'dimqm:lrsp', mt_log,
      $         1, ldimqm)) ldimqm = .false. 
       if (ldimqm) then 
          dims(1)     = nvec
@@ -2806,7 +2811,7 @@ c ---- Move g_Axreim --> g_Az1---- END
 c 000000000000000000000000000000000000000000000000000000000000
 c ++++++++++++++++++ udft calc using g_Az1 +++++++++++++ END
 c 000000000000000000000000000000000000000000000000000000000000
-      subroutine uhf_hessv3_cmplx1(
+      subroutine uhf_hessv3_cmplx1(rtdb,
      &                      acc,     ! in: accuracy of products
      &                      g_z,     ! in : z
      &                      g_Az,
@@ -2831,6 +2836,7 @@ c Modified from uhf_hessv2 and following rohf_hessv3 (located in rohf_hessv3.F)
 #include "mafdecls.fh"
 #include "global.fh"
 
+      integer rtdb
       logical limag,lifetime
       double precision omega,gamwidth
       integer ipm,ncomp
@@ -2989,7 +2995,7 @@ c ============== debug g_ax ==================== END
 
       if (pflg .gt. 1)then 
         if (ncomp.gt.1) then
-            call uhf_hessv_2e3_cmplx1(
+            call uhf_hessv_2e3_cmplx1(rtdb,
      &                  acc, 
      &                  g_z,
      &                  g_Az,    ! in: (n1,maxsub) history of Az matrix (large matrix)
@@ -3016,7 +3022,7 @@ c ============== debug g_ax ==================== END
       endif ! end-if-pflg
       end
 
-      subroutine uhf_hessv_2e3_cmplx1(
+      subroutine uhf_hessv_2e3_cmplx1(rtdb,
      &                  acc, 
      &                  g_z,
      &                  g_Az,   ! in: (n1,maxsub) history of Az matrix (large matrix)
@@ -3045,6 +3051,7 @@ c        lifetime=T  --> g_x_re,g_ax_re g_x_im,g_ax_im
 #include "case.fh"
 #include "msgids.fh"
 c     
+      integer rtdb
       logical limag
       double precision acc      ! [input] required accuracy of products
       integer g_z(2)
@@ -3288,7 +3295,7 @@ c     it if there is more than 1 RHS.
 
 c  DIM/QM jbecca START: Allocate arrays and create real and imaginary
 c                    densities for total densities. 
-      if (.not.rtdb_get(bgj_get_rtdb_handle(), 'dimqm:lrsp', mt_log,
+      if (.not.rtdb_get(rtdb, 'dimqm:lrsp', mt_log,
      $         1, ldimqm)) ldimqm = .false. 
       if (ldimqm) then 
          dims(1)     = nvec
