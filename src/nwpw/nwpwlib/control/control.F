@@ -1233,6 +1233,12 @@ c         return
       if (.not.btdb_get(rtdb,'nwpw:attenuation',mt_dbl,1,attenuation))
      >  attenuation = 0.5d0
 
+*     **** set preconditioning parameters Ep,Sp ****
+      if (.not.btdb_get(rtdb,'nwpw:Eprecondition',mt_dbl,1,Ep))
+     >   Ep = 20.0d0
+      if (.not.btdb_get(rtdb,'nwpw:Sprecondition',mt_dbl,1,Sp))
+     >   Sp = 200.0d0
+
 *     **** set out of time variables ****
       est_step_time   = -1
       est_finish_time = -1
@@ -4178,7 +4184,6 @@ c      end if
          
 
 
-
 *     ***************************
 *     *                	   	*
 *     *        control_Ep	*
@@ -4187,20 +4192,7 @@ c      end if
       real*8 function control_Ep()
       implicit none
 
-#include "bafdecls.fh"
-#include "btdb.fh"
-
-*     **** control_rtdb common block ****
-      integer rtdb
-      common / control_rtdb1 / rtdb
-
-      real*8 Ep
-
-      if (.not.btdb_get(rtdb,'nwpw:Eprecondition',
-     >                  mt_dbl,1,Ep)) 
-     >  then
-         Ep = 20.0d0
-      end if
+#include "control.fh"
 
       control_Ep = Ep
       return
@@ -4216,20 +4208,7 @@ c      end if
       real*8 function control_Sp()
       implicit none
 
-#include "bafdecls.fh"
-#include "btdb.fh"
-
-*     **** control_rtdb common block ****
-      integer rtdb
-      common / control_rtdb1 / rtdb
-
-      real*8 Sp
-      
-      if (.not.btdb_get(rtdb,'nwpw:Sprecondition',
-     >                  mt_dbl,1,Sp))
-     >  then
-         Sp = 200.0d0
-      end if
+#include "control.fh"
 
       control_Sp = Sp
       return
