@@ -74,6 +74,15 @@
         call ga_diag_std_seq(g_rpa,g_rpa,omega)
 #endif
 
+        call ga_check_handle(g_rpa, 'something went wrong in ELPA')
+        call ga_distribution(g_rpa,pars%me,ilo,ihi,jlo,jhi)
+        if (pars%ovlo(1).ne.ilo .or. pars%ovhi(1).ne.ihi)
+     $    call errquit('gw_rpa: wrong distribution',0,GA_ERR)
+        call ga_access(g_rpa,pars%ovlo(1),pars%ovhi(1),1,npoles,
+     $                 kRPA,ld)   
+        if (ld.ne.mynpoles)
+     $    call errquit('gw_rpa: wrong distribution',0,GA_ERR)   
+        
 
 !$omp   parallel do
         do ipole=1,npoles
