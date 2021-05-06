@@ -304,8 +304,9 @@
      >                               0.001d0,ii,error_out,e0)
           !write(*,*) "e0:",ii,l,e0,error_out
           l = l+1
-          if ((error_out.gt.maxerror).and.(l.le.4)) go to 3
-          if ((error_out.gt.maxerror).and.(l2.le.1)) then
+          if ((error_out.gt.maxerror).and.(l.le.(1+(l2-1)*3))) go to 3
+          if (((error_out.gt.maxerror).or.(e0.gt.4.0d0))
+     >        .and.(l2.le.1)) then
            call Pack_c_Zero(1,dcpl_mb(psi1(1) +(ii-1)*npack1))
            call Pack_c_setzero(1,1.0d0,dcpl_mb(psi1(1) +(ii-1)*npack1))
            go to 2
@@ -2785,7 +2786,8 @@ c     write(*,*) ciE(1),ciE(2),ciE(3),ciE(4)
      >                               0.001d0,ii,error_out,e0)
           l  = l+1
           if ((error_out.gt.maxerror).and.(l.le.(1+(l2-1)*3))) go to 3
-          if ((error_out.gt.maxerror).and.(l2.le.1)) then
+          if (((error_out.gt.maxerror).or.(e0.gt.4.0d0))
+     >        .and.(l2.le.1)) then
             call Pack_c_Zero(1,
      >               dcpl_mb(psi1_excited(1) +(ii-1)*npack1))
             call Pack_c_setzero(1,1.0d0,
