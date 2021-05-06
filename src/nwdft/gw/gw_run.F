@@ -113,7 +113,7 @@ c
 c     Shift eigenvalues
 c
       call gw_shift(dbl_mb(pars%k_evals),dbl_mb(k_eold),efermi,nbf_ao,
-     $              pars%nmo,ipol) 
+     $              pars%nmo,pars%ipol)
       if (.not.ma_verify_allocator_stuff()) stop ' Shift'
 c
       eviter = 0

@@ -6,11 +6,9 @@
 
       integer ipole,jpole
 
-!$omp parallel do collapse(2)
+!$omp parallel do
       do ipole=1,npoles
-        do jpole=1,mynpoles
-          XPY(jpole,ipole) = XPY(jpole,ipole)/dsqrt(omega(ipole))
-        end do
+        XPY(:,ipole) = XPY(:,ipole)/dsqrt(omega(ipole))
       enddo
 !$omp end parallel do      
 

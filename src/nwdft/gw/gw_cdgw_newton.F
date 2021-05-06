@@ -54,7 +54,7 @@
       bracket   => lvars(2)
       skipped   => lvars(3)
 
-      if (eviter.gt.0) then 
+      if (eviter.gt.4) then 
         maxradius = 0.010d0
       else
         maxradius = 0.1d0
@@ -91,7 +91,6 @@
 
           myul = ulqp
           myll = llqp
-
 
  100      continue
 

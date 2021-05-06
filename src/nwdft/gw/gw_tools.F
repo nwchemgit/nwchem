@@ -56,7 +56,7 @@
 
       do iqp=1,nqp
         values(iqp,niter+2) = new(iqp)
-        errors(iqp,niter+1) = new(iqp) - values(iqp,niter+1)
+        errors(iqp,niter+1) = new(iqp) - old(iqp)
       enddo
 
       ndiis = ndiis + 1

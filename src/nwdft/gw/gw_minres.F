@@ -37,7 +37,7 @@
       logical main,converged,oactive,parallel_diag,doparallel
       integer iter, istop, i, gy, me, ld, nmax, nlocal, ithread
       integer lo, hi, jthread
-      double precision,parameter :: shift = 0.000d0, rtol=5d-5
+      double precision,parameter :: shift = 0.000d0, rtol=1d-5
 
       call ga_sync()
 

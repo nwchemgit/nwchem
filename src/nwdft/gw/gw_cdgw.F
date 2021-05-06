@@ -242,14 +242,14 @@ c
         call ga_brdcst(mt_dbl,dbl_mb(kSigma),
      $       ma_sizeof(mt_dbl,nmo*pars%ipol,mt_byte),0)
 
-        do isp=1,pars%ipol
-          offset = (isp-1)*nmo
-          call gw_diis(dbl_mb(kvalues+pars%eviter*offset),
-     $                 dbl_mb(kerrors+pars%eviter*offset),
-     $                 dbl_mb(kemod+offset+pars%llmo(isp)-1),
-     $                 dbl_mb(kenew+offset+pars%llmo(isp)-1),
-     $                 ndiis,eviter,pars%nqp(isp),efermi)
-        enddo
+c        do isp=1,pars%ipol
+c          offset = (isp-1)*nmo
+c          call gw_diis(dbl_mb(kvalues+pars%eviter*offset),
+c     $                 dbl_mb(kerrors+pars%eviter*offset),
+c     $                 dbl_mb(kemod+offset+pars%llmo(isp)-1),
+c     $                 dbl_mb(kenew+offset+pars%llmo(isp)-1),
+c     $                 ndiis,eviter,pars%nqp(isp),efermi)
+c        enddo
 
         call dcopy(nmo*pars%ipol,dbl_mb(kEnew),1,dbl_mb(kEmod),1)
         eviter = eviter + 1
