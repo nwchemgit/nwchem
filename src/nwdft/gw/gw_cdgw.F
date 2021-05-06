@@ -243,15 +243,15 @@ c
      $       ma_sizeof(mt_dbl,nmo*pars%ipol,mt_byte),0)
 
         do isp=1,pars%ipol
-          offset = (isp-1)*pars%nmo
+          offset = (isp-1)*nmo
           call gw_diis(dbl_mb(kvalues+pars%eviter*offset),
      $                 dbl_mb(kerrors+pars%eviter*offset),
      $                 dbl_mb(kemod+offset+pars%llmo(isp)-1),
      $                 dbl_mb(kenew+offset+pars%llmo(isp)-1),
-     $                 ndiis,eviter,pars%nqp(isp))
+     $                 ndiis,eviter,pars%nqp(isp),efermi)
         enddo
 
-c        call dcopy(nmo*pars%ipol,dbl_mb(kEnew),1,dbl_mb(kEmod),1)
+        call dcopy(nmo*pars%ipol,dbl_mb(kEnew),1,dbl_mb(kEmod),1)
         eviter = eviter + 1
 
         

@@ -38,8 +38,7 @@
       implicit none
       integer,intent(inout) :: ndiis,nqp,niter
       double precision,intent(inout) :: errors(nqp,*),values(nqp,*)
-      double precision,intent(out)  :: old(nqp)
-      double precision,intent(in) :: new(nqp)
+      double precision,intent(out)  :: old(nqp),new(nqp)
       double precision,allocatable :: deltax(:,:),deltaf(:,:)
       double precision,allocatable :: work(:),f(:,:),b(:)
       double precision,allocatable :: x(:,:),step(:)
@@ -53,56 +52,52 @@
 
  100  continue
 
-      values(1:nqp,niter+1) = new(1:nqp)
-      errors(1:nqp,niter+1) = new(1:nqp) - old(1:nqp)
+      if (niter.eq.0) values(:,niter+1) = old(:)
 
-      if (niter.eq.0) then
-        old(1:nqp) = new(1:nqp)
+      do iqp=1,nqp
+        values(iqp,niter+2) = new(iqp)
+        errors(iqp,niter+1) = new(iqp) - values(iqp,niter+1)
+      enddo
+
+      ndiis = ndiis + 1
+      if (niter.eq.0) ndiis = 0
+
+      if (ndiis.le.1) then
         return
       endif
 
-      if (mod(niter-1,m+1).eq.0) then
-        ndiis = 1
-      else
-        ndiis = ndiis + 1
-      endif
+      allocate(f(ndiis+1,ndiis+1),b(ndiis+1),
+     $         work(10*ndiis),ipiv(10*ndiis))
 
-      allocate(deltax(nqp,ndiis),deltaf(nqp,ndiis),
-     $         f(ndiis,ndiis),x(nqp,ndiis),b(ndiis),
-     $         work(10*ndiis),ipiv(10*ndiis),step(nqp))
-
-      j = 0
-      do idiis=ndiis,1,-1
-        deltax(:,idiis) = values(:,niter+1-j) - values(:,niter+1-j-1)
-        deltaf(:,idiis) = errors(:,niter+1-j) - errors(:,niter+1-j-1)
-        j = j + 1
-      enddo
- 
       do idiis=1,ndiis
         do jdiis=1,ndiis
-          F(jdiis,idiis) = dot_product(deltaf(:,idiis),deltaf(:,jdiis))
+          f(jdiis,idiis) = dot_product(errors(:,niter+1-jdiis+1),
+     $                                 errors(:,niter+1-idiis+1))
         enddo
-        x(:,idiis) = deltax(:,idiis) + alpha*deltaf(:,idiis)
-        b(idiis) = dot_product(deltaf(:,idiis),errors(:,niter+1))
       enddo
+      f(ndiis+1,:) = -1d0
+      f(:,ndiis+1) = -1d0
+      f(ndiis+1,ndiis+1) = 0d0
 
-      call dsysv('u',ndiis,1,F,ndiis,ipiv,b,ndiis,work,10*ndiis,info)
+      b(1:ndiis) =  0d0
+      b(ndiis+1) = -1d0
+
+      call dsysv('u',ndiis+1,1,F,ndiis+1,ipiv,b,ndiis+1,work,10*ndiis,
+     $            info)
 
       if (info.ne.0) then
         write(*,*) 'info 0'
-        ndiis = 0
-        old(1:nqp) = new(1:nqp)
-        deallocate(deltax,deltaf,f,x,b,work,ipiv)
+        ndiis = ndiis - 1
+        deallocate(f,b,work,ipiv)
         return
       endif
 
-      step(1:nqp) = alpha*errors(1:nqp,niter+1)
-      do iqp=1,nqp
-        step(iqp) = step(iqp) - dot_product(x(iqp,:),b)
+      new(1:nqp) = 0d0
+      do idiis=1,ndiis
+        new(1:nqp) = new(1:nqp) + b(idiis)*values(:,niter+1-idiis+1)
       enddo
-      old(1:nqp) = new(1:nqp) + step(1:nqp)
 
-      deallocate(deltax,deltaf,f,x,b,work,ipiv)
+      deallocate(f,b,work,ipiv)
 
       end subroutine
 

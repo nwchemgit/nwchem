@@ -40,7 +40,7 @@
       integer llqp,ulqp,icluster
       double precision upper,lower,resupper,reslower,const,step
 
-      integer,parameter :: maxdiis = 15
+      integer,parameter :: maxdiis = 16
       integer           :: ndiis,idiis
       double precision  :: values(maxdiis),errors(maxdiis)
 
@@ -87,17 +87,16 @@
           SigmaOld = Sigma(llmo+iqp-1,isp)
           Sigma_X  = Sigmax(llmo+iqp-1,isp)
 
-          if (myul.lt.ulqp) then
-            Eout = Enew(llmo+iqp,isp) + 4d0*pars%thresh
-          elseif (myll.gt.llqp) then
-            Eout = Enew(llmo+iqp-2,isp) - 4d0*pars%thresh
-          elseif (eviter.eq.0) then
-            Eout = Eout + 0.10d0*(sigma_x - sigmaold)
-          else
-            Eout = Eout + sign(4d0*pars%thresh,Eout)
+          if (eviter.lt.3) then
+            if (myul.lt.ulqp) then
+              Eout = Enew(llmo+iqp,isp)
+            elseif (myll.gt.llqp) then
+              Eout = Enew(llmo+iqp-2,isp)
+            endif
           endif
 
           call ga_zero(pars%g_sols)
+
           bracket = .false.
           rms3 = 1d100
           residualOld = 0d0
@@ -129,6 +128,7 @@ c
 
             pars%timer%rn = pars%timer%rn + util_wallsec() - timer
 
+
             SigmaC   = I + R
             dSigmaC  = dI + dR
 
@@ -148,9 +148,12 @@ c
               exit
             endif
 
-            call gw_diis(errors,values,step,ndiis,1,iter)
+            Eout = Ein + 1d0*residual
+            errors(iter) = 1d0*residual
 
-            Eout = Ein + step
+            call gw_diis(values,errors,ein,eout,ndiis,iter-1,1)
+
+            step = eout - ein
 
 #ifdef GWDEBUG
             if (main) write(luout,9901) iter,iqp,util_wallsec()-timer2,
