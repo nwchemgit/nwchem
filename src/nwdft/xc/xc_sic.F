@@ -181,7 +181,7 @@ c
                 jfac(2) = 1.0d0
                 kfac(2) = 0d0
                 tol2e=10.d0**(-itol2e)
-                call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
+                call fock_2e(rtdb, geom, AO_bas_han, 2, jfac, kfac,
      &               tol2e, oskel, g_sic_dens(1), g_vxc_orb(1),.false.)
                 ecoul_orb = 0.0d0
                 ecoul_orb = 0.5d0*ga_ddot(g_sic_dens(1), g_vxc_orb(1))

@@ -118,7 +118,7 @@ c
 c            call ga_print(g_dens(1))
 c            call ga_print(g_dens(2))
          endif
-         call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
+         call fock_2e(rtdb, geom, AO_bas_han, 4, jfac, kfac,
      &        tol2e, oskel, g_d(1), g_jk(1), .true.)
          call ga_scale(g_jk(2),dble(-1.0d0))
          call ga_scale(g_jk(4),dble(-1.0d0))
@@ -163,7 +163,7 @@ c
          g_d(2)  = g_dens(1)
          g_d(3)  = g_dens(2)
          g_d(4)  = g_dens(2)
-         call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
+         call fock_2e(rtdb, geom, AO_bas_han, 4, jfac, kfac,
      &        tol2e, oskel, g_d(1), g_jk(1), .true.)
          call ga_scale(g_jk(2),dble(-1.0d0))
          call ga_scale(g_jk(4),dble(-1.0d0))
@@ -207,7 +207,7 @@ c
          g_d(2)  = g_dens(1)
          g_d(3)  = g_dens(2)
          g_d(4)  = g_dens(2)
-         call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
+         call fock_2e(rtdb, geom, AO_bas_han, 4, jfac, kfac,
      &        tol2e, oskel, g_d(1), g_jk(1), .true.)
          call ga_scale(g_jk(2),dble(-1.0d0))
          call ga_scale(g_jk(4),dble(-1.0d0))

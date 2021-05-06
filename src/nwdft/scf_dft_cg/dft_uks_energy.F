@@ -180,7 +180,7 @@ c
         kfac(2)=xc_hfexch()
         kfac(3)=0d0
         kfac(4)=xc_hfexch()
-        call fock_2e(geom, basis, nfock, jfac, kfac, tol2e,
+        call fock_2e(rtdb, geom, basis, nfock, jfac, kfac, tol2e,
      $     oskel, d, f, .false.)
       else ! for attenuated calculations
 c
@@ -205,7 +205,7 @@ c
         do ifock = 1,nfock
          call ga_zero(g_tmp(ifock))
         end do
-        call fock_2e(geom, basis, nfock, jfac, kfac, tol2e, 
+        call fock_2e(rtdb, geom, basis, nfock, jfac, kfac, tol2e, 
      &     oskel, d, g_tmp, .false., .false.)
         do ifock = 1,nfock
          call ga_dadd(1d0,f(ifock),1d0,g_tmp(ifock),f(ifock))
@@ -225,7 +225,7 @@ c
         do ifock = 1,nfock
          call ga_zero(g_tmp(ifock))
         end do
-        call fock_2e(geom, basis, nfock, jfac, kfac, tol2e, 
+        call fock_2e(rtdb, geom, basis, nfock, jfac, kfac, tol2e, 
      &     oskel, d, g_tmp, .false., .false.)
         do ifock = 1,nfock
          call ga_dadd(1d0,f(ifock),1d0,g_tmp(ifock),f(ifock))

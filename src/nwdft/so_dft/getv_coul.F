@@ -71,7 +71,7 @@ c     Calculate Coulomb
       kfac(2) = 0.0d0
       call ga_zero(g_tmp(1))
       call ga_zero(g_tmp(2))
-      call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
+      call fock_2e(rtdb, geom, AO_bas_han, 2, jfac, kfac,
      &              tol2e, oskel, g_dens, g_tmp, .false.)
 c
 c     Accumulate contribution 

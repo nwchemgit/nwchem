@@ -350,7 +350,7 @@ c
         kfactor(1)=-0.5d0*xc_hfexch()
         kfactor(2)=0d0
         kfactor(3)=-0.5d0*xc_hfexch()
-        call fock_2e(geom, basis, nfock, jfactor, kfactor,
+        call fock_2e(rtdb, geom, basis, nfock, jfactor, kfactor,
      $     tol2e, oskel, iv_dens, iv_fock, .false.)
       else 
 c
@@ -379,7 +379,7 @@ c
         kfactor(1)=-0.5d0*xc_hfexch()
         kfactor(2)=0d0
         kfactor(3)=-0.5d0*xc_hfexch()
-        call fock_2e(geom, basis, nfock, jfactor, kfactor,
+        call fock_2e(rtdb, geom, basis, nfock, jfactor, kfactor,
      $     tol2e, oskel, iv_dens, g_tmp, .false., .false.)
         call ga_dadd(1d0,iv_fock,1d0,g_tmp(1),iv_fock)
         if (nopen.gt.0) then
@@ -402,7 +402,7 @@ c
         kfactor(1)=0d0
         kfactor(2)=0d0
         kfactor(3)=0d0
-        call fock_2e(geom, basis, nfock, jfactor, kfactor,
+        call fock_2e(rtdb, geom, basis, nfock, jfactor, kfactor,
      $     tol2e, oskel, iv_dens, g_tmp, .false., .true.)
         call ga_dadd(1d0,iv_fock,1d0,g_tmp(1),iv_fock)
         if (nopen.gt.0) then

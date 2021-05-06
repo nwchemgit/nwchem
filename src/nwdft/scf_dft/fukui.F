@@ -211,26 +211,26 @@ c
       jfac(2) = 1.0d0
       kfac(2) = 0.0d0
       call ga_zero(g_orb)
-      call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
+      call fock_2e(rtdb, geom, AO_bas_han, 1, jfac, kfac,
      &             tol2e, oskel, g_dens_HOMO(1), g_orb, .false.)
       int_HaHa = ga_ddot(g_dens_HOMO(1), g_orb)
 c
       int_HaLb = ga_ddot(g_dens_LUMO(2), g_orb)
 c
       call ga_zero(g_orb)
-      call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
+      call fock_2e(rtdb, geom, AO_bas_han, 1, jfac, kfac,
      &             tol2e, oskel, g_dens_HOMO(2), g_orb, .false.)
       int_HbHb = ga_ddot(g_dens_HOMO(2), g_orb)
 c
       int_LaHb = ga_ddot(g_dens_LUMO(1), g_orb)
 c
       call ga_zero(g_orb)
-      call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
+      call fock_2e(rtdb, geom, AO_bas_han, 1, jfac, kfac,
      &             tol2e, oskel, g_dens_LUMO(1), g_orb, .false.)
       int_LaLa = ga_ddot(g_dens_LUMO(1), g_orb)
 c
       call ga_zero(g_orb)
-      call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
+      call fock_2e(rtdb, geom, AO_bas_han, 1, jfac, kfac,
      &             tol2e, oskel, g_dens_LUMO(2), g_orb, .false.)
       int_LbLb = ga_ddot(g_dens_LUMO(2), g_orb)
 c
@@ -265,7 +265,7 @@ c
      &             int_mb(icetobfr), natoms)
       Exc_zero = Exc(1)
       call ga_zero(g_orb)
-      call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
+      call fock_2e(rtdb, geom, AO_bas_han, 1, jfac, kfac,
      &             tol2e, oskel, g_dens_HOMO(1), g_orb, .false.)
       do isp = 1, ipol
         int_vxc_H(isp) = ga_ddot(g_dens_HOMO(isp), g_vxc(isp))
@@ -789,7 +789,7 @@ c
              kfac(2) = 0d0
               g_vxc(2) = ga_create_atom_blocked(geom,ao_bas_han,'jk')
               g_dens(2)=g_dens(1)
-              call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
+              call fock_2e(rtdb, geom, AO_bas_han, 2, jfac, kfac,
      &             tol2e, oskel, g_dens(1), g_vxc(1), .false.)
               Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_vxc(1))
               call ga_zero(g_vxc(2))
@@ -798,7 +798,7 @@ c
               if (.not. ga_destroy(g_vxc(2))) call errquit
      $             ('xc_getv: ga corrupt?',0, GA_ERR)
             else
-              call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
+              call fock_2e(rtdb, geom, AO_bas_han, 1, jfac, kfac,
      &             tol2e, oskel, g_dens(1), g_vxc(1), .false.)
             Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_vxc(1))
             endif
@@ -808,7 +808,7 @@ c
                jfac(2)=0.d0
                kfac(1)=-1.0d0*xfac(1)
                kfac(2)=-1.0d0*xfac(1)
-               call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
+               call fock_2e(rtdb, geom, AO_bas_han, 2, jfac, kfac,
      &              tol2e, oskel, g_dens, g_vxc, .false.)
                Exc(1) = Exc(1)+0.5d0*(ga_ddot(g_dens(1),g_vxc(1)) +
      &              ga_ddot(g_dens(2),g_vxc(2)))
@@ -831,7 +831,7 @@ c
                g_d(2)  = g_dens(1)
                g_d(3)  = g_dens(2)
                g_d(4)  = g_dens(2)
-               call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
+               call fock_2e(rtdb, geom, AO_bas_han, 4, jfac, kfac,
      &              tol2e, oskel, g_d(1), g_jk(1),.false. )
                call ga_zero(g_jk(1))
                call ga_zero(g_jk(3))

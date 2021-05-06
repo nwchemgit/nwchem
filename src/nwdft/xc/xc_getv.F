@@ -209,7 +209,7 @@ c               set up prefactors for exchange
                 jfac(2) = 0.0d0
                 g_dens(2)=g_dens(1)
                 call case_setflags(.true.)
-                call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
+                call fock_2e(rtdb, geom, AO_bas_han, 2, jfac, kfac,
      &             tol2e, oskel, g_dens, g_tmp, .false.)
                 Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_tmp(1))
                 call ga_dadd(1d0,g_vxc(1),1d0,g_tmp(1),g_vxc(1))
@@ -225,7 +225,7 @@ c               set up prefactors for coulomb
                 kfac(2) = 0.0d0
                 jfac(2) = 0.0d0
                 g_dens(2)=g_dens(1)
-                call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
+                call fock_2e(rtdb, geom, AO_bas_han, 2, jfac, kfac,
      &             tol2e, oskel, g_dens, g_tmp, .false.)
                 ecoul = 0.5d0*ga_ddot(g_dens(1),g_tmp(1)) 
                 call ga_dadd(1d0,g_vxc(1),1d0,g_tmp(1),g_vxc(1))
@@ -244,7 +244,7 @@ c             set up prefactors
 c
 c             calculate the non-CAM exchange
               if (cam_exch) call case_setflags(.true.)
-                call fock_2e(geom, AO_bas_han, 1, jfac, kfac,
+                call fock_2e(rtdb, geom, AO_bas_han, 1, jfac, kfac,
      &             tol2e, oskel, g_dens(1), g_vxc(1), .false.)
               if (cam_exch)  call case_setflags(.false.) ! turn off attenuation
               Exc(1) = Exc(1)+0.5d0*ga_ddot(g_dens(1),g_vxc(1))
@@ -256,7 +256,7 @@ c             calculate the non-CAM exchange
               kfac(1)=-1.0d0*xfac(1)
               kfac(2)=-1.0d0*xfac(1)
               if (cam_exch) call case_setflags(.true.)
-              call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
+              call fock_2e(rtdb, geom, AO_bas_han, 2, jfac, kfac,
      &              tol2e, oskel, g_dens, g_vxc, .false.)
               if (cam_exch) call case_setflags(.false.) ! turn off attenuation
               Exc(1) = Exc(1)+0.5d0*(ga_ddot(g_dens(1),g_vxc(1)) +
@@ -281,7 +281,7 @@ c             calculate the non-CAM exchange
                g_d(2)  = g_dens(1)
                g_d(3)  = g_dens(2)
                g_d(4)  = g_dens(2)
-               call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
+               call fock_2e(rtdb, geom, AO_bas_han, 4, jfac, kfac,
      &              tol2e, oskel, g_d(1), g_jk(1), .false.)
                ecoul = 0.5d0*( ! Alpha coulomb energy
      $              ga_ddot(g_dens(1),g_jk(1)) + 
@@ -316,7 +316,7 @@ c              Calculate Coulomb
                call ga_zero(g_tmp(1))
                call ga_zero(g_tmp(2))
                call case_setflags(.false.)
-               call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
+               call fock_2e(rtdb, geom, AO_bas_han, 2, jfac, kfac,
      &              tol2e, oskel, g_dens, g_tmp, .false.)
 c
 c              Accumulate contribution 
@@ -339,7 +339,7 @@ c              Calculate Exchange
                call ga_zero(g_tmp(1))
                call ga_zero(g_tmp(2))
                call case_setflags(.true.) ! turn on attenuation
-               call fock_2e(geom, AO_bas_han, 2, jfac, kfac,
+               call fock_2e(rtdb, geom, AO_bas_han, 2, jfac, kfac,
      &              tol2e, oskel, g_dens, g_tmp, .false.)
                call case_setflags(.false.) ! turn off attenuation
 c
