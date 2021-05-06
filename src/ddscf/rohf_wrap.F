@@ -13,19 +13,19 @@ c
      $     noskew/.true./
       end
 
-      subroutine rohf_set_rtdb(rtdb)
+      subroutine scf_set_rtdb(rtdb)
       implicit none
       integer rtdb
       integer rtdbcopy
-      common /rohfrtdbcommon/ rtdbcopy
+      common /scrtdbcommon/ rtdbcopy
       rtdbcopy = rtdb
       end
 
-      integer function rohf_get_rtdb()
+      integer function scf_get_rtdb()
       implicit none
       integer rtdbcopy
-      common /rohfrtdbcommon/ rtdbcopy
-      rohf_get_rtdb = rtdbcopy
+      common /scfrtdbcommon/ rtdbcopy
+      scf_get_rtdb = rtdbcopy
       end
 
       subroutine rohf_init( rtdb)
@@ -43,7 +43,7 @@ c
       integer rtdb
       external crohf_data ! For T3D linker
 c     
-      call rohf_set_rtdb(rtdb)
+      call scf_set_rtdb(rtdb)
 c
       if (crohf_init_flag.gt.0)
      $     call errquit('rohf internals already initialised?',0,
@@ -255,10 +255,10 @@ c
 c     
       integer gtype,grow,gcol,growp,gcolp
 c
-      integer rohf_get_rtdb
-      external rohf_get_rtdb
+      integer scf_get_rtdb
+      external scf_get_rtdb
 c
-      rtdb = rohf_get_rtdb()
+      rtdb = scf_get_rtdb()
 c     
 c     Check
 c     
