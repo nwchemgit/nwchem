@@ -192,6 +192,7 @@ c
 #include "global.fh"
 #include "mafdecls.fh"
       integer rtdb
+      call scf_set_rtdb(rtdb)
 c
       cuhf_vlen = nalpha*(nmo-nalpha) + nbeta*(nmo-nbeta)
 c

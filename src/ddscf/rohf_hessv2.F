@@ -17,10 +17,10 @@ c
       integer icol,ilo(2),ihi(2)
       logical oprint, olprint
       double precision dnrm
-      integer rohf_get_rtdb
-      external rohf_get_rtdb
+      integer scf_get_rtdb
+      external scf_get_rtdb
 c
-      rtdb = rohf_get_rtdb()
+      rtdb = scf_get_rtdb()
 c     
 c     Check
 c     
