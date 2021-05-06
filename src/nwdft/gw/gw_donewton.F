@@ -28,12 +28,12 @@
       ! golden section or regula falsi method might work best
       elseif (bracket) then
 
-        if (mod(iter,3).eq.0) then
+        if (mod(iter,3).eq.0 .and. fxupp*fxlow.lt.0d0 ) then
           xout = (xlow*fxupp - xupp*fxlow)/(fxupp-fxlow)
-        elseif (abs(fxupp).lt.abs(fxlow)) then
-          xout = xlow + 0.80d0*(xupp-xlow)
+        elseif (mod(iter,3).eq.1) then
+          xout = xlow + 0.6180d0*(xupp-xlow)
         else
-          xout = xupp - 0.80d0*(xupp-xlow)
+          xout = xupp - 0.6180d0*(xupp-xlow)
         endif
 
       elseif (z.gt.0.1d0) then

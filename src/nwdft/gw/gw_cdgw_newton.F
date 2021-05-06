@@ -31,7 +31,7 @@
       logical,pointer :: converged, bracket, skipped
       logical main, warning, fixed(maxqp)
       integer isp, totalqp, llmo, iqp, iter, logs, dbls, irms
-      double precision timer, timer2, rms6(6), m
+      double precision timer, timer2, rms6(6), m, thresh
       double precision Ein, Eout, SigmaOld, Sigma_X
       double precision esterror(pars%nmo)
       double precision residual, dresidual, maxradius
@@ -47,12 +47,15 @@
       dbls = ma_sizeof(mt_dbl,1,mt_byte)
       logs = ma_sizeof(mt_log,1,mt_byte)
 
+      thresh = pars%thresh
+      if (eviter.gt.2) thresh = thresh/10d0
+
       converged => lvars(1)
       bracket   => lvars(2)
       skipped   => lvars(3)
 
       if (eviter.gt.0) then 
-        maxradius = 0.05d0
+        maxradius = 0.010d0
       else
         maxradius = 0.1d0
       endif
@@ -74,9 +77,11 @@
         llmo = pars%llmo(isp)
         fixed(:) = .false.
 
-        call ga_sync()
         call gw_findclusters(Eold(llmo,isp),clusters,nclusters,totalqp,
      $                       0.05d0)
+        call ga_brdcst(mt_int,nclusters,ma_sizeof(mt_int,1,mt_byte),0)
+        call ga_brdcst(mt_int,clusters,
+     $                 ma_sizeof(mt_int,nclusters,mt_byte),0)
 
         ulqp = 0
         do icluster=1,nclusters
@@ -100,10 +105,12 @@
           SigmaOld = Sigma(llmo+iqp-1,isp)
           Sigma_X  = Sigmax(llmo+iqp-1,isp)
 
-          if (myul.lt.ulqp) then
-            Eout = Enew(llmo+iqp,isp)
-          elseif (myll.gt.llqp) then
-            Eout = Enew(llmo+iqp-2,isp)
+          if (eviter.lt.3) then
+            if (myul.lt.ulqp) then
+              Eout = Enew(llmo+iqp,isp)
+            elseif (myll.gt.llqp) then
+              Eout = Enew(llmo+iqp-2,isp)
+            endif
           endif
 
           call ga_zero(pars%g_sols)
@@ -145,7 +152,7 @@ c
             values(iter) = Ein
             errors(iter) = residual
 
-            radius = min(maxradius,maxradius/residual**2)
+            radius = min(maxradius,0.1d0*maxradius/residual**2)
 
             ! Find out if we might have skipped a solution
             if ((iter.gt.1) .and. (.not.bracket) .and. 
@@ -167,7 +174,7 @@ c
                 endif
 
                 eout = values(iter) - 
-     $                 0.6180d0*(values(iter)-values(iter-1))
+     $                 0.80d0*(values(iter)-values(iter-1))
                 values(iter) = values(iter-1)
                 errors(iter) = errors(iter-1)
                 skipped = .true.
@@ -182,9 +189,9 @@ c
             endif
 
             ! Check convergence of QP equation
-            converged = abs(residual).lt.pars%thresh .or. 
-     $                  sum(rms6)/6d0.lt.pars%thresh .or.
-     $                  (bracket .and. abs(upper-lower).lt.pars%thresh)
+            converged = abs(residual).lt.thresh .or. 
+     $                  sum(rms6)/6d0.lt.thresh .or.
+     $                  (bracket .and. abs(upper-lower).lt.thresh)
 
             ! Exit if converged
             call ga_brdcst(mt_log,lvars,3*logs,0)
@@ -200,7 +207,7 @@ c
 
             if (.not.skipped) then
               call gw_donewton(ein,eout,residual,dresidual,lower,upper,
-     $                       reslower,resupper,bracket,pars%thresh,
+     $                       reslower,resupper,bracket,thresh,
      $                       radius,iter)
             endif
 
@@ -274,9 +281,9 @@ c
       enddo
 
 
- 9000 format(/,15x,'Alpha Orbitals',/,10x,'State',5x,'Energy (eV)',
+ 9000 format(/,18x,'Alpha Orbitals',/,10x,'State',5x,'Energy (eV)',
      $       5x,'Error (eV)',/,10x,35('-'))
- 9010 format(/,15x,' Beta Orbitals',/,10x,'State',5x,'Energy (eV)',
+ 9010 format(/,18x,' Beta Orbitals',/,10x,'State',5x,'Energy (eV)',
      $       5x,'Error (eV)',/,10x,35('-'))
  9020 format(10x,I3,7x,F8.3,8x,F8.3)
  9030 format(10x,I3,7x,F8.3,8x,F8.3,' *')

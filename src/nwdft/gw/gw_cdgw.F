@@ -28,8 +28,9 @@ c
       integer nri_me, istart, iend, ld
       logical main, oactive
 
-      integer k_eriij,k_eriia,kSigma,kSigmax,kEref,kEnew,kEmod
-      integer l_eriij,l_eriia,lSigma,lSigmax,lEref,lEnew,lEmod
+      integer k_eriij,k_eriia,kSigma,kSigmax,kEref,kEnew,kEmod,kValues
+      integer l_eriij,l_eriia,lSigma,lSigmax,lEref,lEnew,lEmod,lValues
+      integer kErrors,lErrors,ndiis, offset, isp
       integer k_omega,kEia
       integer l_omega,lEia
       integer g_epsilon(pars%ngl)
@@ -119,6 +120,13 @@ c
      $  call errquit(pname//'failed to allocate old evals',0,MA_ERR)
       call dfill(lSize,0d0,dbl_mb(kEnew),1)
 
+      lSize = lSize*max(pars%eviter,1)
+      if (.not.ma_push_get(mt_dbl,lSize,'values',lValues,kValues))
+     $  call errquit(pname//'failed to allocate values',0,MA_ERR)
+      lSize = lSize*max(pars%eviter,1)
+      if (.not.ma_push_get(mt_dbl,lSize,'errors',lErrors,kErrors))
+     $  call errquit(pname//'failed to allocate errors',0,MA_ERR)
+
       lSize = ipol*maxpoles
       if (.not.ma_push_get(mt_dbl,lSize,'eval_ia',lEia,kEia))
      $  call errquit(pname//'cannot allocate eval_ia',0,MA_ERR)
@@ -142,13 +150,19 @@ c
      $  call errquit('gw_cdgw: cannot create GA',0,GA_ERR) 
 c
       eviter = 0
+      ndiis = 0
 c
   100 continue ! evGW calculations
 c
       if (pars%evgw.and.main) then
-        write(luout,9020) eviter,eviter
+        if (eviter.lt.10) then
+          write(luout,9020) eviter,eviter
+        else
+          write(luout,9021) eviter,eviter
+        endif
       endif
  9020 format(/,2x,"*** G",I1,"W",I1)     
+ 9021 format(/,2x,"*** G",I2,"W",I2)     
 c
 c     Obtain eigenvalue difference
 c
@@ -180,9 +194,14 @@ c
   200 continue ! evGW0
 c
       if (pars%evgw0.and.main) then
-        write(luout,9040) eviter
+        if (eviter.lt.10) then
+          write(luout,9040) eviter
+        else
+          write(luout,9041) eviter
+        endif
       endif
  9040 format(/,2x,"*** G",I1,"W0")     
+ 9041 format(/,2x,"*** G",I2,"W0")     
 
       if (main) write(luout,9050)
  9050 format(10x,'Solving quasiparticle equations')
@@ -222,8 +241,20 @@ c
      $       ma_sizeof(mt_dbl,nmo*pars%ipol,mt_byte),0)
         call ga_brdcst(mt_dbl,dbl_mb(kSigma),
      $       ma_sizeof(mt_dbl,nmo*pars%ipol,mt_byte),0)
-        call dcopy(nmo*pars%ipol,dbl_mb(kEnew),1,dbl_mb(kEmod),1)
-        eviter = eviter + 1      
+
+        do isp=1,pars%ipol
+          offset = (isp-1)*pars%nmo
+          call gw_diis(dbl_mb(kvalues+pars%eviter*offset),
+     $                 dbl_mb(kerrors+pars%eviter*offset),
+     $                 dbl_mb(kemod+offset+pars%llmo(isp)-1),
+     $                 dbl_mb(kenew+offset+pars%llmo(isp)-1),
+     $                 ndiis,eviter,pars%nqp(isp))
+        enddo
+
+c        call dcopy(nmo*pars%ipol,dbl_mb(kEnew),1,dbl_mb(kEmod),1)
+        eviter = eviter + 1
+
+        
         if (eviter.lt.pars%eviter) then
           if (pars%evgw0) goto 200
           if (pars%evgw)  goto 100

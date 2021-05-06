@@ -256,12 +256,12 @@ c      end if
         call gw_buildpi('r',ov1,ov2,dbl_mb(k_pi),factor,n,n,npoles,
      $                   main,ipol,maxpoles)
 #ifdef GWDEBUG
-        if (main) write(*,'(A,F8.3)') 'BUILDPI: ',util_wallsec()-t0
+c        if (main) write(*,'(A,F8.3)') 'BUILDPI: ',util_wallsec()-t0
 #endif
         t0 = util_wallsec()
         call ga_dgop(mt_dbl,dbl_mb(k_pi),(n*(n+1))/2+n,'+')
 #ifdef GWDEBUG
-        if (main) write(*,'(A,F8.3)') 'GOP: ',util_wallsec()-t0
+c        if (main) write(*,'(A,F8.3)') 'GOP: ',util_wallsec()-t0
 #endif
         call rfp2std(dbl_mb(k_pi),n)
 
@@ -287,7 +287,7 @@ c      end if
           call dsysv('l',n,1,dbl_mb(k_pi),n,int_mb(k_ipiv),x,n,
      $                dbl_mb(k_scr),lscr,info)
 #ifdef GWDEBUG
-          if (main) write(*,'(A,F8.3)') 'DSYSV: ',util_wallsec()-t0
+c          if (main) write(*,'(A,F8.3)') 'DSYSV: ',util_wallsec()-t0
 #endif
         endif
 
