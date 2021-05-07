@@ -132,7 +132,7 @@ c  Evaluate inactive Fock piece separately
 c  (see mcscf_fock)
 c
 c
-       subroutine mcscf_ifock( geom, basis, nbf, nclosed, nact,
+       subroutine mcscf_ifock( rtdb, geom, basis, nbf, nclosed, nact,
      $                         oskel, tol2e, g_movecs, eone, etwo,
      $                         ecore, g_ifock )
        implicit none
@@ -144,7 +144,7 @@ c
 #include "bas.fh"
 #include "util.fh"
 #include "geom.fh"
-       integer geom, basis                            ! [input] Geometry and basis handles
+       integer rtdb, geom, basis                      ! [input] Geometry and basis handles
        integer nbf                                    ! [input] Number of basis functions
        integer nclosed                                ! [input] Number of closed shells
        integer nact                                   ! [input] Number of open shells
@@ -187,7 +187,7 @@ c
        call ga_zero(g_tmp)
        iv_dens(1) = g_cdens
        iv_fock(1) = g_tmp
-       call fock_2e( geom, basis, nset, jfac, kfac, tol2e, oskel,
+       call fock_2e(rtdb, geom, basis, nset, jfac, kfac, tol2e, oskel,
      $               iv_dens, iv_fock, .false. )
 c
 c  Symmetrize Fock AO components

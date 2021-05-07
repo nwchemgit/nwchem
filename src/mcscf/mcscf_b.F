@@ -139,13 +139,14 @@ c
 c
 c  B matrix - AO integral contributions
 c
-      subroutine mcscf_b_ao( geom, basis, nbf, nclosed, nact,
+      subroutine mcscf_b_ao( rtdb, geom, basis, nbf, nclosed, nact,
      $                       oskel, tol2e, dm1, g_vecs0, g_t,
      $                       g_b )
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
+      integer rtdb
       integer geom
       integer basis
       integer nbf
@@ -249,7 +250,7 @@ c
       iv_dens(2) = g_d2
       iv_fock(1) = g_f1
       iv_fock(2) = g_f2
-      call fock_2e( geom, basis, nfock, jfac, kfac, tol2e, oskel,
+      call fock_2e(rtdb, geom, basis, nfock, jfac, kfac, tol2e, oskel,
      $              iv_dens, iv_fock, .false. )
       if (oskel) then
         call sym_symmetrize(geom, basis, .false., g_f1)
@@ -571,14 +572,15 @@ c   have changed significantly, odelta_core = .true.
 c   Requires a Fock build.
 c
 c
-      subroutine mcscf_b_trf_ifock( geom, basis, nbf, nclosed, nact,
+      subroutine mcscf_b_trf_ifock( rtdb, geom, basis,
+     $                              nbf, nclosed, nact,
      $                              oskel, tol2e, g_vecs0, g_ifock,
      $                              g_u, odelta_core, g_ifock_new )
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"      
-      integer geom, basis                              ! [input]  Handles
+      integer rtdb, geom, basis                        ! [input]  Handles
       integer nbf, nclosed, nact                       ! [input]  Orbital parameters
       logical oskel                                    ! [input]  Symmetry toggle
       double precision tol2e                           ! [input]  AO integral tolerance
@@ -647,7 +649,7 @@ c
         call ga_zero(g_f1)
         iv_dens(1) = g_d1
         iv_fock(1) = g_f1
-        call fock_2e( geom, basis, nfock, jfac, kfac, tol2e, oskel,
+        call fock_2e(rtdb, geom, basis, nfock, jfac, kfac, tol2e, oskel,
      $                iv_dens, iv_fock, .false. )
         if (oskel) call sym_symmetrize(geom, basis, .false., g_f1)
 c     
