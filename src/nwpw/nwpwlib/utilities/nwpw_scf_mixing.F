@@ -118,12 +118,13 @@
       integer MASTER,taskid
       parameter (MASTER=0)
       logical value,oprint
-      integer i,j,info,k,ipiv,ms,shift
+      integer i,j,info,k,ms,shift
       integer rr_ptr,ss_ptr,tt_ptr,ff_ptr
       integer V0,V1,Vout0,Vout1,F0,F1,Vbar0,Vbar1
       integer dV,U,dF,dFi
       real*8 sum0,sum1,beta,p00,p01,p11,alpha1,r00,small
       real*8 BB(40,40),BBB(40,40)
+
 
 *     **** external functions ****
       real*8   ddot
@@ -373,8 +374,6 @@ c      end if
            call Parallel_shared_vector_zero(.true.,max_list*max_list,B)
 !$OMP MASTER
 
-           if (oprint)
-     >     write(*,*) "Johnson SCF MIXING small:",small
            small = 0.0d0
            do i=1,m-1   
            do j=1,m-1   
@@ -386,6 +385,8 @@ c      end if
            end do
            small = small/dble(m-1)**2
            
+           if (oprint)
+     >     write(*,*) "Johnson SCF MIXING small:",small
 
            do i=1,m-1
            do j=1,m-1
