@@ -132,18 +132,11 @@
          call c_bybminimize0()
          if (control_fractional()) then
             Enew  = cpsi_1energy() + ewald_e()
-            if (mprint) write(*,*) "Enew+ewald=",Enew
             call cpsi_1gen_hml()
             call cpsi_diagonalize_hml()
-
-             if (mprint) write(*,*) "First EIG OCC:"
-             call cpsi_printeig_debug()
-
                call cpsi_1rotate2()
                call cpsi_2to1()
                call cpsi_1define_occupation(-1.0d0,.false.)
-             if (mprint) write(*,*) "Second EIG OCC:"
-             call cpsi_printeig_debug()
          end if
       end if
 

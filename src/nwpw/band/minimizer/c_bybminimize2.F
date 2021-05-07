@@ -175,7 +175,6 @@ c
 *     **** set the initial density ****
       if (current_iteration.eq.1) then
          Enew  = cpsi_1energy()
-         if (oprint) write(*,*) "Enew=",Enew+eion,Enew
          alpha = control_ks_alpha()
          deltae = -9232323299.0d0
          ks_deltae = tole
@@ -202,8 +201,7 @@ c
             call cpsi_1define_occupation(-1.0d0,.false.)
             Enew = Enew + cpsi_smearcorrection()
          end if
-         if (oprint) write(*,*) "THIRD EIGPRINT"
-         call cpsi_printeig_debug()
+        
       else
          call cpsi_get_density(1,dbl_mb(rho_in(1)))
          call cpsi_get_density(1,dbl_mb(rho_out(1)))
@@ -272,9 +270,6 @@ c
       Enew = cpsi_1energy()
       if (control_fractional()) Enew = Enew + cpsi_smearcorrection()
       deltae = Enew-Eold
-
-       if (oprint) write(*,*) "Fourth EIGPRINT"
-       call cpsi_printeig_debug()
 
 
       call cpsi_get_density(1,dbl_mb(rho_in(1)))
@@ -471,9 +466,6 @@ c      call cpsi_check()
          E(33) = ion_disp_energy()
          E(1)  = E(1) + E(33)
       end if
-
-       if (oprint) write(*,*) "FINAL c_bybminmize2 EIGPRINT"
-       call cpsi_printeig_debug()
 
       return
       end
