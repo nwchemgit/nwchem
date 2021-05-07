@@ -128,27 +128,29 @@
       if ((minimizer.eq.5).or.(minimizer.eq.8)) it_out = 1
 
       if (newpsi) then
-         if (minimizer.ne.4) call c_sdminimize(10)
+         if (minimizer.lt.4) call c_sdminimize(10)
          call c_bybminimize0()
          if (control_fractional()) then
-            Enew  = cpsi_1energy()
+            Enew  = cpsi_1energy() + ewald_e()
+            if (mprint) write(*,*) "Enew+ewald=",Enew
             call cpsi_1gen_hml()
-            !write(*,*) "Start ENEW = ",enew + ewald_e()
-            !if (minimizer.ne.4) then
-               call cpsi_diagonalize_hml()
+            call cpsi_diagonalize_hml()
+
+             if (mprint) write(*,*) "First EIG OCC:"
+             call cpsi_printeig_debug()
+
                call cpsi_1rotate2()
                call cpsi_2to1()
                call cpsi_1define_occupation(-1.0d0,.false.)
-            !else
-            !   call cpsi_1define_occupation(-1.0d0,.true.)
-            !end if
+             if (mprint) write(*,*) "Second EIG OCC:"
+             call cpsi_printeig_debug()
          end if
       end if
 
    2  continue
          icount = icount + 1
          if (stalled) then
-           if (minimizer.ne.4) call c_sdminimize(0)
+           if (minimizer.lt.4) call c_sdminimize(0)
            bfgscount = 0
          end if
 
@@ -247,11 +249,14 @@ c           end if
 
 
 *     **** diagonalize hamiltonian and rotate psi ****
-      call cpsi_1gen_hml()
-      call cpsi_diagonalize_hml()
-      if (.not.control_fractional()) then
-         call cpsi_1rotate2()
-         call cpsi_2to1()
+      !**** NEED TO CHECK THIS LOGIC AGAIN ****
+      if (minimizer.ne.8) then
+         call cpsi_1gen_hml()
+         call cpsi_diagonalize_hml()
+         if (.not.control_fractional()) then
+            call cpsi_1rotate2()
+            call cpsi_2to1()
+         end if
       end if
       
 
@@ -434,3 +439,65 @@ c     > F8.3,' xhat ) occ=',F5.3)
       end
 
 
+
+      subroutine cpsi_printeig_debug()
+      implicit none
+
+#include "stdio.fh"
+#include "util.fh"
+
+      integer MASTER,taskid
+      parameter (MASTER=0)
+
+      logical mprint
+      integer nb,i
+      real*8 f0,f1,f2,f3,f4,f5,f6
+
+      logical  control_print
+      external control_print
+      integer  brillioun_nbrillioun,cpsi_ne
+      external brillioun_nbrillioun,cpsi_ne
+      real*8   brillioun_weight_brdcst
+      real*8   brillioun_ks_brdcst
+      real*8   brillioun_k_brdcst
+      real*8   cpsi_eigenvalue_brdcst
+      real*8   cpsi_occupation_brdcst
+      external brillioun_weight_brdcst
+      external brillioun_ks_brdcst
+      external brillioun_k_brdcst
+      external cpsi_eigenvalue_brdcst
+      external cpsi_occupation_brdcst
+
+
+      call Parallel_taskid(taskid)
+
+      mprint = (taskid.eq.MASTER).and.control_print(print_medium)
+
+          do nb=1,brillioun_nbrillioun()
+             f0 = brillioun_weight_brdcst(nb)
+             f1 = brillioun_ks_brdcst(1,nb)
+             f2 = brillioun_ks_brdcst(2,nb)
+             f3 = brillioun_ks_brdcst(3,nb)
+             f4 = brillioun_k_brdcst(1,nb)
+             f5 = brillioun_k_brdcst(2,nb)
+             f6 = brillioun_k_brdcst(3,nb)
+             if (mprint) then
+               write(luout,1508) nb,f0,f1,f2,f3,f4,f5,f6
+               write(luout,1500)
+             end if
+             do i=0,cpsi_ne(1)-1
+               f1 = cpsi_eigenvalue_brdcst(nb,1,cpsi_ne(1)-i)
+               f2 = cpsi_occupation_brdcst(nb,1,cpsi_ne(1)-i)
+               if (mprint) write(luout,1510) f1,f1*27.2116d0,f2
+             end do
+          end do
+
+ 1500 FORMAT(/' orbital energies:')
+ 1508 FORMAT(/' Brillouin zone point: ',i6,
+     >       /'    weight=',f10.6,
+     >       /'    k     =<',3f8.3,'> . <b1,b2,b3> ',
+     >       /'          =<',3f8.3,'>')
+ 1510 FORMAT(4(E18.7,' (',F8.3,'eV) occ=',F5.3))
+
+      return
+      end
