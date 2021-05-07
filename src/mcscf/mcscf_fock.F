@@ -6,7 +6,7 @@ c     Compute the MCSCF MO-Fock matrices;
 c     inactive, active and generalized
 c     
 c     
-      subroutine mcscf_fock( geom, basis, nbf, nclosed, nact,
+      subroutine mcscf_fock( rtdb, geom, basis, nbf, nclosed, nact,
      $     oskel, tol2e, dm1, dm2, g_movecs,
      $     g_coul, eone, etwo, ecore,
      $     g_ifock, g_afock, g_gfock )
@@ -50,7 +50,7 @@ c         (Note this reference was not given originally in the comments
 c          above. However, it seems to match the subject matter best of
 c          whatever I could find. HvD)
 c     
-      integer geom, basis       ! [input] Geometry and basis handles
+      integer rtdb, geom, basis ! [input] Geometry and basis handles
       integer nbf               ! [input] Number of basis functions
       integer nclosed           ! [input] Number of closed shells
       integer nact              ! [input] Number of open shells
@@ -110,7 +110,7 @@ c
       iv_dens(2) = g_adens
       iv_fock(1) = g_tmp2
       iv_fock(2) = g_tmp3
-      call fock_2e( geom, basis, nset, jfac, kfac, tol2e, oskel,
+      call fock_2e(rtdb, geom, basis, nset, jfac, kfac, tol2e, oskel,
      $     iv_dens, iv_fock, .false. )
 c     
 c     

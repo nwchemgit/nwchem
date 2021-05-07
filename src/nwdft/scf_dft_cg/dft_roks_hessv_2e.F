@@ -252,7 +252,7 @@ c
 c
       if(util_print('dft timings', print_high))
      &      time1_2e=util_cpusec()   ! start 2e build time
-      call fock_2e( geom, basis, nfock, jfac, kfac,
+      call fock_2e(rtdb, geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, iv_dens, iv_fock,.false.)
       if(util_print('dft timings', print_high))
      &      time2_2e=util_cpusec()   ! end 2e build time
