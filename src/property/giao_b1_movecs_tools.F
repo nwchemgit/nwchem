@@ -62,7 +62,7 @@ c     AO basis
      $      call errquit('giao_b1: rtdb_put failed',0,RTDB_ERR)
       endif
 
-       call new_giao_2e(geom,basis,nbf,tol2e,
+       call new_giao_2e(rtdb, geom,basis,nbf,tol2e,
      &                  g_dens, !  in: e-denstiy 
      &                  g_fock, ! out: fock matrix
      &                  xfac,

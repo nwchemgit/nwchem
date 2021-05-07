@@ -270,7 +270,7 @@ c     derivative to g_vecB1:
      &    call errquit('aor_giaoints: rtdb_put failed',1,RTDB_ERR)
       endif
       
-      call new_giao_2e(geom,basis,nbf,tol2e,
+      call new_giao_2e(rtdb, geom,basis,nbf,tol2e,
      &  g_dens, g_fock, xfac, npol)      
       
       do ispin = 1,npol

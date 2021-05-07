@@ -410,7 +410,7 @@ c$$$        ifld = 4
 c$$$        if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, ifld))
 c$$$     $     call errquit('aorgiao: rtdb_put failed',0,RTDB_ERR)
 c$$$      endif
-c$$$      call new_giao_2e(geom, basis, nbf, tol2e, g_dens, g_fock, xfac)
+c$$$      call new_giao_2e(rtdb, geom, basis, nbf, tol2e, g_dens, g_fock, xfac)
 c$$$      if(use_theory.eq.'dft') then
 c$$$        ifld = 0
 c$$$        if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, ifld))
@@ -437,8 +437,9 @@ c new code from 2011 giaox:
          if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, ifld))
      $      call errquit('aor_giao: rtdb_put failed',0,RTDB_ERR)
       endif
-c     call new_giao_2e(geom, basis, nbf, tol2e, g_dens, g_fock, xfac)
-      call new_giao_2e(geom, basis, nbf, tol2e, g_dens, g_fock, xfac, 1) ! FA restrict calc
+c     call new_giao_2e(rtdb, geom, basis, nbf, tol2e, g_dens, g_fock, xfac)
+      call new_giao_2e(rtdb, geom, basis, nbf, tol2e, 
+     &                 g_dens, g_fock, xfac, 1) ! FA restrict calc
       if(use_theory.eq.'dft') then
          ifld = 0
          if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, ifld))

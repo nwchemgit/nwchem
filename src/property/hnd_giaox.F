@@ -440,7 +440,8 @@ c
      &   write(*,*) '---- g_rhs-BEF-new_giao_2e -------- END'
        endif
 
-      call new_giao_2e(geom,basis,nbf,tol2e,g_dens,g_fock,xfac,npol)
+      call new_giao_2e(rtdb, geom,basis,nbf,tol2e,
+     &                 g_dens,g_fock,xfac,npol)
 c
       if(use_theory.eq.'dft') then
          ifld = 0
