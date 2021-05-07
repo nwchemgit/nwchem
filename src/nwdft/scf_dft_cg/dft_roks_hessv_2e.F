@@ -1,4 +1,4 @@
-      subroutine dft_roks_hessv_2e( basis, geom, nbf, nmo, nclosed,
+      subroutine dft_roks_hessv_2e(rtdb, basis, geom, nbf, nmo, nclosed,
      $                      nopen, g_movec, oskel, g_x, acc, g_ax )
 C     $Id$
       implicit none
@@ -12,7 +12,7 @@ C     $Id$
 c     
 c     Return the ROKS orbital 2e-Hessian vector product, g_ax = A * g_x
 c     
-      integer basis, geom       ! basis & geom handle
+      integer rtdb, basis, geom       ! basis & geom handle
       integer nbf, nclosed, nopen ! Basis size and occupation
       integer nmo               ! No. of linearly dependent MOs
       integer g_movec           ! MO coefficients
@@ -41,7 +41,7 @@ c
       integer dims(3), chnk(3)
       integer alo(3), ahi(3), blo(3), bhi(3), clo(3), chi(3)
       integer g_dd, g_ff
-      integer rtdb, calc_type
+      integer calc_type
 c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked

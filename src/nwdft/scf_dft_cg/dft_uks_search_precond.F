@@ -93,6 +93,11 @@ c
 *      call uhf_precond(g_work, 0.0d0)
 c
       call ga_zero(g_work)      ! ESSENTIAL
+!
+! this is required to make rtdb available to dft_roks_hessv
+! without changing the function signature
+!
+      call scf_set_rtdb(rtdb)
 c     
 c     Attempt to solve the damned equations
 c

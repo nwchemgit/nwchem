@@ -6,10 +6,16 @@
 c     
 c     $Id$
 c
+      integer rtdb
       integer g_x, g_ax
       double precision acc
 c     
       integer gtype,grow,gcol,growp,gcolp
+c
+      integer scf_get_rtdb
+      external scf_get_rtdb
+c
+      rtdb = scf_get_rtdb()
 c     
 c     Check
 c     
@@ -30,7 +36,7 @@ c
 c     
 c     Call internal routine
 c     
-      call dft_roks_hessv_xx( basis, geom, nbf, nmo,
+      call dft_roks_hessv_xx( rtdb, basis, geom, nbf, nmo,
      $     nclosed, nopen,
      $     pflg, g_movecs, oskel, 
      $     crohf_g_fcv, crohf_g_fpv, crohf_g_fcp,
