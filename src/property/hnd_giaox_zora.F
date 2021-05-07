@@ -528,7 +528,7 @@ c +++++ Test: getting Coulomb and Exchange contrib separate --- START
      &                 npol)
 c +++++ Test: getting Coulomb and Exchange contrib separate --- END
       else  ! default
-       call new_giao_2e(geom,basis,nbf,tol2e,
+       call new_giao_2e(rtdb, geom,basis,nbf,tol2e,
      &                 g_dens, !  in: e-denstiy 
      &                 g_fock, ! out: fock matrix
      &                 xfac,
