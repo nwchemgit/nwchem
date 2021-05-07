@@ -115,9 +115,7 @@
 #include "nwpw_scf_mixing.fh"
 
 *     **** local variables ****
-      integer MASTER,taskid
-      parameter (MASTER=0)
-      logical value,oprint
+      logical value
       integer i,j,info,k,ms,shift
       integer rr_ptr,ss_ptr,tt_ptr,ff_ptr
       integer V0,V1,Vout0,Vout1,F0,F1,Vbar0,Vbar1
@@ -136,8 +134,7 @@ c      else
 c         alpha1 = 1.0d0
 c      end if
       alpha1 = alpha 
-      call Parallel_taskid(taskid)
-      oprint = (taskid.eq.MASTER)
+
 
 *     **** simple mixing ****
       if (algorithm.eq.0) then
@@ -218,8 +215,6 @@ c      end if
 !$OMP MASTER
            scf_error = dsqrt(scf_error)          
 !$OMP END MASTER
-           if (oprint)
-     >      write(*,*) "Broyden SCF MIXING: scf_error=",scf_error
 
        
            !**** Beta = <F1|F1-F0>/<F1-F0/F1-F0> ****
@@ -232,9 +227,6 @@ c      end if
            call D3dB_SumAll(sum1)
            beta = sum0/sum1
 
-           if (oprint) write(*,*) "Broyden SCF MIXING: betar=",beta
-           
- 
 
            !**** Vbar1 = (1-Beta)*Vout1 + Beta*Vout0 ****
            call Parallel_shared_vector_copy(.true.,nsize,
@@ -334,8 +326,6 @@ c      end if
 !$OMP MASTER
            scf_error = dsqrt(scf_error)          
 !$OMP END MASTER
-           if (oprint) 
-     >     write(*,*) "Johnson SCF MIXING: m,scf_error=",m,scf_error
 
            !*** dF = dF(m-1), U = U(m-1) ***
            call nwpw_list_ptr(1,(5+m-1),dF)
@@ -380,14 +370,9 @@ c      end if
               B(i,j) = A(i,j)
               small = small + dabs(A(i,j))
            end do
-           if (oprint)
-     >     write(*,*) "Johnson SCF MIXING C,B:",C(i),(B(i,j),j=1,m-1)
            end do
            small = small/dble(m-1)**2
            
-           if (oprint)
-     >     write(*,*) "Johnson SCF MIXING small:",small
-
            do i=1,m-1
            do j=1,m-1
               Binv(i,j) = 0.0d0
@@ -410,8 +395,6 @@ c      end if
               do j=1,m-1
                  d(i) = d(i) - (c(j)/small)*Binv(j,i)
               end do
-       if (oprint)
-     > write(*,*) "Johnson SCF MIXING d,Binv:",d(i),(Binv(j,i),j=1,m-1)
            end do
 !$OMP END MASTER
 
