@@ -220,12 +220,8 @@ c
 
          ks_deltae = tole
          value = .false.
+
          if (rho_read) call rho_2to1()
-c         if (control_fractional()) then
-c            if (control_use_fractional_rho()) then
-c               value = psi_try_read_density(1)
-c            end if
-c         end if
          call electron_gen_vall()
          call psi_get_density(1,dbl_mb(rho_in(1)))
          call psi_get_density(1,dbl_mb(rho_out(1)))
@@ -311,6 +307,7 @@ c         end if
 
 !$OMP BARRIER
 
+
       e00 = psi_1energy()
 !$OMP MASTER
       Eold_shared = Enew_shared
@@ -320,13 +317,11 @@ c         end if
       deltae = Enew_shared - Eold_shared
 !$OMP END MASTER
 
+
       !call electron_gen_vall()
       call psi_get_density(1,dbl_mb(rho_in(1)))
 
 *     **** compute deltaV ****
-c      call dcopy(ispin*n2ft3d,
-c     >           dbl_mb(rho_in(1)),1,
-c     >           dbl_mb(rho_junk(1)),1)
       call Parallel_shared_vector_copy(.true.,ispin*n2ft3d,
      >                                 dbl_mb(rho_in(1)), 
      >                                 dbl_mb(rho_junk(1)))

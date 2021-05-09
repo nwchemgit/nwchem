@@ -154,8 +154,8 @@ c#include "global.fh"
             call psi_diagonalize_hml_assending()
             call psi_1rotate2()
             call psi_2to1()
-            !call psi_1define_occupation(-1.0d0,.false.)
-            call psi_1define_occupation(1.0d0,.false.)
+            call psi_1define_occupation(-1.0d0,.false.)
+            !call psi_1define_occupation(1.0d0,.false.)
          end if
       end if
 
@@ -827,6 +827,48 @@ c     >   /45x,' (',F8.3,' kcal/mol)')
  1807 FORMAT( ' - K.S. Electric Field/Resta_Dipole  :',E19.10)
    
       end
+
+
+      subroutine psi_printeigs_debug()
+      implicit none
+
+#include "stdio.fh"
+
+      integer MASTER,taskid
+      parameter (MASTER=0)
+
+      integer i,NN
+      real*8 EV
+
+      integer  psi_ne
+      external psi_ne
+      real*8   psi_eigenvalue,psi_occupation
+      external psi_eigenvalue,psi_occupation
+
+      NN=psi_ne(1)-psi_ne(2)
+      EV=27.2116d0
+
+      call Parallel_taskid(taskid)
+      if (taskid.eq.MASTER) then
+         do i=1,NN
+            write(luout,1511) psi_eigenvalue(1,i),
+     >                        psi_eigenvalue(1,i)*EV,
+     >                        psi_occupation(1,i)
+         end do
+         do i=1,psi_ne(2)
+            write(luout,1511)  psi_eigenvalue(1,i+NN),
+     >                         psi_eigenvalue(1,i+NN)*EV,
+     >                         psi_occupation(1,i+NN),
+     >                         psi_eigenvalue(2,i),
+     >                         psi_eigenvalue(2,i)*EV,
+     >                         psi_occupation(2,i)
+         end do
+      end if
+
+      return
+ 1511 FORMAT(2(E18.7,' (',F8.3,'eV)  occ=',F5.3))
+      end
+         
 
 *     *******************************
 *     *				    *
