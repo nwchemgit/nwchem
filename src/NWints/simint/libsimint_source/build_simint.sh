@@ -12,6 +12,16 @@ if  [ -z "$(command -v python3)" ]; then
     echo please install python3
     exit 1
 fi
+if  [ -z "$(command -v curl)" ]; then
+    echo curl not installed
+    echo please install curl
+    exit 1
+fi
+if  [ -z "$(command -v patch)" ]; then
+    echo patch not installed
+    echo please install patch
+    exit 1
+fi
 UNAME_S=$(uname -s)
 if [[ ${UNAME_S} == Linux ]]; then
     CPU_FLAGS=$(cat /proc/cpuinfo | grep flags |tail -n 1)
