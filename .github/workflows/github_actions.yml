@@ -94,6 +94,14 @@ jobs:
             fc: gfortran-10
             use_simint: 1
           - os: ubuntu-20.04
+            experimental: true
+            mpi_impl: mpich
+            armci_network: mpi-ts
+            nwchem_modules: "tinyqmpw python"
+            fc: nvfortran
+            cc: gcc
+            use_simint: 1
+          - os: ubuntu-20.04
             experimental: true 
             mpi_impl: mpich
             armci_network: mpi-pr
@@ -143,6 +151,7 @@ jobs:
         NWCHEM_MODULES: ${{ matrix.nwchem_modules }}
         USE_SIMINT: ${{ matrix.use_simint }}
         FC: ${{ matrix.fc }}
+        CC: ${{ matrix.cc }}
         COMEX_MAX_NB_OUTSTANDING: 4
         SIMINT_MAXAM: 3
         SIMINT_VECTOR: avx2
