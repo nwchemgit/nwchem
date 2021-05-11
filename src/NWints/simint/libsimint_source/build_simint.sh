@@ -130,7 +130,10 @@ if [[ ${CMAKE_VER} -lt 3 ]]; then
     echo define the CMAKE env. variable
     exit 1
 fi
-$CMAKE ../
+if [[ -z "${SIMINT_BUILD_TYPE}" ]]; then
+    SIMINT_BUILD_TYPE=Release
+fi
+$CMAKE  -DCMAKE_BUILD_TYPE="${SIMINT_BUILD_TYPE}"  ../
 make -j2
 cd ..
 #./create.py -g build/generator/ostei -l 6 -p 4 -d 1 simint.l6_p4_d1
@@ -189,9 +192,6 @@ elif  [ ${FC} == nvfortran ] || [ ${FC} == pgf90 ] ; then
     Fortran_FLAGS="-i8 -cpp"
     CC=gcc
     CXX=g++
-fi
-if [[ -z "${SIMINT_BUILD_TYPE}" ]]; then
-    SIMINT_BUILD_TYPE=Release
 fi
 echo Fortran_FLAGS equal "$Fortran_FLAGS"
 FC="${FC}" CXX="${CXX}" $CMAKE \
