@@ -187,6 +187,8 @@ elif  [ ${FC} == ifort ]; then
     Fortran_FLAGS="-i8 -fpp"
 elif  [ ${FC} == nvfortran ] || [ ${FC} == pgf90 ] ; then
     Fortran_FLAGS="-i8 -cpp"
+    CC=gcc
+    CXX=g++
 fi
 if [[ -z "${SIMINT_BUILD_TYPE}" ]]; then
     SIMINT_BUILD_TYPE=Release
