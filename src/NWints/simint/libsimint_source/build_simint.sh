@@ -167,6 +167,8 @@ elif  [ ${FC} == xlf ] || [ ${FC} == xlf_r ] || [ ${FC} == xlf90 ]|| [ ${FC} == 
     Fortran_FLAGS=" -qintsize=8 -qextname -qpreprocess"
 elif  [ ${FC} == ifort ]; then
     Fortran_FLAGS="-i8 -fpp"
+elif  [ ${FC} == nvfortran ] || [ ${FC} == pgf90 ] ; then
+    Fortran_FLAGS="-i8 -cpp"
 fi
 if [[ -z "${SIMINT_BUILD_TYPE}" ]]; then
     SIMINT_BUILD_TYPE=Release
