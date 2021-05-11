@@ -132,8 +132,8 @@
       external  pspw_charge_found,ion_q_FixIon
       integer  control_minimizer,control_scf_algorithm
       external control_minimizer,control_scf_algorithm
-      integer  control_ks_algorithm
-      external control_ks_algorithm
+      integer  control_ks_algorithm,control_diis_histories
+      external control_ks_algorithm,control_diis_histories
       real*8   control_ks_alpha,control_kerker_g0
       external control_ks_alpha,control_kerker_g0
       logical  control_print,control_balance
@@ -586,9 +586,10 @@ c           call psp_check_print(ia)
            if (control_scf_algorithm().eq.0) 
      >       write(luout,1293) "simple mixing"
            if (control_scf_algorithm().eq.1) 
-     >       write(luout,1293) "Anderson potential mixing"
+     >       write(luout,1293) "Broyden mixing"
            if (control_scf_algorithm().eq.2) 
-     >       write(luout,1293) "Johnson-Pulay mixing"
+     >       write(luout,1289) "Johnson-Pulay mixing",
+     >                         control_diis_histories()
            if (control_scf_algorithm().eq.3) 
      >       write(luout,1293) "Anderson density mixing"
            if (minimizer.eq.5) write(luout,1296) "potential"
@@ -924,6 +925,7 @@ c      call frac_occ_end()
  1280 FORMAT(5X, ' time step=',F10.2,5X,'fictitious mass=',F10.1)
  1281 FORMAT(5X, ' maximum iterations =',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
+ 1289 FORMAT(5X, ' SCF algorithm        = ',A,' (',I2,' histories)')
  1290 FORMAT(5X, ' tolerance=',E9.3,' (energy)',E12.3,
      &        ' (density)')
  1291 FORMAT(/' Kohn-Sham scf parameters:')

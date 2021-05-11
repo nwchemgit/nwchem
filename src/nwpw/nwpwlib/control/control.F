@@ -512,6 +512,10 @@ c        call nwpwxc_print()
      >                  mt_int,1,scf_algorithm))
      >   scf_algorithm = 3
 
+      if (.not.btdb_get(rtdb,'nwpw:diis_histories',
+     >                  mt_int,1,diis_histories))
+     >   diis_histories = 15
+
       if (.not.btdb_get(rtdb,'nwpw:ks_algorithm',
      >                  mt_int,1,ks_algorithm))
      >   ks_algorithm = 0
@@ -767,6 +771,11 @@ c        call nwpwxc_print()
       if (.not.btdb_get(rtdb,'nwpw:scf_algorithm',
      >                  mt_int,1,scf_algorithm))
      >   scf_algorithm = 3
+
+      if (.not.btdb_get(rtdb,'nwpw:diis_histories',
+     >                  mt_int,1,diis_histories))
+     >   diis_histories = 15
+
       if (.not.btdb_get(rtdb,'nwpw:ks_algorithm',
      >                  mt_int,1,ks_algorithm))
      >   ks_algorithm = 0
@@ -2357,6 +2366,20 @@ c      write(*,*) "L3=",L3
 #include "control.fh"
 
       control_scf_algorithm = scf_algorithm
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *       control_diis_histories    *
+*     *                                 *
+*     ***********************************
+      integer function control_diis_histories()
+      implicit none
+
+#include "control.fh"
+
+      control_diis_histories = diis_histories
       return
       end
 

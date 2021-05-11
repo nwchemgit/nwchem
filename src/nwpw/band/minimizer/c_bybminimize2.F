@@ -109,6 +109,9 @@ c
       double precision ddot
       external ddot
 
+      integer  control_diis_histories
+      external control_diis_histories
+
       Ein = E(1)
       call Parallel_taskid(taskid)
       oprint = (taskid.eq.MASTER).and.control_print(print_medium)
@@ -225,7 +228,8 @@ c
   
 *     **** iniitialize SCF Mixing ****    
       call nwpw_scf_mixing_init(control_scf_algorithm(),alpha,
-     >                5,ispin,nfft3d,dbl_mb(rho_out(1)))
+     >                          control_diis_histories(),
+     >                          ispin,nfft3d,dbl_mb(rho_out(1)))
 
 
 *     **** iniitialize blocked cg ****
