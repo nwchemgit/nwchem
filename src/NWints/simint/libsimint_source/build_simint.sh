@@ -12,9 +12,9 @@ if  [ -z "$(command -v python3)" ]; then
     echo please install python3
     exit 1
 fi
-if  [ -z "$(command -v curl)" ]; then
-    echo curl not installed
-    echo please install curl
+if  [ -z "$(command -v curl)" ] && [ -z "$(command -v wget)" ]; then
+    echo curl and wget not installed
+    echo please install curl or wget
     exit 1
 fi
 if  [ -z "$(command -v patch)" ]; then
@@ -60,8 +60,16 @@ fi
 PERMUTE_SLOW=${SIMINT_MAXAM}
 GITHUB_USERID=edoapra
 rm -rf simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIVE}* *-chem-simint-generator-?????? simint-chem-simint-generator.tar.gz simint_lib
-curl -L https://github.com/${GITHUB_USERID}/simint-generator/tarball/master -o simint-chem-simint-generator.tar.gz
-#curl -LJ https://github.com/simint-chem/simint-generator/tarball/master -o simint-chem-simint-generator.tar.gz
+
+GITHUB_URL=https://github.com/${GITHUB_USERID}/simint-generator/tarball/master
+#GITHUB_URL=https://github.com/simint-chem/simint-generator/tarball/master
+TAR_NAME=simint-chem-simint-generator.tar.gz
+if  [ ! -z "$(command -v curl)" ] ; then
+    curl -L "${GITHUB_URL}" -o "${TAR_NAME}"
+else
+    wget -O "${TAR_NAME}" "${GITHUB_URL}"
+fi
+
 tar xzf simint-chem-simint-generator.tar.gz
 cd *-simint-generator-???????
 rm -f generator_types.patch
