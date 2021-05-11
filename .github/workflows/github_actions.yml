@@ -151,7 +151,6 @@ jobs:
         NWCHEM_MODULES: ${{ matrix.nwchem_modules }}
         USE_SIMINT: ${{ matrix.use_simint }}
         FC: ${{ matrix.fc }}
-        CC: ${{ matrix.cc }}
         COMEX_MAX_NB_OUTSTANDING: 4
         SIMINT_MAXAM: 3
         SIMINT_VECTOR: avx2
