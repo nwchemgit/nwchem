@@ -179,7 +179,7 @@ c
                 endif
 
                 eout = values(iter) - 
-     $                 0.80d0*(values(iter)-values(iter-1))
+     $                 0.70d0*(values(iter)-values(iter-1))
                 values(iter) = values(iter-1)
                 errors(iter) = errors(iter-1)
                 skipped = .true.
