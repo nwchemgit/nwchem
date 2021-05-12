@@ -18,6 +18,7 @@ else
 fi
 if [[ "$BUILD_MPICH" == 1 ]] ; then
     export PATH=$TRAVIS_BUILD_DIR/src/libext/bin:$PATH
+    export MPIRUN_PATH=$TRAVIS_BUILD_DIR/src/libext/bin/mpirun
 fi
 
 os=`uname`
@@ -30,6 +31,9 @@ if [[ ! -z "$USE_OPENMP" ]]; then
     export OMP_NUM_THREADS="$USE_OPENMP"
     export OMP_STACKSIZE=32M
 fi
+if [[ "$arch" == "aarch64" ]] ; then
+    nprocs=1
+fi    
 env|egrep MP
  do_largeqas=1
 

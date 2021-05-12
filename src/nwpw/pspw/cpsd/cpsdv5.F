@@ -63,7 +63,7 @@ cccc#include "frac_occ.fh"
     
 
 *     ***** energy variables ****
-      real*8  E(50),Egas
+      real*8  E(60),Egas
 
 *     real*8  eig(2*nemax)
 *     real*8  hml(2*nemax*nemax)
@@ -214,6 +214,9 @@ c#include "Parallel.fh"
       external control_fractional_kT
       real*8   control_fractional_alpha
       external control_fractional_alpha
+
+      integer  pspw_Efield_type
+      external pspw_Efield_type
 
 
 
@@ -1004,8 +1007,13 @@ c         end do
          if (field_exist) then
             write(luout,1431)
             write(luout,1432)
-            write(luout,1433) (E(1)-E(19)-E(20)-E(21)),
-     >         (E(1)-E(19)-E(20)-E(21))/ion_nion()
+            if (pspw_Efield_type().eq.0) then
+               write(luout,1433) (E(1)-E(49)-E(51)),
+     >         (E(1)-E(49)-E(51))/ion_nion()
+            else
+               write(luout,1433) (E(1)-E(49)-E(50)-E(51)),
+     >         (E(1)-E(49)-E(50)-E(51))/ion_nion()
+            end if
          end if
 
          !*** print out total paw energy including core energies ****
@@ -1100,14 +1108,19 @@ c            write(luout,1706) E(18)
         if (field_exist) then
            write(luout,1800)
            write(luout,1801)
-           write(luout,1805) E(19)+E(20)+E(21)
-           write(luout,1802) E(19)
-           write(luout,1803) E(20)
-           write(luout,1804) E(21)
-           call dipole_Efield_print(luout)
+           if (pspw_Efield_type().eq.0) then
+              write(luout,1805) E(49)+E(51)
+              write(luout,1806) E(49)
+              write(luout,1807) E(50)
+              !write(luout,1804) E(51)
+              call dipole_Efield_print(luout)
+           else
+              write(luout,1805) E(49)+E(50)+E(51)
+              write(luout,1802) E(49)
+              write(luout,1803) E(50)
+              write(luout,1804) E(51)
+           end if
         end if
-
-
 
 
 
@@ -1336,13 +1349,13 @@ c      call frac_occ_end()
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ PSPW input data ===================')
  1111 FORMAT(/' number of processors used:',I10)
- 1112 FORMAT( ' parallel mapping         :      1d slab')
- 1113 FORMAT( ' parallel mapping         :   2d hilbert')
+ 1112 FORMAT( ' parallel mapping         :      1d-slab')
+ 1113 FORMAT( ' parallel mapping         :   2d-hilbert')
  1114 FORMAT( ' parallel mapping         :     balanced')
  1115 FORMAT(/' options:')
  1116 FORMAT( ' parallel mapping         : not balanced')
  1117 FORMAT( ' processor grid           :',I4,' x',I4)
- 1118 FORMAT( ' parallel mapping         :    2d hcurve')
+ 1118 FORMAT( ' parallel mapping         :    2d-hcurve')
  1119 FORMAT( ' parallel io              :        on')
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
@@ -1417,7 +1430,7 @@ c      call frac_occ_end()
  1280 FORMAT(5X, ' time step=',F10.2,5X,'fictitious mass=',F10.1)
  1281 FORMAT(5X, ' maximum iterations =',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
- 1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
+ 1290 FORMAT(5X, ' tolerance=',E9.3,' (energy)',E12.3,
      &        ' (electron)',E12.3,' (ion)')
  1297 FORMAT(/' fractional smearing parameters:')
  1298 FORMAT(5X, ' smearing algorithm   = ',A)
@@ -1524,6 +1537,8 @@ c      call frac_occ_end()
  1803 FORMAT( ' - Charge+Electric Field/Ion         :',E19.10)
  1804 FORMAT( ' - Charge+Electric Field/Charge Field:',E19.10)
  1805 FORMAT( ' Charge+Electric Field Energy        :',E19.10)
+ 1806 FORMAT( ' - Electric Field/Resta_Dipole       :',E19.10)
+ 1807 FORMAT( ' - K.S. Electric Field/Resta_Dipole  :',E19.10)
 
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 

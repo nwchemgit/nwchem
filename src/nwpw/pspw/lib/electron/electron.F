@@ -403,6 +403,10 @@ c      end
       external psp_hartree_cmp_pw
       logical  pspw_V_APC_on
       external pspw_V_APC_on
+      integer  pspw_Efield_type
+      external pspw_Efield_type
+      real*8   dipole_Efield_e,dipole_Efield_p
+      external dipole_Efield_e,dipole_Efield_p
       
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
@@ -555,6 +559,11 @@ c     >                + eke_core + eion_core
       if (pspw_V_APC_on()) then
          call pspw_E_APC(eapc,papc)
          total_energy = total_energy + eapc - papc
+      end if
+
+*     **** get pspw_charge and pspw_Efield energies ****
+      if ((field_exist).and.(pspw_Efield_type().eq.0)) then
+         total_energy=total_energy+dipole_Efield_e()-dipole_Efield_p()
       end if
 
 

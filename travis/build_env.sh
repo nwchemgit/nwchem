@@ -1,7 +1,7 @@
 #!/bin/bash
 os=`uname`
-arch=`uname -m`
 dist="ubuntu"
+arch=`uname -m`
 if test -f "/usr/lib/os-release"; then
     dist=$(grep ID= /etc/os-release |head -1 |cut -c4-| sed 's/\"//g')
 fi
@@ -82,15 +82,31 @@ fi
 	which flang
     fi
     if [[ "$FC" == "nvfortran" ]]; then
-	sudo apt-get -y install lmod
-	wget https://developer.download.nvidia.com/hpc-sdk/21.2/nvhpc-21-2_21.2_amd64.deb
-	wget https://developer.download.nvidia.com/hpc-sdk/21.2/nvhpc-2021_21.2_amd64.deb
-	sudo dpkg -i nvhpc-21-2_21.2_amd64.deb nvhpc-2021_21.2_amd64.deb
-	source /etc/profile.d/lmod.sh
-        module use /opt/nvidia/hpc_sdk/modulefiles
-	module load nvhpc
+	sudo apt-get -y install lmod g++ libtinfo5 libncursesw5 lua-posix lua-filesystem lua-lpeg lua-luaossl
+	nv_major=21
+	nv_minor=3
+	nverdot="$nv_major"."$nv_minor"
+	nverdash="$nv_major"-"$nv_minor"
+	arch_dpkg=`dpkg --print-architecture`
+        nv_p1=nvhpc-"$nverdash"_"$nverdot"_"$arch_dpkg".deb
+	nv_p2=nvhpc-2021_"$nverdot"_"$arch_dpkg".deb
+	wget https://developer.download.nvidia.com/hpc-sdk/"$nverdot"/"$nv_p1"
+	wget https://developer.download.nvidia.com/hpc-sdk/"$nverdot"/"$nv_p2"
+	sudo dpkg -i "$nv_p1" "$nv_p2"
+	export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:$PATH
+	export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH
+	sudo /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x
+
+#	source /etc/profile.d/lmod.sh
+#        module use /opt/nvidia/hpc_sdk/modulefiles
+#	module load nvhpc
 	export FC=nvfortran
-#	export CC=gcc
+#	if [ -z "$BUILD_MPICH" ] ; then
+##use bundled openmpi
+#	export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/comm_libs/mpi/bin:$PATH
+#	export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/comm_libs/mpi/lib:$LD_LIBRARY_PATH
+#	fi
+	export CC=gcc
 	env | grep FC || true
 	nvfortran -v
 	nvfortran

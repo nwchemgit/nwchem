@@ -269,7 +269,7 @@
 
       !*** local variables ***
       integer maxit_orb
-      integer ii,l
+      integer ii,l,l2
       real*8  sum,maxerror,error_out,e0
 
       !*** external functions ***
@@ -281,8 +281,10 @@
       maxerror = control_tole()
 
       do ii=1,(ne(1)+ne(2))
+         l2 = 0
 
          !*** orthogonalize to lower orbitals  ****
+ 2       l2 = l2 + 1
          call psi_project_out_f_orb1(
      >           ii,
      >           dcpl_mb(psi1(1)+(ii-1)*npack1))
@@ -293,19 +295,22 @@
      >            dcpl_mb(psi1(1) +(ii-1)*npack1),
      >            sum)
          sum = 1.0d0/dsqrt(sum)
-c         call Pack_c_SMul(1,sum,
-c     >            dcpl_mb(psi1(1) +(ii-1)*npack1),
-c     >            dcpl_mb(psi1(1) +(ii-1)*npack1))
          call Pack_c_SMul1(1,sum,dcpl_mb(psi1(1) +(ii-1)*npack1))
 
          !*** minimize orbital ****
           l = 0
- 2        call psi_KS_update_f_orb(maxit_orb,
+ 3        call psi_KS_update_f_orb(maxit_orb,
      >                               maxerror,
      >                               0.001d0,ii,error_out,e0)
           !write(*,*) "e0:",ii,l,e0,error_out
           l = l+1
-          if ((error_out.gt.maxerror).and.(l.le.4)) go to 2
+          if ((error_out.gt.maxerror).and.(l.le.(1+(l2-1)*3))) go to 3
+          if (((error_out.gt.maxerror).or.(e0.gt.4.0d0))
+     >        .and.(l2.le.1)) then
+           call Pack_c_Zero(1,dcpl_mb(psi1(1) +(ii-1)*npack1))
+           call Pack_c_setzero(1,1.0d0,dcpl_mb(psi1(1) +(ii-1)*npack1))
+           go to 2
+          end if
 
           dbl_mb(eig(1)+ii-1) = e0
 
@@ -2745,7 +2750,7 @@ c     write(*,*) ciE(1),ciE(2),ciE(3),ciE(4)
 
       !*** local variables ***
       integer maxit_orb
-      integer ii,l
+      integer ii,l,l2
       real*8  sum,maxerror,error_out,e0
 
       !*** external functions ***
@@ -2757,8 +2762,10 @@ c     write(*,*) ciE(1),ciE(2),ciE(3),ciE(4)
       maxerror = control_tole()
 
       do ii=1,(ne_excited(1)+ne_excited(2))
+         l2= 0
 
          !*** orthogonalize to lower orbitals  ****
+ 2       l2 = l2 + 1
          call psi_project_out_virtual1(
      >           ii,
      >           dcpl_mb(psi1_excited(1)+(ii-1)*npack1))
@@ -2774,11 +2781,19 @@ c     write(*,*) ciE(1),ciE(2),ciE(3),ciE(4)
 
          !*** minimize orbital ****
           l = 0
- 2        call psi_KS_update_virtual(maxit_orb,
+ 3        call psi_KS_update_virtual(maxit_orb,
      >                               maxerror,
      >                               0.001d0,ii,error_out,e0)
-          l = l+1
-          if ((error_out.gt.maxerror).and.(l.le.4)) go to 2
+          l  = l+1
+          if ((error_out.gt.maxerror).and.(l.le.(1+(l2-1)*3))) go to 3
+          if (((error_out.gt.maxerror).or.(e0.gt.4.0d0))
+     >        .and.(l2.le.1)) then
+            call Pack_c_Zero(1,
+     >               dcpl_mb(psi1_excited(1) +(ii-1)*npack1))
+            call Pack_c_setzero(1,1.0d0,
+     >               dcpl_mb(psi1_excited(1) +(ii-1)*npack1))
+             go to 2
+          end if
 
           dbl_mb(eig_excited(1)+ii-1) = e0
 
@@ -6925,9 +6940,9 @@ c      end
       real*8   electron_eorbit_noocc
       external electron_eorbit_noocc
 
-
       call geodesic_transport(t,dcpl_mb(psi1(1)),
      >                          dcpl_mb(psi2(1)))
+
       psi_geodesic_denergy 
      > =  2.0d0*electron_eorbit_noocc(dcpl_mb(psi2(1)))
 

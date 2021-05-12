@@ -12,6 +12,16 @@ if  [ -z "$(command -v python3)" ]; then
     echo please install python3
     exit 1
 fi
+if  [ -z "$(command -v curl)" ] && [ -z "$(command -v wget)" ]; then
+    echo curl and wget not installed
+    echo please install curl or wget
+    exit 1
+fi
+if  [ -z "$(command -v patch)" ]; then
+    echo patch not installed
+    echo please install patch
+    exit 1
+fi
 UNAME_S=$(uname -s)
 if [[ ${UNAME_S} == Linux ]]; then
     CPU_FLAGS=$(cat /proc/cpuinfo | grep flags |tail -n 1)
@@ -50,8 +60,16 @@ fi
 PERMUTE_SLOW=${SIMINT_MAXAM}
 GITHUB_USERID=edoapra
 rm -rf simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIVE}* *-chem-simint-generator-?????? simint-chem-simint-generator.tar.gz simint_lib
-curl -L https://github.com/${GITHUB_USERID}/simint-generator/tarball/master -o simint-chem-simint-generator.tar.gz
-#curl -LJ https://github.com/simint-chem/simint-generator/tarball/master -o simint-chem-simint-generator.tar.gz
+
+GITHUB_URL=https://github.com/${GITHUB_USERID}/simint-generator/tarball/master
+#GITHUB_URL=https://github.com/simint-chem/simint-generator/tarball/master
+TAR_NAME=simint-chem-simint-generator.tar.gz
+if  [ ! -z "$(command -v curl)" ] ; then
+    curl -L "${GITHUB_URL}" -o "${TAR_NAME}"
+else
+    wget -O "${TAR_NAME}" "${GITHUB_URL}"
+fi
+
 tar xzf simint-chem-simint-generator.tar.gz
 cd *-simint-generator-???????
 rm -f generator_types.patch
@@ -112,7 +130,10 @@ if [[ ${CMAKE_VER} -lt 3 ]]; then
     echo define the CMAKE env. variable
     exit 1
 fi
-$CMAKE ../
+if [[ -z "${SIMINT_BUILD_TYPE}" ]]; then
+    SIMINT_BUILD_TYPE=Release
+fi
+$CMAKE  -DCMAKE_BUILD_TYPE="${SIMINT_BUILD_TYPE}"  ../
 make -j2
 cd ..
 #./create.py -g build/generator/ostei -l 6 -p 4 -d 1 simint.l6_p4_d1
@@ -167,9 +188,10 @@ elif  [ ${FC} == xlf ] || [ ${FC} == xlf_r ] || [ ${FC} == xlf90 ]|| [ ${FC} == 
     Fortran_FLAGS=" -qintsize=8 -qextname -qpreprocess"
 elif  [ ${FC} == ifort ]; then
     Fortran_FLAGS="-i8 -fpp"
-fi
-if [[ -z "${SIMINT_BUILD_TYPE}" ]]; then
-    SIMINT_BUILD_TYPE=Release
+elif  [ ${FC} == nvfortran ] || [ ${FC} == pgf90 ] ; then
+    Fortran_FLAGS="-i8 -cpp"
+    CC=gcc
+    CXX=g++
 fi
 echo Fortran_FLAGS equal "$Fortran_FLAGS"
 FC="${FC}" CXX="${CXX}" $CMAKE \

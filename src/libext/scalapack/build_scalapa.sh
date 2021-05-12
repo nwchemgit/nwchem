@@ -82,6 +82,10 @@ if [[ "$BLAS_SIZE" != "$SCALAPACK_SIZE"  ]] ; then
     echo "SCALAPACK_SIZE = " "$SCALAPACK_SIZE"
     exit 1
 fi
+
+if [[  -z "${SCALAPCK_SIZE}" ]]; then
+   SCALAPACK_SIZE=8
+fi
 if [[ "$BLAS_SIZE" == 4 ]] && [[ -z "$USE_64TO32"   ]] ; then
     if [[ "$NWCHEM_TARGET" != "LINUX" ]] && [[ "$NWCHEM_TARGET" != "MACX" ]] ; then
     echo USE_64TO32 must be set when BLAS_SIZE=4 on 64-bit architectures

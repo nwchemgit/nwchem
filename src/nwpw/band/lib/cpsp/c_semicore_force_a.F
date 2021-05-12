@@ -63,7 +63,7 @@ c     logocal semicore(0:nkatmx)
      >        BA_push_get(mt_dcpl, npack0,'tmpz',tmpz(2),tmpz(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
-      write(*,*) "HERB"
+      !write(*,*) "HERB"
 
       !call dcopy(n2ft3d,0.0d0,0,dcpl_mb(vxcG(1)),1)
       call Parallel_shared_vector_zero(.true.,n2ft3d,dcpl_mb(vxcG(1)))

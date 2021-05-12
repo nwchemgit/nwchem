@@ -31,7 +31,7 @@ c#include "global.fh"
       real*8  cx,cy,cz
       real*8  gx,gy,gz
       real*8  en(2),en1(2),en2(2)
-      real*8  E(50),Egas
+      real*8  E(60),Egas
       integer rtdb
 
 *     **** external functions ****
@@ -76,6 +76,8 @@ c#include "global.fh"
       external pspw_V_APC_on
       logical  control_use_fractional_rho,psi_try_read_density
       external control_use_fractional_rho,psi_try_read_density
+      integer  pspw_Efield_type
+      external pspw_Efield_type
 
       !**** hack for implementing hessian energy model ****
       if (control_hess_model()) then
@@ -152,8 +154,8 @@ c#include "global.fh"
             call psi_diagonalize_hml_assending()
             call psi_1rotate2()
             call psi_2to1()
-            !call psi_1define_occupation(-1.0d0,.false.)
-            call psi_1define_occupation(1.0d0,.false.)
+            call psi_1define_occupation(-1.0d0,.false.)
+            !call psi_1define_occupation(1.0d0,.false.)
          end if
       end if
 
@@ -384,8 +386,13 @@ c          **** reset minimizer if failed ****
          if (field_exist) then
             write(luout,1431)
             write(luout,1432)
-            write(luout,1433) (E(1)-E(19)-E(20)-E(21)),
-     >         (E(1)-E(19)-E(20)-E(21))/ion_nion()
+            if (pspw_Efield_type().eq.0) then
+               write(luout,1433) (E(1)-E(49)-E(51)),
+     >         (E(1)-E(49)-E(51))/ion_nion()
+            else
+               write(luout,1433) (E(1)-E(49)-E(50)-E(51)),
+     >         (E(1)-E(49)-E(50)-E(51))/ion_nion()
+            end if
          end if
 
          !*** write-out total paw energy - includes core energies ***
@@ -489,10 +496,18 @@ c            write(luout,1706) E(18)
          if (field_exist) then
             write(luout,1800)
             write(luout,1801)
-            write(luout,1805) E(19)+E(20)+E(21)
-            write(luout,1802) E(19)
-            write(luout,1803) E(20)
-            write(luout,1804) E(21)
+           if (pspw_Efield_type().eq.0) then
+              write(luout,1805) E(49)+E(51)
+              write(luout,1806) E(49)
+              write(luout,1807) E(50)
+              !write(luout,1804) E(51)
+              call dipole_Efield_print(luout)
+            else
+               write(luout,1805) E(49)+E(50)+E(51)
+               write(luout,1802) E(49)
+               write(luout,1803) E(50)
+               write(luout,1804) E(51)
+            end if
          end if
 
 *        **** write out <psi|H|psi> matrix ****
@@ -808,8 +823,52 @@ c     >   /45x,' (',F8.3,' kcal/mol)')
  1803 FORMAT( ' - Charge+Electric Field/Ion         :',E19.10)
  1804 FORMAT( ' - Charge+Electric Field/Charge Field:',E19.10)
  1805 FORMAT( ' Charge+Electric Field Energy        :',E19.10)
+ 1806 FORMAT( ' - Electric Field/Resta_Dipole       :',E19.10)
+ 1807 FORMAT( ' - K.S. Electric Field/Resta_Dipole  :',E19.10)
    
       end
+
+
+      subroutine psi_printeigs_debug()
+      implicit none
+
+#include "stdio.fh"
+
+      integer MASTER,taskid
+      parameter (MASTER=0)
+
+      integer i,NN
+      real*8 EV
+
+      integer  psi_ne
+      external psi_ne
+      real*8   psi_eigenvalue,psi_occupation
+      external psi_eigenvalue,psi_occupation
+
+      NN=psi_ne(1)-psi_ne(2)
+      EV=27.2116d0
+
+      call Parallel_taskid(taskid)
+      if (taskid.eq.MASTER) then
+         do i=1,NN
+            write(luout,1511) psi_eigenvalue(1,i),
+     >                        psi_eigenvalue(1,i)*EV,
+     >                        psi_occupation(1,i)
+         end do
+         do i=1,psi_ne(2)
+            write(luout,1511)  psi_eigenvalue(1,i+NN),
+     >                         psi_eigenvalue(1,i+NN)*EV,
+     >                         psi_occupation(1,i+NN),
+     >                         psi_eigenvalue(2,i),
+     >                         psi_eigenvalue(2,i)*EV,
+     >                         psi_occupation(2,i)
+         end do
+      end if
+
+      return
+ 1511 FORMAT(2(E18.7,' (',F8.3,'eV)  occ=',F5.3))
+      end
+         
 
 *     *******************************
 *     *				    *

@@ -147,6 +147,8 @@ c
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
       external control_ks_maxit_orb,control_ks_maxit_orbs
 
+      integer   control_diis_histories
+      external  control_diis_histories
 
       Ein = E(1)
       call Parallel_taskid(taskid)
@@ -220,12 +222,8 @@ c
 
          ks_deltae = tole
          value = .false.
+
          if (rho_read) call rho_2to1()
-c         if (control_fractional()) then
-c            if (control_use_fractional_rho()) then
-c               value = psi_try_read_density(1)
-c            end if
-c         end if
          call electron_gen_vall()
          call psi_get_density(1,dbl_mb(rho_in(1)))
          call psi_get_density(1,dbl_mb(rho_out(1)))
@@ -266,7 +264,8 @@ c         end if
   
 *     **** iniitialize SCF Mixing ****    
       call nwpw_scf_mixing_init(control_scf_algorithm(),alpha,
-     >                5,ispin,n2ft3d,dbl_mb(rho_out(1)))
+     >                          control_diis_histories(),
+     >                          ispin,n2ft3d,dbl_mb(rho_out(1)))
 
 *     **** iniitialize RMM-DIIS ****
       if (control_ks_algorithm().eq.1) call pspw_rmmdiis_init(5)
@@ -311,6 +310,7 @@ c         end if
 
 !$OMP BARRIER
 
+
       e00 = psi_1energy()
 !$OMP MASTER
       Eold_shared = Enew_shared
@@ -320,13 +320,11 @@ c         end if
       deltae = Enew_shared - Eold_shared
 !$OMP END MASTER
 
+
       !call electron_gen_vall()
       call psi_get_density(1,dbl_mb(rho_in(1)))
 
 *     **** compute deltaV ****
-c      call dcopy(ispin*n2ft3d,
-c     >           dbl_mb(rho_in(1)),1,
-c     >           dbl_mb(rho_junk(1)),1)
       call Parallel_shared_vector_copy(.true.,ispin*n2ft3d,
      >                                 dbl_mb(rho_in(1)), 
      >                                 dbl_mb(rho_junk(1)))
@@ -615,7 +613,7 @@ c         E(14) = E(14) + dng_1vl_mm()
             E(48) = e00  !** E(q|q)
 
             !E(1)  = E(1) + E(22) - E(23) + E(47) + E(48)
-            E(1)  = E(1) + E(22) - E(23)
+            E(1)  = E(1) + E(22) - E(23) !*** probably NOT CORRECT ***
 !$OMP END MASTER
          end if
 
@@ -624,7 +622,7 @@ c         E(14) = E(14) + dng_1vl_mm()
 !$OMP MASTER
          E(22) = eapc
          E(23) = papc
-         E(1)  = E(1) + eapc - papc
+         E(1)  = E(1) + eapc - papc !*** probably NOT CORRECT ***
 !$OMP END MASTER
       end if
 
@@ -637,10 +635,10 @@ c         E(14) = E(14) + dng_1vl_mm()
          e00  = pspw_charge_Energy_charge()
 
 !$OMP MASTER
-         E(19)  = evl
-         E(20)  = evnl
-         E(21)  = e00
-         E(1)   = E(1) + E(20) + E(21)
+         E(49)  = evl
+         E(50)  = evnl
+         E(51)  = e00
+         E(1)   = E(1) + E(50) + E(51)
 !$OMP END MASTER
       end if
 

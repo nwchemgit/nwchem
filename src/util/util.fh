@@ -2,7 +2,6 @@
 c      
 C$Id$
       logical util_print
-      double precision ddot
       double precision util_cpusec
       double precision util_wallsec
       double precision util_random
@@ -12,7 +11,6 @@ C$Id$
       logical util_nwchemrc_get
       logical util_module_avail
       external util_print
-      external ddot
       external util_cpusec
       external util_wallsec
       external util_random

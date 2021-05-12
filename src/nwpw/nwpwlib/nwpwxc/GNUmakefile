@@ -1,7 +1,6 @@
 #
 # $Id$
 #
-
     OBJ_OPTIMIZE = nwpwxc_eval.o nwpwxc_x_att.o nwpwxc_x_b88.o nwpwxc_x_bnl.o \
                    nwpwxc_x_camb88.o nwpwxc_x_camlsd.o nwpwxc_x_campbe.o nwpwxc_x_cams12.o \
                    nwpwxc_x_dirac.o nwpwxc_x_gill.o nwpwxc_x_hse08.o nwpwxc_x_ft97.o nwpwxc_x_m05.o nwpwxc_x_m06.o \
@@ -33,4 +32,7 @@
 
 include ../../../config/makefile.h
 include ../../../config/makelib.h
+nwpwxc_vdw3a.F:
+	./build_dftd3a.sh 
+
 

@@ -122,6 +122,8 @@ c
 
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
       external control_ks_maxit_orb,control_ks_maxit_orbs
+      integer  control_diis_histories
+      external control_diis_histories
 
    
       Ein = E(1)
@@ -226,7 +228,8 @@ c      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(rho_in(1)),1)
   
 *     **** iniitialize SCF Mixing ****    
       call nwpw_scf_mixing_init(control_scf_algorithm(),alpha,
-     >                5,ispin,n2ft3d,dbl_mb(vall_out(1)))
+     >                          control_diis_histories(),
+     >                          ispin,n2ft3d,dbl_mb(vall_out(1)))
 
 *     **** iniitialize RMM-DIIS ****
       if (control_ks_algorithm().eq.1) call pspw_rmmdiis_init(5)
@@ -479,24 +482,24 @@ c      call psi_check()
             E(48) = nwpw_cosmo_Eqq()    !** E(q|q)
 
             !E(1)  = E(1) + E(22) - E(23) + E(47) + E(48)
-            E(1)  = E(1) + E(22) - E(23)
+            E(1)  = E(1) + E(22) - E(23) !*** probably NOT CORRECT ***
          end if
 
       else if (V_APC_on) then
          call electron_apc_energies(eapc,papc)
          E(22) = eapc
          E(23) = papc
-         E(1)  = E(1) + eapc - papc
+         E(1)  = E(1) + eapc - papc !*** probably NOT CORRECT ***
       end if
 
 
 *     **** get pspw_charge pspw_Efield energies ****
       if (field_exist) then
-         E(19)  = psi_1v_field()
-         E(20)  = pspw_charge_Energy_ion()
+         E(49)  = psi_1v_field()
+         E(50)  = pspw_charge_Energy_ion()
      >          + pspw_Efield_Energy_ion()
-         E(21)  = pspw_charge_Energy_charge()
-         E(1)   = E(1) + E(20) + E(21)
+         E(51)  = pspw_charge_Energy_charge()
+         E(1)   = E(1) + E(50) + E(51)
       end if
 
 *     **** HFX terms ****

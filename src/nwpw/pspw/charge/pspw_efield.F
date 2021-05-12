@@ -105,9 +105,9 @@ c
       end if
 
       return
- 1160 format(/' periodic Electric Field used:')
- 1170 format(/' APC Electric field used:')
- 1180 format(/' real space Electric Field used:')
+ 1160 format(/' periodic Electric field:')
+ 1170 format(/' APC Electric field:')
+ 1180 format(/' real space Electric field:')
  1190 format(5X, 'Electric Field (au) (',3F11.5,' )')
  1191 format(5X, '        Center (au) (',3F11.5,' )')
       end

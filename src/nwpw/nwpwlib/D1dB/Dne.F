@@ -1715,9 +1715,9 @@ c     >                       'tmp3',tmp3(2),tmp3(1))
             shift1 = 1+(ms-1)*ishift1
             shift2 = 1+(ms-1)*ishift2
             if (ne(ms).le.0) go to 30
-!$OMP MASTER
             call Parallel_shared_vector_copy(.true.,2*ne(ms)*ne(ms),
      >                                 hml(shift1),dcpl_mb(tmp1(1)))
+!$OMP MASTER
             call ZGEEV('V','V',ne(ms),
      >                 dcpl_mb(tmp1(1)),ne(ms),
      >                 eig(shift1),
@@ -2747,7 +2747,7 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
-c     *        Dneall_mm_SCtimesVtrans2     *
+c     *        Dneall_mm_SCtimesVtrans2      *
 c     *                                      *
 c     ****************************************
 
@@ -2853,7 +2853,7 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
-c     *        Dneall_mm_SCtimesVtrans3     *
+c     *        Dneall_mm_SCtimesVtrans3      *
 c     *                                      *
 c     ****************************************
 
@@ -3666,7 +3666,7 @@ c     ****************************************
          end if
       end if
 
-      call dscal_omp(nn,alpha,M,1)
+      call DSCAL_OMP(nn,alpha,M,1)
       return
       end
 
@@ -6812,9 +6812,11 @@ c     ****************************************
       real*8     B(*)
       integer i,nsize
       call Dneall_m_size(mb,nsize)
+!$OMP DO
       do i=1,nsize
          B(i) = dble(A(i))
       end do
+!$OMP END DO
       return
       end
 
@@ -6831,9 +6833,11 @@ c     ****************************************
       complex*16 C(*)
       integer i,nsize
       call Dneall_m_size(mb,nsize)
+!$OMP DO
       do i=1,nsize
          C(i) = dcmplx(Ar(i),Br(i))
       end do
+!$OMP END DO
       return
       end
 

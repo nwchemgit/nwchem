@@ -17,10 +17,8 @@ fi
  ls -lrt $TRAVIS_BUILD_DIR|tail -2
  cd $TRAVIS_BUILD_DIR/src
      make nwchem_config
-if [[ -z "$TARBALL" ]]; then
- if [[ "$USE_64TO32" == "y" ]]; then
+if [[ ! -z "$USE_64TO32"  ]]; then
      echo " CONVERSION 64_to_32"
-     make 64_to_32 >& 6log &
- fi
+     make 64_to_32
 fi
- env
+env

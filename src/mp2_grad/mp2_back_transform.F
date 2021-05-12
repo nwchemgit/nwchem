@@ -808,6 +808,8 @@ c
      $     ylo_cur, yhi_cur, udim_cur, vdim_cur, xdim_cur, ydim_cur
       logical status, odebug, odoit, sym_shell_quartet, oenergy
       external sym_shell_quartet
+      double precision ddot
+      external ddot
 c     
       odebug = util_print('mp2_backt', print_debug)
       oenergy = util_print('backtenergy', print_debug)
@@ -1122,6 +1124,8 @@ c
       integer t_ilo, t_ihi, t_jlo, t_jhi
       integer nsegs,iseg_in
       double precision tr,tr_tr
+      double precision ddot
+      external ddot
 c
       call ga_distribution(g_a_trans, ga_nodeid(), 
      T     t_ilo, t_ihi, t_jlo, t_jhi)

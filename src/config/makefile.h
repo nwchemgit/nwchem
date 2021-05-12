@@ -2462,7 +2462,10 @@ ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
 #     EXTRA_LIBS +=  -dynamic-linker /lib64/ld64.so.1 -melf64ppc -lxlf90_r -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lm -lc -lgcc -lm
     endif # end of ppc64 arch
       ifeq ($(_FC),pgf90)
-        FOPTIONS   += -Mdalign -Mllalign -Kieee
+        FOPTIONS   += -Mdalign -Kieee
+        ifeq ($(_CPU),x86_64)
+          FOPTIONS   +=  -Mllalign
+	endif
 	FOPTIONS   += -Mbackslash
         FOPTIONS   += -Mcache_align  # -Kieee 
         FOPTIMIZE   =  -fast -O3 -Mvect=simd  -Munroll -Minfo=loop # -Mipa=fast

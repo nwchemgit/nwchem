@@ -430,6 +430,7 @@ c      real*8     sum1,sum2,sum3
       logical  Dneall_m_push_get,Dneall_m_pop_stack
       external Dneall_m_push_get,Dneall_m_pop_stack
 
+
       call nwpw_timing_start(10)
       zero = 0.0d0
       one  = 1.0d0
@@ -457,6 +458,7 @@ c      real*8     sum1,sum2,sum3
       call Dneall_mmm_Multiply2(0,dbl_mb(Vt(1)),
      >                           dbl_mb(tmp1(1)),
      >                           dbl_mb(tmp2(1)))
+
 
       call Dneall_fmf_Multiply(0,Yold,npack1,
      >                          dbl_mb(tmp2(1)),-1.0d0,

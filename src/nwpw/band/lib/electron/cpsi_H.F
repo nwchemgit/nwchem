@@ -83,6 +83,7 @@
 *     ****************************
       call cke(ispin,ne,psi_k_tag,Hpsi_k_tag)
 
+*     ****************************
 *     **************************
 *     **** add non-local psp ***
 *     **************************
@@ -104,8 +105,11 @@
 *     **********************************************************
 c      call Cram_c_SMul(0,scal2,vl,dcpl_mb(vall(1)))
 c      call Cram_cc_Sum(0,dcpl_mb(vall(1)),vc,dcpl_mb(vall(1)))
-      call dcopy(2*npack0,vc,1,dcpl_mb(vall(1)),1)
-      call daxpy(2*npack0,scal2,vl,1,dcpl_mb(vall(1)),1)
+c      call dcopy(2*npack0,vc,1,dcpl_mb(vall(1)),1)
+c      call daxpy(2*npack0,scal2,vl,1,dcpl_mb(vall(1)),1)
+      call Parallel_shared_vector_copy(.true.,2*npack0,vc,
+     >                                 dcpl_mb(vall(1))) 
+      call DAXPY_OMP(2*npack0,scal2,vl,1,dcpl_mb(vall(1)),1)
       call Cram_c_unpack(0,dcpl_mb(vall(1)))
 
 *     **********************************************
@@ -113,10 +117,12 @@ c      call Cram_cc_Sum(0,dcpl_mb(vall(1)),vc,dcpl_mb(vall(1)))
 *     **********************************************
       call C3dB_cr_pfft3b(1,0,dcpl_mb(vall(1)))
 
+
       ki  = 1
       nbi = 1 
       psi_shift   = cpsi_data_get_chnk(psi_r_tag,nbi)
       if (dohfx) Hpsir_shift = cpsi_data_get_chnk(Hpsi_r_tag,nbi)
+
 
       kj  = 1
       nbj = 1 
