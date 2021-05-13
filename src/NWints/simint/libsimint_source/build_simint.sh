@@ -51,6 +51,19 @@ else
     VEC=scalar
 fi
 echo VEC $VEC
+if [[ "${VEC}" == "avx512" ]]; then
+if [[   -z "${CC}" ]]; then
+    CC=cc
+fi
+let GCCVERSIONGT5=$(expr `${CC} -dumpversion | cut -f1 -d.` \> 5)
+    if [[ ${GCCVERSIONGT5} != 1 ]]; then
+	echo
+	echo you have gcc version $(${CC} -dumpversion | cut -f1 -d.)
+	echo gcc version 6 and later needed for skylake
+	echo
+	exit 1
+    fi
+fi
 SRC_HOME=`pwd`
 DERIV=1
 if [[  -z "${SIMINT_MAXAM}" ]]; then

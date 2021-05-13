@@ -102,6 +102,7 @@ c
      &              call errquit(pname//'Exiting ',8, BASIS_ERR)
                if (.not. geom_cent_get(geom, iat, tag,
      &              coord, q))call errquit
+     &              (pname//'Exiting ',9, GEOM_ERR)
                nwcsim_noshell(bas)=nwcsim_noshell(bas)+1
                call simint_initialize_shell(
      S              smnt_sh(nwcsim_noshell(bas),bas))
@@ -124,10 +125,10 @@ c     dummy shell for 3c-
 c
 c     memory allocation
 c
-         isz_2e4c = max(isz_2e4c,
-     S        simint_eri_worksize(num_der, max_ang))
+C simint_eri_workmem gives the minimum size of the workspace required in bytes
          mem_2e4c = max(mem_2e4c,
-     S        simint_eri_workmem(num_der, max_ang))
+     S        simint_eri_workmem(num_der, max_ang))/
+     M        MA_sizeof(MT_INT,1,MT_BYTE)
       enddo ! basis loop
       endif
 c
@@ -136,16 +137,16 @@ cedo      call simint_normalize_shells(nwcsim_noshell,smnt_sh)
 c     SIMINT_PRIM_SCREEN_STAT needs 4 more doubles
 c      isz_2e4c        = isz_2e4c + 4
 c      
-      call util_align(isz_2e4c,SIMINT_SIMD_LEN)
-      call util_align(mem_2e4c,SIMINT_SIMD_LEN)
 c
-      iszb_2e4c=isz_2e4c
+c      iszb_2e4c=isz_2e4c
       
       if(num_der.eq.1) then
          memb_2e4c = mem_2e4c + mem_2e4c/5
       else
          memb_2e4c = mem_2e4c + mem_2e4c/10 ! +10% to be safe
       endif
+      call util_align(isz_2e4c,SIMINT_SIMD_LEN)
+      call util_align(mem_2e4c,SIMINT_SIMD_LEN)
       call util_align(memb_2e4c,SIMINT_SIMD_LEN)
       mem_2e3c = mem_2e4c
       mem_2e2c = mem_2e4c

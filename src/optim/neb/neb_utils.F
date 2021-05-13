@@ -2201,7 +2201,7 @@ c
      >                          dbl_mb(c1(1)),
      >                          dbl_mb(e1(1)),
      >                          dbl_mb(t1(1)),
-     >                          dbl_mb(g1(1)))
+     >                          dbl_mb(g1(1)),.false.,.false.)
            shift = (m-1)*ng
            call dcopy(ng,dbl_mb(c1(1)),1,dbl_mb(cs(1)+shift),1)
            call dcopy(ng,dbl_mb(g1(1)),1,dbl_mb(gs(1)+shift),1)
