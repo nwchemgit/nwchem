@@ -145,7 +145,7 @@ c
         ni = ilast - ifirst + 1
         do jsh=1,ish
           eri_est = schwarz_shell(ish,jsh)
-          if (eri_est.lt.pars%tol2e*0.1d0) cycle
+          if (eri_est.lt.pars%tol2e) cycle
           IeqJ = ish.eq.jsh
           ok = bas_cn2bfr(ao_bas_han,jsh,jfirst,jlast)
           nj = jlast - jfirst + 1

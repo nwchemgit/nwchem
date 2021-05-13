@@ -82,7 +82,7 @@
       sizepi = (nri*(nri+1))/2
 
       diag = .false.
-      if (nri.gt.4000) diag = .true.
+      if (nri.gt.14000) diag = .true.
 
 #ifdef GWCMPLX
       if (.not.ma_alloc_get(mt_dcpl,nri**2,'Pi',l_pi,k_pi))
@@ -132,6 +132,10 @@
 
       do igl=ngl,1,-1
 c
+#ifdef GWDEBUG
+        if (main) write(luout,*) ' ## igl ',igl
+#endif
+
         w2 = x(igl)
         imw = dcmplx(0d0,dsqrt(w2))
 

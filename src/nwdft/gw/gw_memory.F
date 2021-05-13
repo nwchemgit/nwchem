@@ -50,7 +50,7 @@ c
  9020 format(/,10x,'Peak memory in Initialization')     
  9030 format(10x,'Peak total GA memory is       ',F12.1,' MBs',/,
      $       10x,'Peak MA memory per process is ',F12.1,' MBs')
- 9040 format(/,10x,'Peak memory in Analytic Calculation')     
+ 9040 format(/,10x,'Peak memory in AFF Calculation') 
  9050 format(/,10x,'Peak memory in CDGW Calculation')     
 
       ! ERI computation and transformation

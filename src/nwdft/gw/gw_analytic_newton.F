@@ -203,8 +203,12 @@ c
               Eout = Ein
 #ifdef GWDEBUG
              if (main) write(luout,9901) iter,iqp,util_wallsec()-timer2,
-     $                                  Ein,Eout
-             if (main) write(luout,9902) residual,eout-ein,lower,upper
+     $                                  ha2ev*(Ein+efermi(isp)),
+     $                                  ha2ev*(Eout+efermi(isp))
+             if (main) write(luout,9902) ha2ev*residual,
+     $                                   ha2ev*(eout-ein),
+     $                                   ha2ev*(lower+efermi(isp)),
+     $                                   ha2ev*(upper+efermi(isp))
 #endif
               exit
             endif
@@ -217,10 +221,14 @@ c
 
 #ifdef GWDEBUG
             if (main) write(luout,9901) iter,iqp,util_wallsec()-timer2,
-     $                                  Ein,Eout
+     $                                  ha2ev*(Ein+efermi(isp)),
+     $                                  ha2ev*(Eout+efermi(isp))
  9901       format('  ## Finished iter',I3,' of qp ',I3,' in ',F12.2,'s'
      $             ,/,'     Ein: ',F12.6,' Eout: ',F12.6)
-            if (main) write(luout,9902) residual,eout-ein,lower,upper
+            if (main) write(luout,9902) ha2ev*residual,
+     $                                  ha2ev*(eout-ein),
+     $                                  ha2ev*(lower+efermi(isp)),
+     $                                  ha2ev*(upper+efermi(isp))
  9902       format('    res ',F12.6,' step ',F12.6,' lower ',F12.6,
      $             ' upper ', F12.6)
             call util_flush(luout)

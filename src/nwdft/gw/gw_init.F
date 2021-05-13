@@ -160,7 +160,7 @@ c
 
       if (.not.rtdb_get(pars%rtdb, 'dft:itol2e',mt_int,1,itol2e))
      $  call errquit(pname//'failed to read itol2e',0,RTDB_ERR)
-      pars%tol2e = 10.0d0**(-itol2e)
+      pars%tol2e = 10.0d0**(-itol2e-2)
 c
 c     RI basis set
 c
