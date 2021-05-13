@@ -146,17 +146,16 @@ c#include "global.fh"
       if (minimizer.eq.8) it_out = 1
       if ((newpsi).or.(nwpw_cosmo_firsttime())) then
          call pspw_Lin_HFX_reset()
-         call sdminimize(15)
+         if (minimizer.lt.4) call sdminimize(15)
          call bybminimize0()
-         if (control_fractional()) then
-            call psi_1toelectron()
-            call psi_1gen_hml()
-            call psi_diagonalize_hml_assending()
-            call psi_1rotate2()
-            call psi_2to1()
-            call psi_1define_occupation(-1.0d0,.false.)
-            !call psi_1define_occupation(1.0d0,.false.)
-         end if
+c         if (control_fractional()) then
+c            call psi_1toelectron()
+c            call psi_1gen_hml()
+c            call psi_diagonalize_hml_assending()
+c            call psi_1rotate2()
+c            call psi_2to1()
+c            call psi_1define_occupation(-1.0d0,.false.)
+c         end if
       end if
 
    2  continue

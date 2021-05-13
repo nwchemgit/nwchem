@@ -239,7 +239,8 @@ c
          if (dohfx) call psi_1genrho()
          if (control_fractional()) then
             call psi_1assending_occupation()
-            call psi_1define_occupation(0.0d0,.false.)
+            !call psi_1define_occupation(0.0d0,.false.)
+            call psi_1define_occupation(-1.0d0,.false.)
             Enew1 = Enew1 + psi_smearcorrection()
          end if
 !$OMP MASTER
@@ -301,6 +302,7 @@ c
       call psi_diagonalize_hml_assending()
       call psi_1rotate2()
       call psi_2to1()
+
 
 !$OMP BARRIER
 
