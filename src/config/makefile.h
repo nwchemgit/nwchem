@@ -2828,7 +2828,7 @@ else
 endif
 
 ifdef NWCHEM_LINK_CUDA
-CORE_LIBS += -stdpar -acc -gpu=managed -cuda -cudalib=cublas
+CORE_LIBS += -acc -gpu=managed -cuda -cudalib=cublas
 endif
 
 ifdef BLASOPT
