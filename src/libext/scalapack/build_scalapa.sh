@@ -83,7 +83,7 @@ if [[ "$BLAS_SIZE" != "$SCALAPACK_SIZE"  ]] ; then
     exit 1
 fi
 
-if [[  -z "${SCALAPCK_SIZE}" ]]; then
+if [[  -z "${SCALAPACK_SIZE}" ]]; then
    SCALAPACK_SIZE=8
 fi
 if [[ "$BLAS_SIZE" == 4 ]] && [[ -z "$USE_64TO32"   ]] ; then
@@ -141,7 +141,7 @@ GOTCLANG=$( mpicc -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -
 if [[ ${GOTCLANG} == "1" ]] ; then
     C_FLAGS=" -Wno-error=implicit-function-declaration "
 fi
-
+echo "SCALAPACK_SIZE" is $SCALAPACK_SIZE
 if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
     GFORTRAN_EXTRA=$(echo $FC | cut -c 1-8)
     if  [[ ${FC} == gfortran ]] || [[ ${FC} == f95 ]] || [[ ${GFORTRAN_EXTRA} == gfortran ]] ; then
@@ -153,6 +153,7 @@ if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
     fi
     C_FLAGS+=" -DInt=long"
 fi
+echo compiling with CC=mpicc  FC=$MPIF90 CFLAGS="$C_FLAGS" FFLAGS="$Fortran_FLAGS" $CMAKE -Wno-dev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_FLAGS="$C_FLAGS"  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY="$BLASOPT"  -DBLAS_LIBRARIES="$BLASOPT"  -DLAPACK_openblas_LIBRARY="$BLASOPT"  -DLAPACK_LIBRARIES="$BLASOPT" 
 CC=mpicc  FC=$MPIF90 CFLAGS="$C_FLAGS" FFLAGS="$Fortran_FLAGS" $CMAKE -Wno-dev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_FLAGS="$C_FLAGS"  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY="$BLASOPT"  -DBLAS_LIBRARIES="$BLASOPT"  -DLAPACK_openblas_LIBRARY="$BLASOPT"  -DLAPACK_LIBRARIES="$BLASOPT" 
 make V=0 -j3 scalapack/fast
 mkdir -p ../../../lib
