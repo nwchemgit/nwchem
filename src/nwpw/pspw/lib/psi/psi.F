@@ -3701,9 +3701,6 @@ c         write(*,*) "     --- it,Enew,deltae=",it,Enew,deltae
      >  call errquit('bfgsminimize:error freeing heap memory',0, MA_ERR)
 
       call psi_2to1()
-      !call psi_1gen_hml()
-      !call psi_diagonalize_hml_assending()
-      !call psi_1toelectron()
 
       return
       end
