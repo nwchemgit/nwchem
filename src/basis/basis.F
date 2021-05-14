@@ -658,7 +658,7 @@ c:: local
       integer atn, len_tag, len_ele
       character*2 symbol
       character*16 element
-      character*3 ctype(0:6),cltype(2)
+      character*3 ctype(0:7),cltype(2)
       character*3 shell_type
 *. . . . . . . . . . . ! Room for tag+space+(+element+) = 16+1+1+16+1
       character*35 buffer  
@@ -683,6 +683,7 @@ c
       ctype(4)='G'
       ctype(5)='H'
       ctype(6)='I'
+      ctype(7)='K'
       cltype(1)='SP'
       cltype(2)='SPD'
       bas_print = .true.
