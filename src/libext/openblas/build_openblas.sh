@@ -4,10 +4,10 @@ arch=`uname -m`
 VERSION=0.3.15
 #COMMIT=974acb39ff86121a5a94be4853f58bd728b56b81
 BRANCH=develop
-#if [ -f  OpenBLAS-${VERSION}.tar.gz ]; then
-#    echo "using existing"  OpenBLAS-${VERSION}.tar.gz
-if [ -f  OpenBLAS-$COMMIT.zip ]; then
-    echo "using existing"  OpenBLAS-${COMMIT}.zip
+if [ -f  OpenBLAS-${VERSION}.tar.gz ]; then
+    echo "using existing"  OpenBLAS-${VERSION}.tar.gz
+#if [ -f  OpenBLAS-$COMMIT.zip ]; then
+#    echo "using existing"  OpenBLAS-${COMMIT}.zip
 else
     rm -rf OpenBLAS*
 #    curl -L https://github.com/xianyi/OpenBLAS/archive/$COMMIT.zip -o OpenBLAS-$COMMIT.zip
