@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -v
 arch=`uname -m`
-VERSION=0.3.13
+VERSION=0.3.15
 #COMMIT=974acb39ff86121a5a94be4853f58bd728b56b81
 BRANCH=develop
 #if [ -f  OpenBLAS-${VERSION}.tar.gz ]; then
@@ -98,6 +98,11 @@ if [[ "$FORCETARGET" == *"SKYLAKEX"* ]]; then
 	exit 1
     fi
 fi
+#this fixes avx512 detection for icc
+if [[ "${CC}" == "icc" ]]; then
+    FORCETARGET+=HOSTCC=\"icc -xhost\"
+fi
+
 #disable threading for ppc64le since it uses OPENMP
 echo arch is "$arch"
 if [[ "$arch" == "ppc64le" ]]; then
