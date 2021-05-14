@@ -125,10 +125,8 @@ c     dummy shell for 3c-
 c
 c     memory allocation
 c
-C simint_eri_workmem gives the minimum size of the workspace required in bytes
          mem_2e4c = max(mem_2e4c,
-     S        simint_eri_workmem(num_der, max_ang))/
-     M        MA_sizeof(MT_INT,1,MT_BYTE)
+     S        simint_eri_worksize(num_der, max_ang))
       enddo ! basis loop
       endif
 c
