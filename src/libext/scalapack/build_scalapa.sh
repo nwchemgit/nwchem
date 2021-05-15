@@ -17,8 +17,19 @@ get_cmake38(){
 	fi
 
 }
+MPICC=mpicc
 if [[ "$FC" = "ftn"  ]] ; then
     MPIF90="ftn"
+    # ugly hack to get mpicc on cray
+    if [[  -z "${INTEL_PATH}" ]]; then
+	echo
+	echo Intel compilers not loaded
+	echo please execute "module load intel" for building Scalapack
+	echo
+	exit 1
+    else
+	MPICC=$INTEL_PATH/linux/mpi/intel64/bin/mpicc
+    fi
 else
     if ! [ -x "$(command -v mpif90)" ]; then
 	echo
@@ -137,7 +148,7 @@ fi
 #    Fortran_FLAGS+=-I"$NWCHEM_TOP"/src/libext/include
 #fi
 #fix for clang 12 error in implicit-function-declaration
-GOTCLANG=$( mpicc -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
+GOTCLANG=$( "$MPICC" -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
 if [[ ${GOTCLANG} == "1" ]] ; then
     C_FLAGS=" -Wno-error=implicit-function-declaration "
 fi
@@ -153,8 +164,15 @@ if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
     fi
     C_FLAGS+=" -DInt=long"
 fi
-echo compiling with CC=mpicc  FC=$MPIF90 CFLAGS="$C_FLAGS" FFLAGS="$Fortran_FLAGS" $CMAKE -Wno-dev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_FLAGS="$C_FLAGS"  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY="$BLASOPT"  -DBLAS_LIBRARIES="$BLASOPT"  -DLAPACK_openblas_LIBRARY="$BLASOPT"  -DLAPACK_LIBRARIES="$BLASOPT" 
-CC=mpicc  FC=$MPIF90 CFLAGS="$C_FLAGS" FFLAGS="$Fortran_FLAGS" $CMAKE -Wno-dev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_FLAGS="$C_FLAGS"  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY="$BLASOPT"  -DBLAS_LIBRARIES="$BLASOPT"  -DLAPACK_openblas_LIBRARY="$BLASOPT"  -DLAPACK_LIBRARIES="$BLASOPT" 
+if [[ "$CRAY_CPU_TARGET" == "mic-knl" ]]; then
+    module swap craype-mic-knl craype-haswell
+    KNL_SWAP=1
+fi
+echo compiling with CC="$MPICC"  FC=$MPIF90 CFLAGS="$C_FLAGS" FFLAGS="$Fortran_FLAGS" $CMAKE -Wno-dev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_FLAGS="$C_FLAGS"  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY="$BLASOPT"  -DBLAS_LIBRARIES="$BLASOPT"  -DLAPACK_openblas_LIBRARY="$BLASOPT"  -DLAPACK_LIBRARIES="$BLASOPT"
+CC="$MPICC"  FC=$MPIF90 CFLAGS="$C_FLAGS" FFLAGS="$Fortran_FLAGS" $CMAKE -Wno-dev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_FLAGS="$C_FLAGS"  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY="$BLASOPT"  -DBLAS_LIBRARIES="$BLASOPT"  -DLAPACK_openblas_LIBRARY="$BLASOPT"  -DLAPACK_LIBRARIES="$BLASOPT"
 make V=0 -j3 scalapack/fast
 mkdir -p ../../../lib
 cp lib/libscalapack.a ../../../lib/libnwc_scalapack.a
+if [[ "$KNL_SWAP" == "1" ]]; then
+    module swap  craype-haswell craype-mic-knl
+fi

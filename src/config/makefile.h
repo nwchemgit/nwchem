@@ -2827,6 +2827,10 @@ else
     CORE_LIBS += $(BLASOPT)
 endif
 
+ifdef NWCHEM_LINK_CUDA
+CORE_LIBS += -acc -gpu=managed -cuda -cudalib=cublas
+endif
+
 ifdef BLASOPT
 BLAS_SUPPLIED=Y
 endif
