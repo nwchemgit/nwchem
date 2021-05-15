@@ -720,7 +720,7 @@ C
      2    use_trpdrv_omp_mp=.false.
       if (.not. rtdb_get(rtdb, 'ccsd:use_trpdrv_openacc', mt_log, 1,
      1                   use_trpdrv_openacc))
-     2    use_trpdrv_offload=.false.
+     2    use_trpdrv_openacc=.false.
       if (.not. rtdb_get(rtdb, 'ccsd:use_trpdrv_offload', mt_log, 1,
      1                   use_trpdrv_offload))
      2    use_trpdrv_offload=.false.
