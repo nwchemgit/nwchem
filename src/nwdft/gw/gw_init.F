@@ -32,7 +32,7 @@ c
       logical movecs_read, movecs_read_header, atom_tag_check
       external movecs_read, movecs_read_header, atom_tag_check
 c
-      logical ga_create_atom_blocked
+      integer ga_create_atom_blocked
       external ga_create_atom_blocked
 
       integer, external :: findmycpu
