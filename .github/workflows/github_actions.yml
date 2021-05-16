@@ -97,9 +97,17 @@ jobs:
             experimental: true
             mpi_impl: mpich
             armci_network: mpi-ts
-            nwchem_modules: "tinyqmpw python"
+            nwchem_modules: "nwdft solvation driver"
             fc: nvfortran
             cc: gcc
+            use_simint: 1
+          - os: ubuntu-20.04
+            experimental: true
+            mpi_impl: intel
+            armci_network: mpi-ts
+            nwchem_modules: "nwdft solvation driver"
+            fc: ifort
+            cc: icc
             use_simint: 1
           - os: ubuntu-20.04
             experimental: true 
@@ -174,7 +182,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ matrix.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-blas${{ matrix.blas}}-simd${{ steps.get-simd.outputs.simd }}-nwchemcache-v004
+          key: ${{ matrix.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-blas${{ matrix.blas}}-simd${{ steps.get-simd.outputs.simd }}-nwchemcache-v005
       - name: build environment
         run: |
           pwd
