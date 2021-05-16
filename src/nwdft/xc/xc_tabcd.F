@@ -209,6 +209,8 @@ c
       data nbhandl2 /0./
       save nbhandl1
       save nbhandl2
+      double precision ddot
+      external ddot
 c
 c         0: l3d=.f.    & n3d=1
 ccc     rhs: l3d=.true. & n3d=3

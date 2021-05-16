@@ -148,6 +148,8 @@
       external control_fractional_smeartype
       real*8   control_fractional_kT,control_fractional_alpha
       external control_fractional_kT,control_fractional_alpha
+      integer  control_diis_histories
+      external control_diis_histories
 
 c      character*255 cpsp_comment,comment
 c      external      cpsp_comment
@@ -546,9 +548,10 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
            if (control_scf_algorithm().eq.0)
      >       write(luout,1293) "simple mixing"
            if (control_scf_algorithm().eq.1)
-     >       write(luout,1293) "Anderson potential mixing"
+     >       write(luout,1293) "Broyden mixing"
            if (control_scf_algorithm().eq.2)
-     >       write(luout,1293) "Johnson-Pulay mixing"
+     >       write(luout,1289) "Johnson-Pulay mixing",
+     >                         control_diis_histories()
            if (control_scf_algorithm().eq.3)
      >       write(luout,1293) "Anderson density mixing"
            if (minimizer.eq.5) write(luout,1296) "potential"
@@ -855,6 +858,7 @@ c     >     .or.nwpwxc_is_on()) THEN
  1280 FORMAT(5X, ' time step=',F10.2,5X,'fictitious mass=',F10.1)
  1281 FORMAT(5X, ' maximum iterations =',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
+ 1289 FORMAT(5X, ' scf algorithm        = ',A,' (',I2,' histories)')
  1290 FORMAT(5X, ' tolerance=',E9.3,' (energy)',E12.3,
      &        ' (density)')
  1291 FORMAT(/' Kohn-Sham scf parameters:')

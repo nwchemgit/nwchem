@@ -2526,6 +2526,7 @@ c      end
       end
 
 
+
 c  set nwpw:fractional_smeartype 1 #0-none, 1-Fermi-Dirac, 2-Gaussian, 3-Hermite
 c                                   4-Marzari-Vanderbilt
 

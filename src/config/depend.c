@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
+#define MAXBUF 1024
 
 extern char *strdup(const char *);
 char *makefile;
@@ -15,7 +16,7 @@ char backup[] = "makefile.bak";
 
 void copy_truncate_makefile(const char *backup)
 {
-    char buf[8192];
+    char buf[32*MAXBUF];
     FILE *in;
     int i, j, ninbuf;
     char line[] = 
@@ -121,7 +122,6 @@ void skip_white_space(FILE *file)
 
 char *include_directive(FILE *file)
 {
-#define MAXBUF 256
     char tmp[MAXBUF];
     int n = 0;
     int i;
@@ -330,7 +330,7 @@ Original code:
 	
     while (nincfile--) {
         char *incname = incfiles[nincfile];
-        char path[256];
+        char path[MAXBUF];
 
         for (i=0; i<nincdir; i++) {
             (void) sprintf(path, "%s/%s", incdirlist[i], incname);

@@ -358,7 +358,7 @@ c
       integer nltypes           ! No. of known angular momentum types
       integer nsptypes          ! No. of known sp type shells
       integer nopts             ! No. of options
-      parameter (nltypes = 7, nsptypes = 3, nopts = 6)
+      parameter (nltypes = 8, nsptypes = 3, nopts = 6)
       character*1 ltypes(nltypes)
       character*2 sptypes(nsptypes)
       character*8 opts(nopts)
@@ -374,7 +374,7 @@ c
 cc AJL/Begin/SPIN-POLARISED ECPs
       integer channel           ! Both (Default)=0; Alpha=1; Beta=2
 cc AJL/End
-      data ltypes /'s','p','d','f','g','h','i'/
+      data ltypes /'s','p','d','f','g','h','i','k'/
       data sptypes / 'sp', 'l ', 'ul'/
       data spvalues/  -1 , -1 ,   -1 /
       data opts / 'except', 'library', 'file', 'rel', 'nelec' ,

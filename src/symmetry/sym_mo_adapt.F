@@ -57,6 +57,8 @@ c
       double precision v(maxireps), vnorm
       integer idamax
       external idamax
+      double precision ddot
+      external ddot
 c
       logical odebug            ! True if debugging
       logical owarn             ! True if to print warning messages

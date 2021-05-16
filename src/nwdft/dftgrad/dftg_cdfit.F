@@ -120,6 +120,8 @@ c
 c
       double precision dabsmax
       external nxtask,schwarz_shell,dabsmax
+      double precision ddot
+      external ddot
       nproc  = ga_nnodes()
       me = ga_nodeid()
 c

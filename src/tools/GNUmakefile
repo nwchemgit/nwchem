@@ -630,6 +630,10 @@ ifndef ARMCI_NETWORK
     ARMCI_NETWORK=MPI-TS
     MAYBE_ARMCI = --with-mpi-ts
 endif
+# CUDA UM support
+ifdef NWCHEM_LINK_CUDA
+    MAYBE_ARMCI +=  --enable-cuda-mem
+endif
 #
 # Apparently weak bindings do not work with CYGWIN64 at the moment. There seems
 # to be an issue with the COFF object format that gets in the way (with ELF

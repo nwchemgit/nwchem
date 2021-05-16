@@ -12,6 +12,8 @@
       integer tunit
       double precision tunitptr
       double precision t(*)
+      double precision ddot
+      external ddot
 c
 c     Read t(j,b,i,a) all j, b for given i, a taking into
 c     account symmetry blocking

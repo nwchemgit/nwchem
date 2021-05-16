@@ -583,6 +583,9 @@ ifeq ($(FC),xlf)
     endif
   endif
 
+  ifndef peigs_CPU
+        peigs_CPU  = PENTIUM
+  endif
 endif#end of LINUX64
 
 ifeq ($(peigs_TARGET),cray-sv2)

@@ -20,6 +20,8 @@ c
       integer l_buf, l_scr
       integer k_buf, k_scr
       double precision pot, r(3)
+      double precision ddot
+      external ddot
 c
       r(1) = x
       r(2) = y

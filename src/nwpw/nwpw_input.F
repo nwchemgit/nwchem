@@ -1157,6 +1157,14 @@ c
      >    call errquit('nwpw_input: error writing to rtdb',
      >                 4800,RTDB_ERR)
        end if
+       if (inp_compare(.false.,zone_name,'diis_histories')) then
+          if (.not.inp_i(nx)) 
+     >      call errquit('nwpw_input: error reading diis histories',
+     >                   4800,RTDB_ERR)
+          if(.not.rtdb_put(rtdb,'nwpw:diis_histories',mt_int,1,nx))
+     >    call errquit('nwpw_input: error writing to rtdb',
+     >                 4800,RTDB_ERR)
+       end if
 
       goto 4801
 

@@ -146,17 +146,16 @@ c#include "global.fh"
       if (minimizer.eq.8) it_out = 1
       if ((newpsi).or.(nwpw_cosmo_firsttime())) then
          call pspw_Lin_HFX_reset()
-         call sdminimize(15)
+         if (minimizer.lt.4) call sdminimize(15)
          call bybminimize0()
-         if (control_fractional()) then
-            call psi_1toelectron()
-            call psi_1gen_hml()
-            call psi_diagonalize_hml_assending()
-            call psi_1rotate2()
-            call psi_2to1()
-            !call psi_1define_occupation(-1.0d0,.false.)
-            call psi_1define_occupation(1.0d0,.false.)
-         end if
+c         if (control_fractional()) then
+c            call psi_1toelectron()
+c            call psi_1gen_hml()
+c            call psi_diagonalize_hml_assending()
+c            call psi_1rotate2()
+c            call psi_2to1()
+c            call psi_1define_occupation(-1.0d0,.false.)
+c         end if
       end if
 
    2  continue
@@ -827,6 +826,48 @@ c     >   /45x,' (',F8.3,' kcal/mol)')
  1807 FORMAT( ' - K.S. Electric Field/Resta_Dipole  :',E19.10)
    
       end
+
+
+      subroutine psi_printeigs_debug()
+      implicit none
+
+#include "stdio.fh"
+
+      integer MASTER,taskid
+      parameter (MASTER=0)
+
+      integer i,NN
+      real*8 EV
+
+      integer  psi_ne
+      external psi_ne
+      real*8   psi_eigenvalue,psi_occupation
+      external psi_eigenvalue,psi_occupation
+
+      NN=psi_ne(1)-psi_ne(2)
+      EV=27.2116d0
+
+      call Parallel_taskid(taskid)
+      if (taskid.eq.MASTER) then
+         do i=1,NN
+            write(luout,1511) psi_eigenvalue(1,i),
+     >                        psi_eigenvalue(1,i)*EV,
+     >                        psi_occupation(1,i)
+         end do
+         do i=1,psi_ne(2)
+            write(luout,1511)  psi_eigenvalue(1,i+NN),
+     >                         psi_eigenvalue(1,i+NN)*EV,
+     >                         psi_occupation(1,i+NN),
+     >                         psi_eigenvalue(2,i),
+     >                         psi_eigenvalue(2,i)*EV,
+     >                         psi_occupation(2,i)
+         end do
+      end if
+
+      return
+ 1511 FORMAT(2(E18.7,' (',F8.3,'eV)  occ=',F5.3))
+      end
+         
 
 *     *******************************
 *     *				    *

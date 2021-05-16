@@ -102,11 +102,12 @@ c     real*8 G(nfft3d,3)
      >                           dbl_mb(tg_indx+(nb-1)*npack1))
          end do
       end if
-      
+
       value =           BA_pop_stack(tmp2(2))
       value = value.and.BA_pop_stack(tmp1(2))
       if (.not. value)
      > call errquit('cke_init:popping stack memory',0,MA_ERR)
+
       return
       end
 

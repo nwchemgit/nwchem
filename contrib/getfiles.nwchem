@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+#
+# $Id$
+cd $NWCHEM_TOP/src/nwpw/nwpwlib/nwpwxc/
+rm -f dftd3.tgz
+wget https://www.chemie.uni-bonn.de/pctc/mulliken-center/software/dft-d3/dftd3.tgz
+cd $NWCHEM_TOP/src/libext/openblas
+VERSION=0.3.13
+rm -rf OpenBLAS*gz
+curl -L https://github.com/xianyi/OpenBLAS/archive/v${VERSION}.tar.gz -o OpenBLAS-${VERSION}.tar.gz
+cd $NWCHEM_TOP/src/libext/scalapack
+COMMIT=bc6cad585362aa58e05186bb85d4b619080c45a9
+rm -f scalapack-$COMMIT.zip
+curl -L https://github.com/Reference-ScaLAPACK/scalapack/archive/$COMMIT.zip -o scalapack-$COMMIT.zip
+

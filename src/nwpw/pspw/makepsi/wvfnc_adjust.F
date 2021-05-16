@@ -22,7 +22,7 @@
       parameter (MASTER=0)
 
       integer NMAX
-      integer filling(2)
+      integer filling(2),irm_excited
       integer fractional_orbitals(2),ne(2)
       character*255 new_filename,old_filename,emo_filename
 
@@ -78,7 +78,7 @@
      >                     ispin,
      >                     ne,
      >                     fractional,
-     >                     fractional_orbitals)
+     >                     fractional_orbitals,irm_excited)
 
         !*** remove temporary wvfnc_adjust file ***
         call util_file_unlink(old_filename)
@@ -92,6 +92,9 @@
       end if
       call ga_sync()
 
+      call Parallel_Brdcst_ivalue(MASTER,irm_excited)
+      if (irm_excited.eq.1) call control_unset_excited_ne()     !*** remove excited_ne from rtdb ***
+
       return
       end
 
@@ -103,7 +106,7 @@
      >                         ispin,
      >                         ne,
      >                         fractional,
-     >                         frac_orb)
+     >                         frac_orb,irm_excited)
       implicit none
       integer NMAX
       integer filling(4,NMAX,2)
@@ -113,6 +116,7 @@
       integer      ispin,ne(2)
       logical      fractional
       integer      frac_orb(2)
+      integer      irm_excited
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -138,6 +142,7 @@
       double precision GCDOTC,util_random
       external         GCDOTC,util_random
  
+      irm_excited = 0
 
       p = util_random(5291999) !*** initialize the random sequence ****
 
@@ -362,7 +367,10 @@ c     **** add occupation - don't use previous start from scratch ****
  
       if (emo_found) then
          call closefile(3)
-         if (emo_used) call util_file_unlink(emo_filename) !*** remove emo_filename ***
+         if (emo_used) then
+            call util_file_unlink(emo_filename) !*** remove emo_filename ***
+            irm_excited = 1
+         end if 
       end if
       call closefile(5)
       call closefile(6)

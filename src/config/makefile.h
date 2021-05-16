@@ -1807,6 +1807,13 @@ endif
          FFLAGS_FORGA   = -mabi=64
          CFLAGS_FORGA   = -mabi=64
        endif
+       ifeq ($(_CPU),riscv64)
+         DONTHAVEM64OPT=Y
+         COPTIONS   =  -march=rv64gc -mabi=lp64d
+         FOPTIONS   =  -march=rv64gc -mabi=lp64d
+         FFLAGS_FORGA   = -march=rv64gc -mabi=lp64d
+         CFLAGS_FORGA   = -march=rv64gc -mabi=lp64d
+       endif
       ifeq ($(_CC),gcc)
        ifneq ($(DONTHAVEM64OPT),Y)
          COPTIONS   = -m64
@@ -2818,6 +2825,10 @@ ifeq ($(BLASOPT),)
     CORE_LIBS +=  -lnwcblas 
 else
     CORE_LIBS += $(BLASOPT)
+endif
+
+ifdef NWCHEM_LINK_CUDA
+CORE_LIBS += -acc -gpu=managed -cuda -cudalib=cublas
 endif
 
 ifdef BLASOPT

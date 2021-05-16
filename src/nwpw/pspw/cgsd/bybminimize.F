@@ -122,6 +122,8 @@ c
 
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
       external control_ks_maxit_orb,control_ks_maxit_orbs
+      integer  control_diis_histories
+      external control_diis_histories
 
    
       Ein = E(1)
@@ -226,7 +228,8 @@ c      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(rho_in(1)),1)
   
 *     **** iniitialize SCF Mixing ****    
       call nwpw_scf_mixing_init(control_scf_algorithm(),alpha,
-     >                5,ispin,n2ft3d,dbl_mb(vall_out(1)))
+     >                          control_diis_histories(),
+     >                          ispin,n2ft3d,dbl_mb(vall_out(1)))
 
 *     **** iniitialize RMM-DIIS ****
       if (control_ks_algorithm().eq.1) call pspw_rmmdiis_init(5)

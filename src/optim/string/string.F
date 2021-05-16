@@ -467,6 +467,9 @@ C> @}
       character*7 bead_index_name
       external    bead_index_name
 
+      double precision ddot
+      external ddot
+
 ! Setup the problem
 ! "Secret" options with defaults that generally do not need changed
       if (.not. rtdb_get(rtdb, 'string:linopt', mt_log,1,linopt))

@@ -2650,22 +2650,23 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
       implicit none
 
 #include "bafdecls.fh"
+#include "errquit.fh"
 #include "cpsi_common.fh"
       
       !*** local variables ***
-      integer maxit_orb,taskid_k
+      integer maxit_orb
       integer ii,l,l2,nb,epsi_ptr,eig_ptr
       real*8  sum,maxerror,error_out,e0
 
       !*** external functions ***
       integer  cpsi_data_get_ptr
-      real*8   control_tole
       external cpsi_data_get_ptr
+      real*8   control_tole
       external control_tole
+
 
       maxit_orb=120
       maxerror = control_tole()
-      call Parallel3d_taskid_k(taskid_k)
 
       do nb=1,nbrillq
       do ii=1,(ne_excited(1)+ne_excited(2))
@@ -2678,10 +2679,7 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
          call cpsi_project_out_virtual1(nb,ii,dbl_mb(epsi_ptr))
 
          !*** normalize ****
-         call Cram_cc_dot(nb,
-     >            dbl_mb(epsi_ptr),
-     >            dbl_mb(epsi_ptr),
-     >            sum)
+         call Cram_cc_dot(nb,dbl_mb(epsi_ptr),dbl_mb(epsi_ptr),sum)
          sum = 1.0d0/dsqrt(sum)
          call Cram_c_SMul1(nb,sum,dbl_mb(epsi_ptr))
 
@@ -2689,13 +2687,17 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
          !*** minimize orbital ****
           l = 0
  3        call cpsi_KS_update_virtual(maxit_orb,
-     >                               maxerror,
-     >                               0.001d0,nb,ii,error_out,e0)
+     >                                maxerror,
+     >                                0.001d0,nb,ii,error_out,e0)
           l = l+1
-          if ((error_out.gt.maxerror).and.(l.le.(1+(l2-1)*3))) go to 3
-          if ((error_out.gt.maxerror).and.(l2.le.1)) then
-            call Cram_c_Zero(nb,dbl_mb(epsi_ptr))
-            call Cram_c_setzero(1,1.0d0,dbl_mb(epsi_ptr))
+
+          if ((error_out.gt.maxerror).and.(l.le.(1+(l2-1)*3))) then
+             go to 3
+          end if
+
+          if (((error_out.gt.maxerror).or.(e0.gt.4.0d0))
+     >        .and.(l2.le.1)) then
+            call cpsi_corrector_orb(nb,dbl_mb(epsi_ptr))
             go to 2
           end if 
 
@@ -2703,11 +2705,54 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
 
       end do
       end do
+
+
       call cpsi_sort_virtual()
+
 
       return
       end
 *
+
+*     ***********************************
+*     *                                 *
+*     *       cpsi_corrector_orb        *
+*     *                                 *
+*     ***********************************
+      subroutine cpsi_corrector_orb(nb,orb)
+      implicit none
+      integer nb
+      complex*16 orb(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "cpsi_common.fh"
+
+      !***** local variables ****
+      integer k,g(2)
+      real*8  sum
+
+      if (.not. BA_push_get(mt_dcpl,nfft3d,'g',g(2),g(1)))
+     >   call errquit('cpsi_corrector_orb:out stack',0,MA_ERR)
+
+      do k=1,nfft3d
+        dcpl_mb(g(1)+k-1)=dcmplx(0.1d0,0.002d0*dsin(0.001d0*k))
+      end do
+      call C3dB_rc_fft3f(1,dcpl_mb(g(1)))
+      call Cram_c_pack(nb,dcpl_mb(g(1)))
+      call Cram_cc_dot(nb,dcpl_mb(g(1)),dcpl_mb(g(1)),sum)
+      sum = 1.0d0/dsqrt(sum)
+      call Cram_c_SMul1(nb,sum,dcpl_mb(g(1)))
+
+      call Parallel_shared_vector_zero(.true.,2*npack1,orb)
+      call Cram_c_Copy(nb,dcpl_mb(g(1)),orb)
+
+      if (.not.BA_pop_stack(g(2)))
+     >   call errquit('cpsi_corrector_orb:pop stack',1,MA_ERR)
+
+      return
+      end 
+
 c      subroutine cpsi_check_orthodebug(nb,i,Horb)
 c      implicit none
 c      integer nb,i
@@ -2942,22 +2987,36 @@ c     >            dcpl_mb(x(1)))
 
 #include "bafdecls.fh"
 #include "errquit.fh"
+#include "util.fh"
+#include "stdio.fh"
 #include "cpsi_common.fh"
 
 
 *     **** local variables ****
-      logical value,done,oneloop
-      integer it
+c      integer MASTER,taskid
+c      parameter (MASTER=0)
+c      logical oprint
+
+      logical value,done,oneloop,precondition
+      integer it,pit
       real*8 e0,eold,percent_error,error0,de0,lmbda_r0,lmbda_r1
-      real*8 theta
+      real*8 theta,ep,sp
       integer r1(2),t0(2),t(2),g(2)
       integer psi_ptr
 
 *     **** external functions ****
-      integer  cpsi_data_get_ptr
-      external cpsi_data_get_ptr
+      integer  cpsi_data_get_ptr,Pneb_convert_nb
+      external cpsi_data_get_ptr,Pneb_convert_nb
+      logical  control_print
+      external control_print
+      real*8   control_Ep,control_Sp
+      external control_Ep,control_Sp
 
       psi_ptr=cpsi_data_get_ptr(psi1_excited_tag,nb,i)
+
+c      call Parallel3d_taskid_i(taskid)
+c      call Parallel3d_taskid_k(taskid_k)
+c      oprint= ((taskid.eq.MASTER).and.control_print(print_medium))
 
       lmbda_r0 = 1.0d0
 
@@ -2971,11 +3030,15 @@ c     >            dcpl_mb(x(1)))
       if (.not. value) call errquit(
      >     'cpsi_KS_update_virtual: out of stack memory',0, MA_ERR)
 
+      ep = control_Ep()
+      sp = control_Sp()
+      precondition = .true.
       done = .false.
       error0 = 0.0d0
       e0 = 0.0d0
       theta = -3.14159d0/600.0d0
       it = 0
+      pit = 0
  2    continue
  
          it = it + 1
@@ -2990,17 +3053,25 @@ c     >            dcpl_mb(x(1)))
 
          percent_error=0.0d0
          if(error0.ne.0.0d0)
-     A      percent_error = dabs(e0-eold)/error0
+     >      percent_error = dabs(e0-eold)/error0
 
          done = ((it.gt.maxiteration)
      >           .or.
      >           (dabs(e0-eold).lt.maxerror))
 
+         precondition = (dabs(e0-eold).gt.(sp*maxerror))
          if (done) go to 4
 
          call Cram_c_Copy(nb,dcpl_mb(g(1)),dcpl_mb(r1(1)))
          call Cram_cc_daxpy(nb,e0,dbl_mb(psi_ptr),dcpl_mb(r1(1)))
 
+*        **** preconditioning ****
+         if (precondition) then
+            pit = pit + 1
+            call cke_Precondition(nb,npack1,1,
+     >                            dbl_mb(psi_ptr),
+     >                            dcpl_mb(g(1)))
+         end if
 
 *        *** determine conjuagate direction ***
          call Cram_cc_dot(nb,dcpl_mb(r1(1)),
@@ -3050,6 +3121,17 @@ c     >            dcpl_mb(x(1)))
       value = value.and.BA_pop_stack(t0(2))
       if (.not.value) call errquit(
      >     'cpsi_KS_update_virtual: popping stack memory',1,MA_ERR)
+
+c      if (oprint) then
+c         write(luout,921) Pneb_convert_nb(nb),nb,i,-e0,
+c     >                    dabs(e0-eold),it,pit,ep,sp
+c  921 format(5x,"nb",I4,1x,"nbq",I4,1x,"orbital",I4," current e=",E10.3,
+c     >       " (error=",E9.3,")",
+c     >       " iterations",I4,"(",I4,
+c     >       " preconditioned, Ep,Sp=",F5.1,F7.1,")")
+c      end if
+
+
 
       error_out = dabs(e0-eold)
       e0 = -e0

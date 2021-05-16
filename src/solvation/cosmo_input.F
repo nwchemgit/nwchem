@@ -106,6 +106,7 @@ c
       double precision soln
       double precision pol_cosmo_vem(2)
       double precision polgs_cosmo_vem, poles_cosmo_vem
+      integer icds
 c
 c     vem model parameters
 c
@@ -295,6 +296,10 @@ c
         status = inp_f(soln)
         if (.not. rtdb_put(rtdb,'cosmo:soln',mt_dbl,1,soln))
      $    call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+      else if(inp_compare(.false.,'icds',field)) then
+        status = inp_i(icds)
+        if (.not. rtdb_put(rtdb,'cosmo:icds',mt_int,1,icds))
+     $    call errquit('cosmo_input: rtdb put failed',912,RTDB_ERR)
 c
 c <-- MN solvation models
 c

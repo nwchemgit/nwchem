@@ -52,6 +52,8 @@ c
       external energy_bead_list
       character*7 bead_index_name
       external    bead_index_name
+      double precision ddot
+      external ddot
 
 
       oprint = ga_nodeid() .eq. 0

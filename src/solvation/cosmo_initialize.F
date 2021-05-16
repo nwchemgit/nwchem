@@ -346,6 +346,7 @@ c
       status = rtdb_get(rtdb,'cosmo:solg',mt_dbl,1,solg)
       status = rtdb_get(rtdb,'cosmo:solh',mt_dbl,1,solh)
       status = rtdb_get(rtdb,'cosmo:soln',mt_dbl,1,soln)
+      status = rtdb_get(rtdb,'cosmo:icds',mt_int,1,icds)
 c
 c     set sola,solb,solc,solg,solh,soln,icds parameters (either from
 c     solv_data or user-defined)

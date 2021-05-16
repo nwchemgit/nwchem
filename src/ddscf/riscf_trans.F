@@ -41,6 +41,9 @@ C$Id$
       integer nxtask
       external nxtask
 
+      double precision ddot
+      external ddot
+
       nproc = ga_nnodes()
 
       if ( odisk ) then
