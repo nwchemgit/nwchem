@@ -36,8 +36,8 @@ c     **** local variables ****
 c     **** external functions ****
       integer  psi_data_get_chnk
       external psi_data_get_chnk
-      real*8   rtheta_lm,drtheta_lm,nwpw_gaunt,nwpw_gaunt2,nwpw_gaunt3
-      external rtheta_lm,drtheta_lm,nwpw_gaunt,nwpw_gaunt2,nwpw_gaunt3
+      real*8   rtheta_lm,drtheta_lm,nwpw_gaunt
+      external rtheta_lm,drtheta_lm,nwpw_gaunt
 
       call nwpw_timing_start(4)
       ok = .true.

@@ -92,7 +92,7 @@ c
             sum = sum + onepdm(p,p,ivec,ivec)
          enddo
          write(6,*) ' 1pdm ', ivec,ivec,' has trace', sum
-         if (abs(sum-dfloat(nelec)).gt.1d-10) call fci_err
+         if (abs(sum-dble(nelec)).gt.1d-10) call fci_err
      $        ('fci_1pdm: incorrect trace ', ivec)
       enddo
 c

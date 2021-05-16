@@ -130,7 +130,7 @@ c
       endif
 C-----------------------------------------------------------------------
 c
-#ifdef XLF11
+#if defined(XLF11) || defined(XLFLINUX)
       if ( lobsa .eq. 1 ) goto 10
       if ( lobsa .eq. 2 ) goto 20
       if ( lobsa .eq. 3 ) goto 30
@@ -258,7 +258,7 @@ c
          call ssssm(nbls1,bl(irys),bl(iconst),mmax1,
      *              bl(iwt1),l11,l12,bl(iwt0),lnij,lnkl)
 c
-#ifdef XLF11
+#if defined(XLF11) || defined(XLFLINUX)
       if ( lobsa .eq. 1 ) goto 10
       if ( lobsa .eq. 2 ) goto 20
       if ( lobsa .eq. 3 ) goto 30
@@ -331,7 +331,7 @@ c
        call ssssm(nbls1_u,bl(irys),bl(iconst),mmax1,
      *              bl(iwt1),l11,l12,bl(iwt0_u),lnij,lnkl)
 c
-#ifdef XLF11
+#if defined(XLF11) || defined(XLFLINUX)
       if ( lobsa .eq. 1 ) goto 10
       if ( lobsa .eq. 2 ) goto 20
       if ( lobsa .eq. 3 ) goto 30

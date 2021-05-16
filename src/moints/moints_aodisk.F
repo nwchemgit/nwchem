@@ -239,9 +239,6 @@ c
 c     
       logical fexist
       integer stat
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      external moints_moao_block
-#endif
 c     
 c     first time through --- enable caching TO disk
 c     otherwise must be caching FROM disk
@@ -556,16 +553,16 @@ c
       call dfill( reclen, 0.d0, ioval, 1 )
       do i=ilo,ihi
         do j=jlo,jhi
-          lab1 = ior(lshift(i,16),j)
+          lab1 = ior(ishft(i,16),j)
           do k=kblo,kbhi
             do l=lblo,lbhi
               xx = ssbb(l,k,j,i)
               if (abs(xx).gt.1.d-12) then
                 iir = iir + 1
                 ioval(iir)   = xx
-                lab2 = ior(lshift(k,16),l)
+                lab2 = ior(ishft(k,16),l)
                 if (lwidth.eq.1) then
-                  iolab(1,iir) = ior(lshift(lab1,32),lab2)
+                  iolab(1,iir) = ior(ishft(lab1,32),lab2)
                 elseif (lwidth.eq.2) then
                   iolab(1,iir) = lab1
                   iolab(2,iir) = lab2
@@ -618,17 +615,17 @@ c
       i16mask = onbitmask(16)
       if (lwidth.eq.1) then
         do q=1,reclen
-          i = iand(rshift(iolab(1,q),48),i16mask)
-          j = iand(rshift(iolab(1,q),32),i16mask)
-          k = iand(rshift(iolab(1,q),16),i16mask)
+          i = iand(ishft(iolab(1,q),-48),i16mask)
+          j = iand(ishft(iolab(1,q),-32),i16mask)
+          k = iand(ishft(iolab(1,q),-16),i16mask)
           l = iand(iolab(1,q),i16mask)
           ssbb(l,k,j,i) = ioval(q)
         enddo
       else if (lwidth.eq.2) then
         do q=1,reclen
-          i = iand(rshift(iolab(1,q),16),i16mask)
+          i = iand(ishft(iolab(1,q),-16),i16mask)
           j = iand(iolab(1,q),i16mask)
-          k = iand(rshift(iolab(2,q),16),i16mask)
+          k = iand(ishft(iolab(2,q),-16),i16mask)
           l = iand(iolab(2,q),i16mask)
           ssbb(l,k,j,i) = ioval(q)
         enddo
@@ -989,7 +986,7 @@ c
 c  Pack sparse structure into IO record
 c    
           ijidx = (i-ilo)*jlen + j - jlo
-          int_mb(k_ij+ijidx) = ior(lshift(rp,16),nnz)
+          int_mb(k_ij+ijidx) = ior(ishft(rp,16),nnz)
           nssbb = nssbb + 1
           irp  = rp
           irrp = irp  + ma_sizeof(MT_INT,(2*klen),MT_DBL)
@@ -1267,7 +1264,7 @@ c
 
       do i=ilo,ihi
         do j=jlo,jhi
-          ijp = iand(rshift(ijmap(j,i),16),bit16)
+          ijp = iand(ishft(ijmap(j,i),-16),bit16)
           nnz = iand(ijmap(j,i),bit16)
           if (nnz.gt.(klen*llen)) then
             call moints_aodisk_dumpiorec( reclen, iorec )
@@ -1300,12 +1297,6 @@ c  Define this macro assume everyone supports integer*2
 c  Undefine if compiler complains
 c
 #define HAVE_FORTRAN_INTEGER2
-#if defined(CRAY_T3E)
-#undef HAVE_FORTRAN_INTEGER2
-#endif
-
-
-      
 
 c
 c   This routine packs a dense 2d matrix (m x n)
@@ -1431,7 +1422,7 @@ c
             v(nnz) = xx
             bp = mod((labint-mod(nnz,labint)),labint)*16
 C            bp = mod((2-mod(nnz,2)),2)*16
-            pack = ior(pack,lshift(t,bp))
+            pack = ior(pack,ishft(t,bp))
             if (bp.eq.0) then
               nir = nir + 1
               ir(nir) = pack
@@ -1481,7 +1472,7 @@ C            bp = mod((2-mod(nnz,2)),2)*16
             if (parity.ne.0) rrp = rrp + 1
             nshft = 16*(labint - parity)
             if (parity.eq.0) nshft = 0
-            t = iand(rshift(ir(rrp),nshft),bit16)
+            t = iand(ishft(ir(rrp),-nshft),bit16)
             x(t,s) = v(rp)
           enddo
         endif

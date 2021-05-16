@@ -74,7 +74,6 @@ endif
 
 
 ifdef MA_TRANS_BLOCKED
-      OBJ_OPTIMIZE += ma_transpose_blocked.o
       LIB_DEFINES += -DMA_TRANS_BLOCKED
 else
       OBJ_OPTIMIZE += ma_transpose.o
@@ -86,9 +85,9 @@ LIBRARY = libtce.a
 
 USES_BLAS = tce_mbpt2.F tce_residual_t1.F tce_residual_t2.F \
             tce_residual_t3.F tce_residual_t4.F tce_residual_t3a.F \
-            tce_ao2e.F tce_mo2e.F tce_guess_t1.F tce_mod1.F tce_moq1.F \
+            tce_ao2e.F tce_mo2e.F tce_guess_t1.F tce_mod1.F  \
             tce_eom_xdiagon.F dscalfile.F tce_eom_ydiagon.F \
-            tce_ao1e.F tce_aod1.F tce_aoq1.F tce_mo1e.F tce_ao_mp1.F tce_mo_mp1.F \
+            tce_ao1e.F tce_aod1.F tce_mo1e.F \
             tce_mo2e_zones_4a_disk_ga.F tce_mo2e_zones_4a_disk_ga_chop.F \
             tce_mo2e_zones_4a_disk_4s_new_patch.F \
             tce_mo2e_zones_4a_disk_2s_new.F tce_mo2e_zones_4a_disk_4s_new_patch_m2.F \
@@ -102,7 +101,7 @@ USES_BLAS = tce_mbpt2.F tce_residual_t1.F tce_residual_t2.F \
             tce_ao2e_new.F tce_dgeev.F tce_mo2e_disk.F tce_mo2e_new.F \
             tce_mo2e_zones_4a_disk_4s_new_patch_m3.F tce_mo2e_zones_4a_disk_ga_N5.F \
             tce_mo2e_zones_4a_disk_ga_chop_N5.F tce_mod1_new.F new_ga4ind_N5.F new4ind_N5_osu.F \
-            tce_read_t.o
+            tce_read_t.F
 
 SUBDIRS = include diis diis2 gradients \
           ccsd ccsd_lambda eomccsd \

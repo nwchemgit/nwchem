@@ -135,8 +135,6 @@
       cqGX=cqGX/tcharge
       cqGY=cqGY/tcharge
       cqGZ=cqGZ/tcharge
-  
- 
 
 
 

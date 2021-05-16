@@ -34,14 +34,14 @@ are supported:
 [1] Q. Wu, W. Yang, <i>"Empirical correction to density functional
     theory for van der Waals interactions"</i>, J.Chem.Phys. <b>116</b>,
     515-524 (2002), DOI:
-    <a href="http://dx.doi.org/10.1063/1.1424928">
+    <a href="https://doi.org/10.1063/1.1424928">
     10.1063/1.1424928</a>.
 
 [2] U. Zimmerli, M. Parrinello, P. Koumoutsakos,
     <i>"Dispersion corrections to density functionals for water aromatic
     interactions"</i>, J.Chem.Phys. <b>120</b>,
     2693-2699 (2004), DOI:
-    <a href="http://dx.doi.org/10.1063/1.1637034">
+    <a href="https://doi.org/10.1063/1.1637034">
     10.1063/1.1637034</a>.
 
 [3] S. Grimme, 
@@ -49,7 +49,7 @@ are supported:
     functional theory including empirical corrections"</i>,
     J.Comput.Chem. <b>25</b>,
     1463-1473 (2004), DOI:
-    <a href="http://dx.doi.org/10.1002/jcc.20078">
+    <a href="https://doi.org/10.1002/jcc.20078">
     10.1002/jcc.20078</a>.
 
 [4] S. Grimme, 
@@ -57,7 +57,7 @@ are supported:
     long-range dispersion correction"</i>,
     J.Comput.Chem. <b>27</b>,
     1788-1799 (2006), DOI:
-    <a href="http://dx.doi.org/10.1002/jcc.20495">
+    <a href="https://doi.org/10.1002/jcc.20495">
     10.1002/jcc.20495</a>.
 
 [5] S. Grimme, J. Antony, S. Ehrlich, H. Krieg,
@@ -65,7 +65,7 @@ are supported:
     functional dispersion correction (DFT-D) for the 94 elements
     H-Pu"</i>, J.Chem.Phys. <b>132</b>,
     154104(1-19) (2010), DOI:
-    <a href="http://dx.doi.org/10.1063/1.3382344">
+    <a href="https://doi.org/10.1063/1.3382344">
     10.1063/1.3382344</a>.
 
 @defgroup nwpwxc_api API

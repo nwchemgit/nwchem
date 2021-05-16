@@ -4522,6 +4522,8 @@ C
       integer IA(1)
       integer ij,j,ik,max,i,k
       double precision small,zero,dum,qij,hij
+      double precision ddot
+      external ddot
       DATA SMALL /1.0D-11/
       DATA ZERO  /0.0D+00/
       IJ = 0
@@ -4602,7 +4604,8 @@ c     IMPLICIT REAL*8 (A-H,O-Z)
 C        -----  A GIVENS HOUSHOLDER MATRIX DIAGONALIZATION  -----
 C        -----  ROUTINE SAME AS EIGEN BUT WORKS WITH A      -----
 C        -----  LINEAR ARRAY.                               -----
-      integer n,ndim,n1,n2,nr,ik
+      integer n,ndim,nr,ik
+      integer*4 n1, n2
       integer IA(1)
       integer IPOSV(*),IVPOS(*),IORD(*)
       double precision A(1),VEC(NDIM,1),EIG(1)
@@ -5386,7 +5389,9 @@ c     Return the angle in degrees that c makes with the plane
 c     containing a and b.  The sign is determined in a left-handed
 c     sense ... so that if a=x, b=y then for c=+z angle=+90.
 c
-      double precision ddot, d(3), abc, theta
+      double precision d(3), abc, theta
+      double precision ddot
+      external ddot
 c
       call cross_product(a,b,d)
       abc = ddot(3,c,1,d,1)/sqrt(

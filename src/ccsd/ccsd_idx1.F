@@ -10,12 +10,12 @@
 #include "schwarz.fh"
 #include "eaf.fh"
 #include "ccsdps.fh"
+      integer, intent(in) :: nfj,nfl,nocc,nbf,idim,nsh
       double precision, intent(inout) :: snsi(nbf,nfj,nfl,nocc)
       double precision, intent(inout) :: sisn(nbf,nfl,nfj,nocc)
       double precision, intent(in) :: eri1(*)
       double precision, intent(in) :: eri2(*)
       double precision, intent(in) :: t1ao(nbf,nocc)
-      integer, intent(in) :: nfj,nfl,nocc,nbf,idim,nsh
       integer, intent(in) :: idx(idim),shinf(nsh,3)
       logical, optional, intent(in) :: use_ccsd_omp
       !
@@ -62,14 +62,14 @@
      &                         nfj,nfl,nocc,nbf,ilo,ihi,klo,khi,
      &                         factor,use_ccsd_omp)
       implicit none
+      integer, intent(in)             :: nfj,nfl,nocc,nbf
+      integer, intent(in)             :: ilo,ihi,klo,khi
       double precision, intent(inout) :: snsi(nbf,nfj,nfl,nocc)
       double precision, intent(inout) :: sisn(nbf,nfl,nfj,nocc)
       double precision, intent(in)    :: eri1(nfl,klo:khi,nfj,ilo:ihi)
       double precision, intent(in)    :: eri2(nfj,klo:khi,nfl,ilo:ihi)
       double precision, intent(in)    :: t1ao(nbf,nocc)
       double precision, intent(in)    :: factor
-      integer, intent(in)             :: nfj,nfl,nocc,nbf
-      integer, intent(in)             :: ilo,ihi,klo,khi
       logical, intent(in)             :: use_ccsd_omp
       !
       double precision                :: int1,int2

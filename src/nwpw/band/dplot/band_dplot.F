@@ -155,7 +155,8 @@ c      value = ion_init(rtdb)
          spin_orbit = .false.
       end if
       nbrillioun = brillioun_nbrillioun()
-      call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
+      mapping1d  = control_mapping1d()
+      call Pneb_init(ispin,ne,nbrillioun,mapping1d,spin_orbit)
       call Pneb_neq(neq)
 
 *     ***** allocate psi2 wavefunctions ****
@@ -165,7 +166,6 @@ c      value = ion_init(rtdb)
       else
          fractional = .false.
       end if
-      mapping1d = control_mapping1d()
       ispinq  = Pneb_ispinq()
       nbrillq = Pneb_nbrillq()
 
@@ -319,6 +319,7 @@ c      value = value.and.BA_free_heap(psi2(2))
       call cpsi_data_end()
       call C3dB_pfft_end()
       call C3dB_end(1)
+      call Pneb_end()
 
 
       if (.not. value) call errquit('band_dplot:freeing heap memory',0,

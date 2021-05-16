@@ -1,9 +1,4 @@
-c
-c     This subroutine is part of NWChem and was written by Jeff Hammond.
-c     Please do not distribute.
-c
       subroutine tce_diagnose_t1(d_r1,k_r1_offset,residual)
-c
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -26,6 +21,8 @@ c
       INTEGER NXTASK
       EXTERNAL NXTASK
       logical nodezero
+      double precision ddot
+      external ddot
 c
 c     =====================
 c     Zero scratch residual
@@ -44,7 +41,7 @@ c     ================
 c
       nprocs = ga_nnodes()
       count = 0
-cc      next = nxtval(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       do p1b = noab+1,noab+nvab
         do h2b = 1,noab

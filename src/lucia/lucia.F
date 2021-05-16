@@ -4965,7 +4965,7 @@ C?          WRITE(6,*) ' IROOT NDEG ', IROOT,NDEG
             END IF
 
 *. Initial guess in compressed form in SCR1
-            SCALE = 1.0D0/SQRT(DFLOAT(NDEG))
+            SCALE = 1.0D0/SQRT(DBLE(NDEG))
             DO 250 II = 1,NDEG
 *. Anti symmetric combination
               IF(INIDEG.EQ.-1) THEN
@@ -13439,7 +13439,7 @@ COLD  DIMENSION C(*),HC(*)
 *
 *. VOG RAPING LUCIA (initial guess)
 *
-!           SCALE = 1.0D0/SQRT(DFLOAT(NCVAR))
+!           SCALE = 1.0D0/SQRT(DBLE(NCVAR))
 !            if (ga_nodeid().eq.0)
 !     &        write(*,*) 'I start the Rape', SCALE, NCVAR
 !            call ga_distribution(CB,ga_nodeid(),ilo,ihi,idum,idum)
@@ -15728,7 +15728,7 @@ CNW       CALL WRTMAT(SV,1,LEN_S,1,LEN_S)
      &            'EQFRAG','SUPSYM','HFD_OC','HFS_OC','GAS_SP',
      &            'NOSPFI','FRG=LU','FRZORB','SBSPPR','IN_NRO',
      &            'IN_SRO','RT_SEL','FRZFST','VBGNSP','VBOBOR',
-     &            'VBSCOR','AKBKME'/
+     &            'VBSCOR','AKBKME','      '/
 *
 COLD  INTEGER CITYP
 *.Largest allowed number of allowed irreps for orbs

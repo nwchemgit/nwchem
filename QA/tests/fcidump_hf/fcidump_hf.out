@@ -1,0 +1,616 @@
+ argument  1 = /Users/edo/nwchem/nwchem/QA/tests/fcidump_hf/fcidump_hf.nw
+                                         
+                                         
+
+
+             Northwest Computational Chemistry Package (NWChem) 7.0.0
+             --------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                              Copyright (c) 1994-2020
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = WE40672
+    program         = /Users/edo/nwchem/nwchem/bin/MACX64/nwchem
+    date            = Tue Sep  8 18:42:33 2020
+
+    compiled        = Tue_Sep_08_18:42:29_2020
+    source          = /Users/edo/nwchem/nwchem
+    nwchem branch   = 7.0.0
+    nwchem revision = nwchem_on_git-1876-g5e321a214
+    ga revision     = 5.7.1
+    use scalapack   = F
+    input           = /Users/edo/nwchem/nwchem/QA/tests/fcidump_hf/fcidump_hf.nw
+    prefix          = hf_fcidump.
+    data base       = ./hf_fcidump.db
+    status          = startup
+    nproc           =        1
+    time left       =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   13107196 doubles =    100.0 Mbytes
+    stack    =   13107201 doubles =    100.0 Mbytes
+    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
+    total    =   52428797 doubles =    400.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ ORDER OF PRIMARY AXIS IS BEING SET TO 4
+ C4V symmetry detected
+
+          ------
+          auto-z
+          ------
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+
+
+                             Geometry "geometry" -> ""
+                             -------------------------
+
+ Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 h                    1.0000     0.00000000     0.00000000    -1.55970000
+    2 f                    9.0000     0.00000000     0.00000000     0.17330000
+
+      Atomic Mass 
+      ----------- 
+
+      h                  1.007825
+      f                 18.998400
+
+
+ Effective nuclear repulsion energy (a.u.)       5.1933064051
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+      Symmetry information
+      --------------------
+
+ Group name             C4v       
+ Group number             18
+ Group order               8
+ No. of unique centers     2
+
+      Symmetry unique atoms
+
+     1    2
+
+
+
+                                Z-matrix (autoz)
+                                -------- 
+
+ Units are Angstrom for bonds and degrees for angles
+
+      Type          Name      I     J     K     L     M      Value
+      ----------- --------  ----- ----- ----- ----- ----- ----------
+    1 Stretch                  1     2                       0.91706
+
+
+            XYZ format geometry
+            -------------------
+     2
+ geometry
+ h                     0.00000000     0.00000000    -0.82535776
+ f                     0.00000000     0.00000000     0.09170642
+
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |       a.u.
+ ------------------------------------------------------------------------------
+    2 f                |   1 h                |     1.73300  |     1.73300
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:          1
+ ==============================================================================
+
+
+
+                      Basis "ao basis" -> "" (cartesian)
+                      -----
+  H (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.92406000E+01  0.032828
+  1 S  2.89920000E+00  0.231208
+  1 S  6.53400000E-01  0.817238
+
+  2 S  1.77600000E-01  1.000000
+
+  F (Fluorine)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  9.99479000E+03  0.002017
+  1 S  1.50603000E+03  0.015295
+  1 S  3.50269000E+02  0.073110
+  1 S  1.04053000E+02  0.246420
+  1 S  3.48432000E+01  0.612593
+  1 S  4.36880000E+00  0.242489
+
+  2 S  1.22164000E+01  1.000000
+
+  3 S  1.20780000E+00  0.572817
+
+  4 S  3.63400000E-01  0.488416
+
+  5 P  4.43555000E+01  0.020868
+  5 P  1.00820000E+01  0.130092
+  5 P  2.99590000E+00  0.396219
+  5 P  9.38300000E-01  0.620368
+
+  6 P  2.73300000E-01  1.000000
+
+
+
+ Summary of "ao basis" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                       user specified              2        2   2s
+ F                       user specified              6       10   4s2p
+
+
+  xc_inp: hfexch multiplicative factor not found.
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                       user specified              2        2   2s
+ F                       user specified              6       10   4s2p
+
+
+      Symmetry analysis of basis
+      --------------------------
+
+        a1          8
+        a2          0
+        b1          0
+        b2          0
+        e           4
+
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     2
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: on ; symmetry adaption is: on 
+          Maximum number of iterations:  30
+          AO basis - number of functions:    12
+                     number of shells:     8
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+
+              XC Information
+              --------------
+                     Hartree-Fock (Exact) Exchange  1.000          
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-08
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:         -99.90367292
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =     -99.895535
+ 1-e energy   =    -149.682054
+ 2-e energy   =      44.593213
+ HOMO         =      -0.641220
+ LUMO         =       0.147622
+
+
+      Symmetry analysis of molecular orbitals - initial
+      -------------------------------------------------
+
+  Numbering of irreducible representations: 
+
+     1 a1          2 a2          3 b1          4 b2          5 e       
+
+  Orbital symmetries:
+
+     1 a1          2 a1          3 a1          4 e           5 e       
+     6 a1          7 e           8 e           9 a1         10 a1      
+    11 a1         12 a1      
+
+   Time after variat. SCF:      0.1
+   Time prior to 1st pass:      0.1
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       13.11            13106036
+          Stack Space remaining (MW):       13.11            13107012
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1    -99.9971217417 -1.05D+02  2.68D-02  2.20D-01     0.1
+ d= 0,ls=0.0,diis     2   -100.0168560937 -1.97D-02  9.06D-03  6.27D-02     0.1
+ d= 0,ls=0.0,diis     3   -100.0217849395 -4.93D-03  1.85D-03  8.97D-04     0.1
+ d= 0,ls=0.0,diis     4   -100.0219602795 -1.75D-04  5.80D-04  4.13D-05     0.1
+ d= 0,ls=0.0,diis     5   -100.0219712082 -1.09D-05  7.97D-05  5.50D-07     0.1
+ d= 0,ls=0.0,diis     6   -100.0219713655 -1.57D-07  3.71D-06  1.64D-09     0.1
+
+
+         Total DFT energy =     -100.021971365466
+      One electron energy =     -150.573178137443
+           Coulomb energy =       55.791434251007
+    Exchange-Corr. energy =      -10.433533884108
+ Nuclear repulsion energy =        5.193306405078
+
+ Numeric. integr. density =        0.000000000000
+
+     Total iterative time =      0.1s
+
+
+
+                  Occupations of the irreducible representations
+                  ----------------------------------------------
+
+                     irrep           alpha         beta
+                     --------     --------     --------
+                     a1                3.0          3.0
+                     a2                0.0          0.0
+                     b1                0.0          0.0
+                     b2                0.0          0.0
+                     e                 2.0          2.0
+
+
+                       DFT Final Molecular Orbital Analysis
+                       ------------------------------------
+
+ Vector    1  Occ=2.000000D+00  E=-2.628782D+01  Symmetry=a1
+              MO Center=  2.7D-26,  4.2D-26,  9.2D-02, r^2= 1.2D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     3      0.579900  2 F  s                  4      0.462180  2 F  s          
+
+ Vector    2  Occ=2.000000D+00  E=-1.601818D+00  Symmetry=a1
+              MO Center= -5.9D-17, -5.0D-17, -4.1D-02, r^2= 3.7D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      0.563737  2 F  s                  6      0.482970  2 F  s          
+     4     -0.192914  2 F  s                  3     -0.140524  2 F  s          
+     1      0.134062  1 H  s                  9     -0.100786  2 F  pz         
+
+ Vector    3  Occ=2.000000D+00  E=-7.530599D-01  Symmetry=a1
+              MO Center=  3.7D-17,  9.9D-17,  1.4D-02, r^2= 5.8D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      0.629763  2 F  pz                 1     -0.287518  1 H  s          
+    12      0.261968  2 F  pz                 6      0.218018  2 F  s          
+     5      0.157321  2 F  s                  2     -0.084552  1 H  s          
+     4     -0.052080  2 F  s                  3     -0.037986  2 F  s          
+
+ Vector    4  Occ=2.000000D+00  E=-6.430019D-01  Symmetry=e
+              MO Center=  2.6D-17, -5.7D-18,  9.2D-02, r^2= 4.6D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      0.738271  2 F  px                10      0.372297  2 F  px         
+     8     -0.159422  2 F  py                11     -0.080394  2 F  py         
+
+ Vector    5  Occ=2.000000D+00  E=-6.430019D-01  Symmetry=e
+              MO Center= -3.0D-17, -1.4D-16,  9.2D-02, r^2= 4.6D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      0.738271  2 F  py                11      0.372297  2 F  py         
+     7      0.159422  2 F  px                10      0.080394  2 F  px         
+
+ Vector    6  Occ=0.000000D+00  E= 2.130676D-01  Symmetry=a1
+              MO Center= -1.5D-17, -1.1D-16, -9.6D-01, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      1.469570  1 H  s                  6     -0.799949  2 F  s          
+    12      0.511833  2 F  pz                 9      0.308845  2 F  pz         
+     1      0.097186  1 H  s                  5     -0.085605  2 F  s          
+     4      0.048245  2 F  s                  3      0.036544  2 F  s          
+
+ Vector    7  Occ=0.000000D+00  E= 1.057422D+00  Symmetry=e
+              MO Center= -1.8D-15, -1.2D-15,  9.2D-02, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      0.913887  2 F  px                 7     -0.730560  2 F  px         
+    11      0.585926  2 F  py                 8     -0.468389  2 F  py         
+
+ Vector    8  Occ=0.000000D+00  E= 1.057422D+00  Symmetry=e
+              MO Center= -4.3D-16,  6.8D-16,  9.2D-02, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      0.913887  2 F  py                 8     -0.730560  2 F  py         
+    10     -0.585926  2 F  px                 7      0.468389  2 F  px         
+
+ Vector    9  Occ=0.000000D+00  E= 1.127820D+00  Symmetry=a1
+              MO Center=  2.0D-15,  5.0D-16,  3.3D-02, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      0.955126  2 F  pz                 9     -0.905509  2 F  pz         
+     2      0.876873  1 H  s                  1     -0.624512  1 H  s          
+     6     -0.141563  2 F  s                  5     -0.090718  2 F  s          
+
+ Vector   10  Occ=0.000000D+00  E= 1.163215D+00  Symmetry=a1
+              MO Center=  2.7D-16,  1.1D-16, -1.8D-01, r^2= 1.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      1.318781  1 H  s                 12      1.020091  2 F  pz         
+     2     -0.456109  1 H  s                  5     -0.282521  2 F  s          
+     9     -0.168325  2 F  pz                 4      0.062268  2 F  s          
+     3      0.041635  2 F  s                  6     -0.025483  2 F  s          
+
+ Vector   11  Occ=0.000000D+00  E= 1.879213D+00  Symmetry=a1
+              MO Center=  5.1D-17,  8.0D-17, -1.7D-01, r^2= 9.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      2.281886  2 F  s                  5     -1.815295  2 F  s          
+     2     -0.810740  1 H  s                 12     -0.752510  2 F  pz         
+     1     -0.358424  1 H  s                  4      0.244143  2 F  s          
+     9      0.164730  2 F  pz                 3      0.142886  2 F  s          
+
+ Vector   12  Occ=0.000000D+00  E= 5.503318D+01  Symmetry=a1
+              MO Center=  5.2D-20,  9.6D-20,  8.9D-02, r^2= 3.4D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4     -1.876424  2 F  s                  3      1.735621  2 F  s          
+     5      0.360664  2 F  s                  6     -0.267729  2 F  s          
+     2      0.087846  1 H  s                 12      0.056305  2 F  pz         
+
+
+ center of mass
+ --------------
+ x =   0.00000000 y =   0.00000000 z =   0.08599914
+
+ moments of inertia (a.u.)
+ ------------------
+           2.874313476355           0.000000000000           0.000000000000
+           0.000000000000           2.874313476355           0.000000000000
+           0.000000000000           0.000000000000           0.000000000000
+
+     Multipole analysis of the density
+     ---------------------------------
+
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0     -0.000000     -5.000000     -5.000000     10.000000
+
+     1   1 0 0      0.000000      0.000000      0.000000      0.000000
+     1   0 1 0      0.000000      0.000000      0.000000      0.000000
+     1   0 0 1     -0.935965     -0.467982     -0.467982      0.000000
+
+     2   2 0 0     -4.130568     -2.065284     -2.065284      0.000000
+     2   1 1 0      0.000000      0.000000      0.000000      0.000000
+     2   1 0 1      0.000000      0.000000      0.000000      0.000000
+     2   0 2 0     -4.130568     -2.065284     -2.065284      0.000000
+     2   0 1 1      0.000000      0.000000      0.000000      0.000000
+     2   0 0 2     -2.636699     -2.669829     -2.669829      2.702960
+
+
+ Task  times  cpu:        0.1s     wall:        0.1s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+  writing FCIDUMP file ./hf_fcidump.fcidump
+ -------------------------------------------
+
+
+                   Four-Index Transformation
+                   -------------------------
+
+                               
+
+          Twofold algorithm used
+          Number of basis functions:             12
+          Number of shells:                       8
+          Number of MOs:                         12
+          Number of active MOs:                  11
+          Active MO range:                        2- 12
+          Block length:                          10
+          Number of operator matrices in core:   66
+          Number of passes:                       1
+          Use symmetry:                           F
+          Symmetry block MOs:                     F
+          File format:                        fcidump   
+          MO integrals file:                  ./hf_fcidump.fcidump
+          MO coefficients read from:          ./hf_fcidump.movecs
+
+          
+
+
+
+           Map from input to output MO order
+
+ 2-> 1   3-> 2   4-> 3   5-> 4   6-> 5   7-> 6   8-> 7   9-> 8  10-> 9  11->10
+12->11
+
+           Map from output to input MO order
+
+ 1-> 2   2-> 3   3-> 4   4-> 5   5-> 6   6-> 7   7-> 8   8-> 9   9->10  10->11
+11->12
+
+          Time for two-index transform:          0.0s
+          Effective frozen-core energy:        -71.4363735314
+
+     Pass:    1     Index range:    2  -   12     Time:      0.01
+
+ Task  times  cpu:        0.0s     wall:        0.0s
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:  200      200     1981      821     5055        0        0      371     
+number of processes/call 2.98e+15 5.59e+15 -9.49e+14 0.00e+00 0.00e+00
+bytes total:             5.81e+05 2.32e+05 3.37e+05 0.00e+00 0.00e+00 2.97e+03
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 80648 bytes
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        19	        20
+	current total bytes		         0	         0
+	maximum total bytes		     80136	  22510120
+	maximum total K-bytes		        81	     22511
+	maximum total M-bytes		         1	        23
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+
+
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+
+          E. Aprà, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, Y. Alexeev, J. Anchell,
+       V. Anisimov, F. W. Aquino, R. Atta-Fynn, J. Autschbach, N. P. Bauman,
+     J. C. Becca, D. E. Bernholdt, K. Bhaskaran-Nair, S. Bogatko, P. Borowski,
+        J. Boschen, J. Brabec, A. Bruner, E. Cauët, Y. Chen, G. N. Chuev,
+      C. J. Cramer, J. Daily, M. J. O. Deegan, T. H. Dunning Jr., M. Dupuis,
+   K. G. Dyall, G. I. Fann, S. A. Fischer, A. Fonari, H. Früchtl, L. Gagliardi,
+      J. Garza, N. Gawande, S. Ghosh, K. Glaesemann, A. W. Götz, J. Hammond,
+       V. Helms, E. D. Hermes, K. Hirao, S. Hirata, M. Jacquelin, L. Jensen,
+   B. G. Johnson, H. Jónsson, R. A. Kendall, M. Klemm, R. Kobayashi, V. Konkov,
+      S. Krishnamoorthy, M. Krishnan, Z. Lin, R. D. Lins, R. J. Littlefield,
+      A. J. Logsdail, K. Lopata, W. Ma, A. V. Marenich, J. Martin del Campo,
+   D. Mejia-Rodriguez, J. E. Moore, J. M. Mullin, T. Nakajima, D. R. Nascimento,
+    J. A. Nichols, P. J. Nichols, J. Nieplocha, A. Otero-de-la-Roza, B. Palmer,
+    A. Panyala, T. Pirojsirikul, B. Peng, R. Peverati, J. Pittner, L. Pollack,
+   R. M. Richard, P. Sadayappan, G. C. Schatz, W. A. Shelton, D. W. Silverstein,
+   D. M. A. Smith, T. A. Soares, D. Song, M. Swart, H. L. Taylor, G. S. Thomas,
+            V. Tipparaju, D. G. Truhlar, K. Tsemekhman, T. Van Voorhis,
+     Á. Vázquez-Mayagoitia, P. Verma, O. Villa, A. Vishnu, K. D. Vogiatzis,
+        D. Wang, J. H. Weare, M. J. Williamson, T. L. Windus, K. Woliński,
+        A. T. Wong, Q. Wu, C. Yang, Q. Yu, M. Zacharias, Z. Zhang, Y. Zhao,
+                                and R. J. Harrison
+                        "NWChem: Past, present, and future
+                         J. Chem. Phys. 152, 184102 (2020)
+                               doi:10.1063/5.0004997
+
+                                      AUTHORS
+                                      -------
+     E. Apra, E. J. Bylaska, N. Govind, K. Kowalski, M. Valiev, W. A. de Jong,
+      T. P. Straatsma, H. J. J. van Dam, D. Wang, T. L. Windus, N. P. Bauman,
+       A. Panyala, J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec,
+    K. Lopata, S. A. Fischer, S. Krishnamoorthy, M. Jacquelin, W. Ma, M. Klemm,
+       O. Villa, Y. Chen, V. Anisimov, F. Aquino, S. Hirata, M. T. Hackler,
+           Eric Hermes, L. Jensen, J. E. Moore, J. C. Becca, V. Konjkov,
+            D. Mejia-Rodriguez, T. Risthaus, M. Malagoli, A. Marenich,
+   A. Otero-de-la-Roza, J. Mullin, P. Nichols, R. Peverati, J. Pittner, Y. Zhao,
+        P.-D. Fan, A. Fonari, M. J. Williamson, R. J. Harrison, J. R. Rehr,
+      M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
+      M. Krishnan, B. E. Van Kuiken, A. Vazquez-Mayagoitia, M. Swart, Q. Wu,
+   T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros,
+     G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall, J. A. Nichols,
+       K. Tsemekhman, K. Wolinski, J. Anchell, D. E. Bernholdt, P. Borowski,
+       T. Clark, D. Clerc, H. Dachsel, M. J. O. Deegan, K. Dyall, D. Elwood,
+      E. Glendening, M. Gutowski, A. C. Hess, J. Jaffe, B. G. Johnson, J. Ju,
+        R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
+      T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
+      M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
+
+ Total times  cpu:        0.2s     wall:        0.2s

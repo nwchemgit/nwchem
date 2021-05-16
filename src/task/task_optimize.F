@@ -47,6 +47,7 @@ c
       logical status, ts, omin
       logical ousedriver ! use driver (default)
       logical ouselbfgs  ! use lbfgs
+      logical ousesocket ! use socket
       logical ousedeloc  ! use delocalized internals
 CJMC
       logical ousetropt  ! use Trust Region OPTimization
@@ -64,6 +65,10 @@ c
 c     lbfgs optimizer optimizer driver
       logical lbfgsb_driver
       external lbfgsb_driver
+c
+c     socket optimizer optimizer driver
+      logical socket_driver
+      external socket_driver
 c
 c     delocalized internals optimizer driver
       logical deloc_driver
@@ -83,6 +88,11 @@ c
 c     lbfgs optimizer
       if (.not. rtdb_get(rtdb, 'driver:lbfgs', mt_log, 1, ouselbfgs))
      $     ouselbfgs = .false.
+
+c     socket optimizer
+      if (.not. rtdb_get(rtdb, 'driver:socket', mt_log, 1, ousesocket))
+     $     ousesocket = .false.
+c
 c
 c     delocalized internals optimizer
       if (.not. rtdb_get(rtdb, 'driver:deloc', mt_log, 1, ousedeloc))
@@ -96,8 +106,14 @@ c     turn off the other options if one is set
       if(ouselbfgs) then
           ousedriver = .false.
           ousedeloc = .false.
+          ousesocket = .false.
       else if (ousedeloc) then
           ousedriver = .false.
+          ouselbfgs = .false.
+          ousesocket = .false.
+      else if (ousesocket) then
+          ousedriver = .false.
+          ousedeloc = .false.
           ouselbfgs = .false.
       end if
 c     
@@ -146,6 +162,8 @@ c         status = .false.
             status = driver(rtdb)           ! default optimizer
          else if(ouselbfgs) then
             status =  lbfgsb_driver(rtdb)   ! lbfgs optimizer
+         else if(ousesocket) then
+            status =  socket_driver(rtdb)   ! lbfgs optimizer
          else if(ousedeloc) then
             status =  deloc_driver(rtdb)    ! delocalized internals optimizer
 CJMC

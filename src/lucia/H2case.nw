@@ -7,7 +7,7 @@ title "RXdia"
 start c2h4
 
 charge 0
-memory total 4000 stack 200 heap 200 global 3600 mb
+memory  stack 200 mb heap 200 mb global 3600 mb
 geometry units angstrom nocenter noautoz noautosym
   H     0.0000000    0.0000000    0.4000000
   H     0.0000000    0.0000000   -0.4000000

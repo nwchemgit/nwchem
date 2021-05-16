@@ -29,10 +29,14 @@ c     References:
 c     J. Sun, A. Ruzsinszky, J.P. Perdew
 c     PRL 115, 036402 (2015)
 c     DOI: 10.1103/PhysRevLett.115036402
+c
+c     A.P. Bartok and J.R. Yates
+c     JCP 150, 161101 (2019)
+c     DOI: 10.1063/1.5094646
 
-      Subroutine xc_cscan(tol_rho, cfac, rho, delrho, Amat, Cmat,
-     &                     nq, ipol, Ec, qwght, ldew, func,
-     &                     tau, Mmat)     
+      Subroutine xc_cscan(whichfc, tol_rho, cfac, rho, delrho, Amat, 
+     &                    Cmat, nq, ipol, Ec, qwght, ldew, func,
+     &                    tau, Mmat)     
 c
       implicit none
 c
@@ -41,9 +45,10 @@ c
 c
 c     Input and other parameters
 c
+      character(*) whichfc
       integer ipol, nq
       double precision dummy(1)
-      double precision cfac(*)
+      double precision cfac
       logical ldew
       double precision func(*)
       double precision fac
@@ -81,7 +86,7 @@ c
 c
 c     Intermediate derivatives, results, etc.
 c
-      integer n
+      integer n, ifc
       double precision ntot,n13,n83,tautot
       double precision dn2,p,rs,rs12,drsdn,dpdg,dpdn
       double precision epsc,depscdrs,depscdzeta
@@ -125,6 +130,17 @@ c
       parameter (F4=4d0,F13=1d0/3d0,F23=F13+F13,F43=F13+1d0)
       parameter (F53=F23+1d0,F83=F53+1d0,F14=0.25d0)
       parameter (F8=8d0,F5=5d0,F16=1d0/6d0)
+
+      double precision rRegu(0:7), rRegu1(7), rtemp(0:7)
+      double precision regalpha, dregalpha
+      parameter ( rRegu = (/ 1d0, -0.64d0, -0.4352d0, 
+     &            -1.535685604549d0, 3.061560252175d0,
+     &            -1.915710236206d0, 5.16884468372d-1,
+     &            -5.1848879792d-2 /) )
+      parameter ( rRegu1 = (/ -0.64d0, -2d0*0.4352d0,
+     &            -3d0*1.535685604549d0, 4d0*3.061560252175d0,
+     &            -5d0*1.915710236206d0, 6d0*5.16884468372d-1,
+     &            -7d0*5.1848879792d-2 /) )
 c
 c     ======> BOTH SPIN-RESTRICETED AND UNRESTRICTED <======
 c
@@ -247,37 +263,67 @@ c
          ds = 0.5d0*(opz**F53 + omz**F53)
          tueg = 0.3d0*ckf*ckf*ds*ntot**F53
          tvw = 0.125d0*dn2/ntot
-         alpha = (tautot - tvw)/tueg
-         if (alpha.lt.0d0) alpha=0d0
-         oma = 1d0 - alpha
+         if (whichfc.eq.'orig') then
+           alpha = (tautot - tvw)/tueg
+           if (alpha.lt.0d0) alpha=0d0
+           regalpha = alpha
+           dregalpha = 1d0
+         else if (whichfc.eq.'regu') then
+           alpha = (tautot - tvw)/(tueg + 1d-4*ds)
+           if (alpha.lt.0d0) alpha=0d0
+           regalpha = alpha**3/(alpha**2 + 1d-3)
+           dregalpha = alpha/(alpha**2 + 1d-3) * 
+     &                 (3d0*alpha - 2d0*regalpha)
+         endif
+         oma = 1d0 - regalpha
          oma2 = oma*oma
 
-         if (alpha.ge.thr1) then
-           exp5 = 0d0
-         else
-           exp5 = dexp(-c1c*alpha/oma)
-         end if
-         if (alpha.le.thr2) then
-           exp6 = 0d0
-         else
-           exp6 = dexp(c2c/oma)
-         end if
-         fca = exp5 - dc*exp6
-
-         if (alpha.ge.thr1.and.alpha.le.thr2) then
-           dfcada = 0d0
-         else
-           dfcada = -(c1c*exp5 + dc*exp6*c2c)/oma2
-         end if
+         if (whichfc.eq.'orig') then
+           if (regalpha.ge.thr1) then
+             exp5 = 0d0
+           else
+             exp5 = dexp(-c1c*regalpha/oma)
+           end if
+           if (regalpha.le.thr2) then
+             exp6 = 0d0
+           else
+             exp6 = dexp(c2c/oma)
+           end if
+           fca = exp5 - dc*exp6
+           if (regalpha.ge.thr1.and.regalpha.le.thr2) then
+             dfcada = 0d0
+           else
+             dfcada = -(c1c*exp5 + dc*exp6*c2c)/oma2
+           end if
+         else if(whichfc.eq.'regu') then
+           if (regalpha.lt.2.5d0) then
+             rtemp(0) = 1d0
+             do ifc=1,7
+               rtemp(ifc) = rtemp(ifc-1)*regalpha
+             enddo
+             fca = dot_product(rRegu,rtemp)
+             dfcada = dot_product(rRegu1, rtemp(0:6))*dregalpha
+           else
+             exp6 = dexp(c2c/oma)
+             fca = -dc*exp6
+             dfcada = -dc*exp6*c2c/oma2*dregalpha
+           endif
+         endif
 c
 c        --------------------------------------------------------------
 c
-         Ec = Ec + ntot*(Ec1 + fca*(Ec0-Ec1))*qwght(n)
-         if (ldew) func(n) = func(n) + ntot*(Ec1 + fca*(Ec0-Ec1))
+         Ec = Ec + cfac*ntot*(Ec1 + fca*(Ec0-Ec1))*qwght(n)
+         if (ldew) func(n) = func(n) + cfac*ntot*(Ec1 + fca*(Ec0-Ec1))
 c
-         dalphadn = F13*(F8*tvw - F5*tautot)/(tueg*ntot)
-         dalphadg = -0.125d0/(tueg*ntot)
-         dalphadt = 1d0/tueg
+         if (whichfc.eq.'orig') then
+           dalphadn = f53*(p/ds-alpha)/ntot
+           dalphadg = -0.125d0/(tueg*ntot)
+           dalphadt = 1d0/tueg
+         else if (whichfc.eq.'regu') then
+           dalphadn = 5d0/3d0*(p/ds-alpha)*tueg/((tueg+1d-4*ds)*ntot)
+           dalphadg = -0.125d0/((tueg+1d-4*ds)*ntot)
+           dalphadt = 1d0/(tueg+1d-4*ds)
+         endif
 
          dEc1dn = dEc1drs*drsdn + dEc1dp*dpdn
          dEc0dn = dEc0drs*drsdn + dEc0dp*dpdn
@@ -285,26 +331,28 @@ c
          vcn = Ec1 + fca*(Ec0-Ec1) + 
      &         ntot*(dEc1dn + fca*(dEc0dn-dEc1dn) + dfcadn*(Ec0-Ec1))
 
-         Amat(n,1) = Amat(n,1) + vcn
+         Amat(n,1) = Amat(n,1) + cfac*vcn
 
          dEc1dg = dEc1dp*dpdg
          dEc0dg = dEc0dp*dpdg
          dfcadg = dfcada*dalphadg         
 
-         Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + ntot*(dEc1dg + 
+         Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + cfac*ntot*(dEc1dg + 
      &   fca*(dEc0dg-dEc1dg) + dfcadg*(Ec0-Ec1))
-         Cmat(n,D1_GAB) = Cmat(n,D1_GAB) + ntot*(dEc1dg + 
+         Cmat(n,D1_GAB) = Cmat(n,D1_GAB) + cfac*ntot*(dEc1dg + 
      &   fca*(dEc0dg-dEc1dg) + dfcadg*(Ec0-Ec1))*2d0
 
-         Mmat(n,1) = Mmat(n,1) + 0.5d0*ntot*dfcada*dalphadt*(Ec0-Ec1)
+         Mmat(n,1) = Mmat(n,1) + 0.5d0*cfac*
+     &                           ntot*dfcada*dalphadt*(Ec0-Ec1)
 
          if (ipol.eq.2) then
-           Amat(n,2) = Amat(n,2) + vcn
+           Amat(n,2) = Amat(n,2) + cfac*vcn
 
-           Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + ntot*(dEc1dg +
+           Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + cfac*ntot*(dEc1dg +
      &     fca*(dEc0dg-dEc1dg) + dfcadg*(Ec0-Ec1))
            
-           Mmat(n,2) = Mmat(n,2) + 0.5d0*ntot*dfcada*dalphadt*(Ec0-Ec1)
+           Mmat(n,2) = Mmat(n,2) + 0.5d0*cfac*
+     &                             ntot*dfcada*dalphadt*(Ec0-Ec1)
 
            if (omz.lt.tol_rho) then
              dphidzeta = 0.5d0*F23*(opz**F23/opz)
@@ -329,14 +377,16 @@ c
            dEc0dzeta = dgcdzeta*(epsc0 + H0)
 
            ddsdzeta = 0.5d0*F53*(opz**F23 - omz**F23)
+
            dalphadzeta = -alpha*ddsdzeta/ds
+
            dfcadzeta = dfcada*dalphadzeta
 
            vcpol = dEc1dzeta + dfcadzeta*(Ec0-Ec1) + 
      &             fca*(dEc0dzeta-dEc1dzeta)
 
-           Amat(n,1) = Amat(n,1) + omz*vcpol
-           Amat(n,2) = Amat(n,2) - opz*vcpol
+           Amat(n,1) = Amat(n,1) + cfac*omz*vcpol
+           Amat(n,2) = Amat(n,2) - cfac*opz*vcpol
          
          end if
 

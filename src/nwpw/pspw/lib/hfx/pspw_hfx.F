@@ -36,6 +36,7 @@
       norbs(2) = 0
       ehfx = 0.0d0
       hfx_on = .false.
+      hfx_virtual_on = .true.
       localize_on  = .false.
       localize2_on = .false.
       has_smallgrid = control_has_ngrid_small()
@@ -875,9 +876,39 @@ c     >                      dbl_mb(vij(1)))
 
 #include "pspw_hfx.fh"
 
-      pspw_HFX= hfx_on
+      pspw_HFX = hfx_on
       return
       end
+
+*     *******************************
+*     *                             *
+*     *     pspw_HFX_virutal_set    *
+*     *                             *
+*     *******************************
+      subroutine pspw_HFX_virtual_set(hfxvset)
+      implicit none
+      logical hfxvset
+
+#include "pspw_hfx.fh"
+
+      hfx_virtual_on = hfxvset
+      return
+      end
+
+*     *************************
+*     *                       *
+*     *     pspw_HFX_virtual  *
+*     *                       *
+*     *************************
+      logical function pspw_HFX_virtual()
+      implicit none
+
+#include "pspw_hfx.fh"
+
+      pspw_HFX_virtual = hfx_virtual_on
+      return
+      end
+
 
 
 *     *************************

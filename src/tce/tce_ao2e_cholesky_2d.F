@@ -32,8 +32,8 @@ c#include "tce.fh"
       integer irange,jrange           ! Integral shell index range size
       integer krange,lrange           ! Integral shell index range size
       integer kloff,joff,loff         ! Offset temporaries
-      integer nxtval
-      external nxtval
+      integer nxtask
+      external nxtask
       integer next,count,nprocs
 c      character*255 filename
 c
@@ -134,7 +134,7 @@ c
 #endif
       nprocs = ga_nnodes()
       count = 0
-      next = nxtval(nprocs)
+      next = nxtask(nprocs,1)
 c
 c     BEGIN KL LOOPS
 c
@@ -264,7 +264,7 @@ c
             if (.not.ma_pop_stack(l_ijkl)) 
      1        call errquit('tce_ao2e_cholesky_2d: 
      2                     ma_pop_stack of l_ijkl failed',16,MA_ERR)
-            next = nxtval(nprocs)
+            next = nxtask(nprocs,1)
           endif
           count = count + 1
         enddo                              ! ksh
@@ -272,7 +272,7 @@ c
 c
 c     END KL LOOPS
 c
-      next = nxtval(-nprocs)
+      next = nxtask(-nprocs,1)
       call ga_sync() ! only necessary in parallel but that variable not available right now
 c
 c     ==========

@@ -374,7 +374,7 @@ c
 c
 c     call to compute polariz. with SOS
 c
-      if(polfromsos)
+      if(polfromsos.and.nodezero)
      A     call dft_polfromsos(alpha,nexcite_tot,
      D     dbl_mb(k_dpx),dbl_mb(k_dpy),dbl_mb(k_dpz),
      E     dbl_mb(k_exen),ipol)

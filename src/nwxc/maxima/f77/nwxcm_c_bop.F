@@ -47,7 +47,7 @@ C> ### References ###
 C> 
 C> [1] T Tsuneda, T Suzumura, K Hirao, J.Chem.Phys. 110
 C>    , 10664 (1999)  , DOI: 
-C> <a href="http://dx.doi.org/10.1063/1.479012 "> 
+C> <a href="https://doi.org/10.1063/1.479012 "> 
 C> 10.1063/1.479012 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -284,7 +284,7 @@ C> ### References ###
 C> 
 C> [1] T Tsuneda, T Suzumura, K Hirao, J.Chem.Phys. 110
 C>    , 10664 (1999)  , DOI: 
-C> <a href="http://dx.doi.org/10.1063/1.479012 "> 
+C> <a href="https://doi.org/10.1063/1.479012 "> 
 C> 10.1063/1.479012 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -962,7 +962,7 @@ C> ### References ###
 C> 
 C> [1] T Tsuneda, T Suzumura, K Hirao, J.Chem.Phys. 110
 C>    , 10664 (1999)  , DOI: 
-C> <a href="http://dx.doi.org/10.1063/1.479012 "> 
+C> <a href="https://doi.org/10.1063/1.479012 "> 
 C> 10.1063/1.479012 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 

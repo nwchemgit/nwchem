@@ -1633,6 +1633,7 @@ C
       END
       SUBROUTINE EIGENL(A,R,N,MV,MFKR)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      integer*4 ii4,jj4,kk4,ll4
       DIMENSION A(1),R(1)
       DATA TESTIT/1.D-20/
       DATA TESTX/1.D-26/
@@ -1700,14 +1701,16 @@ C
 C        GENERATE IDENTITY MATRIX
 C
     5 RANGE=1.0D-12
-      IF(MV-1) 10,25,10
+      ii4=mv-1
+      IF(ii4) 10,25,10
    10 IQ=-N
       DO 20 J=1,N
       IQ=IQ+N
       DO 20 I=1,N
       IJ=IQ+I
       R(IJ)=0.0D+00
-      IF(I-J) 20,15,20
+      jj4=i-j
+      IF(jj4) 20,15,20
    15 R(IJ)=1.0D+00
    20 CONTINUE
 C
@@ -1716,19 +1719,20 @@ C
    25 ANORM=0.0D+00
       DO 35 I=1,N
       DO 35 J=I,N
-      IF(I-J) 30,35,30
+      ii4=i-j
+      IF(ii4) 30,35,30
    30 IA=I+(J*J-J)/2
       ANORM=ANORM+A(IA)*A(IA)
    35 CONTINUE
-      IF(ANORM) 165,165,40
+      IF(anorm) 165,165,40
    40 ANORM=1.414D+00*DSQRT(ANORM)
-      ANRMX=ANORM*RANGE/DFLOAT(N)
+      ANRMX=ANORM*RANGE/DBLE(N)
 C
 C        INITIALIZE INDICATORS AND COMPUTE THRESHOLD, THR
 C
       IND=0
       THR=ANORM
-   45 THR=THR/DFLOAT(N)
+   45 THR=THR/DBLE(N)
       IF(THR.LT.TESTY)THR=0.D0
    50 L=1
    55 M=L+1
@@ -1783,19 +1787,23 @@ C
       IMQ=N*(M-1)
       DO 125 I=1,N
       IQ=(I*I-I)/2
-      IF(I-L) 80,115,80
-   80 IF(I-M) 85,115,90
+      ii4=i-l
+      IF(ii4) 80,115,80
+   80 jj4=i-m
+      IF(jj4) 85,115,90
    85 IM=I+MQ
       GO TO 95
    90 IM=M+IQ
-   95 IF(I-L) 100,105,105
+   95 kk4=I-L
+      IF(kk4) 100,105,105
   100 IL=I+LQ
       GO TO 110
   105 IL=L+IQ
   110 X=A(IL)*COSX-A(IM)*SINX
       A(IM)=A(IL)*SINX+A(IM)*COSX
       A(IL)=X
-  115 IF(MV-1) 120,125,120
+  115 ll4=MV-1
+      IF(ll4) 120,125,120
   120 ILR=ILQ+I
       IMR=IMQ+I
       X=R(ILR)*COSX-R(IMR)*SINX
@@ -1813,16 +1821,19 @@ C        TESTS FOR COMPLETION
 C
 C        TEST FOR M = LAST COLUMN
 C
-  130 IF(M-N) 135,140,135
+  130 ii4=M-N
+      IF(ii4) 135,140,135
   135 M=M+1
       GO TO 60
 C
 C        TEST FOR L = SECOND FROM LAST COLUMN
 C
-  140 IF(L-(N-1)) 145,150,145
+  140 jj4=L-(N-1)
+      IF(jj4) 145,150,145
   145 L=L+1
       GO TO 55
-  150 IF(IND-1) 160,155,160
+  150 ll4=IND-1
+      IF(ll4) 160,155,160
   155 IND=0
       GO TO 50
 C
@@ -1846,7 +1857,8 @@ C
   170 X=A(LL)
       A(LL)=A(MM)
       A(MM)=X
-      IF(MV-1) 175,185,175
+      ii4=mv-1
+      IF(ii4) 175,185,175
   175 DO 180 K=1,N
       ILR=IQ+K
       IMR=JQ+K
@@ -7198,7 +7210,7 @@ C
 C
        XFACN = 1.0D0
        DO 100 K = 2,N
-        XFACN = XFACN * DFLOAT(K)
+        XFACN = XFACN * DBLE(K)
   100  CONTINUE
        XFAC = XFACN
       END IF

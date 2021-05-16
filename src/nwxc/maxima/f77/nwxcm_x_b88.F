@@ -36,7 +36,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] AD Becke, Phys.Rev.A 38, 3098 (1988)  , DOI: 
-C> <a href="http://dx.doi.org/10.1103/PhysRevA.38.3098 "> 
+C> <a href="https://doi.org/10.1103/PhysRevA.38.3098 "> 
 C> 10.1103/PhysRevA.38.3098 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -207,7 +207,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] AD Becke, Phys.Rev.A 38, 3098 (1988)  , DOI: 
-C> <a href="http://dx.doi.org/10.1103/PhysRevA.38.3098 "> 
+C> <a href="https://doi.org/10.1103/PhysRevA.38.3098 "> 
 C> 10.1103/PhysRevA.38.3098 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -514,7 +514,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] AD Becke, Phys.Rev.A 38, 3098 (1988)  , DOI: 
-C> <a href="http://dx.doi.org/10.1103/PhysRevA.38.3098 "> 
+C> <a href="https://doi.org/10.1103/PhysRevA.38.3098 "> 
 C> 10.1103/PhysRevA.38.3098 </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 

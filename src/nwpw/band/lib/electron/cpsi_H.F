@@ -83,6 +83,7 @@
 *     ****************************
       call cke(ispin,ne,psi_k_tag,Hpsi_k_tag)
 
+*     ****************************
 *     **************************
 *     **** add non-local psp ***
 *     **************************
@@ -104,8 +105,11 @@
 *     **********************************************************
 c      call Cram_c_SMul(0,scal2,vl,dcpl_mb(vall(1)))
 c      call Cram_cc_Sum(0,dcpl_mb(vall(1)),vc,dcpl_mb(vall(1)))
-      call dcopy(2*npack0,vc,1,dcpl_mb(vall(1)),1)
-      call daxpy(2*npack0,scal2,vl,1,dcpl_mb(vall(1)),1)
+c      call dcopy(2*npack0,vc,1,dcpl_mb(vall(1)),1)
+c      call daxpy(2*npack0,scal2,vl,1,dcpl_mb(vall(1)),1)
+      call Parallel_shared_vector_copy(.true.,2*npack0,vc,
+     >                                 dcpl_mb(vall(1))) 
+      call DAXPY_OMP(2*npack0,scal2,vl,1,dcpl_mb(vall(1)),1)
       call Cram_c_unpack(0,dcpl_mb(vall(1)))
 
 *     **********************************************
@@ -113,10 +117,12 @@ c      call Cram_cc_Sum(0,dcpl_mb(vall(1)),vc,dcpl_mb(vall(1)))
 *     **********************************************
       call C3dB_cr_pfft3b(1,0,dcpl_mb(vall(1)))
 
+
       ki  = 1
       nbi = 1 
       psi_shift   = cpsi_data_get_chnk(psi_r_tag,nbi)
       if (dohfx) Hpsir_shift = cpsi_data_get_chnk(Hpsi_r_tag,nbi)
+
 
       kj  = 1
       nbj = 1 
@@ -572,4 +578,123 @@ cccc         nb = Pneb_convert_nb(nbq)
 
       return
       end
+
+
+
+
+*     ***************************************************
+*     *                                                 *
+*     *                 cpsi_H_vall0                    *
+*     *                                                 *
+*     ***************************************************
+      subroutine cpsi_H_vall0(nbq,ispin,ne,psi_k_tag,psi_r_tag,vall,
+     >                        Hpsi_k_tag)
+      implicit none
+      integer nbq
+      integer    ispin,ne(2)
+      integer    psi_k_tag
+      integer    psi_r_tag
+      complex*16 vall(*)
+      integer    Hpsi_k_tag
+
+#include "errquit.fh"
+#include "bafdecls.fh"
+
+*     **** local variables ****
+      integer ms,n,n1(2),n2(2)
+      integer nx,ny,nz
+      integer psi_shift,Hpsi_shift,nshift1,nshift2
+      real*8  scal1,scal2,fion(3)
+
+*     **** tempory space ****
+      integer nfft3d,nb,nbrillq
+      integer vpsi(2)
+      logical value
+
+*     **** external functions ****
+      integer  Pneb_nbrillq,Pneb_convert_nb
+      integer  cpsi_data_get_chnk,cpsi_data_nsize
+      real*8   lattice_omega
+      external Pneb_nbrillq,Pneb_convert_nb
+      external cpsi_data_get_chnk,cpsi_data_nsize
+      external lattice_omega
+
+
+
+      call C3dB_nx(1,nx)
+      call C3dB_ny(1,ny)
+      call C3dB_nz(1,nz)
+      call C3dB_nfft3d(1,nfft3d)
+c      call Cram_max_npack(npack1)
+
+      value = BA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
+      if (.not.value) call errquit('cpsi_H_vall:out of stack',0,MA_ERR)
+
+
+      scal2 = 1.0d0/lattice_omega()
+      scal1 = 1.0d0/dble(nx*ny*nz)
+      n1(1) = 1
+      n2(1) = ne(1)
+      n1(2) = ne(1) + 1
+      n2(2) = ne(1) + ne(2)
+      nbrillq = Pneb_nbrillq()
+      nshift1 = cpsi_data_nsize(psi_r_tag)
+      nshift2 = cpsi_data_nsize(Hpsi_k_tag)
+
+
+*     ****************************
+*     **** add kinetic energy ****
+*     ****************************
+      call cke0(nbq,ispin,ne,psi_k_tag,Hpsi_k_tag)
+
+*     **************************
+*     **** add non-local psp ***
+*     **************************
+      call cpsp_v_nonlocal0(nbq,ispin,ne,
+     >                      psi_k_tag,Hpsi_k_tag,.false.,fion)
+      call cpsp_v_spin_orbit0(nbq,ispin,ne,
+     >                        psi_k_tag,Hpsi_k_tag,.false.,fion)
+
+*     **************************************************
+*     **** Hpsi_k = Hpsi_k + FFT[vall_r+)*psi_r]    ****
+*     **************************************************
+cccc         nb = Pneb_convert_nb(nbq)
+         psi_shift  = cpsi_data_get_chnk( psi_r_tag,nbq)
+         Hpsi_shift = cpsi_data_get_chnk(Hpsi_k_tag,nbq)
+
+         do ms=1,ispin
+         do n=n1(ms),n2(ms)
+
+*           *************************************
+*           **** vpsi_r = (vall_r)*psi_r ****
+*           *************************************
+            call C3dB_bb_Mul(1,vall(1+(ms-1)*nfft3d),
+     >                         dbl_mb(psi_shift),
+     >                         dcpl_mb(vpsi(1)))
+
+*           *******************************
+*           **** get vpsi_r in k-space ****
+*           *******************************
+            !call C3dB_rc_fft3f(1,dcpl_mb(vpsi(1)))
+            call C3dB_rc_pfft3f(1,nbq,dcpl_mb(vpsi(1)))
+            call Cram_c_pack(nbq,dcpl_mb(vpsi(1)))
+
+*           ***********************
+*           **** add to Hpsi_k ****
+*           ***********************
+            call Cram_cc_daxpy(nbq,(-scal1),
+     >                         dcpl_mb(vpsi(1)),
+     >                         dbl_mb(Hpsi_shift))
+
+            psi_shift  = psi_shift  + nshift1
+            Hpsi_shift = Hpsi_shift + nshift2
+         end do
+         end do
+
+      value = BA_pop_stack(vpsi(2))
+      if(.not.value) call errquit('cpsi_H_vall:popping stack',0,MA_ERR)
+
+      return
+      end
+
 

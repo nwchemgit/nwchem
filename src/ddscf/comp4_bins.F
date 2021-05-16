@@ -28,11 +28,11 @@ c
          index = (i - 1)/(2*nb_per_i) + 1
          nbits = 4*(i - (index-1)*(2*nb_per_i) - 1)
 #if defined(CRAY)
-         vvv =  shiftl(v, nbits)
-         vv = shiftr(iand(m(index), vvv), nbits)
+         vvv =  ishft(v, nbits)
+         vv = ishft(iand(m(index), vvv),-nbits)
          v = iand(vv,15)
 #else
-         v = iand(rshift(iand(m(index), lshift(v, nbits)), nbits),15)
+         v = iand(ishft(iand(m(index), ishft(v, nbits)), -nbits),15)
 #endif
          bins(v) = bins(v) + 1
       enddo

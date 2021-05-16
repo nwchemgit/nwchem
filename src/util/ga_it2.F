@@ -18,7 +18,7 @@ C> [1] R.J. Harrison,
 C>     <i>"Krylov Subspace Accelerated Inexact Newton Method for Linear
 C>     and Nonlinear Systems",</i>
 C>     Journal of Computational Chemistry (2004) <b>25</b>, pp 328-334,
-C>     DOI: <a href="http://dx.doi.org/10.1002/jcc.10108">10.1002/jcc.10108</a>
+C>     DOI: <a href="https://doi.org/10.1002/jcc.10108">10.1002/jcc.10108</a>
 C>
 C> @}
 c
@@ -805,7 +805,6 @@ C>
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
 #include "util.fh"
 c
       integer g_x               !< [Input/Output] Initial guess/solution
@@ -837,6 +836,7 @@ c
       parameter (maxmaxsub = 20)
       integer iter, n, nvec, nsub, isub, jsub, typex
       integer g_y, g_Ay, g_Ax, g_delta, g_a, g_b, g_c
+      integer mdtob_nsub1
       double precision rmax, acc, trust
       double precision a(maxmaxsub,maxmaxsub), b(maxmaxsub), 
      $                 c(maxmaxsub), csum
@@ -980,17 +980,18 @@ c
               call util_flush(6)
               call ga_print(g_c)
               call util_flush(6)
-            endif
+           endif
+           mdtob_nsub1=MA_sizeof(MT_DBL,nsub-1,MT_BYTE)
             if (typex.eq.MT_DBL) then
               if (ga_nodeid() .eq. 0)
      $           call ga_get(g_c, 1, nsub-1, 1, 1, c, 1)
-              call ga_brdcst(1, c, mdtob(nsub-1), 0)
+              call ga_brdcst(1, c, mdtob_nsub1, 0)
               write(6,*) ' KAIN SUBSPACE COEFFS'
               call output(c, 1, nsub-1, 1, 1, nsub-1, 1, 1)
             else if (typex.eq.MT_DCPL) then
               if (ga_nodeid() .eq. 0)
      $           call ga_get(g_c, 1, nsub-1, 1, 1, zc, 1)
-              call ga_brdcst(1, zc, 2*mdtob(nsub-1), 0)
+              call ga_brdcst(1, zc, 2*mdtob_nsub1, 0)
               write(6,*) ' KAIN SUBSPACE COEFFS'
               call zoutput(zc, 1, nsub-1, 1, 1, nsub-1, 1, 1)
             endif

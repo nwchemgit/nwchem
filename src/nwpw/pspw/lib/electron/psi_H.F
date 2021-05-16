@@ -50,10 +50,10 @@
 #include "errquit.fh"
 
 *     **** local variables ****
-      logical dosic,dohfx,dodftu,meta,tamd,meta_gga
+      logical dosic,dohfx,dodftu,meta,tamd,meta_gga,periodic_efield
       integer ms,n,n1(2),n2(2)
       integer nx,ny,nz
-      real*8  scal1,scal2
+      real*8  scal1,scal2,edpol
 
 *     **** tempory space ****
 c     complex*16 vall(nfft3d)
@@ -72,11 +72,17 @@ c     complex*16 vpsi(nfft3d)
       external pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm,meta_found
       external psp_pawexist,nwpw_meta_gga_on,tamd_found
       external lattice_omega
+      logical  pspw_Efield_found
+      external pspw_Efield_found
+      integer  pspw_Efield_type
+      external pspw_Efield_type
 
 
       dosic = (pspw_SIC().and.pspw_SIC_relaxed()) 
       dohfx = (pspw_HFX().and.pspw_HFX_relaxed()) 
       dodftu = psp_U_psputerm()
+      periodic_efield = pspw_Efield_found().and.
+     >                  (pspw_Efield_type().eq.0)
       meta = meta_found()
       tamd = tamd_found()
       meta_gga = nwpw_meta_gga_on()
@@ -92,7 +98,7 @@ c     complex*16 vpsi(nfft3d)
       value = value.and.
      >        BA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
      
-      if ((dosic).or.(dohfx)) then
+      if ((dosic).or.(dohfx).or.periodic_efield) then
          value = value.and.
      >           BA_push_get(mt_dbl,(neq(1)+neq(2))*n2ft3d,
      >                        'Hpsi_r',Hpsi_r(2),Hpsi_r(1))
@@ -126,7 +132,7 @@ c     complex*16 vpsi(nfft3d)
 *     *********************************************************
 *     **** add non-local psp - Hpsi_k = Hpsi_k + Vnl*psi_k ****
 *     *********************************************************
-      if (psp_pawexist()) call psp_set_vc(vc)
+      if (psp_pawexist()) call psp_set_vc(vc)  !*** this should be located where vc is generated ***
       call v_nonlocal(ispin,neq,psi_k,Hpsi_k,move,fion,fractional,occ)
 
 
@@ -193,8 +199,14 @@ c     complex*16 vpsi(nfft3d)
 *     ******************************
 c      if (field_exist)
 c     >  call D3dB_rr_Sum(1,dcpl_mb(vall(1)),v_field,dcpl_mb(vall(1)))
-      if (field_exist)
-     >  call D3dB_rr_Sum2(1,v_field,dcpl_mb(vall(1)))
+      if (field_exist) then
+        call D3dB_rr_Sum2(1,v_field,dcpl_mb(vall(1)))
+        if (periodic_efield) then
+           call dipole_Efield_Vnl(ispin,neq,n2ft3d,psi_r,
+     >                            dbl_mb(Hpsi_r(1)),edpol)
+           !write(*,*) "EDPOL=",edpol
+        end if
+      end if
 
 
 *     **************************************************************
@@ -225,7 +237,7 @@ c            if ((dosic).or.(dohfx))
 c     >        call D3dB_rr_Sum(1,dcpl_mb(vpsi(1)),
 c     >                         dbl_mb(Hpsi_r(1)+(indx1-1)*n2ft3d),
 c     >                         dcpl_mb(vpsi(1)))
-            if ((dosic).or.(dohfx))
+            if ((dosic).or.(dohfx).or.(field_exist.and.periodic_efield))
      >        call D3dB_rr_Sum2(1,dbl_mb(Hpsi_r(1)+(indx1-1)*n2ft3d),
      >                            dcpl_mb(vpsi(1)))
 
@@ -253,7 +265,7 @@ c     >                         dcpl_mb(vpsi(1)))
       call nwpw_timing_start(12)
 
       value = .true.
-      if ((dosic).or.(dohfx)) 
+      if ((dosic).or.(dohfx).or.periodic_efield) 
      >  value = value.and.BA_pop_stack(Hpsi_r(2))
       value = value.and.BA_pop_stack(vpsi(2))
       value = value.and.BA_pop_stack(vall(2))
@@ -262,6 +274,239 @@ c     >                         dcpl_mb(vpsi(1)))
       call nwpw_timing_end(12)
       return
       end
+
+
+
+
+*     *************************************
+*     *                                   *
+*     *             psi_H_vall            *
+*     *                                   *
+*     *************************************
+*
+*  This subroutine is used by block cg and bfgs minimizers.
+*
+*  This routine calculates 
+*
+*       Hpsi_k = KE*psi_k + Vnl*psi_k +VSic*psi_k + FFT[(vall)*psi_r]
+*
+*  where vall = iFFT[Vl+Vc] + Vfield
+*
+*   Entry - ispin,neq           - spin and number of electron in each spin
+*           psi_k,psi_r         - orbitals in k-space and r-space
+*           vall                - local psp in k-space
+*   Exit - Hpsi_k - gradient in k-space
+*
+      subroutine psi_H_vall(ispin,neq,
+     >                 psi_k,psi_r,
+     >                 vall,
+     >                 Hpsi_k)
+      implicit none
+      integer    ispin,neq(2)
+      complex*16 psi_k(*)
+      real*8     psi_r(*)
+      real*8     vall(*)
+      complex*16 Hpsi_k(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical dosic,dohfx,dodftu,meta,tamd,meta_gga
+      integer ms,n,n1(2),n2(2)
+      integer nx,ny,nz
+      !real*8  scal1,scal2
+      real*8  scal1,fion(3,1)
+
+*     **** tempory space ****
+c     complex*16 vall(nfft3d)
+c     complex*16 vpsi(nfft3d)
+      integer nfft3d,n2ft3d,npack1,indx1,indx2
+      integer vpsi(2),Hpsi_r(2)
+      logical value,done
+
+*     **** external functions ****
+      logical  pspw_SIC,pspw_SIC_relaxed,D3dB_rc_pfft3_queue_filled
+      logical  pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm,meta_found
+      logical  psp_pawexist,nwpw_meta_gga_on,tamd_found
+      real*8   lattice_omega
+      external pspw_SIC,pspw_SIC_relaxed,D3dB_rc_pfft3_queue_filled
+      external pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm,meta_found
+      external psp_pawexist,nwpw_meta_gga_on,tamd_found
+      external lattice_omega
+
+      dosic = (pspw_SIC().and.pspw_SIC_relaxed()) 
+      dohfx = (pspw_HFX().and.pspw_HFX_relaxed()) 
+      dodftu = psp_U_psputerm()
+      meta = meta_found()
+      tamd = tamd_found()
+      meta_gga = nwpw_meta_gga_on()
+      call Pack_npack(1,npack1)
+      
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+      call D3dB_nfft3d(1,nfft3d)
+      n2ft3d = 2*nfft3d
+
+      call nwpw_timing_start(12)
+      value = BA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
+      if ((dosic).or.(dohfx)) then
+         value = value.and.
+     >           BA_push_get(mt_dbl,(neq(1)+neq(2))*n2ft3d,
+     >                        'Hpsi_r',Hpsi_r(2),Hpsi_r(1))
+         call Parallel_shared_vector_zero(.false.,
+     >                                    (neq(1)+neq(2))*n2ft3d,
+     >                                    dbl_mb(Hpsi_r(1)))
+      end if
+      if (.not.value) 
+     >   call errquit('psi_H_vall:out of stack memory',0,MA_ERR)
+      call nwpw_timing_end(12)
+      
+
+      !scal2 = 1.0d0/lattice_omega()
+      scal1 = 1.0d0/dble(nx*ny*nz)
+      n1(1) = 1
+      n2(1) = neq(1)
+      n1(2) = neq(1) + 1
+      n2(2) = neq(1) + neq(2)
+
+*     *********************************************************
+*     **** add kinetic energy - Hpsi_k = Ke*psi_k ****
+*     *********************************************************
+      call ke(ispin,neq,psi_k,Hpsi_k)
+
+
+*     *********************************************************
+*     **** add non-local psp - Hpsi_k = Hpsi_k + Vnl*psi_k ****
+*     *********************************************************
+      !if (psp_pawexist()) call psp_set_vc(vc) !*** this should be where vc is generated ***
+      call v_nonlocal(ispin,neq,psi_k,Hpsi_k,.false.,fion,.false.,fion)
+
+
+*     *********************************************************
+*     **** add DFT+U correction -                             *
+*     *********************************************************
+      if (dodftu) then
+         call psp_U_v_nonlocal(ispin,neq,psi_k,Hpsi_k,.false.,fion,
+     >                         .false.,fion,.false.)
+      end if
+
+*     *********************************************************
+*     **** add Metadynamics potential                         *
+*     *********************************************************
+      if (meta) then
+         call meta_force(ispin,neq,psi_k,Hpsi_k,.false.,fion)
+      end if
+
+*     *********************************************************
+*     **** add TAMD potential                                 *
+*     *********************************************************
+      if (tamd) then
+         call tamd_force(ispin,neq,psi_k,Hpsi_k,.false.,fion)
+      end if
+
+*     ****************************************************************************
+*     **** add extra Meta GGA terms Hpsi_k -= 0.5 * grad dot (dfdtau*gradpsi) ****
+*     ****************************************************************************
+      if (meta_gga) then
+         call nwpw_meta_gga_Hpsik(ispin,neq,psi_k,Hpsi_k)
+      end if
+
+
+*     *******************************************************
+*     **** SIC corrections- Hpsi_r = Vsic*psi_r ****
+*     *******************************************************
+      if (dosic) then
+         call pspw_potential_SIC(ispin,psi_r,dbl_mb(Hpsi_r(1)))
+      end if
+
+*     *******************************************************
+*     **** HF exchange corrections- Hpsi_r = Vhfx*psi_r ****
+*     *******************************************************
+      if (dohfx) then
+         call pspw_potential_HFX(ispin,psi_r,dbl_mb(Hpsi_r(1)))
+      end if
+
+
+*     **************************************************************************
+*     **** add up k-space potentials, vall = scal2*vl + vc  (+ vcmp if paw) ****
+*     **************************************************************************
+      !call Pack_c_SMul(0,scal2,vl,dcpl_mb(vall(1)))
+      !call Pack_cc_Sum2(0,vc,dcpl_mb(vall(1)))
+      !if (psp_pawexist()) call psp_add_vcmp(dcpl_mb(vall(1)))
+      
+*     **********************************************
+*     **** fourier transform k-space potentials ****
+*     **********************************************
+      !call Pack_c_unpack(0,dcpl_mb(vall(1)))
+      !call D3dB_cr_fft3b(1,dcpl_mb(vall(1)))
+
+*     ******************************
+*     **** add v_field to vall  ****
+*     ******************************
+c      if (field_exist)
+c     >  call D3dB_rr_Sum(1,dcpl_mb(vall(1)),v_field,dcpl_mb(vall(1)))
+c      if (field_exist)
+c     >  call D3dB_rr_Sum2(1,v_field,dcpl_mb(vall(1)))
+
+
+*     *******************************************************
+*     **** Hpsi_k = Hpsi_k + FFT[(vall)*psi_r + Hpsi_r]  **** 
+*     ******************************************************* 
+      indx1 = 1
+      indx2 = 1
+      done  = .false.
+      do while (.not.done)
+         if (indx1.le.n2(ispin)) then
+            ms = 1
+            if (indx1.gt.n2(1)) ms = 2
+
+*           **** vpsi_r = (vall_r)*psi_r + Hpsi_r****
+            call D3dB_rr_Mul(1,vall(1+(ms-1)*n2ft3d),
+     >                       psi_r(1+(indx1-1)*n2ft3d),
+     >                       dcpl_mb(vpsi(1)))
+
+            if ((dosic).or.(dohfx))
+     >        call D3dB_rr_Sum2(1,dbl_mb(Hpsi_r(1)+(indx1-1)*n2ft3d),
+     >                            dcpl_mb(vpsi(1)))
+
+*           **** put vpsi_r in k-space ****
+            call D3dB_rc_pfft3f_queuein(1,dcpl_mb(vpsi(1)))
+            indx1 = indx1 + 1
+
+         end if
+
+         if ((D3dB_rc_pfft3_queue_filled()).or.
+     >       (indx1.gt.n2(ispin))) then
+            call D3dB_rc_pfft3f_queueout(1,dcpl_mb(vpsi(1)))
+
+*           **** add to Hpsi_k ****
+            call Pack_cc_daxpy(1,(-scal1),
+     >                           dcpl_mb(vpsi(1)),
+     >                           Hpsi_k(1+(indx2-1)*npack1))
+            indx2 = indx2 + 1
+         end if
+
+         done = ((indx1.gt.n2(ispin)).and.(indx2.gt.n2(ispin)))
+      end do
+ 
+
+      call nwpw_timing_start(12)
+      value = .true.
+      if ((dosic).or.(dohfx)) value=value.and.BA_pop_stack(Hpsi_r(2))
+      value = value.and.BA_pop_stack(vpsi(2))
+      if (.not.value) 
+     >  call errquit('psi_H_vall:popping stack memory',1,MA_ERR)
+      call nwpw_timing_end(12)
+
+      return
+      end
+
+
+
+
+
 
 
 *     *************************************
@@ -335,7 +580,8 @@ c     >                         dcpl_mb(vpsi(1)))
       if (dohfx) then
          value = value.and.
      >           BA_push_get(mt_dbl,n2ft3d,'Horb_r',Horb_r(2),Horb_r(1))
-         call dcopy(n2ft3d,0.0d0,0,dbl_mb(Horb_r(1)),1)
+         !call dcopy(n2ft3d,0.0d0,0,dbl_mb(Horb_r(1)),1)
+         call D3dB_r_Zero(1,dbl_mb(Horb_r(1)))
       end if
       if (.not. value) 
      >  call errquit('psi_Horb:out of stack memory',0, MA_ERR)
@@ -506,11 +752,13 @@ c     >                      dcpl_mb(vpsi(1)))
       if (dohfx) then
          value = value.and.
      >           BA_push_get(mt_dbl,n2ft3d,'Horb_r',Horb_r(2),Horb_r(1))
-         call dcopy(n2ft3d,0.0d0,0,dbl_mb(Horb_r(1)),1)
+         !call dcopy(n2ft3d,0.0d0,0,dbl_mb(Horb_r(1)),1)
+         call D3dB_r_Zero(1,dbl_mb(Horb_r(1)))
       end if
       if (.not. value) 
      >  call errquit('psi_Horb:out of stack memory',0, MA_ERR)
-      call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(vpsi(1)),1)
+      !call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(vpsi(1)),1)
+      call D3dB_c_Zero(1,dcpl_mb(vpsi(1)))
       call nwpw_timing_end(12)
       
       if (ms.eq.1) then
@@ -676,8 +924,10 @@ c     complex*16 vpsi(nfft3d)
      >        BA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
       if (.not. value) call errquit('psi_H:out of stack memory',0,
      &       MA_ERR)
-      call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(vall(1)),1)
-      call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(vpsi(1)),1)
+      !call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(vall(1)),1)
+      !call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(vpsi(1)),1)
+      call D3dB_c_Zero(1,dcpl_mb(vall(1)))
+      call D3dB_c_Zero(1,dcpl_mb(vpsi(1)))
       call nwpw_timing_end(12)
       
 

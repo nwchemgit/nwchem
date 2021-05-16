@@ -192,7 +192,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] Y Zhao, DG Truhlar, J.Chem.TheoryComput. 4, 1849 (2008)  , DOI: 
-C> <a href="http://dx.doi.org/10.1021/ct800246v "> 
+C> <a href="https://doi.org/10.1021/ct800246v "> 
 C> 10.1021/ct800246v </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -1020,7 +1020,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] Y Zhao, DG Truhlar, J.Chem.TheoryComput. 4, 1849 (2008)  , DOI: 
-C> <a href="http://dx.doi.org/10.1021/ct800246v "> 
+C> <a href="https://doi.org/10.1021/ct800246v "> 
 C> 10.1021/ct800246v </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -2670,7 +2670,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] Y Zhao, DG Truhlar, J.Chem.TheoryComput. 4, 1849 (2008)  , DOI: 
-C> <a href="http://dx.doi.org/10.1021/ct800246v "> 
+C> <a href="https://doi.org/10.1021/ct800246v "> 
 C> 10.1021/ct800246v </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 

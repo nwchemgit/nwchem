@@ -71,7 +71,7 @@ c                            3 (crystal)
 c     lattice_vectors(1:3,1:max_geom) = lengths of unit cell axes (angstrom)
 c     lattice_angles(1:3,1:max_geom)  = angles between unit cell axes (angstrom)
 c
-c     amatrix(1:3,1:3,1:max_geom) = matrix that transforms atomic fractional
+c     amatrix(1:3,1:4,1:max_geom) = matrix that transforms atomic fractional
 c                                   coords. to a Cartesian system in bohr.  This matrix
 c                                   is the unit matrix for molecular systems.
 c
@@ -79,7 +79,7 @@ c     bmatrix(1:3,1:3,1:max_geom) = matrix that transforms reciprocal lattice ve
 c                                   to a Cartesian system (a.u.).  This matrix
 c                                   is the unit matrix for molecular systems.
 c
-c     amatrix_inv(1:3,1:3,1:max_geom) = used to transform from atomic Cartesian
+c     amatrix_inv(1:3,1:4,1:max_geom) = used to transform from atomic Cartesian
 c                            coords. to fractional coordinates & can be used
 c                            to resolve the scalar lattice vectors into their
 c                            Cartesian components.  This matrix is the unit
@@ -162,9 +162,9 @@ c
      $     lattice_angles(1:3,1:max_geom),
      $     recip_lat_vectors(1:3,1:max_geom),
      $     recip_lat_angles(1:3,1:max_geom),
-     $     amatrix(3,3,max_geom),
+     $     amatrix(3,4,max_geom),
      $     bmatrix(3,3,max_geom),
-     $     amatrix_inv(3,3,max_geom),
+     $     amatrix_inv(3,4,max_geom),
      $     sym_ops(max_sym_ops*3,4,max_geom),
      $     metric_matrix(3,3,max_geom),
      $     volume_direct(max_geom),

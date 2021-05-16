@@ -7969,8 +7969,8 @@ c
       integer nprocs
       integer count
       integer next
-cc      integer nxtval
-cc      external nxtval
+cc      integer nxtask
+cc      external nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
 c 
@@ -8003,7 +8003,7 @@ c ----------------------------------------------
      1                ((ioalg.eq.6).and.(.not.fileisga(d_t2))))
       nprocs = ga_nnodes()
       count = 0
-cc      next = nxtval(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
@@ -8145,7 +8145,7 @@ c
                 endif
                 endif
                 endif
-cc                next = nxtval(nprocs)
+cc                next = nxtask(nprocs,1)
                 next = NXTASK(nprocs, 1)
               endif
               count = count + 1
@@ -8153,7 +8153,7 @@ cc                next = nxtval(nprocs)
           enddo
         enddo
       enddo
-cc      next = nxtval(-nprocs)
+cc      next = nxtask(-nprocs,1)
       next = NXTASK(-nprocs, 1)
       call ga_sync()
 c 
@@ -8174,7 +8174,7 @@ c ---------------------------------
      1                ((ioalg.eq.6).and.(.not.fileisga(d_t2))))
       nprocs = ga_nnodes()
       count = 0
-cc      next = nxtval(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
@@ -8336,7 +8336,7 @@ c
                 endif
                 endif
                 endif
-cc                next = nxtval(nprocs)
+cc                next = nxtask(nprocs,1)
                next = NXTASK(nprocs, 1)
               endif
               count = count + 1
@@ -8344,7 +8344,7 @@ cc                next = nxtval(nprocs)
           enddo
         enddo
       enddo
-cc      next = nxtval(-nprocs)
+cc      next = nxtask(-nprocs,1)
       next = NXTASK(-nprocs, 1)
       call ga_sync()
 c ----------------------------------------
@@ -8418,8 +8418,8 @@ c
       integer nprocs
       integer count
       integer next
-cc      integer nxtval
-cc      external nxtval
+cc      integer nxtask
+cc      external nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
 c 
@@ -8451,7 +8451,7 @@ c ----------------------------------------------
      1                ((ioalg.eq.6).and.(.not.fileisga(d_t2))))
       nprocs = ga_nnodes()
       count = 0
-cc      next = nxtval(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
@@ -8592,7 +8592,7 @@ c
                 endif
                 endif
                 endif
-cc                next = nxtval(nprocs)
+cc                next = nxtask(nprocs,1)
                next = NXTASK(nprocs, 1)
               endif
               count = count + 1
@@ -8600,7 +8600,7 @@ cc                next = nxtval(nprocs)
           enddo
         enddo
       enddo
-cc      next = nxtval(-nprocs)
+cc      next = nxtask(-nprocs,1)
       next = NXTASK(-nprocs, 1)
       call ga_sync()
 c 
@@ -8621,7 +8621,7 @@ c ---------------------------------
      1                ((ioalg.eq.6).and.(.not.fileisga(d_t2))))
       nprocs = ga_nnodes()
       count = 0
-cc      next = nxtval(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
@@ -8783,7 +8783,7 @@ c
                 endif
                 endif
                 endif
-cc                next = nxtval(nprocs)
+cc                next = nxtask(nprocs,1)
                next = NXTASK(nprocs, 1)
               endif
               count = count + 1
@@ -8791,7 +8791,7 @@ cc                next = nxtval(nprocs)
           enddo
         enddo
       enddo
-cc      next = nxtval(-nprocs)
+cc      next = nxtask(-nprocs,1)
       next = NXTASK(-nprocs, 1)
       call ga_sync()
 c ----------------------------------------
@@ -8822,7 +8822,7 @@ C     i0 ( p3 p4 h1 h2 )_vt + = -1 * P( 2 ) * Sum ( p5 ) * t ( p5 h1 )_t * v ( p
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-cc      INTEGER NXTVAL
+cc      INTEGER nxtask
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -8855,12 +8855,12 @@ cc      INTEGER NXTVAL
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-cc      EXTERNAL NXTVAL
+cc      EXTERNAL nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-cc      next = NXTVAL(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       DO p3b = noab+1,noab+nvab
       DO p4b = p3b,noab+nvab
@@ -8960,7 +8960,7 @@ cc      next = NXTVAL(nprocs)
       END IF
       END IF
       END IF
-cc      next = NXTVAL(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
@@ -8968,7 +8968,7 @@ cc      next = NXTVAL(nprocs)
       END DO
       END DO
       END DO
-cc      next = NXTVAL(-nprocs)
+cc      next = nxtask(-nprocs,1)
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
       RETURN
@@ -9003,7 +9003,7 @@ C     i0 ( p3 p4 h1 h2 )_vtt + = -1/2 * P( 2 ) * Sum ( h5 ) * t ( p3 h5 )_t * i1
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-cc      INTEGER NXTVAL
+cc      INTEGER nxtask
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -9036,12 +9036,12 @@ cc      INTEGER NXTVAL
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-cc      EXTERNAL NXTVAL
+cc      EXTERNAL nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-cc      next = NXTVAL(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       DO p3b = noab+1,noab+nvab
       DO p4b = noab+1,noab+nvab
@@ -9128,7 +9128,7 @@ cc      next = NXTVAL(nprocs)
       END IF
       END IF
       END IF
-cc      next = NXTVAL(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
@@ -9136,7 +9136,7 @@ cc      next = NXTVAL(nprocs)
       END DO
       END DO
       END DO
-cc      next = NXTVAL(-nprocs)
+cc      next = nxtask(-nprocs,1)
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
       RETURN
@@ -9230,7 +9230,7 @@ C     i1 ( h5 p3 h1 h2 )_vt + = -2 * P( 2 ) * Sum ( p6 ) * t ( p6 h1 )_t * v ( h
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-cc      INTEGER NXTVAL
+cc      INTEGER nxtask
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -9263,12 +9263,12 @@ cc      INTEGER NXTVAL
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-cc      EXTERNAL NXTVAL
+cc      EXTERNAL nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-cc      next = NXTVAL(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       DO p3b = noab+1,noab+nvab
       DO h5b = 1,noab
@@ -9364,7 +9364,7 @@ cc      next = NXTVAL(nprocs)
       END IF
       END IF
       END IF
-cc      next = NXTVAL(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
@@ -9372,7 +9372,7 @@ cc      next = NXTVAL(nprocs)
       END DO
       END DO
       END DO
-cc      next = NXTVAL(-nprocs)
+cc      next = nxtask(-nprocs,1)
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
       RETURN
@@ -9405,7 +9405,7 @@ cjb
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-cc      INTEGER NXTVAL
+cc      INTEGER nxtask
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -9435,12 +9435,12 @@ cc      INTEGER NXTVAL
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-cc      EXTERNAL NXTVAL
+cc      EXTERNAL nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-cc      next = NXTVAL(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       DO p3b = noab+1,noab+nvab
       DO p4b = noab+1,noab+nvab
@@ -9543,7 +9543,7 @@ cc      next = NXTVAL(nprocs)
       END IF
       END IF
       END IF
-cc      next = NXTVAL(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       END IF
       count = count + 1
@@ -9551,7 +9551,7 @@ cc      next = NXTVAL(nprocs)
       END DO
       END DO
       END DO
-cc      next = NXTVAL(-nprocs)
+cc      next = nxtask(-nprocs,1)
       next = NXTASK(-nprocs, 1)
       call GA_SYNC()
       RETURN
@@ -9581,7 +9581,7 @@ ckbn blocked for now      INTEGER d_b
 ckbn blocked for now      INTEGER k_b_offset
 ckbn blocked for now      INTEGER d_c
 ckbn blocked for now      INTEGER k_c_offset
-ckbn blocked for nowcc      INTEGER NXTVAL
+ckbn blocked for nowcc      INTEGER nxtask
 ckbn blocked for now      INTEGER next
 ckbn blocked for now      INTEGER nprocs
 ckbn blocked for now      INTEGER count
@@ -9611,12 +9611,12 @@ ckbn blocked for now      INTEGER l_b
 ckbn blocked for now      INTEGER k_b
 ckbn blocked for now      INTEGER l_c
 ckbn blocked for now      INTEGER k_c
-ckbn blocked for nowcc      EXTERNAL NXTVAL
+ckbn blocked for nowcc      EXTERNAL nxtask
 ckbn blocked for now      INTEGER NXTASK
 ckbn blocked for now      EXTERNAL NXTASK
 ckbn blocked for now      nprocs = GA_NNODES()
 ckbn blocked for now      count = 0
-ckbn blocked for nowcc      next = NXTVAL(nprocs)
+ckbn blocked for nowcc      next = nxtask(nprocs,1)
 ckbn blocked for now      next = NXTASK(nprocs, 1)
 ckbn blocked for now      DO p3b = noab+1,noab+nvab
 ckbn blocked for now      DO p4b = noab+1,noab+nvab
@@ -9719,7 +9719,7 @@ ckbn blocked for now     +11,MA_ERR)
 ckbn blocked for now      END IF
 ckbn blocked for now      END IF
 ckbn blocked for now      END IF
-ckbn blocked for nowcc      next = NXTVAL(nprocs)
+ckbn blocked for nowcc      next = nxtask(nprocs,1)
 ckbn blocked for now      next = NXTASK(nprocs, 1)
 ckbn blocked for now      END IF
 ckbn blocked for now      count = count + 1
@@ -9727,7 +9727,7 @@ ckbn blocked for now      END DO
 ckbn blocked for now      END DO
 ckbn blocked for now      END DO
 ckbn blocked for now      END DO
-ckbn blocked for nowcc      next = NXTVAL(-nprocs)
+ckbn blocked for nowcc      next = nxtask(-nprocs,1)
 ckbn blocked for now      next = NXTASK(-nprocs, 1)
 ckbn blocked for now      call GA_SYNC()
 ckbn blocked for now      RETURN

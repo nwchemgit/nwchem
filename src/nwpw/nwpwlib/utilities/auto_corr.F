@@ -16,11 +16,13 @@ c
 *
 *  Updated: 5-8-2002
 
-      subroutine velocity_autocorrelation(filename)
+      subroutine velocity_autocorrelation(rtdb,filename)
       implicit none
+      integer rtdb
       character*(*) filename
 
 #include "bafdecls.fh"
+#include "btdb.fh"
 #include "errquit.fh"
 
 
@@ -41,6 +43,7 @@ c
       real*8  x,y,z
       real*8  v1,v2,v3
       real*8  unita(3,3)
+      character*80  tfilename
       character*255 full_filename1
       character*255 full_filename2
       character*2 tag2
@@ -50,10 +53,20 @@ c
 *     *** synchronization ***
       call ga_sync()
 
-      call util_file_name_noprefix('VEL_CORRELATION',.false.,
+      if (.not.btdb_cget(rtdb,
+     >                   'nwpw:velocity_correlation_filename',
+     >                   1,tfilename))
+     >   call util_file_prefix('velocity_correlation',tfilename)
+
+      call util_file_name_noprefix(tfilename,.false.,
      >                             .false.,
      >                             full_filename1)
-      call util_file_name_noprefix('POWER_SPECTRUM',.false.,
+
+      if (.not.btdb_cget(rtdb,
+     >                   'nwpw:power_spectrum_filename',
+     >                   1,tfilename))
+     >   call util_file_prefix('power_spectrum',tfilename)
+      call util_file_name_noprefix(tfilename,.false.,
      >                             .false.,
      >                             full_filename2)
 
@@ -735,14 +748,15 @@ c      call dscal(4*nframes,x,dcpl_mb(vk(1)),1)
 *    doesn't use so much memory
 *
 
-      subroutine velocity_spectrum(filename)
+      subroutine velocity_spectrum(rtdb,filename)
       implicit none
+      integer rtdb
       character*(*) filename
 
 #include "bafdecls.fh"
+#include "btdb.fh"
 #include "stdio.fh"
 #include "errquit.fh"
-
 
       real*8 c,auTOsec
       parameter (c=2.996d+10,auTOsec=2.41889d-17)
@@ -761,7 +775,8 @@ c      call dscal(4*nframes,x,dcpl_mb(vk(1)),1)
       real*8  x,y,z
       real*8  v1,v2,v3
       real*8  unita(3,3)
-      character*255 full_filename1
+      character*80  tfilename
+      !character*255 full_filename1
       character*255 full_filename2
       character*2 tag2
       character*4 tag4
@@ -776,10 +791,15 @@ c      call dscal(4*nframes,x,dcpl_mb(vk(1)),1)
 *     *** synchronization ***
       call ga_sync()
 
-      call util_file_name_noprefix('VEL_CORRELATION',.false.,
-     >                             .false.,
-     >                             full_filename1)
-      call util_file_name_noprefix('VELOCITY_SPECTRUM',.false.,
+c      call util_file_name_noprefix('VEL_CORRELATION',.false.,
+c     >                             .false.,
+c     >                             full_filename1)
+
+      if (.not.btdb_cget(rtdb,
+     >                   'nwpw:velocity_spectrum_filename',
+     >                   1,tfilename))
+     >   call util_file_prefix('velocity_spectrum',tfilename)
+      call util_file_name_noprefix(tfilename,.false.,
      >                             .false.,
      >                             full_filename2)
 

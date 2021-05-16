@@ -456,10 +456,12 @@ c     real*8 tg(nfft3d)
       integer tg_indx,tg_hndl
       common / tg_block / tg_indx,tg_hndl
 
+      real*8  sum,elocal
+      common /eelectron_ejtmp/ sum,elocal
+
 *     **** local variables ****
       logical value
       integer k,n
-      real*8  sum
       real*8  x,cm,dm,Ep,cm2(1)
       integer tmp1(2)
 
@@ -470,29 +472,28 @@ c     real*8 tg(nfft3d)
 c      integer  psi_ispin,psi_ne
 c      external psi_ispin,psi_ne
 
-c      value = BA_push_get(mt_dcpl,npack,'tmp1',tmp1(2),tmp1(1))
-c      if (.not. value) call errquit('out of stack memory',0)
+      value = BA_push_get(mt_dcpl,npack,'tmp1',tmp1(2),tmp1(1))
+      if (.not. value) call errquit('out of stack memory',0)
 
-c      sum = lattice_wggcut()
-c      do n=1,neall
-c         call Pack_tc_Mul(1,dbl_mb(tg_indx),psi(1,n),dcpl_mb(tmp1(1)))
-c         call Pack_cc_dot(1,psi(1,n),dcpl_mb(tmp1(1)),sum)
-c         do k=1,npack
-c           x = dbl_mb(tg_indx+k-1)
-c           x = x*dconjg(psi(k,n))*psi(k,n)
-c           x = x/sum
-c
-c           cm = 27.0d0+(18.0d0+(12.0d0+8.0d0*x)*x)*x
-c           dm = (cm + 16.0d0* x**4)
-c           cm = cm/dm
-c
-cc          x = 2.0d0*dabs(dbl_mb(tg_indx+k-1)/sum)
-cc          cm = dexp(-0.15d0*x*x) 
-cc          cm = dexp(-0.5d0*(x-0.5)**2) 
-c
-c           gradk(k,n) = gradk(k,n)*(cm)
-c         end do
-c      end do
+*     **** My preconditioner ****
+      do n=1,neall
+         call Pack_tc_Mul(1,dbl_mb(tg_indx),psi(1,n),dcpl_mb(tmp1(1)))
+         call Pack_cc_dot(1,psi(1,n),dcpl_mb(tmp1(1)),sum)
+CDIR$ NOVECTOR
+!$OMP DO
+         do k=1,npack
+           x = dbl_mb(tg_indx+k-1)
+           x = x*dconjg(psi(k,n))*psi(k,n)
+           x = x/sum
+
+           cm = 27.0d0+(18.0d0+(12.0d0+8.0d0*x)*x)*x
+           dm = (cm + 16.0d0* x**4)
+           cm = cm/dm
+
+           gradk(k,n) = gradk(k,n)*(cm)
+         end do
+!$OMP END DO
+      end do
 
 
 c*     **** Preconditioner of Tassone, Mauri, and Car ****
@@ -514,29 +515,29 @@ c         end if
 c      end do
 
  
-*     **** My preconditioner ****
-      ispin = 2
-      ne(1) = 1
-      ne(2) = 0
-      do n=1,neall
-c        call ke_ave(ispin,ne,gradk(1,n),Ep)
-c        write(*,*) "n,E(R)=",n,Ep,control_Ep()-50*Ep
-c        Ep =  control_Ep() - 15*Ep
-        Ep =  control_Ep()
-        cm = 1.0d0/Ep
-CDIR$ NOVECTOR
-!$OMP DO
-        do k=1,npack
-          x = -dbl_mb(tg_indx+k-1)
-          dm = x*cm
-          if (x.gt.Ep) then
-          gradk(k,n) = gradk(k,n)/dm
-          end if
-        end do
-!$OMP END DO
-      end do
-
-*     **** preconditioner #5 ****
+c*     **** My preconditioner ****
+c      ispin = 2
+c      ne(1) = 1
+c      ne(2) = 0
+c      do n=1,neall
+cc        call ke_ave(ispin,ne,gradk(1,n),Ep)
+cc        write(*,*) "n,E(R)=",n,Ep,control_Ep()-50*Ep
+cc        Ep =  control_Ep() - 15*Ep
+c        Ep =  control_Ep()
+c        cm = 1.0d0/Ep
+cCDIR$ NOVECTOR
+c!$OMP DO
+c        do k=1,npack
+c          x = -dbl_mb(tg_indx+k-1)
+c          dm = x*cm
+c          if (x.gt.Ep) then
+c          gradk(k,n) = gradk(k,n)/dm
+c          end if
+c        end do
+c!$OMP END DO
+c      end do
+c
+c*     **** preconditioner #5 ****
 c      ispin = 2
 c      ne(1) = 1
 c      ne(2) = 0
@@ -552,8 +553,8 @@ c           gradk(k,n) = gradk(k,n)*cm
 c        end do
 c      end do
 
-c      value = BA_pop_stack(tmp1(2))
-c      if (.not. value) call errquit('error popping stack memory',0)
+      value = BA_pop_stack(tmp1(2))
+      if (.not. value) call errquit('error popping stack memory',0)
 
       return
       end

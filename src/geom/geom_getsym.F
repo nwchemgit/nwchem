@@ -25,47 +25,55 @@ c
 c
       logical oprint,oprint_sym
       integer ncenter_before_auto
-      integer nata              ! num. of unique atoms 
+      integer nata              ! num. of unique atoms
+      integer itries
+      logical g_loaded
       integer k_coordsym,l_coordsym,nops
       character*16 groupname
 c
       oprint=ga_nodeid().eq.0
       oprint_sym=util_print('autosym symmetry information',
      ,     print_high).and.oprint
+      itries=0
+      g_loaded=.false.
+ 2020    continue
       if(oautosym) then
 c     
 c     ----- detect symmetry -----
 c     
-            if (.not. geom_cart_get(geom,ncenter,tags,coords,charge))
-     $           call errquit('geom_input: geom_cart_get failed', 0,
+         if(.not.g_loaded) then
+         if (.not. geom_cart_get(geom,ncenter,tags,coords,charge))
+     $           call errquit('geom_getsym0: geom_cart_get failed', 0,
      &       GEOM_ERR)
             if (.not. geom_vel_get(geom, velocities))
-     $        call errquit('geom_input: geom_vel_get failed', 0,
-     &       GEOM_ERR)
+     $        call errquit('geom_getsym0: geom_vel_get failed', 0,
+     &           GEOM_ERR)
+            endif
+            g_loaded=.true.
             ncenter_before_auto = ncenter
             call geom_auto_sym(rtdb,geom,coords,charge,tags,atomct,
      $           ncenter,threquiv,groupname,velocities)
             if (geom_group_set(geom,groupname)) then
                if (.not.geom_cart_set(geom,ncenter,tags,coords,charge))
-     $              call errquit('geom_input: geom_cart_set failed', 0,
+     $             call errquit('geom_getsym0: geom_cart_set failed', 0,
      &       GEOM_ERR)
                if (.not. geom_vel_set(geom, velocities))
-     $              call errquit('geom_input: geom_vel_set failed', 0,
+     $              call errquit('geom_getsym0: geom_vel_set failed', 0,
      &       GEOM_ERR)
                if (ncenter_before_auto .ne. ncenter) call errquit
-     $              ('geom_input: autosym bug : number of atoms wrong',
+     $             ('geom_getsym0: autosym bug : number of atoms wrong',
      $              ncenter, GEOM_ERR)
             else
                write(LuOut,*) ' autosym detected unknown group ', 
      &                        groupname
-               call errquit('geom_input: autosym: invalid group',0,
+               call errquit('geom_getsym0: autosym: invalid group',0,
      &       INPUT_ERR)
             endif
          endif
 
 c     Apply system and symmetry info to the list of
 c     unique centers build mapping tables set up coord lists
-c     
+c
          nata=ncenter
          call sym_nwc(geom,rtdb,nata,oprint_sym,scale,threquiv,nops)
 c     
@@ -75,13 +83,27 @@ c     don't agree on the orientation of point group elements
 c     
          if (oautosym) then
             if (.not. geom_ncent(geom,ncenter)) call errquit
-     $           ('geom_input: geom_cent?',0, GEOM_ERR)
+     $           ('geom_getsym0: geom_cent?',0, GEOM_ERR)
             if (ncenter_before_auto .gt. ncenter) call errquit
-     $           ('geom_input: autosym bug : too few atoms',ncenter,
+     $           ('geom_getsym0: autosym bug : too few atoms',ncenter,
      &       GEOM_ERR)
+#if 0            
             if (ncenter_before_auto .ne. ncenter) call errquit
-     $           ('geom_input: autosym bug : too many atoms',ncenter,
+     $           ('geom_getsym0: autosym bug : too many atoms',ncenter,
      &       GEOM_ERR)
+#else
+            if (ncenter_before_auto .ne. ncenter) then
+               threquiv=threquiv*0.1d0
+               itries=itries+1
+            if (itries .gt. 4) call errquit
+     $           ('geom_getsym0: too many tries',itries,
+     &       GEOM_ERR)
+            ncenter=ncenter_before_auto
+            if (oprint)
+     W        write(luout,*) ' decreasing threquiv to ',threquiv
+               goto 2020
+            endif
+#endif
          endif
 c     
          if (oprint_sym.and.(isys.eq.0)) call sym_print_all(geom,
@@ -117,7 +139,7 @@ c
 c
       threquiv=1d-2 ! hardwired for now
       if (.not. geom_get_user_scale(geom,scale))
-     $     call errquit('geom_input: failed getting user scale',0,
+     $     call errquit('geom_getsym: failed getting user scale',0,
      &       GEOM_ERR)
       oautosym=.true.
 c

@@ -36,7 +36,7 @@ c
        
       integer vall_in(2),vall_out(2),vall_junk(2),rho_in(2)
       real*8  E0,dE0,deltae_old,Ein,deltae_history(10)
-      real*8  ks_deltae,deltav,dV,deltav_old,diis_error
+      real*8  ks_deltae,deltav,dV,deltav_old,diis_error,e00
       integer nx,ny,nz,stalled_count,sd_count
 
 
@@ -46,15 +46,18 @@ c
       !common / cgsd_block / Enew,Eold,alpha
 
       integer it,it_in,i,ispin,bfgscount,icount,sd_it,cg_it
+      integer maxit_orbs
 
       logical value,precondition,done,stalled,deltav_bad(4),oprint
+      logical ks_block
       integer n2ft3d,n2ft3d_map
       !real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
       !real*8  e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
       real*8 e_lj,e_q,e_spring
       real*8 ehfx,phfx
       
-
+      logical cosmo_on,cosmo1_on,V_APC_on,field_exist
+      real*8  eapc,papc
 
 *     **** external functions ****
       logical control_print
@@ -98,6 +101,10 @@ c
       real*8   pspw_charge_Energy_ion,pspw_charge_Energy_charge
       external pspw_charge_found,control_precondition,pspw_HFX
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
+      logical  pspw_Efield_found
+      external pspw_Efield_found
+      real*8   pspw_Efield_Energy_ion
+      external pspw_Efield_Energy_ion
 
       real*8   psi_1_noupdate_energy,psi_eigenvalue
       external psi_1_noupdate_energy,psi_eigenvalue
@@ -108,11 +115,24 @@ c
       real*8   psi_1meta_gga_pxc,ion_disp_energy
       external psi_1meta_gga_pxc,ion_disp_energy
 
+      logical  nwpw_cosmo_on,nwpw_cosmo1_on,pspw_V_APC_on
+      external nwpw_cosmo_on,nwpw_cosmo1_on,pspw_V_APC_on
+      real*8   psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
+      external psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
+
+      integer  control_ks_maxit_orb,control_ks_maxit_orbs
+      external control_ks_maxit_orb,control_ks_maxit_orbs
+      integer  control_diis_histories
+      external control_diis_histories
 
    
       Ein = E(1)
       call Parallel_taskid(taskid)
       oprint = (taskid.eq.MASTER).and.control_print(print_medium)
+      cosmo_on  = nwpw_cosmo_on()
+      cosmo1_on = nwpw_cosmo1_on()
+      V_APC_on  = pspw_V_APC_on()
+      field_exist = pspw_charge_found().or.pspw_Efield_found()
 
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
@@ -127,6 +147,7 @@ c
         sd_it = 10
         cg_it = 10
       end if
+      maxit_orbs = control_ks_maxit_orbs() 
       tole  = control_tole()
       tolc  = control_tolc()
       precondition = control_precondition()
@@ -159,10 +180,20 @@ c
      >                     'rho_in',rho_in(2),rho_in(1))
       if (.not. value) 
      >   call errquit('bybminimize:out of stack memory',0,0)
-      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(vall_in(1)),1)
-      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(vall_out(1)),1)
-      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(vall_junk(1)),1)
-      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(rho_in(1)),1)
+c      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(vall_in(1)),1)
+c      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(vall_out(1)),1)
+c      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(vall_junk(1)),1)
+c      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(rho_in(1)),1)
+      call Parallel_shared_vector_zero(.false.,2*n2ft3d,
+     >                                 dbl_mb(vall_in(1)))
+      call Parallel_shared_vector_zero(.false.,2*n2ft3d,
+     >                                 dbl_mb(vall_out(1)))
+      call Parallel_shared_vector_zero(.false.,2*n2ft3d,
+     >                                 dbl_mb(vall_junk(1)))
+      call Parallel_shared_vector_zero(.true.,2*n2ft3d,
+     >                                 dbl_mb(rho_in(1)))
+
+
 
 *     **** ion-ion energy ****
       eion = 0.0d0
@@ -197,10 +228,19 @@ c
   
 *     **** iniitialize SCF Mixing ****    
       call nwpw_scf_mixing_init(control_scf_algorithm(),alpha,
-     >                5,ispin,n2ft3d,dbl_mb(vall_out(1)))
+     >                          control_diis_histories(),
+     >                          ispin,n2ft3d,dbl_mb(vall_out(1)))
 
 *     **** iniitialize RMM-DIIS ****
       if (control_ks_algorithm().eq.1) call pspw_rmmdiis_init(5)
+
+*     **** iniitialize blocked cg ****
+      ks_block = .false.
+      if (control_ks_algorithm().eq.-1)  then
+         ks_block = .true.
+         call linesearch_maxiter_set(control_ks_maxit_orb())
+      end if
+
 
 
 *     ***** diis loop ****
@@ -208,10 +248,20 @@ c
  2    it   = it + 1
       
 *     **** diaganolize KS matrix ****
-      call psi_KS_update(1,
-     >                   control_ks_algorithm(),
-     >                   precondition,
-     >                   ks_deltae)
+      if (ks_block) then
+         call psi_KS_block_update(e00,deltae,it,maxit_orbs,ks_deltae)
+      else
+         call psi_KS_update(1,
+     >                      control_ks_algorithm(),
+     >                      precondition,
+     >                      ks_deltae)
+      end if
+
+c      call psi_KS_update(1,
+c     >                   control_ks_algorithm(),
+c     >                   precondition,
+c     >                   ks_deltae)
+
 
       call rho_1to2()
       Eold = Enew
@@ -223,17 +273,27 @@ c
       call electron_get_vall(dbl_mb(vall_in(1)))
 
 *     **** compute deltaV ****
-      call dcopy(ispin*n2ft3d_map,
-     >           dbl_mb(vall_in(1)),1,
-     >           dbl_mb(vall_junk(1)),1)
-      call daxpy(ispin*n2ft3d_map,
+c      call dcopy(ispin*n2ft3d_map,
+c     >           dbl_mb(vall_in(1)),1,
+c     >           dbl_mb(vall_junk(1)),1)
+      call Parallel_shared_vector_copy(.true.,ispin*n2ft3d,
+     >                                 dbl_mb(vall_in(1)),
+     >                                 dbl_mb(vall_junk(1)))
+      call DAXPY_OMP(ispin*n2ft3d_map,
      >              (-1.0d0),
      >              dbl_mb(vall_out(1)),1,
      >              dbl_mb(vall_junk(1)),1)
-      deltav = ddot(ispin*n2ft3d_map,
-     >                 dbl_mb(vall_junk(1)),1,
-     >                 dbl_mb(vall_junk(1)),1)
-      call D3dB_SumAll(deltav)
+      call D3dB_rr_dot(1,dbl_mb(vall_junk(1)),
+     >                   dbl_mb(vall_junk(1)),deltav)
+      if (ispin.gt.1) then
+         call D3dB_rr_dot(1,dbl_mb(vall_junk(1)+n2ft3d),
+     >                      dbl_mb(vall_junk(1)+n2ft3d),e00)
+         deltav = deltav + e00
+      end if
+c      deltav = ddot(ispin*n2ft3d_map,
+c     >                 dbl_mb(vall_junk(1)),1,
+c     >                 dbl_mb(vall_junk(1)),1)
+c      call D3dB_SumAll(deltav)
       deltav = deltav*dV
       
 
@@ -261,23 +321,32 @@ c     >    (.not.stalled          ))) then
 c         if ((Enew.gt.Eold).or.(dabs(Enew-Eold).gt.1.0d-1)) go to 30
          if ((Enew.gt.Eold).and.(sd_count.lt.MAX_SD_COUNT)) go to 30
 
-         call dcopy(ispin*n2ft3d,
-     >              dbl_mb(vall_out(1)),1,
-     >              dbl_mb(vall_junk(1)),1)
-
+c         call dcopy(ispin*n2ft3d,
+c     >              dbl_mb(vall_out(1)),1,
+c     >              dbl_mb(vall_junk(1)),1)
+         call Parallel_shared_vector_copy(.true.,ispin*n2ft3d,
+     >                                    dbl_mb(vall_out(1)),
+     >                                    dbl_mb(vall_junk(1)))
          call electron_gen_vall()
          call electron_get_vall(dbl_mb(vall_out(1))) 
          call nwpw_scf_mixing_reset(dbl_mb(vall_out(1)))
 
 
-         call daxpy(ispin*n2ft3d,
-     >              (-1.0d0),
-     >              dbl_mb(vall_out(1)),1,
-     >              dbl_mb(vall_junk(1)),1)
-         deltav = ddot(ispin*n2ft3d,
-     >                 dbl_mb(vall_junk(1)),1,
-     >                 dbl_mb(vall_junk(1)),1)
-         call D3dB_SumAll(deltav)
+         call DAXPY_omp(ispin*n2ft3d,
+     >                  (-1.0d0),
+     >                  dbl_mb(vall_out(1)),1,
+     >                  dbl_mb(vall_junk(1)),1)
+         call D3dB_rr_dot(1,dbl_mb(vall_junk(1)),
+     >                   dbl_mb(vall_junk(1)),deltav)
+         if (ispin.gt.1) then
+            call D3dB_rr_dot(1,dbl_mb(vall_junk(1)+n2ft3d),
+     >                         dbl_mb(vall_junk(1)+n2ft3d),e00)
+            deltav = deltav + e00
+         end if
+c         deltav = ddot(ispin*n2ft3d,
+c     >                 dbl_mb(vall_junk(1)),1,
+c     >                 dbl_mb(vall_junk(1)),1)
+c         call D3dB_SumAll(deltav)
          deltav = deltav*dV
 
          call psi_1gen_hml()
@@ -394,12 +463,43 @@ c      call psi_check()
 
       end if
 
-*     **** get pspw_charge  energies ****
-      if (pspw_charge_found()) then
-         E(19)  = psi_1v_field()
-         E(20)  = pspw_charge_Energy_ion()
-         E(21)  = pspw_charge_Energy_charge()
-         E(1)   = E(1) + E(20) + E(21)
+*     **** COSMO terms ****
+      if (cosmo_on) then
+
+         !*** cosmo1 ****
+         if (cosmo1_on) then
+            E(46) = psi_1vl_cosmo()
+            E(47) = nwpw_cosmo_EQionq()
+            E(48) = nwpw_cosmo_Eqq()
+
+         !*** cosmo2 ****
+         else
+            call electron_apc_energies(eapc,papc)
+            E(22) = eapc
+            E(23) = papc
+            E(46) = eapc
+            E(47) = nwpw_cosmo_EQionq() !** E(Qion|q)
+            E(48) = nwpw_cosmo_Eqq()    !** E(q|q)
+
+            !E(1)  = E(1) + E(22) - E(23) + E(47) + E(48)
+            E(1)  = E(1) + E(22) - E(23) !*** probably NOT CORRECT ***
+         end if
+
+      else if (V_APC_on) then
+         call electron_apc_energies(eapc,papc)
+         E(22) = eapc
+         E(23) = papc
+         E(1)  = E(1) + eapc - papc !*** probably NOT CORRECT ***
+      end if
+
+
+*     **** get pspw_charge pspw_Efield energies ****
+      if (field_exist) then
+         E(49)  = psi_1v_field()
+         E(50)  = pspw_charge_Energy_ion()
+     >          + pspw_Efield_Energy_ion()
+         E(51)  = pspw_charge_Energy_charge()
+         E(1)   = E(1) + E(50) + E(51)
       end if
 
 *     **** HFX terms ****

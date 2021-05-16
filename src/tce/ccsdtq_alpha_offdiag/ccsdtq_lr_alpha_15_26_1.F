@@ -16,7 +16,7 @@ C     i2 ( h5 h6 p13 p1 p2 p3 )_ytra + = -1 * Sum ( h11 h12 p9 ) * tra ( p9 p13 
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER nxtask
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -62,11 +62,11 @@ C     i2 ( h5 h6 p13 p1 p2 p3 )_ytra + = -1 * Sum ( h11 h12 p9 ) * tra ( p9 p13 
       INTEGER l_c
       INTEGER k_c
       DOUBLE PRECISION FACTORIAL
-      EXTERNAL NXTVAL
+      EXTERNAL nxtask
       EXTERNAL FACTORIAL
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       DO p13b = noab+1,noab+nvab
       DO h5b = 1,noab
       DO h6b = h5b,noab
@@ -432,7 +432,7 @@ C     i2 ( h5 h6 p13 p1 p2 p3 )_ytra + = -1 * Sum ( h11 h12 p9 ) * tra ( p9 p13 
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       END IF
       count = count + 1
       END DO
@@ -441,7 +441,7 @@ C     i2 ( h5 h6 p13 p1 p2 p3 )_ytra + = -1 * Sum ( h11 h12 p9 ) * tra ( p9 p13 
       END DO
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = nxtask(-nprocs,1)
       call GA_SYNC()
       RETURN
       END

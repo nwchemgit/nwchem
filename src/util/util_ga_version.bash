@@ -23,7 +23,13 @@
 # the appropriate Fortran file in the right location.
 #
 
+if [[ -z "${NWCHEM_TOP}" ]]; then
+    DIRUTIL=`dirname "$0"`
+    MYPWD=`pwd`
+    NWCHEM_TOP=`echo ${MYPWD}/${DIRUTIL} | sed -e 's/\/src.*//' `
+fi
 # check if EXTERNAL_GA_PATH is set
+
     revision="N/A"
 if [[ -z "${EXTERNAL_GA_PATH}" ]]; then
     # try to guess from tools/build

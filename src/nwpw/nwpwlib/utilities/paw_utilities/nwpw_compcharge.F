@@ -1154,7 +1154,7 @@ c     >           dbl_mb(dE_Qlm(1)),1)
       value = value.and.
      >        BA_push_get(mt_dcpl,npack0,'glm_cmp_smooth',
      >                    glm_cmp_smooth(2),glm_cmp_smooth(1))
-      value = value.and. BA_push_get(mt_dbl,8,'tmpdot',tmp(2),tmp(1))
+      value = value.and.BA_push_get(mt_dbl,8,'tmpdot',tmp(2),tmp(1))
       call Parallel_shared_vector_zero(.true.,8,dbl_mb(tmp(1)))
       if (move) then
          value = value.and.
@@ -3172,16 +3172,183 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
 
 
 
+********************************* gintegrals tester **************************************
 
 
+*     ************************************************
+*     *                                              *
+*     *           nwpw_gintegrals_tester             *
+*     *                                              *
+*     ************************************************
 
-*     *************************************************
-*     *                                               *
-*     *         nwpw_gintegrals_set_gcount            *
-*     *                                               *
-*     *************************************************
+      subroutine nwpw_gintegrals_tester()
+      implicit none
 
-      subroutine nwpw_gintegrals_set_gcount()
+      integer l1,m1,l2,m2,i,j,k
+      real*8 W4,sigma
+      real*8 R1(3),R2(3),Rab(3)
+      complex*16 CW4,CWpp,CW4p,CW4m
+      complex*16 CW4pp,CW4pm,CW4mp,CW4mm,CWW
+
+*     **** external functions ****
+      real*8   nwpw_WGaussian,nwpw_UGaussian
+      external nwpw_WGaussian,nwpw_UGaussian
+      complex*16 paw_mult_interaction
+      external   paw_mult_interaction
+      complex*16 nwpw_CWGaussian
+      external   nwpw_CWGaussian
+
+      l1 = 1
+      m1 = 0
+      l2 = 2
+      m2 = 1
+
+      do l1=0,4
+      do m1=-l1,l1
+      do l2=0,4
+      do m2=-l2,l2
+
+c      l1 = 0
+c      m1 = 0
+c      l2 = 1
+c      m2 = -1
+
+      sigma = 6.0d0
+
+      do i= 1,1
+      do j= 1,1
+      do k= 1,1
+      if ((i.ne.0).or.(j.ne.0).or.(k.ne.0)) then
+
+      R1(1) = 0.0d0
+      R1(2) = 0.0d0
+      R1(3) = 0.0d0
+
+      R2(1) = 5.0d0*i
+      R2(2) = 5.0d0*j
+      R2(3) = 5.0d0*k
+
+      Rab(1) = R1(1) - R2(1)
+      Rab(2) = R1(2) - R2(2)
+      Rab(3) = R1(3) - R2(3)
+
+      W4   = nwpw_WGaussian(l1,m1,sigma,l2,m2,sigma,Rab)
+      CWpp = nwpw_CWGaussian(l1,m1,sigma,l2,m2,sigma,Rab)
+      CWW  = paw_mult_interaction(l1,m1,sigma,R1,l2, m2,sigma,R2)
+
+      if ((m1.eq.0).and.(m2.eq.0)) then
+         !CW4 = paw_mult_interaction(l1,m1,sigma,R1,l2, m2,sigma,Rab)
+         CW4 = nwpw_CWGaussian(l1,m1,sigma,l2, m2,sigma,Rab)
+
+      else if ((m1.eq.0).and.(m2.lt.0)) then
+         !CW4p = paw_mult_interaction(l1,m1,sigma,R1,l2, m2,sigma,R2)
+         !CW4m = paw_mult_interaction(l1,m1,sigma,R1,l2,-m2,sigma,R2)
+         CW4p = nwpw_CWGaussian(l1,m1,sigma,l2, m2,sigma,Rab)
+         CW4m = nwpw_CWGaussian(l1,m1,sigma,l2,-m2,sigma,Rab)
+         CW4 = (CW4p - (-1.0d0)**m2 * CW4m)
+     >         *dcmplx(0.0d0,1.0d0/dsqrt(2.0d0))
+
+      else if ((m1.eq.0).and.(m2.gt.0)) then
+         !CW4p = paw_mult_interaction(l1,m1,sigma,R1,l2, m2,sigma,R2)
+         !CW4m = paw_mult_interaction(l1,m1,sigma,R1,l2,-m2,sigma,R2)
+         CW4p = nwpw_CWGaussian(l1,m1,sigma,l2, m2,sigma,Rab)
+         CW4m = nwpw_CWGaussian(l1,m1,sigma,l2,-m2,sigma,Rab)
+         CW4 = (CW4m + (-1.0d0)**m2 * CW4p)/dsqrt(2.0d0)
+
+      else if ((m1.lt.0).and.(m2.eq.0)) then
+         !CW4p = paw_mult_interaction(l1, m1,sigma,R1,l2,m2,sigma,R2)
+         !CW4m = paw_mult_interaction(l1,-m1,sigma,R1,l2,m2,sigma,R2)
+         CW4p = nwpw_CWGaussian(l1, m1,sigma,l2,m2,sigma,Rab)
+         CW4m = nwpw_CWGaussian(l1,-m1,sigma,l2,m2,sigma,Rab)
+         CW4 = (CW4p - (-1.0d0)**m1 * CW4m)
+     >         *dcmplx(0.0d0,1.0d0/dsqrt(2.0d0))
+
+      else if ((m1.gt.0).and.(m2.eq.0)) then
+         !CW4p = paw_mult_interaction(l1, m1,sigma,R1,l2,m2,sigma,R2)
+         !CW4m = paw_mult_interaction(l1,-m1,sigma,R1,l2,m2,sigma,R2)
+         CW4p = nwpw_CWGaussian(l1, m1,sigma,l2,m2,sigma,Rab)
+         CW4m = nwpw_CWGaussian(l1,-m1,sigma,l2,m2,sigma,Rab)
+         CW4 = (CW4m + (-1.0d0)**m1 * CW4p)/dsqrt(2.0d0)
+
+      else
+         !CW4pp = paw_mult_interaction(l1,m1,sigma,R1,l2, m2,sigma,R2)
+         !CW4pm = paw_mult_interaction(l1,m1,sigma,R1,l2,-m2,sigma,R2)
+         !CW4mp = paw_mult_interaction(l1,-m1,sigma,R1,l2, m2,sigma,R2)
+         !CW4mm = paw_mult_interaction(l1,-m1,sigma,R1,l2,-m2,sigma,R2)
+         CW4pp = nwpw_CWGaussian(l1,m1,sigma,l2, m2,sigma,Rab)
+         CW4pm = nwpw_CWGaussian(l1,m1,sigma,l2,-m2,sigma,Rab)
+         CW4mp = nwpw_CWGaussian(l1,-m1,sigma,l2, m2,sigma,Rab)
+         CW4mm = nwpw_CWGaussian(l1,-m1,sigma,l2,-m2,sigma,Rab)
+         if ((m1.lt.0).and.(m2.lt.0)) then
+            CW4 = -(CW4pp 
+     >             + (-1.0d0)**(m1+m2) * CW4mm 
+     >             - (-1.0d0)**m2      * CW4pm 
+     >             - (-1.0d0)**m1      * CW4mp)/2.0d0
+
+         else if ((m1.lt.0).and.(m2.gt.0)) then
+            CW4 = (CW4pm 
+     >            - (-1.0d0)**(m1+m2) * CW4mp 
+     >            - (-1.0d0)**m1      * CW4mm 
+     >            + (-1.0d0)**m2      * CW4pp)*dcmplx(0.0d0,1.0d0/2.0d0)
+
+         else if ((m1.gt.0).and.(m2.lt.0)) then
+            CW4 = (CW4mp 
+     >            - (-1.0d0)**(m1+m2) * CW4pm 
+     >            + (-1.0d0)**m1      * CW4pp 
+     >            - (-1.0d0)**m2      * CW4mm)*dcmplx(0.0d0,1.0d0/2.0d0)
+
+         else if ((m1.gt.0).and.(m2.gt.0)) then
+            CW4 =  (CW4mm 
+     >             + (-1.0d0)**(m1+m2) * CW4pp 
+     >             + (-1.0d0)**m1      * CW4pm 
+     >             + (-1.0d0)**m2      * CW4mp)/2.0d0
+         end if
+      end if
+      write(*,*) "gintegral tester=",l1,m1,l2,m2,i,j,k 
+      write(*,*) "    - W4, CW4   = ",W4,CW4 ,W4-dble(CW4)
+      !write(*,*) "    - CWpp,CWW  = ",CWpp,CWW,CWpp-CWW
+      write(*,*)
+
+
+c      CW4p = paw_mult_interaction(l1,m1,sigma,R1,l2, m2,sigma,R2)
+c      CW4m = paw_mult_interaction(l1,m1,sigma,R1,l2,-m2,sigma,R2)
+c      CW4 = (CW4m + (-1.0d0)**m2 * CW4p) / dsqrt(2.0d0)
+c
+c      write(*,*) "gintegral tester=",l1,m1,l2,m2,i,j,k 
+c      write(*,*) "    - W4, CWpp = ",W4,CWpp,W4-dble(CWpp)
+c      write(*,*) "    - W4, CW4p  = ",W4,CW4p
+c      write(*,*) "    - W4, CW4m  = ",W4,CW4m
+c      write(*,*) "    - W4, CW4   = ",W4,CW4 ,W4-dble(CW4)
+c      write(*,*)
+
+      end if
+      end do
+      end do
+      end do
+
+      end do
+      end do
+      end do
+      end do
+
+      return
+      end
+********************************* gintegrals tester **************************************
+
+
+********************************* real Gaussian Integrals **************************************
+********************************* real Gaussian Integrals **************************************
+
+
+********************************* complex Gaussian integrals ***********************************
+
+*     ************************************************ 
+*     *                                              *
+*     *           nwpw_cgintegrals_set_gcount        *
+*     *                                              *
+*     ************************************************ 
+
+      subroutine nwpw_cgintegrals_set_gcount()
       implicit none
 
 #include "bafdecls.fh"
@@ -3203,12 +3370,12 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
       call Parallel_np(np)
       nthr = Parallel_maxthreads()
       do l1 = 1,nthr
-         int_mb(tgauss(1)+l1-1) = 0
+         int_mb(tcgauss(1)+l1-1) = 0
       end do
 
-      periodic = (control_version().eq.3)
+      cperiodic = (control_version().eq.3)
 
-      if (periodic) then
+      if (cperiodic) then
          nshl3d = ewald_nshl3d()
       else
          nshl3d = 1
@@ -3225,7 +3392,7 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
          do m1=-l1,l1
             if (mod(pcount,np).eq.taskid) then
                tid = mod(gcount,nthr)
-               int_mb(tgauss(1)+tid) = int_mb(tgauss(1)+tid) + 1
+               int_mb(tcgauss(1)+tid) = int_mb(tcgauss(1)+tid) + 1
                gcount = gcount + 1
             end if
             pcount = pcount + 1
@@ -3235,7 +3402,7 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
                do m2=-l2,l2
                   if (mod(pcount,np).eq.taskid) then
                      tid = mod(gcount,nthr)
-                     int_mb(tgauss(1)+tid) = int_mb(tgauss(1)+tid) + 1
+                     int_mb(tcgauss(1)+tid) = int_mb(tcgauss(1)+tid) + 1
                      gcount = gcount + 1
                   end if
                   pcount = pcount + 1
@@ -3255,7 +3422,7 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
                do m2=-l2,l2
                   if (mod(pcount,np).eq.taskid) then
                      tid = mod(gcount,nthr)
-                     int_mb(tgauss(1)+tid) = int_mb(tgauss(1)+tid) + 1
+                     int_mb(tcgauss(1)+tid) = int_mb(tcgauss(1)+tid) + 1
                      gcount = gcount + 1
                   end if
                   pcount = pcount + 1
@@ -3265,13 +3432,13 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
             end do
          end do
       end do
-      ngauss_max = gcount
-      ngauss     = gcount
+      ncgauss_max = gcount
+      ncgauss     = gcount
 
       tcount = 0
       do l1 = 1,nthr
          int_mb(tgauss_shift(1)+l1-1) = tcount
-         tcount = tcount + int_mb(tgauss(1)+l1-1)
+         tcount = tcount + int_mb(tcgauss(1)+l1-1)
       end do
 
       return
@@ -3280,11 +3447,11 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
 
 *     *************************************************
 *     *                                               *
-*     *           nwpw_gintegrals_init                *
+*     *           nwpw_cgintegrals_init               *
 *     *                                               *
 *     *************************************************
 
-      subroutine nwpw_gintegrals_init()
+      subroutine nwpw_cgintegrals_init()
       implicit none
 
 #include "bafdecls.fh"
@@ -3300,27 +3467,27 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
       external Parallel_maxthreads
 
       nthr = Parallel_maxthreads()
-      value =           BA_alloc_get(mt_int,nthr,"tgauss",
-     >                               tgauss(2),tgauss(1))
-      value = value.and.BA_alloc_get(mt_int,nthr,"tgauss_shift",
-     >                               tgauss_shift(2),tgauss_shift(1))
+      value =           BA_alloc_get(mt_int,nthr,"tcgauss",
+     >                               tcgauss(2),tcgauss(1))
+      value = value.and.BA_alloc_get(mt_int,nthr,"tcgauss_shift",
+     >                               tcgauss_shift(2),tcgauss_shift(1))
 
-      call nwpw_gintegrals_set_gcount()
+      call nwpw_cgintegrals_set_gcount()
 
-      value = value.and.BA_alloc_get(mt_int,ngauss_max,"lm1_gauss",
-     >                              lm1_gauss(2),lm1_gauss(1))
-      value = value.and.BA_alloc_get(mt_int,ngauss_max,"lm2_gauss",
-     >                              lm2_gauss(2),lm2_gauss(1))
-      value = value.and.BA_alloc_get(mt_int,ngauss_max,"iii1_gauss",
-     >                              iii1_gauss(2),iii1_gauss(1))
-      value = value.and.BA_alloc_get(mt_int,ngauss_max,"iii2_gauss",
-     >                              iii2_gauss(2),iii2_gauss(1))
-      value = value.and.BA_alloc_get(mt_dbl,ngauss_max,"e_gauss",
-     >                              e_gauss(2),e_gauss(1))
-      value = value.and.BA_alloc_get(mt_dbl,3*ngauss_max,"f_gauss",
-     >                              f_gauss(2),f_gauss(1))
+      value = value.and.BA_alloc_get(mt_int,ncgauss_max,"lm1_cgauss",
+     >                              lm1_cgauss(2),lm1_cgauss(1))
+      value = value.and.BA_alloc_get(mt_int,ncgauss_max,"lm2_cgauss",
+     >                              lm2_cgauss(2),lm2_cgauss(1))
+      value = value.and.BA_alloc_get(mt_int,ncgauss_max,"iii1_cgauss",
+     >                              iii1_cgauss(2),iii1_cgauss(1))
+      value = value.and.BA_alloc_get(mt_int,ncgauss_max,"iii2_cgauss",
+     >                              iii2_cgauss(2),iii2_cgauss(1))
+      value = value.and.BA_alloc_get(mt_dcpl,ncgauss_max,"e_cgauss",
+     >                              e_cgauss(2),e_cgauss(1))
+      value = value.and.BA_alloc_get(mt_dcpl,3*ncgauss_max,"f_cgauss",
+     >                              f_cgauss(2),f_cgauss(1))
       if (.not.value)
-     > call errquit("nwpw_gintegrals_init:cannot allocate memory",
+     > call errquit("nwpw_cgintegrals_init:cannot allocate memory",
      >             0,MA_ERR)
 
       return
@@ -3329,10 +3496,10 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
 
 *     *************************************************
 *     *                                               *
-*     *           nwpw_gintegrals_end                 *
+*     *           nwpw_cgintegrals_end                *
 *     *                                               *
 *     *************************************************
-      subroutine nwpw_gintegrals_end()
+      subroutine nwpw_cgintegrals_end()
       implicit none
 
 #include "bafdecls.fh"
@@ -3342,16 +3509,16 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
 *     **** local variables ****
       logical value
 
-      value =           BA_free_heap(tgauss(2))
-      value = value.and.BA_free_heap(tgauss_shift(2))
-      value = value.and.BA_free_heap(lm1_gauss(2))
-      value = value.and.BA_free_heap(lm2_gauss(2))
-      value = value.and.BA_free_heap(iii1_gauss(2))
-      value = value.and.BA_free_heap(iii2_gauss(2))
-      value = value.and.BA_free_heap(e_gauss(2))
-      value = value.and.BA_free_heap(f_gauss(2))
+      value =           BA_free_heap(tcgauss(2))
+      value = value.and.BA_free_heap(tcgauss_shift(2))
+      value = value.and.BA_free_heap(lm1_cgauss(2))
+      value = value.and.BA_free_heap(lm2_cgauss(2))
+      value = value.and.BA_free_heap(iii1_cgauss(2))
+      value = value.and.BA_free_heap(iii2_cgauss(2))
+      value = value.and.BA_free_heap(e_cgauss(2))
+      value = value.and.BA_free_heap(f_cgauss(2))
       if (.not.value)
-     > call errquit("nwpw_gintegrals_end:cannot allocate memory",
+     > call errquit("nwpw_cgintegrals_end:cannot allocate memory",
      >             0,MA_ERR)
 
       return
@@ -3361,7 +3528,7 @@ c         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
 
 *     *************************************************
 *     *                                               *
-*     *             nwpw_gintegrals_set               *
+*     *             nwpw_cgintegrals_set              *
 *     *                                               *
 *     *************************************************
 c
@@ -3371,7 +3538,7 @@ c  data structures over tasks and threads instead of just tasks.
 c  Another option is to define thread shifts for indx.... However the threshold
 c  check with tole would have to be eliminated.
 c
-      subroutine nwpw_gintegrals_set(move)
+      subroutine nwpw_cgintegrals_set(move)
       implicit none
       logical move
 
@@ -3390,16 +3557,18 @@ c
       integer lm1,l1,m1,lm2,l2,m2
       integer l,nshl3d,rcell,rcell_hndl
       real*8 R1(3),R12(3),s1,s2,Rab(3),Rba(3),R,ss
-      real*8 W1,W2,W3,W4,dW1(3),dW2(3),dW3(3),dW4(3)
-      real*8 e1,de1(3)
+      complex*16 W1,W2,W3,W4,dW1(3),dW2(3),dW3(3),dW4(3)
+      complex*16 e1,de1(3)
 
       integer tid,nthr
       integer lm1_tauss(2),lm2_tauss(2),iii1_tauss(2),iii2_tauss(2)
       integer e_tauss(2),f_tauss(2)
 
 *     **** external functions ****
-      real*8   ion_rion,nwpw_WGaussian,nwpw_UGaussian
-      external ion_rion,nwpw_WGaussian,nwpw_UGaussian
+      real*8   ion_rion,nwpw_UGaussian
+      external ion_rion,nwpw_UGaussian
+      complex*16 nwpw_CWGaussian
+      external   nwpw_CWGaussian
       integer  nwpw_doublefactorial
       external nwpw_doublefactorial
       integer  ewald_nshl3d,ewald_rcell_ptr
@@ -3408,33 +3577,33 @@ c
       external Parallel_threadid,Parallel_nthreads
 
 
-      call nwpw_timing_start(34)
+      call nwpw_timing_start(64)
       call Parallel_taskid(taskid)
       call Parallel_np(np)
       tid  = Parallel_threadid()
       nthr = Parallel_nthreads()
-      shft = int_mb(tgauss_shift(1)+tid)
+      shft = int_mb(tcgauss_shift(1)+tid)
 
 c     **** allocate temporary memory ****
-      value =           BA_push_get(mt_int,ngauss_max,"lm1_tauss",
+      value =           BA_push_get(mt_int,ncgauss_max,"lm1_tauss",
      >                              lm1_tauss(2),lm1_tauss(1))
-      value = value.and.BA_push_get(mt_int,ngauss_max,"lm2_tauss",
+      value = value.and.BA_push_get(mt_int,ncgauss_max,"lm2_tauss",
      >                              lm2_tauss(2),lm2_tauss(1))
-      value = value.and.BA_push_get(mt_int,ngauss_max,"iii1_tauss",
+      value = value.and.BA_push_get(mt_int,ncgauss_max,"iii1_tauss",
      >                              iii1_tauss(2),iii1_tauss(1))
-      value = value.and.BA_push_get(mt_int,ngauss_max,"iii2_tauss",
+      value = value.and.BA_push_get(mt_int,ncgauss_max,"iii2_tauss",
      >                              iii2_tauss(2),iii2_tauss(1))
-      value = value.and.BA_push_get(mt_dbl,ngauss_max,"e_tauss",
+      value = value.and.BA_push_get(mt_dcpl,ncgauss_max,"e_tauss",
      >                              e_tauss(2),e_tauss(1))
-      value = value.and.BA_push_get(mt_dbl,3*ngauss_max,"f_tauss",
+      value = value.and.BA_push_get(mt_dcpl,3*ncgauss_max,"f_tauss",
      >                              f_tauss(2),f_tauss(1))
 
-      if (periodic) then
+      if (cperiodic) then
          nshl3d = ewald_nshl3d()
          rcell  = ewald_rcell_ptr()
       else
          if (.not. BA_push_get(mt_dbl,3,"rcellflm",rcell_hndl,rcell))
-     >   call errquit("nwpw_compcharge_set_gintegrals:stack",1,MA_ERR)
+     >   call errquit("nwpw_compcharge_set_cgintegrals:stack",1,MA_ERR)
 
          nshl3d = 1
 !$OMP MASTER
@@ -3448,12 +3617,13 @@ c     **** allocate temporary memory ****
 
       !**** these should not need to be called!!!! ****
 !$OMP MASTER
-      call dcopy(ngauss_max,0.0d0,0,dbl_mb(e_tauss(1)),1)
-      call dcopy(3*ngauss_max,0.0d0,0,dbl_mb(f_tauss(1)),1)
-      call dcopy(ngauss_max,0.0d0,0,dbl_mb(e_gauss(1)),1)
-      call dcopy(3*ngauss_max,0.0d0,0,dbl_mb(f_gauss(1)),1)
+      call dcopy(2*ncgauss_max,0.0d0,0,dcpl_mb(e_tauss(1)),1)
+      call dcopy(2*3*ncgauss_max,0.0d0,0,dcpl_mb(f_tauss(1)),1)
+      call dcopy(2*ncgauss_max,0.0d0,0,dcpl_mb(e_cgauss(1)),1)
+      call dcopy(2*3*ncgauss_max,0.0d0,0,dcpl_mb(f_cgauss(1)),1)
 !$OMP END MASTER
 !$OMP BARRIER
+
 
       pcount = 0
       gcount = 0
@@ -3472,9 +3642,8 @@ c     **** allocate temporary memory ****
                 W2=nwpw_UGaussian(l1,m1,s1,l1,m1,sigma_smooth)
                 W4=nwpw_UGaussian(l1,m1,sigma_smooth,l1,m1,sigma_smooth)
                 e1 = 0.5d0*W1 + 0.5d0*W4 - W2
-c               !if (dabs(e1).gt.tole) then
                 inds = indx + shft
-                dbl_mb(e_tauss(1)+inds) = e1
+                dcpl_mb(e_tauss(1)+inds) = e1
                 int_mb(lm1_tauss(1)+inds) = (iii-1)*2*lm_size_max+lm1
                 int_mb(lm2_tauss(1)+inds) = (iii-1)*2*lm_size_max+lm1
                 int_mb(iii1_tauss(1)+inds) = iii
@@ -3493,19 +3662,19 @@ c               !end if
                do m2=-l2,l2
                   if (mod(pcount,np).eq.taskid) then
                   if (mod(gcount,nthr).eq.tid) then
-                     e1 = 0.0d0
+                     e1 = dcmplx(0.0d0,0.0d0)
                      do l=2,nshl3d
                         Rab(1) = dbl_mb(rcell+l-1)
                         Rab(2) = dbl_mb(rcell+l-1+nshl3d)
                         Rab(3) = dbl_mb(rcell+l-1+2*nshl3d)
                         R = dsqrt(Rab(1)**2 + Rab(2)**2 + Rab(3)**2)
                         if (R.lt.(4*sigma_smooth)) then
-                           W1 = nwpw_WGaussian(l1,m1,s1,l2,m2,s1,Rab)
-                           W2 = nwpw_WGaussian(l1,m1,s1,
+                           W1 = nwpw_CWGaussian(l1,m1,s1,l2,m2,s1,Rab)
+                           W2 = nwpw_CWGaussian(l1,m1,s1,
      >                                         l2,m2,sigma_smooth,Rab)
-c                           W3 = nwpw_WGaussian(l1,m1,sigma_smooth,
+c                           W3 = nwpw_CWGaussian(l1,m1,sigma_smooth,
 c     >                                         l2,m2,s1,Rab)
-                           W4 = nwpw_WGaussian(l1,m1,sigma_smooth,
+                           W4 = nwpw_CWGaussian(l1,m1,sigma_smooth,
      >                                         l2,m2,sigma_smooth,Rab)
                            !e1=e1+0.5d0*W1+0.5d0*W4-0.5d0*W2-0.5d0*W3
                            !e1=e1+(W1+W4-2.0d0*W2)
@@ -3514,9 +3683,8 @@ c     >                                         l2,m2,s1,Rab)
                         end if
                      end do
 
-                     !if (dabs(e1).gt.tole) then
                      inds = indx + shft
-                     dbl_mb(e_tauss(1)+inds) = e1
+                     dcpl_mb(e_tauss(1)+inds) = e1
                      int_mb(lm1_tauss(1)+inds) 
      >                     = (iii-1)*2*lm_size_max+lm1
                      int_mb(lm2_tauss(1)+inds)
@@ -3563,10 +3731,10 @@ c     >                                         l2,m2,s1,Rab)
                do m2=-l2,l2
                   if (mod(pcount,np).eq.taskid) then
                   if (mod(gcount,nthr).eq.tid) then
-                     e1 = 0.0d0
-                     de1(1) = 0.0d0
-                     de1(2) = 0.0d0
-                     de1(3) = 0.0d0
+                     e1 = dcmplx(0.0d0,0.0d0)
+                     de1(1) = dcmplx(0.0d0,0.0d0)
+                     de1(2) = dcmplx(0.0d0,0.0d0)
+                     de1(3) = dcmplx(0.0d0,0.0d0)
                      do l=1,nshl3d
                         Rab(1) = R12(1) + dbl_mb(rcell+l-1)
                         Rab(2) = R12(2) + dbl_mb(rcell+l-1+nshl3d)
@@ -3574,15 +3742,15 @@ c     >                                         l2,m2,s1,Rab)
                         R = dsqrt(Rab(1)**2 + Rab(2)**2 + Rab(3)**2)
                         if (R.lt.(4*sigma_smooth)) then
                         if (move) then
-                           call nwpw_dWGaussian(l1,m1,s1,l2,m2,s2,Rab,
+                           call nwpw_dCWGaussian(l1,m1,s1,l2,m2,s2,Rab,
      >                                          W1,dW1)
-                           call nwpw_dWGaussian(l1,m1,s1,
+                           call nwpw_dCWGaussian(l1,m1,s1,
      >                                          l2,m2,sigma_smooth,Rab,
      >                                          W2,dW2)
-                           call nwpw_dWGaussian(l1,m1,sigma_smooth,
+                           call nwpw_dCWGaussian(l1,m1,sigma_smooth,
      >                                          l2,m2,s2,Rab,
      >                                          W3,dW3)
-                           call nwpw_dWGaussian(l1,m1,sigma_smooth,
+                           call nwpw_dCWGaussian(l1,m1,sigma_smooth,
      >                                          l2,m2,sigma_smooth,Rab,
      >                                          W4,dW4)
                            e1 = e1 + (W1 + W4 - W2 - W3)
@@ -3591,24 +3759,24 @@ c     >                                         l2,m2,s1,Rab)
                            de1(3)=de1(3)+(dW1(3)+dW4(3)-dW2(3)-dW3(3))
 
                         else
-                           W1 = nwpw_WGaussian(l1,m1,s1,l2,m2,s2,Rab)
-                           W2 = nwpw_WGaussian(l1,m1,s1,
+                           W1 = nwpw_CWGaussian(l1,m1,s1,l2,m2,s2,Rab)
+                           W2 = nwpw_CWGaussian(l1,m1,s1,
      >                                         l2,m2,sigma_smooth,Rab)
-                           W3 = nwpw_WGaussian(l1,m1,sigma_smooth,
+                           W3 = nwpw_CWGaussian(l1,m1,sigma_smooth,
      >                                         l2,m2,s2,Rab)
-                           W4 = nwpw_WGaussian(l1,m1,sigma_smooth,
+                           W4 = nwpw_CWGaussian(l1,m1,sigma_smooth,
      >                                         l2,m2,sigma_smooth,Rab)
                            e1 = e1 + (W1 + W4 - W2 - W3)
                         end if
                         end if
                      end do
-                     !if (dabs(e1).gt.tole) then
+                     
                      inds = indx + shft
-                     dbl_mb(e_tauss(1)+inds) = e1
+                     dcpl_mb(e_tauss(1)+inds) = e1
                      if (move) then
-                        dbl_mb(f_tauss(1)+3*inds)   = de1(1)
-                        dbl_mb(f_tauss(1)+3*inds+1) = de1(2)
-                        dbl_mb(f_tauss(1)+3*inds+2) = de1(3)
+                        dcpl_mb(f_tauss(1)+3*inds)   = de1(1)
+                        dcpl_mb(f_tauss(1)+3*inds+1) = de1(2)
+                        dcpl_mb(f_tauss(1)+3*inds+2) = de1(3)
                      end if
                      int_mb(lm1_tauss(1)+inds)
      >                  = (iii-1)*2*lm_size_max+lm1
@@ -3636,20 +3804,20 @@ c     >                                         l2,m2,s1,Rab)
 
 !$OMP BARRIER
 !$OMP MASTER
-      call nwpw_gintegral_stripper(ngauss_max,
+      call nwpw_cgintegral_stripper(ncgauss_max,
      >                             int_mb(iii1_tauss(1)),
      >                             int_mb(iii2_tauss(1)),
      >                             int_mb(lm1_tauss(1)),
      >                             int_mb(lm2_tauss(1)),
-     >                             dbl_mb(e_tauss(1)),
-     >                             dbl_mb(f_tauss(1)),
-     >                             ngauss,
-     >                             int_mb(iii1_gauss(1)),
-     >                             int_mb(iii2_gauss(1)),
-     >                             int_mb(lm1_gauss(1)),
-     >                             int_mb(lm2_gauss(1)),
-     >                             dbl_mb(e_gauss(1)),
-     >                             dbl_mb(f_gauss(1)))
+     >                             dcpl_mb(e_tauss(1)),
+     >                             dcpl_mb(f_tauss(1)),
+     >                             ncgauss,
+     >                             int_mb(iii1_cgauss(1)),
+     >                             int_mb(iii2_cgauss(1)),
+     >                             int_mb(lm1_cgauss(1)),
+     >                             int_mb(lm2_cgauss(1)),
+     >                             dcpl_mb(e_cgauss(1)),
+     >                             dcpl_mb(f_cgauss(1)))
 !$OMP END MASTER
 !$OMP BARRIER
 c Need to have barrier before deallocation below.  This barrier could be removed
@@ -3659,7 +3827,7 @@ c if the tauss variables were on the heap and not deallocated rather than stack.
 c     **** deallocate stack memory ****
       if (.not.periodic) then
         if (.not.BA_pop_stack(rcell_hndl))
-     >   call errquit("nwpw_compcharge_set_gintegrals:stack",2,MA_ERR)
+     >   call errquit("nwpw_compcharge_set_cgintegrals:stack",2,MA_ERR)
       end if
       value =           BA_pop_stack(f_tauss(2))
       value = value.and.BA_pop_stack(e_tauss(2))
@@ -3668,31 +3836,31 @@ c     **** deallocate stack memory ****
       value = value.and.BA_pop_stack(lm2_tauss(2))
       value = value.and.BA_pop_stack(lm1_tauss(2))
         if (.not.value)
-     >   call errquit("nwpw_compcharge_set_gintegrals:stack",3,MA_ERR)
+     >   call errquit("nwpw_compcharge_set_cgintegrals:stack",3,MA_ERR)
 
-      call nwpw_timing_end(34)
+      call nwpw_timing_end(64)
       return
       end
 
 *     *************************************************
 *     *                                               *
-*     *             nwpw_gintegrals_stripper          *
+*     *            nwpw_cgintegrals_stripper          *
 *     *                                               *
 *     *************************************************
 c
 c  This routine is used to remove unecessary integrals
 c
-      subroutine nwpw_gintegral_stripper(ng_in,
+      subroutine nwpw_cgintegral_stripper(ng_in,
      >                                   iii1_in,iii2_in,
      >                                   lm1_in,lm2_in,e_in,f_in,
      >                                   ng_out,
      >                                   iii1_out,iii2_out,
      >                                   lm1_out,lm2_out,e_out,f_out)
       implicit none
-      integer ng_in,iii1_in(*),iii2_in(*),lm1_in(*),lm2_in(*)
-      real*8  e_in(*),f_in(*)
-      integer ng_out,iii1_out(*),iii2_out(*),lm1_out(*),lm2_out(*)
-      real*8  e_out(*),f_out(*)
+      integer    ng_in,iii1_in(*),iii2_in(*),lm1_in(*),lm2_in(*)
+      complex*16 e_in(*),f_in(*)
+      integer    ng_out,iii1_out(*),iii2_out(*),lm1_out(*),lm2_out(*)
+      complex*16 e_out(*),f_out(*)
 
 c     **** local variables ****
       real*8 tole
@@ -3701,7 +3869,7 @@ c     **** local variables ****
 
       ng_out = 0
       do i=1,ng_in
-         if (dabs(e_in(i)).gt.tole) then
+         if (Abs(e_in(i)).gt.tole) then
             ng_out = ng_out + 1
             iii1_out(ng_out) = iii1_in(i)
             iii2_out(ng_out) = iii2_in(i)
@@ -3716,56 +3884,69 @@ c     **** local variables ****
       return
       end
 
+*     *************************************************
+*     *                                               *
+*     *            nwpw_cgintegrals_unscramble        *
+*     *                                               *
+*     *************************************************
 
-      subroutine nwpw_gintegrals_tester()
+      subroutine nwpw_cintegrals_unscramble(ng_in,
+     >                                   uindex,ucoeff,
+     >                                   iii1_in,iii2_in,
+     >                                   lm1_in,lm2_in,e_in,f_in,
+     >                                   ng_out,
+     >                                   iii1_out,iii2_out,
+     >                                   lm1_out,lm2_out,e_out,f_out)
       implicit none
+      integer    ng_in
+      integer    uindex(4,*)
+      real*8     ucoeff(4,*)
+      integer iii1_in(*),iii2_in(*),lm1_in(*),lm2_in(*)
+      complex*16 e_in(*),f_in(*)
+      integer    ng_out,iii1_out(*),iii2_out(*),lm1_out(*),lm2_out(*)
+      complex*16 e_out(*),f_out(*)
 
-      integer l1,m1,l2,m2,i,j,k
-      real*8 W4,sigma
-      real*8 R1(3),R2(3),Rab(3)
-      complex*16 CW4
+c     **** local variables ****
+      real*8 tole
+      parameter (tole=1.0d-25)
+      integer i
+      real*8 etmp,ftmpx,ftmpy,ftmpz
 
-*     **** external functions ****
-      real*8   nwpw_WGaussian,nwpw_UGaussian
-      external nwpw_WGaussian,nwpw_UGaussian
-      complex*16 paw_mult_interaction
-      external   paw_mult_interaction
-
-      l1 = 1
-      m1 = 0
-      l2 = 1
-      m2 = 0
-      sigma = 6.0d0
-
-      do i=-1,1
-      do j=-1,1
-      do k=-1,1
-      if ((i.ne.0).or.(j.ne.0).or.(k.ne.0)) then
-
-      R1(1) = 0.0d0
-      R1(2) = 0.0d0
-      R1(3) = 0.0d0
-
-      R2(1) = 5.0d0*i
-      R2(2) = 5.0d0*j
-      R2(3) = 5.0d0*k
-
-      Rab(1) = R1(1) - R2(1)
-      Rab(2) = R1(2) - R2(2)
-      Rab(3) = R1(3) - R2(3)
-
-      W4  = nwpw_WGaussian(l1,m1,sigma,l2,m2,sigma,Rab)
-      CW4 = paw_mult_interaction(l1,m1,sigma,R1,l2,m2,sigma,R2)
-
-      write(*,*) "gintegral tester=",l1,m1,l2,m2,i,j,k,
-     >           W4,CW4,W4-dble(CW4)
-      end if
-      end do
-      end do
+      ng_out = 0
+      do i=1,ng_in
+         etmp = ucoeff(1,i)*e_in(uindex(1,i))
+     >        + ucoeff(2,i)*e_in(uindex(2,i))
+     >        + ucoeff(3,i)*e_in(uindex(3,i))
+     >        + ucoeff(4,i)*e_in(uindex(4,i))
+         ftmpx = ucoeff(1,i)*f_in(3*(uindex(1,i)-1)+1)
+     >         + ucoeff(2,i)*f_in(3*(uindex(2,i)-1)+1)
+     >         + ucoeff(3,i)*f_in(3*(uindex(3,i)-1)+1)
+     >         + ucoeff(4,i)*f_in(3*(uindex(4,i)-1)+1)
+         ftmpy = ucoeff(1,i)*f_in(3*(uindex(1,i)-1)+2)
+     >         + ucoeff(2,i)*f_in(3*(uindex(2,i)-1)+2)
+     >         + ucoeff(3,i)*f_in(3*(uindex(3,i)-1)+2)
+     >         + ucoeff(4,i)*f_in(3*(uindex(4,i)-1)+2)
+         ftmpz = ucoeff(1,i)*f_in(3*(uindex(1,i)-1)+3)
+     >         + ucoeff(2,i)*f_in(3*(uindex(2,i)-1)+3)
+     >         + ucoeff(3,i)*f_in(3*(uindex(3,i)-1)+3)
+     >         + ucoeff(4,i)*f_in(3*(uindex(4,i)-1)+3)
+         if (Abs(etmp).gt.tole) then
+            ng_out = ng_out + 1
+            iii1_out(ng_out) = iii1_in(i)
+            iii2_out(ng_out) = iii2_in(i)
+            lm1_out(ng_out)  = lm1_in(i)
+            lm2_out(ng_out)  = lm2_in(i)
+            e_out(ng_out)    = etmp
+            f_out(3*(ng_out-1)+1) = ftmpx
+            f_out(3*(ng_out-1)+2) = ftmpy
+            f_out(3*(ng_out-1)+3) = ftmpz
+         end if
       end do
 
       return
-      end
+      end 
+
+********************************* complex Gaussian integrals **************************************
 
 
 *     *****************************************************
@@ -3830,6 +4011,7 @@ c     **** local variables ****
 
       end do
       call Parallel_SumAll(E)
+
 
       nwpw_compcharge_E_multipole_Zv_ee = E
       return
@@ -5114,6 +5296,19 @@ c     *********************************************
          l = l + 1
       end do
       m = lm - l*(l+1)
+      return
+      end
+
+      subroutine nwpw_compcharge_iiilmindx(iii,l,m,indx)
+      implicit none
+      integer iii,l,m
+      integer indx
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+      indx = (iii-1)*(2*lm_size_max) +  l*(l+1) + m
       return
       end
 

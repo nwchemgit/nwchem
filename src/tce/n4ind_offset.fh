@@ -1,47 +1,48 @@
-      integer azone1,azone2,azone3,azone4
-      integer g1b,g2b,g3b,g4b
+      integer fu1,fu2,fu3,fu4
+      integer fug1b,fug2b,fug3b,fug4b
+      integer funoa,funva,fuatp
       integer key_agaa_off,key_ggaa_off,key_ggga_off,key_4af_off
       integer addr_agaa,addr_ggaa,addr_ggga,addr_4af
 c     upper triang ij i*(i-1)/2+j      
 c     lower triang ij (i-1)*[2*N-i]/2+j      
-      key_agaa_off(azone1,azone2,azone3,g3b,noa,nva,atpart) =
-     =     g3b - 1 + (noa+nva) * (azone3 - 1 +
-     &  (atpart) * (azone1 - 1 + atpart * (azone2 - 1)))
-      addr_agaa(azone1,azone2,azone3,g3b,noa,nva,atpart) =
-     =     g3b  + (noa+nva) * (azone3 - 1 +
-     &  (atpart) * (azone1 - 1 + (azone2 * (azone2 - 1))/2))
-cforstep2      key_agaa_off(azone1,azone2,azone3,g3b,noa,nva,atpart) =
-c     =     azone3 - 1 + (atpart) * (azone1 - 1 +
-c     &  (atpart) * (g3b - 1 + (noa+nva) * (azone2 - 1)))
-cold      key_ggaa_off(azone1,azone2,g3b,g4b,noa,nva,atpart) =
-c     =     azone1 - 1 + atpart * (g4b - 1 +
-c     &  (noa+nva) * (g3b - 1 + (noa+nva) * (azone2 - 1)))
-      key_ggaa_off(azone1,azone2,g3b,g4b,noa,nva,atpart) =
-     =     g4b - 1 + (noa+nva) * (g3b - 1 +
-     &  (noa+nva) * (azone1 - 1 + (atpart) * (azone2 - 1)))
-      addr_ggaa(azone1,azone2,g3b,g4b,noa,nva,atpart) =
-     =     g4b +
-     +	   ((g3b - 1)*(2*(noa+nva)-g3b))/2 +
-     &  ((noa+nva)*(noa+nva+1))/2 *
-     * (azone1 - 1 + (azone2 * (azone2 - 1))/2)
-      key_ggga_off(azone2,g2b,g3b,g4b,noa,nva) =
-     =     g2b - 1 + (noa+nva) * (g4b - 1 +
-     &     (noa+nva) * (g3b - 1 + (noa+nva) * (azone2 - 1)))
-      addr_ggga(azone2,g2b,g3b,g4b,noa,nva) =
-     =     g2b +
-     +	   (noa+nva)*(g4b - 1 +
-     T     ((g3b - 1)*(2*(noa+nva)-g3b))/2 +
-     &  ((noa+nva)*(noa+nva+1))/2 *
-     * (azone2 - 1 ))
-      key_4af_off(azone1,azone2,azone3,azone4,atpart) =
-     =     azone4 - 1 + atpart * (azone3 - 1 +
-     &          atpart * (azone2 - 1 + atpart * (azone1 - 1)))
-      addr_4af(azone1,azone2,azone3,azone4,atpart) =
-     =     azone4 +
-     +	   ((azone3 - 1)*(2*(atpart)-azone3))/2 +
-     *     ((atpart)*(atpart+1))/2 *
-     L     (azone2 -1 +
-     +	   ((azone1 - 1)*(2*atpart-azone1))/2  )
+      key_agaa_off(fu1,fu2,fu3,fug3b,funoa,funva,fuatp) =
+     =     fug3b - 1 + (funoa+funva) * (fu3 - 1 +
+     &  (fuatp) * (fu1 - 1 + fuatp * (fu2 - 1)))
+      addr_agaa(fu1,fu2,fu3,fug3b,funoa,funva,fuatp) =
+     =     fug3b  + (funoa+funva) * (fu3 - 1 +
+     &  (fuatp) * (fu1 - 1 + (fu2 * (fu2 - 1))/2))
+cforstep2      key_agaa_off(fu1,fu2,fu3,fug3b,funoa,funva,fuatp) =
+c     =     fu3 - 1 + (fuatp) * (fu1 - 1 +
+c     &  (fuatp) * (fug3b - 1 + (funoa+funva) * (fu2 - 1)))
+cold      key_ggaa_off(fu1,fu2,fug3b,fug4b,funoa,funva,fuatp) =
+c     =     fu1 - 1 + fuatp * (fug4b - 1 +
+c     &  (funoa+funva) * (fug3b - 1 + (funoa+funva) * (fu2 - 1)))
+      key_ggaa_off(fu1,fu2,fug3b,fug4b,funoa,funva,fuatp) =
+     =     fug4b - 1 + (funoa+funva) * (fug3b - 1 +
+     &  (funoa+funva) * (fu1 - 1 + (fuatp) * (fu2 - 1)))
+      addr_ggaa(fu1,fu2,fug3b,fug4b,funoa,funva,fuatp) =
+     =     fug4b +
+     +	   ((fug3b - 1)*(2*(funoa+funva)-fug3b))/2 +
+     &  ((funoa+funva)*(funoa+funva+1))/2 *
+     * (fu1 - 1 + (fu2 * (fu2 - 1))/2)
+      key_ggga_off(fu2,fug2b,fug3b,fug4b,funoa,funva) =
+     =     fug2b - 1 + (funoa+funva) * (fug4b - 1 +
+     &     (funoa+funva) * (fug3b - 1 + (funoa+funva) * (fu2 - 1)))
+      addr_ggga(fu2,fug2b,fug3b,fug4b,funoa,funva) =
+     =     fug2b +
+     +	   (funoa+funva)*(fug4b - 1 +
+     T     ((fug3b - 1)*(2*(funoa+funva)-fug3b))/2 +
+     &  ((funoa+funva)*(funoa+funva+1))/2 *
+     * (fu2 - 1 ))
+      key_4af_off(fu1,fu2,fu3,fu4,fuatp) =
+     =     fu4 - 1 + fuatp * (fu3 - 1 +
+     &          fuatp * (fu2 - 1 + fuatp * (fu1 - 1)))
+      addr_4af(fu1,fu2,fu3,fu4,fuatp) =
+     =     fu4 +
+     +	   ((fu3 - 1)*(2*(fuatp)-fu3))/2 +
+     *     ((fuatp)*(fuatp+1))/2 *
+     L     (fu2 -1 +
+     +	   ((fu1 - 1)*(2*fuatp-fu1))/2  )
 
 
      

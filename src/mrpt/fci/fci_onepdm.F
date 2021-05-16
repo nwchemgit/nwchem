@@ -93,7 +93,7 @@ c
       do p = 1, nactiv
          sum = sum + onepdm(p,p)
       enddo
-      if (abs(sum-dfloat(nelec)).gt.1d-10) call fci_err
+      if (abs(sum-dble(nelec)).gt.1d-10) call fci_err
      $     ('fci_onepdm: incorrect trace ', ivec)
 c
       write(6,*) ' Average one particle density matrix '

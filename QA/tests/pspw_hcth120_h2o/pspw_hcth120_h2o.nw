@@ -1,0 +1,42 @@
+title "pspw_hcth120 QA test for H2O"
+
+echo
+
+start pspw_hcth120_H2O1
+
+
+charge 0
+
+geometry noautoz nocenter noautosym
+O     0.00000   -0.05890    0.00000
+H    -0.81100    0.46770    0.00000
+H     0.81100    0.46770    0.00000
+end
+
+nwpw
+  simulation_cell
+    SC 20.0
+  end
+  odft
+  mult 1
+  xc new hcth120
+  lmbfgs
+  cutoff 50.0
+end
+
+set nwpw:cif_filename H2O1
+
+task pspw energy ignore
+
+nwpw
+  dft
+end
+task pspw energy
+
+driver
+   clear
+   maxiter 30
+end
+task pspw optimize ignore
+
+

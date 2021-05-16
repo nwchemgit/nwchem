@@ -18,14 +18,14 @@ C> [1] A. Klamt, G. Sch&uuml;&uuml;rmann,
 C>     "COSMO: a new approach to dielectric screening in solvents with
 C>      explicit expressions for the screening energy and its gradient",
 C>     <i>J. Chem. Soc., Perkin Trans. 2</i>, 1993, pp 799-805, DOI:
-C>     <a href="http://dx.doi.org/10.1039/P29930000799">
+C>     <a href="https://doi.org/10.1039/P29930000799">
 C>     10.1039/P29930000799</a>.
 C>
 C> [2] D.M. York, M. Karplus,
 C>     "A smooth solvation potential based on the conductor-like
 C>      screening model", <i>J. Phys. Chem. A</i> (1999) <b>103</b>,
 C>     pp 11060-11079, DOI:
-C>     <a href="http://dx.doi.org/10.1021/jp992097l">
+C>     <a href="https://doi.org/10.1021/jp992097l">
 C>     10.1021/jp992097l</a>.
 C>
 C> @}
@@ -45,14 +45,14 @@ C> [1] A. Klamt, G. Sch&uuml;&uuml;rmann,
 C>     "COSMO: a new approach to dielectric screening in solvents with
 C>      explicit expressions for the screening energy and its gradient",
 C>     <i>J. Chem. Soc., Perkin Trans. 2</i>, 1993, pp 799-805, DOI:
-C>     <a href="http://dx.doi.org/10.1039/P29930000799">
+C>     <a href="https://doi.org/10.1039/P29930000799">
 C>     10.1039/P29930000799</a>.
 C>
 C> [2] D.M. York, M. Karplus,
 C>     "A smooth solvation potential based on the conductor-like
 C>      screening model", <i>J. Phys. Chem. A</i> (1999) <b>103</b>,
 C>     pp 11060-11079, DOI:
-C>     <a href="http://dx.doi.org/10.1021/jp992097l">
+C>     <a href="https://doi.org/10.1021/jp992097l">
 C>     10.1021/jp992097l</a>.
 C>
       subroutine cosmo_input(rtdb)
@@ -106,6 +106,7 @@ c
       double precision soln
       double precision pol_cosmo_vem(2)
       double precision polgs_cosmo_vem, poles_cosmo_vem
+      integer icds
 c
 c     vem model parameters
 c
@@ -295,6 +296,10 @@ c
         status = inp_f(soln)
         if (.not. rtdb_put(rtdb,'cosmo:soln',mt_dbl,1,soln))
      $    call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+      else if(inp_compare(.false.,'icds',field)) then
+        status = inp_i(icds)
+        if (.not. rtdb_put(rtdb,'cosmo:icds',mt_int,1,icds))
+     $    call errquit('cosmo_input: rtdb put failed',912,RTDB_ERR)
 c
 c <-- MN solvation models
 c

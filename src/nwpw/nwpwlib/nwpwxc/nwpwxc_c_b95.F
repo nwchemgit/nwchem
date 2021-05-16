@@ -20,14 +20,14 @@ C> [1] A.D. Becke,
 C> "Density‐functional thermochemistry. IV. A new dynamical correlation
 C> functional and implications for exact‐exchange mixing"
 C> J. Chem. Phys. <b>104</b>, 1040-1046 (1996), DOI:
-C> <a href="http://dx.doi.org/10.1063/1.470829">
+C> <a href="https://doi.org/10.1063/1.470829">
 C> 10.1063/1.470829</a>.
 C>
 C> [2] Y. Zhao, D.G. Truhlar,
 C> "Design of density functionals that are broadly accurate for
 C> thermochemistry, thermochemical kinetics, and nonbonded
 C> interactions", J. Phys. Chem. A <b>109</b> 5656-5667 (2005), DOI:
-C> <a href="http://dx.doi.org/10.1021/jp050536c">
+C> <a href="https://doi.org/10.1021/jp050536c">
 C> 10.1021/jp050536c</a>.
 C>
 c    Bc95 correlation functional          

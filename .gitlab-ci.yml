@@ -1,0 +1,249 @@
+stages:
+  - build
+  - test
+
+variables:
+  USE_MPI: Y
+  USE_NOIO: 1
+  NWCHEM_MODULES: "all python"
+  OMP_NUM_THREADS: 1
+  NWCHEM_LONG_PATHS: Y
+  GIT_CLEAN_FLAGS: -ffdx -e bin
+  GIT_DEPTH: 32
+
+.linuxrhel6_template: &beforescript_linuxrhel6
+  before_script:
+    - module purge
+    - export LD_LIBRARY_PATH=/usr/lib/mpich/lib
+    - export PATH=/usr/lib/mpich/bin:/bin:/usr/bin:.
+    - export NWCHEM_TARGET=LINUX
+
+.linuxubuntu_template: &beforescript_linuxubuntu
+  before_script:
+    - export NWCHEM_TARGET=LINUX
+    - export PATH=/home/edo/apps/mpich314_i686/bin:/usr/bin:/bin:.
+    - export LD_LIBRARY_PATH=/home/edo/apps/mpich314_i686/lib:/home/edo/apps/OpenBLAS.i386/lib
+
+.compile_template: &compile_step
+  script:
+    - if [ "$(lsb_release -i|cut -c 17-)" == "CentOS" ]; then export USE_CENTOS="1" ; else export USE_CENTOS="0" ; fi
+    - if [ "$(lsb_release -i |cut -f 2)" == "Ubuntu" ] && [ "$(lsb_release -r|cut -c10-11)" == "16" ]; then SCALAPACK_LIB="-lscalapack-openmpi -lblacsCinit-openmpi -lblacs-openmpi  -lopenblas"; fi
+    - env |grep CI_
+    - printenv PATH
+    - printenv LD_LIBRARY_PATH || true
+    - env|grep MPI || true
+    - which mpif90
+    - env|egrep BLAS
+    - env|egrep SCALAP || true
+    - env|egrep -i mkl || true
+    - export NWCHEM_TOP=$CI_PROJECT_DIR
+    - if [ "$(lsb_release -i|cut -c 17-)" == "CentOS" ]; then export NWCHEM_TOP=$HOME/$CI_PROJECT_DIR ; fi
+    - cd $NWCHEM_TOP/src
+    - rm -rf tools/ga-* ||true
+    - make nwchem_config
+    - make -j3
+    - ../contrib/getmem.nwchem 
+#  except:
+#    changes:
+#      - ".travis.yml"
+#      - "travis/*"
+
+.test_template: &test_step
+  variables:
+    GIT_CLEAN_FLAGS: -ffdx -e bin -e build -e install
+  script:
+    - if [ "$FC" == "ifort" ]; then source /opt/intel/compilers_and_libraries_2019/linux/bin/compilervars.sh  intel64 ; fi
+    - export NWCHEM_TOP=$CI_PROJECT_DIR
+    - if [ "$(lsb_release -i|cut -c 17-)" == "CentOS" ]; then export USE_CENTOS="1" ; else export USE_CENTOS="0" ; fi
+    - if [ "$USE_CENTOS" == "1" ]; then export NWCHEM_TOP=$HOME/$CI_PROJECT_DIR ; fi
+    - if [ "$USE_CENTOS" == "1" ]; then mkdir -p $NWCHEM_TOP/bin/LINUX64 ; scp -p edo@10.0.2.2:gitlab/nwchem_centos8 $NWCHEM_TOP/bin/LINUX64/nwchem ; fi
+    - if [ "$FC" == "ifort" ]; then  export NWCHEM_EXECUTABLE=${NWCHEM_TOP}/../binaries/nwchem_intel; fi
+    - if [ "$FC" == "flang" ]; then  export NWCHEM_EXECUTABLE=${NWCHEM_TOP}/../binaries/nwchem_flang; fi
+    - env|egrep -i mkl || true
+    - env|egrep  LD_LIBR || true
+    - cd $NWCHEM_TOP/QA
+    - NNPROCS=1
+    - if [ "$(uname -s)" == "Darwin" ]; then NNPROCS=2; fi
+    - if [ "$(uname -s)" == "Linux" ]; then NNPROCS=4; fi
+    - if [ "$USE_CENTOS" == "1" ]; then NNPROCS=3; fi
+    - env | grep CI_ || mtrue
+    - if [[ "$NWCHEM_TARGET" != "LINUX"  && ( "$CI_RUNNER_TAGS" == "ubuntu_xenial" ||  "$CI_RUNNER_TAGS" == "ubuntu_bionic" ) ]]; then ./doqmtests.mpi $NNPROCS  ; else ./doqmtests.mpi $NNPROCS fast ; fi
+#  except:
+#    changes:
+#      - ".travis.yml"
+#      - "travis/*"
+
+.intel_template: &intel_sourcing
+  before_script:
+    - export NWCHEM_TOP=$CI_PROJECT_DIR
+    - source /opt/intel/compilers_and_libraries_2019/linux/bin/compilervars.sh  intel64
+    - export NWCHEM_EXECUTABLE=${NWCHEM_TOP}/../binaries/nwchem_intel
+    - export FC=ifort
+
+.flang_template: &flang_sourcing
+  before_script:
+    - source /home/edo/apps/setenv_AOCC.sh
+    - export LD_LIBRARY_PATH=/home/edo/apps/aocc200/aocc-compiler-2.0.0/lib:$LD_LIBRARY_PATH
+    - export LD_LIBRARY_PATH=/home/edo/apps/ompi402.flang/lib:$LD_LIBRARY_PATH
+    - export PATH=/home/edo/apps/ompi402.flang/bin:$PATH
+    - export NWCHEM_EXECUTABLE=${NWCHEM_TOP}/../binaries/nwchem_flang
+    - export FC=flang
+
+.centos8_template: &centos8_sourcing
+  before_script:
+    - export LD_LIBRARY_PATH=/usr/lib64/mpich/lib
+    - export PATH=/usr/lib64/mpich/bin/:/usr/bin:/bin:.
+
+linux64_centos8:build_gcc:
+  stage: build
+  <<: *centos8_sourcing
+  <<: *compile_step
+  variables:
+    BLAS_SIZE: 8
+    SCALAPACK_SIZE: 8
+    BUILD_OPENBLAS: 1
+    BUILD_SCALAPACK: 1
+    PATH: "/usr/lib64/mpich/bin/:/usr/bin:/bin:."
+    ARMCI_NETWORK: "MPI-TS"
+  after_script:
+    - export NWCHEM_TOP=$HOME/$CI_PROJECT_DIR
+    - scp -p ${NWCHEM_TOP}/bin/LINUX64/nwchem edo@10.0.2.2:gitlab/nwchem_centos8
+  tags:
+    - centos8
+
+linux64_ubuntu:build_gcc:
+  stage: build
+  <<: *compile_step
+  variables:
+#    BLAS_LIB: "-lopenblas"
+#    LAPACK_LIB: "-lopenblas"
+#    SCALAPACK_LIB: "-lscalapack-openmpi  -lopenblas"
+    BUILD_SCALAPACK: 1
+    BUILD_OPENBLAS: 1
+    BLAS_SIZE: 8
+    SCALAPACK_SIZE: 8
+    USE_OPENMP: 1
+    ARMCI_NETWORK: "MPI-PR"
+  tags:
+    - ubuntu_xenial
+
+linux64_ubuntu:build_flang:
+  stage: build
+  <<: *flang_sourcing
+  <<: *compile_step
+  variables:
+    FC: flang
+    BUILD_SCALAPACK: 1
+    BUILD_OPENBLAS: 1
+    BLAS_SIZE: 8
+    SCALAPACK_SIZE: 8
+    ARMCI_NETWORK: "MPI-PR"
+  after_script:
+    - export NWCHEM_TOP=$CI_PROJECT_DIR
+    - echo "NWCHEM_TOP is " $NWCHEM_TOP
+    - mkdir -p ${NWCHEM_TOP}/../binaries || true
+    - cp ${NWCHEM_TOP}/bin/LINUX64/nwchem ${NWCHEM_TOP}/../binaries/nwchem_flang
+  tags:
+    - ubuntu_bionic
+
+linux64_ubuntu:build_intel:
+  stage: build
+  <<: *intel_sourcing
+  <<: *compile_step
+  variables:
+    FC: ifort
+    BLAS_SIZE: 8
+    SCALAPACK_SIZE: 8
+    BLAS_LIB: "   -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core -lpthread -lm -ldl"
+    LAPACK_LIB: " -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core -lpthread -lm -ldl"
+    SCALAPACK_LIB: " -lmkl_scalapack_ilp64 -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core -lmkl_blacs_intelmpi_ilp64 -lpthread -lm -ldl"
+    ARMCI_NETWORK: "MPI-PR"
+    USE_FPICF: "Y"
+  after_script:
+    - export NWCHEM_TOP=$CI_PROJECT_DIR
+    - echo "NWCHEM_TOP is " $NWCHEM_TOP
+    - mkdir -p ${NWCHEM_TOP}/../binaries || true
+    - cp ${NWCHEM_TOP}/bin/LINUX64/nwchem ${NWCHEM_TOP}/../binaries/nwchem_intel
+  tags:
+    - ubuntu_bionic
+
+linux_ubuntu:build_gcc:
+  stage: build
+  <<: *beforescript_linuxubuntu
+  <<: *compile_step
+  variables:
+    PATH: "/home/edo/apps/mpich314_i686/bin:/usr/bin:/bin:."
+    LD_LIBRARY_PATH: "/home/edo/apps/mpich314_i686/lib"
+    BUILD_SCALAPACK: 1
+    BUILD_OPENBLAS: 1
+    BLAS_SIZE: 4
+    SCALAPACK_SIZE: 4
+    ARMCI_NETWORK: "MPI-PR"
+  tags:
+    - ubuntu_xenial
+
+linux_ubuntu:run_gcc:
+  stage: test
+  needs: ["linux_ubuntu:build_gcc"]
+  <<: *beforescript_linuxubuntu
+  <<: *test_step
+  tags:
+    - ubuntu_xenial
+
+macos:build_gcc:
+  stage: build
+  <<: *compile_step
+  variables:
+#    BLASOPT: "-L/usr/local/opt/openblas/lib -lopenblas"
+#    LAPACK_LIB: "-L/usr/local/opt/openblas/lib -lopenblas"
+#    SCALAPACK_LIB: "-L/usr/local/opt/scalapack/lib/ -lscalapack -L/usr/local/opt/openblas/lib  -lopenblas"
+    BUILD_SCALAPACK: 1
+    BUILD_OPENBLAS: 1
+    BLAS_SIZE: 8
+    SCALAPACK_SIZE: 8
+    ARMCI_NETWORK: "SOCKETS"
+    USE_DCOMBSSQPATCH: "Y"
+    PATH: "/usr/local/opt/python@3.9/bin:/opt/local/bin:/usr/local/bin/:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin"
+  tags:
+    - macos_10.13
+
+linux64_centos8:run_gcc:
+  stage: test
+  needs: ["linux64_centos8:build_gcc"]
+  <<: *centos8_sourcing
+  <<: *test_step
+  tags:
+    - centos8
+  
+linux64_ubuntu:run_gcc:
+  stage: test
+  needs: ["linux64_ubuntu:build_gcc"]
+  <<: *test_step
+  tags:
+    - ubuntu_xenial
+
+linux64_ubuntu:run_flang:
+  stage: test
+  needs: ["linux64_ubuntu:build_flang"]
+  <<: *flang_sourcing
+  <<: *test_step
+  tags:
+    - ubuntu_bionic
+
+linux64_ubuntu:run_intel:
+  stage: test
+  needs: ["linux64_ubuntu:build_intel"]
+  <<: *intel_sourcing
+  <<: *test_step
+  tags:
+    - ubuntu_bionic
+
+
+macos:run_gcc:
+  stage: test
+  needs: ["macos:build_gcc"]
+  variables:
+    PATH: "/usr/local/opt/python@3.9/bin:/opt/local/bin:/usr/local/bin/:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin"
+  <<: *test_step
+  tags:
+    - macos_10.13

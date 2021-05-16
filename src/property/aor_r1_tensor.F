@@ -56,6 +56,7 @@ c     ---------------------
       integer rtdb    ! [input] run-time database handle
       integer basis   ! [input] basis handle
       integer geom    ! [input] geometry handle
+      integer nbf
       integer npol,nocct(npol), nvirt(npol)
       double precision froct(nbf,npol)
       
@@ -64,7 +65,7 @@ c     GA handles:
       integer g_smat0, g_vectors(npol), g_dipel, g_quadel, g_dipmag,
      &  g_vecE1(2,2),g_vecE1_im(2,2)
       
-      integer nbf, nmo, ncomp
+      integer  nmo, ncomp
       double precision gamwidth, omega
       logical lgiao, lquad, lvelocity, lifetime,
      &  lstatic

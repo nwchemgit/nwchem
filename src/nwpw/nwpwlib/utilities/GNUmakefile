@@ -44,13 +44,16 @@
 		nwpw_emachine.o \
 		BA_memory.o btdb.o beom.o \
 		task_paulsmatrix.o \
-		nwpw_cosmo.o
+		nwpw_cosmo.o \
+		nwpw_born.o \
+		nwpw_cdft.o \
+		nwpw_fftpack3d.o 
 
 	  OBJ = 
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = auto_corr.F  matrix.f nwpw_scf_mixing.F kerker_G.F cell.F cellgeometry.F nwpw_list.F cpsi_data.F psi_data.F nwpw_diis.F nwpw_kain.F nwpw_matrix_invert.F generate_unfolded_xyz.F
+    USES_BLAS = auto_corr.F  matrix.f nwpw_scf_mixing.F kerker_G.F cell.F cellgeometry.F nwpw_list.F cpsi_data.F psi_data.F nwpw_diis.F nwpw_kain.F nwpw_matrix_invert.F generate_unfolded_xyz.F nwpw_fftpack3d.F 
 
   LIB_DEFINES = 
 

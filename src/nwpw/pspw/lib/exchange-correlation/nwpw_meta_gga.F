@@ -14,8 +14,9 @@
 *     *            nwpw_meta_gga_init                  *
 *     *                                                *
 *     **************************************************
-      subroutine nwpw_meta_gga_init()
+      subroutine nwpw_meta_gga_init(gga)
       implicit none
+      integer gga
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -28,7 +29,7 @@
       integer n2ft3d
 
       meta_on = .false.
-      meta_on = nwpwxc_is_mgga()
+      meta_on = nwpwxc_is_mgga().or.(gga.ge.300)
 
       if (meta_on) then
          call D3dB_n2ft3d(1,n2ft3d)
@@ -38,8 +39,12 @@
      >                     'tau',tau(2),tau(1))
          if (.not.ok)
      >      call errquit('nwpw_meta_gga_init:out of heap',0,MA_ERR)
-         call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dfdtau(1)),1)
-         call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(tau(1)),1)
+         !call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dfdtau(1)),1)
+         !call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(tau(1)),1)
+         call Parallel_shared_vector_zero(.false.,2*n2ft3d,
+     >                                    dbl_mb(dfdtau(1)))
+         call Parallel_shared_vector_zero(.true.,2*n2ft3d,
+     >                                    dbl_mb(tau(1)))
       end if
       return
       end
@@ -138,7 +143,6 @@
       external lattice_omega
 
 
-!$OMP MASTER
       if (meta_on) then 
       n1(1) = 1
       n2(1) = neq(1)
@@ -154,13 +158,16 @@
 *     **** allocate stack memory ****
       if (.not.BA_push_get(mt_dcpl, nfft3d,'dpsi',dpsi(2),dpsi(1)))
      >   call errquit('nwpw_meta_gga_Hpsik:out of stack',0,MA_ERR)
-      call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(dpsi(1)),1)
+      !call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(dpsi(1)),1)
+      call Parallel_shared_vector_zero(.false.,2*nfft3d,
+     >                                 dcpl_mb(dpsi(1)))
 
       G(1)  = Pack_G_indx(1,1)
       G(2)  = Pack_G_indx(1,2)
       G(3)  = Pack_G_indx(1,3)
 
-      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(tau(1)),1)
+      !call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(tau(1)),1)
+      call Parallel_shared_vector_zero(.true.,2*n2ft3d,dbl_mb(tau(1)))
       do ms=1,ispin
          do n=n1(ms),n2(ms)
             do xyz=1,3
@@ -182,6 +189,7 @@
          call D3dB_r_SMul1(1,(scal2),dbl_mb(tau(1)+(ms-1)*n2ft3d))
          call D3dB_r_Zero_Ends(1,dbl_mb(tau(1)+(ms-1)*n2ft3d))
       end do
+      call D1dB_Vector_SumAll(ispin*n2ft3d,dbl_mb(tau(1)))
 
 *     **** deallocate stack ****
       if (.not.BA_pop_stack(dpsi(2)))
@@ -190,7 +198,6 @@
 
       end if
 
-!$OMP END MASTER
       return
       end
 
@@ -223,7 +230,8 @@
 *     **** local variables ****
       integer ms,n,n2ft3d,nfft3d,npack1,nx,ny,nz,xyz
       integer G(3),n1(2),n2(2),dpsi(2)
-      real*8 scal1,scal2,scal,pmeta0,ee
+      real*8 scal1,scal2,scal
+      !real*8 scal1,scal2,scal,pmeta0,ee
 
 *     **** external functions ****
       integer  Pack_G_indx
@@ -252,13 +260,14 @@
 *     **** allocate stack memory ****
       if (.not.BA_push_get(mt_dcpl, nfft3d,'dpsi',dpsi(2),dpsi(1)))
      >   call errquit('nwpw_meta_gga_Hpsik:out of stack',0,MA_ERR)
-      call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(dpsi(1)),1)
+      !call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(dpsi(1)),1)
+      call Parallel_shared_vector_zero(.true.,2*nfft3d,dcpl_mb(dpsi(1)))
 
       G(1)  = Pack_G_indx(1,1)
       G(2)  = Pack_G_indx(1,2)
       G(3)  = Pack_G_indx(1,3)
 
-      pmeta0 = 0.0d0
+c      pmeta0 = 0.0d0
       do ms=1,ispin
       do n=n1(ms),n2(ms)
          do xyz=1,3
@@ -287,15 +296,14 @@
             call Pack_tc_iMul2(1,dbl_mb(G(xyz)),
      >                          dcpl_mb(dpsi(1)))
             call Pack_cc_Sum2(1,dcpl_mb(dpsi(1)),Hpsi(1+(n-1)*npack1))
-
-            call Pack_cc_dot(1,psi(1+(n-1)*npack1),
-     >                        dcpl_mb(dpsi(1)),ee)
-            pmeta0 = pmeta0 + ee
+c            call Pack_cc_dot(1,psi(1+(n-1)*npack1),
+c     >                        dcpl_mb(dpsi(1)),ee)
+c            pmeta0 = pmeta0 + ee
 
          end do
       end do
       end do
-      if (ispin.eq.1) pmeta0 = pmeta0 + pmeta0
+c      if (ispin.eq.1) pmeta0 = pmeta0 + pmeta0
       !write(*,*) "PMETA0=",pmeta0
 
 *     **** deallocate stack ****
@@ -303,6 +311,7 @@
      >   call errquit('nwpw_meta_gga_Hpsik:popping stack',0,MA_ERR)
 
       end if
+
       return
       end
 
@@ -326,7 +335,10 @@
 c      integer n,nfft3d,npack1,xyz
 c      integer G(3),n1(2),n2(2),dpsi(2)
 c      real*8 scal1,scal2
-      real*8 pmeta,dV,ee,pmeta2
+      real*8 pmeta,dV
+
+      real*8 ee,e2
+      common /eenergy_tmp_common/ ee,e2
 
 *     **** external functions ****
 c      integer  Pack_G_indx
@@ -416,7 +428,7 @@ c         call Parallel_SumAll(pmeta)
 
       !write(*,*) "PMETA=",pmeta
 
-      nwpw_meta_gga_pxc = pmeta
+      nwpw_meta_gga_pxc = (pmeta)
       return
       end
 

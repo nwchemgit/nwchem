@@ -9,16 +9,20 @@ def geom_get_coords(name):
   #
   try:
     actualname = rtdb_get(name)
+    if (actualname == None):
+      actualname = name
   except NWChemError:
+    actualname = name
+  if actualname is None:
     actualname = name
   coords = rtdb_get('geometry:' + actualname + ':coords')
   units = rtdb_get('geometry:'+actualname+':user units')
   if (units == 'a.u.'):
     factor = 1.0
   elif (units == 'angstroms'):
-    factor = rtdb_get('geometry:'+actualname+':angstrom_to_au')
+    factor = rtdb_get('geometry:' + str(actualname) + ':angstrom_to_au')
   else:
-    raise NWChemError,'unknown units'
+    raise NWChemError('unknown units')
   i = 0
   while (i < len(coords)):
     coords[i] = coords[i] / factor
@@ -35,19 +39,21 @@ def geom_set_coords(name,coords):
     actualname = rtdb_get(name)
   except NWChemError:
     actualname = name
+  if actualname is None:
+    actualname = name
   units = rtdb_get('geometry:'+actualname+':user units')
   if (units == 'a.u.'):
     factor = 1.0
   elif (units == 'angstroms'):
-    factor = rtdb_get('geometry:'+actualname+':angstrom_to_au')
+    factor = rtdb_get('geometry:' + str(actualname) + ':angstrom_to_au')
   else:
-    raise NWChemError,'unknown units'
+    raise NWChemError('unknown units')
   coords = list(coords)
   i = 0
   while (i < len(coords)):
     coords[i] = coords[i] * factor
     i = i + 1
-  rtdb_put('geometry:' + actualname + ':coords',coords)
+  rtdb_put('geometry:' + str(actualname) + ':coords',coords)
 
 def bond_length(i,j):  # atoms numbered 1,2,...
   #
@@ -61,7 +67,6 @@ def bond_length(i,j):  # atoms numbered 1,2,...
   return sqrt(x*x + y*y + z*z)
 
 def minimize1d(f, xlo, xhi, xtol, maxeval):
-  from math import *
   #
   # Find the minimum value of function(x) in [xlo,xhi]
   # to a precision in x of xtol.  Maxeval specifies
@@ -84,19 +89,17 @@ def minimize1d(f, xlo, xhi, xtol, maxeval):
     xlo = tmp      
 
   if (ga_nodeid() == 0):
-     print '   Mode     xlo       xmid      xhi        flo          fmid          fhi'
-     print ' ------- --------- --------- --------- ------------ ------------ ------------'
+     print('   Mode     xlo       xmid      xhi        flo          fmid          fhi')
+     print(' ------- --------- --------- --------- ------------ ------------ ------------')
 
   xmid = xlo + (xhi - xlo)*gold
   flo  = f(xlo)
   if (ga_nodeid() == 0):
-     print ' startup%10.4f                    %13.6f' \
-      % (xlo, flo)
+     print(' startup%10.4f                    %13.6f'   % (xlo, flo))
 
   fmid = f(xmid)
   if (ga_nodeid() == 0):
-     print ' startup%10.4f%10.4f          %13.6f%13.6f' \
-      % (xlo, xmid, flo, fmid)
+     print(' startup%10.4f%10.4f          %13.6f%13.6f' % (xlo, xmid, flo, fmid))
 
   fhi  = f(xhi)
   neval = neval + 3
@@ -106,10 +109,9 @@ def minimize1d(f, xlo, xhi, xtol, maxeval):
   # First bracket the minimum
   while (not ((fmid<flo) and (fmid<fhi))):
     if (ga_nodeid() == 0):
-       print ' bracket%10.4f%10.4f%10.4f%13.6f%13.6f%13.6f' \
-           % (xlo, xmid, xhi, flo, fmid, fhi)
+       print(' bracket%10.4f%10.4f%10.4f%13.6f%13.6f%13.6f' % (xlo, xmid, xhi, flo, fmid, fhi))
     if (neval >= maxeval):
-       raise NWChemError,'min1d: too many evaluations'
+       raise NWChemError('min1d: too many evaluations')
     if ((flo>fmid) and (fmid>fhi)):
        xlo  = xmid
        flo  = fmid
@@ -124,7 +126,7 @@ def minimize1d(f, xlo, xhi, xtol, maxeval):
           xlo  = xmid
           flo  = fmid
     else:
-       raise NWChemError,'unanticipated'
+       raise NWChemError('unanticipated')
     xmid = xlo + (xhi - xlo)*gold
     fmid = f(xmid)
     neval = neval + 1
@@ -135,10 +137,9 @@ def minimize1d(f, xlo, xhi, xtol, maxeval):
   dx = xhi-xlo
   while (dx > xtol):
      if (ga_nodeid() == 0):
-	print ' %s %10.4f%10.4f%10.4f%13.6f%13.6f%13.6f' \
-	    % (mode, xlo, xmid, xhi, flo, fmid, fhi)
+         print(' %s %10.4f%10.4f%10.4f%13.6f%13.6f%13.6f' % (mode, xlo, xmid, xhi, flo, fmid, fhi))
      if (neval >= maxeval):
-	raise NWChemError,'min1d: too many evaluations'
+         raise NWChemError('min1d: too many evaluations')
 
      # Try a parabolic fit
      d1 = (fmid - flo) / (xmid-xlo)
@@ -153,10 +154,10 @@ def minimize1d(f, xlo, xhi, xtol, maxeval):
      ftest = 0.0
      if ((a > 0) and (b < 0) and (xtest>xlo) and (xtest<xhi)):
         mode = 'newton'
-	ftest = f(xtest)
+        ftest = f(xtest)
         neval = neval + 1
         if ((ftest > fmid)):
-           print ' Rejecting Newton step due to uphill motion %13.6f' % ftest
+           print(' Rejecting Newton step due to uphill motion %13.6f' % ftest)
            mode = 'search'
         elif (xtest > xmid):
            xlo = xmid
@@ -171,37 +172,36 @@ def minimize1d(f, xlo, xhi, xtol, maxeval):
 
      if (mode == 'search'):
         mode = 'search'
-	if ((xhi - xmid) > (xmid - xlo)):
-	   xtest = xmid + (xhi-xmid)*gold
-	   ftest = f(xtest)
-           neval = neval + 1
-	   if (ftest < fmid):
-	      xlo  = xmid
-	      flo  = fmid
-	      xmid = xtest
-	      fmid = ftest
-	   else:
-	      xhi = xtest
-	      fhi = ftest
-	else:
-	   xtest = xmid + (xlo-xmid)*gold
-	   ftest = f(xtest)
-           neval = neval + 1
-	   if (ftest < fmid):
-	      xhi  = xmid
-	      fhi  = fmid
-	      xmid = xtest
-	      fmid = ftest
-	   else:
-	      xlo = xtest
-	      flo = ftest
+        if ((xhi - xmid) > (xmid - xlo)):
+            xtest = xmid + (xhi-xmid)*gold
+            ftest = f(xtest)
+            neval = neval + 1
+            if (ftest < fmid):
+                xlo  = xmid
+                flo  = fmid
+                xmid = xtest
+                fmid = ftest
+            else:
+                xhi = xtest
+                fhi = ftest
+        else:
+            xtest = xmid + (xlo-xmid)*gold
+            ftest = f(xtest)
+            neval = neval + 1
+            if (ftest < fmid):
+                xhi  = xmid
+                fhi  = fmid
+                xmid = xtest
+                fmid = ftest
+            else:
+                xlo = xtest
+                flo = ftest
      dx = fabs(xlast-xtest) 
      xlast = xtest
     
-  print ' %s %10.4f%10.4f%10.4f%13.6f%13.6f%13.6f' \
-      % (mode, xlo, xmid, xhi, flo, fmid, fhi)
+  print(' %s %10.4f%10.4f%10.4f%13.6f%13.6f%13.6f' % (mode, xlo, xmid, xhi, flo, fmid, fhi))
   if (xlast != xmid):
-     print ' Re-evaluating at final coordinate'
+     print(' Re-evaluating at final coordinate')
      fmid = f(xmid)
 
   return (xmid, fmid)
@@ -245,19 +245,19 @@ def scan_input(input,start,end,nstep,theory,task):
   results = []
  
   if (len(start) != len(end)):
-    raise NWChemError,'scan_input: inconsistent #parameters'
+    raise NWChemError('scan_input: inconsistent #parameters')
 
   if (ga_nodeid() == 0): 
-    print ' '
-    print ' Scanning NWChem input '
-    print ' ---------------------'
-    print ' '
-    print input
-    print ' '
-    print ' Nstep ', nstep
-    print ' Start ', start
-    print ' End   ', end
-    print ' '
+    print(' ')
+    print(' Scanning NWChem input ')
+    print(' ---------------------')
+    print(' ')
+    print(input)
+    print(' ')
+    print(' Nstep ', nstep)
+    print(' Start ', start)
+    print(' End   ', end)
+    print(' ')
 
   for i in range(1,nstep+1):
      alpha = (1.0*i)/(nstep+1)
@@ -266,20 +266,20 @@ def scan_input(input,start,end,nstep,theory,task):
         new.append((1.0-alpha)*start[j] + alpha*end[j])
        
      if (ga_nodeid() == 0):
-        print ' '
-        print ' Scanning NWChem input - step %d of %d ' % (i,nstep)
-        print ' '
-        print input % tuple(new)
-        print ' '
+        print(' ')
+        print(' Scanning NWChem input - step %d of %d ' % (i,nstep))
+        print(' ')
+        print(input % tuple(new))
+        print(' ')
 
      input_parse(input % tuple(new))
      result = task(theory)
      if (ga_nodeid() == 0):
-        print ' '
-        print ' Scanning NWChem input - results from step ', i
-        print ' '
-        print result
-        print ' '
+        print(' ')
+        print(' Scanning NWChem input - results from step ', i)
+        print(' ')
+        print(result)
+        print(' ')
      results.append((new,result));
 
   return tuple(results)

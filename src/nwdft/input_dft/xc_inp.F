@@ -137,7 +137,7 @@ c     xperde86 ==> 9520
 c
 c
       integer num_dirs, ind, mlen, iline, n
-      parameter (num_dirs=148)
+      parameter (num_dirs=156)
 c
       character*15 dirs(num_dirs)
       character*255 test
@@ -187,7 +187,10 @@ c
      &     'b3pw91','pbe96','dldf','srhfexch','hse03',
      &     's12g','s12h','cam-s12g','cam-s12h',
      &     'becke86b','xperdew86','xmvs15','cvpbe09','mvs',
-     &     'hle16', 'scan', 'scanl','scan0','lb94'/
+     &     'hle16', 'scan', 'scanl','scan0','lb94', 'rscan',
+     &     'xncap', 'ncap', 'r2scan', 'r2scanl',
+     &     'xscan', 'cscan',
+     &     'hcth147@tz2p'/
 c     becke97-d, ssb-d
       logical disp, dumdirect
       integer ivdw
@@ -195,6 +198,8 @@ c     becke97-d, ssb-d
 c
       logical cam_exch,cam_srhf
       double precision cam_omega,cam_alpha,cam_beta
+c
+      logical use_hcth147
 c
 c     Grab the current input line and dump the functional specification
 c     onto the RTDB. This way external programs can pick the actual
@@ -257,7 +262,10 @@ c
      &  8200,4800,8300,8400,8500,8510,8520,8530,4600,4700,4701,8531,
      &  8532,8533,8534,9300,9310,9320,4610,4620,4630,4640,
      &  9510,9520,4115,2109,4124,3101,
-     &  9610,9620,9630,9494,1999) ind
+     &  9610,9620,9630,9494,9640,
+     &     9710,9720,9650,9660,9615,9616,
+     &  1947,
+     &    1999 ) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     acm; adiabatic connection method
@@ -537,7 +545,23 @@ c
  1847    continue
 c
 c        assume total wanted
-c     
+c
+         if (.not. rtdb_get(rtdb, 'dft:use_hcth147', mt_log, 1,
+     c        use_hcth147)) use_hcth147=.false.
+         if(.not.use_hcth147) then
+            write(luout,*) ' ********** WARNING *********'
+            write(luout,*) ' Use of the hcth147 is deprecated,'
+            write(luout,*) ' the hcth147@tz2p should be used instead.'
+            write(luout,*) ' Details at '
+        write(luout,*) ' https://github.com/nwchemgit/nwchem/pull/301'
+            write(luout,*) ' ****************************'
+            write(luout,*) ' If you still wish to use hcth147, '
+            write(luout,*) ' add the folllowing input line '
+            write(luout,*) ' before the dft input section'
+            write(luout,*) '    set dft:use_hcth147 t'
+            write(luout,*) ' ****************************'
+            call errquit(' use of hcth147 deprecated ',0, INPUT_ERR)
+         endif
        xccomb(8) = .true.
          lxfac(11) = .true.
          nlxfac(11) = .true.
@@ -546,7 +570,23 @@ c
          nlcfac(17) = .true.
          cfac(17) = 1.0d0
        goto 10
-c     
+c
+c
+c     HCTH147@TZ2P for exchange & correlation
+c
+ 1947    continue
+c
+c        assume total wanted
+c
+       xccomb(75) = .true.
+         lxfac(75) = .true.
+         nlxfac(75) = .true.
+         xfac(75) = 1.0d0
+         lcfac(75) = .true.
+         nlcfac(75) = .true.
+         cfac(75) = 1.0d0
+       goto 10
+c
 c     becke 97 gga-1 by  Cohen and Handy
 c     
  3000  continue
@@ -1508,23 +1548,13 @@ c
 c     cpkzb99 Perdew Kurth Zupan Blaha metaGGA functional for correlation
 c     default local functional (PW91 LDA) is set in cpkzb99.F code
 c             
- 3650 if (inp_a(test)) then
-         if (inp_compare(.false.,'local', test)) then
-            write(LuOut,*)' cpkzb99 is a nonlocal functional;',
-     &                ' "local" descriptor is ignored. '                   
-           call inp_prev_field()
-         elseif (inp_compare(.false.,'nonlocal', test)) then
-           write(LuOut,*)' cpkzb99 cannot be conveniently',
-     &           ' split into local and nonlocal pieces; '
-            write(LuOut,*)' total cpkzb99 is used. '
-            call inp_prev_field()
-         endif
-      endif
+ 3650 continue
 c
 c           assume total wanted (but total here = nonlocal)
 c
       lcfac(25) = .true.
       nlcfac(25) = .true.
+      call xcinp_fact_noloc(test,'cpkzb99',cfac(25))
       if (.not. inp_f(cfac(25))) then
          cfac(25) = 1.0d0
       endif            
@@ -1685,6 +1715,20 @@ c
         xfac(66) = 1.0d0
       goto 10
 c
+c X-only SCAN meta GGA
+c
+ 9615 lxfac(66) = .true.
+      nlxfac(66) = .true.
+      call xcinp_fact_noloc(test,'xscan',xfac(66))
+      goto 10
+c
+c C-only SCAN meta GGA
+c
+ 9616 lcfac(66) = .true.
+      nlcfac(66) = .true.
+      call xcinp_fact_noloc(test,'cscan',cfac(66))
+      goto 10
+c
 c SCAN0 hybrid meta GGA
 c
 9630  xccomb(70) = .true.
@@ -1699,6 +1743,17 @@ c
       nlxfac(1) = .true.
       goto 10
 c
+c regularized SCAN meta GGA
+c
+9640  xccomb(71) = .true.
+       lcfac(71) = .true.
+      nlcfac(71) = .true.
+        cfac(71) = 1.0d0
+       lxfac(71) = .true.
+      nlxfac(71) = .true.
+        xfac(71) = 1.0d0
+      goto 10
+c
 c SCAN-L laplacian-dependent mGGA
 c
 9620  xccomb(67) = .true.
@@ -1709,6 +1764,46 @@ c
       nlxfac(67) = .true.
         xfac(67) = 1.0d0
       goto 10
+c
+c NCAP functional
+c
+9710   lxfac(72) = .true.
+      nlxfac(72) = .true.
+        xfac(72) = 1.0d0
+      goto 10
+
+9720  xccomb(72) = .true.
+      cfac(3) = 1d0
+      lcfac(3) = .true.
+      cfac(4) = 1d0
+      nlcfac(4) = .true.
+      lxfac(72) = .true.
+      nlxfac(72) = .true.
+      xfac(72) = 1.0d0
+      goto 10
+c
+c r2SCAN metaGGA
+c
+9650  xccomb(73) = .true.
+       lcfac(73) = .true.
+      nlcfac(73) = .true.
+        cfac(73) = 1.0d0
+       lxfac(73) = .true.
+      nlxfac(73) = .true.
+        xfac(73) = 1.0d0
+      goto 10
+c
+c r2SCAN-L deorbitalized metaGGA
+c
+9660  xccomb(74) = .true.
+       lcfac(74) = .true.
+      nlcfac(74) = .true.
+        cfac(74) = 1.0d0
+       lxfac(74) = .true.
+      nlxfac(74) = .true.
+        xfac(74) = 1.0d0
+      goto 10
+
 c
 c lb94 Vxc function
 c fill only x here, no c
@@ -4413,4 +4508,32 @@ c
       call util_flush(LuOut)
       call errquit('ts_input: invalid format', 0, INPUT_ERR)
 c     
+      end
+      subroutine xcinp_fact_noloc(test,funcname,fact_out)
+      implicit none
+      character*(*) test        ! [in]
+      character*(*) funcname    ! [in]
+      double precision fact_out ! [out]
+#include "inp.fh"
+#include "stdio.fh"
+ 1    if (.not. inp_f(fact_out)) then
+         if (inp_a(test)) then
+            if (inp_compare(.false.,'local', test)) then
+               write(LuOut,*) funcname(1:inp_strlen(funcname)),
+     &              ' is a nonlocal functional;',
+     &              ' "local" descriptor is ignored. '
+               goto 1
+            elseif (inp_compare(.false.,'nonlocal', test)) then
+               write(LuOut,*) funcname(1:inp_strlen(funcname)),
+     &              ' cannot be conveniently',
+     &              ' split into local and nonlocal pieces; '
+               write(LuOut,*)' total ',funcname(1:inp_strlen(funcname)),
+     &              ' is used. '
+               goto 1
+            endif
+         else
+            fact_out=1d0
+         endif
+      endif
+      return
       end

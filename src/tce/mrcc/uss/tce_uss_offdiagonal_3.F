@@ -61,11 +61,8 @@ c
       logical ap1,ah2,ap2,ah1,ah3,ap3
       logical activep,activeh
       EXTERNAL NXTASKsub
-      EXTERNAL NXTASK
-      EXTERNAL NXTVAL
-      INTEGER NXTASKsub
-      INTEGER NXTASK
-      INTEGER NXTVAL
+      EXTERNAL nxtask
+      INTEGER nxtask
       INTEGER nxt
       INTEGER nprocs
       INTEGER count,next

@@ -342,9 +342,9 @@ c
 C$Id$
       implicit none
 
+      integer nbf
       double precision vtmp(nbf,nbf)
       integer a(2*nbf,2*nbf,2)
-      integer nbf
       character*1 op
 c
       integer j

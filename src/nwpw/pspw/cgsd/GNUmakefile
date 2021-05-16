@@ -22,12 +22,14 @@
                 bfgsminimize.o  \
                 bfgsminimize2.o  \
                 bfgsminimize3.o \
+                bybminimize0.o \
                 bybminimize.o \
                 bybminimize2.o \
                 sdminimize.o \
 		nominimize.o \
 		md_energy.o \
-		kp_structure.o
+		kp_structure.o \
+		pspw_director.o
 
 	  OBJ = 
 

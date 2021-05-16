@@ -114,4 +114,21 @@ c
      >                       link_found
 
 
+*     **** pspw_qmmm bondings spring common block ****
+      integer nbondings(2)
+      integer nindx0_bondings_start(2)
+      integer indx1_bondings(2),nindx1_bondings_start(2)
+      integer nsize1_bondings(2)
+      integer Kr0_bondings(2), nKr0_bondings_start(2)
+      logical bondings_found
+      common / pspw_qmmm11 / nbondings,
+     >                       nindx0_bondings_start,
+     >                       indx1_bondings,nindx1_bondings_start,
+     >                       nsize1_bondings,
+     >                       Kr0_bondings, nKr0_bondings_start,
+     >                       bondings_found
+
+
+
+
 *     ******************************************************************

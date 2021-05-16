@@ -42,8 +42,8 @@ c
       integer l_pqboff,k_pqboff
       integer pq
       integer r_range,s_range
-cc      integer nxtval
-cc      external nxtval
+cc      integer nxtask
+cc      external nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
       INTEGER NXTASKsub

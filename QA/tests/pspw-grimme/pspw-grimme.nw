@@ -18,7 +18,6 @@ title "2 water molecules using pbe-grimme2, pbe-grimme3"
 echo
 
 start pspw_grimme
-memory 1900 mb
 
 
 geometry nocenter noautosym noautoz print 

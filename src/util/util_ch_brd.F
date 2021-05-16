@@ -6,16 +6,17 @@
 #include "errquit.fh"
 #include "inp.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
 #include "mafdecls.fh"
       integer type
       character*(*) string
       integer origin
 c
+      integer mitob1
       integer maxs, ls, i
       parameter (maxs = 256)
       integer c(maxs)
 c
+      mitob1=MA_sizeof(MT_INT,1,MT_BYTE)
       if (ga_nodeid() .eq. origin) then
          ls = inp_strlen(string)
          if (ls .gt. maxs) call errquit
@@ -27,7 +28,7 @@ c
          enddo
       endif
 c     
-      call ga_brdcst(type, ls, mitob(1), origin)
+      call ga_brdcst(type, ls, mitob1, origin)
       if (ls .gt.len(string)) call errquit
      $     ('util_char_ga_brdcst: receiving string too small',ls,
      &       GA_ERR)

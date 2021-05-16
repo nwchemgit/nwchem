@@ -16,6 +16,8 @@
 
       logical value
 
+      if (.not.periodic) call nwpw_cdft_end()
+      if (.not.periodic) call nwpw_born_end()
       if (.not.periodic) call nwpw_cosmo_end()
       call FMM_end()
       call ion_scaling_atoms_end()
@@ -102,6 +104,7 @@
          value = beom_cent_set(geom,i,t,dbl_mb(r1(1)+(i-1)*3),q)
       end do
 
+
 *     **** if md code then write velocities ****
       if ((control_code().eq.2).or.
      >    (control_code().eq.7).or.
@@ -154,7 +157,7 @@
       else
         value = beom_rtdb_delete(rtdb,'chargepspwgeometry')
         value = beom_rtdb_delete(rtdb,'pspwgeometry')
-        value = beom_rtdb_delete(rtdb,'qmmmgeometry')
+        !value = beom_rtdb_delete(rtdb,'qmmmgeometry')
       end if
       call nwpw_timing_end(50)
       return
@@ -254,10 +257,12 @@
       external ion_atn
       logical  control_is_grimme2
       external control_is_grimme2
-      logical  nwpw_cosmo_on
-      external nwpw_cosmo_on
+      logical  nwpw_cosmo1_on
+      external nwpw_cosmo1_on
       integer  nwpw_cosmo_nq
       external nwpw_cosmo_nq
+      logical  control_incell
+      external control_incell
 
 
       call Parallel_taskid(taskid)
@@ -270,6 +275,7 @@
 *     ***** set periodic ****
       periodic = .true.
       if (control_version().eq.4) periodic = .false.
+      incell_on = periodic.and.control_incell()
 
 *     ***** set makehmass2 ****
       makehmass2 = control_makehmass2()
@@ -350,8 +356,9 @@
         call fcoord_to_real(nion,dbl_mb(r1(1)))
       end if         
 
+
 *     **** make sure qm ions are in cell ***
-      if (periodic) call incell1(nion_qm,dbl_mb(r1(1)))
+      if (incell_on) call incell1(nion_qm,dbl_mb(r1(1)))
 
       call dcopy((3*nion),dbl_mb(r1(1)),1,dbl_mb(r2(1)),1)
 
@@ -478,15 +485,18 @@ c         eki1=0.5d0*eki1
          end if
       end if
 
-*     ***** try to initialize COSMO if aperiodic *****
+*     ***** try to initialize Born and COSMO and CDFT if aperiodic *****
       nion_q = 0
-      cosmo_on = .false.
+      cosmo1_on = .false.
+      call nwpw_cosmo_off()
       if  (.not.periodic) then
+         call nwpw_cdft_init(rtdb)
+         call nwpw_born_init(rtdb)
          call nwpw_cosmo_init(rtdb,geom)
-         cosmo_on = nwpw_cosmo_on()
+         cosmo1_on = nwpw_cosmo1_on()
       end if
      
-      if (cosmo_on) then
+      if (cosmo1_on) then
          nion_q    = nwpw_cosmo_nq()
          nkatm_old = nkatm
          nkatm     = nkatm + 2
@@ -1675,7 +1685,7 @@ c      end if
 
 #include "ion.fh"
 
-      if (cosmo_on) then
+      if (cosmo1_on) then
          ion_nkatm0 = nkatm-2
       else
          ion_nkatm0 = nkatm
@@ -1700,15 +1710,15 @@ c      end if
 
 *     ***************************
 *     *                         *
-*     *         ion_cosmo_on    *
+*     *         ion_cosmo1_on   *
 *     *                         *
 *     ***************************
-      logical function ion_cosmo_on()
+      logical function ion_cosmo1_on()
       implicit none
 
 #include "ion.fh"
 
-      ion_cosmo_on = cosmo_on
+      ion_cosmo1_on = cosmo1_on
       return
       end 
 
@@ -1932,6 +1942,32 @@ c      end if
       return
       end
 
+*     ***************************
+*     *                         *
+*     *    ion_rion_indx_ptr    *
+*     *                         *
+*     ***************************
+
+      integer function ion_rion_indx_ptr(indx)
+      implicit none
+      integer indx
+
+#include "bafdecls.fh"
+#include "ion.fh"
+
+      if (indx.eq.0) then
+         ion_rion_indx_ptr = r0(1)
+      else if (indx.eq.1) then
+         ion_rion_indx_ptr = r1(1)
+      else if (indx.eq.2) then
+         ion_rion_indx_ptr = r2(1)
+      else if (indx.eq.3) then
+         ion_rion_indx_ptr = v2(1)
+      end if
+
+      return
+      end
+
 
 *     ***************************
 *     *				*
@@ -2004,7 +2040,7 @@ c      end do
       call ion_trans_sub(nion,trans,dbl_mb(r1(1)))
 
 *     *** make sure ions are in the cell ***
-      if (periodic) then
+      if (incell_on) then
          call incell1(nion_qm,dbl_mb(r1(1)))
          call pspw_qmmm_incell1(dbl_mb(r1(1)))
       end if
@@ -2044,7 +2080,7 @@ c      end do
      >                   trans,dbl_mb(r1(1)),dbl_mb(r2(1)))
 
 *     *** make sure ions are in the cell ***
-      if (periodic) then
+      if (incell_on) then
          call incell1(nion_qm,dbl_mb(r1(1)))
          call pspw_qmmm_incell1(dbl_mb(r1(1)))
       end if
@@ -2141,7 +2177,7 @@ c      end do
       call molecular_fix(dbl_mb(r2(1)), dbl_mb(r1(1)))
 
 *     **** make sure qm ions and fragments are in cell ***
-      if (periodic) then
+      if (incell_on) then
          call incell1(nion_qm,dbl_mb(r2(1)))
          call pspw_qmmm_incell1(dbl_mb(r2(1)))
       end if
@@ -2232,7 +2268,7 @@ c      end do
 
 
 *     **** make sure ions are in cell ***
-      if (periodic) then
+      if (incell_on) then
          call incell3(nion_qm,dbl_mb(r2(1)),
      >                        dbl_mb(r1(1)),
      >                        dbl_mb(r0(1)))
@@ -2462,7 +2498,7 @@ c      dbl_mb(r0(1)+3*ii+2) = h(3)/alpha
 
 
 *     **** make sure ions are in cell ***
-      if (periodic) then
+      if (incell_on) then
          call incell1(nion_qm,dbl_mb(r1(1)))
          call pspw_qmmm_incell1(dbl_mb(r1(1)))
       end if
@@ -2747,7 +2783,7 @@ c      end do
 
 
 *     **** make sure ions are in cell ***
-      if (periodic) then
+      if (incell_on) then
          call incell2(nion_qm,dbl_mb(r2(1)),
      >                        dbl_mb(r1(1)))
          call pspw_qmmm_incell2(dbl_mb(r2(1)),
@@ -2859,7 +2895,7 @@ c      end do
 
 
 *     **** make sure ions are in cell ***
-      if (periodic) then
+      if (incell_on) then
          call incell3(nion_qm,dbl_mb(r2(1)),
      >                        dbl_mb(r1(1)),
      >                        dbl_mb(r0(1)))
@@ -3148,6 +3184,26 @@ c      end do
       return
       end
 
+*     ***************************
+*     *                         *
+*     *     ion_sym_get_op      *
+*     *                         *
+*     ***************************
+      subroutine ion_sym_get_op(opnum,matrix)
+      implicit none
+      integer opnum
+      real*8 matrix(3,4)
+
+#include "sym.fh"
+
+      integer geom
+      common / ION2/ geom
+
+      call sym_op_get(geom,opnum,matrix)
+      return
+      end
+
+
 
 *     ***************************
 *     *                         *
@@ -3167,6 +3223,24 @@ c      end do
       call sym_apply_op(geom,opnum,ks,ks1)
       return
       end
+
+*     ***************************
+*     *                         *
+*     *   ion_sym_group_name    *
+*     *                         *
+*     ***************************
+      character*10 function ion_sym_group_name()
+      implicit none
+
+#include "sym.fh"
+
+      integer geom
+      common / ION2/ geom
+
+      call sym_group_name(geom,ion_sym_group_name)
+      return
+      end
+
 
 
 
@@ -4723,6 +4797,8 @@ c
       double precision test_norm
       integer i, j, k, l, m, n, mu, nu, indx, iatom, iaxis, itemp
       integer nhess, nhesst,IMAX
+      double precision ddot
+      external ddot
 C****
       nhess = nat3*nat3
       nhesst =  nat3*(nat3+1)/2 ! dimension of lower triangular hessian

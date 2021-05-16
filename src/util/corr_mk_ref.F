@@ -105,7 +105,6 @@ C INCLUDE FILES
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
 #include "geom.fh"
 #include "util.fh"
 #include "stdio.fh"
@@ -132,6 +131,7 @@ C
 C LOCAL VARIABLES
 C
       Integer MLen, MyRChunk, MyCChunk, Spin, DType, Lo, Hi, Me, I
+      integer mitob1
       Character*(256) VecFil, VecTitle, VecBas, VecType
       Character*(80) Key, Key2, Type, Date
       Integer VecSpin, VecNMO(MyMxSpin), G_Vec(MyMxSpin), MxVecNMO,
@@ -187,7 +187,8 @@ C     * Try to insure vectors are converged *
 C     ***************************************
 C
       If (Me .eq. 0) Inquire( File=VecFil, Exist=Status)
-      Call GA_Brdcst(Msg_CMR_File, Status, MIToB(1), 0)
+      mitob1=MA_sizeof(MT_INT,1,MT_BYTE)
+      Call GA_Brdcst(Msg_CMR_File, Status, MIToB1, 0)
 C
       If ( Status )
      $     Status = MOVecs_Converged( RTDB, Basis, 'scf', VecFil)
@@ -508,7 +509,7 @@ C
      $     'degeneracy    <<<<<' )
 
  8960 Format(1X, '>>>>> WARNING!  in ', A, ' space, spin ', I2,
-     $     ' (eval diff ', 1P, E7.1, ') <<<<<')
+     $     ' (eval diff ', 1P E7.1, ') <<<<<')
 C
 C     Free up memory
 C

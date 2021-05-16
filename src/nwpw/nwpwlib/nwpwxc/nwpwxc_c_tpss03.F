@@ -20,14 +20,14 @@ C> "Climbing the density functional ladder: Nonemperical meta-
 C> generalized gradient approximation designed for molecules
 C> and solids",
 C> Phys. Rev. Lett. <b>91</b>, 146401-146404 (2003), DOI:
-C> <a href="http://dx.doi.org/10.1103/PhysRevLett.91.146401">
+C> <a href="https://doi.org/10.1103/PhysRevLett.91.146401">
 C> 10.1103/PhysRevLett.91.146401</a>.
 C>
 C> [2] J.P. Perdew, J. Tao, V.N. Staveroverov, G.E. Scuseria,
 C> "Meta-generalized gradient approximation: Explanation of a
 C> realistic nonempirical density functional",
 C> J. Chem. Phys. <b>120</b>, 6898-6911 (2004), DOI:
-C> <a href="http://dx.doi.org/10.1063/1.1665298">
+C> <a href="https://doi.org/10.1063/1.1665298">
 C> 10.1103/1.1665298</a>.
 C>
 c   

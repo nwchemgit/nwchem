@@ -223,16 +223,20 @@ c
       do j=i,size-1
 
         rtdb_name = tag(1:taglen)//bead_index_name(j+1)//':movecs_name'
+c        if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,tmp_name))
+c     >     tmp_name = 'bead'//bead_index_name(j+1)//'.movecs'
         if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,tmp_name))
-     >     tmp_name = 'bead'//bead_index_name(j+1)//'.movecs'
+     >     tmp_name = tag(1:taglen)//bead_index_name(j+1)//'.movecs'
         tmplen = inp_strlen(tmp_name)
         rtdb_name = tag(1:taglen)//bead_index_name(j)//':movecs_name'
         value = value.and.
      >          rtdb_cput(bead_rtdb,rtdb_name,1,tmp_name(1:tmplen))
 
         rtdb_name = tag(1:taglen)//bead_index_name(j+1)//':geom_name'
+c        if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,tmp_name))
+c     >     tmp_name = 'bead'//bead_index_name(j+1)//':geom'
         if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,tmp_name))
-     >     tmp_name = 'bead'//bead_index_name(j+1)//':geom'
+     >     tmp_name = tag(1:taglen)//bead_index_name(j+1)//':geom'
         tmplen = inp_strlen(tmp_name)
         rtdb_name = tag(1:taglen)//bead_index_name(j)//':geom_name'
         value = value.and.
@@ -349,8 +353,10 @@ c
       end if
 
       rtdb_name = tag(1:taglen)//bead_index_name(i)//':geom_name'
+c      if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
+c     >   geom_name   = 'bead'//bead_index_name(i)//':geom'
       if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
-     >   geom_name   = 'bead'//bead_index_name(i)//':geom'
+     >   geom_name   = tag(1:taglen)//bead_index_name(i)//':geom'
       geomlen = inp_strlen(geom_name)            
 
       value =           geom_create(geom,'bead_tmp') 
@@ -424,15 +430,19 @@ c
       if (i.gt.size) return
 
       rtdb_name = tag(1:taglen)//bead_index_name(i)//':movecs_name'
+c      if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,movecs_name))
+c     >   movecs_name = 'bead'//bead_index_name(i)//'.movecs'
       if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,movecs_name))
-     >   movecs_name = 'bead'//bead_index_name(i)//'.movecs'
+     >   movecs_name = tag(1:taglen)//bead_index_name(i)//'.movecs'
 
       call util_file_name_resolve(movecs_name, .false.)
       movecslen = inp_strlen(movecs_name)
 
       rtdb_name = tag(1:taglen)//bead_index_name(i)//':geom_name'
+c      if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
+c     >   geom_name = 'bead'//bead_index_name(i)//':geom'
       if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
-     >   geom_name = 'bead'//bead_index_name(i)//':geom'
+     >   geom_name = tag(1:taglen)//bead_index_name(i)//':geom'
       geomlen = inp_strlen(geom_name)
 
       value = value.and.
@@ -586,21 +596,28 @@ c
 c     Entry - tag: name of bead list
 c
 c 
-      subroutine runmid_bead_list(tag,task_gradient_gen)
+      subroutine runmid_bead_list(tag,task_gradient_gen,
+     >                            freeze1,freezen)
       implicit none
       character*(*) tag
       logical     task_gradient_gen
       external    task_gradient_gen
+      logical freeze1,freezen
      
 *     *** local variables ***
-      integer i,nbeads
+      integer i,nbeads,istart,iend
 
 *     *** external functions ***
       integer  size_bead_list
       external size_bead_list
 
       nbeads = size_bead_list(tag)
-      do i=2,(nbeads-1)
+      !do i=2,(nbeads-1)
+      istart = 2
+      iend   = nbeads-1
+      if (.not.freeze1) istart = 1 
+      if (.not.freezen) iend   = nbeads
+      do i=istart,iend
         call run_bead_list(tag,i,task_gradient_gen)
       end do
 
@@ -703,8 +720,10 @@ c
       taglen    = inp_strlen(tag)
 
       rtdb_name = tag(1:taglen)//bead_index_name(i)//':geom_name'
+c      if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
+c     >   geom_name = 'bead'//bead_index_name(i)//':geom'
       if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
-     >   geom_name = 'bead'//bead_index_name(i)//':geom'
+     >   geom_name = tag(1:taglen)//bead_index_name(i)//':geom'
       geomlen   = inp_strlen(geom_name)            
 
       value =           geom_create(geom,'bead_tmp') 
@@ -778,8 +797,10 @@ c
       taglen    = inp_strlen(tag)
 
       rtdb_name = tag(1:taglen)//bead_index_name(i)//':geom_name'
+c      if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
+c     >   geom_name = 'bead'//bead_index_name(i)//':geom'
       if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
-     >   geom_name = 'bead'//bead_index_name(i)//':geom'
+     >   geom_name = tag(1:taglen)//bead_index_name(i)//':geom'
       geomlen   = inp_strlen(geom_name)            
 
       value =           geom_create(geom,'bead_tmp') 
@@ -807,6 +828,150 @@ c
     
       return
       end
+
+
+
+c     **********************************************
+c     *                                            *
+c     *              systype_bead_list             *
+c     *                                            *
+c     **********************************************
+
+c  This routine returns if the systype, i.e. the number of dimensions
+c from the "tag" bead list. Uses bead index=1.
+c
+c     Entry - tag: name of bead list
+c     Exit  -
+c
+      integer function systype_bead_list(tag)
+      implicit none
+      character*(*) tag
+
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "geom.fh"
+
+*     ***** local variables ****
+      integer i,isystype
+      real*8 amat(3,3)
+      logical value
+      integer geom,nion
+      integer size,taglen,geomlen
+      real*8  energy
+      character*255 rtdb_name,geom_name
+
+      integer bead_rtdb
+      common /bead_list/ bead_rtdb
+
+*     **** external functions ****
+      character*7 bead_index_name
+      integer     inp_strlen,size_bead_list
+      external    bead_index_name
+      external    inp_strlen,size_bead_list
+
+      isystype = 0
+      i = 1
+      size = size_bead_list(tag)
+      if (i.gt.size) then
+         systype_bead_list = isystype
+         return
+      end if
+
+      taglen    = inp_strlen(tag)
+
+      rtdb_name = tag(1:taglen)//bead_index_name(i)//':geom_name'
+c      if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
+c     >   geom_name = 'bead'//bead_index_name(i)//':geom'
+      if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
+     >   geom_name = tag(1:taglen)//bead_index_name(i)//':geom'
+      geomlen   = inp_strlen(geom_name)
+
+      value =           geom_create(geom,'bead_tmp')
+      value = value.and.geom_rtdb_load(bead_rtdb,geom,
+     >                                 geom_name(1:geomlen))
+
+*     **** get systype ***
+      if (.not.geom_systype_get(geom,isystype)) then
+         isystype = 0
+      end if
+
+      value = value.and.geom_destroy(geom)
+      if (.not.value) call errquit('systype_bead_list failed',0,0)
+
+      systype_bead_list = isystype
+      return
+      end
+
+
+
+
+c     ***************************************************
+c     *                                                 *
+c     *              amatrix_get_bead_list              *
+c     *                                                 *
+c     ***************************************************
+
+c  This routine returns the amatrix, amat, of the "i" bead
+c from the "tag" bead list.
+c
+c     Entry - tag: name of bead list
+c             i: bead number
+c     Exit  - amat: amatrix
+c
+      subroutine amatrix_get_bead_list(tag,i,amat)
+      implicit none
+      character*(*) tag
+      integer i
+      real*8 amat(3,3)
+
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "geom.fh"
+
+*     ***** local variables ****
+      logical value
+      integer geom,nion
+      integer size,taglen,geomlen
+      real*8  energy
+      character*255 rtdb_name,geom_name
+
+      integer bead_rtdb
+      common /bead_list/ bead_rtdb
+
+*     **** external functions ****
+      character*7 bead_index_name
+      integer     inp_strlen,size_bead_list
+      external    bead_index_name
+      external    inp_strlen,size_bead_list
+
+      size = size_bead_list(tag)
+      if (i.gt.size) return
+
+      taglen    = inp_strlen(tag)
+
+      rtdb_name = tag(1:taglen)//bead_index_name(i)//':geom_name'
+c      if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
+c     >   geom_name = 'bead'//bead_index_name(i)//':geom'
+      if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
+     >   geom_name = tag(1:taglen)//bead_index_name(i)//':geom'
+      geomlen   = inp_strlen(geom_name)
+
+      value =           geom_create(geom,'bead_tmp')
+      value = value.and.geom_rtdb_load(bead_rtdb,geom,
+     >                                 geom_name(1:geomlen))
+
+*     **** get amatrix ***
+      if (.not.geom_amatrix_get(geom,amat)) then
+         call dcopy(9,0.0d0,0,amat,1)
+      end if
+
+      value = value.and.geom_destroy(geom)
+      if (.not.value) call errquit('amatrix_get_bead_list failed',0,0)
+
+      return
+      end
+
+
 
 
 c     ***************************************************
@@ -856,8 +1021,10 @@ c
       taglen    = inp_strlen(tag)
 
       rtdb_name = tag(1:taglen)//bead_index_name(i)//':geom_name'
+c      if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
+c     >   geom_name   = 'bead'//bead_index_name(i)//':geom'
       if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
-     >   geom_name   = 'bead'//bead_index_name(i)//':geom'
+     >   geom_name   = tag(1:taglen)//bead_index_name(i)//':geom'
       geomlen   = inp_strlen(geom_name)            
 
       value =           geom_create(geom,'bead_tmp') 
@@ -925,8 +1092,10 @@ c
       taglen    = inp_strlen(tag)
 
       rtdb_name = tag(1:taglen)//bead_index_name(i)//':geom_name'
+c      if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
+c     >   geom_name = 'bead'//bead_index_name(i)//':geom'
       if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
-     >   geom_name = 'bead'//bead_index_name(i)//':geom'
+     >   geom_name = tag(1:taglen)//bead_index_name(i)//':geom'
       geomlen   = inp_strlen(geom_name)            
 
       value =           geom_create(geom,'bead_tmp') 
@@ -1010,8 +1179,10 @@ c
      >                              mt_dbl,1,energy)
 
          rtdb_name = tag(1:taglen)//bead_index_name(i)//':geom_name'
+c         if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
+c     >      geom_name = 'bead'//bead_index_name(i)//':geom'
          if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
-     >      geom_name = 'bead'//bead_index_name(i)//':geom'
+     >      geom_name = tag(1:taglen)//bead_index_name(i)//':geom'
          geomlen = inp_strlen(geom_name)      
          value = value.and.geom_rtdb_load(bead_rtdb,
      >                             geom,geom_name(1:geomlen))

@@ -1,5 +1,5 @@
 #
-# Test for CCSD[T] & CCDS(T) codes in the TCE module
+# Test for CCSD[T] & CCSD(T) codes in the TCE module
 # Reference data obtained by an independent code are
 #
 # CCSD(T) -0.21632467284

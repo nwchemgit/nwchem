@@ -23,7 +23,7 @@
       integer hml_tag
 
 *     **** very big workspace variables ****
-      integer psir_tag,Hpsi_tag
+      integer psir_tag,Hpsi_tag,next1_tag,next2_tag
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -31,9 +31,9 @@
 *     **** local variables ****
       logical move,sic,hfx,done
       integer n2ft3d,np_i,np_j,np_k,np,nbq,nemaxq
-      integer i,n,n1(2),n2(2),it,ms,ierr,shifto
+      integer i,n,n1(2),n2(2),it,ms,ierr,shifto,indx
       integer shiftA,shiftB,nshiftA,nshiftB,psi1_shift,psi2_shift
-      integer nx,ny,nz,nbi,nbj,ki,kj,occ_tag,nb
+      integer nx,ny,nz,nbi,nbj,ki,kj,occ_tag,nb,eig_shift
       integer gga,psi_shift,hpsi_shift,hml_shift,nshift1,nshift2
       real*8  sum,Eold,eorbit,eion,ehartr,eke,elocal,enlocal
       real*8  exc,exc2,pxc,pxc2,dte,scal1,scal2,dv,dt
@@ -45,7 +45,7 @@
 
 
 *     **** MA local variables ****
-      logical value,field_exist
+      logical value,field_exist,fractional
       integer tmp_L(2),trho(2),txcp(2),txce(2)
       integer tmp1(2),tmp2(2)
       integer vl(2),vc(2),dng(2)
@@ -78,6 +78,8 @@
       external C3dB_cr_pfft3_queue_filled
       logical  Pneb_w_push_get_block,Pneb_w_pop_stack
       external Pneb_w_push_get_block,Pneb_w_pop_stack
+      logical  nwpwxc_is_on,control_only_lda
+      external nwpwxc_is_on,control_only_lda
 
 *     ***** QM/MM external functions ****
       logical  pspw_charge_found,pspw_qmmm_found
@@ -88,6 +90,16 @@
       external ion_disp_on
       real*8   ion_disp_energy
       external ion_disp_energy
+
+      integer tid
+      integer nthreads
+      integer  Parallel_threadid, Parallel_nthreads
+      external Parallel_threadid, Parallel_nthreads
+
+      logical  control_fractional
+      external control_fractional
+      integer  control_fractional_smeartype
+      external control_fractional_smeartype
 
       call Cram_npack(0,npack0)
       call Cram_max_npack(npack1)
@@ -101,6 +113,7 @@
       n1(2) = neq(1)+1
       n2(2) = neq(1)+neq(2)
       nemaxq = neq(1)+neq(2)
+      fractional = control_fractional()
 
       call nwpw_timing_start(12)
 
@@ -127,7 +140,7 @@
      >        BA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
       value = value.and.
      >        BA_push_get(mt_dbl,(nemaxq),'sumi',sumi(2),sumi(1))
-      if (gga.gt.0) then
+      if (.not.control_only_lda()) then
          call D3dB_n2ft3d(1,n2ft3d)
          value = BA_push_get(mt_dbl,(2*n2ft3d),'trho',trho(2),trho(1))
          value = value.and.
@@ -137,8 +150,12 @@
       end if
       if (.not. value) 
      > call errquit('band_inner_loop:out of stack memory',0, MA_ERR)
-      call dcopy(2*nfft3d,0.0d0,0,dbl_mb(xcp(1)),1)
-      call dcopy(2*nfft3d,0.0d0,0,dbl_mb(xce(1)),1)
+      call Parallel_shared_vector_zero(.false.,2*nfft3d,dbl_mb(xcp(1)))
+      call Parallel_shared_vector_zero(.true., 2*nfft3d,dbl_mb(xce(1)))
+      if (fractional) then
+         next1_tag = cpsi_data_get_next(psi1_tag)
+         next2_tag = cpsi_data_get_next(psi2_tag)
+      end if
 
       call nwpw_timing_end(12)
      
@@ -158,8 +175,19 @@
 *     ****   Start of steepest descent loop ****
 *     ****                                  ****
 *     ******************************************
+*!$OMP PARALLEL private(it,tid,nthreads)
+*      tid      = Parallel_threadid()
+*      nthreads = Parallel_nthreads()
+
       do it=1,it_in
+
+c!$OMP PARALLEL private(tid,nthreads)
+c      tid      = Parallel_threadid()
+c      nthreads = Parallel_nthreads()
+c      write(*,*) "tid,nthreads=",tid,nthreads
+
         call cpsi_data_copyall(psi2_tag,psi1_tag)
+        if (fractional) call cpsi_data_copyall(next2_tag,next1_tag)
         if (move) call ion_shift()
 
 *       ********************************
@@ -180,6 +208,8 @@
         nbj = 1
         kj  = 1
         shiftB =  cpsi_data_get_chnk(psir_tag,nbj)
+
+c!$OMP END PARALLEL
 
         done = .false.
         do while (.not.done)
@@ -215,11 +245,10 @@
 *       **** set the occupations ****
         call cpsi_data_set_next(psir_tag,cpsi_data_get_next(psi1_tag))
 
-
 *       *********************
 *       **** generate dn ****
 *       *********************
-        call dcopy(ispin*nfft3d,0.0d0,0,dn,1)
+        call Parallel_shared_vector_zero(.true.,ispin*nfft3d,dn)
 
 
         occ_tag = cpsi_data_get_next(psir_tag)
@@ -253,7 +282,9 @@
 
 *       *** reduce over brillioun zone ***
         call K1dB_Vector_SumAll(ispin*nfft3d,dn)
-        call dscal(ispin*nfft3d,scal2,dn,1)
+        call DSCAL_OMP(ispin*nfft3d,scal2,dn,1)
+
+        call c_rho_symmetrizer_dn(ispin,nfft3d,dn)
 
 
 *       **********************
@@ -264,7 +295,6 @@
         call C3dB_c_SMul1(1,scal1,dcpl_mb(rho(1)))
         call Cram_c_pack(0,dcpl_mb(rho(1)))
         call Cram_c_Copy(0,dcpl_mb(rho(1)),dcpl_mb(dng(1)))
-
 
 *       ********************************************************
 *       **** generate dnall - used for semicore corrections ****
@@ -279,10 +309,10 @@
      >                        dbl_mb(dnall(1)+(ms-1)*nfft3d))
            end do
         else
-           call dcopy(ispin*nfft3d,dn,1,dbl_mb(dnall(1)),1)
+           call Parallel_shared_vector_copy(.true.,ispin*nfft3d,
+     >                                      dn,dbl_mb(dnall(1)))
         end if
         call nwpw_timing_end(11)
-
 
 
 *       *****************************************
@@ -304,7 +334,8 @@
 *       *************************************************
 *       **** generate exchange-correlation potential ****
 *       *************************************************
-        if (gga.eq.0) then
+        !if ((.not.nwpwxc_is_on()).and.(gga.eq.0)) then
+        if (control_only_lda()) then
            call vxc(nfft3d,ispin,
      >              dbl_mb(dnall(1)),
      >              dbl_mb(xcp(1)),
@@ -343,7 +374,6 @@ c        !*** this code needs to be optimized!!! ****
      >              Hpsi_tag,
      >              move,dbl_mb(fion(1)))
 
-        
 *       ************************************
 *       **** do a steepest descent step ****
 *       ************************************
@@ -388,7 +418,6 @@ c           if (pspw_qmmm_found()) call pspw_qmmm_fion(dbl_mb(fion(1)))
            call ion_optimize_step(dbl_mb(fion(1)))
         end if
 
-
 *       *****************************************        
 *       **** lagrange multiplier corrections ****
 *       *****************************************        
@@ -398,16 +427,25 @@ c           if (pspw_qmmm_found()) call pspw_qmmm_fion(dbl_mb(fion(1)))
           psi2_shift = cpsi_data_get_chnk(psi2_tag,nb)
           do ms=1,ispinq
           if (neq(ms).gt.0) then
-             call cpsi_lmbda(ms,nb,npack1,
+             if (fractional) then
+                shifto = cpsi_data_get_chnk(next1_tag,nb)
+                call cpsi_lmbda2(ms,nb,npack1,
+     >                   dbl_mb(psi1_shift),
+     >                   dbl_mb(psi2_shift),
+     >                   dte,dbl_mb(shifto),
+     >                   dcpl_mb(tmp_L(1)),ierr)
+             else
+                call cpsi_lmbda(ms,nb,npack1,
      >                   dbl_mb(psi1_shift),
      >                   dbl_mb(psi2_shift),
      >                   dte,
      >                   dcpl_mb(tmp_L(1)),ierr)
-
+             end if
           end if
           end do
         end do
         call cpsi_data_noupdate(psi2_tag)
+
 
       end do
 
@@ -432,7 +470,21 @@ c           if (pspw_qmmm_found()) call pspw_qmmm_fion(dbl_mb(fion(1)))
      >                  dbl_mb(hpsi_shift),npack1,
      >                  dbl_mb(hml_shift))
          call Pneb_w_scal(0,nb,-1.0d0,dbl_mb(hml_shift))
-         call Pneb_w_trace(0,nb,dbl_mb(hml_shift),sum)
+         if ((occ_tag.gt.0).and.(.true.)) then
+            shifto = cpsi_data_get_chnk(occ_tag,nb)
+            sum  = 0.0d0
+             do ms=1,ispin
+             do n=1,ne(ms)
+                sum = sum 
+     >              + dbl_mb(hml_shift+2*(n-1+(n-1)*ne(ms)
+     >                      + (ms-1)*ne(1)*ne(1)))
+     >                *dbl_mb(shifto) 
+                shifto = shifto + 1
+             end do
+             end do
+         else
+            call Pneb_w_trace(0,nb,dbl_mb(hml_shift),sum)
+         end if
          eorbit = eorbit + sum*brillioun_weight(nb)
       end do
       call cpsi_data_noupdate(hml_tag)
@@ -567,7 +619,7 @@ c      if (np_j.gt.1) call C1dB_MaxAll(deltac)
 *     **** dealocate MA local variables ****
       call nwpw_timing_start(12)
       value = .true.
-      if (gga.gt.0) then
+      if (.not.control_only_lda()) then
          value = value.and.BA_pop_stack(txce(2))
          value = value.and.BA_pop_stack(txcp(2))
          value = value.and.BA_pop_stack(trho(2))

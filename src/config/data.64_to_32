@@ -31,6 +31,7 @@ dger       yger
 dnrm2      ynrm2         
 drot       yrot          
 dscal      yscal         
+dsfrk      ysfrk
 dspmv      yspmv         
 dspr       yspr          
 dswap      yswap         
@@ -132,12 +133,16 @@ dsptrs    ysptrs
 dsteqr    ysteqr    
 dsterf    ysterf    
 dsyev     ysyev    
+dsyevd     ysyevd    
 dsygs2    ysygs2    
 dsygst    ysygst    
 dsygv     ysygv    
 dsytd2    ysytd2    
 dsytrd    ysytrd    
 dtrtri    ytrtri    
+dsytrf    ysytrf    
+dsytrs    ysytrs    
+dtrtrs    ytrtrs    
 dlasq1    ylasq1
 dlasq2    ylasq2
 dlasq3    ylasq3
@@ -318,6 +323,7 @@ dsptrs_   ysptrs_
 dsteqr_   ysteqr_   
 dsterf_   ysterf_   
 dsyev_    ysyev_   
+dsyevd_    ysyevd_   
 dsygs2_   ysygs2_   
 dsygst_   ysygst_   
 dsygv_    ysygv_   

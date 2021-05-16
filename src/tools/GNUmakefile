@@ -408,6 +408,10 @@ ifndef LAPACK_LIB
      LAPACK_LIB=$(BLASOPT)
   endif
 endif
+#enforce 32-bit ints for 32-bit arch
+ifeq ($(TARGET),$(findstring $(TARGET),LINUX MACX))
+  BLAS_SIZE=4
+endif
 ifneq ($(BLASOPT),)
     ifneq ($(BLAS_LIB),)
         ifeq ($(BLAS_SIZE),4)
@@ -537,6 +541,8 @@ ifeq ($(GOTCGWIN32),1)
 endif
 ifeq ($(GOTMINGW32),1)
 # weak pragmas not working with cygwin
+#MSMPI madness
+   FFLAGS_FORGA += -fno-range-check 
    MAYBE_OFFLOAD += --disable-weak
 endif
 ifeq ($(GOTMINGW64),1)
@@ -544,6 +550,9 @@ ifeq ($(GOTMINGW64),1)
    FFLAGS_FORGA += -fno-range-check -m64
    CFLAGS_FORGA +=  -m64
    CC = gcc
+endif
+ifeq ($(GNU_GE_8),true)
+  FFLAGS_FORGA += -std=legacy
 endif
 #detect clang
 GOTCLANG= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
@@ -588,15 +597,15 @@ ifdef USE_GAGITHUB
 	GET_TOOLS=./get-tools-github
   ifdef USE_GA_RELEASE
     ifndef GA_RELEASE_NO
-      GA_RELEASE_NO=5.7
+      GA_RELEASE_NO=5.8
     endif
     GA_DIR=ga-$(GA_RELEASE_NO)
   else
 #DEV_GA=1 gives the current "best" dev branch, not develop
 #to get develop, set GA_BRANCH-develop
     ifdef DEV_GA
-      GA_DIR = ga-5.7
-      GA_BRANCH = release/5.7
+      GA_DIR = ga-develop
+      GA_BRANCH = develop
     else
       GA_DIR0=ga-$(GA_BRANCH)
       GA_DIR=$(shell echo $(GA_DIR0) | sed -e 's/\//_/g')
@@ -620,6 +629,10 @@ endif
 ifndef ARMCI_NETWORK
     ARMCI_NETWORK=MPI-TS
     MAYBE_ARMCI = --with-mpi-ts
+endif
+# CUDA UM support
+ifdef NWCHEM_LINK_CUDA
+    MAYBE_ARMCI +=  --enable-cuda-mem
 endif
 #
 # Apparently weak bindings do not work with CYGWIN64 at the moment. There seems
@@ -662,6 +675,9 @@ $(INSTALLDIR)/lib/libga.a: $(BUILDDIR)/.libs/libga.a
 	@echo ''
 	@(cd $(BUILDDIR) && $(MAKE) install) || exit 1
 	@(../util/util_ga_version.bash)
+	${GA_PATH}/bin/ga-config --cppflags  > $(NWCHEM_TOP)/src/ga_cppflags.txt
+	${GA_PATH}/bin/ga-config --ldflags  > $(NWCHEM_TOP)/src/ga_ldflags.txt
+	${GA_PATH}/bin/ga-config --use_scalapack | awk ' /1/ {print "Y";exit};{print "N"}'  > $(NWCHEM_TOP)/src/ga_use_scalapack.txt
 
 $(BUILDDIR)/.libs/libga.a:  $(BUILDDIR)/Makefile $(BUILDDIR)/armci/Makefile
 	@echo ''
@@ -717,6 +733,12 @@ clean:
 
 realclean:
 	@rm -rf $(BUILDDIR) $(INSTALLDIR)
+# remove all files that are not .o objects (eg lib*.a) from libga.a
+cleanlibga:
+	mkdir -p ob
+	cd ob && ar -x ../build/.libs/libga.a && rm -f ../build/.libs/libga.a && ar crv ../build/.libs/libga.a *.o && mkdir -p ../install/lib && cp ../build/.libs/libga.a ../install/lib
+	cd ..
+	rm -rf ob
 
 
 #

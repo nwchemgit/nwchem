@@ -19,7 +19,7 @@ c
       integer nfp
       logical status
       integer id(4)
-      double precision k,r,K0,gcut0,gamma0,coef(20)
+      double precision k,r,K0,gcut0,gamma0,c0,coef(20)
       integer n,indx(20)
       integer geom, ncenters
 c
@@ -176,10 +176,11 @@ c     ----------------------------
      >      call errquit('cons_input: failed to read keyword', 0,
      >        0)
          if (inp_compare(.false.,'bondings', test)) then
-           if(cons_penalty_bondings_input(n,indx,coef,K0,gcut0,gamma0))
+           if(cons_penalty_bondings_input(n,indx,coef,
+     >                                    K0,gcut0,gamma0,c0))
      >     then
             call cons_add_pbondings(namespace,n,indx,coef,K0,
-     >                              gcut0,gamma0,rtdb)
+     >                              gcut0,gamma0,c0,rtdb)
            else
             call errquit('cons_input:failed penalty bondings input',0,0)
            end if
@@ -215,7 +216,7 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
-#include"cons_data.fh"
+#include "cons_data.fh"
 c     
       logical cons_harm_dihed_input
       integer id(4)
@@ -371,10 +372,10 @@ c
 *     *                                      *
 *     ****************************************
 *
-* pbondings K0 gcut0  gamma0 -1.0 1 2 1.0 2 3
+* penalty bondings K0 gcut0 gamma0 c0 -1.0 1 2 1.0 2 3
 *
       logical function cons_penalty_bondings_input(n,indx,coef,K0,
-     >                                             gcut0,gamma0)
+     >                                             gcut0,gamma0,c0)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -384,20 +385,22 @@ c
 c     
       logical ok
       integer n,indx(*)
-      double precision coef(*),K0,gcut0,gamma0
+      double precision coef(*),K0,gcut0,gamma0,c0
 
       integer itest
       double precision ftest
 
       ok = .true.
 
-      !*** enter K0, gcut0, and gamma0 ***
+      !*** enter K0, gcut0, gamma0, and c0 ***
       if (.not.inp_f(ftest)) ok = .false.
       K0 = ftest
       if (ok.and.(.not.inp_f(ftest))) ok = .false.
       gcut0 = ftest
       if (ok.and.(.not.inp_f(ftest))) ok = .false.
       gamma0 = ftest
+      if (ok.and.(.not.inp_f(ftest))) ok = .false.
+      c0 = ftest
 
       !*** coef and indx ***
       n = 0

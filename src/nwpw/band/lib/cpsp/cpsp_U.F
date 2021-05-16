@@ -222,7 +222,7 @@
 *     **** allocate local memory ****
       nion = ion_nion()
       nn = ne(1)+ne(2)
-      call Pack_npack(1,npack1)
+      call Cram_max_npack(npack1)
 
       value = BA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
@@ -367,8 +367,8 @@
      >                         dcpl_mb(zsw2(1)))
         
 *          **** do Kleinman-Bylander Multiplication ****
-           call dscal(nn*int_mb(nprj(1)+ia-1)*nprj_mult,
-     >                scal,dbl_mb(sw2(1)),1)
+           call dscal(2*nn*int_mb(nprj(1)+ia-1)*nprj_mult,
+     >                scal,dbl_mb(zw2(1)),1)
 
           call DGEMM('N','T',2*npack1,nn,int_mb(nprj(1)+ia-1)*nprj_mult,
      >               (1.0d0),
@@ -426,6 +426,7 @@
      >                               *dbl_mb(asum(1)+2+3*(n-1))
              end do
              call D1dB_Vector_SumAll(3,ff)
+             call Pneb_Vector_SumAll(3,ff)
              fion(1,ii) = fion(1,ii)  - ff(1)
              fion(2,ii) = fion(2,ii)  - ff(2)
              fion(3,ii) = fion(3,ii)  - ff(3)

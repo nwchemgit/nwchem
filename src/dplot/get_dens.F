@@ -18,7 +18,7 @@
       Integer Geom,Basis,nSet,nBF,g_Vec(2),g_Dns(2)
       Integer nOrb,k_Orb,iProc
       Character*8 Spin
-      Character*80 File_Vec
+      Character*256 File_Vec
 *---- Local variables
       Integer iSet,nOcc(2),k_Occ(2),k_Ene(2),l_Occ(2),l_Ene(2)
       Integer iBF

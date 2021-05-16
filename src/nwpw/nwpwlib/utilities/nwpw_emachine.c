@@ -22,7 +22,7 @@
 
 
 
-#if defined(CRAY) || defined(CRAY_T3D)
+#if defined(CRAY)
 #include <fortran.h>
 #if !defined(__crayx1)
 #define USE_FCD

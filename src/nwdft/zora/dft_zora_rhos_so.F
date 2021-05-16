@@ -404,7 +404,7 @@ c     atomic positions.
 #include "stdio.fh"
 #include "rtdb.fh"
 #include "cosmo.fh"
-#include "zora.fh" ! Added by FA
+#include "zora.fh" 
 
       integer rtdb      ! [Input] rtdb  
       integer basis     ! [Input] Basis set

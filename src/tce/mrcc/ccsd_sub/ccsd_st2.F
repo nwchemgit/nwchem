@@ -7807,8 +7807,8 @@ c
       integer nprocs
       integer count
       integer nxt
-cc      integer nxtval
-cc      external nxtval
+cc      integer nxtask
+cc      external nxtask
       INTEGER NXTASKsub
       EXTERNAL NXTASKsub
 c 
@@ -7843,7 +7843,7 @@ c      nprocs = ga_nnodes()
       nprocs=GA_pgroup_NNODES(int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
 
       count = 0
-cc      nxt = nxtval(nprocs)
+cc      nxt = nxtask(nprocs,1)
       nxt=NXTASKsub(nprocs,1,int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
@@ -8001,7 +8001,7 @@ c
                 endif
                 endif
                 endif
-cc                nxt = nxtval(nprocs)
+cc                nxt = nxtask(nprocs,1)
                 nxt=NXTASKsub(nprocs,1,int_mb(k_innodes+ga_nnodes()+
      1 ga_nodeid()))
               endif
@@ -8010,7 +8010,7 @@ cc                nxt = nxtval(nprocs)
           enddo
         enddo
       enddo
-cc      nxt = nxtval(-nprocs)
+cc      nxt = nxtask(-nprocs,1)
       nxt=NXTASKsub(-nprocs,1,int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
 c      call ga_sync()
       call GA_Pgroup_SYNC(int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
@@ -8034,7 +8034,7 @@ c      nprocs = ga_nnodes()
       nprocs=GA_pgroup_NNODES(int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
 
       count = 0
-cc      nxt = nxtval(nprocs)
+cc      nxt = nxtask(nprocs,1)
       nxt=NXTASKsub(nprocs,1,int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
@@ -8224,7 +8224,7 @@ c
                 endif
                 endif
                 endif
-cc                nxt = nxtval(nprocs)
+cc                nxt = nxtask(nprocs,1)
                nxt=NXTASKsub(nprocs,1,int_mb(k_innodes+ga_nnodes()+
      1 ga_nodeid()))
               endif
@@ -8233,7 +8233,7 @@ cc                nxt = nxtval(nprocs)
           enddo
         enddo
       enddo
-cc      nxt = nxtval(-nprocs)
+cc      nxt = nxtask(-nprocs,1)
       nxt=NXTASKsub(-nprocs,1,int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
 c      call ga_sync()
       call GA_Pgroup_SYNC(int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
@@ -8310,8 +8310,8 @@ c
       integer nprocs
       integer count
       integer nxt
-cc      integer nxtval
-cc      external nxtval
+cc      integer nxtask
+cc      external nxtask
       INTEGER NXTASKsub
       EXTERNAL NXTASKsub
 c 
@@ -8345,7 +8345,7 @@ c      nprocs = ga_nnodes()
       nprocs=GA_pgroup_NNODES(int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
 
       count = 0
-cc      nxt = nxtval(nprocs)
+cc      nxt = nxtask(nprocs,1)
       nxt=NXTASKsub(nprocs,1,int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
@@ -8502,7 +8502,7 @@ c
                 endif
                 endif
                 endif
-cc                nxt = nxtval(nprocs)
+cc                nxt = nxtask(nprocs,1)
                nxt=NXTASKsub(nprocs,1,int_mb(k_innodes+ga_nnodes()+
      1 ga_nodeid()))
               endif
@@ -8511,7 +8511,7 @@ cc                nxt = nxtval(nprocs)
           enddo
         enddo
       enddo
-cc      nxt = nxtval(-nprocs)
+cc      nxt = nxtask(-nprocs,1)
       nxt=NXTASKsub(-nprocs,1,int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
 c      call ga_sync()
       call GA_Pgroup_SYNC(int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
@@ -8536,7 +8536,7 @@ c      nprocs = ga_nnodes()
       nprocs=GA_pgroup_NNODES(int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
 
       count = 0
-cc      nxt = nxtval(nprocs)
+cc      nxt = nxtask(nprocs,1)
       nxt=NXTASKsub(nprocs,1,int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
@@ -8726,7 +8726,7 @@ c
                 endif
                 endif
                 endif
-cc                nxt = nxtval(nprocs)
+cc                nxt = nxtask(nprocs,1)
                nxt=NXTASKsub(nprocs,1,int_mb(k_innodes+ga_nnodes()+
      1 ga_nodeid()))
               endif
@@ -8735,7 +8735,7 @@ cc                nxt = nxtval(nprocs)
           enddo
         enddo
       enddo
-cc      nxt = nxtval(-nprocs)
+cc      nxt = nxtask(-nprocs,1)
       nxt=NXTASKsub(-nprocs,1,int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
 c      call ga_sync()
       call GA_Pgroup_SYNC(int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
@@ -8769,7 +8769,7 @@ C     i0 ( p3 p4 h1 h2 )_vt + = -1 * P( 2 ) * Sum ( p5 ) * t ( p5 h1 )_t * v ( p
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-cc      INTEGER NXTVAL
+cc      INTEGER nxtask
       INTEGER nxt
       INTEGER nprocs
       INTEGER count
@@ -8802,12 +8802,12 @@ cc      INTEGER NXTVAL
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-cc      EXTERNAL NXTVAL
+cc      EXTERNAL nxtask
       INTEGER NXTASKsub
       EXTERNAL NXTASKsub
       nprocs=GA_pgroup_NNODES(int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       count = 0
-cc      nxt = NXTVAL(nprocs)
+cc      nxt = nxtask(nprocs,1)
       nxt=NXTASKsub(nprocs,1,int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       DO p3b = noab+1,noab+nvab
       DO p4b = p3b,noab+nvab
@@ -8909,7 +8909,7 @@ ckbn @did : localize t1amp
       END IF
       END IF
       END IF
-cc      nxt = NXTVAL(nprocs)
+cc      nxt = nxtask(nprocs,1)
       nxt=NXTASKsub(nprocs,1,int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       END IF
       count = count + 1
@@ -8917,7 +8917,7 @@ cc      nxt = NXTVAL(nprocs)
       END DO
       END DO
       END DO
-cc      nxt = NXTVAL(-nprocs)
+cc      nxt = nxtask(-nprocs,1)
       nxt=NXTASKsub(-nprocs,1,int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       call GA_Pgroup_SYNC(int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       RETURN
@@ -8952,7 +8952,7 @@ C     i0 ( p3 p4 h1 h2 )_vtt + = -1/2 * P( 2 ) * Sum ( h5 ) * t ( p3 h5 )_t * i1
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-cc      INTEGER NXTVAL
+cc      INTEGER nxtask
       INTEGER nxt
       INTEGER nprocs
       INTEGER count
@@ -8985,12 +8985,12 @@ cc      INTEGER NXTVAL
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-cc      EXTERNAL NXTVAL
+cc      EXTERNAL nxtask
       INTEGER NXTASKsub
       EXTERNAL NXTASKsub
       nprocs=GA_pgroup_NNODES(int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       count = 0
-cc      nxt = NXTVAL(nprocs)
+cc      nxt = nxtask(nprocs,1)
       nxt=NXTASKsub(nprocs,1,int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       DO p3b = noab+1,noab+nvab
       DO p4b = noab+1,noab+nvab
@@ -9080,7 +9080,7 @@ ckbn @did : localize t1amp
       END IF
       END IF
       END IF
-cc      nxt = NXTVAL(nprocs)
+cc      nxt = nxtask(nprocs,1)
       nxt=NXTASKsub(nprocs,1,int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       END IF
       count = count + 1
@@ -9088,7 +9088,7 @@ cc      nxt = NXTVAL(nprocs)
       END DO
       END DO
       END DO
-cc      nxt = NXTVAL(-nprocs)
+cc      nxt = nxtask(-nprocs,1)
       nxt=NXTASKsub(-nprocs,1,int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       call GA_Pgroup_SYNC(int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       RETURN
@@ -9183,7 +9183,7 @@ C     i1 ( h5 p3 h1 h2 )_vt + = -2 * P( 2 ) * Sum ( p6 ) * t ( p6 h1 )_t * v ( h
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-cc      INTEGER NXTVAL
+cc      INTEGER nxtask
       INTEGER nxt
       INTEGER nprocs
       INTEGER count
@@ -9216,12 +9216,12 @@ cc      INTEGER NXTVAL
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-cc      EXTERNAL NXTVAL
+cc      EXTERNAL nxtask
       INTEGER NXTASKsub
       EXTERNAL NXTASKsub
       nprocs=GA_pgroup_NNODES(int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       count = 0
-cc      nxt = NXTVAL(nprocs)
+cc      nxt = nxtask(nprocs,1)
       nxt=NXTASKsub(nprocs,1,int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       DO p3b = noab+1,noab+nvab
       DO h5b = 1,noab
@@ -9323,7 +9323,7 @@ ckbn @did : localize t1amp
       END IF
       END IF
       END IF
-cc      nxt = NXTVAL(nprocs)
+cc      nxt = nxtask(nprocs,1)
       nxt=NXTASKsub(nprocs,1,int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       END IF
       count = count + 1
@@ -9331,7 +9331,7 @@ cc      nxt = NXTVAL(nprocs)
       END DO
       END DO
       END DO
-cc      nxt = NXTVAL(-nprocs)
+cc      nxt = nxtask(-nprocs,1)
       nxt=NXTASKsub(-nprocs,1,int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       call GA_Pgroup_SYNC(int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       RETURN
@@ -9365,7 +9365,7 @@ cjb
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-cc      INTEGER NXTVAL
+cc      INTEGER nxtask
       INTEGER nxt
       INTEGER nprocs
       INTEGER count
@@ -9395,12 +9395,12 @@ cc      INTEGER NXTVAL
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-cc      EXTERNAL NXTVAL
+cc      EXTERNAL nxtask
       INTEGER NXTASKsub
       EXTERNAL NXTASKsub
       nprocs=GA_pgroup_NNODES(int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       count = 0
-cc      nxt = NXTVAL(nprocs)
+cc      nxt = nxtask(nprocs,1)
       nxt=NXTASKsub(nprocs,1,int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       DO p3b = noab+1,noab+nvab
       DO p4b = noab+1,noab+nvab
@@ -9504,7 +9504,7 @@ ckbn @did : localize t1amp
       END IF
       END IF
       END IF
-cc      nxt = NXTVAL(nprocs)
+cc      nxt = nxtask(nprocs,1)
       nxt=NXTASKsub(nprocs,1,int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       END IF
       count = count + 1
@@ -9512,7 +9512,7 @@ cc      nxt = NXTVAL(nprocs)
       END DO
       END DO
       END DO
-cc      nxt = NXTVAL(-nprocs)
+cc      nxt = nxtask(-nprocs,1)
       nxt=NXTASKsub(-nprocs,1,int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       call GA_Pgroup_SYNC(int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       RETURN
@@ -9543,7 +9543,7 @@ C     i0 ( p3 p4 h1 h2 )_tt + = -1/2 * P( 4 ) * t ( p3 h1 )_t * t ( p4 h2 )_t
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-cc      INTEGER NXTVAL
+cc      INTEGER nxtask
       INTEGER nxt
       INTEGER nprocs
       INTEGER count
@@ -9573,12 +9573,12 @@ cc      INTEGER NXTVAL
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-cc      EXTERNAL NXTVAL
+cc      EXTERNAL nxtask
       INTEGER NXTASKsub
       EXTERNAL NXTASKsub
       nprocs=GA_pgroup_NNODES(int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       count = 0
-cc      nxt = NXTVAL(nprocs)
+cc      nxt = nxtask(nprocs,1)
       nxt=NXTASKsub(nprocs,1,int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       DO p3b = noab+1,noab+nvab
       DO p4b = noab+1,noab+nvab
@@ -9677,7 +9677,7 @@ cc      nxt = NXTVAL(nprocs)
       END IF
       END IF
       END IF
-cc      nxt = NXTVAL(nprocs)
+cc      nxt = nxtask(nprocs,1)
       nxt=NXTASKsub(nprocs,1,int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       END IF
       count = count + 1
@@ -9685,7 +9685,7 @@ cc      nxt = NXTVAL(nprocs)
       END DO
       END DO
       END DO
-cc      nxt = NXTVAL(-nprocs)
+cc      nxt = nxtask(-nprocs,1)
       nxt=NXTASKsub(-nprocs,1,int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       call GA_Pgroup_SYNC(int_mb(k_innodes+ga_nnodes()+ga_nodeid()))
       RETURN

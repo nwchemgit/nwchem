@@ -494,19 +494,27 @@ c
         if (.not.ga_create(mt_dbl,max(1,nov(i)),nroots,'X vector',
      1    -1,nroots,g_x(i))) call errquit
      2    ('tddft_analysis: failed to create g_x',0, GA_ERR)
+        call ga_zero(g_x(i))
         if (.not.tda) then
           if (.not.ga_create(mt_dbl,max(1,nov(i)),nroots,'Y vector',
      1      -1,nroots,g_y(i))) call errquit
      2      ('tddft_analysis: failed to create g_y',0, GA_ERR)
+          call ga_zero(g_y(i))
         endif
       enddo
       do i=1,ipol
-        if (.not.ma_push_get(mt_dbl,nov(i),'X vector',
+        if (.not.ma_push_get(mt_dbl,max(1,nov(i)),'X vector',
      1    l_x(i),k_x(i))) call errquit
      2    ('tddft_analysis: failed to allocate x',0, MA_ERR)
-        if (.not.ma_push_get(mt_dbl,nov(i),'Y vector',
+        do j=1,max(1,nov(i))  
+            dbl_mb(k_x(i)+j-1)=0.0d0
+        enddo
+        if (.not.ma_push_get(mt_dbl,max(1,nov(i)),'Y vector',
      1    l_y(i),k_y(i))) call errquit
      2    ('tddft_analysis: failed to allocate y',0, MA_ERR)
+        do j=1,max(1,nov(i))  
+            dbl_mb(k_y(i)+j-1)=0.0d0
+        enddo
       enddo
 c
 c     --------------------------------------------
@@ -656,9 +664,11 @@ c
         do i=1,ipol
 c here we are just getting ground state symmetry ...
 c ... frozen cores are irrelevant
+         if (nov(i).ne.0) then
           do j=1,nocc(i)
             isym=ieor(isym-1,int_mb(k_irs(i)+j-1)-1)+1
           enddo
+         endif
         enddo
       endif
       call sym_irrepname(geom,isym,oname)
@@ -668,8 +678,8 @@ c ... frozen cores are irrelevant
         call util_flush(LuOut)
       endif
       if (ipol.eq.2) then
-        na=dfloat(nocc(1))
-        nb=dfloat(nocc(2))
+        na=dble(nocc(1))
+        nb=dble(nocc(2))
         s2=na-(na-nb)/2.0d0+((na-nb)/2.0d0)**2
         do j=1,nocc(1)
           do k=1,nocc(2)
@@ -681,8 +691,8 @@ c ... frozen cores are irrelevant
           write(LuOut,9180) s2
           call util_flush(LuOut)
         endif
-        na=dfloat(nocc(1)-nfc(1))
-        nb=dfloat(nocc(2)-nfc(2))
+        na=dble(nocc(1)-nfc(1))
+        nb=dble(nocc(2)-nfc(2))
       endif
 c
 c
@@ -759,8 +769,10 @@ c
         maxr=0.0d0
         occ=0
         vir=0
+        pol=0
         do i=1,ipol
           l=0
+          if (nov(i).ne.0) then
           do j=nfc(i)+1,nocc(i)
             do k=nocc(i)+1,nmo(i)-nfv(i)
               l=l+1
@@ -773,10 +785,13 @@ c
               endif
             enddo
           enddo
+          endif ! nov(i) check
         enddo
-        jsym=ieor(isym-1,int_mb(k_irs(pol)+occ-1)-1)+1
-        jsym=ieor(jsym-1,int_mb(k_irs(pol)+vir-1)-1)+1
-        call sym_irrepname(geom,jsym,oname)
+        if (pol.lt.1) then
+           jsym=ieor(isym-1,int_mb(k_irs(pol)+occ-1)-1)+1
+           jsym=ieor(jsym-1,int_mb(k_irs(pol)+vir-1)-1)+1
+           call sym_irrepname(geom,jsym,oname)
+        endif ! pol check
         if ((targetsym.eq.'none').or.(targetsym.eq.oname)) then
           m=m+1
           if (m.eq.target) tenergy=apbval(n)
@@ -1869,20 +1884,25 @@ c
          do i=1,ipol
 c
 c         Allocate memory
-          if (.not.ma_push_get(mt_dbl,nov(i),"slice",l_trials,k_trials))
+          if (.not.ma_push_get(mt_dbl,max(1,nov(i)),"slice",l_trials,
+     1    k_trials))
      1      call errquit(trim(pname)//"failed to alloc slice",0,0)
+          do j=1,max(1,nov(i))
+            dbl_mb(k_trials+j-1)=0.0d0
+          enddo
 c
           if (.not.tda) then
-            call ga_get(g_x(i),1,nov(i),n,n,dbl_mb(k_trials),nov(i))
+            if (nov(i).ne.0)
+     &         call ga_get(g_x(i),1,nov(i),n,n,dbl_mb(k_trials),nov(i))
             if (nodezero.and.lcivecs) 
-     &         call swrite(69,dbl_mb(k_trials),nov(i))
-c
-            call ga_get(g_y(i),1,nov(i),n,n,dbl_mb(k_trials),nov(i))
+     &         call swrite(69,dbl_mb(k_trials),max(1,nov(i)))
+            if (nov(i).ne.0)
+     &         call ga_get(g_y(i),1,nov(i),n,n,dbl_mb(k_trials),nov(i))
             if (nodezero.and.lcivecs)
      &         call swrite(69,dbl_mb(k_trials),nov(i))
-c
-          else 
-            call ga_get(g_x(i),1,nov(i),n,n,dbl_mb(k_trials),nov(i)) ! Y = 0
+          else
+            if (nov(i).ne.0)
+     &         call ga_get(g_x(i),1,nov(i),n,n,dbl_mb(k_trials),nov(i)) ! Y = 0
             if (nodezero.and.lcivecs) 
      &         call swrite(69,dbl_mb(k_trials),nov(i))
           endif ! tda

@@ -1,0 +1,31 @@
+echo
+
+start fod
+geometry
+C 0.0000000  1.2077612  0.7161013
+C 0.0000000  0.0000000  1.3596219
+C 0.0000000 -1.2077612  0.7161013
+C 0.0000000 -1.2077612 -0.7161013
+C 0.0000000  0.0000000 -1.3596219
+C 0.0000000  1.2077612 -0.7161013
+H 0.0000000  2.1606260  1.2276695
+H 0.0000000 -2.1606260  1.2276695
+H 0.0000000 -2.1606260 -1.2276695
+H 0.0000000  2.1606260 -1.2276695
+end
+
+basis "ao basis" spherical
+* library def2-svp
+end
+
+dft
+ xc xpbe96 cpbe96
+ smear 0.015
+ convergence energy 1d-9
+ direct
+end
+driver
+clear
+tight
+end
+task dft optimize

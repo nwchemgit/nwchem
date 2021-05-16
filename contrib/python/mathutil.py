@@ -8,7 +8,7 @@ def zerovector(n):
     return a
 
 def zeromatrix(n,m):
-    a = range(n)
+    a = list(range(n))
     for i in range(n):
         a[i] = zerovector(m)
     return a
@@ -74,7 +74,7 @@ def printvector(a):
     n = len(a)
     for i in range(n):
         print ("%12.5e "%a[i]),
-    print " "
+    print(" ")
 
 def printmatrix(a):
     n = len(a)
@@ -152,10 +152,10 @@ def quadratic_step(trust, g0, h0):
     if h0 > 0:
         delta2 = -g0/h0
         if abs(delta2) > trust:
-            print "                    Step restriction: %f %f " % (delta2, trust)
+            print ("                    Step restriction: %12.5f %12.5f " % (delta2, trust))
             delta2 = abs(trust*delta2)/delta2
     else:
-        print "                    Negative curvature "
+        print ("                    Negative curvature ")
         delta2 = -abs(trust*g0)/g0
     return delta2
 
@@ -169,26 +169,25 @@ def linesearch(func, x0, s, lsgrad, eps):
     # bracketed the minimum or gone downhil with enough
     # energy difference to start fitting
 
-    print " Line search: step   alpha     grad     hess        value"
-    print "              ---- --------- -------- --------  ----------------"
+    print (" Line search: step   alpha     grad     hess        value")
+    print ("              ---- --------- -------- --------  ----------------")
 
     trust = 0.2
     alpha0 = 0.0
     f0 = func(x0)
-    print "                   %9.2e %8.1e          %16.8f" % \
-          (alpha0, lsgrad, f0)
+    print ("                   %9.2e %8.1e          %16.8f" % (alpha0 , lsgrad , f0))
 
     if lsgrad < 0:
         alpha1 = alpha0 + trust
     else:
         alpha1 = alpha0 - trust
     f1 = func(takestep(x0,s,alpha1))
-    print "                   %9.2e                   %16.8f" % \
-          (alpha1, f1)
+    print ("                   %9.2e                   %16.8f" % \
+          (alpha1, f1))
     
     while f1 > f0:
         if trust < 0.00125:
-            print " system is too badly conditioned for initial step"
+            print (" system is too badly conditioned for initial step")
             return (alpha0,f0)          # Cannot seem to find my way
         trust = trust * 0.5
         if lsgrad < 0:
@@ -196,8 +195,8 @@ def linesearch(func, x0, s, lsgrad, eps):
         else:
             alpha1 = alpha0 - trust
         f1 = func(takestep(x0,s,alpha1))
-        print "                   %9.2e                   %16.8f" % \
-              (alpha1, f1)
+        print ("                   %9.2e                   %16.8f" % \
+              (alpha1, f1))
         
     g0 = lsgrad
     h0 = (f1-f0-alpha1*g0)/alpha1**2
@@ -217,21 +216,21 @@ def linesearch(func, x0, s, lsgrad, eps):
         if iter == 1:
             f2prev = f2
             
-        print "                   %9.2e                   %16.8f" % \
-              (alpha2, f2)
+        print ("                   %9.2e                   %16.8f" % \
+              (alpha2, f2))
 
         # Check for convergence or insufficient precision to proceed further
         if (abs(f0-f1)<(10*eps)) and (abs(f1-f2)<(10*eps)):
-            print "                  ",
-            print " Insufficient precision ... terminating LS"
+            print ("                  "),
+            print (" Insufficient precision ... terminating LS")
             break
         
         if (f2-f2prev) > 0:
             # New point is higher than previous worst
             if  nbackstep < 3:
                 nbackstep = nbackstep + 1
-                print "                  ",
-                print " Back stepping due to uphill step"
+                print ("                  "),
+                print (" Back stepping due to uphill step")
                 trust = max(0.01,0.2*abs(alpha2 - alpha0))  # Reduce trust radius
                 alpha2 = alpha0 + 0.2*(alpha2 - alpha0)
                 continue
@@ -251,12 +250,12 @@ def linesearch(func, x0, s, lsgrad, eps):
             alpha1, alpha2, f1, f2 = alpha2, alpha1, f2, f1
 
         (f0, g0, h0) = quadfit(alpha0, f0, alpha1, f1, alpha2, f2)
-        print "              %4i %9.2e %8.1e %8.1e %16.8f" % \
-              (iter, alpha0, g0, h0, f0)
+        print ("              %4i %9.2e %8.1e %8.1e %16.8f" % \
+              (iter, alpha0, g0, h0, f0))
 
         if (h0>0.0) and (abs(g0) < 0.03*abs(lsgrad)):
-            print "                  ",
-            print " gradient reduced 30-fold ... terminating LS"
+            print ("                  "),
+            print (" gradient reduced 30-fold ... terminating LS")
             break
         
         # Determine the next step
@@ -264,8 +263,8 @@ def linesearch(func, x0, s, lsgrad, eps):
         alpha2 = alpha0 + delta
         df = g0*delta + 0.5*h0*delta*delta
         if abs(df) < 10.0*eps:
-            print "                  ",
-            print " projected energy reduction < 10*eps ... terminating LS"
+            print ("                  "),
+            print (" projected energy reduction < 10*eps ... terminating LS")
             break
         
         
@@ -404,7 +403,7 @@ def hessian_update_bfgs(hp, dx, g, gp):
             for j in range(n):
                 h[i][j] = h[i][j] + dg[i]*dg[j]/dxdg - hdx[i]*hdx[j]/dxhdx
     else:
-        print ' BFGS not updating dxdg (%e), dgdg (%e), dxhdx (%f), dxdx(%e)' % (dxdg, dgdg, dxhdx, dxdx)
+        print (' BFGS not updating dxdg (%e), dgdg (%e), dxhdx (%f), dxdx(%e)' % (dxdg, dgdg, dxhdx, dxdx))
 
     return h
 
@@ -442,16 +441,16 @@ def quasinr(func, guess, tol, eps, printvar=None):
         (value,g,h) = numderiv(func, x, step, eps)
         gmax = max(map(abs,g))
         
-        print ' '
-        print ' iter    gmax         value '
-        print ' ---- --------- ----------------'
-        print "%4i %9.2e %16.8f" % (iter,gmax,value)
+        print (' ')
+        print (' iter    gmax         value ')
+        print (' ---- --------- ----------------')
+        print ("%4i %9.2e %16.8f" % (iter,gmax,value))
 
         if (printvar):
             printvar(x)
 
         if gmax < tol:
-            print ' Converged!'
+            print (' Converged!')
             break
 
         if iter == 0:
@@ -463,14 +462,14 @@ def quasinr(func, guess, tol, eps, printvar=None):
         (v,e) = jacobi(hessian)
         emax = max(map(abs,e))
         emin = emax*1e-4   # Control noise in small eigenvalues
-        print '\n Eigenvalues of the Hessian:'
+        print ('\n Eigenvalues of the Hessian:')
         printvector(e)
 
         # Transform to spectral form, take step, transform back
         gs = mxv(v,g)
         for i in range(n):
             if e[i] < emin:
-                print ' Mode %d: small/negative eigenvalue (%f).' % (i, e[i])
+                print (' Mode %d: small/negative eigenvalue (%f).' % (i, e[i]))
                 s[i] = -gs[i]/emin
             else:
                 s[i] = -gs[i]/e[i]
@@ -481,8 +480,8 @@ def quasinr(func, guess, tol, eps, printvar=None):
         for i in range(n):
             trust = max(abs(x[i]),abs(x[i]/sqrt(max(1e-4,abs(hessian[i][i])))))
             if abs(s[i]) > trust:
-                print ' restricting ', i, trust, abs(x[i]), \
-                      abs(x[i]/sqrt(abs(hessian[i][i]))), s[i]
+                print (' restricting ', i, trust, abs(x[i]), \
+                      abs(x[i]/sqrt(abs(hessian[i][i]))), s[i])
                 scale = min(scale,trust/abs(s[i]))
         if scale != 1.0:
             for i in range(n):
@@ -491,7 +490,7 @@ def quasinr(func, guess, tol, eps, printvar=None):
         (alpha,value) = linesearch(func, x, s, dot(s,g), eps)
 
         if alpha == 0.0:
-            print ' Insufficient precision to proceed further'
+            print (' Insufficient precision to proceed further')
             break
 
         for i in range(n):
@@ -516,13 +515,13 @@ def cgminold(func, dfunc, guess, tol):
         g = dfunc(x)
         gmax = max(map(abs,g))
         
-        print ' '
-        print ' iter    gmax         value '
-        print ' ---- --------- ----------------'
-        print "%4i %9.2e %16.8f" % (iter,gmax,value)
+        print (' ')
+        print (' iter    gmax         value ')
+        print (' ---- --------- ----------------')
+        print ("%4i %9.2e %16.8f" % (iter,gmax,value))
         
         if gmax < tol:
-            print ' Converged!'
+            print (' Converged!')
             break
         
         if (iter == 0) or ((iter%20) == 0):
@@ -563,13 +562,13 @@ def cgmin(func, dfunc, guess, tol, precond=None, reset=None):
         g = dfunc(x)
         gmax = max(map(abs,g))
         
-        print ' '
-        print ' iter    gmax         value '
-        print ' ---- --------- ----------------'
-        print "%4i %9.2e %16.8f" % (iter,gmax,value)
+        print (' ')
+        print (' iter    gmax         value ')
+        print (' ---- --------- ----------------')
+        print ("%4i %9.2e %16.8f" % (iter,gmax,value))
 
         if gmax < tol:
-            print ' Converged!'
+            print (' Converged!')
             break
         
         if precond:
@@ -637,16 +636,16 @@ def cgmin2(func, guess, tol, eps, printvar=None,reset=None):
         (value,g,hh) = numderiv(func, x, step, eps)
         gmax = max(map(abs,g))
         
-        print ' '
-        print ' iter    gmax         value '
-        print ' ---- --------- ----------------'
-        print "%4i %9.2e %16.8f" % (iter,gmax,value)
+        print (' ')
+        print (' iter    gmax         value ')
+        print (' ---- --------- ----------------')
+        print ("%4i %9.2e %16.8f" % (iter,gmax,value))
 
         if (printvar):
             printvar(x)
 
         if gmax < tol:
-            print ' Converged!'
+            print (' Converged!')
             break
 
         if (iter % reset) == 0:
@@ -664,7 +663,7 @@ def cgmin2(func, guess, tol, eps, printvar=None,reset=None):
         # means that we don't have enough info.
         if (iter % reset) == 0:
             if iter != 0:
-                print" Resetting conjugacy"
+                print(" Resetting conjugacy")
             beta = 0.0
         else:
             beta = (dot(precondg,g) - dot(precondg,gp))/(dot(s,g)-dot(s,gp))
@@ -677,12 +676,12 @@ def cgmin2(func, guess, tol, eps, printvar=None,reset=None):
         if alpha == 0.0:
             # LS failed, probably due to lack of precision.
             if beta != 0.0:
-                print "LS failed - trying preconditioned steepest descent direction"
+                print ("LS failed - trying preconditioned steepest descent direction")
                 for i in range(n):
                     s[i] = -g[i]
                 (alpha,value) = linesearch(func, x, s, dot(s,g), eps)
             if alpha == 0.0:
-                print " Insufficient precision to proceed further"
+                print (" Insufficient precision to proceed further")
                 break
 
         for i in range(n):
@@ -719,22 +718,22 @@ if __name__ == '__main__':
         return sum
 
 
-    print '\n\n   TESTING QUASI-NR SOLVER \n\n'
+    print ('\n\n   TESTING QUASI-NR SOLVER \n\n')
     quasinr(f, [1.,0.5,0.3,-0.4], 1e-4, 1e-10)
 
-    print '\n\n   TESTING GC WITH NUM. GRAD. AND DIAG. PRECOND.\n\n'
+    print ('\n\n   TESTING GC WITH NUM. GRAD. AND DIAG. PRECOND.\n\n')
     cgmin2(f, [1.,0.5,0.3,-0.4], 1e-4, 1e-10, reset=20)
 
-    print '\n\n   TESTING GC WITH ANAL. GRAD. AND WITHOUT OPTIONAL PRECOND.\n\n'
+    print ('\n\n   TESTING GC WITH ANAL. GRAD. AND WITHOUT OPTIONAL PRECOND.\n\n')
     cgmin(f, df, [1.,0.5,0.3,-0.4], 1e-4)
 
-    print '\n\n   TESTING GC WITH ANAL. GRAD. AND WITH OPTIONAL PRECOND.\n\n'
+    print ('\n\n   TESTING GC WITH ANAL. GRAD. AND WITH OPTIONAL PRECOND.\n\n')
     cgmin(f, df, [1.,0.5,0.3,-0.4], 1e-4, precond=precond)
 
-    print '\n\n   TESTING GC WITH ANAL. GRAD. AND NO PRECOND.\n\n'
+    print ('\n\n   TESTING GC WITH ANAL. GRAD. AND NO PRECOND.\n\n')
     cgminold(f, df, [1.,0.5,0.3,-0.4], 1e-4)
 
-    print '\n\n   TESTING JACOBI EIGENSOLVER\n\n'
+    print ('\n\n   TESTING JACOBI EIGENSOLVER\n\n')
     n = 50
     a = zeromatrix(n,n)
     for i in range(n):
@@ -743,7 +742,7 @@ if __name__ == '__main__':
 
     (v,e)= jacobi(a)
 
-    print ' eigenvalues'
+    print (' eigenvalues')
     printvector(e)
     #print ' v '
     #printmatrix(v)
@@ -754,4 +753,4 @@ if __name__ == '__main__':
             err = max(err,abs(ev[i][j] - e[i]*v[i][j]))
         err = err/(n*max(1.0,abs(e[i])))
         if err > 1e-12:
-            print ' Error in eigenvector ', i, err
+            print (' Error in eigenvector ', i, err)

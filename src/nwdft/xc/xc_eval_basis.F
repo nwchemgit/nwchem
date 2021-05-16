@@ -80,6 +80,7 @@ c
       integer ifirst,ilast,ltype,nprimo,ncontr,nshbf(2)
       integer l,nang,iang_beg,iang_end
       integer icontr,l0(2)
+      integer mx_l2k,k_l2k,l_l2k
       logical spherical,LResult
 #define Ax 2
 #define Ay 3
@@ -217,13 +218,20 @@ c!!! dimensioning of the d*ang arrays to save the space if needed
       if (.not. MA_Push_Get(mt_dbl, itop, 'xc_eval_basis', lscr, iscr))
      &     call errquit('Could not allocate scratch in xc_eval_basis',
      &     itop, MA_ERR)
+      mx_l2k=max_ang_for_der
+      do ictr=1,natoms
+         mx_l2k=max(bas_cent_info(1,ictr),mx_l2k)
+      enddo
+      if (.not. MA_Push_Get(mt_int,(mx_l2k+1)**3,' l2k',
+     Z     l_l2k, k_l2k))
+     &     call errquit('Could not allocate l2k in xc_eval_basis',
+     &     mx_l2k, MA_ERR)
       izprim = iscr
       iccoef = iccoef + iscr
       iang = iang + iscr
       id1ang = id1ang + iscr
       id2ang = id2ang + iscr
       id3ang = id3ang + iscr
-      il2k = il2k + iscr
       idrd = idrd + iscr
       irad = irad + iscr
 c
@@ -240,7 +248,7 @@ c     for all functions on this center - also make sure that the angular
 c     functions needed for derivatives get evaluated
 c
          call eval_angular(dbl_mb(iang), dbl_mb(id1ang), dbl_mb(id2ang),
-     &        dbl_mb(id3ang), qxyz, ccoord(1,ictr), nq, int_mb(il2k),
+     &        dbl_mb(id3ang), qxyz, ccoord(1,ictr), nq, int_mb(k_l2k),
      &        max(bas_cent_info(1,ictr),max_ang_for_der), maxder, gen_l,
      &        spherical)
 c
@@ -342,7 +350,7 @@ c
  200     continue
  100  continue
 c
-      if (.not. MA_Pop_Stack(lscr))
+      if (.not. MA_chop_Stack(lscr))
      &     call errquit('xc_eval_basis: could not pop stack',0, MA_ERR)
 c
       return

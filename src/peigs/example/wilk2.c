@@ -52,11 +52,7 @@ TIMINGG test_timing;
 Integer static countlist();
 
 
-#ifdef CRAY_T3D
-void MAIN1()
-#else
-     void main1_()
-#endif
+void main1_()
 {
   
   /*

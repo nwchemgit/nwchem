@@ -1,3 +1,6 @@
+#if defined(XLF14) || defined(XLFLINUX)
+@PROCESS OPT(0) STRICT(ALL)
+#endif
       subroutine dcftf1 (n,c,ch,wa,ifac)
 *
 * $Id$

@@ -37,6 +37,10 @@ c
       real*8  charge(2),tcharge
       integer nx,ny,nz,stalled_count,ms,nb,i
 
+      real*8 e00_shared,deltav_shared,diis_error_shared
+      common / c_shared_e00_block / e00_shared,deltav_shared,
+     >                              diis_error_shared
+
 
       real*8     tole,tolc
       real*8     ehartree,eorbit,exc,pxc,eion
@@ -46,8 +50,12 @@ c
       integer it,it_in,ispin,sd_it,cg_it
 
       logical value,precondition,done,stalled,oprint
+      logical ks_block
       integer nfft3d
+
+      integer maxit_orb,maxit_orbs
       
+      integer e00(2),tmin(2)
 
 
 *     **** external functions ****
@@ -94,7 +102,15 @@ c
 
       logical  cpsi_try_read_density,control_use_fractional_rho
       external cpsi_try_read_density,control_use_fractional_rho
-   
+      integer  control_ks_algorithm
+      external control_ks_algorithm
+      integer  control_ks_maxit_orb,control_ks_maxit_orbs
+      external control_ks_maxit_orb,control_ks_maxit_orbs
+      double precision ddot
+      external ddot
+
+      integer  control_diis_histories
+      external control_diis_histories
 
       Ein = E(1)
       call Parallel_taskid(taskid)
@@ -113,6 +129,9 @@ c
         sd_it = 10
         cg_it = 10
       end if
+      maxit_orb  = control_ks_maxit_orb()
+      maxit_orbs = control_ks_maxit_orbs()
+
       tole  = control_tole()
       tolc  = control_tolc()
       precondition = control_precondition()
@@ -138,6 +157,12 @@ c
       value = value.and.
      >        BA_push_get(mt_dbl,2*nfft3d,
      >                   'rho_junk',rho_junk(2),rho_junk(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,cpsi_nbrillq(),
+     >                   'tmin',tmin(2),tmin(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,cpsi_nbrillq(),
+     >                   'e00',e00(2),e00(1))
       if (.not. value) 
      >   call errquit('c_bybminimize2:out of stack memory',0,0)
 
@@ -166,16 +191,20 @@ c
          call cpsi_get_density(1,dbl_mb(rho_in(1)))
          call cpsi_get_density(1,dbl_mb(rho_out(1)))
 
+         call cpsi_1gen_hml()
+         call cpsi_diagonalize_hml()
          if (.not.value) then
-            call cpsi_1gen_hml()
-            call cpsi_diagonalize_hml()
+            !call cpsi_1gen_hml()
+            !call cpsi_diagonalize_hml()
             call cpsi_1rotate2()
             call cpsi_2to1()
          end if
          if (control_fractional()) then
-            call cpsi_1define_occupation(0.0d0,.false.)
+            !call cpsi_1define_occupation(0.0d0,.false.)
+            call cpsi_1define_occupation(-1.0d0,.false.)
             Enew = Enew + cpsi_smearcorrection()
          end if
+        
       else
          call cpsi_get_density(1,dbl_mb(rho_in(1)))
          call cpsi_get_density(1,dbl_mb(rho_out(1)))
@@ -195,10 +224,20 @@ c
          end do
          call K1dB_SumAll(charge(ms))
       end do
+
   
 *     **** iniitialize SCF Mixing ****    
       call nwpw_scf_mixing_init(control_scf_algorithm(),alpha,
-     >                5,ispin,nfft3d,dbl_mb(rho_out(1)))
+     >                          control_diis_histories(),
+     >                          ispin,nfft3d,dbl_mb(rho_out(1)))
+
+
+*     **** iniitialize blocked cg ****
+      ks_block = .false.
+      if (control_ks_algorithm().eq.-1)  then
+         ks_block = .true.
+         call linesearch_maxiter_set(control_ks_maxit_orb())
+      end if
 
 
 *     ***** scf loop ****
@@ -206,7 +245,19 @@ c
  2    it   = it + 1
       
 *     **** diaganolize KS matrix ****
-      call cpsi_KS_update(1,precondition,ks_deltae)
+      if (ks_block) then
+         call cpsi_KS_block_update(1,dbl_mb(e00(1)),dbl_mb(tmin(1)),
+     >                             deltae,it,maxit_orbs,
+     >                             precondition,ks_deltae)
+         !write(*,*) "after KS_block_update:"
+         !call cpsi_1checkhml()
+         !call cpsi_KS_update(1,precondition,ks_deltae)
+         !write(*,*) "after KS_update:"
+         !call cpsi_1checkhml()
+      else
+         call cpsi_KS_update(1,precondition,ks_deltae)
+      end if
+
       call c_rho_1to2()
 
 *     **** rotate orbitals or define fractional occupation **** 
@@ -231,7 +282,8 @@ c
       call dcopy(ispin*nfft3d,
      >           dbl_mb(rho_in(1)),1,
      >           dbl_mb(rho_junk(1)),1)
-      call daxpy(ispin*nfft3d,
+
+      call DAXPY_OMP(ispin*nfft3d,
      >              (-1.0d0),
      >              dbl_mb(rho_out(1)),1,
      >              dbl_mb(rho_junk(1)),1)
@@ -270,7 +322,7 @@ c
          call nwpw_scf_mixing_reset(dbl_mb(rho_out(1)))
 
 
-         call daxpy(ispin*nfft3d,
+         call DAXPY_OMP(ispin*nfft3d,
      >              (-1.0d0),
      >              dbl_mb(rho_out(1)),1,
      >              dbl_mb(rho_junk(1)),1)
@@ -372,7 +424,9 @@ c     >      call cpsi_1define_occupation(1.0d0,.false.)
 
 *     **** free memory ****
       call nwpw_scf_mixing_end()
-      value =           BA_pop_stack(rho_junk(2))
+      value =           BA_pop_stack(e00(2))
+      value = value.and.BA_pop_stack(tmin(2))
+      value = value.and.BA_pop_stack(rho_junk(2))
       value = value.and.BA_pop_stack(rho_out(2))
       value = value.and.BA_pop_stack(rho_in(2))
       if (.not. value) 
@@ -416,7 +470,6 @@ c      call cpsi_check()
          E(33) = ion_disp_energy()
          E(1)  = E(1) + E(33)
       end if
-
 
       return
       end

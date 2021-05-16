@@ -156,7 +156,7 @@ c     Save central atom dirac components, see comments below.
 
       common /atomco/ den(30), dq1(30), dfl(30), ws, nqn(30), nql(30),
      1                nk(30), nmax(30), nel(30), norb, norbco
-
+      integer*4 nstop,nuc
       common /dira/ dv(251), dr(251), dp(251), dq(251), dpas, tets,
      1              z, nstop, nes, np, nuc
 
@@ -333,20 +333,20 @@ c potential for the following iteration
 
   340 continue
       if (iter.eq.2) go to 350
-      if (iprat) 350,390,350
-  350 dval=1.0-dcop
-      do 360 i=1,np
-      dvn(i)=dv(i)
-      dvf(i)=dc(i)
-  360 dv(i)=dval*dv(i)+dcop*dc(i)
-      go to 60
-
-  390 continue
+      if (iprat.eq.0) then
       do 400 i=1,np
       dval=dalp(dvn(i),dvf(i),dv(i),dc(i))
       dvn(i)=dv(i)
       dvf(i)=dc(i)
   400 dv(i)=dval*dv(i)+(1.0d0-dval)*dc(i)
+      else
+  350 dval=1.0-dcop
+      do  i=1,np
+      dvn(i)=dv(i)
+      dvf(i)=dc(i)
+      dv(i)=dval*dv(i)+dcop*dc(i)
+      enddo
+      endif
       go to 60
 
   430 if (iprint .ge. 3)  write(16,40) ttl
@@ -368,17 +368,21 @@ c valeurs moyennes de r
       if (iabs(nk(i)).eq.1) l=l-1
       do 550 j=1,l
       dp(j)=dfl(i)+dfl(i)
-      if (j-2) 490,500,510
+c      if (j-2) 490,500,510
+      if(j.lt.2) then
   490 n=4
-      go to 550
+      elseif(j.eq.2) then
   500 n=2
-      go to 550
-  510 if (j-4) 520,530,540
+      else
+c  510 if (j-4) 520,530,540
+      if(j.lt.4) then
   520 n=1
-      go to 550
+      elseif(j.eq.4) then
   530 n=-1
-      go to 550
+      else
   540 n=-3
+      endif
+      endif
   550 call somm (dr,dc,dq,dpas,dp(j),n,im)
   560 if (iprint .ge. 3)  write(16,570) nqn(i),titre(i),
      1                                   den(i),(dp(j),j=1,l)
@@ -909,6 +913,7 @@ c     if xout is too small
       common /atomco/ den(30), dq1(30), dfl(30), ws, nqn(30), nql(30),
      1                nk(30), nmax(30), nel(30), norb, norbco
 
+      integer*4 nstop,nuc
       common /dira/ dv(251), dr(251), dp(251), dq(251), dpas, tets,
      1              z, nstop, nes, np, nuc
       common /deux/ dvn(251), dvf(251), d(251), dc(251), dgc(251,30),
@@ -917,6 +922,7 @@ c     if xout is too small
 c titre = identification of the wave functions  s,p*,p,........
       character*40 ttl
       character*2  titre
+      integer*4 n1,n1sum
       common /char2/ titre(30), ttl
 
 c  -- This read commented out to make input easier, not used for
@@ -981,12 +987,15 @@ c valeur moyenne of (p1*q2+p2*q1)*r**j  if l negative
      1                                   titre(i2),dval
   160 format (24x,'(p1q2+q1p2)r**',i2,' for  ',i1,a2,i3,a2,5x,'=',1pe14.
      1 7,/)
-  170 if (n1+1) 190,180,30
+  170 n1sum=n1+1
+      if (n1sum) 190,180,30
   180 i1=i1+1
       i2=i1
-      if (i1-norb) 80,80,30
+      n1sum=i1-norb
+      if (n1sum) 80,80,30
   190 i2=i2+1
-      if (i2-norb) 80,80,180
+      n1sum=i2-norb
+      if (n1sum) 80,80,180
   200 if (ins.eq.0) go to 260
       do 250 i=1,norb,3
       j=i+2
@@ -1074,12 +1083,15 @@ c     write(8,290) (dp(i),i=1,np)
      1                                   titre(i2),dvalm,dval,dvalp
   430 format (' gm',i2,' (',i1,a2,',',i1,a2,')',5x,'(-1)=',1pe14.7,5x,'(
      10)=',1pe14.7,5x,'(+1)=',1pe14.7)
-  440 if (n1+1) 460,450,330
+  440 n1sum=n1+1
+      if (n1sum) 460,450,330
   450 i1=i1+1
       i2=i1
-      if (i1-norb) 360,360,330
+      n1sum=i1-norb
+      if (n1sum) 360,360,330
   460 i2=i2+1
-      if (i2-norb) 360,360,450
+      n1sum=i2-norb
+      if (n1sum) 360,360,450
   470 if (nmrk.eq.0) go to 530
       if (iprint .ge. 5)  write(16,20)
       if (iprint .ge. 5)  write(16,480)
@@ -1287,6 +1299,7 @@ c developpement limite; dq1=slope at the origin of dp or dq
 c **********************************************************************
       implicit double precision (a-h,o-z)
       save
+      integer*4 nstop,nuc
       common /dira/ dv(251), dr(251), dp(251), dq(251), dpas, test,
      1              z, nstop, nes, np, nuc
 c
@@ -2487,6 +2500,7 @@ c     speed of light in louck's units (rydbergs?)
       complex*16 psnm3,qsnm3,psnm4,qsnm4,pp,qp,psnp1,qsnp1,prel,qrel
       complex*16 psu,vu,dummy
       complex*16 vn,vmn
+      integer*4 n1sum
 
 c     test=1.e+04 value in loucks
       test=1.d+05
@@ -2572,7 +2586,8 @@ c     runge kutta method  (see loucks)
       qs(n)=-lp1*q(n)+(r*c1-c3/r**3)*p(n)
       vn=vnp1
       vmn=vmnp1
-      if (n-nrk) 20,30,30
+      n1sum=n-nrk
+      if (n1sum) 20,30,30
    30 if (n.ge.jri) go to 120
       psn=ps(nrk)
       qsn=qs(nrk)
@@ -2598,7 +2613,8 @@ c     milne method
       qc=q(n-3)+a4*(qsnp1+qsnm3)+a5*(qsn+qsnm2)+a6*qsnm1
       if (abs(test*(pc-pp))-abs(pc)) 60,60,70
    60 if (abs(test*(qc-qp))-abs(qc)) 110,110,70
-   70 if (nit-40) 100,80,100
+   70 n1sum=nit-40
+      if (n1sum) 100,80,100
 c  70 if (nit-5) 100,80,100 value in loucks
    80 prel=(pc-pp)/pc
       qrel=(qc-qp)/qc
@@ -2647,7 +2663,8 @@ c     introduce scale factor to prevent overflow on vax jjr
       qsnm2=scale*qsnm2
       qsnm1=scale*qsnm1
       qsn=scale*qsn
-  119 if (n-jri) 40,120,120
+  119 n1sum=n-jri
+      if (n1sum) 40,120,120
   120 jm=jri-1
       x=dx*(xmt-jm)
       call intpol (zero,dx,p(jm),p(jri),ps(jm),ps(jri),x,pu,psu)
@@ -3909,6 +3926,7 @@ c     logical unit from which to read input
       common /atomco/ den(30), dq1(30), dfl(30), ws, nqn(30), nql(30),
      1                nk(30), nmax(30), nel(30), norb, norbco
 
+      integer*4 nstop,nuc
       common /dira/ dv(251), dr(251), dp(251), dq(251), dpas, tets,
      1              z, nstop, nes, np, nuc
       common /ps2/ dexv, dexe, dcop, test, teste,
@@ -4256,6 +4274,7 @@ c nstop controls the convergence  du developpement limite
 c **********************************************************************
       implicit double precision (a-h,o-z)
       save
+      integer*4 nstop,nuc
       common /ps1/ dep(5), deq(5), dd, dvc, dsal, dk, dm
 c
 c dep,deq=derivatives of dp and dq; dd=energy/dvc;
@@ -9380,6 +9399,7 @@ c                - if x=y=z=0, theta=0, ct=1, st=0
       common /print/ iprint
       common /atomco/ den(30), dq1(30), dfl(30), ws, nqn(30), nql(30),
      1                nk(30), nmax(30), nel(30), norb, norbco
+      integer*4 nstop
       common /dira/ dv(251), dr(251), dp(251), dq(251), dpas, tets,
      1              z, nstop, nes, np, nuc
       common /deux/ dvn(251), dvf(251), d(251), dc(251), dgc(251,30),
@@ -11421,6 +11441,7 @@ c        that version of the path
       implicit double precision (a-h,o-z)
       save
       common /print/ iprint
+      integer*4 nstop
       common /dira/ dv(251), dr(251), dp(251), dq(251), dpas, tets,
      1              z, nstop, nes, np, nuc
       common /deux/ dvn(251), dvf(251), d(251), dc(251), dgc(251,30),
@@ -11869,6 +11890,7 @@ c     ii = (log(r) + 8.8) / 0.05 + 1
       save
       common /atomco/ den(30), dq1(30), dfl(30), ws, nqn(30), nql(30),
      1                nk(30), nmax(30), nel(30), norb, norbco
+      integer*4 nstop,n1sum
       common /dira/ dv(251), dr(251), dp(251), dq(251), dpas, tets,
      1              z, nstop, nes, np, nuc
       common /deux/ dvn(251), dvf(251), d(251), dc(251), dgc(251,30),
@@ -11920,7 +11942,8 @@ c     ii = (log(r) + 8.8) / 0.05 + 1
       i=id-3
   100 dq(i)=dq(i+1)*dm+dim2*dp(i+2)+dip1*dp(i-1)+dim1*dp(i+1)+di*dp(i)
       i=i-1
-      if (i-1) 110,110,100
+      n1sum=i-1
+      if (n1sum) 110,110,100
   110 dq(1)=dq(3)*dm*dm+8.0d0*((di*dp(1)
      >  +4.0d0*dim1*dp(2))/13.0d0-dim2*dp(3))
       return
@@ -12493,7 +12516,7 @@ c     **** parse "geometry": json item ****
 
 
       subroutine feff_fortran(header,spectroscopy,absorption,edge,
-     >                        center,rmax,
+     >                        center,rmax,e0,s0,
      >                        nkatm,katm,zkatm,nion,zion,rion,
      >                        nohydrogen,
      >                        nkf,kf,chi)
@@ -12503,7 +12526,7 @@ c     **** parse "geometry": json item ****
       character*(*) absorption
       character*(*) edge
       integer center
-      real*8  rmax
+      real*8  rmax,e0,s0
       integer nkatm
       integer katm(*)
       integer zkatm(*)
@@ -12585,13 +12608,14 @@ c     **** parse "geometry": json item ****
       open (unit=76,file=trim(header)//'feff.inp',status='unknown')
       write(76,'("TITLE ...")')
       write(76,*) 
-      write(76,'("HOLE ",I2," 1.0")') nedge
+      write(76,'("HOLE ",I2,F10.3)') nedge,s0
       write(76,*) 
       write(76,*) "*   mphase,mpath,mfeff,mchi"
       write(76,'("CONTROL  1   1   1   1")')
       write(76,'("PRINT    1   0   0   0")')
       write(76,*) 
       write(76,'("RMAX  ",F10.3)') rmax
+      if (dabs(e0).gt.1.0e-3) write(76,'("CORRECTIONS  ",F10.3)') e0
       write(76,*) 
       if (nkatm.gt.0) then
          write(76,'("POTENTIALS")')

@@ -2012,6 +2012,7 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
               call Pack_cc_Sum2(0,dcpl_mb(vtmp(1)),vl_out)
 
               if ((move).and.(ii.le.nion)) then
+              
 c#ifndef CRAY
 c!DIR$ ivdep
 c#endif
@@ -2024,6 +2025,7 @@ c                end do
      >                                  dng,
      >                                  dcpl_mb(vtmp(1)),
      >                                  dbl_mb(xtmp(1)))
+               
                call Pack_tt_idot(0,dbl_mb(G(1)),
      >                             dbl_mb(xtmp(1)),fion(1,ii))
                call Pack_tt_idot(0,dbl_mb(G(2)),
@@ -2561,6 +2563,325 @@ c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
 
       return 
       end
+
+
+
+*     ***********************************
+*     *				        *
+*     *	        v_lr_local_cosmo        *
+*     *					*
+*     ***********************************
+*
+*     This routine calculates the long-range part of the
+*     local pseudopotential (used by version4)
+*
+      subroutine v_lr_local_cosmo(r_grid,vlr_out)
+      implicit none
+      real*8     r_grid(3,*)
+      real*8     vlr_out(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "psp.fh"
+
+*     **** Error function parameters ****
+      real*8 xerf,yerf
+c     real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
+      real*8 c1,c2,c3,c4,c5,c6
+      parameter (c1=0.07052307840d0,c2=0.04228201230d0)
+      parameter (c3=0.00927052720d0)
+      parameter (c4=0.00015201430d0,c5=0.00027656720d0)
+      parameter (c6=0.00004306380d0)
+
+*     **** local variables ****
+      integer taskid_j,np_j
+      integer i,j,ia,n2ft3d,n2ft3d_map,l,m,lm,nion,nion_qm,nion_q
+      real*8 x,y,z,q,c,r,sqrt_pi,lmbda0,lmbda
+
+*     **** external functions ****
+      logical  pspw_qmmm_lambda_flag
+      logical  control_fast_erf
+      integer  ion_nion,ion_nion_qm,ion_katm
+      real*8   ion_rion,psp_rlocal,psp_zv,util_erf,pspw_qmmm_lambda
+      external pspw_qmmm_lambda_flag
+      external control_fast_erf
+      external ion_nion,ion_nion_qm,ion_katm
+      external ion_rion,psp_rlocal,psp_zv,util_erf,pspw_qmmm_lambda
+      integer  ion_katm_ptr,ion_rion_ptr,psp_zv_ptr
+      external ion_katm_ptr,ion_rion_ptr,psp_zv_ptr
+      integer  ion_nion_q
+      external ion_nion_q
+      real*8   nwpw_cosmo_screen_qc0
+      external nwpw_cosmo_screen_qc0
+
+      call nwpw_timing_start(5)
+      call Parallel2d_np_j(np_j)
+      call Parallel2d_taskid_j(taskid_j)
+      call D3dB_n2ft3d(1,n2ft3d)
+      call D3dB_n2ft3d_map(1,n2ft3d_map)
+      nion    = ion_nion()
+      nion_qm = ion_nion_qm()
+      nion_q  = ion_nion_q()
+
+      lmbda0 = 1.0d0
+      if (pspw_qmmm_lambda_flag()) lmbda0 = pspw_qmmm_lambda()
+
+      sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
+      !call dcopy(n2ft3d,0.0d0,0,vlr_out,1)
+      call Parallel_shared_vector_zero(.true.,n2ft3d,vlr_out)
+
+      if (psp_fmm) then
+         call FMM_rion_Llm(psp_fmm_lmax,ion_nion(),nion_qm,
+     >                     int_mb(ion_katm_ptr()),
+     >                     dbl_mb(ion_rion_ptr()),
+     >                     dbl_mb(psp_zv_ptr()),
+     >                     lmbda0,
+     >                     psp_fmm_rmax2,
+     >                     dbl_mb(psp_fmm_Llm(1)))
+!$OMP DO
+         do i=1,n2ft3d_map
+            lm = 0
+            do l=0,psp_fmm_lmax
+            do m=-l,l
+               vlr_out(i) = vlr_out(i) 
+     >                   - dbl_mb(psp_fmm_Llm(1)+lm)
+     >                    *dbl_mb(psp_fmm_rTlm(1)+lm*n2ft3d+i-1)
+               lm = lm + 1
+            end do
+            end do
+         end do
+!$OMP END DO
+      end if
+
+      if (control_fast_erf()) then
+
+      do j=nion+1,nion+nion_q
+      
+         if (mod(j-1,np_j).eq.taskid_j) then
+            if (j.gt.nion_qm) then
+               lmbda = lmbda0
+            else
+               lmbda = 1.0d0
+            end if
+            ia= ion_katm(j)
+            x = ion_rion(1,j)
+            y = ion_rion(2,j)
+            z = ion_rion(3,j)
+            if ((.not.psp_fmm).or.((x*x+y*y+z*z).le.psp_fmm_rmax2)) then
+            if (j.gt.nion) then
+               q = -nwpw_cosmo_screen_qc0(j-nion)
+            else
+               q = -psp_zv(ia)
+            end if
+            c = 1.0d0/psp_rlocal(ia)
+
+!$OMP DO
+            do i=1,n2ft3d_map
+               r = dsqrt( (r_grid(1,i)-x)**2
+     >                  + (r_grid(2,i)-y)**2
+     >                  + (r_grid(3,i)-z)**2)
+               if (r.gt.1.0d-15) then
+                 xerf=r*c
+                 yerf = (1.0d0
+     >                 + xerf*(c1 + xerf*(c2
+     >                 + xerf*(c3 + xerf*(c4
+     >                 + xerf*(c5 + xerf*c6))))))**4
+                 yerf = (1.0d0 - 1.0d0/yerf**4)
+c                 yerf = util_erf(xerf)
+                 vlr_out(i) = vlr_out(i) + lmbda*(q/r)*yerf
+               else
+                 vlr_out(i) = vlr_out(i) + lmbda*2.0d0*q*c/sqrt_pi
+               end if
+            end do
+!$OMP END DO
+            end if
+
+         end if
+      
+      end do
+
+      else
+
+      do j=nion+1,nion+nion_q
+ 
+         if (mod(j-1,np_j).eq.taskid_j) then
+            if (j.gt.nion_qm) then
+               lmbda = lmbda0
+            else
+               lmbda = 1.0d0
+            end if
+            ia= ion_katm(j)
+            x = ion_rion(1,j)
+            y = ion_rion(2,j)
+            z = ion_rion(3,j)
+            if ((.not.psp_fmm).or.((x*x+y*y+z*z).le.psp_fmm_rmax2)) then
+            if (j.gt.nion) then
+               q = -nwpw_cosmo_screen_qc0(j-nion)
+            else
+               q = -psp_zv(ia)
+            end if
+            c = 1.0d0/psp_rlocal(ia)
+
+!$OMP DO
+            do i=1,n2ft3d_map
+               r = dsqrt( (r_grid(1,i)-x)**2
+     >                  + (r_grid(2,i)-y)**2
+     >                  + (r_grid(3,i)-z)**2)
+               if (r.gt.1.0d-15) then
+                 xerf=r*c
+                 yerf = util_erf(xerf)
+                 vlr_out(i) = vlr_out(i) + lmbda*(q/r)*yerf
+c                vlr_out(i) = vlr_out(i) + (q/r)*erf(r*c)
+               else
+                 vlr_out(i) = vlr_out(i) + lmbda*2.0d0*q*c/sqrt_pi
+               end if
+            end do
+!$OMP END DO
+            end if
+
+         end if
+
+      end do
+
+      end if
+      if (np_j.gt.1) call D1dB_Vector_SumAll(n2ft3d_map,vlr_out)
+
+      call nwpw_timing_end(5)
+
+
+      return
+      end
+
+
+
+
+
+*     ***********************************
+*     *					*
+*     *	 	   v_local_cosmo	*
+*     *					*
+*     ***********************************
+
+      subroutine v_local_cosmo(vl_out)
+      implicit none
+      complex*16 vl_out(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "psp.fh"
+
+
+*     *** local variables ***
+      integer taskid_j,np_j
+      integer npack0,nion,nion_qm,nion_q
+      integer i,ii,ia
+      integer exi(2),vtmp(2),xtmp(2),G(3)
+      logical value,periodic,inside
+      real*8  rxyz(3),fxyz(3),lmbda,lmbda0
+
+*     **** external functions ****
+      logical  pspw_qmmm_lambda_flag
+      integer  Pack_G_indx,ion_nion,ion_nion_qm,ion_katm,control_version
+      real*8   ion_rion,pspw_qmmm_lambda
+      external pspw_qmmm_lambda_flag
+      external Pack_G_indx,ion_nion,ion_nion_qm,ion_katm,control_version
+      external ion_rion,pspw_qmmm_lambda
+      integer  ion_nion_q
+      external ion_nion_q
+      real*8   nwpw_cosmo_screen_qc0
+      external nwpw_cosmo_screen_qc0
+
+      call nwpw_timing_start(5)
+      call Parallel2d_np_j(np_j)
+      call Parallel2d_taskid_j(taskid_j)
+      call Pack_npack(0,npack0)
+      nion    = ion_nion()
+      nion_qm = ion_nion_qm()
+      nion_q  = ion_nion_q()
+      periodic = (control_version().eq.3)
+
+      lmbda0 = 1.0d0
+      if (pspw_qmmm_lambda_flag()) lmbda0 = pspw_qmmm_lambda()
+
+      value = BA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
+      value = value.and.
+     >        BA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1))
+      if (.not. value) 
+     >  call errquit('v_local:out of stack memory',0,MA_ERR)
+
+
+      !call dcopy((2*npack0),0.0d0,0,vl_out,1)
+      call Parallel_shared_vector_zero(.true.,2*npack0,vl_out)
+      do ii=nion+1,nion+nion_q
+    
+          if (mod(ii-1,np_j).eq.taskid_j) then
+             if (ii.gt.nion_qm) then
+                lmbda = lmbda0
+             else
+                lmbda = 1.0d0
+             end if
+
+             if (.not.periodic) then
+                rxyz(1) = ion_rion(1,ii)
+                rxyz(2) = ion_rion(2,ii)
+                rxyz(3) = ion_rion(3,ii)
+                call lattice_r1_to_frac(1,rxyz,fxyz)
+                inside =((dabs(fxyz(1)).le.0.4d0).and.
+     >                   (dabs(fxyz(2)).le.0.4d0).and.
+     >                   (dabs(fxyz(3)).le.0.4d0))
+             else
+                inside = .true.
+             end if
+
+             if (inside) then
+              ia=ion_katm(ii)
+
+*             **** structure factor and local pseudopotential ****
+              call strfac_pack(0,ii,dcpl_mb(exi(1)))
+       
+*             **** add to local psp ****
+              if (ii.gt.nion) then
+                 call Pack_tc_aMul(0,
+     >                     dabs(nwpw_cosmo_screen_qc0(ii-nion)),
+     >                             dbl_mb(vl(1)+npack0*(ia-1)),
+     >                             dcpl_mb(exi(1)),
+     >                             dcpl_mb(vtmp(1)))
+              else if ((int_mb(psp_type(1)+ia-1).eq.4)) then
+                 call Pack_ttcc_AddMul(0,
+     >                                 dbl_mb(vl(1)+npack0*(ia-1)),
+     >                                 dbl_mb(vlpaw(1)+npack0*(ia-1)),
+     >                                 dcpl_mb(exi(1)),
+     >                                 dcpl_mb(vtmp(1)))
+              else
+                 call Pack_tc_Mul(0,dbl_mb(vl(1)+npack0*(ia-1)),
+     >                              dcpl_mb(exi(1)),
+     >                              dcpl_mb(vtmp(1)))
+              end if
+              call Pack_c_SMul1(0,lmbda,dcpl_mb(vtmp(1)))
+              call Pack_cc_Sum2(0,dcpl_mb(vtmp(1)),vl_out)
+             end if
+
+          end if
+
+      end do
+
+      if (np_j.gt.1) then
+         call D1dB_Vector_SumAll(2*npack0,vl_out)
+      end if
+
+      value = .true.
+      value = value.and.BA_pop_stack(vtmp(2))
+      value = value.and.BA_pop_stack(exi(2))
+      if (.not. value) 
+     >  call errquit('v_local:popping stack',0,MA_ERR)
+
+      call nwpw_timing_end(5)
+
+      return 
+      end
+
+
+
 
 
 
@@ -3205,7 +3526,6 @@ c     >             psi2,               2*npack1)
      >                               dbl_mb(sum(1)+1+3*(n-1)))
                    call Pack_tt_idot(1,dbl_mb(G(3)),dbl_mb(xtmp(1)),
      >                               dbl_mb(sum(1)+2+3*(n-1)))
-
                  end do
                  call D3dB_Vector_SumAll(3*(nn),dbl_mb(sum(1)))
 

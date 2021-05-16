@@ -413,6 +413,7 @@ C
       DOUBLE PRECISION A(NM,MB),D(N),E(N),E2(N),Z(NM,N)
       DOUBLE PRECISION G,U,B1,B2,C2,F1,F2,S2,DMIN,DMINRT
       LOGICAL MATZ
+      integer*4 ii4
 C
 C     THIS SUBROUTINE IS A TRANSLATION OF THE ALGOL PROCEDURE BANDRD,
 C     NUM. MATH. 12, 231-241(1968) BY SCHWARZ.
@@ -486,8 +487,9 @@ C
          Z(J,J) = 1.0D0
    50 CONTINUE
 C
-   60 M1 = MB - 1
-      IF (M1 - 1) 900, 800, 70
+ 60   M1 = MB - 1
+      ii4=m1-1
+      IF (ii4) 900, 800, 70
    70 N2 = N - 2
 C
       DO 700 K = 1, N2
@@ -3158,6 +3160,7 @@ C
      X       ORTR(IGH),ORTI(IGH)
       DOUBLE PRECISION SI,SR,TI,TR,XI,XR,YI,YR,ZZI,ZZR,NORM,TST1,TST2,
      X       PYTHAG
+      integer*4 ii4
 C
 C     THIS SUBROUTINE IS A TRANSLATION OF A UNITARY ANALOGUE OF THE
 C     ALGOL PROCEDURE  COMLR2, NUM. MATH. 16, 181-204(1970) BY PETERS
@@ -3242,7 +3245,8 @@ C
 C     .......... FORM THE MATRIX OF ACCUMULATED TRANSFORMATIONS
 C                FROM THE INFORMATION LEFT BY CORTH ..........
       IEND = IGH - LOW - 1
-      IF (IEND) 180, 150, 105
+      ii4=iend
+      IF (ii4) 180, 150, 105
 C     .......... FOR I=IGH-1 STEP -1 UNTIL LOW+1 DO -- ..........
   105 DO 140 II = 1, IEND
          I = IGH - II
@@ -10814,6 +10818,7 @@ C
       DOUBLE PRECISION D(N),E(N),E2(N),W(M),RV4(N),RV5(N)
       DOUBLE PRECISION U,V,LB,T1,T2,UB,XU,X0,X1,EPS1,TST1,TST2,EPSLON
       INTEGER IND(M)
+      integer*4 ii4
 C
 C     THIS SUBROUTINE IS A TRANSLATION OF THE ALGOL PROCEDURE BISECT,
 C     NUM. MATH. 9, 386-393(1967) BY BARTH, MARTIN, AND WILKINSON.
@@ -10926,7 +10931,8 @@ C                THE DESIRED EIGENVALUES ..........
       X1 = XU + (X0 - XU) * 0.5D0
       IF (X1 .EQ. V) GO TO 980
       GO TO 320
-   60 IF (S - M1) 65, 73, 70
+   60 ii4=S - M1
+      IF (ii4) 65, 73, 70
    65 XU = X1
       GO TO 50
    70 X0 = X1
@@ -10938,7 +10944,8 @@ C                THE DESIRED EIGENVALUES ..........
       X0 = T2
       ISTURM = 2
       GO TO 50
-   80 IF (S - M22) 65, 85, 70
+   80 ii4=S - M22
+      IF (ii4) 65, 85, 70
    85 T2 = X1
    90 Q = 0
       R = 0

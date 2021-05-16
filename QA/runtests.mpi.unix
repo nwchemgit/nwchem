@@ -1,4 +1,4 @@
-#!/bin/csh  -f
+#!/bin/bash 
 # 
 # THIS assumes ./tests/
 #
@@ -29,142 +29,169 @@
 
 # A subdirectory of the current directory named scratchdir is deleted
 # and remade for each calculation, and deleted at job end.
-
+export HYDRA_DEBUG=0
+if [[ -z "${NWCHEM_TARGET}" ]]; then
+    UNAME_S=$(uname -s)
+  if [[ ${UNAME_S} == Linux ]]; then
+    NWCHEM_TARGET=LINUX64
+  elif [[ ${UNAME_S} == Darwin ]]; then
+    NWCHEM_TARGET=MACX64
+  else
+      echo
+      echo You must define NWCHEM_TARGET in your environment to be the name
+      echo of the machine you wish to build for ... for example
+      echo     export NWCHEM_TARGET=SOLARIS
+      echo Known targets are SOLARIS, ...
+      echo See the INSTALL instructions for a complete list
+      echo ${UNAME_S}
+      exit 1
+      fi
+fi
+if [[ -z "${NWCHEM_TOP}" ]]; then
+    DIRQA=`dirname "$0"`
+    MYPWD=`pwd`
+    NWCHEM_TOP=`echo ${MYPWD}/${DIRQA} | sed -e 's/\/QA.*//' `
+fi
 # A subdirectory of the current directory name testoutputs is made
 # if necessary and all outputs are routed there.  Existing outputs
 # are overwritten.  The name of the output file is formed by replacing
 # the trailing .nw with .out.  In this directory is also put the
 # output of nwparse for the verified and the test outputs.
-if ($?NONSTD_MPI) then
-  set NONSTD_MPI = 1
+if [ -n "$NONSTD_MPI" ];  then
+  NONSTD_MPI=1
 else
-  set NONSTD_MPI = 0
-endif
+  NONSTD_MPI=0
+fi
 
-set NWCHEM_PROJ_PATH = $NWCHEM_TOP/bin/$NWCHEM_TARGET
+ NWCHEM_PROJ_PATH=${NWCHEM_TOP}/bin/${NWCHEM_TARGET}
 
-if ($#argv == 0) then
+if [[ $# -eq 0 ]] ; then
    goto USAGE
-endif
-@ NPROC = 0
-@ argv_set_nproc = 0
-@ get_nproc = 0
-set args_2_use = removeme
-foreach argument ($argv)  
-    if ($get_nproc) then
-        @ NPROC = $argument
-        @ argv_set_nproc++
-        @ get_nproc = 0
-    else if ($argument == "procs") then
-        @ get_nproc = 1       
+fi
+ NPROC=0
+ argv_set_nproc=0
+ get_nproc=0
+ args_2_use=()
+for argument in "$@"
+do
+    #foreach argument ($argv)
+    if [ $get_nproc -ne 0 ]; then
+        NPROC=$argument
+        let argv_set_nproc++
+        let get_nproc=0
+    elif [ $argument == "procs" ]; then
+        let get_nproc=1       
     else
-        set args_2_use = ($args_2_use $argument)
-    endif
-end   
+         args_2_use+=($argument)
+    fi
+done
 #
 # now remove first dummy argument from args_2_use
-set args_2_use = ($args_2_use[2-])
+# args_2_use = ($args_2_use[2-])
 
+ CURDIR=$(pwd)
 
-set CURDIR = $cwd
+ # Figure out where the executable is.
 
-# Figure out where the executable is.
-
-if ($?NWCHEM_EXECUTABLE) then
-  set NWCHEM = $NWCHEM_EXECUTABLE
+if [[ -f $NWCHEM_EXECUTABLE ]]; then
+  NWCHEM=$NWCHEM_EXECUTABLE
 else
-  set NWCHEM = $NWCHEM_PROJ_PATH/nwchem
-endif
+  NWCHEM=${NWCHEM_PROJ_PATH}/nwchem
+fi
 
-if (! -x "$NWCHEM" ) then
+if [[ -x $"NWCHEM" ]]; then
   echo failed: cannot execute \"$NWCHEM\"
   exit 1
-endif
-
+fi
 # Figure out where the nwparse.pl script is.
 
-if (! $?NWPARSE) then
-  if (-f nwparse.pl) then
-    set NWPARSE = $CURDIR/nwparse.pl
-  else if ($?NWCHEM_TOP) then
-    set NWPARSE = $NWCHEM_TOP/QA/nwparse.pl
+if [ -z "$NWPARSE" ];  then
+  if [ -f nwparse.pl ]; then
+    NWPARSE=${CURDIR}/nwparse.pl
+  elif [[ -n $NWCHEM_TOP ]]; then
+    NWPARSE=${NWCHEM_TOP}/QA/nwparse.pl
   else
     echo failed: Cannot find nwparse.pl.  Set NWPARSE or NWCHEM_TOP appropriately.
     exit 1
-  endif
-endif
+  fi
+fi
 
-if ($NPROC) then
+#bash script to round ESP
+ROUND_ESP=${CURDIR}/round_esp.sh
+
+if [ $NPROC -gt 0 ]; then
 # find mpirun  
-   if ($?MPIRUN_PATH) then   
-      set MPIRUN = "$MPIRUN_PATH "
+    if [[ -n $MPIRUN_PATH ]]; then
+      MPIRUN="$MPIRUN_PATH"
    else 
-      set MPIRUN = `which mpirun`
-      if (! -f "$MPIRUN") then
+      MPIRUN=`which mpirun`
+      if [ ! -f "$MPIRUN" ]; then
          echo " Mpirun is not in your current path. Please do:"
          echo " setenv MPIRUN_PATH /home/guido/bagheria/bin/mpirun "
          echo " Please make sure you have the right mpirun for your system."
          echo " Alternatively set the number of processors to 0."
          exit 2
-      endif
-   endif
-endif
+      fi
+   fi
+fi
 # find the -np option ??
-if ($NPROC) then
-   if ($?MPIRUN_NPOPT) then   
-      set NPOPT = "$MPIRUN_NPOPT "
+if [ $NPROC -gt 0 ]; then
+   if [[ -n $MPIRUN_NPOPT ]]; then   
+        NPOPT=$MPIRUN_NPOPT
    else 
-      if ($NONSTD_MPI) then
-#        you are on your own anyway...
+      if [ $NONSTD_MPI -eq 1 ]; then
+	  #        you are on your own anyway...
+	  echo az
       else
-         set NPOPT = -np
-         $MPIRUN $NPOPT 1 "echo"
-         if ($status) then
+         NPOPT=-np
+         $MPIRUN $NPOPT 1 "echo" 
+	 status=$?
+         if [ $status -ne 0 ]; then
             echo " Mpirun number of processors option is assumed to be:"
             echo "   -np "
             echo " If this is not the case then please do:"
             echo " setenv MPIRUN_NPOPT <nproc_opt> "
             echo " where <nproc_opt> is the number of processors option for"
             echo " your mpirun."
-         endif
-      endif
-   endif
-endif
+         fi
+      fi
+   fi
+fi
 # Run the tests one at a time
 
-set SCRATCHDIR  = $CURDIR/scratchdir
-set TESTOUTPUTS = $CURDIR/testoutputs
+ SCRATCHDIR=${CURDIR}/scratchdir
+ TESTOUTPUTS=${CURDIR}/testoutputs
 
-if (! -d $TESTOUTPUTS) then
+if [ ! -d $TESTOUTPUTS ]; then
   mkdir $TESTOUTPUTS
-  if ($status) then
+	 status=$?
+  if [ $status -ne 0 ]; then
     echo failed: cannot make directory $TESTOUTPUTS
     exit 1
-  endif
-endif
+  fi
+fi
 
-set overall_status = 0
-
-foreach TEST_in ($args_2_use)
-
+ let overall_status=0
+for TEST_in in "${args_2_use[@]}"
+do
   cd $CURDIR
-  set TEST = tests/$TEST_in
-  set TESTDIR = $TEST
-  set STUB    = `basename $TEST`
+   TEST=tests/${TEST_in}
+   TESTDIR=${TEST}
+   STUB=`basename ${TEST}`
 #
 # if $TEST is not a directory try use as root of filenames
 #
-  if(! -d $TEST) then
-    set TESTDIR = `echo $TEST | sed 's+/[^/]*$++'`
-  endif
+  if [ ! -d $TEST ]; then
+     TESTDIR=`echo $TEST | sed 's+/[^/]*$++'`
+  fi
 #
 # if $TESTDIR not directory skip
 #
-  if(! -d $TESTDIR) then
+  if [ ! -d $TESTDIR ]; then
     echo failed: could not find job in $TEST
     echo ignoring this failure
     continue
-  endif
+  fi
 
   echo " "
   echo " Running $TESTDIR/$STUB "
@@ -176,153 +203,164 @@ foreach TEST_in ($args_2_use)
   echo "     cleaning scratch"
 
   /bin/rm -rf $SCRATCHDIR
-  if (! -d $SCRATCHDIR) then
+  if [ ! -d $SCRATCHDIR ]; then
     mkdir $SCRATCHDIR
-    if ($status) then
+	 status=$?
+    if [ $status -ne 0 ]; then
       echo failed: cannot make $SCRATCHDIR
       exit 1
-    endif
-  endif
+    fi
+  fi
 
   echo "     copying input and verified output files"
 
-  set OUTPUTFILE   = $STUB.out
-  set INPUTFILE    = $STUB.nw
+   OUTPUTFILE=${STUB}.out
+   INPUTFILE=${STUB}.nw
 
 #
 # MD input files
 #
-  set TESTFILE     = $STUB.tst
-  set RESTARTFILE  = $STUB.rst
-  set RDFINPUTFILE = $STUB.rdi
-  set MRINPUTFILE  = $STUB.mri
-  set TOPOLOGYFILE = (`echo $STUB.top | sed 's/_.*\././'`)
-  set PDBFILE      = (`echo $STUB.pdb | sed 's/_.*\././'`)
+   TESTFILE=${STUB}.tst
+   RESTARTFILE=${STUB}.rst
+   RDFINPUTFILE=${STUB}.rdi
+   MRINPUTFILE=${STUB}.mri
+   TOPOLOGYFILE=`echo $STUB.top | sed 's/_.*\././'`
+   PDBFILE=`echo $STUB.pdb | sed 's/_.*\././'`
 #
 # ESP file
 #
-  set ESPFILE      = $STUB.q
+   ESPFILE=${STUB}.q
 #
-  set md_test_run = 0
-  if( -f $TESTDIR/$TOPOLOGYFILE) then
-    set md_test_run = 1
-  endif
-  if( -f $TESTDIR/$PDBFILE) then
-    set md_test_run = 1
-  endif
-  if( -f $TESTDIR/$TESTFILE) then
-    set md_test_run = 1
-  endif
+  let md_test_run=0
+  if [ -f ${TESTDIR}/${TOPOLOGYFILE} ]; then
+    md_test_run=1
+  fi
+  if [ -f $TESTDIR/$PDBFILE ]; then
+    md_test_run=1
+  fi
+  if [ -f $TESTDIR/$TESTFILE ]; then
+    md_test_run=1
+  fi
 #
-  set esp_test_run = 0
-  if( -f $TESTDIR/$ESPFILE) then
-    set esp_test_run = 1
-  endif
+  let esp_test_run=0
+  if [ -f $TESTDIR/$ESPFILE ]; then
+     esp_test_run=1
+  fi
 #
 #MV
 # qmmm will be signified by the presence of
 # empty file named "qmmm"
-  set qmmm_test_run = 0
-  if( -f $TESTDIR/qmmm) then
-    set qmmm_test_run = 1
+  let qmmm_test_run=0
+  if [ -f $TESTDIR/qmmm ]; then
+     qmmm_test_run=1
 #   if qmmm run md is off
-    set md_test_run = 0
-  endif
+     md_test_run=0
+  fi
 #MV
 
-  if (! -f $TESTDIR/$INPUTFILE) then
+  if [ ! -f $TESTDIR/$INPUTFILE ]; then
     echo failed: cannot access $TESTDIR/$INPUTFILE
-    set overall_status = 1
+    overall_status=1
     continue
-  endif
- set INPUTFILE=$NWCHEM_TOP/QA/$TESTDIR/$INPUTFILE 
-  if(! $md_test_run) then
-    if (! -f $TESTDIR/$OUTPUTFILE) then
+  fi
+  INPUTFILE=${NWCHEM_TOP}/QA/${TESTDIR}/${INPUTFILE}
+  if [[ ! -z "$USE_SIMINT" ]]; then
+      rm -f mynewinput.nw
+      echo 'set int:cando_txs f'  >> mynewinput.nw
+      echo 'set int:cando_nw f'  >> mynewinput.nw
+      cat ${INPUTFILE} >> mynewinput.nw
+      INPUTFILE=`pwd`/mynewinput.nw
+      echo INPUTFILE modified for Simint is ${INPUTFILE}
+  fi
+  # copy movecs for ducc test
+   [ -f ${TESTDIR}/*.movecs ] && cp ${TESTDIR}/*movecs ${SCRATCHDIR}
+  if [ $md_test_run -ne 1 ]; then
+    if [ ! -f ${TESTDIR}/${OUTPUTFILE} ]; then
       echo failed: Could not find verified output file $TESTDIR/$OUTPUTFILE
-      set overall_status  = 1
+       overall_status=1
       continue
-    endif
-  endif
+    fi
+  fi
 
 #  cp $TESTDIR/$INPUTFILE $SCRATCHDIR
-  if (-f $TESTDIR/$STUB.xyz) cp $TESTDIR/$STUB.xyz $SCRATCHDIR
-  if (-f $TESTDIR/EMBPOT) cp $TESTDIR/EMBPOT $SCRATCHDIR
-  if (-f $TESTOUTPUTS/$STUB.ok.out) /bin/rm -f $TESTOUTPUTS/$STUB.ok.out
-  if($md_test_run) then
-  if(-f $TESTDIR/$OUTPUTFILE) cp $TESTDIR/$OUTPUTFILE $TESTOUTPUTS/$STUB.ok.out
+  [ -f ${TESTDIR}/${STUB}.xyz ] && cp ${TESTDIR}/${STUB}.xyz ${SCRATCHDIR}
+  [ -f ${TESTDIR}/EMBPOT ] && cp ${TESTDIR}/EMBPOT ${SCRATCHDIR}
+  [ -f ${TESTOUTPUTS}/${STUB}.ok.out ]  && /bin/rm -f ${TESTOUTPUTS}/${STUB}.ok.out
+  if [ $md_test_run -ne 0 ]; then
+      [ -f ${TESTDIR}/${OUTPUTFILE} ] &&  cp $TESTDIR/$OUTPUTFILE $TESTOUTPUTS/$STUB.ok.out
   else
-  cp $TESTDIR/$OUTPUTFILE $TESTOUTPUTS/$STUB.ok.out
-  endif
-
+      cp ${TESTDIR}/${OUTPUTFILE} ${TESTOUTPUTS}/${STUB}.ok.out
+  fi
 #
 # copy the MD files
 #
-  if($md_test_run) then
-    if (-f $TESTDIR/amber.par) cp $TESTDIR/amber.par $SCRATCHDIR
-    cp $TESTDIR/$TESTFILE $TESTOUTPUTS/$STUB.ok.tst
-    if(-f $TESTDIR/$TOPOLOGYFILE) cp $TESTDIR/$TOPOLOGYFILE $SCRATCHDIR
-    if(-f $TESTDIR/$RESTARTFILE) cp $TESTDIR/$RESTARTFILE $SCRATCHDIR
-    if(-f $TESTDIR/$RDFINPUTFILE) cp $TESTDIR/$RDFINPUTFILE $SCRATCHDIR
-    if(-f $TESTDIR/$PDBFILE) cp $TESTDIR/$PDBFILE $SCRATCHDIR
-    if(-f $TESTDIR/$MRINPUTFILE) cp $TESTDIR/$MRINPUTFILE $SCRATCHDIR
-  endif
-  if($qmmm_test_run) then
-     cp $TESTDIR/*rst $SCRATCHDIR
-     cp $TESTDIR/*top $SCRATCHDIR
-  endif
+  if [ $md_test_run -ne 0 ]; then
+    [ -f ${TESTDIR}/amber.par ] && cp ${TESTDIR}/amber.par ${SCRATCHDIR}
+    cp ${TESTDIR}/${TESTFILE} ${TESTOUTPUTS}/${STUB}.ok.tst
+    [ -f ${TESTDIR}/${TOPOLOGYFILE} ] && cp ${TESTDIR}/${TOPOLOGYFILE} ${SCRATCHDIR}
+     [ -f ${TESTDIR}/${RESTARTFILE} ] && cp ${TESTDIR}/${RESTARTFILE} ${SCRATCHDIR}
+     [ -f ${TESTDIR}/${RDFINPUTFILE} ] && cp ${TESTDIR}/${RDFINPUTFILE} ${SCRATCHDIR}
+     [ -f ${TESTDIR}/${PDBFILE} ] && cp ${TESTDIR}/${PDBFILE} ${SCRATCHDIR}
+     [ -f ${TESTDIR}/${MRINPUTFILE} ] && cp ${TESTDIR}/${MRINPUTFILE} ${SCRATCHDIR}
+  fi
+  if [ $qmmm_test_run -ne 0 ];  then
+      cp ${TESTDIR}/*rst ${SCRATCHDIR}
+      cp ${TESTDIR}/*top ${SCRATCHDIR}
+  fi
 #
 # copy the ESP file
 #
-  if($esp_test_run) then
-    cp $TESTDIR/$ESPFILE $TESTOUTPUTS/$STUB.ok.q
-  endif
+  if [ $esp_test_run -ne 0 ]; then
+    cp ${TESTDIR}/$ESPFILE $TESTOUTPUTS/${STUB}.ok.q
+  fi
 
 #
 
 # Run the calculation in the scratch directory
 
-  cd $SCRATCHDIR
+  cd ${SCRATCHDIR}
 
-  if (-f $TESTOUTPUTS/$STUB.out) /bin/rm -f $TESTOUTPUTS/$STUB.out
+  [ -f $TESTOUTPUTS/${STUB}.out ] && /bin/rm -f $TESTOUTPUTS/${STUB}.out
+  NPROC_out=$NPROC
+  if [ $NPROC_out == 0 ]; then NPROC_out=1; fi
+  echo "     running nwchem ($NWCHEM)  with "$NPROC_out" processors "
 
-  echo "     running nwchem ($NWCHEM)  with "$NPROC" processors "
-
-  set x="%Uu %Ss %E %P (%Xt+%Dds+%Kavg+%Mmax)k %Ii+%Oo %Fpf %Wswaps"
-  set time=(1 "$x")
+   x="%Uu %Ss %E %P (%Xt+%Dds+%Kavg+%Mmax)k %Ii+%Oo %Fpf %Wswaps"
+   time=(1 "$x")
 
   echo " "
 
 #
-# MD creates it own $STUB.out
+# MD creates it own ${STUB}.out
 #
 sync
-  if($md_test_run) then
-    if ($NPROC) then
-      if ($NONSTD_MPI) then
-      if (! $?USE_SLEEPLOOP) then
-          $MPIRUN $NWCHEM $INPUTFILE >& $OUTPUTFILE
+  if [ $md_test_run -ne 0 ]; then
+    if [ $NPROC -gt 0 ]; then
+      if [ $NONSTD_MPI -ne 0 ]; then
+      if [ -z $USE_SLEEPLOOP ]; then
+          ${MPIRUN} ${NWCHEM} ${INPUTFILE} >& ${OUTPUTFILE}
 	else
-          $NWCHEM_TOP/QA/sleep_loopqa.sh        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE  $OUTPUTFILE
-	endif
-        @ runstatus = $status
+          ${NWCHEM_TOP}/QA/sleep_loopqa.sh        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE  $OUTPUTFILE
+	fi
+        runstatus=$?
       else
         $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE >& $OUTPUTFILE
-        @ runstatus = $status
-      endif
+        runstatus=$?
+      fi
     else
        $NWCHEM $INPUTFILE >& $OUTPUTFILE
-       @ runstatus = $status
-    endif
-    if(-f $OUTPUTFILE) cp $OUTPUTFILE $TESTOUTPUTS/$OUTPUTFILE
-    if(-f $TESTFILE) then 
-      cp $TESTFILE $TESTOUTPUTS/$TESTFILE
-    endif 
-    if(-f $TOPOLOGYFILE) then 
-      cp $TOPOLOGYFILE $TESTOUTPUTS/$TOPOLOGYFILE
-    endif
+       runstatus=$?
+    fi
+    [ -f $OUTPUTFILE ] && cp $OUTPUTFILE $TESTOUTPUTS/$OUTPUTFILE
+    if [ -f $TESTFILE ]; then 
+      cp ${TESTFILE} ${TESTOUTPUTS}/${TESTFILE}
+    fi 
+    if [ -f $TOPOLOGYFILE ]; then 
+      cp ${TOPOLOGYFILE} ${TESTOUTPUTS}/${TOPOLOGYFILE}
+    fi
   else
 #
-    if ($NPROC) then
+    if [ $NPROC -gt 0 ]; then
 #echo "launching"
 #echo "mpirun is" $MPIRUN
 #echo "-np otp equal to " $NPOPT
@@ -331,8 +369,8 @@ sync
 #echo " command is"     $MPIRUN $NWCHEM $INPUTFILE  $TESTOUTPUTS/$OUTPUTFILE
 #else
 #echo " command is"     $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE  $TESTOUTPUTS/$OUTPUTFIL
-#endif
-      if ($NONSTD_MPI) then
+       #fi
+      if [ $NONSTD_MPI -eq 1 ]; then
 #       In case we are using some non-standard MPI environment (e.g. slurm)
 #       we cannot expect we can construct a sensible command line here. 
 #       Therefore we will depend on some command baked at a point where we
@@ -340,125 +378,140 @@ sync
 #       verbatim. Set MPIRUN_PATH for this purpose, its value is transfered 
 #       to MPIRUN at some point in this script.
         $MPIRUN $NWCHEM $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE
-        @ runstatus = $status
+        runstatus=$?
       else
 #       In the case of standard MPI we construct the appropriate command here.
-      if (! $?USE_SLEEPLOOP) then
-        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE
+      if [ -z $USE_SLEEPLOOP ]; then
+        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE >& ${TESTOUTPUTS}/${OUTPUTFILE}
       else
-          $NWCHEM_TOP/QA/sleep_loopqa.sh        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE  $OUTPUTFILE
-      endif
-        @ runstatus = $status
-      endif
+          ${NWCHEM_TOP}/QA/sleep_loopqa.sh        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE  $OUTPUTFILE
+      fi
+        runstatus=$?
+      fi
     else
       $NWCHEM $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE
-       @ runstatus = $status
-    endif
+       runstatus=$?
+    fi
 #
-  endif
+  fi
 #
-  if ($runstatus) then
+  if [ $runstatus -ne 0 ]; then
     echo "     NWChem execution failed"
-    set overall_status = 1
+    overall_status=1
     tail -50 $TESTOUTPUTS/$OUTPUTFILE
     continue
-  endif
-
-  set time=(60 "$x")
+  fi
+   time=(60 "$x")
 
   cd $TESTOUTPUTS
-
 #
-  if($md_test_run) then
+  if [ $md_test_run -eq 1 ]; then
     echo -n "     verifying nwout ...... "
-# verify $STUB.nwout here for QMD & QM/MM
+# verify ${STUB}.nwout here for QMD & QM/MM
     echo "skipped"
-    set diff1status=0
+    diff1status=0
   else
 
 # Now verify the output
 
     echo -n "     verifying output ... "
-
-    perl $NWPARSE $STUB.out >& /dev/null
-    if ($status) then
-      echo nwparse.pl failed on test output $STUB.out
+# get rid of HYDRA_DEBUG confusing output
+    rm -f hydradebugout.txt
+    grep -v proxy:0:0@ ${STUB}.out > hydradebugout.txt
+    mv hydradebugout.txt ${STUB}.out
+    perl $NWPARSE ${STUB}.out >& /dev/null
+    if [ $? -ne 0 ]; then
+      echo nwparse.pl failed on test output ${STUB}.out
+      overall_status=1
+      continue
+    fi 
+    perl $NWPARSE ${STUB}.ok.out >& /dev/null
+    if [ $? -ne 0 ]; then
+      echo nwparse.pl failed on verified output ${STUB}.ok.out
       set overall_status = 1
       continue
-    endif 
-    perl $NWPARSE $STUB.ok.out >& /dev/null
-    if ($status) then
-      echo nwparse.pl failed on verified output $STUB.ok.out
-      set overall_status = 1
-      continue
-    endif
+    fi
 
-    diff -w $STUB.ok.out.nwparse $STUB.out.nwparse >& /dev/null
-    @ diff1status = $status
+    diff -w ${STUB}.ok.out.nwparse ${STUB}.out.nwparse >& /dev/null
+    diff1status=$?
 #
-  endif
+  fi
 #
 
-  if ($diff1status) then
+  if [ $diff1status -ne 0 ]; then
     echo "failed"
-    set overall_status = 1
+    echo "@@@     Comparison of Output Files"  
+    diff -U2 ${STUB}.ok.out.nwparse ${STUB}.out.nwparse | sed 1,2d
+#    echo "@@@     Paste beginning of Output File"  
+#    head -1000 ${STUB}.out
+#    echo "@@@     Paste End of Output File"  
+#    tail -1000 ${STUB}.out
+    overall_status=1
     continue 
   else
 #
 # diff MD test files
-#
-    if(!($md_test_run)&& !($esp_test_run)) then   # Now verify the output
+      #
+    if [ $md_test_run -eq 0 ] && [ $esp_test_run -eq 0 ]; then   # Now verify the output
       echo "OK" 
-    else if($esp_test_run) then
+    elif [ $esp_test_run -ne 0 ]; then
 
-    cp $SCRATCHDIR/$ESPFILE $TESTOUTPUTS/.
-#    echo "doing ls -l " $STUB.ok.q $STUB.q
-#    echo `ls -l $STUB.ok.q $STUB.q`
-       diff -w $STUB.ok.q $STUB.q >& /dev/null
-       if($status) then
+    cp ${SCRATCHDIR}/$ESPFILE $TESTOUTPUTS/.
+#    echo "doing ls -l " ${STUB}.ok.q ${STUB}.q
+    #    echo `ls -l ${STUB}.ok.q ${STUB}.q`
+    rm -f esp_temp.ok.q esp_temp.q
+    ${ROUND_ESP} ${STUB}.ok.q > esp_temp.ok.q
+    ${ROUND_ESP} ${STUB}.q > esp_temp.q
+    diff -w esp_temp.ok.q esp_temp.q >& /dev/null
+#    diff -w ${STUB}.ok.q ${STUB}.q >& /dev/null
+    espstatus=$?
+       if [[ $espstatus -ne 0 ]]; then
          echo "ESP comparison failed"
-         set overall_status = 1
+         overall_status=1
+	 diff -u esp_temp.ok.q esp_temp.q 
          continue 
        else
          echo "ESP charges match"
-       endif
+       fi
+       rm -f esp_temp.ok.q esp_temp.q
+       echo
     else
       echo -n "     verifying test ....... "
 #
-      if(-f $STUB.tst) then
-       diff -w $STUB.ok.tst $STUB.tst >& /dev/null
-       if($status) then
+      if [ -f ${STUB}.tst ]; then
+       diff -w ${STUB}.ok.tst ${STUB}.tst >& /dev/null
+       if [ $? -ne 0 ]; then
          echo "failed"
-         set overall_status = 1
+         overall_status=1
          continue 
        else
          echo "completed"
-       endif
+       fi
       else
        echo "skipped"
        echo -n "     verifying topology ... "
-       set ttt = (`diff -w $STUB.ok.tst $TOPOLOGYFILE | wc -l`)
-       if($ttt == 4) then
+        ttt=`diff -w ${STUB}.ok.tst ${TOPOLOGYFILE} | wc -l`
+       if [ $ttt -eq 4 ]; then
         echo "completed "
        else
         echo "failed"
-        set overall_status = 1
+        overall_status=1
         continue 
-       endif
-      endif
-    endif
-  endif
-end
+       fi
+      fi
+    fi
+   fi
+done
 
 cd $CURDIR
-/bin/rm -rf $SCRATCHDIR
+/bin/rm -rf ${SCRATCHDIR}
   
 echo " "
-if ($overall_status) then
+if [ $overall_status -ne 0 ]; then
   echo Failed
 else
   echo OK
-endif
+fi
 
 exit $overall_status
 

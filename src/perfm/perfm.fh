@@ -27,4 +27,6 @@ c
       character*(PAPI_MAX_STR_LEN) papi_errstr
       common/perfm_papi/uso,eventname,
      ,	es,nevents,lfailed
+#else
+      common/perfm_papi/uso,proc0
 #endif

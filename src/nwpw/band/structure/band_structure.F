@@ -60,7 +60,7 @@
       real*8  pathlength,dist,kold(3),emin,emax,lmbda,rcut
       integer ii,jj,kk,ll,i,k,ia,nion,vers,nbrillioun,icharge,isize,indx
       integer npoints,nbrillall,if1,if2,nbrillq,l3
-      integer mapping,tmp(2),norbs_dos
+      integer mapping,tmp(2),norbs_dos,mapping1d
       character*255 full_filename
       character*50 filename
       character*72 cube_comment
@@ -95,6 +95,8 @@
       external control_it_in,control_it_out,control_gga,control_version
       external control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
       external ion_nkatm
+      integer  control_mapping1d
+      external control_mapping1d
 
       character*12 control_boundry
       external     control_boundry
@@ -147,6 +149,8 @@
       external    spdf_name
       character*7 c_index_name
       external    c_index_name
+      logical     control_only_lda
+      external    control_only_lda
     
 *****************************|  PROLOGUE  |****************************
 
@@ -229,10 +233,11 @@
 
 
 *     **** initialize D3dB data structure and mask for GGA ****
-      if ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
-      call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
-      call G_init()
-      call mask_init()
+      !if ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
+      if (.not.control_only_lda()) then
+         call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
+         call G_init()
+         call mask_init()
       end if
 
 c*     **** read ions ****
@@ -285,7 +290,8 @@ c      call center_mass(gx,gy,gz)
          spin_orbit = .false.
       end if
       nbrillioun = brillioun_nbrillioun()
-      call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
+      mapping1d  = control_mapping1d()
+      call Pneb_init(ispin,ne,nbrillioun,mapping1d,spin_orbit)
       value = cpsi_initialize(.true.) 
 
 *     **** electron and geodesic data structures ****
@@ -460,6 +466,7 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
       call Cram_end()
       call c_G_end()
       call brillioun_end()
+      call Pneb_end()
 
 
 *     **** produce eigenvalue band file(s) ****
@@ -471,6 +478,14 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
         if (taskid.eq.MASTER) then
          open(unit=58,file=full_filename,form='formatted')
         end if
+        call util_file_name('restricted_band_with_k',
+     >                    .false.,
+     >                    .false.,
+     >                    full_filename)
+        if (taskid.eq.MASTER) then
+         open(unit=68,file=full_filename,form='formatted')
+        end if
+
       else
         if (cpsi_spin_orbit()) then
         call util_file_name('spinor_band',
@@ -480,6 +495,14 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
         if (taskid.eq.MASTER) then
          open(unit=58,file=full_filename,form='formatted')
         end if
+        call util_file_name('spinor_band_with_k',
+     >                    .false.,
+     >                    .false.,
+     >                    full_filename)
+        if (taskid.eq.MASTER) then
+         open(unit=68,file=full_filename,form='formatted')
+        end if
+
         else
         call util_file_name('alpha_band',
      >                    .false.,
@@ -495,8 +518,26 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
         if (taskid.eq.MASTER) then
          open(unit=59,file=full_filename,form='formatted')
         end if
+
+        call util_file_name('alpha_band_with_k',
+     >                    .false.,
+     >                    .false.,
+     >                    full_filename)
+        if (taskid.eq.MASTER) then
+         open(unit=68,file=full_filename,form='formatted')
+        end if
+        call util_file_name('beta_band_with_k',
+     >                    .false.,
+     >                    .false.,
+     >                    full_filename)
+        if (taskid.eq.MASTER) then
+         open(unit=69,file=full_filename,form='formatted')
+        end if
+
         end if
       end if
+
+
 
 *     **** DOS calculation ****
       if (flag.eq.1) then
@@ -635,8 +676,8 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
          spin_orbit = .false.
       end if
       nbrillioun = brillioun_nbrillioun()
-
-      call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
+      mapping1d  = control_mapping1d()
+      call Pneb_init(ispin,ne,nbrillioun,mapping1d,spin_orbit)
       value = cpsi_initialize(ortho)
 
 c      if (flag.eq.2) call cpsi_dospsi_read(k)
@@ -802,15 +843,23 @@ c      if (flag.eq.2) call cpsi_dospsi_read(k)
          if (taskid.eq.MASTER)
      >   write(58,'(1000E14.6)') pathlength,
      >          (dbl_mb(tmp(1)+i-1),i=1,cpsi_ne(1))
+         if (taskid.eq.MASTER)
+     >   write(68,'(1000E14.6)') pathlength,f1,f2,f3,f4,f5,f6,
+     >          (dbl_mb(tmp(1)+i-1),i=1,cpsi_ne(1))
 
          if ((.not.cpsi_spin_orbit()).and.(ispin.eq.2)) then
-            do i=1,cpsi_ne(2)
-               dbl_mb(tmp(1)+i-1) = cpsi_eigenvalue_brdcst(nb,2,i)
-            end do
-            if (taskid.eq.MASTER)
-     >      write(59,'(1000E14.6)') pathlength,
+           do i=1,cpsi_ne(2)
+              dbl_mb(tmp(1)+i-1)=cpsi_eigenvalue_brdcst(nb,2,i)
+           end do
+           if (taskid.eq.MASTER)
+     >     write(59,'(1000E14.6)') pathlength,
+     >          (dbl_mb(tmp(1)+i-1),i=1,cpsi_ne(2))
+           if (taskid.eq.MASTER)
+     >     write(69,'(1000E14.6)') pathlength,f1,f2,f3,f4,f5,f6,
      >          (dbl_mb(tmp(1)+i-1),i=1,cpsi_ne(2))
          end if         
+
+
          if (.not.BA_pop_stack(tmp(2)))
      >      call errquit('band_structure:pop stack',99,MA_ERR)
 
@@ -856,11 +905,16 @@ cccc      if (flag.eq.1) call cpsi_dospsi_write(k)
       call Cram_end()
       call c_G_end()
       call brillioun_end()
+      call Pneb_end()
 
       end do
       if (taskid.eq.MASTER) then
         close(58)
-        if (ispin.eq.2) close(59)
+        close(68)
+        if (ispin.eq.2) then
+           close(59)
+           close(69)
+        end if
       end if
 
       if (taskid.eq.MASTER) call current_second(cpu3)
@@ -1113,10 +1167,11 @@ cccc      if (flag.eq.1) call cpsi_dospsi_write(k)
       call ion_end()
       call cpsi_data_end()
       call C3dB_end(1)
-      IF ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
-      call mask_end()
-      call G_end()
-      call D3dB_end(1)
+      !IF ((control_gga().ge.10).and.(control_gga().lt.100)) THEN
+      if (.not.control_only_lda()) then
+         call mask_end()
+         call G_end()
+         call D3dB_end(1)
       end if
 
 
@@ -1179,11 +1234,11 @@ cccc      if (flag.eq.1) call cpsi_dospsi_write(k)
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ input data ========================')
  1111 FORMAT(/' number of processors used:',I16)
- 1112 FORMAT( ' parallel mapping         :         1d slab')
- 1113 FORMAT( ' parallel mapping         :      2d hilbert')
+ 1112 FORMAT( ' parallel mapping         :         1d-slab')
+ 1113 FORMAT( ' parallel mapping         :      2d-hilbert')
  1115 FORMAT(/' options:')
  1117 FORMAT( ' processor grid           :',I4,' x',I4,' x',I4)
- 1118 FORMAT( ' parallel mapping         :       2d hcurve')
+ 1118 FORMAT( ' parallel mapping         :       2d-hcurve')
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)

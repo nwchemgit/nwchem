@@ -42,8 +42,8 @@ c
       integer krange,lrange
       integer kloff
       integer pgd
-cc      integer nxtval
-cc      external nxtval
+cc      integer nxtask
+cc      external nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
       integer nxtasksub
@@ -87,8 +87,8 @@ ckbn      if(nodezero) write(*,'(A,I5,I5,I5,I5)') "sf_size_pq ",sf_size_pq,
 ckbn     + int_mb(k_range+g1b-1),int_mb(k_range+g2b-1),
 ckbn     + int_mb(k_range+g1b-1)*int_mb(k_range+g2b-1)
 
-          dbl_size   = dbl_size   + dfloat(int_mb(k_range+g1b-1))
-     1                            * dfloat(int_mb(k_range+g2b-1))
+          dbl_size   = dbl_size   + dble(int_mb(k_range+g1b-1))
+     1                            * dble(int_mb(k_range+g2b-1))
         enddo
       enddo
 #if !defined(EXT_INT)
@@ -270,7 +270,7 @@ c
             enddo
             if (.not.ma_pop_stack(l_ijkl)) 
      1        call errquit('tce_ao2e: MA problem x1',16,MA_ERR)
-cc            next = nxtval(nprocs)
+cc            next = nxtask(nprocs,1)
       if(lusesub) then
       next = NXTASKsub(nprocs,1,pgd)
       else
@@ -285,7 +285,7 @@ ckbn     1 lsh,ksh,nshells
           count = count + 1
         enddo
       enddo
-cc      next = nxtval(-nprocs)
+cc      next = nxtask(-nprocs,1)
       if(lusesub) then
       next = NXTASKsub(-nprocs,1,pgd)
       else

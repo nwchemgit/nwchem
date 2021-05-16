@@ -112,7 +112,7 @@ c
                   do s = 1, nactiv
                      do r = 1, nactiv
                         diff = twopdm(r,s,t,u,ivec,jvec) - 
-     $                       work(r,s,t,u,ivec,jvec)/dfloat(nelec-2)
+     $                       work(r,s,t,u,ivec,jvec)/dble(nelec-2)
                         if (abs(diff) .gt. test) call fci_err
      $                       ('3pdm: bad trace ',1000*r+100*s+10*t+u)
                      enddo

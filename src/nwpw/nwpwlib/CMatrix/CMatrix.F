@@ -117,7 +117,9 @@ c
      >             work1,work2)
 
 *        **** Q = Q*Q1 ****
-        call dcopy(ma(taskid_i+1)*na(taskid_j+1),Q,1,V1,1)
+c        call dcopy(ma(taskid_i+1)*na(taskid_j+1),Q,1,V1,1)
+        call Parallel_shared_vector_copy(.true.,
+     >               ma(taskid_i+1)*na(taskid_j+1),Q,V1)
          call CMatrix_zgemm1(n,n,n,64,
      >             dcmplx(1.0d0,0.0d0),
      >             V1,lda, ma,na,

@@ -446,7 +446,7 @@ c
 
       implicit none
 #include "msgids.fh"
-#include "tcgmsg.fh"
+#include "mafdecls.fh"
 #include "global.fh"
       character*(*) filename
       logical perm
@@ -461,7 +461,8 @@ c
       if(ga_nodeid().eq.0) then 
         inquire(file=filename0,exist=ofile)
       end if
-      call ga_brdcst(msg_qmmm_misc, ofile, mitob(1), 0)
+      call ga_brdcst(msg_qmmm_misc, ofile,
+     $     MA_sizeof(MT_INT,1,MT_BYTE),0)
       call ga_sync()
 c
       qmmm_file_exist = ofile

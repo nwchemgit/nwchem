@@ -10,7 +10,6 @@ C>
       implicit none
       integer i !< [Input] The value I
       integer j
-
       util_popcnt = count((/ (BTEST(i,j),j=0,bit_size(i)-1) /))
       return
       end

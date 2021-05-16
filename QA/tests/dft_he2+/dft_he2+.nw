@@ -31,6 +31,21 @@ end
 
 task dft gradient
 
+title "he2+ hcth147 functional"
+set dft:use_hcth147 t
+dft
+XC hcth147
+end
+
+task dft gradient 
+
+title "he2+ hcth147@tz2p functional"
+dft
+XC hcth147@tz2p
+end
+
+task dft gradient
+
 title "he2+ Becke 1997 functional"
 dft
 XC becke97-1

@@ -29,14 +29,14 @@ C> [1] T.W. Keal, D.J. Tozer,
 C>     "The exchange-correlation potential in Kohn-Sham nuclear
 C>     magnetic resonance shielding calculations", J. Chem. Phys.
 C>     <b>119</b>, 3015-3024 (2006), DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.1590634">
+C>     <a href="https://doi.org/10.1063/1.1590634">
 C>     10.1063/1.1590634</a>.
 C>
 C> [2] M. Swart, M. Sola, F.M. Bickelhaupt,
 C>     "A new all-round density functional based on spin states and
 C>     SN2 barriers",
 C>     J. Chem. Phys. <b>131</b>, 094103 (2009), DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.3213193">
+C>     <a href="https://doi.org/10.1063/1.3213193">
 C>     10.1063/1.3213193</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)

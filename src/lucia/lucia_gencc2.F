@@ -987,14 +987,14 @@ CTEST            ITOUCH(I_CI) = ITOUCH(I_CI) + 1
                  END IF
 *
                  IF(I_USE_NEWCCP.EQ.0) THEN
-                   SIGN = DFLOAT(ISIGN_AL*ISIGN_BE) 
+                   SIGN = DBLE(ISIGN_AL*ISIGN_BE) 
                  ELSE 
                    IF(MOD(NEL_CB*NEL_AA,2).EQ.0) THEN
                      SIGN_CBAA = 1
                    ELSE 
                      SIGN_CBAA = -1
                    END IF
-                   SIGN = SIGN_CBAA* DFLOAT(ISIGN_AL*ISIGN_BE)
+                   SIGN = SIGN_CBAA* DBLE(ISIGN_AL*ISIGN_BE)
                  END IF
 *
                  IF(IWAY.EQ.1) THEN

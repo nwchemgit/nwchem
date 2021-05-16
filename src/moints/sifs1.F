@@ -2493,16 +2493,11 @@ c
 c
 c     # to determine the little-endian or big-endian
 c     # addressing convention.
-      integer longw
-      integer*2 shortw(2)
-      equivalence (longw,shortw)
-#ifdef SOLARIS
-c     needed for -stackvar option
-      save shortw, longw
-#endif
-c
-      longw = 1
-      if ( shortw(1) .eq. 1 ) then
+      integer bytes_per_int
+      logical obigendian
+c      
+      call util_pack_info(bytes_per_int, obigendian)
+      if (.not.obigendian) then
 c        # ...little-endian.
          do 10 i=1,((nuw+7)/8)
             p(8,i)=u(1,1,i)
@@ -2584,18 +2579,13 @@ c
 c
 c     # to determine the little-endian or big-endian
 c     # addressing convention.
-      integer longw
-      integer*2 shortw(2)
-      equivalence (longw,shortw)
-#ifdef SOLARIS
-c     needed for -stackvar option
-      save shortw, longw
-#endif
-c
-      call ifill(nuw,0,u,1)
+      integer bytes_per_int
+      logical obigendian
+c      
+      call lfill(nuw,.false.,u,1)
 **      call izero(nuw,u,1)
-      longw = 1
-      if ( shortw(1) .eq. 1 ) then
+      call util_pack_info(bytes_per_int, obigendian)
+      if (.not.obigendian) then
 c        # ...little-endian.
          do 10 i=1,((nuw+7)/8)
             u(1,1,i)=p(8,i)
@@ -2654,16 +2644,11 @@ c
 c
 c     # to determine the little-endian or big-endian
 c     # addressing convention.
-      integer longw
-      integer*2 shortw(2)
-      equivalence (longw,shortw)
-#ifdef SOLARIS
-c     needed for -stackvar option
-      save shortw, longw
-#endif
-c
-      longw = 1
-      if ( shortw(1) .eq. 1 ) then
+      integer bytes_per_int
+      logical obigendian
+c      
+      call util_pack_info(bytes_per_int, obigendian)
+      if (.not.obigendian) then
 c        # ...little-endian.
          do 10 i=1,((nuw+3)/4)
             p(4,i)=u(1,1,i)
@@ -2714,18 +2699,13 @@ c
 c
 c     # to determine the little-endian or big-endian
 c     # addressing convention.
-      integer longw
-      integer*2 shortw(2)
-      equivalence (longw,shortw)
-#ifdef SOLARIS
-c     needed for -stackvar option
-      save shortw, longw
-#endif
-c
-      call ifill ( nuw, 0, u, 1 )
+      integer bytes_per_int
+      logical obigendian
+c      
+      call ifill2 ( nuw, 0, u, 1 )
 **      call izero ( nuw, u, 1 )
-      longw = 1
-      if ( shortw(1) .eq. 1 ) then
+      call util_pack_info(bytes_per_int, obigendian)
+      if (.not.obigendian) then
 c        # ...little-endian.
          do 10 i=1,((nuw+3)/4)
             u(1,1,i)=p(4,i)
@@ -2779,16 +2759,11 @@ c
 c
 c     # to determine the little-endian or big-endian
 c     # addressing convention.
-      integer longw
-      integer*2 shortw(2)
-      equivalence (longw,shortw)
-#ifdef SOLARIS
-c     needed for -stackvar option
-      save shortw, longw
-#endif
-c
-      longw = 1
-      if ( shortw(1) .eq. 1 ) then
+      integer bytes_per_int
+      logical obigendian
+c      
+      call util_pack_info(bytes_per_int, obigendian)
+      if (.not.obigendian) then
 c        # ...little-endian.
          do 10 i=1,((nuw+1)/2)
             p(2,i)=u(1,i)
@@ -2838,16 +2813,11 @@ c
 c
 c     # to determine the little-endian or big-endian
 c     # addressing convention.
-      integer longw
-      integer*2 shortw(2)
-      equivalence (longw,shortw)
-#ifdef SOLARIS
-c     needed for -stackvar option
-      save shortw, longw
-#endif
-c
-      longw = 1
-      if ( shortw(1) .eq. 1 ) then
+      integer bytes_per_int
+      logical obigendian
+c      
+      call util_pack_info(bytes_per_int, obigendian)
+      if (.not.obigendian) then
 c        # ...little-endian.
          do 10 i=1,((nuw+1)/2)
             u(2,i)=p(1,i)
@@ -2955,14 +2925,18 @@ c
       integer i, u0
       integer local1, local2, local3, local4
       integer*2 llocl1(2), llocl2(2), llocl3(2), llocl4(2)
+#ifdef F77      
       equivalence (llocl1,local1),(llocl2,local2)
       equivalence (llocl3,local3),(llocl4,local4)
+#else
+      integer*2 mold
+#endif
 c
 c     # to determine the little-endian or big-endian
 c     # addressing convention.
-      integer longw
-      integer*2 shortw(2)
-      equivalence (longw,shortw)
+      integer bytes_per_int
+      logical obigendian
+c      
 #ifdef SOLARIS
 c     needed for -stackvar option
       save local1, llocl1, local2, llocl2,local3, llocl3,
@@ -2981,8 +2955,8 @@ c  define bit-packing functions recursively for maximum pipelining...
      & ( lp8(i1,i2,i3,i4,i5,i6,i7,i8) * 256 +
      & lp8(i9,i10,i11,i12,i13,i14,i15,i16) )
 c
-      longw = 1
-      if(shortw(1).eq.1)then
+      call util_pack_info(bytes_per_int, obigendian)
+      if (.not.obigendian) then
 c        # ...little-endian.
          do 10 i=1,((nuw+63)/64)
 c
@@ -2992,6 +2966,9 @@ c
      &       u(u0+5 ),u(u0+6 ),u(u0+7 ),u(u0+8 ),
      &       u(u0+9 ),u(u0+10),u(u0+11),u(u0+12),
      &       u(u0+13),u(u0+14),u(u0+15),u(u0+16))
+#ifndef F77      
+      llocl1=transfer(local1,mold,bytes_per_int/2)
+#endif            
             p(4,i)=llocl1(1)
 c
             u0=(i-1)*64+16
@@ -3000,6 +2977,9 @@ c
      &       u(u0+5 ),u(u0+6 ),u(u0+7 ),u(u0+8 ),
      &       u(u0+9 ),u(u0+10),u(u0+11),u(u0+12),
      &       u(u0+13),u(u0+14),u(u0+15),u(u0+16))
+#ifndef F77      
+      llocl2=transfer(local2,mold,bytes_per_int/2)
+#endif            
             p(3,i)=llocl2(1)
 c
             u0=(i-1)*64+32
@@ -3008,6 +2988,9 @@ c
      &       u(u0+5 ),u(u0+6 ),u(u0+7 ),u(u0+8 ),
      &       u(u0+9 ),u(u0+10),u(u0+11),u(u0+12),
      &       u(u0+13),u(u0+14),u(u0+15),u(u0+16))
+#ifndef F77      
+      llocl3=transfer(local3,mold,bytes_per_int/2)
+#endif            
             p(2,i)=llocl3(1)
 c
             u0=(i-1)*64+48
@@ -3016,6 +2999,9 @@ c
      &       u(u0+5 ),u(u0+6 ),u(u0+7 ),u(u0+8 ),
      &       u(u0+9 ),u(u0+10),u(u0+11),u(u0+12),
      &       u(u0+13),u(u0+14),u(u0+15),u(u0+16))
+#ifndef F77      
+      llocl4=transfer(local4,mold,bytes_per_int/2)
+#endif           
             p(1,i)=llocl4(1)
 c
 10       continue
@@ -3029,6 +3015,9 @@ c
      &       u(u0+5 ),u(u0+6 ),u(u0+7 ),u(u0+8 ),
      &       u(u0+9 ),u(u0+10),u(u0+11),u(u0+12),
      &       u(u0+13),u(u0+14),u(u0+15),u(u0+16))
+#ifndef F77      
+      llocl1=transfer(local1,mold,bytes_per_int/2)
+#endif            
             p(1,i)=llocl1(2)
 c
             u0=(i-1)*64+16
@@ -3037,6 +3026,9 @@ c
      &       u(u0+5 ),u(u0+6 ),u(u0+7 ),u(u0+8 ),
      &       u(u0+9 ),u(u0+10),u(u0+11),u(u0+12),
      &       u(u0+13),u(u0+14),u(u0+15),u(u0+16))
+#ifndef F77      
+      llocl2=transfer(local2,mold,bytes_per_int/2)
+#endif            
             p(2,i)=llocl2(2)
 c
             u0=(i-1)*64+32
@@ -3045,6 +3037,9 @@ c
      &       u(u0+5 ),u(u0+6 ),u(u0+7 ),u(u0+8 ),
      &       u(u0+9 ),u(u0+10),u(u0+11),u(u0+12),
      &       u(u0+13),u(u0+14),u(u0+15),u(u0+16))
+#ifndef F77      
+      llocl3=transfer(local3,mold,bytes_per_int/2)
+#endif            
             p(3,i)=llocl3(2)
 c
             u0=(i-1)*64+48
@@ -3053,6 +3048,9 @@ c
      &       u(u0+5 ),u(u0+6 ),u(u0+7 ),u(u0+8 ),
      &       u(u0+9 ),u(u0+10),u(u0+11),u(u0+12),
      &       u(u0+13),u(u0+14),u(u0+15),u(u0+16))
+#ifndef F77      
+      llocl4=transfer(local4,mold,bytes_per_int/2)
+#endif            
             p(4,i)=llocl4(2)
 c
 20       continue
@@ -3151,14 +3149,17 @@ c
       integer i, ipower, j, u0
       integer local1, local2, local3, local4
       integer*2 llocl1(2), llocl2(2), llocl3(2), llocl4(2)
+#ifdef F77      
       equivalence (llocl1,local1),(llocl2,local2)
       equivalence (llocl3,local3),(llocl4,local4)
+#else
+      integer*2 mold
+#endif
 c
 c     # to determine the little-endian or big-endian
 c     # addressing convention.
-      integer longw
-      integer*2 shortw(2)
-      equivalence (longw,shortw)
+      integer bytes_per_int
+      logical obigendian
 #ifdef SOLARIS
 c     needed for -stackvar option
       save local1, llocl1, local2, llocl2,local3, llocl3,
@@ -3171,9 +3172,15 @@ c
       local2=0
       local3=0
       local4=0
+      call util_pack_info(bytes_per_int, obigendian)
+#ifndef F77      
+      llocl1=transfer(local1,mold,bytes_per_int/2)
+      llocl2=transfer(local2,mold,bytes_per_int/2)
+      llocl3=transfer(local3,mold,bytes_per_int/2)
+      llocl4=transfer(local4,mold,bytes_per_int/2)
+#endif            
 c
-      longw = 1
-      if ( shortw(1) .eq. 1 ) then
+      if (.not.obigendian) then
 c        # ...little-endian.
          u0=0
          do 10 i=1,((nuw+63)/64)

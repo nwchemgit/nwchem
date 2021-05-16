@@ -501,7 +501,7 @@ CXXX  [KAL]: I guess really no need to allocate two moooc arrays...
      $              "# MO Occupations (alpha spin)")
 
                call rt_tddft_moocc_calc (params, g_densre_mo(2),
-     $              g_movecs_mo_gs(1), dbl_mb(imoocc(2)))
+     $              g_movecs_mo_gs(2), dbl_mb(imoocc(2)))        !was incorrectly gs(1) before
                call rt_tddft_moocc_print (params,
      $              tt, dbl_mb(imoocc(2)),
      $              "# MO Occupations (beta spin)")

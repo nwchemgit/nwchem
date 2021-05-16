@@ -28,12 +28,18 @@ c     References:
 c     J. Sun, A. Ruzsinszky, J.P. Perdew
 c     PRL 115, 036402 (2015)
 c     DOI: 10.1103/PhysRevLett.115036402
+c
+c     A.P. Bartok and J.R. Yates
+c     JCP 150, 161101 (2019)
+c     DOI: 10.1063/1.5094646
 
-      Subroutine xc_xscan(tol_rho, fac,  rho, delrho, 
+      Subroutine xc_xscan(whichfx, tol_rho, fac,  rho, delrho, 
      &                    Amat, Cmat, nq, ipol, Ex, 
      &                    qwght, ldew, func, tau,Mmat)
       implicit none
-c      
+c
+      character*(*) whichfx
+c
       double precision fac, Ex
       integer nq, ipol
       logical ldew
@@ -67,7 +73,7 @@ c
 c     SPIN-RESTRICTED
 c     Ex = Ex[n]
 c
-         call xc_xscan_cs(tol_rho, fac,  rho, delrho, 
+         call xc_xscan_cs(whichfx, tol_rho, fac,  rho, delrho, 
      &                    Amat, Cmat, nq, Ex, 1d0,
      &                    qwght, ldew, func, tau,Mmat)
       else
@@ -78,7 +84,7 @@ c     Ex = Ex[2n_up]/2 + Ex[2n_down]/2
          do ispin=1,2
             if (ispin.eq.1) cmatpos=D1_GAA
             if (ispin.eq.2) cmatpos=D1_GBB
-            call xc_xscan_cs(tol_rho, fac,  
+            call xc_xscan_cs(whichfx, tol_rho, fac,  
      R           rho(1,ispin+1), delrho(1,1,ispin), 
      &           Amat(1,ispin), Cmat(1,cmatpos), 
      &           nq, Ex, 2d0,
@@ -89,11 +95,12 @@ c     Ex = Ex[2n_up]/2 + Ex[2n_down]/2
       endif
       return
       end
-      Subroutine xc_xscan_cs(tol_rho, fac,  rho, delrho, 
+      Subroutine xc_xscan_cs(whichfx, tol_rho, fac,  rho, delrho, 
      &                     Amat, Cmat, nq, Ex, facttwo,
      &                     qwght, ldew, func, tau,Mmat)
       implicit none
-c      
+c
+      character*(*) whichfx
       double precision fac, Ex
       integer nq
       logical ldew
@@ -121,7 +128,7 @@ c
 c
       double precision facttwo, afact2 ! 2 for o.s. 1 for c.s.
 c
-      integer n
+      integer n, ifx
       double precision tol_rho, pi
       double precision rhoval, rrho, rho13, rho43, rho83
       double precision tauN, tauW, tauU
@@ -134,6 +141,8 @@ c
 
       double precision oma, oma2
       double precision exp1, exp2, exp3, exp4, exp5
+      double precision rtemp(0:7), rRegu(0:7), rRegu1(7)
+      double precision regalpha, dregalpha
       double precision x1, x2, x
       double precision H, Hden, Hnum
       double precision G
@@ -164,6 +173,15 @@ c     functional derivatives above FFFFFFFFFFFF
       parameter (rD=1.24d0)
       parameter (rMu=10.0d0/81.0d0)
       parameter (rB3=0.5d0)
+
+      parameter (rRegu = (/ 1d0, -0.667d0, -0.4445555d0, 
+     &                    -6.63086601049291d-1, 1.45129704448975d0,
+     &                    -8.87998041596655d-1, 2.34528941478571d-1,
+     &                    -2.31858433223407d-2/) )
+      parameter (rRegu1 = (/ -0.667d0, -2d0*0.4445555d0,
+     &             -3d0*6.63086601049291d-1, 4d0*1.45129704448975d0,
+     &             -5d0*8.87998041596655d-1, 6d0*2.34528941478571d-1,
+     &             -7d0*2.31858433223407d-2/) )
 
       rB2=dsqrt(5913.d0/405000.d0)
       rB1=(511.d0/13500.d0)/(2.d0*rB2)
@@ -199,9 +217,19 @@ c
             p   = g2/(4d0*Pconst*rho83)
             p14 = dsqrt(dsqrt(p))
 c
-            a=(tauN-tauW)/tauU
-            if(a.lt.0d0)  a=0d0
-            oma = 1d0 - a
+            if (whichfx.eq.'orig') then
+              a=(tauN-tauW)/tauU
+              if(a.lt.0d0)  a=0d0
+              regalpha = a
+              dregalpha = 1d0
+            else if (whichfx.eq.'regu') then
+              a=(tauN-tauW)/(tauU + 1d-4*facttwo**f53)
+              if(a.lt.0d0)  a=0d0
+              regalpha = a**3/(a**2 + 1d-3)
+              dregalpha = a/(a**2+1d-3)*(3d0*a - 2d0*regalpha)
+            endif
+
+            oma = 1d0 - regalpha
             oma2 = oma*oma
             
             exp1 = dexp(-rB4/rMu*p)
@@ -222,19 +250,33 @@ c
             endif
             G = 1d0 - exp3
 
-            if (a.ge.thr1) then
-              exp4 = 0d0
-            else
-              exp4 = dexp(-rC1*a/oma)
+c
+c Switching function
+c
+            if (whichfx.eq.'orig') then
+              if (regalpha.ge.thr1) then
+                exp4 = 0d0
+              else
+                exp4 = dexp(-rC1*regalpha/oma)
+              end if
+              if (regalpha.le.thr2) then
+                exp5 = 0d0
+              else
+                exp5 = dexp(rC2/oma)
+              end if
+              Fa = exp4 - rD*exp5
+            else if (whichfx.eq.'regu') then
+              if (regalpha.lt.2.5d0) then
+                rtemp(0) = 1d0
+                do ifx=1,7
+                  rtemp(ifx) = rtemp(ifx-1)*regalpha
+                enddo
+                Fa = dot_product(rRegu,rtemp)
+              else
+                exp5 = dexp(rC2/oma)
+                Fa = -rD*exp5
+              end if
             end if
-
-            if (a.le.thr2) then
-              exp5 = 0d0
-            else
-              exp5 = dexp(rC2/oma)
-            end if
-
-            Fa = exp4 - rD*exp5
 
             Fx = G*(H + Fa*(rH0 - H))
 
@@ -246,9 +288,15 @@ c     functional derivatives FFFFFFFFFFFFFFFFFFFFFFFFFFFF
             dpdr = -F83*p*rrho
             dpdg = 1d0/(4d0*Pconst*rho83)
 
-            dadg = -F18*rrho/tauU
-            dadt = 1d0/tauU
-            dadr = F13*(8d0*tauW - 5.0*tauN)*rrho/tauU
+            if (whichfx.eq.'orig') then
+              dadg = -F18*rrho/tauU
+              dadt = 1d0/tauU
+              dadr = F53*(p-a)*rrho
+            else if (whichfx.eq.'regu') then
+              dadg = -F18*rrho/(tauU + 1d-4*facttwo**f53)
+              dadt = 1d0/(tauU + 1d-4*facttwo**f53)
+              dadr = 5d0/3d0*(p - a)*tauU*rrho/(tauU +1d-4*facttwo**f53)
+            endif
 
             if (p14.lt.0.001d0) then
               dGdp = 0d0
@@ -259,17 +307,28 @@ c     functional derivatives FFFFFFFFFFFFFFFFFFFFFFFFFFFF
             dx1dp = rMu + rB4*p*exp1*(2d0 - p*rB4/rMu)
             dx2dp = rB1
             dxdp = dx1dp + 2d0*x2*dx2dp
-            dxda = 2d0*rB2*exp2*x2*(2d0*rB3*oma2 - 1d0)
+            dxda = 2d0*rB2*exp2*x2*(2d0*rB3*oma2 - 1d0)*dregalpha
 
             dHdx = (rK1/Hden)**2
             dHdp = dHdx*dxdp
             dHda = dHdx*dxda
 
-            if ((a.ge.thr1).and.(a.le.thr2)) then
-              dFada = 0d0
-            else
-              dFada = -(rC1*exp4 + rD*exp5*rC2)/oma2
-            end if
+c
+c Switching function
+c
+            if (whichfx.eq.'orig') then
+              if ((regalpha.ge.thr1).and.(regalpha.le.thr2)) then
+                dFada = 0d0
+              else
+                dFada = -(rC1*exp4 + rD*exp5*rC2)/oma2
+              end if
+            else if (whichfx.eq.'regu') then
+              if (regalpha.lt.2.5d0) then
+                dFada = dot_product(rRegu1,rtemp(0:6))*dregalpha
+              else
+                dFada = -rD*exp5*rC2/oma2*dregalpha
+              endif
+            endif
 
             dFxdp = dGdp*(H + Fa*(rH0 - H)) + G*dHdp*(1d0 - Fa)
             dFxda = G*(dHda + dFada*(rH0 - H) - Fa*dHda)

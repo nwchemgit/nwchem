@@ -7,7 +7,6 @@ C> @{
 *
       dimension ind(*),ioconf(nintpo),joconf(nintpo),iocc(*)
       dimension ijocc(4)
-      integer selci_leadz32
 #include "bitops.fh"
 #include "errquit.fh"
 c
@@ -27,7 +26,7 @@ c
       do 10 iword = 1,nintpo
          itemp = ieor(ioconf(iword),joconf(iword))
          jbase = 0
- 20      lz = selci_leadz32(itemp)
+ 20      lz = leadz(itemp)
          lz = lz - mod(lz,2)
          if (lz.ne.nbitpi) then
             jbase = jbase  + lz/2 + 1

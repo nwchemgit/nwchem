@@ -538,9 +538,9 @@ c Determine if we can still store the integrals to disk
 c If not, calculate and set integral recalculation point icnt
 c
             if (use_storage) then
-              store_need=dfloat(ma_sizeof(MT_DBL,2*nfj*nfl*nbf*(nbf+1),
+              store_need=dble(ma_sizeof(MT_DBL,2*nfj*nfl*nbf*(nbf+1),
      $                                    MT_BYTE))
-              store_need=store_need+dfloat(ma_sizeof(MT_INT,nsh*nsh+2,
+              store_need=store_need+dble(ma_sizeof(MT_INT,nsh*nsh+2,
      $                                               MT_BYTE))
               if ((store_need+store_used).gt.store_avail) then
                 use_storage=.false.

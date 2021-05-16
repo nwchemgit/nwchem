@@ -3,12 +3,10 @@
 __device__ double* t3_s_d;
 __device__ double* t3_d;
 
-#define size_t int
-
 #include "header.h"
-extern    "C" void set_dev_mem_d(int h1d, int h2d, int h3d, int p4d, int p5d,int p6d)
+extern    "C" void set_dev_mem_d(size_t h1d, size_t h2d, size_t h3d, size_t p4d, size_t p5d,size_t p6d)
 {
-    int size_t3;
+    size_t size_t3;
     size_t3 = h1d*h2d*h3d*p4d*p5d*p6d;
     t3_d = (double *) getGpuMem(size_t3*sizeof(double));
     hipMemset(t3_d,0,size_t3*sizeof(double));
@@ -16,7 +14,7 @@ extern    "C" void set_dev_mem_d(int h1d, int h2d, int h3d, int p4d, int p5d,int
 extern          "C" void
 dev_mem_d_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Integer * p5d, Integer * p6d)
 {
-    set_dev_mem_d((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d);
+    set_dev_mem_d((size_t) *h1d, (size_t) *h2d, (size_t) *h3d, (size_t) *p4d, (size_t) *p5d, (size_t) *p6d);
 }
 extern "C" void
 dev_release()
@@ -38,19 +36,19 @@ dev_release_()
 #define T1 16
 #define T2 16
 #define Tcomm 16
-__global__ void sd_t_d1_1_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int p6d,int h7ld_t2sub,int p4ld_t2sub,int p5ld_t2sub,int h1ld_t2sub,int h3ld_v2sub,int p6ld_v2sub,int h7ld_v2sub,int h3ld_triplesx,int h1ld_triplesx,int p6ld_triplesx,int p5ld_triplesx,int p4ld_triplesx,double *triplesx_d, double *t2sub_d, double *v2sub_d,int unused_idx, int total_x, int total_y) {
-  int h1_0,h1_1,h1_2,h1_3,h3_0,h3_1,h3_2,h3_3,h7,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p6_0,p6_1,p6_2,p6_3;
+__global__ void sd_t_d1_1_kernel(size_t h1d,size_t h3d,size_t h7d,size_t p4d,size_t p5d,size_t p6d,size_t h7ld_t2sub,size_t p4ld_t2sub,size_t p5ld_t2sub,size_t h1ld_t2sub,size_t h3ld_v2sub,size_t p6ld_v2sub,size_t h7ld_v2sub,size_t h3ld_triplesx,size_t h1ld_triplesx,size_t p6ld_triplesx,size_t p5ld_triplesx,size_t p4ld_triplesx,double *triplesx_d, double *t2sub_d, double *v2sub_d,size_t unused_idx, size_t total_x, size_t total_y) {
+  size_t h1_0,h1_1,h1_2,h1_3,h3_0,h3_1,h3_2,h3_3,h7,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p6_0,p6_1,p6_2,p6_3;
   double a1,b1;
   double a2,b2;
   double a3,b3;
   double a4,b4;
-  int in1_idxl,in2_idxl,h7l,h7T;
+  size_t in1_idxl,in2_idxl,h7l,h7T;
   __shared__ double t2sub_shm[4*T1][Tcomm];
   __shared__ double v2sub_shm[Tcomm][4*T2];
-  int rest_x=blockIdx.x;
-  int rest_y=blockIdx.y;
-  int thread_x = T2*4 * rest_x + threadIdx.x;
-  int thread_y = T1*4 * rest_y + threadIdx.y;
+  size_t rest_x=blockIdx.x;
+  size_t rest_y=blockIdx.y;
+  size_t thread_x = T2*4 * rest_x + threadIdx.x;
+  size_t thread_y = T1*4 * rest_y + threadIdx.y;
   in1_idxl=threadIdx.y;
   in2_idxl=threadIdx.x ;
   double tlocal1=0;
@@ -109,8 +107,8 @@ __global__ void sd_t_d1_1_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int p6d
   rest_y=rest_y/p5d;
   p4_3=rest_y;
   p6_3=rest_x;
-  int t2sub_d_off, v2sub_d_off;for(h7T=0;h7T<h7d;h7T+=Tcomm){int h7l_hi;
-    h7l_hi = MIN(Tcomm+h7T,h7d)-h7T;
+  size_t t2sub_d_off, v2sub_d_off;for(h7T=0;h7T<h7d;h7T+=Tcomm){
+    size_t h7l_hi = MIN(Tcomm+h7T,h7d)-h7T;
     t2sub_d_off=p4_0*p4ld_t2sub+p5_0*p5ld_t2sub+h1_0*h1ld_t2sub;
     v2sub_d_off=h3_0*h3ld_v2sub+p6_0*p6ld_v2sub;
     if(thread_y+T1*0<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
@@ -262,7 +260,7 @@ __global__ void sd_t_d1_1_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int p6d
   }
   __syncthreads();
 }
-extern "C" void sd_t_d1_1_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int p5d, int p6d, double *triplesx, double *t2sub, double *v2sub) {
+extern "C" void sd_t_d1_1_cuda(size_t h1d, size_t h2d, size_t h3d, size_t h7d, size_t p4d, size_t p5d, size_t p6d, double *triplesx, double *t2sub, double *v2sub) {
   h3d=h3d*h2d;
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,p6ld_triplesx,p5ld_triplesx,p4ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
@@ -297,8 +295,8 @@ extern "C" void sd_t_d1_1_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   p6ld_triplesx=h1d*h3d;
   p5ld_triplesx=p6d*h1d*h3d;
   p4ld_triplesx=p5d*p6d*h1d*h3d;
-  int total_x = h3d*p6d*1;
-  int total_y = p4d*p5d*h1d;
+  size_t total_x = h3d*p6d*1;
+  size_t total_y = p4d*p5d*h1d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     hipLaunchKernelGGL((sd_t_d1_1_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,p6ld_triplesx,p5ld_triplesx,p4ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
@@ -315,7 +313,7 @@ extern "C" void sd_t_d1_1_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
 #undef T2
 #undef Tcomm
 extern "C" void sd_t_d1_1_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Integer* h7d, Integer* p4d, Integer* p5d, Integer* p6d, double *triplesx, double *t2sub, double *v2sub) {
-  sd_t_d1_1_cuda((int)*h1d,(int)*h2d,(int)*h3d,(int)*h7d,(int)*p4d,(int)*p5d,(int)*p6d,triplesx,t2sub,v2sub);
+  sd_t_d1_1_cuda((size_t)*h1d,(size_t)*h2d,(size_t)*h3d,(size_t)*h7d,(size_t)*p4d,(size_t)*p5d,(size_t)*p6d,triplesx,t2sub,v2sub);
 }
 /*----------------------------------------------------------------------*
  *triplesx[h3,h1,h2,p5,p4] += t2sub[h7,p4,p5,h1] * v2sub[h3,h2,h7]
@@ -323,19 +321,19 @@ extern "C" void sd_t_d1_1_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Intege
 #define T1 16
 #define T2 16
 #define Tcomm 16
-__global__ void sd_t_d1_2_kernel(int h1d,int h2d,int h3d,int h7d,int p4d,int p5d,int h7ld_t2sub,int p4ld_t2sub,int p5ld_t2sub,int h1ld_t2sub,int h3ld_v2sub,int h2ld_v2sub,int h7ld_v2sub,int h3ld_triplesx,int h1ld_triplesx,int h2ld_triplesx,int p5ld_triplesx,int p4ld_triplesx,double *triplesx_d, double *t2sub_d, double *v2sub_d,int unused_idx, int total_x, int total_y) {
-  int h1_0,h1_1,h1_2,h1_3,h2_0,h2_1,h2_2,h2_3,h3_0,h3_1,h3_2,h3_3,h7,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3;
+__global__ void sd_t_d1_2_kernel(size_t h1d,size_t h2d,size_t h3d,size_t h7d,size_t p4d,size_t p5d,size_t h7ld_t2sub,size_t p4ld_t2sub,size_t p5ld_t2sub,size_t h1ld_t2sub,size_t h3ld_v2sub,size_t h2ld_v2sub,size_t h7ld_v2sub,size_t h3ld_triplesx,size_t h1ld_triplesx,size_t h2ld_triplesx,size_t p5ld_triplesx,size_t p4ld_triplesx,double *triplesx_d, double *t2sub_d, double *v2sub_d,size_t unused_idx, size_t total_x, size_t total_y) {
+  size_t h1_0,h1_1,h1_2,h1_3,h2_0,h2_1,h2_2,h2_3,h3_0,h3_1,h3_2,h3_3,h7,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3;
   double a1,b1;
   double a2,b2;
   double a3,b3;
   double a4,b4;
-  int in1_idxl,in2_idxl,h7l,h7T;
+  size_t in1_idxl,in2_idxl,h7l,h7T;
   __shared__ double t2sub_shm[4*T1][Tcomm];
   __shared__ double v2sub_shm[Tcomm][4*T2];
-  int rest_x=blockIdx.x;
-  int rest_y=blockIdx.y;
-  int thread_x = T2*4 * rest_x + threadIdx.x;
-  int thread_y = T1*4 * rest_y + threadIdx.y;
+  size_t rest_x=blockIdx.x;
+  size_t rest_y=blockIdx.y;
+  size_t thread_x = T2*4 * rest_x + threadIdx.x;
+  size_t thread_y = T1*4 * rest_y + threadIdx.y;
   in1_idxl=threadIdx.y;
   in2_idxl=threadIdx.x ;
   double tlocal1=0;
@@ -394,8 +392,8 @@ __global__ void sd_t_d1_2_kernel(int h1d,int h2d,int h3d,int h7d,int p4d,int p5d
   rest_y=rest_y/p5d;
   p4_3=rest_y;
   h2_3=rest_x;
-  int t2sub_d_off, v2sub_d_off;for(h7T=0;h7T<h7d;h7T+=Tcomm){int h7l_hi;
-    h7l_hi = MIN(Tcomm+h7T,h7d)-h7T;
+  size_t t2sub_d_off, v2sub_d_off;for(h7T=0;h7T<h7d;h7T+=Tcomm){
+    size_t h7l_hi = MIN(Tcomm+h7T,h7d)-h7T;
     t2sub_d_off=p4_0*p4ld_t2sub+p5_0*p5ld_t2sub+h1_0*h1ld_t2sub;
     v2sub_d_off=h3_0*h3ld_v2sub+h2_0*h2ld_v2sub;
     if(thread_y+T1*0<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
@@ -547,7 +545,7 @@ __global__ void sd_t_d1_2_kernel(int h1d,int h2d,int h3d,int h7d,int p4d,int p5d
   }
   __syncthreads();
 }
-extern "C" void sd_t_d1_2_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int p5d, int p6d, double *triplesx, double *t2sub, double *v2sub) {
+extern "C" void sd_t_d1_2_cuda(size_t h1d, size_t h2d, size_t h3d, size_t h7d, size_t p4d, size_t p5d, size_t p6d, double *triplesx, double *t2sub, double *v2sub) {
   h2d=h2d*p6d;
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h2ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,h2ld_triplesx,p5ld_triplesx,p4ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
@@ -584,8 +582,8 @@ extern "C" void sd_t_d1_2_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   h2ld_triplesx=h1d*h3d;
   p5ld_triplesx=h2d*h1d*h3d;
   p4ld_triplesx=p5d*h2d*h1d*h3d;
-  int total_x = h3d*h2d*1;
-  int total_y = p4d*p5d*h1d;
+  size_t total_x = h3d*h2d*1;
+  size_t total_y = p4d*p5d*h1d;
 //printf("Blocks %d %d\n", total_x, total_y); 
 //fflush(stdout);    
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
@@ -604,7 +602,7 @@ extern "C" void sd_t_d1_2_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
 #undef T2
 #undef Tcomm
 extern "C" void sd_t_d1_2_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Integer* h7d, Integer* p4d, Integer* p5d, Integer* p6d, double *triplesx, double *t2sub, double *v2sub) {
-  sd_t_d1_2_cuda((int)*h1d,(int)*h2d,(int)*h3d,(int)*h7d,(int)*p4d,(int)*p5d,(int)*p6d,triplesx,t2sub,v2sub);
+  sd_t_d1_2_cuda((size_t)*h1d,(size_t)*h2d,(size_t)*h3d,(size_t)*h7d,(size_t)*p4d,(size_t)*p5d,(size_t)*p6d,triplesx,t2sub,v2sub);
 }
 /*----------------------------------------------------------------------*
  *triplesx[h1,h3,p5,p4] -= t2sub[h7,p4,p5,h1] * v2sub[h3,h7]
@@ -612,19 +610,19 @@ extern "C" void sd_t_d1_2_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Intege
 #define T1 16
 #define T2 16
 #define Tcomm 16
-__global__ void sd_t_d1_3_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int h7ld_t2sub,int p4ld_t2sub,int p5ld_t2sub,int h1ld_t2sub,int h3ld_v2sub,int h7ld_v2sub,int h1ld_triplesx,int h3ld_triplesx,int p5ld_triplesx,int p4ld_triplesx,double *triplesx_d, double *t2sub_d, double *v2sub_d,int unused_idx, int total_x, int total_y) {
-  int h1_0,h1_1,h1_2,h1_3,h3_0,h3_1,h3_2,h3_3,h7,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3;
+__global__ void sd_t_d1_3_kernel(size_t h1d,size_t h3d,size_t h7d,size_t p4d,size_t p5d,size_t h7ld_t2sub,size_t p4ld_t2sub,size_t p5ld_t2sub,size_t h1ld_t2sub,size_t h3ld_v2sub,size_t h7ld_v2sub,size_t h1ld_triplesx,size_t h3ld_triplesx,size_t p5ld_triplesx,size_t p4ld_triplesx,double *triplesx_d, double *t2sub_d, double *v2sub_d,size_t unused_idx, size_t total_x, size_t total_y) {
+  size_t h1_0,h1_1,h1_2,h1_3,h3_0,h3_1,h3_2,h3_3,h7,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3;
   double a1,b1;
   double a2,b2;
   double a3,b3;
   double a4,b4;
-  int in1_idxl,in2_idxl,h7l,h7T;
+  size_t in1_idxl,in2_idxl,h7l,h7T;
   __shared__ double t2sub_shm[4*T1][Tcomm];
   __shared__ double v2sub_shm[Tcomm][4*T2];
-  int rest_x=blockIdx.x;
-  int rest_y=blockIdx.y;
-  int thread_x = T2*4 * rest_x + threadIdx.x;
-  int thread_y = T1*4 * rest_y + threadIdx.y;
+  size_t rest_x=blockIdx.x;
+  size_t rest_y=blockIdx.y;
+  size_t thread_x = T2*4 * rest_x + threadIdx.x;
+  size_t thread_y = T1*4 * rest_y + threadIdx.y;
   in1_idxl=threadIdx.y;
   in2_idxl=threadIdx.x ;
   double tlocal1=0;
@@ -675,8 +673,8 @@ __global__ void sd_t_d1_3_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int h7l
   rest_y=rest_y/p5d;
   p4_3=rest_y;
   h3_3=rest_x;
-  int t2sub_d_off, v2sub_d_off;for(h7T=0;h7T<h7d;h7T+=Tcomm){int h7l_hi;
-    h7l_hi = MIN(Tcomm+h7T,h7d)-h7T;
+  size_t t2sub_d_off, v2sub_d_off;for(h7T=0;h7T<h7d;h7T+=Tcomm){
+    size_t h7l_hi = MIN(Tcomm+h7T,h7d)-h7T;
     t2sub_d_off=p4_0*p4ld_t2sub+p5_0*p5ld_t2sub+h1_0*h1ld_t2sub;
     v2sub_d_off=h3_0*h3ld_v2sub;
     if(thread_y+T1*0<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
@@ -828,7 +826,7 @@ __global__ void sd_t_d1_3_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int h7l
   }
   __syncthreads();
 }
-extern "C" void sd_t_d1_3_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int p5d, int p6d, double *triplesx, double *t2sub, double *v2sub) {
+extern "C" void sd_t_d1_3_cuda(size_t h1d, size_t h2d, size_t h3d, size_t h7d, size_t p4d, size_t p5d, size_t p6d, double *triplesx, double *t2sub, double *v2sub) {
   h3d=h3d*h2d;
   h3d=h3d*p6d;
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h7ld_v2sub,h1ld_triplesx,h3ld_triplesx,p5ld_triplesx,p4ld_triplesx;
@@ -862,8 +860,8 @@ extern "C" void sd_t_d1_3_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   h3ld_triplesx=h1d;
   p5ld_triplesx=h3d*h1d;
   p4ld_triplesx=p5d*h3d*h1d;
-  int total_x = h3d*1;
-  int total_y = p4d*p5d*h1d;
+  size_t total_x = h3d*1;
+  size_t total_y = p4d*p5d*h1d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     hipLaunchKernelGGL((sd_t_d1_3_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h3d,h7d,p4d,p5d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h7ld_v2sub,h1ld_triplesx,h3ld_triplesx,p5ld_triplesx,p4ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
@@ -880,7 +878,7 @@ extern "C" void sd_t_d1_3_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
 #undef T2
 #undef Tcomm
 extern "C" void sd_t_d1_3_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Integer* h7d, Integer* p4d, Integer* p5d, Integer* p6d, double *triplesx, double *t2sub, double *v2sub) {
-  sd_t_d1_3_cuda((int)*h1d,(int)*h2d,(int)*h3d,(int)*h7d,(int)*p4d,(int)*p5d,(int)*p6d,triplesx,t2sub,v2sub);
+  sd_t_d1_3_cuda((size_t)*h1d,(size_t)*h2d,(size_t)*h3d,(size_t)*h7d,(size_t)*p4d,(size_t)*p5d,(size_t)*p6d,triplesx,t2sub,v2sub);
 }
 /*----------------------------------------------------------------------*
  *triplesx[h3,h1,p5,p4,p6] -= t2sub[h7,p4,p5,h1] * v2sub[h3,p6,h7]
@@ -888,19 +886,19 @@ extern "C" void sd_t_d1_3_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Intege
 #define T1 16
 #define T2 16
 #define Tcomm 16
-__global__ void sd_t_d1_4_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int p6d,int h7ld_t2sub,int p4ld_t2sub,int p5ld_t2sub,int h1ld_t2sub,int h3ld_v2sub,int p6ld_v2sub,int h7ld_v2sub,int h3ld_triplesx,int h1ld_triplesx,int p5ld_triplesx,int p4ld_triplesx,int p6ld_triplesx,double *triplesx_d, double *t2sub_d, double *v2sub_d,int unused_idx, int total_x, int total_y) {
-  int h1_0,h1_1,h1_2,h1_3,h3_0,h3_1,h3_2,h3_3,h7,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p6_0,p6_1,p6_2,p6_3;
+__global__ void sd_t_d1_4_kernel(size_t h1d,size_t h3d,size_t h7d,size_t p4d,size_t p5d,size_t p6d,size_t h7ld_t2sub,size_t p4ld_t2sub,size_t p5ld_t2sub,size_t h1ld_t2sub,size_t h3ld_v2sub,size_t p6ld_v2sub,size_t h7ld_v2sub,size_t h3ld_triplesx,size_t h1ld_triplesx,size_t p5ld_triplesx,size_t p4ld_triplesx,size_t p6ld_triplesx,double *triplesx_d, double *t2sub_d, double *v2sub_d,size_t unused_idx, size_t total_x, size_t total_y) {
+  size_t h1_0,h1_1,h1_2,h1_3,h3_0,h3_1,h3_2,h3_3,h7,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p6_0,p6_1,p6_2,p6_3;
   double a1,b1;
   double a2,b2;
   double a3,b3;
   double a4,b4;
-  int in1_idxl,in2_idxl,h7l,h7T;
+  size_t in1_idxl,in2_idxl,h7l,h7T;
   __shared__ double t2sub_shm[4*T1][Tcomm];
   __shared__ double v2sub_shm[Tcomm][4*T2];
-  int rest_x=blockIdx.x;
-  int rest_y=blockIdx.y;
-  int thread_x = T2*4 * rest_x + threadIdx.x;
-  int thread_y = T1*4 * rest_y + threadIdx.y;
+  size_t rest_x=blockIdx.x;
+  size_t rest_y=blockIdx.y;
+  size_t thread_x = T2*4 * rest_x + threadIdx.x;
+  size_t thread_y = T1*4 * rest_y + threadIdx.y;
   in1_idxl=threadIdx.y;
   in2_idxl=threadIdx.x ;
   double tlocal1=0;
@@ -959,8 +957,8 @@ __global__ void sd_t_d1_4_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int p6d
   rest_y=rest_y/p5d;
   p4_3=rest_y;
   p6_3=rest_x;
-  int t2sub_d_off, v2sub_d_off;for(h7T=0;h7T<h7d;h7T+=Tcomm){int h7l_hi;
-    h7l_hi = MIN(Tcomm+h7T,h7d)-h7T;
+  size_t t2sub_d_off, v2sub_d_off;for(h7T=0;h7T<h7d;h7T+=Tcomm){
+    size_t h7l_hi = MIN(Tcomm+h7T,h7d)-h7T;
     t2sub_d_off=p4_0*p4ld_t2sub+p5_0*p5ld_t2sub+h1_0*h1ld_t2sub;
     v2sub_d_off=h3_0*h3ld_v2sub+p6_0*p6ld_v2sub;
     if(thread_y+T1*0<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
@@ -1112,7 +1110,7 @@ __global__ void sd_t_d1_4_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int p6d
   }
   __syncthreads();
 }
-extern "C" void sd_t_d1_4_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int p5d, int p6d, double *triplesx, double *t2sub, double *v2sub) {
+extern "C" void sd_t_d1_4_cuda(size_t h1d, size_t h2d, size_t h3d, size_t h7d, size_t p4d, size_t p5d, size_t p6d, double *triplesx, double *t2sub, double *v2sub) {
   h3d=h3d*h2d;
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,p5ld_triplesx,p4ld_triplesx,p6ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
@@ -1147,8 +1145,8 @@ extern "C" void sd_t_d1_4_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   p5ld_triplesx=h1d*h3d;
   p4ld_triplesx=p5d*h1d*h3d;
   p6ld_triplesx=p4d*p5d*h1d*h3d;
-  int total_x = h3d*p6d*1;
-  int total_y = p4d*p5d*h1d;
+  size_t total_x = h3d*p6d*1;
+  size_t total_y = p4d*p5d*h1d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     hipLaunchKernelGGL((sd_t_d1_4_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,p5ld_triplesx,p4ld_triplesx,p6ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
@@ -1165,7 +1163,7 @@ extern "C" void sd_t_d1_4_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
 #undef T2
 #undef Tcomm
 extern "C" void sd_t_d1_4_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Integer* h7d, Integer* p4d, Integer* p5d, Integer* p6d, double *triplesx, double *t2sub, double *v2sub) {
-  sd_t_d1_4_cuda((int)*h1d,(int)*h2d,(int)*h3d,(int)*h7d,(int)*p4d,(int)*p5d,(int)*p6d,triplesx,t2sub,v2sub);
+  sd_t_d1_4_cuda((size_t)*h1d,(size_t)*h2d,(size_t)*h3d,(size_t)*h7d,(size_t)*p4d,(size_t)*p5d,(size_t)*p6d,triplesx,t2sub,v2sub);
 }
 /*----------------------------------------------------------------------*
  *triplesx[h3,h1,h2,p5,p4,p6] += t2sub[h7,p4,p5,h1] * v2sub[h3,h2,p6,h7]
@@ -1173,19 +1171,19 @@ extern "C" void sd_t_d1_4_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Intege
 #define T1 16
 #define T2 16
 #define Tcomm 16
-__global__ void sd_t_d1_5_kernel(int h1d,int h2d,int h3d,int h7d,int p4d,int p5d,int p6d,int h7ld_t2sub,int p4ld_t2sub,int p5ld_t2sub,int h1ld_t2sub,int h3ld_v2sub,int h2ld_v2sub,int p6ld_v2sub,int h7ld_v2sub,int h3ld_triplesx,int h1ld_triplesx,int h2ld_triplesx,int p5ld_triplesx,int p4ld_triplesx,int p6ld_triplesx,double *triplesx_d, double *t2sub_d, double *v2sub_d,int unused_idx, int total_x, int total_y) {
-  int h1_0,h1_1,h1_2,h1_3,h2_0,h2_1,h2_2,h2_3,h3_0,h3_1,h3_2,h3_3,h7,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p6_0,p6_1,p6_2,p6_3;
+__global__ void sd_t_d1_5_kernel(size_t h1d,size_t h2d,size_t h3d,size_t h7d,size_t p4d,size_t p5d,size_t p6d,size_t h7ld_t2sub,size_t p4ld_t2sub,size_t p5ld_t2sub,size_t h1ld_t2sub,size_t h3ld_v2sub,size_t h2ld_v2sub,size_t p6ld_v2sub,size_t h7ld_v2sub,size_t h3ld_triplesx,size_t h1ld_triplesx,size_t h2ld_triplesx,size_t p5ld_triplesx,size_t p4ld_triplesx,size_t p6ld_triplesx,double *triplesx_d, double *t2sub_d, double *v2sub_d,size_t unused_idx, size_t total_x, size_t total_y) {
+  size_t h1_0,h1_1,h1_2,h1_3,h2_0,h2_1,h2_2,h2_3,h3_0,h3_1,h3_2,h3_3,h7,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p6_0,p6_1,p6_2,p6_3;
   double a1,b1;
   double a2,b2;
   double a3,b3;
   double a4,b4;
-  int in1_idxl,in2_idxl,h7l,h7T;
+  size_t in1_idxl,in2_idxl,h7l,h7T;
   __shared__ double t2sub_shm[4*T1][Tcomm];
   __shared__ double v2sub_shm[Tcomm][4*T2];
-  int rest_x=blockIdx.x;
-  int rest_y=blockIdx.y;
-  int thread_x = T2*4 * rest_x + threadIdx.x;
-  int thread_y = T1*4 * rest_y + threadIdx.y;
+  size_t rest_x=blockIdx.x;
+  size_t rest_y=blockIdx.y;
+  size_t thread_x = T2*4 * rest_x + threadIdx.x;
+  size_t thread_y = T1*4 * rest_y + threadIdx.y;
   in1_idxl=threadIdx.y;
   in2_idxl=threadIdx.x ;
   double tlocal1=0;
@@ -1252,8 +1250,8 @@ __global__ void sd_t_d1_5_kernel(int h1d,int h2d,int h3d,int h7d,int p4d,int p5d
   rest_y=rest_y/p5d;
   p4_3=rest_y;
   p6_3=rest_x;
-  int t2sub_d_off, v2sub_d_off;for(h7T=0;h7T<h7d;h7T+=Tcomm){int h7l_hi;
-    h7l_hi = MIN(Tcomm+h7T,h7d)-h7T;
+  size_t t2sub_d_off, v2sub_d_off;for(h7T=0;h7T<h7d;h7T+=Tcomm){
+    size_t h7l_hi = MIN(Tcomm+h7T,h7d)-h7T;
     t2sub_d_off=p4_0*p4ld_t2sub+p5_0*p5ld_t2sub+h1_0*h1ld_t2sub;
     v2sub_d_off=h3_0*h3ld_v2sub+h2_0*h2ld_v2sub+p6_0*p6ld_v2sub;
     if(thread_y+T1*0<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
@@ -1405,7 +1403,7 @@ __global__ void sd_t_d1_5_kernel(int h1d,int h2d,int h3d,int h7d,int p4d,int p5d
   }
   __syncthreads();
 }
-extern "C" void sd_t_d1_5_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int p5d, int p6d, double *triplesx, double *t2sub, double *v2sub) {
+extern "C" void sd_t_d1_5_cuda(size_t h1d, size_t h2d, size_t h3d, size_t h7d, size_t p4d, size_t p5d, size_t p6d, double *triplesx, double *t2sub, double *v2sub) {
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h2ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,h2ld_triplesx,p5ld_triplesx,p4ld_triplesx,p6ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
   hipStream_t *streams;
@@ -1441,8 +1439,8 @@ extern "C" void sd_t_d1_5_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   p5ld_triplesx=h2d*h1d*h3d;
   p4ld_triplesx=p5d*h2d*h1d*h3d;
   p6ld_triplesx=p4d*p5d*h2d*h1d*h3d;
-  int total_x = h3d*h2d*p6d*1;
-  int total_y = p4d*p5d*h1d;
+  size_t total_x = h3d*h2d*p6d*1;
+  size_t total_y = p4d*p5d*h1d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     hipLaunchKernelGGL((sd_t_d1_5_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h2ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,h2ld_triplesx,p5ld_triplesx,p4ld_triplesx,p6ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
@@ -1459,7 +1457,7 @@ extern "C" void sd_t_d1_5_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
 #undef T2
 #undef Tcomm
 extern "C" void sd_t_d1_5_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Integer* h7d, Integer* p4d, Integer* p5d, Integer* p6d, double *triplesx, double *t2sub, double *v2sub) {
-  sd_t_d1_5_cuda((int)*h1d,(int)*h2d,(int)*h3d,(int)*h7d,(int)*p4d,(int)*p5d,(int)*p6d,triplesx,t2sub,v2sub);
+  sd_t_d1_5_cuda((size_t)*h1d,(size_t)*h2d,(size_t)*h3d,(size_t)*h7d,(size_t)*p4d,(size_t)*p5d,(size_t)*p6d,triplesx,t2sub,v2sub);
 }
 /*----------------------------------------------------------------------*
  *triplesx[h1,h3,p5,p4,p6] -= t2sub[h7,p4,p5,h1] * v2sub[h3,p6,h7]
@@ -1467,19 +1465,19 @@ extern "C" void sd_t_d1_5_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Intege
 #define T1 16
 #define T2 16
 #define Tcomm 16
-__global__ void sd_t_d1_6_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int p6d,int h7ld_t2sub,int p4ld_t2sub,int p5ld_t2sub,int h1ld_t2sub,int h3ld_v2sub,int p6ld_v2sub,int h7ld_v2sub,int h1ld_triplesx,int h3ld_triplesx,int p5ld_triplesx,int p4ld_triplesx,int p6ld_triplesx,double *triplesx_d, double *t2sub_d, double *v2sub_d,int unused_idx, int total_x, int total_y) {
-  int h1_0,h1_1,h1_2,h1_3,h3_0,h3_1,h3_2,h3_3,h7,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p6_0,p6_1,p6_2,p6_3;
+__global__ void sd_t_d1_6_kernel(size_t h1d,size_t h3d,size_t h7d,size_t p4d,size_t p5d,size_t p6d,size_t h7ld_t2sub,size_t p4ld_t2sub,size_t p5ld_t2sub,size_t h1ld_t2sub,size_t h3ld_v2sub,size_t p6ld_v2sub,size_t h7ld_v2sub,size_t h1ld_triplesx,size_t h3ld_triplesx,size_t p5ld_triplesx,size_t p4ld_triplesx,size_t p6ld_triplesx,double *triplesx_d, double *t2sub_d, double *v2sub_d,size_t unused_idx, size_t total_x, size_t total_y) {
+  size_t h1_0,h1_1,h1_2,h1_3,h3_0,h3_1,h3_2,h3_3,h7,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p6_0,p6_1,p6_2,p6_3;
   double a1,b1;
   double a2,b2;
   double a3,b3;
   double a4,b4;
-  int in1_idxl,in2_idxl,h7l,h7T;
+  size_t in1_idxl,in2_idxl,h7l,h7T;
   __shared__ double t2sub_shm[4*T1][Tcomm];
   __shared__ double v2sub_shm[Tcomm][4*T2];
-  int rest_x=blockIdx.x;
-  int rest_y=blockIdx.y;
-  int thread_x = T2*4 * rest_x + threadIdx.x;
-  int thread_y = T1*4 * rest_y + threadIdx.y;
+  size_t rest_x=blockIdx.x;
+  size_t rest_y=blockIdx.y;
+  size_t thread_x = T2*4 * rest_x + threadIdx.x;
+  size_t thread_y = T1*4 * rest_y + threadIdx.y;
   in1_idxl=threadIdx.y;
   in2_idxl=threadIdx.x ;
   double tlocal1=0;
@@ -1538,8 +1536,8 @@ __global__ void sd_t_d1_6_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int p6d
   rest_y=rest_y/p5d;
   p4_3=rest_y;
   p6_3=rest_x;
-  int t2sub_d_off, v2sub_d_off;for(h7T=0;h7T<h7d;h7T+=Tcomm){int h7l_hi;
-    h7l_hi = MIN(Tcomm+h7T,h7d)-h7T;
+  size_t t2sub_d_off, v2sub_d_off;for(h7T=0;h7T<h7d;h7T+=Tcomm){
+    size_t h7l_hi = MIN(Tcomm+h7T,h7d)-h7T;
     t2sub_d_off=p4_0*p4ld_t2sub+p5_0*p5ld_t2sub+h1_0*h1ld_t2sub;
     v2sub_d_off=h3_0*h3ld_v2sub+p6_0*p6ld_v2sub;
     if(thread_y+T1*0<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
@@ -1691,7 +1689,7 @@ __global__ void sd_t_d1_6_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int p6d
   }
   __syncthreads();
 }
-extern "C" void sd_t_d1_6_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int p5d, int p6d, double *triplesx, double *t2sub, double *v2sub) {
+extern "C" void sd_t_d1_6_cuda(size_t h1d, size_t h2d, size_t h3d, size_t h7d, size_t p4d, size_t p5d, size_t p6d, double *triplesx, double *t2sub, double *v2sub) {
   h3d=h3d*h2d;
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h1ld_triplesx,h3ld_triplesx,p5ld_triplesx,p4ld_triplesx,p6ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
@@ -1726,8 +1724,8 @@ extern "C" void sd_t_d1_6_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   p5ld_triplesx=h3d*h1d;
   p4ld_triplesx=p5d*h3d*h1d;
   p6ld_triplesx=p4d*p5d*h3d*h1d;
-  int total_x = h3d*p6d*1;
-  int total_y = p4d*p5d*h1d;
+  size_t total_x = h3d*p6d*1;
+  size_t total_y = p4d*p5d*h1d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     hipLaunchKernelGGL((sd_t_d1_6_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h1ld_triplesx,h3ld_triplesx,p5ld_triplesx,p4ld_triplesx,p6ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
@@ -1744,7 +1742,7 @@ extern "C" void sd_t_d1_6_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
 #undef T2
 #undef Tcomm
 extern "C" void sd_t_d1_6_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Integer* h7d, Integer* p4d, Integer* p5d, Integer* p6d, double *triplesx, double *t2sub, double *v2sub) {
-  sd_t_d1_6_cuda((int)*h1d,(int)*h2d,(int)*h3d,(int)*h7d,(int)*p4d,(int)*p5d,(int)*p6d,triplesx,t2sub,v2sub);
+  sd_t_d1_6_cuda((size_t)*h1d,(size_t)*h2d,(size_t)*h3d,(size_t)*h7d,(size_t)*p4d,(size_t)*p5d,(size_t)*p6d,triplesx,t2sub,v2sub);
 }
 /*----------------------------------------------------------------------*
  *triplesx[h3,h1,p5,p6,p4] += t2sub[h7,p4,p5,h1] * v2sub[h3,p6,h7]
@@ -1752,19 +1750,19 @@ extern "C" void sd_t_d1_6_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Intege
 #define T1 16
 #define T2 16
 #define Tcomm 16
-__global__ void sd_t_d1_7_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int p6d,int h7ld_t2sub,int p4ld_t2sub,int p5ld_t2sub,int h1ld_t2sub,int h3ld_v2sub,int p6ld_v2sub,int h7ld_v2sub,int h3ld_triplesx,int h1ld_triplesx,int p5ld_triplesx,int p6ld_triplesx,int p4ld_triplesx,double *triplesx_d, double *t2sub_d, double *v2sub_d,int unused_idx, int total_x, int total_y) {
-  int h1_0,h1_1,h1_2,h1_3,h3_0,h3_1,h3_2,h3_3,h7,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p6_0,p6_1,p6_2,p6_3;
+__global__ void sd_t_d1_7_kernel(size_t h1d,size_t h3d,size_t h7d,size_t p4d,size_t p5d,size_t p6d,size_t h7ld_t2sub,size_t p4ld_t2sub,size_t p5ld_t2sub,size_t h1ld_t2sub,size_t h3ld_v2sub,size_t p6ld_v2sub,size_t h7ld_v2sub,size_t h3ld_triplesx,size_t h1ld_triplesx,size_t p5ld_triplesx,size_t p6ld_triplesx,size_t p4ld_triplesx,double *triplesx_d, double *t2sub_d, double *v2sub_d,size_t unused_idx, size_t total_x, size_t total_y) {
+  size_t h1_0,h1_1,h1_2,h1_3,h3_0,h3_1,h3_2,h3_3,h7,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p6_0,p6_1,p6_2,p6_3;
   double a1,b1;
   double a2,b2;
   double a3,b3;
   double a4,b4;
-  int in1_idxl,in2_idxl,h7l,h7T;
+  size_t in1_idxl,in2_idxl,h7l,h7T;
   __shared__ double t2sub_shm[4*T1][Tcomm];
   __shared__ double v2sub_shm[Tcomm][4*T2];
-  int rest_x=blockIdx.x;
-  int rest_y=blockIdx.y;
-  int thread_x = T2*4 * rest_x + threadIdx.x;
-  int thread_y = T1*4 * rest_y + threadIdx.y;
+  size_t rest_x=blockIdx.x;
+  size_t rest_y=blockIdx.y;
+  size_t thread_x = T2*4 * rest_x + threadIdx.x;
+  size_t thread_y = T1*4 * rest_y + threadIdx.y;
   in1_idxl=threadIdx.y;
   in2_idxl=threadIdx.x ;
   double tlocal1=0;
@@ -1823,8 +1821,8 @@ __global__ void sd_t_d1_7_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int p6d
   rest_y=rest_y/p5d;
   p4_3=rest_y;
   p6_3=rest_x;
-  int t2sub_d_off, v2sub_d_off;for(h7T=0;h7T<h7d;h7T+=Tcomm){int h7l_hi;
-    h7l_hi = MIN(Tcomm+h7T,h7d)-h7T;
+  size_t t2sub_d_off, v2sub_d_off;for(h7T=0;h7T<h7d;h7T+=Tcomm){
+    size_t h7l_hi = MIN(Tcomm+h7T,h7d)-h7T;
     t2sub_d_off=p4_0*p4ld_t2sub+p5_0*p5ld_t2sub+h1_0*h1ld_t2sub;
     v2sub_d_off=h3_0*h3ld_v2sub+p6_0*p6ld_v2sub;
     if(thread_y+T1*0<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
@@ -1976,7 +1974,7 @@ __global__ void sd_t_d1_7_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int p6d
   }
   __syncthreads();
 }
-extern "C" void sd_t_d1_7_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int p5d, int p6d, double *triplesx, double *t2sub, double *v2sub) {
+extern "C" void sd_t_d1_7_cuda(size_t h1d, size_t h2d, size_t h3d, size_t h7d, size_t p4d, size_t p5d, size_t p6d, double *triplesx, double *t2sub, double *v2sub) {
   h3d=h3d*h2d;
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,p5ld_triplesx,p6ld_triplesx,p4ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
@@ -2011,8 +2009,8 @@ extern "C" void sd_t_d1_7_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   p5ld_triplesx=h1d*h3d;
   p6ld_triplesx=p5d*h1d*h3d;
   p4ld_triplesx=p6d*p5d*h1d*h3d;
-  int total_x = h3d*p6d*1;
-  int total_y = p4d*p5d*h1d;
+  size_t total_x = h3d*p6d*1;
+  size_t total_y = p4d*p5d*h1d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     hipLaunchKernelGGL((sd_t_d1_7_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,p5ld_triplesx,p6ld_triplesx,p4ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
@@ -2029,7 +2027,7 @@ extern "C" void sd_t_d1_7_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
 #undef T2
 #undef Tcomm
 extern "C" void sd_t_d1_7_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Integer* h7d, Integer* p4d, Integer* p5d, Integer* p6d, double *triplesx, double *t2sub, double *v2sub) {
-  sd_t_d1_7_cuda((int)*h1d,(int)*h2d,(int)*h3d,(int)*h7d,(int)*p4d,(int)*p5d,(int)*p6d,triplesx,t2sub,v2sub);
+  sd_t_d1_7_cuda((size_t)*h1d,(size_t)*h2d,(size_t)*h3d,(size_t)*h7d,(size_t)*p4d,(size_t)*p5d,(size_t)*p6d,triplesx,t2sub,v2sub);
 }
 /*----------------------------------------------------------------------*
  *triplesx[h3,h1,h2,p5,p6,p4] -= t2sub[h7,p4,p5,h1] * v2sub[h3,h2,p6,h7]
@@ -2037,19 +2035,19 @@ extern "C" void sd_t_d1_7_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Intege
 #define T1 16
 #define T2 16
 #define Tcomm 16
-__global__ void sd_t_d1_8_kernel(int h1d,int h2d,int h3d,int h7d,int p4d,int p5d,int p6d,int h7ld_t2sub,int p4ld_t2sub,int p5ld_t2sub,int h1ld_t2sub,int h3ld_v2sub,int h2ld_v2sub,int p6ld_v2sub,int h7ld_v2sub,int h3ld_triplesx,int h1ld_triplesx,int h2ld_triplesx,int p5ld_triplesx,int p6ld_triplesx,int p4ld_triplesx,double *triplesx_d, double *t2sub_d, double *v2sub_d,int unused_idx, int total_x, int total_y) {
-  int h1_0,h1_1,h1_2,h1_3,h2_0,h2_1,h2_2,h2_3,h3_0,h3_1,h3_2,h3_3,h7,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p6_0,p6_1,p6_2,p6_3;
+__global__ void sd_t_d1_8_kernel(size_t h1d,size_t h2d,size_t h3d,size_t h7d,size_t p4d,size_t p5d,size_t p6d,size_t h7ld_t2sub,size_t p4ld_t2sub,size_t p5ld_t2sub,size_t h1ld_t2sub,size_t h3ld_v2sub,size_t h2ld_v2sub,size_t p6ld_v2sub,size_t h7ld_v2sub,size_t h3ld_triplesx,size_t h1ld_triplesx,size_t h2ld_triplesx,size_t p5ld_triplesx,size_t p6ld_triplesx,size_t p4ld_triplesx,double *triplesx_d, double *t2sub_d, double *v2sub_d,size_t unused_idx, size_t total_x, size_t total_y) {
+  size_t h1_0,h1_1,h1_2,h1_3,h2_0,h2_1,h2_2,h2_3,h3_0,h3_1,h3_2,h3_3,h7,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p6_0,p6_1,p6_2,p6_3;
   double a1,b1;
   double a2,b2;
   double a3,b3;
   double a4,b4;
-  int in1_idxl,in2_idxl,h7l,h7T;
+  size_t in1_idxl,in2_idxl,h7l,h7T;
   __shared__ double t2sub_shm[4*T1][Tcomm];
   __shared__ double v2sub_shm[Tcomm][4*T2];
-  int rest_x=blockIdx.x;
-  int rest_y=blockIdx.y;
-  int thread_x = T2*4 * rest_x + threadIdx.x;
-  int thread_y = T1*4 * rest_y + threadIdx.y;
+  size_t rest_x=blockIdx.x;
+  size_t rest_y=blockIdx.y;
+  size_t thread_x = T2*4 * rest_x + threadIdx.x;
+  size_t thread_y = T1*4 * rest_y + threadIdx.y;
   in1_idxl=threadIdx.y;
   in2_idxl=threadIdx.x ;
   double tlocal1=0;
@@ -2116,8 +2114,8 @@ __global__ void sd_t_d1_8_kernel(int h1d,int h2d,int h3d,int h7d,int p4d,int p5d
   rest_y=rest_y/p5d;
   p4_3=rest_y;
   p6_3=rest_x;
-  int t2sub_d_off, v2sub_d_off;for(h7T=0;h7T<h7d;h7T+=Tcomm){int h7l_hi;
-    h7l_hi = MIN(Tcomm+h7T,h7d)-h7T;
+  size_t t2sub_d_off, v2sub_d_off;for(h7T=0;h7T<h7d;h7T+=Tcomm){
+    size_t h7l_hi = MIN(Tcomm+h7T,h7d)-h7T;
     t2sub_d_off=p4_0*p4ld_t2sub+p5_0*p5ld_t2sub+h1_0*h1ld_t2sub;
     v2sub_d_off=h3_0*h3ld_v2sub+h2_0*h2ld_v2sub+p6_0*p6ld_v2sub;
     if(thread_y+T1*0<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
@@ -2269,7 +2267,7 @@ __global__ void sd_t_d1_8_kernel(int h1d,int h2d,int h3d,int h7d,int p4d,int p5d
   }
   __syncthreads();
 }
-extern "C" void sd_t_d1_8_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int p5d, int p6d, double *triplesx, double *t2sub, double *v2sub) {
+extern "C" void sd_t_d1_8_cuda(size_t h1d, size_t h2d, size_t h3d, size_t h7d, size_t p4d, size_t p5d, size_t p6d, double *triplesx, double *t2sub, double *v2sub) {
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h2ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,h2ld_triplesx,p5ld_triplesx,p6ld_triplesx,p4ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
   hipStream_t *streams;
@@ -2305,8 +2303,8 @@ extern "C" void sd_t_d1_8_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   p5ld_triplesx=h2d*h1d*h3d;
   p6ld_triplesx=p5d*h2d*h1d*h3d;
   p4ld_triplesx=p6d*p5d*h2d*h1d*h3d;
-  int total_x = h3d*h2d*p6d*1;
-  int total_y = p4d*p5d*h1d;
+  size_t total_x = h3d*h2d*p6d*1;
+  size_t total_y = p4d*p5d*h1d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     hipLaunchKernelGGL((sd_t_d1_8_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,h2ld_v2sub,p6ld_v2sub,h7ld_v2sub,h3ld_triplesx,h1ld_triplesx,h2ld_triplesx,p5ld_triplesx,p6ld_triplesx,p4ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
@@ -2323,7 +2321,7 @@ extern "C" void sd_t_d1_8_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
 #undef T2
 #undef Tcomm
 extern "C" void sd_t_d1_8_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Integer* h7d, Integer* p4d, Integer* p5d, Integer* p6d, double *triplesx, double *t2sub, double *v2sub) {
-  sd_t_d1_8_cuda((int)*h1d,(int)*h2d,(int)*h3d,(int)*h7d,(int)*p4d,(int)*p5d,(int)*p6d,triplesx,t2sub,v2sub);
+  sd_t_d1_8_cuda((size_t)*h1d,(size_t)*h2d,(size_t)*h3d,(size_t)*h7d,(size_t)*p4d,(size_t)*p5d,(size_t)*p6d,triplesx,t2sub,v2sub);
 }
 /*----------------------------------------------------------------------*
  *triplesx[h1,h3,p5,p6,p4] += t2sub[h7,p4,p5,h1] * v2sub[h3,p6,h7]
@@ -2331,19 +2329,19 @@ extern "C" void sd_t_d1_8_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Intege
 #define T1 16
 #define T2 16
 #define Tcomm 16
-__global__ void sd_t_d1_9_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int p6d,int h7ld_t2sub,int p4ld_t2sub,int p5ld_t2sub,int h1ld_t2sub,int h3ld_v2sub,int p6ld_v2sub,int h7ld_v2sub,int h1ld_triplesx,int h3ld_triplesx,int p5ld_triplesx,int p6ld_triplesx,int p4ld_triplesx,double *triplesx_d, double *t2sub_d, double *v2sub_d,int unused_idx, int total_x, int total_y) {
-  int h1_0,h1_1,h1_2,h1_3,h3_0,h3_1,h3_2,h3_3,h7,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p6_0,p6_1,p6_2,p6_3;
+__global__ void sd_t_d1_9_kernel(size_t h1d,size_t h3d,size_t h7d,size_t p4d,size_t p5d,size_t p6d,size_t h7ld_t2sub,size_t p4ld_t2sub,size_t p5ld_t2sub,size_t h1ld_t2sub,size_t h3ld_v2sub,size_t p6ld_v2sub,size_t h7ld_v2sub,size_t h1ld_triplesx,size_t h3ld_triplesx,size_t p5ld_triplesx,size_t p6ld_triplesx,size_t p4ld_triplesx,double *triplesx_d, double *t2sub_d, double *v2sub_d,size_t unused_idx, size_t total_x, size_t total_y) {
+  size_t h1_0,h1_1,h1_2,h1_3,h3_0,h3_1,h3_2,h3_3,h7,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p6_0,p6_1,p6_2,p6_3;
   double a1,b1;
   double a2,b2;
   double a3,b3;
   double a4,b4;
-  int in1_idxl,in2_idxl,h7l,h7T;
+  size_t in1_idxl,in2_idxl,h7l,h7T;
   __shared__ double t2sub_shm[4*T1][Tcomm];
   __shared__ double v2sub_shm[Tcomm][4*T2];
-  int rest_x=blockIdx.x;
-  int rest_y=blockIdx.y;
-  int thread_x = T2*4 * rest_x + threadIdx.x;
-  int thread_y = T1*4 * rest_y + threadIdx.y;
+  size_t rest_x=blockIdx.x;
+  size_t rest_y=blockIdx.y;
+  size_t thread_x = T2*4 * rest_x + threadIdx.x;
+  size_t thread_y = T1*4 * rest_y + threadIdx.y;
   in1_idxl=threadIdx.y;
   in2_idxl=threadIdx.x ;
   double tlocal1=0;
@@ -2402,8 +2400,8 @@ __global__ void sd_t_d1_9_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int p6d
   rest_y=rest_y/p5d;
   p4_3=rest_y;
   p6_3=rest_x;
-  int t2sub_d_off, v2sub_d_off;for(h7T=0;h7T<h7d;h7T+=Tcomm){int h7l_hi;
-    h7l_hi = MIN(Tcomm+h7T,h7d)-h7T;
+  size_t t2sub_d_off, v2sub_d_off;for(h7T=0;h7T<h7d;h7T+=Tcomm){
+    size_t h7l_hi = MIN(Tcomm+h7T,h7d)-h7T;
     t2sub_d_off=p4_0*p4ld_t2sub+p5_0*p5ld_t2sub+h1_0*h1ld_t2sub;
     v2sub_d_off=h3_0*h3ld_v2sub+p6_0*p6ld_v2sub;
     if(thread_y+T1*0<total_y)for(h7l=threadIdx.x;h7l<h7l_hi;h7l+=blockDim.x){
@@ -2555,7 +2553,7 @@ __global__ void sd_t_d1_9_kernel(int h1d,int h3d,int h7d,int p4d,int p5d,int p6d
   }
   __syncthreads();
 }
-extern "C" void sd_t_d1_9_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int p5d, int p6d, double *triplesx, double *t2sub, double *v2sub) {
+extern "C" void sd_t_d1_9_cuda(size_t h1d, size_t h2d, size_t h3d, size_t h7d, size_t p4d, size_t p5d, size_t p6d, double *triplesx, double *t2sub, double *v2sub) {
   h3d=h3d*h2d;
   size_t h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h1ld_triplesx,h3ld_triplesx,p5ld_triplesx,p6ld_triplesx,p4ld_triplesx;
   size_t size_triplesx,size_block_triplesx,size_el_block_triplesx,size_t2sub,size_v2sub;
@@ -2590,8 +2588,8 @@ extern "C" void sd_t_d1_9_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
   p5ld_triplesx=h3d*h1d;
   p6ld_triplesx=p5d*h3d*h1d;
   p4ld_triplesx=p6d*p5d*h3d*h1d;
-  int total_x = h3d*p6d*1;
-  int total_y = p4d*p5d*h1d;
+  size_t total_x = h3d*p6d*1;
+  size_t total_y = p4d*p5d*h1d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     hipLaunchKernelGGL((sd_t_d1_9_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h3d,h7d,p4d,p5d,p6d,h7ld_t2sub,p4ld_t2sub,p5ld_t2sub,h1ld_t2sub,h3ld_v2sub,p6ld_v2sub,h7ld_v2sub,h1ld_triplesx,h3ld_triplesx,p5ld_triplesx,p6ld_triplesx,p4ld_triplesx,t3_d,t2sub_d,v2sub_d,i,total_x,total_y);
@@ -2608,7 +2606,7 @@ extern "C" void sd_t_d1_9_cuda(int h1d, int h2d, int h3d, int h7d, int p4d, int 
 #undef T2
 #undef Tcomm
 extern "C" void sd_t_d1_9_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Integer* h7d, Integer* p4d, Integer* p5d, Integer* p6d, double *triplesx, double *t2sub, double *v2sub) {
-  sd_t_d1_9_cuda((int)*h1d,(int)*h2d,(int)*h3d,(int)*h7d,(int)*p4d,(int)*p5d,(int)*p6d,triplesx,t2sub,v2sub);
+  sd_t_d1_9_cuda((size_t)*h1d,(size_t)*h2d,(size_t)*h3d,(size_t)*h7d,(size_t)*p4d,(size_t)*p5d,(size_t)*p6d,triplesx,t2sub,v2sub);
 }
 
 /*----------------------------------------------------------------------*
@@ -2617,19 +2615,19 @@ extern "C" void sd_t_d1_9_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Intege
 #define T1 16
 #define T2 16
 #define Tcomm 16
-__global__ void sd_t_d2_1_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p7d,int p7ld_t2,int p4ld_t2,int h1ld_t2,int h2ld_t2,int p7ld_v2,int h3ld_v2,int p6ld_v2,int h3ld_t3,int h2ld_t3,int h1ld_t3,int p6ld_t3,int p4ld_t3,double *t3d, double *t2_d, double *v2_d,int unused_idx, int total_x, int total_y) {
-  int h1_0,h1_1,h1_2,h1_3,h2_0,h2_1,h2_2,h2_3,h3_0,h3_1,h3_2,h3_3,p4_0,p4_1,p4_2,p4_3,p6_0,p6_1,p6_2,p6_3,p7;
+__global__ void sd_t_d2_1_kernel(size_t h1d,size_t h2d,size_t h3d,size_t p4d,size_t p6d,size_t p7d,size_t p7ld_t2,size_t p4ld_t2,size_t h1ld_t2,size_t h2ld_t2,size_t p7ld_v2,size_t h3ld_v2,size_t p6ld_v2,size_t h3ld_t3,size_t h2ld_t3,size_t h1ld_t3,size_t p6ld_t3,size_t p4ld_t3,double *t3d, double *t2_d, double *v2_d,size_t unused_idx, size_t total_x, size_t total_y) {
+  size_t h1_0,h1_1,h1_2,h1_3,h2_0,h2_1,h2_2,h2_3,h3_0,h3_1,h3_2,h3_3,p4_0,p4_1,p4_2,p4_3,p6_0,p6_1,p6_2,p6_3,p7;
   double a1,b1;
   double a2,b2;
   double a3,b3;
   double a4,b4;
-  int in1_idxl,in2_idxl,p7l,p7T;
+  size_t in1_idxl,in2_idxl,p7l,p7T;
   __shared__ double t2_shm[4*T1][Tcomm];
   __shared__ double v2_shm[Tcomm][4*T2];
-  int rest_x=blockIdx.x;
-  int rest_y=blockIdx.y;
-  int thread_x = T2*4 * rest_x + threadIdx.x;
-  int thread_y = T1*4 * rest_y + threadIdx.y;
+  size_t rest_x=blockIdx.x;
+  size_t rest_y=blockIdx.y;
+  size_t thread_x = T2*4 * rest_x + threadIdx.x;
+  size_t thread_y = T1*4 * rest_y + threadIdx.y;
   in1_idxl=threadIdx.y;
   in2_idxl=threadIdx.x ;
   double tlocal1=0;
@@ -2688,8 +2686,8 @@ __global__ void sd_t_d2_1_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p7d
   rest_y=rest_y/h1d;
   p4_3=rest_y;
   p6_3=rest_x;
-  int t2_d_off, v2_d_off;for(p7T=0;p7T<p7d;p7T+=Tcomm){int p7l_hi;
-    p7l_hi = MIN(Tcomm+p7T,p7d)-p7T;
+  size_t t2_d_off, v2_d_off;for(p7T=0;p7T<p7d;p7T+=Tcomm){
+    size_t p7l_hi = MIN(Tcomm+p7T,p7d)-p7T;
     t2_d_off=p4_0*p4ld_t2+h1_0*h1ld_t2+h2_0*h2ld_t2;
     v2_d_off=h3_0*h3ld_v2+p6_0*p6ld_v2;
     if(thread_y+T1*0<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
@@ -2841,7 +2839,7 @@ __global__ void sd_t_d2_1_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p7d
   }
   __syncthreads();
 }
-extern "C" void sd_t_d2_1_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, int p7d, double *t3, double *t2, double *v2) {
+extern "C" void sd_t_d2_1_cuda(size_t h1d, size_t h2d, size_t h3d, size_t p4d, size_t p5d, size_t p6d, size_t p7d, double *t3, double *t2, double *v2) {
   p6d=p6d*p5d;
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
@@ -2877,8 +2875,8 @@ extern "C" void sd_t_d2_1_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   h1ld_t3=h2d*h3d;
   p6ld_t3=h1d*h2d*h3d;
   p4ld_t3=p6d*h1d*h2d*h3d;
-  int total_x = h3d*p6d;
-  int total_y = p4d*h1d*h2d;
+  size_t total_x = h3d*p6d;
+  size_t total_y = p4d*h1d*h2d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     hipLaunchKernelGGL((sd_t_d2_1_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
@@ -2896,7 +2894,7 @@ extern "C" void sd_t_d2_1_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
 #undef T2
 #undef Tcomm
 extern "C" void sd_t_d2_1_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Integer* p4d, Integer* p5d, Integer* p6d, Integer* p7d, double *t3, double *t2, double *v2) {
-  sd_t_d2_1_cuda((int)*h1d,(int)*h2d,(int)*h3d,(int)*p4d,(int)*p5d,(int)*p6d,(int)*p7d,t3,t2,v2);
+  sd_t_d2_1_cuda((size_t)*h1d,(size_t)*h2d,(size_t)*h3d,(size_t)*p4d,(size_t)*p5d,(size_t)*p6d,(size_t)*p7d,t3,t2,v2);
 }
 /*----------------------------------------------------------------------*
  *t3[h2,h1,h3,p4] -= t2[p7,p4,h1,h2] * v2[p7,h3]
@@ -2904,19 +2902,19 @@ extern "C" void sd_t_d2_1_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Intege
 #define T1 16
 #define T2 16
 #define Tcomm 16
-__global__ void sd_t_d2_2_kernel(int h1d,int h2d,int h3d,int p4d,int p7d,int p7ld_t2,int p4ld_t2,int h1ld_t2,int h2ld_t2,int p7ld_v2,int h3ld_v2,int h2ld_t3,int h1ld_t3,int h3ld_t3,int p4ld_t3,double *t3d, double *t2_d, double *v2_d,int unused_idx, int total_x, int total_y) {
-  int h1_0,h1_1,h1_2,h1_3,h2_0,h2_1,h2_2,h2_3,h3_0,h3_1,h3_2,h3_3,p4_0,p4_1,p4_2,p4_3,p7;
+__global__ void sd_t_d2_2_kernel(size_t h1d,size_t h2d,size_t h3d,size_t p4d,size_t p7d,size_t p7ld_t2,size_t p4ld_t2,size_t h1ld_t2,size_t h2ld_t2,size_t p7ld_v2,size_t h3ld_v2,size_t h2ld_t3,size_t h1ld_t3,size_t h3ld_t3,size_t p4ld_t3,double *t3d, double *t2_d, double *v2_d,size_t unused_idx, size_t total_x, size_t total_y) {
+  size_t h1_0,h1_1,h1_2,h1_3,h2_0,h2_1,h2_2,h2_3,h3_0,h3_1,h3_2,h3_3,p4_0,p4_1,p4_2,p4_3,p7;
   double a1,b1;
   double a2,b2;
   double a3,b3;
   double a4,b4;
-  int in1_idxl,in2_idxl,p7l,p7T;
+  size_t in1_idxl,in2_idxl,p7l,p7T;
   __shared__ double t2_shm[4*T1][Tcomm];
   __shared__ double v2_shm[Tcomm][4*T2];
-  int rest_x=blockIdx.x;
-  int rest_y=blockIdx.y;
-  int thread_x = T2*4 * rest_x + threadIdx.x;
-  int thread_y = T1*4 * rest_y + threadIdx.y;
+  size_t rest_x=blockIdx.x;
+  size_t rest_y=blockIdx.y;
+  size_t thread_x = T2*4 * rest_x + threadIdx.x;
+  size_t thread_y = T1*4 * rest_y + threadIdx.y;
   in1_idxl=threadIdx.y;
   in2_idxl=threadIdx.x ;
   double tlocal1=0;
@@ -2967,8 +2965,8 @@ __global__ void sd_t_d2_2_kernel(int h1d,int h2d,int h3d,int p4d,int p7d,int p7l
   rest_y=rest_y/h1d;
   p4_3=rest_y;
   h3_3=rest_x;
-  int t2_d_off, v2_d_off;for(p7T=0;p7T<p7d;p7T+=Tcomm){int p7l_hi;
-    p7l_hi = MIN(Tcomm+p7T,p7d)-p7T;
+  size_t t2_d_off, v2_d_off;for(p7T=0;p7T<p7d;p7T+=Tcomm){
+    size_t p7l_hi = MIN(Tcomm+p7T,p7d)-p7T;
     t2_d_off=p4_0*p4ld_t2+h1_0*h1ld_t2+h2_0*h2ld_t2;
     v2_d_off=h3_0*h3ld_v2;
     if(thread_y+T1*0<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
@@ -3120,7 +3118,7 @@ __global__ void sd_t_d2_2_kernel(int h1d,int h2d,int h3d,int p4d,int p7d,int p7l
   }
   __syncthreads();
 }
-extern "C" void sd_t_d2_2_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, int p7d, double *t3, double *t2, double *v2) {
+extern "C" void sd_t_d2_2_cuda(size_t h1d, size_t h2d, size_t h3d, size_t p4d, size_t p5d, size_t p6d, size_t p7d, double *t3, double *t2, double *v2) {
   h3d=h3d*p6d;
   h3d=h3d*p5d;
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,h2ld_t3,h1ld_t3,h3ld_t3,p4ld_t3;
@@ -3155,8 +3153,8 @@ extern "C" void sd_t_d2_2_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   h1ld_t3=h2d;
   h3ld_t3=h1d*h2d;
   p4ld_t3=h3d*h1d*h2d;
-  int total_x = h3d;
-  int total_y = p4d*h1d*h2d;
+  size_t total_x = h3d;
+  size_t total_y = p4d*h1d*h2d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     hipLaunchKernelGGL((sd_t_d2_2_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,h2ld_t3,h1ld_t3,h3ld_t3,p4ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
@@ -3174,7 +3172,7 @@ extern "C" void sd_t_d2_2_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
 #undef T2
 #undef Tcomm
 extern "C" void sd_t_d2_2_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Integer* p4d, Integer* p5d, Integer* p6d, Integer* p7d, double *t3, double *t2, double *v2) {
-  sd_t_d2_2_cuda((int)*h1d,(int)*h2d,(int)*h3d,(int)*p4d,(int)*p5d,(int)*p6d,(int)*p7d,t3,t2,v2);
+  sd_t_d2_2_cuda((size_t)*h1d,(size_t)*h2d,(size_t)*h3d,(size_t)*p4d,(size_t)*p5d,(size_t)*p6d,(size_t)*p7d,t3,t2,v2);
 }
 /*----------------------------------------------------------------------*
  *t3[h2,h3,h1,p6,p4] += t2[p7,p4,h1,h2] * v2[p7,h3,p6]
@@ -3182,19 +3180,19 @@ extern "C" void sd_t_d2_2_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Intege
 #define T1 16
 #define T2 16
 #define Tcomm 16
-__global__ void sd_t_d2_3_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p7d,int p7ld_t2,int p4ld_t2,int h1ld_t2,int h2ld_t2,int p7ld_v2,int h3ld_v2,int p6ld_v2,int h2ld_t3,int h3ld_t3,int h1ld_t3,int p6ld_t3,int p4ld_t3,double *t3d, double *t2_d, double *v2_d,int unused_idx, int total_x, int total_y) {
-  int h1_0,h1_1,h1_2,h1_3,h2_0,h2_1,h2_2,h2_3,h3_0,h3_1,h3_2,h3_3,p4_0,p4_1,p4_2,p4_3,p6_0,p6_1,p6_2,p6_3,p7;
+__global__ void sd_t_d2_3_kernel(size_t h1d,size_t h2d,size_t h3d,size_t p4d,size_t p6d,size_t p7d,size_t p7ld_t2,size_t p4ld_t2,size_t h1ld_t2,size_t h2ld_t2,size_t p7ld_v2,size_t h3ld_v2,size_t p6ld_v2,size_t h2ld_t3,size_t h3ld_t3,size_t h1ld_t3,size_t p6ld_t3,size_t p4ld_t3,double *t3d, double *t2_d, double *v2_d,size_t unused_idx, size_t total_x, size_t total_y) {
+  size_t h1_0,h1_1,h1_2,h1_3,h2_0,h2_1,h2_2,h2_3,h3_0,h3_1,h3_2,h3_3,p4_0,p4_1,p4_2,p4_3,p6_0,p6_1,p6_2,p6_3,p7;
   double a1,b1;
   double a2,b2;
   double a3,b3;
   double a4,b4;
-  int in1_idxl,in2_idxl,p7l,p7T;
+  size_t in1_idxl,in2_idxl,p7l,p7T;
   __shared__ double t2_shm[4*T1][Tcomm];
   __shared__ double v2_shm[Tcomm][4*T2];
-  int rest_x=blockIdx.x;
-  int rest_y=blockIdx.y;
-  int thread_x = T2*4 * rest_x + threadIdx.x;
-  int thread_y = T1*4 * rest_y + threadIdx.y;
+  size_t rest_x=blockIdx.x;
+  size_t rest_y=blockIdx.y;
+  size_t thread_x = T2*4 * rest_x + threadIdx.x;
+  size_t thread_y = T1*4 * rest_y + threadIdx.y;
   in1_idxl=threadIdx.y;
   in2_idxl=threadIdx.x ;
   double tlocal1=0;
@@ -3253,8 +3251,8 @@ __global__ void sd_t_d2_3_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p7d
   rest_y=rest_y/h1d;
   p4_3=rest_y;
   p6_3=rest_x;
-  int t2_d_off, v2_d_off;for(p7T=0;p7T<p7d;p7T+=Tcomm){int p7l_hi;
-    p7l_hi = MIN(Tcomm+p7T,p7d)-p7T;
+  size_t t2_d_off, v2_d_off;for(p7T=0;p7T<p7d;p7T+=Tcomm){
+    size_t p7l_hi = MIN(Tcomm+p7T,p7d)-p7T;
     t2_d_off=p4_0*p4ld_t2+h1_0*h1ld_t2+h2_0*h2ld_t2;
     v2_d_off=h3_0*h3ld_v2+p6_0*p6ld_v2;
     if(thread_y+T1*0<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
@@ -3406,7 +3404,7 @@ __global__ void sd_t_d2_3_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p7d
   }
   __syncthreads();
 }
-extern "C" void sd_t_d2_3_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, int p7d, double *t3, double *t2, double *v2) {
+extern "C" void sd_t_d2_3_cuda(size_t h1d, size_t h2d, size_t h3d, size_t p4d, size_t p5d, size_t p6d, size_t p7d, double *t3, double *t2, double *v2) {
   p6d=p6d*p5d;
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,h2ld_t3,h3ld_t3,h1ld_t3,p6ld_t3,p4ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
@@ -3442,8 +3440,8 @@ extern "C" void sd_t_d2_3_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   h1ld_t3=h3d*h2d;
   p6ld_t3=h1d*h3d*h2d;
   p4ld_t3=p6d*h1d*h3d*h2d;
-  int total_x = h3d*p6d;
-  int total_y = p4d*h1d*h2d;
+  size_t total_x = h3d*p6d;
+  size_t total_y = p4d*h1d*h2d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     hipLaunchKernelGGL((sd_t_d2_3_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,h2ld_t3,h3ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
@@ -3461,7 +3459,7 @@ extern "C" void sd_t_d2_3_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
 #undef T2
 #undef Tcomm
 extern "C" void sd_t_d2_3_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Integer* p4d, Integer* p5d, Integer* p6d, Integer* p7d, double *t3, double *t2, double *v2) {
-  sd_t_d2_3_cuda((int)*h1d,(int)*h2d,(int)*h3d,(int)*p4d,(int)*p5d,(int)*p6d,(int)*p7d,t3,t2,v2);
+  sd_t_d2_3_cuda((size_t)*h1d,(size_t)*h2d,(size_t)*h3d,(size_t)*p4d,(size_t)*p5d,(size_t)*p6d,(size_t)*p7d,t3,t2,v2);
 }
 /*----------------------------------------------------------------------*
  *t3[h3,h2,h1,p6,p4,p5] += t2[p7,p4,h1,h2] * v2[p7,h3,p6,p5]
@@ -3469,19 +3467,19 @@ extern "C" void sd_t_d2_3_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Intege
 #define T1 16
 #define T2 16
 #define Tcomm 16
-__global__ void sd_t_d2_4_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d,int p7d,int p7ld_t2,int p4ld_t2,int h1ld_t2,int h2ld_t2,int p7ld_v2,int h3ld_v2,int p6ld_v2,int p5ld_v2,int h3ld_t3,int h2ld_t3,int h1ld_t3,int p6ld_t3,int p4ld_t3,int p5ld_t3,double *t3d, double *t2_d, double *v2_d,int unused_idx, int total_x, int total_y) {
-  int h1_0,h1_1,h1_2,h1_3,h2_0,h2_1,h2_2,h2_3,h3_0,h3_1,h3_2,h3_3,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p6_0,p6_1,p6_2,p6_3,p7;
+__global__ void sd_t_d2_4_kernel(size_t h1d,size_t h2d,size_t h3d,size_t p4d,size_t p5d,size_t p6d,size_t p7d,size_t p7ld_t2,size_t p4ld_t2,size_t h1ld_t2,size_t h2ld_t2,size_t p7ld_v2,size_t h3ld_v2,size_t p6ld_v2,size_t p5ld_v2,size_t h3ld_t3,size_t h2ld_t3,size_t h1ld_t3,size_t p6ld_t3,size_t p4ld_t3,size_t p5ld_t3,double *t3d, double *t2_d, double *v2_d,size_t unused_idx, size_t total_x, size_t total_y) {
+  size_t h1_0,h1_1,h1_2,h1_3,h2_0,h2_1,h2_2,h2_3,h3_0,h3_1,h3_2,h3_3,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p6_0,p6_1,p6_2,p6_3,p7;
   double a1,b1;
   double a2,b2;
   double a3,b3;
   double a4,b4;
-  int in1_idxl,in2_idxl,p7l,p7T;
+  size_t in1_idxl,in2_idxl,p7l,p7T;
   __shared__ double t2_shm[4*T1][Tcomm];
   __shared__ double v2_shm[Tcomm][4*T2];
-  int rest_x=blockIdx.x;
-  int rest_y=blockIdx.y;
-  int thread_x = T2*4 * rest_x + threadIdx.x;
-  int thread_y = T1*4 * rest_y + threadIdx.y;
+  size_t rest_x=blockIdx.x;
+  size_t rest_y=blockIdx.y;
+  size_t thread_x = T2*4 * rest_x + threadIdx.x;
+  size_t thread_y = T1*4 * rest_y + threadIdx.y;
   in1_idxl=threadIdx.y;
   in2_idxl=threadIdx.x ;
   double tlocal1=0;
@@ -3548,8 +3546,8 @@ __global__ void sd_t_d2_4_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
   rest_x=rest_x/p6d;
   p4_3=rest_y;
   p5_3=rest_x;
-  int t2_d_off, v2_d_off;for(p7T=0;p7T<p7d;p7T+=Tcomm){int p7l_hi;
-    p7l_hi = MIN(Tcomm+p7T,p7d)-p7T;
+  size_t t2_d_off, v2_d_off;for(p7T=0;p7T<p7d;p7T+=Tcomm){
+    size_t p7l_hi = MIN(Tcomm+p7T,p7d)-p7T;
     t2_d_off=p4_0*p4ld_t2+h1_0*h1ld_t2+h2_0*h2ld_t2;
     v2_d_off=h3_0*h3ld_v2+p6_0*p6ld_v2+p5_0*p5ld_v2;
     if(thread_y+T1*0<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
@@ -3701,7 +3699,7 @@ __global__ void sd_t_d2_4_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
   }
   __syncthreads();
 }
-extern "C" void sd_t_d2_4_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, int p7d, double *t3, double *t2, double *v2) {
+extern "C" void sd_t_d2_4_cuda(size_t h1d, size_t h2d, size_t h3d, size_t p4d, size_t p5d, size_t p6d, size_t p7d, double *t3, double *t2, double *v2) {
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,p5ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
   hipStream_t *streams;
@@ -3738,8 +3736,8 @@ extern "C" void sd_t_d2_4_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   p6ld_t3=h1d*h2d*h3d;
   p4ld_t3=p6d*h1d*h2d*h3d;
   p5ld_t3=p4d*p6d*h1d*h2d*h3d;
-  int total_x = h3d*p6d*p5d;
-  int total_y = p4d*h1d*h2d;
+  size_t total_x = h3d*p6d*p5d;
+  size_t total_y = p4d*h1d*h2d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     hipLaunchKernelGGL((sd_t_d2_4_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,p5ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
@@ -3757,7 +3755,7 @@ extern "C" void sd_t_d2_4_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
 #undef T2
 #undef Tcomm
 extern "C" void sd_t_d2_4_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Integer* p4d, Integer* p5d, Integer* p6d, Integer* p7d, double *t3, double *t2, double *v2) {
-  sd_t_d2_4_cuda((int)*h1d,(int)*h2d,(int)*h3d,(int)*p4d,(int)*p5d,(int)*p6d,(int)*p7d,t3,t2,v2);
+  sd_t_d2_4_cuda((size_t)*h1d,(size_t)*h2d,(size_t)*h3d,(size_t)*p4d,(size_t)*p5d,(size_t)*p6d,(size_t)*p7d,t3,t2,v2);
 }
 /*----------------------------------------------------------------------*
  *t3[h2,h1,h3,p4,p5] += t2[p7,p4,h1,h2] * v2[p7,h3,p5]
@@ -3765,19 +3763,19 @@ extern "C" void sd_t_d2_4_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Intege
 #define T1 16
 #define T2 16
 #define Tcomm 16
-__global__ void sd_t_d2_5_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p7d,int p7ld_t2,int p4ld_t2,int h1ld_t2,int h2ld_t2,int p7ld_v2,int h3ld_v2,int p5ld_v2,int h2ld_t3,int h1ld_t3,int h3ld_t3,int p4ld_t3,int p5ld_t3,double *t3d, double *t2_d, double *v2_d,int unused_idx, int total_x, int total_y) {
-  int h1_0,h1_1,h1_2,h1_3,h2_0,h2_1,h2_2,h2_3,h3_0,h3_1,h3_2,h3_3,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p7;
+__global__ void sd_t_d2_5_kernel(size_t h1d,size_t h2d,size_t h3d,size_t p4d,size_t p5d,size_t p7d,size_t p7ld_t2,size_t p4ld_t2,size_t h1ld_t2,size_t h2ld_t2,size_t p7ld_v2,size_t h3ld_v2,size_t p5ld_v2,size_t h2ld_t3,size_t h1ld_t3,size_t h3ld_t3,size_t p4ld_t3,size_t p5ld_t3,double *t3d, double *t2_d, double *v2_d,size_t unused_idx, size_t total_x, size_t total_y) {
+  size_t h1_0,h1_1,h1_2,h1_3,h2_0,h2_1,h2_2,h2_3,h3_0,h3_1,h3_2,h3_3,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p7;
   double a1,b1;
   double a2,b2;
   double a3,b3;
   double a4,b4;
-  int in1_idxl,in2_idxl,p7l,p7T;
+  size_t in1_idxl,in2_idxl,p7l,p7T;
   __shared__ double t2_shm[4*T1][Tcomm];
   __shared__ double v2_shm[Tcomm][4*T2];
-  int rest_x=blockIdx.x;
-  int rest_y=blockIdx.y;
-  int thread_x = T2*4 * rest_x + threadIdx.x;
-  int thread_y = T1*4 * rest_y + threadIdx.y;
+  size_t rest_x=blockIdx.x;
+  size_t rest_y=blockIdx.y;
+  size_t thread_x = T2*4 * rest_x + threadIdx.x;
+  size_t thread_y = T1*4 * rest_y + threadIdx.y;
   in1_idxl=threadIdx.y;
   in2_idxl=threadIdx.x ;
   double tlocal1=0;
@@ -3836,8 +3834,8 @@ __global__ void sd_t_d2_5_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p7d
   rest_x=rest_x/h3d;
   p4_3=rest_y;
   p5_3=rest_x;
-  int t2_d_off, v2_d_off;for(p7T=0;p7T<p7d;p7T+=Tcomm){int p7l_hi;
-    p7l_hi = MIN(Tcomm+p7T,p7d)-p7T;
+  size_t t2_d_off, v2_d_off;for(p7T=0;p7T<p7d;p7T+=Tcomm){
+    size_t p7l_hi = MIN(Tcomm+p7T,p7d)-p7T;
     t2_d_off=p4_0*p4ld_t2+h1_0*h1ld_t2+h2_0*h2ld_t2;
     v2_d_off=h3_0*h3ld_v2+p5_0*p5ld_v2;
     if(thread_y+T1*0<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
@@ -3989,7 +3987,7 @@ __global__ void sd_t_d2_5_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p7d
   }
   __syncthreads();
 }
-extern "C" void sd_t_d2_5_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, int p7d, double *t3, double *t2, double *v2) {
+extern "C" void sd_t_d2_5_cuda(size_t h1d, size_t h2d, size_t h3d, size_t p4d, size_t p5d, size_t p6d, size_t p7d, double *t3, double *t2, double *v2) {
   h3d=h3d*p6d;
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p5ld_v2,h2ld_t3,h1ld_t3,h3ld_t3,p4ld_t3,p5ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
@@ -4025,8 +4023,8 @@ extern "C" void sd_t_d2_5_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   h3ld_t3=h1d*h2d;
   p4ld_t3=h3d*h1d*h2d;
   p5ld_t3=p4d*h3d*h1d*h2d;
-  int total_x = h3d*p5d;
-  int total_y = p4d*h1d*h2d;
+  size_t total_x = h3d*p5d;
+  size_t total_y = p4d*h1d*h2d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     hipLaunchKernelGGL((sd_t_d2_5_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p5ld_v2,h2ld_t3,h1ld_t3,h3ld_t3,p4ld_t3,p5ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
@@ -4044,7 +4042,7 @@ extern "C" void sd_t_d2_5_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
 #undef T2
 #undef Tcomm
 extern "C" void sd_t_d2_5_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Integer* p4d, Integer* p5d, Integer* p6d, Integer* p7d, double *t3, double *t2, double *v2) {
-  sd_t_d2_5_cuda((int)*h1d,(int)*h2d,(int)*h3d,(int)*p4d,(int)*p5d,(int)*p6d,(int)*p7d,t3,t2,v2);
+  sd_t_d2_5_cuda((size_t)*h1d,(size_t)*h2d,(size_t)*h3d,(size_t)*p4d,(size_t)*p5d,(size_t)*p6d,(size_t)*p7d,t3,t2,v2);
 }
 /*----------------------------------------------------------------------*
  *t3[h2,h3,h1,p6,p4,p5] -= t2[p7,p4,h1,h2] * v2[p7,h3,p6,p5]
@@ -4052,19 +4050,19 @@ extern "C" void sd_t_d2_5_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Intege
 #define T1 16
 #define T2 16
 #define Tcomm 16
-__global__ void sd_t_d2_6_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d,int p7d,int p7ld_t2,int p4ld_t2,int h1ld_t2,int h2ld_t2,int p7ld_v2,int h3ld_v2,int p6ld_v2,int p5ld_v2,int h2ld_t3,int h3ld_t3,int h1ld_t3,int p6ld_t3,int p4ld_t3,int p5ld_t3,double *t3d, double *t2_d, double *v2_d,int unused_idx, int total_x, int total_y) {
-  int h1_0,h1_1,h1_2,h1_3,h2_0,h2_1,h2_2,h2_3,h3_0,h3_1,h3_2,h3_3,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p6_0,p6_1,p6_2,p6_3,p7;
+__global__ void sd_t_d2_6_kernel(size_t h1d,size_t h2d,size_t h3d,size_t p4d,size_t p5d,size_t p6d,size_t p7d,size_t p7ld_t2,size_t p4ld_t2,size_t h1ld_t2,size_t h2ld_t2,size_t p7ld_v2,size_t h3ld_v2,size_t p6ld_v2,size_t p5ld_v2,size_t h2ld_t3,size_t h3ld_t3,size_t h1ld_t3,size_t p6ld_t3,size_t p4ld_t3,size_t p5ld_t3,double *t3d, double *t2_d, double *v2_d,size_t unused_idx, size_t total_x, size_t total_y) {
+  size_t h1_0,h1_1,h1_2,h1_3,h2_0,h2_1,h2_2,h2_3,h3_0,h3_1,h3_2,h3_3,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p6_0,p6_1,p6_2,p6_3,p7;
   double a1,b1;
   double a2,b2;
   double a3,b3;
   double a4,b4;
-  int in1_idxl,in2_idxl,p7l,p7T;
+  size_t in1_idxl,in2_idxl,p7l,p7T;
   __shared__ double t2_shm[4*T1][Tcomm];
   __shared__ double v2_shm[Tcomm][4*T2];
-  int rest_x=blockIdx.x;
-  int rest_y=blockIdx.y;
-  int thread_x = T2*4 * rest_x + threadIdx.x;
-  int thread_y = T1*4 * rest_y + threadIdx.y;
+  size_t rest_x=blockIdx.x;
+  size_t rest_y=blockIdx.y;
+  size_t thread_x = T2*4 * rest_x + threadIdx.x;
+  size_t thread_y = T1*4 * rest_y + threadIdx.y;
   in1_idxl=threadIdx.y;
   in2_idxl=threadIdx.x ;
   double tlocal1=0;
@@ -4131,8 +4129,8 @@ __global__ void sd_t_d2_6_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
   rest_x=rest_x/p6d;
   p4_3=rest_y;
   p5_3=rest_x;
-  int t2_d_off, v2_d_off;for(p7T=0;p7T<p7d;p7T+=Tcomm){int p7l_hi;
-    p7l_hi = MIN(Tcomm+p7T,p7d)-p7T;
+  size_t t2_d_off, v2_d_off;for(p7T=0;p7T<p7d;p7T+=Tcomm){
+    size_t p7l_hi = MIN(Tcomm+p7T,p7d)-p7T;
     t2_d_off=p4_0*p4ld_t2+h1_0*h1ld_t2+h2_0*h2ld_t2;
     v2_d_off=h3_0*h3ld_v2+p6_0*p6ld_v2+p5_0*p5ld_v2;
     if(thread_y+T1*0<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
@@ -4284,7 +4282,7 @@ __global__ void sd_t_d2_6_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
   }
   __syncthreads();
 }
-extern "C" void sd_t_d2_6_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, int p7d, double *t3, double *t2, double *v2) {
+extern "C" void sd_t_d2_6_cuda(size_t h1d, size_t h2d, size_t h3d, size_t p4d, size_t p5d, size_t p6d, size_t p7d, double *t3, double *t2, double *v2) {
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h2ld_t3,h3ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,p5ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
   hipStream_t *streams;
@@ -4321,8 +4319,8 @@ extern "C" void sd_t_d2_6_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   p6ld_t3=h1d*h3d*h2d;
   p4ld_t3=p6d*h1d*h3d*h2d;
   p5ld_t3=p4d*p6d*h1d*h3d*h2d;
-  int total_x = h3d*p6d*p5d;
-  int total_y = p4d*h1d*h2d;
+  size_t total_x = h3d*p6d*p5d;
+  size_t total_y = p4d*h1d*h2d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     hipLaunchKernelGGL((sd_t_d2_6_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h2ld_t3,h3ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,p5ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
@@ -4340,7 +4338,7 @@ extern "C" void sd_t_d2_6_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
 #undef T2
 #undef Tcomm
 extern "C" void sd_t_d2_6_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Integer* p4d, Integer* p5d, Integer* p6d, Integer* p7d, double *t3, double *t2, double *v2) {
-  sd_t_d2_6_cuda((int)*h1d,(int)*h2d,(int)*h3d,(int)*p4d,(int)*p5d,(int)*p6d,(int)*p7d,t3,t2,v2);
+  sd_t_d2_6_cuda((size_t)*h1d,(size_t)*h2d,(size_t)*h3d,(size_t)*p4d,(size_t)*p5d,(size_t)*p6d,(size_t)*p7d,t3,t2,v2);
 }
 /*----------------------------------------------------------------------*
  *t3[h3,h2,h1,p4,p6,p5] -= t2[p7,p4,h1,h2] * v2[p7,h3,p6,p5]
@@ -4348,19 +4346,19 @@ extern "C" void sd_t_d2_6_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Intege
 #define T1 16
 #define T2 16
 #define Tcomm 16
-__global__ void sd_t_d2_7_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d,int p7d,int p7ld_t2,int p4ld_t2,int h1ld_t2,int h2ld_t2,int p7ld_v2,int h3ld_v2,int p6ld_v2,int p5ld_v2,int h3ld_t3,int h2ld_t3,int h1ld_t3,int p4ld_t3,int p6ld_t3,int p5ld_t3,double *t3d, double *t2_d, double *v2_d,int unused_idx, int total_x, int total_y) {
-  int h1_0,h1_1,h1_2,h1_3,h2_0,h2_1,h2_2,h2_3,h3_0,h3_1,h3_2,h3_3,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p6_0,p6_1,p6_2,p6_3,p7;
+__global__ void sd_t_d2_7_kernel(size_t h1d,size_t h2d,size_t h3d,size_t p4d,size_t p5d,size_t p6d,size_t p7d,size_t p7ld_t2,size_t p4ld_t2,size_t h1ld_t2,size_t h2ld_t2,size_t p7ld_v2,size_t h3ld_v2,size_t p6ld_v2,size_t p5ld_v2,size_t h3ld_t3,size_t h2ld_t3,size_t h1ld_t3,size_t p4ld_t3,size_t p6ld_t3,size_t p5ld_t3,double *t3d, double *t2_d, double *v2_d,size_t unused_idx, size_t total_x, size_t total_y) {
+  size_t h1_0,h1_1,h1_2,h1_3,h2_0,h2_1,h2_2,h2_3,h3_0,h3_1,h3_2,h3_3,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p6_0,p6_1,p6_2,p6_3,p7;
   double a1,b1;
   double a2,b2;
   double a3,b3;
   double a4,b4;
-  int in1_idxl,in2_idxl,p7l,p7T;
+  size_t in1_idxl,in2_idxl,p7l,p7T;
   __shared__ double t2_shm[4*T1][Tcomm];
   __shared__ double v2_shm[Tcomm][4*T2];
-  int rest_x=blockIdx.x;
-  int rest_y=blockIdx.y;
-  int thread_x = T2*4 * rest_x + threadIdx.x;
-  int thread_y = T1*4 * rest_y + threadIdx.y;
+  size_t rest_x=blockIdx.x;
+  size_t rest_y=blockIdx.y;
+  size_t thread_x = T2*4 * rest_x + threadIdx.x;
+  size_t thread_y = T1*4 * rest_y + threadIdx.y;
   in1_idxl=threadIdx.y;
   in2_idxl=threadIdx.x ;
   double tlocal1=0;
@@ -4427,8 +4425,8 @@ __global__ void sd_t_d2_7_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
   rest_x=rest_x/p6d;
   p4_3=rest_y;
   p5_3=rest_x;
-  int t2_d_off, v2_d_off;for(p7T=0;p7T<p7d;p7T+=Tcomm){int p7l_hi;
-    p7l_hi = MIN(Tcomm+p7T,p7d)-p7T;
+  size_t t2_d_off, v2_d_off;for(p7T=0;p7T<p7d;p7T+=Tcomm){
+    size_t p7l_hi = MIN(Tcomm+p7T,p7d)-p7T;
     t2_d_off=p4_0*p4ld_t2+h1_0*h1ld_t2+h2_0*h2ld_t2;
     v2_d_off=h3_0*h3ld_v2+p6_0*p6ld_v2+p5_0*p5ld_v2;
     if(thread_y+T1*0<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
@@ -4580,7 +4578,7 @@ __global__ void sd_t_d2_7_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
   }
   __syncthreads();
 }
-extern "C" void sd_t_d2_7_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, int p7d, double *t3, double *t2, double *v2) {
+extern "C" void sd_t_d2_7_cuda(size_t h1d, size_t h2d, size_t h3d, size_t p4d, size_t p5d, size_t p6d, size_t p7d, double *t3, double *t2, double *v2) {
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p4ld_t3,p6ld_t3,p5ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
   hipStream_t *streams;
@@ -4617,8 +4615,8 @@ extern "C" void sd_t_d2_7_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   p4ld_t3=h1d*h2d*h3d;
   p6ld_t3=p4d*h1d*h2d*h3d;
   p5ld_t3=p6d*p4d*h1d*h2d*h3d;
-  int total_x = h3d*p6d*p5d;
-  int total_y = p4d*h1d*h2d;
+  size_t total_x = h3d*p6d*p5d;
+  size_t total_y = p4d*h1d*h2d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     hipLaunchKernelGGL((sd_t_d2_7_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p4ld_t3,p6ld_t3,p5ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
@@ -4636,7 +4634,7 @@ extern "C" void sd_t_d2_7_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
 #undef T2
 #undef Tcomm
 extern "C" void sd_t_d2_7_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Integer* p4d, Integer* p5d, Integer* p6d, Integer* p7d, double *t3, double *t2, double *v2) {
-  sd_t_d2_7_cuda((int)*h1d,(int)*h2d,(int)*h3d,(int)*p4d,(int)*p5d,(int)*p6d,(int)*p7d,t3,t2,v2);
+  sd_t_d2_7_cuda((size_t)*h1d,(size_t)*h2d,(size_t)*h3d,(size_t)*p4d,(size_t)*p5d,(size_t)*p6d,(size_t)*p7d,t3,t2,v2);
 }
 /*----------------------------------------------------------------------*
  *t3[h2,h1,h3,p4,p6,p5] -= t2[p7,p4,h1,h2] * v2[p7,h3,p6,p5]
@@ -4644,19 +4642,19 @@ extern "C" void sd_t_d2_7_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Intege
 #define T1 16
 #define T2 16
 #define Tcomm 16
-__global__ void sd_t_d2_8_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d,int p7d,int p7ld_t2,int p4ld_t2,int h1ld_t2,int h2ld_t2,int p7ld_v2,int h3ld_v2,int p6ld_v2,int p5ld_v2,int h2ld_t3,int h1ld_t3,int h3ld_t3,int p4ld_t3,int p6ld_t3,int p5ld_t3,double *t3d, double *t2_d, double *v2_d,int unused_idx, int total_x, int total_y) {
-  int h1_0,h1_1,h1_2,h1_3,h2_0,h2_1,h2_2,h2_3,h3_0,h3_1,h3_2,h3_3,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p6_0,p6_1,p6_2,p6_3,p7;
+__global__ void sd_t_d2_8_kernel(size_t h1d,size_t h2d,size_t h3d,size_t p4d,size_t p5d,size_t p6d,size_t p7d,size_t p7ld_t2,size_t p4ld_t2,size_t h1ld_t2,size_t h2ld_t2,size_t p7ld_v2,size_t h3ld_v2,size_t p6ld_v2,size_t p5ld_v2,size_t h2ld_t3,size_t h1ld_t3,size_t h3ld_t3,size_t p4ld_t3,size_t p6ld_t3,size_t p5ld_t3,double *t3d, double *t2_d, double *v2_d,size_t unused_idx, size_t total_x, size_t total_y) {
+  size_t h1_0,h1_1,h1_2,h1_3,h2_0,h2_1,h2_2,h2_3,h3_0,h3_1,h3_2,h3_3,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p6_0,p6_1,p6_2,p6_3,p7;
   double a1,b1;
   double a2,b2;
   double a3,b3;
   double a4,b4;
-  int in1_idxl,in2_idxl,p7l,p7T;
+  size_t in1_idxl,in2_idxl,p7l,p7T;
   __shared__ double t2_shm[4*T1][Tcomm];
   __shared__ double v2_shm[Tcomm][4*T2];
-  int rest_x=blockIdx.x;
-  int rest_y=blockIdx.y;
-  int thread_x = T2*4 * rest_x + threadIdx.x;
-  int thread_y = T1*4 * rest_y + threadIdx.y;
+  size_t rest_x=blockIdx.x;
+  size_t rest_y=blockIdx.y;
+  size_t thread_x = T2*4 * rest_x + threadIdx.x;
+  size_t thread_y = T1*4 * rest_y + threadIdx.y;
   in1_idxl=threadIdx.y;
   in2_idxl=threadIdx.x ;
   double tlocal1=0;
@@ -4723,8 +4721,8 @@ __global__ void sd_t_d2_8_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
   rest_x=rest_x/p6d;
   p4_3=rest_y;
   p5_3=rest_x;
-  int t2_d_off, v2_d_off;for(p7T=0;p7T<p7d;p7T+=Tcomm){int p7l_hi;
-    p7l_hi = MIN(Tcomm+p7T,p7d)-p7T;
+  size_t t2_d_off, v2_d_off;for(p7T=0;p7T<p7d;p7T+=Tcomm){
+    size_t p7l_hi = MIN(Tcomm+p7T,p7d)-p7T;
     t2_d_off=p4_0*p4ld_t2+h1_0*h1ld_t2+h2_0*h2ld_t2;
     v2_d_off=h3_0*h3ld_v2+p6_0*p6ld_v2+p5_0*p5ld_v2;
     if(thread_y+T1*0<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
@@ -4876,7 +4874,7 @@ __global__ void sd_t_d2_8_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
   }
   __syncthreads();
 }
-extern "C" void sd_t_d2_8_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, int p7d, double *t3, double *t2, double *v2) {
+extern "C" void sd_t_d2_8_cuda(size_t h1d, size_t h2d, size_t h3d, size_t p4d, size_t p5d, size_t p6d, size_t p7d, double *t3, double *t2, double *v2) {
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h2ld_t3,h1ld_t3,h3ld_t3,p4ld_t3,p6ld_t3,p5ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
   hipStream_t *streams;
@@ -4913,8 +4911,8 @@ extern "C" void sd_t_d2_8_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   p4ld_t3=h3d*h1d*h2d;
   p6ld_t3=p4d*h3d*h1d*h2d;
   p5ld_t3=p6d*p4d*h3d*h1d*h2d;
-  int total_x = h3d*p6d*p5d;
-  int total_y = p4d*h1d*h2d;
+  size_t total_x = h3d*p6d*p5d;
+  size_t total_y = p4d*h1d*h2d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     hipLaunchKernelGGL((sd_t_d2_8_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h2ld_t3,h1ld_t3,h3ld_t3,p4ld_t3,p6ld_t3,p5ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
@@ -4932,7 +4930,7 @@ extern "C" void sd_t_d2_8_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
 #undef T2
 #undef Tcomm
 extern "C" void sd_t_d2_8_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Integer* p4d, Integer* p5d, Integer* p6d, Integer* p7d, double *t3, double *t2, double *v2) {
-  sd_t_d2_8_cuda((int)*h1d,(int)*h2d,(int)*h3d,(int)*p4d,(int)*p5d,(int)*p6d,(int)*p7d,t3,t2,v2);
+  sd_t_d2_8_cuda((size_t)*h1d,(size_t)*h2d,(size_t)*h3d,(size_t)*p4d,(size_t)*p5d,(size_t)*p6d,(size_t)*p7d,t3,t2,v2);
 }
 /*----------------------------------------------------------------------*
  *t3[h2,h3,h1,p4,p6,p5] += t2[p7,p4,h1,h2] * v2[p7,h3,p6,p5]
@@ -4940,19 +4938,19 @@ extern "C" void sd_t_d2_8_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Intege
 #define T1 16
 #define T2 16
 #define Tcomm 16
-__global__ void sd_t_d2_9_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d,int p7d,int p7ld_t2,int p4ld_t2,int h1ld_t2,int h2ld_t2,int p7ld_v2,int h3ld_v2,int p6ld_v2,int p5ld_v2,int h2ld_t3,int h3ld_t3,int h1ld_t3,int p4ld_t3,int p6ld_t3,int p5ld_t3,double *t3d, double *t2_d, double *v2_d,int unused_idx, int total_x, int total_y) {
-  int h1_0,h1_1,h1_2,h1_3,h2_0,h2_1,h2_2,h2_3,h3_0,h3_1,h3_2,h3_3,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p6_0,p6_1,p6_2,p6_3,p7;
+__global__ void sd_t_d2_9_kernel(size_t h1d,size_t h2d,size_t h3d,size_t p4d,size_t p5d,size_t p6d,size_t p7d,size_t p7ld_t2,size_t p4ld_t2,size_t h1ld_t2,size_t h2ld_t2,size_t p7ld_v2,size_t h3ld_v2,size_t p6ld_v2,size_t p5ld_v2,size_t h2ld_t3,size_t h3ld_t3,size_t h1ld_t3,size_t p4ld_t3,size_t p6ld_t3,size_t p5ld_t3,double *t3d, double *t2_d, double *v2_d,size_t unused_idx, size_t total_x, size_t total_y) {
+  size_t h1_0,h1_1,h1_2,h1_3,h2_0,h2_1,h2_2,h2_3,h3_0,h3_1,h3_2,h3_3,p4_0,p4_1,p4_2,p4_3,p5_0,p5_1,p5_2,p5_3,p6_0,p6_1,p6_2,p6_3,p7;
   double a1,b1;
   double a2,b2;
   double a3,b3;
   double a4,b4;
-  int in1_idxl,in2_idxl,p7l,p7T;
+  size_t in1_idxl,in2_idxl,p7l,p7T;
   __shared__ double t2_shm[4*T1][Tcomm];
   __shared__ double v2_shm[Tcomm][4*T2];
-  int rest_x=blockIdx.x;
-  int rest_y=blockIdx.y;
-  int thread_x = T2*4 * rest_x + threadIdx.x;
-  int thread_y = T1*4 * rest_y + threadIdx.y;
+  size_t rest_x=blockIdx.x;
+  size_t rest_y=blockIdx.y;
+  size_t thread_x = T2*4 * rest_x + threadIdx.x;
+  size_t thread_y = T1*4 * rest_y + threadIdx.y;
   in1_idxl=threadIdx.y;
   in2_idxl=threadIdx.x ;
   double tlocal1=0;
@@ -5019,8 +5017,8 @@ __global__ void sd_t_d2_9_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
   rest_x=rest_x/p6d;
   p4_3=rest_y;
   p5_3=rest_x;
-  int t2_d_off, v2_d_off;for(p7T=0;p7T<p7d;p7T+=Tcomm){int p7l_hi;
-    p7l_hi = MIN(Tcomm+p7T,p7d)-p7T;
+  size_t t2_d_off, v2_d_off;for(p7T=0;p7T<p7d;p7T+=Tcomm){
+    size_t p7l_hi = MIN(Tcomm+p7T,p7d)-p7T;
     t2_d_off=p4_0*p4ld_t2+h1_0*h1ld_t2+h2_0*h2ld_t2;
     v2_d_off=h3_0*h3ld_v2+p6_0*p6ld_v2+p5_0*p5ld_v2;
     if(thread_y+T1*0<total_y)for(p7l=threadIdx.x;p7l<p7l_hi;p7l+=blockDim.x){
@@ -5172,7 +5170,7 @@ __global__ void sd_t_d2_9_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
   }
   __syncthreads();
 }
-extern "C" void sd_t_d2_9_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, int p7d, double *t3, double *t2, double *v2) {
+extern "C" void sd_t_d2_9_cuda(size_t h1d, size_t h2d, size_t h3d, size_t p4d, size_t p5d, size_t p6d, size_t p7d, double *t3, double *t2, double *v2) {
   size_t p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h2ld_t3,h3ld_t3,h1ld_t3,p4ld_t3,p6ld_t3,p5ld_t3;
   size_t size_t3,size_block_t3,size_el_block_t3,size_t2,size_v2;
   hipStream_t *streams;
@@ -5209,8 +5207,8 @@ extern "C" void sd_t_d2_9_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
   p4ld_t3=h1d*h3d*h2d;
   p6ld_t3=p4d*h1d*h3d*h2d;
   p5ld_t3=p6d*p4d*h1d*h3d*h2d;
-  int total_x = h3d*p6d*p5d;
-  int total_y = p4d*h1d*h2d;
+  size_t total_x = h3d*p6d*p5d;
+  size_t total_y = p4d*h1d*h2d;
   dim3 dimBlock(T2,T1);dim3 dimGrid(DIV_UB(total_x,(4*T2)), DIV_UB(total_y,(4*T1)));
   for(i=0;i<nstreams;++i){
     hipLaunchKernelGGL((sd_t_d2_9_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d,p6d,p7d,p7ld_t2,p4ld_t2,h1ld_t2,h2ld_t2,p7ld_v2,h3ld_v2,p6ld_v2,p5ld_v2,h2ld_t3,h3ld_t3,h1ld_t3,p4ld_t3,p6ld_t3,p5ld_t3,t3_d,t2_d,v2_d,i,total_x,total_y);
@@ -5226,7 +5224,7 @@ extern "C" void sd_t_d2_9_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int 
 }
 
 extern "C" void sd_t_d2_9_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Integer* p4d, Integer* p5d, Integer* p6d, Integer* p7d, double *t3, double *t2, double *v2) {
-  sd_t_d2_9_cuda((int)*h1d,(int)*h2d,(int)*h3d,(int)*p4d,(int)*p5d,(int)*p6d,(int)*p7d,t3,t2,v2);
+  sd_t_d2_9_cuda((size_t)*h1d,(size_t)*h2d,(size_t)*h3d,(size_t)*p4d,(size_t)*p5d,(size_t)*p6d,(size_t)*p7d,t3,t2,v2);
 }
 
 
@@ -5234,17 +5232,17 @@ extern "C" void sd_t_d2_9_cuda_(Integer *h1d, Integer* h2d, Integer* h3d, Intege
 /* IMPORTANT!!!!
 t3_d must be passed as parameter to kernel function. A __global__ function can't access the global variable directly*/
 
-__global__ void compute_energy_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d,double* eval1,double* eval2,double* eval3,double* eval4,double* eval5,double* eval6, double* energy, double factor, int total_size, double* t3d, double* t3_sd)
+__global__ void compute_energy_kernel(size_t h1d,size_t h2d,size_t h3d,size_t p4d,size_t p5d,size_t p6d,double* eval1,double* eval2,double* eval3,double* eval4,double* eval5,double* eval6, double* energy, double factor, size_t total_size, double* t3d, double* t3_sd)
 {
-  int h1,h2,p6,p4,p5, h3,i=0;
+  size_t h1,h2,p6,p4,p5, h3,i=0;
   double e1,e2,e4,e5,e6;
 //  __shared__ double t2_shm[MAX_h3];
   __shared__ double energy_s[T1];
   __shared__ double energy2_s[T1];
   double inner_fac;
-  int limit;
-  int rest_x=blockIdx.x;
-  int thread_x = T2*T1 * rest_x + threadIdx.x;
+  size_t limit;
+  size_t rest_x=blockIdx.x;
+  size_t thread_x = T2*T1 * rest_x + threadIdx.x;
   if(threadIdx.x==0)
   {
         energy[blockIdx.x]=0;
@@ -5253,7 +5251,7 @@ __global__ void compute_energy_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,in
         energy2_s[threadIdx.x] = 0.0;
   }
 
-  for(int j =0; j<T2*T1;j++) {
+  for(size_t j =0; j<T2*T1;j++) {
     thread_x = T2*T1*blockIdx.x + j;  
     rest_x = thread_x;
     __syncthreads();
@@ -5286,7 +5284,7 @@ __global__ void compute_energy_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,in
                     }
 */
     if(thread_x<total_size)
-    for(int i=0;i<h3d;i++)
+    for(size_t i=0;i<h3d;i++)
     {
         inner_fac = -e4-e5-e6+e1+e2+eval3[i]; //t2_shm[i];
 //ckbn avoid e1 in case we need just (T)
@@ -5299,7 +5297,7 @@ __global__ void compute_energy_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,in
   {
 /*	  limit = blockDim.x;
       if (blockIdx.x == (gridDim.x-1)) limit = total_size%blockDim.x;
-      for(int i=0;i<limit;i++)
+      for(size_t i=0;i<limit;i++)
       {
         energy[blockIdx.x]+=energy_s[i];
         energy[blockIdx.x+gridDim.x]+=energy2_s[i];
@@ -5312,19 +5310,19 @@ __global__ void compute_energy_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,in
 
 }
 
-extern   "C" void compute_energy(double factor, double* energy, double* eval1, double* eval2,double* eval3,double* eval4,double* eval5,double* eval6,int h1d, int h2d, int h3d, int p4d, int p5d,int p6d, double* host1, double* host2)
+extern   "C" void compute_energy(double factor, double* energy, double* eval1, double* eval2,double* eval3,double* eval4,double* eval5,double* eval6,size_t h1d, size_t h2d, size_t h3d, size_t p4d, size_t p5d,size_t p6d, double* host1, double* host2)
 //ckbn en_comment, double* total_d, double* total_s)
 {
     double* energy_d, *energy_h;
     double* eval_d1,*eval_d2,*eval_d3,*eval_d4,*eval_d5,*eval_d6;
-    int size_energy = 2*sizeof(double);
-    int total_block = DIV_UB((h1d*h2d*p4d*p5d*p6d), (T2*T1));
+    size_t size_energy = 2*sizeof(double);
+    size_t total_block = DIV_UB((h1d*h2d*p4d*p5d*p6d), (T2*T1));
 
-//    int total_block = 1;
-    int total_elements = h1d*h2d*p4d*p5d*p6d;
+//    size_t total_block = 1;
+    size_t total_elements = h1d*h2d*p4d*p5d*p6d;
 
     energy_d = (double*)getGpuMem(size_energy*total_block*2);
-    int i=0,in; 
+    size_t i=0,in; 
     double* t3 = (double*)malloc(sizeof(double)*h3d*total_elements);
     double* ts3 = (double*)malloc(sizeof(double)*h3d*total_elements);
 
@@ -5354,7 +5352,7 @@ extern   "C" void compute_energy(double factor, double* energy, double* eval1, d
     CUDA_SAFE(hipMemcpy(((char *) energy_h) , ((char *) energy_d) , 
     size_energy*total_block*2, hipMemcpyDeviceToHost));
 
-    for(int i=1;i<dimGrid.x;i++)
+    for(size_t i=1;i<dimGrid.x;i++)
       {
         energy_h[0]+=energy_h[i];
         energy_h[dimGrid.x]+=energy_h[i+dimGrid.x];
@@ -5366,7 +5364,7 @@ extern   "C" void compute_energy(double factor, double* energy, double* eval1, d
     CUDA_SAFE(hipMemcpy(((char *) t3) , ((char *) t3_d) , sizeof(double)*h3d*total_elements, hipMemcpyDeviceToHost));
     CUDA_SAFE(hipMemcpy(((char *) ts3) , ((char *) t3_s_d) , sizeof(double)*h3d*total_elements, hipMemcpyDeviceToHost));
     total_s[0]=0.0, total_d[0]=0.0;
-    for(int i=0;i<h3d*total_elements;i++) {
+    for(size_t i=0;i<h3d*total_elements;i++) {
         total_s[0] += ts3[i];
         total_d[0] += t3[i];
     }
@@ -5387,14 +5385,14 @@ extern          "C" void
 compute_en_(double * factor, double * energy, double * eval1,double* eval2,double* eval3,double* eval4,double* eval5,double* eval6, Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Integer * p5d, Integer * p6d, double* host1, double* host2)
 //ckbn en_comment,double* total_d, double* total_s)
 {
-    compute_energy((double) *factor, energy, eval1,eval2, eval3, eval4, eval5, eval6,(int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d, host1, host2);
+    compute_energy((double) *factor, energy, eval1,eval2, eval3, eval4, eval5, eval6,(size_t) *h1d, (size_t) *h2d, (size_t) *h3d, (size_t) *p4d, (size_t) *p5d, (size_t) *p6d, host1, host2);
 //ckbn en_comment    ,total_d, total_s);
 }
 
 //__device__ double* t3_d; 
-extern    "C" void set_dev_mem_s(int h1d, int h2d, int h3d, int p4d, int p5d,int p6d)
+extern    "C" void set_dev_mem_s(size_t h1d, size_t h2d, size_t h3d, size_t p4d, size_t p5d,size_t p6d)
 {
-    int size_t3;
+    size_t size_t3;
     size_t3 = h1d*h2d*h3d*p4d*p5d*p6d;
     t3_s_d = (double *) getGpuMem(size_t3*sizeof(double));
     hipMemset(t3_s_d,0,size_t3*sizeof(double));
@@ -5405,7 +5403,7 @@ extern    "C" void set_dev_mem_s(int h1d, int h2d, int h3d, int p4d, int p5d,int
 extern          "C" void
 dev_mem_s_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Integer * p5d, Integer * p6d)
 {
-    set_dev_mem_s((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d);
+    set_dev_mem_s((size_t) *h1d, (size_t) *h2d, (size_t) *h3d, (size_t) *p4d, (size_t) *p5d, (size_t) *p6d);
 }
 
 /*----------------------------------------------------------------------*
@@ -5414,19 +5412,19 @@ dev_mem_s_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Integer *
 #define T1 16
 #define T2 16
 #define Tcomm 16
-__global__ void sd_t_s1_1_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p4ld_t2,int h1ld_t2,int h3ld_v2,int h2ld_v2,int p6ld_v2,int h3ld_t3,int h2ld_t3,int h1ld_t3,int p6ld_t3,int p4ld_t3, double *t2_d, double *v2_d,int p4, int total_x, double* t3d) {
-  int h1,h2,h3,p6;
-  __shared__ double t2_shm[T1*2*Tcomm];
+__global__ void sd_t_s1_1_kernel(size_t h1d,size_t h2d,size_t h3d,size_t p4d,size_t p6d,size_t p4ld_t2,size_t h1ld_t2,size_t h3ld_v2,size_t h2ld_v2,size_t p6ld_v2,size_t h3ld_t3,size_t h2ld_t3,size_t h1ld_t3,size_t p6ld_t3,size_t p4ld_t3, double *t2_d, double *v2_d,size_t p4, size_t total_x, double* t3d) {
+  size_t h1,h2,h3,p6;
+  __shared__ double t2_shm[T1*4*Tcomm];
   
-  for(int i=threadIdx.x;i<h1d*p4d;i+=blockDim.x)
+  for(size_t i=threadIdx.x;i<h1d*p4d;i+=blockDim.x)
   if(i<h1d*p4d)
   t2_shm[i] = t2_d[i];
-  int rest_x=blockIdx.x;
-  int thread_x = T2*T1 * rest_x + threadIdx.x;
+  size_t rest_x=blockIdx.x;
+  size_t thread_x = T2*T1 * rest_x + threadIdx.x;
   rest_x = thread_x;
     __syncthreads();
 /* the following computation may need to happen inside the loop */
-  for(int i=0;i<total_x;i+=gridDim.x*blockDim.x)
+  for(size_t i=0;i<total_x;i+=gridDim.x*blockDim.x)
   {
     rest_x += i;
   	h3=rest_x%h3d;
@@ -5446,7 +5444,7 @@ __global__ void sd_t_s1_1_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p4l
 }
 
 extern          "C" void 
-sd_t_s1_1_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3, double *t2, double *v2)
+sd_t_s1_1_cuda(size_t h1d, size_t h2d, size_t h3d, size_t p4d, size_t p5d, size_t p6d, double *t3, double *t2, double *v2)
 {
     double st, et;
 //ckbn    st = timer(); 
@@ -5492,7 +5490,7 @@ sd_t_s1_1_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
 	p6ld_t3 = h1d * h2d * h3d;
 //	p5ld_t3 = p6d * h1d * h2d * h3d;
 	p4ld_t3 = p5d * p6d * h1d * h2d * h3d;
-  int total_x = h3d*h2d*p6d*p5d;
+  size_t total_x = h3d*h2d*p6d*p5d;
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
     hipLaunchKernelGGL((sd_t_s1_1_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t2_d,v2_d,i,total_x, t3_s_d);
@@ -5535,7 +5533,7 @@ sd_t_s1_1_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
 extern          "C" void 
 sd_t_s1_1_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Integer * p5d, Integer * p6d, double *t3, double *t2, double *v2)
 {
-	sd_t_s1_1_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d,  t3, t2, v2);
+	sd_t_s1_1_cuda((size_t) *h1d, (size_t) *h2d, (size_t) *h3d, (size_t) *p4d, (size_t) *p5d, (size_t) *p6d,  t3, t2, v2);
 }
 /*----------------------------------------------------------------------*
  *t3[h3,h1,h2,p6,p5,p4] -= t2[p4,h1] * v2[h3,h2,p6,p5]
@@ -5543,19 +5541,19 @@ sd_t_s1_1_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Inte
 #define T1 16
 #define T2 16
 #define Tcomm 16
-__global__ void sd_t_s1_2_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p4ld_t2,int h1ld_t2,int h3ld_v2,int h2ld_v2,int p6ld_v2,int h3ld_t3,int h2ld_t3,int h1ld_t3,int p6ld_t3,int p4ld_t3,double *t2_d, double *v2_d,int p4, int total_x, double* t3d) {
-  int h1,h2,h3,p6;
-  __shared__ double t2_shm[T1*2*Tcomm];
+__global__ void sd_t_s1_2_kernel(size_t h1d,size_t h2d,size_t h3d,size_t p4d,size_t p6d,size_t p4ld_t2,size_t h1ld_t2,size_t h3ld_v2,size_t h2ld_v2,size_t p6ld_v2,size_t h3ld_t3,size_t h2ld_t3,size_t h1ld_t3,size_t p6ld_t3,size_t p4ld_t3,double *t2_d, double *v2_d,size_t p4, size_t total_x, double* t3d) {
+  size_t h1,h2,h3,p6;
+  __shared__ double t2_shm[T1*4*Tcomm];
   
-  for(int i=threadIdx.x;i<h1d*p4d;i+=blockDim.x)
+  for(size_t i=threadIdx.x;i<h1d*p4d;i+=blockDim.x)
   if(i<h1d*p4d)
   t2_shm[i] = t2_d[i];
-  int rest_x=blockIdx.x;
-  int thread_x = T2*T1 * rest_x + threadIdx.x;
+  size_t rest_x=blockIdx.x;
+  size_t thread_x = T2*T1 * rest_x + threadIdx.x;
   rest_x = thread_x;
     __syncthreads();
 /* the following computation may need to happen inside the loop */
-  for(int i=0;i<total_x;i+=gridDim.x*blockDim.x)
+  for(size_t i=0;i<total_x;i+=gridDim.x*blockDim.x)
   {
     rest_x += i;
   	h3=rest_x%h3d;
@@ -5575,7 +5573,7 @@ __global__ void sd_t_s1_2_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p4l
 }
 
 extern          "C" void 
-sd_t_s1_2_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3, double *t2, double *v2)
+sd_t_s1_2_cuda(size_t h1d, size_t h2d, size_t h3d, size_t p4d, size_t p5d, size_t p6d, double *t3, double *t2, double *v2)
 {
     double st, et;
 //ckbn    st = timer(); 
@@ -5625,7 +5623,7 @@ sd_t_s1_2_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
 	p6ld_t3 = h1d * h2d * h3d;
 //	p5ld_t3 = p6d * h1d * h2d * h3d;
 	p4ld_t3 = p5d * p6d * h1d * h2d * h3d;
-  int total_x = h3d*h2d*p6d*p5d;
+  size_t total_x = h3d*h2d*p6d*p5d;
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
 //  for(i=0;i<nstreams;++i){
 
@@ -5661,10 +5659,10 @@ sd_t_s1_2_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
 extern          "C" void 
 sd_t_s1_2_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Integer * p5d, Integer * p6d, double *t3, double *t2, double *v2)
 {
-	sd_t_s1_2_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d,  t3, t2, v2);
+	sd_t_s1_2_cuda((size_t) *h1d, (size_t) *h2d, (size_t) *h3d, (size_t) *p4d, (size_t) *p5d, (size_t) *p6d,  t3, t2, v2);
 }
 extern          "C" void 
-sd_t_s1_3_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3, double *t2, double *v2)
+sd_t_s1_3_cuda(size_t h1d, size_t h2d, size_t h3d, size_t p4d, size_t p5d, size_t p6d,  double *t3, double *t2, double *v2)
 {
     double st, et;
 //ckbn    st = timer(); 
@@ -5713,7 +5711,7 @@ sd_t_s1_3_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	p6ld_t3 = h1d * h2d * h3d;
 //	p5ld_t3 = p6d * h1d * h2d * h3d;
 	p4ld_t3 = p5d * p6d * h1d * h2d * h3d;
-  int total_x = h3d*h2d*p6d*p5d;
+  size_t total_x = h3d*h2d*p6d*p5d;
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
     hipLaunchKernelGGL((sd_t_s1_1_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t2_d,v2_d,i,total_x, t3_s_d);
@@ -5752,7 +5750,7 @@ sd_t_s1_3_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 extern          "C" void 
 sd_t_s1_3_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Integer * p5d, Integer * p6d,  double *t3, double *t2, double *v2)
 {
-	sd_t_s1_3_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d, t3, t2, v2);
+	sd_t_s1_3_cuda((size_t) *h1d, (size_t) *h2d, (size_t) *h3d, (size_t) *p4d, (size_t) *p5d, (size_t) *p6d, t3, t2, v2);
 }
 /*----------------------------------------------------------------------*
  *t3[h3,h2,h1,p6,p4,p5] -= t2[p4,h1] * v2[h3,h2,p6,p5]
@@ -5760,19 +5758,19 @@ sd_t_s1_3_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Inte
 #define T1 16
 #define T2 16
 #define Tcomm 16
-__global__ void sd_t_s1_4_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d,int p4ld_t2,int h1ld_t2,int h3ld_v2,int h2ld_v2,int p6ld_v2,int p5ld_v2,int h3ld_t3,int h2ld_t3,int h1ld_t3,int p6ld_t3,int p5ld_t3,int p4ld_t3,double *t3d, double *t2_d, double *v2_d,int p4, int total_x) {
-  int h1,h2,h3,p6,p5;
-  __shared__ double t2_shm[T1*2*Tcomm];
+__global__ void sd_t_s1_4_kernel(size_t h1d,size_t h2d,size_t h3d,size_t p4d,size_t p5d,size_t p6d,size_t p4ld_t2,size_t h1ld_t2,size_t h3ld_v2,size_t h2ld_v2,size_t p6ld_v2,size_t p5ld_v2,size_t h3ld_t3,size_t h2ld_t3,size_t h1ld_t3,size_t p6ld_t3,size_t p5ld_t3,size_t p4ld_t3,double *t3d, double *t2_d, double *v2_d,size_t p4, size_t total_x) {
+  size_t h1,h2,h3,p6,p5;
+  __shared__ double t2_shm[T1*4*Tcomm];
   
-  for(int i=threadIdx.x;i<h1d*p4d;i+=blockDim.x)
+  for(size_t i=threadIdx.x;i<h1d*p4d;i+=blockDim.x)
   if(i<h1d*p4d)
   t2_shm[i] = t2_d[i];
-  int rest_x=blockIdx.x;
-  int thread_x = T2*T1 * rest_x + threadIdx.x;
+  size_t rest_x=blockIdx.x;
+  size_t thread_x = T2*T1 * rest_x + threadIdx.x;
   rest_x = thread_x;
     __syncthreads();
 /* the following computation may need to happen inside the loop */
-  for(int i=0;i<total_x;i+=gridDim.x*blockDim.x)
+  for(size_t i=0;i<total_x;i+=gridDim.x*blockDim.x)
   {
     rest_x += i;
   	h3=rest_x%h3d;
@@ -5794,7 +5792,7 @@ __global__ void sd_t_s1_4_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
 }
 
 extern          "C" void 
-sd_t_s1_4_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3, double *t2, double *v2)
+sd_t_s1_4_cuda(size_t h1d, size_t h2d, size_t h3d, size_t p4d, size_t p5d, size_t p6d,  double *t3, double *t2, double *v2)
 {
     double st, et;
 //ckbn    st = timer(); 
@@ -5844,7 +5842,7 @@ sd_t_s1_4_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	p6ld_t3 = h1d * h2d * h3d;
 	p4ld_t3 = p6d * h1d * h2d * h3d;
 	p5ld_t3 = p4d * p6d * h1d * h2d * h3d;
-  int total_x = h3d*h2d*p6d*p5d;
+  size_t total_x = h3d*h2d*p6d*p5d;
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
    i=0;
  // for(i=0;i<nstreams;++i){
@@ -5885,7 +5883,7 @@ sd_t_s1_4_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 extern          "C" void 
 sd_t_s1_4_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Integer * p5d, Integer * p6d, double *t3, double *t2, double *v2)
 {
-	sd_t_s1_4_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d,  t3, t2, v2);
+	sd_t_s1_4_cuda((size_t) *h1d, (size_t) *h2d, (size_t) *h3d, (size_t) *p4d, (size_t) *p5d, (size_t) *p6d,  t3, t2, v2);
 }
 
 /*----------------------------------------------------------------------*
@@ -5894,19 +5892,19 @@ sd_t_s1_4_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Inte
 #define T1 16
 #define T2 16
 #define Tcomm 16
-__global__ void sd_t_s1_5_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d,int p4ld_t2,int h1ld_t2,int h3ld_v2,int h2ld_v2,int p6ld_v2,int p5ld_v2,int h3ld_t3,int h2ld_t3,int h1ld_t3,int p6ld_t3,int p5ld_t3,int p4ld_t3,double *t3d, double *t2_d, double *v2_d,int p4, int total_x) {
-  int h1,h2,h3,p6,p5;
-  __shared__ double t2_shm[T1*2*Tcomm];
+__global__ void sd_t_s1_5_kernel(size_t h1d,size_t h2d,size_t h3d,size_t p4d,size_t p5d,size_t p6d,size_t p4ld_t2,size_t h1ld_t2,size_t h3ld_v2,size_t h2ld_v2,size_t p6ld_v2,size_t p5ld_v2,size_t h3ld_t3,size_t h2ld_t3,size_t h1ld_t3,size_t p6ld_t3,size_t p5ld_t3,size_t p4ld_t3,double *t3d, double *t2_d, double *v2_d,size_t p4, size_t total_x) {
+  size_t h1,h2,h3,p6,p5;
+  __shared__ double t2_shm[T1*4*Tcomm];
   
-  for(int i=threadIdx.x;i<h1d*p4d;i+=blockDim.x)
+  for(size_t i=threadIdx.x;i<h1d*p4d;i+=blockDim.x)
   if(i<h1d*p4d)
   t2_shm[i] = t2_d[i];
-  int rest_x=blockIdx.x;
-  int thread_x = T2*T1 * rest_x + threadIdx.x;
+  size_t rest_x=blockIdx.x;
+  size_t thread_x = T2*T1 * rest_x + threadIdx.x;
   rest_x = thread_x;
     __syncthreads();
 /* the following computation may need to happen inside the loop */
-  for(int i=0;i<total_x;i+=gridDim.x*blockDim.x)
+  for(size_t i=0;i<total_x;i+=gridDim.x*blockDim.x)
   {
     rest_x += i;
   	h3=rest_x%h3d;
@@ -5928,7 +5926,7 @@ __global__ void sd_t_s1_5_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
 }
 
 extern          "C" void 
-sd_t_s1_5_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3, double *t2, double *v2)
+sd_t_s1_5_cuda(size_t h1d, size_t h2d, size_t h3d, size_t p4d, size_t p5d, size_t p6d,  double *t3, double *t2, double *v2)
 {
     double st, et;
 //ckbn    st = timer(); 
@@ -5978,7 +5976,7 @@ sd_t_s1_5_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	p6ld_t3 = h1d * h2d * h3d;
 	p4ld_t3 = p6d * h1d * h2d * h3d;
 	p5ld_t3 = p4d * p6d * h1d * h2d * h3d;
-  int total_x = h3d*h2d*p6d*p5d;
+  size_t total_x = h3d*h2d*p6d*p5d;
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
     hipLaunchKernelGGL((sd_t_s1_5_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d,p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p5ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
@@ -6018,7 +6016,7 @@ sd_t_s1_5_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 extern          "C" void 
 sd_t_s1_5_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Integer * p5d, Integer * p6d,  double *t3, double *t2, double *v2)
 {
-	sd_t_s1_5_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d,  t3, t2, v2);
+	sd_t_s1_5_cuda((size_t) *h1d, (size_t) *h2d, (size_t) *h3d, (size_t) *p4d, (size_t) *p5d, (size_t) *p6d,  t3, t2, v2);
 }
 
 /*----------------------------------------------------------------------*
@@ -6027,19 +6025,19 @@ sd_t_s1_5_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Inte
 #define T1 16
 #define T2 16
 #define Tcomm 16
-__global__ void sd_t_s1_6_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d,int p4ld_t2,int h1ld_t2,int h3ld_v2,int h2ld_v2,int p6ld_v2,int p5ld_v2,int h3ld_t3,int h2ld_t3,int h1ld_t3,int p6ld_t3,int p5ld_t3,int p4ld_t3,double *t3d, double *t2_d, double *v2_d,int p4, int total_x) {
-  int h1,h2,h3,p6,p5;
-  __shared__ double t2_shm[T1*2*Tcomm];
+__global__ void sd_t_s1_6_kernel(size_t h1d,size_t h2d,size_t h3d,size_t p4d,size_t p5d,size_t p6d,size_t p4ld_t2,size_t h1ld_t2,size_t h3ld_v2,size_t h2ld_v2,size_t p6ld_v2,size_t p5ld_v2,size_t h3ld_t3,size_t h2ld_t3,size_t h1ld_t3,size_t p6ld_t3,size_t p5ld_t3,size_t p4ld_t3,double *t3d, double *t2_d, double *v2_d,size_t p4, size_t total_x) {
+  size_t h1,h2,h3,p6,p5;
+  __shared__ double t2_shm[T1*4*Tcomm];
   
-  for(int i=threadIdx.x;i<h1d*p4d;i+=blockDim.x)
+  for(size_t i=threadIdx.x;i<h1d*p4d;i+=blockDim.x)
   if(i<h1d*p4d)
   t2_shm[i] = t2_d[i];
-  int rest_x=blockIdx.x;
-  int thread_x = T2*T1 * rest_x + threadIdx.x;
+  size_t rest_x=blockIdx.x;
+  size_t thread_x = T2*T1 * rest_x + threadIdx.x;
   rest_x = thread_x;
     __syncthreads();
 /* the following computation may need to happen inside the loop */
-  for(int i=0;i<total_x;i+=gridDim.x*blockDim.x)
+  for(size_t i=0;i<total_x;i+=gridDim.x*blockDim.x)
   {
     rest_x += i;
   	h3=rest_x%h3d;
@@ -6061,7 +6059,7 @@ __global__ void sd_t_s1_6_kernel(int h1d,int h2d,int h3d,int p4d,int p5d,int p6d
 }
 
 extern          "C" void 
-sd_t_s1_6_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3, double *t2, double *v2)
+sd_t_s1_6_cuda(size_t h1d, size_t h2d, size_t h3d, size_t p4d, size_t p5d, size_t p6d,  double *t3, double *t2, double *v2)
 {
     double st, et;
 //ckbn    st = timer(); 
@@ -6111,7 +6109,7 @@ sd_t_s1_6_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	p6ld_t3 = h1d * h2d * h3d;
 	p4ld_t3 = p6d * h1d * h2d * h3d;
 	p5ld_t3 = p4d * p6d * h1d * h2d * h3d;
-  int total_x = h3d*h2d*p6d*p5d;
+  size_t total_x = h3d*h2d*p6d*p5d;
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
     hipLaunchKernelGGL((sd_t_s1_6_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d,p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,p5ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p5ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
@@ -6149,7 +6147,7 @@ sd_t_s1_6_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 extern          "C" void 
 sd_t_s1_6_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Integer * p5d, Integer * p6d, double *t3, double *t2, double *v2)
 {
-	sd_t_s1_6_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d, t3, t2, v2);
+	sd_t_s1_6_cuda((size_t) *h1d, (size_t) *h2d, (size_t) *h3d, (size_t) *p4d, (size_t) *p5d, (size_t) *p6d, t3, t2, v2);
 }
 
 
@@ -6166,19 +6164,19 @@ sd_t_s1_6_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Inte
 #define T1 16
 #define T2 16
 #define Tcomm 16
-__global__ void sd_t_s1_7_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p4ld_t2,int h1ld_t2,int h3ld_v2,int h2ld_v2,int p6ld_v2,int h3ld_t3,int h2ld_t3,int h1ld_t3,int p6ld_t3,int p4ld_t3,double *t3d, double *t2_d, double *v2_d,int p4, int total_x) {
-  int h1,h2,h3,p6;
-  __shared__ double t2_shm[T1*2*Tcomm];
+__global__ void sd_t_s1_7_kernel(size_t h1d,size_t h2d,size_t h3d,size_t p4d,size_t p6d,size_t p4ld_t2,size_t h1ld_t2,size_t h3ld_v2,size_t h2ld_v2,size_t p6ld_v2,size_t h3ld_t3,size_t h2ld_t3,size_t h1ld_t3,size_t p6ld_t3,size_t p4ld_t3,double *t3d, double *t2_d, double *v2_d,size_t p4, size_t total_x) {
+  size_t h1,h2,h3,p6;
+  __shared__ double t2_shm[T1*4*Tcomm];
   
-  for(int i=threadIdx.x;i<h1d*p4d;i+=blockDim.x)
+  for(size_t i=threadIdx.x;i<h1d*p4d;i+=blockDim.x)
   if(i<h1d*p4d)
   t2_shm[i] = t2_d[i];
-  int rest_x=blockIdx.x;
-  int thread_x = T2*T1 * rest_x + threadIdx.x;
+  size_t rest_x=blockIdx.x;
+  size_t thread_x = T2*T1 * rest_x + threadIdx.x;
   rest_x = thread_x;
     __syncthreads();
 /* the following computation may need to happen inside the loop */
-  for(int i=0;i<total_x;i+=gridDim.x*blockDim.x)
+  for(size_t i=0;i<total_x;i+=gridDim.x*blockDim.x)
   {
     rest_x += i;
   	h3=rest_x%h3d;
@@ -6197,7 +6195,7 @@ __global__ void sd_t_s1_7_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p4l
     __syncthreads();
 }
 extern          "C" void 
-sd_t_s1_7_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3, double *t2, double *v2)
+sd_t_s1_7_cuda(size_t h1d, size_t h2d, size_t h3d, size_t p4d, size_t p5d, size_t p6d,  double *t3, double *t2, double *v2)
 {
     double st, et;
 //ckbn    st = timer(); 
@@ -6247,7 +6245,7 @@ sd_t_s1_7_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	p4ld_t3 = h1d * h2d * h3d;
 //	p5ld_t3 = p6d * h1d * h2d * h3d;
 	p6ld_t3 = p4d * h1d * h2d * h3d;
-  int total_x = h3d*h2d*p6d*p5d;
+  size_t total_x = h3d*h2d*p6d*p5d;
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
     hipLaunchKernelGGL((sd_t_s1_7_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
@@ -6286,24 +6284,24 @@ sd_t_s1_7_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 extern          "C" void 
 sd_t_s1_7_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Integer * p5d, Integer * p6d, double *t3, double *t2, double *v2)
 {
-	sd_t_s1_7_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d, t3, t2, v2);
+	sd_t_s1_7_cuda((size_t) *h1d, (size_t) *h2d, (size_t) *h3d, (size_t) *p4d, (size_t) *p5d, (size_t) *p6d, t3, t2, v2);
 }
 #define T1 16
 #define T2 16
 #define Tcomm 16
-__global__ void sd_t_s1_8_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p4ld_t2,int h1ld_t2,int h3ld_v2,int h2ld_v2,int p6ld_v2,int h3ld_t3,int h2ld_t3,int h1ld_t3,int p6ld_t3,int p4ld_t3,double *t3d, double *t2_d, double *v2_d,int p4, int total_x) {
-  int h1,h2,h3,p6;
-  __shared__ double t2_shm[T1*2*Tcomm];
+__global__ void sd_t_s1_8_kernel(size_t h1d,size_t h2d,size_t h3d,size_t p4d,size_t p6d,size_t p4ld_t2,size_t h1ld_t2,size_t h3ld_v2,size_t h2ld_v2,size_t p6ld_v2,size_t h3ld_t3,size_t h2ld_t3,size_t h1ld_t3,size_t p6ld_t3,size_t p4ld_t3,double *t3d, double *t2_d, double *v2_d,size_t p4, size_t total_x) {
+  size_t h1,h2,h3,p6;
+  __shared__ double t2_shm[T1*4*Tcomm];
   
-  for(int i=threadIdx.x;i<h1d*p4d;i+=blockDim.x)
+  for(size_t i=threadIdx.x;i<h1d*p4d;i+=blockDim.x)
   if(i<h1d*p4d)
   t2_shm[i] = t2_d[i];
-  int rest_x=blockIdx.x;
-  int thread_x = T2*T1 * rest_x + threadIdx.x;
+  size_t rest_x=blockIdx.x;
+  size_t thread_x = T2*T1 * rest_x + threadIdx.x;
   rest_x = thread_x;
     __syncthreads();
 /* the following computation may need to happen inside the loop */
-  for(int i=0;i<total_x;i+=gridDim.x*blockDim.x)
+  for(size_t i=0;i<total_x;i+=gridDim.x*blockDim.x)
   {
     rest_x += i;
   	h3=rest_x%h3d;
@@ -6328,7 +6326,7 @@ __global__ void sd_t_s1_8_kernel(int h1d,int h2d,int h3d,int p4d,int p6d,int p4l
 #define T2 16
 #define Tcomm 16
 extern          "C" void 
-sd_t_s1_8_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3, double *t2, double *v2)
+sd_t_s1_8_cuda(size_t h1d, size_t h2d, size_t h3d, size_t p4d, size_t p5d, size_t p6d,  double *t3, double *t2, double *v2)
 {
     double st, et;
 //ckbn    st = timer(); 
@@ -6378,7 +6376,7 @@ sd_t_s1_8_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	p4ld_t3 = h1d * h2d * h3d;
 //	p5ld_t3 = p6d * h1d * h2d * h3d;
 	p6ld_t3 = p4d * h1d * h2d * h3d;
-  int total_x = h3d*h2d*p6d*p5d;
+  size_t total_x = h3d*h2d*p6d*p5d;
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
     hipLaunchKernelGGL((sd_t_s1_8_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
@@ -6413,13 +6411,13 @@ sd_t_s1_8_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 extern          "C" void 
 sd_t_s1_8_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Integer * p5d, Integer * p6d, double *t3, double *t2, double *v2)
 {
-	sd_t_s1_8_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d, t3, t2, v2);
+	sd_t_s1_8_cuda((size_t) *h1d, (size_t) *h2d, (size_t) *h3d, (size_t) *p4d, (size_t) *p5d, (size_t) *p6d, t3, t2, v2);
 }
 /*----------------------------------------------------------------------*
  *t3[h1,h3,h2,p4,p6,p5] -= t2[p4,h1] * v2[h3,h2,p6,p5]
  *----------------------------------------------------------------------*/
 extern          "C" void 
-sd_t_s1_9_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3, double *t2, double *v2)
+sd_t_s1_9_cuda(size_t h1d, size_t h2d, size_t h3d, size_t p4d, size_t p5d, size_t p6d,  double *t3, double *t2, double *v2)
 {
     double st, et;
 //ckbn    st = timer(); 
@@ -6469,7 +6467,7 @@ sd_t_s1_9_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 	p4ld_t3 = h1d * h2d * h3d;
 //	p5ld_t3 = p6d * h1d * h2d * h3d;
 	p6ld_t3 = p4d * h1d * h2d * h3d;
-  int total_x = h3d*h2d*p6d*p5d;
+  size_t total_x = h3d*h2d*p6d*p5d;
   dim3 dimBlock(T2*T1);dim3 dimGrid(DIV_UB(total_x,T2*T1), 1);
   for(i=0;i<nstreams;++i){
     hipLaunchKernelGGL((sd_t_s1_7_kernel), dim3(dimGrid), dim3(dimBlock), 0, streams[i], h1d,h2d,h3d,p4d,p5d*p6d,p4ld_t2,h1ld_t2,h3ld_v2,h2ld_v2,p6ld_v2,h3ld_t3,h2ld_t3,h1ld_t3,p6ld_t3,p4ld_t3,t3_s_d,t2_d,v2_d,i,total_x);
@@ -6505,5 +6503,5 @@ sd_t_s1_9_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 extern          "C" void 
 sd_t_s1_9_cuda_(Integer * h1d, Integer * h2d, Integer * h3d, Integer * p4d, Integer * p5d, Integer * p6d,  double *t3, double *t2, double *v2)
 {
-	sd_t_s1_9_cuda((int) *h1d, (int) *h2d, (int) *h3d, (int) *p4d, (int) *p5d, (int) *p6d,  t3, t2, v2);
+	sd_t_s1_9_cuda((size_t) *h1d, (size_t) *h2d, (size_t) *h3d, (size_t) *p4d, (size_t) *p5d, (size_t) *p6d,  t3, t2, v2);
 }

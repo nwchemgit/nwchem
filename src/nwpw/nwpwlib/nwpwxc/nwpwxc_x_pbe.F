@@ -25,40 +25,40 @@ C>
 C> [1] J.P. Perdew, K. Burke, M. Ernzerhof, 
 C> "Generalized Gradient Approximation Made Simple"
 C> Phys. Rev. Lett. <b>77</b>, 3865-3865 (1996), DOI:
-C> <a href="http://dx.doi.org/10.1103/PhysRevLett.77.3865">
+C> <a href="https://doi.org/10.1103/PhysRevLett.77.3865">
 C> 10.1103/PhysRevLett.77.3865</a>.
 C>
 C> [2] J.P. Perdew, K. Burke, M. Ernzerhof, 
 C> "Erratum: Generalized Gradient Approximation Made Simple"
 C> Phys. Rev. Lett. <b>78</b>, 1396-1396 (1997), DOI:
-C> <a href="http://dx.doi.org/10.1103/PhysRevLett.78.1396">
+C> <a href="https://doi.org/10.1103/PhysRevLett.78.1396">
 C> 10.1103/PhysRevLett.78.1396</a>.
 C>
 C> [3] J.P. Perdew, Y. Wang, "Accurate and simple density functional
 C> for the electronic exchange energy: Generalized gradient
 C> approximation"
 C> Phys. Rev. B <b>33</b>, 8800-8802 (1986), DOI:
-C> <a href="http://dx.doi.org/10.1103/PhysRevB.33.8800">
+C> <a href="https://doi.org/10.1103/PhysRevB.33.8800">
 C> 10.1103/PhysRevB.33.8800</a>.
 C>
 C> [4] J.P. Perdew, Y. Wang, "Erratum: Accurate and simple density
 C> functional for the electronic exchange energy: Generalized gradient
 C> approximation"
 C> Phys. Rev. B <b>40</b>, 3399-3399 (1989), DOI:
-C> <a href="http://dx.doi.org/10.1103/PhysRevB.40.3399">
+C> <a href="https://doi.org/10.1103/PhysRevB.40.3399">
 C> 10.1103/PhysRevB.40.3399</a>.
 C>
 C> [5] Y. Zhang, W. Yang, "Comment on: Generalized gradient
 C> approximation made simple", Phys. Rev. Lett. <b>80</b>, 890-890
 C> (1998), DOI:
-C> <a href="http://dx.doi.org/10.1103/PhysRevLett.80.890">
+C> <a href="https://doi.org/10.1103/PhysRevLett.80.890">
 C> 10.1103/PhysRevLett.80.890</a>.
 C>
 C> [6] J.P. Perdew, A. Ruzsinszky, G.I. Csonka, O.A. Vydrov,
 C> G.E. Scuseria, L.A. Constantin, X. Zhou, K. Burke,
 C> "Restoring the density-gradient expansion for exchange in solids
 C> and surfaces", Phys. Rev. Lett. <b>100</b>, 136406-136409 (2008),
-C> DOI: <a href="http://dx.doi.org/10.1103/PhysRevLett.100.136406">
+C> DOI: <a href="https://doi.org/10.1103/PhysRevLett.100.136406">
 C> 10.1103/PhysRevLett.100.136406</a>.
 C>
 C> [7] J.P. Perdew, A. Ruzsinszky, G.I. Csonka, O.A. Vydrov,
@@ -66,14 +66,14 @@ C> G.E. Scuseria, L.A. Constantin, X. Zhou, K. Burke,
 C> "Erratum: Restoring the density-gradient expansion for exchange in
 C> solids and surfaces", Phys. Rev. Lett. <b>102</b>, 039902-039902
 C> (2009), DOI:
-C> <a href="http://dx.doi.org/10.1103/PhysRevLett.102.039902">
+C> <a href="https://doi.org/10.1103/PhysRevLett.102.039902">
 C> 10.1103/PhysRevLett.102.039902</a>.
 C>
 C> [8] C. Adamo, V. Barone,
 C> "Toward reliable density functional methods without adjustable
 C> parameters: The PBE0 model", J. Chem. Phys. <b>110</b>, 6158-6170
 C> (1999), DOI:
-C> <a href="http://dx.doi.org/10.1063/1.478522">
+C> <a href="https://doi.org/10.1063/1.478522">
 C> 10.1063/1.478522</a>.
 C>
 #ifndef SECOND_DERIV

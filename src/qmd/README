@@ -7,3 +7,34 @@ Not used in current qmd module
 * Simulated annealing
 * CPMD style dynamics
 * Metadynamics
+
+=== rough flow-chart ==
+r: coordinates
+g: forces
+v:
+m:
+
+qmd_init
+*qmd_ext_init
+qmd_coords_vel(r,v,m)
+
+qmd_gradient(g) -> * qmd_ext_gradient(r,g)
+
+do istep_nucl =
+
+  qmd_nucl_vel(m,v,g)  ! v update at dt/2
+
+  qmd_nucl_post(m,r,v) ! r update at dt
+
+  qmd_gradient(g)
+
+  qmd_nucl_vel(m,v,g)  ! v update at dt/2
+
+enddo
+
+PLUMED Interface
+=========
+F=-gradient . Need to invert sign
+
+
+

@@ -761,7 +761,7 @@ c Date    : 03-09-11
 #include "bgj.fh"
 #include "bas.fh"
 #include "stdio.fh"
-#include "zora.fh"  ! for num NMRCS-Z4
+#include "zora.fh"  
 c      Global arrays variables defined in zora.fh
 c      ga_dia_hfine,ga_h01_hfine,ga_Fji_hfine
       integer g_d1 ! input: Perturbed density matrices 
@@ -846,7 +846,7 @@ c Date    : 03-09-11
 #include "prop.fh"
 #include "bgj.fh"
 #include "stdio.fh"
-#include "zora.fh"  ! for hyperfine
+#include "zora.fh"  
 c      Global arrays variables defined in zora.fh
 c      --> ga_dia_hfine,ga_h01_hfine,ga_Fji_hfine
       integer rtdb
@@ -1105,10 +1105,11 @@ c ------Main outputs -------- END
      &        vectors(2),
      &        g_tnp1,g_acc1    
       integer ispin  
+      integer nat  
       double precision ac_val,val1,sign,
      &                 const_hfine(nat)   
 
-      integer iat1,iat,nat,i,j,k,m,n,ndir,ndir1
+      integer iat1,iat,i,j,k,m,n,ndir,ndir1
       integer jlo,jhi,s,nbf,nmo,nsize,nsize1,nsize2
       integer npol,ntot,atmnr(nat)
       integer ind,nlst,count,nocc(npol),nvirt(npol)

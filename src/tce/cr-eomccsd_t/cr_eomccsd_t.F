@@ -242,8 +242,15 @@ c    opening l_t1_local and l_x1_local
         call ma_zero(dbl_mb(k_x1_local),size_x1)
 c    copy d_t1 ==> l_t1_local
 c    copy x1(ivec) ==> l_x1_local
+#if 1
+        call util_mygabcast(d_t1,size_t1,1,dbl_mb(k_t1_local),
+     L       size_t1)
+        call util_mygabcast(d_x1,size_x1,1,dbl_mb(k_x1_local),
+     L       size_x1)
+#else
         call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
         call ga_get(d_x1,1,size_x1,1,1,dbl_mb(k_x1_local),1)
+#endif
 c -------------------------------
 c
 c     Caution! k_right & k_den are not even allocated yet
@@ -525,6 +532,12 @@ c
       end if
 c ------------------
 c
+#if 1
+      call ga_dgop(1975,num1,1,'+')
+      call ga_dgop(1976,num2,1,'+')
+      call ga_dgop(1977,den1,1,'+')
+      call ga_dgop(1978,den2,1,'+')
+#else
       call ga_zero(g_energy)
       call ga_acc(g_energy,1,1,1,1,num1,1,1.0d0)
       call ga_sync()
@@ -544,6 +557,7 @@ c
       call ga_acc(g_energy,1,1,1,1,den2,1,1.0d0)
       call ga_sync()
       call ga_get(g_energy,1,1,1,1,den2,1)
+#endif
 c
       if (.not.ga_destroy(g_energy))
      1  call errquit('creom_t: GA problem',1,GA_ERR)

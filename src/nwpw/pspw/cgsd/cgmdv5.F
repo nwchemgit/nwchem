@@ -240,9 +240,11 @@
       minimizer = control_minimizer()
       mapping   = control_mapping()
 
+*     **** initialize pspw_director ****
+      call pspw_director_init(rtdb)
+
 *     **** initialize psi_data ****
       call psi_data_init(100)
-
 
 
 *     **** initialize D3dB data structure ****
@@ -328,7 +330,7 @@
       call psp_U_init()
 
 *     **** initialize Meta GGA ****
-      call nwpw_meta_gga_init()
+      call nwpw_meta_gga_init(control_gga())
 
 *     **** initialize metadynamics ****
       call meta_initialize(rtdb)
@@ -865,6 +867,9 @@ c       **** inner loop ****
         call xyz_write()
         call MOTION_write(icount*it_in*dt)
 
+*        **** call pspw_director ****
+         call pspw_director(rtdb)
+
 *        **** update thermostats using SA decay ****
          if (SA) then
            tt2 = icount*it_in*dt/sa_decay(2)
@@ -878,12 +883,15 @@ c       **** inner loop ****
      >       write(luout,*) ' *** out of time. iteration terminated'
             go to 102
          end if
+
+
       if (icount.lt.it_out) go to 101
       if (oprint) write(luout,*) 
-     > '*** arived at the Maximum iteration.   terminated.'
+     > '*** arrived at the Maximum iteration.   terminated.'
 
 *::::::::::::::::::::  end of iteration loop  :::::::::::::::::::::::::
       call control_up_print()
+
 
   102 continue
   
@@ -1211,13 +1219,13 @@ c      call frac_occ_end()
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ input data ========================')
  1111 FORMAT(/' number of processors used:',I10)
- 1112 FORMAT( ' parallel mapping         :      1d slab')
- 1113 FORMAT( ' parallel mapping         :   2d hilbert')
+ 1112 FORMAT( ' parallel mapping         :      1d-slab')
+ 1113 FORMAT( ' parallel mapping         :   2d-hilbert')
  1114 FORMAT( ' parallel mapping         :     balanced')
  1115 FORMAT(/' options:')
  1116 FORMAT( ' parallel mapping         : not balanced')
  1117 FORMAT( ' processor grid           :',I4,' x',I4)
- 1118 FORMAT( ' parallel mapping         :    2d hcurve')
+ 1118 FORMAT( ' parallel mapping         :    2d-hcurve')
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1122 FORMAT(5X,' qmmm simulation')

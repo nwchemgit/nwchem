@@ -2,6 +2,55 @@
 #
 # $Id: get-tools 28436 2016-08-03 19:50:05Z edo $
 #
+function ga_download()
+{
+    TAR_URL=$1
+    GA_RELEASE_NO=$2
+       CURL_YES=`curl  -O 2>&1 | head -1  | awk ' /URL/ {print "Y";exit};{print "N"}'`
+	if [ $CURL_YES = "Y" ]
+	then
+	    if test "x$GADOWN_IGNORECERTS" != x
+	    then
+	    curl -L -k "$TAR_URL" -o ga-"$GA_RELEASE_NO".tar.gz
+	    else
+	    curl -L  "$TAR_URL" -o ga-"$GA_RELEASE_NO".tar.gz
+	    fi
+	else
+	WGET_YES=`wget  -O 2>&1 | head -1  | awk ' /require/ {print "Y";exit};{print "N"}'`
+	    if [ $WGET_YES = "Y" ]
+	    then
+	        #try wget because curl is not there
+	        if wget  -O ga-"$GA_RELEASE_NO".tar.gz "$TAR_URL" ; then
+                    echo "wget works"
+                else
+                    echo " "
+                    echo "obsolete wget"
+                    echo "trying tlsv12 wget option"
+                    echo " "
+		    if test "x$GADOWN_IGNORECERTS" != x
+		    then
+			wget --no-check-certificate  --secure-protocol=TLSv1_2 -O ga-"$GA_RELEASE_NO".tar.gz "$TAR_URL"
+		    else
+			wget  --secure-protocol=TLSv1_2 -O ga-"$GA_RELEASE_NO".tar.gz "$TAR_URL"
+		    fi
+                fi
+            else
+	        echo " "
+	        echo "wget or curl required for downloading GA tar file" 
+	        echo " "
+	        return 1
+            fi
+	fi
+# check tar.gz integrity	
+	gzip -t ga-"$GA_RELEASE_NO".tar.gz >&  /dev/null
+	if [ $? -ne 0 ]; then
+            echo ga-"$GA_RELEASE_NO".tar.gz file integrity check failed
+            return 1
+	else
+            echo ga-"$GA_RELEASE_NO".tar.gz file integrity OK
+	    return 0
+	fi
+    }
 
 unalias -a
 export NWCHEM_TOP=${NWCHEM_TOP:-"`pwd`/../"}
@@ -27,8 +76,8 @@ TOOLGIT=`which git`
 CONFIG=$NWCHEM_TOP/src/config/makefile.h
 if test "x$DEV_GA" != x
 then
-    GA_DIR=ga-5.7
-    GA_BRANCH=release/5.7
+    GA_DIR=ga-5.8
+    GA_BRANCH=release/5.8
 fi
 if test "x$GA_BRANCH" = x 
 then
@@ -38,42 +87,26 @@ if test "x$USE_GA_RELEASE" != x
 then
     if test "x$GA_RELEASE_NO" = x
     then
-	GA_RELEASE_NO=5.7
+	GA_RELEASE_NO=5.8
     fi
     GA_DIR=ga-"$GA_RELEASE_NO"
     if [ ! -f ga-"$GA_RELEASE_NO".tar.gz ]; then
 	if test "x$TAR_URL" = x
 	then
-	#TAR_URL=https://github.com/GlobalArrays/ga/releases/download/v"$GA_RELEASE_NO"/ga-"$GA_RELEASE_NO".tar.gz
-	 TAR_URL=https://github.com/edoapra/ga/releases/download/v"$GA_RELEASE_NO"/ga-"$GA_RELEASE_NO".tar.gz
-	 #         https://github.com/edoapra/ga/releases/download/v5.7/ga-5.7.tar.gz
+	TAR_URL=https://github.com/GlobalArrays/ga/releases/download/v"$GA_RELEASE_NO"/ga-"$GA_RELEASE_NO".tar.gz
+#	 TAR_URL=https://github.com/edoapra/ga/releases/download/v"$GA_RELEASE_NO"/ga-"$GA_RELEASE_NO".tar.gz
+	 #         https://github.com/edoapra/ga/releases/download/v5.7.2/ga-5.7.2.tar.gz
 	fi
 	echo "downloading" ga-"$GA_RELEASE_NO".tar.gz  "from" "$TAR_URL"
-	CURL_YES=`curl  -O 2>&1 | head -1  | awk ' /URL/ {print "Y";exit};{print "N"}'`
-	if [ $CURL_YES = "Y" ]
-	then
-	    curl -L  "$TAR_URL" -o ga-"$GA_RELEASE_NO".tar.gz
-	else
-	WGET_YES=`wget  -O 2>&1 | head -1  | awk ' /require/ {print "Y";exit};{print "N"}'`
-	    if [ $WGET_YES = "Y" ]
-	    then
-	        #try wget because curl is not there
-	        if wget  -O ga-"$GA_RELEASE_NO".tar.gz "$TAR_URL" ; then
-                    echo "wget works"
-                else
-                    echo " "
-                    echo "obsolete wget"
-                    echo "trying tlsv12 wget option"
-                    echo " "
-                    wget --secure-protocol=TLSv1_2 -O ga-"$GA_RELEASE_NO".tar.gz "$TAR_URL"
-                fi
-            else
-	        echo " "
-	        echo "wget or curl required for downloading GA tar file" 
-	        echo " "
-	        exit 1
-            fi
-	fi
+	max_retry=5
+	counter=0
+	until 	ga_download $TAR_URL $GA_RELEASE_NO
+	do
+	    [[ counter -eq $max_retry ]] && echo "GA download failed!" && exit 1
+	    sleep 2
+	    echo "Trying again. Try #$counter"
+	    ((counter++))
+	done
 	if [ $? -ne 0 ]
 	then
 	    rm -f ga-"$GA_RELEASE_NO".tar.gz
@@ -101,8 +134,8 @@ if test "x$DEV_GA" != x
 then
 #DEV_GA=1 gives the current "best" dev branch, not develop
 #to get develop, set GA_BRANCH-develop
-    GA_DIR=ga-5.6.5
-    GA_BRANCH=hotfix/5.6.5
+    GA_DIR=ga-develop
+    GA_BRANCH=develop
 else
     if test "x$GA_BRANCH" != x
     then
@@ -112,8 +145,8 @@ else
 	    GA_DIR=`echo $GA_DIR0 | sed -e 's/\//_/g'`
 	fi
     else
-	GA_DIR=ga-5.6.5
-	GA_BRANCH=hotfix/5.6.5
+	GA_DIR=ga-5.8
+	GA_BRANCH=release/5.8
     fi
 fi
 if test "x$GA_URL" != x
@@ -159,6 +192,20 @@ else
 fi
 fi #USE_GA_RELEASE
 # check if configure is there
+#disable nxtval
+./nxtval.sh $GA_DIR
+if [[  -z "${CC}" ]]; then
+    CC=cc
+fi
+GOTMINGW64=` $CC -dM -E - </dev/null 2> /dev/null |grep MINGW64|cut -c21 `
+if [ ! -z "$GOTMINGW64" ]
+then
+echo "CC" $CC
+echo "GOTMINGW64" $GOTMINGW64
+#patch for MSMPI
+./msmpi_patch.sh $GA_DIR
+./mingw64_patch.sh $GA_DIR
+fi
 if test -e $GA_DIR/configure
 then
         echo "configure present. no autogen.sh required"
@@ -168,3 +215,4 @@ else
         cd  $GA_DIR;sh ./autogen.sh
 fi
 exit 0
+

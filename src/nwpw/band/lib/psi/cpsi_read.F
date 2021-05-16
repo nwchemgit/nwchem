@@ -30,20 +30,20 @@
 
 *     **** local variables ****
       logical hprint
-      integer MASTER,taskid,taskid_j,taskid_k
+      integer MASTER,taskid,taskid_i,taskid_j,taskid_k,taskid_p
       parameter(MASTER=0)
       logical brillioun_check,psi_nolattice
       integer n,nb,nbrill,occupation,ms
       integer msglen,psiold,psiold1
-      integer q,pj,nbq,pk
+      integer q,pj,nbq,pk,com_p
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2),tmpe(2)
-      logical value
+      logical value,pio
 
 *     ***** local functions ****
-      logical control_spin_orbit,control_print
-      external control_spin_orbit,control_print
+      logical  control_spin_orbit,control_print,control_parallel_io
+      external control_spin_orbit,control_print,control_parallel_io
       character*50 control_input_psi
       external     control_input_psi
       double precision control_unita
@@ -56,10 +56,23 @@ c     complex*16 tmp(*)
       external cpsi_data_get_chnk
 
       call Parallel_taskid(taskid)
+      call Parallel3d_taskid_i(taskid_i)
       call Parallel3d_taskid_j(taskid_j)
       call Parallel3d_taskid_k(taskid_k)
       call C3dB_nfft3d(1,nfft3d)
       call Cram_max_npack(npack1)
+
+      pio = control_parallel_io()
+      pio = .false.
+      if (pio) then
+         taskid_p = taskid_i
+         com_p = 1
+      else
+         taskid_p = taskid
+         com_p = 0
+      end if
+
+
       hprint = (taskid.eq.MASTER).and.control_print(print_high)
 
       value = BA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
@@ -72,7 +85,8 @@ c     complex*16 tmp(*)
        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
      
 *     **** open ELCIN binary file ****
-      if (taskid.eq.MASTER) then
+      !if (taskid.eq.MASTER) then
+      if (taskid_p.eq.MASTER) then
          filename = control_input_psi()
          call util_file_name_noprefix(filename,.false.,
      >                                .false.,
@@ -96,18 +110,18 @@ c     complex*16 tmp(*)
 
 c     **** send header to all nodes ****
       msglen = 1
-      call Parallel_Brdcst_ivalues(MASTER,msglen,version)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,version)
       msglen = 3
-      call Parallel_Brdcst_ivalues(MASTER,msglen,nfft)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,nfft)
       msglen = 9
-      call Parallel_Brdcst_values(MASTER,msglen,unita)
+      call Parallela_Brdcst_values(com_p,MASTER,msglen,unita)
       msglen = 1
-      call Parallel_Brdcst_ivalues(MASTER,msglen,ispin)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,ispin)
       msglen = 2
-      call Parallel_Brdcst_ivalues(MASTER,msglen,ne)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,ne)
       msglen = 1
-      call Parallel_Brdcst_ivalues(MASTER,msglen,nbrill)
-      call Parallel_Brdcst_ivalues(MASTER,msglen,occupation)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,nbrill)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,occupation)
 
 
 c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
@@ -182,13 +196,18 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
            do n=1,(ne(1)+ne(2))
               pj=0
               q=n
-              call C3dB_c_Read(1,5,dcpl_mb(tmp2(1)),
-     >                           dcpl_mb(tmp(1)),pj,pk)
+              if (pio) then
+                 call C3dB_c_read_pio(1,5,dcpl_mb(tmp2(1)),
+     >                                dcpl_mb(tmp(1)),pj,pk)
+              else
+                 call C3dB_c_read(1,5,dcpl_mb(tmp2(1)),
+     >                                dcpl_mb(tmp(1)),pj,pk)
+              end if
 
-            if ((pj.eq.taskid_j).and.(pk.eq.taskid_k)) then
-               call Cram_c_pack(nbq,dcpl_mb(tmp2(1)))
-               call cpsi_data_add(psi2_tag,nbq,q,dcpl_mb(tmp2(1)))
-            end if
+              if ((pj.eq.taskid_j).and.(pk.eq.taskid_k)) then
+                 call Cram_c_pack(nbq,dcpl_mb(tmp2(1)))
+                 call cpsi_data_add(psi2_tag,nbq,q,dcpl_mb(tmp2(1)))
+              end if
            end do
         end do
 
@@ -200,15 +219,19 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
            do n=1,(ne(1)+ne(2))
               pj=0
               q=n
+              if (pio) then
+                 call C3dB_c_read_pio(1,5,dcpl_mb(tmp2(1)),
+     >                                dcpl_mb(tmp(1)),pj,pk)
+              else
+                 call C3dB_c_read(1,5,dcpl_mb(tmp2(1)),
+     >                            dcpl_mb(tmp(1)),pj,pk)
+              end if
 
-             call C3dB_c_read(1,5,dcpl_mb(tmp2(1)),
-     >                        dcpl_mb(tmp(1)),pj,pk)
-
-             if ((pj.eq.taskid_j).and.(pk.eq.taskid_k)) then
-                call Cram_c_pack(nbq,dcpl_mb(tmp2(1)))
-                call cpsi_data_add(psi2_tag,nbq,q,dcpl_mb(tmp2(1)))
-             end if
-        end do
+              if ((pj.eq.taskid_j).and.(pk.eq.taskid_k)) then
+                 call Cram_c_pack(nbq,dcpl_mb(tmp2(1)))
+                 call cpsi_data_add(psi2_tag,nbq,q,dcpl_mb(tmp2(1)))
+              end if
+           end do
         end do
 *       **** use the last zone for filling in unknown zones ****
         do n=1,(ne(1)+ne(2))
@@ -238,11 +261,11 @@ c        if (nbrillioun.eq.nbrill) then
 
             do nb=1,nbrillioun
                call K1dB_ktoqp(nb,nbq,pk)
-               if (taskid.eq.MASTER) then
+               if (taskid_p.eq.MASTER) then
                   call dread(5,dbl_mb(tmpe(1)),(ne(1)+ne(2)))
                end if
                !** big broadcast - should be reduced ***
-               call Parallel_Brdcst_values(MASTER,
+               call Parallela_Brdcst_values(com_p,MASTER,
      >                       (ne(1)+ne(2)),dbl_mb(tmpe(1)))
                if (pk.eq.taskid_k) then
                   do n=1,(ne(1)+ne(2))
@@ -255,10 +278,10 @@ c        if (nbrillioun.eq.nbrill) then
          else
            do nb=1,nbrill
              call K1dB_ktoqp(nb,nbq,pk) 
-             if (taskid.eq.MASTER) then
+             if (taskid_p.eq.MASTER) then
                call dread(5,dbl_mb(tmpe(1)),(ne(1)+ne(2)))
              end if
-             call Parallel_Brdcst_values(MASTER,
+             call Parallela_Brdcst_values(com_p,MASTER,
      >                                   (ne(1)+ne(2)),dbl_mb(tmpe(1)))
              if (pk.eq.taskid_k) then 
                do n =1,ne(1)+ne(2)
@@ -285,7 +308,7 @@ c        if (nbrillioun.eq.nbrill) then
       end if
 
 *     *** close ELCIN binary file ***
-      if (taskid.eq.MASTER) then
+      if (taskid_p.eq.MASTER) then
         call closefile(5)
       end if
  
@@ -325,7 +348,7 @@ c        if (nbrillioun.eq.nbrill) then
       character*255 full_filename
 
 *     **** local variables ****
-      integer MASTER,taskid,taskid_j,taskid_k
+      integer MASTER,taskid,taskid_i,taskid_j,taskid_k,taskid_p,com_p
       parameter(MASTER=0)
       logical brillioun_check,psi_nolattice
       integer n,nb,nbrill,occupation
@@ -334,19 +357,31 @@ c        if (nbrillioun.eq.nbrill) then
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
-      logical value
+      logical value,pio
 
 *     ***** local functions ****
       double precision control_unita
       external         control_unita
       integer  control_ngrid,control_rtdb,cpsi_data_get_chnk
       external control_ngrid,control_rtdb,cpsi_data_get_chnk
+      logical  control_parallel_io
+      external control_parallel_io
 
       call Parallel_taskid(taskid)
+      call Parallel3d_taskid_j(taskid_i)
       call Parallel3d_taskid_j(taskid_j)
       call Parallel3d_taskid_k(taskid_k)
       call C3dB_nfft3d(1,nfft3d)
       call Cram_max_npack(npack1)
+
+      pio = control_parallel_io()
+      if (pio) then
+         taskid_p = taskid_i
+         com_p = 1
+      else
+         taskid_p = taskid
+         com_p = 0
+      end if
 
       value = BA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
@@ -355,7 +390,7 @@ c     complex*16 tmp(*)
        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 *     **** open ELCIN binary file ****
-      if (taskid.eq.MASTER) then
+      if (taskid_p.eq.MASTER) then
          call util_file_name_noprefix(filename,.false.,
      >                                .false.,
      >                        full_filename)
@@ -375,18 +410,18 @@ c     complex*16 tmp(*)
 
 c     **** send header to all nodes ****
       msglen = 1
-      call Parallel_Brdcst_ivalues(MASTER,msglen,version)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,version)
       msglen = 3
-      call Parallel_Brdcst_ivalues(MASTER,msglen,nfft)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,nfft)
       msglen = 9
-      call Parallel_Brdcst_values(MASTER,msglen,unita)
+      call Parallela_Brdcst_values(com_p,MASTER,msglen,unita)
       msglen = 1
-      call Parallel_Brdcst_ivalues(MASTER,msglen,ispin)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,ispin)
       msglen = 2
-      call Parallel_Brdcst_ivalues(MASTER,msglen,ne)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,ne)
       msglen = 1
-      call Parallel_Brdcst_ivalues(MASTER,msglen,nbrill)
-      call Parallel_Brdcst_ivalues(MASTER,msglen,occupation)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,nbrill)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,occupation)
 
 c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
       if (ispin.eq.3) then
@@ -457,8 +492,13 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
            do n=1,(ne(1)+ne(2))
               pj=0
               q=n
-              call C3dB_c_read(1,5,dcpl_mb(tmp2(1)),
-     >                           dcpl_mb(tmp(1)),pj,pk)
+              if (pio) then
+                 call C3dB_c_read_pio(1,5,dcpl_mb(tmp2(1)),
+     >                            dcpl_mb(tmp(1)),pj,pk)
+              else
+                 call C3dB_c_read(1,5,dcpl_mb(tmp2(1)),
+     >                            dcpl_mb(tmp(1)),pj,pk)
+              end if
               if ((pj.eq.taskid_j).and.(pk.eq.taskid_k)) then
                  call Cram_c_pack(nbq,dcpl_mb(tmp2(1)))
                  call cpsi_data_add(psi2_tag,nbq,q,dcpl_mb(tmp2(1)))
@@ -473,8 +513,13 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
            do n=1,(ne(1)+ne(2))
               pj=0
               q=n
-              call C3dB_c_read(1,5,dcpl_mb(tmp2(1)),
-     >                        dcpl_mb(tmp(1)),pj,pk)
+              if (pio) then
+                 call C3dB_c_read_pio(1,5,dcpl_mb(tmp2(1)),
+     >                                dcpl_mb(tmp(1)),pj,pk)
+              else
+                 call C3dB_c_read(1,5,dcpl_mb(tmp2(1)),
+     >                            dcpl_mb(tmp(1)),pj,pk)
+              end if
               if ((pj.eq.taskid_j).and.(pk.eq.taskid_k)) then
                  call Cram_c_pack(nbq,dcpl_mb(tmp2(1)))
                  call cpsi_data_add(psi2_tag,nbq,q,dcpl_mb(tmp2(1)))
@@ -485,8 +530,13 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
         do n=1,(ne(1)+ne(2))
            pj=0
            q=n
-           call C3dB_c_Read(1,5,dcpl_mb(tmp2(1)),
-     >                     dcpl_mb(tmp(1)),pj,-1)
+           if (pio) then
+              call C3dB_c_Read_pio(1,5,dcpl_mb(tmp2(1)),
+     >                             dcpl_mb(tmp(1)),pj,-1)
+           else
+              call C3dB_c_Read(1,5,dcpl_mb(tmp2(1)),
+     >                         dcpl_mb(tmp(1)),pj,-1)
+           end if
            do nb=nbrill,nbrillioun
               call K1dB_ktoqp(nb,nbq,pk)
               if ((pj.eq.taskid_j).and.(pk.eq.taskid_k)) then
@@ -501,7 +551,7 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
       end if
 
 *     *** close ELCIN binary file ***
-      if (taskid.eq.MASTER) then
+      if (taskid_p.eq.MASTER) then
         call closefile(5)
       end if
  

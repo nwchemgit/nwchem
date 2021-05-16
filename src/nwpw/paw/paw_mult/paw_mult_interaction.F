@@ -113,8 +113,8 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
 
         DO l=l1+l2,MAX(ABS(l1-l2),ABS(m1+m2)),-2
 
-          
           gaunt_coeff = gen_gaunt_coeff(l,m,l2,m2,l1,-m1)
+          !write(*,*) "LL,MM,coeff=",l,m,l2,m2,l1,m1,gaunt_coeff
 
             f = f + paw_get_mult_coeff(l1,l2,l)*phase_factor*
      >           r_over_s**l*gaunt_coeff*
@@ -146,8 +146,8 @@ c        R     = SQRT(DOT_PRODUCT(R1-R2,R1-R2))
 !*************************************************
 
         SUBROUTINE paw_mult_force(l1,m1,sigma1,R1,
-     >                                 l2,m2,sigma2,R2,
-     >                                 fx,fy,fz)
+     >                            l2,m2,sigma2,R2,
+     >                            fx,fy,fz)
         implicit none
         integer          l1
         integer          m1

@@ -10,8 +10,12 @@ c#define DEBUG 1
 c
       integer bigint,nsteps,i,istart,len
 c
-      bigint = ((2**31)-1024)/
-     I     ma_sizeof(mt_dbl, 1,   mt_byte)
+#ifdef EXT_INT
+      bigint = (2**31)-1024
+#else
+      bigint = (2**30)-1024
+#endif
+      bigint=bigint/ma_sizeof(mt_int, 1, mt_byte)
 
       nsteps = ceiling(dble(size)/dble(bigint))
       istart=1
@@ -47,8 +51,12 @@ c
 c
       integer bigint,nsteps,i,istart,len
 c
-      bigint = ((2**31)-1024)/
-     I     ma_sizeof(mt_int, 1, mt_byte)
+#ifdef EXT_INT
+      bigint = (2**31)-1024
+#else
+      bigint = (2**30)-1024
+#endif
+      bigint=bigint/ma_sizeof(mt_int, 1, mt_byte)
 
       nsteps = ceiling(dble(size)/dble(bigint))
       istart=1

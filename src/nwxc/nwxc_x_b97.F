@@ -24,13 +24,13 @@ C>
 C> [1] A.D. Becke, "Density-functional thermochemistry. V. Systematic
 C>     optimization of exchange-correlation functionals", J. Chem. Phys.
 C>     107 (1997) 8554-8560, DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.475007">
+C>     <a href="https://doi.org/10.1063/1.475007">
 C>     10.1063/1.475007</a>.
 C>
 C> [2] S. Grimme, "Semiempirical GGA-type density functional constructed
 C>     with a long-range dispersion correction", J. Comput. Chem. 27 (2006)
 C>     1787-1799, DOI:
-C>     <a href="http://dx.doi.org/10.1002/jcc.20495">
+C>     <a href="https://doi.org/10.1002/jcc.20495">
 C>     10.1002/jcc.20495</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)

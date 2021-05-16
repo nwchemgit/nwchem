@@ -1,0 +1,11 @@
+c
+c $Id$
+c
+
+*     ***** pspw_efield common block ************************************
+      logical efield_on
+      integer efield_type
+      real*8  efield(3),efield_center(3),eetmp
+      common / pspw_efield / efield,efield_center,eetmp,
+     >                       efield_type,efield_on
+*     ******************************************************************

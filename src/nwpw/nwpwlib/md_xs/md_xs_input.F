@@ -16,7 +16,7 @@ c $Id: md_xs_input.F 25011 2013-12-19 17:45:25Z d3y133 $
 
 *     **** local variables ****
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 13)
+      parameter (num_dirs = 15)
       character*18 dirs(num_dirs)
       data dirs / 'spectroscopy',
      >            'absorber',
@@ -30,13 +30,15 @@ c $Id: md_xs_input.F 25011 2013-12-19 17:45:25Z d3y133 $
      >            'first',
      >            'last',
      >            'hydrogen',
+     >            'e0',
+     >            's0',
      >            'end'/
 
 c
       logical       value,md_xs,hydrogen,nohydrogen
       character*80  rtdb_name
       character*255 test,test2
-      real*8 rmax,rcut,ft(3)
+      real*8 rmax,rcut,ft(3),e0,s0
       integer icenter,istride,iw,isteps(2)
       integer ind               ! Index of matched directive
 
@@ -62,7 +64,7 @@ c
      >  'md_xs_input: unknown_directive',ind,INPUT_ERR)
 
       goto ( 100, 200,300, 400, 500, 600, 700,800,900,
-     >      1000, 1100,1200,
+     >      1000, 1100,1200,1300,1400,
      >      9999) ind
       call errquit(
      >     'md_xs_input: unimplemented directive',ind,INPUT_ERR)
@@ -221,6 +223,31 @@ c
       end if
 
       goto 10
+
+c
+c  e0
+c
+ 1300 if (inp_f(e0)) then
+         rtdb_name = 'md_xs:e0'
+         value = rtdb_put(rtdb,rtdb_name,mt_dbl,1,e0)
+         if (.not. value) call errquit(
+     >   'md_xs_input:failed writing update',1300, RTDB_ERR)
+      end if
+
+      goto 10
+
+c
+c  s0
+c
+ 1400 if (inp_f(s0)) then
+         rtdb_name = 'md_xs:s0'
+         value = rtdb_put(rtdb,rtdb_name,mt_dbl,1,s0)
+         if (.not. value) call errquit(
+     >   'md_xs_input:failed writing update',1400, RTDB_ERR)
+      end if
+
+      goto 10
+
 
 
  9999 continue

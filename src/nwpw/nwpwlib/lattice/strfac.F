@@ -1000,3 +1000,142 @@ c      end do
 
 C ... End qSTRFAC ....
 
+
+
+*     ***********************************
+*     *                                 *
+*     *         strfac_translate        *
+*     *                                 *
+*     ***********************************
+      subroutine strfac_translate(trans,exi)
+      implicit none
+      real*8 trans(3)
+      complex*16 exi(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      integer tid,taskid
+      integer nthr
+
+      logical    value
+      integer    i,j,k,index,p
+      integer    nx,ny,nz,nxh
+      complex*16 cw1,cw2,cw3
+      real*8     sw1,sw2,sw3
+      real*8     pi,ion_tran(3)
+      integer ex1(2),ex2(2),ex3(2)
+
+*     **** external functions ****
+      real*8   lattice_unitg,lattice_unita
+      external lattice_unitg,lattice_unita
+      integer  Parallel_threadid, Parallel_nthreads
+      external Parallel_threadid, Parallel_nthreads
+
+      call nwpw_timing_start(20)
+
+      ion_tran(1) = trans(1)
+     >            - (   lattice_unita(1,1)
+     >                + lattice_unita(1,2)
+     >                + lattice_unita(1,3) )/2.0d0
+      ion_tran(2) = trans(2)
+     >            - (   lattice_unita(2,1)
+     >                + lattice_unita(2,2)
+     >                + lattice_unita(2,3) )/2.0d0
+      ion_tran(3) = trans(3)
+     >            - (   lattice_unita(3,1)
+     >                + lattice_unita(3,2)
+     >                + lattice_unita(3,3) )/2.0d0
+
+
+      tid  = Parallel_threadid()
+      nthr = Parallel_nthreads()
+      call Parallel2d_taskid_i(taskid)
+
+      pi = 4.0d0*datan(1.0d0)
+
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+      nxh = nx/2
+
+      value = BA_push_get(mt_dcpl,(nx),'ex1',ex1(2),ex1(1))
+      value = value.and.
+     >        BA_push_get(mt_dcpl,(ny),'ex2',ex2(2),ex2(1))
+      value = value.and.
+     >        BA_push_get(mt_dcpl,(nz),'ex3',ex3(2),ex3(1))
+      if (.not. value)
+     >  call errquit('strfac_translate:out of stack',0, MA_ERR)
+
+*::::::::::::::::::  phase factor of translation  :::::::::::::::::::
+!$OMP SINGLE
+
+        sw1 = lattice_unitg(1,1)*ion_tran(1)
+     >      + lattice_unitg(2,1)*ion_tran(2)
+     >      + lattice_unitg(3,1)*ion_tran(3) + pi
+        sw2 = lattice_unitg(1,2)*ion_tran(1)
+     >      + lattice_unitg(2,2)*ion_tran(2)
+     >      + lattice_unitg(3,2)*ion_tran(3) + pi
+        sw3 = lattice_unitg(1,3)*ion_tran(1)
+     >      + lattice_unitg(2,3)*ion_tran(2)
+     >      + lattice_unitg(3,3)*ion_tran(3) + pi
+
+        cw1 = dcmplx(dcos(sw1),-dsin(sw1))
+        cw2 = dcmplx(dcos(sw2),-dsin(sw2))
+        cw3 = dcmplx(dcos(sw3),-dsin(sw3))
+        dcpl_mb(ex1(1)) = dcmplx(1.0d0,0.0d0)
+        dcpl_mb(ex2(1)) = dcmplx(1.0d0,0.0d0)
+        dcpl_mb(ex3(1)) = dcmplx(1.0d0,0.0d0)
+
+        do k=1,nx/2
+          dcpl_mb(ex1(1)+k) = dcpl_mb(ex1(1)+k-1)*cw1
+          dcpl_mb(ex1(1)+nx-k) = dconjg(dcpl_mb(ex1(1)+k))
+        end do
+
+        do k=1,ny/2
+          dcpl_mb(ex2(1)+k) = dcpl_mb(ex2(1)+k-1)*cw2
+          dcpl_mb(ex2(1)+ny-k) = dconjg(dcpl_mb(ex2(1)+k))
+        end do
+
+        do k=1,nz/2
+          dcpl_mb(ex3(1)+k) = dcpl_mb(ex3(1)+k-1)*cw3
+          dcpl_mb(ex3(1)+nz-k) = dconjg(dcpl_mb(ex3(1)+k))
+        end do
+
+        dcpl_mb(ex1(1)+nx/2) = dcmplx(0.0d0, 0.0d0)
+        dcpl_mb(ex2(1)+ny/2) = dcmplx(0.0d0, 0.0d0)
+        dcpl_mb(ex3(1)+nz/2) = dcmplx(0.0d0, 0.0d0)
+
+!$OMP END SINGLE
+
+      call nwpw_timing_end(20)
+      call nwpw_timing_start(8)
+
+*     **** structure factor ****
+      do k=0,nz-1
+         do j=0,ny-1
+         do i=0,nxh
+            call D3dB_ijktoindexp(1,i+1,j+1,k+1,index,p)
+            if ((p.eq.taskid).and.(mod(index,nthr).eq.tid)) then
+                exi(index) = dcpl_mb(ex1(1)+i)
+     >                     * dcpl_mb(ex2(1)+j)
+     >                     * dcpl_mb(ex3(1)+k)
+            end if
+         end do
+         end do
+      end do
+!$OMP BARRIER
+
+      value = BA_pop_stack(ex3(2))
+      value = value.and.BA_pop_stack(ex2(2))
+      value = value.and.BA_pop_stack(ex1(2))
+      if (.not. value)
+     >  call errquit('strfac_translate:error popping stack',0, MA_ERR)
+
+      call nwpw_timing_end(8)
+
+      return
+      end
+
+

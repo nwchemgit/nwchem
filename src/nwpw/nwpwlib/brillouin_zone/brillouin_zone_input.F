@@ -219,9 +219,9 @@ c
       do i3=0,(nz-1)
       do i2=0,(ny-1)
       do i1=0,(nx-1)
-         xx = 1.0 + 2*i1 - nx
-         yy = 1.0 + 2*i2 - ny
-         zz = 1.0 + 2*i3 - nz
+         xx = 1.0d0 + 2*i1 - nx
+         yy = 1.0d0 + 2*i2 - ny
+         zz = 1.0d0 + 2*i3 - nz
  
          kx = xx*xxx
          ky = yy*yyy
@@ -354,7 +354,7 @@ c
 
       !**** local variables ****
       character*50 rtdb_name
-      integer i1,i2,i3,k,l,num_kvectors
+      integer i1,i2,i3,k,l,num_kvectors,nn(3)
       integer kvs(2)
       real*8  kx,ky,kz,xx,yy,zz,xxx,yyy,zzz
 
@@ -399,7 +399,7 @@ c
       if (.not. rtdb_put(rtdb,rtdb_name,mt_int,1,num_kvectors))
      >  call errquit(
      >  'dos_states_set: rtdb_put(number_kvectors) failed', 0,
-     &       RTDB_ERR)
+     >       RTDB_ERR)
 
       rtdb_name = zone_name(1:l)//':kvectors'
       if (.not. rtdb_put(rtdb,rtdb_name,mt_dbl,
@@ -407,6 +407,15 @@ c
      >                    dbl_mb(kvs(1))))
      >  call errquit(
      >  'dos_states_set: rtdb_put(number_kvectors) failed', 0,
+     >       RTDB_ERR)
+
+      nn(1) = nx
+      nn(2) = ny
+      nn(3) = nz
+      rtdb_name = zone_name(1:l)//':dos-grid'
+      if (.not. rtdb_put(rtdb,rtdb_name,mt_int,3,nn))
+     >  call errquit(
+     >  'dos_states_set: rtdb_put(monkhorst-pack) failed', 0,
      &       RTDB_ERR)
 
 

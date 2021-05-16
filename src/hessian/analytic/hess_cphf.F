@@ -16,6 +16,7 @@ c
 #include "msgids.fh"
 #include "stdio.fh"
 #include "util.fh"
+#include "geom.fh"
 c
       integer rtdb 
       integer ind, index, index1
@@ -38,7 +39,7 @@ c
       logical hf_job, oprint, olprint, ocphfprint, ouhf
       double precision tol2e
       double precision pt5, four, zero
-      double precision dnrm
+      double precision dnrm, enuc, enuc_in
       data pt5, four, zero/0.5d+00, 4.0d+00, 0.0d+00/
 c
       integer  restr
@@ -574,6 +575,26 @@ c
 c Try reading RHS if it is available
 c
       if (restr.gt.0) then
+      if(.not.geom_nuc_rep_energy(geom, enuc))
+     c     call errquit('hess_cphf: cannot get enuc',0,0)
+      if(.not. rtdb_get(rtdb,'hess:cphf_enuc', MT_DBL, 1, enuc_in))
+     t     then
+         if(ga_nodeid().eq.0) write(luout,*)
+     A        ' cannot reuse RHS because of no enuc in rtdb '
+         restr=0
+      else
+         if(abs(enuc-enuc_in).gt.1d-3) then
+            if(ga_nodeid().eq.0) write(luout,*)
+     A           ' cannot reuse RHS because of enuc mismatch ',
+     E           abs(enuc-enuc_in)
+            restr=0
+         endif
+      endif
+      if(restr.eq.0) then
+      if (.not.rtdb_put(rtdb,'solver:restart',mt_int,1,restr))
+     &        call errquit('hess_cphf: cannot store restr ',0,RTDB_ERR)
+         goto 50
+      endif
        if(.not.file_read_ga(cphf_rhs,g_sol)) goto 50
        if (ga_nodeid().eq.0) 
      &      write(luout,*) "Restarting rhs from: ", cphf_rhs
@@ -645,6 +666,14 @@ c
       endif
 c
  100  continue
+c
+c store nucl. rep. energy to verify that restart rhs corresponds to the same geom
+c
+      if(.not.geom_nuc_rep_energy(geom, enuc))
+     c     call errquit('hess_cphf: cannot get enuc',0,0)
+      if(.not. rtdb_put(rtdb,'hess:cphf_enuc', MT_DBL, 1, enuc))
+     $     call errquit('hess_cphf: rtdb_put of enuc failed',1,
+     &       RTDB_ERR)
 c
       if(.not.file_write_ga(cphf_rhs,g_sol)) call errquit
      $  ('hess_cphf:could not write cphf_rhs',ind, DISK_ERR)

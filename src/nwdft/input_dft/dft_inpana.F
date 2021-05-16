@@ -634,6 +634,11 @@ c
                write(LuOut,*)
                write(LuOut,9226) 
      &         '         van Leeuwen-Baerends correction    '
+            else if (ncap) then
+               write(LuOut,*)
+               write(LuOut,9227)
+     &         '  NCAP with derivative discontinuity shift    ',
+     &         delta_ac,'au'
             endif
 c
 c           Print range-separation parameters

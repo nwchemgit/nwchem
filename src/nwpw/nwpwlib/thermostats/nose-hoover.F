@@ -29,8 +29,8 @@
       logical value
       integer i,rtdb,n,m,g
       real*8 pi,am,fmass,tmpe
-      real*8 Te,Pe_tmp,betae
-      real*8 Tr,Pr_tmp
+      real*8 Pe_tmp,betae
+      real*8 Pr_tmp
 
 *     **** external functions ****
       real*8   control_fake_mass
@@ -246,6 +246,8 @@ c      end if
      >   .and.btdb_put(rtdb,'cpmd:Xr1',mt_dbl,Nchain,dbl_mb(Xr1(1)))
      >   .and.btdb_put(rtdb,'cpmd:Xr0',mt_dbl,Nchain,dbl_mb(Xr0(1)))
      >   .and.btdb_put(rtdb,'cpmd:Xrm',mt_dbl,Nchain,dbl_mb(Xrm(1)))
+     >   .and.btdb_put(rtdb,'cpmd:Te',mt_dbl,1,Te) 
+     >   .and.btdb_put(rtdb,'cpmd:Tr',mt_dbl,1,Tr) 
      >   .and.btdb_put(rtdb,'cpmd:nose_restart',mt_log,1,.true.)
       end if
       value2 = btdb_parallel(.true.)
@@ -308,17 +310,19 @@ c      end if
 
       fmass = control_fake_mass()
 
+      Te = Te_new
+      Tr = Tr_new
 
 *     **** reSet Er0(1) = (1/2)*(g)*k*T), where g=number of degrees of freedom ****
       nc = molecular_number_constraints()
       if ((ion_nion()-nc).gt.2) then
         g = 3.0d0*dble(ion_nion())-6.0d0 - dble(nc)
-        dbl_mb(Er0(1)) = 0.5d0*(g)*kb*Tr_new
+        dbl_mb(Er0(1)) = 0.5d0*(g)*kb*Tr
 
 *     **** Dimer molecule. note that the above formula may not work for ****
 *     **** linear molecules with more than two atoms.                   ****
       else
-        dbl_mb(Er0(1)) = 0.5d0*(1)*kb*Tr_new
+        dbl_mb(Er0(1)) = 0.5d0*(1)*kb*Tr
       end if
 
 *     **** reSet Er0(2:Nchain) = 1/2*(k*T) ****
@@ -336,7 +340,7 @@ c*     **** reSet Ee0(1) ****
 c      Ee0 = 4.0*kb*Te_new*fmass*dble(ion_nion())/am * eke0_init
 
 *     **** Set Ee0(1) - read from rtdb otherwise use current KE ****
-      dbl_mb(Ee0(1))=4.0d0*kb*Te_new*fmass*dble(ion_nion())/am*eke0_init
+      dbl_mb(Ee0(1))=4.0d0*kb*Te*fmass*dble(ion_nion())/am*eke0_init
 
 *     **** Set Ee0(2:Mchain) = 1/2*(1/betae), where 1/betae = 2*Ee/Ne ****
       if (Mchain.gt.1) then
@@ -867,5 +871,46 @@ c        dXr  = (dbl_mb(Xr2(1)+n-1)-dbl_mb(Xr0(1)+n-1))/(2.0d0*dt)
       implicit none
 #include "nose-hoover.fh"
       Nose_restart = nosers
+      return
+      end
+
+*     ******************************
+*     *                            *
+*     *    Nose_zero_thermostats   *
+*     *                            *
+*     ******************************
+      subroutine Nose_zero_thermostats()
+      implicit none
+
+#include "bafdecls.fh"
+#include "nose-hoover.fh"
+
+*     **** local variables ****
+      real*8   Pe_tmp,Pr_tmp
+
+*     **** external functions ****
+      logical  control_Nose
+      external control_Nose
+
+      real*8   control_Nose_Pe,control_Nose_Pr
+      external control_Nose_Pe,control_Nose_Pr
+
+      if (control_Nose()) then
+         Pe_tmp = control_Nose_Pe()
+         Pr_tmp = control_Nose_Pr()
+         call dcopy(Mchain,0.0d0,0,dbl_mb(Xe1(1)),1)
+         call dcopy(Mchain,0.0d0,0,dbl_mb(Xe0(1)),1)
+         call dcopy(Mchain,0.0d0,0,dbl_mb(Xem(1)),1)
+         call dcopy(Nchain,0.0d0,0,dbl_mb(Xr1(1)),1)
+         call dcopy(Nchain,0.0d0,0,dbl_mb(Xr0(1)),1)
+         call dcopy(Nchain,0.0d0,0,dbl_mb(Xrm(1)),1)
+      
+     
+         call dcopy(Mchain,0.0d0,0,dbl_mb(Xe2(1)),1)
+         call dcopy(Mchain,Pe_tmp,0,dbl_mb(Pe(1)),1)
+         call dcopy(Nchain,0.0d0,0,dbl_mb(Xr2(1)),1)
+         call dcopy(Nchain,Pr_tmp,0,dbl_mb(Pr(1)),1)
+      end if
+ 
       return
       end

@@ -86,7 +86,11 @@ c
       external cpsi_1_noupdate_energy,cpsi_eigenvalue,ion_disp_energy
       logical  ion_disp_on
       external ion_disp_on
+      double precision ddot
+      external ddot
    
+      integer   control_diis_histories
+      external  control_diis_histories
 
       Ein = E(1)
       call Parallel_taskid(taskid)
@@ -167,7 +171,8 @@ c     >                     'rho_in',rho_in(2),rho_in(1))
   
 *     **** iniitialize SCF Mixing ****    
       call nwpw_scf_mixing_init(control_scf_algorithm(),alpha,
-     >                5,ispin,2*nfft3d,dcpl_mb(vall_out(1)))
+     >                          control_diis_histories(),
+     >                          ispin,2*nfft3d,dcpl_mb(vall_out(1)))
 
 
 *     ***** diis loop ****
@@ -191,7 +196,7 @@ c     >                     'rho_in',rho_in(2),rho_in(1))
       call dcopy(ispin*2*nfft3d,
      >           dcpl_mb(vall_in(1)),1,
      >           dcpl_mb(vall_junk(1)),1)
-      call daxpy(ispin*2*nfft3d,
+      call DAXPY_OMP(ispin*2*nfft3d,
      >              (-1.0d0),
      >              dcpl_mb(vall_out(1)),1,
      >              dcpl_mb(vall_junk(1)),1)

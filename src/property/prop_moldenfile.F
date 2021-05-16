@@ -121,7 +121,7 @@ c     wild guess here to fix mp2
       call dft_nwmolden(rtdb,geom,
      I     nset,dbl_mb(k_eval),dbl_mb(k_occ),int_mb(k_ir),
      N     nbf, nmo,
-     I     g_movecs,scftype)
+     I     g_movecs,scftype,'write')
 
 
         call int_terminate()

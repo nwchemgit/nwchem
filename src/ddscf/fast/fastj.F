@@ -519,8 +519,8 @@ c
 c
       integer packshprim, packpair, ishprim, jshprim
 #include "bitops.fh"
-      packshprim(ish,iprim) = ior(lshift(ish,5),iprim)
-      packpair(ishprim,jshprim) = ior(lshift(ishprim,16),jshprim)
+      packshprim(ish,iprim) = ior(ishft(ish,5),iprim)
+      packpair(ishprim,jshprim) = ior(ishft(ishprim,16),jshprim)
 c     
       call xlm_coeff_inv(ijtmax2,d,dinv)
       call xlm_norm(ijtmax2,qn,ijtmax2)
@@ -1439,9 +1439,9 @@ c
                         iijj = int_mb(k_pairs2+ptr  )
                         ptr  = int_mb(k_pairs2+ptr+1)
 c
-                        ish  = iand(rshift(iijj,21),2047)
-                        iprim= iand(rshift(iijj,16),31)
-                        jsh  = iand(rshift(iijj,5),2047)
+                        ish  = iand(ishft(iijj,21),-2047)
+                        iprim= iand(ishft(iijj,16),-31)
+                        jsh  = iand(ishft(iijj,5),-2047)
                         jprim= iand(iijj,31)
                         if (ish.ne.ishprev .or. jsh.ne.jshprev) then
                            if (ishprev .ne. -1) then

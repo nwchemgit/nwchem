@@ -85,7 +85,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] unpublished , DOI: 
-C> <a href="http://dx.doi.org/unpublished "> 
+C> <a href="https://doi.org/unpublished "> 
 C> unpublished </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -534,7 +534,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] unpublished , DOI: 
-C> <a href="http://dx.doi.org/unpublished "> 
+C> <a href="https://doi.org/unpublished "> 
 C> unpublished </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 
@@ -1536,7 +1536,7 @@ C>
 C> ### References ### 
 C> 
 C> [1] unpublished , DOI: 
-C> <a href="http://dx.doi.org/unpublished "> 
+C> <a href="https://doi.org/unpublished "> 
 C> unpublished </a> 
 C> 
 C> [2] Maxima, a computer algebra system, 

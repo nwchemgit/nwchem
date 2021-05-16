@@ -9,17 +9,28 @@ c
 *  *                                                          *
 *  *                                                          *
 *  ************************************************************
+*
+*  input variables only:
+*  - current_iteration
+*  - set_iterations
+*  - iterations
+*  - failed
+*&
+*  global shared variables output:
+*  - E
+*  - deltae
+*  - deltac
   
       subroutine bybminimize2(E,deltae,deltac,current_iteration,
-     >                       set_iterations,iterations,failed)
+     >                        set_iterations,iterations,rho_read,failed)
       implicit none
       real*8     E(*)
       real*8     deltae,deltac
       integer    current_iteration
       logical    set_iterations
       integer    iterations
+      logical    rho_read
       logical    failed
-
 
 #include "stdio.fh"
 #include "bafdecls.fh"
@@ -40,22 +51,31 @@ c
       real*8  tcharge,charge(2)
       integer nx,ny,nz,stalled_count,sd_count,ms
 
+      real*8 e00_shared,deltav_shared,diis_error_shared
+      common / shared_e00_block / e00_shared,deltav_shared,
+     >                            diis_error_shared
 
-      real*8     tole,tolc
-      real*8     ehartree,eorbit,exc,pxc,eion
-      real*8     Enew,Eold,alpha,Enew2,Enew1
-      common / cgsd_block / Enew,Eold,alpha
+      real*8 Enew_shared,Eold_shared,alpha_shared
+      common / cgsd_block / Enew_shared,Eold_shared,alpha_shared
+
+      real*8 Enew2,Enew1
+      real*8 e00,alpha
+      real*8 tole,tolc
+      real*8 ehartree,eorbit,exc,pxc,eion,eke,evl,evnl
 
       integer it,it_in,i,j,ispin,bfgscount,icount,sd_it,cg_it,it2
+      integer maxit_orb,maxit_orbs
 
       logical value,precondition,done,stalled,deltav_bad(4),oprint
-      logical dohfx,assending
+      logical dohfx,assending,ks_block
       integer n2ft3d
       !real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
       !real*8  e_qmmm_e,e_qmmm_q,e_qmmm_lj,e_mmmm_q,e_mmmm_lj
       real*8 e_lj,e_q,e_spring
       real*8 ehfx,phfx
       
+      logical cosmo_on,cosmo1_on,V_APC_on,field_exist
+      real*8  eapc,papc
 
 
 *     **** external functions ****
@@ -104,6 +124,10 @@ c
       external pspw_charge_found,control_precondition,pspw_HFX
       external pspw_HFX_relaxed,psp_U_psputerm,meta_found
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
+      logical  pspw_Efield_found
+      external pspw_Efield_found
+      real*8   pspw_Efield_Energy_ion
+      external pspw_Efield_Energy_ion
 
       real*8   psi_1_noupdate_energy,psi_eigenvalue
       external psi_1_noupdate_energy,psi_eigenvalue
@@ -116,13 +140,24 @@ c
       logical  psi_try_read_density,control_use_fractional_rho
       external psi_try_read_density,control_use_fractional_rho
 
+      logical  nwpw_cosmo_on,nwpw_cosmo1_on,pspw_V_APC_on
+      external nwpw_cosmo_on,nwpw_cosmo1_on,pspw_V_APC_on
+      real*8   psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
+      external psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
+      integer  control_ks_maxit_orb,control_ks_maxit_orbs
+      external control_ks_maxit_orb,control_ks_maxit_orbs
 
-   
+      integer   control_diis_histories
+      external  control_diis_histories
+
       Ein = E(1)
       call Parallel_taskid(taskid)
       oprint = (taskid.eq.MASTER).and.control_print(print_medium)
       dohfx = (pspw_HFX().and.pspw_HFX_relaxed())
-
+      cosmo_on  = nwpw_cosmo_on()
+      cosmo1_on = nwpw_cosmo1_on()
+      V_APC_on  = pspw_V_APC_on()
+      field_exist = pspw_charge_found().or.pspw_Efield_found()
 
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
@@ -137,6 +172,8 @@ c
         sd_it = 10
         cg_it = 10
       end if
+      maxit_orb  = control_ks_maxit_orb()
+      maxit_orbs = control_ks_maxit_orbs()
       tole  = control_tole()
       tolc  = control_tolc()
       precondition = control_precondition()
@@ -153,6 +190,7 @@ c
       sd_count          = 0
 
       call D3dB_n2ft3d(1,n2ft3d)
+
 
 *     **** allocate rho_in and rho_out ****
       value = BA_push_get(mt_dbl,2*n2ft3d,
@@ -179,32 +217,38 @@ c
 
 *     **** set the initial density ****
       if (current_iteration.eq.1) then
-         Enew   = psi_1energy()
+         Enew1  = psi_1energy()
          alpha  = control_ks_alpha()
-         deltae = -9232323299.0d0
+
          ks_deltae = tole
          value = .false.
-         if (control_fractional()) then
-            if (control_use_fractional_rho()) then
-               value = psi_try_read_density(1)
-            end if
-         end if
+
+         if (rho_read) call rho_2to1()
          call electron_gen_vall()
          call psi_get_density(1,dbl_mb(rho_in(1)))
          call psi_get_density(1,dbl_mb(rho_out(1)))
 
-         if (.not.value) then
-            call psi_1gen_hml()
-            call psi_diagonalize_hml_assending()
+         call psi_1gen_hml()
+         call psi_diagonalize_hml_assending()
+         if (.not.rho_read) then
+            !call psi_1gen_hml()
+            !call psi_diagonalize_hml_assending()
             call psi_1rotate2()
             call psi_2to1()
          end if
          if (dohfx) call psi_1genrho()
          if (control_fractional()) then
             call psi_1assending_occupation()
-            call psi_1define_occupation(0.0d0,.false.)
-            Enew = Enew + psi_smearcorrection()
+            !call psi_1define_occupation(0.0d0,.false.)
+            call psi_1define_occupation(-1.0d0,.false.)
+            Enew1 = Enew1 + psi_smearcorrection()
          end if
+!$OMP MASTER
+         Enew_shared  = Enew1
+         alpha_shared = alpha
+         deltae       = -9232323299.0d0
+!$OMP END MASTER
+
       else
          call psi_get_density(1,dbl_mb(rho_in(1)))
          call psi_get_density(1,dbl_mb(rho_out(1)))
@@ -221,11 +265,18 @@ c
   
 *     **** iniitialize SCF Mixing ****    
       call nwpw_scf_mixing_init(control_scf_algorithm(),alpha,
-     >                5,ispin,n2ft3d,dbl_mb(rho_out(1)))
+     >                          control_diis_histories(),
+     >                          ispin,n2ft3d,dbl_mb(rho_out(1)))
 
 *     **** iniitialize RMM-DIIS ****
       if (control_ks_algorithm().eq.1) call pspw_rmmdiis_init(5)
 
+*     **** iniitialize blocked cg ****
+      ks_block = .false.
+      if (control_ks_algorithm().eq.-1)  then
+         ks_block = .true.
+         call linesearch_maxiter_set(control_ks_maxit_orb())
+      end if
 
 *     ***** diis loop ****
       it2 = -4
@@ -234,10 +285,16 @@ c
       it2 = it2 + 1
       
 *     **** diaganolize KS matrix - note that Hpsik set to last application of H(rho)|psi> ****
-      call psi_KS_update(1,
-     >                   control_ks_algorithm(),
-     >                   precondition,
-     >                   ks_deltae)
+      if (ks_block) then
+         call psi_KS_block_update(e00_shared,deltae,it,
+     >                            maxit_orbs,ks_deltae)
+      else
+         call psi_KS_update(1,
+     >                      control_ks_algorithm(),
+     >                      precondition,
+     >                      ks_deltae)
+      end if
+
       call rho_1to2()
 
 *     **** rotate orbitals - hml should be ok and hermitian since Hpsik set to last application of H(rho)|psi>****
@@ -246,30 +303,50 @@ c
       call psi_1rotate2()
       call psi_2to1()
 
+
+!$OMP BARRIER
+
 *     **** define fractional occupation ****
       if (control_fractional()) 
      >   call psi_1define_occupation(-1.0d0,.false.)
 
-      Eold = Enew
-      Enew = psi_1energy()
-      if (control_fractional()) Enew = Enew + psi_smearcorrection()
-      deltae = Enew-Eold
+!$OMP BARRIER
+
+
+      e00 = psi_1energy()
+!$OMP MASTER
+      Eold_shared = Enew_shared
+      Enew_shared = e00
+      if (control_fractional()) 
+     >   Enew_shared = Enew_shared + psi_smearcorrection()
+      deltae = Enew_shared - Eold_shared
+!$OMP END MASTER
+
 
       !call electron_gen_vall()
       call psi_get_density(1,dbl_mb(rho_in(1)))
 
 *     **** compute deltaV ****
-      call dcopy(ispin*n2ft3d,
-     >           dbl_mb(rho_in(1)),1,
-     >           dbl_mb(rho_junk(1)),1)
-      call daxpy(ispin*n2ft3d,
+      call Parallel_shared_vector_copy(.true.,ispin*n2ft3d,
+     >                                 dbl_mb(rho_in(1)), 
+     >                                 dbl_mb(rho_junk(1)))
+
+      call DAXPY_OMP(ispin*n2ft3d,
      >              (-1.0d0),
      >              dbl_mb(rho_out(1)),1,
      >              dbl_mb(rho_junk(1)),1)
-      deltav = ddot(ispin*n2ft3d,
-     >                 dbl_mb(rho_junk(1)),1,
-     >                 dbl_mb(rho_junk(1)),1)
-      call D3dB_SumAll(deltav)
+      call D3dB_rr_dot(1,dbl_mb(rho_junk(1)),
+     >                   dbl_mb(rho_junk(1)),deltav_shared)
+      deltav = deltav_shared
+      if (ispin.gt.1) then
+         call D3dB_rr_dot(1,dbl_mb(rho_junk(1)+n2ft3d),
+     >                      dbl_mb(rho_junk(1)+n2ft3d),deltav_shared)
+         deltav = deltav + deltav_shared
+      end if
+c      deltav = ddot(ispin*n2ft3d,
+c     >                 dbl_mb(rho_junk(1)),1,
+c     >                 dbl_mb(rho_junk(1)),1)
+c      call D3dB_SumAll(deltav)
       deltav = deltav*dV
       
 
@@ -285,35 +362,51 @@ c     >    (.not.stalled          ))) then
      >     (.not.stalled          ))) then
 
          call nwpw_scf_mixing(dbl_mb(rho_in(1)),dbl_mb(rho_out(1)),
-     >                        deltae,diis_error)
+     >                        deltae,diis_error_shared)
 
 *     **** bad convergence - try fixed step steepest descent ****
       else
   30     call sdminimize(sd_it)
          sd_count = sd_count + 1
-         Eold   = Enew
-         Enew   = psi_1energy()
-         if (control_fractional()) Enew = Enew + psi_smearcorrection()
+         Enew2 = psi_1energy()
+!$OMP MASTER
+         Eold_shared = Enew_shared
+         Enew_shared = Enew2
+         if (control_fractional()) 
+     >      Enew_shared = Enew_shared + psi_smearcorrection()
+!$OMP END MASTER
          it2 = -4
         
-         if ((Enew.gt.Eold).and.(sd_count.lt.MAX_SD_COUNT)) go to 30
+         if ((Enew_shared.gt.Eold_shared).and.
+     >       (sd_count.lt.MAX_SD_COUNT)) go to 30
 
-         call dcopy(ispin*n2ft3d,
-     >              dbl_mb(rho_out(1)),1,
-     >              dbl_mb(rho_junk(1)),1)
+c         call dcopy(ispin*n2ft3d,
+c     >              dbl_mb(rho_out(1)),1,
+c     >              dbl_mb(rho_junk(1)),1)
+      call Parallel_shared_vector_copy(.true.,ispin*n2ft3d,
+     >                                 dbl_mb(rho_out(1)), 
+     >                                 dbl_mb(rho_junk(1)))
 
          call psi_get_density(1,dbl_mb(rho_out(1)))
          call nwpw_scf_mixing_reset(dbl_mb(rho_out(1)))
 
 
-         call daxpy(ispin*n2ft3d,
-     >              (-1.0d0),
-     >              dbl_mb(rho_out(1)),1,
-     >              dbl_mb(rho_junk(1)),1)
-         deltav = ddot(ispin*n2ft3d,
-     >                 dbl_mb(rho_junk(1)),1,
+         call DAXPY_OMP(ispin*n2ft3d,
+     >                  (-1.0d0),
+     >                  dbl_mb(rho_out(1)),1,
      >                 dbl_mb(rho_junk(1)),1)
-         call D3dB_SumAll(deltav)
+         call D3dB_rr_dot(1,dbl_mb(rho_junk(1)),
+     >                      dbl_mb(rho_junk(1)),deltav_shared)
+         deltav = deltav_shared
+         if (ispin.gt.1) then
+            call D3dB_rr_dot(1,dbl_mb(rho_junk(1)+n2ft3d),
+     >                         dbl_mb(rho_junk(1)+n2ft3d),deltav_shared)
+            deltav = deltav + deltav_shared
+         end if
+c         deltav = ddot(ispin*n2ft3d,
+c     >                 dbl_mb(rho_junk(1)),1,
+c     >                 dbl_mb(rho_junk(1)),1)
+c         call D3dB_SumAll(deltav)
          deltav = deltav*dV
 
         
@@ -324,12 +417,14 @@ c     >    (.not.stalled          ))) then
          
          if (dohfx) call psi_1genrho()
 
+!$OMP MASTER
          stalled       = .false.
          deltae_history(1) = 0.0d0
          deltae_history(2) = 0.0d0
          deltae_history(3) = 0.0d0
          deltae_history(4) = 0.0d0
          stalled_count     = 0
+!$OMP END MASTER
 
       end if
 
@@ -348,16 +443,38 @@ c     >    (.not.stalled          ))) then
       
           
 *     **** tolerance checks ****
-      deltae = Enew-Eold   
-      deltac = rho_error()
-      E(1)   = Enew+eion
+      e00 = rho_error()
+!$OMP MASTER
+      deltac = e00
+      deltae = Enew_shared - Eold_shared   
+      E(1)   = Enew_shared + eion
 
       if ((oprint).and.(.not.set_iterations)) then 
         write(luout,1310) it,E(1),deltae,deltac,deltav
         call util_flush(luout)
       end if
- 1310 FORMAT(I8,E20.10,3E15.5)
+!$OMP END MASTER
+ 1310 FORMAT(I8,E20.11,3E15.5)
 
+*     *** reduce ks iterations in block cg ***
+      if (ks_block.and.(deltae.gt.0.0d0).and.
+     >    (deltac.lt.1.0d-4).and.
+     >    (deltav.lt.1.0d-4)) then
+         if ((maxit_orb.gt.1).and.(maxit_orb.gt.maxit_orbs)) then
+            maxit_orb = maxit_orb - 1
+            call linesearch_maxiter_set(maxit_orb)
+            if ((oprint).and.(.not.set_iterations)) then 
+               write(luout,1311) maxit_orb,maxit_orbs
+            end if
+         else if (maxit_orbs.gt.1) then
+            maxit_orbs = maxit_orbs - 1
+            if ((oprint).and.(.not.set_iterations)) then 
+               write(luout,1311) maxit_orb,maxit_orbs
+            end if
+         end if
+      end if
+ 1311 FORMAT(5X, '     - Reducing Kohn-Sham iterations = ',I3,
+     >           ' (',I3,' outer)')
 
       !**** set ks_deltae ****
       ks_deltae = 0.001d0*dabs(deltae)
@@ -365,6 +482,7 @@ c     >    (.not.stalled          ))) then
       if (ks_deltae.gt.1.0d-4) ks_deltae = 1.0d-4
       !ks_deltae = 0.1d0*tole
 
+!$OMP MASTER
       deltav_old = deltav
 
       deltae_history(1)    = deltae_history(2)
@@ -384,6 +502,7 @@ c     >    (.not.stalled          ))) then
       stalled = .false.
 
       precondition = precondition.and.(dabs(deltae).gt.1*tole)
+!$OMP END MASTER
 
       done = ( (    (dabs(deltae).lt.tole)
      >         .and.((deltae.lt.0.0d0).or.
@@ -394,11 +513,11 @@ c     >       .or. (sd_count.ge.MAX_SD_COUNT))
 
       if (.not.done) go to 2
 
-      if (control_fractional()) then
-         if (control_use_fractional_rho()) then
-            call psi_write_density(1)
-         end if
-      end if
+c      if (control_fractional()) then
+c         if (control_use_fractional_rho()) then
+c            call psi_write_density(1)
+c         end if
+c      end if
 
 
 c*     **** Finalize diaganolize KS matrix ****
@@ -421,88 +540,167 @@ c      call psi_check()
 
 
 *     **** set return energies **** - This is duplicate code
-      Enew     = psi_1energy()
-      if (control_fractional()) Enew = Enew + psi_smearcorrection()
+      Enew1    = psi_1energy()
+      if (control_fractional()) Enew1 = Enew1 + psi_smearcorrection()
       eorbit   = psi_1eorbit()
       ehartree = dng_1ehartree()
       exc      = rho_1exc()
       pxc      = rho_1pxc()
+      eke      = psi_1ke()
+      evl      = psi_1vl()
+      evnl     = psi_1vnl()
 
-      E(1)  = Enew + eion
+!$OMP MASTER
+      E(1)  = Enew1 + eion
       E(2)  = eorbit
       E(3)  = ehartree
       E(4)  = exc
       E(5)  = eion
-      E(6)  = psi_1ke()
-      E(7)  = psi_1vl()
-      E(8)  = psi_1vnl()
+      E(6)  = eke
+      E(7)  = evl
+      E(8)  = evnl
       E(9)  = 2.0d0*ehartree
       E(10) = pxc
+!$OMP END MASTER
       if (pspw_qmmm_found()) then
          e_lj     = pspw_qmmm_LJ_E()
          e_q      = pspw_qmmm_Q_E()
          e_spring = pspw_qmmm_spring_E()
+
+!$OMP MASTER
          E(1)  = E(1) + e_lj + e_q + e_spring
 
          E(11) = e_lj
          E(12) = e_q
          E(13) = e_spring
+!$OMP END MASTER
 
 *        **** Eqm-mm energy ***
-         E(14) = pspw_qmmm_LJ_Emix()
-         E(14) = E(14) + pspw_qmmm_Q_Emix()
-         E(14) = E(14) + dng_1vl_mm()
+         e00 = pspw_qmmm_LJ_Emix()
+         e00 = e00 + pspw_qmmm_Q_Emix()
+         e00 = e00 + dng_1vl_mm()
+!$OMP MASTER
+         E(14) = e00
+!$OMP END MASTER
+c         E(14) = pspw_qmmm_LJ_Emix()
+c         E(14) = E(14) + pspw_qmmm_Q_Emix()
+c         E(14) = E(14) + dng_1vl_mm()
 
       end if
 
-*     **** get pspw_charge  energies ****
-      if (pspw_charge_found()) then
-         E(19)  = psi_1v_field()
-         E(20)  = pspw_charge_Energy_ion()
-         E(21)  = pspw_charge_Energy_charge()
-         E(1)   = E(1) + E(20) + E(21)
+*     **** COSMO terms ****
+      if (cosmo_on) then
+
+         !*** cosmo1 ****
+         if (cosmo1_on) then
+            evl   = psi_1vl_cosmo()
+            evnl  = nwpw_cosmo_EQionq()
+            e00   = nwpw_cosmo_Eqq()
+!$OMP MASTER
+            E(46) = evl
+            E(47) = evnl
+            E(48) = e00
+!$OMP END MASTER
+
+         !*** cosmo2 ****
+         else
+            call electron_apc_energies(eapc,papc)
+            evnl = nwpw_cosmo_EQionq() !** E(Qion|q)
+            e00  = nwpw_cosmo_Eqq()    !** E(q|q)
+!$OMP MASTER
+            E(22) = eapc
+            E(23) = papc
+            E(46) = eapc
+            E(47) = evnl !** E(Qion|q)
+            E(48) = e00  !** E(q|q)
+
+            !E(1)  = E(1) + E(22) - E(23) + E(47) + E(48)
+            E(1)  = E(1) + E(22) - E(23) !*** probably NOT CORRECT ***
+!$OMP END MASTER
+         end if
+
+      else if (V_APC_on) then
+         call electron_apc_energies(eapc,papc)
+!$OMP MASTER
+         E(22) = eapc
+         E(23) = papc
+         E(1)  = E(1) + eapc - papc !*** probably NOT CORRECT ***
+!$OMP END MASTER
+      end if
+
+
+*     **** get pspw_charge and pspw_Efield  energies ****
+      if (field_exist) then
+         evl  = psi_1v_field()
+         evnl = pspw_charge_Energy_ion()
+     >        + pspw_Efield_Energy_ion()
+         e00  = pspw_charge_Energy_charge()
+
+!$OMP MASTER
+         E(49)  = evl
+         E(50)  = evnl
+         E(51)  = e00
+         E(1)   = E(1) + E(50) + E(51)
+!$OMP END MASTER
       end if
 
 *     **** HFX terms ****
       if (pspw_HFX()) then
          call electron_HFX_energies(ehfx,phfx)
+!$OMP MASTER
          E(26) = ehfx
          E(27) = phfx
+!$OMP END MASTER
       end if
 
 *     **** DFT+U terms ****
       if (psp_U_psputerm()) then
          call electron_U_energies(ehfx,phfx)
+!$OMP MASTER
          E(29) =  ehfx
          E(30) =  phfx
+!$OMP END MASTER
       end if
 
 *     **** Metadynamics potential terms ****
       if (meta_found()) then
          call electron_meta_energies(ehfx,phfx)
+!$OMP MASTER
          E(31) =  ehfx
          E(32) =  phfx
+!$OMP END MASTER
       end if
 
       if (control_fractional()) then
+!$OMP MASTER
         E(28) = psi_smearcorrection()
+!$OMP END MASTER
       end if
 
 
 *     **** Metadynamics GGA Tau potential term ****
       if (nwpw_meta_gga_on()) then
-         E(10) = E(10) - psi_1meta_gga_pxc()
+         e00 = psi_1meta_gga_pxc()
+!$OMP MASTER
+         E(10) = E(10) - e00
+!$OMP END MASTER
       end if
 
 *     **** Dispersion energy ****
       if (ion_disp_on()) then
-         E(33) = ion_disp_energy()
+         e00  = ion_disp_energy()
+!$OMP MASTER
+         E(33) = e00
          E(1)  = E(1) + E(33)
+!$OMP END MASTER
       end if
 
 ccc      failed = (sd_count.ge.MAX_SD_COUNT)
-      failed = .false.
 
+
+!$OMP MASTER
+      failed = .false.
+!$OMP END MASTER
 
       return
       end

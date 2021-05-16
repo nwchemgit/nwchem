@@ -85,6 +85,7 @@
       integer hversion,hnfft(3),hispin,hne(2)
       real*8 hunita(3,3)
       integer ind,vers
+      integer psi2_tmp(2)
 
       character*255 filename
       character*50 control_input_psi
@@ -111,10 +112,13 @@
 
       logical  control_fractional
       external control_fractional
-      real*8   control_fractional_temperature
-      external control_fractional_temperature
-      real*8   control_fractional_kT,control_fractional_smeartype
-      external control_fractional_kT,control_fractional_smeartype
+      integer  control_fractional_smeartype
+      external control_fractional_smeartype
+      real*8   control_fractional_temperature,control_fractional_alpha
+      external control_fractional_temperature,control_fractional_alpha
+      real*8   control_fractional_kT
+      external control_fractional_kT
+
       real*8   control_tole,control_tolc,control_tolr,ion_rion
       external control_tole,control_tolc,control_tolr,ion_rion
       real*8   control_time_step,control_fake_mass
@@ -173,6 +177,9 @@
       external     control_np_dimensions
       external     control_mapping,control_mapping1d
 
+      integer  Parallel_threadid,Parallel_nthreads,Parallel_maxthreads
+      external Parallel_threadid,Parallel_nthreads,Parallel_maxthreads
+
       logical  control_print
       logical  control_translation,control_rotation,control_balance
       external control_print
@@ -180,6 +187,9 @@
 
       logical  Dneall_m_allocate,Dneall_m_free,ion_disp_on
       external Dneall_m_allocate,Dneall_m_free,ion_disp_on
+
+      logical  control_parallel_io
+      external control_parallel_io
 
       complex*16 Pneb_w_value
       external   Pneb_w_value
@@ -190,8 +200,8 @@
       external      cpsp_comment
       integer  ion_nconstraints,ion_ndof
       external ion_nconstraints,ion_ndof
-      logical  ion_makehmass2
-      external ion_makehmass2
+      logical  ion_makehmass2,control_only_lda
+      external ion_makehmass2,control_only_lda
 
 
 
@@ -203,7 +213,7 @@
       pi = 4.0d0*datan(1.0d0)
 
       call nwpw_timing_init()
-      call dcopy(30,0.0d0,0,E,1)
+      call dcopy(50,0.0d0,0,E,1)
 
 
 *     **** get parallel variables ****
@@ -274,7 +284,8 @@
       call C3dB_pfft_init()
 
 *     ***** Initialize double D3dB data structure ****
-      if ((control_gga().ge.10).and.(control_gga().le.200)) then
+      !if ((control_gga().ge.10).and.(control_gga().le.200)) then
+      if (.not.control_only_lda()) then
          call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
          call G_init()
          call mask_init()
@@ -325,7 +336,8 @@ c      call center_mass(gx,gy,gz)
          spin_orbit = .false.
       end if
       nbrillioun = brillioun_nbrillioun()
-      call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
+      mapping1d = control_mapping1d()
+      call Pneb_init(ispin,ne,nbrillioun,mapping1d,spin_orbit)
       call Pneb_neq(neq)
 
 
@@ -336,7 +348,6 @@ c      call center_mass(gx,gy,gz)
       else
          fractional = .false.
       end if
-      mapping1d = control_mapping1d()
       ispinq  = Pneb_ispinq()
       nbrillq = Pneb_nbrillq()
 
@@ -356,6 +367,7 @@ c      call center_mass(gx,gy,gz)
      >                 cpsi_data_alloc(nbrillq,nemaxq,1))
         smeartype = control_fractional_smeartype()
         smearkT   = control_fractional_kT()
+        
       end if
 
 c     **** allocate other variables ****
@@ -365,6 +377,11 @@ c     **** allocate other variables ****
       eig_tag  = cpsi_data_alloc(nbrillq,ne(1)+ne(2),1)
       svec_tag = cpsi_data_alloc(nbrillq,neq(1),3)
       value = BA_alloc_get(mt_dbl,2*nfft3d,'dn',dn(2),dn(1))
+      if (smearoccupation.gt.0) then
+         value = value.and.
+     >           BA_alloc_get(mt_dbl,nemaxq*2*npack1,'psi2_tmp',
+     >                        psi2_tmp(2),psi2_tmp(1))
+      end if
       if (.not. value)
      >  call errquit('band_sd:out of heap memory',0,MA_ERR)
 
@@ -429,12 +446,34 @@ c     **** allocate other variables ****
 *     *****  read psi2 wavefunctions ****
       call cpsi_read(spin_orbit,ispin,ne,nbrillioun,psi2_tag)
 
+      !next = cpsi_data_get_next(psi2_tag)
+      !do nb=1,nbrillq
+      !do i=1,ne(1)
+      !   f2=cpsi_occ_brdcst_tag(ne,spin_orbit,next,   nb,1,i)
+      !   write(*,*) "nb,i,f2=",nb,i,f2
+      !end do
+      !end do
+
 *     **** Ortho Check ****
-      call Pneb_orthoCheckMake_tag(.true.,0,0,npack1,psi2_tag)
+      call Pneb_orthoCheckMake_tag(.true.,0,0,npack1,psi2_tag,value)
+
+
+*     **** initialize two-electron Gaussian integrals ****
+*     **** initialize paw ncmp*Vloc ****
+c      if (cpsp_pawexist()) then
+c         call nwpw_gintegrals_init()
+c         call nwpw_gintegrals_set(control_move())
+c         call psp_dE_ncmp_vloc_Qlm(ispin,.false.,hunita)
+c      end if
+
+
 
 *     **** initialize SIC and HFX  ****
 c      call pspw_init_SIC(rtdb,ne)
        call band_init_HFX(rtdb,nbrillioun,ispin,ne)
+
+*     **** initialize rho_symmetry  ****
+      call c_rho_symmetrizer_init()
 
 *     **** initialize QM/MM ****
 c      call pspw_init_APC(rtdb)
@@ -488,6 +527,12 @@ c      call pspw_qmmm_init(rtdb)
          if (mapping.eq.1) write(luout,1112)
          if (mapping.eq.2) write(luout,1113)
          if (mapping.eq.3) write(luout,1118)
+         if (control_parallel_io()) then
+           write(luout,1119)
+         else
+           write(luout,1122)
+         end if
+         write(luout,1123) Parallel_maxthreads()
 
          write(luout,1115)
          IF(control_move()) THEN
@@ -627,6 +672,9 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
 
 
       if (mprint) then
+
+
+         call c_rho_symmetrizer_print(luout)
          
          write(luout,1270)
          if (.not.control_translation()) write(luout,1271)
@@ -637,15 +685,18 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
      >                 control_it_in(),control_it_out()
 
          if (control_fractional()) then
-           write(6,1297)
+           write(luout,1297)
            if (control_fractional_smeartype().eq.0)
-     >       write(6,1298) "step function"
+     >       write(luout,1298) "step function"
            if (control_fractional_smeartype().eq.1)
-     >       write(6,1298) "Fermi-Dirac"
+     >       write(luout,1298) "Fermi-Dirac"
            if (control_fractional_smeartype().eq.2)
-     >       write(6,1298) "Gaussian"
-           write(6,1299) control_fractional_kT(),
-     >                   control_fractional_temperature()
+     >       write(luout,1298) "Gaussian"
+           if (control_fractional_smeartype().eq.4)
+     >       write(luout,1298) "Marzari-Vanderbilt"
+           write(luout,1299) control_fractional_kT(),
+     >                   control_fractional_temperature(),
+     >                   control_fractional_alpha()
          end if
          write(luout,1300)
          write(luout,1305)
@@ -670,15 +721,19 @@ c
      >                      hml_tag,
      >                      psir_tag,Hpsi_tag)
 
+
+
          if (mprint) then 
            write(luout,1310) icount*it_in,E(1),deltae,deltac,deltar
            call util_flush(luout)
          end if
          if ((deltae.gt.0.0d0).and.(icount.gt.1)) then
-            if (mprint) 
-     >       write(luout,*) 
-     >       ' *** Energy going up.  iteration terminated.'
-            go to 2
+            if ((icount.ge.it_out).or.(.not.fractional)) then
+               if (mprint) 
+     >          write(luout,*) 
+     >          ' *** Energy going up.  iteration terminated.'
+               go to 2
+            end if
          end if
          deltae = dabs(deltae)
          if ((deltae.lt.control_tole()).and.
@@ -689,10 +744,50 @@ c
      >       ' *** tolerance ok.     iteration terminated.'
             go to 2
          end if
+
+*        ***** define fractional occupation ****
+         if ( (icount.lt.it_out).and.control_fractional().and.
+     >        (control_fractional_smeartype().ge.0)) then
+
+            call cpsi_data_update(hml_tag)
+            call cpsi_data_update(eig_tag)
+            call cpsi_data_update(psi2_tag)
+            do nb=1,nbrillq
+              hml_shift = cpsi_data_get_chnk(hml_tag,nb)
+              eig_shift = cpsi_data_get_chnk(eig_tag,nb)
+              call Pneb_w_diag(0,nb,dbl_mb(eig_shift),dbl_mb(hml_shift))
+            end do
+
+            do nb=1,nbrillq
+              psi2_shift = cpsi_data_get_chnk(psi2_tag,nb)
+              hml_shift  = cpsi_data_get_chnk(hml_tag,nb)
+              call Parallel_shared_vector_copy(.true.,nemaxq*2*npack1,
+     >                                         dbl_mb(psi2_shift),
+     >                                         dbl_mb(psi2_tmp(1)))
+              call Pneb_fwf_Multiply(0,nb,
+     >                          one,
+     >                          dbl_mb(psi2_tmp(1)),npack1,
+     >                          dbl_mb(hml_shift),
+     >                          zero,
+     >                          dbl_mb(psi2_shift))
+            end do
+
+            next = cpsi_data_get_next(psi2_tag)
+            call cpsi_0define_occupation(-1.0d0,.false.,
+     >                               ispin,ne,nbrillq,
+     >                               eig_tag,hml_tag,next,
+     >                               smeartype,smearkT,
+     >                               smearfermi,smearcorrection)
+            call cpsi_data_noupdate(psi2_tag)
+            call cpsi_data_noupdate(eig_tag)
+            call cpsi_data_noupdate(hml_tag)
+         end if
+
       if (icount.lt.it_out) go to 1
       if (mprint) 
      > write(luout,*) 
-     > '*** arived at the Maximum iiteration.   terminated.'
+     > '*** arrived at the Maximum iteration.   terminated.'
+
 
 *::::::::::::::::::::  end of iteration loop  :::::::::::::::::::::::::
 
@@ -759,15 +854,17 @@ c      call cpsi_data_dealloc(lmd_tag)
 
 
 *     ***** diagonalize the hamiltonian matrix but don't rotate ****
-      call cpsi_data_update(hml_tag)
-      call cpsi_data_update(eig_tag)
-      do nb=1,nbrillq
-        hml_shift = cpsi_data_get_chnk(hml_tag,nb)
-        eig_shift = cpsi_data_get_chnk(eig_tag,nb)
-        call Pneb_w_diag(0,nb,dbl_mb(eig_shift),dbl_mb(hml_shift))
-      end do
-      call cpsi_data_noupdate(hml_tag)
-      call cpsi_data_noupdate(eig_tag)
+      if (.not.fractional) then
+         call cpsi_data_update(hml_tag)
+         call cpsi_data_update(eig_tag)
+         do nb=1,nbrillq
+           hml_shift = cpsi_data_get_chnk(hml_tag,nb)
+           eig_shift = cpsi_data_get_chnk(eig_tag,nb)
+           call Pneb_w_diag(0,nb,dbl_mb(eig_shift),dbl_mb(hml_shift))
+         end do
+         call cpsi_data_noupdate(hml_tag)
+         call cpsi_data_noupdate(eig_tag)
+      end if
 
 
 *     ***** diagonalize and rotate the hamiltonian matrix ****
@@ -956,6 +1053,7 @@ c      end if
 
       call ion_end()
       call ion_end_FixIon()
+      call c_rho_symmetrizer_end()
 c      call pspw_end_SIC()
       call band_end_HFX()
 c      call pspw_end_APC()
@@ -974,6 +1072,9 @@ c
       call cpsi_data_dealloc(eig_tag)
       call cpsi_data_dealloc(svec_tag)
       value = BA_free_heap(dn(2))
+      if (smearoccupation.gt.0) then
+         value = value.and.BA_free_heap(psi2_tmp(2))
+      end if
       if (.not. value)
      >  call errquit('band_sd:freeing heap memory',0,MA_ERR)
 
@@ -981,7 +1082,9 @@ c
       call C3dB_pfft_end()
       call cpsi_data_end()
       call C3dB_end(1)
-      if ((control_gga().ge.10).and.(control_gga().le.200)) then
+      call Pneb_end()
+      !if ((control_gga().ge.10).and.(control_gga().le.200)) then
+      if (.not.control_only_lda()) then
          call mask_end()
          call G_end()
          call D3dB_end(1)
@@ -1031,15 +1134,18 @@ c
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ BAND input data ===================')
  1111 FORMAT(/' number of processors used:',I16)
- 1112 FORMAT( ' parallel mapping         :         1d slab')
- 1113 FORMAT( ' parallel mapping         :      2d hilbert')
+ 1112 FORMAT( ' parallel mapping         :         1d-slab')
+ 1113 FORMAT( ' parallel mapping         :      2d-hilbert')
  1114 FORMAT( ' parallel mapping         :        balanced')
  1115 FORMAT(/' options:')
  1116 FORMAT( ' parallel mapping         : not balanced')
  1117 FORMAT( ' processor grid           :',I4,' x',I4,' x',I4)
- 1118 FORMAT( ' parallel mapping         :       2d hcurve')
+ 1118 FORMAT( ' parallel mapping         :       2d-hcurve')
+ 1119 FORMAT( ' parallel io              :        on')
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
+ 1122 FORMAT( ' parallel io              :       off')
+ 1123 FORMAT( ' number of threads        :',I10)
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1132 FORMAT(5X,' using fractional occupation')
@@ -1121,7 +1227,8 @@ c     >        A)
      &        ' (electron)',E12.3,' (ion)')
  1297 FORMAT(/' fractional smearing parameters:')
  1298 FORMAT(5X, ' smearing algorithm   = ',A)
- 1299 FORMAT(5X, ' smearing parameter   = ',E9.3,' (',F7.1,' K)')
+ 1299 FORMAT(5X, ' smearing parameter   = ',E9.3,' (',F7.1,' K)'/,
+     >       5X, ' mixing parameter     =',F7.4)
  1300 FORMAT(//)
  1305 FORMAT(10X,'================ iteration =========================')
  1310 FORMAT(I8,E20.10,3E15.5)

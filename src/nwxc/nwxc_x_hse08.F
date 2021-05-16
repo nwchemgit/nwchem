@@ -21,13 +21,13 @@ C> ### References ###
 C>
 C> [1] J. Heyd, G.E. Scuceria, M. Ernzerhof, "Hybrid functionals based
 C> on a screened Coulomb potential", J. Chem. Phys. <b>118</b>, 
-C> 8207 (2003), DOI: <a href="http://dx.doi.org/10.1063/1.1564060">
+C> 8207 (2003), DOI: <a href="https://doi.org/10.1063/1.1564060">
 C> 10.1063/1.1564060</a>.
 C>
 C> [2] J. Heyd, G.E. Scuceria, M. Ernzerhof, "Erratum: Hybrid 
 C> functionals based on a screened Coulomb potential", J. Chem. Phys.
 C> <b>124</b>, 219906 (2006), DOI:
-C> <a href="http://dx.doi.org/10.1063/1.2204597">
+C> <a href="https://doi.org/10.1063/1.2204597">
 C> 10.1063/1.2204597</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)

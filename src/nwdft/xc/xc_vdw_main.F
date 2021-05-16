@@ -155,68 +155,70 @@ c
                endif
              enddo
 c
+cDMR: Three-center terms are not included in xc_vdw_e
+c
 c            Three center derivatives. Grimme uses aggressive screening
 c            to get this N^3 contribution back to N^2
 c
-             do j=2,n
-               if(A.ne.j) then      
-                  rAj=sqrt(
-     +                 (x(1,A)-x(1,j))**2 +
-     +                 (x(2,A)-x(2,j))**2 +
-     +                 (x(3,A)-x(3,j))**2)
-                  r0aj=r0AB(z(A),z(j))
+c             do j=2,n
+c               if(A.ne.j) then      
+c                  rAj=sqrt(
+c     +                 (x(1,A)-x(1,j))**2 +
+c     +                 (x(2,A)-x(2,j))**2 +
+c     +                 (x(3,A)-x(3,j))**2)
+c                  r0aj=r0AB(z(A),z(j))
 c
 c                 Screening per Grimme
 c
-                  if (rAj.gt.1600d0*r0aj/r0AB(1,1)) goto 910
+c                  if (rAj.gt.1600d0*r0aj/r0AB(1,1)) goto 910
 c
 c                 Third center involved
 c
-                  do k=1,j-1
-                     if(A.ne.k) then      
-                       dxAk=x(1,A)-x(1,k)
-                       dyAk=x(2,A)-x(2,k)
-                       dzAk=x(3,A)-x(3,k)
-                       rAk=dxAk**2+dyAk**2+dzAk**2
-                       r0ak=r0AB(z(A),z(k))
-                       dxjk=x(1,j)-x(1,k)
-                       dyjk=x(2,j)-x(2,k)
-                       dzjk=x(3,j)-x(3,k)
-                       rjk=dxjk**2+dyjk**2+dzjk**2
-                       r0jk=r0AB(z(j),z(k))
+c                  do k=1,j-1
+c                     if(A.ne.k) then      
+c                       dxAk=x(1,A)-x(1,k)
+c                       dyAk=x(2,A)-x(2,k)
+c                       dzAk=x(3,A)-x(3,k)
+c                       rAk=dxAk**2+dyAk**2+dzAk**2
+c                       r0ak=r0AB(z(A),z(k))
+c                       dxjk=x(1,j)-x(1,k)
+c                       dyjk=x(2,j)-x(2,k)
+c                       dzjk=x(3,j)-x(3,k)
+c                       rjk=dxjk**2+dyjk**2+dzjk**2
+c                       r0jk=r0AB(z(j),z(k))
 c
 c                      Screening r^2 distance vs threshold of 1600.0*(radii Ak)
 c
-                       if ((rAk.gt.1600.0d0*r0ak/r0AB(1,1)).or.
-     $                     (rjk.gt.1600.0d0*r0jk/r0AB(1,1))) goto 911
+c                       if ((rAk.gt.1600.0d0*r0ak/r0AB(1,1)).or.
+c     $                     (rjk.gt.1600.0d0*r0jk/r0AB(1,1))) goto 911
 c
 c                      Get gradient for coordination number dependent C6 for three centers
 c
-                       call c6_grad(grad_c6,j,k,A,x,z,n,
-     &                              dbl_mb(k_cnij),dbl_mb(k_cnijk))
-                       fac6=(sr6*r0jk/dsqrt(rjk))**(alpha)
-                       fac8=(sr8*r0jk/dsqrt(rjk))**(alpha+2.0d0)
-                       fdmp6=1.0d0/(1.0d0+6.0d0*fac6)
-                       fdmp8=1.0d0/(1.0d0+6.0d0*fac8)
+c                       call c6_grad(grad_c6,j,k,A,x,z,n,
+c     &                              dbl_mb(k_cnij),dbl_mb(k_cnijk))
+c                       fac6=(sr6*r0jk/dsqrt(rjk))**(alpha)
+c                       fac8=(sr8*r0jk/dsqrt(rjk))**(alpha+2.0d0)
+c                       fdmp6=1.0d0/(1.0d0+6.0d0*fac6)
+c                       fdmp8=1.0d0/(1.0d0+6.0d0*fac8)
 c
 c                      dx, dy, and dz contribution to A
 c
-                       Qfac=Qatom(z(j))*Qatom(z(k))
-                       force(1,A)=force(1,A)
-     $                      -fdmp6*s6*grad_c6(1)/(rjk**3.0d0)
-     $                      -3.0d0*fdmp8*s8*grad_c6(1)*Qfac/(rjk**4.0d0)
-                       force(2,A)=force(2,A)
-     $                      -fdmp6*s6*grad_c6(2)/(rjk**3.0d0)
-     $                      -3.0d0*fdmp8*s8*grad_c6(2)*Qfac/(rjk**4.0d0)
-                       force(3,A)=force(3,A)
-     $                      -fdmp6*s6*grad_c6(3)/(rjk**3.0d0)
-     $                      -3.0d0*fdmp8*s8*grad_c6(3)*Qfac/(rjk**4.0d0)
-                     endif
- 911              continue
-                  enddo
- 910           continue
-               endif
-             enddo
+c                       Qfac=Qatom(z(j))*Qatom(z(k))
+c                       force(1,A)=force(1,A)
+c     $                      -fdmp6*s6*grad_c6(1)/(rjk**3.0d0)
+c     $                      -3.0d0*fdmp8*s8*grad_c6(1)*Qfac/(rjk**4.0d0)
+c                       force(2,A)=force(2,A)
+c     $                      -fdmp6*s6*grad_c6(2)/(rjk**3.0d0)
+c     $                      -3.0d0*fdmp8*s8*grad_c6(2)*Qfac/(rjk**4.0d0)
+c                       force(3,A)=force(3,A)
+c     $                      -fdmp6*s6*grad_c6(3)/(rjk**3.0d0)
+c     $                      -3.0d0*fdmp8*s8*grad_c6(3)*Qfac/(rjk**4.0d0)
+c                     endif
+c 911              continue
+c                  enddo
+c 910           continue
+c               endif
+c             enddo
            endif
          enddo
          if (.not.ma_pop_stack(l_cnijk))
@@ -310,67 +312,69 @@ c
                endif
              enddo
 c
+cDMR: Three center terms are not included in xc_vdw_e
+c
 c            Three center derivatives. Grimme uses aggressive screening
 c            to get this N^3 contribution back to N^2
 c
-             do j=1,n
-               if(A.ne.j.and.z(j).ne.0) then      
-                  rAj=sqrt(
-     +                 (x(1,A)-x(1,j))**2 +
-     +                 (x(2,A)-x(2,j))**2 +
-     +                 (x(3,A)-x(3,j))**2)
-                  r0aj=r0AB(z(A),z(j))
+c             do j=1,n
+c               if(A.ne.j.and.z(j).ne.0) then      
+c                  rAj=sqrt(
+c     +                 (x(1,A)-x(1,j))**2 +
+c     +                 (x(2,A)-x(2,j))**2 +
+c     +                 (x(3,A)-x(3,j))**2)
+c                  r0aj=r0AB(z(A),z(j))
 c
 c                 Screening per Grimme
 c
-                  if (rAj.gt.1600d0*r0aj/r0AB(1,1)) goto 950
+c                  if (rAj.gt.1600d0*r0aj/r0AB(1,1)) goto 950
 c
 c                 Third center involved
 c
-                  do k=1,n
-                     if(A.ne.k.and.k.ne.j.and.z(k).ne.0) then      
-                       dxAk=x(1,A)-x(1,k)
-                       dyAk=x(2,A)-x(2,k)
-                       dzAk=x(3,A)-x(3,k)
-                       rAk=dxAk**2+dyAk**2+dzAk**2
-                       r0ak=r0AB(z(A),z(k))
-                       dxjk=x(1,j)-x(1,k)
-                       dyjk=x(2,j)-x(2,k)
-                       dzjk=x(3,j)-x(3,k)
-                       rjk=dxjk**2+dyjk**2+dzjk**2
-                       r0jk=r0AB(z(j),z(k))
+c                  do k=1,n
+c                     if(A.ne.k.and.k.ne.j.and.z(k).ne.0) then      
+c                       dxAk=x(1,A)-x(1,k)
+c                       dyAk=x(2,A)-x(2,k)
+c                       dzAk=x(3,A)-x(3,k)
+c                       rAk=dxAk**2+dyAk**2+dzAk**2
+c                       r0ak=r0AB(z(A),z(k))
+c                       dxjk=x(1,j)-x(1,k)
+c                       dyjk=x(2,j)-x(2,k)
+c                       dzjk=x(3,j)-x(3,k)
+c                       rjk=dxjk**2+dyjk**2+dzjk**2
+c                       r0jk=r0AB(z(j),z(k))
 c
 c                      Screening r^2 distance vs threshold of 1600.0*(radii Ak)
 c
-                       if ((rAk.gt.1600.0d0*r0ak/r0AB(1,1)).or.
-     $                     (rjk.gt.1600.0d0*r0jk/r0AB(1,1))) goto 951
+c                       if ((rAk.gt.1600.0d0*r0ak/r0AB(1,1)).or.
+c     $                     (rjk.gt.1600.0d0*r0jk/r0AB(1,1))) goto 951
 c
 c                      Get gradient for coordination number dependent C6 for three centers
 c
-                       call c6_grad(grad_c6,j,k,A,x,z,n,
-     &                              dbl_mb(k_cnij),dbl_mb(k_cnijk))
-                       rjk=dsqrt(rjk)
+c                       call c6_grad(grad_c6,j,k,A,x,z,n,
+c     &                              dbl_mb(k_cnij),dbl_mb(k_cnijk))
+c                       rjk=dsqrt(rjk)
 c
 c                      dx, dy, and dz contribution to A
 c
-                       Qfac=Qatom(z(j))*Qatom(z(k))
-                       fdmp6=xc_fdmpbj(rjk,dsqrt(3.0d0*Qfac),a1,a2,6)
-                       fdmp8=xc_fdmpbj(rjk,dsqrt(3.0d0*Qfac),a1,a2,8)
-                       force(1,A)=force(1,A)
-     $                           -fdmp6*s6*grad_c6(1)
-     $                           -3.0d0*fdmp8*s8*grad_c6(1)*Qfac
-                       force(2,A)=force(2,A)
-     $                           -fdmp6*s6*grad_c6(2)
-     $                           -3.0d0*fdmp8*s8*grad_c6(2)*Qfac
-                       force(3,A)=force(3,A)
-     $                           -fdmp6*s6*grad_c6(3)
-     $                           -3.0d0*fdmp8*s8*grad_c6(3)*Qfac
-                     endif
- 951              continue
-                  enddo
- 950           continue
-               endif
-             enddo
+c                       Qfac=Qatom(z(j))*Qatom(z(k))
+c                       fdmp6=xc_fdmpbj(rjk,dsqrt(3.0d0*Qfac),a1,a2,6)
+c                       fdmp8=xc_fdmpbj(rjk,dsqrt(3.0d0*Qfac),a1,a2,8)
+c                       force(1,A)=force(1,A)
+c     $                           -fdmp6*s6*grad_c6(1)
+c     $                           -3.0d0*fdmp8*s8*grad_c6(1)*Qfac
+c                       force(2,A)=force(2,A)
+c     $                           -fdmp6*s6*grad_c6(2)
+c     $                           -3.0d0*fdmp8*s8*grad_c6(2)*Qfac
+c                       force(3,A)=force(3,A)
+c     $                           -fdmp6*s6*grad_c6(3)
+c     $                           -3.0d0*fdmp8*s8*grad_c6(3)*Qfac
+c                     endif
+c 951              continue
+c                  enddo
+c 950           continue
+c               endif
+c             enddo
            endif
          enddo
          if (.not.ma_pop_stack(l_cnijk))
@@ -408,35 +412,35 @@ C> [1] S. Grimme,
 C>     "Accurate description of van der Waals complexes by density
 C>      functional theory including empirical corrections",
 C>     J. Comp. Chem. (2004) <b>25</b>, 1463-1473, DOI:
-C>     <a href="http://dx.doi.org/10.1002/jcc.20078">
+C>     <a href="https://doi.org/10.1002/jcc.20078">
 C>     10.1002/jcc.20078</a>.
 C>
 C> [2] U. Zimmerli, M. Parrinello, P. Koumoutsakos,
 C>     "Dispersion corrections to density functionals for water
 C>      aromatic interactions",
 C>     J. Chem. Phys. (2004) <b>120</b>, 2693, DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.1637034">
+C>     <a href="https://doi.org/10.1063/1.1637034">
 C>     10.1063/1.1637034</a>.
 C>
 C> [3] Q. Wu, W. Yang,
 C>     "Empirical correction to density functional theory for van der
 C>      Waals interactions",
 C>     J. Chem. Phys. (2002) <b>116</b>, 515, DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.1424928">
+C>     <a href="https://doi.org/10.1063/1.1424928">
 C>     10.1063/1.1424928</a>.
 C>
 C> [4] A.D. Becke, E.R. Johnson,
 C>     "A unified density-functional treatment of dynamical,
 C>      nondynamical and dispersion correlations",
 C>     J. Chem. Phys. (2007) <b>127</b> 124108, DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.2768530">
+C>     <a href="https://doi.org/10.1063/1.2768530">
 C>     10.1063/1.2768530</a> (See appendix C).
 C>
 C> [5] S. Grimme, S. Ehrlich, L. Goerigk,
 C>     "Effect of the damping function in dispersion corrected
 C>      density functional theory", J. Comput. Chem. (2011)
 C>     <b>32</b>, pp. 1456-1465, DOI:
-C>     <a href="http://dx.doi.org/10.1002/jcc.21759">
+C>     <a href="https://doi.org/10.1002/jcc.21759">
 C>     10.1002/jcc.21759</a> (See Eqs.(5-6)).
 C>
       double precision function xc_vdw_e(s6,s8,sr6,sr8,a1,a2,n,x,z)
@@ -707,6 +711,7 @@ c
               write(luout,223) s6, s8, sr6, sr8, evdw
  223  format(/
      &     '             DFT-D3 Model   ', /
+     &     '          s6 scale factor  :', f22.12/         
      &     '          s8 scale factor  :', f22.12/
      &     '          sr6 scale factor :', f22.12/
      &     '          sr8 scale factor :', f22.12/

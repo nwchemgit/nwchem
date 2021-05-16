@@ -200,7 +200,7 @@ set nwpw:minimizer 2
 
 nwpw
    Mulliken 
-   efield
+   atom_efield
 end
 task pspw energy
 

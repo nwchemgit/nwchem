@@ -6,25 +6,10 @@ LIBRARY = libnwpython.a
 
 OBJ = python_input.o task_python.o nwchem_wrap.o nw_inp_from_string.o 
 
-ifndef PYTHONHOME
-error:
-	@echo Must define PYTHONHOME and PYTHONVERSION to build with Python
-	@exit 1
-endif
 
-# Under WIN32 only need to define PYTHONHOME
-ifndef PYTHONVERSION
-error1:
-	@echo Must define PYTHONHOME and PYTHONVERSION to build with Python
-	@exit 1
-endif
 
-PYMAJOR:=$(word 1, $(subst ., ,$(PYTHONVERSION)))
-ifeq (${PYMAJOR},3)
-LIB_INCLUDES = $(shell $(PYTHONHOME)/bin/python3-config --includes)
-else
-LIB_INCLUDES = $(shell $(PYTHONHOME)/bin/python-config --includes)
-endif
+LIB_INCLUDES = $(shell python$(PYTHONVERSION)-config --includes| sed -e "s/\-iwithsysroot/\-I/g")
+#endif
 
 
 include ../config/makefile.h

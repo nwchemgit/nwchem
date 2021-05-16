@@ -26,10 +26,6 @@
 #include "zora.fh"
       character*(*) filename
       integer cachesize, filesize
-#if defined(CRAY_T3D) || defined(CRAY_T3E)
-      external cgridfdata
-#endif
-c
       double precision enuc_in ! [in]
       double precision enuc
       integer eaf_size_in_dbl

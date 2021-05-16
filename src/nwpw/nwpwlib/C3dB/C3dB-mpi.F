@@ -80,23 +80,28 @@ c     integer i2_start(NFFT3+1)
 #ifndef CRAY
 !DIR$ ivdep
 #endif
+!$OMP DO
       do i=1,nfft3d(nb) 
          tmp1(int_mb(iq_to_i1(1,nb)+i-1)) = A(i)
       end do
+!$OMP END DO
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(i2_start(1,nb)+2-1) - int_mb(i2_start(1,nb)+1-1)
 #ifndef CRAY
 !DIR$ ivdep
 #endif
+!$OMP DO
       do i=1,msglen
          tmp2(int_mb(i2_start(1,nb)+1-1)+i-1) 
      > = tmp1(int_mb(i1_start(1,nb)+1-1)+i-1)
       end do
+!$OMP END DO
          
 
 *     **** receive packed array data ****
       reqcnt = 0
+!$OMP MASTER
       do it = 1,np-1
 
 *        **** synchronous receive of tmp ****
@@ -163,16 +168,20 @@ c     integer i2_start(NFFT3+1)
 
    
 *     **** wait for completion of mp_send, also do a sync ****
-      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,int_mb(request(1)))
 
+!$OMP END MASTER
+!$OMP BARRIER
 
 *     **** unpack A(i) array ****
 #ifndef CRAY
 !DIR$ ivdep
 #endif
+!$OMP DO
       do i=1,nfft3d(nb) !***(nx(nb)/2+1)*ny(nb)*nq(nb)
          A(i) = tmp2(int_mb(iq_to_i2(1,nb)+i-1))
       end do
+!$OMP END DO
       
 
       !*** deallocate memory ***
@@ -266,23 +275,28 @@ c     integer i2_start(NFFT3+1)
 #ifndef CRAY
 !DIR$ ivdep
 #endif
+!$OMP DO
       do i=1,nfft3d(nb) 
          tmp1(int_mb(iq_to_i1(1,nb)+i-1)) = A(i)
       end do
+!$OMP END DO
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(i2_start(1,nb)+2-1) - int_mb(i2_start(1,nb)+1-1)
 #ifndef CRAY
 !DIR$ ivdep
 #endif
+!$OMP DO
       do i=1,msglen
          tmp2(int_mb(i2_start(1,nb)+1-1)+i-1) 
      > = tmp1(int_mb(i1_start(1,nb)+1-1)+i-1)
       end do
+!$OMP END DO
          
 
 *     **** receive packed array data ****
       reqcnt = 0
+!$OMP MASTER
       do it = 1,np-1
 
 *        **** synchronous receive of tmp ****
@@ -349,16 +363,21 @@ c     integer i2_start(NFFT3+1)
 
    
 *     **** wait for completion of mp_send, also do a sync ****
-      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,int_mb(request(1)))
+
+!$OMP END MASTER
+!$OMP BARRIER
 
 
 *     **** unpack A(i) array ****
 #ifndef CRAY
 !DIR$ ivdep
 #endif
+!$OMP DO
       do i=1,nfft3d(nb) !***(nx(nb)/2+1)*ny(nb)*nq(nb)
          A(i) = tmp2(int_mb(iq_to_i2(1,nb)+i-1))
       end do
+!$OMP END DO
       
 
       !*** deallocate memory ***
@@ -460,19 +479,23 @@ c     integer i2_start(NFFT3+1)
 #ifndef CRAY
 !DIR$ ivdep
 #endif
+!$OMP DO
       do i=1,nnfft3d
          tmp1(int_mb(h_iq_to_i1(1,op,nb)+i-1)) = A(i)
       end do
+!$OMP END DO
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(h_i2_start(1,op,nb)+2-1) 
      >       - int_mb(h_i2_start(1,op,nb)+1-1)
-      call dcopy(2*msglen,tmp1(int_mb(h_i1_start(1,op,nb))),1,
-     >                    tmp2(int_mb(h_i2_start(1,op,nb))),1)
+      call Parallel_shared_vector_copy(.true.,2*msglen,
+     >                    tmp1(int_mb(h_i1_start(1,op,nb))),
+     >                    tmp2(int_mb(h_i2_start(1,op,nb))))
          
 
 *     **** receive packed array data ****
       reqcnt = 0
+!$OMP MASTER
       do it = 1,np-1
 
 *        **** synchronous receive of tmp ****
@@ -541,6 +564,9 @@ c     integer i2_start(NFFT3+1)
 *     **** wait for completion of mp_send, also do a sync ****
       if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
 
+!$OMP END MASTER
+!$OMP BARRIER
+
 
 *     **** unpack A(i) array ****
       if ((op.eq.4).or.(op.eq.6)) nnfft3d = nx(nb)*nq1(nb)
@@ -549,9 +575,11 @@ c     integer i2_start(NFFT3+1)
 #ifndef CRAY
 !DIR$ ivdep
 #endif
+!$OMP DO
       do i=1,nnfft3d
          A(i) = tmp2(int_mb(h_iq_to_i2(1,op,nb)+i-1))
       end do 
+!$OMP END DO
 
       !*** deallocate memory ***
       value =           BA_pop_stack(request(2))
@@ -647,19 +675,23 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 #ifndef CRAY
 !DIR$ ivdep
 #endif
+!$OMP DO
       do i=1,nnfft3d
          tmp1(int_mb(h_iq_to_i1(1,op,nb)+i-1)) = A(i)
       end do
+!$OMP END DO
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(h_i2_start(1,op,nb)+2-1) 
      >       - int_mb(h_i2_start(1,op,nb)+1-1)
-      call dcopy(msglen,tmp1(int_mb(h_i1_start(1,op,nb))),1,
-     >                  tmp2(int_mb(h_i2_start(1,op,nb))),1)
+      call Parallel_shared_vector_copy(.true.,msglen,
+     >                  tmp1(int_mb(h_i1_start(1,op,nb))),
+     >                  tmp2(int_mb(h_i2_start(1,op,nb))))
          
 
 *     **** receive packed array data ****
       reqcnt = 0
+!$OMP MASTER
       do it = 1,np-1
 
 *        **** synchronous receive of tmp ****
@@ -726,7 +758,10 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 
    
 *     **** wait for completion of mp_send, also do a sync ****
-      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,int_mb(request(1)))
+
+!$OMP END MASTER
+!$OMP BARRIER
 
 
 *     **** unpack A(i) array ****
@@ -777,6 +812,7 @@ c     implicit none
 
       call Parallel3d_np_i(np)
       if (np.gt.1) then
+!$OMP MASTER
          msglen = 1
 #ifdef MPI4
          stupid_msglen = msglen
@@ -787,10 +823,56 @@ c     implicit none
      >                       MPI_SUM,Parallel3d_comm_i(),mpierr)
 #endif
          sum = sumall
+!$OMP END MASTER
+!$OMP BARRIER
       end if
 
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *         C3dB_MaxAll             *
+*     *                                 *
+*     ***********************************
+      subroutine C3dB_MaxAll(sum)
+c     implicit none
+      real*8  sum
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+      integer msglen,mpierr,np
+      real*8 sumall
+
+*     **** external functions ****
+      integer  Parallel3d_comm_i
+      external Parallel3d_comm_i
+
+      call Parallel3d_np_i(np)
+      if (np.gt.1) then
+!$OMP MASTER
+         msglen = 1
+#ifdef MPI4
+         stupid_msglen = msglen
+         call MPI_Allreduce(sum,sumall,stupid_msglen,stupid_double,
+     >                       stupid_max,stupid_comm_i,stupid_ierr)
+#else
+         call MPI_Allreduce(sum,sumall,msglen,MPI_DOUBLE_PRECISION,
+     >                       MPI_MAX,Parallel3d_comm_i(),mpierr)
+#endif
+         sum = sumall
+!$OMP END MASTER
+!$OMP BARRIER
+      end if
+
+      return
+      end
+
+
 
 
 
@@ -820,6 +902,7 @@ c     implicit none
       call Parallel3d_np_i(np)
       if (np.gt.1) then
 
+!$OMP MASTER
 #ifdef MPI4
          stupid_msglen = 1
          stupid_tsum = sum
@@ -833,6 +916,8 @@ c     implicit none
      >                       MPI_SUM,Parallel3d_comm_i(),mpierr)
          sum = sumall
 #endif
+!$OMP END MASTER
+!$OMP BARRIER
       end if
 
       return
@@ -881,6 +966,7 @@ c     implicit none
       value = BA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
+!$OMP MASTER
 #ifdef MPI4
       stupid_msglen = n
       call MPI_Allreduce(sum,dbl_mb(sumall(1)),
@@ -894,6 +980,9 @@ c     implicit none
 #endif
 
       call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
+!$OMP END MASTER
+!$OMP BARRIER
+
       value = BA_pop_stack(sumall(2))
 
       end if
@@ -910,6 +999,7 @@ c     implicit none
 *     *                                 *
 *     ***********************************
 
+*** shared memory: sum
       subroutine C3dB_Vector_ISumAll(n,sum)
 c     implicit none
       integer n
@@ -947,6 +1037,7 @@ c     implicit none
 #ifdef MPI4
       if (.not.BA_push_get(mt_int,n,'sumall1',sumall1(2),sumall1(1)))
      > call errquit('out of stack memory',0,MA_ERR)
+!$OMP MASTER
       stupid_msglen = n
       call stupid_icopy8to4(n,sum,int_mb(sumall1(1)))
       call MPI_Allreduce(int_mb(sumall1(1)),
@@ -954,15 +1045,20 @@ c     implicit none
      >                stupid_integer,
      >                stupid_sum,stupid_comm_i,stupid_ierr)
       call stupid_icopy4to8(n,int_mb(sumall(1)),sum)
+!$OMP END MASTER
       if (.not. BA_pop_stack(sumall1(2)))
      > call errquit('error popping stack',0, MA_ERR)
 #else
+!$OMP MASTER
       msglen = n
       call MPI_Allreduce(sum,int_mb(sumall(1)),msglen,
      >                MPI_INTEGER,
      >                MPI_SUM,Parallel3d_comm_i(),mpierr)
       call icopy(n,int_mb(sumall(1)),1,sum,1)
+!$OMP END MASTER
 #endif
+
+!$OMP BARRIER
 
       value = BA_pop_stack(sumall(2))
       if (.not. value) call errquit('error popping stack',0, MA_ERR)
@@ -1053,17 +1149,18 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       n2 = int_mb(i2_start(1,nbb)+np) - 1
 
 *     **** pack A(i) array ****
-       call C3dB_pfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
+      call C3dB_pfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(i2_start(1,nbb)+2-1) - int_mb(i2_start(1,nbb)+1-1)
-      call dcopy(2*msglen,
-     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),1,
-     >           tmp2(int_mb(i2_start(1,nbb)+1-1)),1)
+      call Parallel_shared_vector_copy(.true.,2*msglen,
+     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),
+     >           tmp2(int_mb(i2_start(1,nbb)+1-1)))
          
 
 *     **** receive packed array data ****
       reqcnt = 0
+!$OMP MASTER
       do it = 1,np-1
 
 *        **** synchronous receive of tmp ****
@@ -1129,7 +1226,10 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       end do
    
 *     **** wait for completion of mp_send, also do a sync ****
-      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,int_mb(request(1)))
+
+!$OMP END MASTER
+!$OMP BARRIER
 
 
 *     **** unpack A(i) array ****
@@ -1223,13 +1323,14 @@ c     **** external functions ****
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(i2_start(1,nbb)+2-1) - int_mb(i2_start(1,nbb)+1-1)
-      call dcopy(2*msglen,
-     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),1,
-     >           tmp2(int_mb(i2_start(1,nbb)+1-1)),1)
+      call Parallel_shared_vector_copy(.true.,2*msglen,
+     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),
+     >           tmp2(int_mb(i2_start(1,nbb)+1-1)))
          
 
 *     **** receive packed array data ****
       reqcnt = 0
+!$OMP MASTER
       do it = 1,np-1
 
 *        **** synchronous receive of tmp ****
@@ -1295,7 +1396,10 @@ c     **** external functions ****
       end do
    
 *     **** wait for completion of mp_send, also do a sync ****
-      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,int_mb(request(1)))
+
+!$OMP END MASTER
+!$OMP BARRIER
 
 
 *     **** unpack A(i) array ****
@@ -1403,13 +1507,14 @@ c     **** external functions ****
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(h_i2_start(1,op,nbb)+2-1) 
      >       - int_mb(h_i2_start(1,op,nbb)+1-1)
-      call dcopy(2*msglen,
-     >           tmp1(int_mb(h_i1_start(1,op,nbb))),1,
-     >           tmp2(int_mb(h_i2_start(1,op,nbb))),1)
+      call Parallel_shared_vector_copy(.true.,2*msglen,
+     >           tmp1(int_mb(h_i1_start(1,op,nbb))),
+     >           tmp2(int_mb(h_i2_start(1,op,nbb))))
 
 
 *     **** receive packed array data ****
       reqcnt = 0
+!$OMP MASTER
       do it = 1,np-1
 
 *        **** synchronous receive of tmp ****
@@ -1476,7 +1581,10 @@ c     **** external functions ****
 
    
 *     **** wait for completion of mp_send, also do a sync ****
-      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,int_mb(request(1)))
+      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,int_mb(request(1)))
+
+!$OMP END MASTER
+!$OMP BARRIER
 
 
 *     **** unpack A(i) array ****
@@ -1528,6 +1636,7 @@ c     **** external functions ****
       external Parallel3d_convert_taskid_i
 
 
+!$OMP MASTER
       reqcnt = 0
       if (log_mb(sender_list(1)+nb)) then
          do j=1,int_mb(npacket_list(1)+nb)
@@ -1593,6 +1702,8 @@ c            recieve data....
 
          end do
       end if
+!$OMP END MASTER
+!$OMP BARRIER
 
       return
       end
@@ -1618,7 +1729,8 @@ c            recieve data....
       integer np
 
       call Parallel3d_np_i(np)
-      if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,request)
+      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
+
       return
       end
 #endif
@@ -1655,6 +1767,7 @@ c     **** external functions ****
       external Parallel3d_convert_taskid_i
 
 
+!$OMP MASTER
       reqcnt=0
       if (log_mb(sender_list(1)+nb)) then
          do j=1,int_mb(npacket_list(1)+nb)
@@ -1720,6 +1833,8 @@ c            send data....
 
          end do
       end if
+!$OMP END MASTER
+!$OMP BARRIER
 
       return
       end
@@ -1819,13 +1934,14 @@ c     **** external functions ****
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(i2_start(1,nbb)+2-1) - int_mb(i2_start(1,nbb)+1-1)
-      call dcopy(2*msglen,
-     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),1,
-     >           tmp2(int_mb(i2_start(1,nbb)+1-1)),1)
+      call Parallel_shared_vector_copy(.true.,2*msglen,
+     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),
+     >           tmp2(int_mb(i2_start(1,nbb)+1-1)))
          
 
 *     **** receive packed array data ****
       reqcnt = 0
+!$OMP MASTER
       do it = 1,np-1
 
 *        **** synchronous receive of tmp ****
@@ -1894,6 +2010,8 @@ c         msgtype   = 1
          end if
 
       end do
+!$OMP END MASTER
+!$OMP BARRIER
    
 
       return
@@ -2027,12 +2145,13 @@ c     **** external functions ****
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(i2_start(1,nbb)+2-1) - int_mb(i2_start(1,nbb)+1-1)
-      call dcopy(2*msglen,
-     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),1,
-     >           tmp2(int_mb(i2_start(1,nbb)+1-1)),1)
+      call Parallel_shared_vector_copy(.true.,2*msglen,
+     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),
+     >           tmp2(int_mb(i2_start(1,nbb)+1-1)))
          
 
 *     **** receive packed array data ****
+!$OMP MASTER
       reqcnt = 0
       do it = 1,np-1
 
@@ -2102,6 +2221,8 @@ c         msgtype   = 1
          end if
 
       end do
+!$OMP END MASTER
+!$OMP BARRIER
    
 
       return
@@ -2239,12 +2360,13 @@ c     **** external functions ****
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(h_i2_start(1,op,nbb)+2-1) 
      >       - int_mb(h_i2_start(1,op,nbb)+1-1)
-      call dcopy(2*msglen,
-     >           tmp1(int_mb(h_i1_start(1,op,nbb))),1,
-     >           tmp2(int_mb(h_i2_start(1,op,nbb))),1)
+      call Parallel_shared_vector_copy(.true.,2*msglen,
+     >           tmp1(int_mb(h_i1_start(1,op,nbb))),
+     >           tmp2(int_mb(h_i2_start(1,op,nbb))))
 
 
 *     **** receive packed array data ****
+!$OMP MASTER
       reqcnt = 0
       do it = 1,np-1
 
@@ -2314,6 +2436,8 @@ c         msgtype   = 1
          end if
 
       end do
+!$OMP END MASTER
+!$OMP BARRIER
 
       return
       end
@@ -2379,6 +2503,565 @@ c         msgtype   = 1
       end
 
 #endif
+
+
+
+
+*     ***********************************
+*     *					*
+*     *	       C3dB_(c,r)_read_pio  	*	
+*     *					*
+*     ***********************************
+
+      subroutine C3dB_c_read_pio(nb,iunit,A,tmp,jcol,kcol)
+      implicit none 
+      integer nb
+      integer iunit
+      complex*16 A(*)
+      complex*16 tmp(*)
+      integer jcol,kcol
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "mpif.h"
+#include "C3dB.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
+
+c#include "tcgmsg.fh"
+c#include "msgtypesf.h"
+c      integer rcv_len,rcv_proc
+
+      
+*     *** local variables ***
+      logical value,fillcolumn,fillzone,readcolumn,readzone
+      integer MASTER,taskid
+      parameter(MASTER=0)
+      integer p_to, p_here,q
+      integer index,j,k
+      integer source,msglen,msgtype
+      integer tmp1(2),tmp2(2),status(2)
+
+      integer taskid_i,np_i
+      integer taskid_j,np_j
+      integer taskid_k,np_k
+      integer ii,jj,kk,jstart,jend,kstart,kend
+      integer mpierr
+
+*     **** external functions ****
+      integer  Parallel3d_convert_taskid_ijk,Parallel_comm_i
+      external Parallel3d_convert_taskid_ijk,Parallel_comm_i
+
+      call Parallel_taskid(taskid)
+      call Parallel3d_np_i(np_i)
+      call Parallel3d_taskid_i(taskid_i)
+
+      call Parallel3d_np_j(np_j)
+      call Parallel3d_taskid_j(taskid_j)
+      if (jcol.lt.0) then
+         jstart = 0
+         jend = np_j-1
+         fillcolumn = .true.
+         readcolumn = .true.
+      else
+         jstart = jcol
+         jend   = jcol
+         fillcolumn = (taskid_j.eq.jcol)
+         readcolumn = (taskid_j.eq.jcol)
+      endif
+      call Parallel3d_np_k(np_k)
+      call Parallel3d_taskid_k(taskid_k)
+      if (kcol.lt.0) then
+         kstart = 0
+         kend = np_k-1
+         fillzone = .true.
+         readzone = .true.
+      else
+         kstart = kcol
+         kend   = kcol
+         readzone = (taskid_k.eq.kcol)
+      endif
+
+
+      if (readzone.and.readcolumn) then
+
+*     **** allocate status memory ****
+      if (.not.BA_push_get(mt_int,MPI_STATUS_SIZE*4,
+     >                     'status',status(2),status(1)))
+     > call errquit('C3dB_c_read_pio:out of stack',0,MA_ERR)
+
+
+
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
+*     **** master node reads from file and distributes ****
+      if (taskid_i.eq.MASTER) then
+         do k=1,nz(nb)
+
+            call dread(iunit,tmp,2*nx(nb)*ny(nb))
+
+            call C3dB_ktoqp(nb,k,q,ii)
+            !do kk=kstart,kend
+            !do jj=jstart,jend
+               p_to = ii
+               !p_to = Parallel3d_convert_taskid_ijk(ii,jj,kk)
+               if (p_to.eq.MASTER) then
+                  index = 1 + (q-1)*nx(nb)*ny(nb)
+                  call zcopy(nx(nb)*ny(nb),tmp,1,A(index),1)
+               else
+                  msglen = nx(nb)*ny(nb)
+                  msgtype = 1
+c                  call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
+#ifdef MPI4
+                  stupid_msglen = msglen
+                  stupid_type   = msgtype
+                  stupid_taskid = p_to
+                  call MPI_SEND(tmp,
+     >                     stupid_msglen,stupid_complex,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_comm_i,stupid_ierr)
+#else
+                  call MPI_SEND(tmp,
+     >                     msglen,MPI_DOUBLE_COMPLEX,
+     >                     p_to,
+     >                     msgtype,Parallel_comm_i(),mpierr)
+#endif
+
+               end if
+            !end do
+            !end do
+         end do
+
+*     **** not master node ****
+      else if (fillcolumn.and.fillzone) then
+         do k=1,nz(nb)
+            call C3dB_ktoqp(nb,k,q,ii)
+            p_here = ii
+            !p_here = Parallel3d_convert_taskid_ijk(ii,taskid_j,taskid_k)
+            if (p_here.eq.taskid_i) then
+               msglen = nx(nb)*ny(nb)
+               msgtype = 1
+               source  = MASTER
+#ifdef MPI4
+               stupid_msglen = msglen
+               stupid_type   = msgtype
+               stupid_taskid = source
+               call MPI_RECV(tmp,
+     >                    stupid_msglen,stupid_complex,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_comm_i,
+     >                    int_mb(status(1)),stupid_ierr)
+#else
+               call MPI_RECV(tmp,
+     >                    msglen,MPI_DOUBLE_COMPLEX,
+     >                    source,
+     >                    msgtype,Parallel_comm_i(),
+     >                    int_mb(status(1)),mpierr)
+#endif
+
+               index = 1 + (q-1)*nx(nb)*ny(nb) 
+               call zcopy(nx(nb)*ny(nb),tmp,1,A(index),1)
+            end if
+         end do
+      end if
+
+
+
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+
+*     **** master node reads from file and distributes ****
+      if (taskid_i.eq.MASTER) then
+         do k=1,nz(nb)
+         do j=1,ny(nb)
+
+            call dread(iunit,tmp,2*nx(nb))
+
+            q    = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            ii   = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            !do kk=kstart,kend
+            !do jj=jstart,jend
+               p_to = ii
+               !p_to = Parallel3d_convert_taskid_ijk(ii,jj,kk)
+               if (p_to.eq.MASTER) then
+                  index = 1 + (q-1)*nx(nb)
+                  call zcopy(nx(nb),tmp,1,A(index),1)
+               else
+                  msglen = nx(nb)
+                  msgtype = 1
+#ifdef MPI4
+                  stupid_msglen = msglen
+                  stupid_type   = msgtype
+                  stupid_taskid = p_to
+                  call MPI_SEND(tmp,
+     >                     stupid_msglen,stupid_complex,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_comm_i,stupid_ierr)
+#else
+                  call MPI_SEND(tmp,
+     >                     msglen,MPI_DOUBLE_COMPLEX,
+     >                     p_to,
+     >                     msgtype,Parallel_comm_i(),mpierr)
+#endif
+
+               end if
+            !end do
+            !end do
+         end do
+         end do
+
+*     **** not master node ****
+      else if (fillcolumn.and.fillzone) then
+         do k=1,nz(nb)
+         do j=1,ny(nb)
+
+            q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_here = ii
+            !p_here = Parallel3d_convert_taskid_ijk(ii,taskid_j,taskid_k)
+            if (p_here.eq.taskid_i) then
+               msglen = nx(nb)
+               msgtype = 1
+               source  = MASTER
+#ifdef MPI4
+               stupid_msglen = msglen
+               stupid_type   = msgtype
+               stupid_taskid = source
+               call MPI_RECV(tmp,
+     >                    stupid_msglen,stupid_complex,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_comm_i,
+     >                    int_mb(status(1)),stupid_ierr)
+#else
+               call MPI_RECV(tmp,
+     >                    msglen,MPI_DOUBLE_COMPLEX,
+     >                    source,
+     >                    msgtype,Parallel2d_comm_i(),
+     >                    int_mb(status(1)),mpierr)
+#endif
+               index = 1 + (q-1)*nx(nb)
+               call zcopy(nx(nb),tmp,1,A(index),1)
+            end if
+         end do
+         end do
+      end if
+
+      if (fillcolumn.and.fillzone) then
+*        **** allocate temporary space  ****
+         value =BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',tmp1(2),tmp1(1))
+         value =value.and.
+     >          BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+         if (.not. value) 
+     >      call errquit('C3dB_c_Read_pio:out of stack memory',0,MA_ERR)
+*
+         call C3dB_c_transpose_ijk(nb,5,A,
+     >                          dcpl_mb(tmp1(1)),
+     >                          dcpl_mb(tmp2(1)))  !*** map1to3 operation ***
+
+*        **** deallocate temporary space  ****
+         value =           BA_pop_stack(tmp2(2))
+         value = value.and.BA_pop_stack(tmp1(2))
+         if (.not. value) 
+     >      call errquit('C3dB_c_Read_pio:error popping stack',0,MA_ERR)
+      endif
+
+      end if
+
+*     *** deallocate status memory ***
+      if (.not.BA_pop_stack(status(2)))
+     > call errquit('C3dB_c_read_pio:popping stack',0,MA_ERR)
+
+
+      !*** shift filepointer by (nx(nb)*ny(nb)*nz(nb) doubles ****
+      else
+         if (taskid_i.eq.MASTER)
+     >      call dshift_fileptr(iunit,2*(nx(nb)*ny(nb)*nz(nb)))
+      end if !*** readcolumn ***
+
+      return
+      end
+
+
+      subroutine C3dB_r_read_pio(nb,iunit,A,tmp,jcol,kcol,dotrans)
+      implicit none 
+      integer nb
+      integer iunit
+      real*8  A(*)
+      real*8  tmp(*)
+      integer jcol,kcol
+      logical dotrans
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "mpif.h"
+#include "C3dB.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
+
+      
+*     *** local variables ***
+      integer MASTER,taskid
+      parameter(MASTER=0)
+
+      logical value,fillcolumn,fillzone,readcolumn,readzone
+      integer p_to, p_here,q
+      integer j,k,index,index2
+      integer source,msglen
+      integer tmp1(2),tmp2(2)
+
+      integer taskid_i,np_i
+      integer taskid_j,np_j
+      integer taskid_k,np_k
+      integer ii,jj,kk,jstart,jend,kstart,kend,status(2)
+      integer msgtype
+      real*8 dum
+      integer mpierr
+c      integer mpierr,mstatus(MPI_STATUS_SIZE)
+
+*     **** external functions ****
+      integer  Parallel3d_convert_taskid_ijk,Parallel_comm_i
+      external Parallel3d_convert_taskid_ijk,Parallel_comm_i
+
+      call Parallel_taskid(taskid)
+
+      call Parallel3d_np_i(np_i)
+      call Parallel3d_taskid_i(taskid_i)
+
+      call Parallel3d_np_j(np_j)
+      call Parallel3d_taskid_j(taskid_j)
+      if (jcol.lt.0) then
+         jstart = 0
+         jend = np_j-1
+         fillcolumn = .true.
+         readcolumn = .true.
+      else
+         jstart = jcol
+         jend   = jcol
+         fillcolumn = (taskid_j.eq.jcol)
+         readcolumn = (taskid_j.eq.jcol)
+      endif
+      call Parallel3d_np_k(np_k)
+      call Parallel3d_taskid_k(taskid_k)
+      if (kcol.lt.0) then
+         kstart = 0
+         kend = np_k-1
+         fillzone = .true.
+         readzone = .true.
+      else
+         kstart = kcol
+         kend   = kcol
+         fillzone = (taskid_k.eq.kcol)
+         readzone = (taskid_k.eq.kcol)
+      endif
+
+      if (readcolumn.and.readzone) then
+
+*     **** allocate status memory ****
+      if (.not.BA_push_get(mt_int,MPI_STATUS_SIZE*4,
+     >                     'status',status(2),status(1)))
+     > call errquit('C3dB_r_read:out of stack',0,MA_ERR)
+
+
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
+*     **** master node reads from file and distributes ****
+      if (taskid_i.eq.MASTER) then
+         do k=1,nz(nb)
+
+            call dread(iunit,tmp,(nx(nb))*ny(nb))
+
+            call C3dB_ktoqp(nb,k,q,ii)
+            !do kk=kstart,kend
+            !do jj=jstart,jend
+               p_to = ii
+               !p_to = Parallel3d_convert_taskid_ijk(ii,jj,kk)
+               if (p_to.eq.MASTER) then
+                  index = 1 + (q-1)*nx(nb)*ny(nb)
+                  call dcopy(nx(nb)*ny(nb),tmp,1,A(index),1)
+               else
+                  msglen = nx(nb)*ny(nb)
+                  msgtype = 1
+#ifdef MPI4
+                 stupid_msglen = msglen
+                 stupid_type   = msgtype
+                 stupid_taskid = p_to
+                 call MPI_SEND(tmp,
+     >                     stupid_msglen,stupid_double,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_comm_i,stupid_ierr)
+#else
+                 call MPI_SEND(tmp,
+     >                     msglen,MPI_DOUBLE_PRECISION,
+     >                     p_to,
+     >                     msgtype,Parallel_comm_i(),mpierr)
+#endif
+               end if
+            !end do
+            !end do
+
+         end do
+
+*     **** not master node ****
+      else if (fillcolumn.and.fillzone) then
+         do k=1,nz(nb)
+            call C3dB_ktoqp(nb,k,q,ii)
+            p_here = ii
+            !p_here = Parallel3d_convert_taskid_ijk(ii,taskid_j,taskid_k)
+            if (p_here.eq.taskid_i) then
+               msglen  = nx(nb)*ny(nb)
+               msgtype = 1
+               source   = MASTER
+#ifdef MPI4
+               stupid_msglen = msglen
+               stupid_type   = msgtype
+               stupid_taskid = source
+               call MPI_RECV(tmp,
+     >                    stupid_msglen,stupid_double,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_comm_i,
+     >                    int_mb(status(1)),stupid_ierr)
+#else
+               call MPI_RECV(tmp,
+     >                    msglen,MPI_DOUBLE_PRECISION,
+     >                    source,
+     >                    msgtype,Parallel_comm_i(),
+     >                    int_mb(status(1)),mpierr)
+#endif
+               index = 1 + (q-1)*nx(nb)*ny(nb)
+               call dcopy(nx(nb)*ny(nb),tmp,1,A(index),1)
+            end if
+         end do
+      end if
+
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+
+*     **** master node reads from file and distributes ****
+      if (taskid_i.eq.MASTER) then
+         do k=1,nz(nb)
+         do j=1,ny(nb)
+
+            call dread(iunit,tmp,(nx(nb)))
+
+            q    = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            ii   = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            !do kk=kstart,kend
+            !do jj=jstart,jend
+               p_to = ii
+               !p_to = Parallel3d_convert_taskid_ijk(ii,jj,kk)
+               if (p_to.eq.MASTER) then
+                  index = (q-1)*nx(nb) + 1
+                  call dcopy(nx(nb),tmp,1,A(index),1)
+               else
+                  msglen = nx(nb)
+                  msgtype = 1
+#ifdef MPI4
+                  stupid_msglen = msglen
+                  stupid_type   = msgtype
+                  stupid_taskid = p_to
+                  call MPI_SEND(tmp,
+     >                     stupid_msglen,stupid_double,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_comm_i,stupid_ierr)
+#else
+                  call MPI_SEND(tmp,
+     >                     msglen,MPI_DOUBLE_PRECISION,
+     >                     p_to,
+     >                     msgtype,Parallel_comm_i(),mpierr)
+#endif
+               end if
+            !end do
+            !end do
+         end do
+         end do
+
+*     **** not master node ****
+      else if (fillcolumn.and.fillzone) then
+         do k=1,nz(nb)
+         do j=1,ny(nb)
+
+            q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_here = ii
+            !p_here = Parallel3d_convert_taskid_ijk(ii,taskid_j,taskid_k)
+            if (p_here.eq.taskid_i) then
+               msglen = nx(nb)
+               msgtype = 1
+               source  = MASTER
+#ifdef MPI4
+               stupid_msglen = msglen
+               stupid_type   = msgtype
+               stupid_taskid = source
+               call MPI_RECV(tmp,
+     >                    stupid_msglen,stupid_double,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_comm_i,
+     >                    int_mb(status(1)),stupid_ierr)
+#else
+               call MPI_RECV(tmp,
+     >                    msglen,MPI_DOUBLE_PRECISION,
+     >                    source,
+     >                    msgtype,Parallel_comm_i(),
+     >                    int_mb(status(1)),mpierr)
+#endif
+               index = (q-1)*nx(nb) + 1
+               call dcopy(nx(nb),tmp,1,A(index),1)
+            end if
+         end do
+         end do
+       end if
+
+      if (fillcolumn.and.fillzone.and.dotrans) then
+*        **** allocate temporary space  ****
+         value =BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',tmp1(2),tmp1(1))
+         value =value.and.
+     >          BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+         if (.not. value) 
+     >      call errquit('C3dB_r_Read:out of stack memory',0,MA_ERR)
+         call C3dB_r_transpose_ijk(nb,5,A,
+     >                          dcpl_mb(tmp1(1)),
+     >                          dcpl_mb(tmp2(1)))  !*** map1to3 operation ***
+*        **** deallocate temporary space  ****
+         value =           BA_pop_stack(tmp2(2))
+         value = value.and.BA_pop_stack(tmp1(2))
+         if (.not. value) 
+     >      call errquit('C3dB_r_Read:error popping stack',0,MA_ERR)
+      end if
+
+      end if
+
+*     *** deallocate status memory ***
+      if (.not.BA_pop_stack(status(2)))
+     > call errquit('C3dB_r_read:popping stack',0,MA_ERR)
+
+
+
+      !*** shift filepointer by nx(nb)*ny(nb)*nz(nb) doubles ****
+      else
+         if (taskid_i.eq.MASTER)
+     >      call dshift_fileptr(iunit,nx(nb)*ny(nb)*nz(nb))
+      end if !*** readcolumn ***
+
+
+      return
+      end
+
+
+
+
+
 
 
 
@@ -2909,6 +3592,317 @@ c      call ga_sync()
 
       return
       end
+
+
+*     ***********************************
+*     *					*
+*     *	       C3dB_(c,r)_write_pio     *	
+*     *					*
+*     ***********************************
+      subroutine C3dB_c_write_pio(nb,iunit,A,tmp,jcol,kcol)
+      implicit none 
+      integer nb
+      integer iunit
+      complex*16 A(*)
+      complex*16 tmp(*)
+      integer jcol,kcol
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "mpif.h"
+#include "C3dB.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
+
+c#include "tcgmsg.fh"
+c#include "msgtypesf.h"
+c      integer rcv_len,rcv_proc
+
+      
+*     *** local variables ***
+      logical writecolumn,writezone
+      integer MASTER,taskid
+      parameter(MASTER=0)
+      logical value
+      integer p_from, p_here,q
+      integer j,k,index
+      integer dest,source,msglen,msgtype
+      integer dum,dum_msglen,dum_msgtype
+      integer tmp1(2),tmp2(2),status(2)
+      integer mpierr
+
+      integer ii,taskid_i,taskid_j,taskid_k
+
+*     **** external functions ****
+      integer  Parallel3d_convert_taskid_ijk,Parallel_comm_i
+      external Parallel3d_convert_taskid_ijk,Parallel_comm_i
+
+      call Parallel_taskid(taskid)
+      call Parallel3d_taskid_i(taskid_i)
+      call Parallel3d_taskid_j(taskid_j)
+      call Parallel3d_taskid_k(taskid_k)
+
+      writecolumn = (taskid_j.eq.jcol)
+      writezone   = (taskid_k.eq.kcol)
+
+      if (writecolumn.and.writezone) then
+
+
+*     **** allocate status memory ****
+      if (.not.BA_push_get(mt_int,MPI_STATUS_SIZE*4,
+     >                     'status',status(2),status(1)))
+     > call errquit('C3dB_c_write:out of stack',0,MA_ERR)
+
+
+      !**********************
+      !**** slab mapping ****
+      !**********************
+      if (mapping.eq.1) then
+*     **** master node reads from file and distributes ****
+      if (taskid_i.eq.MASTER) then
+         do k=1,nz(nb)
+
+            call C3dB_ktoqp(nb,k,q,ii)
+            p_from = ii
+            !p_from = Parallel3d_convert_taskid_ijk(ii,jcol,kcol)
+
+            if (p_from.eq.MASTER) then
+               index = 1 + (q-1)*nx(nb)*ny(nb) 
+               call zcopy(nx(nb)*ny(nb),A(index),1,tmp,1)
+            else
+               msglen  = nx(nb)*ny(nb)
+               msgtype = 1
+               source  = p_from
+               dum = 99
+               dum_msglen = 1
+               dum_msgtype = 2
+#ifdef MPI4
+               stupid_msglen = dum_msglen
+               stupid_type   = dum_msgtype
+               stupid_taskid = source
+               call MPI_SEND(dum,
+     >                     stupid_msglen,stupid_integer,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_comm_i,stupid_ierr)
+               stupid_msglen = msglen
+               stupid_type   = msgtype
+               call MPI_RECV(tmp,
+     >                    stupid_msglen,stupid_complex,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_comm_i,
+     >                    int_mb(status(1)),stupid_ierr)
+#else
+               call MPI_SEND(dum,
+     >                     dum_msglen,MPI_INTEGER,
+     >                     source,
+     >                     dum_msgtype,Parallel_comm_i(),mpierr)
+               call MPI_RECV(tmp,
+     >                    msglen,MPI_DOUBLE_COMPLEX,
+     >                    source,
+     >                    msgtype,Parallel_comm_i(),
+     >                    int_mb(status(1)),mpierr)
+#endif
+
+            end if
+            call dwrite(iunit,tmp,2*nx(nb)*ny(nb)) 
+         end do
+
+*     **** not master node ****
+      else
+         do k=1,nz(nb)
+         
+            call C3dB_ktoqp(nb,k,q,ii)
+            p_here = ii
+            !p_here = Parallel3d_convert_taskid_ijk(ii,jcol,kcol)
+            if (p_here.eq.taskid) then
+
+               index = 1 + (q-1)*nx(nb)*ny(nb)
+               call zcopy(nx(nb)*ny(nb),A(index),1,tmp,1)
+
+               msglen  = nx(nb)*ny(nb)
+               msgtype = 1
+               dest    = MASTER
+               dum_msglen  = 1
+               dum_msgtype = 2
+#ifdef MPI4
+                  stupid_msglen = dum_msglen
+                  stupid_type   = dum_msgtype
+                  stupid_taskid = dest
+                  call MPI_RECV(dum,
+     >                    stupid_msglen,stupid_integer,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_comm_i,
+     >                    int_mb(status(1)),stupid_ierr)
+                  stupid_msglen = msglen
+                  stupid_type   = msgtype
+                  call MPI_SEND(tmp,
+     >                     stupid_msglen,stupid_complex,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_comm_i,stupid_ierr)
+#else
+                  call MPI_RECV(dum,
+     >                    dum_msglen,MPI_INTEGER,
+     >                    dest,
+     >                    dum_msgtype,Parallel_comm_i(),
+     >                    int_mb(status(1)),mpierr)
+                  call MPI_SEND(tmp,
+     >                     msglen,MPI_DOUBLE_COMPLEX,
+     >                     dest,
+     >                     msgtype,Parallel_comm_i(),mpierr)
+#endif
+            end if
+
+         end do
+      end if
+
+      !*************************
+      !**** hilbert mapping ****
+      !*************************
+      else
+
+      if ((taskid_j.eq.jcol).and.(taskid_k.eq.kcol)) then
+*        **** allocate temporary space  ****
+         value = BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp1',
+     >                       tmp1(2),tmp1(1))
+         value = value.and.
+     >         BA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
+         if (.not. value) 
+     >      call errquit('C3dB_c_Write:out of stack memory',0,MA_ERR)
+*
+         call C3dB_c_transpose_ijk(nb,6,A,
+     >                          dcpl_mb(tmp1(1)),
+     >                          dcpl_mb(tmp2(1)))  !*** map3to1 operation ***
+
+*        **** deallocate temporary space  ****
+         value = BA_pop_stack(tmp2(2))
+         value = value.and.BA_pop_stack(tmp1(2))
+         if (.not. value) 
+     >      call errquit('C3dB_c_Write:error popping stack',0, MA_ERR)
+      end if
+
+c      call ga_sync()
+
+*     **** master node reads from file and distributes ****
+      if (taskid_i.eq.MASTER) then
+         do k=1,nz(nb)
+         do j=1,ny(nb)
+
+            q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_from = ii
+            !p_from = Parallel3d_convert_taskid_ijk(ii,jcol,kcol)
+            if (p_from.eq.MASTER) then
+
+               index = 1 + (q-1)*nx(nb)
+               call zcopy(nx(nb),A(index),1,tmp,1)
+            else
+               msglen  = nx(nb)
+               msgtype = 1
+               source  = p_from
+               dum = 99
+               dum_msglen  = 1
+               dum_msgtype = 2
+#ifdef MPI4
+               stupid_msglen = dum_msglen
+               stupid_type   = dum_msgtype
+               stupid_taskid = source
+               call MPI_SEND(tmp,
+     >                     stupid_msglen,stupid_integer,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_comm_i,stupid_ierr)
+               stupid_msglen = msglen
+               stupid_type   = msgtype
+               call MPI_RECV(tmp,
+     >                    stupid_msglen,stupid_complex,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_comm_i,
+     >                    int_mb(status(1)),stupid_ierr)
+#else
+               call MPI_SEND(dum,
+     >                     dum_msglen,MPI_INTEGER,
+     >                     source,
+     >                     dum_msgtype,Parallel_comm_i(),mpierr)
+               call MPI_RECV(tmp,
+     >                    msglen,MPI_DOUBLE_COMPLEX,
+     >                    source,
+     >                    msgtype,Parallel_comm_i(),
+     >                    int_mb(status(1)),mpierr)
+#endif
+            end if
+
+            call dwrite(iunit,tmp,2*nx(nb))
+         end do
+         end do
+
+*     **** not master node ****
+      else
+         do k=1,nz(nb)
+         do j=1,ny(nb)
+
+            q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
+            p_here = ii
+            !p_here = Parallel3d_convert_taskid_ijk(ii,jcol,kcol)
+            if (p_here.eq.taskid_i) then
+
+               index = 1 + (q-1)*nx(nb)
+               call zcopy(nx(nb),A(index),1,tmp,1)
+
+               msglen  = nx(nb)
+               msgtype = 1
+               dest    = MASTER
+               dum_msglen  = 1
+               dum_msgtype = 2
+#ifdef MPI4
+                  stupid_msglen = dum_msglen
+                  stupid_type   = dum_msgtype
+                  stupid_taskid = dest
+                  call MPI_RECV(dum,
+     >                    stupid_msglen,stupid_integer,
+     >                    stupid_taskid,
+     >                    stupid_type,stupid_comm_i,
+     >                    int_mb(status(1)),stupid_ierr)
+                  stupid_msglen = msglen
+                  stupid_type   = msgtype
+                  call MPI_SEND(tmp,
+     >                     stupid_msglen,stupid_complex,
+     >                     stupid_taskid,
+     >                     stupid_type,stupid_comm_i,stupid_ierr)
+#else
+                  call MPI_RECV(dum,
+     >                    dum_msglen,MPI_INTEGER,
+     >                    dest,
+     >                    dum_msgtype,Parallel_comm_i(),
+     >                    int_mb(status(1)),mpierr)
+                  call MPI_SEND(tmp,
+     >                     msglen,MPI_DOUBLE_COMPLEX,
+     >                     dest,
+     >                     msgtype,Parallel_comm_i(),mpierr)
+#endif
+            end if
+
+         end do
+         end do
+      end if
+
+      end if
+
+*     *** deallocate status memory ***
+      if (.not.BA_pop_stack(status(2)))
+     > call errquit('C3dB_c_write:popping stack',0,MA_ERR)
+
+
+      !*** shift filepointer by 2*((nx(nb)*ny(nb)*nz(nb) doubles ****
+      else
+         if (taskid_i.eq.MASTER)
+     >      call dshift_fileptr(iunit,2*(nx(nb)*ny(nb)*nz(nb)))
+      end if !*** writecolumn ***
+
+      return
+      end
+
 
 
 *     ***********************************

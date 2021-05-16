@@ -103,7 +103,7 @@ c     loop thru non-zero <i|eij|k> for idet<=jdet
                      i = max(ionel(1,iel),ionel(2,iel))
                      j = min(ionel(1,iel),ionel(2,iel))
                      ij = i*(i-1)/2 + j
-                     eijkl = dfloat(ionel(5,iel)) * ekl
+                     eijkl = dble(ionel(5,iel)) * ekl
                      hamil(ijdet) = hamil(ijdet) + eijkl*g(ij,kl)
  60               continue
  30            continue

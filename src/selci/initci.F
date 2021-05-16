@@ -26,11 +26,6 @@ c
       iflciv = 8
       ifleig = 79
 c
-c
-c     initialise bit handling routines on sun
-c
-      call inibit
-c
 c     open and read info from ciconf, moints, wmatrx, civecs
 c
       call selci_rdhead(title,type)

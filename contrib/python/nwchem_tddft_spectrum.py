@@ -159,10 +159,10 @@ if __name__ == '__main__':
             kwargs['plot_triplet'] = False
             kwargs['plot_unrestricted'] = True
         if key == '-h':
-            print __doc__
+            print(__doc__)
             sys.exit()
     if len(args) == 0:
-        print __doc__
+        print(__doc__)
         sys.exit()
     for fname in args:
         nwchem_tddft_spectrum(fname,**kwargs)

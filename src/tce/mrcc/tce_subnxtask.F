@@ -16,7 +16,7 @@ c
       integer p_handle
 c
       integer icount, nleft, nxtval, junk
-      external nxtval
+      external nxtask
       save icount, nleft
       data nleft, icount /0, 0/
 c#ifdef GANXTVAL

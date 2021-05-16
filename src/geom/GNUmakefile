@@ -40,7 +40,7 @@ include ../config/makelib.h
   ifeq ($(FC),ifort)
             FOPTIONS += -save
   endif
-  ifeq ($(FC),xlf)
+  ifeq ($(_FC),xlf)
 	    FOPTIONS += -qsave
   endif
    ifeq ($(TARGET),HPUX64)

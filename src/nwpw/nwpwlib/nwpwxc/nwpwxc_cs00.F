@@ -22,7 +22,7 @@ C>     "Asymptotic correction approach to improving approximate
 C>     exchange–correlation potentials: Time-dependent
 C>     density-functional theory calculations of molecular excitation
 C>     spectra", J. Chem. Phys. <b>113</b>, 8918-8935 (2000), DOI:
-C>     <A HREF="http://dx.doi.org/10.1063/1.1319649">
+C>     <A HREF="https://doi.org/10.1063/1.1319649">
 C>     10.1063/1.1319649</A>.
 C>
 #if defined(FUJITSU_VPP)

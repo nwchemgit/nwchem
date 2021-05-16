@@ -333,7 +333,7 @@ c     call lcao_diis_init(5,ispin,nbasis)
      >                 hmatrix(ms))
    
 *          **** diagonalize spin hamiltonian ****
-#if defined(PARALLEL_DIAG)
+#if defined(PARALLEL_DIAG) & !defined(SCALAPACK)
            call ga_diag(
      >                  hmatrix(ms),
      >                  smatrix,
@@ -438,7 +438,7 @@ c        end if
 
       end do
       if ((oprint).and.(taskid.eq.MASTER))
-     > write(*,*) '*** arived at the Maximum iiteration.   terminated.'
+     > write(*,*) '*** arrived at the Maximum iteration.   terminated.'
 
  50   if ((taskid.eq.MASTER).and.oprint) call current_second(cpu4)
       if ((taskid.eq.MASTER).and.oprint) CALL nwpw_MESSAGE(3)

@@ -134,8 +134,8 @@ c
       INTEGER nprocs
       INTEGER count
       EXTERNAL NXTASK
-      integer nxtval
-      external nxtval
+      integer nxtask
+      external nxtask
       logical nodezero
       logical idiskl
 c
@@ -283,13 +283,13 @@ c
      1       call errquit('sf only for parallel runs',1,DISK_ERR)
 cx        if(parallel) call ga_sync()
 cx        call util_file_name('max1',.false.,.false.,filename)
-cx        if (sf_create(filename,dfloat(bytes)*dfloat(size_max1),
-cx     1    dfloat(bytes)*dfloat(size_max1),chunk_max1,d_max1).ne.0)
+cx        if (sf_create(filename,dble(bytes)*dble(size_max1),
+cx     1    dble(bytes)*dble(size_max1),chunk_max1,d_max1).ne.0)
 cx     2    call errquit('4-index: sf problem a',0,DISK_ERR)
 c
 cx        call util_file_name('max2',.false.,.false.,filename)
-cx        if (sf_create(filename,dfloat(bytes)*dfloat(size_max2),
-cx     1    dfloat(bytes)*dfloat(size_max2),chunk_max2,d_max2).ne.0)
+cx        if (sf_create(filename,dble(bytes)*dble(size_max2),
+cx     1    dble(bytes)*dble(size_max2),chunk_max2,d_max2).ne.0)
 cx     2    call errquit('4-index: sf problem b',0,DISK_ERR)
 c
 c       call createfile(filename,d_v2,size_2e)
@@ -365,8 +365,8 @@ c ** debug **
 c
       if(idiskl) then
         call util_file_name('4af',.false.,.false.,filename)
-        if (sf_create(filename,dfloat(bytes)*dfloat(size_4af),
-     1    dfloat(bytes)*dfloat(size_4af),chunk_max1,handle_4a).ne.0)
+        if (sf_create(filename,dble(bytes)*dble(size_4af),
+     1    dble(bytes)*dble(size_4af),chunk_max1,handle_4a).ne.0)
      2    call errquit('4-index: sf problem opening 4af',0,DISK_ERR)
         i_to_x=handle_4a
       end if
@@ -458,10 +458,10 @@ c fixing offsets and sf_writing
      &          atpart * (azone2 - 1 + atpart * (azone1 - 1)))
          call tce_hash(int_mb(k_4af_offset),key_4af,offset_4af)
       if(idiskl) then !----
-        ierrcode1=sf_write(i_to_x,dfloat(bytes)*dfloat(offset_4af),
-     1    dfloat(bytes)*dfloat(size_4a),dbl_mb(k_4a),request)
-ccx        if (sf_write(i_to_x,dfloat(bytes)*dfloat(offset_4af),
-ccx     1    dfloat(bytes)*dfloat(size_4a),dbl_mb(k_4a),request).ne.0)
+        ierrcode1=sf_write(i_to_x,dble(bytes)*dble(offset_4af),
+     1    dble(bytes)*dble(size_4a),dbl_mb(k_4a),request)
+ccx        if (sf_write(i_to_x,dble(bytes)*dble(offset_4af),
+ccx     1    dble(bytes)*dble(size_4a),dbl_mb(k_4a),request).ne.0)
 ccx     1    THEN
         if(ierrcode1.ne.0) then
           write(6,8154)ierrcode1
@@ -494,7 +494,7 @@ c ---------------------------
 c
 c
        call ga_sync()
-       next = nxtval(-nprocs)
+       next = nxtask(-nprocs,1)
 c
 c
 c
@@ -536,8 +536,8 @@ c        endif
 c *************
 c
         call util_file_name('3a1mf',.false.,.false.,filename)
-        if (sf_create(filename,dfloat(bytes)*dfloat(size_3a1mf),
-     1    dfloat(bytes)*dfloat(size_3a1mf),chunk_max1,handle_3a1m).ne.0)
+        if (sf_create(filename,dble(bytes)*dble(size_3a1mf),
+     1    dble(bytes)*dble(size_3a1mf),chunk_max1,handle_3a1m).ne.0)
      2    call errquit('4-index: sf problem opening 3a1mf',0,DISK_ERR)
         i_from_x=handle_4a
         i_to_x=handle_3a1m
@@ -591,11 +591,11 @@ c
 c
        size_bl4a   = int_mb(k_a4_offset+2*length_a4+ii) 
       if(idiskl) then !---------
-        ierrcode1=sf_read(i_from_x,dfloat(bytes)*dfloat(offset_bl4a),
-     1    dfloat(bytes)*dfloat(size_bl4a),dbl_mb(k_integral),
+        ierrcode1=sf_read(i_from_x,dble(bytes)*dble(offset_bl4a),
+     1    dble(bytes)*dble(size_bl4a),dbl_mb(k_integral),
      1    request)
-ccx        if (sf_read(i_from_x,dfloat(bytes)*dfloat(offset_bl4a),
-ccx     1    dfloat(bytes)*dfloat(size_bl4a),dbl_mb(k_integral),
+ccx        if (sf_read(i_from_x,dble(bytes)*dble(offset_bl4a),
+ccx     1    dble(bytes)*dble(size_bl4a),dbl_mb(k_integral),
 ccx     1    request).ne.0) THEN
          if(ierrcode1.ne.0) THEN
           write(6,*)'STEP2_step1'
@@ -664,10 +664,10 @@ c getting piece of 4a
        end if 
          call tce_hash(int_mb(k_4af_offset),key_4af,offset_4af)
       if(idiskl) then !---------
-        ierrcode1=sf_read(i_from_x,dfloat(bytes)*dfloat(offset_4af),
-     1 dfloat(bytes)*dfloat(size_4a),dbl_mb(k_integral),request)
-ccx        if (sf_read(i_from_x,dfloat(bytes)*dfloat(offset_4af),
-ccx     1 dfloat(bytes)*dfloat(size_4a),dbl_mb(k_integral),request).ne.0)
+        ierrcode1=sf_read(i_from_x,dble(bytes)*dble(offset_4af),
+     1 dble(bytes)*dble(size_4a),dbl_mb(k_integral),request)
+ccx        if (sf_read(i_from_x,dble(bytes)*dble(offset_4af),
+ccx     1 dble(bytes)*dble(size_4a),dbl_mb(k_integral),request).ne.0)
 ccx     1    THEN
         if(ierrcode1.ne.0) then
           write(6,*)'STEP2-step1b'
@@ -730,8 +730,8 @@ c write to file
      &    (azone2 - 1 + atpart * (azone1 - 1)))
          call tce_hash(int_mb(k_3a1m_offset),key_3a1m,offset_3a1m)
        if(idiskl) then ! --------
-        ierrcode1=sf_write(i_to_x,dfloat(bytes)*dfloat(offset_3a1m),
-     r    dfloat(bytes)*dfloat(size_3a1m),dbl_mb(k_3a1m),request)
+        ierrcode1=sf_write(i_to_x,dble(bytes)*dble(offset_3a1m),
+     r    dble(bytes)*dble(size_3a1m),dbl_mb(k_3a1m),request)
         if (ierrcode1.ne.0) then
           write(6,*)'WRITE STEP3'
           write(6,8156) ierrcode1
@@ -764,7 +764,7 @@ c
       ENDDO
 c 3A1P fully done here
       call ga_sync()
-      next = nxtval(-nprocs)
+      next = nxtask(-nprocs,1)
 c
 c
 c
@@ -812,8 +812,8 @@ c      end if
 c *************
 c
         call util_file_name('2a2mf',.false.,.false.,filename)
-        if (sf_create(filename,dfloat(bytes)*dfloat(size_2a2mf),
-     1    dfloat(bytes)*dfloat(size_2a2mf),chunk_max1,handle_2a2m).ne.0)
+        if (sf_create(filename,dble(bytes)*dble(size_2a2mf),
+     1    dble(bytes)*dble(size_2a2mf),chunk_max1,handle_2a2m).ne.0)
      2    call errquit('4-index: sf problem opening 2a2mf',0,DISK_ERR)
         i_from_x=handle_3a1m
         i_to_x=handle_2a2m
@@ -865,8 +865,8 @@ c
 c
 c
        if(idiskl) then ! -------
-        ierrcode1=sf_read(i_from_x,dfloat(bytes)*dfloat(offset_bl3a1m),
-     2    dfloat(bytes)*dfloat(size_bl3a1m),
+        ierrcode1=sf_read(i_from_x,dble(bytes)*dble(offset_bl3a1m),
+     2    dble(bytes)*dble(size_bl3a1m),
      2    dbl_mb(k_integral),request)
          if(ierrcode1.ne.0) then
           write(6,*)'STEP3-step1a'
@@ -938,8 +938,8 @@ c write to file
      & atpart*(g4b - 1 + (noa+nva) * (g3b-1)))
          call tce_hash(int_mb(k_2a2m_offset),key_2a2m,offset_2a2m)
        if(idiskl) then ! -------
-        ierrcode1=sf_write(i_to_x,dfloat(bytes)*dfloat(offset_2a2m),
-     2    dfloat(bytes)*dfloat(size_2a2m),dbl_mb(k_2a2m),request)
+        ierrcode1=sf_write(i_to_x,dble(bytes)*dble(offset_2a2m),
+     2    dble(bytes)*dble(size_2a2m),dbl_mb(k_2a2m),request)
         if(ierrcode1.ne.0) then 
          write(6,*)'STEP3 write'
          write(6,8156) ierrcode1
@@ -971,7 +971,7 @@ c
       ENDDO
 c 2A2P fully done here
       call ga_sync()
-      next = nxtval(-nprocs)
+      next = nxtask(-nprocs,1)
 c
 c
 c
@@ -1020,8 +1020,8 @@ c
      2    call errquit('4-index: sf_rwtor 2a2m',0,DISK_ERR)
 c
         call util_file_name('1a3mf',.false.,.false.,filename)
-        if (sf_create(filename,dfloat(bytes)*dfloat(size_1a3mf),
-     1    dfloat(bytes)*dfloat(size_1a3mf),chunk_max1,handle_1a3m).ne.0)
+        if (sf_create(filename,dble(bytes)*dble(size_1a3mf),
+     1    dble(bytes)*dble(size_1a3mf),chunk_max1,handle_1a3m).ne.0)
      2    call errquit('4-index: sf problem opening 1a3mf',0,DISK_ERR)
         i_from_x=handle_2a2m
         i_to_x=handle_1a3m
@@ -1064,8 +1064,8 @@ c
 c
        size_bl2a2m   = int_mb(k_a2_offset+2*length_a2+ii)
       if(idiskl) then !---------
-        if (sf_read(i_from_x,dfloat(bytes)*dfloat(offset_bl2a2m),
-     1    dfloat(bytes)*dfloat(size_bl2a2m),dbl_mb(k_integral),
+        if (sf_read(i_from_x,dble(bytes)*dble(offset_bl2a2m),
+     1    dble(bytes)*dble(size_bl2a2m),dbl_mb(k_integral),
      1    request).ne.0) THEN
           write(6,8155)ga_nodeid(),key_4af,offset_4af,size_4a
           call errquit('zones put: sf problem2x4',1,DISK_ERR)
@@ -1175,8 +1175,8 @@ c azone2 < azone1  - PART2
      & atpart*(g4b - 1 + (noa+nva) * (g3b-1)))
          call tce_hash(int_mb(k_2a2m_offset),key_2a2m,offset_2a2m)
         if(idiskl) then !------
-        if (sf_read(i_from_x,dfloat(bytes)*dfloat(offset_2a2m),
-     r    dfloat(bytes)*dfloat(size_2a2m),dbl_mb(k_2a2m),request).ne.0)
+        if (sf_read(i_from_x,dble(bytes)*dble(offset_2a2m),
+     r    dble(bytes)*dble(size_2a2m),dbl_mb(k_2a2m),request).ne.0)
      2    call errquit('zones put: sf problem21-b',1,DISK_ERR)
         if (sf_wait(request).ne.0)
      1    call errquit('zones put: sf problem31-b',2,DISK_ERR)
@@ -1189,8 +1189,8 @@ c azone2 < azone1  - PART2
      & atpart*(g4b - 1 + (noa+nva) * (g3b-1)))
          call tce_hash(int_mb(k_2a2m_offset),key_2a2m,offset_2a2m)
         if(idiskl) then ! ------
-        if (sf_read(i_from_x,dfloat(bytes)*dfloat(offset_2a2m),
-     r    dfloat(bytes)*dfloat(size_2a2m),dbl_mb(k_2a2m),request).ne.0)
+        if (sf_read(i_from_x,dble(bytes)*dble(offset_2a2m),
+     r    dble(bytes)*dble(size_2a2m),dbl_mb(k_2a2m),request).ne.0)
      2    call errquit('zones put: sf problem21-b',1,DISK_ERR)
         if (sf_wait(request).ne.0)
      1    call errquit('zones put: sf problem31-b',2,DISK_ERR)
@@ -1292,8 +1292,8 @@ c write to file
      &  (g4b-1+(noa+nva)*(g3b-1)))
          call tce_hash(int_mb(k_1a3m_offset),key_1a3m,offset_1a3m)
        if(idiskl) then !---------
-        if (sf_write(i_to_x,dfloat(bytes)*dfloat(offset_1a3m),
-     r    dfloat(bytes)*dfloat(size_1a3m),dbl_mb(k_1a3m),request).ne.0)
+        if (sf_write(i_to_x,dble(bytes)*dble(offset_1a3m),
+     r    dble(bytes)*dble(size_1a3m),dbl_mb(k_1a3m),request).ne.0)
      2    call errquit('zones put: sf problem21-b',1,DISK_ERR)
         if (sf_wait(request).ne.0)
      1    call errquit('zones put: sf problem31-b',2,DISK_ERR)
@@ -1314,7 +1314,7 @@ c
       ENDDO
 c 1A3P fully done here
       call ga_sync()
-      next = nxtval(-nprocs)
+      next = nxtask(-nprocs,1)
 c
 c
 c
@@ -1404,8 +1404,8 @@ c
 c
        size_bl1a3m  = int_mb(k_a1_offset+2*length_a1+ii)
        if(idiskl) then ! -------
-        if (sf_read(i_from_x,dfloat(bytes)*dfloat(offset_bl1a3m),
-     2    dfloat(bytes)*dfloat(size_bl1a3m),
+        if (sf_read(i_from_x,dble(bytes)*dble(offset_bl1a3m),
+     2    dble(bytes)*dble(size_bl1a3m),
      2    dbl_mb(k_integral),request).ne.0)
      2    call errquit('zones put: sf problem21-b',1,DISK_ERR)
         if (sf_wait(request).ne.0)
@@ -1472,7 +1472,7 @@ c
       ENDDO
 c
        call ga_sync()
-       next = nxtval(-nprocs)
+       next = nxtask(-nprocs,1)
 c
 c
 c

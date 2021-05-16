@@ -454,7 +454,7 @@ C$Id$
 #include "errquit.fh"
 #include "inp.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
+#include "mafdecls.fh"
 #include "msgids.fh"
 #include "cfileprefix.fh"
 #include "util.fh"
@@ -472,6 +472,7 @@ c
       integer nkeys, istart, iend
       parameter (nkeys = 7)
       logical iocheckk
+      integer mitob1
       character*16 keys(nkeys), field
       data keys/'start','restart','continue',
      &    'scratch_dir','permanent_dir', 'ecce_print',
@@ -491,12 +492,13 @@ c     permanent_dir <read rest of line as character string>
 c
 c     Only process 0 reads ... everyone else jumps to the broadcast
 c
+      mitob1=MA_sizeof(MT_INT,1,MT_BYTE)
       scratch_dir = ' '
       permanent_dir = ' '
       call util_set_default_scratch_dir(scratch_dir)
       call util_set_default_permanent_dir(permanent_dir)
       iocheckk=.true.
-#if defined(CRAYXT) || defined(BGP) || defined(BGQ)
+#if defined(NOFSCHECK) || defined(CRAYXT) || defined(BGP) || defined(BGQ)
 c     on catamount all fs are parallel, therefore we need only node0
 c     on BGP/BGQ all fs are parallel, therefore we need only node0
       iocheckk=ga_nodeid().eq.0
@@ -582,8 +584,8 @@ c
 c
 c     Broadcast start options to everyone else
 c
-10000 call ga_brdcst(Msg_StartUp, ostartup, mitob(1), 0)
-      call ga_brdcst(Msg_StartUp, ocontinue, mitob(1), 0)
+10000 call ga_brdcst(Msg_StartUp, ostartup, mitob1, 0)
+      call ga_brdcst(Msg_StartUp, ocontinue, mitob1, 0)
       call util_char_ga_brdcst(Msg_startup, file_prefix, 0)
       call util_char_ga_brdcst(Msg_startup, scratch_dir, 0)
       call util_char_ga_brdcst(Msg_startup, permanent_dir, 0)

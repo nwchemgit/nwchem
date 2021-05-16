@@ -127,6 +127,8 @@ c     dte = 1.0d0
          tmin  = 10*deltat_min
       else
          call band_lmbfgs(tmin,dbl_mb(G0_shift),dbl_mb(S0_shift))
+         call Pneb_ff_traceall_tag(0,0,G0_tag,S0_tag,sum1)
+         if (dabs(sum1).gt.1.0d3) call BGrsm_ff_Copy_tag(G0_tag,S0_tag)
       end if
      
 
@@ -168,6 +170,9 @@ c         deltat = 1.0d0  !** debug **
 *        **** get the new gradient - also updates densities****
          call cpsi_2get_Tgradient(2,G0_tag,E0)
          call band_lmbfgs(tmin,dbl_mb(G0_shift),dbl_mb(S0_shift))
+
+         call Pneb_ff_traceall_tag(0,0,G0_tag,S0_tag,sum1)
+         if (dabs(sum1).gt.1.0d3) call BGrsm_ff_Copy_tag(G0_tag,S0_tag)
 
 *        **** make psi1 <--- psi2(tmin) ****
          call cpsi_2to1()

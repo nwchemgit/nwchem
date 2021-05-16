@@ -33,6 +33,7 @@
 
       integer i,j,info
 
+!$OMP MASTER
       do j=1,n
          b(j,j) = 1.0d0
          do i=j+1,n
@@ -41,7 +42,7 @@
          end do
       end do
       call dgesv(n,n,a,lda,ipiv,b,ldb,info)
-      !write(*,*) "info=",info
+      !write(*,*) "nwpw_matrix_invert_sub: info=",info
       do j=1,n
          a(j,j) = b(j,j)
          do i=j+1,n
@@ -49,6 +50,8 @@
             a(j,i) = b(i,j)
          end do
       end do
+!$OMP END MASTER
+!$OMP BARRIER
 
 
       return

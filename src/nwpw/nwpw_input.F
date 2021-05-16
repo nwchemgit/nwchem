@@ -19,11 +19,11 @@ c
 #include "nwc_const.fh"
 #include "errquit.fh"
 #include "util.fh"
-#include "nwpwxc.fh"
+c#include "nwpwxc.fh"
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 123)
+      parameter (num_dirs = 135)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -85,7 +85,7 @@ c
      >            'zone_structure_name',
      >            'dos-grid',
      >            'dos_filename',
-     >            'efield',
+     >            'atom_efield',
      >            'occupations',
      >            'expand_cell',
      >            'mapping',
@@ -127,7 +127,7 @@ c
      >            'pspspin',
      >            'Fei',
      >            'parallel_io',
-     >            'efield_grad',
+     >            'atom_efield_grad',
      >            'uterm',
      >            'et',
      >            'cpmd_properties',
@@ -147,6 +147,18 @@ c
      >            'translate_vector',
      >            'makehmass2',
      >            'apc',
+     >            'socket',
+     >            'vfield',
+     >            'born',
+     >            'symmetry',
+     >            'one_electron_guess',
+     >            'zone_fft_name',
+     >            'dos-fft-grid',
+     >            'director',
+     >            'efield',
+     >            '1d-slab',
+     >            '2d-hilbert',
+     >            '2d-hcurve',
      >            'end'/
 
       double precision kb
@@ -156,6 +168,8 @@ c
       character*50 input_wavefunction_filename
       character*50 output_wavefunction_filename
       character*50 exchange_correlation
+      character*128 ipname
+      character*255 vnames
       double precision fake_mass,time_step,rcut
       integer loop(2),ncut,cell_expand(3)
       double precision tolerances(3),ecut,wcut,fe,ff,scaling(2)
@@ -180,6 +194,12 @@ chvd
       external    c_index_name
       logical  nwpw_parse_boolean
       external nwpw_parse_boolean
+      logical  nwpwxc_input,nwpwxc_rtdb_store,nwpwxc_has_hfx 
+      external nwpwxc_input,nwpwxc_rtdb_store,nwpwxc_has_hfx 
+      logical  nwpwxc_has_cam,nwpwxc_rtdb_delete
+      external nwpwxc_has_cam,nwpwxc_rtdb_delete
+      real*8   nwpwxc_wght_hfx
+      external nwpwxc_wght_hfx
 
 *     ***** initializations ****
       call nwpw_default(rtdb)
@@ -219,7 +239,8 @@ c
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
      >       6700,6800,6900,7000,4250,7100,7200,7300,7400,7500,7600,
      >       7700,7800,7900,8000,8100,6650,8200,8300,8400,8500,8600,
-     >       8700,8800,
+     >       8700,8800,8900,9000,9010,9020,9030,1810,1811,1812,9040,
+     >       4501,4502,4503,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -399,6 +420,7 @@ c
 
       goto 10
 
+
 c
 c DOS-Grid
 c
@@ -427,6 +449,11 @@ c
       call dos_states_set(rtdb,zone_name,cell_expand(1),
      >                                   cell_expand(2),
      >                                   cell_expand(3))
+      value = rtdb_put(rtdb,'band:tetrahedron-grid',mt_int,3,
+     >                 cell_expand)
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 1808, RTDB_ERR)
       goto 10
 
 
@@ -446,6 +473,59 @@ c      if (.not.value)
 c     >  call errquit(
 c     >       'nwpw_input: error writing to rtdb', 1809, RTDB_ERR)
 c      goto 10
+
+c
+c  zone_fft_name
+c
+ 1810 if (.not. inp_a(zone_name))
+     >     call errquit(
+     >          'nwpw_input: failed to read zone_fft_name',0,INPUT_ERR)
+
+      ind = index(zone_name,' ') - 1
+      value = rtdb_cput(rtdb,'band_fft:zone_name',1,
+     >                  zone_name(1:ind))
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 1810, RTDB_ERR)
+
+      goto 10
+c
+c dos-fft-grid
+c
+ 1811 if (.not. inp_i(cell_expand(1))) cell_expand(1) = 2
+      if (.not. inp_i(cell_expand(2))) cell_expand(2) = 2
+      if (.not. inp_i(cell_expand(3))) cell_expand(3) = 2
+      if (.not. inp_a(zone_name)) zone_name = 'zone_fft_default'
+
+      call dos_states_set(rtdb,zone_name,cell_expand(1),
+     >                                   cell_expand(2),
+     >                                   cell_expand(3))
+
+      goto 10
+
+c
+c director
+c
+ 1812 if (.not.inp_a(zone_name)) then
+         value = rtdb_put(rtdb,'nwpw:use_director',mt_log,1,.true.)
+      else
+
+         if (.not.nwpw_parse_boolean(zone_name,.true.)) then
+            value = rtdb_put(rtdb,'nwpw:use_director',mt_log,1,.false.)
+         else
+
+            value = rtdb_put(rtdb,'nwpw:use_director',mt_log,1,.true.)
+            ind = index(zone_name,' ') - 1
+            value = rtdb_cput(rtdb,'nwpw:director_filename',1,
+     >                        zone_name(1:ind))
+         end if
+      end if
+
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 1811, RTDB_ERR)
+
+      goto 10
 
 
 
@@ -899,17 +979,17 @@ c
 
 
 c
-c  EFIELD
+c  ATOM_EFIELD
 c
- 4200 if (.not.rtdb_put(rtdb,'nwpw:efield',mt_log,1,.true.))
+ 4200 if (.not.rtdb_put(rtdb,'nwpw:atom_efield',mt_log,1,.true.))
      >  call errquit('nwpw_input: error writing to rtdb',4200,RTDB_ERR)
 
       goto 10
 
 c
-c  EFIELD_GRAD
+c  ATOM_EFIELD_GRAD
 c
- 4250 if (.not.rtdb_put(rtdb,'nwpw:efield_grad',mt_log,1,.true.))
+ 4250 if (.not.rtdb_put(rtdb,'nwpw:atom_efield_grad',mt_log,1,.true.))
      >  call errquit('nwpw_input: error writing to rtdb',4250,RTDB_ERR)
 
       goto 10
@@ -941,6 +1021,34 @@ c
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 4500, RTDB_ERR)
       goto 10
+c
+c  1d-slab mapping
+c
+ 4501 cell_expand(1) = 1
+      value = rtdb_put(rtdb,'nwpw:mapping',mt_int,1,cell_expand)
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 4501, RTDB_ERR)
+      goto 10
+c
+c  2d-hilbert mapping
+c
+ 4502 cell_expand(1) = 2
+      value = rtdb_put(rtdb,'nwpw:mapping',mt_int,1,cell_expand)
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 4502, RTDB_ERR)
+      goto 10
+c
+c  2d-hcurve mapping
+c
+ 4503 cell_expand(1) = 3
+      value = rtdb_put(rtdb,'nwpw:mapping',mt_int,1,cell_expand)
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 4503, RTDB_ERR)
+      goto 10
+
 
 c
 c  CG minimizer
@@ -978,6 +1086,10 @@ c
  4801 if (.not.inp_a(zone_name)) goto 4802
        if (inp_compare(.false.,zone_name,'potential')) minimizer = 5
        if (inp_compare(.false.,zone_name,'density'))   minimizer = 8
+       if (inp_compare(.false.,zone_name,'block-cg')) then
+         if(.not.rtdb_put(rtdb,'nwpw:ks_algorithm',mt_int,1,-1))
+     >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
+       end if
        if (inp_compare(.false.,zone_name,'cg')) then
          if(.not.rtdb_put(rtdb,'nwpw:ks_algorithm',mt_int,1,0))
      >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
@@ -994,12 +1106,23 @@ c
          if(.not.rtdb_put(rtdb,'nwpw:scf_algorithm',mt_int,1,1))
      >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
        end if
-       if (inp_compare(.false.,zone_name,'diis')) then
+       if (inp_compare(.false.,zone_name,'diis').or.
+     >     inp_compare(.false.,zone_name,'pulay').or.
+     >     inp_compare(.false.,zone_name,'johnson-pulay')
+     >    ) then
          if(.not.rtdb_put(rtdb,'nwpw:scf_algorithm',mt_int,1,2))
      >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
        end if
        if (inp_compare(.false.,zone_name,'anderson')) then
          if(.not.rtdb_put(rtdb,'nwpw:scf_algorithm',mt_int,1,3))
+     >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
+       end if
+       if (inp_compare(.false.,zone_name,'noprecondition')) then
+         if(.not.rtdb_put(rtdb,'nwpw:precondition',mt_log,1,.false.))
+     >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
+       end if
+       if (inp_compare(.false.,zone_name,'precondition')) then
+         if(.not.rtdb_put(rtdb,'nwpw:precondition',mt_log,1,.true.))
      >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
        end if
 
@@ -1031,6 +1154,14 @@ c
      >      call errquit('nwpw_input: error reading iterations',
      >                   4800,RTDB_ERR)
           if(.not.rtdb_put(rtdb,'nwpw:ks_maxit_orbs',mt_int,1,nx))
+     >    call errquit('nwpw_input: error writing to rtdb',
+     >                 4800,RTDB_ERR)
+       end if
+       if (inp_compare(.false.,zone_name,'diis_histories')) then
+          if (.not.inp_i(nx)) 
+     >      call errquit('nwpw_input: error reading diis histories',
+     >                   4800,RTDB_ERR)
+          if(.not.rtdb_put(rtdb,'nwpw:diis_histories',mt_int,1,nx))
      >    call errquit('nwpw_input: error writing to rtdb',
      >                 4800,RTDB_ERR)
        end if
@@ -1353,7 +1484,8 @@ c
       if (inp_compare(.false.,zone_name,'step'))     nz = 0
       if (inp_compare(.false.,zone_name,'fermi'))    nz = 1
       if (inp_compare(.false.,zone_name,'gaussian')) nz = 2
-     
+      if (inp_compare(.false.,zone_name,'marzari-vanderbilt')) nz = 4
+
       if (inp_compare(.false.,zone_name,'orbitals')) then
          if (.not.inp_i(loop(1))) then
             loop(1) = 4
@@ -2063,6 +2195,172 @@ c
          end if
          end if
       end if
+
+      goto 10
+
+c
+c socket ipi_client ip:port
+c
+ 8900 if (inp_a(zone_name)) then
+         move = nwpw_parse_boolean(zone_name,.true.)
+         if (move) then
+            ind = index(zone_name,' ') - 1
+            value=rtdb_cput(rtdb,'nwpw:socket_type',1,
+     >                      zone_name(1:ind))
+            if (inp_a(ipname)) then
+               ind = index(ipname,' ') - 1
+               value = value.and.
+     >                 rtdb_cput(rtdb,'nwpw:socket_ip',1,
+     >                           ipname(1:ind))
+            end if
+         else
+            value=rtdb_delete(rtdb,'nwpw:socket_type')
+         end if
+         if (.not.value)
+     >      call errquit(
+     >      'nwpw_input: error writing to rtdb', 8900, RTDB_ERR)
+      end if
+      goto 10
+
+c
+c
+c  vfield file1.ascii file2.ascii ....
+c  vfield off
+c
+ 9000 ncut = 0
+      do while (inp_a(zone_name)) 
+         move = nwpw_parse_boolean(zone_name,.true.)
+         if (move) then
+            ind = index(zone_name,' ')
+            if (ncut.eq.0) then
+               vnames(1:ind) = zone_name(1:ind)
+            else 
+               vnames = vnames(1:ncut)//zone_name(1:ind)
+            end if
+            ncut = ncut + ind
+            value=rtdb_cput(rtdb,'nwpw:vfield_filenames',
+     >                      1,vnames(1:ncut))
+         else
+            value=rtdb_delete(rtdb,'nwpw:vfield_filenames')
+         end if
+         if (.not.value)
+     >      call errquit(
+     >      'nwpw_input: error writing to rtdb',9000,RTDB_ERR)
+      end do
+      goto 10
+
+c
+c  born [dielc] on/off [r1 r2 r3...] 
+c
+ 9010 n1 = 0
+
+      if (inp_f(Gc)) then
+         if (.not.rtdb_put(rtdb,'nwpw:born_dielec',mt_dbl,1,Gc))
+     >   call errquit('nwpw_input: error writing to rtdb',9010,RTDB_ERR)
+      end if
+
+      move = .true.
+      if (inp_a(zone_name)) move = nwpw_parse_boolean(zone_name,.true.)
+
+      if (.not.rtdb_put(rtdb,'nwpw:born',mt_log,1,move))
+     > call errquit('nwpw_input: error writing to rtdb',9010,RTDB_ERR)
+
+      !**** try reading in atom radii ****
+      if (move) then
+         if (.not.BA_push_get(mt_dbl,nw_max_atom,'indx_start1',
+     >                        index_start1(2),index_start1(1)))
+     >   call errquit('nwpw_input:;push index_start1',0,MA_ERR)
+
+         do while (inp_f(Gc)) 
+            dbl_mb(index_start1(1)+n1) = Gc/0.529177d0
+            n1 = n1 + 1
+         end do
+         if (n1.gt.0) then
+            if (.not.rtdb_put(rtdb,'nwpw:born_vradii',mt_dbl,
+     >                        n1,dbl_mb(index_start1(1))))
+     >      call errquit('nwpw_input: error writing to rtdb',
+     >                   9010,RTDB_ERR)
+         end if
+         if (.not.BA_pop_stack(index_start1(2))) call errquit(
+     >   'nwpw_input:failed deallocating index_start1',0,MA_ERR)
+      end if
+      goto 10
+
+c
+c symmetry  .true.||.false
+c
+ 9020 if (inp_a(zone_name)) then
+         move = nwpw_parse_boolean(zone_name,.true.)
+      else
+         move = .true.
+      end if
+      if (.not.rtdb_put(rtdb,'nwpw:rho_use_symmetry',mt_log,1,
+     >                  move))
+     >  call errquit('nwpw_input: error writing to rtdb',9020,RTDB_ERR)
+      goto 10
+
+c
+c one-electron-guess it_in it_out it_ortho
+c
+ 9030 if (.not.inp_i(nx)) nx = 50
+      if (.not.inp_i(ny)) ny = 1
+      if (.not.inp_i(nz)) nz = 1
+      if (nz.ge.0) then
+         if (.not.rtdb_put(rtdb,'nwpw:H1_it_in',mt_int,1,nx))
+     >   call errquit('nwpw_input:error writing to rtdb',9030,RTDB_ERR)
+         if (.not.rtdb_put(rtdb,'nwpw:H1_it_out',mt_int,1,ny))
+     >   call errquit('nwpw_input:error writing to rtdb',9030,RTDB_ERR)
+         if (.not.rtdb_put(rtdb,'nwpw:H1_it_ortho',mt_int,1,nz))
+     >   call errquit('nwpw_input:error writing to rtdb',9030,RTDB_ERR)
+      end if
+
+      goto 10
+
+c
+c Efield  true/false ex ey ez [center cx cy cz] [periodic APC rgrid]
+c
+ 9040 if (inp_a(zone_name)) then
+         move = nwpw_parse_boolean(zone_name,.true.)
+         if (move) then
+            if (.not.inp_f(tolerances(1))) tolerances(1) = 0.0 
+            if (.not.inp_f(tolerances(2))) tolerances(2) = 0.0 
+            if (.not.inp_f(tolerances(3))) tolerances(3) = 0.0 
+            if (.not.rtdb_put(rtdb,'nwpw:efield_vector',mt_dbl,3,
+     >                        tolerances))
+     >      call errquit('nwpw_input:error writing rtdb',9040,RTDB_ERR)
+
+*           *** look for center ***
+            do while (inp_a(zone_name)) 
+               if (inp_compare(.false.,zone_name,'center')) then
+                  if (.not.inp_f(tolerances(1))) tolerances(1) = 0.0 
+                  if (.not.inp_f(tolerances(2))) tolerances(2) = 0.0 
+                  if (.not.inp_f(tolerances(3))) tolerances(3) = 0.0 
+                  if (.not.rtdb_put(rtdb,'nwpw:efield_center',mt_dbl,3,
+     >                              tolerances))
+     >            call errquit('nwpw_input:error writing rtdb',9040,
+     >                         RTDB_ERR)
+               end if
+               if (inp_compare(.false.,zone_name,'periodic')) then
+                  if (.not.rtdb_put(rtdb,'nwpw:efield_type',mt_int,1,0))
+     >            call errquit('nwpw_input:error writing rtdb',9040,
+     >                         RTDB_ERR)
+               end if
+               if (inp_compare(.false.,zone_name,'APC')) then
+                  if (.not.rtdb_put(rtdb,'nwpw:efield_type',mt_int,1,1))
+     >            call errquit('nwpw_input:error writing rtdb',9040,
+     >                         RTDB_ERR)
+               end if
+               if (inp_compare(.false.,zone_name,'rgrid')) then
+                  if (.not.rtdb_put(rtdb,'nwpw:efield_type',mt_int,1,2))
+     >            call errquit('nwpw_input:error writing rtdb',9040,
+     >                         RTDB_ERR)
+               end if
+            end do
+
+         end if
+      end if
+      if (.not.rtdb_put(rtdb,'nwpw:efield',mt_log,1, move))
+     >  call errquit('nwpw_input: error writing to rtdb',9040,RTDB_ERR)
 
       goto 10
 

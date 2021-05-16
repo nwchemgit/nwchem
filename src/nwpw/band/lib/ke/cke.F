@@ -102,11 +102,12 @@ c     real*8 G(nfft3d,3)
      >                           dbl_mb(tg_indx+(nb-1)*npack1))
          end do
       end if
-      
+
       value =           BA_pop_stack(tmp2(2))
       value = value.and.BA_pop_stack(tmp1(2))
       if (.not. value)
      > call errquit('cke_init:popping stack memory',0,MA_ERR)
+
       return
       end
 
@@ -165,6 +166,46 @@ c     real*8 G(nfft3d,3)
       
 
       return 
+      end
+
+*     **********************************************
+*     *                                            *
+*     *             cke0                           *
+*     *                                            *
+*     **********************************************
+      subroutine cke0(nbq,ispin,ne,psi1_tag,psi2_tag)
+      implicit none
+      integer  nbq
+      integer    ispin,ne(2)
+      integer    psi1_tag
+      integer    psi2_tag
+
+#include "bafdecls.fh"
+#include "cke_common.fh"
+
+*     **** local variables ****
+      integer npack1,nbrillq,neall
+      integer n,shift1,shift2,nshift
+
+*     **** external functions ****
+      integer  Pneb_nbrillq,Pneb_convert_nb,cpsi_data_get_chnk
+      external Pneb_nbrillq,Pneb_convert_nb,cpsi_data_get_chnk
+
+      call Cram_max_npack(npack1)
+      nshift = 2*npack1
+      nbrillq = Pneb_nbrillq()
+      neall  = ne(1)+ne(2)
+
+         shift1 = cpsi_data_get_chnk(psi1_tag,nbq)
+         shift2 = cpsi_data_get_chnk(psi2_tag,nbq)
+         do n=1,neall
+            call Cram_rc_Mul(nbq,dbl_mb(tg_indx+(nbq-1)*npack1),
+     >                           dbl_mb(shift1),dbl_mb(shift2))
+            shift1 = shift1 + nshift
+            shift2 = shift2 + nshift
+         end do
+
+      return
       end
 
 *     **********************************************
@@ -487,5 +528,73 @@ c     real*8 G(nfft3d,3)
       end
 
 
+*     ****************************************
+*     *                                      *
+*     *              cke_Precondition        *
+*     *                                      *
+*     ****************************************
+      subroutine cke_Precondition(nbq,npack,neall,psi,gradk)
+      implicit none
+      integer nbq,npack,neall
+      complex*16   psi(npack,neall)
+      complex*16 gradk(npack,neall)
+
+#include "bafdecls.fh"
+#include "cke_common.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical value
+      integer k,n
+      real*8  sum
+      real*8  x,cm,dm,Ep,cm2(1)
+      integer tmp1(2)
+
+      real*8   lattice_wggcut,control_Ep
+      external lattice_wggcut,control_Ep
+
+      integer ispin,ne(2)
+
+      value = BA_push_get(mt_dcpl,npack,'tmp1',tmp1(2),tmp1(1))
+      if (.not. value) call errquit('out of stack memory',0)
+
+*     **** My preconditioner ****
+      ispin = 2
+      ne(1) = 1
+      ne(2) = 0
+      do n=1,neall
+         call Cram_cc_dot(nbq,psi(1,n),psi(1,n),x)
+         call Cram_rc_Mul(nbq,
+     >                    dbl_mb(tg_indx+(nbq-1)*npack),
+     >                    psi(1,n),
+     >                    dcpl_mb(tmp1(1)))
+         call Cram_cc_dot(nbq,psi(1,n),
+     >                       dcpl_mb(tmp1(1)),
+     >                       sum)
+        sum = -sum
+        !write(*,*) "x,sum,Ep=",x,sum,Ep,0.5d0*lattice_wggcut()
+CDIR$ NOVECTOR
+!$OMP DO
+        do k=1,npack
+           x = -dbl_mb(tg_indx+(nbq-1)*npack+k-1)
+           x = x*dconjg(psi(k,n))*psi(k,n)
+           x = x/sum
+
+           cm = 27.0d0+(18.0d0+(12.0d0+8.0d0*x)*x)*x
+           dm = (cm + 16.0d0* x**4)
+           cm = cm/dm
+
+           gradk(k,n) = gradk(k,n)*(cm)
+        end do
+!$OMP END DO
+        !write(*,*) "xmax=",sum
+      end do
+
+      value = BA_pop_stack(tmp1(2))
+      if (.not. value) call errquit('error popping stack memory',0)
+
+
+      return
+      end 
 
 

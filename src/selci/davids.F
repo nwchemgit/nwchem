@@ -52,7 +52,6 @@ c
       call ga_brdcst(3, noconf,  mitob(1), 0)
       call ga_brdcst(4, nintpo,  mitob(1), 0)
       call ga_brdcst(5, nbitpi,  mitob(1), 0)
-      call inibit
 c
 c     how many roots are wanted and what threshold? ... now from 
 c     arguments ... historically process zero read them in from disk
@@ -174,7 +173,7 @@ c         write(6,*)
 c         call selci_analci(si(1,ir,nvec),indxci,ioconf,nci,noconf,
 c     $        norbs,nintpo,nbitpi,0)
 c 41   continue
-c      call selci_output(si(1,1,nvec),1,nci,1,nroot,nci,nroot,1)
+c      call output(si(1,1,nvec),1,nci,1,nroot,nci,nroot,1)
       if (me.eq.0) then
         call selci_davidd(iter,itermx,nvec,maxvec,nci,nroot,ci,si,hd,
      &   alpha,redh,work,roots,conv,de,.true.)
@@ -354,10 +353,10 @@ c
       call selci_yacobi(work(iredh),alpha,nroot*nvec,
      $     work(ibig),work(iibig))
 *      write(6,*) ' reduced h e-vectors'
-*      call selci_output(alpha,1,nroot*nvec,1,nroot*nvec,nroot*nvec,
+*      call output(alpha,1,nroot*nvec,1,nroot*nvec,nroot*nvec,
 *     $     nroot*nvec,1)
 *      write(6,*) ' reduced h evals '
-*      call selci_output(work(ibig),1,nroot*nvec,1,1,nroot*nvec,1,1)
+*      call output(work(ibig),1,nroot*nvec,1,1,nroot*nvec,1,1)
       do 25 iroot = 1,nroot
          rnew = work(ibig-1 + iroot)
          if (nvec.eq.nnvec) then

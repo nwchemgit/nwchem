@@ -43,7 +43,7 @@ while (<DATA>)
 	@newtokens = split(' ');      
 	$num_tokens = @newtokens ;
 	if($debug){print "tokens: @newtokens $#newtokens $num_tokens \n";}
-	push(tokens,$newtokens[0]);
+	push(@tokens,$newtokens[0]);
     }
 }
 close (DATA);
@@ -75,7 +75,7 @@ foreach $file (@ARGV){
 	  }
       }
   }
-    if ($found) {push(found_files,$file);}
+    if ($found) {push(@found_files,$file);}
     close(FIXEDFILE);
 }
 $num_found_files = @found_files;

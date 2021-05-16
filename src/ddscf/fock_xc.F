@@ -149,6 +149,7 @@ c is only important for unrestricted calculations.
          write(luout,*) ' triplet ',triplet
          call util_flush(luout)
        endif
+       if(nfock_xc.eq.0) return
 c
 c     assumed l3d true AND calc_type=2
 c

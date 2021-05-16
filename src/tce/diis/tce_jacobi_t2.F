@@ -50,7 +50,7 @@ c
      1                ((ioalg.eq.6).and.(.not.fileisga(d_r2))))
       nprocs = ga_nnodes()
       count = 0
-cc      next = nxtval(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
@@ -109,7 +109,7 @@ c ----------------------------------------------------------------------------
                 endif
                 endif
                 endif
-cc                next = nxtval(nprocs)
+cc                next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
               endif
               count = count + 1
@@ -117,7 +117,7 @@ cc                next = nxtval(nprocs)
           enddo
         enddo
       enddo
-cc      next = nxtval(-nprocs)
+cc      next = nxtask(-nprocs,1)
       next = NXTASK(-nprocs, 1)
       call ga_sync()
       return
@@ -157,8 +157,8 @@ c
       integer nprocs
       integer count
       integer next
-cc      integer nxtval
-cc      external nxtval
+cc      integer nxtask
+cc      external nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
       logical nodezero
@@ -173,7 +173,7 @@ c
      1                ((ioalg.eq.6).and.(.not.fileisga(d_r2))))
       nprocs = ga_nnodes()
       count = 0
-cc      next = nxtval(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
@@ -220,7 +220,7 @@ c ----------------------------------------------------------------------------
                 endif
                 endif
                 endif
-cc                next = nxtval(nprocs)
+cc                next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
               endif
               count = count + 1
@@ -228,7 +228,7 @@ cc                next = nxtval(nprocs)
           enddo
         enddo
       enddo
-cc      next = nxtval(-nprocs)
+cc      next = nxtask(-nprocs,1)
       next = NXTASK(-nprocs, 1)
       call ga_sync()
       return
@@ -269,11 +269,11 @@ c
       integer count
       integer next
       LOGICAL is_active_1,is_active_2,is_active_3,is_active_4
-cc      integer nxtval
+cc      integer nxtask
 c
       integer iter 
 c
-cc      external nxtval
+cc      external nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
       logical nodezero
@@ -296,7 +296,7 @@ c
      1                ((ioalg.eq.6).and.(.not.fileisga(d_r2))))
       nprocs = ga_nnodes()
       count = 0
-cc      next = nxtval(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
@@ -357,7 +357,7 @@ c ----------------------------------------------------------------------------
                 endif
                 endif
                 endif
-cc                next = nxtval(nprocs)
+cc                next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
               endif
               count = count + 1
@@ -365,7 +365,7 @@ cc                next = nxtval(nprocs)
           enddo
         enddo
       enddo
-cc      next = nxtval(-nprocs)
+cc      next = nxtask(-nprocs,1)
       next = NXTASK(-nprocs, 1)
       call ga_sync()
       return

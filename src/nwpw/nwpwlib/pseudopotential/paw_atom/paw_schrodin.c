@@ -19,7 +19,7 @@
 #include "paw_pred_cor.h"
 #include "paw_schrodin.h"
 
-#define Max_Iterations		100
+#define Max_Iterations		1000
 #define tolerance 		1.0e-10
 #define Corrector_Iterations	6
 

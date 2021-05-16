@@ -29,16 +29,16 @@ c      parameter (EPSILON=1.0d0)
       integer zero,qzero,pzero,taskid
       integer nx,ny,nz,nxh,nyh,nzh
       real*8  pi,twopi,fourpi,gg,x,y,z,temp,dV,pp2,scal1
-      real*8  a(3,3)
+      real*8  a(3,3),unita(3,3),unitg(3,3)
       integer gk(2),glr(2),gk2(2)
 
 *     **** external functions ****
       integer  G_indx
-      real*8   util_erf,lattice_omega,lattice_unita
+      real*8   util_erf,lattice_omega,lattice_unita,lattice_unitg
       real*8   kiril_coulomb_transform, kiril_coulomb_transform0
       real*8  control_attenuation
       external G_indx
-      external util_erf,lattice_omega,lattice_unita
+      external util_erf,lattice_omega,lattice_unita,lattice_unitg
       external kiril_coulomb_transform, kiril_coulomb_transform0
       external control_attenuation
 
@@ -301,7 +301,7 @@ c            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
 *     **************************************************************
 *     ***** flag==4 use erfc definitions of kernel            ******
 *     **************************************************************
-      else
+      else if (flag.eq.4) then
 *     ***********************************
 *     *** Set up the Green's function ***
 *     ***********************************
@@ -329,7 +329,20 @@ c            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
 
          dbl_mb(gk2(1)+i-1) = temp
       end do
-      
+
+*     **************************************************************
+*     ***** flag==5 Filtered exchange definitions of kernel   ******
+*     **************************************************************
+      else 
+         !write(*,*) "Filtered Exchange not implemenented!"
+         do j=1,3
+         do i=1,3
+            unita(i,j) = lattice_unita(i,j)
+            unitg(i,j) = lattice_unitg(i,j)
+         end do
+         end do
+         call coulomb_filter(unita,unitg,nfft3d,dbl_mb(G(1)),
+     >                       dbl_mb(gk2(1)))
       end if
 
 
@@ -831,11 +844,11 @@ c     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
       value = value.and.
      >        BA_push_get(mt_dbl,n2ft3d,'dgr',dgr(2),dgr(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-      call dcopy(2*nfft3d,0.0d0,dcpl_mb(gk(1)),1)
-      call dcopy(2*nfft3d,0.0d0,dcpl_mb(dgk(1)),1)
-      call dcopy(nfft3d,0.0d0,dbl_mb(gk2(1)),1)
-      call dcopy(n2ft3d,0.0d0,dbl_mb(gr(1)),1)
-      call dcopy(n2ft3d,0.0d0,dbl_mb(dgr(1)),1)
+      call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(gk(1)),1)
+      call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(dgk(1)),1)
+      call dcopy(nfft3d,0.0d0,0,dbl_mb(gk2(1)),1)
+      call dcopy(n2ft3d,0.0d0,0,dbl_mb(gr(1)),1)
+      call dcopy(n2ft3d,0.0d0,0,dbl_mb(dgr(1)),1)
 
 
       call D3dB_nz(1,nz)

@@ -547,7 +547,7 @@ c*     *****  read psi2 wavefunctions ****
       if (icount.lt.it_out) go to 1
       if (taskid.eq.MASTER) 
      >   write(luout,*)
-     >   '*** arived at the Maximum iiteration.   terminated.'
+     >   '*** arrived at the Maximum iiteration.   terminated.'
 
 *::::::::::::::::::::  end of iteration loop  :::::::::::::::::::::::::
 
@@ -786,13 +786,13 @@ c      end if
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ OFPW input data ===================')
  1111 FORMAT(/' number of processors used:',I3)
- 1112 FORMAT( ' parallel mapping         : slab')
- 1113 FORMAT( ' parallel mapping         : hilbert')
+ 1112 FORMAT( ' parallel mapping         : 1d-slab')
+ 1113 FORMAT( ' parallel mapping         : 2d-hilbert')
  1114 FORMAT( ' parallel mapping         : balanced')
  1115 FORMAT(/' options:')
  1116 FORMAT( ' parallel mapping         : not balanced')
  1117 FORMAT( ' processor grid           :',I4,' x',I4)
- 1118 FORMAT( ' parallel mapping         : hcurve')
+ 1118 FORMAT( ' parallel mapping         : 2d-hcurve')
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)

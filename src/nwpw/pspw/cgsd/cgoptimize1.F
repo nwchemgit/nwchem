@@ -602,7 +602,7 @@ c         end if
          end if
       if (icount.lt.it_out) go to 101
       if (oprint) write(luout,*) 
-     > '*** arived at the Maximum iteration.   terminated.'
+     > '*** arrived at the Maximum iteration.   terminated.'
 
 *::::::::::::::::::::  end of iteration loop  :::::::::::::::::::::::::
       call control_up_print()
@@ -795,13 +795,13 @@ c         end if
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ input data ========================')
  1111 FORMAT(/' number of processors used:',I10)
- 1112 FORMAT( ' parallel mapping         :      1d slab')
- 1113 FORMAT( ' parallel mapping         :   2d hilbert')
+ 1112 FORMAT( ' parallel mapping         :      1d-slab')
+ 1113 FORMAT( ' parallel mapping         :   2d-hilbert')
  1114 FORMAT( ' parallel mapping         :     balanced')
  1115 FORMAT(/' options:')
  1116 FORMAT( ' parallel mapping         : not balanced')
  1117 FORMAT( ' processor grid           :',I4,' x',I4)
- 1118 FORMAT( ' parallel mapping         :    2d hcurve')
+ 1118 FORMAT( ' parallel mapping         :    2d-hcurve')
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1122 FORMAT(5X,' qmmm simulation')
@@ -981,6 +981,9 @@ c         end if
       external control_version,control_ngrid,control_minimizer
       external control_mapping,control_mapping1d,psi_ne,psi_ispin
 
+      integer  control_gga
+      external control_gga
+
 
 
       ngrid(1) = control_ngrid(1)
@@ -1066,7 +1069,7 @@ c         end if
       call pspw_init_HFX(rtdb,psi_ispin(),ne)
 
 *     **** initialize Meta GGA ****
-      call nwpw_meta_gga_init()
+      call nwpw_meta_gga_init(control_gga())
 
 
       if (calc_pressure) then

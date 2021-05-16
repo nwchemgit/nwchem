@@ -33,6 +33,14 @@
 *   gga = 116-199 (reserved for hybrids)
 *   gga = 200 hartree-fock
 *
+*   **** meta ggas and hybrid metagga ****
+*   gga = 300 vs98
+*   gga = 301 tpss03
+*   gga = 302 scan
+*   gga = 303 pkzb
+*   gga = 304 m06-l
+*   gga = 305  m06
+*   gga = 306  m06-2x
 *
       has_disp = .false.
       has_vdw  = .false.
@@ -99,7 +107,23 @@
      >         inp_compare(.false.,exchange_correlation,
      >                     'pbe-grimme4')) then
         gga = 10
-        options_disp  = '-func pbe -bj -noprint'
+        options_disp  = '-func pbe -bj -num -noprint'
+        has_disp   = .true.
+        is_grimme2 = .false.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'pbe96-grimme5').or.
+     >         inp_compare(.false.,exchange_correlation,
+     >                     'pbe-grimme5')) then
+        gga = 10
+        options_disp  = '-func pbe -zerom -noprint'
+        has_disp   = .true.
+        is_grimme2 = .false.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'pbe96-grimme6').or.
+     >         inp_compare(.false.,exchange_correlation,
+     >                     'pbe-grimme6')) then
+        gga = 10
+        options_disp  = '-func pbe -bjm -num -noprint'
         has_disp   = .true.
         is_grimme2 = .false.
 
@@ -134,7 +158,20 @@
       else if (inp_compare(.false.,exchange_correlation,
      >                     'blyp-grimme4')) then
         gga = 11
-        options_disp  = '-func b-lyp -bj -noprint'
+        options_disp  = '-func b-lyp -bj -num -noprint'
+        has_disp   = .true.
+        is_grimme2 = .false.
+
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'blyp-grimme5')) then
+        gga = 11
+        options_disp  = '-func b-lyp -zerom -noprint'
+        has_disp   = .true.
+        is_grimme2 = .false.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'blyp-grimme6')) then
+        gga = 11
+        options_disp  = '-func b-lyp -bjm -num -noprint'
         has_disp   = .true.
         is_grimme2 = .false.
 
@@ -166,9 +203,23 @@
       else if (inp_compare(.false.,exchange_correlation,
      >                     'revpbe-grimme4')) then
         gga = 12
-        options_disp  = '-func revpbe -bj -noprint'
+        options_disp  = '-func revpbe -bj -num -noprint'
         has_disp   = .true.
         is_grimme2 = .false.
+
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'revpbe-grimme5')) then
+        gga = 12
+        options_disp  = '-func revpbe -zerom -noprint'
+        has_disp   = .true.
+        is_grimme2 = .false.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'revpbe-grimme6')) then
+        gga = 12
+        options_disp  = '-func revpbe -bjm -num -noprint'
+        has_disp   = .true.
+        is_grimme2 = .false.
+
       else if (inp_compare(.false.,exchange_correlation,
      >                     'revpbe-vdw2')) then
         gga = 12
@@ -184,7 +235,7 @@
       else if (inp_compare(.false.,exchange_correlation,
      >                     'pbesol-grimme2')) then
         gga = 13
-        options_disp  = '-func pbesol -old -noprint'
+        options_disp  = '-func pbe -old -noprint'
         has_disp   = .true.
         is_grimme2 = .true.
       else if (inp_compare(.false.,exchange_correlation,
@@ -196,9 +247,22 @@
       else if (inp_compare(.false.,exchange_correlation,
      >                     'pbesol-grimme4')) then
         gga = 13
-        options_disp  = '-func pbesol -bj -noprint'
+        options_disp  = '-func pbesol -bj -num -noprint'
         has_disp   = .true.
         is_grimme2 = .false.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'pbesol-grimme5')) then
+        gga = 13
+        options_disp  = '-func pbesol -zerom -noprint'
+        has_disp   = .true.
+        is_grimme2 = .false.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'pbesol-grimme6')) then
+        gga = 13
+        options_disp  = '-func pbesol -bjm -num -noprint'
+        has_disp   = .true.
+        is_grimme2 = .false.
+
       else if (inp_compare(.false.,exchange_correlation,
      >                     'pbesol-vdw2')) then
         gga = 13
@@ -225,7 +289,19 @@
       else if (inp_compare(.false.,exchange_correlation,
      >                     'beef-grimme4')) then
         gga = 16
-        options_disp  = '-func pbesol -bj -noprint'
+        options_disp  = '-func pbesol -bj -num -noprint'
+        has_disp   = .true.
+        is_grimme2 = .false.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'beef-grimme5')) then
+        gga = 16
+        options_disp  = '-func pbesol -zerom -noprint'
+        has_disp   = .true.
+        is_grimme2 = .false.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'beef-grimme6')) then
+        gga = 16
+        options_disp  = '-func pbesol -bjm -num -noprint'
         has_disp   = .true.
         is_grimme2 = .false.
       else if (inp_compare(.false.,exchange_correlation,
@@ -255,9 +331,22 @@
       else if (inp_compare(.false.,exchange_correlation,
      >                     'xbeef-cpbe-grimme4')) then
         gga = 17
-        options_disp  = '-func pbesol -bj -noprint'
+        options_disp  = '-func pbesol -bj -num -noprint'
         has_disp   = .true.
         is_grimme2 = .false.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'xbeef-cpbe-grimme5')) then
+        gga = 17
+        options_disp  = '-func pbesol -zerom -noprint'
+        has_disp   = .true.
+        is_grimme2 = .false.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'xbeef-cpbe-grimme6')) then
+        gga = 17
+        options_disp  = '-func pbesol -bjm -num -noprint'
+        has_disp   = .true.
+        is_grimme2 = .false.
+
       else if (inp_compare(.false.,exchange_correlation,
      >                     'xbeef-cpbe-vdw2')) then
         gga = 17
@@ -327,7 +416,25 @@
         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
         value = value.and.
      >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.25d0)
-        options_disp  = '-func pbe0 -bj -noprint'
+        options_disp  = '-func pbe0 -bj -num -noprint'
+        has_disp   = .true.
+        is_grimme2 = .false.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'pbe0-grimme5')) then
+        gga = 110
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.25d0)
+        options_disp  = '-func pbe0 -zerom -noprint'
+        has_disp   = .true.
+        is_grimme2 = .false.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'pbe0-grimme6')) then
+        gga = 110
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.25d0)
+        options_disp  = '-func pbe0 -bjm -num -noprint'
         has_disp   = .true.
         is_grimme2 = .false.
       else if (inp_compare(.false.,exchange_correlation,
@@ -384,7 +491,25 @@
         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
         value = value.and.
      >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.25d0)
-        options_disp  = '-func revpbe0 -bj -noprint'
+        options_disp  = '-func revpbe0 -bj -num -noprint'
+        has_disp   = .true.
+        is_grimme2 = .false.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'revpbe0-grimme5')) then
+        gga = 112
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.25d0)
+        options_disp  = '-func revpbe0 -zerom -noprint'
+        has_disp   = .true.
+        is_grimme2 = .false.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'revpbe0-grimme6')) then
+        gga = 112
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.25d0)
+        options_disp  = '-func revpbe0 -bjm -num -noprint'
         has_disp   = .true.
         is_grimme2 = .false.
       else if (inp_compare(.false.,exchange_correlation,
@@ -496,7 +621,51 @@
      >          rtdb_put(rtdb,'pspw:HFX_screening_type',mt_int,1,4)
         value = value.and.
      >          rtdb_put(rtdb,'band:HFX_screening_type',mt_int,1,4)
-        options_disp  = '-func hse06 -bj -noprint'
+        options_disp  = '-func hse06 -bj -num -noprint'
+        has_disp   = .true.
+        is_grimme2 = .false.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                      'hse-grimme5')) then
+        gga = 114
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        value = value.and.rtdb_put(rtdb,'band:HFX',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.25d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'band:HFX_parameter',mt_dbl,1,0.25d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:HFX_screening_radius',
+     >                   mt_dbl,1,(1.0d0/0.207d0))
+        value = value.and.
+     >          rtdb_put(rtdb,'band:HFX_screening_radius',
+     >                   mt_dbl,1,(1.0d0/0.207d0))
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:HFX_screening_type',mt_int,1,4)
+        value = value.and.
+     >          rtdb_put(rtdb,'band:HFX_screening_type',mt_int,1,4)
+        options_disp  = '-func hse06 -zerom -noprint'
+        has_disp   = .true.
+        is_grimme2 = .false.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                      'hse-grimme6')) then
+        gga = 114
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        value = value.and.rtdb_put(rtdb,'band:HFX',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.25d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'band:HFX_parameter',mt_dbl,1,0.25d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:HFX_screening_radius',
+     >                   mt_dbl,1,(1.0d0/0.207d0))
+        value = value.and.
+     >          rtdb_put(rtdb,'band:HFX_screening_radius',
+     >                   mt_dbl,1,(1.0d0/0.207d0))
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:HFX_screening_type',mt_int,1,4)
+        value = value.and.
+     >          rtdb_put(rtdb,'band:HFX_screening_type',mt_int,1,4)
+        options_disp  = '-func hse06 -bjm -num -noprint'
         has_disp   = .true.
         is_grimme2 = .false.
       else if (inp_compare(.false.,exchange_correlation,
@@ -573,7 +742,25 @@
         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
         value = value.and.
      >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.20d0)
-        options_disp  = '-func b3-lyp -bj -noprint'
+        options_disp  = '-func b3-lyp -bj -num -noprint'
+        has_disp   = .true.
+        is_grimme2 = .false.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'b3lyp-grimme5')) then
+        gga = 115
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.20d0)
+        options_disp  = '-func b3-lyp -zerom -noprint'
+        has_disp   = .true.
+        is_grimme2 = .false.
+      else if (inp_compare(.false.,exchange_correlation,
+     >                     'b3lyp-grimme6')) then
+        gga = 115
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.20d0)
+        options_disp  = '-func b3-lyp -bjm -num -noprint'
         has_disp   = .true.
         is_grimme2 = .false.
       else if (inp_compare(.false.,exchange_correlation,
@@ -592,6 +779,8 @@
      >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.20d0)
         has_vdw = .true.
         is_vdw2 = .false.
+
+
 
 
 *     **** SIC hybrids ****
@@ -823,6 +1012,32 @@
         value = value.and.
      >          rtdb_put(rtdb,'pspw:SIC_h_parameter',mt_dbl,1,0.20d0)
 
+
+*     **** Meta-GGAs ****
+      else if (inp_compare(.false.,exchange_correlation,'vs98')) then
+        gga = 300
+      else if (inp_compare(.false.,exchange_correlation,'tpss03')) then
+        gga = 301
+      else if (inp_compare(.false.,exchange_correlation,'scan')) then
+        gga = 302
+      else if (inp_compare(.false.,exchange_correlation,'pkzb')) then
+        gga = 303
+      else if (inp_compare(.false.,exchange_correlation,'m06-l')) then
+        gga = 304
+
+      else if (inp_compare(.false.,exchange_correlation,'m06')) then
+        gga = 305
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.27d0)
+      !*** add grimmes here
+
+      else if (inp_compare(.false.,exchange_correlation,'m06-2x')) then
+        gga = 306
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.54d0)
+      !*** add grimmes here
 
       else
         gga = 0

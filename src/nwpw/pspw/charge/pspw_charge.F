@@ -290,10 +290,10 @@ c     >                              dbl_mb(vc2_charge(1)))
 
 *     **********************************
 *     *	                               *
-*     *         pspw_charge_aname        *
+*     *         pspw_charge_aname      *
 *     *                                *
 *     **********************************
-      character*2 function pspw_charge_aname(i)
+      character*4 function pspw_charge_aname(i)
       implicit none
 #include "errquit.fh"
       integer i
@@ -303,19 +303,20 @@ c     >                              dbl_mb(vc2_charge(1)))
 #include "pspw_charge.fh"
 
 *     **** local variables ****
-      character*2  symbol
-      character*16 t,name
+      character*4  symbol
+      character*16 t,ename
       real*8 q
 
+      symbol = '    '
       if (bqgeom) then
-        if (.not. geom_cent_tag(geom,i,t))
+        if (.not.geom_cent_tag(geom,i,t))
      >        call errquit(' pspw_charge_aname: failed ',i, GEOM_ERR)
 
-        if (.not. geom_tag_to_element(t,symbol,name,q)) then
-          symbol = 'bq'
+        if (.not.geom_tag_to_element(t,symbol,ename,q)) then
+          symbol = 'bq  '
         end if
       else
-         symbol = 'bq'
+         symbol = 'bq  '
       end if
 
       pspw_charge_aname = symbol
@@ -343,7 +344,7 @@ c     >                              dbl_mb(vc2_charge(1)))
 
 *     **********************************
 *     *	                               *
-*     *         pspw_charge_found        *
+*     *        pspw_charge_found       *
 *     *                                *
 *     **********************************
       logical function pspw_charge_found()
@@ -438,7 +439,7 @@ c
       parameter (MASTER=0)
       integer ii,k
 
-      character*2 pspw_charge_aname
+      character*4 pspw_charge_aname
       real*8      pspw_charge_charge
       external    pspw_charge_aname
       external    pspw_charge_charge
@@ -482,7 +483,7 @@ c
  1177 format(/' periodic charges used:')
  1178 format(5x,' s_sigma=',E11.3)
  1180 FORMAT(/' position of point charges (au): ')
- 1190 FORMAT(5X, I4, A3  ,' (',3F11.5,' ) - charge = ',F10.3)
+ 1190 FORMAT(5X, I4,1x,A4  ,' (',3F11.5,' ) - charge = ',F10.3)
       end
 
 
@@ -506,7 +507,7 @@ c
       parameter (MASTER=0)
       integer ii,k
 
-      character*2 pspw_charge_aname
+      character*4 pspw_charge_aname
       external    pspw_charge_aname
 
       if (nion.gt.0) then
@@ -540,6 +541,9 @@ c
       pspw_charge_rion = dbl_mb(r1(1)+3*(ii-1)+i-1)
       return
       end
+
+
+
 
 
 
@@ -923,6 +927,7 @@ c     >                                              dcpl_mb(tmp(1)))
       external  ion_rion,psp_zv
 
       energy = 0.0d0
+      if (nion.gt.0) then
       do ii=1,ion_nion()
          ia = ion_katm(ii)
          qii = psp_zv(ia)
@@ -939,6 +944,7 @@ c     >                                              dcpl_mb(tmp(1)))
             energy = energy + qi*qii/r
          end do
       end do
+      end if
 
 
       pspw_charge_Energy_ion = energy
@@ -985,6 +991,7 @@ c     >                                              dcpl_mb(tmp(1)))
      
         nion_ion = ion_nion()
 
+!$OMP DO
         do i=1,nion_ion
            qi = psp_zv(ion_katm(i))
            ri(1) = ion_rion(1,i)
@@ -999,6 +1006,7 @@ c     >                                              dcpl_mb(tmp(1)))
      >                                 rj,qj,fcharge(1,j))
            end do
         end do
+!$OMP END DO
 
       end if
       return
@@ -1045,6 +1053,7 @@ c     >                                              dcpl_mb(tmp(1)))
         fcharge(3) = 0.0d0
         nion_ion = ion_nion()
 
+!$OMP DO
         do i=1,nion_ion
            qi = psp_zv(ion_katm(i))
            ri(1) = ion_rion(1,i)
@@ -1059,6 +1068,7 @@ c     >                                              dcpl_mb(tmp(1)))
      >                                 rj,qj,fcharge)
            end do
         end do
+!$OMP END DO
 
       end if
       return
@@ -1143,6 +1153,7 @@ c     >                                              dcpl_mb(tmp(1)))
 
       if ((nion.gt.0).and.(nwpw_bqbq())) then      
      
+!$OMP DO
         do j=1,nion
            qj = dbl_mb(charge(1)+j-1)            
            rj(1) = dbl_mb(r1(1)+3*(j-1))
@@ -1157,6 +1168,7 @@ c     >                                              dcpl_mb(tmp(1)))
      >                                   rj,qj,fcharge(1,j))
            end do
         end do
+!$OMP END DO
 
       end if
       return
@@ -1212,6 +1224,7 @@ c           a way to define covalent radius
             !rc1 = abs(q1)*rc**p1
             rc1 = rc**p1
             rc2 = rc**p2
+!$OMP DO
             do k=1,n2ft3d
                r2 = (rgrid(1,k)-x1)**2
      >            + (rgrid(2,k)-y1)**2
@@ -1224,6 +1237,7 @@ c           a way to define covalent radius
 
                Vqm(k) = Vqm(k) - q1*(ttt/sss)
             end do
+!$OMP END DO
          end do   
 
 
@@ -1433,6 +1447,7 @@ c         write(*,*) "fq-elc e,",j,fx*dv,fy*dv,fz*dv
      
         nion_ion = ion_nion()
 
+!$OMP DO
         do i=1,nion_ion
            qi = psp_zv(ion_katm(i))
            ri(1) = ion_rion(1,i)
@@ -1447,6 +1462,7 @@ c         write(*,*) "fq-elc e,",j,fx*dv,fy*dv,fz*dv
      >                                 rj,qj,fcharge(1,j))
            end do
         end do
+!$OMP END DO
 
       end if
       return
@@ -1491,6 +1507,7 @@ c         write(*,*) "fq-elc e,",j,fx*dv,fy*dv,fz*dv
      
         nion_ion = ion_nion()
 
+!$OMP DO
         do i=1,nion_ion
            qi = psp_zv(ion_katm(i))
            ri(1) = ion_rion(1,i)
@@ -1505,6 +1522,7 @@ c         write(*,*) "fq-elc e,",j,fx*dv,fy*dv,fz*dv
      >                                 rj,qj,fcharge(1,j))
            end do
         end do
+!$OMP END DO
 
       end if
       return

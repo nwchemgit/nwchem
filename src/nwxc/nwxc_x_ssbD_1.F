@@ -22,7 +22,7 @@ C>
 C> [1] M. Swart, M. Sola, F.M. Bickelhaupt,
 C>     "A new all-round density functional based on spin states and
 C>     SN2 barriers", J. Chem. Phys. <b>131</b>, 094103 (2009), DOI:
-C>     <a href="http://dx.doi.org/10.1063/1.3213193">
+C>     <a href="https://doi.org/10.1063/1.3213193">
 C>     10.1063/1.3213193</a>.
 C>
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)

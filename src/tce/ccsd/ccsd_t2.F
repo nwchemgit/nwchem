@@ -5950,8 +5950,8 @@ c
       integer nprocs
       integer count
       integer next
-cc      integer nxtval
-cc      external nxtval
+cc      integer nxtask
+cc      external nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
 c 
@@ -5984,7 +5984,7 @@ c ----------------------------------------------
      1                ((ioalg.eq.6).and.(.not.fileisga(d_t2))))
       nprocs = ga_nnodes()
       count = 0
-cc      next = nxtval(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
@@ -6131,12 +6131,12 @@ c
                 endif
                 endif
                 endif
-cc                next = nxtval(nprocs)
+cc                next = nxtask(nprocs,1)
             enddo
           enddo
         enddo
       enddo
-cc      next = nxtval(-nprocs)
+cc      next = nxtask(-nprocs,1)
       next = NXTASK(-nprocs, 1)
       call ga_sync()
 c 
@@ -6157,7 +6157,7 @@ c ---------------------------------
      1                ((ioalg.eq.6).and.(.not.fileisga(d_t2))))
       nprocs = ga_nnodes()
       count = 0
-cc      next = nxtval(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
@@ -6325,12 +6325,12 @@ c
                 endif
                 endif
                 endif
-cc                next = nxtval(nprocs)
+cc                next = nxtask(nprocs,1)
             enddo
           enddo
         enddo
       enddo
-cc      next = nxtval(-nprocs)
+cc      next = nxtask(-nprocs,1)
       next = NXTASK(-nprocs, 1)
       call ga_sync()
 c ----------------------------------------
@@ -6404,8 +6404,8 @@ c
       integer nprocs
       integer count
       integer next
-cc      integer nxtval
-cc      external nxtval
+cc      integer nxtask
+cc      external nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
 c 
@@ -6437,7 +6437,7 @@ c ----------------------------------------------
      1                ((ioalg.eq.6).and.(.not.fileisga(d_t2))))
       nprocs = ga_nnodes()
       count = 0
-cc      next = nxtval(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
@@ -6583,12 +6583,12 @@ c
                 endif
                 endif
                 endif
-cc                next = nxtval(nprocs)
+cc                next = nxtask(nprocs,1)
             enddo
           enddo
         enddo
       enddo
-cc      next = nxtval(-nprocs)
+cc      next = nxtask(-nprocs,1)
       next = NXTASK(-nprocs, 1)
       call ga_sync()
 c 
@@ -6609,7 +6609,7 @@ c ---------------------------------
      1                ((ioalg.eq.6).and.(.not.fileisga(d_t2))))
       nprocs = ga_nnodes()
       count = 0
-cc      next = nxtval(nprocs)
+cc      next = nxtask(nprocs,1)
       next = NXTASK(nprocs, 1)
       do p1b = noab+1,noab+nvab
         do p2b = p1b,noab+nvab
@@ -6777,12 +6777,12 @@ c
                 endif
                 endif
                 endif
-cc                next = nxtval(nprocs)
+cc                next = nxtask(nprocs,1)
             enddo
           enddo
         enddo
       enddo
-cc      next = nxtval(-nprocs)
+cc      next = nxtask(-nprocs,1)
       next = NXTASK(-nprocs, 1)
       call ga_sync()
 c ----------------------------------------

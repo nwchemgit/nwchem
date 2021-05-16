@@ -186,6 +186,8 @@ c
       double precision duefac
       double precision dabsmax
       external dabsmax
+      double precision ddot
+      external ddot
 c
 c     d2Exc             /    d2fxc    dp(i) dp(j)          / dfxc  d2p(i)
 c     ----- =  sum sum  | ----------- ----- -----  +  sum  | ----- ------

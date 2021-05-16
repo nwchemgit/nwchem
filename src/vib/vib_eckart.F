@@ -22,6 +22,8 @@ c
       DOUBLE PRECISION UNIVEC(3), TEST(6,6), VNORM, temp, dotval, rnorm
       double precision test_norm
       integer i, j, k, l, m, n, mu, nu, indx, iatom, iaxis, itemp
+      double precision ddot
+      external ddot
 C****
 C**** construct translation unit vectors;  these are stored in the
 C**** first three columns of array VC, the rotation vectors will
@@ -200,6 +202,8 @@ c
       DOUBLE PRECISION UNIVEC(3), TEST(3,3), VNORM, temp, dotval, rnorm
       double precision test_norm
       integer i, j, k, l, m, n, mu, nu, indx, iatom, iaxis, itemp
+      double precision ddot
+      external ddot
 C****
 C**** construct translation unit vectors;  these are stored in the
 C**** first three columns of array VC, the rotation vectors will

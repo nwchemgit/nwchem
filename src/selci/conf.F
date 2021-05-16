@@ -54,7 +54,6 @@ c
       jrefo  = selci_mptr(mitod(nrefmx))
       indxci = selci_mptr(mitod(nrefmx+1))
 c
-      call inibit
       call selci_start(rtdb, title, q(irefo))
 c
 c     apply the refgens to the reference functions

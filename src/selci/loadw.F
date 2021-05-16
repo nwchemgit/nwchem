@@ -19,13 +19,13 @@ c
 c      write(6,*) ' w1 '
 c      do 10 i = 1,nsmax
 c         write(6,*) i
-c         call selci_output(w1(1,1,i),1,nfmax,1,nfmax,nfmax,nfmax,1)
+c         call output(w1(1,1,i),1,nfmax,1,nfmax,nfmax,nfmax,1)
 c 10   continue
 c
 c      write(6,*) ' w2 '
 c      do 20 i = 1,nsmax-1
 c         write(6,*) i
-c         call selci_output(w2(1,1,i),1,nfmax2,1,nfmax,nfmax2,nfmax,1)
+c         call output(w2(1,1,i),1,nfmax2,1,nfmax,nfmax2,nfmax,1)
 c 20   continue
 c
       end

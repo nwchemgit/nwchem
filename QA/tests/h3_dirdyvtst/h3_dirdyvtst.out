@@ -1,7 +1,5 @@
-HP-MPI licensed for ISV application.
-All connections between all procs tested: SUCCESS
- argument  1 = h3_dirdyvtst.nw
-
+ argument  1 = /var/lib/gitlab-runner/builds/PH7zszVW/0/edoapra/nwchem/QA/tests/h3_dirdyvtst/h3_dirdyvtst.nw
+ 
 
 
 ============================== echo of input deck ==============================
@@ -88,26 +86,26 @@ task dirdyvtst
 
                                          
                                          
-
-
-              Northwest Computational Chemistry Package (NWChem) 6.0
+ 
+ 
+              Northwest Computational Chemistry Package (NWChem) 6.8
               ------------------------------------------------------
-
-
+ 
+ 
                     Environmental Molecular Sciences Laboratory
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
-
-                              Copyright (c) 1994-2010
+ 
+                              Copyright (c) 1994-2018
                        Pacific Northwest National Laboratory
                             Battelle Memorial Institute
-
+ 
              NWChem is an open-source computational chemistry package
                         distributed under the terms of the
                       Educational Community License (ECL) 2.0
              A copy of the license is included with this distribution
                               in the LICENSE.TXT file
-
+ 
                                   ACKNOWLEDGMENT
                                   --------------
 
@@ -123,49 +121,49 @@ task dirdyvtst
            Job information
            ---------------
 
-    hostname      = cu0login2
-    program       = /home/d3p852/nwchem-5.1.1/bin/LINUX64/nwchem
-    date          = Wed Nov  3 09:46:52 2010
+    hostname        = durian
+    program         = /var/lib/gitlab-runner/builds/PH7zszVW/0/edoapra/nwchem/bin/LINUX64/nwchem
+    date            = Wed Oct  2 04:01:50 2019
 
-    compiled      = Wed_Nov_03_09:10:23_2010
-    source        = /home/d3p852/nwchem-6.0
-    nwchem branch = Development
-    input         = h3_dirdyvtst.nw
-    prefix        = h3.
-    data base     = ./h3.db
-    status        = startup
-    nproc         =        1
-    time left     =     -1s
+    compiled        = Wed_Oct_02_00:45:30_2019
+    source          = /var/lib/gitlab-runner/builds/PH7zszVW/0/edoapra/nwchem
+    nwchem branch   = Development
+    nwchem revision = ecda108c
+    ga revision     = 5.7.0
+    use scalapack   = T
+    input           = /var/lib/gitlab-runner/builds/PH7zszVW/0/edoapra/nwchem/QA/tests/h3_dirdyvtst/h3_dirdyvtst.nw
+    prefix          = h3.
+    data base       = ./h3.db
+    status          = startup
+    nproc           =        3
+    time left       =     -1s
 
 
 
            Memory information
            ------------------
 
-    heap     =  104857601 doubles =    800.0 Mbytes
-    stack    =  104857601 doubles =    800.0 Mbytes
-    global   =  209715200 doubles =   1600.0 Mbytes (distinct from heap & stack)
-    total    =  419430402 doubles =   3200.0 Mbytes
+    heap     =  208704538 doubles =   1592.3 Mbytes
+    stack    =  208704543 doubles =   1592.3 Mbytes
+    global   =  417409088 doubles =   3184.6 Mbytes (distinct from heap & stack)
+    total    =  834818169 doubles =   6369.2 Mbytes
     verify   = yes
     hardfail = no 
 
 
            Directory information
            ---------------------
-
+ 
   0 permanent = .
   0 scratch   = .
-
-
-
-
+ 
+ 
+ 
+ 
                                 NWChem Input Module
                                 -------------------
-
-
-  library name resolved from: environment
-  library file name is: </home/svc-nwchem/nwchem-5.1.1/src/basis/libraries/>
-  
+ 
+ 
                       Basis "ao basis" -> "" (cartesian)
                       -----
   h (Hydrogen)
@@ -174,9 +172,9 @@ task dirdyvtst
        -------------- ---------------------------------------------------------
   1 S  5.44717800E+00  0.156285
   1 S  8.24547000E-01  0.904691
-
+ 
   2 S  1.83192000E-01  1.000000
-
+ 
 
 
  Summary of "ao basis" -> "" (cartesian)
@@ -303,17 +301,55 @@ task dirdyvtst
    2        0.000000E+00    0.000000E+00   -7.657993E+01
    3        0.000000E+00    0.000000E+00    1.548605E+02
  Symmetry group is C4V
- FA-1: Before ev. Fock matrices ...
- FA-3: After ev. Fock matrices ...
-          save file, system command=  cp ./h3.movecs ./h3.movecs.sreact                                                                                                                                                                                                                              
-          save file, system command=  cp ./h3.hess ./h3.hess.sreact                                                                                                                                                                                                                                  
+ SCF residual:   1.212161745155591E-008
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =    -0.0000     [   -0.0000]
+ d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,x> =    -0.0000     [   -0.0000]
+ d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,x> =    -0.0000     [   -0.0000]
+ d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   1,y> =    -0.0000     [   -0.0000]
+ d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,y> =    -0.0000     [   -0.0000]
+ d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,y> =    -0.0000     [   -0.0000]
+ d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,z> =    -0.0000     [   -0.0000]
+ d_dipole_z/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,z> =     0.0000     [    0.0000]
+  
+  
+ copy ./h3.movecs --> ./h3.movecs.sreact
+ copy ./h3.hess --> ./h3.hess.sreact
 
  Potential energy=  -1.6191584449E+00 Hartree= -1.01604E+03 kcal/mol
 
  Derivatives in mass-scaled cartesians (au):
-   1        0.000000E+00    0.000000E+00   -4.572066E-08
-   2        0.000000E+00    0.000000E+00    4.572066E-08
-   3        0.000000E+00    0.000000E+00    1.420839E-17
+   1        0.000000E+00    0.000000E+00   -4.572093E-08
+   2        0.000000E+00    0.000000E+00    4.572093E-08
+   3        0.000000E+00    0.000000E+00   -1.000009E-16
 
  Reactant species    1
 
@@ -321,14 +357,14 @@ task dirdyvtst
 
                        m=       1            2            3            4            5            6
   Eigenvalues (au)=           0.551477     0.000000     0.000000     0.000000     0.000000     0.000000
-  Frequencies (cm^-1)=     4657.160549     1.454668     1.454668     0.000341     0.000340     0.000009
+  Frequencies (cm^-1)=     4657.160549     1.454672     1.454672     0.000231     0.000218     0.000000
   Eigenvectors=
-                        1     0.000000     0.707107     0.000000    -0.707107     0.000000     0.000000
-                        2     0.000000     0.000000    -0.707107     0.000000     0.707099     0.003333
-                        3     0.707107     0.000000     0.000000     0.000000     0.003333    -0.707099
-                        4     0.000000    -0.707107     0.000000    -0.707107     0.000000     0.000000
-                        5     0.000000     0.000000     0.707107     0.000000     0.707099     0.003333
-                        6    -0.707107     0.000000     0.000000     0.000000     0.003333    -0.707099
+                        1     0.000000    -0.707107     0.000000     0.707107     0.000000     0.000000
+                        2     0.000000     0.000000     0.707107     0.000000     0.707107     0.000000
+                        3     0.707107     0.000000     0.000000     0.000000     0.000000     0.707107
+                        4     0.000000     0.707107     0.000000     0.707107     0.000000     0.000000
+                        5     0.000000     0.000000    -0.707107     0.000000     0.707107     0.000000
+                        6    -0.707107     0.000000     0.000000     0.000000     0.000000     0.707107
   
 
  Reactant species    2 is an atom
@@ -343,17 +379,55 @@ task dirdyvtst
    2        0.000000E+00    0.000000E+00    7.657993E+01
    3        0.000000E+00    0.000000E+00    7.828061E+01
  Symmetry group is C4V
- FA-1: Before ev. Fock matrices ...
- FA-3: After ev. Fock matrices ...
-          save file, system command=  cp ./h3.movecs ./h3.movecs.sprodt                                                                                                                                                                                                                              
-          save file, system command=  cp ./h3.hess ./h3.hess.sprodt                                                                                                                                                                                                                                  
+ SCF residual:   1.212161748200054E-008
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =    -0.0000     [   -0.0000]
+ d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,x> =    -0.0000     [   -0.0000]
+ d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,x> =    -0.0000     [   -0.0000]
+ d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   1,y> =    -0.0000     [   -0.0000]
+ d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,y> =    -0.0000     [   -0.0000]
+ d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,y> =    -0.0000     [   -0.0000]
+ d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,z> =    -0.0000     [   -0.0000]
+  
+  
+ copy ./h3.movecs --> ./h3.movecs.sprodt
+ copy ./h3.hess --> ./h3.hess.sprodt
 
  Potential energy=  -1.6191584449E+00 Hartree= -1.01604E+03 kcal/mol
 
  Derivatives in mass-scaled cartesians (au):
-   1        0.000000E+00    0.000000E+00    9.112623E-18
-   2        0.000000E+00    0.000000E+00   -4.572067E-08
-   3        0.000000E+00    0.000000E+00    4.572067E-08
+   1        0.000000E+00    0.000000E+00    8.221833E-17
+   2        0.000000E+00    0.000000E+00   -4.572092E-08
+   3        0.000000E+00    0.000000E+00    4.572092E-08
 
  Product species     1
 
@@ -361,14 +435,14 @@ task dirdyvtst
 
                        m=       1            2            3            4            5            6
   Eigenvalues (au)=           0.551477     0.000000     0.000000     0.000000     0.000000     0.000000
-  Frequencies (cm^-1)=     4657.160549     1.454668     1.454668     0.000326     0.000325     0.000034
+  Frequencies (cm^-1)=     4657.160549     1.454672     1.454672     0.000224     0.000221     0.000032
   Eigenvectors=
-                        1     0.000000     0.000000     0.707107     0.000000    -0.707107     0.000000
-                        2     0.000000     0.707107     0.000000    -0.707097     0.000000    -0.003676
-                        3     0.707107     0.000000     0.000000     0.003676     0.000000    -0.707097
-                        4     0.000000     0.000000    -0.707107     0.000000    -0.707107     0.000000
-                        5     0.000000    -0.707107     0.000000    -0.707097     0.000000    -0.003676
-                        6    -0.707107     0.000000     0.000000     0.003676     0.000000    -0.707097
+                        1     0.000000    -0.707107     0.000000    -0.707107     0.000000     0.000000
+                        2     0.000000     0.000000    -0.707107     0.000000     0.707061     0.008064
+                        3     0.707107     0.000000     0.000000     0.000000     0.008064    -0.707061
+                        4     0.000000     0.707107     0.000000    -0.707107    -0.000000    -0.000000
+                        5     0.000000     0.000000     0.707107     0.000000     0.707061     0.008064
+                        6    -0.707107     0.000000     0.000000     0.000000     0.008064    -0.707061
   
 
  Product species     2 is an atom
@@ -383,64 +457,178 @@ task dirdyvtst
    2        0.000000E+00    0.000000E+00    0.000000E+00
    3        0.000000E+00    0.000000E+00    2.162041E+00
  Symmetry group is D4H
- FA-1: Before ev. Fock matrices ...
- FA-3: After ev. Fock matrices ...
-          save file, system command=  cp ./h3.movecs ./h3.movecs.P00.00                                                                                                                                                                                                                              
-          save file, system command=  cp ./h3.hess ./h3.hess.P00.00                                                                                                                                                                                                                                  
+ SCF residual:   8.721818054871938E-007
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =     0.0390     [    0.1872]
+ d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,x> =    -0.0779     [   -0.3744]
+ d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,x> =     0.0390     [    0.1872]
+ d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   1,y> =     0.0390     [    0.1872]
+ d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,y> =    -0.0779     [   -0.3744]
+ d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,y> =     0.0390     [    0.1872]
+ d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,z> =    -0.0860     [   -0.4130]
+ d_dipole_z/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =     0.1720     [    0.8261]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,z> =    -0.0860     [   -0.4130]
+  
+  
+ copy ./h3.movecs --> ./h3.movecs.P00.00
+ copy ./h3.hess --> ./h3.hess.P00.00
 
  Potential energy=  -1.5920744789E+00 Hartree= -9.99042E+02 kcal/mol
 
  Derivatives in mass-scaled cartesians (au):
-   1        0.000000E+00    0.000000E+00   -2.416233E-08
-   2        0.000000E+00    0.000000E+00    1.133130E-17
-   3        0.000000E+00    0.000000E+00    2.416233E-08
+   1        0.000000E+00    0.000000E+00   -2.370961E-08
+   2        0.000000E+00    0.000000E+00   -1.133130E-17
+   3        0.000000E+00    0.000000E+00    2.370961E-08
 
  Eigenvalues and eigenvectors of hessian
 
                        m=       1            2            3            4            5            6
-  Eigenvalues (au)=           0.107368     0.031975     0.031975    -0.133584     0.000000     0.000000
-  Frequencies (cm^-1)=     2054.917086  1121.408595  1121.408595 -2292.103153     0.663101     0.001322
+  Eigenvalues (au)=           0.107368     0.031975     0.031975    -0.133584     0.000000    -0.000000
+  Frequencies (cm^-1)=     2054.917086  1121.408586  1121.408586 -2292.103142     0.656861    -0.000009
   Eigenvectors=
-                        1     0.000000     0.209587     0.350343     0.000000    -0.636796    -0.552536
-                        2     0.000000     0.350343    -0.209587     0.000000    -0.307394     0.167444
-                        3    -0.707107     0.000000     0.000000    -0.408248     0.000000    -0.000007
-                        4     0.000000    -0.419174    -0.700685     0.000000     0.000000    -0.552536
-                        5     0.000000    -0.700685     0.419174     0.000000     0.000000     0.167444
-                        6     0.000000     0.000000     0.000000     0.816497     0.000000    -0.000007
-                        7     0.000000     0.209587     0.350343     0.000000     0.636796    -0.552536
-                        8     0.000000     0.350343    -0.209587     0.000000     0.307394     0.167444
-                        9     0.707107     0.000000     0.000000    -0.408248     0.000000    -0.000007
+                        1     0.000000    -0.238515    -0.331326    -0.000000    -0.171112    -0.000003
+                        2    -0.000000     0.331326    -0.238515    -0.000000     0.686091     0.000004
+                        3    -0.707107     0.000000     0.000000    -0.408248     0.000000    -0.577350
+                        4    -0.000000     0.477030     0.662653    -0.000000     0.000000    -0.000003
+                        5     0.000000    -0.662653     0.477030    -0.000000     0.000000     0.000004
+                        6    -0.000000     0.000000     0.000000     0.816497     0.000000    -0.577350
+                        7     0.000000    -0.238515    -0.331326     0.000000     0.171112    -0.000003
+                        8     0.000000     0.331326    -0.238515     0.000000    -0.686091     0.000004
+                        9     0.707107     0.000000    -0.000000    -0.408248     0.000000    -0.577350
   
 
                        m=       7            8            9
-  Eigenvalues (au)=           0.000000     0.000000     0.000000
-  Frequencies (cm^-1)=        0.001322     0.000015     0.663101
+  Eigenvalues (au)=          -0.000000    -0.000000     0.000000
+  Frequencies (cm^-1)=       -0.003966    -0.003966     0.656861
   Eigenvectors=
-                        1     0.167444     0.000003    -0.307394
-                        2     0.552536     0.000036     0.636796
-                        3    -0.000035     0.577350     0.000000
-                        4     0.167444     0.000003     0.000000
-                        5     0.552536     0.000036     0.000000
-                        6    -0.000035     0.577350     0.000000
-                        7     0.167444     0.000003     0.307394
-                        8     0.552536     0.000036    -0.636796
-                        9    -0.000035     0.577350     0.000000
+                        1    -0.575271     0.048955    -0.686091
+                        2    -0.048955    -0.575271    -0.171112
+                        3     0.000003    -0.000004     0.000000
+                        4    -0.575271     0.048955    -0.000000
+                        5    -0.048955    -0.575271    -0.000000
+                        6     0.000003    -0.000004     0.000000
+                        7    -0.575271     0.048955     0.686091
+                        8    -0.048955    -0.575271     0.171112
+                        9     0.000003    -0.000004     0.000000
   
 
 
  Set up to take first step off saddle point
 
  Vector for initial step off saddle point=
-                                     0.0000   0.0000  -0.4082   0.0000   0.0000   0.8165   0.0000   0.0000  -0.4082
+                                    -0.0000  -0.0000  -0.4082  -0.0000  -0.0000   0.8165   0.0000   0.0000  -0.4082
  Symmetry group is C4V
- FA-1: Before ev. Fock matrices ...
- FA-3: After ev. Fock matrices ...
+ SCF residual:   1.216662070659464E-008
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =     0.0386     [    0.1855]
+ d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,x> =    -0.0779     [   -0.3743]
+ d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,x> =     0.0393     [    0.1889]
+ d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   1,y> =     0.0386     [    0.1855]
+ d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,y> =    -0.0779     [   -0.3743]
+ d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,y> =     0.0393     [    0.1889]
+ d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,z> =    -0.0840     [   -0.4036]
+ d_dipole_z/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =     0.1720     [    0.8260]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,z> =    -0.0879     [   -0.4224]
+  
+  
  Symmetry group is C4V
- FA-1: Before ev. Fock matrices ...
- FA-3: After ev. Fock matrices ...
+ SCF residual:   1.216662041620078E-008
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =     0.0393     [    0.1889]
+ d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,x> =    -0.0779     [   -0.3743]
+ d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,x> =     0.0386     [    0.1855]
+ d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   1,y> =     0.0393     [    0.1889]
+ d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,y> =    -0.0779     [   -0.3743]
+ d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,y> =     0.0386     [    0.1855]
+ d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,z> =    -0.0879     [   -0.4224]
+ d_dipole_z/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =     0.1720     [    0.8260]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,z> =    -0.0840     [   -0.4036]
+  
+  
 
  Second order correction for vector=
-                                     0.0000   0.0000  -0.7740   0.0000   0.0000   0.0000   0.0000   0.0000   0.7740
+                                     0.0000   0.0000  -0.7740   0.0000   0.0000  -0.0000  -0.0000  -0.0000   0.7740
 
 
  ********** Calculate points along reaction path
@@ -460,77 +648,457 @@ task dirdyvtst
   dx is the normalized mass-weighted gradient vector, and |dV/x| is the magnitude of the gradient
          s       V,|dV/dx|
         0.00000  2.70840E-02    x=   0.0000   0.0000  -2.1620   0.0000   0.0000   0.0000   0.0000   0.0000   2.1620
-                 0.00000E+00   dx=   0.0000   0.0000  -0.4082   0.0000   0.0000   0.8165   0.0000   0.0000  -0.4082
+                 0.00000E+00   dx=  -0.0000  -0.0000  -0.4082  -0.0000  -0.0000   0.8165   0.0000   0.0000  -0.4082
  Symmetry group is C4V
- FA-1: Before ev. Fock matrices ...
- FA-3: After ev. Fock matrices ...
-       -0.05000  2.69183E-02    x=   0.0000   0.0000  -2.1426   0.0000   0.0000  -0.0408   0.0000   0.0000   2.1834
+ SCF residual:   8.648519435970734E-008
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =     0.0423     [    0.2031]
+ d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,x> =    -0.0776     [   -0.3725]
+ d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,x> =     0.0353     [    0.1694]
+ d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   1,y> =     0.0423     [    0.2031]
+ d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,y> =    -0.0776     [   -0.3725]
+ d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,y> =     0.0353     [    0.1694]
+ d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,z> =    -0.1042     [   -0.5006]
+ d_dipole_z/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =     0.1698     [    0.8155]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,z> =    -0.0656     [   -0.3149]
+  
+  
+       -0.05000  2.69183E-02    x=   0.0000   0.0000  -2.1426   0.0000   0.0000  -0.0408  -0.0000  -0.0000   2.1834
                  6.56466E-03   dx=   0.0000   0.0000  -0.3682   0.0000   0.0000   0.8152   0.0000   0.0000  -0.4470
-          save file, system command=  cp ./h3.movecs ./h3.movecs.M00.05                                                                                                                                                                                                                              
-          save file, system command=  cp ./h3.hess ./h3.hess.M00.05                                                                                                                                                                                                                                  
+ copy ./h3.movecs --> ./h3.movecs.M00.05
+ copy ./h3.hess --> ./h3.hess.M00.05
  Symmetry group is C4V
- FA-1: Before ev. Fock matrices ...
- FA-3: After ev. Fock matrices ...
-       -0.10000  2.64389E-02    x=   0.0000   0.0000  -2.1252   0.0000   0.0000  -0.0815   0.0000   0.0000   2.2067
+ SCF residual:   4.053327903948344E-008
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =     0.0451     [    0.2166]
+ d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,x> =    -0.0764     [   -0.3671]
+ d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,x> =     0.0313     [    0.1505]
+ d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   1,y> =     0.0451     [    0.2166]
+ d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,y> =    -0.0764     [   -0.3671]
+ d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,y> =     0.0313     [    0.1505]
+ d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,z> =    -0.1193     [   -0.5732]
+ d_dipole_z/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =     0.1633     [    0.7845]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,z> =    -0.0440     [   -0.2113]
+  
+  
+       -0.10000  2.64389E-02    x=   0.0000   0.0000  -2.1252   0.0000   0.0000  -0.0815  -0.0000  -0.0000   2.2067
                  1.24459E-02   dx=   0.0000   0.0000  -0.3233   0.0000   0.0000   0.8110   0.0000   0.0000  -0.4876
-          save file, system command=  cp ./h3.movecs ./h3.movecs.M00.10                                                                                                                                                                                                                              
-          save file, system command=  cp ./h3.hess ./h3.hess.M00.10                                                                                                                                                                                                                                  
+ copy ./h3.movecs --> ./h3.movecs.M00.10
+ copy ./h3.hess --> ./h3.hess.M00.10
  Symmetry group is C4V
- FA-1: Before ev. Fock matrices ...
- FA-3: After ev. Fock matrices ...
-       -0.15000  2.56943E-02    x=   0.0000   0.0000  -2.1103   0.0000   0.0000  -0.1219   0.0000   0.0000   2.2322
+ SCF residual:   1.446753263395773E-008
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =     0.0472     [    0.2269]
+ d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,x> =    -0.0746     [   -0.3583]
+ d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,x> =     0.0274     [    0.1314]
+ d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   1,y> =     0.0472     [    0.2269]
+ d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,y> =    -0.0746     [   -0.3583]
+ d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,y> =     0.0274     [    0.1314]
+ d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,z> =    -0.1306     [   -0.6274]
+ d_dipole_z/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =     0.1530     [    0.7348]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,z> =    -0.0224     [   -0.1074]
+  
+  
+       -0.15000  2.56943E-02    x=   0.0000   0.0000  -2.1103   0.0000   0.0000  -0.1219  -0.0000  -0.0000   2.2322
                  1.70979E-02   dx=   0.0000   0.0000  -0.2696   0.0000   0.0000   0.8023   0.0000   0.0000  -0.5326
-          save file, system command=  cp ./h3.movecs ./h3.movecs.M00.15                                                                                                                                                                                                                              
-          save file, system command=  cp ./h3.hess ./h3.hess.M00.15                                                                                                                                                                                                                                  
+ copy ./h3.movecs --> ./h3.movecs.M00.15
+ copy ./h3.hess --> ./h3.hess.M00.15
  Symmetry group is C4V
- FA-1: Before ev. Fock matrices ...
- FA-3: After ev. Fock matrices ...
-       -0.20000  2.47546E-02    x=   0.0000   0.0000  -2.0984   0.0000   0.0000  -0.1616   0.0000   0.0000   2.2600
+ SCF residual:   7.381960756148022E-008
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =     0.0487     [    0.2337]
+ d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,x> =    -0.0722     [   -0.3466]
+ d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,x> =     0.0235     [    0.1129]
+ d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   1,y> =     0.0487     [    0.2337]
+ d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,y> =    -0.0722     [   -0.3466]
+ d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,y> =     0.0235     [    0.1129]
+ d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,z> =    -0.1378     [   -0.6619]
+ d_dipole_z/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =     0.1395     [    0.6701]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,z> =    -0.0017     [   -0.0082]
+  
+  
+       -0.20000  2.47546E-02    x=   0.0000   0.0000  -2.0984   0.0000   0.0000  -0.1616  -0.0000  -0.0000   2.2600
                  2.02209E-02   dx=   0.0000   0.0000  -0.2030   0.0000   0.0000   0.7864   0.0000   0.0000  -0.5834
-          save file, system command=  cp ./h3.movecs ./h3.movecs.M00.20                                                                                                                                                                                                                              
-          save file, system command=  cp ./h3.hess ./h3.hess.M00.20                                                                                                                                                                                                                                  
+ copy ./h3.movecs --> ./h3.movecs.M00.20
+ copy ./h3.hess --> ./h3.hess.M00.20
  Symmetry group is C4V
- FA-1: Before ev. Fock matrices ...
- FA-3: After ev. Fock matrices ...
-       -0.25000  2.36969E-02    x=   0.0000   0.0000  -2.0902   0.0000   0.0000  -0.2003   0.0000   0.0000   2.2906
+ SCF residual:   4.365734742620833E-008
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =     0.0492     [    0.2365]
+ d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,x> =    -0.0692     [   -0.3324]
+ d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,x> =     0.0200     [    0.0959]
+ d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   1,y> =     0.0492     [    0.2365]
+ d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,y> =    -0.0692     [   -0.3324]
+ d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,y> =     0.0200     [    0.0959]
+ d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,z> =    -0.1410     [   -0.6775]
+ d_dipole_z/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =     0.1240     [    0.5958]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,z> =     0.0170     [    0.0816]
+  
+  
+       -0.25000  2.36969E-02    x=   0.0000   0.0000  -2.0902   0.0000   0.0000  -0.2003  -0.0000  -0.0000   2.2906
                  2.18490E-02   dx=   0.0000   0.0000  -0.1206   0.0000   0.0000   0.7597   0.0000   0.0000  -0.6390
-          save file, system command=  cp ./h3.movecs ./h3.movecs.M00.25                                                                                                                                                                                                                              
-          save file, system command=  cp ./h3.hess ./h3.hess.M00.25                                                                                                                                                                                                                                  
+ copy ./h3.movecs --> ./h3.movecs.M00.25
+ copy ./h3.hess --> ./h3.hess.M00.25
  Symmetry group is C4V
- FA-1: Before ev. Fock matrices ...
- FA-3: After ev. Fock matrices ...
-       -0.30000  2.25883E-02    x=   0.0000   0.0000  -2.0866   0.0000   0.0000  -0.2374   0.0000   0.0000   2.3240
+ SCF residual:   4.629408398317569E-008
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =     0.0490     [    0.2353]
+ d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,x> =    -0.0659     [   -0.3164]
+ d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,x> =     0.0169     [    0.0812]
+ d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   1,y> =     0.0490     [    0.2353]
+ d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,y> =    -0.0659     [   -0.3164]
+ d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,y> =     0.0169     [    0.0812]
+ d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,z> =    -0.1409     [   -0.6768]
+ d_dipole_z/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =     0.1080     [    0.5187]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,z> =     0.0329     [    0.1581]
+  
+  
+       -0.30000  2.25883E-02    x=   0.0000   0.0000  -2.0866   0.0000   0.0000  -0.2374  -0.0000  -0.0000   2.3240
                  2.23360E-02   dx=   0.0000   0.0000  -0.0251   0.0000   0.0000   0.7193   0.0000   0.0000  -0.6942
-          save file, system command=  cp ./h3.movecs ./h3.movecs.M00.30                                                                                                                                                                                                                              
-          save file, system command=  cp ./h3.hess ./h3.hess.M00.30                                                                                                                                                                                                                                  
+ copy ./h3.movecs --> ./h3.movecs.M00.30
+ copy ./h3.hess --> ./h3.hess.M00.30
  Symmetry group is C4V
- FA-1: Before ev. Fock matrices ...
- FA-3: After ev. Fock matrices ...
-       -0.35000  2.14736E-02    x=   0.0000   0.0000  -2.0879   0.0000   0.0000  -0.2721   0.0000   0.0000   2.3599
+ SCF residual:   2.741444227447411E-008
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =     0.0480     [    0.2303]
+ d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,x> =    -0.0624     [   -0.2995]
+ d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,x> =     0.0144     [    0.0692]
+ d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   1,y> =     0.0480     [    0.2303]
+ d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,y> =    -0.0624     [   -0.2995]
+ d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,y> =     0.0144     [    0.0692]
+ d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,z> =    -0.1383     [   -0.6644]
+ d_dipole_z/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =     0.0927     [    0.4454]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,z> =     0.0456     [    0.2190]
+  
+  
+       -0.35000  2.14736E-02    x=   0.0000   0.0000  -2.0879   0.0000   0.0000  -0.2721  -0.0000  -0.0000   2.3599
                  2.21804E-02   dx=   0.0000   0.0000   0.0733   0.0000   0.0000   0.6676   0.0000   0.0000  -0.7409
-          save file, system command=  cp ./h3.movecs ./h3.movecs.M00.35                                                                                                                                                                                                                              
-          save file, system command=  cp ./h3.hess ./h3.hess.M00.35                                                                                                                                                                                                                                  
+ copy ./h3.movecs --> ./h3.movecs.M00.35
+ copy ./h3.hess --> ./h3.hess.M00.35
  Symmetry group is C4V
- FA-1: Before ev. Fock matrices ...
- FA-3: After ev. Fock matrices ...
-       -0.40000  2.03746E-02    x=   0.0000   0.0000  -2.0939   0.0000   0.0000  -0.3040   0.0000   0.0000   2.3979
+ SCF residual:   6.801113153141381E-007
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =     0.0463     [    0.2224]
+ d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,x> =    -0.0588     [   -0.2823]
+ d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,x> =     0.0125     [    0.0599]
+ d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   1,y> =     0.0463     [    0.2224]
+ d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,y> =    -0.0588     [   -0.2823]
+ d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,y> =     0.0125     [    0.0599]
+ d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,z> =    -0.1342     [   -0.6447]
+ d_dipole_z/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =     0.0792     [    0.3805]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,z> =     0.0550     [    0.2642]
+  
+  
+       -0.40000  2.03746E-02    x=   0.0000   0.0000  -2.0939   0.0000   0.0000  -0.3040  -0.0000  -0.0000   2.3979
                  2.17675E-02   dx=   0.0000   0.0000   0.1607   0.0000   0.0000   0.6129   0.0000   0.0000  -0.7736
-          save file, system command=  cp ./h3.movecs ./h3.movecs.M00.40                                                                                                                                                                                                                              
-          save file, system command=  cp ./h3.hess ./h3.hess.M00.40                                                                                                                                                                                                                                  
+ copy ./h3.movecs --> ./h3.movecs.M00.40
+ copy ./h3.hess --> ./h3.hess.M00.40
  Symmetry group is C4V
- FA-1: Before ev. Fock matrices ...
- FA-3: After ev. Fock matrices ...
-       -0.45000  1.92988E-02    x=   0.0000   0.0000  -2.1037   0.0000   0.0000  -0.3334   0.0000   0.0000   2.4371
+ SCF residual:   6.169160579511937E-007
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =     0.0442     [    0.2124]
+ d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,x> =    -0.0553     [   -0.2654]
+ d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,x> =     0.0110     [    0.0530]
+ d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   1,y> =     0.0442     [    0.2124]
+ d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,y> =    -0.0553     [   -0.2654]
+ d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,y> =     0.0110     [    0.0530]
+ d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,z> =    -0.1294     [   -0.6215]
+ d_dipole_z/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =     0.0679     [    0.3261]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,z> =     0.0615     [    0.2955]
+  
+  
+       -0.45000  1.92988E-02    x=   0.0000   0.0000  -2.1037   0.0000   0.0000  -0.3334  -0.0000  -0.0000   2.4371
                  2.12644E-02   dx=   0.0000   0.0000   0.2286   0.0000   0.0000   0.5646   0.0000   0.0000  -0.7931
-          save file, system command=  cp ./h3.movecs ./h3.movecs.M00.45                                                                                                                                                                                                                              
-          save file, system command=  cp ./h3.hess ./h3.hess.M00.45                                                                                                                                                                                                                                  
+ copy ./h3.movecs --> ./h3.movecs.M00.45
+ copy ./h3.hess --> ./h3.hess.M00.45
  Symmetry group is C4V
- FA-1: Before ev. Fock matrices ...
- FA-3: After ev. Fock matrices ...
-       -0.50000  1.82496E-02    x=   0.0000   0.0000  -2.1164   0.0000   0.0000  -0.3606   0.0000   0.0000   2.4770
+ SCF residual:   5.512973655144044E-007
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =     0.0419     [    0.2012]
+ d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,x> =    -0.0519     [   -0.2491]
+ d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,x> =     0.0100     [    0.0479]
+ d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   1,y> =     0.0419     [    0.2012]
+ d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,y> =    -0.0519     [   -0.2491]
+ d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,y> =     0.0100     [    0.0479]
+ d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,z> =    -0.1243     [   -0.5972]
+ d_dipole_z/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =     0.0587     [    0.2817]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,z> =     0.0657     [    0.3155]
+  
+  
+       -0.50000  1.82496E-02    x=   0.0000   0.0000  -2.1164   0.0000   0.0000  -0.3606  -0.0000  -0.0000   2.4770
                  2.07042E-02   dx=   0.0000   0.0000   0.2765   0.0000   0.0000   0.5270   0.0000   0.0000  -0.8036
-          save file, system command=  cp ./h3.movecs ./h3.movecs.M00.50                                                                                                                                                                                                                              
-          save file, system command=  cp ./h3.hess ./h3.hess.M00.50                                                                                                                                                                                                                                  
+ copy ./h3.movecs --> ./h3.movecs.M00.50
+ copy ./h3.hess --> ./h3.hess.M00.50
 
  Take step from saddle point in product direction
 
@@ -538,77 +1106,457 @@ task dirdyvtst
   dx is the normalized mass-weighted gradient vector, and |dV/x| is the magnitude of the gradient
          s       V,|dV/dx|
         0.00000  2.70840E-02    x=   0.0000   0.0000  -2.1620   0.0000   0.0000   0.0000   0.0000   0.0000   2.1620
-                 0.00000E+00   dx=   0.0000   0.0000  -0.4082   0.0000   0.0000   0.8165   0.0000   0.0000  -0.4082
+                 0.00000E+00   dx=  -0.0000  -0.0000  -0.4082  -0.0000  -0.0000   0.8165   0.0000   0.0000  -0.4082
  Symmetry group is C4V
- FA-1: Before ev. Fock matrices ...
- FA-3: After ev. Fock matrices ...
-        0.05000  2.69183E-02    x=   0.0000   0.0000  -2.1834   0.0000   0.0000   0.0408   0.0000   0.0000   2.1426
+ SCF residual:   8.648519449472355E-008
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =     0.0353     [    0.1694]
+ d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,x> =    -0.0776     [   -0.3725]
+ d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,x> =     0.0423     [    0.2031]
+ d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   1,y> =     0.0353     [    0.1694]
+ d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,y> =    -0.0776     [   -0.3725]
+ d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,y> =     0.0423     [    0.2031]
+ d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,z> =    -0.0656     [   -0.3149]
+ d_dipole_z/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =     0.1698     [    0.8155]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,z> =    -0.1042     [   -0.5006]
+  
+  
+        0.05000  2.69183E-02    x=  -0.0000  -0.0000  -2.1834  -0.0000  -0.0000   0.0408   0.0000   0.0000   2.1426
                  6.56466E-03   dx=   0.0000   0.0000   0.4470   0.0000   0.0000  -0.8152   0.0000   0.0000   0.3682
-          save file, system command=  cp ./h3.movecs ./h3.movecs.P00.05                                                                                                                                                                                                                              
-          save file, system command=  cp ./h3.hess ./h3.hess.P00.05                                                                                                                                                                                                                                  
+ copy ./h3.movecs --> ./h3.movecs.P00.05
+ copy ./h3.hess --> ./h3.hess.P00.05
  Symmetry group is C4V
- FA-1: Before ev. Fock matrices ...
- FA-3: After ev. Fock matrices ...
-        0.10000  2.64389E-02    x=   0.0000   0.0000  -2.2067   0.0000   0.0000   0.0815   0.0000   0.0000   2.1252
+ SCF residual:   4.053327902604568E-008
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =     0.0313     [    0.1505]
+ d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,x> =    -0.0764     [   -0.3671]
+ d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,x> =     0.0451     [    0.2166]
+ d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   1,y> =     0.0313     [    0.1505]
+ d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,y> =    -0.0764     [   -0.3671]
+ d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,y> =     0.0451     [    0.2166]
+ d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,z> =    -0.0440     [   -0.2113]
+ d_dipole_z/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =     0.1633     [    0.7845]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,z> =    -0.1193     [   -0.5732]
+  
+  
+        0.10000  2.64389E-02    x=  -0.0000  -0.0000  -2.2067  -0.0000  -0.0000   0.0815   0.0000   0.0000   2.1252
                  1.24459E-02   dx=   0.0000   0.0000   0.4876   0.0000   0.0000  -0.8110   0.0000   0.0000   0.3233
-          save file, system command=  cp ./h3.movecs ./h3.movecs.P00.10                                                                                                                                                                                                                              
-          save file, system command=  cp ./h3.hess ./h3.hess.P00.10                                                                                                                                                                                                                                  
+ copy ./h3.movecs --> ./h3.movecs.P00.10
+ copy ./h3.hess --> ./h3.hess.P00.10
  Symmetry group is C4V
- FA-1: Before ev. Fock matrices ...
- FA-3: After ev. Fock matrices ...
-        0.15000  2.56943E-02    x=   0.0000   0.0000  -2.2322   0.0000   0.0000   0.1219   0.0000   0.0000   2.1103
+ SCF residual:   1.446753082334505E-008
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =     0.0274     [    0.1314]
+ d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,x> =    -0.0746     [   -0.3583]
+ d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,x> =     0.0472     [    0.2269]
+ d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   1,y> =     0.0274     [    0.1314]
+ d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,y> =    -0.0746     [   -0.3583]
+ d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,y> =     0.0472     [    0.2269]
+ d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,z> =    -0.0224     [   -0.1074]
+ d_dipole_z/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =     0.1530     [    0.7348]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,z> =    -0.1306     [   -0.6274]
+  
+  
+        0.15000  2.56943E-02    x=  -0.0000  -0.0000  -2.2322  -0.0000  -0.0000   0.1219   0.0000   0.0000   2.1103
                  1.70979E-02   dx=   0.0000   0.0000   0.5326   0.0000   0.0000  -0.8023   0.0000   0.0000   0.2696
-          save file, system command=  cp ./h3.movecs ./h3.movecs.P00.15                                                                                                                                                                                                                              
-          save file, system command=  cp ./h3.hess ./h3.hess.P00.15                                                                                                                                                                                                                                  
+ copy ./h3.movecs --> ./h3.movecs.P00.15
+ copy ./h3.hess --> ./h3.hess.P00.15
  Symmetry group is C4V
- FA-1: Before ev. Fock matrices ...
- FA-3: After ev. Fock matrices ...
-        0.20000  2.47546E-02    x=   0.0000   0.0000  -2.2600   0.0000   0.0000   0.1616   0.0000   0.0000   2.0984
+ SCF residual:   7.381961416269179E-008
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =     0.0235     [    0.1129]
+ d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,x> =    -0.0722     [   -0.3466]
+ d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,x> =     0.0487     [    0.2337]
+ d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   1,y> =     0.0235     [    0.1129]
+ d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,y> =    -0.0722     [   -0.3466]
+ d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,y> =     0.0487     [    0.2337]
+ d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,z> =    -0.0017     [   -0.0082]
+ d_dipole_z/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =     0.1395     [    0.6701]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,z> =    -0.1378     [   -0.6619]
+  
+  
+        0.20000  2.47546E-02    x=  -0.0000  -0.0000  -2.2600  -0.0000  -0.0000   0.1616   0.0000   0.0000   2.0984
                  2.02209E-02   dx=   0.0000   0.0000   0.5834   0.0000   0.0000  -0.7864   0.0000   0.0000   0.2030
-          save file, system command=  cp ./h3.movecs ./h3.movecs.P00.20                                                                                                                                                                                                                              
-          save file, system command=  cp ./h3.hess ./h3.hess.P00.20                                                                                                                                                                                                                                  
+ copy ./h3.movecs --> ./h3.movecs.P00.20
+ copy ./h3.hess --> ./h3.hess.P00.20
  Symmetry group is C4V
- FA-1: Before ev. Fock matrices ...
- FA-3: After ev. Fock matrices ...
-        0.25000  2.36969E-02    x=   0.0000   0.0000  -2.2906   0.0000   0.0000   0.2003   0.0000   0.0000   2.0902
+ SCF residual:   4.365730083394256E-008
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =     0.0200     [    0.0959]
+ d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,x> =    -0.0692     [   -0.3324]
+ d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,x> =     0.0492     [    0.2365]
+ d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   1,y> =     0.0200     [    0.0959]
+ d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,y> =    -0.0692     [   -0.3324]
+ d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,y> =     0.0492     [    0.2365]
+ d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,z> =     0.0170     [    0.0816]
+ d_dipole_z/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =     0.1240     [    0.5958]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,z> =    -0.1410     [   -0.6775]
+  
+  
+        0.25000  2.36969E-02    x=  -0.0000  -0.0000  -2.2906  -0.0000  -0.0000   0.2003   0.0000   0.0000   2.0902
                  2.18490E-02   dx=   0.0000   0.0000   0.6390   0.0000   0.0000  -0.7597   0.0000   0.0000   0.1206
-          save file, system command=  cp ./h3.movecs ./h3.movecs.P00.25                                                                                                                                                                                                                              
-          save file, system command=  cp ./h3.hess ./h3.hess.P00.25                                                                                                                                                                                                                                  
+ copy ./h3.movecs --> ./h3.movecs.P00.25
+ copy ./h3.hess --> ./h3.hess.P00.25
  Symmetry group is C4V
- FA-1: Before ev. Fock matrices ...
- FA-3: After ev. Fock matrices ...
-        0.30000  2.25883E-02    x=   0.0000   0.0000  -2.3240   0.0000   0.0000   0.2374   0.0000   0.0000   2.0866
+ SCF residual:   4.629409548814821E-008
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =     0.0169     [    0.0812]
+ d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,x> =    -0.0659     [   -0.3164]
+ d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,x> =     0.0490     [    0.2353]
+ d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   1,y> =     0.0169     [    0.0812]
+ d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,y> =    -0.0659     [   -0.3164]
+ d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,y> =     0.0490     [    0.2353]
+ d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,z> =     0.0329     [    0.1581]
+ d_dipole_z/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =     0.1080     [    0.5187]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,z> =    -0.1409     [   -0.6768]
+  
+  
+        0.30000  2.25883E-02    x=  -0.0000  -0.0000  -2.3240  -0.0000  -0.0000   0.2374   0.0000   0.0000   2.0866
                  2.23360E-02   dx=   0.0000   0.0000   0.6942   0.0000   0.0000  -0.7193   0.0000   0.0000   0.0251
-          save file, system command=  cp ./h3.movecs ./h3.movecs.P00.30                                                                                                                                                                                                                              
-          save file, system command=  cp ./h3.hess ./h3.hess.P00.30                                                                                                                                                                                                                                  
+ copy ./h3.movecs --> ./h3.movecs.P00.30
+ copy ./h3.hess --> ./h3.hess.P00.30
  Symmetry group is C4V
- FA-1: Before ev. Fock matrices ...
- FA-3: After ev. Fock matrices ...
-        0.35000  2.14736E-02    x=   0.0000   0.0000  -2.3599   0.0000   0.0000   0.2721   0.0000   0.0000   2.0879
+ SCF residual:   2.741444695467139E-008
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =     0.0144     [    0.0692]
+ d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,x> =    -0.0624     [   -0.2995]
+ d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,x> =     0.0480     [    0.2303]
+ d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   1,y> =     0.0144     [    0.0692]
+ d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,y> =    -0.0624     [   -0.2995]
+ d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,y> =     0.0480     [    0.2303]
+ d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,z> =     0.0456     [    0.2190]
+ d_dipole_z/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =     0.0927     [    0.4454]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,z> =    -0.1383     [   -0.6644]
+  
+  
+        0.35000  2.14736E-02    x=  -0.0000  -0.0000  -2.3599  -0.0000  -0.0000   0.2721   0.0000   0.0000   2.0879
                  2.21804E-02   dx=   0.0000   0.0000   0.7409   0.0000   0.0000  -0.6676   0.0000   0.0000  -0.0733
-          save file, system command=  cp ./h3.movecs ./h3.movecs.P00.35                                                                                                                                                                                                                              
-          save file, system command=  cp ./h3.hess ./h3.hess.P00.35                                                                                                                                                                                                                                  
+ copy ./h3.movecs --> ./h3.movecs.P00.35
+ copy ./h3.hess --> ./h3.hess.P00.35
  Symmetry group is C4V
- FA-1: Before ev. Fock matrices ...
- FA-3: After ev. Fock matrices ...
-        0.40000  2.03746E-02    x=   0.0000   0.0000  -2.3979   0.0000   0.0000   0.3040   0.0000   0.0000   2.0939
+ SCF residual:   6.801112721481095E-007
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =     0.0125     [    0.0599]
+ d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,x> =    -0.0588     [   -0.2823]
+ d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,x> =     0.0463     [    0.2224]
+ d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   1,y> =     0.0125     [    0.0599]
+ d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,y> =    -0.0588     [   -0.2823]
+ d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,y> =     0.0463     [    0.2224]
+ d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,z> =     0.0550     [    0.2642]
+ d_dipole_z/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =     0.0792     [    0.3805]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,z> =    -0.1342     [   -0.6447]
+  
+  
+        0.40000  2.03746E-02    x=  -0.0000  -0.0000  -2.3979  -0.0000  -0.0000   0.3040   0.0000   0.0000   2.0939
                  2.17675E-02   dx=   0.0000   0.0000   0.7736   0.0000   0.0000  -0.6129   0.0000   0.0000  -0.1607
-          save file, system command=  cp ./h3.movecs ./h3.movecs.P00.40                                                                                                                                                                                                                              
-          save file, system command=  cp ./h3.hess ./h3.hess.P00.40                                                                                                                                                                                                                                  
+ copy ./h3.movecs --> ./h3.movecs.P00.40
+ copy ./h3.hess --> ./h3.hess.P00.40
  Symmetry group is C4V
- FA-1: Before ev. Fock matrices ...
- FA-3: After ev. Fock matrices ...
-        0.45000  1.92988E-02    x=   0.0000   0.0000  -2.4371   0.0000   0.0000   0.3334   0.0000   0.0000   2.1037
+ SCF residual:   6.169160069936292E-007
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =     0.0110     [    0.0530]
+ d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,x> =    -0.0553     [   -0.2654]
+ d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,x> =     0.0442     [    0.2124]
+ d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   1,y> =     0.0110     [    0.0530]
+ d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,y> =    -0.0553     [   -0.2654]
+ d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,y> =     0.0442     [    0.2124]
+ d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,z> =     0.0615     [    0.2955]
+ d_dipole_z/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =     0.0679     [    0.3261]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,z> =    -0.1294     [   -0.6215]
+  
+  
+        0.45000  1.92988E-02    x=  -0.0000  -0.0000  -2.4371  -0.0000  -0.0000   0.3334   0.0000   0.0000   2.1037
                  2.12644E-02   dx=   0.0000   0.0000   0.7931   0.0000   0.0000  -0.5646   0.0000   0.0000  -0.2286
-          save file, system command=  cp ./h3.movecs ./h3.movecs.P00.45                                                                                                                                                                                                                              
-          save file, system command=  cp ./h3.hess ./h3.hess.P00.45                                                                                                                                                                                                                                  
+ copy ./h3.movecs --> ./h3.movecs.P00.45
+ copy ./h3.hess --> ./h3.hess.P00.45
  Symmetry group is C4V
- FA-1: Before ev. Fock matrices ...
- FA-3: After ev. Fock matrices ...
-        0.50000  1.82496E-02    x=   0.0000   0.0000  -2.4770   0.0000   0.0000   0.3606   0.0000   0.0000   2.1164
+ SCF residual:   5.512973115260100E-007
+
+ Derivative Dipole
+
+  
+  
+ X vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_x/<atom=   1,x> =     0.0100     [    0.0479]
+ d_dipole_x/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,x> =    -0.0519     [   -0.2491]
+ d_dipole_x/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,x> =     0.0419     [    0.2012]
+ d_dipole_x/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_x/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Y vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_y/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   1,y> =     0.0100     [    0.0479]
+ d_dipole_y/<atom=   1,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   2,y> =    -0.0519     [   -0.2491]
+ d_dipole_y/<atom=   2,z> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_y/<atom=   3,y> =     0.0419     [    0.2012]
+ d_dipole_y/<atom=   3,z> =     0.0000     [    0.0000]
+  
+ Z vector of derivative dipole (au) [debye/angstrom]
+ d_dipole_z/<atom=   1,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   1,z> =     0.0657     [    0.3155]
+ d_dipole_z/<atom=   2,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   2,z> =     0.0587     [    0.2817]
+ d_dipole_z/<atom=   3,x> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,y> =     0.0000     [    0.0000]
+ d_dipole_z/<atom=   3,z> =    -0.1243     [   -0.5972]
+  
+  
+        0.50000  1.82496E-02    x=  -0.0000  -0.0000  -2.4770  -0.0000  -0.0000   0.3606   0.0000   0.0000   2.1164
                  2.07042E-02   dx=   0.0000   0.0000   0.8036   0.0000   0.0000  -0.5270   0.0000   0.0000  -0.2765
-          save file, system command=  cp ./h3.movecs ./h3.movecs.P00.50                                                                                                                                                                                                                              
-          save file, system command=  cp ./h3.hess ./h3.hess.P00.50                                                                                                                                                                                                                                  
+ copy ./h3.movecs --> ./h3.movecs.P00.50
+ copy ./h3.hess --> ./h3.hess.P00.50
 
 
  Sort data in file 30 so points along MEP have the reaction coordinate in ascending order.
@@ -620,29 +1568,29 @@ task dirdyvtst
 
          s           V               x (mass weighted)
  R   -187.13093  0.00000E+00         0.0000   0.0000 -78.2806   0.0000   0.0000 -76.5799   0.0000   0.0000 154.8605
- P    187.13093  0.00000E+00         0.0000   0.0000-154.8605   0.0000   0.0000  76.5799   0.0000   0.0000  78.2806
+ P    187.13093 -3.55271E-15         0.0000   0.0000-154.8605   0.0000   0.0000  76.5799   0.0000   0.0000  78.2806
  *      0.00000  2.70840E-02         0.0000   0.0000  -2.1620   0.0000   0.0000   0.0000   0.0000   0.0000   2.1620
   
-       -0.50000  1.82496E-02         0.0000   0.0000  -2.1164   0.0000   0.0000  -0.3606   0.0000   0.0000   2.4770
-       -0.45000  1.92988E-02         0.0000   0.0000  -2.1037   0.0000   0.0000  -0.3334   0.0000   0.0000   2.4371
-       -0.40000  2.03746E-02         0.0000   0.0000  -2.0939   0.0000   0.0000  -0.3040   0.0000   0.0000   2.3979
-       -0.35000  2.14736E-02         0.0000   0.0000  -2.0879   0.0000   0.0000  -0.2721   0.0000   0.0000   2.3599
-       -0.30000  2.25883E-02         0.0000   0.0000  -2.0866   0.0000   0.0000  -0.2374   0.0000   0.0000   2.3240
-       -0.25000  2.36969E-02         0.0000   0.0000  -2.0902   0.0000   0.0000  -0.2003   0.0000   0.0000   2.2906
-       -0.20000  2.47546E-02         0.0000   0.0000  -2.0984   0.0000   0.0000  -0.1616   0.0000   0.0000   2.2600
-       -0.15000  2.56943E-02         0.0000   0.0000  -2.1103   0.0000   0.0000  -0.1219   0.0000   0.0000   2.2322
-       -0.10000  2.64389E-02         0.0000   0.0000  -2.1252   0.0000   0.0000  -0.0815   0.0000   0.0000   2.2067
-       -0.05000  2.69183E-02         0.0000   0.0000  -2.1426   0.0000   0.0000  -0.0408   0.0000   0.0000   2.1834
-        0.05000  2.69183E-02         0.0000   0.0000  -2.1834   0.0000   0.0000   0.0408   0.0000   0.0000   2.1426
-        0.10000  2.64389E-02         0.0000   0.0000  -2.2067   0.0000   0.0000   0.0815   0.0000   0.0000   2.1252
-        0.15000  2.56943E-02         0.0000   0.0000  -2.2322   0.0000   0.0000   0.1219   0.0000   0.0000   2.1103
-        0.20000  2.47546E-02         0.0000   0.0000  -2.2600   0.0000   0.0000   0.1616   0.0000   0.0000   2.0984
-        0.25000  2.36969E-02         0.0000   0.0000  -2.2906   0.0000   0.0000   0.2003   0.0000   0.0000   2.0902
-        0.30000  2.25883E-02         0.0000   0.0000  -2.3240   0.0000   0.0000   0.2374   0.0000   0.0000   2.0866
-        0.35000  2.14736E-02         0.0000   0.0000  -2.3599   0.0000   0.0000   0.2721   0.0000   0.0000   2.0879
-        0.40000  2.03746E-02         0.0000   0.0000  -2.3979   0.0000   0.0000   0.3040   0.0000   0.0000   2.0939
-        0.45000  1.92988E-02         0.0000   0.0000  -2.4371   0.0000   0.0000   0.3334   0.0000   0.0000   2.1037
-        0.50000  1.82496E-02         0.0000   0.0000  -2.4770   0.0000   0.0000   0.3606   0.0000   0.0000   2.1164
+       -0.50000  1.82496E-02         0.0000   0.0000  -2.1164   0.0000   0.0000  -0.3606  -0.0000  -0.0000   2.4770
+       -0.45000  1.92988E-02         0.0000   0.0000  -2.1037   0.0000   0.0000  -0.3334  -0.0000  -0.0000   2.4371
+       -0.40000  2.03746E-02         0.0000   0.0000  -2.0939   0.0000   0.0000  -0.3040  -0.0000  -0.0000   2.3979
+       -0.35000  2.14736E-02         0.0000   0.0000  -2.0879   0.0000   0.0000  -0.2721  -0.0000  -0.0000   2.3599
+       -0.30000  2.25883E-02         0.0000   0.0000  -2.0866   0.0000   0.0000  -0.2374  -0.0000  -0.0000   2.3240
+       -0.25000  2.36969E-02         0.0000   0.0000  -2.0902   0.0000   0.0000  -0.2003  -0.0000  -0.0000   2.2906
+       -0.20000  2.47546E-02         0.0000   0.0000  -2.0984   0.0000   0.0000  -0.1616  -0.0000  -0.0000   2.2600
+       -0.15000  2.56943E-02         0.0000   0.0000  -2.1103   0.0000   0.0000  -0.1219  -0.0000  -0.0000   2.2322
+       -0.10000  2.64389E-02         0.0000   0.0000  -2.1252   0.0000   0.0000  -0.0815  -0.0000  -0.0000   2.2067
+       -0.05000  2.69183E-02         0.0000   0.0000  -2.1426   0.0000   0.0000  -0.0408  -0.0000  -0.0000   2.1834
+        0.05000  2.69183E-02        -0.0000  -0.0000  -2.1834  -0.0000  -0.0000   0.0408   0.0000   0.0000   2.1426
+        0.10000  2.64389E-02        -0.0000  -0.0000  -2.2067  -0.0000  -0.0000   0.0815   0.0000   0.0000   2.1252
+        0.15000  2.56943E-02        -0.0000  -0.0000  -2.2322  -0.0000  -0.0000   0.1219   0.0000   0.0000   2.1103
+        0.20000  2.47546E-02        -0.0000  -0.0000  -2.2600  -0.0000  -0.0000   0.1616   0.0000   0.0000   2.0984
+        0.25000  2.36969E-02        -0.0000  -0.0000  -2.2906  -0.0000  -0.0000   0.2003   0.0000   0.0000   2.0902
+        0.30000  2.25883E-02        -0.0000  -0.0000  -2.3240  -0.0000  -0.0000   0.2374   0.0000   0.0000   2.0866
+        0.35000  2.14736E-02        -0.0000  -0.0000  -2.3599  -0.0000  -0.0000   0.2721   0.0000   0.0000   2.0879
+        0.40000  2.03746E-02        -0.0000  -0.0000  -2.3979  -0.0000  -0.0000   0.3040   0.0000   0.0000   2.0939
+        0.45000  1.92988E-02        -0.0000  -0.0000  -2.4371  -0.0000  -0.0000   0.3334   0.0000   0.0000   2.1037
+        0.50000  1.82496E-02        -0.0000  -0.0000  -2.4770  -0.0000  -0.0000   0.3606   0.0000   0.0000   2.1164
 
 
  Summary of MEP data
@@ -652,28 +1600,28 @@ task dirdyvtst
 
         s (au)   V (kcal/mol)        x (Angstroms)
  R   -187.13093  0.00000E+00
- P    187.13093  0.00000E+00
+ P    187.13093 -2.22936E-12
  *      0.00000  1.69954E+01         0.0000   0.0000  -0.9342   0.0000   0.0000   0.0000   0.0000   0.0000   0.9342
-       -0.50000  1.14518E+01         0.0000   0.0000  -0.9145   0.0000   0.0000  -0.1558   0.0000   0.0000   1.0703
-       -0.45000  1.21102E+01         0.0000   0.0000  -0.9090   0.0000   0.0000  -0.1440   0.0000   0.0000   1.0530
-       -0.40000  1.27852E+01         0.0000   0.0000  -0.9047   0.0000   0.0000  -0.1314   0.0000   0.0000   1.0361
-       -0.35000  1.34749E+01         0.0000   0.0000  -0.9021   0.0000   0.0000  -0.1175   0.0000   0.0000   1.0197
-       -0.30000  1.41744E+01         0.0000   0.0000  -0.9016   0.0000   0.0000  -0.1026   0.0000   0.0000   1.0041
-       -0.25000  1.48700E+01         0.0000   0.0000  -0.9031   0.0000   0.0000  -0.0866   0.0000   0.0000   0.9897
-       -0.20000  1.55337E+01         0.0000   0.0000  -0.9067   0.0000   0.0000  -0.0698   0.0000   0.0000   0.9765
-       -0.15000  1.61234E+01         0.0000   0.0000  -0.9118   0.0000   0.0000  -0.0527   0.0000   0.0000   0.9645
-       -0.10000  1.65907E+01         0.0000   0.0000  -0.9183   0.0000   0.0000  -0.0352   0.0000   0.0000   0.9535
-       -0.05000  1.68915E+01         0.0000   0.0000  -0.9258   0.0000   0.0000  -0.0176   0.0000   0.0000   0.9434
-        0.05000  1.68915E+01         0.0000   0.0000  -0.9434   0.0000   0.0000   0.0176   0.0000   0.0000   0.9258
-        0.10000  1.65907E+01         0.0000   0.0000  -0.9535   0.0000   0.0000   0.0352   0.0000   0.0000   0.9183
-        0.15000  1.61234E+01         0.0000   0.0000  -0.9645   0.0000   0.0000   0.0527   0.0000   0.0000   0.9118
-        0.20000  1.55337E+01         0.0000   0.0000  -0.9765   0.0000   0.0000   0.0698   0.0000   0.0000   0.9067
-        0.25000  1.48700E+01         0.0000   0.0000  -0.9897   0.0000   0.0000   0.0866   0.0000   0.0000   0.9031
-        0.30000  1.41744E+01         0.0000   0.0000  -1.0041   0.0000   0.0000   0.1026   0.0000   0.0000   0.9016
-        0.35000  1.34749E+01         0.0000   0.0000  -1.0197   0.0000   0.0000   0.1175   0.0000   0.0000   0.9021
-        0.40000  1.27852E+01         0.0000   0.0000  -1.0361   0.0000   0.0000   0.1314   0.0000   0.0000   0.9047
-        0.45000  1.21102E+01         0.0000   0.0000  -1.0530   0.0000   0.0000   0.1440   0.0000   0.0000   0.9090
-        0.50000  1.14518E+01         0.0000   0.0000  -1.0703   0.0000   0.0000   0.1558   0.0000   0.0000   0.9145
+       -0.50000  1.14518E+01         0.0000   0.0000  -0.9145   0.0000   0.0000  -0.1558  -0.0000  -0.0000   1.0703
+       -0.45000  1.21102E+01         0.0000   0.0000  -0.9090   0.0000   0.0000  -0.1440  -0.0000  -0.0000   1.0530
+       -0.40000  1.27852E+01         0.0000   0.0000  -0.9047   0.0000   0.0000  -0.1314  -0.0000  -0.0000   1.0361
+       -0.35000  1.34749E+01         0.0000   0.0000  -0.9021   0.0000   0.0000  -0.1175  -0.0000  -0.0000   1.0197
+       -0.30000  1.41744E+01         0.0000   0.0000  -0.9016   0.0000   0.0000  -0.1026  -0.0000  -0.0000   1.0041
+       -0.25000  1.48700E+01         0.0000   0.0000  -0.9031   0.0000   0.0000  -0.0866  -0.0000  -0.0000   0.9897
+       -0.20000  1.55337E+01         0.0000   0.0000  -0.9067   0.0000   0.0000  -0.0698  -0.0000  -0.0000   0.9765
+       -0.15000  1.61234E+01         0.0000   0.0000  -0.9118   0.0000   0.0000  -0.0527  -0.0000  -0.0000   0.9645
+       -0.10000  1.65907E+01         0.0000   0.0000  -0.9183   0.0000   0.0000  -0.0352  -0.0000  -0.0000   0.9535
+       -0.05000  1.68915E+01         0.0000   0.0000  -0.9258   0.0000   0.0000  -0.0176  -0.0000  -0.0000   0.9434
+        0.05000  1.68915E+01        -0.0000  -0.0000  -0.9434  -0.0000  -0.0000   0.0176   0.0000   0.0000   0.9258
+        0.10000  1.65907E+01        -0.0000  -0.0000  -0.9535  -0.0000  -0.0000   0.0352   0.0000   0.0000   0.9183
+        0.15000  1.61234E+01        -0.0000  -0.0000  -0.9645  -0.0000  -0.0000   0.0527   0.0000   0.0000   0.9118
+        0.20000  1.55337E+01        -0.0000  -0.0000  -0.9765  -0.0000  -0.0000   0.0698   0.0000   0.0000   0.9067
+        0.25000  1.48700E+01        -0.0000  -0.0000  -0.9897  -0.0000  -0.0000   0.0866   0.0000   0.0000   0.9031
+        0.30000  1.41744E+01        -0.0000  -0.0000  -1.0041  -0.0000  -0.0000   0.1026   0.0000   0.0000   0.9016
+        0.35000  1.34749E+01        -0.0000  -0.0000  -1.0197  -0.0000  -0.0000   0.1175   0.0000   0.0000   0.9021
+        0.40000  1.27852E+01        -0.0000  -0.0000  -1.0361  -0.0000  -0.0000   0.1314   0.0000   0.0000   0.9047
+        0.45000  1.21102E+01        -0.0000  -0.0000  -1.0530  -0.0000  -0.0000   0.1440   0.0000   0.0000   0.9090
+        0.50000  1.14518E+01        -0.0000  -0.0000  -1.0703  -0.0000  -0.0000   0.1558   0.0000   0.0000   0.9145
 
 
   Frequencies
@@ -683,7 +1631,7 @@ task dirdyvtst
  P    187.13093                     4657.16
  *      0.00000                     2054.92  1121.41  1121.41 -2292.10
   
-       -0.50000                     3916.30   578.10   578.10
+       -0.50000                     3916.30   578.09   578.09
        -0.45000                     3761.97   645.15   645.15
        -0.40000                     3560.02   721.63   721.63
        -0.35000                     3304.03   804.68   804.68
@@ -705,4 +1653,42 @@ task dirdyvtst
         0.50000                     3916.30   578.09   578.09
  drdy_NWChem has finished correctly, bye !
 
- Task  times  cpu:        3.4s     wall:       11.1s
+ Task  times  cpu:        5.5s     wall:        8.6s
+ 
+ 
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+ 
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
+ 
+                                      AUTHORS
+                                      -------
+     E. Apra, E. J. Bylaska, N. Govind, K. Kowalski, M. Valiev, W. A. de Jong,
+      T. P. Straatsma, H. J. J. van Dam, D. Wang, T. L. Windus, N. P. Bauman,
+       A. Panyala, J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec,
+    K. Lopata, S. A. Fischer, S. Krishnamoorthy, M. Jacquelin, W. Ma, M. Klemm,
+       O. Villa, Y. Chen, V. Anisimov, F. Aquino, S. Hirata, M. T. Hackler,
+          Eric Hermes, L. Janssen, J. E. Moore, J. C. Becca, V. Konjkov,
+            D. Mejia-Rodriguez, T. Risthaus, M. Malagoli, A. Marenich,
+   A. Otero-de-la-Roza, J. Mullin, P. Nichols, R. Peverati, J. Pittner, Y. Zhao,
+        P.-D. Fan, A. Fonari, M. J. Williamson, R. J. Harrison, J. R. Rehr,
+      M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
+    M. Krishnan, B. E. Van Kuiken, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
+      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
+      G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall,
+      J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell, D. E. Bernholdt,
+      P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. J. O. Deegan, K. Dyall,
+    D. Elwood, E. Glendening, M. Gutowski, A. C. Hess, J. Jaffe, B. G. Johnson,
+     J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
+      T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
+      M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
+
+ Total times  cpu:        5.5s     wall:        8.6s

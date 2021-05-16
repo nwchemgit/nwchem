@@ -37,14 +37,14 @@ C> Similar consequences follow for the third term.
 C>
 C> [1] N.C. Handy, A.J. Cohen, "Dynamic correlation",
 C>     Mol. Phys. <b>99</b>, 607-615 (2001), DOI:
-C>     <A HREF="http://dx.doi.org/10.1080/00268970010023435">
+C>     <A HREF="https://doi.org/10.1080/00268970010023435">
 C>     10.1080/00268970010023435</A>.
 C>
 C> [2] H. Stoll, C.M.E. Pavlidou, H. Preu&szlig;,
 C>     "On the calculation of correlation energies in the spin-density
 C>     functional formalism", Theor. Chim. Acta <b>49</b>, 143-149
 C>     (1978), DOI:
-C>     <A HREF="http://dx.doi.org/10.1007/PL00020511">
+C>     <A HREF="https://doi.org/10.1007/PL00020511">
 C>     10.1007/PL00020511</A>.
 c
 C$Id$

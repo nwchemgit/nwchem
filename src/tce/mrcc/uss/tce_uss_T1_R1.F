@@ -39,8 +39,7 @@ C     i0 ( )_yx + = 1 * Sum ( h2 p1 ) * y+ ( h2 p1 )_y * x ( p1 h2 )_x
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
-      INTEGER NXTASK
+      INTEGER nxtask
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -69,8 +68,7 @@ C     i0 ( )_yx + = 1 * Sum ( h2 p1 ) * y+ ( h2 p1 )_y * x ( p1 h2 )_x
       INTEGER l_c
       INTEGER k_c
       integer iref,jref
-      EXTERNAL NXTVAL
-      EXTERNAL NXTASK
+      EXTERNAL nxtask
 !
       integer noabn,nvabn
 !

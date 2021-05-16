@@ -31,7 +31,7 @@
       use_gga  = (.not.nwpwxc_is_on().and.(gga.ge.10)
      >             .and.(gga.lt.100))
      +           .or.(nwpwxc_is_on().and.nwpwxc_is_gga())
-      use_mgga = nwpwxc_is_mgga()
+      use_mgga = nwpwxc_is_mgga().or.(gga.ge.300)
      
       if (use_lda) then
          if (.not.BA_push_get(mt_dbl,(ispin*n2ft3d),'tmp1',
@@ -65,7 +65,7 @@
       else if (gga.eq.115) then
          call v_bwexc(15,n2ft3d,ispin,dn,0.80d0,1.0d0,xcp,xce)
       end if
-        
+
       return
       end
 
@@ -92,13 +92,14 @@
 #include "util.fh"
 
       logical use_lda, use_gga, use_mgga
+      integer i
 
     
        use_lda = (.not.nwpwxc_is_on().and.gga.eq.0).or.
      +           (nwpwxc_is_on().and.nwpwxc_is_lda())
        use_gga = (.not.nwpwxc_is_on().and.(gga.ge.10).and.(gga.lt.100))
      +           .or.(nwpwxc_is_on().and.nwpwxc_is_gga())
-       use_mgga = nwpwxc_is_mgga()
+       use_mgga = nwpwxc_is_mgga().or.(gga.ge.300)
      
 *     **** lda's ****
       if (use_lda) then
@@ -197,6 +198,20 @@
 
       ELSE IF (gga.eq.200) THEN
          write(luout,1131) 'Hartree-Fock'
+      ELSE IF (gga.eq.300) THEN
+         write(luout,1131) 'VS98'
+      ELSE IF (gga.eq.301) THEN
+         write(luout,1131) 'TPSS03'
+      ELSE IF (gga.eq.302) THEN
+         write(luout,1131) 'SCAN'
+      ELSE IF (gga.eq.303) THEN
+         write(luout,1131) 'PKZB'
+      ELSE IF (gga.eq.304) THEN
+         write(luout,1131) 'M06-L'
+      ELSE IF (gga.eq.305) THEN
+         write(luout,1131) 'M06'
+      ELSE IF (gga.eq.306) THEN
+         write(luout,1131) 'M06-2X'
       ELSE
          write(luout,1131) 'unknown parameterization'
          call errquit('bad exchange_correlation',0, INPUT_ERR)
@@ -211,12 +226,17 @@
       end if
 
       if (control_has_disp()) then
-        if (index(control_options_disp(),'-old').ne.0) 
-     >    write(luout,1132) 'Grimme2'
-        if (index(control_options_disp(),'-zero').ne.0) 
-     >    write(luout,1132) 'Grimme3'
-        if (index(control_options_disp(),'-bj').ne.0) 
-     >    write(luout,1132) 'Grimme4'
+        if (index(control_options_disp(),'-old').ne.0) then
+          write(luout,1132) 'Grimme2'
+        else if (index(control_options_disp(),'-zerom').ne.0)  then
+          write(luout,1132) 'Grimme5'
+        else if (index(control_options_disp(),'-zero').ne.0)  then
+          write(luout,1132) 'Grimme3'
+        else if (index(control_options_disp(),'-bjm').ne.0) then
+           write(luout,1132) 'Grimme6'
+        else if (index(control_options_disp(),'-bj').ne.0) then
+          write(luout,1132) 'Grimme4'
+        end if
       end if
       
 

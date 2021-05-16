@@ -30,7 +30,7 @@ c
       integer num_dirs          ! No. of known directives
 cc AJL/Begin/FDE
 c      parameter (num_dirs = 48)
-      parameter (num_dirs = 50)
+      parameter (num_dirs = 51)
 cc AJL/End
       character*12 dirs(num_dirs)
       character*255 test
@@ -83,12 +83,14 @@ c     xps variables
       logical lxps
       integer lenstr
       character*255 inp_vecs
-
+      logical int_forcenwints,gonwxc
+      external int_forcenwints
+      character*20 rtdb_errmsg
       data dirs /'convergence','decomp','dft','direct','semidirect',
      $         'ecp','grid','vectors','incore','iterations', 
      $         'max_ovl','mulliken','mult','noio','noprint','odft', 
      $         'print','tolerances', 'xc','sym','adapt','sic', 
-     $         'smear','fon','lb94','cs00','cdft','cam','disp',
+     $         'smear','fon','lb94','cs00','ncapdd','cdft','cam','disp',
      $         'dftmp2','molden','noscf','steric','efield','swapab',
      $         'frozemb', 'frozemb_xc', 'frozemb_ts',
      $         'cgmin','nocgmin','tol2e','ri-scf','lock',
@@ -143,7 +145,7 @@ c
 c     
       goto (100,  200,  300,  400,  450,  500,  600,  700,  800,
      $      900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700,
-     $     1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 
+     $     1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2510, 2600, 
      $     2700, 2800, 2900, 3000, 3100, 3200, 3300, 3400, 
      $     3500, 3520, 3530,
      $     3600, 3600, 3700, 3800, 3900, 4000, 4100, 4200, 4300,
@@ -341,7 +343,21 @@ c
       if (test(1:3).eq."old") then
         call xc_input(rtdb, 'dft')
       else if (test(1:3).eq."new") then
-         call nwxc_input(out1)
+         if (.not. rtdb_get(rtdb, 'dft:gonwxc', mt_log, 1, gonwxc))
+     &        gonwxc=.false.
+         if(gonwxc) then
+            call nwxc_input(out1)
+         else
+            write(luout,*) '**************************  '
+            write(luout,*) ' nwxc input disabled '
+            write(luout,*) ' To use this unsupported feature, add the '
+            write(luout,*) ' following line to the input file '
+            write(luout,*) ' before the dft section '
+            write(luout,*) '  '
+            write(luout,*) ' set dft:gonwxc .true. '
+            write(luout,*) '**************************  '
+            out1=.false.
+         endif
         if (.not.out1) then
           call errquit("dft_input: nwxc_input failed",0,UERR)
         endif
@@ -498,6 +514,24 @@ c
 c
       goto 10
 c
+c     ncap; adds NCAP derivative discontinuity correction to potential
+c             
+ 2510 ncap = .true.
+      if (.not.rtdb_put(rtdb,'dft:ncap', mt_log, 1, ncap))
+     &   call errquit('dft_input: rtdb_put failed', 2510, RTDB_ERR)
+      if (.not.inp_f(shift)) then
+         write(LuOut,*)' e_{homo} for NCAP potential shift not found;',
+     &   ' e_{homo} current for each iteration will be used.'
+         shift = 1.0d99
+      else
+         shift = 0.053805222d0 * 
+     &           (1d0 + dsqrt(1d0 - 2d0*shift/0.053805222d0))
+      endif
+      if (.not.rtdb_put(rtdb,'dft:delta_ac',mt_dbl,1,shift))
+     &   call errquit('dft_input: rtdb_put failed', 2510, RTDB_ERR)
+c
+      goto 10
+c
 c     constrained dft
 c
  2600 lcdft = .true.
@@ -557,10 +591,12 @@ c  get cam_beta
      &     RTDB_ERR)
 c           write(luout,*) "cam_beta:",cam_beta
       end if
+#if 0
 c
 c     Force texas integrals to false for CAM calculations
-      if (.not.rtdb_put(rtdb,'int:cando_txs',mt_log,1,.false.))
-     &   call errquit('cannot set int:cando_txs',0, RTDB_ERR)
+      if(.not.int_forcenwints(rtdb,rtdb_errmsg))
+     &     call errquit(rtdb_errmsg,0, RTDB_ERR)
+#endif
 c
       goto 10
 c
@@ -630,7 +666,9 @@ c
           else if (mp2char.eq.'disk') then
             which_mp2 = 1
           else if (mp2char.eq.'direct') then
-            which_mp2 = 2
+             which_mp2 = 2
+             call errquit('dft_input: dftmp2 direct disabled',0,
+     C            CAPMIS_ERR)
           else if (mp2char.eq.'ri') then
             which_mp2 = 3
           else if (mp2char.eq.'rimp2') then

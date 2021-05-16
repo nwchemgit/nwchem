@@ -3,7 +3,7 @@
 #
 
  OBJ_OPTIMIZE = \
-		dipole.o \
+		dipole.o dipole_efield.o \
 		orthocheck.o \
 		psi.o \
 		psi_spin2.o \
@@ -22,14 +22,15 @@
 		psi_history.o \
 		psi_write_filename.o \
 		psi_read_filename.o \
-		berry_phase_pol.o
+		berry_phase_pol.o \
+		rho_symmetrizer.o
 
 
 
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = psi.F geodesic.F geodesic2.F Grassman.F dipole.F psi_history.F skew.F geodesic1.F berry_phase_pol.F psi_dmatrix.F
+    USES_BLAS = psi.F geodesic.F geodesic2.F Grassman.F dipole.F psi_history.F skew.F geodesic1.F berry_phase_pol.F psi_dmatrix.F rho_symmetrizer.F dipole.F dipole_efield.F
 
   LIB_DEFINES = 
 

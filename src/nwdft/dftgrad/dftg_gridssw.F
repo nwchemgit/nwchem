@@ -1,6 +1,6 @@
       Subroutine dftg_gridssw(grid_written,
      ,     d_qwght,qwght, qxyz, xyz, Rij, rq, p, 
-     ,     zeta, dzeta, d_p,
+     ,     dzeta, d_p,
      .     ictr, nctrs_pruned, nq_orig,nq, 
      ,     lscreen)
 c
@@ -24,8 +24,8 @@ c
       double precision qwght(nq_orig) ! weights [output]
       double precision d_qwght(3,nq_orig,*) ! weight deriv [output]
 c
-      double precision d_p(3,nq_orig,*), zeta(nq_orig),
-     &                 dzeta(3,nq_orig,*)
+      double precision d_p(3,nctrs_pruned), 
+     &                 dzeta(3,nctrs_pruned)
       integer i, j,  ij
       integer iind,jind,   AA,NN
       double precision mu, radwgh
@@ -38,18 +38,9 @@ c
 c
       integer n
       double precision ass,distnc,distnn,wsum,dist2
-      double precision damuab(3), dbmuba(3)
-      double precision dBPA(3)
-      double precision xi, yi, zi, dmu1, dmu2, dmu3
-      double precision tmu, tmu1,mu1,dmu1dmu,dskdmu1,asqrtpi
-      double precision xa,ya,za,alpha_erf,murij
+      double precision xa,ya,za
       integer A,B,n1,n2
-c 20 digits ln(10)=2.3025
-c 0.5d0 factor because of mu^2??
-      double precision undovl
-      parameter(undovl=20d0*2.3025d0*0.5d0)
-      external fastexp
-      double precision fastexp,asse
+      double precision asse
 #include "xc_erftab.fh"
 c     
 c     RE Stratmann, GE Scuseria, MJ Frisch, Chem Phys Lett 257, 213 (1996)
@@ -59,14 +50,10 @@ c     multi-center quadrature weight.
 c     The following 2 lines are to satisfy compiler warnings.
 c     
       NN = 1
-      asqrtpi=1d0/sqrt(4*datan(1d0))
-      call dfill(nq*3*nctrs_pruned, 0.d0, dzeta, 1)
-      call dfill(nq, 0.d0, zeta, 1)
-      call dfill(nq*3*nctrs_pruned, 0.d0, d_p, 1)
+c      call dfill(nq, 0.d0, zeta, 1)
       call dfill(nq*3*nctrs_pruned, 0.d0, d_qwght, 1)
         ass=ass_erf1
         asse=ass-eps
-        alpha_erf=alpha_erf1
       do  i = 1, nctrs_pruned
 
         x0i = xyz(1,i)
@@ -129,16 +116,76 @@ c     all inside
       enddo
 32     continue
 #ifdef USE_OPENMP
-!$omp parallel do private(n,p)
+!$omp parallel do 
+!$omp& default(shared)
+!$omp& private(n,p,d_p,dzeta)
 #endif
-      do n=n1,n2
+       do n=n1,n2
+          call dftg_gridssw0(n,nn,AA,nctrs_pruned,nq,nq_orig,
+     l         grid_written,
+     c         toll,distnn,
+     d         qxyz,xyz,d_p,dzeta,p,rij,rq,
+     q         qwght,d_qwght)
+      enddo ! n loop
+#ifdef USE_OPENMP
+!$omp end parallel do
+#endif
+      return
+      end
+      subroutine dftg_gridssw0(n,nn,AA,nctrs_pruned,nq,nq_orig,
+     l     grid_written,
+     c     toll,distnn,
+     d     qxyz,xyz,d_p,dzeta,p,rij,rq,
+     q     qwght,d_qwght)
+      implicit none
+      integer n
+      integer AA,nn,nctrs_pruned,nq,nq_orig
+      logical grid_written
+      double precision toll
+      double precision distnn
+      double precision qxyz(3,nq)! grid points [input]
+      double precision xyz(3,*)  ! atom coordinates [input] 
+      double precision d_p(3,nctrs_pruned),
+     &                 dzeta(3,nctrs_pruned)
+      double precision Rij(*) !interatomic distances [input]
+      double precision p(nctrs_pruned)
+      double precision rq(nq_orig,*)  ! sum of p(n) [ output]
+      double precision qwght(nq_orig) ! weights [output]
+      double precision d_qwght(3,nq_orig,*) ! weight deriv [output]
+c      
+      double precision x
+#include "xc_erftab.fh"
+c
+      integer i,j,ij,iind,jind
+      integer A,B
+      logical inota,jnota
+      double precision zetan
+      double precision mu,mu1,dmu1,dmu2,dmu3,dmu1dmu
+      double precision dskdmu1,tmu,tmu1
+      double precision rag,sk,wsum
+      double precision xa,ya,za
+      double precision xi,yi,zi
+      double precision dmuba(3),dbpa(3),damuab(3),dbmuba(3)
+c 20 digits ln(10)=2.3025
+c 0.5d0 factor because of mu^2??
+      double precision undovl
+      parameter(undovl=20d0*2.3025d0*0.5d0)
+      double precision asqrtpi,alpha_erf,asse,ass
+      asqrtpi=1d0/sqrt(4*datan(1d0))
+      ass=ass_erf1
+      asse=ass-eps
+      alpha_erf=alpha_erf1
+      zetan=0d0
+      call dfill(3*nctrs_pruned, 0.d0, dzeta, 1)
+      call dfill(3*nctrs_pruned, 0.d0, d_p, 1)
+    
 c
 c       compute mu_AN
 c
         mu=(rq(n,AA)-rq(n,nn))/sqrt(distnn)
         if (mu.gt.asse) then
           p(AA)=0d0
-          zeta(n)=1d0
+          zetan=1d0
           goto 1100
         endif
 
@@ -183,7 +230,7 @@ c
           wsum=wsum+p(i)
         enddo
         if(abs(wsum).lt.toll) goto 300
-        zeta(n) = 1d0/wsum
+        zetan = 1d0/wsum
  1100   continue
       do A = 1, nctrs_pruned
          if(abs(p(A)).gt.toll) then
@@ -251,9 +298,9 @@ c
                      dBPA(2)= -tmu1*dbmuba(2)
                      dBPA(3)= -tmu1*dbmuba(3)
 c
-                     dzeta(1,n,B) = dzeta(1,n,B)+ dBPA(1)
-                     dzeta(2,n,B) = dzeta(2,n,B)+ dBPA(2)
-                     dzeta(3,n,B) = dzeta(3,n,B)+ dBPA(3)
+                     dzeta(1,B) = dzeta(1,B)+ dBPA(1)
+                     dzeta(2,B) = dzeta(2,B)+ dBPA(2)
+                     dzeta(3,B) = dzeta(3,B)+ dBPA(3)
 c
 
                      if (inota)then
@@ -266,13 +313,13 @@ c
                         damuab(1) = -(xA+mu*dmu1)*Rij(ij)
                         damuab(2) = -(yA+mu*dmu2)*Rij(ij)
                         damuab(3) = -(zA+mu*dmu3)*Rij(ij)
-                        dzeta(1,n,A) = dzeta(1,n,A)+tmu1*damuab(1)
-                        dzeta(2,n,A) = dzeta(2,n,A)+tmu1*damuab(2)
-                        dzeta(3,n,A) = dzeta(3,n,A)+tmu1*damuab(3)
+                        dzeta(1,A) = dzeta(1,A)+tmu1*damuab(1)
+                        dzeta(2,A) = dzeta(2,A)+tmu1*damuab(2)
+                        dzeta(3,A) = dzeta(3,A)+tmu1*damuab(3)
                      else
-                        d_p(1,n,B) =  dBPA(1)
-                        d_p(2,n,B) =  dBPA(2)
-                        d_p(3,n,B) =  dBPA(3)
+                        d_p(1,B) =  dBPA(1)
+                        d_p(2,B) =  dBPA(2)
+                        d_p(3,B) =  dBPA(3)
                      endif
                  endif
              endif
@@ -282,7 +329,7 @@ c
  300     continue
       if(.not.grid_written) then
             if(abs(p(AA)).gt.toll)then
-               qwght(n) = (p(AA)*qwght(n))*zeta(n)
+               qwght(n) = (p(AA)*qwght(n))*zetan
             else
                qwght(n)=0d0
             endif
@@ -293,21 +340,15 @@ c
 c     \Delta_B PA -\delta_B Z*PA/Z
 c     
       do B = 1, nctrs_pruned
-         if (B.ne.AA)then
-               if(abs(p(AA)).gt.toll) then
-               d_qwght(1,n,b)= (d_p(1,n,B)/p(AA) -
-     &           dzeta(1,n,B)*zeta(n))*qwght(n)
-               d_qwght(2,n,b)= (d_p(2,n,B)/p(AA) -
-     &           dzeta(2,n,B)*zeta(n))*qwght(n)
-               d_qwght(3,n,b)= (d_p(3,n,B)/p(AA) -
-     &           dzeta(3,n,B)*zeta(n))*qwght(n)
-              endif
+         if (B.ne.AA.and.abs(p(AA)).gt.toll) then
+            d_qwght(1,n,b)= (d_p(1,B)/p(AA) -
+     &           dzeta(1,B)*zetan)*qwght(n)
+            d_qwght(2,n,b)= (d_p(2,B)/p(AA) -
+     &           dzeta(2,B)*zetan)*qwght(n)
+            d_qwght(3,n,b)= (d_p(3,B)/p(AA) -
+     &           dzeta(3,B)*zetan)*qwght(n)
          endif
       enddo
-      enddo ! n loop
-#ifdef USE_OPENMP
-!$omp end parallel do
-#endif
       return
       end
 

@@ -102,7 +102,7 @@ c     1 dbl_mb(k_a+i-1),dbl_mb(k_b+i-1),dbl_mb(k_c+i-1)
             endif
             endif
             endif
-cc            next = nxtval(nprocs)
+cc            next = nxtask(nprocs,1)
       if(lusesub) then
        next = NXTASKsub(nprocs,1,mypgid)
       else
@@ -112,7 +112,7 @@ cc            next = nxtval(nprocs)
           count = count + 1
         enddo
       enddo
-cc    next = nxtval(-nprocs)
+cc    next = nxtask(-nprocs,1)
       if(lusesub) then
        next = NXTASKsub(-nprocs,1,mypgid)
        call ga_pgroup_sync(mypgid)

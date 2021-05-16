@@ -16,7 +16,7 @@ C     i1 ( p9 h7 )_vtrbtra + = 1 * Sum ( h4 p2 ) * tra ( p2 p9 h4 h7 )_tra * i2 
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER nxtask
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -48,10 +48,10 @@ C     i1 ( p9 h7 )_vtrbtra + = 1 * Sum ( h4 p2 ) * tra ( p2 p9 h4 h7 )_tra * i2 
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-      EXTERNAL NXTVAL
+      EXTERNAL nxtask
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       DO p9b = noab+1,noab+nvab
       DO h7b = 1,noab
       IF (next.eq.count) THEN
@@ -151,12 +151,12 @@ C     i1 ( p9 h7 )_vtrbtra + = 1 * Sum ( h4 p2 ) * tra ( p2 p9 h4 h7 )_tra * i2 
       END IF
       END IF
       END IF
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       END IF
       count = count + 1
       END DO
       END DO
-      next = NXTVAL(-nprocs)
+      next = nxtask(-nprocs,1)
       call GA_SYNC()
       RETURN
       END

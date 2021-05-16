@@ -218,7 +218,7 @@ C>
       implicit none
 #include "errquit.fh"
 #include "global.fh"
-#include "tcgmsg.fh"
+#include "mafdecls.fh"
 #include "msgtypesf.h"
 #include "msgids.fh"
 #include "stdio.fh"
@@ -230,6 +230,7 @@ C>
 c
       integer int_restart
       integer rank, ijunk1, ijunk2
+      integer mitob1
       logical does_it_exist
 c
       logical ostart, orestart, ocontinue
@@ -266,9 +267,10 @@ c assume not a restart
      &       RTDB_ERR)
       endif
 c
-      call ga_brdcst(Msg_gen_at_iatom  +MSGINT,iatom_start,mitob(1),0)
-      call ga_brdcst(Msg_gen_at_ixyz   +MSGINT,ixyz_start, mitob(1),0)
-      call ga_brdcst(Msg_gen_at_restart+MSGINT,int_restart,mitob(1),0)
+      mitob1=MA_sizeof(MT_INT,1,MT_BYTE)
+      call ga_brdcst(Msg_gen_at_iatom  +MSGINT,iatom_start,mitob1,0)
+      call ga_brdcst(Msg_gen_at_ixyz   +MSGINT,ixyz_start, mitob1,0)
+      call ga_brdcst(Msg_gen_at_restart+MSGINT,int_restart,mitob1,0)
 c
       if (int_restart.eq.1) then
         stpr_check_genat_restart = .true.

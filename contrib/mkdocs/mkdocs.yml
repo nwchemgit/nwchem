@@ -1,0 +1,46 @@
+site_name: NWChem
+site_description: NWChem Website
+repo_url: https://github.com/nwchemgit/nwchem-wiki
+site_url: https://nwchemgit.github.io
+edit_uri: blob/master/
+theme:
+  name: readthedocs
+  highlightjs: false
+  prev_next_buttons_location: both
+use_directory_urls: false
+markdown_extensions:
+    - smarty
+    - toc:
+        permalink: True
+    - tables
+#    - markdown_katex:
+#         no_inline_svg: True
+#         insert_fonts_css: True
+#         macro-file: macros.tex
+#    - pymdownx.arithmatex
+#extra_javascript:
+#  - 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML'
+    - mdx_math:
+extra_javascript:
+  - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML
+plugins:
+  - search
+  - alternate-link
+nav:
+      - 'NWChem Manual': Home.md
+      - 'How to download NWChem': Download.md
+      - Quantum-Mechanical-Methods.md
+      - Quantum-Molecular-Dynamics.md
+      - 'Hybrid Approaches': Hybrid-Approaches.md
+      - Other-Capabilities.md
+      - 'NWChem Examples': Examples.md
+      - Supplementary-Information.md
+      - 'How to install NWChem': Compiling-NWChem.md
+      - Benchmarks.md
+      - Known-Bugs.md
+      - 'FAQ': FAQ.md
+      - 'NWChem Tutorials': Tutorials.md
+      - Forum.md
+      - 'Archived Forum': Archived-Forum.md
+      - 'EMSL Arrows': EMSL_Arrows.md
+      - 'Containers': Containers.md

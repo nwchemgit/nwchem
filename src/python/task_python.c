@@ -1,12 +1,13 @@
-/*
- $Id$
-*/
 #include <Python.h>
 #include "macdecls.h"
 #include "ga.h"
 
 #include <import.h>
+#if ( PY_MAJOR_VERSION >= 3 && PY_MINOR_VERSION >= 9)
+/* might require new headers and code */
+#else
 #include <graminit.h>
+#endif
 #include <pythonrun.h>
 #include <stdlib.h>
 #include "typesf2c.h"
@@ -19,7 +20,7 @@ extern void initnwchem();
 extern void util_file_parallel_copy(const char *, const char *);
 
 
-#if (defined(CRAY_T3E) || defined(CRAY_T3D)  || defined(WIN32)) && !defined(__MINGW32__)
+#if (defined(WIN32)) && !defined(__MINGW32__)
 int FATR TASK_PYTHON(Integer *rtdb_ptr)
 #else
 int FATR task_python_(Integer *rtdb_ptr)
@@ -30,7 +31,17 @@ int FATR task_python_(Integer *rtdb_ptr)
    char filename[256];
    int ret;
    
+#if PY_MAJOR_VERSION < 3
    Py_SetProgramName("NWChem");
+#else
+#if PY_MINOR_VERSION < 5
+   wchar_t nwprogram[20];
+   mbstowcs(nwprogram, "NWChem", strlen("NWChem") + 1);
+#else
+   wchar_t *nwprogram = Py_DecodeLocale("NWChem", NULL);
+#endif
+   Py_SetProgramName(nwprogram);
+#endif   
 #if PY_MAJOR_VERSION >= 3
    PyImport_AppendInittab("nwchem", PyInit_nwchem);
 #endif
@@ -80,7 +91,7 @@ int FATR task_python_(Integer *rtdb_ptr)
       a compatible compiler ... which it most likely is not */
  
 #if defined(WIN32)
-   ret = PyRun_SimpleString("execfile('nwchem.py')"); 
+   ret = PyRun_SimpleString("exec(open('nwchem.py').read())");
 #else
    if (!(F = fopen(filename, "r"))) {
        fprintf(stderr,"task_python: cannot open file %s\n",filename); 

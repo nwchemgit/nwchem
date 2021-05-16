@@ -79,3 +79,18 @@ c      integer sigma(2)
      >                               tgauss,tgauss_shift,
      >                               ngauss,ngauss_max,
      >                               periodic
+
+
+*     ******* Two-Electron Gaussian integral block **********
+      logical cperiodic
+      integer e_cgauss(2),f_cgauss(2),indx_cgauss(2),ncgauss,ncgauss_max
+      integer lm1_cgauss(2),lm2_cgauss(2)
+      integer iii1_cgauss(2),iii2_cgauss(2)
+      integer tcgauss(2),tcgauss_shift(2)
+      common / nwpw_cgaussian_block / e_cgauss,f_cgauss,indx_cgauss,
+     >                               iii1_cgauss,iii2_cgauss,
+     >                               lm1_cgauss,lm2_cgauss,
+     >                               tcgauss,tcgauss_shift,
+     >                               ncgauss,ncgauss_max,
+     >                               cperiodic
+

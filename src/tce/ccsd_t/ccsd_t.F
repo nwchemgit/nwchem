@@ -1,3 +1,13 @@
+C #ifndef OFFLOAD_DEBUG_DATA
+C #define OFFLOAD_DEBUG_DATA
+C #endif
+
+#ifdef USE_OMP_TEAMS_DISTRIBUTE
+#define TEAMS_DISTRIBUTE teams distribute
+#else
+#define TEAMS_DISTRIBUTE
+#endif
+
       SUBROUTINE ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1            d_v2,k_v2_offset,energy1,energy2,size_t1)
 C
@@ -58,8 +68,8 @@ c ---------------------------------------
       parameter(n_progr=20)
       logical i_progr(n_progr)
       external nxtask0,ccsd_t_6tasks
-      logical offload_master
-      external offload_master
+      logical offload_enabled
+      external offload_enabled
 C
 c
 c - T1/X1 LOCALIZATION ----------
@@ -78,12 +88,6 @@ C
       energy(2)=0.0d0
       energy1 = 0.0d0
       energy2 = 0.0d0
-c     init sx for offload
-      triplesx_alloced=.false.
-      triplesx1_alloced=.false.
-      v2sub_alloced=.false.
-      t1sub_alloced=.false.
-      t2sub_alloced=.false.
 c     estimate triplesx size
       range_p4=0
       do t_p4b = noab+1,noab+nvab
@@ -95,7 +99,6 @@ c     estimate triplesx size
       enddo
       size=(range_p4**3)*(range_h1**3)
 
-      triplesx_copyback=.false.
       call util_align64(size)
       triplesx_mxlgth=size
 #ifdef USE_F90_ALLOCATABLE
@@ -107,29 +110,30 @@ c     estimate triplesx size
       if (alloc_error.ne.0) then
         call errquit('ccsd_t: MA error dbl',0,MA_ERR)
       endif
-#ifdef USE_OFFLOAD
-      if (otceps) call pstat_on(ps_sxoff)
-      call offl_alloc(f_singles,size)
-      triplesx1_alloced=.true.
-      call offl_alloc(f_doubles,size)
-      triplesx_alloced=.true.
-      if (otceps) call pstat_off(ps_sxoff)
+#if USE_OPENMP
+#if OPENMP_OFFLOAD
+      if (offload_enabled()) then
+!$omp target enter data
+!$omp&map(alloc:f_singles(1:size))
+!$omp&map(alloc:f_doubles(1:size))
+#ifdef OFFLOAD_DEBUG_DATA
+        write (*,*) ga_nodeid(), 'alloc f_singles', size, 'elements'
+        write (*,*) ga_nodeid(), 'alloc f_doubles', size, 'elements'
 #endif
-#else // USE_F90_ALLOCATABLE
+      endif
+#endif
+#endif
+#else
+#if USE_OFFLOAD
+      call errquit('ccsd_t: offload not supported with MA',0,0)
+#endif
       if (.not.MA_PUSH_GET(mt_dbl,size,'(T) singles',l_singles,
      1     k_singles)) call errquit('ccsd_t: MA error sgl',
      2     size,MA_ERR)
       if (.not.MA_PUSH_GET(mt_dbl,size,'(T) doubles',l_doubles,
      1     k_doubles)) call errquit('ccsd_t: MA error dbl',
      2     size,MA_ERR)
-#ifdef USE_OFFLOAD
-      call offl_alloc(dbl_mb(k_singles),size)
-      triplesx1_alloced=.true.
-      call offl_alloc(dbl_mb(k_doubles),size)
-      triplesx_alloced=.true.
 #endif
-#endif // USE_F90_ALLOCATABLE
-
       wall=-util_wallsec()
       tot_task= ccsd_t_6tasks(restricted,noab,nvab,
      1                        int_mb(k_spin),int_mb(k_sym))
@@ -200,7 +204,7 @@ c
       endif
       if(task_thresh.le.tot_task) then
       next = nxtask0(-nprocs,k_grain,tasks_skip)
-      if(.not.offload_master()) then
+      if(.true.) then
          next = nxtask0(nprocs,k_grain,tasks_skip)
          count=0
          do k=task_thresh,tot_task
@@ -243,11 +247,18 @@ c
       if (.not.MA_POP_STACK(l_list))
      1     call errquit('ordering',3,MA_ERR)
 #ifdef USE_F90_ALLOCATABLE
-#ifdef USE_OFFLOAD
-      call offl_free(f_doubles,size)
-      triplesx_alloced=.false.
-      call offl_free(f_singles,size)
-      triplesx1_alloced=.false.
+#if USE_OPENMP
+#if OPENMP_OFFLOAD
+      if (offload_enabled()) then
+!$omp target exit data
+!$omp&map(release:f_singles(1:size))
+!$omp&map(release:f_doubles(1:size))
+#ifdef OFFLOAD_DEBUG_DATA
+        write (*,*) ga_nodeid(), 'release f_singles', size, 'elements'
+        write (*,*) ga_nodeid(), 'release f_doubles', size, 'elements'
+#endif
+      endif
+#endif
 #endif
       deallocate( f_doubles, stat=alloc_error)
       if (alloc_error.ne.0) then
@@ -258,14 +269,6 @@ c
         call errquit('ccsd_t singles',4,MA_ERR)
       endif
 #else
-#ifdef USE_OFFLOAD
-      if (otceps) call pstat_on(ps_sxoff)
-      call offl_free(dbl_mb(k_doubles),size)
-      triplesx_alloced=.false.
-      call offl_free(dbl_mb(k_singles),size)
-      triplesx1_alloced=.false.
-      if (otceps) call pstat_off(ps_sxoff)
-#endif
       if (.not.MA_POP_STACK(l_doubles))
      1     call errquit('ccsd_t doubles',3,MA_ERR)
       if (.not.MA_POP_STACK(l_singles))
@@ -299,13 +302,6 @@ c ---------------------------
      &                       r_p4,r_p5,r_p6,
      &                       energy1,energy2)
       implicit none
-#ifdef OFFLOAD_CODE
-#ifdef OPENMP_OFFLOAD
-!$omp declare target (offl_ccsd_t_dot)
-#else
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_ccsd_t_dot
-#endif
-#endif
       integer h1b, h2b, h3b, p4b, p5b, p6b
       double precision o_h1(*),o_h2(*),o_h3(*)
       double precision o_p4(*),o_p5(*),o_p6(*)
@@ -315,26 +311,11 @@ cdir$ ATTRIBUTES OFFLOAD : mic :: offl_ccsd_t_dot
       double precision a_doubles(*)
       logical restricted
       double precision energy1,energy2
+      external offload_enabled
+      logical offload_enabled
 #ifdef USE_OFFLOAD
-      integer util_micdev,offload_master
-      external util_micdev,offload_master
-      integer mic_device
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_ccsd_t_dot
-      if(offload_master()) then
-         mic_device=util_micdev()
-CDIR$ OFFLOAD TARGET(mic:mic_device)
-     N  IN(a_singles:length(0) REUSE)
-     N  IN(a_doubles:length(0) REUSE)
-     N  IN(restricted)
-     I  IN(h1b,h2b,h3b,p4b,p5b,p6b)
-     I  IN(r_h1,r_h2,r_h3,r_p4,r_p5,r_p6)
-     N  IN(o_h1:length(r_h1))
-     N  IN(o_h2:length(r_h2))
-     N  IN(o_h3:length(r_h3))
-     N  IN(o_p4:length(r_p4))
-     N  IN(o_p5:length(r_p5))
-     N  IN(o_p6:length(r_p6))
-     I  INOUT(energy1,energy2)
+#ifdef OPENMP_OFFLOAD
+      if(offload_enabled()) then
          call offl_ccsd_t_dot(a_singles,a_doubles,restricted,
      &        h1b,h2b,h3b,p4b,p5b,p6b,
      &        o_h1,o_h2,o_h3,o_p4,o_p5,o_p6,
@@ -342,13 +323,16 @@ CDIR$ OFFLOAD TARGET(mic:mic_device)
      &        energy1,energy2)
          else
 #endif
+#endif
             call ccsd_t_dot(a_singles,a_doubles, restricted,
      &        h1b,h2b,h3b,p4b,p5b,p6b,
      &        o_h1,o_h2,o_h3,o_p4,o_p5,o_p6,
      &        r_h1,r_h2,r_h3,r_p4,r_p5,r_p6,
      &        energy1,energy2)
 #ifdef USE_OFFLOAD
+#ifdef OPENMP_OFFLOAD
          endif
+#endif
 #endif
 
       return
@@ -374,6 +358,10 @@ CDIR$ OFFLOAD TARGET(mic:mic_device)
       integer d_t2,d_v2
       integer k_t2_offset,k_v2_offset
       integer size
+#if USE_OFFLOAD
+      external offload_enabled
+      logical offload_enabled
+#endif
 c
       integer t_p4b,t_p5b,t_p6b,t_h1b,t_h2b,t_h3b
       integer range_p4,range_p5,range_p6
@@ -403,10 +391,21 @@ c
       size = range_p4 * range_p5 * range_p6
      &     * range_h1 * range_h2 * range_h3
 c zeroing ---
-      call dcopy(size, 0.0d0, 0, a_singles, 1)
-      call dcopy(size, 0.0d0, 0, a_doubles, 1)
-      call offl_zerofill(a_singles,size)
-      call offl_zerofill(a_doubles,size)
+#if USE_OPENMP
+#if OPENMP_OFFLOAD
+      if (offload_enabled()) then
+        call offl_zero(a_singles, size)
+        call offl_zero(a_doubles, size)
+      else
+#endif
+#endif
+        call dcopy(size, 0.0d0, 0, a_singles, 1)
+        call dcopy(size, 0.0d0, 0, a_doubles, 1)
+#if USE_OPENMP
+#if OPENMP_OFFLOAD
+      endif
+#endif
+#endif
 c -----------
       if (otceps) call pstat_on(ps_cctsng)
 #ifdef USE_OFFLOAD
@@ -421,7 +420,7 @@ c -----------
       if (otceps) call pstat_off(ps_cctsng)
 
 
-      if (otceps) call pstat_on(ps_cctdbl)
+      if (otceps) call pstat_on(ps_cctdbl)      
       call ccsd_t_doubles_l(a_doubles,
      1                 d_t2,d_v2,k_t2_offset,k_v2_offset,
      1                 t_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,2)
@@ -437,83 +436,21 @@ c -----------
       return
       end
 
-
-
-!
-! MIC UTILITY CODE (probably belongs in another file)
-!
-      subroutine offl_alloc(ttt,l_ttt)
+#ifdef USE_OPENMP
+#ifdef OPENMP_OFFLOAD
+      subroutine offl_zero(array, size)
       implicit none
-      double precision ttt(*)
-      integer l_ttt
-c
-      integer util_micdev
-      external util_micdev
-      logical offload_master
-      external offload_master
-      integer mic_device
-c
-#ifdef USE_OFFLOAD
-      if(offload_master()) then
-        mic_device=util_micdev()
-!DIR$ OFFLOAD_TRANSFER TARGET(mic:mic_device)
-     &  NOCOPY(ttt:length(l_ttt)
-     &  ALLOC)
-      endif
-#endif
+      double precision array(size)
+      integer size
+      integer ii
+!$omp target
+!$omp TEAMS_DISTRIBUTE parallel do
+      do ii=1,size
+         array(ii)=0d0
+      enddo
+!$omp end TEAMS_DISTRIBUTE parallel do
+!$omp end target
       return
       end
-
-
-
-      subroutine offl_free(ttt,l_ttt)
-      implicit none
-      double precision ttt(*)
-      integer l_ttt
-c
-      integer util_micdev
-      external util_micdev
-      logical offload_master
-      external offload_master
-      integer mic_device
-c
-#ifdef USE_OFFLOAD
-      if(offload_master()) then
-        mic_device=util_micdev()
-cc Free memory on MIC
-!DIR$ OFFLOAD_TRANSFER TARGET(mic:mic_device)
-     &     NOCOPY(ttt:length(0)
-     &   FREE)
-      endif
 #endif
-      return
-      end
-
-
-
-      subroutine offl_zerofill(ttt,l_ttt)
-      implicit none
-      double precision ttt(*)
-      integer l_ttt
-c
-      integer util_micdev
-      external util_micdev
-      logical offload_master
-      external offload_master
-      integer mic_device
-cdir$ ATTRIBUTES OFFLOAD : mic :: offl_zero
-c
-#ifdef USE_OFFLOAD
-      if(offload_master()) then
-        mic_device=util_micdev()
-!DIR$ OFFLOAD TARGET(mic:mic_device)
-     &  IN(ttt:length(0) REUSE)
-     &  IN(l_ttt)
-      call offl_zero(ttt,l_ttt)
-      endif
 #endif
-      return
-      end
-
-
-

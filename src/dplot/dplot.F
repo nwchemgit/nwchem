@@ -27,15 +27,15 @@
       External movecs_read_header, movecs_read, Int_Normalize
       external ao_rdm_read
 c
-      Character*80 File_Vec,File_Vec2
-      Character*80 File_Mat1,File_Mat2
+      Character*256 File_Vec,File_Vec2
+      Character*256 File_Mat1,File_Mat2
       character*20 scftype, scftype2
       Character*255 Title_Vec, Title_Vec2, Basis_Name, Basis_Name2
       Integer nBF,nBF2,nSet,nSet2,iSet,nSetTri,
      &        nMO(2),nMO2(2)
       Integer g_Vec(2),g_Dns(2),g_Dns2(2)
 c
-      Character*80 File_civecs
+      Character*256 File_civecs
       Integer g_x(2),g_y(2)
       integer iroot
 c
@@ -52,9 +52,10 @@ c
       Double Precision STD,Tot_Charge,maxelt
       Character Coord(3)
       Character*8 Units,What,Spin,Where
-      Character*80 File_Out
+      Character*256 File_Out
       character*255 file_out_dir
       character*30 tag
+      character*16 tag16
       Character*255 Title
       Logical LResult, DeBug
       logical lgaussian,dodos
@@ -88,7 +89,7 @@ c --  Read output file format
      &             //'No DPLOT input block?',11, INPUT_ERR)
       endif
 c
-c --  Read file names of MO vectors
+c     --  Read file names of MO vectors
       If (.not.rtdb_cget(rtdb,'dplot:File_Vec',1,File_Vec))
      &   Call ErrQuit('DPlot: rtdb_get failed - File_Vec',0,
      &       RTDB_ERR)
@@ -368,8 +369,14 @@ c --  Set up the grid
       Out_Unit = LuOut
       If (iProc.eq.0 . and . Where.ne.'NUCLEI' . and .
      &    File_Out.ne.'OUTPUT') Then
-      call util_file_name_noprefix(file_out,.false.,.false.,
-     F        file_out_dir)
+c     prefix directory only if no fowardslash character is present
+         if(file_out(1:1).eq.'/') then
+            write(0,*) ' found slash'
+            file_out_dir=file_out
+         else
+            call util_file_name_noprefix(file_out,.false.,.false.,
+     F           file_out_dir)
+         endif
             Out_Unit=20
             Open(unit=Out_Unit,
      &           file=file_out_dir,
@@ -587,6 +594,7 @@ c          Calculate the difference
 *---- Get the values of the density at the grid points
       LResult = MA_Push_Get(MT_Dbl,nPoint,'Vls',l_Vls,k_Vls)
       Call ErrMem(LResult,'DPlot: Failed to allocate values',0)
+      call dcopy(npoint,0d0,0,dbl_mb(k_vls),1)
 *ga:1:0
       If (What.ne.'CHARGES') Then
          Call Create_Contour(rtdb,Geom,AO_Bas_Han,nBF,nPoint,
@@ -595,7 +603,7 @@ c          Calculate the difference
      .                       no_of_spacings, tol_rho,
      &                       What,Spin,Int_mb(k_Orb))
          maxelt=0d0
-         do i=1,ngrid
+         do i=1,npoint
             maxelt=max(maxelt,abs(dbl_mb(k_vls+i-1)))
          enddo
          if(iproc.eq.0) write(luout,*) ' max element ',maxelt
@@ -655,9 +663,12 @@ c          Calculate the difference
          Do iAtom = 1, nAtom
             iOff = (iAtom - 1)*3
             If (What.ne.'CHARGES')
-     &         Dbl_mb(k_Charge-1+iAtom)=Dbl_mb(k_Vls+Atom_Off-1+iAtom)
+     &           Dbl_mb(k_Charge-1+iAtom)=Dbl_mb(k_Vls+Atom_Off-1+iAtom)
+            do j=1,16
+               tag16(j:j)=Byte_mb(k_Tags+ (iAtom-1)*16+j-1)
+            enddo
             Write(LuOut,'(A16,3f12.6,3x,f15.10)')
-     &           Byte_mb(k_Tags-1 + iAtom),
+     T       tag16(1:inp_strlen(tag16)),
      &           (Dbl_mb(k_xyz+iOff+j),j=0,2),
      &           Dbl_mb(k_Charge-1+iAtom)
          End Do

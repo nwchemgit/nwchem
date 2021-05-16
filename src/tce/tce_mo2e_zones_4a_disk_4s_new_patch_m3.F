@@ -625,8 +625,8 @@ c        write(6,*)'filename=',filename,i,ga_nodeid()
 c        write(6,*)'size_4a_m(i)',size_4a_m(i),i,ga_nodeid()
 c
 c *************
-        if (sf_create(filename,dfloat(bytes)*dfloat(size_4a_m(i)),
-     1   dfloat(bytes)*dfloat(size_4a_m(i)),chunk_max1,handle_4a_m(i))
+        if (sf_create(filename,dble(bytes)*dble(size_4a_m(i)),
+     1   dble(bytes)*dble(size_4a_m(i)),chunk_max1,handle_4a_m(i))
      1   .ne.0)
      2   call errquit('4-index: sf problem opening 4af',0,DISK_ERR)
        enddo
@@ -740,10 +740,10 @@ c 200   format('4A ',4i5,3x,f19.8)
 c       call util_flush(6)
 c *************
         ierrcode1=sf_write(handle_4a_m(my_file_to_write),
-     1    dfloat(bytes)*dfloat(offset_4af),
-     1    dfloat(bytes)*dfloat(size_4a),dbl_mb(k_4a),request)
-ccx        if (sf_write(i_to_x,dfloat(bytes)*dfloat(offset_4af),
-ccx     1    dfloat(bytes)*dfloat(size_4a),dbl_mb(k_4a),request).ne.0)
+     1    dble(bytes)*dble(offset_4af),
+     1    dble(bytes)*dble(size_4a),dbl_mb(k_4a),request)
+ccx        if (sf_write(i_to_x,dble(bytes)*dble(offset_4af),
+ccx     1    dble(bytes)*dble(size_4a),dbl_mb(k_4a),request).ne.0)
 ccx     1    THEN
         if(ierrcode1.ne.0) then
           write(6,8154)ierrcode1
@@ -814,8 +814,8 @@ c
 ccx        call tce_filenameindexed(i,'3a1mf',filename_aux)
 ccx        call util_file_name(filename_aux,.false.,.false.,filename)
         call tce_filename_4ind(i,'3a1mf',filename)
-        if (sf_create(filename,dfloat(bytes)*dfloat(size_3a1m_m(i)),
-     1   dfloat(bytes)*dfloat(size_3a1m_m(i)),chunk_max1,
+        if (sf_create(filename,dble(bytes)*dble(size_3a1m_m(i)),
+     1   dble(bytes)*dble(size_3a1m_m(i)),chunk_max1,
      1   handle_3a1m_m(i)).ne.0)
      2   call errquit('4-index: sf problem opening 3a1mf',0,DISK_ERR)
        enddo
@@ -894,11 +894,11 @@ c
        size_bl4a   = int_mb(k_a4_offset+2*length_a4+ii) 
       if(idiskl) then !---------
         ierrcode1=sf_read(handle_4a_m(my_file_to_read),
-     1    dfloat(bytes)*dfloat(offset_bl4a),
-     1    dfloat(bytes)*dfloat(size_bl4a),dbl_mb(k_integral),
+     1    dble(bytes)*dble(offset_bl4a),
+     1    dble(bytes)*dble(size_bl4a),dbl_mb(k_integral),
      1    request)
-ccx        if (sf_read(i_from_x,dfloat(bytes)*dfloat(offset_bl4a),
-ccx     1    dfloat(bytes)*dfloat(size_bl4a),dbl_mb(k_integral),
+ccx        if (sf_read(i_from_x,dble(bytes)*dble(offset_bl4a),
+ccx     1    dble(bytes)*dble(size_bl4a),dbl_mb(k_integral),
 ccx     1    request).ne.0) THEN
          if(ierrcode1.ne.0) THEN
           write(6,*)'STEP2_step1'
@@ -969,10 +969,10 @@ c getting piece of 4a
      1        key_4af,offset_4af)
       if(idiskl) then !---------
         ierrcode1=sf_read(handle_4a_m(my_file_to_read),
-     1 dfloat(bytes)*dfloat(offset_4af),
-     1 dfloat(bytes)*dfloat(size_4a),dbl_mb(k_integral),request)
-ccx        if (sf_read(i_from_x,dfloat(bytes)*dfloat(offset_4af),
-ccx     1 dfloat(bytes)*dfloat(size_4a),dbl_mb(k_integral),request).ne.0)
+     1 dble(bytes)*dble(offset_4af),
+     1 dble(bytes)*dble(size_4a),dbl_mb(k_integral),request)
+ccx        if (sf_read(i_from_x,dble(bytes)*dble(offset_4af),
+ccx     1 dble(bytes)*dble(size_4a),dbl_mb(k_integral),request).ne.0)
 ccx     1    THEN
         if(ierrcode1.ne.0) then
           write(6,*)'STEP2-step1b'
@@ -1046,8 +1046,8 @@ c 201   format('3A1M ',4i5,3x,f19.8)
 c       call util_flush(6)
 c *************
         ierrcode1=sf_write(handle_3a1m_m(my_file_to_write),
-     1    dfloat(bytes)*dfloat(offset_3a1m),
-     1    dfloat(bytes)*dfloat(size_3a1m),dbl_mb(k_3a1m),request)
+     1    dble(bytes)*dble(offset_3a1m),
+     1    dble(bytes)*dble(size_3a1m),dbl_mb(k_3a1m),request)
         if (ierrcode1.ne.0) then
           write(6,*)'WRITE STEP3'
           write(6,8156) ierrcode1
@@ -1130,8 +1130,8 @@ c
 ccx        call tce_filenameindexed(i,'2a2mf',filename_aux)
 ccx        call util_file_name(filename_aux,.false.,.false.,filename)
         call tce_filename_4ind(i,'2a2mf',filename)
-        if (sf_create(filename,dfloat(bytes)*dfloat(size_2a2m_m(i)),
-     1   dfloat(bytes)*dfloat(size_2a2m_m(i)),chunk_max1,
+        if (sf_create(filename,dble(bytes)*dble(size_2a2m_m(i)),
+     1   dble(bytes)*dble(size_2a2m_m(i)),chunk_max1,
      1   handle_2a2m_m(i)).ne.0)
      2   call errquit('4-index: sf problem opening 2a2mf',0,DISK_ERR)
        enddo
@@ -1194,8 +1194,8 @@ c
 c
        if(idiskl) then ! -------
         ierrcode1=sf_read(handle_3a1m_m(my_file_to_read),
-     2    dfloat(bytes)*dfloat(offset_bl3a1m),
-     2    dfloat(bytes)*dfloat(size_bl3a1m),
+     2    dble(bytes)*dble(offset_bl3a1m),
+     2    dble(bytes)*dble(size_bl3a1m),
      2    dbl_mb(k_integral),request)
          if(ierrcode1.ne.0) then
           write(6,*)'STEP3-step1a'
@@ -1280,8 +1280,8 @@ c 202   format('2A2M ',4i5,3x,f19.8,2x,2i6,2x,2i8)
 c       call util_flush(6)
 c *************
         ierrcode1=sf_write(handle_2a2m_m(my_file_to_write),
-     2                   dfloat(bytes)*dfloat(offset_2a2m),
-     2    dfloat(bytes)*dfloat(size_2a2m),dbl_mb(k_2a2m),request)
+     2                   dble(bytes)*dble(offset_2a2m),
+     2    dble(bytes)*dble(size_2a2m),dbl_mb(k_2a2m),request)
         if(ierrcode1.ne.0) then 
          write(6,*)'STEP3 write'
          write(6,8156) ierrcode1
@@ -1369,8 +1369,8 @@ c
 ccx        call tce_filenameindexed(i,'1a3mf',filename_aux)
 ccx        call util_file_name(filename_aux,.false.,.false.,filename)
         call tce_filename_4ind(i,'1a3mf',filename)
-        if (sf_create(filename,dfloat(bytes)*dfloat(size_1a3m_m(i)),
-     1   dfloat(bytes)*dfloat(size_1a3m_m(i)),chunk_max1,
+        if (sf_create(filename,dble(bytes)*dble(size_1a3m_m(i)),
+     1   dble(bytes)*dble(size_1a3m_m(i)),chunk_max1,
      1   handle_1a3m_m(i)).ne.0)
      2   call errquit('4-index: sf problem opening 1a3mf',0,DISK_ERR)
        enddo
@@ -1423,8 +1423,8 @@ c
      &        key_2a2m,offset_2a2m)
         if(idiskl) then !------
         if (sf_read(handle_2a2m_m(my_file_to_read),
-     &    dfloat(bytes)*dfloat(offset_2a2m),
-     &    dfloat(bytes)*dfloat(size_2a2m),dbl_mb(k_2a2m),request).ne.0)
+     &    dble(bytes)*dble(offset_2a2m),
+     &    dble(bytes)*dble(size_2a2m),dbl_mb(k_2a2m),request).ne.0)
      &    call errquit('zones put: sf problem21-b',1,DISK_ERR)
         if (sf_wait(request).ne.0)
      1    call errquit('zones put: sf problem31-b',2,DISK_ERR)
@@ -1439,8 +1439,8 @@ c
      &                 key_2a2m,offset_2a2m)
         if(idiskl) then ! ------
         if (sf_read(handle_2a2m_m(my_file_to_read),
-     &    dfloat(bytes)*dfloat(offset_2a2m),
-     &    dfloat(bytes)*dfloat(size_2a2m),dbl_mb(k_2a2m),request).ne.0)
+     &    dble(bytes)*dble(offset_2a2m),
+     &    dble(bytes)*dble(size_2a2m),dbl_mb(k_2a2m),request).ne.0)
      &    call errquit('zones put: sf problem21-b',1,DISK_ERR)
         if (sf_wait(request).ne.0)
      1    call errquit('zones put: sf problem31-b',2,DISK_ERR)
@@ -1542,8 +1542,8 @@ c 203   format('1A3M ',4i5,3x,f19.8,2x,i4,2x,i3,2x,2i8)
 c       call util_flush(6)
 c *************
         if (sf_write(handle_1a3m_m(my_file_to_write),
-     &    dfloat(bytes)*dfloat(offset_1a3m),
-     &    dfloat(bytes)*dfloat(size_1a3m),dbl_mb(k_1a3m),request).ne.0)
+     &    dble(bytes)*dble(offset_1a3m),
+     &    dble(bytes)*dble(size_1a3m),dbl_mb(k_1a3m),request).ne.0)
      &    call errquit('zones put: sf problem21-b',1,DISK_ERR)
         if (sf_wait(request).ne.0)
      1    call errquit('zones put: sf problem31-b',2,DISK_ERR)
@@ -1673,8 +1673,8 @@ c
        size_bl1a3m  = int_mb(k_a1_offset+2*length_a1+ii)
        if(idiskl) then ! -------
         if (sf_read(handle_1a3m_m(my_file_to_read),
-     &    dfloat(bytes)*dfloat(offset_bl1a3m),
-     2    dfloat(bytes)*dfloat(size_bl1a3m),
+     &    dble(bytes)*dble(offset_bl1a3m),
+     2    dble(bytes)*dble(size_bl1a3m),
      2    dbl_mb(k_integral),request).ne.0)
      2    call errquit('zones put: sf problem21-b',1,DISK_ERR)
         if (sf_wait(request).ne.0)

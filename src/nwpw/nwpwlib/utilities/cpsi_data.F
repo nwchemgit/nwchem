@@ -495,7 +495,9 @@ c      end if
       nbrill = nbrill1
       nsize  = nsize1
       neall  = neall1
-      call dcopy(nbrill*neall*nsize,dbl_mb(indx1),1,dbl_mb(indx2),1)
+      !call dcopy(nbrill*neall*nsize,dbl_mb(indx1),1,dbl_mb(indx2),1)
+      call Parallel_shared_vector_copy(.true.,nbrill*neall*nsize,
+     >                                 dbl_mb(indx1),dbl_mb(indx2))
 
       return
       end

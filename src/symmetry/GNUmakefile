@@ -28,6 +28,7 @@ OBJ =     dosymops.o \
           sym_cent_map.o \
           sym_num_ops.o \
           sym_ops_get.o \
+          sym_op_get.o \
           sym_pr_all.o \
           sym_geom_prj.o \
           cross_prod.o \

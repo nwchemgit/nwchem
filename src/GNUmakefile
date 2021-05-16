@@ -129,7 +129,7 @@ realclean:
 	-$(RM) $(LIBDIR)/*.a $(BINDIR)/*
 	-$(RM) *.db movecs fort.41 fort.44
 	-$(RM) util/util_version.F
-	@# -$(RM) 64_to_32 32_to_64 # This conversion is such a hassle that realclean should not force it.
+	@# -$(RM) 64_to_32 32_to_64 deps_stamp # This conversion is such a hassle that realclean should not force it.
 
 .PHONY:	cleanF
 cleanF:
@@ -157,6 +157,12 @@ sngl_to_dbl dbl_to_sngl 64_to_32 32_to_64:
 	@$(MAKE) clear_$@
 	for dir in $(SUBDIRS); do \
 		$(MAKE)	-C $$dir $@ || exit 1 ;  \
+	done
+	touch $@
+
+deps_stamp:
+	for dir in $(SUBDIRS); do \
+		$(MAKE)	-i -C $$dir dependencies include_stamp ;  \
 	done
 	touch $@
 

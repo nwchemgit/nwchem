@@ -331,8 +331,10 @@ c     ---------------------------------------------------
      &    0, MA_ERR)
 
       end if
+      status=geom_amatrix_get(geom,unita)
+      status=status.and.geom_systype_get(geom,isystype)
 
-      status=geom_destroy(geom)
+      status=status.and.geom_destroy(geom)
       if(.not.status) 
      & call errquit('cons_init: geom_destroy?',70, GEOM_ERR)
 
@@ -464,6 +466,8 @@ c
       integer geom
       integer nat
       logical status
+      real*8 unita(3,3)
+      integer isystype
 c
 c     load geometry 
 c     -------------
@@ -482,6 +486,8 @@ c     --------------------
      &      'cons_load_geom: unable to allocate cons coord',
      &      nat*3, MA_ERR)
       status=geom_cart_coords_get(geom, dbl_mb(i_c))
+      status=status.and.geom_amatrix_get(geom,unita)
+      status=status.and.geom_systype_get(geom,isystype)
       if(.not.status) 
      & call errquit('cons_init: geom_create?',70, GEOM_ERR)
  
@@ -489,6 +495,8 @@ c     --------------------
       if(.not.status) 
      & call errquit('cons_init: geom_destroy?',70, GEOM_ERR)
       call cons_set_h_c(h_c)
+      call cons_set_unita(unita)
+      call cons_set_isystype(isystype)
 c      call cons_set_i_c(i_c)
 
       return
@@ -760,9 +768,9 @@ c     ---------------
       integer inb,nhb,nhc,nhp
       integer iat,jat
       double precision r
-      double precision r0,k,K0,gcut0,gamma0,gamm
+      double precision r0,k,K0,gcut0,gamma0,c0,gamm
       integer i_c,i_rhb,i_khb,i_ijhb
-      integer i_n,i_indx,i_coef,i_k0,i_gcut0,i_gamma0
+      integer i_n,i_indx,i_coef,i_k0,i_gcut0,i_gamma0,i_c0
       double precision etot,e,f(3)
       character*255 namespace
       logical  cons_active
@@ -875,6 +883,7 @@ c
          i_k0     = cons_get_i_pbondings_k0()
          i_gcut0  = cons_get_i_pbondings_gcut0()
          i_gamma0 = cons_get_i_pbondings_gamma0()
+         i_c0     = cons_get_i_pbondings_c0()
 
          ii = 0
          do i=1,nhp
@@ -882,14 +891,16 @@ c
             K0     = dbl_mb(i_k0+i-1)
             gcut0  = dbl_mb(i_gcut0+i-1)
             gamma0 = dbl_mb(i_gamma0+i-1)
+            c0     = dbl_mb(i_c0+i-1)
 
             call cons_pbondings_energy(n,int_mb(i_indx+2*ii),
      >                               dbl_mb(i_coef+ii),
-     >                               K0,gcut0,gamma0,dbl_mb(i_c),gamm,e)
+     >                               K0,gcut0,gamma0,c0,
+     >                               dbl_mb(i_c),gamm,e)
             if(master) then
                write(luout,'(A,I5)')" bondings penalty#            :",i
-               write(luout,'(A,3(F12.6,2X))')
-     >        " spring parameters (K0,gcut0,gamma0):",K0,gcut0,gamma0
+               write(luout,'(A,4(F12.6,2X))')
+     >     " spring parameters (K0,gcut0,gamma0,c0):",K0,gcut0,gamma0,c0
                write(luout,'(A,F12.6)')
      >         " gamma                        :",gamm
                write(luout,'(A,F12.6)')

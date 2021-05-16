@@ -41,8 +41,8 @@ c
       integer irange,jrange
       integer krange,lrange
       integer kloff
-      integer nxtval
-      external nxtval
+      integer nxtask
+      external nxtask
       integer next,count,nprocs
       integer N
       character*255 filename
@@ -75,8 +75,8 @@ c
         do g2b = g1b,noa+nob+nva+nvb
           sf_size_pq = sf_size_pq + int_mb(k_range+g1b-1)
      1                            * int_mb(k_range+g2b-1)
-          dbl_size   = dbl_size   + dfloat(int_mb(k_range+g1b-1))
-     1                            * dfloat(int_mb(k_range+g2b-1))
+          dbl_size   = dbl_size   + dble(int_mb(k_range+g1b-1))
+     1                            * dble(int_mb(k_range+g2b-1))
         enddo
       enddo
 #if !defined(EXT_INT)
@@ -131,7 +131,7 @@ c     ================
 c
       nprocs = ga_nnodes()
       count = 0
-      next = nxtval(nprocs)
+      next = nxtask(nprocs,1)
       do lsh=1,nshells
         do ksh=1,nshells
           if (next.eq.count) then
@@ -225,12 +225,12 @@ c
             enddo
             if (.not.ma_pop_stack(l_ijkl)) 
      1        call errquit('tce_ao2e_disk: MA problem x1',16,MA_ERR)
-            next = nxtval(nprocs)
+            next = nxtask(nprocs,1)
           endif
           count = count + 1
         enddo
       enddo
-      next = nxtval(-nprocs)
+      next = nxtask(-nprocs,1)
 c
 c      call reconcilefile(d_ao2e,sf_size_pq*sf_size_kl)
 c

@@ -15,7 +15,7 @@ C     i0 ( )_vtrbtray + = 1 * Sum ( p11 p13 h9 h10 ) * y ( h9 h10 p11 p13 )_y * 
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-      INTEGER NXTVAL
+      INTEGER nxtask
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -54,11 +54,11 @@ C     i0 ( )_vtrbtray + = 1 * Sum ( p11 p13 h9 h10 ) * y ( h9 h10 p11 p13 )_y * 
       INTEGER l_c
       INTEGER k_c
       DOUBLE PRECISION FACTORIAL
-      EXTERNAL NXTVAL
+      EXTERNAL nxtask
       EXTERNAL FACTORIAL
       nprocs = GA_NNODES()
       count = 0
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       IF (next.eq.count) THEN
       IF (0 .eq. ieor(irrep_v,ieor(irrep_trb,ieor(irrep_tra,irrep_y)))) 
      &THEN
@@ -144,10 +144,10 @@ C     i0 ( )_vtrbtray + = 1 * Sum ( p11 p13 h9 h10 ) * y ( h9 h10 p11 p13 )_y * 
       IF (.not.MA_POP_STACK(l_c_sort)) CALL ERRQUIT('beta_3_4',11,MA_ERR
      &)
       END IF
-      next = NXTVAL(nprocs)
+      next = nxtask(nprocs,1)
       END IF
       count = count + 1
-      next = NXTVAL(-nprocs)
+      next = nxtask(-nprocs,1)
       call GA_SYNC()
       RETURN
       END

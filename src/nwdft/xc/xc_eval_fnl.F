@@ -98,6 +98,8 @@ c
       double precision eps,dumd
       integer nx,nc,dumi
       parameter (eps=1.e-8)
+      double precision ddot
+      external ddot
 c
 c     Initialize the XC potential and energy sampling matrices.
 c
@@ -303,6 +305,11 @@ c
          dohcth=.true.
          nx=11
          nc=17
+      elseif (abs(xfac(75)).gt.eps.or.abs(cfac(75)).gt.eps)then
+         whichf='h7tz'
+         dohcth=.true.
+         nx=75
+         nc=75
       elseif (abs(xfac(5)).gt.eps.or.abs(cfac(14)).gt.eps)then
          whichf='b970'
          dohcth=.true.
@@ -826,6 +833,18 @@ c
      &   delta_ac, e_homo)
       else if (lb94) then
          call xc_lb94(tol_rho, xfac(1), rho, delrho, Amat, nq, ipol)
+      else if (ncap) then
+         if (delta_ac.eq.1.0d99) then
+           Amat(1:nq) = Amat(1:nq) - 
+     &     0.053805222d0*(1d0 + dsqrt(1d0 - 2d0*e_homo/0.053805222d0))
+           if (ipol.eq.2) then
+             Amat(nq+1:2*nq) = Amat(nq+1:2*nq) -
+     &       0.053805222d0*(1d0 + dsqrt(1d0 - 2d0*e_homo/0.053805222d0))
+           endif
+         else
+           Amat(1:nq) = Amat(1:nq) - delta_ac
+           if (ipol.eq.2) Amat(nq+1:2*nq) = Amat(nq+1:2*nq) - delta_ac
+         endif
       endif
 c     
 c     PKZB99-COR is special in that the GGA part is
@@ -1601,8 +1620,9 @@ c     SCAN meta GGA
 c
       if (abs(xfac(66)).gt.eps) then
          if(.not. do_2nd) then
-            call xc_xscan(tol_rho, xfac(66), rho, delrho, Amat, Cmat,
-     &                    nq, ipol, Ex, qwght, ldew, func, ttau, Mmat)
+            call xc_xscan('orig', tol_rho, xfac(66), rho, delrho, Amat, 
+     &                    Cmat, nq, ipol, Ex, qwght, ldew, func, ttau, 
+     &                    Mmat)
          else
             call xc_xscan_d2()
          endif
@@ -1610,10 +1630,49 @@ c
 c
       if (abs(cfac(66)).gt.eps) then
          if(.not. do_2nd) then
-            call xc_cscan(tol_rho, cfac(66), rho, delrho, Amat, Cmat,
-     &                    nq, ipol, Ec, qwght, ldew, func, ttau, Mmat)
+            call xc_cscan('orig', tol_rho, cfac(66), rho, delrho, Amat, 
+     &                    Cmat, nq, ipol, Ec, qwght, ldew, func, ttau, 
+     &                    Mmat)
          else
             call xc_cscan_d2()
+         endif
+      endif
+c
+c     regularized SCAN
+c
+      if (abs(xfac(71)).gt.eps) then
+         if(.not. do_2nd) then
+            call xc_xscan('regu', tol_rho, xfac(71), rho, delrho, Amat,
+     &                    Cmat, nq, ipol, Ex, qwght, ldew, func, ttau, 
+     &                    Mmat)
+         else
+            call xc_xscan_d2()
+         endif
+      endif
+c
+      if (abs(cfac(71)).gt.eps) then
+         if(.not. do_2nd) then
+            call xc_cscan('regu', tol_rho, cfac(71), rho, delrho, Amat, 
+     &                    Cmat, nq, ipol, Ec, qwght, ldew, func, ttau, 
+     &                    Mmat)
+         else
+            call xc_cscan_d2()
+         endif
+      endif
+c
+      if (abs(xfac(72)).gt.eps)then
+         if (.not. do_2nd .and..not. do_3rd) then
+            call xc_xncap(tol_rho, xfac(72), rho,
+     &           delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght, ldew, func)
+         else if (.not. do_3rd) then
+            call xc_xncap_d2(tol_rho, xfac(72), rho,
+     &           delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol,
+     &           Ex, qwght, ldew, func)
+         else
+            call xc_xncap_d3(tol_rho, xfac(72), rho,
+     &           delrho, Amat, Amat2, Amat3, Cmat, Cmat2, Cmat3,
+     &           nq, ipol, Ex, qwght, ldew, func)
          endif
       endif
 c
@@ -1636,6 +1695,50 @@ c
      &                     func)
          else
             call xc_cscanl_d2()
+         endif
+      endif
+c
+c     r^2SCAN meta GGA
+c
+      if (abs(xfac(73)).gt.eps) then
+         if(.not. do_2nd) then
+            call xc_xr2scan(tol_rho, xfac(73), rho, delrho, Amat, 
+     &                    Cmat, nq, ipol, Ex, qwght, ldew, func, ttau, 
+     &                    Mmat)
+         else
+            call xc_xr2scan_d2()
+         endif
+      endif
+c
+      if (abs(cfac(73)).gt.eps) then
+         if(.not. do_2nd) then
+            call xc_cr2scan(tol_rho, cfac(73), rho, delrho, Amat, 
+     &                    Cmat, nq, ipol, Ec, qwght, ldew, func, ttau, 
+     &                    Mmat)
+         else
+            call xc_cr2scan_d2()
+         endif
+      endif
+c
+c     r^2SCAN-L meta GGA
+c
+      if (abs(xfac(74)).gt.eps) then
+         if(.not. do_2nd) then
+            call xc_xr2scanl(tol_rho, xfac(74), rho, delrho, laprho, 
+     &                    Amat, Cmat, Lmat, nq, ipol, Ex, qwght, ldew, 
+     &                    func)
+         else
+            call xc_xr2scanl_d2()
+         endif
+      endif
+c
+      if (abs(cfac(74)).gt.eps) then
+         if(.not. do_2nd) then
+            call xc_cr2scanl(tol_rho, cfac(74), rho, delrho, laprho, 
+     &                    Amat, Cmat, Lmat, nq, ipol, Ec, qwght, ldew, 
+     &                    func)
+         else
+            call xc_cr2scanl_d2()
          endif
       endif
 c

@@ -1,0 +1,68 @@
+NWChem Version 7.0.0 Release Notes
+
+NWChem is now available on Github at
+https://github.com/nwchemgit/nwchem
+
+New User Manual wiki pages at
+https://github.com/nwchemgit/nwchem/wiki
+
+NWChem 7.0.0 is released as open-source under the ECL 2.0 license.
+
+NWChem 7.0.0 will be released with the latest Global Arrays Toolkit (v5.7).
+
+NEW FUNCTIONALITY 
+
+- Improved and automated Simint Interface.
+  The environment variable USE_SIMINT triggers the download and compilation of the
+  Simint library
+
+- DUCC Quantum computing 
+
+- MetaGGA XC functionals for PSPW
+
+- SCAN, rSCANR, regSCAN, NCAP, revM06 and revM06L XC functionals for LCAO DFT
+
+- Python 3 interface
+
+- OpenMP GPU offload (work in progress)
+
+- New library built from basis set files downloaded from the basissetexchange.org website.
+  Can be used by setting NWCHEM_BASIS_LIBRARY=$NWCHEM_TOP/src/basis/libraries.bse/
+
+- Build of OpenBLAS and Scalapack libraries when the enviroment variables
+  BUILD_OPENBLAS and BUILD_SCALAPACK are defined.
+  
+- Added support for i-PI communication over UNIX sockets
+
+- Added complex absorbing potentials (CAPs) to the real-time TDDFT code
+
+BUG FIXES/ENHANCEMENTS
+
+- Improved Python installation options. No env. variables need.
+  Only PYTHONVERSION might be supplied.
+  Requirement: python and python-config (or v3 variants) in PATH
+
+- improved QA suite
+
+- port to latest GNU compilers (9 and 10)
+
+- port to latest xlf compiler version (16.1.1)
+
+- port to Flang compiler (aarch64 and x86_64)
+
+- SCS-MP2 optimization can now be performed when the following input directive is present
+  set mp2:scf .true.
+
+- QA test h2o2-response-uhf-damping no longer terminates with memory error
+
+- removed dependencies on csh/tcsh
+
+- bug fixes for Molden interface
+
+- improvements to  getmem.nwchem script
+
+- port to Score-P (Performance Measurement Infrastructure)
+
+- setting of env. variable LAPACK_LIB is now required
+
+- bug fix for DFT analytic hessian with ECPs

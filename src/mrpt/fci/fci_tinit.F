@@ -102,7 +102,7 @@ c
          now = fci_time()
          if (used+now .gt. 2) goto 10
       enddo
- 10   used = (used+now)/dfloat(i)
+ 10   used = (used+now)/dble(i)
       write(6,3) used, totalcalls, used*totalcalls
  3    format(/1p,'  Timing overhead=',d8.1,'/call, #calls=',
      $     d8.1, ', total ovehead=',d8.1/)
@@ -122,10 +122,10 @@ c
       data firstcall /.true./, firsttime/0.0d0/
 c
       if (firstcall) then
-         firsttime = dfloat(mclock())*0.01d0
+         firsttime = dble(mclock())*0.01d0
          firstcall = .false.
       endif
-      fci_time = dfloat(mclock())*0.01d0 - firsttime
+      fci_time = dble(mclock())*0.01d0 - firsttime
 #elif defined(LINUX)
       double precision linux_cputime
       external linux_cputime

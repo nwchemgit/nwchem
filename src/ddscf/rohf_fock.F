@@ -67,7 +67,7 @@ c
 c     JEM DIM/QM
       integer g_vdim
       logical ldimqm
-
+      logical noskew_uhf
 c
 c     Initialise
 c     
@@ -149,6 +149,12 @@ c
       call ga_zero(g_hcore)
       call int_1e_ga(basis, basis, g_hcore, 'kinetic', oskel) ! kinetic
       if (do_zora .and. .not. (do_NonRel)) then
+c     is rohf() called from cphf_solve2 (say from hnd_hyperfine_zora)?
+c     hack: use 'cphf:skew' to check this condition
+         if (.not. rtdb_get(rtdb, 'cphf:skew', mt_log, 1,
+     $        noskew_uhf)) then
+            call errquit('ZORA not available yet for SCF ',0,CAPMIS_ERR)
+         endif
         call ga_dadd(1.d0,g_hcore,1.d0,g_zora_Kinetic(1),g_hcore) ! zora kinetic
       endif
       call int_1e_ga(basis, basis, g_hcore, 'potential', oskel) ! potential

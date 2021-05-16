@@ -45,6 +45,9 @@ c
       real*8 e_lj,e_q,e_spring
       real*8 ehsic,exsic,phsic,pxsic,ehfx,phfx
 
+      logical cosmo_on,cosmo1_on,V_APC_on,field_exist
+      real*8  eapc,papc
+
 
 *     **** external functions ****
       integer  control_it_in,psi_neq,control_version,control_ispin
@@ -90,6 +93,10 @@ c
       real*8   pspw_charge_Energy_ion,pspw_charge_Energy_charge
       external pspw_charge_found
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
+      logical  pspw_Efield_found
+      external pspw_Efield_found
+      real*8   pspw_Efield_Energy_ion
+      external pspw_Efield_Energy_ion
 
       logical  control_precondition,pspw_SIC,pspw_HFX,psp_U_psputerm
       external control_precondition,pspw_SIC,pspw_HFX,psp_U_psputerm
@@ -99,13 +106,23 @@ c
       external ion_disp_energy,psi_smearcorrection
       logical  control_fractional
       external control_fractional
-     
+
+      logical  nwpw_cosmo_on,nwpw_cosmo1_on,pspw_V_APC_on
+      external nwpw_cosmo_on,nwpw_cosmo1_on,pspw_V_APC_on
+      real*8   psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
+      external psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
+
   
       call Pack_npack(1,npack1)
       ispin = control_ispin()
       ne(1) = psi_neq(1)
       ne(2) = psi_neq(2)
       neall = ne(1)+ne(2)
+      cosmo_on  = nwpw_cosmo_on()
+      cosmo1_on = nwpw_cosmo1_on()
+      V_APC_on  = pspw_V_APC_on()
+      field_exist = pspw_charge_found().or.pspw_Efield_found()
+
 
 *     **** check and fix orthogonality ****
       call psi_1ortho_check_fix()
@@ -286,14 +303,43 @@ c      call psi_check()
          E(14) = E(14) + dng_1vl_mm()
       end if
 
+*     **** COSMO terms ****
+      if (cosmo_on) then
+
+         !*** cosmo1 ****
+         if (cosmo1_on) then
+            E(46) = psi_1vl_cosmo()
+            E(47) = nwpw_cosmo_EQionq()
+            E(48) = nwpw_cosmo_Eqq()
+
+         !*** cosmo2 ****
+         else
+            call electron_apc_energies(eapc,papc)
+            E(22) = eapc
+            E(23) = papc
+            E(46) = eapc
+            E(47) = nwpw_cosmo_EQionq() !** E(Qion|q)
+            E(48) = nwpw_cosmo_Eqq()    !** E(q|q)
+
+            !E(1)  = E(1) + E(22) - E(23) + E(47) + E(48)
+            E(1)  = E(1) + E(22) - E(23) !*** probably NOT CORRECT ***
+         end if
+
+      else if (V_APC_on) then
+         call electron_apc_energies(eapc,papc)
+         E(22) = eapc
+         E(23) = papc
+         E(1)  = E(1) + eapc - papc !*** probably NOT CORRECT ***
+      end if
 
 
 *     **** get pspw_charge  energies ****
-      if (pspw_charge_found()) then
-         E(19)  = psi_1v_field()
-         E(20)  = pspw_charge_Energy_ion()
-         E(21)  = pspw_charge_Energy_charge()
-         E(1)   = E(1) + E(20) + E(21)
+      if (field_exist) then
+         E(49)  = psi_1v_field()
+         E(50)  = pspw_charge_Energy_ion()
+     >          + pspw_Efield_Energy_ion()
+         E(51)  = pspw_charge_Energy_charge()
+         E(1)   = E(1) + E(50) + E(51)
       end if
 
 

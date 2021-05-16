@@ -7,10 +7,9 @@ start tddftgrad_n2
 
 title "N2 TDDFT Gradients with BNL/3-21G"
 
-geometry nocenter
+geometry noautosym
 N     0.00000000    0.00000000   -0.56556494
 N     0.00000000    0.00000000    0.56556494
-symmetry c1
 end
 
 basis spherical
@@ -21,7 +20,7 @@ dft
  xc xbnl07 0.90 lyp 1.00 hfexch 1.00
  cam 0.33 cam_alpha 0.0 cam_beta 1.0
  direct
- grid euler
+ convergence energy 1d-9
  grid xfine
 end
 

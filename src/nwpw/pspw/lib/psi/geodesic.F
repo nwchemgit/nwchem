@@ -171,22 +171,19 @@ c      value = value.and.BA_free_heap(Vt(2))
      >                     dbl_mb(S(1)),dbl_mb(V(1)))
       end if
 
-!$OMP MASTER
       max_sigma = 0.0d0
       do i=1,(psi_ne(1)+psi_ne(2))
         if (dabs(dbl_mb(S(1)+i-1)).gt.max_sigma) 
      >      max_sigma = dabs(dbl_mb(S(1)+i-1))
       end do
-!$OMP END MASTER
 
 *     **** calculate Vt ****
       call Dneall_mm_transpose(0,dbl_mb(V(1)),dbl_mb(Vt(1)))
 
 *     **** calculate 2*<A|H|psi> ****
       de_private = 2.0d0*electron_eorbit_noocc(A)
-!$OMP MASTER
+
       dE = de_private
-!$OMP END MASTER
 
 *     **** deallocate tmp space ****   
       if (.not.Dneall_m_pop_stack(V))  
@@ -433,6 +430,7 @@ c      real*8     sum1,sum2,sum3
       logical  Dneall_m_push_get,Dneall_m_pop_stack
       external Dneall_m_push_get,Dneall_m_pop_stack
 
+
       call nwpw_timing_start(10)
       zero = 0.0d0
       one  = 1.0d0
@@ -460,6 +458,7 @@ c      real*8     sum1,sum2,sum3
       call Dneall_mmm_Multiply2(0,dbl_mb(Vt(1)),
      >                           dbl_mb(tmp1(1)),
      >                           dbl_mb(tmp2(1)))
+
 
       call Dneall_fmf_Multiply(0,Yold,npack1,
      >                          dbl_mb(tmp2(1)),-1.0d0,

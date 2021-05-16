@@ -14,6 +14,7 @@
 #include "global.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
+#include "nwcsim.fh"
 c      use iso_c_binding
       integer rtdb,nbas,bases(3)
       integer :: num_der
@@ -101,6 +102,7 @@ c
      &              call errquit(pname//'Exiting ',8, BASIS_ERR)
                if (.not. geom_cent_get(geom, iat, tag,
      &              coord, q))call errquit
+     &              (pname//'Exiting ',9, GEOM_ERR)
                nwcsim_noshell(bas)=nwcsim_noshell(bas)+1
                call simint_initialize_shell(
      S              smnt_sh(nwcsim_noshell(bas),bas))
@@ -120,40 +122,40 @@ c     dummy shell for 3c-
          enddo
          if(.not.ma_chop_stack(l_exp)) call errquit(
      E        ' pop stack failed ',l_exp,0)
+c
+c     memory allocation
+c
+         mem_2e4c = max(mem_2e4c,
+     S        simint_eri_worksize(num_der, max_ang))
       enddo ! basis loop
       endif
 c
 c     normalization not needed since nwchem and simint use the same
 cedo      call simint_normalize_shells(nwcsim_noshell,smnt_sh)
-c
-c     memory allocation
-c
-
-      mem_2e4c = max(mem_2e4c,
-     S     simint_eri_worksize(num_der, max_ang))
 c     SIMINT_PRIM_SCREEN_STAT needs 4 more doubles
-      isz_2e4c        = isz_2e4c + 4
-#define SIMINT_SIMD_LEN 8
-      call util_align(isz_2e4c,SIMINT_SIMD_LEN)
-      isz_2e2c        = isz_2e2c + 4
-      call util_align(isz_2e2c,SIMINT_SIMD_LEN)
+c      isz_2e4c        = isz_2e4c + 4
 c      
+c
+c      iszb_2e4c=isz_2e4c
       
       if(num_der.eq.1) then
          memb_2e4c = mem_2e4c + mem_2e4c/5
       else
          memb_2e4c = mem_2e4c + mem_2e4c/10 ! +10% to be safe
       endif
+      call util_align(isz_2e4c,SIMINT_SIMD_LEN)
       call util_align(mem_2e4c,SIMINT_SIMD_LEN)
+      call util_align(memb_2e4c,SIMINT_SIMD_LEN)
       mem_2e3c = mem_2e4c
       mem_2e2c = mem_2e4c
       if(ga_nodeid().eq.0) then
          write(luout,*)
          write(luout,*) ' Using Simint Integral package'
-         write(luout,*) ' simint: mem_2e4c   ',mem_2e4c
-         write(luout,*) ' simint: memb_2e4c  ',memb_2e4c
-         write(luout,*) ' 0 der',simint_eri_worksize(0, max_ang)
-         write(luout,*) ' 1 der',simint_eri_worksize(1, max_ang)
+         write(luout,*) ' num_der',num_der
+         write(luout,*) ' simint: mem_2e4c    ',mem_2e4c
+         write(luout,*) ' simint: memb_2e4c   ',memb_2e4c
+         write(luout,*) ' simint: isz_2e4c   ',isz_2e4c
+         write(luout,*) ' simint: iszb_2e4c  ',iszb_2e4c
          write(luout,*) ' screen_method ',smnt_screen_method
          write(luout,*) ' screen_tol ',smnt_screen_tol
          write(luout,*)
@@ -228,4 +230,76 @@ c
       return
       end
 #endif
+      logical function int_forcenwints(rtdb,rtdb_errmsg)
+      implicit none
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "stdio.fh"
+#include "global.fh"
+      integer rtdb
+      character*(*) rtdb_errmsg
+c
+      logical out1
+c
+      int_forcenwints=.false.
+c     Force texas integrals to false for CAM calculations
+      if (.not.rtdb_put(rtdb,'int:cando_txs',mt_log,1,.false.))
+     &     then
+         rtdb_errmsg='cannot set int:cando_txs'
+         return
+      endif
+c     unset cando_nw if defined to avoid Simint
+      if (rtdb_get(rtdb,'int:cando_nw',mt_log,1,out1)) then
+         if (.not.rtdb_delete(rtdb,'int:cando_nw')) then
+            rtdb_errmsg='cannot del int:cando_nw'
+            return
+         endif
+         if(ga_nodeid().eq.0) write(luout,*) ' cando_nw unset'
+      endif
+      int_forcenwints=.true.
+      call ga_sync()
+      return
+      end
+      logical function int_disablesim(rtdb,rtdb_errmsg)
+      implicit none
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "stdio.fh"
+#include "global.fh"
+      integer rtdb
+      character*(*) rtdb_errmsg
+c
+      logical cando_txs,cando_nw
+c
+      int_disablesim=.false.
+c
+c     check if simint is enabled:
+c     cando_nw=f & cando_txs=f
+c     not needed if Simint is not enabled
+c      
+#ifdef USE_SIMINT
+      if (.not.rtdb_get(rtdb,'int:cando_txs',mt_log,1,cando_txs))
+     &  cando_txs=.true.
+      if (.not.rtdb_get(rtdb,'int:cando_nw',mt_log,1,cando_txs))
+     &  cando_nw=.true.
+c     unset cando_nw if defined to avoid Simint
+      if((.not.cando_txs).and.(.not.cando_nw)) then
+         if (.not.rtdb_delete(rtdb,'int:cando_nw')) then
+            rtdb_errmsg='cannot del int:cando_nw'
+            return
+         endif
+         if(ga_nodeid().eq.0) write(luout,*) ' cando_nw unset'
+         if (.not.rtdb_delete(rtdb,'int:cando_txs')) then
+            rtdb_errmsg='cannot del int:cando_txs'
+            return
+         endif   
+         if(ga_nodeid().eq.0) write(luout,*) ' cando_txs unset'
+      endif
+#endif      
+      int_disablesim=.true.
+      call ga_sync()
+      return
+      end
       

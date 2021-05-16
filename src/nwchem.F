@@ -21,9 +21,6 @@
       integer global
       logical status
       logical overify, ohardfail
-#ifdef CRAY_T3D
-      integer oldact, fsigctl
-#endif
 #ifdef PSCALE
       integer io_code
 #else
@@ -33,7 +30,7 @@ c
 c  $Id$
 c
 c  ======================================================================================================
-C> \mainpage Northwest Computational Chemistry Package (NWChem) 6.8
+C> \mainpage Northwest Computational Chemistry Package (NWChem) 7.0.1
 C>
 C> NWChem is an open-source computational chemistry package distributed under the terms of
 C> the Educational Community License (ECL) 2.0
@@ -60,11 +57,11 @@ C>
 C> * M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski, T.P. Straatsma, H.J.J. Van Dam,
 C>   D. Wang, J. Nieplocha, E. Apra, T.L. Windus, W.A. de Jong (2010)<br>
 C>   "NWChem: A comprehensive and scalable open-source solution for large scale molecular simulations"<br>
-C>   <I>Computer Physics Communications</I>, <b>181</b>, 1477–1489, DOI: <a href="http://dx.doi.org/10.1016/j.cpc.2010.04.018">10.1016/j.cpc.2010.04.018</a>
+C>   <I>Computer Physics Communications</I>, <b>181</b>, 1477–1489, DOI: <a href="https://doi.org/10.1016/j.cpc.2010.04.018">10.1016/j.cpc.2010.04.018</a>
 C>
 C> provides details on the codes capabilities.
 C>
-C> Copyright (c) 1994-2018 Pacific Northwest National Laboratory, Battelle Memorial Institute
+C> Copyright (c) 1994-2020 Pacific Northwest National Laboratory, Battelle Memorial Institute
 C>
 C> Environmental Molecular Sciences Laboratory (EMSL)<br>
 C> Pacific Northwest National Laboratory<br>
@@ -76,8 +73,10 @@ c
       double precision total_wall, total_cpu
 #ifdef USE_OFFLOAD
       integer ppnout
-      logical offload_master
-      external offload_master
+      logical offload_enabled
+      external offload_enabled
+      integer offload_device
+      external offload_device
 #endif
 
       logical ostartup, ocontinue, orestart
@@ -169,6 +168,8 @@ C
       !$omp end master
       !$omp end parallel
 #endif
+c     set no. threads for threaded BLAS to 1
+      call util_blas_set_num_threads(1)
 !
       call rtdb_init()
 c
@@ -210,11 +211,6 @@ c
 *****      call ieeetrap()
 #if defined(LINUXALPHA)
       call dec_fpe  ! To avoid underflow problems on Alpha in Texas
-#endif
-#ifdef CRAY_T3D
-*     This as a temporary fix for SIGFPE in Texas that does not seem
-*     to affect the final results
-      oldact = fsigctl('IGNORE','SIGFPE',0)
 #endif
 #ifdef LINUX
 c      uncommenting this line turns on sigfpe trapping under linux
@@ -287,10 +283,10 @@ c
       call util_getppn(ppnout)
       if(ppnout.eq.0) call errquit('util_getppn failed ',0,UERR)
       if(ga_nodeid().eq.0)write(luout,*)  ga_nodeid(),' ppn ',ppnout
-      if(offload_master()) then
+      if(offload_enabled()) then
       if(ga_nodeid().lt.ppnout)
-     w        write(luout,*)  ga_nodeid(),' offload_master '
-      call util_mic_set_affinity()
+     w        write(luout,'(I8,A,I2)')  ga_nodeid(),
+     w              ' offload enabled, GPU: ', offload_device()
       endif
       call ga_sync()
 #endif
@@ -448,7 +444,7 @@ c
       write(LuOut,*)
       write(LuOut,*)
       call util_print_centered(LuOut,
-     $     'Northwest Computational Chemistry Package (NWChem) 6.8',
+     $     'Northwest Computational Chemistry Package (NWChem) 7.0.1',
      $     40, .true.)
       write(LuOut,*)
       write(LuOut,*)
@@ -461,7 +457,7 @@ c
       call util_print_centered(LuOut,'Richland, WA 99352',
      $     40, .false.)
       write(LuOut,*)
-      call util_print_centered(LuOut,'Copyright (c) 1994-2018',
+      call util_print_centered(LuOut,'Copyright (c) 1994-2020',
      $     40, .false.)
       call util_print_centered(LuOut,
      $     'Pacific Northwest National Laboratory',
@@ -544,7 +540,7 @@ C
 C  Print version information to ecce.out file
 C
       compiled(inp_strlen(compiled)+1:inp_strlen(compiled)+25) = 
-     $         ' Version 6.8'
+     $         ' Version 7.0.1'
       call ecce_print_version(compiled(1:inp_strlen(compiled)))
 C
       If ( Inp_StrLen(BatchID) .gt. 0) then

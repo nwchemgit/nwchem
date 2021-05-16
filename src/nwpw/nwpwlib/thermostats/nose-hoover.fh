@@ -15,3 +15,6 @@ c      real*8 Xrm,Xr0,Xr1,Xr2,Er0,Qr,Pr
       real*8 eke0_init,Ne_chain
       common / nose_hoover1 / eke0_init,Ne_chain
 
+      real*8 Te,Tr
+      common / nose_hoover2 / Te,Tr
+

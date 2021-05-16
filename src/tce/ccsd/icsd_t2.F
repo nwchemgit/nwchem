@@ -8443,7 +8443,7 @@ C     i0 ( p3 p4 h1 h2 )_vt + = -1 * P( 2 ) * Sum ( p5 ) * t ( p5 h1 )_t * v ( p
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-cc      INTEGER NXTVAL
+cc      INTEGER nxtask
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -8476,7 +8476,7 @@ cc      INTEGER NXTVAL
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-cc      EXTERNAL NXTVAL
+cc      EXTERNAL nxtask
 c old way      INTEGER NXTASK
 c -------------------------
       INTEGER ctx,icounter
@@ -8485,7 +8485,7 @@ c -------------------------
 c old way      EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-cc      next = NXTVAL(nprocs)
+cc      next = nxtask(nprocs,1)
 c old way      next = NXTASK(nprocs, 1)
 c --- new way ----
       call nxt_ctx_next(ctx, icounter, next)
@@ -8594,7 +8594,7 @@ c ----------------
       END DO
       END DO
       END DO
-cc      next = NXTVAL(-nprocs)
+cc      next = nxtask(-nprocs,1)
 c old way      next = NXTASK(-nprocs, 1)
 c old way      call GA_SYNC()
       RETURN
@@ -8629,7 +8629,7 @@ C     i0 ( p3 p4 h1 h2 )_vtt + = -1/2 * P( 2 ) * Sum ( h5 ) * t ( p3 h5 )_t * i1
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-cc      INTEGER NXTVAL
+cc      INTEGER nxtask
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -8662,7 +8662,7 @@ cc      INTEGER NXTVAL
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-cc      EXTERNAL NXTVAL
+cc      EXTERNAL nxtask
 c old way      INTEGER NXTASK
 c -------------------------
       INTEGER ctx,icounter
@@ -8671,7 +8671,7 @@ c -------------------------
 c old way      EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-cc      next = NXTVAL(nprocs)
+cc      next = nxtask(nprocs,1)
 c old way      next = NXTASK(nprocs, 1)
 c --- new way ----
       call nxt_ctx_next(ctx, icounter, next)
@@ -8768,7 +8768,7 @@ c ----------------
       END DO
       END DO
       END DO
-cc      next = NXTVAL(-nprocs)
+cc      next = nxtask(-nprocs,1)
 c old way      next = NXTASK(-nprocs, 1)
 c old way      call GA_SYNC()
       RETURN
@@ -8862,7 +8862,7 @@ C     i1 ( h5 p3 h1 h2 )_vt + = -2 * P( 2 ) * Sum ( p6 ) * t ( p6 h1 )_t * v ( h
       INTEGER k_b_offset
       INTEGER d_c
       INTEGER k_c_offset
-cc      INTEGER NXTVAL
+cc      INTEGER nxtask
       INTEGER next
       INTEGER nprocs
       INTEGER count
@@ -8895,7 +8895,7 @@ cc      INTEGER NXTVAL
       INTEGER k_b
       INTEGER l_c
       INTEGER k_c
-cc      EXTERNAL NXTVAL
+cc      EXTERNAL nxtask
 c old way      INTEGER NXTASK
 c -------------------------
       INTEGER ctx,icounter
@@ -8904,7 +8904,7 @@ c -------------------------
 c old way      EXTERNAL NXTASK
       nprocs = GA_NNODES()
       count = 0
-cc      next = NXTVAL(nprocs)
+cc      next = nxtask(nprocs,1)
 c old way      next = NXTASK(nprocs, 1)
 c --- new way ----
       call nxt_ctx_next(ctx, icounter, next)
@@ -9013,7 +9013,7 @@ c ----------------
       END DO
       END DO
       END DO
-cc      next = NXTVAL(-nprocs)
+cc      next = nxtask(-nprocs,1)
 c old way      next = NXTASK(-nprocs, 1)
 c old way      call GA_SYNC()
       RETURN

@@ -28,8 +28,7 @@ c
          alpha(2,3)=alpha(2,3)+dpy(i_f)*dpz(i_f)/deltae(i_f)
          alpha(3,3)=alpha(3,3)+dpz(i_f)*dpz(i_f)/deltae(i_f)
       enddo
-      if(ipol.eq.1) 
-     c     call dscal(9,2d0,alpha,1)
+      call dscal(9,4d0/ipol,alpha,1)
       call util_poltensor(alpha,alpha_ev,alpha_iso,alpha_ani,' SOS')
         
       return

@@ -74,6 +74,14 @@
         if (taskid.eq.MASTER) then
          open(unit=58,file=full_filename,form='formatted')
         end if
+        call util_file_name('restricted_band_interpolated_with_k',
+     >                    .false.,
+     >                    .false.,
+     >                    full_filename)
+        if (taskid.eq.MASTER) then
+         open(unit=68,file=full_filename,form='formatted')
+        end if
+
       else
         if (cpsi_spin_orbit()) then
         call util_file_name('spinor_band_interpolated',
@@ -83,6 +91,15 @@
         if (taskid.eq.MASTER) then
          open(unit=58,file=full_filename,form='formatted')
         end if
+        call util_file_name('spinor_band_interpolated_with_k',
+     >                    .false.,
+     >                    .false.,
+     >                    full_filename)
+        if (taskid.eq.MASTER) then
+         open(unit=68,file=full_filename,form='formatted')
+        end if
+
+
         else 
         call util_file_name('alpha_band_interpolated',
      >                    .false.,
@@ -98,6 +115,22 @@
         if (taskid.eq.MASTER) then
          open(unit=59,file=full_filename,form='formatted')
         end if
+        call util_file_name('alpha_band_interpolated_with_k',
+     >                    .false.,
+     >                    .false.,
+     >                    full_filename)
+        if (taskid.eq.MASTER) then
+         open(unit=68,file=full_filename,form='formatted')
+        end if
+        call util_file_name('beta_band_interpolated_with_k',
+     >                    .false.,
+     >                    .false.,
+     >                    full_filename)
+        if (taskid.eq.MASTER) then
+         open(unit=69,file=full_filename,form='formatted')
+        end if
+
+
         end if
       end if
 
@@ -268,8 +301,12 @@ c            end do
             end if
             write(58,'(1000E14.6)') pathlength,
      >          (dbl_mb(eigs(1)+i-1),i=1,neall(1))
+            write(68,'(1000E14.6)') pathlength,ks,kv,
+     >          (dbl_mb(eigs(1)+i-1),i=1,neall(1))
             if ((.not.cpsi_spin_orbit()).and.(cpsi_ispin().eq.2)) then
                write(59,'(1000E14.6)') pathlength,
+     >             (dbl_mb(eigs(1)+i-1),i=1,neall(2))
+               write(69,'(1000E14.6)') pathlength,ks,kv,
      >             (dbl_mb(eigs(1)+i-1),i=1,neall(2))
             end if
          end if
@@ -278,7 +315,11 @@ c            end do
 
       if (taskid.eq.MASTER) then
         close(58)
-        if (cpsi_ispin().eq.2) close(59)
+        close(68)
+        if (cpsi_ispin().eq.2) then
+           close(59)
+           close(69)
+        end if
       end if
 
       if (.not.BA_pop_stack(eigs(2))) 

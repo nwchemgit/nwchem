@@ -54,6 +54,9 @@ c
       real*8 ehfx,phfx
       real*8 exc_atom,pxc_atom,ehartree_atom,ecmp_cmp,ecmp_pw
 
+      logical cosmo_on,cosmo1_on,V_APC_on,field_exist
+      real*8  eapc,papc
+
 
 *     **** external functions ****
       integer  control_it_in,psi_neq,control_version
@@ -99,6 +102,14 @@ c
       real*8   pspw_charge_Energy_ion,pspw_charge_Energy_charge
       external pspw_charge_found
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
+      logical  pspw_Efield_found
+      external pspw_Efield_found
+      integer  pspw_Efield_type
+      external pspw_Efield_type
+      real*8   pspw_Efield_Energy_ion
+      external pspw_Efield_Energy_ion
+      real*8   dipole_Efield_e,dipole_Efield_p
+      external dipole_Efield_e,dipole_Efield_p
 
 *     ***** PAW functions ****
       logical  psp_pawexist
@@ -122,10 +133,14 @@ c
       external nwpw_meta_gga_on,ion_disp_on
       real*8   ion_disp_energy
       external ion_disp_energy
-      logical  pspw_Lin_HFX_on
-      external pspw_Lin_HFX_on
-      real*8   psi_1energy
-      external psi_1energy
+      logical  pspw_Lin_HFX_on,nwpw_cosmo_on,nwpw_cosmo1_on
+      external pspw_Lin_HFX_on,nwpw_cosmo_on,nwpw_cosmo1_on
+      logical  pspw_V_APC_on
+      external pspw_V_APC_on
+      real*8   psi_1energy,psi_1vl_cosmo
+      external psi_1energy,psi_1vl_cosmo
+      real*8   nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
+      external nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
 
 
       dt = control_time_step()
@@ -144,6 +159,10 @@ c     dte = 1.0d0
       call Pack_npack(1,npack1)
       neall = psi_neq(1)+psi_neq(2)
       pawexist = psp_pawexist()
+      cosmo_on  = nwpw_cosmo_on()
+      cosmo1_on = nwpw_cosmo1_on()
+      V_APC_on  = pspw_V_APC_on()
+      field_exist = pspw_charge_found().or.pspw_Efield_found()
 
 
 *     **** allocate G0, S0 ****
@@ -209,7 +228,6 @@ c     >                                      dcpl_mb(G0(1)),
 c     >                                      dcpl_mb(S0(1)))
 
 
-     
 
 *     ******************************************
 *     ****                                  ****
@@ -236,11 +254,12 @@ c     >                                      dcpl_mb(S0(1)))
  20      continue
          tmin0 = tmin
          deltae0 = deltae
+         call nwpw_cosmo_fix_q()
          Enew0 = linesearch(0.0d0,E0,dE0,deltat,
      >                        psi_geodesic_energy,
      >                        psi_geodesic_denergy,
      >                        0.50d0,tmin0,deltae0,2)
-
+         call nwpw_cosmo_relax_q()
 !$OMP MASTER
          tmin = tmin0
          deltae = deltae0
@@ -296,6 +315,7 @@ c     >                                      dcpl_mb(S0(1)))
 !$OMP END MASTER
 !$OMP BARRIER
 
+
          if (minimizer.eq.3) then
            call pspw_diis(tmin,dcpl_mb(G0(1)),dcpl_mb(S0(1)))
          else
@@ -338,10 +358,12 @@ c      Eold = psi_geodesic_energy(0.0d0)
  25   continue
       tmin0 = tmin
       deltae0 = deltae
+      call nwpw_cosmo_fix_q()
       Enew0 = linesearch(0.0d0,E0,dE0,deltat,
      >                        psi_geodesic_energy,
      >                        psi_geodesic_denergy,
      >                        0.50d0,tmin0,deltae0,2)
+      call nwpw_cosmo_relax_q()
 !$OMP MASTER
          tmin = tmin0
          deltae = deltae0
@@ -380,6 +402,7 @@ c      Eold = psi_geodesic_energy(0.0d0)
 
       call psi_2to1()
       call psi_1toelectron() 
+
 
 
 c     call rho_2to1()
@@ -461,12 +484,19 @@ c     call psi_check()
          E(14) = E(14) + dng_1vl_mm()
       end if
 
-*     **** get pspw_charge energies ****
-      if (pspw_charge_found()) then
-         E(19)  = psi_1v_field()
-         E(20)  = pspw_charge_Energy_ion()
-         E(21)  = pspw_charge_Energy_charge()
-         E(1)   = E(1) + E(20) + E(21)
+*     **** get pspw_charge and pspw_Efield energies ****
+      if (field_exist) then
+         if (pspw_Efield_type().eq.0) then
+            E(49) = dipole_Efield_e()
+            E(50) = dipole_Efield_p()
+            E(51) = 0.0d0
+         else
+            E(49)  = psi_1v_field()
+            E(50)  = pspw_charge_Energy_ion()
+     >             + pspw_Efield_Energy_ion()
+            E(51)  = pspw_charge_Energy_charge()
+            E(1)   = E(1) + E(50) + E(51)
+         end if
       end if
 
 *     **** paw energies ****
@@ -491,6 +521,37 @@ c     call psi_check()
 
          E(45) = psp_ion_core()            !*** ion core energy - independent of psi ***
       end if
+
+
+*     **** COSMO terms ****
+      if (cosmo_on) then
+
+         !*** cosmo1 ****
+         if (cosmo1_on) then
+            E(46) = psi_1vl_cosmo()
+            E(47) = nwpw_cosmo_EQionq()
+            E(48) = nwpw_cosmo_Eqq()
+
+         !*** cosmo2 ****
+         else
+            call electron_apc_energies(eapc,papc)
+            E(22) = eapc
+            E(23) = papc
+            E(46) = eapc
+            E(47) = nwpw_cosmo_EQionq() !** E(Qion|q)
+            E(48) = nwpw_cosmo_Eqq()    !** E(q|q)
+
+            !E(1)  = E(1) + E(22) - E(23) + E(47) + E(48)
+            !E(1)  = E(1) + E(22) - E(23)
+         end if
+
+      else if (V_APC_on) then
+         call electron_apc_energies(eapc,papc)
+         E(22) = eapc
+         E(23) = papc
+         !E(1)  = E(1) + eapc - papc
+      end if
+
 
 *     **** HFX terms ****
       if (pspw_HFX()) then

@@ -33,7 +33,7 @@ basis dunning
 end
 
 scf; thresh 1e-6; end
-dft; xc b3lyp; grid fine; convergence density 1e-6; end
+dft; xc b3lyp; grid fine; convergence energy 1d-9; end
 
 oniom 
   print low 
