@@ -4757,6 +4757,46 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       return
       end
 
+*     ***************************
+*     *                         *
+*     *       psiocc_1to2       *
+*     *                         *
+*     ***************************
+      subroutine psiocc_1to2()
+      implicit none
+
+#include "bafdecls.fh"
+#include "psi.fh"
+  
+      call Parallel_shared_vector_copy(.false.,2*npack1*(neq(1)+neq(2)),
+     >                                 dcpl_mb(psi1(1)),
+     >                                 dcpl_mb(psi2(1)))
+      call Parallel_shared_vector_copy(.true.,(ne(1)+ne(2)),
+     >                                 dbl_mb(occ1(1)),
+     >                                 dbl_mb(occ2(1)))
+      return
+      end
+
+*     ***************************
+*     *                         *
+*     *       psiocc_2to1       *
+*     *                         *
+*     ***************************
+      subroutine psiocc_2to1()
+      implicit none
+
+#include "bafdecls.fh"
+#include "psi.fh"
+  
+      call Parallel_shared_vector_copy(.false.,2*npack1*(neq(1)+neq(2)),
+     >                                 dcpl_mb(psi2(1)),
+     >                                 dcpl_mb(psi1(1)))
+      call Parallel_shared_vector_copy(.true.,(ne(1)+ne(2)),
+     >                                 dbl_mb(occ2(1)),
+     >                                 dbl_mb(occ1(1)))
+      return
+      end
+
 
 *     ***************************
 *     *                         *
@@ -9912,7 +9952,9 @@ c      end if
 #include "psi.fh"
 #include "stdio.fh"
 
+      write(*,*) "HERA"
       call pspw_gen_APC(ispin,ne,dcpl_mb(dng1(1)))
+      write(*,*) "HERB"
       call pspw_print_APC(luout)
 
       return

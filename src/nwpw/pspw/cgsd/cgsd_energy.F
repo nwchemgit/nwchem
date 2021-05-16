@@ -70,14 +70,16 @@ c#include "global.fh"
       external control_hess_model,pspw_Efield_found
       real*8   ion_hess_energy
       external ion_hess_energy
-      real*8   psi_1energy,control_gas_energy
-      external psi_1energy,control_gas_energy
+      real*8   psi_1energy,control_gas_energy,psi_2energy
+      external psi_1energy,control_gas_energy,psi_2energy
       logical  pspw_V_APC_on
       external pspw_V_APC_on
       logical  control_use_fractional_rho,psi_try_read_density
       external control_use_fractional_rho,psi_try_read_density
       integer  pspw_Efield_type
       external pspw_Efield_type
+      real*8   ewald_e,psi_hml_value
+      external ewald_e,psi_hml_value
 
       !**** hack for implementing hessian energy model ****
       if (control_hess_model()) then
@@ -148,14 +150,15 @@ c#include "global.fh"
          call pspw_Lin_HFX_reset()
          if (minimizer.lt.4) call sdminimize(15)
          call bybminimize0()
-c         if (control_fractional()) then
-c            call psi_1toelectron()
-c            call psi_1gen_hml()
-c            call psi_diagonalize_hml_assending()
-c            call psi_1rotate2()
-c            call psi_2to1()
-c            call psi_1define_occupation(-1.0d0,.false.)
-c         end if
+         if (control_fractional()) then
+            call psiocc_1to2()
+            call psi_1toelectron()
+            call psi_1gen_hml()
+            call psi_diagonalize_hml_assending()
+            call psi_1rotate2()
+            call psi_2to1()
+            call psi_1define_occupation(-1.0d0,.false.)
+         end if
       end if
 
    2  continue
@@ -865,7 +868,7 @@ c     >   /45x,' (',F8.3,' kcal/mol)')
       end if
 
       return
- 1511 FORMAT(2(E18.7,' (',F8.3,'eV)  occ=',F5.3))
+ 1511 FORMAT(2(E18.7,' (',F8.3,'eV)  occ=',e18.12))
       end
          
 

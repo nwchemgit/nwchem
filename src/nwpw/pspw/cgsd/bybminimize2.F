@@ -221,27 +221,30 @@ c
          alpha  = control_ks_alpha()
 
          ks_deltae = tole
-         value = .false.
 
-         if (rho_read) call rho_2to1()
-         call electron_gen_vall()
-         call psi_get_density(1,dbl_mb(rho_in(1)))
-         call psi_get_density(1,dbl_mb(rho_out(1)))
+         if (rho_read) then
+            call rho_2to1()
+            call psi_get_density(1,dbl_mb(rho_in(1)))
+            call psi_get_density(1,dbl_mb(rho_out(1)))
+            call psi_set_density(1,dbl_mb(rho_out(1)))
+         else
+            call psi_get_density(1,dbl_mb(rho_in(1)))
+            call psi_get_density(1,dbl_mb(rho_out(1)))
+            call electron_gen_vall()
+         end if
 
          call psi_1gen_hml()
          call psi_diagonalize_hml_assending()
          if (.not.rho_read) then
-            !call psi_1gen_hml()
-            !call psi_diagonalize_hml_assending()
             call psi_1rotate2()
             call psi_2to1()
          end if
+
          if (dohfx) call psi_1genrho()
          if (control_fractional()) then
             call psi_1assending_occupation()
-            !call psi_1define_occupation(0.0d0,.false.)
             call psi_1define_occupation(-1.0d0,.false.)
-            Enew1 = Enew1 + psi_smearcorrection()
+            !write(*,*) "FIRST Energy=",Enew1+eion
          end if
 !$OMP MASTER
          Enew_shared  = Enew1
@@ -309,6 +312,7 @@ c
 *     **** define fractional occupation ****
       if (control_fractional()) 
      >   call psi_1define_occupation(-1.0d0,.false.)
+
 
 !$OMP BARRIER
 
