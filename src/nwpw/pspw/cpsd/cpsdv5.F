@@ -1244,7 +1244,13 @@ c            write(luout,1706) E(18)
 
 *       **** generate APC *****
         call pspw_dngen_APC(ispin,ne,dbl_mb(dn(1)))
-        call pspw_print_APC(6)
+        call pspw_print_APC(luout)
+
+      else if (pspw_V_APC_on()) then
+
+*       **** generate APC *****
+        call pspw_dngen_APC(ispin,ne,dbl_mb(dn(1)))
+        call pspw_print_APC(luout)
 
       end if
 

@@ -980,75 +980,68 @@ c      end do
       end
 
 
-*     ***********************************
-*     *					*
-*     *		pspw_born_V0_APC	*
-*     *					*
-*     ***********************************
-*
-      subroutine pspw_born_V0_APC(vborn)
-      implicit none
-      complex*16 vborn(*)
-
-#include "bafdecls.fh"
-#include "pspw_APC.fh"
-#include "errquit.fh"
-
-*     **** local variables ****
-      logical value
-      integer taskid,np,tid,nthreads
-      integer j,ii,k,nion,nion_q
-      real*8 sb,qj,x,y,z,r
-      integer u(2),uion(2),qion(2)
-
-*     **** external functions ****
-      integer  Parallel_threadid,Parallel_nthreads
-      external Parallel_threadid,Parallel_nthreads
-      integer  ion_nion
-      external ion_nion
-      real*8   pspw_getQtot_APC
-      external pspw_getQtot_APC
-
-      call Parallel_taskid(taskid)
-      call Parallel_np(np)
-      tid = Parallel_threadid()
-      nthreads = Parallel_nthreads()
-      nion     = ion_nion()
-
-*     **** get memory from stack ****
-      value = BA_push_get(mt_dbl,nion,'qion',qion(2),qion(1))
-      value = value.and.
-     >        BA_push_get(mt_dbl,nion,'uion',uion(2),uion(1))
-      value = value.and.
-     >        BA_push_get(mt_dbl,ngs,'u',u(2),u(1))
-      if (.not.value) 
-     >   call errquit('pspw_born_V_APC:push stack',0, MA_ERR)
-
-      do ii=tid+1,nion,nthreads
-         dbl_mb(qion(1)+ii-1) = pspw_getQtot_APC(ii)
-      end do
-
-*     **** calculate u = dEQelcq/dq ****
-      call nwpw_born_dVdq(nion,dbl_mb(qion(1)),
-     >                         dbl_mb(uion(1)))
-      call Parallel_shared_vector_zero(.true.,ngs,dbl_mb(u(1)))
-      do ii=tid+1,nion,nthreads
-         do k=1,nga
-              dbl_mb(u(1)+(ii-1)*nga+k-1)
-     >      = dbl_mb(u(1)+(ii-1)*nga+k-1) + dbl_mb(uion(1)+ii-1)
-         end do
-      end do
-
-      call pspw_VQ_APC(nion,dbl_mb(u(1)),vborn)
-
-      value = BA_pop_stack(u(2))
-      value = value.and.BA_pop_stack(uion(2))
-      value = value.and.BA_pop_stack(qion(2))
-      if (.not.value)
-     >   call errquit('pspw_born_V0_APC:pop stack',0, MA_ERR)
-
-      return
-      end 
+c*     ***********************************
+c*     *					*
+c*     *		pspw_born_V0_APC	*
+c*     *					*
+c*     ***********************************
+c*
+c      subroutine pspw_born_V0_APC(vborn)
+c      implicit none
+c      complex*16 vborn(*)
+c
+c#include "bafdecls.fh"
+c#include "pspw_APC.fh"
+c#include "errquit.fh"
+c
+c*     **** local variables ****
+c      logical value
+c      integer taskid,np,tid,nthreads
+c      integer j,ii,k,nion,nion_q
+c      real*8 sb,qj,x,y,z,r
+c      integer u(2),uion(2),qion(2)
+c
+c*     **** external functions ****
+c      integer  Parallel_threadid,Parallel_nthreads
+c      external Parallel_threadid,Parallel_nthreads
+c      integer  ion_nion,ion_katm_qm
+c      external ion_nion,ion_katm_qm
+c      real*8   pspw_getQtot_APC,psp_zv
+c      external pspw_getQtot_APC,psp_zv
+c
+c      call Parallel_taskid(taskid)
+c      call Parallel_np(np)
+c      tid = Parallel_threadid()
+c      nthreads = Parallel_nthreads()
+c      nion     = ion_nion()
+c
+c*     **** get memory from stack ****
+c      value = BA_push_get(mt_dbl,ngs,'u',u(2),u(1))
+c      if (.not.value) 
+c     >   call errquit('pspw_born_V_APC:push stack',0, MA_ERR)
+c
+c      do ii=tid+1,nion,nthreads
+c         dbl_mb(qion(1)+ii-1) = pspw_getQtot_APC(ii)
+c     >                        + psp_zv(ion_katm_qm(ii))
+c      end do
+c
+c*     **** calculate u = dEQelcq/dq ****
+c      call nwpw_born_dVdq(nion,dbl_mb(qborn(1)),dbl_mb(uborn(1)))
+c      call Parallel_shared_vector_zero(.true.,ngs,dbl_mb(u(1)))
+c      do ii=tid+1,nion,nthreads
+c         do k=1,nga
+c              dbl_mb(u(1)+(ii-1)*nga+k-1)
+c     >      = dbl_mb(u(1)+(ii-1)*nga+k-1) + dbl_mb(uion(1)+ii-1)
+c         end do
+c      end do
+c      call pspw_VQ_APC(nion,dbl_mb(u(1)),vborn)
+c
+c      value = BA_pop_stack(u(2))
+c      if (.not.value)
+c     >   call errquit('pspw_born_V0_APC:pop stack',0, MA_ERR)
+c
+c      return
+c      end 
 
 
 *     ***********************************
@@ -1057,20 +1050,81 @@ c      end do
 *     *                                 *
 *     ***********************************
 *
-      subroutine pspw_born_V_APC(ispin,ne,dng,vborn)
+      subroutine pspw_born_V_APC(ispin,ne,dng,vborn,eborn,pborn)
       implicit none
       integer ispin,ne(2)
       complex*16 dng(*), vborn(*)
+      real*8 eborn,pborn
 
 #include "bafdecls.fh"
 #include "pspw_APC.fh"
 #include "errquit.fh"
 
+*     **** local variables ****
+      logical value
+      integer taskid,np,tid,nthreads,npack0
+      integer ii,k,nion_qm
+      integer u(2),vtmp(2)
+      real*8  elocal
+      
+*     **** external functions ****
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
+      integer  nwpw_born_q_ptr,nwpw_born_u_ptr
+      external nwpw_born_q_ptr,nwpw_born_u_ptr
+      integer  ion_nion_qm,ion_katm_qm
+      external ion_nion_qm,ion_katm_qm
+      real*8   nwpw_born_energy,psp_zv,pspw_getQtot_APC
+      external nwpw_born_energy,psp_zv,pspw_getQtot_APC
+
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
+      tid = Parallel_threadid()
+      nthreads = Parallel_nthreads()
+      nion_qm  = ion_nion_qm()
+      call Pack_npack(0,npack0)
+
+*     **** get memory from stack ****
+      value = BA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1))
+      value = BA_push_get(mt_dbl,ngs,'u',u(2),u(1))
+      if (.not.value)
+     >   call errquit('pspw_born_V_APC:push stack',0, MA_ERR)
+
 *     **** generate APC charges ****
       call pspw_gen_APC(ispin,ne,dng)
+      do ii=1,nion_qm
+         dbl_mb(nwpw_born_q_ptr()+ii-1) = pspw_getQtot_APC(ii)
+     >                                  + psp_zv(ion_katm_qm(ii))
+      end do
+
+      call nwpw_born_dVdq(nion_qm,dbl_mb(nwpw_born_q_ptr()),
+     >                            dbl_mb(nwpw_born_u_ptr()))
+
+      call Parallel_shared_vector_zero(.true.,ngs,dbl_mb(u(1)))
+      do ii=tid+1,nion_qm,nthreads
+        do k=1,nga
+          dbl_mb(u(1)+(ii-1)*nga+k-1) = dbl_mb(u(1)+(ii-1)*nga+k-1) 
+     >                                + dbl_mb(nwpw_born_u_ptr(1)+ii-1)
+        end do
+      end do
+
+      call Pack_cc_dot(0,dng,vborn,elocal)
 
 *     **** generate APC potential ****
-      call pspw_born_V0_APC(vborn)
+      call Parallel_shared_vector_zero(.true.,2*npack0,dcpl_mb(vtmp(1)))
+      call pspw_VQ_APC(nion_qm,dbl_mb(u(1)),dcpl_mb(vtmp(1)))
+      call Pack_cc_daxpy(0,1.0d0,dcpl_mb(vtmp(1)),vborn)
+
+      call Pack_cc_dot(0,dng,dcpl_mb(vtmp(1)),pborn)
+      eborn = nwpw_born_energy()
+
+
+*     **** pop stack ****
+      value = BA_pop_stack(u(2))
+      value = value.and.BA_pop_stack(vtmp(2))
+      if (.not.value)
+     >   call errquit('pspw_born_V_APC:pop stack',0, MA_ERR)
+
       return
       end 
 
@@ -1115,7 +1169,7 @@ c      end do
       call Parallel_np(np)
       tid = Parallel_threadid()
       nthreads = Parallel_nthreads()
-      nion     = ion_nion()
+      nion  = ion_nion()
       call Pack_npack(0,npack0)
 
 
@@ -1226,10 +1280,13 @@ c      write(*,*)
 
       if (nwpw_cosmo2_on()) then
          call pspw_cosmo_V_APC(ispin,ne,dng,vapc,Eapc,Papc)
+
       else if (nwpw_born_on()) then
-         call pspw_born_V_APC(ispin,ne,dng,vapc)
+         call pspw_born_V_APC(ispin,ne,dng,vapc,Eapc,Papc)
+
       else if (nwpw_cdft_on()) then
          call pspw_cdft_V_APC(ispin,ne,dng,vapc,Eapc,Papc)
+
       end if
 
 !$OMP MASTER
@@ -1335,17 +1392,19 @@ c      write(*,*)
 #include "pspw_APC.fh"
 #include "util.fh"
 
-      integer  ion_nion,nwpw_cdft_u_ptr,nwpw_cdft_q_ptr
-      external ion_nion,nwpw_cdft_u_ptr,nwpw_cdft_q_ptr
 
 *     *** local variables ***
       integer ii
 
 *     **** external functions ****
-      logical  nwpw_cosmo2_on
-      external nwpw_cosmo2_on
-      integer  ion_katm_qm
-      external ion_katm_qm
+      logical  nwpw_cosmo2_on,nwpw_born_on,nwpw_cdft_on
+      external nwpw_cosmo2_on,nwpw_born_on,nwpw_cdft_on
+      integer  ion_nion,ion_katm_qm
+      external ion_nion,ion_katm_qm
+      integer  nwpw_cdft_u_ptr,nwpw_cdft_q_ptr
+      external nwpw_cdft_u_ptr,nwpw_cdft_q_ptr
+      integer  nwpw_born_u_ptr,nwpw_born_q_ptr
+      external nwpw_born_u_ptr,nwpw_born_q_ptr
       real*8   psp_zv,pspw_getQtot_APC
       external psp_zv,pspw_getQtot_APC
 
@@ -1355,7 +1414,18 @@ c      write(*,*)
          write(unit,'(10F14.9)') (
      >        psp_zv(ion_katm_qm(ii))+pspw_getQtot_APC(ii),
      >        ii=1,ion_nion())
-      else
+      
+      else if (nwpw_born_on()) then
+         write(unit,*)
+         write(unit,*) "APC Potential:"
+         write(unit,'(10F14.9)') (dbl_mb(nwpw_born_u_ptr()+ii-1),
+     >                            ii=1,ion_nion())
+         write(unit,*)
+         write(unit,*) "APC Point Charges:"
+         write(unit,'(10F14.9)') (dbl_mb(nwpw_born_q_ptr()+ii-1),
+     >                            ii=1,ion_nion())
+
+      else if (nwpw_cdft_on()) then
          write(unit,*)
          write(unit,*) "APC Potential:"
          write(unit,'(10F14.9)') (dbl_mb(nwpw_cdft_u_ptr()+ii-1),

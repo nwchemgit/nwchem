@@ -115,12 +115,13 @@ c     radii for heavy elements: 1.17*1.9
      7   2.223,2.223,2.223,2.223,2.223,2.223/
 
 
-
 *     **** nwpw_born common blocks ****
       logical born_on
-      integer bradii(2),vradii(2),qborn(2),rtdb
+      integer uborn(2),qborn(2)
+      integer bradii(2),vradii(2),rtdb
       real*8  dielec
-      common /nwpw_born_blk/ bradii,vradii,qborn,dielec,rtdb,born_on
+      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
+     >                       rtdb,born_on
 
 
 *     ***** external functions *****
@@ -154,6 +155,8 @@ c
      >           BA_alloc_get(mt_dbl,nion,'vradii',vradii(2),vradii(1))
          value = value.and.
      >           BA_alloc_get(mt_dbl,nion,'qborn',qborn(2),qborn(1))
+         value = value.and.
+     >           BA_alloc_get(mt_dbl,nion,'uborn',uborn(2),uborn(1))
          if (.not. value) 
      >     call errquit('nwpw_born_init:out of heap memory',0,MA_ERR)
 
@@ -220,9 +223,11 @@ c
 
 *     **** nwpw_born common blocks ****
       logical born_on
-      integer bradii(2),vradii(2),qborn(2),rtdb
+      integer uborn(2),qborn(2)
+      integer bradii(2),vradii(2),rtdb
       real*8  dielec
-      common /nwpw_born_blk/ bradii,vradii,qborn,dielec,rtdb,born_on
+      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
+     >                       rtdb,born_on
 
 *     **** local variables ****
       logical value
@@ -244,7 +249,8 @@ c     *** Clean up born stuff, if necessary ***
      >      call errquit('nwpw_born_end:writing radii',0,MA_ERR)
 
          born_on = .false.
-         value = BA_free_heap(qborn(2))
+         value = BA_free_heap(uborn(2))
+         value = value.and.BA_free_heap(qborn(2))
          value = value.and.BA_free_heap(vradii(2))
          value = value.and.BA_free_heap(bradii(2))
          if (.not.value) 
@@ -263,9 +269,11 @@ c     *** Clean up born stuff, if necessary ***
 
 *     **** nwpw_born common blocks ****
       logical born_on
-      integer bradii(2),vradii(2),qborn(2),rtdb
+      integer uborn(2),qborn(2)
+      integer bradii(2),vradii(2),rtdb
       real*8  dielec
-      common /nwpw_born_blk/ bradii,vradii,qborn,dielec,rtdb,born_on
+      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
+     >                       rtdb,born_on
 
       nwpw_born_on = born_on
       return
@@ -286,11 +294,14 @@ c     *** Clean up born stuff, if necessary ***
 #include "stdio.fh"
 #include "errquit.fh"
 
+
 *     **** nwpw_born common blocks ****
       logical born_on
-      integer bradii(2),vradii(2),qborn(2),rtdb
+      integer uborn(2),qborn(2)
+      integer bradii(2),vradii(2),rtdb
       real*8  dielec
-      common /nwpw_born_blk/ bradii,vradii,qborn,dielec,rtdb,born_on
+      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
+     >                       rtdb,born_on
 
 *     **** local variables ****
       integer MASTER,taskid
@@ -375,7 +386,34 @@ c     *** Clean up born stuff, if necessary ***
 *     *            nwpw_born_energy             *
 *     *                                         *
 *     *******************************************
-      real*8 function nwpw_born_energy(nion,rion,bradii,q,dielec)
+      real*8 function nwpw_born_energy()
+      implicit none
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** nwpw_born common blocks ****
+      logical born_on
+      integer uborn(2),qborn(2)
+      integer bradii(2),vradii(2),rtdb
+      real*8  dielec
+      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
+     >                       rtdb,born_on
+
+*     **** external functions ****
+      integer  ion_rion_ptr,ion_nion_qm
+      external ion_rion_ptr,ion_nion_qm
+      real*8   nwpw_born_energy0
+      external nwpw_born_energy0
+
+      nwpw_born_energy = nwpw_born_energy0(ion_nion_qm(),
+     >                            dbl_mb(ion_rion_ptr()),
+     >                            dbl_mb(bradii(1)),
+     >                            dbl_mb(qborn(1)),dielec)
+      return
+      end
+
+      real*8 function nwpw_born_energy0(nion,rion,bradii,q,dielec)
       implicit none
       integer nion
       real*8  rion(3,nion),bradii(nion),q(nion)
@@ -412,7 +450,12 @@ c     *** Clean up born stuff, if necessary ***
 !$OMP END MASTER
       call Parallel_SumAll(Gsolv)
 
-      nwpw_born_energy = Gsolv
+c      write(*,*) "EE dielec=",dielec
+c      do ii=1,nion
+c         write(*,*) "EE ii,q,Gsolv=",ii,q(ii),Gsolv
+c      end do
+
+      nwpw_born_energy0 = Gsolv
       return
       end
 
@@ -421,7 +464,33 @@ c     *** Clean up born stuff, if necessary ***
 *     *            nwpw_born_dVdq               *
 *     *                                         *
 *     *******************************************
-      subroutine nwpw_born_dVdq(nion,rion,bradii,q,dielec,u)
+      subroutine  nwpw_born_dVdq(nion,q,u)
+      implicit none
+      integer nion
+      real*8 q(nion),u(nion)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** nwpw_born common blocks ****
+      logical born_on
+      integer uborn(2),qborn(2)
+      integer bradii(2),vradii(2),rtdb
+      real*8  dielec
+      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
+     >                       rtdb,born_on
+
+      integer  ion_rion_ptr
+      external ion_rion_ptr
+
+      call nwpw_born_dVdq0(nion,
+     >                     dbl_mb(ion_rion_ptr()),
+     >                     dbl_mb(bradii(1)),
+     >                     q,dielec,u)
+      return
+      end
+
+      subroutine nwpw_born_dVdq0(nion,rion,bradii,q,dielec,u)
       implicit none
       integer nion
       real*8  rion(3,nion),bradii(nion),q(nion)
@@ -438,7 +507,7 @@ c     *** Clean up born stuff, if necessary ***
       call Parallel_taskid(taskid)
 
 
-      !Gsolv = 0.0d0
+      Gsolv = 0.0d0
       screen = (1.0d0 - 1.0d0/dielec)
 
       call Parallel_shared_vector_zero(.true.,nion,u)
@@ -453,9 +522,9 @@ c     *** Clean up born stuff, if necessary ***
      >                + (rion(3,ii)-rion(3,jj))**2)
                C = dexp(-0.25d0*dist2/(bradii(ii)*bradii(jj)))
                f = dsqrt(dist2 + bradii(ii)*bradii(jj)*C)
-               u(ii) = u(ii) - 0.5d0*screen*q(jj)/f
-               u(jj) = u(jj) - 0.5d0*screen*q(jj)/f
-               !Gsolv = Gsolv - 0.5d0*screen*q(ii)*q(jj)/f
+               u(ii) = u(ii) + 0.5d0*screen*q(jj)/f
+               u(jj) = u(jj) + 0.5d0*screen*q(ii)/f
+               Gsolv = Gsolv - 0.5d0*screen*q(ii)*q(jj)/f
             end if
             itask = mod(itask+1,np)
          end do
@@ -463,5 +532,51 @@ c     *** Clean up born stuff, if necessary ***
 !$OMP END MASTER
       call Parallel_Vector_SumAll(nion,u)
 
+c      write(*,*) "             ","         dielec,Gsolv=",dielec,Gsolv
+c      do ii=1,nion
+c         write(*,*) "             ","         ii,q,u=",ii,q(ii),u(ii)
+c      end do
+
+      return
+      end
+
+*     *******************************************
+*     *                                         *
+*     *              nwpw_born_u_ptr            *
+*     *                                         *
+*     *******************************************
+      integer function nwpw_born_u_ptr()
+      implicit none
+
+*     **** nwpw_born common blocks ****
+      logical born_on
+      integer uborn(2),qborn(2)
+      integer bradii(2),vradii(2),rtdb
+      real*8  dielec
+      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
+     >                       rtdb,born_on
+
+      nwpw_born_u_ptr = uborn(1)
+      return
+      end
+
+
+*     *******************************************
+*     *                                         *
+*     *              nwpw_born_q_ptr            *
+*     *                                         *
+*     *******************************************
+      integer function nwpw_born_q_ptr()
+      implicit none
+
+*     **** nwpw_born common blocks ****
+      logical born_on
+      integer uborn(2),qborn(2)
+      integer bradii(2),vradii(2),rtdb
+      real*8  dielec
+      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
+     >                       rtdb,born_on
+
+      nwpw_born_q_ptr = qborn(1)
       return
       end

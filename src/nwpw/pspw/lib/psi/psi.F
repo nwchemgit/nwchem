@@ -9952,9 +9952,7 @@ c      end if
 #include "psi.fh"
 #include "stdio.fh"
 
-      write(*,*) "HERA"
       call pspw_gen_APC(ispin,ne,dcpl_mb(dng1(1)))
-      write(*,*) "HERB"
       call pspw_print_APC(luout)
 
       return
