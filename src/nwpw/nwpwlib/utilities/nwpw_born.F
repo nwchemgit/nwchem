@@ -139,7 +139,7 @@ c     radii for heavy elements: 1.17*1.9
 c
       call Parallel_taskid(taskid)
       omaster =  (taskid.eq.MASTER).and.(Parallel_threadid().eq.MASTER)
-      oprint = omaster.and.control_print(print_debug)
+      oprint = omaster.and.control_print(print_medium)
 
 
       if (.not.btdb_get(rtdb,'nwpw:born',mt_log,1,born_on)) 
@@ -184,14 +184,14 @@ c
 
          if (oprint) then
             write(luout,*)
-            write(luout,*) "initializing generalized Born radii"
-            write(luout,*) "-----------------------------------"
-            write(luout,*) " - G.D. Hawkins, C.R. Cramer, ",
+            write(luout,*) "extended Born solvation model:"
+            write(luout,'(5x,3A)') "G.D. Hawkins, C.R. Cramer, ",
      >                     "D.G. Truhlar (1995) ",
-     >                     "Pairwise solute descreening of solute ",
-     >                     "charge from a dielectric medium, ",
-     >                     "Chem. Phys. Lett., vol. 246, pages 122-129."
+     >                     "Pairwise solute descreening of solute"
+            write(luout,'(5x,2A)') "  charge from a dielectric medium,",
+     >                    " Chem. Phys. Lett., vol. 246, pages 122-129."
             write(luout,*)
+            write(luout,'(5x,A)') "generalized Born radii:"
             do ii=1,nion
                write(luout,101) ion_atom(ion_katm(ii)),ii,
      >                          dbl_mb(bradii(1)+ii-1)*0.529177d0,
@@ -202,7 +202,7 @@ c
 
       endif
 
-  101 format(1x,"Born Radius ",A4," - a(",I1,") = ",F6.3,
+  101 format(7x,"- Born Radius ",A4," - a(",I1,") = ",F6.3,
      >       " Angstroms (1.17*vdw radius=",F6.3," Angstroms)")
          
       return
@@ -377,6 +377,26 @@ c     *** Clean up born stuff, if necessary ***
      >       " Angstroms (1.17*vdw radius=",F8.3,
      >       ") - atom charge = ",F8.3)
   102 format(2x,"Gsolvation(Born) = ",E14.6," (",F8.3," kcal/mol)")
+      return
+      end
+
+*     *******************************************
+*     *                                         *
+*     *            nwpw_born_screen             *
+*     *                                         *
+*     *******************************************
+      real*8 function nwpw_born_screen()
+      implicit none
+
+*     **** nwpw_born common blocks ****
+      logical born_on
+      integer uborn(2),qborn(2)
+      integer bradii(2),vradii(2),rtdb
+      real*8  dielec
+      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
+     >                       rtdb,born_on
+
+      nwpw_born_screen = (1.0d0 - 1.0d0/dielec)
       return
       end
 

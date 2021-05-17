@@ -7102,13 +7102,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       common / control_rtdb1 / rtdb
 
 *     **** external functions ****
-      logical  nwpw_cosmo_on
-      external nwpw_cosmo_on
+      logical  nwpw_cosmo_on,nwpw_born_on
+      external nwpw_cosmo_on,nwpw_born_on
 
       real*8 egas
 
       egas = 0.0d0
-      if (nwpw_cosmo_on()) then
+      if (nwpw_cosmo_on().or.nwpw_born_on()) then
          if (.not.btdb_get(rtdb,'nwpw:gas_energy',mt_dbl,1,egas))
      >      egas = 0.0d0
       end if
