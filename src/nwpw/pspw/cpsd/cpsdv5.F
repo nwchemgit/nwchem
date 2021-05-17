@@ -1211,7 +1211,7 @@ c            write(luout,1706) E(18)
             if (dabs(Egas).gt.1.0d-6)
      >         write(luout,1746)  E(1)-Egas,
      >                           (E(1)-Egas)*27.2116d0*23.06d0
-            !call nwpw_cosmo_print(luout,Egas,E(1))
+            call nwpw_born_print(luout,Egas,E(1))
          end if
       end if
 

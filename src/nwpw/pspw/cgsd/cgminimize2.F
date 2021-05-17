@@ -322,14 +322,14 @@ c      call psi_check()
             E(48) = nwpw_cosmo_Eqq()    !** E(q|q)
 
             !E(1)  = E(1) + E(22) - E(23) + E(47) + E(48)
-            E(1)  = E(1) + E(22) - E(23) !*** probably NOT CORRECT ***
+            !E(1)  = E(1) + E(22) - E(23) !*** probably NOT CORRECT ***
          end if
 
       else if (V_APC_on) then
          call electron_apc_energies(eapc,papc)
          E(22) = eapc
          E(23) = papc
-         E(1)  = E(1) + eapc - papc !*** probably NOT CORRECT ***
+         !E(1)  = E(1) + eapc - papc !*** probably NOT CORRECT ***
       end if
 
 
@@ -346,10 +346,10 @@ c      call psi_check()
 *     **** SIC corrections ****
       if (pspw_SIC()) then
          call electron_SIC_energies(ehsic,phsic,exsic,pxsic)        
-         E(22) = ehsic
-         E(23) = exsic
-         E(24) = phsic
-         E(25) = pxsic
+         E(16) = ehsic
+         E(17) = exsic
+         E(18) = phsic
+         E(19) = pxsic
       end if
 
 *     **** HFX terms ****

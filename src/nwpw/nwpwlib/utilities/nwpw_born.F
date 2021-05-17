@@ -191,6 +191,7 @@ c
             write(luout,'(5x,2A)') "  charge from a dielectric medium,",
      >                    " Chem. Phys. Lett., vol. 246, pages 122-129."
             write(luout,*)
+            write(luout,'(5x,A,F11.6)') "dielectric constant = ",dielec
             write(luout,'(5x,A)') "generalized Born radii:"
             do ii=1,nion
                write(luout,101) ion_atom(ion_katm(ii)),ii,
@@ -281,10 +282,10 @@ c     *** Clean up born stuff, if necessary ***
 
 *     *******************************************
 *     *                                         *
-*     *            nwpw_born_print              *
+*     *            nwpw_born_Qprint             *
 *     *                                         *
 *     *******************************************
-      subroutine nwpw_born_print(nga,nion_qm,qgaus)
+      subroutine nwpw_born_Qprint(nga,nion_qm,qgaus)
       implicit none
       integer nga,nion_qm
       real*8 qgaus(nga,nion_qm)
@@ -598,5 +599,79 @@ c      end do
      >                       rtdb,born_on
 
       nwpw_born_q_ptr = qborn(1)
+      return
+      end
+
+
+
+*     *******************************************
+*     *                                         *
+*     *            nwpw_born_print              *
+*     *                                         *
+*     *******************************************
+      subroutine nwpw_born_print(iunit,egas,esol)
+      implicit none
+      integer iunit
+      real*8 egas,esol
+
+         write(iunit,911)
+         if (dabs(egas).gt.0.d0) then
+            write(iunit,912) egas
+            write(iunit,913) esol
+            write(iunit,914) (egas-esol),
+     >                       (egas-esol)*27.2116d0*23.06d0
+         else
+            write(iunit,915)
+            write(iunit,913) esol
+         endif
+
+c
+c    Standard cosmo output
+c
+ 911  format(
+     $/5x,' extended Born solvation results',/,
+     $5x, ' -------------------------------')
+ 912  format(5x,' gas phase energy                 : ',e19.10)
+ 913  format(5x,' sol phase energy                 : ',e19.10)
+ 914  format(5x,' (electrostatic) solvation energy : ',e19.10,
+     $     ' (',f8.3,' kcal/mol)'                       )
+ 915  format('     skipped: no gas phase energy')
+c
+c     Custom cosmo-smd output
+c
+ 819  format(
+     $/5x,' extended Born-SMD solvation results',/,
+     $5x,' -----------------------------------',/
+     $5x,' Reference for the SMD model:',/,
+     $5x,' Marenich, A. V.; Cramer, C. J.; Truhlar, D. G.',
+     $' J. Phys. Chem. B 2009, 113, 6378',/)
+c 820  format(1x,
+c     $'            internal energy in gas <Psi(g)|H|Psi(g)> = ',
+c     $ f22.12)
+c 821  format(1x,
+c     $'        internal energy in solvent <Psi(s)|H|Psi(s)> = ',
+c     $ f22.12)
+c 822  format(1x,
+c     $'                              delta internal energy  = ',
+c     $ f22.12,' (',f8.2,' kcal/mol)')
+c 823  format(1x,
+c     $'  total free energy in solvent <Psi(s)|H+V/2|Psi(s)> = ',
+c     $ f22.12)
+c 824  format(1x,
+c     $'polarization energy contribution <Psi(s)|V/2|Psi(s)> = ',
+c     $ f22.12,' (',f8.2,' kcal/mol)')
+
+ 825  format(5x,
+     $' total free energy in solvent including G(SMD-CDS) : ',
+     $ e19.10)
+ 826  format(5x,
+     $' G(SMD-CDS) energy contribution                    : ',
+     $ e19.10,
+     $     ' (',f9.3,' kcal/mol)')
+ 827  format(5x,
+     $' 1 M fixed-concentration free energy of solvation  : ',
+     $ e19.10,' (',f9.3,' kcal/mol)'                       )
+
+
       return
       end

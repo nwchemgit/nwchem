@@ -1545,7 +1545,7 @@ c      write(*,*)
 
       end if
 
-      call nwpw_born_print(nga,ion_nion_qm(),dbl_mb(q(1)))
+      call nwpw_born_Qprint(nga,ion_nion_qm(),dbl_mb(q(1)))
 
       end if
       return

@@ -63,8 +63,10 @@ c#include "global.fh"
       external    control_symmetry,control_version
       logical  ion_disp_on,nwpw_cosmo_on,nwpw_cosmo_firsttime
       external ion_disp_on,nwpw_cosmo_on,nwpw_cosmo_firsttime
-      real*8   nwpw_cosmo_screen
-      external nwpw_cosmo_screen
+      logical  nwpw_born_on
+      external nwpw_born_on
+      real*8   nwpw_cosmo_screen,nwpw_born_screen
+      external nwpw_cosmo_screen,nwpw_born_screen
 
       logical  control_hess_model,pspw_Efield_found
       external control_hess_model,pspw_Efield_found
@@ -406,8 +408,8 @@ c          **** reset minimizer if failed ****
          write(luout,1450) E(3),E(3)/neall
          write(luout,1460) E(4),E(4)/neall
          if (pspw_SIC()) then
-           write(luout,1455) E(22),E(22)/neall
-           write(luout,1456) E(23),E(23)/neall
+           write(luout,1455) E(16),E(16)/neall
+           write(luout,1456) E(17),E(17)/neall
          end if
          if (pspw_HFX()) then
            write(luout,1457) E(26),E(26)/neall
@@ -439,8 +441,8 @@ c        end if
          write(luout,1496) E(9),E(9)/neall
          write(luout,1497) E(10),E(10)/neall
          if (pspw_SIC())  then
-           write(luout,1499) E(24),E(24)/neall
-           write(luout,1501) E(25),E(25)/neall
+           write(luout,1499) E(18),E(18)/neall
+           write(luout,1501) E(19),E(19)/neall
          end if
          if (pspw_HFX())  then
            write(luout,1502) E(27),E(27)/neall
@@ -628,6 +630,20 @@ c            end do
          end if
       end if
 
+*     **** write out extended Born solvation energies ****
+      if (nwpw_born_on()) then
+         Egas = control_gas_energy()
+         if (oprint) then
+            write(luout,1740)
+            write(luout,1741) nwpw_born_screen()
+            write(luout,1745) E(22),E(22)*27.2116d0*23.06d0
+            if (dabs(Egas).gt.1.0d-6)
+     >         write(luout,1746)  E(1)-Egas,
+     >                           (E(1)-Egas)*27.2116d0*23.06d0
+            call nwpw_born_print(luout,Egas,E(1))
+         end if
+      end if
+
       if (control_symmetry().gt.0) call psi_ab_kill_irrep_names()
       if (control_fractional()) call psi_1assending_occupation()
 
@@ -653,8 +669,8 @@ c     >   'cgsd_noit_energy: numerical stress - error writing rtdb',0)
       value = value.and.btdb_put(rtdb,'pspw:E_ewald',   mt_dbl,1,E(5))
       value = value.and.btdb_put(rtdb,'pspw:E_local',   mt_dbl,1,E(7))
       value = value.and.btdb_put(rtdb,'pspw:E_nonlocal',mt_dbl,1,E(8))
-      value = value.and.btdb_put(rtdb,'pspw:E_hsic',    mt_dbl,1,E(22))
-      value = value.and.btdb_put(rtdb,'pspw:E_xcsic',   mt_dbl,1,E(23))
+      value = value.and.btdb_put(rtdb,'pspw:E_hsic',    mt_dbl,1,E(16))
+      value = value.and.btdb_put(rtdb,'pspw:E_xcsic',   mt_dbl,1,E(17))
       value = value.and.btdb_put(rtdb,'pspw:E_hfx',     mt_dbl,1,E(26))
       value = value.and.btdb_put(rtdb,'pspw:E_dftu',    mt_dbl,1,E(29))
       value = value.and.btdb_put(rtdb,'pspw:E_disp',    mt_dbl,1,E(33))
@@ -817,6 +833,14 @@ c 1735 FORMAT(5x,' solvation energy (w/o QM polarization) :',E19.10,
 c     >   /45x,' (',F8.3,' kcal/mol)')
 c 1736 FORMAT(5x,' solvation energy (w/  QM polarization) :',E19.10,
 c     >   /45x,' (',F8.3,' kcal/mol)')
+
+ 1740 FORMAT(/' extended Born solvation energies:')
+ 1741 FORMAT(5x,' screen=(epsilon-1)/(epsilon):',F11.6)
+ 1745 FORMAT(5x,' solvation energy (w/o QM polarization) :',E19.10,
+     >   ' (',F8.3,' kcal/mol)')
+ 1746 FORMAT(5x,' solvation energy (w/  QM polarization) :',E19.10,
+     >   ' (',F8.3,' kcal/mol)')
+
 
 
  1800 FORMAT(/' Charge+Electric Field Energies')

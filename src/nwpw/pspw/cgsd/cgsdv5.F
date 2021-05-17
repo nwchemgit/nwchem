@@ -44,7 +44,7 @@
 
 *     ***** energy variables ****
       integer ispin,ne(2),ms
-      real*8  E(10),en(2)
+      real*8  E(60),en(2)
       real*8  dipole(3),cdipole(3)
       real*8  stress(3,3),lstress(6)
 
@@ -736,10 +736,9 @@ c     end if
 *     **** calculate Mulliken Populations ***
       if (control_Mulliken()) then
          call psi_Mulliken(rtdb)
+         call psi_Born()
          i = control_excited_ne(1)+control_excited_ne(2)
          if (i.eq.0) call kp_structure(rtdb)
-      else if (nwpw_born_on()) then
-         call psi_Born()
       end if
 
 
