@@ -3701,9 +3701,6 @@ c         write(*,*) "     --- it,Enew,deltae=",it,Enew,deltae
      >  call errquit('bfgsminimize:error freeing heap memory',0, MA_ERR)
 
       call psi_2to1()
-      !call psi_1gen_hml()
-      !call psi_diagonalize_hml_assending()
-      !call psi_1toelectron()
 
       return
       end
@@ -4757,6 +4754,46 @@ c     >           dcpl_mb(psi1(1)),1)
      >                                  dcpl_mb(psi1(1)))
 
 c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))  
+      return
+      end
+
+*     ***************************
+*     *                         *
+*     *       psiocc_1to2       *
+*     *                         *
+*     ***************************
+      subroutine psiocc_1to2()
+      implicit none
+
+#include "bafdecls.fh"
+#include "psi.fh"
+  
+      call Parallel_shared_vector_copy(.false.,2*npack1*(neq(1)+neq(2)),
+     >                                 dcpl_mb(psi1(1)),
+     >                                 dcpl_mb(psi2(1)))
+      call Parallel_shared_vector_copy(.true.,(ne(1)+ne(2)),
+     >                                 dbl_mb(occ1(1)),
+     >                                 dbl_mb(occ2(1)))
+      return
+      end
+
+*     ***************************
+*     *                         *
+*     *       psiocc_2to1       *
+*     *                         *
+*     ***************************
+      subroutine psiocc_2to1()
+      implicit none
+
+#include "bafdecls.fh"
+#include "psi.fh"
+  
+      call Parallel_shared_vector_copy(.false.,2*npack1*(neq(1)+neq(2)),
+     >                                 dcpl_mb(psi2(1)),
+     >                                 dcpl_mb(psi1(1)))
+      call Parallel_shared_vector_copy(.true.,(ne(1)+ne(2)),
+     >                                 dbl_mb(occ2(1)),
+     >                                 dbl_mb(occ1(1)))
       return
       end
 

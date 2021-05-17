@@ -29,7 +29,7 @@ c
       real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx
       real*8  exc_atom,pxc_atom,ehartree_atom,ecmp_cmp,ecmp_pw
 
-      logical cosmo_on,cosmo1_on,V_APC_on
+      logical cosmo_on,cosmo1_on,V_APC_on,field_exist
       real*8  eapc,papc
       
 
@@ -94,6 +94,12 @@ c
       external nwpw_cosmo_on,nwpw_cosmo1_on,pspw_V_APC_on
       real*8   psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
       external psi_1vl_cosmo,nwpw_cosmo_EQionq,nwpw_cosmo_Eqq
+      logical  pspw_Efield_found
+      external pspw_Efield_found
+      integer  pspw_Efield_type
+      external pspw_Efield_type
+      real*8   dipole_Efield_e,dipole_Efield_p,pspw_Efield_Energy_ion
+      external dipole_Efield_e,dipole_Efield_p,pspw_Efield_Energy_ion
 
 
       call Pack_npack(1,npack1)
@@ -101,6 +107,7 @@ c
       cosmo_on  = nwpw_cosmo_on()
       cosmo1_on = nwpw_cosmo1_on()
       V_APC_on  = pspw_V_APC_on()
+      field_exist = pspw_charge_found().or.pspw_Efield_found()
 
 *     **** allocate G1 ****
       value = BA_alloc_get(mt_dcpl,npack1*neall,
@@ -162,6 +169,21 @@ c      call psi_1toelectron()
          E(14) = E(14) + pspw_qmmm_Q_Emix()
          E(14) = E(14) + dng_1vl_mm()
 
+      end if
+
+*     **** get pspw_charge and pspw_Efield energies ****
+      if (field_exist) then
+         if (pspw_Efield_type().eq.0) then
+            E(49) = dipole_Efield_e()
+            E(50) = dipole_Efield_p()
+            E(51) = 0.0d0
+         else
+            E(49)  = psi_1v_field()
+            E(50)  = pspw_charge_Energy_ion()
+     >             + pspw_Efield_Energy_ion()
+            E(51)  = pspw_charge_Energy_charge()
+            E(1)   = E(1) + E(50) + E(51)
+         end if
       end if
 
 *     **** paw energies ****
@@ -229,22 +251,13 @@ c     >                            + E(40)+E(41)+E(42)+E(43)+E(45)
 
 
 
-*     **** get pspw_charge  energies ****
-      if (pspw_charge_found()) then
-         E(19)  = psi_1v_field()
-         E(20)  = pspw_charge_Energy_ion()    !*** independent of psi ***
-         E(21)  = pspw_charge_Energy_charge() !*** independent of psi ***
-         E(1)   = E(1) + E(20) + E(21)
-      end if
-
-
 *     **** SIC corrections ****
       if (pspw_SIC()) then
          call electron_SIC_energies(ehsic,phsic,exsic,pxsic)
-         E(22) = ehsic
-         E(23) = exsic
-         E(24) = phsic
-         E(25) = pxsic
+         E(16) = ehsic
+         E(17) = exsic
+         E(18) = phsic
+         E(19) = pxsic
       end if
 
 *     **** HFX terms ****
