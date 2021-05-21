@@ -21,7 +21,7 @@ variables:
 .linuxubuntu_template: &beforescript_linuxubuntu
   before_script:
     - export NWCHEM_TARGET=LINUX
-    - export PATH=/home/edo/apps/mpich314_i686/bin:/usr/bin:/bin:.
+    - export PATH=/usr/local/python395.i386/bin:/home/edo/apps/mpich314_i686/bin:/usr/bin:/bin:.
     - export LD_LIBRARY_PATH=/home/edo/apps/mpich314_i686/lib:/home/edo/apps/OpenBLAS.i386/lib
 
 .compile_template: &compile_step
