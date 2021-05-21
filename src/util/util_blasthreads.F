@@ -4,6 +4,8 @@ c
       integer  nt ! [in]
 #if defined(OPENBLAS)
       call openblas_set_num_threads(nt)
+#elif defined(CRAYBLAS)
+      call crayblas_set_num_threads(nt)
 #elif defined(MKL)
       call mkl_set_num_threads(nt)
 #elif defined(BLIS)
@@ -26,8 +28,12 @@ c do nothing
       external openblas_get_num_threads
       integer openblas_get_num_threads
       nt=openblas_get_num_threads()
+#elif defined(CRAYBLAS)
+      external crayblas_get_max_threads
+      integer crayblas_get_max_threads
+      nt=crayblas_get_max_threads()
 #elif defined(MKL) 
-      external mkl_get_num_threads
+      external mkl_get_max_threads
       integer mkl_get_max_threads
       nt=mkl_get_max_threads()
 #elif defined(BLIS)
