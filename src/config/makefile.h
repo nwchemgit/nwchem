@@ -3098,6 +3098,12 @@ endif
 ifeq ($(shell echo $(BLASOPT) |awk '/lsci/ {print "Y"; exit}'),Y)
       DEFINES += -DCRAYBLAS
 endif
+ifeq ($(shell echo $(BLASOPT) |awk '/lessl/ {print "Y"; exit}'),Y)
+      DEFINES += -DBLAS_OPENMP
+# essl does not has the full lapack library
+      EXTRA_LIBS += -lnwclapack
+      CORE_SUBDIRS_EXTRA = lapack
+endif
 
 #
 # Define known suffixes mostly so that .p files don\'t cause pc to be invoked
