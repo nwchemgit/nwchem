@@ -3075,7 +3075,7 @@ endif
 MKDIR = mkdir
 #extract defines to be used with linear algebra libraries
       ifdef USE_INTERNALBLAS
-      DEFINES += -DINTERNALBLAS
+      DEFINES += -DBLAS_NOTHREADS
 endif
 ifdef BUILD_OPENBLAS
       DEFINES += -DOPENBLAS
@@ -3097,6 +3097,12 @@ ifeq ($(shell echo $(BLASOPT) |awk '/Accelerate/ {print "Y"; exit}'),Y)
 endif
 ifeq ($(shell echo $(BLASOPT) |awk '/lsci/ {print "Y"; exit}'),Y)
       DEFINES += -DCRAYBLAS
+endif
+ifeq ($(shell echo $(BLASOPT) |awk '/larmpl/ {print "Y"; exit}'),Y)
+      DEFINES += -DARMPL
+endif
+ifeq ($(shell echo $(BLASOPT) |awk '/latlas/ {print "Y"; exit}'),Y)
+      DEFINES += -DBLAS_NOTHREADS
 endif
 ifeq ($(shell echo $(BLASOPT) |awk '/lessl/ {print "Y"; exit}'),Y)
       DEFINES += -DBLAS_OPENMP

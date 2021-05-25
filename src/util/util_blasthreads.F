@@ -14,9 +14,11 @@ c
       call flexiblas_set_num_threads(nt)
 #elif defined(ACCELERATE)
       call veclib_set_num_threads(nt)
+#elif defined(ARMPL)
+      call armpl_set_num_threads(nt)
 #elif defined(BLAS_OPENMP)
       call omp_set_num_threads(nt)
-#elif defined(INTERNALBLAS)
+#elif defined(BLAS_NOTHREADS)
 c do nothing      
 #else
       call errquit(' util_blas not ready ',0,0)
@@ -57,11 +59,15 @@ c     return value=-1 -> threading not enabled
       external veclib_get_num_threads
       integer veclib_get_num_threads
       nt=veclib_get_num_threads()
+#elif defined(ARMPL)
+      external armpl_get_num_threads
+      integer armpl_get_num_threads
+      nt=armpl_get_num_threads()
 #elif defined(BLAS_OPENMP)
       integer omp_get_max_threads
       external omp_get_max_threads
       nt=omp_get_max_threads()
-#elif defined(INTERNALBLAS)
+#elif defined(BLAS_NOTHREADS)
       nt=1
 #else
       call errquit(' util_blas not ready ',0,0)
