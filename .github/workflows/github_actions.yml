@@ -196,6 +196,7 @@ jobs:
           [ -d ~/cache/simint/simint_install/lib ] && \
           mkdir -p src/NWints/simint/libsimint_source/simint_install && \
           rsync -av ~/cache/simint/simint_install/* src/NWints/simint/libsimint_source/simint_install/.   || true
+          [ -f ~/cache/tarballs/dftd3.tgz ] && \
           rsync -av ~/cache/tarballs/dftd3.tgz  src/nwpw/nwpwlib/nwpwxc/dftd3.tgz  || true
           echo "cache fetched"
       - name: compile
@@ -218,7 +219,7 @@ jobs:
           [ -d "src/libext/bin" ] && rsync -av src/libext/bin/*  ~/cache/libext/bin/. || true
           [ -d "src/libext/include" ] && rsync -av src/libext/include/*  ~/cache/libext/include/.  || true
           [ -d "src/NWints/simint/libsimint_source/simint_install/lib" ] && rsync -av src/NWints/simint/libsimint_source/simint_install/* ~/cache/simint/simint_install/.  || true
-          [ -d "src/nwpw/nwpwlib/nwpwxc/dftd3.tgz" ] && rsync -av  src/nwpw/nwpwlib/nwpwxc/dftd3.tgz ~/cache/tarballs/dftd3.tgz || true
+          [ -f "src/nwpw/nwpwlib/nwpwxc/dftd3.tgz" ] && rsync -av  src/nwpw/nwpwlib/nwpwxc/dftd3.tgz ~/cache/tarballs/dftd3.tgz || true
           mkdir -p ~/cache/libext/mpich/mpich || true
           echo "cache stored"
           ls -Rla ~/cache
