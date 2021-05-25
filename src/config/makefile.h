@@ -3105,7 +3105,15 @@ ifeq ($(shell echo $(BLASOPT) |awk '/latlas/ {print "Y"; exit}'),Y)
       DEFINES += -DBLAS_NOTHREADS
 endif
 ifeq ($(shell echo $(BLASOPT) |awk '/lessl/ {print "Y"; exit}'),Y)
-      DEFINES += -DBLAS_OPENMP
+  ifeq ($(shell echo $(BLASOPT) |awk '/smp/ {print "Y"; exit}'),Y)
+erroresslsmp:
+$(info     )
+$(info essl smp threaded libraries are deprecated)
+$(info since they conflict with OpenMP parallelization)
+$(info please use -lessl6464 or -lessl)
+$(error )
+  endif
+#      DEFINES += -DBLAS_OPENMP
 # essl does not has the full lapack library
       EXTRA_LIBS += -lnwclapack
       CORE_SUBDIRS_EXTRA = lapack
