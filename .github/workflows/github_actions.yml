@@ -191,6 +191,7 @@ jobs:
       - name: fetch cache
         if: steps.setup-cache.outputs.cache-hit == 'true'
         run: |
+          ls -Rla ~/cache
           [ -d ~/cache/libext ] && mkdir -p ~/cache/libext/mpich/mpich  && \
           rsync -av ~/cache/libext/* src/libext/.  
           [ -d ~/cache/simint/simint_install/lib ] && \
