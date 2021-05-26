@@ -182,7 +182,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ matrix.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-blas${{ matrix.blas}}-simd${{ steps.get-simd.outputs.simd }}-nwchemcache-v005
+          key: ${{ matrix.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-blas${{ matrix.blas}}-simd${{ steps.get-simd.outputs.simd }}-nwchemcache-v006
       - name: build environment
         run: |
           pwd
@@ -196,6 +196,8 @@ jobs:
           [ -d ~/cache/simint/simint_install/lib ] && \
           mkdir -p src/NWints/simint/libsimint_source/simint_install && \
           rsync -av ~/cache/simint/simint_install/* src/NWints/simint/libsimint_source/simint_install/.   || true
+          [ -f ~/cache/tarballs/dftd3.tgz ] && \
+          rsync -av ~/cache/tarballs/dftd3.tgz  src/nwpw/nwpwlib/nwpwxc/dftd3.tgz  || true
           echo "cache fetched"
       - name: compile
         id: compile
@@ -212,10 +214,12 @@ jobs:
         run: |
           mkdir -p ~/cache/libext/lib  ~/cache/libext/bin  ~/cache/libext/include ~/cache/libext/mpich || true
           mkdir -p ~/cache/simint/simint_install || true
+          mkdir -p ~/cache/tarballs || true
           [ -d "src/libext/lib" ] && rsync -av src/libext/lib/*  ~/cache/libext/lib/. || true
           [ -d "src/libext/bin" ] && rsync -av src/libext/bin/*  ~/cache/libext/bin/. || true
           [ -d "src/libext/include" ] && rsync -av src/libext/include/*  ~/cache/libext/include/.  || true
           [ -d "src/NWints/simint/libsimint_source/simint_install/lib" ] && rsync -av src/NWints/simint/libsimint_source/simint_install/* ~/cache/simint/simint_install/.  || true
+          [ -f "src/nwpw/nwpwlib/nwpwxc/dftd3.tgz" ] && rsync -av  src/nwpw/nwpwlib/nwpwxc/dftd3.tgz ~/cache/tarballs/dftd3.tgz || true
           mkdir -p ~/cache/libext/mpich/mpich || true
           echo "cache stored"
           ls -Rla ~/cache
