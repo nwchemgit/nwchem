@@ -215,6 +215,7 @@ jobs:
           mkdir -p ~/cache/libext/mpich/mpich || true
           mkdir -p ~/cache/simint/simint_install || true
           mkdir -p ~/cache/tarballs || true
+          ls -la src/libext ||true
           [ -d "src/libext/lib" ] && rsync -av src/libext/lib/*  ~/cache/libext/lib/. || true
           [ -d "src/libext/bin" ] && rsync -av src/libext/bin/*  ~/cache/libext/bin/. || true
           [ -d "src/libext/include" ] && rsync -av src/libext/include/*  ~/cache/libext/include/.  || true
