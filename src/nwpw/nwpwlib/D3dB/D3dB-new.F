@@ -1889,6 +1889,28 @@ c     end do
       return
       end 
 
+      
+      subroutine cshift1_sfftb(nx,ny,nq,ne,A)
+      implicit none
+      integer nx,ny,nq,ne
+      real A(*)
+
+      integer i,j,indx
+
+!$OMP DO
+      do j=1,(ny*nq*ne)
+        indx = 1+(j-1)*(nx+2)
+         do i=2,nx
+            A(indx+i-1) = A(indx+i)
+         end do
+      end do
+!$OMP END DO
+         
+      return
+      end
+
+
+
       subroutine cshift1_fftb1(nx,A)
       implicit none
       integer nx
@@ -1900,6 +1922,20 @@ c     end do
       return
       end
 
+
+      subroutine cshift1_sfftb1(nx,A)
+      implicit none
+      integer nx
+      real A(*)
+      integer i
+      do i=2,nx
+         A(i) = A(i+1)
+      end do
+      return
+      end
+
+
+
       subroutine zeroend_fftb1(nx,A)
       implicit none
       integer nx
@@ -1910,6 +1946,15 @@ c     end do
       return
       end
 
+      subroutine zeroend_sfftb1(nx,A)
+      implicit none
+      integer nx
+      real A(*)
+      integer i
+      A(nx+1) = 0.0
+      A(nx+2) = 0.0
+      return
+      end
 
       subroutine zeroend_fftb(nx,ny,nq,ne,A)
       implicit none
@@ -1928,6 +1973,24 @@ c     end do
 
       return
       end 
+
+      subroutine zeroend_sfftb(nx,ny,nq,ne,A)
+      implicit none
+      integer nx,ny,nq,ne
+      real A(*)
+
+      integer i,indx
+
+!$OMP DO
+      do i=1,(ny*nq*ne)
+         indx = nx+1+(i-1)*(nx+2)
+         A(indx)   = 0.0
+         A(indx+1) = 0.0
+      end do
+!$OMP END DO
+
+      return
+      end
 
 c*     ***********************************
 c*     *					*
