@@ -2351,6 +2351,30 @@ c      call dcopy(n*2*(nida(nb)+nidb(nb)),A,1,B,1)
       return 
       end
 
+*     ***********************************
+*     *                                 *
+*     *          Pack_c_sCopy           *
+*     *                                 *
+*     ***********************************
+
+      subroutine Pack_c_sCopy(nb,A,B)
+      implicit none
+      integer    nb
+      complex A(*)
+      complex B(*)
+
+*     **** common block for pack ****
+      integer nida(0:3),nidb(0:3)
+      integer pack(2,0:3)
+      common / pack_blk / pack,nida,nidb
+
+      call Parallel_shared_vector_scopy(.true.,
+     >                2*(nida(nb)+nidb(nb)),A,B)
+      return
+      end
+
+
+
 
 *     ***********************************
 *     *					*
