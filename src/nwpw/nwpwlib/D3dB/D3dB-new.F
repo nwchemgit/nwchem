@@ -5674,6 +5674,25 @@ c     integer i2_start(NFFT3+1)
       return
       end
 
+      subroutine D3dB_psfft_index1_copy(n,index,a,b)
+      implicit none
+      integer n
+      integer index(*)
+      complex a(*),b(*)
+      integer i
+
+#ifndef CRAY
+!DIR$ ivdep
+#endif
+!$OMP DO
+      do i=1,n
+        b(i) = a(index(i))
+      end do
+!$OMP END DO
+
+      return
+      end
+
       subroutine D3dB_pfft_index2_copy(n,index,a,b)
       implicit none
       integer n
@@ -5684,6 +5703,23 @@ c     integer i2_start(NFFT3+1)
 !DIR$ ivdep
 #endif
 !$OMP DO 
+      do i=1,n
+        b(index(i)) = a(i)
+      end do
+!$OMP END DO NOWAIT
+      return
+      end
+
+      subroutine D3dB_psfft_index2_copy(n,index,a,b)
+      implicit none
+      integer n
+      integer index(*)
+      complex  a(*),b(*)
+      integer i
+#ifndef CRAY
+!DIR$ ivdep
+#endif
+!$OMP DO
       do i=1,n
         b(index(i)) = a(i)
       end do
@@ -5708,6 +5744,25 @@ c     integer i2_start(NFFT3+1)
       return
       end
 
+      subroutine D3dB_psfft_index2_zero(n,index,a)
+      implicit none
+      integer n
+      integer index(*)
+      complex a(*)
+      integer i
+#ifndef CRAY
+!DIR$ ivdep
+#endif
+!$OMP DO
+      do i=1,n
+        a(index(i)) = 0.0d0
+      end do
+!$OMP END DO
+      return
+      end
+
+
+
       subroutine D3dB_pfft_index2_copy_conjg(n,index,a,b)
       implicit none
       integer n
@@ -5726,4 +5781,21 @@ c     integer i2_start(NFFT3+1)
       end
 
 
+
+      subroutine D3dB_psfft_index2_copy_conjg(n,index,a,b)
+      implicit none
+      integer n
+      integer index(*)
+      complex  a(*),b(*)
+      integer i
+#ifndef CRAY
+!DIR$ ivdep
+#endif
+!$OMP DO
+      do i=1,n
+        b(index(i)) = conjg(a(i))
+      end do
+!$OMP END DO NOWAIT
+      return
+      end
 

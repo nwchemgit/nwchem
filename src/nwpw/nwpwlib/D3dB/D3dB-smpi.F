@@ -573,11 +573,11 @@ c      nthr = Parallel_nthreads()
 
 *     ***********************************
 *     *					*
-*     *	   D3dB_t_transpose_ijk		*
+*     *	   D3dB_t_stranspose_ijk	*
 *     *					*
 *     ***********************************
 
-      subroutine D3dB_t_transpose_ijk(nb,op,A,tmp1,tmp2)
+      subroutine D3dB_t_stranspose_ijk(nb,op,A,tmp1,tmp2)
 
 *****************************************************
 *                                                   *
@@ -592,8 +592,8 @@ c      nthr = Parallel_nthreads()
 *****************************************************
       implicit none
       integer nb,op
-      real*8  A(*)
-      real*8  tmp1(*),tmp2(*)
+      real  A(*)
+      real  tmp1(*),tmp2(*)
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -659,8 +659,9 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(h_i2_start(1,op,nb)+2-1) 
      >       - int_mb(h_i2_start(1,op,nb)+1-1)
-      call dcopy(msglen,tmp1(int_mb(h_i1_start(1,op,nb))),1,
-     >                  tmp2(int_mb(h_i2_start(1,op,nb))),1)
+      call Parallel_shared_vector_scopy(.true.,msglen,
+     >                  tmp1(int_mb(h_i1_start(1,op,nb))),
+     >                  tmp2(int_mb(h_i2_start(1,op,nb))))
          
 
 *     **** receive packed array data ****
@@ -683,7 +684,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
             stupid_type   = msgtype
             stupid_taskid = Parallel2d_convert_taskid_i(source)
             call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nb)+it+1-1)),
-     >                    stupid_msglen,stupid_double,
+     >                    stupid_msglen,stupid_real,
      >                    stupid_taskid,
      >                    stupid_type,stupid_world,
      >                    stupid_request,stupid_ierr) 
@@ -691,7 +692,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
             int_mb(request(1)+reqcnt-1) = stupid_request
 #else
             call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nb)+it+1-1)),
-     >                    msglen,MPI_DOUBLE_PRECISION,
+     >                    msglen,MPI_REAL,
      >                    Parallel2d_convert_taskid_i(source),
      >                    msgtype,Parallel_comm_world(),
      >                    int_mb(request(1)+reqcnt-1),mpierr) 
@@ -715,12 +716,12 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
             stupid_type   = msgtype
             stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
             call MPI_SEND(tmp1(int_mb(h_i1_start(1,op,nb)+it+1-1)),
-     >                     stupid_msglen,stupid_double,
+     >                     stupid_msglen,stupid_real,
      >                     stupid_taskid,
      >                     stupid_type,stupid_world,stupid_ierr)
 #else
             call MPI_SEND(tmp1(int_mb(h_i1_start(1,op,nb)+it+1-1)),
-     >                     msglen,MPI_DOUBLE_PRECISION,
+     >                     msglen,MPI_REAL,
      >                     Parallel2d_convert_taskid_i(proc_to),
      >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
@@ -755,299 +756,15 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 
 
 
-*     ***********************************
-*     *                                 *
-*     *         D3dB_SumAll             *
-*     *                                 *
-*     ***********************************
-
-      subroutine D3dB_SumAll(sum)
-c     implicit none
-      real*8  sum
-
-
-#ifdef MPI4
-#include "stupid_mpi4.fh"
-#else
-#include "mpif.h"
-#endif
-
-      integer msglen,mpierr,np
-      real*8 sumall
-
-*     **** external functions ****
-      integer  Parallel2d_comm_i
-      external Parallel2d_comm_i
-
-      call Parallel2d_np_i(np)
-      if (np.gt.1) then
-!$OMP MASTER
-         msglen = 1
-#ifdef MPI4
-         stupid_msglen = msglen
-         call MPI_Allreduce(sum,sumall,stupid_msglen,stupid_double,
-     >                       stupid_sum,stupid_comm_i,stupid_ierr)
-#else
-         call MPI_Allreduce(sum,sumall,msglen,MPI_DOUBLE_PRECISION,
-     >                       MPI_SUM,Parallel2d_comm_i(),mpierr)
-#endif
-         sum = sumall
-!$OMP END MASTER
-!$OMP BARRIER
-      end if
-
-      return
-      end
-
-
-*     ***********************************
-*     *                                 *
-*     *         D3dB_MaxAll             *
-*     *                                 *
-*     ***********************************
-      subroutine D3dB_MaxAll(sum)
-c     implicit none
-      real*8  sum
-
-#ifdef MPI4
-#include "stupid_mpi4.fh"
-#else
-#include "mpif.h"
-#endif
-
-      integer msglen,mpierr,np
-      real*8 sumall
-
-*     **** external functions ****
-      integer  Parallel2d_comm_i
-      external Parallel2d_comm_i
-
-      call Parallel2d_np_i(np)
-      if (np.gt.1) then
-!$OMP MASTER
-         msglen = 1
-#ifdef MPI4
-         stupid_msglen = msglen
-         call MPI_Allreduce(sum,sumall,stupid_msglen,stupid_double,
-     >                       stupid_max,stupid_comm_i,stupid_ierr)
-#else
-         call MPI_Allreduce(sum,sumall,msglen,MPI_DOUBLE_PRECISION,
-     >                       MPI_MAX,Parallel2d_comm_i(),mpierr)
-#endif
-         sum = sumall
-!$OMP END MASTER
-!$OMP BARRIER
-      end if
-
-      return
-      end
-
-
-
-*     ***********************************
-*     *                                 *
-*     *         D3dB_ISumAll            *
-*     *                                 *
-*     ***********************************
-
-      subroutine D3dB_ISumAll(sum)
-c     implicit none
-      integer sum
-
-#ifdef MPI4
-#include "stupid_mpi4.fh"
-#else
-#include "mpif.h"
-#endif
-
-      integer msglen,mpierr,np
-      integer sumall
-      common /D3dB_ISumAll_tmp/ sumall
-
-*     **** external functions ****
-      integer  Parallel2d_comm_i
-      external Parallel2d_comm_i
-
-      call Parallel2d_np_i(np)
-      if (np.gt.1) then
-#ifdef MPI4
-!$OMP MASTER
-         stupid_msglen = 1
-         stupid_tsum = sum
-         call MPI_Allreduce(stupid_tsum,stupid_tsum2,stupid_msglen,
-     >                      stupid_integer,
-     >                      stupid_sum,stupid_comm_i,stupid_ierr)
-!$OMP END MASTER
-!$OMP BARRIER
-         sum = stupid_tsum2
-#else
-!$OMP MASTER
-         msglen = 1
-         call MPI_Allreduce(sum,sumall,msglen,MPI_INTEGER,
-     >                       MPI_SUM,Parallel2d_comm_i(),mpierr)
-!$OMP END MASTER
-!$OMP BARRIER
-         sum = sumall
-#endif
-      end if
-
-      return
-      end
-
-
-
-
-
-*     ***********************************
-*     *                                 *
-*     *         D3dB_Vector_SumAll      *
-*     *                                 *
-*     ***********************************
-
-      subroutine D3dB_Vector_SumAll(n,sum)
-c     implicit none
-      integer n
-      real*8  sum(*)
-
-#include "bafdecls.fh"
-#include "errquit.fh"
-
-#ifdef MPI4
-#include "stupid_mpi4.fh"
-#else
-#include "mpif.h"
-#endif
-
-      logical value
-      integer msglen,mpierr
-
-*     **** temporary workspace ****
-      integer sumall(2),np
-
-*     **** external functions ****
-      integer  Parallel2d_comm_i
-      external Parallel2d_comm_i
-
-
-      call Parallel2d_np_i(np)
-      call nwpw_timing_start(2)
-      if (np.gt.1) then
-
-*     ***** allocate temporary space ****
-      value = BA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
-      if (.not. value) 
-     > call errquit('D3dB_Vector_SumAll:out of stack',0, MA_ERR)
-
-
-!$OMP MASTER
-#ifdef MPI4
-      stupid_msglen = n
-      call MPI_Allreduce(sum,dbl_mb(sumall(1)),
-     >                stupid_msglen,
-     >                stupid_double,
-     >                stupid_sum,stupid_comm_i,stupid_ierr)
-#else
-      call MPI_Allreduce(sum,dbl_mb(sumall(1)),n,
-     >                MPI_DOUBLE_PRECISION,
-     >                MPI_SUM,Parallel2d_comm_i(),mpierr)
-#endif
-
-      call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
-!$OMP END MASTER
-!$OMP BARRIER
-
-      value = BA_pop_stack(sumall(2))
-
-      end if
-      call nwpw_timing_end(2)
-      return
-      end
-
-
-
-
-*     ***********************************
-*     *                                 *
-*     *         D3dB_Vector_ISumAll     *
-*     *                                 *
-*     ***********************************
-
-      subroutine D3dB_Vector_ISumAll(n,sum)
-c     implicit none
-      integer n
-      integer  sum(*)
-
-#include "bafdecls.fh"
-#include "errquit.fh"
-
-#ifdef MPI4
-#include "stupid_mpi4.fh"
-#else
-#include "mpif.h"
-#endif
-
-      logical value
-      integer msglen,mpierr
-
-*     **** temporary workspace ****
-      integer sumall(2),sumall1(2),i,taskid
-
-*     **** external functions ****
-      integer  Parallel2d_comm_i
-      external Parallel2d_comm_i
-
-      call Parallel_taskid(taskid)
-      call nwpw_timing_start(2)
-
-      call Parallel2d_np_i(np)
-      if (np.gt.1) then
-
-*     ***** allocate temporary space ****
-      value = BA_push_get(mt_int,n,'sumall',sumall(2),sumall(1))
-      if (.not. value) 
-     > call errquit('D3dB_Vector_ISumall:out of stack',0,MA_ERR)
-
-#ifdef MPI4
-      if (.not.BA_push_get(mt_int,n,'sumall1',sumall1(2),sumall1(1)))
-     > call errquit('D3dB_Vector_ISumAll:out of stack',1, MA_ERR)
-      stupid_msglen = n
-      call stupid_icopy8to4(n,sum,int_mb(sumall1(1)))
-      call MPI_Allreduce(int_mb(sumall1(1)),
-     >                   int_mb(sumall(1)),stupid_msglen,
-     >                stupid_integer,
-     >                stupid_sum,stupid_comm_i,stupid_ierr)
-      call stupid_icopy4to8(n,int_mb(sumall(1)),sum)
-      if (.not.BA_pop_stack(sumall1(2)))
-     >  call errquit('D3dB_Vector_ISumAll:popping stack',0, MA_ERR)
-#else
-      msglen = n
-      call MPI_Allreduce(sum,int_mb(sumall(1)),msglen,
-     >                MPI_INTEGER,
-     >                MPI_SUM,Parallel2d_comm_i(),mpierr)
-      call icopy(n,int_mb(sumall(1)),1,sum,1)
-#endif
-
-      value = BA_pop_stack(sumall(2))
-      if (.not. value) 
-     > call errquit('D3dB_Vector_ISumAll:popping stack',0, MA_ERR)
-
-      end if
-
-      call nwpw_timing_end(2)
-      return
-      end
-
-
-
 
       
 *     ***********************************
 *     *					*
-*     *	   D3dB_c_ptranspose1_jk	*
+*     *	   D3dB_c_pstranspose1_jk	*
 *     *					*
 *     ***********************************
 
-      subroutine D3dB_c_ptranspose1_jk(nbb,A,tmp1,tmp2)
+      subroutine D3dB_c_pstranspose1_jk(nbb,A,tmp1,tmp2)
 
 *****************************************************
 *                                                   *
@@ -1062,8 +779,8 @@ c     implicit none
 *****************************************************
       implicit none
       integer nbb
-      complex*16  A(*)
-      complex*16  tmp1(*),tmp2(*)
+      complex A(*)
+      complex tmp1(*),tmp2(*)
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -1113,20 +830,20 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       value = BA_push_get(mt_int,np,
      >                     'request',request(2),request(1))
       if (.not. value)
-     > call errquit(' D3dB_c_ptranspose1_jk:out of stack',0,MA_ERR)
+     > call errquit(' D3dB_c_pstranspose1_jk:out of stack',0,MA_ERR)
 
 
       n1 = int_mb(i1_start(1,nbb)+np) - 1
       n2 = int_mb(i2_start(1,nbb)+np) - 1
 
 *     **** pack A(i) array ****
-       call D3dB_pfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
+       call D3dB_psfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(i2_start(1,nbb)+2-1) - int_mb(i2_start(1,nbb)+1-1)
-      call dcopy(2*msglen,
-     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),1,
-     >           tmp2(int_mb(i2_start(1,nbb)+1-1)),1)
+      call Parallel_shared_vector_scopy(.true.,2*msglen,
+     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),
+     >           tmp2(int_mb(i2_start(1,nbb)+1-1)))
          
 
 *     **** receive packed array data ****
@@ -1149,7 +866,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
             stupid_type   = msgtype
             stupid_taskid = Parallel2d_convert_taskid_i(source)
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
-     >                    stupid_msglen,stupid_complex,
+     >                    stupid_msglen,stupid_scomplex,
      >                    stupid_taskid,
      >                    stupid_type,stupid_world,
      >                    stupid_request,stupid_ierr) 
@@ -1157,7 +874,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
             int_mb(request(1)+reqcnt-1) = stupid_request
 #else
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
-     >                    msglen,MPI_DOUBLE_COMPLEX,
+     >                    msglen,MPI_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
      >                    msgtype,Parallel_comm_world(),
      >                    int_mb(request(1)+reqcnt-1),mpierr) 
@@ -1181,12 +898,12 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
             stupid_type   = msgtype
             stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
             call MPI_SEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
-     >                     stupid_msglen,stupid_complex,
+     >                     stupid_msglen,stupid_scomplex,
      >                     stupid_taskid,
      >                     stupid_type,stupid_world,stupid_ierr)
 #else
             call MPI_SEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
-     >                     msglen,MPI_DOUBLE_COMPLEX,
+     >                     msglen,MPI_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
      >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
@@ -1199,15 +916,15 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 
 
 *     **** unpack A(i) array ****
-      call D3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
-      call D3dB_pfft_index2_zero(nfft3d(id)-n2,
+      call D3dB_psfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
+      call D3dB_psfft_index2_zero(nfft3d(id)-n2,
      >                           int_mb(iz_to_i2(1,nbb)),A)
       
 
       !*** deallocate memory ***
       value =           BA_pop_stack(request(2))
       if (.not. value)
-     > call errquit(' D3dB_c_ptranspose1_jk:popping stack',0,MA_ERR)
+     > call errquit(' D3dB_c_pstranspose1_jk:popping stack',0,MA_ERR)
 
       return
       end
@@ -1220,11 +937,11 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       
 *     ***********************************
 *     *					*
-*     *	   D3dB_c_ptranspose2_jk	*
+*     *	   D3dB_c_pstranspose2_jk	*
 *     *					*
 *     ***********************************
 
-      subroutine D3dB_c_ptranspose2_jk(nbb,A,tmp1,tmp2)
+      subroutine D3dB_c_pstranspose2_jk(nbb,A,tmp1,tmp2)
 
 *****************************************************
 *                                                   *
@@ -1239,8 +956,8 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 *****************************************************
       implicit none
       integer nbb
-      complex*16  A(*)
-      complex*16  tmp1(*),tmp2(*)
+      complex  A(*)
+      complex  tmp1(*),tmp2(*)
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -1288,19 +1005,19 @@ c     **** external functions ****
       value = BA_push_get(mt_int,np,
      >                     'request',request(2),request(1))
       if (.not. value)
-     > call errquit(' D3dB_c_ptranspose2_jk:out of stack',0,MA_ERR)
+     > call errquit(' D3dB_c_pstranspose2_jk:out of stack',0,MA_ERR)
 
       n1 = int_mb(i1_start(1,nbb)+np) - 1
       n2 = int_mb(i2_start(1,nbb)+np) - 1
 
 *     **** pack A(i) array ****
-       call D3dB_pfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
+       call D3dB_psfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(i2_start(1,nbb)+2-1) - int_mb(i2_start(1,nbb)+1-1)
-      call dcopy(2*msglen,
-     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),1,
-     >           tmp2(int_mb(i2_start(1,nbb)+1-1)),1)
+      call Parallel_shared_vector_scopy(.true.,2*msglen,
+     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),
+     >           tmp2(int_mb(i2_start(1,nbb)+1-1)))
          
 
 *     **** receive packed array data ****
@@ -1323,7 +1040,7 @@ c     **** external functions ****
             stupid_type   = msgtype
             stupid_taskid = Parallel2d_convert_taskid_i(source)
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
-     >                    stupid_msglen,stupid_complex,
+     >                    stupid_msglen,stupid_scomplex,
      >                    stupid_taskid,
      >                    stupid_type,stupid_world,
      >                    stupid_request,stupid_ierr) 
@@ -1331,7 +1048,7 @@ c     **** external functions ****
             int_mb(request(1)+reqcnt-1) = stupid_request
 #else
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
-     >                    msglen,MPI_DOUBLE_COMPLEX,
+     >                    msglen,MPI_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
      >                    msgtype,Parallel_comm_world(),
      >                    int_mb(request(1)+reqcnt-1),mpierr) 
@@ -1355,12 +1072,12 @@ c     **** external functions ****
             stupid_type   = msgtype
             stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
             call MPI_SEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
-     >                     stupid_msglen,stupid_complex,
+     >                     stupid_msglen,stupid_scomplex,
      >                     stupid_taskid,
      >                     stupid_type,stupid_world,stupid_ierr)
 #else
             call MPI_SEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
-     >                     msglen,MPI_DOUBLE_COMPLEX,
+     >                     msglen,MPI_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
      >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
@@ -1373,15 +1090,15 @@ c     **** external functions ****
 
 
 *     **** unpack A(i) array ****
-      call D3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
-      call D3dB_pfft_index2_zero(nfft3d(id)-n2,
+      call D3dB_psfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
+      call D3dB_psfft_index2_zero(nfft3d(id)-n2,
      >                           int_mb(iz_to_i2(1,nbb)),A)
       
 
       !*** deallocate memory ***
       value =           BA_pop_stack(request(2))
       if (.not. value)
-     > call errquit(' D3dB_c_ptranspose2_jk:popping stack',0,MA_ERR)
+     > call errquit(' D3dB_c_pstranspose2_jk:popping stack',0,MA_ERR)
 
       return
       end
@@ -1392,11 +1109,11 @@ c     **** external functions ****
 
 *     ***********************************
 *     *					*
-*     *	   D3dB_c_ptranspose_ijk	*
+*     *	   D3dB_c_pstranspose_ijk	*
 *     *					*
 *     ***********************************
 
-      subroutine D3dB_c_ptranspose_ijk(nbb,op,A,tmp1,tmp2)
+      subroutine D3dB_c_pstranspose_ijk(nbb,op,A,tmp1,tmp2)
 
 *****************************************************
 *                                                   *
@@ -1411,8 +1128,8 @@ c     **** external functions ****
 *****************************************************
       implicit none
       integer nbb,op
-      complex*16  A(*)
-      complex*16  tmp1(*),tmp2(*)
+      complex  A(*)
+      complex  tmp1(*),tmp2(*)
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -1461,7 +1178,7 @@ c     **** external functions ****
       value = BA_push_get(mt_int,np,
      >                     'request',request(2),request(1))
       if (.not. value) 
-     > call errquit(' D3dB_c_ptranspose_ijk:out of stack',0,MA_ERR)
+     > call errquit(' D3dB_c_pstranspose_ijk:out of stack',0,MA_ERR)
 
 
       n1 = int_mb(h_i1_start(1,op,nbb)+np) - 1
@@ -1470,16 +1187,14 @@ c     **** external functions ****
 
 
 *     **** pack A(i) array ****
-      call D3dB_pfft_index1_copy(n1,int_mb(h_iq_to_i1(1,op,nbb)),A,tmp1)
+      call D3dB_psfft_index1_copy(n1,int_mb(h_iq_to_i1(1,op,nbb)),
+     >                                      A,tmp1)
 
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(h_i2_start(1,op,nbb)+2-1) 
      >       - int_mb(h_i2_start(1,op,nbb)+1-1)
-c      call dcopy(2*msglen,
-c     >           tmp1(int_mb(h_i1_start(1,op,nbb))),1,
-c     >           tmp2(int_mb(h_i2_start(1,op,nbb))),1)
-      call Parallel_shared_vector_copy(.true.,2*msglen,
+      call Parallel_shared_vector_scopy(.true.,2*msglen,
      >           tmp1(int_mb(h_i1_start(1,op,nbb))),
      >           tmp2(int_mb(h_i2_start(1,op,nbb))))
 
@@ -1505,7 +1220,7 @@ c     >           tmp2(int_mb(h_i2_start(1,op,nbb))),1)
             stupid_type   = msgtype
             stupid_taskid = Parallel2d_convert_taskid_i(source)
             call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nbb)+it+1-1)),
-     >                    stupid_msglen,stupid_complex,
+     >                    stupid_msglen,stupid_scomplex,
      >                    stupid_taskid,
      >                    stupid_type,stupid_world,
      >                    stupid_request,stupid_ierr) 
@@ -1513,7 +1228,7 @@ c     >           tmp2(int_mb(h_i2_start(1,op,nbb))),1)
             int_mb(request(1)+reqcnt-1) = stupid_request
 #else
             call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nbb)+it+1-1)),
-     >                    msglen,MPI_DOUBLE_COMPLEX,
+     >                    msglen,MPI_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
      >                    msgtype,Parallel_comm_world(),
      >                    int_mb(request(1)+reqcnt-1),mpierr) 
@@ -1537,12 +1252,12 @@ c     >           tmp2(int_mb(h_i2_start(1,op,nbb))),1)
             stupid_type   = msgtype
             stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
             call MPI_SEND(tmp1(int_mb(h_i1_start(1,op,nbb)+it+1-1)),
-     >                     stupid_msglen,stupid_complex,
+     >                     stupid_msglen,stupid_scomplex,
      >                     stupid_taskid,
      >                     stupid_type,stupid_world,stupid_ierr)
 #else
             call MPI_SEND(tmp1(int_mb(h_i1_start(1,op,nbb)+it+1-1)),
-     >                     msglen,MPI_DOUBLE_COMPLEX,
+     >                     msglen,MPI_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
      >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
@@ -1558,8 +1273,9 @@ c     >           tmp2(int_mb(h_i2_start(1,op,nbb))),1)
 !$OMP BARRIER
 
 *     **** unpack A(i) array ****
-      call D3dB_pfft_index2_copy(n2,int_mb(h_iq_to_i2(1,op,nbb)),tmp2,A)
-      call D3dB_pfft_index2_zero(n3,int_mb(h_iz_to_i2(1,op,nbb)),A)
+      call D3dB_psfft_index2_copy(n2,int_mb(h_iq_to_i2(1,op,nbb)),
+     >                            tmp2,A)
+      call D3dB_psfft_index2_zero(n3,int_mb(h_iz_to_i2(1,op,nbb)),A)
 
 
       !*** deallocate memory ***
@@ -1575,15 +1291,15 @@ c     >           tmp2(int_mb(h_i2_start(1,op,nbb))),1)
 
 *     ************************************
 *     *                                  *
-*     *         Balance_c_balance_start  *
+*     *      Balance_c_sbalance_start    *
 *     *                                  *
 *     ************************************
 
-      subroutine Balance_c_balance_start(nb,A,request,reqcnt,msgtype)
+      subroutine Balance_c_sbalance_start(nb,A,request,reqcnt,msgtype)
       implicit none
       integer nb
-      complex*16 A(*)
-      integer    request(*),reqcnt
+      complex A(*)
+      integer request(*),reqcnt
       integer msgtype
 
 #include "bafdecls.fh"
@@ -1620,7 +1336,7 @@ c            send data....
             stupid_type   = msgtype
             stupid_taskid = Parallel2d_convert_taskid_i(pto)
             call MPI_ISEND(A(indx),
-     >                     stupid_msglen,stupid_complex,
+     >                     stupid_msglen,stupid_scomplex,
      >                     stupid_taskid,
      >                     stupid_type,stupid_world,
      >                     stupid_request,stupid_ierr)
@@ -1628,7 +1344,7 @@ c            send data....
             request(reqcnt) = stupid_request
 #else
             call MPI_ISEND(A(indx),
-     >                     msglen,MPI_DOUBLE_COMPLEX,
+     >                     msglen,MPI_COMPLEX,
      >                     Parallel2d_convert_taskid_i(pto),
      >                     msgtype,Parallel_comm_world(),
      >                     request(reqcnt),mpierr)
@@ -1653,7 +1369,7 @@ c            recieve data....
             stupid_type   = msgtype
             stupid_taskid = Parallel2d_convert_taskid_i(pfrom)
             call MPI_IRECV(A(indx),
-     >                    stupid_msglen,stupid_complex,
+     >                    stupid_msglen,stupid_scomplex,
      >                    stupid_taskid,
      >                    stupid_type,stupid_world,
      >                    stupid_request,stupid_ierr)
@@ -1661,7 +1377,7 @@ c            recieve data....
             request(reqcnt) = stupid_request
 #else
             call MPI_IRECV(A(indx),
-     >                    msglen,MPI_DOUBLE_COMPLEX,
+     >                    msglen,MPI_COMPLEX,
      >                    Parallel2d_convert_taskid_i(pfrom),
      >                    msgtype,Parallel_comm_world(),
      >                    request(reqcnt),mpierr)
@@ -1680,15 +1396,15 @@ c            recieve data....
 
 *     ************************************
 *     *                                  *
-*     *         Balance_c_balance_end    *
+*     *       Balance_c_sbalance_end     *
 *     *                                  *
 *     ************************************
 
-      subroutine Balance_c_balance_end(nb,A,request,reqcnt)
+      subroutine Balance_c_sbalance_end(nb,A,request,reqcnt)
       implicit none
       integer nb
-      complex*16 A(*)
-      integer    request(*),reqcnt
+      complex A(*)
+      integer request(*),reqcnt
 
 *     **** local variables ***
       logical value
@@ -1701,16 +1417,16 @@ c            recieve data....
 
 *     ************************************
 *     *                                  *
-*     *    Balance_c_unbalance_start     *
+*     *    Balance_c_unsbalance_start    *
 *     *                                  *
 *     ************************************
 
-      subroutine Balance_c_unbalance_start(nb,A,request,reqcnt,msgtype)
+      subroutine Balance_c_unsbalance_start(nb,A,request,reqcnt,msgtype)
       implicit none
       integer nb
-      complex*16 A(*)
-      integer    request(*),reqcnt
-      integer    msgtype
+      complex A(*)
+      integer request(*),reqcnt
+      integer msgtype
 
 #include "bafdecls.fh"
 #include "mpif.h"
@@ -1745,7 +1461,7 @@ c            recieve data....
             stupid_type   = msgtype
             stupid_taskid = Parallel2d_convert_taskid_i(pfrom)
             call MPI_IRECV(A(indx),
-     >                    stupid_msglen,stupid_complex,
+     >                    stupid_msglen,stupid_scomplex,
      >                    stupid_taskid,
      >                    stupid_type,stupid_world,
      >                    stupid_request,stupid_ierr)
@@ -1753,7 +1469,7 @@ c            recieve data....
             request(reqcnt) = stupid_request
 #else
             call MPI_IRECV(A(indx),
-     >                    msglen,MPI_DOUBLE_COMPLEX,
+     >                    msglen,MPI_COMPLEX,
      >                    Parallel2d_convert_taskid_i(pfrom),
      >                    msgtype,Parallel_comm_world(),
      >                    request(reqcnt),mpierr)
@@ -1777,7 +1493,7 @@ c            send data....
             stupid_type   = msgtype
             stupid_taskid = Parallel2d_convert_taskid_i(pto)
             call MPI_ISEND(A(indx),
-     >                     stupid_msglen,stupid_complex,
+     >                     stupid_msglen,stupid_scomplex,
      >                     stupid_taskid,
      >                     stupid_type,stupid_world,
      >                     stupid_request,stupid_ierr)
@@ -1785,7 +1501,7 @@ c            send data....
             request(reqcnt) = stupid_request
 #else
             call MPI_ISEND(A(indx),
-     >                     msglen,MPI_DOUBLE_COMPLEX,
+     >                     msglen,MPI_COMPLEX,
      >                     Parallel2d_convert_taskid_i(pto),
      >                     msgtype,Parallel_comm_world(),
      >                     request(reqcnt),mpierr)
@@ -1804,15 +1520,15 @@ c            send data....
 
 *     ************************************
 *     *                                  *
-*     *       Balance_c_unbalance_end    *
+*     *      Balance_c_unsbalance_end    *
 *     *                                  *
 *     ************************************
 
-      subroutine Balance_c_unbalance_end(nb,A,request,reqcnt)
+      subroutine Balance_c_unsbalance_end(nb,A,request,reqcnt)
       implicit none
       integer nb
-      complex*16 A(*)
-      integer    request(*),reqcnt
+      complex A(*)
+      integer request(*),reqcnt
 
 *     **** local variables ***
       integer np
@@ -1828,7 +1544,7 @@ c            send data....
       
 *     ***********************************
 *     *					*
-*     *	   D3dB_c_ptranspose1_jk_start	*
+*     *	  D3dB_c_pstranspose1_jk_start	*
 *     *					*
 *     ***********************************
 
@@ -1843,12 +1559,12 @@ c            send data....
 *       then transpose2                            
 *
 
-      subroutine D3dB_c_ptranspose1_jk_start(nbb,A,tmp1,tmp2,
+      subroutine D3dB_c_pstranspose1_jk_start(nbb,A,tmp1,tmp2,
      >                                       request,reqcnt,msgtype)
       implicit none
       integer nbb
-      complex*16  A(*)
-      complex*16  tmp1(*),tmp2(*)
+      complex  A(*)
+      complex  tmp1(*),tmp2(*)
       integer request(*),reqcnt
       integer msgtype
 
@@ -1889,13 +1605,13 @@ c     **** external functions ****
       n1 = int_mb(i1_start(1,nbb)+np) - 1
 
 *     **** pack A(i) array ****
-       call D3dB_pfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
+       call D3dB_psfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(i2_start(1,nbb)+2-1) - int_mb(i2_start(1,nbb)+1-1)
-      call dcopy(2*msglen,
-     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),1,
-     >           tmp2(int_mb(i2_start(1,nbb)+1-1)),1)
+      call Parallel_shared_vector_scopy(.true.,2*msglen,
+     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),
+     >           tmp2(int_mb(i2_start(1,nbb)+1-1)))
          
 
 *     **** receive packed array data ****
@@ -1919,7 +1635,7 @@ c         type   = 1
             stupid_type   = msgtype
             stupid_taskid = Parallel2d_convert_taskid_i(source)
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
-     >                    stupid_msglen,stupid_complex,
+     >                    stupid_msglen,stupid_scomplex,
      >                    stupid_taskid,
      >                    stupid_type,stupid_world,
      >                    stupid_request,stupid_ierr) 
@@ -1927,7 +1643,7 @@ c         type   = 1
             request(reqcnt) = stupid_request
 #else
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
-     >                    msglen,MPI_DOUBLE_COMPLEX,
+     >                    msglen,MPI_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
      >                    msgtype,Parallel_comm_world(),
      >                    request(reqcnt),mpierr) 
@@ -1952,7 +1668,7 @@ c         msgtype   = 1
             stupid_type   = msgtype
             stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
             call MPI_ISEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
-     >                     stupid_msglen,stupid_complex,
+     >                     stupid_msglen,stupid_scomplex,
      >                     stupid_taskid,
      >                     stupid_type,stupid_world,
      >                     stupid_request,stupid_ierr)
@@ -1960,7 +1676,7 @@ c         msgtype   = 1
             request(reqcnt) = stupid_request
 #else
             call MPI_ISEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
-     >                     msglen,MPI_DOUBLE_COMPLEX,
+     >                     msglen,MPI_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
      >                     msgtype,Parallel_comm_world(),
      >                     request(reqcnt),mpierr)
@@ -1976,7 +1692,7 @@ c         msgtype   = 1
 
 *     ***********************************
 *     *					*
-*     *	   D3dB_c_ptranspose1_jk_end	*
+*     *	   D3dB_c_pstranspose1_jk_end	*
 *     *					*
 *     ***********************************
 
@@ -1991,11 +1707,11 @@ c         msgtype   = 1
 *       then transpose2                            
 *
 
-      subroutine D3dB_c_ptranspose1_jk_end(nbb,A,tmp2,request,reqcnt)
+      subroutine D3dB_c_pstranspose1_jk_end(nbb,A,tmp2,request,reqcnt)
       implicit none
       integer nbb
-      complex*16  A(*)
-      complex*16  tmp2(*)
+      complex  A(*)
+      complex  tmp2(*)
       integer     request(*),reqcnt
 
 #include "bafdecls.fh"
@@ -2026,8 +1742,8 @@ c         msgtype   = 1
 
 *     **** unpack A(i) array ****
       n2 = int_mb(i2_start(1,nbb)+np) - 1
-      call D3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
-      call D3dB_pfft_index2_zero(nfft3d(id)-n2,
+      call D3dB_psfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
+      call D3dB_psfft_index2_zero(nfft3d(id)-n2,
      >                           int_mb(iz_to_i2(1,nbb)),A)
       return
       end
@@ -2039,7 +1755,7 @@ c         msgtype   = 1
       
 *     ***********************************
 *     *					*
-*     *	   D3dB_c_ptranspose2_jk_start	*
+*     *	  D3dB_c_pstranspose2_jk_start	*
 *     *					*
 *     ***********************************
 
@@ -2054,12 +1770,12 @@ c         msgtype   = 1
 *       then transpose2                            
 *
 
-      subroutine D3dB_c_ptranspose2_jk_start(nbb,A,tmp1,tmp2,
+      subroutine D3dB_c_pstranspose2_jk_start(nbb,A,tmp1,tmp2,
      >                                       request,reqcnt,msgtype)
       implicit none
       integer nbb
-      complex*16  A(*)
-      complex*16  tmp1(*),tmp2(*)
+      complex  A(*)
+      complex  tmp1(*),tmp2(*)
       integer request(*),reqcnt
       integer msgtype
 
@@ -2100,13 +1816,13 @@ c     **** external functions ****
       n1 = int_mb(i1_start(1,nbb)+np) - 1
 
 *     **** pack A(i) array ****
-       call D3dB_pfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
+       call D3dB_psfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(i2_start(1,nbb)+2-1) - int_mb(i2_start(1,nbb)+1-1)
-      call dcopy(2*msglen,
-     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),1,
-     >           tmp2(int_mb(i2_start(1,nbb)+1-1)),1)
+      call Parallel_shared_vector_scopy(.true.,2*msglen,
+     >           tmp1(int_mb(i1_start(1,nbb)+1-1)),
+     >           tmp2(int_mb(i2_start(1,nbb)+1-1)))
          
 
 *     **** receive packed array data ****
@@ -2130,7 +1846,7 @@ c         type   = 1
             stupid_type   = msgtype
             stupid_taskid = Parallel2d_convert_taskid_i(source)
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
-     >                    stupid_msglen,stupid_complex,
+     >                    stupid_msglen,stupid_scomplex,
      >                    stupid_taskid,
      >                    stupid_type,stupid_world,
      >                    stupid_request,stupid_ierr)
@@ -2138,7 +1854,7 @@ c         type   = 1
             request(reqcnt) = stupid_request
 #else
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
-     >                    msglen,MPI_DOUBLE_COMPLEX,
+     >                    msglen,MPI_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
      >                    msgtype,Parallel_comm_world(),
      >                    request(reqcnt),mpierr) 
@@ -2163,7 +1879,7 @@ c         msgtype   = 1
             stupid_type   = msgtype
             stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
             call MPI_ISEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
-     >                     stupid_msglen,stupid_complex,
+     >                     stupid_msglen,stupid_scomplex,
      >                     stupid_taskid,
      >                     stupid_type,stupid_world,
      >                     stupid_request,stupid_ierr)
@@ -2171,7 +1887,7 @@ c         msgtype   = 1
             request(reqcnt) = stupid_request
 #else
             call MPI_ISEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
-     >                     msglen,MPI_DOUBLE_COMPLEX,
+     >                     msglen,MPI_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
      >                     msgtype,Parallel_comm_world(),
      >                     request(reqcnt),mpierr)
@@ -2187,7 +1903,7 @@ c         msgtype   = 1
 
 *     ***********************************
 *     *					*
-*     *	   D3dB_c_ptranspose2_jk_end	*
+*     *	   D3dB_c_pstranspose2_jk_end	*
 *     *					*
 *     ***********************************
 
@@ -2202,13 +1918,13 @@ c         msgtype   = 1
 *       then transpose2                            
 *
 
-      subroutine D3dB_c_ptranspose2_jk_end(nbb,A,tmp2,request,reqcnt)
+      subroutine D3dB_c_pstranspose2_jk_end(nbb,A,tmp2,request,reqcnt)
 
       implicit none
       integer nbb
-      complex*16  A(*)
-      complex*16  tmp2(*)
-      integer     request(*),reqcnt
+      complex  A(*)
+      complex  tmp2(*)
+      integer  request(*),reqcnt
 
 #include "bafdecls.fh"
 #include "D3dB.fh"
@@ -2239,8 +1955,8 @@ c         msgtype   = 1
 
 *     **** unpack A(i) array ****
       n2 = int_mb(i2_start(1,nbb)+np) - 1
-      call D3dB_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
-      call D3dB_pfft_index2_zero(nfft3d(id)-n2,
+      call D3dB_psfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
+      call D3dB_psfft_index2_zero(nfft3d(id)-n2,
      >                           int_mb(iz_to_i2(1,nbb)),A)
       return
       end
@@ -2249,7 +1965,7 @@ c         msgtype   = 1
 
 *     ***********************************
 *     *					*
-*     *	   D3dB_c_ptranspose_ijk_start	*
+*     *	   D3dB_c_pstranspose_ijk_start	*
 *     *					*
 *     ***********************************
 *                                                
@@ -2264,15 +1980,15 @@ c         msgtype   = 1
 *
 
 
-      subroutine D3dB_c_ptranspose_ijk_start(nbb,op,A,tmp1,tmp2,
+      subroutine D3dB_c_pstranspose_ijk_start(nbb,op,A,tmp1,tmp2,
      >                                       request,reqcnt,msgtype)
 
       implicit none
       integer nbb,op
-      complex*16  A(*)
-      complex*16  tmp1(*),tmp2(*)
-      integer     request(*),reqcnt
-      integer     msgtype
+      complex A(*)
+      complex tmp1(*),tmp2(*)
+      integer request(*),reqcnt
+      integer msgtype
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -2317,16 +2033,14 @@ c     **** external functions ****
 
 *     **** pack A(i) array ****
       n1 = int_mb(h_i1_start(1,op,nbb)+np) - 1
-      call D3dB_pfft_index1_copy(n1,int_mb(h_iq_to_i1(1,op,nbb)),A,tmp1)
+      call D3dB_psfft_index1_copy(n1,int_mb(h_iq_to_i1(1,op,nbb)),
+     >                            A,tmp1)
 
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(h_i2_start(1,op,nbb)+2-1) 
      >       - int_mb(h_i2_start(1,op,nbb)+1-1)
-c      call dcopy(2*msglen,
-c     >           tmp1(int_mb(h_i1_start(1,op,nbb))),1,
-c     >           tmp2(int_mb(h_i2_start(1,op,nbb))),1)
-      call Parallel_shared_vector_copy(.false.,2*msglen,
+      call Parallel_shared_vector_scopy(.false.,2*msglen,
      >           tmp1(int_mb(h_i1_start(1,op,nbb))),
      >           tmp2(int_mb(h_i2_start(1,op,nbb))))
 
@@ -2353,7 +2067,7 @@ c         type   = 1
             stupid_type   = msgtype
             stupid_taskid = Parallel2d_convert_taskid_i(source)
             call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nbb)+it+1-1)),
-     >                    stupid_msglen,stupid_complex,
+     >                    stupid_msglen,stupid_scomplex,
      >                    stupid_taskid,
      >                    stupid_type,stupid_world,
      >                    stupid_request,stupid_ierr) 
@@ -2361,7 +2075,7 @@ c         type   = 1
             request(reqcnt) = stupid_request
 #else
             call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nbb)+it+1-1)),
-     >                    msglen,MPI_DOUBLE_COMPLEX,
+     >                    msglen,MPI_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
      >                    msgtype,Parallel_comm_world(),
      >                    request(reqcnt),mpierr) 
@@ -2386,7 +2100,7 @@ c         msgtype   = 1
             stupid_type   = msgtype
             stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
             call MPI_ISEND(tmp1(int_mb(h_i1_start(1,op,nbb)+it+1-1)),
-     >                     stupid_msglen,stupid_complex,
+     >                     stupid_msglen,stupid_scomplex,
      >                     stupid_taskid,
      >                     stupid_type,stupid_world,
      >                     stupid_request,stupid_ierr)
@@ -2394,7 +2108,7 @@ c         msgtype   = 1
             request(reqcnt) = stupid_request
 #else
             call MPI_ISEND(tmp1(int_mb(h_i1_start(1,op,nbb)+it+1-1)),
-     >                     msglen,MPI_DOUBLE_COMPLEX,
+     >                     msglen,MPI_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
      >                     msgtype,Parallel_comm_world(),
      >                     request(reqcnt),mpierr)
@@ -2411,7 +2125,7 @@ c         msgtype   = 1
 
 *     ***********************************
 *     *					*
-*     *	   D3dB_c_ptranspose_ijk_end	*
+*     *	   D3dB_c_pstranspose_ijk_end	*
 *     *					*
 *     ***********************************
 *                                                  
@@ -2425,12 +2139,12 @@ c         msgtype   = 1
 *       then transpose2                      
 *
 
-      subroutine D3dB_c_ptranspose_ijk_end(nbb,op,A,tmp2,
+      subroutine D3dB_c_pstranspose_ijk_end(nbb,op,A,tmp2,
      >                                 request,reqcnt)
       implicit none
       integer nbb,op
-      complex*16  A(*)
-      complex*16  tmp2(*)
+      complex A(*)
+      complex tmp2(*)
       integer request(*),reqcnt
 
 #include "bafdecls.fh"
@@ -2462,8 +2176,9 @@ c         msgtype   = 1
 *     **** unpack A(i) array ****
       n2 = int_mb(h_i2_start(1,op,nbb)+np) - 1
       n3 = h_iz_to_i2_count(op,nbb)
-      call D3dB_pfft_index2_copy(n2,int_mb(h_iq_to_i2(1,op,nbb)),tmp2,A)
-      call D3dB_pfft_index2_zero(n3,int_mb(h_iz_to_i2(1,op,nbb)),A)
+      call D3dB_psfft_index2_copy(n2,int_mb(h_iq_to_i2(1,op,nbb)),
+     >                            tmp2,A)
+      call D3dB_psfft_index2_zero(n3,int_mb(h_iz_to_i2(1,op,nbb)),A)
 
       return
       end
@@ -2474,7 +2189,7 @@ c         msgtype   = 1
 
 *     ***********************************
 *     *                                 *
-*     *    D3dB_c_timereverse_start     *
+*     *    D3dB_c_stimereverse_start    *
 *     *                                 *
 *     ***********************************
 *                                           
@@ -2484,15 +2199,15 @@ c         msgtype   = 1
 *      np = the number of worker nodes          
 *      proc#=0...(np-1)                          
 *                                                 
-      subroutine D3dB_c_timereverse_start(nb,A,tmp1,tmp2,
+      subroutine D3dB_c_stimereverse_start(nb,A,tmp1,tmp2,
      >                                    request,reqcnt,msgtype)
       implicit none
       integer     nb
-      complex*16  A(*)
-      complex*16  tmp1(*)
-      complex*16  tmp2(*)
-      integer     request(*),reqcnt
-      integer     msgtype
+      complex  A(*)
+      complex  tmp1(*)
+      complex  tmp2(*)
+      integer  request(*),reqcnt
+      integer  msgtype
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -2539,7 +2254,7 @@ c      do index1=int_mb(i1_start(1,nb)+1-1),
 c     >         (int_mb(i1_start(1,nb)+np+1-1)-1)
 c         tmp1(index1) = A(int_mb(iq_to_i1(1,nb)+index1-1))
 c      end do
-      call D3dB_pfft_index1_copy(n1,int_mb(iq_to_i1(1,nb)),A,tmp1)
+      call D3dB_psfft_index1_copy(n1,int_mb(iq_to_i1(1,nb)),A,tmp1)
 
 *     **** it = 0, transpose data on same thread ****
       msglen = int_mb(i2_start(1,nb)+2-1) - int_mb(i2_start(1,nb)+1-1)
@@ -2547,7 +2262,7 @@ c      do i=1,msglen
 c         tmp2(int_mb(i2_start(1,nb)+1-1)+i-1)
 c     > = tmp1(int_mb(i1_start(1,nb)+1-1)+i-1)
 c      end do
-      call Parallel_shared_vector_copy(.false.,2*msglen,
+      call Parallel_shared_vector_scopy(.false.,2*msglen,
      >                                 tmp1(int_mb(i1_start(1,nb))),
      >                                 tmp2(int_mb(i2_start(1,nb))))
 
@@ -2574,7 +2289,7 @@ c         type   = 1
             stupid_type   = msgtype
             stupid_taskid = Parallel2d_convert_taskid_i(source)
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nb)+it+1-1)),
-     >                    stupid_msglen,stupid_complex,
+     >                    stupid_msglen,stupid_scomplex,
      >                    stupid_taskid,
      >                    stupid_type,stupid_world,
      >                    stupid_request,stupid_ierr)
@@ -2582,7 +2297,7 @@ c         type   = 1
             request(reqcnt) = stupid_request
 #else
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nb)+it+1-1)),
-     >                    msglen,MPI_DOUBLE_COMPLEX,
+     >                    msglen,MPI_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
      >                    msgtype,Parallel_comm_world(),
      >                    request(reqcnt),mpierr)
@@ -2608,7 +2323,7 @@ c         msgtype   = 1
             stupid_type   = msgtype
             stupid_taskid = Parallel2d_convert_taskid_i(proc_to)
             call MPI_ISEND(tmp1(int_mb(i1_start(1,nb)+it+1-1)),
-     >                     stupid_msglen,stupid_complex,
+     >                     stupid_msglen,stupid_scomplex,
      >                     stupid_taskid,
      >                     stupid_type,stupid_world,
      >                     stupid_request,stupid_ierr)
@@ -2616,7 +2331,7 @@ c         msgtype   = 1
             request(reqcnt) = stupid_request
 #else
             call MPI_ISEND(tmp1(int_mb(i1_start(1,nb)+it+1-1)),
-     >                     msglen,MPI_DOUBLE_COMPLEX,
+     >                     msglen,MPI_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
      >                     msgtype,Parallel_comm_world(),
      >                     request(reqcnt),mpierr)
@@ -2635,7 +2350,7 @@ c         msgtype   = 1
 
 *     ***********************************
 *     *                                 *
-*     *    D3dB_c_timereverse_end       *
+*     *    D3dB_c_stimereverse_end      *
 *     *                                 *
 *     ***********************************
 *                                           
@@ -2647,11 +2362,11 @@ c         msgtype   = 1
 *                                                 
       subroutine D3dB_c_stimereverse_end(nb,A,tmp1,tmp2,request,reqcnt)
       implicit none
-      integer     nb
-      complex*16  A(*)
-      complex*16  tmp1(*)
-      complex*16  tmp2(*)
-      integer     request(*),reqcnt
+      integer  nb
+      complex  A(*)
+      complex  tmp1(*)
+      complex  tmp2(*)
+      integer  request(*),reqcnt
 
 #include "bafdecls.fh"
 #include "D3dB.fh"
@@ -2677,7 +2392,8 @@ c         msgtype   = 1
 
 !$OMP BARRIER
 
-      call D3dB_psfft_index2_copy_conjg(n2,int_mb(iq_to_i2(1,nb)),tmp2,A)
+      call D3dB_psfft_index2_copy_conjg(n2,int_mb(iq_to_i2(1,nb)),
+     >                                  tmp2,A)
       return
       end
 
@@ -3802,7 +3518,7 @@ c     **** external functions ****
       value = value.and.
      >        BA_push_get(mt_int,np,'pindex2_1t3',pindex2(2),pindex2(1))
       if (.not.value)
-     >  call errquit('D3dB_r_1to3_sContract_start:out of stack',0,MA_ERR)
+     >call errquit('D3dB_r_1to3_sContract_start:out of stack',0,MA_ERR)
 
 
       shift1 = qlast_1t3*(np+1)

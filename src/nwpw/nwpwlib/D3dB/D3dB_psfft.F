@@ -465,7 +465,7 @@ c     call D3dB_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 *     ***         Do a transpose of A          ***
 *     ***      A(kx,ky,kz) <- A(kx,kz,ky)      ***
 *     ********************************************
-c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
+c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 
 
@@ -751,7 +751,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call zeroend_sfftb(nx(nb),ny(nb),nq(nb),1,A(shift))
 #endif
 
-#endif
 
       shift = shift + nfft3d(nb)
       end do
@@ -910,7 +909,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 #ifdef NUSE_OPENMP
       call D3dB_pfftfx_sub(ny(id)*nq(id),nx(id),nxh,
-     >                    dcpl_mb(tmpx(1,id)),A)
+     >                    scpl_mb(tmpx(1,id)),A)
       call cshift_sfftf(nx(id),ny(id),nq(id),1,A)
 
 #else
@@ -1071,7 +1070,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
       call cshift_sfftf(nx(id),nq1(id),1,1,tmp1)
 
-#endif
 #endif
 
       call nwpw_timing_end(31)
@@ -1927,7 +1925,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       indx = 1
       do q=1,nq(id)
       do j=1,ny(id)
-         call rfftb(nx(id),tmp2(indx),dcpl_mb(tmpx(1,id)))
+         call rfftb(nx(id),tmp2(indx),scpl_mb(tmpx(1,id)))
          indx = indx + nxh
       end do
       end do
@@ -2093,7 +2091,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          call D3dB_psfftbx(nbb,tmp1,tmp2,request,reqcnt)
 
       else if (step.eq.7) then
-         call D3dB_r_3to1_sExpand_start3(center,tmp1,tmp2,request,reqcnt)
+         call D3dB_r_3to1_sExpand_start3(center,tmp1,tmp2,
+     >                                   request,reqcnt)
       else if (step.eq.8) then
          call D3dB_r_3to1_sExpand_mid3(tmp2,tmp1,request,reqcnt)
       else if (step.eq.9) then
@@ -2477,7 +2476,7 @@ c     **** allocate bqueue ****
 
 
       shift2=nfft3d(id)*(2*(indx1-1)+1)
-      call Pack_c_sCopy(nbb,dcpl_mb(tmp(1)+shift2),A)
+      call Pack_c_sCopy(nbb,scpl_mb(tmp(1)+shift2),A)
 
       call Parallel_shared_iinc(.true.,-1,qsize)
       call Parallel_shared_lshift(.true.,qsize,int_mb(qindx(1)))
@@ -2790,7 +2789,7 @@ cccccccccccccccccccccc  queue center routines   cccccccccccccccccccccccccccccccc
       end do
 
       shift2=nfft3d(1)*(2*(indx1-1)+1)
-      call Pack_c_sCopy(nbb,dcpl_mb(tmp(1)+shift2),A)
+      call Pack_c_sCopy(nbb,scpl_mb(tmp(1)+shift2),A)
 
       call Parallel_shared_iinc(.true.,-1,qsize)
       call Parallel_shared_lshift(.true.,qsize,int_mb(qindx(1)))
@@ -2954,7 +2953,7 @@ c      tid = Parallel_threadid()
 
       shift2=nfft3d(1)*(2*(indx1-1)+1)
       call Parallel_shared_vector_scopy(.true.,2*nfft3d(1),
-     >                                 dcpl_mb(tmp(1)+shift2),
+     >                                 scpl_mb(tmp(1)+shift2),
      >                                 A)
 
       call Parallel_shared_iinc(.true.,-1,qsize)
