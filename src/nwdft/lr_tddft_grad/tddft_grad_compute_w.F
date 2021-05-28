@@ -219,11 +219,11 @@ c
             clo(3) = 1
             chi(3) = naoc(ip)
             if (.not.tda) then
-               call nga_matmul_patch('n','t',0.5d0*omega(ir),1.0d0,
+               call tddft_patch3mxm('n','t',0.5d0*omega(ir),1.0d0,
      +                                g_xpy(ip),alo,ahi,
      +                                g_xmy(ip),blo,bhi,
      +                                g_w(ip),clo,chi)
-               call nga_matmul_patch('n','t',0.5d0*omega(ir),1.0d0,
+               call tddft_patch3mxm('n','t',0.5d0*omega(ir),1.0d0,
      +                                g_xmy(ip),alo,ahi,
      +                                g_xpy(ip),blo,bhi,
      +                                g_w(ip),clo,chi)
@@ -451,7 +451,7 @@ c
       ichnk(1) = nroots*ipol
       ichnk(2) = -1
       ichnk(3) = -1
-      if (.not.nga_create(mt_dbl,3,idim,'vec Puv',ichnk,g_puv))
+      if (.not.nga_create(mt_dbl,3,idim,'vec Puv',ichnk,g_puv(1)))
      +    call errquit(pname//'failed to create g_puv',0,GA_ERR)
 c
 c     - Puv = sum_pq Cup*Ppq*Cvq
@@ -491,7 +491,7 @@ c this term for CIS, but functions correctly for RPA.
 c
 c     - Destroy global array for Puv
 c
-      if (.not.ga_destroy(g_puv))
+      if (.not.ga_destroy(g_puv(1)))
      +    call errquit(pname//'failed to destroy g_puv',0,GA_ERR)
 c
 c     - Transform (A+B)P from AO basis to Wij in MO basis
@@ -939,11 +939,11 @@ c
             chi(3) = naoc(ip)+nav(ip)
 c
             if (.not.tda) then
-             call nga_matmul_patch('t','n',0.5d0*omega(ir),0.0d0,
+            call tddft_patch3mxm('t','n',0.5d0*omega(ir),0.0d0,
      +                              g_xpy(ip),alo,ahi,
      +                              g_xmy(ip),blo,bhi,
      +                              g_w(ip),clo,chi)
-             call nga_matmul_patch('t','n',0.5d0*omega(ir),1.0d0,
+            call tddft_patch3mxm('t','n',0.5d0*omega(ir),1.0d0,
      +                              g_xmy(ip),alo,ahi,
      +                              g_xpy(ip),blo,bhi,
      +                              g_w(ip),clo,chi)
