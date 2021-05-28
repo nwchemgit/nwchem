@@ -2,7 +2,7 @@
 # $Id$
 #
 
- OBJ_OPTIMIZE = D3dB-new.o generate_map_indexes.o hilbert.o hcurve.o olist.o trans.o D3dB_pfft.o D3dB_psfft.o
+ OBJ_OPTIMIZE = D3dB-new.o generate_map_indexes.o hilbert.o hcurve.o olist.o trans.o D3dB_pfft.o D3dBs_pfft.o
  OBJ = 
 
 ### make defaults USE_MPIF and USE_MPIF4 ###
@@ -19,7 +19,7 @@ endif
 
 
 ifeq ($(USE_MPIF),y)
-  OBJ_OPTIMIZE += D3dB-mpi.o D3dB-smpi.o
+  OBJ_OPTIMIZE += D3dB-mpi.o D3dBs-mpi.o
 else
   OBJ_OPTIMIZE += D3dB-tcgmsg.o
 endif
@@ -27,7 +27,7 @@ endif
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = D3dB-new.F D3dB_pfft.F D3dB-mpi.F D3dB-tcgmsg.F D3dB_psfft.F D3dB-smpi.F
+    USES_BLAS = D3dB-new.F D3dB_pfft.F D3dB-mpi.F D3dB-tcgmsg.F D3dBs_pfft.F D3dBs-mpi.F
   LIB_DEFINES = 
 
 

@@ -1407,11 +1407,11 @@ c      call dfftw_cleanup_threads()
 
 *     ***********************************
 *     *					*
-*     *	        D3dB_sfft_init		*
+*     *	        D3dBs_fft_init		*
 *     *					*
 *     ***********************************
 
-      subroutine D3dB_sfft_init(nb)
+      subroutine D3dBs_fft_init(nb)
       implicit none
       integer nb
 
@@ -1421,7 +1421,7 @@ c      call dfftw_cleanup_threads()
 #include "D3dB.fh"
 
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
-      common    / D3dB_sfft / tmpx,tmpy,tmpz
+      common    / D3dBs_fft / tmpx,tmpy,tmpz
 
 #ifdef FFTW3
 #include "fftw3.fh"
@@ -1446,7 +1446,7 @@ c      call dfftw_cleanup_threads()
      >        BA_alloc_get(mt_scpl,mthr*(2*nz(nb)+15),
      >        'fttmpz',tmpz(2,nb),tmpz(1,nb))
       if (.not. value) 
-     >   call errquit('D3dB_sfft_init:out of heap memory',0, MA_ERR)
+     >   call errquit('D3dBs_fft_init:out of heap memory',0, MA_ERR)
 
 
       do i=1,mthr
@@ -1472,7 +1472,7 @@ c       iestimate = FFTW_EXHAUSTIVE
          nxhy = nxh*ny(nb)
          if (.not.BA_alloc_get(mt_scpl,nx(nb)*ny(nb)*nq(nb),
      >                       'Atest',Atest(2),Atest(1)))
-     >     call errquit('D3dB_sfft_init:out of heap memory',0,MA_ERR)
+     >     call errquit('D3dBs_fft_init:out of heap memory',0,MA_ERR)
 
          call fftw_plan_many_dft(splans(1,nb),1,nz(nb),nxh,
      >                        scpl_mb(Atest(1)),nxhz,nxh,1,
@@ -1522,14 +1522,14 @@ c       iestimate = FFTW_EXHAUSTIVE
 
 
          if (.not.BA_free_heap(Atest(2)))
-     >   call errquit('D3dB_sfft_init:freeing heap',0,MA_ERR)
+     >   call errquit('D3dBs_fft_init:freeing heap',0,MA_ERR)
 
       else
 
          nxh  = (nx(nb)/2+1)
          if (.not.BA_alloc_get(mt_scpl,nfft3d(nb),'Atest',
      >                         Atest(2),Atest(1)))
-     >     call errquit('D3dB_sfft_init:out of heap memory',0,MA_ERR)
+     >     call errquit('D3dBs_fft_init:out of heap memory',0,MA_ERR)
 
          call fftw_plan_many_dft(splans(11,nb),1,nz(nb),nq3(nb),
      >                        scpl_mb(Atest(1)),nz(nb)*nq3(nb),1,nz(nb),
@@ -1578,7 +1578,7 @@ c       iestimate = FFTW_EXHAUSTIVE
      >                        iforward,FFTW_EXHAUSTIVE)
 
          if (.not.BA_free_heap(Atest(2)))
-     >   call errquit('D3dB_sfft_init:freeing heap',0,MA_ERR)
+     >   call errquit('D3dBs_fft_init:freeing heap',0,MA_ERR)
 
       end if
 #endif
@@ -1588,7 +1588,7 @@ c       iestimate = FFTW_EXHAUSTIVE
 
 *     ***********************************
 *     *                                 *
-*     *         D3dB_sfft_end           *
+*     *         D3dBs_fft_end           *
 *     *                                 *
 *     ***********************************
 
@@ -1603,7 +1603,7 @@ c       iestimate = FFTW_EXHAUSTIVE
 
 
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
-      common    / D3dB_sfft / tmpx,tmpy,tmpz
+      common    / D3dBs_fft / tmpx,tmpy,tmpz
 #ifdef USE_OPENMP
       logical is_par
       common    / Debug_openmp / is_par
@@ -5901,7 +5901,7 @@ c     integer i2_start(NFFT3+1)
       return
       end
 
-      subroutine D3dB_psfft_index1_copy(n,index,a,b)
+      subroutine D3dBs_pfft_index1_copy(n,index,a,b)
       implicit none
       integer n
       integer index(*)
@@ -5937,7 +5937,7 @@ c     integer i2_start(NFFT3+1)
       return
       end
 
-      subroutine D3dB_psfft_index2_copy(n,index,a,b)
+      subroutine D3dBs_pfft_index2_copy(n,index,a,b)
       implicit none
       integer n
       integer index(*)
@@ -5971,7 +5971,7 @@ c     integer i2_start(NFFT3+1)
       return
       end
 
-      subroutine D3dB_psfft_index2_zero(n,index,a)
+      subroutine D3dBs_pfft_index2_zero(n,index,a)
       implicit none
       integer n
       integer index(*)
@@ -6009,7 +6009,7 @@ c     integer i2_start(NFFT3+1)
 
 
 
-      subroutine D3dB_psfft_index2_copy_conjg(n,index,a,b)
+      subroutine D3dBs_pfft_index2_copy_conjg(n,index,a,b)
       implicit none
       integer n
       integer index(*)

@@ -3,11 +3,11 @@
 
 *     ***********************************
 *     *					*
-*     *	   D3dB_c_stranspose_jk		*
+*     *	   D3dBs_c_transpose_jk		*
 *     *					*
 *     ***********************************
 
-      subroutine D3dB_c_stranspose_jk(nb,A,tmp1,tmp2)
+      subroutine D3dBs_c_transpose_jk(nb,A,tmp1,tmp2)
 
 *****************************************************
 *                                                   *
@@ -69,7 +69,7 @@ c     integer i2_start(NFFT3+1)
       value = BA_push_get(mt_int,np,
      >                     'request',request(2),request(1))
       if (.not. value)
-     > call errquit('D3dB_c_stranspose_jk:out of stack',0,MA_ERR)
+     > call errquit('D3dBs_c_transpose_jk:out of stack',0,MA_ERR)
 
 
 *     **** pack A(i) array ****
@@ -175,7 +175,7 @@ c      end do
       !*** deallocate memory ***
       value =           BA_pop_stack(request(2))
       if (.not. value)
-     > call errquit(' D3dB_c_stranspose_jk:popping stack',0,MA_ERR)
+     > call errquit(' D3dBs_c_transpose_jk:popping stack',0,MA_ERR)
 
       return
       end
@@ -185,11 +185,11 @@ c      end do
 
 *     ***********************************
 *     *                                 *
-*     *    D3dB_c_stimereverse          *
+*     *    D3dBs_c_timereverse          *
 *     *                                 *
 *     ***********************************
 
-      subroutine D3dB_c_stimereverse(nb,A,tmp1,tmp2)
+      subroutine D3dBs_c_timereverse(nb,A,tmp1,tmp2)
 
 *****************************************************
 *                                                   *
@@ -250,7 +250,7 @@ c     integer i2_start(NFFT3+1)
       value = BA_push_get(mt_int,np,
      >                     'request',request(2),request(1))
       if (.not. value)
-     > call errquit(' D3dB_c_stimereverse:out of stack',0,MA_ERR)
+     > call errquit(' D3dBs_c_timereverse:out of stack',0,MA_ERR)
 
 
 *     **** pack A(i) array ****
@@ -360,7 +360,7 @@ c     integer i2_start(NFFT3+1)
       !*** deallocate memory ***
       value =           BA_pop_stack(request(2))
       if (.not. value)
-     > call errquit(' D3dB_c_timereverse:popping stack',0,MA_ERR)
+     > call errquit(' D3dBs_c_timereverse:popping stack',0,MA_ERR)
 
 
       return
@@ -374,11 +374,11 @@ c     integer i2_start(NFFT3+1)
 
 *     ***********************************
 *     *					*
-*     *	   D3dB_c_transpose_ijk		*
+*     *	   D3dBs_c_transpose_ijk	*
 *     *					*
 *     ***********************************
 
-      subroutine D3dB_c_stranspose_ijk(nb,op,A,tmp1,tmp2)
+      subroutine D3dBs_c_transpose_ijk(nb,op,A,tmp1,tmp2)
 
 *****************************************************
 *                                                   *
@@ -386,7 +386,7 @@ c     integer i2_start(NFFT3+1)
 *               A(i,k,j) <- A(i,j,k)                * 
 *                                                   *
 *      np = the number of worker nodes              *
-*      proc#=0...(np-1)
+*      proc#=0...(np-1)                             *
 *                                                   *
 *       this transpose uses more buffer space       *
 *       then transpose2                             *
@@ -443,7 +443,7 @@ c     integer i2_start(NFFT3+1)
       value = BA_push_get(mt_int,np,
      >                     'request',request(2),request(1))
       if (.not. value) 
-     > call errquit(' D3dB_c_transpose_ijk:out of stack',0,MA_ERR)
+     > call errquit(' D3dBs_c_transpose_ijk:out of stack',0,MA_ERR)
 
 
 *     **** pack A(i) array ****
@@ -563,7 +563,7 @@ c      nthr = Parallel_nthreads()
       !*** deallocate memory ***
       value =           BA_pop_stack(request(2))
       if (.not. value) 
-     > call errquit(' D3dB_c_stranspose_ijk:popping stack',0,MA_ERR)
+     > call errquit(' D3dBs_c_transpose_ijk:popping stack',0,MA_ERR)
       
       return
       end
@@ -573,11 +573,11 @@ c      nthr = Parallel_nthreads()
 
 *     ***********************************
 *     *					*
-*     *	   D3dB_t_stranspose_ijk	*
+*     *	   D3dBs_t_transpose_ijk	*
 *     *					*
 *     ***********************************
 
-      subroutine D3dB_t_stranspose_ijk(nb,op,A,tmp1,tmp2)
+      subroutine D3dBs_t_transpose_ijk(nb,op,A,tmp1,tmp2)
 
 *****************************************************
 *                                                   *
@@ -642,7 +642,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       value = BA_push_get(mt_int,np,
      >                     'request',request(2),request(1))
       if (.not. value)
-     > call errquit(' D3dB_t_transpose_ijk:out of stack',0,MA_ERR)
+     > call errquit(' D3dBs_t_transpose_ijk:out of stack',0,MA_ERR)
       
 
 *     **** pack A(i) array ****
@@ -749,7 +749,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       !*** deallocate memory ***
       value =           BA_pop_stack(request(2))
       if (.not. value)
-     > call errquit(' D3dB_t_transpose_ijk:popping stack',0,MA_ERR)
+     > call errquit(' D3dBs_t_transpose_ijk:popping stack',0,MA_ERR)
 
       return
       end
@@ -760,11 +760,11 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       
 *     ***********************************
 *     *					*
-*     *	   D3dB_c_pstranspose1_jk	*
+*     *	   D3dBs_c_ptranspose1_jk	*
 *     *					*
 *     ***********************************
 
-      subroutine D3dB_c_pstranspose1_jk(nbb,A,tmp1,tmp2)
+      subroutine D3dBs_c_ptranspose1_jk(nbb,A,tmp1,tmp2)
 
 *****************************************************
 *                                                   *
@@ -830,14 +830,14 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       value = BA_push_get(mt_int,np,
      >                     'request',request(2),request(1))
       if (.not. value)
-     > call errquit(' D3dB_c_pstranspose1_jk:out of stack',0,MA_ERR)
+     > call errquit(' D3dBs_c_ptranspose1_jk:out of stack',0,MA_ERR)
 
 
       n1 = int_mb(i1_start(1,nbb)+np) - 1
       n2 = int_mb(i2_start(1,nbb)+np) - 1
 
 *     **** pack A(i) array ****
-       call D3dB_psfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
+       call D3dBs_pfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(i2_start(1,nbb)+2-1) - int_mb(i2_start(1,nbb)+1-1)
@@ -916,15 +916,15 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 
 
 *     **** unpack A(i) array ****
-      call D3dB_psfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
-      call D3dB_psfft_index2_zero(nfft3d(id)-n2,
+      call D3dBs_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
+      call D3dBs_pfft_index2_zero(nfft3d(id)-n2,
      >                           int_mb(iz_to_i2(1,nbb)),A)
       
 
       !*** deallocate memory ***
       value =           BA_pop_stack(request(2))
       if (.not. value)
-     > call errquit(' D3dB_c_pstranspose1_jk:popping stack',0,MA_ERR)
+     > call errquit(' D3dBs_c_ptranspose1_jk:popping stack',0,MA_ERR)
 
       return
       end
@@ -937,11 +937,11 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       
 *     ***********************************
 *     *					*
-*     *	   D3dB_c_pstranspose2_jk	*
+*     *	   D3dBs_c_ptranspose2_jk	*
 *     *					*
 *     ***********************************
 
-      subroutine D3dB_c_pstranspose2_jk(nbb,A,tmp1,tmp2)
+      subroutine D3dBs_c_ptranspose2_jk(nbb,A,tmp1,tmp2)
 
 *****************************************************
 *                                                   *
@@ -1005,13 +1005,13 @@ c     **** external functions ****
       value = BA_push_get(mt_int,np,
      >                     'request',request(2),request(1))
       if (.not. value)
-     > call errquit(' D3dB_c_pstranspose2_jk:out of stack',0,MA_ERR)
+     > call errquit(' D3dBs_c_ptranspose2_jk:out of stack',0,MA_ERR)
 
       n1 = int_mb(i1_start(1,nbb)+np) - 1
       n2 = int_mb(i2_start(1,nbb)+np) - 1
 
 *     **** pack A(i) array ****
-       call D3dB_psfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
+       call D3dBs_pfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(i2_start(1,nbb)+2-1) - int_mb(i2_start(1,nbb)+1-1)
@@ -1090,15 +1090,15 @@ c     **** external functions ****
 
 
 *     **** unpack A(i) array ****
-      call D3dB_psfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
-      call D3dB_psfft_index2_zero(nfft3d(id)-n2,
+      call D3dBs_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
+      call D3dBs_pfft_index2_zero(nfft3d(id)-n2,
      >                           int_mb(iz_to_i2(1,nbb)),A)
       
 
       !*** deallocate memory ***
       value =           BA_pop_stack(request(2))
       if (.not. value)
-     > call errquit(' D3dB_c_pstranspose2_jk:popping stack',0,MA_ERR)
+     > call errquit(' D3dBs_c_ptranspose2_jk:popping stack',0,MA_ERR)
 
       return
       end
@@ -1109,11 +1109,11 @@ c     **** external functions ****
 
 *     ***********************************
 *     *					*
-*     *	   D3dB_c_pstranspose_ijk	*
+*     *	   D3dBs_c_ptranspose_ijk	*
 *     *					*
 *     ***********************************
 
-      subroutine D3dB_c_pstranspose_ijk(nbb,op,A,tmp1,tmp2)
+      subroutine D3dBs_c_ptranspose_ijk(nbb,op,A,tmp1,tmp2)
 
 *****************************************************
 *                                                   *
@@ -1178,7 +1178,7 @@ c     **** external functions ****
       value = BA_push_get(mt_int,np,
      >                     'request',request(2),request(1))
       if (.not. value) 
-     > call errquit(' D3dB_c_pstranspose_ijk:out of stack',0,MA_ERR)
+     > call errquit(' D3dBs_c_ptranspose_ijk:out of stack',0,MA_ERR)
 
 
       n1 = int_mb(h_i1_start(1,op,nbb)+np) - 1
@@ -1187,7 +1187,7 @@ c     **** external functions ****
 
 
 *     **** pack A(i) array ****
-      call D3dB_psfft_index1_copy(n1,int_mb(h_iq_to_i1(1,op,nbb)),
+      call D3dBs_pfft_index1_copy(n1,int_mb(h_iq_to_i1(1,op,nbb)),
      >                                      A,tmp1)
 
 
@@ -1273,15 +1273,15 @@ c     **** external functions ****
 !$OMP BARRIER
 
 *     **** unpack A(i) array ****
-      call D3dB_psfft_index2_copy(n2,int_mb(h_iq_to_i2(1,op,nbb)),
+      call D3dBs_pfft_index2_copy(n2,int_mb(h_iq_to_i2(1,op,nbb)),
      >                            tmp2,A)
-      call D3dB_psfft_index2_zero(n3,int_mb(h_iz_to_i2(1,op,nbb)),A)
+      call D3dBs_pfft_index2_zero(n3,int_mb(h_iz_to_i2(1,op,nbb)),A)
 
 
       !*** deallocate memory ***
       value =           BA_pop_stack(request(2))
       if (.not. value) 
-     > call errquit(' D3dB_c_transpose_ijk:popping stack',0,MA_ERR)
+     > call errquit(' D3dBs_c_transpose_ijk:popping stack',0,MA_ERR)
       
       return
       end
@@ -1544,7 +1544,7 @@ c            send data....
       
 *     ***********************************
 *     *					*
-*     *	  D3dB_c_pstranspose1_jk_start	*
+*     *	  D3dBs_c_ptranspose1_jk_start	*
 *     *					*
 *     ***********************************
 
@@ -1559,7 +1559,7 @@ c            send data....
 *       then transpose2                            
 *
 
-      subroutine D3dB_c_pstranspose1_jk_start(nbb,A,tmp1,tmp2,
+      subroutine D3dBs_c_ptranspose1_jk_start(nbb,A,tmp1,tmp2,
      >                                       request,reqcnt,msgtype)
       implicit none
       integer nbb
@@ -1605,7 +1605,7 @@ c     **** external functions ****
       n1 = int_mb(i1_start(1,nbb)+np) - 1
 
 *     **** pack A(i) array ****
-       call D3dB_psfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
+       call D3dBs_pfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(i2_start(1,nbb)+2-1) - int_mb(i2_start(1,nbb)+1-1)
@@ -1692,7 +1692,7 @@ c         msgtype   = 1
 
 *     ***********************************
 *     *					*
-*     *	   D3dB_c_pstranspose1_jk_end	*
+*     *	   D3dBs_c_ptranspose1_jk_end	*
 *     *					*
 *     ***********************************
 
@@ -1707,7 +1707,7 @@ c         msgtype   = 1
 *       then transpose2                            
 *
 
-      subroutine D3dB_c_pstranspose1_jk_end(nbb,A,tmp2,request,reqcnt)
+      subroutine D3dBs_c_ptranspose1_jk_end(nbb,A,tmp2,request,reqcnt)
       implicit none
       integer nbb
       complex  A(*)
@@ -1742,8 +1742,8 @@ c         msgtype   = 1
 
 *     **** unpack A(i) array ****
       n2 = int_mb(i2_start(1,nbb)+np) - 1
-      call D3dB_psfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
-      call D3dB_psfft_index2_zero(nfft3d(id)-n2,
+      call D3dBs_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
+      call D3dBs_pfft_index2_zero(nfft3d(id)-n2,
      >                           int_mb(iz_to_i2(1,nbb)),A)
       return
       end
@@ -1755,7 +1755,7 @@ c         msgtype   = 1
       
 *     ***********************************
 *     *					*
-*     *	  D3dB_c_pstranspose2_jk_start	*
+*     *	  D3dBs_c_ptranspose2_jk_start	*
 *     *					*
 *     ***********************************
 
@@ -1770,7 +1770,7 @@ c         msgtype   = 1
 *       then transpose2                            
 *
 
-      subroutine D3dB_c_pstranspose2_jk_start(nbb,A,tmp1,tmp2,
+      subroutine D3dBs_c_ptranspose2_jk_start(nbb,A,tmp1,tmp2,
      >                                       request,reqcnt,msgtype)
       implicit none
       integer nbb
@@ -1816,7 +1816,7 @@ c     **** external functions ****
       n1 = int_mb(i1_start(1,nbb)+np) - 1
 
 *     **** pack A(i) array ****
-       call D3dB_psfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
+       call D3dBs_pfft_index1_copy(n1,int_mb(iq_to_i1(1,nbb)),A,tmp1)
 
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(i2_start(1,nbb)+2-1) - int_mb(i2_start(1,nbb)+1-1)
@@ -1903,7 +1903,7 @@ c         msgtype   = 1
 
 *     ***********************************
 *     *					*
-*     *	   D3dB_c_pstranspose2_jk_end	*
+*     *	   D3dBs_c_ptranspose2_jk_end	*
 *     *					*
 *     ***********************************
 
@@ -1918,7 +1918,7 @@ c         msgtype   = 1
 *       then transpose2                            
 *
 
-      subroutine D3dB_c_pstranspose2_jk_end(nbb,A,tmp2,request,reqcnt)
+      subroutine D3dBs_c_ptranspose2_jk_end(nbb,A,tmp2,request,reqcnt)
 
       implicit none
       integer nbb
@@ -1955,8 +1955,8 @@ c         msgtype   = 1
 
 *     **** unpack A(i) array ****
       n2 = int_mb(i2_start(1,nbb)+np) - 1
-      call D3dB_psfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
-      call D3dB_psfft_index2_zero(nfft3d(id)-n2,
+      call D3dBs_pfft_index2_copy(n2,int_mb(iq_to_i2(1,nbb)),tmp2,A)
+      call D3dBs_pfft_index2_zero(nfft3d(id)-n2,
      >                           int_mb(iz_to_i2(1,nbb)),A)
       return
       end
@@ -1965,7 +1965,7 @@ c         msgtype   = 1
 
 *     ***********************************
 *     *					*
-*     *	   D3dB_c_pstranspose_ijk_start	*
+*     *	   D3dBs_c_ptranspose_ijk_start	*
 *     *					*
 *     ***********************************
 *                                                
@@ -1980,7 +1980,7 @@ c         msgtype   = 1
 *
 
 
-      subroutine D3dB_c_pstranspose_ijk_start(nbb,op,A,tmp1,tmp2,
+      subroutine D3dBs_c_ptranspose_ijk_start(nbb,op,A,tmp1,tmp2,
      >                                       request,reqcnt,msgtype)
 
       implicit none
@@ -2033,7 +2033,7 @@ c     **** external functions ****
 
 *     **** pack A(i) array ****
       n1 = int_mb(h_i1_start(1,op,nbb)+np) - 1
-      call D3dB_psfft_index1_copy(n1,int_mb(h_iq_to_i1(1,op,nbb)),
+      call D3dBs_pfft_index1_copy(n1,int_mb(h_iq_to_i1(1,op,nbb)),
      >                            A,tmp1)
 
 
@@ -2125,7 +2125,7 @@ c         msgtype   = 1
 
 *     ***********************************
 *     *					*
-*     *	   D3dB_c_pstranspose_ijk_end	*
+*     *	   D3dBs_c_ptranspose_ijk_end	*
 *     *					*
 *     ***********************************
 *                                                  
@@ -2139,7 +2139,7 @@ c         msgtype   = 1
 *       then transpose2                      
 *
 
-      subroutine D3dB_c_pstranspose_ijk_end(nbb,op,A,tmp2,
+      subroutine D3dBs_c_ptranspose_ijk_end(nbb,op,A,tmp2,
      >                                 request,reqcnt)
       implicit none
       integer nbb,op
@@ -2176,9 +2176,9 @@ c         msgtype   = 1
 *     **** unpack A(i) array ****
       n2 = int_mb(h_i2_start(1,op,nbb)+np) - 1
       n3 = h_iz_to_i2_count(op,nbb)
-      call D3dB_psfft_index2_copy(n2,int_mb(h_iq_to_i2(1,op,nbb)),
+      call D3dBs_pfft_index2_copy(n2,int_mb(h_iq_to_i2(1,op,nbb)),
      >                            tmp2,A)
-      call D3dB_psfft_index2_zero(n3,int_mb(h_iz_to_i2(1,op,nbb)),A)
+      call D3dBs_pfft_index2_zero(n3,int_mb(h_iz_to_i2(1,op,nbb)),A)
 
       return
       end
@@ -2189,7 +2189,7 @@ c         msgtype   = 1
 
 *     ***********************************
 *     *                                 *
-*     *    D3dB_c_stimereverse_start    *
+*     *    D3dBs_c_stimereverse_start    *
 *     *                                 *
 *     ***********************************
 *                                           
@@ -2199,7 +2199,7 @@ c         msgtype   = 1
 *      np = the number of worker nodes          
 *      proc#=0...(np-1)                          
 *                                                 
-      subroutine D3dB_c_stimereverse_start(nb,A,tmp1,tmp2,
+      subroutine D3dBs_c_stimereverse_start(nb,A,tmp1,tmp2,
      >                                    request,reqcnt,msgtype)
       implicit none
       integer     nb
@@ -2254,7 +2254,7 @@ c      do index1=int_mb(i1_start(1,nb)+1-1),
 c     >         (int_mb(i1_start(1,nb)+np+1-1)-1)
 c         tmp1(index1) = A(int_mb(iq_to_i1(1,nb)+index1-1))
 c      end do
-      call D3dB_psfft_index1_copy(n1,int_mb(iq_to_i1(1,nb)),A,tmp1)
+      call D3dBs_pfft_index1_copy(n1,int_mb(iq_to_i1(1,nb)),A,tmp1)
 
 *     **** it = 0, transpose data on same thread ****
       msglen = int_mb(i2_start(1,nb)+2-1) - int_mb(i2_start(1,nb)+1-1)
@@ -2350,7 +2350,7 @@ c         msgtype   = 1
 
 *     ***********************************
 *     *                                 *
-*     *    D3dB_c_stimereverse_end      *
+*     *    D3dBs_c_stimereverse_end      *
 *     *                                 *
 *     ***********************************
 *                                           
@@ -2360,7 +2360,7 @@ c         msgtype   = 1
 *      np = the number of worker nodes          
 *      proc#=0...(np-1)                          
 *                                                 
-      subroutine D3dB_c_stimereverse_end(nb,A,tmp1,tmp2,request,reqcnt)
+      subroutine D3dBs_c_stimereverse_end(nb,A,tmp1,tmp2,request,reqcnt)
       implicit none
       integer  nb
       complex  A(*)
@@ -2392,7 +2392,7 @@ c         msgtype   = 1
 
 !$OMP BARRIER
 
-      call D3dB_psfft_index2_copy_conjg(n2,int_mb(iq_to_i2(1,nb)),
+      call D3dBs_pfft_index2_copy_conjg(n2,int_mb(iq_to_i2(1,nb)),
      >                                  tmp2,A)
       return
       end
@@ -2403,10 +2403,10 @@ c         msgtype   = 1
 
 *     ***********************************
 *     *                                 *
-*     *       D3dB_r_1to3_sContract     *
+*     *       D3dBs_r_1to3_Contract     *
 *     *                                 *
 *     ***********************************
-      subroutine D3dB_r_1to3s_Contract(center,A,tmp1,tmp2)
+      subroutine D3dBs_r_1to3_Contract(center,A,tmp1,tmp2)
       implicit none
       integer center(3)
       real A(*)
@@ -2463,7 +2463,7 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
      >        BA_push_get(mt_int,n2ft3d(1),'c_iq_to_i2_1t3',
      >                    c_iq_to_i2(2),c_iq_to_i2(1))
       if (.not.value)
-     >   call errquit('D3dB_r_1to3_sContract:out of stack',0,MA_ERR)
+     >   call errquit('D3dBs_r_1to3_sContract:out of stack',0,MA_ERR)
 
 
       nxh = nx(1)/2
@@ -2686,7 +2686,7 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
       value = value.and.BA_pop_stack(pindex1(2))
       value = value.and.BA_pop_stack(request(2))
       if (.not.value)
-     >   call errquit('D3dB_r_1to3_sContract:popping stack',0,MA_ERR)
+     >   call errquit('D3dBs_r_1to3_sContract:popping stack',0,MA_ERR)
 
       return
       end
@@ -2698,10 +2698,10 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
 
 *     ***********************************
 *     *                                 *
-*     *       D3dB_r_3to1_sExpand       *
+*     *       D3dBs_r_3to1_Expand       *
 *     *                                 *
 *     ***********************************
-      subroutine D3dB_r_3to1_sExpand(center,A,tmp1,tmp2)
+      subroutine D3dBs_r_3to1_Expand(center,A,tmp1,tmp2)
       implicit none
       integer center(3)
       real A(*)
@@ -2757,7 +2757,7 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
      >        BA_push_get(mt_int,n2ft3d(1),'c_iq_to_i2',
      >                    c_iq_to_i2(2),c_iq_to_i2(1))
       if (.not.value)
-     >   call errquit('D3dB_r_3to1_sExpand:out of stack',0,MA_ERR)
+     >   call errquit('D3dBs_r_3to1_sExpand:out of stack',0,MA_ERR)
 
 
       nxh = nx(1)/2
@@ -2981,7 +2981,7 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
       value = value.and.BA_pop_stack(pindex1(2))
       value = value.and.BA_pop_stack(request(2))
       if (.not.value)
-     >   call errquit('D3dB_r_3to1_sExpand:popping stack',0,MA_ERR)
+     >   call errquit('D3dBs_r_3to1_sExpand:popping stack',0,MA_ERR)
 
       return
       end
@@ -2990,10 +2990,10 @@ c     c_iq_to_i1(n2ft3d(1)),c_iq_to_i2(n2ft3d(1))
 
 *     ***********************************
 *     *                                 *
-*     *   D3dB_r_1to3_sContract_start3  *
+*     *   D3dBs_r_1to3_Contract_start3  *
 *     *                                 *
 *     ***********************************
-      subroutine D3dB_r_1to3_sContract_start3(center,A,tmp1,
+      subroutine D3dBs_r_1to3_Contract_start3(center,A,tmp1,
      >                                      request,reqcnt)
       implicit none
       integer center(3)
@@ -3194,10 +3194,10 @@ c         int_mb(pindex1(1)+psmall) = int_mb(pindex1(1)+psmall)+1
 
 *     ***********************************
 *     *                                 *
-*     *    D3dB_r_1to3_sContract_mid3   *
+*     *    D3dBs_r_1to3_Contract_mid3   *
 *     *                                 *
 *     ***********************************
-      subroutine D3dB_r_1to3_sContract_mid3(tmp1,tmp2,request,reqcnt)
+      subroutine D3dBs_r_1to3_Contract_mid3(tmp1,tmp2,request,reqcnt)
       implicit none
       real tmp1(*)
       real tmp2(*)
@@ -3390,10 +3390,10 @@ c     **** external functions ****
 
 *     ***********************************
 *     *                                 *
-*     *   D3dB_r_1to3_sContract_final3  *
+*     *   D3dBs_r_1to3_Contract_final3  *
 *     *                                 *
 *     ***********************************
-      subroutine D3dB_r_1to3_sContract_final3(tmp2,A,request,reqcnt)
+      subroutine D3dBs_r_1to3_Contract_final3(tmp2,A,request,reqcnt)
       implicit none
       real tmp2(*),A(*)
       integer request(*),reqcnt
@@ -3464,10 +3464,10 @@ c     **** external functions ****
 
 *     ***********************************
 *     *                                 *
-*     *   D3dB_r_1to3_sContract_start   *
+*     *   D3dBs_r_1to3_Contract_start   *
 *     *                                 *
 *     ***********************************
-      subroutine D3dB_r_1to3_sContract_start(center,A,tmp1,
+      subroutine D3dBs_r_1to3_Contract_start(center,A,tmp1,
      >                                       request,reqcnt)
       implicit none
       integer center(3)
@@ -3518,7 +3518,7 @@ c     **** external functions ****
       value = value.and.
      >        BA_push_get(mt_int,np,'pindex2_1t3',pindex2(2),pindex2(1))
       if (.not.value)
-     >call errquit('D3dB_r_1to3_sContract_start:out of stack',0,MA_ERR)
+     >call errquit('D3dBs_r_1to3_sContract_start:out of stack',0,MA_ERR)
 
 
       shift1 = qlast_1t3*(np+1)
@@ -3648,7 +3648,7 @@ c     **** external functions ****
       value =           BA_pop_stack(pindex2(2))
       value = value.and.BA_pop_stack(pindex1(2))
       if (.not.value)
-     >   call errquit('D3dB_r_1to3_Contract_start:popping stack',
+     >   call errquit('D3dBs_r_1to3_Contract_start:popping stack',
      >                0,MA_ERR)
 
 
@@ -3674,10 +3674,10 @@ c     **** external functions ****
 
 *     ***********************************
 *     *                                 *
-*     *    D3dB_r_1to3_sContract_mid    *
+*     *    D3dBs_r_1to3_Contract_mid    *
 *     *                                 *
 *     ***********************************
-      subroutine D3dB_r_1to3_sContract_mid(tmp1,tmp2,request,reqcnt)
+      subroutine D3dBs_r_1to3_Contract_mid(tmp1,tmp2,request,reqcnt)
       implicit none
       real tmp1(*)
       real tmp2(*)
@@ -3824,10 +3824,10 @@ c     **** external functions ****
 
 *     ***********************************
 *     *                                 *
-*     *    D3dB_r_1to3_Contract_final   *
+*     *    D3dBs_r_1to3_Contract_final   *
 *     *                                 *
 *     ***********************************
-      subroutine D3dB_r_1to3_sContract_final(tmp2,A,request,reqcnt)
+      subroutine D3dBs_r_1to3_Contract_final(tmp2,A,request,reqcnt)
       implicit none
       real tmp2(*),A(*)
       integer request(*),reqcnt
@@ -3898,10 +3898,10 @@ c     **** external functions ****
 
 *     ***********************************
 *     *                                 *
-*     *    D3dB_r_3to1_sExpand_start    *
+*     *    D3dBs_r_3to1_Expand_start    *
 *     *                                 *
 *     ***********************************
-      subroutine D3dB_r_3to1_sExpand_start(center,A,tmp1,
+      subroutine D3dBs_r_3to1_Expand_start(center,A,tmp1,
      >                                     request,reqcnt)
       implicit none
       integer center(3)
@@ -3952,7 +3952,7 @@ c     **** external functions ****
       value = value.and.
      >        BA_push_get(mt_int,np,'pindex2_3t1',pindex2(2),pindex2(1))
       if (.not.value)
-     >  call errquit('D3dB_r_3to1_sExpand_start:out of stack',0,MA_ERR)
+     >  call errquit('D3dBs_r_3to1_sExpand_start:out of stack',0,MA_ERR)
 
       shift1 = qlast_3t1*(np+1)
       shift2 = qlast_3t1*n2ft3d(1)
@@ -4080,7 +4080,7 @@ c     **** external functions ****
       value =           BA_pop_stack(pindex2(2))
       value = value.and.BA_pop_stack(pindex1(2))
       if (.not.value)
-     >   call errquit('D3dB_r_1to3_Contract_start:popping stack',
+     >   call errquit('D3dBs_r_1to3_Contract_start:popping stack',
      >                0,MA_ERR)
 
 
@@ -4107,10 +4107,10 @@ c     **** external functions ****
 
 *     ***********************************
 *     *                                 *
-*     *    D3dB_r_3to1_sExpand_mid      *
+*     *    D3dBs_r_3to1_Expand_mid      *
 *     *                                 *
 *     ***********************************
-      subroutine D3dB_r_3to1_sExpand_mid(tmp1,tmp2,request,reqcnt)
+      subroutine D3dBs_r_3to1_Expand_mid(tmp1,tmp2,request,reqcnt)
       implicit none
       real tmp1(*)
       real tmp2(*)
@@ -4261,10 +4261,10 @@ c      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
 
 *     ***********************************
 *     *                                 *
-*     *    D3dB_r_3to1_sExpand_final    *
+*     *    D3dBs_r_3to1_Expand_final    *
 *     *                                 *
 *     ***********************************
-      subroutine D3dB_r_3to1_sExpand_final(tmp2,A,request,reqcnt)
+      subroutine D3dBs_r_3to1_Expand_final(tmp2,A,request,reqcnt)
       implicit none
       real tmp2(*),A(*)
       integer request(*),reqcnt
@@ -4334,10 +4334,10 @@ c      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
 
 *     ***********************************
 *     *                                 *
-*     *   D3dB_r_3to1_sExpand_start3    *
+*     *   D3dBs_r_3to1_Expand_start3    *
 *     *                                 *
 *     ***********************************
-      subroutine D3dB_r_3to1_sExpand_start3(center,A,tmp1,
+      subroutine D3dBs_r_3to1_Expand_start3(center,A,tmp1,
      >                                     request,reqcnt)
       implicit none
       integer center(3)
@@ -4534,10 +4534,10 @@ c         int_mb(pindex1(1)+pbig) = int_mb(pindex1(1)+pbig)+1
 
 *     ***********************************
 *     *                                 *
-*     *    D3dB_r_3to1_sExpand_mid3     *
+*     *    D3dBs_r_3to1_Expand_mid3     *
 *     *                                 *
 *     ***********************************
-      subroutine D3dB_r_3to1_sExpand_mid3(tmp1,tmp2,request,reqcnt)
+      subroutine D3dBs_r_3to1_Expand_mid3(tmp1,tmp2,request,reqcnt)
       implicit none
       real tmp1(*)
       real tmp2(*)
@@ -4734,10 +4734,10 @@ c      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
 
 *     ***********************************
 *     *                                 *
-*     *    D3dB_r_3to1_sExpand_final3   *
+*     *    D3dBs_r_3to1_Expand_final3   *
 *     *                                 *
 *     ***********************************
-      subroutine D3dB_r_3to1_sExpand_final3(tmp2,A,request,reqcnt)
+      subroutine D3dBs_r_3to1_Expand_final3(tmp2,A,request,reqcnt)
       implicit none
       real tmp2(*),A(*)
       integer request(*),reqcnt
@@ -4808,10 +4808,10 @@ c      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
 
 *     ***********************************
 *     *                                 *
-*     *  D3dB_r_1to3_sContract_start2   *
+*     *  D3dBs_r_1to3_Contract_start2   *
 *     *                                 *
 *     ***********************************
-      subroutine D3dB_r_1to3_sContract_start2(center,A,tmp1,
+      subroutine D3dBs_r_1to3_Contract_start2(center,A,tmp1,
      >                                       request,reqcnt)
       implicit none
       integer center(3)
@@ -4951,10 +4951,10 @@ c      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
 
 *     ***********************************
 *     *                                 *
-*     *   D3dB_r_3to1_sExpand_start2    *
+*     *   D3dBs_r_3to1_Expand_start2    *
 *     *                                 *
 *     ***********************************
-      subroutine D3dB_r_3to1_sExpand_start2(center,A,tmp1,
+      subroutine D3dBs_r_3to1_Expand_start2(center,A,tmp1,
      >                                      request,reqcnt)
       implicit none
       integer center(3)

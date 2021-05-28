@@ -5,11 +5,11 @@
 
 *     ***********************************
 *     *					*
-*     *	        D3dB_cr_psfft3b		*
+*     *	        D3dBs_cr_pfft3b		*
 *     *					*
 *     ***********************************
 
-      subroutine D3dB_cr_psfft3b(nb,nbb,A)
+      subroutine D3dBs_cr_pfft3b(nb,nbb,A)
 
 *****************************************************
 *                                                   *
@@ -26,7 +26,7 @@
 *                                                   *
 *       Exit - A is transformed and the imaginary   *
 *              part of A is set to zero             *
-*       uses - D3dB_c_pstranspose_jk, scopy         *
+*       uses - D3dBs_c_ptranspose_jk, scopy         *
 *                                                   *
 *****************************************************
 
@@ -41,7 +41,7 @@
 #include "D3dB_pfft.fh"
 
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
-      common    / D3dB_sfft / tmpx,tmpy,tmpz
+      common    / D3dBs_fft / tmpx,tmpy,tmpz
 
 
 *     *** local variables ***
@@ -62,7 +62,7 @@
       nthr = Parallel_nthreads()
 
 *     ***** allocate temporary space ****
-      !call D3dB_nfft3d(nb,nfft3d)
+      !call D3dBs_nfft3d(nb,nfft3d)
       value = BA_push_get(mt_scpl,(nfft3d(nb)),'ffttmp2',
      >                    tmp2(2),tmp2(1))
       value = value.and.
@@ -81,7 +81,7 @@
 *     ***         Do a transpose of A          ***
 *     ***      A(kx,kz,ky) <- A(kx,ky,kz)      ***
 *     ********************************************
-c     call D3dB_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
+c     call D3dBs_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 *     *************************************************
 *     ***     do fft along kz dimension             ***
@@ -122,7 +122,7 @@ c     call D3dB_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 *     ***         Do a ptranspose of A                 ***
 *     ***      A(kx,ky,nz(nb)) <- A(kx,nz(nb),ky)      ***
 *     ****************************************************
-      call D3dB_c_pstranspose1_jk(nbb,A,scpl_mb(tmp2(1)),
+      call D3dBs_c_ptranspose1_jk(nbb,A,scpl_mb(tmp2(1)),
      >                                  real_mb(tmp3(1)))
 
 *     *************************************************************
@@ -216,7 +216,7 @@ c     call D3dB_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 #endif
 
-      call D3dB_c_pstranspose_ijk(nbb,3,A,
+      call D3dBs_c_ptranspose_ijk(nbb,3,A,
      >                           scpl_mb(tmp2(1)),
      >                           real_mb(tmp3(1)))
 
@@ -248,7 +248,7 @@ c     call D3dB_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 #endif
 
-      call D3dB_c_pstranspose_ijk(nbb,4,A,
+      call D3dBs_c_ptranspose_ijk(nbb,4,A,
      >                           scpl_mb(tmp2(1)),
      >                           real_mb(tmp3(1)))
 
@@ -290,11 +290,11 @@ c     call D3dB_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 *     ***********************************
 *     *					*
-*     *	        D3dB_rc_psfft3f		*
+*     *	        D3dBs_rc_pfft3f		*
 *     *					*
 *     ***********************************
 
-      subroutine D3dB_rc_psfft3f(nb,nbb,A)
+      subroutine D3dBs_rc_pfft3f(nb,nbb,A)
 
 *****************************************************
 *                                                   *
@@ -311,7 +311,7 @@ c     call D3dB_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 *                                                   *
 *       Exit - A is transformed                     *
 *                                                   *
-*       uses - pstranspose1 subroutine               *
+*       uses - ptranspose1 subroutine               *
 *                                                   *
 *****************************************************
 
@@ -326,7 +326,7 @@ c     call D3dB_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #include "D3dB_pfft.fh"
 
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
-      common    / D3dB_sfft / tmpx,tmpy,tmpz
+      common    / D3dBs_fft / tmpx,tmpy,tmpz
 
 
 *     *** local variables ***
@@ -347,7 +347,7 @@ c     call D3dB_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       nthr = Parallel_nthreads()
 
 *     ***** allocate temporary space ****
-      !call D3dB_nfft3d(nb,nfft3d)
+      !call D3dBs_nfft3d(nb,nfft3d)
       value = BA_push_get(mt_scpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
       value = value.and.
      >        BA_push_get(mt_real,(n2ft3d(nb)),'tmp3',tmp3(2),tmp3(1))
@@ -422,7 +422,7 @@ c     call D3dB_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 *     ***         Do a ptranspose of A                 ***
 *     ***      A(ky,nz(nb),ky) <- A(kx,ky,nz(nb))      ***
 *     ****************************************************
-      call D3dB_c_pstranspose2_jk(nbb,A,scpl_mb(tmp2(1)),
+      call D3dBs_c_ptranspose2_jk(nbb,A,scpl_mb(tmp2(1)),
      >                                  real_mb(tmp3(1)))
 
 
@@ -465,7 +465,7 @@ c     call D3dB_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 *     ***         Do a transpose of A          ***
 *     ***      A(kx,ky,kz) <- A(kx,kz,ky)      ***
 *     ********************************************
-c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
+c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 
 
@@ -493,7 +493,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 #endif
 
-      call D3dB_c_pstranspose_ijk(nbb,1,A,
+      call D3dBs_c_ptranspose_ijk(nbb,1,A,
      >                           scpl_mb(tmp2(1)),
      >                           real_mb(tmp3(1)))
 
@@ -525,7 +525,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 #endif
 
-      call D3dB_c_pstranspose_ijk(nbb,2,A,
+      call D3dBs_c_ptranspose_ijk(nbb,2,A,
      >                            scpl_mb(tmp2(1)),
      >                            real_mb(tmp3(1)))
 
@@ -574,11 +574,11 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 *     ***********************************
 *     *					*
-*     *	        D3dB_cr_mpsfft3b	*
+*     *	        D3dBs_cr_mpfft3b	*
 *     *					*
 *     ***********************************
 
-      subroutine D3dB_cr_mpsfft3b(nb,nbb,m,A)
+      subroutine D3dBs_cr_mpfft3b(nb,nbb,m,A)
 
 *****************************************************
 *                                                   *
@@ -595,7 +595,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 *                                                   *
 *       Exit - A is transformed and the imaginary   *
 *              part of A is set to zero             *
-*       uses - D3dB_c_ptranspose_jk, dcopy          *
+*       uses - D3dBs_c_ptranspose_jk, dcopy          *
 *                                                   *
 *****************************************************
 
@@ -610,7 +610,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #include "D3dB_pfft.fh"
 
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
-      common    / D3dB_sfft / tmpx,tmpy,tmpz
+      common    / D3dBs_fft / tmpx,tmpy,tmpz
 
 
 
@@ -627,7 +627,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       call nwpw_timing_start(1)
 
 *     ***** allocate temporary space ****
-      !call D3dB_nfft3d(nb,nfft3d)
+      !call D3dBs_nfft3d(nb,nfft3d)
       value = BA_push_get(mt_scpl,(nfft3d(nb)),'ffttmp2',
      >                    tmp2(2),tmp2(1))
       value = value.and.
@@ -686,7 +686,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 *     ***         Do a ptranspose of A                 ***
 *     ***      A(kx,ky,nz(nb)) <- A(kx,nz(nb),ky)      ***
 *     ****************************************************
-      call D3dB_c_pstranspose1_jk(nbb,A(shift),
+      call D3dBs_c_ptranspose1_jk(nbb,A(shift),
      >                           scpl_mb(tmp2(1)),
      >                           real_mb(tmp3(1)))
       shift = shift + nfft3d(nb)
@@ -784,7 +784,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
          indx = indx + nz(nb)
       end do
 
-      call D3dB_c_pstranspose_ijk(nbb,3,A(shift),
+      call D3dBs_c_ptranspose_ijk(nbb,3,A(shift),
      >                           scpl_mb(tmp2(1)),
      >                           real_mb(tmp3(1)))
 
@@ -808,7 +808,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
          indx = indx + ny(nb)
       end do
 
-      call D3dB_c_pstranspose_ijk(nbb,4,A(shift),
+      call D3dBs_c_ptranspose_ijk(nbb,4,A(shift),
      >                           scpl_mb(tmp2(1)),
      >                           real_mb(tmp3(1)))
 
@@ -851,7 +851,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 *     ***********************************
 *     *                                 *
-*     *         D3dB_psfftfx             *
+*     *         D3dBs_pfftfx            *
 *     *                                 *
 *     ***********************************
 *
@@ -860,7 +860,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 *        A(kx,ny(id),nz(id)) <- fft1d[A(nx(id),ny(id),nz(id))] 
 *     
 
-      subroutine D3dB_pfftfx(nbb,A,tmp1,tmp2,request,reqcnt)
+      subroutine D3dBs_pfftfx(nbb,A,tmp1,tmp2,request,reqcnt)
       implicit none
       integer nbb
       complex A(*)
@@ -877,7 +877,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
-      common    / D3dB_sfft / tmpx,tmpy,tmpz
+      common    / D3dBs_fft / tmpx,tmpy,tmpz
 
       !*** local variables ***
       integer j,q,indx,nxh,id
@@ -908,7 +908,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #else
 
 #ifdef NUSE_OPENMP
-      call D3dB_pfftfx_sub(ny(id)*nq(id),nx(id),nxh,
+      call D3dBs_pfftfx_sub(ny(id)*nq(id),nx(id),nxh,
      >                    scpl_mb(tmpx(1,id)),A)
       call cshift_sfftf(nx(id),ny(id),nq(id),1,A)
 
@@ -952,7 +952,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
       call nwpw_timing_end(31)
       call nwpw_timing_start(32)
-      call D3dB_c_pstranspose_ijk_start(nbb,1,A,tmp1,tmp2,
+      call D3dBs_c_ptranspose_ijk_start(nbb,1,A,tmp1,tmp2,
      >                                 request,reqcnt,40)
       call nwpw_timing_end(32)
 
@@ -961,7 +961,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       return
       end
 
-      subroutine  D3dB_psfftfx_sub(n,nx,nxh,tmpx,A)
+      subroutine  D3dBs_pfftfx_sub(n,nx,nxh,tmpx,A)
       implicit none
       integer n,nx,nxh
       real tmpx(2*nx+15)
@@ -980,7 +980,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 *     ***********************************
 *     *                                 *
-*     *         D3dB_psfftfx0           *
+*     *         D3dBs_pfftfx0           *
 *     *                                 *
 *     ***********************************
 *
@@ -989,7 +989,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 *        A(kx,ny(id),nz(id)) <- fft1d[A(nx(id),ny(id),nz(id))] 
 *     
 
-      subroutine D3dB_psfftfx0(nbb,tmp1,tmp2,request,reqcnt)
+      subroutine D3dBs_pfftfx0(nbb,tmp1,tmp2,request,reqcnt)
       implicit none
       integer nbb
       complex tmp1(*)
@@ -1005,7 +1005,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
-      common    / D3dB_sfft / tmpx,tmpy,tmpz
+      common    / D3dBs_fft / tmpx,tmpy,tmpz
 
       !*** local variables ***
       integer j,q,indx,nxh,id
@@ -1035,7 +1035,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #else
 
 #ifdef NUSE_OPENMP
-      call D3dB_psfftfx_sub(ny(id)*nq(id),nx(id),nxh,
+      call D3dBs_pfftfx_sub(ny(id)*nq(id),nx(id),nxh,
      >                      scpl_mb(tmpx(1,id)),tmp1)
       call cshift_sfftf(nx(id),ny(id),nq(id),1,tmp1)
 
@@ -1074,7 +1074,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
       call nwpw_timing_end(31)
       call nwpw_timing_start(32)
-      call D3dB_c_pstranspose_ijk_start(nbb,1,tmp1,tmp2,tmp1,
+      call D3dBs_c_ptranspose_ijk_start(nbb,1,tmp1,tmp2,tmp1,
      >                                 request,reqcnt,40)
       call nwpw_timing_end(32)
 
@@ -1089,7 +1089,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 *     ***********************************
 *     *                                 *
-*     *         D3dB_psfftfy            *
+*     *         D3dBs_pfftfy            *
 *     *                                 *
 *     ***********************************
 *
@@ -1098,7 +1098,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 *        A(kx,ny(id),nz(id)) <- fft1d[A(nx(id),ny(id),nz(id))] 
 *     
 
-      subroutine D3dB_psfftfy(nbb,tmp1,tmp2,request,reqcnt)
+      subroutine D3dBs_pfftfy(nbb,tmp1,tmp2,request,reqcnt)
       implicit none
       integer nbb
       complex tmp1(*)
@@ -1114,7 +1114,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
-      common    / D3dB_sfft / tmpx,tmpy,tmpz
+      common    / D3dBs_fft / tmpx,tmpy,tmpz
 
 
       !*** local variables ***
@@ -1191,7 +1191,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 *     ****************************************************
       call nwpw_timing_end(31)
       call nwpw_timing_start(32)
-      call D3dB_c_pstranspose2_jk_start(nbb,tmp1,tmp2,tmp1,
+      call D3dBs_c_ptranspose2_jk_start(nbb,tmp1,tmp2,tmp1,
      >                                  request,reqcnt,41)
       call nwpw_timing_end(32)
 
@@ -1201,7 +1201,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       !*************************
       else
       call nwpw_timing_start(32)
-      call D3dB_c_pstranspose_ijk_end(nbb,1,tmp1,tmp2,request,reqcnt)
+      call D3dBs_c_ptranspose_ijk_end(nbb,1,tmp1,tmp2,request,reqcnt)
       call nwpw_timing_end(32)
       call nwpw_timing_start(31)
 
@@ -1235,7 +1235,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
       call nwpw_timing_end(31)
       call nwpw_timing_start(32)
-      call D3dB_c_pstranspose_ijk_start(nbb,2,tmp1,tmp2,tmp1,
+      call D3dBs_c_ptranspose_ijk_start(nbb,2,tmp1,tmp2,tmp1,
      >                                  request,reqcnt,42)
       call nwpw_timing_end(32)
 
@@ -1245,7 +1245,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       return
       end
 
-      subroutine  D3dB_psfftfy_sub2(n,ny,row2,tmpy,A)
+      subroutine  D3dBs_pfftfy_sub2(n,ny,row2,tmpy,A)
       implicit none
       integer n,ny
       logical    row2(n)
@@ -1265,11 +1265,11 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 *     ***********************************
 *     *                                 *
-*     *         D3dB_psfftfz            *
+*     *         D3dBs_pfftfz            *
 *     *                                 *
 *     ***********************************
 
-      subroutine D3dB_psfftfz(nbb,tmp1,tmp2,request,reqcnt)
+      subroutine D3dBs_pfftfz(nbb,tmp1,tmp2,request,reqcnt)
       implicit none
       integer nbb
       complex tmp1(*)
@@ -1285,7 +1285,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
-      common    / D3dB_sfft / tmpx,tmpy,tmpz
+      common    / D3dBs_fft / tmpx,tmpy,tmpz
 
 
       !*** local variables ***
@@ -1314,7 +1314,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       if (mapping.eq.1) then
 
       call nwpw_timing_start(32)
-      call D3dB_c_pstranspose2_jk_end(nbb,tmp2,tmp1,request,reqcnt)
+      call D3dBs_c_ptranspose2_jk_end(nbb,tmp2,tmp1,request,reqcnt)
       call nwpw_timing_end(32)
       call nwpw_timing_start(31)
 
@@ -1361,7 +1361,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       !*************************
       else
       call nwpw_timing_start(32)
-      call D3dB_c_pstranspose_ijk_end(nbb,2,tmp2,tmp1,request,reqcnt)
+      call D3dBs_c_ptranspose_ijk_end(nbb,2,tmp2,tmp1,request,reqcnt)
       call nwpw_timing_end(32)
       call nwpw_timing_start(31)
 
@@ -1403,7 +1403,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       return
       end
 
-      subroutine  D3dB_psfftfz_sub2(n,nz,row3,tmpz,A)
+      subroutine  D3dBs_pfftfz_sub2(n,nz,row3,tmpz,A)
       implicit none
       integer n,nz
       logical row3(n)
@@ -1423,12 +1423,12 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 *     ***********************************
 *     *                                 *
-*     *         D3dB_psfftf_final        *
+*     *        D3dBs_pfftf_final        *
 *     *                                 *
 *     ***********************************
 *
 
-      subroutine D3dB_pfftf_final(nbb,tmp1,tmp2,request,reqcnt)
+      subroutine D3dBs_pfftf_final(nbb,tmp1,tmp2,request,reqcnt)
       implicit none
       integer nbb
       complex tmp1(*)
@@ -1455,10 +1455,10 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 *     ***********************************
 *     *                                 *
-*     *         D3dB_psfftf_step        *
+*     *         D3dBs_pfftf_step        *
 *     *                                 *
 *     ***********************************
-      subroutine D3dB_pfftf_step(step,nbb,A,tmp1,tmp2,request,reqcnt)
+      subroutine D3dBs_pfftf_step(step,nbb,A,tmp1,tmp2,request,reqcnt)
       implicit none
       integer step
       integer nbb
@@ -1469,13 +1469,13 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
      
       if (step.eq.1) then
-         call D3dB_psfftfx(nbb,A,tmp1,tmp2,request,reqcnt)
+         call D3dBs_pfftfx(nbb,A,tmp1,tmp2,request,reqcnt)
       else if (step.eq.2) then
-         call D3dB_psfftfy(nbb,tmp1,tmp2,request,reqcnt)
+         call D3dBs_pfftfy(nbb,tmp1,tmp2,request,reqcnt)
       else if (step.eq.3) then
-         call D3dB_psfftfz(nbb,tmp1,tmp2,request,reqcnt)
+         call D3dBs_pfftfz(nbb,tmp1,tmp2,request,reqcnt)
       else if (step.eq.4) then
-         call D3dB_psfftf_final(nbb,tmp1,tmp2,request,reqcnt)
+         call D3dBs_pfftf_final(nbb,tmp1,tmp2,request,reqcnt)
       end if
 !$OMP BARRIER
 
@@ -1485,10 +1485,10 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 *     ***********************************
 *     *                                 *
-*     *     D3dB_psfftf_step_center     *
+*     *     D3dBs_pfftf_step_center     *
 *     *                                 *
 *     ***********************************
-      subroutine D3dB_psfftf_step_center(center,step,nbb,A,tmp1,tmp2,
+      subroutine D3dBs_pfftf_step_center(center,step,nbb,A,tmp1,tmp2,
      >                                  request,reqcnt)
       implicit none
       integer center(3)
@@ -1500,20 +1500,20 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       integer request(*),reqcnt
 
       if (step.eq.1) then
-         call D3dB_r_1to3_sContract_start3(center,A,tmp2,request,reqcnt)
+         call D3dBs_r_1to3_Contract_start3(center,A,tmp2,request,reqcnt)
       else if (step.eq.2) then
-         call D3dB_r_1to3_sContract_mid3(tmp2,tmp1,request,reqcnt)
+         call D3dBs_r_1to3_Contract_mid3(tmp2,tmp1,request,reqcnt)
       else if (step.eq.3) then
-         call D3dB_r_1to3_sContract_final3(tmp1,tmp2,request,reqcnt)
+         call D3dBs_r_1to3_Contract_final3(tmp1,tmp2,request,reqcnt)
 
       else if (step.eq.4) then
-         call D3dB_psfftfx0(nbb,tmp2,tmp1,request,reqcnt)
+         call D3dBs_pfftfx0(nbb,tmp2,tmp1,request,reqcnt)
       else if (step.eq.5) then
-         call D3dB_psfftfy(nbb,tmp1,tmp2,request,reqcnt)
+         call D3dBs_pfftfy(nbb,tmp1,tmp2,request,reqcnt)
       else if (step.eq.6) then
-         call D3dB_psfftfz(nbb,tmp1,tmp2,request,reqcnt)
+         call D3dBs_pfftfz(nbb,tmp1,tmp2,request,reqcnt)
       else if (step.eq.7) then
-         call D3dB_psfftf_final(nbb,tmp1,tmp2,request,reqcnt)
+         call D3dBs_pfftf_final(nbb,tmp1,tmp2,request,reqcnt)
       end if
 
 !$OMP BARRIER
@@ -1528,7 +1528,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 *     ***********************************
 *     *					*
-*     *	        D3dB_psfftbz		*
+*     *	        D3dBs_pfftbz		*
 *     *					*
 *     ***********************************
 
@@ -1546,11 +1546,11 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 *                                               
 *       Exit - A is transformed and the imaginary
 *              part of A is set to zero          
-*       uses - D3dB_c_ptranspose_jk, dcopy        
+*       uses - D3dBs_c_ptranspose_jk, dcopy        
 *                                                  
 
 
-      subroutine D3dB_psfftbz(nbb,tmp1,tmp2,request,reqcnt)
+      subroutine D3dBs_pfftbz(nbb,tmp1,tmp2,request,reqcnt)
       implicit none
       integer nbb
       complex  tmp1(*)
@@ -1564,7 +1564,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #include "D3dB_pfft.fh"
 
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
-      common    / D3dB_sfft / tmpx,tmpy,tmpz
+      common    / D3dBs_fft / tmpx,tmpy,tmpz
 
 
 
@@ -1631,7 +1631,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 *     ****************************************************
       call nwpw_timing_end(31)
       call nwpw_timing_start(32)
-      call D3dB_c_pstranspose1_jk_start(nbb,tmp1,tmp2,tmp1,
+      call D3dBs_c_ptranspose1_jk_start(nbb,tmp1,tmp2,tmp1,
      >                                  request,reqcnt,44)
       call nwpw_timing_end(32)
 
@@ -1674,7 +1674,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
       call nwpw_timing_end(31)
       call nwpw_timing_start(32)
-      call D3dB_c_pstranspose_ijk_start(nbb,3,tmp1,tmp2,tmp1,
+      call D3dBs_c_ptranspose_ijk_start(nbb,3,tmp1,tmp2,tmp1,
      >                                  request,reqcnt,45)
       call nwpw_timing_end(32)
 
@@ -1682,7 +1682,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       return
       end
 
-      subroutine  D3dB_psfftbz_sub2(n,nz,row3,tmpz,A)
+      subroutine  D3dBs_pfftbz_sub2(n,nz,row3,tmpz,A)
       implicit none
       integer n,nz
       logical row3(n)
@@ -1700,11 +1700,11 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 *     ***********************************
 *     *					*
-*     *	        D3dB_psfftby		*
+*     *	        D3dBs_pfftby		*
 *     *					*
 *     ***********************************
 
-      subroutine D3dB_psfftby(nbb,tmp1,tmp2,request,reqcnt)
+      subroutine D3dBs_pfftby(nbb,tmp1,tmp2,request,reqcnt)
       implicit none
       integer nbb
       complex tmp1(*)
@@ -1717,7 +1717,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #include "D3dB_pfft.fh"
 
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
-      common    / D3dB_sfft / tmpx,tmpy,tmpz
+      common    / D3dBs_fft / tmpx,tmpy,tmpz
 
 
 *     *** local variables ***
@@ -1749,7 +1749,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 *     ***      A(kx,ky,nz(id)) <- A(kx,nz(id),ky)      ***
 *     ********************************************
       call nwpw_timing_start(32)
-      call D3dB_c_pstranspose1_jk_end(nbb,tmp2,tmp1,request,reqcnt)
+      call D3dBs_c_ptranspose1_jk_end(nbb,tmp2,tmp1,request,reqcnt)
       call nwpw_timing_end(32)
       call nwpw_timing_start(31)
 
@@ -1798,7 +1798,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       else
 
       call nwpw_timing_start(32)
-      call D3dB_c_pstranspose_ijk_end(nbb,3,tmp2,tmp1,request,reqcnt)
+      call D3dBs_c_ptranspose_ijk_end(nbb,3,tmp2,tmp1,request,reqcnt)
 
       call nwpw_timing_end(32)
       call nwpw_timing_start(31)
@@ -1829,7 +1829,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
       call nwpw_timing_end(31)
       call nwpw_timing_start(32)
-      call D3dB_c_pstranspose_ijk_start(nbb,4,tmp2,tmp1,tmp2,
+      call D3dBs_c_ptranspose_ijk_start(nbb,4,tmp2,tmp1,tmp2,
      >                                  request,reqcnt,46)
       call nwpw_timing_end(32)
 
@@ -1839,7 +1839,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       return
       end
 
-      subroutine  D3dB_psfftby_sub2(n,ny,row2,tmpy,A)
+      subroutine  D3dBs_pfftby_sub2(n,ny,row2,tmpy,A)
       implicit none
       integer n,ny
       logical row2(n)
@@ -1860,11 +1860,11 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 *     ***********************************
 *     *					*
-*     *	        D3dB_pfftbx		*
+*     *	        D3dBs_pfftbx		*
 *     *					*
 *     ***********************************
 
-      subroutine D3dB_pfftbx(nbb,tmp1,tmp2,request,reqcnt)
+      subroutine D3dBs_pfftbx(nbb,tmp1,tmp2,request,reqcnt)
       implicit none
       integer nbb
       complex  tmp1(*)
@@ -1877,7 +1877,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #include "D3dB_pfft.fh"
 
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
-      common    / D3dB_sfft / tmpx,tmpy,tmpz
+      common    / D3dBs_fft / tmpx,tmpy,tmpz
 
 
 
@@ -1917,7 +1917,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #else
 #ifdef NUSE_OPENMP
       call cshift1_sfftb(nx(id),ny(id),nq(id),1,tmp2)
-      call D3dB_psfftbx_sub(nq(id)*ny(id),nx(id),nxh,
+      call D3dBs_pfftbx_sub(nq(id)*ny(id),nx(id),nxh,
      >                      scpl_mb(tmpx(1,id)),tmp2)
       call zeroend_sfftb(nx(id),ny(id),nq(id),1,tmp2)
 #else
@@ -1946,7 +1946,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 
       call nwpw_timing_start(32)
-      call D3dB_c_pstranspose_ijk_end(nbb,4,tmp1,tmp2,request,reqcnt)
+      call D3dBs_c_ptranspose_ijk_end(nbb,4,tmp1,tmp2,request,reqcnt)
       call nwpw_timing_end(32)
       call nwpw_timing_start(31)
 
@@ -1977,7 +1977,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       end
 
 
-      subroutine  D3dB_psfftbx_sub(n,nx,nxh,tmpx,A)
+      subroutine  D3dBs_pfftbx_sub(n,nx,nxh,tmpx,A)
       implicit none
       integer n,nx,nxh
       real    tmpx(2*nx+15)
@@ -1994,12 +1994,12 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 *     ***********************************
 *     *                                 *
-*     *         D3dB_psfftb_step        *
+*     *         D3dBs_pfftb_step        *
 *     *                                 *
 *     ***********************************
 *
 
-      subroutine D3dB_psfftb_step(step,nbb,A,tmp1,tmp2,request,reqcnt)
+      subroutine D3dBs_pfftb_step(step,nbb,A,tmp1,tmp2,request,reqcnt)
       implicit none
       integer step
       integer nbb
@@ -2012,7 +2012,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #include "bafdecls.fh"
 
       integer tmp1z(2),tmp2z(2)
-      common / psfft_queuez_common / tmp1z,tmp2z
+      common / pffts_queuez_common / tmp1z,tmp2z
 
 
       if (step.eq.1) then
@@ -2032,11 +2032,11 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
      >                          request,reqcnt)
          call nwpw_timing_end(32)
       else if (step.eq.4) then
-         call D3dB_psfftbz(nbb,tmp1,tmp2,request,reqcnt)
+         call D3dBs_pfftbz(nbb,tmp1,tmp2,request,reqcnt)
       else if (step.eq.5) then
-         call D3dB_psfftby(nbb,tmp1,tmp2,request,reqcnt)
+         call D3dBs_pfftby(nbb,tmp1,tmp2,request,reqcnt)
       else if (step.eq.6) then
-         call D3dB_psfftbx(nbb,tmp1,tmp2,request,reqcnt)
+         call D3dBs_pfftbx(nbb,tmp1,tmp2,request,reqcnt)
       end if
 
       return
@@ -2046,11 +2046,11 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 *     ***********************************
 *     *                                 *
-*     *      D3dB_psfftb_step_center    *
+*     *      D3dBs_pfftb_step_center    *
 *     *                                 *
 *     ***********************************
 
-      subroutine D3dB_psfftb_step_center(center,
+      subroutine D3dBs_pfftb_step_center(center,
      >                            step,nbb,A,tmp1,tmp2,request,reqcnt)
       implicit none
       integer center(3)
@@ -2065,7 +2065,7 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #include "bafdecls.fh"
 
       integer tmp1z(2),tmp2z(2)
-      common / psfft_queuez_common / tmp1z,tmp2z
+      common / pffts_queuez_common / tmp1z,tmp2z
 
       if (step.eq.1) then
          call nwpw_timing_start(32)
@@ -2084,19 +2084,19 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
      >                          request,reqcnt)
          call nwpw_timing_end(32)
       else if (step.eq.4) then
-         call D3dB_psfftbz(nbb,tmp1,tmp2,request,reqcnt)
+         call D3dBs_pfftbz(nbb,tmp1,tmp2,request,reqcnt)
       else if (step.eq.5) then
-         call D3dB_psfftby(nbb,tmp1,tmp2,request,reqcnt)
+         call D3dBs_pfftby(nbb,tmp1,tmp2,request,reqcnt)
       else if (step.eq.6) then
-         call D3dB_psfftbx(nbb,tmp1,tmp2,request,reqcnt)
+         call D3dBs_pfftbx(nbb,tmp1,tmp2,request,reqcnt)
 
       else if (step.eq.7) then
-         call D3dB_r_3to1_sExpand_start3(center,tmp1,tmp2,
+         call D3dBs_r_3to1_sExpand_start3(center,tmp1,tmp2,
      >                                   request,reqcnt)
       else if (step.eq.8) then
-         call D3dB_r_3to1_sExpand_mid3(tmp2,tmp1,request,reqcnt)
+         call D3dBs_r_3to1_sExpand_mid3(tmp2,tmp1,request,reqcnt)
       else if (step.eq.9) then
-         call D3dB_r_3to1_sExpand_final3(tmp1,tmp2,request,reqcnt)
+         call D3dBs_r_3to1_sExpand_final3(tmp1,tmp2,request,reqcnt)
       end if
 
       return
@@ -2105,11 +2105,11 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 *     ***********************************
 *     *                                 *
-*     *     D3dB_psfft3_queue_init      *
+*     *     D3dBs_pfft3_queue_init      *
 *     *                                 *
 *     ***********************************
 
-      subroutine D3dB_psfft3_queue_init(qmax_in)
+      subroutine D3dBs_pfft3_queue_init(qmax_in)
       implicit none
       integer qmax_in
 
@@ -2121,23 +2121,23 @@ c     call D3dB_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #include "D3dB_pfft.fh"
 
 
-      !**** psfft_queues ****
+      !**** pfft_queues ****
       integer aqindx(2),aqstatus(2)
       integer atmp(2),arequest(2),areqcnt(2),acenter(2)
       integer aqmax,aqsize,alast_index
-      common / psfft_aqueue_common / aqindx,aqstatus,atmp,arequest,
+      common / pffts_aqueue_common / aqindx,aqstatus,atmp,arequest,
      >                               areqcnt,acenter,
      >                               aqmax,aqsize,alast_index
 
       integer bqindx(2),bqstatus(2)
       integer btmp(2),brequest(2),breqcnt(2),bcenter(2)
       integer bqmax,bqsize,blast_index
-      common / psfft_bqueue_common / bqindx,bqstatus,btmp,brequest,
+      common / pffts_bqueue_common / bqindx,bqstatus,btmp,brequest,
      >                               breqcnt,bcenter,
      >                               bqmax,bqsize,blast_index
       
       integer tmp1z(2),tmp2z(2)
-      common / psfft_queuez_common / tmp1z,tmp2z
+      common / pffts_queuez_common / tmp1z,tmp2z
 
       logical value
       integer np,size,zplane_sizetmp
@@ -2198,7 +2198,7 @@ c     **** allocate bqueue ****
 
 
 
-      call D3dB_zplane_size(1,zplane_sizetmp)
+      call D3dBs_zplane_size(1,zplane_sizetmp)
       value = value.and.
      >        BA_alloc_get(mt_scpl,(zplane_sizetmp),
      >                    'tmp1z',tmp1z(2),tmp1z(1))
@@ -2216,11 +2216,11 @@ c     **** allocate bqueue ****
 
 *     ***********************************
 *     *                                 *
-*     *     D3dB_psfft3_queue_end       *
+*     *     D3dBs_pfft3_queue_end       *
 *     *                                 *
 *     ***********************************
 
-      subroutine D3dB_psfft3_queue_end()
+      subroutine D3dBs_pfft3_queue_end()
       implicit none
 
 
@@ -2235,19 +2235,19 @@ c     **** allocate bqueue ****
       integer aqindx(2),aqstatus(2)
       integer atmp(2),arequest(2),areqcnt(2),acenter(2)
       integer aqmax,aqsize,alast_index
-      common / psfft_aqueue_common / aqindx,aqstatus,atmp,arequest,
+      common / pffts_aqueue_common / aqindx,aqstatus,atmp,arequest,
      >                               areqcnt,acenter,
      >                               aqmax,aqsize,alast_index
 
       integer bqindx(2),bqstatus(2)
       integer btmp(2),brequest(2),breqcnt(2),bcenter(2)
       integer bqmax,bqsize,blast_index
-      common / psfft_bqueue_common / bqindx,bqstatus,btmp,brequest,
+      common / pffts_bqueue_common / bqindx,bqstatus,btmp,brequest,
      >                               breqcnt,bcenter,
      >                               bqmax,bqsize,blast_index
 
       integer tmp1z(2),tmp2z(2)
-      common / psfft_queuez_common / tmp1z,tmp2z
+      common / pffts_queuez_common / tmp1z,tmp2z
 
       logical value
 
@@ -2268,7 +2268,7 @@ c     **** allocate bqueue ****
       value = value.and.BA_free_heap(tmp1z(2))
       value = value.and.BA_free_heap(tmp2z(2))
       if (.not. value) 
-     > call errquit('D3dB_psfft3_queue_end:error freeing heap',0,MA_ERR)
+     > call errquit('D3dBs_pfft3_queue_end:error freeing heap',0,MA_ERR)
 
       return
       end
@@ -2281,11 +2281,11 @@ c     **** allocate bqueue ****
 
 *     ***********************************
 *     *                                 *
-*     *    D3dB_cr_psfft3_queue_filled  *
+*     *    D3dBs_cr_pfft3_queue_filled  *
 *     *                                 *
 *     ***********************************
 
-      logical function D3dB_cr_psfft3_queue_filled()
+      logical function D3dBs_cr_pfft3_queue_filled()
       implicit none
 
 #include "bafdecls.fh"
@@ -2299,10 +2299,10 @@ c     **** allocate bqueue ****
       integer qindx(2),qstatus(2)
       integer tmp(2),request(2),reqcnt(2),qcenter(2)
       integer qmax,qsize,last_index
-      common / psfft_aqueue_common / qindx,qstatus,tmp,request,reqcnt,
+      common / pffts_aqueue_common / qindx,qstatus,tmp,request,reqcnt,
      >                              qcenter,qmax,qsize,last_index
 
-      D3dB_cr_psfft3_queue_filled = (qsize.ge.qmax)
+      D3dBs_cr_pfft3_queue_filled = (qsize.ge.qmax)
       return
       end
 
@@ -2310,11 +2310,11 @@ c     **** allocate bqueue ****
 
 *     ***********************************
 *     *                                 *
-*     *    D3dB_rc_psfft3_queue_filled  *
+*     *    D3dBs_rc_pfft3_queue_filled  *
 *     *                                 *
 *     ***********************************
 
-      logical function D3dB_rc_psfft3_queue_filled()
+      logical function D3dBs_rc_pfft3_queue_filled()
       implicit none
 
 #include "bafdecls.fh"
@@ -2328,10 +2328,10 @@ c     **** allocate bqueue ****
       integer qindx(2),qstatus(2)
       integer tmp(2),request(2),reqcnt(2),qcenter(2)
       integer qmax,qsize,last_index
-      common / psfft_bqueue_common / qindx,qstatus,tmp,request,reqcnt,
+      common / pffts_bqueue_common / qindx,qstatus,tmp,request,reqcnt,
      >                              qcenter,qmax,qsize,last_index
 
-      D3dB_rc_psfft3_queue_filled = (qsize.ge.qmax)
+      D3dBs_rc_pfft3_queue_filled = (qsize.ge.qmax)
       return
       end
 
@@ -2340,11 +2340,11 @@ c     **** allocate bqueue ****
 
 *     ***********************************
 *     *                                 *
-*     *     D3dB_rc_psfft3f_queuein     *
+*     *     D3dBs_rc_pfft3f_queuein     *
 *     *                                 *
 *     ***********************************
 
-      subroutine D3dB_rc_psfft3f_queuein(nbb,A)
+      subroutine D3dBs_rc_pfft3f_queuein(nbb,A)
       implicit none
       integer nbb
       complex A(*)
@@ -2361,7 +2361,7 @@ c     **** allocate bqueue ****
       integer qindx(2),qstatus(2)
       integer tmp(2),request(2),reqcnt(2),qcenter(2)
       integer qmax,qsize,last_index
-      common / psfft_bqueue_common / qindx,qstatus,tmp,request,reqcnt,
+      common / pffts_bqueue_common / qindx,qstatus,tmp,request,reqcnt,
      >                               qcenter,qmax,qsize,last_index
 
       !*** local variables ***
@@ -2383,7 +2383,7 @@ c     **** allocate bqueue ****
          shift1=nfft3d(id)*(2*(indx-1))
          shift2=nfft3d(id)*(2*(indx-1)+1)
          shift3=2*np*(indx-1)
-         call D3dB_psfftf_step(status,nbb,A,
+         call D3dBs_pfftf_step(status,nbb,A,
      >                        scpl_mb(tmp(1)+shift1),
      >                        scpl_mb(tmp(1)+shift2),
      >                        int_mb(request(1)+shift3),
@@ -2403,7 +2403,7 @@ c     **** allocate bqueue ****
       shift2=nfft3d(id)*(2*(last_index-1)+1)
       shift3=2*np*(last_index-1)
 
-      call D3dB_psfftf_step(status,nbb,A,
+      call D3dBs_pfftf_step(status,nbb,A,
      >                     scpl_mb(tmp(1)+shift1),
      >                     scpl_mb(tmp(1)+shift2),
      >                     int_mb(request(1)+shift3),
@@ -2418,11 +2418,11 @@ c     **** allocate bqueue ****
 
 *     ***********************************
 *     *                                 *
-*     *     D3dB_rc_psfft3f_queueout    *
+*     *     D3dBs_rc_pfft3f_queueout    *
 *     *                                 *
 *     ***********************************
 
-      subroutine D3dB_rc_psfft3f_queueout(nbb,A)
+      subroutine D3dBs_rc_pfft3f_queueout(nbb,A)
       implicit none
       integer nbb
       complex A(*)
@@ -2439,7 +2439,7 @@ c     **** allocate bqueue ****
       integer qindx(2),qstatus(2)
       integer tmp(2),request(2),reqcnt(2),qcenter(2)
       integer qmax,qsize,last_index
-      common / psfft_bqueue_common / qindx,qstatus,tmp,request,reqcnt,
+      common / pffts_bqueue_common / qindx,qstatus,tmp,request,reqcnt,
      >                               qcenter,qmax,qsize,last_index
 
       !*** local variables ***
@@ -2464,7 +2464,7 @@ c     **** allocate bqueue ****
             shift1=nfft3d(id)*(2*(indx-1))
             shift2=nfft3d(id)*(2*(indx-1)+1)
             shift3=2*np*(indx-1)
-            call D3dB_psfftf_step(status,nbb,A,
+            call D3dBs_pfftf_step(status,nbb,A,
      >                        scpl_mb(tmp(1)+shift1),
      >                        scpl_mb(tmp(1)+shift2),
      >                        int_mb(request(1)+shift3),
@@ -2489,11 +2489,11 @@ c     **** allocate bqueue ****
 
 *     ***********************************
 *     *                                 *
-*     *     D3dB_cr_pfft3b_queuein      *
+*     *     D3dBs_cr_pfft3b_queuein      *
 *     *                                 *
 *     ***********************************
 
-      subroutine D3dB_cr_psfft3b_queuein(nbb,A)
+      subroutine D3dBs_cr_pfft3b_queuein(nbb,A)
       implicit none
       integer nbb
       complex A(*)
@@ -2510,7 +2510,7 @@ c     **** allocate bqueue ****
       integer qindx(2),qstatus(2)
       integer tmp(2),request(2),reqcnt(2),qcenter(2)
       integer qmax,qsize,last_index
-      common / psfft_aqueue_common / qindx,qstatus,tmp,request,reqcnt,
+      common / pffts_aqueue_common / qindx,qstatus,tmp,request,reqcnt,
      >                               qcenter,qmax,qsize,last_index
 
       !*** local variables ***
@@ -2536,7 +2536,7 @@ c     **** allocate bqueue ****
          shift1=nfft3d(id)*(2*(indx-1))
          shift2=nfft3d(id)*(2*(indx-1)+1)
          shift3=2*np*(indx-1)
-         call D3dB_psfftb_step(status,nbb,A,
+         call D3dBs_pfftb_step(status,nbb,A,
      >                        scpl_mb(tmp(1)+shift1),
      >                        scpl_mb(tmp(1)+shift2),
      >                        int_mb(request(1)+shift3),
@@ -2558,7 +2558,7 @@ c     **** allocate bqueue ****
       shift2=nfft3d(id)*(2*(last_index-1)+1)
       shift3=2*np*(last_index-1)
 
-      call D3dB_psfftb_step(status,nbb,A,
+      call D3dBs_pfftb_step(status,nbb,A,
      >                     scpl_mb(tmp(1)+shift1),
      >                     scpl_mb(tmp(1)+shift2),
      >                     int_mb(request(1)+shift3),
@@ -2575,11 +2575,11 @@ c     **** allocate bqueue ****
 
 *     ***********************************
 *     *                                 *
-*     *     D3dB_cr_psfft3b_queueout    *
+*     *     D3dBs_cr_pfft3b_queueout    *
 *     *                                 *
 *     ***********************************
 
-      subroutine D3dB_cr_psfft3b_queueout(nbb,A)
+      subroutine D3dBs_cr_pfft3b_queueout(nbb,A)
       implicit none
       integer nbb
       complex A(*)
@@ -2596,7 +2596,7 @@ c     **** allocate bqueue ****
       integer qindx(2),qstatus(2)
       integer tmp(2),request(2),reqcnt(2),qcenter(2)
       integer qmax,qsize,last_index
-      common / psfft_aqueue_common / qindx,qstatus,tmp,request,reqcnt,
+      common / pffts_aqueue_common / qindx,qstatus,tmp,request,reqcnt,
      >                               qcenter, qmax,qsize,last_index
 
       !*** local variables ***
@@ -2624,7 +2624,7 @@ c      tid = Parallel_threadid()
             shift1=nfft3d(id)*(2*(indx-1))
             shift2=nfft3d(id)*(2*(indx-1)+1)
             shift3=2*np*(indx-1)
-            call D3dB_psfftb_step(status,nbb,A,
+            call D3dBs_pfftb_step(status,nbb,A,
      >                        scpl_mb(tmp(1)+shift1),
      >                        scpl_mb(tmp(1)+shift2),
      >                        int_mb(request(1)+shift3),
@@ -2659,11 +2659,11 @@ cccccccccccccccccccccc  queue center routines   cccccccccccccccccccccccccccccccc
 
 *     ******************************************
 *     *                                        *
-*     *     D3dB_rc_psfft3f_queuein_center      *
+*     *     D3dBs_rc_pfft3f_queuein_center      *
 *     *                                        *
 *     ******************************************
 
-      subroutine D3dB_rc_psfft3f_queuein_center(nbb,center,A)
+      subroutine D3dBs_rc_pfft3f_queuein_center(nbb,center,A)
       implicit none
       integer nbb
       integer center(3)
@@ -2681,7 +2681,7 @@ cccccccccccccccccccccc  queue center routines   cccccccccccccccccccccccccccccccc
       integer qindx(2),qstatus(2)
       integer tmp(2),request(2),reqcnt(2),qcenter(2)
       integer qmax,qsize,last_index
-      common / psfft_bqueue_common / qindx,qstatus,tmp,request,reqcnt,
+      common / pffts_bqueue_common / qindx,qstatus,tmp,request,reqcnt,
      >                               qcenter,qmax,qsize,last_index
 
       !*** local variables ***
@@ -2698,7 +2698,7 @@ cccccccccccccccccccccc  queue center routines   cccccccccccccccccccccccccccccccc
          shift1=nfft3d(1)*(2*(indx-1))
          shift2=nfft3d(1)*(2*(indx-1)+1)
          shift3=4*np*(indx-1)
-         call D3dB_psfftf_step_center(int_mb(qcenter(1)+3*(indx-1)),
+         call D3dBs_pfftf_step_center(int_mb(qcenter(1)+3*(indx-1)),
      >                        status,nbb,A,
      >                        scpl_mb(tmp(1)+shift1),
      >                        scpl_mb(tmp(1)+shift2),
@@ -2721,7 +2721,7 @@ cccccccccccccccccccccc  queue center routines   cccccccccccccccccccccccccccccccc
       shift2=nfft3d(1)*(2*(last_index-1)+1)
       shift3=4*np*(last_index-1)
 
-      call D3dB_psfftf_step_center(int_mb(qcenter(1)+3*(last_index-1)),
+      call D3dBs_pfftf_step_center(int_mb(qcenter(1)+3*(last_index-1)),
      >                     status,nbb,A,
      >                     scpl_mb(tmp(1)+shift1),
      >                     scpl_mb(tmp(1)+shift2),
@@ -2737,11 +2737,11 @@ cccccccccccccccccccccc  queue center routines   cccccccccccccccccccccccccccccccc
 
 *     ******************************************
 *     *                                        *
-*     *     D3dB_rc_psfft3f_queueout_center    *
+*     *     D3dBs_rc_pfft3f_queueout_center    *
 *     *                                        *
 *     ******************************************
 
-      subroutine D3dB_rc_psfft3f_queueout_center(nbb,A)
+      subroutine D3dBs_rc_pfft3f_queueout_center(nbb,A)
       implicit none
       integer nbb
       complex A(*)
@@ -2758,7 +2758,7 @@ cccccccccccccccccccccc  queue center routines   cccccccccccccccccccccccccccccccc
       integer qindx(2),qstatus(2)
       integer tmp(2),request(2),reqcnt(2),qcenter(2)
       integer qmax,qsize,last_index
-      common / psfft_bqueue_common / qindx,qstatus,tmp,request,reqcnt,
+      common / pffts_bqueue_common / qindx,qstatus,tmp,request,reqcnt,
      >                               qcenter,qmax,qsize,last_index
 
       !*** local variables ***
@@ -2777,7 +2777,7 @@ cccccccccccccccccccccc  queue center routines   cccccccccccccccccccccccccccccccc
             shift1=nfft3d(1)*(2*(indx-1))
             shift2=nfft3d(1)*(2*(indx-1)+1)
             shift3=4*np*(indx-1)
-            call D3dB_psfftf_step_center(int_mb(qcenter(1)+3*(indx-1)),
+            call D3dBs_pfftf_step_center(int_mb(qcenter(1)+3*(indx-1)),
      >                        status,nbb,A,
      >                        scpl_mb(tmp(1)+shift1),
      >                        scpl_mb(tmp(1)+shift2),
@@ -2804,11 +2804,11 @@ cccccccccccccccccccccc  queue center routines   cccccccccccccccccccccccccccccccc
 
 *     ******************************************
 *     *                                        *
-*     *     D3dB_cr_psfft3b_queuein_center     *
+*     *     D3dBs_cr_pfft3b_queuein_center     *
 *     *                                        *
 *     ******************************************
 
-      subroutine D3dB_cr_psfft3b_queuein_center(nbb,center,A)
+      subroutine D3dBs_cr_pfft3b_queuein_center(nbb,center,A)
       implicit none
       integer nbb
       integer center(3)
@@ -2826,7 +2826,7 @@ cccccccccccccccccccccc  queue center routines   cccccccccccccccccccccccccccccccc
       integer qindx(2),qstatus(2)
       integer tmp(2),request(2),reqcnt(2),qcenter(2)
       integer qmax,qsize,last_index
-      common / psfft_aqueue_common / qindx,qstatus,tmp,request,reqcnt,
+      common / pffts_aqueue_common / qindx,qstatus,tmp,request,reqcnt,
      >                               qcenter,qmax,qsize,last_index
 
       !*** local variables ***
@@ -2849,7 +2849,7 @@ c      nthr = Parallel_nthreads()
          shift1=nfft3d(1)*(2*(indx-1))
          shift2=nfft3d(1)*(2*(indx-1)+1)
          shift3=4*np*(indx-1)
-         call D3dB_psfftb_step_center(int_mb(qcenter(1)+3*(indx-1)),
+         call D3dBs_pfftb_step_center(int_mb(qcenter(1)+3*(indx-1)),
      >                        status,nbb,A,
      >                        scpl_mb(tmp(1)+shift1),
      >                        scpl_mb(tmp(1)+shift2),
@@ -2874,7 +2874,7 @@ c      nthr = Parallel_nthreads()
       shift2=nfft3d(1)*(2*(last_index-1)+1)
       shift3=4*np*(last_index-1)
 
-      call D3dB_psfftb_step_center(int_mb(qcenter(1)+3*(last_index-1)),
+      call D3dBs_pfftb_step_center(int_mb(qcenter(1)+3*(last_index-1)),
      >                     status,nbb,A,
      >                     scpl_mb(tmp(1)+shift1),
      >                     scpl_mb(tmp(1)+shift2),
@@ -2892,11 +2892,11 @@ c      nthr = Parallel_nthreads()
 
 *     ******************************************
 *     *                                        *
-*     *     D3dB_cr_psfft3b_queueout_center    *
+*     *     D3dBs_cr_pfft3b_queueout_center    *
 *     *                                        *
 *     ******************************************
 
-      subroutine D3dB_cr_psfft3b_queueout_center(nbb,A)
+      subroutine D3dBs_cr_pfft3b_queueout_center(nbb,A)
       implicit none
       integer nbb
       complex A(*)
@@ -2913,7 +2913,7 @@ c      nthr = Parallel_nthreads()
       integer qindx(2),qstatus(2)
       integer tmp(2),request(2),reqcnt(2),qcenter(2)
       integer qmax,qsize,last_index
-      common / psfft_aqueue_common / qindx,qstatus,tmp,request,reqcnt,
+      common / pffts_aqueue_common / qindx,qstatus,tmp,request,reqcnt,
      >                              qcenter,qmax,qsize,last_index
 
       !*** local variables ***
@@ -2937,7 +2937,7 @@ c      tid = Parallel_threadid()
             shift1=nfft3d(1)*(2*(indx-1))
             shift2=nfft3d(1)*(2*(indx-1)+1)
             shift3=4*np*(indx-1)
-            call D3dB_psfftb_step_center(int_mb(qcenter(1)+3*(indx-1)),
+            call D3dBs_pfftb_step_center(int_mb(qcenter(1)+3*(indx-1)),
      >                        status,nbb,A,
      >                        scpl_mb(tmp(1)+shift1),
      >                        scpl_mb(tmp(1)+shift2),
