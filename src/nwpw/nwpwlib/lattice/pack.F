@@ -485,6 +485,68 @@ c      end do
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *           Packs_c_pack          *
+*     *                                 *
+*     ***********************************
+
+      subroutine Packs_c_pack(nb,A)
+      implicit none
+      integer nb
+      complex A(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** common block for pack ****
+      integer nida(0:3),nidb2(0:3)
+      integer pack(2,0:3)
+      common / pack_blk / pack,nida,nidb2
+      integer nidb(0:3)
+      common / pack2_blk / nidb
+
+
+*     **** local variables ****
+      logical value
+      integer nfft3d,n,id
+      integer tmp1(2)
+
+*     **** external functions ****
+      logical  control_balance
+      external control_balance
+
+      call nwpw_timing_start(9)
+
+      if (nb.lt.2) then
+         id = 1
+      else
+         id = 3
+      end if
+
+      call D3dB_nfft3d(id,nfft3d)
+      value = BA_push_get(mt_scpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
+      if (.not.value) call errquit('out of stack memory',0, MA_ERR)
+
+      call Parallel_shared_vector_scopy(.true.,2*nfft3d,A,
+     >                                 scpl_mb(tmp1(1)))
+      call Parallel_shared_vector_szero(.true.,2*nfft3d,A)
+
+      n = nida(nb)+nidb(nb)
+      call Packs_c_indexcopy(n,int_mb(pack(1,nb)),scpl_mb(tmp1(1)),A)
+
+      value = BA_pop_stack(tmp1(2))
+      if (.not.value) call errquit('error popping stack',0, MA_ERR)
+
+
+      if (control_balance()) call Balances_c_balance(nb,A)
+
+      call nwpw_timing_end(9)
+
+      return
+      end
+
+
 
 
 *     ***********************************
@@ -558,6 +620,21 @@ c      end do
       integer n
       integer indx(*)
       complex*16 A(*), B(*)
+
+      integer i
+!$OMP DO
+      do i=1,n
+        B(i) = A(indx(i))
+      end do
+!$OMP END DO
+      return
+      end
+
+      subroutine Packs_c_indexcopy(n,indx,A,B)
+      implicit none
+      integer n
+      integer indx(*)
+      complex A(*), B(*)
 
       integer i
 !$OMP DO
@@ -783,6 +860,86 @@ c     call Check_Real(nx,ny,nz,nfft3d,A)
   
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *           Packs_c_unpack        *
+*     *                                 *
+*     ***********************************
+      subroutine Packs_c_unpack(nb,A)
+      implicit none
+      integer    nb
+      complex A(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** common block for pack ****
+      integer nida(0:3),nidb2(0:3)
+      integer pack(2,0:3)
+      common / pack_blk / pack,nida,nidb2
+      integer nidb(0:3)
+      common / pack2_blk / nidb
+
+
+*     **** local variables ****
+      logical value
+      integer i,nfft3d,zplane_size,id
+      integer tmp1(2)
+      integer tmp2(2)
+c      integer indx1,indx2
+
+*     **** external functions ****
+      logical  control_balance
+      external control_balance
+
+
+      call nwpw_timing_start(9)
+      if (nb.lt.2) then
+         id = 1
+      else
+         id = 3
+      end if
+      if (control_balance()) call Balances_c_unbalance(nb,A)
+
+      call D3dB_nfft3d(id,nfft3d)
+
+      value = BA_push_get(mt_scpl,(nida(nb)+nidb(nb)),
+     >                    'tmp1',tmp1(2),tmp1(1))
+      if (.not.value) call errquit('out of stack memory',0, MA_ERR)
+
+      call Parallel_shared_vector_scopy(.true.,2*(nida(nb)+nidb(nb)),
+     >                                 A,scpl_mb(tmp1(1)))
+      call Parallel_shared_vector_szero(.true.,2*nfft3d,A)
+!$OMP DO
+      do i=1,(nida(nb)+nidb(nb))
+        A(int_mb(pack(1,nb)+i-1)) = scpl_mb(tmp1(1)+i-1)
+      end do
+!$OMP END DO
+      value = BA_pop_stack(tmp1(2))
+      if (.not.value) call errquit('error popping stack',0, MA_ERR)
+
+
+*     **** make the kx=0 plane complete ****
+      call D3dB_zplane_size(id,zplane_size)
+      value = BA_push_get(mt_scpl,(zplane_size),'tmp1',tmp1(2),tmp1(1))
+      value = value.and.
+     >        BA_push_get(mt_scpl,(zplane_size),'tmp2',tmp2(2),tmp2(1))
+
+      call D3dBs_c_timereverse(id,A,scpl_mb(tmp1(1)),scpl_mb(tmp2(1)))
+
+      value = BA_pop_stack(tmp2(2))
+      value = value.and.
+     >        BA_pop_stack(tmp1(2))
+      if (.not.value) call errquit('error popping stack',0, MA_ERR)
+
+
+      call nwpw_timing_end(9)
+
+      return
+      end
+
 
 
 
@@ -1937,6 +2094,66 @@ c      sum = sum + 2*ddot(2*nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
       call nwpw_timing_end(2)
       return
       end 
+
+
+*     ***********************************
+*     *                                 *
+*     *          Packs_cc_dot           *
+*     *                                 *
+*     ***********************************
+
+*     shared output variable:
+*     - sum
+*
+      subroutine Packs_cc_dot(nb,A,B,sum)
+      implicit none
+      integer nb
+      real    A(*)
+      real    B(*)
+      real    sum
+
+*     **** common block for pack ****
+      integer nida(0:3),nidb(0:3)
+      integer pack(2,0:3)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer np,i
+      real sa,sb
+      common /packs_conjg_tcc_indot_sasb/ sa,sb
+
+
+      call nwpw_timing_start(2)
+      call Parallel2d_np_i(np)
+
+!$OMP MASTER
+      sa = 0.0
+      sb = 0.0
+!$OMP END MASTER
+!$OMP BARRIER
+!$OMP DO REDUCTION(+:sa)
+      do i=1,2*nida(nb)
+         sa = sa + A(i)*B(i)
+      end do
+!$OMP END DO
+
+!$OMP DO REDUCTION(+:sb)
+      do i=1,2*nidb(nb)
+         sb = sb + 2.0*A(2*nida(nb)+i)*B(2*nida(nb)+i)
+      end do
+!$OMP END DO
+
+!$OMP MASTER
+      sum = sa + sb
+!$OMP END MASTER
+!$OMP BARRIER
+
+      if (np.gt.1) call D3dBs_SumAll(sum)
+
+      call nwpw_timing_end(2)
+      return
+      end
+
 
 
 
