@@ -273,14 +273,14 @@ c     **** nothing to do ****
            if (solver_type.eq.1) then
              call D3dBs_r_SMul1(1,scal1,real_mb(dn(1)))
              call D3dBs_rc_pfft3f(1,0,real_mb(dn(1)))
-             call Pack_c_spack(0,real_mb(dn(1)))
+             call Packs_c_pack(0,real_mb(dn(1)))
 
 *            **** get Ecoul energy ****
              eh = dble(coulomb_screened_s_e(real_mb(dn(1))))
 
 *            **** generate Vcoul ****
              call coulomb_screened_s_v(real_mb(dn(1)),real_mb(vij(1)))
-             call Pack_c_unspack(0,real_mb(vij(1)))
+             call Packs_c_unpack(0,real_mb(vij(1)))
              call D3dBs_cr_pfft3b(1,0,real_mb(vij(1)))
 
 *          ***** free-space coulomb solver ****
@@ -806,7 +806,7 @@ c
 *               **** generate dng ****
                 call D3dBs_r_SMul1(1,scal1,real_mb(dn(1)))
                 call D3dBs_rc_pfft3f(1,0,real_mb(dn(1)))
-                call Pack_c_spack(0,real_mb(dn(1)))
+                call Packs_c_pack(0,real_mb(dn(1)))
 
 *               **** get Ecoul energy ****
                 eh = dble(coulomb_screened_s_e(real_mb(dn(1))))
@@ -938,7 +938,7 @@ c
               if (solver_type.eq.1) then
                 call D3dBs_r_SMul1(1,scal1,real_mb(dn(1)))
                 call D3dBs_rc_pfft3f(1,0,real_mb(dn(1)))
-                call Pack_c_spack(0,real_mb(dn(1)))
+                call Packs_c_pack(0,real_mb(dn(1)))
 
 *               **** get Ecoul energy ****
                 eh = dble(coulomb_screened_s_e(real_mb(dn(1))))
@@ -946,7 +946,7 @@ c
 *               **** generate Vcoul ****
                 call coulomb_screened_s_v(real_mb(dn(1)),
      >                                    real_mb(vij(1)))
-                call Pack_c_unspack(0,real_mb(vij(1)))
+                call Packs_c_unpack(0,real_mb(vij(1)))
                 call D3dBs_cr_pfft3b(1,0,real_mb(vij(1)))
 
 *             ***** free-space coulomb solver ****
@@ -1499,17 +1499,17 @@ c     **** nothing to do ****
 *               **** generate dng ****
                 call D3dBs_r_SMul1(1,scal1,real_mb(dn(1)))
                 call D3dBs_rc_pfft3f(1,0,real_mb(dn(1)))
-                call Pack_c_pack(0,real_mb(dn(1)))
+                call Packs_c_pack(0,real_mb(dn(1)))
 
                 call D3dB_r_SMul1(1,scal1,real_mb(dn(1)+n2ft3d))
                 call D3dB_rc_pfft3f(1,0,real_mb(dn(1)+n2ft3d))
-                call Pack_c_spack(0,real_mb(dn(1)+n2ft3d))
+                call Packs_c_pack(0,real_mb(dn(1)+n2ft3d))
 
 *               **** get Ecoul energy ****
                 call coulomb_screened_s_v(real_mb(dn(1)),
      >                                    real_mb(tmp1(1)))
-                call Pack_cc_s_dot(0,real_mb(dn(1)+n2ft3d),
-     >                               real_mb(tmp1(1)),eh)
+                call Packs_cc_dot(0,real_mb(dn(1)+n2ft3d),
+     >                              real_mb(tmp1(1)),eh)
                 eh = 0.5d0*eh*lattice_omega()
        
 *             ***** free-space coulomb solver ****
