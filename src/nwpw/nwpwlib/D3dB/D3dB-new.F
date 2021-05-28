@@ -1404,6 +1404,233 @@ c      call dfftw_cleanup_threads()
       end
 
 
+
+*     ***********************************
+*     *					*
+*     *	        D3dB_sfft_init		*
+*     *					*
+*     ***********************************
+
+      subroutine D3dB_sfft_init(nb)
+      implicit none
+      integer nb
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+#include "D3dB.fh"
+
+      integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
+      common    / D3dB_sfft / tmpx,tmpy,tmpz
+
+#ifdef FFTW3
+#include "fftw3.fh"
+       integer Atest(2),nxh,nxhz,nxhy
+#endif
+
+      logical value
+      integer i,mthr, Parallel_maxthreads
+      external Parallel_maxthreads
+
+      mthr = Parallel_maxthreads()
+      
+
+      !call D3dB_nfft3d(nb,nfft3d)
+
+      value = BA_alloc_get(mt_scpl,mthr*(2*nx(nb)+15),
+     >        'fttmpx',tmpx(2,nb),tmpx(1,nb))
+      value = value.and.
+     >        BA_alloc_get(mt_scpl,mthr*(2*ny(nb)+15),
+     >        'fttmpy',tmpy(2,nb),tmpy(1,nb))
+      value = value.and.
+     >        BA_alloc_get(mt_scpl,mthr*(2*nz(nb)+15),
+     >        'fttmpz',tmpz(2,nb),tmpz(1,nb))
+      if (.not. value) 
+     >   call errquit('D3dB_sfft_init:out of heap memory',0, MA_ERR)
+
+
+      do i=1,mthr
+        !write(*,*) "DEBUG init fft arrays of thread ", i-1
+        call rffti(nx(nb),scpl_mb(tmpx(1,nb)+(i-1)*(2*nx(nb)+15)))
+        call cffti(ny(nb),scpl_mb(tmpy(1,nb)+(i-1)*(2*ny(nb)+15)))
+        call cffti(nz(nb),scpl_mb(tmpz(1,nb)+(i-1)*(2*nz(nb)+15)))
+      end do
+
+#ifdef FFTW3
+
+
+       iforward  = FFTW_FORWARD
+       ibackward = FFTW_BACKWARD
+c       iestimate = FFTW_PATIENT
+c       iestimate = FFTW_MEASURE
+c       iestimate = FFTW_ESTIMATE
+c       iestimate = FFTW_EXHAUSTIVE
+       call icopy(nplans*NBLOCKS,0,0,splans,1)
+      if (mapping.eq.1) then
+         nxh = (nx(nb)/2+1)
+         nxhz = nxh*nz(nb)
+         nxhy = nxh*ny(nb)
+         if (.not.BA_alloc_get(mt_scpl,nx(nb)*ny(nb)*nq(nb),
+     >                       'Atest',Atest(2),Atest(1)))
+     >     call errquit('D3dB_sfft_init:out of heap memory',0,MA_ERR)
+
+         call fftw_plan_many_dft(splans(1,nb),1,nz(nb),nxh,
+     >                        scpl_mb(Atest(1)),nxhz,nxh,1,
+     >                        scpl_mb(Atest(1)),nxhz,nxh,1,
+     >                        ibackward,FFTW_EXHAUSTIVE)
+         call fftw_plan_many_dft(splans(2,nb),1,ny(nb),nxh,
+     >                        scpl_mb(Atest(1)),nxhy,nxh,1,
+     >                        scpl_mb(Atest(1)),nxhy,nxh,1, 
+     >                        ibackward,FFTW_EXHAUSTIVE)
+         call fftw_plan_many_dft_c2r(splans(3,nb),1,nx(nb),
+     >        ny(nb)*nq(nb),
+     >        scpl_mb(Atest(1)),nxh       *ny(nb)*nq(nb),1,nxh,
+     >        scpl_mb(Atest(1)),(nx(nb)+2)*ny(nb)*nq(nb),1,nx(nb)+2, 
+     >        FFTW_EXHAUSTIVE)
+
+         call fftw_plan_many_dft_r2c(splans(4,nb),1,nx(nb),
+     >        ny(nb)*nq(nb),
+     >        scpl_mb(Atest(1)),(nx(nb)+2)*ny(nb)*nq(nb),1,nx(nb)+2,
+     >        scpl_mb(Atest(1)),nxh       *ny(nb)*nq(nb),1,nxh,
+     >        FFTW_EXHAUSTIVE)
+         call fftw_plan_many_dft(splans(5,nb),1,ny(nb),nxh,
+     >                        scpl_mb(Atest(1)),nxhy,nxh,1,
+     >                        scpl_mb(Atest(1)),nxhy,nxh,1, 
+     >                        iforward,FFTW_EXHAUSTIVE)
+         call fftw_plan_many_dft(splans(6,nb),1,nz(nb),nxh,
+     >                        scpl_mb(Atest(1)),nxhz,nxh,1,
+     >                        scpl_mb(Atest(1)),nxhz,nxh,1,
+     >                        iforward,FFTW_EXHAUSTIVE)
+
+         call fftw_plan_many_dft(splans(7,nb),1,nz(nb),1,
+     >                        scpl_mb(Atest(1)),nxhz,nxh,1,
+     >                        scpl_mb(Atest(1)),nxhz,nxh,1,
+     >                        ibackward,FFTW_EXHAUSTIVE)
+         call fftw_plan_many_dft(splans(8,nb),1,ny(nb),1,
+     >                        scpl_mb(Atest(1)),nxhy,nxh,1,
+     >                        scpl_mb(Atest(1)),nxhy,nxh,1,
+     >                        ibackward,FFTW_EXHAUSTIVE)
+
+          call fftw_plan_many_dft(splans(9,nb),1,ny(nb),1,
+     >                        scpl_mb(Atest(1)),nxhy,nxh,1,
+     >                        scpl_mb(Atest(1)),nxhy,nxh,1,
+     >                        iforward,FFTW_EXHAUSTIVE)
+          call fftw_plan_many_dft(splans(10,nb),1,nz(nb),1,
+     >                        scpl_mb(Atest(1)),nxhz,nxh,1,
+     >                        scpl_mb(Atest(1)),nxhz,nxh,1,
+     >                        iforward,FFTW_EXHAUSTIVE)
+
+
+         if (.not.BA_free_heap(Atest(2)))
+     >   call errquit('D3dB_sfft_init:freeing heap',0,MA_ERR)
+
+      else
+
+         nxh  = (nx(nb)/2+1)
+         if (.not.BA_alloc_get(mt_scpl,nfft3d(nb),'Atest',
+     >                         Atest(2),Atest(1)))
+     >     call errquit('D3dB_sfft_init:out of heap memory',0,MA_ERR)
+
+         call fftw_plan_many_dft(splans(11,nb),1,nz(nb),nq3(nb),
+     >                        scpl_mb(Atest(1)),nz(nb)*nq3(nb),1,nz(nb),
+     >                        scpl_mb(Atest(1)),nz(nb)*nq3(nb),1,nz(nb),
+     >                        ibackward,FFTW_EXHAUSTIVE)
+         call fftw_plan_many_dft(splans(12,nb),1,ny(nb),nq2(nb),
+     >                        scpl_mb(Atest(1)),ny(nb)*nq2(nb),1,ny(nb),
+     >                        scpl_mb(Atest(1)),ny(nb)*nq2(nb),1,ny(nb),
+     >                        ibackward,FFTW_EXHAUSTIVE)
+         call fftw_plan_many_dft_c2r(splans(13,nb),1,nx(nb),
+     >        nq1(nb),
+     >        scpl_mb(Atest(1)),nfft3d(nb),1,nxh,
+     >        scpl_mb(Atest(1)),n2ft3d(nb),1,(nx(nb)+2), 
+     >        FFTW_EXHAUSTIVE)
+         call fftw_plan_many_dft_r2c(splans(14,nb),1,nx(nb),
+     >        nq1(nb),
+     >        scpl_mb(Atest(1)),n2ft3d(nb),1,nx(nb)+2,
+     >        scpl_mb(Atest(1)),nfft3d(nb),1,nxh,
+     >        FFTW_EXHAUSTIVE)
+
+         call fftw_plan_many_dft(splans(15,nb),1,ny(nb),nq2(nb),
+     >                        scpl_mb(Atest(1)),ny(nb)*nq2(nb),1,ny(nb),
+     >                        scpl_mb(Atest(1)),ny(nb)*nq2(nb),1,ny(nb),
+     >                        iforward,FFTW_EXHAUSTIVE)
+         call fftw_plan_many_dft(splans(16,nb),1,nz(nb),nq3(nb),
+     >                        scpl_mb(Atest(1)),nz(nb)*nq3(nb),1,nz(nb),
+     >                        scpl_mb(Atest(1)),nz(nb)*nq3(nb),1,nz(nb),
+     >                        iforward,FFTW_EXHAUSTIVE)
+
+         call fftw_plan_many_dft(splans(17,nb),1,nz(nb),1,
+     >                        scpl_mb(Atest(1)),nz(nb),1,1,
+     >                        scpl_mb(Atest(1)),nz(nb),1,1,
+     >                        ibackward,FFTW_EXHAUSTIVE)
+         call fftw_plan_many_dft(splans(18,nb),1,ny(nb),1,
+     >                        scpl_mb(Atest(1)),ny(nb),1,1,
+     >                        scpl_mb(Atest(1)),ny(nb),1,1,
+     >                        ibackward,FFTW_EXHAUSTIVE)
+
+          call fftw_plan_many_dft(splans(19,nb),1,ny(nb),1,
+     >                        scpl_mb(Atest(1)),ny(nb),1,1,
+     >                        scpl_mb(Atest(1)),ny(nb),1,1,
+     >                        iforward,FFTW_EXHAUSTIVE)
+          call fftw_plan_many_dft(splans(20,nb),1,nz(nb),1,
+     >                        scpl_mb(Atest(1)),nz(nb),1,1,
+     >                        scpl_mb(Atest(1)),nz(nb),1,1,
+     >                        iforward,FFTW_EXHAUSTIVE)
+
+         if (.not.BA_free_heap(Atest(2)))
+     >   call errquit('D3dB_sfft_init:freeing heap',0,MA_ERR)
+
+      end if
+#endif
+
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *         D3dB_sfft_end           *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dB_sfft_end(nb)
+      implicit none
+      integer nb
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+#include "D3dB.fh"
+
+
+      integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
+      common    / D3dB_sfft / tmpx,tmpy,tmpz
+#ifdef USE_OPENMP
+      logical is_par
+      common    / Debug_openmp / is_par
+#endif
+
+      logical value
+      integer i
+
+#ifdef FFTW3
+      do i=1,nplans
+         if (splans(i,nb).ne.0) call fftw_destroy_plan(splans(i,nb))
+      end do
+#endif
+
+      value =           BA_free_heap(tmpx(2,nb))
+      value = value.and.BA_free_heap(tmpy(2,nb))
+      value = value.and.BA_free_heap(tmpz(2,nb))
+      if (.not.value)
+     >   call errquit(
+     >   'D3dB_sfft_end:error deallocatingof heap memory',0, MA_ERR)
+
+      return
+      end
+
+
+
+
 c*     ***********************************
 c*     *                                 *
 c*     *         D3dB_n_fft_init         *

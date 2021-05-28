@@ -45,6 +45,7 @@
       if (.not.btdb_get(rtdb,'pspw:HFX',mt_log,1,hfx_on))
      >   hfx_on = .false.
 
+
       if (.not.btdb_get(rtdb,'pspw:HFX_Lin',mt_log,1,lin_on)) 
      >   lin_on = .false.
       lin_run = .false.
@@ -89,6 +90,10 @@
 
 
       if (hfx_on) then
+
+         if (.not.btdb_get(rtdb,'pspw:HFX_single_precision',mt_log,1,
+     >                     single_precision_on))
+     >      single_precision_on = .false.
 
          if (.not. btdb_get(rtdb,
      >                      'pspw:HFX_screening_radius',
@@ -169,6 +174,9 @@
                  call D3dB_r_1to3_init()
                  call D3dB_r_3to1_init()
               end if
+              if (single_precision_on) then
+                 call D3dB_sfft_init(1)
+              end if
 
 *        **** initialize free-space coulomb if necessary ****
          else
@@ -179,6 +187,10 @@
                mapping = control_mapping()
                call D3dB_Init(2,2*n1,2*n2,2*n3,mapping)
                call coulomb2_init()
+            end if
+            if (single_precision_on) then
+               call D3dB_sfft_init(1)
+               call D3dB_sfft_init(2)
             end if
 
          end if
@@ -314,6 +326,9 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
              call D3dB_r_1to3_end()
              call D3dB_r_3to1_end()
           end if
+          if (single_precision_on) then
+             call D3dB_sfft_end(1)
+          end if
 
 *        **** end free-space coulomb if necessary ****
         else
@@ -321,6 +336,10 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
               call coulomb2_end()
               call D3dB_end(2)
            end if
+          if (single_precision_on) then
+             call D3dB_sfft_end(1)
+             call D3dB_sfft_end(2)
+          end if
         end if
 
 *        **** deallocate Lin_projectors ****
@@ -396,6 +415,7 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
         else
           write(unit,1002)
         end if
+        if (single_precision_on) write(unit,1015)
         if (ispin.eq.1) then
          write(unit,1003) (int_mb(orbital_list(1,1)+i-1),i=1,norbs(1))
         else
@@ -455,6 +475,7 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
      >       I2)
  1012 FORMAT(6x,"- attenuation parameter (nwpw:attenuation)       :",
      >       E10.3)
+ 1015 FORMAT(6x,"- HFX using single precision")
  1020 FORMAT(6x,"- HFX localized orbital solver")
  1021 FORMAT(6x,"- HFX localized orbital absolute overlap pruning")
  1022 FORMAT(6x,"- Overlap threshold low (pspw:HFX_localize_rin)  :",
@@ -877,6 +898,21 @@ c     >                      dbl_mb(vij(1)))
 #include "pspw_hfx.fh"
 
       pspw_HFX = hfx_on
+      return
+      end
+
+
+*     ****************************************
+*     *                                      *
+*     *     pspw_HFX_single_precision        *
+*     *                                      *
+*     ****************************************
+      logical function pspw_HFX_single_precision()
+      implicit none
+
+#include "pspw_hfx.fh"
+
+      pspw_HFX_single_precision = single_precision_on
       return
       end
 
