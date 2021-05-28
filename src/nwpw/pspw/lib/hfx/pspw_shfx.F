@@ -35,7 +35,7 @@
                call Dneall_neq(neq)
                Levels = Butter_Levels(npj)
                do ms=1,ispin
-                  call Parallel_shared_vector_szero(.false.,nrsize,0
+                  call Parallel_shared_vector_szero(.false.,nrsize,
      >                          real_mb(Hpsi_r_replicated(1)))
                   call Parallel_shared_vector_scopy(.true.,
      >                       neq(ms)*n2ft3d,
@@ -43,7 +43,7 @@
      >                       real_mb(psi_r_replicated(1)))
 
                   do l=0,Levels-1
-                     call D1dB_sBrdcst_step(l,
+                     call D1dBs_Brdcst_step(l,
      >                       int_mb(Dneall_na_ptr(ms)),-1,
      >                       n2ft3d,
      >                       real_mb(psi_r_replicated(1)),
@@ -92,7 +92,7 @@
      >                               ehfx)
 
                   do l=Levels-1,0,-1
-                     call D1dB_sReduce_step(l,
+                     call D1dBs_Reduce_step(l,
      >                       int_mb(Dneall_na_ptr(ms)),-1,
      >                       n2ft3d,
      >                       real_mb(Hpsi_r_replicated(1)),
@@ -124,11 +124,11 @@
                call Parallel_shared_vector_scopy(.true.,n2ft3d,
      >                                      psi_r(indx1),real_mb(indx2))
             end do
-            call D1dB_sVector_SumAll(nrsize,real_mb(psi_r_replicated(1)))
+            call D1dBs_Vector_SumAll(nrsize,real_mb(psi_r_replicated(1)))
             call pspw_potential_sHFX_sub(ispin0,
      >                                  real_mb(psi_r_replicated(1)),
      >                                  real_mb(Hpsi_r_replicated(1)))
-            call D1dB_sVector_SumAll(nrsize,real_mb(Hpsi_r_replicated(1)))
+            call D1dBs_Vector_SumAll(nrsize,real_mb(Hpsi_r_replicated(1)))
             do q=1,neqall
                call Dneall_qton(q,n)
                indx1 = Hpsi_r_replicated(1)+(n-1)*n2ft3d
@@ -181,7 +181,7 @@ c     **** calculate HFX energy  ****
                call Parallel_shared_vector_scopy(.true.,n2ft3d,
      >                                     psi_r(indx1),real_mb(indx2))
             end do
-            call D1dB_sVector_SumAll(nrsize,real_mb(psi_r_replicated(1)))
+            call D1dBs_Vector_SumAll(nrsize,real_mb(psi_r_replicated(1)))
             call pspw_energy_sHFX_sub(ispin0,
      >                               real_mb(psi_r_replicated(1)),
      >                               ehfx_out,phfx_out)
@@ -229,8 +229,10 @@ c     **** nothing to do ****
       real*8  eh,ph
 
 *     **** external functions ****
-      real*8   lattice_omega,coulomb_screened_e
-      external lattice_omega,coulomb_screened_e
+      real*8   lattice_omega
+      external lattice_omega
+      real     coulomb_screened_s_e
+      external coulomb_screened_s_e
 
 
       call nwpw_timing_start(33)
@@ -246,11 +248,11 @@ c     **** nothing to do ****
      >          BA_push_get(mt_real,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
         call Parallel_shared_vector_szero(.false.,n2ft3d,
-     >                                    real_mb(dn(1)),1)
+     >                                    real_mb(dn(1)))
         call Parallel_shared_vector_szero(.false.,n2ft3d,
-     >                                   real_mb(vij(1)),1)
+     >                                   real_mb(vij(1)))
         call Parallel_shared_vector_szero(.true.,n2ft3d,
-     >                                  real_mb(tmp1(1)),1)
+     >                                    real_mb(tmp1(1)))
 
         scal1 = real(1.0d0/dble(n1*n2*n3))
         scal2 = real(1.0d0/lattice_omega())
@@ -271,7 +273,7 @@ c     **** nothing to do ****
              call Pack_c_spack(0,real_mb(dn(1)))
 
 *            **** get Ecoul energy ****
-             eh = coulomb_screened_s_e(real_mb(dn(1)))
+             eh = dble(coulomb_screened_s_e(real_mb(dn(1))))
 
 *            **** generate Vcoul ****
              call coulomb_screened_s_v(real_mb(dn(1)),real_mb(vij(1)))

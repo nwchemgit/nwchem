@@ -330,7 +330,7 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
              call D3dB_r_3to1_end()
           end if
           if (single_precision_on) then
-             call D3dB_sfft_end(1)
+             call D3dBs_fft_end(1)
           end if
 
 *        **** end free-space coulomb if necessary ****
@@ -340,8 +340,8 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
               call D3dB_end(2)
            end if
           if (single_precision_on) then
-             call D3dB_sfft_end(1)
-             call D3dB_sfft_end(2)
+             call D3dBs_fft_end(1)
+             call D3dBs_fft_end(2)
           end if
         end if
 
