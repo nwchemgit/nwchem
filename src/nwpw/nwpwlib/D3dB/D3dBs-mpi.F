@@ -5088,3 +5088,156 @@ c      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
       end
 
 
+
+*     ***********************************
+*     *                                 *
+*     *         D3dBs_SumAll            *
+*     *                                 *
+*     ***********************************
+
+      subroutine D3dBs_SumAll(sum)
+c     implicit none
+      real sum
+
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+      integer msglen,mpierr,np
+      real sumall
+
+*     **** external functions ****
+      integer  Parallel2d_comm_i
+      external Parallel2d_comm_i
+
+      call Parallel2d_np_i(np)
+      if (np.gt.1) then
+!$OMP MASTER
+         msglen = 1
+#ifdef MPI4
+         stupid_msglen = msglen
+         call MPI_Allreduce(sum,sumall,stupid_msglen,stupid_real,
+     >                       stupid_sum,stupid_comm_i,stupid_ierr)
+#else
+         call MPI_Allreduce(sum,sumall,msglen,MPI_REAL,
+     >                       MPI_SUM,Parallel2d_comm_i(),mpierr)
+#endif
+         sum = sumall
+!$OMP END MASTER
+!$OMP BARRIER
+      end if
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *         D3dBs_MaxAll            *
+*     *                                 *
+*     ***********************************
+      subroutine D3dBs_MaxAll(sum)
+c     implicit none
+      real  sum
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+      integer msglen,mpierr,np
+      real sumall
+
+*     **** external functions ****
+      integer  Parallel2d_comm_i
+      external Parallel2d_comm_i
+
+      call Parallel2d_np_i(np)
+      if (np.gt.1) then
+!$OMP MASTER
+         msglen = 1
+#ifdef MPI4
+         stupid_msglen = msglen
+         call MPI_Allreduce(sum,sumall,stupid_msglen,stupid_real,
+     >                       stupid_max,stupid_comm_i,stupid_ierr)
+#else
+         call MPI_Allreduce(sum,sumall,msglen,MPI_REAL,
+     >                       MPI_MAX,Parallel2d_comm_i(),mpierr)
+#endif
+         sum = sumall
+!$OMP END MASTER
+!$OMP BARRIER
+      end if
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         D3dBs_Vector_SumAll     *
+*     *                                 *
+*     ***********************************
+      subroutine D3dBs_Vector_SumAll(n,sum)
+c     implicit none
+      integer n
+      real  sum(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+      logical value
+      integer msglen,mpierr
+
+*     **** temporary workspace ****
+      integer sumall(2),np
+
+*     **** external functions ****
+      integer  Parallel2d_comm_i
+      external Parallel2d_comm_i
+
+      call Parallel2d_np_i(np)
+      call nwpw_timing_start(2)
+      if (np.gt.1) then
+
+*     ***** allocate temporary space ****
+      value = BA_push_get(mt_real,n,'sumall',sumall(2),sumall(1))
+      if (.not. value)
+     > call errquit('D3dBs_Vector_SumAll:out of stack',0, MA_ERR)
+
+!$OMP MASTER
+#ifdef MPI4
+      stupid_msglen = n
+      call MPI_Allreduce(sum,real_mb(sumall(1)),
+     >                stupid_msglen,
+     >                stupid_real,
+     >                stupid_sum,stupid_comm_i,stupid_ierr)
+#else
+      call MPI_Allreduce(sum,real_mb(sumall(1)),n,
+     >                MPI_REAL,
+     >                MPI_SUM,Parallel2d_comm_i(),mpierr)
+#endif
+!$OMP END MASTER
+!$OMP BARRIER
+
+      call Parallel_shared_vector_scopy(.true.,n,
+     >                           real_mb(sumall(1)),sum)
+
+      value = BA_pop_stack(sumall(2))
+      end if
+      call nwpw_timing_end(2)
+      return
+      end
+
+
+
+
