@@ -175,7 +175,7 @@
                  call D3dB_r_3to1_init()
               end if
               if (single_precision_on) then
-                 call D3dB_sfft_init(1)
+                 call D3dBs_fft_init(1)
               end if
 
 *        **** initialize free-space coulomb if necessary ****
@@ -189,8 +189,8 @@
                call coulomb2_init()
             end if
             if (single_precision_on) then
-               call D3dB_sfft_init(1)
-               call D3dB_sfft_init(2)
+               call D3dBs_fft_init(1)
+               call D3dBs_fft_init(2)
             end if
 
          end if
