@@ -249,8 +249,11 @@ c     **** define extra psi and Hpsi  ****
      >                       Hpsi_r_replicated(1))
         if (.not. value)   
      >    call errquit('pspw_init_HFX: out of heap memory',4,MA_ERR)
-         call dcopy(nrsize,0.0d0,0,dbl_mb(psi_r_replicated(1)),1)
-         call dcopy(nrsize,0.0d0,0,dbl_mb(Hpsi_r_replicated(1)),1)
+
+         call Parallel_shared_vector_zero(.false.,nrsize,
+     >                                    dbl_mb(psi_r_replicated(1)))
+         call Parallel_shared_vector_zero(.true.,nrsize,
+     >                                    dbl_mb(Hpsi_r_replicated(1)))
       end if
 
       if (localize_on)  call pspw_hfx_localize_init()
@@ -577,11 +580,12 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
                call Dneall_neq(neq)
                Levels = Butter_Levels(npj)
                do ms=1,ispin
-                  call dcopy(nrsize,0.0d0,0,
-     >                       dbl_mb(Hpsi_r_replicated(1)),1)
-                  call dcopy(neq(ms)*n2ft3d,
-     >                       psi_r(1+(ms-1)*neq(1)*n2ft3d),1,
-     >                       dbl_mb(psi_r_replicated(1)),1)
+                  call Parallel_shared_vector_zero(.false.,nrsize,0
+     >                          dbl_mb(Hpsi_r_replicated(1)))
+                  call Parallel_shared_vector_copy(.true.,
+     >                       neq(ms)*n2ft3d,
+     >                       psi_r(1+(ms-1)*neq(1)*n2ft3d),
+     >                       dbl_mb(psi_r_replicated(1)))
 
                   do l=0,Levels-1
                      call D1dB_Brdcst_step(l,
