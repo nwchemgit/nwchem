@@ -124,11 +124,13 @@
                call Parallel_shared_vector_scopy(.true.,n2ft3d,
      >                                      psi_r(indx1),real_mb(indx2))
             end do
-            call D1dBs_Vector_SumAll(nrsize,real_mb(psi_r_replicated(1)))
+            call D1dBs_Vector_SumAll(nrsize,
+     >                       real_mb(psi_r_replicated(1)))
             call pspw_potential_sHFX_sub(ispin0,
      >                                  real_mb(psi_r_replicated(1)),
      >                                  real_mb(Hpsi_r_replicated(1)))
-            call D1dBs_Vector_SumAll(nrsize,real_mb(Hpsi_r_replicated(1)))
+            call D1dBs_Vector_SumAll(nrsize,
+     >                       real_mb(Hpsi_r_replicated(1)))
             do q=1,neqall
                call Dneall_qton(q,n)
                indx1 = Hpsi_r_replicated(1)+(n-1)*n2ft3d
@@ -181,7 +183,8 @@ c     **** calculate HFX energy  ****
                call Parallel_shared_vector_scopy(.true.,n2ft3d,
      >                                     psi_r(indx1),real_mb(indx2))
             end do
-            call D1dBs_Vector_SumAll(nrsize,real_mb(psi_r_replicated(1)))
+            call D1dBs_Vector_SumAll(nrsize,
+     >                       real_mb(psi_r_replicated(1)))
             call pspw_energy_sHFX_sub(ispin0,
      >                               real_mb(psi_r_replicated(1)),
      >                               ehfx_out,phfx_out)
@@ -341,7 +344,8 @@ c***************** sub/replicated routines *****************************
       integer i1,j1,k1,NN
       integer i2,j2,k2
       integer i3,j3,k3
-      real*8  scal1,scal2,dv,eh,ph,ss,teh
+      real    scal1,scal2,dv,seh
+      real*8  eh,ph,ss,teh
       integer center(3)
       real*8  rcenter(3)
       integer taskid,icount
@@ -349,13 +353,15 @@ c***************** sub/replicated routines *****************************
       integer ktaskjid,kcompute(2)
 
 *     **** external functions ****
-      real*8   lattice_omega,icoulomb_screened_e
-      real*8   icoulomb_screened_small_e
+      real*8   lattice_omega
+      real     icoulomb_screened_s_e
+      real*8   icoulomb_screened_small_s_e
       logical  D3dBs_rc_pfft3_queue_filled,D3dBs_cr_pfft3_queue_filled
       logical  pspw_hfx_localize_closeenough
       real*8   pspw_hfx_localize_switchr
-      external lattice_omega,icoulomb_screened_e
-      external icoulomb_screened_small_e
+      external lattice_omega
+      external icoulomb_screened_s_e
+      external icoulomb_screened_small_s_e
       external D3dBs_rc_pfft3_queue_filled,D3dBs_cr_pfft3_queue_filled
       external pspw_hfx_localize_closeenough
       external pspw_hfx_localize_switchr
@@ -371,7 +377,7 @@ c***************** sub/replicated routines *****************************
         !call D3dB_ny(1,n2)
         !call D3dB_nz(1,n3)
         !call D3dB_n2ft3d(1,n2ft3d)
-        value = BA_push_get(mt_realdbl,(n2ft3d),'dn_hfx',dn(2),dn(1))
+        value = BA_push_get(mt_real,(n2ft3d),'dn_hfx',dn(2),dn(1))
         value = value.and.
      >          BA_push_get(mt_real,(n2ft3d),'vij_hfx',vij(2),vij(1))
         value = value.and.
@@ -410,8 +416,8 @@ c***************** sub/replicated routines *****************************
         if (solver_type.eq.1) then
         do ms=1,ispin0
            if (norbs(ms).eq.0) go to 898
-           call Parallel_shared_vector_szero(.true.,norbs(ms),
-     >                                real_mb(ehfx_orb(1,ms)))
+           call Parallel_shared_vector_zero(.true.,norbs(ms),
+     >                                dbl_mb(ehfx_orb(1,ms)))
            NN = norbs(ms)*(norbs(ms)+1)/2
 
 *          **** compute kcompute ****
@@ -470,7 +476,7 @@ c***************** sub/replicated routines *****************************
      >                          int_mb(orbital_list(1,ms)+i1-1),
      >                          int_mb(orbital_list(1,ms)+j1-1),center)
                        call D3dBs_rc_pfft3f_queuein_center(2,center,
-     >                                                    real_mb(dn(1)))
+     >                                             real_mb(dn(1)))
                     else
                        call D3dBs_rc_pfft3f_queuein(0,real_mb(dn(1)))
                     end if
@@ -505,7 +511,7 @@ c
                     if (localize_on.and.has_smallgrid) then
                        call D3dBs_rc_pfft3f_queueout_center(2,
      >                                              real_mb(dn(1)))
-                       eh = icoulomb_screened_small_e(real_mb(dn(1)))
+                       eh = icoulomb_screened_small_s_e(real_mb(dn(1)))
                        call coulomb_screened_small_s_v(real_mb(dn(1)),
      >                                                 real_mb(vij(1)))
                     else
@@ -521,13 +527,13 @@ c
                     ph = 2.0d0*eh
                     ehfx = ehfx - eh
                     phfx = phfx - ph
-                    real_mb(ehfx_orb(1,ms)+i2-1) 
-     >               = real_mb(ehfx_orb(1,ms)+i2-1) - eh
+                    dbl_mb(ehfx_orb(1,ms)+i2-1) 
+     >               = dbl_mb(ehfx_orb(1,ms)+i2-1) - eh
                     if (i2.ne.j2) then
                        ehfx = ehfx - eh
                        phfx = phfx - ph
-                       real_mb(ehfx_orb(1,ms)+i2-1) 
-     >                  = real_mb(ehfx_orb(1,ms)+i2-1) - eh
+                       dbl_mb(ehfx_orb(1,ms)+i2-1) 
+     >                  = dbl_mb(ehfx_orb(1,ms)+i2-1) - eh
                     end if
 
                     if (localize_on.and.has_smallgrid) then
@@ -535,7 +541,7 @@ c
      >                          int_mb(orbital_list(1,ms)+i2-1),
      >                          int_mb(orbital_list(1,ms)+j2-1),center)
                        call D3dBs_cr_pfft3b_queuein_center(2,center,
-     >                                                   real_mb(vij(1)))
+     >                                             real_mb(vij(1)))
                     else
                        call D3dBs_cr_pfft3b_queuein(0,real_mb(vij(1)))
                     end if
@@ -612,7 +618,8 @@ c
               end if
               done = (k1.gt.NN).and.(k2.gt.NN).and.(k3.gt.NN)
            end do !**** while ****
-           call Parallel_Vector_SumAll(norbs(ms),real_mb(ehfx_orb(1,ms)))
+           call Parallel_Vector_SumAll(norbs(ms),
+     >                                 dbl_mb(ehfx_orb(1,ms)))
 
   898      continue
        end do !**** ms *****
@@ -622,7 +629,7 @@ c
         k1 = 1
         do ms=1,ispin0
         do i=1,norbs(ms)
-         real_mb(ehfx_orb(1,ms)+i-1) = 0.0d0
+         dbl_mb(ehfx_orb(1,ms)+i-1) = 0.0d0
          do j=1,i
            if (mod(k1,npj).eq.taskid_j) then
            if (pspw_hfx_localize_closeenough(
@@ -656,7 +663,7 @@ c
 
               ehfx = ehfx - eh
               phfx = phfx - ph
-              real_mb(ehfx_orb(1,ms)+i-1) =real_mb(ehfx_orb(1,ms)+i-1)-eh
+              dbl_mb(ehfx_orb(1,ms)+i-1) =dbl_mb(ehfx_orb(1,ms)+i-1)-eh
 
 *             **** generate (Vij)*psi_r ***
               call D3dBs_rr_Mul(1,real_mb(vij(1)),
@@ -672,7 +679,7 @@ c
               if (i.ne.j) then
                  ehfx = ehfx - eh
                  phfx = phfx - ph
-                 real_mb(ehfx_orb(1,ms)+i-1) = real_mb(ehfx_orb(1,ms)+i-1)
+                 dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1)
      >                                      - eh
 *                **** generate (Vij)*psi_r ***
                  call D3dBs_rr_Mul(1,real_mb(vij(1)),
@@ -689,7 +696,8 @@ c
            k1 = k1 + 1
          end do
         end do
-        call Parallel_Vector_SumAll(norbs(ms),real_mb(ehfx_orb(1,ms)))
+        call Parallel_Vector_SumAll(norbs(ms),
+     >                        dbl_mb(ehfx_orb(1,ms)))
         end do
 
         end if
@@ -732,16 +740,18 @@ c
       logical value
       integer i,j,n1,n2,n3,ms,k1
       integer dn(2),tmp1(2),index1,index2
-      real    scal1,scal2,dv,
+      real    scal1,scal2,dv,seh
       real*8  eh,ph,ss
 
 *     **** external functions ****
-      real*8   lattice_omega,coulomb_screened_e
-      external lattice_omega,coulomb_screened_e
+      real*8   lattice_omega
+      external lattice_omega
       logical  pspw_hfx_localize_closeenough
       external pspw_hfx_localize_closeenough
       real*8   pspw_hfx_localize_switchr
       external pspw_hfx_localize_switchr
+      real     coulomb_screened_s_e
+      external coulomb_screened_s_e
 
       
       if (((norbs(1)+norbs(2)).ne.0).and.(.not.relaxed)) then
@@ -768,7 +778,7 @@ c
         k1 = 1
         do ms=1,ispin
         do i=1,norbs(ms)
-         real_mb(ehfx_orb(1,ms)+i-1) = 0.0d0
+         dbl_mb(ehfx_orb(1,ms)+i-1) = 0.0d0
          do j=1,i
 
             if (mod(k1,npj).eq.taskid_j) then
@@ -804,7 +814,8 @@ c
 *             ***** free-space coulomb solver ****
               else
                  call coulomb2_s_v(real_mb(dn(1)),real_mb(tmp1(1)))
-                 call D3dBs_rr_dot(1,real_mb(dn(1)),real_mb(tmp1(1)),seh)
+                 call D3dBs_rr_dot(1,real_mb(dn(1)),
+     >                               real_mb(tmp1(1)),seh)
                  eh = 0.5d0*dble(seh*dv)
               end if
 
@@ -815,13 +826,13 @@ c
 
               ehfx = ehfx - eh
               phfx = phfx - ph
-              real_mb(ehfx_orb(1,ms)+i-1) = real_mb(ehfx_orb(1,ms)+i-1)-eh
+              dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1)-eh
 
               !**** include off diagonal terms ****
               if (i.ne.j) then
                  ehfx = ehfx - eh
                  phfx = phfx - ph
-                 real_mb(ehfx_orb(1,ms)+i-1) = real_mb(ehfx_orb(1,ms)+i-1)
+                 dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1)
      >                                      - eh
               end if
 
@@ -831,7 +842,7 @@ c
 
          end do
         end do
-        call D1dB_Vector_SumAll(norbs(ms),real_mb(ehfx_orb(1,ms)))
+        call D1dB_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
         end do
 
         value =           BA_pop_stack(tmp1(2))
@@ -878,12 +889,14 @@ c
       logical value
       integer j,n1,n2,n3,q2,p2
       integer dn(2),vij(2),tmp1(2),tmp2(2),index2
-      real    scal1,scal2,dv
+      real    scal1,scal2,dv,seh
       real*8  eh,ph
 
 *     **** external functions ****
-      real*8   lattice_omega,coulomb_screened_e
-      external lattice_omega,coulomb_screened_e
+      real*8   lattice_omega
+      external lattice_omega
+      real     coulomb_screened_s_e
+      external coulomb_screened_s_e
 
       if (((norbs(1)+norbs(2)).ne.0).and.relaxed) then
         call D3dB_nx(1,n1)
@@ -898,10 +911,14 @@ c
         value = value.and.
      >          BA_push_get(mt_real,(n2ft3d),'tmp2_hfx',tmp2(2),tmp2(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-        call Parallel_shared_vector_szero(.false.,n2ft3d,real_mb(dn(1)))
-        call Parallel_shared_vector_szero(.false.,n2ft3d,real_mb(vij(1)))
-        call Parallel_shared_vector_szero(.false.,n2ft3d,real_mb(tmp1(1)))
-        call Parallel_shared_vector_szero(.true.,n2ft3d,real_mb(tmp2(1)))
+        call Parallel_shared_vector_szero(.false.,n2ft3d,
+     >                                    real_mb(dn(1)))
+        call Parallel_shared_vector_szero(.false.,n2ft3d,
+     >                                    real_mb(vij(1)))
+        call Parallel_shared_vector_szero(.false.,n2ft3d,
+     >                                    real_mb(tmp1(1)))
+        call Parallel_shared_vector_szero(.true.,n2ft3d,
+     >                                    real_mb(tmp2(1)))
 
         scal1 = real(1.0d0/dble(n1*n2*n3))
         scal2 = real(1.0d0/lattice_omega())
@@ -935,7 +952,8 @@ c
 *             ***** free-space coulomb solver ****
               else
                  call coulomb2_s_v(real_mb(dn(1)),real_mb(vij(1)))
-                 call D3dBs_rr_dot(1,real_mb(dn(1)),real_mb(vij(1)),seh)
+                 call D3dBs_rr_dot(1,real_mb(dn(1)),
+     >                               real_mb(vij(1)),seh)
                  eh = 0.5d0*dble(seh*dv)
               end if
 
@@ -1028,14 +1046,16 @@ c        call D1dB_SumAll(ph)
       integer i1,j1,k1,NN
       integer i2,j2,k2
       integer i3,j3,k3
-      real  scal1,scal2,dv
+      real  scal1,scal2,dv,seh
       real*8  eh,ph
 
 *     **** external functions ****
-      real*8   lattice_omega,icoulomb_screened_e
-      external lattice_omega,icoulomb_screened_e
+      real*8   lattice_omega
+      external lattice_omega
       logical  D3dBs_rc_pfft3_queue_filled,D3dBs_cr_pfft3_queue_filled
       external D3dBs_rc_pfft3_queue_filled,D3dBs_cr_pfft3_queue_filled
+      real     icoulomb_screened_s_e
+      external icoulomb_screened_s_e
 
       call Parallel2d_taskid_j(taskid_j)
 
@@ -1220,7 +1240,8 @@ c        call D1dB_SumAll(ph)
                call D3dBs_r_Zero_Ends(1,real_mb(dn(1)))
    
                call coulomb2_s_v(real_mb(dn(1)),real_mb(vij(1)))
-               call D3dBs_rr_idot(1,real_mb(dn(1)),real_mb(vij(1)),seh)
+               call D3dBs_rr_idot(1,real_mb(dn(1)),
+     >                              real_mb(vij(1)),seh)
                eh = 0.5d0*dble(seh*dv)
 
 *              **** calculcate ph ****
@@ -1303,10 +1324,12 @@ c        call D1dB_SumAll(ph)
       call nwpw_timing_start(33)
       if ((norbs(ms).ne.0).and.relaxed) then
          if (replicated) then
-            call dcopy(n2ft3d,0.0d0,0,real_mb(Hpsi_r_replicated(1)),1)
+            call Parallel_shared_vector_scopy(.true.,n2ft3d,
+     >                                  real_mb(Hpsi_r_replicated(1)))
             call pspw_potential_HFX_orb_sub(ms,psi_r,orb_r,
      >                                  real_mb(Hpsi_r_replicated(1)))
-            call D1dB_Vector_SumAll(n2ft3d,real_mb(Hpsi_r_replicated(1)))
+            call D1dBs_Vector_SumAll(n2ft3d,
+     >                               real_mb(Hpsi_r_replicated(1)))
             call SAXPY_OMP(n2ft3d,1.0d0,real_mb(Hpsi_r_replicated(1)),1,
      >                 Horb_r,1)
 
@@ -1352,19 +1375,25 @@ c     **** calculate HFX energy  ****
       if ((norbs(1)+norbs(2)).ne.0) then
 
          if (replicated) then
-            call dcopy(nrsize,0.0d0,0,real_mb(psi_r_replicated(1)),1)
-            call dcopy(nrsize,0.0d0,0,real_mb(Hpsi_r_replicated(1)),1)
+            call Parallel_shared_vector_szero(.false.,nrsize,
+     >                                 real_mb(psi_r_replicated(1)))
+            call Parallel_shared_vector_szero(.true.,nrsize,
+     >                                 real_mb(Hpsi_r_replicated(1)))
             do q=1,neqall
                call Dneall_qton(q,n)
                indx1 = (q-1)*n2ft3d + 1
                indx2 = psi_r_replicated(1)+(n-1)*n2ft3d
-               call dcopy(n2ft3d,psi1_r(indx1),1,real_mb(indx2),1)
+               call Parallel_shared_vector_scopy(.false.,n2ft3d,
+     >                                psi1_r(indx1),real_mb(indx2))
 
                indx2 = Hpsi_r_replicated(1)+(n-1)*n2ft3d
-               call dcopy(n2ft3d,psi2_r(indx1),1,real_mb(indx2),1)
+               call Parallel_shared_vector_scopy(.true.,n2ft3d,
+     >                            psi2_r(indx1),real_mb(indx2))
             end do
-            call D1dB_Vector_SumAll(nrsize,real_mb(psi_r_replicated(1)))
-            call D1dB_Vector_SumAll(nrsize,real_mb(Hpsi_r_replicated(1)))
+            call D1dBs_Vector_SumAll(nrsize,
+     >                               real_mb(psi_r_replicated(1)))
+            call D1dBs_Vector_SumAll(nrsize,
+     >                              real_mb(Hpsi_r_replicated(1)))
             call pspw_energy_sHFX2_sub(ispin0,
      >                               real_mb(psi_r_replicated(1)),
      >                               real_mb(Hpsi_r_replicated(1)),
@@ -1409,7 +1438,7 @@ c     **** nothing to do ****
       logical value
       integer i,j,n1,n2,n3,ms,k1
       integer dn(2),tmp1(2),index1,index2
-      real    scal1,scal2,dv
+      real    scal1,scal2,dv,seh
       real*8  eh,ph
 
 *     **** external functions ****
@@ -1445,7 +1474,7 @@ c     **** nothing to do ****
         k1 = 1
         do ms=1,ispin
         do i=1,norbs(ms)
-         real_mb(ehfx_orb(1,ms)+i-1) = 0.0d0
+         dbl_mb(ehfx_orb(1,ms)+i-1) = 0.0d0
          do j=1,i
 
             if (mod(k1,npj).eq.taskid_j) then
@@ -1477,7 +1506,8 @@ c     **** nothing to do ****
                 call Pack_c_spack(0,real_mb(dn(1)+n2ft3d))
 
 *               **** get Ecoul energy ****
-                call coulomb_screened_s_v(real_mb(dn(1)),real_mb(tmp1(1)))
+                call coulomb_screened_s_v(real_mb(dn(1)),
+     >                                    real_mb(tmp1(1)))
                 call Pack_cc_s_dot(0,real_mb(dn(1)+n2ft3d),
      >                               real_mb(tmp1(1)),eh)
                 eh = 0.5d0*eh*lattice_omega()
@@ -1500,13 +1530,13 @@ c     **** nothing to do ****
 
               ehfx = ehfx - eh
               phfx = phfx - ph
-              real_mb(ehfx_orb(1,ms)+i-1) = real_mb(ehfx_orb(1,ms)+i-1)-eh
+              dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1)-eh
 
               !**** include off diagonal terms ****
               if (i.ne.j) then
                  ehfx = ehfx - eh
                  phfx = phfx - ph
-                 real_mb(ehfx_orb(1,ms)+i-1) = real_mb(ehfx_orb(1,ms)+i-1)
+                 dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1)
      >                                      - eh
               end if
 
@@ -1515,7 +1545,7 @@ c     **** nothing to do ****
 
          end do
         end do
-        call D1dB_Vector_SumAll(norbs(ms),real_mb(ehfx_orb(1,ms)))
+        call D1dB_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
         end do
 
         value =           BA_pop_stack(tmp1(2))
