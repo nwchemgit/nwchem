@@ -63,15 +63,15 @@ c
 c
 c     Local:
 c
-      integer g_puv(2)  ! global array handle for Puv
-      integer g_apbp(2) ! global array handle for (A+B)Puv
-      integer g_ambp(2) ! global array handle for (A-B)Puv
-      integer g_x(2)    ! global array handle for X
-      integer g_y(2)    ! global array handle for Y
-      integer g_apbx(2) ! global array handle for (A+B)X
-      integer g_ambx(2) ! global array handle for (A-B)X
-      integer g_apby(2) ! global array handle for (A+B)Y
-      integer g_amby(2) ! global array handle for (A-B)Y
+      integer g_puv     ! global array handle for Puv
+      integer g_apbp ! global array handle for (A+B)Puv
+      integer g_ambp ! global array handle for (A-B)Puv
+      integer g_x    ! global array handle for X
+      integer g_y    ! global array handle for Y
+      integer g_apbx ! global array handle for (A+B)X
+      integer g_ambx ! global array handle for (A-B)X
+      integer g_apby ! global array handle for (A+B)Y
+      integer g_amby ! global array handle for (A-B)Y
       integer g_hij(2)  ! global array handle for Hij+-
       integer g_t       ! global array handle for transposer
 c
@@ -451,7 +451,7 @@ c
       ichnk(1) = nroots*ipol
       ichnk(2) = -1
       ichnk(3) = -1
-      if (.not.nga_create(mt_dbl,3,idim,'vec Puv',ichnk,g_puv(1)))
+      if (.not.nga_create(mt_dbl,3,idim,'vec Puv',ichnk,g_puv))
      +     call errquit(pname//'failed to create g_puv',0,GA_ERR)
 c
 c     - Puv = sum_pq Cup*Ppq*Cvq
@@ -491,7 +491,7 @@ c this term for CIS, but functions correctly for RPA.
 c
 c     - Destroy global array for Puv
 c
-      if (.not.ga_destroy(g_puv(1)))
+      if (.not.ga_destroy(g_puv))
      +    call errquit(pname//'failed to destroy g_puv',0,GA_ERR)
 c
 c     - Transform (A+B)P from AO basis to Wij in MO basis
