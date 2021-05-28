@@ -580,7 +580,7 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
                call Dneall_neq(neq)
                Levels = Butter_Levels(npj)
                do ms=1,ispin
-                  call Parallel_shared_vector_zero(.false.,nrsize,0
+                  call Parallel_shared_vector_zero(.false.,nrsize,
      >                          dbl_mb(Hpsi_r_replicated(1)))
                   call Parallel_shared_vector_copy(.true.,
      >                       neq(ms)*n2ft3d,
