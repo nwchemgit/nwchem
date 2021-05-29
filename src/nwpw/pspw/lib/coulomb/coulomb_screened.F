@@ -388,7 +388,7 @@ c      call coulomb_screened_init_print(rcut,pp)
       implicit none
       integer n
       real*8 a8(*)
-      real   a4(*)
+      real*4 a4(*)
       integer i
       do i=1,n
          a4(i) = real(a8(i))

@@ -208,24 +208,27 @@ ccccccccccc  #define TCGMSG
 
       !call D3dB_nfft3d(nb,nfft3d)
 
-      value = BA_alloc_get(mt_scpl,mthr*(2*nx(nb)+15),
-     >        'fttmpx',tmpx(2,nb),tmpx(1,nb))
+      value = BA_alloc_get(mt_scpl,mthr*2*(2*nx(nb)+15),
+     >        'sfttmpx',tmpx(2,nb),tmpx(1,nb))
       value = value.and.
-     >        BA_alloc_get(mt_scpl,mthr*(2*ny(nb)+15),
-     >        'fttmpy',tmpy(2,nb),tmpy(1,nb))
+     >        BA_alloc_get(mt_scpl,mthr*2*(2*ny(nb)+15),
+     >        'sfttmpy',tmpy(2,nb),tmpy(1,nb))
       value = value.and.
-     >        BA_alloc_get(mt_scpl,mthr*(2*nz(nb)+15),
-     >        'fttmpz',tmpz(2,nb),tmpz(1,nb))
+     >        BA_alloc_get(mt_scpl,mthr*2*(2*nz(nb)+15),
+     >        'sfttmpz',tmpz(2,nb),tmpz(1,nb))
       if (.not. value) 
      >   call errquit('D3dBs_fft_init:out of heap memory',0, MA_ERR)
 
+      call Parallel_shared_vector_szero(.true.,
+     >                       2*(2*nx(nb)+15),scpl_mb(tmpx(1,nb)))
 
       do i=1,mthr
         !write(*,*) "DEBUG init fft arrays of thread ", i-1
-        call rffti(nx(nb),scpl_mb(tmpx(1,nb)+(i-1)*(2*nx(nb)+15)))
-        call cffti(ny(nb),scpl_mb(tmpy(1,nb)+(i-1)*(2*ny(nb)+15)))
-        call cffti(nz(nb),scpl_mb(tmpz(1,nb)+(i-1)*(2*nz(nb)+15)))
+        call srffti(nx(nb),scpl_mb(tmpx(1,nb)+(i-1)*(2*nx(nb)+15)))
+        call scffti(ny(nb),scpl_mb(tmpy(1,nb)+(i-1)*(2*ny(nb)+15)))
+        call scffti(nz(nb),scpl_mb(tmpz(1,nb)+(i-1)*(2*nz(nb)+15)))
       end do
+
 
 #ifdef FFTW3
 
@@ -507,7 +510,7 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             scpl_mb(tmp2(1)+k-1) = A(indx)
             indx = indx + nxh
          end do
-         call cfftb(nz(nb),scpl_mb(tmp2(1)),scpl_mb(tmpz(1,nb)))
+         call scfftb(nz(nb),scpl_mb(tmp2(1)),scpl_mb(tmpz(1,nb)))
          do k=1,nz(nb)
             A(indx1) = dcpl_mb(tmp2(1)+k-1)
             indx1 = indx1 + nxh
@@ -546,7 +549,7 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             scpl_mb(tmp2(1)+j-1) = A(indx)
             indx = indx + nxh
          end do
-         call cfftb(ny(nb),scpl_mb(tmp2(1)),scpl_mb(tmpy(1,nb)))
+         call scfftb(ny(nb),scpl_mb(tmp2(1)),scpl_mb(tmpy(1,nb)))
          do j=1,ny(nb)
             A(indx1) = scpl_mb(tmp2(1)+j-1)
             indx1 = indx1 + nxh
@@ -572,7 +575,7 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       do q=1,nq(nb)
       do j=1,ny(nb)
          !indx = 1 + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-         call rfftb(nx(nb),A(indx),scpl_mb(tmpx(1,nb)))
+         call srfftb(nx(nb),A(indx),scpl_mb(tmpx(1,nb)))
          indx = indx + nxh
       end do
       end do
@@ -596,9 +599,9 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 #else
 
-      offset=tid*(2*nz(nb)+15)
+      offset=tid*2*(2*nz(nb)+15)
       do i=tid+1,nq3(nb),nthr
-        call cfftb(nz(nb),A(1+(i-1)*nz(nb)),scpl_mb(tmpz(1,nb)+offset))
+        call scfftb(nz(nb),A(1+(i-1)*nz(nb)),scpl_mb(tmpz(1,nb)+offset))
       end do
 !$OMP BARRIER
 
@@ -615,9 +618,9 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call fftw_execute_dft(splans(12,nb),A,A)
 
 #else
-      offset=tid*(2*ny(nb)+15)
+      offset=tid*2*(2*ny(nb)+15)
       do i=tid+1,nq2(nb),nthr
-        call cfftb(ny(nb),A(1+(i-1)*ny(nb)),scpl_mb(tmpy(1,nb)+offset))
+        call scfftb(ny(nb),A(1+(i-1)*ny(nb)),scpl_mb(tmpy(1,nb)+offset))
       end do
 !$OMP BARRIER
 #endif
@@ -634,10 +637,10 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call dfftw_execute_dft_c2r(splans(13,nb),A,A)
 
 #else
-      offset=tid*(2*nx(nb)+15)
+      offset=tid*2*(2*nx(nb)+15)
       call cshift1_fftb(nx(nb),nq1(nb),1,1,A)
       do i=tid+1,nq1(nb),nthr
-        call rfftb(nx(nb),A(1+(i-1)*nxh),scpl_mb(tmpx(1,nb)+offset))
+        call srfftb(nx(nb),A(1+(i-1)*nxh),scpl_mb(tmpx(1,nb)+offset))
       end do
 !$OMP BARRIER
 
@@ -662,12 +665,12 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       subroutine D3dBs_fftbx_sub(n,nx,nxh,tmpx,A)
       implicit none
       integer n,nx,nxh
-      real    tmpx(2*nx+15)
+      real    tmpx(*)
       complex A(nxh,n)
       integer i
 
       do i=1,n
-         call rfftb(nx,A(1,i),tmpx)
+         call srfftb(nx,A(1,i),tmpx)
       end do
       return
       end
@@ -675,12 +678,12 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       subroutine D3dBs_fftby_sub2(n,ny,tmpy,A)
       implicit none
       integer n,ny
-      real    tmpy(4*ny+15)
+      real    tmpy(*)
       complex A(ny,n)
       integer i
 
       do i=1,n
-         call cfftb(ny,A(1,i),tmpy)
+         call scfftb(ny,A(1,i),tmpy)
       end do
       return
       end
@@ -688,12 +691,12 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       subroutine D3dBs_fftbz_sub2(n,nz,tmpz,A)
       implicit none
       integer n,nz
-      real    tmpz(4*nz+15)
+      real    tmpz(*)
       complex A(nz,n)
       integer i
 
       do i=1,n
-         call cfftb(nz,A(1,i),tmpz)
+         call scfftb(nz,A(1,i),tmpz)
       end do
       return
       end
@@ -843,9 +846,9 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call dfftw_execute_dft_r2c(splans(4,nb),A,A)
 
 #else
-      offset=tid*(2*nx(nb)+15)
+      offset=tid*2*(2*nx(nb)+15)
       do j=tid+1,ny(nb)*nq(nb),nthr
-         call rfftf(nx(nb),A((j-1)*nxh+1),scpl_mb(tmpx(1,nb)+offset))
+         call srfftf(nx(nb),A((j-1)*nxh+1),scpl_mb(tmpx(1,nb)+offset))
       end do
       call cshift_sfftf(nx(nb),ny(nb),nq(nb),1,A)
 #endif
@@ -862,7 +865,7 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
 
 #else
-      offset=tid*(2*ny(nb)+15)
+      offset=tid*2*(2*ny(nb)+15)
       do i=tid+1,nxh,nthr
       indx = i
       indx1= i
@@ -873,7 +876,7 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             indx = indx + nxh
          end do
 
-         call cfftf(ny(nb),scpl_mb(tmp2(1)+tid*ny(nb)),
+         call scfftf(ny(nb),scpl_mb(tmp2(1)+tid*ny(nb)),
      >                     scpl_mb(tmpy(1,nb)+offset))
 
          do j=1,ny(nb)
@@ -904,7 +907,7 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
 
 #else
-      offset=tid*(2*nz(nb)+15)
+      offset=tid*2*(2*nz(nb)+15)
       do i=tid+1,nxh,nthr
       indx  = i
       indx1 = i
@@ -914,7 +917,7 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
             scpl_mb(tmp2(1)+k-1+tid*nz(nb)) = A(indx)
             indx = indx + nxh
          end do
-         call cfftf(nz(nb),scpl_mb(tmp2(1)+tid*nz(nb)),
+         call scfftf(nz(nb),scpl_mb(tmp2(1)+tid*nz(nb)),
      >                     scpl_mb(tmpz(1,nb)+offset))
          do k=1,nz(nb)
             !indx = i + (k-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
@@ -948,9 +951,9 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       call fftw_execute_dft_r2c(splans(14,nb),A,A)
 #else
 
-      offset=tid*(2*nx(nb)+15)
+      offset=tid*2*(2*nx(nb)+15)
       do i=tid+1,nq1(nb),nthr
-        call rfftf(nx(nb),A(1+(i-1)*nxh),scpl_mb(tmpx(1,nb)+offset))
+        call srfftf(nx(nb),A(1+(i-1)*nxh),scpl_mb(tmpx(1,nb)+offset))
       end do
       call cshift_sfftf(nx(nb),nq1(nb),1,1,A)
 #endif
@@ -966,9 +969,9 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       call fftw_execute_dft(splans(15,nb),A,A)
 
 #else
-      offset=tid*(2*ny(nb)+15)
+      offset=tid*2*(2*ny(nb)+15)
       do i=tid+1,nq2(nb),nthr
-        call cfftf(ny(nb),A(1+(i-1)*ny(nb)),scpl_mb(tmpy(1,nb)+offset))
+        call scfftf(ny(nb),A(1+(i-1)*ny(nb)),scpl_mb(tmpy(1,nb)+offset))
       end do
 !$OMP BARRIER
 #endif
@@ -983,9 +986,9 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #ifdef FFTW3
       call fftw_execute_dft(splans(16,nb),A,A)
 #else
-      offset=tid*(2*nz(nb)+15)
+      offset=tid*2*(2*nz(nb)+15)
       do i=tid+1,nq3(nb),nthr
-        call cfftf(nz(nb),A(1+(i-1)*nz(nb)),scpl_mb(tmpz(1,nb)+offset))
+        call scfftf(nz(nb),A(1+(i-1)*nz(nb)),scpl_mb(tmpz(1,nb)+offset))
       end do
 !$OMP BARRIER
 
@@ -1011,7 +1014,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       integer i
 
       do i=1,n
-         call rfftf(nx,A(1,i),tmpx)
+         call srfftf(nx,A(1,i),tmpx)
       end do
       return
       end
@@ -1024,7 +1027,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       integer i,indx
 
       do i=1,n
-         call cfftf(ny,A(1,i),tmpy)
+         call scfftf(ny,A(1,i),tmpy)
       end do
       return
       end
@@ -1037,7 +1040,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       integer i
 
       do i=1,n
-         call cfftf(nz,A(1,i),tmpz)
+         call scfftf(nz,A(1,i),tmpz)
       end do
       return
       end

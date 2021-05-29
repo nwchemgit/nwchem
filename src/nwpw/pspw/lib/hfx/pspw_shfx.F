@@ -21,8 +21,6 @@
       integer  Butter_Levels,Dneall_na_ptr
       external Butter_Levels,Dneall_na_ptr
 
-
-
 *     ***** now do exchange as normal ****
       ehfx = 0.0d0
       phfx = 0.0d0
@@ -390,10 +388,14 @@ c***************** sub/replicated routines *****************************
         if (.not.value) 
      >     call errquit('pspw_potential_HFX_sub:out of stack memory',
      >                  0,MA_ERR)
-        call dcopy(n2ft3d,0.0d0,0,real_mb(dn(1)),1)
-        call dcopy(n2ft3d,0.0d0,0,real_mb(vij(1)),1)
-        call dcopy(n2ft3d,0.0d0,0,real_mb(tmp1(1)),1)
-        call dcopy(n2ft3d,0.0d0,0,real_mb(tmp2(1)),1)
+        call Parallel_shared_vector_szero(.false.,
+     >                                    n2ft3d,real_mb(dn(1)))
+        call Parallel_shared_vector_szero(.false.,
+     >                                    n2ft3d,real_mb(vij(1)))
+        call Parallel_shared_vector_szero(.false.,
+     >                                    n2ft3d,real_mb(tmp1(1)))
+        call Parallel_shared_vector_szero(.true.,
+     >                                    n2ft3d,real_mb(tmp2(1)))
 
         call D3dB_nx(1,n1)
         call D3dB_ny(1,n2)
@@ -465,11 +467,10 @@ c***************** sub/replicated routines *****************************
 
 *                   **** generate dnij for Vij  ****
                     call D3dBs_rr_Mul(1,psi_r(index2),
-     >                                   psi_r(index1),real_mb(dn(1)))
+     >                                  psi_r(index1),real_mb(dn(1)))
 
                     call D3dBs_r_SMul1(1,scal2*scal1,real_mb(dn(1)))
                     call D3dBs_r_Zero_Ends(1,real_mb(dn(1)))
-
 
                     if (localize_on.and.has_smallgrid) then
                        call pspw_hfx_localize_center_ovlp(

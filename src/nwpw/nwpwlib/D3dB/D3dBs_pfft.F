@@ -106,7 +106,7 @@ c     call D3dBs_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
             scpl_mb(tmp2(1)+k-1) = A(indx)
             indx = indx + nxh
          end do
-         call cfftb(nz(nb),scpl_mb(tmp2(1)),scpl_mb(tmpz(1,nb)))
+         call scfftb(nz(nb),scpl_mb(tmp2(1)),scpl_mb(tmpz(1,nb)))
          do k=1,nz(nb)
             A(indx1) = scpl_mb(tmp2(1)+k-1)
             indx1 = indx1 + nxh
@@ -148,7 +148,7 @@ c     call D3dBs_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
             scpl_mb(tmp2(1)+j-1) = A(indx)
             indx = indx + nxh
          end do
-         call cfftb(ny(nb),scpl_mb(tmp2(1)),scpl_mb(tmpy(1,nb)))
+         call scfftb(ny(nb),scpl_mb(tmp2(1)),scpl_mb(tmpy(1,nb)))
          do j=1,ny(nb)
             A(indx1) = scpl_mb(tmp2(1)+j-1)
             indx1 = indx1 + nxh
@@ -174,7 +174,7 @@ c     call D3dBs_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       do q=1,nq(nb)
       do j=1,ny(nb)
          !indx = 1 + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-         call rfftb(nx(nb),A(indx),scpl_mb(tmpx(1,nb)))
+         call srfftb(nx(nb),A(indx),scpl_mb(tmpx(1,nb)))
          indx = indx + nxh
       end do
       end do
@@ -204,10 +204,10 @@ c     call D3dBs_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #else
 
       !indx = 1
-      offset = tid*(2*nz(nb)+15)
+      offset = tid*2*(2*nz(nb)+15)
       do q=tid+1,nq3(nb),nthr
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
-            call cfftb(nz(nb),A(1+(q-1)*nz(nb)),
+            call scfftb(nz(nb),A(1+(q-1)*nz(nb)),
      >                 scpl_mb(tmpz(1,nb)+offset))
          end if
          !indx = indx + nz(nb)
@@ -236,10 +236,10 @@ c     call D3dBs_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #else
 
       !indx = 1
-      offset = tid*(2*ny(nb)+15)
+      offset = tid*2*(2*ny(nb)+15)
       do q=tid+1,nq2(nb),nthr
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
-            call cfftb(ny(nb),A(1+(q-1)*ny(nb)),
+            call scfftb(ny(nb),A(1+(q-1)*ny(nb)),
      >                  scpl_mb(tmpy(1,nb)+offset))
          end if
          !indx = indx + ny(nb)
@@ -262,10 +262,10 @@ c     call D3dBs_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #else
 
       !indx = 1
-      offset = tid*(2*nx(nb)+15)
+      offset = tid*2*(2*nx(nb)+15)
       call cshift1_sfftb(nx(nb),nq1(nb),1,1,A)
       do q=tid+1,nq1(nb),nthr
-         call rfftb(nx(nb),A(1+(q-1)*nxh),
+         call srfftb(nx(nb),A(1+(q-1)*nxh),
      >              scpl_mb(tmpx(1,nb)+offset))
          !indx = indx + nxh
       end do
@@ -374,7 +374,7 @@ c     call D3dBs_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       indx = 1
       do q=1,nq(nb)
       do j=1,ny(nb)
-         call rfftf(nx(nb),A(indx),scpl_mb(tmpx(1,nb)))
+         call srfftf(nx(nb),A(indx),scpl_mb(tmpx(1,nb)))
          indx = indx + nxh
       end do
       end do
@@ -405,7 +405,7 @@ c     call D3dBs_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
              scpl_mb(tmp2(1)+k-1) = A(indx)
              indx = indx + nxh
           end do
-          call cfftf(ny(nb),scpl_mb(tmp2(1)),scpl_mb(tmpy(1,nb)))
+          call scfftf(ny(nb),scpl_mb(tmp2(1)),scpl_mb(tmpy(1,nb)))
           do k=1,ny(nb)
              A(indx1) = scpl_mb(tmp2(1)+k-1)
              indx1 = indx1 + nxh
@@ -449,7 +449,7 @@ c     call D3dBs_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
              scpl_mb(tmp2(1)+k-1) = A(indx)
              indx = indx + nxh
           end do
-          call cfftf(nz(nb),scpl_mb(tmp2(1)),scpl_mb(tmpz(1,nb)))
+          call scfftf(nz(nb),scpl_mb(tmp2(1)),scpl_mb(tmpz(1,nb)))
           do k=1,nz(nb)
              A(indx1) = scpl_mb(tmp2(1)+k-1)
              indx1 = indx1 + nxh
@@ -484,9 +484,9 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 #else
       !indx = 1
-      offset = tid*(2*nx(nb)+15)
+      offset = tid*2*(2*nx(nb)+15)
       do q=tid+1,nq1(nb),nthr
-         call rfftf(nx(nb),A(1+(q-1)*nxh),scpl_mb(tmpx(1,nb)+offset))
+         call srfftf(nx(nb),A(1+(q-1)*nxh),scpl_mb(tmpx(1,nb)+offset))
          !indx = indx + nxh
       end do
       call cshift_sfftf(nx(nb),nq1(nb),1,1,A)
@@ -513,10 +513,10 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #else
 
       !indx = 1
-      offset = tid*(2*ny(nb)+15)
+      offset = tid*2*(2*ny(nb)+15)
       do q=tid+1,nq2(nb),nthr
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
-            call cfftf(ny(nb),A(1+(q-1)*ny(nb)),
+            call scfftf(ny(nb),A(1+(q-1)*ny(nb)),
      >                 scpl_mb(tmpy(1,nb)+offset))
          end if
          !indx = indx + ny(nb)
@@ -545,10 +545,10 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #else
 
       !indx = 1
-      offset = tid*(2*nz(nb)+15)
+      offset = tid*2*(2*nz(nb)+15)
       do q=tid+1,nq3(nb),nthr
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
-            call cfftf(nz(nb),A(1+(q-1)*nz(nb)),
+            call scfftf(nz(nb),A(1+(q-1)*nz(nb)),
      >                 scpl_mb(tmpz(1,nb)+offset))
          end if
          !indx = indx + nz(nb)
@@ -669,7 +669,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
             scpl_mb(tmp2(1)+k-1) = A(shift0+indx)
             indx = indx + nxh
          end do
-         call cfftb(nz(nb),scpl_mb(tmp2(1)),scpl_mb(tmpz(1,nb)))
+         call scfftb(nz(nb),scpl_mb(tmp2(1)),scpl_mb(tmpz(1,nb)))
          do k=1,nz(nb)
             A(shift0+indx1) = scpl_mb(tmp2(1)+k-1)
             indx1 = indx1 + nxh
@@ -718,7 +718,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
             scpl_mb(tmp2(1)+j-1) = A(shift0+indx)
             indx = indx + nxh
          end do
-         call cfftb(ny(nb),scpl_mb(tmp2(1)),scpl_mb(tmpy(1,nb)))
+         call scfftb(ny(nb),scpl_mb(tmp2(1)),scpl_mb(tmpy(1,nb)))
          do j=1,ny(nb)
             A(shift0+indx1) = scpl_mb(tmp2(1)+j-1)
             indx1 = indx1 + nxh
@@ -744,7 +744,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       do q=1,nq(nb)
       do j=1,ny(nb)
          !indx = 1 + (j-1)*(nx(nb)/2+1) + (q-1)*(nx(nb)/2+1)*ny(nb)
-         call rfftb(nx(nb),A(shift0+indx),scpl_mb(tmpx(1,nb)))
+         call srfftb(nx(nb),A(shift0+indx),scpl_mb(tmpx(1,nb)))
          indx = indx + nxh
       end do
       end do
@@ -777,7 +777,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
          call fftw_execute_dft(splans(17,nb),
      >                         A(indx+shift0),A(indx+shift0))
 #else
-         call cfftb(nz(nb),A(shift0+indx),scpl_mb(tmpz(1,nb)))
+         call scfftb(nz(nb),A(shift0+indx),scpl_mb(tmpz(1,nb)))
 #endif
 
          end if
@@ -801,7 +801,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
          call fftw_execute_dft(splans(18,nb),
      >                          A(indx+shift0),A(indx+shift0))
 #else
-         call cfftb(ny(nb),A(shift0+indx),scpl_mb(tmpy(1,nb)))
+         call scfftb(ny(nb),A(shift0+indx),scpl_mb(tmpy(1,nb)))
 #endif
 
          end if
@@ -825,7 +825,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       indx = 1
       do q=1,nq1(nb)
          !indx = 1 + (q-1)*(nx(nb)/2+1)
-         call rfftb(nx(nb),A(shift0+indx),scpl_mb(tmpx(1,nb)))
+         call srfftb(nx(nb),A(shift0+indx),scpl_mb(tmpx(1,nb)))
          indx = indx + nxh
       end do
       call zeroend_sfftb(nx(nb),nq1(nb),1,1,A(shift))
@@ -916,7 +916,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       indx = 1
       do q=1,nq(id)
       do j=1,ny(id)
-         call rfftf(nx(id),A(indx),scpl_mb(tmpx(1,id)))
+         call srfftf(nx(id),A(indx),scpl_mb(tmpx(1,id)))
          indx = indx + nxh
       end do
       end do
@@ -941,10 +941,10 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 #else
 
-      offset = tid*(2*nx(id)+15)
+      offset = tid*2*(2*nx(id)+15)
       do q=tid+1,nq1(id),nthr
          indx = 1+(q-1)*nxh
-         call rfftf(nx(id),A(indx),scpl_mb(tmpx(1,id)+offset))
+         call srfftf(nx(id),A(indx),scpl_mb(tmpx(1,id)+offset))
       end do
       call cshift_sfftf(nx(id),nq1(id),1,1,A)
 
@@ -969,7 +969,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       integer i,indx
 
       do i=1,n
-         call rfftf(nx,A(1,i),tmpx)
+         call srfftf(nx,A(1,i),tmpx)
       end do
       return
       end
@@ -1043,7 +1043,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       indx = 1
       do q=1,nq(id)
       do j=1,ny(id)
-         call rfftf(nx(id),tmp1(indx),scpl_mb(tmpx(1,id)))
+         call srfftf(nx(id),tmp1(indx),scpl_mb(tmpx(1,id)))
          indx = indx + nxh
       end do
       end do
@@ -1063,10 +1063,10 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 #else
 
-      offset = tid*(2*nx(id)+15)
+      offset = tid*2*(2*nx(id)+15)
       do q=tid+1,nq1(id),nthr
          indx = 1+(q-1)*nxh
-         call rfftf(nx(id),tmp1(indx),scpl_mb(tmpx(1,id)+offset))
+         call srfftf(nx(id),tmp1(indx),scpl_mb(tmpx(1,id)+offset))
       end do
       call cshift_sfftf(nx(id),nq1(id),1,1,tmp1)
 
@@ -1173,7 +1173,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
              tmp2(k) = tmp1(indx)
              indx = indx + nxh
           end do
-          call cfftf(ny(id),tmp2,scpl_mb(tmpy(1,id)))
+          call scfftf(ny(id),tmp2,scpl_mb(tmpy(1,id)))
           do k=1,ny(id)
              tmp1(indx1) = tmp2(k)
              indx1 = indx1 + nxh
@@ -1221,11 +1221,11 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #else
 
       !indx = 1
-      offset = tid*(2*ny(id)+15)
+      offset = tid*2*(2*ny(id)+15)
       do q=tid+1,nq2(id),nthr
          indx = 1+(q-1)*ny(id)
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
-            call cfftf(ny(id),tmp1(indx),scpl_mb(tmpy(1,id)+offset))
+            call scfftf(ny(id),tmp1(indx),scpl_mb(tmpy(1,id)+offset))
          end if
          !indx = indx + ny(id)
       end do
@@ -1254,7 +1254,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       integer i
       do i=1,n
          if (.not.row2(i)) then
-            call cfftf(ny,A(1,i),tmpy)
+            call scfftf(ny,A(1,i),tmpy)
          end if
       end do
       return
@@ -1342,7 +1342,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
              tmp1(k) = tmp2(indx)
              indx = indx + nxh
           end do
-          call cfftf(nz(id),tmp1,scpl_mb(tmpz(1,id)))
+          call scfftf(nz(id),tmp1,scpl_mb(tmpz(1,id)))
           do k=1,nz(id)
              tmp2(indx1) = tmp1(k)
              indx1 = indx1 + nxh
@@ -1381,11 +1381,11 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #else
 
       !indx = 1
-      offset = tid*(2*nz(id)+15)
+      offset = tid*2*(2*nz(id)+15)
       do q=tid+1,nq3(id),nthr
          indx = 1+(q-1)*nz(id)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
-            call cfftf(nz(id),tmp2(indx),scpl_mb(tmpz(1,id)+offset))
+            call scfftf(nz(id),tmp2(indx),scpl_mb(tmpz(1,id)+offset))
          end if
          !indx = indx + nz(id)
       end do
@@ -1412,7 +1412,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       integer i
       do i=1,n
          if (.not.row3(i)) then
-            call cfftf(nz,A(1,i),tmpz)
+            call scfftf(nz,A(1,i),tmpz)
          end if
       end do
       return
@@ -1614,7 +1614,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
             tmp2(k) = tmp1(indx)
             indx = indx + nxh
          end do
-         call cfftb(nz(id),tmp2,scpl_mb(tmpz(1,id)))
+         call scfftb(nz(id),tmp2,scpl_mb(tmpz(1,id)))
          do k=1,nz(id)
             tmp1(indx1) = tmp2(k)
             indx1 = indx1 + nxh
@@ -1663,7 +1663,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       do q=1+tid,nq3(id),nthr
          indx = 1 + (q-1)*nz(id)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
-            call cfftb(nz(id),tmp1(indx),
+            call scfftb(nz(id),tmp1(indx),
      >                 scpl_mb(tmpz(1,id)+tid*(2*nz(id)+15)))
          end if
          !indx = indx + nz(id)
@@ -1691,7 +1691,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       integer i
       do i=1,n
          if (.not.row3(i)) then
-            call cfftb(nz,A(1,i),tmpz)
+            call scfftb(nz,A(1,i),tmpz)
          end if
       end do
       return
@@ -1777,7 +1777,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
             tmp1(j) = tmp2(indx)
             indx = indx + nxh
          end do
-         call cfftb(ny(id),tmp1,scpl_mb(tmpy(1,id)))
+         call scfftb(ny(id),tmp1,scpl_mb(tmpy(1,id)))
          do j=1,ny(id)
             tmp2(indx1) = tmp1(j)
             indx1 = indx1 + nxh
@@ -1819,7 +1819,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       do q=1+tid,nq2(id),nthr
          indx = 1 + (q-1)*ny(id)
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
-            call cfftb(ny(id),tmp2(indx),
+            call scfftb(ny(id),tmp2(indx),
      >                 scpl_mb(tmpy(1,id)+tid*(2*ny(id)+15)))
          end if
       end do
@@ -1848,7 +1848,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       integer i
       do i=1,n
          if (.not.row2(i)) then
-            call cfftb(ny,A(1,i),tmpy)
+            call scfftb(ny,A(1,i),tmpy)
          end if
       end do
       return
@@ -1925,7 +1925,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       indx = 1
       do q=1,nq(id)
       do j=1,ny(id)
-         call rfftb(nx(id),tmp2(indx),scpl_mb(tmpx(1,id)))
+         call srfftb(nx(id),tmp2(indx),scpl_mb(tmpx(1,id)))
          indx = indx + nxh
       end do
       end do
@@ -1963,7 +1963,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       do q=1+tid,nq1(id),nthr
          indx = 1+(q-1)*nxh
          call cshift1_sfftb1(nx(id),tmp1(indx))
-         call rfftb(nx(id),tmp1(indx),
+         call srfftb(nx(id),tmp1(indx),
      >               scpl_mb(tmpx(1,id)+tid*(2*nx(id)+15))) 
          call zeroend_sfftb1(nx(id),tmp1(indx))
          !indx = indx + nxh
@@ -1984,7 +1984,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       real    A(2*nxh,n)
       integer i
       do i=1,n
-         call rfftb(nx,A(1,i),tmpx)
+         call srfftb(nx,A(1,i),tmpx)
       end do
 
       return

@@ -371,9 +371,12 @@ c     integer i2_start(NFFT3+1)
 
       logical value
       integer i
+      logical  control_single_precision_on
+      external control_single_precision_on
 
       call D3dB_timereverse_end(nb)
       call D3dB_fft_end(nb)
+      if (control_single_precision_on()) call D3dBs_fft_end(nb)
 
       value=.true.
 
@@ -772,6 +775,8 @@ c     p = p_map(k)
       integer taskid,np
       integer  Parallel_threadid
       external Parallel_threadid
+      logical  control_single_precision_on
+      external control_single_precision_on
 
 
 
@@ -880,6 +885,7 @@ c     p = p_map(k)
 
       call D3dB_c_timereverse_init(nb)
       call D3dB_fft_init(nb)
+      if (control_single_precision_on()) call D3dBs_fft_init(nb)
       
       return
       end

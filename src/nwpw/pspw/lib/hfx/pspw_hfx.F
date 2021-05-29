@@ -173,9 +173,6 @@
                  call D3dB_r_1to3_init()
                  call D3dB_r_3to1_init()
               end if
-              if (single_precision_on) then
-                 call D3dBs_fft_init(1)
-              end if
 
 *        **** initialize free-space coulomb if necessary ****
          else
@@ -186,10 +183,6 @@
                mapping = control_mapping()
                call D3dB_Init(2,2*n1,2*n2,2*n3,mapping)
                call coulomb2_init()
-            end if
-            if (single_precision_on) then
-               call D3dBs_fft_init(1)
-               call D3dBs_fft_init(2)
             end if
 
          end if
@@ -277,6 +270,7 @@ c     **** define extra psi and Hpsi  ****
 
 c     **** define extra psi and Hpsi for single precision ****
       if (single_precision_on) then
+        call Dneall_neq(neq)
         nsize_shfx = (neq(1)+neq(2))*n2ft3d
         value = BA_alloc_get(mt_real,nsize_shfx,
      >                      'psi_r_shfx',
@@ -364,9 +358,6 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
              call D3dB_r_1to3_end()
              call D3dB_r_3to1_end()
           end if
-          if (single_precision_on) then
-             call D3dBs_fft_end(1)
-          end if
 
 *        **** end free-space coulomb if necessary ****
         else
@@ -374,10 +365,6 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
               call coulomb2_end()
               call D3dB_end(2)
            end if
-          if (single_precision_on) then
-             call D3dBs_fft_end(1)
-             call D3dBs_fft_end(2)
-          end if
         end if
 
 *        **** deallocate Lin_projectors ****
@@ -556,6 +543,7 @@ c       **** deallocate extra psi and Hpsi for single precision ****
 #include "pspw_hfx.fh"
 #include "errquit.fh"
 
+      integer i
       call nwpw_timing_start(33)
 
 
@@ -612,7 +600,7 @@ c       **** deallocate extra psi and Hpsi for single precision ****
       implicit none
       integer n
       real*8 a8(*)
-      real   a4(*)
+      real*4 a4(*)
       integer i
       do i=1,n
          a4(i) = real(a8(i))
@@ -623,7 +611,7 @@ c       **** deallocate extra psi and Hpsi for single precision ****
       subroutine pspw_todouble_hfx(n,a4,a8)
       implicit none
       integer n
-      real   a4(*)
+      real*4 a4(*)
       real*8 a8(*)
       integer i
       do i=1,n
