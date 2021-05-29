@@ -454,6 +454,7 @@ c      call coulomb_screened_init_print(rcut,pp)
       integer svc_indx,svc_hndl
       common / svc_screened_block / svc_indx,svc_hndl,has_single
 
+
       call nwpw_timing_start(7)
       call Packs_tc_Mul(0,real_mb(svc_indx),dng,vc_out)
       call nwpw_timing_end(7)
@@ -536,7 +537,6 @@ c      call coulomb_screened_init_print(rcut,pp)
 
       call Packs_ct_Sqr(0,dng,real_mb(tmp1(1)))
       call Packs_tt_dot(0,real_mb(tmp1(1)),real_mb(svc_indx),ec)
-
       ec = 0.5*ec*real(lattice_omega())
 
       value = BA_pop_stack(tmp1(2))
@@ -616,7 +616,6 @@ c      call coulomb_screened_init_print(rcut,pp)
 
       call Packs_ct_Sqr(0,dng,real_mb(tmp1(1)))
       call Packs_tt_idot(0,real_mb(tmp1(1)),real_mb(svc_indx),ec)
-
       ec = 0.50*ec*real(lattice_omega())
 
       if (.not.BA_pop_stack(tmp1(2)))

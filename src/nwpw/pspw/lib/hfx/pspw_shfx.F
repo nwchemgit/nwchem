@@ -285,7 +285,7 @@ c     **** nothing to do ****
            else
               call coulomb2_s_v(real_mb(dn(1)),real_mb(vij(1)))
               call D3dBs_rr_dot(1,real_mb(dn(1)),real_mb(vij(1)),seh)
-              eh = 0.5d0*seh*dv
+              eh = 0.5d0*dble(seh*dv)
            end if
 
 *          **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
@@ -352,17 +352,20 @@ c***************** sub/replicated routines *****************************
 
 *     **** external functions ****
       real*8   lattice_omega
-      real     icoulomb_screened_s_e
-      real*8   icoulomb_screened_small_s_e
-      logical  D3dBs_rc_pfft3_queue_filled,D3dBs_cr_pfft3_queue_filled
-      logical  pspw_hfx_localize_closeenough
-      real*8   pspw_hfx_localize_switchr
       external lattice_omega
-      external icoulomb_screened_s_e
-      external icoulomb_screened_small_s_e
+
+      logical  D3dBs_rc_pfft3_queue_filled,D3dBs_cr_pfft3_queue_filled
       external D3dBs_rc_pfft3_queue_filled,D3dBs_cr_pfft3_queue_filled
+      logical  pspw_hfx_localize_closeenough
       external pspw_hfx_localize_closeenough
+
+      real*8   pspw_hfx_localize_switchr
       external pspw_hfx_localize_switchr
+
+      real     icoulomb_screened_s_e
+      external icoulomb_screened_s_e
+      real     icoulomb_screened_small_s_e
+      external icoulomb_screened_small_s_e
 
       call Parallel2d_taskid_i(taskid)
       icount = 0
@@ -512,14 +515,15 @@ c
                     if (localize_on.and.has_smallgrid) then
                        call D3dBs_rc_pfft3f_queueout_center(2,
      >                                              real_mb(dn(1)))
-                       eh = icoulomb_screened_small_s_e(real_mb(dn(1)))
+                       eh = dble(icoulomb_screened_small_s_e(
+     >                                                real_mb(dn(1))))
                        call coulomb_screened_small_s_v(real_mb(dn(1)),
      >                                                 real_mb(vij(1)))
                     else
                        call D3dBs_rc_pfft3f_queueout(0,real_mb(dn(1)))
-                       eh = icoulomb_screened_s_e(real_mb(dn(1)))
-                       call coulomb_screened_v(real_mb(dn(1)),
-     >                                         real_mb(vij(1)))
+                       eh = dble(icoulomb_screened_s_e(real_mb(dn(1))))
+                       call coulomb_screened_s_v(real_mb(dn(1)),
+     >                                           real_mb(vij(1)))
                     end if
 
 *                   **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
@@ -1353,14 +1357,14 @@ c        call D1dB_SumAll(ph)
 
 *     *************************
 *     *                       *
-*     *     pspw_energy_sHFX2  *
+*     *    pspw_energy_sHFX2  *
 *     *                       *
 *     *************************
       subroutine pspw_energy_sHFX2(ispin0,psi1_r,psi2_r,
      >                            ehfx_out,phfx_out)
       implicit none
       integer ispin0
-      real*8  psi1_r(*),psi2_r(*)
+      real   psi1_r(*),psi2_r(*)
       real*8 ehfx_out
       real*8 phfx_out
 
@@ -1426,8 +1430,8 @@ c     **** nothing to do ****
      >                               ehfx_out,phfx_out)
       implicit none
       integer ispin0
-      real*8  psi1_r(*)
-      real*8  psi2_r(*)
+      real   psi1_r(*)
+      real   psi2_r(*)
       real*8 ehfx_out
       real*8 phfx_out
 
@@ -1443,8 +1447,8 @@ c     **** nothing to do ****
       real*8  eh,ph
 
 *     **** external functions ****
-      real*8   lattice_omega,coulomb_screened_e
-      external lattice_omega,coulomb_screened_e
+      real*8   lattice_omega,coulomb_screened_s_e
+      external lattice_omega,coulomb_screened_s_e
 
       integer taskid
 
@@ -1510,8 +1514,8 @@ c     **** nothing to do ****
                 call coulomb_screened_s_v(real_mb(dn(1)),
      >                                    real_mb(tmp1(1)))
                 call Packs_cc_dot(0,real_mb(dn(1)+n2ft3d),
-     >                              real_mb(tmp1(1)),eh)
-                eh = 0.5d0*eh*lattice_omega()
+     >                              real_mb(tmp1(1)),seh)
+                eh = 0.5d0*dble(seh)*lattice_omega()
        
 *             ***** free-space coulomb solver ****
               else

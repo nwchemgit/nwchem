@@ -4657,10 +4657,10 @@ c     **** three derivatives ****
      >                          request,reqcnt,msgtype)
       implicit none
       integer    nb
-      complex*16 tmp1(*)
-      complex*16 tmp2(*)
-      complex*16 tmp1z(*)
-      complex*16 tmp2z(*)
+      complex tmp1(*)
+      complex tmp2(*)
+      complex tmp1z(*)
+      complex tmp2z(*)
       integer    request(*),reqcnt
       integer    msgtype
 
