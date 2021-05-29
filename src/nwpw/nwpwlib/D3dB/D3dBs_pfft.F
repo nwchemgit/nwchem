@@ -204,7 +204,7 @@ c     call D3dBs_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #else
 
       !indx = 1
-      offset = tid*2*(2*nz(nb)+15)
+      offset = tid*(2*nz(nb)+15)
       do q=tid+1,nq3(nb),nthr
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
             call scfftb(nz(nb),A(1+(q-1)*nz(nb)),
@@ -236,7 +236,7 @@ c     call D3dBs_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #else
 
       !indx = 1
-      offset = tid*2*(2*ny(nb)+15)
+      offset = tid*(2*ny(nb)+15)
       do q=tid+1,nq2(nb),nthr
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
             call scfftb(ny(nb),A(1+(q-1)*ny(nb)),
@@ -262,7 +262,7 @@ c     call D3dBs_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #else
 
       !indx = 1
-      offset = tid*2*(2*nx(nb)+15)
+      offset = tid*(2*nx(nb)+15)
       call cshift1_sfftb(nx(nb),nq1(nb),1,1,A)
       do q=tid+1,nq1(nb),nthr
          call srfftb(nx(nb),A(1+(q-1)*nxh),
@@ -484,7 +484,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 #else
       !indx = 1
-      offset = tid*2*(2*nx(nb)+15)
+      offset = tid*(2*nx(nb)+15)
       do q=tid+1,nq1(nb),nthr
          call srfftf(nx(nb),A(1+(q-1)*nxh),scpl_mb(tmpx(1,nb)+offset))
          !indx = indx + nxh
@@ -513,7 +513,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #else
 
       !indx = 1
-      offset = tid*2*(2*ny(nb)+15)
+      offset = tid*(2*ny(nb)+15)
       do q=tid+1,nq2(nb),nthr
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
             call scfftf(ny(nb),A(1+(q-1)*ny(nb)),
@@ -545,7 +545,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #else
 
       !indx = 1
-      offset = tid*2*(2*nz(nb)+15)
+      offset = tid*(2*nz(nb)+15)
       do q=tid+1,nq3(nb),nthr
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
             call scfftf(nz(nb),A(1+(q-1)*nz(nb)),
@@ -941,7 +941,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 #else
 
-      offset = tid*2*(2*nx(id)+15)
+      offset = tid*(2*nx(id)+15)
       do q=tid+1,nq1(id),nthr
          indx = 1+(q-1)*nxh
          call srfftf(nx(id),A(indx),scpl_mb(tmpx(1,id)+offset))
@@ -1063,7 +1063,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 #else
 
-      offset = tid*2*(2*nx(id)+15)
+      offset = tid*(2*nx(id)+15)
       do q=tid+1,nq1(id),nthr
          indx = 1+(q-1)*nxh
          call srfftf(nx(id),tmp1(indx),scpl_mb(tmpx(1,id)+offset))
@@ -1221,7 +1221,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #else
 
       !indx = 1
-      offset = tid*2*(2*ny(id)+15)
+      offset = tid*(2*ny(id)+15)
       do q=tid+1,nq2(id),nthr
          indx = 1+(q-1)*ny(id)
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
@@ -1381,7 +1381,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #else
 
       !indx = 1
-      offset = tid*2*(2*nz(id)+15)
+      offset = tid*(2*nz(id)+15)
       do q=tid+1,nq3(id),nthr
          indx = 1+(q-1)*nz(id)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then

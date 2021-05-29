@@ -208,19 +208,19 @@ ccccccccccc  #define TCGMSG
 
       !call D3dB_nfft3d(nb,nfft3d)
 
-      value = BA_alloc_get(mt_scpl,mthr*2*(2*nx(nb)+15),
+      value = BA_alloc_get(mt_scpl,mthr*(2*nx(nb)+15),
      >        'sfttmpx',tmpx(2,nb),tmpx(1,nb))
       value = value.and.
-     >        BA_alloc_get(mt_scpl,mthr*2*(2*ny(nb)+15),
+     >        BA_alloc_get(mt_scpl,mthr*(2*ny(nb)+15),
      >        'sfttmpy',tmpy(2,nb),tmpy(1,nb))
       value = value.and.
-     >        BA_alloc_get(mt_scpl,mthr*2*(2*nz(nb)+15),
+     >        BA_alloc_get(mt_scpl,mthr*(2*nz(nb)+15),
      >        'sfttmpz',tmpz(2,nb),tmpz(1,nb))
       if (.not. value) 
      >   call errquit('D3dBs_fft_init:out of heap memory',0, MA_ERR)
 
       call Parallel_shared_vector_szero(.true.,
-     >                       2*(2*nx(nb)+15),scpl_mb(tmpx(1,nb)))
+     >                       (2*nx(nb)+15),scpl_mb(tmpx(1,nb)))
 
       do i=1,mthr
         !write(*,*) "DEBUG init fft arrays of thread ", i-1
@@ -599,7 +599,7 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 #else
 
-      offset=tid*2*(2*nz(nb)+15)
+      offset=tid*(2*nz(nb)+15)
       do i=tid+1,nq3(nb),nthr
         call scfftb(nz(nb),A(1+(i-1)*nz(nb)),scpl_mb(tmpz(1,nb)+offset))
       end do
@@ -618,7 +618,7 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call fftw_execute_dft(splans(12,nb),A,A)
 
 #else
-      offset=tid*2*(2*ny(nb)+15)
+      offset=tid*(2*ny(nb)+15)
       do i=tid+1,nq2(nb),nthr
         call scfftb(ny(nb),A(1+(i-1)*ny(nb)),scpl_mb(tmpy(1,nb)+offset))
       end do
@@ -637,7 +637,7 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call dfftw_execute_dft_c2r(splans(13,nb),A,A)
 
 #else
-      offset=tid*2*(2*nx(nb)+15)
+      offset=tid*(2*nx(nb)+15)
       call cshift1_fftb(nx(nb),nq1(nb),1,1,A)
       do i=tid+1,nq1(nb),nthr
         call srfftb(nx(nb),A(1+(i-1)*nxh),scpl_mb(tmpx(1,nb)+offset))
@@ -846,7 +846,7 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       call dfftw_execute_dft_r2c(splans(4,nb),A,A)
 
 #else
-      offset=tid*2*(2*nx(nb)+15)
+      offset=tid*(2*nx(nb)+15)
       do j=tid+1,ny(nb)*nq(nb),nthr
          call srfftf(nx(nb),A((j-1)*nxh+1),scpl_mb(tmpx(1,nb)+offset))
       end do
@@ -865,7 +865,7 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
 
 #else
-      offset=tid*2*(2*ny(nb)+15)
+      offset=tid*(2*ny(nb)+15)
       do i=tid+1,nxh,nthr
       indx = i
       indx1= i
@@ -907,7 +907,7 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
 
 #else
-      offset=tid*2*(2*nz(nb)+15)
+      offset=tid*(2*nz(nb)+15)
       do i=tid+1,nxh,nthr
       indx  = i
       indx1 = i
@@ -951,7 +951,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       call fftw_execute_dft_r2c(splans(14,nb),A,A)
 #else
 
-      offset=tid*2*(2*nx(nb)+15)
+      offset=tid*(2*nx(nb)+15)
       do i=tid+1,nq1(nb),nthr
         call srfftf(nx(nb),A(1+(i-1)*nxh),scpl_mb(tmpx(1,nb)+offset))
       end do
@@ -969,7 +969,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       call fftw_execute_dft(splans(15,nb),A,A)
 
 #else
-      offset=tid*2*(2*ny(nb)+15)
+      offset=tid*(2*ny(nb)+15)
       do i=tid+1,nq2(nb),nthr
         call scfftf(ny(nb),A(1+(i-1)*ny(nb)),scpl_mb(tmpy(1,nb)+offset))
       end do
@@ -986,7 +986,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #ifdef FFTW3
       call fftw_execute_dft(splans(16,nb),A,A)
 #else
-      offset=tid*2*(2*nz(nb)+15)
+      offset=tid*(2*nz(nb)+15)
       do i=tid+1,nq3(nb),nthr
         call scfftf(nz(nb),A(1+(i-1)*nz(nb)),scpl_mb(tmpz(1,nb)+offset))
       end do
