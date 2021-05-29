@@ -1397,7 +1397,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       end if
 
       call nwpw_timing_start(32)
-      call Pack_c_spack_start(nbb,tmp2,tmp1,request,reqcnt,43)
+      call Packs_c_pack_start(nbb,tmp2,tmp1,request,reqcnt,43)
       call nwpw_timing_end(32)
 
       return
@@ -1444,7 +1444,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 
       call nwpw_timing_start(32)
-      call Pack_c_spack_end(nbb,tmp2,request,reqcnt)
+      call Packs_c_pack_end(nbb,tmp2,request,reqcnt)
       call nwpw_timing_end(32)
 
       return
@@ -2017,17 +2017,17 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
       if (step.eq.1) then
          call nwpw_timing_start(32)
-         call Pack_c_unspack_start(nbb,A,tmp1,request,reqcnt,47)
+         call Packs_c_unpack_start(nbb,A,tmp1,request,reqcnt,47)
          call nwpw_timing_end(32)
       else if (step.eq.2) then
          call nwpw_timing_start(32)
-         call Pack_c_unspack_mid(nbb,tmp1,tmp2,
+         call Packs_c_unpack_mid(nbb,tmp1,tmp2,
      >                          scpl_mb(tmp1z(1)),scpl_mb(tmp2z(1)),
      >                          request,reqcnt,48)
          call nwpw_timing_end(32)
       else if (step.eq.3) then
          call nwpw_timing_start(32)
-         call Pack_c_unspack_end(nbb,tmp1,
+         call Packs_c_unpack_end(nbb,tmp1,
      >                          scpl_mb(tmp1z(1)),scpl_mb(tmp2z(1)),
      >                          request,reqcnt)
          call nwpw_timing_end(32)
@@ -2069,17 +2069,17 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
       if (step.eq.1) then
          call nwpw_timing_start(32)
-         call Pack_c_unspack_start(nbb,A,tmp1,request,reqcnt,47)
+         call Packs_c_unpack_start(nbb,A,tmp1,request,reqcnt,47)
          call nwpw_timing_end(32)
       else if (step.eq.2) then
          call nwpw_timing_start(32)
-         call Pack_c_unspack_mid(nbb,tmp1,tmp2,
+         call Packs_c_unpack_mid(nbb,tmp1,tmp2,
      >                          scpl_mb(tmp1z(1)),scpl_mb(tmp2z(1)),
      >                          request,reqcnt,48)
          call nwpw_timing_end(32)
       else if (step.eq.3) then
          call nwpw_timing_start(32)
-         call Pack_c_unspack_end(nbb,tmp1,
+         call Packs_c_unpack_end(nbb,tmp1,
      >                          scpl_mb(tmp1z(1)),scpl_mb(tmp2z(1)),
      >                          request,reqcnt)
          call nwpw_timing_end(32)
@@ -2091,12 +2091,12 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
          call D3dBs_pfftbx(nbb,tmp1,tmp2,request,reqcnt)
 
       else if (step.eq.7) then
-         call D3dBs_r_3to1_sExpand_start3(center,tmp1,tmp2,
+         call D3dBs_r_3to1_Expand_start3(center,tmp1,tmp2,
      >                                   request,reqcnt)
       else if (step.eq.8) then
-         call D3dBs_r_3to1_sExpand_mid3(tmp2,tmp1,request,reqcnt)
+         call D3dBs_r_3to1_Expand_mid3(tmp2,tmp1,request,reqcnt)
       else if (step.eq.9) then
-         call D3dBs_r_3to1_sExpand_final3(tmp1,tmp2,request,reqcnt)
+         call D3dBs_r_3to1_Expand_final3(tmp1,tmp2,request,reqcnt)
       end if
 
       return
@@ -2198,7 +2198,7 @@ c     **** allocate bqueue ****
 
 
 
-      call D3dBs_zplane_size(1,zplane_sizetmp)
+      call D3dB_zplane_size(1,zplane_sizetmp)
       value = value.and.
      >        BA_alloc_get(mt_scpl,(zplane_sizetmp),
      >                    'tmp1z',tmp1z(2),tmp1z(1))

@@ -174,7 +174,7 @@
 c     **** calculate HFX energy  ****
          if (replicated) then
 
-            call Parallel_sharec_vector_szero(.true.,nrsize,
+            call Parallel_shared_vector_szero(.true.,nrsize,
      >                                    real_mb(psi_r_replicated(1)))
             do q=1,neqall
                call Dneall_qton(q,n)
@@ -327,7 +327,7 @@ c***************** sub/replicated routines *****************************
 *     *    pspw_potential_sHFX_sub   *
 *     *                              *
 *     ********************************
-      subroutine pspw_potential_HFX_sub(ispin0,psi_r,Hpsi_r)
+      subroutine pspw_potential_sHFX_sub(ispin0,psi_r,Hpsi_r)
       implicit none
       integer ispin0
       real    psi_r(*)

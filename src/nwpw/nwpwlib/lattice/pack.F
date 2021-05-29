@@ -2175,20 +2175,13 @@ c      sum = sum + 2*ddot(2*nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
       integer pack(2,0:3)
       common / pack_blk / pack,nida,nidb
 
-
 *     **** local variables ****
       integer i
       real*8 sa,sb
       common /pack_conjg_tcc_indot_sasb/ sa,sb
 
-*     **** external functions ****
-c      real*8   ddot
-c      external ddot
-
       call nwpw_timing_start(2)
 
-c      sum =         ddot(nida(nb),A,1,B,1)
-c      sum = sum + 2*ddot(nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
 !$OMP MASTER
       sa = 0.0d0
       sb = 0.0d0
@@ -2214,6 +2207,58 @@ c      sum = sum + 2*ddot(nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
       call nwpw_timing_end(2)
       return
       end 
+
+
+*     ***********************************
+*     *                                 *
+*     *          Packs_tt_idot          *
+*     *                                 *
+*     ***********************************
+      subroutine Packs_tt_idot(nb,A,B,sum)
+      implicit none
+      integer    nb
+      real A(*)
+      real B(*)
+      real sum
+
+*     **** common block for pack ****
+      integer nida(0:3),nidb(0:3)
+      integer pack(2,0:3)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer i
+      real sa,sb
+      common /packs_conjg_tcc_indot_sasb/ sa,sb
+
+      call nwpw_timing_start(2)
+
+!$OMP MASTER
+      sa = 0.0
+      sb = 0.0
+!$OMP END MASTER
+!$OMP BARRIER
+!$OMP DO REDUCTION(+:sa)
+      do i=1,nida(nb)
+         sa = sa + A(i)*B(i)
+      end do
+!$OMP END DO
+
+!$OMP DO REDUCTION(+:sb)
+      do i=1,nidb(nb)
+         sb = sb + 2.0*A(nida(nb)+i)*B(nida(nb)+i)
+      end do
+!$OMP END DO
+
+!$OMP MASTER
+      sum = sa + sb
+!$OMP END MASTER
+!$OMP BARRIER
+
+      call nwpw_timing_end(2)
+      return
+      end
+
 
 
 *     ***********************************
@@ -2342,6 +2387,62 @@ c      sum = sum + 2*ddot(nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
       call nwpw_timing_end(2)
       return
       end 
+
+*     ***********************************
+*     *                                 *
+*     *          Packs_tt_dot           *
+*     *                                 *
+*     ***********************************
+      subroutine Packs_tt_dot(nb,A,B,sum)
+      implicit none
+      integer nb
+      real  A(*)
+      real  B(*)
+      real  sum
+
+*     **** common block for pack ****
+      integer nida(0:3),nidb(0:3)
+      integer pack(2,0:3)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer np,i
+      real sa,sb
+      common /packs_conjg_tcc_indot_sasb/ sa,sb
+
+*     **** external functions ****
+
+      call nwpw_timing_start(2)
+      call Parallel2d_np_i(np)
+
+!$OMP MASTER
+      sa = 0.00
+      sb = 0.00
+!$OMP END MASTER
+!$OMP BARRIER
+!$OMP DO REDUCTION(+:sa)
+      do i=1,nida(nb)
+         sa = sa + A(i)*B(i)
+      end do
+!$OMP END DO
+
+!$OMP DO REDUCTION(+:sb)
+      do i=1,nidb(nb)
+         sb = sb + 2.00*A(nida(nb)+i)*B(nida(nb)+i)
+      end do
+!$OMP END DO
+
+!$OMP MASTER
+      sum = sa + sb
+!$OMP END MASTER
+!$OMP BARRIER
+
+      if (np.gt.1) call D3dBs_SumAll(sum)
+
+      call nwpw_timing_end(2)
+      return
+      end
+
 
 
 
@@ -2519,11 +2620,6 @@ c      call dcopy(2*(nida(nb)+nidb(nb)),A,1,B,1)
       return
       end
 
-
-
-
-
-
 *     ***********************************
 *     *					*
 *     *	         Pack_c_Copy		*	
@@ -2547,6 +2643,28 @@ c      call dcopy(2*(nida(nb)+nidb(nb)),A,1,B,1)
 
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *          Packs_c_Copy           *
+*     *                                 *
+*     ***********************************
+      subroutine Packs_c_Copy(nb,A,B)
+      implicit none
+      integer    nb
+      complex A(*)
+      complex B(*)
+
+*     **** common block for pack ****
+      integer nida(0:3),nidb(0:3)
+      integer pack(2,0:3)
+      common / pack_blk / pack,nida,nidb
+
+      call Parallel_shared_vector_scopy(.true.,
+     >                                  2*(nida(nb)+nidb(nb)),A,B)
+      return
+      end
+
 
 
       subroutine Pack_c_nCopy(nb,n,A,B)
@@ -2954,6 +3072,35 @@ c      call dcopy(n*2*(nida(nb)+nidb(nb)),A,1,B,1)
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *          Packs_ct_Sqr           *
+*     *                                 *
+*     ***********************************
+
+      subroutine Packs_ct_Sqr(nb,A,C)
+      implicit none
+      integer    nb
+      complex A(*)
+      real    C(*)
+
+*     **** common block for pack ****
+      integer nida(0:3),nidb(0:3)
+      integer pack(2,0:3)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer i
+
+!$OMP DO
+      do i=1,(nida(nb)+nidb(nb))
+        C(i) = real(A(i))**2 + aimag(A(i))**2
+      end do
+!$OMP END DO
+
+      return
+      end
+
 
 
 *     ***********************************
@@ -3215,14 +3362,12 @@ c      end do
 *     *	         Pack_tc_Mul            *
 *     *					*
 *     ***********************************
-
       subroutine Pack_tc_Mul(nb,A,B,C)
       implicit none
       integer    nb
       real*8     A(*)
       complex*16 B(*)
       complex*16 C(*)
-
 
 *     **** common block for pack ****
       integer nida(0:3),nidb(0:3)
@@ -3237,9 +3382,38 @@ c      end do
         C(i) = B(i)*A(i)
       end do
 !$OMP END DO
-
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *          Packs_tc_Mul           *
+*     *                                 *
+*     ***********************************
+      subroutine Packs_tc_Mul(nb,A,B,C)
+      implicit none
+      integer    nb
+      real    A(*)
+      complex B(*)
+      complex C(*)
+
+*     **** common block for pack ****
+      integer nida(0:3),nidb(0:3)
+      integer pack(2,0:3)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer i
+
+!$OMP DO
+      do i=1,(nida(nb)+nidb(nb))
+        C(i) = B(i)*A(i)
+      end do
+!$OMP END DO
+      return
+      end
+
+
 
 
 *     ***********************************
@@ -4137,7 +4311,6 @@ c     **** three derivatives ****
 *     *	          Pack_c_pack_start	*	
 *     *					*
 *     ***********************************
-
       subroutine Pack_c_pack_start(nb,A,tmp1,request,reqcnt,msgtype)
       implicit none
       integer    nb
@@ -4156,7 +4329,6 @@ c     **** three derivatives ****
       integer nidb(0:3)
       common / pack2_blk / nidb
 
-      
 *     **** local variables ****
       logical value
       integer nfft3d,n,id
@@ -4174,17 +4346,67 @@ c     **** three derivatives ****
 
       call D3dB_nfft3d(id,nfft3d)
 
-      !call dcopy(2*nfft3d,A,1,tmp1,1)
-      !call dcopy(2*nfft3d,0.0d0,0,A,1)
       call Parallel_shared_vector_copy(.true.,2*nfft3d,A,tmp1)
       call Parallel_shared_vector_zero(.true.,2*nfft3d,A)
 
       n = nida(nb)+nidb(nb)
       call Pack_c_indexcopy(n,int_mb(pack(1,nb)),tmp1,A)
 
-
       if (control_balance()) 
      >  call Balance_c_balance_start(nb,A,request,reqcnt,msgtype)
+
+      call nwpw_timing_end(9)
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *          Packs_c_pack_start     *
+*     *                                 *
+*     ***********************************
+      subroutine Packs_c_pack_start(nb,A,tmp1,request,reqcnt,msgtype)
+      implicit none
+      integer    nb
+      complex A(*)
+      complex tmp1(*)
+      integer request(*),reqcnt
+      integer msgtype
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** common block for pack ****
+      integer nida(0:3),nidb2(0:3)
+      integer pack(2,0:3)
+      common / pack_blk / pack,nida,nidb2
+      integer nidb(0:3)
+      common / pack2_blk / nidb
+
+*     **** local variables ****
+      logical value
+      integer nfft3d,n,id
+
+*     **** external functions ****
+      logical  control_balance
+      external control_balance
+
+      call nwpw_timing_start(9)
+      if (nb.lt.2) then
+         id = 1
+      else
+         id = 3
+      end if
+
+      call D3dB_nfft3d(id,nfft3d)
+
+      call Parallel_shared_vector_scopy(.true.,2*nfft3d,A,tmp1)
+      call Parallel_shared_vector_szero(.true.,2*nfft3d,A)
+
+      n = nida(nb)+nidb(nb)
+      call Packs_c_indexcopy(n,int_mb(pack(1,nb)),tmp1,A)
+
+      if (control_balance())
+     >  call Balances_c_balance_start(nb,A,request,reqcnt,msgtype)
 
       call nwpw_timing_end(9)
       return
@@ -4200,7 +4422,6 @@ c     **** three derivatives ****
 *     *           Pack_c_pack_end       *
 *     *                                 *
 *     ***********************************
-
       subroutine Pack_c_pack_end(nb,tmp1,request,reqcnt)
       implicit none
       integer    nb
@@ -4236,6 +4457,49 @@ c     **** three derivatives ****
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *           Packs_c_pack_end       *
+*     *                                 *
+*     ***********************************
+      subroutine Packs_c_pack_end(nb,tmp1,request,reqcnt)
+      implicit none
+      integer    nb
+      complex tmp1(*)
+      integer request(*),reqcnt
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** common block for pack ****
+      integer nida(0:3),nidb2(0:3)
+      integer pack(2,0:3)
+      common / pack_blk / pack,nida,nidb2
+      integer nidb(0:3)
+      common / pack2_blk / nidb
+
+
+*     **** local variables ****
+      logical value
+      integer nfft3d,n
+
+*     **** external functions ****
+      logical  control_balance
+      external control_balance
+
+      call nwpw_timing_start(9)
+
+
+      if (control_balance())
+     > call Balances_c_balance_end(nb,tmp1,request,reqcnt)
+
+      call nwpw_timing_end(9)
+      return
+      end
+
+
+
+
 
 
 
@@ -4246,7 +4510,6 @@ c     **** three derivatives ****
 *     *	     Pack_c_unpack_start	*	
 *     *					*
 *     ***********************************
-
       subroutine Pack_c_unpack_start(nb,A,tmp1,request,reqcnt,msgtype)
       implicit none
       integer    nb
@@ -4280,6 +4543,44 @@ c     **** three derivatives ****
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *      Packs_c_unpack_start       *
+*     *                                 *
+*     ***********************************
+      subroutine Packs_c_unpack_start(nb,A,tmp1,request,reqcnt,msgtype)
+      implicit none
+      integer    nb
+      complex A(*)
+      complex tmp1(*)
+      integer request(*),reqcnt
+      integer msgtype
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** common block for pack ****
+      integer nida(0:3),nidb2(0:3)
+      integer pack(2,0:3)
+      common / pack_blk / pack,nida,nidb2
+      integer nidb(0:3)
+      common / pack2_blk / nidb
+
+*     **** external functions ****
+      logical  control_balance
+      external control_balance
+
+      call nwpw_timing_start(9)
+      call Packs_c_Copy(nb,A,tmp1)
+      if (control_balance())
+     >   call Balances_c_unbalance_start(nb,tmp1,request,reqcnt,msgtype)
+
+      call nwpw_timing_end(9)
+
+      return
+      end
+
+
 
 
 *     ***********************************
@@ -4287,7 +4588,6 @@ c     **** three derivatives ****
 *     *	          Pack_c_unpack_mid	*	
 *     *					*
 *     ***********************************
-
       subroutine Pack_c_unpack_mid(nb,tmp1,tmp2,tmp1z,tmp2z,
      >                         request,reqcnt,msgtype)
       implicit none
@@ -4309,7 +4609,6 @@ c     **** three derivatives ****
       integer nidb(0:3)
       common / pack2_blk / nidb
 
-
 *     **** local variables ****
       logical value
       integer i,nfft3d,id
@@ -4329,14 +4628,8 @@ c     **** three derivatives ****
       if (control_balance()) 
      >  call Balance_c_unbalance_end(nb,tmp1,request,reqcnt)
 
-      
       call D3dB_nfft3d(id,nfft3d)
 
-c      call dcopy(2*(nida(nb)+nidb(nb)),tmp1,1,tmp2,1)
-c      call dcopy(2*nfft3d,0.0d0,0,tmp1,1)
-c      do i=1,(nida(nb)+nidb(nb))
-c        tmp1(int_mb(pack(1,nb)+i-1)) = tmp2(i)
-c      end do
       call Parallel_shared_vector_copy(.true.,2*(nida(nb)+nidb(nb)),
      >                                 tmp1,tmp2)
       call Parallel_shared_vector_zero(.true.,2*nfft3d,tmp1)
@@ -4346,15 +4639,80 @@ c      end do
       end do
 !$OMP END DO
 
-
 *     **** make the kx=0 plane complete **** 
       call D3dB_c_timereverse_start(id,tmp1,tmp1z,tmp2z,
      >                              request,reqcnt,msgtype)
-
       call nwpw_timing_end(9)
-  
       return
       end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *          Packs_c_unpack_mid     *
+*     *                                 *
+*     ***********************************
+      subroutine Packs_c_unpack_mid(nb,tmp1,tmp2,tmp1z,tmp2z,
+     >                          request,reqcnt,msgtype)
+      implicit none
+      integer    nb
+      complex*16 tmp1(*)
+      complex*16 tmp2(*)
+      complex*16 tmp1z(*)
+      complex*16 tmp2z(*)
+      integer    request(*),reqcnt
+      integer    msgtype
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** common block for pack ****
+      integer nida(0:3),nidb2(0:3)
+      integer pack(2,0:3)
+      common / pack_blk / pack,nida,nidb2
+      integer nidb(0:3)
+      common / pack2_blk / nidb
+
+*     **** local variables ****
+      logical value
+      integer i,nfft3d,id
+
+*     **** external functions ****
+      logical  control_balance
+      external control_balance
+
+      call nwpw_timing_start(9)
+
+      if (nb.lt.2) then
+         id = 1
+      else
+         id = 3
+      end if
+
+      if (control_balance())
+     >  call Balances_c_unbalance_end(nb,tmp1,request,reqcnt)
+
+      call D3dB_nfft3d(id,nfft3d)
+
+      call Parallel_shared_vector_scopy(.true.,2*(nida(nb)+nidb(nb)),
+     >                                 tmp1,tmp2)
+      call Parallel_shared_vector_szero(.true.,2*nfft3d,tmp1)
+!$OMP DO
+      do i=1,(nida(nb)+nidb(nb))
+        tmp1(int_mb(pack(1,nb)+i-1)) = tmp2(i)
+      end do
+!$OMP END DO
+
+*     **** make the kx=0 plane complete ****
+      call D3dBs_c_timereverse_start(id,tmp1,tmp1z,tmp2z,
+     >                               request,reqcnt,msgtype)
+      call nwpw_timing_end(9)
+      return
+      end
+
+
+
 
 
 
@@ -4385,6 +4743,35 @@ c      end do
   
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *        Packs_c_unpack_end       *
+*     *                                 *
+*     ***********************************
+      subroutine Packs_c_unpack_end(nb,tmp1,tmp1z,tmp2z,request,reqcnt)
+      implicit none
+      integer    nb
+      complex tmp1(*)
+      complex tmp1z(*)
+      complex tmp2z(*)
+      integer    request(*),reqcnt
+
+
+      call nwpw_timing_start(9)
+
+      if (nb.lt.2) then
+         call D3dBs_c_timereverse_end(1,tmp1,tmp1z,tmp2z,request,reqcnt)
+      else
+         call D3dBs_c_timereverse_end(3,tmp1,tmp1z,tmp2z,request,reqcnt)
+      end if
+
+      call nwpw_timing_end(9)
+ 
+      return
+      end
+
+
 
 
 

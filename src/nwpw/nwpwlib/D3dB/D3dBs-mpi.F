@@ -1291,11 +1291,11 @@ c     **** external functions ****
 
 *     ************************************
 *     *                                  *
-*     *      Balance_c_sbalance_start    *
+*     *      Balances_c_balance_start    *
 *     *                                  *
 *     ************************************
 
-      subroutine Balance_c_sbalance_start(nb,A,request,reqcnt,msgtype)
+      subroutine Balances_c_balance_start(nb,A,request,reqcnt,msgtype)
       implicit none
       integer nb
       complex A(*)
@@ -1396,11 +1396,11 @@ c            recieve data....
 
 *     ************************************
 *     *                                  *
-*     *       Balance_c_sbalance_end     *
+*     *       Balances_c_balance_end     *
 *     *                                  *
 *     ************************************
 
-      subroutine Balance_c_sbalance_end(nb,A,request,reqcnt)
+      subroutine Balances_c_balance_end(nb,A,request,reqcnt)
       implicit none
       integer nb
       complex A(*)
@@ -1417,11 +1417,11 @@ c            recieve data....
 
 *     ************************************
 *     *                                  *
-*     *    Balance_c_unsbalance_start    *
+*     *    Balances_c_unbalance_start    *
 *     *                                  *
 *     ************************************
 
-      subroutine Balance_c_unsbalance_start(nb,A,request,reqcnt,msgtype)
+      subroutine Balances_c_unbalance_start(nb,A,request,reqcnt,msgtype)
       implicit none
       integer nb
       complex A(*)
@@ -1520,11 +1520,11 @@ c            send data....
 
 *     ************************************
 *     *                                  *
-*     *      Balance_c_unsbalance_end    *
+*     *      Balances_c_unbalance_end    *
 *     *                                  *
 *     ************************************
 
-      subroutine Balance_c_unsbalance_end(nb,A,request,reqcnt)
+      subroutine Balances_c_unbalance_end(nb,A,request,reqcnt)
       implicit none
       integer nb
       complex A(*)
@@ -2189,7 +2189,7 @@ c         msgtype   = 1
 
 *     ***********************************
 *     *                                 *
-*     *    D3dBs_c_stimereverse_start    *
+*     *    D3dBs_c_timereverse_start    *
 *     *                                 *
 *     ***********************************
 *                                           
@@ -2199,8 +2199,8 @@ c         msgtype   = 1
 *      np = the number of worker nodes          
 *      proc#=0...(np-1)                          
 *                                                 
-      subroutine D3dBs_c_stimereverse_start(nb,A,tmp1,tmp2,
-     >                                    request,reqcnt,msgtype)
+      subroutine D3dBs_c_timereverse_start(nb,A,tmp1,tmp2,
+     >                                     request,reqcnt,msgtype)
       implicit none
       integer     nb
       complex  A(*)
@@ -2350,7 +2350,7 @@ c         msgtype   = 1
 
 *     ***********************************
 *     *                                 *
-*     *    D3dBs_c_stimereverse_end      *
+*     *    D3dBs_c_timereverse_end      *
 *     *                                 *
 *     ***********************************
 *                                           
@@ -2360,7 +2360,7 @@ c         msgtype   = 1
 *      np = the number of worker nodes          
 *      proc#=0...(np-1)                          
 *                                                 
-      subroutine D3dBs_c_stimereverse_end(nb,A,tmp1,tmp2,request,reqcnt)
+      subroutine D3dBs_c_timereverse_end(nb,A,tmp1,tmp2,request,reqcnt)
       implicit none
       integer  nb
       complex  A(*)
@@ -5094,11 +5094,9 @@ c      if (np.gt.1) call Parallel_mpiWaitAll0(reqcnt,request)
 *     *         D3dBs_SumAll            *
 *     *                                 *
 *     ***********************************
-
       subroutine D3dBs_SumAll(sum)
 c     implicit none
       real sum
-
 
 #ifdef MPI4
 #include "stupid_mpi4.fh"

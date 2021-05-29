@@ -24,12 +24,13 @@
       integer n1,n2,n3,mapping,ms,neq(2)
 
 *     **** external functions ****
-      logical  control_has_ngrid_small
-      external control_has_ngrid_small
+      logical  control_has_ngrid_small,control_single_precision_on
+      external control_has_ngrid_small,control_single_precision_on
       integer  control_version,control_mapping,Butter_size
       integer  Dneall_na_ptr
       external control_version,control_mapping,Butter_size
       external Dneall_na_ptr
+
 
       ispin = ispin0
       norbs(1) = 0
@@ -91,9 +92,7 @@
 
       if (hfx_on) then
 
-         if (.not.btdb_get(rtdb,'pspw:HFX_single_precision',mt_log,1,
-     >                     single_precision_on))
-     >      single_precision_on = .false.
+         single_precision_on = control_single_precision_on()
 
          if (.not. btdb_get(rtdb,
      >                      'pspw:HFX_screening_radius',
@@ -238,6 +237,24 @@ c     **** define extra psi and Hpsi  ****
            nrsize = (ne(1)+ne(2))*n2ft3d
         end if
 
+        if (single_precision_on) then
+        value = BA_alloc_get(mt_real,nrsize,
+     >                      'psi_r_replicated',
+     >                       psi_r_replicated(2),
+     >                       psi_r_replicated(1))
+        value = value.and.
+     >          BA_alloc_get(mt_real,nrsize,
+     >                      'Hpsi_r_replicated',
+     >                       Hpsi_r_replicated(2),
+     >                       Hpsi_r_replicated(1))
+        if (.not.value)   
+     >    call errquit('pspw_init_HFX: out of heap memory',4,MA_ERR)
+
+         call Parallel_shared_vector_szero(.false.,nrsize,
+     >                                    real_mb(psi_r_replicated(1)))
+         call Parallel_shared_vector_szero(.true.,nrsize,
+     >                                    real_mb(Hpsi_r_replicated(1)))
+        else
         value = BA_alloc_get(mt_dbl,nrsize,
      >                      'psi_r_replicated',
      >                       psi_r_replicated(2),
@@ -247,13 +264,31 @@ c     **** define extra psi and Hpsi  ****
      >                      'Hpsi_r_replicated',
      >                       Hpsi_r_replicated(2),
      >                       Hpsi_r_replicated(1))
-        if (.not. value)   
+        if (.not.value)   
      >    call errquit('pspw_init_HFX: out of heap memory',4,MA_ERR)
 
          call Parallel_shared_vector_zero(.false.,nrsize,
      >                                    dbl_mb(psi_r_replicated(1)))
          call Parallel_shared_vector_zero(.true.,nrsize,
      >                                    dbl_mb(Hpsi_r_replicated(1)))
+        end if
+      end if
+
+
+c     **** define extra psi and Hpsi for single precision ****
+      if (single_precision_on) then
+        nsize_shfx = (neq(1)+neq(2))*n2ft3d
+        value = BA_alloc_get(mt_real,nsize_shfx,
+     >                      'psi_r_shfx',
+     >                       psi_r_shfx(2),
+     >                       psi_r_shfx(1))
+        value = value.and.
+     >          BA_alloc_get(mt_real,nsize_shfx,
+     >                      'Hpsi_r_shfx',
+     >                       Hpsi_r_shfx(2),
+     >                       Hpsi_r_shfx(1))
+        if (.not.value)   
+     >  call errquit('pspw_init_HFX:out of heap memory',4,MA_ERR)
       end if
 
       if (localize_on)  call pspw_hfx_localize_init()
@@ -362,6 +397,15 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
            if (.not. value)
      >     call errquit('pspw_end_HFX:error freeing heap memory',
      >                  1,MA_ERR)
+        end if
+
+c       **** deallocate extra psi and Hpsi for single precision ****
+        if (single_precision_on) then
+           value = value.and.BA_free_heap(psi_r_shfx(2))
+           value = value.and.BA_free_heap(Hpsi_r_shfx(2))
+           if (.not. value)
+     >     call errquit('pspw_end_HFX:error freeing heap memory',
+     >                  2,MA_ERR)
         end if
 
       end if
@@ -527,7 +571,27 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
             call pspw_potential_HFX0(ispin0,dbl_mb(psiloc_r(1)),Hpsi_r)
             call pspw_hfx_localize_stop(Hpsi_r)
          else
-            call pspw_potential_HFX0(ispin0,psi_r,Hpsi_r)
+            if (single_precision_on) then
+               call pspw_tosingle_hfx(nsize_shfx,
+     >                                psi_r,
+     >                                real_mb(psi_r_shfx(1)))
+               call pspw_tosingle_hfx(nsize_shfx,
+     >                                Hpsi_r,
+     >                                real_mb(Hpsi_r_shfx(1)))
+
+               call pspw_potential_sHFX0(ispin0,
+     >                                   real_mb(psi_r_shfx(1)),
+     >                                   real_mb(Hpsi_r_shfx(1)))
+
+               call pspw_todouble_hfx(nsize_shfx,
+     >                                real_mb(psi_r_shfx(1)),
+     >                                psi_r)
+               call pspw_todouble_hfx(nsize_shfx,
+     >                                real_mb(Hpsi_r_shfx(1)),
+     >                                Hpsi_r)
+            else
+               call pspw_potential_HFX0(ispin0,psi_r,Hpsi_r)
+            end if
          end if
 
          !**** define Lin projectors ****
@@ -543,6 +607,31 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
 
       return
       end
+
+      subroutine pspw_tosingle_hfx(n,a8,a4)
+      implicit none
+      integer n
+      real*8 a8(*)
+      real   a4(*)
+      integer i
+      do i=1,n
+         a4(i) = real(a8(i))
+      end do
+      return
+      end
+
+      subroutine pspw_todouble_hfx(n,a4,a8)
+      implicit none
+      integer n
+      real   a4(*)
+      real*8 a8(*)
+      integer i
+      do i=1,n
+         a8(i) = dble(a4(i))
+      end do
+      return
+      end
+
 
 *     ****************************
 *     *                    	 *

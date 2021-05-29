@@ -767,11 +767,9 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 *     *         D3dB_SumAll             *
 *     *                                 *
 *     ***********************************
-
       subroutine D3dB_SumAll(sum)
 c     implicit none
       real*8  sum
-
 
 #ifdef MPI4
 #include "stupid_mpi4.fh"
@@ -802,7 +800,6 @@ c     implicit none
 !$OMP END MASTER
 !$OMP BARRIER
       end if
-
       return
       end
 
