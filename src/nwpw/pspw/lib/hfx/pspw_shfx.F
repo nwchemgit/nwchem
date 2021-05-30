@@ -291,7 +291,7 @@ c     **** nothing to do ****
            else
               call coulomb2_s_v(real_mb(dn(1)),real_mb(vij(1)))
               call D3dBs_rr_dot(1,real_mb(dn(1)),real_mb(vij(1)),seh)
-              eh = 0.5d0*dble(seh*dv)
+              eh = dble(0.5*seh*dv)
            end if
 
 *          **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
@@ -670,7 +670,7 @@ c
    
               call coulomb2_s_v(real_mb(dn(1)),real_mb(vij(1)))
               call D3dBs_rr_idot(1,real_mb(dn(1)),real_mb(vij(1)),seh)
-              eh = 0.5d0*seh*dv
+              eh = dble(0.5*seh*dv)
 
 *             **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
               eh = eh*hfx_parameter*ss
@@ -843,7 +843,7 @@ c
                  call coulomb2_s_v(real_mb(dn(1)),real_mb(tmp1(1)))
                  call D3dBs_rr_dot(1,real_mb(dn(1)),
      >                               real_mb(tmp1(1)),seh)
-                 eh = 0.5d0*dble(seh*dv)
+                 eh = dble(0.5*seh*dv)
               end if
 
 *             **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
@@ -985,7 +985,7 @@ c
                  call coulomb2_s_v(real_mb(dn(1)),real_mb(vij(1)))
                  call D3dBs_rr_dot(1,real_mb(dn(1)),
      >                               real_mb(vij(1)),seh)
-                 eh = 0.5d0*dble(seh*dv)
+                 eh = dble(0.5*seh*dv)
               end if
 
 *             **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
@@ -1277,7 +1277,7 @@ c        call D1dB_SumAll(ph)
                call coulomb2_s_v(real_mb(dn(1)),real_mb(vij(1)))
                call D3dBs_rr_idot(1,real_mb(dn(1)),
      >                              real_mb(vij(1)),seh)
-               eh = 0.5d0*dble(seh*dv)
+               eh = dble(0.5*seh*dv)
 
 *              **** calculcate ph ****
 !OMP MASTER
@@ -1553,14 +1553,14 @@ c     **** nothing to do ****
      >                                    real_mb(tmp1(1)))
                 call Packs_cc_dot(0,real_mb(dn(1)+n2ft3d),
      >                              real_mb(tmp1(1)),seh)
-                eh = 0.5d0*dble(seh)*lattice_omega()
+                eh = dble(0.5*seh*lattice_omega())
        
 *             ***** free-space coulomb solver ****
               else
                  call coulomb2_s_v(real_mb(dn(1)),real_mb(tmp1(1)))
                  call D3dBs_rr_dot(1,real_mb(dn(1)+n2ft3d),
      >                            real_mb(tmp1(1)),seh)
-                 eh = 0.5d0*dble(seh*dv)
+                 eh = dble(0.5*seh*dv)
 
                  !if (taskid.eq.0) write(*,*) " - ms,i,j,ehfx=",ms,i,j,eh
 
