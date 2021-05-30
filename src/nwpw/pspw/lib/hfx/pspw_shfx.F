@@ -22,8 +22,10 @@
       external Butter_Levels,Dneall_na_ptr
 
 *     ***** now do exchange as normal ****
+!$OMP MASTER
       ehfx = 0.0d0
       phfx = 0.0d0
+!$OMP END MASTER
       if (((norbs(1)+norbs(2)).ne.0).and.relaxed) then
 
          if (replicated) then
@@ -103,11 +105,15 @@
 
 
 *              *** apply hfx_parameter ****
+!$OMP MASTER
                ehfx = ehfx*hfx_parameter
 
                if (ispin.eq.1) ehfx = ehfx + ehfx
+!$OMP END MASTER
                call Parallel_SumAll(ehfx)
+!$OMP MASTER
                phfx = 2.0d0*ehfx
+!$OMP END MASTER
 
 *           **** reduceall algorithm ****
             else
@@ -371,8 +377,10 @@ c***************** sub/replicated routines *****************************
       icount = 0
       call current_second(cpu0)
 
+!$OMP MASTER
       ehfx = 0.0d0
       phfx = 0.0d0
+!$OMP END MASTER
       if (((norbs(1)+norbs(2)).ne.0).and.relaxed) then
         !call D3dB_nx(1,n1)
         !call D3dB_ny(1,n2)
@@ -530,15 +538,19 @@ c
                     eh = eh*hfx_parameter*ss
                     if (ispin0.eq.1) eh = eh + eh
                     ph = 2.0d0*eh
+!$OMP MASTER
                     ehfx = ehfx - eh
                     phfx = phfx - ph
                     dbl_mb(ehfx_orb(1,ms)+i2-1) 
      >               = dbl_mb(ehfx_orb(1,ms)+i2-1) - eh
+!$OMP END MASTER
                     if (i2.ne.j2) then
+!$OMP MASTER
                        ehfx = ehfx - eh
                        phfx = phfx - ph
                        dbl_mb(ehfx_orb(1,ms)+i2-1) 
      >                  = dbl_mb(ehfx_orb(1,ms)+i2-1) - eh
+!$OMP END MASTER
                     end if
 
                     if (localize_on.and.has_smallgrid) then
@@ -634,7 +646,9 @@ c
         k1 = 1
         do ms=1,ispin0
         do i=1,norbs(ms)
+!$OMP MASTER
          dbl_mb(ehfx_orb(1,ms)+i-1) = 0.0d0
+!$OMP END MASTER
          do j=1,i
            if (mod(k1,npj).eq.taskid_j) then
            if (pspw_hfx_localize_closeenough(
@@ -666,9 +680,11 @@ c
               ph = 2.0d0*eh
 
 
+!$OMP MASTER
               ehfx = ehfx - eh
               phfx = phfx - ph
               dbl_mb(ehfx_orb(1,ms)+i-1) =dbl_mb(ehfx_orb(1,ms)+i-1)-eh
+!$OMP END MASTER
 
 *             **** generate (Vij)*psi_r ***
               call D3dBs_rr_Mul(1,real_mb(vij(1)),
@@ -682,10 +698,12 @@ c
 
               !**** include off diagonal terms ****
               if (i.ne.j) then
+!$OMP MASTER
                  ehfx = ehfx - eh
                  phfx = phfx - ph
                  dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1)
      >                                      - eh
+!$OMP END MASTER
 *                **** generate (Vij)*psi_r ***
                  call D3dBs_rr_Mul(1,real_mb(vij(1)),
      >                           psi_r(index1),
@@ -727,7 +745,7 @@ c
 
 *     *****************************
 *     *                           *
-*     *     pspw_energy_HFX_sub   *
+*     *    pspw_energy_sHFX_sub   *
 *     *                           *
 *     *****************************
       subroutine pspw_energy_sHFX_sub(ispin0,psi_r,ehfx_out,phfx_out)
@@ -760,8 +778,10 @@ c
 
       
       if (((norbs(1)+norbs(2)).ne.0).and.(.not.relaxed)) then
+!$OMP MASTER
         ehfx = 0.0d0
         phfx = 0.0d0
+!$OMP END MASTER
 
         call D3dB_nx(1,n1)
         call D3dB_ny(1,n2)
@@ -783,7 +803,9 @@ c
         k1 = 1
         do ms=1,ispin
         do i=1,norbs(ms)
+!$OMP MASTER
          dbl_mb(ehfx_orb(1,ms)+i-1) = 0.0d0
+!$OMP END MASTER
          do j=1,i
 
             if (mod(k1,npj).eq.taskid_j) then
@@ -829,16 +851,20 @@ c
               if (ispin0.eq.1) eh = eh + eh
               ph = 2.0d0*eh
 
+!$OMP MASTER
               ehfx = ehfx - eh
               phfx = phfx - ph
               dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1)-eh
+!$OMP END MASTER
 
               !**** include off diagonal terms ****
               if (i.ne.j) then
+!$OMP MASTER
                  ehfx = ehfx - eh
                  phfx = phfx - ph
                  dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1)
      >                                      - eh
+!$OMP END MASTER
               end if
 
             end if
@@ -1020,7 +1046,7 @@ c        call D1dB_SumAll(ph)
 *           n2ft3d: size of realspace grid
 *           psi_r: wavenfucntions in realspace.
 *           ehfx: running sum of exchange energy, not initialized in this routine
-
+*
 *   Exit - Hpsi_r: wavefunction gradients in realspace.
 *          ehfx: running sum of exchange energy.
 
@@ -1153,11 +1179,15 @@ c        call D1dB_SumAll(ph)
 
 
 *                **** calculcate ph ****
+!OMP MASTER
                  ehfx = ehfx - eh
+!OMP END MASTER
 
 *                **** include transpose ***
                  if ((i2.ne.j2).or.(.not.special)) then
+!OMP MASTER
                     ehfx = ehfx - eh
+!OMP END MASTER
                  end if
 
                  call D3dBs_cr_pfft3b_queuein(0,real_mb(vij(1)))
@@ -1250,7 +1280,9 @@ c        call D1dB_SumAll(ph)
                eh = 0.5d0*dble(seh*dv)
 
 *              **** calculcate ph ****
+!OMP MASTER
                ehfx = ehfx - eh
+!OMP END MASTER
 
 *              **** generate (Vij)*psi_r ***
                call D3dBs_rr_Mul(1,real_mb(vij(1)),
@@ -1263,7 +1295,9 @@ c        call D1dB_SumAll(ph)
  
                !**** include transpose terms ****
                if ((i1.ne.j1).or.(.not.special)) then
+!OMP MASTER
                   ehfx = ehfx - eh
+!OMP END MASTER
  
 *                 **** generate (Vij)*psi_r ***
                   call D3dBs_rr_Mul(1,real_mb(vij(1)),
@@ -1456,8 +1490,10 @@ c     **** nothing to do ****
 
       
       if ((norbs(1)+norbs(2)).ne.0) then
+!OMP MASTER
         ehfx = 0.0d0
         phfx = 0.0d0
+!OMP END MASTER
 
         call D3dB_nx(1,n1)
         call D3dB_ny(1,n2)
@@ -1479,7 +1515,9 @@ c     **** nothing to do ****
         k1 = 1
         do ms=1,ispin
         do i=1,norbs(ms)
+!OMP MASTER
          dbl_mb(ehfx_orb(1,ms)+i-1) = 0.0d0
+!OMP END MASTER
          do j=1,i
 
             if (mod(k1,npj).eq.taskid_j) then
@@ -1533,16 +1571,20 @@ c     **** nothing to do ****
               if (ispin0.eq.1) eh = eh + eh
               ph = 2.0d0*eh
 
+!OMP MASTER
               ehfx = ehfx - eh
               phfx = phfx - ph
               dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1)-eh
+!OMP END MASTER
 
               !**** include off diagonal terms ****
               if (i.ne.j) then
+!OMP MASTER
                  ehfx = ehfx - eh
                  phfx = phfx - ph
                  dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1)
      >                                      - eh
+!OMP END MASTER
               end if
 
             end if

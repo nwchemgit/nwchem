@@ -646,8 +646,10 @@ c       **** deallocate extra psi and Hpsi for single precision ****
 
 
 *     ***** now do exchange as normal ****
+!$OMP MASTER
       ehfx = 0.0d0
       phfx = 0.0d0
+!$OMP END MASTER
       if (((norbs(1)+norbs(2)).ne.0).and.relaxed) then
 
          if (replicated) then
@@ -735,13 +737,16 @@ c       **** deallocate extra psi and Hpsi for single precision ****
 
 *           **** reduceall algorithm ****
             else
-            call dcopy(nrsize,0.0d0,0,dbl_mb(psi_r_replicated(1)),1)
-            call dcopy(nrsize,0.0d0,0,dbl_mb(Hpsi_r_replicated(1)),1)
+            call Parallel_shared_vector_zero(.false.,
+     >                          nrsize,dbl_mb(psi_r_replicated(1)))
+            call Parallel_shared_vector_zero(.true.,
+     >                          nrsize,dbl_mb(Hpsi_r_replicated(1)))
             do q=1,neqall
                call Dneall_qton(q,n)
                indx1 = (q-1)*n2ft3d + 1
                indx2 = psi_r_replicated(1)+(n-1)*n2ft3d
-               call dcopy(n2ft3d,psi_r(indx1),1,dbl_mb(indx2),1)
+               call Parallel_shared_vector_copy(.true.,n2ft3d,
+     >                                    psi_r(indx1),dbl_mb(indx2))
             end do
             call D1dB_Vector_SumAll(nrsize,dbl_mb(psi_r_replicated(1)))
             call pspw_potential_HFX_sub(ispin0,
@@ -822,13 +827,14 @@ c       **** deallocate extra psi and Hpsi for single precision ****
 
 c     **** calculate HFX energy  ****
          if (replicated) then
-
-            call dcopy(nrsize,0.0d0,0,dbl_mb(psi_r_replicated(1)),1)
+            call Parallel_shared_vector_zero(.true.,
+     >                          nrsize,dbl_mb(psi_r_replicated(1)))
             do q=1,neqall
                call Dneall_qton(q,n)
                indx1 = (q-1)*n2ft3d + 1
                indx2 = psi_r_replicated(1)+(n-1)*n2ft3d
-               call dcopy(n2ft3d,psi_r(indx1),1,dbl_mb(indx2),1)
+               call Parallel_shared_vector_copy(.true.,n2ft3d,
+     >                                  psi_r(indx1),dbl_mb(indx2))
             end do
             call D1dB_Vector_SumAll(nrsize,dbl_mb(psi_r_replicated(1)))
             call pspw_energy_HFX_sub(ispin0,
@@ -893,9 +899,9 @@ c     **** nothing to do ****
         value = value.and.
      >          BA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-        call dcopy(n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
-        call dcopy(n2ft3d,0.0d0,0,dbl_mb(vij(1)),1)
-        call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
+        call Parallel_shared_vector_copy(.false.,n2ft3d,dbl_mb(dn(1)))
+        call Parallel_shared_vector_copy(.false.,n2ft3d,dbl_mb(vij(1)))
+        call Parallel_shared_vector_copy(.true.,n2ft3d,dbl_mb(tmp1(1)))
 
         scal1 = 1.0d0/dble(n1*n2*n3)
         scal2 = 1.0d0/lattice_omega()
@@ -1100,12 +1106,14 @@ c     >                      dbl_mb(vij(1)))
 
 c     **** calculate HFX stress  ****
          if (replicated) then
-            call dcopy(nrsize,0.0d0,0,dbl_mb(psi_r_replicated(1)),1)
+            call Parallel_shared_vector_zero(.true.,
+     >                          nrsize,dbl_mb(psi_r_replicated(1)))
             do q=1,neqall
                call Dneall_qton(q,n)
                indx1 = (q-1)*n2ft3d + 1
                indx2 = psi_r_replicated(1)+(n-1)*n2ft3d
-               call dcopy(n2ft3d,psi_r(indx1),1,dbl_mb(indx2),1)
+               call Parallel_shared_vector_copy(.true.,n2ft3d,
+     >                             psi_r(indx1),dbl_mb(indx2))
             end do
             call D1dB_Vector_SumAll(nrsize,dbl_mb(psi_r_replicated(1)))
             call pspw_energy_euv_HFX_sub(ispin0,
@@ -1171,13 +1179,11 @@ c***************** sub/replicated routines *****************************
       icount = 0
       call current_second(cpu0)
 
+!$OMP MASTER
       ehfx = 0.0d0
       phfx = 0.0d0
+!$OMP END MASTER
       if (((norbs(1)+norbs(2)).ne.0).and.relaxed) then
-        !call D3dB_nx(1,n1)
-        !call D3dB_ny(1,n2)
-        !call D3dB_nz(1,n3)
-        !call D3dB_n2ft3d(1,n2ft3d)
         value = BA_push_get(mt_dbl,(n2ft3d),'dn_hfx',dn(2),dn(1))
         value = value.and.
      >          BA_push_get(mt_dbl,(n2ft3d),'vij_hfx',vij(2),vij(1))
@@ -1191,10 +1197,10 @@ c***************** sub/replicated routines *****************************
         if (.not.value) 
      >     call errquit('pspw_potential_HFX_sub:out of stack memory',
      >                  0,MA_ERR)
-        call dcopy(n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
-        call dcopy(n2ft3d,0.0d0,0,dbl_mb(vij(1)),1)
-        call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
-        call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp2(1)),1)
+        call Parallel_shared_vector_zero(.false.,n2ft3d,dbl_mb(dn(1)))
+        call Parallel_shared_vector_zero(.false.,n2ft3d,dbl_mb(vij(1)))
+        call Parallel_shared_vector_zero(.false.,n2ft3d,dbl_mb(tmp1(1)))
+        call Parallel_shared_vector_zero(.false.,n2ft3d,dbl_mb(tmp2(1)))
 
         call D3dB_nx(1,n1)
         call D3dB_ny(1,n2)
@@ -1217,7 +1223,8 @@ c***************** sub/replicated routines *****************************
         if (solver_type.eq.1) then
         do ms=1,ispin0
            if (norbs(ms).eq.0) go to 898
-           call dcopy(norbs(ms),0.0d0,0,dbl_mb(ehfx_orb(1,ms)),1)
+           call Parallel_shared_vector_zero(.false.,
+     >                         norbs(ms),dbl_mb(ehfx_orb(1,ms)))
            NN = norbs(ms)*(norbs(ms)+1)/2
 
 *          **** compute kcompute ****
@@ -1270,14 +1277,6 @@ c***************** sub/replicated routines *****************************
                     call D3dB_r_SMul1(1,scal2*scal1,dbl_mb(dn(1)))
                     call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
 
-c                    if (taskid.eq.0) then
-c                       call current_second(cpu1)
-c                       icount = icount + 1
-c                       write(*,*) "into hfx=",i1,j1,
-c     >                            " count,rate,NN=",icount,
-c     >                            dble(icount)/(cpu1-cpu0),NN
-c                    end if
-
                     if (localize_on.and.has_smallgrid) then
                        call pspw_hfx_localize_center_ovlp(
      >                          int_mb(orbital_list(1,ms)+i1-1),
@@ -1288,8 +1287,6 @@ c                    end if
                        call D3dB_rc_pfft3f_queuein(0,dbl_mb(dn(1)))
                     end if
 c                   
-                   
-
                  end if
                  end if
 
@@ -1333,15 +1330,19 @@ c
                     eh = eh*hfx_parameter*ss
                     if (ispin0.eq.1) eh = eh + eh
                     ph = 2.0d0*eh
+!$OMP MASTER
                     ehfx = ehfx - eh
                     phfx = phfx - ph
                     dbl_mb(ehfx_orb(1,ms)+i2-1) 
      >               = dbl_mb(ehfx_orb(1,ms)+i2-1) - eh
+!$OMP END MASTER
                     if (i2.ne.j2) then
+!$OMP MASTER
                        ehfx = ehfx - eh
                        phfx = phfx - ph
                        dbl_mb(ehfx_orb(1,ms)+i2-1) 
      >                  = dbl_mb(ehfx_orb(1,ms)+i2-1) - eh
+!$OMP END MASTER
                     end if
 
                     if (localize_on.and.has_smallgrid) then
@@ -1399,9 +1400,6 @@ c
                     call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
 
 *                   **** add -(Vij)*psi_r to Hpsi_r ***
-c                    call D3dB_rr_Sub(1,Hpsi_r(index1),
-c     >                                 dbl_mb(tmp1(1)),
-c     >                                 Hpsi_r(index1))
                     call D3dB_rr_Sub2(1,dbl_mb(tmp1(1)),Hpsi_r(index1))
 
                     !**** include off diagonal terms ****
@@ -1413,9 +1411,6 @@ c     >                                 Hpsi_r(index1))
                        call D3dB_r_Zero_Ends(1,dbl_mb(tmp2(1)))
 
 *                      **** add -(Vij)*psi_r to Hpsi_r ***
-c                       call D3dB_rr_Sub(1,Hpsi_r(index2),
-c     >                                 dbl_mb(tmp2(1)),
-c     >                                 Hpsi_r(index2))
                        call D3dB_rr_Sub2(1,dbl_mb(tmp2(1)),
      >                                     Hpsi_r(index2))
                     end if
@@ -1431,7 +1426,6 @@ c     >                                 Hpsi_r(index2))
               end if
               done = (k1.gt.NN).and.(k2.gt.NN).and.(k3.gt.NN)
            end do !**** while ****
-           !call D1dB_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
            call Parallel_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
 
   898      continue
@@ -1442,7 +1436,9 @@ c     >                                 Hpsi_r(index2))
         k1 = 1
         do ms=1,ispin0
         do i=1,norbs(ms)
+!$OMP MASTER
          dbl_mb(ehfx_orb(1,ms)+i-1) = 0.0d0
+!$OMP END MASTER
          do j=1,i
            if (mod(k1,npj).eq.taskid_j) then
            if (pspw_hfx_localize_closeenough(
@@ -1459,7 +1455,6 @@ c     >                                 Hpsi_r(index2))
 *             **** generate dnij for Vij  ****
               call D3dB_rr_Mul(1,psi_r(index2),psi_r(index1),
      >                         dbl_mb(dn(1)))
-c              call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
               call D3dB_r_SMul1(1,scal2,dbl_mb(dn(1)))
               call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
    
@@ -1469,17 +1464,16 @@ c              call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
 
 *             **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
               eh = eh*hfx_parameter*ss
-c              call D3dB_r_SMul(1,hfx_parameter,
-c     >                         dbl_mb(vij(1)),
-c     >                         dbl_mb(vij(1)))
               call D3dB_r_SMul1(1,hfx_parameter*ss,dbl_mb(vij(1)))
               if (ispin0.eq.1) eh = eh + eh
               ph = 2.0d0*eh
 
 
+!$OMP MASTER
               ehfx = ehfx - eh
               phfx = phfx - ph
               dbl_mb(ehfx_orb(1,ms)+i-1) =dbl_mb(ehfx_orb(1,ms)+i-1)-eh
+!$OMP END MASTER
 
 *             **** generate (Vij)*psi_r ***
               call D3dB_rr_Mul(1,dbl_mb(vij(1)),
@@ -1489,17 +1483,16 @@ c     >                         dbl_mb(vij(1)))
 
 
 *             **** add -(Vij)*psi_r to Hpsi_r ***
-c              call D3dB_rr_Sub(1,Hpsi_r(index1),
-c     >                           dbl_mb(tmp1(1)),
-c     >                           Hpsi_r(index1))
               call D3dB_rr_Sub2(1,dbl_mb(tmp1(1)),Hpsi_r(index1))
 
               !**** include off diagonal terms ****
               if (i.ne.j) then
+!$OMP MASTER
                  ehfx = ehfx - eh
                  phfx = phfx - ph
                  dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1)
      >                                      - eh
+!$OMP END MASTER
 *                **** generate (Vij)*psi_r ***
                  call D3dB_rr_Mul(1,dbl_mb(vij(1)),
      >                           psi_r(index1),
@@ -1507,9 +1500,6 @@ c     >                           Hpsi_r(index1))
                  call D3dB_r_Zero_Ends(1,dbl_mb(tmp2(1)))
 
 *                **** add -(Vij)*psi_r to Hpsi_r ***
-c                 call D3dB_rr_Sub(1,Hpsi_r(index2),
-c     >                           dbl_mb(tmp2(1)),
-c     >                           Hpsi_r(index2))
                  call D3dB_rr_Sub2(1,dbl_mb(tmp2(1)),
      >                               Hpsi_r(index2))
               end if
@@ -1518,7 +1508,6 @@ c     >                           Hpsi_r(index2))
            k1 = k1 + 1
          end do
         end do
-        !call D1dB_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
         call Parallel_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
         end do
 
@@ -1574,8 +1563,10 @@ c     >                           Hpsi_r(index2))
 
       
       if (((norbs(1)+norbs(2)).ne.0).and.(.not.relaxed)) then
+!$OMP MASTER
         ehfx = 0.0d0
         phfx = 0.0d0
+!$OMP END MASTER
 
         call D3dB_nx(1,n1)
         call D3dB_ny(1,n2)
@@ -1585,8 +1576,8 @@ c     >                           Hpsi_r(index2))
         value = value.and.
      >          BA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-        call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
-        call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
+        call Parallel_shared_vector_zero(.false.,2*n2ft3d,dbl_mb(dn(1)))
+        call Parallel_shared_vector_zero(.true.,n2ft3d,dbl_mb(tmp1(1)))
 
         scal1 = 1.0d0/dble(n1*n2*n3)
         scal2 = 1.0d0/lattice_omega()
@@ -1614,7 +1605,6 @@ c     >                           Hpsi_r(index2))
 *             **** generate dnij ****
               call D3dB_rr_Mul(1,psi_r(index1),psi_r(index2),
      >                         dbl_mb(dn(1)))
-c              call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
               call D3dB_r_SMul1(1,scal2,dbl_mb(dn(1)))
               call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
 
@@ -1643,16 +1633,20 @@ c     >                                   dbl_mb(dn(1)))
               if (ispin0.eq.1) eh = eh + eh
               ph = 2.0d0*eh
 
+!$OMP MASTER
               ehfx = ehfx - eh
               phfx = phfx - ph
               dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1)-eh
+!$OMP END MASTER
 
               !**** include off diagonal terms ****
               if (i.ne.j) then
+!$OMP MASTER
                  ehfx = ehfx - eh
                  phfx = phfx - ph
                  dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1)
      >                                      - eh
+!$OMP END MASTER
               end if
 
             end if
@@ -1720,7 +1714,7 @@ c     >                                   dbl_mb(dn(1)))
         !call D3dB_n2ft3d(1,n2ft3d)
         value = BA_push_get(mt_dbl,(2*n2ft3d),'dn_hfx',dn(2),dn(1))
         if (.not. value) call errquit('out of stack memory',0,MA_ERR)
-        call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
+        call Parallel_shared_vector_zero(.true.,2*n2ft3d,dbl_mb(dn(1)))
 
         scal1 = 1.0d0/dble(n1*n2*n3)
         scal2 = 1.0d0/lattice_omega()
@@ -1745,7 +1739,6 @@ c     >                                   dbl_mb(dn(1)))
 *             **** generate dnij ****
               call D3dB_rr_Mul(1,psi_r(index1),psi_r(index2),
      >                         dbl_mb(dn(1)))
-c              call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
               call D3dB_r_SMul1(1,scal2,dbl_mb(dn(1)))
               call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
 
@@ -1753,8 +1746,6 @@ c              call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
               if (solver_type.eq.1) then
 
 *               **** generate dng ****
-c                call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
-c     >                                   dbl_mb(dn(1)))
                 call D3dB_r_SMul1(1,scal1,dbl_mb(dn(1)))
                 call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
                 call Pack_c_pack(0,dbl_mb(dn(1)))
@@ -1764,7 +1755,7 @@ c     >                                   dbl_mb(dn(1)))
                 if (ispin.eq.1) call dscal(9,2.0d0,tstress,1)
 
 *               **** apply the hfx_parameter ****
-                call dscal(9,hfx_parameter*ss,tstress,1)
+                call DSCAL_OMP(9,hfx_parameter*ss,tstress,1)
 
 *             ***** free-space coulomb solver ****
               else
@@ -1854,10 +1845,10 @@ c     >                                   dbl_mb(dn(1)))
         value = value.and.
      >          BA_push_get(mt_dbl,(n2ft3d),'tmp2_hfx',tmp2(2),tmp2(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-        call dcopy(n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
-        call dcopy(n2ft3d,0.0d0,0,dbl_mb(vij(1)),1)
-        call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
-        call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp2(1)),1)
+        call Parallel_shared_vector_zero(.false.,n2ft3d,dbl_mb(dn(1)))
+        call Parallel_shared_vector_zero(.false.,n2ft3d,dbl_mb(vij(1)))
+        call Parallel_shared_vector_zero(.false.,n2ft3d,dbl_mb(tmp1(1)))
+        call Parallel_shared_vector_zero(.true.,n2ft3d,dbl_mb(tmp2(1)))
 
         scal1 = 1.0d0/dble(n1*n2*n3)
         scal2 = 1.0d0/lattice_omega()
@@ -2005,9 +1996,9 @@ c        call D1dB_SumAll(ph)
      >        BA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
       if (.not. value) 
      >   call errquit('pspw_potential_HFX_sub: out of stack',0,MA_ERR)
-      call dcopy(n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
-      call dcopy(n2ft3d,0.0d0,0,dbl_mb(vij(1)),1)
-      call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
+      call Parallel_shared_vector_zero(.false.,n2ft3d,dbl_mb(dn(1)))
+      call Parallel_shared_vector_zero(.false.,n2ft3d,dbl_mb(vij(1)))
+      call Parallel_shared_vector_zero(.true.,n2ft3d,dbl_mb(tmp1(1)))
 
       scal1 = 1.0d0/dble(n1*n2*n3)
       scal2 = 1.0d0/lattice_omega()
@@ -2079,11 +2070,15 @@ c        call D1dB_SumAll(ph)
 
 
 *                **** calculcate ph ****
+!$OMP MASTER
                  ehfx = ehfx - eh
+!$OMP END MASTER
 
 *                **** include transpose ***
                  if ((i2.ne.j2).or.(.not.special)) then
+!$OMP MASTER
                     ehfx = ehfx - eh
+!$OMP END MASTER
                  end if
 
                  call D3dB_cr_pfft3b_queuein(0,dbl_mb(vij(1)))
@@ -2175,7 +2170,9 @@ c        call D1dB_SumAll(ph)
                eh = 0.5d0*eh*dv
 
 *              **** calculcate ph ****
+!$OMP MASTER
                ehfx = ehfx - eh
+!$OMP END MASTER
 
 *              **** generate (Vij)*psi_r ***
                call D3dB_rr_Mul(1,dbl_mb(vij(1)),
@@ -2188,7 +2185,9 @@ c        call D1dB_SumAll(ph)
  
                !**** include transpose terms ****
                if ((i1.ne.j1).or.(.not.special)) then
+!$OMP MASTER
                   ehfx = ehfx - eh
+!$OMP END MASTER
  
 *                 **** generate (Vij)*psi_r ***
                   call D3dB_rr_Mul(1,dbl_mb(vij(1)),
@@ -2254,7 +2253,8 @@ c        call D1dB_SumAll(ph)
       call nwpw_timing_start(33)
       if ((norbs(ms).ne.0).and.relaxed) then
          if (replicated) then
-            call dcopy(n2ft3d,0.0d0,0,dbl_mb(Hpsi_r_replicated(1)),1)
+            call Parallel_shared_vector_zero(.true.,
+     >                          n2ft3d,dbl_mb(Hpsi_r_replicated(1)))
             call pspw_potential_HFX_orb_sub(ms,psi_r,orb_r,
      >                                  dbl_mb(Hpsi_r_replicated(1)))
             call D1dB_Vector_SumAll(n2ft3d,dbl_mb(Hpsi_r_replicated(1)))
@@ -2303,16 +2303,20 @@ c     **** calculate HFX energy  ****
       if ((norbs(1)+norbs(2)).ne.0) then
 
          if (replicated) then
-            call dcopy(nrsize,0.0d0,0,dbl_mb(psi_r_replicated(1)),1)
-            call dcopy(nrsize,0.0d0,0,dbl_mb(Hpsi_r_replicated(1)),1)
+            call Parallel_shared_vector_zero(.false.,
+     >                          nrsize,dbl_mb(psi_r_replicated(1)))
+            call Parallel_shared_vector_zero(.true.,
+     >                          nrsize,dbl_mb(Hpsi_r_replicated(1)))
             do q=1,neqall
                call Dneall_qton(q,n)
                indx1 = (q-1)*n2ft3d + 1
                indx2 = psi_r_replicated(1)+(n-1)*n2ft3d
-               call dcopy(n2ft3d,psi1_r(indx1),1,dbl_mb(indx2),1)
+               call Parallel_shared_vector_zero(.false.,n2ft3d,
+     >                             psi1_r(indx1),dbl_mb(indx2))
 
                indx2 = Hpsi_r_replicated(1)+(n-1)*n2ft3d
-               call dcopy(n2ft3d,psi2_r(indx1),1,dbl_mb(indx2),1)
+               call Parallel_shared_vector_zero(.true.,n2ft3d,
+     >                             psi2_r(indx1),dbl_mb(indx2))
             end do
             call D1dB_Vector_SumAll(nrsize,dbl_mb(psi_r_replicated(1)))
             call D1dB_Vector_SumAll(nrsize,dbl_mb(Hpsi_r_replicated(1)))
@@ -2372,8 +2376,10 @@ c     **** nothing to do ****
 
       
       if ((norbs(1)+norbs(2)).ne.0) then
+!$OMP MASTER
         ehfx = 0.0d0
         phfx = 0.0d0
+!$OMP END MASTER
 
         call D3dB_nx(1,n1)
         call D3dB_ny(1,n2)
@@ -2383,8 +2389,8 @@ c     **** nothing to do ****
         value = value.and.
      >          BA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-        call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dn(1)),1)
-        call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
+        call Parallel_shared_vector_zero(.false.,2*n2ft3d,dbl_mb(dn(1)))
+        call Parallel_shared_vector_zero(.true.,n2ft3d,dbl_mb(tmp1(1)))
 
         scal1 = 1.0d0/dble(n1*n2*n3)
         scal2 = 1.0d0/lattice_omega()
@@ -2393,7 +2399,9 @@ c     **** nothing to do ****
         k1 = 1
         do ms=1,ispin
         do i=1,norbs(ms)
+!$OMP MASTER
          dbl_mb(ehfx_orb(1,ms)+i-1) = 0.0d0
+!$OMP END MASTER
          do j=1,i
 
             if (mod(k1,npj).eq.taskid_j) then
@@ -2446,16 +2454,20 @@ c     **** nothing to do ****
               if (ispin0.eq.1) eh = eh + eh
               ph = 2.0d0*eh
 
+!$OMP MASTER
               ehfx = ehfx - eh
               phfx = phfx - ph
               dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1)-eh
+!$OMP END MASTER
 
               !**** include off diagonal terms ****
               if (i.ne.j) then
+!$OMP MASTER
                  ehfx = ehfx - eh
                  phfx = phfx - ph
                  dbl_mb(ehfx_orb(1,ms)+i-1) = dbl_mb(ehfx_orb(1,ms)+i-1)
      >                                      - eh
+!$OMP END MASTER
               end if
 
             end if
@@ -2572,10 +2584,12 @@ c      call Dneall_m_scal(0,scal1,dbl_mb(hml(1)))
      >                         dbl_mb(hml(1)),-1.0d0,
      >                         Hpsi_r,0.0d0)
 
+!$OMP MASTER
       phfx = Dneall_m_sqr_trace(0,dbl_mb(hml(1)))
       phfx = -phfx
       if (ispin.eq.1) phfx = phfx + phfx
       ehfx = 0.5d0*phfx
+!$OMP END MASTER
 
       if (.not.Dneall_m_pop_stack(hml))
      >   call errquit("pspw_Lin_Proj_HFX:pop stack",0,MA_ERR)
