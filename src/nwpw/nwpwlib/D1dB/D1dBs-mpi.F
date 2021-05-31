@@ -5,13 +5,13 @@
 *
 *     ***********************************
 *     *					*
-*     *	        D1dB_SumAll		*	
+*     *	        D1dBs_SumAll		*	
 *     *					*
 *     ***********************************
 
-      subroutine D1dB_SumAll(sum)
+      subroutine D1dBs_SumAll(sum)
 c     implicit none
-      real*8  sum
+      real  sum
 
 #include "D1dB.fh"
 
@@ -23,7 +23,7 @@ c     implicit none
 
 
       integer msglen,mpierr,np
-      real*8  sumall
+      real  sumall
 
 
 *     **** external functions ****
@@ -35,11 +35,11 @@ c     implicit none
 !$OMP MASTER
 #ifdef MPI4
         stupid_msglen = 1
-        call MPI_Allreduce(sum,sumall,stupid_msglen,stupid_double,
+        call MPI_Allreduce(sum,sumall,stupid_msglen,stupid_real,
      >                     stupid_sum,stupid_comm_j,stupid_ierr)
 #else
         msglen = 1
-        call MPI_Allreduce(sum,sumall,msglen,MPI_DOUBLE_PRECISION,
+        call MPI_Allreduce(sum,sumall,msglen,MPI_REAL,
      >                      MPI_SUM,Parallel2d_comm_j(),mpierr)
 #endif
         sum = sumall
@@ -51,16 +51,15 @@ c     implicit none
       end
 
 
-*     ***********************************
-*     *					*
-*     *	        D1dB_ISumAll		*	
-*     *					*
-*     ***********************************
 
-      subroutine D1dB_ISumAll(sum)
+*     ***********************************
+*     *                                 *
+*     *         D1dBs_MaxAll            *
+*     *                                 *
+*     ***********************************
+      subroutine D1dBs_MaxAll(sum)
 c     implicit none
-      integer  sum
-
+      real  sum
 
 #include "D1dB.fh"
 
@@ -72,7 +71,7 @@ c     implicit none
 
 
       integer msglen,mpierr,np
-      integer sumall
+      real  sumall
 
 *     **** external functions ****
       integer  Parallel2d_comm_j
@@ -82,57 +81,11 @@ c     implicit none
       if (np.gt.1) then
 #ifdef MPI4
         stupid_msglen = 1
-        stupid_tsum = sum
-        call MPI_Allreduce(stupid_tsum,stupid_tsum2,stupid_msglen,
-     >                     stupid_integer,
-     >                     stupid_sum,stupid_comm_j,stupid_ierr)
-        sum = stupid_tsum2
-#else
-        msglen = 1
-        call MPI_Allreduce(sum,sumall,msglen,MPI_INTEGER,
-     >                       MPI_SUM,Parallel2d_comm_j(),mpierr)
-        sum = sumall
-#endif
-      end if
-
-      return
-      end
-
-
-*     ***********************************
-*     *                                 *
-*     *         D1dB_MaxAll             *
-*     *                                 *
-*     ***********************************
-      subroutine D1dB_MaxAll(sum)
-c     implicit none
-      real*8  sum
-
-#include "D1dB.fh"
-
-#ifdef MPI4
-#include "stupid_mpi4.fh"
-#else
-#include "mpif.h"
-#endif
-
-
-      integer msglen,mpierr,np
-      real*8  sumall
-
-*     **** external functions ****
-      integer  Parallel2d_comm_j
-      external Parallel2d_comm_j
-
-      call Parallel2d_np_j(np)
-      if (np.gt.1) then
-#ifdef MPI4
-        stupid_msglen = 1
-        call MPI_Allreduce(sum,sumall,stupid_msglen,stupid_double,
+        call MPI_Allreduce(sum,sumall,stupid_msglen,stupid_real,
      >                      stupid_max,stupid_comm_j,stupid_ierr)
 #else
         msglen = 1
-        call MPI_Allreduce(sum,sumall,msglen,MPI_DOUBLE_PRECISION,
+        call MPI_Allreduce(sum,sumall,msglen,MPI_REAL,
      >                      MPI_MAX,Parallel2d_comm_j(),mpierr)
 #endif
         sum = sumall
@@ -142,64 +95,19 @@ c     implicit none
       end
 
 
-*     ***********************************
-*     *                                 *
-*     *         D1dB_iMaxAll            *
-*     *                                 *
-*     ***********************************
-      subroutine D1dB_iMaxAll(isum)
-c     implicit none
-      integer  isum
-
-#include "D1dB.fh"
-
-#ifdef MPI4
-#include "stupid_mpi4.fh"
-#else
-#include "mpif.h"
-#endif
-
-
-      integer msglen,mpierr,np
-      integer isumall,iisum
-
-*     **** external functions ****
-      integer  Parallel2d_comm_j
-      external Parallel2d_comm_j
-
-      call Parallel2d_np_j(np)
-      if (np.gt.1) then
-#ifdef MPI4
-        stupid_msglen = 1
-        call stupid_icopy8to4(1,isum,iisum)
-        call MPI_Allreduce(iisum,isumall,stupid_msglen,stupid_integer,
-     >                      stupid_max,stupid_comm_j,stupid_ierr)
-        call stupid_icopy4to8(1,isumall,isum)
-#else
-        msglen = 1
-        call MPI_Allreduce(isum,isumall,msglen,MPI_INTEGER,
-     >                      MPI_MAX,Parallel2d_comm_j(),mpierr)
-        isum = isumall
-#endif
-      end if
-
-      return
-      end
-
-
 
 
 
 *     ***********************************
 *     *					*
-*     *	        D1dB_Vector_SumAll	*	
+*     *	       D1dBs_Vector_SumAll	*	
 *     *					*
 *     ***********************************
 
-      subroutine D1dB_Vector_SumAll(n,sum)
+      subroutine D1dBs_Vector_SumAll(n,sum)
 c     implicit none
       integer n
-      real*8  sum(*)
+      real  sum(*)
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -225,27 +133,26 @@ c     implicit none
       if (np.gt.1) then
 
 *     ***** allocate temporary space ****
-      value = BA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
+      value = BA_push_get(mt_real,n,'sumall',sumall(2),sumall(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 !$OMP MASTER
 #ifdef MPI4
       stupid_msglen = n
-      call MPI_Allreduce(sum,dbl_mb(sumall(1)),stupid_msglen,
-     >                stupid_double,
+      call MPI_Allreduce(sum,real_mb(sumall(1)),stupid_msglen,
+     >                stupid_real,
      >                stupid_sum,stupid_comm_j,stupid_ierr)
 #else
       msglen = n
-      call MPI_Allreduce(sum,dbl_mb(sumall(1)),msglen,
-     >                MPI_DOUBLE_PRECISION,
+      call MPI_Allreduce(sum,real_mb(sumall(1)),msglen,
+     >                MPI_REAL,
      >                MPI_SUM,Parallel2d_comm_j(),mpierr)
 #endif
-      call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
+      call Parallel_shared_vector_scopy(.false.,n,
+     >                                  real_mb(sumall(1)),sum)
 !$OMP END MASTER
 !$OMP BARRIER
 
-      !call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
-      !call Parallel_shared_vector_copy(.true.,n,dbl_mb(sumall(1)),sum)
       value = BA_pop_stack(sumall(2))
 
       end if
@@ -255,84 +162,15 @@ c     implicit none
 
 
 *     ***********************************
-*     *					*
-*     *	        D1dB_Vector_ISumAll	*	
-*     *					*
-*     ***********************************
-
-      subroutine D1dB_Vector_ISumAll(n,sum)
-c     implicit none
-      integer n
-      integer  sum(*)
-
-
-#include "bafdecls.fh"
-#include "errquit.fh"
-#include "D1dB.fh"
-
-#ifdef MPI4
-#include "stupid_mpi4.fh"
-#else
-#include "mpif.h"
-#endif
-
-
-      logical value
-      integer msglen,sumall(2),sumall1(2),mpierr,np
-
-*     **** external functions ****
-      integer  Parallel2d_comm_j
-      external Parallel2d_comm_j
-
-      call Parallel2d_np_j(np)
-      call nwpw_timing_start(2)
-      if (np.gt.1) then
-
-*       ***** allocate temporary space ****
-        value = BA_push_get(mt_int,n,'sumall',sumall(2),sumall(1))
-        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-
-
-#ifdef MPI4
-        if (.not.BA_push_get(mt_int,n,'sumall1',sumall1(2),sumall1(1)))
-     >     call errquit('out of stack memory',0, MA_ERR)
-        stupid_msglen = n
-        call stupid_icopy8to4(n,sum,int_mb(sumall1(1)))
-        call MPI_Allreduce(int_mb(sumall1(1)),
-     >                     int_mb(sumall(1)),stupid_msglen,
-     >                stupid_integer,
-     >                stupid_sum,stupid_comm_j,stupid_ierr)
-      call stupid_icopy4to8(n,int_mb(sumall(1)),sum)
-      if (.not.BA_pop_stack(sumall1(2)))
-     > call errquit('error popping stack',0, MA_ERR)
-#else
-        msglen = n
-        call MPI_Allreduce(sum,int_mb(sumall(1)),msglen,
-     >                MPI_INTEGER,
-     >                MPI_SUM,Parallel2d_comm_j(),mpierr)
-        call icopy(n,int_mb(sumall(1)),1,sum,1)
-#endif
-
-        value = BA_pop_stack(sumall(2))
-        if (.not. value) call errquit('error popping stack',0, MA_ERR)
-
-      end if
-      call nwpw_timing_end(2)
-
-      return
-      end
-
-
-*     ***********************************
 *     *                                 *
-*     *      D1dB_Brdcst_values         *
+*     *      D1dBs_Brdcst_values        *
 *     *                                 *
 *     ***********************************
 
-      subroutine D1dB_Brdcst_values(psend,nsize,sum)
+      subroutine D1dBs_Brdcst_values(psend,nsize,sum)
       implicit none
       integer psend,nsize
-      real*8  sum(*)
+      real    sum(*)
 
 #ifdef MPI4
 #include "stupid_mpi4.fh"
@@ -350,7 +188,7 @@ c     implicit none
 !$OMP MASTER
          stupid_msglen = nsize
          tpsend        = psend
-         call MPI_Bcast(sum,stupid_msglen,stupid_double,
+         call MPI_Bcast(sum,stupid_msglen,stupid_real,
      >                  tpsend,stupid_comm_j,stupid_ierr)
 !$OMP END MASTER
 !$OMP BARRIER
@@ -365,7 +203,7 @@ c     implicit none
       call Parallel2d_np_j(np)
       if (np.gt.1) then
 !$OMP MASTER
-         call MPI_Bcast(sum,nsize,MPI_DOUBLE_PRECISION,
+         call MPI_Bcast(sum,nsize,MPI_REAL,
      >                  psend,Parallel2d_comm_j(),ierr)
 !$OMP END MASTER
 !$OMP BARRIER
@@ -380,7 +218,7 @@ c     implicit none
 
 *     ***********************************
 *     *                                 *
-*     *         D1dB_start_rot          *
+*     *         D1dBs_start_rot         *
 *     *                                 *
 *     ***********************************
 *
@@ -389,12 +227,12 @@ c     implicit none
 * where taskid_j and np_j is the taskid and number of processors for
 * the Parallel2d_comm_j communicator
 *
-      subroutine D1dB_start_rot(j,
-     >                          A,W,lda,na,
-     >                          request)
+      subroutine D1dBs_start_rot(j,
+     >                           A,W,lda,na,
+     >                           request)
       implicit none
       integer j
-      real*8 A(*),W(*)
+      real     A(*),W(*)
       integer lda,na(*)
       integer request(*)
 
@@ -428,7 +266,7 @@ c     implicit none
                stupid_type   = msgtype
                stupid_taskid = proc_from
                call MPI_IRECV(W,
-     >                    stupid_msglen,stupid_double,
+     >                    stupid_msglen,stupid_real,
      >                    stupid_taskid,
      >                    stupid_type,stupid_comm_j,
      >                    stupid_request,stupid_ierr)
@@ -443,7 +281,7 @@ c     implicit none
                stupid_type   = msgtype
                stupid_taskid = proc_to
                call MPI_ISEND(A,
-     >                     stupid_msglen,stupid_double,
+     >                     stupid_msglen,stupid_real,
      >                     stupid_taskid,
      >                     stupid_type,stupid_comm_j,
      >                     stupid_request,stupid_ierr)
@@ -454,7 +292,7 @@ c     implicit none
             end if
 #else
             if (wmsglen.gt.0) then
-               call MPI_IRECV(W,wmsglen,MPI_DOUBLE_PRECISION,
+               call MPI_IRECV(W,wmsglen,MPI_REAL,
      >                    proc_from,
      >                    msgtype,Parallel2d_comm_j(),
      >                    request(1),mpierr)
@@ -463,7 +301,7 @@ c     implicit none
                request(3) = 0
             end if
             if (amsglen.gt.0) then
-               call MPI_ISEND(A,amsglen,MPI_DOUBLE_PRECISION,
+               call MPI_ISEND(A,amsglen,MPI_REAL,
      >                     proc_to,
      >                     msgtype,Parallel2d_comm_j(),
      >                     request(2),mpierr)
@@ -488,14 +326,14 @@ c     implicit none
 
 *     ***********************************
 *     *                                 *
-*     *         D1dB_end_rot            *
+*     *         D1dBs_end_rot           *
 *     *                                 *
 *     ***********************************
 *
 *  This routine waits for the sends and receives to 
-* finish that were started with D1dB_start_rot routine.
+* finish that were started with D1dBs_start_rot routine.
 * 
-      subroutine D1dB_end_rot(request)
+      subroutine D1dBs_end_rot(request)
       implicit none
       integer request(*)
 
@@ -515,17 +353,17 @@ c     implicit none
 
 *     ***********************************
 *     *                                 *
-*     *         D1dB_isendrecv          *
+*     *         D1dBs_isendrecv         *
 *     *                                 *
 *     ***********************************
-      subroutine D1dB_isendrecv(pto,  ssize,sdata,
-     >                          pfrom,rsize,rdata,
-     >                          request,reqcnt)
+      subroutine D1dBs_isendrecv(pto,  ssize,sdata,
+     >                           pfrom,rsize,rdata,
+     >                           request,reqcnt)
       implicit none
       integer pto,ssize
-      real*8  sdata(*)
+      real    sdata(*)
       integer pfrom,rsize
-      real*8  rdata(*)
+      real    rdata(*)
       integer request(*)
       integer reqcnt
 
@@ -553,7 +391,7 @@ c     implicit none
                stupid_type   = msgtype
                stupid_taskid = pfrom
                call MPI_IRECV(rdata,
-     >                    stupid_msglen,stupid_double,
+     >                    stupid_msglen,stupid_real,
      >                    stupid_taskid,
      >                    stupid_type,stupid_comm_j,
      >                    stupid_request,stupid_ierr)
@@ -566,7 +404,7 @@ c     implicit none
                stupid_type   = msgtype
                stupid_taskid = pto
                call MPI_ISEND(sdata,
-     >                     stupid_msglen,stupid_double,
+     >                     stupid_msglen,stupid_real,
      >                     stupid_taskid,
      >                     stupid_type,stupid_comm_j,
      >                     stupid_request,stupid_ierr)
@@ -576,14 +414,14 @@ c     implicit none
 #else
             if (rsize.gt.0) then
                reqcnt = reqcnt + 1
-               call MPI_IRECV(rdata,rsize,MPI_DOUBLE_PRECISION,
+               call MPI_IRECV(rdata,rsize,MPI_REAL,
      >                    pfrom,
      >                    msgtype,Parallel2d_comm_j(),
      >                    request(reqcnt),mpierr)
             end if
             if (ssize.gt.0) then
                reqcnt = reqcnt + 1
-               call MPI_ISEND(sdata,ssize,MPI_DOUBLE_PRECISION,
+               call MPI_ISEND(sdata,ssize,MPI_REAL,
      >                     pto,
      >                     msgtype,Parallel2d_comm_j(),
      >                     request(reqcnt),mpierr)
@@ -593,35 +431,10 @@ c     implicit none
       return
       end
 
-*     ***********************************
-*     *                                 *
-*     *         D1dB_WaitAll            *
-*     *                                 *
-*     ***********************************
-*
-*  This routine waits for the sends and receives to 
-* finish that were started with D1dB_isendrecv
-* 
-      subroutine D1dB_WaitAll(request,reqcnt)
-      implicit none
-      integer request(*)
-      integer reqcnt
-
-*     **** local variables ****
-      integer np
-
-*     **** wait for completion of mp_send, also do a sync ****
-      call Parallel2d_np_j(np)
-      if (np.gt.1) then
-         call Parallel_mpiWaitAll(reqcnt,request)
-         reqcnt = 0
-      end if
-      return
-      end
 
 c     ****************************************
 c     *                                      *
-c     *          D1dB_Brdcst_step            *
+c     *          D1dBs_Brdcst_step           *
 c     *                                      *
 c     ****************************************
 c
@@ -641,13 +454,13 @@ c   Exit -
 c           psi_rep: modified data array 
 c           requests,reqcnt: tags for asychronous message passing
 c
-      subroutine D1dB_Brdcst_step(l,na,blocks0,
-     >                            n2ft3d,psi_rep,
-     >                            requests,reqcnt)
+      subroutine D1dBs_Brdcst_step(l,na,blocks0,
+     >                             n2ft3d,psi_rep,
+     >                             requests,reqcnt)
       implicit none
       integer l,na(*),blocks0
       integer n2ft3d
-      real*8 psi_rep(n2ft3d,*)
+      real    psi_rep(n2ft3d,*)
       integer requests(*),reqcnt
 
 *     *** local variables ***
@@ -705,16 +518,16 @@ cccc      Level = (log(dble(np_j))/log(2.0d0))
 
 *     *** will be much more complicated for synchronous ***
       reqcnt = 0
-      call D1dB_isendrecv(pto,  ssize*n2ft3d,psi_rep(1,sindx),
-     >                    pfrom,rsize*n2ft3d,psi_rep(1,rindx),
-     >                    requests,reqcnt)
+      call D1dBs_isendrecv(pto,  ssize*n2ft3d,psi_rep(1,sindx),
+     >                     pfrom,rsize*n2ft3d,psi_rep(1,rindx),
+     >                     requests,reqcnt)
       return
       end
 
 
 c     ****************************************
 c     *                                      *
-c     *           D1dB_Reduce_step           *
+c     *           D1dBs_Reduce_step          *
 c     *                                      *
 c     ****************************************
 c
@@ -735,13 +548,13 @@ c
 c   Exit - hpsi_rep: modified data array
 c          requests,reqcnt: tags for asychronous message passing
 c
-      subroutine D1dB_Reduce_step(l,na,blocks0,
-     >                            n2ft3d,hpsi_rep,tmp)
+      subroutine D1dBs_Reduce_step(l,na,blocks0,
+     >                             n2ft3d,hpsi_rep,tmp)
       implicit none
       integer l,na(*),blocks0
       integer n2ft3d
-      real*8 hpsi_rep(n2ft3d,*)
-      real*8 tmp(*)
+      real    hpsi_rep(n2ft3d,*)
+      real    tmp(*)
 
 *     *** local variables ***
       integer taskid_j,np_j
@@ -799,12 +612,12 @@ cccccc      !Level = (log(dble(np_j))/log(2.0d0))
 
 *     *** will be much more complicated for synchronous ***
       reqcnt = 0
-      call D1dB_isendrecv(pto,  ssize*n2ft3d,hpsi_rep(1,sindx),
-     >                    pfrom,rsize*n2ft3d,tmp,
+      call D1dBs_isendrecv(pto,  ssize*n2ft3d,hpsi_rep(1,sindx),
+     >                     pfrom,rsize*n2ft3d,tmp,
      >                    requests,reqcnt)
 
       call D1dB_WaitAll(requests,reqcnt)
-      call DAXPY_OMP(rsize*n2ft3d,1.0d0,tmp,1,hpsi_rep(1,rindx),1)
+      call SAXPY_OMP(rsize*n2ft3d,1.0d0,tmp,1,hpsi_rep(1,rindx),1)
 
       return
       end

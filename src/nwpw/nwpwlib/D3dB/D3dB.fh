@@ -37,5 +37,6 @@
       parameter (nplans=20)
       integer   iforward,ibackward,iestimate
       integer*8 plans(nplans,NBLOCKS)
-      common /FFTW3_plans / plans,iforward,ibackward,iestimate
+      integer*8 splans(nplans,NBLOCKS)
+      common /FFTW3_plans / plans,splans,iforward,ibackward,iestimate
 #endif

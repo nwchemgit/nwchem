@@ -371,9 +371,12 @@ c     integer i2_start(NFFT3+1)
 
       logical value
       integer i
+      logical  control_single_precision_on
+      external control_single_precision_on
 
       call D3dB_timereverse_end(nb)
       call D3dB_fft_end(nb)
+      if (control_single_precision_on()) call D3dBs_fft_end(nb)
 
       value=.true.
 
@@ -772,6 +775,8 @@ c     p = p_map(k)
       integer taskid,np
       integer  Parallel_threadid
       external Parallel_threadid
+      logical  control_single_precision_on
+      external control_single_precision_on
 
 
 
@@ -880,6 +885,7 @@ c     p = p_map(k)
 
       call D3dB_c_timereverse_init(nb)
       call D3dB_fft_init(nb)
+      if (control_single_precision_on()) call D3dBs_fft_init(nb)
       
       return
       end
@@ -1404,6 +1410,11 @@ c      call dfftw_cleanup_threads()
       end
 
 
+
+
+
+
+
 c*     ***********************************
 c*     *                                 *
 c*     *         D3dB_n_fft_init         *
@@ -1889,6 +1900,7 @@ c     end do
       return
       end 
 
+
       subroutine cshift1_fftb1(nx,A)
       implicit none
       integer nx
@@ -1899,6 +1911,7 @@ c     end do
       end do 
       return
       end
+
 
       subroutine zeroend_fftb1(nx,A)
       implicit none
@@ -5628,6 +5641,7 @@ c     integer i2_start(NFFT3+1)
       return
       end
 
+
       subroutine D3dB_pfft_index2_zero(n,index,a)
       implicit none
       integer n
@@ -5644,6 +5658,8 @@ c     integer i2_start(NFFT3+1)
 !$OMP END DO
       return
       end
+
+
 
       subroutine D3dB_pfft_index2_copy_conjg(n,index,a,b)
       implicit none

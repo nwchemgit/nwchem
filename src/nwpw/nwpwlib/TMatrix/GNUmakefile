@@ -5,9 +5,11 @@
   OBJ_OPTIMIZE = dgemm_omp.o \
 		 dgamm_omp.o \
 		 daxpy_omp.o \
+		 saxpy_omp.o \
 		 dscal_omp.o zscal_omp.o \
 		 ffm_multiply_omp_group.o \
 		 zgemm_omp.o \
+		 sgemm_omp.o \
 		 ffw_multiply_omp_group.o 
   OBJ = 
 
@@ -15,7 +17,7 @@
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = dgemm_omp.F ffm_multiply_omp_group.F zgemm_omp.F ffw_multiply_omp_group.F
+    USES_BLAS = dgemm_omp.F sgemm_omp.F ffm_multiply_omp_group.F zgemm_omp.F ffw_multiply_omp_group.F
 
   LIB_DEFINES = 
 

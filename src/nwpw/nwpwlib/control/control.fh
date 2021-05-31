@@ -29,6 +29,7 @@
       logical     balance,spin_orbit,dipole_motion
       logical     two_comp_ppot,frozen,pio,fast_erf,fmm,smooth_cutoff
       logical     hess_model,periodic_dipole,precondition
+      logical     single_precision_on
       integer     maxit_orb,maxit_orbs,scf_algorithm,ks_algorithm
       integer     diis_histories
       integer     symm_number,minimizer
@@ -54,7 +55,8 @@
      >                         balance,spin_orbit,dipole_motion,
      >                         two_comp_ppot,frozen,pio,fast_erf,
      >                         fmm,smooth_cutoff,hess_model,
-     >                         periodic_dipole,precondition
+     >                         periodic_dipole,precondition,
+     >                         single_precision_on
       common / control_blkchar / boutput_wavefunction_filename,
      >                         output_wavefunction_filename,
      >                         input_wavefunction_filename,

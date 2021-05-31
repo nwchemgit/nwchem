@@ -1,27 +1,22 @@
 #if defined(XLF14) || defined(XLFLINUX)
 @PROCESS OPT(0) STRICT(ALL)
 #endif
-      subroutine drfti1 (n,wa,ifac)
-*
-* $Id$
-*
-      double precision wa(1), arg, argh, argld, fi, tpi
-      integer ifac(*), ntryh(4)
-      data ntryh(1), ntryh(2), ntryh(3), ntryh(4) /4, 2, 3, 5/
-      data tpi   /  6.2831853071 7958647692 5286766559 00577d0/
-c
+      subroutine srfti1 (n,wa,ifac)
+      IMPLICIT REAL(A-H), INTEGER(I-N), REAL(O-Z)
+      dimension       wa(*)      ,ifac(*)    ,ntryh(4)
+      data ntryh(1),ntryh(2),ntryh(3),ntryh(4)/4,2,3,5/
+
       nl = n
       nf = 0
       j = 0
-      ntry = 4   ! take care of compiler warning
-c
   101 j = j+1
-      if (j.le.4) ntry = ntryh(j)
-      if (j.gt.4) ntry = ntry + 2
+      if (j-4) 102,102,103
+  102 ntry = ntryh(j)
+      go to 104
+  103 ntry = ntry+2
   104 nq = nl/ntry
       nr = nl-ntry*nq
-      if (nr.ne.0) go to 101
-c
+      if (nr) 101,105,101
   105 nf = nf+1
       ifac(nf+2) = ntry
       nl = nq
@@ -35,8 +30,8 @@ c
   107 if (nl .ne. 1) go to 104
       ifac(1) = n
       ifac(2) = nf
-c
-      argh = tpi/dble(n)
+      tpi = 6.28318530717959
+      argh = tpi/float(n)
       is = 0
       nfm1 = nf-1
       l1 = 1
@@ -50,20 +45,18 @@ c
          do 109 j=1,ipm
             ld = ld+l1
             i = is
-            argld = dble(ld)*argh
-            fi = 0.d0
+            argld = float(ld)*argh
+            fi = 0.
             do 108 ii=3,ido,2
                i = i+2
-               fi = fi+1.0d0
+               fi = fi+1.0
                arg = fi*argld
-               wa(i-1) = dcos(arg)
-               wa(i)   = dsin(arg)
+               wa(i-1) = cos(arg)
+               wa(i)   = sin(arg)
   108       continue
             is = is+ido
   109    continue
-c
          l1 = l2
   110 continue
-c
       return
       end

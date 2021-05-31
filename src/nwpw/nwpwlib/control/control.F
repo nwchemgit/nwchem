@@ -1228,6 +1228,11 @@ c         return
       if ((code.eq.4) .or.(code.eq.9).or.(code.eq.10))
      >   has_ngrid_small = .false.
 
+*     **** set single_p;recision hfx ****
+      if (.not.btdb_get(rtdb,'pspw:HFX_single_precision',mt_log,1,
+     >                  single_precision_on))
+     >   single_precision_on = .false.
+
 
 *     **** set fractional (smearing) parameters ****
       if (.not.
@@ -7372,5 +7377,20 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      >   value = .false.
 
       control_Efield_on = value
+      return
+      end
+
+
+*     *********************************************
+*     *                                           *
+*     *        control_single_precision_on        *
+*     *                                           *
+*     *********************************************
+      logical function control_single_precision_on()
+      implicit none
+
+#include "control.fh"
+
+      control_single_precision_on = single_precision_on
       return
       end
