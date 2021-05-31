@@ -292,6 +292,10 @@ c                 temp = yerf/temp
      >                     + dbl_mb(glr(1)+2*(k-1)) 
       end do
 
+      if (has_single) then
+         call coulomb2_tosingle(nfft3d,dbl_mb(gk(1)),real_mb(sgk(1)))
+      end if
+
       if (.not.BA_pop_stack(glr(2)))
      > call errquit('coulomb2_init:error popping stack memory',0,MA_ERR)
 
@@ -318,6 +322,18 @@ c                 temp = yerf/temp
      >   call errquit('coulomb2_end:error freeing heap memory',1,MA_ERR)
       end if
 
+      return
+      end
+
+      subroutine coulomb2_tosingle(n,a8,a4)
+      implicit none
+      integer n
+      real*8 a8(*)
+      real*4 a4(*)
+      integer i
+      do i=1,n
+         a4(i) = real(a8(i))
+      end do
       return
       end
 
@@ -428,16 +444,16 @@ c      call D3dB_r_SMul(1,scale,vh,vh)
 
 *     **** local variables ****
       logical value
-      integer tmpx(2)
+      integer tmpvc2(2)
       integer nx,ny,nz,nfft3d
       real scale
 
       call D3dB_nfft3d(2,nfft3d)
-      value = BA_push_get(mt_scpl,nfft3d,'tmpx',tmpx(2),tmpx(1))
+      value = BA_push_get(mt_scpl,nfft3d,'tmpvc2',tmpvc2(2),tmpvc2(1))
       if (.not.value) call errquit('out of stack memory',0, MA_ERR)
 
       call Parallel_shared_vector_szero(.true.,
-     >                                  2*nfft3d,scpl_mb(tmpx(1)))
+     >                                  2*nfft3d,scpl_mb(tmpvc2(1)))
 
       call D3dB_nx(2,nx)
       call D3dB_ny(2,ny)
@@ -445,18 +461,18 @@ c      call D3dB_r_SMul(1,scale,vh,vh)
       scale = 1.0/real(nx*ny*nz)
 
 c     *** Expand the density ***
-      call D3dBs_r_Expand(1,dn,2,scpl_mb(tmpx(1)))
+      call D3dBs_r_Expand(1,dn,2,scpl_mb(tmpvc2(1)))
 
 c     **** Convolution g*dn ****
-      call D3dBs_rc_fft3f(2,scpl_mb(tmpx(1)))
-      call D3dBs_tc_Mul2(2,real_mb(sgk(1)),scpl_mb(tmpx(1)))
-      call D3dBs_cr_fft3b(2,scpl_mb(tmpx(1)))
+      call D3dBs_rc_fft3f(2,scpl_mb(tmpvc2(1)))
+      call D3dBs_tc_Mul2(2,real_mb(sgk(1)),scpl_mb(tmpvc2(1)))
+      call D3dBs_cr_fft3b(2,scpl_mb(tmpvc2(1)))
 
 c     **** contract tmpx to extract vh ****
-      call D3dBs_r_Contract(2,scpl_mb(tmpx(1)),1,vh)
+      call D3dBs_r_Contract(2,scpl_mb(tmpvc2(1)),1,vh)
       call D3dBs_r_SMul1(1,scale,vh)
 
-      value = BA_pop_stack(tmpx(2))
+      value = BA_pop_stack(tmpvc2(2))
       if (.not. value) call errquit('error popping stack memory',0,
      &       MA_ERR)
       return

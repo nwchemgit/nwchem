@@ -638,7 +638,7 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 #else
       offset=tid*(2*nx(nb)+15)
-      call cshift1_fftb(nx(nb),nq1(nb),1,1,A)
+      call cshift1_sfftb(nx(nb),nq1(nb),1,1,A)
       do i=tid+1,nq1(nb),nthr
         call srfftb(nx(nb),A(1+(i-1)*nxh),scpl_mb(tmpx(1,nb)+offset))
       end do
@@ -791,11 +791,10 @@ c     call D3dBs_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       implicit none
       integer nb
-      complex*16  A(*)
+      complex A(*)
 
 #include "bafdecls.fh"
 #include "errquit.fh"
-
 #include "D3dB.fh"
 
       integer tmpx(2,NBLOCKS),tmpy(2,NBLOCKS),tmpz(2,NBLOCKS)
@@ -950,14 +949,13 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 #ifdef FFTW3
       call fftw_execute_dft_r2c(splans(14,nb),A,A)
 #else
-
       offset=tid*(2*nx(nb)+15)
       do i=tid+1,nq1(nb),nthr
         call srfftf(nx(nb),A(1+(i-1)*nxh),scpl_mb(tmpx(1,nb)+offset))
       end do
       call cshift_sfftf(nx(nb),nq1(nb),1,1,A)
 #endif
-
+      
       call D3dBs_c_transpose_ijk(nb,1,A,scpl_mb(tmp2(1)),
      >                           real_mb(tmp3(1)))
 
@@ -1106,7 +1104,7 @@ CDIR$ NOVECTOR
       subroutine D3dBs_c_SMul(nb,scale,A,C)     
       implicit none 
       integer    nb
-      real*8     scale
+      real       scale
       complex A(*)
       complex C(*)
 
@@ -2389,7 +2387,7 @@ c      call Parallel2d_np_i(np)
       subroutine D3dBs_cc_daxpy(nb,alpha,A,B)     
       implicit none 
       integer    nb
-      real*8     alpha
+      real    alpha
       complex A(*)
       complex B(*)
 
@@ -2573,9 +2571,9 @@ CDIR$ NOVECTOR
 #include "D3dB.fh"
 
       integer index
-      real*8 aa
+      real aa
 
-      amax = 0.0d0
+      amax = 0.0
       do index=1,n2ft3d_map(nb)
          !index = i + (j-1)*(nx(nb)+2) + (q-1)*(nx(nb)+2)*ny(nb)
          aa = abs(A(index))

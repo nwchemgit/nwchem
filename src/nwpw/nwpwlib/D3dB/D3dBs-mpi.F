@@ -432,7 +432,7 @@ c     integer i2_start(NFFT3+1)
 
       integer offset,chunklen
       integer tid,nthr
-      integer Parallel_threadid,Parallel_nthreads
+      integer  Parallel_threadid,Parallel_nthreads
       external Parallel_threadid,Parallel_nthreads
 
      
@@ -442,7 +442,7 @@ c     integer i2_start(NFFT3+1)
 *     **** allocate memory ****
       value = BA_push_get(mt_int,np,
      >                     'request',request(2),request(1))
-      if (.not. value) 
+      if (.not.value) 
      > call errquit(' D3dBs_c_transpose_ijk:out of stack',0,MA_ERR)
 
 
@@ -457,17 +457,17 @@ c     integer i2_start(NFFT3+1)
       tid = Parallel_threadid()
 c      nthr = Parallel_nthreads()
 
- 
 !$OMP DO
       do i=1,nnfft3d
         tmp1(int_mb(h_iq_to_i1(1,op,nb)+i-1)) = A(i)
       end do
 !$OMP END DO
 
+
 *     **** it = 0, transpose data on same thread ****  
       msglen = int_mb(h_i2_start(1,op,nb)+2-1) 
      >       - int_mb(h_i2_start(1,op,nb)+1-1)
-      call Parallel_shared_vector_scopy(.false.,2*msglen,
+      call Parallel_shared_vector_scopy(.true.,2*msglen,
      >                    tmp1(int_mb(h_i1_start(1,op,nb))),
      >                    tmp2(int_mb(h_i2_start(1,op,nb))))
          
@@ -561,10 +561,10 @@ c      nthr = Parallel_nthreads()
 
 
       !*** deallocate memory ***
-      value =           BA_pop_stack(request(2))
-      if (.not. value) 
+      value = BA_pop_stack(request(2))
+      if (.not.value) 
      > call errquit(' D3dBs_c_transpose_ijk:popping stack',0,MA_ERR)
-      
+
       return
       end
 
