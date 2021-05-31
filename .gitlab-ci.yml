@@ -23,7 +23,7 @@ variables:
     - export NWCHEM_TARGET=LINUX
     - export PATH=/home/edo/apps/mpich314_i686/bin:/usr/bin:/bin:.
     - export LD_LIBRARY_PATH=/home/edo/apps/mpich314_i686/lib:/home/edo/apps/OpenBLAS.i386/lib
-
+  
 .compile_template: &compile_step
   script:
     - if [ "$(lsb_release -i|cut -c 17-)" == "CentOS" ]; then export USE_CENTOS="1" ; else export USE_CENTOS="0" ; fi
@@ -43,6 +43,10 @@ variables:
     - make nwchem_config
     - make -j3
     - ../contrib/getmem.nwchem 
+  only:
+    - master
+    - /^release-.*$/
+    - /^hotfix/.*$/
 #  except:
 #    changes:
 #      - ".travis.yml"
@@ -68,6 +72,10 @@ variables:
     - if [ "$USE_CENTOS" == "1" ]; then NNPROCS=3; fi
     - env | grep CI_ || mtrue
     - if [[ "$NWCHEM_TARGET" != "LINUX"  && ( "$CI_RUNNER_TAGS" == "ubuntu_xenial" ||  "$CI_RUNNER_TAGS" == "ubuntu_bionic" ) ]]; then ./doqmtests.mpi $NNPROCS  ; else ./doqmtests.mpi $NNPROCS fast ; fi
+  only:
+    - master
+    - /^release-.*$/
+    - /^hotfix/.*$/
 #  except:
 #    changes:
 #      - ".travis.yml"
@@ -174,6 +182,7 @@ linux_ubuntu:build_gcc:
   variables:
     PATH: "/home/edo/apps/mpich314_i686/bin:/usr/bin:/bin:."
     LD_LIBRARY_PATH: "/home/edo/apps/mpich314_i686/lib"
+    NWCHEM_MODULES: "all"
     BUILD_SCALAPACK: 1
     BUILD_OPENBLAS: 1
     BLAS_SIZE: 4

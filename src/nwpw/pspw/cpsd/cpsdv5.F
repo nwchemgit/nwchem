@@ -195,10 +195,10 @@ c#include "Parallel.fh"
 
       logical  control_mparallelized
       external control_mparallelized
-      logical  nwpw_cosmo_on
-      external nwpw_cosmo_on
-      real*8   nwpw_cosmo_screen
-      external nwpw_cosmo_screen
+      logical  nwpw_cosmo_on,nwpw_born_on
+      external nwpw_cosmo_on,nwpw_born_on
+      real*8   nwpw_cosmo_screen,nwpw_born_screen
+      external nwpw_cosmo_screen,nwpw_born_screen
       logical  pspw_V_APC_on
       external pspw_V_APC_on
       real*8   control_gas_energy
@@ -1201,6 +1201,20 @@ c            write(luout,1706) E(18)
          end if
       end if
 
+*     **** write out extended Born solvation energies ****
+      if (nwpw_born_on()) then
+         Egas = control_gas_energy()
+         if (oprint) then
+            write(luout,1740)
+            write(luout,1741) nwpw_born_screen()
+            write(luout,1745) E(22),E(22)*27.2116d0*23.06d0
+            if (dabs(Egas).gt.1.0d-6)
+     >         write(luout,1746)  E(1)-Egas,
+     >                           (E(1)-Egas)*27.2116d0*23.06d0
+            call nwpw_born_print(luout,Egas,E(1))
+         end if
+      end if
+
 
       if (mparallelized) then
           do ms=1,ispin
@@ -1244,7 +1258,7 @@ c            write(luout,1706) E(18)
 
 *       **** generate APC *****
         call pspw_dngen_APC(ispin,ne,dbl_mb(dn(1)))
-        call pspw_print_APC(6)
+        call pspw_print_APC(luout)
 
       end if
 
@@ -1530,6 +1544,14 @@ c      call frac_occ_end()
      >   ' (',F8.3,' kcal/mol)')
  1736 FORMAT(5x,' solvation energy (w/  QM polarization) :',E19.10,
      >   ' (',F8.3,' kcal/mol)')
+
+ 1740 FORMAT(/' extended Born solvation energies:')
+ 1741 FORMAT(5x,' screen=(epsilon-1)/(epsilon):',F11.6)
+ 1745 FORMAT(5x,' solvation energy (w/o QM polarization) :',E19.10,
+     >   ' (',F8.3,' kcal/mol)')
+ 1746 FORMAT(5x,' solvation energy (w/  QM polarization) :',E19.10,
+     >   ' (',F8.3,' kcal/mol)')
+
 
  1800 FORMAT(/' Charge+Electric Field Energies')
  1801 FORMAT( ' ------------------------------')

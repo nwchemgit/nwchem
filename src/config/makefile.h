@@ -1052,9 +1052,9 @@ ifeq ($(TARGET),MACX)
         FDEBUG = -O0 -g
         FOPTIMIZE  = -O2 -ffast-math -Wuninitialized 
         DEFINES  += -DGFORTRAN
-        GNUMAJOR=$(shell $(_FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
+        GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
         ifdef GNUMAJOR
-        GNUMINOR=$(shell $(_FC) -dM -E - < /dev/null 2> /dev/null | egrep __GNUC_MINOR | cut -c24)
+        GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __GNUC_MINOR | cut -c24)
         GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 ] && echo true)
         GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 ] && echo true)
         GNU_GE_6 = $(shell [ $(GNUMAJOR) -ge 6  ] && echo true)
@@ -1217,9 +1217,9 @@ endif
          FOPTIMIZE+= -funroll-all-loops -mtune=native 
          #FVECTORIZE=-O3 -ffast-math -mtune=native -mfpmath=sse -msse3 -ftree-vectorize -ftree-vectorizer-verbose=1   -fprefetch-loop-arrays  -funroll-all-loops
          FVECTORIZE=-O3 -ffast-math -mtune=native -ftree-vectorize -ftree-vectorizer-verbose=1 -funroll-all-loops
-        GNUMAJOR=$(shell $(_FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
+        GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
 	ifneq ($(strip $(GNUMAJOR)),)
-        GNUMINOR=$(shell $(_FC) -dM -E - < /dev/null 2> /dev/null | egrep __GNUC_MINOR | cut -c24)
+        GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __GNUC_MINOR | cut -c24)
         GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
         GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
         GNU_GE_6 = $(shell [ $(GNUMAJOR) -ge 6  ] && echo true)
@@ -1400,7 +1400,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
         FOPTIONS   = # -Wextra -Wunused  
         FOPTIMIZE  += -ffast-math -Wuninitialized
         DEFINES  += -DGFORTRAN
-        GNUMAJOR=$(shell $(_FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
+        GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
         ifdef GNUMAJOR
           GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __VERS | cut -c24)
           GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 ] && echo true)
@@ -3092,7 +3092,7 @@ endif
 MKDIR = mkdir
 #extract defines to be used with linear algebra libraries
       ifdef USE_INTERNALBLAS
-      DEFINES += -DINTERNALBLAS
+      DEFINES += -DBLAS_NOTHREADS
 endif
 ifdef BUILD_OPENBLAS
       DEFINES += -DOPENBLAS
@@ -3111,6 +3111,29 @@ ifeq ($(shell echo $(BLASOPT) |awk '/flexiblas/ {print "Y"; exit}'),Y)
 endif
 ifeq ($(shell echo $(BLASOPT) |awk '/Accelerate/ {print "Y"; exit}'),Y)
       DEFINES += -DACCELERATE
+endif
+ifeq ($(shell echo $(BLASOPT) |awk '/lsci/ {print "Y"; exit}'),Y)
+      DEFINES += -DCRAYBLAS
+endif
+ifeq ($(shell echo $(BLASOPT) |awk '/larmpl/ {print "Y"; exit}'),Y)
+      DEFINES += -DARMPL
+endif
+ifeq ($(shell echo $(BLASOPT) |awk '/latlas/ {print "Y"; exit}'),Y)
+      DEFINES += -DBLAS_NOTHREADS
+endif
+ifeq ($(shell echo $(BLASOPT) |awk '/lessl/ {print "Y"; exit}'),Y)
+  ifeq ($(shell echo $(BLASOPT) |awk '/smp/ {print "Y"; exit}'),Y)
+erroresslsmp:
+$(info     )
+$(info essl smp threaded libraries are deprecated)
+$(info since they conflict with OpenMP parallelization)
+$(info please use -lessl6464 or -lessl)
+$(error )
+  endif
+#      DEFINES += -DBLAS_OPENMP
+# essl does not has the full lapack library
+      EXTRA_LIBS += -lnwclapack
+      CORE_SUBDIRS_EXTRA = lapack
 endif
 
 #

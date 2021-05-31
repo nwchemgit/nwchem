@@ -21,8 +21,8 @@ while read fname; do
 done <../mathfiles.txt
 cd ..
 if [[ -z "${MKDOCS_SERVE}" ]]; then
+    #git clone --depth 1 https://github.com/nwchemgit/nwchemgit.github.io  nwchemgit.github.io_temp
 rm -rf nwchemgit.github.io_temp
-#git clone --depth 1 https://github.com/nwchemgit/nwchemgit.github.io  nwchemgit.github.io_temp
 git clone --depth 1 git@github.com:nwchemgit/nwchemgit.github.io.git nwchemgit.github.io_temp
 cd nwchemgit.github.io_temp
 mkdocs -v gh-deploy --config-file ../mkdocs.yml --remote-branch master

@@ -452,13 +452,24 @@ c
          end if
       end if
 
-      if (.not.btdb_cget(rtdb,'cgsd:input_ewavefunction_filename',
-     >                  1,input_ewavefunction_filename))
-     >  call util_file_prefix('emovecs',input_ewavefunction_filename)
+      !**** determing input_ewavefunction_filename ****
+      if (.not.btdb_cget(rtdb, 'pspw:input evectors', 
+     >                   1,input_ewavefunction_filename)) then
+         if (.not.btdb_cget(rtdb,'cgsd:input_ewavefunction_filename',
+     >                     1,input_ewavefunction_filename))
+     >     call util_file_prefix('emovecs',input_ewavefunction_filename)
+      end if
 
-      if (.not.btdb_cget(rtdb,'cgsd:output_ewavefunction_filename',
-     >                  1,output_ewavefunction_filename))
-     >  call util_file_prefix('emovecs',output_ewavefunction_filename)
+
+      !**** determing output_ewavefunction_filename ****
+      if (.not.btdb_cget(rtdb,'pspw:output evectors', 
+     >                   1,output_ewavefunction_filename)) then
+         if (.not.btdb_cget(rtdb,'cgsd:output_ewavefunction_filename',
+     >                     1,output_ewavefunction_filename)) then
+            output_ewavefunction_filename=input_ewavefunction_filename
+         end if
+      end if
+
 
       if (code.eq.11) then
      
@@ -7091,13 +7102,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       common / control_rtdb1 / rtdb
 
 *     **** external functions ****
-      logical  nwpw_cosmo_on
-      external nwpw_cosmo_on
+      logical  nwpw_cosmo_on,nwpw_born_on
+      external nwpw_cosmo_on,nwpw_born_on
 
       real*8 egas
 
       egas = 0.0d0
-      if (nwpw_cosmo_on()) then
+      if (nwpw_cosmo_on().or.nwpw_born_on()) then
          if (.not.btdb_get(rtdb,'nwpw:gas_energy',mt_dbl,1,egas))
      >      egas = 0.0d0
       end if
