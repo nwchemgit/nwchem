@@ -331,9 +331,11 @@ c                 temp = yerf/temp
       real*8 a8(*)
       real*4 a4(*)
       integer i
+!$OMP DO
       do i=1,n
          a4(i) = real(a8(i))
       end do
+!$OMP END DO
       return
       end
 

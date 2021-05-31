@@ -602,9 +602,11 @@ c       **** deallocate extra psi and Hpsi for single precision ****
       real*8 a8(*)
       real*4 a4(*)
       integer i
+!$OMP DO
       do i=1,n
          a4(i) = real(a8(i))
       end do
+!$OMP END DO
       return
       end
 
@@ -614,9 +616,11 @@ c       **** deallocate extra psi and Hpsi for single precision ****
       real*4 a4(*)
       real*8 a8(*)
       integer i
+!$OMP DO
       do i=1,n
          a8(i) = dble(a4(i))
       end do
+!$OMP END DO
       return
       end
 
