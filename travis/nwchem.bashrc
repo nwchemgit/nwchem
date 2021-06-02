@@ -23,7 +23,7 @@ if [[ "$FC" == "flang" ]]; then
 	export PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/bin/:$PATH
 	export LD_LIBRARY_PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/lib:$LD_LIBRARY_PATH
     else
-	source ${NWCHEM_TOP}/../setenv_AOCC.sh
+	source ${NWCHEM_TOP}/setenv_AOCC.sh
     fi
      export BUILD_MPICH=1
 fi
