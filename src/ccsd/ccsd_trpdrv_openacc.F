@@ -119,7 +119,7 @@
       if (ga_nodeid().eq.0) then
         write(6,99)
       endif
-   99 format(2x,'Using Fortran standard parallelism in CCSD(T)')
+   99 format(2x,'Using Fortran OpenACC+CUBLAS in CCSD(T)')
       tzero=util_wallsec()
       flopzero=perfm_flop()
 !
