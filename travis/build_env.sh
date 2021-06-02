@@ -75,16 +75,23 @@ fi
 	sudo apt-get -y install intel-oneapi-mpi-devel
     fi
     if [[ "$FC" == "flang" ]]; then
-	aomp_major=13
-	aomp_minor=0-2
-#	wget https://github.com/ROCm-Developer-Tools/aomp/releases/download/rel_11.12-0/aomp_Ubuntu2004_11.12-0_amd64.deb
-#	sudo dpkg -i aomp_Ubuntu2004_11.12-0_amd64.deb
-#	export PATH=/usr/lib/aomp_11.12-0/bin/:$PATH
-	wget https://github.com/ROCm-Developer-Tools/aomp/releases/download/rel_"$aomp_major"."$aomp_minor"/aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
-	sudo dpkg -i aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
-	export PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/bin/:$PATH
-	export LD_LIBRARY_PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/lib:$LD_LIBRARY_PATH
-	ls -lrt /usr/lib | grep aomp ||true
+	if [[ "USE_AOCC" == "Y" ]]; then
+	    aomp_major=13
+	    aomp_minor=0-2
+	    wget https://github.com/ROCm-Developer-Tools/aomp/releases/download/rel_"$aomp_major"."$aomp_minor"/aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
+	    sudo dpkg -i aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
+	    export PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/bin/:$PATH
+	    export LD_LIBRARY_PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/lib:$LD_LIBRARY_PATH
+	    ls -lrt /usr/lib | grep aomp ||true
+	else
+	    aocc_version=3.0.0
+	    aocc_dir=aocc-compiler-${aocc_version}
+	    curl -LJO https://developer.amd.com/wordpress/media/files/${aocc_dir}.tar
+	    tar xf ${aocc_dir}.tar
+	    ./${aocc_dir}/install.sh
+	    source setenv_AOCC.sh
+	    pwd
+	fi
 	flang -v
 	which flang
     fi
