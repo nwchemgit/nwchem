@@ -1057,6 +1057,7 @@ c
       if (.not.value)
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 4504, RTDB_ERR)
+      goto 10
 
 
 c
