@@ -1998,8 +1998,10 @@ c     ****************************************
      >                 eig(shift1),
      >                 dbl_mb(tmp1(1)),2*ne(1)*ne(1),
      >                 ierr)
-            if(ierr.ne.0) 
-     >        call errquit('dneadiag: dsyev err.ne.0 ',ierr,0)
+            if (ierr.ne.0) then
+              write(*,*) "dneadiag: ne=",ne
+              call errquit('dneadiag: dsyev err.ne.0 ',ierr,0)
+            end if
 !$OMP END MASTER
 !$OMP BARRIER
 
@@ -7360,13 +7362,14 @@ c     ****************************************
             ms2 = ispin
             ishift1 = nein(1)
             ishift2 = nein(1)*ne(1)
-            call dcopy((nein(1)+nein(2)),0.0d0,0,eig,1)
+            call Parallel_shared_vector_zero(.true.,
+     >                            (nein(1)+nein(2)),eig)
          else
             ms1 = mb
             ms2 = mb
             ishift1 = 0
             ishift2 = 0
-            call dcopy(nein(mb),0.0d0,0,eig,1)
+            call Parallel_shared_vector_zero(.true.,nein(mb),eig)
          end if
 
          value = BA_push_get(mt_dbl,(2*nein(1)*nein(1)),
