@@ -17,10 +17,14 @@ echo NWCHEM_TOP is $NWCHEM_TOP
 #TARBALL=https://github.com/nwchemgit/nwchem/releases/download/v7.0.0-beta1/nwchem-7.0.0-release.revision-5bcf0416-src.2019-11-01.tar.bz2
 export USE_MPI=y
 if [[ "$FC" == "flang" ]]; then
-    aomp_major=13
-    aomp_minor=0-2
-    export PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/bin/:$PATH
-    export LD_LIBRARY_PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/lib:$LD_LIBRARY_PATH
+    if [[ "USE_AOCC" == "Y" ]]; then
+	aomp_major=13
+	aomp_minor=0-2
+	export PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/bin/:$PATH
+	export LD_LIBRARY_PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/lib:$LD_LIBRARY_PATH
+    else
+	source ${NWCHEM_TOP}/../setenv_AOCC.sh
+    fi
      export BUILD_MPICH=1
 fi
 if [[ "$FC" == "nvfortran" ]]; then
