@@ -83,6 +83,7 @@ fi
 	wget https://github.com/ROCm-Developer-Tools/aomp/releases/download/rel_"$aomp_major"."$aomp_minor"/aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
 	sudo dpkg -i aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
 	export PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/bin/:$PATH
+	export LD_LIBRARY_PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/lib:$LD_LIBRARY_PATH
 	ls -lrt /usr/lib | grep aomp ||true
 	flang -v
 	which flang
