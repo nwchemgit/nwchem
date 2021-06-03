@@ -106,9 +106,11 @@
       parameter(n_progr=20)
       logical i_progr(n_progr+1)
 !
+#if 0
       integer(INT32) :: num_devices, use_ngpus, my_gpu
       integer :: ppn, node_rank
       character*255 :: char_use_ngpus
+#endif
 !
       integer(INT32) :: shi
       type(cublasHandle) :: handle(8)
@@ -126,6 +128,7 @@
    99 format(2x,'Using Fortran OpenACC+CUBLAS in CCSD(T)')
       tt0 = util_wallsec()
       agg_flops = 0
+#if 0
 !
 ! CUDA stuff
 !
@@ -166,6 +169,7 @@
       endif
       err = cudaSetDevice(my_gpu)
       if (err.ne.0) call errquit('cudaSetDevice',my_gpu,UNKNOWN_ERR)
+#endif
       ! setup CUDA streams
       do shi=1,8
         err = cudaStreamCreate(stream(shi))
