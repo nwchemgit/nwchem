@@ -64,8 +64,8 @@
       integer :: klo, khi
       integer nxtask
       external nxtask
-      double precision perfm_flop,tzero,flopzero,t_flops,agg_flops
-      external perfm_flop
+      integer :: dgemm_flops, tengy_flops
+      double precision agg_flops
 !
 !  Dependencies (global array, local array, handle):
 !
@@ -106,10 +106,14 @@
       parameter(n_progr=20)
       logical i_progr(n_progr+1)
 !
+      integer(INT32) :: num_devices, use_ngpus, my_gpu
+      integer :: ppn, node_rank
+      character*255 :: char_use_ngpus
+!
       integer(INT32) :: shi
       type(cublasHandle) :: handle(8)
       integer(kind=cuda_stream_kind) :: stream(8)
-      double precision :: tt0, tt1
+      double precision :: tt0, tt1, tc0, tc1
 !
       integer(INT32) :: nv4, no4 ! cublasDgemm requires 32-bit integers
       integer(INT32) :: cu_op_n, cu_op_t
@@ -120,12 +124,49 @@
         write(6,99)
       endif
    99 format(2x,'Using Fortran OpenACC+CUBLAS in CCSD(T)')
-      tzero=util_wallsec()
-      flopzero=perfm_flop()
+      tt0 = util_wallsec()
+      agg_flops = 0
 !
 ! CUDA stuff
 !
-      tt0 = util_wallsec()
+      ! how many GPUs are detected
+      err = cudaGetDeviceCount(num_devices)
+      if (err.ne.0) call errquit('cudaGetDeviceCount',err,UNKNOWN_ERR)
+      if (num_devices.lt.1) call errquit('No GPU found!',0,UNKNOWN_ERR)
+      ! user prescribes how many to use
+      call util_getenv('NWCHEM_OPENACC_USE_NGPUS',char_use_ngpus)
+      if (ga_nodeid().eq.0) then
+        print*,'CU NWCHEM_OPENACC_USE_NGPUS=',trim(char_use_ngpus)
+      endif
+      if (len(trim(char_use_ngpus)).gt.0) then
+        read(char_use_ngpus,'(i255)') use_ngpus
+        if (use_ngpus.gt.num_devices) then
+          write(6,600) use_ngpus,num_devices
+          use_ngpus = num_devices
+        endif
+  600   format('CU you asked for ',
+     &         i2,' GPUs but only ',
+     &         i2,' are present')
+      else
+        use_ngpus=num_devices
+      endif
+      ! GA PPN undercounts with ARMCI-MPI
+      call util_getppn(ppn) ! THIS IS COLLECTIVE
+      ! this assumes PPN is constant across nodes (reasonable)
+      node_rank = modulo(ga_nodeid(),ppn)
+      ! assign GPUs to GA process ranks within a node (round-robin)
+      my_gpu = modulo(node_rank,use_ngpus)
+      if (ga_nodeid().lt.ppn) then
+        write(6,700) 'node_rank',node_rank
+        write(6,700) 'use_ngpus',use_ngpus
+        write(6,700) 'ppn      ',ppn
+        write(6,700) 'ga_nodeid',ga_nodeid()
+        write(6,700) 'my_gpu   ',my_gpu
+  700   format('CU ',a12,'=',i5)
+      endif
+      err = cudaSetDevice(my_gpu)
+      if (err.ne.0) call errquit('cudaSetDevice',my_gpu,UNKNOWN_ERR)
+      ! setup CUDA streams
       do shi=1,8
         err = cudaStreamCreate(stream(shi))
         if (err.ne.0) call errquit('cudaStreamCreate',shi,UNKNOWN_ERR)
@@ -275,6 +316,8 @@
                             call ga_nbwait(nbh_coul2)
                         endif
 
+                        tc0 = util_wallsec()
+
                         nv4 = nvir ! no possibility of overflow
                         no4 = nocc
 
@@ -414,8 +457,15 @@
                           call errquit('cublasDgemm_v2',err,UNKNOWN_ERR)
                         endif
 
-! this is necessary if OpenACC is not used below
-!                        err = cudaDeviceSynchronize()
+                        ! 8 pairs of DGEMM w/ VVV and VVO cost, 2 for FMA
+                        dgemm_flops = 8*nvir*nvir*(nocc+nvir)*2
+                        agg_flops = agg_flops + dgemm_flops
+
+                        ! this is necessary if OpenACC is not used below
+                        !err = cudaDeviceSynchronize()
+                        !if (err.ne.0) then
+                        !  call errquit('cudaDeviceSync',err,UNKNOWN_ERR)
+                        !endif
 
                         do shi=1,8
                           err = cudaStreamSynchronize(stream(i))
@@ -438,11 +488,11 @@
      &                                    +eorb(ncor+k) )
 #ifdef USE_YFLOP
       flops_ycount = flops_ycount + nvir*nvir*(
-     D                       3 + 2*(
-     E                       12 +
-     E                       11 +
-     E                       11 ) +
-     5                       2*27 )
+     &                       3 + 2*(
+     &                       12 +
+     &                       11 +
+     &                       11 ) +
+     &                       2*27 )
 #endif
 
 !$acc parallel loop collapse(2) private(denom) 
@@ -487,6 +537,11 @@
      &                   -2*(f2t(b,c)+f3t(b,c)+f2n(c,b)))
              end do
            end do
+           tengy_flops = nvir*nvir*( 3 + 2*( 12 + 11 + 11 ) + 2*27 )
+           agg_flops = agg_flops + tengy_flops
+
+                         tc1 = util_wallsec()
+
                          if (occsdps) then
                             call pstat_off(ps_tengy)
                          else
@@ -508,18 +563,17 @@
                   next=nxtask(nodes, 1)
             if(ga_nodeid().eq.0) then
                pct_progr=(a-(ncor+nocc)+((klo-1)/kchunk)*nvir)*n_progr/
-     /          ((nocc/kchunk)*nvir)+1
+     &                   ((nocc/kchunk)*nvir)+1
                if(i_progr(pct_progr)) then
                   i_progr(pct_progr)=.false.
                write(6,4321) ' ccsd(t): done ',
-     A              a-(ncor+nocc)+((klo-1)/kchunk)*nvir,
-     O              ' out of ',(nocc/kchunk)*nvir,
-     O              ' progress: ',
-     O              ((a-(ncor+nocc)+((klo-1)/kchunk)*nvir)*100)/
-     D              ((nocc/kchunk)*nvir),
-     P            '%, Gflops=',(perfm_flop()-flopzero)/
-     D              (util_wallsec()-tzero),
-     P                 ' at ',(util_wallsec()-tzero),' secs'
+     &              a-(ncor+nocc)+((klo-1)/kchunk)*nvir,
+     &              ' out of ',(nocc/kchunk)*nvir,
+     &              ' progress: ',
+     &              ((a-(ncor+nocc)+((klo-1)/kchunk)*nvir)*100)/
+     &              ((nocc/kchunk)*nvir),
+     &            '%, Gflops=',1e-9*(dgemm_flops+tengy_flops)/(tc1-tc0),
+     &                 ' at ',(util_wallsec()-tt0),' secs'
                call util_flush(6)
  4321          format(a,i8,a,i8,a,i3,a,1pg11.4,a,0pf10.1,a)
                endif
@@ -530,13 +584,11 @@
       end do
       call ga_sync()
       next=nxtask(-nodes, 1)
-      t_flops=util_wallsec()-tzero
-      agg_flops=perfm_flop()-flopzero
+      tt1=util_wallsec()
       call ga_dgop(msg_cc_diis1,agg_flops,1, '+')
       if(ga_nodeid().eq.0) then
          write(6,4322) ' ccsd(t): 100% done, Aggregate Gflops=',
-     P        agg_flops/t_flops,
-     P                 ' in ',t_flops,' secs'
+     &        1e-9*agg_flops/(tt1-tt0),' in ',(tt1-tt0),' secs'
  4322    format(a,1pg11.4,a,0pf10.1,a)
          call util_flush(6)
       endif
