@@ -15,7 +15,7 @@
 *  *      then control file                                   *
 *  ************************************************************
 #ifdef USE_OPENMP
-#define NO_PSI_OMP
+#define PSI_OMP
 #endif
 
   
@@ -295,9 +295,10 @@ c      value = value .and. MA_set_auto_verify(.true.)
 #endif
 
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-      call dcopy(4*nfft3d,0.0d0,0,dbl_mb(dnall(1)),1)
-      call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xcp(1)),1)
-      call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xce(1)),1)
+      call Parallel_shared_vector_zero(.false.,
+     >                           4*nfft3d,dbl_mb(dnall(1)))
+      call Parallel_shared_vector_zero(.false.,4*nfft3d,dbl_mb(xcp(1)))
+      call Parallel_shared_vector_zero(.true.,4*nfft3d,dbl_mb(xce(1)))
       !call D3dB_r_nZero(1,2,dbl_mb(dnall(1)))
       !call D3dB_r_nZero(1,2,dbl_mb(xcp(1)))
       !call D3dB_r_nZero(1,2,dbl_mb(xce(1)))

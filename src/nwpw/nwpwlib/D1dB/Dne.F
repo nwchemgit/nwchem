@@ -1999,8 +1999,9 @@ c     ****************************************
      >                 dbl_mb(tmp1(1)),2*ne(1)*ne(1),
      >                 ierr)
             if (ierr.ne.0) then
-              write(*,*) "dneadiag: ne=",ne
-              call errquit('dneadiag: dsyev err.ne.0 ',ierr,0)
+              call errquit(
+     > 'You may need to do make 64_to_32 and recompile. '
+     > //'dneadiag:dsyev err=',ierr,0)
             end if
 !$OMP END MASTER
 !$OMP BARRIER
