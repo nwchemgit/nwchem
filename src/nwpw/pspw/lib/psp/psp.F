@@ -3507,7 +3507,6 @@ c     >             psi2,               2*npack1)
      >             psi2(Itid),               2*npack1)
       call nwpw_timing_end(57) 
 
-      call nwpw_timing_start(60) 
          if (move) then
            l1 = 0
            do ip=iip,iipmax
@@ -3516,8 +3515,6 @@ c     >             psi2,               2*npack1)
               nproj = int_mb(nproj_prj_indx(1)+ip-1)
 
               do l=1,nproj
-      call nwpw_timing_start(61) 
-
                  call Pack_ch3t_i3ndot(1,
      >                        dcpl_mb(prjtmp(1)+l1*npack1),
      >                        nn,psi1,
@@ -3525,21 +3522,20 @@ c     >             psi2,               2*npack1)
      >                        dbl_mb(G(2)),
      >                        dbl_mb(G(3)),
      >                        dbl_mb(sum(1)))
+
 c                 do n=1,nn
 c                    call Pack_cct_iconjgMul(1,
-c     >                                 dcpl_mb(prjtmp(1)+l1*npack1),
-c     >                                 psi1(1+(n-1)*npack1),
-c     >                                 dbl_mb(xtmp(1)))
+c     >                                dcpl_mb(prjtmp(1)+l1*npack1),
+c     >                                psi1(1+(n-1)*npack1),
+c     >                                dbl_mb(xtmp(1)))
 c                   call Pack_tt_idot(1,dbl_mb(G(1)),dbl_mb(xtmp(1)),
-c     >                               dbl_mb(sum(1)+3*(n-1)))
+c     >                              dbl_mb(sum(1)+3*(n-1)))
 c                   call Pack_tt_idot(1,dbl_mb(G(2)),dbl_mb(xtmp(1)),
-c     >                               dbl_mb(sum(1)+1+3*(n-1)))
+c     >                              dbl_mb(sum(1)+1+3*(n-1)))
 c                   call Pack_tt_idot(1,dbl_mb(G(3)),dbl_mb(xtmp(1)),
 c     >                               dbl_mb(sum(1)+2+3*(n-1)))
-c
 c                 end do
 
-      call nwpw_timing_end(61) 
                  call D3dB_Vector_SumAll(3*(nn),dbl_mb(sum(1)))
 
                  !**** fractional weighting ****
@@ -3576,7 +3572,6 @@ c                 end do
               end do !** l **
            end do !** ip **
          end if !** move **
-      call nwpw_timing_end(60) 
 
       end do
 

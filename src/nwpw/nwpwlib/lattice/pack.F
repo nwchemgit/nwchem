@@ -2227,12 +2227,12 @@ c      sum = sum + 2*ddot(2*nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
          sum(2,n) = 0.0d0
          sum(3,n) = 0.0d0
          do i=1,nida(nb)
-            C= dimag(dconjg(prj(i))*psi(i+shift))
+            C= dimag(dconjg(prj(i))*psi(shift+i))
             sum(1,n) = sum(1,n) + C*Gx(i)
             sum(2,n) = sum(2,n) + C*Gy(i)
             sum(3,n) = sum(3,n) + C*Gz(i)
          end do
-         shift = shift + 2*(nida(nb) + nidb(nb))
+         shift = shift + (nida(nb) + nidb(nb))
       end do
 !$OMP END MASTER
 !$OMP BARRIER
@@ -2243,7 +2243,7 @@ c      sum = sum + 2*ddot(2*nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
          sa2 = 0.0d0
          sa3 = 0.0d0
          do i=1+tid,nidb(nb),nthr
-            C=2.0d0*dimag(dconjg(prj(nida(nb)+i))*psi(nida(nb)+i+shift))
+            C=2.0d0*dimag(dconjg(prj(nida(nb)+i))*psi(shift+nida(nb)+i))
             sa1 = sa1 + C*Gx(nida(nb)+i)
             sa2 = sa2 + C*Gy(nida(nb)+i)
             sa3 = sa3 + C*Gz(nida(nb)+i)
@@ -2255,7 +2255,7 @@ c      sum = sum + 2*ddot(2*nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
          sum(3,n)  = sum(3,n) + sa3
 !$OMP END CRITICAL (i3nttdot)
 
-         shift = shift + 2*(nida(nb) + nidb(nb))
+         shift = shift + (nida(nb) + nidb(nb))
       end do
 
 !$OMP BARRIER
@@ -2271,18 +2271,18 @@ c      sum = sum + 2*ddot(2*nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
          sum(2,n) = 0.0d0
          sum(3,n) = 0.0d0
          do i=1,nida(nb)
-            C= dimag(dconjg(prj(i))*psi(i+shift))
+            C= dimag(dconjg(prj(i))*psi(shift+i))
             sum(1,n) = sum(1,n) + C*Gx(i)
             sum(2,n) = sum(2,n) + C*Gy(i)
             sum(3,n) = sum(3,n) + C*Gz(i)
          end do
          do i=1,nidb(nb)
-            C=2.0d0*dimag(dconjg(prj(nida(nb)+i))*psi(nida(nb)+i+shift))
+            C=2.0d0*dimag(dconjg(prj(nida(nb)+i))*psi(shift+nida(nb)+i))
             sum(1,n) = sum(1,n) + C*Gx(nida(nb)+i)
             sum(2,n) = sum(2,n) + C*Gy(nida(nb)+i)
             sum(3,n) = sum(3,n) + C*Gz(nida(nb)+i)
          end do
-         shift = shift + 2*(nida(nb) + nidb(nb))
+         shift = shift + (nida(nb) + nidb(nb))
 
       end do
 !$OMP END MASTER
@@ -2417,11 +2417,18 @@ c!$OMP BARRIER
       common / pack_blk / pack,nida,nidb
 
 *     **** local variables ****
+      integer nbig
+      parameter (nbig=1000)
+
       integer i
+      real sa0
       real sa,sb
       common /packs_conjg_tcc_indot_sasb/ sa,sb
 
       call nwpw_timing_start(2)
+
+      !**** big enough for threading ****
+      if ((nida(nb)+nidb(nb)).gt.nbig) then
 
 !$OMP MASTER
       sa = 0.0
@@ -2444,6 +2451,23 @@ c!$OMP BARRIER
       sum = sa + sb
 !$OMP END MASTER
 !$OMP BARRIER
+
+
+      !*** not big enough for threading ***
+      else
+
+!$OMP MASTER
+      sa0 = 0.0d0
+      do i=1,nida(nb)
+         sa0 = sa0 + A(i)*B(i)
+      end do
+      do i=1,nidb(nb)
+         sa0 = sa0 + 2.0d0*A(nida(nb)+i)*B(nida(nb)+i)
+      end do
+      sum = sa0
+!$OMP END MASTER
+
+      end if
 
       call nwpw_timing_end(2)
       return
