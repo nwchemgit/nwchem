@@ -483,6 +483,7 @@ c        call mask_C(0,dcpl_mb(dng(1)))
      >               dcpl_mb(dng(1)),
      >               dbl_mb(fion(1)))
 
+
 *       *** long-range psp for charge systems ***
         if (control_version().eq.4) then
           call v_lr_local(dbl_mb(r_grid(1)),

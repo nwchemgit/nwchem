@@ -2327,54 +2327,33 @@ c      sum = sum + 2*ddot(2*nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
       integer  Parallel_threadid,Parallel_nthreads
       external Parallel_threadid,Parallel_nthreads
 
-      tid  = Parallel_threadid()
-      nthr = Parallel_nthreads()
 
       call nwpw_timing_start(2)
 
       !**** big enough for threading ****
-      if ((nida(nb)+nidb(nb)).gt.nbig) then
+      if ((.true.).and.((nida(nb)+nidb(nb)).gt.nbig)) then
 
-c!$OMP MASTER
-c      sa = 0.0d0
-c      sb = 0.0d0
-c!$OMP END MASTER
-c!$OMP BARRIER
-c!$OMP DO REDUCTION(+:sa)
-c      do i=1,nida(nb)
-c         sa = sa + A(i)*B(i)
-c      end do
-c!$OMP END DO
-c
-c!$OMP DO REDUCTION(+:sb)
-c      do i=1,nidb(nb)
-c         sb = sb + 2.0d0*A(nida(nb)+i)*B(nida(nb)+i)
-c      end do
-c!$OMP END DO
-c
-c!$OMP MASTER
-c      sum = sa + sb
-c!$OMP END MASTER
-c!$OMP BARRIER
-
+      tid  = Parallel_threadid()
+      nthr = Parallel_nthreads()
 
 !$OMP MASTER
       sum = 0.0d0
+      do i=1,nida(nb)
+         sum = sum + A(i)*B(i)
+      end do
 !$OMP END MASTER
 
-      sa0 = 0.0d0
       sb0 = 0.0d0
-      do i=1+tid,nida(nb),nthr
-         sa0 = sa0 + A(i)*B(i)
-      end do
       do i=1+tid,nidb(nb),nthr
          sb0 = sb0 + 2.0d0*A(nida(nb)+i)*B(nida(nb)+i)
       end do
+
 !$OMP BARRIER
-!$OMP CRITICAL (ttdot)
-      sum = sum + sa0 + sb0
-!$OMP END CRITICAL (ttdot)
+!$OMP CRITICAL (ittdot)
+         sum = sum + sb0
+!$OMP END CRITICAL (ittdot)
 !$OMP BARRIER
+
 
 
       !*** not big enough for threading ***

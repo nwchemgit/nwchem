@@ -2039,6 +2039,7 @@ c                end do
 
       end do
 
+
       if (np_j.gt.1) then
          call D1dB_Vector_SumAll(2*npack0,vl_out)
       end if

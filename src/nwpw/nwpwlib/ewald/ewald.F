@@ -975,18 +975,18 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !$OMP MASTER
             zii=dbl_mb(zv(1)+ion_katm(ii)-1)
             sum=2.0d0*ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
-            dbl_mb(fx(1)+ii-1) = dbl_mb(fx(1)+ii-1) 
-     >                         +  sum*zii*scal2
+            dbl_mb(fx(1)+ii-1) = dbl_mb(fx(1)+ii-1) + sum*zii*scal2
+
             sum=2.0d0*ddot(enpack,dbl_mb(eG(2)),1,dbl_mb(tmp3(1)),1)
-            dbl_mb(fy(1)+ii-1) = dbl_mb(fy(1)+ii-1) 
-     >                         +  sum*zii*scal2
+            dbl_mb(fy(1)+ii-1) = dbl_mb(fy(1)+ii-1) + sum*zii*scal2
+
             sum=2.0d0*ddot(enpack,dbl_mb(eG(3)),1,dbl_mb(tmp3(1)),1)
-            dbl_mb(fz(1)+ii-1) = dbl_mb(fz(1)+ii-1) 
-     >                         +  sum*zii*scal2
+            dbl_mb(fz(1)+ii-1) = dbl_mb(fz(1)+ii-1) + sum*zii*scal2
 !$OMP END MASTER
-!$OMP BARRIER
          end do
       end if
+!$OMP BARRIER
+
     
       dutask=0
       do i=1,nion-1
@@ -997,9 +997,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         dz = ion_rion(3,i) - ion_rion(3,j)
         zz = ewald_zv(ion_katm(i)) * ewald_zv(ion_katm(j))
 
-        sw10=0.0d0
-        sw20=0.0d0
-        sw30=0.0d0  
+        sw10 = 0.0d0
+        sw20 = 0.0d0
+        sw30 = 0.0d0  
         do l=1+threadid,nshl3d,nthreads
            x = dbl_mb(rcell(1)+(l-1))          + dx
            y = dbl_mb(rcell(1)+(l-1)+  nshl3d) + dy
@@ -1015,20 +1015,20 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
               !yerf = (1.0d0 - 1.0d0/yerf**4)
               yerfc = 1.0d0/yerf**4
               f = zz*(yerfc+cerfc*w*dexp(-w*w))/r**3
-              sw10=sw10+(x*f)
-              sw20=sw20+(y*f)
-              sw30=sw30+(z*f)
+              sw10 = sw10 + (x*f)
+              sw20 = sw20 + (y*f)
+              sw30 = sw30 + (z*f)
            else if (r.gt.1.0d-6) then
               w = r/rcut
               yerfc = util_erfc(w)
               f = zz*(yerfc+cerfc*w*dexp(-w*w))/r**3
-              sw10=sw10+(x*f)
-              sw20=sw20+(y*f)
-              sw30=sw30+(z*f)
+              sw10 = sw10 + (x*f)
+              sw20 = sw20 + (y*f)
+              sw30 = sw30 + (z*f)
            end if
         end do
 
-!$OMP CRITICAL (ewaldf)
+!$OMP CRITICAL (lloopsw)
         dbl_mb(fx(1)+i-1) = dbl_mb(fx(1)+i-1) + sw10
         dbl_mb(fy(1)+i-1) = dbl_mb(fy(1)+i-1) + sw20
         dbl_mb(fz(1)+i-1) = dbl_mb(fz(1)+i-1) + sw30
@@ -1036,7 +1036,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
         dbl_mb(fx(1)+j-1) = dbl_mb(fx(1)+j-1) - sw10
         dbl_mb(fy(1)+j-1) = dbl_mb(fy(1)+j-1) - sw20
         dbl_mb(fz(1)+j-1) = dbl_mb(fz(1)+j-1) - sw30
-!$OMP END CRITICAL (ewaldf)
+!$OMP END CRITICAL (lloopsw)
 
        end if
        dutask = mod((dutask+1),tnp)
