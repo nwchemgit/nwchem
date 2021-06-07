@@ -466,18 +466,18 @@
                         agg_flops = agg_flops + dgemm_flops
 
                         ! this is necessary if OpenACC is not used below
-                        !err = cudaDeviceSynchronize()
-                        !if (err.ne.0) then
-                        !  call errquit('cudaDeviceSync',err,UNKNOWN_ERR)
-                        !endif
+                        err = cudaDeviceSynchronize()
+                        if (err.ne.0) then
+                          call errquit('cudaDeviceSync',err,UNKNOWN_ERR)
+                        endif
 
-                        do shi=1,8
-                          err = cudaStreamSynchronize(stream(i))
-                          if (err.ne.0) then
-                            call errquit('cudaStreamSynchronize',err,
-     &                                   UNKNOWN_ERR)
-                          endif
-                        end do
+!                        do shi=1,8
+!                          err = cudaStreamSynchronize(stream(i))
+!                          if (err.ne.0) then
+!                            call errquit('cudaStreamSynchronize',err,
+!     &                                   UNKNOWN_ERR)
+!                          endif
+!                        end do
 
                         if (occsdps) then
                            call pstat_off(ps_doxxx)
