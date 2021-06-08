@@ -255,6 +255,9 @@ c     real*8     fion(3,natmx)
      >        BA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
       value = value.and.
      >        BA_push_get(mt_dbl,(nemax),'sumi',sumi(2),sumi(1))
+
+      call Parallel_shared_vector_zero(.false.,3*natmx,dbl_mb(fion(1)))
+      call Parallel_shared_vector_zero(.true.,3*natmx,dbl_mb(ftest(1)))
 #ifdef PSI_OMP
       mthr = Parallel_maxthreads()
       mthr = max(mthr,4)

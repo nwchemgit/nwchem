@@ -1728,9 +1728,6 @@ c     >           sum,ne)
       common / pack_blk / pack,nida,nidb
 
 *     **** local variables ****
-      integer nbig
-      parameter (nbig=1000)
-
       integer i,j,m,n,np,tid,nthr
 c     integer npack, shift
       integer npack1,shift,shift2,r,Itid,Mtid
@@ -1744,10 +1741,6 @@ c     integer npack, shift
       call nwpw_timing_start(2)
       call Parallel2d_np_i(np)
       npack1 = (nida(nb)+nidb(nb))
-
-
-      !**** big enough for threading ****
-      if ((nida(nb)+nidb(nb)).gt.nbig) then
 
       nthr = Parallel_nthreads()
       tid  = Parallel_threadid()
@@ -1766,6 +1759,7 @@ c     integer npack, shift
      >           B(Itid),2*npack1,
      >           (0.0d0),
      >           sumt,ne)
+!$OMP BARRIER
 
 !$OMP DO
       do n=1,ne*nprj
@@ -1776,28 +1770,6 @@ c     integer npack, shift
          sumt(n) = sumt(n) - ddot(2*nida(nb),A(1+shift),1,B(1+shift2),1)
       end do
 !$OMP END DO
-
-
-      !**** not big enough for threading ****
-      else
-
-!$OMP MASTER
-      call DGEMM('T','N',ne,nprj,(2*npack1),
-     >           (2.0d0),
-     >           A,2*npack1,
-     >           B,2*npack1,
-     >           (0.0d0),
-     >           sumt,ne)
-      do n=1,ne*nprj
-         i = mod(n-1,ne)
-         j = (n-1-i)/ne
-         shift  = i*npack1
-         shift2 = j*npack1
-         sumt(n) = sumt(n) - ddot(2*nida(nb),A(1+shift),1,B(1+shift2),1)
-      end do
-!$OMP END MASTER
-
-      end if
 
 
       call nwpw_timing_end(2)

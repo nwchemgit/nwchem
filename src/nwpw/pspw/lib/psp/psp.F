@@ -338,7 +338,10 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
 #include "bafdecls.fh"
 #include "psp.fh"
 
+*     **** local varaiables ****
       logical  periodic
+
+*     **** external functions ****
       integer  control_version
       external control_version
 
@@ -3275,8 +3278,8 @@ c           end do
      >  call errquit('v_nonlocal:out of stack',0, MA_ERR)
 
       if (move) then
-       value = value.and.BA_push_get(mt_dbl,npack1,
-     >                               'xtmp',xtmp(2),xtmp(1))
+c       value = value.and.BA_push_get(mt_dbl,npack1,
+c     >                               'xtmp',xtmp(2),xtmp(1))
        value = value.and.BA_push_get(mt_dbl,3*nn,'sum',sum(2),sum(1))
        if (.not. value) 
      >  call errquit('v_nonlocal:out of stack',1,MA_ERR)
@@ -3288,6 +3291,7 @@ c           end do
 
       omega = lattice_omega()
       scal = 1.0d0/(omega)
+
 
 
       call nwpw_timing_start(56) 
@@ -3325,7 +3329,6 @@ c           end do
                call Pack_tc_iMul(1,dbl_mb(shift),
      >                            dcpl_mb(exi(1)),
      >                            dcpl_mb(prjtmp(1)+(l-1)*npack1))
-
             end if
 c            call Pack_cc_indot(1,nn,
 c     >                       psi1,
@@ -3336,8 +3339,14 @@ c     >                   psi1,
 c     >                   dcpl_mb(prjtmp(1)),
 c     >                   dbl_mb(sw1t(1)+(jp-1)*nn+tid*nn*n_prj_indx))
          end do
+
+
          call nwpw_timing_end(58) 
          call nwpw_timing_start(59) 
+c         call Pack_cc_indot_thread(1,nn,nproj,
+c     >                   psi1,
+c     >                   dcpl_mb(prjtmp(1)),
+c     >                   dbl_mb(sw1t(1)+jpl*nn+tid*nn*n_prj_indx))
          call Pack_cc_indot_thread(1,nn,nproj,
      >                   psi1,
      >                   dcpl_mb(prjtmp(1)),
@@ -3352,8 +3361,11 @@ c     >                   dbl_mb(sw1t(1)+(jp-1)*nn+tid*nn*n_prj_indx))
      >           dbl_mb(sw1t(1)+tid*nn*n_prj_indx),1,
      >           dbl_mb(sw1a(1)),1)
 !$OMP END CRITICAL
+!$OMP BARRIER
       call D3dB_Vector_SumAll(nn*n_prj_indx,dbl_mb(sw1a(1)))
       call nwpw_timing_end(56) 
+
+
 
 
 *     **** Compute sw2  ****
@@ -3584,7 +3596,7 @@ c                 end do
      >    call nwpw_compcharge_F_multipole_all(ispin,dbl_mb(zv(1)),fion)
 
          value = value.and.BA_pop_stack(sum(2))
-         value = value.and.BA_pop_stack(xtmp(2))
+         !value = value.and.BA_pop_stack(xtmp(2))
       end if
 
       value = value.and.BA_pop_stack(exi(2))

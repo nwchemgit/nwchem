@@ -252,6 +252,8 @@ c     real*8     fion(3,natmx)
      >        BA_push_get(mt_dbl,(3*natmx),'fion',fion(2),fion(1))
       value = value.and.
      >        BA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
+      call Parallel_shared_vector_zero(.false.,3*natmx,dbl_mb(fion(1)))
+      call Parallel_shared_vector_zero(.true.,3*natmx,dbl_mb(ftest(1)))
 
 #ifdef PSI_OMP
       mthr = Parallel_maxthreads()
@@ -393,6 +395,7 @@ c        end do
 
         call nwpw_meta_gga_gen_tau(ispin,neq,psi1)
 
+
 *       *********************
 *       **** generate dn ****
 *       *********************
@@ -436,6 +439,7 @@ c        end do
         call D3dB_rc_fft3f(1,dcpl_mb(tmp1(1)))
         call Pack_c_pack(0,dcpl_mb(tmp1(1)))
         call Pack_c_Copy(0,dcpl_mb(tmp1(1)),dcpl_mb(dng(1)))
+
 
 *       ********************************************************
 *       **** generate dnall - used for semicore corrections ****
@@ -526,6 +530,7 @@ c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
         end if
 
 
+
 *       ******************
 *       **** get Hpsi ****
 *       ******************
@@ -542,6 +547,7 @@ c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
      >             dbl_mb(v_field(1)),field_exist,
      >             dbl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
      >             move,dbl_mb(fion(1)),fractional,occ1)
+
 
 
 *       **********************
@@ -620,11 +626,11 @@ c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
 *       *****************************************
 *       **** remove ion forces using ion_FixIon *
 *       *****************************************
-        if (fei) 
-     >    call Parallel_shared_vector_copy(.false.,
-     >                 3*natmx,dbl_mb(fion(1)),dbl_mb(ftest(1)))
-ccc     >    call dcopy(3*natmx,dbl_mb(fion(1)),1,dbl_mb(ftest(1)),1)
+        if (fei) call Parallel_shared_vector_copy(.false.,
+     >                        3*natmx,dbl_mb(fion(1)),dbl_mb(ftest(1)))
+
         call ion_FixIon(dbl_mb(fion(1)))
+
 c        if (meta) call meta_force(ispin,neq,psi1,Hpsi,dbl_mb(fion(1)))
 
         !**** center of mass constraint ****
