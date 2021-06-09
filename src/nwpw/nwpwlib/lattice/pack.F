@@ -2258,6 +2258,7 @@ c      sum = sum + 2*ddot(2*nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
 
       end do
 !$OMP END MASTER
+!$OMP BARRIER
 
       end if
 
@@ -2341,6 +2342,7 @@ c      sum = sum + 2*ddot(2*nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
       end do
       sum = sa0
 !$OMP END MASTER
+!$OMP BARRIER
 
       end if
 
@@ -2417,6 +2419,7 @@ c      sum = sum + 2*ddot(2*nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
       end do
       sum = sa0
 !$OMP END MASTER
+!$OMP BARRIER
 
       end if
 

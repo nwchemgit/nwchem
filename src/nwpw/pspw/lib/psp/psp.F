@@ -3587,6 +3587,7 @@ c                 end do
          end if !** move **
 
       end do
+!OMP BARRIER
 
       value = .true.
       if (move) then

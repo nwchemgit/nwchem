@@ -566,6 +566,7 @@ c        call mask_C(0,dcpl_mb(dng(1)))
      >             dbl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
      >             move,dbl_mb(fion(1)),fractional,occ1)
 
+
         call nwpw_timing_end(47)
 
         
@@ -588,6 +589,7 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
 
 *          **** get the ewald force ****
            if (control_version().eq.3) call ewald_f(dbl_mb(fion(1)))
+
 
 *          **** get the free-space ion force ****
            if (control_version().eq.4) call ion_ion_f(dbl_mb(fion(1)))
@@ -1007,7 +1009,7 @@ c         fion(2,i) = (r2(2,i) - r1(2,i))/ion_dti(i)
 c         fion(3,i) = (r2(3,i) - r1(3,i))/ion_dti(i)
 c     end do
 
-*     *** deltar ***
+*     *** deltar  ***
       deltar = deltamm
       if (move) then
         do i=1,ion_nion()
@@ -1017,6 +1019,7 @@ c     end do
            if (sum.gt.deltar) deltar = sum
         end do
       end if
+      
        
       call nwpw_timing_end(10)
 
