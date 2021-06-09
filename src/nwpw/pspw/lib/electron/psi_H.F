@@ -102,20 +102,19 @@ c     complex*16 vpsi(nfft3d)
          value = value.and.
      >           BA_push_get(mt_dbl,(neq(1)+neq(2))*n2ft3d,
      >                        'Hpsi_r',Hpsi_r(2),Hpsi_r(1))
-         !call dcopy((ne(1)+ne(2))*n2ft3d,0.0d0,0,dbl_mb(Hpsi_r(1)),1)
          call Parallel_shared_vector_zero(.false.,
      >                                    (neq(1)+neq(2))*n2ft3d,
      >                                    dbl_mb(Hpsi_r(1)))
       end if
       if (.not. value) call errquit('psi_H:out of stack memory',0,
      &       MA_ERR)
-      !call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(vall(1)),1)
-      !call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(vpsi(1)),1)
 
-      !call D3dB_c_Zero(1,dcpl_mb(vall(1)))
-      !call D3dB_c_Zero(1,dcpl_mb(vpsi(1)))
+      call Parallel_shared_vector_zero(.false.,
+     >                           2*nfft3d,dcpl_mb(vall(1)))
+      call Parallel_shared_vector_zero(.true.,
+     >                           2*nfft3d,dcpl_mb(vpsi(1)))
       call nwpw_timing_end(12)
-      
+
 
       scal2 = 1.0d0/lattice_omega()
       scal1 = 1.0d0/dble(nx*ny*nz)
@@ -204,7 +203,6 @@ c     >  call D3dB_rr_Sum(1,dcpl_mb(vall(1)),v_field,dcpl_mb(vall(1)))
         if (periodic_efield) then
            call dipole_Efield_Vnl(ispin,neq,n2ft3d,psi_r,
      >                            dbl_mb(Hpsi_r(1)),edpol)
-           !write(*,*) "EDPOL=",edpol
         end if
       end if
 
@@ -212,6 +210,7 @@ c     >  call D3dB_rr_Sum(1,dcpl_mb(vall(1)),v_field,dcpl_mb(vall(1)))
 *     **************************************************************
 *     **** Hpsi_k = Hpsi_k + FFT[vall_r+xcp)*psi_r +Vsic*psi_r] **** 
 *     ************************************************************** 
+
 
 
       indx1 = 1

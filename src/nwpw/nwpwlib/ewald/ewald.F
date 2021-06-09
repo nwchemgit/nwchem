@@ -900,12 +900,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       parameter (c6=0.00004306380d0)
 
 *     **** local variables ****
-      integer dutask
+      integer dutask,nthreads,threadid,ttid
       integer i,j,l,ii
       real*8  w,dx,dy,dz,x,y,z,r,zz
       real*8  sum,scal2,f
       real*8  sw1,sw2,sw3,zii
       common /ewald_f_sw1sw2/ sw1,sw2,sw3
+
+      real*8  sw10,sw20,sw30
 
 *     **** temporary workspace variables ****
       integer nion
@@ -920,10 +922,15 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       external lattice_omega,ewald_zv,dsum,ion_rion,util_erfc,ddot
       logical  control_fast_erf
       external control_fast_erf
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
 
       call nwpw_timing_start(21)
       nion = ion_nion()
       fast_erf = control_fast_erf()
+      threadid = Parallel_threadid()
+      nthreads = Parallel_nthreads()
+      ttid = threadid + nthreads*tid
 
 
 *     **** allocate temp workspace ****
@@ -961,15 +968,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          end do
          do ii=1,nion
             call ewald_strfac(ii,dcpl_mb(exi(1)))
-
-c         do i=1,enpack
-c            dbl_mb(tmp3(1)+i-1) 
-c     >              = ( dble(dcpl_mb(exi(1)+i-1))
-c     >                *dimag(dcpl_mb(s(1)+i-1))
-c     >              -  dimag(dcpl_mb(exi(1)+i-1))
-c     >                 *dble(dcpl_mb(s(1)+i-1))
-c     >                )*dbl_mb(vg(1)+i-1)
-c         end do
             call ewald_f_tmp3(enpack,
      >                        dcpl_mb(exi(1)),dcpl_mb(s(1)),
      >                        dbl_mb(vg(1)),dbl_mb(tmp3(1)))
@@ -977,18 +975,18 @@ c         end do
 !$OMP MASTER
             zii=dbl_mb(zv(1)+ion_katm(ii)-1)
             sum=2.0d0*ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
-            dbl_mb(fx(1)+ii-1) = dbl_mb(fx(1)+ii-1) 
-     >                         +  sum*zii*scal2
+            dbl_mb(fx(1)+ii-1) = dbl_mb(fx(1)+ii-1) + sum*zii*scal2
+
             sum=2.0d0*ddot(enpack,dbl_mb(eG(2)),1,dbl_mb(tmp3(1)),1)
-            dbl_mb(fy(1)+ii-1) = dbl_mb(fy(1)+ii-1) 
-     >                         +  sum*zii*scal2
+            dbl_mb(fy(1)+ii-1) = dbl_mb(fy(1)+ii-1) + sum*zii*scal2
+
             sum=2.0d0*ddot(enpack,dbl_mb(eG(3)),1,dbl_mb(tmp3(1)),1)
-            dbl_mb(fz(1)+ii-1) = dbl_mb(fz(1)+ii-1) 
-     >                         +  sum*zii*scal2
+            dbl_mb(fz(1)+ii-1) = dbl_mb(fz(1)+ii-1) + sum*zii*scal2
 !$OMP END MASTER
-!$OMP BARRIER
          end do
       end if
+!$OMP BARRIER
+
     
       dutask=0
       do i=1,nion-1
@@ -998,14 +996,11 @@ c         end do
         dy = ion_rion(2,i) - ion_rion(2,j)
         dz = ion_rion(3,i) - ion_rion(3,j)
         zz = ewald_zv(ion_katm(i)) * ewald_zv(ion_katm(j))
-!$OMP MASTER
-        sw1=0.0d0
-        sw2=0.0d0
-        sw3=0.0d0  
-!$OMP END MASTER
-!$OMP BARRIER
-!$OMP DO REDUCTION(+:sw1,sw2,sw3)
-        do l=1,nshl3d
+
+        sw10 = 0.0d0
+        sw20 = 0.0d0
+        sw30 = 0.0d0  
+        do l=1+threadid,nshl3d,nthreads
            x = dbl_mb(rcell(1)+(l-1))          + dx
            y = dbl_mb(rcell(1)+(l-1)+  nshl3d) + dy
            z = dbl_mb(rcell(1)+(l-1)+2*nshl3d) + dz
@@ -1020,35 +1015,35 @@ c         end do
               !yerf = (1.0d0 - 1.0d0/yerf**4)
               yerfc = 1.0d0/yerf**4
               f = zz*(yerfc+cerfc*w*dexp(-w*w))/r**3
-              sw1=sw1+(x*f)
-              sw2=sw2+(y*f)
-              sw3=sw3+(z*f)
+              sw10 = sw10 + (x*f)
+              sw20 = sw20 + (y*f)
+              sw30 = sw30 + (z*f)
            else if (r.gt.1.0d-6) then
               w = r/rcut
               yerfc = util_erfc(w)
               f = zz*(yerfc+cerfc*w*dexp(-w*w))/r**3
-              sw1=sw1+(x*f)
-              sw2=sw2+(y*f)
-              sw3=sw3+(z*f)
+              sw10 = sw10 + (x*f)
+              sw20 = sw20 + (y*f)
+              sw30 = sw30 + (z*f)
            end if
         end do
-!$OMP END DO
 
-!$OMP MASTER
-        dbl_mb(fx(1)+i-1) = dbl_mb(fx(1)+i-1) + sw1
-        dbl_mb(fy(1)+i-1) = dbl_mb(fy(1)+i-1) + sw2
-        dbl_mb(fz(1)+i-1) = dbl_mb(fz(1)+i-1) + sw3
+!$OMP CRITICAL (lloopsw)
+        dbl_mb(fx(1)+i-1) = dbl_mb(fx(1)+i-1) + sw10
+        dbl_mb(fy(1)+i-1) = dbl_mb(fy(1)+i-1) + sw20
+        dbl_mb(fz(1)+i-1) = dbl_mb(fz(1)+i-1) + sw30
 
-        dbl_mb(fx(1)+j-1) = dbl_mb(fx(1)+j-1) - sw1
-        dbl_mb(fy(1)+j-1) = dbl_mb(fy(1)+j-1) - sw2
-        dbl_mb(fz(1)+j-1) = dbl_mb(fz(1)+j-1) - sw3
-!$OMP END MASTER
-!$OMP BARRIER
+        dbl_mb(fx(1)+j-1) = dbl_mb(fx(1)+j-1) - sw10
+        dbl_mb(fy(1)+j-1) = dbl_mb(fy(1)+j-1) - sw20
+        dbl_mb(fz(1)+j-1) = dbl_mb(fz(1)+j-1) - sw30
+!$OMP END CRITICAL (lloopsw)
 
        end if
        dutask = mod((dutask+1),tnp)
       end do
       end do
+!$OMP BARRIER
+
       if (tnp.gt.1) then
           call Parallel_Vector_SumAll(nion,dbl_mb(fx(1)))
           call Parallel_Vector_SumAll(nion,dbl_mb(fy(1)))

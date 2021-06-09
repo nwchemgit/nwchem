@@ -1759,6 +1759,7 @@ c     integer npack, shift
      >           B(Itid),2*npack1,
      >           (0.0d0),
      >           sumt,ne)
+!$OMP BARRIER
 
 !$OMP DO
       do n=1,ne*nprj
@@ -2155,6 +2156,116 @@ c      sum = sum + 2*ddot(2*nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
       end
 
 
+*     ***********************************
+*     *					*
+*     *	       Pack_ch3t_i3ndot		*	
+*     *					*
+*     ***********************************
+      subroutine Pack_ch3t_i3ndot(nb,prj,nn,psi,Gx,Gy,Gz,sum)
+      implicit none                    
+      integer    nb                    
+      complex*16 prj(*)                  
+      integer    nn
+      complex*16 psi(*)
+      real*8     Gx(*),Gy(*),Gz(*)
+      real*8     sum(3,*)
+
+*     **** common block for pack ****
+      integer nida(0:3),nidb(0:3)
+      integer pack(2,0:3)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer nbig
+      parameter (nbig=1000)
+
+      integer tid,nthr
+      integer n,i,shift
+      real*8  C,sa1,sa2,sa3
+
+*     **** external functions ****
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
+
+
+      !**** big enough for threading ****
+      if ((nida(nb)+nidb(nb)).gt.nbig) then
+      tid   = Parallel_threadid()
+      nthr  = Parallel_nthreads()
+      shift = 0
+!$OMP MASTER
+      do n=1,nn
+         sum(1,n) = 0.0d0
+         sum(2,n) = 0.0d0
+         sum(3,n) = 0.0d0
+         do i=1,nida(nb)
+            C= dimag(dconjg(prj(i))*psi(shift+i))
+            sum(1,n) = sum(1,n) + C*Gx(i)
+            sum(2,n) = sum(2,n) + C*Gy(i)
+            sum(3,n) = sum(3,n) + C*Gz(i)
+         end do
+         shift = shift + (nida(nb) + nidb(nb))
+      end do
+!$OMP END MASTER
+!$OMP BARRIER
+
+      shift = 0
+      do n=1,nn
+         sa1 = 0.0d0
+         sa2 = 0.0d0
+         sa3 = 0.0d0
+         do i=1+tid,nidb(nb),nthr
+            C=2.0d0*dimag(dconjg(prj(nida(nb)+i))*psi(shift+nida(nb)+i))
+            sa1 = sa1 + C*Gx(nida(nb)+i)
+            sa2 = sa2 + C*Gy(nida(nb)+i)
+            sa3 = sa3 + C*Gz(nida(nb)+i)
+         end do
+
+!$OMP CRITICAL (i3nttdot)
+         sum(1,n)  = sum(1,n) + sa1
+         sum(2,n)  = sum(2,n) + sa2
+         sum(3,n)  = sum(3,n) + sa3
+!$OMP END CRITICAL (i3nttdot)
+
+         shift = shift + (nida(nb) + nidb(nb))
+      end do
+
+!$OMP BARRIER
+
+
+      !*** not big enough for threading ***
+      else
+
+!$OMP MASTER
+      shift = 0
+      do n=1,nn
+         sum(1,n) = 0.0d0
+         sum(2,n) = 0.0d0
+         sum(3,n) = 0.0d0
+         do i=1,nida(nb)
+            C= dimag(dconjg(prj(i))*psi(shift+i))
+            sum(1,n) = sum(1,n) + C*Gx(i)
+            sum(2,n) = sum(2,n) + C*Gy(i)
+            sum(3,n) = sum(3,n) + C*Gz(i)
+         end do
+         do i=1,nidb(nb)
+            C=2.0d0*dimag(dconjg(prj(nida(nb)+i))*psi(shift+nida(nb)+i))
+            sum(1,n) = sum(1,n) + C*Gx(nida(nb)+i)
+            sum(2,n) = sum(2,n) + C*Gy(nida(nb)+i)
+            sum(3,n) = sum(3,n) + C*Gz(nida(nb)+i)
+         end do
+         shift = shift + (nida(nb) + nidb(nb))
+
+      end do
+!$OMP END MASTER
+!$OMP BARRIER
+
+      end if
+
+      return
+      end
+
+
 
 
 *     ***********************************
@@ -2176,33 +2287,65 @@ c      sum = sum + 2*ddot(2*nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
       common / pack_blk / pack,nida,nidb
 
 *     **** local variables ****
-      integer i
+      integer nbig
+      parameter (nbig=1000)
+
+      integer i,tid,nthr
+      real*8 sa0,sb0
+
       real*8 sa,sb
       common /pack_conjg_tcc_indot_sasb/ sa,sb
 
+*     **** external functions ****
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
+
+
       call nwpw_timing_start(2)
 
+      !**** big enough for threading ****
+      if ((.true.).and.((nida(nb)+nidb(nb)).gt.nbig)) then
+
+      tid  = Parallel_threadid()
+      nthr = Parallel_nthreads()
+
 !$OMP MASTER
-      sa = 0.0d0
-      sb = 0.0d0
-!$OMP END MASTER
-!$OMP BARRIER
-!$OMP DO REDUCTION(+:sa)
+      sum = 0.0d0
       do i=1,nida(nb)
-         sa = sa + A(i)*B(i)
+         sum = sum + A(i)*B(i)
       end do
-!$OMP END DO
+!$OMP END MASTER
 
-!$OMP DO REDUCTION(+:sb)
-      do i=1,nidb(nb)
-         sb = sb + 2.0d0*A(nida(nb)+i)*B(nida(nb)+i)
+      sb0 = 0.0d0
+      do i=1+tid,nidb(nb),nthr
+         sb0 = sb0 + 2.0d0*A(nida(nb)+i)*B(nida(nb)+i)
       end do
-!$OMP END DO
+
+!$OMP BARRIER
+!$OMP CRITICAL (ittdot)
+         sum = sum + sb0
+!$OMP END CRITICAL (ittdot)
+!$OMP BARRIER
+
+
+
+      !*** not big enough for threading ***
+      else
 
 !$OMP MASTER
-      sum = sa + sb
+      sa0 = 0.0d0
+      do i=1,nida(nb)
+         sa0 = sa0 + A(i)*B(i)
+      end do
+      do i=1,nidb(nb)
+         sa0 = sa0 + 2.0d0*A(nida(nb)+i)*B(nida(nb)+i)
+      end do
+      sum = sa0
 !$OMP END MASTER
 !$OMP BARRIER
+
+      end if
+
 
       call nwpw_timing_end(2)
       return
@@ -2227,11 +2370,18 @@ c      sum = sum + 2*ddot(2*nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
       common / pack_blk / pack,nida,nidb
 
 *     **** local variables ****
+      integer nbig
+      parameter (nbig=1000)
+
       integer i
+      real sa0
       real sa,sb
       common /packs_conjg_tcc_indot_sasb/ sa,sb
 
       call nwpw_timing_start(2)
+
+      !**** big enough for threading ****
+      if ((nida(nb)+nidb(nb)).gt.nbig) then
 
 !$OMP MASTER
       sa = 0.0
@@ -2254,6 +2404,24 @@ c      sum = sum + 2*ddot(2*nidb(nb),A(nida(nb)+1),1,B(nida(nb)+1),1)
       sum = sa + sb
 !$OMP END MASTER
 !$OMP BARRIER
+
+
+      !*** not big enough for threading ***
+      else
+
+!$OMP MASTER
+      sa0 = 0.0d0
+      do i=1,nida(nb)
+         sa0 = sa0 + A(i)*B(i)
+      end do
+      do i=1,nidb(nb)
+         sa0 = sa0 + 2.0d0*A(nida(nb)+i)*B(nida(nb)+i)
+      end do
+      sum = sa0
+!$OMP END MASTER
+!$OMP BARRIER
+
+      end if
 
       call nwpw_timing_end(2)
       return

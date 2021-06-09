@@ -15,7 +15,7 @@
 *  *      then control file                                   *
 *  ************************************************************
 #ifdef USE_OPENMP
-#define NO_PSI_OMP
+#define PSI_OMP
 #endif
 
   
@@ -255,6 +255,9 @@ c     real*8     fion(3,natmx)
      >        BA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
       value = value.and.
      >        BA_push_get(mt_dbl,(nemax),'sumi',sumi(2),sumi(1))
+
+      call Parallel_shared_vector_zero(.false.,3*natmx,dbl_mb(fion(1)))
+      call Parallel_shared_vector_zero(.true.,3*natmx,dbl_mb(ftest(1)))
 #ifdef PSI_OMP
       mthr = Parallel_maxthreads()
       mthr = max(mthr,4)
@@ -295,9 +298,10 @@ c      value = value .and. MA_set_auto_verify(.true.)
 #endif
 
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-      call dcopy(4*nfft3d,0.0d0,0,dbl_mb(dnall(1)),1)
-      call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xcp(1)),1)
-      call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xce(1)),1)
+      call Parallel_shared_vector_zero(.false.,
+     >                           4*nfft3d,dbl_mb(dnall(1)))
+      call Parallel_shared_vector_zero(.false.,4*nfft3d,dbl_mb(xcp(1)))
+      call Parallel_shared_vector_zero(.true.,4*nfft3d,dbl_mb(xce(1)))
       !call D3dB_r_nZero(1,2,dbl_mb(dnall(1)))
       !call D3dB_r_nZero(1,2,dbl_mb(xcp(1)))
       !call D3dB_r_nZero(1,2,dbl_mb(xce(1)))
@@ -482,6 +486,7 @@ c        call mask_C(0,dcpl_mb(dng(1)))
      >               dcpl_mb(dng(1)),
      >               dbl_mb(fion(1)))
 
+
 *       *** long-range psp for charge systems ***
         if (control_version().eq.4) then
           call v_lr_local(dbl_mb(r_grid(1)),
@@ -561,6 +566,7 @@ c        call mask_C(0,dcpl_mb(dng(1)))
      >             dbl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
      >             move,dbl_mb(fion(1)),fractional,occ1)
 
+
         call nwpw_timing_end(47)
 
         
@@ -583,6 +589,7 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
 
 *          **** get the ewald force ****
            if (control_version().eq.3) call ewald_f(dbl_mb(fion(1)))
+
 
 *          **** get the free-space ion force ****
            if (control_version().eq.4) call ion_ion_f(dbl_mb(fion(1)))
@@ -1002,7 +1009,7 @@ c         fion(2,i) = (r2(2,i) - r1(2,i))/ion_dti(i)
 c         fion(3,i) = (r2(3,i) - r1(3,i))/ion_dti(i)
 c     end do
 
-*     *** deltar ***
+*     *** deltar  ***
       deltar = deltamm
       if (move) then
         do i=1,ion_nion()
@@ -1012,6 +1019,7 @@ c     end do
            if (sum.gt.deltar) deltar = sum
         end do
       end if
+      
        
       call nwpw_timing_end(10)
 

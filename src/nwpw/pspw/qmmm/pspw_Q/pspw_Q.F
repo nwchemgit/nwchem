@@ -404,7 +404,8 @@ c     *************************************
       call Parallel_taskid(taskid)
       dutask = 0
 
-!$OMP DO
+cccc!$OMP DO
+!$OMP SINGLE
       do w1=1,nfrag-1
          if (mod(w1-1,np).eq.taskid) then
          ks1 = indx_frag_start(w1)
@@ -431,7 +432,8 @@ c     *************************************
          end if
          !dutask = mod(dutask+1,np)
       end do
-!$OMP END DO
+!$OMP END SINGLE
+cccc!$OMP END DO
 
 c     **** take out MM/MM Coulomb self energy ****
 !$OMP DO
@@ -460,7 +462,7 @@ c     **** take out MM/MM Coulomb self energy ****
 
 c     *********************************************
 c     *                                           *
-c     *              pspw_Q_fion_frag_frag           *
+c     *           pspw_Q_fion_frag_frag           *
 c     *                                           *
 c     *********************************************
 
