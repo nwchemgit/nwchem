@@ -1,10 +1,4 @@
       double precision gamma
-c      double precision pi
-c      PARAMETER (pi=3.1415926535897931160d0)
-c      PARAMETER (PI=3.1415926535898D0)
       parameter(gamma=0.004d0)
-      double precision dg,e_lda,eprime_lda
-      dg(gamma,rho,gradrho)=rho**(8d0/3d0)+gamma*(gradrho**2)
-c      e_lda(rho)=-3d0/2d0*(3d0/(4d0*acos(-1d0)))**(1d0/3d0)*
-c     *     rho**(4d0/3d0)
-c      eprime_lda(rho)=(4d0/3d0)*e_lda(rho)/rho
+      double precision dg,dg1,dg2,dg3
+      dg(dg1,dg2,dg3)=dg2**(8d0/3d0)+dg1*(dg3**2)
