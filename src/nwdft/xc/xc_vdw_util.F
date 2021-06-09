@@ -792,6 +792,12 @@ c m06hf
         else if (xccomb(34)) then
            scalesr6 = 1.446d0
            scales8  = 0.000d0
+c wb97-d3
+        else if (xccomb(78)) then
+           scalesr6 = 1.281d0
+           scalesr8 = 1.094d0
+           scales6  = 1d0
+           scales8  = 1d0
 c hf
         else if (xfac(1).eq.1d0) then
            scalesr6 = 1.158d0
@@ -1004,6 +1010,7 @@ c
          xc_neff=0.8d0
          return
       endif
+      nv=0
       if(z.le.2) nv=z
       if(z.le.10) nv=z-2
       if(z.gt.10) stop 'neff stop '

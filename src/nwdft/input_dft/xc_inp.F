@@ -133,6 +133,7 @@ c     hse03 ==> 9320
 c
 c     wb97 ==> 9410
 c     wb97x ==> 9420
+c     wb97x-d3 ==> 9430
 c
 c     becke86b ==> 9510
 c     xperde86 ==> 9520
@@ -140,7 +141,7 @@ c
 c     hcth147@tz2p ==> 1947
 c
       integer num_dirs, ind, mlen, iline, n
-      parameter (num_dirs=158)
+      parameter (num_dirs=159)
 c
       character*15 dirs(num_dirs)
       character*255 test
@@ -194,7 +195,7 @@ c
      &     'xncap', 'ncap', 'r2scan', 'r2scanl',
      &     'xscan', 'cscan',
      &     'hcth147@tz2p',
-     W     'wb97','wb97x'/
+     W     'wb97','wb97x','wb97x-d3'/
 c     becke97-d, ssb-d
       logical disp, dumdirect
       integer ivdw
@@ -269,7 +270,7 @@ c
      &  9610,9620,9630,9494,9640,
      &     9710,9720,9650,9660,9615,9616,
      &  1947,
-     &  9410,9420,
+     &  9410,9420,9430,
      &     1999 ) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
@@ -4083,6 +4084,35 @@ c
       cam_srhf = .false.
       call xc_setcamparam(rtdb,cam_exch,cam_srhf,cam_omega,cam_alpha,
      &    cam_beta)
+c
+      goto 10
+c
+c wb97x-d3
+c
+ 9430 xccomb(78) = .true.
+         xfac(78)= 1.0d0
+        lxfac(78)=.true.
+       nlxfac(78)=.true.
+        cfac(78) = 1.d0
+       lcfac(78) = .true.
+      nlcfac(78) = .true.
+        xfac(1) = 1d0
+       lxfac(1) = .true.
+      nlxfac(1) = .true.
+c
+c     set cam parameters since this is a range-separated functional
+c
+      cam_omega = 0.25d0
+      cam_alpha = 0.195728d0
+      cam_beta =  1d0-cam_alpha
+      cam_exch = .true.
+      cam_srhf = .false.
+      call xc_setcamparam(rtdb,cam_exch,cam_srhf,cam_omega,cam_alpha,
+     &     cam_beta)
+c D3
+      ivdw = 3
+      if (.not.rtdb_put(rtdb,'dft:ivdw', mt_int, 1, ivdw))
+     &    call errquit('xc_inp: rtdb_put failed vdw', 0, RTDB_ERR)
 c
       goto 10
 c
