@@ -320,6 +320,7 @@ fi
 #---   long  may not run on workstations
 # new xc functionals for 7.0.0
 ./runtests.mpi.unix procs $np dft_scanl
+./runtests.mpi.unix procs $np dft_he2p_wb97
 ./runtests.mpi.unix procs $np dft_ne2p_wb97x
 ./runtests.mpi.unix procs $np dft_ar2p_wb97
 #
