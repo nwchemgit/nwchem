@@ -378,7 +378,9 @@ c
          S = X/(F48*PI*PI)**F1o3
          s2     = s*s
          Deno = (F1 + Mu*s2/kapa)
+c fx_pbe(s)         
          fx1=F1+kapa*(F1-F1/Deno)
+c fx_rpbe(s)         
          fx2=F1+kapas*(F1-DExp(-Mus*s2/kapas))
          If(UseLC) then
            CALL LRCLSDA(EMU,RHOO,ElSR,PDUM)
@@ -791,15 +793,29 @@ c
 c   OUTPUT:                                     
 c      F      - Functional value               
 c      D1F    - First derivative               
-c                                               
+c
+c     J.-D. Chai and M. Head-Gordon
+c  J. Chem. Phys. 128, 084106 (2008); https://doi.org/10.1063/1.283491
 c***********************************************
 c
-      IMPLICIT REAL*8 (a-h,o-z)
+      implicit none
+c
+      double precision emu      ! mu/omega [in]
+      double precision rho      ! [in]
+      double precision f,d1f
+c
+      double precision pi,pi12,ax,cmu,rho13
+      double precision f1o2,f1o3,f1o4,f4o3,f8o3
+      double precision tmu,tmu2,tmu3
+      double precision w,erfv,dtmudr,fsr,dfsrdtmu,rho43
+      double precision F1, F2, F3, F4, F5, F6, F7, F8, F9
       Save F1, F2, F3, F4, F5, F6, F7, F8, F9
       DATA F1/1.0D+00/,F2/2.0D+00/,F3/3.0D+00/,F4/4.0D+00/,F5/5.0D+00/,
      $     F6/6.0D+00/,F7/7.0D+00/,F8/8.0D+00/,F9/9.0D+00/
 C
-      PARAMETER( PI = 3.1415926535897932384626433832795D+00 )
+c      PARAMETER( PI = 3.1415926535897932384626433832795D+00 )
+      pi=acos(-1d0)
+
 C
       F1o2 = F1 / F2
       F1o3 = F1 / F3
@@ -818,8 +834,8 @@ c
       tmu2 = tmu*tmu
       tmu3 = tmu*tmu2
 c
-      W    = DExp(-F1o4/tmu2)
-      ERFV = DErf( F1o2/tmu)
+      W    = Exp(-F1o4/tmu2)
+      ERFV = Erf( F1o2/tmu)
       dtmudR = -F1o3*tmu / Rho
 c
       Fsr = F1-F4o3*tmu*(-F6*tmu+F8*tmu3+W*

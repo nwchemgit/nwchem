@@ -80,11 +80,7 @@ c For CIS, we have:
 c (X+Y)ias = Xias , (X+Y)jas = Xjas
 c (X-Y)ias = Xias , (X-Y)jas = Xjas
 c Tij = - sum_a Xias*Xjas 
-            call tddft_patch3mxm('n','t',-0.5d0,0.0d0,
-     +                            g_xpy(ip),alo,ahi,
-     +                            g_xpy(ip),blo,bhi,
-     +                            g_tp(ip),clo,chi)
-            call tddft_patch3mxm('n','t',-0.5d0,1.0d0,
+            call tddft_patch3mxm('n','t',-1d0,0.0d0,
      +                            g_xpy(ip),alo,ahi,
      +                            g_xpy(ip),blo,bhi,
      +                            g_tp(ip),clo,chi)
@@ -131,11 +127,7 @@ c For CIS, we have:
 c (X+Y)ias = Xias , (X+Y)ibs = Xibs
 c (X-Y)ias = Xias , (X-Y)ibs = Xibs
 c Tab = sum_i Xias*Xibs 
-            call tddft_patch3mxm('t','n',0.5d0,0.0d0,
-     +                            g_xpy(ip),alo,ahi,
-     +                            g_xpy(ip),blo,bhi,
-     +                            g_tp(ip),clo,chi)
-            call tddft_patch3mxm('t','n',0.5d0,1.0d0,
+            call tddft_patch3mxm('t','n',1d0,1.0d0,
      +                            g_xpy(ip),alo,ahi,
      +                            g_xpy(ip),blo,bhi,
      +                            g_tp(ip),clo,chi)
