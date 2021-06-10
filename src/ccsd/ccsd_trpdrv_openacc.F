@@ -50,7 +50,7 @@
 !
       double precision :: emp4i,emp5i,emp4k,emp5k
       double precision :: eaijk,denom
-      integer :: inode,next,nodes,iam
+      integer :: inode,next,nodes,me
       integer :: a,b,c,i,j,k,akold,av,nbf
       integer :: klo, khi
       integer nxtask
@@ -113,7 +113,10 @@
       cu_op_n = CUBLAS_OP_N ! 0
       cu_op_t = CUBLAS_OP_T ! 1
 !
-      if (ga_nodeid().eq.0) then
+      nodes = ga_nnodes()
+      me = ga_nodeid()
+!
+      if (me.eq.0) then
         write(6,99)
       endif
    99 format(2x,'Using Fortran OpenACC+CUBLAS in CCSD(T)')
@@ -121,7 +124,7 @@
       agg_flops = 0
 #if 0
 !
-! CUDA stuff
+! CUDA stuff (now handled in util_gpu_affinity called in main)
 !
       ! how many GPUs are detected
       err = cudaGetDeviceCount(num_devices)
@@ -129,7 +132,7 @@
       if (num_devices.lt.1) call errquit('No GPU found!',0,UNKNOWN_ERR)
       ! user prescribes how many to use
       call util_getenv('NWCHEM_OPENACC_USE_NGPUS',char_use_ngpus)
-      if (ga_nodeid().eq.0) then
+      if (me.eq.0) then
         print*,'CU NWCHEM_OPENACC_USE_NGPUS=',trim(char_use_ngpus)
       endif
       if (len(trim(char_use_ngpus)).gt.0) then
@@ -147,14 +150,14 @@
       ! GA PPN undercounts with ARMCI-MPI
       call util_getppn(ppn) ! THIS IS COLLECTIVE
       ! this assumes PPN is constant across nodes (reasonable)
-      node_rank = modulo(ga_nodeid(),ppn)
+      node_rank = modulo(me,ppn)
       ! assign GPUs to GA process ranks within a node (round-robin)
       my_gpu = modulo(node_rank,use_ngpus)
-      if (ga_nodeid().lt.ppn) then
+      if (me.lt.ppn) then
         write(6,700) 'node_rank',node_rank
         write(6,700) 'use_ngpus',use_ngpus
         write(6,700) 'ppn      ',ppn
-        write(6,700) 'ga_nodeid',ga_nodeid()
+        write(6,700) 'ga_nodeid',me
         write(6,700) 'my_gpu   ',my_gpu
   700   format('CU ',a12,'=',i5)
       endif
@@ -171,7 +174,7 @@
         if (err.ne.0) call errquit('cublasSetStream',shi,UNKNOWN_ERR)
       end do
       tt1 = util_wallsec()
-      if (ga_nodeid().eq.0) then
+      if (me.eq.0) then
         write(6,500) tt1-tt0
   500   format('CU init took ',e15.5,' seconds')
       endif
@@ -254,9 +257,6 @@
       if (alloc_error.ne.0) call errquit('Djka',115,MA_ERR)
       allocate( Djia(1:nvir*nocc), stat=alloc_error)
       if (alloc_error.ne.0) call errquit('Djia',116,MA_ERR)
-!
-      nodes = ga_nnodes()
-      iam = ga_nodeid()
 !
 !      call ga_sync() ! ga_sync called just before trpdrv in aoccsd2
 !
@@ -522,19 +522,26 @@
                         dgemm_flops = 8*nvir*nvir*(nocc+nvir)*2
                         agg_flops = agg_flops + dgemm_flops
 
-                        ! this is necessary if OpenACC is not used below
                         err = cudaDeviceSynchronize()
                         if (err.ne.0) then
                           call errquit('cudaDeviceSync',err,UNKNOWN_ERR)
                         endif
 
-!                        do shi=1,8
-!                          err = cudaStreamSynchronize(stream(i))
-!                          if (err.ne.0) then
-!                            call errquit('cudaStreamSynchronize',err,
-!     &                                   UNKNOWN_ERR)
-!                          endif
-!                        end do
+#if 0
+! this segfaults
+                        do shi=1,8
+                          err = cudaStreamSynchronize(stream(i))
+                          if (err.ne.0) then
+                            call errquit('cudaStreamSynchronize',err,
+     &                                   UNKNOWN_ERR)
+                          endif
+                        end do
+#endif
+
+                        err = cudaDeviceSynchronize()
+                        if (err.ne.0) then
+                          call errquit('cudaDeviceSync',err,UNKNOWN_ERR)
+                        endif
 
                         if (occsdps) then
                            call pstat_off(ps_doxxx)
@@ -618,11 +625,11 @@
                      end do    ! k
                   end do       ! i
                   if (iprt.gt.50)then
-                     write(6,1234)iam,a,j,emp4,emp5
- 1234                format(' iam aijk',3i5,2e15.5)
+                     write(6,1234)me,a,j,emp4,emp5
+ 1234                format(' me aijk',3i5,2e15.5)
                   end if
                   next=nxtask(nodes, 1)
-            if(ga_nodeid().eq.0) then
+            if(me.eq.0) then
                pct_progr=(a-(ncor+nocc)+((klo-1)/kchunk)*nvir)*n_progr/
      &                   ((nocc/kchunk)*nvir)+1
                if(i_progr(pct_progr)) then
@@ -647,7 +654,7 @@
       next=nxtask(-nodes, 1)
       tt1=util_wallsec()
       call ga_dgop(msg_cc_diis1,agg_flops,1, '+')
-      if(ga_nodeid().eq.0) then
+      if(me.eq.0) then
          write(6,4322) ' ccsd(t): 100% done, Aggregate Gflops=',
      &        1e-9*agg_flops/(tt1-tt0),' in ',(tt1-tt0),' secs'
  4322    format(a,1pg11.4,a,0pf10.1,a)
