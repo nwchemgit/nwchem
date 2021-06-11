@@ -96,22 +96,14 @@
       integer n_progr,pct_progr
       parameter(n_progr=20)
       logical i_progr(n_progr+1)
-!
-#if 0
-      integer(INT32) :: num_devices, use_ngpus, my_gpu
-      integer :: ppn, node_rank
-      character*255 :: char_use_ngpus
-#endif
-!
+      ! timers
+      double precision :: tt0, tt1, tc0, tc1
       integer(INT32) :: shi
       type(cublasHandle) :: handle(8)
       integer(kind=cuda_stream_kind) :: stream(8)
-      double precision :: tt0, tt1, tc0, tc1
-!
       integer(INT32) :: nv4, no4 ! cublasDgemm requires 32-bit integers
-      integer(INT32) :: cu_op_n, cu_op_t
-      cu_op_n = CUBLAS_OP_N ! 0
-      cu_op_t = CUBLAS_OP_T ! 1
+      integer(INT32), parameter :: cu_op_n = CUBLAS_OP_N
+      integer(INT32), parameter :: cu_op_t = CUBLAS_OP_T
 !
       nodes = ga_nnodes()
       me = ga_nodeid()
@@ -122,56 +114,14 @@
    99 format(2x,'Using Fortran OpenACC+CUBLAS in CCSD(T)')
       tt0 = util_wallsec()
       agg_flops = 0
-#if 0
-!
-! CUDA stuff (now handled in util_gpu_affinity called in main)
-!
-      ! how many GPUs are detected
-      err = cudaGetDeviceCount(num_devices)
-      if (err.ne.0) call errquit('cudaGetDeviceCount',err,UNKNOWN_ERR)
-      if (num_devices.lt.1) call errquit('No GPU found!',0,UNKNOWN_ERR)
-      ! user prescribes how many to use
-      call util_getenv('NWCHEM_OPENACC_USE_NGPUS',char_use_ngpus)
-      if (me.eq.0) then
-        print*,'CU NWCHEM_OPENACC_USE_NGPUS=',trim(char_use_ngpus)
-      endif
-      if (len(trim(char_use_ngpus)).gt.0) then
-        read(char_use_ngpus,'(i255)') use_ngpus
-        if (use_ngpus.gt.num_devices) then
-          write(6,600) use_ngpus,num_devices
-          use_ngpus = num_devices
-        endif
-  600   format('CU you asked for ',
-     &         i2,' GPUs but only ',
-     &         i2,' are present')
-      else
-        use_ngpus=num_devices
-      endif
-      ! GA PPN undercounts with ARMCI-MPI
-      call util_getppn(ppn) ! THIS IS COLLECTIVE
-      ! this assumes PPN is constant across nodes (reasonable)
-      node_rank = modulo(me,ppn)
-      ! assign GPUs to GA process ranks within a node (round-robin)
-      my_gpu = modulo(node_rank,use_ngpus)
-      if (me.lt.ppn) then
-        write(6,700) 'node_rank',node_rank
-        write(6,700) 'use_ngpus',use_ngpus
-        write(6,700) 'ppn      ',ppn
-        write(6,700) 'ga_nodeid',me
-        write(6,700) 'my_gpu   ',my_gpu
-  700   format('CU ',a12,'=',i5)
-      endif
-      err = cudaSetDevice(my_gpu)
-      if (err.ne.0) call errquit('cudaSetDevice',my_gpu,UNKNOWN_ERR)
-#endif
       ! setup CUDA streams
       do shi=1,8
         err = cudaStreamCreate(stream(shi))
-        if (err.ne.0) call errquit('cudaStreamCreate',shi,UNKNOWN_ERR)
+        if (err.ne.0) call errquit('cudaStreamCreate',err,UNKNOWN_ERR)
         err = cublasCreate(handle(shi))
-        if (err.ne.0) call errquit('cublasCreate',shi,UNKNOWN_ERR)
+        if (err.ne.0) call errquit('cublasCreate',err,UNKNOWN_ERR)
         err = cublasSetStream(handle(shi), stream(shi))
-        if (err.ne.0) call errquit('cublasSetStream',shi,UNKNOWN_ERR)
+        if (err.ne.0) call errquit('cublasSetStream',err,UNKNOWN_ERR)
       end do
       tt1 = util_wallsec()
       if (me.eq.0) then
@@ -518,30 +468,14 @@
                           call errquit('cublasDgemm_v2',err,UNKNOWN_ERR)
                         endif
 
+                        err = cudaDeviceSynchronize()
+                        if (err.ne.0) then
+                          call errquit('cudaDeviceSync',err,UNKNOWN_ERR)
+                        endif
+
                         ! 8 pairs of DGEMM w/ VVV and VVO cost, 2 for FMA
                         dgemm_flops = 8*nvir*nvir*(nocc+nvir)*2
                         agg_flops = agg_flops + dgemm_flops
-
-                        err = cudaDeviceSynchronize()
-                        if (err.ne.0) then
-                          call errquit('cudaDeviceSync',err,UNKNOWN_ERR)
-                        endif
-
-#if 0
-! this segfaults
-                        do shi=1,8
-                          err = cudaStreamSynchronize(stream(i))
-                          if (err.ne.0) then
-                            call errquit('cudaStreamSynchronize',err,
-     &                                   UNKNOWN_ERR)
-                          endif
-                        end do
-#endif
-
-                        err = cudaDeviceSynchronize()
-                        if (err.ne.0) then
-                          call errquit('cudaDeviceSync',err,UNKNOWN_ERR)
-                        endif
 
                         if (occsdps) then
                            call pstat_off(ps_doxxx)
@@ -738,9 +672,9 @@
 !
       do shi=1,8
         err = cublasDestroy(handle(shi))
-        if (err.ne.0) call errquit('cublasDestroy',shi,UNKNOWN_ERR)
+        if (err.ne.0) call errquit('cublasDestroy',err,UNKNOWN_ERR)
         err = cudaStreamDestroy(stream(shi))
-        if (err.ne.0) call errquit('cudaStreamDestroy',shi,UNKNOWN_ERR)
+        if (err.ne.0) call errquit('cudaStreamDestroy',err,UNKNOWN_ERR)
       end do
 !
       end
