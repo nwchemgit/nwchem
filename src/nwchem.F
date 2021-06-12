@@ -136,6 +136,8 @@ c
 c     Initialize local memory allocator & global array tools
 C
       call ga_initialize_ltd(ma_sizeof(mt_dbl,global,mt_byte))
+      ! this must happen after GA and before MA!
+      call util_setup_gpu_affinity()
       if ( ga_uses_ma() ) then
         if (.not.ma_init(mt_dbl, stack, heap+global))
      &      call errquit('nwchem.F: ma_init failed (ga_uses_ma=T)',911,

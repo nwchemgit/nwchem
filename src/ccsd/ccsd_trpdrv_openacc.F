@@ -1,10 +1,7 @@
-      subroutine ccsd_trpdrv_openacc(t1,
-     &     f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,eorb,
+      subroutine ccsd_trpdrv_openacc(t1,xeorb,
      &     g_objo,g_objv,g_coul,g_exch,
      &     ncor,nocc,nvir,iprt,emp4,emp5,
-     &     oseg_lo,oseg_hi, kchunk,
-     &     Tij, Tkj, Tia, Tka, Xia, Xka, Jia, Jka, Kia, Kka,
-     &     Jij, Jkj, Kij, Kkj, Dja, Djka, Djia)
+     &     oseg_lo,oseg_hi, kchunk)
       use iso_fortran_env
       use cudafor
       use cublas
@@ -20,27 +17,28 @@
 !
       double precision, intent(inout) :: emp4,emp5
       double precision, intent(in) :: t1(*)
+      double precision, intent(in) :: xeorb(*)
       integer, intent(in) :: ncor,nocc,nvir
       integer, intent(in) :: iprt
       integer, intent(in) :: g_objo,g_objv,g_coul,g_exch
       integer, intent(in) :: oseg_lo,oseg_hi, kchunk
-      double precision, intent(in), managed :: f1n(nvir,nvir)
-      double precision, intent(in), managed :: f2n(nvir,nvir)
-      double precision, intent(in), managed :: f3n(nvir,nvir)
-      double precision, intent(in), managed :: f4n(nvir,nvir)
-      double precision, intent(in), managed :: f1t(nvir,nvir)
-      double precision, intent(in), managed :: f2t(nvir,nvir)
-      double precision, intent(in), managed :: f3t(nvir,nvir)
-      double precision, intent(in), managed :: f4t(nvir,nvir)
-      double precision, intent(in), managed :: eorb(*)
-      double precision, intent(in), managed :: Tij(*), Tkj(*)
-      double precision, intent(in), managed :: Tia(*), Tka(*)
-      double precision, intent(in), managed :: Xia(*), Xka(*)
-      double precision, intent(in), managed :: Jia(*), Jka(*)
-      double precision, intent(in), managed :: Jij(*), Jkj(*)
-      double precision, intent(in), managed :: Kia(*), Kka(*)
-      double precision, intent(in), managed :: Kij(*), Kkj(*)
-      double precision, intent(in), managed :: Dja(*), Djka(*), Djia(*)
+      double precision, allocatable, device :: eorb(:)
+      double precision, allocatable, device :: f1n(:,:)
+      double precision, allocatable, device :: f2n(:,:)
+      double precision, allocatable, device :: f3n(:,:)
+      double precision, allocatable, device :: f4n(:,:)
+      double precision, allocatable, device :: f1t(:,:)
+      double precision, allocatable, device :: f2t(:,:)
+      double precision, allocatable, device :: f3t(:,:)
+      double precision, allocatable, device :: f4t(:,:)
+      double precision, allocatable, managed :: Tij(:), Tkj(:)
+      double precision, allocatable, managed :: Tia(:), Tka(:)
+      double precision, allocatable, managed :: Xia(:), Xka(:)
+      double precision, allocatable, managed :: Jia(:), Jka(:)
+      double precision, allocatable, managed :: Jij(:), Jkj(:)
+      double precision, allocatable, managed :: Kia(:), Kka(:)
+      double precision, allocatable, managed :: Kij(:), Kkj(:)
+      double precision, allocatable, managed :: Dja(:), Djka(:), Djia(:)
 ! used to make inline threaded tengy correct - for now
 ! it is correct that dint[cx]1 are paired with t1v2 and vice versa
 ! in the inlined tengy loops.  see ccsd_tengy in ccsd_trpdrv.F for
@@ -52,20 +50,13 @@
 !
       double precision :: emp4i,emp5i,emp4k,emp5k
       double precision :: eaijk,denom
-      integer :: inode,next,nodes,iam
-      integer :: a,b,c,i,j,k,akold,av
-      ! chunking is the loop blocking size in the loop nest
-      ! formerly associated with the tengy routine.
-      ! we have not explored this paramater space but 32 is
-      ! optimal for TLB blocking in matrix transpose on most
-      ! architectures (especially x86).
-      integer, parameter :: chunking = 32
-      integer :: bb,cc
+      integer :: inode,next,nodes,me
+      integer :: a,b,c,i,j,k,akold,av,nbf
       integer :: klo, khi
       integer nxtask
       external nxtask
-      double precision perfm_flop,tzero,flopzero,t_flops,agg_flops
-      external perfm_flop
+      integer :: dgemm_flops, tengy_flops
+      double precision agg_flops
 !
 !  Dependencies (global array, local array, handle):
 !
@@ -105,56 +96,117 @@
       integer n_progr,pct_progr
       parameter(n_progr=20)
       logical i_progr(n_progr+1)
-!
+      ! timers
+      double precision :: tt0, tt1, tc0, tc1
       integer(INT32) :: shi
       type(cublasHandle) :: handle(8)
       integer(kind=cuda_stream_kind) :: stream(8)
-      double precision :: tt0, tt1
-!
       integer(INT32) :: nv4, no4 ! cublasDgemm requires 32-bit integers
-      integer(INT32) :: cu_op_n, cu_op_t
-      cu_op_n = CUBLAS_OP_N ! 0
-      cu_op_t = CUBLAS_OP_T ! 1
+      integer(INT32), parameter :: cu_op_n = CUBLAS_OP_N
+      integer(INT32), parameter :: cu_op_t = CUBLAS_OP_T
 !
-      if (ga_nodeid().eq.0) then
+      nodes = ga_nnodes()
+      me = ga_nodeid()
+!
+      if (me.eq.0) then
         write(6,99)
       endif
-   99 format(2x,'Using Fortran standard parallelism in CCSD(T)')
-      tzero=util_wallsec()
-      flopzero=perfm_flop()
-!
-! CUDA stuff
-!
+   99 format(2x,'Using Fortran OpenACC+CUBLAS in CCSD(T)')
       tt0 = util_wallsec()
+      agg_flops = 0
+      ! setup CUDA streams
       do shi=1,8
         err = cudaStreamCreate(stream(shi))
-        if (err.ne.0) call errquit('cudaStreamCreate',shi,UNKNOWN_ERR)
+        if (err.ne.0) call errquit('cudaStreamCreate',err,UNKNOWN_ERR)
         err = cublasCreate(handle(shi))
-        if (err.ne.0) call errquit('cublasCreate',shi,UNKNOWN_ERR)
+        if (err.ne.0) call errquit('cublasCreate',err,UNKNOWN_ERR)
         err = cublasSetStream(handle(shi), stream(shi))
-        if (err.ne.0) call errquit('cublasSetStream',shi,UNKNOWN_ERR)
+        if (err.ne.0) call errquit('cublasSetStream',err,UNKNOWN_ERR)
       end do
       tt1 = util_wallsec()
-      if (ga_nodeid().eq.0) then
+      if (me.eq.0) then
         write(6,500) tt1-tt0
   500   format('CU init took ',e15.5,' seconds')
       endif
 !
-      allocate( dintc1(1:nvir), stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('dintc1',1,MA_ERR)
-      allocate( dintx1(1:nvir), stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('dintx1',2,MA_ERR)
-      allocate( t1v1(1:nvir), stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('t1v1',3,MA_ERR)
-      allocate( dintc2(1:nvir), stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('dintc2',4,MA_ERR)
-      allocate( dintx2(1:nvir), stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('dintx2',5,MA_ERR)
-      allocate( t1v2(1:nvir), stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('t1v2',6,MA_ERR)
+! device-only temp arrays
+! produced by DGEMM, consumed by TENGY
 !
-      nodes = ga_nnodes()
-      iam = ga_nodeid()
+      allocate( f1n(1:nvir,1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f1n',1,MA_ERR)
+      allocate( f2n(1:nvir,1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f2n',2,MA_ERR)
+      allocate( f3n(1:nvir,1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f3n',3,MA_ERR)
+      allocate( f4n(1:nvir,1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f4n',4,MA_ERR)
+      allocate( f1t(1:nvir,1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f1t',5,MA_ERR)
+      allocate( f2t(1:nvir,1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f2t',6,MA_ERR)
+      allocate( f3t(1:nvir,1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f3t',7,MA_ERR)
+      allocate( f4t(1:nvir,1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f4t',8,MA_ERR)
+!
+! device-only copy of input eorb
+!
+      nbf = ncor + nocc + nvir
+      allocate( eorb(1:nbf), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('eorb',10,MA_ERR)
+      eorb(1:nbf) = xeorb(1:nbf)
+!
+! for TENGY
+!
+      allocate( dintc1(1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('dintc1',11,MA_ERR)
+      allocate( dintx1(1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('dintx1',12,MA_ERR)
+      allocate( t1v1(1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('t1v1',13,MA_ERR)
+      allocate( dintc2(1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('dintc2',14,MA_ERR)
+      allocate( dintx2(1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('dintx2',15,MA_ERR)
+      allocate( t1v2(1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('t1v2',16,MA_ERR)
+!
+! UM arrays, produced by GA Get, consumed by DGEMM
+!
+      allocate( Tij(1:lnvv), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Tij',100,MA_ERR)
+      allocate( Tkj(1:kchunk*lnvv), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Tkj',101,MA_ERR)
+      allocate( Tia(1:lnov*nocc), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Tia',102,MA_ERR)
+      allocate( Tka(1:kchunk*lnov), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Tka',103,MA_ERR)
+      allocate( Xia(1:lnov*nocc), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Xia',104,MA_ERR)
+      allocate( Xka(1:kchunk*lnov), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Xka',105,MA_ERR)
+      allocate( Jia(1:lnvv), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Jia',106,MA_ERR)
+      allocate( Jka(1:kchunk*lnvv), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Jka',107,MA_ERR)
+      allocate( Kia(1:lnvv), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Kia',108,MA_ERR)
+      allocate( Kka(1:kchunk*lnvv), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Kka',109,MA_ERR)
+      allocate( Jij(1:lnov*nocc), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Jij',110,MA_ERR)
+      allocate( Jkj(1:kchunk*lnov), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Jkj',111,MA_ERR)
+      allocate( Kij(1:lnov*nocc), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Kij',112,MA_ERR)
+      allocate( Kkj(1:kchunk*lnov), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Kkj',113,MA_ERR)
+      allocate( Dja(1:lnov), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Dja',114,MA_ERR)
+      allocate( Djka(1:nvir*kchunk), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Djka',115,MA_ERR)
+      allocate( Djia(1:nvir*nocc), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Djia',116,MA_ERR)
 !
 !      call ga_sync() ! ga_sync called just before trpdrv in aoccsd2
 !
@@ -274,6 +326,8 @@
                             call ga_nbwait(nbh_coul1)
                             call ga_nbwait(nbh_coul2)
                         endif
+
+                        tc0 = util_wallsec()
 
                         nv4 = nvir ! no possibility of overflow
                         no4 = nocc
@@ -414,16 +468,14 @@
                           call errquit('cublasDgemm_v2',err,UNKNOWN_ERR)
                         endif
 
-! this is necessary if OpenACC is not used below
-!                        err = cudaDeviceSynchronize()
+                        err = cudaDeviceSynchronize()
+                        if (err.ne.0) then
+                          call errquit('cudaDeviceSync',err,UNKNOWN_ERR)
+                        endif
 
-                        do shi=1,8
-                          err = cudaStreamSynchronize(stream(i))
-                          if (err.ne.0) then
-                            call errquit('cudaStreamSynchronize',err,
-     &                                   UNKNOWN_ERR)
-                          endif
-                        end do
+                        ! 8 pairs of DGEMM w/ VVV and VVO cost, 2 for FMA
+                        dgemm_flops = 8*nvir*nvir*(nocc+nvir)*2
+                        agg_flops = agg_flops + dgemm_flops
 
                         if (occsdps) then
                            call pstat_off(ps_doxxx)
@@ -438,11 +490,11 @@
      &                                    +eorb(ncor+k) )
 #ifdef USE_YFLOP
       flops_ycount = flops_ycount + nvir*nvir*(
-     D                       3 + 2*(
-     E                       12 +
-     E                       11 +
-     E                       11 ) +
-     5                       2*27 )
+     &                       3 + 2*(
+     &                       12 +
+     &                       11 +
+     &                       11 ) +
+     &                       2*27 )
 #endif
 
 !$acc parallel loop collapse(2) private(denom) 
@@ -487,6 +539,11 @@
      &                   -2*(f2t(b,c)+f3t(b,c)+f2n(c,b)))
              end do
            end do
+           tengy_flops = nvir*nvir*( 3 + 2*( 12 + 11 + 11 ) + 2*27 )
+           agg_flops = agg_flops + tengy_flops
+
+                         tc1 = util_wallsec()
+
                          if (occsdps) then
                             call pstat_off(ps_tengy)
                          else
@@ -502,24 +559,23 @@
                      end do    ! k
                   end do       ! i
                   if (iprt.gt.50)then
-                     write(6,1234)iam,a,j,emp4,emp5
- 1234                format(' iam aijk',3i5,2e15.5)
+                     write(6,1234)me,a,j,emp4,emp5
+ 1234                format(' me aijk',3i5,2e15.5)
                   end if
                   next=nxtask(nodes, 1)
-            if(ga_nodeid().eq.0) then
+            if(me.eq.0) then
                pct_progr=(a-(ncor+nocc)+((klo-1)/kchunk)*nvir)*n_progr/
-     /          ((nocc/kchunk)*nvir)+1
+     &                   ((nocc/kchunk)*nvir)+1
                if(i_progr(pct_progr)) then
                   i_progr(pct_progr)=.false.
                write(6,4321) ' ccsd(t): done ',
-     A              a-(ncor+nocc)+((klo-1)/kchunk)*nvir,
-     O              ' out of ',(nocc/kchunk)*nvir,
-     O              ' progress: ',
-     O              ((a-(ncor+nocc)+((klo-1)/kchunk)*nvir)*100)/
-     D              ((nocc/kchunk)*nvir),
-     P            '%, Gflops=',(perfm_flop()-flopzero)/
-     D              (util_wallsec()-tzero),
-     P                 ' at ',(util_wallsec()-tzero),' secs'
+     &              a-(ncor+nocc)+((klo-1)/kchunk)*nvir,
+     &              ' out of ',(nocc/kchunk)*nvir,
+     &              ' progress: ',
+     &              ((a-(ncor+nocc)+((klo-1)/kchunk)*nvir)*100)/
+     &              ((nocc/kchunk)*nvir),
+     &            '%, Gflops=',1e-9*(dgemm_flops+tengy_flops)/(tc1-tc0),
+     &                 ' at ',(util_wallsec()-tt0),' secs'
                call util_flush(6)
  4321          format(a,i8,a,i8,a,i3,a,1pg11.4,a,0pf10.1,a)
                endif
@@ -530,13 +586,11 @@
       end do
       call ga_sync()
       next=nxtask(-nodes, 1)
-      t_flops=util_wallsec()-tzero
-      agg_flops=perfm_flop()-flopzero
+      tt1=util_wallsec()
       call ga_dgop(msg_cc_diis1,agg_flops,1, '+')
-      if(ga_nodeid().eq.0) then
+      if(me.eq.0) then
          write(6,4322) ' ccsd(t): 100% done, Aggregate Gflops=',
-     P        agg_flops/t_flops,
-     P                 ' in ',t_flops,' secs'
+     &        1e-9*agg_flops/(tt1-tt0),' in ',(tt1-tt0),' secs'
  4322    format(a,1pg11.4,a,0pf10.1,a)
          call util_flush(6)
       endif
@@ -547,6 +601,25 @@
          call qexit('trpdrv',0)
       endif
 !
+      deallocate( f1n, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f1n',1,MA_ERR)
+      deallocate( f2n, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f2n',2,MA_ERR)
+      deallocate( f3n, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f3n',3,MA_ERR)
+      deallocate( f4n, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f4n',4,MA_ERR)
+      deallocate( f1t, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f1t',5,MA_ERR)
+      deallocate( f2t, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f2t',6,MA_ERR)
+      deallocate( f3t, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f3t',7,MA_ERR)
+      deallocate( f4t, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('f4t',8,MA_ERR)
+
+      deallocate( eorb, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('eorb',10,MA_ERR)
       deallocate( dintc1, stat=alloc_error)
       if (alloc_error.ne.0) call errquit('dintc1',11,MA_ERR)
       deallocate( dintx1, stat=alloc_error)
@@ -559,14 +632,49 @@
       if (alloc_error.ne.0) call errquit('dintx2',15,MA_ERR)
       deallocate( t1v2, stat=alloc_error)
       if (alloc_error.ne.0) call errquit('t1v2',16,MA_ERR)
+
+      deallocate( Tij, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Tij',100,MA_ERR)
+      deallocate( Tkj, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Tkj',101,MA_ERR)
+      deallocate( Tia, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Tia',102,MA_ERR)
+      deallocate( Tka, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Tka',103,MA_ERR)
+      deallocate( Xia, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Xia',104,MA_ERR)
+      deallocate( Xka, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Xka',105,MA_ERR)
+      deallocate( Jia, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Jia',106,MA_ERR)
+      deallocate( Jka, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Jka',107,MA_ERR)
+      deallocate( Kia, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Kia',108,MA_ERR)
+      deallocate( Kka, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Kka',109,MA_ERR)
+      deallocate( Jij, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Jij',110,MA_ERR)
+      deallocate( Jkj, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Jkj',111,MA_ERR)
+      deallocate( Kij, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Kij',112,MA_ERR)
+      deallocate( Kkj, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Kkj',113,MA_ERR)
+      deallocate( Dja, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Dja',114,MA_ERR)
+      deallocate( Djka, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Djka',115,MA_ERR)
+      deallocate( Djia, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('Djia',116,MA_ERR)
 !
 ! CUDA stuff
 !
       do shi=1,8
         err = cublasDestroy(handle(shi))
-        if (err.ne.0) call errquit('cublasDestroy',shi,UNKNOWN_ERR)
+        if (err.ne.0) call errquit('cublasDestroy',err,UNKNOWN_ERR)
         err = cudaStreamDestroy(stream(shi))
-        if (err.ne.0) call errquit('cudaStreamDestroy',shi,UNKNOWN_ERR)
+        if (err.ne.0) call errquit('cudaStreamDestroy',err,UNKNOWN_ERR)
       end do
 !
       end
