@@ -795,6 +795,7 @@ cQSCFmodel
 c_nmo_vector
       if (.not.movecs_read_header(movecs_out,title,basisname,
      1  scftype,nbf_verify,ipol_verify,nmo,2)) call errquit
+     1     ('tce_input: failed reading moves',0,DISK_ERR)
 cQtilesize 
          qtilesize=1 
          if (.not.rtdb_put(rtdb,'tce:tilesize',mt_int,1,qtilesize))

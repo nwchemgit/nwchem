@@ -999,7 +999,7 @@ c      enddo
       if(.not.ma_push_get(mt_int,nshblocks, 'dim_shb',
      1     l_dim_shb, k_dim_shb))
      $     call errquit('tce_grad_force:could not allocate dim_shb',
-     1     ma_err)
+     1     0,     MA_ERR)
 c
       do i=1,nshblocks
          int_mb(k_dim_shb+i-1) =
