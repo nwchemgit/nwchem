@@ -1,4 +1,7 @@
 C     $Id$
+
+c     Modifications (c) 2021 Advanced Micro Devices, Inc. All Rights Reserved.
+
       SUBROUTINE offl_ccsd_t_singles_l(a_i0,d_t1,d_v2,
      &k_t1_offset,k_v2_offset,t
      &_h1b,t_h2b,t_h3b,t_p4b,t_p5b,t_p6b,toggle)
@@ -68,7 +71,7 @@ c
      & ERRQUIT('ccsd_t_singles v2sub',103,MA_ERR)
 #endif
 #ifdef USE_OPENMP
-#ifdef OPENMP_OFFLOAD
+#ifdef USE_OFFLOAD
       if(offload_enabled()) then
          CALL offl_gpu_ccsd_t_singles_l_1(
      D        dbl_mb(d_t1),k_t1_offset,
@@ -92,7 +95,7 @@ c
      T        dbl_mb(k_v2sub),dbl_mb(k_t1sub),dbl_mb(k_scratch))
 #endif
 #ifdef USE_OPENMP
-#ifdef OPENMP_OFFLOAD
+#ifdef USE_OFFLOAD
       endif
 #endif
 #endif
