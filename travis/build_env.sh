@@ -114,7 +114,7 @@ fi
 	sudo apt-get -y install intel-oneapi-mpi-devel
     fi
     if [[ "$FC" == "flang" ]]; then
-	if [[ "USE_AOCC" == "Y" ]]; then
+	if [[ "USE_AOMP" == "Y" ]]; then
 	    aomp_major=13
 	    aomp_minor=0-2
 	    wget https://github.com/ROCm-Developer-Tools/aomp/releases/download/rel_"$aomp_major"."$aomp_minor"/aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
