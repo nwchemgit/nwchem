@@ -47,10 +47,18 @@ if [[ "$FC" == "nvfortran" ]]; then
 #    export CC=gcc
 fi
 if [[ "$FC" == "ifort" ]]; then
-    source /opt/intel/oneapi/compiler/latest/env/vars.sh
+    case "$os" in
+	Darwin)
+	    IONEAPI_ROOT=~/apps/oneapi
+	    ;;
+	Linux)	
+	    IONEAPI_ROOT=/opt/intel/oneapi
+	    ;;		
+    esac			
+    source "$IONEAPI_ROOT"/compiler/latest/env/vars.sh
     ifort -V
-    if [ -f /opt/intel/oneapi/mkl/latest/env/vars.sh ] ; then
-	source /opt/intel/oneapi/mkl/latest/env/vars.sh
+    if [ -f "$IONEAPI_ROOT"/mkl/latest/env/vars.sh ] ; then
+	source "$IONEAPI_ROOT"/mkl/latest/env/vars.sh
     fi
 fi
 if [[ "$MPI_IMPL" == "intel" ]]; then
