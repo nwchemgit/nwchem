@@ -32,10 +32,10 @@ C     $Id$
 C
       implicit none
       integer h1b, h2b, h3b, p4b, p5b, p6b
-      double precision o_h1(r_h1),o_h2(r_h2),o_h3(r_h3)
-      double precision o_p4(r_p4),o_p5(r_p5),o_p6(r_p6)
       integer r_h1,r_h2,r_h3
       integer r_p4,r_p5,r_p6
+      double precision o_h1(r_h1),o_h2(r_h2),o_h3(r_h3)
+      double precision o_p4(r_p4),o_p5(r_p5),o_p6(r_p6)
       double precision a_singles(r_h3,r_h2,r_h1,r_p6,r_p5,r_p4)
       double precision a_doubles(r_h3,r_h2,r_h1,r_p6,r_p5,r_p4)
       logical restricted
