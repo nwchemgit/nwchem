@@ -1,3 +1,17 @@
+c     Modifications (c) 2021 Advanced Micro Devices, Inc. All Rights Reserved.
+
+#ifdef USE_OMP_TEAMS_DISTRIBUTE
+#define TEAMS_DISTRIBUTE teams distribute
+#else
+#define TEAMS_DISTRIBUTE
+#endif
+
+#ifdef USE_OMP_SCHEDULE_STATIC_1
+#define OMP_SCHEDULE schedule(static,1)
+#else
+#define OMP_SCHEDULE
+#endif
+
 #ifdef OFFLOAD_CODE
       subroutine offl_ccsd_t_transpt2(
 #else
@@ -18,9 +32,15 @@ c
 c
 #define CHUNK 16
 #ifdef OFFLOAD_CODE
-!$omp target map(to:t2sub)
+#ifdef VERY_VERBOSE
+      write (*,'(A)') '_'
 #endif
+!$omp target map(to:t2sub) map(from:scratch)
+!$omp TEAMS_DISTRIBUTE parallel do private(h7,p4,pp5,hh1,p5,h1)
+!$omp&collapse(2) OMP_SCHEDULE
+#else
 !$omp parallel do private(h7,p4,pp5,hh1,p5,h1) collapse(2)
+#endif
       do h7=1,h7d
          do p4=1,p4d
             do pp5=1,p5d,CHUNK
@@ -63,9 +83,15 @@ c
 c
 #define CHUNK 16
 #ifdef OFFLOAD_CODE
-!$omp target map(to:t2sub)
+#ifdef VERY_VERBOSE
+      write (*,'(A)') 'z'
 #endif
+!$omp target map(to:t2sub) map(from:scratch)
+!$omp TEAMS_DISTRIBUTE parallel do private(p4,h1,hh2,pp7,h2,p7)
+!$omp&collapse(2) OMP_SCHEDULE
+#else
 !$omp parallel do private(p4,h1,hh2,pp7,h2,p7) collapse(2)
+#endif
       do p4=1,p4d
          do h1=1,h1d
             do hh2=1,h2d,CHUNK
@@ -107,10 +133,16 @@ c
 !DIR$ ASSUME_ALIGNED scratch: 64
 c
 #ifdef OFFLOAD_CODE
-!$omp target map(to:v2sub)
+#ifdef VERY_VERBOSE
+      write (*,'(A)') 'Z'
+#endif
+!$omp target map(to:v2sub) map(from:scratch)
+!$omp TEAMS_DISTRIBUTE parallel do private(p6,h2,hh3,hh7,h3,h7)
+!$omp&collapse(2) OMP_SCHEDULE
+#else
+!$omp parallel do private(p6,h2,hh3,hh7,h3,h7) collapse(2)
 #endif
 #define CHUNK 16
-!$omp parallel do private(p6,h2,hh3,hh7,h3,h7) collapse(2)
       do p6=1,p6d
          do h2=1,h2d
             do hh3=1,h3d,CHUNK

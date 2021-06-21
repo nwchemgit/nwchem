@@ -1,5 +1,7 @@
 C$Id$
 
+c     Modifications (c) 2021 Advanced Micro Devices, Inc. All Rights Reserved.
+
 C #ifndef VERY_VERBOSE
 C #define VERY_VERBOSE   1
 C #endif
@@ -12,6 +14,12 @@ C #endif
 #define TEAMS_DISTRIBUTE teams distribute
 #else
 #define TEAMS_DISTRIBUTE
+#endif
+
+#ifdef USE_OMP_SCHEDULE_STATIC_1
+#define OMP_SCHEDULE schedule(static,1)
+#else
+#define OMP_SCHEDULE
 #endif
 
 #ifdef DEBUG_TRIPLESX
@@ -38,6 +46,23 @@ C #endif
       endif
       write (*,*) 'res S triplesx:', res
       end
+#endif
+#endif
+
+#ifdef OFFLOAD_CODE
+#ifdef AOMP_MAPPING_FIXED
+c     the mapping functions won't be needed
+#else
+      subroutine offl_sgl_map(array, sz)
+        double precision array(sz)
+        integer sz
+!$omp target enter data map(to:array)
+      end subroutine
+      subroutine offl_sgl_unmap(array, sz)
+        double precision array(sz)
+        integer sz
+!$omp target exit data map(from:array)
+      end subroutine
 #endif
 #endif
 
@@ -112,8 +137,6 @@ C #endif
       integer ia6_in
 cdbg      write(6,*) 'begin singles: sxalloc ',triplesx1_alloced
 cfrom l_triplesx
-C #ifdef OFFLOAD_CODE
-C #ifndef OPENMP_OFFLOAD
       l_triplesx=
      c int_mb(k_range+t_h3b-1)*
      c int_mb(k_range+t_h2b-1)*
@@ -122,8 +145,6 @@ C #ifndef OPENMP_OFFLOAD
      c int_mb(k_range+t_p5b-1)*
      c int_mb(k_range+t_p4b-1)
       call ccsd_t_v2t1lgth(l_t1sub,l_v2sub)
-C #endif
-C #endif
 
 #ifdef VERY_VERBOSE
       write (*, '(A)', advance="no") '.'
@@ -211,7 +232,11 @@ c
 c
 cold      do ia6=1,9
 #ifdef OFFLOAD_CODE
+#ifdef AOMP_MAPPING_FIXED
 !$omp target data map(tofrom:scratch(1:l_t1sub))
+#else
+      call offl_sgl_map(scratch, l_t1sub)
+#endif
 #endif
       do ia6_in=1+ga_nodeid(),9+ga_nodeid()
          ia6=mod(ia6_in,9)+1
@@ -280,7 +305,12 @@ cfrom l_triplesx
 #endif
       end if
 #ifdef OFFLOAD_CODE
+#ifdef AOMP_MAPPING_FIXED
 !$omp target data map(to:t1sub(1:l_t1sub)) map(to:v2sub(1:l_v2sub))
+#else
+      call offl_sgl_map(t1sub, l_t1sub)
+      call offl_sgl_map(v2sub, l_v2sub)
+#endif
 #endif
 cfrom l_triplesx
       k_range_h3b_1 = int_mb(k_range+h3b-1)
@@ -417,7 +447,13 @@ cfrom l_triplesx
 
       END IF
 #ifdef OFFLOAD_CODE
+#ifdef AOMP_MAPPING_FIXED
+c     umap(to:t1sub(1:l_t1sub)) umap(to:v2sub(1:l_v2sub))
 !$omp end target data
+#else
+      call offl_sgl_unmap(t1sub, l_t1sub)
+      call offl_sgl_unmap(v2sub, l_v2sub)
+#endif
 #endif
 c 
       END IF
@@ -432,7 +468,12 @@ c
       END IF
       END DO
 #ifdef OFFLOAD_CODE
+#ifdef AOMP_MAPPING_FIXED
+c     unmap(tofrom:scratch(1:l_t1sub))
 !$omp end target data
+#else
+      call offl_sgl_unmap(scratch, l_t1sub)
+#endif
 #endif
 #ifdef DEBUG_TRIPLESX
       call debug_triplesx_s(triplesx, l_triplesx)
@@ -460,7 +501,7 @@ c
 #endif
 !$omp target map(to:t1sub) map(to:v2sub)
 !$omp TEAMS_DISTRIBUTE parallel do private(p4,p5,p6,h1,h3h2)
-!$omp&collapse(OMPCOLLAPSE)
+!$omp&collapse(OMPCOLLAPSE) OMP_SCHEDULE
 #else
 !$omp parallel do private(p4,p5,p6,h1,h3h2) collapse(OMPCOLLAPSE)
 #endif
@@ -507,7 +548,7 @@ c
 #endif
 !$omp target
 !$omp TEAMS_DISTRIBUTE parallel do private(p4,p5,p6,h2,h3,h1)
-!$omp&collapse(OMPCOLLAPSE)
+!$omp&collapse(OMPCOLLAPSE) OMP_SCHEDULE
 #else
 !$omp parallel do private(p4,p5,p6,h2,h3,h1) collapse(OMPCOLLAPSE)
 #endif
@@ -556,7 +597,7 @@ c
 #endif
 !$omp target
 !$omp TEAMS_DISTRIBUTE parallel do private(p4,p5,p6,h1,h3h2)
-!$omp&collapse(OMPCOLLAPSE)
+!$omp&collapse(OMPCOLLAPSE) OMP_SCHEDULE
 #else
 !$omp parallel do private(p4,p5,p6,h1,h3h2) collapse(OMPCOLLAPSE)
 #endif
@@ -603,7 +644,7 @@ c
 #endif
 !$omp target
 !$omp TEAMS_DISTRIBUTE parallel do private(p4,p5,p6,h1,h3h2)
-!$omp&collapse(OMPCOLLAPSE)
+!$omp&collapse(OMPCOLLAPSE) OMP_SCHEDULE
 #else
 !$omp parallel do private(p4,p5,p6,h1,h3h2) collapse(OMPCOLLAPSE)
 #endif
@@ -650,7 +691,7 @@ c
 #endif
 !$omp target
 !$omp TEAMS_DISTRIBUTE parallel do private(p4,p5,p6,h2,h3,h1)
-!$omp&collapse(OMPCOLLAPSE)
+!$omp&collapse(OMPCOLLAPSE) OMP_SCHEDULE
 #else
 !$omp parallel do private(p4,p5,p6,h2,h3,h1) collapse(OMPCOLLAPSE)
 #endif
@@ -699,7 +740,7 @@ c
 #endif
 !$omp target
 !$omp TEAMS_DISTRIBUTE parallel do private(p4,p5,p6,h1,h3h2)
-!$omp&collapse(OMPCOLLAPSE)
+!$omp&collapse(OMPCOLLAPSE) OMP_SCHEDULE
 #else
 !$omp parallel do private(p4,p5,p6,h1,h3h2) collapse(OMPCOLLAPSE)
 #endif
@@ -746,7 +787,7 @@ c
 #endif
 !$omp target
 !$omp TEAMS_DISTRIBUTE parallel do private(p4,p5,p6,h1,h3h2)
-!$omp&collapse(OMPCOLLAPSE)
+!$omp&collapse(OMPCOLLAPSE) OMP_SCHEDULE
 #else
 !$omp parallel do private(p4,p5,p6,h1,h3h2) collapse(OMPCOLLAPSE)
 #endif
@@ -793,7 +834,7 @@ c
 #endif
 !$omp target
 !$omp TEAMS_DISTRIBUTE parallel do private(p4,p5,p6,h2,h3,h1)
-!$omp&collapse(OMPCOLLAPSE)
+!$omp&collapse(OMPCOLLAPSE) OMP_SCHEDULE
 #else
 !$omp parallel do private(p4,p5,p6,h2,h3,h1) collapse(OMPCOLLAPSE)
 #endif
@@ -842,7 +883,7 @@ c
 #endif
 !$omp target
 !$omp TEAMS_DISTRIBUTE parallel do private(p4,p5,p6,h1,h3h2)
-!$omp&collapse(OMPCOLLAPSE)
+!$omp&collapse(OMPCOLLAPSE) OMP_SCHEDULE
 #else
 !$omp parallel do private(p4,p5,p6,h1,h3h2) collapse(OMPCOLLAPSE)
 #endif
