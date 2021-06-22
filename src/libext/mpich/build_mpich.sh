@@ -14,7 +14,7 @@ fi
 unset F90
 unset F90FLAGS
 echo 'using FFLAGS=' $FFLAGS
-./configure --prefix=`pwd`/../.. --enable-fortran=all --disable-shared --disable-cxx --disable-romio --with-pm=gforker --with-device=ch3:nemesis
+./configure --prefix=`pwd`/../.. --enable-fortran=all --disable-shared --disable-cxx --disable-romio --with-pm=gforker --with-device=ch3:nemesis --disable-cuda --disable-opencl
 mkdir -p ../../../lib
 make -j3
 make install
