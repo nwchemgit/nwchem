@@ -61,7 +61,7 @@ if [[ "$FC" == "ifort" ]]; then
 	source "$IONEAPI_ROOT"/mkl/latest/env/vars.sh
     fi
     if [[ "$os" == "Darwin" ]]; then
-	export DYLD_LIBRARY_PATH=$IONEAPI_ROOT/mkl/latest/lib:$DYLD_LIBRARY_PATH
+	export DYLD_FALLBACK_LIBRARY_PATH=$IONEAPI_ROOT/mkl/latest/lib:$DYLD_FALLBACK_LIBRARY_PATH
     fi
 
 fi
@@ -75,7 +75,7 @@ if [[ "$MPI_IMPL" == "intel" ]]; then
 fi
 if [[ "$os" == "Darwin" ]]; then 
   export NWCHEM_TARGET=MACX64 
-  export DYLD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$DYLD_LIBRARY_PATH
+  export DYLD_FALLBACK_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$DYLD_FALLBACK_LIBRARY_PATH 
   if [[ "$MPI_IMPL" == "openmpi" ]]; then
     export PATH=/usr/local/opt/open-mpi/bin/:$PATH 
   fi

@@ -53,7 +53,7 @@ esac
 	     "$IONEAPI_ROOT"/ipp "$IONEAPI_ROOT"/conda_channel 	"$IONEAPI_ROOT"/dnnl \
 	     "$IONEAPI_ROOT"/installer "$IONEAPI_ROOT"/vtune_profiler "$IONEAPI_ROOT"/tbb || true
 	source "$IONEAPI_ROOT"/setvars.sh || true
-	export DYLD_LIBRARY_PATH=$IONEAPI_ROOT/mkl/latest/lib:$DYLD_LIBRARY_PATH
+	export DYLD_FALLBACK_LIBRARY_PATH=$IONEAPI_ROOT/mkl/latest/lib:DYLD_FALLBACK_LIBRARY_PATH 
 	ifort -V
 	icc -V
      else
