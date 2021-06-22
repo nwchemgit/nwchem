@@ -60,9 +60,6 @@ if [[ "$FC" == "ifort" ]]; then
     if [ -f "$IONEAPI_ROOT"/mkl/latest/env/vars.sh ] ; then
 	source "$IONEAPI_ROOT"/mkl/latest/env/vars.sh
     fi
-    if [[ "$os" == "Darwin" ]]; then
-	export DYLD_FALLBACK_LIBRARY_PATH=$IONEAPI_ROOT/mkl/latest/lib:$DYLD_FALLBACK_LIBRARY_PATH
-    fi
 
 fi
 if [[ "$MPI_IMPL" == "intel" ]]; then

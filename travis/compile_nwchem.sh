@@ -43,14 +43,15 @@ else
 	FOPT=-O2
 	if [[ "$os" == "Darwin" ]]; then
 	    export BUILD_MPICH=1
+ 	    export BLASOPT="-L$MKLROOT  -Wl,-rpath,${MKLROOT}/lib -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core  -lpthread -lm -ldl"
 	else
 	    export USE_FPICF=Y
+ 	    export BLASOPT="-L$MKLROOT -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core  -lpthread -lm -ldl"
 	    export SCALAPACK_LIB="-L$MKLROOT -lmkl_scalapack_ilp64 -lmkl_blacs_intelmpi_ilp64 -lpthread -lm -ldl"
 	    export SCALAPACK_SIZE=8
 	    unset BUILD_SCALAPACK
 	fi
         unset BUILD_OPENBLAS
-	export BLASOPT="-L$MKLROOT -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core  -lpthread -lm -ldl"
 	export BLAS_SIZE=8
 	export LAPACK_LIB="$BLASOPT"
     elif [[ "$FC" == "flang" ]] || [[ "$(basename -- $FC | cut -d \- -f 1)" == "nvfortran" ]] ; then
