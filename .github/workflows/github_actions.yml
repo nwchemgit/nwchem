@@ -147,8 +147,8 @@ jobs:
           - os: macos-10.15
             experimental: true
             mpi_impl: mpich
-            armci_network: mpi-ts
-            nwchem_modules: "nwdft solvation driver"
+            armci_network: sockets
+            nwchem_modules: "tinyqmpw"
             fc: ifort
             xcode_version: 12.4
           - os: ubuntu-20.04
