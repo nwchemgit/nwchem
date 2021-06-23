@@ -29,7 +29,7 @@ esac
 #  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python3 ||true
      HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" python3 gsed grep ||true
      if [[ "$FC" == "ifort" ]]; then
-	 if [[ "$GOT_APPSCACHE" == "Y" ]]; then
+         if [[ -f ~/apps/oneapi/setvars.sh ]]; then 
 	     echo ' using intel cache installation '
 	 else
 	mkdir -p ~/mntdmg ~/apps/oneapi || true
