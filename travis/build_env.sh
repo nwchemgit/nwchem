@@ -48,11 +48,15 @@ esac
 	sudo ~/mntdmg/bootstrapper.app/Contents/MacOS/install.sh --cli  --eula accept \
 	     --action install --components default --install-dir ~/apps/oneapi
 	hdiutil detach ~/mntdmg
-	ls -lrta ~/apps ||true
+	ls -lrta ~/apps/oneapi ||true
 	sudo rm -rf "$IONEAPI_ROOT"/intelpython "$IONEAPI_ROOT"/dal "$IONEAPI_ROOT"/advisor \
 	     "$IONEAPI_ROOT"/ipp "$IONEAPI_ROOT"/conda_channel 	"$IONEAPI_ROOT"/dnnl \
 	     "$IONEAPI_ROOT"/installer "$IONEAPI_ROOT"/vtune_profiler "$IONEAPI_ROOT"/tbb || true
 	source "$IONEAPI_ROOT"/setvars.sh || true
+	ls -lrta ~/apps/oneapi ||true
+	df -h 
+	rm -f *dmg || true
+	df -h
 	ifort -V
 	icc -V
      else
