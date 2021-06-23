@@ -28,7 +28,10 @@ esac
 #  HOMEBREW_NO_AUTO_UPDATE=1 brew cask uninstall oclint || true  
 #  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python3 ||true
      HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" python3 gsed grep ||true
-     if [[ "$FC" == "ifort" ]]; then     
+     if [[ "$FC" == "ifort" ]]; then
+	 if [[ "$GOT_APPSCACHE" == "Y" ]]; then
+	     echo ' using intel cache installation '
+	 else
 	mkdir -p ~/mntdmg ~/apps/oneapi || true
 	cd ~/Downloads
 	dir_base="17714"
@@ -52,6 +55,7 @@ esac
 	sudo rm -rf "$IONEAPI_ROOT"/intelpython "$IONEAPI_ROOT"/dal "$IONEAPI_ROOT"/advisor \
 	     "$IONEAPI_ROOT"/ipp "$IONEAPI_ROOT"/conda_channel 	"$IONEAPI_ROOT"/dnnl \
 	     "$IONEAPI_ROOT"/installer "$IONEAPI_ROOT"/vtune_profiler "$IONEAPI_ROOT"/tbb || true
+	fi
 	source "$IONEAPI_ROOT"/setvars.sh || true
 	ls -lrta ~/apps/oneapi ||true
 	df -h 
