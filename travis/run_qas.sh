@@ -31,7 +31,7 @@ if [[ ! -z "$USE_OPENMP" ]]; then
     export OMP_NUM_THREADS="$USE_OPENMP"
     export OMP_STACKSIZE=32M
 fi
-if [[ "$arch" == "aarch64" ]] ; then
+if [[ "$arch" == "aarch64" ]] || [[ "$os" == "Darwin" &&  ! -z "$BUILD_MPICH" ]] ; then
     nprocs=1
 fi    
 env|egrep MP
