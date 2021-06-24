@@ -1,3 +1,5 @@
+c     Modifications (c) 2021 Advanced Micro Devices, Inc. All Rights Reserved.
+
 C #ifndef OFFLOAD_DEBUG_DATA
 C #define OFFLOAD_DEBUG_DATA
 C #endif
@@ -6,6 +8,12 @@ C #endif
 #define TEAMS_DISTRIBUTE teams distribute
 #else
 #define TEAMS_DISTRIBUTE
+#endif
+
+#ifdef USE_OMP_SCHEDULE_STATIC_1
+#define OMP_SCHEDULE schedule(static,1)
+#else
+#define OMP_SCHEDULE
 #endif
 
       SUBROUTINE ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
@@ -111,11 +119,11 @@ c     estimate triplesx size
         call errquit('ccsd_t: MA error dbl',0,MA_ERR)
       endif
 #if USE_OPENMP
-#if OPENMP_OFFLOAD
+#if USE_OFFLOAD
       if (offload_enabled()) then
 !$omp target enter data
-!$omp&map(alloc:f_singles(1:size))
-!$omp&map(alloc:f_doubles(1:size))
+!$omp&map(alloc:f_singles)
+!$omp&map(alloc:f_doubles)
 #ifdef OFFLOAD_DEBUG_DATA
         write (*,*) ga_nodeid(), 'alloc f_singles', size, 'elements'
         write (*,*) ga_nodeid(), 'alloc f_doubles', size, 'elements'
@@ -248,11 +256,11 @@ c
      1     call errquit('ordering',3,MA_ERR)
 #ifdef USE_F90_ALLOCATABLE
 #if USE_OPENMP
-#if OPENMP_OFFLOAD
+#if USE_OFFLOAD
       if (offload_enabled()) then
 !$omp target exit data
-!$omp&map(release:f_singles(1:size))
-!$omp&map(release:f_doubles(1:size))
+!$omp&map(release:f_singles)
+!$omp&map(release:f_doubles)
 #ifdef OFFLOAD_DEBUG_DATA
         write (*,*) ga_nodeid(), 'release f_singles', size, 'elements'
         write (*,*) ga_nodeid(), 'release f_doubles', size, 'elements'
@@ -313,8 +321,8 @@ c ---------------------------
       double precision energy1,energy2
       external offload_enabled
       logical offload_enabled
+#ifdef USE_OPENMP
 #ifdef USE_OFFLOAD
-#ifdef OPENMP_OFFLOAD
       if(offload_enabled()) then
          call offl_ccsd_t_dot(a_singles,a_doubles,restricted,
      &        h1b,h2b,h3b,p4b,p5b,p6b,
@@ -329,8 +337,8 @@ c ---------------------------
      &        o_h1,o_h2,o_h3,o_p4,o_p5,o_p6,
      &        r_h1,r_h2,r_h3,r_p4,r_p5,r_p6,
      &        energy1,energy2)
+#ifdef USE_OPENMP
 #ifdef USE_OFFLOAD
-#ifdef OPENMP_OFFLOAD
          endif
 #endif
 #endif
@@ -392,7 +400,7 @@ c
      &     * range_h1 * range_h2 * range_h3
 c zeroing ---
 #if USE_OPENMP
-#if OPENMP_OFFLOAD
+#if USE_OFFLOAD
       if (offload_enabled()) then
         call offl_zero(a_singles, size)
         call offl_zero(a_doubles, size)
@@ -402,7 +410,7 @@ c zeroing ---
         call dcopy(size, 0.0d0, 0, a_singles, 1)
         call dcopy(size, 0.0d0, 0, a_doubles, 1)
 #if USE_OPENMP
-#if OPENMP_OFFLOAD
+#if USE_OFFLOAD
       endif
 #endif
 #endif
@@ -437,14 +445,14 @@ c -----------
       end
 
 #ifdef USE_OPENMP
-#ifdef OPENMP_OFFLOAD
+#ifdef USE_OFFLOAD
       subroutine offl_zero(array, size)
       implicit none
       double precision array(size)
       integer size
       integer ii
 !$omp target
-!$omp TEAMS_DISTRIBUTE parallel do
+!$omp TEAMS_DISTRIBUTE parallel do OMP_SCHEDULE
       do ii=1,size
          array(ii)=0d0
       enddo
