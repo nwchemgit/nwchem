@@ -44,59 +44,59 @@ jobs:
           - os: ubuntu-20.04
             experimental: true
             mpi_impl: mpich
-            armci_network: mpi-ts
+            armci_network: MPI-TS
             nwchem_modules: "tinyqmpw python"
             fc: flang
             cc: clang
           - os: ubuntu-20.04
             experimental: true
             mpi_impl: intel
-            armci_network: mpi-pr
+            armci_network: MPI-PR
             nwchem_modules: "tinyqmpw python"
             fc: ifort
           - os: ubuntu-20.04
             experimental: true
             mpi_impl: mpich
-            armci_network: mpi-ts
+            armci_network: MPI-TS
             nwchem_modules: "tinyqmpw python"
             fc: nvfortran
             cc: gcc
           - os: ubuntu-20.04
             experimental: true
             mpi_impl: intel
-            armci_network: sockets
+            armci_network: SOCKETS
             nwchem_modules: "tce"
             fc: ifort
           - os: ubuntu-20.04
             experimental: true 
             mpi_impl: mpich
-            armci_network: mpi-ts
+            armci_network: MPI-TS
             nwchem_modules: "tce"
             fc: flang
             cc: clang
           - os: ubuntu-20.04
             experimental: true 
             mpi_impl: intel
-            armci_network: mpi-pr
+            armci_network: MPI-PR
             nwchem_modules: "tinyqmpw python"
             fc: ifort
           - os: ubuntu-20.04
             experimental: true 
             mpi_impl: intel
-            armci_network: sockets
+            armci_network: SOCKETS
             nwchem_modules: "tce"
             fc: ifort
           - os: ubuntu-20.04
             experimental: true 
             mpi_impl: mpich
-            armci_network: mpi-pt
+            armci_network: MPI-PT
             nwchem_modules: "nwdft solvation driver"
             fc: gfortran-10
             use_simint: 1
           - os: ubuntu-20.04
             experimental: true
             mpi_impl: mpich
-            armci_network: mpi-ts
+            armci_network: MPI-TS
             nwchem_modules: "nwdft solvation driver"
             fc: nvfortran
             cc: gcc
@@ -104,7 +104,7 @@ jobs:
           - os: ubuntu-20.04
             experimental: true
             mpi_impl: intel
-            armci_network: mpi-ts
+            armci_network: MPI-TS
             nwchem_modules: "nwdft solvation driver"
             fc: ifort
             cc: icc
@@ -112,34 +112,34 @@ jobs:
           - os: ubuntu-20.04
             experimental: true 
             mpi_impl: mpich
-            armci_network: mpi-pr
+            armci_network: MPI-PR
             nwchem_modules: "tinyqmpw python"
             fc: gfortran-10
           - os: macos-10.15
             experimental: true 
             mpi_impl: openmpi
-            armci_network: mpi-pr
+            armci_network: MPI-PR
             nwchem_modules: "qmandpw qmd"
             fc: gfortran-10
             xcode_version: 12.3
           - os: macos-11.0
             experimental: true
             mpi_impl: openmpi
-            armci_network: mpi-pr
+            armci_network: MPI-PR
             nwchem_modules: "tce"
             fc: gfortran-10
             xcode_version: 12.3
           - os: macos-11.0
             experimental: true
             mpi_impl: openmpi
-            armci_network: mpi-ts
+            armci_network: MPI-TS
             nwchem_modules: "tinyqmpw"
             fc: gfortran-11
             xcode_version: 12.5
           - os: macos-10.15
             experimental: true
             mpi_impl: openmpi
-            armci_network: mpi-ts
+            armci_network: MPI-TS
             nwchem_modules: "tinyqmpw"
             fc: gfortran-9
             blas: "accelerate"
@@ -147,14 +147,14 @@ jobs:
           - os: macos-10.15
             experimental: true
             mpi_impl: mpich
-            armci_network: sockets
+            armci_network: SOCKETS
             nwchem_modules: "tinyqmpw"
             fc: ifort
             xcode_version: 12.4
           - os: ubuntu-20.04
             experimental: true
             mpi_impl: mpich
-            armci_network: mpi-ts
+            armci_network: MPI-TS
             nwchem_modules: "qmandpw qmd"
             fc: gfortran-10
             use_openmp: 2
@@ -162,7 +162,7 @@ jobs:
           - os: ubuntu-20.04
             experimental: true
             mpi_impl: intel
-            armci_network: mpi-ts
+            armci_network: MPI-TS
             nwchem_modules: "qmandpw qmd"
             fc: ifort
             use_openmp: 2
