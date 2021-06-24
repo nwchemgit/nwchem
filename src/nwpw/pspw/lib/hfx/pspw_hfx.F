@@ -2280,37 +2280,40 @@ c        call D1dB_SumAll(ph)
 
 
 *    ***** routines below used for pspw_et calculations ****
-c*     *******************************
-c*     *                             *
-c*     *     pspw_potential_HFX2     *
-c*     *                             *
-c*     *******************************
-c      subroutine pspw_potential_HFX2(ispin0,psi1_r,psi2_r,
-c     >                                Hpsi1_r,Hpsi2_r)
-c      implicit none
-c      integer ispin0
-c      real*8  psi1_r(*), psi2_r(*)
-c      real*8  Hpsi1_r(*),Hpsi2_r(*)
-c
-c#include "bafdecls.fh"
-c#include "pspw_hfx.fh"
-c#include "errquit.fh"
-c
-c      call nwpw_timing_start(33)
-c      if (localize_on) then
-c         !*** comment out for now ***
-c         !call pspw_hfx2_localize_start(psi1_r,psi2_r)
-c         !call pspw_potential_HFX20(ispin0,dbl_mb(psiloc_r(1)),dbl_mb(psiloc_r2(1)),Hpsi1_r,Hpsi2_r)
-c         !call pspw_hfx2_localize_stop(Hpsi_r,Hpsi2_r)
-c      else
-c         call pspw_potential_HFX20(ispin0,psi1_r,psi2_r,Hpsi1_r,Hpsi2_r)
-c      end if
-c
-c      call nwpw_timing_end(33)
-c      return
-c      end
-c
-c
+*     *******************************
+*     *                             *
+*     *     pspw_potential_HFX2     *
+*     *                             *
+*     *******************************
+      subroutine pspw_potential_HFX2(ispin0,psi1_r,psi2_r,
+     >                                Hpsi1_r,Hpsi2_r)
+      implicit none
+      integer ispin0
+      real*8  psi1_r(*), psi2_r(*)
+      real*8  Hpsi1_r(*),Hpsi2_r(*)
+
+#include "bafdecls.fh"
+#include "pspw_hfx.fh"
+#include "errquit.fh"
+
+      call nwpw_timing_start(33)
+      if (localize_on) then
+         !*** comment out for now ***
+         !call pspw_hfx2_localize_start(psi1_r,psi2_r)
+         !call pspw_potential_HFX20(ispin0,dbl_mb(psiloc_r(1)),dbl_mb(psiloc_r2(1)),Hpsi1_r,Hpsi2_r)
+         !call pspw_hfx2_localize_stop(Hpsi_r,Hpsi2_r)
+      else
+         !*** turning off replicated exchange for now ****
+         !call pspw_potential_HFX20(ispin0,psi1_r,psi2_r,Hpsi1_r,Hpsi2_r)
+         call pspw_potential_HFX2_sub(ispin0,psi1_r,psi2_r,
+     >                                Hpsi1_r,Hpsi2_r)
+      end if
+
+      call nwpw_timing_end(33)
+      return
+      end
+
+
 c*     ****************************
 c*     *                          *
 c*     *   pspw_potential_HFX20   *
@@ -2386,9 +2389,6 @@ c      end if
 c
 c      return
 c      end
-c
-c
-
 
 
 
