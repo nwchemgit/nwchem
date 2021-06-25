@@ -415,6 +415,25 @@ c     **** external functions ****
      >                 '  non-local psp FFM B        : ',
      >                 nwpw_timing(59),counter,ttime)
 
+         call nwpw_timing_print(
+     >                 '  Timing probe 0             : ',
+     >                 nwpw_timing(60),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  Timing probe 1             : ',
+     >                 nwpw_timing(61),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  Timing probe 2             : ',
+     >                 nwpw_timing(62),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  Timing probe 3             : ',
+     >                 nwpw_timing(63),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  Timing probe 4             : ',
+     >                 nwpw_timing(64),counter,ttime)
+         call nwpw_timing_print(
+     >                 '  Timing probe 5             : ',
+     >                 nwpw_timing(65),counter,ttime)
+
       end if
 
 

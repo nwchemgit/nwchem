@@ -23,7 +23,7 @@ c#include "nwpwxc.fh"
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 135)
+      parameter (num_dirs = 136)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -159,6 +159,7 @@ c
      >            '1d-slab',
      >            '2d-hilbert',
      >            '2d-hcurve',
+     >            'single_precision_hfx',
      >            'end'/
 
       double precision kb
@@ -240,7 +241,7 @@ c
      >       6700,6800,6900,7000,4250,7100,7200,7300,7400,7500,7600,
      >       7700,7800,7900,8000,8100,6650,8200,8300,8400,8500,8600,
      >       8700,8800,8900,9000,9010,9020,9030,1810,1811,1812,9040,
-     >       4501,4502,4503,
+     >       4501,4502,4503,4504,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -1047,6 +1048,15 @@ c
       if (.not.value)
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 4503, RTDB_ERR)
+      goto 10
+
+c
+c  single_precision_hfx
+c
+ 4504 value=rtdb_put(rtdb,'pspw:HFX_single_precision',mt_log,1,.true.)
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 4504, RTDB_ERR)
       goto 10
 
 

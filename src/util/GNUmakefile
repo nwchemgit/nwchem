@@ -224,7 +224,7 @@ endif
               util_intrsc2008.o util_fadvise.o  util_scalapack_info.o\
               ga_conjg.o nwmolden.o ao_1prdm_read.o ao_1prdm_write.o\
               util_strips.o util_poltensor.o  util_mygop.o util_isnan.o \
-              util_blasthreads.o \
+              util_blasthreads.o util_gpu_affinity.o \
               $(EXTRA_OBJ)
 ifndef USE_MLIB
               OBJ_OPTIMIZE += icopy.o dsum.o dgefa.o zsum.o
@@ -304,6 +304,10 @@ endif
 ifdef TCE_HIP
   LIB_DEFINES += $(HIP_INCLUDE)
   OBJ += util_cuda_support.o
+endif
+
+ifdef USE_OPENACC_TRPDRV
+  FOPTIONS += -cuda -DUSE_CUDA_AFFINITY
 endif
 
 ifdef USE_FORTRAN2003

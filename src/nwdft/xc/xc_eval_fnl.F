@@ -310,6 +310,21 @@ c
          dohcth=.true.
          nx=75
          nc=75
+      elseif (abs(xfac(76)).gt.eps.or.abs(cfac(76)).gt.eps)then
+         whichf='wb97'
+         dohcth=.true.
+         nx=76
+         nc=76
+      elseif (abs(xfac(77)).gt.eps.or.abs(cfac(77)).gt.eps)then
+         whichf='wb9x'
+         dohcth=.true.
+         nx=77
+         nc=77
+      elseif (abs(xfac(78)).gt.eps.or.abs(cfac(78)).gt.eps)then
+         whichf='w9d3'
+         dohcth=.true.
+         nx=78
+         nc=78
       elseif (abs(xfac(5)).gt.eps.or.abs(cfac(14)).gt.eps)then
          whichf='b970'
          dohcth=.true.

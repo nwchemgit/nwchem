@@ -230,11 +230,7 @@ c
             else
 c              g_xpy: X with CIS, Y = 0
 c              g_xmy: not created with CIS
-               call tddft_patch3mxm('n','t',0.5d0*omega(ir),1.0d0,
-     +                                g_xpy(ip),alo,ahi,
-     +                                g_xpy(ip),blo,bhi,
-     +                                g_w(ip),clo,chi)
-               call tddft_patch3mxm('n','t',0.5d0*omega(ir),1.0d0,
+               call tddft_patch3mxm('n','t',omega(ir),1.0d0,
      +                                g_xpy(ip),alo,ahi,
      +                                g_xpy(ip),blo,bhi,
      +                                g_w(ip),clo,chi)
@@ -950,11 +946,7 @@ c
             else
 c            g_xpy: X with CIS, Y = 0
 c            g_xmy: not created with CIS
-             call tddft_patch3mxm('t','n',0.5d0*omega(ir),0.0d0,
-     +                            g_xpy(ip),alo,ahi,
-     +                            g_xpy(ip),blo,bhi,
-     +                            g_w(ip),clo,chi)
-             call tddft_patch3mxm('t','n',0.5d0*omega(ir),1.0d0,
+             call tddft_patch3mxm('t','n',omega(ir),0.0d0,
      +                            g_xpy(ip),alo,ahi,
      +                            g_xpy(ip),blo,bhi,
      +                            g_w(ip),clo,chi)

@@ -383,6 +383,7 @@ c        ave = ave + nwave2(i)
 *     *         Balance_c_balance        *
 *     *                                  *
 *     ************************************
+c!!!!!!!! Needs to be changed to MPI !!!!!!!!!!!!!!!!
 
       subroutine Balance_c_balance(nb,A)
       implicit none
@@ -444,12 +445,83 @@ c            recieve data....
       return
       end
 
+*     ************************************
+*     *                                  *
+*     *         Balances_c_balance       *
+*     *                                  *
+*     ************************************
+c!!!!!!!! Needs to be changed to MPI !!!!!!!!!!!!!!!!
+
+      subroutine Balances_c_balance(nb,A)
+      implicit none
+      integer nb
+      complex A(*)
+
+#include "bafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "balance_common.fh"
+
+*     **** local variables ****
+      integer  rcv_len,rcv_proc
+      integer j
+      integer pto,pfrom,msglen,indx
+
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
+
+!$OMP MASTER
+      if (log_mb(sender_list(1)+nb)) then
+         do j=1,int_mb(npacket_list(1)+nb)
+            pto    = int_mb(int_mb(proc_to_list(1)    +2*nb)+j-1)
+            msglen = int_mb(int_mb(packet_size_list(1)+2*nb)+j-1)
+            indx   = int_mb(int_mb(indx_start_list(1) +2*nb)+j-1)
+c            send data....
+            if (msglen.gt.0) then
+               call SND(9+MSGDBL,
+     >                  A(indx),
+     >                  mdtob(msglen),
+     >                  Parallel2d_convert_taskid_i(pto),
+     >                  1)
+            end if
+
+
+         end do
+      end if
+
+      if (log_mb(receiver_list(1)+nb)) then
+         do j=1,int_mb(npacket_list(1)+nb)
+            pfrom  = int_mb(int_mb(proc_from_list(1)  +2*nb)+j-1)
+            msglen = int_mb(int_mb(packet_size_list(1)+2*nb)+j-1)
+            indx   = int_mb(int_mb(indx_start_list(1) +2*nb)+j-1)
+c            recieve data....
+            if (msglen.gt.0) then
+               call RCV(9+MSGDBL,
+     >                  A(indx),
+     >                  mdtob(msglen),rcv_len,
+     >                  Parallel2d_convert_taskid_i(pfrom),
+     >                  rcv_proc,1)
+            end if
+
+         end do
+      end if
+!$OMP END MASTER
+!$OMP BARRIER
+
+      return
+      end
+
+
+
+
 
 *     ************************************
 *     *                                  *
 *     *         Balance_t_balance        *
 *     *                                  *
 *     ************************************
+c!!!!!!!! Needs to be changed to MPI !!!!!!!!!!!!!!!!
 
       subroutine Balance_t_balance(nb,A)
       implicit none
@@ -515,9 +587,82 @@ c            recieve data....
 
 *     ************************************
 *     *                                  *
+*     *         Balances_t_balance       *
+*     *                                  *
+*     ************************************
+c!!!!!!!! Needs to be changed to MPI !!!!!!!!!!!!!!!!
+
+      subroutine Balances_t_balance(nb,A)
+      implicit none
+      integer nb
+      real A(*)
+
+#include "bafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "balance_common.fh"
+
+*     **** local variables ****
+      integer  rcv_len,rcv_proc
+      integer j
+      integer pto,pfrom,msglen,indx
+
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
+
+!$OMP MASTER
+      if (log_mb(sender_list(1)+nb)) then
+         do j=1,int_mb(npacket_list(1)+nb)
+            pto    = int_mb(int_mb(proc_to_list(1)    +2*nb)+j-1)
+            msglen = int_mb(int_mb(packet_size_list(1)+2*nb)+j-1)
+            indx   = int_mb(int_mb(indx_start_list(1) +2*nb)+j-1)
+c            send data....
+            if (msglen.gt.0) then
+               call SND(9+MSGDBL,
+     >                  A(indx),
+     >                  mdtob(msglen)/2,
+     >                  Parallel2d_convert_taskid_i(pto),
+     >                  1)
+            end if
+
+
+         end do
+      end if
+
+      if (log_mb(receiver_list(1)+nb)) then
+         do j=1,int_mb(npacket_list(1)+nb)
+            pfrom  = int_mb(int_mb(proc_from_list(1)  +2*nb)+j-1)
+            msglen = int_mb(int_mb(packet_size_list(1)+2*nb)+j-1)
+            indx   = int_mb(int_mb(indx_start_list(1) +2*nb)+j-1)
+c            recieve data....
+            if (msglen.gt.0) then
+               call RCV(9+MSGDBL,
+     >                  A(indx),
+     >                  mdtob(msglen)/2,rcv_len,
+     >                  Parallel2d_convert_taskid_i(pfrom),
+     >                  rcv_proc,1)
+            end if
+
+
+         end do
+      end if
+!$OMP END MASTER
+!$OMP BARRIER
+
+      return
+      end
+
+
+
+
+
+*     ************************************
+*     *                                  *
 *     *         Balance_c_unbalance      *
 *     *                                  *
 *     ************************************
+c!!!!!!!! Needs to be changed to MPI !!!!!!!!!!!!!!!!
 
       subroutine Balance_c_unbalance(nb,A)
       implicit none
@@ -577,12 +722,78 @@ c            send data....
       return
       end
 
+*     ************************************
+*     *                                  *
+*     *         Balances_c_unbalance     *
+*     *                                  *
+*     ************************************
+c!!!!!!!! Needs to be changed to MPI !!!!!!!!!!!!!!!!
+
+      subroutine Balances_c_unbalance(nb,A)
+      implicit none
+      integer nb
+      complex A(*)
+
+#include "bafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "balance_common.fh"
+
+*     **** local variables ****
+      integer  rcv_len,rcv_proc
+      integer j
+      integer pto,pfrom,msglen,indx
+
+*     **** external functions ****
+      integer  Parallel2d_convert_taskid_i
+      external Parallel2d_convert_taskid_i
+
+!$OMP MASTER
+      if (log_mb(sender_list(1)+nb)) then
+         do j=1,int_mb(npacket_list(1)+nb)
+            pfrom  = int_mb(int_mb(proc_to_list(1)    +2*nb)+j-1)
+            msglen = int_mb(int_mb(packet_size_list(1)+2*nb)+j-1)
+            indx   = int_mb(int_mb(indx_start_list(1) +2*nb)+j-1)
+c            recieve data....
+            if (msglen.gt.0) then
+               call RCV(9+MSGDBL,
+     >                  A(indx),
+     >                  mdtob(msglen),rcv_len,
+     >                  Parallel2d_convert_taskid_i(pfrom),
+     >                  rcv_proc,1)
+            end if
+
+         end do
+      end if
+
+      if (log_mb(receiver_list(1)+nb)) then
+         do j=1,int_mb(npacket_list(1)+nb)
+            pto    = int_mb(int_mb(proc_from_list(1)  +2*nb)+j-1)
+            msglen = int_mb(int_mb(packet_size_list(1)+2*nb)+j-1)
+            indx   = int_mb(int_mb(indx_start_list(1) +2*nb)+j-1)
+c            send data....
+            if (msglen.gt.0) then
+               call SND(9+MSGDBL,
+     >                  A(indx),
+     >                  mdtob(msglen),
+     >                  Parallel2d_convert_taskid_i(pto),1)
+            end if
+
+         end do
+      end if
+!$OMP END MASTER
+!$OMP BARRIER
+
+      return
+      end
+
 
 *     ************************************
 *     *                                  *
 *     *         Balance_i_balance        *
 *     *                                  *
 *     ************************************
+c!!!!!!!! Needs to be changed to MPI !!!!!!!!!!!!!!!!
 
       subroutine Balance_i_balance(nb,A)
       implicit none

@@ -22,8 +22,9 @@
       
 c     ***** Greens functions common block *****
 c     real*8     gk(ndfft3d)
-      integer gk(2)
-      common / vc_block2 / gk
+      logical has_single
+      integer gk(2),sgk(2)
+      common / vc_block2 / gk,sgk,has_single
 
 *     **** Error function parameters ****
       real*8 c1,c2,c3,c4,c5,c6,yerf,xerf
@@ -48,16 +49,20 @@ c     **** local variables  ****
       integer index1,p,taskid
 
 c     **** external functions ****
-      logical  control_fast_erf
-      external control_fast_erf
+      logical  control_fast_erf,control_single_precision_on
+      external control_fast_erf,control_single_precision_on
       real*8   lattice_unita,util_erf
       external lattice_unita,util_erf
 
+      has_single = control_single_precision_on()
       call D3dB_nfft3d(2,nfft3d)
       call D3dB_n2ft3d(2,n2ft3d)
 
 *     **** allocate vc memory ****
       value = BA_alloc_get(mt_dbl,nfft3d,'gk',gk(2),gk(1))
+      if (has_single)
+     >   value = value.and.
+     >           BA_alloc_get(mt_real,nfft3d,'sgk',sgk(2),sgk(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       value = BA_push_get(mt_dbl,n2ft3d,'glr',glr(2),glr(1))
@@ -287,6 +292,10 @@ c                 temp = yerf/temp
      >                     + dbl_mb(glr(1)+2*(k-1)) 
       end do
 
+      if (has_single) then
+         call coulomb2_tosingle(nfft3d,dbl_mb(gk(1)),real_mb(sgk(1)))
+      end if
+
       if (.not.BA_pop_stack(glr(2)))
      > call errquit('coulomb2_init:error popping stack memory',0,MA_ERR)
 
@@ -301,12 +310,32 @@ c                 temp = yerf/temp
 #include "errquit.fh"
 
 *     **** common block used for coulomb.f ****
-      integer gk(2)
-      common / vc_block2 / gk
+      logical has_single
+      integer gk(2),sgk(2)
+      common / vc_block2 / gk,sgk,has_single
 
       if (.not.BA_free_heap(gk(2)))
      > call errquit('coulomb2_end:error freeing heap memory',0,MA_ERR)
 
+      if (has_single) then
+         if (.not.BA_free_heap(sgk(2)))
+     >   call errquit('coulomb2_end:error freeing heap memory',1,MA_ERR)
+      end if
+
+      return
+      end
+
+      subroutine coulomb2_tosingle(n,a8,a4)
+      implicit none
+      integer n
+      real*8 a8(*)
+      real*4 a4(*)
+      integer i
+!$OMP DO
+      do i=1,n
+         a4(i) = real(a8(i))
+      end do
+!$OMP END DO
       return
       end
 
@@ -315,7 +344,7 @@ c                 temp = yerf/temp
 
 *     *****************************
 *     *                           *
-*     *        coulomb2_v          *
+*     *        coulomb2_v         *
 *     *                           *
 *     *****************************
 *
@@ -340,8 +369,9 @@ c                 temp = yerf/temp
 #include "bafdecls.fh"
 
 *     **** common block used for coulomb.f ****
-      integer gk(2)
-      common / vc_block2 / gk
+      logical has_single
+      integer gk(2),sgk(2)
+      common / vc_block2 / gk,sgk,has_single
 
 *     **** local variables ****
       logical value
@@ -352,7 +382,10 @@ c                 temp = yerf/temp
       call D3dB_nfft3d(2,nfft3d)
       value = BA_push_get(mt_dcpl,nfft3d,'tmpx',tmpx(2),tmpx(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-      call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(tmpx(1)),1)
+
+      !call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(tmpx(1)),1)
+      call Parallel_shared_vector_zero(.true.,
+     >                                 2*nfft3d,dcpl_mb(tmpx(1)))
 
       call D3dB_nx(2,nx)
       call D3dB_ny(2,ny)
@@ -373,6 +406,75 @@ c      call D3dB_r_SMul(1,scale,vh,vh)
       call D3dB_r_SMul1(1,scale,vh)
            
       value = BA_pop_stack(tmpx(2))
+      if (.not. value) call errquit('error popping stack memory',0,
+     &       MA_ERR)
+      return
+      end
+
+
+
+*     *****************************
+*     *                           *
+*     *        coulomb2_s_v       *
+*     *                           *
+*     *****************************
+*
+*  This routine calculates Poisson's equation for infinite
+*  space boundry conditions.
+*
+*       Laplacian(vh) = -4*pi*dn
+*
+*       vh(r-->infinity) = 0
+*
+*
+*   Entry:
+*         dn --- the density of the region
+*   Exit:
+*         vh --- the solution to Poisson's equation
+
+      subroutine coulomb2_s_v(dn,vh)
+      implicit none
+      real dn(*),vh(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** common block used for coulomb.f ****
+      logical has_single
+      integer gk(2),sgk(2)
+      common / vc_block2 / gk,sgk,has_single
+
+*     **** local variables ****
+      logical value
+      integer tmpvc2(2)
+      integer nx,ny,nz,nfft3d
+      real scale
+
+      call D3dB_nfft3d(2,nfft3d)
+      value = BA_push_get(mt_scpl,nfft3d,'tmpvc2',tmpvc2(2),tmpvc2(1))
+      if (.not.value) call errquit('out of stack memory',0, MA_ERR)
+
+      call Parallel_shared_vector_szero(.true.,
+     >                                  2*nfft3d,scpl_mb(tmpvc2(1)))
+
+      call D3dB_nx(2,nx)
+      call D3dB_ny(2,ny)
+      call D3dB_nz(2,nz)
+      scale = 1.0/real(nx*ny*nz)
+
+c     *** Expand the density ***
+      call D3dBs_r_Expand(1,dn,2,scpl_mb(tmpvc2(1)))
+
+c     **** Convolution g*dn ****
+      call D3dBs_rc_fft3f(2,scpl_mb(tmpvc2(1)))
+      call D3dBs_tc_Mul2(2,real_mb(sgk(1)),scpl_mb(tmpvc2(1)))
+      call D3dBs_cr_fft3b(2,scpl_mb(tmpvc2(1)))
+
+c     **** contract tmpx to extract vh ****
+      call D3dBs_r_Contract(2,scpl_mb(tmpvc2(1)),1,vh)
+      call D3dBs_r_SMul1(1,scale,vh)
+
+      value = BA_pop_stack(tmpvc2(2))
       if (.not. value) call errquit('error popping stack memory',0,
      &       MA_ERR)
       return

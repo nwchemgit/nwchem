@@ -42,6 +42,8 @@ c
      +     cfac(68)+  cfac(69) + xfac(70) + xfac(71) + cfac(71) +
      +     xfac(72) + xfac(73) + xfac(74) +
      +     xfac(75) + cfac(75) +
+     w     xfac(76) + xfac(77) + cfac(76) + cfac(77) +
+     w     xfac(78) + cfac(78) + 
      L     lxdm +
 cc AJL/Begin/FDE
      + xfac_fde(3) + xfac_fde(4) + xfac_fde(5) + xfac_fde(6) + 
@@ -194,6 +196,10 @@ cb973     .     xfac(22).ne.0d0.or.
      .     xfac(71).ne.0d0.or.
      .     xfac(73).ne.0d0.or.
      .     xfac(74).ne.0d0.or.
+cwb97 should have 2nds
+     .     xfac(76).ne.0d0.or.
+     .     xfac(77).ne.0d0.or.
+     .     xfac(78).ne.0d0.or.
 c
 chcth     .     cfac(13).ne.0d0.or.
 cCbecke97     .     cfac(14).ne.0d0.or.
@@ -230,6 +236,10 @@ chp414     .     cfac(21).ne.0d0.or.
      .     cfac(71).ne.0d0.or.
      .     cfac(73).ne.0d0.or.
      .     cfac(74).ne.0d0.or.
+cwb97 should have 2nds
+     .     cfac(76).ne.0d0.or.
+     .     cfac(77).ne.0d0.or.
+     .     cfac(78).ne.0d0.or.
      .     cfac(36).ne.0d0)
       if (util_module_avail("nwxc")) then
          call nwxc_getvals("nwxc_has_2nd",out1)
@@ -346,6 +356,9 @@ c
      .     xfac(42).ne.0d0.or.
      .     xfac(43).ne.0d0.or.
      .     xfac(50).ne.0d0.or.
+     .     xfac(76).ne.0d0.or.
+     .     xfac(77).ne.0d0.or.
+     .     xfac(78).ne.0d0.or.
      .     xfac(51).ne.0d0)
       if (.not.rtdb_get(rtdb, 'dft:cam_exch', mt_log, 1, cam_exch)) 
      &     cam_exch=.false.
@@ -501,6 +514,9 @@ c
      .     xfac(73).ne.0d0.or.  ! r^2SCAN
      .     xfac(74).ne.0d0.or.  ! r^2SCAN-L
      .     xfac(75).ne.0d0.or.  ! hcth147@tz2p
+     .     xfac(76).ne.0d0.or.  ! wb97
+     .     xfac(77).ne.0d0.or.  ! wb97x
+     .     xfac(78).ne.0d0.or.  ! wb97x-d3
 c
      .     cfac(5).ne.0d0.or.   ! PW91
      .     cfac(13).ne.0d0.or.  ! HCTH
@@ -549,7 +565,10 @@ c
      .     cfac(71).ne.0d0.or.  ! rSCAN
      .     cfac(73).ne.0d0.or.  ! r^2SCAN
      .     cfac(74).ne.0d0.or.  ! r^2SCAN-L
-     .     cfac(75).ne.0d0      ! hcth147@tz2p
+     .     cfac(75).ne.0d0.or.  ! hcth147@tz2p
+     .     cfac(76).ne.0d0.or.  ! wb97
+     .     cfac(77).ne.0d0.or.  ! wb97x
+     .     cfac(78).ne.0d0      ! wb97x-d3
      .                )
 c
       return

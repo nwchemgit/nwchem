@@ -31,7 +31,7 @@ if [[ ! -z "$USE_OPENMP" ]]; then
     export OMP_NUM_THREADS="$USE_OPENMP"
     export OMP_STACKSIZE=32M
 fi
-if [[ "$arch" == "aarch64" ]] ; then
+if [[ "$arch" == "aarch64" ]] || [[ "$os" == "Darwin" &&  ! -z "$BUILD_MPICH" ]] ; then
     nprocs=1
 fi    
 env|egrep MP
@@ -130,6 +130,7 @@ fi
 	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_ncap
 	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_ch3_h2o_revm06
 	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_smear
+	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_he2p_wb97
 	 fi
        if [[ ! $(grep -i mp2_input $TRAVIS_BUILD_DIR/src/stubs.F| awk '/mp2_input/') ]]; then
 	   if [[ ! $(grep -i ccsd_input $TRAVIS_BUILD_DIR/src/stubs.F| awk '/ccsd_input/') ]]; then

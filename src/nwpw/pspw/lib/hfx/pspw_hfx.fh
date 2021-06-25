@@ -4,6 +4,7 @@
 
 *     **** PSPW_HFX common block ****
       logical relaxed,orb_contribution,hfx_on,hfx_virtual_on
+      logical single_precision_on
       real*8  rcut,pp
       real*8  ehfx,phfx
       real*8  hfx_parameter
@@ -17,7 +18,7 @@
      >                          ehfx_orb,
      >                          norbs,ispin,solver_type,flag,
      >                          relaxed,orb_contribution,hfx_on,
-     >                          hfx_virtual_on
+     >                          hfx_virtual_on,single_precision_on
 
 *     **** PSPW_HFX_localize common block ****
       logical localize_on,localize2_on,findcolumns,has_smallgrid
@@ -61,3 +62,9 @@
       integer Lin_projectors(2),lin_count1,lin_count2
       common /PSPW_HFX_Lin/ Lin_projectors,lin_count1,lin_count2,
      >                      lin_on,lin_off,lin_run
+
+
+*     **** PSPW_sHFX common block ****
+      integer psi_r_shfx(2),Hpsi_r_shfx(2),nsize_shfx
+      common /PSPW_sHFX_Block/ psi_r_shfx,Hpsi_r_shfx,nsize_shfx
+

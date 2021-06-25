@@ -17,8 +17,14 @@ echo NWCHEM_TOP is $NWCHEM_TOP
 #TARBALL=https://github.com/nwchemgit/nwchem/releases/download/v7.0.0-beta1/nwchem-7.0.0-release.revision-5bcf0416-src.2019-11-01.tar.bz2
 export USE_MPI=y
 if [[ "$FC" == "flang" ]]; then
-    export PATH=/usr/lib/aomp_11.12-0/bin/:$PATH
-#    export PATH=/opt/rocm-4.0.0/llvm/bin:$PATH
+    if [[ "USE_AOMP" == "Y" ]]; then
+	aomp_major=13
+	aomp_minor=0-2
+	export PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/bin/:$PATH
+	export LD_LIBRARY_PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/lib:$LD_LIBRARY_PATH
+    else
+	source ${NWCHEM_TOP}/setenv_AOCC.sh
+    fi
      export BUILD_MPICH=1
 fi
 if [[ "$FC" == "nvfortran" ]]; then
@@ -41,11 +47,20 @@ if [[ "$FC" == "nvfortran" ]]; then
 #    export CC=gcc
 fi
 if [[ "$FC" == "ifort" ]]; then
-    source /opt/intel/oneapi/compiler/latest/env/vars.sh
+    case "$os" in
+	Darwin)
+	    IONEAPI_ROOT=~/apps/oneapi
+	    ;;
+	Linux)	
+	    IONEAPI_ROOT=/opt/intel/oneapi
+	    ;;		
+    esac			
+    source "$IONEAPI_ROOT"/compiler/latest/env/vars.sh
     ifort -V
-    if [ -f /opt/intel/oneapi/mkl/latest/env/vars.sh ] ; then
-	source /opt/intel/oneapi/mkl/latest/env/vars.sh
+    if [ -f "$IONEAPI_ROOT"/mkl/latest/env/vars.sh ] ; then
+	source "$IONEAPI_ROOT"/mkl/latest/env/vars.sh
     fi
+
 fi
 if [[ "$MPI_IMPL" == "intel" ]]; then
     source /opt/intel/oneapi/mpi/latest/env/vars.sh
@@ -57,7 +72,7 @@ if [[ "$MPI_IMPL" == "intel" ]]; then
 fi
 if [[ "$os" == "Darwin" ]]; then 
   export NWCHEM_TARGET=MACX64 
-  export DYLD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$DYLD_LIBRARY_PATH
+  export DYLD_FALLBACK_LIBRARY_PATH=$TRAVIS_BUILD_DIR/lib:$DYLD_FALLBACK_LIBRARY_PATH 
   if [[ "$MPI_IMPL" == "openmpi" ]]; then
     export PATH=/usr/local/opt/open-mpi/bin/:$PATH 
   fi
