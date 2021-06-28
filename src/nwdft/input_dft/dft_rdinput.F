@@ -199,7 +199,7 @@ c
 c     
       if (.not. rtdb_get(rtdb, 'dft:iterations', mt_int, 1,
      &   iterations))then
-         iterations=30
+         iterations=50
          if (.not. rtdb_put(rtdb, 'dft:iterations',
      &      mt_int, 1, iterations))
      &      call errquit('dft_rdinput: rtdb_put failed', 101, RTDB_ERR)
@@ -443,7 +443,7 @@ c
 c
 c     case with multiple tasks and we changed iterations ... (increased)
 c
-      else  if(iterations.gt.30) then
+      else  if(iterations.gt.50) then
          ncysh=iterations
       endif
       if (.not. rtdb_put(rtdb, 'dft:ncysh',
@@ -460,7 +460,7 @@ c
 c
 c     case with multiple tasks and we changed iterations ... (increased)
 c
-      else  if(iterations.gt.30) then
+      else  if(iterations.gt.50) then
          ncyds=iterations
       endif
       if (.not. rtdb_put(rtdb, 'dft:ncyds',

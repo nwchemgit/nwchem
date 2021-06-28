@@ -69,7 +69,7 @@ c
      + call errquit('qmmm: Failed to get coord ',0, GEOM_ERR)
 
       if(.not.rtdb_get(irtdb,'lbfgs:maxiter',mt_int,1,maxiter))
-     +  maxiter = 20   
+     +  maxiter = 40
 
 c
       stp1 = 0.0d0
