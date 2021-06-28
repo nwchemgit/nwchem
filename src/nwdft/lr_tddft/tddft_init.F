@@ -116,6 +116,7 @@ c
       external ga_create_atom_blocked
       logical xc_got2nd, xc_gotxc
       external xc_got2nd, xc_gotxc
+      logical, external :: is_libxcon
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -402,6 +403,7 @@ c --------------------------
       do n=1,numfunc
         a=a+dabs(cfac(n))
       enddo
+      if (is_libxcon()) a = a + 1d0
       if ((a.gt.1.0d-8).and.(dabs(xfac(1)).le.1.0d-8)) then
 c Pure DFT
         ldft=.true.
