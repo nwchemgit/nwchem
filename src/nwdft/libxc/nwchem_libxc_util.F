@@ -25,9 +25,7 @@
       character*(*) family
       integer ifunc
 
-#ifdef USE_LIBXC
 #include "libxc.fh"
-#endif
 
       nwchem_libxc_family = .false.
 
@@ -109,8 +107,8 @@
       end subroutine
 
       subroutine nwchem_libxc_print_header
-#ifdef USE_LIBXC
       use,intrinsic :: iso_c_binding
+#ifdef USE_LIBXC
       use xc_f03_lib_m, only: xc_f03_version_string,
      $                        xc_f03_reference,
      $                        xc_f03_functional_get_name
