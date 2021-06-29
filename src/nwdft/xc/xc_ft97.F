@@ -261,6 +261,10 @@ C     BETA   : Beta(sigma), eq.(16a) for variant B.
         BETA = BETA0+AX*AMA/(BX*BX+AMA)
       ENDIF
 C     XALPHA : Reduced density gradient xi(sigma), below eq.(11).
+      IF(RHOA.LT.tol_rho) THEN
+         FT97 = 0d0
+         corrai=0d0
+      else
       XALPHA = (AMA/(RHOA*RHOA13)**2)
 C     DENOMA : Denominator in f(xi), eqs. (15) and (16).
       SINHIA = LOG(XALPHA+SQRT(XALPHA*XALPHA+1.0D0))
@@ -269,6 +273,7 @@ C     CORRAI : Nonlocal correction to exchange energy density ex.
 C     CORRAI : See eqs.(9),(11),(15) and (16).
 C     CORRAI : Part of integrand in eq.(11) beyond ex(LDA).
       CORRAI =-RHOA*RHOA13*BETA*XALPHA/DENOMA
+      endif
       IF(UHF) THEN
          IF(RHOB.LT.tol_rho) THEN
             FT97   = CORRAI

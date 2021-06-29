@@ -4,6 +4,9 @@ arch=`uname -m`
 if test -f "/usr/lib/os-release"; then
     dist=$(grep ID= /etc/os-release |head -1 |cut -c4-| sed 's/\"//g')
 fi
+if [ -z "$CC" ] ; then
+    CC=cc
+fi
 if [ -z "$DISTR" ] ; then
     DISTR=$dist
 fi

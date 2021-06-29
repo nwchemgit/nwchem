@@ -17,19 +17,18 @@ get_cmake38(){
 	fi
 
 }
-MPICC=mpicc
 if [[ "$FC" = "ftn"  ]] ; then
     MPIF90="ftn"
     # ugly hack to get mpicc on cray
-    if [[  -z "${INTEL_PATH}" ]]; then
-	echo
-	echo Intel compilers not loaded
-	echo please execute "module load intel" for building Scalapack
-	echo
-	exit 1
-    else
-	MPICC=$INTEL_PATH/linux/mpi/intel64/bin/mpicc
-    fi
+#    if [[  -z "${INTEL_PATH}" ]]; then
+#	echo
+#	echo Intel compilers not loaded
+#	echo please execute "module load intel" for building Scalapack
+#	echo
+#	exit 1
+ #   else
+#	MPICC=$INTEL_PATH/linux/mpi/intel64/bin/mpicc
+ #   fi
 else
     if ! [ -x "$(command -v mpif90)" ]; then
 	echo
@@ -39,6 +38,7 @@ else
 	exit 1
     else
 	MPIF90="mpif90"
+        MPICC=mpicc
     fi
 fi
 if [[  -z "${FC}" ]]; then
@@ -132,6 +132,7 @@ fi
 if [[  -z "$USE_DCOMBSSQ" ]]; then
     patch -p0 -s -N < ../dcombssq.patch
 fi
+patch -p0 -s -N < ../cmake.patch
 #curl -LJO https://github.com/Reference-ScaLAPACK/scalapack/commit/189c84001bcd564296a475c5c757afc9f337e828.patch
 #patch -p1 < 189c84001bcd564296a475c5c757afc9f337e828.patch
 mkdir -p build
