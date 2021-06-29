@@ -1192,7 +1192,7 @@ c
      &           rho, delrho, Amat, Cmat, nq, ipol, 
      &           Ex, qwght,ldew,func)
          else
-            call xc_xpw86(tol_rho, xfac(56), lxfac(56), nlxfac(56), 
+            call xc_xpw86_d2(tol_rho, xfac(56), lxfac(56), nlxfac(56), 
      &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
      &           Ex, qwght,ldew,func)
          endif

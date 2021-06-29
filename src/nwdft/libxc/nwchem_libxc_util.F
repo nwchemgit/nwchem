@@ -147,8 +147,9 @@
       integer rtdb
       character(len=*) modname
       integer :: itemp(maxfunc)
+      integer,parameter :: one = 1
 
-      if (.not.rtdb_put(rtdb,modname//':libxc_nfuncs',mt_int,1,
+      if (.not.rtdb_put(rtdb,modname//':libxc_nfuncs',mt_int,one,
      $    libxc_nfuncs))
      $  call errquit(' libxc_rtdbput: rtdb_put failed',1,RTDB_ERR)
 
