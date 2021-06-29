@@ -116,6 +116,7 @@ c
       external ga_create_atom_blocked
       logical xc_got2nd, xc_gotxc
       external xc_got2nd, xc_gotxc
+      logical, external :: is_libxcon
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -402,6 +403,7 @@ c --------------------------
       do n=1,numfunc
         a=a+dabs(cfac(n))
       enddo
+      if (is_libxcon()) a = a + 1d0
       if ((a.gt.1.0d-8).and.(dabs(xfac(1)).le.1.0d-8)) then
 c Pure DFT
         ldft=.true.
@@ -613,6 +615,7 @@ c
         write(LuOut,*)
         call util_print_centered
      1    (LuOut,'XC Information',20,.true.)
+        if (is_libxcon()) call nwchem_libxc_print_header()
         do n=1,numfunc
           if (xccomb(n)) write(LuOut,9300) xcname(n)
         enddo
@@ -636,6 +639,7 @@ c
             write(LuOut,9310) cname(n),cfac(n),'non-local'
           endif
         enddo
+        if (is_libxcon()) call nwchem_libxc_print()
 c
         if (cam_exch)
      &        write(LuOut,9500)cam_alpha,cam_beta,cam_omega

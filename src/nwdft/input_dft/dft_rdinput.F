@@ -1269,6 +1269,11 @@ c
      $     call errquit('dft_scf: put of bgj:scf_type failed',0,
      &       RTDB_ERR)
 c
+c
+      if (.not.rtdb_get(rtdb, 'dft:libxcon', mt_log,1,libxcon))
+     $  libxcon = .false.
+      if (libxcon) call nwchem_libxc_rdinput(rtdb,'dft') 
+c
       if (.not. MA_Pop_Stack(lznuc))
      &   call errquit('dft_rdinput: pop stack failed.',0, MA_ERR)
       if (.not. MA_Pop_Stack(ltags))

@@ -227,6 +227,8 @@ c gradients.  ldew2 is for the dVxc*P term in the TDDFT gradients.
         endif
         return
       endif
+
+
 c      if (ldew.or.ldew3) call dfill(nq, 0.d0, func, 1)
 c      if (ldew) call dfill(nq, 0.d0, func, 1)
 c
@@ -1756,6 +1758,12 @@ c
             call xc_cr2scanl_d2()
          endif
       endif
+c
+c     libxc potential and energy
+c
+      call nwchem_libxc_compute(nq,Ex,Ec,qwght,rho,delrho,ttau,
+     $     laprho,Amat,Amat2,Amat3,Cmat,Cmat2,Cmat3,Mmat,Lmat,func,
+     $     grad,kske,kslap,ldew,do_2nd,do_3rd)
 c
 c     Calculate the steric energy
 c
