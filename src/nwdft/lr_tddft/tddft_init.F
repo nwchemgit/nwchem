@@ -615,6 +615,7 @@ c
         write(LuOut,*)
         call util_print_centered
      1    (LuOut,'XC Information',20,.true.)
+        if (is_libxcon()) call nwchem_libxc_print_header()
         do n=1,numfunc
           if (xccomb(n)) write(LuOut,9300) xcname(n)
         enddo
@@ -638,6 +639,7 @@ c
             write(LuOut,9310) cname(n),cfac(n),'non-local'
           endif
         enddo
+        if (is_libxcon()) call nwchem_libxc_print()
 c
         if (cam_exch)
      &        write(LuOut,9500)cam_alpha,cam_beta,cam_omega

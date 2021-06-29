@@ -168,6 +168,8 @@
 
         call xc_f03_func_init(xcfunc,libxc_funcs(ifunc),polarized)
         call xc_f03_func_set_dens_threshold(xcfunc, tol_rho)
+        call xc_f03_func_set_sigma_threshold(xcfunc, tol_rho**2)
+        call xc_f03_func_set_zeta_threshold(xcfunc, 1d-10)
 
         select case(libxc_family(ifunc))
         case (XC_FAMILY_LDA, XC_FAMILY_HYB_LDA)

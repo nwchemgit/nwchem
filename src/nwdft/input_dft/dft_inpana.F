@@ -60,8 +60,6 @@ c
       logical use_nwxc 
       logical dftmp2,out1
       double precision mp2fac
-
-      logical,external :: is_libxcon
 c     
       me=ga_nodeid()
 c     
@@ -541,7 +539,7 @@ cFA
             write(LuOut,*)
             call util_print_centered
      &         (LuOut,'XC Information',20,.true.)
-            if (is_libxcon()) call nwchem_libxc_print_header()
+            if (libxcon) call nwchem_libxc_print_header()
 c     
 c           Write out XC info. Combo info first, than X components,
 c           than C components.
@@ -577,7 +575,7 @@ c
                endif
             enddo
 
-            if (is_libxcon()) call nwchem_libxc_print()
+            if (libxcon) call nwchem_libxc_print()
 c     
 c           Check XC coefficients to make sure appropriate components
 c           sum to 1.0
