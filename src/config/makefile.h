@@ -3125,6 +3125,7 @@ $(info please use -lessl6464 or -lessl)
 $(error )
   endif
 #      DEFINES += -DBLAS_OPENMP
+      DEFINES += -DBLAS_NOTHREADS
 # essl does not has the full lapack library
       EXTRA_LIBS += -lnwclapack
       CORE_SUBDIRS_EXTRA = lapack
