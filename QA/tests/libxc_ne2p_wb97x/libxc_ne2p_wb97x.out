@@ -1,41 +1,41 @@
- argument  1 = /Users/edo/nwchem/nwchem-cache1/QA/tests/libxc_he2p_wb97/libxc_he2p_wb97.nw
+ argument  1 = /Users/edo/nwchem/nwchem-cache1/QA/tests/libxc_ne2p_wb97x/libxc_ne2p_wb97x.nw
  
 
 
 ============================== echo of input deck ==============================
 echo
-start libxc_he2p_wb97
+start ne2p
 
 charge +1
 #table XI of doi:10.1063/1.2834918
 #De=E(X)+E(X+)−E(X2+,Re)
-#atz: 627.51*(5.012260043693-1.995410381896-2.902074714017)=72.022
+#627.51*(257.202689445028-128.163843993850-128.952762940824)=54.0
 
 
-geometry he
-he 0.   0.  0.
+geometry ne
+ne 0.   0.  0.
 end
-geometry he2
-he 0.   0.6 0.
-he 0.  -0.6 0.
+geometry ne2
+ne 0.   0.9 0.
+ne 0.  -0.9 0.
 end
 
 basis "ao basis" spherical
-* library aug-cc-pvtz
-#in the paper * library aug-cc-pvqz
+* library aug-cc-pvqz
 end
 
-set geometry he2
+set geometry ne2
 dft
 mult 2
-xc  hyb_gga_xc_wb97
-grid fine
+#xc wb97x
+xc hyb_gga_xc_wb97x
+grid xfine
 convergence energy 1d-9
 noprint "final vectors analysis" multipole
 end
 task dft optimize
 
-set geometry he
+set geometry ne
 dft
 mult 2
 end
@@ -88,7 +88,7 @@ task dft
 
     hostname        = WE40672
     program         = /Users/edo/nwchem/nwchem-cache1/bin/MACX64/nwchem
-    date            = Thu Jul  1 11:26:44 2021
+    date            = Thu Jul  1 11:30:14 2021
 
     compiled        = Wed_Jun_30_22:43:23_2021
     source          = /Users/edo/nwchem/nwchem-cache1
@@ -96,9 +96,9 @@ task dft
     nwchem revision = 81fb0583ab
     ga revision     = 5.8.0
     use scalapack   = T
-    input           = /Users/edo/nwchem/nwchem-cache1/QA/tests/libxc_he2p_wb97/libxc_he2p_wb97.nw
-    prefix          = libxc_he2p_wb97.
-    data base       = ./libxc_he2p_wb97.db
+    input           = /Users/edo/nwchem/nwchem-cache1/QA/tests/libxc_ne2p_wb97x/libxc_ne2p_wb97x.nw
+    prefix          = ne2p.
+    data base       = ./ne2p.db
     status          = startup
     nproc           =        1
     time left       =     -1s
@@ -130,24 +130,24 @@ task dft
  
  
 
- Scaling coordinates for geometry "he" by  1.889725989
+ Scaling coordinates for geometry "ne" by  1.889725989
  (inverse scale =  0.529177249)
 
  
  
-                                Geometry "he" -> ""
+                                Geometry "ne" -> ""
                                 -------------------
  
  Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
  
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 he                   2.0000     0.00000000     0.00000000     0.00000000
+    1 ne                  10.0000     0.00000000     0.00000000     0.00000000
  
       Atomic Mass 
       ----------- 
  
-      he                 4.002600
+      ne                19.992440
  
 
  Effective nuclear repulsion energy (a.u.)       0.0000000000
@@ -162,11 +162,11 @@ task dft
             XYZ format geometry
             -------------------
      1
- he
- he                    0.00000000     0.00000000     0.00000000
+ ne
+ ne                    0.00000000     0.00000000     0.00000000
  
 
- Scaling coordinates for geometry "he2" by  1.889725989
+ Scaling coordinates for geometry "ne2" by  1.889725989
  (inverse scale =  0.529177249)
 
  ORDER OF PRIMARY AXIS IS BEING SET TO 4
@@ -183,23 +183,23 @@ task dft
   no constraints, skipping   0.000000000000000E+000
  
  
-                              Geometry "he2" -> "  "
+                              Geometry "ne2" -> "  "
                               ----------------------
  
  Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
  
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 he                   2.0000     0.00000000     0.00000000     0.60000000
-    2 he                   2.0000     0.00000000     0.00000000    -0.60000000
+    1 ne                  10.0000     0.00000000     0.00000000     0.90000000
+    2 ne                  10.0000     0.00000000     0.00000000    -0.90000000
  
       Atomic Mass 
       ----------- 
  
-      he                 4.002600
+      ne                19.992440
  
 
- Effective nuclear repulsion energy (a.u.)       1.7639241633
+ Effective nuclear repulsion energy (a.u.)      29.3987360555
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
@@ -228,15 +228,15 @@ task dft
  
       Type          Name      I     J     K     L     M      Value
       ----------- --------  ----- ----- ----- ----- ----- ----------
-    1 Stretch                  1     2                       1.20000
+    1 Stretch                  1     2                       1.80000
  
  
             XYZ format geometry
             -------------------
      2
- he2
- he                    0.00000000     0.00000000     0.60000000
- he                    0.00000000     0.00000000    -0.60000000
+ ne2
+ ne                    0.00000000     0.00000000     0.90000000
+ ne                    0.00000000     0.00000000    -0.90000000
  
 
 
@@ -244,7 +244,7 @@ task dft
  ------------------------------------------------------------------------------
        Tag                 Description            Shells   Functions and Types
  ---------------- ------------------------------  ------  ---------------------
- *                        aug-cc-pvtz                 on all atoms 
+ *                        aug-cc-pvqz                 on all atoms 
 
 
  
@@ -292,23 +292,23 @@ task dft
           --------
  
  
-                           Geometry "geometry" -> "he2"
+                           Geometry "geometry" -> "ne2"
                            ----------------------------
  
  Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
  
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 he                   2.0000     0.00000000     0.00000000     0.60000000
-    2 he                   2.0000     0.00000000     0.00000000    -0.60000000
+    1 ne                  10.0000     0.00000000     0.00000000     0.90000000
+    2 ne                  10.0000     0.00000000     0.00000000    -0.90000000
  
       Atomic Mass 
       ----------- 
  
-      he                 4.002600
+      ne                19.992440
  
 
- Effective nuclear repulsion energy (a.u.)       1.7639241633
+ Effective nuclear repulsion energy (a.u.)      29.3987360555
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
@@ -335,30 +335,67 @@ task dft
  
                       Basis "ao basis" -> "ao basis" (spherical)
                       -----
-  he (Helium)
-  -----------
+  ne (Neon)
+  ---------
             Exponent  Coefficients 
        -------------- ---------------------------------------------------------
-  1 S  2.34000000E+02  0.002587
-  1 S  3.51600000E+01  0.019533
-  1 S  7.98900000E+00  0.090998
-  1 S  2.21200000E+00  0.272050
+  1 S  9.99200000E+04  0.000086
+  1 S  1.49600000E+04  0.000669
+  1 S  3.39900000E+03  0.003518
+  1 S  9.58900000E+02  0.014667
+  1 S  3.11200000E+02  0.050962
+  1 S  1.11700000E+02  0.143744
+  1 S  4.33200000E+01  0.304562
+  1 S  1.78000000E+01  0.400105
+  1 S  7.50300000E+00  0.218644
  
-  2 S  6.66900000E-01  1.000000
+  2 S  9.99200000E+04 -0.000020
+  2 S  1.49600000E+04 -0.000158
+  2 S  3.39900000E+03 -0.000824
+  2 S  9.58900000E+02 -0.003500
+  2 S  3.11200000E+02 -0.012233
+  2 S  1.11700000E+02 -0.037017
+  2 S  4.33200000E+01 -0.086113
+  2 S  1.78000000E+01 -0.158381
+  2 S  7.50300000E+00 -0.114288
  
-  3 S  2.08900000E-01  1.000000
+  3 S  2.33700000E+00  1.000000
  
-  4 S  5.13800000E-02  1.000000
+  4 S  9.00100000E-01  1.000000
  
-  5 P  3.04400000E+00  1.000000
+  5 S  3.30100000E-01  1.000000
  
-  6 P  7.58000000E-01  1.000000
+  6 S  1.05400000E-01  1.000000
  
-  7 P  1.99300000E-01  1.000000
+  7 P  9.96800000E+01  0.006566
+  7 P  2.31500000E+01  0.045979
+  7 P  7.10800000E+00  0.173419
  
-  8 D  1.96500000E+00  1.000000
+  8 P  2.44100000E+00  1.000000
  
-  9 D  4.59200000E-01  1.000000
+  9 P  8.33900000E-01  1.000000
+ 
+ 10 P  2.66200000E-01  1.000000
+ 
+ 11 P  8.17800000E-02  1.000000
+ 
+ 12 D  6.47100000E+00  1.000000
+ 
+ 13 D  2.21300000E+00  1.000000
+ 
+ 14 D  7.47000000E-01  1.000000
+ 
+ 15 D  2.73000000E-01  1.000000
+ 
+ 16 F  4.65700000E+00  1.000000
+ 
+ 17 F  1.52400000E+00  1.000000
+ 
+ 18 F  6.89000000E-01  1.000000
+ 
+ 19 G  2.98300000E+00  1.000000
+ 
+ 20 G  1.22400000E+00  1.000000
  
 
 
@@ -366,7 +403,7 @@ task dft
  ------------------------------------------------------------------------------
        Tag                 Description            Shells   Functions and Types
  ---------------- ------------------------------  ------  ---------------------
- he                       aug-cc-pvtz                9       23   4s3p2d
+ ne                       aug-cc-pvqz               20       80   6s5p4d3f2g
 
 
 
@@ -375,22 +412,22 @@ task dft
  ------------------------------------------------------------------------------
        Tag                 Description            Shells   Functions and Types
  ---------------- ------------------------------  ------  ---------------------
- he                       aug-cc-pvtz                9       23   4s3p2d
+ ne                       aug-cc-pvqz               20       80   6s5p4d3f2g
 
 
       Symmetry analysis of basis
       --------------------------
  
-        a1g         9
-        a1u         0
-        a2g         0
-        a2u         9
-        b1g         2
-        b1u         2
-        b2g         2
-        b2u         2
-        eg         10
-        eu         10
+        a1g        22
+        a1u         2
+        a2g         2
+        a2u        22
+        b1g         9
+        b1u         9
+        b2g         9
+        b2u         9
+        eg         38
+        eu         38
  
   int_init: cando_txs set to always be  F
   Caching 1-el integrals 
@@ -404,16 +441,16 @@ task dft
           SCF calculation type: DFT
           Wavefunction type:  spin polarized.
           No. of atoms     :     2
-          No. of electrons :     3
-           Alpha electrons :     2
-            Beta electrons :     1
+          No. of electrons :    19
+           Alpha electrons :    10
+            Beta electrons :     9
           Charge           :     1
           Spin multiplicity:     2
           Use of symmetry is: on ; symmetry adaption is: on 
           Maximum number of iterations:  50
           This is a Direct SCF calculation.
-          AO basis - number of functions:    46
-                     number of shells:    18
+          AO basis - number of functions:   160
+                     number of shells:    40
           Convergence on energy requested:  1.00D-09
           Convergence on density requested:  1.00D-05
           Convergence on gradient requested:  5.00D-04
@@ -422,25 +459,25 @@ task dft
               --------------
           Using LibXC version      5.1.5
                      Hartree-Fock (Exact) Exchange  1.000          
-                                   hyb_gga_xc_wb97  1.000
+                                  hyb_gga_xc_wb97x  1.000
  
            Range-Separation Parameters        
            ---------------------------
-           Alpha           :  0.00
-           Beta            :  1.00
-           Gamma           :  0.40
+           Alpha           :  0.16
+           Beta            :  0.84
+           Gamma           :  0.30
            Short-Range HF  :     F
  
              Grid Information
              ----------------
-          Grid used for XC integration:  fine      
+          Grid used for XC integration:  xfine     
           Radial quadrature: Mura-Knowles        
           Angular quadrature: Lebedev. 
           Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
           ---              ---------- --------- --------- ---------
-          he                  0.35       70           9.0       590
+          ne                  0.50      100           9.0      1454
           Grid pruning is: on 
-          Number of quadrature shells:    70
+          Number of quadrature shells:   100
           Spatial weights used:  Erf1
  
           Convergence Information
@@ -470,29 +507,29 @@ task dft
       Superposition of Atomic Density Guess
       -------------------------------------
  
- Sum of atomic energies:          -5.72236685
+ Sum of atomic energies:        -257.08751146
 
- Renormalizing density from       4.00 to      3
+ Renormalizing density from      20.00 to     19
  
       Non-variational initial energy
       ------------------------------
 
- Total energy =      -4.620648
- 1-e energy   =      -8.464043
- 2-e energy   =       2.079471
- HOMO         =      -1.180156
- LUMO         =      -0.133902
+ Total energy =    -249.349641
+ 1-e energy   =    -402.738947
+ 2-e energy   =     123.990570
+ HOMO         =      -1.371529
+ LUMO         =      -0.085748
  
  
    Symmetry analysis of molecular orbitals - initial alpha
    -------------------------------------------------------
  
 
- !! scf_movecs_sym_adapt:    8 vectors were symmetry contaminated
+ !! scf_movecs_sym_adapt:   42 vectors were symmetry contaminated
 
   Symmetry fudging
 
- !! scf_movecs_sym_adapt:    8 vectors were symmetry contaminated
+ !! scf_movecs_sym_adapt:   34 vectors were symmetry contaminated
 
   Numbering of irreducible representations: 
  
@@ -501,20 +538,21 @@ task dft
  
   Orbital symmetries:
  
-     1 a1g         2 a2u         3 a1g         4 a2u         5 eu      
-     6 eu          7 a1g         8 eg          9 eg         10 a2u     
-    11 a1g        12 a2u     
+     1 a1g         2 a2u         3 a1g         4 a2u         5 a1g     
+     6 eu          7 eu          8 eg          9 eg         10 a2u     
+    11 a1g        12 a2u        13 eu         14 eu         15 a1g     
+    16 eg         17 eg         18 a2u        19 b1g        20 b2g     
  
  
    Symmetry analysis of molecular orbitals - initial beta
    ------------------------------------------------------
  
 
- !! scf_movecs_sym_adapt:    8 vectors were symmetry contaminated
+ !! scf_movecs_sym_adapt:   42 vectors were symmetry contaminated
 
   Symmetry fudging
 
- !! scf_movecs_sym_adapt:    8 vectors were symmetry contaminated
+ !! scf_movecs_sym_adapt:   34 vectors were symmetry contaminated
 
   Numbering of irreducible representations: 
  
@@ -523,47 +561,56 @@ task dft
  
   Orbital symmetries:
  
-     1 a1g         2 a2u         3 a1g         4 a2u         5 eu      
-     6 eu          7 a1g         8 eg          9 eg         10 a2u     
-    11 a1g        12 a2u     
+     1 a1g         2 a2u         3 a1g         4 a2u         5 a1g     
+     6 eu          7 eu          8 eg          9 eg         10 a2u     
+    11 a1g        12 a2u        13 eu         14 eu         15 a1g     
+    16 eg         17 eg         18 a2u        19 b1g        20 b2g     
  
-   Time after variat. SCF:      0.2
-   Time prior to 1st pass:      0.2
+   Time after variat. SCF:      1.6
+   Time prior to 1st pass:      1.6
 
- Grid_pts file          = ./libxc_he2p_wb97.gridpts.0
+ Grid_pts file          = ./ne2p.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     16        Max. recs in file   =   1003483
+ Max. records in memory =     54        Max. recs in file   =   1034458
 
+ Grid integrated density:      18.999999789916
+ Requested integration accuracy:   0.10E-07
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.91            12909836
-          Stack Space remaining (MW):       13.11            13106708
+           Heap Space remaining (MW):       12.44            12441812
+          Stack Space remaining (MW):       13.11            13105828
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -5.0027212051 -6.77D+00  2.17D-03  5.00D-02     0.3
-                                                     3.64D-04  2.88D-03
- d= 0,ls=0.0,diis     2     -5.0112205271 -8.50D-03  2.86D-04  3.20D-04     0.5
-                                                     1.38D-04  5.19D-04
- d= 0,ls=0.0,diis     3     -5.0114132426 -1.93D-04  6.88D-05  1.43D-05     0.6
-                                                     4.44D-05  2.01D-05
- d= 0,ls=0.0,diis     4     -5.0114230682 -9.83D-06  2.29D-06  2.05D-08     0.8
-                                                     4.28D-06  7.40D-08
- d= 0,ls=0.0,diis     5     -5.0114231031 -3.49D-08  2.33D-07  8.90D-11     0.9
-                                                     1.51D-07  2.22D-10
- d= 0,ls=0.0,diis     6     -5.0114231033 -1.26D-10  1.82D-08  2.12D-12     1.1
-                                                     1.19D-08  1.74D-12
+ d= 0,ls=0.0,diis     1   -257.1651869956 -2.87D+02  7.84D-04  2.59D-01    22.0
+                                                     9.34D-04  2.69D-01
+ Grid integrated density:      18.999999776549
+ Requested integration accuracy:   0.10E-07
+ d= 0,ls=0.0,diis     2   -257.1884547155 -2.33D-02  3.43D-04  9.61D-02    45.6
+                                                     2.92D-04  7.43D-02
+ d= 0,ls=0.0,diis     3   -257.2024650114 -1.40D-02  2.35D-05  5.48D-04    79.6
+                                                     5.00D-05  1.16D-03
+ d= 0,ls=0.0,diis     4   -257.2026550591 -1.90D-04  8.20D-06  1.41D-05   113.3
+                                                     6.54D-06  4.36D-06
+ d= 0,ls=0.0,diis     5   -257.2026591053 -4.05D-06  6.69D-07  1.05D-07   145.7
+                                                     8.98D-07  2.87D-07
+ d= 0,ls=0.0,diis     6   -257.2026591722 -6.69D-08  1.75D-07  9.41D-09   178.4
+                                                     2.02D-07  1.18D-08
+ d= 0,ls=0.0,diis     7   -257.2026591756 -3.38D-09  2.71D-08  1.52D-10   211.7
+                                                     2.77D-08  7.61D-11
+ d= 0,ls=0.0,diis     8   -257.2026591756 -6.34D-11  3.82D-09  2.05D-12   245.2
+                                                     3.76D-09  9.97D-13
 
 
-         Total DFT energy =       -5.011423103263
-      One electron energy =       -8.676722920623
-           Coulomb energy =        3.542841211177
-    Exchange-Corr. energy =       -1.641465557150
- Nuclear repulsion energy =        1.763924163332
+         Total DFT energy =     -257.202659175642
+      One electron energy =     -413.719173859126
+           Coulomb energy =      151.565832474049
+    Exchange-Corr. energy =      -24.448053846104
+ Nuclear repulsion energy =       29.398736055539
 
- Numeric. integr. density =        3.000000028203
+ Numeric. integr. density =       18.999999999242
 
-     Total iterative time =      1.0s
+     Total iterative time =    243.5s
 
 
  
@@ -572,16 +619,16 @@ task dft
  
                      irrep           alpha         beta
                      --------     --------     --------
-                     a1g               1.0          1.0
+                     a1g               3.0          3.0
                      a1u               0.0          0.0
                      a2g               0.0          0.0
-                     a2u               1.0          0.0
+                     a2u               3.0          2.0
                      b1g               0.0          0.0
                      b1u               0.0          0.0
                      b2g               0.0          0.0
                      b2u               0.0          0.0
-                     eg                0.0          0.0
-                     eu                0.0          0.0
+                     eg                2.0          2.0
+                     eu                2.0          2.0
  
 
    alpha - beta orbital overlaps 
@@ -589,33 +636,89 @@ task dft
 
 
    alpha      1      2      3      4      5      6      7      8      9     10
-    beta      1      2      3      4      6      5      7      8      9     10
- overlap   0.999  0.998  0.999  0.998  0.736  0.736  0.999  0.808  0.808  0.998
+    beta      2      1      3      4      9      6      5     10      8      7
+ overlap   1.000  1.000  1.000  1.000  0.999  0.989  0.989  0.999  0.825  0.825
 
 
    alpha     11     12     13     14     15     16     17     18     19     20
-    beta     11     12     13     14     16     15     17     18     19     22
- overlap   0.999  0.999  1.000  1.000  0.778  0.778  0.999  1.000  1.000  0.892
+    beta     11     12     13     14     15     16     17     18     19     20
+ overlap   1.000  1.000  0.866  0.866  1.000  0.762  0.762  1.000  1.000  1.000
 
 
    alpha     21     22     23     24     25     26     27     28     29     30
-    beta     21     20     23     24     25     26     27     28     29     30
- overlap   0.892  1.000  0.767  0.767  1.000  0.893  0.893  1.000  1.000  1.000
+    beta     21     22     25     23     24     28     26     27     30     29
+ overlap   0.998  0.998  0.999  1.000  1.000  0.981  0.724  0.724  0.986  0.986
 
 
    alpha     31     32     33     34     35     36     37     38     39     40
-    beta     31     33     32     35     34     36     37     38     39     41
- overlap   1.000  0.914  0.914  1.000  1.000  1.000  1.000  0.995  0.995  0.840
+    beta     31     33     32     34     35     36     37     39     38     40
+ overlap   0.981  0.992  0.992  1.000  1.000  1.000  1.000  0.997  0.997  0.998
 
 
-   alpha     41     42     43     44     45     46
-    beta     40     42     44     43     45     46
- overlap   0.840  1.000  0.935  0.935  1.000  1.000
+   alpha     41     42     43     44     45     46     47     48     49     50
+    beta     41     43     42     44     45     49     48     46     47     50
+ overlap   0.998  0.998  0.998  1.000  1.000  1.000  1.000  0.956  0.956  1.000
+
+
+   alpha     51     52     53     54     55     56     57     58     59     60
+    beta     51     52     53     54     56     55     57     59     58     60
+ overlap   0.738  0.738  0.991  0.991  1.000  1.000  1.000  0.997  0.997  0.999
+
+
+   alpha     61     62     63     64     65     66     67     68     69     70
+    beta     61     62     63     64     65     66     68     67     69     71
+ overlap   0.989  0.989  0.993  0.993  0.999  1.000  0.774  0.774  1.000  1.000
+
+
+   alpha     71     72     73     74     75     76     77     78     79     80
+    beta     70     72     73     74     75     76     77     79     78     80
+ overlap   1.000  1.000  1.000  1.000  1.000  1.000  1.000  0.998  0.998  1.000
+
+
+   alpha     81     82     83     84     85     86     87     88     89     90
+    beta     81     82     83     84     85     86     87     88     91     90
+ overlap   1.000  1.000  1.000  0.932  0.932  1.000  0.987  0.987  1.000  1.000
+
+
+   alpha     91     92     93     94     95     96     97     98     99    100
+    beta     89     93     92     95     94     99     98     97     96    100
+ overlap   1.000  1.000  1.000  1.000  1.000  0.998  0.998  0.992  0.992  0.996
+
+
+   alpha    101    102    103    104    105    106    107    108    109    110
+    beta    101    102    103    104    106    105    107    108    109    110
+ overlap   0.996  1.000  1.000  1.000  1.000  1.000  1.000  0.998  0.998  1.000
+
+
+   alpha    111    112    113    114    115    116    117    118    119    120
+    beta    112    111    113    114    115    116    117    118    120    119
+ overlap   0.999  0.999  1.000  1.000  1.000  1.000  1.000  1.000  0.916  0.916
+
+
+   alpha    121    122    123    124    125    126    127    128    129    130
+    beta    121    122    124    123    126    125    127    128    129    130
+ overlap   0.995  0.995  1.000  1.000  1.000  1.000  0.967  0.967  1.000  1.000
+
+
+   alpha    131    132    133    134    135    136    137    138    139    140
+    beta    131    132    134    133    135    136    138    137    139    140
+ overlap   1.000  1.000  0.881  0.881  1.000  1.000  0.942  0.942  0.995  0.995
+
+
+   alpha    141    142    143    144    145    146    147    148    149    150
+    beta    142    141    143    144    145    146    147    150    151    154
+ overlap   0.997  0.997  1.000  1.000  1.000  0.830  0.830  0.999  0.999  0.992
+
+
+   alpha    151    152    153    154    155    156    157    158    159    160
+    beta    148    149    152    153    155    157    156    158    159    160
+ overlap   1.000  1.000  1.000  1.000  0.992  0.992  0.992  1.000  1.000  1.000
+
 
      --------------------------
      Expectation value of S2:  
      --------------------------
-      <S2> =      0.7526 (Exact =     0.7500)
+      <S2> =      0.7530 (Exact =     0.7500)
  
 
  center of mass
@@ -624,8 +727,8 @@ task dft
 
  moments of inertia (a.u.)
  ------------------
-          10.291350250706           0.000000000000           0.000000000000
-           0.000000000000          10.291350250706           0.000000000000
+         115.658748167194           0.000000000000           0.000000000000
+           0.000000000000         115.658748167194           0.000000000000
            0.000000000000           0.000000000000           0.000000000000
  
             General Information
@@ -633,16 +736,16 @@ task dft
           SCF calculation type: DFT
           Wavefunction type:  spin polarized.
           No. of atoms     :     2
-          No. of electrons :     3
-           Alpha electrons :     2
-            Beta electrons :     1
+          No. of electrons :    19
+           Alpha electrons :    10
+            Beta electrons :     9
           Charge           :     1
           Spin multiplicity:     2
           Use of symmetry is: on ; symmetry adaption is: on 
           Maximum number of iterations:  50
           This is a Direct SCF calculation.
-          AO basis - number of functions:    46
-                     number of shells:    18
+          AO basis - number of functions:   160
+                     number of shells:    40
           Convergence on energy requested:  1.00D-09
           Convergence on density requested:  1.00D-05
           Convergence on gradient requested:  5.00D-04
@@ -651,25 +754,25 @@ task dft
               --------------
           Using LibXC version      5.1.5
                      Hartree-Fock (Exact) Exchange  1.000          
-                                   hyb_gga_xc_wb97  1.000
+                                  hyb_gga_xc_wb97x  1.000
  
            Range-Separation Parameters        
            ---------------------------
-           Alpha           :  0.00
-           Beta            :  1.00
-           Gamma           :  0.40
+           Alpha           :  0.16
+           Beta            :  0.84
+           Gamma           :  0.30
            Short-Range HF  :     F
  
              Grid Information
              ----------------
-          Grid used for XC integration:  fine      
+          Grid used for XC integration:  xfine     
           Radial quadrature: Mura-Knowles        
           Angular quadrature: Lebedev. 
           Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
           ---              ---------- --------- --------- ---------
-          he                  0.35       70           9.0       590
+          ne                  0.50      100           9.0      1454
           Grid pruning is: on 
-          Number of quadrature shells:    70
+          Number of quadrature shells:   100
           Spatial weights used:  Erf1
  
           Convergence Information
@@ -716,21 +819,21 @@ task dft
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 he      0.000000   0.000000   1.133836    0.000000   0.000000   0.014180
-   2 he      0.000000   0.000000  -1.133836    0.000000  -0.000000  -0.014180
+   1 ne      0.000000   0.000000   1.700753    0.000000   0.000000   0.002665
+   2 ne      0.000000   0.000000  -1.700753   -0.000000   0.000000  -0.002665
  
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       0.66   |
+                 |  CPU   |       0.02   |      84.01   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       0.66   |
+                 |  WALL  |       0.02   |      84.01   |
                  ----------------------------------------
   no constraints, skipping   0.000000000000000E+000
 
 @ Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
 @ ---- ---------------- -------- -------- -------- -------- -------- --------
-@    0      -5.01142310  0.0D+00  0.01418  0.01418  0.00000  0.00000      1.8
+@    0    -257.20265918  0.0D+00  0.00267  0.00267  0.00000  0.00000    330.0
                                                                     
 
 
@@ -742,7 +845,7 @@ task dft
  
       Type          Name      I     J     K     L     M      Value     Gradient
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
-    1 Stretch                  1     2                       1.20000    0.01418
+    1 Stretch                  1     2                       1.80000    0.00267
  
   no constraints, skipping   0.000000000000000E+000
   no constraints, skipping   0.000000000000000E+000
@@ -758,22 +861,22 @@ task dft
  ------------------------------------------------------------------------------
        Tag                 Description            Shells   Functions and Types
  ---------------- ------------------------------  ------  ---------------------
- he                       aug-cc-pvtz                9       23   4s3p2d
+ ne                       aug-cc-pvqz               20       80   6s5p4d3f2g
 
 
       Symmetry analysis of basis
       --------------------------
  
-        a1g         9
-        a1u         0
-        a2g         0
-        a2u         9
-        b1g         2
-        b1u         2
-        b2g         2
-        b2u         2
-        eg         10
-        eu         10
+        a1g        22
+        a1u         2
+        a2g         2
+        a2u        22
+        b1g         9
+        b1u         9
+        b2g         9
+        b2u         9
+        eg         38
+        eu         38
  
   int_init: cando_txs set to always be  F
   Caching 1-el integrals 
@@ -783,16 +886,16 @@ task dft
           SCF calculation type: DFT
           Wavefunction type:  spin polarized.
           No. of atoms     :     2
-          No. of electrons :     3
-           Alpha electrons :     2
-            Beta electrons :     1
+          No. of electrons :    19
+           Alpha electrons :    10
+            Beta electrons :     9
           Charge           :     1
           Spin multiplicity:     2
           Use of symmetry is: on ; symmetry adaption is: on 
           Maximum number of iterations:  50
           This is a Direct SCF calculation.
-          AO basis - number of functions:    46
-                     number of shells:    18
+          AO basis - number of functions:   160
+                     number of shells:    40
           Convergence on energy requested:  1.00D-09
           Convergence on density requested:  1.00D-05
           Convergence on gradient requested:  5.00D-04
@@ -801,25 +904,25 @@ task dft
               --------------
           Using LibXC version      5.1.5
                      Hartree-Fock (Exact) Exchange  1.000          
-                                   hyb_gga_xc_wb97  1.000
+                                  hyb_gga_xc_wb97x  1.000
  
            Range-Separation Parameters        
            ---------------------------
-           Alpha           :  0.00
-           Beta            :  1.00
-           Gamma           :  0.40
+           Alpha           :  0.16
+           Beta            :  0.84
+           Gamma           :  0.30
            Short-Range HF  :     F
  
              Grid Information
              ----------------
-          Grid used for XC integration:  fine      
+          Grid used for XC integration:  xfine     
           Radial quadrature: Mura-Knowles        
           Angular quadrature: Lebedev. 
           Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
           ---              ---------- --------- --------- ---------
-          he                  0.35       70           9.0       590
+          ne                  0.50      100           9.0      1454
           Grid pruning is: on 
-          Number of quadrature shells:    70
+          Number of quadrature shells:   100
           Spatial weights used:  Erf1
  
           Convergence Information
@@ -861,9 +964,10 @@ task dft
  
   Orbital symmetries:
  
-     1 a1g         2 a2u         3 a1g         4 a2u         5 eu      
-     6 eu          7 a1g         8 eg          9 eg         10 a2u     
-    11 a1g        12 a2u     
+     1 a2u         2 a1g         3 a1g         4 a2u         5 a1g     
+     6 eu          7 eu          8 a2u         9 eg         10 eg      
+    11 a1g        12 a2u        13 eu         14 eu         15 a1g     
+    16 eg         17 eg         18 a2u        19 b2g        20 b1g     
  
  
    Symmetry analysis of molecular orbitals - initial beta
@@ -877,44 +981,45 @@ task dft
   Orbital symmetries:
  
      1 a1g         2 a2u         3 a1g         4 a2u         5 eu      
-     6 eu          7 a1g         8 eg          9 eg         10 a2u     
-    11 a1g        12 a2u     
+     6 eu          7 eg          8 eg          9 a1g        10 a2u     
+    11 a1g        12 a2u        13 eu         14 eu         15 a1g     
+    16 eg         17 eg         18 a2u        19 b2g        20 b1g     
  
-   Time after variat. SCF:      1.8
-   Time prior to 1st pass:      1.8
+   Time after variat. SCF:    330.5
+   Time prior to 1st pass:    330.5
 
- Grid_pts file          = ./libxc_he2p_wb97.gridpts.0
+ Grid_pts file          = ./ne2p.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     16        Max. recs in file   =   1003483
+ Max. records in memory =     54        Max. recs in file   =   1034205
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.91            12909836
-          Stack Space remaining (MW):       13.11            13106708
+           Heap Space remaining (MW):       12.44            12441812
+          Stack Space remaining (MW):       13.11            13105828
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -5.0120393347 -6.83D+00  1.60D-04  2.73D-04     2.0
-                                                     9.59D-05  1.88D-04
- d= 0,ls=0.0,diis     2     -5.0121230469 -8.37D-05  3.40D-05  5.80D-06     2.2
-                                                     2.30D-05  3.14D-06
- d= 0,ls=0.0,diis     3     -5.0121256720 -2.63D-06  4.63D-06  8.87D-08     2.3
-                                                     4.47D-06  1.08D-07
- d= 0,ls=0.0,diis     4     -5.0121257442 -7.22D-08  5.45D-07  9.71D-10     2.5
-                                                     4.49D-07  1.03D-09
- d= 0,ls=0.0,diis     5     -5.0121257450 -8.04D-10  5.74D-08  6.59D-12     2.7
-                                                     1.80D-08  3.01D-12
+ d= 0,ls=0.0,diis     1   -257.2026908942 -2.87D+02  6.56D-06  1.83D-05   363.3
+                                                     6.39D-06  1.73D-05
+ d= 0,ls=0.0,diis     2   -257.2026934742 -2.58D-06  8.80D-07  1.54D-07   395.9
+                                                     1.15D-06  2.30D-07
+ d= 0,ls=0.0,diis     3   -257.2026935482 -7.40D-08  2.28D-07  4.36D-08   429.0
+                                                     2.23D-07  3.23D-08
+ d= 0,ls=0.0,diis     4   -257.2026935557 -7.53D-09  7.41D-08  1.99D-09   462.2
+                                                     9.82D-08  2.10D-09
+ d= 0,ls=0.0,diis     5   -257.2026935564 -6.81D-10  1.29D-08  1.18D-10   494.5
+                                                     2.34D-08  1.72D-10
 
 
-         Total DFT energy =       -5.012125744985
-      One electron energy =       -8.761393251472
-           Coulomb energy =        3.578738117971
-    Exchange-Corr. energy =       -1.647811762010
- Nuclear repulsion energy =        1.818341150527
+         Total DFT energy =     -257.202693556389
+      One electron energy =     -414.021117782361
+           Coulomb energy =      151.711950945689
+    Exchange-Corr. energy =      -24.449523575631
+ Nuclear repulsion energy =       29.555996855915
 
- Numeric. integr. density =        3.000000009773
+ Numeric. integr. density =       18.999999999915
 
-     Total iterative time =      0.8s
+     Total iterative time =    164.0s
 
 
  
@@ -923,16 +1028,16 @@ task dft
  
                      irrep           alpha         beta
                      --------     --------     --------
-                     a1g               1.0          1.0
+                     a1g               3.0          3.0
                      a1u               0.0          0.0
                      a2g               0.0          0.0
-                     a2u               1.0          0.0
+                     a2u               3.0          2.0
                      b1g               0.0          0.0
                      b1u               0.0          0.0
                      b2g               0.0          0.0
                      b2u               0.0          0.0
-                     eg                0.0          0.0
-                     eu                0.0          0.0
+                     eg                2.0          2.0
+                     eu                2.0          2.0
  
 
    alpha - beta orbital overlaps 
@@ -940,33 +1045,89 @@ task dft
 
 
    alpha      1      2      3      4      5      6      7      8      9     10
-    beta      1      2      3      4      5      6      7      9      8     10
- overlap   0.999  0.998  0.999  0.998  0.926  0.926  0.999  0.790  0.790  0.998
+    beta      2      1      3      4      7      6      5     10      9      8
+ overlap   1.000  1.000  1.000  1.000  0.999  0.794  0.794  0.999  0.883  0.883
 
 
    alpha     11     12     13     14     15     16     17     18     19     20
-    beta     11     12     14     13     15     16     17     18     19     20
- overlap   0.999  0.999  1.000  1.000  0.816  0.816  0.999  1.000  1.000  0.762
+    beta     11     12     13     14     15     16     17     18     19     20
+ overlap   1.000  1.000  0.991  0.991  1.000  0.896  0.896  1.000  1.000  1.000
 
 
    alpha     21     22     23     24     25     26     27     28     29     30
-    beta     21     22     24     23     25     26     27     28     29     30
- overlap   0.762  1.000  0.833  0.833  1.000  0.772  0.772  1.000  1.000  1.000
+    beta     21     22     25     23     24     28     26     27     30     29
+ overlap   0.817  0.817  0.999  1.000  1.000  0.979  0.997  0.997  0.816  0.816
 
 
    alpha     31     32     33     34     35     36     37     38     39     40
-    beta     31     32     33     35     34     36     37     38     39     40
- overlap   1.000  0.960  0.960  1.000  1.000  1.000  1.000  0.784  0.784  0.995
+    beta     31     32     33     34     35     36     37     39     38     40
+ overlap   0.980  0.874  0.874  1.000  1.000  1.000  1.000  0.726  0.726  0.999
 
 
-   alpha     41     42     43     44     45     46
-    beta     41     42     43     44     45     46
- overlap   0.995  1.000  0.993  0.993  1.000  1.000
+   alpha     41     42     43     44     45     46     47     48     49     50
+    beta     41     43     42     44     45     49     48     47     46     50
+ overlap   0.999  0.999  0.999  1.000  1.000  0.983  0.983  1.000  1.000  1.000
+
+
+   alpha     51     52     53     54     55     56     57     58     59     60
+    beta     52     51     54     53     55     56     57     59     58     60
+ overlap   0.908  0.908  0.869  0.869  1.000  1.000  1.000  0.712  0.712  0.999
+
+
+   alpha     61     62     63     64     65     66     67     68     69     70
+    beta     62     61     64     63     65     66     67     68     69     71
+ overlap   0.834  0.834  0.785  0.785  0.999  1.000  0.998  0.998  1.000  1.000
+
+
+   alpha     71     72     73     74     75     76     77     78     79     80
+    beta     70     72     73     74     75     76     77     79     78     80
+ overlap   1.000  0.995  0.995  1.000  1.000  1.000  1.000  0.730  0.730  1.000
+
+
+   alpha     81     82     83     84     85     86     87     88     89     90
+    beta     81     82     83     85     84     86     87     88     90     89
+ overlap   1.000  1.000  1.000  0.982  0.982  1.000  0.782  0.782  1.000  1.000
+
+
+   alpha     91     92     93     94     95     96     97     98     99    100
+    beta     91     93     92     95     94     96     97     98     99    100
+ overlap   1.000  1.000  1.000  1.000  1.000  0.937  0.937  0.933  0.933  0.969
+
+
+   alpha    101    102    103    104    105    106    107    108    109    110
+    beta    101    102    103    104    106    105    109    108    107    110
+ overlap   0.969  1.000  0.867  0.867  1.000  1.000  1.000  0.714  0.714  1.000
+
+
+   alpha    111    112    113    114    115    116    117    118    119    120
+    beta    112    111    113    114    115    116    117    118    120    119
+ overlap   0.918  0.918  0.975  0.975  1.000  1.000  1.000  1.000  0.988  0.988
+
+
+   alpha    121    122    123    124    125    126    127    128    129    130
+    beta    121    122    124    123    126    125    127    128    129    130
+ overlap   0.921  0.921  1.000  1.000  1.000  1.000  0.811  0.811  1.000  1.000
+
+
+   alpha    131    132    133    134    135    136    137    138    139    140
+    beta    131    132    134    133    135    136    138    137    140    139
+ overlap   1.000  1.000  0.943  0.943  1.000  1.000  0.861  0.861  0.755  0.755
+
+
+   alpha    141    142    143    144    145    146    147    148    149    150
+    beta    142    141    143    144    145    146    147    150    151    154
+ overlap   0.991  0.991  1.000  1.000  1.000  0.866  0.866  0.950  0.950  0.994
+
+
+   alpha    151    152    153    154    155    156    157    158    159    160
+    beta    148    149    152    153    155    157    156    158    159    160
+ overlap   1.000  1.000  1.000  1.000  0.994  1.000  1.000  1.000  1.000  1.000
+
 
      --------------------------
      Expectation value of S2:  
      --------------------------
-      <S2> =      0.7525 (Exact =     0.7500)
+      <S2> =      0.7530 (Exact =     0.7500)
  
 
  center of mass
@@ -975,12 +1136,12 @@ task dft
 
  moments of inertia (a.u.)
  ------------------
-           9.684594549553           0.000000000000           0.000000000000
-           0.000000000000           9.684594549553           0.000000000000
+         114.431234258049           0.000000000000           0.000000000000
+           0.000000000000         114.431234258049           0.000000000000
            0.000000000000           0.000000000000           0.000000000000
  Line search: 
-     step= 1.00 grad=-9.6D-04 hess= 2.6D-04 energy=     -5.012126 mode=downhill
- new step= 1.85                   predicted energy=     -5.012315
+     step= 1.00 grad=-4.8D-05 hess= 1.4D-05 energy=   -257.202694 mode=downhill
+ new step= 1.74                   predicted energy=   -257.202701
   no constraints, skipping   0.000000000000000E+000
   no constraints, skipping   0.000000000000000E+000
   no constraints, skipping   0.000000000000000E+000
@@ -990,23 +1151,23 @@ task dft
           --------
  
  
-                           Geometry "geometry" -> "he2"
+                           Geometry "geometry" -> "ne2"
                            ----------------------------
  
  Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
  
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 he                   2.0000     0.00000000     0.00000000     0.56672640
-    2 he                   2.0000     0.00000000     0.00000000    -0.56672640
+    1 ne                  10.0000     0.00000000     0.00000000     0.89166334
+    2 ne                  10.0000     0.00000000     0.00000000    -0.89166334
  
       Atomic Mass 
       ----------- 
  
-      he                 4.002600
+      ne                19.992440
  
 
- Effective nuclear repulsion energy (a.u.)       1.8674875668
+ Effective nuclear repulsion energy (a.u.)      29.6736012263
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
@@ -1037,22 +1198,22 @@ task dft
  ------------------------------------------------------------------------------
        Tag                 Description            Shells   Functions and Types
  ---------------- ------------------------------  ------  ---------------------
- he                       aug-cc-pvtz                9       23   4s3p2d
+ ne                       aug-cc-pvqz               20       80   6s5p4d3f2g
 
 
       Symmetry analysis of basis
       --------------------------
  
-        a1g         9
-        a1u         0
-        a2g         0
-        a2u         9
-        b1g         2
-        b1u         2
-        b2g         2
-        b2u         2
-        eg         10
-        eu         10
+        a1g        22
+        a1u         2
+        a2g         2
+        a2u        22
+        b1g         9
+        b1u         9
+        b2g         9
+        b2u         9
+        eg         38
+        eu         38
  
   int_init: cando_txs set to always be  F
   Caching 1-el integrals 
@@ -1062,16 +1223,16 @@ task dft
           SCF calculation type: DFT
           Wavefunction type:  spin polarized.
           No. of atoms     :     2
-          No. of electrons :     3
-           Alpha electrons :     2
-            Beta electrons :     1
+          No. of electrons :    19
+           Alpha electrons :    10
+            Beta electrons :     9
           Charge           :     1
           Spin multiplicity:     2
           Use of symmetry is: on ; symmetry adaption is: on 
           Maximum number of iterations:  50
           This is a Direct SCF calculation.
-          AO basis - number of functions:    46
-                     number of shells:    18
+          AO basis - number of functions:   160
+                     number of shells:    40
           Convergence on energy requested:  1.00D-09
           Convergence on density requested:  1.00D-05
           Convergence on gradient requested:  5.00D-04
@@ -1080,25 +1241,25 @@ task dft
               --------------
           Using LibXC version      5.1.5
                      Hartree-Fock (Exact) Exchange  1.000          
-                                   hyb_gga_xc_wb97  1.000
+                                  hyb_gga_xc_wb97x  1.000
  
            Range-Separation Parameters        
            ---------------------------
-           Alpha           :  0.00
-           Beta            :  1.00
-           Gamma           :  0.40
+           Alpha           :  0.16
+           Beta            :  0.84
+           Gamma           :  0.30
            Short-Range HF  :     F
  
              Grid Information
              ----------------
-          Grid used for XC integration:  fine      
+          Grid used for XC integration:  xfine     
           Radial quadrature: Mura-Knowles        
           Angular quadrature: Lebedev. 
           Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
           ---              ---------- --------- --------- ---------
-          he                  0.35       70           9.0       590
+          ne                  0.50      100           9.0      1454
           Grid pruning is: on 
-          Number of quadrature shells:    70
+          Number of quadrature shells:   100
           Spatial weights used:  Erf1
  
           Convergence Information
@@ -1140,9 +1301,10 @@ task dft
  
   Orbital symmetries:
  
-     1 a1g         2 a2u         3 a1g         4 a2u         5 eu      
-     6 eu          7 a1g         8 eg          9 eg         10 a2u     
-    11 a1g        12 a2u     
+     1 a2u         2 a1g         3 a1g         4 a2u         5 a1g     
+     6 eu          7 eu          8 a2u         9 eg         10 eg      
+    11 a1g        12 a2u        13 eu         14 eu         15 a1g     
+    16 eg         17 eg         18 a2u        19 b2g        20 b1g     
  
  
    Symmetry analysis of molecular orbitals - initial beta
@@ -1157,43 +1319,44 @@ task dft
  
      1 a1g         2 a2u         3 a1g         4 a2u         5 eu      
      6 eu          7 a1g         8 eg          9 eg         10 a2u     
-    11 a1g        12 a2u     
+    11 a1g        12 a2u        13 eu         14 eu         15 a1g     
+    16 eg         17 eg         18 a2u        19 b2g        20 b1g     
  
-   Time after variat. SCF:      2.7
-   Time prior to 1st pass:      2.7
+   Time after variat. SCF:    494.9
+   Time prior to 1st pass:    494.9
 
- Grid_pts file          = ./libxc_he2p_wb97.gridpts.0
+ Grid_pts file          = ./ne2p.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     16        Max. recs in file   =   1003483
+ Max. records in memory =     54        Max. recs in file   =   1034114
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.91            12909836
-          Stack Space remaining (MW):       13.11            13106708
+           Heap Space remaining (MW):       12.44            12441812
+          Stack Space remaining (MW):       13.11            13105828
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -5.0121660036 -6.88D+00  1.56D-04  2.48D-04     2.9
-                                                     8.73D-05  1.65D-04
- d= 0,ls=0.0,diis     2     -5.0122389143 -7.29D-05  3.32D-05  5.20D-06     3.0
-                                                     2.12D-05  2.74D-06
- d= 0,ls=0.0,diis     3     -5.0122412373 -2.32D-06  4.52D-06  7.88D-08     3.2
-                                                     4.16D-06  9.52D-08
- d= 0,ls=0.0,diis     4     -5.0122413011 -6.38D-08  5.27D-07  8.22D-10     3.3
-                                                     4.12D-07  8.95D-10
- d= 0,ls=0.0,diis     5     -5.0122413018 -6.90D-10  5.96D-08  6.03D-12     3.5
-                                                     1.99D-08  2.46D-12
+ d= 0,ls=0.0,diis     1   -257.2026990002 -2.87D+02  4.96D-06  1.04D-05   526.9
+                                                     4.85D-06  9.86D-06
+ d= 0,ls=0.0,diis     2   -257.2027004735 -1.47D-06  6.66D-07  8.62D-08   559.0
+                                                     8.70D-07  1.30D-07
+ d= 0,ls=0.0,diis     3   -257.2027005157 -4.23D-08  1.71D-07  2.42D-08   591.2
+                                                     1.67D-07  1.78D-08
+ d= 0,ls=0.0,diis     4   -257.2027005199 -4.20D-09  5.60D-08  1.13D-09   623.3
+                                                     7.44D-08  1.20D-09
+ d= 0,ls=0.0,diis     5   -257.2027005203 -3.86D-10  9.72D-09  6.78D-11   655.5
+                                                     1.75D-08  9.78D-11
 
 
-         Total DFT energy =       -5.012241301836
-      One electron energy =       -8.836987227222
-           Coulomb energy =        3.610893067963
-    Exchange-Corr. energy =       -1.653634709377
- Nuclear repulsion energy =        1.867487566799
+         Total DFT energy =     -257.202700520332
+      One electron energy =     -414.246969747858
+           Coulomb energy =      151.821316610442
+    Exchange-Corr. energy =      -24.450648609241
+ Nuclear repulsion energy =       29.673601226325
 
- Numeric. integr. density =        3.000000024899
+ Numeric. integr. density =       19.000000000476
 
-     Total iterative time =      0.8s
+     Total iterative time =    160.6s
 
 
  
@@ -1202,16 +1365,16 @@ task dft
  
                      irrep           alpha         beta
                      --------     --------     --------
-                     a1g               1.0          1.0
+                     a1g               3.0          3.0
                      a1u               0.0          0.0
                      a2g               0.0          0.0
-                     a2u               1.0          0.0
+                     a2u               3.0          2.0
                      b1g               0.0          0.0
                      b1u               0.0          0.0
                      b2g               0.0          0.0
                      b2u               0.0          0.0
-                     eg                0.0          0.0
-                     eu                0.0          0.0
+                     eg                2.0          2.0
+                     eu                2.0          2.0
  
 
    alpha - beta orbital overlaps 
@@ -1219,33 +1382,89 @@ task dft
 
 
    alpha      1      2      3      4      5      6      7      8      9     10
-    beta      1      2      3      4      6      5      7      8      9     10
- overlap   0.999  0.998  0.999  0.998  0.840  0.840  0.999  0.824  0.824  0.998
+    beta      2      1      3      4      7      6      5     10      9      8
+ overlap   1.000  1.000  1.000  1.000  0.999  1.000  1.000  0.999  0.938  0.938
 
 
    alpha     11     12     13     14     15     16     17     18     19     20
-    beta     11     12     14     13     16     15     17     21     20     18
- overlap   0.999  0.999  1.000  1.000  0.917  0.917  0.999  0.856  0.856  1.000
+    beta     11     12     13     14     15     17     16     18     19     20
+ overlap   1.000  1.000  0.964  0.964  1.000  0.762  0.762  1.000  1.000  1.000
 
 
    alpha     21     22     23     24     25     26     27     28     29     30
-    beta     19     22     24     23     25     26     27     28     29     30
- overlap   1.000  1.000  0.929  0.929  1.000  0.856  0.856  1.000  1.000  1.000
+    beta     22     21     25     23     24     28     27     26     30     29
+ overlap   0.984  0.984  0.999  1.000  1.000  0.980  0.999  0.999  0.893  0.893
 
 
    alpha     31     32     33     34     35     36     37     38     39     40
-    beta     31     32     33     34     35     37     36     38     39     41
- overlap   1.000  0.931  0.931  1.000  1.000  1.000  1.000  0.795  0.795  0.997
+    beta     31     33     32     34     35     36     37     39     38     40
+ overlap   0.980  0.976  0.976  1.000  1.000  1.000  1.000  0.813  0.813  0.999
 
 
-   alpha     41     42     43     44     45     46
-    beta     40     43     42     44     45     46
- overlap   0.997  0.847  0.847  1.000  1.000  1.000
+   alpha     41     42     43     44     45     46     47     48     49     50
+    beta     41     43     42     44     45     49     48     46     47     50
+ overlap   0.999  0.999  0.999  1.000  1.000  0.997  0.997  1.000  1.000  1.000
+
+
+   alpha     51     52     53     54     55     56     57     58     59     60
+    beta     52     51     53     54     55     56     57     59     58     60
+ overlap   0.997  0.997  0.923  0.923  1.000  1.000  1.000  0.928  0.928  0.999
+
+
+   alpha     61     62     63     64     65     66     67     68     69     70
+    beta     62     61     64     63     65     66     67     68     69     70
+ overlap   0.871  0.871  0.782  0.782  0.999  1.000  0.999  0.999  1.000  1.000
+
+
+   alpha     71     72     73     74     75     76     77     78     79     80
+    beta     71     72     73     74     75     76     77     79     78     80
+ overlap   1.000  0.999  0.999  1.000  1.000  1.000  1.000  0.985  0.985  1.000
+
+
+   alpha     81     82     83     84     85     86     87     88     89     90
+    beta     81     82     83     84     85     86     88     87     90     89
+ overlap   1.000  1.000  1.000  0.998  0.998  1.000  0.995  0.995  1.000  1.000
+
+
+   alpha     91     92     93     94     95     96     97     98     99    100
+    beta     91     93     92     95     94     97     96     99     98    100
+ overlap   1.000  1.000  1.000  1.000  1.000  1.000  1.000  0.986  0.986  1.000
+
+
+   alpha    101    102    103    104    105    106    107    108    109    110
+    beta    101    102    104    103    106    105    109    107    108    110
+ overlap   1.000  1.000  0.753  0.753  1.000  1.000  1.000  0.717  0.717  1.000
+
+
+   alpha    111    112    113    114    115    116    117    118    119    120
+    beta    112    111    113    114    115    116    117    118    119    120
+ overlap   0.966  0.966  0.970  0.970  1.000  1.000  1.000  1.000  0.993  0.993
+
+
+   alpha    121    122    123    124    125    126    127    128    129    130
+    beta    121    122    124    123    126    125    127    128    129    130
+ overlap   0.952  0.952  1.000  1.000  1.000  1.000  0.825  0.825  1.000  1.000
+
+
+   alpha    131    132    133    134    135    136    137    138    139    140
+    beta    131    132    133    134    135    136    137    138    140    139
+ overlap   1.000  1.000  0.834  0.834  1.000  1.000  0.999  0.999  1.000  1.000
+
+
+   alpha    141    142    143    144    145    146    147    148    149    150
+    beta    141    142    143    144    145    146    147    151    150    154
+ overlap   0.824  0.824  1.000  1.000  1.000  0.884  0.884  0.824  0.824  0.995
+
+
+   alpha    151    152    153    154    155    156    157    158    159    160
+    beta    148    149    152    153    155    156    157    158    159    160
+ overlap   1.000  1.000  1.000  1.000  0.995  0.793  0.793  1.000  1.000  1.000
+
 
      --------------------------
      Expectation value of S2:  
      --------------------------
-      <S2> =      0.7523 (Exact =     0.7500)
+      <S2> =      0.7530 (Exact =     0.7500)
  
 
  center of mass
@@ -1254,8 +1473,8 @@ task dft
 
  moments of inertia (a.u.)
  ------------------
-           9.181565565332           0.000000000000           0.000000000000
-           0.000000000000           9.181565565332           0.000000000000
+         113.525988877939           0.000000000000           0.000000000000
+           0.000000000000         113.525988877939           0.000000000000
            0.000000000000           0.000000000000           0.000000000000
  
             General Information
@@ -1263,16 +1482,16 @@ task dft
           SCF calculation type: DFT
           Wavefunction type:  spin polarized.
           No. of atoms     :     2
-          No. of electrons :     3
-           Alpha electrons :     2
-            Beta electrons :     1
+          No. of electrons :    19
+           Alpha electrons :    10
+            Beta electrons :     9
           Charge           :     1
           Spin multiplicity:     2
           Use of symmetry is: on ; symmetry adaption is: on 
           Maximum number of iterations:  50
           This is a Direct SCF calculation.
-          AO basis - number of functions:    46
-                     number of shells:    18
+          AO basis - number of functions:   160
+                     number of shells:    40
           Convergence on energy requested:  1.00D-09
           Convergence on density requested:  1.00D-05
           Convergence on gradient requested:  5.00D-04
@@ -1281,25 +1500,25 @@ task dft
               --------------
           Using LibXC version      5.1.5
                      Hartree-Fock (Exact) Exchange  1.000          
-                                   hyb_gga_xc_wb97  1.000
+                                  hyb_gga_xc_wb97x  1.000
  
            Range-Separation Parameters        
            ---------------------------
-           Alpha           :  0.00
-           Beta            :  1.00
-           Gamma           :  0.40
+           Alpha           :  0.16
+           Beta            :  0.84
+           Gamma           :  0.30
            Short-Range HF  :     F
  
              Grid Information
              ----------------
-          Grid used for XC integration:  fine      
+          Grid used for XC integration:  xfine     
           Radial quadrature: Mura-Knowles        
           Angular quadrature: Lebedev. 
           Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
           ---              ---------- --------- --------- ---------
-          he                  0.35       70           9.0       590
+          ne                  0.50      100           9.0      1454
           Grid pruning is: on 
-          Number of quadrature shells:    70
+          Number of quadrature shells:   100
           Spatial weights used:  Erf1
  
           Convergence Information
@@ -1346,649 +1565,21 @@ task dft
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 he      0.000000   0.000000   1.070958    0.000000   0.000000  -0.002448
-   2 he      0.000000   0.000000  -1.070958    0.000000   0.000000   0.002448
+   1 ne      0.000000   0.000000   1.684999    0.000000   0.000000  -0.000087
+   2 ne      0.000000   0.000000  -1.684999    0.000000   0.000000   0.000087
  
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       0.65   |
+                 |  CPU   |       0.02   |      86.81   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       0.65   |
+                 |  WALL  |       0.02   |      86.81   |
                  ----------------------------------------
   no constraints, skipping   0.000000000000000E+000
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    1      -5.01224130 -8.2D-04  0.00245  0.00245  0.03630  0.06288      4.2
-                                                                    
-
-
-
-                                Z-matrix (autoz)
-                                -------- 
-
- Units are Angstrom for bonds and degrees for angles
- 
-      Type          Name      I     J     K     L     M      Value     Gradient
-      ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
-    1 Stretch                  1     2                       1.13345   -0.00245
- 
-  no constraints, skipping   0.000000000000000E+000
-  no constraints, skipping   0.000000000000000E+000
-  no constraints, skipping   0.000000000000000E+000
- 
-                                 NWChem DFT Module
-                                 -----------------
- 
- 
-
-
- Summary of "ao basis" -> "ao basis" (spherical)
- ------------------------------------------------------------------------------
-       Tag                 Description            Shells   Functions and Types
- ---------------- ------------------------------  ------  ---------------------
- he                       aug-cc-pvtz                9       23   4s3p2d
-
-
-      Symmetry analysis of basis
-      --------------------------
- 
-        a1g         9
-        a1u         0
-        a2g         0
-        a2u         9
-        b1g         2
-        b1u         2
-        b2g         2
-        b2u         2
-        eg         10
-        eu         10
- 
-  int_init: cando_txs set to always be  F
-  Caching 1-el integrals 
- 
-            General Information
-            -------------------
-          SCF calculation type: DFT
-          Wavefunction type:  spin polarized.
-          No. of atoms     :     2
-          No. of electrons :     3
-           Alpha electrons :     2
-            Beta electrons :     1
-          Charge           :     1
-          Spin multiplicity:     2
-          Use of symmetry is: on ; symmetry adaption is: on 
-          Maximum number of iterations:  50
-          This is a Direct SCF calculation.
-          AO basis - number of functions:    46
-                     number of shells:    18
-          Convergence on energy requested:  1.00D-09
-          Convergence on density requested:  1.00D-05
-          Convergence on gradient requested:  5.00D-04
- 
-              XC Information
-              --------------
-          Using LibXC version      5.1.5
-                     Hartree-Fock (Exact) Exchange  1.000          
-                                   hyb_gga_xc_wb97  1.000
- 
-           Range-Separation Parameters        
-           ---------------------------
-           Alpha           :  0.00
-           Beta            :  1.00
-           Gamma           :  0.40
-           Short-Range HF  :     F
- 
-             Grid Information
-             ----------------
-          Grid used for XC integration:  fine      
-          Radial quadrature: Mura-Knowles        
-          Angular quadrature: Lebedev. 
-          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
-          ---              ---------- --------- --------- ---------
-          he                  0.35       70           9.0       590
-          Grid pruning is: on 
-          Number of quadrature shells:    70
-          Spatial weights used:  Erf1
- 
-          Convergence Information
-          -----------------------
-          Convergence aids based upon iterative change in 
-          total energy or number of iterations. 
-          Levelshifting, if invoked, occurs when the 
-          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
-          DIIS, if invoked, will attempt to extrapolate 
-          using up to (NFOCK): 10 stored Fock matrices.
-
-                    Damping( 0%)  Levelshifting(0.5)       DIIS
-                  --------------- ------------------- ---------------
-          dE  on:    start            ASAP                start   
-          dE off:    2 iters         50 iters            50 iters 
-
- 
-      Screening Tolerance Information
-      -------------------------------
-          Density screening/tol_rho:  1.00D-12
-          AO Gaussian exp screening on grid/accAOfunc:  21
-          CD Gaussian exp screening on grid/accCDfunc:  20
-          XC Gaussian exp screening on grid/accXCfunc:  20
-          Schwarz screening/accCoul:  1.00D-10
-
-
- Loading old vectors from job with title :
-
-
-
- 
-   Symmetry analysis of molecular orbitals - initial alpha
-   -------------------------------------------------------
- 
-  Numbering of irreducible representations: 
- 
-     1 a1g         2 a1u         3 a2g         4 a2u         5 b1g     
-     6 b1u         7 b2g         8 b2u         9 eg         10 eu      
- 
-  Orbital symmetries:
- 
-     1 a1g         2 a2u         3 a1g         4 a2u         5 eu      
-     6 eu          7 a1g         8 eg          9 eg         10 a2u     
-    11 a1g        12 a2u     
- 
- 
-   Symmetry analysis of molecular orbitals - initial beta
-   ------------------------------------------------------
- 
-  Numbering of irreducible representations: 
- 
-     1 a1g         2 a1u         3 a2g         4 a2u         5 b1g     
-     6 b1u         7 b2g         8 b2u         9 eg         10 eu      
- 
-  Orbital symmetries:
- 
-     1 a1g         2 a2u         3 a1g         4 a2u         5 eu      
-     6 eu          7 a1g         8 eg          9 eg         10 a2u     
-    11 a1g        12 a2u     
- 
-   Time after variat. SCF:      4.2
-   Time prior to 1st pass:      4.2
-
- Grid_pts file          = ./libxc_he2p_wb97.gridpts.0
- Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     16        Max. recs in file   =   1003453
-
-
-           Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.91            12909836
-          Stack Space remaining (MW):       13.11            13106708
-
-   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
- ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -5.0122511226 -6.86D+00  5.17D-05  2.74D-05     4.4
-                                                     2.87D-05  1.79D-05
- d= 0,ls=0.0,diis     2     -5.0122590403 -7.92D-06  1.10D-05  5.63D-07     4.5
-                                                     7.02D-06  3.01D-07
- d= 0,ls=0.0,diis     3     -5.0122592931 -2.53D-07  1.49D-06  8.58D-09     4.7
-                                                     1.38D-06  1.03D-08
- d= 0,ls=0.0,diis     4     -5.0122593001 -6.92D-09  1.70D-07  8.63D-11     4.9
-                                                     1.33D-07  9.39D-11
- d= 0,ls=0.0,diis     5     -5.0122593001 -7.26D-11  1.93D-08  6.46D-13     5.0
-                                                     6.47D-09  2.64D-13
-
-
-         Total DFT energy =       -5.012259300125
-      One electron energy =       -8.812462012953
-           Coulomb energy =        3.600451327660
-    Exchange-Corr. energy =       -1.651729981443
- Nuclear repulsion energy =        1.851481366612
-
- Numeric. integr. density =        3.000000021664
-
-     Total iterative time =      0.8s
-
-
- 
-                  Occupations of the irreducible representations
-                  ----------------------------------------------
- 
-                     irrep           alpha         beta
-                     --------     --------     --------
-                     a1g               1.0          1.0
-                     a1u               0.0          0.0
-                     a2g               0.0          0.0
-                     a2u               1.0          0.0
-                     b1g               0.0          0.0
-                     b1u               0.0          0.0
-                     b2g               0.0          0.0
-                     b2u               0.0          0.0
-                     eg                0.0          0.0
-                     eu                0.0          0.0
- 
-
-   alpha - beta orbital overlaps 
-   ----------------------------- 
-
-
-   alpha      1      2      3      4      5      6      7      8      9     10
-    beta      1      2      3      4      6      5      7      9      8     10
- overlap   0.999  0.998  0.999  0.998  0.967  0.967  0.999  0.758  0.758  0.998
-
-
-   alpha     11     12     13     14     15     16     17     18     19     20
-    beta     11     12     14     13     16     15     17     18     19     21
- overlap   0.999  0.999  1.000  1.000  0.820  0.820  0.999  1.000  1.000  0.776
-
-
-   alpha     21     22     23     24     25     26     27     28     29     30
-    beta     20     22     23     24     25     26     27     28     29     30
- overlap   0.776  1.000  0.816  0.816  1.000  0.773  0.773  1.000  1.000  1.000
-
-
-   alpha     31     32     33     34     35     36     37     38     39     40
-    beta     31     33     32     34     35     37     36     38     39     40
- overlap   1.000  0.876  0.876  1.000  1.000  1.000  1.000  0.877  0.877  0.995
-
-
-   alpha     41     42     43     44     45     46
-    beta     41     43     42     44     45     46
- overlap   0.995  0.763  0.763  1.000  1.000  1.000
-
-     --------------------------
-     Expectation value of S2:  
-     --------------------------
-      <S2> =      0.7524 (Exact =     0.7500)
- 
-
- center of mass
- --------------
- x =   0.00000000 y =   0.00000000 z =   0.00000000
-
- moments of inertia (a.u.)
- ------------------
-           9.341002465954           0.000000000000           0.000000000000
-           0.000000000000           9.341002465954           0.000000000000
-           0.000000000000           0.000000000000           0.000000000000
- Line search: 
-     step= 1.00 grad=-4.5D-05 hess= 2.7D-05 energy=     -5.012259 mode=downhill
- new step= 0.83                   predicted energy=     -5.012260
-  no constraints, skipping   0.000000000000000E+000
-  no constraints, skipping   0.000000000000000E+000
-  no constraints, skipping   0.000000000000000E+000
-
-          --------
-          Step   2
-          --------
- 
- 
-                           Geometry "geometry" -> "he2"
-                           ----------------------------
- 
- Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
- 
-  No.       Tag          Charge          X              Y              Z
- ---- ---------------- ---------- -------------- -------------- --------------
-    1 he                   2.0000     0.00000000     0.00000000     0.57078881
-    2 he                   2.0000     0.00000000     0.00000000    -0.57078881
- 
-      Atomic Mass 
-      ----------- 
- 
-      he                 4.002600
- 
-
- Effective nuclear repulsion energy (a.u.)       1.8541962898
-
-            Nuclear Dipole moment (a.u.) 
-            ----------------------------
-        X                 Y               Z
- ---------------- ---------------- ----------------
-     0.0000000000     0.0000000000     0.0000000000
- 
-      Symmetry information
-      --------------------
- 
- Group name             D4h       
- Group number             28
- Group order              16
- No. of unique centers     1
- 
-      Symmetry unique atoms
- 
-     1
- 
- 
-                                 NWChem DFT Module
-                                 -----------------
- 
- 
-
-
- Summary of "ao basis" -> "ao basis" (spherical)
- ------------------------------------------------------------------------------
-       Tag                 Description            Shells   Functions and Types
- ---------------- ------------------------------  ------  ---------------------
- he                       aug-cc-pvtz                9       23   4s3p2d
-
-
-      Symmetry analysis of basis
-      --------------------------
- 
-        a1g         9
-        a1u         0
-        a2g         0
-        a2u         9
-        b1g         2
-        b1u         2
-        b2g         2
-        b2u         2
-        eg         10
-        eu         10
- 
-  int_init: cando_txs set to always be  F
-  Caching 1-el integrals 
- 
-            General Information
-            -------------------
-          SCF calculation type: DFT
-          Wavefunction type:  spin polarized.
-          No. of atoms     :     2
-          No. of electrons :     3
-           Alpha electrons :     2
-            Beta electrons :     1
-          Charge           :     1
-          Spin multiplicity:     2
-          Use of symmetry is: on ; symmetry adaption is: on 
-          Maximum number of iterations:  50
-          This is a Direct SCF calculation.
-          AO basis - number of functions:    46
-                     number of shells:    18
-          Convergence on energy requested:  1.00D-09
-          Convergence on density requested:  1.00D-05
-          Convergence on gradient requested:  5.00D-04
- 
-              XC Information
-              --------------
-          Using LibXC version      5.1.5
-                     Hartree-Fock (Exact) Exchange  1.000          
-                                   hyb_gga_xc_wb97  1.000
- 
-           Range-Separation Parameters        
-           ---------------------------
-           Alpha           :  0.00
-           Beta            :  1.00
-           Gamma           :  0.40
-           Short-Range HF  :     F
- 
-             Grid Information
-             ----------------
-          Grid used for XC integration:  fine      
-          Radial quadrature: Mura-Knowles        
-          Angular quadrature: Lebedev. 
-          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
-          ---              ---------- --------- --------- ---------
-          he                  0.35       70           9.0       590
-          Grid pruning is: on 
-          Number of quadrature shells:    70
-          Spatial weights used:  Erf1
- 
-          Convergence Information
-          -----------------------
-          Convergence aids based upon iterative change in 
-          total energy or number of iterations. 
-          Levelshifting, if invoked, occurs when the 
-          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
-          DIIS, if invoked, will attempt to extrapolate 
-          using up to (NFOCK): 10 stored Fock matrices.
-
-                    Damping( 0%)  Levelshifting(0.5)       DIIS
-                  --------------- ------------------- ---------------
-          dE  on:    start            ASAP                start   
-          dE off:    2 iters         50 iters            50 iters 
-
- 
-      Screening Tolerance Information
-      -------------------------------
-          Density screening/tol_rho:  1.00D-12
-          AO Gaussian exp screening on grid/accAOfunc:  21
-          CD Gaussian exp screening on grid/accCDfunc:  20
-          XC Gaussian exp screening on grid/accXCfunc:  20
-          Schwarz screening/accCoul:  1.00D-10
-
-
- Loading old vectors from job with title :
-
-
-
- 
-   Symmetry analysis of molecular orbitals - initial alpha
-   -------------------------------------------------------
- 
-  Numbering of irreducible representations: 
- 
-     1 a1g         2 a1u         3 a2g         4 a2u         5 b1g     
-     6 b1u         7 b2g         8 b2u         9 eg         10 eu      
- 
-  Orbital symmetries:
- 
-     1 a1g         2 a2u         3 a1g         4 a2u         5 eu      
-     6 eu          7 a1g         8 eg          9 eg         10 a2u     
-    11 a1g        12 a2u     
- 
- 
-   Symmetry analysis of molecular orbitals - initial beta
-   ------------------------------------------------------
- 
-  Numbering of irreducible representations: 
- 
-     1 a1g         2 a1u         3 a2g         4 a2u         5 b1g     
-     6 b1u         7 b2g         8 b2u         9 eg         10 eu      
- 
-  Orbital symmetries:
- 
-     1 a1g         2 a2u         3 a1g         4 a2u         5 eu      
-     6 eu          7 a1g         8 eg          9 eg         10 a2u     
-    11 a1g        12 a2u     
- 
-   Time after variat. SCF:      5.0
-   Time prior to 1st pass:      5.0
-
- Grid_pts file          = ./libxc_he2p_wb97.gridpts.0
- Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     16        Max. recs in file   =   1003453
-
-
-           Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.91            12909836
-          Stack Space remaining (MW):       13.11            13106708
-
-   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
- ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -5.0122598102 -6.87D+00  8.71D-06  7.75D-07     5.2
-                                                     4.85D-06  5.10D-07
- d= 0,ls=0.0,diis     2     -5.0122600360 -2.26D-07  1.86D-06  1.61D-08     5.4
-                                                     1.18D-06  8.56D-09
- d= 0,ls=0.0,diis     3     -5.0122600432 -7.20D-09  2.51D-07  2.44D-10     5.5
-                                                     2.33D-07  2.94D-10
- d= 0,ls=0.0,diis     4     -5.0122600434 -1.97D-10  2.89D-08  2.49D-12     5.7
-                                                     2.26D-08  2.70D-12
-
-
-         Total DFT energy =       -5.012260043357
-      One electron energy =       -8.816628411353
-           Coulomb energy =        3.602224760588
-    Exchange-Corr. energy =       -1.652052682373
- Nuclear repulsion energy =        1.854196289781
-
- Numeric. integr. density =        3.000000022512
-
-     Total iterative time =      0.6s
-
-
- 
-                  Occupations of the irreducible representations
-                  ----------------------------------------------
- 
-                     irrep           alpha         beta
-                     --------     --------     --------
-                     a1g               1.0          1.0
-                     a1u               0.0          0.0
-                     a2g               0.0          0.0
-                     a2u               1.0          0.0
-                     b1g               0.0          0.0
-                     b1u               0.0          0.0
-                     b2g               0.0          0.0
-                     b2u               0.0          0.0
-                     eg                0.0          0.0
-                     eu                0.0          0.0
- 
-
-   alpha - beta orbital overlaps 
-   ----------------------------- 
-
-
-   alpha      1      2      3      4      5      6      7      8      9     10
-    beta      1      2      3      4      6      5      7      9      8     10
- overlap   0.999  0.998  0.999  0.998  0.923  0.923  0.999  0.853  0.853  0.998
-
-
-   alpha     11     12     13     14     15     16     17     18     19     20
-    beta     11     12     14     13     16     15     17     18     19     20
- overlap   0.999  0.999  1.000  1.000  0.810  0.810  0.999  1.000  1.000  0.929
-
-
-   alpha     21     22     23     24     25     26     27     28     29     30
-    beta     21     22     24     23     25     26     27     28     29     30
- overlap   0.929  1.000  0.997  0.997  1.000  0.872  0.872  1.000  1.000  1.000
-
-
-   alpha     31     32     33     34     35     36     37     38     39     40
-    beta     31     32     33     34     35     37     36     39     38     40
- overlap   1.000  0.724  0.724  1.000  1.000  1.000  1.000  0.998  0.998  0.958
-
-
-   alpha     41     42     43     44     45     46
-    beta     41     43     42     44     45     46
- overlap   0.958  0.722  0.722  1.000  1.000  1.000
-
-     --------------------------
-     Expectation value of S2:  
-     --------------------------
-      <S2> =      0.7524 (Exact =     0.7500)
- 
-
- center of mass
- --------------
- x =   0.00000000 y =   0.00000000 z =   0.00000000
-
- moments of inertia (a.u.)
- ------------------
-           9.313668210173           0.000000000000           0.000000000000
-           0.000000000000           9.313668210173           0.000000000000
-           0.000000000000           0.000000000000           0.000000000000
- 
-            General Information
-            -------------------
-          SCF calculation type: DFT
-          Wavefunction type:  spin polarized.
-          No. of atoms     :     2
-          No. of electrons :     3
-           Alpha electrons :     2
-            Beta electrons :     1
-          Charge           :     1
-          Spin multiplicity:     2
-          Use of symmetry is: on ; symmetry adaption is: on 
-          Maximum number of iterations:  50
-          This is a Direct SCF calculation.
-          AO basis - number of functions:    46
-                     number of shells:    18
-          Convergence on energy requested:  1.00D-09
-          Convergence on density requested:  1.00D-05
-          Convergence on gradient requested:  5.00D-04
- 
-              XC Information
-              --------------
-          Using LibXC version      5.1.5
-                     Hartree-Fock (Exact) Exchange  1.000          
-                                   hyb_gga_xc_wb97  1.000
- 
-           Range-Separation Parameters        
-           ---------------------------
-           Alpha           :  0.00
-           Beta            :  1.00
-           Gamma           :  0.40
-           Short-Range HF  :     F
- 
-             Grid Information
-             ----------------
-          Grid used for XC integration:  fine      
-          Radial quadrature: Mura-Knowles        
-          Angular quadrature: Lebedev. 
-          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
-          ---              ---------- --------- --------- ---------
-          he                  0.35       70           9.0       590
-          Grid pruning is: on 
-          Number of quadrature shells:    70
-          Spatial weights used:  Erf1
- 
-          Convergence Information
-          -----------------------
-          Convergence aids based upon iterative change in 
-          total energy or number of iterations. 
-          Levelshifting, if invoked, occurs when the 
-          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
-          DIIS, if invoked, will attempt to extrapolate 
-          using up to (NFOCK): 10 stored Fock matrices.
-
-                    Damping( 0%)  Levelshifting(0.5)       DIIS
-                  --------------- ------------------- ---------------
-          dE  on:    start            ASAP                start   
-          dE off:    2 iters         50 iters            50 iters 
-
- 
-      Screening Tolerance Information
-      -------------------------------
-          Density screening/tol_rho:  1.00D-12
-          AO Gaussian exp screening on grid/accAOfunc:  21
-          CD Gaussian exp screening on grid/accCDfunc:  20
-          XC Gaussian exp screening on grid/accXCfunc:  20
-          Schwarz screening/accCoul:  1.00D-10
-
-  int_init: cando_txs set to always be  F
-  intd_init: cando_txs set to always be  F
- 
- 
-                            NWChem DFT Gradient Module
-                            --------------------------
- 
- 
-
-  charge          =   1.00
-  wavefunction    = open shell
-
-  Using symmetry
-  int_init: cando_txs set to always be  F
-  intd_init: cando_txs set to always be  F
-
-
-                         DFT ENERGY GRADIENTS
-
-    atom               coordinates                        gradient
-                 x          y          z           x          y          z
-   1 he      0.000000   0.000000   1.078634    0.000000   0.000000  -0.000010
-   2 he      0.000000   0.000000  -1.078634    0.000000   0.000000   0.000010
- 
-                 ----------------------------------------
-                 |  Time  |  1-e(secs)   |  2-e(secs)   |
-                 ----------------------------------------
-                 |  CPU   |       0.00   |       0.65   |
-                 ----------------------------------------
-                 |  WALL  |       0.00   |       0.65   |
-                 ----------------------------------------
-  no constraints, skipping   0.000000000000000E+000
-
-  Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
-  ---- ---------------- -------- -------- -------- -------- -------- --------
-@    2      -5.01226004 -1.9D-05  0.00001  0.00001  0.00443  0.00768      6.4
+@    1    -257.20270052 -4.1D-05  0.00009  0.00009  0.00910  0.01575    743.1
                                      ok       ok                    
 
 
@@ -2000,7 +1591,7 @@ task dft
  
       Type          Name      I     J     K     L     M      Value     Gradient
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
-    1 Stretch                  1     2                       1.14158   -0.00001
+    1 Stretch                  1     2                       1.78333   -0.00009
  
   no constraints, skipping   0.000000000000000E+000
   no constraints, skipping   0.000000000000000E+000
@@ -2016,22 +1607,22 @@ task dft
  ------------------------------------------------------------------------------
        Tag                 Description            Shells   Functions and Types
  ---------------- ------------------------------  ------  ---------------------
- he                       aug-cc-pvtz                9       23   4s3p2d
+ ne                       aug-cc-pvqz               20       80   6s5p4d3f2g
 
 
       Symmetry analysis of basis
       --------------------------
  
-        a1g         9
-        a1u         0
-        a2g         0
-        a2u         9
-        b1g         2
-        b1u         2
-        b2g         2
-        b2u         2
-        eg         10
-        eu         10
+        a1g        22
+        a1u         2
+        a2g         2
+        a2u        22
+        b1g         9
+        b1u         9
+        b2g         9
+        b2u         9
+        eg         38
+        eu         38
  
   int_init: cando_txs set to always be  F
   Caching 1-el integrals 
@@ -2041,16 +1632,16 @@ task dft
           SCF calculation type: DFT
           Wavefunction type:  spin polarized.
           No. of atoms     :     2
-          No. of electrons :     3
-           Alpha electrons :     2
-            Beta electrons :     1
+          No. of electrons :    19
+           Alpha electrons :    10
+            Beta electrons :     9
           Charge           :     1
           Spin multiplicity:     2
           Use of symmetry is: on ; symmetry adaption is: on 
           Maximum number of iterations:  50
           This is a Direct SCF calculation.
-          AO basis - number of functions:    46
-                     number of shells:    18
+          AO basis - number of functions:   160
+                     number of shells:    40
           Convergence on energy requested:  1.00D-09
           Convergence on density requested:  1.00D-05
           Convergence on gradient requested:  5.00D-04
@@ -2059,25 +1650,25 @@ task dft
               --------------
           Using LibXC version      5.1.5
                      Hartree-Fock (Exact) Exchange  1.000          
-                                   hyb_gga_xc_wb97  1.000
+                                  hyb_gga_xc_wb97x  1.000
  
            Range-Separation Parameters        
            ---------------------------
-           Alpha           :  0.00
-           Beta            :  1.00
-           Gamma           :  0.40
+           Alpha           :  0.16
+           Beta            :  0.84
+           Gamma           :  0.30
            Short-Range HF  :     F
  
              Grid Information
              ----------------
-          Grid used for XC integration:  fine      
+          Grid used for XC integration:  xfine     
           Radial quadrature: Mura-Knowles        
           Angular quadrature: Lebedev. 
           Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
           ---              ---------- --------- --------- ---------
-          he                  0.35       70           9.0       590
+          ne                  0.50      100           9.0      1454
           Grid pruning is: on 
-          Number of quadrature shells:    70
+          Number of quadrature shells:   100
           Spatial weights used:  Erf1
  
           Convergence Information
@@ -2119,9 +1710,10 @@ task dft
  
   Orbital symmetries:
  
-     1 a1g         2 a2u         3 a1g         4 a2u         5 eu      
-     6 eu          7 a1g         8 eg          9 eg         10 a2u     
-    11 a1g        12 a2u     
+     1 a2u         2 a1g         3 a1g         4 a2u         5 a1g     
+     6 eu          7 eu          8 a2u         9 eg         10 eg      
+    11 a1g        12 a2u        13 eu         14 eu         15 a1g     
+    16 eg         17 eg         18 a2u        19 b2g        20 b1g     
  
  
    Symmetry analysis of molecular orbitals - initial beta
@@ -2136,37 +1728,40 @@ task dft
  
      1 a1g         2 a2u         3 a1g         4 a2u         5 eu      
      6 eu          7 a1g         8 eg          9 eg         10 a2u     
-    11 a1g        12 a2u     
+    11 a1g        12 a2u        13 eu         14 eu         15 a1g     
+    16 eg         17 eg         18 a2u        19 b2g        20 b1g     
  
-   Time after variat. SCF:      6.4
-   Time prior to 1st pass:      6.4
+   Time after variat. SCF:    743.6
+   Time prior to 1st pass:    743.6
 
- Grid_pts file          = ./libxc_he2p_wb97.gridpts.0
+ Grid_pts file          = ./ne2p.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     16        Max. recs in file   =   1003463
+ Max. records in memory =     54        Max. recs in file   =   1033952
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.91            12909836
-          Stack Space remaining (MW):       13.11            13106708
+           Heap Space remaining (MW):       12.44            12441812
+          Stack Space remaining (MW):       13.11            13105828
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -5.0122600436 -6.87D+00  1.79D-07  3.19D-10     6.6
-                                                     9.76D-08  2.07D-10
- d= 0,ls=0.0,diis     2     -5.0122600437 -9.26D-11  3.80D-08  6.61D-12     6.7
-                                                     2.37D-08  3.43D-12
+ d= 0,ls=0.0,diis     1   -257.2027005530 -2.87D+02  3.73D-07  5.90D-08   776.9
+                                                     3.64D-07  5.58D-08
+ d= 0,ls=0.0,diis     2   -257.2027005613 -8.26D-09  5.02D-08  4.84D-10   809.6
+                                                     6.48D-08  7.15D-10
+ d= 0,ls=0.0,diis     3   -257.2027005615 -2.35D-10  1.27D-08  1.33D-10   841.9
+                                                     1.25D-08  9.92D-11
 
 
-         Total DFT energy =       -5.012260043693
-      One electron energy =       -8.816544309111
-           Coulomb energy =        3.602188807186
-    Exchange-Corr. energy =       -1.652045915767
- Nuclear repulsion energy =        1.854141373998
+         Total DFT energy =     -257.202700561547
+      One electron energy =     -414.230204479859
+           Coulomb energy =      151.813245603272
+    Exchange-Corr. energy =      -24.450575405784
+ Nuclear repulsion energy =       29.664833720824
 
- Numeric. integr. density =        3.000000022496
+ Numeric. integr. density =       19.000000000443
 
-     Total iterative time =      0.3s
+     Total iterative time =     98.3s
 
 
  
@@ -2175,16 +1770,16 @@ task dft
  
                      irrep           alpha         beta
                      --------     --------     --------
-                     a1g               1.0          1.0
+                     a1g               3.0          3.0
                      a1u               0.0          0.0
                      a2g               0.0          0.0
-                     a2u               1.0          0.0
+                     a2u               3.0          2.0
                      b1g               0.0          0.0
                      b1u               0.0          0.0
                      b2g               0.0          0.0
                      b2u               0.0          0.0
-                     eg                0.0          0.0
-                     eu                0.0          0.0
+                     eg                2.0          2.0
+                     eu                2.0          2.0
  
 
    alpha - beta orbital overlaps 
@@ -2192,33 +1787,89 @@ task dft
 
 
    alpha      1      2      3      4      5      6      7      8      9     10
-    beta      1      2      3      4      5      6      7      9      8     10
- overlap   0.999  0.998  0.999  0.998  0.982  0.982  0.999  0.716  0.716  0.998
+    beta      2      1      3      4      7      6      5     10      8      9
+ overlap   1.000  1.000  1.000  1.000  0.999  0.926  0.926  0.999  0.722  0.722
 
 
    alpha     11     12     13     14     15     16     17     18     19     20
-    beta     11     12     14     13     16     15     17     18     19     20
- overlap   0.999  0.999  1.000  1.000  0.879  0.879  0.999  1.000  1.000  0.755
+    beta     11     12     14     13     15     17     16     18     19     20
+ overlap   1.000  1.000  0.959  0.959  1.000  0.846  0.846  1.000  1.000  1.000
 
 
    alpha     21     22     23     24     25     26     27     28     29     30
-    beta     21     22     24     23     25     26     27     28     29     30
- overlap   0.755  1.000  0.731  0.731  1.000  0.752  0.752  1.000  1.000  1.000
+    beta     22     21     25     23     24     28     27     26     30     29
+ overlap   0.807  0.807  0.999  1.000  1.000  0.980  0.800  0.800  0.888  0.888
 
 
    alpha     31     32     33     34     35     36     37     38     39     40
-    beta     31     33     32     34     35     37     36     39     38     41
- overlap   1.000  0.974  0.974  1.000  1.000  1.000  1.000  0.840  0.840  0.744
+    beta     31     33     32     34     35     36     37     39     38     40
+ overlap   0.980  0.968  0.968  1.000  1.000  1.000  1.000  0.917  0.917  0.999
 
 
-   alpha     41     42     43     44     45     46
-    beta     40     43     42     44     45     46
- overlap   0.744  0.789  0.789  1.000  1.000  1.000
+   alpha     41     42     43     44     45     46     47     48     49     50
+    beta     41     43     42     44     45     49     48     46     47     50
+ overlap   0.999  0.999  0.999  1.000  1.000  0.751  0.751  0.772  0.772  1.000
+
+
+   alpha     51     52     53     54     55     56     57     58     59     60
+    beta     51     52     54     53     55     56     57     58     59     60
+ overlap   0.856  0.856  0.891  0.891  1.000  1.000  1.000  0.912  0.912  0.999
+
+
+   alpha     61     62     63     64     65     66     67     68     69     70
+    beta     61     62     63     64     65     66     67     68     69     70
+ overlap   0.756  0.756  0.980  0.980  0.999  1.000  0.801  0.801  1.000  1.000
+
+
+   alpha     71     72     73     74     75     76     77     78     79     80
+    beta     71     73     72     74     75     76     77     79     78     80
+ overlap   1.000  0.959  0.959  1.000  1.000  1.000  1.000  0.943  0.943  1.000
+
+
+   alpha     81     82     83     84     85     86     87     88     89     90
+    beta     81     82     83     85     84     86     87     88     90     89
+ overlap   1.000  1.000  1.000  0.993  0.993  1.000  0.764  0.764  1.000  1.000
+
+
+   alpha     91     92     93     94     95     96     97     98     99    100
+    beta     91     93     92     95     94     97     96     98     99    100
+ overlap   1.000  1.000  1.000  1.000  1.000  0.975  0.975  0.799  0.799  0.925
+
+
+   alpha    101    102    103    104    105    106    107    108    109    110
+    beta    101    102    104    103    106    105    109    107    108    110
+ overlap   0.925  1.000  0.986  0.986  1.000  1.000  1.000  0.760  0.760  1.000
+
+
+   alpha    111    112    113    114    115    116    117    118    119    120
+    beta    111    112    113    114    115    116    117    118    120    119
+ overlap   0.906  0.906  0.709  0.709  1.000  1.000  1.000  1.000  0.957  0.957
+
+
+   alpha    121    122    123    124    125    126    127    128    129    130
+    beta    121    122    124    123    126    125    128    127    129    130
+ overlap   0.768  0.768  1.000  1.000  1.000  1.000  0.826  0.826  1.000  1.000
+
+
+   alpha    131    132    133    134    135    136    137    138    139    140
+    beta    131    132    133    134    135    136    137    138    139    140
+ overlap   1.000  1.000  0.912  0.912  1.000  1.000  0.788  0.788  0.720  0.720
+
+
+   alpha    141    142    143    144    145    146    147    148    149    150
+    beta    141    142    143    144    145    146    147    151    150    154
+ overlap   0.981  0.981  1.000  1.000  1.000  0.973  0.973  0.987  0.987  0.995
+
+
+   alpha    151    152    153    154    155    156    157    158    159    160
+    beta    148    149    152    153    155    157    156    158    159    160
+ overlap   1.000  1.000  1.000  1.000  0.995  0.948  0.948  1.000  1.000  1.000
+
 
      --------------------------
      Expectation value of S2:  
      --------------------------
-      <S2> =      0.7524 (Exact =     0.7500)
+      <S2> =      0.7530 (Exact =     0.7500)
  
 
  center of mass
@@ -2227,38 +1878,38 @@ task dft
 
  moments of inertia (a.u.)
  ------------------
-           9.314219921020           0.000000000000           0.000000000000
-           0.000000000000           9.314219921020           0.000000000000
+         113.593104495629           0.000000000000           0.000000000000
+           0.000000000000         113.593104495629           0.000000000000
            0.000000000000           0.000000000000           0.000000000000
  Line search: 
-     step= 1.00 grad=-6.5D-10 hess= 3.1D-10 energy=     -5.012260 mode=accept  
- new step= 1.00                   predicted energy=     -5.012260
+     step= 1.00 grad=-8.7D-08 hess= 4.5D-08 energy=   -257.202701 mode=accept  
+ new step= 1.00                   predicted energy=   -257.202701
   no constraints, skipping   0.000000000000000E+000
   no constraints, skipping   0.000000000000000E+000
   no constraints, skipping   0.000000000000000E+000
 
           --------
-          Step   3
+          Step   2
           --------
  
  
-                           Geometry "geometry" -> "he2"
+                           Geometry "geometry" -> "ne2"
                            ----------------------------
  
  Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
  
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 he                   2.0000     0.00000000     0.00000000     0.57080572
-    2 he                   2.0000     0.00000000     0.00000000    -0.57080572
+    1 ne                  10.0000     0.00000000     0.00000000     0.89192688
+    2 ne                  10.0000     0.00000000     0.00000000    -0.89192688
  
       Atomic Mass 
       ----------- 
  
-      he                 4.002600
+      ne                19.992440
  
 
- Effective nuclear repulsion energy (a.u.)       1.8541413740
+ Effective nuclear repulsion energy (a.u.)      29.6648337208
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
@@ -2289,27 +1940,27 @@ task dft
  ------------------------------------------------------------------------------
        Tag                 Description            Shells   Functions and Types
  ---------------- ------------------------------  ------  ---------------------
- he                       aug-cc-pvtz                9       23   4s3p2d
+ ne                       aug-cc-pvqz               20       80   6s5p4d3f2g
 
 
       Symmetry analysis of basis
       --------------------------
  
-        a1g         9
-        a1u         0
-        a2g         0
-        a2u         9
-        b1g         2
-        b1u         2
-        b2g         2
-        b2u         2
-        eg         10
-        eu         10
+        a1g        22
+        a1u         2
+        a2g         2
+        a2u        22
+        b1g         9
+        b1u         9
+        b2g         9
+        b2u         9
+        eg         38
+        eu         38
  
 
   The DFT is already converged 
 
-         Total DFT energy =     -5.012260043693
+         Total DFT energy =   -257.202700561547
 
  
             General Information
@@ -2317,16 +1968,16 @@ task dft
           SCF calculation type: DFT
           Wavefunction type:  spin polarized.
           No. of atoms     :     2
-          No. of electrons :     3
-           Alpha electrons :     2
-            Beta electrons :     1
+          No. of electrons :    19
+           Alpha electrons :    10
+            Beta electrons :     9
           Charge           :     1
           Spin multiplicity:     2
           Use of symmetry is: on ; symmetry adaption is: on 
           Maximum number of iterations:  50
           This is a Direct SCF calculation.
-          AO basis - number of functions:    46
-                     number of shells:    18
+          AO basis - number of functions:   160
+                     number of shells:    40
           Convergence on energy requested:  1.00D-09
           Convergence on density requested:  1.00D-05
           Convergence on gradient requested:  5.00D-04
@@ -2335,25 +1986,25 @@ task dft
               --------------
           Using LibXC version      5.1.5
                      Hartree-Fock (Exact) Exchange  1.000          
-                                   hyb_gga_xc_wb97  1.000
+                                  hyb_gga_xc_wb97x  1.000
  
            Range-Separation Parameters        
            ---------------------------
-           Alpha           :  0.00
-           Beta            :  1.00
-           Gamma           :  0.40
+           Alpha           :  0.16
+           Beta            :  0.84
+           Gamma           :  0.30
            Short-Range HF  :     F
  
              Grid Information
              ----------------
-          Grid used for XC integration:  fine      
+          Grid used for XC integration:  xfine     
           Radial quadrature: Mura-Knowles        
           Angular quadrature: Lebedev. 
           Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
           ---              ---------- --------- --------- ---------
-          he                  0.35       70           9.0       590
+          ne                  0.50      100           9.0      1454
           Grid pruning is: on 
-          Number of quadrature shells:    70
+          Number of quadrature shells:   100
           Spatial weights used:  Erf1
  
           Convergence Information
@@ -2400,21 +2051,21 @@ task dft
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 he      0.000000   0.000000   1.078666    0.000000   0.000000  -0.000000
-   2 he      0.000000   0.000000  -1.078666    0.000000   0.000000   0.000000
+   1 ne      0.000000   0.000000   1.685497    0.000000   0.000000   0.000004
+   2 ne      0.000000   0.000000  -1.685497    0.000000   0.000000  -0.000004
  
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       0.65   |
+                 |  CPU   |       0.02   |      83.29   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       0.65   |
+                 |  WALL  |       0.02   |      83.29   |
                  ----------------------------------------
   no constraints, skipping   0.000000000000000E+000
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    3      -5.01226004 -3.4D-10  0.00000  0.00000  0.00002  0.00003      7.4
+@    2    -257.20270056 -4.1D-08  0.00000  0.00000  0.00029  0.00050    926.0
                                      ok       ok       ok       ok  
 
 
@@ -2426,7 +2077,7 @@ task dft
  
       Type          Name      I     J     K     L     M      Value     Gradient
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
-    1 Stretch                  1     2                       1.14161   -0.00000
+    1 Stretch                  1     2                       1.78385    0.00000
  
 
       ----------------------
@@ -2436,7 +2087,7 @@ task dft
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    3      -5.01226004 -3.4D-10  0.00000  0.00000  0.00002  0.00003      7.4
+@    2    -257.20270056 -4.1D-08  0.00000  0.00000  0.00029  0.00050    926.0
                                      ok       ok       ok       ok  
 
 
@@ -2448,27 +2099,27 @@ task dft
  
       Type          Name      I     J     K     L     M      Value     Gradient
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
-    1 Stretch                  1     2                       1.14161   -0.00000
+    1 Stretch                  1     2                       1.78385    0.00000
  
  
  
-                           Geometry "geometry" -> "he2"
+                           Geometry "geometry" -> "ne2"
                            ----------------------------
  
  Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
  
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 he                   2.0000     0.00000000     0.00000000     0.57080572
-    2 he                   2.0000     0.00000000     0.00000000    -0.57080572
+    1 ne                  10.0000     0.00000000     0.00000000     0.89192688
+    2 ne                  10.0000     0.00000000     0.00000000    -0.89192688
  
       Atomic Mass 
       ----------- 
  
-      he                 4.002600
+      ne                19.992440
  
 
- Effective nuclear repulsion energy (a.u.)       1.8541413740
+ Effective nuclear repulsion energy (a.u.)      29.6648337208
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
@@ -2501,10 +2152,10 @@ task dft
  
       Type          Name      I     J     K     L     M      Value       Change
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
-    1 Stretch                  1     2                       1.14161   -0.05839
+    1 Stretch                  1     2                       1.78385   -0.01615
  
 
- Task  times  cpu:        7.3s     wall:        7.3s
+ Task  times  cpu:      925.9s     wall:      925.9s
  
  
                                 NWChem Input Module
@@ -2522,7 +2173,7 @@ task dft
  ------------------------------------------------------------------------------
        Tag                 Description            Shells   Functions and Types
  ---------------- ------------------------------  ------  ---------------------
- he                       aug-cc-pvtz                9       23   4s3p2d
+ ne                       aug-cc-pvqz               20       80   6s5p4d3f2g
 
 
   int_init: cando_txs set to always be  F
@@ -2533,16 +2184,16 @@ task dft
           SCF calculation type: DFT
           Wavefunction type:  spin polarized.
           No. of atoms     :     1
-          No. of electrons :     1
-           Alpha electrons :     1
-            Beta electrons :     0
+          No. of electrons :     9
+           Alpha electrons :     5
+            Beta electrons :     4
           Charge           :     1
           Spin multiplicity:     2
           Use of symmetry is: off; symmetry adaption is: off
           Maximum number of iterations:  50
           This is a Direct SCF calculation.
-          AO basis - number of functions:    23
-                     number of shells:     9
+          AO basis - number of functions:    80
+                     number of shells:    20
           Convergence on energy requested:  1.00D-09
           Convergence on density requested:  1.00D-05
           Convergence on gradient requested:  5.00D-04
@@ -2551,25 +2202,25 @@ task dft
               --------------
           Using LibXC version      5.1.5
                      Hartree-Fock (Exact) Exchange  1.000          
-                                   hyb_gga_xc_wb97  1.000
+                                  hyb_gga_xc_wb97x  1.000
  
            Range-Separation Parameters        
            ---------------------------
-           Alpha           :  0.00
-           Beta            :  1.00
-           Gamma           :  0.40
+           Alpha           :  0.16
+           Beta            :  0.84
+           Gamma           :  0.30
            Short-Range HF  :     F
  
              Grid Information
              ----------------
-          Grid used for XC integration:  fine      
+          Grid used for XC integration:  xfine     
           Radial quadrature: Mura-Knowles        
           Angular quadrature: Lebedev. 
           Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
           ---              ---------- --------- --------- ---------
-          he                  0.35       70           7.0       590
+          ne                  0.50      100           6.0      1454
           Grid pruning is: on 
-          Number of quadrature shells:    70
+          Number of quadrature shells:   100
           Spatial weights used:  Erf1
  
           Convergence Information
@@ -2597,8 +2248,8 @@ task dft
 
 
  !! nbf/nmo/basis-name mismatch 
-           nbf=  23 nbf_file=  46
-           nmo=  23 nmo_file=  46
+           nbf=  80 nbf_file= 160
+           nmo=  80 nmo_file= 160
            basis="ao basis" basis_file="ao basis"
 
   Either an incorrect movecs file was 
@@ -2616,54 +2267,58 @@ task dft
       Superposition of Atomic Density Guess
       -------------------------------------
  
- Sum of atomic energies:          -2.86118342
+ Sum of atomic energies:        -128.54375573
 
- Renormalizing density from       2.00 to      1
+ Renormalizing density from      10.00 to      9
  
       Non-variational initial energy
       ------------------------------
 
- Total energy =      -1.943315
- 1-e energy   =      -1.943315
- 2-e energy   =       0.000000
- HOMO         =      -1.998921
- LUMO         =      -0.495551
+ Total energy =    -120.551990
+ 1-e energy   =    -164.315476
+ 2-e energy   =      43.763486
+ HOMO         =      -1.812004
+ LUMO         =      -0.143690
  
-   Time after variat. SCF:      7.4
-   Time prior to 1st pass:      7.4
+   Time after variat. SCF:    926.3
+   Time prior to 1st pass:    926.3
 
- Grid_pts file          = ./libxc_he2p_wb97.gridpts.0
+ Grid_pts file          = ./ne2p.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     16        Max. recs in file   =   1003463
+ Max. records in memory =     54        Max. recs in file   =   1033779
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.91            12909980
-          Stack Space remaining (MW):       13.11            13106884
+           Heap Space remaining (MW):       12.44            12441980
+          Stack Space remaining (MW):       13.11            13106460
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -1.9948959143 -1.99D+00  1.59D-03  2.65D-03     7.5
-                                                     0.00D+00  0.00D+00
- d= 0,ls=0.0,diis     2     -1.9953966580 -5.01D-04  2.32D-04  4.61D-05     7.5
-                                                     0.00D+00  0.00D+00
- d= 0,ls=0.0,diis     3     -1.9954103669 -1.37D-05  5.05D-06  4.01D-08     7.5
-                                                     0.00D+00  0.00D+00
- d= 0,ls=0.0,diis     4     -1.9954103819 -1.49D-08  1.41D-07  1.03D-11     7.6
-                                                     0.00D+00  0.00D+00
- d= 0,ls=0.0,diis     5     -1.9954103819 -2.87D-12  6.99D-09  3.51D-14     7.6
-                                                     0.00D+00  0.00D+00
+ d= 0,ls=0.0,diis     1   -128.1125815760 -1.28D+02  1.74D-03  4.87D-01   927.0
+                                                     1.94D-03  3.97D-01
+ d= 0,ls=0.0,diis     2   -128.1496066749 -3.70D-02  6.85D-04  1.04D-01   929.7
+                                                     5.87D-04  7.48D-02
+ d= 0,ls=0.0,diis     3   -128.1637166235 -1.41D-02  4.94D-05  6.00D-04   933.3
+                                                     8.36D-05  8.77D-04
+ d= 0,ls=0.0,diis     4   -128.1638487341 -1.32D-04  8.64D-06  5.07D-06   936.9
+                                                     7.55D-06  1.72D-06
+ d= 0,ls=0.0,diis     5   -128.1638500998 -1.37D-06  1.11D-06  3.92D-08   940.5
+                                                     1.23D-06  6.31D-08
+ d= 0,ls=0.0,diis     6   -128.1638501271 -2.73D-08  1.05D-07  4.75D-10   944.0
+                                                     1.26D-07  5.89D-10
+ d= 0,ls=0.0,diis     7   -128.1638501274 -2.90D-10  1.09D-08  7.50D-12   947.6
+                                                     3.37D-08  7.55D-12
 
 
-         Total DFT energy =       -1.995410381896
-      One electron energy =       -1.998365113573
-           Coulomb energy =        0.619242791187
-    Exchange-Corr. energy =       -0.616288059510
+         Total DFT energy =     -128.163850127376
+      One electron energy =     -175.103648313024
+           Coulomb energy =       58.929676889232
+    Exchange-Corr. energy =      -11.989878703584
  Nuclear repulsion energy =        0.000000000000
 
- Numeric. integr. density =        1.000000000000
+ Numeric. integr. density =        8.999999999998
 
-     Total iterative time =      0.2s
+     Total iterative time =     21.3s
 
 
 
@@ -2672,26 +2327,52 @@ task dft
 
 
    alpha      1      2      3      4      5      6      7      8      9     10
-    beta      1      2      3      5      4      6      8      8      9      7
- overlap   1.000  0.961  0.641  0.775  0.840  0.961  0.537  0.747  0.701  0.708
+    beta      1      2      5      4      3      6      9      7      8     14
+ overlap   1.000  1.000  0.997  0.999  0.999  1.000  0.999  1.000  1.000  1.000
 
 
    alpha     11     12     13     14     15     16     17     18     19     20
-    beta     11     12     14     12     15     16     17     18     19     20
- overlap   0.625  0.613  0.704  0.780  1.000  0.803  0.873  0.754  0.930  0.988
+    beta     11     10     12     13     17     16     15     18     23     19
+ overlap   0.997  0.997  1.000  1.000  0.997  1.000  1.000  1.000  1.000  0.996
 
 
-   alpha     21     22     23
-    beta     22     23     21
- overlap   0.856  0.687  0.693
+   alpha     21     22     23     24     25     26     27     28     29     30
+    beta     20     22     21     24     25     26     27     28     30     29
+ overlap   0.996  1.000  1.000  1.000  0.986  0.986  1.000  1.000  0.989  0.989
+
+
+   alpha     31     32     33     34     35     36     37     38     39     40
+    beta     33     32     31     34     35     39     38     36     37     40
+ overlap   0.999  0.996  0.996  0.999  1.000  1.000  1.000  0.794  0.794  0.997
+
+
+   alpha     41     42     43     44     45     46     47     48     49     50
+    beta     41     42     43     48     47     46     45     44     49     51
+ overlap   0.997  0.996  0.996  0.999  1.000  1.000  1.000  1.000  1.000  0.999
+
+
+   alpha     51     52     53     54     55     56     57     58     59     60
+    beta     50     53     52     54     55     58     57     56     67     65
+ overlap   0.999  1.000  1.000  0.884  0.884  1.000  0.997  0.997  1.000  0.866
+
+
+   alpha     61     62     63     64     65     66     67     68     69     70
+    beta     66     61     62     59     60     63     64     74     73     72
+ overlap   0.866  0.977  0.977  0.998  0.998  0.998  0.998  1.000  0.998  0.998
+
+
+   alpha     71     72     73     74     75     76     77     78     79     80
+    beta     69     68     71     70     79     77     78     76     75     80
+ overlap   1.000  1.000  0.993  0.993  1.000  0.985  0.985  0.989  0.989  1.000
+
 
      --------------------------
      Expectation value of S2:  
      --------------------------
-      <S2> =      0.7500 (Exact =     0.7500)
+      <S2> =      0.7511 (Exact =     0.7500)
  
 
- Task  times  cpu:        0.2s     wall:        0.2s
+ Task  times  cpu:       21.6s     wall:       21.6s
  
  
                                 NWChem Input Module
@@ -2709,7 +2390,7 @@ task dft
  ------------------------------------------------------------------------------
        Tag                 Description            Shells   Functions and Types
  ---------------- ------------------------------  ------  ---------------------
- he                       aug-cc-pvtz                9       23   4s3p2d
+ ne                       aug-cc-pvqz               20       80   6s5p4d3f2g
 
 
   int_init: cando_txs set to always be  F
@@ -2720,16 +2401,16 @@ task dft
           SCF calculation type: DFT
           Wavefunction type:  spin polarized.
           No. of atoms     :     1
-          No. of electrons :     2
-           Alpha electrons :     1
-            Beta electrons :     1
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
           Charge           :     0
           Spin multiplicity:     1
           Use of symmetry is: off; symmetry adaption is: off
           Maximum number of iterations:  50
           This is a Direct SCF calculation.
-          AO basis - number of functions:    23
-                     number of shells:     9
+          AO basis - number of functions:    80
+                     number of shells:    20
           Convergence on energy requested:  1.00D-09
           Convergence on density requested:  1.00D-05
           Convergence on gradient requested:  5.00D-04
@@ -2738,25 +2419,25 @@ task dft
               --------------
           Using LibXC version      5.1.5
                      Hartree-Fock (Exact) Exchange  1.000          
-                                   hyb_gga_xc_wb97  1.000
+                                  hyb_gga_xc_wb97x  1.000
  
            Range-Separation Parameters        
            ---------------------------
-           Alpha           :  0.00
-           Beta            :  1.00
-           Gamma           :  0.40
+           Alpha           :  0.16
+           Beta            :  0.84
+           Gamma           :  0.30
            Short-Range HF  :     F
  
              Grid Information
              ----------------
-          Grid used for XC integration:  fine      
+          Grid used for XC integration:  xfine     
           Radial quadrature: Mura-Knowles        
           Angular quadrature: Lebedev. 
           Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
           ---              ---------- --------- --------- ---------
-          he                  0.35       70           7.0       590
+          ne                  0.50      100           6.0      1454
           Grid pruning is: on 
-          Number of quadrature shells:    70
+          Number of quadrature shells:   100
           Spatial weights used:  Erf1
  
           Convergence Information
@@ -2787,45 +2468,47 @@ task dft
 
 
 
-   Time after variat. SCF:      7.6
-   Time prior to 1st pass:      7.6
+   Time after variat. SCF:    947.7
+   Time prior to 1st pass:    947.7
 
- Grid_pts file          = ./libxc_he2p_wb97.gridpts.0
+ Grid_pts file          = ./ne2p.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     16        Max. recs in file   =   1003453
+ Max. records in memory =     54        Max. recs in file   =   1033749
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.91            12909980
-          Stack Space remaining (MW):       13.11            13106884
+           Heap Space remaining (MW):       12.44            12441980
+          Stack Space remaining (MW):       13.11            13106460
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1     -2.7893480763 -2.79D+00  1.05D-02  2.87D-01     7.6
-                                                     1.16D-02  2.70D-01
- d= 0,ls=0.0,diis     2     -2.9007820078 -1.11D-01  7.82D-04  6.06D-03     7.7
-                                                     9.02D-04  6.68D-03
- d= 0,ls=0.0,diis     3     -2.9020562728 -1.27D-03  1.69D-04  4.03D-05     7.7
-                                                     2.67D-04  6.55D-05
- d= 0,ls=0.0,diis     4     -2.9020745397 -1.83D-05  1.05D-05  2.22D-07     7.7
-                                                     1.40D-05  1.10D-07
- d= 0,ls=0.0,diis     5     -2.9020747018 -1.62D-07  3.52D-06  6.99D-09     7.8
-                                                     4.59D-06  1.27D-08
- d= 0,ls=0.0,diis     6     -2.9020747140 -1.22D-08  3.52D-07  3.60D-11     7.8
-                                                     2.79D-07  1.93D-11
- d= 0,ls=0.0,diis     7     -2.9020747140 -3.45D-11  6.72D-09  1.13D-14     7.9
-                                                     3.73D-09  1.32D-14
+ d= 0,ls=0.0,diis     1   -128.8257953398 -1.29D+02  3.60D-03  5.64D-01   951.3
+                                                     3.06D-03  4.01D-01
+ d= 0,ls=0.0,diis     2   -128.8682839480 -4.25D-02  1.25D-03  4.33D-01   954.6
+                                                     1.34D-03  4.79D-01
+ d= 0,ls=0.0,diis     3   -128.9524286724 -8.41D-02  1.47D-04  4.72D-04   957.6
+                                                     1.47D-04  1.60D-03
+ d= 0,ls=0.0,diis     4   -128.9527546812 -3.26D-04  1.67D-05  5.69D-06   960.0
+                                                     3.15D-05  3.68D-05
+ d= 0,ls=0.0,diis     5   -128.9527678148 -1.31D-05  7.32D-06  2.70D-06   961.6
+                                                     6.07D-06  3.56D-07
+ d= 0,ls=0.0,diis     6   -128.9527686580 -8.43D-07  6.57D-07  4.90D-09   963.1
+                                                     8.75D-07  1.37D-08
+ d= 0,ls=0.0,diis     7   -128.9527686670 -9.06D-09  1.01D-07  2.12D-10   964.5
+                                                     1.42D-07  1.88D-10
+ d= 0,ls=0.0,diis     8   -128.9527686672 -1.86D-10  9.87D-09  3.12D-12   965.8
+                                                     1.69D-08  8.90D-12
 
 
-         Total DFT energy =       -2.902074714017
-      One electron energy =       -3.875505195257
-           Coulomb energy =        2.031124125350
-    Exchange-Corr. energy =       -1.057693644110
+         Total DFT energy =     -128.952768667226
+      One electron energy =     -182.441141941428
+           Coulomb energy =       65.973284213379
+    Exchange-Corr. energy =      -12.484910939177
  Nuclear repulsion energy =        0.000000000000
 
- Numeric. integr. density =        1.999999999975
+ Numeric. integr. density =        9.999999999925
 
-     Total iterative time =      0.3s
+     Total iterative time =     18.0s
 
 
 
@@ -2834,26 +2517,52 @@ task dft
 
 
    alpha      1      2      3      4      5      6      7      8      9     10
-    beta      1      2      5      3      3      6      8     11     10      7
- overlap   1.000  1.000  0.883  0.714  0.700  1.000  0.730  0.941  0.857  0.629
+    beta      1      2      5      4      3      6      9      8      7     10
+ overlap   1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
 
 
    alpha     11     12     13     14     15     16     17     18     19     20
-    beta      9     13     13     14     15     17     16     19     18     20
- overlap   0.753  0.661  0.738  0.801  1.000  0.890  0.724  0.683  0.762  0.801
+    beta     11     12     14     13     17     16     15     18     22     23
+ overlap   1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
 
 
-   alpha     21     22     23
-    beta     22     21     23
- overlap   0.990  0.933  0.938
+   alpha     21     22     23     24     25     26     27     28     29     30
+    beta     21     20     19     30     28     29     27     26     25     24
+ overlap   1.000  1.000  1.000  1.000  1.000  1.000  0.741  0.741  1.000  1.000
+
+
+   alpha     31     32     33     34     35     36     37     38     39     40
+    beta     33     32     31     34     35     36     37     38     39     40
+ overlap   0.999  0.999  1.000  1.000  0.998  0.998  1.000  1.000  0.999  0.999
+
+
+   alpha     41     42     43     44     45     46     47     48     49     50
+    beta     42     41     43     47     48     46     45     44     50     49
+ overlap   1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  0.982  0.982
+
+
+   alpha     51     52     53     54     55     56     57     58     59     60
+    beta     51     52     55     54     53     58     57     56     66     67
+ overlap   0.898  0.898  0.998  0.998  1.000  1.000  1.000  1.000  0.914  0.914
+
+
+   alpha     61     62     63     64     65     66     67     68     69     70
+    beta     64     65     62     63     61     60     59     73     74     71
+ overlap   1.000  1.000  1.000  1.000  0.998  0.998  1.000  0.961  0.961  0.805
+
+
+   alpha     71     72     73     74     75     76     77     78     79     80
+    beta     72     69     70     68     78     79     77     76     75     80
+ overlap   0.805  0.970  0.970  1.000  1.000  1.000  0.936  0.936  1.000  1.000
+
 
      --------------------------
      Expectation value of S2:  
      --------------------------
-      <S2> =     -0.0000 (Exact =     0.0000)
+      <S2> =      0.0000 (Exact =     0.0000)
  
 
- Task  times  cpu:        0.3s     wall:        0.3s
+ Task  times  cpu:       18.1s     wall:       18.1s
  
  
                                 NWChem Input Module
@@ -2870,11 +2579,11 @@ task dft
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 2196     2102     1.47e+05 3.36e+04 1.35e+04    0        0     3930     
-number of processes/call -5.66e+13 1.29e+14 -2.56e+14 0.00e+00 0.00e+00
-bytes total:             1.21e+08 3.56e+07 7.29e+07 0.00e+00 0.00e+00 3.14e+04
+calls: 1795     1711     9.27e+05 9.01e+04 1.18e+04    0        0     3755     
+number of processes/call 3.94e+12 7.85e+13 9.70e+13 0.00e+00 0.00e+00
+bytes total:             1.37e+09 3.38e+08 7.50e+08 0.00e+00 0.00e+00 3.00e+04
 bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 1083392 bytes
+Max memory consumed for GA by this process: 13107200 bytes
  
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -2886,9 +2595,9 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	        23	        62
 	current total bytes		         0	         0
-	maximum total bytes		   1581016	  22512552
-	maximum total K-bytes		      1582	     22513
-	maximum total M-bytes		         2	        23
+	maximum total bytes		   5333184	  58818728
+	maximum total K-bytes		      5334	     58819
+	maximum total M-bytes		         6	        59
  
  
                                      CITATION
@@ -2944,4 +2653,4 @@ MA usage statistics:
       T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
 
- Total times  cpu:        7.9s     wall:        7.9s
+ Total times  cpu:      965.8s     wall:      965.8s
