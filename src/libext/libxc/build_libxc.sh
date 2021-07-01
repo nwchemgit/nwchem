@@ -1,4 +1,22 @@
 #!/usr/bin/env bash
+get_cmake38(){
+	UNAME_S=$(uname -s)
+	if [[ ${UNAME_S} == "Linux" ]] || [[ ${UNAME_S} == "Darwin" ]] && [[ $(uname -m) == "x86_64" ]] ; then
+	    CMAKE_VER=3.16.8
+	    rm -f cmake-${CMAKE_VER}-${UNAME_S}-x86_64.tar.gz
+	    curl -L https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-${UNAME_S}-x86_64.tar.gz -o cmake-${CMAKE_VER}-${UNAME_S}-x86_64.tar.gz
+	    tar xzf cmake-${CMAKE_VER}-${UNAME_S}-x86_64.tar.gz
+	    if [[ ${UNAME_S} == "Darwin" ]] ;then
+		CMAKE=`pwd`/cmake-${CMAKE_VER}-${UNAME_S}-x86_64/CMake.app/Contents/bin/cmake
+	    else
+		CMAKE=`pwd`/cmake-${CMAKE_VER}-${UNAME_S}-x86_64/bin/cmake
+	    fi
+	    return 0
+	else
+	    return 1
+	fi
+
+}
 
 VERSION=5.1.5
 
@@ -29,11 +47,26 @@ if [[  -z "${FC}" ]]; then
 fi
 
 cd libxc
-mkdir build
+mkdir -p build
 
-cmake -H. -Bbuild -DCMAKE_INSTALL_PREFIX=${NWCHEM_TOP}/src/libext/libxc/install -DCMAKE_C_COMPILER=$CC -DENABLE_FORTRAN=ON -DCMAKE_Fortran_COMPILER=$FC -DDISABLE_KXC=OFF
-
+if [[ -z "${CMAKE}" ]]; then
+    #look for cmake
+    if [[ -z "$(command -v cmake)" ]]; then
+	get_cmake38
+	status=$?
+	if [ $status -ne 0 ]; then
+	    echo cmake required to build libxc
+	    echo Please install cmake
+	    echo define the CMAKE env. variable
+	    exit 1
+	fi
+    else
+	CMAKE=cmake
+    fi
+fi
 cd build
+$CMAKE -H.  -DCMAKE_INSTALL_PREFIX=${NWCHEM_TOP}/src/libext/libxc/install -DCMAKE_C_COMPILER=$CC -DENABLE_FORTRAN=ON -DCMAKE_Fortran_COMPILER=$FC -DDISABLE_KXC=OFF ..
+
 make -j2 | tee make.log
 make install
 
