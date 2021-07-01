@@ -1,0 +1,24 @@
+#!/bin/bash 
+#
+# $Id$
+#
+# jochen: modification of doqmtests.mpi, I really want only a few
+# small tests for HF, DFT, response, TDDFT
+#
+let np=1
+if [ -n "$1" ]; then
+   np="$1"
+fi
+  echo
+  echo " ======================================================="
+  echo " QM: Running tests for the libxc interface"
+  echo " ======================================================="
+  echo
+
+#
+#---   small tests
+./runtests.mpi.unix procs $np libxc_he2+ 
+./runtests.mpi.unix procs $np libxc_li2freq
+./runtests.mpi.unix procs $np libxc-h2o-camb3lyp-pol
+./runtests.mpi.unix procs $np libxc_he2p_wb97
+./runtests.mpi.unix procs $np libxc_ne2p_wb97x
