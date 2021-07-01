@@ -4394,6 +4394,10 @@ cc AJL/End
      $                     mt_log,1,.true.)))
      $   call errquit('xc_inp: rtdb_put failed', 8, RTDB_ERR)
         call nwchem_libxc_rtdbput(rtdb,module(1:mlen))
+        else
+        if (.not.(rtdb_put(rtdb, module(1:mlen)//':libxcon',
+     $                     mt_log,1,.false.)))
+     $   call errquit('xc_inp: rtdb_put failed', 9, RTDB_ERR)
       endif   
 c
       return
