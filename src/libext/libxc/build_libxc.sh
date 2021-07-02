@@ -78,7 +78,28 @@ fi
 cd libxc
 mkdir -p build
 cd build
-$CMAKE  -DCMAKE_INSTALL_PREFIX=${NWCHEM_TOP}/src/libext/libxc/install -DCMAKE_C_COMPILER=$CC -DENABLE_FORTRAN=ON -DCMAKE_Fortran_COMPILER=$FC -DDISABLE_KXC=OFF -DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_BUILD_TYPE=Release ..
+if [[ -z "${NWCHEM_TOP}" ]]; then
+#    DIRQA=`dirname "$0"`
+    MYPWD=`pwd`
+#    echo DIRQ $DIRQA
+    NWCHEM_TOP=`echo ${MYPWD} | sed -e 's/\/src.*//' `
+fi
+echo @@ NWCHEM_TOP @@ $NWCHEM_TOP
+if [[ ! -z $NWCHEM_TARGET && $NWCHEM_TARGET == "LINUX" ]] ; then
+    if [[ `uname -m` == x86_64 ]] ; then
+	ldflags=-m32
+	cflags=-m32
+	fcflags=-m32
+    fi
+else
+    ldflags=" "
+    cflags=" "
+    fcflags=" "
+fi
+CMAKE_EXE_LINKER_FLAGS=
+$CMAKE  -DCMAKE_INSTALL_PREFIX=${NWCHEM_TOP}/src/libext/libxc/install -DCMAKE_C_COMPILER=$CC -DENABLE_FORTRAN=ON -DCMAKE_Fortran_COMPILER=$FC -DDISABLE_KXC=OFF \
+-DCMAKE_EXE_LINKER_FLAGS=$ldflags  -DCMAKE_Fortran_FLAGS=$fcflags -DCMAKE_C_FLAGS=$cflags \
+-DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_BUILD_TYPE=Release ..
 
 
 make -j2 | tee make.log
