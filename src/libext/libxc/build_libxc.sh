@@ -46,9 +46,6 @@ if [[  -z "${FC}" ]]; then
     fi
 fi
 
-cd libxc
-mkdir -p build
-
 if [[ -z "${CMAKE}" ]]; then
     #look for cmake
     if [[ -z "$(command -v cmake)" ]]; then
@@ -64,8 +61,25 @@ if [[ -z "${CMAKE}" ]]; then
 	CMAKE=cmake
     fi
 fi
+CMAKE_VER_MAJ=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -d. -f1)
+CMAKE_VER_MIN=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -d. -f2)
+echo CMAKE_VER is ${CMAKE_VER_MAJ} ${CMAKE_VER_MIN}
+if ((CMAKE_VER_MAJ < 3)) || (((CMAKE_VER_MAJ > 2) && (CMAKE_VER_MIN < 8))); then
+    get_cmake38
+    status=$?
+    if [ $status -ne 0 ]; then
+	echo cmake required to build scalapack
+	echo Please install cmake
+	echo define the CMAKE env. variable
+	exit 1
+    fi
+fi
+
+cd libxc
+mkdir -p build
 cd build
-$CMAKE -H.  -DCMAKE_INSTALL_PREFIX=${NWCHEM_TOP}/src/libext/libxc/install -DCMAKE_C_COMPILER=$CC -DENABLE_FORTRAN=ON -DCMAKE_Fortran_COMPILER=$FC -DDISABLE_KXC=OFF ..
+$CMAKE  -DCMAKE_INSTALL_PREFIX=${NWCHEM_TOP}/src/libext/libxc/install -DCMAKE_C_COMPILER=$CC -DENABLE_FORTRAN=ON -DCMAKE_Fortran_COMPILER=$FC -DDISABLE_KXC=OFF -DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_BUILD_TYPE=Release ..
+
 
 make -j2 | tee make.log
 make install
