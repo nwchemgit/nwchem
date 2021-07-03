@@ -26,4 +26,5 @@ else
 ./runtests.mpi.unix procs $np libxc_ne2p_wb97x
 ./runtests.mpi.unix procs $np libxc_o2_bnl
 ./runtests.mpi.unix procs $np libxc_tddftgrad_n2_uks
+./runtests.mpi.unix procs $np libxc_tddftgrad_h2
 fi
