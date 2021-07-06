@@ -10,11 +10,11 @@ c
 c
 c     Returns print level for BGJ debug writes
 c
-      function bgj_print()
+      function bgj_print(rtdb)
 c
       implicit none
       integer bgj_print
-#include "bgj_common.fh"
+      integer rtdb
 #include "rtdb.fh"
 #include "mafdecls.fh"
       integer print_level
@@ -22,7 +22,7 @@ c
       data print_level / -1 /
 c
       if (print_level .lt. 0) then
-         if (.not. rtdb_get(bgj_rtdb, 'bgj:print', mt_int,
+         if (.not. rtdb_get(rtdb, 'bgj:print', mt_int,
      &        1, print_level)) then
             print_level = 0
          endif
@@ -31,43 +31,25 @@ c
 c
       return
       end
-
-c
-c     Returns current rtdb handle
-c
-      function bgj_get_rtdb_handle()
-c
-      implicit none
-      integer bgj_get_rtdb_handle
-#include "bgj_common.fh"
-c
-c      write(*,*)'*** bgj_get_rtdb_handle called',bgj_rtdb
-      bgj_get_rtdb_handle = bgj_rtdb
-c
-      return
-      end
-
 c
 c     Returns either 'hf', 'dft' or 'hyb' in name
 c
-      function bgj_get_scf_method(name)
+      function bgj_get_scf_method(rtdb,name)
 c
       implicit none
-#include "errquit.fh"
       logical bgj_get_scf_method
+      integer rtdb
       character*3 name
 c
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
-c!!!
-#include "bgj_common.fh"
-c!!!
 c
       integer itype
 c
-      if (.not. rtdb_get(bgj_rtdb, 'bgj:scf_type', mt_int,
+      if (.not. rtdb_get(rtdb, 'bgj:scf_type', mt_int,
      &     1, itype)) then
-         call errquit('bgj_get_scf_method: error reading rtdb',bgj_rtdb,
+         call errquit('bgj_get_scf_method: error reading rtdb',rtdb,
      &       RTDB_ERR)
       endif
       if (itype.eq.1) then
@@ -89,41 +71,41 @@ c
 c
 c     Returns whether there is an XC contribution in this calculation
 c
-      function bgj_have_xc()
+      function bgj_have_xc(rtdb)
 c
       implicit none
 #include "errquit.fh"
       logical bgj_have_xc
+      integer rtdb
 c
       external bgj_get_scf_method
       logical bgj_get_scf_method
 c
       character*3 name
 c
-      if (.not.bgj_get_scf_method(name)) then
+      if (.not.bgj_get_scf_method(rtdb,name)) then
          call errquit('bgj_have_xc: error getting method name',1,
      &       UNKNOWN_ERR)
       endif
       bgj_have_xc = name .eq. 'dft' .or. name .eq. 'hyb'
-c      write(*,*)'*** bgj_have_xc called: ',name,' ',bgj_have_xc
-c
       return
       end
 
 c
 c     Returns coefficient of HF exchange for the current job
 c
-      function bgj_kfac()
+      function bgj_kfac(rtdb)
 c
       implicit none
       double precision bgj_kfac
+      integer rtdb
 c
 #include "../nwdft/include/cdft.fh"
 c
       external bgj_have_xc
       logical bgj_have_xc
 c
-      if (bgj_have_xc()) then
+      if (bgj_have_xc(rtdb)) then
          bgj_kfac = xfac(1)
       else
          bgj_kfac = 1.d0
@@ -135,17 +117,18 @@ c
 c
 c     Returns whether J fitting is involved is this calculation
 c
-      function bgj_have_j_fit()
+      function bgj_have_j_fit(rtdb)
 c
       implicit none
       logical bgj_have_j_fit
+      integer rtdb
 c
 #include "../nwdft/include/cdft.fh"
 c
       external bgj_have_xc
       logical bgj_have_xc
 c
-      bgj_have_j_fit = bgj_have_xc()
+      bgj_have_j_fit = bgj_have_xc(rtdb)
       if (bgj_have_j_fit) then
          bgj_have_j_fit = CDFIT
       endif
@@ -156,10 +139,11 @@ c
 c
 c     Returns CD basis handle, or -1 if there's not one
 c
-      function bgj_cd_bas_han()
+      function bgj_cd_bas_han(rtdb)
 c
       implicit none
       integer bgj_cd_bas_han
+      integer rtdb
 c
 #include "../nwdft/include/cdft.fh"
 c
@@ -167,7 +151,7 @@ c
       logical bgj_have_xc
 c
       bgj_cd_bas_han = -1
-      if (bgj_have_xc()) then
+      if (bgj_have_xc(rtdb)) then
          if (CDFIT) then
             bgj_cd_bas_han = CD_bas_han
          endif
@@ -179,14 +163,12 @@ c
 c
 c     Returns whether the calculation is restricted
 c
-      function bgj_restricted()
+      function bgj_restricted(rtdb)
 c
       implicit none
 #include "errquit.fh"
       logical bgj_restricted
-c
-c !!! BGJ
-#include "bgj_common.fh"
+      integer rtdb
 #include "rtdb.fh"
 #include "../nwdft/include/cdft.fh"
 c
@@ -195,8 +177,8 @@ c
 c
       character*10 scftype
 c
-      if (.not.bgj_have_xc()) then   ! HF case
-         if (.not. rtdb_cget(bgj_rtdb, 'scf:scftype', 1, scftype))
+      if (.not.bgj_have_xc(rtdb)) then   ! HF case
+         if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype))
      $        call errquit('bgj_restricted: problem getting scftype',0,
      &       RTDB_ERR)
          bgj_restricted = scftype .ne. 'UHF'
@@ -215,7 +197,7 @@ c
 c
 c     Returns handles to AO-basis SCF density matrices
 c
-      function bgj_get_scf_dens(g_dens)
+      function bgj_get_scf_dens(rtdb,g_dens)
 c
       implicit none
 #include "errquit.fh"
@@ -227,7 +209,6 @@ c !!! BGJ
 #include "global.fh"
 #include "rtdb.fh"
 #include "../nwdft/include/cdft.fh"
-#include "bgj_common.fh"
       logical movecs_read_header, movecs_read
       external movecs_read_header, movecs_read
       integer ga_create_atom_blocked
@@ -239,8 +220,6 @@ c !!! BGJ
       character*20 scftype_vecs
       double precision rhffact
       logical status
-c
-      rtdb = bgj_rtdb
 c
 c     get MO vectors from file
 c
@@ -376,46 +355,6 @@ c
       endif
 c
       bgj_get_scf_dens = .true.
-c
-      return
-      end
-c
-c     Checks for unrestricted 2nd derivative calculation on equal
-c     number of alpha and beta electrons with functional having a
-c     restricted/unrestricted discontinuity in that case
-c
-      subroutine bgj_check_xc_u2d()
-c
-      implicit none
-#include "errquit.fh"
-#include "bgj_common.fh"
-#include "rtdb.fh"
-#include "mafdecls.fh"
-#include "../nwdft/include/cdft.fh"
-      double precision c
-      logical dontcare
-c
-      if (ipol .eq. 2) then
-         if(.not.rtdb_get(bgj_rtdb,'dft:dontcare',mt_log, 1,dontcare))
-     .        dontcare=.false.
-         if(dontcare) return
-         if (noc(1) .eq. noc(2)) then
-c           Add up coefficents for problematic functionals
-            c = abs(cfac(1)) + abs(cfac(7)) + abs(cfac(8))
-     $        + abs(cfac(9)) + abs(cfac(10)) + abs(cfac(11))
-     $        + abs(cfac(6)) + abs(cfac(3))
-            if (c .gt. 1d-8) then
-      write(*,*)'*** For a closed-shell system the unrestricted version'
-      write(*,*)'*** of this XC functional yields different second'
-      write(*,*)'*** derivative results than the restricted form due to'
-      write(*,*)'*** a non-zero second derivative of the interpolation'
-      write(*,*)'*** function at rhoa = rhob.  You may run this job as'
-      write(*,*)'*** a restricted calculation if you wish.'
-      call errquit('Problem with XC functional 2nd derivative',0,
-     &       CALC_ERR)
-            endif
-         endif
-      endif
 c
       return
       end

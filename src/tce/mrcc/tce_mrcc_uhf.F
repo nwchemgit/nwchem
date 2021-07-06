@@ -201,7 +201,7 @@ ckbn        call util_flush(LuOut)
 ckbn      endif
 ckbn      cpu = - util_cpusec()
 ckbn      wall = - util_wallsec()
-      call fock_2e(geom, basis, nfock, jfac, kfac, tol2e,
+      call fock_2e(rtdb, geom, basis, nfock, jfac, kfac, tol2e,
      $     oskel, d, f, .false.)
 ckbn      cpu = cpu + util_cpusec()
 ckbn      wall = wall + util_wallsec()

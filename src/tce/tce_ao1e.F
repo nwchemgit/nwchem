@@ -116,7 +116,7 @@ c
       if (ipol.eq.1) then
         jf(1)=1.0d0
         kf(1)=-0.5d0
-        call shell_fock_build(geom,ao_bas_han,0,1,
+        call shell_fock_build(rtdb, geom,ao_bas_han,0,1,
      1    jf,kf,tol2e,g_ndens,g_nfock,.true.)
       else if (ipol.eq.2) then
         jf(1)=1.0d0
@@ -127,7 +127,7 @@ c
         nfu=2
         call uhf_fock_setup(g_ndens,g_nfock,jf,kf,ndu,
      1    nfu,nbf,.false.)
-        call shell_fock_build(geom,ao_bas_han,0,ndu,
+        call shell_fock_build(rtdb, geom,ao_bas_han,0,ndu,
      1    jf,kf,tol2e,g_ndens,g_nfock,.true.)
         call uhf_fock_finish(g_ndens,g_nfock,jf,kf,ndu,
      1    nfu,nbf,.false.)
@@ -267,7 +267,7 @@ c
       if (ipol.eq.1) then
         jf(1)=1.0d0
         kf(1)=-0.5d0
-        call fock_2e(geom,ao_bas_han,1,
+        call fock_2e(rtdb, geom,ao_bas_han,1,
      1    jf,kf,tol2e,.false.,g_dens,g_fock,.false.)
       else if (ipol.eq.2) then
         jf(1)=1.0d0
@@ -278,7 +278,7 @@ c
         kf(3)=1.0d0
         jf(4)=0.0d0
         kf(4)=1.0d0
-        call fock_2e(geom,ao_bas_han,4,
+        call fock_2e(rtdb, geom,ao_bas_han,4,
      1    jf,kf,tol2e,.false.,g_dens,g_fock,.false.)
       endif
       if (ipol.eq.1) then

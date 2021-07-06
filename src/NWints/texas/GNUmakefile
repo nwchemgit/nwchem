@@ -50,7 +50,6 @@ endif
                  derivat.o \
                  convert.o \
                  test_calc2.o \
-                 screened_op.o \
                  trobsa.o
 else
       OBJ = texas_stubs.o 
@@ -62,7 +61,6 @@ endif
                   trobsa.F  getmem.F
 
        LIBRARY = libnwints.a
-       HEADERS = screened_op.fh 
 
 ifdef XLF11
   DEFINES += -DXLF11

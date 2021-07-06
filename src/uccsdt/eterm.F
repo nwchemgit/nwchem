@@ -290,7 +290,7 @@ c
       f(2) = g_a_exch
       f(3) = g_b_coul
       f(4) = g_b_exch
-      call fock_2e(geom, basis, 4, jfac, kfac, tol2e,
+      call fock_2e(rtdb, geom, basis, 4, jfac, kfac, tol2e,
      &     oskel, d, f, .false.)
 c
 c     Assemble alpha and beta Fock matrices:

@@ -1,4 +1,5 @@
-      subroutine rohf_hessv_2e( basis, geom, nbf, nmo, nclosed, nopen,
+      subroutine rohf_hessv_2e( rtdb, basis, geom, 
+     &     nbf, nmo, nclosed, nopen,
      $     g_movec, oskel, g_x, acc, g_ax )
 C     $Id$
       implicit none
@@ -12,7 +13,7 @@ C     $Id$
 c     
 c     Return the ROHF orbital 2e-Hessian vector product, g_ax = A * g_x
 c     
-      integer basis, geom       ! basis & geom handle
+      integer rtdb, basis, geom       ! basis & geom handle
       integer nbf, nclosed, nopen ! Basis size and occupation
       integer nmo               ! No. of linearly dependent MOs
       integer g_movec           ! MO coefficients
@@ -182,7 +183,7 @@ c
          call ga_zero(iv_fock(ifock))
       enddo
 c
-      call fock_2e( geom, basis, nfock, jfac, kfac,
+      call fock_2e( rtdb, geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, iv_dens, iv_fock,.false.)
 c     
       if (oskel) then

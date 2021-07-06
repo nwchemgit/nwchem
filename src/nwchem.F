@@ -13,7 +13,6 @@
 #include "pstat.fh"
 #include "util.fh"
 #include "inp.fh"
-#include "bgj_common.fh"
 #include "stdio.fh"
       integer rtdb
       integer stack
@@ -259,10 +258,6 @@ C
 C     initialize nxtask
 C
       call nxtask_init(rtdb)
-c!!! BGJ
-      bgj_rtdb = rtdb
-c!!! BGJ
-c
 c
       
       if (ostartup.or.ocontinue) then

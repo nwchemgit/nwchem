@@ -137,7 +137,7 @@ c
       call int_init(rtdb,1,basis)
       call schwarz_init(geom,basis)
 
-      call fock_2e(geom, basis, nfock, jfac, kfac,
+      call fock_2e(rtdb, geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, g_dens, g_fock,.false. )
 c     
       call int_terminate()
@@ -269,7 +269,7 @@ c
       call int_init(rtdb,1,basis)
       call schwarz_init(geom,basis)
 
-      call fock_2e(geom, basis, nfock, jfac, kfac,
+      call fock_2e(rtdb, geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, g_dens, g_fock, .false.)
 c     
       call int_terminate()

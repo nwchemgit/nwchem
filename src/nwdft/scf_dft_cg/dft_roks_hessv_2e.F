@@ -252,7 +252,7 @@ c
 c
       if(util_print('dft timings', print_high))
      &      time1_2e=util_cpusec()   ! start 2e build time
-      call fock_2e( geom, basis, nfock, jfac, kfac,
+      call fock_2e(rtdb, geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, iv_dens, iv_fock,.false.)
       if(util_print('dft timings', print_high))
      &      time2_2e=util_cpusec()   ! end 2e build time
@@ -277,7 +277,6 @@ c       Swap the calc_type to get fock_xc to do the CPHF LHS at this
 c       point. Keep the original setting to restore original state
 c       at the end.
 c
-        rtdb = bgj_get_rtdb_handle()
         if (.not. rtdb_get(rtdb, 'fock_xc:calc_type', mt_int, 1,
      &     calc_type)) then
            calc_type = 1
@@ -299,7 +298,7 @@ c
      &      rodft = .false.   ! query the rtdb for the type of calculation
 
         if(xc_got2nd().and. (.not. rodft)) then
-           call fock_xc(geom, nbf, basis, jfock, g_dd, g_ff,
+           call fock_xc(rtdb,geom, nbf, basis, jfock, g_dd, g_ff,
      +                  Exc, nExc,.true.)
         end if
 c

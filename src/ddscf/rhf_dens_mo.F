@@ -85,7 +85,7 @@ c
       call int_1e_ga(basis, basis, g_hcore,'potential', oskel)
 c     
       if (nelec.gt.1 .and. abs(dens_norm) .gt. 1d-2)
-     $     call rhf_fock_2e(geom, basis, g_dens, g_fock, tol2e,
+     $     call rhf_fock_2e(rtdb, geom, basis, g_dens, g_fock, tol2e,
      &     .true., .true., oskel)
 c     
 c     Compute contributions to the energy and symmetrize

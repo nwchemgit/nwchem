@@ -25,4 +25,10 @@ scf; print low; end
 
 task scf optimize
 
+task scf freq
+
+task dft optimize
+
+task dft freq
+
 
