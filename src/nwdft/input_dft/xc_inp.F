@@ -140,7 +140,7 @@ c     xperde86 ==> 9520
 c
 c     hcth147@tz2p ==> 1947
 c
-      integer num_dirs, ind, mlen, iline, n
+      integer num_dirs, ind, mlen, iline, n, itemp
       parameter (num_dirs=159)
 c
       character*15 dirs(num_dirs)
@@ -152,6 +152,9 @@ c
       logical  lcfac(numfunc),  lxfac(numfunc), ck_local
       logical nlcfac(numfunc), nlxfac(numfunc)
       logical xccomb(numfunc)
+      logical success
+      logical,external :: nwchem_libxc_init
+      logical,external :: is_libxcon
 c
 c     XC functionals coefficients
 c     
@@ -210,6 +213,8 @@ c     Grab the current input line and dump the functional specification
 c     onto the RTDB. This way external programs can pick the actual
 c     functional definition up as it was entered.
 c
+      success = nwchem_libxc_init()
+
       if (.not.inp_line(test)) then
          write(*,*)'xc_input: Could not read functional specification'
       endif
@@ -244,6 +249,9 @@ c
  10   if (.not. inp_a(test)) goto 1999
 c     
       if (.not. inp_match(num_dirs, .false., test, dirs, ind)) then
+        call nwchem_libxc_read(rtdb,test,success,xfac,lxfac,
+     $                         nlxfac)
+        if (success) goto 10
 c     
 c        Does not match a keyword ... 
 c     
@@ -272,6 +280,8 @@ c
      &  1947,
      &  9410,9420,9430,
      &     1999 ) ind
+
+
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     acm; adiabatic connection method
@@ -4378,6 +4388,17 @@ c
      &   call errquit('xc_inp: rtdb_put failed', 7, RTDB_ERR)
 
 cc AJL/End
+
+      if (is_libxcon()) then
+        if (.not.(rtdb_put(rtdb, module(1:mlen)//':libxcon',
+     $                     mt_log,1,.true.)))
+     $   call errquit('xc_inp: rtdb_put failed', 8, RTDB_ERR)
+        call nwchem_libxc_rtdbput(rtdb,module(1:mlen))
+        else
+        if (.not.(rtdb_put(rtdb, module(1:mlen)//':libxcon',
+     $                     mt_log,1,.false.)))
+     $   call errquit('xc_inp: rtdb_put failed', 9, RTDB_ERR)
+      endif   
 c
       return
 c     

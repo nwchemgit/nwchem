@@ -31,7 +31,8 @@ BASIS SPHERICAL
 END  
 DFT  
  XC ncap
- grid medium
+ grid fine
+ convergence energy 1d-8
 END  
 TDDFT  
  NROOTS 15

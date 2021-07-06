@@ -12,6 +12,7 @@ if [[ "${MYPWD}" != ${NWCHEM_TOP}/contrib/mkdocs ]]; then
 fi
 rsync -av archivedforum/Special_AWCforum docs/.
 cd docs
+git pull
 while read fname; do
     ls "$fname"
     rm -f tmptmp.txt

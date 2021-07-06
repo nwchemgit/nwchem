@@ -1093,7 +1093,7 @@ c
       if (.not. rtdb_get(rtdb,'driver:xrms_tol',mt_dbl,1,xrms_tol))
      $     xrms_tol = 0.0012d0
       if (.not. rtdb_get(rtdb,'driver:nptopt',mt_int,1,nptopt))
-     $     nptopt=20
+     $     nptopt=40
       if (.not. rtdb_get(rtdb,'driver:inhess',mt_int,1,inhess))
      $     inhess=0
       if (.not. rtdb_get(rtdb,'driver:linopt',mt_int,1,linopt)) 

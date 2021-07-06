@@ -1,0 +1,34 @@
+echo
+
+start li2freq
+
+charge 0
+
+geometry 
+li 0 0 0
+li 0 0 2.76296
+end
+
+basis "ao basis"
+* library "6-311+G*"
+end
+dft
+xc gga_x_mpw91
+grid fine
+convergence energy 1d-9
+end
+driver 
+ clear
+ tight
+end
+
+task dft optimize
+dft;grid xfine;end
+task dft freq
+
+
+
+
+
+
+

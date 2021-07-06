@@ -1,0 +1,11 @@
+      integer, parameter :: maxfunc = 100
+
+      integer :: libxc_nfuncs
+      integer(c_int),dimension(maxfunc) :: libxc_family
+      integer(c_int),dimension(maxfunc) :: libxc_funcs
+      integer(c_int),dimension(maxfunc) :: libxc_kind
+      integer(c_int),dimension(maxfunc) :: libxc_flags
+      double precision,dimension(maxfunc) :: libxc_facts
+
+      common /libxc/ libxc_nfuncs,libxc_family,libxc_funcs,libxc_kind,
+     $               libxc_flags,libxc_facts

@@ -942,19 +942,19 @@ Cfah construction of the F_xc itself
 Cfah -------------------------------
         IF (rhoa.GT.tol_rho) THEN
           if(n.eq.0) then
-#if 0
+           if(cam_omega.eq.0) then
             F_xc(1) = F_xs0 (sol(1), rhoa, za)
-#else
+           else
             F_xc(1) = f_xs_new(0, sol(1), rhoa, za,
      c           xc_kernel_lrlda, cam_omega)
-#endif
+           endif
           else
-#if 0
+           if(cam_omega.eq.0) then
             F_xc(n*3+1) = F_xs (n, sol((n*3) + 1), rhoa, za)
-#else
+           else
             F_xc(n*3+1) = f_xs_new(n, sol((n*3) + 1), rhoa, za,
      c          xc_kernel_lrlda, cam_omega)
-#endif
+           endif
           endif
         ENDIF
           if(u_caa.gt.tol_rho)then
@@ -967,19 +967,19 @@ Cfah -------------------------------
 
         IF (rhob.GT.tol_rho) THEN
            if(n.eq.0) then
-#if 0
+            if(cam_omega.eq.0) then
           F_xc(1) = F_xc(1)+F_xs0(sol(1), rhob, zb)
-#else
+            else
           F_xc(1) = F_xc(1)+f_xs_new(0,sol(1), rhob, zb,
      c          xc_kernel_lrlda, cam_omega)
-#endif
+            endif
            else
-#if 0
+            if(cam_omega.eq.0) then
           F_xc(n*3+1) = F_xc(n*3+1)+F_xs(n, sol((n*3) + 1), rhob, zb)
-#else
+            else
           F_xc(n*3+1) = F_xc(n*3+1)+f_xs_new(n,sol((n*3) + 1), rhob,zb,
      c          xc_kernel_lrlda, cam_omega)
-#endif
+            endif
           endif
         ENDIF
           if(u_cbb.gt.tol_rho) then
@@ -1005,65 +1005,65 @@ Cfah ---------------------
 
         if(za.gt.tol_rho)then 
            if(n.eq.0) then
-#if 0
+           if(cam_omega.eq.0) then
             dF_xa(1) = dF_xs_by_drhos0 ( sol(1), rhoa, za) 
-#else
+           else
             dF_xa(1) = dF_xs_by_drhos_new(0,sol(1), rhoa, za,
      c           xc_kernel_lrlda, cam_omega)
-#endif
+           endif
             dF_xa(3) = 0d0
          elseif(n.eq.1) then
-#if 0
+           if(cam_omega.eq.0) then
             dF_xa(1) = dF_xs_by_drhos1 (sol(4), rhoa, za) 
             dF_xa(3) = dF_xs_by_dzs1 ( sol(4), rhoa, za)
-#else
+           else
             dF_xa(1) = dF_xs_by_drhos_new(1,sol(4), rhoa, za,
      c           xc_kernel_lrlda, cam_omega)
             dF_xa(3) = dF_xs_by_dzs_new(1,sol(4), rhoa, za,
      c           xc_kernel_lrlda, cam_omega)
-#endif
+           endif
          else
-#if 0
+           if(cam_omega.eq.0) then
             dF_xa(1) = dF_xs_by_drhos (n, sol((n*3) + 1), rhoa, za) 
             dF_xa(3) = dF_xs_by_dzs (n, sol((n*3) + 1), rhoa, za)
-#else
+           else
             dF_xa(1) = dF_xs_by_drhos_new(n, sol((n*3) + 1), rhoa, za,
      c           xc_kernel_lrlda, cam_omega)
             dF_xa(3) = dF_xs_by_dzs_new(n, sol((n*3) + 1), rhoa, za,
      c           xc_kernel_lrlda, cam_omega)
-#endif
+           endif
          endif
           endif
 
         if(zb.gt.tol_rho) then
            if(n.eq.0) then
-#if 0
+            if(cam_omega.eq.0) then
              dF_xb(2) = dF_xs_by_drhos0(sol(1), rhob, zb)
-#else
+            else
              dF_xb(2) = dF_xs_by_drhos_new(0,sol(1), rhob, zb,
      c             xc_kernel_lrlda, cam_omega)
-#endif
+            endif
              dF_xb(4) = 0d0
           elseif(n.eq.1) then
-#if 0
+           if(cam_omega.eq.0) then
              dF_xb(2) = dF_xs_by_drhos1(sol(4), rhob, zb)
              dF_xb(4) = dF_xs_by_dzs1 ( sol(4), rhob, zb)
-#else
+           else
              dF_xb(2) = dF_xs_by_drhos_new(1,sol(4), rhob, zb,
      c            xc_kernel_lrlda, cam_omega)
              dF_xb(4) = dF_xs_by_dzs_new(1,sol(4), rhob, zb,
      c            xc_kernel_lrlda, cam_omega)
-#endif
+           endif
           else
-#if 0
+           if(cam_omega.eq.0) then
              dF_xb(2) = dF_xs_by_drhos (n, sol((n*3) + 1), rhob, zb)
              dF_xb(4) = dF_xs_by_dzs (n, sol((n*3) + 1), rhob, zb)
-#else
+           else
              dF_xb(2) = dF_xs_by_drhos_new(n, sol((n*3) + 1), rhob, zb,
      c            xc_kernel_lrlda, cam_omega)
              dF_xb(4) = dF_xs_by_dzs_new(n, sol((n*3) + 1), rhob, zb,
      c            xc_kernel_lrlda, cam_omega)
-#endif
+           endif
           endif
            endif
 

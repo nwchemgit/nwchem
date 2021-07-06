@@ -257,6 +257,7 @@ c
 c     Analyze any user specified XC functionals ... set if none
 c     
       cksetd = .true.
+      cksetd = cksetd .and. .not. libxcon
 c     
 c     Check if user has specified some type of functional,
 c     if so, do not set defaults.
@@ -538,6 +539,7 @@ cFA
             write(LuOut,*)
             call util_print_centered
      &         (LuOut,'XC Information',20,.true.)
+            if (libxcon) call nwchem_libxc_print_header()
 c     
 c           Write out XC info. Combo info first, than X components,
 c           than C components.
@@ -572,6 +574,8 @@ c
                   write(LuOut,9224) cname(n), cfac(n), nonlocal_c
                endif
             enddo
+
+            if (libxcon) call nwchem_libxc_print()
 c     
 c           Check XC coefficients to make sure appropriate components
 c           sum to 1.0

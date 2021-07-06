@@ -1,0 +1,91 @@
+echo
+
+title "he2+ hcth functional"
+
+start he2+_libxc
+
+geometry units angstrom print
+he 0.   0.58 0.
+symmetry c2v
+end
+
+basis "ao basis"
+he library "DZVP (DFT Orbital)"
+he p
+ 0.183 1.
+end
+
+basis "cd basis"
+he library DGauss_A2_DFT_Coulomb_Fitting
+end
+
+charge +1.0
+
+dft
+mult 2
+grid medium
+convergence energy 1d-10
+xc gga_xc_hcth_93 1.0
+end
+
+task dft gradient
+
+title "he2+ hcth147@tz2p functional"
+
+dft
+xc GGA_XC_HCTH_147
+end
+
+task dft gradient 
+
+title "he2+ Becke 1997 functional"
+dft
+xc HYB_GGA_XC_B97_1
+end
+
+task dft gradient
+
+title "XC perdew91 "
+dft
+xc gga_x_pw91 gga_c_pw91
+end
+
+task dft gradient
+
+
+title "XC pbe96 "
+dft
+XC gga_x_pbe gga_c_pbe
+end
+
+task dft gradient
+
+title "XC b3lyp "
+dft
+XC hyb_gga_xc_b3lyp
+end
+
+task dft gradient
+
+title "XC ft97 "
+dft
+xc gga_c_ft97 1.0  gga_x_ft97_b
+end
+
+task dft gradient
+
+
+title "XC TPSS03 "
+dft
+#XC xtpss03 ctpss03
+xc mgga_x_tpss mgga_c_tpss
+end
+
+task dft gradient
+
+title "XC PKZB "
+dft
+xc mgga_x_pkzb mgga_c_pkzb
+end
+
+task dft gradient

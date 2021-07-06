@@ -226,6 +226,10 @@ endif
 #JN: under the new structure, tools should be listed first as
 # their header files are needed for dependency analysis of
 # other NWChem modules
+ifdef USE_LIBXC
+  NW_CORE_SUBDIRS += libext
+endif
+
 ifdef BUILD_OPENBLAS
   ifndef BLAS_SIZE
     BLAS_SIZE=8
@@ -267,6 +271,8 @@ NW_CORE_SUBDIRS += libext
       MPI_LIB     = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH)  $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
       LIBMPI      = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
 endif
+
+
 ifndef EXTERNAL_GA_PATH
 NW_CORE_SUBDIRS += tools
 endif
@@ -2964,6 +2970,11 @@ ifdef SLURM
   EXTRA_LIBS += $(SLURMOPT)
 endif
 
+ifdef USE_LIBXC
+  EXTRA_LIBS += -L$(NWCHEM_TOP)/src/libext/libxc/install/lib -lxcf03 -lxc
+  DEFINES += -DUSE_LIBXC
+endif
+
 ifdef USE_SIMINT
 ifndef SIMINT_HOME
 SIMINT_HOME=$(NWCHEM_TOP)/src/NWints/simint/libsimint_source/simint_install
@@ -3131,10 +3142,12 @@ $(info please use -lessl6464 or -lessl)
 $(error )
   endif
 #      DEFINES += -DBLAS_OPENMP
+      DEFINES += -DBLAS_NOTHREADS
 # essl does not has the full lapack library
       EXTRA_LIBS += -lnwclapack
       CORE_SUBDIRS_EXTRA = lapack
 endif
+
 
 #
 # Define known suffixes mostly so that .p files don\'t cause pc to be invoked
