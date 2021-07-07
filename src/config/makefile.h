@@ -2969,12 +2969,19 @@ endif
 ifdef SLURM
   EXTRA_LIBS += $(SLURMOPT)
 endif
-
-ifdef USE_LIBXC
-  EXTRA_LIBS += -L$(NWCHEM_TOP)/src/libext/libxc/install/lib -lxcf03 -lxc
+#ifneq ($(and $(USE_LIBXC),$(LIBXC_DIR),)
+ifeq ($(and $(USE_LIBXC),$(LIBXC_DIR)),)
   DEFINES += -DUSE_LIBXC
+# we build the libxc library
+ifdef USE_LIBXC
+  EXTRA_LIBS += -L$(NWCHEM_TOP)/src/libext/libxc/install/lib
 endif
-
+# we use an external libxc library out of LIBXC_DIR
+ifdef LIBXC_DIR
+  EXTRA_LIBS += -L$(LIBXC_DIR)
+endif
+  EXTRA_LIBS += -lxcf03 -lxc
+endif
 ifdef USE_SIMINT
 ifndef SIMINT_HOME
 SIMINT_HOME=$(NWCHEM_TOP)/src/NWints/simint/libsimint_source/simint_install
