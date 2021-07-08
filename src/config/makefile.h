@@ -2970,9 +2970,17 @@ ifdef SLURM
   EXTRA_LIBS += $(SLURMOPT)
 endif
 
+# we build the libxc library
 ifdef USE_LIBXC
-  EXTRA_LIBS += -L$(NWCHEM_TOP)/src/libext/libxc/install/lib -lxcf03 -lxc
   DEFINES += -DUSE_LIBXC
+  EXTRA_LIBS += -L$(NWCHEM_TOP)/src/libext/libxc/install/lib
+  EXTRA_LIBS += -lxcf03 -lxc
+endif
+# we use an external libxc library out of LIBXC_DIR
+ifdef LIBXC_DIR
+  DEFINES += -DUSE_LIBXC
+  EXTRA_LIBS += -L$(LIBXC_DIR)/lib
+  EXTRA_LIBS += -lxcf03 -lxc
 endif
 
 ifdef USE_SIMINT
