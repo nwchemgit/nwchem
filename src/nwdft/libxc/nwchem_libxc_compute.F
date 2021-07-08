@@ -135,28 +135,14 @@
 
         call dcopy(nq,rho,1,dbl_mb(krho),1)
         if (ksgrad) then
-          do q=1,nq
-            dbl_mb(ksigma+q-1) = delrho(q,1,1)**2 +
-     $                           delrho(q,2,1)**2 +
-     $                           delrho(q,3,1)**2
-          enddo       
+           call nwchem_libxc_util1(nq,dbl_mb(ksigma),delrho)
         endif
       else
         polarized = xc_polarized
         call dcopy(nq,rho(1,2),1,dbl_mb(krho),2)
         call dcopy(nq,rho(1,3),1,dbl_mb(krho+1),2)
         if (ksgrad) then
-          do q=1,nq
-            dbl_mb(ksigma+3*(q-1)) = delrho(q,1,1)**2 +
-     $                               delrho(q,2,1)**2 +
-     $                               delrho(q,3,1)**2
-            dbl_mb(ksigma+3*(q-1)+1) = delrho(q,1,1)*delrho(q,1,2) +
-     $                                 delrho(q,2,1)*delrho(q,2,2) +
-     $                                 delrho(q,3,1)*delrho(q,3,2)
-            dbl_mb(ksigma+3*(q-1)+2) = delrho(q,1,2)**2 +
-     $                                 delrho(q,2,2)**2 +
-     $                                 delrho(q,3,2)**2
-          enddo
+           call nwchem_libxc_util2(nq,dbl_mb(ksigma),delrho)
         endif
         if (kske) call dcopy(nq,ttau(1,2),1,dbl_mb(ktau+1),ipol)
         if (kslap) call dcopy(nq,laprho(1,2),1,dbl_mb(klapl+1),ipol)
@@ -256,11 +242,8 @@
         end select
 
         call xc_f03_func_end(xcfunc)
-
-        do q=1,nq
-          if (ldew) func(q) = func(q) + fac*dbl_mb(kexc+q-1)*rho(q,1)
-          dbl_mb(kexc+q-1) = dbl_mb(kexc+q-1)*qwght(q)
-        enddo
+        call nwchem_libxc_util3(ldew,nq,fac,
+     e       dbl_mb(kexc),func,qwght,rho)
 
         if (libxc_kind(ifunc).eq.xc_exchange .or. 
      $      libxc_kind(ifunc).eq.xc_exchange_correlation) then
@@ -469,4 +452,58 @@
       if (.not.ma_chop_stack(lrho))
      $    call errquit(" could not chop stack",0,ma_err)
 #endif
+      end subroutine
+      subroutine nwchem_libxc_util1(nq,sigma,delrho)
+      implicit none
+      integer nq
+      double precision sigma(*)
+      double precision delrho(nq,3,*)
+c
+      integer q
+c
+      do q=1,nq
+         sigma(q) = delrho(q,1,1)**2 +
+     $        delrho(q,2,1)**2 +
+     $        delrho(q,3,1)**2
+      enddo
+      end subroutine
+      subroutine nwchem_libxc_util2(nq,sigma,delrho)
+      implicit none
+      integer nq
+      double precision sigma(3,*)
+      double precision delrho(nq,3,*)
+c
+      integer q
+c
+      do q=1,nq
+         sigma(1,q) = delrho(q,1,1)**2 +
+     $        delrho(q,2,1)**2 +
+     $        delrho(q,3,1)**2
+         sigma(2,q) = delrho(q,1,1)*delrho(q,1,2) +
+     $        delrho(q,2,1)*delrho(q,2,2) +
+     $        delrho(q,3,1)*delrho(q,3,2)
+         sigma(3,q) = delrho(q,1,2)**2 +
+     $        delrho(q,2,2)**2 +
+     $        delrho(q,3,2)**2
+      enddo
+      end subroutine
+      subroutine nwchem_libxc_util3(ldew,nq,fac,
+     e     exc,func,qwght,rho)
+      implicit none
+      logical ldew
+      integer nq
+      double precision fac
+      double precision exc(nq),qwght(nq),
+     r     rho(nq,*),func(nq)
+c
+      integer q
+c
+      if(ldew) then
+         do q=1,nq
+            func(q) = func(q) + fac*exc(q)*rho(q,1)
+         enddo
+      endif
+      do q=1,nq
+         exc(q) = exc(q)*qwght(q)
+      enddo
       end subroutine
