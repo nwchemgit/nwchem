@@ -7,6 +7,8 @@ c
 #include "dia_common.fh"
 #include "mafdecls.fh"
 c
+c     throws dia_rdhdr.F: undefined reference to `ftell_' on 
+c                         GNU Fortran (Ubuntu 4.9.1-16ubuntu6) 4.9.1
       integer ftell
       external ftell
 c

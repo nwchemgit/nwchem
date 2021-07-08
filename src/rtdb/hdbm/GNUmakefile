@@ -32,5 +32,8 @@ test:	test.o hdbm.o
 words:	words.o hdbm.o
 	$(CC) $(CFLAGS) -o $@ $^
 
+hdbm.so:	hdbm.o
+	$(CC) $(CFLAGS) -shared -o $@ $^
+
 test.o word.o hdbm.o:	hdbm.h
 

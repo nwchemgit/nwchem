@@ -86,3 +86,50 @@ c
  100  call errquit(filename,0, INPUT_ERR)
 c
       end
+      subroutine pop_inp_string()
+*
+* $Id: pop_inp_string.F 19707 2010-10-29 17:59:36Z d3y133 $
+*
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "util.fh"
+#include "global.fh"
+      logical lopen
+      if (ga_nodeid() .eq. 0) then
+c        call inp_restore_state() ! restore state of any inp unit
+         inquire(unit=4,opened=lopen)
+         if (lopen) then
+           close(4,err=102)
+         endif
+      endif
+      return
+c
+ 102  call errquit('pop_inp_string: error closing file',0, INPUT_ERR)
+      end
+      logical function push_inp_string(string)
+      implicit none
+#include "errquit.fh"
+#include "global.fh"
+#include "inp.fh"
+#include "util.fh"
+#include "stdio.fh"
+
+      character*(*) string
+c
+      call pop_inp_string()
+      if (ga_nodeid() .eq. 0) then
+         open(4,form='formatted',status='scratch',err=100)
+         write(4,'(a)',err=101) string
+         rewind(4,err=101)
+c        call inp_save_state()  ! save state of any inp unit
+         call inp_init(4,LuOut)
+      endif
+c
+      push_inp_string = inp_read()
+      return
+c
+ 100  call errquit('push_inp_string: error opening file',0, INPUT_ERR)
+ 101  call errquit('push_inp_string: error writing file',0, INPUT_ERR)
+c
+      end
