@@ -19,7 +19,7 @@ if [[ "$NWCHEM_MODULES" == "tce" ]]; then
     export IPCCSD=1
 fi
 cd $TRAVIS_BUILD_DIR/src
-FDOPT="-O0 -g"
+#FDOPT="-O0 -g"
 if [[ "$arch" == "aarch64" ]]; then 
     if [[ "$FC" == "flang" ]] || [[ "$(basename -- $FC | cut -d \- -f 1)" == "nvfortran" ]] ; then
 	export BUILD_MPICH=1
@@ -80,10 +80,10 @@ fi
        if [[ -z "$FOPT" ]]; then
 	   make V=0   -j3
        else
-	   make V=0 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
+	   make V=0 FOPTIMIZE="$FOPT"   -j3
        fi
    else
-       ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
+       ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT"   -j3
    fi
      cd $TRAVIS_BUILD_DIR/src/64to32blas 
      make
@@ -100,10 +100,10 @@ if [[ -z "$TRAVIS_HOME" ]]; then
     if [[ -z "$FOPT" ]]; then
 	make V=0   -j3
     else
-	make V=0 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
+	make V=0 FOPTIMIZE="$FOPT"   -j3
     fi
 else
-    ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
+    ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT"  -j3
 fi
      cd $TRAVIS_BUILD_DIR/src/64to32blas 
      make
