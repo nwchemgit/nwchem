@@ -63,6 +63,7 @@ c     print header and general information
        write(LuOut,*)
        write(LuOut,*)
 c     check if qmmm is on
+       qmmm_init=.false.
       if (.not. rtdb_get(rtdb,'qmmm:init',mt_log,1,qmmm_init))
      $      qmmm_init = .false.
       if(qmmm_init)
