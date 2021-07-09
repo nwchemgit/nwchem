@@ -62,6 +62,13 @@ c     print header and general information
        call util_print_centered(LuOut,'NWChem QMD Module',40,.true.)
        write(LuOut,*)
        write(LuOut,*)
+       write(LuOut,*)
+       write(LuOut,*)
+       call util_print_centered
+     &  (LuOut,'QMD Run Parameters',40,.true.)
+       write(LuOut,*)
+       write(LuOut,*)
+      endif ! ga_nodeid
 c     check if qmmm is on
        qmmm_init=.false.
       if (.not. rtdb_get(rtdb,'qmmm:init',mt_log,1,qmmm_init))
@@ -70,13 +77,6 @@ c     check if qmmm is on
      &   call errquit(pname//'qmd module not compatible with qmmm',0,
      &                CAPMIS_ERR)
 c
-       write(LuOut,*)
-       write(LuOut,*)
-       call util_print_centered
-     &  (LuOut,'QMD Run Parameters',40,.true.)
-       write(LuOut,*)
-       write(LuOut,*)
-      endif ! ga_nodeid
 c
 c     total nuclear steps
       if (.not.rtdb_get(rtdb,'qmd:nstep_nucl',mt_int,1,nstep_nucl))
