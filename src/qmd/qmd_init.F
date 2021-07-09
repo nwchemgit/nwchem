@@ -31,7 +31,7 @@ c
       integer step_property
       integer step_tddft
       integer step_freq
-      integer tvals(8)
+      integer*4 tvals(8)
       integer svals
       double precision dt_nucl      ! nuclear md time step
       character*32 thermostat       ! thermostat name
@@ -45,6 +45,7 @@ c
       logical do_property
       logical do_tddft
       logical do_freq
+      logical qmmm_init
       integer inntsize
 c
       character*32 pname
@@ -61,6 +62,12 @@ c     print header and general information
        call util_print_centered(LuOut,'NWChem QMD Module',40,.true.)
        write(LuOut,*)
        write(LuOut,*)
+c     check if qmmm is on
+      if (.not. rtdb_get(rtdb,'qmmm:init',mt_log,1,qmmm_init))
+     $      qmmm_init = .false.
+      if(qmmm_init)
+     &   call errquit(pname//'qmd module not compatible with qmmm',0,
+     &                CAPMIS_ERR)
 c
        write(LuOut,*)
        write(LuOut,*)
@@ -161,9 +168,12 @@ c     check dt_nucl against the berendsen tau
       end if
 c
 c     random number seed
-      call date_and_time(values=tvals)
+      svals=0
+      if(ga_nodeid().eq.0) then
+         call date_and_time(values=tvals)
 c     current seconds x milliseconds + minutes
-      if (ga_nodeid().eq.0) svals = tvals(7)*tvals(8)+tvals(6)
+         svals = tvals(7)*tvals(8)+tvals(6)
+      endif
       call ga_brdcst(Msg_Vec_Stat+MSGINT,svals,inntsize,0)
       call ga_sync()
       if (.not.rtdb_get(rtdb,'qmd:rand_seed',mt_int,1,idum))
