@@ -2361,6 +2361,7 @@ c        call D1dB_SumAll(ph)
 
 *           **** real to complex FFT ****
             call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
+            call Pack_c_pack(0,dbl_mb(dn(1)))
 
 *           **** dnab_ii to generate Vab_ii, Vab_ii==Vba_ii ****
             call coulomb_screened_v(dbl_mb(dn(1)),dbl_mb(vij(1)))
@@ -2379,6 +2380,7 @@ c        call D1dB_SumAll(ph)
 !$OMP END MASTER
 
 *           **** complex to real FFT ****
+            call Pack_c_unpack(0,dbl_mb(vij(1)))
             call D3dB_cr_pfft3b(1,0,dbl_mb(vij(1)))
 
 *           **** apply hfx_parameter ****
