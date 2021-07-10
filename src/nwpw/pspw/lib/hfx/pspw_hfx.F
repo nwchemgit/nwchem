@@ -903,9 +903,9 @@ c     **** nothing to do ****
         value = value.and.
      >          BA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-        call Parallel_shared_vector_copy(.false.,n2ft3d,dbl_mb(dn(1)))
-        call Parallel_shared_vector_copy(.false.,n2ft3d,dbl_mb(vij(1)))
-        call Parallel_shared_vector_copy(.true.,n2ft3d,dbl_mb(tmp1(1)))
+        call Parallel_shared_vector_zero(.false.,n2ft3d,dbl_mb(dn(1)))
+        call Parallel_shared_vector_zero(.false.,n2ft3d,dbl_mb(vij(1)))
+        call Parallel_shared_vector_zero(.true.,n2ft3d,dbl_mb(tmp1(1)))
 
         scal1 = 1.0d0/dble(n1*n2*n3)
         scal2 = 1.0d0/lattice_omega()
@@ -2280,6 +2280,189 @@ c        call D1dB_SumAll(ph)
 
 
 *    ***** routines below used for pspw_et calculations ****
+
+*     ***********************************
+*     *                                 *
+*     *     pspw_potential_HFX2_dnc     *
+*     *                                 *
+*     ***********************************
+*
+*    Potential for double non-coincidence.
+*    There is only one orbital index, so only consider i=j case
+*
+      subroutine pspw_potential_HFX2_dnc(ispin0, 
+     >                                   psi1_r,psi2_r,
+     >                                   Hpsi1_r,Hpsi2_r,
+     >                                   ehfx_dnc,phfx_dnc)
+      implicit none
+      integer ispin0
+      real*8  psi1_r(*),  psi2_r(*) !*** just single orbitals ***
+      real*8  Hpsi1_r(*),Hpsi2_r(*) !*** just single gradient ****
+      real*8 ehfx_dnc,phfx_dnc
+
+#include "bafdecls.fh"
+#include "pspw_hfx.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      integer MASTER
+      parameter (MASTER=0)
+
+      logical value
+      integer n1,n2,n3
+      integer dn(2),vij(2),tmp1(2),tmp2(2)
+      real*8 eh,ph,dv,scal1,scal2
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+!$OMP MASTER
+      ehfx = 0.0d0
+      phfx = 0.0d0
+!$OMP END MASTER
+
+*     **************************************
+*     **** only run on taskid_j==MASTER ****
+*     **************************************
+      if (taskid_j.eq.MASTER) then
+
+*        **** allocated stack memory ****
+         value = BA_push_get(mt_dbl,(n2ft3d),'dn_hfx',dn(2),dn(1))
+         value = value.and.
+     >           BA_push_get(mt_dbl,(n2ft3d),'vij_hfx',vij(2),vij(1))
+         value = value.and.
+     >           BA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
+         value = value.and.
+     >           BA_push_get(mt_dbl,(n2ft3d),'tmp2_hfx',tmp2(2),tmp2(1))
+         if (.not.value)
+     >     call errquit('pspw_potential_HFX2_dnc:out of stack',0,MA_ERR)
+        call Parallel_shared_vector_zero(.false.,n2ft3d,dbl_mb(dn(1)))
+        call Parallel_shared_vector_zero(.false.,n2ft3d,dbl_mb(vij(1)))
+        call Parallel_shared_vector_zero(.false.,n2ft3d,dbl_mb(tmp1(1)))
+        call Parallel_shared_vector_zero(.true.,n2ft3d,dbl_mb(tmp2(1)))
+
+         call D3dB_nx(1,n1)
+         call D3dB_ny(1,n2)
+         call D3dB_nz(1,n3)
+         scal1 = 1.0d0/dble(n1*n2*n3)
+         scal2 = 1.0d0/lattice_omega()
+         dv = scal1/scal2
+
+*        **********************************
+*        ***** screened coulomb solver ****
+*        **********************************
+         if (solver_type.eq.1) then
+
+*           **** generate dnab_ii for Vab_ii, Vab_ii==Vba_ii ****
+            call D3dB_rr_Mul(1,psi1_r,psi2_r,dbl_mb(dn(1)))
+            call D3dB_r_SMul1(1,scal2*scal1,dbl_mb(dn(1)))
+            call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
+
+*           **** real to complex FFT ****
+            call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
+
+*           **** dnab_ii to generate Vab_ii, Vab_ii==Vba_ii ****
+            call coulomb_screened_v(dbl_mb(dn(1)),dbl_mb(vij(1)))
+
+*           **** eh = 0.5*dnab_ii*Vab_ii = omega*0.5*conjg(dnab_ii(G))*dnab_ii(G)*screened V(G) ***
+            call Pack_cc_idot(0,dbl_mb(dn(1)),dbl_mb(vij(1)),eh)
+            eh = 0.5d0*eh*lattice_omega()
+
+*           **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
+            eh = eh*hfx_parameter
+            if (ispin0.eq.1) eh = eh + eh
+            ph = 2.0d0*eh
+!$OMP MASTER
+            ehfx_dnc = ehfx_dnc - eh
+            phfx_dnc = phfx_dnc - ph
+!$OMP END MASTER
+
+*           **** complex to real FFT ****
+            call D3dB_cr_pfft3b(1,0,dbl_mb(vij(1)))
+
+*           **** apply hfx_parameter ****
+            call D3dB_r_SMul1(1,hfx_parameter,dbl_mb(vij(1)))
+
+*           ********************************************************************
+*           **** Hpsi1_i = dEx/dpsi1_i = -(Vab_ji)*psi2_j                    ***
+*           **** Hpsi2_i = dEx/dpsi2_i = -(Vba_ji)*psi1_j = -(Vab_ij)*psi1_j ***
+*           ********************************************************************
+
+*           **** generate (Vab_ii)*psi2_r(i) ****
+            call D3dB_rr_Mul(1,dbl_mb(vij(1)),psi2_r,dbl_mb(tmp1(1)))
+            call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
+
+*           **** generate (Vab_ij)*psi1_r(i) ****
+            call D3dB_rr_Mul(1,dbl_mb(vij(1)),psi1_r,dbl_mb(tmp2(1)))
+            call D3dB_r_Zero_Ends(1,dbl_mb(tmp2(1)))
+
+*           **** add -(Vab_ii)*psi2_r(i) and -(Vab_ii)*psi1_r(i) to Hpsi1_r(i) Hpsi2_r(i) ***
+            call D3dB_rr_Sub2(1,dbl_mb(tmp1(1)),Hpsi1_r)
+            call D3dB_rr_Sub2(1,dbl_mb(tmp2(1)),Hpsi2_r)
+
+
+*        ************************************
+*        ***** free-space coulomb solver ****
+*        ************************************
+         else
+
+*           **** generate dnab_ii for Vab_ii, Vab_ii==Vba_ii ****
+            call D3dB_rr_Mul(1,psi1_r,psi2_r,dbl_mb(dn(1)))
+            call D3dB_r_SMul1(1,scal2,dbl_mb(dn(1)))
+            call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
+            call coulomb2_v(dbl_mb(dn(1)),dbl_mb(vij(1)))
+
+*           **** eh = 0.5*dnab_ii*Vab_ii ***
+            call D3dB_rr_idot(1,dbl_mb(dn(1)),dbl_mb(vij(1)),eh)
+            eh = 0.5d0*eh*dv
+
+*           **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
+            eh = eh*hfx_parameter
+            call D3dB_r_SMul1(1,hfx_parameter,dbl_mb(vij(1)))
+            if (ispin0.eq.1) eh = eh + eh
+            ph = 2.0d0*eh
+
+!$OMP MASTER
+            ehfx_dnc = ehfx_dnc - eh
+            phfx_dnc = phfx_dnc - ph
+!$OMP END MASTER
+
+*            *******************************************************************
+*            *** Hpsi1_i = dEx/dpsi1_i = -(Vab_ji)*psi2_j                    ***
+*            *** Hpsi2_i = dEx/dpsi2_i = -(Vba_ji)*psi1_j = -(Vab_ij)*psi1_j ***
+*            *******************************************************************
+
+*            *** generate (Vab_ii)*psi2_r(i) ****
+             call D3dB_rr_Mul(1,dbl_mb(vij(1)),psi2_r,dbl_mb(tmp1(1)))
+             call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
+
+*            **** generate (Vab_ij)*psi1_r(j) ****
+             call D3dB_rr_Mul(1,dbl_mb(vij(1)), psi1_r,dbl_mb(tmp2(1)))
+             call D3dB_r_Zero_Ends(1,dbl_mb(tmp2(1)))
+
+*            **** add -(Vab_ii)*psi2_r(i) and -(Vab_ii)*psi1_r(i) to Hpsi1_r(i) Hpsi2_r(i) ***
+             call D3dB_rr_Sub2(1,dbl_mb(tmp1(1)),Hpsi1_r)
+             call D3dB_rr_Sub2(1,dbl_mb(tmp2(1)),Hpsi2_r)
+         end if
+
+*        **** free stack memory ****
+         value =           BA_pop_stack(tmp2(2))
+         value = value.and.BA_pop_stack(tmp1(2))
+         value = value.and.BA_pop_stack(vij(2))
+         value = value.and.BA_pop_stack(dn(2))
+         if (.not.value)
+     >      call errquit('pspw_potential_HFX:popping stack',0,MA_ERR)
+
+      end if
+
+      call Parallel_SumAll(ehfx_dnc)
+      call Parallel_SumAll(phfx_dnc)
+
+      return
+      end
+
+
 *     *******************************
 *     *                             *
 *     *     pspw_potential_HFX2     *
@@ -2425,11 +2608,11 @@ c     **** calculate HFX energy  ****
                call Dneall_qton(q,n)
                indx1 = (q-1)*n2ft3d + 1
                indx2 = psi_r_replicated(1)+(n-1)*n2ft3d
-               call Parallel_shared_vector_zero(.false.,n2ft3d,
+               call Parallel_shared_vector_copy(.false.,n2ft3d,
      >                             psi1_r(indx1),dbl_mb(indx2))
 
                indx2 = Hpsi_r_replicated(1)+(n-1)*n2ft3d
-               call Parallel_shared_vector_zero(.true.,n2ft3d,
+               call Parallel_shared_vector_copy(.true.,n2ft3d,
      >                             psi2_r(indx1),dbl_mb(indx2))
             end do
             call D1dB_Vector_SumAll(nrsize,dbl_mb(psi_r_replicated(1)))
