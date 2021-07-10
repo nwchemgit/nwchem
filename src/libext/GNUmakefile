@@ -15,7 +15,9 @@ endif
 ifdef BUILD_SCALAPACK
     SUBDIRS += scalapack
 endif
-
+ifdef USE_LIBXC
+    SUBDIRS += libxc
+endif
 
 include ../config/makelib.h
 

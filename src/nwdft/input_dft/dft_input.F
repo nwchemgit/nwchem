@@ -258,8 +258,8 @@ c     iterations;
 c             
   900 if (.not. inp_i(iterations)) then
          write(LuOut,*)' dft_input: iterations value not found;',
-     &             ' defaulting to 30'
-         iterations = 30
+     &             ' defaulting to 50'
+         iterations = 50
       endif 
       if (.not. rtdb_put(rtdb, 'dft:iterations', mt_int, 1, iterations))
      &   call errquit('dft_input: rtdb_put failed', 900, RTDB_ERR)
@@ -877,8 +877,8 @@ c     maxiter: same as iterations
 c             
  4200 if (.not. inp_i(maxiter)) then
          write(LuOut,*)' dft_input: maxiter value not found;',
-     &             ' defaulting to 30'
-         maxiter = 30
+     &             ' defaulting to 50'
+         maxiter = 50
       endif 
       iterations = maxiter
       if (.not. rtdb_put(rtdb, 'dft:iterations', mt_int, 1, iterations))

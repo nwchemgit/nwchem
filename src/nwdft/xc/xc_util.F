@@ -14,6 +14,7 @@ c
 c     see if any Gradient Corrected Functional is not null
 c
       logical out1,out2
+      logical,external :: nwchem_libxc_family
       double precision tot,eps
       parameter(eps=1.d-10)
 c
@@ -93,6 +94,9 @@ c
          call nwxc_getvals("nwxc_is_mgga",out2)
          xc_chkgrad = xc_chkgrad .or. out1.or.out2
       endif
+      out1 = nwchem_libxc_family("gga")
+      out2 = nwchem_libxc_family("mgga")
+      xc_chkgrad = xc_chkgrad .or. out1 .or. out2
 c
       return
       end
@@ -120,6 +124,8 @@ cc AJL/End
          call nwxc_getvals("nwxc_has_xc",out1)
         xc_gotxc = xc_gotxc.or.out1
       endif
+      if (libxcon) xc_gotxc = .true.
+
       return
       end
       logical function xc_gothfx()
@@ -154,6 +160,7 @@ c
 #include "cdft.fh"
 #include "util.fh"
       logical out1
+      logical, external :: nwchem_libxc_family
 c
       xc_got2nd=.not.(
 c
@@ -245,6 +252,10 @@ cwb97 should have 2nds
          call nwxc_getvals("nwxc_has_2nd",out1)
         xc_got2nd = xc_got2nd .or. out1
       endif
+
+      if (libxcon .and. xc_got2nd) then
+        xc_got2nd = xc_got2nd .and. nwchem_libxc_family("fxc")
+      endif
 c
       return
       end
@@ -263,6 +274,7 @@ c
 C  note in cdft.fh,they define cfac(numfunc) and xfac(numfunc)
 c 
       logical out1
+      logical,external :: nwchem_libxc_family
       double precision tot,eps
       parameter(eps=1.d-10)
       tot = xfac(18) + cfac(25) + xfac(21) + cfac(27) +
@@ -298,6 +310,8 @@ c
          call nwxc_getvals("nwxc_is_mgga",out1)
          xc_chktau = xc_chktau .or. out1
       endif
+      out1 = nwchem_libxc_family("mgga")
+      xc_chktau = xc_chktau .or. out1
       return
       end
 c
@@ -460,6 +474,7 @@ c     return true for functionals without 3rds
 c
       logical function xc_ngot3rd()
       implicit none
+      logical,external :: nwchem_libxc_family
 c
 #include "cdft.fh"
 c
@@ -571,6 +586,10 @@ c
      .     cfac(78).ne.0d0      ! wb97x-d3
      .                )
 c
+      if (libxcon .and. .not.xc_ngot3rd) then
+        xc_ngot3rd = xc_ngot3rd .and. (.not.nwchem_libxc_family("kxc"))
+      endif
+
       return
       end
 C
@@ -578,8 +597,10 @@ C
       implicit none
 #include "cdft.fh"
 #include "util.fh"
+      logical out1,nwchem_libxc_family
       double precision tot,eps
       parameter(eps=1.d-10)
+      external nwchem_libxc_family
       tot = xfac(67) + cfac(67) + xfac(74) + cfac(74)
 
       if (abs(tot).gt.eps) then
@@ -587,6 +608,8 @@ C
       else
         xc_chklap = .false.
       end if
+      out1 = nwchem_libxc_family("lapl")
+      xc_chklap = xc_chklap .or. out1
       return
       end
       logical function xc_chkdelrq()

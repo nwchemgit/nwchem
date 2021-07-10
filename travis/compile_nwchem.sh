@@ -19,7 +19,7 @@ if [[ "$NWCHEM_MODULES" == "tce" ]]; then
     export IPCCSD=1
 fi
 cd $TRAVIS_BUILD_DIR/src
-FDOPT="-O0 -g"
+#FDOPT="-O0 -g"
 if [[ "$arch" == "aarch64" ]]; then 
     if [[ "$FC" == "flang" ]] || [[ "$(basename -- $FC | cut -d \- -f 1)" == "nvfortran" ]] ; then
 	export BUILD_MPICH=1
@@ -41,14 +41,19 @@ if [[ "$arch" == "aarch64" ]]; then
 else
     if [[ "$FC" == "ifort" ]] ; then
 	FOPT=-O2
-	export USE_FPICF=Y
-	export BLASOPT=" -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core  -lpthread -lm -ldl"
-	export LAPACK_LIB=" -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core  -lpthread -lm -ldl"
-	export SCALAPACK_LIB=" -lmkl_scalapack_ilp64 -lmkl_blacs_intelmpi_ilp64 -lpthread -lm -ldl"
+	if [[ "$os" == "Darwin" ]]; then
+	    export BUILD_MPICH=1
+ 	    export BLASOPT="-L$MKLROOT  -Wl,-rpath,${MKLROOT}/lib -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core  -lpthread -lm -ldl"
+	else
+	    export USE_FPICF=Y
+ 	    export BLASOPT="-L$MKLROOT -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core  -lpthread -lm -ldl"
+	    export SCALAPACK_LIB="-L$MKLROOT -lmkl_scalapack_ilp64 -lmkl_blacs_intelmpi_ilp64 -lpthread -lm -ldl"
+	    export SCALAPACK_SIZE=8
+	    unset BUILD_SCALAPACK
+	fi
+        unset BUILD_OPENBLAS
 	export BLAS_SIZE=8
-	export SCALAPACK_SIZE=8
-	unset BUILD_OPENBLAS
-	unset BUILD_SCALAPACK
+	export LAPACK_LIB="$BLASOPT"
     elif [[ "$FC" == "flang" ]] || [[ "$(basename -- $FC | cut -d \- -f 1)" == "nvfortran" ]] ; then
 	export BUILD_MPICH=1
         if [[ "$FC" == "flang" ]]; then
@@ -75,10 +80,10 @@ fi
        if [[ -z "$FOPT" ]]; then
 	   make V=0   -j3
        else
-	   make V=0 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
+	   make V=0 FOPTIMIZE="$FOPT"   -j3
        fi
    else
-       ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
+       ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT"   -j3
    fi
      cd $TRAVIS_BUILD_DIR/src/64to32blas 
      make
@@ -95,10 +100,10 @@ if [[ -z "$TRAVIS_HOME" ]]; then
     if [[ -z "$FOPT" ]]; then
 	make V=0   -j3
     else
-	make V=0 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
+	make V=0 FOPTIMIZE="$FOPT"   -j3
     fi
 else
-    ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
+    ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT"  -j3
 fi
      cd $TRAVIS_BUILD_DIR/src/64to32blas 
      make

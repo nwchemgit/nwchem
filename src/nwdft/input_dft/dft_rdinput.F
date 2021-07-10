@@ -199,7 +199,7 @@ c
 c     
       if (.not. rtdb_get(rtdb, 'dft:iterations', mt_int, 1,
      &   iterations))then
-         iterations=30
+         iterations=50
          if (.not. rtdb_put(rtdb, 'dft:iterations',
      &      mt_int, 1, iterations))
      &      call errquit('dft_rdinput: rtdb_put failed', 101, RTDB_ERR)
@@ -443,7 +443,7 @@ c
 c
 c     case with multiple tasks and we changed iterations ... (increased)
 c
-      else  if(iterations.gt.30) then
+      else  if(iterations.gt.50) then
          ncysh=iterations
       endif
       if (.not. rtdb_put(rtdb, 'dft:ncysh',
@@ -460,7 +460,7 @@ c
 c
 c     case with multiple tasks and we changed iterations ... (increased)
 c
-      else  if(iterations.gt.30) then
+      else  if(iterations.gt.50) then
          ncyds=iterations
       endif
       if (.not. rtdb_put(rtdb, 'dft:ncyds',
@@ -1268,6 +1268,11 @@ c
       if (.not. rtdb_put(rtdb, 'bgj:scf_type', MT_INT, 1, 2))
      $     call errquit('dft_scf: put of bgj:scf_type failed',0,
      &       RTDB_ERR)
+c
+c
+      if (.not.rtdb_get(rtdb, 'dft:libxcon', mt_log,1,libxcon))
+     $  libxcon = .false.
+      if (libxcon) call nwchem_libxc_rdinput(rtdb,'dft') 
 c
       if (.not. MA_Pop_Stack(lznuc))
      &   call errquit('dft_rdinput: pop stack failed.',0, MA_ERR)

@@ -342,6 +342,8 @@ c
       rlshift=0.0d0
       if (.not. rtdb_put(rtdb, 'dft:rlshift', mt_dbl, 1,rlshift))
      &   call errquit('conv_inp: rtdb_put failed', 1700, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'quickguess', mt_log, 1,.true.))
+     &   call errquit('conv_inp: rtdb_put failed', 1706, RTDB_ERR)
 c
       goto 10
 c     
