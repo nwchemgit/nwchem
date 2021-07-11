@@ -1,3 +1,5 @@
+#define USE_OMP_SECTIONS 0
+
       subroutine ccsd_trpdrv_omp(t1,
      &     f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,eorb,
      &     g_objo,g_objv,g_coul,g_exch,
@@ -263,6 +265,8 @@
                             call ga_nbwait(nbh_coul1)
                             call ga_nbwait(nbh_coul2)
                         endif
+
+#if USE_OMP_SECTIONS
 !$omp parallel
 !$omp& shared(eorb)
 !$omp& shared(f1n,f2n,f3n,f4n,f1t,f2t,f3t,f4t)
@@ -270,7 +274,6 @@
 !$omp& shared(t1v2,dintc2,dintx2)
 !$omp& private(eaijk,denom)
 !$omp& firstprivate(ncor,nocc,nvir,lnov,lnvv,i,j,k,klo)
-
 !
 ! Performance Note:
 !
@@ -281,64 +284,80 @@
 !
 !$omp sections
 !$omp section
+#endif
                         call dgemm('n','t',nvir,nvir,nvir,1.0d0,
      1                       Jia,nvir,Tkj(1+(k-klo)*lnvv),nvir,0.0d0,
      2                       f1n,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Tia,nvir,Kkj(1+(k-klo)*lnov),nocc,1.0d0,
      2                       f1n,nvir)
+#if USE_OMP_SECTIONS
 !$omp section
+#endif
                         call dgemm('n','t',nvir,nvir,nvir,1.0d0,
      1                       Kia,nvir,Tkj(1+(k-klo)*lnvv),nvir,0.0d0,
      2                       f2n,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Xia,nvir,Kkj(1+(k-klo)*lnov),nocc,1.0d0,
      2                       f2n,nvir)
+#if USE_OMP_SECTIONS
 !$omp section
+#endif
                         call dgemm('n','n',nvir,nvir,nvir,1.0d0,
      1                       Jia,nvir,Tkj(1+(k-klo)*lnvv),nvir,0.0d0,
      2                       f3n,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Tia,nvir,Jkj(1+(k-klo)*lnov),nocc,1.0d0,
      2                       f3n,nvir)
+#if USE_OMP_SECTIONS
 !$omp section
+#endif
                         call dgemm('n','n',nvir,nvir,nvir,1.0d0,
      1                       Kia,nvir,Tkj(1+(k-klo)*lnvv),nvir,0.0d0,
      2                       f4n,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Xia,nvir,Jkj(1+(k-klo)*lnov),nocc,1.0d0,
      2                       f4n,nvir)
+#if USE_OMP_SECTIONS
 !$omp section
+#endif
                         call dgemm('n','t',nvir,nvir,nvir,1.0d0,
      1                       Jka(1+(k-klo)*lnvv),nvir,Tij,nvir,0.0d0,
      2                       f1t,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Tka(1+(k-klo)*lnov),nvir,Kij,nocc,1.0d0,
      2                       f1t,nvir)
+#if USE_OMP_SECTIONS
 !$omp section
+#endif
                         call dgemm('n','t',nvir,nvir,nvir,1.0d0,
      1                       Kka(1+(k-klo)*lnvv),nvir,Tij,nvir,0.0d0,
      2                       f2t,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Xka(1+(k-klo)*lnov),nvir,Kij,nocc,1.0d0,
      2                       f2t,nvir)
+#if USE_OMP_SECTIONS
 !$omp section
+#endif
                         call dgemm('n','n',nvir,nvir,nvir,1.0d0,
      1                       Jka(1+(k-klo)*lnvv),nvir,Tij,nvir,0.0d0,
      2                       f3t,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Tka(1+(k-klo)*lnov),nvir,Jij,nocc,1.0d0,
      2                       f3t,nvir)
+#if USE_OMP_SECTIONS
 !$omp section
+#endif
                         call dgemm('n','n',nvir,nvir,nvir,1.0d0,
      1                       Kka(1+(k-klo)*lnvv),nvir,Tij,nvir,0.0d0,
      2                       f4t,nvir)
                         call dgemm('n','n',nvir,nvir,nocc,-1.0d0,
      1                       Xka(1+(k-klo)*lnov),nvir,Jij,nocc,1.0d0,
      2                       f4t,nvir)
+#if USE_OMP_SECTIONS
 !$omp end sections
-
 !$omp master
+#endif
                         if (occsdps) then
                            call pstat_off(ps_doxxx)
                            call pstat_on(ps_tengy)
@@ -346,7 +365,9 @@
                            call qexit('doxxx',0)
                            call qenter('tengy',0)
                         endif
+#if USE_OMP_SECTIONS
 !$omp end master
+#endif
 
                         eaijk=eorb(a) - (  eorb(ncor+i)
      &                                    +eorb(ncor+j)
@@ -359,11 +380,17 @@
      E                       11 ) +
      5                       2*27 )
 #endif
+
+#if USE_OMP_SECTIONS
 !$omp do collapse(2)
+#else
+!$omp parallel do collapse(2)
+!$omp& private(denom)
+!$omp& firstprivate(ncor,nocc,nvir,eaijk)
+#endif
 !$omp& schedule(static)
 !$omp& reduction(+:emp5i,emp4i)
 !$omp& reduction(+:emp5k,emp4k)
-! WARNING: Do not add IVDEP here.  Code will be incorrect.
            do bb=1,nvir,chunking
              do cc=1,nvir,chunking
                do b=bb,min(bb+chunking-1,nvir)
