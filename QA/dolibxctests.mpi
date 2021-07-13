@@ -28,4 +28,5 @@ else
 ./runtests.mpi.unix procs $np libxc_tddftgrad_n2_uks
 ./runtests.mpi.unix procs $np libxc_tddftgrad_h2
 ./runtests.mpi.unix procs $np libxc_rscan
+./runtests.mpi.unix procs $np libxc_waterdimer_bmk
 fi
