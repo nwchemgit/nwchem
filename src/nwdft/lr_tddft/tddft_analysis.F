@@ -408,7 +408,11 @@ c       jochen: tested this first with FIAOs which also worked fine
           call fiao_b1_movecs(rtdb,ao_bas_han, geom, ipol, g_vecB1)
           ! scaling by 0.5 is done in that subroutine
         else
-          call giao_b1_movecs(rtdb,ao_bas_han, geom, ipol,
+#if 1
+        call schwarz_tidy()
+        call int_terminate()
+#endif
+           call giao_b1_movecs(rtdb,ao_bas_han, geom, ipol,
      &       g_vecB1, g_sket1)
           do i = 1,ipol
             call ga_scale (g_vecB1(ipol), 0.5d0)
