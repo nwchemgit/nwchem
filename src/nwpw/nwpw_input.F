@@ -23,7 +23,7 @@ c#include "nwpwxc.fh"
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 131)
+      parameter (num_dirs = 136)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -85,7 +85,7 @@ c
      >            'zone_structure_name',
      >            'dos-grid',
      >            'dos_filename',
-     >            'efield',
+     >            'atom_efield',
      >            'occupations',
      >            'expand_cell',
      >            'mapping',
@@ -127,7 +127,7 @@ c
      >            'pspspin',
      >            'Fei',
      >            'parallel_io',
-     >            'efield_grad',
+     >            'atom_efield_grad',
      >            'uterm',
      >            'et',
      >            'cpmd_properties',
@@ -155,6 +155,11 @@ c
      >            'zone_fft_name',
      >            'dos-fft-grid',
      >            'director',
+     >            'efield',
+     >            '1d-slab',
+     >            '2d-hilbert',
+     >            '2d-hcurve',
+     >            'single_precision_hfx',
      >            'end'/
 
       double precision kb
@@ -235,7 +240,8 @@ c
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
      >       6700,6800,6900,7000,4250,7100,7200,7300,7400,7500,7600,
      >       7700,7800,7900,8000,8100,6650,8200,8300,8400,8500,8600,
-     >       8700,8800,8900,9000,9010,9020,9030,1810,1811,1812,
+     >       8700,8800,8900,9000,9010,9020,9030,1810,1811,1812,9040,
+     >       4501,4502,4503,4504,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -974,17 +980,17 @@ c
 
 
 c
-c  EFIELD
+c  ATOM_EFIELD
 c
- 4200 if (.not.rtdb_put(rtdb,'nwpw:efield',mt_log,1,.true.))
+ 4200 if (.not.rtdb_put(rtdb,'nwpw:atom_efield',mt_log,1,.true.))
      >  call errquit('nwpw_input: error writing to rtdb',4200,RTDB_ERR)
 
       goto 10
 
 c
-c  EFIELD_GRAD
+c  ATOM_EFIELD_GRAD
 c
- 4250 if (.not.rtdb_put(rtdb,'nwpw:efield_grad',mt_log,1,.true.))
+ 4250 if (.not.rtdb_put(rtdb,'nwpw:atom_efield_grad',mt_log,1,.true.))
      >  call errquit('nwpw_input: error writing to rtdb',4250,RTDB_ERR)
 
       goto 10
@@ -1016,6 +1022,43 @@ c
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 4500, RTDB_ERR)
       goto 10
+c
+c  1d-slab mapping
+c
+ 4501 cell_expand(1) = 1
+      value = rtdb_put(rtdb,'nwpw:mapping',mt_int,1,cell_expand)
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 4501, RTDB_ERR)
+      goto 10
+c
+c  2d-hilbert mapping
+c
+ 4502 cell_expand(1) = 2
+      value = rtdb_put(rtdb,'nwpw:mapping',mt_int,1,cell_expand)
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 4502, RTDB_ERR)
+      goto 10
+c
+c  2d-hcurve mapping
+c
+ 4503 cell_expand(1) = 3
+      value = rtdb_put(rtdb,'nwpw:mapping',mt_int,1,cell_expand)
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 4503, RTDB_ERR)
+      goto 10
+
+c
+c  single_precision_hfx
+c
+ 4504 value=rtdb_put(rtdb,'pspw:HFX_single_precision',mt_log,1,.true.)
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 4504, RTDB_ERR)
+      goto 10
+
 
 c
 c  CG minimizer
@@ -1121,6 +1164,14 @@ c
      >      call errquit('nwpw_input: error reading iterations',
      >                   4800,RTDB_ERR)
           if(.not.rtdb_put(rtdb,'nwpw:ks_maxit_orbs',mt_int,1,nx))
+     >    call errquit('nwpw_input: error writing to rtdb',
+     >                 4800,RTDB_ERR)
+       end if
+       if (inp_compare(.false.,zone_name,'diis_histories')) then
+          if (.not.inp_i(nx)) 
+     >      call errquit('nwpw_input: error reading diis histories',
+     >                   4800,RTDB_ERR)
+          if(.not.rtdb_put(rtdb,'nwpw:diis_histories',mt_int,1,nx))
      >    call errquit('nwpw_input: error writing to rtdb',
      >                 4800,RTDB_ERR)
        end if
@@ -2272,6 +2323,54 @@ c
          if (.not.rtdb_put(rtdb,'nwpw:H1_it_ortho',mt_int,1,nz))
      >   call errquit('nwpw_input:error writing to rtdb',9030,RTDB_ERR)
       end if
+
+      goto 10
+
+c
+c Efield  true/false ex ey ez [center cx cy cz] [periodic APC rgrid]
+c
+ 9040 if (inp_a(zone_name)) then
+         move = nwpw_parse_boolean(zone_name,.true.)
+         if (move) then
+            if (.not.inp_f(tolerances(1))) tolerances(1) = 0.0 
+            if (.not.inp_f(tolerances(2))) tolerances(2) = 0.0 
+            if (.not.inp_f(tolerances(3))) tolerances(3) = 0.0 
+            if (.not.rtdb_put(rtdb,'nwpw:efield_vector',mt_dbl,3,
+     >                        tolerances))
+     >      call errquit('nwpw_input:error writing rtdb',9040,RTDB_ERR)
+
+*           *** look for center ***
+            do while (inp_a(zone_name)) 
+               if (inp_compare(.false.,zone_name,'center')) then
+                  if (.not.inp_f(tolerances(1))) tolerances(1) = 0.0 
+                  if (.not.inp_f(tolerances(2))) tolerances(2) = 0.0 
+                  if (.not.inp_f(tolerances(3))) tolerances(3) = 0.0 
+                  if (.not.rtdb_put(rtdb,'nwpw:efield_center',mt_dbl,3,
+     >                              tolerances))
+     >            call errquit('nwpw_input:error writing rtdb',9040,
+     >                         RTDB_ERR)
+               end if
+               if (inp_compare(.false.,zone_name,'periodic')) then
+                  if (.not.rtdb_put(rtdb,'nwpw:efield_type',mt_int,1,0))
+     >            call errquit('nwpw_input:error writing rtdb',9040,
+     >                         RTDB_ERR)
+               end if
+               if (inp_compare(.false.,zone_name,'APC')) then
+                  if (.not.rtdb_put(rtdb,'nwpw:efield_type',mt_int,1,1))
+     >            call errquit('nwpw_input:error writing rtdb',9040,
+     >                         RTDB_ERR)
+               end if
+               if (inp_compare(.false.,zone_name,'rgrid')) then
+                  if (.not.rtdb_put(rtdb,'nwpw:efield_type',mt_int,1,2))
+     >            call errquit('nwpw_input:error writing rtdb',9040,
+     >                         RTDB_ERR)
+               end if
+            end do
+
+         end if
+      end if
+      if (.not.rtdb_put(rtdb,'nwpw:efield',mt_log,1, move))
+     >  call errquit('nwpw_input: error writing to rtdb',9040,RTDB_ERR)
 
       goto 10
 

@@ -1,43 +1,52 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# sarc2-qzv-dkh2 version number 0
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# SARC2-QZV-DKH2 version number 0
 # Description: SARC2-QZV-DKH2
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# La-Lu
-#     ## SARC2-QZV-DKH2
+# 
+#  References for the basis set
+# 
+#  La-Lu
+#      SARC2-QZV-DKH2
+#          aravena2016a
+# 
+# 
+# 
+# aravena2016a
 #     Aravena, Daniel, Neese, Frank, Pantazis, Dimitrios A.
 #     Improved Segmented All-Electron Relativistically Contracted Basis Sets
 #             for the Lanthanides
-#     J. Chem. Theory Comput., 12, 1148-1156 (2016)
+#     J. Chem. Theory Comput. 12, 1148-1156 (2016)
 #     10.1021/acs.jctc.5b01048
 # 
 # # 
-basis "La_sarc2-qzv-dkh2" 
+basis "La_SARC2-QZV-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 La    S
 3908799.0870000              0.001979610978
@@ -141,7 +150,7 @@ La    F
 La    F
       0.08769868             1.0000000
 end
-basis "Ce_sarc2-qzv-dkh2" 
+basis "Ce_SARC2-QZV-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Ce    S
 4164893.9330000              0.002015077737
@@ -245,7 +254,7 @@ Ce    F
 Ce    F
       0.23418723             1.0000000
 end
-basis "Pr_sarc2-qzv-dkh2" 
+basis "Pr_SARC2-QZV-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Pr    S
 4449443.7620000              0.002034356477
@@ -349,7 +358,7 @@ Pr    F
 Pr    F
       0.25046374             1.0000000
 end
-basis "Nd_sarc2-qzv-dkh2" 
+basis "Nd_SARC2-QZV-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Nd    S
 4733993.5910000              0.002064076832
@@ -453,7 +462,7 @@ Nd    F
 Nd    F
       0.26877481             1.0000000
 end
-basis "Pm_sarc2-qzv-dkh2" 
+basis "Pm_SARC2-QZV-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Pm    S
 4863007.0970000              0.002151082427
@@ -557,7 +566,7 @@ Pm    F
 Pm    F
       0.28505131             1.0000000
 end
-basis "Sm_sarc2-qzv-dkh2" 
+basis "Sm_SARC2-QZV-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Sm    S
 5612784.1600000              0.002053819344
@@ -661,7 +670,7 @@ Sm    F
 Sm    F
       0.29929326             1.0000000
 end
-basis "Eu_sarc2-qzv-dkh2" 
+basis "Eu_SARC2-QZV-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Eu    S
 5701463.0100000              0.00215685505
@@ -765,7 +774,7 @@ Eu    F
 Eu    F
       0.31556976             1.0000000
 end
-basis "Gd_sarc2-qzv-dkh2" 
+basis "Gd_SARC2-QZV-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Gd    S
 6038159.4080000              0.002193720338
@@ -869,7 +878,7 @@ Gd    F
 Gd    F
       0.3298117              1.0000000
 end
-basis "Tb_sarc2-qzv-dkh2" 
+basis "Tb_SARC2-QZV-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Tb    S
 6758316.7030000              0.002142945089
@@ -973,7 +982,7 @@ Tb    F
 Tb    F
       0.33184627             1.0000000
 end
-basis "Dy_sarc2-qzv-dkh2" 
+basis "Dy_SARC2-QZV-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Dy    S
 6818227.0380000              0.002259663318
@@ -1077,7 +1086,7 @@ Dy    F
 Dy    F
       0.33388083             1.0000000
 end
-basis "Ho_sarc2-qzv-dkh2" 
+basis "Ho_SARC2-QZV-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Ho    S
 7263979.9690000              0.002288525832
@@ -1181,7 +1190,7 @@ Ho    F
 Ho    F
       0.34201908             1.0000000
 end
-basis "Er_sarc2-qzv-dkh2" 
+basis "Er_SARC2-QZV-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Er    S
 8067496.7530000              0.002248164873
@@ -1285,7 +1294,7 @@ Er    F
 Er    F
       0.34608821             1.0000000
 end
-basis "Tm_sarc2-qzv-dkh2" 
+basis "Tm_SARC2-QZV-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Tm    S
 8211204.9480000              0.002352350661
@@ -1389,7 +1398,7 @@ Tm    F
 Tm    F
       0.36033015             1.0000000
 end
-basis "Yb_sarc2-qzv-dkh2" 
+basis "Yb_SARC2-QZV-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Yb    S
 8712676.9960000              0.002388797142
@@ -1493,7 +1502,7 @@ Yb    F
 Yb    F
       0.36033015             1.0000000
 end
-basis "Lu_sarc2-qzv-dkh2" 
+basis "Lu_SARC2-QZV-DKH2" SPHERICAL 
 #basis SET: (23s,16p,12d,7f) -> [18s,12p,9d,4f]
 Lu    S
 9214149.0440000              0.002443454077

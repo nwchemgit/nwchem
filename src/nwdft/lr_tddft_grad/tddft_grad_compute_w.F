@@ -63,15 +63,15 @@ c
 c
 c     Local:
 c
-      integer g_puv(2)  ! global array handle for Puv
-      integer g_apbp(2) ! global array handle for (A+B)Puv
-      integer g_ambp(2) ! global array handle for (A-B)Puv
-      integer g_x(2)    ! global array handle for X
-      integer g_y(2)    ! global array handle for Y
-      integer g_apbx(2) ! global array handle for (A+B)X
-      integer g_ambx(2) ! global array handle for (A-B)X
-      integer g_apby(2) ! global array handle for (A+B)Y
-      integer g_amby(2) ! global array handle for (A-B)Y
+      integer g_puv     ! global array handle for Puv
+      integer g_apbp ! global array handle for (A+B)Puv
+      integer g_ambp ! global array handle for (A-B)Puv
+      integer g_x    ! global array handle for X
+      integer g_y    ! global array handle for Y
+      integer g_apbx ! global array handle for (A+B)X
+      integer g_ambx ! global array handle for (A-B)X
+      integer g_apby ! global array handle for (A+B)Y
+      integer g_amby ! global array handle for (A-B)Y
       integer g_hij(2)  ! global array handle for Hij+-
       integer g_t       ! global array handle for transposer
 c
@@ -219,22 +219,18 @@ c
             clo(3) = 1
             chi(3) = naoc(ip)
             if (.not.tda) then
-               call nga_matmul_patch('n','t',0.5d0*omega(ir),1.0d0,
+               call tddft_patch3mxm('n','t',0.5d0*omega(ir),1.0d0,
      +                                g_xpy(ip),alo,ahi,
      +                                g_xmy(ip),blo,bhi,
      +                                g_w(ip),clo,chi)
-               call nga_matmul_patch('n','t',0.5d0*omega(ir),1.0d0,
+               call tddft_patch3mxm('n','t',0.5d0*omega(ir),1.0d0,
      +                                g_xmy(ip),alo,ahi,
      +                                g_xpy(ip),blo,bhi,
      +                                g_w(ip),clo,chi)
             else
 c              g_xpy: X with CIS, Y = 0
 c              g_xmy: not created with CIS
-               call nga_matmul_patch('n','t',0.5d0*omega(ir),1.0d0,
-     +                                g_xpy(ip),alo,ahi,
-     +                                g_xpy(ip),blo,bhi,
-     +                                g_w(ip),clo,chi)
-               call nga_matmul_patch('n','t',0.5d0*omega(ir),1.0d0,
+               call tddft_patch3mxm('n','t',omega(ir),1.0d0,
      +                                g_xpy(ip),alo,ahi,
      +                                g_xpy(ip),blo,bhi,
      +                                g_w(ip),clo,chi)
@@ -452,7 +448,7 @@ c
       ichnk(2) = -1
       ichnk(3) = -1
       if (.not.nga_create(mt_dbl,3,idim,'vec Puv',ichnk,g_puv))
-     +    call errquit(pname//'failed to create g_puv',0,GA_ERR)
+     +     call errquit(pname//'failed to create g_puv',0,GA_ERR)
 c
 c     - Puv = sum_pq Cup*Ppq*Cvq
 c
@@ -841,7 +837,7 @@ c
           chi(2) = naoc(ip)
           clo(3) = naoc(ip)+1
           chi(3) = naoc(ip)+nav(ip)
-          call nga_matmul_patch('n','n',1.0d0,1.0d0,g_hij(ip),alo,ahi,
+          call tddft_patch3mxm('n','n',1.0d0,1.0d0,g_hij(ip),alo,ahi,
      +         g_xpy(ip),blo,bhi,g_w(ip),clo,chi)
         enddo
       enddo
@@ -885,11 +881,11 @@ c since (X+Y) = (X-Y) = X.  This is a consequence of not allocating
 c a g_xmy array for CIS.  The linear transformation H^-[X] still exists
 c in CIS.
             if (.not.tda) then
-              call nga_matmul_patch('n','n',-1.0d0,1.0d0,
+              call tddft_patch3mxm('n','n',-1.0d0,1.0d0,
      +             g_hij(ip),alo,ahi,
      +             g_xmy(ip),blo,bhi,g_w(ip),clo,chi)
             else
-              call nga_matmul_patch('n','n',-1.0d0,1.0d0,
+              call tddft_patch3mxm('n','n',-1.0d0,1.0d0,
      +             g_hij(ip),alo,ahi,
      +             g_xpy(ip),blo,bhi,g_w(ip),clo,chi)
             endif
@@ -939,22 +935,18 @@ c
             chi(3) = naoc(ip)+nav(ip)
 c
             if (.not.tda) then
-             call nga_matmul_patch('t','n',0.5d0*omega(ir),0.0d0,
+            call tddft_patch3mxm('t','n',0.5d0*omega(ir),0.0d0,
      +                              g_xpy(ip),alo,ahi,
      +                              g_xmy(ip),blo,bhi,
      +                              g_w(ip),clo,chi)
-             call nga_matmul_patch('t','n',0.5d0*omega(ir),1.0d0,
+            call tddft_patch3mxm('t','n',0.5d0*omega(ir),1.0d0,
      +                              g_xmy(ip),alo,ahi,
      +                              g_xpy(ip),blo,bhi,
      +                              g_w(ip),clo,chi)
             else
 c            g_xpy: X with CIS, Y = 0
 c            g_xmy: not created with CIS
-             call nga_matmul_patch('t','n',0.5d0*omega(ir),0.0d0,
-     +                            g_xpy(ip),alo,ahi,
-     +                            g_xpy(ip),blo,bhi,
-     +                            g_w(ip),clo,chi)
-             call nga_matmul_patch('t','n',0.5d0*omega(ir),1.0d0,
+             call tddft_patch3mxm('t','n',omega(ir),0.0d0,
      +                            g_xpy(ip),alo,ahi,
      +                            g_xpy(ip),blo,bhi,
      +                            g_w(ip),clo,chi)

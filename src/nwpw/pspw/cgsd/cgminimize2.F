@@ -45,7 +45,7 @@ c
       real*8 e_lj,e_q,e_spring
       real*8 ehsic,exsic,phsic,pxsic,ehfx,phfx
 
-      logical cosmo_on,cosmo1_on,V_APC_on
+      logical cosmo_on,cosmo1_on,V_APC_on,field_exist
       real*8  eapc,papc
 
 
@@ -93,6 +93,10 @@ c
       real*8   pspw_charge_Energy_ion,pspw_charge_Energy_charge
       external pspw_charge_found
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
+      logical  pspw_Efield_found
+      external pspw_Efield_found
+      real*8   pspw_Efield_Energy_ion
+      external pspw_Efield_Energy_ion
 
       logical  control_precondition,pspw_SIC,pspw_HFX,psp_U_psputerm
       external control_precondition,pspw_SIC,pspw_HFX,psp_U_psputerm
@@ -117,6 +121,7 @@ c
       cosmo_on  = nwpw_cosmo_on()
       cosmo1_on = nwpw_cosmo1_on()
       V_APC_on  = pspw_V_APC_on()
+      field_exist = pspw_charge_found().or.pspw_Efield_found()
 
 
 *     **** check and fix orthogonality ****
@@ -317,33 +322,34 @@ c      call psi_check()
             E(48) = nwpw_cosmo_Eqq()    !** E(q|q)
 
             !E(1)  = E(1) + E(22) - E(23) + E(47) + E(48)
-            E(1)  = E(1) + E(22) - E(23)
+            !E(1)  = E(1) + E(22) - E(23) !*** probably NOT CORRECT ***
          end if
 
       else if (V_APC_on) then
          call electron_apc_energies(eapc,papc)
          E(22) = eapc
          E(23) = papc
-         E(1)  = E(1) + eapc - papc
+         !E(1)  = E(1) + eapc - papc !*** probably NOT CORRECT ***
       end if
 
 
 *     **** get pspw_charge  energies ****
-      if (pspw_charge_found()) then
-         E(19)  = psi_1v_field()
-         E(20)  = pspw_charge_Energy_ion()
-         E(21)  = pspw_charge_Energy_charge()
-         E(1)   = E(1) + E(20) + E(21)
+      if (field_exist) then
+         E(49)  = psi_1v_field()
+         E(50)  = pspw_charge_Energy_ion()
+     >          + pspw_Efield_Energy_ion()
+         E(51)  = pspw_charge_Energy_charge()
+         E(1)   = E(1) + E(50) + E(51)
       end if
 
 
 *     **** SIC corrections ****
       if (pspw_SIC()) then
          call electron_SIC_energies(ehsic,phsic,exsic,pxsic)        
-         E(22) = ehsic
-         E(23) = exsic
-         E(24) = phsic
-         E(25) = pxsic
+         E(16) = ehsic
+         E(17) = exsic
+         E(18) = phsic
+         E(19) = pxsic
       end if
 
 *     **** HFX terms ****

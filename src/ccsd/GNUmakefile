@@ -109,6 +109,12 @@ ifeq ($(HAVE_SET_GA_PROPERTY),Y)
       LIB_DEFINES += -DHAVE_SET_GA_PROPERTY
 endif
 
+ifdef USE_OPENACC_TRPDRV
+  OBJ_OPTIMIZE += ccsd_trpdrv_openacc.o
+  USES_BLAS    += ccsd_trpdrv_openacc.F
+  FOPTIONS += -acc -gpu=managed -cuda -cudalib=cublas -DUSE_OPENACC_TRPDRV
+endif
+
 
 ifeq ($(ARMCI_NETWORK),MPI-PR)
    LIB_DEFINES += -DACC_STRIPS

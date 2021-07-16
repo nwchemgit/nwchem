@@ -63,7 +63,7 @@ cccc#include "frac_occ.fh"
     
 
 *     ***** energy variables ****
-      real*8  E(50),Egas
+      real*8  E(60),Egas
 
 *     real*8  eig(2*nemax)
 *     real*8  hml(2*nemax*nemax)
@@ -96,7 +96,7 @@ cccc#include "frac_occ.fh"
       character*255 full_filename
       integer tmp1(2)
 
-      logical value,psi_nogrid
+      logical value,psi_nogrid,field_exist
       integer hversion,hnfft(3),hispin,hne(2)
       real*8 hunita(3,3)
       integer ind
@@ -153,22 +153,22 @@ cccc#include "frac_occ.fh"
       character*12 control_boundry
       external     control_boundry
 
-      logical      pspw_HFX_localize2
-      external     pspw_HFX_localize2
-      logical      pspw_SIC,pspw_SIC_relaxed,pspw_qmmm_found
-      logical      pspw_HFX,pspw_HFX_relaxed,psp_pawexist
-      logical      psp_semicore,control_Mulliken
-      real*8       psp_rcore,psp_ncore,psp_rlocal
-      external     pspw_SIC,pspw_SIC_relaxed,pspw_qmmm_found
-      external     pspw_HFX,pspw_HFX_relaxed,psp_pawexist
-      external     psp_semicore,control_Mulliken
-      external     psp_rcore,psp_ncore,psp_rlocal
-      logical      control_check_charge_multiplicity
-      external     control_check_charge_multiplicity
-      real*8       nwpw_timing
-      external     nwpw_timing
-      integer      control_np_orbital,control_mapping,control_mapping1d
-      external     control_np_orbital,control_mapping,control_mapping1d
+      logical  pspw_HFX_localize2,pspw_charge_found,pspw_Efield_found
+      external pspw_HFX_localize2,pspw_charge_found,pspw_Efield_found
+      logical  pspw_SIC,pspw_SIC_relaxed,pspw_qmmm_found
+      logical  pspw_HFX,pspw_HFX_relaxed,psp_pawexist
+      logical  psp_semicore,control_Mulliken
+      real*8   psp_rcore,psp_ncore,psp_rlocal
+      external pspw_SIC,pspw_SIC_relaxed,pspw_qmmm_found
+      external pspw_HFX,pspw_HFX_relaxed,psp_pawexist
+      external psp_semicore,control_Mulliken
+      external psp_rcore,psp_ncore,psp_rlocal
+      logical  control_check_charge_multiplicity
+      external control_check_charge_multiplicity
+      real*8   nwpw_timing
+      external nwpw_timing
+      integer  control_np_orbital,control_mapping,control_mapping1d
+      external control_np_orbital,control_mapping,control_mapping1d
 
       logical  control_translation,control_rotation,control_balance
       external control_translation,control_rotation,control_balance
@@ -195,10 +195,10 @@ c#include "Parallel.fh"
 
       logical  control_mparallelized
       external control_mparallelized
-      logical  nwpw_cosmo_on
-      external nwpw_cosmo_on
-      real*8   nwpw_cosmo_screen
-      external nwpw_cosmo_screen
+      logical  nwpw_cosmo_on,nwpw_born_on
+      external nwpw_cosmo_on,nwpw_born_on
+      real*8   nwpw_cosmo_screen,nwpw_born_screen
+      external nwpw_cosmo_screen,nwpw_born_screen
       logical  pspw_V_APC_on
       external pspw_V_APC_on
       real*8   control_gas_energy
@@ -212,6 +212,11 @@ c#include "Parallel.fh"
       external control_fractional_temperature
       real*8   control_fractional_kT
       external control_fractional_kT
+      real*8   control_fractional_alpha
+      external control_fractional_alpha
+
+      integer  pspw_Efield_type
+      external pspw_Efield_type
 
 
 
@@ -521,7 +526,10 @@ c         end if
 *     **** initialize QM/MM ****
       call pspw_init_APC(rtdb)
       call pspw_qmmm_init(rtdb)
+      call pspw_charge_init(rtdb)
+      call pspw_Efield_init(rtdb,ispin,ne)
       !call pspw_cdft_init(rtdb)
+      field_exist = pspw_charge_found().or.pspw_Efield_found()
 
 *     **** initialize frac_occ data structure ****
 c      call frac_occ_init(rtdb,ispin,ne)
@@ -626,6 +634,8 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
          write(luout,1210) gx,gy,gz
          write(luout,1211) ion_nconstraints(),ion_ndof()
 
+         call pspw_charge_Print(luout)
+         call pspw_Efield_Print(luout)
 
          if (fractional) then
            write(luout,1219) en(1),en(ispin),' (   fractional)'
@@ -705,8 +715,27 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
          if (.not.control_rotation())    write(luout,1272)
          write(luout,1280) control_time_step(),control_fake_mass()
          write(luout,1290) control_tole(),control_tolc(),control_tolr()
-        write(luout,1281) control_it_in()*control_it_out(),
+         write(luout,1281) control_it_in()*control_it_out(),
      >                 control_it_in(),control_it_out()
+
+        if (control_fractional()) then
+           write(6,1297)
+           if (control_fractional_smeartype().eq.-1)
+     >       write(6,1298) "fixed occupation"
+           if (control_fractional_smeartype().eq.0)
+     >       write(6,1298) "step function"
+           if (control_fractional_smeartype().eq.1)
+     >       write(6,1298) "Fermi-Dirac"
+           if (control_fractional_smeartype().eq.2)
+     >       write(6,1298) "Gaussian"
+           if (control_fractional_smeartype().eq.4)
+     >       write(6,1298) "Marzari-Vanderbilt"
+           if (control_fractional_smeartype().ge.0)
+     >       write(6,1299) control_fractional_kT(),
+     >                     control_fractional_temperature(),
+     >                     control_fractional_alpha()
+         end if
+
          write(luout,1300)
          write(luout,1305)
          call util_flush(luout)
@@ -733,16 +762,19 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
      >             first_iteration,
      >             dcpl_mb(psir(1)),dcpl_mb(Hpsi(1)),
      >             fractional,dbl_mb(occ1(1)),dbl_mb(occ2(1)))
+         if (fractional) E(1) = E(1) + smearcorrection
 
          if (oprint) then 
            write(luout,1310) icount*it_in,E(1),deltae,deltac,deltar
            call util_flush(luout)
          end if
          if ((deltae.gt.0.0d0).and.(icount.gt.1)) then
-            if (oprint) 
-     >       write(luout,*) 
-     >       ' *** Energy going up.  iteration terminated.'
-            go to 2
+            if ((icount.ge.it_out).or.(.not.fractional)) then
+               if (oprint) 
+     >          write(luout,*) 
+     >          ' *** Energy going up.  iteration terminated.'
+               go to 2
+            end if
          end if
          deltae = dabs(deltae)
          if ((deltae.lt.control_tole()).and.
@@ -759,13 +791,22 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
      >       (smeartype.ge.0)) then
 
             call Dneall_m_diagonalize(0,dbl_mb(hml(1)),
-     >                                  dbl_mb(eig(1)),.false.)
-            call psi_0define_occupation(1.0d0,.true.,
+     >                                  dbl_mb(eig(1)),.true.)
+c            call Dneall_fmf_Multiply(0,dcpl_mb(psi2(1)),npack1,
+c     >                                 dbl_mb(hml(1)),  1.0d0,
+c     >                                 dcpl_mb(psi1(1)),0.0d0)
+
+            call psi_0define_occupation(-1.0d0,.false.,
      >                               ispin,ne,
      >                               dbl_mb(eig(1)),dbl_mb(hml(1)),
-     >                               dbl_mb(occ1(1)),
+     >                               dbl_mb(occ2(1)),
      >                               smeartype,smearkT,
      >                               smearfermi,smearcorrection)
+c            write(*,*) "definefrac smearfermi=",smearfermi
+c            do i=1,ne(1)
+c               write(*,*) "i,occ=",i,dbl_mb(eig(1)+i-1),
+c     >                               dbl_mb(occ1(1)+i-1)
+c            end do
          end if
 
 
@@ -889,6 +930,14 @@ c     >      =dbl_mb(eig(1)+(ii-1)+(ms-1)*n)
 c     >      /dbl_mb(fweight(1)+(ii-1)+(ms-1)*n)
 c         end do
 c         end do
+         !*** reverse the occupation ***
+         do ms=1,ispin
+            do i=1,ne(ms)
+                 dbl_mb(occ1(1)+(ms-1)*ne(1) + i-1) = 
+     >           dbl_mb(occ2(1)+(ms-1)*ne(1) + ne(ms)-i)
+            end do
+         end do
+         !call dcopy(ne(1)+ne(2),dbl_mb(occ2(1)),1,dbl_mb(occ1(1)),1)
          call dcopy(2*npack1*nemaxq,
      >             dcpl_mb(psi1(1)),1,
      >             dcpl_mb(psi2(1)),1)
@@ -934,6 +983,7 @@ c         end do
          write(luout,1210) gx,gy,gz
          write(luout,1211) ion_nconstraints(),ion_ndof()
 
+         call pspw_charge_Print(luout)
 
          write(luout,*)
          write(luout,1320) en(1),en(ispin),' (real space)'
@@ -952,6 +1002,18 @@ c         end do
             write(luout,1432) 
             write(luout,1433) (E(1)-E(11)),
      >                    (E(1)-E(11))/ion_nion()
+         end if
+
+         if (field_exist) then
+            write(luout,1431)
+            write(luout,1432)
+            if (pspw_Efield_type().eq.0) then
+               write(luout,1433) (E(1)-E(49)-E(51)),
+     >         (E(1)-E(49)-E(51))/ion_nion()
+            else
+               write(luout,1433) (E(1)-E(49)-E(50)-E(51)),
+     >         (E(1)-E(49)-E(50)-E(51))/ion_nion()
+            end if
          end if
 
          !*** print out total paw energy including core energies ****
@@ -1023,7 +1085,6 @@ c        **** paw energies ****
          write(luout,1690) E(45),E(45)/ion_nion()
          end if
 
- 
       if (pspw_qmmm_found()) then
             write(luout,1700)
             write(luout,1701)
@@ -1042,6 +1103,23 @@ c            write(luout,1706) E(18)
         end if
         if (ion_disp_on()) then
             write(luout,1720) E(33)
+        end if
+
+        if (field_exist) then
+           write(luout,1800)
+           write(luout,1801)
+           if (pspw_Efield_type().eq.0) then
+              write(luout,1805) E(49)+E(51)
+              write(luout,1806) E(49)
+              write(luout,1807) E(50)
+              !write(luout,1804) E(51)
+              call dipole_Efield_print(luout)
+           else
+              write(luout,1805) E(49)+E(50)+E(51)
+              write(luout,1802) E(49)
+              write(luout,1803) E(50)
+              write(luout,1804) E(51)
+           end if
         end if
 
 
@@ -1064,9 +1142,17 @@ c            write(luout,1706) E(18)
 
 *        **** write out KS eigenvalues ****
          else
+         EV=27.2116d0
+         if (control_fractional()) then
+            if (ispin.eq.1) then
+               write(luout,1507) smearfermi(1),smearfermi(1)*EV
+            else
+               write(luout,1507) smearfermi(1),smearfermi(1)*EV,
+     >                           smearfermi(2),smearfermi(2)*EV
+            end if
+         end if
          write(luout,1500)
          NN=NE(1)-NE(2)
-         EV=27.2116d0
          if (fractional) then
            do i=1,NN
              write(luout,1511) dbl_mb(EIG(1)+i-1),
@@ -1111,6 +1197,21 @@ c            write(luout,1706) E(18)
             if (dabs(Egas).gt.1.0d-6)
      >         write(luout,1736)  E(1)-Egas,
      >                           (E(1)-Egas)*27.2116d0*23.06d0
+            call nwpw_cosmo_print(luout,Egas,E(1))
+         end if
+      end if
+
+*     **** write out extended Born solvation energies ****
+      if (nwpw_born_on()) then
+         Egas = control_gas_energy()
+         if (oprint) then
+            write(luout,1740)
+            write(luout,1741) nwpw_born_screen()
+            write(luout,1745) E(22),E(22)*27.2116d0*23.06d0
+            if (dabs(Egas).gt.1.0d-6)
+     >         write(luout,1746)  E(1)-Egas,
+     >                           (E(1)-Egas)*27.2116d0*23.06d0
+            call nwpw_born_print(luout,Egas,E(1))
          end if
       end if
 
@@ -1157,7 +1258,7 @@ c            write(luout,1706) E(18)
 
 *       **** generate APC *****
         call pspw_dngen_APC(ispin,ne,dbl_mb(dn(1)))
-        call pspw_print_APC(6)
+        call pspw_print_APC(luout)
 
       end if
 
@@ -1166,6 +1267,7 @@ c            write(luout,1706) E(18)
      >               smearoccupation,dbl_mb(occ2(1)))
  
 *     **** write geometry to rtdb ****
+      call pspw_charge_write(rtdb)
       call ion_write(rtdb)
 
 
@@ -1178,9 +1280,6 @@ c            write(luout,1706) E(18)
       call mask_end()
       call Pack_end()
       call G_end()
-      call ion_end()
-      call psp_end()
-      call ion_end_FixIon()
       call psp_U_end()
       call vdw_DF_end()
       call nwpw_meta_gga_end()
@@ -1189,8 +1288,14 @@ c            write(luout,1706) E(18)
       call pspw_end_HFX()
       call pspw_end_APC()
       call pspw_qmmm_end()
+      call pspw_charge_end()
+      call pspw_Efield_end()
       call meta_finalize(rtdb)
       if (psp_pawexist()) call nwpw_gintegrals_end()
+
+      call ion_end()
+      call psp_end()
+      call ion_end_FixIon()
 
 c      call frac_occ_end()
 
@@ -1258,13 +1363,13 @@ c      call frac_occ_end()
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ PSPW input data ===================')
  1111 FORMAT(/' number of processors used:',I10)
- 1112 FORMAT( ' parallel mapping         :      1d slab')
- 1113 FORMAT( ' parallel mapping         :   2d hilbert')
+ 1112 FORMAT( ' parallel mapping         :      1d-slab')
+ 1113 FORMAT( ' parallel mapping         :   2d-hilbert')
  1114 FORMAT( ' parallel mapping         :     balanced')
  1115 FORMAT(/' options:')
  1116 FORMAT( ' parallel mapping         : not balanced')
  1117 FORMAT( ' processor grid           :',I4,' x',I4)
- 1118 FORMAT( ' parallel mapping         :    2d hcurve')
+ 1118 FORMAT( ' parallel mapping         :    2d-hcurve')
  1119 FORMAT( ' parallel io              :        on')
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
@@ -1339,8 +1444,12 @@ c      call frac_occ_end()
  1280 FORMAT(5X, ' time step=',F10.2,5X,'fictitious mass=',F10.1)
  1281 FORMAT(5X, ' maximum iterations =',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
- 1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
+ 1290 FORMAT(5X, ' tolerance=',E9.3,' (energy)',E12.3,
      &        ' (electron)',E12.3,' (ion)')
+ 1297 FORMAT(/' fractional smearing parameters:')
+ 1298 FORMAT(5X, ' smearing algorithm   = ',A)
+ 1299 FORMAT(5X, ' smearing parameter   = ',E9.3,' (',F7.1,' K)'/,
+     >       5X, ' mixing parameter     =',F7.4)
  1300 FORMAT(//)
  1305 FORMAT(10X,
      >       '==================== iteration =========================')
@@ -1396,6 +1505,8 @@ c      call frac_occ_end()
  1504 FORMAT( ' K.S. Metadynamics energy :',E19.10,' (',E15.5,'/ion)')
  1505 FORMAT( ' APC energy          :',E19.10,' (',E15.5,'/ion)')
  1506 FORMAT( ' K.S. V_APC energy   :',E19.10,' (',E15.5,'/ion)')
+ 1507 FORMAT(/' Fermi energy =',2(E18.7,' (',F8.3,'eV)'))
+
 
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  1511 FORMAT(2(E18.7,' (',F8.3,'eV) occ=',F5.3))
@@ -1433,6 +1544,23 @@ c      call frac_occ_end()
      >   ' (',F8.3,' kcal/mol)')
  1736 FORMAT(5x,' solvation energy (w/  QM polarization) :',E19.10,
      >   ' (',F8.3,' kcal/mol)')
+
+ 1740 FORMAT(/' extended Born solvation energies:')
+ 1741 FORMAT(5x,' screen=(epsilon-1)/(epsilon):',F11.6)
+ 1745 FORMAT(5x,' solvation energy (w/o QM polarization) :',E19.10,
+     >   ' (',F8.3,' kcal/mol)')
+ 1746 FORMAT(5x,' solvation energy (w/  QM polarization) :',E19.10,
+     >   ' (',F8.3,' kcal/mol)')
+
+
+ 1800 FORMAT(/' Charge+Electric Field Energies')
+ 1801 FORMAT( ' ------------------------------')
+ 1802 FORMAT( ' - Charge+Electric Field/Electron    :',E19.10)
+ 1803 FORMAT( ' - Charge+Electric Field/Ion         :',E19.10)
+ 1804 FORMAT( ' - Charge+Electric Field/Charge Field:',E19.10)
+ 1805 FORMAT( ' Charge+Electric Field Energy        :',E19.10)
+ 1806 FORMAT( ' - Electric Field/Resta_Dipole       :',E19.10)
+ 1807 FORMAT( ' - K.S. Electric Field/Resta_Dipole  :',E19.10)
 
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 

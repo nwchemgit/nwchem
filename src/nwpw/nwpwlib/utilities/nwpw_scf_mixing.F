@@ -116,12 +116,13 @@
 
 *     **** local variables ****
       logical value
-      integer i,j,info,k,ipiv,ms,shift
+      integer i,j,info,k,ms,shift
       integer rr_ptr,ss_ptr,tt_ptr,ff_ptr
       integer V0,V1,Vout0,Vout1,F0,F1,Vbar0,Vbar1
       integer dV,U,dF,dFi
-      real*8 sum0,sum1,beta,p00,p01,p11,alpha1,r00
+      real*8 sum0,sum1,beta,p00,p01,p11,alpha1,r00,small
       real*8 BB(40,40),BBB(40,40)
+
 
 *     **** external functions ****
       real*8   ddot
@@ -133,6 +134,7 @@ c      else
 c         alpha1 = 1.0d0
 c      end if
       alpha1 = alpha 
+
 
 *     **** simple mixing ****
       if (algorithm.eq.0) then
@@ -224,8 +226,7 @@ c      end if
            call D3dB_SumAll(sum0)
            call D3dB_SumAll(sum1)
            beta = sum0/sum1
-           
- 
+
 
            !**** Vbar1 = (1-Beta)*Vout1 + Beta*Vout0 ****
            call Parallel_shared_vector_copy(.true.,nsize,
@@ -362,19 +363,23 @@ c      end if
            
            call Parallel_shared_vector_zero(.true.,max_list*max_list,B)
 !$OMP MASTER
+
+           small = 0.0d0
            do i=1,m-1   
            do j=1,m-1   
               B(i,j) = A(i,j)
+              small = small + dabs(A(i,j))
            end do
            end do
-
+           small = small/dble(m-1)**2
+           
            do i=1,m-1
            do j=1,m-1
               Binv(i,j) = 0.0d0
            end do
            end do
            do i=1,m-1
-              Binv(i,i) = 1.0d0
+              Binv(i,i) = 1.0d0*small
            end do
 
            call DGESV((m-1),(m-1),
@@ -388,7 +393,7 @@ c      end if
            do i=1,m-1
               d(i) = 0.0d0
               do j=1,m-1
-                 d(i) = d(i) - c(j)*Binv(j,i)
+                 d(i) = d(i) - (c(j)/small)*Binv(j,i)
               end do
            end do
 !$OMP END MASTER

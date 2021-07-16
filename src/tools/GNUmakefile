@@ -597,15 +597,15 @@ ifdef USE_GAGITHUB
 	GET_TOOLS=./get-tools-github
   ifdef USE_GA_RELEASE
     ifndef GA_RELEASE_NO
-      GA_RELEASE_NO=5.7.2
+      GA_RELEASE_NO=5.8.1
     endif
     GA_DIR=ga-$(GA_RELEASE_NO)
   else
 #DEV_GA=1 gives the current "best" dev branch, not develop
 #to get develop, set GA_BRANCH-develop
     ifdef DEV_GA
-      GA_DIR = ga-5.7.2
-      GA_BRANCH = hotfix/5.7.2
+      GA_DIR = ga-develop
+      GA_BRANCH = develop
     else
       GA_DIR0=ga-$(GA_BRANCH)
       GA_DIR=$(shell echo $(GA_DIR0) | sed -e 's/\//_/g')
@@ -629,6 +629,10 @@ endif
 ifndef ARMCI_NETWORK
     ARMCI_NETWORK=MPI-TS
     MAYBE_ARMCI = --with-mpi-ts
+endif
+# CUDA UM support
+ifdef NWCHEM_LINK_CUDA
+    MAYBE_ARMCI +=  --enable-cuda-mem
 endif
 #
 # Apparently weak bindings do not work with CYGWIN64 at the moment. There seems
@@ -732,7 +736,7 @@ realclean:
 # remove all files that are not .o objects (eg lib*.a) from libga.a
 cleanlibga:
 	mkdir -p ob
-	cd ob && ar -x ../build/.libs/libga.a && rm -f ../build/.libs/libga.a && ar crv ../build/.libs/libga.a *.o && mkdir -p ../install/lib
+	cd ob && ar -x ../build/.libs/libga.a && rm -f ../build/.libs/libga.a && ar crv ../build/.libs/libga.a *.o && mkdir -p ../install/lib && cp ../build/.libs/libga.a ../install/lib
 	cd ..
 	rm -rf ob
 

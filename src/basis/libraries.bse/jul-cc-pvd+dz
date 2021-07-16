@@ -1,112 +1,123 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# jul-cc-pv(d+d)z version number 0
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# jul-cc-pV(D+d)Z version number 0
 # Description: jul-cc-pV(D+d)Z basis of Papajak/Truhlar
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H
-#     ## cc-pVDZ
+# 
+#  References for the basis set
+# 
+#  H
+#      cc-pVDZ
+#          dunning1989a
+# 
+#  He
+#      cc-pVDZ
+#          woon1994a
+# 
+#  Li,Be,Na,Mg
+#      cc-pVDZ
+#          feller1996a schuchardt2007a
+# 
+#      Diffuse functions to form jul-cc-pVD+dZ
+#          papajak2011a
+# 
+#  B-Ne
+#      cc-pVDZ
+#          dunning1989a
+# 
+#      Diffuse functions to form jul-cc-pVD+dZ
+#          papajak2011a
+# 
+#  Al-Ar
+#      cc-pVDZ
+#          woon1993a
+# 
+#      VDZP Valence Double Zeta + Polarization on All Atoms
+#          dunning2001a
+# 
+#      Diffuse functions to form jul-cc-pVD+dZ
+#          papajak2011a
+# 
+# 
+# 
+# dunning1989a
 #     Dunning, Thom H.
 #     Gaussian basis sets for use in correlated molecular calculations. I.
 #             The atoms boron through neon and hydrogen
-#     J. Chem. Phys., 90, 1007-1023 (1989)
+#     J. Chem. Phys. 90, 1007-1023 (1989)
 #     10.1063/1.456153
 # 
-# He
-#     ## cc-pVDZ
-#     Woon, David E., Dunning, Thom H.
-#     Gaussian basis sets for use in correlated molecular calculations. IV.
-#             Calculation of static electrical response properties
-#     J. Chem. Phys., 100, 2975-2988 (1994)
-#     10.1063/1.466439
-# 
-# Li,Be,Na,Mg
-#     ## cc-pVDZ
-#     Feller, David
-#     The role of databases in support of computational chemistry
-#             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
-#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
-# 
-#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
-#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
-#     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
-#     10.1021/ci600510j
-# 
-#     ## Diffuse functions to form jul-cc-pVD+dZ
-#     Papajak, Ewa, Truhlar, Donald G.
-#     Convergent Partially Augmented Basis Sets for Post-Hartree-Fock
-#             Calculations of Molecular Properties and Reaction Barrier
-#             Heights
-#     J. Chem. Theory Comput., 7, 10-18 (2011)
-#     10.1021/ct1005533
-# 
-# B-Ne
-#     ## cc-pVDZ
-#     Dunning, Thom H.
-#     Gaussian basis sets for use in correlated molecular calculations. I.
-#             The atoms boron through neon and hydrogen
-#     J. Chem. Phys., 90, 1007-1023 (1989)
-#     10.1063/1.456153
-# 
-#     ## Diffuse functions to form jul-cc-pVD+dZ
-#     Papajak, Ewa, Truhlar, Donald G.
-#     Convergent Partially Augmented Basis Sets for Post-Hartree-Fock
-#             Calculations of Molecular Properties and Reaction Barrier
-#             Heights
-#     J. Chem. Theory Comput., 7, 10-18 (2011)
-#     10.1021/ct1005533
-# 
-# Al-Ar
-#     ## cc-pVDZ
-#     Woon, David E., Dunning, Thom H.
-#     Gaussian basis sets for use in correlated molecular calculations. III.
-#             The atoms aluminum through argon
-#     J. Chem. Phys., 98, 1358-1371 (1993)
-#     10.1063/1.464303
-# 
-#     ## VDZP Valence Double Zeta + Polarization on All Atoms
+# dunning2001a
 #     Dunning, Thom H., Peterson, Kirk A., Wilson, Angela K.
 #     Gaussian basis sets for use in correlated molecular calculations. X.
 #             The atoms aluminum through argon revisited
-#     J. Chem. Phys., 114, 9244-9253 (2001)
+#     J. Chem. Phys. 114, 9244-9253 (2001)
 #     10.1063/1.1367373
 # 
-#     ## Diffuse functions to form jul-cc-pVD+dZ
+# feller1996a
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem. 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+# papajak2011a
 #     Papajak, Ewa, Truhlar, Donald G.
 #     Convergent Partially Augmented Basis Sets for Post-Hartree-Fock
 #             Calculations of Molecular Properties and Reaction Barrier
 #             Heights
-#     J. Chem. Theory Comput., 7, 10-18 (2011)
+#     J. Chem. Theory Comput. 7, 10-18 (2011)
 #     10.1021/ct1005533
 # 
+# schuchardt2007a
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# woon1993a
+#     Woon, David E., Dunning, Thom H.
+#     Gaussian basis sets for use in correlated molecular calculations. III.
+#             The atoms aluminum through argon
+#     J. Chem. Phys. 98, 1358-1371 (1993)
+#     10.1063/1.464303
+# 
+# woon1994a
+#     Woon, David E., Dunning, Thom H.
+#     Gaussian basis sets for use in correlated molecular calculations. IV.
+#             Calculation of static electrical response properties
+#     J. Chem. Phys. 100, 2975-2988 (1994)
+#     10.1063/1.466439
+# 
 # # 
-basis "H_jul-cc-pv(d+d)z" 
+basis "H_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (4s,1p) -> [2s,1p]
 H    S
      13.0100000              0.0196850
@@ -117,7 +128,7 @@ H    S
 H    P
       0.7270000              1.0000000
 end
-basis "He_jul-cc-pv(d+d)z" 
+basis "He_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (4s,1p) -> [2s,1p]
 He    S
      38.3600000              0.0238090
@@ -128,7 +139,7 @@ He    S
 He    P
       1.2750000              1.0000000
 end
-basis "Li_jul-cc-pv(d+d)z" 
+basis "Li_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (18s,5p,2d) -> [4s,3p,2d]
 Li    S
    1469.0000000              0.0007660
@@ -165,7 +176,7 @@ Li    D
 Li    D
       0.0725000              1.0000000
 end
-basis "Be_jul-cc-pv(d+d)z" 
+basis "Be_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (18s,5p,2d) -> [4s,3p,2d]
 Be    S
    2940.0000000              0.0006800
@@ -202,7 +213,7 @@ Be    D
 Be    D
       0.0740000              1.0000000
 end
-basis "B_jul-cc-pv(d+d)z" 
+basis "B_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (18s,5p,2d) -> [4s,3p,2d]
 B    S
    4570.0000000              0.0006960
@@ -239,7 +250,7 @@ B    D
 B    D
       0.0904000              1.0000000
 end
-basis "C_jul-cc-pv(d+d)z" 
+basis "C_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (18s,5p,2d) -> [4s,3p,2d]
 C    S
    6665.0000000              0.0006920
@@ -276,7 +287,7 @@ C    D
 C    D
       0.1510000              1.0000000
 end
-basis "N_jul-cc-pv(d+d)z" 
+basis "N_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (18s,5p,2d) -> [4s,3p,2d]
 N    S
    9046.0000000              0.0007000
@@ -313,7 +324,7 @@ N    D
 N    D
       0.2300000              1.0000000
 end
-basis "O_jul-cc-pv(d+d)z" 
+basis "O_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (18s,5p,2d) -> [4s,3p,2d]
 O    S
   11720.0000000              0.0007100
@@ -350,7 +361,7 @@ O    D
 O    D
       0.3320000              1.0000000
 end
-basis "F_jul-cc-pv(d+d)z" 
+basis "F_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (18s,5p,2d) -> [4s,3p,2d]
 F    S
   14710.0000000              0.0007210
@@ -387,7 +398,7 @@ F    D
 F    D
       0.4640000              1.0000000
 end
-basis "Ne_jul-cc-pv(d+d)z" 
+basis "Ne_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (18s,5p,2d) -> [4s,3p,2d]
 Ne    S
   17880.0000000              0.0007380
@@ -424,7 +435,7 @@ Ne    D
 Ne    D
       0.6310000              1.0000000
 end
-basis "Na_jul-cc-pv(d+d)z" 
+basis "Na_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (35s,16p,2d) -> [5s,4p,2d]
 Na    S
   31700.0000000              0.458878E-03
@@ -491,7 +502,7 @@ Na    D
 Na    D
       0.0468000              1.0000000
 end
-basis "Mg_jul-cc-pv(d+d)z" 
+basis "Mg_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (35s,16p,2d) -> [5s,4p,2d]
 Mg    S
   47390.0000000              0.346023E-03
@@ -558,7 +569,7 @@ Mg    D
 Mg    D
       0.0595000              1.0000000
 end
-basis "Al_jul-cc-pv(d+d)z" 
+basis "Al_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (35s,16p,3d) -> [5s,4p,3d]
 Al    S
   64150.0000000              0.290250E-03
@@ -627,7 +638,7 @@ Al    D
 Al    D
       0.0552000              1.0000000
 end
-basis "Si_jul-cc-pv(d+d)z" 
+basis "Si_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (35s,16p,3d) -> [5s,4p,3d]
 Si    S
   78860.0000000              0.270443E-03
@@ -696,7 +707,7 @@ Si    D
 Si    D
       0.0840000              1.0000000
 end
-basis "P_jul-cc-pv(d+d)z" 
+basis "P_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (35s,16p,3d) -> [5s,4p,3d]
 P    S
   94840.0000000              0.255509E-03
@@ -765,7 +776,7 @@ P    D
 P    D
       0.1160000              1.0000000
 end
-basis "S_jul-cc-pv(d+d)z" 
+basis "S_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (35s,16p,3d) -> [5s,4p,3d]
 S    S
  110800.0000000              0.247635E-03
@@ -834,7 +845,7 @@ S    D
 S    D
       0.1550000              1.0000000
 end
-basis "Cl_jul-cc-pv(d+d)z" 
+basis "Cl_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (35s,16p,3d) -> [5s,4p,3d]
 Cl    S
  127900.0000000              0.241153E-03
@@ -903,7 +914,7 @@ Cl    D
 Cl    D
       0.1980000              1.0000000
 end
-basis "Ar_jul-cc-pv(d+d)z" 
+basis "Ar_jul-cc-pV(D+d)Z" SPHERICAL 
 #basis SET: (35s,16p,3d) -> [5s,4p,3d]
 Ar    S
  145700.0000000              0.236700E-03

@@ -1,44 +1,53 @@
-# BSE Version v0.8.6
-# Data downloaded at 2019-10-24T11:58
-# pt - mdzp version number 0
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# Pt - mDZP version number 0
 # Description: Pt - mDZP
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# Pt
-#     ## Pt - mDZP
+# 
+#  References for the basis set
+# 
+#  Pt
+#      Pt - mDZP
+#          paschoal2012a
+# 
+# 
+# 
+# paschoal2012a
 #     Paschoal, Diego, Marcial, Bruna L., Lopes, Juliana Fedoce, De Almeida,
 #             Wagner B., Santos, Hélio F. Dos
 #     The role of the basis set and the level of quantum mechanical theory
 #             in the prediction of the structure and reactivity of cisplatin
-#     J. Comput. Chem., 33, 2292-2302 (2012)
+#     J. Comput. Chem. 33, 2292-2302 (2012)
 #     10.1002/jcc.23061
 # 
 # # 
-basis "Pt_pt - mdzp" 
+basis "Pt_Pt - mDZP" SPHERICAL 
 #basis SET: (20s,16p,10d,5f) -> [8s,7p,5d,2f]
 Pt    S
 2791808.07651936             0.0001912
@@ -52,6 +61,10 @@ Pt    S
     928.843254870000         0.3819050
     395.519464140000         0.1386252
 Pt    S
+    168.419855230000         1.0000000
+Pt    S
+     71.7164392800000       -1.0000000
+Pt    S
      30.5382501100000       -0.7235654
      13.0037789000000       -0.3033501
 Pt    S
@@ -60,10 +73,6 @@ Pt    S
 Pt    S
       1.00402809000000       0.8144542
       0.42753462000000       0.2062038
-Pt    S
-    168.419855230000         1.0000000
-Pt    S
-     71.7164392800000       -1.0000000
 Pt    S
       0.18205253000000      -1.0000000
 Pt    S

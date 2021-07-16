@@ -1,43 +1,52 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# pcsseg-3 version number 1
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# pcSseg-3 version number 1
 # Description: Segmented contracted version of the pcS-3 basis
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H-Kr
-#     ## Segmented contracted version of the pcS-3 basis
+# 
+#  References for the basis set
+# 
+#  H-Kr
+#      Segmented contracted version of the pcS-3 basis
+#          jensen2015a
+# 
+# 
+# 
+# jensen2015a
 #     Jensen, Frank
 #     Segmented Contracted Basis Sets Optimized for Nuclear Magnetic
 #             Shielding
-#     J. Chem. Theory Comput., 11, 132-138 (2015)
+#     J. Chem. Theory Comput. 11, 132-138 (2015)
 #     10.1021/ct5009526
 # 
 # # 
-basis "H_pcsseg-3" 
+basis "H_pcSseg-3" SPHERICAL 
 #basis SET: (9s,5p,2d,1f) -> [4s,4p,2d,1f]
 H    S
       0.765363E+03           0.337953E-03
@@ -68,7 +77,7 @@ H    D
 H    F
       0.220000E+01           1.0000000
 end
-basis "He_pcsseg-3" 
+basis "He_pcSseg-3" SPHERICAL 
 #basis SET: (9s,5p,2d,1f) -> [4s,4p,2d,1f]
 He    S
       0.216842E+04           0.400235E-03
@@ -99,7 +108,7 @@ He    D
 He    F
       0.320000E+01           1.0000000
 end
-basis "Li_pcsseg-3" 
+basis "Li_pcSseg-3" SPHERICAL 
 #basis SET: (15s,7p,2d,1f) -> [5s,6p,2d,1f]
 Li    S
       0.167676E+05           0.548482E-04
@@ -141,7 +150,7 @@ Li    D
 Li    F
       0.350000E+00           1.0000000
 end
-basis "Be_pcsseg-3" 
+basis "Be_pcSseg-3" SPHERICAL 
 #basis SET: (15s,7p,2d,1f) -> [5s,6p,2d,1f]
 Be    S
       0.451328E+05           0.369951E-04
@@ -183,7 +192,7 @@ Be    D
 Be    F
       0.550000E+00           1.0000000
 end
-basis "B_pcsseg-3" 
+basis "B_pcSseg-3" SPHERICAL 
 #basis SET: (15s,10p,4d,2f,1g) -> [5s,8p,4d,2f,1g]
 B    S
       0.865940E+05           0.305111E-04
@@ -238,7 +247,7 @@ B    F
 B    G
       0.130000E+01           1.0000000
 end
-basis "C_pcsseg-3" 
+basis "C_pcSseg-3" SPHERICAL 
 #basis SET: (15s,10p,4d,2f,1g) -> [5s,8p,4d,2f,1g]
 C    S
       0.143581E+06           0.267190E-04
@@ -293,7 +302,7 @@ C    F
 C    G
       0.140000E+01           1.0000000
 end
-basis "N_pcsseg-3" 
+basis "N_pcSseg-3" SPHERICAL 
 #basis SET: (15s,10p,4d,2f,1g) -> [5s,8p,4d,2f,1g]
 N    S
       0.215819E+06           0.243667E-04
@@ -348,7 +357,7 @@ N    F
 N    G
       0.150000E+01           1.0000000
 end
-basis "O_pcsseg-3" 
+basis "O_pcSseg-3" SPHERICAL 
 #basis SET: (15s,10p,4d,2f,1g) -> [5s,8p,4d,2f,1g]
 O    S
       0.297874E+06           0.229997E-04
@@ -403,7 +412,7 @@ O    F
 O    G
       0.160000E+01           1.0000000
 end
-basis "F_pcsseg-3" 
+basis "F_pcSseg-3" SPHERICAL 
 #basis SET: (15s,10p,4d,2f,1g) -> [5s,8p,4d,2f,1g]
 F    S
       0.396439E+06           0.219017E-04
@@ -458,7 +467,7 @@ F    F
 F    G
       0.170000E+01           1.0000000
 end
-basis "Ne_pcsseg-3" 
+basis "Ne_pcSseg-3" SPHERICAL 
 #basis SET: (15s,10p,4d,2f,1g) -> [5s,8p,4d,2f,1g]
 Ne    S
       0.510469E+06           0.210836E-04
@@ -513,7 +522,7 @@ Ne    F
 Ne    G
       0.180000E+01           1.0000000
 end
-basis "Na_pcsseg-3" 
+basis "Na_pcSseg-3" SPHERICAL 
 #basis SET: (21s,13p,2d,1f) -> [6s,8p,2d,1f]
 Na    S
       0.431559E+06           0.264167E-04
@@ -570,7 +579,7 @@ Na    D
 Na    F
       0.270000E+00           1.0000000
 end
-basis "Mg_pcsseg-3" 
+basis "Mg_pcSseg-3" SPHERICAL 
 #basis SET: (21s,13p,2d,1f) -> [6s,8p,2d,1f]
 Mg    S
       0.538259E+06           0.245171E-04
@@ -627,7 +636,7 @@ Mg    D
 Mg    F
       0.330000E+00           1.0000000
 end
-basis "Al_pcsseg-3" 
+basis "Al_pcSseg-3" SPHERICAL 
 #basis SET: (21s,14p,4d,2f,1g) -> [6s,9p,4d,2f,1g]
 Al    S
       0.635624E+06           0.243184E-04
@@ -694,7 +703,7 @@ Al    F
 Al    G
       0.580000E+00           1.0000000
 end
-basis "Si_pcsseg-3" 
+basis "Si_pcSseg-3" SPHERICAL 
 #basis SET: (21s,14p,4d,2f,1g) -> [6s,9p,4d,2f,1g]
 Si    S
       0.747498E+06           0.237923E-04
@@ -761,7 +770,7 @@ Si    F
 Si    G
       0.650000E+00           1.0000000
 end
-basis "P_pcsseg-3" 
+basis "P_pcSseg-3" SPHERICAL 
 #basis SET: (21s,14p,4d,2f,1g) -> [6s,9p,4d,2f,1g]
 P    S
       0.866084E+06           0.234863E-04
@@ -828,7 +837,7 @@ P    F
 P    G
       0.720000E+00           1.0000000
 end
-basis "S_pcsseg-3" 
+basis "S_pcSseg-3" SPHERICAL 
 #basis SET: (21s,14p,4d,2f,1g) -> [6s,9p,4d,2f,1g]
 S    S
       0.101043E+07           0.225755E-04
@@ -895,7 +904,7 @@ S    F
 S    G
       0.790000E+00           1.0000000
 end
-basis "Cl_pcsseg-3" 
+basis "Cl_pcSseg-3" SPHERICAL 
 #basis SET: (21s,14p,4d,2f,1g) -> [6s,9p,4d,2f,1g]
 Cl    S
       0.114796E+07           0.223930E-04
@@ -962,7 +971,7 @@ Cl    F
 Cl    G
       0.860000E+00           1.0000000
 end
-basis "Ar_pcsseg-3" 
+basis "Ar_pcSseg-3" SPHERICAL 
 #basis SET: (21s,14p,4d,2f,1g) -> [6s,9p,4d,2f,1g]
 Ar    S
       0.131101E+07           0.217557E-04
@@ -1029,7 +1038,7 @@ Ar    F
 Ar    G
       0.930000E+00           1.0000000
 end
-basis "K_pcsseg-3" 
+basis "K_pcSseg-3" SPHERICAL 
 #basis SET: (28s,15p,6d,1f) -> [7s,10p,5d,1f]
 K    S
       0.251639E+07           0.111625E-04
@@ -1105,7 +1114,7 @@ K    D
 K    F
       0.400000E+00           1.0000000
 end
-basis "Ca_pcsseg-3" 
+basis "Ca_pcSseg-3" SPHERICAL 
 #basis SET: (28s,15p,6d,1f) -> [7s,10p,5d,1f]
 Ca    S
       0.277736E+07           0.112434E-04
@@ -1181,7 +1190,7 @@ Ca    D
 Ca    F
       0.500000E+00           1.0000000
 end
-basis "Sc_pcsseg-3" 
+basis "Sc_pcSseg-3" SPHERICAL 
 #basis SET: (28s,15p,10d,3f,2g,1h) -> [7s,10p,6d,3f,2g,1h]
 Sc    S
       0.306158E+07           0.112614E-04
@@ -1272,7 +1281,7 @@ Sc    G
 Sc    H
       0.134100E+01           1.0000000
 end
-basis "Ti_pcsseg-3" 
+basis "Ti_pcSseg-3" SPHERICAL 
 #basis SET: (28s,15p,10d,3f,2g,1h) -> [7s,10p,6d,3f,2g,1h]
 Ti    S
       0.337203E+07           0.112324E-04
@@ -1363,7 +1372,7 @@ Ti    G
 Ti    H
       0.147500E+01           1.0000000
 end
-basis "V_pcsseg-3" 
+basis "V_pcSseg-3" SPHERICAL 
 #basis SET: (28s,15p,10d,3f,2g,1h) -> [7s,10p,6d,3f,2g,1h]
 V    S
       0.372479E+07           0.111024E-04
@@ -1454,7 +1463,7 @@ V    G
 V    H
       0.162300E+01           1.0000000
 end
-basis "Cr_pcsseg-3" 
+basis "Cr_pcSseg-3" SPHERICAL 
 #basis SET: (28s,15p,10d,3f,2g,1h) -> [7s,10p,6d,3f,2g,1h]
 Cr    S
       0.406511E+07           0.110807E-04
@@ -1545,7 +1554,7 @@ Cr    G
 Cr    H
       0.178500E+01           1.0000000
 end
-basis "Mn_pcsseg-3" 
+basis "Mn_pcSseg-3" SPHERICAL 
 #basis SET: (28s,15p,10d,3f,2g,1h) -> [7s,10p,6d,3f,2g,1h]
 Mn    S
       0.444306E+07           0.109935E-04
@@ -1636,7 +1645,7 @@ Mn    G
 Mn    H
       0.196400E+01           1.0000000
 end
-basis "Fe_pcsseg-3" 
+basis "Fe_pcSseg-3" SPHERICAL 
 #basis SET: (28s,15p,10d,3f,2g,1h) -> [7s,10p,6d,3f,2g,1h]
 Fe    S
       0.484452E+07           0.108967E-04
@@ -1727,7 +1736,7 @@ Fe    G
 Fe    H
       0.216000E+01           1.0000000
 end
-basis "Co_pcsseg-3" 
+basis "Co_pcSseg-3" SPHERICAL 
 #basis SET: (28s,15p,10d,3f,2g,1h) -> [7s,10p,6d,3f,2g,1h]
 Co    S
       0.526841E+07           0.107970E-04
@@ -1818,7 +1827,7 @@ Co    G
 Co    H
       0.237600E+01           1.0000000
 end
-basis "Ni_pcsseg-3" 
+basis "Ni_pcSseg-3" SPHERICAL 
 #basis SET: (28s,15p,10d,3f,2g,1h) -> [7s,10p,6d,3f,2g,1h]
 Ni    S
       0.571512E+07           0.106858E-04
@@ -1909,7 +1918,7 @@ Ni    G
 Ni    H
       0.261400E+01           1.0000000
 end
-basis "Cu_pcsseg-3" 
+basis "Cu_pcSseg-3" SPHERICAL 
 #basis SET: (28s,15p,10d,3f,2g,1h) -> [7s,10p,6d,3f,2g,1h]
 Cu    S
       0.618439E+07           0.105790E-04
@@ -2000,7 +2009,7 @@ Cu    G
 Cu    H
       0.287500E+01           1.0000000
 end
-basis "Zn_pcsseg-3" 
+basis "Zn_pcSseg-3" SPHERICAL 
 #basis SET: (28s,15p,10d,3f,2g,1h) -> [7s,10p,6d,3f,2g,1h]
 Zn    S
       0.663231E+07           0.105713E-04
@@ -2091,7 +2100,7 @@ Zn    G
 Zn    H
       0.316200E+01           1.0000000
 end
-basis "Ga_pcsseg-3" 
+basis "Ga_pcSseg-3" SPHERICAL 
 #basis SET: (28s,17p,11d,2f,1g) -> [7s,12p,5d,2f,1g]
 Ga    S
       0.714765E+07           0.104607E-04
@@ -2180,7 +2189,7 @@ Ga    F
 Ga    G
       0.440000E+00           1.0000000
 end
-basis "Ge_pcsseg-3" 
+basis "Ge_pcSseg-3" SPHERICAL 
 #basis SET: (28s,17p,11d,2f,1g) -> [7s,12p,5d,2f,1g]
 Ge    S
       0.760540E+07           0.104860E-04
@@ -2269,7 +2278,7 @@ Ge    F
 Ge    G
       0.480000E+00           1.0000000
 end
-basis "As_pcsseg-3" 
+basis "As_pcSseg-3" SPHERICAL 
 #basis SET: (28s,17p,11d,2f,1g) -> [7s,12p,5d,2f,1g]
 As    S
       0.807977E+07           0.104895E-04
@@ -2358,7 +2367,7 @@ As    F
 As    G
       0.530000E+00           1.0000000
 end
-basis "Se_pcsseg-3" 
+basis "Se_pcSseg-3" SPHERICAL 
 #basis SET: (28s,17p,11d,2f,1g) -> [7s,12p,5d,2f,1g]
 Se    S
       0.860047E+07           0.104798E-04
@@ -2447,7 +2456,7 @@ Se    F
 Se    G
       0.580000E+00           1.0000000
 end
-basis "Br_pcsseg-3" 
+basis "Br_pcSseg-3" SPHERICAL 
 #basis SET: (28s,17p,11d,2f,1g) -> [7s,12p,5d,2f,1g]
 Br    S
       0.915870E+07           0.104207E-04
@@ -2536,7 +2545,7 @@ Br    F
 Br    G
       0.640000E+00           1.0000000
 end
-basis "Kr_pcsseg-3" 
+basis "Kr_pcSseg-3" SPHERICAL 
 #basis SET: (28s,17p,11d,2f,1g) -> [7s,12p,5d,2f,1g]
 Kr    S
       0.983511E+07           0.102715E-04

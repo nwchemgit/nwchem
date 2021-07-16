@@ -9,10 +9,13 @@
       real(kind=dp), intent(out) :: a64(n)
       !
       integer :: i
-      !$OMP SIMD
-      do i=1, n
+#ifdef GNU_GE_4_8
+      do concurrent (i=1:n)
+#else
+      do i=1,n
+#endif
           a64(i) = real(a32(i), kind=dp)
-      enddo
+      end do
       end subroutine
 
       subroutine copy_64_to_32(n, a64, a32)
@@ -26,10 +29,13 @@
       real(kind=sp), intent(out) :: a32(n)
       !
       integer :: i
-      !$OMP SIMD
-      do i=1, n
+#ifdef GNU_GE_4_8
+      do concurrent (i=1:n)
+#else
+      do i=1,n
+#endif
           a32(i) = real(a64(i), kind=sp)
-      enddo
+      end do
       end subroutine
 
       subroutine add_32_to_64(n, a32, a64)
@@ -43,10 +49,13 @@
       real(kind=dp), intent(inout) :: a64(n)
       !
       integer :: i
-      !$OMP SIMD
-      do i=1, n
+#ifdef GNU_GE_4_8
+      do concurrent (i=1:n)
+#else
+      do i=1,n
+#endif
           a64(i) = a64(i) + real(a32(i), kind=dp)
-      enddo
+      end do
       end subroutine
 
       subroutine add_64_to_32(n, a64, a32)
@@ -60,8 +69,11 @@
       real(kind=sp), intent(inout) :: a32(n)
       !
       integer :: i
-      !$OMP SIMD
-      do i=1, n
+#ifdef GNU_GE_4_8
+      do concurrent (i=1:n)
+#else
+      do i=1,n
+#endif
           a32(i) = a32(i) + real(a64(i), kind=sp)
-      enddo
+      end do
       end subroutine

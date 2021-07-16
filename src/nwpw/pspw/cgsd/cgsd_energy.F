@@ -22,7 +22,7 @@ c#include "global.fh"
       integer MASTER,taskid
       parameter (MASTER=0)
 
-      logical stalled,value,oprint,psitmp,failed
+      logical stalled,value,oprint,psitmp,failed,field_exist
       integer minimizer
       integer i,j,ms,neall,NN,nx,ny,nz,n2ft3d,tmp1(2)
       integer it_in,it_out,icount,bfgscount
@@ -31,7 +31,7 @@ c#include "global.fh"
       real*8  cx,cy,cz
       real*8  gx,gy,gz
       real*8  en(2),en1(2),en2(2)
-      real*8  E(50),Egas
+      real*8  E(60),Egas
       integer rtdb
 
 *     **** external functions ****
@@ -63,19 +63,25 @@ c#include "global.fh"
       external    control_symmetry,control_version
       logical  ion_disp_on,nwpw_cosmo_on,nwpw_cosmo_firsttime
       external ion_disp_on,nwpw_cosmo_on,nwpw_cosmo_firsttime
-      real*8   nwpw_cosmo_screen
-      external nwpw_cosmo_screen
+      logical  nwpw_born_on
+      external nwpw_born_on
+      real*8   nwpw_cosmo_screen,nwpw_born_screen
+      external nwpw_cosmo_screen,nwpw_born_screen
 
-      logical  control_hess_model
-      external control_hess_model
+      logical  control_hess_model,pspw_Efield_found
+      external control_hess_model,pspw_Efield_found
       real*8   ion_hess_energy
       external ion_hess_energy
-      real*8   psi_1energy,control_gas_energy
-      external psi_1energy,control_gas_energy
+      real*8   psi_1energy,control_gas_energy,psi_2energy
+      external psi_1energy,control_gas_energy,psi_2energy
       logical  pspw_V_APC_on
       external pspw_V_APC_on
       logical  control_use_fractional_rho,psi_try_read_density
       external control_use_fractional_rho,psi_try_read_density
+      integer  pspw_Efield_type
+      external pspw_Efield_type
+      real*8   ewald_e,psi_hml_value
+      external ewald_e,psi_hml_value
 
       !**** hack for implementing hessian energy model ****
       if (control_hess_model()) then
@@ -87,6 +93,8 @@ c#include "global.fh"
       oprint = ((taskid.eq.MASTER).and.control_print(print_medium))
 
       psitmp = control_psi_tmp()
+
+      field_exist = pspw_charge_found().or.pspw_Efield_found()
 
 
 *     **** set the minimizer ****
@@ -142,16 +150,16 @@ c#include "global.fh"
       if (minimizer.eq.8) it_out = 1
       if ((newpsi).or.(nwpw_cosmo_firsttime())) then
          call pspw_Lin_HFX_reset()
-         call sdminimize(15)
+         if (minimizer.lt.4) call sdminimize(15)
          call bybminimize0()
          if (control_fractional()) then
+            call psiocc_1to2()
             call psi_1toelectron()
             call psi_1gen_hml()
             call psi_diagonalize_hml_assending()
             call psi_1rotate2()
             call psi_2to1()
-            !call psi_1define_occupation(-1.0d0,.false.)
-            call psi_1define_occupation(1.0d0,.false.)
+            call psi_1define_occupation(-1.0d0,.false.)
          end if
       end if
 
@@ -379,11 +387,16 @@ c          **** reset minimizer if failed ****
      >                        (E(1)-E(11))/ion_nion()
          end if
 
-         if (pspw_charge_found()) then
+         if (field_exist) then
             write(luout,1431)
             write(luout,1432)
-            write(luout,1433) (E(1)-E(19)-E(20)-E(21)),
-     >         (E(1)-E(19)-E(20)-E(21))/ion_nion()
+            if (pspw_Efield_type().eq.0) then
+               write(luout,1433) (E(1)-E(49)-E(51)),
+     >         (E(1)-E(49)-E(51))/ion_nion()
+            else
+               write(luout,1433) (E(1)-E(49)-E(50)-E(51)),
+     >         (E(1)-E(49)-E(50)-E(51))/ion_nion()
+            end if
          end if
 
          !*** write-out total paw energy - includes core energies ***
@@ -395,8 +408,8 @@ c          **** reset minimizer if failed ****
          write(luout,1450) E(3),E(3)/neall
          write(luout,1460) E(4),E(4)/neall
          if (pspw_SIC()) then
-           write(luout,1455) E(22),E(22)/neall
-           write(luout,1456) E(23),E(23)/neall
+           write(luout,1455) E(16),E(16)/neall
+           write(luout,1456) E(17),E(17)/neall
          end if
          if (pspw_HFX()) then
            write(luout,1457) E(26),E(26)/neall
@@ -428,8 +441,8 @@ c        end if
          write(luout,1496) E(9),E(9)/neall
          write(luout,1497) E(10),E(10)/neall
          if (pspw_SIC())  then
-           write(luout,1499) E(24),E(24)/neall
-           write(luout,1501) E(25),E(25)/neall
+           write(luout,1499) E(18),E(18)/neall
+           write(luout,1501) E(19),E(19)/neall
          end if
          if (pspw_HFX())  then
            write(luout,1502) E(27),E(27)/neall
@@ -484,13 +497,21 @@ c            write(luout,1706) E(18)
             write(luout,1720) E(33)
          end if
 
-         if (pspw_charge_found()) then
+         if (field_exist) then
             write(luout,1800)
             write(luout,1801)
-            write(luout,1805) E(19)+E(20)+E(21)
-            write(luout,1802) E(19)
-            write(luout,1803) E(20)
-            write(luout,1804) E(21)
+           if (pspw_Efield_type().eq.0) then
+              write(luout,1805) E(49)+E(51)
+              write(luout,1806) E(49)
+              write(luout,1807) E(50)
+              !write(luout,1804) E(51)
+              call dipole_Efield_print(luout)
+            else
+               write(luout,1805) E(49)+E(50)+E(51)
+               write(luout,1802) E(49)
+               write(luout,1803) E(50)
+               write(luout,1804) E(51)
+            end if
          end if
 
 *        **** write out <psi|H|psi> matrix ****
@@ -605,6 +626,21 @@ c            end do
             if (dabs(Egas).gt.1.0d-6)
      >         write(luout,1736)  E(1)-Egas,
      >                           (E(1)-Egas)*27.2116d0*23.06d0
+            call nwpw_cosmo_print(luout,Egas,E(1))
+         end if
+      end if
+
+*     **** write out extended Born solvation energies ****
+      if (nwpw_born_on()) then
+         Egas = control_gas_energy()
+         if (oprint) then
+            write(luout,1740)
+            write(luout,1741) nwpw_born_screen()
+            write(luout,1745) E(22),E(22)*27.2116d0*23.06d0
+            if (dabs(Egas).gt.1.0d-6)
+     >         write(luout,1746)  E(1)-Egas,
+     >                           (E(1)-Egas)*27.2116d0*23.06d0
+            call nwpw_born_print(luout,Egas,E(1))
          end if
       end if
 
@@ -633,8 +669,8 @@ c     >   'cgsd_noit_energy: numerical stress - error writing rtdb',0)
       value = value.and.btdb_put(rtdb,'pspw:E_ewald',   mt_dbl,1,E(5))
       value = value.and.btdb_put(rtdb,'pspw:E_local',   mt_dbl,1,E(7))
       value = value.and.btdb_put(rtdb,'pspw:E_nonlocal',mt_dbl,1,E(8))
-      value = value.and.btdb_put(rtdb,'pspw:E_hsic',    mt_dbl,1,E(22))
-      value = value.and.btdb_put(rtdb,'pspw:E_xcsic',   mt_dbl,1,E(23))
+      value = value.and.btdb_put(rtdb,'pspw:E_hsic',    mt_dbl,1,E(16))
+      value = value.and.btdb_put(rtdb,'pspw:E_xcsic',   mt_dbl,1,E(17))
       value = value.and.btdb_put(rtdb,'pspw:E_hfx',     mt_dbl,1,E(26))
       value = value.and.btdb_put(rtdb,'pspw:E_dftu',    mt_dbl,1,E(29))
       value = value.and.btdb_put(rtdb,'pspw:E_disp',    mt_dbl,1,E(33))
@@ -798,15 +834,67 @@ c     >   /45x,' (',F8.3,' kcal/mol)')
 c 1736 FORMAT(5x,' solvation energy (w/  QM polarization) :',E19.10,
 c     >   /45x,' (',F8.3,' kcal/mol)')
 
+ 1740 FORMAT(/' extended Born solvation energies:')
+ 1741 FORMAT(5x,' screen=(epsilon-1)/(epsilon):',F11.6)
+ 1745 FORMAT(5x,' solvation energy (w/o QM polarization) :',E19.10,
+     >   ' (',F8.3,' kcal/mol)')
+ 1746 FORMAT(5x,' solvation energy (w/  QM polarization) :',E19.10,
+     >   ' (',F8.3,' kcal/mol)')
 
- 1800 FORMAT(/' Charge Field Energies')
- 1801 FORMAT( ' ---------------------')
- 1802 FORMAT( ' - Charge Field/Electron    :',E19.10)
- 1803 FORMAT( ' - Charge Field/Ion         :',E19.10)
- 1804 FORMAT( ' - Charge Field/Charge Field:',E19.10)
- 1805 FORMAT( ' Charge Field Energy        :',E19.10)
+
+
+ 1800 FORMAT(/' Charge+Electric Field Energies')
+ 1801 FORMAT( ' ------------------------------')
+ 1802 FORMAT( ' - Charge+Electric Field/Electron    :',E19.10)
+ 1803 FORMAT( ' - Charge+Electric Field/Ion         :',E19.10)
+ 1804 FORMAT( ' - Charge+Electric Field/Charge Field:',E19.10)
+ 1805 FORMAT( ' Charge+Electric Field Energy        :',E19.10)
+ 1806 FORMAT( ' - Electric Field/Resta_Dipole       :',E19.10)
+ 1807 FORMAT( ' - K.S. Electric Field/Resta_Dipole  :',E19.10)
    
       end
+
+
+      subroutine psi_printeigs_debug()
+      implicit none
+
+#include "stdio.fh"
+
+      integer MASTER,taskid
+      parameter (MASTER=0)
+
+      integer i,NN
+      real*8 EV
+
+      integer  psi_ne
+      external psi_ne
+      real*8   psi_eigenvalue,psi_occupation
+      external psi_eigenvalue,psi_occupation
+
+      NN=psi_ne(1)-psi_ne(2)
+      EV=27.2116d0
+
+      call Parallel_taskid(taskid)
+      if (taskid.eq.MASTER) then
+         do i=1,NN
+            write(luout,1511) psi_eigenvalue(1,i),
+     >                        psi_eigenvalue(1,i)*EV,
+     >                        psi_occupation(1,i)
+         end do
+         do i=1,psi_ne(2)
+            write(luout,1511)  psi_eigenvalue(1,i+NN),
+     >                         psi_eigenvalue(1,i+NN)*EV,
+     >                         psi_occupation(1,i+NN),
+     >                         psi_eigenvalue(2,i),
+     >                         psi_eigenvalue(2,i)*EV,
+     >                         psi_occupation(2,i)
+         end do
+      end if
+
+      return
+ 1511 FORMAT(2(E18.7,' (',F8.3,'eV)  occ=',e18.12))
+      end
+         
 
 *     *******************************
 *     *				    *
@@ -847,8 +935,8 @@ c     >   /45x,' (',F8.3,' kcal/mol)')
       external pspw_charge_charge
       logical  pspw_bqext,ion_disp_on
       external pspw_bqext,ion_disp_on
-      logical  control_hess_model
-      external control_hess_model
+      logical  control_hess_model,pspw_Efield_found
+      external control_hess_model,pspw_Efield_found
 
       !**** hack for implementing hessian model ****
       if (control_hess_model()) then
@@ -907,6 +995,7 @@ c*     **** debug ****
       if (ion_disp_on()) call ion_disp_force(G1)
 
 
+*     **** get forces from external charges ****
       if (pspw_charge_found()) then
         if(pspw_bqext()) then
            call pspw_charge_charge_Fion(G1)
@@ -916,6 +1005,11 @@ c*     **** debug ****
            call pspw_charge_Fcharge(G1(1,nion1+1))
            call rho_1Fcharge(G1(1,nion1+1))
          end if
+      end if
+
+*     **** get forces from external Efield ****
+      if (pspw_Efield_found()) then
+         call pspw_Efield_Fion(G1)
       end if
 
 
@@ -1536,8 +1630,8 @@ c      write(*,*) "ewald p=",p1
       external pspw_charge_charge
       logical  pspw_bqext,ion_disp_on
       external pspw_bqext,ion_disp_on
-      logical  control_hess_model
-      external control_hess_model
+      logical  control_hess_model,pspw_Efield_found
+      external control_hess_model,pspw_Efield_found
 
       !**** hack for implementing hessian model ****
       if (control_hess_model()) then
@@ -1568,6 +1662,11 @@ c      write(*,*) "ewald p=",p1
            call pspw_charge_Fcharge(G1(1,nion1+1))
            call rho_1Fcharge(G1(1,nion1+1))
          end if
+      end if
+
+*     **** get forces from external Efield ****
+      if (pspw_Efield_found()) then
+         call pspw_Efield_Fion(G1)
       end if
 
 *     **** remove ion forces using ion_FixIon ****

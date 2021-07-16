@@ -587,6 +587,9 @@
         if (.not.rtdb_cput(rtdb,'tce:ccsdvar',1,ccsd_var))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
+        if (.not.rtdb_put(rtdb,'tce:nts',mt_log,1,.false.))
+     1    call errquit('tce_input: failed writing nts to rtdb',0,
+     2    RTDB_ERR)
         else
         call errquit('tce_input: multiple theory inputs',0,
      1    INPUT_ERR)

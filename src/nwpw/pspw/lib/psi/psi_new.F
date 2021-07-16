@@ -127,6 +127,7 @@
          ne(1) = ne(1) + nextra_orbs
          ne(2) = ne(2) + nextra_orbs
       end if
+      !write(*,*) "nextra_orbs=",nextra_orbs
 
       rtdb = control_rtdb()
       if (.not.btdb_get(rtdb,

@@ -12,6 +12,16 @@ if  [ -z "$(command -v python3)" ]; then
     echo please install python3
     exit 1
 fi
+if  [ -z "$(command -v curl)" ] && [ -z "$(command -v wget)" ]; then
+    echo curl and wget not installed
+    echo please install curl or wget
+    exit 1
+fi
+if  [ -z "$(command -v patch)" ]; then
+    echo patch not installed
+    echo please install patch
+    exit 1
+fi
 UNAME_S=$(uname -s)
 if [[ ${UNAME_S} == Linux ]]; then
     CPU_FLAGS=$(cat /proc/cpuinfo | grep flags |tail -n 1)
@@ -41,6 +51,19 @@ else
     VEC=scalar
 fi
 echo VEC $VEC
+if [[ "${VEC}" == "avx512" ]]; then
+if [[   -z "${CC}" ]]; then
+    CC=cc
+fi
+let GCCVERSIONGT5=$(expr `${CC} -dumpversion | cut -f1 -d.` \> 5)
+    if [[ ${GCCVERSIONGT5} != 1 ]]; then
+	echo
+	echo you have gcc version $(${CC} -dumpversion | cut -f1 -d.)
+	echo gcc version 6 and later needed for skylake
+	echo
+	exit 1
+    fi
+fi
 SRC_HOME=`pwd`
 DERIV=1
 if [[  -z "${SIMINT_MAXAM}" ]]; then
@@ -49,9 +72,21 @@ fi
 #PERMUTE_SLOW=1
 PERMUTE_SLOW=${SIMINT_MAXAM}
 GITHUB_USERID=edoapra
-rm -rf simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIVE}* *-chem-simint-generator-?????? simint-chem-simint-generator.tar.gz simint_lib
-curl -L https://github.com/${GITHUB_USERID}/simint-generator/tarball/master -o simint-chem-simint-generator.tar.gz
-#curl -LJ https://github.com/simint-chem/simint-generator/tarball/master -o simint-chem-simint-generator.tar.gz
+#rm -rf simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIVE}* *-chem-simint-generator-?????? simint-chem-simint-generator.tar.gz simint_lib
+rm -rf simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIVE}* *-chem-simint-generator-?????? simint_lib
+
+GITHUB_URL=https://github.com/${GITHUB_USERID}/simint-generator/tarball/master
+#GITHUB_URL=https://github.com/simint-chem/simint-generator/tarball/master
+TAR_NAME=simint-chem-simint-generator.tar.gz
+if [ -f  ${TAR_NAME} ]; then
+    echo "using existing"  ${TAR_NAME}
+else
+if  [ ! -z "$(command -v curl)" ] ; then
+    curl -L "${GITHUB_URL}" -o "${TAR_NAME}"
+else
+    wget -O "${TAR_NAME}" "${GITHUB_URL}"
+fi
+fi
 tar xzf simint-chem-simint-generator.tar.gz
 cd *-simint-generator-???????
 rm -f generator_types.patch
@@ -93,7 +128,7 @@ EOF
 patch -p1 < ./generator_types.patch
 pwd
 mkdir -p build; cd build
-if [[ -z "${CMAKE}" ]]; then
+if [[ -z "${MYCMAKE}" ]]; then
     #look for cmake
     if [[ -z "$(command -v cmake)" ]]; then
 	echo cmake required to build Simint
@@ -101,18 +136,21 @@ if [[ -z "${CMAKE}" ]]; then
 	echo define the CMAKE env. variable
 	exit 1
     else
-	CMAKE=cmake
+	MYCMAKE=cmake
     fi
 fi
-CMAKE_VER=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -c1)
+CMAKE_VER=$(${MYCMAKE} --version|cut -d " " -f 3|head -1|cut -c1)
 #echo CMAKE_VER is ${CMAKE_VER}
 if [[ ${CMAKE_VER} -lt 3 ]]; then
     echo CMake 3.0.2 or higher is required
     echo Please install CMake 3
-    echo define the CMAKE env. variable
+    echo define the MYCMAKE env. variable
     exit 1
 fi
-$CMAKE ../
+if [[ -z "${SIMINT_BUILD_TYPE}" ]]; then
+    SIMINT_BUILD_TYPE=Release
+fi
+$MYCMAKE  -DCMAKE_BUILD_TYPE="${SIMINT_BUILD_TYPE}"  ../
 make -j2
 cd ..
 #./create.py -g build/generator/ostei -l 6 -p 4 -d 1 simint.l6_p4_d1
@@ -167,12 +205,13 @@ elif  [ ${FC} == xlf ] || [ ${FC} == xlf_r ] || [ ${FC} == xlf90 ]|| [ ${FC} == 
     Fortran_FLAGS=" -qintsize=8 -qextname -qpreprocess"
 elif  [ ${FC} == ifort ]; then
     Fortran_FLAGS="-i8 -fpp"
-fi
-if [[ -z "${SIMINT_BUILD_TYPE}" ]]; then
-    SIMINT_BUILD_TYPE=Release
+elif  [ ${FC} == nvfortran ] || [ ${FC} == pgf90 ] ; then
+    Fortran_FLAGS="-i8 -cpp"
+    CC=gcc
+    CXX=g++
 fi
 echo Fortran_FLAGS equal "$Fortran_FLAGS"
-FC="${FC}" CXX="${CXX}" $CMAKE \
+FC="${FC}" CXX="${CXX}" $MYCMAKE \
  -DCMAKE_BUILD_TYPE="${SIMINT_BUILD_TYPE}" -DSIMINT_VECTOR=${VEC}  \
  -DCMAKE_INSTALL_LIBDIR=lib -DENABLE_FORTRAN=ON -DSIMINT_MAXAM=${SIMINT_MAXAM} -DSIMINT_MAXDER=${DERIV} \
  -DENABLE_TESTS=OFF     -DSIMINT_STANDALONE=OFF   \

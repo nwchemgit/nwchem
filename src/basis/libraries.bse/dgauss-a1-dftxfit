@@ -1,44 +1,53 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
 # dgauss-a1-dftxfit version number 0
 # Description: DGauss A1 DFT Exchange Fitting
 # Role: dftxfit
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H-Xe
-#     ## DFT Exchange Fitting
+# 
+#  References for the basis set
+# 
+#  H-Xe
+#      DFT Exchange Fitting
+#          godbout1992a
+# 
+# 
+# 
+# godbout1992a
 #     Godbout, Nathalie, Salahub, Dennis R., Andzelm, Jan, Wimmer, Erich
 #     Optimization of Gaussian-type basis sets for local spin density
 #             functional calculations. Part I. Boron through neon,
 #             optimization technique and validation
-#     Can. J. Chem., 70, 560-571 (1992)
+#     Can. J. Chem. 70, 560-571 (1992)
 #     10.1139/v92-079
 # 
 # # 
-basis "H_dgauss-a1-dftxfit" 
+basis "H_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (4s) -> [4s]
 H    S
       0.15000000E+02         1.0000000
@@ -49,7 +58,7 @@ H    S
 H    S
       0.10000000E+00         1.0000000
 end
-basis "He_dgauss-a1-dftxfit" 
+basis "He_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (4s) -> [4s]
 He    S
       0.18000000E+02         1.0000000
@@ -60,7 +69,7 @@ He    S
 He    S
       0.12000000E+00         1.0000000
 end
-basis "Li_dgauss-a1-dftxfit" 
+basis "Li_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (7s,2p,1d) -> [7s,2p,1d]
 Li    S
     853.00000000             1.0000000
@@ -79,7 +88,7 @@ Li    SP
 Li    D
       0.07000000             1.0000000
 end
-basis "Be_dgauss-a1-dftxfit" 
+basis "Be_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (7s,2p,1d) -> [7s,2p,1d]
 Be    S
     171.00000000             1.00000000
@@ -98,7 +107,7 @@ Be    SP
 Be    D
       0.13000000             1.00000000
 end
-basis "B_dgauss-a1-dftxfit" 
+basis "B_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (7s,3p,3d) -> [7s,3p,3d]
 B    S
     238.90000000             1.0000000
@@ -121,7 +130,7 @@ B    D
 B    D
       0.04700000             1.0000000
 end
-basis "C_dgauss-a1-dftxfit" 
+basis "C_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (7s,3p,3d) -> [7s,3p,3d]
 C    S
     371.00000000             1.00000000
@@ -144,7 +153,7 @@ C    D
 C    D
       0.073000000            1.00000000
 end
-basis "N_dgauss-a1-dftxfit" 
+basis "N_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (7s,3p,3d) -> [7s,3p,3d]
 N    S
     550.00000000             1.00000000
@@ -167,7 +176,7 @@ N    D
 N    D
       0.11000000             1.00000000
 end
-basis "O_dgauss-a1-dftxfit" 
+basis "O_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (7s,3p,3d) -> [7s,3p,3d]
 O    S
     667.00000000             1.00000000
@@ -190,7 +199,7 @@ O    D
 O    D
       0.13000000             1.00000000
 end
-basis "F_dgauss-a1-dftxfit" 
+basis "F_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (7s,3p,3d) -> [7s,3p,3d]
 F    S
     819.00000000             1.00000000
@@ -213,7 +222,7 @@ F    D
 F    D
       0.16000000             1.00000000
 end
-basis "Ne_dgauss-a1-dftxfit" 
+basis "Ne_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (7s,3p,2d) -> [7s,3p,2d]
 Ne    S
    1024.00000000             1.00000000
@@ -234,7 +243,7 @@ Ne    D
 Ne    D
       0.20000000             1.00000000
 end
-basis "Na_dgauss-a1-dftxfit" 
+basis "Na_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (9s,4p,3d) -> [9s,4p,3d]
 Na    S
       0.12300000E+04         1.00000000
@@ -261,7 +270,7 @@ Na    D
 Na    D
       0.06000000E+00         1.00000000
 end
-basis "Mg_dgauss-a1-dftxfit" 
+basis "Mg_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (9s,4p,3d) -> [9s,4p,3d]
 Mg    S
       0.20500000E+04         1.00000000
@@ -288,7 +297,7 @@ Mg    D
 Mg    D
       0.10000000E+00         1.00000000
 end
-basis "Al_dgauss-a1-dftxfit" 
+basis "Al_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (9s,4p,4d) -> [9s,4p,4d]
 Al    S
       0.22870000E+04         1.00000000
@@ -317,7 +326,7 @@ Al    D
 Al    D
       0.02800000E+00         1.00000000
 end
-basis "Si_dgauss-a1-dftxfit" 
+basis "Si_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (9s,4p,4d) -> [9s,4p,4d]
 Si    S
       0.32770000E+04         1.00000000
@@ -346,7 +355,7 @@ Si    D
 Si    D
       0.04000000E+00         1.00000000
 end
-basis "P_dgauss-a1-dftxfit" 
+basis "P_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (9s,4p,4d) -> [9s,4p,4d]
 P    S
       0.43697000E+04         1.00000000
@@ -375,7 +384,7 @@ P    D
 P    D
       0.05300000E+00         1.00000000
 end
-basis "S_dgauss-a1-dftxfit" 
+basis "S_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (9s,4p,4d) -> [9s,4p,4d]
 S    S
       0.54610000E+04         1.00000000
@@ -404,7 +413,7 @@ S    D
 S    D
       0.06700000E+00         1.00000000
 end
-basis "Cl_dgauss-a1-dftxfit" 
+basis "Cl_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (9s,4p,4d) -> [9s,4p,4d]
 Cl    S
       0.68270000E+04         1.00000000
@@ -433,7 +442,7 @@ Cl    D
 Cl    D
       0.08300000E+00         1.00000000
 end
-basis "Ar_dgauss-a1-dftxfit" 
+basis "Ar_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (9s,4p,4d) -> [9s,4p,4d]
 Ar    S
       0.81920000E+04         1.00000000
@@ -462,7 +471,7 @@ Ar    D
 Ar    D
       0.10000000E+00         1.00000000
 end
-basis "K_dgauss-a1-dftxfit" 
+basis "K_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,4d) -> [10s,5p,4d]
 K    S
       0.32800000E+04         1.00000000
@@ -493,7 +502,7 @@ K    D
 K    D
       0.04000000E+00         1.00000000
 end
-basis "Ca_dgauss-a1-dftxfit" 
+basis "Ca_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,4d) -> [10s,5p,4d]
 Ca    S
       0.46500000E+04         1.00000000
@@ -524,7 +533,7 @@ Ca    D
 Ca    D
       0.06000000E+00         1.00000000
 end
-basis "Sc_dgauss-a1-dftxfit" 
+basis "Sc_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Sc    S
       0.70000000E+04         1.00000000
@@ -557,7 +566,7 @@ Sc    D
 Sc    D
       0.02100000E+00         1.00000000
 end
-basis "Ti_dgauss-a1-dftxfit" 
+basis "Ti_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Ti    S
       0.09300000E+05         1.00000000
@@ -590,7 +599,7 @@ Ti    D
 Ti    D
       0.02800000E+00         1.00000000
 end
-basis "V_dgauss-a1-dftxfit" 
+basis "V_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 V    S
       0.11000000E+05         1.00000000
@@ -623,7 +632,7 @@ V    D
 V    D
       0.03300000E+00         1.00000000
 end
-basis "Cr_dgauss-a1-dftxfit" 
+basis "Cr_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Cr    S
       0.12300000E+05         1.00000000
@@ -656,7 +665,7 @@ Cr    D
 Cr    D
       0.04000000E+00         1.00000000
 end
-basis "Mn_dgauss-a1-dftxfit" 
+basis "Mn_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Mn    S
       0.13600000E+05         1.00000000
@@ -689,7 +698,7 @@ Mn    D
 Mn    D
       0.04100000E+00         1.00000000
 end
-basis "Fe_dgauss-a1-dftxfit" 
+basis "Fe_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Fe    S
       0.14700000E+05         1.00000000
@@ -722,7 +731,7 @@ Fe    D
 Fe    D
       0.04500000E+00         1.00000000
 end
-basis "Co_dgauss-a1-dftxfit" 
+basis "Co_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Co    S
       0.15700000E+05         1.00000000
@@ -755,7 +764,7 @@ Co    D
 Co    D
       0.04800000E+00         1.00000000
 end
-basis "Ni_dgauss-a1-dftxfit" 
+basis "Ni_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Ni    S
       0.16600000E+05         1.00000000
@@ -788,7 +797,7 @@ Ni    D
 Ni    D
       0.05100000E+00         1.00000000
 end
-basis "Cu_dgauss-a1-dftxfit" 
+basis "Cu_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Cu    S
       0.17700000E+05         1.00000000
@@ -821,7 +830,7 @@ Cu    D
 Cu    D
       0.05300000E+00         1.00000000
 end
-basis "Zn_dgauss-a1-dftxfit" 
+basis "Zn_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Zn    S
       0.25200000E+05         1.00000000
@@ -854,7 +863,7 @@ Zn    D
 Zn    D
       0.07700000E+00         1.00000000
 end
-basis "Ga_dgauss-a1-dftxfit" 
+basis "Ga_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Ga    S
       0.89600000E+04         1.00000000
@@ -887,7 +896,7 @@ Ga    D
 Ga    D
       0.02700000E+00         1.00000000
 end
-basis "Ge_dgauss-a1-dftxfit" 
+basis "Ge_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Ge    S
       0.12011000E+05         1.00000000
@@ -920,7 +929,7 @@ Ge    D
 Ge    D
       0.03700000E+00         1.00000000
 end
-basis "As_dgauss-a1-dftxfit" 
+basis "As_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 As    S
       0.15253000E+05         1.00000000
@@ -953,7 +962,7 @@ As    D
 As    D
       0.04700000E+00         1.00000000
 end
-basis "Se_dgauss-a1-dftxfit" 
+basis "Se_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Se    S
       0.17387000E+05         1.00000000
@@ -986,7 +995,7 @@ Se    D
 Se    D
       0.05300000E+00         1.00000000
 end
-basis "Br_dgauss-a1-dftxfit" 
+basis "Br_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Br    S
       0.20827000E+05         1.00000000
@@ -1019,7 +1028,7 @@ Br    D
 Br    D
       0.06300000E+00         1.00000000
 end
-basis "Kr_dgauss-a1-dftxfit" 
+basis "Kr_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Kr    S
       0.24107000E+05         1.00000000
@@ -1052,7 +1061,7 @@ Kr    D
 Kr    D
       0.07300000E+00         1.00000000
 end
-basis "Rb_dgauss-a1-dftxfit" 
+basis "Rb_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (11s,6p,5d) -> [11s,6p,5d]
 Rb    S
       0.13000000E+05         1.00000000
@@ -1087,7 +1096,7 @@ Rb    D
 Rb    D
       0.04300000E+00         1.00000000
 end
-basis "Sr_dgauss-a1-dftxfit" 
+basis "Sr_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (11s,6p,5d) -> [11s,6p,5d]
 Sr    S
       0.20000000E+05         1.00000000
@@ -1122,7 +1131,7 @@ Sr    D
 Sr    D
       0.06300000E+00         1.00000000
 end
-basis "Y_dgauss-a1-dftxfit" 
+basis "Y_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Y    S
       0.40625000E+05         1.00000000
@@ -1155,7 +1164,7 @@ Y    D
 Y    D
       0.01700000E+00         1.00000000
 end
-basis "Zr_dgauss-a1-dftxfit" 
+basis "Zr_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Zr    S
       0.46125000E+05         1.00000000
@@ -1188,7 +1197,7 @@ Zr    D
 Zr    D
       0.02000000E+00         1.00000000
 end
-basis "Nb_dgauss-a1-dftxfit" 
+basis "Nb_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Nb    S
       0.50313800E+05         1.00000000
@@ -1221,7 +1230,7 @@ Nb    D
 Nb    D
       0.02100000E+00         1.00000000
 end
-basis "Mo_dgauss-a1-dftxfit" 
+basis "Mo_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Mo    S
       0.54687200E+05         1.00000000
@@ -1254,7 +1263,7 @@ Mo    D
 Mo    D
       0.02300000E+00         1.00000000
 end
-basis "Tc_dgauss-a1-dftxfit" 
+basis "Tc_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Tc    S
       0.58125500E+05         1.00000000
@@ -1287,7 +1296,7 @@ Tc    D
 Tc    D
       0.02500000E+00         1.00000000
 end
-basis "Ru_dgauss-a1-dftxfit" 
+basis "Ru_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Ru    S
       0.60125000E+05         1.00000000
@@ -1320,7 +1329,7 @@ Ru    D
 Ru    D
       0.02600000E+00         1.00000000
 end
-basis "Rh_dgauss-a1-dftxfit" 
+basis "Rh_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Rh    S
       0.61750000E+05         1.00000000
@@ -1353,7 +1362,7 @@ Rh    D
 Rh    D
       0.02600000E+00         1.00000000
 end
-basis "Pd_dgauss-a1-dftxfit" 
+basis "Pd_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Pd    S
       0.62500000E+05         1.00000000
@@ -1386,7 +1395,7 @@ Pd    D
 Pd    D
       0.02700000E+00         1.00000000
 end
-basis "Ag_dgauss-a1-dftxfit" 
+basis "Ag_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Ag    S
       0.63125000E+05         1.00000000
@@ -1419,7 +1428,7 @@ Ag    D
 Ag    D
       0.02700000E+00         1.00000000
 end
-basis "Cd_dgauss-a1-dftxfit" 
+basis "Cd_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Cd    S
       0.76250000E+05         1.00000000
@@ -1452,7 +1461,7 @@ Cd    D
 Cd    D
       0.03300000E+00         1.00000000
 end
-basis "In_dgauss-a1-dftxfit" 
+basis "In_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 In    S
       0.54687000E+05         1.00000000
@@ -1485,7 +1494,7 @@ In    D
 In    D
       0.02300000E+00         1.00000000
 end
-basis "Sn_dgauss-a1-dftxfit" 
+basis "Sn_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Sn    S
       0.68125000E+05         1.00000000
@@ -1518,7 +1527,7 @@ Sn    D
 Sn    D
       0.02900000E+00         1.00000000
 end
-basis "Sb_dgauss-a1-dftxfit" 
+basis "Sb_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Sb    S
       0.84375000E+05         1.00000000
@@ -1551,7 +1560,7 @@ Sb    D
 Sb    D
       0.03600000E+00         1.00000000
 end
-basis "Te_dgauss-a1-dftxfit" 
+basis "Te_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Te    S
       0.96875000E+05         1.00000000
@@ -1584,7 +1593,7 @@ Te    D
 Te    D
       0.04100000E+00         1.00000000
 end
-basis "I_dgauss-a1-dftxfit" 
+basis "I_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 I    S
       0.11187500E+06         1.00000000
@@ -1617,7 +1626,7 @@ I    D
 I    D
       0.04800000E+00         1.00000000
 end
-basis "Xe_dgauss-a1-dftxfit" 
+basis "Xe_dgauss-a1-dftxfit" SPHERICAL 
 #basis SET: (10s,5p,5d) -> [10s,5p,5d]
 Xe    S
       0.12812500E+06         1.00000000

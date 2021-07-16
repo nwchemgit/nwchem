@@ -98,6 +98,8 @@ c
       double precision eps,dumd
       integer nx,nc,dumi
       parameter (eps=1.e-8)
+      double precision ddot
+      external ddot
 c
 c     Initialize the XC potential and energy sampling matrices.
 c
@@ -225,6 +227,8 @@ c gradients.  ldew2 is for the dVxc*P term in the TDDFT gradients.
         endif
         return
       endif
+
+
 c      if (ldew.or.ldew3) call dfill(nq, 0.d0, func, 1)
 c      if (ldew) call dfill(nq, 0.d0, func, 1)
 c
@@ -303,6 +307,26 @@ c
          dohcth=.true.
          nx=11
          nc=17
+      elseif (abs(xfac(75)).gt.eps.or.abs(cfac(75)).gt.eps)then
+         whichf='h7tz'
+         dohcth=.true.
+         nx=75
+         nc=75
+      elseif (abs(xfac(76)).gt.eps.or.abs(cfac(76)).gt.eps)then
+         whichf='wb97'
+         dohcth=.true.
+         nx=76
+         nc=76
+      elseif (abs(xfac(77)).gt.eps.or.abs(cfac(77)).gt.eps)then
+         whichf='wb9x'
+         dohcth=.true.
+         nx=77
+         nc=77
+      elseif (abs(xfac(78)).gt.eps.or.abs(cfac(78)).gt.eps)then
+         whichf='w9d3'
+         dohcth=.true.
+         nx=78
+         nc=78
       elseif (abs(xfac(5)).gt.eps.or.abs(cfac(14)).gt.eps)then
          whichf='b970'
          dohcth=.true.
@@ -1168,7 +1192,7 @@ c
      &           rho, delrho, Amat, Cmat, nq, ipol, 
      &           Ex, qwght,ldew,func)
          else
-            call xc_xpw86(tol_rho, xfac(56), lxfac(56), nlxfac(56), 
+            call xc_xpw86_d2(tol_rho, xfac(56), lxfac(56), nlxfac(56), 
      &           rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, 
      &           Ex, qwght,ldew,func)
          endif
@@ -1734,6 +1758,12 @@ c
             call xc_cr2scanl_d2()
          endif
       endif
+c
+c     libxc potential and energy
+c
+      call nwchem_libxc_compute(nq,Ex,Ec,qwght,rho,delrho,ttau,
+     $     laprho,Amat,Amat2,Amat3,Cmat,Cmat2,Cmat3,Mmat,Lmat,func,
+     $     grad,kske,kslap,ldew,do_2nd,do_3rd)
 c
 c     Calculate the steric energy
 c

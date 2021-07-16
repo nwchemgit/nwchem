@@ -1,177 +1,181 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# dhf-qzvp version number 0
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# dhf-QZVP version number 0
 # Description: dhf-QZVP
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# Rb,Cs
-#     ## dhf-QZVP
-#     Weigend, Florian, Baldes, Alexander
-#     Segmented contracted basis sets for one- and two-component Dirac-Fock
-#             effective core potentials
-#     J. Chem. Phys., 133, 174102 (2010)
-#     10.1063/1.3495681
 # 
-#     ## dhf-ECP
-#     Lim, Ivan S., Schwerdtfeger, Peter, Metz, Bernhard, Stoll, Hermann
-#     All-electron and relativistic pseudopotential studies for the group 1
-#             element polarizabilities from K to element 119
-#     J. Chem. Phys., 122, 104103 (2005)
-#     10.1063/1.1856451
+#  References for the basis set
 # 
-# Sr,Ba
-#     ## dhf-QZVP
-#     Weigend, Florian, Baldes, Alexander
-#     Segmented contracted basis sets for one- and two-component Dirac-Fock
-#             effective core potentials
-#     J. Chem. Phys., 133, 174102 (2010)
-#     10.1063/1.3495681
+#  Rb,Cs
+#      dhf-QZVP
+#          weigend2010a
 # 
-#     ## dhf-ECP
-#     Lim, Ivan S., Stoll, Hermann, Schwerdtfeger, Peter
-#     Relativistic small-core energy-consistent pseudopotentials for the
-#             alkaline-earth elements from Ca to Ra
-#     J. Chem. Phys., 124, 034107 (2006)
-#     10.1063/1.2148945
+#      dhf-ECP
+#          lim2005a
 # 
-# Y-Pd
-#     ## dhf-QZVP
-#     Weigend, Florian, Baldes, Alexander
-#     Segmented contracted basis sets for one- and two-component Dirac-Fock
-#             effective core potentials
-#     J. Chem. Phys., 133, 174102 (2010)
-#     10.1063/1.3495681
+#  Sr,Ba
+#      dhf-QZVP
+#          weigend2010a
 # 
-#     ## dhf-ECP
-#     Peterson, Kirk A., Figgen, Detlev, Dolg, Michael, Stoll, Hermann
-#     Energy-consistent relativistic pseudopotentials and correlation
-#             consistent basis sets for the 4d elements Y-Pd
-#     J. Chem. Phys., 126, 124101 (2007)
-#     10.1063/1.2647019
+#      dhf-ECP
+#          lim2006a
 # 
-# Ag,Cd,Au,Hg
-#     ## dhf-QZVP
-#     Weigend, Florian, Baldes, Alexander
-#     Segmented contracted basis sets for one- and two-component Dirac-Fock
-#             effective core potentials
-#     J. Chem. Phys., 133, 174102 (2010)
-#     10.1063/1.3495681
+#  Y-Pd
+#      dhf-QZVP
+#          weigend2010a
 # 
-#     ## dhf-ECP
+#      dhf-ECP
+#          peterson2007a
+# 
+#  Ag,Cd,Au,Hg
+#      dhf-QZVP
+#          weigend2010a
+# 
+#      dhf-ECP
+#          figgen2005a
+# 
+#  In-Sb,Pb,Bi
+#      dhf-QZVP
+#          weigend2010a
+# 
+#      dhf-ECP
+#          metz2000a
+# 
+#  Te,Xe,Po-Rn
+#      dhf-QZVP
+#          weigend2010a
+# 
+#      dhf-ECP
+#          peterson2003b
+# 
+#  I
+#      dhf-QZVP
+#          weigend2010a
+# 
+#      dhf-ECP
+#          peterson2006a
+# 
+#  Hf-Pt
+#      dhf-QZVP
+#          weigend2010a
+# 
+#      dhf-ECP
+#          figgen2009a
+# 
+#  Tl
+#      dhf-QZVP
+#          weigend2010a
+# 
+#      dhf-ECP
+#          metz2000b
+# 
+# 
+# 
+# figgen2005a
 #     Figgen, Detlev, Rauhut, Guntram, Dolg, Michael, Stoll, Hermann
 #     Energy-consistent pseudopotentials for group 11 and 12 atoms:
 #             adjustment to multi-configuration Dirac-Hartree-Fock data
-#     J. Chem. Phys., 311, 227-244 (2005)
+#     J. Chem. Phys. 311, 227-244 (2005)
 #     10.1016/j.chemphys.2004.10.005
 # 
-# In-Sb,Pb,Bi
-#     ## dhf-QZVP
-#     Weigend, Florian, Baldes, Alexander
-#     Segmented contracted basis sets for one- and two-component Dirac-Fock
-#             effective core potentials
-#     J. Chem. Phys., 133, 174102 (2010)
-#     10.1063/1.3495681
+# figgen2009a
+#     Figgen, Detlev, Peterson, Kirk A., Dolg, Michael, Stoll, Hermann
+#     Energy-consistent pseudopotentials and correlation consistent basis
+#             sets for the 5d elements Hf-Pt
+#     J. Chem. Phys. 130, 164108 (2009)
+#     10.1063/1.3119665
 # 
-#     ## dhf-ECP
+# lim2005a
+#     Lim, Ivan S., Schwerdtfeger, Peter, Metz, Bernhard, Stoll, Hermann
+#     All-electron and relativistic pseudopotential studies for the group 1
+#             element polarizabilities from K to element 119
+#     J. Chem. Phys. 122, 104103 (2005)
+#     10.1063/1.1856451
+# 
+# lim2006a
+#     Lim, Ivan S., Stoll, Hermann, Schwerdtfeger, Peter
+#     Relativistic small-core energy-consistent pseudopotentials for the
+#             alkaline-earth elements from Ca to Ra
+#     J. Chem. Phys. 124, 034107 (2006)
+#     10.1063/1.2148945
+# 
+# metz2000a
 #     Metz, Bernhard, Stoll, Hermann, Dolg, Michael
 #     Small-core multiconfiguration-Dirac-Hartree-Fock-adjusted
 #             pseudopotentials for post-d main group elements: Application
 #             to PbH and PbO
-#     J. Chem. Phys., 113, 2563-2569 (2000)
+#     J. Chem. Phys. 113, 2563-2569 (2000)
 #     10.1063/1.1305880
 # 
-# Te,Xe,Po-Rn
-#     ## dhf-QZVP
-#     Weigend, Florian, Baldes, Alexander
-#     Segmented contracted basis sets for one- and two-component Dirac-Fock
-#             effective core potentials
-#     J. Chem. Phys., 133, 174102 (2010)
-#     10.1063/1.3495681
+# metz2000b
+#     Metz, Bernhard, Schweizer, Marcus, Stoll, Hermann, Dolg, Michael, Liu,
+#             Wenjian
+#     A small-core multiconfiguration Dirac-Hartree-Fock-adjusted
+#             pseudopotential for Tl - application to Tl X ( X = F, Cl, Br,
+#             I)
+#     Theor. Chim. Acta 104, 22-28 (2000)
+#     10.1007/s002149900101
 # 
-#     ## dhf-ECP
+# peterson2003b
 #     Peterson, Kirk A., Figgen, Detlev, Goll, Erich, Stoll, Hermann, Dolg,
 #             Michael
 #     Systematically convergent basis sets with relativistic
 #             pseudopotentials. II. Small-core pseudopotentials and
 #             correlation consistent basis sets for the post-d group 16-18
 #             elements
-#     J. Chem. Phys., 119, 11113-11123 (2003)
+#     J. Chem. Phys. 119, 11113-11123 (2003)
 #     10.1063/1.1622924
 # 
-# I
-#     ## dhf-QZVP
-#     Weigend, Florian, Baldes, Alexander
-#     Segmented contracted basis sets for one- and two-component Dirac-Fock
-#             effective core potentials
-#     J. Chem. Phys., 133, 174102 (2010)
-#     10.1063/1.3495681
-# 
-#     ## dhf-ECP
+# peterson2006a
 #     Peterson, Kirk A., Shepler, Benjamin C., Figgen, Detlev, Stoll,
 #             Hermann
 #     On the Spectroscopic and Thermochemical Properties of ClO, BrO, IO,
 #             and Their Anions
-#     J. Phys. Chem. A, 110, 13877-13883 (2006)
+#     J. Phys. Chem. A 110, 13877-13883 (2006)
 #     10.1021/jp065887l
 # 
-# Hf-Pt
-#     ## dhf-QZVP
+# peterson2007a
+#     Peterson, Kirk A., Figgen, Detlev, Dolg, Michael, Stoll, Hermann
+#     Energy-consistent relativistic pseudopotentials and correlation
+#             consistent basis sets for the 4d elements Y-Pd
+#     J. Chem. Phys. 126, 124101 (2007)
+#     10.1063/1.2647019
+# 
+# weigend2010a
 #     Weigend, Florian, Baldes, Alexander
 #     Segmented contracted basis sets for one- and two-component Dirac-Fock
 #             effective core potentials
-#     J. Chem. Phys., 133, 174102 (2010)
+#     J. Chem. Phys. 133, 174102 (2010)
 #     10.1063/1.3495681
-# 
-#     ## dhf-ECP
-#     Figgen, Detlev, Peterson, Kirk A., Dolg, Michael, Stoll, Hermann
-#     Energy-consistent pseudopotentials and correlation consistent basis
-#             sets for the 5d elements Hf-Pt
-#     J. Chem. Phys., 130, 164108 (2009)
-#     10.1063/1.3119665
-# 
-# Tl
-#     ## dhf-QZVP
-#     Weigend, Florian, Baldes, Alexander
-#     Segmented contracted basis sets for one- and two-component Dirac-Fock
-#             effective core potentials
-#     J. Chem. Phys., 133, 174102 (2010)
-#     10.1063/1.3495681
-# 
-#     ## dhf-ECP
-#     Metz, Bernhard, Schweizer, Marcus, Stoll, Hermann, Dolg, Michael, Liu,
-#             Wenjian
-#     A small-core multiconfiguration Dirac-Hartree-Fock-adjusted
-#             pseudopotential for Tl - application to Tl X ( X = F, Cl, Br,
-#             I)
-#     Theor. Chim. Acta, 104, 22-28 (2000)
-#     10.1007/s002149900101
 # 
 # # 
-basis "Rb_dhf-qzvp" 
+basis "Rb_dhf-QZVP" SPHERICAL 
 #basis SET: (8s,8p,5d,2f,1g) -> [7s,6p,4d,2f,1g]
 Rb    S
       7.4744618040           0.26973398597
@@ -220,7 +224,7 @@ Rb    G
 end
 
 
-ecp "Rb_dhf-qzvp"
+ecp "Rb_dhf-QZVP"
 Rb nelec 28
 Rb ul
 2       1.00000000             0.00000000
@@ -241,7 +245,7 @@ Rb F
 2       3.57440341            -4.47828443
 2       3.56571059            -5.95690751
 end
-basis "Sr_dhf-qzvp" 
+basis "Sr_dhf-QZVP" SPHERICAL 
 #basis SET: (9s,9p,6d,2f,1g) -> [7s,6p,4d,2f,1g]
 Sr    S
      25.006381794            0.28058065380E-02
@@ -293,7 +297,7 @@ Sr    G
 end
 
 
-ecp "Sr_dhf-qzvp"
+ecp "Sr_dhf-QZVP"
 Sr nelec 28
 Sr ul
 2       1.00000000             0.00000000
@@ -314,7 +318,7 @@ Sr F
 2       4.24419840            -5.50933325
 2       4.22916447            -7.30464169
 end
-basis "Y_dhf-qzvp" 
+basis "Y_dhf-QZVP" SPHERICAL 
 #basis SET: (8s,8p,7d,3f,1g) -> [7s,6p,4d,3f,1g]
 Y    S
      12.000000000           -0.27124955250
@@ -367,7 +371,7 @@ Y    G
 end
 
 
-ecp "Y_dhf-qzvp"
+ecp "Y_dhf-QZVP"
 Y nelec 28
 Y ul
 2       1.00000000             0.00000000
@@ -388,7 +392,7 @@ Y F
 2       5.02859000            -6.92807800
 2       5.00558200            -9.15509900
 end
-basis "Zr_dhf-qzvp" 
+basis "Zr_dhf-QZVP" SPHERICAL 
 #basis SET: (8s,8p,7d,3f,1g) -> [7s,6p,4d,3f,1g]
 Zr    S
      13.000000000            0.30025482519
@@ -441,7 +445,7 @@ Zr    G
 end
 
 
-ecp "Zr_dhf-qzvp"
+ecp "Zr_dhf-QZVP"
 Zr nelec 28
 Zr ul
 2       1.00000000             0.00000000
@@ -462,7 +466,7 @@ Zr F
 2       4.80021500            -5.23932000
 2       4.79899200            -6.98742400
 end
-basis "Nb_dhf-qzvp" 
+basis "Nb_dhf-QZVP" SPHERICAL 
 #basis SET: (8s,8p,7d,3f,1g) -> [7s,6p,4d,3f,1g]
 Nb    S
      13.500000000           -0.32255058368
@@ -515,7 +519,7 @@ Nb    G
 end
 
 
-ecp "Nb_dhf-qzvp"
+ecp "Nb_dhf-QZVP"
 Nb nelec 28
 Nb ul
 2       1.00000000             0.00000000
@@ -536,7 +540,7 @@ Nb F
 2       5.56828500            -6.28135400
 2       5.67137200            -8.75564400
 end
-basis "Mo_dhf-qzvp" 
+basis "Mo_dhf-QZVP" SPHERICAL 
 #basis SET: (9s,8p,7d,3f,1g) -> [7s,6p,4d,3f,1g]
 Mo    S
      15.000000000            0.59251657522E-01
@@ -590,7 +594,7 @@ Mo    G
 end
 
 
-ecp "Mo_dhf-qzvp"
+ecp "Mo_dhf-QZVP"
 Mo nelec 28
 Mo ul
 2       1.00000000             0.00000000
@@ -611,7 +615,7 @@ Mo F
 2       6.30663300            -7.17888800
 2       6.35644800            -9.74597800
 end
-basis "Tc_dhf-qzvp" 
+basis "Tc_dhf-QZVP" SPHERICAL 
 #basis SET: (9s,8p,7d,3f,1g) -> [7s,6p,4d,3f,1g]
 Tc    S
      15.000000000           -0.30630919364
@@ -665,7 +669,7 @@ Tc    G
 end
 
 
-ecp "Tc_dhf-qzvp"
+ecp "Tc_dhf-QZVP"
 Tc nelec 28
 Tc ul
 2       1.00000000             0.00000000
@@ -686,7 +690,7 @@ Tc F
 2       7.04094000            -7.99562300
 2       7.06947300           -10.74569600
 end
-basis "Ru_dhf-qzvp" 
+basis "Ru_dhf-QZVP" SPHERICAL 
 #basis SET: (9s,8p,7d,3f,1g) -> [7s,6p,4d,3f,1g]
 Ru    S
      15.000000000            0.40174714050
@@ -740,7 +744,7 @@ Ru    G
 end
 
 
-ecp "Ru_dhf-qzvp"
+ecp "Ru_dhf-QZVP"
 Ru nelec 28
 Ru ul
 2       1.00000000             0.00000000
@@ -761,14 +765,14 @@ Ru F
 2       7.82024900            -8.84752500
 2       7.83964700           -11.83551800
 end
-basis "Rh_dhf-qzvp" 
+basis "Rh_dhf-QZVP" SPHERICAL 
 #basis SET: (9s,8p,7d,3f,1g) -> [7s,6p,4d,3f,1g]
+Rh    S
+      4.5131696431           1.0000000000
 Rh    S
      15.000000000            0.49575560003
      13.500000000           -0.78096244061
       7.4051116103           0.32754203582
-Rh    S
-      4.5131696431           1.0000000000
 Rh    S
       1.3235977422           1.0000000000
 Rh    S
@@ -815,7 +819,7 @@ Rh    G
 end
 
 
-ecp "Rh_dhf-qzvp"
+ecp "Rh_dhf-QZVP"
 Rh nelec 28
 Rh ul
 2       1.00000000             0.00000000
@@ -836,14 +840,14 @@ Rh F
 2       8.61622800            -9.67356800
 2       8.62943500           -12.89984700
 end
-basis "Pd_dhf-qzvp" 
+basis "Pd_dhf-QZVP" SPHERICAL 
 #basis SET: (9s,8p,7d,3f,1g) -> [7s,6p,4d,3f,1g]
+Pd    S
+      8.7309326588           1.0000000000
 Pd    S
      15.262399331            0.43627216466
      13.721983176           -0.71230203751
       4.8448286268           0.44671086504
-Pd    S
-      8.7309326588           1.0000000000
 Pd    S
       1.4357564094           1.0000000000
 Pd    S
@@ -890,7 +894,7 @@ Pd    G
 end
 
 
-ecp "Pd_dhf-qzvp"
+ecp "Pd_dhf-QZVP"
 Pd nelec 28
 Pd ul
 2       1.00000000             0.00000000
@@ -911,7 +915,7 @@ Pd F
 2       9.67957100           -10.98725500
 2       9.69134900           -14.62619000
 end
-basis "Ag_dhf-qzvp" 
+basis "Ag_dhf-QZVP" SPHERICAL 
 #basis SET: (10s,8p,7d,3f,1g) -> [7s,6p,4d,3f,1g]
 Ag    S
     256.50898381             0.67003628762E-03
@@ -966,7 +970,7 @@ Ag    G
 end
 
 
-ecp "Ag_dhf-qzvp"
+ecp "Ag_dhf-QZVP"
 Ag nelec 28
 Ag ul
 2       1.00000000             0.00000000
@@ -987,7 +991,7 @@ Ag F
 2      11.01291300           -12.62340300
 2      11.01989800           -16.76432700
 end
-basis "Cd_dhf-qzvp" 
+basis "Cd_dhf-QZVP" SPHERICAL 
 #basis SET: (10s,8p,8d,3f,1g) -> [7s,6p,5d,3f,1g]
 Cd    S
     269.30016289             0.55199606080E-03
@@ -1044,7 +1048,7 @@ Cd    G
 end
 
 
-ecp "Cd_dhf-qzvp"
+ecp "Cd_dhf-QZVP"
 Cd nelec 28
 Cd ul
 2       1.00000000             0.00000000
@@ -1065,8 +1069,12 @@ Cd F
 2      11.47898600           -12.63278500
 2      11.48702700           -16.76017100
 end
-basis "In_dhf-qzvp" 
+basis "In_dhf-QZVP" SPHERICAL 
 #basis SET: (17s,14p,11d,4f,1g) -> [7s,6p,4d,4f,1g]
+In    S
+     20.245544208            0.29650296199E-01
+     11.072298416           -0.14745372687
+      2.4929238916           0.53232061960
 In    S
    8931.8400000              0.19000000000E-04
    1352.2200000              0.13100000000E-03
@@ -1078,10 +1086,6 @@ In    S
       4.3337700000          -0.15871800000
       1.9868400000           0.67440400000
 In    S
-     20.245544208            0.29650296199E-01
-     11.072298416           -0.14745372687
-      2.4929238916           0.53232061960
-In    S
       1.0438672413           1.0000000000
 In    S
       0.53244484157          1.0000000000
@@ -1092,6 +1096,10 @@ In    S
 In    S
       0.42357644919E-01      1.0000000000
 In    P
+     13.248633034           -0.18203004609E-01
+      3.0240161259           0.31476939453
+      1.0805448379           0.71919648136
+In    P
     129.23300000             0.27900000000E-03
      29.628400000           -0.61710000000E-02
      18.521100000            0.46912000000E-01
@@ -1099,10 +1107,6 @@ In    P
       2.4993900000           0.42981100000
       1.3221600000           0.48610100000
       0.68870700000          0.22203700000
-In    P
-     13.248633034           -0.18203004609E-01
-      3.0240161259           0.31476939453
-      1.0805448379           0.71919648136
 In    P
       0.33353581509          1.0000000000
 In    P
@@ -1139,7 +1143,7 @@ In    G
 end
 
 
-ecp "In_dhf-qzvp"
+ecp "In_dhf-QZVP"
 In nelec 28
 In ul
 2       1.00000000             0.00000000
@@ -1160,8 +1164,12 @@ In F
 2      12.53905600           -13.72807800
 2      12.55256100           -18.20686600
 end
-basis "Sn_dhf-qzvp" 
+basis "Sn_dhf-QZVP" SPHERICAL 
 #basis SET: (17s,14p,11d,4f,1g) -> [7s,6p,4d,4f,1g]
+Sn    S
+     20.197961274            0.22393937317E-01
+     10.880108426           -0.14330764814
+      2.7745387028           0.53278527074
 Sn    S
   11606.9000000              0.29000000000E-04
    1754.8000000              0.20600000000E-03
@@ -1173,10 +1181,6 @@ Sn    S
       4.4149000000          -0.16993200000
       2.1635600000           0.65102800000
 Sn    S
-     20.197961274            0.22393937317E-01
-     10.880108426           -0.14330764814
-      2.7745387028           0.53278527074
-Sn    S
       1.1440977736           1.0000000000
 Sn    S
       0.58550056279          1.0000000000
@@ -1187,6 +1191,10 @@ Sn    S
 Sn    S
       0.52233584109E-01      1.0000000000
 Sn    P
+     13.304065745           -0.20694775410E-01
+      3.4193503621           0.33654593033
+      1.2382899573           0.71397757129
+Sn    P
     195.49500000             0.25800000000E-03
      18.256300000            0.44341000000E-01
      11.409400000           -0.10914200000
@@ -1194,10 +1202,6 @@ Sn    P
       2.9820600000           0.34374300000
       1.6084300000           0.51827100000
       0.83176700000          0.27870600000
-Sn    P
-     13.304065745           -0.20694775410E-01
-      3.4193503621           0.33654593033
-      1.2382899573           0.71397757129
 Sn    P
       0.39265300321          1.0000000000
 Sn    P
@@ -1234,7 +1238,7 @@ Sn    G
 end
 
 
-ecp "Sn_dhf-qzvp"
+ecp "Sn_dhf-QZVP"
 Sn nelec 28
 Sn ul
 2       1.00000000             0.00000000
@@ -1255,8 +1259,12 @@ Sn F
 2      12.28234800           -12.57633300
 2      12.27215000           -16.59594400
 end
-basis "Sb_dhf-qzvp" 
+basis "Sb_dhf-QZVP" SPHERICAL 
 #basis SET: (17s,14p,11d,4f,1g) -> [7s,6p,4d,4f,1g]
+Sb    S
+     25.336266601            0.22414355064E-01
+     12.477043309           -0.14737811818
+      3.0723142741           0.53278468779
 Sb    S
   12339.3165550              0.38545231046E-04
    1854.7043271              0.27702166404E-03
@@ -1267,10 +1275,6 @@ Sb    S
       8.4541754812          -0.54748479396
       5.2813981306          -0.30336289748
       2.3194618632           0.68093278701
-Sb    S
-     25.336266601            0.22414355064E-01
-     12.477043309           -0.14737811818
-      3.0723142741           0.53278468779
 Sb    S
       1.2167512076           1.0000000000
 Sb    S
@@ -1329,7 +1333,7 @@ Sb    G
 end
 
 
-ecp "Sb_dhf-qzvp"
+ecp "Sb_dhf-QZVP"
 Sb nelec 28
 Sb ul
 2       1.00000000             0.00000000
@@ -1350,8 +1354,12 @@ Sb F
 2      14.44497800           -15.36680100
 2      14.44929500           -20.29613800
 end
-basis "Te_dhf-qzvp" 
+basis "Te_dhf-QZVP" SPHERICAL 
 #basis SET: (17s,14p,11d,4f,1g) -> [7s,6p,4d,4f,1g]
+Te    S
+     29.383253023            0.30079778033E-01
+     15.946408003           -0.13631630929
+      3.6679902632           0.53467574034
 Te    S
   15746.3000000              0.54000000000E-04
    2369.2500000              0.39800000000E-03
@@ -1362,10 +1370,6 @@ Te    S
      10.865600000           -0.39758900000
       6.5688500000          -0.51917500000
       2.4013900000           0.68765200000
-Te    S
-     29.383253023            0.30079778033E-01
-     15.946408003           -0.13631630929
-      3.6679902632           0.53467574034
 Te    S
       1.2865441585           1.0000000000
 Te    S
@@ -1424,7 +1428,7 @@ Te    G
 end
 
 
-ecp "Te_dhf-qzvp"
+ecp "Te_dhf-QZVP"
 Te nelec 28
 Te ul
 2       1.00000000             0.00000000
@@ -1445,8 +1449,12 @@ Te F
 2      15.20616800           -15.74545000
 2      15.20170200           -20.74244800
 end
-basis "I_dhf-qzvp" 
+basis "I_dhf-QZVP" SPHERICAL 
 #basis SET: (17s,14p,11d,4f,1g) -> [7s,6p,4d,4f,1g]
+I    S
+     25.058617933            0.40897754402E-01
+     15.621979372           -0.14269668187
+      3.3536325162           0.52916319279
 I    S
   16788.4000000              0.41000000000E-04
    2526.6400000              0.30300000000E-03
@@ -1458,10 +1466,6 @@ I    S
       7.0828900000          -0.54138500000
       2.5040500000           0.71574900000
 I    S
-     25.058617933            0.40897754402E-01
-     15.621979372           -0.14269668187
-      3.3536325162           0.52916319279
-I    S
       1.3540144781           1.0000000000
 I    S
       0.67430472704          1.0000000000
@@ -1472,6 +1476,10 @@ I    S
 I    S
       0.74377727841E-01      1.0000000000
 I    P
+     15.660511893           -0.22143803592E-01
+      4.9250669812           0.23518064355
+      1.6692319982           0.73153925548
+I    P
     656.27400000             0.91000000000E-04
     149.23200000             0.61300000000E-03
      19.015300000            0.59923000000E-01
@@ -1479,10 +1487,6 @@ I    P
       6.4420800000          -0.43750000000E-02
       3.0920300000           0.51399900000
       1.5787400000           0.50721300000
-I    P
-     15.660511893           -0.22143803592E-01
-      4.9250669812           0.23518064355
-      1.6692319982           0.73153925548
 I    P
       0.77817898176          1.0000000000
 I    P
@@ -1519,7 +1523,7 @@ I    G
 end
 
 
-ecp "I_dhf-qzvp"
+ecp "I_dhf-QZVP"
 I nelec 28
 I ul
 2       1.00000000             0.00000000
@@ -1543,8 +1547,12 @@ I F
 2       7.55790100            -0.22043400
 2       7.59740400            -0.22164600
 end
-basis "Xe_dhf-qzvp" 
+basis "Xe_dhf-QZVP" SPHERICAL 
 #basis SET: (17s,14p,11d,4f,1g) -> [7s,6p,4d,4f,1g]
+Xe    S
+     27.052171835            0.11189611954
+     20.940622415           -0.24055422724
+      6.0024591071           0.51452076187
 Xe    S
   18774.3000000              0.68000000000E-04
    2824.8100000              0.50100000000E-03
@@ -1556,10 +1564,6 @@ Xe    S
       6.6189000000          -0.47862400000
       2.9955200000           0.59647100000
 Xe    S
-     27.052171835            0.11189611954
-     20.940622415           -0.24055422724
-      6.0024591071           0.51452076187
-Xe    S
       1.6532586536           1.0000000000
 Xe    S
       0.87553889270          1.0000000000
@@ -1570,6 +1574,10 @@ Xe    S
 Xe    S
       0.90171093041E-01      1.0000000000
 Xe    P
+     18.388908413           -0.24514446229E-01
+      6.1139045431           0.25265669670
+      1.8729815691           0.72938328969
+Xe    P
     613.33100000             0.13800000000E-03
     141.71000000             0.85300000000E-03
      20.310600000            0.55024000000E-01
@@ -1577,10 +1585,6 @@ Xe    P
       6.8951300000           0.97460000000E-02
       3.2416600000           0.52679700000
       1.6653500000           0.50183200000
-Xe    P
-     18.388908413           -0.24514446229E-01
-      6.1139045431           0.25265669670
-      1.8729815691           0.72938328969
 Xe    P
       0.82004665991          1.0000000000
 Xe    P
@@ -1617,7 +1621,7 @@ Xe    G
 end
 
 
-ecp "Xe_dhf-qzvp"
+ecp "Xe_dhf-QZVP"
 Xe nelec 28
 Xe ul
 2       1.00000000             0.00000000
@@ -1643,7 +1647,7 @@ Xe F
 2       5.25338900            -0.28822700
 2       5.36118800            -0.38692400
 end
-basis "Cs_dhf-qzvp" 
+basis "Cs_dhf-QZVP" SPHERICAL 
 #basis SET: (9s,7p,5d,5f,1g) -> [7s,6p,4d,2f,1g]
 Cs    S
       5.8684829520           0.12908531143
@@ -1695,7 +1699,7 @@ Cs    G
 end
 
 
-ecp "Cs_dhf-qzvp"
+ecp "Cs_dhf-QZVP"
 Cs nelec 46
 Cs ul
 2       1.00000000             0.00000000
@@ -1721,7 +1725,7 @@ Cs G
 2       1.80773982            -2.50419872
 2       1.80506131            -3.13824452
 end
-basis "Ba_dhf-qzvp" 
+basis "Ba_dhf-QZVP" SPHERICAL 
 #basis SET: (9s,9p,6d,5f,1g) -> [7s,6p,4d,2f,1g]
 Ba    S
       5.7000000000          -0.52094568705
@@ -1776,7 +1780,7 @@ Ba    G
 end
 
 
-ecp "Ba_dhf-qzvp"
+ecp "Ba_dhf-QZVP"
 Ba nelec 46
 Ba ul
 2       1.00000000             0.00000000
@@ -1802,7 +1806,7 @@ Ba G
 2       2.14238100            -3.31660276
 2       2.15998111            -4.27564702
 end
-basis "Hf_dhf-qzvp" 
+basis "Hf_dhf-QZVP" SPHERICAL 
 #basis SET: (11s,9p,6d,3f,1g) -> [7s,6p,4d,3f,1g]
 Hf    S
      24.000000000            0.39986392390E-01
@@ -1858,7 +1862,7 @@ Hf    G
 end
 
 
-ecp "Hf_dhf-qzvp"
+ecp "Hf_dhf-QZVP"
 Hf nelec 60
 Hf ul
 2       1.00000000             0.00000000
@@ -1887,7 +1891,7 @@ Hf G
 2       2.72418010            -4.63658493
 2       2.70895290            -5.76728839
 end
-basis "Ta_dhf-qzvp" 
+basis "Ta_dhf-QZVP" SPHERICAL 
 #basis SET: (11s,9p,6d,3f,1g) -> [7s,6p,4d,3f,1g]
 Ta    S
      24.473650944            0.48239461915E-01
@@ -1943,7 +1947,7 @@ Ta    G
 end
 
 
-ecp "Ta_dhf-qzvp"
+ecp "Ta_dhf-QZVP"
 Ta nelec 60
 Ta ul
 2       1.00000000             0.00000000
@@ -1972,7 +1976,7 @@ Ta G
 2       3.14592010            -5.68406551
 2       3.12794180            -7.06231256
 end
-basis "W_dhf-qzvp" 
+basis "W_dhf-QZVP" SPHERICAL 
 #basis SET: (11s,9p,6d,3f,1g) -> [7s,6p,4d,3f,1g]
 W    S
      22.106487883            0.12277903300
@@ -2028,7 +2032,7 @@ W    G
 end
 
 
-ecp "W_dhf-qzvp"
+ecp "W_dhf-QZVP"
 W nelec 60
 W ul
 2       1.00000000             0.00000000
@@ -2056,7 +2060,7 @@ W G
 2       3.58349080            -6.80294404
 2       3.56251490            -8.44323222
 end
-basis "Re_dhf-qzvp" 
+basis "Re_dhf-QZVP" SPHERICAL 
 #basis SET: (10s,8p,6d,3f,1g) -> [7s,6p,4d,3f,1g]
 Re    S
      24.000000000            0.26879364205
@@ -2110,7 +2114,7 @@ Re    G
 end
 
 
-ecp "Re_dhf-qzvp"
+ecp "Re_dhf-QZVP"
 Re nelec 60
 Re ul
 2       1.00000000             0.00000000
@@ -2134,7 +2138,7 @@ Re G
 2       4.03459850            -7.97494049
 2       4.00962760            -9.88273633
 end
-basis "Os_dhf-qzvp" 
+basis "Os_dhf-QZVP" SPHERICAL 
 #basis SET: (10s,8p,6d,3f,1g) -> [7s,6p,4d,3f,1g]
 Os    S
      24.000000000            0.22875052536
@@ -2188,7 +2192,7 @@ Os    G
 end
 
 
-ecp "Os_dhf-qzvp"
+ecp "Os_dhf-QZVP"
 Os nelec 60
 Os ul
 2       1.00000000             0.00000000
@@ -2212,7 +2216,7 @@ Os G
 2       4.49698090            -9.18134298
 2       4.46773820           -11.36160383
 end
-basis "Ir_dhf-qzvp" 
+basis "Ir_dhf-QZVP" SPHERICAL 
 #basis SET: (10s,8p,6d,3f,1g) -> [7s,6p,4d,3f,1g]
 Ir    S
      23.465507222            0.67469820830
@@ -2266,7 +2270,7 @@ Ir    G
 end
 
 
-ecp "Ir_dhf-qzvp"
+ecp "Ir_dhf-QZVP"
 Ir nelec 60
 Ir ul
 2       1.00000000             0.00000000
@@ -2290,7 +2294,7 @@ Ir G
 2       4.96978970           -10.41069653
 2       4.93561390           -12.86319600
 end
-basis "Pt_dhf-qzvp" 
+basis "Pt_dhf-QZVP" SPHERICAL 
 #basis SET: (10s,8p,6d,3f,1g) -> [7s,6p,4d,3f,1g]
 Pt    S
      23.465507222            0.52668340604
@@ -2344,7 +2348,7 @@ Pt    G
 end
 
 
-ecp "Pt_dhf-qzvp"
+ecp "Pt_dhf-QZVP"
 Pt nelec 60
 Pt ul
 2       1.00000000             0.00000000
@@ -2368,7 +2372,7 @@ Pt G
 2       5.45201960           -11.65174880
 2       5.41258490           -14.37552483
 end
-basis "Au_dhf-qzvp" 
+basis "Au_dhf-QZVP" SPHERICAL 
 #basis SET: (9s,8p,6d,3f,1g) -> [7s,6p,4d,3f,1g]
 Au    S
      24.200000000            1.4474134140
@@ -2421,7 +2425,7 @@ Au    G
 end
 
 
-ecp "Au_dhf-qzvp"
+ecp "Au_dhf-QZVP"
 Au nelec 60
 Au ul
 2       1.00000000             0.00000000
@@ -2445,7 +2449,7 @@ Au G
 2       3.97844200            -5.23433700
 2       4.01149100            -6.73814200
 end
-basis "Hg_dhf-qzvp" 
+basis "Hg_dhf-QZVP" SPHERICAL 
 #basis SET: (9s,8p,7d,3f,1g) -> [7s,6p,4d,3f,1g]
 Hg    S
      48.013786990            0.57046558904E-02
@@ -2499,7 +2503,7 @@ Hg    G
 end
 
 
-ecp "Hg_dhf-qzvp"
+ecp "Hg_dhf-QZVP"
 Hg nelec 60
 Hg ul
 2       1.00000000             0.00000000
@@ -2523,8 +2527,12 @@ Hg G
 2       4.48529600            -6.33841400
 2       4.51320000            -8.09986300
 end
-basis "Tl_dhf-qzvp" 
+basis "Tl_dhf-QZVP" SPHERICAL 
 #basis SET: (17s,14p,10d,4f,1g) -> [7s,6p,4d,4f,1g]
+Tl    S
+     13.432924081            0.16050252545
+     11.126956705           -0.25827112953
+      2.0351129325           0.52570088358
 Tl    S
    9675.5500000              0.80000000000E-05
    1471.4800000              0.57000000000E-04
@@ -2536,10 +2544,6 @@ Tl    S
       5.1001400000          -0.61234400000
       1.8194300000           0.75954400000
 Tl    S
-     13.432924081            0.16050252545
-     11.126956705           -0.25827112953
-      2.0351129325           0.52570088358
-Tl    S
       0.96804610176          1.0000000000
 Tl    S
       0.47288027019          1.0000000000
@@ -2550,6 +2554,10 @@ Tl    S
 Tl    S
       0.44674475181E-01      1.0000000000
 Tl    P
+      9.0557032031          -0.57376712693E-01
+      3.9424773914           0.27305802340
+      1.2382159385           0.72255078460
+Tl    P
      42.524000000            0.16050000000E-02
      21.395700000           -0.23159000000E-01
      13.373700000            0.11173800000
@@ -2557,10 +2565,6 @@ Tl    P
       2.0421700000           0.47507300000
       1.1144900000           0.48633500000
       0.59800600000          0.20513900000
-Tl    P
-      9.0557032031          -0.57376712693E-01
-      3.9424773914           0.27305802340
-      1.2382159385           0.72255078460
 Tl    P
       0.29943260745          1.0000000000
 Tl    P
@@ -2596,7 +2600,7 @@ Tl    G
 end
 
 
-ecp "Tl_dhf-qzvp"
+ecp "Tl_dhf-QZVP"
 Tl nelec 60
 Tl ul
 2       1.00000000             0.00000000
@@ -2624,8 +2628,12 @@ Tl G
 2       7.20928400            -7.79799200
 2       7.07096400            -9.25952400
 end
-basis "Pb_dhf-qzvp" 
+basis "Pb_dhf-QZVP" SPHERICAL 
 #basis SET: (17s,14p,10d,4f,1g) -> [7s,6p,4d,4f,1g]
+Pb    S
+     13.559944213            0.15955164155
+     11.039620045           -0.26750615828
+      2.1371722788           0.52500552105
 Pb    S
    9368.3300000              0.14000000000E-04
    1366.9300000              0.10300000000E-03
@@ -2637,10 +2645,6 @@ Pb    S
       5.3033200000          -0.61139200000
       1.9281600000           0.76522700000
 Pb    S
-     13.559944213            0.15955164155
-     11.039620045           -0.26750615828
-      2.1371722788           0.52500552105
-Pb    S
       1.0373400312           1.0000000000
 Pb    S
       0.51111685694          1.0000000000
@@ -2651,6 +2655,10 @@ Pb    S
 Pb    S
       0.52874167812E-01      1.0000000000
 Pb    P
+      9.1373183134          -0.55319030476E-01
+      3.9570574249           0.27275707058
+      1.2246639098           0.72280340692
+Pb    P
      59.090100000            0.71600000000E-03
      20.919700000           -0.21082000000E-01
      13.077700000            0.12706100000
@@ -2658,10 +2666,6 @@ Pb    P
       2.1962700000           0.43566300000
       1.3048600000           0.43573500000
       0.77957200000          0.26094700000
-Pb    P
-      9.1373183134          -0.55319030476E-01
-      3.9570574249           0.27275707058
-      1.2246639098           0.72280340692
 Pb    P
       0.42601564238          1.0000000000
 Pb    P
@@ -2697,7 +2701,7 @@ Pb    G
 end
 
 
-ecp "Pb_dhf-qzvp"
+ecp "Pb_dhf-QZVP"
 Pb nelec 60
 Pb ul
 2       1.00000000             0.00000000
@@ -2721,8 +2725,12 @@ Pb G
 2       5.69157700            -9.09666500
 2       5.71556700           -11.53199600
 end
-basis "Bi_dhf-qzvp" 
+basis "Bi_dhf-QZVP" SPHERICAL 
 #basis SET: (17s,14p,10d,4f,1g) -> [7s,6p,4d,4f,1g]
+Bi    S
+     13.614284474            0.15800789319
+     11.010881766           -0.27164962692
+      2.2630089550           0.52469330212
 Bi    S
    8131.0900000              0.29000000000E-04
    1225.7700000              0.20000000000E-03
@@ -2734,10 +2742,6 @@ Bi    S
       5.5077800000          -0.63688400000
       2.0397700000           0.77169800000
 Bi    S
-     13.614284474            0.15800789319
-     11.010881766           -0.27164962692
-      2.2630089550           0.52469330212
-Bi    S
       1.0975227257           1.0000000000
 Bi    S
       0.52344449532          1.0000000000
@@ -2748,6 +2752,10 @@ Bi    S
 Bi    S
       0.60097735551E-01      1.0000000000
 Bi    P
+      9.6213214965          -0.52920356623E-01
+      4.1321350830           0.26705180214
+      1.2785827783           0.72824686940
+Bi    P
      99.591400000            0.34600000000E-03
      19.896400000           -0.19976000000E-01
      12.437600000            0.17544600000
@@ -2755,10 +2763,6 @@ Bi    P
       4.8399500000          -0.55262000000E-01
       2.2547800000           0.52888400000
       1.1804900000           0.52132400000
-Bi    P
-      9.6213214965          -0.52920356623E-01
-      4.1321350830           0.26705180214
-      1.2785827783           0.72824686940
 Bi    P
       0.59423596262          1.0000000000
 Bi    P
@@ -2794,7 +2798,7 @@ Bi    G
 end
 
 
-ecp "Bi_dhf-qzvp"
+ecp "Bi_dhf-QZVP"
 Bi nelec 60
 Bi ul
 2       1.00000000             0.00000000
@@ -2818,8 +2822,12 @@ Bi G
 2       6.20570900           -10.24744300
 2       6.22778200           -12.95571000
 end
-basis "Po_dhf-qzvp" 
+basis "Po_dhf-QZVP" SPHERICAL 
 #basis SET: (17s,14p,10d,4f,1g) -> [7s,6p,4d,4f,1g]
+Po    S
+     14.787766907            0.15929033129
+     11.958781204           -0.27310166985
+      2.4798455066           0.52423698726
 Po    S
    8913.2900000              0.47000000000E-04
    1338.9800000              0.33100000000E-03
@@ -2830,10 +2838,6 @@ Po    S
       8.9827900000          -0.61708300000
       5.6129200000          -0.60519700000
       2.1648400000           0.77608600000
-Po    S
-     14.787766907            0.15929033129
-     11.958781204           -0.27310166985
-      2.4798455066           0.52423698726
 Po    S
       1.1753800000           1.0000000000
 Po    S
@@ -2891,7 +2895,7 @@ Po    G
 end
 
 
-ecp "Po_dhf-qzvp"
+ecp "Po_dhf-QZVP"
 Po nelec 60
 Po ul
 2       1.00000000             0.00000000
@@ -2917,8 +2921,12 @@ Po G
 2       6.77152600           -11.56329400
 2       6.77792500           -14.50978800
 end
-basis "At_dhf-qzvp" 
+basis "At_dhf-QZVP" SPHERICAL 
 #basis SET: (17s,14p,10d,4f,1g) -> [7s,6p,4d,4f,1g]
+At    S
+     14.805780876            0.15771473639
+     11.855783628           -0.28007490839
+      2.5818782360           0.52359428906
 At    S
    9090.2800000              0.35000000000E-04
    1373.0700000              0.24200000000E-03
@@ -2929,10 +2937,6 @@ At    S
       9.3317100000          -0.61640600000
       5.8320600000          -0.61925800000
       2.2878700000           0.78512400000
-At    S
-     14.805780876            0.15771473639
-     11.855783628           -0.28007490839
-      2.5818782360           0.52359428906
 At    S
       1.2537238008           1.0000000000
 At    S
@@ -2990,7 +2994,7 @@ At    G
 end
 
 
-ecp "At_dhf-qzvp"
+ecp "At_dhf-QZVP"
 At nelec 60
 At ul
 2       1.00000000             0.00000000
@@ -3019,8 +3023,12 @@ At G
 2       3.01333100            -0.37304400
 2       3.09776300            -0.48594600
 end
-basis "Rn_dhf-qzvp" 
+basis "Rn_dhf-QZVP" SPHERICAL 
 #basis SET: (17s,14p,11d,4f,1g) -> [7s,6p,4d,4f,1g]
+Rn    S
+     17.195195341            0.16333005101
+     14.230303720           -0.27167744770
+      3.0760339153           0.52372666490
 Rn    S
   12715.6000000              0.47000000000E-04
    1913.3000000              0.33800000000E-03
@@ -3031,10 +3039,6 @@ Rn    S
       9.5548300000          -0.57385600000
       5.9666100000          -0.61000000000
       2.3893900000           0.79325300000
-Rn    S
-     17.195195341            0.16333005101
-     14.230303720           -0.27167744770
-      3.0760339153           0.52372666490
 Rn    S
       1.3276477516           1.0000000000
 Rn    S
@@ -3093,7 +3097,7 @@ Rn    G
 end
 
 
-ecp "Rn_dhf-qzvp"
+ecp "Rn_dhf-QZVP"
 Rn nelec 60
 Rn ul
 2       1.00000000             0.00000000

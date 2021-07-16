@@ -14,6 +14,10 @@
 *  *    + error checking is based on aimd.h parameters        *
 *  *      then control file                                   *
 *  ************************************************************
+
+#ifdef USE_OPENMP
+#define PSI_OMP
+#endif
   
       subroutine inner_loop_md(verlet,sa_alpha,
      >                      ispin,ne,neq,
@@ -24,6 +28,9 @@
      >                      Hpsi,psi_r,
      >                      calc_pressure,pressure,p1,p2,
      >                      fractional,occ0,occ1,occ2)
+#ifdef PSI_OMP
+      use omp_lib
+#endif
       implicit none
       logical    verlet
       real*8     sa_alpha(2)
@@ -86,7 +93,7 @@ c     real*8     fion(3,natmx)
       integer xcp(2),xce(2),dnall(2)
       integer v_field(2)
       integer natmx,fion(2),ftest(2)
-      integer npack0
+      integer npack0,nion1
 
 *     ***** external functions ****
       integer  ion_nion,control_gga
@@ -109,12 +116,27 @@ c     real*8     fion(3,natmx)
       external Nose_dXe,Nose_dXr
 
 *     ***** QM/MM external functions ****
-      logical  pspw_charge_found,pspw_qmmm_found
+      logical  pspw_qmmm_found
       real*8   pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
       real*8   pspw_qmmm_LJ_Emix,pspw_qmmm_Q_Emix
-      external pspw_charge_found,pspw_qmmm_found
+      external pspw_qmmm_found
       external pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
       external pspw_qmmm_LJ_Emix,pspw_qmmm_Q_Emix
+
+*     ***** pspw_charge external functions ****
+      logical  pspw_charge_found,pspw_bqext
+      external pspw_charge_found,pspw_bqext
+      integer  pspw_charge_nion
+      external pspw_charge_nion
+      real*8   pspw_charge_Energy_ion,pspw_charge_Energy_charge
+      external pspw_charge_Energy_ion,pspw_charge_Energy_charge
+      real*8   electron_psi_v_field_ave
+      external electron_psi_v_field_ave
+      logical  pspw_Efield_found
+      external pspw_Efield_found
+      real*8   pspw_Efield_Energy_ion
+      external pspw_Efield_Energy_ion
+
 
       logical  dplot_iteration_check
       external dplot_iteration_check
@@ -146,12 +168,37 @@ c     real*8     fion(3,natmx)
       integer  Parallel_threadid,Parallel_nthreads
       external Parallel_threadid,Parallel_nthreads
 
+#ifdef PSI_OMP
+      integer nida,nidb
+      integer  mthr
+
+      real*8  adiff
+      logical notgram
+
+      integer MASTER
+      parameter (MASTER=0)
+      integer  Parallel_maxthreads
+      external Parallel_maxthreads
+      integer thrlmbda(2)
+
+      INTEGER(kind=omp_nest_lock_kind) reduce_lock1
+      INTEGER(kind=omp_nest_lock_kind) reduce_lock2
+      INTEGER(kind=omp_nest_lock_kind) reduce_lock3
+      common / reduce_ffm / reduce_lock1,reduce_lock2,reduce_lock3
+
+*     **** matrix_blocking common block ****
+      integer mblock(2),nblock(2),algorithm(2)
+      common /matrix_blocking/ mblock,nblock,algorithm
+#endif
+
+
+
       call Parallel_np(np)
       call Parallel_taskid(taskid)
       call Pack_npack(0,npack0)
 
       n2ft3d = 2*nfft3d
-      field_exist       = pspw_charge_found()
+      field_exist       = pspw_charge_found().or.pspw_Efield_found()
       sic               = pspw_SIC()
       gga               = control_gga()
       allow_translation = control_allow_translation()
@@ -184,7 +231,7 @@ c     real*8     fion(3,natmx)
       end if
 
       value = value.and.
-     >  BA_push_get(mt_dcpl,(n2ft3d),'v_field',v_field(2),v_field(1))
+     >  BA_push_get(mt_dbl,(n2ft3d),'v_field',v_field(2),v_field(1))
 
       value = value.and.
      >         BA_push_get(mt_dcpl,(npack0),'vl',  vl(2),  vl(1))
@@ -199,15 +246,60 @@ c     real*8     fion(3,natmx)
       value = value.and.
      >        BA_push_get(mt_dbl,(4*nfft3d),'dnall',dnall(2),dnall(1))
       natmx = ion_nion()
+      if (pspw_charge_found().and.
+     >    (.not.pspw_bqext())) natmx = natmx + pspw_charge_nion()
       value = value.and.
      >        BA_push_get(mt_dbl,(3*natmx),'fion',fion(2),fion(1))
       value = value.and.
      >        BA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
+      call Parallel_shared_vector_zero(.false.,3*natmx,dbl_mb(fion(1)))
+      call Parallel_shared_vector_zero(.true.,3*natmx,dbl_mb(ftest(1)))
+
+#ifdef PSI_OMP
+      mthr = Parallel_maxthreads()
+      mthr = max(mthr,4)
+
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
+      nida = 0
+      if (taskid.eq.MASTER) nida = 1
+      nidb = npack1-nida
+
+      !write(*,*) mthr,ne(1)
+
+c      value = value .and. MA_set_auto_verify(.true.)
+      value = value.and.
+     >        BA_push_get(mt_dbl,(mthr*ne(1)*ne(1)*8),'thrlmbda',
+     >                                     thrlmbda(2),thrlmbda(1))
+
+      call omp_init_nest_lock(reduce_lock1)
+      call omp_init_nest_lock(reduce_lock2)
+      call omp_init_nest_lock(reduce_lock3)
+*     **** define blocking for dgemm matrix multiply ****
+      algorithm(1) = -1
+      algorithm(2) = -1
+      do ms=1,ispin
+         if (ne(ms).gt.(mthr*np)) then
+            algorithm(ms) = 1
+            call Parallel_matrixblocking(mthr*np,ne(ms),ne(ms),
+     >                                mblock(ms),nblock(ms))
+         else if (ne(ms).gt.(mthr)) then
+            algorithm(ms) = 0
+            call Parallel_matrixblocking(mthr,ne(ms),ne(ms),
+     >                                mblock(ms),nblock(ms))
+         else
+            algorithm(ms) = -1
+         end if
+      end do
+
+#endif
       if (.not.value) 
      > call errquit('inner_loop_md:pushing stack',0, MA_ERR)
-      call dcopy(4*nfft3d,0.0d0,0,dbl_mb(dnall(1)),1)
-      call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xcp(1)),1)
-      call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xce(1)),1)
+
+      call Parallel_shared_vector_zero(.false.,
+     >                           4*nfft3d,dbl_mb(dnall(1)))
+      call Parallel_shared_vector_zero(.false.,4*nfft3d,dbl_mb(xcp(1)))
+      call Parallel_shared_vector_zero(.true.,4*nfft3d,dbl_mb(xce(1)))
 
       call nwpw_timing_end(12)
      
@@ -303,6 +395,7 @@ c        end do
 
         call nwpw_meta_gga_gen_tau(ispin,neq,psi1)
 
+
 *       *********************
 *       **** generate dn ****
 *       *********************
@@ -346,6 +439,7 @@ c        end do
         call D3dB_rc_fft3f(1,dcpl_mb(tmp1(1)))
         call Pack_c_pack(0,dcpl_mb(tmp1(1)))
         call Pack_c_Copy(0,dcpl_mb(tmp1(1)),dcpl_mb(dng(1)))
+
 
 *       ********************************************************
 *       **** generate dnall - used for semicore corrections ****
@@ -420,7 +514,6 @@ c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
            !call dcopy(n2ft3d,0.0d0,0,dbl_mb(v_field(1)),1)
            call D3dB_r_Zero(1,dbl_mb(v_field(1)))
 
-
 *          **** generate charge potential ****
            if (pspw_charge_found()) then
             call pspw_charge_Generate_V(n2ft3d,
@@ -428,7 +521,14 @@ c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
      >                               dbl_mb(v_field(1)))
            end if
 
+*          **** generate Efield potential ****
+           if (pspw_Efield_found()) then
+            call pspw_Efield_Generate_V(n2ft3d,
+     >                               dbl_mb(r_grid(1)),
+     >                               dbl_mb(v_field(1)))
+           end if
         end if
+
 
 
 *       ******************
@@ -447,6 +547,7 @@ c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
      >             dbl_mb(v_field(1)),field_exist,
      >             dbl_mb(vc(1)),dbl_mb(xcp(1)),Hpsi,
      >             move,dbl_mb(fion(1)),fractional,occ1)
+
 
 
 *       **********************
@@ -496,15 +597,40 @@ c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
 *       **********************************
         if (ion_disp_on()) call ion_disp_force(dbl_mb(fion(1)))
 
+*       ******************************************
+*       **** get forces from external charges ****
+*       ******************************************
+        if (pspw_charge_found()) then
+           if(pspw_bqext()) then
+              call pspw_charge_charge_Fion(dbl_mb(fion(1)))
+           else
+              nion1 = ion_nion()
+              call pspw_charge_Fion_Fcharge(dbl_mb(fion(1)),
+     >                                      dbl_mb(fion(1)+3*nion1))
+              call pspw_charge_Fcharge(dbl_mb(fion(1)+3*nion1))
+              call pspw_charge_rho_Fcharge(n2ft3d,dbl_mb(r_grid(1)),
+     >                          dbl_mb(rho(1)),
+     >                          dv,dbl_mb(fion(1)+3*nion1))
+           end if
+        end if
+
+*       *****************************************
+*       **** get forces from external Efield ****
+*       *****************************************
+        if (pspw_Efield_found()) then
+           call pspw_Efield_Fion(dbl_mb(fion(1)))
+        end if
+
+
 
 *       *****************************************
 *       **** remove ion forces using ion_FixIon *
 *       *****************************************
-        if (fei) 
-     >    call Parallel_shared_vector_copy(.false.,
-     >                 3*natmx,dbl_mb(fion(1)),dbl_mb(ftest(1)))
-ccc     >    call dcopy(3*natmx,dbl_mb(fion(1)),1,dbl_mb(ftest(1)),1)
+        if (fei) call Parallel_shared_vector_copy(.false.,
+     >                        3*natmx,dbl_mb(fion(1)),dbl_mb(ftest(1)))
+
         call ion_FixIon(dbl_mb(fion(1)))
+
 c        if (meta) call meta_force(ispin,neq,psi1,Hpsi,dbl_mb(fion(1)))
 
         !**** center of mass constraint ****
@@ -591,8 +717,16 @@ c              call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
            call psi_lmbda_sic(ispin,ne,nemaxq,npack1,psi1,psi2,dte0,
      >                        lmd,dbl_mb(tmp_L(1)),ierr)
         else
+#ifdef PSI_OMP
+!           write(*,*) 'T',tid, ':', dbl_mb(thrlmbda(1))
+           call psi_lmbda_omp(ispin,ne,nemaxq,nida,nidb,psi1,psi2,dte0,
+     >                  lmd,dbl_mb(tmp_L(1)),ierr,dbl_mb(thrlmbda(1)),
+     >                                          taskid,adiff,notgram)
+#else
            call psi_lmbda(ispin,ne,nemaxq,npack1,psi1,psi2,dte0,
      >                    lmd,dbl_mb(tmp_L(1)),ierr)
+
+#endif
         end if
 
         !**** center of mass constraint ****
@@ -799,6 +933,16 @@ c              call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
 
       end if
 
+*     **** get pspw_charge energies ****
+         !psi_1v_field()
+      if (field_exist) then
+         E(19)  = electron_psi_v_field_ave(psi1,dn)
+         E(20)  = pspw_charge_Energy_ion()
+     >          + pspw_Efield_Energy_ion()
+         E(21)  = pspw_charge_Energy_charge()
+         E(1)   = E(1) + E(20) + E(21)
+      end if
+
 *     **** PAW ee terms ****
       if (psp_pawexist()) then
 
@@ -946,6 +1090,13 @@ c       call ecce_print1('gradient max', mt_dbl, E(1), 1)
  333  continue
       call nwpw_timing_start(12)
 
+#ifdef PSI_OMP
+      value = BA_pop_stack(thrlmbda(2))
+
+      call omp_destroy_nest_lock(reduce_lock1)
+      call omp_destroy_nest_lock(reduce_lock2)
+      call omp_destroy_nest_lock(reduce_lock3)
+#endif
       value = BA_pop_stack(ftest(2))
       value = value.and.BA_pop_stack(fion(2))
       value = value.and.BA_pop_stack(dnall(2))

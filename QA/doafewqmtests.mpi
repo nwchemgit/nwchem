@@ -41,6 +41,7 @@ fi
 ./runtests.mpi.unix procs $np h2o-lcpbe
 ./runtests.mpi.unix procs $np o2_bnl
 ./runtests.mpi.unix procs $np o2_hfattn
+./runtests.mpi.unix procs $np dft_he2p_wb97
 #
 #--- cdspectrum tests
 ./runtests.mpi.unix procs $np dmo_tddft_cd

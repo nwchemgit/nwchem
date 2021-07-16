@@ -154,7 +154,7 @@ MODULES := $(patsubst rimp2,rimp2 ddscf NWints,$(MODULES) )
 
 MODULES := $(patsubst selci,selci moints,$(MODULES) )
 MODULES := $(patsubst mp2_grad,mp2_grad moints cphf gradients,$(MODULES) )
-MODULES := $(patsubst ccsd,ccsd cphf mp2_grad moints ddscf,$(MODULES) )
+MODULES := $(patsubst ccsd,ccsd cphf mp2_grad moints ddscf gradients hessian property,$(MODULES) )
 MODULES := $(patsubst mcscf,mcscf moints ddscf,$(MODULES) )
 MODULES := $(patsubst moints,moints ddscf NWints,$(MODULES) )
 MODULES := $(patsubst cphf,cphf ddscf,$(MODULES) )
@@ -180,7 +180,7 @@ MODULES := $(patsubst drdy,drdy ddscf gradients stepper,$(MODULES) )
 MODULES := $(patsubst dplot,dplot nwdft ddscf,$(MODULES) )
 MODULES := $(patsubst nwpw,nwpw fft,$(MODULES) )
 
-MODULES := $(patsubst ddscf,ddscf  atomscf nwdft NWints,$(MODULES) )
+MODULES := $(patsubst ddscf,ddscf  atomscf nwdft NWints gradients,$(MODULES) )
 # This dependency is the other way round (matchnxyz used by symmetry)
 # but is required for correct linking on SOLARIS.  Nasty kludge.
 #

@@ -1,83 +1,90 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# cc-pv5z(fi/sf/fw) version number 0
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# cc-pV5Z(fi/sf/fw) version number 0
 # Description: V5Z4P   Relativistic Valence Quintuple Zeta + Polarization
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# H,B-Ne
-#     ## 
+# 
+#  References for the basis set
+# 
+#  H,B-Ne
+#      
+#          dunning1989a dyallXXXXa
+# 
+#  He
+#      
+#          woon1994a dyallXXXXa
+# 
+#  Al-Ar
+#      
+#          woon1993a dyallXXXXa
+# 
+#  Ga-Kr
+#      
+#          wilson1999a dyallXXXXa
+# 
+# 
+# 
+# dunning1989a
 #     Dunning, Thom H.
 #     Gaussian basis sets for use in correlated molecular calculations. I.
 #             The atoms boron through neon and hydrogen
-#     J. Chem. Phys., 90, 1007-1023 (1989)
+#     J. Chem. Phys. 90, 1007-1023 (1989)
 #     10.1063/1.456153
 # 
+# dyallXXXXa
 #     Dyall, K. G.
 #     unpublished
 #     As referenced in the original BSE
 # 
-# He
-#     ## 
-#     Woon, David E., Dunning, Thom H.
-#     Gaussian basis sets for use in correlated molecular calculations. IV.
-#             Calculation of static electrical response properties
-#     J. Chem. Phys., 100, 2975-2988 (1994)
-#     10.1063/1.466439
-# 
-#     Dyall, K. G.
-#     unpublished
-#     As referenced in the original BSE
-# 
-# Al-Ar
-#     ## 
-#     Woon, David E., Dunning, Thom H.
-#     Gaussian basis sets for use in correlated molecular calculations. III.
-#             The atoms aluminum through argon
-#     J. Chem. Phys., 98, 1358-1371 (1993)
-#     10.1063/1.464303
-# 
-#     Dyall, K. G.
-#     unpublished
-#     As referenced in the original BSE
-# 
-# Ga-Kr
-#     ## 
+# wilson1999a
 #     Wilson, Angela K., Woon, David E., Peterson, Kirk A., Dunning, Thom H.
 #     Gaussian basis sets for use in correlated molecular calculations. IX.
 #             The atoms gallium through krypton
-#     J. Chem. Phys., 110, 7667-7676 (1999)
+#     J. Chem. Phys. 110, 7667-7676 (1999)
 #     10.1063/1.478678
 # 
-#     Dyall, K. G.
-#     unpublished
-#     As referenced in the original BSE
+# woon1993a
+#     Woon, David E., Dunning, Thom H.
+#     Gaussian basis sets for use in correlated molecular calculations. III.
+#             The atoms aluminum through argon
+#     J. Chem. Phys. 98, 1358-1371 (1993)
+#     10.1063/1.464303
+# 
+# woon1994a
+#     Woon, David E., Dunning, Thom H.
+#     Gaussian basis sets for use in correlated molecular calculations. IV.
+#             Calculation of static electrical response properties
+#     J. Chem. Phys. 100, 2975-2988 (1994)
+#     10.1063/1.466439
 # 
 # # 
-basis "H_cc-pv5z(fi/sf/fw)" 
+basis "H_cc-pV5Z(fi/sf/fw)" SPHERICAL 
 #basis SET: (8s,4p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
 H    S
       4.0200000E+02          2.76611905596E-04
@@ -113,7 +120,7 @@ H    F
 H    G
       2.3580000E+00          1.00000000000E+00
 end
-basis "He_cc-pv5z(fi/sf/fw)" 
+basis "He_cc-pV5Z(fi/sf/fw)" SPHERICAL 
 #basis SET: (8s,4p,3d,2f,1g) -> [5s,4p,3d,2f,1g]
 He    S
       1.1450000E+03          3.51170923313E-04
@@ -149,7 +156,7 @@ He    F
 He    G
       3.4300000E+00          1.00000000000E+00
 end
-basis "B_cc-pv5z(fi/sf/fw)" 
+basis "B_cc-pV5Z(fi/sf/fw)" SPHERICAL 
 #basis SET: (24s,8p,4d,3f,2g,1h) -> [6s,5p,4d,3f,2g,1h]
 B    S
       6.8260000E+04          1.36118629899E-05
@@ -215,7 +222,7 @@ B    G
 B    H
       8.3400000E-01          1.00000000000E+00
 end
-basis "C_cc-pv5z(fi/sf/fw)" 
+basis "C_cc-pV5Z(fi/sf/fw)" SPHERICAL 
 #basis SET: (24s,8p,4d,3f,2g,1h) -> [6s,5p,4d,3f,2g,1h]
 C    S
       9.6770000E+04          1.55658550331E-05
@@ -281,7 +288,7 @@ C    G
 C    H
       1.2590000E+00          1.00000000000E+00
 end
-basis "N_cc-pv5z(fi/sf/fw)" 
+basis "N_cc-pV5Z(fi/sf/fw)" SPHERICAL 
 #basis SET: (24s,8p,4d,3f,2g,1h) -> [6s,5p,4d,3f,2g,1h]
 N    S
       1.2920000E+05          1.84903249979E-05
@@ -347,7 +354,7 @@ N    G
 N    H
       1.7680000E+00          1.00000000000E+00
 end
-basis "O_cc-pv5z(fi/sf/fw)" 
+basis "O_cc-pV5Z(fi/sf/fw)" SPHERICAL 
 #basis SET: (24s,8p,4d,3f,2g,1h) -> [6s,5p,4d,3f,2g,1h]
 O    S
       1.6420000E+05          2.23703722508E-05
@@ -413,7 +420,7 @@ O    G
 O    H
       2.3190000E+00          1.00000000000E+00
 end
-basis "F_cc-pv5z(fi/sf/fw)" 
+basis "F_cc-pV5Z(fi/sf/fw)" SPHERICAL 
 #basis SET: (24s,8p,4d,3f,2g,1h) -> [6s,5p,4d,3f,2g,1h]
 F    S
       2.1140000E+05          2.56821323937E-05
@@ -479,7 +486,7 @@ F    G
 F    H
       2.9950000E+00          1.00000000000E+00
 end
-basis "Ne_cc-pv5z(fi/sf/fw)" 
+basis "Ne_cc-pV5Z(fi/sf/fw)" SPHERICAL 
 #basis SET: (24s,8p,4d,3f,2g,1h) -> [6s,5p,4d,3f,2g,1h]
 Ne    S
       2.6270000E+05          2.98007332503E-05
@@ -545,7 +552,7 @@ Ne    G
 Ne    H
       3.7760000E+00          1.00000000000E+00
 end
-basis "Al_cc-pv5z(fi/sf/fw)" 
+basis "Al_cc-pV5Z(fi/sf/fw)" SPHERICAL 
 #basis SET: (52s,20p,4d,3f,2g,1h) -> [7s,6p,4d,3f,2g,1h]
 Al    S
       3.2690000E+06          8.43877195266E-06
@@ -653,7 +660,7 @@ Al    G
 Al    H
       4.4600000E-01          1.00000000000E+00
 end
-basis "Si_cc-pv5z(fi/sf/fw)" 
+basis "Si_cc-pV5Z(fi/sf/fw)" SPHERICAL 
 #basis SET: (52s,20p,4d,3f,2g,1h) -> [7s,6p,4d,3f,2g,1h]
 Si    S
       3.9480000E+06          9.55411057767E-06
@@ -761,7 +768,7 @@ Si    G
 Si    H
       5.8300000E-01          1.00000000000E+00
 end
-basis "P_cc-pv5z(fi/sf/fw)" 
+basis "P_cc-pV5Z(fi/sf/fw)" SPHERICAL 
 #basis SET: (52s,20p,4d,3f,2g,1h) -> [7s,6p,4d,3f,2g,1h]
 P    S
       4.6660000E+06          1.07539253287E-05
@@ -869,7 +876,7 @@ P    G
 P    H
       7.4500000E-01          1.00000000000E+00
 end
-basis "S_cc-pv5z(fi/sf/fw)" 
+basis "S_cc-pV5Z(fi/sf/fw)" SPHERICAL 
 #basis SET: (52s,20p,4d,3f,2g,1h) -> [7s,6p,4d,3f,2g,1h]
 S    S
       5.4810000E+06          1.19432878621E-05
@@ -977,7 +984,7 @@ S    G
 S    H
       8.7200000E-01          1.00000000000E+00
 end
-basis "Cl_cc-pv5z(fi/sf/fw)" 
+basis "Cl_cc-pV5Z(fi/sf/fw)" SPHERICAL 
 #basis SET: (52s,20p,4d,3f,2g,1h) -> [7s,6p,4d,3f,2g,1h]
 Cl    S
       6.4100000E+06          1.30943722188E-05
@@ -1085,7 +1092,7 @@ Cl    G
 Cl    H
       1.0530000E+00          1.00000000000E+00
 end
-basis "Ar_cc-pv5z(fi/sf/fw)" 
+basis "Ar_cc-pV5Z(fi/sf/fw)" SPHERICAL 
 #basis SET: (52s,20p,4d,3f,2g,1h) -> [7s,6p,4d,3f,2g,1h]
 Ar    S
       7.4010000E+06          1.42975442638E-05
@@ -1147,15 +1154,6 @@ Ar    S
 Ar    S
       1.4910000E-01          1.00000000000E+00
 Ar    P
-      2.9270000E+03          2.94778973626E-04
-      6.9350000E+02          2.17586806190E-03
-      2.2470000E+02          1.14367502228E-02
-      8.5170000E+01          4.45766432706E-02
-      3.5530000E+01          1.31346551421E-01
-      1.5730000E+01          2.76287202327E-01
-      7.1650000E+00          3.87199041754E-01
-      3.3220000E+00          2.86336299837E-01
-Ar    P
       2.9270000E+03         -8.24268459223E-05
       6.9350000E+02         -6.08059060025E-04
       2.2470000E+02         -3.22446608420E-03
@@ -1164,6 +1162,15 @@ Ar    P
       1.5730000E+01         -8.32017184249E-02
       7.1650000E+00         -1.24380875010E-01
       3.3220000E+00         -8.24845353605E-02
+Ar    P
+      2.9270000E+03          2.94778973626E-04
+      6.9350000E+02          2.17586806190E-03
+      2.2470000E+02          1.14367502228E-02
+      8.5170000E+01          4.45766432706E-02
+      3.5530000E+01          1.31346551421E-01
+      1.5730000E+01          2.76287202327E-01
+      7.1650000E+00          3.87199041754E-01
+      3.3220000E+00          2.86336299837E-01
 Ar    P
       1.4780000E+00          1.00000000000E+00
 Ar    P
@@ -1193,7 +1200,7 @@ Ar    G
 Ar    H
       1.2640000E+00          1.00000000000E+00
 end
-basis "Ga_cc-pv5z(fi/sf/fw)" 
+basis "Ga_cc-pV5Z(fi/sf/fw)" SPHERICAL 
 #basis SET: (92s,43p,13d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
 Ga    S
       1.0861522E+08          9.77775084159E-06
@@ -1376,7 +1383,7 @@ Ga    G
 Ga    H
       4.9860000E-01          1.00000000000E+00
 end
-basis "Ge_cc-pv5z(fi/sf/fw)" 
+basis "Ge_cc-pV5Z(fi/sf/fw)" SPHERICAL 
 #basis SET: (92s,43p,13d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
 Ge    S
       1.2200119E+08          9.58715909345E-06
@@ -1559,7 +1566,7 @@ Ge    G
 Ge    H
       5.8150000E-01          1.00000000000E+00
 end
-basis "As_cc-pv5z(fi/sf/fw)" 
+basis "As_cc-pV5Z(fi/sf/fw)" SPHERICAL 
 #basis SET: (92s,43p,13d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
 As    S
       1.3750753E+08          9.41566397074E-06
@@ -1742,7 +1749,7 @@ As    G
 As    H
       6.7730000E-01          1.00000000000E+00
 end
-basis "Se_cc-pv5z(fi/sf/fw)" 
+basis "Se_cc-pV5Z(fi/sf/fw)" SPHERICAL 
 #basis SET: (92s,43p,13d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
 Se    S
       1.5443225E+08          9.06806964112E-06
@@ -1925,7 +1932,7 @@ Se    G
 Se    H
       7.2350000E-01          1.00000000000E+00
 end
-basis "Br_cc-pv5z(fi/sf/fw)" 
+basis "Br_cc-pV5Z(fi/sf/fw)" SPHERICAL 
 #basis SET: (92s,43p,13d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
 Br    S
       1.6573515E+08          9.34437575233E-06
@@ -2108,7 +2115,7 @@ Br    G
 Br    H
       8.1930000E-01          1.00000000000E+00
 end
-basis "Kr_cc-pv5z(fi/sf/fw)" 
+basis "Kr_cc-pV5Z(fi/sf/fw)" SPHERICAL 
 #basis SET: (92s,43p,13d,3f,2g,1h) -> [8s,7p,5d,3f,2g,1h]
 Kr    S
       1.8282209E+08          9.08240162591E-06

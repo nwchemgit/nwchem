@@ -127,6 +127,8 @@ c
 c
       logical xc_ngot3rd
       external xc_ngot3rd
+
+      logical,external :: is_libxcon
 c
 c     preliminaries: general parameters
       nao     = 0
@@ -240,6 +242,7 @@ c     get calculation type
       do n=1,numfunc
         xca=xca+dabs(cfac(n))
       enddo
+      if (is_libxcon()) xca = xca + 1d0
       if ((xca.gt.1.0d-8).and.(dabs(xfac(1)).le.1.0d-8)) then
 c       Pure DFT
         ldft=.true.

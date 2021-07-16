@@ -1,53 +1,65 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# sto-3g* version number 1
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# STO-3G* version number 1
 # Description: MBP     Minimal Basis + Polarization on second row
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# Na-Ar
-#     ## STO-3G Minimal Basis (3 functions/AO)
-#     Hehre, W. J., Ditchfield, R., Stewart, R. F., Pople, J. A.
-#     Self-Consistent Molecular Orbital Methods. IV. Use of Gaussian
-#             Expansions of Slater-Type Orbitals. Extension to Second-Row
-#             Molecules
-#     J. Chem. Phys., 52, 2769-2773 (1970)
-#     10.1063/1.1673374
 # 
-#     ## 1P      Polarization functions from STO-3G*
+#  References for the basis set
+# 
+#  Na-Ar
+#      STO-3G Minimal Basis (3 functions/AO)
+#          hehre1970a
+# 
+#      1P      Polarization functions from STO-3G*
+#          collins1976a
+# 
+# 
+# 
+# collins1976a
 #     Collins, John B., Schleyer, Paul von R., Binkley, J. Stephen, Pople,
 #             John A.
 #     Self-consistent molecular orbital methods. XVII. Geometries and
 #             binding energies of second-row molecules. A comparison of
 #             three basis sets
-#     J. Chem. Phys., 64, 5142-5151 (1976)
+#     J. Chem. Phys. 64, 5142-5151 (1976)
 #     10.1063/1.432189
 # 
+# hehre1970a
+#     Hehre, W. J., Ditchfield, R., Stewart, R. F., Pople, J. A.
+#     Self-Consistent Molecular Orbital Methods. IV. Use of Gaussian
+#             Expansions of Slater-Type Orbitals. Extension to Second-Row
+#             Molecules
+#     J. Chem. Phys. 52, 2769-2773 (1970)
+#     10.1063/1.1673374
+# 
 # # 
-basis "Na_sto-3g*" 
+basis "Na_STO-3G*" SPHERICAL 
 #basis SET: (9s,6p,1d) -> [3s,2p,1d]
 Na    S
       0.2507724300E+03       0.1543289673E+00
@@ -64,7 +76,7 @@ Na    SP
 Na    D
       0.090000               1.000000
 end
-basis "Mg_sto-3g*" 
+basis "Mg_STO-3G*" SPHERICAL 
 #basis SET: (9s,6p,1d) -> [3s,2p,1d]
 Mg    S
       0.2992374137E+03       0.1543289673E+00
@@ -81,7 +93,7 @@ Mg    SP
 Mg    D
       0.090000               1.000000
 end
-basis "Al_sto-3g*" 
+basis "Al_STO-3G*" SPHERICAL 
 #basis SET: (9s,6p,1d) -> [3s,2p,1d]
 Al    S
       0.3514214767E+03       0.1543289673E+00
@@ -98,7 +110,7 @@ Al    SP
 Al    D
       0.390000               1.000000
 end
-basis "Si_sto-3g*" 
+basis "Si_STO-3G*" SPHERICAL 
 #basis SET: (9s,6p,1d) -> [3s,2p,1d]
 Si    S
       0.4077975514E+03       0.1543289673E+00
@@ -115,7 +127,7 @@ Si    SP
 Si    D
       0.390000               1.000000
 end
-basis "P_sto-3g*" 
+basis "P_STO-3G*" SPHERICAL 
 #basis SET: (9s,6p,1d) -> [3s,2p,1d]
 P    S
       0.4683656378E+03       0.1543289673E+00
@@ -132,7 +144,7 @@ P    SP
 P    D
       0.390000               1.000000
 end
-basis "S_sto-3g*" 
+basis "S_STO-3G*" SPHERICAL 
 #basis SET: (9s,6p,1d) -> [3s,2p,1d]
 S    S
       0.5331257359E+03       0.1543289673E+00
@@ -149,7 +161,7 @@ S    SP
 S    D
       0.390000               1.000000
 end
-basis "Cl_sto-3g*" 
+basis "Cl_STO-3G*" SPHERICAL 
 #basis SET: (9s,6p,1d) -> [3s,2p,1d]
 Cl    S
       0.6013456136E+03       0.1543289673E+00
@@ -166,7 +178,7 @@ Cl    SP
 Cl    D
       0.390000               1.000000
 end
-basis "Ar_sto-3g*" 
+basis "Ar_STO-3G*" SPHERICAL 
 #basis SET: (9s,6p,1d) -> [3s,2p,1d]
 Ar    S
       0.6744465184E+03       0.1543289673E+00

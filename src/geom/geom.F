@@ -555,6 +555,8 @@ c
       logical geom_check_handle, geom_rtdb_in, geom_get_user_scale
       external geom_check_handle, geom_rtdb_in, geom_get_user_scale
       logical getsym
+      double precision ddot
+      external ddot
 c     
       geom_rtdb_load = geom_check_handle(geom, 'geom_rtdb_load')
       if (.not. geom_rtdb_load) return
@@ -948,6 +950,8 @@ c
       logical geom_tag_to_element
       external geom_tag_to_element
       logical is_atom
+      double precision ddot
+      external ddot
       is_atom(i) = (.not. inp_compare(.false., 'bq', tags(i,geom)(1:2)))
 c
       e = 0.0d0
@@ -1459,7 +1463,7 @@ c
       geom_strip_sym = geom_check_handle(geom, 'geom_strip_sym')
       if (.not. geom_strip_sym) return
 c
-      isystype(geom) = 0
+c      isystype(geom) = 0
       group_number(geom) = 1
       setting_number(geom) = 0
       if (sym_center_map_handle(geom) .ne. -1) then
@@ -2697,6 +2701,8 @@ c     external functions
      $     geom_print_zmatrix, geom_any_finuc
       double precision deter3
       external         deter3
+      double precision ddot
+      external ddot
 c
       if (.not. geom_check_handle(geom, 'geom_print')) then
          geom_print = .false.

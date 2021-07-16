@@ -36,7 +36,7 @@ c
       character*256 fx_name
       character*255 movecs_in, title_vecs, basis_vecs
       character*20 scftype_vecs
-      integer nbf_vecs, nsets, nmos(2)
+      integer nbf_vecs, nsets, nmos(2), l_max
       double precision zero, one, onem
       double precision xfac(numfunc)
       logical use_nwxc,lhashfxc
@@ -67,7 +67,14 @@ c
       if (.not. bas_create(basis, 'ao basis'))
      *  call errquit('hess_init: bas_create problem', 555, BASIS_ERR)
       if (.not. bas_rtdb_load(rtdb, geom, basis, 'ao basis'))
-     *  call errquit('hess_init: no ao basis set', 555, BASIS_ERR)
+     *     call errquit('hess_init: no ao basis set', 555, BASIS_ERR)
+c
+c     stop if we have l_max > 5 since texas supports only l_max <=5
+c
+      if(.not.bas_high_angular(basis,l_max))
+     *  call errquit('hess_init: bas_high_ang problem', 555, BASIS_ERR)
+      if(l_max.gt.5) call errquit(
+     *     'hess_init: basis set with l_max > 5 ',0,CAPMIS_ERR)
       if (.not. bas_numbf(basis, nbf)) 
      *  call errquit ('hess_init: basis info', 555, BASIS_ERR)
       if (.not. bas_create(cd_basis, 'cd basis'))

@@ -828,7 +828,9 @@ c
 
       !*** try neb_end, then endgeom ****
       if (.not.geom_rtdb_load(rtdb,geom,'neb_end')) then
-         value = value.and.geom_rtdb_load(rtdb,geom,'endgeom')
+         if (.not.geom_rtdb_load(rtdb,geom,'ENDGEOM')) then
+            value = value.and.geom_rtdb_load(rtdb,geom,'endgeom')
+         endif
       end if
       value = value.and.geom_cart_coords_get(geom,dbl_mb(r2(1)))
 
@@ -2199,7 +2201,7 @@ c
      >                          dbl_mb(c1(1)),
      >                          dbl_mb(e1(1)),
      >                          dbl_mb(t1(1)),
-     >                          dbl_mb(g1(1)))
+     >                          dbl_mb(g1(1)),.false.,.false.)
            shift = (m-1)*ng
            call dcopy(ng,dbl_mb(c1(1)),1,dbl_mb(cs(1)+shift),1)
            call dcopy(ng,dbl_mb(g1(1)),1,dbl_mb(gs(1)+shift),1)

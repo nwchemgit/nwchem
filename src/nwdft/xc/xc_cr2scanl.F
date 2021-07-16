@@ -162,6 +162,12 @@ c
      &         (delrho(n,3,1)+delrho(n,3,2))**2
          end if
 c         
+         dtdnb = 0d0
+         dtdgb = 0d0
+         dtdlb = 0d0
+         dtdna = 0d0
+         dtdga = 0d0
+         dtdla = 0d0
          if (ipol.eq.1) then
            pa = dn2/(4d0*ckf2*n83)
            qa = laprho(n,1)/(4d0*ckf2*n53)
@@ -192,10 +198,6 @@ c
      &                      F53*dfsdqa*qa/rho(n,2))
              dtdga = tuega*dfsdpa/(ckf2*(2d0*rho(n,2))**F83)
              dtdla = tuega*dfsdqa/(2d0*ckf2*(2d0*rho(n,2))**F53)
-           else
-             dtdna = 0d0
-             dtdga = 0d0
-             dtdla = 0d0
            endif
            if (rho(n,3).gt.tol_rho) then
              pb = (delrho(n,1,2)**2 +
@@ -207,10 +209,6 @@ c
      &                      F53*dfsdqb*qb/rho(n,3))
              dtdgb = tuegb*dfsdpb/(ckf2*(2d0*rho(n,3))**F83)
              dtdlb = tuegb*dfsdqb/(2d0*ckf2*(2d0*rho(n,3))**F53)
-           else
-             dtdnb = 0d0
-             dtdgb = 0d0
-             dtdlb = 0d0
            endif
          endif
 
@@ -229,6 +227,11 @@ c
            ds = 1d0
            dx = 1d0
            gc = 1d0
+           zeta=0d0
+           opz=1d0
+           omz=1d0
+           opz23=1d0
+           omz23=1d0
          else
            zeta = (rho(n,2) - rho(n,3))/ntot      
            if (zeta.lt.-1d0) zeta=-1d0

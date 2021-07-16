@@ -804,7 +804,7 @@ cccccc      !Level = (log(dble(np_j))/log(2.0d0))
      >                    requests,reqcnt)
 
       call D1dB_WaitAll(requests,reqcnt)
-      call daxpy(rsize*n2ft3d,1.0d0,tmp,1,hpsi_rep(1,rindx),1)
+      call DAXPY_OMP(rsize*n2ft3d,1.0d0,tmp,1,hpsi_rep(1,rindx),1)
 
       return
       end

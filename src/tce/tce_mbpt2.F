@@ -35,6 +35,8 @@ cc      external nxtask
       double precision cpu
       double precision wall
       logical nodezero
+      double precision ddot
+      external ddot
 c
       nodezero=(ga_nodeid().eq.0)
       cpu=-util_cpusec()

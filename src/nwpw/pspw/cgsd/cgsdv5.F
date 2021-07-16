@@ -44,7 +44,7 @@
 
 *     ***** energy variables ****
       integer ispin,ne(2),ms
-      real*8  E(10),en(2)
+      real*8  E(60),en(2)
       real*8  dipole(3),cdipole(3)
       real*8  stress(3,3),lstress(6)
 
@@ -132,8 +132,8 @@
       external  pspw_charge_found,ion_q_FixIon
       integer  control_minimizer,control_scf_algorithm
       external control_minimizer,control_scf_algorithm
-      integer  control_ks_algorithm
-      external control_ks_algorithm
+      integer  control_ks_algorithm,control_diis_histories
+      external control_ks_algorithm,control_diis_histories
       real*8   control_ks_alpha,control_kerker_g0
       external control_ks_alpha,control_kerker_g0
       logical  control_print,control_balance
@@ -339,6 +339,7 @@
       call pspw_init_APC(rtdb)
       call pspw_qmmm_init(rtdb)
       call pspw_charge_init(rtdb)
+      call pspw_Efield_init(rtdb,psi_ispin(),ne)
 
 *     **** initialize SIC and HFX ****
       ne(1) = psi_ne(1)
@@ -459,6 +460,7 @@ c           call psp_check_print(ia)
 
          call pspw_charge_Print(luout)
          end if
+         call pspw_Efield_Print(luout)
 
          !write(luout,1220) psi_ne(1),psi_ne(psi_ispin()),' (Fourier space)'
          if (control_fractional()) then
@@ -584,9 +586,10 @@ c           call psp_check_print(ia)
            if (control_scf_algorithm().eq.0) 
      >       write(luout,1293) "simple mixing"
            if (control_scf_algorithm().eq.1) 
-     >       write(luout,1293) "Anderson potential mixing"
+     >       write(luout,1293) "Broyden mixing"
            if (control_scf_algorithm().eq.2) 
-     >       write(luout,1293) "Johnson-Pulay mixing"
+     >       write(luout,1289) "Johnson-Pulay mixing",
+     >                         control_diis_histories()
            if (control_scf_algorithm().eq.3) 
      >       write(luout,1293) "Anderson density mixing"
            if (minimizer.eq.5) write(luout,1296) "potential"
@@ -733,10 +736,9 @@ c     end if
 *     **** calculate Mulliken Populations ***
       if (control_Mulliken()) then
          call psi_Mulliken(rtdb)
+         call psi_Born()
          i = control_excited_ne(1)+control_excited_ne(2)
          if (i.eq.0) call kp_structure(rtdb)
-      else if (nwpw_born_on()) then
-         call psi_Born()
       end if
 
 
@@ -775,6 +777,7 @@ c     end if
       call pspw_end_HFX()
       call pspw_end_APC()
       call pspw_charge_end()
+      call pspw_Efield_end()
       call pspw_qmmm_end()
 c      call frac_occ_end()
       call meta_finalize(rtdb)
@@ -838,13 +841,13 @@ c      call frac_occ_end()
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ input data ========================')
  1111 FORMAT(/' number of processors used:',I10)
- 1112 FORMAT( ' parallel mapping         :   1d slab')
- 1113 FORMAT( ' parallel mapping         :2d hilbert')
+ 1112 FORMAT( ' parallel mapping         :   1d-slab')
+ 1113 FORMAT( ' parallel mapping         :2d-hilbert')
  1114 FORMAT( ' parallel mapping         :  balanced')
  1115 FORMAT(/' options:')
  1116 FORMAT( ' parallel mapping         : not balanced')
  1117 FORMAT( ' processor grid           :',I4,' x',I4)
- 1118 FORMAT( ' parallel mapping         : 2d hcurve')
+ 1118 FORMAT( ' parallel mapping         : 2d-hcurve')
  1119 FORMAT( ' number of threads        :',I10)
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
@@ -921,6 +924,7 @@ c      call frac_occ_end()
  1280 FORMAT(5X, ' time step=',F10.2,5X,'fictitious mass=',F10.1)
  1281 FORMAT(5X, ' maximum iterations =',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
+ 1289 FORMAT(5X, ' SCF algorithm        = ',A,' (',I2,' histories)')
  1290 FORMAT(5X, ' tolerance=',E9.3,' (energy)',E12.3,
      &        ' (density)')
  1291 FORMAT(/' Kohn-Sham scf parameters:')

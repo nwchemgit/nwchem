@@ -1,65 +1,83 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# sarc-zora version number 0
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# SARC-ZORA version number 0
 # Description: SARC-ZORA
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# La-Lu
-#     ## SARC-ZORA
-#     Pantazis, Dimitrios A., Neese, Frank
-#     All-Electron Scalar Relativistic Basis Sets for the Lanthanides
-#     J. Chem. Theory Comput., 5, 2229-2238 (2009)
-#     10.1021/ct900090f
 # 
-# Hf-Hg
-#     ## SARC-ZORA
+#  References for the basis set
+# 
+#  La-Lu
+#      SARC-ZORA
+#          pantazis2009a
+# 
+#  Hf-Hg
+#      SARC-ZORA
+#          pantazis2008a
+# 
+#  Tl-Rn
+#      SARC-ZORA
+#          pantazis2012a
+# 
+#  Ac-Lr
+#      SARC-ZORA
+#          pantazis2011a
+# 
+# 
+# 
+# pantazis2008a
 #     Pantazis, Dimitrios A., Chen, Xian-Yang, Landis, Clark R., Neese,
 #             Frank
 #     All-Electron Scalar Relativistic Basis Sets for Third-Row Transition
 #             Metal Atoms
-#     J. Chem. Theory Comput., 4, 908-919 (2008)
+#     J. Chem. Theory Comput. 4, 908-919 (2008)
 #     10.1021/ct800047t
 # 
-# Tl-Rn
-#     ## SARC-ZORA
+# pantazis2009a
 #     Pantazis, Dimitrios A., Neese, Frank
-#     All-electron scalar relativistic basis sets for the 6p elements
-#     Theor. Chem. Acc., 131, 1292 (2012)
-#     10.1007/s00214-012-1292-x
+#     All-Electron Scalar Relativistic Basis Sets for the Lanthanides
+#     J. Chem. Theory Comput. 5, 2229-2238 (2009)
+#     10.1021/ct900090f
 # 
-# Ac-Lr
-#     ## SARC-ZORA
+# pantazis2011a
 #     Pantazis, Dimitrios A., Neese, Frank
 #     All-Electron Scalar Relativistic Basis Sets for the Actinides
-#     J. Chem. Theory Comput., 7, 677-684 (2011)
+#     J. Chem. Theory Comput. 7, 677-684 (2011)
 #     10.1021/ct100736b
 # 
+# pantazis2012a
+#     Pantazis, Dimitrios A., Neese, Frank
+#     All-electron scalar relativistic basis sets for the 6p elements
+#     Theor. Chem. Acc. 131, 1292 (2012)
+#     10.1007/s00214-012-1292-x
+# 
 # # 
-basis "La_sarc-zora" 
+basis "La_SARC-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d) -> [18s,12p,9d]
 La    S
  896770.4166840000           0.0380590762
@@ -152,7 +170,7 @@ La    D
 La    D
       0.0117230000           1.0000000000
 end
-basis "Ce_sarc-zora" 
+basis "Ce_SARC-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Ce    S
  928839.8476080000           0.0388850737
@@ -254,7 +272,7 @@ Ce    F
 Ce    F
       0.0905880000           1.0000000000
 end
-basis "Pr_sarc-zora" 
+basis "Pr_SARC-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Pr    S
  961538.7552820000           0.0397222973
@@ -356,7 +374,7 @@ Pr    F
 Pr    F
       0.0861310000           1.0000000000
 end
-basis "Nd_sarc-zora" 
+basis "Nd_SARC-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Nd    S
  994735.7959840000           0.0405700482
@@ -458,7 +476,7 @@ Nd    F
 Nd    F
       0.0948730000           1.0000000000
 end
-basis "Pm_sarc-zora" 
+basis "Pm_SARC-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Pm    S
 1028523.650946000            0.0414290674
@@ -560,7 +578,7 @@ Pm    F
 Pm    F
       0.1034160000           1.0000000000
 end
-basis "Sm_sarc-zora" 
+basis "Sm_SARC-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Sm    S
 1062932.540176000            0.0422997346
@@ -662,7 +680,7 @@ Sm    F
 Sm    F
       0.1118520000           1.0000000000
 end
-basis "Eu_sarc-zora" 
+basis "Eu_SARC-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Eu    S
 1097819.871374000            0.0431813583
@@ -764,7 +782,7 @@ Eu    F
 Eu    F
       0.1202390000           1.0000000000
 end
-basis "Gd_sarc-zora" 
+basis "Gd_SARC-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Gd    S
 1133304.941480000            0.0440748754
@@ -866,7 +884,7 @@ Gd    F
 Gd    F
       0.1428510000           1.0000000000
 end
-basis "Tb_sarc-zora" 
+basis "Tb_SARC-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Tb    S
 1169335.032050000            0.0449802062
@@ -968,7 +986,7 @@ Tb    F
 Tb    F
       0.1324330000           1.0000000000
 end
-basis "Dy_sarc-zora" 
+basis "Dy_SARC-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Dy    S
 1205955.486947000            0.0458979417
@@ -1070,7 +1088,7 @@ Dy    F
 Dy    F
       0.1392470000           1.0000000000
 end
-basis "Ho_sarc-zora" 
+basis "Ho_SARC-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Ho    S
 1243224.036239000            0.0468285068
@@ -1172,7 +1190,7 @@ Ho    F
 Ho    F
       0.1463930000           1.0000000000
 end
-basis "Er_sarc-zora" 
+basis "Er_SARC-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Er    S
 1280982.187936000            0.0477713870
@@ -1274,7 +1292,7 @@ Er    F
 Er    F
       0.1538100000           1.0000000000
 end
-basis "Tm_sarc-zora" 
+basis "Tm_SARC-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Tm    S
 1319284.994791000            0.0487272084
@@ -1376,7 +1394,7 @@ Tm    F
 Tm    F
       0.1614560000           1.0000000000
 end
-basis "Yb_sarc-zora" 
+basis "Yb_SARC-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Yb    S
 1358076.401925000            0.0496959645
@@ -1478,7 +1496,7 @@ Yb    F
 Yb    F
       0.1693040000           1.0000000000
 end
-basis "Lu_sarc-zora" 
+basis "Lu_SARC-ZORA" SPHERICAL 
 #basis SET: (23s,16p,12d,6f) -> [18s,12p,9d,3f]
 Lu    S
 1397555.920017000            0.0506790471
@@ -1580,7 +1598,7 @@ Lu    F
 Lu    F
       0.1925030000           1.0000000000
 end
-basis "Hf_sarc-zora" 
+basis "Hf_SARC-ZORA" SPHERICAL 
 #basis SET: (22s,15p,11d,6f) -> [17s,11p,8d,3f]
 Hf    S
 1437551.912320000            0.0516758248
@@ -1676,7 +1694,7 @@ Hf    F
 Hf    F
       0.2150880000           1.0000000000
 end
-basis "Ta_sarc-zora" 
+basis "Ta_SARC-ZORA" SPHERICAL 
 #basis SET: (22s,15p,11d,6f) -> [17s,11p,8d,3f]
 Ta    S
 1478149.466003000            0.0526871449
@@ -1772,7 +1790,7 @@ Ta    F
 Ta    F
       0.2373280000           1.0000000000
 end
-basis "W_sarc-zora" 
+basis "W_SARC-ZORA" SPHERICAL 
 #basis SET: (22s,15p,11d,6f) -> [17s,11p,8d,3f]
 W    S
 1519303.147809000            0.0537132340
@@ -1868,7 +1886,7 @@ W    F
 W    F
       0.2595890000           1.0000000000
 end
-basis "Re_sarc-zora" 
+basis "Re_SARC-ZORA" SPHERICAL 
 #basis SET: (22s,15p,11d,6f) -> [17s,11p,8d,3f]
 Re    S
 1560962.277531000            0.0547542890
@@ -1964,7 +1982,7 @@ Re    F
 Re    F
       0.2817580000           1.0000000000
 end
-basis "Os_sarc-zora" 
+basis "Os_SARC-ZORA" SPHERICAL 
 #basis SET: (22s,15p,11d,6f) -> [17s,11p,8d,3f]
 Os    S
 1603231.663005000            0.0558112137
@@ -2060,7 +2078,7 @@ Os    F
 Os    F
       0.3043380000           1.0000000000
 end
-basis "Ir_sarc-zora" 
+basis "Ir_SARC-ZORA" SPHERICAL 
 #basis SET: (22s,15p,11d,6f) -> [17s,11p,8d,3f]
 Ir    S
 1646069.065505000            0.0568842800
@@ -2156,7 +2174,7 @@ Ir    F
 Ir    F
       0.3272140000           1.0000000000
 end
-basis "Pt_sarc-zora" 
+basis "Pt_SARC-ZORA" SPHERICAL 
 #basis SET: (22s,15p,11d,6f) -> [17s,11p,8d,3f]
 Pt    S
 1689601.567586000            0.0579744822
@@ -2252,7 +2270,7 @@ Pt    F
 Pt    F
       0.3503780000           1.0000000000
 end
-basis "Au_sarc-zora" 
+basis "Au_SARC-ZORA" SPHERICAL 
 #basis SET: (22s,15p,11d,6f) -> [17s,11p,8d,3f]
 Au    S
 1733435.947505000            0.0590807322
@@ -2348,7 +2366,7 @@ Au    F
 Au    F
       0.3738410000           1.0000000000
 end
-basis "Hg_sarc-zora" 
+basis "Hg_SARC-ZORA" SPHERICAL 
 #basis SET: (22s,15p,11d,6f) -> [17s,11p,8d,3f]
 Hg    S
 1778058.504339000            0.0602054606
@@ -2444,7 +2462,7 @@ Hg    F
 Hg    F
       0.3979050000           1.0000000000
 end
-basis "Tl_sarc-zora" 
+basis "Tl_SARC-ZORA" SPHERICAL 
 #basis SET: (29s,21p,15d,11f) -> [22s,14p,9d,4f]
 Tl    S
 45576498.9005310014          0.0278388735
@@ -2572,7 +2590,7 @@ Tl    F
 Tl    F
       0.1246380000           1.0000000000
 end
-basis "Pb_sarc-zora" 
+basis "Pb_SARC-ZORA" SPHERICAL 
 #basis SET: (29s,21p,15d,11f) -> [22s,14p,9d,4f]
 Pb    S
 46719469.9828549996          0.0283849651
@@ -2700,7 +2718,7 @@ Pb    F
 Pb    F
       0.1320080000           1.0000000000
 end
-basis "Bi_sarc-zora" 
+basis "Bi_SARC-ZORA" SPHERICAL 
 #basis SET: (29s,21p,15d,11f) -> [22s,14p,9d,4f]
 Bi    S
 47874457.7203579992          0.0289441880
@@ -2828,7 +2846,7 @@ Bi    F
 Bi    F
       0.1395150000           1.0000000000
 end
-basis "Po_sarc-zora" 
+basis "Po_SARC-ZORA" SPHERICAL 
 #basis SET: (29s,21p,15d,11f) -> [22s,14p,9d,4f]
 Po    S
 49045573.2325550020          0.0295152391
@@ -2956,7 +2974,7 @@ Po    F
 Po    F
       0.1471610000           1.0000000000
 end
-basis "At_sarc-zora" 
+basis "At_SARC-ZORA" SPHERICAL 
 #basis SET: (29s,21p,15d,11f) -> [22s,14p,9d,4f]
 At    S
 50231960.3244210035          0.0300986941
@@ -3084,7 +3102,7 @@ At    F
 At    F
       0.1549450000           1.0000000000
 end
-basis "Rn_sarc-zora" 
+basis "Rn_SARC-ZORA" SPHERICAL 
 #basis SET: (29s,21p,15d,11f) -> [22s,14p,9d,4f]
 Rn    S
 51426823.3837089986          0.0306946217
@@ -3212,7 +3230,7 @@ Rn    F
 Rn    F
       0.1628670000           1.0000000000
 end
-basis "Ac_sarc-zora" 
+basis "Ac_SARC-ZORA" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Ac    S
 55109808.74124400            0.0178209759
@@ -3343,7 +3361,7 @@ Ac    F
 Ac    F
       0.1051890000           1.0000000000
 end
-basis "Th_sarc-zora" 
+basis "Th_SARC-ZORA" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Th    S
 56363088.88971600            0.0182637261
@@ -3474,7 +3492,7 @@ Th    F
 Th    F
       0.1099580000           1.0000000000
 end
-basis "Pa_sarc-zora" 
+basis "Pa_SARC-ZORA" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Pa    S
 57631858.17253400            0.0187193263
@@ -3605,7 +3623,7 @@ Pa    F
 Pa    F
       0.1147680000           1.0000000000
 end
-basis "U_sarc-zora" 
+basis "U_SARC-ZORA" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 U    S
 58915269.20406200            0.0191882768
@@ -3736,7 +3754,7 @@ U    F
 U    F
       0.1196610000           1.0000000000
 end
-basis "Np_sarc-zora" 
+basis "Np_SARC-ZORA" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Np    S
 60212393.78258100            0.0196711796
@@ -3867,7 +3885,7 @@ Np    F
 Np    F
       0.1246250000           1.0000000000
 end
-basis "Pu_sarc-zora" 
+basis "Pu_SARC-ZORA" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Pu    S
 61522220.62252900            0.0201686722
@@ -3998,7 +4016,7 @@ Pu    F
 Pu    F
       0.1296570000           1.0000000000
 end
-basis "Am_sarc-zora" 
+basis "Am_SARC-ZORA" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Am    S
 62843653.32610500            0.0206813702
@@ -4129,7 +4147,7 @@ Am    F
 Am    F
       0.1347790000           1.0000000000
 end
-basis "Cm_sarc-zora" 
+basis "Cm_SARC-ZORA" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Cm    S
 64183659.71228800            0.0212102338
@@ -4260,7 +4278,7 @@ Cm    F
 Cm    F
       0.1399860000           1.0000000000
 end
-basis "Bk_sarc-zora" 
+basis "Bk_SARC-ZORA" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Bk    S
 65541743.54207900            0.0217560418
@@ -4391,7 +4409,7 @@ Bk    F
 Bk    F
       0.1451590000           1.0000000000
 end
-basis "Cf_sarc-zora" 
+basis "Cf_SARC-ZORA" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Cf    S
 66908672.67153500            0.0223193024
@@ -4522,7 +4540,7 @@ Cf    F
 Cf    F
       0.1504550000           1.0000000000
 end
-basis "Es_sarc-zora" 
+basis "Es_SARC-ZORA" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Es    S
 68291966.01786400            0.0229010727
@@ -4653,7 +4671,7 @@ Es    F
 Es    F
       0.1558200000           1.0000000000
 end
-basis "Fm_sarc-zora" 
+basis "Fm_SARC-ZORA" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Fm    S
 69690927.07216800            0.0235022496
@@ -4784,7 +4802,7 @@ Fm    F
 Fm    F
       0.1612580000           1.0000000000
 end
-basis "Md_sarc-zora" 
+basis "Md_SARC-ZORA" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Md    S
 71095290.12593000            0.0241234764
@@ -4915,7 +4933,7 @@ Md    F
 Md    F
       0.1667650000           1.0000000000
 end
-basis "No_sarc-zora" 
+basis "No_SARC-ZORA" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 No    S
 72522948.25117100            0.0247663050
@@ -5046,7 +5064,7 @@ No    F
 No    F
       0.1725850000           1.0000000000
 end
-basis "Lr_sarc-zora" 
+basis "Lr_SARC-ZORA" SPHERICAL 
 #basis SET: (29s,20p,16d,12f) -> [21s,13p,10d,7f]
 Lr    S
 73963782.78320600            0.0254314704

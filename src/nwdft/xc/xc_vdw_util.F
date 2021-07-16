@@ -792,6 +792,12 @@ c m06hf
         else if (xccomb(34)) then
            scalesr6 = 1.446d0
            scales8  = 0.000d0
+c wb97-d3
+        else if (xccomb(78)) then
+           scalesr6 = 1.281d0
+           scalesr8 = 1.094d0
+           scales6  = 1d0
+           scales8  = 1d0
 c hf
         else if (xfac(1).eq.1d0) then
            scalesr6 = 1.158d0
@@ -953,6 +959,18 @@ c scan
            a1       =  0.5380d0
            scales8  =  0.0000d0
            a2       =  5.4200d0
+c r-scan
+chttps://github.com/awvwgk/r2scan-d4-paper
+        else if (xccomb(71)) then
+           a1      = 0.47023427d0
+           scales8 = 1.08859014d0
+           a2      = 5.73408312d0
+c r2scan
+chttps://github.com/awvwgk/r2scan-d4-paper
+        else if (xccomb(73)) then
+           a1      = 0.49484001d0
+           scales8 = 0.78981345d0
+           a2      = 5.73083694
         else
 c     try to see if set rtdb was used
            read_ok=abs(scales8).gt.0d0.and.
@@ -1004,6 +1022,7 @@ c
          xc_neff=0.8d0
          return
       endif
+      nv=0
       if(z.le.2) nv=z
       if(z.le.10) nv=z-2
       if(z.gt.10) stop 'neff stop '

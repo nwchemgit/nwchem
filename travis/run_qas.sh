@@ -1,6 +1,6 @@
 #!/bin/bash 
 # Exit on error
-set -ev
+set -e
 # source env. variables
 if [[ -z "$TRAVIS_BUILD_DIR" ]] ; then
     TRAVIS_BUILD_DIR=$(pwd)
@@ -16,14 +16,28 @@ else
     $TRAVIS_BUILD_DIR/travis/compile_nwchem.sh
     EXTRA_BUILD=1
 fi
+if [[ "$BUILD_MPICH" == 1 ]] ; then
+    export PATH=$TRAVIS_BUILD_DIR/src/libext/bin:$PATH
+    export MPIRUN_PATH=$TRAVIS_BUILD_DIR/src/libext/bin/mpirun
+fi
+
 os=`uname`
 arch=`uname -m`
 export NWCHEM_BASIS_LIBRARY=$TRAVIS_BUILD_DIR/.cachedir/files/libraries/
 export NWCHEM_NWPW_LIBRARY=$TRAVIS_BUILD_DIR/.cachedir/files/libraryps/
- nprocs=2
+nprocs=2
+if [[ ! -z "$USE_OPENMP" ]]; then
+    nprocs=1
+    export OMP_NUM_THREADS="$USE_OPENMP"
+    export OMP_STACKSIZE=32M
+fi
+if [[ "$arch" == "aarch64" ]] || [[ "$os" == "Darwin" &&   "$BUILD_MPICH" == 1 ]] ; then
+    nprocs=1
+fi    
+env|egrep MP
  do_largeqas=1
 
- if [[ "$EXTRA_BUILD" == "1" ]] || [[ ! -z "$USE_SIMINT" ]]; then
+ if [[ "$EXTRA_BUILD" == "1" ]] || [[ ! -z "$USE_SIMINT" ]] || [[ "$arch" == "aarch64" ]] || [[ "$arch" == "ppc64le" ]]; then
      do_largeqas=0
  fi
 
@@ -64,6 +78,9 @@ export NWCHEM_NWPW_LIBRARY=$TRAVIS_BUILD_DIR/.cachedir/files/libraryps/
 	esac
 	;;
  esac
+if [[ "$MPI_IMPL" == "openmpi" ]]; then
+export MPIRUN_NPOPT=" --allow-run-as-root -mca mpi_yield_when_idle 0 --oversubscribe -np "
+fi
  echo === ls binaries cache ===
  ls -lrt $TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET/ || true
  echo =========================
@@ -74,34 +91,70 @@ export NWCHEM_NWPW_LIBRARY=$TRAVIS_BUILD_DIR/.cachedir/files/libraryps/
  fi
  if [[ "$NWCHEM_MODULES" == "tce" ]]; then
    cd $TRAVIS_BUILD_DIR/QA &&  ./runtests.mpi.unix procs $nprocs tce_n2 tce_ccsd_t_h2o tce_h2o_eomcc
+   cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs tce_cc2_c2
    cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs ducc_be
  if  [[ "$do_largeqas" == 1 ]]; then
 	cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs tce_ipccsd_f2 tce_eaccsd_ozone
     fi
  else
-     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_he2+ prop_mep_gcube
-     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs cosmo_h2o_dft  
+# check if dft is among modules
+     if [[ ! $(grep -i dft $TRAVIS_BUILD_DIR/src/stubs.F| awk '/dft_input/') ]]; then
+	 cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_he2+
+	 if [[ ! $(grep -i prop $TRAVIS_BUILD_DIR/src/stubs.F| awk '/prop_input/') ]]; then
+	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs prop_mep_gcube
+	 fi
+	 if [[ ! $(grep -i cosmo $TRAVIS_BUILD_DIR/src/stubs.F| awk '/cosmo_input/') ]]; then
+	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs cosmo_h2o_dft
+	 fi
+     else
+	 echo ' dft_input stubbed'
+     fi
      if [[ "$USE_SIMINT" != "1" ]] ; then
-	cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs pspw
+# check if pspw is among modules
+	 if [[ ! $(grep -i pspw $TRAVIS_BUILD_DIR/src/stubs.F| awk '/pspw_input/') ]]; then
+	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs pspw
+	 fi
      fi
 # check if python is among modules
-     if [[ $(echo ${NWCHEM_MODULES}| awk ' /python/') ]]; then
+     if [[ ! $(grep -i python $TRAVIS_BUILD_DIR/src/stubs.F| awk '/python_input/') ]]; then
      	 cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs pyqa3
      fi
      if  [[ "$do_largeqas" == 1 ]]; then
-       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_siosi3 h2o_opt
-       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs tddft_h2o h2o2-response
-       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_scan
-       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_ncap
-       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_ch3_h2o_revm06
-       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_smear
-       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs n2_ccsd h2mp2 auh2o aump2
-       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs pspw_md
-       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs ch3radical_unrot
-       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs rt_tddft_dimer_charge
-       # check if qmd is among modules
-       if [[ ! $(grep -i qmd $TRAVIS_BUILD_DIR/src/stubs.F| awk '/qmd/') ]]; then
-           cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs qmd_dft_h2o_svr
+	 if [[ ! $(grep -i dft $TRAVIS_BUILD_DIR/src/stubs.F| awk '/dft_input/') ]]; then
+	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_siosi3 h2o_opt
+	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs tddft_h2o
+	     if [[ ! $(grep -i prop $TRAVIS_BUILD_DIR/src/stubs.F| awk '/prop_input/') ]]; then
+		 cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs h2o2-response
+	     fi
+	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_scan
+	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_ncap
+	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_ch3_h2o_revm06
+	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_smear
+	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_he2p_wb97
+	   if [[ ! -z "$USE_LIBXC" ]]; then
+	       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs libxc_he2+
+	   fi
+	 fi
+       if [[ ! $(grep -i mp2_input $TRAVIS_BUILD_DIR/src/stubs.F| awk '/mp2_input/') ]]; then
+	   if [[ ! $(grep -i ccsd_input $TRAVIS_BUILD_DIR/src/stubs.F| awk '/ccsd_input/') ]]; then
+	       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs n2_ccsd h2mp2 auh2o aump2
+	   fi
+       fi
+       if [[ ! $(grep -i pspw $TRAVIS_BUILD_DIR/src/stubs.F| awk '/pspw_input/') ]]; then
+#skip pspw_md when openmp is on
+	   if [[ -z "$USE_OPENMP" ]]; then
+	       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs pspw_md
+	   fi
+       fi
+       if [[ ! $(grep -i dft_input $TRAVIS_BUILD_DIR/src/stubs.F| awk '/dft_input/') ]]; then
+	   if [[ ! $(grep -i prop_input $TRAVIS_BUILD_DIR/src/stubs.F| awk '/prop_input/') ]]; then
+	       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs ch3radical_unrot
+	   fi
+	   cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs rt_tddft_dimer_charge
+	   # check if qmd is among modules
+	   if [[ ! $(grep -i qmd $TRAVIS_BUILD_DIR/src/stubs.F| awk '/qmd/') ]]; then
+               cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs qmd_dft_h2o_svr
+	   fi
        fi
      fi
  fi

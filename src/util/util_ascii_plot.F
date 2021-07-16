@@ -77,7 +77,7 @@ c         i=max(1,i)
       !**** plot points ****
       do i=1,n
          Point(min(ascii_yscale(y(i)),maxrow),
-     *        min(11+ascii_xscale(x(I)),maxcol)) = Symbol
+     >        min(11+ascii_xscale(x(i)),maxcol)) = Symbol
       end do
 
       !**** write graph to lunit ****

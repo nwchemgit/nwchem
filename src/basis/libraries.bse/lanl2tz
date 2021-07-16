@@ -1,75 +1,75 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# lanl2tz version number 0
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# LANL2TZ version number 0
 # Description: LANL2TZ
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# Sc-Cu,Y-Ag,La,Hf-Au
-#     ## LANL2TZ
-#     Hay, P. Jeffrey, Wadt, Willard R.
-#     Ab initio effective core potentials for molecular calculations.
-#             Potentials for K to Au including the outermost core orbitals
-#     J. Chem. Phys., 82, 299-310 (1985)
-#     10.1063/1.448975
 # 
-#     Roy, Lindsay E., Hay, P. Jeffrey, Martin, Richard L.
-#     Revised Basis Sets for the LANL Effective Core Potentials
-#     J. Chem. Theory Comput., 4, 1029-1031 (2008)
-#     10.1021/ct8000409
+#  References for the basis set
 # 
-#     ## LANL2DZ ECP
-#     Hay, P. Jeffrey, Wadt, Willard R.
-#     Ab initio effective core potentials for molecular calculations.
-#             Potentials for K to Au including the outermost core orbitals
-#     J. Chem. Phys., 82, 299-310 (1985)
-#     10.1063/1.448975
+#  Sc-Cu,Y-Ag,La,Hf-Au
+#      LANL2TZ
+#          hay1985b roy2008a
 # 
-# Zn,Cd,Hg
-#     ## LANL2TZ
+#      LANL2DZ ECP
+#          hay1985b
+# 
+#  Zn,Cd,Hg
+#      LANL2TZ
+#          hay1985a roy2008a
+# 
+#      LANL2DZ ECP
+#          hay1985a
+# 
+# 
+# 
+# hay1985a
 #     Hay, P. Jeffrey, Wadt, Willard R.
 #     Ab initio effective core potentials for molecular calculations.
 #             Potentials for the transition metal atoms Sc to Hg
-#     J. Chem. Phys., 82, 270-283 (1985)
+#     J. Chem. Phys. 82, 270-283 (1985)
 #     10.1063/1.448799
 # 
-#     Roy, Lindsay E., Hay, P. Jeffrey, Martin, Richard L.
-#     Revised Basis Sets for the LANL Effective Core Potentials
-#     J. Chem. Theory Comput., 4, 1029-1031 (2008)
-#     10.1021/ct8000409
-# 
-#     ## LANL2DZ ECP
+# hay1985b
 #     Hay, P. Jeffrey, Wadt, Willard R.
 #     Ab initio effective core potentials for molecular calculations.
-#             Potentials for the transition metal atoms Sc to Hg
-#     J. Chem. Phys., 82, 270-283 (1985)
-#     10.1063/1.448799
+#             Potentials for K to Au including the outermost core orbitals
+#     J. Chem. Phys. 82, 299-310 (1985)
+#     10.1063/1.448975
+# 
+# roy2008a
+#     Roy, Lindsay E., Hay, P. Jeffrey, Martin, Richard L.
+#     Revised Basis Sets for the LANL Effective Core Potentials
+#     J. Chem. Theory Comput. 4, 1029-1031 (2008)
+#     10.1021/ct8000409
 # 
 # # 
-basis "Sc_lanl2tz" 
+basis "Sc_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,5d) -> [5s,5p,3d]
 Sc    S
       3.7170000              1.0000000
@@ -102,7 +102,7 @@ Sc    D
 end
 
 
-ecp "Sc_lanl2tz"
+ecp "Sc_LANL2TZ"
 Sc nelec 10
 Sc ul
 1     237.3166528            -10.0000000
@@ -122,7 +122,7 @@ Sc P
 2       4.7970573             68.0945974
 2       4.4142925            -41.6469108
 end
-basis "Ti_lanl2tz" 
+basis "Ti_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,5d) -> [5s,5p,3d]
 Ti    S
       4.3720000              1.0000000
@@ -155,7 +155,7 @@ Ti    D
 end
 
 
-ecp "Ti_lanl2tz"
+ecp "Ti_LANL2TZ"
 Ti nelec 10
 Ti ul
 1     265.3263909            -10.0000000
@@ -174,7 +174,7 @@ Ti P
 2       5.6022573            107.4207153
 2       5.2171069            -71.9065902
 end
-basis "V_lanl2tz" 
+basis "V_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,5d) -> [5s,5p,3d]
 V    S
       4.5900000              1.0000000
@@ -207,7 +207,7 @@ V    D
 end
 
 
-ecp "V_lanl2tz"
+ecp "V_LANL2TZ"
 V nelec 10
 V ul
 1     296.4487582            -10.0000000
@@ -226,7 +226,7 @@ V P
 2       6.2352020            117.2756226
 2       5.8139909            -78.5829134
 end
-basis "Cr_lanl2tz" 
+basis "Cr_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,5d) -> [5s,5p,3d]
 Cr    S
       5.3610000              1.0000000
@@ -259,7 +259,7 @@ Cr    D
 end
 
 
-ecp "Cr_lanl2tz"
+ecp "Cr_LANL2TZ"
 Cr nelec 10
 Cr ul
 1     329.2720539            -10.0000000
@@ -278,7 +278,7 @@ Cr P
 2       6.5582692            106.0168018
 2       6.1268236            -69.8585468
 end
-basis "Mn_lanl2tz" 
+basis "Mn_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,5d) -> [5s,5p,3d]
 Mn    S
       5.9140000              1.0000000
@@ -311,7 +311,7 @@ Mn    D
 end
 
 
-ecp "Mn_lanl2tz"
+ecp "Mn_LANL2TZ"
 Mn nelec 10
 Mn ul
 1     357.3914469            -10.0000000
@@ -330,7 +330,7 @@ Mn P
 2       8.0098457            143.4222647
 2       7.3390928            -88.7031851
 end
-basis "Fe_lanl2tz" 
+basis "Fe_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,5d) -> [5s,5p,3d]
 Fe    S
       6.4220000              1.0000000
@@ -363,7 +363,7 @@ Fe    D
 end
 
 
-ecp "Fe_lanl2tz"
+ecp "Fe_LANL2TZ"
 Fe nelec 10
 Fe ul
 1     392.6149787            -10.0000000
@@ -382,7 +382,7 @@ Fe P
 2       8.7701805            154.4244635
 2       8.0397818            -95.3164249
 end
-basis "Co_lanl2tz" 
+basis "Co_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,5d) -> [5s,5p,3d]
 Co    S
       7.1760000              1.0000000
@@ -415,7 +415,7 @@ Co    D
 end
 
 
-ecp "Co_lanl2tz"
+ecp "Co_LANL2TZ"
 Co nelec 10
 Co ul
 1     434.1076104            -10.0000000
@@ -432,7 +432,7 @@ Co P
 2      48.6265909            326.3215919
 2      11.9966971             73.8788970
 end
-basis "Ni_lanl2tz" 
+basis "Ni_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,5d) -> [5s,5p,3d]
 Ni    S
       7.6200000              1.0000000
@@ -465,7 +465,7 @@ Ni    D
 end
 
 
-ecp "Ni_lanl2tz"
+ecp "Ni_LANL2TZ"
 Ni nelec 10
 Ni ul
 1     469.9324331            -10.0000000
@@ -482,7 +482,7 @@ Ni P
 2      47.1315453            256.6945853
 2      12.9874075             78.4754450
 end
-basis "Cu_lanl2tz" 
+basis "Cu_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,5d) -> [5s,5p,3d]
 Cu    S
       8.1760000              1.0000000
@@ -515,7 +515,7 @@ Cu    D
 end
 
 
-ecp "Cu_lanl2tz"
+ecp "Cu_LANL2TZ"
 Cu nelec 10
 Cu ul
 1     511.9951763            -10.0000000
@@ -532,7 +532,7 @@ Cu P
 2      53.8683720            351.4605395
 2      14.0989469             85.5016036
 end
-basis "Zn_lanl2tz" 
+basis "Zn_LANL2TZ" SPHERICAL 
 #basis SET: (3s,2p,5d) -> [3s,2p,3d]
 Zn    S
       0.7997000              1.0000000
@@ -555,7 +555,7 @@ Zn    D
 end
 
 
-ecp "Zn_lanl2tz"
+ecp "Zn_LANL2TZ"
 Zn nelec 18
 Zn ul
 1     386.7379660            -18.0000000
@@ -580,7 +580,7 @@ Zn D
 2       9.8373050              3.6913379
 2       0.8373113             -0.5037319
 end
-basis "Y_lanl2tz" 
+basis "Y_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,3d]
 Y    S
       1.7510000              1.0000000
@@ -612,7 +612,7 @@ Y    D
 end
 
 
-ecp "Y_lanl2tz"
+ecp "Y_LANL2TZ"
 Y nelec 28
 Y ul
 0     578.4310349             -0.0404817
@@ -637,7 +637,7 @@ Y D
 2       7.3062400             48.7792568
 2       2.4051635             11.4535104
 end
-basis "Zr_lanl2tz" 
+basis "Zr_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,3d]
 Zr    S
       1.9760000              1.0000000
@@ -669,7 +669,7 @@ Zr    D
 end
 
 
-ecp "Zr_lanl2tz"
+ecp "Zr_LANL2TZ"
 Zr nelec 28
 Zr ul
 0     645.9321873             -0.0425843
@@ -693,7 +693,7 @@ Zr D
 2       9.6835718             70.7634022
 2       2.7995666             15.0492822
 end
-basis "Nb_lanl2tz" 
+basis "Nb_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,3d]
 Nb    S
       2.1820000              1.0000000
@@ -725,7 +725,7 @@ Nb    D
 end
 
 
-ecp "Nb_lanl2tz"
+ecp "Nb_LANL2TZ"
 Nb nelec 28
 Nb ul
 0     342.9638405             -0.0447401
@@ -749,7 +749,7 @@ Nb D
 2      12.0708574             92.9577490
 2       3.1575323             18.4744256
 end
-basis "Mo_lanl2tz" 
+basis "Mo_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,3d]
 Mo    S
       2.3610000              1.0000000
@@ -781,7 +781,7 @@ Mo    D
 end
 
 
-ecp "Mo_lanl2tz"
+ecp "Mo_LANL2TZ"
 Mo nelec 28
 Mo ul
 0     537.9667807             -0.0469492
@@ -805,7 +805,7 @@ Mo D
 2      13.1164437             98.4453068
 2       3.6280263             22.4901377
 end
-basis "Tc_lanl2tz" 
+basis "Tc_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,3d]
 Tc    S
       2.3420000              1.0000000
@@ -837,7 +837,7 @@ Tc    D
 end
 
 
-ecp "Tc_lanl2tz"
+ecp "Tc_LANL2TZ"
 Tc nelec 28
 Tc ul
 0     501.1199409             -0.0492115
@@ -861,7 +861,7 @@ Tc D
 2      15.7089115            121.1894325
 2       3.9484576             25.5866973
 end
-basis "Ru_lanl2tz" 
+basis "Ru_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,3d]
 Ru    S
       2.5650000              1.0000000
@@ -893,7 +893,7 @@ Ru    D
 end
 
 
-ecp "Ru_lanl2tz"
+ecp "Ru_LANL2TZ"
 Ru nelec 28
 Ru ul
 0     554.3796303             -0.0515270
@@ -919,7 +919,7 @@ Ru D
 2      19.1190074            146.0926620
 2       4.2712090             28.9129770
 end
-basis "Rh_lanl2tz" 
+basis "Rh_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,3d]
 Rh    S
       2.6460000              1.0000000
@@ -951,7 +951,7 @@ Rh    D
 end
 
 
-ecp "Rh_lanl2tz"
+ecp "Rh_LANL2TZ"
 Rh nelec 28
 Rh ul
 0     600.3243032             -0.0538958
@@ -977,7 +977,7 @@ Rh D
 2      19.4020301            142.6844289
 2       4.6879328             32.1406857
 end
-basis "Pd_lanl2tz" 
+basis "Pd_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,3d]
 Pd    S
       2.7870000              1.0000000
@@ -1009,7 +1009,7 @@ Pd    D
 end
 
 
-ecp "Pd_lanl2tz"
+ecp "Pd_LANL2TZ"
 Pd nelec 28
 Pd ul
 0     598.3336444             -0.0563177
@@ -1036,7 +1036,7 @@ Pd D
 2       9.1790080          -1040.8554048
 2       7.5624429            505.9375147
 end
-basis "Ag_lanl2tz" 
+basis "Ag_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,4d) -> [5s,5p,3d]
 Ag    S
       2.9500000              1.0000000
@@ -1068,7 +1068,7 @@ Ag    D
 end
 
 
-ecp "Ag_lanl2tz"
+ecp "Ag_LANL2TZ"
 Ag nelec 28
 Ag ul
 0     568.7006237             -0.0587930
@@ -1095,7 +1095,7 @@ Ag D
 2       9.7528183          -1238.8602423
 2       8.1788997            608.0677121
 end
-basis "Cd_lanl2tz" 
+basis "Cd_LANL2TZ" SPHERICAL 
 #basis SET: (3s,3p,4d) -> [3s,3p,3d]
 Cd    S
       0.5095000              1.0000000
@@ -1119,7 +1119,7 @@ Cd    D
 end
 
 
-ecp "Cd_lanl2tz"
+ecp "Cd_LANL2TZ"
 Cd nelec 36
 Cd ul
 0     350.0762490             -0.0613214
@@ -1148,7 +1148,7 @@ Cd D
 2       3.5349379            -82.4999671
 2       0.6482194             -0.2413758
 end
-basis "La_lanl2tz" 
+basis "La_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,3d) -> [5s,5p,3d]
 La    S
       0.9167000              1.0000000
@@ -1179,7 +1179,7 @@ La    D
 end
 
 
-ecp "La_lanl2tz"
+ecp "La_LANL2TZ"
 La nelec 46
 La ul
 0     740.9166034             -0.0864727
@@ -1205,7 +1205,7 @@ La D
 2       5.8051185             63.4945183
 2       1.4583220             18.0998654
 end
-basis "Hf_lanl2tz" 
+basis "Hf_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,3d) -> [5s,5p,3d]
 Hf    S
       1.9500000              1.0000000
@@ -1236,7 +1236,7 @@ Hf    D
 end
 
 
-ecp "Hf_lanl2tz"
+ecp "Hf_LANL2TZ"
 Hf nelec 60
 Hf ul
 1     685.5502931            -60.0000000
@@ -1272,7 +1272,7 @@ Hf F
 2       6.0777120             82.0077173
 2       1.4776693              6.3063943
 end
-basis "Ta_lanl2tz" 
+basis "Ta_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,3d) -> [5s,5p,3d]
 Ta    S
       2.0440000              1.0000000
@@ -1303,7 +1303,7 @@ Ta    D
 end
 
 
-ecp "Ta_lanl2tz"
+ecp "Ta_LANL2TZ"
 Ta nelec 60
 Ta ul
 1     768.2267533            -60.0000000
@@ -1339,7 +1339,7 @@ Ta F
 2       5.6785931             72.0619298
 2       1.5814041              6.0009895
 end
-basis "W_lanl2tz" 
+basis "W_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,3d) -> [5s,5p,3d]
 W    S
       2.1370000              1.0000000
@@ -1370,7 +1370,7 @@ W    D
 end
 
 
-ecp "W_lanl2tz"
+ecp "W_LANL2TZ"
 W nelec 60
 W ul
 1     839.4489120            -60.0000000
@@ -1406,7 +1406,7 @@ W F
 2       6.9810413             91.7605552
 2       1.8380480              8.4247312
 end
-basis "Re_lanl2tz" 
+basis "Re_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,3d) -> [5s,5p,3d]
 Re    S
       2.1850000              1.0000000
@@ -1437,7 +1437,7 @@ Re    D
 end
 
 
-ecp "Re_lanl2tz"
+ecp "Re_LANL2TZ"
 Re nelec 60
 Re ul
 1    1833.8143836             -0.1497104
@@ -1473,7 +1473,7 @@ Re F
 2       8.5734158            116.5787266
 2       2.0892721             11.1050530
 end
-basis "Os_lanl2tz" 
+basis "Os_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,3d) -> [5s,5p,3d]
 Os    S
       2.2220000              1.0000000
@@ -1504,7 +1504,7 @@ Os    D
 end
 
 
-ecp "Os_lanl2tz"
+ecp "Os_LANL2TZ"
 Os nelec 60
 Os ul
 1     848.8743292             -0.1537293
@@ -1538,7 +1538,7 @@ Os F
 2      10.5337695            147.1839894
 2       2.3338246             13.9622947
 end
-basis "Ir_lanl2tz" 
+basis "Ir_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,3d) -> [5s,5p,3d]
 Ir    S
       2.3500000              1.0000000
@@ -1569,7 +1569,7 @@ Ir    D
 end
 
 
-ecp "Ir_lanl2tz"
+ecp "Ir_LANL2TZ"
 Ir nelec 60
 Ir ul
 1     823.5880147             -0.1578014
@@ -1603,7 +1603,7 @@ Ir F
 2      10.1995721            137.2047338
 2       2.5409702             14.8633305
 end
-basis "Pt_lanl2tz" 
+basis "Pt_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,3d) -> [5s,5p,3d]
 Pt    S
       2.5470000              1.0000000
@@ -1634,7 +1634,7 @@ Pt    D
 end
 
 
-ecp "Pt_lanl2tz"
+ecp "Pt_LANL2TZ"
 Pt nelec 60
 Pt ul
 1     728.9394056             -0.1619268
@@ -1667,7 +1667,7 @@ Pt F
 2       9.8811751            127.8187976
 2       2.7319874             15.3772046
 end
-basis "Au_lanl2tz" 
+basis "Au_LANL2TZ" SPHERICAL 
 #basis SET: (5s,5p,3d) -> [5s,5p,3d]
 Au    S
       2.8090000              1.0000000
@@ -1698,7 +1698,7 @@ Au    D
 end
 
 
-ecp "Au_lanl2tz"
+ecp "Au_LANL2TZ"
 Au nelec 60
 Au ul
 1     622.6287956            -60.0000000
@@ -1731,7 +1731,7 @@ Au F
 2       9.5440543            119.0047386
 2       2.8965118             15.3424188
 end
-basis "Hg_lanl2tz" 
+basis "Hg_LANL2TZ" SPHERICAL 
 #basis SET: (3s,3p,3d) -> [3s,3p,3d]
 Hg    S
       0.5275000              1.0000000
@@ -1754,7 +1754,7 @@ Hg    D
 end
 
 
-ecp "Hg_lanl2tz"
+ecp "Hg_LANL2TZ"
 Hg nelec 68
 Hg ul
 0     318.3460385             -0.1703372

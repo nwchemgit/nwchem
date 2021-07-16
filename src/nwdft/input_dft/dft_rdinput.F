@@ -199,7 +199,7 @@ c
 c     
       if (.not. rtdb_get(rtdb, 'dft:iterations', mt_int, 1,
      &   iterations))then
-         iterations=30
+         iterations=50
          if (.not. rtdb_put(rtdb, 'dft:iterations',
      &      mt_int, 1, iterations))
      &      call errquit('dft_rdinput: rtdb_put failed', 101, RTDB_ERR)
@@ -443,7 +443,7 @@ c
 c
 c     case with multiple tasks and we changed iterations ... (increased)
 c
-      else  if(iterations.gt.30) then
+      else  if(iterations.gt.50) then
          ncysh=iterations
       endif
       if (.not. rtdb_put(rtdb, 'dft:ncysh',
@@ -460,7 +460,7 @@ c
 c
 c     case with multiple tasks and we changed iterations ... (increased)
 c
-      else  if(iterations.gt.30) then
+      else  if(iterations.gt.50) then
          ncyds=iterations
       endif
       if (.not. rtdb_put(rtdb, 'dft:ncyds',
@@ -606,6 +606,10 @@ c
       cname(71)='             rSCAN Correlation Potential'
       cname(73)='           r^2SCAN Correlation Potential'
       cname(74)='         r^2SCAN-L Correlation Potential'
+      cname(75)='     HCTH147@TZ2P Correlation Functional'
+      cname(76)='             wb97 Correlation Functional'
+      cname(77)='            wb97x Correlation Functional'
+      cname(78)='         wb97x-d3 Correlation Functional'
 c
 c     Exchange functional name defaults.
 c
@@ -676,6 +680,10 @@ c
       xname(72)='            NCAP GGA Exchange Functional'
       xname(73)='     r^2SCAN metaGGA Exchange Functional'
       xname(74)='   r^2SCAN-L metaGGA Exchange Functional'
+      xname(75)='       HCTH147@TZ2P  Exchange Functional'
+      xname(76)='                wb97 Exchange Functional'
+      xname(77)='               wb97x Exchange Functional'
+      xname(78)='            wb97x-d3 Exchange Functional'
 c
 c     Exchange-Correlation combination functional name defaults.
 c
@@ -746,6 +754,10 @@ c
       xcname(72)='               NCAP Method XC Functional'
       xcname(73)='            r^2SCAN Method XC Functional'
       xcname(74)='          r^2SCAN-L Method XC Functional'
+      xcname(75)='      HCTH147@TZ2P  Method XC Functional'
+      xcname(76)='              wb97  Method XC Functional'
+      xcname(77)='             wb97x  Method XC Functional'
+      xcname(78)='          wb97x-d3  Method XC Functional'
 c     
 c     place character XC parameters in rtdb
 c     
@@ -1256,6 +1268,11 @@ c
       if (.not. rtdb_put(rtdb, 'bgj:scf_type', MT_INT, 1, 2))
      $     call errquit('dft_scf: put of bgj:scf_type failed',0,
      &       RTDB_ERR)
+c
+c
+      if (.not.rtdb_get(rtdb, 'dft:libxcon', mt_log,1,libxcon))
+     $  libxcon = .false.
+      if (libxcon) call nwchem_libxc_rdinput(rtdb,'dft') 
 c
       if (.not. MA_Pop_Stack(lznuc))
      &   call errquit('dft_rdinput: pop stack failed.',0, MA_ERR)

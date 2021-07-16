@@ -2126,9 +2126,9 @@ c
       logical stat
       logical oprint_energies
 c
-      double precision util_erf
+      double precision derf
       logical util_io_unit
-      external util_io_unit, util_erf
+      external util_io_unit
 c
 c MN solvation models --> 
 c
@@ -3164,8 +3164,7 @@ c
       double precision zero, one, two
       parameter (zero=0.0d0, one=1.0d0, two=2.0d0)
       double precision pi
-      double precision util_erf
-      external         util_erf
+      double precision derf
 c
       pi    =acos(-1.0d0)
       allefc=zero
@@ -3234,7 +3233,7 @@ c
                  if (dij.lt.1.0d-6) then
                    aij=2.0d0*zetaij/sqrt(pi)
                  else
-                   aij=util_erf(zetaij*dij)/dij
+                   aij=derf(zetaij*dij)/dij
                  endif
               endif
               efcefc=efcefc+qi*aij*qj
@@ -3270,9 +3269,8 @@ c
       parameter (one = 1.0d0)
 c
 c
-      double precision util_erf
-      external util_erf
-c
+      double precision derf
+
       double precision pi
       pi = acos(-1.0d0)
 c
@@ -3315,7 +3313,7 @@ c
                if (dij.lt.1.0d-6) then
                  a(ief,jef)=2.0d0*zetaij*sqrt(1.0d0/pi)
                else
-                 a(ief,jef)=util_erf(zetaij*dij)/dij
+                 a(ief,jef)=derf(zetaij*dij)/dij
                endif
             endif
           enddo
@@ -3354,8 +3352,7 @@ c
       parameter (zero=0.0d+00, one=1.0d+00)
 c
 c
-      double precision util_erf
-      external util_erf
+      double precision derf
 c
 c     Introduced a trivial replicated data parallelization of this
 c     matrix-vector multiplication
@@ -3401,7 +3398,7 @@ c
                if (dij.lt.1.0d-6) then
                  aij=2.0d0*zetaij*sqrt(1.0d0/pi)
                else
-                 aij=util_erf(zetaij*dij)/dij
+                 aij=derf(zetaij*dij)/dij
                endif
             endif
             xj=x(j)

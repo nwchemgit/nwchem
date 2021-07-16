@@ -14,6 +14,7 @@ c
 c     see if any Gradient Corrected Functional is not null
 c
       logical out1,out2
+      logical,external :: nwchem_libxc_family
       double precision tot,eps
       parameter(eps=1.d-10)
 c
@@ -40,7 +41,11 @@ c
      + xfac(60) + xfac(61) + xfac(62) + xfac(63) + xfac(68) + xfac(69)+
      +     xfac(66) + cfac(66) + xfac(67) + cfac(67) +
      +     cfac(68)+  cfac(69) + xfac(70) + xfac(71) + cfac(71) +
-     L     xfac(72) + xfac(73) + xfac(74) + lxdm +
+     +     xfac(72) + xfac(73) + xfac(74) +
+     +     xfac(75) + cfac(75) +
+     w     xfac(76) + xfac(77) + cfac(76) + cfac(77) +
+     w     xfac(78) + cfac(78) + 
+     L     lxdm +
 cc AJL/Begin/FDE
      + xfac_fde(3) + xfac_fde(4) + xfac_fde(5) + xfac_fde(6) + 
      + xfac_fde(7) +
@@ -89,6 +94,9 @@ c
          call nwxc_getvals("nwxc_is_mgga",out2)
          xc_chkgrad = xc_chkgrad .or. out1.or.out2
       endif
+      out1 = nwchem_libxc_family("gga")
+      out2 = nwchem_libxc_family("mgga")
+      xc_chkgrad = xc_chkgrad .or. out1 .or. out2
 c
       return
       end
@@ -116,6 +124,8 @@ cc AJL/End
          call nwxc_getvals("nwxc_has_xc",out1)
         xc_gotxc = xc_gotxc.or.out1
       endif
+      if (libxcon) xc_gotxc = .true.
+
       return
       end
       logical function xc_gothfx()
@@ -150,6 +160,7 @@ c
 #include "cdft.fh"
 #include "util.fh"
       logical out1
+      logical, external :: nwchem_libxc_family
 c
       xc_got2nd=.not.(
 c
@@ -192,6 +203,10 @@ cb973     .     xfac(22).ne.0d0.or.
      .     xfac(71).ne.0d0.or.
      .     xfac(73).ne.0d0.or.
      .     xfac(74).ne.0d0.or.
+cwb97 should have 2nds
+     .     xfac(76).ne.0d0.or.
+     .     xfac(77).ne.0d0.or.
+     .     xfac(78).ne.0d0.or.
 c
 chcth     .     cfac(13).ne.0d0.or.
 cCbecke97     .     cfac(14).ne.0d0.or.
@@ -228,10 +243,18 @@ chp414     .     cfac(21).ne.0d0.or.
      .     cfac(71).ne.0d0.or.
      .     cfac(73).ne.0d0.or.
      .     cfac(74).ne.0d0.or.
+cwb97 should have 2nds
+     .     cfac(76).ne.0d0.or.
+     .     cfac(77).ne.0d0.or.
+     .     cfac(78).ne.0d0.or.
      .     cfac(36).ne.0d0)
       if (util_module_avail("nwxc")) then
          call nwxc_getvals("nwxc_has_2nd",out1)
         xc_got2nd = xc_got2nd .or. out1
+      endif
+
+      if (libxcon .and. xc_got2nd) then
+        xc_got2nd = xc_got2nd .and. nwchem_libxc_family("fxc")
       endif
 c
       return
@@ -251,6 +274,7 @@ c
 C  note in cdft.fh,they define cfac(numfunc) and xfac(numfunc)
 c 
       logical out1
+      logical,external :: nwchem_libxc_family
       double precision tot,eps
       parameter(eps=1.d-10)
       tot = xfac(18) + cfac(25) + xfac(21) + cfac(27) +
@@ -286,6 +310,8 @@ c
          call nwxc_getvals("nwxc_is_mgga",out1)
          xc_chktau = xc_chktau .or. out1
       endif
+      out1 = nwchem_libxc_family("mgga")
+      xc_chktau = xc_chktau .or. out1
       return
       end
 c
@@ -344,6 +370,9 @@ c
      .     xfac(42).ne.0d0.or.
      .     xfac(43).ne.0d0.or.
      .     xfac(50).ne.0d0.or.
+     .     xfac(76).ne.0d0.or.
+     .     xfac(77).ne.0d0.or.
+     .     xfac(78).ne.0d0.or.
      .     xfac(51).ne.0d0)
       if (.not.rtdb_get(rtdb, 'dft:cam_exch', mt_log, 1, cam_exch)) 
      &     cam_exch=.false.
@@ -445,6 +474,7 @@ c     return true for functionals without 3rds
 c
       logical function xc_ngot3rd()
       implicit none
+      logical,external :: nwchem_libxc_family
 c
 #include "cdft.fh"
 c
@@ -498,6 +528,10 @@ c
      .     xfac(71).ne.0d0.or.  ! rSCAN
      .     xfac(73).ne.0d0.or.  ! r^2SCAN
      .     xfac(74).ne.0d0.or.  ! r^2SCAN-L
+     .     xfac(75).ne.0d0.or.  ! hcth147@tz2p
+     .     xfac(76).ne.0d0.or.  ! wb97
+     .     xfac(77).ne.0d0.or.  ! wb97x
+     .     xfac(78).ne.0d0.or.  ! wb97x-d3
 c
      .     cfac(5).ne.0d0.or.   ! PW91
      .     cfac(13).ne.0d0.or.  ! HCTH
@@ -545,9 +579,17 @@ c
      .     cfac(69).ne.0d0.or.  ! revM06-L
      .     cfac(71).ne.0d0.or.  ! rSCAN
      .     cfac(73).ne.0d0.or.  ! r^2SCAN
-     .     cfac(74).ne.0d0      ! r^2SCAN-L
+     .     cfac(74).ne.0d0.or.  ! r^2SCAN-L
+     .     cfac(75).ne.0d0.or.  ! hcth147@tz2p
+     .     cfac(76).ne.0d0.or.  ! wb97
+     .     cfac(77).ne.0d0.or.  ! wb97x
+     .     cfac(78).ne.0d0      ! wb97x-d3
      .                )
 c
+      if (libxcon .and. .not.xc_ngot3rd) then
+        xc_ngot3rd = xc_ngot3rd .and. (.not.nwchem_libxc_family("kxc"))
+      endif
+
       return
       end
 C
@@ -555,8 +597,10 @@ C
       implicit none
 #include "cdft.fh"
 #include "util.fh"
+      logical out1,nwchem_libxc_family
       double precision tot,eps
       parameter(eps=1.d-10)
+      external nwchem_libxc_family
       tot = xfac(67) + cfac(67) + xfac(74) + cfac(74)
 
       if (abs(tot).gt.eps) then
@@ -564,6 +608,8 @@ C
       else
         xc_chklap = .false.
       end if
+      out1 = nwchem_libxc_family("lapl")
+      xc_chklap = xc_chklap .or. out1
       return
       end
       logical function xc_chkdelrq()

@@ -57,7 +57,7 @@ HEADERS = xc.fh xc_vdw.fh xc_params.fh xc_hcth.fh
 	ts_eval_fnl.o ts_tf.o ts_vw.o xc_xn12.o \
 	xc_xscan.o xc_cscan.o xc_xscanl.o xc_cscanl.o ts_pc.o\
 	xc_xncap.o xc_xncap.o xc_xr2scan.o xc_xr2scanl.o\
-	xc_cr2scan.o xc_cr2scanl.o
+	xc_cr2scan.o xc_cr2scanl.o xc_hcth_extra.o
 
      LIBRARY = libnwdft.a
 
@@ -70,7 +70,7 @@ LIB_INCLUDES = -I../include
                xc_oep.F xc_sic_pert.F xc_sic.F localize_sic.F \
                xc_eval_basis.F xc_eval_fnl.F xc_fd.F xc_optc.F xc_atomblock.F scat_mat.F \
                xc_replicated.F xc_vdw_main.F xc_vdw_util.F\
-               xc_3rd_deriv.F xc_hcth.F ts_tf.F
+               xc_3rd_deriv.F xc_hcth.F ts_tf.F xc_xn12.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h

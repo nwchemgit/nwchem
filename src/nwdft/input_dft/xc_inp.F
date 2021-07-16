@@ -131,13 +131,17 @@ c
 c     srexch ==> 9310
 c     hse03 ==> 9320
 c
+c     wb97 ==> 9410
+c     wb97x ==> 9420
+c     wb97x-d3 ==> 9430
 c
 c     becke86b ==> 9510
 c     xperde86 ==> 9520
 c
+c     hcth147@tz2p ==> 1947
 c
-      integer num_dirs, ind, mlen, iline, n
-      parameter (num_dirs=155)
+      integer num_dirs, ind, mlen, iline, n, itemp
+      parameter (num_dirs=159)
 c
       character*15 dirs(num_dirs)
       character*255 test
@@ -148,6 +152,9 @@ c
       logical  lcfac(numfunc),  lxfac(numfunc), ck_local
       logical nlcfac(numfunc), nlxfac(numfunc)
       logical xccomb(numfunc)
+      logical success
+      logical,external :: nwchem_libxc_init
+      logical,external :: is_libxcon
 c
 c     XC functionals coefficients
 c     
@@ -189,7 +196,9 @@ c
      &     'becke86b','xperdew86','xmvs15','cvpbe09','mvs',
      &     'hle16', 'scan', 'scanl','scan0','lb94', 'rscan',
      &     'xncap', 'ncap', 'r2scan', 'r2scanl',
-     &     'xscan', 'cscan'/
+     &     'xscan', 'cscan',
+     &     'hcth147@tz2p',
+     W     'wb97','wb97x','wb97x-d3'/
 c     becke97-d, ssb-d
       logical disp, dumdirect
       integer ivdw
@@ -198,10 +207,14 @@ c
       logical cam_exch,cam_srhf
       double precision cam_omega,cam_alpha,cam_beta
 c
+      logical use_hcth147
+c
 c     Grab the current input line and dump the functional specification
 c     onto the RTDB. This way external programs can pick the actual
 c     functional definition up as it was entered.
 c
+      success = nwchem_libxc_init()
+
       if (.not.inp_line(test)) then
          write(*,*)'xc_input: Could not read functional specification'
       endif
@@ -236,6 +249,9 @@ c
  10   if (.not. inp_a(test)) goto 1999
 c     
       if (.not. inp_match(num_dirs, .false., test, dirs, ind)) then
+        call nwchem_libxc_read(rtdb,test,success,xfac,lxfac,
+     $                         nlxfac)
+        if (success) goto 10
 c     
 c        Does not match a keyword ... 
 c     
@@ -260,7 +276,12 @@ c
      &  8532,8533,8534,9300,9310,9320,4610,4620,4630,4640,
      &  9510,9520,4115,2109,4124,3101,
      &  9610,9620,9630,9494,9640,
-     &  9710,9720,9650,9660,9615,9616,1999) ind
+     &     9710,9720,9650,9660,9615,9616,
+     &  1947,
+     &  9410,9420,9430,
+     &     1999 ) ind
+
+
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     acm; adiabatic connection method
@@ -540,7 +561,23 @@ c
  1847    continue
 c
 c        assume total wanted
-c     
+c
+         if (.not. rtdb_get(rtdb, 'dft:use_hcth147', mt_log, 1,
+     c        use_hcth147)) use_hcth147=.false.
+         if(.not.use_hcth147) then
+            write(luout,*) ' ********** WARNING *********'
+            write(luout,*) ' Use of the hcth147 is deprecated,'
+            write(luout,*) ' the hcth147@tz2p should be used instead.'
+            write(luout,*) ' Details at '
+        write(luout,*) ' https://github.com/nwchemgit/nwchem/pull/301'
+            write(luout,*) ' ****************************'
+            write(luout,*) ' If you still wish to use hcth147, '
+            write(luout,*) ' add the folllowing input line '
+            write(luout,*) ' before the dft input section'
+            write(luout,*) '    set dft:use_hcth147 t'
+            write(luout,*) ' ****************************'
+            call errquit(' use of hcth147 deprecated ',0, INPUT_ERR)
+         endif
        xccomb(8) = .true.
          lxfac(11) = .true.
          nlxfac(11) = .true.
@@ -549,7 +586,23 @@ c
          nlcfac(17) = .true.
          cfac(17) = 1.0d0
        goto 10
-c     
+c
+c
+c     HCTH147@TZ2P for exchange & correlation
+c
+ 1947    continue
+c
+c        assume total wanted
+c
+       xccomb(75) = .true.
+         lxfac(75) = .true.
+         nlxfac(75) = .true.
+         xfac(75) = 1.0d0
+         lcfac(75) = .true.
+         nlcfac(75) = .true.
+         cfac(75) = 1.0d0
+       goto 10
+c
 c     becke 97 gga-1 by  Cohen and Handy
 c     
  3000  continue
@@ -3988,6 +4041,91 @@ c
 c
       goto 10
 c
+c
+c wb97
+c
+ 9410  xccomb(76) = .true.
+         xfac(76)= 1.0d0
+        lxfac(76)=.true.
+       nlxfac(76)=.true.
+        cfac(76) = 1.d0
+       lcfac(76) = .true.
+       nlcfac(76) = .true.
+c
+c       Ex(HF-LR)=Ex(HF)-Ex(HF-SR)
+c
+        xfac(1) = 1d0
+       lxfac(1) = .true.
+      nlxfac(1) = .true.
+c
+c     set cam parameters since this is a range-separated functional
+c
+      cam_omega = 0.4d0
+      cam_alpha = 0d0
+      cam_beta = 1d0
+      cam_exch = .true.
+      cam_srhf = .false.
+
+      call xc_setcamparam(rtdb,cam_exch,cam_srhf,cam_omega,cam_alpha,
+     &     cam_beta)
+
+c
+      goto 10
+c
+c wb97x
+c
+ 9420 xccomb(77) = .true.
+         xfac(77)= 1.0d0
+        lxfac(77)=.true.
+       nlxfac(77)=.true.
+        cfac(77) = 1.d0
+       lcfac(77) = .true.
+      nlcfac(77) = .true.
+        xfac(1) = 1d0
+       lxfac(1) = .true.
+      nlxfac(1) = .true.
+c
+c     set cam parameters since this is a range-separated functional
+c
+      cam_omega = 0.3d0
+      cam_alpha = 0.157706d0
+      cam_beta =  0.842294d0
+      cam_exch = .true.
+      cam_srhf = .false.
+      call xc_setcamparam(rtdb,cam_exch,cam_srhf,cam_omega,cam_alpha,
+     &    cam_beta)
+c
+      goto 10
+c
+c wb97x-d3
+c
+ 9430 xccomb(78) = .true.
+         xfac(78)= 1.0d0
+        lxfac(78)=.true.
+       nlxfac(78)=.true.
+        cfac(78) = 1.d0
+       lcfac(78) = .true.
+      nlcfac(78) = .true.
+        xfac(1) = 1d0
+       lxfac(1) = .true.
+      nlxfac(1) = .true.
+c
+c     set cam parameters since this is a range-separated functional
+c
+      cam_omega = 0.25d0
+      cam_alpha = 0.195728d0
+      cam_beta =  1d0-cam_alpha
+      cam_exch = .true.
+      cam_srhf = .false.
+      call xc_setcamparam(rtdb,cam_exch,cam_srhf,cam_omega,cam_alpha,
+     &     cam_beta)
+c D3
+      ivdw = 3
+      if (.not.rtdb_put(rtdb,'dft:ivdw', mt_int, 1, ivdw))
+     &    call errquit('xc_inp: rtdb_put failed vdw', 0, RTDB_ERR)
+c
+      goto 10
+c
 c     gill96; Gill '96 functional for exchange
 c     
  2300  if (inp_a(test)) then
@@ -4250,6 +4388,17 @@ c
      &   call errquit('xc_inp: rtdb_put failed', 7, RTDB_ERR)
 
 cc AJL/End
+
+      if (is_libxcon()) then
+        if (.not.(rtdb_put(rtdb, module(1:mlen)//':libxcon',
+     $                     mt_log,1,.true.)))
+     $   call errquit('xc_inp: rtdb_put failed', 8, RTDB_ERR)
+        call nwchem_libxc_rtdbput(rtdb,module(1:mlen))
+        else
+        if (.not.(rtdb_put(rtdb, module(1:mlen)//':libxcon',
+     $                     mt_log,1,.false.)))
+     $   call errquit('xc_inp: rtdb_put failed', 9, RTDB_ERR)
+      endif   
 c
       return
 c     

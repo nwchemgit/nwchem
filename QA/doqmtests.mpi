@@ -129,6 +129,7 @@ np_small=$(get_limit $np 64)
 ./runtests.mpi.unix procs $np tce_polar_ccsd_small
 ./runtests.mpi.unix procs $np tce_hyperpolar_ccsd_small
 ./runtests.mpi.unix procs $np tce_eomsd_eomsol1
+./runtests.mpi.unix procs $np tce_cc2_c2
 ./runtests.mpi.unix procs $np ducc_be
 #./runtests.mpi.unix procs $np li2h2_tce_ccsd # always hangs
 if [[ ! -z "$MRCC_METHODS" ]]; then
@@ -309,6 +310,10 @@ np_small=$(get_limit $np 16)
 ./runtests.mpi.unix procs $np dft_rscan
 ./runtests.mpi.unix procs $np dft_scan
 ./runtests.mpi.unix procs $np rt_tddft_dimer_charge
+./runtests.mpi.unix procs $np dft_ne_n12
+#
+#libxc
+./dolibxctests.mpi $np
 #
 #--- if we only want quick tests get out now!
 if [[ "$what" == "fast" ]]; then
@@ -318,6 +323,10 @@ fi
 #---   long  may not run on workstations
 # new xc functionals for 7.0.0
 ./runtests.mpi.unix procs $np dft_scanl
+./runtests.mpi.unix procs $np dft_he2p_wb97
+./runtests.mpi.unix procs $np dft_ne2p_wb97x
+./runtests.mpi.unix procs $np dft_ar2p_wb97
+./runtests.mpi.unix procs $np dft_waterdimer_wb97d3
 #
 ./runtests.mpi.unix procs $np aump2 
 ./runtests.mpi.unix procs $np n2_ccsd 

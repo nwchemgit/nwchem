@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "start compile"
-set -ev
+set -e
 # source env. variables
 if [[ -z "$TRAVIS_BUILD_DIR" ]] ; then
     TRAVIS_BUILD_DIR=$(pwd)
@@ -19,15 +19,51 @@ if [[ "$NWCHEM_MODULES" == "tce" ]]; then
     export IPCCSD=1
 fi
 cd $TRAVIS_BUILD_DIR/src
-FDOPT="-O0 -g"
+#FDOPT="-O0 -g"
 if [[ "$arch" == "aarch64" ]]; then 
-    if [[ "$NWCHEM_MODULES" == "tce" ]]; then 
-	FOPT="-O0 -fno-aggressive-loop-optimizations"
+    if [[ "$FC" == "flang" ]] || [[ "$(basename -- $FC | cut -d \- -f 1)" == "nvfortran" ]] ; then
+	export BUILD_MPICH=1
+        if [[ "$FC" == "flang" ]]; then
+	    FOPT="-O2  -ffast-math"
+#            export BUILD_MPICH=1
+	fi
+        if [[ "$(basename -- $FC | cut -d \- -f 1)" == "nvfortran" ]] ; then
+	    export USE_FPICF=1
+	fi
     else
-	FOPT="-O1 -fno-aggressive-loop-optimizations"
+#should be gfortran	
+	if [[ "$NWCHEM_MODULES" == "tce" ]]; then 
+	    FOPT="-O0 -fno-aggressive-loop-optimizations"
+	else
+	    FOPT="-O1 -fno-aggressive-loop-optimizations"
+	fi
     fi
 else
-    FOPT="-O2 -fno-aggressive-loop-optimizations  -ffast-math"
+    if [[ "$FC" == "ifort" ]] ; then
+	FOPT=-O2
+	if [[ "$os" == "Darwin" ]]; then
+	    export BUILD_MPICH=1
+ 	    export BLASOPT="-L$MKLROOT  -Wl,-rpath,${MKLROOT}/lib -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core  -lpthread -lm -ldl"
+	else
+	    export USE_FPICF=Y
+ 	    export BLASOPT="-L$MKLROOT -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core  -lpthread -lm -ldl"
+	    export SCALAPACK_LIB="-L$MKLROOT -lmkl_scalapack_ilp64 -lmkl_blacs_intelmpi_ilp64 -lpthread -lm -ldl"
+	    export SCALAPACK_SIZE=8
+	    unset BUILD_SCALAPACK
+	fi
+        unset BUILD_OPENBLAS
+	export BLAS_SIZE=8
+	export LAPACK_LIB="$BLASOPT"
+    elif [[ "$FC" == "flang" ]] || [[ "$(basename -- $FC | cut -d \- -f 1)" == "nvfortran" ]] ; then
+	export BUILD_MPICH=1
+        if [[ "$FC" == "flang" ]]; then
+	    FOPT="-O2  -ffast-math"
+	fi
+        if [[ "$FC" == "nvfortran" ]]; then
+	    export USE_FPICF=1
+#	    FOPT="-O2 -tp haswell"
+	fi
+    fi
 fi    
  if [[ "$os" == "Darwin" ]]; then 
    if [[ "$NWCHEM_MODULES" == "tce" ]]; then
@@ -39,11 +75,16 @@ fi
        export PATH="/usr/local/bin:$PATH"
 #       export LDFLAGS="-L/usr/local/opt/python@3.7/lib:$LDFLAGS"
    fi
-if [[ -z "$TRAVIS_HOME" ]]; then
-    make V=1 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
-else
-    ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
-fi
+   if [[ -z "$TRAVIS_HOME" ]]; then
+       env
+       if [[ -z "$FOPT" ]]; then
+	   make V=0   -j3
+       else
+	   make V=0 FOPTIMIZE="$FOPT"   -j3
+       fi
+   else
+       ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT"   -j3
+   fi
      cd $TRAVIS_BUILD_DIR/src/64to32blas 
      make
      cd $TRAVIS_BUILD_DIR/src
@@ -53,16 +94,16 @@ fi
 #     ls -lrt $DYLD_LIBRARY_PATH
 #      tail -120 make.log
  elif [[ "$os" == "Linux" ]]; then
-     if [[ "$arch" == "aarch64" ]]; then 
-	 export MAKEFLAGS=-j8
-     else    
-	 export MAKEFLAGS=-j3
-     fi
+     export MAKEFLAGS=-j3
      echo    "$FOPT$FDOPT"
 if [[ -z "$TRAVIS_HOME" ]]; then
-    make V=1 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
+    if [[ -z "$FOPT" ]]; then
+	make V=0   -j3
+    else
+	make V=0 FOPTIMIZE="$FOPT"   -j3
+    fi
 else
-    ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT" FDEBUG="$FDOPT"  -j3
+    ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT"  -j3
 fi
      cd $TRAVIS_BUILD_DIR/src/64to32blas 
      make

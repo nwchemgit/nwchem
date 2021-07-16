@@ -1,44 +1,53 @@
-# BSE Version v0.8.4+29.gb6d6a1b
-# Data downloaded at 2019-06-24T14:04
-# pcx-4 version number 1
+# BSE Version v0.8.13+78.g32721c8f
+# Data downloaded on 2021-02-20T21:21
+# pcX-4 version number 1
 # Description: Jensen pcX basis set optimized for core-spectroscopy
 # Role: orbital
 # 
-# ********************************************************************************
-# If you downloaded data from the basis set
-# exchange or used the basis set exchange python library, please cite:
-# ********************************************************************************
-#     Pritchard, Benjamin P., Altarawy, Doaa, Windus, Theresa L.
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
 #     A New Basis Set Exchange: An Open, Up-to-date Resource for the
 #             Molecular Sciences Community
-#     Manuscript in preparation
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
 # 
+# feller1996a
 #     Feller, David
 #     The role of databases in support of computational chemistry
 #             calculations
-#     J. Comput. Chem., 17, 1571-1586 (1996)
+#     J. Comput. Chem. 17, 1571-1586 (1996)
 #     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
 # 
+# schuchardt2007a
 #     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
 #             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
 #     Basis Set Exchange: A Community Database for Computational Sciences
-#     J. Chem. Inf. Model., 47, 1045-1052 (2007)
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
 #     10.1021/ci600510j
 # 
-# ********************************************************************************
-# References for the basis set
-# ********************************************************************************
-# Li-Ar
-#     ## Jensen pcX basis set optimized for core-spectroscopy
+# 
+#  References for the basis set
+# 
+#  Li-Ar
+#      Jensen pcX basis set optimized for core-spectroscopy
+#          ambroise2019a
+# 
+# 
+# 
+# ambroise2019a
 #     Ambroise, Maximilien A., Jensen, Frank
 #     Probing Basis Set Requirements for Calculating Core Ionization and
 #             Core Excitation Spectroscopy by the Δ Self-Consistent-Field
 #             Approach
-#     J. Chem. Theory Comput., 15, 325-337 (2019)
+#     J. Chem. Theory Comput. 15, 325-337 (2019)
 #     10.1021/acs.jctc.8b01071
 # 
 # # 
-basis "Li_pcx-4" 
+basis "Li_pcX-4" SPHERICAL 
 #basis SET: (19s,8p,3d,2f,1g) -> [19s,8p,3d,2f,1g]
 Li    S
       0.706806E+05           1.0000000
@@ -107,7 +116,7 @@ Li    F
 Li    G
       0.550000E+00           1.0000000
 end
-basis "Be_pcx-4" 
+basis "Be_pcX-4" SPHERICAL 
 #basis SET: (19s,8p,3d,2f,1g) -> [19s,8p,3d,2f,1g]
 Be    S
       0.139328E+06           1.0000000
@@ -176,7 +185,7 @@ Be    F
 Be    G
       0.800000E+00           1.0000000
 end
-basis "B_pcx-4" 
+basis "B_pcX-4" SPHERICAL 
 #basis SET: (18s,11p,6d,3f,2g,1h) -> [18s,11p,6d,3f,2g,1h]
 B    S
       0.742499E+06           1.0000000
@@ -261,7 +270,7 @@ B    G
 B    H
       0.175000E+01           1.0000000
 end
-basis "C_pcx-4" 
+basis "C_pcX-4" SPHERICAL 
 #basis SET: (18s,11p,6d,3f,2g,1h) -> [18s,11p,6d,3f,2g,1h]
 C    S
       0.527777E+06           1.0000000
@@ -346,7 +355,7 @@ C    G
 C    H
       0.185000E+01           1.0000000
 end
-basis "N_pcx-4" 
+basis "N_pcX-4" SPHERICAL 
 #basis SET: (18s,11p,6d,3f,2g,1h) -> [18s,11p,6d,3f,2g,1h]
 N    S
       0.894758E+06           1.0000000
@@ -431,7 +440,7 @@ N    G
 N    H
       0.195000E+01           1.0000000
 end
-basis "O_pcx-4" 
+basis "O_pcX-4" SPHERICAL 
 #basis SET: (18s,11p,6d,3f,2g,1h) -> [18s,11p,6d,3f,2g,1h]
 O    S
       0.125972E+07           1.0000000
@@ -516,7 +525,7 @@ O    G
 O    H
       0.205000E+01           1.0000000
 end
-basis "F_pcx-4" 
+basis "F_pcX-4" SPHERICAL 
 #basis SET: (18s,11p,6d,3f,2g,1h) -> [18s,11p,6d,3f,2g,1h]
 F    S
       0.185602E+07           1.0000000
@@ -601,7 +610,7 @@ F    G
 F    H
       0.215000E+01           1.0000000
 end
-basis "Ne_pcx-4" 
+basis "Ne_pcX-4" SPHERICAL 
 #basis SET: (18s,11p,6d,3f,2g,1h) -> [18s,11p,6d,3f,2g,1h]
 Ne    S
       0.252258E+07           1.0000000
@@ -686,7 +695,7 @@ Ne    G
 Ne    H
       0.225000E+01           1.0000000
 end
-basis "Na_pcx-4" 
+basis "Na_pcX-4" SPHERICAL 
 #basis SET: (21s,15p,3d,2f,1g) -> [21s,15p,3d,2f,1g]
 Na    S
       0.191871E+07           1.0000000
@@ -773,7 +782,7 @@ Na    F
 Na    G
       0.300000E+00           1.0000000
 end
-basis "Mg_pcx-4" 
+basis "Mg_pcX-4" SPHERICAL 
 #basis SET: (21s,15p,3d,2f,1g) -> [21s,15p,3d,2f,1g]
 Mg    S
       0.319915E+07           1.0000000
@@ -860,7 +869,7 @@ Mg    F
 Mg    G
       0.350000E+00           1.0000000
 end
-basis "Al_pcx-4" 
+basis "Al_pcX-4" SPHERICAL 
 #basis SET: (21s,16p,6d,3f,2g,1h) -> [21s,16p,6d,3f,2g,1h]
 Al    S
       0.384517E+07           1.0000000
@@ -961,7 +970,7 @@ Al    G
 Al    H
       0.690000E+00           1.0000000
 end
-basis "Si_pcx-4" 
+basis "Si_pcX-4" SPHERICAL 
 #basis SET: (21s,16p,6d,3f,2g,1h) -> [21s,16p,6d,3f,2g,1h]
 Si    S
       0.461583E+07           1.0000000
@@ -1062,7 +1071,7 @@ Si    G
 Si    H
       0.780000E+00           1.0000000
 end
-basis "P_pcx-4" 
+basis "P_pcX-4" SPHERICAL 
 #basis SET: (21s,16p,6d,3f,2g,1h) -> [21s,16p,6d,3f,2g,1h]
 P    S
       0.526252E+07           1.0000000
@@ -1163,7 +1172,7 @@ P    G
 P    H
       0.870000E+00           1.0000000
 end
-basis "S_pcx-4" 
+basis "S_pcX-4" SPHERICAL 
 #basis SET: (21s,16p,6d,3f,2g,1h) -> [21s,16p,6d,3f,2g,1h]
 S    S
       0.635920E+07           1.0000000
@@ -1264,7 +1273,7 @@ S    G
 S    H
       0.950000E+00           1.0000000
 end
-basis "Cl_pcx-4" 
+basis "Cl_pcX-4" SPHERICAL 
 #basis SET: (21s,16p,6d,3f,2g,1h) -> [21s,16p,6d,3f,2g,1h]
 Cl    S
       0.742123E+07           1.0000000
@@ -1365,7 +1374,7 @@ Cl    G
 Cl    H
       0.104000E+01           1.0000000
 end
-basis "Ar_pcx-4" 
+basis "Ar_pcX-4" SPHERICAL 
 #basis SET: (21s,16p,6d,3f,2g,1h) -> [21s,16p,6d,3f,2g,1h]
 Ar    S
       0.944513E+07           1.0000000
