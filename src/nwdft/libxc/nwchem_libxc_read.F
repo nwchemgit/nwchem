@@ -14,7 +14,7 @@
 #include "libxc.fh"
       type(xc_f03_func_t) :: xcfunc
       type(xc_f03_func_info_t) :: xcinfo
-      integer(c_int) :: funcid, xcflags, xckind, xcfamily
+      integer(c_int) :: funcid, xcflags, xckind, xcfamily, azero
       real(c_double) :: alpha
       integer(c_int),parameter :: error = -1
 #endif
@@ -79,9 +79,13 @@
         endif
       endselect
 
-      if (iand(xcflags,xc_flags_hyb_camy).eq.xc_flags_hyb_camy) goto 10
-      if (iand(xcflags,xc_flags_hyb_lcy).eq.xc_flags_hyb_lcy) goto 10
-      if (iand(xcflags,xc_flags_vv10).eq.xc_flags_vv10) goto 20
+      if ((iand(xcflags,xc_flags_hyb_camy).eq.xc_flags_hyb_camy).or.
+     D     (iand(xcflags,xc_flags_hyb_lcy).eq.xc_flags_hyb_lcy)) call
+     C     errquit('nwchem_libxc_read: Yukawa kernel is not available',
+     $     azero, input_err)
+      if (iand(xcflags,xc_flags_vv10).eq.xc_flags_vv10) call
+     D     errquit('nwchem_libxc_read: VV10 kernel is not available',
+     $     azero, input_err)
 
       success = .true.
       libxcon = .true.
@@ -97,10 +101,6 @@
 
       return
 
-   10 call errquit('nwchem_libxc_read: Yukawa kernel is not available',
-     $              0,input_err) 
-   20 call errquit('nwchem_libxc_read: VV10 kernel is not available',
-     $              0,input_err) 
 #endif
       end subroutine
 
