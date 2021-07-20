@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+#set -x
 get_cmake38(){
 	UNAME_S=$(uname -s)
 	if [[ ${UNAME_S} == "Linux" ]] || [[ ${UNAME_S} == "Darwin" ]] && [[ $(uname -m) == "x86_64" ]] ; then
@@ -76,6 +77,8 @@ if ((CMAKE_VER_MAJ < 3)) || (((CMAKE_VER_MAJ > 2) && (CMAKE_VER_MIN < 8))); then
 fi
 
 cd libxc
+# patch pk09 to avoid compiler  memory problems
+patch -p0 -N < ../pk09.patch
 mkdir -p build
 cd build
 if [[ -z "${NWCHEM_TOP}" ]]; then
@@ -96,11 +99,10 @@ else
     cflags=" "
     fcflags=" "
 fi
-CMAKE_EXE_LINKER_FLAGS=
+rm -rf libxc/build
+$CMAKE -E env CFLAGS="$cflags" LDFLAGS="$ldflags" FCFLAGS="$fcflags" FFLAGS="$fcflags" \
 $CMAKE  -DCMAKE_INSTALL_PREFIX=${NWCHEM_TOP}/src/libext/libxc/install -DCMAKE_C_COMPILER=$CC -DENABLE_FORTRAN=ON -DCMAKE_Fortran_COMPILER=$FC -DDISABLE_KXC=OFF \
--DCMAKE_EXE_LINKER_FLAGS=$ldflags  -DCMAKE_Fortran_FLAGS=$fcflags -DCMAKE_C_FLAGS=$cflags \
 -DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_BUILD_TYPE=Release ..
-
 
 make -j2 | tee make.log
 make install
