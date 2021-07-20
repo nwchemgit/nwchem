@@ -1,0 +1,10 @@
+--- src/maple2c/lda_exc/lda_c_pk09.c.org    2021-07-19 18:57:43.524878069 -0700
++++ src/maple2c/lda_exc/lda_c_pk09.c    2021-07-19 18:58:34.269158837 -0700
+@@ -1639,6 +1639,7 @@
+ }
+
+
++#pragma GCC optimization_level 0
+ static inline void
+ func_pol(const xc_func_type *p, int order, const double *rho , double *zk LDA_OUT_PARAMS_NO_EXC(XC_COMMA double *, ))
+ {
