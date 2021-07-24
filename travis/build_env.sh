@@ -34,7 +34,7 @@ esac
 	 else
 	mkdir -p ~/mntdmg ~/apps/oneapi || true
 	cd ~/Downloads
-	dir_base="17869"
+	dir_base="17969"
 	dir_hpc="17890"
 	base="m_BaseKit_p_2021.3.0.3043_offline"
 	hpc="m_HPCKit_p_2021.3.0.3226_offline"
