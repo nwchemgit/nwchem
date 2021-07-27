@@ -55,7 +55,7 @@
 #ifdef GWCMPLX
       double precision, parameter :: eta = 0.001d0
 #else
-      double precision, parameter :: eta = 0.000001d0
+      double precision, parameter :: eta = 0.00001d0
 #endif
 
       double precision, parameter :: shift = 0.00001d0
@@ -154,6 +154,24 @@
      $                                0.5d0/(temp - arg) )
             dfactor(ipole,jsp) = dfac*dble( (-(0.5d0/(arg + temp))**2 +
      $                                      (0.5d0/(temp - arg))**2) )
+#endif
+
+#ifdef GWDEBUG
+            if ((factor(ipole,jsp).ne.factor(ipole,jsp)).or.
+     $           dfactor(ipole,jsp).ne.dfactor(ipole,jsp)) then
+              write(*,*) " ## Singular factor in buildrn. Shift denom"
+              temp = temp + dcmplx(0.0d0,0.001d0)
+#ifdef GWCMPLX
+            factor(ipole,jsp) = 0.5d0/(arg + temp) + 0.5d0/(temp - arg)
+            dfactor(ipole,jsp) = dfac*(-(0.5d0/(arg + temp))**2 + 
+     $                                  (0.5d0/(temp - arg))**2)
+#else
+            factor(ipole,jsp) = dble( 0.5d0/(arg + temp) + 
+     $                                0.5d0/(temp - arg) )
+            dfactor(ipole,jsp) = dfac*dble( (-(0.5d0/(arg + temp))**2 +
+     $                                      (0.5d0/(temp - arg))**2) )
+#endif
+            endif
 #endif
           enddo
 !$omp   end parallel do simd

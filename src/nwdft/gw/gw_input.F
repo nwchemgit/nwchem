@@ -22,7 +22,7 @@ c
       data dirs /'evgw0', 'evgw' , 'method', 'solver',
      &           'convergence', 'states', 'analyticw', 'end'/
 c
-      integer ind, qpiter,eviter,noqp(2),nvqp(2)
+      integer ind, qpiter,eviter,noqp(2),nvqp(2), ngl
       double precision threshold
       double precision, parameter :: ha2ev = 27.211386245988d0
 c
@@ -83,6 +83,9 @@ c
       if (inp_compare(.false.,'cdgw',test)) then
         if (.not.rtdb_put(rtdb, 'gw:cdgw', mt_log, 1, .true.))
      &    call errquit('gw_input: rtdb_put failed', 400, RTDB_ERR)
+        if (.not.inp_i(ngl)) goto 10
+        if (.not.rtdb_put(rtdb, 'gw:ngl', mt_int, 1, ngl))
+     &    call errquit('gw_input: rtdb_put failed', 300, RTDB_ERR)
       elseif (inp_compare(.false.,'acgw',test)) then
         if (.not.rtdb_put(rtdb, 'gw:acgw', mt_log, 1, .true.))
      &    call errquit('gw_input: rtdb_put failed', 400, RTDB_ERR)

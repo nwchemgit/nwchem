@@ -38,7 +38,6 @@
 
       elseif (z.gt.0.1d0) then
         xout = xin + 0.80d0*step
-
       else
         xout = xin + radius*fx
 

@@ -154,6 +154,8 @@ c
             radius = min(maxradius,0.1d0*maxradius/residual**2)
 
             ! Find out if we might have skipped a solution
+            ! skip for now
+#ifdef GW_DOSKIP
             if ((iter.gt.1) .and. (.not.bracket) .and. 
      $          (dble(dsigmac).lt.0d0) .and.
      $          (errors(iter)*errors(iter-1).gt.0d0)) then
@@ -179,6 +181,7 @@ c
                 skipped = .true.
               endif
             endif
+#endif
 
             ! Find out if we have bracketed the solution
             if (iter.gt.1 .and. (.not.skipped) ) then
@@ -200,7 +203,7 @@ c
              if (main) write(luout,9901) iter,iqp,util_wallsec()-timer2,
      $                                   ha2ev*(Ein+efermi(isp)),
      $                                   ha2ev*(Eout+efermi(isp))
-              if (bracket.and.main) then
+              if (.not.bracket.and.main) then
                 write(luout,9902) ha2ev*residual,
      $                           ha2ev*(eout-ein)
               elseif (main) then
@@ -225,7 +228,7 @@ c
      $                                  ha2ev*(Eout+efermi(isp))
  9901       format('  ## Finished iter',I3,' of qp ',I3,' in ',F12.2,'s'
      $             ,/,'     Ein: ',F12.6,' Eout: ',F12.6)
-            if (bracket .and. main) then
+            if (.not.bracket .and. main) then
               write(luout,9902) ha2ev*residual,
      $                          ha2ev*(eout-ein)
             elseif (main) then
