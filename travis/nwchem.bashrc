@@ -88,6 +88,9 @@ if [[ "$os" == "Darwin" ]]; then
 fi
 if [[ "$os" == "Linux" ]]; then 
    export NWCHEM_TARGET=LINUX64 
+  if [[ "$MPI_IMPL" == "mpich" ]]; then
+    export BUILD_MPICH=1
+  fi
 fi
 export OMP_NUM_THREADS=1
 export USE_NOIO=1
