@@ -1,4 +1,4 @@
-      Subroutine xc_mitani(r,w,nr,range,lreset)
+      Subroutine xc_mitani(r,w,nr,range,lreset, alpha_de2)
 c double exponential DE2 grid      
 c M. Mitani
 cTheor Chem Acc (2011) 130:645–669
@@ -9,8 +9,9 @@ C$Id$
       double precision r(*) ! grid pts coord [output]
       double precision w(*) ! grid pts weights [output]
 c
-      integer nr
-      double precision range ! max extent of basis f
+      integer nr                 ! no. grid points [input]
+      double precision range     ! max extent of basis f
+      double precision alpha_de2 ! alpha [input]
 c
       logical lreset
 #include "global.fh"
@@ -32,16 +33,21 @@ c
       parameter (n_param=3)
       double precision paramn(n_param)
       double precision eps, alpha_0
-      parameter(eps=1d-6,alpha_0=1d0)
-c     Mitani uses alpha=1
-c     Dasgupta and Herbert        DOI: 10.1002/jcc.24761
-c     2.2 <alpha < 3.2
+      parameter(eps=1d-6,alpha_0=1.d0)
+c     Mitani 2011                                          alpha: 1
+c     Mitani-Yoshioka 2012  DOI: 10.1007/s00214-012-1169-z alpha: 1.9
+c     Dasgupta and Herbert  DOI: 10.1002/jcc.24761c       2.2 <alpha < 3.2
+c     alpha can be set from input with the directive 'set dft:alpha_de2 1.9'
 c***************************************************************************
 c     print options
       oprint = util_print('quadrature', print_high).and.
      A     (ga_nodeid().eq.0)
 c
-      alpha=alpha_0
+      if(alpha_de2.ne.0d0) then
+         alpha=alpha_de2
+      else
+         alpha=alpha_0
+      endif
 c     odd and even number of grid points
       if(mod(nr,2).eq.1) then
          n_lo=-(nr-1)/2
@@ -104,9 +110,6 @@ c
       double precision function xc_de2_h(h,n_param,paramn)
       implicit none
       double precision h
-c     alpha <->  paramn(1)
-c     n     <->  paramn(2)
-c     lnr   <->  paramn(3)        
       integer n_param
       double precision paramn(n_param)
 c
@@ -158,6 +161,7 @@ c
       attempts=attempts+1
       if(attempts.gt.mx_attempts) then
          write(6,*) ' xc_bisect did not cvg in ',attempts,' attempts'
+         call errquit('xc_bisect: err2 ',0,0)
          goto 1999
        endif
       if(fmax*fmed.gt.0) then

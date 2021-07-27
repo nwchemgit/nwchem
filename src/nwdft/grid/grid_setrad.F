@@ -30,6 +30,7 @@ c
      .     k_2l,l_2l,k_2ex,l_2ex,k_2g,l_2g
       double precision braggmult
       double precision midpoint,range_max,range_mk
+      double precision alpha_de2
       me=ga_nodeid()
 c
 c     Set print options.
@@ -229,16 +230,18 @@ cedo     .            ' Murakn itype cutoff ',itype,range_mk
      .            tol_reset)
           elseif(wradgrid.eq.9) then
              if(tol_reset) then
-c             if(.true.) then
                 range_mk=dble(rad_cutoff(1,itype))
              else
-c     Mitani: r= 10R for GTO; Mitani's R ~ 2 R_BR
+c     Mitani: r= 10R for GTO; Mitani's R ~ 2 R_BS
                 range_mk=10d0*2d0*bsrad_atom_type(itype)
              endif
+             if (.not. rtdb_get(rtdb,'dft:alpha_de2',
+     m            mt_dbl, 1, alpha_de2))
+     *            alpha_de2=0d0
              call xc_mitani(
      .            rpts(1,itype), 
      &            rwghts(1,itype),nrad(itype),range_mk,
-     .            tol_reset)
+     .            tol_reset, alpha_de2)
           elseif(radgrid.eq.'legleg') then
             n1=nrad(itype)*ndivide/16
             midpoint=bsrad_atom_type(itype)*braggmult
