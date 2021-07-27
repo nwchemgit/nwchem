@@ -45,7 +45,7 @@ c
      &     'coarse', 'medium', 'fine', 'xfine', 'user',
      H     'huge',
 C     .            'euler','mura','treutler','lindh',
-     .            'euler','mura','treutler','xxxx',
+     .            'euler','mura','treutler','de2',
      .            'ssf','erf1','erf2',
      &            'store_wght', 'nquad_task', 'rm',
      .     'old','new','nosymm','symm','nodisk'/
@@ -289,11 +289,11 @@ c
       radgrid='tarad'
       goto 2301
 c
-c     Roland Lindh radial grid
+c     de2 Mitani radial grid
 c
  2300 continue
-      call errquit(' wrong keyword ',999, INPUT_ERR)
-      radgrid='rlindh'
+      radgrid='de2'
+      goto 2301
 
  2301 if (.not. rtdb_cput(rtdb,'dft:radgrid', 1,radgrid)) 
      &   call errquit('grid_inp: rtdb_put failed', 2300, RTDB_ERR)
@@ -387,6 +387,7 @@ c
      &       /,' [xcoarse],[coarse],[medium],[fine],[xfine],[huge], ',
      &       /,' [user ival ival], [store_wght], [nquad_task ival], ')
       call util_flush(LuOut)
+      write(6,*) ' aints',aintgot_ang,aintgot_rad
       call errquit('grid_input: invalid format', 0, INPUT_ERR)
 c     
       end
