@@ -66,7 +66,11 @@ c
          wradgrid=7
       elseif(radgrid.eq.'legendre') then
          wradgrid=8
+      elseif(radgrid.eq.'de2') then
+         wradgrid=9
       else
+         write(6,*) 'radgrid is ',radgrid,'@'
+         write(6,*) 'radgrid is ',radgrid,'@'
          call errquit('grid_setrad: unknown radial grid type', 0,
      &       INPUT_ERR)
       endif
@@ -217,10 +221,21 @@ c
              else
                 range_mk=bsrad_atom_type(itype)
              endif
-             znint=int(znuc_atom_type(itype))
 cedo             if(ga_nodeid().eq.0.and.oprint) write(Luout,*)
 cedo     .            ' Murakn itype cutoff ',itype,range_mk
              call xc_murakn(
+     .            rpts(1,itype), 
+     &            rwghts(1,itype),nrad(itype),range_mk,
+     .            tol_reset)
+          elseif(wradgrid.eq.9) then
+c             if(tol_reset) then
+             if(.true.) then
+                range_mk=dble(rad_cutoff(1,itype))
+             else
+c     Mitani: r= 10R for GTO; Mitani's R ~ 2 R_BR
+                range_mk=10d0*2d0*bsrad_atom_type(itype)
+             endif
+             call xc_mitani(
      .            rpts(1,itype), 
      &            rwghts(1,itype),nrad(itype),range_mk,
      .            tol_reset)
