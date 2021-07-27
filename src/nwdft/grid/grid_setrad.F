@@ -228,8 +228,8 @@ cedo     .            ' Murakn itype cutoff ',itype,range_mk
      &            rwghts(1,itype),nrad(itype),range_mk,
      .            tol_reset)
           elseif(wradgrid.eq.9) then
-c             if(tol_reset) then
-             if(.true.) then
+             if(tol_reset) then
+c             if(.true.) then
                 range_mk=dble(rad_cutoff(1,itype))
              else
 c     Mitani: r= 10R for GTO; Mitani's R ~ 2 R_BR

@@ -6,9 +6,6 @@ C$Id$
       double precision r(*) ! grid pts coord [output]
       double precision w(*) ! grid pts weights [output]
 c
-      double precision rm    
-      parameter (rm=3d0)
-c
       integer nr
       double precision range ! max extent of basis f
 c
@@ -26,6 +23,9 @@ c
       external xc_de2_h
       integer max_loops
       parameter(max_loops=10)
+      integer n_param
+      parameter (n_param=3)
+      double precision paramn(n_param)
       double precision eps
       parameter(eps=1d-5)
 c double exponential DE2 grid      
@@ -52,85 +52,42 @@ c     2.2 <alpha < 3.2
       n_hi = nr + n_lo -1
       h = log(range)/(alpha*n_hi)
       h_step=h*1d-2
-      do i=1,max_loops
-         write(6,*) 'h loop i',i
-         h0 = h - h_step
-         h1 = h + h_step
-         fmin = xc_de2_h(h - h_step,alpha,n_hi,log(range))
-         fmax = xc_de2_h(h + h_step,alpha,n_hi,log(range))
-         fmed = xc_de2_h(h ,alpha,n_hi,log(range))
-         write(6,*) ' fmin ',fmin
-         write(6,*) ' fmed ',fmed
-         write(6,*) ' fmax ',fmax
-         if((fmin*fmax).gt.0d0)then
-            h_step = h_step*2d0
-         else
-            goto 8
-         endif
-      enddo
- 8    continue
-      write(6,*) ' out of loop '
-      attempts=0
- 1    continue
-      attempts=attempts+1
-      if(attempts.gt.20) then
-#ifdef DEBUG
-         if(ga_nodeid().eq.0) then
-         write(LuOut,*) ' efermi emax emin ',
-     ,        efermi,emax,emin
-         write(LuOut,*) ' fmed fmax fmin ',fmed,fmax,fmin
-         write(LuOut,*) 'ZERO could no reach required accuracy'
-         endif
-#endif
-         write(6,*) ' did not cvg '
-         goto 1999
-       endif
-      if(fmax*fmed.gt.0) then
-c	zero between emin and efermi
-         h1=h
-         fmax=fmed
-      else	
-c     zero between fmed and fmax
-         h0=h
-         fmin=fmed
-      endif
-      if(abs(fmax-fmin).le.0.d0) then
-         write(0,*) ' WARNING: fmax=fmin'
-      endif
-      if(attempts.lt.15.or.abs(fmax-fmin).lt.0.d0) then
-      h=0.5d0*(h0+h1)
-      else
-         h=-fmin*(h1-h0)/(fmax-fmin)+h0
-      endif
-      
-      fmed = xc_de2_h(h ,alpha,n_hi,log(range))
-      if(abs(fmed).gt.eps.and.abs(h1-h0).gt.eps*1d-1) goto 1
-1999  continue
-      write(6,*) ' h is ',h, ' in ',attempts,' attempts'
+      paramn(1)=alpha
+      paramn(2)=n_hi
+      paramn(3)=log(range)
+
+      call xc_bisect(h, xc_de2_h, 3, paramn)
+
+      write(6,*) ' h is ',h
       write(6,*) ' Mitani: n_lo n_hi ',n_lo,n_hi
 c     
+      alpha=1d0
+      alpha_old=alpha
       if(lreset) then
-         alpha=1d0
-         alpha_old=alpha
          h = log(range)/(alpha*n_hi)
          write(6,*) ' before reset: h ',h
          xi=n_hi*h
          ri = exp(alpha*xi - exp(-xi))
          write(6,*) ' before rest: rnhi  ', ri
          do i=1,max_loops
-            write(6,*) 'reset loop i',i
             alpha=(log(range) + exp(-n_hi*h))/(n_hi*h)
-            write(6,*) ' reset: alpha is ',alpha
             h = log(range)/(alpha*n_hi)
-            write(6,*) ' reset: h is     ', h
+            paramn(1)=alpha
+            call xc_bisect(h, xc_de2_h, 3, paramn)
             xi=n_hi*h
             ri = exp(alpha*xi - exp(-xi))
-            write(6,*) ' reset: rnhi i   ', ri
-            write(6,*) ' delta alpha',dabs(alpha_old-alpha)
+            if(dabs(alpha_old-alpha).lt.1d-4) goto 10
             alpha_old=alpha
          enddo
       endif
  10   continue
+      if(alpha_old.ne.alpha) then
+         write(6,*) 'reset loop i',i
+         write(6,*) ' reset: alpha is ',alpha
+         write(6,*) ' reset: h is     ', h
+         write(6,*) ' reset: rnhi i   ', ri
+         write(6,*) ' delta alpha',dabs(alpha_old-alpha)
+      endif
       write(6,*) ' Mitani: R_max ',range
       write(6,*) ' Mitani: alpha ',alpha
       write(6,*) ' Mitani: h ',h
@@ -150,10 +107,91 @@ c
       write(6,*) ' Mitani: rn ',r(nr)
 
       end
-      double precision function xc_de2_h(h,alpha,n,lnr)
+      double precision function xc_de2_h(h,n_param,paramn)
       implicit none
-      double precision h,alpha,lnr
+      double precision h
+c     alpha <->  paramn(1)
+c     n     <->  paramn(2)
+c     lnr   <->  paramn(3)        
+      integer n_param
+      double precision paramn(n_param)
+c
+      double precision alpha,lnr
       integer n
+c
+      if(n_param.ne.3) call errquit(' incomp func ',0,0)
+      alpha =  paramn(1)
+      n     =  paramn(2)
+      lnr   =  paramn(3)        
       xc_de2_h=alpha*n*h - exp(-n*h)  - lnR
+      return
+      end
+      subroutine xc_bisect(x,func3,n_param,paramn)
+      implicit none
+      double precision x ! [in:guess,out:solution]
+      integer n_param
+      double precision  paramn(n_param)
+c      
+      double precision func3
+      external func3
+c
+      double precision x0,x1,fmed,fmin,fmax
+      double precision step
+      integer attempts
+      integer i,max_loops
+      parameter(max_loops=10)
+      double precision eps
+      parameter(eps=1d-5)
+c
+      step=x/100d0
+      do i=1,max_loops
+         write(6,*) 'h loop i',i
+         x0 = x - step
+         x1 = x + step
+         fmin = func3(x0, n_param, paramn)
+         fmax = func3(x1, n_param, paramn)
+         fmed = func3(x , n_param, paramn)
+         write(6,*) ' fmin ',fmin
+         write(6,*) ' fmed ',fmed
+         write(6,*) ' fmax ',fmax
+         if((fmin*fmax).gt.0d0)then
+            step = step*2d0
+         else
+            goto 8
+         endif
+      enddo
+      write(6,*) ' xc_bisect: sign fmin = fmax'
+      call errquit('xc_bisect: err1 ',0,0)
+ 8    continue
+      write(6,*) ' out of loop '
+      attempts=0
+ 1    continue
+      attempts=attempts+1
+      if(attempts.gt.20) then
+         write(6,*) ' xc_bisect did not cvg in ',attempts,' attempts'
+         goto 1999
+       endif
+      if(fmax*fmed.gt.0) then
+c	zero between emin and efermi
+         x1=x
+         fmax=fmed
+      else	
+c     zero between fmed and fmax
+         x0=x
+         fmin=fmed
+      endif
+      if(abs(fmax-fmin).le.0.d0) then
+         write(0,*) ' WARNING: fmax=fmin'
+      endif
+      if(attempts.lt.15.or.abs(fmax-fmin).lt.0.d0) then
+      x=0.5d0*(x0+x1)
+      else
+         x=-fmin*(x1-x0)/(fmax-fmin)+x0
+      endif
+      
+      fmed = func3(x , n_param, paramn)
+      if(abs(fmed).gt.eps.and.abs(x1-x0).gt.eps*1d-1) goto 1
+1999  continue
+      write(6,*) ' x is ',x, ' in ',attempts,' attempts'
       return
       end
