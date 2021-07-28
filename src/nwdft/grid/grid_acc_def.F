@@ -33,7 +33,7 @@ c
      .                'gausleg','lebedev'/
       data grid_acc /
      .     1d-4,1d-5,1d-6,1d-7,1d-8,1d-10,
-     .     1d-8,1d-4/
+     .     1d-8,1d-8/
 c
       double precision ictr_coord(3), ictr_chg
       integer itype, ictr, iaz, i_atomic_number,iangat
