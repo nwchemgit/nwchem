@@ -36,7 +36,7 @@ c
       double precision ddumm
       integer atn
       character*2 symbol
-      parameter (num_dirs = 26)
+      parameter (num_dirs = 27)
       character*10 dirs(num_dirs)
       character*16 test,element
       logical aintgot_rad,aintgot_ang
@@ -45,7 +45,7 @@ c
      &     'coarse', 'medium', 'fine', 'xfine', 'user',
      H     'huge',
 C     .            'euler','mura','treutler','lindh',
-     .            'euler','mura','treutler','de2',
+     .            'euler','mura','treutler','de2', 'de2d',
      .            'ssf','erf1','erf2',
      &            'store_wght', 'nquad_task', 'rm',
      .     'old','new','nosymm','symm','nodisk'/
@@ -67,7 +67,7 @@ c
 c     
       goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
      H     1111,
-     .     2001,2100,2200,2300,1700, 1800,1900,1100, 
+     .     2001,2100,2200,2300,2299,1700, 1800,1900,1100, 
      &      1200, 1300, 1400,1500, 1600, 1650,1660,1999) ind
       call errquit('grid_inp: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -287,6 +287,12 @@ c     Treutler-Ahlrichs radial grid
 c
  2200 continue
       radgrid='tarad'
+      goto 2301
+c
+c     de2 Mitani radial grid
+c
+ 2299 continue
+      radgrid='de2d'
       goto 2301
 c
 c     de2 Mitani radial grid
