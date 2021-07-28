@@ -38,6 +38,7 @@ HEADERS = xc.fh xc_vdw.fh xc_params.fh xc_hcth.fh
 	xc_vwn_5.o \
 	xc_eval_fnl.o xc_fd.o xc_pbe96.o  \
 	xc_hcth.o  xc_xpbe96.o xc_xpw91.o xc_tarad.o xc_murakn.o xc_mitani.o \
+	xc_mitani_dmr.o \
 	xc_signf.o  xc_gill96.o  xc_xmpw91.o  xc_xpkzb99.o \
 	xc_cpkzb99.o   xc_cMpbe96.o xc_xtpss03.o xc_ctpss03.o \
 	xc_oep.o xc_sic_pert.o xc_sic.o localize_sic.o \
