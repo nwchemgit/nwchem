@@ -17,14 +17,14 @@ c
 #include "global.fh"
 #include "util.fh"
 c      
-      integer i
+      integer i,maxiter
       double precision h ! mesh size
       double precision xi,ri,wi,alpha
 c
       integer n_lo, n_hi
       integer attempts,max_attempts
       logical oprint
-      double precision alpha_old
+      double precision alpha_old, delta
       double precision lambertW
       external lambertW
       integer max_loops
@@ -35,6 +35,7 @@ c
       double precision wrmin,wrmax,lrs,lrmin,lrmax
       double precision eps, alpha_0,rmin, invalpha
       parameter(eps=1d-6,alpha_0=1.d0,rmin=1.0d-7)
+      parameter(maxiter=100)
 c     Mitani 2011                                          alpha: 1
 c     Mitani-Yoshioka 2012  DOI: 10.1007/s00214-012-1169-z alpha: 1.9
 c     Dasgupta and Herbert  DOI: 10.1002/jcc.24761c       2.2 <alpha < 3.2
@@ -58,9 +59,17 @@ c
       lrmin = log(rmin)
       lrs = log(range/rmin)
 
-      h = (lrs + alpha*(wrmax - wrmin))/(alpha*(nr-1))
       n_hi=nint((lrmax + alpha*wrmax)*(nr-1)/(lrs+alpha*(wrmax-wrmin)))
       n_lo=n_hi+1-nr
+
+      ! we will adjust h to fix rmin = 1d-7
+      h = (lrs + alpha*(wrmax - wrmin))/(alpha*(nr-1))
+      do i=1,maxiter
+        delta = (alpha*n_lo*h - exp(-n_lo*h) - lrmin)/
+     $          (alpha*n_lo + n_lo*exp(-n_lo*h))
+        if (abs(delta/h).lt.1d-16) exit
+        h = h - delta
+      enddo
 
       if(oprint) then
          write(6,*) ' Mitani: R_max ',range
