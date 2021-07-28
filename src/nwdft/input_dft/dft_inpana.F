@@ -49,12 +49,12 @@ c
       character*10 start_10c, NA_10c, asap_10c
       character*10 strng1, strng2, strng3, strng4, strng5, strng6
       character*16 tag, theory
-      character*20 rgridnames(9)
+      character*20 rgridnames(10)
       logical xc_gotxc
       external xc_gotxc
       data rgridnames /'Euler-MacLaurin','Mura-Knowles',
      .     'Treutler-Ahlrichs','Gauss-Legendre','G-C-interv',
-     ,     'Lindh','Chebyshev','Legendre','DE2'/
+     ,     'Lindh','Chebyshev','Legendre','DE2','DE2D'/
 c
       logical status  ! FA
       logical use_nwxc 
