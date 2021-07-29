@@ -201,10 +201,10 @@ c     zero between fmed and fmax
       parameter(maxz=17)
 c     alpha SG-2 from Dasgupta and Herbert
       double precision alphad(maxz)
-c     H
+cH
       data alphad(1)/2.6d0/
-cHe
-      data alphad(2)/0d0/
+cHe fit
+      data alphad(2)/1.6d0/
 cLi 	
       data alphad(3)/3.2d0/
 cBe 	
@@ -222,7 +222,7 @@ cF
 cNa 	
       data alphad(11)/3.2d0/
 cNe
-      data alphad(10)/0d0/
+      data alphad(10)/2.3d0/
 cMg 	
       data alphad(12)/2.4d0/
 cAl 	
@@ -248,12 +248,12 @@ cCl
 #include "errquit.fh"
       integer maxz
       parameter(maxz=17)
-c     alpha SG-2 from Dasgupta and Herbert
+c     alphaS SG-3 from Dasgupta and Herbert
       double precision alphad(maxz)
 c     H
       data alphad(1)/2.7d0/
-cHe
-      data alphad(2)/0d0/
+cHe fit
+      data alphad(2)/1.6d0/
 cLi 	
       data alphad(3)/3.0d0/
 cBe 	
@@ -270,8 +270,8 @@ cF
       data alphad(9)/2.1d0/
 cNa 	
       data alphad(11)/3.2d0/
-cNe
-      data alphad(10)/0d0/
+cNe fit
+      data alphad(10)/2.2d0/
 cMg 	
       data alphad(12)/2.6d0/
 cAl 	
