@@ -142,6 +142,7 @@ jobs:
             nwchem_modules: "tinyqmpw python"
             fc: gfortran-10
             cc: gcc-10
+            use_libxc: 1
           - os: macos-10.15
             experimental: true 
             mpi_impl: openmpi
