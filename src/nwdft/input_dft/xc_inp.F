@@ -107,6 +107,8 @@ c     m11      => 8800
 c     xm11     => 8810
 c     cm11     => 8820
 c
+c     revm11   => 8850
+c
 c     m11-L    => 8900
 c     xm11-L   => 8910
 c     cm11-L   => 8920
@@ -141,7 +143,7 @@ c
 c     hcth147@tz2p ==> 1947
 c
       integer num_dirs, ind, mlen, iline, n, itemp
-      parameter (num_dirs=159)
+      parameter (num_dirs=160)
 c
       character*15 dirs(num_dirs)
       character*255 test
@@ -182,7 +184,7 @@ c
      &     'xm06','cm06','m06-2x','xm06-2x','cm06-2x',
      &     'm08-hx','xm08-hx','cm08-hx',
      &     'm08-so','xm08-so','cm08-so',
-     &     'm11','xm11','cm11',
+     &     'm11','xm11','cm11','revm11',
      &     'm11-l','xm11-l','cm11-l',
      &     'sogga','xsogga','csogga',
      &     'sogga11','xsogga11','csogga11',
@@ -269,7 +271,8 @@ c
      &  5900,6000,6100,6200,6300,6400,6500,6600,6700,6800,6900,
      &     7000,7100,7200,7300,7400,7500,7600,7610,7010,
      &     7700,7800,7900,8000,8100,
-     &  8600,8610,8620,8700,8710,8720,8800,8810,8820,8900,8910,8920,
+     &  8600,8610,8620,8700,8710,8720,8800,8810,8820,8850,
+     M  8900,8910,8920,
      &  9000,9010,9020,9100,9110,9120,9200,9210,9220,
      N  9245,9246,9247,9248,
      &  8200,4800,8300,8400,8500,8510,8520,8530,4600,4700,4701,8531,
@@ -3085,6 +3088,31 @@ c
       if (.not. inp_f(cfac(50))) then
          cfac(50) = 1.0d0
       endif
+c
+      goto 10
+c
+c revM11
+c
+ 8850  xccomb(79) = .true.
+         xfac(79)= 1.0d0
+        lxfac(79)=.true.
+       nlxfac(79)=.true.
+        cfac(79) = 1.0d0
+       lcfac(79) = .true.
+      nlcfac(79) = .true.
+        xfac(1) = 1d0
+       lxfac(1) = .true.
+      nlxfac(1) = .true.
+c    
+c     set cam parameters since this is a range-separated functional 
+c
+      cam_omega = 0.40
+      cam_alpha = 0.225
+      cam_beta = 0.775
+      cam_exch = .true.
+      cam_srhf = .false.
+      call xc_setcamparam(rtdb,cam_exch,cam_srhf,cam_omega,cam_alpha,
+     &    cam_beta)
 c
       goto 10
 c

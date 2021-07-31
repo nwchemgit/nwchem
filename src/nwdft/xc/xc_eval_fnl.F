@@ -1139,6 +1139,18 @@ c
          endif
       endif
 c
+c revM11   meta GGA Exchange
+c
+      if (abs(xfac(79)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xm11(tol_rho, xfac(79), lxfac(79), nlxfac(79),
+     &           rho, delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght,ldew, func,ttau,Mmat,5)
+         else
+            call xc_xm11_d2()
+         endif
+      endif
+c
 c SOGGA GGA Exchange
 c
       if (abs(xfac(52)).gt.eps)then
@@ -1264,6 +1276,19 @@ c
             call xc_cm11(tol_rho, cfac(51), lcfac(51), nlcfac(51),
      &           rho, delrho,  nq, ipol,
      &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,4)
+
+         else
+            call xc_cm11_d2()
+         endif
+      endif
+c
+c     crevm11
+c      
+      if (abs(cfac(79)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_cm11(tol_rho, cfac(79), lcfac(79), nlcfac(79),
+     &           rho, delrho,  nq, ipol,
+     &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,9)
 
          else
             call xc_cm11_d2()

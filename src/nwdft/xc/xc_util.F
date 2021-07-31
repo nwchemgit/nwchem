@@ -44,7 +44,7 @@ c
      +     xfac(72) + xfac(73) + xfac(74) +
      +     xfac(75) + cfac(75) +
      w     xfac(76) + xfac(77) + cfac(76) + cfac(77) +
-     w     xfac(78) + cfac(78) + 
+     w     xfac(78) + cfac(78) + xfac(70) + cfac(79) +
      L     lxdm +
 cc AJL/Begin/FDE
      + xfac_fde(3) + xfac_fde(4) + xfac_fde(5) + xfac_fde(6) + 
@@ -207,6 +207,7 @@ cwb97 should have 2nds
      .     xfac(76).ne.0d0.or.
      .     xfac(77).ne.0d0.or.
      .     xfac(78).ne.0d0.or.
+     .     xfac(79).ne.0d0.or.
 c
 chcth     .     cfac(13).ne.0d0.or.
 cCbecke97     .     cfac(14).ne.0d0.or.
@@ -247,6 +248,7 @@ cwb97 should have 2nds
      .     cfac(76).ne.0d0.or.
      .     cfac(77).ne.0d0.or.
      .     cfac(78).ne.0d0.or.
+     .     cfac(79).ne.0d0.or.
      .     cfac(36).ne.0d0)
       if (util_module_avail("nwxc")) then
          call nwxc_getvals("nwxc_has_2nd",out1)
@@ -288,6 +290,7 @@ c
      +      xfac(66) + cfac(66) + xfac(67) + cfac(67) +
      +      xfac(68) + cfac(68) + xfac(69) + cfac(69) +
      +      xfac(71) + cfac(71) + xfac(73) + cfac(73) +
+     +      xfac(79) + cfac(79) + 
 cc AJL/Begin/FDE
      +      xfac_fde(18) + cfac_fde(25) + xfac_fde(21) + cfac_fde(27) +
      +      xfac_fde(28) + xfac_fde(29) + xfac_fde(33) + xfac_fde(34) + 
@@ -373,6 +376,7 @@ c
      .     xfac(76).ne.0d0.or.
      .     xfac(77).ne.0d0.or.
      .     xfac(78).ne.0d0.or.
+     .     xfac(79).ne.0d0.or.
      .     xfac(51).ne.0d0)
       if (.not.rtdb_get(rtdb, 'dft:cam_exch', mt_log, 1, cam_exch)) 
      &     cam_exch=.false.
@@ -532,6 +536,7 @@ c
      .     xfac(76).ne.0d0.or.  ! wb97
      .     xfac(77).ne.0d0.or.  ! wb97x
      .     xfac(78).ne.0d0.or.  ! wb97x-d3
+     .     xfac(79).ne.0d0.or.  ! revm11
 c
      .     cfac(5).ne.0d0.or.   ! PW91
      .     cfac(13).ne.0d0.or.  ! HCTH
@@ -583,7 +588,8 @@ c
      .     cfac(75).ne.0d0.or.  ! hcth147@tz2p
      .     cfac(76).ne.0d0.or.  ! wb97
      .     cfac(77).ne.0d0.or.  ! wb97x
-     .     cfac(78).ne.0d0      ! wb97x-d3
+     .     cfac(78).ne.0d0.or.  ! wb97x-d3
+     .     xfac(79).ne.0d0      ! revm11
      .                )
 c
       if (libxcon .and. .not.xc_ngot3rd) then

@@ -610,6 +610,7 @@ c
       cname(76)='             wb97 Correlation Functional'
       cname(77)='            wb97x Correlation Functional'
       cname(78)='         wb97x-d3 Correlation Functional'
+      cname(79)='            revM11 Correlation Potential'
 c
 c     Exchange functional name defaults.
 c
@@ -684,6 +685,7 @@ c
       xname(76)='                wb97 Exchange Functional'
       xname(77)='               wb97x Exchange Functional'
       xname(78)='            wb97x-d3 Exchange Functional'
+      xname(79)='              revM11 Exchange Functional'
 c
 c     Exchange-Correlation combination functional name defaults.
 c
@@ -758,6 +760,7 @@ c
       xcname(76)='              wb97  Method XC Functional'
       xcname(77)='             wb97x  Method XC Functional'
       xcname(78)='          wb97x-d3  Method XC Functional'
+      xcname(79)='             revM11 Method XC Functional'
 c     
 c     place character XC parameters in rtdb
 c     
