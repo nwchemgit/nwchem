@@ -1,0 +1,1266 @@
+ argument  1 = /Users/edo/nwchem/nwchem/QA/tests/dft_s66x8_waterdimer/dft_s66x8_waterdimer.nw
+
+
+
+============================== echo of input deck ==============================
+echo
+#DOI: 10.1021/acs.jpca.8b11499
+#627.51*(-152.886721368777+76.438957145617+76.439006310378)=-5.50kcal/mol
+start dft_s66x8_waterdimer
+memory stack 500 mb heap 100 mb global 350 mb
+geometry dimer
+  O   -0.702196054  -0.056060256   0.009942262
+  H   -1.022193224   0.846775782  -0.011488714
+  H    0.257521062   0.042121496   0.005218999
+  O    2.268880784   0.026340101   0.000508029
+  H    2.645502399  -0.412039965   0.766632411
+  H    2.641145101  -0.449872874  -0.744894473
+end
+
+geometry w1
+  O   -0.702196054  -0.056060256   0.009942262
+  H   -1.022193224   0.846775782  -0.011488714
+  H    0.257521062   0.042121496   0.005218999
+end
+geometry w2
+  O    2.268880784   0.026340101   0.000508029
+  H    2.645502399  -0.412039965   0.766632411
+  H    2.641145101  -0.449872874  -0.744894473
+end
+
+basis "ao basis" spherical
+* library def2-qzvp
+bqO library O def2-qzvp
+bqH library H def2-qzvp
+end
+set grid:eaf_size_in_dbl              16304257
+dft
+direct
+noprint "final vectors analysis" multipole
+grid xfine
+tolerances acccoul 13
+xc revm11
+decomp
+end
+
+set geometry w1
+dft
+vectors input atomic output w1.mos
+end
+task dft
+set geometry w2
+dft
+vectors input atomic output w2.mos
+end
+task dft
+
+set geometry dimer
+dft
+vectors input fragment w1.mos w2.mos output dimer.mos
+end
+task dft
+================================================================================
+
+
+                                         
+                                         
+
+
+             Northwest Computational Chemistry Package (NWChem) 7.0.1
+             --------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                              Copyright (c) 1994-2020
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = WE40672
+    program         = /Users/edo/nwchem/nwchem/bin/MACX64/nwchem
+    date            = Fri Jul 30 20:31:55 2021
+
+    compiled        = Fri_Jul_30_20:31:16_2021
+    source          = /Users/edo/nwchem/nwchem
+    nwchem branch   = 7.0.0
+    nwchem revision = nwchem_on_git-2706-g6b694a93b3
+    ga revision     = 5.8.0
+    use scalapack   = F
+    input           = /Users/edo/nwchem/nwchem/QA/tests/dft_s66x8_waterdimer/dft_s66x8_waterdimer.nw
+    prefix          = dft_s66x8_waterdimer.
+    data base       = ./dft_s66x8_waterdimer.db
+    status          = startup
+    nproc           =        3
+    time left       =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   26214396 doubles =    200.0 Mbytes
+    stack    =  157286401 doubles =   1200.0 Mbytes
+    global   =   58982400 doubles =    450.0 Mbytes (distinct from heap & stack)
+    total    =  242483197 doubles =   1850.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+ Scaling coordinates for geometry "dimer" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ C1  symmetry detected
+
+          ------
+          auto-z
+          ------
+  autoz: The atoms group into disjoint clusters
+ cluster   1:    1    2    3
+ cluster   2:    4    5    6
+ Connecting clusters   1   2 via atoms    3    4 r = 2.01
+  autoz: regenerating connections with new bonds
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+
+
+                              Geometry "dimer" -> ""
+                              ----------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 O                    8.0000    -0.00209578    -1.55411442    -0.06891125
+    2 H                    1.0000     0.02524059    -1.88761902     0.82886255
+    3 H                    1.0000     0.00141225    -0.59597605     0.04368297
+    4 O                    8.0000     0.00175436     1.41539881     0.05818211
+    5 H                    1.0000     0.74370180     1.79695511    -0.41605019
+    6 H                    1.0000    -0.76762325     1.79636480    -0.37066218
+
+      Atomic Mass 
+      ----------- 
+
+      O                 15.994910
+      H                  1.007825
+
+
+ Effective nuclear repulsion energy (a.u.)      36.2137646573
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000    -0.0000000000
+
+
+
+                                Z-matrix (autoz)
+                                -------- 
+
+ Units are Angstrom for bonds and degrees for angles
+
+      Type          Name      I     J     K     L     M      Value
+      ----------- --------  ----- ----- ----- ----- ----- ----------
+    1 Stretch                  1     2                       0.95811
+    2 Stretch                  1     3                       0.96474
+    3 Stretch                  3     4                       2.01143
+    4 Stretch                  4     5                       0.95967
+    5 Stretch                  4     6                       0.95968
+    6 Bend                     1     3     4               173.70760
+    7 Bend                     2     1     3               103.66483
+    8 Bend                     3     4     5               113.21297
+    9 Bend                     3     4     6               113.17896
+   10 Bend                     5     4     6               103.95523
+   11 Torsion                  1     3     4     5         -59.07510
+   12 Torsion                  1     3     4     6          58.89916
+   13 Torsion                  2     1     3     4        -179.93246
+
+
+            XYZ format geometry
+            -------------------
+     6
+ dimer
+ O                    -0.00209578    -1.55411442    -0.06891125
+ H                     0.02524059    -1.88761902     0.82886255
+ H                     0.00141225    -0.59597605     0.04368297
+ O                     0.00175436     1.41539881     0.05818211
+ H                     0.74370180     1.79695511    -0.41605019
+ H                    -0.76762325     1.79636480    -0.37066218
+
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |  angstroms
+ ------------------------------------------------------------------------------
+    2 H                |   1 O                |     1.81056  |     0.95811
+    3 H                |   1 O                |     1.82309  |     0.96474
+    5 H                |   4 O                |     1.81351  |     0.95967
+    6 H                |   4 O                |     1.81353  |     0.95968
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:          4
+ ==============================================================================
+
+
+
+ ==============================================================================
+                                 internuclear angles
+ ------------------------------------------------------------------------------
+        center 1       |       center 2       |       center 3       |  degrees
+ ------------------------------------------------------------------------------
+    2 H                |   1 O                |   3 H                |   103.66
+    5 H                |   4 O                |   6 H                |   103.96
+ ------------------------------------------------------------------------------
+                            number of included internuclear angles:          2
+ ==============================================================================
+
+
+
+
+ Scaling coordinates for geometry "w1" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ CS  symmetry detected
+
+          ------
+          auto-z
+          ------
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+
+
+                             Geometry "w1" -> "     "
+                             ------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 O                    8.0000    -0.11881133     0.00186814     0.00000000
+    2 H                    1.0000     0.48176499     0.74837900     0.00000000
+    3 H                    1.0000     0.46872567    -0.76332411     0.00000000
+
+      Atomic Mass 
+      ----------- 
+
+      O                 15.994910
+      H                  1.007825
+
+
+ Effective nuclear repulsion energy (a.u.)       9.1567147923
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+      Symmetry information
+      --------------------
+
+ Group name             Cs        
+ Group number              2
+ Group order               2
+ No. of unique centers     3
+
+      Symmetry unique atoms
+
+     1    2    3
+
+
+
+                                Z-matrix (autoz)
+                                -------- 
+
+ Units are Angstrom for bonds and degrees for angles
+
+      Type          Name      I     J     K     L     M      Value
+      ----------- --------  ----- ----- ----- ----- ----- ----------
+    1 Stretch                  1     2                       0.95811
+    2 Stretch                  1     3                       0.96474
+    3 Bend                     2     1     3               103.66483
+
+
+            XYZ format geometry
+            -------------------
+     3
+ w1
+ O                    -0.11881133     0.00186814     0.00000000
+ H                     0.48176499     0.74837900     0.00000000
+ H                     0.46872567    -0.76332411     0.00000000
+
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |  angstroms
+ ------------------------------------------------------------------------------
+    2 H                |   1 O                |     1.81056  |     0.95811
+    3 H                |   1 O                |     1.82309  |     0.96474
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:          2
+ ==============================================================================
+
+
+
+ ==============================================================================
+                                 internuclear angles
+ ------------------------------------------------------------------------------
+        center 1       |       center 2       |       center 3       |  degrees
+ ------------------------------------------------------------------------------
+    2 H                |   1 O                |   3 H                |   103.66
+ ------------------------------------------------------------------------------
+                            number of included internuclear angles:          1
+ ==============================================================================
+
+
+
+
+ Scaling coordinates for geometry "w2" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ C2V symmetry detected
+
+          ------
+          auto-z
+          ------
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+
+
+                               Geometry "w2" -> "  "
+                               ---------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 O                    8.0000     0.00000000     0.00000000    -0.11822605
+    2 H                    1.0000    -0.75600328     0.00000000     0.47290421
+    3 H                    1.0000     0.75600328     0.00000000     0.47290421
+
+      Atomic Mass 
+      ----------- 
+
+      O                 15.994910
+      H                  1.007825
+
+
+ Effective nuclear repulsion energy (a.u.)       9.1725918155
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000    -0.0000000000
+
+      Symmetry information
+      --------------------
+
+ Group name             C2v       
+ Group number             16
+ Group order               4
+ No. of unique centers     2
+
+      Symmetry unique atoms
+
+     1    2
+
+
+
+                                Z-matrix (autoz)
+                                -------- 
+
+ Units are Angstrom for bonds and degrees for angles
+
+      Type          Name      I     J     K     L     M      Value
+      ----------- --------  ----- ----- ----- ----- ----- ----------
+    1 Stretch                  1     2                       0.95967
+    2 Stretch                  1     3                       0.95967
+    3 Bend                     2     1     3               103.95523
+
+
+            XYZ format geometry
+            -------------------
+     3
+ w2
+ O                     0.00000000     0.00000000    -0.11822605
+ H                    -0.75600328     0.00000000     0.47290421
+ H                     0.75600328     0.00000000     0.47290421
+
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |  angstroms
+ ------------------------------------------------------------------------------
+    2 H                |   1 O                |     1.81352  |     0.95967
+    3 H                |   1 O                |     1.81352  |     0.95967
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:          2
+ ==============================================================================
+
+
+
+ ==============================================================================
+                                 internuclear angles
+ ------------------------------------------------------------------------------
+        center 1       |       center 2       |       center 3       |  degrees
+ ------------------------------------------------------------------------------
+    2 H                |   1 O                |   3 H                |   103.96
+ ------------------------------------------------------------------------------
+                            number of included internuclear angles:          1
+ ==============================================================================
+
+
+
+
+
+ Summary of "ao basis" -> "" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ bqO                       def2-qzvp                17       57   7s4p3d2f1g
+ bqH                       def2-qzvp                10       30   4s3p2d1f
+ *                         def2-qzvp                  on all atoms 
+
+
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+                      Basis "ao basis" -> "ao basis" (spherical)
+                      -----
+  bqO
+  ---
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.16506469E+05  0.000040
+  1 S  1.75043497E+04  0.000313
+  1 S  3.99345132E+03  0.001634
+  1 S  1.13300632E+03  0.006828
+  1 S  3.69995696E+02  0.024124
+  1 S  1.33620743E+02  0.072730
+  1 S  5.20356436E+01  0.179344
+  1 S  2.14619393E+01  0.330596
+
+  2 S  8.98350513E+01  0.096469
+  2 S  2.64280108E+01  0.941175
+
+  3 S  9.28228246E+00  1.000000
+
+  4 S  4.09477285E+00  1.000000
+
+  5 S  1.32553491E+00  1.000000
+
+  6 S  5.18772308E-01  1.000000
+
+  7 S  1.97726765E-01  1.000000
+
+  8 P  1.91152558E+02  0.002512
+  8 P  4.52333567E+01  0.020039
+  8 P  1.43534659E+01  0.093609
+  8 P  5.24223718E+00  0.306181
+  8 P  2.07924186E+00  0.678105
+
+  9 P  8.42823714E-01  1.000000
+
+ 10 P  3.36176949E-01  1.000000
+
+ 11 P  1.28639980E-01  1.000000
+
+ 12 D  3.77500000E+00  1.000000
+
+ 13 D  1.30000000E+00  1.000000
+
+ 14 D  4.44000000E-01  1.000000
+
+ 15 F  2.66600000E+00  1.000000
+
+ 16 F  8.59000000E-01  1.000000
+
+ 17 G  1.84600000E+00  1.000000
+
+  bqH
+  ---
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.90691690E+02  0.000708
+  1 S  2.86055320E+01  0.005468
+  1 S  6.50959430E+00  0.027967
+  1 S  1.84124550E+00  0.107645
+
+  2 S  5.98537250E-01  1.000000
+
+  3 S  2.13976240E-01  1.000000
+
+  4 S  8.03162860E-02  1.000000
+
+  5 P  2.29200000E+00  1.000000
+
+  6 P  8.38000000E-01  1.000000
+
+  7 P  2.92000000E-01  1.000000
+
+  8 D  2.06200000E+00  1.000000
+
+  9 D  6.62000000E-01  1.000000
+
+ 10 F  1.39700000E+00  1.000000
+
+  O (Oxygen)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.16506469E+05  0.000040
+  1 S  1.75043497E+04  0.000313
+  1 S  3.99345132E+03  0.001634
+  1 S  1.13300632E+03  0.006828
+  1 S  3.69995696E+02  0.024124
+  1 S  1.33620743E+02  0.072730
+  1 S  5.20356436E+01  0.179344
+  1 S  2.14619393E+01  0.330596
+
+  2 S  8.98350513E+01  0.096469
+  2 S  2.64280108E+01  0.941175
+
+  3 S  9.28228246E+00  1.000000
+
+  4 S  4.09477285E+00  1.000000
+
+  5 S  1.32553491E+00  1.000000
+
+  6 S  5.18772308E-01  1.000000
+
+  7 S  1.97726765E-01  1.000000
+
+  8 P  1.91152558E+02  0.002512
+  8 P  4.52333567E+01  0.020039
+  8 P  1.43534659E+01  0.093609
+  8 P  5.24223718E+00  0.306181
+  8 P  2.07924186E+00  0.678105
+
+  9 P  8.42823714E-01  1.000000
+
+ 10 P  3.36176949E-01  1.000000
+
+ 11 P  1.28639980E-01  1.000000
+
+ 12 D  3.77500000E+00  1.000000
+
+ 13 D  1.30000000E+00  1.000000
+
+ 14 D  4.44000000E-01  1.000000
+
+ 15 F  2.66600000E+00  1.000000
+
+ 16 F  8.59000000E-01  1.000000
+
+ 17 G  1.84600000E+00  1.000000
+
+  H (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.90691690E+02  0.000708
+  1 S  2.86055320E+01  0.005468
+  1 S  6.50959430E+00  0.027967
+  1 S  1.84124550E+00  0.107645
+
+  2 S  5.98537250E-01  1.000000
+
+  3 S  2.13976240E-01  1.000000
+
+  4 S  8.03162860E-02  1.000000
+
+  5 P  2.29200000E+00  1.000000
+
+  6 P  8.38000000E-01  1.000000
+
+  7 P  2.92000000E-01  1.000000
+
+  8 D  2.06200000E+00  1.000000
+
+  9 D  6.62000000E-01  1.000000
+
+ 10 F  1.39700000E+00  1.000000
+
+
+
+ Summary of "ao basis" -> "ao basis" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ bqO                       def2-qzvp                17       57   7s4p3d2f1g
+ bqH                       def2-qzvp                10       30   4s3p2d1f
+ O                         def2-qzvp                17       57   7s4p3d2f1g
+ H                         def2-qzvp                10       30   4s3p2d1f
+
+
+
+
+ Summary of "ao basis" -> "ao basis" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ bqO                       def2-qzvp                17       57   7s4p3d2f1g
+ bqH                       def2-qzvp                10       30   4s3p2d1f
+ O                         def2-qzvp                17       57   7s4p3d2f1g
+ H                         def2-qzvp                10       30   4s3p2d1f
+
+
+      Symmetry analysis of basis
+      --------------------------
+
+        a'         77
+        a"         40
+
+  int_init: cando_txs set to always be  F
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     3
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: on ; symmetry adaption is: on 
+          Maximum number of iterations:  50
+          This is a Direct SCF calculation.
+          AO basis - number of functions:   117
+                     number of shells:    37
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+
+              XC Information
+              --------------
+                       revM11 Method XC Functional
+                     Hartree-Fock (Exact) Exchange  1.000          
+                        revM11 Exchange Functional  1.000          
+                      revM11 Correlation Potential  1.000          
+
+           Range-Separation Parameters        
+           ---------------------------
+           Alpha           :  0.22
+           Beta            :  0.77
+           Gamma           :  0.40
+           Short-Range HF  :     F
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  xfine     
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          O                   0.60      100           7.0      1454
+          H                   0.35      100           8.0      1202
+          Grid pruning is: on 
+          Number of quadrature shells:   300
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         50 iters            50 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-13
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:         -75.78680694
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =     -75.944473
+ 1-e energy   =    -121.690241
+ 2-e energy   =      36.589053
+ HOMO         =      -0.479605
+ LUMO         =       0.045637
+
+
+      Symmetry analysis of molecular orbitals - initial
+      -------------------------------------------------
+
+  Numbering of irreducible representations: 
+
+     1 a'          2 a"      
+
+  Orbital symmetries:
+
+     1 a'          2 a'          3 a'          4 a'          5 a"      
+     6 a'          7 a'          8 a'          9 a"         10 a'      
+    11 a'         12 a'         13 a'         14 a"         15 a"      
+
+   Time after variat. SCF:      0.4
+   Time prior to 1st pass:      0.4
+
+ Grid_pts file          = ./dft_s66x8_waterdimer.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     54        Max. recs in file   = 337750284
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):        9.24             9244732
+          Stack Space remaining (MW):      157.29           157285668
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1    -76.3929498754 -8.55D+01  3.83D-03  1.10D+00     6.9
+ d= 0,ls=0.0,diis     2    -76.4149304588 -2.20D-02  1.50D-03  3.22D-01    13.4
+ d= 0,ls=0.0,diis     3    -76.4334343930 -1.85D-02  5.23D-04  7.79D-02    19.9
+ d= 0,ls=0.0,diis     4    -76.4389428146 -5.51D-03  8.14D-05  1.10D-04    26.5
+ d= 0,ls=0.0,diis     5    -76.4389554807 -1.27D-05  2.78D-05  5.04D-06    33.1
+  Resetting Diis
+ d= 0,ls=0.0,diis     6    -76.4389570062 -1.53D-06  7.17D-06  3.39D-07    39.7
+ d= 0,ls=0.0,diis     7    -76.4389571456 -1.39D-07  1.07D-06  1.54D-08    46.3
+
+
+         Total DFT energy =      -76.438957145617
+      One electron energy =     -122.996479366893
+           Coulomb energy =       46.698102216982
+          Exchange energy =       -8.897043524047
+       Correlation energy =       -0.400251263975
+ Nuclear repulsion energy =        9.156714792316
+
+ Numeric. integr. density =       10.000000021153
+
+     Total iterative time =     45.9s
+
+
+
+                  Occupations of the irreducible representations
+                  ----------------------------------------------
+
+                     irrep           alpha         beta
+                     --------     --------     --------
+                     a'                4.0          4.0
+                     a"                1.0          1.0
+
+
+ center of mass
+ --------------
+ x =  -0.09888471 y =   0.00155482 z =   0.00000000
+
+ moments of inertia (a.u.)
+ ------------------
+           4.112867460055           0.000000000000           0.000000000000
+           0.000000000000           2.256222980943           0.000000000000
+           0.000000000000           0.000000000000           6.369090440998
+
+ Task  times  cpu:       46.3s     wall:       46.3s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+
+
+ Summary of "ao basis" -> "ao basis" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ bqO                       def2-qzvp                17       57   7s4p3d2f1g
+ bqH                       def2-qzvp                10       30   4s3p2d1f
+ O                         def2-qzvp                17       57   7s4p3d2f1g
+ H                         def2-qzvp                10       30   4s3p2d1f
+
+
+      Symmetry analysis of basis
+      --------------------------
+
+        a1         44
+        a2         17
+        b1         33
+        b2         23
+
+  int_init: cando_txs set to always be  F
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     3
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: on ; symmetry adaption is: on 
+          Maximum number of iterations:  50
+          This is a Direct SCF calculation.
+          AO basis - number of functions:   117
+                     number of shells:    37
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+
+              XC Information
+              --------------
+                       revM11 Method XC Functional
+                     Hartree-Fock (Exact) Exchange  1.000          
+                        revM11 Exchange Functional  1.000          
+                      revM11 Correlation Potential  1.000          
+
+           Range-Separation Parameters        
+           ---------------------------
+           Alpha           :  0.22
+           Beta            :  0.77
+           Gamma           :  0.40
+           Short-Range HF  :     F
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  xfine     
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          O                   0.60      100           7.0      1454
+          H                   0.35      100           8.0      1202
+          Grid pruning is: on 
+          Number of quadrature shells:   200
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         50 iters            50 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-13
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:         -75.78680694
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =     -75.947570
+ 1-e energy   =    -121.715537
+ 2-e energy   =      36.595376
+ HOMO         =      -0.480145
+ LUMO         =       0.045946
+
+
+      Symmetry analysis of molecular orbitals - initial
+      -------------------------------------------------
+
+  Numbering of irreducible representations: 
+
+     1 a1          2 a2          3 b1          4 b2      
+
+  Orbital symmetries:
+
+     1 a1          2 a1          3 b1          4 a1          5 b2      
+     6 a1          7 b1          8 a1          9 b2         10 b1      
+    11 a1         12 b1         13 a1         14 a2         15 b2      
+
+   Time after variat. SCF:     46.6
+   Time prior to 1st pass:     46.6
+
+ Grid_pts file          = ./dft_s66x8_waterdimer.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     36        Max. recs in file   = 337750284
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):        9.47             9465876
+          Stack Space remaining (MW):      157.29           157285668
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1    -76.3930911152 -8.56D+01  3.83D-03  1.10D+00    51.2
+ d= 0,ls=0.0,diis     2    -76.4150935883 -2.20D-02  1.50D-03  3.21D-01    55.9
+ d= 0,ls=0.0,diis     3    -76.4335113401 -1.84D-02  5.21D-04  7.76D-02    60.6
+ d= 0,ls=0.0,diis     4    -76.4389920683 -5.48D-03  8.17D-05  1.09D-04    65.4
+ d= 0,ls=0.0,diis     5    -76.4390046552 -1.26D-05  2.80D-05  5.02D-06    70.2
+  Resetting Diis
+ d= 0,ls=0.0,diis     6    -76.4390061722 -1.52D-06  7.21D-06  3.37D-07    75.0
+ d= 0,ls=0.0,diis     7    -76.4390063104 -1.38D-07  1.06D-06  1.53D-08    79.8
+
+
+         Total DFT energy =      -76.439006310378
+      One electron energy =     -123.025141797131
+           Coulomb energy =       46.712516820506
+          Exchange energy =       -8.898672222928
+       Correlation energy =       -0.400300926339
+ Nuclear repulsion energy =        9.172591815513
+
+ Numeric. integr. density =       10.000000027168
+
+     Total iterative time =     33.2s
+
+
+
+                  Occupations of the irreducible representations
+                  ----------------------------------------------
+
+                     irrep           alpha         beta
+                     --------     --------     --------
+                     a1                3.0          3.0
+                     a2                0.0          0.0
+                     b1                1.0          1.0
+                     b2                1.0          1.0
+
+
+ center of mass
+ --------------
+ x =   0.00000000 y =   0.00000000 z =  -0.09839760
+
+ moments of inertia (a.u.)
+ ------------------
+           2.233745910705           0.000000000000           0.000000000000
+           0.000000000000           6.347706752348           0.000000000000
+           0.000000000000           0.000000000000           4.113960841643
+
+ Task  times  cpu:       33.5s     wall:       33.5s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+
+
+ Summary of "ao basis" -> "ao basis" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ bqO                       def2-qzvp                17       57   7s4p3d2f1g
+ bqH                       def2-qzvp                10       30   4s3p2d1f
+ O                         def2-qzvp                17       57   7s4p3d2f1g
+ H                         def2-qzvp                10       30   4s3p2d1f
+
+
+  int_init: cando_txs set to always be  F
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     6
+          No. of electrons :    20
+           Alpha electrons :    10
+            Beta electrons :    10
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  50
+          This is a Direct SCF calculation.
+          AO basis - number of functions:   234
+                     number of shells:    74
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+
+              XC Information
+              --------------
+                       revM11 Method XC Functional
+                     Hartree-Fock (Exact) Exchange  1.000          
+                        revM11 Exchange Functional  1.000          
+                      revM11 Correlation Potential  1.000          
+
+           Range-Separation Parameters        
+           ---------------------------
+           Alpha           :  0.22
+           Beta            :  0.77
+           Gamma           :  0.40
+           Short-Range HF  :     F
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  xfine     
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          O                   0.60      100          11.0      1454
+          H                   0.35      100          12.0      1202
+          Grid pruning is: on 
+          Number of quadrature shells:   600
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         50 iters            50 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-13
+
+
+   Fragment Molecular Orbital Initial Guess
+   ----------------------------------------
+
+ title    
+ basis    ao basis
+ scftype  dft                 
+ nbf         117
+ nsets         1
+ nmo         117
+ nclosed       5
+ nopen         0
+ nvirtual    112
+
+ title    
+ basis    ao basis
+ scftype  dft                 
+ nbf         117
+ nsets         1
+ nmo         117
+ nclosed       5
+ nopen         0
+ nvirtual    112
+
+   Time after variat. SCF:     80.1
+   Time prior to 1st pass:     80.1
+
+ Grid_pts file          = ./dft_s66x8_waterdimer.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =    106        Max. recs in file   = 337750284
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):        8.61             8605444
+          Stack Space remaining (MW):      157.29           157285084
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1   -149.0440563929 -1.85D+02  1.25D-02  1.48D+01   151.3
+ d= 0,ls=0.0,diis     2   -151.9540611300 -2.91D+00  6.04D-03  1.06D+01   222.2
+ d= 0,ls=0.0,diis     3   -152.7962699072 -8.42D-01  1.64D-03  7.64D-01   292.3
+ d= 0,ls=0.0,diis     4   -152.8815577824 -8.53D-02  8.07D-04  2.20D-02   362.6
+ d= 0,ls=0.0,diis     5   -152.8855700952 -4.01D-03  2.78D-04  8.93D-03   435.4
+ d= 0,ls=0.0,diis     6   -152.8865377367 -9.68D-04  1.55D-04  1.17D-03   507.8
+ d= 0,ls=0.0,diis     7   -152.8867120438 -1.74D-04  3.84D-05  1.79D-05   582.8
+ d= 0,ls=0.0,diis     8   -152.8867208064 -8.76D-06  8.26D-06  1.29D-06   655.7
+ d= 0,ls=0.0,diis     9   -152.8867213688 -5.62D-07  2.22D-06  5.34D-08   730.2
+
+
+         Total DFT energy =     -152.886721368777
+      One electron energy =     -281.802292973638
+           Coulomb energy =      111.308994488122
+          Exchange energy =      -17.803565884912
+       Correlation energy =       -0.803621655665
+ Nuclear repulsion energy =       36.213764657316
+
+ Numeric. integr. density =       20.000000035523
+
+     Total iterative time =    650.2s
+
+
+
+ center of mass
+ --------------
+ x =  -0.00014208 y =  -0.05772536 z =  -0.00446484
+
+ moments of inertia (a.u.)
+ ------------------
+         293.664617653026          -0.000000000000           0.000000000000
+          -0.000000000000           8.174773672993          -0.000000000000
+           0.000000000000          -0.000000000000         293.717861704173
+
+ Task  times  cpu:      650.4s     wall:      650.4s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:  650      621     5.01e+04 4075     3.14e+04    0        0     3138     
+number of processes/call 1.33e+14 -1.25e+15 2.77e+14 0.00e+00 0.00e+00
+bytes total:             6.79e+08 9.44e+07 4.39e+08 0.00e+00 0.00e+00 2.51e+04
+bytes remote:            1.28e+07 4.23e+06 1.06e+07 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 15769728 bytes
+
+MA_summarize_allocated_blocks: starting scan ...
+heap block 'gridpts', handle 127, address 0x7f8913403730:
+	type of elements:		double precision
+	number of elements:		16304257
+	address of client space:	0x7f89134037c0
+	index for client space:		17527769146357
+	total number of bytes:		130434208
+MA_summarize_allocated_blocks: scan completed: 1 heap block, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         1	         0
+	maximum number of blocks	        19	        66
+	current total bytes		 130434208	         0
+	maximum total bytes		 140869392	  38798184
+	maximum total K-bytes		    140870	     38799
+	maximum total M-bytes		       141	        39
+
+
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, Y. Alexeev, J. Anchell,
+       V. Anisimov, F. W. Aquino, R. Atta-Fynn, J. Autschbach, N. P. Bauman,
+     J. C. Becca, D. E. Bernholdt, K. Bhaskaran-Nair, S. Bogatko, P. Borowski,
+         J. Boschen, J. Brabec, A. Bruner, E. Cauet, Y. Chen, G. N. Chuev,
+      C. J. Cramer, J. Daily, M. J. O. Deegan, T. H. Dunning Jr., M. Dupuis,
+   K. G. Dyall, G. I. Fann, S. A. Fischer, A. Fonari, H. Fruchtl, L. Gagliardi,
+      J. Garza, N. Gawande, S. Ghosh, K. Glaesemann, A. W. Gotz, J. Hammond,
+       V. Helms, E. D. Hermes, K. Hirao, S. Hirata, M. Jacquelin, L. Jensen,
+   B. G. Johnson, H. Jonsson, R. A. Kendall, M. Klemm, R. Kobayashi, V. Konkov,
+      S. Krishnamoorthy, M. Krishnan, Z. Lin, R. D. Lins, R. J. Littlefield,
+      A. J. Logsdail, K. Lopata, W. Ma, A. V. Marenich, J. Martin del Campo,
+   D. Mejia-Rodriguez, J. E. Moore, J. M. Mullin, T. Nakajima, D. R. Nascimento,
+    J. A. Nichols, P. J. Nichols, J. Nieplocha, A. Otero-de-la-Roza, B. Palmer,
+    A. Panyala, T. Pirojsirikul, B. Peng, R. Peverati, J. Pittner, L. Pollack,
+   R. M. Richard, P. Sadayappan, G. C. Schatz, W. A. Shelton, D. W. Silverstein,
+   D. M. A. Smith, T. A. Soares, D. Song, M. Swart, H. L. Taylor, G. S. Thomas,
+            V. Tipparaju, D. G. Truhlar, K. Tsemekhman, T. Van Voorhis,
+      A. Vazquez-Mayagoitia, P. Verma, O. Villa, A. Vishnu, K. D. Vogiatzis,
+        D. Wang, J. H. Weare, M. J. Williamson, T. L. Windus, K. Wolinski,
+        A. T. Wong, Q. Wu, C. Yang, Q. Yu, M. Zacharias, Z. Zhang, Y. Zhao,
+                                and R. J. Harrison
+                        "NWChem: Past, present, and future
+                         J. Chem. Phys. 152, 184102 (2020)
+                               doi:10.1063/5.0004997
+
+                                      AUTHORS
+                                      -------
+     E. Apra, E. J. Bylaska, N. Govind, K. Kowalski, M. Valiev, W. A. de Jong,
+      T. P. Straatsma, H. J. J. van Dam, D. Wang, T. L. Windus, N. P. Bauman,
+       A. Panyala, J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec,
+    K. Lopata, S. A. Fischer, S. Krishnamoorthy, M. Jacquelin, W. Ma, M. Klemm,
+       O. Villa, Y. Chen, V. Anisimov, F. Aquino, S. Hirata, M. T. Hackler,
+           Eric Hermes, L. Jensen, J. E. Moore, J. C. Becca, V. Konjkov,
+            D. Mejia-Rodriguez, T. Risthaus, M. Malagoli, A. Marenich,
+   A. Otero-de-la-Roza, J. Mullin, P. Nichols, R. Peverati, J. Pittner, Y. Zhao,
+        P.-D. Fan, A. Fonari, M. J. Williamson, R. J. Harrison, J. R. Rehr,
+      M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
+      M. Krishnan, B. E. Van Kuiken, A. Vazquez-Mayagoitia, M. Swart, Q. Wu,
+   T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros,
+     G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall, J. A. Nichols,
+       K. Tsemekhman, K. Wolinski, J. Anchell, D. E. Bernholdt, P. Borowski,
+       T. Clark, D. Clerc, H. Dachsel, M. J. O. Deegan, K. Dyall, D. Elwood,
+      E. Glendening, M. Gutowski, A. C. Hess, J. Jaffe, B. G. Johnson, J. Ju,
+        R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
+      T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
+      M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
+
+ Total times  cpu:      730.3s     wall:      730.3s
