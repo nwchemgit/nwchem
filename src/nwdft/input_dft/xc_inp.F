@@ -112,6 +112,8 @@ c
 c     m11-L    => 8900
 c     xm11-L   => 8910
 c     cm11-L   => 8920
+c      
+c     mn12-L   => 8950
 c
 c     sogga    => 9000
 c     xsogga   => 9010
@@ -143,7 +145,7 @@ c
 c     hcth147@tz2p ==> 1947
 c
       integer num_dirs, ind, mlen, iline, n, itemp
-      parameter (num_dirs=160)
+      parameter (num_dirs=161)
 c
       character*15 dirs(num_dirs)
       character*255 test
@@ -185,7 +187,7 @@ c
      &     'm08-hx','xm08-hx','cm08-hx',
      &     'm08-so','xm08-so','cm08-so',
      &     'm11','xm11','cm11','revm11',
-     &     'm11-l','xm11-l','cm11-l',
+     &     'm11-l','xm11-l','cm11-l','mn12-l',
      &     'sogga','xsogga','csogga',
      &     'sogga11','xsogga11','csogga11',
      &     'sogga11-x','xsogga11-x','csogga11-x',
@@ -272,7 +274,7 @@ c
      &     7000,7100,7200,7300,7400,7500,7600,7610,7010,
      &     7700,7800,7900,8000,8100,
      &  8600,8610,8620,8700,8710,8720,8800,8810,8820,8850,
-     M  8900,8910,8920,
+     M  8900,8910,8920,8950,
      &  9000,9010,9020,9100,9110,9120,9200,9210,9220,
      N  9245,9246,9247,9248,
      &  8200,4800,8300,8400,8500,8510,8520,8530,4600,4700,4701,8531,
@@ -3203,6 +3205,18 @@ c
       if (.not. inp_f(cfac(51))) then
          cfac(51) = 1.0d0
       endif
+c
+      goto 10
+c
+c  MN12-L
+c
+ 8950 xccomb(80) = .true.
+         xfac(80)= 1.0d0
+        lxfac(80)=.true.
+       nlxfac(80)=.true.
+        cfac(80) = 1.0d0
+       lcfac(80) = .true.
+      nlcfac(80) = .true.
 c
       goto 10
 c

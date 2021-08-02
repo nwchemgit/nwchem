@@ -406,6 +406,8 @@ C
         bt9=  0.00000000000D+00
         bt10=  0.00000000000D+00
         bt11=  0.00000000000D+00
+      else
+         call errquit(' xc_cm11: ijzy not valid ',ijzy, 0)
 C
        endif
 

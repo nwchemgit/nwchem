@@ -337,6 +337,8 @@ C
         UseLC=.True.
         Emu =0.40D+00
 C
+      else
+         call errquit(' xc_xm11: ijzy not valid ',ijzy, 0)
       endif
       DTol=tol_rho
       F1o3 = F1/F3 
