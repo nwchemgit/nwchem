@@ -16,15 +16,15 @@ c
       double precision qwght(nq)
       double precision Amat(nq,ipol), Cmat(nq,*),mmat(nq,*)
       double precision tol_rho
-      external  xc_xmn12_os
-      call xc_os2cs_mgga(xc_xmn12_os,
+      external  xc_xmn12l_os
+      call xc_os2cs_mgga(xc_xmn12l_os,
      &     tol_rho, fac,lfac,nlfac, rho, delrho, tau,
      &     amat, cmat, mmat,
      n     nq, ipol, ex, 
      &     qwght, ldew, func)
       return
       end
-      subroutine xc_xmn12_os(tol_rho, fac,lfac,nlfac,
+      subroutine xc_xmn12l_os(tol_rho, fac,lfac,nlfac,
      r     rho, delrho, tau,
      &     amat, cmat, mmat,
      n     nq,  ex, 
@@ -50,6 +50,60 @@ c wrapper for n12 open-shell
      &     amat, cmat, mmat,
      N     nq,  ex,   qwght, ldew, func,
      I      1    ,fact_cs)
+      return
+      end
+      subroutine xc_xmn12sx(tol_rho, fac,lfac,nlfac,
+     r     rho, delrho, tau,
+     &     amat, cmat, mmat, nq, ipol, ex, 
+     &     qwght, ldew, func)
+      implicit none
+#include "errquit.fh"
+#include "dft2drv.fh"
+c      
+      double precision fac, Ex
+      integer nq, ipol
+      logical lfac, nlfac,ldew,   uselc
+      double precision func(*)  ! value of the functional [output]
+      double precision rho(nq,ipol*(ipol+1)/2)
+      double precision delrho(nq,3,ipol)
+      double precision tau(nq,ipol)
+      double precision qwght(nq)
+      double precision Amat(nq,ipol), Cmat(nq,*),mmat(nq,*)
+      double precision tol_rho
+      external  xc_xmn12sx_os
+      call xc_os2cs_mgga(xc_xmn12sx_os,
+     &     tol_rho, fac,lfac,nlfac, rho, delrho, tau,
+     &     amat, cmat, mmat,
+     n     nq, ipol, ex, 
+     &     qwght, ldew, func)
+      return
+      end
+      subroutine xc_xmn12sx_os(tol_rho, fac,lfac,nlfac,
+     r     rho, delrho, tau,
+     &     amat, cmat, mmat,
+     n     nq,  ex, 
+     &                     qwght, ldew, func, fact_cs)
+      implicit none
+#include "errquit.fh"
+#include "dft2drv.fh"
+c
+c wrapper for n12 open-shell
+      double precision fac, Ex
+      double precision fact_cs
+      integer nq
+      logical lfac, nlfac,ldew,   uselc
+      double precision func(*)  ! value of the functional [output]
+      double precision rho(nq)
+      double precision delrho(nq,3), tau(nq)
+      double precision qwght(nq)
+      double precision Amat(nq), Cmat(nq), mmat(nq)
+      double precision tol_rho
+
+      call xc_xmn12(tol_rho, fac,lfac,nlfac,
+     r     rho, delrho, tau,
+     &     amat, cmat, mmat,
+     N     nq,  ex,   qwght, ldew, func,
+     I      2    ,fact_cs)
       return
       end
       Subroutine xc_xmn12(tol_rho, fac,lfac,nlfac,

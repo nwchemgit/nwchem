@@ -21,7 +21,7 @@ c       ijzy - 2 M08-SO (a)                                            c
 c       ijzy - 3 M11 (b)                                               c
 c       ijzy - 4 M11-L (c)                                             c
 *       ijzy - 5 MN12-L                                                *
-*       ijzy - 6 N12-SX                                                *
+*       ijzy - 6 MN12-SX                                               *
 *       ijzy - 7 MN15-L                                                *
 *       ijzy - 8 MN15                                                  *
 *       ijzy - 9 revM11                                                *

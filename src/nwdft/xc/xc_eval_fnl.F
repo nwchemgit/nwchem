@@ -1164,6 +1164,20 @@ c
          endif
       endif
 c
+c mn12-sx Exchange
+c
+
+      if (abs(xfac(81)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xmn12sx(tol_rho, xfac(81), lxfac(81), nlxfac(81),
+     &           rho, delrho, ttau, Amat, Cmat, mmat, nq, ipol,
+     &           Ex, qwght,ldew, func)
+         else
+            call xc_xmn12_d2()
+         endif
+      endif
+
+c
 c SOGGA GGA Exchange
 c
       if (abs(xfac(52)).gt.eps)then
@@ -1315,6 +1329,19 @@ c
             call xc_cm11(tol_rho, cfac(80), lcfac(80), nlcfac(80),
      &           rho, delrho,  nq, ipol,
      &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,5)
+
+         else
+            call xc_cm11_d2()
+         endif
+      endif
+c
+c     cmn12-sx
+c      
+      if (abs(cfac(81)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_cm11(tol_rho, cfac(81), lcfac(81), nlcfac(81),
+     &           rho, delrho,  nq, ipol,
+     &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,6)
 
          else
             call xc_cm11_d2()

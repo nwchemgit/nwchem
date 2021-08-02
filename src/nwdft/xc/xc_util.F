@@ -45,7 +45,7 @@ c
      +     xfac(75) + cfac(75) +
      w     xfac(76) + xfac(77) + cfac(76) + cfac(77) +
      w     xfac(78) + cfac(78) + xfac(79) + cfac(79) +
-     x     xfac(80) + cfac(80) +
+     x     xfac(80) + cfac(80) + xfac(81) + cfac(81) +
      L     lxdm +
 cc AJL/Begin/FDE
      + xfac_fde(3) + xfac_fde(4) + xfac_fde(5) + xfac_fde(6) + 
@@ -210,6 +210,7 @@ cwb97 should have 2nds
      .     xfac(78).ne.0d0.or.
      .     xfac(79).ne.0d0.or.
      .     xfac(80).ne.0d0.or.
+     .     xfac(81).ne.0d0.or.
 c
 chcth     .     cfac(13).ne.0d0.or.
 cCbecke97     .     cfac(14).ne.0d0.or.
@@ -252,6 +253,7 @@ cwb97 should have 2nds
      .     cfac(78).ne.0d0.or.
      .     cfac(79).ne.0d0.or.
      .     cfac(80).ne.0d0.or.
+     .     cfac(81).ne.0d0.or.
      .     cfac(36).ne.0d0)
       if (util_module_avail("nwxc")) then
          call nwxc_getvals("nwxc_has_2nd",out1)
@@ -294,6 +296,7 @@ c
      +      xfac(68) + cfac(68) + xfac(69) + cfac(69) +
      +      xfac(71) + cfac(71) + xfac(73) + cfac(73) +
      +      xfac(79) + cfac(79) + xfac(80) + cfac(80) +
+     +      xfac(81) + cfac(81) +
 cc AJL/Begin/FDE
      +      xfac_fde(18) + cfac_fde(25) + xfac_fde(21) + cfac_fde(27) +
      +      xfac_fde(28) + xfac_fde(29) + xfac_fde(33) + xfac_fde(34) + 
@@ -541,6 +544,7 @@ c
      .     xfac(78).ne.0d0.or.  ! wb97x-d3
      .     xfac(79).ne.0d0.or.  ! revm11
      .     xfac(80).ne.0d0.or.  ! mn12-l
+     .     xfac(81).ne.0d0.or.  ! mn12-sx
 c
      .     cfac(5).ne.0d0.or.   ! PW91
      .     cfac(13).ne.0d0.or.  ! HCTH
@@ -594,7 +598,8 @@ c
      .     cfac(77).ne.0d0.or.  ! wb97x
      .     cfac(78).ne.0d0.or.  ! wb97x-d3
      .     cfac(79).ne.0d0.or.  ! revm11
-     .     cfac(80).ne.0d0      ! mn12-l
+     .     cfac(80).ne.0d0.or.  ! mn12-l
+     .     cfac(81).ne.0d0      ! mn12-sx
      .                )
 c
       if (libxcon .and. .not.xc_ngot3rd) then
