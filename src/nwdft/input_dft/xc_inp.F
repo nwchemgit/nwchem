@@ -115,6 +115,10 @@ c     cm11-L   => 8920
 c      
 c     mn12-L   => 8950
 c     mn12-sx   => 8960
+c      
+c     mn15-L   => 8970
+c     mn15     => 8980
+c     
 c
 c     sogga    => 9000
 c     xsogga   => 9010
@@ -146,7 +150,7 @@ c
 c     hcth147@tz2p ==> 1947
 c
       integer num_dirs, ind, mlen, iline, n, itemp
-      parameter (num_dirs=162)
+      parameter (num_dirs=164)
 c
       character*15 dirs(num_dirs)
       character*255 test
@@ -189,6 +193,7 @@ c
      &     'm08-so','xm08-so','cm08-so',
      &     'm11','xm11','cm11','revm11',
      &     'm11-l','xm11-l','cm11-l','mn12-l','mn12-sx',
+     &     'mn15-l','mn15',
      &     'sogga','xsogga','csogga',
      &     'sogga11','xsogga11','csogga11',
      &     'sogga11-x','xsogga11-x','csogga11-x',
@@ -275,7 +280,7 @@ c
      &     7000,7100,7200,7300,7400,7500,7600,7610,7010,
      &     7700,7800,7900,8000,8100,
      &  8600,8610,8620,8700,8710,8720,8800,8810,8820,8850,
-     M  8900,8910,8920,8950,8960,
+     M  8900,8910,8920,8950,8960,8970,8980,
      &  9000,9010,9020,9100,9110,9120,9200,9210,9220,
      N  9245,9246,9247,9260,
      &  8200,4800,8300,8400,8500,8510,8520,8530,4600,4700,4701,8531,
@@ -3247,6 +3252,33 @@ c
       cam_srhf = .true. ! for short-range HF
       call xc_setcamparam(rtdb,cam_exch,cam_srhf,cam_omega,cam_alpha,
      &     cam_beta)
+c
+      goto 10
+c
+c  MN15-L
+c
+ 8970 xccomb(83) = .true.
+         xfac(83)= 1.0d0
+        lxfac(83)=.true.
+       nlxfac(83)=.true.
+        cfac(83) = 1.0d0
+       lcfac(83) = .true.
+      nlcfac(83) = .true.
+c
+      goto 10
+c
+c  MN15
+c
+ 8980 xccomb(84) = .true.
+         xfac(84)= 1.0d0
+        lxfac(84)=.true.
+       nlxfac(84)=.true.
+        xfac(1) = 0.44d0
+       lxfac(1) = .true.
+       nlxfac(1) = .true.
+        cfac(84) = 1.0d0
+       lcfac(84) = .true.
+      nlcfac(84) = .true.
 c
       goto 10
 c

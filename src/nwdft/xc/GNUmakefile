@@ -50,7 +50,7 @@ HEADERS = xc.fh xc_vdw.fh xc_params.fh xc_hcth.fh
 	xc_camb88.o xc_att_xc.o xc_camxpbe96.o xc_camxlsd.o xc_xwpbe.o hse08fx.o \
 	xc_vdw_main.o xc_vdw_util.o \
 	xc_xsogga.o xc_xmvs15.o \
-	xc_xm11.o xc_xmn12.o \
+	xc_xm11.o xc_xmn12.o xc_xmn15.o \
 	xc_csogga.o\
 	xc_cm11.o \
 	steric_energy.o\
