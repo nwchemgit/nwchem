@@ -225,6 +225,10 @@ c     onto the RTDB. This way external programs can pick the actual
 c     functional definition up as it was entered.
 c
       success = nwchem_libxc_init()
+c
+c     reset cam parameters
+c
+      call xc_setcamparam(rtdb,.false.,.false.,0d0,0d0,0d0)
 
       if (.not.inp_line(test)) then
          write(*,*)'xc_input: Could not read functional specification'
