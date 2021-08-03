@@ -92,6 +92,65 @@ c
      &                     qwght, ldew, func, 1,fact_cs)
       return
       end
+      subroutine xc_xn12sx(tol_rho, fac,lfac,nlfac, rho, delrho, 
+     &                     amat, cmat, nq, ipol, ex, 
+     &                     qwght, ldew, func)
+      implicit none
+#include "errquit.fh"
+#include "dft2drv.fh"
+c      
+      double precision fac, Ex
+      integer nq, ipol
+      logical lfac, nlfac,ldew,   uselc
+      double precision func(*)  ! value of the functional [output]
+      double precision rho(nq,ipol*(ipol+1)/2)
+      double precision delrho(nq,3,ipol)
+      double precision qwght(nq)
+      double precision Amat(nq,ipol), Cmat(nq,*)
+      double precision tol_rho
+      external  xc_xn12sx_os
+      call xc_os2cs(xc_xn12sx_os,
+     &     tol_rho, fac,lfac,nlfac, rho, delrho, 
+     &                     amat, cmat, nq, ipol, ex, 
+     &                     qwght, ldew, func)
+      return
+      end
+      subroutine xc_xn12sx_os(tol_rho, fac,lfac,nlfac, rho, delrho, 
+     &                     amat, cmat, nq,  ex, 
+     &                     qwght, ldew, func, fact_cs)
+      Implicit Real*8(A-H,O-Z)
+#include "errquit.fh"
+#include "dft2drv.fh"
+c
+c wrapper for n12 open-shell
+      double precision fac, Ex
+      double precision fact_cs
+      integer nq, ipol
+      logical lfac, nlfac,ldew,   uselc
+      double precision func(*)  ! value of the functional [output]
+c
+c     Charge Density & Its Cube Root
+c
+      double precision rho(nq)
+c
+c     Charge Density Gradient
+c
+      double precision delrho(nq,3)
+c
+c     Quadrature Weights
+c
+      double precision qwght(nq)
+c
+c     Sampling Matrices for the XC Potential & Energy
+c
+      double precision Amat(nq), Cmat(nq)
+      double precision tol_rho
+
+      call xc_xn12_0(tol_rho, fac,lfac,nlfac, rho, delrho, 
+     &                     amat, cmat, nq,  ex, 
+     &                     qwght, ldew, func, 2,fact_cs)
+      return
+      end
       subroutine xc_xn12_0(tol_rho, fac,lfac,nlfac, rho, delrho, 
      &                     amat, cmat, nq,  ex, 
      &                     qwght, ldew, func, ijzy,fact_cs)

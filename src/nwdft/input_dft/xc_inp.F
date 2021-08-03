@@ -131,8 +131,8 @@ c
 c
 c     n12 numfunc=45 > 9245
 c     
-c     cn12-sx numfunc=  > 9248
-c
+c     n12-sx -> 9260
+c      
 c     srexch ==> 9310
 c     hse03 ==> 9320
 c
@@ -192,7 +192,7 @@ c
      &     'sogga','xsogga','csogga',
      &     'sogga11','xsogga11','csogga11',
      &     'sogga11-x','xsogga11-x','csogga11-x',
-     %     'n12','xn12','cn12','cn12-sx',
+     %     'n12','xn12','cn12','n12-sx',
      &     'xbnl07',
      &     'becke97-d','xcamb88','xcampbe96','mp2','b2plyp',
      &     'xcamlsd','xwpbe','ssb-d','kt1','kt2','bhlyp','b3p86',
@@ -277,7 +277,7 @@ c
      &  8600,8610,8620,8700,8710,8720,8800,8810,8820,8850,
      M  8900,8910,8920,8950,8960,
      &  9000,9010,9020,9100,9110,9120,9200,9210,9220,
-     N  9245,9246,9247,9248,
+     N  9245,9246,9247,9260,
      &  8200,4800,8300,8400,8500,8510,8520,8530,4600,4700,4701,8531,
      &  8532,8533,8534,9300,9310,9320,4610,4620,4630,4640,
      &  9510,9520,4115,2109,4124,3101,
@@ -3565,14 +3565,35 @@ c
       goto 10
 
 c
-c  N12-sx c
+c  N12-SX
 c
- 9248 continue
-         cfac(44)= 1.0d0
-        lcfac(44)=.true.
-       nlcfac(44)=.true.
+ 9260 xccomb(82) = .true. 
+c
+c       Ex(HF-SR)
+c
+        xfac(1) = 0.25d0
+       lxfac(1) = .true.
+       nlxfac(1) = .true.
+c       
+        xfac(82)= 1.0d0
+        lxfac(82)=.true.
+        nlxfac(82)=.true.
+        cfac(82) = 1.0d0
+       lcfac(82) = .true.
+       nlcfac(82) = .true.
+c    
+c     set cam parameters since this is a range-separated functional 
+c
+      cam_omega = 0.11d0
+      cam_alpha = 0.d0
+      cam_beta =  1.0
+      cam_exch = .true.
+      cam_srhf = .true. ! for short-range HF
+      call xc_setcamparam(rtdb,cam_exch,cam_srhf,cam_omega,cam_alpha,
+     &     cam_beta)
 c
       goto 10
+       
 
 c     
 c     becke86b; Perdew-Burke-Ernzerhof exchange functional 

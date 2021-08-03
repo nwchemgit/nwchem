@@ -382,6 +382,11 @@ c
          dohcth=.true.
          nx=45
          nc=45
+      elseif (abs(cfac(82)).gt.eps)then
+         whichf='n12s'
+         dohcth=.true.
+         nx=82
+         nc=82
       endif
       if(dohcth) then  
          if (.not. do_2nd) then
@@ -1678,7 +1683,20 @@ c
          if (.not. do_2nd) then
             call xc_xn12(tol_rho, xfac(45), lxfac(45), nlxfac(45),
      &           rho, delrho,  Amat, Cmat, nq, ipol,
-     &           Ex, qwght, ldew,func,1)
+     &           Ex, qwght, ldew,func)
+
+         else
+            call xc_xn12_d2()
+         endif
+      endif
+c
+c     N12-sx
+c
+      if (abs(xfac(82)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xn12sx(tol_rho, xfac(82), lxfac(82), nlxfac(82),
+     &           rho, delrho,  Amat, Cmat, nq, ipol,
+     &           Ex, qwght, ldew,func)
 
          else
             call xc_xn12_d2()
