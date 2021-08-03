@@ -1181,6 +1181,19 @@ c
             call xc_xmn12_d2()
          endif
       endif
+c
+c m06-sx Exchange
+c
+
+      if (abs(xfac(85)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xm06(tol_rho, xfac(85), lxfac(85), nlxfac(85),
+     &           rho, delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght,ldew, func,ttau,Mmat,7)
+         else
+            call xc_xm06_d2()
+         endif
+      endif
 
 c
 c mn15-l Exchange
@@ -1775,6 +1788,19 @@ c
             call xc_cm06(tol_rho, cfac(69), lcfac(69), nlcfac(69),
      &           rho, delrho,  nq, ipol,
      &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,5)
+
+         else
+            call xc_cm06_d2()
+         endif
+      endif
+c
+c     M06-sx correlation
+c
+      if (abs(cfac(85)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_cm06(tol_rho, cfac(85), lcfac(85), nlcfac(85),
+     &           rho, delrho,  nq, ipol,
+     &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,7)
 
          else
             call xc_cm06_d2()

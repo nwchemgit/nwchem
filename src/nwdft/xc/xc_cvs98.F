@@ -12,6 +12,7 @@ c                              ijzy - 4  M06
 c                              ijzy - 5  M06-2X
 c                              ijzy - 6  revM06
 c                              ijzy - 7  revM06-L
+c                              ijzy - 8 M06-sx
 c
       Subroutine xc_cvs98(tol_rho, cfac, lcfac, nlcfac, rho, delrho,  
      &                     nq, ipol, Ec, qwght, ldew, func,
@@ -158,6 +159,14 @@ C     Parameters for revM06
               r10= 0.000000D+00
               r11= 0.000000D+00
               r12= 4.076285162D-04
+C     Parameters for M06-SX
+      elseif (ijzy.eq.8) then
+              r7=  7.40594619832397D-01
+              r8=  1.23306511345974D-02
+              r9=  -1.88253421850249D-02
+              r10=  0.000000D+00
+              r11=  0.000000D+00
+              r12=  4.87276242162303D-04
       else
          call errquit("xc_cvs98: illegal value of ijzy",ijzy,UERR)
       endif
@@ -404,6 +413,14 @@ C     Parameters for revM06
               r16=  0.000000D+00
               r17=  0.000000D+00
               r18=  2.280677172D-04
+C     Parameters for M06-SX
+      elseif (ijzy.eq.8) then
+              r13=  8.17322574473352D-02
+              r14= -2.88531085759385D-02
+              r15=  9.05917734868130D-02
+              r16=  0.000000D+00
+              r17=  0.000000D+00
+              r18= -4.86297499082106D-04
       else
         call errquit("vs98ss: illegal value of ijzy",ijzy,UERR)
       endif

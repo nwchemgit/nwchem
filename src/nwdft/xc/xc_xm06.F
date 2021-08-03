@@ -11,6 +11,7 @@ c                              ijzy - 3  M06
 c                              ijzy - 4  M06-2X
 c                              ijzy - 5 revM06-L
 c                              ijzy - 6 revM06
+c                              ijzy - 7  M06-sx
 c     References: 
 c     [a]	Zhao, Y. and  Truhlar, D. G. J. Chem. Phys. 2006, 125, 194101;
 c     [b]       Zhao, Y. and  Truhlar, D. G. J. Phys. Chem. A (2006),110(49),13126-13130.    
@@ -188,6 +189,20 @@ C      Parameters for revM06
         at9=    2.633751911D+00
         at10=   9.886749252D-01
         at11=   -4.243714128D+00
+        elseif (ijzy.eq.7) then
+C      Parameters for M06-SX
+        at0=    9.96501680264007D-01
+        at1=    3.01264933631367D-02
+        at2=   -1.03366758333673D-01
+        at3=   -1.55653062500239D-01
+        at4=    7.95768051149902D-03
+        at5=    8.71986277454856D-02
+        at6=   -8.16152625764469D-01
+        at7=    6.72773006612420D-01
+        at8=    5.21127186174968D-01
+        at9=    3.99466945122217D-01
+        at10=   5.19400018999204D-01
+        at11=  -9.65261552636835D-01
       else
         call errquit("xc_xm06: illegal value of ijzy",ijzy,UERR)
       endif

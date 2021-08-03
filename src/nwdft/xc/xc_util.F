@@ -47,7 +47,7 @@ c
      w     xfac(78) + cfac(78) + xfac(79) + cfac(79) +
      x     xfac(80) + cfac(80) + xfac(81) + cfac(81) +
      n     cfac(82) + xfac(82) + cfac(83) + xfac(83) +
-     c     cfac(84) + xfac(84) +
+     c     cfac(84) + xfac(84) + cfac(85) + xfac(85) +
      L     lxdm +
 cc AJL/Begin/FDE
      + xfac_fde(3) + xfac_fde(4) + xfac_fde(5) + xfac_fde(6) + 
@@ -216,6 +216,7 @@ cwb97 should have 2nds
      .     xfac(82).ne.0d0.or.
      .     xfac(83).ne.0d0.or.
      .     xfac(84).ne.0d0.or.
+     .     xfac(85).ne.0d0.or.
 c
 chcth     .     cfac(13).ne.0d0.or.
 cCbecke97     .     cfac(14).ne.0d0.or.
@@ -261,6 +262,7 @@ cwb97 should have 2nds
      .     cfac(81).ne.0d0.or.
      .     cfac(83).ne.0d0.or.
      .     cfac(84).ne.0d0.or.
+     .     cfac(85).ne.0d0.or.
      .     cfac(36).ne.0d0)
       if (util_module_avail("nwxc")) then
          call nwxc_getvals("nwxc_has_2nd",out1)
@@ -304,7 +306,7 @@ c
      +      xfac(71) + cfac(71) + xfac(73) + cfac(73) +
      +      xfac(79) + cfac(79) + xfac(80) + cfac(80) +
      +      xfac(81) + cfac(81) + xfac(83) + cfac(83) +
-     +      xfac(84) + cfac(84) +
+     +      xfac(84) + cfac(84) + xfac(85) + cfac(85) +
 cc AJL/Begin/FDE
      +      xfac_fde(18) + cfac_fde(25) + xfac_fde(21) + cfac_fde(27) +
      +      xfac_fde(28) + xfac_fde(29) + xfac_fde(33) + xfac_fde(34) + 
@@ -393,6 +395,7 @@ c
      .     xfac(79).ne.0d0.or.
      .     xfac(80).ne.0d0.or.
      .     xfac(81).ne.0d0.or.
+     .     xfac(85).ne.0d0.or.
      .     xfac(51).ne.0d0)
       if (.not.rtdb_get(rtdb, 'dft:cam_exch', mt_log, 1, cam_exch)) 
      &     cam_exch=.false.
@@ -558,6 +561,7 @@ c
      .     xfac(82).ne.0d0.or.  ! n12-sx
      .     xfac(83).ne.0d0.or.  ! mn15-l
      .     xfac(84).ne.0d0.or.  ! mn15
+     .     xfac(85).ne.0d0.or.  ! m06-sx
 c
      .     cfac(5).ne.0d0.or.   ! PW91
      .     cfac(13).ne.0d0.or.  ! HCTH
@@ -615,7 +619,8 @@ c
      .     cfac(81).ne.0d0.or.  ! mn12-sx
      .     cfac(82).ne.0d0.or.  ! n12-sx
      .     cfac(83).ne.0d0.or.  ! mn15-l
-     .     cfac(84).ne.0d0      ! mn15
+     .     cfac(84).ne.0d0.or.  ! mn15
+     .     cfac(85).ne.0d0      ! m06-sx
      .                )
 c
       if (libxcon .and. .not.xc_ngot3rd) then

@@ -616,6 +616,7 @@ c
       cname(82)='            N12-SX Correlation Potential'
       cname(83)='            MN15-L Correlation Potential'
       cname(84)='              MN15 Correlation Potential'
+      cname(85)='            M06-SX Correlation Potential'
 c
 c     Exchange functional name defaults.
 c
@@ -696,6 +697,7 @@ c
       xname(82)='              N12-SX Exchange Functional'
       xname(83)='              MN15-L Exchange Functional'
       xname(84)='                MN15 Exchange Functional'
+      xname(85)='              M06-SX Exchange Functional'
 c
 c     Exchange-Correlation combination functional name defaults.
 c
@@ -776,6 +778,7 @@ c
       xcname(82)='             N12-SX Method XC Functional'
       xcname(83)='             MN15-L Method XC Functional'
       xcname(84)='               MN15 Method XC Functional'
+      xcname(85)='             M06-SX Method XC Functional'
 c     
 c     place character XC parameters in rtdb
 c     
