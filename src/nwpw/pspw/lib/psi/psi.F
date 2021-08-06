@@ -9065,7 +9065,8 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       if (.not.value)
      >   call errquit('psi_cpmd_start',0,MA_ERR)
 
-      call dcopy(2*ispin*nfft3d,dbl_mb(rho1(1)),1,dbl_mb(rho0(1)),1)
+      call Parallel_shared_vector_copy(.true.,2*ispin*nfft3d,
+     >                                 dbl_mb(rho1(1)),dbl_mb(rho0(1)))
       return
       end
 
@@ -9132,11 +9133,13 @@ c      end if
 c      write(*,*) "psi2 ortho:"
 c      call OrthoCheck_geo(ispin,ne,dcpl_mb(psi2(1)))
 
-      call dcopy(2*ispin*nfft3d,dbl_mb(rho1(1)),1,dbl_mb(rho2(1)),1)
-      call dscal(2*ispin*nfft3d, 2.0d0,dbl_mb(rho2(1)),1)
-      call daxpy(2*ispin*nfft3d,-1.0d0,
-     >           dbl_mb(rho0(1)),1,dbl_mb(rho2(1)),1)
-      call dcopy(2*ispin*nfft3d,dbl_mb(rho1(1)),1,dbl_mb(rho0(1)),1)
+      call Parallel_shared_vector_copy(.true.,2*ispin*nfft3d,
+     >                          dbl_mb(rho1(1)),dbl_mb(rho2(1)))
+      call DSCAL_OMP(2*ispin*nfft3d, 2.0d0,dbl_mb(rho2(1)),1)
+      call DAXPY_OMP(2*ispin*nfft3d,-1.0d0,
+     >               dbl_mb(rho0(1)),1,dbl_mb(rho2(1)),1)
+      call Parallel_shared_vector_copy(.true.,2*ispin*nfft3d,
+     >                          dbl_mb(rho1(1)),dbl_mb(rho0(1)))
 
       call psi_set_density(1,dbl_mb(rho2(1)))
 
