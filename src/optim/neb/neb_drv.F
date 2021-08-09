@@ -775,6 +775,7 @@ c                  if (finishedstep) sum0_old = sum0
                    call create_cif_file_bead_list(23,bead_list)
                    if (oprint) close(23)
                 end if
+
             end if
          end if
          if (.not.rtdb_put(rtdb,'neb:print_count',mt_int,1,print_count))

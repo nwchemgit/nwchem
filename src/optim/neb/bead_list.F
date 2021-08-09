@@ -1275,15 +1275,10 @@ c
 
       taglen    = inp_strlen(tag)
       nbeads    = size_bead_list(tag)
-      value = geom_create(geom,'bead_tmp')
+      value = geom_create(geom,'bead_tmp_cif')
       do i=1,nbeads
-         rtdb_name = tag(1:taglen)//bead_index_name(i)//':energy'
-         value = value.and.rtdb_get(bead_rtdb,rtdb_name,
-     >                              mt_dbl,1,energy)
 
          rtdb_name = tag(1:taglen)//bead_index_name(i)//':geom_name'
-c         if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
-c     >      geom_name = 'bead'//bead_index_name(i)//':geom'
          if (.not.rtdb_cget(bead_rtdb,rtdb_name,1,geom_name))
      >      geom_name = tag(1:taglen)//bead_index_name(i)//':geom'
          geomlen = inp_strlen(geom_name)
@@ -1367,7 +1362,7 @@ c     >      geom_name = 'bead'//bead_index_name(i)//':geom'
          end do
 
       end do
-
+      value = value.and.geom_destroy(geom)
 
 
       return
