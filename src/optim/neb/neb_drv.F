@@ -34,7 +34,7 @@ c
       integer i,it,nbeads,nion,ng,m,nebsteps,neb_algorithm,algorithm
       integer nbeads1,nbeads2,isystype
       integer e1(2),g0(2),g1(2),s(2),t1(2),v1(2),c0(2),c1(2),xx1(2)
-      integer mass(2),dti(2),cs(2),gs(2)
+      integer mass(2),dti(2),cs(2),gs(2),ytmp(2),stmp(2)
       real*8  path_energy,path_distance,norm,norm0,time_step,kbeads
       real*8  Gmax,Grms,Xmax,Xrms,dE,path_energy0,emid,emax,emin,trust
       real*8  nebGmax,nebGrms,nebXmax,nebXrms,nebdE,sum,sum2,t,alpha
@@ -42,6 +42,7 @@ c
       real*8  time_step0,time_step1
       real*8  emid0,emin0,emax0,x0,x1,x2,f0,f1,f2,a,b,c,d
       real*8  gmax0,grms0,xmax0,xrms0
+      real*8  amat(3,3)
 
 *     **** external functions ****
       logical task_gradient,systype_bead_list
@@ -146,6 +147,19 @@ c
         call create_xyz_file_bead_list(19,bead_list,.false.)
         if (oprint) close(19)
 
+        isystype=0
+        if (systype_bead_list(bead_list)) isystype=1
+        if (isystype.eq.1) then
+          call util_file_prefix('neb_intial.cif',filename2)
+          call util_file_name_noprefix(filename2,.false.,
+     >                             .false.,
+     >                             full_filename2)
+          if (oprint) open(unit=19,file=full_filename2,form='formatted')
+          call create_cif_file_bead_list(19,bead_list)
+          if (oprint) close(19)
+        end if
+
+
       else
          if (oprint) write(luout,*)'neb: EXISTING NEB CHAIN? RESTARTING'
          call set_rtdb_bead_list(rtdb)
@@ -166,6 +180,9 @@ c
       ng     = 3*nion*nbeads
       isystype=0
       if(systype_bead_list(bead_list)) isystype=1
+      if (isystype.eq.1) then
+         call amatrix_get_bead_list(bead_list,1,amat)
+      end if
 
       if (oprint) then
 
@@ -189,15 +206,23 @@ c
      >                  isystype,kbeads,
      >                  neb_algorithm,tmp,
      >                  neb_movecs
+         if (isystype.eq.1) then
+          write(luout,'(a,3f10.6)') "neb: amatrix(*,1)  = ",
+     >                               amat(1,1),amat(2,1),amat(3,1)
+          write(luout,'(a,3f10.6)') "neb: amatrix(*,2)  = ",
+     >                               amat(1,2),amat(2,2),amat(3,2)
+          write(luout,'(a,3f10.6)') "neb: amatrix(*,3)  = ",
+     >                               amat(1,3),amat(2,3),amat(3,3)
+         end if
          if (freeze1) then
-           write(luout,'(a)') 'neb: First Replica         = frozen'
+           write(luout,'(a)') 'neb: First Replica = frozen'
          else
-           write(luout,'(a)') 'neb: First Replica         = moves'
+           write(luout,'(a)') 'neb: First Replica = moves'
          end if
          if (freezen) then
-           write(luout,'(a)') 'neb: Last Replica         = frozen'
+           write(luout,'(a)') 'neb: Last Replica  = frozen'
          else
-           write(luout,'(a)') 'neb: Last Replica         = moves'
+           write(luout,'(a)') 'neb: Last Replica  = moves'
          end if
 
          if (ostress) 
@@ -252,6 +277,12 @@ c
      >         MA_alloc_get(mt_dbl,m*ng,'cs',cs(2),cs(1))
       value  = value.and.
      >         MA_alloc_get(mt_dbl,m*ng,'gs',gs(2),gs(1))
+      if (isystype.eq.1) then
+      value  = value.and.
+     >         MA_alloc_get(mt_dbl,m*ng,'ytmp',ytmp(2),ytmp(1))
+      value  = value.and.
+     >         MA_alloc_get(mt_dbl,m*ng,'stmp',stmp(2),stmp(1))
+      end if
       if (.not.value) 
      >  call errquit('neb failed - increase heap memory',1,0)
 
@@ -368,10 +399,20 @@ c      end do
                 call dcopy(ng,dbl_mb(c0(1)),1,dbl_mb(cs(1)+shift),1)
                 call dcopy(ng,dbl_mb(g0(1)),1,dbl_mb(gs(1)+shift),1)
                 if (itm.gt.1) then
-                   call neb_lmbfgs(ng,itm,
-     >                             dbl_mb(cs(1)),
-     >                             dbl_mb(gs(1)),
-     >                             dbl_mb(s(1)))
+                   if (isystype.eq.1) then
+                      call neb_lmbfgs_periodic(ng,itm,
+     >                                dbl_mb(cs(1)),
+     >                                dbl_mb(gs(1)),
+     >                                dbl_mb(s(1)),
+     >                                amat,
+     >                                dbl_mb(stmp(1)),
+     >                                dbl_mb(ytmp(1)))
+                   else
+                      call neb_lmbfgs(ng,itm,
+     >                                dbl_mb(cs(1)),
+     >                                dbl_mb(gs(1)),
+     >                                dbl_mb(s(1)))
+                   end if
                 else
                    call dcopy(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)
                 end if
@@ -387,10 +428,20 @@ c      end do
                 shift = (m-1)*ng
                 call dcopy(ng,dbl_mb(c0(1)),1,dbl_mb(cs(1)+shift),1)
                 call dcopy(ng,dbl_mb(g0(1)),1,dbl_mb(gs(1)+shift),1)
-                call neb_lmbfgs(ng,m,
-     >                          dbl_mb(cs(1)),
-     >                          dbl_mb(gs(1)),
-     >                          dbl_mb(s(1)))
+                if (isystype.eq.1) then
+                   call neb_lmbfgs_periodic(ng,itm,
+     >                             dbl_mb(cs(1)),
+     >                             dbl_mb(gs(1)),
+     >                             dbl_mb(s(1)),
+     >                             amat,
+     >                             dbl_mb(stmp(1)),
+     >                             dbl_mb(ytmp(1)))
+                else
+                   call neb_lmbfgs(ng,m,
+     >                             dbl_mb(cs(1)),
+     >                             dbl_mb(gs(1)),
+     >                             dbl_mb(s(1)))
+                end if
              end if
 c             call neb_project_gradient(nion,nbeads,
 c     >                                dbl_mb(t1(1)),
@@ -402,19 +453,23 @@ c     >                                dbl_mb(s(1)))
              do while ((.not.finishedstep).and.(jj.lt.9))
                 jj = jj + 1
                 sum = ddot(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)
-
-                if ((sum.le.0.0d0).or.(sum0.gt.sum0_old))  then
-                   call dcopy(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)
-                   !itm = 0
-                   !if (oprint) write(*,*) "neb: s=g and itm reset to 0"
-                   if (oprint) write(*,*) "neb: sum,sum0,sum0_old=",
-     >                                    sum,sum0,sum0_old
-                end if
-
                 sum2 = dsqrt(ddot(ng,dbl_mb(s(1)),1,dbl_mb(s(1)),1))
      >                 /dble(nbeads)
-                if (oprint) 
-     >             write(*,*) "neb: |<s|s>|,<g|s>=",sum2,sum
+                if (oprint) write(*,*) "neb: |<s|s>|,<g|s>=",sum2,sum
+
+                if ((sum.le.0.0d0).or.
+     >              (sum0.gt.sum0_old).or.
+     >              (sum2.gt.1.0d0))  then
+                   call dcopy(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)
+                   itm = 0
+                   if (oprint) write(*,*) "neb: s=g and itm reset to 0"
+                   if (oprint) write(*,*) "neb: sum,sum0,sum0_old=",
+     >                                    sum,sum0,sum0_old
+                   sum = ddot(ng,dbl_mb(g0(1)),1,dbl_mb(s(1)),1)
+                   sum2 = dsqrt(ddot(ng,dbl_mb(s(1)),1,dbl_mb(s(1)),1))
+     >                 /dble(nbeads)
+                   if (oprint) write(*,*) "neb: |<s|s>|,<g|s>=",sum2,sum
+                end if
 
                 call neb_move(ng,
      >                        (-alpha),
@@ -683,7 +738,7 @@ c                  if (finishedstep) sum0_old = sum0
             do i=1,nbeads
                dbl_mb(xx1(1)+i-1) = i*1.0d0
                if (dbl_mb(e1(1)+i-1).lt.x1) x1 = dbl_mb(e1(1)+i-1)
-               if (dbl_mb(e1(1)+i-1).gt.x2) x2 = dbl_mb(e1(1)+i-1)
+               if (dbl_mb(e1(1)+i-1).gt.x2) x2 = dbl_mb(e1(1)+i-1) 
             end do
             call util_ascii_setwindow(1.0d0,1.0d0*nbeads,x1,x2)
             call util_ascii_plotter(" neb: ",luout,nbeads,
@@ -707,6 +762,19 @@ c                  if (finishedstep) sum0_old = sum0
      >            open(unit=23,file=full_filename2,form='formatted')
                 call create_xyz_file_bead_list(23,bead_list,.false.)
                 if (oprint) close(23)
+
+                if (isystype.eq.1) then
+                   call util_file_prefix(
+     >                  'nebpath'//bead_index_name(print_count)//'.cif',
+     >                  filename2)
+                   call util_file_name_noprefix(filename2,.false.,
+     >                             .false.,
+     >                             full_filename2)
+                   if (oprint) 
+     >                open(unit=23,file=full_filename2,form='formatted')
+                   call create_cif_file_bead_list(23,bead_list)
+                   if (oprint) close(23)
+                end if
             end if
          end if
          if (.not.rtdb_put(rtdb,'neb:print_count',mt_int,1,print_count))
@@ -887,6 +955,18 @@ c                  if (finishedstep) sum0_old = sum0
        call create_xyz_file_bead_list(19,bead_list,.false.)
        if (oprint) close(19)
 
+      if (isystype.eq.1) then
+         call util_file_prefix('neb_final.cif',filename)
+         call util_file_name_noprefix(filename,.false.,
+     >                             .false.,
+     >                             full_filename)
+          if (oprint) open(unit=19,file=full_filename,form='formatted')
+          call create_cif_file_bead_list(19,bead_list)
+          if (oprint) close(19)
+
+         value = value.and.MA_free_heap(ytmp(2))
+         value = value.and.MA_free_heap(stmp(2))
+      end if
 
       value = value.and.MA_free_heap(cs(2))
       value = value.and.MA_free_heap(gs(2))
