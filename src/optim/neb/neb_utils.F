@@ -1027,11 +1027,9 @@ c        end do
      >            dbl_mb(rcoords(1)+3*nion*(nbeads-1)),1) 
 
         if (hasamat) then
-           write(*,*) "CALLING GUESSALL_PERIODIC"
            call zts_guessall_periodic(nion,nbeads,dbl_mb(rcoords(1)),
      >                                geom,amat)
         else
-           write(*,*) "CALLING GUESSALL- NO PERIODIC"
            call zts_guessall(nion,nbeads,dbl_mb(rcoords(1)),geom)
         end if
 
