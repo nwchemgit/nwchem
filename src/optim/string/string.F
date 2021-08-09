@@ -1684,7 +1684,6 @@ C> @}
       call dscal(9,1.0d0/vol,bmat,1)
 
 
-
       if (nbeads .gt. MAX_N)
      &     call errquit('zts_meps: MAX_N exceeded', 0, 0)
       done(1) = .true.
@@ -1708,7 +1707,7 @@ C> @}
  626    continue
         i = (iix+ix)/2
         dgg = dble(i-ix)/dble(iix-ix)
-        write(*,*) "i,ix,iix,dgg=",i,ix,iix,dgg
+       
         do j = 1, natoms
           dx = coords(1,j,iix) - coords(1,j,ix )
           dy = coords(2,j,iix) - coords(2,j,ix )
@@ -1725,28 +1724,12 @@ C> @}
      >       + dgg*(amat(2,1)*f1+amat(2,2)*f2+amat(2,3)*f3)
           dz = coords(3,j,ix ) 
      >       + dgg*(amat(3,1)*f1+amat(3,2)*f2+amat(3,3)*f3)
-c          f1 = dx*bmat(1,1) + dy*bmat(2,1) + dz*bmat(3,1)
-c          f2 = dx*bmat(1,2) + dy*bmat(2,2) + dz*bmat(3,2)
-c          f3 = dx*bmat(1,3) + dy*bmat(2,3) + dz*bmat(3,3)
-c          f1 = f1 - DNINT(f1)
-c          f2 = f2 - DNINT(f2)
-c          f3 = f3 - DNINT(f3)
-c          coords(1,j,i) = amat(1,1)*f1 + amat(1,2)*f2 + amat(1,3)*f3
-c          coords(2,j,i) = amat(2,1)*f1 + amat(2,2)*f2 + amat(2,3)*f3
-c          coords(3,j,i) = amat(3,1)*f1 + amat(3,2)*f2 + amat(3,3)*f3
 
           coords(1,j,i) = dx
           coords(2,j,i) = dy
           coords(3,j,i) = dz
-          write(*,*) "    ion j=",j, " f123=",f1,f2,f3
-          write(*,*) "        ix=",coords(1,j,ix ),
-     >               coords(2,j,ix ),coords(3,j,ix )
-          write(*,*) "       iix=",coords(1,j,iix),
-     >               coords(2,j,iix),coords(3,j,iix)
-          write(*,*) "         i=",coords(1,j,i),
-     >               coords(2,j,i),coords(3,j,i)
+
         enddo
-        write(*,*)
         !call zts_Robinson(natoms,geom,coords(1,1,i),badgeom)
         done(i) = .true.
         goto 625
