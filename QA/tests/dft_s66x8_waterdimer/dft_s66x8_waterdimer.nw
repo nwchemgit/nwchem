@@ -1,0 +1,56 @@
+echo
+#DOI: 10.1021/acs.jpca.8b11499
+#627.51*(-152.886721368777+76.438957145617+76.439006310378)=-5.50kcal/mol
+start dft_s66x8_waterdimer
+memory stack 500 mb heap 100 mb global 350 mb
+geometry dimer
+  O   -0.702196054  -0.056060256   0.009942262
+  H   -1.022193224   0.846775782  -0.011488714
+  H    0.257521062   0.042121496   0.005218999
+  O    2.268880784   0.026340101   0.000508029
+  H    2.645502399  -0.412039965   0.766632411
+  H    2.641145101  -0.449872874  -0.744894473
+end  
+
+geometry w1
+  O   -0.702196054  -0.056060256   0.009942262
+  H   -1.022193224   0.846775782  -0.011488714
+  H    0.257521062   0.042121496   0.005218999
+end
+geometry w2
+  O    2.268880784   0.026340101   0.000508029
+  H    2.645502399  -0.412039965   0.766632411
+  H    2.641145101  -0.449872874  -0.744894473
+end
+
+basis "ao basis" spherical
+* library def2-qzvp
+bqO library O def2-qzvp
+bqH library H def2-qzvp
+end
+set grid:eaf_size_in_dbl              16304257
+dft
+direct
+noprint "final vectors analysis" multipole
+grid xfine
+tolerances acccoul 13
+xc revm11
+decomp
+end
+
+set geometry w1
+dft
+vectors input atomic output w1.mos
+end
+task dft 
+set geometry w2
+dft
+vectors input atomic output w2.mos
+end
+task dft 
+
+set geometry dimer
+dft
+vectors input fragment w1.mos w2.mos output dimer.mos
+end
+task dft 

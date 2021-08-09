@@ -97,7 +97,7 @@ c
       implicit none
       double precision z,delta
       integer maxiter,i
-      parameter maxiter = 100
+      parameter (maxiter = 100)
       if (z.eq.1d0) then
         lambertW = 0.56714329040978387300d0
         return

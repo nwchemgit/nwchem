@@ -107,9 +107,19 @@ c     m11      => 8800
 c     xm11     => 8810
 c     cm11     => 8820
 c
+c     revm11   => 8850
+c
 c     m11-L    => 8900
 c     xm11-L   => 8910
 c     cm11-L   => 8920
+c      
+c     mn12-L   => 8950
+c     mn12-sx   => 8960
+c     m06-sx   => 8962
+c      
+c     mn15-L   => 8970
+c     mn15     => 8980
+c     
 c
 c     sogga    => 9000
 c     xsogga   => 9010
@@ -126,8 +136,8 @@ c
 c
 c     n12 numfunc=45 > 9245
 c     
-c     cn12-sx numfunc=  > 9248
-c
+c     n12-sx -> 9260
+c      
 c     srexch ==> 9310
 c     hse03 ==> 9320
 c
@@ -141,7 +151,7 @@ c
 c     hcth147@tz2p ==> 1947
 c
       integer num_dirs, ind, mlen, iline, n, itemp
-      parameter (num_dirs=159)
+      parameter (num_dirs=165)
 c
       character*15 dirs(num_dirs)
       character*255 test
@@ -182,12 +192,13 @@ c
      &     'xm06','cm06','m06-2x','xm06-2x','cm06-2x',
      &     'm08-hx','xm08-hx','cm08-hx',
      &     'm08-so','xm08-so','cm08-so',
-     &     'm11','xm11','cm11',
-     &     'm11-l','xm11-l','cm11-l',
+     &     'm11','xm11','cm11','revm11',
+     &     'm11-l','xm11-l','cm11-l','mn12-l','mn12-sx','m06-sx',
+     &     'mn15-l','mn15',
      &     'sogga','xsogga','csogga',
      &     'sogga11','xsogga11','csogga11',
      &     'sogga11-x','xsogga11-x','csogga11-x',
-     %     'n12','xn12','cn12','cn12-sx',
+     %     'n12','xn12','cn12','n12-sx',
      &     'xbnl07',
      &     'becke97-d','xcamb88','xcampbe96','mp2','b2plyp',
      &     'xcamlsd','xwpbe','ssb-d','kt1','kt2','bhlyp','b3p86',
@@ -214,6 +225,10 @@ c     onto the RTDB. This way external programs can pick the actual
 c     functional definition up as it was entered.
 c
       success = nwchem_libxc_init()
+c
+c     reset cam parameters
+c
+      call xc_setcamparam(rtdb,.false.,.false.,0d0,0d0,0d0)
 
       if (.not.inp_line(test)) then
          write(*,*)'xc_input: Could not read functional specification'
@@ -269,9 +284,10 @@ c
      &  5900,6000,6100,6200,6300,6400,6500,6600,6700,6800,6900,
      &     7000,7100,7200,7300,7400,7500,7600,7610,7010,
      &     7700,7800,7900,8000,8100,
-     &  8600,8610,8620,8700,8710,8720,8800,8810,8820,8900,8910,8920,
+     &  8600,8610,8620,8700,8710,8720,8800,8810,8820,8850,
+     M  8900,8910,8920,8950,8960,8962,8970,8980,
      &  9000,9010,9020,9100,9110,9120,9200,9210,9220,
-     N  9245,9246,9247,9248,
+     N  9245,9246,9247,9260,
      &  8200,4800,8300,8400,8500,8510,8520,8530,4600,4700,4701,8531,
      &  8532,8533,8534,9300,9310,9320,4610,4620,4630,4640,
      &  9510,9520,4115,2109,4124,3101,
@@ -3088,6 +3104,31 @@ c
 c
       goto 10
 c
+c revM11
+c
+ 8850  xccomb(79) = .true.
+         xfac(79)= 1.0d0
+        lxfac(79)=.true.
+       nlxfac(79)=.true.
+        cfac(79) = 1.0d0
+       lcfac(79) = .true.
+      nlcfac(79) = .true.
+        xfac(1) = 1d0
+       lxfac(1) = .true.
+      nlxfac(1) = .true.
+c    
+c     set cam parameters since this is a range-separated functional 
+c
+      cam_omega = 0.40
+      cam_alpha = 0.225
+      cam_beta = 0.775
+      cam_exch = .true.
+      cam_srhf = .false.
+      call xc_setcamparam(rtdb,cam_exch,cam_srhf,cam_omega,cam_alpha,
+     &    cam_beta)
+c
+      goto 10
+c
 c  M11-L
 c
  8900  xccomb(51) = .true.
@@ -3175,6 +3216,103 @@ c
       if (.not. inp_f(cfac(51))) then
          cfac(51) = 1.0d0
       endif
+c
+      goto 10
+c
+c  MN12-L
+c
+ 8950 xccomb(80) = .true.
+         xfac(80)= 1.0d0
+        lxfac(80)=.true.
+       nlxfac(80)=.true.
+        cfac(80) = 1.0d0
+       lcfac(80) = .true.
+      nlcfac(80) = .true.
+c
+      goto 10
+c
+c  MN12-SX
+c
+ 8960 xccomb(81) = .true. 
+c
+c       Ex(HF-SR)
+c
+        xfac(1) = 0.25d0
+       lxfac(1) = .true.
+       nlxfac(1) = .true.
+c       
+        xfac(81)= 1.0d0
+        lxfac(81)=.true.
+       nlxfac(81)=.true.
+        cfac(81) = 1.0d0
+       lcfac(81) = .true.
+       nlcfac(81) = .true.
+c    
+c     set cam parameters since this is a range-separated functional 
+c
+      cam_omega = 0.11d0
+      cam_alpha = 0.d0
+      cam_beta =  1.0
+      cam_exch = .true.
+      cam_srhf = .true. ! for short-range HF
+      call xc_setcamparam(rtdb,cam_exch,cam_srhf,cam_omega,cam_alpha,
+     &     cam_beta)
+c
+      goto 10
+c
+c  M06-SX
+c
+ 8962 xccomb(81) = .true. 
+c
+c       Ex(HF-SR)
+c
+        xfac(1) = 0.335d0
+       lxfac(1) = .true.
+       nlxfac(1) = .true.
+c       
+        xfac(85)= 1.0d0
+        lxfac(85)=.true.
+       nlxfac(85)=.true.
+        cfac(85) = 1.0d0
+       lcfac(85) = .true.
+       nlcfac(85) = .true.
+c    
+c     set cam parameters since this is a range-separated functional 
+c
+      cam_omega = 0.10d0
+      cam_alpha = 0.d0
+      cam_beta =  1.0
+      cam_exch = .true.
+      cam_srhf = .true. ! for short-range HF
+      call xc_setcamparam(rtdb,cam_exch,cam_srhf,cam_omega,cam_alpha,
+     &     cam_beta)
+c
+      goto 10
+c
+c  MN15-L
+c
+ 8970 xccomb(83) = .true.
+         xfac(83)= 1.0d0
+        lxfac(83)=.true.
+       nlxfac(83)=.true.
+        cfac(83) = 1.0d0
+       lcfac(83) = .true.
+      nlcfac(83) = .true.
+c
+      goto 10
+c
+c  MN15
+c
+ 8980 xccomb(84) = .true.
+         xfac(84)= 1.0d0
+        lxfac(84)=.true.
+       nlxfac(84)=.true.
+        xfac(1) = 0.44d0
+       lxfac(1) = .true.
+       nlxfac(1) = .true.
+        cfac(84) = 1.0d0
+       lcfac(84) = .true.
+      nlcfac(84) = .true.
 c
       goto 10
 c
@@ -3493,14 +3631,35 @@ c
       goto 10
 
 c
-c  N12-sx c
+c  N12-SX
 c
- 9248 continue
-         cfac(44)= 1.0d0
-        lcfac(44)=.true.
-       nlcfac(44)=.true.
+ 9260 xccomb(82) = .true. 
+c
+c       Ex(HF-SR)
+c
+        xfac(1) = 0.25d0
+       lxfac(1) = .true.
+       nlxfac(1) = .true.
+c       
+        xfac(82)= 1.0d0
+        lxfac(82)=.true.
+        nlxfac(82)=.true.
+        cfac(82) = 1.0d0
+       lcfac(82) = .true.
+       nlcfac(82) = .true.
+c    
+c     set cam parameters since this is a range-separated functional 
+c
+      cam_omega = 0.11d0
+      cam_alpha = 0.d0
+      cam_beta =  1.0
+      cam_exch = .true.
+      cam_srhf = .true. ! for short-range HF
+      call xc_setcamparam(rtdb,cam_exch,cam_srhf,cam_omega,cam_alpha,
+     &     cam_beta)
 c
       goto 10
+       
 
 c     
 c     becke86b; Perdew-Burke-Ernzerhof exchange functional 

@@ -1,0 +1,132 @@
+echo
+start ch3
+#mfm manual results
+#https://comp.chem.umn.edu/mfm/191026MFM_Manual_v5.0.pdf
+geometry nocenter noautosym noautoz
+C     0.000000    0.000000     0.000000 
+H     0.000000    1.078000     0.000000 
+H     0.933000   -0.539000     0.000000 
+H    -0.933000   -0.539000     0.000000
+end
+
+basis "ao basis" 
+ * library 6-31+G**
+end
+
+dft
+mult 2
+grid ssf lebedev 95 14 euler
+xc pw6b95
+noprint "final vectors analysis" multipole
+end
+task dft gradient
+
+dft
+vectors input atomic
+xc pwb6k
+end
+task dft gradient
+
+dft
+vectors input atomic
+xc sogga
+end
+task dft gradient
+
+dft
+vectors input atomic
+xc sogga11
+end
+task dft gradient
+
+dft
+vectors input atomic
+xc sogga11-x
+end
+task dft gradient
+
+dft
+vectors input atomic
+xc n12
+end
+task dft gradient
+
+dft
+vectors input atomic
+xc n12-sx
+end
+task dft gradient
+
+dft
+vectors input atomic
+xc m08-hx
+end
+task dft gradient
+
+dft
+vectors input atomic
+xc m11
+end
+task dft gradient
+
+dft
+vectors input atomic
+xc m11-l
+end
+task dft gradient
+
+dft
+vectors input atomic
+xc mn12-l
+end
+task dft gradient
+
+dft
+vectors input atomic
+xc mn12-sx
+end
+task dft gradient
+
+dft
+vectors input atomic
+xc mn15-l
+end
+task dft gradient
+
+dft
+vectors input atomic
+xc mn15
+end
+task dft gradient
+
+dft
+vectors input atomic
+xc revm06-l
+end
+task dft gradient
+
+dft
+vectors input atomic
+xc revm06
+end
+task dft gradient
+
+dft
+vectors input atomic
+xc revm11
+end
+task dft gradient
+
+dft
+vectors input atomic
+xc m06-sx
+end
+task dft gradient
+
+dft
+vectors input atomic
+xc becke97-3
+end
+task dft gradient
+
+

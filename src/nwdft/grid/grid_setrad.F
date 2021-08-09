@@ -30,7 +30,11 @@ c
      .     k_2l,l_2l,k_2ex,l_2ex,k_2g,l_2g
       double precision braggmult
       double precision midpoint,range_max,range_mk
+      integer myz
       double precision alpha_de2
+      double precision xc_de2alphasg2,xc_de2alphasg3,myrad
+      external xc_de2alphasg2,xc_de2alphasg3
+
       me=ga_nodeid()
 c
 c     Set print options.
@@ -72,7 +76,6 @@ c
       elseif(radgrid.eq.'de2d') then
          wradgrid=10
       else
-         write(6,*) 'radgrid is ',radgrid,'@'
          write(6,*) 'radgrid is ',radgrid,'@'
          call errquit('grid_setrad: unknown radial grid type', 0,
      &       INPUT_ERR)
@@ -240,6 +243,25 @@ c     Mitani: r= 10R for GTO; Mitani's R ~ 2 R_BS
              if (.not. rtdb_get(rtdb,'dft:alpha_de2',
      m            mt_dbl, 1, alpha_de2))
      *            alpha_de2=0d0
+c
+c     hack for bqs
+c     get z from bsrad
+c
+             if(znuc_atom_type(itype).lt.1d-20) then
+                myrad=bsrad_atom_type(itype)
+                do i=1,ntypes
+                   if(i.ne.itype.and.znuc_atom_type(i).gt.1d-20) then
+                      if(bsrad_atom_type(i).eq.myrad) 
+     m                     myz=znuc_atom_type(i)
+                   endif
+                enddo
+             else
+                myz=int(znuc_atom_type(itype))
+             endif
+             if(alpha_de2.eq.-2d0) alpha_de2=
+     z            xc_de2alphasg2(myz)
+             if(alpha_de2.eq.-3d0) alpha_de2=
+     z            xc_de2alphasg3(myz)
              call xc_mitani(
      .            rpts(1,itype), 
      &            rwghts(1,itype),nrad(itype),range_mk,

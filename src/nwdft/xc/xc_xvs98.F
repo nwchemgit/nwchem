@@ -11,6 +11,7 @@ c                              ijzy - 3  M06-HF
 c                              ijzy - 4  M06
 c                              ijzy - 6  revM06-L
 c                              ijzy - 7  revM06
+c                              ijzy - 8  M06-sx
 c                              
 c     References: 
 c 
@@ -147,6 +148,16 @@ c
         r1 =   -5.523940140D-02*Axlsda
         r2 =   0.000000D+00*Axlsda
         r3 =  -3.782631233D-03*Axlsda
+        r4 =   0.000000D+00*Axlsda
+        r5 =   0.000000D+00*Axlsda
+        r6 =   0.000000D+00
+      elseif (ijzy.eq.8) then
+c
+c     Parameters for M06-SX
+c
+        r1 =  -3.47792307472902D-01*Axlsda
+        r2 =   0.000000D+00*Axlsda
+        r3 =  -2.70366787478266D-03*Axlsda
         r4 =   0.000000D+00*Axlsda
         r5 =   0.000000D+00*Axlsda
         r6 =   0.000000D+00

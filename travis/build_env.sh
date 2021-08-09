@@ -100,16 +100,15 @@ fi
     fi
     if [[ "$MPI_IMPL" == "intel" || "$FC" == "ifort" ]]; then
 	export APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
-        tries=0 ; until [ "$tries" -ge 5 ] ; do \
+        tries=0 ; until [ "$tries" -ge 10 ] ; do \
 	wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
-            && sudo apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB  \
+            && sudo -E apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB  \
             && rm -f GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB || true \
             && echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list \
             && sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"  \
 	    && sudo apt-get update && break ;\
-            tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 15 ;  done
+            tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
 
-	sudo apt-cache search intel-oneapi-mpi
         mpi_bin="  " ; mpi_libdev="intel-oneapi-mpi-devel" scalapack_libdev="intel-oneapi-mkl"
     fi
     sudo apt-get update
@@ -119,6 +118,10 @@ fi
     sudo apt-get -y install gfortran python3-dev python-dev cmake "$mpi_libdev" "$mpi_bin"  make perl  python3 rsync
     if [[ "$FC" == "ifort" ]]; then
 	sudo apt-get -y install intel-oneapi-ifort intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic  intel-oneapi-mkl
+	if [[ "$?" != 0 ]]; then
+	    echo "apt-get install failed: exit code " "${?}"
+	    exit 1
+	fi
 	sudo apt-get -y install intel-oneapi-mpi-devel
     fi
     if [[ "$FC" == "flang" ]]; then

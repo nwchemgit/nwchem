@@ -33,7 +33,7 @@ c
       parameter (n_param=3)
       double precision paramn(n_param)
       double precision eps, alpha_0
-      parameter(eps=1d-6,alpha_0=1.d0)
+      parameter(eps=1d-14,alpha_0=1.d0)
 c     Mitani 2011                                          alpha: 1
 c     Mitani-Yoshioka 2012  DOI: 10.1007/s00214-012-1169-z alpha: 1.9
 c     Dasgupta and Herbert  DOI: 10.1002/jcc.24761c       2.2 <alpha < 3.2
@@ -62,11 +62,13 @@ c     approximate value of h
       paramn(3)=log(range)
 c     find h value
       call xc_bisect(h, xc_de2_h, 3, paramn)
-#ifdef DEBUG
+      if(oprint) then
+         write(6,*) 'first root search '
       write(6,*) ' h is ',h
       write(6,*) ' residual: ',xc_de2_h(h, 3, paramn)
       write(6,*) ' Mitani: n_lo n_hi ',n_lo,n_hi
-#endif      
+      write(6,*) ' Mitani: alpha ',alpha
+      endif
 c     
       alpha_old=alpha
       if(lreset) then
@@ -84,6 +86,7 @@ c
       endif
  10   continue
       if(oprint) then
+         write(6,*) 'second root search '
          write(6,*) ' Mitani: R_max ',range
          write(6,*) ' Mitani: alpha ',alpha
          write(6,*) ' Mitani: h ',h
@@ -138,7 +141,7 @@ c
       integer i,max_loops,mx_attempts
       parameter(max_loops=10,mx_attempts=20)
       double precision eps
-      parameter(eps=1d-6)
+      parameter(eps=1d-14)
 c
       step=x/100d0
       do i=1,max_loops
@@ -188,5 +191,103 @@ c     zero between fmed and fmax
 #ifdef DEBUG      
       write(6,*) ' x is ',x, ' in ',attempts,' attempts'
 #endif      
+      return
+      end
+      double precision function xc_de2alphasg2(znumber)
+      implicit none
+      integer znumber ! [input]
+#include "errquit.fh"
+      integer maxz
+      parameter(maxz=17)
+c     alpha SG-2 from Dasgupta and Herbert
+      double precision alphad(maxz)
+cH
+      data alphad(1)/2.6d0/
+cHe fit
+      data alphad(2)/1.6d0/
+cLi 	
+      data alphad(3)/3.2d0/
+cBe 	
+      data alphad(4)/2.4d0/
+cB 	
+      data alphad(5)/2.4d0/
+cC 	
+      data alphad(6)/2.2d0/
+cN 	
+      data alphad(7)/2.2d0/
+cO 
+      data alphad(8)/2.2d0/
+cF 	
+      data alphad(9)/2.2d0/
+cNa 	
+      data alphad(11)/3.2d0/
+cNe
+      data alphad(10)/2.3d0/
+cMg 	
+      data alphad(12)/2.4d0/
+cAl 	
+      data alphad(13)/2.5d0/
+cSi 	
+      data alphad(14)/2.3d0/
+cP 	
+      data alphad(15)/2.5d0/
+cS 	
+      data alphad(16)/2.5d0/
+cCl 	
+      data alphad(17)/2.5d0/
+      if(znumber.gt.maxz) call errquit(
+     c     ' xc_de2alphasg2 z gt ',maxz,0)
+      xc_de2alphasg2=alphad(znumber)
+      if(xc_de2alphasg2.eq.0d0) call errquit(
+     c     ' alpha not available for  z= ',znumber,0)
+      return
+      end
+      double precision function xc_de2alphasg3(znumber)
+      implicit none
+      integer znumber ! [input]
+#include "errquit.fh"
+      integer maxz
+      parameter(maxz=17)
+c     alphaS SG-3 from Dasgupta and Herbert
+      double precision alphad(maxz)
+c     H
+      data alphad(1)/2.7d0/
+cHe fit
+      data alphad(2)/1.6d0/
+cLi 	
+      data alphad(3)/3.0d0/
+cBe 	
+      data alphad(4)/2.4d0/
+cB 	
+      data alphad(5)/2.4d0/
+cC 	
+      data alphad(6)/2.4d0/
+cN 	
+      data alphad(7)/2.4d0/
+cO 
+      data alphad(8)/2.6d0/
+cF 	
+      data alphad(9)/2.1d0/
+cNa 	
+      data alphad(11)/3.2d0/
+cNe fit
+      data alphad(10)/2.2d0/
+cMg 	
+      data alphad(12)/2.6d0/
+cAl 	
+      data alphad(13)/2.6d0/
+cSi 	
+      data alphad(14)/2.8d0/
+cP 	
+      data alphad(15)/2.4d0/
+cS 	
+      data alphad(16)/2.4d0/
+cCl 	
+      data alphad(17)/2.6d0/
+      if(znumber.gt.maxz) call errquit(
+     c     ' xc_de2alphasg3 z gt ',maxz,0)
+      xc_de2alphasg3=alphad(znumber)
+      if(xc_de2alphasg3.eq.0d0) call errquit(
+     c     ' alpha not available for  z= ',znumber,0)
       return
       end

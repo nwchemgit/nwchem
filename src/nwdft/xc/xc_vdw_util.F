@@ -806,6 +806,14 @@ c dftb
 c          scalesr6 = 1.699d0
 c          scales8  = 1.504d0
         else
+c
+c     backdoor to  input parameters, e.g. for B2PLYP
+c    set dft:vdw 0.64
+c    set dft:vdw_sr6 1.427
+c    set dft:vdw_s8 1.022
+           read_ok=abs(scales6).gt.0d0.and.
+     A      abs(scales8).gt.0d0.and.
+     A      abs(scalesr6).gt.0d0
            if(.not.read_ok)
      c      call errquit(' vdw 3: scaling factors not available',0,0)
         endif

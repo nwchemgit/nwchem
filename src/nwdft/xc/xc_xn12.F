@@ -1,7 +1,7 @@
 c $Id: xc_eval_fnl.F 27518 2015-09-17 09:34:57Z alogsdail $
       subroutine xc_xn12(tol_rho, fac,lfac,nlfac, rho, delrho, 
      &                     amat, cmat, nq, ipol, ex, 
-     &                     qwght, ldew, func, ijzy)
+     &                     qwght, ldew, func)
       implicit none
 ************************************************************************
 *                                                                      *
@@ -28,7 +28,6 @@ c $Id: xc_eval_fnl.F 27518 2015-09-17 09:34:57Z alogsdail $
 #include "errquit.fh"
 #include "dft2drv.fh"
 c      
-      integer ijzy
       double precision fac, Ex
       integer nq, ipol
       logical lfac, nlfac,ldew,   uselc
@@ -45,54 +44,111 @@ c
 c     Quadrature Weights
 c
       double precision qwght(nq)
-      logical ma_verify_allocator_stuff
-      external ma_verify_allocator_stuff
 c
 c     Sampling Matrices for the XC Potential & Energy
 c
       double precision Amat(nq,ipol), Cmat(nq,*)
-      double precision tol_rho, pi,fact_cs
-      integer r_a,r_b,dr_a,dr_b
-      integer a_a,a_b,c_a,c_b
-      if(ipol.eq.1) then
-         r_a=1
-         r_b=1
-         dr_a=1
-         dr_a=1
-         a_a=D1_RA
-         a_b=D1_RA
-         c_a=D1_GAA
-         c_b=D1_GAA
-         fact_cs=2d0
-         call dscal(nq,0.5d0,rho,1)
-         call dscal(nq*3,0.5d0,delrho,1)
-      else
-         r_a=2
-         r_b=3
-         dr_a=1
-         dr_a=2
-         a_a=D1_RA
-         a_b=D1_RB
-         c_a=D1_GAA
-         c_b=D1_GBB
-         fact_cs=1d0
-      endif
-c     alpha
-      call xc_xn12_0(tol_rho, fac,lfac,nlfac,
-     C     rho(1,r_a), delrho(1,1,dr_a), 
-     &     amat(1,a_a), cmat(1,c_a), nq,  ex, 
-     &     qwght, ldew, func, ijzy,fact_cs)
-c     beta
-      if (ipol.eq.2) then
-      call xc_xn12_0(tol_rho, fac,lfac,nlfac,
-     C     rho(1,r_b), delrho(1,1,dr_a), 
-     &     amat(1,a_b), cmat(1,c_b), nq,  ex, 
-     &        qwght, ldew, func, ijzy,fact_cs)
-      endif
-      if(ipol.eq.1) then
-         call dscal(nq,2d0,rho,1)
-         call dscal(nq*3,2d0,delrho,1)
-      endif
+      double precision tol_rho
+      external  xc_xn12_os
+      call xc_os2cs(xc_xn12_os,
+     &     tol_rho, fac,lfac,nlfac, rho, delrho, 
+     &                     amat, cmat, nq, ipol, ex, 
+     &                     qwght, ldew, func)
+      return
+      end
+      subroutine xc_xn12_os(tol_rho, fac,lfac,nlfac, rho, delrho, 
+     &                     amat, cmat, nq,  ex, 
+     &                     qwght, ldew, func, fact_cs)
+      Implicit Real*8(A-H,O-Z)
+#include "errquit.fh"
+#include "dft2drv.fh"
+c
+c wrapper for n12 open-shell
+      double precision fac, Ex
+      double precision fact_cs
+      integer nq, ipol
+      logical lfac, nlfac,ldew,   uselc
+      double precision func(*)  ! value of the functional [output]
+c
+c     Charge Density & Its Cube Root
+c
+      double precision rho(nq)
+c
+c     Charge Density Gradient
+c
+      double precision delrho(nq,3)
+c
+c     Quadrature Weights
+c
+      double precision qwght(nq)
+c
+c     Sampling Matrices for the XC Potential & Energy
+c
+      double precision Amat(nq), Cmat(nq)
+      double precision tol_rho
+
+      call xc_xn12_0(tol_rho, fac,lfac,nlfac, rho, delrho, 
+     &                     amat, cmat, nq,  ex, 
+     &                     qwght, ldew, func, 1,fact_cs)
+      return
+      end
+      subroutine xc_xn12sx(tol_rho, fac,lfac,nlfac, rho, delrho, 
+     &                     amat, cmat, nq, ipol, ex, 
+     &                     qwght, ldew, func)
+      implicit none
+#include "errquit.fh"
+#include "dft2drv.fh"
+c      
+      double precision fac, Ex
+      integer nq, ipol
+      logical lfac, nlfac,ldew,   uselc
+      double precision func(*)  ! value of the functional [output]
+      double precision rho(nq,ipol*(ipol+1)/2)
+      double precision delrho(nq,3,ipol)
+      double precision qwght(nq)
+      double precision Amat(nq,ipol), Cmat(nq,*)
+      double precision tol_rho
+      external  xc_xn12sx_os
+      call xc_os2cs(xc_xn12sx_os,
+     &     tol_rho, fac,lfac,nlfac, rho, delrho, 
+     &                     amat, cmat, nq, ipol, ex, 
+     &                     qwght, ldew, func)
+      return
+      end
+      subroutine xc_xn12sx_os(tol_rho, fac,lfac,nlfac, rho, delrho, 
+     &                     amat, cmat, nq,  ex, 
+     &                     qwght, ldew, func, fact_cs)
+      Implicit Real*8(A-H,O-Z)
+#include "errquit.fh"
+#include "dft2drv.fh"
+c
+c wrapper for n12 open-shell
+      double precision fac, Ex
+      double precision fact_cs
+      integer nq, ipol
+      logical lfac, nlfac,ldew,   uselc
+      double precision func(*)  ! value of the functional [output]
+c
+c     Charge Density & Its Cube Root
+c
+      double precision rho(nq)
+c
+c     Charge Density Gradient
+c
+      double precision delrho(nq,3)
+c
+c     Quadrature Weights
+c
+      double precision qwght(nq)
+c
+c     Sampling Matrices for the XC Potential & Energy
+c
+      double precision Amat(nq), Cmat(nq)
+      double precision tol_rho
+
+      call xc_xn12_0(tol_rho, fac,lfac,nlfac, rho, delrho, 
+     &                     amat, cmat, nq,  ex, 
+     &                     qwght, ldew, func, 2,fact_cs)
       return
       end
       subroutine xc_xn12_0(tol_rho, fac,lfac,nlfac, rho, delrho, 
@@ -120,8 +176,6 @@ c
 c     Quadrature Weights
 c
       double precision qwght(nq)
-      logical ma_verify_allocator_stuff
-      external ma_verify_allocator_stuff
 c
 c     Sampling Matrices for the XC Potential & Energy
 c
@@ -193,15 +247,12 @@ C
 C
 C     Alpha contributions ...
 C
-      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2e'
       Do 10 n = 1, nq
         If(rho(n).gt.tol_rho) then
           pX    = rho(n)
-      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2e'
           GamX2 =(delrho(n,1)*delrho(n,1) +
      &              delrho(n,2)*delrho(n,2) +
      &     delrho(n,3)*delrho(n,3))
-      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2e'
           S2    = GamX2*pX**(-F8o3)
           U     = G*S2/(One+G*S2)
           E     = Ax*pX**F4o3
@@ -241,14 +292,11 @@ c
         dFN12dR  = dFN12dU*US*SR+dFN12dV*dFVdR
         dFN12dG  = dFN12dU*US*SG
 c
-      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2e'
             amat(n) = amat(n) + (ER*FN12
      $                      + E*dFN12dR)*fac
-      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2e'
             cmat(n) = cmat(n) + E*dFN12dG/(Two*GamX)*fac
-      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2e'
           endIf
-   10   Continue
+ 10    Continue
       Return
       End
       Subroutine xc_xn12_d2()
