@@ -22,6 +22,7 @@ c       ijzy - 1 M08-HX (a)                                            c
 c       ijzy - 2 M08-SO (a)                                            c
 c       ijzy - 3 M11 (b)                                               c
 c       ijzy - 4 M11-L (c)                                             c
+*       ijzy - 5 revM11 (d)                                            *
 c                                                                      c
 c Coded by Roberto Peverati (12/11)                                    c
 c                                                                      c
@@ -305,8 +306,39 @@ C
         UseLC=.True.
         Emu =0.25D+00
 C
+      elseif (ijzy.eq.5) then
+C     Parameters for revM11
+        at00= -0.32888608850D+00
+        at01= -8.38881504760D+00
+        at02=  0.71238910570D+00
+        at03=  3.61962129520D+00
+        at04=  4.39417082070D+00
+        at05=  5.04533455840D+00
+        at06=  7.86670611910D+00
+        at07=  0.00000000000D+00
+        at08=  0.00000000000D+00
+        at09=  0.00000000000D+00
+        at10=  0.00000000000D+00
+        at11=  0.00000000000D+00
+C
+        bt00=  1.10388608850D+00
+        bt01=  8.04763695870D+00
+        bt02= -0.73536247730D+00
+        bt03= -2.47352755500D+00
+        bt04= -4.73190603550D+00
+        bt05= -5.85025020960D+00
+        bt06= -7.50599753270D+00
+        bt07=  0.00000000000D+00
+        bt08=  0.00000000000D+00
+        bt09=  0.00000000000D+00
+        bt10=  0.00000000000D+00
+        bt11=  0.00000000000D+00
+C
+        UseLC=.True.
+        Emu =0.40D+00
+C
       else
-        call errquit("xc_xm11: illegal value of ijzy",ijzy,UERR)
+         call errquit(' xc_xm11: ijzy not valid ',ijzy, 0)
       endif
       DTol=tol_rho
       F1o3 = F1/F3 

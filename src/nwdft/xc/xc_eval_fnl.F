@@ -382,6 +382,11 @@ c
          dohcth=.true.
          nx=45
          nc=45
+      elseif (abs(cfac(82)).gt.eps)then
+         whichf='n12s'
+         dohcth=.true.
+         nx=82
+         nc=82
       endif
       if(dohcth) then  
          if (.not. do_2nd) then
@@ -1139,6 +1144,84 @@ c
          endif
       endif
 c
+c revM11   meta GGA Exchange
+c
+      if (abs(xfac(79)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xm11(tol_rho, xfac(79), lxfac(79), nlxfac(79),
+     &           rho, delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght,ldew, func,ttau,Mmat,5)
+         else
+            call xc_xm11_d2()
+         endif
+      endif
+c
+c mn12-l Exchange
+c
+      
+      if (abs(xfac(80)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xmn12l(tol_rho, xfac(80), lxfac(80), nlxfac(80),
+     &           rho, delrho, ttau, Amat, Cmat, mmat, nq, ipol,
+     &           Ex, qwght,ldew, func)
+         else
+            call xc_xmn12_d2()
+         endif
+      endif
+c
+c mn12-sx Exchange
+c
+
+      if (abs(xfac(81)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xmn12sx(tol_rho, xfac(81), lxfac(81), nlxfac(81),
+     &           rho, delrho, ttau, Amat, Cmat, mmat, nq, ipol,
+     &           Ex, qwght,ldew, func)
+         else
+            call xc_xmn12_d2()
+         endif
+      endif
+c
+c m06-sx Exchange
+c
+
+      if (abs(xfac(85)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xm06(tol_rho, xfac(85), lxfac(85), nlxfac(85),
+     &           rho, delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght,ldew, func,ttau,Mmat,7)
+         else
+            call xc_xm06_d2()
+         endif
+      endif
+
+c
+c mn15-l Exchange
+c
+      
+      if (abs(xfac(83)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xmn15l(tol_rho, xfac(83), lxfac(83), nlxfac(83),
+     &           rho, delrho, ttau, Amat, Cmat, mmat, nq, ipol,
+     &           Ex, qwght,ldew, func)
+         else
+            call xc_xmn15_d2()
+         endif
+      endif
+c
+c mn15 Exchange
+c
+      
+      if (abs(xfac(84)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xmn15(tol_rho, xfac(84), lxfac(84), nlxfac(84),
+     &           rho, delrho, ttau, Amat, Cmat, mmat, nq, ipol,
+     &           Ex, qwght,ldew, func)
+         else
+            call xc_xmn15_d2()
+         endif
+      endif
+c
 c SOGGA GGA Exchange
 c
       if (abs(xfac(52)).gt.eps)then
@@ -1264,6 +1347,71 @@ c
             call xc_cm11(tol_rho, cfac(51), lcfac(51), nlcfac(51),
      &           rho, delrho,  nq, ipol,
      &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,4)
+
+         else
+            call xc_cm11_d2()
+         endif
+      endif
+c
+c     crevm11
+c      
+      if (abs(cfac(79)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_cm11(tol_rho, cfac(79), lcfac(79), nlcfac(79),
+     &           rho, delrho,  nq, ipol,
+     &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,9)
+
+         else
+            call xc_cm11_d2()
+         endif
+      endif
+c
+c     cmn12-l
+c      
+      if (abs(cfac(80)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_cm11(tol_rho, cfac(80), lcfac(80), nlcfac(80),
+     &           rho, delrho,  nq, ipol,
+     &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,5)
+
+         else
+            call xc_cm11_d2()
+         endif
+      endif
+c
+c     cmn12-sx
+c      
+      if (abs(cfac(81)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_cm11(tol_rho, cfac(81), lcfac(81), nlcfac(81),
+     &           rho, delrho,  nq, ipol,
+     &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,6)
+
+         else
+            call xc_cm11_d2()
+         endif
+      endif
+c
+c     cmn15-l
+c      
+      if (abs(cfac(83)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_cm11(tol_rho, cfac(83), lcfac(83), nlcfac(83),
+     &           rho, delrho,  nq, ipol,
+     &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,7)
+
+         else
+            call xc_cm11_d2()
+         endif
+      endif
+c
+c     mn15
+c      
+      if (abs(cfac(84)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_cm11(tol_rho, cfac(84), lcfac(84), nlcfac(84),
+     &           rho, delrho,  nq, ipol,
+     &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,8)
 
          else
             call xc_cm11_d2()
@@ -1600,7 +1748,20 @@ c
          if (.not. do_2nd) then
             call xc_xn12(tol_rho, xfac(45), lxfac(45), nlxfac(45),
      &           rho, delrho,  Amat, Cmat, nq, ipol,
-     &           Ex, qwght, ldew,func,1)
+     &           Ex, qwght, ldew,func)
+
+         else
+            call xc_xn12_d2()
+         endif
+      endif
+c
+c     N12-sx
+c
+      if (abs(xfac(82)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xn12sx(tol_rho, xfac(82), lxfac(82), nlxfac(82),
+     &           rho, delrho,  Amat, Cmat, nq, ipol,
+     &           Ex, qwght, ldew,func)
 
          else
             call xc_xn12_d2()
@@ -1627,6 +1788,19 @@ c
             call xc_cm06(tol_rho, cfac(69), lcfac(69), nlcfac(69),
      &           rho, delrho,  nq, ipol,
      &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,5)
+
+         else
+            call xc_cm06_d2()
+         endif
+      endif
+c
+c     M06-sx correlation
+c
+      if (abs(cfac(85)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_cm06(tol_rho, cfac(85), lcfac(85), nlcfac(85),
+     &           rho, delrho,  nq, ipol,
+     &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,7)
 
          else
             call xc_cm06_d2()

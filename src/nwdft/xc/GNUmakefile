@@ -37,7 +37,8 @@ HEADERS = xc.fh xc_vdw.fh xc_params.fh xc_hcth.fh
 	xc_vwn_4.o \
 	xc_vwn_5.o \
 	xc_eval_fnl.o xc_fd.o xc_pbe96.o  \
-	xc_hcth.o  xc_xpbe96.o xc_xpw91.o xc_tarad.o xc_murakn.o \
+	xc_hcth.o  xc_xpbe96.o xc_xpw91.o xc_tarad.o xc_murakn.o xc_mitani.o \
+	xc_mitani_dmr.o \
 	xc_signf.o  xc_gill96.o  xc_xmpw91.o  xc_xpkzb99.o \
 	xc_cpkzb99.o   xc_cMpbe96.o xc_xtpss03.o xc_ctpss03.o \
 	xc_oep.o xc_sic_pert.o xc_sic.o localize_sic.o \
@@ -49,7 +50,7 @@ HEADERS = xc.fh xc_vdw.fh xc_params.fh xc_hcth.fh
 	xc_camb88.o xc_att_xc.o xc_camxpbe96.o xc_camxlsd.o xc_xwpbe.o hse08fx.o \
 	xc_vdw_main.o xc_vdw_util.o \
 	xc_xsogga.o xc_xmvs15.o \
-	xc_xm11.o \
+	xc_xm11.o xc_xmn12.o xc_xmn15.o \
 	xc_csogga.o\
 	xc_cm11.o \
 	steric_energy.o\
@@ -70,7 +71,7 @@ LIB_INCLUDES = -I../include
                xc_oep.F xc_sic_pert.F xc_sic.F localize_sic.F \
                xc_eval_basis.F xc_eval_fnl.F xc_fd.F xc_optc.F xc_atomblock.F scat_mat.F \
                xc_replicated.F xc_vdw_main.F xc_vdw_util.F\
-               xc_3rd_deriv.F xc_hcth.F ts_tf.F xc_xn12.F
+               xc_3rd_deriv.F xc_hcth.F ts_tf.F xc_xn12.F xc_util.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h

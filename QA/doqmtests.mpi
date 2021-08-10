@@ -311,6 +311,7 @@ np_small=$(get_limit $np 16)
 ./runtests.mpi.unix procs $np dft_scan
 ./runtests.mpi.unix procs $np rt_tddft_dimer_charge
 ./runtests.mpi.unix procs $np dft_ne_n12
+./runtests.mpi.unix procs $np dft_mfm_ch3
 #
 #libxc
 ./dolibxctests.mpi $np
@@ -327,6 +328,7 @@ fi
 ./runtests.mpi.unix procs $np dft_ne2p_wb97x
 ./runtests.mpi.unix procs $np dft_ar2p_wb97
 ./runtests.mpi.unix procs $np dft_waterdimer_wb97d3
+./runtests.mpi.unix procs $np dft_s66x8_waterdimer
 #
 ./runtests.mpi.unix procs $np aump2 
 ./runtests.mpi.unix procs $np n2_ccsd 

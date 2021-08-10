@@ -920,10 +920,10 @@ c
 c     call int_acc_std()
 
       next = nxtask(-nproc,task_size)
-      if(ga_nodeid().eq.0)
-     c     write(6,'(i5,a,f10.2,a)') ga_nodeid(),
-     G     ' giaofock schwarz done = ',
-     C     (100d0*shells_done)/shells_tot,'%'
+c      if(ga_nodeid().eq.0)
+c     c     write(6,'(i5,a,f10.2,a)') ga_nodeid(),
+c     G     ' giaofock schwarz done = ',
+c     C     (100d0*shells_done)/shells_tot,'%'
       call ga_sync()
       if(dorepl) then
          call util_mirrstop(g_densrep)

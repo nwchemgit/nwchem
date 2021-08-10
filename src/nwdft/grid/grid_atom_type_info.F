@@ -12,6 +12,7 @@ c
 #include "cdft.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
+#include "bas.fh"
 c
       double precision BSrad(105)
       double precision ictr_coord(3), ictr_chg
@@ -21,6 +22,7 @@ c
       integer itype, ictr, iaz, i_atomic_number, icenter, jcenter
 c
       integer lcoord, icoord, lcharge, icharge, ltags, itags,iptr
+      integer ibflo,ibfhi
       logical same_atom, same_bq, isbq
 c
       character*16 element
@@ -215,6 +217,24 @@ c
      &            ('grid_atom_type_info: center is neither atom nor bq',
      &              0, INPUT_ERR)
             endif
+c
+c     bail out when basis set is on point charges
+c
+            if(i_atomic_number.eq.0) then
+               do ictr = 1, ncenters
+                  if (iatype(ictr).eq.itype) then
+                     if(.not.bas_ce2bfr(ao_bas_han, ictr, ibflo, ibfhi))
+     c                    call errquit('bas_ce2bfr failed ',0,BASIS_ERR)
+                     if(ibflo.ne.0) then
+                       write(luout,*) ' '
+                       write(luout,*) ' Point charges (bq or X)'
+                       write(luout,*) ' cannot have a basis'
+                       call errquit('input error ',0,INPUT_ERR)
+                     endif
+                  endif
+               enddo
+            endif
+
 c
             if (i_atomic_number.ne.0)then ! not ghost atom
                ityp2ctr(itype)=ictr
@@ -478,7 +498,7 @@ c           mathematical constructs to specify complex Z-matrices.
 c           Hence they should always have i_atomic_number .eq. 0
 c           no matter what follows the X.
 c
-            if(tag(1:1).eq.'X'.or.tag(1:1).eq.'x') iptr=2
+            if (inp_compare(.false.,tag(1:1),'X')) iptr=2
             if (.not. geom_tag_to_element(tag(iptr:), symbol, 
      &           element, i_atomic_number)) then
                if (inp_compare(.false.,tag(1:2),'bq')) then 
