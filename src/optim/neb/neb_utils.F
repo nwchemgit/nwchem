@@ -244,6 +244,11 @@ c     >              dbl_mb(r(1)),   1)
       return
       end
 
+
+
+
+
+
 *     ***********************************************
 *     *                                             *
 *     *             neb_add_spring_gradient         *
@@ -1779,6 +1784,52 @@ c
 
       return
       end
+
+*     ***********************************************
+*     *                                             *
+*     *             neb_rmsfit_periodic             *
+*     *                                             *
+*     ***********************************************
+c     function neb_rmsfit  --  rms deviation for paired atoms
+c
+c     This routine computes the rms fit of two coordinate sets
+c
+      real*8 function neb_rmsfit_periodic(nfit,ifit,wfit,rion1,rion2,
+     >                                    amat)
+      implicit none
+      integer nfit,ifit(2,*)
+      real*8 wfit(*)
+      real*8 rion1(3,*),rion2(3,*)
+      real*8 amat(3,3)
+
+      integer i,i1,i2
+      real*8 rmsterm,rmsfit
+      real*8 xr,yr,zr,dist2,rtmp(3)
+      real*8 weight,norm
+c
+c     compute the rms fit over superimposed atom pairs
+c
+      rmsfit = 0.0d0
+      norm = 0.0d0
+      do i = 1, nfit
+         i1 = ifit(1,i)
+         i2 = ifit(2,i)
+         weight = wfit(i)
+         call neb_cdiff(1,rion1(1,i1),rion2(1,i2),amat,rtmp)
+         xr = rtmp(1)
+         yr = rtmp(2)
+         zr = rtmp(3)
+         dist2 = xr**2 + yr**2 + zr**2
+         norm = norm + weight
+         rmsterm = dist2 * weight
+         rmsfit = rmsfit + rmsterm
+      end do
+      neb_rmsfit_periodic = sqrt(rmsfit/norm)
+      return
+      end
+
+
+
 
 
 *     ***********************************************
