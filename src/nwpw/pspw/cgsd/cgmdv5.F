@@ -180,6 +180,8 @@
       external ion_nconstraints,ion_ndof
       logical  ion_makehmass2,control_periodic_dipole
       external ion_makehmass2,control_periodic_dipole
+      logical  control_precondition
+      external control_precondition
 
 
 *                            |************|
@@ -577,8 +579,22 @@ c         end if
      >                 control_it_in(),control_it_out()
          if ((minimizer.eq.5).or.(minimizer.eq.8)) then
            write(luout,1291)
-           if (control_ks_algorithm().eq.0) 
-     >       write(luout,1292) "conjugate gradient"
+
+           if (control_ks_algorithm().eq.-1)  then
+             if (control_precondition()) then
+                write(luout,1292)
+     >             "block preconditioned conjugate gradient"
+             else
+                write(luout,1292) "block conjugate gradient"
+             end if
+           end if
+           if (control_ks_algorithm().eq.0) then
+             if (control_precondition()) then
+                write(luout,1292) "preconditioned conjugate gradient"
+             else
+                write(luout,1292) "conjugate gradient"
+             end if
+           end if
            if (control_ks_algorithm().eq.1) 
      >       write(luout,1292) "rmm-diis"
            write(luout,1295) control_ks_maxit_orb(),
@@ -783,7 +799,9 @@ c         end if
 c       **** inner loop ****
         do i=1,it_in
            if (vverlet) then
-              call dcopy(3*nion,dbl_mb(fion(1)),1,dbl_mb(fion1(1)),1)
+              call Parallel_shared_vector_copy(.true.,3*nion,
+     >                                  dbl_mb(fion(1)),
+     >                                  dbl_mb(fion1(1)))
               call ion_shift21() 
            else
               call ion_shift() 
