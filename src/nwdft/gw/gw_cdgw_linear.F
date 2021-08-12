@@ -99,6 +99,6 @@ c          Sigma(llmo+iqp-1,isp) = SigmaC + Sigma_X
      $       /,10x,25('-'))
  9010 format(/,15x,' Beta Orbitals',/,10x,'State',5x,'Energy (eV)',
      $       /,10x,25('-'))
- 9020 format(10x,I3,7x,F8.3)
+ 9020 format(10x,I3,3x,F12.3)
 
       end subroutine

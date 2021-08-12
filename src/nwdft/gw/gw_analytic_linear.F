@@ -121,6 +121,6 @@ c
      $       5x,'Z',8x,'Elin (eV)',6x,'Res.',/,10x,55('-'))
  9010 format(/,31x,' Beta Orbitals',/,10x,'State',5x,'Energy (eV)',
      $       5x,'Z',8x,'Elin (eV)',6x,'Res.',/,10x,55('-'))
- 9020 format(10x,I3,6x,F8.3,6x,F6.3,6x,F8.3,3x,F8.3)
+ 9020 format(10x,I3,2x,F12.3,6x,F6.3,2x,F12.3,1x,F12.3)
 
       end subroutine
