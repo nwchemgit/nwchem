@@ -4,7 +4,6 @@
 *     *                nwpw_scan_x                   *
 *     *                                              *
 *     ************************************************
-
       subroutine nwpw_scan_x(pi,thrd,frthrd,fvthrd,etthrd,
      >                       a1,b1,b2,b3,b4,c1x,c2x,dx,muAK,K1,h0x,
      >                       Cx,P23,
