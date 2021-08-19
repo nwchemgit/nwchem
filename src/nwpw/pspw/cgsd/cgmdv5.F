@@ -180,8 +180,8 @@
       external ion_nconstraints,ion_ndof
       logical  ion_makehmass2,control_periodic_dipole
       external ion_makehmass2,control_periodic_dipole
-      logical  control_precondition
-      external control_precondition
+      logical  control_precondition,control_fractional
+      external control_precondition,control_fractional
 
 
 *                            |************|
@@ -421,66 +421,22 @@ c      call frac_occ_init(rtdb,psi_ispin(),ne)
          if (psi_ispin().eq.1) write(luout,1130) "restricted"
          if (psi_ispin().eq.2) write(luout,1130) "unrestricted"
          !if (qmmm) write(luout,1122)
-         IF (control_gga().eq.-1) THEN
-            write(luout,1131) 'off'
-         ELSE IF (control_gga().eq.0) THEN
-            write(luout,1131) 'LDA (Vosko et al) parameterization'
-         ELSE IF (control_gga().eq.10) THEN
-            write(luout,1131) 
-     >      'PBE96 (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.11) THEN
-            write(luout,1131) 
-     >      'BLYP (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.12) THEN
-            write(luout,1131) 
-     >      'revPBE (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.13) THEN
-            write(luout,1131) 
-     >      'PBEsol (White and Bird) parameterization'
+         if (control_fractional()) write(luout,1132)
 
-         ELSE IF (control_gga().eq.110) THEN
-            write(luout,1131) 
-     >      'PBE0 (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.112) THEN
-            write(luout,1131) 
-     >      'revPBE0 (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.113) THEN
-            write(luout,1131) 
-     >      'BNL (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.114) THEN
-            write(luout,1131) 
-     >      'HSE (White and Bird) parameterization'
-         ELSE IF (control_gga().eq.115) THEN
-            write(luout,1131) 
-     >      'B3LYP (White and Bird) parameterization'
 
-         ELSE IF (control_gga().eq.200) THEN
-            write(luout,1131) 'Hartree-Fock'
-         ELSE
-            write(luout,1131) 'unknown parameterization'
-            call errquit('bad exchange_correlation',0, INPUT_ERR)
-         END IF
+         call v_bwexc_print(luout,control_gga())
+
          call pspw_print_SIC(luout)
          call pspw_print_HFX(luout)
+         call nwpw_meta_gga_print(luout)
          if (ion_makehmass2()) write(luout,1135)
          write(luout,1140)
          do ia = 1,ion_nkatm()
-            call psp_print(ia)
-c           write(luout,1150) ia,ion_atom(ia),
-c     >                    psp_zv(ia),psp_lmax(ia)
-c           comment = psp_comment(ia)
-c           i = inp_strlen(comment)
-c           write(luout,1157) comment(1:i)
-c           write(luout,1158) psp_psp_type(ia)
-c           write(luout,1152) psp_lmax(ia)
-c           write(luout,1153) psp_locp(ia)
-c           write(luout,1154) psp_nprj(ia)
-c           if (control_version().eq.4) write(luout,1156) psp_rlocal(ia)
-c           if (psp_semicore(ia))
-c     >         write(luout,1155) psp_rcore(ia),psp_ncore(ia)
-c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
-c           write(luout,*)
+           call psp_print(ia)
+c           call psp_check_print(ia)
          end do
+
+
 
          icharge = -(psi_ne(1)+psi_ne(psi_ispin()))
          en(1)     = psi_ne(1)

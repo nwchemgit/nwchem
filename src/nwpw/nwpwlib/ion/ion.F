@@ -16,7 +16,7 @@
 
       logical value
 
-      if (.not.periodic) call nwpw_cdft_end()
+      call nwpw_cdft_end()
       if (.not.periodic) call nwpw_born_end()
       if (.not.periodic) call nwpw_cosmo_end()
       call FMM_end()
@@ -485,12 +485,12 @@ c         eki1=0.5d0*eki1
          end if
       end if
 
-*     ***** try to initialize Born and COSMO and CDFT if aperiodic *****
+*     ***** try to initialize CDFT, and also try to initialize Born and COSMO if aperiodic *****
+      call nwpw_cdft_init(rtdb)
       nion_q = 0
       cosmo1_on = .false.
       call nwpw_cosmo_off()
       if  (.not.periodic) then
-         call nwpw_cdft_init(rtdb)
          call nwpw_born_init(rtdb)
          call nwpw_cosmo_init(rtdb,geom)
          cosmo1_on = nwpw_cosmo1_on()
