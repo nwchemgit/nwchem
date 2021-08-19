@@ -11,7 +11,6 @@
      >                       n,agr,tau,
      >                       xe,dfdnx,dfdagrx,dfdtaux)
       implicit none
-
 *     ***** input *****
       real*8 pi,thrd,frthrd,fvthrd,etthrd
       real*8 a1,b1,b2,b3,b4,c1x,c2x,dx,muAK,K1,h0x 
