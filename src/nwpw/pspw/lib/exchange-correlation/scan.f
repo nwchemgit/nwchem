@@ -1,21 +1,26 @@
+
 *     ************************************************
 *     *                                              *
 *     *                nwpw_scan_x                   *
 *     *                                              *
 *     ************************************************
+
       subroutine nwpw_scan_x(pi,thrd,frthrd,fvthrd,etthrd,
      >                       a1,b1,b2,b3,b4,c1x,c2x,dx,muAK,K1,h0x,
      >                       Cx,P23,
      >                       n,agr,tau,
      >                       xe,dfdnx,dfdagrx,dfdtaux)
       implicit none
+
 *     ***** input *****
       real*8 pi,thrd,frthrd,fvthrd,etthrd
       real*8 a1,b1,b2,b3,b4,c1x,c2x,dx,muAK,K1,h0x 
       real*8 Cx,P23
       real*8 n,agr,tau
+
 *     ***** output *****
       real*8 xe,dfdnx,dfdagrx,dfdtaux
+
 *     ***** local declarations *****
       real*8 n_13,n_23,n_53,n_83,inv_n,agr2,tauW,tauU
       real*8 dtauW_dn,dtauW_dagr,dtauU_dn
@@ -30,6 +35,7 @@
       real*8 fxa,dfxa_dalpha
       real*8 Fx,dFx_dp,dFx_dalpha,dFx_dn,dFx_dagr,dFx_dtau
       real*8 ex0,nex0
+
 *     ***** SCAN constants *****
       real*8 thr1,thr2
       parameter (thr1 = 0.996d0)
