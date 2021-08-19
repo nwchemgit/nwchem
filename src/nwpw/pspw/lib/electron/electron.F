@@ -2541,15 +2541,20 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
      >                      1,MA_ERR)
          end if
 
-         if (pspw_V_APC_on()) then
-            call electron_gen_vl_potential()
-            call pspw_V_APC(ispin,ne,dng,dcpl_mb(vl(1)),eapc,papc)
-         end if
+c         if (pspw_V_APC_on()) then
+c            call electron_gen_vl_potential()
+c            call pspw_V_APC(ispin,ne,dng,dcpl_mb(vl(1)),eapc,papc)
+c         end if
 
          value = BA_pop_stack(tmp1(2)) 
          if (.not. value) call errquit(
      >   'electron_gen_scf_potentials: error popping stack memory',0,
      >       MA_ERR)
+      end if
+
+      if (pspw_V_APC_on()) then
+         call electron_gen_vl_potential()
+         call pspw_V_APC(ispin,ne,dng,dcpl_mb(vl(1)),eapc,papc)
       end if
 
 *    **** xc potential ****
