@@ -1,3 +1,4 @@
+
 *     ************************************************
 *     *                                              *
 *     *                nwpw_scan_x                   *
@@ -14,10 +15,13 @@
       real*8 a1,b1,b2,b3,b4,c1x,c2x,dx,muAK,K1,h0x 
       real*8 Cx,P23
       real*8 n,agr,tau
+
 *     ***** output *****
       real*8 xe,dfdnx,dfdagrx,dfdtaux
+
 *     ***** local declarations *****
       real*8 n_13,n_23,n_53,n_83,inv_n,agr2,tauW,tauU
+      real*8 dtauW_dn,dtauW_dagr,dtauU_dn
       real*8 p,p_14,dp_dn,dp_dagr
       real*8 z,z2,fz,dz_dn,dz_dagr,dz_dtau
       real*8 alpha,dalpha_dn,dalpha_dagr,dalpha_dtau
@@ -25,10 +29,11 @@
       real*8 exp1,exp2,exp3,exp4,exp5
       real*8 x1,x2,x,dx1_dp,dx2_dp,dx_dp,dx_dalpha
       real*8 denh1x,numh1x,h1x,dh1x_dx,dh1x_dp,dh1x_dalpha
-      real*8 gx,dgx_dp
+      real*8 gx,dgx_dp,dgx_dn,dgx_dagr
       real*8 fxa,dfxa_dalpha
       real*8 Fx,dFx_dp,dFx_dalpha,dFx_dn,dFx_dagr,dFx_dtau
       real*8 ex0,nex0
+
 *     ***** SCAN constants *****
       real*8 thr1,thr2
       parameter (thr1 = 0.996d0)
@@ -41,8 +46,11 @@
       inv_n = 1.0d0/n
       agr2  = agr*agr
 
-      p       =  agr2/(4.0d0*P23*n_83)
-      p_14    =  dsqrt(dsqrt(1.0d0/(4.0d0*P23)))*dsqrt(agr)/n_23 
+      ex0  = Cx*n_13
+      nex0 = n*ex0
+
+      p       =  agr2/(4.0d0*P23*n_83)                             !*** p = s**2       ***
+      p_14    =  dsqrt(dsqrt(1.0d0/(4.0d0*P23)))*dsqrt(agr)/n_23   !*** p_14 = sqrt(s) ***
       dp_dn   = -etthrd*p*inv_n
       dp_dagr =  2.0d0*p/agr
 c     dp_dtau =  0.0d0
@@ -50,94 +58,138 @@ c     dp_dtau =  0.0d0
       tauW  = 0.125d0*agr2*inv_n
       tauU  = 0.3d0*P23*n_53
 
-      z       = tauW/tau
-      dz_dn   = -z*inv_n
-      dz_dagr =  2.0d0*z/agr
-      dz_dtau = -z/tau
+      dtauW_dn   = -0.125d0*agr2*inv_n*inv_n
+      dtauW_dagr = 0.25d0*agr*inv_n
+      dtauU_dn   = 0.5d0*P23*n_23
 
-      z2 = z*z
 
-      alpha       = fvthrd*p*(1.0d0/z - 1.0d0)
-      dalpha_dn   = fvthrd*(-p*dz_dn/z2 + dp_dn*(1.0d0/z - 1.0d0))
-      dalpha_dagr = (alpha/p)*dp_dagr - fvthrd*(p/z2)*dz_dagr
-      dalpha_dtau = 1.0d0/tauU
+      !**** alpha == 0, Fx just a function of s, or n and agr, Fx(s), Fx(n,agr) ****
+      if ((tau-tauW).le.0.0d0) then
 
-      oma  = 1.0d0 - alpha
-      oma2 = oma*oma
+         !*** s == 0 ***
+         if (p_14.lt.0.002d0) then 
+            !gx = 1.0  dgx_dp   = 0.0d0 dgx_dn   = 0.0d0 dgx_dagr = 0.0d0
+            xe       = ex0*h0x
+            dfdnx    = frthrd*xe
+            dfdagrx  = 0.0d0
+            dfdtaux  = 0.0d0
 
-      exp1 = dexp(-b4*p/muAK)
-      exp2 = dexp(-b3*oma2)
+         !*** s > 0 ***
+         else
+            gx       = 1.0 - dexp(-a1/p_14)
+            dgx_dp   = -0.25d0*a1*dexp(-a1/p_14)/(p*p_14)
+            dgx_dn   = dgx_dp*dp_dn
+            dgx_dagr = dgx_dp*dp_dagr
 
-      x1 = muAK*p*(1.0d0 + (b4*p/muAK)*exp1)
-      x2 = b1*p + b2*oma*exp2
+            Fx      = h0x*gx
+            dFx_dn  = h0x*dgx_dn
+            dFx_dagr = h0x*dgx_dagr
+            dFx_dtau = 0.0d0
 
-      x = x1 + x2*x2
+            xe       = ex0*Fx
+            dfdnx    = nex0*dFx_dn     + frthrd*xe
+            dfdagrx  = nex0*dFx_dagr
+            dfdtaux  = 0.0d0
+         end if
 
-      denh1x = K1 + x
-      numh1x = denh1x + K1*x
-      h1x    = numh1x/denh1x
 
-      if (p_14 .lt. 0.002d0) then
-         exp3 = 0.0d0
+      !**** alpha > 0, Fx a function of s and alpha, or n, agr,and tau, Fx(s,alpha), Fx(n,agr,tau) ****
       else
-         exp3 = dexp(-a1/p_14)
-      endif
+         alpha = (tau-tauW)/tauU
+         oma  = 1.0d0 - alpha
+         oma2 = oma*oma
+         dalpha_dn   = -(dtauW_dn + alpha*dtauU_dn)/tauU
+         dalpha_dagr = -dtauW_dagr/tauU
+         dalpha_dtau = 1.0d0/tauU
 
-      gx = 1.0d0 - exp3
+         !*** s == 0 ***
+         if (p_14.lt.0.002d0) then 
+            !gx = 1.0  dgx_dp = 0.0d0 dgx_dn = 0.0d0 dgx_dagr = 0.0d0 dgx_dtau = 0
+            x2 = b2*oma*dexp(-b3*oma2)
+            x = x2*x2
 
-      if (alpha .ge. thr1) then
-         exp4 = 0.0d0
-      else
-         exp4 = dexp(-c1x*alpha/oma)
+            dx_dalpha = -2.0d0*b2*b2*oma*dexp(-2.0d0*b3*oma2)
+     >                  *(1.0d0-2.0d0*b3*oma2)
+
+            h1x         = 1.0d0 + K1 - K1/(1.0d0 + x/K1) 
+            dh1x_dalpha = dx_dalpha/(1.0d0+x/K1)**2 
+
+            fxa         = 0.0d0
+            dfxa_dalpha = 0.0d0
+            if (alpha.lt.1.0d0) then
+               fxa         = dexp(-c1x*alpha/oma)
+               dfxa_dalpha = -c1x*dexp(-c1x*alpha/oma)/oma2
+            else if (alpha.gt.1.0d0) then
+               fxa         = -dx*dexp(c2x/oma)
+               dfxa_dalpha = -c2x*dx*dexp(c2x/oma)/oma2
+            end if
+
+            Fx = (h1x + fxa*(h0x - h1x))
+            
+            dFx_dn   = ( dh1x_dalpha*(1.0d0-fxa) 
+     >               +  (h0x-h1x)*dfxa_dalpha   )*dalpha_dn
+            dFx_dagr = ( dh1x_dalpha*(1.0d0-fxa) 
+     >               +  (h0x-h1x)*dfxa_dalpha   )*dalpha_dagr
+            dFx_dtau = ( dh1x_dalpha*(1.0d0-fxa) 
+     >               +  (h0x-h1x)*dfxa_dalpha   )*dalpha_dtau
+
+            xe       = ex0*Fx
+            dfdnx    = nex0*dFx_dn     + frthrd*xe
+            dfdagrx  = nex0*dFx_dagr
+            dfdtaux  = nex0*dFx_dtau
+
+
+         !*** s > 0 ***
+         else
+            gx       = 1.0 - dexp(-a1/p_14)
+            dgx_dp   = -0.25d0*a1*dexp(-a1/p_14)/(p*p_14)
+            dgx_dn   = dgx_dp*dp_dn
+            dgx_dagr = dgx_dp*dp_dagr
+
+            x1 = muAK*p*(1.0d0 + (b4*p/muAK)*dexp(-b4*p/muAK))
+            x2 = b1*p + b2*oma*dexp(-b3*oma2)
+            x  = x1 + x2*x2
+
+            dx1_dp    = muAK + b4*p*dexp(-b4*p/muAK)*(2.0d0 - p*b4/muAK)
+            dx2_dp    = b1
+            dx_dp     = dx1_dp + 2.0d0*x2*dx2_dp
+            dx_dalpha = -2.0d0*b2*dexp(-b3*oma2)*x2
+     >                  *(1.0d0-2*b3*oma2)
+
+            h1x         = 1.0d0 + K1 - K1/(1.0d0 + x/K1) 
+            dh1x_dp     = dx_dp/(1.0d0+x/K1)**2
+            dh1x_dalpha = dx_dalpha/(1.0d0+x/K1)**2 
+
+            fxa         = 0.0d0
+            dfxa_dalpha = 0.0d0
+            if (alpha.lt.1.0d0) then
+               fxa         = dexp(-c1x*alpha/oma)
+               dfxa_dalpha = -c1x*dexp(-c1x*alpha/oma)/oma2
+            else if (alpha.gt.1.0d0) then
+               fxa         = -dx*dexp(c2x/oma)
+               dfxa_dalpha = -c2x*dx*dexp(c2x/oma)/oma2
+            end if
+
+            Fx = (h1x + fxa*(h0x - h1x))*gx
+
+            dFx_dp     = dgx_dp*(h1x + fxa*(h0x - h1x)) 
+     >                 + gx*dh1x_dp*(1.0d0 - fxa)
+            dFx_dalpha = gx*(dh1x_dalpha + dfxa_dalpha*(h0x - h1x) 
+     >                 - fxa*dh1x_dalpha)
+
+            dFx_dn   = dFx_dalpha*dalpha_dn   + dFx_dp*dp_dn
+            dFx_dagr = dFx_dalpha*dalpha_dagr + dFx_dp*dp_dagr
+            dFx_dtau = dFx_dalpha*dalpha_dtau
+
+            xe       = ex0*Fx
+            dfdnx    = nex0*dFx_dn     + frthrd*xe
+            dfdagrx  = nex0*dFx_dagr
+            dfdtaux  = nex0*dFx_dtau
+         end if
+
       end if
 
-      if (alpha .le. thr2) then
-         exp5 = 0.0d0
-      else
-         exp5 = dexp(c2x/oma)
-      end if
 
-      fxa = exp4 - dx*exp5
-
-      Fx = (h1x + fxa*(h0x - h1x))*gx
-
-      if (p_14 .lt. 0.001d0) then
-         dgx_dp =  0.0d0
-      else
-         dgx_dp = -0.25d0*a1*exp3/(p*p_14)
-      end if
-
-      dx1_dp    = muAK + b4*p*exp1*(2.0d0 - p*b4/muAK)
-      dx2_dp    = b1
-      dx_dp     = dx1_dp + 2.0d0*x2*dx2_dp
-      dx_dalpha = 2.0d0*b2*exp2*x2*(2.0d0*b3*oma2 - 1.0d0)
-
-      dh1x_dx     = (K1/denh1x)**2.0d0
-      dh1x_dp     = dh1x_dx*dx_dp
-      dh1x_dalpha = dh1x_dx*dx_dalpha
-
-      if ((alpha .ge. thr1) .and. (alpha .le. thr2)) then
-        dfxa_dalpha = 0.0d0
-      else
-        dfxa_dalpha = -(c1x*exp4 + dx*exp5*c2x)/oma2
-      end if
-
-      dFx_dp     = dgx_dp*(h1x + fxa*(h0x - h1x)) 
-     &           + gx*dh1x_dp*(1.0d0 - fxa)
-      dFx_dalpha = gx*(dh1x_dalpha + dfxa_dalpha*(h0x - h1x) 
-     &           - fxa*dh1x_dalpha)
-
-      dFx_dn   = dFx_dalpha*dalpha_dn   + dFx_dp*dp_dn
-      dFx_dagr = dFx_dalpha*dalpha_dagr + dFx_dp*dp_dagr
-      dFx_dtau = dFx_dalpha*dalpha_dtau
-
-      ex0  = Cx*n_13
-      nex0 = n*ex0
-
-      xe       = ex0*Fx
-      dfdnx    = nex0*dFx_dn     + frthrd*xe
-      dfdagrx  = nex0*dFx_dagr
-      dfdtaux  = nex0*dFx_dtau
 
       return
       end
@@ -400,6 +452,7 @@ c     dp_dtau =  0.0d0
         fdtauc = n*dfca_dtau*(ec0 - ec1)
 
         
+
         xce(i)   = x_parameter*ex     + c_parameter*ec
         fn(i)    = x_parameter*fnx    + c_parameter*fnc
         fdn(i)   = x_parameter*fdnx   + c_parameter*fdnc
