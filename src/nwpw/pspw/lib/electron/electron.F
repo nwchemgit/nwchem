@@ -2499,7 +2499,7 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
       logical value
       integer n2ft3d,gga
       integer tmp1(2),r_grid(2)
-      real*8  gmma
+      real*8  gmma,ftmp(3)
 
 *     **** external functions ****
       integer  control_gga,control_version
@@ -2554,7 +2554,8 @@ c         end if
 
       if (pspw_V_APC_on()) then
          call electron_gen_vl_potential()
-         call pspw_V_APC(ispin,ne,dng,dcpl_mb(vl(1)),eapc,papc)
+         call pspw_V_APC(ispin,ne,dng,dcpl_mb(vl(1)),eapc,papc,
+     >                   .false.,ftmp)
       end if
 
 *    **** xc potential ****

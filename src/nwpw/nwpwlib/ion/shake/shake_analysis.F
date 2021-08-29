@@ -42,9 +42,9 @@
          if (.not.btdb_cget(rtdb,'cpmd:fei_filename',1,filename))
      >     call util_file_prefix('fei',filename)
 
-         call util_file_name_noprefix(filename,.false.,
-     >                             .false.,
-     >                             full_filename)
+c         call util_file_name_noprefix(filename,.false.,
+c     >                             .false.,
+c     >                             full_filename)
 
          call util_file_name_noprefix(filename,.false.,
      >                               .false.,
