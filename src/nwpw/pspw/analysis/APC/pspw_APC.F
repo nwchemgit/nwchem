@@ -2,7 +2,6 @@ c
 c $Id$
 c
 
-
 ********************************************************************
 *
 *	pspw_APC module: used to generate derived atomic point charges
@@ -77,11 +76,11 @@ c
       call Pack_npack(0,npack0)
 
 *     **** Allocate memory needed for pspw_APC ****
-      value = BA_alloc_get(mt_dbl,ngs*ngs,'AAPC',A(2),A(1))
+      value = BA_alloc_get(mt_dbl,4*ngs*ngs,'AAPC',A(2),A(1))
       value = value.and.
      >          BA_alloc_get(mt_dbl,ngs*ngs,'AmAPC',Am(2),Am(1))
       value = value.and.
-     >          BA_alloc_get(mt_dbl,ngs,'bAPC',b(2),b(1))
+     >          BA_alloc_get(mt_dbl,4*ngs,'bAPC',b(2),b(1))
       value = value.and.
      >          BA_alloc_get(mt_dbl,ngs,'qAPC',q(2),q(1))
       value = value.and.
@@ -91,6 +90,7 @@ c
       value = value.and.
      >          BA_alloc_get(mt_dbl,npack0*nga,'gausAPC',
      >                       gaus(2),gaus(1))
+
 
 *     **** EXIT IF OUT OF MEMORY ****
       if (.not. value)
@@ -244,10 +244,11 @@ c    >     + i+1
 *     *		pspw_gen_APC		*
 *     *					*
 *     ***********************************
-      subroutine pspw_gen_APC(ispin,ne,dng)
+      subroutine pspw_gen_APC(ispin,ne,dng,move)
       implicit none
       integer ispin,ne(2)
       complex*16 dng(*)
+      logical move
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -262,8 +263,8 @@ c    >     + i+1
       integer nfft3d,npack0
       real*8 omega,N,sum,sum1
 
-c      integer G(3)
-      integer exi(2),exj(2)
+      integer G(3)
+      integer exi(2),exj(2),xtmp(2)
       integer gaus_i(2),gaus_j(2),ipiv(2)
       integer AAA(2),work(2),lwork,rank,info
 
@@ -284,9 +285,11 @@ c      integer G(3)
          call D3dB_nfft3d(1,nfft3d)
          call Pack_npack(0,npack0)
 
-c         G(1)  = Pack_G_indx(0,1)
-c         G(2)  = Pack_G_indx(0,2)
-c         G(3)  = Pack_G_indx(0,3)
+         if (move) then
+            G(1) = Pack_G_indx(0,1)
+            G(2) = Pack_G_indx(0,2)
+            G(3) = Pack_G_indx(0,3)
+         end if
 
 *         **** get memory from stack ****
          value = BA_push_get(mt_dcpl,nfft3d,'ttexi',exi(2),exi(1))
@@ -298,6 +301,13 @@ c         G(3)  = Pack_G_indx(0,3)
          value = value.and.
      >           BA_push_get(mt_dcpl,npack0,'ghaus_j2',
      >                                       gaus_j(2),gaus_j(1))
+
+         if (move) then
+            value = value.and.
+     >              BA_push_get(mt_dbl,npack0,'xtmp',
+     >                          xtmp(2),xtmp(1))
+         end if
+
          if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
@@ -336,23 +346,34 @@ c     >                          dcpl_mb(gaus_i(1)))
                dbl_mb(b(1)+i-1) = e1*omega
 !$OMP END MASTER
 
+               if (move) then
+                  call Pack_cct_iconjgMulb(0,
+     >                            dng,
+     >                            dcpl_mb(gaus_i(1)),
+     >                            dbl_mb(xtmp(1)))
+                  call Pack_tt_dot(0,dbl_mb(G(1)),
+     >                           dbl_mb(xtmp(1)),
+     >                           dbl_mb(b(1)+ngs+(i-1)))
+                  call Pack_tt_dot(0,dbl_mb(G(2)),
+     >                           dbl_mb(xtmp(1)),
+     >                           dbl_mb(b(1)+2*ngs+(i-1)))
+                  call Pack_tt_dot(0,dbl_mb(G(3)),
+     >                           dbl_mb(xtmp(1)),
+     >                           dbl_mb(b(1)+3*ngs+(i-1)))
+!$OMP MASTER
+                  dbl_mb(b(1)+ngs+(i-1)) =
+     >            dbl_mb(b(1)+ngs+(i-1))*omega
+                  dbl_mb(b(1)+2*ngs+(i-1)) =
+     >            dbl_mb(b(1)+2*ngs+(i-1))*omega
+                  dbl_mb(b(1)+3*ngs+(i-1)) =
+     >            dbl_mb(b(1)+3*ngs+(i-1))*omega
+c                write(*,*) "i,b,db=",i,dbl_mb(b(1)+i-1),
+c     >                                 dbl_mb(b(1)+ngs+(i-1)),
+c     >                                 dbl_mb(b(1)+2*ngs+(i-1)),
+c     >                                 dbl_mb(b(1)+3*ngs+(i-1)) 
+!$OMP END MASTER
+               end if
 
-c               call Pack_cct_iconjgMulb(0,
-c     >                            dng,
-c     >                            dcpl_mb(gaus_i(1)),
-c     >                            dbl_mb(xtmp(1)))
-c               call Pack_t_dscal1(0,omega,dbl_mb(xtmp(1)))
-c
-c               call Pack_tt_dot(0,dbl_mb(G(1)),
-c     >                           dbl_mb(xtmp(1)),
-c     >                           dbl_mb(dbdR(1)+3*(i-1)))
-c               call Pack_tt_dot(0,dbl_mb(G(2)),
-c     >                           dbl_mb(xtmp(1)),
-c     >                           dbl_mb(dbdR(1)+3*(i-1)+1))
-c               call Pack_tt_dot(0,
-c     >                           dbl_mb(G(3)),
-c     >                           dbl_mb(xtmp(1)),
-c     >                           dbl_mb(dbdR(1)+3*(i-1)+2))
             end do
           end do
 
@@ -404,11 +425,71 @@ c     >                               dcpl_mb(gaus_i(1)))
                     dbl_mb(A(1)+indx)  = e1*omega
                     dbl_mb(A(1)+indxt) = e1*omega
 !$OMP END MASTER
+
+                    if (move) then
+                       call Pack_cct_iconjgMulb(0,
+     >                            dcpl_mb(gaus_i(1)),
+     >                            dcpl_mb(gaus_j(1)),
+     >                            dbl_mb(xtmp(1)))
+                       call Pack_tt_dot(0,dbl_mb(G(1)),
+     >                            dbl_mb(xtmp(1)),
+     >                            dbl_mb(A(1)+ngs*ngs+indx))
+                       call Pack_tt_dot(0,dbl_mb(G(2)),
+     >                            dbl_mb(xtmp(1)),
+     >                            dbl_mb(A(1)+2*ngs*ngs+indx))
+                       call Pack_tt_dot(0,dbl_mb(G(3)),
+     >                            dbl_mb(xtmp(1)),
+     >                            dbl_mb(A(1)+3*ngs*ngs+indx))
+
+                       call Pack_cct_iconjgMulb(0,
+     >                            dcpl_mb(gaus_i(1)),
+     >                            dcpl_mb(gaus_j(1)),
+     >                            dbl_mb(xtmp(1)))
+                       call Pack_tt_dot(0,dbl_mb(G(1)),
+     >                            dbl_mb(xtmp(1)),e1)
+                       e1 = e1*omega
+                       call Pack_cct_iconjgMulb(0,
+     >                            dcpl_mb(gaus_j(1)),
+     >                            dcpl_mb(gaus_i(1)),
+     >                            dbl_mb(xtmp(1)))
+                       call Pack_tt_dot(0,dbl_mb(G(1)),
+     >                            dbl_mb(xtmp(1)),e2)
+                       e2 = e2*omega
+!$OMP MASTER
+                       dbl_mb(A(1)+ngs*ngs+indx) =
+     >                 dbl_mb(A(1)+ngs*ngs+indx)*omega
+                       dbl_mb(A(1)+2*ngs*ngs+indx) =
+     >                 dbl_mb(A(1)+2*ngs*ngs+indx)*omega
+                       dbl_mb(A(1)+3*ngs*ngs+indx) =
+     >                 dbl_mb(A(1)+3*ngs*ngs+indx)*omega
+                
+                       if (indx.ne.indxt) then
+                          dbl_mb(A(1)+ngs*ngs+indxt) =
+     >                   -dbl_mb(A(1)+ngs*ngs+indx)
+                          dbl_mb(A(1)+2*ngs*ngs+indxt) =
+     >                   -dbl_mb(A(1)+2*ngs*ngs+indx)
+                          dbl_mb(A(1)+3*ngs*ngs+indxt) =
+     >                   -dbl_mb(A(1)+3*ngs*ngs+indx)
+                       end if
+               
+c                write(*,*) "i,j,dA=",i,j,indx,indxt,e1,e2,
+c     >                     dbl_mb(A(1)+ngs*ngs+indxt),
+c     >                     dbl_mb(A(1)+ngs*ngs+indx),
+c     >                     dbl_mb(A(1)+2*ngs*ngs+indx),
+c     >                     dbl_mb(A(1)+3*ngs*ngs+indx) 
+!$OMP END MASTER
+
+                    end if
+
                end do
              end do
            end do
          end do
-         value = BA_pop_stack(gaus_j(2))
+         value = .true.
+         if (move) then
+            value = value.and.BA_pop_stack(xtmp(2))
+         end if
+         value = value.and.BA_pop_stack(gaus_j(2))
          value = value.and.BA_pop_stack(gaus_i(2))
          value = value.and.BA_pop_stack(exj(2))
          value = value.and.BA_pop_stack(exi(2))
@@ -503,10 +584,11 @@ c     >                        j)
 *     *		pspw_dngen_APC		*
 *     *					*
 *     ***********************************
-      subroutine pspw_dngen_APC(ispin,ne,dn)
+      subroutine pspw_dngen_APC(ispin,ne,dn,move)
       implicit none
       integer ispin,ne(2)
       real*8 dn(*)
+      logical move
 
 #include "bafdecls.fh"
 #include "errquit.fh"
@@ -549,7 +631,7 @@ c      call D3dB_r_SMul(1,scal1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
      &       MA_ERR)
 
 *     **** generate APC *****
-      call pspw_gen_APC(ispin,ne,dcpl_mb(dng(1)))
+      call pspw_gen_APC(ispin,ne,dcpl_mb(dng(1)),move)
 
 
       value = value.and.BA_pop_stack(dng(2))
@@ -694,7 +776,7 @@ c      end do
 *         - u: dE/dq(ii) - derivative of E wrt to model charges q(ii)
 *   Exit - VQ(G) = dE/dq(ii)*dq(ii)/drho(G)
 *
-*   Note - pspw_gen_APC needs to be called to Am=inv(A) before 
+*   Note - pspw_gen_APC needs to be called to generate Am=inv(A) before 
 *          this routine is called.
 *
       subroutine pspw_VQ_APC(nion,u,VQ)
@@ -881,11 +963,14 @@ c      end do
 
 *    dng,vcosmo,ecosmo,pcosmo are assumed to be shared memory
 *
-      subroutine pspw_cosmo_V_APC(ispin,ne,dng,vcosmo,ecosmo,pcosmo)
+      subroutine pspw_cosmo_V_APC(ispin,ne,dng,vcosmo,ecosmo,pcosmo,
+     >                            move,fion)
       implicit none
       integer ispin,ne(2)
       complex*16 dng(*), vcosmo(*)
-      real*8    ecosmo,pcosmo
+      real*8     ecosmo,pcosmo
+      logical    move
+      real*8     fion(3,*)
 
 #include "bafdecls.fh"
 #include "pspw_APC.fh"
@@ -935,7 +1020,7 @@ c      end do
 
 
 *     **** generate APC charges ****
-      call pspw_gen_APC(ispin,ne,dng)
+      call pspw_gen_APC(ispin,ne,dng,move)
 
       !**** q-Qion + q-Qelc BQ contributions ****
       !do j=tid+1,nion_q,nthreads
@@ -978,6 +1063,22 @@ c      end do
 !$OMP BARRIER
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *        pspw_cosmo_force_APC     *
+*     *                                 *
+*     ***********************************
+      subroutine pspw_cosmo_force_APC(ispin,ne,dng,fion)
+      implicit none
+      integer ispin,ne(2)
+      complex*16 dng(*)
+      real*8  fion(3,*)
+
+      write(*,*) "pspw_cosmo_force_APC not finished!"
+      return
+      end
+
 
 
 c*     ***********************************
@@ -1050,11 +1151,14 @@ c      end
 *     *                                 *
 *     ***********************************
 *
-      subroutine pspw_born_V_APC(ispin,ne,dng,vborn,eborn,pborn)
+      subroutine pspw_born_V_APC(ispin,ne,dng,vborn,eborn,pborn,
+     >                           move,fion)
       implicit none
       integer ispin,ne(2)
       complex*16 dng(*), vborn(*)
       real*8 eborn,pborn
+      logical move
+      real*8  fion(3,*)
 
 #include "bafdecls.fh"
 #include "pspw_APC.fh"
@@ -1064,7 +1168,7 @@ c      end
       logical value
       integer taskid,np,tid,nthreads,npack0
       integer ii,k,nion_qm
-      integer u(2),vtmp(2)
+      integer u(2),vtmp(2),utmp(2)
       real*8  elocal
       
 *     **** external functions ****
@@ -1086,12 +1190,14 @@ c      end
 
 *     **** get memory from stack ****
       value = BA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1))
-      value = BA_push_get(mt_dbl,ngs,'u',u(2),u(1))
+      value = value.and.BA_push_get(mt_dbl,ngs,'u',u(2),u(1))
+      if (move)
+     >  value = value.and.BA_push_get(mt_dbl,ngs,'utmp',utmp(2),utmp(1))
       if (.not.value)
      >   call errquit('pspw_born_V_APC:push stack',0, MA_ERR)
 
 *     **** generate APC charges ****
-      call pspw_gen_APC(ispin,ne,dng)
+      call pspw_gen_APC(ispin,ne,dng,move)
       do ii=1,nion_qm
          dbl_mb(nwpw_born_q_ptr()+ii-1) = pspw_getQtot_APC(ii)
      >                                  + psp_zv(ion_katm_qm(ii))
@@ -1105,8 +1211,13 @@ c      end
         do k=1,nga
           dbl_mb(u(1)+(ii-1)*nga+k-1) = dbl_mb(u(1)+(ii-1)*nga+k-1) 
      >                                + dbl_mb(nwpw_born_u_ptr(1)+ii-1)
+
         end do
       end do
+      if (move) 
+     >   call Parallel_shared_vector_copy(.false.,ngs,
+     >                                    dbl_mb(u(1)),
+     >                                    dbl_mb(utmp(1)))
 
       call Pack_cc_dot(0,dng,vborn,elocal)
 
@@ -1118,9 +1229,16 @@ c      end
       call Pack_cc_dot(0,dng,dcpl_mb(vtmp(1)),pborn)
       eborn = nwpw_born_energy()
 
-
+*     **** F =  -sum(i,j) 0.5*q(i)*(dM/dR)*q(j) - sum u(i)*dq(i)/dR ****
+      if (move) then
+         call nwpw_born_fion(fion)
+         call pspw_dQdR_APC(nion_qm,dbl_mb(utmp(1)),fion)
+      end if
+      
 *     **** pop stack ****
-      value = BA_pop_stack(u(2))
+      value = .true.
+      if (move) value = value.and.BA_pop_stack(utmp(2))
+      value = value.and.BA_pop_stack(u(2))
       value = value.and.BA_pop_stack(vtmp(2))
       if (.not.value)
      >   call errquit('pspw_born_V_APC:pop stack',0, MA_ERR)
@@ -1131,15 +1249,93 @@ c      end
 
 *     ***********************************
 *     *                                 *
+*     *         pspw_born_force_APC     *
+*     *                                 *
+*     ***********************************
+      subroutine pspw_born_force_APC(ispin,ne,dng,fion)
+      implicit none
+      integer ispin,ne(2)
+      complex*16 dng(*)
+      real*8  fion(3,*)
+
+#include "bafdecls.fh"
+#include "pspw_APC.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical value
+      integer taskid,np,tid,nthreads
+      integer ii,k,nion_qm
+      integer u(2)
+
+*     **** external functions ****
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
+      integer  nwpw_born_q_ptr,nwpw_born_u_ptr
+      external nwpw_born_q_ptr,nwpw_born_u_ptr
+      integer  ion_nion_qm,ion_katm_qm
+      external ion_nion_qm,ion_katm_qm
+      real*8   psp_zv,pspw_getQtot_APC
+      external psp_zv,pspw_getQtot_APC
+
+      call Parallel_taskid(taskid)
+      call Parallel_np(np)
+      tid = Parallel_threadid()
+      nthreads = Parallel_nthreads()
+      nion_qm  = ion_nion_qm()
+
+*     **** get memory from stack ****
+      value =           BA_push_get(mt_dbl,ngs,'u',u(2),u(1))
+      if (.not.value)
+     >   call errquit('pspw_born_force_APC:push stack',0, MA_ERR)
+
+*     **** generate APC charges ****
+      call pspw_gen_APC(ispin,ne,dng,.true.)
+      do ii=1,nion_qm
+         dbl_mb(nwpw_born_q_ptr()+ii-1) = pspw_getQtot_APC(ii)
+     >                                  + psp_zv(ion_katm_qm(ii))
+      end do
+
+      call nwpw_born_dVdq(nion_qm,dbl_mb(nwpw_born_q_ptr()),
+     >                            dbl_mb(nwpw_born_u_ptr()))
+
+      call Parallel_shared_vector_zero(.true.,ngs,dbl_mb(u(1)))
+      do ii=tid+1,nion_qm,nthreads
+        do k=1,nga
+          dbl_mb(u(1)+(ii-1)*nga+k-1) = dbl_mb(u(1)+(ii-1)*nga+k-1)
+     >                                + dbl_mb(nwpw_born_u_ptr(1)+ii-1)
+        end do
+      end do
+
+*     **** Generate APC force, F =  -sum(i,j) 0.5*q(i)*(dM/dR)*q(j) - sum u(i)*dq(i)/dR ****
+      call nwpw_born_fion(fion)
+      call pspw_dQdR_APC(nion_qm,dbl_mb(u(1)),fion)
+
+*     **** pop stack ****
+      value = BA_pop_stack(u(2))
+      if (.not.value)
+     >   call errquit('pspw_born_force_APC:pop stack',0, MA_ERR)
+
+      return
+      end
+
+
+
+
+*     ***********************************
+*     *                                 *
 *     *         pspw_cdft_V_APC         *
 *     *                                 *
 *     ***********************************
 *
-      subroutine pspw_cdft_V_APC(ispin,ne,dng,vcdft,ecdft,pcdft)
+      subroutine pspw_cdft_V_APC(ispin,ne,dng,vcdft,ecdft,pcdft,
+     >                           move,fion)
       implicit none
       integer ispin,ne(2)
       complex*16 dng(*),vcdft(*)
       real*8     ecdft,pcdft
+      logical    move
+      real*8     fion(3,*)
 
 #include "bafdecls.fh"
 #include "pspw_APC.fh"
@@ -1188,7 +1384,7 @@ c      end
       end do
 
 *     **** generate APC charges ****
-      call pspw_gen_APC(ispin,ne,dng)
+      call pspw_gen_APC(ispin,ne,dng,move)
       do ii=1,nion
          dbl_mb(nwpw_cdft_q_ptr()+ii-1) = pspw_getQtot_APC(ii) 
      >                                  + psp_zv(ion_katm_qm(ii))
@@ -1227,8 +1423,203 @@ c      write(*,*)
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *         pspw_cdft_force_APC     *
+*     *                                 *
+*     ***********************************
+      subroutine pspw_cdft_force_APC(ispin,ne,dng,fion)
+      implicit none
+      integer ispin,ne(2)
+      complex*16 dng(*)
+      real*8  fion(3,*)
+
+      write(*,*) "pspw_cdft_force_APC not finished!"
+      return
+      end
+
+
       ! - calculate dbi/dR_I
       ! - calculate dAij/dR_I
+
+*     ***********************************
+*     *                                 *
+*     *         pspw_dQdR_APC           *
+*     *                                 *
+*     ***********************************
+*   This routine calculates dq/Rion where E is a function of model q. In order
+* to use this routine Am = inverse A must be calculated
+* for the current geometry.
+*
+*   Entry - nion: number of qm atoms
+*         - u: dE/dq(ii) - derivative of E wrt to model charges q(ii)
+*   Exit - fion = dE/dq(ii)*dq(ii)/dR
+*
+*   Note - pspw_gen_APC needs to be called to Am=inv(A) before
+*          this routine is called.
+*
+      subroutine pspw_dQdR_APC(nion,u,fion)
+      implicit none
+      integer nion
+      real*8 u(*)
+      real*8 fion(3,*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "pspw_APC.fh"
+
+*     ***** local variables ****
+      integer taskid,np,MASTER
+      parameter (MASTER=0)
+
+      logical value
+      integer ii
+      integer dbtmp(2),dAtmp(2),ftmp(2)
+      real*8  sumAm,fx,fy,fz
+
+*     ***** external functions ****
+      real*8   pspw_sumAm_APC,pspw_generate_dQdR
+      external pspw_sumAm_APC,pspw_generate_dQdR
+
+      if (nga.gt.0) then
+         value = BA_push_get(mt_dbl,3*nion,'ftmp',ftmp(2),ftmp(1))
+         value = value.and.
+     >           BA_push_get(mt_dbl,nga,'dbtmp',dbtmp(2),dbtmp(1))
+         value = value.and.
+     >           BA_push_get(mt_dbl,ngs,'dAtmp',dAtmp(2),dAtmp(1))
+         if (.not.value) 
+     >      call errquit('pspw_dQdR_APC:push stack',0,MA_ERR)
+
+         call Parallel_taskid(taskid)
+         call Parallel_np(np)
+
+         sumAm  = pspw_sumAm_APC(ngs,dbl_mb(Am(1)))
+
+         call Parallel_shared_vector_zero(.false.,3*nion,
+     >                                    dbl_mb(ftmp(1)))
+         do ii=taskid+1,nion,np
+!$OMP MASTER
+            fx = pspw_generate_dQdR(ii,nga,nion,
+     >               dbl_mb(b(1)+ngs),dbl_mb(q(1)),u,
+     >               dbl_mb(A(1)+ngs*ngs),
+     >               dbl_mb(Am(1)),SumAm,
+     >               dbl_mb(dbtmp(1)),dbl_mb(dAtmp(1)))
+            fy = pspw_generate_dQdR(ii,nga,nion,
+     >               dbl_mb(b(1)+2*ngs),dbl_mb(q(1)),u,
+     >               dbl_mb(A(1)+2*ngs*ngs),
+     >               dbl_mb(Am(1)),SumAm,
+     >               dbl_mb(dbtmp(1)),dbl_mb(dAtmp(1)))
+            fz = pspw_generate_dQdR(ii,nga,nion,
+     >               dbl_mb(b(1)+3*ngs),dbl_mb(q(1)),u,
+     >               dbl_mb(A(1)+3*ngs*ngs),
+     >               dbl_mb(Am(1)),SumAm,
+     >               dbl_mb(dbtmp(1)),dbl_mb(dAtmp(1)))
+            dbl_mb(ftmp(1)+3*(ii-1))  = fx
+            dbl_mb(ftmp(1)+3*(ii-1)+1)= fy
+            dbl_mb(ftmp(1)+3*(ii-1)+2)= fz
+!$OMP END MASTER
+         end do
+
+         call Parallel_Vector_SumAll(3*nion,dbl_mb(ftmp(1)))
+         call DAXPY_OMP(3*nion,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
+
+         value =           BA_pop_stack(dAtmp(2))
+         value = value.and.BA_pop_stack(dbtmp(2))
+         value = value.and.BA_pop_stack(ftmp(2))
+         if (.not.value) 
+     >      call errquit('pspw_dQdR_APC:pop stack',0,MA_ERR)
+      end if
+
+      return
+      end
+
+*      dq(ia,ib)/dR(lb) = Sum(ja,jb) Am(ia,ib;ja,jb) * ( db(ja,jb)/dR(lb) - Sum(ka,kb) (dA(ja,jb;ka,kb)/dR(lb) * q(ka,kb)) )
+*                       = Sum(ja,jb) Am(ia,ib;ja,jb) * db(ja,lb)*delta(jb,lb)
+*                       + Sum(ja,jb) Am(ia,ib;ja,jb) * Sum(ka,kb) dA(ja,lb;ka,kb)*q(ka,kb)*delta(jb,lb)
+*                       - Sum(ja,jb) Am(ia,ib;ja,jb) * Sum(ka,kb) dA(ja,jb;ka,lb)*q(ka,kb)*delta(kb,lb)
+*
+*                       = Sum(ja) Am(ia,ib;ja,lb) * db(ja,lb)
+*                       + Sum(ja) Am(ia,ib;ja,lb) * Sum(ka,kb) dA(ja,lb;ka,kb)*q(ka,kb)
+*                       - Sum(ja,jb) Am(ia,ib;ja,jb) * Sum(ka) dA(ja,jb;ka,lb)*q(ka,lb)
+ 
+*     ***********************************
+*     *                                 *
+*     *       pspw_generate_dQdR        *
+*     *                                 *
+*     ***********************************
+
+      real*8 function pspw_generate_dQdR(lb,nga,nion,db,q,u,dA,
+     >                              Am,SumAm,
+     >                              dbtmp,dAtmp)
+      implicit none
+      integer lb,nga,nion
+      real*8 db(nga,nion),q(nga,nion),u(nga,nion)
+      real*8 dA(nga,nion,nga,nion)
+      real*8 Am(nga,nion,nga,nion),sumAm
+      real*8 dbtmp(nga),dAtmp(nga,nion)
+
+*     *** local variables ***
+      integer ia,ib,ja,jb,ka,kb
+      real*8 tmp,tmp2,sumdQdR,fac,ff
+
+*     *** calculate dbtmp,dAtmp ***
+      do ja=1,nga
+         tmp = 0.0d0
+         do kb=1,nion
+         do ka=1,nga
+            tmp = tmp + dA(ja,lb,ka,kb)*q(ka,kb)
+         end do
+         end do
+         dbtmp(ja)=tmp
+      end do
+
+      do jb=1,nion
+      do ja=1,nga
+         tmp = 0.0d0
+         do ka=1,nga
+            tmp = tmp + dA(ja,jb,ka,lb)*q(ka,lb)
+         end do
+         dAtmp(ja,jb)=tmp
+      end do
+      end do
+
+      ff = 0.0d0
+      sumdQdR = 0.0d0
+      do ib=1,nion
+      do ia=1,nga
+         tmp = 0.0d0
+         do ja=1,nga
+            tmp = tmp + Am(ia,ib,ja,lb)*(db(ja,lb)+dbtmp(ja))
+         end do
+
+         tmp2 = 0.0d0
+         do jb=1,nion
+         do ja=1,nga
+            tmp2 = tmp2 + Am(ia,ib,ja,jb)*dAtmp(ja,jb)
+         end do
+         end do
+         ff = ff + u(ia,ib)*(tmp-tmp2)
+         sumdQdR = sumdQdR + (tmp-tmp2)
+      end do
+      end do
+      fac = sumdQdR/sumAm
+
+      do ib=1,nion
+      do ia=1,nga
+         tmp = 0.0d0
+         do jb=1,nion
+         do ja=1,nga
+            tmp = tmp + Am(ia,ib,ja,jb)*fac
+         end do
+         end do
+         ff = ff - tmp*u(ia,ib)
+      end do
+      end do
+
+      pspw_generate_dQdR  = ff
+      return
+      end 
+
 
 
 
@@ -1259,11 +1650,13 @@ c      write(*,*)
 
 *     dng, vapc, Eapc, and Papc are assumed to be shared memory
 *
-      subroutine pspw_V_APC(ispin,ne,dng,vapc,Eapc,Papc)
+      subroutine pspw_V_APC(ispin,ne,dng,vapc,Eapc,Papc,move,fion)
       implicit none
       integer ispin,ne(2)
       complex*16 dng(*), vapc(*)
       real*8 Eapc,Papc
+      logical move
+      real*8 fion(3,*)
 
       real*8 Eapc_APC,Papc_APC
       common /e_apc_common/ Eapc_APC,Papc_APC
@@ -1279,13 +1672,13 @@ c      write(*,*)
 !$OMP BARRIER
 
       if (nwpw_cosmo2_on()) then
-         call pspw_cosmo_V_APC(ispin,ne,dng,vapc,Eapc,Papc)
+         call pspw_cosmo_V_APC(ispin,ne,dng,vapc,Eapc,Papc,move,fion)
 
       else if (nwpw_born_on()) then
-         call pspw_born_V_APC(ispin,ne,dng,vapc,Eapc,Papc)
+         call pspw_born_V_APC(ispin,ne,dng,vapc,Eapc,Papc,move,fion)
 
       else if (nwpw_cdft_on()) then
-         call pspw_cdft_V_APC(ispin,ne,dng,vapc,Eapc,Papc)
+         call pspw_cdft_V_APC(ispin,ne,dng,vapc,Eapc,Papc,move,fion)
 
       end if
 
@@ -1297,6 +1690,37 @@ c      write(*,*)
 
       return
       end
+
+*     ***********************************
+*     *					*
+*     *		pspw_force_APC	        *
+*     *					*
+*     ***********************************
+
+*     dng is assumed to be shared memory
+*
+      subroutine pspw_force_APC(ispin,ne,dng,fion)
+      implicit none
+      integer ispin,ne(2)
+      complex*16 dng(*)
+      real*8 fion(3,*)
+
+*     **** external functions ****
+      logical  nwpw_cosmo2_on,nwpw_born_on,nwpw_cdft_on
+      external nwpw_cosmo2_on,nwpw_born_on,nwpw_cdft_on
+
+      if (nwpw_cosmo2_on()) then
+         call pspw_cosmo_force_APC(ispin,ne,dng,fion)
+      else if (nwpw_born_on()) then
+         call pspw_born_force_APC(ispin,ne,dng,fion)
+      else if (nwpw_cdft_on()) then
+         call pspw_cdft_force_APC(ispin,ne,dng,fion)
+      end if
+
+      return
+      end 
+
+
 
 
 *     ***********************************

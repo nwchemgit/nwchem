@@ -502,7 +502,9 @@ c        call mask_C(0,dcpl_mb(dng(1)))
            call pspw_V_APC(ispin,ne,
      >                           dcpl_mb(dng(1)),
      >                           dcpl_mb(vl(1)),
-     >                           Eapc,Papc)
+     >                           Eapc,Papc,
+     >                           move,
+     >                           dbl_mb(fion(1)))
         end if
 
 
@@ -914,21 +916,21 @@ c     >        - ehartree_atom - ecmp_cmp - ecmp_pw
 
          !*** cosmo2 ****
          else
-            E(22) = Eapc
-            E(23) = Papc
+            E(52) = Eapc
+            E(53) = Papc
             E(46) = Eapc
             E(47) = nwpw_cosmo_EQionq() !** E(Qion|q)
             E(48) = nwpw_cosmo_Eqq()    !** E(q|q)
 
-            !E(1)  = E(1) + E(22) - E(23) + E(47) + E(48)
-            E(1)  = E(1) + E(22) - E(23) 
+            !E(1)  = E(1) + E(52) - E(53) + E(47) + E(48)
+            E(1)  = E(1) + E(52) - E(53) 
          end if
      
 *     **** AQC Energy ****
       else if (V_APC_on) then
-         E(22) = Eapc
-         E(23) = Papc
-         E(1)  = E(1) + E(22) - E(23)
+         E(52) = Eapc
+         E(53) = Papc
+         E(1)  = E(1) + E(52) - E(53)
       end if
 
 
