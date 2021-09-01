@@ -1729,10 +1729,14 @@ endif
           _FC=crayftn
           _CC=craycc
         endif
+        ifeq ($(PE_ENV),AMD)
+          _FC=flang
+          _CC=clang
+        endif
         DEFINES  += -DCRAYXT -DNOIO
         USE_NOIO=1
       endif
-      ifeq ($(CC),gcc)
+      ifeq ($(shell $(CNFDIR)/strip_compiler.sh $(CC)),gcc)
         _CC=gcc
       endif
       ifeq ($(CC),pgcc)
@@ -1820,7 +1824,7 @@ endif
          FFLAGS_FORGA   = -march=rv64gc -mabi=lp64d
          CFLAGS_FORGA   = -march=rv64gc -mabi=lp64d
        endif
-      ifeq ($(_CC),gcc)
+    ifeq ($(_CC),$(findstring $(_CC),gcc clang))
        ifneq ($(DONTHAVEM64OPT),Y)
          COPTIONS   = -m64
        endif
@@ -2230,7 +2234,7 @@ endif
          COPTIMIZE =  -O3
          COPTIMIZE += -ip -no-prec-div
       endif
-      ifeq ($(_CC),gcc)
+      ifeq ($(_CC),$(findstring $(_CC),gcc clang))
         COPTIONS   +=   -O3 -funroll-loops -ffast-math 
         ifdef USE_OPENMP
           COPTIONS += -fopenmp
