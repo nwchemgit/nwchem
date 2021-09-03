@@ -49,7 +49,7 @@
             end if
          end if
       end do
-      if (bornr1.lt.1.0d-2)   bornr1 = 1.0d-2
+      if (bornr1.lt.1.0d-6) bornr1 = 1.0d-6
       nwpw_born_radius = 1.0d0/bornr1
       return
       end 
