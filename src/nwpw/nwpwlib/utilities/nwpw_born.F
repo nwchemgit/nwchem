@@ -19,6 +19,7 @@
      >               + (rion(2,ii)-rion(2,jj))**2
      >               + (rion(3,ii)-rion(3,jj))**2)
          if (dist.gt.0.1d0) then
+            L=0.0d0
             if ((dist+vradii(jj)).le.vradii(ii)) then
                L = 1.0d0
             else if (((dist-vradii(jj)).le.vradii(ii)).and.
@@ -29,9 +30,10 @@
             end if
             invL = 1.0d0/L
 
+            U=0.0d0
             if ((dist+vradii(jj)).le.vradii(ii)) then
                U = 1.0d0
-            else
+            else if (vradii(ii).lt.(dist+vradii(jj))) then
                U = dist + vradii(jj)
             end if
             invU = 1.0d0/U
@@ -47,6 +49,7 @@
             end if
          end if
       end do
+      if (bornr1.lt.1.0d-2)   bornr1 = 1.0d-2
       nwpw_born_radius = 1.0d0/bornr1
       return
       end 
@@ -149,7 +152,7 @@ c
          if (.not.btdb_get(rtdb,'nwpw:born_dielec',mt_dbl,1,dielec)) 
      >      dielec = 78.4d0
 
-         nion = ion_nion()
+         nion  = ion_nion()
          value = BA_alloc_get(mt_dbl,nion,'bradii',bradii(2),bradii(1))
          value = value.and.
      >           BA_alloc_get(mt_dbl,nion,'vradii',vradii(2),vradii(1))
@@ -157,7 +160,7 @@ c
      >           BA_alloc_get(mt_dbl,nion,'qborn',qborn(2),qborn(1))
          value = value.and.
      >           BA_alloc_get(mt_dbl,nion,'uborn',uborn(2),uborn(1))
-         if (.not. value) 
+         if (.not.value) 
      >     call errquit('nwpw_born_init:out of heap memory',0,MA_ERR)
 
          if (.not.btdb_get(rtdb,'nwpw:born_vradii',mt_dbl,
@@ -167,7 +170,7 @@ c
             end do
          end if
          do ii=1,nion
-            rr =  dbl_mb(vradii(1)+ii-1)
+            rr = dbl_mb(vradii(1)+ii-1)
             if (rr.lt.1.0d-3) rr = 1.17d0*1.90d0/0.529177d0
             dbl_mb(vradii(1)+ii-1) = rr
          end do
@@ -175,10 +178,9 @@ c
          if (.not.btdb_get(rtdb,'nwpw:born_bradii',mt_dbl,
      >                            nion,dbl_mb(bradii(1)))) then
             do ii=1,nion
-               dbl_mb(bradii(1)+ii-1) 
-     >            = nwpw_born_radius(ii,nion,
-     >                               dbl_mb(ion_rion_ptr()),
-     >                               dbl_mb(vradii(1)))
+               dbl_mb(bradii(1)+ii-1) = nwpw_born_radius(ii,nion,
+     >                                      dbl_mb(ion_rion_ptr()),
+     >                                      dbl_mb(vradii(1)))
             end do
          end if
 
@@ -203,7 +205,7 @@ c
 
       endif
 
-  101 format(7x,"- Born Radius ",A4," - a(",I1,") = ",F6.3,
+  101 format(7x,"- Born Radius ",A4," - a(",I4,") = ",F10.3,
      >       " Angstroms (1.17*vdw radius=",F6.3," Angstroms)")
          
       return
