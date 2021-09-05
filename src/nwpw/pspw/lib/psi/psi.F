@@ -10090,7 +10090,6 @@ c      end if
 *     *     epsi_DOS        *
 *     *                     *
 *     ***********************
-
       subroutine epsi_DOS(rtdb)
       implicit none
       integer rtdb
@@ -10185,24 +10184,43 @@ c      end if
       end
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+*     ***********************
+*     *                     *
+*     *     psi_polariz     *
+*     *                     *
+*     ***********************
+
+*** Early version of periodic dipole written by Patrick Nichols                                               ***
+*** This routine has been replace by Calculate_Resta_Dipole, but keeping around as a reference implementation ***
+*** this routine only works for cubic unit cells                                                              ***
+
       subroutine psi_polariz()
       implicit none
+
 #include "psi.fh"
 #include "bafdecls.fh"
 #include "errquit.fh"
 #include "util.fh"
-      integer psirx(2),asize
-      logical val
-      asize=(ne(1)+ne(2))*nfft3d*2
-      val=BA_push_get(mt_dbl,asize,"psir",psirx(2),psirx(1))
-      if (.not.val) then
-        call errquit("psi_polariz stack empty",0,0)
-      end if
-      call berry_phase_pol(psi2,psirx)
-      val=BA_pop_stack(psirx(2))
-      if (.not.val) then
-        call errquit("psi_polariz failed pop stack",0,0)
-      end if
+
+*     **** local variables ****
+      logical value
+      integer psirx(2),tsirx(2),asize
+
+      asize=(neq(1)+neq(2))*2*nfft3d
+      value=          BA_push_get(mt_dbl,asize,"psir",psirx(2),psirx(1))
+      value=value.and.BA_push_get(mt_dbl,asize,"tsir",tsirx(2),tsirx(1))
+      if (.not.value) call errquit("psi_polariz stack empty",0,MA_ERR)
+
+      call berry_phase_pol(ispin,ne,neq,npack1,nfft3d,
+     >                     dcpl_mb(psi2(1)),
+     >                     dbl_mb(psirx(1)),
+     >                     dbl_mb(tsirx(1)))
+
+      value=          BA_pop_stack(tsirx(2))
+      value=value.and.BA_pop_stack(psirx(2))
+      if (.not.value) call errquit("psi_polariz: pop stack",0,MA_ERR)
+
       return
       end
 ccccccccccccccccccccccccccccccccccccccccccccccccccc
