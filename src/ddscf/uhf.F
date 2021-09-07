@@ -682,6 +682,7 @@ c AJL/End
       double precision ecosmo !< [Output] The COSMO solvation energy
       integer g_dens(2),i
       character*255 cosmo_file
+      character*32 theory
 c     DIM/QM JEM
       logical ldimqm
       integer g_vdim
@@ -1128,8 +1129,16 @@ c
 c     cosmo charges, potential and energy contribution
 c
       if (cosmo_on) then
-         call errquit('uhf_energy not compatible with COSMO',0,
-     C     CAPMIS_ERR)
+c     check if we are doing dft (e.g. cphf case)
+         if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $        call errquit('hnd_property: theory not specified',555,
+     &        INPUT_ERR)
+         if (theory.eq.'hyb') theory = 'dft'
+         if(theory.ne.'dft') then
+            if(master) write(6,*) ' UHF theory ',theory
+            call errquit('uhf_energy not compatible with COSMO',0,
+     C           CAPMIS_ERR)
+         endif
       endif
       if(cosmo_on.and.cosmo_phase.eq.2) then
         cosmo_file = "cosmo.xyz"
