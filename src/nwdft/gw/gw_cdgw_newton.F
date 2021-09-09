@@ -57,7 +57,7 @@
       if (eviter.gt.4) then 
         maxradius = 0.010d0
       else
-        maxradius = 0.1d0
+        maxradius = 0.030d0
       endif
 
       do isp=1,pars%ipol
@@ -129,7 +129,7 @@ c
             timer = util_wallsec()
             call gw_buildin(iW(1,1,iqp,isp),Eold(1,isp),
      $                      dbl_mb(pars%k_glx),dbl_mb(pars%k_glw),
-     $                      iWidx(0,iqp,isp),Ein,I,dI,
+     $                      iWidx(0,iqp,isp),Ein,pars%eta,I,dI,
      $                      pars%ngl,mynmo)
             pars%timer%in = pars%timer%in + util_wallsec() - timer
 

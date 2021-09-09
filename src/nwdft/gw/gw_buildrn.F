@@ -50,8 +50,7 @@
 
       logical main, ok, parallel_diag
       double precision, parameter :: shift = 0.00001d0
-      double precision, parameter :: eta = 0.0000001d0
-      double complex, parameter :: ieta = dcmplx(0d0,eta)
+      double complex :: ieta
       double complex :: temp, arg
       logical, external :: is_near
 
@@ -64,6 +63,7 @@
       call util_blas_set_num_threads(iMaxThreads)
 #endif
 
+      ieta = dcmplx(0d0,pars%eta)
 
       main = me.eq.0
       nprocs = ga_nnodes()

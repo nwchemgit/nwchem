@@ -414,7 +414,8 @@ c     *****************************************************************
      $                 pars%ovhi(ipol),addrOV,idum)
 
 
-        do imo=pars%llmo(ipol),pars%llmo(ipol)+pars%nqp(ipol)-1
+        do imo=min(1,pars%llmo(ipol)),
+     $         max(pars%llmo(ipol)+pars%nqp(ipol)-1,pars%nocc(ipol))
           jmo = imo - pars%llmo(ipol) + 1
           temp = 0d0
 

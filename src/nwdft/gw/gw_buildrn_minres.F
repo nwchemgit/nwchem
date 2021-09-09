@@ -52,15 +52,9 @@
       logical main, ok, parallel_diag
       logical, external :: is_near
 
-#ifdef GWCMPLX
-      double precision, parameter :: eta = 0.001d0
-#else
-      double precision, parameter :: eta = 0.00001d0
-#endif
-
       double precision, parameter :: shift = 0.00001d0
       double complex :: w, R1, dR1
-      double complex, parameter :: ieta = dcmplx(0d0,eta)
+      double complex :: ieta
 
 #ifdef USE_OPENMP      
       integer iMaxThreads
@@ -69,6 +63,8 @@
       iMaxThreads = omp_get_max_threads()
       call util_blas_set_num_threads(iMaxThreads)
 #endif
+
+      ieta = dcmplx(0d0,pars%eta)
 
       call ga_sync()
 

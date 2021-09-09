@@ -163,6 +163,20 @@ c
       endif
  9020 format(/,2x,"*** G",I1,"W",I1)     
  9021 format(/,2x,"*** G",I2,"W",I2)     
+
+      if (eviter.eq.0 .and. pars%ncap .and. pars%evgw) then
+        do i=1,ipol
+          do j=0,pars%nmo-1
+            if (j.lt.pars%nocc(i)) then
+              dbl_mb(kEmod+(i-1)*nmo+j) = 
+     $        dbl_mb(kEmod+(i-1)*nmo+j) + pars%vxddp(i)
+            else
+              dbl_mb(kEmod+(i-1)*nmo+j) = 
+     $        dbl_mb(kEmod+(i-1)*nmo+j) + pars%vxddm(i)
+            endif
+          enddo
+        enddo
+      endif
 c
 c     Obtain eigenvalue difference
 c
@@ -171,6 +185,24 @@ c
         call gw_get_eia(dbl_mb(kEmod+(i-1)*pars%nmo),dbl_mb(kEia+lSize),
      $                  pars%nocc(i),pars%nvir(i))
       enddo
+
+      if (eviter.eq.0 .and. pars%ncap .and. (.not.pars%evgw)) then
+        do i=1,ipol
+          do j=0,pars%nmo-1
+            if (j.lt.pars%nocc(i)) then
+              dbl_mb(kEmod+(i-1)*nmo+j) = 
+     $        dbl_mb(kEmod+(i-1)*nmo+j) + pars%vxddp(i)
+            else
+              dbl_mb(kEmod+(i-1)*nmo+j) = 
+     $        dbl_mb(kEmod+(i-1)*nmo+j) + pars%vxddm(i)
+            endif
+          enddo
+        enddo
+      endif
+c
+c      if (eviter.eq.0 .and. pars%ncap) then
+c        call dcopy(nmo*ipol,dbl_mb(kEmod),1,dbl_mb(kEref),1)
+c      endif
 c
 c     Obtain Screened Coulomb matrices on imaginary axis
 c
@@ -202,6 +234,7 @@ c
       endif
  9040 format(/,2x,"*** G",I1,"W0")     
  9041 format(/,2x,"*** G",I2,"W0")     
+
 
       if (main) write(luout,9050)
  9050 format(10x,'Solving quasiparticle equations')

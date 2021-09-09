@@ -38,7 +38,7 @@ c
       integer, external :: findmycpu
       integer resultlen,tid,cpu,ierr,iproc,itid
       character(len=80) names
-      double precision t0
+      double precision t0, ehomo, vxddp, vxddm, aq2, zeta
 
 #ifdef USE_OPENMP
       integer,external :: omp_get_max_threads, omp_get_thread_num
@@ -47,6 +47,9 @@ c
 c
 c     -----------------------------------------------------------------
 c
+      zeta = 0.304121d0
+      aq2 = 2d0/9d0 * (1d0-zeta)**2
+
       pars%timer%init  = util_wallsec()
       pars%timer%total = pars%timer%init
       pars%timer%vxc   = 0d0
@@ -102,6 +105,8 @@ c
       if (.not.rtdb_get(pars%rtdb,'dft:energy',mt_dbl,1,pars%escf))
      $  call errquit(pname//'failed to read DFT energy',0,RTDB_ERR) 
 
+      if (.not.rtdb_get(pars%rtdb, 'gw:eta',mt_dbl,1,pars%eta))
+     $  call errquit(pname//'failed to read eta',0,RTDB_ERR)
       if (.not.rtdb_get(pars%rtdb,'gw:evgw0',mt_log,1,pars%evgw0))
      $  call errquit(pname//'failed to read evgw0',0,RTDB_ERR)
       if (.not.rtdb_get(pars%rtdb,'gw:evgw',mt_log,1,pars%evgw))
@@ -115,6 +120,8 @@ c
      $  call errquit(pname//'failed to read cdgw',0,RTDB_ERR)
       if (.not.rtdb_get(pars%rtdb,'gw:acgw',mt_log,1,pars%acgw))
      $  call errquit(pname//'failed to read acgw',0,RTDB_ERR)
+      if (.not.rtdb_get(pars%rtdb,'gw:ncap',mt_log,1,pars%ncap))
+     $  call errquit(pname//'failed to read ncap',0,RTDB_ERR)
 c
       if (.not.rtdb_get(pars%rtdb,'gw:graph',mt_log,1,pars%graph))
      $  call errquit(pname//'failed to read graph',0,RTDB_ERR)
@@ -283,6 +290,21 @@ c
         pars%nstates(i) = pars%nocc(i) + pars%nvqp(i)
         pars%npoles(i) = pars%nocc(i)*pars%nvir(i)
       enddo
+c
+ 1001 format(2X,A12,F8.3,A3)
+      if (pars%ncap) then
+        do i=1,ipol
+          ehomo = dbl_mb(pars%k_evals+(i-1)*nbf_ao+pars%nocc(i)-1)
+          vxddp = -0.5d0*aq2*(1d0 + sqrt(1d0-4d0*ehomo/aq2))
+          vxddm = -0.5d0*aq2*(1d0 - sqrt(1d0-4d0*ehomo/aq2))
+          pars%vxddp(i) = vxddp
+          pars%vxddm(i) = vxddm
+          if (pars%me.eq.0) then
+            write(luout,1001) ' v_x^{DD+}: ',vxddp*ha2ev, ' eV'
+            write(luout,1001) ' v_x^(DD-): ',vxddm*ha2ev, ' eV'
+          endif
+        enddo
+      endif
 c
       if (pars%evgw .or. pars%evgw0) then
         if (pars%eviter.lt.1)

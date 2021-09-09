@@ -36,6 +36,12 @@ c
      &     rtdb_put(rtdb,'gw:ngl',mt_int,1,200).and.
      &     rtdb_put(rtdb,'gw:nomega',mt_int,1,100).and.
      &     rtdb_put(rtdb,'gw:threshold',mt_dbl,1,0.005d0/ha2ev).and.
+     &     rtdb_put(rtdb,'gw:ncap',mt_log,1,.false.).and.
+#ifdef GWCMPLX
+     &     rtdb_put(rtdb,'gw:eta',mt_dbl,1,0.0001d0).and.
+#else
+     &     rtdb_put(rtdb,'gw:eta',mt_dbl,1,0.00001d0).and.
+#endif
      &     rtdb_put(rtdb,'gw:init',mt_log,1,.true.) 
 c
       if (ok) return

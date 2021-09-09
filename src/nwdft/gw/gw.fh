@@ -24,7 +24,7 @@ c
 	integer          :: vvlo(2),vvhi(2)
 	integer          :: llmo(2),nqp(2)
 	integer          :: ngl
-        double precision :: tol2e
+        double precision :: tol2e, eta
 c
         integer          :: l_evals, k_evals
         integer          :: l_occ, k_occ
@@ -38,9 +38,9 @@ c
         logical          :: noio
 c
         integer          :: eviter, qpiter
-        logical          :: evgw, evgw0, analyticw, cdgw, acgw
+        logical          :: evgw, evgw0, analyticw, cdgw, acgw, ncap
         logical          :: graph, newton, anaw, linear, diis
-        double precision :: thresh, fdstep
+        double precision :: thresh, fdstep, vxddp(2), vxddm(2)
 
 	double precision :: ecrpa,ecgm,ex,exscf,ecscf,escf
 

@@ -125,7 +125,7 @@
             timer = util_wallsec()
             call gw_buildin(iW(1,1,iqp,isp),Eold(1,isp),
      $                      dbl_mb(pars%k_glx),dbl_mb(pars%k_glw),
-     $                      iWidx(0,iqp,isp),Ein,I,dI,
+     $                      iWidx(0,iqp,isp),Ein,pars%eta,I,dI,
      $                      pars%ngl,mynmo)
             call ga_sync()
             pars%timer%in = pars%timer%in + util_wallsec() - timer

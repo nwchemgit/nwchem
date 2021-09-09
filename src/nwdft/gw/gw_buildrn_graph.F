@@ -50,8 +50,7 @@
       double precision :: vectors(nri,nqp)
 
       double precision, parameter :: shift = 0.0001d0
-      double precision, parameter :: eta = 0.001d0
-      double complex, parameter :: ieta = dcmplx(0d0,eta)
+      double complex :: ieta
 
 #ifdef USE_OPENMP      
       integer iMaxThreads
@@ -60,6 +59,7 @@
       call util_blas_set_num_threads(iMaxThreads)
 #endif
 
+      ieta = dcmplx(0d0,pars%eta)
 
       main = me.eq.0
       nprocs = ga_nnodes()
