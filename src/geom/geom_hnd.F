@@ -4777,10 +4777,11 @@ C
       R1=R12+TEMP
       R2=R12-TEMP
       DIF=  ABS(A2-R1)-  ABS(A2-R2)
-      IF(DIF.LT.ZERO) GO TO 420
-      SHIFT=R2
-      GO TO 310
-  420 SHIFT=R1
+      IF(DIF.ge.ZERO) then
+         SHIFT=R2
+      else
+         SHIFT=R1
+      endif
       GO TO 310
   430 EIG(1)=GAMMA(1)+SUM
       DO 440 J=1,N
