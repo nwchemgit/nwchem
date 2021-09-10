@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 rm -f dftd3.f nwpwxc_vdw3a.F
+if [[ ! -x "$(command -v patch)" ]]; then
+    echo ' '
+    echo 'please install the patch command'
+    echo ' '
+    exit 1
+fi
 URL1="https://www.chemie.uni-bonn.de/pctc/mulliken-center/software/dft-d3/"
 URL2="https://web.archive.org/web/20210527062154if_/https://www.chemie.uni-bonn.de/pctc/mulliken-center/software/dft-d3/"
 declare -a urls=("$URL1" "$URL1" "$URL1" "$URL2" "$URL2")
