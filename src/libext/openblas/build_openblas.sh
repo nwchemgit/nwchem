@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -v
 arch=`uname -m`
-VERSION=0.3.15
+VERSION=0.3.17
 #COMMIT=974acb39ff86121a5a94be4853f58bd728b56b81
 BRANCH=develop
 if [ -f  OpenBLAS-${VERSION}.tar.gz ]; then
@@ -61,7 +61,24 @@ else
 fi
 if [ -n "${USE_DYNAMIC_ARCH}" ]; then
     FORCETARGET+="DYNAMIC_ARCH=1 DYNAMIC_OLDER=1"
-fi    
+fi
+#cray ftn wrapper
+if [[ ${FC} == ftn ]]; then
+    FCORG=ftn
+    if [[ ${PE_ENV} == PGI ]]; then
+          FC=pgf90
+#          _CC=pgcc
+    fi
+    if [[ ${PE_ENV} == INTEL ]]; then
+	FC=ifort
+    fi
+    if [[ ${PE_ENV} == GNU ]]; then
+	FC=gfortran
+    fi
+    if [[ ${PE_ENV} == AMD ]]; then
+	FC=flang
+    fi
+fi
 if [[ -n ${FC} ]] &&  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
     FORCETARGET+=" CC=gcc "
     _FC=xlf
@@ -134,4 +151,7 @@ cp libopenblas.a ../../lib/libnwc_openblas.a
 #make PREFIX=. install
 if [[  ! -z "${NWCHEM_USE_OPENMP}" ]]; then
     export USE_OPENMP=1
+fi
+if [[ -n ${FCORG} ]]; then
+    FC=${FCORG}
 fi
