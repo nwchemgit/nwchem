@@ -127,14 +127,14 @@ fi
     if [[ "$FC" == "flang" ]]; then
 	if [[ "USE_AOMP" == "Y" ]]; then
 	    aomp_major=13
-	    aomp_minor=0-2
+	    aomp_minor=0-6
 	    wget https://github.com/ROCm-Developer-Tools/aomp/releases/download/rel_"$aomp_major"."$aomp_minor"/aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
 	    sudo dpkg -i aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
 	    export PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/bin/:$PATH
 	    export LD_LIBRARY_PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/lib:$LD_LIBRARY_PATH
 	    ls -lrt /usr/lib | grep aomp ||true
 	else
-	    aocc_version=3.0.0
+	    aocc_version=3.1.0
 	    aocc_dir=aocc-compiler-${aocc_version}
 	    curl -LJO https://developer.amd.com/wordpress/media/files/${aocc_dir}.tar
 	    tar xf ${aocc_dir}.tar
