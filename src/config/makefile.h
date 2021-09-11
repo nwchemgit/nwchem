@@ -1730,7 +1730,8 @@ endif
           _CC=craycc
         endif
         ifeq ($(PE_ENV),AMD)
-          _FC=flang
+          _FC=gfortran
+	  USE_FLANG=1
           _CC=clang
         endif
         DEFINES  += -DCRAYXT -DNOIO
@@ -2289,12 +2290,12 @@ endif
         ifndef USE_FPE
         FOPTIMIZE  += -ffast-math #2nd time
         endif
-        ifneq ($(FC),flang)
-        FOPTIMIZE  += -fprefetch-loop-arrays #-ftree-loop-linear
-        else
+        ifdef USE_FLANG
 	  ifdef USE_OPTREPORT
             FOPTIMIZE  += -Rpass=loop-vectorize -Rpass-missed=loop-vectorize -Rpass-analysis=loop-vectorize
           endif
+        else
+        FOPTIMIZE  += -fprefetch-loop-arrays #-ftree-loop-linear
         endif
         ifeq ($(GNU_GE_4_8),true)
           FOPTIMIZE  += -ftree-vectorize   
@@ -2303,7 +2304,7 @@ endif
              endif
         endif
 
-        ifeq ($(FC),flang)
+        ifdef USE_FLANG
 #AOMP flang crashes with -g in source using block data
         FDEBUG =  -O
 	  else
