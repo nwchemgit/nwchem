@@ -140,7 +140,9 @@ cd build
 if  [[ -n ${FC} ]] &&   [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
     Fortran_FLAGS=" -qintsize=4 -qextname "
 elif [[ -n ${FC} ]] &&   [[ ${FC} == ftn ]]; then
-    Fortran_FLAGS="-O2 -g -axCORE-AVX2"
+    if [[ ${PE_ENV} == INTEL ]]; then
+	Fortran_FLAGS="-O2 -g -axCORE-AVX2"
+    fi
 #elif [[ -n ${FC} ]] &&   [[ ${FC} == flang ]]; then
 # unset FC=flang since cmake gets lost
 #       unset FC
