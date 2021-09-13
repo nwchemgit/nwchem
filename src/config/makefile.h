@@ -1734,6 +1734,12 @@ endif
 	  USE_FLANG=1
           _CC=clang
         endif
+        ifeq ($(PE_ENV),NVIDIA)
+#nvfortran same as pgf90
+          _FC=pgf90
+#nvcc same as pgcc
+          _CC=pgcc
+        endif
         DEFINES  += -DCRAYXT -DNOIO
         USE_NOIO=1
       endif
