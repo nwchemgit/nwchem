@@ -130,7 +130,7 @@
 
           if (llmo+iqp-1.le.pars%nocc(isp)) then
             call gw_analytic_ecgm(pars%ecgm,Eold(llmo+iqp-1,isp),Eold,
-     $                          omega(1,isp),g_wmn,0.003d0**2,
+     $                          omega(1,isp),g_wmn,pars%eta**2,
      $                          pars%npoles(isp),pars%nmo,plus,pars%me)
           endif
 c        
@@ -144,7 +144,7 @@ c
             timer = util_wallsec()
             call gw_analytic_sigmac(sigmaC,dsigmaC,d2sigmaC,Ein,Eold,
      $                              omega(1,isp),g_wmn,
-     $                              0.003d0**2,pars%npoles(isp),
+     $                              pars%eta**2,pars%npoles(isp),
      $                              pars%nmo,plus,pars%me)
             pars%timer%sigmac = pars%timer%sigmac - timer +  
      $                          util_wallsec()
@@ -160,6 +160,7 @@ c
 
 
             ! Find out if we might have skipped a solution
+#ifdef GW_DOSKIP
             if ((iter.gt.1) .and. (.not.bracket) .and. 
      $          (dble(dsigmac).lt.0d0) .and.
      $          (errors(iter)*errors(iter-1).gt.0d0)) then
@@ -185,6 +186,7 @@ c
                 skipped = .true.
               endif
             endif
+#endif
 
             ! Find out if we have bracketed the solution
             if (iter.gt.1 .and. (.not.skipped) ) then
