@@ -19,9 +19,9 @@ tar xzf OpenBLAS-${VERSION}.tar.gz
 ln -sf OpenBLAS-${VERSION} OpenBLAS
 cd OpenBLAS
 # patch for apple clang -fopenmp
-patch -p0 < ../clang_omp.patch
+patch -p0 -s -N < ../clang_omp.patch
 # patch for pgi/nvfortran missing -march=armv8
-patch -p0 < ../arm64_fopt.patch
+patch -p0 -s -N < ../arm64_fopt.patch
 if [[  -z "${FORCETARGET}" ]]; then
 FORCETARGET=" "
 UNAME_S=$(uname -s)
@@ -77,6 +77,16 @@ if [[ ${FC} == ftn ]]; then
     fi
     if [[ ${PE_ENV} == AMD ]]; then
 	FC=flang
+    fi
+    if [[ ${PE_ENV} == NVIDIA ]]; then
+	FC=nvfortran
+    fi
+    if [[ ${PE_ENV} == CRAY ]]; then
+	echo ' '
+	echo 'openblas installation not ready for crayftn '
+	echo ' '
+	exit 1
+        exit 1
     fi
 fi
 if [[ -n ${FC} ]] &&  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
