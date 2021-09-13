@@ -1,6 +1,6 @@
 #!/bin/bash 
 rm -rf mpich*
-VERSION=3.4
+VERSION=3.4.2
 curl -L http://www.mpich.org/static/downloads/${VERSION}/mpich-${VERSION}.tar.gz -o mpich.tgz
 tar xzf mpich.tgz
 #patch -p0 < mpistruct.patch
