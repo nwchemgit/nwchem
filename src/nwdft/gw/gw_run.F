@@ -122,7 +122,11 @@ c
 c
       if (pars%evgw.and.main) then
         write(luout,*)
-        write(luout,'("  *** G",I1,"W",I1)') eviter,eviter
+        if (eviter.lt.10) then
+          write(luout,'("  *** G",I1,"W",I1)') eviter,eviter
+        else
+          write(luout,'("  *** G",I2,"W",I2)') eviter,eviter
+        endif
         write(luout,*)
       endif
 c
@@ -153,7 +157,11 @@ c
 c      
       if (pars%evgw0.and.main) then
         write(luout,*)
-        write(luout,'("  *** G",I1,"W0")') eviter
+        if (eviter.lt.10) then
+          write(luout,'("  *** G",I1,"W0")') eviter
+        else
+          write(luout,'("  *** G",I2,"W0")') eviter
+        endif
         write(luout,*)
       endif
 c      
