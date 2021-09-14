@@ -2343,21 +2343,17 @@ endif
       ifeq ($(_FC),crayftn)
         # Jeff: Cray Fortran supports preprocessing as of version 8.2.2 (at least)
 #        EXPLICITF = FALSE
-	FOPTIONS += -hsystem_alloc
-        CPP = /usr/bin/cpp  -P -C -traditional
-        CPPFLAGS += -DCRAYFORTRAN -DUSE_POSIXF
-        FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
+	FOPTIONS += -hsystem_alloc -hoverindex
         # USE_POSIXF is required because getlog is provided (GNU extension)
+	DEFINES += -DCRAYFORTRAN -DUSE_POSIXF
         ifdef  USE_FPE
           FOPTIONS   +=  -Ktrap=fp
 	endif
         ifdef USE_OPENMP
           FOPTIONS   +=  -homp
 	endif
-        FDEBUG   =  -O scalar1,vector0,ipa1  -g
-        FOPTIMIZE = -O1 -g #-O scalar3,thread0,vector2,ipa2 #-rdm
-#        FOPTIMIZE = -O scalar1,thread0,vector0,ipa0
-        FOPTIMIZE = -O scalar3,vector1,ipa2
+        FDEBUG   =  -O scalar1,vector1,ipa1  -g
+        FOPTIMIZE = -O scalar3,vector2,ipa2
       endif
       ifeq ($(_FC),craycc)
         COPTIONS   =   -O

@@ -1002,15 +1002,15 @@ c     Determine which cells have descendents that have potentials
 c     by passing a boolean up the tree.
 c
       do level = depth,3,-1
-#ifdef __CRAYXC
+#ifdef CRAYFORTRAN
 !DIR$ NOVECTOR
 #endif
          do kz = 0, 2**level-1
-#ifdef __CRAYXC
+#ifdef CRAYFORTRAN
 !DIR$ NOVECTOR
 #endif
             do ky = 0, 2**level-1
-#ifdef __CRAYXC
+#ifdef CRAYFORTRAN
 !DIR$ NOVECTOR
 #endif
                do kx = 0, 2**level-1
