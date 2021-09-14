@@ -1727,7 +1727,9 @@ endif
         endif
         ifeq ($(PE_ENV),CRAY)
           _FC=crayftn
-          _CC=craycc
+#          _CC=craycc
+# as of 2021 cray cc is derived from clang
+          _CC=clang
         endif
         ifeq ($(PE_ENV),AMD)
           _FC=gfortran
@@ -2340,14 +2342,22 @@ endif
       endif
       ifeq ($(_FC),crayftn)
         # Jeff: Cray Fortran supports preprocessing as of version 8.2.2 (at least)
-        EXPLICITF = FALSE
+#        EXPLICITF = FALSE
+	FOPTIONS += -hsystem_alloc
         CPP = /usr/bin/cpp  -P -C -traditional
         CPPFLAGS += -DCRAYFORTRAN -DUSE_POSIXF
         FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
         # USE_POSIXF is required because getlog is provided (GNU extension)
-        FOPTIONS   +=  -Ktrap=fp# -DCRAYFORTRAN -DUSE_POSIXF
-        FDEBUG   =    -g
-        FOPTIMIZE = -O2 -O scalar3,thread0,vector2,ipa2 #-rdm
+        ifdef  USE_FPE
+          FOPTIONS   +=  -Ktrap=fp
+	endif
+        ifdef USE_OPENMP
+          FOPTIONS   +=  -homp
+	endif
+        FDEBUG   =  -O scalar1,vector0,ipa1  -g
+        FOPTIMIZE = -O1 -g #-O scalar3,thread0,vector2,ipa2 #-rdm
+#        FOPTIMIZE = -O scalar1,thread0,vector0,ipa0
+        FOPTIMIZE = -O scalar3,vector1,ipa2
       endif
       ifeq ($(_FC),craycc)
         COPTIONS   =   -O

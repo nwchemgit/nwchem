@@ -566,6 +566,11 @@ ifeq ($(GOTCLANG),1)
     CFLAGS_FORGA +=-DMPICH_NO_ATTR_TYPE_TAGS
   endif
 endif
+ifeq ($(PE_ENV),CRAY)
+   CFLAGS_FORGA +=-O0 -g -L/opt/cray/pe/mpt/default/gni/mpich-cray/90/lib
+   FFLAGS_FORGA +=-O0 -g
+endif
+
 ifeq ($(GOTFREEBSD),1)
     UNSETFLAGS_FORGA = LDFLAGS=" " CPPFLAGS=" " LIBS=" "
 endif
