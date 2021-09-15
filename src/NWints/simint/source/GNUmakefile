@@ -30,7 +30,11 @@ endif
 
 include ../../../config/makelib.h
 ifdef USE_SIMINT
+ifeq ($(PE_ENV),CRAY)
+$(LIBRARY_PATH)(nwcsim_hf2.o):	../module/NWCSIM_SHELL.mod
+else
 $(LIBRARY_PATH)(nwcsim_hf2.o):	../module/nwcsim_shell.mod
+endif
 endif
 
 #  ifeq ($(FC),efc)
