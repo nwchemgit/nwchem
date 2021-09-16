@@ -2344,6 +2344,8 @@ endif
         # Jeff: Cray Fortran supports preprocessing as of version 8.2.2 (at least)
 #        EXPLICITF = FALSE
 	FOPTIONS += -hsystem_alloc -hoverindex
+# workaround for vectorization failures with cce 11
+        FOPTIONS += -hfp1
         # USE_POSIXF is required because getlog is provided (GNU extension)
 	DEFINES += -DCRAYFORTRAN -DUSE_POSIXF
         ifdef  USE_FPE
