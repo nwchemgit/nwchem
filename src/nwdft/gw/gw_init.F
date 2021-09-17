@@ -63,6 +63,7 @@ c
       pars%timer%in    = 0d0
       pars%timer%iw    = 0d0
       pars%timer%vmo   = 0d0
+      pars%eviter      = 0
 
       pars%ecrpa = 0d0
       pars%ecgm  = 0d0

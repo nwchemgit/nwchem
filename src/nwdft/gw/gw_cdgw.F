@@ -120,12 +120,14 @@ c
      $  call errquit(pname//'failed to allocate old evals',0,MA_ERR)
       call dfill(lSize,0d0,dbl_mb(kEnew),1)
 
-      lSize = lSize*max(pars%eviter,1)
-      if (.not.ma_push_get(mt_dbl,lSize,'values',lValues,kValues))
-     $  call errquit(pname//'failed to allocate values',0,MA_ERR)
-      lSize = lSize*max(pars%eviter,1)
-      if (.not.ma_push_get(mt_dbl,lSize,'errors',lErrors,kErrors))
-     $  call errquit(pname//'failed to allocate errors',0,MA_ERR)
+      if (pars%evgw .or. pars%evgw0) then
+        lSize = lSize*max(pars%eviter,1)
+        if (.not.ma_push_get(mt_dbl,lSize,'values',lValues,kValues))
+     $    call errquit(pname//'failed to allocate values',0,MA_ERR)
+        lSize = lSize*max(pars%eviter,1)
+        if (.not.ma_push_get(mt_dbl,lSize,'errors',lErrors,kErrors))
+     $    call errquit(pname//'failed to allocate errors',0,MA_ERR)
+      endif
 
       lSize = ipol*maxpoles
       if (.not.ma_push_get(mt_dbl,lSize,'eval_ia',lEia,kEia))
