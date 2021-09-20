@@ -159,6 +159,7 @@ c
 #include "stdio.fh"
 #include "cosmoP.fh"
 #include "mafdecls.fh"
+#include "util_params.fh"
       integer rtdb, nat
       integer mxatm
       integer mxfac
@@ -179,8 +180,6 @@ c
       double precision   apex(3,mxapx)
       double precision  xyzff(  mxfac,mxatm)
 c
-      double precision bohr
-      parameter (bohr=0.529177249d+00)
       logical    some
       logical    out
       logical    more
@@ -245,9 +244,9 @@ c
             ratm(iat)=0.0d0
          else
             if (do_cosmo_model.eq.DO_COSMO_KS) then
-              ratm(iat)=(radius(iat)+rsolv)/bohr
+              ratm(iat)=(radius(iat)+rsolv)/cau2ang
             else
-              ratm(iat)=radius(iat)/bohr
+              ratm(iat)=radius(iat)/cau2ang
             endif
          endif
       enddo
@@ -363,6 +362,7 @@ C>
 #include "prop.fh"
 cnew
 #include "cosmoP.fh"
+#include "util_params.fh"
 c
       integer rtdb    !< [Input] The RTDB handle
       integer nat     !< [Input] The actual number of atoms
@@ -371,8 +371,6 @@ c
       integer nseg    !< [Input] The actual number of segments
       integer nfac    !< [Input] The actual number of faces
 c
-      double precision bohr
-      parameter  (bohr=0.529177249d+00)
       logical     dbug
       double precision xyzatm(3,mxatom) !< [Input] The atom positions
       double precision   ratm(  mxatom) !< [Input] The atom radii
@@ -436,11 +434,11 @@ c
           if (do_cosmo_model.eq.DO_COSMO_KS) then
             write(luout,9997) iat,xyzatm(1,iat),xyzatm(2,iat),
      1                                       xyzatm(3,iat),
-     2                    (ratm(iat)*bohr-rsolv)
+     2                    (ratm(iat)*cau2ang-rsolv)
           else if (do_cosmo_model.eq.DO_COSMO_YK) then
             write(luout,9997) iat,xyzatm(1,iat),xyzatm(2,iat),
      1                                       xyzatm(3,iat),
-     2                    (ratm(iat)*bohr)
+     2                    (ratm(iat)*cau2ang)
           endif
         enddo
       endif
@@ -633,7 +631,7 @@ c
          if(ratm(iat).ne.0d0) then
             ratm_real=-1d99
             if (do_cosmo_model.eq.DO_COSMO_KS) then
-              ratm_real=ratm(iat)-rsolv/bohr
+              ratm_real=ratm(iat)-rsolv/cau2ang
             else if (do_cosmo_model.eq.DO_COSMO_YK) then
               ratm_real=ratm(iat)
             endif 
@@ -667,8 +665,8 @@ c
             enddo
          endif
       enddo
-      srfmol=srfmol*(bohr**2)
-      volmol=volmol*(bohr**3)
+      srfmol=srfmol*(cau2ang**2)
+      volmol=volmol*(cau2ang**3)
 c
       if(ga_nodeid().eq.0) then
          write(luout,9990) nefc
@@ -2026,6 +2024,7 @@ C>
 #include "inp.fh"
 #include "cosmo_params.fh"
 #include "cosmoP.fh"
+#include "util_params.fh"
 c
       integer ndens         !< [Input] the number of density matrices
       integer g_dens(ndens) !< [Input] the handle for the density
@@ -2121,8 +2120,6 @@ c
       data one    /1.0d+00/
       data two    /2.0d+00/
       double precision zetai, zetaj, zetaij
-      double precision bohr
-      parameter (bohr=0.529177249d0)
       logical stat
       logical oprint_energies
 c
@@ -2762,9 +2759,9 @@ c
         do ief=1,nefc
            write(fn,*) 
      +      "Bq",
-     +      efcc(1,ief)*bohr,
-     +      efcc(2,ief)*bohr,
-     +      efcc(3,ief)*bohr,
+     +      efcc(1,ief)*cau2ang,
+     +      efcc(2,ief)*cau2ang,
+     +      efcc(3,ief)*cau2ang,
      +     -efcz(  ief)
         end do
         close(fn)

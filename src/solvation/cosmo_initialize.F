@@ -77,13 +77,12 @@ c
       logical util_io_unit
       external util_io_unit
 c
-      double precision zero, one, pt5, radtol, def, bohr
+      double precision zero, one, pt5, radtol, def
       integer          mxpass
       data zero   /0.0d+00/
       data one    /1.0d+00/
       data pt5    /0.5d+00/
       data radtol /0.1d+00/
-      data bohr   /0.529177249d+00/
       data mxpass /6/
 c
       me=ga_nodeid()
