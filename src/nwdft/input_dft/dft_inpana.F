@@ -21,9 +21,8 @@ c
 #include "bas.fh"
 #include "cdft.fh"
 #include "util.fh"
+#include "util_params.fh"
 c
-      double precision AUTOANG, ANGTOAU
-      Parameter (AUTOANG = 0.529177249d0, ANGTOAU = 1.d0/AUTOANG)
       logical even, cksetd, no_prune
       Integer rtdb              !  runtime database handle
       integer me,ichg,nel
@@ -795,8 +794,8 @@ c
                   endif
                enddo
    40          continue
-               bsr = bsrad_atom_type(n)*AUTOANG
-               radang = dble(nint(autoang*dble(rad_cutoff(1,n))))
+               bsr = bsrad_atom_type(n)*CAU2ANG
+               radang = dble(nint(cau2ang*dble(rad_cutoff(1,n))))
                if (leb)then
                   write(LuOut,9138)tag,bsr,nrad(n),radang,
      &                nang(n)

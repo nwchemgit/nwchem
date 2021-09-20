@@ -276,6 +276,7 @@ c
 #include "global.fh"
 #include "bas.fh"
 #include "geom.fh"
+#include "util_params.fh"
 c     
       integer basis             ! [input] basis 
       double precision center(3) ! [input] the expansion center
@@ -283,9 +284,8 @@ c
 c
       double precision one, two
       parameter (one=1.d0, two=2.d0)
-      double precision autoang, autoang2
-      parameter (autoang = 0.529177249)
-      parameter (autoang2 = autoang*autoang)
+      double precision autoang2
+      parameter (autoang2 = cau2ang*cau2ang)
 c
       integer mcart, l_xlm, k_xlm
       integer geom
@@ -364,17 +364,17 @@ c               write(6,*)' ishell, jshell = ', ishell, jshell
 c       write(6,*)' l, i, mcart, j, ind-k_mp, dbl_mb(ind) ',
 c     &             l, i, mcart, j, ind-k_mp, dbl_mb(ind)
                            if (l.eq.1.and.mcart.eq.1)then
-                              dbl_mb(ioff) = dbl_mb(ind)*autoang
+                              dbl_mb(ioff) = dbl_mb(ind)*cau2ang
 c                              write(6,*)' ioff-k_xlm ', ioff-k_xlm
                            endif
                            if (l.eq.1.and.mcart.eq.2)then
                               ioff = ioff + 1
-                              dbl_mb(ioff) = dbl_mb(ind)*autoang
+                              dbl_mb(ioff) = dbl_mb(ind)*cau2ang
 c                              write(6,*)' ioff-k_xlm ', ioff-k_xlm
                            endif
                            if (l.eq.1.and.mcart.eq.3)then
                               ioff = ioff + 2
-                              dbl_mb(ioff) = dbl_mb(ind)*autoang
+                              dbl_mb(ioff) = dbl_mb(ind)*cau2ang
 c                              write(6,*)' ioff-k_xlm ', ioff-k_xlm
                            endif
                            if (l.eq.2.and.mcart.eq.1)then
