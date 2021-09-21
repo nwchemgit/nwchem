@@ -22,6 +22,7 @@ c
 #include "stdio.fh"
 #include "prop.fh"
 #include "cosmo_params.fh"
+#include "util_params.fh"
 c
       integer rtdb          !< [Input] The RTDB handle
       integer basis         !< [Input] The basis set handle
@@ -54,8 +55,6 @@ c
       integer ndens,nvirt(2)
       logical stat
 c
-      double precision bohr
-      parameter (bohr=0.529177249d+00)
 c
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -113,7 +112,7 @@ c
       call cosmo_def_radii(rtdb,geom,nat,dbl_mb(k_rad))
       status = rtdb_get(rtdb,'cosmo:radius',mt_dbl, nat,dbl_mb(k_rad))
       do i = 0, nat-1
-        dbl_mb(k_rad+i) = dbl_mb(k_rad+i)/bohr
+        dbl_mb(k_rad+i) = dbl_mb(k_rad+i)/cau2ang
       enddo
 c
       if(out) then
@@ -246,6 +245,7 @@ c
 !     &                  cosmo_sccor
 !      common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol,ptspatm
 #include "cosmo_params.fh"
+#include "util_params.fh"
 c
       integer l_efcc, k_efcc, l_efcs, k_efcs, l_efcz, k_efcz
       integer l_efciat, k_efciat
@@ -258,8 +258,6 @@ c
 c
       character*255 cosmo_file
 c
-      double precision bohr
-      parameter (bohr=0.529177249d+00)
 c
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -317,7 +315,7 @@ c
       call cosmo_def_radii(rtdb,geom,nat,dbl_mb(k_rad))
       status = rtdb_get(rtdb,'cosmo:radius',mt_dbl, nat,dbl_mb(k_rad))
       do i = 0, nat-1
-        dbl_mb(k_rad+i) = dbl_mb(k_rad+i)/bohr
+        dbl_mb(k_rad+i) = dbl_mb(k_rad+i)/cau2ang
       enddo
 c
       if(out) then

@@ -4,6 +4,7 @@ c
       logical function xc_vdw_init(angs2au)
       implicit none
 #include "xc_vdw.fh"
+#include "util_params.fh"
       integer ii
       double precision angs2au
       double precision scalerad
@@ -187,7 +188,7 @@ c true ivdw eq 1
       end if
 c
 c use  units change j nm6/mol to au
-      jnm6mol2au=(((10*angs2au)**6)/4186)/627.51
+      jnm6mol2au=(((10*angs2au)**6)/4186)/cau2kcal
 c
 c use scaled radii and units change
       do i=1,128

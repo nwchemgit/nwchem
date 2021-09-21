@@ -11,6 +11,7 @@ C$Id$
 #include "geom.fh"
 #include "stdio.fh"
 #include "errquit.fh"
+#include "util_params.fh"
 c
 c     Read the MO's calculated at an old geometry and rotate them 
 c     to the active geometry.
@@ -260,9 +261,9 @@ c
          x2 = xrott + xmid
          y2 = yrott + ymid
          z2 = zrott + zmid
-         x2 = x2 / 1.889725989d0
-         y2 = y2 / 1.889725989d0
-         z2 = z2 / 1.889725989d0
+         x2 = x2 * cau2ang
+         y2 = y2 * cau2ang
+         z2 = z2 * cau2ang
          if (ga_nodeid().eq.0) then
          write(6,4) x2,y2,z2
          endif
