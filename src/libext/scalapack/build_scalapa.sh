@@ -19,6 +19,7 @@ get_cmake38(){
 }
 if [[ "$FC" = "ftn"  ]] ; then
     MPIF90="ftn"
+    MPICC="cc"
     # ugly hack to get mpicc on cray
 #    if [[  -z "${INTEL_PATH}" ]]; then
 #	echo
@@ -156,12 +157,40 @@ if [[ ${GOTCLANG} == "1" ]] ; then
     C_FLAGS=" -Wno-error=implicit-function-declaration "
 fi
 echo "SCALAPACK_SIZE" is $SCALAPACK_SIZE
+if [[ ${FC} == ftn ]]; then
+    if [[ ${PE_ENV} == PGI ]]; then
+          FC=pgf90
+    fi
+    if [[ ${PE_ENV} == INTEL ]]; then
+	FC=ifort
+    fi
+    if [[ ${PE_ENV} == GNU ]]; then
+	FC=gfortran
+    fi
+    if [[ ${PE_ENV} == AMD ]]; then
+	FC=flang
+    fi
+    if [[ ${PE_ENV} == NVIDIA ]]; then
+	FC=nvfortran
+    fi
+    if [[ ${PE_ENV} == CRAY ]]; then
+#	echo ' '
+#	echo 'scalapack installation not ready for crayftn '
+#	echo ' '
+	FC=crayftn
+	MPICC=cc
+	CC=clang
+	C_FLAGS+=" -L/opt/cray/pe/cce/$CRAY_FTN_VERSION/cce-clang/x86_64/lib "
+    fi
+fi
 if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
     GFORTRAN_EXTRA=$(echo $FC | cut -c 1-8)
     if  [[ ${FC} == gfortran ]] || [[ ${FC} == f95 ]] || [[ ${GFORTRAN_EXTRA} == gfortran ]] ; then
     Fortran_FLAGS+=" -fdefault-integer-8 "
     elif  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
     Fortran_FLAGS=" -qintsize=8 -qextname "
+    elif  [[ ${FC} == crayftn ]]; then
+    Fortran_FLAGS=" -s integer64 -h nopattern"
     else
     Fortran_FLAGS+=" -i8 "
     fi
