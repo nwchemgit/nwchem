@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -v
+#set -v
 arch=`uname -m`
 VERSION=0.3.17
 #COMMIT=974acb39ff86121a5a94be4853f58bd728b56b81
@@ -82,11 +82,22 @@ if [[ ${FC} == ftn ]]; then
 	FC=nvfortran
     fi
     if [[ ${PE_ENV} == CRAY ]]; then
-	echo ' '
-	echo 'openblas installation not ready for crayftn '
-	echo ' '
-	exit 1
-        exit 1
+#	echo ' '
+#	echo 'openblas installation not ready for crayftn '
+#	echo ' '
+	if ! [ -x "$(command -v gfortran)" ]; then
+	    echo " please load the gcc module (not prgenv)"
+	    echo " by executing"
+	    echo "     module load gcc "
+	    echo " "
+	    exit 1
+	fi
+	FC=gfortran
+	CCORG=${CC}
+	CC=clang
+        FORCETARGET+=' FC=gfortran CC=clang '
+#	exit 1
+#        exit 1
     fi
 fi
 if [[ -n ${FC} ]] &&  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
@@ -153,7 +164,7 @@ echo make $FORCETARGET  LAPACK_FPFLAGS=$LAPACK_FPFLAGS_VAL  INTERFACE64=$sixty4_
 if [[ ${_FC} == xlf ]]; then
  make FC="xlf -qextname" $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4
 else
- make $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4
+ make $FORCETARGET  OPENBLAS_VERBOSE=2 LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4
 fi
 
 mkdir -p ../../lib
@@ -164,4 +175,7 @@ if [[  ! -z "${NWCHEM_USE_OPENMP}" ]]; then
 fi
 if [[ -n ${FCORG} ]]; then
     FC=${FCORG}
+fi
+if [[ -n ${CCORG} ]]; then
+    CC=${CCORG}
 fi

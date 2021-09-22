@@ -2346,6 +2346,10 @@ endif
 	FOPTIONS += -hsystem_alloc -hoverindex
 # workaround for vectorization failures with cce 11
         FOPTIONS += -hfp1
+	ifdef BUILD_OPENBLAS
+# avoid replacing code with library calls (eg _dgemm_) to avoid clash with openblas symbols
+	  FOPTIONS += -hnopattern
+	endif
         # USE_POSIXF is required because getlog is provided (GNU extension)
 	DEFINES += -DCRAYFORTRAN -DUSE_POSIXF
         ifdef  USE_FPE
