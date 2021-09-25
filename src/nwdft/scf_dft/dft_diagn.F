@@ -437,3 +437,15 @@ c     pop memory
 c     
       return
       end
+
+      subroutine dft_utilscal(rtdb)
+      integer rtdb
+#include "rtdb.fh"
+#include "dft_scaleig.fh"
+#include "mafdecls.fh"
+      if (.not. rtdb_cget(rtdb, 'dft:scaladiag',1,yev))
+     &     yev='d'
+      if (.not. rtdb_get(rtdb, 'dft:scalanb',mt_int,1,nb))
+     &     nb=0
+
+      end subroutine

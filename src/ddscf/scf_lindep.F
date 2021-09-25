@@ -52,6 +52,9 @@ c
 #ifdef PARALLEL_DIAG
 #ifdef SCALAPACK
 c       call ga_pdsyevd(g_over, g_u, dbl_mb(k_ev), 0)
+       call slexit
+       call slexit2
+       call dft_utilscal(rtdb)
        call dft_scaleig(g_over, g_u, dbl_mb(k_ev), 0)
 #else
        call ga_diag_std(g_over, g_u, dbl_mb(k_ev))
