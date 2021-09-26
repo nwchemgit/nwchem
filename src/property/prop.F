@@ -46,7 +46,7 @@ c
 c
       call solver_setup(rtdb,restr)  ! restart parameters for solver (ga_lkain())
       if (.not.rtdb_get(rtdb,'prop:do_fockbuild',MT_LOG,1,do_fockbuild))
-     D     do_fockbuild=.false.
+     D     do_fockbuild=.true.
 c
 c     hondo property calculation routines 
 c
