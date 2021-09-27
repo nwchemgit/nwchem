@@ -1,9 +1,12 @@
       subroutine gw_buildiw_minres(pars,eia,x,iw,iwidx,nmo,nri,ngl,
      $                      mynmo,maxpoles,maxqp,ipol)
+      use iso_c_binding
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "tcgmsg.fh"      
+#include "util.fh"
+#include "stdio.fh"
 #include "gw.fh"
       type(gw_params_t) :: pars
       integer,intent(in) :: nmo,nri,ngl,mynmo,maxpoles,maxqp,ipol
@@ -20,10 +23,11 @@
       integer ilo,ihi,me,ld,mynpoles,igl,ipole,info,k_ipiv,l_ipiv
       integer pilo,pihi,k_pi,l_pi,idx,idy,l_tmp,tmp
       integer imo,jmo,kmo,lmo,nprocs,kOV1,kOV2,isp,addr,idz,kOO(2)
-      integer kVV(2),kOV(2),ga,root
-      double precision w2
-      double precision factor(maxpoles,ngl,ipol)
-      double precision xvec(nri),bvec(nri)
+      integer kVV(2),kOV(2),ga,root,stat_alloc
+      double precision w2,timer
+      real(kind=c_double) xvec(nri),bvec(nri)
+
+      real(kind=c_double), allocatable, dimension(:,:,:) :: factor
 
       logical cholesky
       double precision,external :: ddot
@@ -38,6 +42,11 @@
 #endif
 
       call ga_sync()
+
+      allocate(factor(maxpoles,ipol,ngl),stat=stat_alloc)
+      if (stat_alloc.ne.0) then
+        call errquit('gw_buildiw_minres: allocation failed',0,0)
+      endif
 
       me = ga_nodeid()
       nprocs = ga_nnodes()
@@ -62,19 +71,18 @@
      $                   pars%vvhi(2),kVV(2),ld) 
         endif
       else
-        kOV(2) = 1
+        kOV(2) = kOV(1)
+        kOO(2) = kOO(1)
       endif
 
-!$omp parallel do collapse(3)
-      do isp=1,ipol
-        do igl=1,ngl
+      do igl=1,ngl
+        do isp=1,ipol
           do ipole=1,pars%mynpoles(isp)
-            factor(ipole,igl,isp) = 
+            factor(ipole,isp,igl) = 
      $        eia(ipole,isp)/(eia(ipole,isp)**2 + x(igl))
           enddo
         enddo
       enddo
-!$omp end parallel do
 
       do isp=1,ipol
         do imo=pars%llmo(isp),pars%llmo(isp)+pars%nqp(isp)-1
@@ -113,15 +121,20 @@
             endif
 
 
-            call ga_brdcst(mt_int,idx,mitob(1),root)
-            call ga_get(ga,1,nri,idx,idx,bvec,nri)
+            if (me.eq.root) call ga_get(ga,1,nri,idx,idx,bvec,nri)
             call ga_sync()
+            call ga_brdcst(mt_dbl,bvec,ma_sizeof(mt_dbl,nri,mt_byte),
+     $                     root)
 
             xvec(:) = bvec(:)
+            timer = util_wallsec()
             call gw_minres(dbl_mb(kOV(1)),dbl_mb(kOV(2)),
-     $                     factor(1,ngl,isp),xvec,bvec,pars%mynpoles,
+     $                     factor(1,1,ngl),xvec,bvec,pars%mynpoles,
      $                     maxpoles,nri,ipol)
 
+#ifdef GWDEBUG
+            if (main) write(luout,9000) 200,jmo,kmo,util_wallsec()-timer
+#endif
             if (root.eq.me) then
               lmo = lmo + 1
               iw(lmo,ngl,jmo,isp) = 
@@ -130,10 +143,15 @@
             
 
             do igl=ngl-1,1,-1
+              timer = util_wallsec()
               call gw_minres(dbl_mb(kOV(1)),dbl_mb(kOV(2)),
-     $                       factor(1,igl,isp),xvec,bvec,pars%mynpoles,
+     $                       factor(1,1,igl),xvec,bvec,pars%mynpoles,
      $                       maxpoles,nri,ipol)
 
+#ifdef GWDEBUG
+              if (main) write(luout,9000) igl,jmo,kmo,
+     $                                    util_wallsec()-timer
+#endif
               if (root.eq.me) then
                 iw(lmo,igl,jmo,isp) = 
      $                 dot_product(xvec,bvec) - dot_product(bvec,bvec)
@@ -144,10 +162,14 @@
         enddo
       enddo
 
+ 9000 format(' ## igl ',I3,' nqp ',I4,' imo ',I4,' time ',F8.3)
+
 
 #ifdef USE_OPENMP
       call util_blas_set_num_threads(1)
 #endif      
 c
+      deallocate(factor)
+
       end subroutine
 

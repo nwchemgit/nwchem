@@ -61,11 +61,17 @@ c
      $                            pars%nocc(isp)*pars%nvir(isp) +
      $                            pars%nvir(isp)*pars%nvqp(isp) 
       enddo
-      ga_mem = nbf_cd**2 + pars%ipol*nbf_ao**2
-      ma_mem = nbf_ao*pars%nmo + totmopairs*nbf_cd/pars%nprocs +
-     $         2*pars%nmo*nbf_cd*nbf_ao_mxnbf_cn/pars%nprocs      
-      ga_mem = max(ga_mem,totmopairs*nbf_cd)
-      ga_mem = max(ga_mem,2*nbf_cd**2)
+
+      ga_mem = nbf_cd**2 +           ! 2c-eri
+     $         pars%ipol*nbf_ao**2 + ! movecs
+     $         totmopairs*nbf_cd     ! 3c-eri
+      ma_mem = totmopairs*nbf_cd/pars%nprocs + ! 3c-eri
+     $         pars%nstates(1)*nbf_cd*nbf_ao_mxnbf_cn/pars%nprocs + ! MObuf
+     $         nbf_ao*nbf_ao_mxnbf_cn*nbf_cd/pars%nprocs +       ! Buf
+     $         nbf_ao*pars%nmo + ! movecs
+     $         nbf_cd**2         ! 2c-eri
+      
+
       if (pars%me.eq.0) write(luout,9030) ga_mem*dbl2mb,ma_mem*dbl2mb
 c
       mynpoles = maxval(pars%npoles(1:pars%ipol))/pars%nprocs + 1

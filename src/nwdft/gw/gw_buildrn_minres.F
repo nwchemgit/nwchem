@@ -181,6 +181,7 @@
 
         if (me.eq.owner) call ga_get(gb,1,nri,jmo,jmo,xvec,nri)
         if (me.eq.root) call ga_get(ga,1,nri,idx,idx,vector,nri)
+        call ga_sync()
         call ga_brdcst(mt_dbl,vector,ma_sizeof(mt_dbl,nri,mt_byte),root)
         call ga_brdcst(mt_dbl,xvec,ma_sizeof(mt_dbl,nri,mt_byte),owner)
 

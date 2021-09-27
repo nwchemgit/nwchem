@@ -135,11 +135,12 @@ c      call dfill(aopairs*nri_me,0d0,dbl_mb(k_eri),1)
       if (.not.ma_alloc_get(mt_int,lscr/nri,'Index',l_idx,k_idx))
      $  call errquit(pname//'can''t allocate index space',0,MA_ERR)
 
-      if (.not.ma_alloc_get(mt_dbl,nri_me*nbf_ao_mxnbf_cn*nbf_ao,
+      if (.not.ma_alloc_get(mt_dbl,nri_me*nbf_ao_mxnbf_cn**2,
      $                      'Shell buffer',l_shlbuf, k_shlbuf))
      $  call errquit(pname//'can''t allocate shell buffer',0,MA_ERR)
-      if (.not.ma_alloc_get(mt_dbl,nri_me*nbf_ao_mxnbf_cn*nmo,
-     $                      'MO buffer',l_mobuf, k_mobuf))
+      if (.not.ma_alloc_get(mt_dbl,
+     $          nri_me*nbf_ao_mxnbf_cn*sum(pars%nstates(1:pars%ipol)),
+     $         'MO buffer',l_mobuf, k_mobuf))
      $  call errquit(pname//'can''t allocate shell buffer',0,MA_ERR)
 c
 c     Compute three-center ERIs in MO representation
@@ -165,7 +166,8 @@ c
       do ish=1,nshells_ao
         ok = bas_cn2bfr(ao_bas_han,ish,ifirst,ilast)
         ni = ilast - ifirst + 1
-        call dfill(ni*nbf_ao*nri_me,0d0,dbl_mb(k_shlbuf),1)
+        call dfill(ni*sum(pars%nstates(1:pars%ipol))*nri_me,
+     $             0d0,dbl_mb(k_mobuf),1)
         do jsh=1,nshells_ao
           eri_est = schwarz_shell(ish,jsh)
           if (eri_est.lt.pars%tol2e) cycle
@@ -196,13 +198,24 @@ c     $                     nk,ni,nj,nij,aopairs,nri_me,kfirst,IeqJ)
            call gw_put_int2(dbl_mb(offk),dbl_mb(k_shlbuf),nk,ni,nj,
      $                      nri_me,nbf_ao,kfirst,jfirst,jlast)
           enddo
+
+          do isp=1,pars%ipol
+            call gw_mo3(dbl_mb(k_shlbuf),
+     $               dbl_mb(k_mobuf+(isp-1)*pars%nstates(1)*ni*nri_me),
+     $               dbl_mb(k_vecs+(isp-1)*nbf_ao*nmo),nri_me,
+     $               nbf_ao,ni,nj,nmo,pars%nstates(isp),ifirst,
+     $               jfirst,ieqj)
+          enddo
+
         enddo
+
         do isp=1,pars%ipol
-          call gw_mo2(dbl_mb(k_shlbuf),dbl_mb(k_mobuf),
+          call gw_mo4(dbl_mb(k_mobuf+(isp-1)*pars%nstates(1)*ni*nri_me),
      $                dbl_mb(k_mo+(isp-1)*mopairs(1)*nri_me),
      $                dbl_mb(k_vecs+(isp-1)*nbf_ao*nmo),nri_me,
      $                nbf_ao,ni,nmo,pars%nstates(isp),ifirst)
         enddo
+
       enddo
 c
       ok = ma_free_heap(l_buf) .and. ma_free_heap(l_scr) .and.
@@ -396,14 +409,14 @@ c
       integer,intent(in) :: nk, ni, nj, nbf, nri, kfirst, jfirst
       integer,intent(in) :: jlast
       double precision,intent(in),dimension(nj,ni,nk) :: buf
-      double precision,intent(out),dimension(nbf,ni,nri) :: tmp
+      double precision,intent(out),dimension(nj,ni,nri) :: tmp
 c
       integer i, j, k, kri, ij
 
       do k=1,nk
         kri = k + kfirst - 1
         do i=1,ni
-          tmp(jfirst:jlast,i,kri) = buf(1:nj,i,k)
+          tmp(1:nj,i,kri) = buf(1:nj,i,k)
         enddo
       enddo
 c
@@ -462,6 +475,29 @@ c
 c
 c     *****************************************************************
 c
+      subroutine gw_mo3(shlao,shlmo,mos,nri,nbf,ni,nj,nmo,nstates,
+     $                  ifirst,jfirst,ieqj)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+      logical,intent(in) :: ieqj
+      integer,intent(in) :: ifirst, jfirst
+      integer,intent(in) :: nbf, nmo, nstates, ni, nj, nri
+      double precision,intent(in),dimension(nj,ni,nri) :: shlao
+      double precision,intent(in),dimension(nbf,nmo) :: mos
+      double precision,dimension(nstates,ni,nri) :: shlmo
+
+      integer istate, iri, ibf, istart, jstart, iMaxThreads
+
+      call dgemm('t','n',nstates,ni*nri,nj,1d0,mos(jfirst,1),nbf,
+     $            shlao,nj,1d0,shlmo,nstates)
+c
+      return
+      end subroutine
+c
+c
+c     *****************************************************************
+c
       subroutine gw_mo2(shlao,shlmo,erimo,mos,nri,nbf,ni,nmo,nstates,
      $                  ifirst)
       implicit none
@@ -483,6 +519,39 @@ c
 
       call dgemm('t','n',nstates,ni*nri,nbf,1d0,mos,nbf,shlao,nbf,0d0,
      $            shlmo,nstates)
+      do iri=1,nri
+          call dgemm('n','n',nstates,nmo,ni,1d0,shlmo(1,1,iri),nstates,
+     $                mos(ifirst,1),nbf,1d0,erimo(1,1,iri),nstates)
+      enddo
+c
+
+#ifdef USE_OPENMP
+      call util_blas_set_num_threads(1)
+#endif
+
+      return
+      end subroutine
+c
+c     *****************************************************************
+c
+      subroutine gw_mo4(shlmo,erimo,mos,nri,nbf,ni,nmo,nstates,
+     $                  ifirst)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+      integer,intent(in) :: ifirst
+      integer,intent(in) :: nbf, nmo, nstates, ni, nri
+      double precision,intent(in),dimension(nbf,nmo) :: mos
+      double precision,dimension(nstates,nmo,nri) :: erimo
+      double precision,dimension(nstates,ni,nri) :: shlmo
+
+      integer istate, iri, ibf, istart, jstart, iMaxThreads
+#ifdef USE_OPENMP
+      integer,external :: omp_get_max_threads
+      iMaxThreads = omp_get_max_threads()
+      call util_blas_set_num_threads(iMaxThreads)
+#endif
+
       do iri=1,nri
           call dgemm('n','n',nstates,nmo,ni,1d0,shlmo(1,1,iri),nstates,
      $                mos(ifirst,1),nbf,1d0,erimo(1,1,iri),nstates)

@@ -223,6 +223,10 @@ c
      $          dbl_mb(pars%k_glw), GWMB(kiW), int_mb(kiWidx),
      $          pars%nmo,nri,pars%ngl,mynmo,maxpoles,maxqp,pars%ipol)
 
+c      call gw_buildiw_minres(pars,dbl_mb(kEia),dbl_mb(pars%k_glx),
+c     $          GWMB(kiW), int_mb(kiWidx),
+c     $          pars%nmo,nri,pars%ngl,mynmo,maxpoles,maxqp,pars%ipol)
+
       pars%timer%iw = pars%timer%iw + util_wallsec() - timer
 c
   200 continue ! evGW0

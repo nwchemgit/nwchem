@@ -22,7 +22,8 @@ OBJ_OPTIMIZE = gw_ri_init.o \
 	       gw_analytic_scalxpy.o gw_minres.o\
 	       cs_minres_qlp.o gw_en.o gw_buildrn_graph.o\
 	       gw_buildin_graph.o gw_analytic_sigmac_graph.o\
-	       gw_tools.o gw_buildpi.o gw_buildrn_minres.o
+	       gw_tools.o gw_buildpi.o gw_buildrn_minres.o\
+	       gw_buildiw_minres.o
 
 
 LIBRARY = libnwdft.a

@@ -45,13 +45,9 @@
       GWTYP :: factor(maxpoles,ipol)
 #endif
       double complex :: imw
-#ifdef GWCMPLX
-      double precision,parameter :: eta = 0.001d0
-#else
-      double precision,parameter :: eta = 0.000001d0
-#endif
-      double complex,parameter :: ieta = dcmplx(0d0,eta)
+      double complex :: ieta
       double precision t0, t1
+
 
 #ifdef USE_OPENMP
       integer iMaxThreads,ithread
@@ -67,6 +63,7 @@
 #endif
       call ga_sync()
 
+      ieta = dcmplx(0d0,pars%eta)
       
       me = ga_nodeid()
       nprocs = ga_nnodes()
