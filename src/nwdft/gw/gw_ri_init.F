@@ -132,8 +132,6 @@ c      call dfill(aopairs*nri_me,0d0,dbl_mb(k_eri),1)
       lscr = max(lscr,nbf_cd*nbf_ao_mxnbf_cn**2)
       if (.not.ma_alloc_get(mt_dbl,lscr, 'RI scratch', l_scr, k_scr))
      $  call errquit(pname//'can''t get scratch space',0,MA_ERR)
-      if (.not.ma_alloc_get(mt_int,lscr/nri,'Index',l_idx,k_idx))
-     $  call errquit(pname//'can''t allocate index space',0,MA_ERR)
 
       if (.not.ma_alloc_get(mt_dbl,nri_me*nbf_ao_mxnbf_cn**2,
      $                      'Shell buffer',l_shlbuf, k_shlbuf))
@@ -175,8 +173,6 @@ c
           ok = bas_cn2bfr(ao_bas_han,jsh,jfirst,jlast)
           nj = jlast - jfirst + 1
           nij = ni*nj
-c          call gw_ri_idx(int_mb(k_idx),ifirst,ilast,jfirst,jlast,
-c     $                   IeqJ)
           do ksh=shlo,shhi
             ok = bas_cn2bfr(cd_bas_han, ksh, kfirst, klast)
             call int_2e3c(cd_bas_han,ksh,ao_bas_han,ish,jsh,lscr,
@@ -193,33 +189,27 @@ c     $                   IeqJ)
 
             nk = klast - kfirst + 1
             kfirst = kfirst - rilo + 1
-c           call gw_put_int(dbl_mb(offk),dbl_mb(k_eri),int_mb(k_idx),
-c     $                     nk,ni,nj,nij,aopairs,nri_me,kfirst,IeqJ)
-           call gw_put_int2(dbl_mb(offk),dbl_mb(k_shlbuf),nk,ni,nj,
-     $                      nri_me,nbf_ao,kfirst,jfirst,jlast)
+            call dcopy(ni*nj*nk,dbl_mb(offk),1,
+     $                 dbl_mb(k_shlbuf+(kfirst-1)*ni*nj),1)
           enddo
-
           do isp=1,pars%ipol
-            call gw_mo3(dbl_mb(k_shlbuf),
+            call gw_mo2(dbl_mb(k_shlbuf),
      $               dbl_mb(k_mobuf+(isp-1)*pars%nstates(1)*ni*nri_me),
      $               dbl_mb(k_vecs+(isp-1)*nbf_ao*nmo),nri_me,
      $               nbf_ao,ni,nj,nmo,pars%nstates(isp),ifirst,
      $               jfirst,ieqj)
           enddo
-
         enddo
-
         do isp=1,pars%ipol
-          call gw_mo4(dbl_mb(k_mobuf+(isp-1)*pars%nstates(1)*ni*nri_me),
+          call gw_mo(dbl_mb(k_mobuf+(isp-1)*pars%nstates(1)*ni*nri_me),
      $                dbl_mb(k_mo+(isp-1)*mopairs(1)*nri_me),
      $                dbl_mb(k_vecs+(isp-1)*nbf_ao*nmo),nri_me,
      $                nbf_ao,ni,nmo,pars%nstates(isp),ifirst)
         enddo
-
       enddo
 c
       ok = ma_free_heap(l_buf) .and. ma_free_heap(l_scr) .and.
-     $     ma_free_heap(l_idx) .and. ma_free_heap(l_shlbuf) .and.
+     $     ma_free_heap(l_shlbuf) .and.
      $     ma_free_heap(l_mobuf)
       if (.not.ok) 
      $  call errquit(pname//'can''t free heap',165,MA_ERR)
@@ -229,19 +219,8 @@ c
       if (pars%me.eq.0) write(*,*) '  Transform ERIs'
 #endif
 
-c      addr = k_mo
-c      do isp=1,pars%ipol
-c        if (isp.eq.2) addr = k_mo + mopairs(1)*nri_me
-c        if (pars%nstates(isp).eq.0) cycle
-c        call ga_get(pars%g_movecs(isp),1,nbf_ao,1,nmo,
-c     $              dbl_mb(k_vecs),nbf_ao)
-c        call gw_mo(dbl_mb(k_eri),dbl_mb(k_vecs),dbl_mb(addr),nbf_ao,nmo,
-c     $             pars%nstates(isp),aopairs,nri_me)
-c      enddo
-
       call ga_sync()
 
-c     ok = ma_free_heap(l_vecs) .and. ga_destroy(g_3ceris)
       ok = ma_free_heap(l_vecs)
       if (.not.ok)
      $  call errquit(pname//'can''t free heap',176,MA_ERR)
@@ -345,137 +324,7 @@ c
 c
 c     *****************************************************************
 c
-      subroutine gw_ri_idx(idx,ifirst,ilast,jfirst,jlast,IeqJ)
-      implicit none
-      integer,intent(in) :: ifirst,jfirst,ilast,jlast
-      logical,intent(in) :: IeqJ
-      integer,intent(out),dimension(*) :: idx
-
-      integer :: i, j, ij, jupper, itmp
-
-      ij = 0
-      jupper = jlast
-      do i=ifirst,ilast
-        itmp = (i*(i-1))/2
-        if (IeqJ) jupper = i
-        do j=jfirst,jupper
-          ij = ij + 1
-          idx(ij) = itmp + j
-        enddo
-      enddo
-      return
-      end subroutine
-c
-c     *****************************************************************
-c
-      subroutine gw_put_int(buf,tmp,idx,nk,ni,nj,nij,aopairs,nri,kfirst,
-     $                      IeqJ)
-      implicit none
-      integer,intent(in) :: nk, ni, nj, nij, aopairs, nri, kfirst
-      integer,intent(in),dimension(nij) :: idx
-      logical,intent(in) :: ieqj
-      double precision,intent(in),dimension(nj,ni,nk) :: buf
-      double precision,intent(out),dimension(aopairs,nri) :: tmp
-c
-      integer i, j, k, kri, ij
-
-      if (IeqJ) then
-        do k=1,nk
-          kri = k + kfirst - 1
-          ij = 0
-          do i=1,ni
-            tmp(idx(ij+1:ij+i),kri) = buf(1:i,i,k)
-            ij = ij + i
-          enddo
-        enddo
-      else
-        do k=1,nk
-          kri = k + kfirst - 1
-          ij = 0
-          do i=1,ni
-            tmp(idx(ij+1:ij+nj),kri) = buf(1:nj,i,k)
-            ij = ij + nj
-          enddo
-        enddo
-      endif
-c
-      end subroutine
-c
-c     *****************************************************************
-c
-      subroutine gw_put_int2(buf,tmp,nk,ni,nj,nri,nbf,kfirst,
-     $                      jfirst,jlast)
-      implicit none
-      integer,intent(in) :: nk, ni, nj, nbf, nri, kfirst, jfirst
-      integer,intent(in) :: jlast
-      double precision,intent(in),dimension(nj,ni,nk) :: buf
-      double precision,intent(out),dimension(nj,ni,nri) :: tmp
-c
-      integer i, j, k, kri, ij
-
-      do k=1,nk
-        kri = k + kfirst - 1
-        do i=1,ni
-          tmp(1:nj,i,kri) = buf(1:nj,i,k)
-        enddo
-      enddo
-c
-      end subroutine
-c
-c     *****************************************************************
-c
-      subroutine gw_mo(eriao,mos,erimo,nbf,nmo,nstates,npairs,nri)
-      implicit none
-#include "mafdecls.fh"
-#include "errquit.fh"
-      integer,intent(in) :: nbf, nmo, nstates, npairs, nri
-      double precision,intent(in),dimension(npairs,nri) :: eriao
-      double precision,intent(in),dimension(nbf,nmo) :: mos
-      double precision,intent(in),dimension(nstates,nmo,nri) :: erimo
-
-      integer k_tmp, l_tmp, k_sym, l_sym
-      integer istate, iri, ibf, istart, jstart, iMaxThreads
-#ifdef USE_OPENMP
-      integer,external :: omp_get_max_threads
-      iMaxThreads = omp_get_max_threads()
-      call util_blas_set_num_threads(iMaxThreads)
-#endif
-
-
-      if (.not.ma_push_get(mt_dbl,nstates*nbf,'temp',l_tmp,k_tmp))
-     $  call errquit('gw_mo: cannot allocate temporart space',0,MA_ERR)
-      if (.not.ma_push_get(mt_dbl,nbf*nbf,'symm',l_sym,k_sym))
-     $  call errquit('gw_mo: cannot allocate space',0,MA_ERR)
-      call dfill(nmo*nmo,0.0d0,dbl_mb(k_sym),1)
-
-      do iri=1,nri
-c        
-        do ibf=1,nbf
-          istart = (ibf*(ibf-1))/2 + 1
-          jstart = k_sym + nbf*(ibf-1)
-          call dcopy(ibf,eriao(istart,iri),1,dbl_mb(jstart),1)
-        enddo
-c        
-        call dsymm('l','u',nbf,nstates,1d0,dbl_mb(k_sym),nbf,mos,nbf,
-     $              0d0,dbl_mb(k_tmp),nbf)
-        call dgemm('t','n',nstates,nmo,nbf,1d0,dbl_mb(k_tmp),nbf,mos,
-     $              nbf,0d0,erimo(1,1,iri),nstates)
-c
-      enddo
-c
-      if (.not.ma_chop_stack(l_tmp))
-     $  call errquit('gw_mo: cannot chop stack',0,MA_ERR)
-
-#ifdef USE_OPENMP
-      call util_blas_set_num_threads(1)
-#endif
-
-      return
-      end subroutine
-c
-c     *****************************************************************
-c
-      subroutine gw_mo3(shlao,shlmo,mos,nri,nbf,ni,nj,nmo,nstates,
+      subroutine gw_mo2(shlao,shlmo,mos,nri,nbf,ni,nj,nmo,nstates,
      $                  ifirst,jfirst,ieqj)
       implicit none
 #include "mafdecls.fh"
@@ -498,43 +347,7 @@ c
 c
 c     *****************************************************************
 c
-      subroutine gw_mo2(shlao,shlmo,erimo,mos,nri,nbf,ni,nmo,nstates,
-     $                  ifirst)
-      implicit none
-#include "mafdecls.fh"
-#include "errquit.fh"
-      integer,intent(in) :: ifirst
-      integer,intent(in) :: nbf, nmo, nstates, ni, nri
-      double precision,intent(in),dimension(nbf,ni,nri) :: shlao
-      double precision,intent(in),dimension(nbf,nmo) :: mos
-      double precision,dimension(nstates,nmo,nri) :: erimo
-      double precision,dimension(nstates,ni,nri) :: shlmo
-
-      integer istate, iri, ibf, istart, jstart, iMaxThreads
-#ifdef USE_OPENMP
-      integer,external :: omp_get_max_threads
-      iMaxThreads = omp_get_max_threads()
-      call util_blas_set_num_threads(iMaxThreads)
-#endif
-
-      call dgemm('t','n',nstates,ni*nri,nbf,1d0,mos,nbf,shlao,nbf,0d0,
-     $            shlmo,nstates)
-      do iri=1,nri
-          call dgemm('n','n',nstates,nmo,ni,1d0,shlmo(1,1,iri),nstates,
-     $                mos(ifirst,1),nbf,1d0,erimo(1,1,iri),nstates)
-      enddo
-c
-
-#ifdef USE_OPENMP
-      call util_blas_set_num_threads(1)
-#endif
-
-      return
-      end subroutine
-c
-c     *****************************************************************
-c
-      subroutine gw_mo4(shlmo,erimo,mos,nri,nbf,ni,nmo,nstates,
+      subroutine gw_mo(shlmo,erimo,mos,nri,nbf,ni,nmo,nstates,
      $                  ifirst)
       implicit none
 #include "mafdecls.fh"
@@ -553,8 +366,8 @@ c
 #endif
 
       do iri=1,nri
-          call dgemm('n','n',nstates,nmo,ni,1d0,shlmo(1,1,iri),nstates,
-     $                mos(ifirst,1),nbf,1d0,erimo(1,1,iri),nstates)
+        call dgemm('n','n',nstates,nmo,ni,1d0,shlmo(1,1,iri),nstates,
+     $              mos(ifirst,1),nbf,1d0,erimo(1,1,iri),nstates)
       enddo
 c
 
