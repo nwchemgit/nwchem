@@ -130,7 +130,7 @@
       do igl=ngl,1,-1
 c
 #ifdef GWDEBUG
-        if (main) write(luout,*) ' ## igl ',igl
+        if (main) write(luout,*) ' ## igl ',igl, ' diag ',diag
 #endif
 
         w2 = x(igl)
@@ -151,6 +151,7 @@ c
 !$omp     end parallel do simd
         enddo
 c
+
 #ifdef GWCMPLX
         call gw_buildpi_cmplx('w',dbl_mb(kOV(1)),dbl_mb(kOV(2)),
      $                         dcpl_mb(k_pi),factor,nri,nri,
@@ -160,12 +161,17 @@ c
      $              dcpl_mb(work),32*nri,info)
 #else
 c
+        t0 = util_wallsec()
         call gw_buildpi('w',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
      $                  factor,ldpi,nri,pars%mynpoles,main,ipol,
      $                  maxpoles) 
         call ga_dgop(mt_dbl,dbl_mb(k_pi),sizepi,'+')
         call dcopy(sizepi,dbl_mb(k_pi),1,dbl_mb(k_vx),1)
+#ifdef GWDEBUG
+        if (main) write(luout,*) '     ## buildpi ',util_wallsec()-t0
+#endif
 
+        t0 = util_wallsec()
         if (diag) then
           call gw_invdiag(dbl_mb(k_vx),ldpi,nri,ecrpa,.true.)
           if (me.eq.0) pars%ecrpa = pars%ecrpa + wgt(igl)*ecrpa
@@ -176,8 +182,12 @@ c
             pars%ecrpa = pars%ecrpa + wgt(igl)*ecrpa
           endif
         endif
+#ifdef GWDEBUG
+        if (main) write(luout,*) '     ## inverse ',util_wallsec()-t0
+#endif
 #endif
         !
+
         do isp=1,ipol
           if (pars%nstates(isp).eq.0) cycle
 

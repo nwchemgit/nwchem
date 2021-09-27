@@ -67,7 +67,7 @@ c
      $         totmopairs*nbf_cd     ! 3c-eri
       ma_mem = totmopairs*nbf_cd/pars%nprocs + ! 3c-eri
      $         pars%nstates(1)*nbf_cd*nbf_ao_mxnbf_cn/pars%nprocs + ! MObuf
-     $         nbf_ao*nbf_ao_mxnbf_cn*nbf_cd/pars%nprocs +       ! Buf
+     $         nbf_ao_mxnbf_cn**2*nbf_cd/pars%nprocs +              ! Buf
      $         nbf_ao*pars%nmo + ! movecs
      $         nbf_cd**2         ! 2c-eri
       
