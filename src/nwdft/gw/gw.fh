@@ -37,9 +37,10 @@ c
 	integer          :: g_erioo(2), g_eriov(2), g_erivv(2), g_erim(2)
         logical          :: noio
 c
-        integer          :: eviter, qpiter
+        integer          :: eviter, qpiter, first
         logical          :: evgw, evgw0, analyticw, cdgw, acgw, ncap
         logical          :: graph, newton, anaw, linear, diis, rpa, diag
+        logical          :: core
         double precision :: thresh, fdstep, vxddp(2), vxddm(2)
 
 	double precision :: ecrpa,ecgm,ex,exscf,ecscf,escf

@@ -127,6 +127,10 @@ c
      $  call errquit(pname//'failed to read rpa',0,RTDB_ERR)
       if (.not.rtdb_get(pars%rtdb,'gw:diag',mt_log,1,pars%diag))
      $  call errquit(pname//'failed to read diag',0,RTDB_ERR)
+      if (.not.rtdb_get(pars%rtdb,'gw:core',mt_log,1,pars%core))
+     $  call errquit(pname//'failed to read diag',0,RTDB_ERR)
+      if (.not.rtdb_get(pars%rtdb,'gw:first',mt_int,1,pars%first))
+     $  pars%first = 1
 c
       if (.not.rtdb_get(pars%rtdb,'gw:graph',mt_log,1,pars%graph))
      $  call errquit(pname//'failed to read graph',0,RTDB_ERR)
@@ -277,7 +281,11 @@ c
         if (pars%nvqp(i).lt.-1)
      $    call errquit(pname//'invalid number nvqp specified',0,0)
 
-        pars%llmo(i) = pars%nocc(i) - pars%noqp(i) + 1
+        if (pars%core) then
+          pars%llmo(i) = pars%first
+        else
+          pars%llmo(i) = pars%nocc(i) - pars%noqp(i) + 1
+        endif
         pars%nqp(i) = pars%noqp(i) + pars%nvqp(i)
 c      
 

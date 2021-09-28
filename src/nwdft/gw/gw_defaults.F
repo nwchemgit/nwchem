@@ -44,6 +44,7 @@ c
 #endif
      &     rtdb_put(rtdb,'gw:rpa',mt_log,1,.false.).and.
      &     rtdb_put(rtdb,'gw:diag',mt_log,1,.false.).and.
+     &     rtdb_put(rtdb,'gw:core',mt_log,1,.false.).and.
      &     rtdb_put(rtdb,'gw:init',mt_log,1,.true.) 
 c
       if (ok) return

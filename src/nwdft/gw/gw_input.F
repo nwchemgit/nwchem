@@ -17,11 +17,11 @@ c
       integer rtdb
       character*255 test
 c
-      integer, parameter :: num_dirs = 12
+      integer, parameter :: num_dirs = 13
       character*11 dirs(num_dirs)
       data dirs /'evgw0', 'evgw' , 'method', 'solver',
      &           'convergence', 'states', 'analyticw', 'ncap', 
-     &           'eta', 'rpa', 'diag', 'end'/
+     &           'eta', 'rpa', 'diag', 'core', 'end'/
 c
       integer ind, qpiter,eviter,noqp(2),nvqp(2), ngl
       double precision threshold, eta
@@ -46,7 +46,7 @@ c
       end if
 c
       goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 
-     $      1010, 9999) ind
+     $      1100, 1200, 9999) ind
 
       call errquit('gw_input: unknown directive',ind, INPUT_ERR)
 c
@@ -199,8 +199,12 @@ c
      &  call errquit('gw_input: rtdb_put failed',1000, RTDB_ERR)
       goto 10
 c
- 1010 if(.not.rtdb_put(rtdb,'gw:diag',mt_log,1,.true.))
-     &  call errquit('gw_input: rtdb_put failed',1000, RTDB_ERR)
+ 1100 if(.not.rtdb_put(rtdb,'gw:diag',mt_log,1,.true.))
+     &  call errquit('gw_input: rtdb_put failed',1100, RTDB_ERR)
+      goto 10
+c
+ 1200 if(.not.rtdb_put(rtdb,'gw:core',mt_log,1,.true.))
+     &  call errquit('gw_input: rtdb_put failed',1200, RTDB_ERR)
       goto 10
 c
 c     normal termination

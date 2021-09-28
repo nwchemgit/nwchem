@@ -200,7 +200,8 @@ c
             if (converged) then
               Eout = Ein
 #ifdef GWDEBUG
-             if (main) write(luout,9901) iter,iqp,util_wallsec()-timer2,
+             if (main) write(luout,9901) iter,llmo+iqp-1,
+     $                                   util_wallsec()-timer2,
      $                                   ha2ev*(Ein+efermi(isp)),
      $                                   ha2ev*(Eout+efermi(isp))
               if (.not.bracket.and.main) then
@@ -223,7 +224,8 @@ c
             endif
 
 #ifdef GWDEBUG
-            if (main) write(luout,9901) iter,iqp,util_wallsec()-timer2,
+            if (main) write(luout,9901) iter,llmo+iqp-1,
+     $                                  util_wallsec()-timer2,
      $                                  ha2ev*(Ein+efermi(isp)),
      $                                  ha2ev*(Eout+efermi(isp))
  9901       format('  ## Finished iter',I3,' of qp ',I3,' in ',F12.2,'s'
