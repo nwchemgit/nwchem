@@ -12,6 +12,9 @@ c
 #include "rtdb.fh"
 #include "msgids.fh"
 #include "stdio.fh"
+#ifdef SCALAPACK
+#include "dft_scaleig.fh"
+#endif
 #include "gw.fh"
 c
       type(gw_params_t) :: pars
@@ -20,19 +23,26 @@ c
       double precision ga_dbl, ma_dbl, mo_eris, ao_eris, ma_mb, ga_mb
 c
       integer ga_mem, ma_mem, totmopairs, isp
+      integer stack_mem, heap_mem
       integer mynpoles, maxnpoles, mynmo, maxqp
+      integer heap_buildiw,stack_buildiw,ga_buildiw,extramem_buildiw
+      integer heap_buildrn,stack_buildrn,ga_buildrn,extramem_buildrn
+      integer stack_scaleig,extramem_scaleig,extramem,nri
       double precision,parameter :: mbytes = 1024d0**2 
       double precision,parameter :: gbytes = 1024d0**3
       double precision dbl2mb
 
+      nri = nbf_cd
       dbl2mb = dble(ma_sizeof(mt_dbl,1,mt_byte))/mbytes
 c
       ga_dbl = dble(ga_memory_avail())/dble(ma_sizeof(mt_dbl,1,mt_byte))
       ma_dbl = dble(ma_inquire_avail(mt_dbl))
       ma_mb = ma_dbl*dbl2mb
       ga_mb = ga_dbl*dbl2mb
+      stack_mem = ma_inquire_stack(mt_dbl)
+      heap_mem = ma_inquire_heap(mt_dbl)
 
-      call ga_dgop(mt_dbl,ga_mb,1,"+")
+      call ga_dgop(mt_dbl,ga_mb,1,"min")
 
       if (pars%me.eq.0) then
         write(luout,*)
@@ -40,16 +50,19 @@ c
         if (ga_uses_ma()) then
           write(luout,9000) ga_mb
         else
-          write(luout,9010) ga_mb,ma_mb
+          write(luout,9010) ga_mb,stack_mem*dbl2mb,heap_mem*dbl2mb
         endif
       endif
 c
- 9000 format(10x,'Available GA+MA space size is ',F12.1,' MBs')
- 9010 format(10x,'Available GA space size is    ',F12.1,' MBs',/,
-     $       10x,'Available MA per process is   ',F12.1,' MBs')
+ 9000 format(10x,'Available GA+MA space size is  ',F12.1,' MBs')
+ 9010 format(10x,'Available GA per process is    ',F12.1,' MBs',/,
+     $       10x,'Available stack per process is ',F12.1,' MBs',/,
+     $       10x,'Available heap per process is  ',F12.1,' MBs')
  9020 format(/,10x,'Peak memory in Initialization')     
- 9030 format(10x,'Peak total GA memory is       ',F12.1,' MBs',/,
-     $       10x,'Peak MA memory per process is ',F12.1,' MBs')
+ 9030 format(14x,'Peak GA per process is         ',F12.1,' MBs',/,
+     $       14x,'Peak stack per process is      ',F12.1,' MBs',/,
+     $       14x,'Peak heap per process is       ',F12.1,' MBs',/,
+     $       14x,'Memory not in MA per process   ',F12.1,' MBs')
  9040 format(/,10x,'Peak memory in AFF Calculation') 
  9050 format(/,10x,'Peak memory in CDGW Calculation')     
 
@@ -64,38 +77,93 @@ c
 
       ga_mem = nbf_cd**2 +           ! 2c-eri
      $         pars%ipol*nbf_ao**2 + ! movecs
-     $         totmopairs*nbf_cd     ! 3c-eri
-      ma_mem = totmopairs*nbf_cd/pars%nprocs + ! 3c-eri
+     $         totmopairs*nbf_cd +   ! 3c-eri
+     $         (nbf_ao-pars%nocc(1))**2
+
+      heap_mem = totmopairs*nbf_cd/pars%nprocs + ! 3c-eri
      $         pars%nstates(1)*nbf_cd*nbf_ao_mxnbf_cn/pars%nprocs + ! MObuf
      $         nbf_ao_mxnbf_cn**2*nbf_cd/pars%nprocs +              ! Buf
      $         nbf_ao*pars%nmo + ! movecs
      $         nbf_cd**2         ! 2c-eri
-      
+      stack_mem = 2*(nbf_ao-pars%nocc(1))**2 + nri/pars%nprocs
+      ma_mem = heap_mem + stack_mem
+      extramem = 0
 
-      if (pars%me.eq.0) write(luout,9030) ga_mem*dbl2mb,ma_mem*dbl2mb
+      ga_mem = ga_mem/pars%nprocs
+      
+      if (pars%me.eq.0) write(luout,9030) ga_mem*dbl2mb,
+     $    stack_mem*dbl2mb,heap_mem*dbl2mb,extramem*dbl2mb
 c
-      mynpoles = maxval(pars%npoles(1:pars%ipol))/pars%nprocs + 1
+      mynpoles = maxval(pars%mynpoles(1:pars%ipol))
       maxnpoles = maxval(pars%npoles(1:pars%ipol))
       mynmo = pars%nmo/pars%nprocs+maxval(pars%nocc(1:pars%ipol))+1
       maxqp = maxval(pars%nqp(1:pars%ipol))
 
       if (pars%cdgw) then
         if (pars%me.eq.0) write(luout,9050) 
-        ga_mem = totmopairs*nbf_cd
-        ma_mem = 10*pars%ipol*pars%nmo + 
-     $    pars%ipol*pars%ngl*maxqp*mynmo +
-     $    pars%ipol*maxqp*mynmo +
-     $    pars%ipol*mynpoles +
-     $    nbf_cd**2 + 2*nbf_cd*mynmo
-#ifdef PARALLEL_DIAG
-#ifdef SCALAPACK
 
-        ga_mem = ga_mem + nbf_cd**2
+        ga_mem = totmopairs*nbf_cd   ! 3c-MO ERIs
+
+        stack_mem = pars%ipol*pars%nmo + ! Sigma
+     $              pars%ipol*pars%nmo + ! Sigma_x
+     $              pars%ipol*pars%nmo*3 ! Eref, Emod, Enew
+
+        heap_mem = pars%ipol*mynmo*maxqp*pars%ngl + ! iW
+     $             pars%ipol*(mynmo+1)*maxqp   ! iWidx
+
+        if (pars%evgw.or.pars%evgw0) then
+          stack_mem = stack_mem + pars%ipol*pars%nmo*pars%eviter*2
+        endif
+
+        stack_mem =  stack_mem + pars%ipol*mynpoles ! Eia
+        ma_mem = stack_mem + heap_mem
+
+        ga_mem = ga_mem + nri*pars%nmo ! Solutions
+
+        stack_scaleig = 0
+        extramem_scaleig = 0
+#ifdef SCALAPACK
+        if (yev.eq.'v') then
+          stack_scaleig = nri**2
+        elseif (yev.eq.'x') then
+          stack_scaleig = 2*nri**2
+        elseif (yev.eq.'d') then
+          stack_scaleig = 2*nri**2
+#ifdef USE_ELPA
+        elseif (yev.eq.'e') then
+          extramem_scaleig = nri**2
+#endif
+        endif
+#endif 
+        ! *** BUILDIW ***
+        extramem_buildiw = maxnpoles*ipol ! factor
+        heap_buildiw = (nri*(nri+1))/2 + ! Pi             
+     $                  nri*mynmo      + ! Solutions
+#ifdef GWCMPLX
 #else
-        ga_mem = ga_mem + 2*nbf_cd**2
+     $                 (nri+(nri+1))/2 + ! VX
+     $                  nri*mynmo        ! tmp 
+        ga_buildiw    = 3*nri**2 + nri
+        stack_buildiw = nri
 #endif
-#endif
-        if (pars%me.eq.0) write(luout,9030) ga_mem*dbl2mb,ma_mem*dbl2mb
+
+        ! *** BUILDRN ***
+        extramem_buildrn = mynpoles*pars%ipol*2      + ! factor, dfactor
+     $                      nri*10                     ! Minres
+        stack_buildrn = nri**2 + nri                   ! Pi
+        ga_buildrn = 3*nri**2 + nri
+
+        ga_mem = ga_mem + max(ga_buildiw,ga_buildrn)
+        stack_mem = stack_mem + max(stack_buildiw,stack_buildrn) +
+     $              stack_scaleig
+        heap_mem = heap_mem + max(heap_buildiw,heap_buildrn)
+        extramem = max(extramem_buildiw,extramem_buildrn) +
+     $             extramem_scaleig
+        ma_mem = stack_mem + heap_mem
+        ga_mem = ga_mem/pars%nprocs
+
+        if (pars%me.eq.0) write(luout,9030) ga_mem*dbl2mb,
+     $    stack_mem*dbl2mb,heap_mem*dbl2mb,extramem*dbl2mb
 
       else
 
@@ -103,10 +171,16 @@ c
         ga_mem = (totmopairs + sum(pars%npoles(1:pars%ipol)))*nbf_cd
         ga_mem = ga_mem + sum(pars%npoles(1:pars%ipol))**2
 
-        ma_mem = 10*pars%ipol*pars%nmo +
+        heap_mem = 10*pars%ipol*pars%nmo +
      $           pars%ipol*maxnpoles +
      $           pars%ipol*mynpoles
-        if (pars%me.eq.0) write(luout,9030) ga_mem*dbl2mb,ma_mem*dbl2mb
+        ga_mem = ga_mem/pars%nprocs
+        stack_mem = sum(pars%npoles(1:pars%ipol))**2
+        extramem = stack_mem
+     
+        if (pars%me.eq.0) write(luout,9030) ga_mem*dbl2mb,
+     $                   stack_mem*dbl2mb,heap_mem*dbl2mb,
+     $                   extramem*dbl2mb
 
       endif
 c

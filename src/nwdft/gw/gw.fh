@@ -39,7 +39,7 @@ c
 c
         integer          :: eviter, qpiter
         logical          :: evgw, evgw0, analyticw, cdgw, acgw, ncap
-        logical          :: graph, newton, anaw, linear, diis
+        logical          :: graph, newton, anaw, linear, diis, rpa, diag
         double precision :: thresh, fdstep, vxddp(2), vxddm(2)
 
 	double precision :: ecrpa,ecgm,ex,exscf,ecscf,escf

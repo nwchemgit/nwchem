@@ -78,8 +78,7 @@
       endif
       sizepi = (nri*(nri+1))/2
 
-      diag = .false.
-      if (nri.gt.14000) diag = .true.
+      diag = pars%diag
 
 #ifdef GWCMPLX
       if (.not.ma_alloc_get(mt_dcpl,nri**2,'Pi',l_pi,k_pi))
@@ -177,7 +176,7 @@ c
           if (me.eq.0) pars%ecrpa = pars%ecrpa + wgt(igl)*ecrpa
         else
           call dpftrf('n','l',nri,dbl_mb(k_pi),info)
-          if (me.eq.0) then
+          if (me.eq.0 .and. pars%rpa) then
             call gw_cdgw_ecrpa(dbl_mb(k_pi),ldpi,nri,ecrpa)
             pars%ecrpa = pars%ecrpa + wgt(igl)*ecrpa
           endif
@@ -275,7 +274,7 @@ c
 
 #ifdef GWCMPLX
 #else
-        if (me.eq.0) then
+        if (me.eq.0 .and. pars%rpa) then
           call gw_cdgw_ecgm(dbl_mb(k_vx),dbl_mb(k_pi),nri,ldpi,ecgm,
      $                      ecrpa,diag)
           pars%ecgm = pars%ecgm + wgt(igl)*ecgm

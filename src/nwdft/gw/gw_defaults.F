@@ -42,6 +42,8 @@ c
 #else
      &     rtdb_put(rtdb,'gw:eta',mt_dbl,1,0.00001d0).and.
 #endif
+     &     rtdb_put(rtdb,'gw:rpa',mt_log,1,.false.).and.
+     &     rtdb_put(rtdb,'gw:diag',mt_log,1,.false.).and.
      &     rtdb_put(rtdb,'gw:init',mt_log,1,.true.) 
 c
       if (ok) return

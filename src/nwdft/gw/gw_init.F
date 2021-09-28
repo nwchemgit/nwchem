@@ -123,6 +123,10 @@ c
      $  call errquit(pname//'failed to read acgw',0,RTDB_ERR)
       if (.not.rtdb_get(pars%rtdb,'gw:ncap',mt_log,1,pars%ncap))
      $  call errquit(pname//'failed to read ncap',0,RTDB_ERR)
+      if (.not.rtdb_get(pars%rtdb,'gw:rpa',mt_log,1,pars%rpa))
+     $  call errquit(pname//'failed to read rpa',0,RTDB_ERR)
+      if (.not.rtdb_get(pars%rtdb,'gw:diag',mt_log,1,pars%diag))
+     $  call errquit(pname//'failed to read diag',0,RTDB_ERR)
 c
       if (.not.rtdb_get(pars%rtdb,'gw:graph',mt_log,1,pars%graph))
      $  call errquit(pname//'failed to read graph',0,RTDB_ERR)
