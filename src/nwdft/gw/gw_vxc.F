@@ -36,13 +36,16 @@ c
       logical grid_reopen,xc_rep_close
       external grid_reopen,xc_rep_close
 c
-      if (.not.grid_written) then
-        grid_written = grid_reopen(geom)
-      endif
-      if (grid_written) then
-        call grid_setquad(pars%rtdb)
-        call grid_packing_info
-      endif
+c      if (.not.grid_written) then
+c        grid_written = grid_reopen(geom)
+c      endif
+c      if (grid_written) then
+c        call grid_setquad(pars%rtdb)
+c       call grid_packing_info
+c     endif
+      grid_written = .false.
+      call grid_setquad(pars%rtdb)
+      call grid_packing_info
 
 c
       if (.not.geom_ncent(geom,natoms))
@@ -140,5 +143,6 @@ c
         ok = ok .and. ga_destroy(g_vxc(isp))
       enddo
       if (.not.ok) call errquit(pname//'failed to destroy ga',0,GA_ERR)
+      call grid_cleanup(.false.)
 c 
       end subroutine

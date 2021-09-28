@@ -44,7 +44,12 @@ c
 
       call ga_dgop(mt_dbl,ga_mb,1,"min")
 
+
       if (pars%me.eq.0) then
+#ifdef GWDEBUG
+        write(luout,*)
+        call ma_summarize_allocated_blocks()
+#endif
         write(luout,*)
         call util_print_centered(luout,'Memory Information',25,.true.)
         if (ga_uses_ma()) then

@@ -351,6 +351,7 @@ c
 
       pars%timer%init = util_wallsec() - pars%timer%init
 c
+      call grid_cleanup(.false.)
       call gw_memory(pars)
       call gw_ri_init(pars)
 c
