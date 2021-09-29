@@ -95,6 +95,7 @@ if [[ ${FC} == ftn ]]; then
 	FC=gfortran
 	CCORG=${CC}
 	CC=clang
+	export PATH=/opt/cray/pe/cce/default/cce-clang/x86_64/bin:$PATH
         FORCETARGET+=' FC=gfortran CC=clang '
 #	exit 1
 #        exit 1
@@ -165,6 +166,12 @@ if [[ ${_FC} == xlf ]]; then
  make FC="xlf -qextname" $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4
 else
  make $FORCETARGET  OPENBLAS_VERBOSE=2 LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4
+fi
+if [[ "$?" != "0" ]]; then
+    echo " "
+    echo "OpenBLAS compilation failed"
+    echo " "
+    exit 1
 fi
 
 mkdir -p ../../lib
