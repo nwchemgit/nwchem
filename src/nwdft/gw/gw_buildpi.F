@@ -82,7 +82,7 @@
       else if (which.eq.'r') then
 
         scal = scal/2d0
-        ma_dbl = ma_inquire_avail(mt_dbl)/nri
+        ma_dbl = nint(0.9*ma_inquire_avail(mt_dbl))/nri
 
         if (ma_dbl.eq.0) 
      $    call errquit('gw_buildpi: not enough memory',0,MA_ERR)

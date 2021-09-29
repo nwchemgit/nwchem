@@ -426,7 +426,7 @@ c     *****************************************************************
       if (.not.ma_push_get(mt_int,2*npairs,idxlabel,l_tmp,k_tmp))
      $  call errquit(pname//'can''t create '//blk//' index',0,MA_ERR)
 
-      ma_dbl = 0.9*ma_inquire_stack(mt_dbl)/nri_me
+      ma_dbl = ma_inquire_stack(mt_dbl)/nri_me
       nbatch = mynpairs/ma_dbl + 1
       mynpairs = npairs/nbatch
       if (mod(npairs,nbatch).ne.0) mynpairs = mynpairs + 1

@@ -53,7 +53,7 @@
       doparallel = n > 32768
 
 #ifdef PARALLEL_DIAG
-      parallel_diag = n.gt.14000
+      parallel_diag = n.gt.28000
 #else
       parallel_diag = .false.
 #endif
