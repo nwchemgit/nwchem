@@ -34,7 +34,7 @@ if [[ "$FC" == "nvfortran" ]]; then
 #    source /etc/profile.d/lmod.sh
 #    module use /opt/nvidia/hpc_sdk/modulefiles
 #    module load nvhpc
-     export BUILD_MPICH=1
+#     export BUILD_MPICH=1
      nv_major=21
      nv_minor=7
      nverdot="$nv_major"."$nv_minor"
@@ -42,6 +42,7 @@ if [[ "$FC" == "nvfortran" ]]; then
      export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH
      sudo /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x
      export FC=nvfortran
+     export MPICH_FC=nvfortran
 #	if [ -z "$BUILD_MPICH" ] ; then
 ##use bundled openmpi
 #	export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/comm_libs/mpi/bin:$PATH
@@ -89,7 +90,11 @@ fi
 if [[ "$os" == "Linux" ]]; then 
    export NWCHEM_TARGET=LINUX64 
   if [[ "$MPI_IMPL" == "mpich" ]]; then
+  if [[ "$arch" == "aarch64" ]]; then
+    export MPICH_FC=$FC
+  else
     export BUILD_MPICH=1
+  fi
   fi
 fi
 export OMP_NUM_THREADS=1
