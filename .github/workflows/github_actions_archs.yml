@@ -110,7 +110,7 @@ jobs:
             export DEBIAN_FRONTEND=noninteractive
             apt-get install -y tzdata apt-utils
             dpkg-reconfigure --frontend noninteractive tzdata
-            DEBIAN_FRONTEND=noninteractive apt-get install -q -y sudo git  gfortran curl wget unzip perl rsync python3-dev python-dev cmake 
+            DEBIAN_FRONTEND=noninteractive apt-get install -q -y sudo git  gfortran curl wget unzip perl rsync python3-dev python-dev cmake libnuma1
             ;;
             fedora*)
             dnf -y update
