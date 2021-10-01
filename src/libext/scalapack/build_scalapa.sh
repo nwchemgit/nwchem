@@ -10,7 +10,7 @@ get_cmake_master(){
     mkdir -p  cmake-$CMAKE_COMMIT/build
     cd cmake-$CMAKE_COMMIT/build
     if [[ -x "$(command -v cmake)" ]]; then
-        cmake -DCMAKE_CRAYPE_LINKTYPE=static -DBUILD_CursesDialog=OFF -DBUILD_TESTING=OFF -DBUILD_QtDialog=OFF -DCMAKE_INSTALL_PREFIX=`pwd`/.. ../
+        cmake -DBUILD_CursesDialog=OFF -DBUILD_TESTING=OFF -DBUILD_QtDialog=OFF -DCMAKE_INSTALL_PREFIX=`pwd`/.. ../
     else
 	../bootstrap --parallel=4 --prefix=`pwd`/..
     fi
@@ -193,9 +193,8 @@ if [[ ${FC} == ftn ]]; then
     if [[ ${PE_ENV} == CRAY ]]; then
 	FC=crayftn
 	CC=clang
-        CRAYPE_LINK_TYPE_ORG=$CRAYPE_LINK_TYPE
-	export CRAYPE_LINK_TYPE=static
-	env|egrep CRAYP
+	#fix for libunwind.so link problem
+        export LD_LIBRARY_PATH=/opt/cray/pe/cce/$CRAY_FTN_VERSION/cce-clang/x86_64/lib:/opt/cray/pe/lib64/cce/:$LD_LIBRARY_PATH
     fi
 fi
 if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
@@ -234,7 +233,4 @@ mkdir -p ../../../lib
 cp lib/libscalapack.a ../../../lib/libnwc_scalapack.a
 if [[ "$KNL_SWAP" == "1" ]]; then
     module swap  craype-haswell craype-mic-knl
-fi
-    if [[ ${PE_ENV} == CRAY ]]; then
-	export CRAYPE_LINK_TYPE=${CRAYPE_LINK_TYPE_ORG}
 fi
