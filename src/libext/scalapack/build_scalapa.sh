@@ -1,4 +1,26 @@
 #!/usr/bin/env bash
+get_cmake_master(){
+    CMAKE_COMMIT=09dd52c9d2684e933a3e013abc4f6848cb1befbf
+    if [[ -f "cmake-$CMAKE_COMMIT.zip" ]]; then
+	echo "using existing"  "cmake-$CMAKE_COMMIT.zip"
+    else
+	curl -L https://gitlab.kitware.com/cmake/cmake/-/archive/$CMAKE_COMMIT.zip -o cmake-$CMAKE_COMMIT.zip
+    fi
+    unzip -n -q cmake-$CMAKE_COMMIT.zip
+    mkdir -p  cmake-$CMAKE_COMMIT/build
+    cd cmake-$CMAKE_COMMIT/build
+    if [[ -x "$(command -v cmake)" ]]; then
+        cmake -DBUILD_CursesDialog=OFF -DBUILD_TESTING=OFF -DBUILD_QtDialog=OFF -DCMAKE_INSTALL_PREFIX=`pwd`/.. ../
+    else
+	../bootstrap --parallel=4 --prefix=`pwd`/..
+    fi
+    make -j4
+    make -j4 install
+    CMAKE=`pwd`/../bin/cmake
+    ${CMAKE} -version
+    cd ../..
+    return 0
+}
 get_cmake38(){
 	UNAME_S=$(uname -s)
 	if [[ ${UNAME_S} == "Linux" ]] || [[ ${UNAME_S} == "Darwin" ]] && [[ $(uname -m) == "x86_64" ]] ; then
@@ -20,16 +42,6 @@ get_cmake38(){
 if [[ "$FC" = "ftn"  ]] ; then
     MPIF90="ftn"
     MPICC="cc"
-    # ugly hack to get mpicc on cray
-#    if [[  -z "${INTEL_PATH}" ]]; then
-#	echo
-#	echo Intel compilers not loaded
-#	echo please execute "module load intel" for building Scalapack
-#	echo
-#	exit 1
- #   else
-#	MPICC=$INTEL_PATH/linux/mpi/intel64/bin/mpicc
- #   fi
 else
     if ! [ -x "$(command -v mpif90)" ]; then
 	echo
@@ -50,6 +62,9 @@ if [[  -z "${NWCHEM_TOP}" ]]; then
     dir2=$(dirname "$dir3")
     NWCHEM_TOP=$(dirname "$dir2")
 fi
+if [[ "$FC" = "ftn"  ]] || [[ ! -z "$USE_CMAKE_MASTER" ]] ; then
+    get_cmake_master
+else
 if [[ -z "${CMAKE}" ]]; then
     #look for cmake
     if [[ -z "$(command -v cmake)" ]]; then
@@ -64,6 +79,7 @@ if [[ -z "${CMAKE}" ]]; then
     else
 	CMAKE=cmake
     fi
+fi
 fi
 CMAKE_VER_MAJ=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -d. -f1)
 CMAKE_VER_MIN=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -d. -f2)
@@ -136,6 +152,7 @@ fi
 patch -p0 -s -N < ../cmake.patch
 #curl -LJO https://github.com/Reference-ScaLAPACK/scalapack/commit/189c84001bcd564296a475c5c757afc9f337e828.patch
 #patch -p1 < 189c84001bcd564296a475c5c757afc9f337e828.patch
+rm -rf build
 mkdir -p build
 cd build
 if  [[ -n ${FC} ]] &&   [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
@@ -174,13 +191,10 @@ if [[ ${FC} == ftn ]]; then
 	FC=nvfortran
     fi
     if [[ ${PE_ENV} == CRAY ]]; then
-#	echo ' '
-#	echo 'scalapack installation not ready for crayftn '
-#	echo ' '
 	FC=crayftn
-	MPICC=cc
 	CC=clang
-	C_FLAGS+=" -L/opt/cray/pe/cce/$CRAY_FTN_VERSION/cce-clang/x86_64/lib "
+	#fix for libunwind.so link problem
+        export LD_LIBRARY_PATH=/opt/cray/pe/cce/$CRAY_FTN_VERSION/cce-clang/x86_64/lib:/opt/cray/pe/lib64/cce/:$LD_LIBRARY_PATH
     fi
 fi
 if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
@@ -202,7 +216,19 @@ if [[ "$CRAY_CPU_TARGET" == "mic-knl" ]]; then
 fi
 echo compiling with CC="$MPICC"  FC=$MPIF90 CFLAGS="$C_FLAGS" FFLAGS="$Fortran_FLAGS" $CMAKE -Wno-dev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_FLAGS="$C_FLAGS"  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY="$BLASOPT"  -DBLAS_LIBRARIES="$BLASOPT"  -DLAPACK_openblas_LIBRARY="$BLASOPT"  -DLAPACK_LIBRARIES="$BLASOPT"
 CC="$MPICC"  FC=$MPIF90 CFLAGS="$C_FLAGS" FFLAGS="$Fortran_FLAGS" $CMAKE -Wno-dev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_FLAGS="$C_FLAGS"  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY="$BLASOPT"  -DBLAS_LIBRARIES="$BLASOPT"  -DLAPACK_openblas_LIBRARY="$BLASOPT"  -DLAPACK_LIBRARIES="$BLASOPT"
+if [[ "$?" != "0" ]]; then
+    echo " "
+    echo "cmake failed"
+    echo " "
+    exit 1
+fi
 make V=0 -j3 scalapack/fast
+if [[ "$?" != "0" ]]; then
+    echo " "
+    echo "compilation failed"
+    echo " "
+    exit 1
+fi
 mkdir -p ../../../lib
 cp lib/libscalapack.a ../../../lib/libnwc_scalapack.a
 if [[ "$KNL_SWAP" == "1" ]]; then
