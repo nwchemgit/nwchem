@@ -55,7 +55,10 @@ if [[ "${VEC}" == "avx512" ]]; then
 if [[   -z "${CC}" ]]; then
     CC=cc
 fi
+GCC_EXTRA=$(echo $CC | cut -c 1-3)
+if [ "$GCC_EXTRA" == gcc ]; then
 let GCCVERSIONGT5=$(expr `${CC} -dumpversion | cut -f1 -d.` \> 5)
+#echo exit code "$?"
     if [[ ${GCCVERSIONGT5} != 1 ]]; then
 	echo
 	echo you have gcc version $(${CC} -dumpversion | cut -f1 -d.)
@@ -63,6 +66,7 @@ let GCCVERSIONGT5=$(expr `${CC} -dumpversion | cut -f1 -d.` \> 5)
 	echo
 	exit 1
     fi
+fi
 fi
 SRC_HOME=`pwd`
 DERIV=1
@@ -194,7 +198,7 @@ if [[ -z "${FC}" ]]; then
     fi
 fi    
     GFORTRAN_EXTRA=$(echo $FC | cut -c 1-8)
-if [ ${FC} == gfortran ] || [ ${FC} == flang ] || [[ ${GFORTRAN_EXTRA} == gfortran ]] ; then
+if [[ ${FC} == gfortran  || ${FC} == flang  ||  ${GFORTRAN_EXTRA} == gfortran || (${FC} == ftn && ${PE_ENV} == GNU) ]] ; then
     Fortran_FLAGS="-fdefault-integer-8 -cpp"
     GNUMAJOR=$(${FC} -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
     echo GNUMAJOR is $GNUMAJOR
@@ -203,9 +207,11 @@ if [ ${FC} == gfortran ] || [ ${FC} == flang ] || [[ ${GFORTRAN_EXTRA} == gfortr
     fi
 elif  [ ${FC} == xlf ] || [ ${FC} == xlf_r ] || [ ${FC} == xlf90 ]|| [ ${FC} == xlf90_r ]; then
     Fortran_FLAGS=" -qintsize=8 -qextname -qpreprocess"
-elif  [ ${FC} == ifort ]; then
+elif  [[ ${FC} == ifort || (${FC} == ftn && ${PE_ENV} == INTEL) ]]; then
     Fortran_FLAGS="-i8 -fpp"
-elif  [ ${FC} == nvfortran ] || [ ${FC} == pgf90 ] ; then
+elif  [ ${FC} == ftn ]  && [ ${PE_ENV} == CRAY  ]; then
+    Fortran_FLAGS=" -ffree -s integer64 -e F "
+elif  [[ ${FC} == nvfortran || ${FC} == pgf90 || (${FC} == ftn && ${PE_ENV} == NVIDIA) ]]; then
     Fortran_FLAGS="-i8 -cpp"
     CC=gcc
     CXX=g++
@@ -217,7 +223,11 @@ FC="${FC}" CXX="${CXX}" $MYCMAKE \
  -DENABLE_TESTS=OFF     -DSIMINT_STANDALONE=OFF   \
  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DCMAKE_INSTALL_PREFIX=${SRC_HOME}/simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install ../
 time -p make  -j2
-make simint install/fast
+make simint
+if [[ (${FC} == ftn && ${PE_ENV} == CRAY) ]] ; then
+    cp simint/SIMINTFORTRAN.mod simint/simintfortran.mod
+fi
+make install/fast
 cd ../..
 echo ln -sf  simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install simint_install
 ln -sf  simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install simint_install

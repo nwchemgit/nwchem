@@ -318,8 +318,8 @@ c     *** Clean up born stuff, if necessary ***
       external    ion_nion,ion_katm,ion_rion_ptr
       integer     ion_katm_qm
       external    ion_katm_qm
-      real*8      nwpw_born_energy,psp_zv
-      external    nwpw_born_energy,psp_zv
+      real*8      nwpw_born_energy0,psp_zv
+      external    nwpw_born_energy0,psp_zv
       integer     Parallel_threadid
       external    Parallel_threadid
       logical     control_print
@@ -342,7 +342,7 @@ c     *** Clean up born stuff, if necessary ***
             dbl_mb(qborn(1)+ii-1) = psp_zv(ion_katm(ii))
          end do
 
-         Gsolv = nwpw_born_energy(nion,
+         Gsolv = nwpw_born_energy0(nion,
      >                            dbl_mb(ion_rion_ptr()),
      >                            dbl_mb(bradii(1)),
      >                            dbl_mb(qborn(1)),dielec)
@@ -479,6 +479,134 @@ c      end do
       nwpw_born_energy0 = Gsolv
       return
       end
+
+
+
+*     *******************************************
+*     *                                         *
+*     *            nwpw_born_fion               *
+*     *                                         *
+*     *******************************************
+      subroutine nwpw_born_fion(fion)
+      implicit none
+      real*8 fion(3,*) 
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** nwpw_born common blocks ****
+      logical born_on
+      integer uborn(2),qborn(2)
+      integer bradii(2),vradii(2),rtdb
+      real*8  dielec
+      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
+     >                       rtdb,born_on
+
+*     **** external functions ****
+      integer  ion_rion_ptr,ion_nion_qm
+      external ion_rion_ptr,ion_nion_qm
+
+      integer nion,ftmp(2)
+
+*     *** push stack ftmp ***
+      nion = ion_nion_qm()
+      if (.not.BA_push_get(mt_dbl,3*nion,'ftmp',ftmp(2),ftmp(1)))
+     >   call errquit('nwpw_born_fion:push stack',0,MA_ERR)
+
+      call nwpw_born_fion0(nion,
+     >                     dbl_mb(ion_rion_ptr()),
+     >                     dbl_mb(bradii(1)),
+     >                     dbl_mb(qborn(1)),dielec,dbl_mb(ftmp(1)))
+
+      call DAXPY_OMP(3*nion,1.0d0,dbl_mb(ftmp(1)),1,fion,1)
+
+*     *** pop stack ftmp ***
+      if (.not.BA_pop_stack(ftmp(2)))
+     >   call errquit('nwpw_born_fion:pop stack',0,MA_ERR)
+
+      return
+      end
+
+      real*8 function nwpw_born_gsolv(screen,qi,qj,bi,bj,xx)
+      implicit none
+      real*8 screen,qi,qj,bi,bj,xx
+      real*8 C,f
+
+      C = dexp(-0.25d0*xx/(bi*bj))
+      f = dsqrt(xx + bi*bj*C)
+      nwpw_born_gsolv  = -0.5d0*screen*qi*qj/f
+      return
+      end
+
+      real*8 function nwpw_born_dgsolv(screen,qi,qj,bi,bj,xx)
+      implicit none
+      real*8 screen,qi,qj,bi,bj,xx
+      real*8 C,f,gsolv
+
+      C = dexp(-0.25d0*xx/(bi*bj))
+      f = dsqrt(xx + bi*bj*C)
+      gsolv  = -0.5d0*screen*qi*qj/f
+
+      nwpw_born_dgsolv = -0.5d0*gsolv*(1.0-0.25d0*C)/f**2
+      return
+      end
+
+      subroutine nwpw_born_fion0(nion,rion,bradii,q,dielec,fion)
+      implicit none
+      integer nion
+      real*8  rion(3,nion),bradii(nion),q(nion)
+      real*8  dielec
+      real*8  fion(3,nion)
+
+*     **** local variables ****
+      integer MASTER,taskid,np
+      parameter (MASTER=0)
+      integer ii,jj,itask
+      real*8  Gsolv,dGsolv,screen,C,f,dist2,dx,dy,dz
+
+      real*8   nwpw_born_dgsolv
+      external nwpw_born_dgsolv
+
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
+      
+      screen = (1.0d0 - 1.0d0/dielec)
+      call Parallel_shared_vector_zero(.true.,3*nion,fion)
+
+      itask = 0
+!$OMP MASTER
+      do ii=1,nion
+         do jj=1,nion
+            if (itask.eq.taskid) then
+               dx = rion(1,ii)-rion(1,jj)
+               dy = rion(2,ii)-rion(2,jj)
+               dz = rion(3,ii)-rion(3,jj)
+               dist2 = dx*dx + dy*dy + dz*dz
+
+               dGsolv = nwpw_born_dgsolv(screen,q(ii),q(jj),
+     >                                   bradii(ii),bradii(jj),
+     >                                   dist2)
+               fion(1,ii) = fion(1,ii) - 2.0d0*dGsolv*dx
+               fion(2,ii) = fion(2,ii) - 2.0d0*dGsolv*dy
+               fion(3,ii) = fion(3,ii) - 2.0d0*dGsolv*dz
+
+               fion(1,jj) = fion(1,jj) + 2.0d0*dGsolv*dx
+               fion(2,jj) = fion(2,jj) + 2.0d0*dGsolv*dy
+               fion(3,jj) = fion(3,jj) + 2.0d0*dGsolv*dz
+            end if
+            itask = mod(itask+1,np)
+         end do
+      end do
+!$OMP END MASTER
+      call Parallel_Vector_SumAll(3*nion,fion)
+
+      return
+      end 
+
+
+
+
+
 
 *     *******************************************
 *     *                                         *
@@ -635,7 +763,7 @@ c
  913  format(5x,' sol phase energy                 : ',e19.10)
  914  format(5x,' (electrostatic) solvation energy : ',e19.10,
      $     ' (',f8.3,' kcal/mol)'                       )
- 915  format('     skipped: no gas phase energy')
+ 915  format('      skipped: no gas phase energy')
 c
 c     Custom cosmo-smd output
 c

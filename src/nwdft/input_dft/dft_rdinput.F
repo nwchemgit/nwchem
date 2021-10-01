@@ -798,6 +798,12 @@ c
      &     call errquit('rdinput: geom_create?',70, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      &     call errquit('rdinput: no geometry ',72, RTDB_ERR)
+c     check 0-d
+      if(.not. geom_systype_get(geom,itype)) itype = 0
+      if(itype.ne.0)
+     c     call errquit('dft_rdinput: detected periodicity = ',
+     c    itype , INPUT_ERR)
+
       if (.not.rtdb_get(rtdb, 'dft:skeleton',MT_LOG, 1, oskel))then
          oskel = sym_number_ops(geom) .gt. 0
       endif

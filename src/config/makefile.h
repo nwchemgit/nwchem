@@ -1727,12 +1727,25 @@ endif
         endif
         ifeq ($(PE_ENV),CRAY)
           _FC=crayftn
-          _CC=craycc
+#          _CC=craycc
+# as of 2021 cray cc is derived from clang
+          _CC=clang
+        endif
+        ifeq ($(PE_ENV),AMD)
+          _FC=gfortran
+	  USE_FLANG=1
+          _CC=clang
+        endif
+        ifeq ($(PE_ENV),NVIDIA)
+#nvfortran same as pgf90
+          _FC=pgf90
+#nvcc same as pgcc
+          _CC=pgcc
         endif
         DEFINES  += -DCRAYXT -DNOIO
         USE_NOIO=1
       endif
-      ifeq ($(CC),gcc)
+      ifeq ($(shell $(CNFDIR)/strip_compiler.sh $(CC)),gcc)
         _CC=gcc
       endif
       ifeq ($(CC),pgcc)
@@ -1820,7 +1833,7 @@ endif
          FFLAGS_FORGA   = -march=rv64gc -mabi=lp64d
          CFLAGS_FORGA   = -march=rv64gc -mabi=lp64d
        endif
-      ifeq ($(_CC),gcc)
+    ifeq ($(_CC),$(findstring $(_CC),gcc clang))
        ifneq ($(DONTHAVEM64OPT),Y)
          COPTIONS   = -m64
        endif
@@ -2230,7 +2243,7 @@ endif
          COPTIMIZE =  -O3
          COPTIMIZE += -ip -no-prec-div
       endif
-      ifeq ($(_CC),gcc)
+      ifeq ($(_CC),$(findstring $(_CC),gcc clang))
         COPTIONS   +=   -O3 -funroll-loops -ffast-math 
         ifdef USE_OPENMP
           COPTIONS += -fopenmp
@@ -2285,12 +2298,12 @@ endif
         ifndef USE_FPE
         FOPTIMIZE  += -ffast-math #2nd time
         endif
-        ifneq ($(FC),flang)
-        FOPTIMIZE  += -fprefetch-loop-arrays #-ftree-loop-linear
-        else
+        ifdef USE_FLANG
 	  ifdef USE_OPTREPORT
             FOPTIMIZE  += -Rpass=loop-vectorize -Rpass-missed=loop-vectorize -Rpass-analysis=loop-vectorize
           endif
+        else
+        FOPTIMIZE  += -fprefetch-loop-arrays #-ftree-loop-linear
         endif
         ifeq ($(GNU_GE_4_8),true)
           FOPTIMIZE  += -ftree-vectorize   
@@ -2299,7 +2312,7 @@ endif
              endif
         endif
 
-        ifeq ($(FC),flang)
+        ifdef USE_FLANG
 #AOMP flang crashes with -g in source using block data
         FDEBUG =  -O
 	  else
@@ -2329,14 +2342,24 @@ endif
       endif
       ifeq ($(_FC),crayftn)
         # Jeff: Cray Fortran supports preprocessing as of version 8.2.2 (at least)
-        EXPLICITF = FALSE
-        CPP = /usr/bin/cpp  -P -C -traditional
-        CPPFLAGS += -DCRAYFORTRAN -DUSE_POSIXF
-        FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
+#        EXPLICITF = FALSE
+	FOPTIONS += -hsystem_alloc -hoverindex
+# workaround for vectorization failures with cce 11
+        FOPTIONS += -hfp1
+	ifdef BUILD_OPENBLAS
+# avoid replacing code with library calls (eg _dgemm_) to avoid clash with openblas symbols
+	  FOPTIONS += -hnopattern
+	endif
         # USE_POSIXF is required because getlog is provided (GNU extension)
-        FOPTIONS   +=  -Ktrap=fp# -DCRAYFORTRAN -DUSE_POSIXF
-        FDEBUG   =    -g
-        FOPTIMIZE = -O2 -O scalar3,thread0,vector2,ipa2 #-rdm
+	DEFINES += -DCRAYFORTRAN -DUSE_POSIXF
+        ifdef  USE_FPE
+          FOPTIONS   +=  -Ktrap=fp
+	endif
+        ifdef USE_OPENMP
+          FOPTIONS   +=  -homp
+	endif
+        FDEBUG   =  -O scalar1,vector1,ipa1  -g
+        FOPTIMIZE = -O scalar3,vector2,ipa2
       endif
       ifeq ($(_FC),craycc)
         COPTIONS   =   -O

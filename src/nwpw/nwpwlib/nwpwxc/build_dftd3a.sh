@@ -1,5 +1,27 @@
 #!/usr/bin/env bash
+do_exit(){
+	echo ' '
+	echo 'please install the patch command'
+	echo ' '
+	exit 1
+    }
 rm -f dftd3.f nwpwxc_vdw3a.F
+export PATH=`pwd`:$PATH
+if [[ ! -x "$(command -v patch)" ]]; then
+    #try to download busybox for x86_64 linux
+    if [[ $(uname -s) == "Linux" ]]  && [[ $(uname -m) == "x86_64" ]] ; then
+	echo "patch command missing"
+	echo "downloading busybox to use patch command"
+	wget https://www.busybox.net/downloads/binaries/1.31.0-defconfig-multiarch-musl/busybox-x86_64 -O patch
+	if [ "$?" != 0 ]; then
+	    do_exit
+	else
+	    chmod +x patch
+	fi
+    else
+	do_exit
+    fi
+fi
 URL1="https://www.chemie.uni-bonn.de/pctc/mulliken-center/software/dft-d3/"
 URL2="https://web.archive.org/web/20210527062154if_/https://www.chemie.uni-bonn.de/pctc/mulliken-center/software/dft-d3/"
 declare -a urls=("$URL1" "$URL1" "$URL1" "$URL2" "$URL2")

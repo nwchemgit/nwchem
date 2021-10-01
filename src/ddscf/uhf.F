@@ -682,6 +682,7 @@ c AJL/End
       double precision ecosmo !< [Output] The COSMO solvation energy
       integer g_dens(2),i
       character*255 cosmo_file
+      character*32 theory
 c     DIM/QM JEM
       logical ldimqm
       integer g_vdim
@@ -1128,8 +1129,16 @@ c
 c     cosmo charges, potential and energy contribution
 c
       if (cosmo_on) then
-         call errquit('uhf_energy not compatible with COSMO',0,
-     C     CAPMIS_ERR)
+c     check if we are doing dft (e.g. cphf case)
+         if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $        call errquit('hnd_property: theory not specified',555,
+     &        INPUT_ERR)
+         if (theory.eq.'hyb') theory = 'dft'
+         if(theory.ne.'dft') then
+            if(master) write(6,*) ' UHF theory ',theory
+            call errquit('uhf_energy not compatible with COSMO',0,
+     C           CAPMIS_ERR)
+         endif
       endif
       if(cosmo_on.and.cosmo_phase.eq.2) then
         cosmo_file = "cosmo.xyz"
@@ -1265,19 +1274,14 @@ c        Fock 2e matrix from alfa HOMO-1 density
          call ga_sync()
          
          call ga_get(f(2), na-1, na-1, na-1, na-1, rtemp,1)
-         if (master) write
-     &     (6,'(1x,"[",i3,"a,",i3,"a |",i3,"a,",i3,"a]=",f15.8)'),
-     &     na-1,na-1,na-1,na-1,rtemp
+ 1001    format(1x,"[",i3,"a,",i3,"a |",i3,"a,",i3,"a]=",f15.8)
+         if (master) write(6,1001) na-1,na-1,na-1,na-1,rtemp
 
          call ga_get(f(2), na, na, na, na, rtemp,1)
-         if (master) write
-     &     (6,'(1x,"[",i3,"a,",i3,"a |",i3,"a,",i3,"a]=",f15.8)'),
-     &     na-1,na-1,na,na,rtemp         
+         if (master) write(6,1001) na-1,na-1,na,na,rtemp
          
          call ga_get(f(2), na+1, na+1, na+1, na+1, rtemp,1)
-         if (master) write
-     &     (6,'(1x,"[",i3,"a,",i3,"a |",i3,"a,",i3,"a]=",f15.8)'),
-     &     na-1,na-1,na+1,na+1,rtemp
+         if (master) write(6,1001) na-1,na-1,na+1,na+1,rtemp
 
          call two_index_transf(f(1), g_vecs(2), g_vecs(2),
      $     d(2), f(2))
@@ -1285,14 +1289,10 @@ c        Fock 2e matrix from alfa HOMO-1 density
          call ga_sync()
          
          call ga_get(f(2), nb, nb, nb, nb, rtemp,1)
-         if (master) write
-     &     (6,'(1x,"[",i3,"a,",i3,"a |",i3,"b,",i3,"b]=",f15.8)'),
-     &     na-1,na-1,nb,nb,rtemp
+         if (master) write(6,1001) na-1,na-1,nb,nb,rtemp
          
          call ga_get(f(2), nb+1, nb+1, nb+1, nb+1, rtemp,1)
-         if (master) write
-     &     (6,'(1x,"[",i3,"a,",i3,"a |",i3,"b,",i3,"b]=",f15.8)'),
-     &     na-1,na-1,nb+1,nb+1,rtemp            
+         if (master) write(6,1001) na-1,na-1,nb+1,nb+1,rtemp            
 
 c        ------------------------------------------------------         
 c        Fock 2e matrix from alfa HOMO density
@@ -1315,19 +1315,13 @@ c        Fock 2e matrix from alfa HOMO density
          call ga_sync()
          
          call ga_get(f(2), na-1, na-1, na-1, na-1, rtemp,1)
-         if (master) write
-     &     (6,'(1x,"[",i3,"a,",i3,"a |",i3,"a,",i3,"a]=",f15.8)'),
-     &     na,na,na-1,na-1,rtemp
+         if (master) write(6,1001) na,na,na-1,na-1,rtemp
          
          call ga_get(f(2), na, na, na, na, rtemp,1)
-         if (master) write
-     &     (6,'(1x,"[",i3,"a,",i3,"a |",i3,"a,",i3,"a]=",f15.8)'),
-     &     na,na,na,na,rtemp
+         if (master) write(6,1001) na,na,na,na,rtemp
          
          call ga_get(f(2), na+1, na+1, na+1, na+1, rtemp,1)
-         if (master) write
-     &     (6,'(1x,"[",i3,"a,",i3,"a |",i3,"a,",i3,"a]=",f15.8)'),
-     &     na,na,na+1,na+1,rtemp
+         if (master) write(6,1001) na,na,na+1,na+1,rtemp
 
          call two_index_transf(f(1), g_vecs(2), g_vecs(2),
      $     d(2), f(2))
@@ -1335,14 +1329,10 @@ c        Fock 2e matrix from alfa HOMO density
          call ga_sync()
          
          call ga_get(f(2), nb, nb, nb, nb, rtemp,1)
-         if (master) write
-     &     (6,'(1x,"[",i3,"a,",i3,"a |",i3,"b,",i3,"b]=",f15.8)'),
-     &     na,na,nb,nb,rtemp
+         if (master) write(6,1001) na,na,nb,nb,rtemp
          
          call ga_get(f(2), nb+1, nb+1, nb+1, nb+1, rtemp,1)
-         if (master) write
-     &     (6,'(1x,"[",i3,"a,",i3,"a |",i3,"b,",i3,"b]=",f15.8)'),
-     &     na,na,nb+1,nb+1,rtemp         
+         if (master) write(6,1001) na,na,nb+1,nb+1,rtemp         
 
          
 c        ------------------------------------------------------
@@ -1366,19 +1356,13 @@ c        Fock 2e matrix from alfa LUMO density
          call ga_sync()
          
          call ga_get(f(2), na-1, na-1, na-1, na-1, rtemp,1)
-         if (master) write
-     &     (6,'(1x,"[",i3,"a,",i3,"a |",i3,"a,",i3,"a]=",f15.8)'),
-     &     na+1,na+1,na-1,na-1,rtemp         
+         if (master) write(6,1001) na+1,na+1,na-1,na-1,rtemp         
 
          call ga_get(f(2), na, na, na, na, rtemp,1)
-         if (master) write
-     &     (6,'(1x,"[",i3,"a,",i3,"a |",i3,"a,",i3,"a]=",f15.8)'),
-     &     na+1,na+1,na,na,rtemp         
+         if (master) write(6,1001) na+1,na+1,na,na,rtemp         
 
          call ga_get(f(2), na+1, na+1, na+1, na+1, rtemp,1)
-         if (master) write
-     &     (6,'(1x,"[",i3,"a,",i3,"a |",i3,"a,",i3,"a]=",f15.8)'),
-     &     na+1,na+1,na+1,na+1,rtemp         
+         if (master) write(6,1001) na+1,na+1,na+1,na+1,rtemp         
 
          call two_index_transf(f(1), g_vecs(2), g_vecs(2),
      $     d(2), f(2))
@@ -1386,14 +1370,10 @@ c        Fock 2e matrix from alfa LUMO density
          call ga_sync()
          
          call ga_get(f(2), nb, nb, nb, nb, rtemp,1)
-         if (master) write
-     &     (6,'(1x,"[",i3,"a,",i3,"a |",i3,"b,",i3,"b]=",f15.8)'),
-     &     na+1,na+1,nb,nb,rtemp
+         if (master) write(6,1001) na+1,na+1,nb,nb,rtemp
          
          call ga_get(f(2), nb+1, nb+1, nb+1, nb+1, rtemp,1)
-         if (master) write
-     &     (6,'(1x,"[",i3,"a,",i3,"a |",i3,"b,",i3,"b]=",f15.8)'),
-     &     na+1,na+1,nb+1,nb+1,rtemp             
+         if (master) write(6,1001) na+1,na+1,nb+1,nb+1,rtemp             
 
 
 c        ------------------------------------------------------
@@ -1423,15 +1403,11 @@ c        Fock 2e matrix from SYMMETRIZED alfa HOMO-HOMO-1 product
 
          rtemp = zero
          call ga_get(f(2), na-1, na-1, na, na, rtemp,1)
-         if (master) write
-     &     (6,'(1x,"[",i3,"a,",i3,"a |",i3,"a,",i3,"a]=",f15.8)'),
-     &     na,na-1,na,na-1,rtemp
+         if (master) write(6,1001) na,na-1,na,na-1,rtemp
          
          rtemp = zero
          call ga_get(f(2), na, na, na-1, na-1, rtemp,1)
-         if (master) write
-     &     (6,'(1x,"[",i3,"a,",i3,"a |",i3,"a,",i3,"a]=",f15.8)'),
-     &     na-1,na,na-1,na,rtemp
+         if (master) write(6,1001) na-1,na,na-1,na,rtemp
 
 
 c        ------------------------------------------------------
@@ -1459,15 +1435,11 @@ c        Fock 2e matrix from SYMMETRIZED alfa LUMO-HOMO-1 product
          
          rtemp = zero
          call ga_get(f(2), na-1, na-1, na+1, na+1, rtemp,1)
-         if (master) write
-     &     (6,'(1x,"[",i3,"a,",i3,"a |",i3,"a,",i3,"a]=",f15.8)'),
-     &     na+1,na-1,na+1,na-1,rtemp         
+         if (master) write(6,1001) na+1,na-1,na+1,na-1,rtemp         
 
          rtemp = zero
          call ga_get(f(2), na+1, na+1, na-1, na-1, rtemp,1)
-         if (master) write
-     &     (6,'(1x,"[",i3,"a,",i3,"a |",i3,"a,",i3,"a]=",f15.8)'),
-     &     na-1,na+1,na-1,na+1,rtemp  
+         if (master) write(6,1001) na-1,na+1,na-1,na+1,rtemp  
          
 c        ------------------------------------------------------
 c        Fock 2e matrix from SYMMETRIZED alfa LUMO-HOMO product
@@ -1496,15 +1468,11 @@ c        Fock 2e matrix from SYMMETRIZED alfa LUMO-HOMO product
 
          rtemp = zero
          call ga_get(f(2), na, na, na+1, na+1, rtemp,1)
-         if (master) write
-     &     (6,'(1x,"[",i3,"a,",i3,"a |",i3,"a,",i3,"a]=",f15.8)'),
-     &     na+1,na,na+1,na,rtemp
+         if (master) write(6,1001) na+1,na,na+1,na,rtemp
 
          rtemp = zero
          call ga_get(f(2), na+1, na+1, na, na, rtemp,1)
-         if (master) write
-     &     (6,'(1x,"[",i3,"a,",i3,"a |",i3,"a,",i3,"a]=",f15.8)'),
-     &     na,na+1,na,na+1,rtemp
+         if (master) write(6,1001) na,na+1,na,na+1,rtemp
 
 
 c        ------------------------------------------------------
@@ -1534,15 +1502,11 @@ c        Fock 2e matrix from SYMMETRIZED beta LUMO-HOMO product
 
          rtemp = zero
          call ga_get(f(2), nb, nb, nb+1, nb+1, rtemp,1)
-         if (master) write
-     &     (6,'(1x,"[",i3,"b,",i3,"b |",i3,"b,",i3,"b]=",f15.8)'),
-     &     nb+1,nb,nb+1,nb,rtemp
+         if (master) write(6,1001) nb+1,nb,nb+1,nb,rtemp
 
          rtemp = zero
          call ga_get(f(2), nb+1, nb+1, nb, nb, rtemp,1)
-         if (master) write
-     &     (6,'(1x,"[",i3,"b,",i3,"b |",i3,"b,",i3,"b]=",f15.8)'),
-     &     nb,nb+1,nb,nb+1,rtemp
+         if (master) write(6,1001) nb,nb+1,nb,nb+1,rtemp
          
          
 c        ------------------------------------------------------
@@ -1571,13 +1535,11 @@ c$$$         call ga_sync()
 c$$$
 c$$$         rtemp = zero
 c$$$         call ga_get(f(2), na, na, na, na, rtemp,1)
-c$$$         if (master) write(6,'(1x,"[",3(i3,"a,"),i3,"a]=",f15.8)'),
-c$$$     &     na,na,na,na,rtemp
+c$$$         if (master) write(6,1001) na,na,na,na,rtemp
 c$$$
 c$$$         rtemp = zero
 c$$$         call ga_get(f(2), na+1, na+1, na+1, na+1, rtemp,1)
-c$$$         if (master) write(6,'(1x,"[",3(i3,"a,"),i3,"a]=",f15.8)'),
-c$$$     &     na,na+1,na,na+1,rtemp
+c$$$         if (master) write(6,1001) na,na+1,na,na+1,rtemp
          
       
 

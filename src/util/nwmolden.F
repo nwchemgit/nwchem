@@ -733,12 +733,12 @@ c     search for the [MO] string
  100       format('Sym= ', a/
      1            'Ene= ', E22.14/
      2            'Spin= ', a/
-     3            'Occup= ', f18.10)
+     3            'Occup= ', f22.14)
  1000       format(a, a/
      1            a, E22.14/
      2            a, a/
-     3            a, f18.10)
- 200          format(i6,f18.12)
+     3            a, f22.14)
+ 200          format(i6,f22.16)
       return
       end
 !

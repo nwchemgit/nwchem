@@ -228,7 +228,7 @@ c#include "Parallel.fh"
       pi = 4.0d0*datan(1.0d0)
 
       call nwpw_timing_init()
-      call dcopy(50,0.0d0,0,E,1)
+      call dcopy(60,0.0d0,0,E,1)
 
 
 *     **** get parallel variables ****
@@ -1038,7 +1038,7 @@ c         end do
            write(luout,1459) E(31),E(31)/ion_nion()
          end if
          if (pspw_V_APC_on()) then
-           write(luout,1505) E(22),E(22)/ion_nion()
+           write(luout,1505) E(52),E(52)/ion_nion()
          end if
 
 
@@ -1062,7 +1062,7 @@ c         end do
            write(luout,1504) E(32),E(32)/n2(ispin)
          end if
          if (pspw_V_APC_on()) then
-           write(luout,1506) E(23),E(23)/n2(ispin)
+           write(luout,1506) E(53),E(53)/n2(ispin)
          end if
 
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
@@ -1207,7 +1207,7 @@ c            write(luout,1706) E(18)
          if (oprint) then
             write(luout,1740)
             write(luout,1741) nwpw_born_screen()
-            write(luout,1745) E(22),E(22)*27.2116d0*23.06d0
+            write(luout,1745) E(52),E(52)*27.2116d0*23.06d0
             if (dabs(Egas).gt.1.0d-6)
      >         write(luout,1746)  E(1)-Egas,
      >                           (E(1)-Egas)*27.2116d0*23.06d0
@@ -1257,7 +1257,7 @@ c            write(luout,1706) E(18)
      >                                   dbl_mb(eig(1)))
 
 *       **** generate APC *****
-        call pspw_dngen_APC(ispin,ne,dbl_mb(dn(1)))
+        call pspw_dngen_APC(ispin,ne,dbl_mb(dn(1)),.false.)
         call pspw_print_APC(luout)
 
       end if

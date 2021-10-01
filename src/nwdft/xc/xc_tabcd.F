@@ -620,7 +620,7 @@ c Daniel (2-7-13): For CPKS RHS stuff, l3d=true always.
      %                         jfirst, jlast, ifirst, ilast, nbfja)
                         else
                           if (dftnbacc) then
-                            if (.not.nbfirst2) then
+                             if (.not.nbfirst2) then
                               call ga_nbwait(nbhandl2)
                             endif
                             nbfirst2 = .false.
@@ -646,6 +646,17 @@ c     Monitoring
   430   continue ! iat0 loop
   500 continue ! imat loop
       call endtimer(monitor_tabcd)
+c
+c     clearing lingering nbacc
+c
+      if(nbhandl1.ne.0) then
+         call ga_nbwait(nbhandl1)
+         nbhandl1=0
+      endif
+      if(nbhandl2.ne.0) then
+         call ga_nbwait(nbhandl2)
+         nbhandl2=0
+      endif
 
       return
       end
@@ -668,7 +679,7 @@ c
       status= bas_ce2bfr(basis, iat, ilo, ihi)
       status=status.and. bas_ce2bfr(basis, jat, jlo, jhi)
       if (.not. status)
-     $     call errquit('upd_atom_block: ce2bfr failed', 0, BASIS_ERR)
+     $     call errquit('upd_atom_nb: ce2bfr failed', 0, BASIS_ERR)
 c
       idim = ihi - ilo + 1
       jdim = jhi - jlo + 1

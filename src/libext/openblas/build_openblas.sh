@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-set -v
+#set -v
 arch=`uname -m`
-VERSION=0.3.15
+VERSION=0.3.17
 #COMMIT=974acb39ff86121a5a94be4853f58bd728b56b81
 BRANCH=develop
 if [ -f  OpenBLAS-${VERSION}.tar.gz ]; then
@@ -19,10 +19,10 @@ tar xzf OpenBLAS-${VERSION}.tar.gz
 ln -sf OpenBLAS-${VERSION} OpenBLAS
 cd OpenBLAS
 # patch for apple clang -fopenmp
-patch -p0 < ../clang_omp.patch
-patch -p0 < ../icc_avx512.patch
+patch -p0 -s -N < ../clang_omp.patch
+patch -p0 -s -N < ../icc_avx512.patch
 # patch for pgi/nvfortran missing -march=armv8
-patch -p0 < ../arm64_fopt.patch
+patch -p0 -s -N < ../arm64_fopt.patch
 if [[  -z "${FORCETARGET}" ]]; then
 FORCETARGET=" "
 UNAME_S=$(uname -s)
@@ -62,7 +62,46 @@ else
 fi
 if [ -n "${USE_DYNAMIC_ARCH}" ]; then
     FORCETARGET+="DYNAMIC_ARCH=1 DYNAMIC_OLDER=1"
-fi    
+fi
+#cray ftn wrapper
+if [[ ${FC} == ftn ]]; then
+    FCORG=ftn
+    if [[ ${PE_ENV} == PGI ]]; then
+          FC=pgf90
+#          _CC=pgcc
+    fi
+    if [[ ${PE_ENV} == INTEL ]]; then
+	FC=ifort
+    fi
+    if [[ ${PE_ENV} == GNU ]]; then
+	FC=gfortran
+    fi
+    if [[ ${PE_ENV} == AMD ]]; then
+	FC=flang
+    fi
+    if [[ ${PE_ENV} == NVIDIA ]]; then
+	FC=nvfortran
+    fi
+    if [[ ${PE_ENV} == CRAY ]]; then
+#	echo ' '
+#	echo 'openblas installation not ready for crayftn '
+#	echo ' '
+	if ! [ -x "$(command -v gfortran)" ]; then
+	    echo " please load the gcc module (not prgenv)"
+	    echo " by executing"
+	    echo "     module load gcc "
+	    echo " "
+	    exit 1
+	fi
+	FC=gfortran
+	CCORG=${CC}
+	CC=clang
+	export PATH=/opt/cray/pe/cce/default/cce-clang/x86_64/bin:$PATH
+        FORCETARGET+=' FC=gfortran CC=clang '
+#	exit 1
+#        exit 1
+    fi
+fi
 if [[ -n ${FC} ]] &&  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
     FORCETARGET+=" CC=gcc "
     _FC=xlf
@@ -127,7 +166,13 @@ echo make $FORCETARGET  LAPACK_FPFLAGS=$LAPACK_FPFLAGS_VAL  INTERFACE64=$sixty4_
 if [[ ${_FC} == xlf ]]; then
  make FC="xlf -qextname" $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4
 else
- make $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4
+ make $FORCETARGET  OPENBLAS_VERBOSE=2 LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4
+fi
+if [[ "$?" != "0" ]]; then
+    echo " "
+    echo "OpenBLAS compilation failed"
+    echo " "
+    exit 1
 fi
 
 mkdir -p ../../lib
@@ -135,4 +180,10 @@ cp libopenblas.a ../../lib/libnwc_openblas.a
 #make PREFIX=. install
 if [[  ! -z "${NWCHEM_USE_OPENMP}" ]]; then
     export USE_OPENMP=1
+fi
+if [[ -n ${FCORG} ]]; then
+    FC=${FCORG}
+fi
+if [[ -n ${CCORG} ]]; then
+    CC=${CCORG}
 fi

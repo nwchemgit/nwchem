@@ -69,7 +69,7 @@ ccccccc#include "frac_occ.fh"
       real*8  exc,exc2,pxc,pxc2,dte,dte0,scal1,scal2,dv,dt,fmass,h
       real*8  ehsic,phsic,exsic,pxsic,ehfx,phfx,espring,enlocal,elocal
       !real*8  e_ionmm,e_qmmm,e_mmmm,e_pol,e_vib,e_cav
-      real*8   e_lj,e_q,e_spring
+      real*8   e_lj,e_q,e_spring,Eapc,Papc
       real*8   ehartree_atom,ecmp_cmp,ecmp_pw,exc_atom,pxc_atom
       real*8  s,r
       integer tid,nthreads
@@ -77,6 +77,7 @@ ccccccc#include "frac_occ.fh"
 
 *     **** MA local variables ****
       logical value,nose,field_exist,sic,allow_translation
+      logical V_APC_on
 *     real*8     tmp_L(8*nemax*nemax)
 *     complex*16 tmp1(nfft3d)
 *     complex*16 tmp2(nfft3d)
@@ -168,6 +169,11 @@ c     real*8     fion(3,natmx)
       integer  Parallel_threadid,Parallel_nthreads
       external Parallel_threadid,Parallel_nthreads
 
+*     **** cosmo external functions ****
+      logical  pspw_V_APC_on
+      external pspw_V_APC_on
+      
+
 #ifdef PSI_OMP
       integer nida,nidb
       integer  mthr
@@ -203,6 +209,7 @@ c     real*8     fion(3,natmx)
       gga               = control_gga()
       allow_translation = control_allow_translation()
       fei = control_Fei()
+      V_APC_on  = pspw_V_APC_on()
 
 *     **** allocate MA local variables ****
       call nwpw_timing_start(12)
@@ -483,6 +490,15 @@ c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
      >                            dbl_mb(rho(1)),
      >                            dbl_mb(fion(1)))
           end if
+        end if
+
+        if (V_APC_on) then
+           call pspw_V_APC(ispin,ne,
+     >                           dcpl_mb(dng(1)),
+     >                           dcpl_mb(vl(1)),
+     >                           Eapc,Papc,
+     >                           move,
+     >                           dbl_mb(fion(1)))
         end if
 
 
@@ -964,6 +980,14 @@ c              call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
      >        + exc_atom - pxc_atom
      >        - ehartree_atom - ecmp_cmp - ecmp_pw
       end if
+
+*     **** AQC Energy ****
+      if (V_APC_on) then
+         E(52) = Eapc
+         E(53) = Papc
+         E(2)  = E(2) + E(52) - E(53)
+      end if
+
 
 *     **** SIC corrections ****
       if (pspw_SIC()) then

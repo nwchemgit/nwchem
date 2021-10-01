@@ -143,6 +143,9 @@ c     All data is on a grid r(i) = exp (-8.8 + (i-1)*0.05)
       subroutine feff_atom(title,ifr,iz,ihole,rws,ionin,vcoul,srho,
      1                 ispinr, dgc0, dpc0, eatom)
 
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)     
+#endif
       implicit double precision (a-h,o-z)
       save
 
@@ -480,6 +483,9 @@ c     return srho as 4*pi*density instead of 4*pi*density*r**2
       end
       subroutine besjn (x, jl, nl)
 
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)     
+#endif
 c-----------------------------------------------------------------------
 c
 c     purpose:  to calculate the spherical bessel functions jl and nl
@@ -664,6 +670,9 @@ c        coded into the terms below.
       return
       end
       subroutine bjnser (x, l, jl, nl, ifl)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)     
+#endif
 
 c-----------------------------------------------------------------------
 c
@@ -779,6 +788,9 @@ c     convergence test is (last factor)/(total term) <= tol
       subroutine ccrit(npat, ipat, ckspc,
      1    fbetac, rmax, pcrith, pcritk, nncrit, ipotnn, ipot,
      2    rpath, lheap, lkeep, xcalcx)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)     
+#endif
       implicit double precision (a-h, o-z)
 
 c     lheap to add to heap, lkeep if keep path at output.
@@ -906,6 +918,9 @@ c     if xout is too small
       return
       end
       subroutine cdsld
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)     
+#endif
 
       implicit double precision (a-h,o-z)
       save
@@ -1116,6 +1131,9 @@ c     write(8,290) (dp(i),i=1,np)
   530 return
       end
       subroutine chopen (ios, fname, mod)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)     
+#endif
       implicit double precision (a-h, o-z)
 c     Writes error msg and stops if error in ios flag from open
 c     statement.  fname is filename, mod is module with failed open.
@@ -1135,6 +1153,9 @@ c     error opening file, tell user and die.
       stop 'CHOPEN'
       end
       subroutine cpl0 (x, pl0, lmaxp1)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)     
+#endif
       implicit double precision (a-h, o-z)
 
 c-----------------------------------------------------------------------
@@ -1189,6 +1210,9 @@ c          Phys. Rev. B44, 4146 (1991).
 
 
       subroutine csomm (dr,dp,dq,dpas,da,m,np)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)     
+#endif
 c Modified to use complex p and q.  SIZ 4/91
 c integration by the method of simpson of (dp+dq)*dr**m from 
 c 0 to r=dr(np)
@@ -1221,6 +1245,9 @@ c **********************************************************************
       return
       end
       subroutine cubic (xk0, wp, alph, rad, qplus, qminus)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)     
+#endif
 
 c     input:  xk0, wp, alph
 c     output: rad, qplus, qminus
@@ -1274,6 +1301,9 @@ c **********************************************************************
       return
       end
       subroutine feff_diff(v, dx, n, vm)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)     
+#endif
       implicit double precision (a-h,o-z)
       complex*16 v(n), vm(n)
       vm(1)=((6.0d0*v(2)+6.66666666667d0*v(4)+1.2d0*v(6))-(2.45d0*v(1)
@@ -1290,6 +1320,9 @@ c **********************************************************************
       return
       end
       subroutine feff_dirac (nqn,nql,nk,imax,de,dfl,dq1,jc)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)     
+#endif
 c
 c solution of the dirac equation
 c nqn=principal quantum number; nql=orbital quantum number
@@ -1515,6 +1548,9 @@ c     written by j. mustre 8/31/87
 c**********************************************************************
 
       subroutine edp (rs, xk, vi0, vr, vi)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
       parameter (pi = 3.1415926535897932384626433d0)
@@ -1588,6 +1624,9 @@ c jm if density= 0,make exchange energy equal to zero
       return
       end
       subroutine exjlnl (z, l, jl, nl)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 
 c     purpose:  to calculate the spherical bessel functions jl and nl
 c               for l = 0, 1, 2 or 3 using exact analytic expression
@@ -1644,6 +1683,9 @@ c        use analytic formulae
       return
       end
       subroutine fermi (rhoint, vint, xmu, rs, xf)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 
       implicit double precision (a-h, o-z)
 
@@ -1685,7 +1727,10 @@ c     xmu is the fermi level in rydbergs
       return
       end
       subroutine ff2chi (ipr4, critcw, s02, tk, thetad, icsig,
-     1                   vrcorr, vicorr)
+     1     vrcorr, vicorr)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 c     modified for feff6l by jjr
       implicit double precision (a-h, o-z)
 
@@ -2154,7 +2199,10 @@ c     output: ffq only
       end
       subroutine fixvar (rmt, edens, vtot,
      1                   vint, rhoint, nr, dx, x0, ri,
-     2                   vtotph, rhoph)
+     2     vtotph, rhoph)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 
       implicit double precision (a-h, o-z)
 
@@ -2229,6 +2277,9 @@ c     interstitial values...
       return
       end
       subroutine fmtrxi (lam1x, lam2x, ie, iterm, ileg, ilegp)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
       character*72 header
@@ -2438,7 +2489,10 @@ c     plot fmat(lam,lam') = csqrt((z/2)**(m1-m2))*fmat
       return
       end
       subroutine fovrg (il, ihard, rmt, xmt, jri, e, nr, dx, ri, v, dny,
-     1                  pu, qu, p, q, ps, qs, vm)
+     1     pu, qu, p, q, ps, qs, vm)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
       character*72 header
@@ -2691,6 +2745,9 @@ c **********************************************************************
       return
       end
       subroutine frnrm (rho, iz, rnrm)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
       character*72 header
@@ -2752,6 +2809,9 @@ c     dipas is delta i * 0.05
       return
       end
       subroutine genfmt (ipr3, critcw, sig2g, iorder)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
       character*72 header
@@ -3271,7 +3331,10 @@ c     close paths.dat, files.dat
       return
       end
       subroutine getorb (iz, ihole, ion, norb, norbco,
-     1                  den, nqn, nk, nel)
+     1     den, nqn, nk, nel)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 
       implicit double precision (a-h, o-z)
 
@@ -3590,6 +3653,9 @@ c          k = -sqrt(-e)  for e < 0  (below the edge)
      1                  ion, ifrph, ihole, ixc,
      2                  vr0, vi0, rs0, gamach, xmu, xf, vint, rs,
      3                  nhead, lhead, head)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 
 c     SeT HEAD
 c     This routine makes the file header, returned in head array.
@@ -3752,6 +3818,9 @@ c     array (array ih) used to keep other data associated with the heap
 c     elements.
 
       subroutine hup (h, ih, n)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 c     heap is in order except for last element, which is new and must
 c     be bubbled through to its proper location
@@ -3776,6 +3845,9 @@ c     if no parent, we're at the top of the heap, and done
       end
 
       subroutine hdown (h, ih, n)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 c     h is in order, except that 1st element has been replaced.
 c     Bubble it down to its proper location.  New element is i,
@@ -3810,6 +3882,9 @@ c     j is now index of smallest of children
       end
 
       subroutine swapfeff (a, b)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
       t = a
       a = b
@@ -3818,6 +3893,9 @@ c     j is now index of smallest of children
       end
 
       subroutine iswapfeff (i, j)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
       integer  i,j,k
       k = i
@@ -3826,6 +3904,9 @@ c     j is now index of smallest of children
       return
       end
       subroutine imhl (rs, xk, eim, icusp)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h,o-z)
 
 c     what is xk?  k**2 - mu + kf**2?
@@ -3915,6 +3996,9 @@ c     major revision, input now comes from main program feff
 c     input data is passed here to indata for processing
 
       subroutine indata (iz, ihole, wsin, ionin)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 
       implicit double precision (a-h, o-z)
       save
@@ -4263,6 +4347,9 @@ c     Fatal error, stop gracefully (sic)
       stop 'INDATA-1'
       end
       subroutine inouh (dp,dq,dr,dq1,dfl,dv,z,test,nuc,nstop,jc)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 c
 c initial values for the outward integration
 c dp=large component;     dq=small component;     dr=radial mesh
@@ -4342,6 +4429,9 @@ c **********************************************************************
       return
       end
       subroutine inth (dp,dq,dv,dr)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 c
 c integration by the 5-point method of adams for the large
 c component dp and the small component dq at the point dr;
@@ -4382,6 +4472,9 @@ c **********************************************************************
       return
       end
       subroutine intpol (a,b,fa,fb,fma,fmb,x,fx,fmx)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h,o-z)
 c     Only output is fx, fmx
       complex*16 fa,fb,fma,fmb,fx,fmx
@@ -4404,6 +4497,9 @@ c     if (d*(1.0-d).lt.0.0) stop 'Died in intpol'
       return
       end
       subroutine ipack (iout, n, ipat)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
 c     Input:  n          number of things to pack, nmax=8
@@ -4438,6 +4534,9 @@ c     degeneracy checker.
       return
       end
       subroutine upack (iout, n, ipat)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
 c     retrieve n and ipat from iout
@@ -4476,6 +4575,9 @@ c             ipat(1:n) unpacked integers
      2                   vclap, vtot, imt, inrm, rmt, rnrm, 
      2                   rhoint,
      3                   vint, rs, xf, xmu, rnrmav, intclc)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 
 c     Finds interstitial parameters, rmt, vint, etc.
       implicit double precision (a-h, o-z)
@@ -4688,6 +4790,9 @@ c     speed of light in louck's units (rydbergs?)
       end
       subroutine istval (vtot, rholap, rmt, imt, rws, iws, vint, rhoint,
      1                   ierr)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 
 c     This subroutine calculates interstitial values of v and rho
 c     for an overlapped atom.  Inputs are everything except vint and
@@ -4790,7 +4895,10 @@ c     End cap at rmt (rmt to rr(imt+1))
       return
       end
       subroutine mcrith (npat, ipat, ri, indbet,
-     1                   ipot, nncrit, fbetac, ckspc, xheap)
+     1     ipot, nncrit, fbetac, ckspc, xheap)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
 
@@ -4894,6 +5002,9 @@ c        1/(rho1+rho2+..+rho npat-1).
       end
       subroutine mcritk (npat, ipat, ri, beta, indbet,
      1                   ipot, nncrit, fbetac, ckspc, xout, xcalcx)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
 
@@ -4974,6 +5085,9 @@ c        when beta(0)=90 degrees, get zero, so fudge with cos=.2
       return
       end
       subroutine mkptz
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 c     makes polarization temsor ptz if necessary
       implicit double precision (a-h, o-z)
 
@@ -5084,6 +5198,9 @@ c     end of making polarization tensor
       return
       end
       subroutine mmtr(t3j,mmati)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 c     calculates the part of matrix M which does not depend on energy
 c     point.( see Rehr and Albers paper)
 
@@ -5224,6 +5341,9 @@ c           t3j(m0,i)    are 3j symbols multiplied by sqrt(3)
       return
       end
       subroutine mmtrxi (lam1x, mmati, ie, ileg, ilegp)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 c     calculates matrix M in Rehr,Albers paper.
 c     in polarization case
       implicit double precision (a-h, o-z)
@@ -5401,6 +5521,9 @@ c     calculate factors gam and gamtl
       return
       end
       subroutine mpprmd (npat, ipat, ri, beta, eta)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 c     double precision version so angles come out right
 c     for output...
@@ -5552,6 +5675,9 @@ c     beta <1 (roundoff nasties)
       return
       end
       subroutine strigd (x, y, z, ct, st, cp, sp)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
       double precision x, y, z, ct, st, cp, sp, r, rxy
 c     returns cos(theta), sin(theta), cos(phi), sin(ph) for (x,y,z)
@@ -5578,6 +5704,9 @@ c                - if x=y=z=0, theta=0, ct=1, st=0
       return
       end
       subroutine sargd (c, th)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
       double precision x, y, th
@@ -5595,6 +5724,9 @@ c                - if x=y=z=0, theta=0, ct=1, st=0
       return
       end
       subroutine mpprmp (npat, ipat, xp, yp, zp)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
 c     make path parameters,  xp, yp,zp for each atom for a given
@@ -5802,6 +5934,9 @@ c     now xp,yp,zp represent the path in standard order
       return
       end
       subroutine mrb (npat, ipat, ri, beta)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
 c     Make ri, beta and rpath path parameters for crit calculations.
@@ -5881,6 +6016,10 @@ c        Make cos(beta) from dot product
       return
       end
       subroutine dotcos (rm1, r, rp1, cosb)
+C     DIR$ OPTIMIZE (-O 0)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
       dimension rm1(3), r(3), rp1(3)
 
@@ -5907,6 +6046,9 @@ c     cosb = 0, so it won't be undefined.
      1    nncrit, fbetac, ne, ik0, cksp, fbeta, ipotnn, ipot,
      1    xport, xheap, xheapr,
      1    xout, xcalcx)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
 c     This make pw importance factor for pathsd, also recalculates
@@ -6037,6 +6179,9 @@ c     print*, npat, xout, xcalcx
       subroutine ovrlp (iph, iphat, rat, iatph, ifrph, novr,
      1                  iphovr, nnovr, rovr, iz, nat, rho, vcoul,
      2                  edens, vclap, rnrm)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 
 c     Overlaps coulomb potentials and electron densities for current
 c     unique potential
@@ -6138,6 +6283,9 @@ c     set norman radius
       end
       subroutine paths(ckspc, fbetac, pcritk, pcrith, nncrit,
      1                  rmax, nlegxx, ipotnn)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
  
       implicit double precision (a-h, o-z)
 
@@ -6541,6 +6689,9 @@ c     end of 'while not done' loop
       subroutine pathsd(ckspc, fbetac, ne, ik0, cksp, fbeta,
      1                   critpw, ipotnn, ipr2, 
      1                   pcritk, pcrith, nncrit, potlbl)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 
       implicit double precision (a-h, o-z)
 c     New degeneracy checker, cute and hopefully fast for large
@@ -7013,6 +7164,9 @@ c     Atomic weights from inside front cover of Ashcroft and Mermin.
      1                  index, rmt, xmu, vi0, rs0, gamach,
      2                  vtot, edens,
      3                  eref, ph, lmax)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 
       implicit double precision (a-h, o-z)
 
@@ -7164,6 +7318,9 @@ c     Warn user if fovrg failed ihard test.
       return
       end
       subroutine phash (npat, ipat, rx, ry, rz, dhash)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 c     hashes a path into double precision real dhash
       implicit double precision (a-h, o-z)
 
@@ -7238,6 +7395,9 @@ c     set nemax = nex (from dim.h) for max number of points
      1                   ixanes, edge, xmu, vint, vr0,
      1                   imt, edens, nph,
      2                   ri, ne, em, ik0)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
       character*72 header
@@ -7376,6 +7536,9 @@ c    1                 ne, nex, nemax
       return
       end
       subroutine pijump (ph, old)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
 
@@ -7432,6 +7595,9 @@ c     speed of light in louck's units (rydbergs?)
       return
       end
       subroutine potph (isporb)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 
 c     Cluster code -- multiple shell single scattering version of FEFF
 c     This program (or subroutine) calculates potentials and phase
@@ -7710,6 +7876,9 @@ c     May need stuff for use with headers only
       return
       end
       subroutine potsl (dv,d,dp,dr,dpas,dexv,z,np,ion,icut,dvn)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 c
 c coulomb potential uses a 4-point integration method
 c dv=potential;  d=density;  dp=bloc de travail; dr=radial mesh;
@@ -7749,6 +7918,9 @@ c **********************************************************************
       return
       end
       subroutine potslw (dv,d,dp,dr,dpas,np)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 c
 c coulomb potential uses a 4-point integration method
 c dv=potential;  d=density;  dp=bloc de travail; dr=radial mesh
@@ -7784,6 +7956,9 @@ c **********************************************************************
       end
       subroutine prcrit (neout, nncrit, ik0out, cksp, fbeta, ckspc, 
      1                   fbetac, potlb0)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
       character*72 header
@@ -7976,6 +8151,9 @@ c     9 iecrits
       return
       end
       subroutine quinn (x, rs, wp, ef, ei)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
 c     input  x, rs, wp, ef
@@ -8058,6 +8236,9 @@ c     put in fermi function cutoff
       return
       end
       subroutine rdhead (io, nhead, head, lhead)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
 
@@ -8099,6 +8280,9 @@ c     carriage control
      1                  nlegxx,
      1                  rmax, critpw, pcritk, pcrith, nncrit,
      2                  icsig, iorder, vrcorr, vicorr, isporb)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 
 c     Read input for multiple scattering feff
       implicit double precision (a-h, o-z)
@@ -9027,6 +9211,9 @@ c     returns true if line is a comment or blank line, false otherwise
       return
       end
       subroutine phstop (iph,line)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
       character*(*) line
 
@@ -9060,6 +9247,9 @@ c     returns true if line is a comment or blank line, false otherwise
       return
       end
       subroutine warnex (i)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 c     This prints a warning message if the user is using an
 c     expert option.
@@ -9089,6 +9279,9 @@ c     message max of 22 characters to keep warning on 80 char line.
       return
       end
       subroutine rdpath (in, pol, done,xstar)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
       logical done, pol
 
@@ -9351,6 +9544,9 @@ c     If unexpected end of file, die
       stop 'ERROR'
       end
       subroutine trig (x, y, z, ct, st, cp, sp)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 c     returns cos(theta), sin(theta), cos(phi), sin(ph) for (x,y,z)
 c     convention - if x=y=0 and z>0, phi=0, cp=1, sp=0
@@ -9377,6 +9573,9 @@ c                - if x=y=z=0, theta=0, ct=1, st=0
       return
       end
       subroutine feff_arg(c,fi,th)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
       complex*16  c
       parameter (eps = 1.0d-6)
@@ -9392,6 +9591,9 @@ c                - if x=y=z=0, theta=0, ct=1, st=0
       return
       end
       subroutine renorm (dexv, vcoul, srho)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 
       implicit double precision (a-h,o-z)
       save
@@ -9523,6 +9725,9 @@ c8934 write(29,140) dr(i), xxrs
       return
       end
       subroutine rhl (rs, xk, erl, eim)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
 c     input:  rs, xk
@@ -9648,6 +9853,9 @@ c        right branch
       return
       end
       subroutine rot3i (lxp1, mxp1, ileg)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h,o-z)
 
 c     input:  lxp1, mxp1, ileg (lmax+1, mmax+1)
@@ -9834,6 +10042,9 @@ c     Copy result into dri(...ileg) in /rotmat/ (zero it first...)
       return
       end
       subroutine rphbin (in)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
 c     Reads input from unit in.  Returns (via /pdata/)
@@ -9957,6 +10168,9 @@ c        some m hole, n=3, could go to d state
      1             xnatph, novr,
      2             iphovr, nnovr, rovr, folp, ion, iz, iprint, 
      2             ixanes, nemax, xkmin, xkmax, potlbl)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
 c     Notes:
@@ -10039,6 +10253,9 @@ c     read and save header from old file, has carriage control char
       return
       end
       subroutine sclmz (rho, lmaxp1, mmaxp1, ileg)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
 c     Set CLM(Z) for current leg.
@@ -10136,6 +10353,9 @@ c     single precision
       return
       end
       subroutine setgam (iz, ihole, gamach)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 
 c     Sets gamach, core hole lifetime.  Data comes from graphs in
 c     K. Rahkonen and K. Krause,
@@ -10222,6 +10442,9 @@ c     Table values are in eV, code requires atomic units
       return
       end
       subroutine setlam (icalc, ie)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
 c     Set lambda array based on icalc and ie
@@ -10432,6 +10655,9 @@ c     Sort mlam0 and nlam0 to use min possible laml0x
       return
       end
       subroutine sidx (rholap, npts, rmt, rnrm, imax, imt, inrm)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
       dimension rholap (npts)
 
@@ -10480,6 +10706,9 @@ c
 c---------------------------------------------------------------------
 
       subroutine sigms (tk, thetad, rs, nlegx, nleg, rat, iz, sig2)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 c               tk temperature in degrees K
 c               thetad debye temp in degrees K
 c               rs=wigner seitz or norman radius in bohr, averaged
@@ -10581,6 +10810,9 @@ c     sig2 is in bohr**2, just as we wanted for ff2chi
 
 
       subroutine corrfn(rij,cij,thetad,tk,iz1,iz2,rsavg)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 c     subroutine calculates correlation function
 c     c(ri,rj)=<xi xj> in the Debye approximation
 c
@@ -10668,6 +10900,9 @@ c     fn=2/y
       end
 c-----------------------------------------------
       subroutine bingrt (b, eps, n)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 c     subroutine calculates integrals between [0,1]
 c      b = int_0^1 f(z) dz
 c     by trapezoidal rule and binary refinement
@@ -10723,6 +10958,9 @@ c70   format(' n,itn,b,eps=' 2i4,2e16.8)
       return
       end
       subroutine snlm (lmaxp1, mmaxp1)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision(a-h,o-z)
 
 c     Set nlm, legendre normalization factors, xnlm in common /nlm/
@@ -10775,6 +11013,9 @@ c     initialize xnlm explicitly
       return
       end
       subroutine factst (afac, flg)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h,o-z)
 
 c     FACTorial SeT, flg(i) = i! * afac**i
@@ -10793,6 +11034,9 @@ c     afac = 1/64 works with double precision on a VAX
       return
       end
       subroutine somm (dr,dp,dq,dpas,da,m,np)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 c
 c integration by the method of simpson of (dp+dq)*dr**m from
 c 0 to r=dr(np)
@@ -10831,6 +11075,9 @@ c **********************************************************************
       return
       end
       subroutine sortir (n, index, r)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
 c     SORT by rearranges Indices, keys are Real numbers
@@ -10899,6 +11146,9 @@ c     H8: Store rr in it's proper place
 
       end
       subroutine sortii (n, index, k)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
 c     SORT by rearranges Indices, keys are Integers
@@ -10968,6 +11218,9 @@ c     H8: Store kk in it's proper place
 
       end
       subroutine sortid (n, index, r)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 
 c     SORT by rearranges Indices, keys are Double precision numbers
 c     Heap sort, following algorithm in Knuth using r as key
@@ -11059,6 +11312,9 @@ C  -- Find rightmost non-blank character.
 C SUBROUTINE TRIML (STRING)  Removes leading blanks.
 
       SUBROUTINE TRIML (STRING)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       CHARACTER*(*)  STRING
       CHARACTER*200  TMP
 
@@ -11084,6 +11340,9 @@ C  -- Remove the leading blanks.
 C***********************************************************************
 C
       SUBROUTINE BWORDS (S, NWORDS, WORDS)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 C
 C     Breaks string into words.  Words are seperated by one or more
 C     blanks, or a comma and zero or more blanks.
@@ -11170,6 +11429,9 @@ C  -- BEGC is beginning character of a word
       RETURN
       END
       subroutine strap (x, y, n, sum)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
 c     Trapeziodal integration of y(x), result in sum
@@ -11217,6 +11479,9 @@ c
 c T.L.Louck, Augmented Plane Wave Method, W.A.Benjamin, Inc., 1967
 
       subroutine sumax (npts, rn, ann, aa2, aasum)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
       parameter (nptx=250)
       dimension aa2(nptx), aasum(nptx)
@@ -11294,6 +11559,9 @@ c     Input x and y arrays, returns y value y0 at requested x value x0.
 c     Dies on error.
 
       subroutine terp (x, y, n, x0, y0)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
       dimension x(n), y(n)
@@ -11340,6 +11608,9 @@ c     n            x >= xx(n)
       return
       end
       subroutine timrep (npat, ipat, rx, ry, rz, dhash)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
 c     subroutine timrev(...) is modified for polarization case 
@@ -11438,6 +11709,9 @@ c        that version of the path
       return
       end
       subroutine totale (dval)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h,o-z)
       save
       common /print/ iprint
@@ -11476,6 +11750,9 @@ c        that version of the path
       return
       end
       subroutine feff_trap (x, y, n, sum)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit double precision (a-h, o-z)
 
 c     Trapeziodal integration of y(x), result in sum
@@ -11492,6 +11769,9 @@ c     Trapeziodal integration of y(x), result in sum
       return
       end
       subroutine wphase (nph, em, eref, lmax, ne, ph)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 
 c     Writes phase data to file PHASExx.DAT for each shell
 
@@ -11556,6 +11836,9 @@ c        ph array to ltot+1, 5 values per line
       end
       subroutine wpot (nph, edens, ifrph, imt, inrm,
      1                 rho, vclap, vcoul, vtot)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 
 c     Writes potentials to file name POTxx.DAT for each unique pot.
 
@@ -11645,6 +11928,9 @@ c        prepare file for unique potential data
      2                  vr, densty,
      3                  eref, v,
      4                  vxcrmu, vxcimu)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 
       implicit double precision (a-h, o-z)
 
@@ -11885,6 +12171,9 @@ c     ii = (log(r) + 8.8) / 0.05 + 1
       return
       end
       subroutine ykdir (ia,ib,nk1,nag)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 
       implicit double precision (a-h,o-z)
       save
@@ -11951,6 +12240,9 @@ c     ii = (log(r) + 8.8) / 0.05 + 1
 
 
       subroutine feff6(header_in)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
 c     EXAFS only lite version of FEFF6 
 c     see LICENSE for copying details
       implicit double precision (a-h, o-z)
@@ -12167,6 +12459,9 @@ c        Dump out fbetac for central atom and first pot
 
 
       subroutine feff_codeversion(version)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit none
       character*(*) version
 
@@ -12180,6 +12475,9 @@ c        Dump out fbetac for central atom and first pot
 
 
       subroutine feff_serial(dict_in,outtype,dict_out,nkf,kf,chi)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit none
       character*(*) dict_in
       integer outtype
@@ -12520,6 +12818,9 @@ c     **** parse "geometry": json item ****
      >                        nkatm,katm,zkatm,nion,zion,rion,
      >                        nohydrogen,
      >                        nkf,kf,chi)
+#ifdef CRAYFORTRAN
+CDIR$ OPTIMIZE (-O 0)      
+#endif
       implicit none
       character*(*) header
       character*(*) spectroscopy
