@@ -1220,9 +1220,15 @@ endif
         FOPTIMIZE = -O2 -ffast-math -Wuninitialized 
        DEFINES   += -DGFORTRAN -DGCC4
 #
-         FOPTIMIZE+= -funroll-all-loops -mtune=native 
+         FOPTIMIZE+= -funroll-all-loops
+         ifdef USE_HWOPT
+           FOPTIMIZE+= -mtune=native
+	 endif
          #FVECTORIZE=-O3 -ffast-math -mtune=native -mfpmath=sse -msse3 -ftree-vectorize -ftree-vectorizer-verbose=1   -fprefetch-loop-arrays  -funroll-all-loops
-         FVECTORIZE=-O3 -ffast-math -mtune=native -ftree-vectorize -ftree-vectorizer-verbose=1 -funroll-all-loops
+         FVECTORIZE=-O3 -ffast-math -ftree-vectorize -ftree-vectorizer-verbose=1 -funroll-all-loops
+	 ifdef USE_HWOPT
+          FVECTORIZE+= -mtune=native
+	 endif
         GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
 	ifneq ($(strip $(GNUMAJOR)),)
         GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __GNUC_MINOR | cut -c24)
@@ -1292,7 +1298,10 @@ endif
         endif
         FOPTIONS += -fpp -g -no-save-temps
         FDEBUG    = -O2 -g
-        FOPTIMIZE = -O3 -xHost
+        FOPTIMIZE = -O3
+        ifdef USE_HWOPT
+          FOPTIMIZE += -xHost
+	endif
         ifdef USE_OPENMP
            ifeq ($(_IFCV15ORNEWER), Y)
              FOPTIONS  += -qopenmp
@@ -1481,24 +1490,19 @@ endif
 #      COPTIONS   =  -march=i686 
       ifdef USE_GCC31
         FDEBUG=-O1 -g
+       ifdef USE_HWOPT
         COPTIMIZE +=-march=pentium4 -mcpu=pentium4 #-msse2 -mfpmath=sse 
-#        COPTIMIZE +=-fprefetch-loop-arrays -minline-all-stringops -fexpensive-optimizations
-        FOPTIMIZE +=-march=pentium4 -mcpu=pentium4# -msse2 -mfpmath=sse 
-#        FOPTIMIZE +=-fprefetch-loop-arrays -minline-all-stringops -fexpensive-optimizations
+        FOPTIMIZE +=-march=pentium4 -mcpu=pentium4# -msse2 -mfpmath=sse
+       endif
       else
-#        FOPTIMIZE  += -march=i686
-#        COPTIONS   = -Wall -march=i686 -malign-double 
         COPTIONS   = -Wall -malign-double 
       endif
     else
-    ifneq ($(_CPU),x86)
-#      COPTIONS   +=  -march=$(_CPU)
-#      FOPTIONS   +=  -march=$(_CPU)
-    endif
     endif
     ifeq ($(_CPU),k7)
        FOPTIONS   = -fno-second-underscore  
        COPTIONS   = -Wall -malign-double
+      ifdef USE_HWOPT
        ifdef  USE_GCC31
         FOPTIONS += -march=athlon
         COPTIONS += -march=athlon
@@ -1506,12 +1510,14 @@ endif
         FOPTIONS += -march=k6
         COPTIONS += -march=k6
        endif
+      endif
     endif
 
   ifeq ($(FC),pgf77)
     DEFINES   += -DPGLINUX
 # added -Kieee to get dlamc1 to work on pgf77 3.1-3 EA Jun 8th 2000
     FOPTIONS   = -Mdalign -Minform,warn -Mnolist -Minfo=loop -Munixlogical -Kieee
+   ifdef USE_HWOPT
     ifeq ($(_CPU),i586)
       FOPTIONS  += -tp p5  
     endif
@@ -1521,6 +1527,7 @@ endif
     ifeq ($(_CPU),i786)
       FOPTIONS  += -tp piv  -Mcache_align  -Mvect=prefetch
     endif
+   endif
     FOPTIMIZE  = -O2 -Mvect=assoc,cachesize:262144 -Munroll -Mnoframe
   endif
 # _FC=g77
@@ -1549,7 +1556,8 @@ endif
       FOPTIONS += -fpe-all=0 -traceback #-fp-model  precise
     endif
 
-    FOPTIMIZE = -O3 -prefetch  -unroll 
+    FOPTIMIZE = -O3 -prefetch  -unroll
+   ifdef USE_HWOPT
     ifeq ($(_CPU),i586)
       FOPTIMIZE +=  -tpp5 -xi # this are for PentiumII
     endif
@@ -1562,6 +1570,7 @@ endif
     ifeq ($(_CPU),i786)
       FOPTIMIZE +=  -tpp7 -xW    # this are for PentiumIV
     endif
+   endif
     DEFINES   += -DIFCLINUX
     ifneq ($(_IFCV7),Y)
       FOPTIMIZE += -ansi_alias-
@@ -1581,7 +1590,9 @@ endif
         endif
         FOPTIMIZE  += -O2 -ffast-math -Wuninitialized
         ifeq ($(_CPU),i786)
+	 ifdef USE_HWOPT
           FOPTIONS += -march=pentium4 -mtune=pentium4
+	 endif
           FVECTORIZE = $(FOPTIMIZE) -O3 -ftree-vectorize 
           FVECTORIZE += -ftree-vectorizer-verbose=1
 #        FOPTIMIZE  += -fprefetch-loop-arrays -ftree-loop-linear
@@ -1600,6 +1611,7 @@ endif
   ifeq ($(CC),icc)
     COPTIONS   =   -mp1 -w -g #-vec-report1
     COPTIMIZE = -O3   -unroll 
+   ifdef USE_HWOPT
     ifeq ($(_CPU),i586)
       COPTIMIZE +=  -tpp5 -xi # this are for PentiumII
     endif
@@ -1609,6 +1621,7 @@ endif
     ifeq ($(_CPU),i786)
       COPTIMIZE +=  -tpp7 -xW   # this are for PentiumIV
     endif
+   endif
   endif
 endif
 
@@ -2052,11 +2065,13 @@ endif
 
       # support for traditional Intel(R) Fortran compiler
       ifeq ($(_FC),ifort)
+    ifdef USE_HWOPT
      _GOTSSE3= $(shell cat /proc/cpuinfo | egrep sse3 | tail -n 1 | awk ' /sse3/  {print "Y"}')
      _GOTSSE42= $(shell cat /proc/cpuinfo | egrep sse4_2 | tail -n 1 | awk ' /sse4_2/  {print "Y"}')
      _GOTAVX= $(shell cat /proc/cpuinfo | egrep avx | tail -n 1 | awk ' /avx/  {print "Y"}')
      _GOTAVX2= $(shell cat /proc/cpuinfo | egrep fma | tail -n 1 | awk ' /fma/  {print "Y"}')
      _GOTAVX512F= $(shell cat /proc/cpuinfo | egrep avx512f | tail -n 1 | awk ' /avx512f/  {print "Y"}')
+    endif
        _IFCE = $(shell ifort -V  2>&1 |head -1 |awk ' /64/ {print "Y";exit};')
        _IFCV7= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk ' /7./  {print "Y";exit}')
        _IFCV11= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 11) {print "Y";exit}}')
@@ -2148,6 +2163,7 @@ endif
          else
 #           FOPTIMIZE += -xHost
 #crazy simd options
+           ifdef USE_HWOPT
 	     ifeq ($(_IFCV17), Y)
 	       ifeq ($(_GOTAVX512F),Y)
 	         FOPTIMIZE += -axCORE-AVX512
@@ -2157,17 +2173,23 @@ endif
 	           FOPTIMIZE += -axAVX
 	       else ifeq ($(_GOTSSE42),Y)
                   FOPTIMIZE += -axSSE4.2
+	       else ifeq ($(_GOTSSE3),Y) 
+                  FOPTIMIZE += -axSSE3
 	       endif
 	     endif
+	   endif
        FOPTIONS += -finline-limit=250
          endif
        else
+        ifdef USE_HWOPT
          ifeq ($(_GOTSSE3),Y) 
            FOPTIMIZE += -xP -no-prec-div
          else
-           FOPTIMIZE +=  -tpp7 -ip
+           FOPTIMIZE +=  -tpp7
            FOPTIMIZE += -xW
          endif
+	endif
+         FOPTIMIZE +=  -ip
        endif
 
 
@@ -2249,9 +2271,11 @@ endif
           COPTIONS += -fopenmp
         endif
       endif
+     ifdef USE_HWOPT
       ifdef USE_GCC34
         COPTIONS  +=   -march=k8 -mtune=k8
       endif
+     endif
 #     CORE_LIBS +=  $(BLASOPT) -lnwclapack -lnwcblas
      ifdef  USE_GPROF
         ifeq ($(NWCHEM_TARGET),CATAMOUNT)
@@ -2327,7 +2351,9 @@ endif
           FOPTIONS +=  -ff2c -fno-second-underscore
         endif
         ifeq ($(GNU_GE_4_6),true) 
+	 ifdef USE_HWOPT
           FOPTIMIZE +=  -mtune=native
+	 endif
 # causes slowdows in mp2/ccsd
 #          FOPTIONS += -finline-functions
         endif
@@ -2404,8 +2430,10 @@ ifeq ($(_CPU),$(findstring $(_CPU),aarch64))
 
     FDEBUG += -g -O
 
-    ifeq ($(GNU_GE_4_6),true) 
+    ifeq ($(GNU_GE_4_6),true)
+     ifdef USW_HWOPT
       FOPTIMIZE +=  -mtune=native
+     endif
 # causes slowdows in mp2/ccsd
 #      FOPTIONS += -finline-functions
     endif
@@ -2430,8 +2458,10 @@ ifeq ($(_CPU),$(findstring $(_CPU),aarch64))
     $(info     ARMFLANG FOPTIMIZE = ${FOPTIMIZE})
     endif
 
-    FDEBUG += -g -O 
+    FDEBUG += -g -O
+    ifdef USE_HWOPT
     FOPTIMIZE +=  -mtune=native -armpl
+    endif
 
     ifndef USE_FPE
       FOPTIMIZE  += -ffast-math #2nd time
@@ -3101,10 +3131,14 @@ CORE_LIBS += $(EXTRA_LIBS)
 ifdef OPTIMIZE
     FFLAGS = $(FOPTIONS) $(FOPTIMIZE)
     CFLAGS =  $(COPTIONS) $(COPTIMIZE)
+    FFLAGS += $(EXTRA_FOPTIONS) $(EXTRA_FOPTIMIZE)
+    CFLAGS += $(EXTRA_COPTIONS) $(EXTRA_COPTIMIZE)
 else
 # Need FDEBUG after FOPTIONS on SOLARIS to correctly override optimization
     FFLAGS = $(FOPTIONS) $(FDEBUG) 
     CFLAGS = $(COPTIONS) $(CDEBUG) 
+    FFLAGS += $(EXTRA_FOPTIONS) $(EXTRA_FDEBUG)
+    CFLAGS += $(EXTRA_COPTIONS) $(EXTRA_CDEBUG)
 endif
   INCLUDES = -I. $(LIB_INCLUDES) -I$(INCDIR) $(INCPATH)
   CPPFLAGS = $(INCLUDES) $(DEFINES) $(LIB_DEFINES)
