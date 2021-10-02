@@ -1,5 +1,5 @@
-#define USE_OMP_SECTIONS 0
-
+#define USE_OMP_SECTIONS 1
+c#define BLAS_THREAD 1
       subroutine ccsd_trpdrv_omp(t1,
      &     f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,eorb,
      &     g_objo,g_objv,g_coul,g_exch,
@@ -110,6 +110,7 @@
        integer n_progr,pct_progr
        parameter(n_progr=20)
        logical i_progr(n_progr+1)
+       logical ldyn_org
 !
 #if defined(USE_OPENMP)
       integer  omp_get_thread_num
@@ -145,10 +146,11 @@
       if (alloc_error.ne.0) call errquit('t1v2',6,MA_ERR)
 #endif
 !
-#ifdef MKL_THREAD
+#ifdef BLAS_THREAD
       call omp_set_nested(1)
-      call mkl_set_dynamic(0)
-      call mkl_set_num_threads(2)
+      call omp_get_dynamic(ldyn_org)
+      call omp_set_dynamic(.true.)
+      call util_blas_set_num_threads(4)
 #endif
       nodes = ga_nnodes()
       iam = ga_nodeid()
@@ -436,8 +438,10 @@
                enddo
              enddo
            enddo
+#if USE_OMP_SECTIONS
 !$omp end do
 !$omp end parallel
+#endif
                          if (occsdps) then
                             call pstat_off(ps_tengy)
                          else
@@ -497,10 +501,11 @@
       else
          call qexit('trpdrv',0)
       endif
-#ifdef MKL_THREAD
+#ifdef BLAS_THREAD
       call omp_set_nested(0)
 c     call mkl_set_dynamic(0)
-      call mkl_set_num_threads(1)
+      call omp_set_dynamic(ldyn_org)
+      call util_blas_set_num_threads(1)
 #endif
 !
 #ifdef USE_F90_ALLOCATABLE
