@@ -1320,7 +1320,7 @@ c     *** choosing Polac-Ribiere coeff ***
       real*8 s(*),y(*)
 
 *     **** local variables ****
-      integer MASTER,taskid
+      integer MASTER
       parameter (MASTER=0)
 
       logical goodrho
@@ -1332,7 +1332,6 @@ c     *** choosing Polac-Ribiere coeff ***
       real*8   ddot
       external ddot
 
-      call Parallel_taskid(taskid)
       nion = n/3
 
       goodrho = .true.
@@ -1350,7 +1349,7 @@ c     *** choosing Polac-Ribiere coeff ***
              rho(k) = 0.0d0
              goodrho = .false.
          end if
-         if (taskid.eq.MASTER) write(*,*) "k,rho=",k,rho(k)
+         !if (ga_nodeid().eq.MASTER) write(*,*) "k,rho=",k,rho(k)
       end do
 
       call dcopy(n,g(1,m),1,hg,1)

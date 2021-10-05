@@ -5477,13 +5477,14 @@ c      end
 
 *     **** local variables ****
       integer vtmp(2)
+      real*8  ftmp(3)
 
       if (.not.BA_push_get(mt_dcpl,npack0,'vtmp',vtmp(2),vtmp(1)))
      >   call errquit('dng_1apc: out of stack memory',0,MA_ERR)
 
       call pspw_V_APC(ispin,ne,dcpl_mb(dng1(1)),
      >                         dcpl_mb(vtmp(1)),
-     >                         Eapc,Papc)
+     >                         Eapc,Papc,.false.,ftmp)
 
       if (.not.BA_pop_stack(vtmp(2)))
      >  call errquit('dng_1apc popping stack',1,MA_ERR)
@@ -7263,8 +7264,8 @@ c     >                 dbl_mb(tmp_L(1)),ierr)
 *     **** external functions ****
       integer  control_version
       external control_version
-      logical  psp_U_psputerm
-      external psp_U_psputerm
+      logical  psp_U_psputerm,pspw_V_APC_on
+      external psp_U_psputerm,pspw_V_APC_on
       logical  Dneall_m_push_get, Dneall_m_pop_stack
       external Dneall_m_push_get, Dneall_m_pop_stack
 
@@ -7302,6 +7303,11 @@ c    >                            dcpl_mb(dng1(1)))
      &                   MA_ERR)
       end if
 
+*     *** APC force here ***
+      if (pspw_V_APC_on()) then
+         call pspw_force_APC(ispin,ne,dcpl_mb(dng1(1)),fion)
+      end if
+
       call f_vnonlocal(ispin,
      >                 neq,
      >                 dcpl_mb(psi1(1)),
@@ -7333,6 +7339,7 @@ c    >                            dcpl_mb(dng1(1)))
      >                 fion,
      >                 occupation_on,dbl_mb(occ1(1)),.true.)
       end if
+
       return
       end
 
@@ -9928,7 +9935,7 @@ c      end if
       call pspw_analysis(0,rtdb,ispin,ne,dcpl_mb(psi2(1)),
      >                                   dbl_mb(eig(1)))
 
-      call pspw_gen_APC(ispin,ne,dcpl_mb(dng1(1)))
+      call pspw_gen_APC(ispin,ne,dcpl_mb(dng1(1)),.false.)
       call pspw_print_APC(luout)
 
       call pspw_gen_atom_Efield(rtdb,ispin,dbl_mb(rho1(1)),
@@ -9955,7 +9962,7 @@ c      end if
 #include "psi.fh"
 #include "stdio.fh"
 
-      call pspw_gen_APC(ispin,ne,dcpl_mb(dng1(1)))
+      call pspw_gen_APC(ispin,ne,dcpl_mb(dng1(1)),.false.)
       call pspw_print_APC(luout)
 
       return
@@ -10083,7 +10090,6 @@ c      end if
 *     *     epsi_DOS        *
 *     *                     *
 *     ***********************
-
       subroutine epsi_DOS(rtdb)
       implicit none
       integer rtdb
@@ -10178,24 +10184,43 @@ c      end if
       end
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+*     ***********************
+*     *                     *
+*     *     psi_polariz     *
+*     *                     *
+*     ***********************
+
+*** Early version of periodic dipole written by Patrick Nichols                                               ***
+*** This routine has been replace by Calculate_Resta_Dipole, but keeping around as a reference implementation ***
+*** this routine only works for cubic unit cells                                                              ***
+
       subroutine psi_polariz()
       implicit none
+
 #include "psi.fh"
 #include "bafdecls.fh"
 #include "errquit.fh"
 #include "util.fh"
-      integer psirx(2),asize
-      logical val
-      asize=(ne(1)+ne(2))*nfft3d*2
-      val=BA_push_get(mt_dbl,asize,"psir",psirx(2),psirx(1))
-      if (.not.val) then
-        call errquit("psi_polariz stack empty",0,0)
-      end if
-      call berry_phase_pol(psi2,psirx)
-      val=BA_pop_stack(psirx(2))
-      if (.not.val) then
-        call errquit("psi_polariz failed pop stack",0,0)
-      end if
+
+*     **** local variables ****
+      logical value
+      integer psirx(2),tsirx(2),asize
+
+      asize=(neq(1)+neq(2))*2*nfft3d
+      value=          BA_push_get(mt_dbl,asize,"psir",psirx(2),psirx(1))
+      value=value.and.BA_push_get(mt_dbl,asize,"tsir",tsirx(2),tsirx(1))
+      if (.not.value) call errquit("psi_polariz stack empty",0,MA_ERR)
+
+      call berry_phase_pol(ispin,ne,neq,npack1,nfft3d,
+     >                     dcpl_mb(psi2(1)),
+     >                     dbl_mb(psirx(1)),
+     >                     dbl_mb(tsirx(1)))
+
+      value=          BA_pop_stack(tsirx(2))
+      value=value.and.BA_pop_stack(psirx(2))
+      if (.not.value) call errquit("psi_polariz: pop stack",0,MA_ERR)
+
       return
       end
 ccccccccccccccccccccccccccccccccccccccccccccccccccc
