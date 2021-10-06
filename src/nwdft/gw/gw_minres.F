@@ -69,7 +69,11 @@
       x0norm = dot_product(x,x)
 
       if (x0norm.eq.0d0) then
-        y(:) = b(:)
+!$omp   parallel do simd schedule(static)
+        do i=1,n
+          y(i) = b(i)
+        end do
+!$omp   end parallel do simd
         goto 1000
       endif
 
@@ -81,7 +85,11 @@
       endif
       call dgop(mt_dbl,y,n,'+')
 
-      y(:) = y(:) + b(:) - x(:)
+!$omp parallel do simd schedule(static)
+      do i=1,n
+        y(i) = y(i) + b(i) - x(i)
+      enddo
+!$omp end parallel do simd
 
 1000  beta1 = dsqrt(dot_product(y,y))
 
@@ -107,12 +115,37 @@
       sn = 0d0
       gmax = 0d0
 
-      r1(:)  = y(:)
-      r2(:)  = y(:)
-      w(:)   = 0d0
-      w1(:)  = 0d0
-      w2(:)  = 0d0
-      sol(:) = 0d0
+!$omp parallel 
+!$omp do simd schedule(static)
+      do i=1,n
+        r1(i) = y(i)
+      enddo
+!$omp end do simd nowait
+!$omp do simd schedule(static)
+      do i=1,n
+        r2(i) = y(i)
+      enddo
+!$omp end do simd nowait
+!$omp do simd schedule(static)
+      do i=1,n
+        w(i) = 0d0
+      enddo
+!$omp end do simd nowait
+!$omp do simd schedule(static)
+      do i=1,n
+        w1(i) = 0d0
+      enddo
+!$omp end do simd nowait
+!$omp do simd schedule(static)
+      do i=1,n
+        w2(i) = 0d0
+      enddo
+!$omp end do simd nowait
+!$omp do simd
+      do i=1,n
+        sol(i) = 0d0
+      enddo
+!$omp end parallel
 
       bnorm = dsqrt(dot_product(b,b))
 
@@ -120,7 +153,11 @@
         iter = iter + 1
         s = 1d0/beta
 
-        v(:) = s*y(:)
+!$omp   parallel do simd schedule(static)
+        do i=1,n
+          v(i) = s*y(i)
+        enddo
+!$omp   end parallel do simd
 
         if (ipol.eq.1) then
           call gw_aprod(OV1,factor,v,y,4d0,0d0,npoles,n)
@@ -138,8 +175,18 @@
 
         call daxpy(n,-alpha/beta,r2,1,y,1)
 
-        r1(:) = r2(:)
-        r2(:) = y(:)
+!$omp   parallel 
+!$omp   do simd schedule(static)
+        do i=1,n
+          r1(i) = r2(i)
+        enddo
+!$omp   end do simd nowait
+!$omp   do simd schedule(static)
+        do i=1,n
+          r2(i) = y(i)
+        enddo
+!$omp   end do simd 
+!$omp   end parallel
 
         beta = dsqrt(dot_product(r2,r2))
 
@@ -183,9 +230,23 @@
         phi    = cs*phibar
         phibar = sn*phibar
 
-        w1(:) = w2(:)
-        w2(:) = w(:)
-        w(:) = (v(:) - oldeps*w1(:) - delta*w(:))/gam
+!$omp   parallel
+!$omp   do simd schedule(static)
+        do i=1,n
+        w1(i) = w2(i)
+        enddo
+!$omp   end do simd nowait
+!$omp   do simd schedule(static)
+        do i=1,n
+        w2(i) = w(i)
+        enddo
+!$omp   end do simd nowait
+!$omp   do simd schedule(static)
+        do i=1,n
+        w(i) = (v(i) - oldeps*w1(i) - delta*w(i))/gam
+        enddo
+!$omp   end do simd 
+!$omp   end parallel
 
         call daxpy(n,phi,w,1,sol,1)
 

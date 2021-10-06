@@ -3,6 +3,8 @@
       implicit none
 #include "mafdecls.fh"      
 #include "errquit.fh"
+#include "util.fh"
+#include "stdio.fh"
       logical,intent(in) :: main
       integer,intent(in) :: ldpi, nri, maxpoles, ipol
       character(len=1),intent(in) :: which
@@ -12,7 +14,7 @@
       double precision,intent(in),dimension(maxpoles,ipol) :: factor
       double precision,intent(out),dimension(ldpi,*) :: pi
 
-      double precision scal
+      double precision scal, t0
       integer ipole,iri,ma_dbl,l_scr,k_scr,mynpoles,llpole,mymax
       integer ulpole,nbatch,ibatch,idx,idy
       logical ok,dorfp
@@ -30,19 +32,35 @@
 
         if (npoles(1).gt.0) then
 
-!$omp     parallel do schedule(static)
+          t0 = util_wallsec()
+!$omp     parallel do simd schedule(static) collapse(2)
           do ipole=1,npoles(1)
-            call dscal(nri,factor(ipole,1),ovup(1,ipole),1)
+          do iri=1,nri
+c            call dscal(nri,factor(ipole,1),ovup(1,ipole),1)
+            ovup(iri,ipole) = ovup(iri,ipole)*factor(ipole,1)
           enddo
-!$omp     end parallel do
+          enddo
+!$omp     end parallel do simd
+#ifdef GWDEBUG
+        if (main) write(luout,*) '       ## scale ',util_wallsec()-t0
+#endif
 
+
+          t0 = util_wallsec()
           call dsfrk('n','l','n',nri,npoles(1),scal,ovup,nri,0d0,pi)
+#ifdef GWDEBUG
+        if (main) write(luout,*) '       ## dsfrk ',util_wallsec()-t0
+#endif
 
-!$omp     parallel do schedule(static)
+
+!$omp     parallel do simd schedule(static) collapse(2)
           do ipole=1,npoles(1)
-            call dscal(nri,1d0/factor(ipole,1),ovup(1,ipole),1)
+          do iri=1,nri
+c            call dscal(nri,1d0/factor(ipole,1),ovup(1,ipole),1)
+            ovup(iri,ipole) = ovup(iri,ipole)/factor(ipole,1)
           enddo
-!$omp     end parallel do
+          enddo
+!$omp     end parallel do simd
 
         endif
 

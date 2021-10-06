@@ -32,7 +32,7 @@ c
       integer nmo,nvir,rihi,rilo,nri,nri_me,nocc,offk
       integer ish,jsh,ksh,ni,nj,nk,nij
       integer ifirst,jfirst,kfirst
-      integer ilast,jlast,klast
+      integer ilast,jlast,klast,imaxthreads
       integer aopairs,mopairs(2),idum,totmopairs
       logical IeqJ,ok,oactive
       double precision eri_est,timer,timing
@@ -43,7 +43,12 @@ c
       double precision schwarz_shell
       external schwarz_shell
 c
-      integer,external :: ga_nnodes,omp_get_max_threads
+      integer,external :: ga_nnodes
+#ifdef USE_OPENMP
+      integer,external :: omp_get_max_threads
+      iMaxThreads = omp_get_max_threads()
+      call util_blas_set_num_threads(iMaxThreads)
+#endif
 
       timer = util_wallsec()
 c
@@ -319,6 +324,9 @@ c
       if (.not.ok)
      $  call errquit(pname//'failed to free heap',224,MA_ERR)
 c
+#ifdef USE_OPENMP
+      call util_blas_set_num_threads(1)
+#endif
       return
       end subroutine
 c
@@ -359,11 +367,6 @@ c
       double precision,dimension(nstates,ni,nri) :: shlmo
 
       integer istate, iri, ibf, istart, jstart, iMaxThreads
-#ifdef USE_OPENMP
-      integer,external :: omp_get_max_threads
-      iMaxThreads = omp_get_max_threads()
-      call util_blas_set_num_threads(iMaxThreads)
-#endif
 
       do iri=1,nri
         call dgemm('n','n',nstates,nmo,ni,1d0,shlmo(1,1,iri),nstates,
@@ -371,9 +374,6 @@ c
       enddo
 c
 
-#ifdef USE_OPENMP
-      call util_blas_set_num_threads(1)
-#endif
 
       return
       end subroutine

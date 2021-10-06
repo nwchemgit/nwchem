@@ -137,7 +137,7 @@
 
 
         do jsp=1,ipol
-!$omp   parallel do simd private(temp) schedule(static)
+!$omp     parallel do simd private(temp) schedule(static)
           do ipole=1,pars%mynpoles(jsp)
             temp = Eia(ipole,jsp) + ieta
 
@@ -152,7 +152,7 @@
      $                                      (0.5d0/(temp - arg))**2) )
 #endif
 
-#ifdef GWDEBUG
+#ifdef GWDEBUG2
             if ((factor(ipole,jsp).ne.factor(ipole,jsp)).or.
      $           dfactor(ipole,jsp).ne.dfactor(ipole,jsp)) then
               write(*,*) " ## Singular factor in buildrn. Shift denom"
@@ -170,7 +170,7 @@
             endif
 #endif
           enddo
-!$omp   end parallel do simd
+!$omp     end parallel do simd
         enddo
 
         root = mod((imo-off-1)*nspace+jmo-off-1,nprocs)

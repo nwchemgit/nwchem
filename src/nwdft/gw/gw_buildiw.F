@@ -94,8 +94,10 @@
      $  call errquit(pname//'can''t allocate Pi',0,MA_ERR) 
       if (.not.ma_alloc_get(mt_dbl,nri*mynmo,'sol',l_sol,k_sol))
      $  call errquit(pname//'can''t allocate sol',0,MA_ERR) 
-      if (.not.ma_alloc_get(mt_dbl,sizepi,'vx',l_vx,k_vx))
+      if (pars%rpa) then
+        if (.not.ma_alloc_get(mt_dbl,sizepi,'vx',l_vx,k_vx))
      $  call errquit(pname//'can''t allocate vx',0,MA_ERR)
+      endif
 #endif 
       if (.not.ma_alloc_get(mt_dbl,nri*mynmo,'temp',l_tmp,tmp))
      $  call errquit(pname//'can''t allocate tmp',0,MA_ERR) 
@@ -165,7 +167,7 @@ c
      $                  factor,ldpi,nri,pars%mynpoles,main,ipol,
      $                  maxpoles) 
         call ga_dgop(mt_dbl,dbl_mb(k_pi),sizepi,'+')
-        call dcopy(sizepi,dbl_mb(k_pi),1,dbl_mb(k_vx),1)
+        if (pars%rpa) call dcopy(sizepi,dbl_mb(k_pi),1,dbl_mb(k_vx),1)
 #ifdef GWDEBUG
         if (main) write(luout,*) '     ## buildpi ',util_wallsec()-t0
 #endif
@@ -239,10 +241,14 @@ c
               call gw_rfpmm(dbl_mb(k_vx),dbl_mb(tmp),dbl_mb(k_sol),
      $                      ldpi,nri,iwidx(0,jmo,isp),.true.)
             else
+              t0 = util_wallsec()
               call gw_copy(nri*iwidx(0,jmo,isp),dbl_mb(tmp),
      $                     dbl_mb(k_sol))
               call dtfsm('n','l','l','n','n',nri,iwidx(0,jmo,isp),1d0,
      $                   dbl_mb(k_pi),dbl_mb(k_sol),nri)       
+#ifdef GWDEBUG
+        if (main) write(luout,*) '     ## solve ',util_wallsec()-t0
+#endif
             endif
 #endif
 c
@@ -300,8 +306,10 @@ c
       if (.not.(ma_free_heap(l_work)))
      $  call errquit(pname//'can''t free vX heap',me,MA_ERR) 
 #else
-      if (.not.(ma_free_heap(l_vx)))
+      if (pars%rpa) then
+        if (.not.(ma_free_heap(l_vx)))
      $  call errquit(pname//'can''t free vX heap',me,MA_ERR) 
+      endif
 #endif
 
       pars%ecrpa = pars%ecrpa*0.5d0
