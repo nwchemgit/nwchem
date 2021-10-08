@@ -77,7 +77,6 @@
         ldpi = nri
       endif
       sizepi = (nri*(nri+1))/2
-      
 
       diag = pars%diag
 
@@ -91,7 +90,7 @@
       if (.not.ma_alloc_get(mt_int,nri,'ipiv',l_ipiv,ipiv))
      $  call errquit(pname//'can''t allocate sol',0,MA_ERR) 
 #else
-      if (.not.ma_alloc_get(mt_dbl,nri**2,'Pi',l_pi,k_pi))
+      if (.not.ma_alloc_get(mt_dbl,sizepi,'Pi',l_pi,k_pi))
      $  call errquit(pname//'can''t allocate Pi',0,MA_ERR) 
       if (.not.ma_alloc_get(mt_dbl,nri*mynmo,'sol',l_sol,k_sol))
      $  call errquit(pname//'can''t allocate sol',0,MA_ERR) 
@@ -178,9 +177,7 @@ c
           call gw_invdiag(dbl_mb(k_vx),ldpi,nri,ecrpa,.true.)
           if (me.eq.0) pars%ecrpa = pars%ecrpa + wgt(igl)*ecrpa
         else
-          call rfp2std(dbl_mb(k_pi),nri)
-c          call dpftrf('n','l',nri,dbl_mb(k_pi),info)
-          call dpotrf('l',nri,dbl_mb(k_pi),nri,info)
+          call dpftrf('n','l',nri,dbl_mb(k_pi),info)
           if (me.eq.0 .and. pars%rpa) then
             call gw_cdgw_ecrpa(dbl_mb(k_pi),ldpi,nri,ecrpa)
             pars%ecrpa = pars%ecrpa + wgt(igl)*ecrpa
@@ -247,10 +244,8 @@ c          call dpftrf('n','l',nri,dbl_mb(k_pi),info)
               t0 = util_wallsec()
               call gw_copy(nri*iwidx(0,jmo,isp),dbl_mb(tmp),
      $                     dbl_mb(k_sol))
-              call dtrsm('l','l','n','n',nri,iwidx(0,jmo,isp),1d0,
-     $                    dbl_mb(k_pi),nri,dbl_mb(k_sol),nri)
-c              call dtfsm('n','l','l','n','n',nri,iwidx(0,jmo,isp),1d0,
-c     $                   dbl_mb(k_pi),dbl_mb(k_sol),nri)       
+              call dtfsm('n','l','l','n','n',nri,iwidx(0,jmo,isp),1d0,
+     $                   dbl_mb(k_pi),dbl_mb(k_sol),nri)       
 #ifdef GWDEBUG
         if (main) write(luout,*) '     ## solve ',util_wallsec()-t0
 #endif

@@ -47,12 +47,9 @@ c            call dscal(nri,factor(ipole,1),ovup(1,ipole),1)
 
 
           t0 = util_wallsec()
-c          call dsfrk('n','l','n',nri,npoles(1),scal,ovup,nri,0d0,pi)
-          call dsyrk('l','n',nri,npoles(1),scal,ovup,nri,0d0,pi,nri)
-          call std2rfp(pi,nri)
+          call dsfrk('n','l','n',nri,npoles(1),scal,ovup,nri,0d0,pi)
 #ifdef GWDEBUG
-c        if (main) write(luout,*) '       ## dsfrk ',util_wallsec()-t0
-        if (main) write(luout,*) '       ## dsyrk ',util_wallsec()-t0
+        if (main) write(luout,*) '       ## dsfrk ',util_wallsec()-t0
 #endif
 
 
@@ -377,24 +374,6 @@ c            call dscal(nri,1d0/factor(ipole,1),ovup(1,ipole),1)
       else
         do i=n/2+2,n
           matrix(i-n/2-1,i-n/2:n/2+1) = matrix(i:,i)
-        enddo
-      endif
-
-      end subroutine
-
-      subroutine rfp2std(matrix,n)
-      implicit none
-      integer,intent(in) :: n
-      double precision :: matrix(n,n)
-      integer i
-
-      if (mod(n,2).eq.0) then
-        do i=n/2+1,n
-          matrix(i:,i) = matrix(i-n/2,i-n/2+1:n/2+1)
-        enddo
-      else
-        do i=n/2+2,n
-          matrix(i:,i) = matrix(i-n/2-1,i-n/2:n/2+1)
         enddo
       endif
 
