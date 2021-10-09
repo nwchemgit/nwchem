@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #set -v
 arch=`uname -m`
-VERSION=0.3.17
+VERSION=0.3.18
 #COMMIT=974acb39ff86121a5a94be4853f58bd728b56b81
 BRANCH=develop
 if [ -f  OpenBLAS-${VERSION}.tar.gz ]; then
