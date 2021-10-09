@@ -36,9 +36,14 @@ fi
    GOTAVX=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /avx/    {print "Y"}')
   GOTAVX2=$(echo ${CPU_FLAGS_2} | tr  'A-Z' 'a-z'| awk ' /avx2/   {print "Y"}')
 GOTAVX512=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /avx512f/{print "Y"}')
+GOTCLZERO=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /clzero/{print "Y"}')
 if [[ "${GOTAVX2}" == "Y" ]]; then
     echo "forcing Haswell target when AVX2 is available"
     FORCETARGET=" TARGET=HASWELL "
+fi
+if [[ "${GOTCLZERO}" == "Y" ]]; then
+    echo "forcing Zen target when CLZERO is available"
+    FORCETARGET=" TARGET=ZEN "
 fi
 if [[ "${GOTAVX512}" == "Y" ]]; then
     echo "forcing Haswell target on SkyLake"
@@ -65,6 +70,8 @@ fi
 #cray ftn wrapper
 if [[ ${FC} == ftn ]]; then
     FCORG=ftn
+    CRAY_ACCEL_TARGET_ORG=$CRAY_ACCEL_TARGET
+    unset CRAY_ACCEL_TARGET
     if [[ ${PE_ENV} == PGI ]]; then
           FC=pgf90
 #          _CC=pgcc
@@ -80,6 +87,9 @@ if [[ ${FC} == ftn ]]; then
     fi
     if [[ ${PE_ENV} == NVIDIA ]]; then
 	FC=nvfortran
+        FORCETARGET+=' CC=gcc '
+	CC=gcc
+	unset CPATH
     fi
     if [[ ${PE_ENV} == CRAY ]]; then
 #	echo ' '
@@ -185,4 +195,7 @@ if [[ -n ${FCORG} ]]; then
 fi
 if [[ -n ${CCORG} ]]; then
     CC=${CCORG}
+fi
+if [[ -n ${CRAY_ACCEL_TARGET_ORG} ]]; then
+    CRAY_ACCEL_TARGET=$CRAY_ACCEL_TARGET_ORG
 fi
