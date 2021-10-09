@@ -215,9 +215,12 @@ elif  [[ ${FC} == nvfortran || ${FC} == pgf90 || (${FC} == ftn && ${PE_ENV} == N
     Fortran_FLAGS="-i8 -cpp"
     CC=gcc
     CXX=g++
+    if  [[ ${PE_ENV} == NVIDIA ]]; then
+	unset CPATH
+    fi
 fi
 echo Fortran_FLAGS equal "$Fortran_FLAGS"
-FC="${FC}" CXX="${CXX}" $MYCMAKE \
+FC="${FC}" CC="${CC}" CXX="${CXX}" $MYCMAKE \
  -DCMAKE_BUILD_TYPE="${SIMINT_BUILD_TYPE}" -DSIMINT_VECTOR=${VEC}  \
  -DCMAKE_INSTALL_LIBDIR=lib -DENABLE_FORTRAN=ON -DSIMINT_MAXAM=${SIMINT_MAXAM} -DSIMINT_MAXDER=${DERIV} \
  -DENABLE_TESTS=OFF     -DSIMINT_STANDALONE=OFF   \
