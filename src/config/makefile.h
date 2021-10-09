@@ -1744,7 +1744,7 @@ endif
 # as of 2021 cray cc is derived from clang
           _CC=clang
         endif
-        ifeq ($(PE_ENV),AMD)
+        ifeq ($(PE_ENV),AOCC)
           _FC=gfortran
 	  USE_FLANG=1
           _CC=clang

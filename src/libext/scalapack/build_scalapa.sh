@@ -184,7 +184,7 @@ if [[ ${FC} == ftn ]]; then
     if [[ ${PE_ENV} == GNU ]]; then
 	FC=gfortran
     fi
-    if [[ ${PE_ENV} == AMD ]]; then
+    if [[ ${PE_ENV} == AOCC ]]; then
 	FC=flang
     fi
     if [[ ${PE_ENV} == NVIDIA ]]; then
