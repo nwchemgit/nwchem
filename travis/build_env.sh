@@ -34,10 +34,10 @@ esac
 	 else
 	mkdir -p ~/mntdmg ~/apps/oneapi || true
 	cd ~/Downloads
-	dir_base="17969"
-	dir_hpc="17890"
-	base="m_BaseKit_p_2021.3.0.3043_offline"
-	hpc="m_HPCKit_p_2021.3.0.3226_offline"
+	dir_base="18256"
+	dir_hpc="18242"
+	base="m_BaseKit_p_2021.4.0.3384_offline"
+	hpc="m_HPCKit_p_2021.4.0.3389_offline"
 	curl -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_base"/"$base".dmg
 	curl -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".dmg
 	echo "installing BaseKit"
@@ -148,7 +148,7 @@ fi
     if [[ "$FC" == "nvfortran" ]]; then
 	sudo apt-get -y install lmod g++ libtinfo5 libncursesw5 lua-posix lua-filesystem lua-lpeg lua-luaossl
 	nv_major=21
-	nv_minor=7
+	nv_minor=9
 	nverdot="$nv_major"."$nv_minor"
 	nverdash="$nv_major"-"$nv_minor"
 	arch_dpkg=`dpkg --print-architecture`
