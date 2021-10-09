@@ -148,7 +148,7 @@ fi
     if [[ "$FC" == "nvfortran" ]]; then
 	sudo apt-get -y install lmod g++ libtinfo5 libncursesw5 lua-posix lua-filesystem lua-lpeg lua-luaossl
 	nv_major=21
-	nv_minor=7
+	nv_minor=9
 	nverdot="$nv_major"."$nv_minor"
 	nverdash="$nv_major"-"$nv_minor"
 	arch_dpkg=`dpkg --print-architecture`
