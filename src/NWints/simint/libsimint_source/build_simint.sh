@@ -198,7 +198,7 @@ if [[ -z "${FC}" ]]; then
     fi
 fi    
     GFORTRAN_EXTRA=$(echo $FC | cut -c 1-8)
-if [[ ${FC} == gfortran  || ${FC} == flang  ||  ${GFORTRAN_EXTRA} == gfortran || (${FC} == ftn && ${PE_ENV} == GNU) ]] ; then
+if [[ ${FC} == gfortran  || ${FC} == flang  ||  ${GFORTRAN_EXTRA} == gfortran || (${FC} == ftn && ${PE_ENV} == GNU) || (${FC} == ftn && ${PE_ENV} == AOCC) ]] ; then
     Fortran_FLAGS="-fdefault-integer-8 -cpp"
     GNUMAJOR=$(${FC} -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
     echo GNUMAJOR is $GNUMAJOR
