@@ -3117,6 +3117,9 @@ ifdef COMM_LIBS
  CORE_LIBS += $(COMM_LIBS) 
 endif 
 #endif
+ifdef USE_CRAYSHASTA
+ CORE_LIBS += -lpmi2
+endif
 ifdef USE_LINUXAIO
  CORE_LIBS += -lrt
 endif
