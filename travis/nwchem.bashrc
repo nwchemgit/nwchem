@@ -137,6 +137,15 @@ if [[ -z "$USE_INTERNALBLAS" ]]; then
 	    if [[ -z "$SCALAPACK_SIZE" ]] ; then
 		export SCALAPACK_SIZE=8
 	    fi
+#elpa
+	    GFORTRAN_EXTRA=$(echo $FC | cut -c 1-8)
+	    if  [[ ${FC} == gfortran ]] || [[ ${GFORTRAN_EXTRA} == gfortran ]] ; then
+		if [[ "$arch" == "x86_64" ]]; then
+		    if [[ ! -z "$BUILD_OPENBLAS" ]]; then
+			export BUILD_ELPA=1
+		    fi
+		fi
+	    fi
 	else
 	    unset BUILD_SCALAPACK
 	fi
@@ -146,5 +155,10 @@ fi
 echo "from nwchem.bashrc"
 echo "BLAS_SIZE = " "$BLAS_SIZE"
 echo "SCALAPACK_SIZE = " "$SCALAPACK_SIZE"
-echo "USE_64TO32 = " "$USE_64TO32"
+if [[ ! -z "$USE_64TO32" ]]; then
+    echo "USE_64TO32 = " "$USE_64TO32"
+fi
+if [[ ! -z "$BUILD_ELPA" ]]; then
+echo "BUILD_ELPA = " "$BUILD_ELPA"
+fi
 export NWCHEM_EXECUTABLE=$TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET/nwchem_"$arch"_`echo $NWCHEM_MODULES|sed 's/ /-/g'`_"$MPI_IMPL"
