@@ -48,7 +48,7 @@ if [[  -z "${FC}" ]]; then
 fi
 
 if [[  -z "${FORCETARGET}" ]]; then
-FORCETARGET=" -disable-sse-assembly --disable-avx --disable-avx2  --disable-avx512  "
+FORCETARGET="-disable-sse -disable-sse-assembly --disable-avx --disable-avx2  --disable-avx512  "
 if [[ ${UNAME_S} == Linux ]]; then
     CPU_FLAGS=$(cat /proc/cpuinfo | grep flags |tail -n 1)
     CPU_FLAGS_2=$(cat /proc/cpuinfo | grep flags |tail -n 1)
@@ -61,20 +61,20 @@ fi
   GOTAVX2=$(echo ${CPU_FLAGS_2} | tr  'A-Z' 'a-z'| awk ' /avx2/   {print "Y"}')
 GOTAVX512=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /avx512f/{print "Y"}')
 GOTCLZERO=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /clzero/{print "Y"}')
-if [[ ${UNAME_S} == Linux ]]; then
-    if [[ "${GOTAVX}" == "Y" ]]; then
-	echo "using AVX instructions"
-	FORCETARGET=" --enable-sse-assembly --enable-avx --disable-avx2  --disable-avx512  "
-    fi
-    if [[ "${GOTAVX2}" == "Y" ]]; then
-	echo "using AVX2 instructions"
-	FORCETARGET=" --enable-sse-assembly --enable-avx --enable-avx2  --disable-avx512  "
-    fi
+#if [[ ${UNAME_S} == Linux ]]; then
+#    if [[ "${GOTAVX}" == "Y" ]]; then
+#	echo "using AVX instructions"
+#	FORCETARGET=" --enable-sse-assembly --enable-avx --disable-avx2  --disable-avx512  "
+#    fi
+#    if [[ "${GOTAVX2}" == "Y" ]]; then
+#	echo "using AVX2 instructions"
+#	FORCETARGET=" --enable-sse-assembly --enable-avx --enable-avx2  --disable-avx512  "
+#    fi
 #    if [[ "${GOTAVX512}" == "Y" ]]; then
 #	echo "using AVX512 instructions"
 #	FORCETARGET=" --enable-sse-assembly --enable-avx --enable-avx2  --enable-avx512  "
 #    fi
-fi #Linux
+#fi #Linux
 fi #FORCETARGET
 if [[  -z "${BLAS_SIZE}" ]]; then
    BLAS_SIZE=8
@@ -123,11 +123,12 @@ echo 64ints is $sixty4_int
  ${FORCETARGET} \
 	      --disable-shared --enable-static  \
 	      --disable-gpu \
+	      --disable-mpi-module \
 --prefix=${NWCHEM_TOP}/src/libext \
-SCALAPACK_FCFLAGS="-L${NWCHEM_TOP}/src/libext/lib -lnwc_scalapack  -lnwc_openblas" \
-SCALAPACK_LDFLAGS="-L${NWCHEM_TOP}/src/libext/lib -lnwc_scalapack  -lnwc_openblas" \
-	      LIBS="-L${NWCHEM_TOP}/src/libext/lib -lnwc_scalapack  -lnwc_openblas"
-make VERBOSE=0 V=0 -j3
+SCALAPACK_FCFLAGS="-L${NWCHEM_TOP}/src/libext/lib -lnwc_scalapack  -lnwc_openblas -lpthread" \
+SCALAPACK_LDFLAGS="-L${NWCHEM_TOP}/src/libext/lib -lnwc_scalapack  -lnwc_openblas -lpthread" \
+	      LIBS="-L${NWCHEM_TOP}/src/libext/lib -lnwc_scalapack  -lnwc_openblas -lpthread"
+make FC=$MPIF90 CC=$MPICC VERBOSE=0 V=0 -j3
 if [[ "$?" != "0" ]]; then
     echo " "
     echo "Elpa compilation failed"
