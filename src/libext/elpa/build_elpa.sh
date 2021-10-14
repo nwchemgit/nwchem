@@ -62,28 +62,30 @@ fi
 GOTAVX512=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /avx512f/{print "Y"}')
 GOTCLZERO=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /clzero/{print "Y"}')
 #if [[ ${UNAME_S} == Linux ]]; then
-#    if [[ "${GOTAVX}" == "Y" ]]; then
-#	echo "using AVX instructions"
-#	FORCETARGET=" --enable-sse-assembly --enable-avx --disable-avx2  --disable-avx512  "
+    CFLAGS=" -mtune=native -march=native "
+    if [[ "${GOTAVX}" == "Y" ]]; then
+	echo "using AVX instructions"
+	FORCETARGET=" --disable-sse-assembly --enable-avx --disable-avx2  --disable-avx512  "
+    fi
+    if [[ "${GOTAVX2}" == "Y" ]]; then
+	echo "using AVX2 instructions"
+	FORCETARGET=" --disable-sse-assembly --enable-avx --enable-avx2  --disable-avx512  "
+#	CFLAGS+=" -mmmx -msse -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -maes -mavx -mfma -mavx2 "
+    fi
+    if [[ "${GOTAVX512}" == "Y" ]]; then
+	echo "using AVX512 instructions"
+	FORCETARGET=" --disable-sse-assembly --enable-avx --enable-avx2  --enable-avx512 "
 #    fi
-#    if [[ "${GOTAVX2}" == "Y" ]]; then
-#	echo "using AVX2 instructions"
-#	FORCETARGET=" --enable-sse-assembly --enable-avx --enable-avx2  --disable-avx512  "
-#    fi
-#    if [[ "${GOTAVX512}" == "Y" ]]; then
-#	echo "using AVX512 instructions"
-#	FORCETARGET=" --enable-sse-assembly --enable-avx --enable-avx2  --enable-avx512  "
-#    fi
-#fi #Linux
+fi #Linux
 fi #FORCETARGET
 if [[  -z "${BLAS_SIZE}" ]]; then
    BLAS_SIZE=8
 fi
 if [[ ${BLAS_SIZE} == 8 ]]; then
-  sixty4_int=" --enable-64bit-integer-math-support "
+  sixty4_int+=" --enable-64bit-integer-math-support "
 
 else
-  sixty4_int=" "
+  sixty4_int+=" "
 fi
 
 if [[   -z "${CC}" ]]; then
@@ -91,13 +93,12 @@ if [[   -z "${CC}" ]]; then
 fi
 GOTCLANG=$( "$MPICC" -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
 if [[ ${GOTCLANG} == "1" ]] ; then
-    sixty4_int+='CFLAGS=-Wno-error=implicit-function-declaration '
-#    C_FLAGS=" -Wno-error=implicit-function-declaration "
+    CFLAGS+=" -Wno-error=implicit-function-declaration "
 fi
 # check gfortran version for arg check
 let GFOVERSIONGT7=$(expr `${FC} -dumpversion | cut -f1 -d.` \> 7)
 if [[ ${GFOVERSIONGT7} == 1 ]]; then
-    sixty4_int+=' FCFLAGS=-std=legacy '
+    FCFLAGS+='-std=legacy '
 fi
 ## check gcc version for skylake
 #let GCCVERSIONGT5=$(expr `${CC} -dumpversion | cut -f1 -d.` \> 5)
@@ -116,6 +117,10 @@ if [ ! -f  configure ]; then
 fi    
 mkdir -p build
 cd build
+export CFLAGS
+export FCFLAGS
+echo FCFLAGS is $FCFLAGS
+echo CFLAGS is $CFLAGS
 echo 64ints is $sixty4_int
 ../configure \
     FC=$MPIF90 CC=$MPICC \
