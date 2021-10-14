@@ -139,7 +139,8 @@ if [[ -z "$USE_INTERNALBLAS" ]]; then
 	    fi
 #elpa
 	    GFORTRAN_EXTRA=$(echo $FC | cut -c 1-8)
-	    if  [[ ${FC} == gfortran ]] || [[ ${GFORTRAN_EXTRA} == gfortran ]] ; then
+#	    if  [[ ${FC} == gfortran ]] || [[ ${GFORTRAN_EXTRA} == gfortran ]] ; then
+	    if  [[ ${FC} == gfortran ]]  ; then
 		if [[ "$arch" == "x86_64" ]]; then
 		    if [[ ! -z "$BUILD_OPENBLAS" ]]; then
 			export BUILD_ELPA=1
