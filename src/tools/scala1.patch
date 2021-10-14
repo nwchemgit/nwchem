@@ -1,5 +1,5 @@
---- ga-5.8.1/global/src/scalapack.F.org	2021-10-13 17:50:22.088764644 -0700
-+++ ga-5.8.1/global/src/scalapack.F	2021-10-13 17:50:33.916827093 -0700
+--- ga-5.8.1/global/src/scalapack.F.org	2021-09-17 11:36:45.000000000 -0700
++++ ga-5.8.1/global/src/scalapack.F	2021-10-13 18:27:57.508483689 -0700
 @@ -6,6 +6,7 @@
  #else
  #define INTGR4 integer*4
@@ -208,7 +208,17 @@
  c     
  c     
        lda = max(one4,mpA)
-@@ -3445,7 +3510,7 @@
+@@ -3439,18 +3504,23 @@
+          
+          call ga_to_SL2(g_a, dimA1, dimA2, nb, nb,
+      $        dbl_mb(adrA), lda, mpA, nqA)
+-         endif
++      else
++         mpb=1
++         nqb=1
++      endif                     ! oactive
+          if(g_a.eq.g_b) then
+             if(.not.ga_deallocate(g_b))
       E           call ga_error(' ga_pdsyevr: ga_deallocate failed',0)
           endif
           call ga_sync()
@@ -216,8 +226,16 @@
 +!         if(oactive) then
  c     
           elemB= mpB*nqB
+-c     
++c
++         status=.true.
+          if(elemB.ne.0)status =
+      $        ma_push_get(MT_DBL,elemB,'b',hb,adrb)
++         write(0,*) iam,' elemb status ',mpb,nqb,status
+          if(.not.status) 
+      &        call ga_error('ga_pdsyevr: mem alloc failed B ', -1)
  c     
-@@ -3517,16 +3582,38 @@
+@@ -3517,16 +3587,38 @@
  c     
           liwork4=liwork
           lcwork4=lcwork
@@ -259,7 +277,7 @@
       A        dima1
  
  
-@@ -3546,8 +3633,7 @@
+@@ -3546,8 +3638,7 @@
  c***  copy solution matrix back to g_b
  c     
           mout4=mout
@@ -269,7 +287,7 @@
           if(.not.ga_allocate(g_b)) 
       E        call ga_error(' ga_pdsyevr: ga_allocate failed',0)
           call ga_zero(g_b)
-@@ -3574,7 +3660,14 @@
+@@ -3574,7 +3665,14 @@
           dblsize=ma_sizeof(MT_DBL,1,MT_BYTE)*dima1
           call ga_brdcst(1688,eval,dblsize,0)
        endif
@@ -285,7 +303,7 @@
        return
        end
  #endif
-@@ -3662,6 +3755,12 @@
+@@ -3662,6 +3760,12 @@
        parameter(one4=1,zero4=0,two4=4,four4=4)
        integer info8,dblsize
        integer*4 n4
@@ -298,7 +316,7 @@
  c     
  c     processor dependent; machine dependent
  c     
-@@ -3704,6 +3803,12 @@
+@@ -3704,6 +3808,12 @@
  c     
        call SLinit2(n)
        oactive=iam.lt.maxproc
@@ -311,7 +329,7 @@
        if(g_a.ne.g_b) then
           if(.not.ga_deallocate(g_b))
       E        call ga_error(' ga_evp_real: ga_deallocate failed',0)
-@@ -3729,9 +3834,13 @@
+@@ -3729,9 +3839,13 @@
  c     
        mpA = numroc(dimA1, nb, myrow2, zero4, nprow2)
        nqA = numroc(dimA2, nb, mycol2, zero4, npcol2)
@@ -325,7 +343,7 @@
  c     
  c     
        lda = max(one4,mpA)
-@@ -3764,19 +3873,22 @@
+@@ -3764,19 +3878,22 @@
       &        call ga_error('ga_evp_real: mem alloc failed A ', 
       S        stat_alloc)
  c     
@@ -357,7 +375,7 @@
  c     
  c     
           n4=n8
-@@ -3792,7 +3904,7 @@
+@@ -3792,7 +3909,7 @@
       $        dbl_mb(adrA), 
  #endif
       A        lda, mpA, nqA)
@@ -366,7 +384,7 @@
           if(g_a.eq.g_b) then
              if(.not.ga_deallocate(g_b))
       E           call ga_error(' ga_evp_real: ga_deallocate failed',0)
-@@ -3868,8 +3980,15 @@
+@@ -3868,8 +3985,15 @@
             if(elpa_err.ne.0) call ga_error(
       A     'ga-evp_real: get_elpa_row_col failed ',elpa_err)
  #endif
@@ -384,7 +402,7 @@
  #if HAVE_ELPA_2017
  #if USE_ALLOCATE
           call e%eigenvectors(a, ev, b, elpa_err)
-@@ -3899,7 +4018,14 @@
+@@ -3899,7 +4023,14 @@
  #endif
  #endif
       E   call ga_error(' solve_evp_real failed',0)
@@ -400,7 +418,7 @@
           if(iam.eq.0.and.mout4.ne.n) 
       W        write(6,*) ' computed eval ',mout,' out of ',
       A        dima1
-@@ -3931,13 +4057,17 @@
+@@ -3931,13 +4062,17 @@
  c     
  c***  deallocate work/SL arrays
  c     
@@ -422,7 +440,7 @@
  
           if ( elemA .ne. 0 ) then
  #ifdef USE_ALLOCATE
-@@ -3949,6 +4079,9 @@
+@@ -3949,6 +4084,9 @@
               status = ma_pop_stack(ha)
  #endif
            endif
@@ -432,7 +450,7 @@
  #if HAVE_ELPA_2017
         call elpa_deallocate(e,elpa_err)
         if(elpa_err.ne.0) call ga_error(
-@@ -3968,7 +4101,14 @@
+@@ -3968,7 +4106,14 @@
           dblsize=ma_sizeof(MT_DBL,1,MT_BYTE)*dima1
           call ga_brdcst(1688,eval,dblsize,0)
        endif
