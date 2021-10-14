@@ -32,7 +32,7 @@ jobs:
           - "qmandpw qmd"
           - "tce"
         fc:
-          - gfortran-9
+          - gfortran
         exclude:
           - os: macos-10.15 
             mpi_impl: mpich
