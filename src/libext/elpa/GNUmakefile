@@ -23,7 +23,7 @@ LIB_TARGETS += elpa
 include ../../config/makelib.h
 
 clean:
-	@rm -rf  elpa* ../lib/libnwc_elpa* ../include/elpa*
+	@rm -rf  elpa* ../lib/lib*elpa* ../include/elpa*
 
 
 

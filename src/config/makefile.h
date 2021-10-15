@@ -266,14 +266,14 @@ endif
 endif      
 ifdef BUILD_ELPA
 NW_CORE_SUBDIRS += libext
-      ifeq ($(or $(BUILD_SCALAPACK),$(BUILD_OPENBLAS)),)
-$(info     )
-$(info You must set)
-$(info BUILD_SCALAPACK  and BUILD_OPENBLAS)
-$(info when using BUILD_ELPA )
-$(info )
-$(error )
-endif
+#      ifeq ($(or $(BUILD_SCALAPACK),$(BUILD_OPENBLAS)),)
+#$(info     )
+#$(info You must set)
+#$(info BUILD_SCALAPACK  and BUILD_OPENBLAS)
+#$(info when using BUILD_ELPA )
+#$(info )
+#$(error )
+#endif
   ifndef SCALAPACK_SIZE
     SCALAPACK_SIZE=8
   endif
