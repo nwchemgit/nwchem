@@ -83,6 +83,7 @@
         call gw_aprod(OV1,factor,x,y,-2d0,0d0,npoles,n)
         call gw_aprod(OV2,factor(1,2),x,y,-2d0,1d0,npoles(2),n)
       endif
+      call ga_mask_sync(.true.,.false.)
       call dgop(mt_dbl,y,n,'+')
 
 !$omp parallel do simd schedule(static)
@@ -165,6 +166,7 @@
           call gw_aprod(OV1,factor,v,y,2d0,0d0,npoles,n)
           call gw_aprod(OV2,factor(1,2),v,y,2d0,1d0,npoles(2),n)
         endif
+        call ga_mask_sync(.true.,.false.)
         call dgop(mt_dbl,y,n,'+')
 
         call daxpy(n,1d0,v,1,y,1)
@@ -291,6 +293,7 @@ c       converge in 20 or less steps
         if (test1 .le. rtol     ) istop=1
         if (rnorm .le. rtol     ) istop=8
 
+        call ga_mask_sync(.true.,.false.)
         call ga_brdcst(mt_int,istop,ma_sizeof(mt_int,1,mt_byte),0)
 
         if (istop.ne.0) exit
@@ -320,6 +323,7 @@ c      end if
 c        if (main) write(*,'(A,F8.3)') 'BUILDPI: ',util_wallsec()-t0
 #endif
         t0 = util_wallsec()
+        call ga_mask_sync(.true.,.false.)
         call ga_dgop(mt_dbl,dbl_mb(k_pi),(n*(n+1))/2+n,'+')
 #ifdef GWDEBUG
 c        if (main) write(*,'(A,F8.3)') 'GOP: ',util_wallsec()-t0
@@ -335,6 +339,7 @@ c        if (main) write(*,'(A,F8.3)') 'GOP: ',util_wallsec()-t0
           x(:) = 0d0
           call gw_invdiag(dbl_mb(k_pi),n,n,dummy,.false.)
           call dgemv('t',n,mynri,1d0,dbl_mb(llpi),n,b,1,0d0,x(pilo),1)
+          call ga_mask_sync(.true.,.false.)
           call ga_dgop(mt_dbl,x,n,'+')
         else
           if (.not.ma_push_get(mt_int,n,'ipiv',l_ipiv,k_ipiv))
@@ -356,6 +361,7 @@ c          if (main) write(*,'(A,F8.3)') 'DSYSV: ',util_wallsec()-t0
      $    call errquit('gw_en: can''t deallocate pi matrix',0,MA_ERR)   
         rnorm = 0d0
       else
+        call ga_mask_sync(.true.,.false.)
         call ga_brdcst(mt_dbl,x,ma_sizeof(mt_dbl,n,mt_byte),0)
       endif
 

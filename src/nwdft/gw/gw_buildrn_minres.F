@@ -181,8 +181,9 @@
 
         if (me.eq.owner) call ga_get(gb,1,nri,jmo,jmo,xvec,nri)
         if (me.eq.root) call ga_get(ga,1,nri,idx,idx,vector,nri)
-        call ga_sync()
+        call ga_mask_sync(.true.,.false.)
         call ga_brdcst(mt_dbl,vector,ma_sizeof(mt_dbl,nri,mt_byte),root)
+        call ga_mask_sync(.true.,.false.)
         call ga_brdcst(mt_dbl,xvec,ma_sizeof(mt_dbl,nri,mt_byte),owner)
 
 
@@ -228,7 +229,9 @@ c        w = ddot(nri,vector,1,xvec,1) - ddot(nri,vector,1,vector,1)
 
       enddo
 
+      call ga_mask_sync(.true.,.false.)
       call ga_zgop(mt_dbl,R1,1,'+')
+      call ga_mask_sync(.true.,.false.)
       call ga_zgop(mt_dbl,dR1,1,'+')
 
       deallocate(factor,dfactor)

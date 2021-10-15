@@ -166,11 +166,16 @@ c
         call gw_buildpi('w',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
      $                  factor,ldpi,nri,pars%mynpoles,main,ipol,
      $                  maxpoles) 
-        call ga_dgop(mt_dbl,dbl_mb(k_pi),sizepi,'+')
-        if (pars%rpa) call dcopy(sizepi,dbl_mb(k_pi),1,dbl_mb(k_vx),1)
 #ifdef GWDEBUG
         if (main) write(luout,*) '     ## buildpi ',util_wallsec()-t0
 #endif
+        t0 = util_wallsec()
+        call ga_mask_sync(.true.,.false.)
+        call ga_dgop(mt_dbl,dbl_mb(k_pi),sizepi,'+')
+#ifdef GWDEBUG
+        if (main) write(luout,*) '     ## dgop ',util_wallsec()-t0
+#endif
+        if (pars%rpa) call dcopy(sizepi,dbl_mb(k_pi),1,dbl_mb(k_vx),1)
 
         t0 = util_wallsec()
         if (diag) then
@@ -195,6 +200,7 @@ c
           do imo=pars%llmo(isp),pars%llmo(isp)+pars%nqp(isp)-1
             jmo = imo - pars%llmo(isp) + 1
             
+            call util_blas_set_num_threads(1)
 
             if (imo.le.pars%nocc(isp)) then
 
@@ -231,6 +237,8 @@ c
 !$omp         end parallel do
             endif
 
+            call util_blas_set_num_threads(iMaxThreads)
+
 #ifdef GWCMPLX
             call zlacp2('A',nri,iwidx(0,jmo,isp),dbl_mb(tmp),nri,
      $                   dcpl_mb(k_sol),nri)
@@ -246,9 +254,6 @@ c
      $                     dbl_mb(k_sol))
               call dtfsm('n','l','l','n','n',nri,iwidx(0,jmo,isp),1d0,
      $                   dbl_mb(k_pi),dbl_mb(k_sol),nri)       
-#ifdef GWDEBUG
-        if (main) write(luout,*) '     ## solve ',util_wallsec()-t0
-#endif
             endif
 #endif
 c
