@@ -2529,9 +2529,7 @@ c
           errcos=-dble(nelec)-chgcos
           chgfac=-dble(nelec)/chgcos
         endif
-        do ief=1,nefc
-          x(ief+ieq-1)=x(ief+ieq-1)*chgfac
-        enddo
+        call dscal(nefc,chgfac,x(ieq),1)
       else if (cosmo_sccor.eq.COSMO_SCCOR_LAGRA) then
 c
 c       ----- correct the COSMO surface charge using Lagrangian -----
@@ -2546,8 +2544,8 @@ c
         errcos=charge-chgcos
         dlambda=errcos/chgina
         chgcos=zero
+        call daxpy(nefc,dlambda,x(i80),1,x(i20),1)
         do ief=1,nefc
-           x(ief+i20-1)=x(ief+i20-1)+dlambda*x(i80+ief-1)
            chgcos=chgcos+x(ief+i20-1)
         enddo
         elambda = 0.5d0*screen*dlambda*chgcos
@@ -2573,8 +2571,8 @@ c
 c     ----- apply screening factor -----
 c
       chgcos=zero
+      call dscal(nefc,-chgfac,x(i20),1)
       do ief=1,nefc
-         x(ief+i20-1)=-chgfac*x(ief+i20-1)
          chgcos=chgcos+x(ief+i20-1)
       enddo
 c
@@ -2594,18 +2592,17 @@ c
 c
 c MN solvation models -->
 c
-      do ief=1,nefc
-         if (istep_cosmo_vem.eq.2.and.do_cosmo_vem.ne.0) then
+      if (istep_cosmo_vem.eq.2 .and. do_cosmo_vem.ne.0) then
 c fixed ES nonequilibrium cosmo-vem charges to be added to the Fock matrix
 c later on (excitation VEM)
-           efcz(ief)=x(k_efczfx+ief-1)
-         endif
-         if (istep_cosmo_vem.eq.3.and.do_cosmo_vem.eq.2) then
+        call dcopy(nefc,x(k_efczfx),1,efcz,1)
+      endif
+      if (istep_cosmo_vem.eq.3 .and. do_cosmo_vem.eq.2) then
 c GS RF containing ES cosmo-vem charges (slow portion) to calculate
 c the VEM energy in the case of nonequilibrium emission to the GS
-          efcz(ief)=dvem1*efcz(ief)+dvem2*x(k_efczfx+ief-1)
-         endif
-      enddo
+        call dscal(nefc,dvem1,efcz,1)
+        call daxpy(nefc,dvem2,x(k_efczfx),1,efcz,1)
+      endif
 c
 c <-- MN solvation models
 c
@@ -3168,19 +3165,15 @@ c
            yj=efcc(2,jef)
            zj=efcc(3,jef)
            qj=efcz(  jef)
-           do ief=1,nefc
+           efcefc=efcefc+qj*adiag*qj/sqrt(efcs(jef))
+           do ief=jef+1,nefc
               qi=efcz(  ief)
-              if(ief.eq.jef) then
-                 aii=adiag/sqrt(efcs(ief))
-                 aij=aii
-              else
-                 xi=efcc(1,ief)
-                 yi=efcc(2,ief)
-                 zi=efcc(3,ief)
-                 dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
-                 aij=one/dij
-              endif
-              efcefc=efcefc+qi*aij*qj
+              xi=efcc(1,ief)
+              yi=efcc(2,ief)
+              zi=efcc(3,ief)
+              dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
+              aij=one/dij
+              efcefc=efcefc+2*qi*aij*qj
            enddo
         enddo
       else if (do_cosmo_model.eq.DO_COSMO_YK) then
@@ -3190,26 +3183,23 @@ c
            zj=efcc(3,jef)
            qj=efcz(  jef)
            zetaj=zeta*sqrt(ptspatm)/(ratm(efciat(jef))*sqrt(2.0d0*pi))
+           efcefc=efcefc+qj*efcs(jef)*qj
 c
-           do ief=1,nefc
+           do ief=jef+1,nefc
               zetai=zeta*sqrt(ptspatm)
      &             /(ratm(efciat(ief))*sqrt(2.0d0*pi))
               xi=efcc(1,ief)
               yi=efcc(2,ief)
               zi=efcc(3,ief)
               qi=efcz(  ief)
-              if(ief.eq.jef) then
-                 aij=efcs(ief)
+              dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
+              zetaij=zetai*zetaj/sqrt(zetai**2+zetaj**2)
+              if (dij.lt.1.0d-8) then
+                aij=2.0d0*zetaij/sqrt(pi)
               else
-                 dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
-                 zetaij=zetai*zetaj/sqrt(zetai**2+zetaj**2)
-                 if (dij.lt.1.0d-6) then
-                   aij=2.0d0*zetaij/sqrt(pi)
-                 else
-                   aij=derf(zetaij*dij)/dij
-                 endif
+                aij=derf(zetaij*dij)/dij
               endif
-              efcefc=efcefc+qi*aij*qj
+              efcefc=efcefc+2*qi*aij*qj
            enddo
         enddo
       endif
@@ -3355,11 +3345,11 @@ c
         factor = zeta*dsqrt(ptspatm/(2d0*pi))
         factor2 = 2d0/sqrt(pi)
         do i=ga_nodeid()+1,nefc,ga_nnodes()
-          zetai = factor/ratm(efciat(i))
+          zetai = ratm(efciat(i))**2
           ax(i) = ax(i) + efcs(i)*x(i)
           do j=i+1,nefc
-            zetaj = factor/ratm(efciat(j))
-            zetaij=zetai*zetaj/sqrt(zetai**2+zetaj**2)
+            zetaj = ratm(efciat(j))**2
+            zetaij= factor/sqrt(zetai+zetaj)
             dij=r(i,j)
             if (dij.lt.1.0d-5) then
               aij=factor2*zetaij*(1d0 - (zetaij*dij)**2/3d0)
@@ -3672,9 +3662,14 @@ c
       end
 
       subroutine hnd_cg(nat,b,x,nefc,y,r,p,ap,efcc,efcs,efciat,ratm)
+#ifdef USE_OPENMP
+      use omp_lib
+#endif
       implicit none
 #include "cosmoP.fh"
 #include "cosmo_params.fh"
+#include "stdio.fh"
+#include "global.fh"
       logical     dbug
       integer          nat  !< [Input] The number of atoms
       integer          nefc !< [Input] The number of surface charges
@@ -3691,16 +3686,22 @@ c
       double precision p(nefc) !< [Scratch]
       double precision r(nefc) !< [Scratch]
 
-      double precision t0,zero,eps,rtol,rsqnew,rsqold,alpha,beta
-      double precision xnorm,facold,facnew
-
-      data zero   /0.0d+00/
-      data eps    /epsilon(eps)/
-      data rtol   /1.0d-06/
+      double precision rtol2, rsqnew, alpha, beta
+      double precision xnorm, facold, facnew
 c
-      integer i, j, irst, iter, istop
+      integer iter, maxiter
+c
+      data rtol2   / 1d-13 /
+      data maxiter / 100 /
+      integer iMaxThreads, i
+
+#ifdef USE_OPENMP
+      iMaxThreads = omp_get_max_threads()
+      call util_blas_set_num_threads(iMaxThreads)
+#endif
 
       iter = 0
+
       xnorm = dot_product(x,x)
       if (xnorm.eq.0d0) then
         r(:) = b(:)
@@ -3710,7 +3711,7 @@ c
       endif
 
       rsqnew = dot_product(r,r)
-      if (dsqrt(rsqnew).lt.rtol) return
+      if (rsqnew.lt.rtol2) return
 
 
       if (do_cosmo_model.eq.DO_COSMO_YK) then
@@ -3727,12 +3728,11 @@ c
         call hnd_cosaxd(nat,p,ap,nefc,efcc,efcs,efciat,ratm)
 
         alpha = facnew/dot_product(p,ap)
-        x(:) = x(:) + alpha*p(:)
-        r(:) = r(:) - alpha*ap(:)
+        call daxpy(nefc,alpha,p,1,x,1)
+        call daxpy(nefc,-alpha,ap,1,r,1)
 
-        rsqold = rsqnew
         rsqnew = dot_product(r,r)
-        if (dsqrt(rsqnew).lt.rtol) exit
+        if (rsqnew.lt.rtol2) goto 2000
 
         if (do_cosmo_model.eq.DO_COSMO_YK) then
           y(:) = r(:)/efcs(:)
@@ -3748,6 +3748,17 @@ c
 
       enddo
 
+      if (ga_nodeid().eq.0) then
+        write(luout,1000) dsqrt(rsqnew)
+      endif
+ 1000 format(2x,"Warning! hnd_cg residual: ",G8.3)
+
+ 2000 continue
+
+#ifdef USE_OPENMP
+      call util_blas_set_num_threads(1)
+#endif
+      return
       end
 
 C>
