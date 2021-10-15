@@ -237,7 +237,9 @@ c
 !$omp         end parallel do
             endif
 
+#ifdef USE_OPENMP
             call util_blas_set_num_threads(iMaxThreads)
+#endif            
 
 #ifdef GWCMPLX
             call zlacp2('A',nri,iwidx(0,jmo,isp),dbl_mb(tmp),nri,
