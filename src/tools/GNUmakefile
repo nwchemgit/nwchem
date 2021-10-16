@@ -560,6 +560,9 @@ GOTFREEBSD= $(shell uname -o 2>&1|awk ' /FreeBSD/ {print "1";exit}')
 ifdef USE_FPICF
   FFLAGS_FORGA += "-fPIC"
 endif
+ifdef USE_CRAYSHASTA
+  CFLAGS_FORGA += -D__CRAYXE
+endif
 ifeq ($(GOTCLANG),1)
   CFLAGS_FORGA += "-fPIC"
   ifeq ($(TARGET),MACX64)

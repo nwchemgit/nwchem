@@ -430,8 +430,12 @@ c
               dz = dbl_mb(2+3*(ich1-1)+iefc_c)
      $           - dbl_mb(2+3*(ich2-1)+iefc_c)
               rr = sqrt(dx*dx+dy*dy+dz*dz)
-              if (rr.lt.1.0d-6) then
+              if (rr.lt.1.0d-6 .and. do_cosmo_model.eq.do_cosmo_ks)then
                 fact = 0.0d0
+              elseif(rr.lt.1d-4.and.do_cosmo_model.eq.do_cosmo_yk)then
+                fact = invscreen*dbl_mb(iefc_q+ich1-1)*
+     $                 dbl_mb(iefc_q+ich2-1)*4d0*zeta12**3/sqrt(pi)*
+     $                 ((zeta12*rr)**2/5d0-1d0/3d0)
               else
                 if (do_cosmo_model.eq.DO_COSMO_KS) then
                   fact = -invscreen*dbl_mb(iefc_q+ich1-1)

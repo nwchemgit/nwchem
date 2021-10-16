@@ -15,6 +15,9 @@ endif
 ifdef BUILD_SCALAPACK
     SUBDIRS += scalapack
 endif
+ifdef BUILD_ELPA
+    SUBDIRS += elpa
+endif
 ifdef USE_LIBXC
     SUBDIRS += libxc
 endif

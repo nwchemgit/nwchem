@@ -127,7 +127,8 @@ fi
 #svn co --non-interactive --trust-server-cert https://icl.utk.edu/svn/scalapack-dev/scalapack/trunk/ scalapack
 VERSION=2.1.0
 #curl -L https://github.com/Reference-ScaLAPACK/scalapack/archive/v${VERSION}.tar.gz -o scalapack.tgz
-COMMIT=bc6cad585362aa58e05186bb85d4b619080c45a9
+#COMMIT=bc6cad585362aa58e05186bb85d4b619080c45a9
+COMMIT=ea5d20668a6b8bbee645b7ffe44623c623969d33
 rm -rf scalapack 
 if [[ -f "scalapack-$COMMIT.zip" ]]; then
     echo "using existing"  "scalapack-$COMMIT.zip"
@@ -184,7 +185,7 @@ if [[ ${FC} == ftn ]]; then
     if [[ ${PE_ENV} == GNU ]]; then
 	FC=gfortran
     fi
-    if [[ ${PE_ENV} == AMD ]]; then
+    if [[ ${PE_ENV} == AOCC ]]; then
 	FC=flang
     fi
     if [[ ${PE_ENV} == NVIDIA ]]; then
@@ -197,8 +198,8 @@ if [[ ${FC} == ftn ]]; then
         export LD_LIBRARY_PATH=/opt/cray/pe/cce/$CRAY_FTN_VERSION/cce-clang/x86_64/lib:/opt/cray/pe/lib64/cce/:$LD_LIBRARY_PATH
     fi
 fi
+GFORTRAN_EXTRA=$(echo $FC | cut -c 1-8)
 if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
-    GFORTRAN_EXTRA=$(echo $FC | cut -c 1-8)
     if  [[ ${FC} == gfortran ]] || [[ ${FC} == f95 ]] || [[ ${GFORTRAN_EXTRA} == gfortran ]] ; then
     Fortran_FLAGS+=" -fdefault-integer-8 "
     elif  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
@@ -209,6 +210,12 @@ if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
     Fortran_FLAGS+=" -i8 "
     fi
     C_FLAGS+=" -DInt=long"
+fi
+#skip argument check for gfortran
+if  [[ ${FC} == gfortran ]] || [[ ${FC} == f95 ]] || [[ ${GFORTRAN_EXTRA} == gfortran ]] ; then
+    if [[ "$(expr `${FC} -dumpversion | cut -f1 -d.` \> 7)" == 1 ]]; then
+	Fortran_FLAGS+=" -std=legacy "
+    fi
 fi
 if [[ "$CRAY_CPU_TARGET" == "mic-knl" ]]; then
     module swap craype-mic-knl craype-haswell
@@ -222,7 +229,7 @@ if [[ "$?" != "0" ]]; then
     echo " "
     exit 1
 fi
-make V=0 -j3 scalapack/fast
+make V=0 -j4 scalapack/fast
 if [[ "$?" != "0" ]]; then
     echo " "
     echo "compilation failed"

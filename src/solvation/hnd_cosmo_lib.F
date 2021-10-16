@@ -2294,11 +2294,11 @@ c
       if (lineq.eq.0) then
 c
         stat = .true.
-        stat = stat .and. ma_push_get(mt_dbl,nefc,"hnd_coschg i20",
+        stat = stat .and. ma_push_get(mt_dbl,2*nefc,"hnd_coschg i20",
      &                                l_i20,i20)
-        stat = stat .and. ma_push_get(mt_dbl,nefc,"hnd_coschg i21",
+        stat = stat .and. ma_push_get(mt_dbl,2*nefc,"hnd_coschg i21",
      &                                l_i21,i21)
-        stat = stat .and. ma_push_get(mt_dbl,nefc,"hnd_coschg i22",
+        stat = stat .and. ma_push_get(mt_dbl,2*nefc,"hnd_coschg i22",
      &                                l_i22,i22)
         stat = stat .and. ma_push_get(mt_dbl,nefc*nefc,"hnd_coschg i30",
      &                                l_i30,i30)
@@ -2373,6 +2373,7 @@ c
           elec = .true.
         endif
       endif
+
 c
       if(lineq.eq.0) then
 c
@@ -2397,13 +2398,12 @@ c
            ieq=i22
          endif
 
-         do ief=1,nefc
-            x(ief+ieq-1)=x(ief+iep-1)
-         enddo
+         call dcopy(nefc,x(iep),1,x(ieq),1)
+         call dfill(nefc,1d0,x(ieq+nefc),1)
 
          call hnd_cosmata(nat,nefc,efcc,efcs,efciat,ratm,x(i30))
 c
-         nodcmp=1
+         nodcmp=0
          call hnd_linequ(x(i30),nefc,x(ieq),nefc,
      1                   x(i40),x(i50),ierr,nodcmp)
          if (ierr.ne.0) call errquit("hnd_coschg: hnd_linequ failed",
@@ -2413,17 +2413,7 @@ c        ----- calculate t = A^{-1}1 -----
 c
          if (cosmo_sccor.eq.COSMO_SCCOR_LAGRA) then
 c
-           do ief=1,nefc
-              x(ief+i80-1)=one
-           enddo
-c
-           call hnd_cosmata(nat,nefc,efcc,efcs,efciat,ratm,x(i30))
-c
-           nodcmp=1
-           call hnd_linequ(x(i30),nefc,x(i80),nefc,
-     1                     x(i40),x(i50),ierr,nodcmp)
-           if (ierr.ne.0) call errquit("hnd_coschg: hnd_linequ failed",
-     &                                 ierr,UERR)
+           call dcopy(nefc,x(ieq+nefc),1,x(i80),1)
 c
          endif
 c
@@ -2440,23 +2430,17 @@ c
          if (all) then
            if (.not.rtdb_get(rtdb,'cosmo:qraw',mt_dbl,nefc,x(i20))) then
 c             If no raw total COSMO charges were found initialize x=0
-              do ief=1,nefc
-                 x(ief+i20-1)=zero
-              enddo
+              call dfill(nefc,zero,x(i20),1)
            endif
          else if (nucl) then
            if (.not.rtdb_get(rtdb,'cosmo:qrawn',mt_dbl,nefc,x(i21)))then
 c             If no raw nuclear COSMO charges were found initialize x=0
-              do ief=1,nefc
-                 x(ief+i21-1)=zero
-              enddo
+              call dfill(nefc,zero,x(i21),1)
            endif
          else if (elec) then
            if (.not.rtdb_get(rtdb,'cosmo:qrawe',mt_dbl,nefc,x(i22)))then
 c             If no raw electron COSMO charges were found initialize x=0
-              do ief=1,nefc
-                 x(ief+i22-1)=zero
-              enddo
+              call dfill(nefc,zero,x(i22),1)
            endif
          endif
 c
@@ -2477,7 +2461,7 @@ c
            ieq=i22
          endif
 
-         call hnd_cosequ(nat,x(iep),x(ieq),nefc,
+         call hnd_cg(nat,x(iep),x(ieq),nefc,
      1                   x(i40),x(i50),x(i60),x(i70),
      2                   efcc,efcs,efciat,ratm)
 c
@@ -2502,30 +2486,22 @@ c        ----- calculate t = A^{-1}1 -----
 c
          if (cosmo_sccor.eq.COSMO_SCCOR_LAGRA) then
            if (.not.rtdb_get(rtdb,'cosmo:rawt',mt_dbl,nefc,x(i80))) then
-c
 c             If no raw A^{-1}1 charges were found initialize x=0
-c
-              do ief=1,nefc
-                 x(ief+i80-1)=zero
-              enddo
+              call dfill(nefc,zero,x(i80),1)
            endif
 c
            direct=.true.
 c
 c          ----- solve ... -----
 c
-           do ief=1,nefc
-              x(ief+i30-1)=one
-           enddo
-c
-           call hnd_cosequ(nat,x(i30),x(i80),nefc,
+           call dfill(nefc,one,x(i30),1)
+           call hnd_cg(nat,x(i30),x(i80),nefc,
      1                     x(i40),x(i50),x(i60),x(i70),
      2                     efcc,efcs,efciat,ratm)
 c
-           if (.not.rtdb_put(rtdb,'cosmo:rawt',mt_dbl,nefc,x(i80))) then
-              call errquit('hnd_coschg: could not store raw A^{-1}1',
-     1                     nefc,RTDB_ERR)
-           endif
+           if (.not.rtdb_put(rtdb,'cosmo:rawt',mt_dbl,nefc,x(i80)))
+     1        call errquit('hnd_coschg: could not store raw A^{-1}1',
+     2                     nefc,RTDB_ERR)
          endif
       endif
 c
@@ -2553,9 +2529,7 @@ c
           errcos=-dble(nelec)-chgcos
           chgfac=-dble(nelec)/chgcos
         endif
-        do ief=1,nefc
-          x(ief+ieq-1)=x(ief+ieq-1)*chgfac
-        enddo
+        call dscal(nefc,chgfac,x(ieq),1)
       else if (cosmo_sccor.eq.COSMO_SCCOR_LAGRA) then
 c
 c       ----- correct the COSMO surface charge using Lagrangian -----
@@ -2570,8 +2544,8 @@ c
         errcos=charge-chgcos
         dlambda=errcos/chgina
         chgcos=zero
+        call daxpy(nefc,dlambda,x(i80),1,x(i20),1)
         do ief=1,nefc
-           x(ief+i20-1)=x(ief+i20-1)+dlambda*x(i80+ief-1)
            chgcos=chgcos+x(ief+i20-1)
         enddo
         elambda = 0.5d0*screen*dlambda*chgcos
@@ -2597,8 +2571,8 @@ c
 c     ----- apply screening factor -----
 c
       chgcos=zero
+      call dscal(nefc,-chgfac,x(i20),1)
       do ief=1,nefc
-         x(ief+i20-1)=-chgfac*x(ief+i20-1)
          chgcos=chgcos+x(ief+i20-1)
       enddo
 c
@@ -2618,18 +2592,17 @@ c
 c
 c MN solvation models -->
 c
-      do ief=1,nefc
-         if (istep_cosmo_vem.eq.2.and.do_cosmo_vem.ne.0) then
+      if (istep_cosmo_vem.eq.2 .and. do_cosmo_vem.ne.0) then
 c fixed ES nonequilibrium cosmo-vem charges to be added to the Fock matrix
 c later on (excitation VEM)
-           efcz(ief)=x(k_efczfx+ief-1)
-         endif
-         if (istep_cosmo_vem.eq.3.and.do_cosmo_vem.eq.2) then
+        call dcopy(nefc,x(k_efczfx),1,efcz,1)
+      endif
+      if (istep_cosmo_vem.eq.3 .and. do_cosmo_vem.eq.2) then
 c GS RF containing ES cosmo-vem charges (slow portion) to calculate
 c the VEM energy in the case of nonequilibrium emission to the GS
-          efcz(ief)=dvem1*efcz(ief)+dvem2*x(k_efczfx+ief-1)
-         endif
-      enddo
+        call dscal(nefc,dvem1,efcz,1)
+        call daxpy(nefc,dvem2,x(k_efczfx),1,efcz,1)
+      endif
 c
 c <-- MN solvation models
 c
@@ -3192,19 +3165,15 @@ c
            yj=efcc(2,jef)
            zj=efcc(3,jef)
            qj=efcz(  jef)
-           do ief=1,nefc
+           efcefc=efcefc+qj*adiag*qj/sqrt(efcs(jef))
+           do ief=jef+1,nefc
               qi=efcz(  ief)
-              if(ief.eq.jef) then
-                 aii=adiag/sqrt(efcs(ief))
-                 aij=aii
-              else
-                 xi=efcc(1,ief)
-                 yi=efcc(2,ief)
-                 zi=efcc(3,ief)
-                 dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
-                 aij=one/dij
-              endif
-              efcefc=efcefc+qi*aij*qj
+              xi=efcc(1,ief)
+              yi=efcc(2,ief)
+              zi=efcc(3,ief)
+              dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
+              aij=one/dij
+              efcefc=efcefc+2*qi*aij*qj
            enddo
         enddo
       else if (do_cosmo_model.eq.DO_COSMO_YK) then
@@ -3214,26 +3183,23 @@ c
            zj=efcc(3,jef)
            qj=efcz(  jef)
            zetaj=zeta*sqrt(ptspatm)/(ratm(efciat(jef))*sqrt(2.0d0*pi))
+           efcefc=efcefc+qj*efcs(jef)*qj
 c
-           do ief=1,nefc
+           do ief=jef+1,nefc
               zetai=zeta*sqrt(ptspatm)
      &             /(ratm(efciat(ief))*sqrt(2.0d0*pi))
               xi=efcc(1,ief)
               yi=efcc(2,ief)
               zi=efcc(3,ief)
               qi=efcz(  ief)
-              if(ief.eq.jef) then
-                 aij=efcs(ief)
+              dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
+              zetaij=zetai*zetaj/sqrt(zetai**2+zetaj**2)
+              if (dij.lt.1.0d-8) then
+                aij=2.0d0*zetaij/sqrt(pi)
               else
-                 dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
-                 zetaij=zetai*zetaj/sqrt(zetai**2+zetaj**2)
-                 if (dij.lt.1.0d-6) then
-                   aij=2.0d0*zetaij/sqrt(pi)
-                 else
-                   aij=derf(zetaij*dij)/dij
-                 endif
+                aij=derf(zetaij*dij)/dij
               endif
-              efcefc=efcefc+qi*aij*qj
+              efcefc=efcefc+2*qi*aij*qj
            enddo
         enddo
       endif
@@ -3267,6 +3233,7 @@ c
 c
 c
       double precision derf
+      double precision factor, factor2
 
       double precision pi
       pi = acos(-1.0d0)
@@ -3290,8 +3257,10 @@ c
           enddo
         enddo
       else if (do_cosmo_model.eq.DO_COSMO_YK) then
+        factor = zeta*dsqrt(ptspatm/(2d0*pi))
+        factor2 = 2d0/sqrt(pi)
         do jef=1,nefc
-          zetaj=zeta*sqrt(ptspatm)/(ratm(efciat(jef))*sqrt(2.0d0*pi))
+          zetaj=factor/ratm(efciat(jef))
           xj=efcc(1,jef)
           yj=efcc(2,jef)
           zj=efcc(3,jef)
@@ -3300,15 +3269,14 @@ c
                aii=efcs(ief)
                a(ief,jef)=aii
             else
-               zetai=zeta*sqrt(ptspatm) /
-     &               (ratm(efciat(ief))*sqrt(2.0d0*pi))
+               zetai=factor/ratm(efciat(ief))
                zetaij=zetai*zetaj/sqrt(zetai**2+zetaj**2)
                xi=efcc(1,ief)
                yi=efcc(2,ief)
                zi=efcc(3,ief)
                dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
-               if (dij.lt.1.0d-6) then
-                 a(ief,jef)=2.0d0*zetaij*sqrt(1.0d0/pi)
+               if (dij.lt.1.0d-5) then
+                 a(ief,jef)=factor2*zetaij*(1d0 - (zetaij*dij)**2/3d0)
                else
                  a(ief,jef)=derf(zetaij*dij)/dij
                endif
@@ -3354,7 +3322,7 @@ c
 c     Introduced a trivial replicated data parallelization of this
 c     matrix-vector multiplication
 c
-      double precision r, d
+      double precision r, d, factor, factor2
       integer i, j
       r (i,j)=sqrt((efcc(1,i)-efcc(1,j))**2+
      1             (efcc(2,i)-efcc(2,j))**2+
@@ -3366,42 +3334,31 @@ c
 c
       if (do_cosmo_model.eq.DO_COSMO_KS) then
         do i=ga_nodeid()+1,nefc,ga_nnodes()
-          dum=zero
-          do j=1,nefc
-            if (i.eq.j) then
-              aij = d(i)
-            else
-              dij = r(i,j)
-              aij = one/dij
-            endif
-            xj=x(j)
-            dum=dum+aij*xj
+          ax(i) = ax(i) + d(i)*x(i)
+          do j=i+1,nefc
+            aij = one/r(i,j)
+            ax(i) = ax(i) + x(j)*aij
+            ax(j) = ax(j) + x(i)*aij
           enddo
-          ax(i)=dum
         enddo
       else if (do_cosmo_model.eq.DO_COSMO_YK) then
+        factor = zeta*dsqrt(ptspatm/(2d0*pi))
+        factor2 = 2d0/sqrt(pi)
         do i=ga_nodeid()+1,nefc,ga_nnodes()
-          zetai=zeta*sqrt(ptspatm) /
-     &          (ratm(efciat(i))*sqrt(2.0d0*pi))
-          dum=zero
-          do j=1,nefc
-            if(j.eq.i) then
-               aij=efcs(i)
+          zetai = ratm(efciat(i))**2
+          ax(i) = ax(i) + efcs(i)*x(i)
+          do j=i+1,nefc
+            zetaj = ratm(efciat(j))**2
+            zetaij= factor/sqrt(zetai+zetaj)
+            dij=r(i,j)
+            if (dij.lt.1.0d-5) then
+              aij=factor2*zetaij*(1d0 - (zetaij*dij)**2/3d0)
             else
-               zetaj=zeta*sqrt(ptspatm) /
-     &               (ratm(efciat(j))*sqrt(2.0d0*pi))
-               zetaij=zetai*zetaj/sqrt(zetai**2+zetaj**2)
-               dij=r(i,j)
-               if (dij.lt.1.0d-6) then
-                 aij=2.0d0*zetaij*sqrt(1.0d0/pi)
-               else
-                 aij=derf(zetaij*dij)/dij
-               endif
+              aij=derf(zetaij*dij)/dij
             endif
-            xj=x(j)
-            dum=dum+aij*xj
+            ax(i)=ax(i)+aij*x(j)
+            ax(j)=ax(j)+aij*x(i)
           enddo
-          ax(i)=dum
         enddo
       endif
 c
@@ -3580,25 +3537,66 @@ C> On return the matrix \f$A\f$ has been destroyed, and \f$b\f$ has been
 C> overwritten with the answer \f$x\f$.
 C>
       subroutine hnd_linequ(a,lda,b,n,ib,t,ierr,nodcmp)
+#ifdef USE_OPENMP
+      use omp_lib
+#endif
       implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
       integer lda !< [Input] The leading dimension of \f$A\f$
       integer n   !< [Input] The dimension of matrix \f$A\f$
       double precision a(lda,n) !< [In/Output] On input the matrix
       !< \f$A\f$; On output the matrix has been destroyed
-      double precision b(n) !< [In/Output] On input the right-hand-side 
+      double precision b(n,*) !< [In/Output] On input the right-hand-side 
       !< \f$b\f$; on output the solution \f$x\f$
       double precision t(n)
       integer ib(n)
       integer ierr !< [Output] Error code
-      integer nodcmp !< [Input] Flag, if \f$\mathrm{nodcmp}\ne 1\f$
-      !< then skip the LU decomposition
+      integer nodcmp !< [Input] Flag, if \f$\mathrm{nodcmp}\le 1\f$
+      !< then skip the decomposition
       integer j !< Counter
+      integer lwork, iwork, kwork
+      double precision t0
+      integer iMaxThreads
+
+#ifdef USE_OPENMP
+      iMaxThreads = omp_get_max_threads()
+      call util_blas_set_num_threads(iMaxThreads)
+#endif
 c
 c     ----- solve a * x = b , with x returned in b -----
 c
       ierr = 0
-      call dgesv(n, 1, a, lda, ib, b, n, ierr)
+
+      ! Save diagonal in case dposv fails
+      do j=1,n
+        t(j) = a(j,j)
+      enddo
+
+      call dposv('u', n, 2, a, lda, b, n, ierr)
+
+      if (ierr.ne.0) then
+
+        lwork = 64*n
+        if (.not.ma_push_get(mt_dbl,lwork,"dsysv work",iwork,kwork))
+     $  call errquit("hnd_linequ: could not allocate work",lwork,MA_ERR)
+
+        ! Restore diagonal
+        do j=1,n
+          a(j,j) = t(j)
+        enddo
+
+        call dsysv('l',n,2,a,lda,ib,b,n,dbl_mb(kwork),lwork,ierr)
+
+        if (.not.ma_chop_stack(iwork))
+     $    call errquit("hnd_linequ: could not chop stack",0,MA_ERR)   
+
+      endif
 c
+#ifdef USE_OPENMP
+      call util_blas_set_num_threads(1)
+#endif
       return
       end
 C>
@@ -3662,6 +3660,107 @@ c
 c
       return
       end
+
+      subroutine hnd_cg(nat,b,x,nefc,y,r,p,ap,efcc,efcs,efciat,ratm)
+#ifdef USE_OPENMP
+      use omp_lib
+#endif
+      implicit none
+#include "cosmoP.fh"
+#include "cosmo_params.fh"
+#include "stdio.fh"
+#include "global.fh"
+      logical     dbug
+      integer          nat  !< [Input] The number of atoms
+      integer          nefc !< [Input] The number of surface charges
+      double precision efcc(3,nefc) !< [Input] The surface charge coords
+      double precision efcs(nefc)   !< [Input] The surface areas
+      integer          efciat(nefc) !< [Input] The atom of a surface 
+                                    !< charge
+      double precision ratm(nat)    !< [Input] The atom radii
+      double precision b(nefc)      !< [Input] The RHS of Ax=b
+      double precision x(nefc)      !< [Output] The solution of Ax=b
+c
+      double precision y(nefc) !< [Scratch]
+      double precision ap(nefc) !< [Scratch]
+      double precision p(nefc) !< [Scratch]
+      double precision r(nefc) !< [Scratch]
+
+      double precision rtol2, rsqnew, alpha, beta
+      double precision xnorm, facold, facnew
+c
+      integer iter, maxiter
+c
+      data rtol2   / 1d-13 /
+      data maxiter / 100 /
+      integer iMaxThreads, i
+
+#ifdef USE_OPENMP
+      iMaxThreads = omp_get_max_threads()
+      call util_blas_set_num_threads(iMaxThreads)
+#endif
+
+      iter = 0
+
+      xnorm = dot_product(x,x)
+      if (xnorm.eq.0d0) then
+        r(:) = b(:)
+      else
+        call hnd_cosaxd(nat,x,r,nefc,efcc,efcs,efciat,ratm)
+        r(:) = b(:) - r(:)
+      endif
+
+      rsqnew = dot_product(r,r)
+      if (rsqnew.lt.rtol2) return
+
+
+      if (do_cosmo_model.eq.DO_COSMO_YK) then
+        p(:) = r(:)/efcs(:)
+      elseif (do_cosmo_model.eq.DO_COSMO_KS) then
+        p(:) = dsqrt(efcs(:))*r(:)/adiag
+      endif
+
+      facnew = dot_product(r,p)
+
+      do while(iter.le.nefc)
+
+        iter = iter + 1
+        call hnd_cosaxd(nat,p,ap,nefc,efcc,efcs,efciat,ratm)
+
+        alpha = facnew/dot_product(p,ap)
+        call daxpy(nefc,alpha,p,1,x,1)
+        call daxpy(nefc,-alpha,ap,1,r,1)
+
+        rsqnew = dot_product(r,r)
+        if (rsqnew.lt.rtol2) goto 2000
+
+        if (do_cosmo_model.eq.DO_COSMO_YK) then
+          y(:) = r(:)/efcs(:)
+        elseif (do_cosmo_model.eq.DO_COSMO_KS) then
+          y(:) = dsqrt(efcs(:))*r(:)/adiag
+        endif
+
+        facold = facnew
+        facnew = dot_product(r,y)
+        beta = facnew/facold
+
+        p(:) = y(:) + beta*p(:)
+
+      enddo
+
+      if (ga_nodeid().eq.0) then
+        write(luout,1000) dsqrt(rsqnew)
+      endif
+ 1000 format(2x,"Warning! hnd_cg residual: ",G8.3)
+
+ 2000 continue
+
+#ifdef USE_OPENMP
+      call util_blas_set_num_threads(1)
+#endif
+      return
+      end
+
 C>
 C> @}
 c $Id$

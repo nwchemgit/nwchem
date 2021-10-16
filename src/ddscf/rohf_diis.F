@@ -451,15 +451,7 @@ c
       if (.not.ma_push_get(MT_DBL, nbf, 'overlap', l_e, k_e ))
      $     call errquit('rohf_ao_orthonorm: cannot allocate over',0,
      &       MA_ERR)
-#if defined(PARALLEL_DIAG)
-#ifdef SCALAPACK
-      call ga_pdsyev(g_over, g_xorth, dbl_mb(k_e), 0)
-#else
-      call ga_diag_std( g_over, g_xorth, dbl_mb(k_e))
-#endif
-#else 
-      call ga_diag_std_seq( g_over, g_xorth, dbl_mb(k_e))
-#endif
+      call util_diag_std( g_over, g_xorth, dbl_mb(k_e))
 c               1/2
 c   X   = U  / s
 c    ij    ij   j
