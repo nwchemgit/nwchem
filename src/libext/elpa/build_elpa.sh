@@ -42,6 +42,8 @@ else
     else
 	MPIF90="mpif90"
         MPICC=mpicc
+	#fix include path
+	FCFLAGS+="-I`${NWCHEM_TOP}/src/tools/guess-mpidefs --mpi_include`"
     fi
 fi
 if [[  -z "${FC}" ]]; then
@@ -70,16 +72,14 @@ if [[ ${GOTCLANG} == "1" ]] ; then
 fi
 # check gfortran version for arg check
 GFORTRAN_EXTRA=$(echo $FC | cut -c 1-8)
-if [[ ${GFORTRAN_EXTRA} == gfortran ]] ; then
+if [[ ${GFORTRAN_EXTRA} == gfortran ]] || [[ ${PE_ENV} == GNU ]]; then
     let GFOVERSIONGT7=$(expr `${FC} -dumpversion | cut -f1 -d.` \> 7)
     if [[ ${GFOVERSIONGT7} == 1 ]]; then
-	FCFLAGS+='-std=legacy '
+	FCFLAGS+=' -std=legacy '
     fi
   sixty4_int+=" --disable-mpi-module "
 fi
-#fix include path
-FCFLAGS+="-I`${NWCHEM_TOP}/src/tools/guess-mpidefs --mpi_include`"
-if [[ ${FC} == ifort ]] ; then
+if [[ ${FC} == ifort ]]  || [[ ${PE_ENV} == INTEL ]] ; then
     FCFLAGS+=' -fpp'
     FCFLAGS+=" -fPIC"
     CFLAGS+=" -fPIC"
@@ -117,12 +117,20 @@ fi
     fi
     if [[ "${GOTAVX2}" == "Y" ]]; then
 	echo "using AVX2 instructions"
-	FORCETARGET=" --disable-sse-assembly --enable-avx --enable-avx2  --disable-avx512  "
+	FORCETARGET=" --enable-sse-assembly --enable-avx --enable-avx2  --disable-avx512  "
 #	CFLAGS+=" -mmmx -msse -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -maes -mavx -mfma -mavx2 "
     fi
     if [[ "${GOTAVX512}" == "Y" ]]; then
 	echo "using AVX512 instructions"
 	FORCETARGET=" --disable-sse-assembly --enable-avx --enable-avx2  --enable-avx512 "
+    fi
+    if [[ ! -z ${USE_KNL} ]]; then
+	if [[ ${FC} == ifort ]] || [[ ${PE_ENV} == INTEL ]]; then
+	sixty4_int+=" --enable-cross-compile --host=x86_64-unknown-linux-gnu "
+	CFLAGS+=" -xMIC-AVX512 "
+	FCFLAGS+=" -xMIC-AVX512 "
+	FORCETARGET=" --disable-sse-assembly --disable-avx --disable-avx2  --enable-avx512 "
+	fi
     fi
 fi #USE_HWOPT
 ## check gcc version for skylake
@@ -186,12 +194,11 @@ unset CFLAGS
 unset SCALAPACK_FCFLAGS
 unset SCALAPACK_LDFLAGS
 MYFC=$($MPIF90 -show|cut -d " " -f 1)
-
-if [[ ${MYFC} == ifort ]];  then
+if [[ ${FC} == ifort ]] || [[ ${PE_ENV} == INTEL ]]; then
     top_srcdir=`pwd`/..
     make V=0 FC="${top_srcdir}/remove_xcompiler ${top_srcdir}/manual_cpp mpif90" -j4
 else    
-    make  V=1 -j4
+    make  V=0 -j4
 fi
 
 if [[ "$?" != "0" ]]; then
