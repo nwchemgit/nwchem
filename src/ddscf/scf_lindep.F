@@ -49,15 +49,7 @@ c
        if (util_print('ao overlap', print_debug))
      $      call ga_print(g_over)
 c
-#ifdef PARALLEL_DIAG
-#ifdef SCALAPACK
-       call ga_pdsyevd(g_over, g_u, dbl_mb(k_ev), 0)
-#else
-       call ga_diag_std(g_over, g_u, dbl_mb(k_ev))
-#endif
-#else
-       call ga_diag_std_seq(g_over, g_u, dbl_mb(k_ev))
-#endif
+       call util_diag_std(g_over, g_u, dbl_mb(k_ev))
 c
 c     Get user input parameters ... only one allowed
 c

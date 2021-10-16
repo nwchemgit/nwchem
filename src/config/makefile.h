@@ -264,6 +264,21 @@ endif
   endif
       SCALAPACK=-L$(NWCHEM_TOP)/src/libext/lib -lnwc_scalapack
 endif      
+ifdef BUILD_ELPA
+NW_CORE_SUBDIRS += libext
+#      ifeq ($(or $(BUILD_SCALAPACK),$(BUILD_OPENBLAS)),)
+#$(info     )
+#$(info You must set)
+#$(info BUILD_SCALAPACK  and BUILD_OPENBLAS)
+#$(info when using BUILD_ELPA )
+#$(info )
+#$(error )
+#endif
+  ifndef SCALAPACK_SIZE
+    SCALAPACK_SIZE=8
+  endif
+      ELPA=-L$(NWCHEM_TOP)/src/libext/lib -lnwc_elpa -I$(NWCHEM_TOP)/src/libext/include/elpa/modules
+endif
 ifdef BUILD_MPICH
 NW_CORE_SUBDIRS += libext
       PATH := $(NWCHEM_TOP)/src/libext/bin:$(PATH)

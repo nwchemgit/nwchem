@@ -1979,15 +1979,7 @@ c
          call ga_copy(g_f(iset), g_fock)
 c     
          if (oaufbau) then
-#if defined(PARALLEL_DIAG)
-#ifdef SCALAPACK
-            call ga_pdsyev(g_fock, g_u, dbl_mb(k_eval+ioff), 0)
-#else
-            call ga_diag_std(g_fock, g_u, dbl_mb(k_eval+ioff))
-#endif
-#else 
-            call ga_diag_std_seq(g_fock, g_u, dbl_mb(k_eval+ioff))
-#endif
+            call util_diag_std(g_fock, g_u, dbl_mb(k_eval+ioff))
          else
 c     
 c     occ-occ piece

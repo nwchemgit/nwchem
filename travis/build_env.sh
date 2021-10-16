@@ -27,7 +27,7 @@ esac
  if [[ "$os" == "Darwin" ]]; then 
 #  HOMEBREW_NO_AUTO_UPDATE=1 brew cask uninstall oclint || true  
 #  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python3 ||true
-     HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" python3 gsed grep ||true
+     HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" python3 gsed grep automake autoconf ||true
      if [[ "$FC" == "ifort" ]]; then
          if [[ -f ~/apps/oneapi/setvars.sh ]]; then 
 	     echo ' using intel cache installation '
@@ -65,7 +65,11 @@ esac
 	icc -V
      else
 	 #hack to fix Github actions mpif90
-	 ln -sf /usr/local/bin/$FC /usr/local/bin/gfortran
+	 gccver=`brew list --versions gcc| head -1 |cut -c 5-`
+	 echo brew gccver is $gccver
+	 ln -sf /usr/local/Cellar/gcc/$gccver/bin/gfortran-* /usr/local/Cellar/gcc/$gccver/bin/gfortran || true
+	 ln -sf /usr/local/Cellar/gcc/$gccver/bin/gfortran-* /usr/local/bin/gfortran || true
+#	 ln -sf /usr/local/bin/$FC /usr/local/bin/gfortran
 	 $FC --version
 	 gfortran --version
      fi
