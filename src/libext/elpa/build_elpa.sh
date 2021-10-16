@@ -93,7 +93,7 @@ fi
 if [[  -z "${FORCETARGET}" ]]; then
 FORCETARGET="-disable-sse -disable-sse-assembly --disable-avx --disable-avx2  --disable-avx512  "
 fi #FORCETARGET
-if [[ !  -z "${USE_HWOPT}" ]]; then
+if [[ "${USE_HWOPT}" != "0" ]] && [[ "${USE_HWOPT}" != "no" ]] &&[[ "${USE_HWOPT}" != "NO" ]] && [[ ${UNAME_S} == Linux ]]; then
 if [[ ${UNAME_S} == Linux ]]; then
     CPU_FLAGS=$(cat /proc/cpuinfo | grep flags |tail -n 1)
     CPU_FLAGS_2=$(cat /proc/cpuinfo | grep flags |tail -n 1)
@@ -124,14 +124,16 @@ fi
 	echo "using AVX512 instructions"
 	FORCETARGET=" --disable-sse-assembly --enable-avx --enable-avx2  --enable-avx512 "
     fi
-    if [[ ! -z ${USE_KNL} ]]; then
-	if [[ ${FC} == ifort ]] || [[ ${PE_ENV} == INTEL ]]; then
-	sixty4_int+=" --enable-cross-compile --host=x86_64-unknown-linux-gnu "
-	CFLAGS+=" -xMIC-AVX512 "
-	FCFLAGS+=" -xMIC-AVX512 "
-	FORCETARGET=" --disable-sse-assembly --disable-avx --disable-avx2  --enable-avx512 "
-	fi
-    fi
+#    if [[ ! -z ${USE_KNL} ]]; then
+#	if [[ ${FC} == ifort ]] || [[ ${PE_ENV} == INTEL ]]; then
+#	echo "using compiling for KNL "
+#	sixty4_int+=" --enable-cross-compile --host=x86_64-unknown-linux-gnu "
+#	CFLAGS+=" -xMIC-AVX512 "
+#	FCFLAGS+=" -xMIC-AVX512 "
+##	FORCETARGET=" --disable-sse-assembly --disable-avx --disable-avx2  --enable-avx512 "
+#	FORCETARGET=" "
+#	fi
+#    fi
 fi #USE_HWOPT
 ## check gcc version for skylake
 #let GCCVERSIONGT5=$(expr `${CC} -dumpversion | cut -f1 -d.` \> 5)
@@ -194,11 +196,11 @@ unset CFLAGS
 unset SCALAPACK_FCFLAGS
 unset SCALAPACK_LDFLAGS
 MYFC=$($MPIF90 -show|cut -d " " -f 1)
-if [[ ${FC} == ifort ]] || [[ ${PE_ENV} == INTEL ]]; then
+if [[ ${MYFC} == ifort ]] || [[ ${PE_ENV} == INTEL ]]; then
     top_srcdir=`pwd`/..
-    make V=0 FC="${top_srcdir}/remove_xcompiler ${top_srcdir}/manual_cpp mpif90" -j4
+    make V=0 FC="${top_srcdir}/remove_xcompiler ${top_srcdir}/manual_cpp $MPIF90" -j4 install-libLTLIBRARIES install-data
 else    
-    make  V=0 -j4
+    make  V=0 -j4 install-libLTLIBRARIES install-data
 fi
 
 if [[ "$?" != "0" ]]; then
@@ -207,6 +209,5 @@ if [[ "$?" != "0" ]]; then
     echo " "
     exit 1
 fi
-make install
 ln -sf ${NWCHEM_TOP}/src/libext/lib/libelpa.a  ${NWCHEM_TOP}/src/libext/lib/libnwc_elpa.a
 ln -sf ${NWCHEM_TOP}/src/libext/include/elpa-${SHORTVERSION}  ${NWCHEM_TOP}/src/libext/include/elpa

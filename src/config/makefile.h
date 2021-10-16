@@ -1236,12 +1236,12 @@ endif
        DEFINES   += -DGFORTRAN -DGCC4
 #
          FOPTIMIZE+= -funroll-all-loops
-         ifdef USE_HWOPT
+         ifneq ($(USE_HWOPT),$(findstring $(USE_HWOPT),0 no NO))
            FOPTIMIZE+= -mtune=native
 	 endif
          #FVECTORIZE=-O3 -ffast-math -mtune=native -mfpmath=sse -msse3 -ftree-vectorize -ftree-vectorizer-verbose=1   -fprefetch-loop-arrays  -funroll-all-loops
          FVECTORIZE=-O3 -ffast-math -ftree-vectorize -ftree-vectorizer-verbose=1 -funroll-all-loops
-	 ifdef USE_HWOPT
+          ifneq ($(USE_HWOPT),$(findstring $(USE_HWOPT),0 no NO))
           FVECTORIZE+= -mtune=native
 	 endif
         GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
@@ -1314,7 +1314,7 @@ endif
         FOPTIONS += -fpp -g -no-save-temps
         FDEBUG    = -O2 -g
         FOPTIMIZE = -O3
-        ifdef USE_HWOPT
+        ifneq ($(USE_HWOPT),$(findstring $(USE_HWOPT),0 no NO))
           FOPTIMIZE += -xHost
 	endif
         ifdef USE_OPENMP
@@ -1505,7 +1505,7 @@ endif
 #      COPTIONS   =  -march=i686 
       ifdef USE_GCC31
         FDEBUG=-O1 -g
-       ifdef USE_HWOPT
+       ifneq ($(USE_HWOPT),$(findstring $(USE_HWOPT),0 no NO))
         COPTIMIZE +=-march=pentium4 -mcpu=pentium4 #-msse2 -mfpmath=sse 
         FOPTIMIZE +=-march=pentium4 -mcpu=pentium4# -msse2 -mfpmath=sse
        endif
@@ -1517,7 +1517,7 @@ endif
     ifeq ($(_CPU),k7)
        FOPTIONS   = -fno-second-underscore  
        COPTIONS   = -Wall -malign-double
-      ifdef USE_HWOPT
+      ifneq ($(USE_HWOPT),$(findstring $(USE_HWOPT),0 no NO))
        ifdef  USE_GCC31
         FOPTIONS += -march=athlon
         COPTIONS += -march=athlon
@@ -1532,7 +1532,7 @@ endif
     DEFINES   += -DPGLINUX
 # added -Kieee to get dlamc1 to work on pgf77 3.1-3 EA Jun 8th 2000
     FOPTIONS   = -Mdalign -Minform,warn -Mnolist -Minfo=loop -Munixlogical -Kieee
-   ifdef USE_HWOPT
+   ifneq ($(USE_HWOPT),$(findstring $(USE_HWOPT),0 no NO))
     ifeq ($(_CPU),i586)
       FOPTIONS  += -tp p5  
     endif
@@ -1572,7 +1572,7 @@ endif
     endif
 
     FOPTIMIZE = -O3 -prefetch  -unroll
-   ifdef USE_HWOPT
+   ifneq ($(USE_HWOPT),$(findstring $(USE_HWOPT),0 no NO))
     ifeq ($(_CPU),i586)
       FOPTIMIZE +=  -tpp5 -xi # this are for PentiumII
     endif
@@ -1605,7 +1605,7 @@ endif
         endif
         FOPTIMIZE  += -O2 -ffast-math -Wuninitialized
         ifeq ($(_CPU),i786)
-	 ifdef USE_HWOPT
+	 ifneq ($(USE_HWOPT),$(findstring $(USE_HWOPT),0 no NO))
           FOPTIONS += -march=pentium4 -mtune=pentium4
 	 endif
           FVECTORIZE = $(FOPTIMIZE) -O3 -ftree-vectorize 
@@ -1626,7 +1626,7 @@ endif
   ifeq ($(CC),icc)
     COPTIONS   =   -mp1 -w -g #-vec-report1
     COPTIMIZE = -O3   -unroll 
-   ifdef USE_HWOPT
+   ifneq ($(USE_HWOPT),$(findstring $(USE_HWOPT),0 no NO))
     ifeq ($(_CPU),i586)
       COPTIMIZE +=  -tpp5 -xi # this are for PentiumII
     endif
@@ -2080,7 +2080,7 @@ endif
 
       # support for traditional Intel(R) Fortran compiler
       ifeq ($(_FC),ifort)
-    ifdef USE_HWOPT
+    ifneq ($(USE_HWOPT),$(findstring $(USE_HWOPT),0 no NO))
      _GOTSSE3= $(shell cat /proc/cpuinfo | egrep sse3 | tail -n 1 | awk ' /sse3/  {print "Y"}')
      _GOTSSE42= $(shell cat /proc/cpuinfo | egrep sse4_2 | tail -n 1 | awk ' /sse4_2/  {print "Y"}')
      _GOTAVX= $(shell cat /proc/cpuinfo | egrep avx | tail -n 1 | awk ' /avx/  {print "Y"}')
@@ -2178,7 +2178,7 @@ endif
          else
 #           FOPTIMIZE += -xHost
 #crazy simd options
-           ifdef USE_HWOPT
+           ifneq ($(USE_HWOPT),$(findstring $(USE_HWOPT),0 no NO))
 	     ifeq ($(_IFCV17), Y)
 	       ifeq ($(_GOTAVX512F),Y)
 	         FOPTIMIZE += -axCORE-AVX512
@@ -2196,7 +2196,7 @@ endif
        FOPTIONS += -finline-limit=250
          endif
        else
-        ifdef USE_HWOPT
+        ifneq ($(USE_HWOPT),$(findstring $(USE_HWOPT),0 no NO))
          ifeq ($(_GOTSSE3),Y) 
            FOPTIMIZE += -xP -no-prec-div
          else
@@ -2286,7 +2286,7 @@ endif
           COPTIONS += -fopenmp
         endif
       endif
-     ifdef USE_HWOPT
+     ifneq ($(USE_HWOPT),$(findstring $(USE_HWOPT),0 no NO))
       ifdef USE_GCC34
         COPTIONS  +=   -march=k8 -mtune=k8
       endif
@@ -2365,8 +2365,8 @@ endif
 #http://gcc.gnu.org/bugzilla/show_bug.cgi?id=20178
           FOPTIONS +=  -ff2c -fno-second-underscore
         endif
-        ifeq ($(GNU_GE_4_6),true) 
-	 ifdef USE_HWOPT
+        ifeq ($(GNU_GE_4_6),true)
+        ifneq ($(USE_HWOPT),$(findstring $(USE_HWOPT),0 no NO))
           FOPTIMIZE +=  -mtune=native
 	 endif
 # causes slowdows in mp2/ccsd
@@ -2474,7 +2474,7 @@ ifeq ($(_CPU),$(findstring $(_CPU),aarch64))
     endif
 
     FDEBUG += -g -O
-    ifdef USE_HWOPT
+     ifneq ($(USE_HWOPT),$(findstring $(USE_HWOPT),0 no NO))
     FOPTIMIZE +=  -mtune=native -armpl
     endif
 
