@@ -257,7 +257,7 @@ c
       maxbem   =4 ! used in Klamt-Schuurmann model but not in 
                   ! York-Karplus model
       ificos   =0
-      lineq    =0 ! 0: fast direct solver, 1: slow iterative solver
+      lineq    =-1 ! 0: direct solver, 1: iterative solver
       rsolv    =0.50d+00
       zeta     =0.98d+00 ! apparently for Lebedev grids zeta=4.9
       gammas   =1.00d+00 ! full switching, see York, Karplus Eq.86.
@@ -528,6 +528,29 @@ c
 c
       ificos=abs(ificos)
 c
+      do iat=1,nat
+         dbl_mb(k_rad+iat-1)=abs(dbl_mb(k_rad+iat-1))
+         if(dbl_mb(k_rad+iat-1).lt.radtol) then
+            dbl_mb(k_rad+iat-1)=zero
+         endif
+      enddo
+c
+c     ----- create boundary elements of cavity -----
+c
+      call hnd_cosset(rtdb,nat,dbl_mb(k_coscoor),dbl_mb(k_rad))
+c
+      if(.not.rtdb_get(rtdb,'cosmo:nefc',mt_int,1     ,nefc))
+     $   call errquit('cosmo_initialize: rtdb get failed for nefc',911,
+     &       rtdb_err)
+c
+c     Adjust lineq according to nefc
+c
+      if ((nefc.ge.7500).and.(lineq.eq.-1)) then
+        lineq = 1
+      elseif (lineq.ne.1) then
+        lineq = 0
+      endif
+c
       if(osome.and.me.eq.0) then
          write(luout,9993) lineq
          write(luout,9991) minbem
@@ -550,10 +573,6 @@ c
          write(luout,9988)
       endif
       do iat=1,nat
-         dbl_mb(k_rad+iat-1)=abs(dbl_mb(k_rad+iat-1))
-         if(dbl_mb(k_rad+iat-1).lt.radtol) then
-            dbl_mb(k_rad+iat-1)=zero
-         endif
          if(osome.and.me.eq.0) then
            write(luout,9987) iat,dbl_mb(k_coszan+iat-1),
      &                           dbl_mb(k_rad+iat-1)
@@ -563,10 +582,6 @@ c
       if(.not.ma_pop_stack(l_coszan))
      & call errquit('cosmo_initialize,ma_pop_stack of l_zan failed',
      & 911,MA_ERR)
-c
-c     ----- create boundary elements of cavity -----
-c
-      call hnd_cosset(rtdb,nat,dbl_mb(k_coscoor),dbl_mb(k_rad))
 c
 c     ----- done -----
 c
@@ -618,9 +633,6 @@ c
 c
 c     Create invnuc array and zero it
 c
-      if(.not.rtdb_get(rtdb,'cosmo:nefc',mt_int,1     ,nefc))
-     $   call errquit('cosmo_initialize: rtdb get failed for nefc',911,
-     &       rtdb_err)
       if (.not.bq_alloc(cosmo_bq_invnuc,nefc))
      &  call errquit("cosmo_initialize: could not allocate invnuc",
      &               nefc,MA_ERR)
