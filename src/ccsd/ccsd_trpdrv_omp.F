@@ -111,6 +111,7 @@ c#define BLAS_THREAD 1
        parameter(n_progr=20)
        logical i_progr(n_progr+1)
        logical ldyn_org
+       logical got_ak
 !
 #if defined(USE_OPENMP)
       integer  omp_get_thread_num
@@ -203,6 +204,9 @@ c#define BLAS_THREAD 1
                      call ga_nbget(g_objv,1+2*lnoov+(klo-1)*lnov,
      &                    2*lnoov+khi*lnov,av,av,Xka,(khi-klo+1)*lnov,
      &                    nbh_objv3)
+                     got_ak=.true.
+                  else
+                     got_ak=.false.
                   endif
 
                   do i=1,nocc
@@ -225,7 +229,9 @@ c#define BLAS_THREAD 1
      &                    2*lnoov+i*lnov,av,av,Xia,lnov,nbh_objv7)
 
                      call dcopy(nvir,t1((i-1)*nvir+1),1,t1v2,1)
-                     call ga_nbwait(nbh_objv1) ! Dja
+                     if(i.eq.1) then
+                        call ga_nbwait(nbh_objv1) ! Dja
+                     endif
                      call dcopy(nvir,Dja(1+(i-1)*nvir),1,dintc1,1)
                      call ga_nbwait(nbh_objv5) ! Djia
                      call dcopy(nvir,Djia,1,dintx1,1)
@@ -234,7 +240,8 @@ c#define BLAS_THREAD 1
 
                         call dcopy(nvir,t1((k-1)*nvir+1),1,t1v1,1)
                         call dcopy(nvir,Dja(1+(k-1)*nvir),1,dintc2,1)
-                        call ga_nbwait(nbh_objv4(k)) ! Djka
+                        if(i.eq.1)
+     K                       call ga_nbwait(nbh_objv4(k)) ! Djka
                         call dcopy(nvir,Djka(1+(k-klo)*nvir),1,dintx2,1)
                         emp4i = 0.0d0
                         emp5i = 0.0d0
@@ -251,9 +258,13 @@ c#define BLAS_THREAD 1
 !  All of these are independent of k, so we wait on them only
 !  at the first trip of the loop.
 !
-                        if (k.eq.klo) then
-                            call ga_nbwait(nbh_objv2)
-                            call ga_nbwait(nbh_objv3)
+                        if (i.eq.1.and.k.eq.klo) then
+                           if(got_ak) then
+                              call ga_nbwait(nbh_exch1)
+                              call ga_nbwait(nbh_coul1)
+                              call ga_nbwait(nbh_objv2)
+                              call ga_nbwait(nbh_objv3)
+                           endif
                             call ga_nbwait(nbh_objv6)
                             call ga_nbwait(nbh_objv7)
                             call ga_nbwait(nbh_objo1)
@@ -262,9 +273,7 @@ c#define BLAS_THREAD 1
                             call ga_nbwait(nbh_objo4)
                             call ga_nbwait(nbh_objo5)
                             call ga_nbwait(nbh_objo6)
-                            call ga_nbwait(nbh_exch1)
                             call ga_nbwait(nbh_exch2)
-                            call ga_nbwait(nbh_coul1)
                             call ga_nbwait(nbh_coul2)
                         endif
 
