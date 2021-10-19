@@ -151,7 +151,8 @@ c#define BLAS_THREAD 1
       call omp_set_nested(1)
       call omp_get_dynamic(ldyn_org)
       call omp_set_dynamic(.true.)
-      call util_blas_set_num_threads(4)
+      call  util_setthreads_fromenv()
+c      call util_blas_set_num_threads(4)
 #endif
       nodes = ga_nnodes()
       iam = ga_nodeid()
@@ -178,7 +179,7 @@ c#define BLAS_THREAD 1
                if (inode.eq.next)then
 
                   call ga_nbget(g_objv,1+(j-1)*lnov,j*lnov,av,av,Dja,
-     &                          lnov,nbh_objv1)
+     &                 lnov,nbh_objv1)
                   do k = klo, khi
                      call ga_nbget(g_objv,1+(j-1)*nvir+(k-1)*lnov,
      &                    j*nvir+(k-1)*lnov,av,av,
