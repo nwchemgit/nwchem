@@ -35,13 +35,14 @@ C      character(*), parameter     :: out_tag = "<rt_tddft>: "
 C
 C     Unit conversions.
 C
+#include "util_params.fh"
       double precision, parameter :: au2fs = 0.024189d0      ! au time to femtoseconds
       double precision, parameter :: au2vnm = 514.21d0       ! au elec field to V/nm
-      double precision, parameter :: au2debye = 2.541746d0   ! au dip mom to debye
-      double precision, parameter :: au2ev = 27.2114         ! au energy to eV
+      double precision, parameter :: au2debye = cau2debye    ! au dip mom to debye
+      double precision, parameter :: au2ev = cau2ev          ! au energy to eV
       double precision, parameter :: deg2rad = 180d0 / dpi   ! 1 deg in radians
-      double precision, parameter :: au2ang = 0.5291772489d0 ! 1 au (Bohr) in Angstroms
-      double precision, parameter :: ang2au = 1.889725989d0  ! 1 Angstrom in au (Bohr)
+      double precision, parameter :: au2ang = cau2ang        ! 1 au (Bohr) in Angstroms
+      double precision, parameter :: ang2au = cang2au        ! 1 Angstrom in au (Bohr)
 
       
 C

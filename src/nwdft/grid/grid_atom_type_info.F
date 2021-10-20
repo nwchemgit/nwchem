@@ -13,11 +13,11 @@ c
 #include "geom.fh"
 #include "mafdecls.fh"
 #include "bas.fh"
+#include "util_params.fh"
 c
       double precision BSrad(105)
       double precision ictr_coord(3), ictr_chg
-      double precision autoang, angtoau, EPS
-      parameter (autoang = 0.529177249d0, angtoau = 1.d0/autoang)
+      double precision EPS
       parameter (EPS = 1.d-20)
       integer itype, ictr, iaz, i_atomic_number, icenter, jcenter
 c
@@ -205,7 +205,7 @@ c
             if (i_atomic_number.eq.0)then
                bsrad_atom_type(itype) = EPS
             else
-               bsrad_atom_type(itype) = BSrad(i_atomic_number)*ANGTOAU
+               bsrad_atom_type(itype) = BSrad(i_atomic_number)*cang2au
             endif
          else    ! center is charged
 c
@@ -239,7 +239,7 @@ c
             if (i_atomic_number.ne.0)then ! not ghost atom
                ityp2ctr(itype)=ictr
 c
-               bsrad_atom_type(itype) = BSrad(i_atomic_number)*ANGTOAU
+               bsrad_atom_type(itype) = BSrad(i_atomic_number)*cang2au
                if (bsrad_atom_type(itype).lt.EPS)then ! no radius found for atom
                   write(LuOut,*)' index ', 
      &               int(abs(znuc_atom_type(itype)) + EPS) 
@@ -324,11 +324,11 @@ c
 #include "cdft.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
+#include "util_params.fh"
 c
       double precision BSrad(105)
       double precision ictr_coord(3), ictr_chg
-      double precision autoang, angtoau, EPS
-      parameter (autoang = 0.529177249d0, angtoau = 1.d0/autoang)
+      double precision EPS
       parameter (EPS = 1.d-20)
       integer itype, ictr, iaz, i_atomic_number, icenter, jcenter
 c
@@ -524,7 +524,7 @@ c
                bsrad_atom_type_fde(itype) = EPS
             else
                bsrad_atom_type_fde(itype) = 
-     &                        BSrad(i_atomic_number)*ANGTOAU
+     &                        BSrad(i_atomic_number)*cang2au
             endif
          else    ! center is charged
 c
@@ -541,7 +541,7 @@ c
 c               ityp2ctr(itype)=ictr
 c
                bsrad_atom_type_fde(itype) = 
-     &                               BSrad(i_atomic_number)*ANGTOAU
+     &                               BSrad(i_atomic_number)*cang2au
                if (bsrad_atom_type_fde(itype).lt.EPS)then ! no radius found for atom
                   write(LuOut,*)' index ', 
      &               int(abs(znuc_atom_type_fde(itype)) + EPS) 

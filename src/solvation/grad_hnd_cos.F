@@ -63,6 +63,7 @@ c     1. All regular QM derivatives
 #include "sym.fh"
 #include "stdio.fh"
 #include "prop.fh"
+#include "util_params.fh"
 
 C-------------------------parameters--------------------------------
       integer g_dens !< [Input] the total electron density matrix GA
@@ -110,9 +111,8 @@ C-------------------------local variables--------------------------
       integer iefc_q      ! memory index for COSMO charges
 
       double precision dE, qfac, fact, dx, dy, dz, rr
-      double precision invscreen, bohr, pi
+      double precision invscreen, pi
       double precision zeta1, zeta2, zeta12
-      parameter (bohr=0.529177249d0)
 
       logical status, pointforce
 
@@ -166,7 +166,7 @@ c
       status = rtdb_get(rtdb,'cosmo:radius',mt_dbl,nat,
      $                  dbl_mb(k_rad))
       do iat1=0,nat-1
-        dbl_mb(k_rad+iat1) = dbl_mb(k_rad+iat1)/bohr
+        dbl_mb(k_rad+iat1) = dbl_mb(k_rad+iat1)/cau2ang
       enddo
 c
       if (.not.ma_push_get(MT_INT,nefc,"efciat",l_efciat,k_efciat))
@@ -430,8 +430,12 @@ c
               dz = dbl_mb(2+3*(ich1-1)+iefc_c)
      $           - dbl_mb(2+3*(ich2-1)+iefc_c)
               rr = sqrt(dx*dx+dy*dy+dz*dz)
-              if (rr.lt.1.0d-6) then
+              if (rr.lt.1.0d-6 .and. do_cosmo_model.eq.do_cosmo_ks)then
                 fact = 0.0d0
+              elseif(rr.lt.1d-4.and.do_cosmo_model.eq.do_cosmo_yk)then
+                fact = invscreen*dbl_mb(iefc_q+ich1-1)*
+     $                 dbl_mb(iefc_q+ich2-1)*4d0*zeta12**3/sqrt(pi)*
+     $                 ((zeta12*rr)**2/5d0-1d0/3d0)
               else
                 if (do_cosmo_model.eq.DO_COSMO_KS) then
                   fact = -invscreen*dbl_mb(iefc_q+ich1-1)

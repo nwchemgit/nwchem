@@ -23,6 +23,7 @@
       Double Precision Dist,Thr
       Integer i,iGrid,iX,iY,iZ,Const_M(3),Const_P(3),iAtom
       Integer InRow,nTimes,iTimes,LeftNo,nLoop,Length,j,iOff,nRejected
+      double precision hi(3),lo(3)
       Logical DeBug,lgaussian
 *
       Parameter (Thr = 1.d-8)
@@ -37,6 +38,12 @@
      ,     cooto,coofrom,ngridxyz)
 *
       If (What.eq.'CHARGES') GoTo 2345   ! ***** temporary *****
+      hi(1)=-1d20
+      hi(2)=-1d20
+      hi(3)=-1d20
+      lo(1)=1d20
+      lo(2)=1d20
+      lo(3)=1d20
       if(lgaussian) then
       iGrid = 0
       Do ix = 0, nGridXYZ(1)
@@ -47,6 +54,12 @@
                Grid(1,iGrid) = CooFrom(1) + dble(iX)*Step(1)
                Grid(2,iGrid) = CooFrom(2) + dble(iY)*Step(2)
                Grid(3,iGrid) = CooFrom(3) + dble(iZ)*Step(3)
+               hi(1)=max(hi(1),Grid(1,iGrid))
+               hi(2)=max(hi(2),Grid(2,iGrid))
+               hi(3)=max(hi(3),Grid(3,iGrid))
+               lo(1)=min(lo(1),Grid(1,iGrid))
+               lo(2)=min(lo(2),Grid(2,iGrid))
+               lo(3)=min(lo(3),Grid(3,iGrid))
                If (What.eq.'CHARGES') Then
                   Do iAtom = 1, nAtom
                      Dist = 0.d0
@@ -168,6 +181,11 @@
       nGrid = iGrid
 *     If (iProc.eq.0) Write(*,*)' nGrid = ', nGrid
 *
+      If (iproc.eq.0) Then
+         write(luout,789) '  Grid minima (bohr) ',lo
+         write(luout,789) '  Grid maxima (bohr) ',hi
+      endif
+ 789  format(a,3f10.6)
       If (DeBug . and . iProc.eq.0) Then
          Write(LuOut,*)' Grid Points:'
          Do iTimes = 1, ngrid
