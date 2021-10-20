@@ -80,8 +80,6 @@ c
       logical status
       character*30 tag
       character*255 token
-      double precision bohr
-      parameter  (bohr=0.529177249d+00)
       character*(rtdb_max_file) geom_geom  ! The "geometry" value
       character*(rtdb_max_file) cosmo_geom ! The geometry for which the COSMO
                                            ! parameters were set

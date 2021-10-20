@@ -10,9 +10,14 @@ if [[ "${MYPWD}" != ${NWCHEM_TOP}/contrib/mkdocs ]]; then
     echo please cd to ${NWCHEM_TOP}/contrib/mkdocs
     exit
 fi
-rsync -av archivedforum/Special_AWCforum docs/.
+#fresh clone of wiki
+rm -rf docs #archivedforum
+git clone --depth 1 git@github.com:nwchemgit/nwchem-wiki.git docs
 cd docs
-git pull
+git clone --depth 1 git@github.com:nwchemgit/archivedforum.git
+#rsync -av archivedforum/Special_AWCforum docs/.
+#cd docs
+#git pull
 while read fname; do
     ls "$fname"
     rm -f tmptmp.txt
@@ -36,8 +41,9 @@ else
     mkdocs serve
 fi    
 # restore svg bits
-cd docs
-while read fname; do
-    ls "$fname"
-    mv "$fname".tmp $fname
-done <../mathfiles.txt
+rm -rf docs
+#cd docs
+#while read fname; do
+#    ls "$fname"
+#    mv "$fname".tmp $fname
+#done <../mathfiles.txt

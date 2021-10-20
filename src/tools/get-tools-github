@@ -206,6 +206,7 @@ echo "GOTMINGW64" $GOTMINGW64
 ./msmpi_patch.sh $GA_DIR
 ./mingw64_patch.sh $GA_DIR
 fi
+#patch -p0 -s -N < ./scala1.patch
 if test -e $GA_DIR/configure
 then
         echo "configure present. no autogen.sh required"
