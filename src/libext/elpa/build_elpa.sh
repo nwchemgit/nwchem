@@ -63,21 +63,28 @@ fi
 if [[   -z "${CC}" ]]; then
     CC=cc
 fi
-GOTCLANG=$( "$MPICC" -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
+if [[ ${FC} == flang ]] || [[ ${PE_ENV} == AOCC ]]; then
+    GOTCLANG=1
+else
+    GOTCLANG=$( "$MPICC" -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
+fi
 if [[ ${GOTCLANG} == "1" ]] ; then
-    if [[ ${UNAME_S} == Linux ]]; then
-	export FORTRAN_CPP=/usr/bin/cpp
-    fi
+#    if [[ ${UNAME_S} == Linux ]]; then
+#	export FORTRAN_CPP=/usr/bin/cpp
+#    fi
     CFLAGS+=" -Wno-error=implicit-function-declaration "
 fi
 # check gfortran version for arg check
 GFORTRAN_EXTRA=$(echo $FC | cut -c 1-8)
-if [[ ${GFORTRAN_EXTRA} == gfortran ]] || [[ ${PE_ENV} == GNU ]]; then
+if [[ ${GFORTRAN_EXTRA} == gfortran ]] || [[ ${PE_ENV} == GNU ]] || [[ ${FC} == flang ]] || [[ ${PE_ENV} == AOCC ]]; then
     let GFOVERSIONGT7=$(expr `${FC} -dumpversion | cut -f1 -d.` \> 7)
     if [[ ${GFOVERSIONGT7} == 1 ]]; then
 	FCFLAGS+=' -std=legacy '
     fi
   sixty4_int+=" --disable-mpi-module "
+fi
+if [[ ${FC} == nvfortran ]]  || [[ ${PE_ENV} == NVIDIA ]] ; then
+    sixty4_int+=" --disable-mpi-module "
 fi
 if [[ ${FC} == ifort ]]  || [[ ${PE_ENV} == INTEL ]] ; then
     FCFLAGS+=' -fpp'
@@ -177,7 +184,7 @@ export SCALAPACK_FCFLAGS="${MYLINK}"
 export SCALAPACK_LDFLAGS="${MYLINK}"
 export LIBS="${MYLINK}"
 export    FC=$MPIF90
-export CC=$MPICC 
+export CC=$MPICC
 ../configure \
     $sixty4_int \
   --disable-option-checking \
@@ -196,11 +203,14 @@ unset CFLAGS
 unset SCALAPACK_FCFLAGS
 unset SCALAPACK_LDFLAGS
 MYFC=$($MPIF90 -show|cut -d " " -f 1)
-if [[ ${MYFC} == ifort ]] || [[ ${PE_ENV} == INTEL ]]; then
-    top_srcdir=`pwd`/..
-    make V=0 FC="${top_srcdir}/remove_xcompiler ${top_srcdir}/manual_cpp $MPIF90" -j4 install-libLTLIBRARIES install-data
+if [[ "${FORTRAN_CPP}" != "" ]] ; then
+    make V=0 -j4
+    make V=0 -j4 install
+#    make V=0 -j4 install-libLTLIBRARIES install-data
 else    
-    make  V=0 -j4 install-libLTLIBRARIES install-data
+    top_srcdir=`pwd`/..
+    make V=0 FC="${top_srcdir}/remove_xcompiler ${top_srcdir}/manual_cpp $MPIF90" -j4
+    make V=0 FC="${top_srcdir}/remove_xcompiler ${top_srcdir}/manual_cpp $MPIF90" -j4 install
 fi
 
 if [[ "$?" != "0" ]]; then
