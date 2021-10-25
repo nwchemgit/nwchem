@@ -213,9 +213,13 @@ if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
 fi
 #skip argument check for gfortran
 if  [[ ${FC} == gfortran ]] || [[ ${FC} == f95 ]] || [[ ${GFORTRAN_EXTRA} == gfortran ]] ; then
+    Fortran_FLAGS+=" -fPIC "
     if [[ "$(expr `${FC} -dumpversion | cut -f1 -d.` \> 7)" == 1 ]]; then
 	Fortran_FLAGS+=" -std=legacy "
     fi
+fi
+if [[ ${PE_ENV} == NVIDIA ]] || [[ ${FC} == nvfortran ]] ; then
+  Fortran_FLAGS+=" -fPIC "
 fi
 if [[ "$CRAY_CPU_TARGET" == "mic-knl" ]]; then
     module swap craype-mic-knl craype-haswell
