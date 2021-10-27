@@ -60,6 +60,7 @@ c
       integer l_i110, i110
       integer l_i120, i120
       integer l_i130, i130
+      integer l_i140, i140
       integer need
 c
       dbug=.false.
@@ -111,6 +112,8 @@ c
      c     call errquit('hndcosset: not enuf mem',11,MA_ERR)
       if(.not.ma_push_get(mt_dbl,  mxface*nat,"xyzff",l_i130,i130))
      c     call errquit('hndcosset: not enuf mem',12,MA_ERR)
+      if(.not.ma_push_get(mt_dbl,mxface,"Lebedev w",l_i140,i140))
+     c     call errquit('hndcosset: not enuf mem',13,MA_ERR)
 c     i10 =init                    ! xyzatm(3,nat)
 c     i20 =i10 +3*nat              !   ratm(  nat)
 c     i30 =i20 +  nat              !   nspa(  nat)
@@ -130,7 +133,7 @@ c
      1                dbl_mb(i10),dbl_mb(i20),int_mb(i30),int_mb(i40),
      2                int_mb(i50),dbl_mb(i60),int_mb(i70),log_mb(i80),
      3                dbl_mb(i90),int_mb(i100),int_mb(i110),
-     4                dbl_mb(i120),dbl_mb(i130),rtdb)
+     4                dbl_mb(i120),dbl_mb(i130),dbl_mb(i140),rtdb)
 
 c
 c     ----- release memory block -----
@@ -149,7 +152,7 @@ C>
       subroutine hnd_cossrf(nat,c,radius,mxatm,mxfac,mxapx,
      1                  xyzatm,ratm,nspa,nppa,
      2                  ijkfac,xyzseg,ijkseg,insseg,
-     3                  xyzspa,ijkspa,numpps,apex,xyzff,rtdb)
+     3                  xyzspa,ijkspa,numpps,apex,xyzff,wleb,rtdb)
       implicit none
 c
 #include "nwc_const.fh"
@@ -179,16 +182,18 @@ c
       integer          numpps(  mxfac,mxatm)
       double precision   apex(3,mxapx)
       double precision  xyzff(  mxfac,mxatm)
+      double precision  wleb(mxfac)
 c
       logical    some
       logical    out
       logical    more
       logical    dbug
 c
-      integer i, iat, lfac, lseg, ndiv, nfac, nseg
-      integer mfac
+      integer i, iat, lfac, lseg, ndiv, nfac, nseg, nseg2
+      integer mfac, iangquad
 c
       dbug=.false.
+      dbug=.true.
       more=.false.
       more=more.or.dbug
       out =.false. 
@@ -205,10 +210,16 @@ c
       nseg = 0
       nfac = 0
       ndiv = 0
-      call hnd_cossph(nseg,nfac,ndiv,
-     1                ijkfac,xyzseg,ijkseg,mxfac,apex,mxapx,
-     2                dsurf,dvol,adiag)
-      ptspatm = dble(nseg)
+
+
+      if (iflebedev.eq.0) then
+        call hnd_cossph(nseg,nfac,ndiv,
+     1                  ijkfac,xyzseg,ijkseg,mxfac,apex,mxapx,
+     2                  dsurf,dvol,adiag)
+        ptspatm = dble(nseg)
+      else
+        call cosmo_lebedev(iangleb, nseg, xyzseg, wleb)
+      endif
 c
 c     ----- debug printing -----
 c
@@ -222,7 +233,7 @@ c
      1                             xyzseg(3,lseg),ijkseg(  lseg)
             enddo
          endif
-         if(dbug) then
+         if(dbug .and. iflebedev.eq.0) then
             write(luout,9996)
             do lfac=1,nfac
                mfac=lfac+nseg
@@ -257,7 +268,7 @@ c
       call hnd_cossas(nat,xyzatm,ratm,mxatm,
      1                nspa,nppa,xyzspa,ijkspa,
      2                nseg,nfac,xyzseg,ijkseg,insseg,
-     3                numpps,xyzff,mxfac,rtdb)
+     3                numpps,xyzff,wleb,mxfac,rtdb)
 c
       return
  9999 format(' nseg,nfac,ndiv=nfac/nseg,dsurf,dvol = ',3i7,2f10.6)
@@ -350,7 +361,7 @@ C>
       subroutine hnd_cossas(nat,xyzatm,ratm,mxatom,
      1                      nspa,nppa,xyzspa,ijkspa,
      2                      nseg,nfac,xyzseg,ijkseg,insseg,
-     3                      numpps,xyzff,mxface,rtdb)
+     3                      numpps,xyzff,wleb,mxface,rtdb)
       implicit none
 #include "cosmo_params.fh"
 #include "errquit.fh"
@@ -395,10 +406,12 @@ c
       integer          ijkspa(  mxface,mxatom)
       integer          numpps(  mxface,mxatom)
       double precision  xyzff(  mxface,mxatom)
+      double precision  wleb (  mxface)
       double precision zero, one
       data one     /1.0d+00/
       integer l_efcc, k_efcc, l_efcs, k_efcs, l_efcz, k_efcz
       integer l_efclb, k_efclb, k_efciat, l_efciat
+      integer l_efczeta, k_efczeta
       double precision ratm_real,dij,dum,cavdsp,pi,zetai,zetaii
       integer m,mfac,mseg
       integer nefc,iat,jat,npp,i,iseg,ifac,ief,ipp
@@ -515,7 +528,7 @@ c
                  endif
                endif
             enddo
-            if(dbug.and.ga_nodeid().eq.0) then
+            if(dbug.and.iflebedev.eq.0.and.ga_nodeid().eq.0) then
                write(luout,9996) iat
                write(luout,9995) (ijkspa(ifac+nseg,iat),ifac=1,nfac)
             endif
@@ -617,6 +630,9 @@ c
      & call errquit('cosmo_cossas malloc k_efciat failed',911,MA_ERR)
       if(.not.ma_push_get(mt_dbl,nefc,'cosmo efcz',l_efcz,k_efcz))
      & call errquit('cosmo_cossas malloc k_efcz failed',911,MA_ERR)
+      if(.not.ma_push_get(mt_dbl,nefc,'cosmo efczeta',l_efczeta,
+     &    k_efczeta))
+     & call errquit('cosmo_cossas malloc k_efczeta failed',911,MA_ERR)
       if(.not.ma_push_get(mt_byte,nefc*8,'cosmo tags',l_efclb,k_efclb))
      & call errquit('cosmo_cossas malloc k_tag failed',911,MA_ERR)
 c
@@ -627,6 +643,15 @@ c
       srfmol=0d0
       volmol=0d0
       ief   =0
+
+      if(dbug.and.ga_nodeid().eq.0) then
+        write(luout,*)
+        write(luout,'(" --- Geometry including SAS --- ")')
+        do iat=1,nat
+          write(luout,'(3F12.6)') (xyzatm(i,iat)*cau2ang,i=1,3)
+        enddo
+      endif
+
       do iat=1,nat
          if(ratm(iat).ne.0d0) then
             ratm_real=-1d99
@@ -635,6 +660,7 @@ c
             else if (do_cosmo_model.eq.DO_COSMO_YK) then
               ratm_real=ratm(iat)
             endif 
+            
             do iseg=1,nseg
                if(.not.insseg(iseg,iat)) then
                   ief=ief+1
@@ -642,6 +668,10 @@ c
                      dbl_mb(k_efcc+3*(ief-1)+i-1)=xyzatm(i,iat)
      1                          +xyzseg(i,iseg)*ratm_real
                   enddo
+                  if(dbug.and.ga_nodeid().eq.0) then
+                    write(luout,'(3F12.6)') 
+     1       ((xyzatm(i,iat)+xyzseg(i,iseg)*ratm_real)*cau2ang,i=1,3)
+                  endif
                   ipp=numpps(iseg,iat)
                   if (do_cosmo_model.eq.DO_COSMO_KS) then
                     dbl_mb(k_efcs+ief-1) = dble(ipp)*dsurf*ratm_real**2
@@ -651,18 +681,29 @@ c
 c
 c                   --- eval eq.(67) from [2] ---
 c
+                    if (iflebedev.eq.0) then
                     dum=4.00d0**(maxbem-minbem)
-                    dum=16.0d0 ! MAXBEM is obsolete in York and Karplus approach
-                    zetai=zeta*sqrt(nseg*dum)/(ratm_real*sqrt(2.0d0*pi))
-                    zetaii=zetai/sqrt(2.0d0)
+                    dum=1.0d0 ! MAXBEM is obsolete in York and Karplus approach
+                    zetai=zeta*sqrt(nseg*dum)/(ratm_real*sqrt(4.0d0*pi))
                     dbl_mb(k_efcs+ief-1) = (1.0d0/xyzff(iseg,iat))
-     1                                   * 2.0d0*zetaii/sqrt(pi)
+     1                                   * sqrt(2.0d0)*zetai/sqrt(pi)
                     srfmol = srfmol + xyzff(iseg,iat)*dsurf*ratm_real**2
                     volmol = volmol + xyzff(iseg,iat)*dvol *ratm_real**3
+                    else
+                      zetai=zeta/(ratm_real*sqrt(wleb(iseg)))
+                      dbl_mb(k_efcs+ief-1) = zetai*sqrt(2d0/pi)/
+     1                                       xyzff(iseg,iat)
+                      srfmol = srfmol + xyzff(iseg,iat)*wleb(iseg)*
+     1                                  ratm_real**2
+                      volmol = volmol + xyzff(iseg,iat)*wleb(iseg)*
+     1                                  ratm_real**3/3d0
+                    endif
                   endif
                   int_mb(k_efciat+ief-1)=iat
+                  dbl_mb(k_efczeta+ief-1)=zetai
                endif
             enddo
+            if(dbug.and.ga_nodeid().eq.0) write(luout,*)
          endif
       enddo
       srfmol=srfmol*(cau2ang**2)
@@ -723,6 +764,10 @@ c
       if(.not.rtdb_put(rtdb,'cosmo:efcz',mt_dbl,  nefc,dbl_mb(k_efcz)))
      $   call errquit('hnd_cossas: rtdb put failed for efcz  ',913,
      &       rtdb_err)
+      if(.not.rtdb_put(rtdb,'cosmo:efczeta',mt_dbl,nefc,
+     &   dbl_mb(k_efczeta)))
+     $   call errquit('hnd_cossas: rtdb put failed for efczeta',915,
+     &       rtdb_err)
       if(.not.rtdb_put(rtdb,'cosmo:efcs',mt_dbl,  nefc,dbl_mb(k_efcs)))
      $   call errquit('hnd_cossas: rtdb put failed for efcs  ',914,
      &       rtdb_err)
@@ -749,6 +794,8 @@ c    &       rtdb_err)
 c
       if(.not.ma_pop_stack(l_efclb)) call
      &   errquit('cosmo_cossas chop stack k_efclb failed',911,MA_ERR)
+      if(.not.ma_pop_stack(l_efczeta)) call
+     &   errquit('cosmo_cossas chop stack k_efcz failed',911,MA_ERR)
       if(.not.ma_pop_stack(l_efcz)) call
      &   errquit('cosmo_cossas chop stack k_efcz failed',911,MA_ERR)
       if(.not.ma_pop_stack(l_efciat)) call
@@ -2008,7 +2055,7 @@ C>   <a href="https://doi.org/10.1111/1468-0262.00296">
 C>   10.1111/1468-0262.00296</a>.
 C>
       subroutine hnd_coschg(g_dens,ndens,rtdb,geom,basis,nat,nefc,
-     &                      efcc,efcs,efcz,efciat,ratm,ecos,
+     &                      efcc,efcs,efcz,efczeta,efciat,ratm,ecos,
      &                      cosmo_file)
       implicit none
 #include "errquit.fh"
@@ -2041,6 +2088,7 @@ c
                                     !< surface area
 c
       double precision efcz(nefc)   !< [Output] the COSMO charges
+      double precision efczeta(nefc)!< [Input] COSMO charges zeta_i
       integer          efciat(nefc) !< [Input] the atom associated
                                     !< with each surface charge
       double precision ratm(nat)    !< [Input] the atom radii
@@ -2233,6 +2281,7 @@ c
       nucl=.false.
       ecos=zero
       elambda=zero
+      dlambda=zero
       istrlen = 0
 c
 c     ----- get electrostatic potential at surface points -----
@@ -2401,7 +2450,7 @@ c
          call dcopy(nefc,x(iep),1,x(ieq),1)
          call dfill(nefc,1d0,x(ieq+nefc),1)
 
-         call hnd_cosmata(nat,nefc,efcc,efcs,efciat,ratm,x(i30))
+         call hnd_cosmata(nat,nefc,efcc,efcs,efczeta,efciat,ratm,x(i30))
 c
          nodcmp=0
          call hnd_linequ(x(i30),nefc,x(ieq),nefc,
@@ -2463,7 +2512,7 @@ c
 
          call hnd_cg(nat,x(iep),x(ieq),nefc,
      1                   x(i40),x(i50),x(i60),x(i70),
-     2                   efcc,efcs,efciat,ratm)
+     2                   efcc,efcs,efczeta,efciat,ratm)
 c
          if (all) then
            if (.not.rtdb_put(rtdb,'cosmo:qraw',mt_dbl,nefc,x(i20))) then
@@ -2497,7 +2546,7 @@ c
            call dfill(nefc,one,x(i30),1)
            call hnd_cg(nat,x(i30),x(i80),nefc,
      1                     x(i40),x(i50),x(i60),x(i70),
-     2                     efcc,efcs,efciat,ratm)
+     2                     efcc,efcs,efczeta,efciat,ratm)
 c
            if (.not.rtdb_put(rtdb,'cosmo:rawt',mt_dbl,nefc,x(i80)))
      1        call errquit('hnd_coschg: could not store raw A^{-1}1',
@@ -2548,7 +2597,7 @@ c
         do ief=1,nefc
            chgcos=chgcos+x(ief+i20-1)
         enddo
-        elambda = 0.5d0*screen*dlambda*chgcos
+        elambda = 0.5d0*dlambda*charge
       endif
       if (cosmo_sccor.eq.COSMO_SCCOR_SCALE) then
         if (.not.all.and..not.elec) goto 10
@@ -2627,8 +2676,8 @@ c     identical. If surface charge corrections are employed using
 c     scaling factors or Lagrangian multipliers then additional 
 c     correction terms are needed to ensure the expressions agree.
 c
-      call hnd_cos_energy(nat,nefc,chgfac,efcc,efcs,efcz,efciat,ratm,
-     &                    dbl_mb(k_xyzpt),dbl_mb(k_zanpt),x(i10),
+      call hnd_cos_energy(nat,nefc,chgfac,efcc,efcs,efcz,efczeta,efciat,
+     &                    ratm,dbl_mb(k_xyzpt),dbl_mb(k_zanpt),x(i10),
      &                    allefc,atmefc,elcefc,efcefc)
       solnrg= allefc+efcefc
 c     COSMO contribution Alternative 1 (Ref.[1] Eq.(8))
@@ -2662,8 +2711,7 @@ c
       enddo
       solnrg= pt5* allefc
 c     COSMO contribution Alternative 2 (Ref.[1] Eq.(11))
-c     ecos = pt5*(atmefc-elcefc)+elambda
-      ecos = pt5*(atmefc-elcefc)
+      ecos = efcefc + atmefc
       if (oprint_energies) then
          write(luout,*)'Alternative 2'
          write(luout,9991) atmefc
@@ -2743,7 +2791,7 @@ c
 c MN solvation models -->
 c
       if (do_cosmo_vem.ne.0.or.do_cosmo_smd) then
-      ecos = pt5*(atmefc-elcefc)
+      ecos = efcefc + atmefc
       endif   
 c
 c save V_GS and Q_GS for VEM calculation
@@ -3081,8 +3129,8 @@ C>     pp 11060-11079, DOI:
 C>     <a href="https://doi.org/10.1021/jp992097l">
 C>     10.1021/jp992097l</a>.
 C>
-      subroutine hnd_cos_energy(nat,nefc,chgscr,efcc,efcs,efcz,efciat,
-     &           ratm,catm,zatm,pot,allefc,atmefc,elcefc,efcefc)
+      subroutine hnd_cos_energy(nat,nefc,chgscr,efcc,efcs,efcz,efczeta,
+     &           efciat,ratm,catm,zatm,pot,allefc,atmefc,elcefc,efcefc)
       implicit none
 c
 #include "cosmoP.fh"
@@ -3105,6 +3153,7 @@ c
                                     !< (see e.g. Eq.(7b)) or Ref.[2]
                                     !< Eq.(67).
       double precision efcz(nefc)   !< [Input] The COSMO charges
+      double precision efczeta(nefc)!< [Input]
       double precision ratm(nat)    !< [Input] The atomic radii
       double precision catm(3,nat)  !< [Input] The atomic coordinates
       double precision zatm(nat)    !< [Input] The nuclear charges
@@ -3182,12 +3231,11 @@ c
            yj=efcc(2,jef)
            zj=efcc(3,jef)
            qj=efcz(  jef)
-           zetaj=zeta*sqrt(ptspatm)/(ratm(efciat(jef))*sqrt(2.0d0*pi))
+           zetaj=efczeta(jef)
            efcefc=efcefc+qj*efcs(jef)*qj
 c
            do ief=jef+1,nefc
-              zetai=zeta*sqrt(ptspatm)
-     &             /(ratm(efciat(ief))*sqrt(2.0d0*pi))
+              zetai=efczeta(ief)
               xi=efcc(1,ief)
               yi=efcc(2,ief)
               zi=efcc(3,ief)
@@ -3213,7 +3261,7 @@ C>
 C> Compute matrix `A` as needed for the in-memory COSMO
 C> charge fitting.
 C>
-      subroutine hnd_cosmata(nat,nefc,efcc,efcs,efciat,ratm,a)
+      subroutine hnd_cosmata(nat,nefc,efcc,efcs,efczeta,efciat,ratm,a)
       implicit none
 #include "cosmoP.fh"
 #include "cosmo_params.fh"
@@ -3221,6 +3269,7 @@ C>
       integer          nefc !< [Input] The number of surface charges
       double precision efcc(3,nefc) !< [Input] The surface charge coords
       double precision efcs(nefc)   !< [Input] The surface areas
+      double precision efczeta(nefc)!< [Input] 
       integer          efciat(nat)  !< [Input] The atom of a surface 
                                     !< charge
       double precision ratm(nat)    !< [Input] The atom radii
@@ -3257,10 +3306,9 @@ c
           enddo
         enddo
       else if (do_cosmo_model.eq.DO_COSMO_YK) then
-        factor = zeta*dsqrt(ptspatm/(2d0*pi))
         factor2 = 2d0/sqrt(pi)
         do jef=1,nefc
-          zetaj=factor/ratm(efciat(jef))
+          zetaj=efczeta(jef)
           xj=efcc(1,jef)
           yj=efcc(2,jef)
           zj=efcc(3,jef)
@@ -3269,13 +3317,13 @@ c
                aii=efcs(ief)
                a(ief,jef)=aii
             else
-               zetai=factor/ratm(efciat(ief))
+               zetai=efczeta(ief)
                zetaij=zetai*zetaj/sqrt(zetai**2+zetaj**2)
                xi=efcc(1,ief)
                yi=efcc(2,ief)
                zi=efcc(3,ief)
                dij=sqrt((xi-xj)**2+(yi-yj)**2+(zi-zj)**2)
-               if (dij.lt.1.0d-5) then
+               if (dij.lt.1.0d-8) then
                  a(ief,jef)=factor2*zetaij*(1d0 - (zetaij*dij)**2/3d0)
                else
                  a(ief,jef)=derf(zetaij*dij)/dij
@@ -3294,7 +3342,7 @@ C> for the charge vector using a dot-product based algorithm. The matrix
 C> is generated on the fly. For performance reasons the routine is
 C> replicated data parallel.
 C>
-      subroutine hnd_cosaxd(nat,x,ax,nefc,efcc,efcs,efciat,ratm)
+      subroutine hnd_cosaxd(nat,x,ax,nefc,efcc,efcs,efczeta,efciat,ratm)
       implicit none
 #include "global.fh"
 #include "msgids.fh"
@@ -3305,6 +3353,7 @@ c
       integer          nefc !< [Input] The number of surface charges
       double precision efcc(3,nefc) !< [Input] The surface charge coords
       double precision efcs(nefc)   !< [Input] The surface areas
+      double precision efczeta(nefc)   !< [Input] 
       integer          efciat(nefc) !< [Input] The atom of a surface 
                                     !< charge
       double precision ratm(nat)    !< [Input] The atom radii
@@ -3342,16 +3391,15 @@ c
           enddo
         enddo
       else if (do_cosmo_model.eq.DO_COSMO_YK) then
-        factor = zeta*dsqrt(ptspatm/(2d0*pi))
         factor2 = 2d0/sqrt(pi)
         do i=ga_nodeid()+1,nefc,ga_nnodes()
-          zetai = ratm(efciat(i))**2
+          zetai = efczeta(i)
           ax(i) = ax(i) + efcs(i)*x(i)
           do j=i+1,nefc
-            zetaj = ratm(efciat(j))**2
-            zetaij= factor/sqrt(zetai+zetaj)
+            zetaj = efczeta(j)
+            zetaij= zetai*zetaj/sqrt(zetai**2+zetaj**2)
             dij=r(i,j)
-            if (dij.lt.1.0d-5) then
+            if (dij.lt.1.0d-8) then
               aij=factor2*zetaij*(1d0 - (zetaij*dij)**2/3d0)
             else
               aij=derf(zetaij*dij)/dij
@@ -3374,12 +3422,13 @@ C> with the matrix. The routine is replicated data parallel.
 C> The matrix `A` is symmetric so we simply call the matrix-vector
 C> product.
 C>
-      subroutine hnd_cosxad(nat,x,xa,nefc,efcc,efcs,efciat,ratm)
+      subroutine hnd_cosxad(nat,x,xa,nefc,efcc,efcs,efczeta,efciat,ratm)
       implicit none
       integer          nat  !< [Input] The number of atoms
       integer          nefc !< [Input] The number of surface charges
       double precision efcc(3,nefc) !< [Input] The surface charge coords
       double precision efcs(nefc)   !< [Input] The surface areas
+      double precision efczeta(nefc)   !< [Input] 
       integer          efciat(nefc) !< [Input] The atom of a surface 
                                     !< charge
       double precision ratm(nat)    !< [Input] The atom radii
@@ -3387,7 +3436,7 @@ C>
       double precision xa(nefc)     !< [Output] Vector-matrix product
                                     !< `xA`
 c
-      call hnd_cosaxd(nat,x,xa,nefc,efcc,efcs,efciat,ratm)
+      call hnd_cosaxd(nat,x,xa,nefc,efcc,efcs,efczeta,efciat,ratm)
 c
       return
       end
@@ -3412,8 +3461,8 @@ C>     <i>J. Chem. Soc., Perkin Trans. 2</i>, 1993, pp 799-805, DOI:
 C>     <a href="https://doi.org/10.1039/P29930000799">
 C>     10.1039/P29930000799</a>.
 C>
-      subroutine hnd_cosequ(nat,b,x,nefc,g,h,xi,xj,efcc,efcs,efciat,
-     &                      ratm)
+      subroutine hnd_cosequ(nat,b,x,nefc,g,h,xi,xj,efcc,efcs,efczeta,
+     &                      efciat,ratm)
       implicit none
 c
 c     ----- solve A * x = b , using an iterative procedure       -----
@@ -3430,6 +3479,7 @@ c
       integer          nefc !< [Input] The number of surface charges
       double precision efcc(3,nefc) !< [Input] The surface charge coords
       double precision efcs(nefc)   !< [Input] The surface areas
+      double precision efczeta(nefc)   !< [Input] 
       integer          efciat(nefc) !< [Input] The atom of a surface 
                                     !< charge
       double precision ratm(nat)    !< [Input] The atom radii
@@ -3459,7 +3509,7 @@ c
       eps2=nefc*eps*eps
       irst=0
    10 irst=irst+1
-      call hnd_cosaxd(nat,x,xi,nefc,efcc,efcs,efciat,ratm)
+      call hnd_cosaxd(nat,x,xi,nefc,efcc,efcs,efczeta,efciat,ratm)
       rp=zero
       bsq=zero
       do j=1,nefc
@@ -3467,13 +3517,13 @@ c
          xi(j)=xi(j)-b(j)
          rp=rp+xi(j)*xi(j)
       enddo ! j
-      call hnd_cosxad(nat,xi,g,nefc,efcc,efcs,efciat,ratm)
+      call hnd_cosxad(nat,xi,g,nefc,efcc,efcs,efczeta,efciat,ratm)
       do j=1,nefc
          g(j)=-g(j)
          h(j)= g(j)
       enddo ! j
       do iter=1,10*nefc
-         call hnd_cosaxd(nat,h,xi,nefc,efcc,efcs,efciat,ratm)
+         call hnd_cosaxd(nat,h,xi,nefc,efcc,efcs,efczeta,efciat,ratm)
          anum=zero
          aden=zero
          do j=1,nefc
@@ -3489,7 +3539,7 @@ c
             xi(j)=x(j)
             x(j)=x(j)+anum*h(j)
          enddo ! j
-         call hnd_cosaxd(nat,x,xj,nefc,efcc,efcs,efciat,ratm)
+         call hnd_cosaxd(nat,x,xj,nefc,efcc,efcs,efczeta,efciat,ratm)
          rsq=zero
          do j=1,nefc
             xj(j)=xj(j)-b(j)
@@ -3510,7 +3560,7 @@ c
             go to 10
          endif
          rp=rsq
-         call hnd_cosxad(nat,xj,xi,nefc,efcc,efcs,efciat,ratm)
+         call hnd_cosxad(nat,xj,xi,nefc,efcc,efcs,efczeta,efciat,ratm)
          gg=zero
          dgg=zero
          do j=1,nefc
@@ -3661,7 +3711,8 @@ c
       return
       end
 
-      subroutine hnd_cg(nat,b,x,nefc,y,r,p,ap,efcc,efcs,efciat,ratm)
+      subroutine hnd_cg(nat,b,x,nefc,y,r,p,ap,efcc,efcs,efczeta,efciat,
+     $                  ratm)
 #ifdef USE_OPENMP
       use omp_lib
 #endif
@@ -3675,6 +3726,7 @@ c
       integer          nefc !< [Input] The number of surface charges
       double precision efcc(3,nefc) !< [Input] The surface charge coords
       double precision efcs(nefc)   !< [Input] The surface areas
+      double precision efczeta(nefc)   !< [Input] 
       integer          efciat(nefc) !< [Input] The atom of a surface 
                                     !< charge
       double precision ratm(nat)    !< [Input] The atom radii
@@ -3706,7 +3758,7 @@ c
       if (xnorm.eq.0d0) then
         r(:) = b(:)
       else
-        call hnd_cosaxd(nat,x,r,nefc,efcc,efcs,efciat,ratm)
+        call hnd_cosaxd(nat,x,r,nefc,efcc,efcs,efczeta,efciat,ratm)
         r(:) = b(:) - r(:)
       endif
 
@@ -3725,7 +3777,7 @@ c
       do while(iter.le.nefc)
 
         iter = iter + 1
-        call hnd_cosaxd(nat,p,ap,nefc,efcc,efcs,efciat,ratm)
+        call hnd_cosaxd(nat,p,ap,nefc,efcc,efcs,efczeta,efciat,ratm)
 
         alpha = facnew/dot_product(p,ap)
         call daxpy(nefc,alpha,p,1,x,1)
