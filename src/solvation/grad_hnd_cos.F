@@ -109,6 +109,13 @@ C-------------------------local variables--------------------------
       integer iefc        ! counter over COSMO charges
       integer iefc_c      ! memory index for COSMO charge coordinates
       integer iefc_q      ! memory index for COSMO charges
+      integer l_efcs
+      integer k_efcs
+      integer l_p
+      integer k_p
+      integer l_efczeta
+      integer k_efczeta
+      integer nbf_at_a,icount_a,icount_b,nshbfa,nshbfb,ndim,nao2
 
       double precision dE, qfac, fact, dx, dy, dz, rr
       double precision invscreen, pi
@@ -122,6 +129,7 @@ C-------------------------local variables--------------------------
       integer nxtask, task_size
       external nxtask
 c
+      double precision, external :: ddot
       double precision rin, rout, alphai, xyzff
       integer iat
       parameter (alphai = 0.5d0)
@@ -176,12 +184,25 @@ c
      $                 int_mb(k_efciat)))
      $   call errquit('grad_hnd_cos: rtdb get failed for iatefc',915,
      $                rtdb_err)
+      if (.not.ma_push_get(mt_dbl,nefc,'efcs',l_efcs,k_efcs))
+     $  call errquit('grad_hnd_cos: could not allocate efcs',0,MA_ERR)
+      if (.not.rtdb_get(rtdb,'cosmo:efcs',mt_dbl,nefc,dbl_mb(k_efcs)))
+     $  call errquit('grad_hnd_cos: rtdb get failed efcs',0,RTDB_ERR)
+      if (.not.ma_push_get(mt_dbl,nefc,'efczeta',l_efczeta,k_efczeta))
+     $  call errquit('grad_hnd_cos: could not allocate efczet',0,MA_ERR)
+      if (.not.rtdb_get(rtdb,'cosmo:efczeta',mt_dbl,nefc,
+     $   dbl_mb(k_efczeta)))
+     $  call errquit('grad_hnd_cos: rtdb get failed efczeta',0,RTDB_ERR)
+      if (.not.ma_push_get(mt_dbl,max_at_bf**2,'loc p',l_p,k_p))
+     $  call errquit('grad_hnd_cos: could not allocate loc p',0,MA_ERR) 
+
 c
       call hf_print_set(1)
 
       ijatom = -1
       next = nxtask(nproc,task_size)
       do 90, iat1 = 1, nat
+        nbf_at_a = iab1l - iab1f + 1
         do 80, iat2 = 1, iat1
 
           ijatom = ijatom + 1
@@ -208,7 +229,7 @@ c
             status = bas_ce2cnr(basis,iat1,iac1f,iac1l)
             status = bas_ce2cnr(basis,iat2,iac2f,iac2l)
 
-            call ga_get (g_dens, iab1f,iab1l,iab2f,iab2l,dens,max_at_bf)
+            call ga_get (g_dens, iab2f,iab2l,iab1f,iab1l,dens,max_at_bf)
 
             do 70, ish1 = iac1f, iac1l
               if ( iat1.eq.iat2 ) iac2l = ish1
@@ -248,19 +269,21 @@ c
 
                 nint = ( im1 - if1 + 1 ) * ( im2 - if2 + 1 )
 
-                do iefc = 1, nefc
+                nao2 = (il1-if1+1)*(il2-if2+1)
 
-                  ic=1
-                  do iat3 = 1, 3 ! centers A, B, and C
-                    do icart = 1, 3
-                      do ip1 = if1, im1
-                        do ip2 = if2, im2
-                          H(ic)=0.0D0
-                          ic = ic + 1
-                        enddo
-                      enddo
-                    enddo
+                ic = 0
+                do ip1=if1,il1
+                  do ip2=if2,il2
+                    dbl_mb(k_p+ic) = dens(ip2,ip1)
+                    ic = ic + 1
                   enddo
+                enddo
+                if (ish1.ne.ish2) call dscal(nao2,2d0,dbl_mb(k_p),1)
+                
+                do iefc = 1, nefc
+                  if (iat1.eq.iat2.and.int_mb(k_efciat+iefc-1).eq.iat1)
+     $              cycle
+                  call dfill(9*nint,0d0,H,1)
 
 C                 1el. -cosmo- derivatives
 c                 Currently calculated on for every COSMO charge
@@ -275,54 +298,29 @@ c                 Do center A (associated with ish1)
 c
                   ic=1
                   do icart = 1, 3
-                    dE = 0.D0
-                    do ip1 = if1, il1
-                      do ip2 = if2, il2
-                        dE = dE + dens(ip1,ip2) * H(ic)
-                        ic = ic + 1
-                      enddo
-                    enddo
-                    if ( iat1.ne.iat2 .or. ish1.ne.ish2 ) dE = dE + dE
-                    dE = dE * qfac
+                    dE = qfac*ddot(nao2,dbl_mb(k_p),1,H(ic),1)
                     frc_cos_elq(icart,iat1)
      &              = frc_cos_elq(icart,iat1) - dE
+                    ic = ic + nao2
                   enddo
 c
 c                 Do center B (associated with ish2)
 c
                   do icart = 1, 3
-                    dE = 0.D0
-                    do ip1 = if1, il1
-                      do ip2 = if2, il2
-                        dE = dE + dens(ip1,ip2) * H(ic)
-                        ic = ic + 1
-                      enddo
-                    enddo
-                    if ( iat1.ne.iat2 .or. ish1.ne.ish2 ) then
-                      dE = dE + dE
-                    else
-                      dE = 0.0d0
-                    endif
-                    dE = dE * qfac
+                    dE = qfac*ddot(nao2,dbl_mb(k_p),1,H(ic),1)
                     frc_cos_elq(icart,iat2)
      &              = frc_cos_elq(icart,iat2) - dE
+                    ic = ic + nao2
                   enddo
 c
 c                 Do center C, i.e. the Cosmo charge (associated with
 c                 the atom stored in int_mb(k_efciat))
 c
                   do icart = 1, 3
-                    dE = 0.D0
-                    do ip1 = if1, il1
-                      do ip2 = if2, il2
-                        dE = dE + dens(ip1,ip2) * H(ic)
-                        ic = ic + 1
-                      enddo
-                    enddo
-                    if ( iat1.ne.iat2 .or. ish1.ne.ish2 ) dE = dE + dE
-                    dE = dE * qfac
+                    dE = qfac*ddot(nao2,dbl_mb(k_p),1,H(ic),1)
                     frc_cos_elq(icart,int_mb(k_efciat+iefc-1))
      &              = frc_cos_elq(icart,int_mb(k_efciat+iefc-1)) - dE
+                    ic = ic + nao2
                   enddo
 
                 enddo
@@ -351,24 +349,12 @@ c
         invscreen = 1.0d0/(1.0d0*screen)
         do ich1 = 1, nefc
           if (do_cosmo_model.eq.DO_COSMO_YK) then
-            zeta1 = zeta*sqrt(ptspatm)
-     $            / (dbl_mb(k_rad+int_mb(k_efciat+ich1-1)-1)
-     $               * sqrt(2.0d0*pi))
-            xyzff = 1.0d0
-            do iat1 = 1, nat
-              if (iat1.ne.int_mb(k_efciat+ich1-1)) then
-                dx = coords(1,iat1,geom) - dbl_mb(0+3*(ich1-1)+iefc_c)
-                dy = coords(2,iat1,geom) - dbl_mb(1+3*(ich1-1)+iefc_c)
-                dz = coords(3,iat1,geom) - dbl_mb(2+3*(ich1-1)+iefc_c)
-                rr = sqrt(dx*dx+dy*dy+dz*dz)
-                if (rr.lt.rout(iat1)) then
-                  xyzff = xyzff
-     $                  * cosff((rr-rin(iat1))/(rout(iat1)-rin(iat1)))
-                endif
-              endif
-            enddo
+            zeta1 = dbl_mb(k_efcs+ich1-1)
           endif
           do iat1 = 1, nat
+            if (iat1.eq.int_mb(k_efciat+ich1-1)) cycle
+
+
             dx = coords(1,iat1,geom) - dbl_mb(0+3*(ich1-1)+iefc_c)
             dy = coords(2,iat1,geom) - dbl_mb(1+3*(ich1-1)+iefc_c)
             dz = coords(3,iat1,geom) - dbl_mb(2+3*(ich1-1)+iefc_c)
@@ -383,10 +369,11 @@ c           - term 2.
 c
             if (do_cosmo_model.eq.DO_COSMO_YK) then
               if (iat1.ne.int_mb(k_efciat+ich1-1)) then
-                fact = fact - 2.0d0*zeta1*sqrt(2.0d0/pi)*invscreen
+
+                fact = fact - 0.5d0*zeta1*invscreen
      $               * dbl_mb(iefc_q+ich1-1)**2
      $               * cosdff((rr-rin(iat1))/(rout(iat1)-rin(iat1)))
-     $               / (rr*xyzff*(rout(iat1)-rin(iat1))
+     $               / (rr*(rout(iat1)-rin(iat1))
      $                  *cosff((rr-rin(iat1))/(rout(iat1)-rin(iat1))))
               endif
             endif
@@ -411,67 +398,63 @@ c
         invscreen = 1.0d0/(1.0d0*screen)
         do ich1 = 1, nefc
           if (do_cosmo_model.eq.DO_COSMO_YK) then
-            zeta1 = zeta*sqrt(ptspatm)
-     $            / (dbl_mb(k_rad+int_mb(k_efciat+ich1-1)-1)
-     $               * sqrt(2.0d0*pi))
+            zeta1 = dbl_mb(k_efczeta+ich1-1)
           endif
           do ich2 = 1, ich1-1
             if (do_cosmo_model.eq.DO_COSMO_YK) then
-              zeta2 = zeta*sqrt(ptspatm)
-     $              / (dbl_mb(k_rad+int_mb(k_efciat+ich2-1)-1)
-     $                 * sqrt(2.0d0*pi))
+              zeta2 = dbl_mb(k_efczeta+ich2-1)
               zeta12 = zeta1*zeta2/sqrt(zeta1**2+zeta2**2)
             endif
-            if (ich1.ne.ich2) then
-              dx = dbl_mb(0+3*(ich1-1)+iefc_c)
-     $           - dbl_mb(0+3*(ich2-1)+iefc_c)
-              dy = dbl_mb(1+3*(ich1-1)+iefc_c)
-     $           - dbl_mb(1+3*(ich2-1)+iefc_c)
-              dz = dbl_mb(2+3*(ich1-1)+iefc_c)
-     $           - dbl_mb(2+3*(ich2-1)+iefc_c)
-              rr = sqrt(dx*dx+dy*dy+dz*dz)
-              if (rr.lt.1.0d-6 .and. do_cosmo_model.eq.do_cosmo_ks)then
-                fact = 0.0d0
-              elseif(rr.lt.1d-4.and.do_cosmo_model.eq.do_cosmo_yk)then
-                fact = invscreen*dbl_mb(iefc_q+ich1-1)*
-     $                 dbl_mb(iefc_q+ich2-1)*4d0*zeta12**3/sqrt(pi)*
-     $                 ((zeta12*rr)**2/5d0-1d0/3d0)
-              else
-                if (do_cosmo_model.eq.DO_COSMO_KS) then
-                  fact = -invscreen*dbl_mb(iefc_q+ich1-1)
-     $                 * dbl_mb(iefc_q+ich2-1)/(rr**3)
-                else if (do_cosmo_model.eq.DO_COSMO_YK) then
-                  fact = +invscreen*dbl_mb(iefc_q+ich1-1)
-     $                 * dbl_mb(iefc_q+ich2-1) 
-     $                 * (2.0d0*zeta12/sqrt(pi)/(rr**2)
-     $                    * exp(-(zeta12*rr)**2)
+            if (int_mb(k_efciat+ich1-1).eq.int_mb(k_efciat+ich2-1))cycle
+
+            dx = dbl_mb(0+3*(ich1-1)+iefc_c)
+     $         - dbl_mb(0+3*(ich2-1)+iefc_c)
+            dy = dbl_mb(1+3*(ich1-1)+iefc_c)
+     $         - dbl_mb(1+3*(ich2-1)+iefc_c)
+            dz = dbl_mb(2+3*(ich1-1)+iefc_c)
+     $         - dbl_mb(2+3*(ich2-1)+iefc_c)
+            rr = sqrt(dx*dx+dy*dy+dz*dz)
+            if (rr.lt.1.0d-6 .and. do_cosmo_model.eq.do_cosmo_ks)then
+              fact = 0.0d0
+            elseif(rr.lt.1d-8.and.do_cosmo_model.eq.do_cosmo_yk)then
+              fact = invscreen*dbl_mb(iefc_q+ich1-1)*
+     $               dbl_mb(iefc_q+ich2-1)*4d0*zeta12**3/sqrt(pi)*
+     $               ((zeta12*rr)**2/5d0-1d0/3d0)
+            else
+              if (do_cosmo_model.eq.DO_COSMO_KS) then
+                fact = -invscreen*dbl_mb(iefc_q+ich1-1)
+     $               * dbl_mb(iefc_q+ich2-1)/(rr**3)
+              else if (do_cosmo_model.eq.DO_COSMO_YK) then
+                fact = +invscreen*dbl_mb(iefc_q+ich1-1)
+     $               * dbl_mb(iefc_q+ich2-1) 
+     $               * (2.0d0*zeta12/sqrt(pi)/(rr**2)
+     $               * exp(-(zeta12*rr)**2)
      $                    - derf(zeta12*rr)/(rr**3))
-                else
-                  call errquit("grad_hnd_cos: panic",
-     $                         do_cosmo_model,UERR)
-                endif
+              else
+                call errquit("grad_hnd_cos: panic",
+     $                       do_cosmo_model,UERR)
               endif
-              dE = dx * fact
-              frc_cos_qq(1,int_mb(k_efciat+ich1-1)) 
-     $        = frc_cos_qq(1,int_mb(k_efciat+ich1-1)) + dE
-              frc_cos_qq(1,int_mb(k_efciat+ich2-1)) 
-     $        = frc_cos_qq(1,int_mb(k_efciat+ich2-1)) - dE
-              dE = dy * fact
-              frc_cos_qq(2,int_mb(k_efciat+ich1-1)) 
-     $        = frc_cos_qq(2,int_mb(k_efciat+ich1-1)) + dE
-              frc_cos_qq(2,int_mb(k_efciat+ich2-1)) 
-     $        = frc_cos_qq(2,int_mb(k_efciat+ich2-1)) - dE
-              dE = dz * fact
-              frc_cos_qq(3,int_mb(k_efciat+ich1-1)) 
-     $        = frc_cos_qq(3,int_mb(k_efciat+ich1-1)) + dE
-              frc_cos_qq(3,int_mb(k_efciat+ich2-1)) 
-     $        = frc_cos_qq(3,int_mb(k_efciat+ich2-1)) - dE
             endif
+            dE = dx * fact
+            frc_cos_qq(1,int_mb(k_efciat+ich1-1)) 
+     $      = frc_cos_qq(1,int_mb(k_efciat+ich1-1)) + dE
+            frc_cos_qq(1,int_mb(k_efciat+ich2-1)) 
+     $      = frc_cos_qq(1,int_mb(k_efciat+ich2-1)) - dE
+            dE = dy * fact
+            frc_cos_qq(2,int_mb(k_efciat+ich1-1)) 
+     $      = frc_cos_qq(2,int_mb(k_efciat+ich1-1)) + dE
+            frc_cos_qq(2,int_mb(k_efciat+ich2-1)) 
+     $      = frc_cos_qq(2,int_mb(k_efciat+ich2-1)) - dE
+            dE = dz * fact
+            frc_cos_qq(3,int_mb(k_efciat+ich1-1)) 
+     $      = frc_cos_qq(3,int_mb(k_efciat+ich1-1)) + dE
+            frc_cos_qq(3,int_mb(k_efciat+ich2-1)) 
+     $      = frc_cos_qq(3,int_mb(k_efciat+ich2-1)) - dE
           enddo
         enddo
       endif
 c
-      if (.not.ma_pop_stack(l_efciat))
+      if (.not.ma_chop_stack(l_efciat))
      $   call errquit("grad_hnd_cos: could not deallocate l_efciat",
      $                0,MA_ERR)
       if (.not.ma_pop_stack(l_rad))

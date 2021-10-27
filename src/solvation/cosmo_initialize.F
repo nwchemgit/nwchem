@@ -259,10 +259,13 @@ c
       ificos   =0
       lineq    =-1 ! 0: direct solver, 1: iterative solver
       rsolv    =0.50d+00
-      zeta     =0.98d+00 ! apparently for Lebedev grids zeta=4.9
+c      zeta     =0.98d+00 ! apparently for Lebedev grids zeta=4.9
+      zeta     =4.50d+00
       gammas   =1.00d+00 ! full switching, see York, Karplus Eq.86.
       swtol    =1.00d-04 ! switching tolerance, see York, Karplus
                          ! Eq.62-88.
+      iflebedev = 0
+      iangleb   = 1
 c
 c MN solvation models -->
 c
@@ -312,6 +315,8 @@ c
       status = rtdb_get(rtdb,'cosmo:maxbem',mt_int,1,maxbem)
       status = rtdb_get(rtdb,'cosmo:ificos',mt_int,1,ificos) 
       status = rtdb_get(rtdb,'cosmo:lineq',mt_int,1,lineq) 
+      status = rtdb_get(rtdb,'cosmo:iangleb',mt_int,1,iangleb) 
+      status = rtdb_get(rtdb,'cosmo:iflebedev',mt_int,1,iflebedev) 
       status = rtdb_get(rtdb,'cosmo:zeta',mt_dbl,1,zeta) 
       status = rtdb_get(rtdb,'cosmo:gamma_s',mt_dbl,1,gammas) 
       status = rtdb_get(rtdb,'cosmo:sw_tol',mt_dbl,1,swtol) 
@@ -553,14 +558,19 @@ c
 c
       if(osome.and.me.eq.0) then
          write(luout,9993) lineq
-         write(luout,9991) minbem
-         if (do_cosmo_model.eq.DO_COSMO_KS) then
-           write(luout,9992) maxbem
-         endif
-         if(ificos.eq.0) then
-            write(luout,9990)
+         if (iflebedev.eq.0) then
+           write(luout,9991) minbem
+           if (do_cosmo_model.eq.DO_COSMO_KS) then
+             write(luout,9992) maxbem
+           endif
+           if(ificos.eq.0) then
+              write(luout,9990)
+           else
+              write(luout,9989)
+           endif
          else
-            write(luout,9989)
+           write(luout,9969)
+           write(luout,9968) iangleb
          endif
          if (do_cosmo_model.eq.DO_COSMO_KS) then
            write(luout,9994) rsolv
@@ -685,6 +695,8 @@ c
  9972 format(' surface charge correction     = ',a)
  9971 format(' Cosmo: York-Karplus, doi: 10.1021/jp992097l')
  9970 format(' Cosmo: Klamt-Schuurmann, doi: 10.1039/P29930000799')
+ 9969 format(' -bem- from -Lebedev-')
+ 9968 format(' -iangleb- ',I4)
       end
 C>
 C> @}

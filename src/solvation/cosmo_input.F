@@ -72,6 +72,7 @@ c
       integer iat, nfield, nrad, irad
       integer iscren, ifscrn, minbem, maxbem, ificos, lineq
       integer cosmo_screen, cosmo_sccor
+      integer iflebedev, iangleb
       integer l_rad, k_rad
       double precision dielec,dielecinf,rsolv,rad,zeta,gammas,swtol
       character*255 field
@@ -137,9 +138,11 @@ c
       ificos   =0
       lineq    =0  ! 0 fast direct solver, 1 slow iterative solver
       rsolv    =0.50d+00
-      zeta     =0.98d+00 ! apparently for Lebedev grids zeta=4.9
+      zeta     =0.-0d+00 ! apparently for Lebedev grids zeta=4.9
       gammas   =1.00d+00 ! full switching, see York, Karplus Eq.86.
       swtol    =1.00d-04 ! switching tolerance, see York, Karplus Eq.62-88.
+      iflebedev=0
+      iangleb  =1
 c
 c MN solvation models -->
 c
@@ -492,6 +495,13 @@ c
          if (.not. rtdb_put(rtdb,'cosmo:ificos',mt_int,1,ificos))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
+c
+c
+      else if(inp_compare(.false.,'iflebedev',field)) then
+        if (.not.inp_i(iflebedev))
+     $        call errquit('cosmo_input: iflebedev',911, INPUT_ERR)
+        iangleb = iflebedev
+c
 c   --- lineq
 c
       else if(inp_compare(.false.,'lineq',field)) then
@@ -604,6 +614,23 @@ c
 c
 c <-- MN solvation models
 c
+      if (do_cosmo_model.eq.do_cosmo_ks) then
+        if (iflebedev.gt.0) iflebedev = 0
+      endif
+
+      if (iflebedev.gt.0 .and. zeta.eq.0d0) then
+        zeta = 4.907d0
+      elseif (zeta.eq.0d0) then
+        zeta = 4.50d0
+      endif
+
+      if (.not. rtdb_put(rtdb,'cosmo:zeta',mt_dbl,1,zeta))
+     $   call errquit('cosmo_input: put zeta failed',911,RTDB_ERR)
+      if (.not. rtdb_put(rtdb,'cosmo:iflebedev',mt_int,1,iflebedev))
+     $      call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+      if (.not. rtdb_put(rtdb,'cosmo:iangleb',mt_int,1,iangleb))
+     $      call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
+
       return
       end
 c $Id$

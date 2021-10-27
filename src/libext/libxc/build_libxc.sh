@@ -19,7 +19,7 @@ get_cmake38(){
 
 }
 
-VERSION=5.1.5
+VERSION=5.1.7
 
 if [[ -f "libxc-${VERSION}.tar.gz" ]]; then
     echo "using existing  libxc-${VERSION}.tar.gz"
