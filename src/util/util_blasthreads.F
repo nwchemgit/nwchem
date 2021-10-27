@@ -74,5 +74,21 @@ c     return value=-1 -> threading not enabled
 #endif
       return
       end
-      
-      
+      subroutine util_setthreads_fromenv()
+      implicit none
+c
+      integer nt
+      character(64) env_string
+      integer stat
+      nt = -1
+c
+      call util_getenv('NWC_NUM_THREADS', env_string)
+      if ((len(env_string).ne.0).or.(env_string.ne.' ')) then
+        read (env_string,*,iostat=stat) nt
+      endif
+      if (stat.ne.0) nt = 1
+      if (nt.lt.1) nt = 1
+      write(6,*) ' NWC_NUM_THREADS is ',nt
+      call util_blas_set_num_threads(nt)
+      return
+      end

@@ -7,8 +7,15 @@
 c
       integer nb
       integer mout
+c
+      integer type,dim1,dim2
       mout=0
       nb=0
+c
+      call ga_inquire(g_fock, type, dim1, dim2)
+      if(dim1.lt.128) then
+         call ga_diag_std_seq(g_fock,  g_evecs, evals)
+      else
 #if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
 C#ifdef USE_ELPA
@@ -30,5 +37,6 @@ C#endif
 #else
       call ga_diag_std_seq(g_fock, g_evecs, evals)
 #endif
+      endif
       return
       end

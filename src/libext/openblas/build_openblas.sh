@@ -137,7 +137,9 @@ fi
 if [[   -z "${CC}" ]]; then
     CC=cc
 fi
-let GCCVERSIONGT5=$(expr `${CC} -dumpversion | cut -f1 -d.` \> 5)
+if [[ `${CC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] ; then
+    let GCCVERSIONGT5=$(expr `${CC} -dumpversion | cut -f1 -d.` \> 5)
+fi
 # check gcc version for skylake
 if [[ "$FORCETARGET" == *"SKYLAKEX"* ]]; then
     if [[ ${GCCVERSIONGT5} != 1 ]]; then
@@ -157,8 +159,12 @@ fi
 echo arch is "$arch"
 if [[ "$arch" == "ppc64le" ]]; then
 if [[ ${GCCVERSIONGT5} != 1 ]]; then
-    echo gcc version 6 and later needed for ppc64le
-    exit 1
+       echo
+       echo gcc version 6 and later needed for ppc64le
+       echo please specify CC=gcc
+       echo where the gcc version is 6 or later
+       echo
+       exit 1
 fi
     THREADOPT="0"
 else
