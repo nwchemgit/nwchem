@@ -3177,6 +3177,10 @@ endif
 ifeq ($(shell echo $(BLASOPT) |awk '/openblas/ {print "Y"; exit}'),Y)
       DEFINES += -DOPENBLAS
 endif
+# NVHPC compilers are distributed wtih OpenBLAS named as libblas/liblapack
+ifeq ($(shell echo $(BLASOPT) |awk '/\/nvidia\/hpc_sdk\// {print "Y"; exit}'),Y)
+      DEFINES += -DOPENBLAS
+endif
 ifeq ($(shell echo $(BLASOPT) |awk '/mkl/ {print "Y"; exit}'),Y)
       DEFINES += -DMKL
 endif
