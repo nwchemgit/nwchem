@@ -43,7 +43,7 @@ c
       logical dbug, out, status
       character*8 scfruntyp
 c
-      character*(nw_max_path_len) cosmo_file
+      character*255 cosmo_file
 c
 c
       integer l_efcc, k_efcc, l_efcs, k_efcs, l_efcz, k_efcz
@@ -189,7 +189,6 @@ c
 c
 c     ----- get -cosmo- charges -----
 c
-      call util_file_name("cosmo.xyz",.true.,.false.,cosmo_file)  ! default name
       call hnd_coschg(g_dens,ndens,rtdb,geom,basis,nat,nefc,
      &                dbl_mb(k_efcc),dbl_mb(k_efcs),dbl_mb(k_efcz),
      &                int_mb(k_efciat),dbl_mb(k_rad),ecos,cosmo_file)
@@ -256,7 +255,7 @@ c
       integer ndens,nvirt(2)
       logical stat
 c
-      character*(nw_max_path_len) cosmo_file
+      character*255 cosmo_file
 c
 c
       integer  ga_create_atom_blocked
