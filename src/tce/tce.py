@@ -773,6 +773,7 @@ class Factor:
                continue
             anotherpermutation = another.permutations[nanother]
             anothercoefficient = another.coefficients[nanother]
+            previousratio = 0
             if (arethesamepermutation(selfpermutation,anotherpermutation)):
                ratio = anothercoefficient/selfcoefficient
                if ((nself != 0) and (ratio != previousratio)):
@@ -871,6 +872,7 @@ class Factor:
    def product(self,another):
       """Returns a product of two permutation operators"""
       factorobjectiscreated = 0
+      product = 0
       for iself in range(len(self.permutations)):
          selfpermutation = self.permutations[iself]
          selfcoefficient = self.coefficients[iself]
@@ -3260,7 +3262,7 @@ class ElementaryTensorContraction:
             sublocalzero.append(index)
       if (verbose):
          print("Tensor 0 superglobal")
-         printndexes(superglobalzero)
+         printindexes(superglobalzero)
          print("Tensor 0 subglobal")
          printindexes(subglobalzero)
          print("Tensor 0 superlocal")
@@ -6278,7 +6280,7 @@ class OperationTree:
       if (selfcopy.children[0].contraction.isoperation()):
          globaltargetindexes = copy.deepcopy(selfcopy.children[0].contraction.tensors[0].indexes)
          print("Target indices")
-         printndexes(globaltargetindexes)
+         printindexes(globaltargetindexes)
          print(" ")
       else:
          return "The tree top must be an addition"
