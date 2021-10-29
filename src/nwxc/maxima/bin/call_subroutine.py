@@ -136,6 +136,7 @@ def unwrap_lines(lines_in):
    pattern = re.compile("     [0-9:;<=>?@+]")
    lines_out = []
    longline = ""
+   length = 0
    for line in lines_in:
       length = len(line)
       if pattern.match(line):
@@ -705,6 +706,7 @@ def find_varname(dict,diffstr):
    functional value rather than a derivative and we return e.g. s3f.
    The indicated variable is returned as a string.
    """
+   length = 0
    data = diffstr
    #DEBUG
    #print "find_varname: data:",data
