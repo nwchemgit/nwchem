@@ -13,6 +13,7 @@ if (not source):
    print ("Usage: python splitfiles.py < inputfile.F")
 
 nfiles = 0
+filename = " "
 for line in source:
    if (line.find("SUBROUTINE") != -1):
       if (nfiles):
