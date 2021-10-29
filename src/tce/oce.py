@@ -71,8 +71,7 @@ def stringtooperatorsequence(expression):
             elif (index[0] == "g"):
                newsequence.append(Operator("general",dagger,int(index[1:])))
             else:
-               print("Syntax error: an operator not recognized")
-               stop
+               raise SyntaxError(" an operator not recognized")
       operatorlist = operatorlist + newsequence
       newsequences.append(newsequence)
 
@@ -156,8 +155,7 @@ def stringtooperatorsequence(expression):
                   summation.indexes.append(indexinthelist)
                   break
          else:
-            print("syntax error")
-            stop
+            raise SyntaxError(" ")
 
    # get amplitudes
    remainder = string.split(remainder,")")
@@ -221,8 +219,7 @@ def stringtooperatorsequence(expression):
                      newamplitude.indexes.append(indexinthelist)
                      break
             else:
-               print("syntax error")
-               stop
+               raise SyntaxError(" ")
       amplitudes.append(newamplitude)
 
    newoperatorsequence = OperatorSequence(numericalfactor,summation,amplitudes,newsequences)
@@ -231,8 +228,7 @@ def stringtooperatorsequence(expression):
 def combinepermutations(one,two):
    """Connects two permutations of indexes"""
    if (len(one) != len(two)):
-      print("Internal error")
-      stop
+      raise SyntaxError(" ")
    three = []
    for n in range(len(one)/2):
       three.append(one[n])
