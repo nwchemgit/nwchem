@@ -253,7 +253,7 @@ c
       double precision esol
       double precision ecosmo ! intra energy between cosmo charges
       logical cosmo_esp
-      character*(nw_max_path) cosmo_file
+      character*255 cosmo_file
 c
       double precision gcds, gspol, espol, gspoldyn, gspolneq
       double precision gstote, estote
@@ -1266,7 +1266,7 @@ c     g_dens(1) = Re(Daa), g_dens(2) = Re(Dbb)
 c
 c     Calculate cosmo charges
       if (cosmo_on.and.cosmo_phase.eq.2) then
-       call util_file_name("cosmo.xyz",.true.,.false.,cosmo_file)
+       cosmo_file = "cosmo.xyz"
        call cosmo_charges_from_dmat(rtdb, ao_bas_han, geom,
      &          ecosmo, odbug, ipol, g_dens, cosmo_file)
        call int_1e_ga(ao_bas_han, ao_bas_han, g_fock,

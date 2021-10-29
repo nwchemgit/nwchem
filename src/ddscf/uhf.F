@@ -681,7 +681,7 @@ c AJL/End
       logical cphf_uhf
       double precision ecosmo !< [Output] The COSMO solvation energy
       integer g_dens(2),i
-      character*(nw_max_path_len) cosmo_file
+      character*255 cosmo_file
       character*32 theory
 c     DIM/QM JEM
       logical ldimqm
@@ -1141,7 +1141,7 @@ c     check if we are doing dft (e.g. cphf case)
          endif
       endif
       if(cosmo_on.and.cosmo_phase.eq.2) then
-        call util_file_name("cosmo.xyz",.true.,.false.,cosmo_file)
+        cosmo_file = "cosmo.xyz"
         do i = 1, 2
          g_dens(i) = ga_create_atom_blocked(geom,basis,'density matrix')
          call ga_zero(g_dens(i))

@@ -2056,7 +2056,7 @@ C>   10.1111/1468-0262.00296</a>.
 C>
       subroutine hnd_coschg(g_dens,ndens,rtdb,geom,basis,nat,nefc,
      &                      efcc,efcs,efcz,efczeta,efciat,ratm,ecos,
-     &                      cosmo_file)
+     &                      cosmo_file_in)
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -2099,6 +2099,7 @@ c
       logical  dbug,more,out,direct,noall,all,elec,nucl,iefc_done
       character*16 at_tag
       integer istrlen
+      character*255 cosmo_file_in
       character*(nw_max_path_len) cosmo_file
       integer fn
 c      integer lineq ! 0: fast direct solver, 1: slow iterative solver
@@ -2760,9 +2761,9 @@ c
 c
 c     ----- printing cosmo charges for bq module -----
 c
-      istrlen = inp_strlen(cosmo_file)
-      if (istrlen.le.0) 
-     + call util_file_name("cosmo.xyz",.true.,.false.,cosmo_file)
+      istrlen = inp_strlen(cosmo_file_in)
+      if (istrlen.le.0) cosmo_file_in = "cosmo.xyz" 
+      call util_file_name(cosmo_file_in,.false.,.false.,cosmo_file)
       call util_file_name_resolve(cosmo_file,.false.)
       if(ga_nodeid().eq.0) then
         if(.not.util_io_unit(80,90,fn))

@@ -50,7 +50,7 @@ c
       external xc_hfexch
 c
       integer g_dens(2),i
-      character*(nw_max_path_len) cosmo_file
+      character*255 cosmo_file
       double precision ecosmo,gcds
       logical do_cosmo_smd
 c
@@ -341,7 +341,7 @@ c
 c     cosmo charges, potential and energy contribution
 c
       if(cosmo_on.and.cosmo_phase.eq.2) then
-        call util_file_name("cosmo.xyz",.true.,.false.,cosmo_file)
+        cosmo_file = "cosmo.xyz"
         do i = 1, 2
          g_dens(i) = ga_create_atom_blocked(geom,basis,'density matrix')
          call ga_zero(g_dens(i))
