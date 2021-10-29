@@ -161,7 +161,7 @@ c
       double precision esol
       double precision ecosmo ! intra cosmo charges energy
       logical cosmo_esp
-      character*255 cosmo_file
+      character*(nw_max_path_len) cosmo_file
 c
 c     slow switching of annealing
 c
@@ -1128,7 +1128,7 @@ c
 c     Calculate the cosmo charges
 c
       if (cosmo_on.and.cosmo_phase.eq.2) then
-        cosmo_file = "cosmo.xyz"
+        call util_file_name("cosmo.xyz",.true.,.false.,cosmo_file)
         if (ipol.eq.2) ! separate components
      &    call ga_dadd(1.d0,g_dens(1),-1.d0,g_dens(2),g_dens(1))
         call cosmo_charges_from_dmat(rtdb, ao_bas_han, geom, 
@@ -2099,7 +2099,7 @@ c
       if (cosmo_esp) then
        if(ga_nodeid().eq.0)
      +  write(luout,*) "Calculating cosmo esp charges"
-        cosmo_file = "cosmo.xyz"
+        call util_file_name("cosmo.xyz",.true.,.false.,cosmo_file)
         if(ipol.eq.2)  ! separate components
      &    call ga_dadd(1.d0,g_dens(1),-1.d0,g_dens(2),g_dens(1))
         call cosmo_charges_from_dmat(rtdb, ao_bas_han, geom,

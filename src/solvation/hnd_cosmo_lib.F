@@ -2051,7 +2051,7 @@ c
       logical  dbug,more,out,direct,noall,all,elec,nucl,iefc_done
       character*16 at_tag
       integer istrlen
-      character*255 cosmo_file
+      character*(nw_max_path_len) cosmo_file
       integer fn
 c      integer lineq ! 0: fast direct solver, 1: slow iterative solver
 c      integer minbem 
@@ -2713,7 +2713,8 @@ c
 c     ----- printing cosmo charges for bq module -----
 c
       istrlen = inp_strlen(cosmo_file)
-      if (istrlen.le.0) cosmo_file = "cosmo.xyz"
+      if (istrlen.le.0) 
+     + call util_file_name("cosmo.xyz",.true.,.false.,cosmo_file)
       call util_file_name_resolve(cosmo_file,.false.)
       if(ga_nodeid().eq.0) then
         if(.not.util_io_unit(80,90,fn))

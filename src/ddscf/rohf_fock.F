@@ -63,7 +63,7 @@ c
 c
       logical odebug
       integer itype_wfn
-      character*255 cosmo_file
+      character*(nw_max_path_len) cosmo_file
 c     JEM DIM/QM
       integer g_vdim
       logical ldimqm
@@ -165,7 +165,7 @@ c
       osome=.false.
       osome=osome.and.ga_nodeid().eq.0
       if(cosmo_on.and.cosmo_phase.eq.2) then
-       cosmo_file = "cosmo.xyz"
+       call util_file_name("cosmo.xyz",.true.,.false.,cosmo_file)
        g_dens = ga_create_atom_blocked(geom,basis,'density matrix')
        call ga_zero(g_dens)
        call ga_copy(g_cdens,g_dens)
