@@ -116,7 +116,7 @@ if __name__ == '__main__':
 
     print("The distance between these two atoms is", Atom.bondlength(a, b))
     
-    print("PDB record for second atom with starting index 5 and resid 23" )
+    print("PDB record for second atom with starting index 5 and resid 23")
     print(b.toPDBrecord(id_atom=5,id_res=23))
 
     

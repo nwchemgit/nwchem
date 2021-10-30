@@ -27,7 +27,7 @@ def stringtooperatorsequence(expression):
    """Converts a string to an operatorsequence object"""
    # Syntax of the string is rather loosely defined as:
    # (1) Numerical factor (with no permutation allowed) (optional), summation (optional), amplitudes (optional), normal ordered sequence,
-   # (2) Numerical factor can be an arithmatic expression such as (1.0/4.0),
+   # (2) Numerical factor can be an arithmetic expression such as (1.0/4.0),
    # (3) Summation starts with either "SUM" or "sum" followed by a parenthesis of indexes,
    # (4) Indexes can be either in one-letter notation (a-h, A-H for virtuals, i-o, I-O for occupieds, p-z, P-Z for either, case matters) 
    #     or in OCE notation (p1,p2 for virtuals, h3,h4 for occupieds, g5,g6 for either, no overlap in numbering)
@@ -745,7 +745,7 @@ class Factor:
             raise RuntimeError("unrealistic factor")
       fraction = abs(int(1.0/coefficient))
       if (1.0/float(fraction) != abs(coefficient)):
-         print(" !!! WARNING !!! inaccurate arithmatic")
+         print(" !!! WARNING !!! inaccurate arithmetic")
       if (fraction == 1):
          frac = ""
       else:
@@ -1903,7 +1903,7 @@ class ListOperatorSequences:
          print(" ! Warning! a cyclic contraction is found")
 #        self.simplifythree(verbose)
       self.simplifytwo(verbose)
-      # the followings do not seem to affect the result, yet it costs enormous memory & time
+      # the following do not seem to affect the result, yet it costs enormous memory & time
       # self.simplifyfour(1)
       self = copy.deepcopy(self.deletezero())
       return self

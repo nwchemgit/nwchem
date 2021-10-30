@@ -66,7 +66,7 @@
 #
 #    f(x,y) := (x+y)^2*h(x,y) - x^2*h(x,0) - y^2*h(0,y)
 #
-# so we need to distinguish every invokation based on the arguments passed in.
+# so we need to distinguish every invocation based on the arguments passed in.
 # In addition, in our case, h is actually implemented as a subroutine that
 # returns the function value and the values of the various derivatives. The
 # inputs and outputs are stored in arrays. The steps required are:

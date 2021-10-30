@@ -149,7 +149,7 @@ class MySystem(object):
                 if GenericResidue.spec_bonded(ri, rj):
                     G.add_edge(j+1,i+1,name="special")                     
          
-        print("all",[(u,v) for u,v,d in G.edges_iter(data=True)]                   )
+        print("all",[(u,v) for u,v,d in G.edges_iter(data=True)])
         esolute = [(u,v,d) for u,v,d in G.edges_iter(data=True) if (u in solute or v in solute) and  d['name']=='hbond'  ]
         print("solute-solute",esolute)
 
@@ -157,10 +157,10 @@ class MySystem(object):
         print("double solute",esolute2)
                 
         esolvent= [(u,v) for u,v,d in G.edges_iter(data=True) if (u in solvent and v in solvent) and  d['name']=='hbond']
-        print("solvent-solvent",esolvent       )
+        print("solvent-solvent",esolvent)
 
         especial= [(u,v) for u,v,d in G.edges_iter(data=True) if d['name']=='special' ]
-        print(especial      )
+        print(especial)
         
         G=nx.relabel_nodes(G,lambda x: str(x))        
         pos0=nx.spectral_layout(G)
@@ -217,7 +217,7 @@ class MySystem(object):
                 elif GenericResidue.spec_bonded(self.reslist[i], self.reslist[j]):
                     G.add_edge(i+1,j+1,name="special")                     
          
-        print("all",[(u,v) for u,v,d in G.edges_iter(data=True)]                   )
+        print("all",[(u,v) for u,v,d in G.edges_iter(data=True)])
         esolute = [(u,v) for u,v,d in G.edges_iter(data=True) if (u in solute or v in solute) and  d['name']=='hbond'  ]
         print(esolute)
 
@@ -225,10 +225,10 @@ class MySystem(object):
         print(esolute2)
                 
         esolvent= [(u,v) for u,v,d in G.edges_iter(data=True) if (u in solvent and v in solvent) and  d['name']=='hbond']
-        print(esolvent       )
+        print(esolvent)
 
         especial= [(u,v) for u,v,d in G.edges_iter(data=True) if d['name']=='special' ]
-        print(especial      )
+        print(especial)
                 
         pos0=nx.spectral_layout(G)
         pos=nx.spring_layout(G,iterations=500,pos=pos0)
@@ -415,8 +415,8 @@ class MySystem(object):
                     
     def info(self):
         for tag,res in self.residues.iteritems():
-            print(tag )
-            print(res       )
+            print(tag)
+            print(res)
     
 if __name__ == '__main__':
 #    sim0 = MySystem("test")

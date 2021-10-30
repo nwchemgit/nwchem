@@ -20,7 +20,7 @@ Date:   Mon Nov 27 14:14:54 2017 -0800
 
 svn replaced by git
     
-*  let's go back to the previos commit a7055a28bc6efa8e6ceff79ae541d5e0b8d8a8b8
+*  let's go back to the previous commit a7055a28bc6efa8e6ceff79ae541d5e0b8d8a8b8
 
 $ git reset --hard a7055a28bc6efa8e6ceff79ae541d5e0b8d8a8b8
 
