@@ -9,9 +9,11 @@ jobs:
       - run: pip install --upgrade pip wheel
       - run: pip install bandit black codespell flake8 flake8-2020 flake8-bugbear
                          flake8-comprehensions isort mypy pytest pyupgrade safety
-      - run: bandit --recursive  --skip B101,B110,B306,B307,B311,B605,B607 .
+      - run: bandit --recursive --skip B101,B110,B306,B307,B311,B605,B607 .
       - run: black --check . || true
-      - run: codespell || true  # --ignore-words-list="" --skip="*.css,*.js,*.lock"
+      - run: codespell --count
+                       --ignore-words-list=aline,asociated,auxilliary,ba,ficticious,hist,iinclude,iself,ist,ket,mapp,nd,numer,ser,te
+                       --skip="*/graveyard,*.dtx,*.F,*.f,*.f90,*.fh,*.frg,*.orig,*.out,*.par,*.pdb,*.pl,*.tex,*.txt" || true
       - run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
       - run: flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88
                       --show-source --statistics
