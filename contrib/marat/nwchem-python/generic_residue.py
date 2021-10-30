@@ -331,7 +331,7 @@ if __name__ == '__main__':
     print(r, a1.name(), a2.name())
     print(res1.get_bonded(a2, "O"))
     name = None
-    print((filter(lambda a: name is None or a.elemName()==name,res1.atoms )))
+    print((filter(lambda a: name is None or a.elemName()==name,res1.atoms)))
     print(GenericResidue.hbonded(res0,res1))
     print("HERE COMES PDB RECORD")
     print(res0.toPDBrecord(1))

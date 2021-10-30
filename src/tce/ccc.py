@@ -334,7 +334,7 @@ class Window:
                               # right projection
          #
          # 6/18/03 we promoted right projection logic here, just to reserve
-         #         the same consequtive sets of indexes for the externals.
+         #         the same consecutive sets of indexes for the externals.
          #         If externals have different indexes, the factorization will
          #         break.  The actual insertion of right projection occurs later.
          #
