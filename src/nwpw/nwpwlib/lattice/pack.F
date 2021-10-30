@@ -1342,6 +1342,97 @@ c      integer indx1,indx2
 
 *     ***********************************
 *     *                                 *
+*     *    Pack_ccm_dcombo_sym_dot_omp  *
+*     *                                 *
+*     ***********************************
+      subroutine Pack_ccm_dcombo_sym_dot_omp(nb,n,
+     >                                       A,B,HA,HB,
+     >                                       matrix,privatetmp)
+      implicit none        
+      integer    nb,n      
+      complex*16 A(*),B(*)
+      complex*16 HA(*),HB(*)
+      real*8     matrix(n,n,3)
+      real*8     privatetmp(*)
+      
+*     **** common block for pack ****
+      integer nida(0:3),nidb(0:3)
+      integer pack(2,0:3)
+      common / pack_blk / pack,nida,nidb
+      
+*     **** local variables ****
+      integer i,j,k,ik
+      integer np,npack2
+      integer tid,nthr,nthr3,nthr3l,ftid1,ftid2,ftid3
+
+*     **** external functions ****
+      integer  Parallel_threadid,Parallel_nthreads
+      external Parallel_threadid,Parallel_nthreads
+         
+      call nwpw_timing_start(2)
+      call Parallel2d_np_i(np)
+      tid  = Parallel_threadid()
+      nthr = Parallel_nthreads()
+      
+      if (nthr.eq.2) then
+         nthr3  = 2
+         nthr3l = 2
+         ftid1 = 0
+         ftid2 = 0
+         ftid3 = 0
+      else
+         nthr3  = max(1,(nthr - mod(nthr,3))/3)
+         nthr3l = max(1,nthr-2*nthr3)
+         ftid1 = 0
+         ftid2 = min(nthr-1,nthr3)
+         ftid3 = min(nthr-1,2*nthr3)
+      end if
+
+      npack2 = 2*(nida(nb)+nidb(nb))
+      call Parallel_shared_vector_zero(.true.,3*n*n,matrix)
+
+      if ((tid.ge.ftid1).and.(tid.lt.(ftid1+nthr3))) then
+         call dgemm2c_omp_group(1,tid-ftid1,nthr3,
+     >                          n,n,npack2,2*nida(nb),
+     >                          A,HA,matrix(1,1,1),privatetmp)
+      end if
+
+      if ((tid.ge.ftid2).and.(tid.lt.(ftid2+nthr3))) then
+         call dgemm2c_omp_group(2,tid-ftid2,nthr3,
+     >                          n,n,npack2,2*nida(nb),
+     >                          B,HA,matrix(1,1,2),privatetmp)
+      end if
+
+      if ((tid.ge.ftid3).and.(tid.lt.(ftid3+nthr3l))) then
+         call dgemm2c_omp_group(3,tid-ftid3,nthr3l,
+     >                          n,n,npack2,2*nida(nb),
+     >                          B,HB,matrix(1,1,3),privatetmp)
+      end if
+!$OMP BARRIER
+
+!$OMP DO
+      do ik=1,3*n
+         i = (ik-1)/n + 1
+         k = mod(ik-1,n)+1
+         do j=k+1,n
+            matrix(j,k,i) = matrix(k,j,i)
+         end do
+      end do
+!$OMP END DO
+
+      if (np.gt.1) call D3dB_Vector_SumAll(3*n*n,matrix)
+      call nwpw_timing_end(2)
+
+      return
+      end
+
+
+
+
+
+
+*     ***********************************
+*     *                                 *
 *     *    Pack_ccm_combo_sym_dot_omp   *
 *     *                                 *
 *     ***********************************
