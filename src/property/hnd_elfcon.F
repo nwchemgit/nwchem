@@ -107,10 +107,20 @@ c
       double precision thresh,pmat_max,dabsmax,schw_ij
       external dabsmax
       logical oprint
+
+      integer nbf_max2,ncenters,iat,jat,icount_i,icount_j
+      integer icount,k_p,l_p,k_g,l_g,nbf_at_i,nbf_at_j
+      integer sh_lo_i,sh_hi_i,sh_lo_j,sh_hi_j,bf_lo_i,bf_hi_i
+      integer bf_lo_j,bf_hi_j
+      logical ok
+
+      double precision fac
+
       parameter (thresh=1d-12)
 c
       me = ga_nodeid()
       nproc = ga_nnodes()
+      ok = geom_ncent(geom, ncenters)
 c
 c     ----- calculate buffer and scratch space -----
 c           buffer = (lmax*(lmax+1)/2)^2 * (max(nder*3,1) * ngridpoints
@@ -124,9 +134,13 @@ c
      $   ('hnd_elfcon: bas_numcont failed for basis', basis, BASIS_ERR)
       if (.not. bas_nbf_cn_max(basis,nbf_max)) call errquit
      &   ('hnd_elfcon: bas_nbf_cn_max failed',555, BASIS_ERR)
+      if (.not. bas_nbf_ce_max(basis,nbf_max2)) call errquit
+     &   ('hnd_elfcon: bas_nbf_ce_max failed',555, BASIS_ERR)
 c
-      if (.not. ma_push_get(mt_dbl,nbf_max*nbf_max,'dens patch',l_dens,
-     &    k_dens)) call errquit('hnd_elfcon: ma 1 failed',911,MA_ERR)
+      if (.not. ma_push_get(mt_dbl,nbf_max2*nbf_max2,'dens patch',l_p,
+     &    k_p)) call errquit('hnd_elfcon: ma 1 failed',911,MA_ERR)
+      if (.not. ma_push_get(mt_dbl,nbf_max2*nbf_max2,'dens patch',l_g,
+     &    k_g)) call errquit('hnd_elfcon: ma 1 failed',911,MA_ERR)
 c
 check if enough MA mem is avail, if not then mult. passes
 c
@@ -210,69 +224,70 @@ cc AJL/Begin/FDE
         next = 1
       endif
 cc AJL/End
-      do ishell = 1, nshell
-c
-c     get basis info
-c
-         if (.not. bas_cn2bfr(basis, ishell, ilo, ihi)) call errquit
-     &      ('hnd_elfcon: bas_cn2bfr failed for basis',basis,BASIS_ERR)
-         idim = ihi - ilo + 1
+      icount=0
+      do iat=1,ncenters
+        if (.not.bas_ce2cnr(basis, iat, sh_lo_i, sh_hi_i))
+     &    call errquit('bas ce2cnr failed',0,BASIS_ERR)
+        if (.not.bas_ce2bfr(basis, iat, bf_lo_i, bf_hi_i))
+     &    call errquit('bas ce2cnr failed',0,BASIS_ERR)
+        nbf_at_i = bf_hi_i - bf_lo_i + 1
+        do jat=1,iat
+          icount=icount+1
+          if (icount.eq.next) then
+            if (.not.bas_ce2cnr(basis, jat, sh_lo_j, sh_hi_j))
+     &        call errquit('bas ce2cnr failed',0,BASIS_ERR)
+            if (.not.bas_ce2bfr(basis, jat, bf_lo_j, bf_hi_j))
+     &        call errquit('bas ce2cnr failed',0,BASIS_ERR)
+            nbf_at_j = bf_hi_j - bf_lo_j + 1
+            call ga_get(g_dens, bf_lo_i, bf_hi_i, bf_lo_j,
+     &                  bf_hi_j,dbl_mb(k_p),nbf_at_i)
+            do ishell=sh_lo_i,sh_hi_i
+              if (.not.bas_cn2bfr(basis,ishell,ilo,ihi))       
+     &          call errquit('bas_cn2bfr failed',0,BASIS_ERR)
+              idim = ihi - ilo + 1
+              icount_i = ilo - bf_lo_i
+              do jshell=sh_lo_j,sh_hi_j
+                if (.not.bas_cn2bfr(basis,jshell,jlo,jhi))
+     &            call errquit('bas_cn2bfr failed',0,BASIS_ERR)
+                jdim = jhi - jlo  + 1
+                icount_j = jlo - bf_lo_j
 
-#ifndef M12
-         do jshell = 1, nshell
-#else
-         do jshell=1,ishell
-#endif
-            if(doschwarz) then
-               schw_ij=schwarz_shell(ishell,jshell)
-            else
-               schw_ij=1d99
-            endif
-            if(schw_ij.gt.thresh*1d-1) then
-            ijshell = ijshell + 1
-            if (ijshell.eq.next) then
-c
-c     get basis info
-c
-               if (.not. bas_cn2bfr(basis, jshell, jlo, jhi)) call
-     &            errquit('hnd_elfcon: bas_cn2bfr',basis,BASIS_ERR)
-               jdim = jhi - jlo + 1
-               nint = idim * jdim
-c
-c     Get the density patch, make the integrals and contract
-c
-               call ga_get(g_dens, ilo, ihi, jlo, jhi,
-     $                     dbl_mb(k_dens), idim)
+                if(doschwarz) then
+                   schw_ij=schwarz_shell(ishell,jshell)
+                else
+                   schw_ij=1d99
+                endif
+                if(schw_ij.gt.thresh*1d-1) then
+                  nint = idim*jdim
+                  call dft_copyfrom(nbf_at_i,idim,jdim,dbl_mb(k_p),
+     &              dbl_mb(k_g),icount_i,icount_j)
 
-               if(doschwarz) then
-                  pmat_max = dabsmax(idim*jdim,dbl_mb(k_dens))
-               else
-                  pmat_max=1d0
-               endif
+                 if(doschwarz) then
+                    pmat_max = dabsmax(nint,dbl_mb(k_g))
+                 else
+                    pmat_max=1d0
+                 endif
 c
-               if(schw_ij*pmat_max.gt.thresh) then
+                 if(schw_ij*pmat_max.gt.thresh) then
 c
-               call int_1eelec(basis,ishell,basis,jshell,maxscr,
-     &                         dbl_mb(k_scr),nint,dbl_mb(k_buf),
-     &                         nder,points(1,iptr),npt_pass)
-#ifdef M12
-               if(ishell.ne.jshell)
-     D              call dscal(idim*jdim,2d0,dbl_mb(k_dens),1)
-#endif
-!DEC$ NOINLINE
-               call multi_reduce(dbl_mb(k_buf),dbl_mb(k_dens),
+                 call int_1eelec(basis,ishell,basis,jshell,maxscr,
+     &                           dbl_mb(k_scr),nint,dbl_mb(k_buf),
+     &                           nder,points(1,iptr),npt_pass)
+                 if (iat.ne.jat) call dscal(nint,2d0,dbl_mb(k_g),1)
+c!DEC$ NOINLINE
+                 call multi_reduce(dbl_mb(k_buf),dbl_mb(k_g),
      &                           elfval(iptr),idim,jdim,
      N              npt_pass*(max(nder*3,1)))
+                 endif
                endif
-cc AJL/Begin/FDE
-               if (do_parallel) then
-                 next = nxtask(nproc,task_size)+1
-               else 
-                 next = next + 1
-               endif
-            end if
-cc AJL/End
-            end if  ! mod parallel loop
+              enddo
+            enddo
+            if (do_parallel) then
+              next = nxtask(nproc,task_size)+1
+            else 
+              next = next + 1
+            endif
+          endif
          end do   ! jshell
       end do    ! ishell
       if (do_parallel) next=nxtask(-nproc,task_size)
@@ -293,7 +308,7 @@ cc AJL/End
 c
 c     Clean up MA data blocks
 c
-      if (.not.ma_pop_stack(l_dens)) call errquit
+      if (.not.ma_chop_stack(l_p)) call errquit
      &   ('hnd_elfcon, ma_pop_stack of l_dens failed',911,MA_ERR)
       return
       end
@@ -304,17 +319,22 @@ c
       integer idim,jdim,nblock
       double precision mblock(idim,jdim,nblock), block(idim,jdim)
       double precision rblock(nblock) ! [out]
+      double precision ddot
+      external ddot
 c
       integer iblock,i,j
-         do j = 1, jdim
+c         do j = 1, jdim
       do iblock = 1, nblock
-!DEC$ LOOP COUNT MAX=40
-            do i = 1, idim
-               rblock(iblock)=rblock(iblock)+mblock(i,j,iblock)*
-     &                                       block(i,j)
-            enddo
-         enddo
+        rblock(iblock) = rblock(iblock) + 
+     $                   ddot(idim*jdim,block,1,mblock(1,1,iblock),1)
+c!DEC$ LOOP COUNT MAX=40
+c            do i = 1, idim
+c               rblock(iblock)=rblock(iblock)+mblock(i,j,iblock)*
+c     &                                       block(i,j)
+c            enddo
+c         enddo
       enddo
+     
 c
       return
       end
