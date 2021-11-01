@@ -2300,9 +2300,7 @@ c
 c     ----- calculate electronic contribution at all points -----
 c
       call hnd_elfcon(basis,geom,g_dens(ndens),efcc,nefc,x(i12),0)
-      do ipt=1,nefc
-         x(i12+ipt-1) = -x(i12+ipt-1)
-      enddo
+      call dscal(nefc,-1d0,x(i12),1)
 c
 c     ----- nuclear contribution -----
 c
