@@ -19,7 +19,7 @@ c
       double precision points(*) ! [input] coordinates for points
       double precision elfval(*)     ! [output] efg values for each coord
       call hnd_elfcon_0(basis,geom,g_dens,points,npt,elfval,nder,
-     D     .false.,.true.)
+     D     .false.,.true.,.false.)
       return
       end 
       subroutine hnd_elfcon_schw(basis,geom,g_dens,points,npt,elfval,
@@ -37,7 +37,7 @@ c
       double precision points(*) ! [input] coordinates for points
       double precision elfval(*)     ! [output] efg values for each coord
       call hnd_elfcon_0(basis,geom,g_dens,points,npt,elfval,nder,
-     D     .true.,.true.)
+     D     .true.,.true.,.true.)
       return
       end
 cc AJL/Begin/FDE 
@@ -57,12 +57,31 @@ c
       double precision elfval(*)     ! [output] efg values for each
 coord
       call hnd_elfcon_0(basis,geom,g_dens,points,npt,elfval,nder,
-     D     .false.,.false.)
+     D     .false.,.false.,.false.)
       return
       end
 cc AJL/End
+      subroutine hnd_elfcon_cosmo(basis,geom,g_dens,points,npt,elfval,
+     N     nder)
+c
+c     modified hnd_elfcon: Schwarz screening is used
+c     more details below
+c
+      implicit none
+      integer basis    ! [input] basis set
+      integer geom     ! [input] geometry
+      integer g_dens   ! [input] GA with density
+      integer npt      ! [input] number of coord points
+      integer nder     ! [input] electronic integral type
+      double precision points(*) ! [input] coordinates for points
+      double precision elfval(*)     ! [output] efg values for each
+coord
+      call hnd_elfcon_0(basis,geom,g_dens,points,npt,elfval,nder,
+     D     .true.,.true.,.false.)
+      return
+      end
       subroutine hnd_elfcon_0(basis,geom,g_dens,points,npt,elfval,nder,
-     D     doschwarz,do_parallel)
+     D     doschwarz,do_parallel,initschwarz)
 c
 c     kernel routine for hnd_elfcon
 c     can do schwarz screening if needed
@@ -95,6 +114,7 @@ cc AJL/Begin/FDE
                           ! parallel off as we are already working with 
                           ! nxtask for grid points
 cc AJL/End
+      logical initschwarz
 c
       integer ishell, jshell, ijshell, nshell, nbf_max, me, nproc
       integer ilo, ihi, jlo, jhi, idim, jdim, nint
@@ -192,7 +212,7 @@ c
       if (.not. ma_push_get(mt_dbl,maxbuf_pass,'int buf',
      L        l_buf,k_buf))
      &    call errquit('hnd_elfcon: ma 3 failed',maxbuf_pass,MA_ERR)
-      if (doschwarz) call schwarz_init(geom, basis)
+      if (doschwarz.and.initschwarz) call schwarz_init(geom, basis)
       do i_pass=1,npasses
       iptr=(i_pass-1)*npt_pass+1
       npt_pass=npt/npasses
@@ -292,7 +312,7 @@ c!DEC$ NOINLINE
       end do    ! ishell
       if (do_parallel) next=nxtask(-nproc,task_size)
       enddo ! i_pass
-      if(doschwarz) call schwarz_tidy()
+      if(doschwarz.and.initschwarz) call schwarz_tidy()
       if (.not.ma_chop_stack(l_scr)) then
        call ma_summarize_allocated_blocks()
          call errquit

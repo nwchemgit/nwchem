@@ -2249,7 +2249,7 @@ c     --- electron field
 c
 c     ----- calculate electronic contribution at all points -----
 c
-      call hnd_elfcon(basis,geom,g_dens(ndens),efcc,nefc,x(i12),0)
+      call hnd_elfcon_cosmo(basis,geom,g_dens(ndens),efcc,nefc,x(i12),0)
       call dscal(nefc,-1d0,x(i12),1)
 c
 c     ----- nuclear contribution -----
