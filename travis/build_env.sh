@@ -73,6 +73,9 @@ esac
 	 $FC --version
 	 gfortran --version
      fi
+     #hack to get 3.10 as default
+     brew install python@3.10
+     brew link --force --overwrite python@3.10
 #  if [[ "$MPI_IMPL" == "openmpi" ]]; then
 #      HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install scalapack
 #  fi
