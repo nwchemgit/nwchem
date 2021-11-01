@@ -259,8 +259,7 @@ c
       ificos   =0
       lineq    =-1 ! 0: direct solver, 1: iterative solver
       rsolv    =0.50d+00
-c      zeta     =0.98d+00 ! apparently for Lebedev grids zeta=4.9
-      zeta     =4.50d+00
+      zeta     =4.50d+00 ! apparently for Lebedev grids zeta=4.9
       gammas   =1.00d+00 ! full switching, see York, Karplus Eq.86.
       swtol    =1.00d-04 ! switching tolerance, see York, Karplus
                          ! Eq.62-88.

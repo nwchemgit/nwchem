@@ -683,10 +683,10 @@ c                   --- eval eq.(67) from [2] ---
 c
                     if (iflebedev.eq.0) then
                     dum=4.00d0**(maxbem-minbem)
-                    dum=1.0d0 ! MAXBEM is obsolete in York and Karplus approach
-                    zetai=zeta*sqrt(nseg*dum)/(ratm_real*sqrt(4.0d0*pi))
-                    dbl_mb(k_efcs+ief-1) = (1.0d0/xyzff(iseg,iat))
-     1                                   * sqrt(2.0d0)*zetai/sqrt(pi)
+                    dum=16.0d0 ! MAXBEM is obsolete in York and Karplus approach
+                    zetai=zeta/sqrt(dsurf)/ratm_real
+                    zetaii=zetai*sqrt(2d0/pi)
+                    dbl_mb(k_efcs+ief-1) = (zetaii/xyzff(iseg,iat))
                     srfmol = srfmol + xyzff(iseg,iat)*dsurf*ratm_real**2
                     volmol = volmol + xyzff(iseg,iat)*dvol *ratm_real**3
                     else
