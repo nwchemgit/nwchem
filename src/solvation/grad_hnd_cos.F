@@ -353,7 +353,7 @@ c
           if (do_cosmo_model.eq.DO_COSMO_YK) then
             zeta1 = zeta*sqrt(ptspatm)
      $            / (dbl_mb(k_rad+int_mb(k_efciat+ich1-1)-1)
-     $               * sqrt(2.0d0*pi))
+     $               * sqrt(4.0d0*pi))
             xyzff = 1.0d0
             do iat1 = 1, nat
               if (iat1.ne.int_mb(k_efciat+ich1-1)) then
@@ -413,13 +413,13 @@ c
           if (do_cosmo_model.eq.DO_COSMO_YK) then
             zeta1 = zeta*sqrt(ptspatm)
      $            / (dbl_mb(k_rad+int_mb(k_efciat+ich1-1)-1)
-     $               * sqrt(2.0d0*pi))
+     $               * sqrt(4.0d0*pi))
           endif
           do ich2 = 1, ich1-1
             if (do_cosmo_model.eq.DO_COSMO_YK) then
               zeta2 = zeta*sqrt(ptspatm)
      $              / (dbl_mb(k_rad+int_mb(k_efciat+ich2-1)-1)
-     $                 * sqrt(2.0d0*pi))
+     $                 * sqrt(4.0d0*pi))
               zeta12 = zeta1*zeta2/sqrt(zeta1**2+zeta2**2)
             endif
             if (ich1.ne.ich2) then

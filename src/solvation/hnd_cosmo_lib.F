@@ -653,10 +653,9 @@ c                   --- eval eq.(67) from [2] ---
 c
                     dum=4.00d0**(maxbem-minbem)
                     dum=16.0d0 ! MAXBEM is obsolete in York and Karplus approach
-                    zetai=zeta*sqrt(nseg*dum)/(ratm_real*sqrt(2.0d0*pi))
-                    zetaii=zetai/sqrt(2.0d0)
-                    dbl_mb(k_efcs+ief-1) = (1.0d0/xyzff(iseg,iat))
-     1                                   * 2.0d0*zetaii/sqrt(pi)
+                    zetai=zeta/sqrt(dsurf)/ratm_real
+                    zetaii=zetai*sqrt(2d0/pi)
+                    dbl_mb(k_efcs+ief-1) = (zetaii/xyzff(iseg,iat))
                     srfmol = srfmol + xyzff(iseg,iat)*dsurf*ratm_real**2
                     volmol = volmol + xyzff(iseg,iat)*dvol *ratm_real**3
                   endif
@@ -3182,12 +3181,12 @@ c
            yj=efcc(2,jef)
            zj=efcc(3,jef)
            qj=efcz(  jef)
-           zetaj=zeta*sqrt(ptspatm)/(ratm(efciat(jef))*sqrt(2.0d0*pi))
+           zetaj=zeta*sqrt(ptspatm)/(ratm(efciat(jef))*sqrt(4.0d0*pi))
            efcefc=efcefc+qj*efcs(jef)*qj
 c
            do ief=jef+1,nefc
               zetai=zeta*sqrt(ptspatm)
-     &             /(ratm(efciat(ief))*sqrt(2.0d0*pi))
+     &             /(ratm(efciat(ief))*sqrt(4.0d0*pi))
               xi=efcc(1,ief)
               yi=efcc(2,ief)
               zi=efcc(3,ief)
@@ -3257,7 +3256,7 @@ c
           enddo
         enddo
       else if (do_cosmo_model.eq.DO_COSMO_YK) then
-        factor = zeta*dsqrt(ptspatm/(2d0*pi))
+        factor = zeta*dsqrt(ptspatm/(4d0*pi))
         factor2 = 2d0/sqrt(pi)
         do jef=1,nefc
           zetaj=factor/ratm(efciat(jef))
@@ -3342,7 +3341,7 @@ c
           enddo
         enddo
       else if (do_cosmo_model.eq.DO_COSMO_YK) then
-        factor = zeta*dsqrt(ptspatm/(2d0*pi))
+        factor = zeta*dsqrt(ptspatm/(4d0*pi))
         factor2 = 2d0/sqrt(pi)
         do i=ga_nodeid()+1,nefc,ga_nnodes()
           zetai = ratm(efciat(i))**2
