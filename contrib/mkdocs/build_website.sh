@@ -15,6 +15,7 @@ rm -rf docs #archivedforum
 git clone --depth 1 git@github.com:nwchemgit/nwchem-wiki.git docs
 cd docs
 git clone --depth 1 git@github.com:nwchemgit/archivedforum.git
+mv archivedforum/Special_AWCforum .
 #rsync -av archivedforum/Special_AWCforum docs/.
 #cd docs
 #git pull
