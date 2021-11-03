@@ -63,7 +63,9 @@ c     1. All regular QM derivatives
 #include "sym.fh"
 #include "stdio.fh"
 #include "prop.fh"
+#include "util.fh"
 #include "util_params.fh"
+#include "schwarz.fh"
 
 C-------------------------parameters--------------------------------
       integer g_dens !< [Input] the total electron density matrix GA
@@ -115,11 +117,19 @@ C-------------------------local variables--------------------------
       integer k_p
       integer l_efczeta
       integer k_efczeta
+      integer k_der
+      integer l_der
+      integer nintd
       integer nbf_at_a,icount_a,icount_b,nshbfa,nshbfb,ndim,nao2
 
       double precision dE, qfac, fact, dx, dy, dz, rr
       double precision invscreen, pi
       double precision zeta1, zeta2, zeta12
+      double precision est_int, qmax, pmat_max
+      double precision dabsmax
+      external dabsmax
+
+      logical ateq
 
       logical status, pointforce
 
@@ -132,6 +142,7 @@ c
       double precision, external :: ddot
       double precision rin, rout, alphai, xyzff
       integer iat
+      double precision t0
       parameter (alphai = 0.5d0)
       rin(iat)=dbl_mb(k_rad-1+iat)
      &        *(1.0d0-alphai*gammas*sqrt(0.25d0**minbem))
@@ -142,6 +153,12 @@ c     ---- -cosmo- gradient term -----
       logical odbug
 
       pi = acos(-1.0d0)
+
+      odbug = ma_verify_allocator_stuff()
+      if (ga_nodeid().eq.0) then
+        call ma_summarize_allocated_blocks()
+      endif
+
       odbug=.false.
       if(odbug) then
          write(Luout,*) 'in -grad1_hnd_cos- ...'
@@ -195,9 +212,15 @@ c
      $  call errquit('grad_hnd_cos: rtdb get failed efczeta',0,RTDB_ERR)
       if (.not.ma_push_get(mt_dbl,max_at_bf**2,'loc p',l_p,k_p))
      $  call errquit('grad_hnd_cos: could not allocate loc p',0,MA_ERR) 
+      if (.not.ma_push_get(mt_dbl,6*max_at_bf**2,'loc p',l_der,k_der))
+     $  call errquit('grad_hnd_cos: could not allocate loc p',0,MA_ERR) 
 
 c
       call hf_print_set(1)
+
+      t0 = util_wallsec()
+
+      qmax = dabsmax(nefc,dbl_mb(iefc_q))
 
       ijatom = -1
       next = nxtask(nproc,task_size)
@@ -206,6 +229,8 @@ c
 
           ijatom = ijatom + 1
           if ( ijatom .eq. next ) then
+
+            ateq = iat1.eq.iat2
 
             status = bas_ce2bfr(basis,iat1,iab1f,iab1l)
             status = bas_ce2bfr(basis,iat2,iab2f,iab2l)
@@ -216,6 +241,9 @@ c     At least one center has no functions on it ... next atom
 c
               goto 1010
             endif
+
+            est_int = schwarz_atom(iat1,iat2)
+            if (est_int*qmax*nefc.lt.1d-14) goto 1010
 
             if (oskel) then
                if (.not. sym_atom_pair(geom, iat1, iat2, qfac))
@@ -231,7 +259,7 @@ c
             call ga_get (g_dens, iab2f,iab2l,iab1f,iab1l,dens,max_at_bf)
 
             do 70, ish1 = iac1f, iac1l
-              if ( iat1.eq.iat2 ) iac2l = ish1
+              if ( ateq ) iac2l = ish1
 
 C             shell block in atomic (D/Dw)-matrix block
               status = bas_cn2bfr(basis,ish1,if1,il1)
@@ -252,6 +280,9 @@ c
               endif
 
               do 60, ish2 = iac2f, iac2l
+
+                est_int = schwarz_shell(ish1,ish2)
+                if (est_int*qmax*nefc.lt.1d-14) goto 60
 
                 status = bas_cn2bfr(basis,ish2,if2,il2)
                 if2 = if2 - iab2f + 1
@@ -283,10 +314,21 @@ c
                 enddo
 
                 if (ish1.ne.ish2) call dscal(nao2,2d0,dbl_mb(k_p),1)
+
+                pmat_max = dabsmax(nao2,dbl_mb(k_p))
+                est_int = est_int*pmat_max
+
+                if (est_int*qmax*nefc.lt.1d-14) goto 60
+
+                nintd = 6*nao2
+                if (ateq) nintd = 3*nao2
+
+                call dfill(nintd,0d0,dbl_mb(k_der),1)
                 
                 do iefc = 1, nefc
-                  if (iat1.eq.iat2.and.int_mb(k_efciat+iefc-1).eq.iat1)
-     $              cycle
+                  if (ateq.and.int_mb(k_efciat+iefc-1).eq.iat1) cycle
+                  if (abs(est_int*dbl_mb(iefc_q)).lt.1d-16) cycle
+
                   call dfill(9*nint,0d0,H,1)
 
 C                 1el. -cosmo- derivatives
@@ -300,30 +342,33 @@ C     D x H
 c
 c                 Do center A (associated with ish1)
 c
-                  ic=1
-                  do icart = 1, 3
-                    dE = qfac*ddot(nao2,dbl_mb(k_p),1,H(ic),1)
-                    frc_cos_elq(icart,iat1)
-     &              = frc_cos_elq(icart,iat1) - dE
-                    ic = ic + nao2
-                  enddo
+                  call daxpy(nintd,1d0,H,1,dbl_mb(k_der),1)
+
+c                  ic=1
+c                  do icart = 1, 3
+c                    dE = qfac*ddot(nao2,dbl_mb(k_p),1,H(ic),1)
+c                    frc_cos_elq(icart,iat1)
+c     &              = frc_cos_elq(icart,iat1) - dE
+c                    ic = ic + nao2
+c                  enddo
 c
 c                 Do center B (associated with ish2)
 c
-                  if (iat1.eq.iat2) then
-                    ic = ic + 3*nao2
-                  else
-                    do icart = 1, 3
-                      dE = qfac*ddot(nao2,dbl_mb(k_p),1,H(ic),1)
-                      frc_cos_elq(icart,iat2)
-     &                = frc_cos_elq(icart,iat2) - dE
-                      ic = ic + nao2
-                    enddo
-                  endif
+c                  if (iat1.eq.iat2) then
+c                    ic = ic + 3*nao2
+c                  else
+c                    do icart = 1, 3
+c                      dE = qfac*ddot(nao2,dbl_mb(k_p),1,H(ic),1)
+c                      frc_cos_elq(icart,iat2)
+c     &                = frc_cos_elq(icart,iat2) - dE
+c                      ic = ic + nao2
+c                    enddo
+c                  endif
 c
 c                 Do center C, i.e. the Cosmo charge (associated with
 c                 the atom stored in int_mb(k_efciat))
 c
+                  ic = 6*nao2 + 1
                   do icart = 1, 3
                     dE = qfac*ddot(nao2,dbl_mb(k_p),1,H(ic),1)
                     frc_cos_elq(icart,int_mb(k_efciat+iefc-1))
@@ -331,6 +376,21 @@ c
                     ic = ic + nao2
                   enddo
 
+                enddo
+
+                ic = k_der
+                do icart=1,3
+                  dE = qfac*ddot(nao2,dbl_mb(k_p),1,dbl_mb(ic),1)
+                  frc_cos_elq(icart,iat1) = frc_cos_elq(icart,iat1) - dE
+                  ic = ic + nao2
+                enddo
+
+                if (ateq) goto 60
+
+                do icart=1,3
+                  dE = qfac*ddot(nao2,dbl_mb(k_p),1,dbl_mb(ic),1)
+                  frc_cos_elq(icart,iat2) = frc_cos_elq(icart,iat2) - dE
+                  ic = ic + nao2
                 enddo
 
  60           continue
@@ -344,6 +404,10 @@ c
  80     continue
  90   continue
       next = nxtask(-nproc,task_size)
+
+      if (ga_nodeid().eq.0) then
+        write(*,'("cosmo b grad: ",F8.3)') util_wallsec()-t0
+      endif
 c
       if (ga_nodeid().eq.0) then
 c
@@ -400,20 +464,31 @@ c
      $      = frc_cos_nucq(3,int_mb(k_efciat+ich1-1)) - dE
           enddo
         enddo
+      endif
+
 c
 c       Do cosmo charge - cosmo charge interaction
 c
-        invscreen = 1.0d0/(1.0d0*screen)
-        do ich1 = 1, nefc
+      ijatom =  -1
+      next = nxtask(nproc,task_size)
+      invscreen = 1.0d0/(1.0d0*screen)
+
+      t0 = util_wallsec()
+
+      do ich1 = 1, nefc
+        if (do_cosmo_model.eq.DO_COSMO_YK) then
+          zeta1 = dbl_mb(k_efczeta+ich1-1)
+        endif
+        do ich2 = 1, ich1-1
+          if (int_mb(k_efciat+ich1-1).eq.int_mb(k_efciat+ich2-1)) cycle
+
+          ijatom = ijatom + 1
+          if (ijatom.ne.next) cycle
+
           if (do_cosmo_model.eq.DO_COSMO_YK) then
-            zeta1 = dbl_mb(k_efczeta+ich1-1)
+            zeta2 = dbl_mb(k_efczeta+ich2-1)
+            zeta12 = zeta1*zeta2/sqrt(zeta1**2+zeta2**2)
           endif
-          do ich2 = 1, ich1-1
-            if (do_cosmo_model.eq.DO_COSMO_YK) then
-              zeta2 = dbl_mb(k_efczeta+ich2-1)
-              zeta12 = zeta1*zeta2/sqrt(zeta1**2+zeta2**2)
-            endif
-            if (int_mb(k_efciat+ich1-1).eq.int_mb(k_efciat+ich2-1))cycle
 
             dx = dbl_mb(0+3*(ich1-1)+iefc_c)
      $         - dbl_mb(0+3*(ich2-1)+iefc_c)
@@ -443,6 +518,7 @@ c
      $                       do_cosmo_model,UERR)
               endif
             endif
+
             dE = dx * fact
             frc_cos_qq(1,int_mb(k_efciat+ich1-1)) 
      $      = frc_cos_qq(1,int_mb(k_efciat+ich1-1)) + dE
@@ -458,8 +534,14 @@ c
      $      = frc_cos_qq(3,int_mb(k_efciat+ich1-1)) + dE
             frc_cos_qq(3,int_mb(k_efciat+ich2-1)) 
      $      = frc_cos_qq(3,int_mb(k_efciat+ich2-1)) - dE
-          enddo
+
+          next = nxtask(nproc,task_size)
         enddo
+      enddo
+      next = nxtask(-nproc,task_size)
+
+      if (ga_nodeid().eq.0) then
+        write(*,'("cosmo off-diag grad: ",F8.3)') util_wallsec()-t0
       endif
 c
       if (.not.ma_chop_stack(l_efciat))
