@@ -103,6 +103,8 @@ cc AJL/Begin/FDE
 c      double precision rho_n_fde ![out]
       integer g_dens_fde(2)
 cc AJL/End
+      double precision t0
+      integer g_dmr
 c
       do_cosmo_smd = .false.
       do_cosmo_vem = 0
@@ -266,11 +268,22 @@ c
 cc AJL/Begin/SPIN ECPs
       if(cosmo_on.and.cosmo_phase.eq.2) then
 c         call int_1e_ga(ao_bas_han,ao_bas_han,g_fock,
-         call int_1e_ga(ao_bas_han,ao_bas_han,g_focks(1),
-     &                  'cos_chg_pot',.false.)
+         t0 = util_wallsec()
+         
+c      if(.not.ga_duplicate(g_focks(1),g_dmr,'local g')) call
+c     .     errquit('int_1e_oldga0: dupl failed',0, GA_ERR)
+c      call ga_zero(g_dmr)
+c         call int_1e_ga(ao_bas_han,ao_bas_han,g_dmr,
+c     &                  'cos_chg_pot',.false.)
+c         call ga_print(g_dmr)
+c         call ga_add(1d0,g_dmr,1d0,g_focks(1),g_focks(1))
+         call cosmo_fock(ao_bas_han,g_focks(1))
          if (ecp_channels.gt.1)
      &     call int_1e_ga(ao_bas_han,ao_bas_han,g_focks(2),
      &                    'cos_chg_pot',.false.)
+         if (me.eq.0) then
+           write(*,'("cos_chg_pot: ",F8.3)') util_wallsec()-t0
+         endif
       endif
 
 c     == Copy Fock matrix to individual components for normal calcs ==

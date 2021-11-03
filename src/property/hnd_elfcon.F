@@ -239,12 +239,12 @@ c
       task_size = 1
 cc AJL/Begin/FDE
       if (do_parallel) then
-        next = nxtask(nproc,task_size)+1
+        next = nxtask(nproc,task_size)
       else
-        next = 1
+        next = 0
       endif
 cc AJL/End
-      icount=0
+      icount=-1
       do iat=1,ncenters
         if (.not.bas_ce2cnr(basis, iat, sh_lo_i, sh_hi_i))
      &    call errquit('bas ce2cnr failed',0,BASIS_ERR)
@@ -303,7 +303,7 @@ c!DEC$ NOINLINE
               enddo
             enddo
             if (do_parallel) then
-              next = nxtask(nproc,task_size)+1
+              next = nxtask(nproc,task_size)
             else 
               next = next + 1
             endif

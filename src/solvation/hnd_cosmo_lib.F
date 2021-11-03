@@ -2198,6 +2198,7 @@ c
       integer iter_cosmo_vem
       integer l_efczfx, k_efczfx  ! memory handles for fixed cosmo-vem charges
       integer g_vem(3) ! ga handles for cosmo-vem GS potential, GS charges, and ES noneq charges
+      double precision t0
 c
       oprint_energies = util_print("cosmo_energies",print_never)
       oprint_energies = oprint_energies.and.(ga_nodeid().eq.0)
@@ -2299,7 +2300,11 @@ c     --- electron field
 c
 c     ----- calculate electronic contribution at all points -----
 c
+      t0 = util_wallsec()
       call hnd_elfcon_cosmo(basis,geom,g_dens(ndens),efcc,nefc,x(i12),0)
+      if (ga_nodeid().eq.0) then
+        write(*,'("elfcon: ",F8.3)') util_wallsec()-t0
+      endif
       call dscal(nefc,-1d0,x(i12),1)
 c
 c     ----- nuclear contribution -----
@@ -2761,7 +2766,8 @@ c     ----- printing cosmo charges for bq module -----
 c
       istrlen = inp_strlen(cosmo_file_in)
       if (istrlen.le.0) cosmo_file_in = "cosmo.xyz" 
-      call util_file_name(cosmo_file_in,.false.,.false.,cosmo_file)
+      call util_file_name(trim(cosmo_file_in),.false.,.false.,
+     $                    cosmo_file)
       call util_file_name_resolve(cosmo_file,.false.)
       if(ga_nodeid().eq.0) then
         if(.not.util_io_unit(80,90,fn))

@@ -202,7 +202,6 @@ c
       ijatom = -1
       next = nxtask(nproc,task_size)
       do 90, iat1 = 1, nat
-        nbf_at_a = iab1l - iab1f + 1
         do 80, iat2 = 1, iat1
 
           ijatom = ijatom + 1
@@ -233,25 +232,27 @@ c
 
             do 70, ish1 = iac1f, iac1l
               if ( iat1.eq.iat2 ) iac2l = ish1
+
+C             shell block in atomic (D/Dw)-matrix block
+              status = bas_cn2bfr(basis,ish1,if1,il1)
+              if1 = if1 - iab1f + 1
+              il1 = il1 - iab1f + 1
+c
+c             Work out the number of Cartesian basis functions
+c             The integrals are evaluated in the Cartesian basis set
+c             and then transformed to spherical harmonics. So the
+c             buffer size depends on the number of Cartesian functions
+c
+              status = bas_continfo(basis,ish1,ityp1,nprim,ngen,
+     +                                sphcart)
+              if (sphcart.eq.1.and.ityp1.ge.2) then
+                im1 = if1 + (ityp1+1)*(ityp1+2)/2 - 1
+              else
+                im1 = il1
+              endif
+
               do 60, ish2 = iac2f, iac2l
 
-C               shell block in atomic (D/Dw)-matrix block
-                status = bas_cn2bfr(basis,ish1,if1,il1)
-                if1 = if1 - iab1f + 1
-                il1 = il1 - iab1f + 1
-c
-c               Work out the number of Cartesian basis functions
-c               The integrals are evaluated in the Cartesian basis set
-c               and then transformed to spherical harmonics. So the
-c               buffer size depends on the number of Cartesian functions
-c
-                status = bas_continfo(basis,ish1,ityp1,nprim,ngen,
-     +                                sphcart)
-                if (sphcart.eq.1.and.ityp1.ge.2) then
-                  im1 = if1 + (ityp1+1)*(ityp1+2)/2 - 1
-                else
-                  im1 = il1
-                endif
                 status = bas_cn2bfr(basis,ish2,if2,il2)
                 if2 = if2 - iab2f + 1
                 il2 = il2 - iab2f + 1
@@ -268,6 +269,8 @@ c
                 endif
 
                 nint = ( im1 - if1 + 1 ) * ( im2 - if2 + 1 )
+                if (9*nint.gt.lbuf)
+     $            call errquit('grad_hnd_cos: small buffer',lbuf,MA_ERR)
 
                 nao2 = (il1-if1+1)*(il2-if2+1)
 
@@ -278,6 +281,7 @@ c
                     ic = ic + 1
                   enddo
                 enddo
+
                 if (ish1.ne.ish2) call dscal(nao2,2d0,dbl_mb(k_p),1)
                 
                 do iefc = 1, nefc
@@ -306,12 +310,16 @@ c
 c
 c                 Do center B (associated with ish2)
 c
-                  do icart = 1, 3
-                    dE = qfac*ddot(nao2,dbl_mb(k_p),1,H(ic),1)
-                    frc_cos_elq(icart,iat2)
-     &              = frc_cos_elq(icart,iat2) - dE
-                    ic = ic + nao2
-                  enddo
+                  if (iat1.eq.iat2) then
+                    ic = ic + 3*nao2
+                  else
+                    do icart = 1, 3
+                      dE = qfac*ddot(nao2,dbl_mb(k_p),1,H(ic),1)
+                      frc_cos_elq(icart,iat2)
+     &                = frc_cos_elq(icart,iat2) - dE
+                      ic = ic + nao2
+                    enddo
+                  endif
 c
 c                 Do center C, i.e. the Cosmo charge (associated with
 c                 the atom stored in int_mb(k_efciat))
