@@ -48,7 +48,7 @@ C> constructed using translational invariance, as specified in the
 C> last equation. 
 c
       subroutine intd_1epot_cosmo(i_basis,ish,j_basis,jsh,lscr,scr,
-     &           lH1a,H1a,efc_c,efc_q,nefc)
+     &           lH1a,H1a,efc_c,efc_q,invnuc,nefc)
 C $Id$
       implicit none
 #include "stdio.fh"
@@ -119,6 +119,7 @@ c                       !< NOTE: nint*3 integral derivatives returned per unique
       double precision efc_q(nefc) !< [Input] COSMO charges
       double precision scr(lscr) !< [Input] scratch array
       double precision H1a(*)    !< [Output] derivative integrals
+      double precision invnuc(nefc)
 c
 c::local
       integer nint, offset, scrsize, nat
@@ -137,11 +138,11 @@ c
       offset = offset + 1     ! increment for passing to intd_1eh1P
 c
       call intd_1epotP_cosmo(i_basis,ish,j_basis,jsh,
-     &       scrsize,scr(offset),nint,H1a,efc_c,efc_q,nefc)
+     &       scrsize,scr(offset),nint,H1a,efc_c,efc_q,invnuc,nefc)
 c
       end
       subroutine intd_1epotP_cosmo(i_basis,ish,j_basis,jsh,lscr,scr,
-     &       nint,H1a,efc_c,efc_q,nefc)
+     &       nint,H1a,efc_c,efc_q,invnuc,nefc)
       implicit none
 #include "stdio.fh"
 #include "errquit.fh"
@@ -174,10 +175,11 @@ c::passed
       integer nint      ! [input] number of integrals in shells ish and jsh
 c                       ! NOTE: nint*3 integral derivatives returned per unique center
       integer nefc      ! [input] the number of COSMO charges
-      double precision efc_c(3) ! [input] the COSMO charges coordinates
-      double precision efc_q ! [input] the COSMO charges
+      double precision efc_c(3,nefc) ! [input] the COSMO charges coordinates
+      double precision efc_q(nefc)   ! [input] the COSMO charges
       double precision H1a(nint,3,3)    ! [output] derivative integrals (nint,3,n_atoms)
       double precision scr(lscr) ! [scratch] 
+      double precision invnuc(nefc)
 c::local
       logical doT
       integer ucont,uconts
@@ -387,7 +389,7 @@ c
      &      dbl_mb(mb_exndcf(jcfS,jsbas)),jnp,jgen,jtype,jatom,
 c     &      coords(1,1,cosmo_geom_efc),charge(1,cosmo_geom_efc),
 c     &      geom_invnucexp(1,cosmo_geom_efc),ncenter(cosmo_geom_efc),
-     &      efc_c,efc_q,
+     &      efc_c,efc_q,invnuc,nefc,
      &      H1a,nint,.false.,onw_ok,
 c    &      dbl_mb(i_cbq0),dbl_mb(i_qbq0),
 c    &      dbl_mb(i_xbq0),nb,
@@ -410,7 +412,7 @@ c
 c    &      iat_efc,
 c    &      coords(1,1,cosmo_geom_efc),charge(1,cosmo_geom_efc),
 c    &      geom_invnucexp(1,cosmo_geom_efc),ncenter(cosmo_geom_efc),
-     &      efc_c,efc_q,
+     &      efc_c,efc_q,invnuc,nefc,
      &      H1a,nint,
 c........... canab,   dryrun
      &      .false., .false.,

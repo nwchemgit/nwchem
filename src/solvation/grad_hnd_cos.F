@@ -117,10 +117,15 @@ C-------------------------local variables--------------------------
       integer k_p
       integer l_efczeta
       integer k_efczeta
-      integer k_der
-      integer l_der
+      integer k_der, k_der2
+      integer l_der, l_der2
+      integer l_scr, k_scr
+      integer iefc_inv, l_inv
+      integer llefc
       integer nintd
       integer nbf_at_a,icount_a,icount_b,nshbfa,nshbfb,ndim,nao2
+      integer maxbuf, maxscr
+      integer npmax,lmax,lp,lp3,lprod
 
       double precision dE, qfac, fact, dx, dy, dz, rr
       double precision invscreen, pi
@@ -129,7 +134,7 @@ C-------------------------local variables--------------------------
       double precision dabsmax
       external dabsmax
 
-      logical ateq
+      logical ateq, doit
 
       logical status, pointforce
 
@@ -151,6 +156,8 @@ c
 
 c     ---- -cosmo- gradient term -----
       logical odbug
+      integer map(nat,2), maxpts, locefc
+      double precision locder(3,3)
 
       pi = acos(-1.0d0)
 
@@ -185,8 +192,7 @@ c
      $                cosmo_bq_efc,MA_ERR)
 c
       if (.not.ma_push_get(MT_DBL,nat,"rad",l_rad,k_rad))
-     $  call errquit("grad_hnd_cos: could not allocate rad",
-     $               ma_sizeof(MT_BYTE,nat,MT_DBL),MA_ERR)
+     $  call errquit("grad_hnd_cos: could not allocate rad",nat,MA_ERR)
       call cosmo_def_radii(rtdb,geom,nat,dbl_mb(k_rad))
       status = rtdb_get(rtdb,'cosmo:radius',mt_dbl,nat,
      $                  dbl_mb(k_rad))
@@ -212,14 +218,48 @@ c
      $  call errquit('grad_hnd_cos: rtdb get failed efczeta',0,RTDB_ERR)
       if (.not.ma_push_get(mt_dbl,max_at_bf**2,'loc p',l_p,k_p))
      $  call errquit('grad_hnd_cos: could not allocate loc p',0,MA_ERR) 
-      if (.not.ma_push_get(mt_dbl,6*max_at_bf**2,'loc p',l_der,k_der))
-     $  call errquit('grad_hnd_cos: could not allocate loc p',0,MA_ERR) 
+c
+c     *** Get charges map ***
+c
+      map(1:nat,1) = -1
+      map(1:nat,2) =  0
 
+      llefc = 1
+      maxpts = 0
+      do iat1=1,nat
+        do iefc=llefc,nefc
+          if (int_mb(k_efciat+iefc-1).eq.iat1) then
+            if (iefc.eq.llefc) map(iat1,1) = iefc
+            map(iat1,2) = iefc
+          endif
+        enddo
+        llefc = map(iat1,2) + 1
+        maxpts = max(maxpts,map(iat1,2)-map(iat1,1)+1)
+      enddo
+      if (.not.ma_push_get(mt_dbl,maxpts,'loc p',l_inv,iefc_inv))
+     $  call errquit('grad_hnd_cos: could not allocate inv',0,MA_ERR) 
+      call dfill(maxpts,0d0,dbl_mb(iefc_inv),1)
+c
+c     *** Memory for McMurchie-Davidson derivatives ***
+c
+      status = bas_high_angular(basis,lmax)
+      status = bas_nprim_cn_max(basis,npmax)
+      lp = 2*(lmax+1)+1
+      lp3 = ((lp+1)*(lp+2)*(lp+3))/6
+      npmax = npmax*npmax
+      lprod = lp*(lmax+1)**2
+      maxscr = 13*npmax + 6*npmax*lprod + lp3*npmax + (lp+1)**3 +
+     $         npmax*(lp+1)*lp3 
+      maxbuf = 6*npmax + 6*npmax*lprod + lp3*npmax + (lp+1)**3 +
+     $         6*npmax*((lmax+1)*(lmax+2)/2) + ((lmax+1)*(lmax+2))/2
+      maxscr = max(maxscr,maxbuf) + 3*npmax
+      maxscr = max(maxscr,lscr)
+      if (.not.ma_push_get(mt_dbl,maxscr,'loc scr',l_scr,k_scr))
+     $  call errquit('grad_hnd_cos: could not allocate scr',0,MA_ERR) 
 c
       call hf_print_set(1)
 
       t0 = util_wallsec()
-
       qmax = dabsmax(nefc,dbl_mb(iefc_q))
 
       ijatom = -1
@@ -235,12 +275,7 @@ c
             status = bas_ce2bfr(basis,iat1,iab1f,iab1l)
             status = bas_ce2bfr(basis,iat2,iab2f,iab2l)
 
-            if (iab1f.le.0 .or. iab2f.le.0) then
-c     
-c     At least one center has no functions on it ... next atom
-c
-              goto 1010
-            endif
+            if (iab1f.le.0 .or. iab2f.le.0) goto 1010
 
             est_int = schwarz_atom(iat1,iat2)
             if (est_int*qmax*nefc.lt.1d-14) goto 1010
@@ -320,77 +355,42 @@ c
 
                 if (est_int*qmax*nefc.lt.1d-14) goto 60
 
-                nintd = 6*nao2
-                if (ateq) nintd = 3*nao2
-
-                call dfill(nintd,0d0,dbl_mb(k_der),1)
-                
-                do iefc = 1, nefc
-                  if (ateq.and.int_mb(k_efciat+iefc-1).eq.iat1) cycle
-                  if (abs(est_int*dbl_mb(iefc_q)).lt.1d-16) cycle
+                do iat3=1,nat
+                  if (ateq.and.iat1.eq.iat3) cycle
+                  if (map(iat3,1).eq.-1) cycle
 
                   call dfill(9*nint,0d0,H,1)
 
-C                 1el. -cosmo- derivatives
+                  iefc = map(iat3,1)
+                  locefc = map(iat3,2) - iefc + 1
+
+c                 1el. -cosmo- derivatives
 c                 Currently calculated on for every COSMO charge
-c                 separately.
-                  call intd_1epot_cosmo(basis,ish1,basis,ish2,lscr,scr,
-     &                 lbuf,H,dbl_mb(iefc_c+3*(iefc-1)),
-     &                 dbl_mb(iefc_q+iefc-1),1)
-
-C     D x H
+c                 attached to one atomic center at a time
 c
-c                 Do center A (associated with ish1)
-c
-                  call daxpy(nintd,1d0,H,1,dbl_mb(k_der),1)
+                  call intd_1epot_cosmo(basis,ish1,basis,ish2,maxscr,
+     &                 dbl_mb(k_scr),lbuf,H,
+     &                 dbl_mb(iefc_c+3*(iefc-1)),
+     &                 dbl_mb(iefc_q+iefc-1),dbl_mb(iefc_inv),locefc)
 
-c                  ic=1
-c                  do icart = 1, 3
-c                    dE = qfac*ddot(nao2,dbl_mb(k_p),1,H(ic),1)
-c                    frc_cos_elq(icart,iat1)
-c     &              = frc_cos_elq(icart,iat1) - dE
-c                    ic = ic + nao2
-c                  enddo
-c
-c                 Do center B (associated with ish2)
-c
-c                  if (iat1.eq.iat2) then
-c                    ic = ic + 3*nao2
-c                  else
-c                    do icart = 1, 3
-c                      dE = qfac*ddot(nao2,dbl_mb(k_p),1,H(ic),1)
-c                      frc_cos_elq(icart,iat2)
-c     &                = frc_cos_elq(icart,iat2) - dE
-c                      ic = ic + nao2
-c                    enddo
-c                  endif
-c
-c                 Do center C, i.e. the Cosmo charge (associated with
-c                 the atom stored in int_mb(k_efciat))
-c
-                  ic = 6*nao2 + 1
-                  do icart = 1, 3
-                    dE = qfac*ddot(nao2,dbl_mb(k_p),1,H(ic),1)
-                    frc_cos_elq(icart,int_mb(k_efciat+iefc-1))
-     &              = frc_cos_elq(icart,int_mb(k_efciat+iefc-1)) - dE
-                    ic = ic + nao2
-                  enddo
+                  if (ateq) then
 
-                enddo
+                  call dgemv('t',nao2,3,-qfac,H,nao2,dbl_mb(k_p),1,1d0,
+     $                       frc_cos_elq(1,iat1),1)
+                  call dgemv('t',nao2,3,-qfac,H(6*nao2+1),nao2,
+     $                        dbl_mb(k_p),1,1d0,frc_cos_elq(1,iat3),1)
 
-                ic = k_der
-                do icart=1,3
-                  dE = qfac*ddot(nao2,dbl_mb(k_p),1,dbl_mb(ic),1)
-                  frc_cos_elq(icart,iat1) = frc_cos_elq(icart,iat1) - dE
-                  ic = ic + nao2
-                enddo
+                  else
 
-                if (ateq) goto 60
-
-                do icart=1,3
-                  dE = qfac*ddot(nao2,dbl_mb(k_p),1,dbl_mb(ic),1)
-                  frc_cos_elq(icart,iat2) = frc_cos_elq(icart,iat2) - dE
-                  ic = ic + nao2
+                    call dgemv('t',nao2,9,-qfac,H,nao2,dbl_mb(k_p),1,
+     $                          0d0,locder,1)
+                    frc_cos_elq(:,iat1) = frc_cos_elq(:,iat1) 
+     $                                  + locder(:,1)
+                    frc_cos_elq(:,iat2) = frc_cos_elq(:,iat2) 
+     $                                  + locder(:,2)
+                    frc_cos_elq(:,iat3) = frc_cos_elq(:,iat3) 
+     $                                  + locder(:,3)
+                  endif
                 enddo
 
  60           continue
