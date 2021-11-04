@@ -99,25 +99,25 @@ class ResAtom(Atom):
                                 
 if __name__ == '__main__':
     
-    print "creating first atom"
+    print("creating first atom")
     aline1="ATOM    588 1HG  GLU    18     -13.363  -4.163  -2.372  1.00  0.00           H"
-    print aline1
+    print(aline1)
     a = ResAtom.fromPDBrecord(aline1)   
-    print "it should come out as this"
-    print a
+    print("it should come out as this")
+    print(a)
     aline2="ATOM    589 2HG  GLU    18     -12.634  -3.023  -3.475  1.00  0.00           H"
 
-    print "creating second atom"
+    print("creating second atom")
     aline2="ATOM    589 2HG  GLU    18     -12.634  -3.023  -3.475  1.00  0.00           H"
-    print aline2
+    print(aline2)
     b = ResAtom.fromPDBrecord(aline2)   
-    print "it should come out as this"
-    print b
+    print("it should come out as this")
+    print(b)
 
-    print "The distance between these two atoms is", Atom.bondlength(a, b)
+    print("The distance between these two atoms is", Atom.bondlength(a, b))
     
-    print "PDB record for second atom with starting index 5 and resid 23" 
-    print b.toPDBrecord(id_atom=5,id_res=23)
+    print("PDB record for second atom with starting index 5 and resid 23")
+    print(b.toPDBrecord(id_atom=5,id_res=23))
 
     
 #    PDB ATOM RECORD FORMAT

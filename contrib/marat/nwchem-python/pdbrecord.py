@@ -32,7 +32,7 @@ class PDBAtomRecord(object):
         returns value of the "name" field in the provided "buf" buffer
         always returns None value if buffer is not of ATOM or HETATM type
         '''
-#        print inspect.getsource(PDBAtomRecord.fieldName)   
+#        print(inspect.getsource(PDBAtomRecord.fieldName))
         if not PDBAtomRecord.test(buf):
             return None     
         ir=PDBAtomRecord.irec[name]
@@ -91,12 +91,12 @@ if __name__ == '__main__':
     aline2="ATOM    588      GLU           -13.363  -4.163  -2.372  1.00  0.00"
     aline3="ATTM    588      GLU           -13.363  -4.163  -2.372  1.00  0.00"
     
-    print PDBAtomRecord.field("name",'') 
-    print PDBAtomRecord.field("name",aline3) 
-    print PDBAtomRecord.dct(aline1)
-    print PDBAtomRecord.dct(aline2)
-    print PDBAtomRecord.dct(aline3)
-    print PDBAtomRecord.dct('')
+    print(PDBAtomRecord.field("name",''))
+    print(PDBAtomRecord.field("name",aline3))
+    print(PDBAtomRecord.dct(aline1))
+    print(PDBAtomRecord.dct(aline2))
+    print(PDBAtomRecord.dct(aline3))
+    print(PDBAtomRecord.dct(''))
 
 
 #     1 -  6      Record name      "ATOM    "

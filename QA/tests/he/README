@@ -17,7 +17,7 @@ These rules built a hierarchy from compiled in default to user input:
 - environment variables
 - user input
 The user input file takes precedence over anything else and compile time
-defaults are overriden by anything else.
+defaults are overridden by anything else.
 
 If Total is the default and something else is set. Then the resolution is
 simply to adjust the total memory setting and leave anything else untouched.

@@ -41,7 +41,7 @@ class AtomDictionary():
         try:
             return d[s1.group(1)],s1.group(1)
         except KeyError:
-            print "Cannot match name", a
+            print("Cannot match name", a)
             sys.exit(1)       
     
     @staticmethod 
@@ -517,7 +517,7 @@ class AtomDictionary():
 
     
 if __name__ == '__main__':
-    print AtomDictionary.fullName(' H1  ')
-    print AtomDictionary.vdwRadius('h')
+    print(AtomDictionary.fullName(' H1  '))
+    print(AtomDictionary.vdwRadius('h'))
     
 
