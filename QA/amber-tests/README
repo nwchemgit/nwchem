@@ -2,7 +2,7 @@ The dotests.msub MOAB script runs a bunch of NWChem and Amber runs, you might ha
 edit it to set the right path and account number.  The resulting test.out.* file
 should be empty when the job completes.
 
-Each one of these subdirectories is a seperate test with its own README file.
+Each one of these subdirectories is a separate test with its own README file.
 big: amino acid sequence
 big.shake: amino acid sequence, which shake enabled
 ethane: single ethane molecule

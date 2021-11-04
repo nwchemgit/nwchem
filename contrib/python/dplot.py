@@ -3,7 +3,7 @@ import array
 
 '''
 A simple class and helper functions to read and compute with a
-Guassian cube file as produced by NWChem with the DPLOT module.
+Gaussian cube file as produced by NWChem with the DPLOT module.
 It can read the file (or tabulate any function) and then compute the
 value at an arbitrary interior point using tri-linear interpolation.
 
@@ -116,7 +116,7 @@ def read_i_f_f_f(f):
     return int(line[0]), float(line[1]), float(line[2]), float(line[3])
 
 def read_atom(f):
-    ''' Read line from Guassian cube file containing atomic info '''
+    ''' Read line from Gaussian cube file containing atomic info '''
     line = f.readline().lstrip().rstrip().split()
     return int(line[0]), (float(line[2]), float(line[3]), float(line[4]))
 

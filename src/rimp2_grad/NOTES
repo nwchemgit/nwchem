@@ -4,7 +4,7 @@ In some cases, the current implementation has been left with some
 holes to fill in for generality.
 
 General
-o Approximations other than V, especially assymetric, not well tested.
+o Approximations other than V, especially asymmetric, not well tested.
 o useful test technique: jobs with number of virtuals less than number
   of occupieds.
 o Are all integrals produced for gradients needed? (ap|D) integrals
@@ -13,7 +13,7 @@ o Are all integrals produced for gradients needed? (ap|D) integrals
 driver_xf:
 o No dynamic block sizing
 o xform_3cint should be modified to write out both 2-index and 3-index
-  transformed integrals to speed the assymmetric split of the SVS and
+  transformed integrals to speed the asymmetric split of the SVS and
   V approximations.
 o Schwarz screening for other than V approximation?
 
@@ -35,7 +35,7 @@ o p2am.F requires only Vx(C+A) block of L.  Irrelevant AxC block added
   P2(iy) and W2 (all in mk_l.F)
 
 nonsep2
-o g_V should probably be distirbuted on shell blocks
+o g_V should probably be distributed on shell blocks
 
 Helpful debugging tips:
 o Run jobs for which number of number of virtuals < occupied

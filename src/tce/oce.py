@@ -27,7 +27,7 @@ def stringtooperatorsequence(expression):
    """Converts a string to an operatorsequence object"""
    # Syntax of the string is rather loosely defined as:
    # (1) Numerical factor (with no permutation allowed) (optional), summation (optional), amplitudes (optional), normal ordered sequence,
-   # (2) Numerical factor can be an arithmatic expression such as (1.0/4.0),
+   # (2) Numerical factor can be an arithmetic expression such as (1.0/4.0),
    # (3) Summation starts with either "SUM" or "sum" followed by a parenthesis of indexes,
    # (4) Indexes can be either in one-letter notation (a-h, A-H for virtuals, i-o, I-O for occupieds, p-z, P-Z for either, case matters) 
    #     or in OCE notation (p1,p2 for virtuals, h3,h4 for occupieds, g5,g6 for either, no overlap in numbering)
@@ -43,7 +43,7 @@ def stringtooperatorsequence(expression):
    while (string.find(sequences,"{") != -1):
       sequences = sequences[0:string.find(sequences,"{")] + sequences[string.find(sequences,"{")+1:]
    if (sequences[len(sequences)-1] != "}"):
-      raise RuntimeError, "Syntax error: the string must end with a normal ordered operator sequence"
+      raise RuntimeError("Syntax error: the string must end with a normal ordered operator sequence")
    sequences = sequences[0:len(sequences)-1]
    sequences = string.split(sequences,"}")
    for sequence in sequences:
@@ -71,8 +71,7 @@ def stringtooperatorsequence(expression):
             elif (index[0] == "g"):
                newsequence.append(Operator("general",dagger,int(index[1:])))
             else:
-               print "Syntax error: an operator not recognized"
-               stop
+               raise SyntaxError(" an operator not recognized")
       operatorlist = operatorlist + newsequence
       newsequences.append(newsequence)
 
@@ -156,8 +155,7 @@ def stringtooperatorsequence(expression):
                   summation.indexes.append(indexinthelist)
                   break
          else:
-            print "syntax error"
-            stop
+            raise SyntaxError(" ")
 
    # get amplitudes
    remainder = string.split(remainder,")")
@@ -221,8 +219,7 @@ def stringtooperatorsequence(expression):
                      newamplitude.indexes.append(indexinthelist)
                      break
             else:
-               print "syntax error"
-               stop
+               raise SyntaxError(" ")
       amplitudes.append(newamplitude)
 
    newoperatorsequence = OperatorSequence(numericalfactor,summation,amplitudes,newsequences)
@@ -231,8 +228,7 @@ def stringtooperatorsequence(expression):
 def combinepermutations(one,two):
    """Connects two permutations of indexes"""
    if (len(one) != len(two)):
-      print "Internal error"
-      stop
+      raise SyntaxError(" ")
    three = []
    for n in range(len(one)/2):
       three.append(one[n])
@@ -746,10 +742,10 @@ class Factor:
       coefficient = self.coefficients[0]
       for n in range(len(self.coefficients)):
          if (abs(self.coefficients[n]) != abs(coefficient)):
-            raise RuntimeError, "unrealistic factor"
+            raise RuntimeError("unrealistic factor")
       fraction = abs(int(1.0/coefficient))
       if (1.0/float(fraction) != abs(coefficient)):
-         print " !!! WARNING !!! inaccurate arithmatic"
+         print(" !!! WARNING !!! inaccurate arithmetic")
       if (fraction == 1):
          frac = ""
       else:
@@ -798,9 +794,9 @@ class Factor:
          for n in range(len(self.coefficients)):
             if (isidenticalto(self.permutations[n],another.permutations[m])):
                if ((self.coefficients[n] < 0.0) and (another.coefficients[m] * factor > 0.0)):
-                  print " ! Warning ! cancellation of terms occurred "
+                  print(" ! Warning ! cancellation of terms occurred ")
                if ((self.coefficients[n] > 0.0) and (another.coefficients[m] * factor < 0.0)):
-                  print " ! Warning ! cancellation of terms occurred "
+                  print(" ! Warning ! cancellation of terms occurred ")
                self.coefficients[n] = self.coefficients[n] + another.coefficients[m] * factor
                done = 1
          if (not done):
@@ -1104,8 +1100,8 @@ class OperatorSequence:
    def performfullcontraction(self):
       """Performs full contraction of a given operator sequence and returns a list of tensor contractions"""
 
-      print self.show()
-      print " ... commencing full operator contraction"
+      print(self.show())
+      print(" ... commencing full operator contraction")
 
       # result will be a list of tensor contractions (operator sequence objects with empty operator sequence)
       result = ListOperatorSequences()
@@ -1125,7 +1121,7 @@ class OperatorSequence:
                newresult.join(newaddition)
          newresult.simplifyone()
          numberofterms = len(newresult.list)
-         print " ... iteration = %d, number of terms = %d" %(iteration, numberofterms)
+         print(" ... iteration = %d, number of terms = %d" %(iteration, numberofterms))
          done = 1
          for halfwaycontracted in newresult.list:
             if (not halfwaycontracted.alreadycontracted()):
@@ -1729,10 +1725,10 @@ class ListOperatorSequences:
 
    def __str__(self):
       """Prints the sequences of operator contractions"""
-      print ""
+      print("")
       for line in self.show():
-         print line
-      return ""
+         print(line)
+      return""
 
    def show(self):
       """Returns a human-friendly string of the content"""
@@ -1904,10 +1900,10 @@ class ListOperatorSequences:
       """Call simplyone through four"""
       #self.simplifyone(1)
       if (self.containscycliccontractions()):
-         print " ! Warning! a cyclic contraction is found"
+         print(" ! Warning! a cyclic contraction is found")
 #        self.simplifythree(verbose)
       self.simplifytwo(verbose)
-      # the followings do not seem to affect the result, yet it costs enormous memory & time
+      # the following do not seem to affect the result, yet it costs enormous memory & time
       # self.simplifyfour(1)
       self = copy.deepcopy(self.deletezero())
       return self
@@ -1917,18 +1913,18 @@ class ListOperatorSequences:
       if (len(self.list) == 0):
          return self
       if (verbose):
-         print " ... canonicalizing the expressions"
+         print(" ... canonicalizing the expressions")
       self = self.canonicalize()
       if (len(self.list) == 1):
          return self
       if (verbose):
-         print " ... consolidating terms"
+         print(" ... consolidating terms")
       originallength = len(self.list)
       # pick up a pair of operator sequences
       for nsequencea in range(len(self.list)):
          if (verbose):
             if ((nsequencea/100)*100 == nsequencea):
-               print "simplifying:",nsequencea,"/",len(self.list)
+               print("simplifying:",nsequencea,"/",len(self.list))
          sequencea = self.list[nsequencea]
          if (sequencea == "deleted"):
             continue
@@ -1946,8 +1942,8 @@ class ListOperatorSequences:
       for dummy in range(numberofdeleted):
          self.list.remove("deleted")
       if (verbose):
-         print " ... %d terms have been consolidated" %(originallength - len(self.list))
-         print " ... number of terms = %d" %(len(self.list))
+         print(" ... %d terms have been consolidated" %(originallength - len(self.list)))
+         print(" ... number of terms = %d" %(len(self.list)))
       return self
 
    def simplifytwo(self,verbose=0):
@@ -1957,13 +1953,13 @@ class ListOperatorSequences:
       self = self.canonicalize()
       if (len(self.list) == 1):
          return self
-      print " ... identifying permutation symmetry among target indexes"
+      print(" ... identifying permutation symmetry among target indexes")
       originallength = len(self.list)
       # pick up a pair of operator sequences
       for nsequencea in range(len(self.list)):
          if (verbose):
             if ((nsequencea/10)*10 == nsequencea):
-               print "permutation-simplifying:",nsequencea,"/",len(self.list)
+               print("permutation-simplifying:",nsequencea,"/",len(self.list))
          sequencea = self.list[nsequencea]
          if (sequencea == "deleted"):
             continue
@@ -1985,8 +1981,8 @@ class ListOperatorSequences:
       numberofdeleted = self.list.count("deleted")
       for dummy in range(numberofdeleted):
          self.list.remove("deleted")
-      print " ... %d terms have been consolidated" %(originallength - len(self.list))
-      print " ... number of terms = %d" %(len(self.list))
+      print(" ... %d terms have been consolidated" %(originallength - len(self.list)))
+      print(" ... number of terms = %d" %(len(self.list)))
       return self
 
    def simplifythree(self,verbose=0):
@@ -1996,22 +1992,22 @@ class ListOperatorSequences:
       elif (len(self.list) == 1):
          return self
       if (verbose):
-         print " ... aggressively consolidating terms"
+         print(" ... aggressively consolidating terms")
       done = 0
       iteration = 0
       originallength = len(self.list)
       while (not done):
          iteration = iteration + 1
          if (verbose):
-            print 'iteration ',iteration,' number of terms ',len(self.list)
+            print('iteration ',iteration,' number of terms ',len(self.list))
          beforesimplify = len(self.list)
          self = self.simplifythreesub(verbose)
          if (len(self.list) < beforesimplify):
             done = 0
          else:
             done = 1
-      print " ... %d terms have been consolidated" %(originallength - len(self.list))
-      print " ... number of terms = %d" %(len(self.list))
+      print(" ... %d terms have been consolidated" %(originallength - len(self.list)))
+      print(" ... number of terms = %d" %(len(self.list)))
       return self
 
    def simplifyfour(self,verbose=0):
@@ -2021,7 +2017,7 @@ class ListOperatorSequences:
       elif (len(self.list) == 1):
          return self
       if (verbose):
-         print " ... aggressively identifying permutation symmetry among target indexes"
+         print(" ... aggressively identifying permutation symmetry among target indexes")
       originallength = len(self.list)
       # quick merge to reduce the number of terms
       done = 0
@@ -2046,9 +2042,9 @@ class ListOperatorSequences:
          else:
             done = 1
       if (originallength - len(self.list) > 0):
-         print " ... ***** warning *****"
-         print " ... %d terms have been consolidated" %(originallength - len(self.list))
-         print " ... number of terms = %d" %(len(self.list))
+         print(" ... ***** warning *****")
+         print(" ... %d terms have been consolidated" %(originallength - len(self.list)))
+         print(" ... number of terms = %d" %(len(self.list)))
       return self
       
    def performfullcontraction(self):
@@ -2212,7 +2208,7 @@ class ListOperatorSequences:
 
       newlength = len(result.list)
 
-      print " ... %d disconnected terms have been deleted" %(originallength - newlength)
+      print(" ... %d disconnected terms have been deleted" %(originallength - newlength))
 
       return result
 
@@ -2231,7 +2227,7 @@ class ListOperatorSequences:
 
       newlength = len(result.list)
 
-      print " ... %d unlinked terms have been deleted" %(originallength - newlength)
+      print(" ... %d unlinked terms have been deleted" %(originallength - newlength))
 
       return result
 
@@ -2268,6 +2264,6 @@ class ListOperatorSequences:
       newlength = len(result.list)
 
       if (originallength != newlength):
-         print " !!! WARNING !!! %d computationally zero terms have been deleted" %(originallength - newlength)
+         print(" !!! WARNING !!! %d computationally zero terms have been deleted" %(originallength - newlength))
 
       return result

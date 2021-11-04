@@ -37,13 +37,13 @@ def extract_random_clusters(filename,nres,prefix=None,nconf=15,with_residues=Non
         
         reslist.add(tuple(sorted(alist)))
         
-    print reslist
+    print(reslist)
     
     for i,s in enumerate(reslist):
         filename = "%s-%d.pdb"%(prefix,i)
         comment="-".join(["%s" % el for el in s])
         sim1.toPDBfile1(filename,s,comment)
-        print "generated cluster",s,"as",filename
+        print("generated cluster",s,"as",filename)
 
 
     
