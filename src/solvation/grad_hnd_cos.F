@@ -121,7 +121,7 @@ C-------------------------local variables--------------------------
       integer nefc_at_k
       integer nao2
 
-      double precision locder(3,3)
+      double precision locder(3,3), q1
       double precision dE, qfac, fact, dx, dy, dz, rr
       double precision invscreen, pi
       double precision zeta1, zeta2, zeta12
@@ -193,14 +193,22 @@ c
      $   call errquit('grad_hnd_cos: rtdb get failed for iatefc',915,
      $                rtdb_err)
 c
-      status = bas_nbf_cn_max(basis,max_sh_bf)
-      status = ma_push_get(mt_dbl,nefc,'efcs',l_efcs,k_efcs)
-      status = rtdb_get(rtdb,'cosmo:efcs',mt_dbl,nefc,dbl_mb(k_efcs))
-      status = ma_push_get(mt_dbl,max_sh_bf**2,'shell p',l_p,k_p)
-      status = ma_push_get(mt_int,2*nat,'atom->efc map',l_map,k_map)
+      if(.not.bas_nbf_cn_max(basis,max_sh_bf))
+     $ call errquit('grad_hnd_cos: bas_nbf_cn_max failed',0,BASIS_ERR) 
+      if(.not.ma_push_get(mt_dbl,nefc,'efcs',l_efcs,k_efcs))
+     $ call errquit('grad_hnd_cos: efcs alloc failed',0,MA_ERR) 
+      if(.not.rtdb_get(rtdb,'cosmo:efcs',mt_dbl,nefc,dbl_mb(k_efcs)))
+     $ call errquit('grad_hnd_cos: rtdb_get failed',0,RTDB_ERR) 
+      if(.not.ma_push_get(mt_dbl,max_sh_bf**2,'shell p',l_p,k_p))
+     $ call errquit('grad_hnd_cos: shell p alloc failed',0,MA_ERR) 
+      if(.not.ma_push_get(mt_int,2*nat,'atom->efc map',l_map,k_map))
+     $ call errquit('grad_hnd_cos: atom ap alloc failed',0,MA_ERR) 
 
-      call dfill(nat,-1,dbl_mb(k_map),2)
-      call dfill(nat, 0,dbl_mb(k_map+1),2)
+      call ga_sync()
+
+      call ifill(nat,-1,int_mb(k_map),2)
+      call ifill(nat, 0,int_mb(k_map+1),2)
+
       jefc = 1
       max_at_nefc = 0
       do iat1=1,nat
@@ -210,13 +218,15 @@ c
             int_mb(k_map+1+(iat1-1)*2) = iefc
           endif
         enddo
+        if (int_mb(k_map+(iat1-1)*2).eq.-1) cycle
         jefc = int_mb(k_map+1+(iat1-1)*2) + 1
         max_at_nefc = max(max_at_nefc,int_mb(k_map+1+(iat1-1)*2) -
      $                                int_mb(k_map+0+(iat1-1)*2) + 1)
       enddo
       qmax = dabsmax(nefc,dbl_mb(iefc_q))*nefc
 
-      status = ma_push_get(mt_dbl,max_at_nefc,'zeros',l_inv,k_inv)
+      if(.not.ma_push_get(mt_dbl,max_at_nefc,'zeros',l_inv,k_inv))
+     $  call errquit('grd_hnd_cos: zeros allocation failed',0,MA_ERR) 
       call dfill(max_at_nefc,0d0,dbl_mb(k_inv),1)
 c
       call hf_print_set(1)
@@ -257,7 +267,7 @@ c
             call ga_get (g_dens, iab2f,iab2l,iab1f,iab1l,dens,max_at_bf)
 
             do 70, ish1 = iac1f, iac1l
-              if ( iat1.eq.iat2 ) iac2l = ish1
+              if ( ateq ) iac2l = ish1
               do 60, ish2 = iac2f, iac2l
 
                 est_int = schwarz_shell(ish1,ish2)
@@ -305,10 +315,12 @@ c
                     ic = ic + 1
                   enddo
                 enddo
-                if (ish1.ne.ish2) qfac = qfac*2d0
+
+                q1 = qfac
+                if (ish1.ne.ish2) q1 = q1*2d0
                 pmax = dabsmax(nao2,dbl_mb(k_p))
 
-                est_int = est_int*pmax*abs(qfac)
+                est_int = est_int*pmax*abs(q1)
                 if (est_int*qmax.lt.1d-14) goto 60
 
                 do iat3=1,nat
@@ -326,13 +338,13 @@ c
      &                 dbl_mb(iefc_q+iefc-1),dbl_mb(k_inv),nefc_at_k)
 
                   if (ateq) then
-                    call dgemv('t',nao2,3,-qfac,H,nao2,dbl_mb(k_p),1,
+                    call dgemv('t',nao2,3,-q1,H,nao2,dbl_mb(k_p),1,
      &                          1d0,frc_cos_elq(1,iat1),1)
-                    call dgemv('t',nao2,3,-qfac,H(6*nao2+1),nao2,
+                    call dgemv('t',nao2,3,-q1,H(6*nao2+1),nao2,
      &                          dbl_mb(k_p),1,1d0,frc_cos_elq(1,iat3),1)
                   else
-                    call dgemv('t',nao2,9,-qfac,H,nao2,dbl_mb(k_p),1,
-     &                          1d0,locder,1)
+                    call dgemv('t',nao2,9,-q1,H,nao2,dbl_mb(k_p),1,
+     &                          0d0,locder,1)
                     frc_cos_elq(:,iat1) = frc_cos_elq(:,iat1) +
      &                                    locder(:,1)
                     frc_cos_elq(:,iat2) = frc_cos_elq(:,iat2) +
@@ -472,6 +484,18 @@ c
         enddo
       enddo
 c
+      if (.not.ma_pop_stack(l_inv)) 
+     $   call errquit("grad_hnd_cos: could not deallocate l_inv",
+     $                0,MA_ERR)
+      if (.not.ma_pop_stack(l_map)) 
+     $   call errquit("grad_hnd_cos: could not deallocate l_map",
+     $                0,MA_ERR)
+      if (.not.ma_pop_stack(l_p))
+     $   call errquit("grad_hnd_cos: could not deallocate l_p",
+     $                0,MA_ERR)
+      if (.not.ma_pop_stack(l_efcs))
+     $   call errquit("grad_hnd_cos: could not deallocate l_efcs",
+     $                0,MA_ERR)
       if (.not.ma_pop_stack(l_efciat))
      $   call errquit("grad_hnd_cos: could not deallocate l_efciat",
      $                0,MA_ERR)
