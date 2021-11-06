@@ -110,6 +110,8 @@ C-------------------------local variables--------------------------
       integer iefc        ! counter over COSMO charges
       integer iefc_c      ! memory index for COSMO charge coordinates
       integer iefc_q      ! memory index for COSMO charges
+      integer l_efczz
+      integer k_efczz
 
       integer max_sh_bf
       integer l_efcs, k_efcs
@@ -198,7 +200,11 @@ c
       if(.not.ma_push_get(mt_dbl,nefc,'efcs',l_efcs,k_efcs))
      $ call errquit('grad_hnd_cos: efcs alloc failed',0,MA_ERR) 
       if(.not.rtdb_get(rtdb,'cosmo:efcs',mt_dbl,nefc,dbl_mb(k_efcs)))
-     $ call errquit('grad_hnd_cos: rtdb_get failed',0,RTDB_ERR) 
+     $ call errquit('grad_hnd_cos: rtdb_get failed',0,RTDB_ERR)
+      if(.not.ma_push_get(mt_dbl,nefc,'efczz',l_efczz,k_efczz))
+     $ call errquit('grad_hnd_cos: efczz alloca failed',0,MA_ERR) 
+      if(.not.rtdb_get(rtdb,'cosmo:efczz',mt_dbl,nefc,dbl_mb(k_efczz)))
+     $ call errquit('grad_hnd_cos: rtdb_get failed',0,RTDB_ERR)
       if(.not.ma_push_get(mt_dbl,max_sh_bf**2,'shell p',l_p,k_p))
      $ call errquit('grad_hnd_cos: shell p alloc failed',0,MA_ERR) 
       if(.not.ma_push_get(mt_int,2*nat,'atom->efc map',l_map,k_map))
@@ -425,17 +431,13 @@ c
       invscreen = 1.0d0/(1.0d0*screen)
       do ich1 = ga_nodeid()+1, nefc, nproc
         if (do_cosmo_model.eq.DO_COSMO_YK) then
-          zeta1 = zeta*sqrt(ptspatm)
-     $          / (dbl_mb(k_rad+int_mb(k_efciat+ich1-1)-1)
-     $             * sqrt(4.0d0*pi))
+          zeta1 = dbl_mb(k_efczz+ich1-1)
         endif
         do ich2 = 1, ich1-1
           if (int_mb(k_efciat+ich1-1).eq.int_mb(k_efciat+ich2-1)) cycle
 
           if (do_cosmo_model.eq.DO_COSMO_YK) then
-            zeta2 = zeta*sqrt(ptspatm)
-     $            / (dbl_mb(k_rad+int_mb(k_efciat+ich2-1)-1)
-     $               * sqrt(4.0d0*pi))
+            zeta2 = dbl_mb(k_efczz+ich2-1)
             zeta12 = zeta1*zeta2/sqrt(zeta1**2+zeta2**2)
           endif
           dx = dbl_mb(0+3*(ich1-1)+iefc_c)
@@ -493,6 +495,9 @@ c
       if (.not.ma_pop_stack(l_p))
      $   call errquit("grad_hnd_cos: could not deallocate l_p",
      $                0,MA_ERR)
+      if (.not.ma_pop_stack(l_efczz))
+     $   call errquit("grad_hnd_cos: could not deallocate l_efczz",
+     $                0,MA_ERR) 
       if (.not.ma_pop_stack(l_efcs))
      $   call errquit("grad_hnd_cos: could not deallocate l_efcs",
      $                0,MA_ERR)

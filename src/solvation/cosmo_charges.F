@@ -50,6 +50,7 @@ c
       integer l_efciat, k_efciat
       integer l_rad,  k_rad,  nrad
       integer l_occ,  k_occ
+      integer l_efczz, k_efczz
       integer nefc, ief, i, nat
       integer g_dens(3)  ! 1: up, 2: down, 3: total
       integer ndens,nvirt(2)
@@ -91,6 +92,8 @@ c
      & call errquit('cosmo_charges malloc k_efcs failed',911,MA_ERR)
       if(.not.ma_push_get(mt_dbl,nefc,'cosmo efcz',l_efcz,k_efcz))
      & call errquit('cosmo_charges malloc k_efcz failed',911,MA_ERR)
+      if(.not.ma_push_get(mt_dbl,nefc,'cosmo efczz',l_efczz,k_efczz))
+     & call errquit('cosmo_charges malloc k_efczz failed',911,MA_ERR) 
       if(.not.ma_push_get(mt_int,nefc,'cosmo efciat',l_efciat,k_efciat))
      & call errquit('cosmo_charges malloc k_efciat failed',911,MA_ERR)
       if(.not.ma_push_get(mt_dbl,nat,'cosmo rad',l_rad,k_rad))
@@ -105,6 +108,9 @@ c
       if(.not.rtdb_get(rtdb,'cosmo:efcs',mt_dbl,  nefc,dbl_mb(k_efcs)))
      &   call errquit('cosmo_charges: rtdb get failed for efcs  ',914,
      &       RTDB_ERR)
+      if(.not.rtdb_get(rtdb,'cosmo:efczz',mt_dbl,nefc,dbl_mb(k_efczz)))
+     &   call errquit('cosmo_charges: rtdb get failed for efczz',914,
+     &       RTDB_ERR) 
       if(.not.rtdb_get(rtdb,'cosmo:efciat',
      &                 mt_int,nefc,int_mb(k_efciat)))
      &   call errquit('cosmo_charges: rtdb get failed for efciat',914,
@@ -191,6 +197,7 @@ c     ----- get -cosmo- charges -----
 c
       call hnd_coschg(g_dens,ndens,rtdb,geom,basis,nat,nefc,
      &                dbl_mb(k_efcc),dbl_mb(k_efcs),dbl_mb(k_efcz),
+     &                dbl_mb(k_efczz), 
      &                int_mb(k_efciat),dbl_mb(k_rad),ecos,cosmo_file)
 c
 c     ----- release memory block -----
@@ -250,6 +257,7 @@ c
       integer l_efciat, k_efciat
       integer l_rad,  k_rad,  nrad
       integer l_occ,  k_occ
+      integer l_efczz, k_efczz
       integer nefc, ief, i, nat
       integer g_dens(3)  ! 1: up, 2: down, 3: total
       integer ndens,nvirt(2)
@@ -293,6 +301,8 @@ c
      & call errquit('cosmo_charges malloc k_efcs failed',911,MA_ERR)
       if(.not.ma_push_get(mt_dbl,nefc,'cosmo efcz',l_efcz,k_efcz))
      & call errquit('cosmo_charges malloc k_efcz failed',911,MA_ERR)
+      if(.not.ma_push_get(mt_dbl,nefc,'cosmo efczz',l_efczz,k_efczz))
+     & call errquit('cosmo_charges malloc k_efczz failed',911,MA_ERR) 
       if(.not.ma_push_get(mt_int,nefc,'cosmo efciat',l_efciat,k_efciat))
      & call errquit('cosmo_charges malloc k_efciat failed',911,MA_ERR)
       if(.not.ma_push_get(mt_dbl,nat,'cosmo rad',l_rad,k_rad))
@@ -306,6 +316,9 @@ c
      &       RTDB_ERR)
       if(.not.rtdb_get(rtdb,'cosmo:efcs',mt_dbl,  nefc,dbl_mb(k_efcs)))
      &   call errquit('cosmo_charges: rtdb get failed for efcs  ',914,
+     &       RTDB_ERR)
+      if(.not.rtdb_get(rtdb,'cosmo:efczz',mt_dbl, nefc,dbl_mb(k_efczz)))
+     &   call errquit('cosmo_charges: rtdb get failed for efczz',914,
      &       RTDB_ERR)
       if(.not.rtdb_get(rtdb,'cosmo:efciat',
      &                 mt_int,nefc,int_mb(k_efciat)))
@@ -349,6 +362,7 @@ c     ----- get -cosmo- charges -----
 c
       call hnd_coschg(g_dens,ndens,rtdb,geom,basis,nat,nefc,
      &                dbl_mb(k_efcc),dbl_mb(k_efcs),dbl_mb(k_efcz),
+     &                dbl_mb(k_efczz), 
      &                int_mb(k_efciat),dbl_mb(k_rad),ecos,cosmo_file)
 c
 c     ----- release memory block -----

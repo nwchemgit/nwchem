@@ -263,6 +263,7 @@ c
       gammas   =1.00d+00 ! full switching, see York, Karplus Eq.86.
       swtol    =1.00d-04 ! switching tolerance, see York, Karplus
                          ! Eq.62-88.
+      iangleb  =-1
 c
 c MN solvation models -->
 c
@@ -316,6 +317,7 @@ c
       status = rtdb_get(rtdb,'cosmo:gamma_s',mt_dbl,1,gammas) 
       status = rtdb_get(rtdb,'cosmo:sw_tol',mt_dbl,1,swtol) 
       status = rtdb_cget(rtdb,'cosmo:solvent',1,solvname_short)
+      status = rtdb_get(rtdb,'cosmo:iangleb',mt_int,1,iangleb)
 c
 c      nrad = 0 ! this block was moved below
 c      if (.not. rtdb_get(rtdb,'cosmo:nrrad',mt_int,1,nrad)) nrad = 0
@@ -535,6 +537,20 @@ c
          endif
       enddo
 c
+c     ---- lebedev ----
+c
+      if ((do_cosmo_model.eq.do_cosmo_ks) .and. (iangleb.gt.0) ) then
+        iangleb = -1
+      endif
+
+      if (zeta.eq.0d0) then
+        if (iangleb.gt.0) then
+          zeta = 4.907d0
+        else
+          zeta = 4.500d0
+        endif
+      endif
+c
 c     ----- create boundary elements of cavity -----
 c
       call hnd_cosset(rtdb,nat,dbl_mb(k_coscoor),dbl_mb(k_rad))
@@ -553,14 +569,19 @@ c
 c
       if(osome.and.me.eq.0) then
          write(luout,9993) lineq
-         write(luout,9991) minbem
-         if (do_cosmo_model.eq.DO_COSMO_KS) then
-           write(luout,9992) maxbem
-         endif
-         if(ificos.eq.0) then
-            write(luout,9990)
+         if (iangleb.lt.1) then
+           write(luout,9991) minbem
+           if (do_cosmo_model.eq.DO_COSMO_KS) then
+             write(luout,9992) maxbem
+           endif
+           if(ificos.eq.0) then
+              write(luout,9990)
+           else
+              write(luout,9989)
+           endif
          else
-            write(luout,9989)
+           write(luout,9969)
+           write(luout,9968) iangleb
          endif
          if (do_cosmo_model.eq.DO_COSMO_KS) then
            write(luout,9994) rsolv
@@ -685,6 +706,10 @@ c
  9972 format(' surface charge correction     = ',a)
  9971 format(' Cosmo: York-Karplus, doi: 10.1021/jp992097l')
  9970 format(' Cosmo: Klamt-Schuurmann, doi: 10.1039/P29930000799')
+
+ 9969 format(' Using -Lebedev- grid')
+ 9968 format(' -iangleb',I4)
+
       end
 C>
 C> @}
