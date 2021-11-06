@@ -25,9 +25,9 @@ c
       logical oprint
 
       integer iangquad
+      integer ntheta(*), nphi(*)
       double precision wa_leb(mx_l_ang,iac_max)
       double precision za_leb(3,mx_l_ang,iac_max)
-      double precision ntheta(*), nphi(*)
 
       double precision gjk(2,MAXN), wleb(MAXN), fasf(6), goh(3,3,48)
       integer njk(6,IAC_MAX), ivj(48,6), nvj(6),
