@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 os=`uname`
 dist="ubuntu"
 arch=`uname -m`

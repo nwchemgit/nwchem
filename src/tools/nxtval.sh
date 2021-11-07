@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 sed -e 's/NXTVAL_/NXTVAL_OFF_/' $1/tcgmsg/tcgmsg-mpi/sndrcv.h > $1/tcgmsg/tcgmsg-mpi/sndrcv.h.mod
 mv $1/tcgmsg/tcgmsg-mpi/sndrcv.h.mod  $1/tcgmsg/tcgmsg-mpi/sndrcv.h
 sed -e 's/NXTVAL_/NXTVAL_OFF_/' $1/tcgmsg/tcgmsg-mpi/srftoc.h > $1/tcgmsg/tcgmsg-mpi/srftoc.h.mod
