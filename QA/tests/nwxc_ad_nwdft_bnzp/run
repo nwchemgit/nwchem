@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 exec=/home/d3y133/nwchem-dev/nwchem-trunk/bin/LINUX64/nwchem
 $exec 4n_b1b95.nw 2>&1 | tee 4n_b1b95.out
 $exec 4n_b97-3.nw 2>&1 | tee 4n_b97-3.out
