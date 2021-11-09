@@ -7,7 +7,8 @@
          solv_data.o\
          cosmo_smd_output.o\
          cosmo_vem_output.o hnd_cosmo_lib.o\
-	 cosmo_lebedev.o
+	 cosmo_lebedev.o\
+	 cosmo_fibonacci.o cosmo_thomson.o
 
    OBJ_OPTIMIZE = cosmo_input.o \
          cosmo_initialize.o\

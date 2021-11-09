@@ -73,6 +73,8 @@ c
       integer iscren, ifscrn, minbem, maxbem, ificos, lineq
       integer cosmo_screen, cosmo_sccor
       integer iangleb
+      integer fibonacci
+      integer thomson
       integer l_rad, k_rad
       double precision dielec,dielecinf,rsolv,rad,zeta,gammas,swtol
       character*255 field
@@ -142,6 +144,8 @@ c
       gammas   =1.00d+00 ! full switching, see York, Karplus Eq.86.
       swtol    =1.00d-04 ! switching tolerance, see York, Karplus Eq.62-88.
       iangleb  =-1
+      fibonacci=-1
+      thomson  =0
 c
 c MN solvation models -->
 c
@@ -501,6 +505,22 @@ c
          if (iangleb.lt.1)
      $     call errquit('cosmo_input: lebedev <1',911,INPUT_ERR)
          if(.not. rtdb_put(rtdb,'cosmo:iangleb',mt_int,1,iangleb))
+     $     call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+c
+c   --- fibonacci
+c
+      else if(inp_compare(.false.,'fibonacci',field)) then
+         if(.not. inp_i(fibonacci)) fibonacci = 86
+         if (fibonacci.lt.1)
+     $     call errquit('cosmo_input: fibonacci <1',911,INPUT_ERR)
+         if(.not. rtdb_put(rtdb,'cosmo:fibonacci',mt_int,1,fibonacci))
+     $     call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+c
+c   --- Thomson
+c
+      else if(inp_compare(.false.,'thomson',field)) then
+        thomson = 1
+        if(.not. rtdb_put(rtdb,'cosmo:thomson',mt_int,1,thomson))
      $     call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
 c
 c   --- lineq

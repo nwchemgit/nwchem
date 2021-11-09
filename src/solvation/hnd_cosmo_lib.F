@@ -180,6 +180,7 @@ c
       double precision   apex(3,mxapx)
       double precision  xyzff(  mxfac,mxatm)
       double precision  wleb(mxfac)
+      double precision  energy
 c
       logical    some
       logical    out
@@ -188,6 +189,7 @@ c
 c
       integer i, iat, lfac, lseg, ndiv, nfac, nseg
       integer mfac
+      integer jat
 c
       dbug=.false.
       more=.false.
@@ -207,12 +209,19 @@ c
       nfac = 0
       ndiv = 0
 
-      if (iangleb.lt.1) then
+      if ((iangleb.lt.1).and.(fibonacci.lt.1)) then
         call hnd_cossph(nseg,nfac,ndiv,
      1                  ijkfac,xyzseg,ijkseg,mxfac,apex,mxapx,
      2                  dsurf,dvol,adiag)
-      else
+      elseif (fibonacci.lt.1) then
         call cosmo_lebedev(iangleb, nseg, wleb, xyzseg)
+      else
+        nseg = fibonacci
+        call cosmo_fibonacci(nseg, xyzseg, dsurf, dvol)
+      endif
+
+      if (thomson.gt.0) then
+        call cosmo_thomson(nseg,xyzseg)
       endif
 
       ptspatm = dble(nseg)
@@ -229,7 +238,7 @@ c
      1                             xyzseg(3,lseg),ijkseg(  lseg)
             enddo
          endif
-         if(dbug .and. iangleb.lt.1) then
+         if(dbug .and. (iangleb.lt.1).and.(fibonacci.lt.1)) then
             write(luout,9996)
             do lfac=1,nfac
                mfac=lfac+nseg
@@ -524,7 +533,8 @@ c
                  endif
                endif
             enddo
-            if(dbug.and.ga_nodeid().eq.0.and.iangleb.lt.1) then
+            if(dbug.and.ga_nodeid().eq.0.and.
+     $         iangleb.lt.1.and.fibonacci.lt.1) then
                write(luout,9996) iat
                write(luout,9995) (ijkspa(ifac+nseg,iat),ifac=1,nfac)
             endif

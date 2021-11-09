@@ -264,6 +264,8 @@ c
       swtol    =1.00d-04 ! switching tolerance, see York, Karplus
                          ! Eq.62-88.
       iangleb  =-1
+      fibonacci=-1
+      thomson  =0
 c
 c MN solvation models -->
 c
@@ -318,6 +320,8 @@ c
       status = rtdb_get(rtdb,'cosmo:sw_tol',mt_dbl,1,swtol) 
       status = rtdb_cget(rtdb,'cosmo:solvent',1,solvname_short)
       status = rtdb_get(rtdb,'cosmo:iangleb',mt_int,1,iangleb)
+      status = rtdb_get(rtdb,'cosmo:fibonacci',mt_int,1,fibonacci)
+      status = rtdb_get(rtdb,'cosmo:thomson',mt_int,1,thomson)
 c
 c      nrad = 0 ! this block was moved below
 c      if (.not. rtdb_get(rtdb,'cosmo:nrrad',mt_int,1,nrad)) nrad = 0
@@ -537,10 +541,21 @@ c
          endif
       enddo
 c
-c     ---- lebedev ----
+c     ---- lebedev & fibonacci ----
 c
-      if ((do_cosmo_model.eq.do_cosmo_ks) .and. (iangleb.gt.0) ) then
-        iangleb = -1
+      if ((iangleb.gt.0).and.(fibonacci.gt.0)) then
+        call errquit('cosmo_initialize: Lebedev or Fibonacci?',0,
+     $                INPUT_ERR)
+      endif
+
+      if ((do_cosmo_model.eq.do_cosmo_ks)) then
+        if (iangleb.gt.0) then
+          iangleb = -1
+        elseif (fibonacci.gt.0) then
+          fibonacci = -1
+        elseif (thomson.gt.0) then
+          thomson = 0
+        endif
       endif
 
       if (zeta.eq.0d0) then
@@ -569,7 +584,7 @@ c
 c
       if(osome.and.me.eq.0) then
          write(luout,9993) lineq
-         if (iangleb.lt.1) then
+         if ((iangleb.lt.1).and.(fibonacci.lt.1)) then
            write(luout,9991) minbem
            if (do_cosmo_model.eq.DO_COSMO_KS) then
              write(luout,9992) maxbem
@@ -579,9 +594,15 @@ c
            else
               write(luout,9989)
            endif
-         else
+         elseif (fibonacci.lt.1) then
            write(luout,9969)
            write(luout,9968) iangleb
+         else
+           write(luout,9967)
+           write(luout,9966) fibonacci
+         endif
+         if (thomson.gt.1) then
+           write(luout,9965)
          endif
          if (do_cosmo_model.eq.DO_COSMO_KS) then
            write(luout,9994) rsolv
@@ -709,6 +730,9 @@ c
 
  9969 format(' Using -Lebedev- grid')
  9968 format(' -iangleb',I4)
+ 9967 format(' Using -Fibonacci spiral- grid')
+ 9966 format(' -Number of points:',I4)
+ 9965 format(' Minimizing -Thomson- energy')
 
       end
 C>
