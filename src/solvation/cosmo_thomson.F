@@ -87,8 +87,6 @@
       energy1 = energy
       grad1 = sqrt(dum)
 
-      if (ga_nodeid().eq.0) write(*,*) energy1,grad1
-
       if (sqrt(dum).lt.1d-3) exit
 
       alpha = 1d0
