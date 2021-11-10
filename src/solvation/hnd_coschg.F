@@ -589,6 +589,7 @@ c
       integer iter_cosmo_vem
       integer l_efczfx, k_efczfx  ! memory handles for fixed cosmo-vem charges
       integer g_vem(3) ! ga handles for cosmo-vem GS potential, GS charges, and ES noneq charges
+      double precision, external :: ddot
 c
       oprint_energies = util_print("cosmo_energies",print_never)
       oprint_energies = oprint_energies.and.(ga_nodeid().eq.0)
@@ -691,7 +692,7 @@ c     ----- calculate electronic contribution at all points -----
 c
       call hnd_elfcon_cosmo(basis,geom,g_dens(ndens),efcc,nefc,
      &                      dbl_mb(i12),0)
-      call dscal(nefc,-1d0,x(i12),1)
+      call dscal(nefc,-1d0,dbl_mb(i12),1)
 c
 c     ----- nuclear contribution -----
 c
