@@ -1631,6 +1631,7 @@ C>
 c
 #include "cosmoP.fh"
 #include "cosmo_params.fh"
+#include "global.fh"
 c
       integer nat  !< [Input] The number of electrons
       integer nefc !< [Input] The number of COSMO charges
@@ -1685,7 +1686,7 @@ c
       allefc=zero
       atmefc=zero
       efcefc=zero
-      do jef=1,nefc
+      do jef=1+ga_nodeid(),nefc,ga_nnodes()
          xj=efcc(1,jef)
          yj=efcc(2,jef)
          zj=efcc(3,jef)
@@ -1705,7 +1706,7 @@ c
       enddo
 c
       if (do_cosmo_model.eq.DO_COSMO_KS) then
-        do jef=1,nefc
+        do jef=1+ga_nodeid(),nefc,ga_nnodes()
            xj=efcc(1,jef)
            yj=efcc(2,jef)
            zj=efcc(3,jef)
@@ -1722,7 +1723,7 @@ c
            enddo
         enddo
       else if (do_cosmo_model.eq.DO_COSMO_YK) then
-        do jef=1,nefc
+        do jef=1+ga_nodeid(),nefc,ga_nnodes()
            xj=efcc(1,jef)
            yj=efcc(2,jef)
            zj=efcc(3,jef)
@@ -1747,6 +1748,10 @@ c
            enddo
         enddo
       endif
+      call ga_dgop(0,efcefc,1,'+')
+      call ga_dgop(0,allefc,1,'+')
+      call ga_dgop(0,atmefc,1,'+')
+
       efcefc= efcefc/(two*chgscr)
       elcefc= allefc-atmefc
 c
