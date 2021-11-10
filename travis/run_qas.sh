@@ -5,7 +5,7 @@ set -e
 if [[ -z "$TRAVIS_BUILD_DIR" ]] ; then
     TRAVIS_BUILD_DIR=$(pwd)
 fi
-if [[ -z "NWCHEM_EXECUTABLE" ]] ; then
+if [[ "$SKIP_CACHE" != 1 ]] ; then
 source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
 fi
 # check if nwchem binary has been cached
