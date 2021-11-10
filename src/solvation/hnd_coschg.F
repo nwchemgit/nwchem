@@ -554,8 +554,6 @@ c
       double precision elambda ! lambda dependent energy term
       double precision ecos2
       double precision pi
-      double precision x(1)
-      equivalence (x(1),dbl_mb(1))
       double precision zero, pt5, one, two ! constants
       data zero   /0.0d+00/
       data pt5    /0.5d+00/
@@ -635,7 +633,7 @@ c
        if(.not.rtdb_get(rtdb,'cosmo:g_vem',mt_int,3,g_vem))
      $  call errquit('hnd_coschg: cannot get g_vem from rtdb',
      $  0,rtdb_err)
-        call nga_get(g_vem(3), 1, nefc, x(k_efczfx), nefc)       
+        call nga_get(g_vem(3), 1, nefc, dbl_mb(k_efczfx), nefc)       
 c
         call ga_sync()
       endif
@@ -691,7 +689,8 @@ c     --- electron field
 c
 c     ----- calculate electronic contribution at all points -----
 c
-      call hnd_elfcon_cosmo(basis,geom,g_dens(ndens),efcc,nefc,x(i12),0)
+      call hnd_elfcon_cosmo(basis,geom,g_dens(ndens),efcc,nefc,
+     &                      dbl_mb(i12),0)
       call dscal(nefc,-1d0,x(i12),1)
 c
 c     ----- nuclear contribution -----
@@ -714,16 +713,16 @@ c
          xp = efcc(1,ipt)
          yp = efcc(2,ipt)
          zp = efcc(3,ipt)
-         x(i11+ipt-1) = 0.0d0
+         dbl_mb(i11+ipt-1) = 0.0d0
          do i = 1,nat
             xn  = dbl_mb(k_xyzpt  +3*(i-1)) - xp
             yn  = dbl_mb(k_xyzpt+1+3*(i-1)) - yp
             zn  = dbl_mb(k_xyzpt+2+3*(i-1)) - zp
             zan = dbl_mb(k_zanpt+i-1)
             rr =  sqrt(xn*xn + yn*yn + zn*zn)
-            x(i11+ipt-1) = x(i11+ipt-1) + zan/rr
+            dbl_mb(i11+ipt-1) = dbl_mb(i11+ipt-1) + zan/rr
          enddo ! i
-         x(i10+ipt-1) = x(i11+ipt-1) + x(i12+ipt-1)
+         dbl_mb(i10+ipt-1) = dbl_mb(i11+ipt-1) + dbl_mb(i12+ipt-1)
       enddo ! ipt
 c
 c     ----- get surface charges -----
@@ -838,14 +837,15 @@ c
            ieq=i22
          endif
 
-         call dcopy(nefc,x(iep),1,x(ieq),1)
-         call dfill(nefc,1d0,x(ieq+nefc),1)
+         call dcopy(nefc,dbl_mb(iep),1,dbl_mb(ieq),1)
+         call dfill(nefc,1d0,dbl_mb(ieq+nefc),1)
 
-         call hnd_cosmata(nat,nefc,efcc,efcs,efczz,efciat,ratm,x(i30))
+         call hnd_cosmata(nat,nefc,efcc,efcs,efczz,efciat,ratm,
+     $                    dbl_mb(i30))
 c
          nodcmp=0
-         call hnd_linequ(x(i30),nefc,x(ieq),nefc,
-     1                   x(i40),x(i50),ierr,nodcmp)
+         call hnd_linequ(dbl_mb(i30),nefc,dbl_mb(ieq),nefc,
+     1                   dbl_mb(i40),dbl_mb(i50),ierr,nodcmp)
          if (ierr.ne.0) call errquit("hnd_coschg: hnd_linequ failed",
      &                               ierr,UERR)
 c
@@ -853,7 +853,7 @@ c        ----- calculate t = A^{-1}1 -----
 c
          if (cosmo_sccor.eq.COSMO_SCCOR_LAGRA) then
 c
-           call dcopy(nefc,x(ieq+nefc),1,x(i80),1)
+           call dcopy(nefc,dbl_mb(ieq+nefc),1,dbl_mb(i80),1)
 c
          endif
 c
@@ -868,19 +868,22 @@ c
 c        ----- calculate qraw = q* = A^{-1}BQ -----
 c
          if (all) then
-           if (.not.rtdb_get(rtdb,'cosmo:qraw',mt_dbl,nefc,x(i20))) then
+           if (.not.rtdb_get(rtdb,'cosmo:qraw',mt_dbl,nefc,
+     d           dbl_mb(i20))) then
 c             If no raw total COSMO charges were found initialize x=0
-              call dfill(nefc,zero,x(i20),1)
+              call dfill(nefc,zero,dbl_mb(i20),1)
            endif
          else if (nucl) then
-           if (.not.rtdb_get(rtdb,'cosmo:qrawn',mt_dbl,nefc,x(i21)))then
+           if (.not.rtdb_get(rtdb,'cosmo:qrawn',mt_dbl,nefc,
+     d           dbl_mb(i21)))then
 c             If no raw nuclear COSMO charges were found initialize x=0
-              call dfill(nefc,zero,x(i21),1)
+              call dfill(nefc,zero,dbl_mb(i21),1)
            endif
          else if (elec) then
-           if (.not.rtdb_get(rtdb,'cosmo:qrawe',mt_dbl,nefc,x(i22)))then
+           if (.not.rtdb_get(rtdb,'cosmo:qrawe',mt_dbl,nefc,
+     d           dbl_mb(i22)))then
 c             If no raw electron COSMO charges were found initialize x=0
-              call dfill(nefc,zero,x(i22),1)
+              call dfill(nefc,zero,dbl_mb(i22),1)
            endif
          endif
 c
@@ -901,22 +904,26 @@ c
            ieq=i22
          endif
 
-         call hnd_cg(nat,x(iep),x(ieq),nefc,
-     1                   x(i40),x(i50),x(i60),x(i70),
+         call hnd_cg(nat,dbl_mb(iep),dbl_mb(ieq),nefc,
+     1        dbl_mb(i40),dbl_mb(i50),dbl_mb(i60),
+     d        dbl_mb(i70),
      2                   efcc,efcs,efczz,efciat,ratm)
 c
          if (all) then
-           if (.not.rtdb_put(rtdb,'cosmo:qraw',mt_dbl,nefc,x(i20))) then
+            if (.not.rtdb_put(rtdb,'cosmo:qraw',mt_dbl,nefc,
+     d           dbl_mb(i20))) then
              call errquit('hnd_coschg: could not store raw COSMO '
      1                  //'charge',nefc,RTDB_ERR)
            endif
          else if (nucl) then
-           if (.not.rtdb_put(rtdb,'cosmo:qrawn',mt_dbl,nefc,x(i21)))then
+            if (.not.rtdb_put(rtdb,'cosmo:qrawn',mt_dbl,nefc,
+     d           dbl_mb(i21)))then
              call errquit('hnd_coschg: could not store raw nuclear '
      &                  //'COSMO charge',nefc,RTDB_ERR)
            endif
          else if (elec) then
-           if (.not.rtdb_put(rtdb,'cosmo:qrawe',mt_dbl,nefc,x(i22)))then
+            if (.not.rtdb_put(rtdb,'cosmo:qrawe',mt_dbl,nefc,
+     d           dbl_mb(i22)))then
              call errquit('hnd_coschg: could not store raw electron '
      &                  //'COSMO charge',nefc,RTDB_ERR)
            endif
@@ -925,21 +932,23 @@ c
 c        ----- calculate t = A^{-1}1 -----
 c
          if (cosmo_sccor.eq.COSMO_SCCOR_LAGRA) then
-           if (.not.rtdb_get(rtdb,'cosmo:rawt',mt_dbl,nefc,x(i80))) then
+            if (.not.rtdb_get(rtdb,'cosmo:rawt',mt_dbl,nefc,
+     d           dbl_mb(i80))) then
 c             If no raw A^{-1}1 charges were found initialize x=0
-              call dfill(nefc,zero,x(i80),1)
+              call dfill(nefc,zero,dbl_mb(i80),1)
            endif
 c
            direct=.true.
 c
 c          ----- solve ... -----
 c
-           call dfill(nefc,one,x(i30),1)
-           call hnd_cg(nat,x(i30),x(i80),nefc,
-     1                     x(i40),x(i50),x(i60),x(i70),
+           call dfill(nefc,one,dbl_mb(i30),1)
+           call hnd_cg(nat,dbl_mb(i30),dbl_mb(i80),nefc,
+     1          dbl_mb(i40),dbl_mb(i50),dbl_mb(i60),
+     d          dbl_mb(i70),
      2                     efcc,efcs,efczz,efciat,ratm)
 c
-           if (.not.rtdb_put(rtdb,'cosmo:rawt',mt_dbl,nefc,x(i80)))
+           if (.not.rtdb_put(rtdb,'cosmo:rawt',mt_dbl,nefc,dbl_mb(i80)))
      1        call errquit('hnd_coschg: could not store raw A^{-1}1',
      2                     nefc,RTDB_ERR)
          endif
@@ -953,7 +962,7 @@ c       ----- correct the COSMO surface charge by scaling -----
 c
         chgcos=zero
         do ief=1,nefc
-          chgief=x(ief+ieq-1)
+          chgief=dbl_mb(ief+ieq-1)
           chgcos=chgcos+chgief
         enddo
         if (all) then
@@ -969,7 +978,7 @@ c
           errcos=-dble(nelec)-chgcos
           chgfac=-dble(nelec)/chgcos
         endif
-        call dscal(nefc,chgfac,x(ieq),1)
+        call dscal(nefc,chgfac,dbl_mb(ieq),1)
       else if (cosmo_sccor.eq.COSMO_SCCOR_LAGRA) then
 c
 c       ----- correct the COSMO surface charge using Lagrangian -----
@@ -977,16 +986,16 @@ c
         chgcos=zero
         chgina=zero ! inverse of A
         do ief=1,nefc
-           chgief=x(ief+i20-1)
+           chgief=dbl_mb(ief+i20-1)
            chgcos=chgcos+chgief
-           chgina=chgina+x(i80+ief-1)
+           chgina=chgina+dbl_mb(i80+ief-1)
         enddo
         errcos=charge-chgcos
         dlambda=errcos/chgina
         chgcos=zero
-        call daxpy(nefc,dlambda,x(i80),1,x(i20),1)
+        call daxpy(nefc,dlambda,dbl_mb(i80),1,dbl_mb(i20),1)
         do ief=1,nefc
-           chgcos=chgcos+x(ief+i20-1)
+           chgcos=chgcos+dbl_mb(ief+i20-1)
         enddo
         elambda = 0.5d0*screen*dlambda*chgcos
       endif
@@ -998,7 +1007,7 @@ c
 c       ----- compute combined COSMO charges (nuclear + elec) -----
 c
         do ief=1,nefc
-           x(ief+i20-1) = x(ief+i21-1) + x(ief+i22-1)
+           dbl_mb(ief+i20-1) = dbl_mb(ief+i21-1) + dbl_mb(ief+i22-1)
         enddo
       endif
 c
@@ -1011,9 +1020,9 @@ c
 c     ----- apply screening factor -----
 c
       chgcos=zero
-      call dscal(nefc,-chgfac,x(i20),1)
+      call dscal(nefc,-chgfac,dbl_mb(i20),1)
       do ief=1,nefc
-         chgcos=chgcos+x(ief+i20-1)
+         chgcos=chgcos+dbl_mb(ief+i20-1)
       enddo
 c
 c     ----- store effective charges in -efcz- ... -----
@@ -1022,12 +1031,12 @@ c
       chgcvg=zero
       do ief=1,nefc
          oldief=efcz(ief)
-         chgief=   x(ief+i20-1)
+         chgief=   dbl_mb(ief+i20-1)
          delchg=abs(chgief-oldief)
          if(delchg.gt.chgcvg) then
             chgcvg=delchg
          endif
-         efcz(ief)=x(ief+i20-1)
+         efcz(ief)=dbl_mb(ief+i20-1)
       enddo
 c
 c MN solvation models -->
@@ -1035,13 +1044,13 @@ c
       if (istep_cosmo_vem.eq.2 .and. do_cosmo_vem.ne.0) then
 c fixed ES nonequilibrium cosmo-vem charges to be added to the Fock matrix
 c later on (excitation VEM)
-        call dcopy(nefc,x(k_efczfx),1,efcz,1)
+        call dcopy(nefc,dbl_mb(k_efczfx),1,efcz,1)
       endif
       if (istep_cosmo_vem.eq.3 .and. do_cosmo_vem.eq.2) then
 c GS RF containing ES cosmo-vem charges (slow portion) to calculate
 c the VEM energy in the case of nonequilibrium emission to the GS
         call dscal(nefc,dvem1,efcz,1)
-        call daxpy(nefc,dvem2,x(k_efczfx),1,efcz,1)
+        call daxpy(nefc,dvem2,dbl_mb(k_efczfx),1,efcz,1)
       endif
 c
 c <-- MN solvation models
@@ -1068,7 +1077,8 @@ c     scaling factors or Lagrangian multipliers then additional
 c     correction terms are needed to ensure the expressions agree.
 c
       call hnd_cos_energy(nat,nefc,chgfac,efcc,efcs,efcz,efczz,efciat,
-     &                    ratm,dbl_mb(k_xyzpt),dbl_mb(k_zanpt),x(i10),
+     &                    ratm,dbl_mb(k_xyzpt),dbl_mb(k_zanpt),
+     &                    dbl_mb(i10),
      &                    allefc,atmefc,elcefc,efcefc)
       solnrg= allefc+efcefc
 c     COSMO contribution Alternative 1 (Ref.[1] Eq.(8))
@@ -1087,23 +1097,12 @@ c     ecos  = atmefc+efcefc
 c
 c     ----- other form of the solvation energy ... -----
 c
-      allefc=zero
-      atmefc=zero
-      elcefc=zero
-      do jef=1,nefc
-         xj=efcc(1,jef)
-         yj=efcc(2,jef)
-         zj=efcc(3,jef)
-         qj=efcz(  jef)
-c
-         allefc=allefc+qj*x(jef+i10-1)
-         atmefc=atmefc+qj*x(jef+i11-1)
-         elcefc=elcefc+qj*x(jef+i12-1)
-      enddo
+      allefc = ddot(nefc,efcz,1,dbl_mb(i10),1)
+      atmefc = ddot(nefc,efcz,1,dbl_mb(i11),1)
+      elcefc = ddot(nefc,efcz,1,dbl_mb(i12),1)
       solnrg= pt5* allefc
 c     COSMO contribution Alternative 2 (Ref.[1] Eq.(11))
 c     ecos = pt5*(atmefc-elcefc)+elambda
-
       if (do_cosmo_smd) then
         ecos = pt5*(atmefc-elcefc)
       else
@@ -1207,7 +1206,7 @@ c
      $  0,rtdb_err)
        endif
        call ga_zero(g_vem)
-       call nga_put(g_vem(1), 1, nefc, x(i10),nefc)
+       call nga_put(g_vem(1), 1, nefc, dbl_mb(i10),nefc)
        call ga_sync()
        call nga_put(g_vem(2), 1, nefc, efcz, nefc)
        call ga_sync()
@@ -1220,7 +1219,7 @@ c
      $ (do_cosmo_vem.eq.2.and.istep_cosmo_vem.eq.3)) then
         gspol = zero
         do ief=1,nefc
-         gspol = gspol + x(ief+i10-1) * efcz(ief) * pt5
+         gspol = gspol + dbl_mb(ief+i10-1) * efcz(ief) * pt5
         end do 
         if(.not.rtdb_put(rtdb,'cosmo:gspol',mt_dbl,1,gspol))
      $  call errquit('hnd_coschg: cannot put gspol in rtdb',
@@ -1236,8 +1235,8 @@ c
      $ 0,rtdb_err)
         gspolneq = gspol - espol * dvem2       
         do ief=1,nefc
-         gspolneq = gspolneq + x(ief+i10-1) * pt5 * dvem2 *
-     $    x(k_efczfx+ief-1)
+         gspolneq = gspolneq + dbl_mb(ief+i10-1) * pt5 * dvem2 *
+     $    dbl_mb(k_efczfx+ief-1)
         end do
         if(.not.rtdb_put(rtdb,'cosmo:gspolneq',mt_dbl,1,gspolneq))
      $  call errquit('hnd_coschg: rtdb put failed for gspolneq',
@@ -1245,8 +1244,8 @@ c
 c
         gspoldyn = zero
         do ief=1,nefc
-         gspoldyn = gspoldyn + pt5 * x(ief+i10-1) * 
-     $ (efcz(ief) - dvem2 * x(k_efczfx+ief-1))
+         gspoldyn = gspoldyn + pt5 * dbl_mb(ief+i10-1) * 
+     $ (efcz(ief) - dvem2 * dbl_mb(k_efczfx+ief-1))
         end do
         if(.not.rtdb_put(rtdb,'cosmo:gspoldyn',mt_dbl,1,gspoldyn))
      $  call errquit('hnd_coschg: rtdb put failed for gspoldyn',
@@ -1274,13 +1273,13 @@ c
         do ief=1,nefc
          call nga_get(g_vem(1), ief, ief, dvem3, 1)
          call nga_get(g_vem(2), ief, ief, dvem4, 1)
-         espolgsrf=espolgsrf+(x(ief+i10-1)-pt5*dvem3)*dvem4
-         espolin=espolin+(x(ief+i10-1)-pt5*dvem3)*dvem2*dvem4
-         espoldyn=espoldyn+pt5*x(ief+i10-1)*dvem1*efcz(ief)
-         delwvem=delwvem+pt5*(x(ief+i10-1)-dvem3)*
+         espolgsrf=espolgsrf+(dbl_mb(ief+i10-1)-pt5*dvem3)*dvem4
+         espolin=espolin+(dbl_mb(ief+i10-1)-pt5*dvem3)*dvem2*dvem4
+         espoldyn=espoldyn+pt5*dbl_mb(ief+i10-1)*dvem1*efcz(ief)
+         delwvem=delwvem+pt5*(dbl_mb(ief+i10-1)-dvem3)*
      $ (efcz(ief)-dvem4)*dvem1
          dvem5=dvem1*efcz(ief)+dvem2*dvem4
-         x(k_efczfx+ief-1)=dvem5
+         dbl_mb(k_efczfx+ief-1)=dvem5
         end do
 c
         call ga_sync()
@@ -1374,7 +1373,7 @@ c slow GS charges and fast ES charges; if do_cosmo_vem=2 Q_neq contains
 c full (equilibrium) ES charges 
 c
        call ga_zero(g_vem(3))
-       call nga_put(g_vem(3), 1, nefc, x(k_efczfx),nefc)
+       call nga_put(g_vem(3), 1, nefc, dbl_mb(k_efczfx),nefc)
 c
        call ga_sync()
 c

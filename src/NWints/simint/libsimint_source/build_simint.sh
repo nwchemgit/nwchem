@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # script to download simint-generator, create the simint library, compile it
 # and link it in NWChem
 # FC=compilername can be used to set compiler, e.g.

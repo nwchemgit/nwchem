@@ -1875,6 +1875,7 @@ endif
          DEFINES  +=-DMPICH_NO_ATTR_TYPE_TAGS
 #	 LDOPTIONS +=-Wl,-rpath=/usr/local/lib/gcc7
 	 LDOPTIONS += $(shell mpif90  -show 2>&1 |cut -d " " -f 2) 
+	 ARFLAGS = rU
       endif
       ifeq ($(_FC),gfortran)
        ifneq ($(DONTHAVEM64OPT),Y)

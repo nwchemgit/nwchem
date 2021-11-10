@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 MYPWD=`pwd`
 if [[ -z "${NWCHEM_TOP}" ]]; then
     DIRMKDOCS=`dirname "$0"`
