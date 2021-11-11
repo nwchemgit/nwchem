@@ -1788,6 +1788,8 @@ c
       double precision pi
       pi = acos(-1.0d0)
 c
+      call dfill(nefc**2,0d0,a,1)
+c
       if (do_cosmo_model.eq.DO_COSMO_KS) then
         do jef=1,nefc
           xj=efcc(1,jef)
@@ -1815,8 +1817,7 @@ c
           yj=efcc(2,jef)
           zj=efcc(3,jef)
           a(jef,jef)=efcs(jef)
-          do ief=1,nefc
-            if(ief.eq.jef) cycle
+          do ief=1,jef-1
             zetai=efczz(ief)
             zetaij=zetai*zetaj/sqrt(zetai**2+zetaj**2)
             xi=efcc(1,ief)
@@ -1828,6 +1829,7 @@ c
             else
               a(ief,jef)=derf(zetaij*dij)/dij
             endif
+            a(jef,ief) = a(ief,jef)
           enddo
         enddo
       endif
