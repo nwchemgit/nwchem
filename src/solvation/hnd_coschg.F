@@ -1083,8 +1083,8 @@ c
      &                    allefc,atmefc,elcefc,efcefc)
       solnrg= allefc+efcefc
 c     COSMO contribution Alternative 1 (Ref.[1] Eq.(8))
-      ecos  = atmefc+efcefc-elambda
-c     ecos  = atmefc+efcefc
+c     ecos  = atmefc+efcefc-elambda
+      ecos  = atmefc+efcefc
       if (oprint_energies) then
          write(luout,*)'Alternative 1'
          write(luout,9991) atmefc
@@ -1101,13 +1101,14 @@ c
       allefc = ddot(nefc,efcz,1,dbl_mb(i10),1)
       atmefc = ddot(nefc,efcz,1,dbl_mb(i11),1)
       elcefc = ddot(nefc,efcz,1,dbl_mb(i12),1)
-      solnrg= pt5* allefc
+      solnrg= pt5* allefc + elambda
 c     COSMO contribution Alternative 2 (Ref.[1] Eq.(11))
 c     ecos = pt5*(atmefc-elcefc)+elambda
       if (do_cosmo_smd) then
         ecos = pt5*(atmefc-elcefc)
       else
-        ecos = efcefc + atmefc
+c        ecos = efcefc + atmefc
+        ecos = pt5*(atmefc-elcefc) + elambda
       endif
 
       if (oprint_energies) then
