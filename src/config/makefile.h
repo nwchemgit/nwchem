@@ -1388,7 +1388,12 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
 #
        NICE = nice -n 2
       SHELL := $(NICE) /bin/sh
-    CORE_SUBDIRS_EXTRA = blas lapack
+     ifeq ($(BLASOPT),)
+       CORE_SUBDIRS_EXTRA += blas
+     endif
+     ifeq ($(LAPACK_LIB),)
+       CORE_SUBDIRS_EXTRA += lapack
+     endif
          CC = gcc
      RANLIB = ranlib
   MAKEFLAGS = -j 1 --no-print-directory
