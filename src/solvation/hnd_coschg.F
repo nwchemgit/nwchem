@@ -447,8 +447,8 @@ C>   <a href="https://doi.org/10.1111/1468-0262.00296">
 C>   10.1111/1468-0262.00296</a>.
 C>
       subroutine hnd_coschg(g_dens,ndens,rtdb,geom,basis,nat,nefc,
-     &                      efcc,efcs,efcz,efciat,ratm,ecos,
-     &                      cosmo_file)
+     &                      efcc,efcs,efcz,efczz,efciat,ratm,ecos,
+     &                      cosmo_file_in)
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -480,6 +480,8 @@ c
                                     !< surface area
 c
       double precision efcz(nefc)   !< [Output] the COSMO charges
+      double precision efczz(nefc)  !< [Input[ the COSMO zeta value for
+                                    !< each surface charge
       integer          efciat(nefc) !< [Input] the atom associated
                                     !< with each surface charge
       double precision ratm(nat)    !< [Input] the atom radii
@@ -490,7 +492,8 @@ c
       logical  dbug,more,out,direct,noall,all,elec,nucl,iefc_done
       character*16 at_tag
       integer istrlen
-      character*255 cosmo_file
+      character*255 cosmo_file_in
+      character*(nw_max_path_len) cosmo_file
       integer fn
 c      integer lineq ! 0: fast direct solver, 1: slow iterative solver
 c      integer minbem 
@@ -586,6 +589,7 @@ c
       integer iter_cosmo_vem
       integer l_efczfx, k_efczfx  ! memory handles for fixed cosmo-vem charges
       integer g_vem(3) ! ga handles for cosmo-vem GS potential, GS charges, and ES noneq charges
+      double precision, external :: ddot
 c
       oprint_energies = util_print("cosmo_energies",print_never)
       oprint_energies = oprint_energies.and.(ga_nodeid().eq.0)
@@ -686,10 +690,9 @@ c     --- electron field
 c
 c     ----- calculate electronic contribution at all points -----
 c
-      call hnd_elfcon(basis,geom,g_dens(ndens),efcc,nefc,dbl_mb(i12),0)
-      do ipt=1,nefc
-         dbl_mb(i12+ipt-1) = -dbl_mb(i12+ipt-1)
-      enddo
+      call hnd_elfcon_cosmo(basis,geom,g_dens(ndens),efcc,nefc,
+     &                      dbl_mb(i12),0)
+      call dscal(nefc,-1d0,dbl_mb(i12),1)
 c
 c     ----- nuclear contribution -----
 c
@@ -838,7 +841,8 @@ c
          call dcopy(nefc,dbl_mb(iep),1,dbl_mb(ieq),1)
          call dfill(nefc,1d0,dbl_mb(ieq+nefc),1)
 
-         call hnd_cosmata(nat,nefc,efcc,efcs,efciat,ratm,dbl_mb(i30))
+         call hnd_cosmata(nat,nefc,efcc,efcs,efczz,efciat,ratm,
+     $                    dbl_mb(i30))
 c
          nodcmp=0
          call hnd_linequ(dbl_mb(i30),nefc,dbl_mb(ieq),nefc,
@@ -865,19 +869,19 @@ c
 c        ----- calculate qraw = q* = A^{-1}BQ -----
 c
          if (all) then
-            if (.not.rtdb_get(rtdb,'cosmo:qraw',mt_dbl,nefc,
+           if (.not.rtdb_get(rtdb,'cosmo:qraw',mt_dbl,nefc,
      d           dbl_mb(i20))) then
 c             If no raw total COSMO charges were found initialize x=0
               call dfill(nefc,zero,dbl_mb(i20),1)
            endif
          else if (nucl) then
-            if (.not.rtdb_get(rtdb,'cosmo:qrawn',mt_dbl,nefc,
+           if (.not.rtdb_get(rtdb,'cosmo:qrawn',mt_dbl,nefc,
      d           dbl_mb(i21)))then
 c             If no raw nuclear COSMO charges were found initialize x=0
               call dfill(nefc,zero,dbl_mb(i21),1)
            endif
          else if (elec) then
-            if (.not.rtdb_get(rtdb,'cosmo:qrawe',mt_dbl,nefc,
+           if (.not.rtdb_get(rtdb,'cosmo:qrawe',mt_dbl,nefc,
      d           dbl_mb(i22)))then
 c             If no raw electron COSMO charges were found initialize x=0
               call dfill(nefc,zero,dbl_mb(i22),1)
@@ -904,7 +908,7 @@ c
          call hnd_cg(nat,dbl_mb(iep),dbl_mb(ieq),nefc,
      1        dbl_mb(i40),dbl_mb(i50),dbl_mb(i60),
      d        dbl_mb(i70),
-     2                   efcc,efcs,efciat,ratm)
+     2                   efcc,efcs,efczz,efciat,ratm)
 c
          if (all) then
             if (.not.rtdb_put(rtdb,'cosmo:qraw',mt_dbl,nefc,
@@ -943,7 +947,7 @@ c
            call hnd_cg(nat,dbl_mb(i30),dbl_mb(i80),nefc,
      1          dbl_mb(i40),dbl_mb(i50),dbl_mb(i60),
      d          dbl_mb(i70),
-     2                     efcc,efcs,efciat,ratm)
+     2                     efcc,efcs,efczz,efciat,ratm)
 c
            if (.not.rtdb_put(rtdb,'cosmo:rawt',mt_dbl,nefc,dbl_mb(i80)))
      1        call errquit('hnd_coschg: could not store raw A^{-1}1',
@@ -1073,13 +1077,14 @@ c     identical. If surface charge corrections are employed using
 c     scaling factors or Lagrangian multipliers then additional 
 c     correction terms are needed to ensure the expressions agree.
 c
-      call hnd_cos_energy(nat,nefc,chgfac,efcc,efcs,efcz,efciat,ratm,
-     &                    dbl_mb(k_xyzpt),dbl_mb(k_zanpt),dbl_mb(i10),
+      call hnd_cos_energy(nat,nefc,chgfac,efcc,efcs,efcz,efczz,efciat,
+     &                    ratm,dbl_mb(k_xyzpt),dbl_mb(k_zanpt),
+     &                    dbl_mb(i10),
      &                    allefc,atmefc,elcefc,efcefc)
       solnrg= allefc+efcefc
 c     COSMO contribution Alternative 1 (Ref.[1] Eq.(8))
-      ecos  = atmefc+efcefc-elambda
-c     ecos  = atmefc+efcefc
+c     ecos  = atmefc+efcefc-elambda
+      ecos  = atmefc+efcefc
       if (oprint_energies) then
          write(luout,*)'Alternative 1'
          write(luout,9991) atmefc
@@ -1093,23 +1098,19 @@ c     ecos  = atmefc+efcefc
 c
 c     ----- other form of the solvation energy ... -----
 c
-      allefc=zero
-      atmefc=zero
-      elcefc=zero
-      do jef=1,nefc
-         xj=efcc(1,jef)
-         yj=efcc(2,jef)
-         zj=efcc(3,jef)
-         qj=efcz(  jef)
-c
-         allefc=allefc+qj*dbl_mb(jef+i10-1)
-         atmefc=atmefc+qj*dbl_mb(jef+i11-1)
-         elcefc=elcefc+qj*dbl_mb(jef+i12-1)
-      enddo
-      solnrg= pt5* allefc
+      allefc = ddot(nefc,efcz,1,dbl_mb(i10),1)
+      atmefc = ddot(nefc,efcz,1,dbl_mb(i11),1)
+      elcefc = ddot(nefc,efcz,1,dbl_mb(i12),1)
+      solnrg= pt5* allefc + elambda
 c     COSMO contribution Alternative 2 (Ref.[1] Eq.(11))
 c     ecos = pt5*(atmefc-elcefc)+elambda
-      ecos = pt5*(atmefc-elcefc)
+      if (do_cosmo_smd) then
+        ecos = pt5*(atmefc-elcefc)
+      else
+c        ecos = efcefc + atmefc
+        ecos = pt5*(atmefc-elcefc) + elambda
+      endif
+
       if (oprint_energies) then
          write(luout,*)'Alternative 2'
          write(luout,9991) atmefc
@@ -1158,8 +1159,9 @@ c
 c
 c     ----- printing cosmo charges for bq module -----
 c
-      istrlen = inp_strlen(cosmo_file)
-      if (istrlen.le.0) cosmo_file = "cosmo.xyz"
+      istrlen = inp_strlen(cosmo_file_in)
+      if (istrlen.le.0) cosmo_file_in = "cosmo.xyz" 
+      call util_file_name(cosmo_file_in,.false.,.false.,cosmo_file)
       call util_file_name_resolve(cosmo_file,.false.)
       if(ga_nodeid().eq.0) then
         if(.not.util_io_unit(80,90,fn))

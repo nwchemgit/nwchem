@@ -1269,8 +1269,7 @@ c     Calculate cosmo charges
        cosmo_file = "cosmo.xyz"
        call cosmo_charges_from_dmat(rtdb, ao_bas_han, geom,
      &          ecosmo, odbug, ipol, g_dens, cosmo_file)
-       call int_1e_ga(ao_bas_han, ao_bas_han, g_fock,
-     &    'cos_chg_pot',.false.)
+       call cosmo_fock(ao_bas_han, g_fock)
        call ga_dadd(one, g_dens(1), one, g_dens(2), g_dens(1))
        Ecore = ga_ddot(g_dens(1), g_fock)
        call ga_dadd(one, g_dens(1), onem, g_dens(2), g_dens(1))
