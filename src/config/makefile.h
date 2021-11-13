@@ -1483,6 +1483,10 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
           FOPTIONS   += -std=legacy
 	endif
 
+        ifdef USE_OPENMP
+           FOPTIONS  += -fopenmp
+           LDOPTIONS += -fopenmp
+        endif
 ifeq ($(LINUXCPU),x86) 
   ifeq ($(TARGET),CYGNUS)
     DEFINES += -DCYGNUS
@@ -1624,10 +1628,6 @@ endif
         CFLAGS_FORGA += -m32
         FFLAGS_FORGA += -m32
     endif
-        ifdef USE_OPENMP
-           FOPTIONS  += -fopenmp
-           LDOPTIONS += -fopenmp
-        endif
         FOPTIMIZE  += -O2 -ffast-math
 	ifeq ($(V),-1)
          FOPTIONS += -w
