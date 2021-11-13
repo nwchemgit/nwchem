@@ -1920,7 +1920,10 @@ endif
 	ifeq ($(V),-1)
         FOPTIONS += -w
         else
-        FOPTIMIZE  += -Wuninitialized -Wno-maybe-uninitialized
+        FOPTIMIZE  += -Wuninitialized
+        ifndef USE_FLANG
+        FOPTIMIZE  += -Wno-maybe-uninitialized
+        endif
         endif
         DEFINES  += -DGFORTRAN
         DEFINES  += -DCHKUNDFLW -DGCC4
@@ -1963,7 +1966,10 @@ endif
 	  ifeq ($(V),-1)
 	    FOPTIONS += -w
           else
-            FOPTIONS   += -Wuninitialized -Wno-maybe-uninitialized # -Wextra -Wunused
+            FOPTIONS   += -Wuninitialized
+            ifndef USE_FLANG
+              FOPTIONS   += -Wno-maybe-uninitialized # -Wextra -Wunused
+            endif
           endif
         endif
         ifeq ($(GNU_GE_8),true)
