@@ -1071,7 +1071,8 @@ ifeq ($(TARGET),MACX)
 #gcc version 4.2.0 200512 (experimental)
         LINK.f = gfortran -m32  $(LDFLAGS) 
         FDEBUG = -O0 -g
-        FOPTIMIZE  = -O2 -ffast-math -Wuninitialized 
+        FOPTIMIZE  = -O2 -ffast-math
+        FOPTIMIZE  += -Wuninitialized -Wno-maybe-uninitialized 
         DEFINES  += -DGFORTRAN
         GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
         ifdef GNUMAJOR
@@ -1089,7 +1090,11 @@ ifeq ($(TARGET),MACX)
           FOPTIONS +=-fno-aggressive-loop-optimizations
           FFLAGS_FORGA += -fno-aggressive-loop-optimizations
           
-          FOPTIONS += -Warray-bounds
+	  ifeq ($(V),-1)
+	    FOPTIONS += -w
+          else
+            FOPTIONS += -Warray-bounds
+	  endif
         endif
         ifeq ($(GNU_GE_6),true)
          FOPTIMIZE += -fno-tree-dominator-opts # solvation/hnd_cosmo_lib breaks
@@ -1232,7 +1237,12 @@ endif
         else
         FOPTIONS += -fdefault-integer-8
         endif
-        FOPTIMIZE = -O2 -ffast-math -Wuninitialized 
+        FOPTIMIZE = -O2 -ffast-math
+	ifeq ($(V),-1)
+         FOPTIONS += -w
+        else
+         FOPTIMIZE  += -Wuninitialized -Wno-maybe-uninitialized
+        endif
        DEFINES   += -DGFORTRAN -DGCC4
 #
          FOPTIMIZE+= -funroll-all-loops
@@ -1259,7 +1269,11 @@ endif
           FOPTIMIZE +=-fno-aggressive-loop-optimizations
           FOPTIONS +=-fno-aggressive-loop-optimizations
           FFLAGS_FORGA += -fno-aggressive-loop-optimizations
-          FOPTIONS += -Warray-bounds
+	  ifeq ($(V),-1)
+	    FOPTIONS += -w
+          else
+            FOPTIONS += -Warray-bounds
+	  endif
         endif # GNU_GE_4_8
         ifeq ($(GNU_GE_6),true)
          FOPTIMIZE += -fno-tree-dominator-opts # solvation/hnd_cosmo_lib breaks
@@ -1374,7 +1388,12 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
 #
        NICE = nice -n 2
       SHELL := $(NICE) /bin/sh
-    CORE_SUBDIRS_EXTRA = blas lapack
+     ifeq ($(BLASOPT),)
+       CORE_SUBDIRS_EXTRA += blas
+     endif
+     ifeq ($(LAPACK_LIB),)
+       CORE_SUBDIRS_EXTRA += lapack
+     endif
          CC = gcc
      RANLIB = ranlib
   MAKEFLAGS = -j 1 --no-print-directory
@@ -1428,7 +1447,12 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
       COPTIMIZE  = -g -O2
       ifeq ($(_FC),gfortran)
         FOPTIONS   = # -Wextra -Wunused  
-        FOPTIMIZE  += -ffast-math -Wuninitialized
+        FOPTIMIZE  += -ffast-math
+	ifeq ($(V),-1)
+         FOPTIONS += -w
+        else
+         FOPTIMIZE  += -Wuninitialized -Wno-maybe-uninitialized
+        endif
         DEFINES  += -DGFORTRAN
         GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
         ifdef GNUMAJOR
@@ -1459,6 +1483,10 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
           FOPTIONS   += -std=legacy
 	endif
 
+        ifdef USE_OPENMP
+           FOPTIONS  += -fopenmp
+           LDOPTIONS += -fopenmp
+        endif
 ifeq ($(LINUXCPU),x86) 
   ifeq ($(TARGET),CYGNUS)
     DEFINES += -DCYGNUS
@@ -1477,7 +1505,8 @@ ifeq ($(LINUXCPU),x86)
   COPTIONS   += -Wall  -malign-double 
   COPTIMIZE  += -g -O2
     FOPTIONS  +=  -malign-double -fno-globals -Wno-globals  -fno-silent #-Wunused  
-    FOPTIMIZE += -Wuninitialized -ffast-math -funroll-loops -fstrength-reduce 
+    FOPTIMIZE += -Wuninitialized
+    FOPTIMIZE += -ffast-math -funroll-loops -fstrength-reduce
     FOPTIMIZE += -fno-move-all-movables -fno-reduce-all-givs 
     FOPTIMIZE += -fforce-addr 
 # see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=13037
@@ -1599,11 +1628,12 @@ endif
         CFLAGS_FORGA += -m32
         FFLAGS_FORGA += -m32
     endif
-        ifdef USE_OPENMP
-           FOPTIONS  += -fopenmp
-           LDOPTIONS += -fopenmp
+        FOPTIMIZE  += -O2 -ffast-math
+	ifeq ($(V),-1)
+         FOPTIONS += -w
+        else
+         FOPTIMIZE  += -Wuninitialized -Wno-maybe-uninitialized
         endif
-        FOPTIMIZE  += -O2 -ffast-math -Wuninitialized
         ifeq ($(_CPU),i786)
          ifeq ($(shell $(CNFDIR)/check_env.sh $(USE_HWOPT)),1)
           FOPTIONS += -march=pentium4 -mtune=pentium4
@@ -1717,7 +1747,7 @@ ifeq ($(LINUXCPU),x86)
 endif
 #EXTRA_LIBS +=-lefence # link against Electricfence
 
-CORE_LIBS += -lnwclapack $(BLASOPT) -lnwcblas
+#CORE_LIBS += -lnwclapack $(BLASOPT) -lnwcblas
 
 # end of Linux, Cygnus
 endif
@@ -1875,6 +1905,7 @@ endif
          DEFINES  +=-DMPICH_NO_ATTR_TYPE_TAGS
 #	 LDOPTIONS +=-Wl,-rpath=/usr/local/lib/gcc7
 	 LDOPTIONS += $(shell mpif90  -show 2>&1 |cut -d " " -f 2) 
+	 ARFLAGS = rU
       endif
       ifeq ($(_FC),gfortran)
        ifneq ($(DONTHAVEM64OPT),Y)
@@ -1886,7 +1917,14 @@ endif
        else
         FOPTIONS   += -ffast-math #-Wunused  
        endif
+	ifeq ($(V),-1)
+        FOPTIONS += -w
+        else
         FOPTIMIZE  += -Wuninitialized
+        ifndef USE_FLANG
+        FOPTIMIZE  += -Wno-maybe-uninitialized
+        endif
+        endif
         DEFINES  += -DGFORTRAN
         DEFINES  += -DCHKUNDFLW -DGCC4
         ifeq ($(USE_FLANG),1)
@@ -1919,9 +1957,20 @@ endif
           FDEBUG +=-fno-aggressive-loop-optimizations
           FOPTIMIZE +=-fno-aggressive-loop-optimizations
           FFLAGS_FORGA += -fno-aggressive-loop-optimizations
-          FOPTIONS += -Warray-bounds
+	  ifeq ($(V),-1)
+	    FOPTIONS += -w
+          else
+            FOPTIONS += -Warray-bounds
+	  endif
         else
-          FOPTIONS   += -Wuninitialized # -Wextra -Wunused
+	  ifeq ($(V),-1)
+	    FOPTIONS += -w
+          else
+            FOPTIONS   += -Wuninitialized
+            ifndef USE_FLANG
+              FOPTIONS   += -Wno-maybe-uninitialized # -Wextra -Wunused
+            endif
+          endif
         endif
         ifeq ($(GNU_GE_8),true)
           FOPTIONS   += -std=legacy
@@ -2633,7 +2682,12 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
         CC         = mpicc
         DEFINES   += -DGFORTRAN -DGCC4
 
-        FOPTIONS  += -g -funderscoring -Wuninitialized 
+        FOPTIONS  += -g -funderscoring
+	ifeq ($(V),-1)
+         FOPTIONS += -w
+        else
+         FOPTIONS  += -Wuninitialized -Wno-maybe-uninitialized
+        endif
         FOPTIMIZE += -O3 -ffast-math
         FDEBUG    += -O1 -g
 
@@ -3241,10 +3295,12 @@ endif
 #
 V = 0
 ACTUAL_FC := $(FC)
+NWFC_-1 = @echo "Compiling $<..."; $(ACTUAL_FC)
 NWFC_0 = @echo "Compiling $<..."; $(ACTUAL_FC)
 NWFC_1 = $(ACTUAL_FC)
 NWFC = $(NWFC_$(V))
 ACTUAL_CC := $(CC)
+NWCC_-1 = @echo "Compiling $<..."; $(ACTUAL_CC)
 NWCC_0 = @echo "Compiling $<..."; $(ACTUAL_CC)
 NWCC_1 = $(ACTUAL_CC)
 NWCC = $(NWCC_$(V))

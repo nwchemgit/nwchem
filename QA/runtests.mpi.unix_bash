@@ -1,4 +1,4 @@
-#!/bin/bash  -f
+#!/usr/bin/env bash  -f
 CWD=`pwd`
 SCRATCHDIR=$CWD/scratchdir
 TESTOUTPUTS=$CWD/testoutputs

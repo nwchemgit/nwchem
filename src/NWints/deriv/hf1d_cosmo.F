@@ -1,7 +1,7 @@
       Subroutine hf1d_cosmo(
      &       Axyz,Aprims,Acoefs,NPA,NCA,La,ictrA,
      &       Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,ictrB,
-     &       Cxyz,zan,invnuc,ncenters,
+     &       Cxyz,zan,zeros,ncenters,
      &       bNAI,Nint,
      &       canAB,dryrun,W0,maxW0)
 c $Id$
@@ -50,7 +50,9 @@ c--> Cartesian Coordinates, Primitives & Contraction Coefficients
 
 c--> Nuclear Cartesian Coordinates, Charges & Inverse Exponents
 
-      Double precision Cxyz(3), zan
+      Integer ncenters
+      Double precision Cxyz(3,ncenters), zan(ncenters)
+      Double precision zeros(ncenters)
 
 c--> Blocks of Overlap, Kinetic Energy & Nuclear Attraction Integrals
 
@@ -258,7 +260,7 @@ c Assign scratch space.
        if (dryrun) then
          MaxMem = max(MaxMem, i_top)
        else
-         call hf1mkr(Axyz,Bxyz,Cxyz,zan,invnuc,ncenters,
+         call hf1mkr(Axyz,Bxyz,Cxyz,zan,zeros,ncenters,
      &          W0(i_ALPHAp),W0(i_P),W0(i_RS),W0(i_PC),W0(i_ff),
      &          W0(i_Rj),W0(i_R0),W0(i_R0C),W0(i_IJK),
      &          NPP,Lp,Lp3,.false.)

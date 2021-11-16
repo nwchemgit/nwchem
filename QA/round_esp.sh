@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 input_file=$1
 read -r line < "$input_file"
 echo "$line"

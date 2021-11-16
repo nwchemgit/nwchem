@@ -1153,8 +1153,10 @@ c     check if we are doing dft (e.g. cphf case)
      &                                  g_dens,      ! input density
      &                                  cosmo_file)  ! cosmo charges file name
 cc AJL/Begin/SPIN ECPs
-        call int_1e_ga(basis,basis,g_a_hcore,'cos_chg_pot',.false.)
-        call int_1e_ga(basis,basis,g_b_hcore,'cos_chg_pot',.false.)
+        call ga_zero(g_dens(1))
+        call cosmo_fock(basis,g_dens)
+        call ga_add(1d0, g_dens, 1d0, g_a_hcore, g_a_hcore)
+        call ga_add(1d0, g_dens, 1d0, g_b_hcore, g_b_hcore)
 cc AJL/End
         do i = 1, 2
          if (.not.ga_destroy(g_dens(i)))

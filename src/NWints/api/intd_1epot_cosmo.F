@@ -48,7 +48,7 @@ C> constructed using translational invariance, as specified in the
 C> last equation. 
 c
       subroutine intd_1epot_cosmo(i_basis,ish,j_basis,jsh,lscr,scr,
-     &           lH1a,H1a,efc_c,efc_q,invnuc,nefc)
+     &           lH1a,H1a,efc_c,efc_q,zeros,nefc)
 C $Id$
       implicit none
 #include "stdio.fh"
@@ -117,6 +117,7 @@ c                       !< NOTE: nint*3 integral derivatives returned per unique
       integer nefc      !< [Input] the number of COSMO charges
       double precision efc_c(3,nefc) !< [Input] COSMO charge coordinates
       double precision efc_q(nefc) !< [Input] COSMO charges
+      double precision zeros(nefc) 
       double precision scr(lscr) !< [Input] scratch array
       double precision H1a(*)    !< [Output] derivative integrals
       double precision invnuc(nefc)
@@ -127,22 +128,18 @@ c
       nat = ncenter(ibs_geom((i_basis + Basis_Handle_Offset)))
 c
       nint = int_nint_cart(i_basis,ish,j_basis,jsh,0,0,0,0)
-      if (nint*3*nat.gt.lH1a) then
-        write(luout,*) 'nint*3*nat = ',nint*3*nat
+      if (nint*9.gt.lH1a) then
+        write(luout,*) 'nint*3*nat = ',nint*9
         write(luout,*) 'lH1a       = ',lH1a
         call errquit('intd_1eh1: nint>lH1a error',911, INT_ERR)
       endif
 c
-      offset = nint*3*2       ! scratch for Ta array in intd_1eh1P routine
-      scrsize = lscr - offset ! new scratch array size
-      offset = offset + 1     ! increment for passing to intd_1eh1P
-c
       call intd_1epotP_cosmo(i_basis,ish,j_basis,jsh,
-     &       scrsize,scr(offset),nint,H1a,efc_c,efc_q,invnuc,nefc)
+     &       lscr,scr,nint,H1a,efc_c,efc_q,zeros,nefc)
 c
       end
       subroutine intd_1epotP_cosmo(i_basis,ish,j_basis,jsh,lscr,scr,
-     &       nint,H1a,efc_c,efc_q,invnuc,nefc)
+     &       nint,H1a,efc_c,efc_q,zeros,nefc)
       implicit none
 #include "stdio.fh"
 #include "errquit.fh"
@@ -176,7 +173,8 @@ c::passed
 c                       ! NOTE: nint*3 integral derivatives returned per unique center
       integer nefc      ! [input] the number of COSMO charges
       double precision efc_c(3,nefc) ! [input] the COSMO charges coordinates
-      double precision efc_q(nefc)   ! [input] the COSMO charges
+      double precision efc_q(nefc) ! [input] the COSMO charges
+      double precision zeros(nefc)
       double precision H1a(nint,3,3)    ! [output] derivative integrals (nint,3,n_atoms)
       double precision scr(lscr) ! [scratch] 
       double precision invnuc(nefc)
@@ -389,7 +387,7 @@ c
      &      dbl_mb(mb_exndcf(jcfS,jsbas)),jnp,jgen,jtype,jatom,
 c     &      coords(1,1,cosmo_geom_efc),charge(1,cosmo_geom_efc),
 c     &      geom_invnucexp(1,cosmo_geom_efc),ncenter(cosmo_geom_efc),
-     &      efc_c,efc_q,invnuc,nefc,
+     &      efc_c,efc_q,zeros,nefc,
      &      H1a,nint,.false.,onw_ok,
 c    &      dbl_mb(i_cbq0),dbl_mb(i_qbq0),
 c    &      dbl_mb(i_xbq0),nb,
@@ -412,7 +410,7 @@ c
 c    &      iat_efc,
 c    &      coords(1,1,cosmo_geom_efc),charge(1,cosmo_geom_efc),
 c    &      geom_invnucexp(1,cosmo_geom_efc),ncenter(cosmo_geom_efc),
-     &      efc_c,efc_q,invnuc,nefc,
+     &      efc_c,efc_q,zeros,nefc,
      &      H1a,nint,
 c........... canab,   dryrun
      &      .false., .false.,

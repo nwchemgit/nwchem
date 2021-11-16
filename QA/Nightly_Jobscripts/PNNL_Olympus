@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #SBATCH -A NWCHEM
 #SBATCH -t 08:00:00
 #SBATCH -N 1 

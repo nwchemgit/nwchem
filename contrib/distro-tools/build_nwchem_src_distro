@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 source=`pwd`/$1
 date=`date +%Y-%m-%d`
 revision=`svn info ${source} | grep Revision:`

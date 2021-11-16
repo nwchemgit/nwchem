@@ -83,7 +83,7 @@ from the peigs output to n real u + iv that are linear independent over i
 
   extern Integer  mapchk_(), count_list();
   extern void     memreq_();
-  extern void     pdiff(), xstop_(), pgexit(), mapdif_(), reduce_maps_();
+  extern void     pdiff(), xstop_(), pgexit(), mapdif_();
 
   extern void     pdspevx();
   

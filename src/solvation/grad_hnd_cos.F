@@ -62,6 +62,7 @@ c     1. All regular QM derivatives
 #include "rtdb.fh"
 #include "sym.fh"
 #include "stdio.fh"
+#include "schwarz.fh"
 #include "prop.fh"
 #include "util.fh"
 #include "util_params.fh"
@@ -111,38 +112,35 @@ C-------------------------local variables--------------------------
       integer iefc        ! counter over COSMO charges
       integer iefc_c      ! memory index for COSMO charge coordinates
       integer iefc_q      ! memory index for COSMO charges
-      integer l_efcs
-      integer k_efcs
-      integer l_p
-      integer k_p
-      integer l_efczeta
-      integer k_efczeta
-      integer k_der, k_der2
-      integer l_der, l_der2
-      integer l_scr, k_scr
-      integer iefc_inv, l_inv
-      integer llefc
-      integer nintd
-      integer nbf_at_a,icount_a,icount_b,nshbfa,nshbfb,ndim,nao2
-      integer maxbuf, maxscr
-      integer npmax,lmax,lp,lp3,lprod
+      integer l_efczz
+      integer k_efczz
 
+      integer max_sh_bf
+      integer l_efcs, k_efcs
+      integer l_p, k_p
+      integer l_inv, k_inv
+      integer l_map, k_map
+      integer max_at_nefc
+      integer jefc
+      integer nefc_at_k
+      integer nao2
+
+      double precision locder(3,3), q1
       double precision dE, qfac, fact, dx, dy, dz, rr
       double precision invscreen, pi
       double precision zeta1, zeta2, zeta12
-      double precision est_int, qmax, pmat_max
-      double precision dabsmax
-      external dabsmax
+      double precision qmax, pmax, est_int
 
-      logical ateq, doit
-
-      logical status, pointforce
+      logical status, pointforce, ateq
 
       double precision derf, cosff, cosdff
       external cosff, cosdff
 
       integer nxtask, task_size
       external nxtask
+
+      double precision dabsmax
+      external dabsmax
 c
       double precision, external :: ddot
       double precision rin, rout, alphai, xyzff
@@ -257,6 +255,46 @@ c
       if (.not.ma_push_get(mt_dbl,maxscr,'loc scr',l_scr,k_scr))
      $  call errquit('grad_hnd_cos: could not allocate scr',0,MA_ERR) 
 c
+      if(.not.bas_nbf_cn_max(basis,max_sh_bf))
+     $ call errquit('grad_hnd_cos: bas_nbf_cn_max failed',0,BASIS_ERR) 
+      if(.not.ma_push_get(mt_dbl,nefc,'efcs',l_efcs,k_efcs))
+     $ call errquit('grad_hnd_cos: efcs alloc failed',0,MA_ERR) 
+      if(.not.rtdb_get(rtdb,'cosmo:efcs',mt_dbl,nefc,dbl_mb(k_efcs)))
+     $ call errquit('grad_hnd_cos: rtdb_get failed',0,RTDB_ERR)
+      if(.not.ma_push_get(mt_dbl,nefc,'efczz',l_efczz,k_efczz))
+     $ call errquit('grad_hnd_cos: efczz alloca failed',0,MA_ERR) 
+      if(.not.rtdb_get(rtdb,'cosmo:efczz',mt_dbl,nefc,dbl_mb(k_efczz)))
+     $ call errquit('grad_hnd_cos: rtdb_get failed',0,RTDB_ERR)
+      if(.not.ma_push_get(mt_dbl,max_sh_bf**2,'shell p',l_p,k_p))
+     $ call errquit('grad_hnd_cos: shell p alloc failed',0,MA_ERR) 
+      if(.not.ma_push_get(mt_int,2*nat,'atom->efc map',l_map,k_map))
+     $ call errquit('grad_hnd_cos: atom ap alloc failed',0,MA_ERR) 
+
+      call ga_sync()
+
+      call ifill(nat,-1,int_mb(k_map),2)
+      call ifill(nat, 0,int_mb(k_map+1),2)
+
+      jefc = 1
+      max_at_nefc = 0
+      do iat1=1,nat
+        do iefc=jefc,nefc
+          if (int_mb(k_efciat+iefc-1).eq.iat1) then
+            if (iefc.eq.jefc) int_mb(k_map+(iat1-1)*2) = iefc
+            int_mb(k_map+1+(iat1-1)*2) = iefc
+          endif
+        enddo
+        if (int_mb(k_map+(iat1-1)*2).eq.-1) cycle
+        jefc = int_mb(k_map+1+(iat1-1)*2) + 1
+        max_at_nefc = max(max_at_nefc,int_mb(k_map+1+(iat1-1)*2) -
+     $                                int_mb(k_map+0+(iat1-1)*2) + 1)
+      enddo
+      qmax = dabsmax(nefc,dbl_mb(iefc_q))*nefc
+
+      if(.not.ma_push_get(mt_dbl,max_at_nefc,'zeros',l_inv,k_inv))
+     $  call errquit('grd_hnd_cos: zeros allocation failed',0,MA_ERR) 
+      call dfill(max_at_nefc,0d0,dbl_mb(k_inv),1)
+c
       call hf_print_set(1)
 
       t0 = util_wallsec()
@@ -279,6 +317,10 @@ c
 
             est_int = schwarz_atom(iat1,iat2)
             if (est_int*qmax*nefc.lt.1d-14) goto 1010
+
+            ateq = iat1.eq.iat2
+            est_int = schwarz_atom(iat1,iat2)
+            if (est_int*qmax.lt.1d-14) goto 1010
 
             if (oskel) then
                if (.not. sym_atom_pair(geom, iat1, iat2, qfac))
@@ -335,61 +377,51 @@ c
                 endif
 
                 nint = ( im1 - if1 + 1 ) * ( im2 - if2 + 1 )
-                if (9*nint.gt.lbuf)
-     $            call errquit('grad_hnd_cos: small buffer',lbuf,MA_ERR)
-
-                nao2 = (il1-if1+1)*(il2-if2+1)
-
+                nao2 = ( il1 - if1 + 1 ) * ( il2 - if2 + 1 )
+                
                 ic = 0
-                do ip1=if1,il1
-                  do ip2=if2,il2
+                do ip1 = if1, il1
+                  do ip2 = if2, il2
                     dbl_mb(k_p+ic) = dens(ip2,ip1)
                     ic = ic + 1
                   enddo
                 enddo
 
-                if (ish1.ne.ish2) call dscal(nao2,2d0,dbl_mb(k_p),1)
+                q1 = qfac
+                if (ish1.ne.ish2) q1 = q1*2d0
+                pmax = dabsmax(nao2,dbl_mb(k_p))
 
-                pmat_max = dabsmax(nao2,dbl_mb(k_p))
-                est_int = est_int*pmat_max
-
-                if (est_int*qmax*nefc.lt.1d-14) goto 60
+                est_int = est_int*pmax*abs(q1)
+                if (est_int*qmax.lt.1d-14) goto 60
 
                 do iat3=1,nat
-                  if (ateq.and.iat1.eq.iat3) cycle
-                  if (map(iat3,1).eq.-1) cycle
+                  if (ateq .and. iat1.eq.iat3) cycle
+
+                  iefc = int_mb(k_map+(iat3-1)*2)
+                  if (iefc.eq.-1) cycle
+
+                  nefc_at_k = int_mb(k_map+1+(iat3-1)*2) - iefc + 1
 
                   call dfill(9*nint,0d0,H,1)
 
-                  iefc = map(iat3,1)
-                  locefc = map(iat3,2) - iefc + 1
-
-c                 1el. -cosmo- derivatives
-c                 Currently calculated on for every COSMO charge
-c                 attached to one atomic center at a time
-c
-                  call intd_1epot_cosmo(basis,ish1,basis,ish2,maxscr,
-     &                 dbl_mb(k_scr),lbuf,H,
-     &                 dbl_mb(iefc_c+3*(iefc-1)),
-     &                 dbl_mb(iefc_q+iefc-1),dbl_mb(iefc_inv),locefc)
+                  call intd_1epot_cosmo(basis,ish1,basis,ish2,lscr,scr,
+     &                 lbuf,H,dbl_mb(iefc_c+3*(iefc-1)),
+     &                 dbl_mb(iefc_q+iefc-1),dbl_mb(k_inv),nefc_at_k)
 
                   if (ateq) then
-
-                  call dgemv('t',nao2,3,-qfac,H,nao2,dbl_mb(k_p),1,1d0,
-     $                       frc_cos_elq(1,iat1),1)
-                  call dgemv('t',nao2,3,-qfac,H(6*nao2+1),nao2,
-     $                        dbl_mb(k_p),1,1d0,frc_cos_elq(1,iat3),1)
-
+                    call dgemv('t',nao2,3,-q1,H,nao2,dbl_mb(k_p),1,
+     &                          1d0,frc_cos_elq(1,iat1),1)
+                    call dgemv('t',nao2,3,-q1,H(6*nao2+1),nao2,
+     &                          dbl_mb(k_p),1,1d0,frc_cos_elq(1,iat3),1)
                   else
-
-                    call dgemv('t',nao2,9,-qfac,H,nao2,dbl_mb(k_p),1,
-     $                          0d0,locder,1)
-                    frc_cos_elq(:,iat1) = frc_cos_elq(:,iat1) 
-     $                                  + locder(:,1)
-                    frc_cos_elq(:,iat2) = frc_cos_elq(:,iat2) 
-     $                                  + locder(:,2)
-                    frc_cos_elq(:,iat3) = frc_cos_elq(:,iat3) 
-     $                                  + locder(:,3)
+                    call dgemv('t',nao2,9,-q1,H,nao2,dbl_mb(k_p),1,
+     &                          0d0,locder,1)
+                    frc_cos_elq(:,iat1) = frc_cos_elq(:,iat1) +
+     &                                    locder(:,1)
+                    frc_cos_elq(:,iat2) = frc_cos_elq(:,iat2) +
+     &                                    locder(:,2)
+                    frc_cos_elq(:,iat3) = frc_cos_elq(:,iat3) +
+     &                                    locder(:,3)
                   endif
                 enddo
 
@@ -421,8 +453,10 @@ c
         invscreen = 1.0d0/(1.0d0*screen)
         do ich1 = 1, nefc
           if (do_cosmo_model.eq.DO_COSMO_YK) then
-            zeta1 = dbl_mb(k_efcs+ich1-1)
+            zeta1 = 0.5d0*dbl_mb(k_efcs+ich1-1)*invscreen
+     $               * dbl_mb(iefc_q+ich1-1)**2
           endif
+
           do iat1 = 1, nat
             if (iat1.eq.int_mb(k_efciat+ich1-1)) cycle
 
@@ -441,9 +475,7 @@ c           - term 2.
 c
             if (do_cosmo_model.eq.DO_COSMO_YK) then
               if (iat1.ne.int_mb(k_efciat+ich1-1)) then
-
-                fact = fact - 0.5d0*zeta1*invscreen
-     $               * dbl_mb(iefc_q+ich1-1)**2
+                fact = fact - zeta1
      $               * cosdff((rr-rin(iat1))/(rout(iat1)-rin(iat1)))
      $               / (rr*(rout(iat1)-rin(iat1))
      $                  *cosff((rr-rin(iat1))/(rout(iat1)-rin(iat1))))
@@ -465,86 +497,83 @@ c
           enddo
         enddo
       endif
-
 c
 c       Do cosmo charge - cosmo charge interaction
 c
-      ijatom =  -1
-      next = nxtask(nproc,task_size)
       invscreen = 1.0d0/(1.0d0*screen)
-
-      t0 = util_wallsec()
-
-      do ich1 = 1, nefc
+      do ich1 = ga_nodeid()+1, nefc, nproc
         if (do_cosmo_model.eq.DO_COSMO_YK) then
-          zeta1 = dbl_mb(k_efczeta+ich1-1)
+          zeta1 = dbl_mb(k_efczz+ich1-1)
         endif
         do ich2 = 1, ich1-1
           if (int_mb(k_efciat+ich1-1).eq.int_mb(k_efciat+ich2-1)) cycle
 
-          ijatom = ijatom + 1
-          if (ijatom.ne.next) cycle
-
           if (do_cosmo_model.eq.DO_COSMO_YK) then
-            zeta2 = dbl_mb(k_efczeta+ich2-1)
+            zeta2 = dbl_mb(k_efczz+ich2-1)
             zeta12 = zeta1*zeta2/sqrt(zeta1**2+zeta2**2)
           endif
-
-            dx = dbl_mb(0+3*(ich1-1)+iefc_c)
-     $         - dbl_mb(0+3*(ich2-1)+iefc_c)
-            dy = dbl_mb(1+3*(ich1-1)+iefc_c)
-     $         - dbl_mb(1+3*(ich2-1)+iefc_c)
-            dz = dbl_mb(2+3*(ich1-1)+iefc_c)
-     $         - dbl_mb(2+3*(ich2-1)+iefc_c)
-            rr = sqrt(dx*dx+dy*dy+dz*dz)
-            if (rr.lt.1.0d-6 .and. do_cosmo_model.eq.do_cosmo_ks)then
-              fact = 0.0d0
-            elseif(rr.lt.1d-8.and.do_cosmo_model.eq.do_cosmo_yk)then
-              fact = invscreen*dbl_mb(iefc_q+ich1-1)*
-     $               dbl_mb(iefc_q+ich2-1)*4d0*zeta12**3/sqrt(pi)*
-     $               ((zeta12*rr)**2/5d0-1d0/3d0)
+          dx = dbl_mb(0+3*(ich1-1)+iefc_c)
+     $       - dbl_mb(0+3*(ich2-1)+iefc_c)
+          dy = dbl_mb(1+3*(ich1-1)+iefc_c)
+     $       - dbl_mb(1+3*(ich2-1)+iefc_c)
+          dz = dbl_mb(2+3*(ich1-1)+iefc_c)
+     $       - dbl_mb(2+3*(ich2-1)+iefc_c)
+          rr = sqrt(dx*dx+dy*dy+dz*dz)
+          if (rr.lt.1.0d-6 .and. do_cosmo_model.eq.do_cosmo_ks)then
+            fact = 0.0d0
+          elseif(rr.lt.1d-4.and.do_cosmo_model.eq.do_cosmo_yk)then
+            fact = invscreen*dbl_mb(iefc_q+ich1-1)*
+     $             dbl_mb(iefc_q+ich2-1)*4d0*zeta12**3/sqrt(pi)*
+     $             ((zeta12*rr)**2/5d0-1d0/3d0)
+          else
+            if (do_cosmo_model.eq.DO_COSMO_KS) then
+              fact = -invscreen*dbl_mb(iefc_q+ich1-1)
+     $             * dbl_mb(iefc_q+ich2-1)/(rr**3)
+            else if (do_cosmo_model.eq.DO_COSMO_YK) then
+              fact = +invscreen*dbl_mb(iefc_q+ich1-1)
+     $             * dbl_mb(iefc_q+ich2-1) 
+     $             * (2.0d0*zeta12/sqrt(pi)/(rr**2)
+     $                * exp(-(zeta12*rr)**2)
+     $                - derf(zeta12*rr)/(rr**3))
             else
-              if (do_cosmo_model.eq.DO_COSMO_KS) then
-                fact = -invscreen*dbl_mb(iefc_q+ich1-1)
-     $               * dbl_mb(iefc_q+ich2-1)/(rr**3)
-              else if (do_cosmo_model.eq.DO_COSMO_YK) then
-                fact = +invscreen*dbl_mb(iefc_q+ich1-1)
-     $               * dbl_mb(iefc_q+ich2-1) 
-     $               * (2.0d0*zeta12/sqrt(pi)/(rr**2)
-     $               * exp(-(zeta12*rr)**2)
-     $                    - derf(zeta12*rr)/(rr**3))
-              else
-                call errquit("grad_hnd_cos: panic",
-     $                       do_cosmo_model,UERR)
-              endif
+              call errquit("grad_hnd_cos: panic",
+     $                     do_cosmo_model,UERR)
             endif
-
-            dE = dx * fact
-            frc_cos_qq(1,int_mb(k_efciat+ich1-1)) 
-     $      = frc_cos_qq(1,int_mb(k_efciat+ich1-1)) + dE
-            frc_cos_qq(1,int_mb(k_efciat+ich2-1)) 
-     $      = frc_cos_qq(1,int_mb(k_efciat+ich2-1)) - dE
-            dE = dy * fact
-            frc_cos_qq(2,int_mb(k_efciat+ich1-1)) 
-     $      = frc_cos_qq(2,int_mb(k_efciat+ich1-1)) + dE
-            frc_cos_qq(2,int_mb(k_efciat+ich2-1)) 
-     $      = frc_cos_qq(2,int_mb(k_efciat+ich2-1)) - dE
-            dE = dz * fact
-            frc_cos_qq(3,int_mb(k_efciat+ich1-1)) 
-     $      = frc_cos_qq(3,int_mb(k_efciat+ich1-1)) + dE
-            frc_cos_qq(3,int_mb(k_efciat+ich2-1)) 
-     $      = frc_cos_qq(3,int_mb(k_efciat+ich2-1)) - dE
-
-          next = nxtask(nproc,task_size)
+          endif
+          dE = dx * fact
+          frc_cos_qq(1,int_mb(k_efciat+ich1-1)) 
+     $    = frc_cos_qq(1,int_mb(k_efciat+ich1-1)) + dE
+          frc_cos_qq(1,int_mb(k_efciat+ich2-1)) 
+     $    = frc_cos_qq(1,int_mb(k_efciat+ich2-1)) - dE
+          dE = dy * fact
+          frc_cos_qq(2,int_mb(k_efciat+ich1-1)) 
+     $    = frc_cos_qq(2,int_mb(k_efciat+ich1-1)) + dE
+          frc_cos_qq(2,int_mb(k_efciat+ich2-1)) 
+     $    = frc_cos_qq(2,int_mb(k_efciat+ich2-1)) - dE
+          dE = dz * fact
+          frc_cos_qq(3,int_mb(k_efciat+ich1-1)) 
+     $    = frc_cos_qq(3,int_mb(k_efciat+ich1-1)) + dE
+          frc_cos_qq(3,int_mb(k_efciat+ich2-1)) 
+     $    = frc_cos_qq(3,int_mb(k_efciat+ich2-1)) - dE
         enddo
       enddo
-      next = nxtask(-nproc,task_size)
-
-      if (ga_nodeid().eq.0) then
-        write(*,'("cosmo off-diag grad: ",F8.3)') util_wallsec()-t0
-      endif
 c
-      if (.not.ma_chop_stack(l_efciat))
+      if (.not.ma_pop_stack(l_inv)) 
+     $   call errquit("grad_hnd_cos: could not deallocate l_inv",
+     $                0,MA_ERR)
+      if (.not.ma_pop_stack(l_map)) 
+     $   call errquit("grad_hnd_cos: could not deallocate l_map",
+     $                0,MA_ERR)
+      if (.not.ma_pop_stack(l_p))
+     $   call errquit("grad_hnd_cos: could not deallocate l_p",
+     $                0,MA_ERR)
+      if (.not.ma_pop_stack(l_efczz))
+     $   call errquit("grad_hnd_cos: could not deallocate l_efczz",
+     $                0,MA_ERR) 
+      if (.not.ma_pop_stack(l_efcs))
+     $   call errquit("grad_hnd_cos: could not deallocate l_efcs",
+     $                0,MA_ERR)
+      if (.not.ma_pop_stack(l_efciat))
      $   call errquit("grad_hnd_cos: could not deallocate l_efciat",
      $                0,MA_ERR)
       if (.not.ma_pop_stack(l_rad))

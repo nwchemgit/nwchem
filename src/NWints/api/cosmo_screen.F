@@ -19,24 +19,17 @@
       double precision zan(nefc)
 
       double precision n3over2,logpix15
-      parameter (LOGPIx15=1.7170948287741d0)
-      parameter (N3OVER2=-1.5d0)
       double precision eps_small
       parameter (eps_small=1d-32)
       double precision const
-      double precision qmax
-      double precision twopi
 
       integer mpa,mpb
       double precision a,b,abi,beta,r2,over
 
-      qmax = maxval(abs(zan))
-      twopi = acos(-1d0)*qmax
-
       if(val_int_acc.lt.eps_small)  then
-         const = log(twopi)-log(eps_small)
+         const = log(pi)-log(eps_small)
       else
-         const = log(twopi)-log(val_int_acc)
+         const = log(pi)-log(val_int_acc)
       endif
 
       R2 = (Axyz(1) - Bxyz(1))**2 +
@@ -53,7 +46,7 @@
           abi = 1.0d0/(a+b)
           beta = a*b*abi
 
-          if (beta*r2 .lt. const + log(abi)) then
+          if (beta*r2 .lt. const+log(abi)) then
             skip = .false.
             return
           endif

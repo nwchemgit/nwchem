@@ -10,7 +10,7 @@ gammabb =  |grad ndn|*|grad ndn|
 gammaab =  |grad nup|*|grad ndn|
 
 For restricted functionals:
-    Instead of outputing
+    Instead of outputting
        df/d|grad n|
     the DFT functionals output
        df/dgammaaa
@@ -24,7 +24,7 @@ For unrestricted functionals:
         gammaaa,gammabb,gammaab
        |
        
-   Intead of outputing 
+   Instead of outputting 
        df/d|grad nup|,
        df/d|grad ndn|,
        df/d|grad n|

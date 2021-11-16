@@ -72,7 +72,9 @@ c
       integer iat, nfield, nrad, irad
       integer iscren, ifscrn, minbem, maxbem, ificos, lineq
       integer cosmo_screen, cosmo_sccor
-      integer iflebedev, iangleb
+      integer iangleb
+      integer fibonacci
+      integer thomson
       integer l_rad, k_rad
       double precision dielec,dielecinf,rsolv,rad,zeta,gammas,swtol
       character*255 field
@@ -138,11 +140,12 @@ c
       ificos   =0
       lineq    =0  ! 0 fast direct solver, 1 slow iterative solver
       rsolv    =0.50d+00
-      zeta     =0.0d+00 ! apparently for Lebedev grids zeta=4.9
+      zeta     =4.50d+00 ! apparently for Lebedev grids zeta=4.9
       gammas   =1.00d+00 ! full switching, see York, Karplus Eq.86.
       swtol    =1.00d-04 ! switching tolerance, see York, Karplus Eq.62-88.
-      iflebedev=0
-      iangleb  =1
+      iangleb  =-1
+      fibonacci=-1
+      thomson  =0
 c
 c MN solvation models -->
 c
@@ -495,12 +498,30 @@ c
          if (.not. rtdb_put(rtdb,'cosmo:ificos',mt_int,1,ificos))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
+c   --- lebedev
 c
+      else if(inp_compare(.false.,'lebedev',field)) then
+         if(.not. inp_i(iangleb)) iangleb = 4
+         if (iangleb.lt.1)
+     $     call errquit('cosmo_input: lebedev <1',911,INPUT_ERR)
+         if(.not. rtdb_put(rtdb,'cosmo:iangleb',mt_int,1,iangleb))
+     $     call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
 c
-      else if(inp_compare(.false.,'iflebedev',field)) then
-        if (.not.inp_i(iflebedev))
-     $        call errquit('cosmo_input: iflebedev',911, INPUT_ERR)
-        iangleb = iflebedev
+c   --- fibonacci
+c
+      else if(inp_compare(.false.,'fibonacci',field)) then
+         if(.not. inp_i(fibonacci)) fibonacci = 86
+         if (fibonacci.lt.1)
+     $     call errquit('cosmo_input: fibonacci <1',911,INPUT_ERR)
+         if(.not. rtdb_put(rtdb,'cosmo:fibonacci',mt_int,1,fibonacci))
+     $     call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+c
+c   --- Thomson
+c
+      else if(inp_compare(.false.,'thomson',field)) then
+        thomson = 1
+        if(.not. rtdb_put(rtdb,'cosmo:thomson',mt_int,1,thomson))
+     $     call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
 c
 c   --- lineq
 c

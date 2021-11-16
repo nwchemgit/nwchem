@@ -201,7 +201,7 @@ fi
 GFORTRAN_EXTRA=$(echo $FC | cut -c 1-8)
 if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
     if  [[ ${FC} == gfortran ]] || [[ ${FC} == f95 ]] || [[ ${GFORTRAN_EXTRA} == gfortran ]] ; then
-    Fortran_FLAGS+=" -fdefault-integer-8 "
+    Fortran_FLAGS+=" -fdefault-integer-8 -w "
     elif  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
     Fortran_FLAGS=" -qintsize=8 -qextname "
     elif  [[ ${FC} == crayftn ]]; then

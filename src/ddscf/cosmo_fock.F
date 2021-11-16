@@ -133,7 +133,6 @@ cold      vecl=vecl*vecl*maxg
                 endif
 
                 endif ! schwarz
-    
                 iptr=iptr+nao2
               enddo            ! i shell loop
               call ga_put(g_loc,ifirstp,ilastp,jn0,jn1,
@@ -145,9 +144,10 @@ c
 
          enddo                  ! i loop
       enddo                     ! j loop
-      next=nxtask(-nproc,1)
 
       call ga_sync()
+      next=nxtask(-nproc,1)
+
 
       if (.not.ma_chop_stack(lscr))
      $  call errquit('cosmo_fock: could not deallocate scr',0,MA_ERR) 
