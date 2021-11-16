@@ -52,6 +52,7 @@ if [[ -z "${NWCHEM_TOP}" ]]; then
     MYPWD=`pwd`
     NWCHEM_TOP=`echo ${MYPWD}/${DIRQA} | sed -e 's/\/QA.*//' `
 fi
+cd $NWCHEM_TOP/QA
 # A subdirectory of the current directory name testoutputs is made
 # if necessary and all outputs are routed there.  Existing outputs
 # are overwritten.  The name of the output file is formed by replacing
