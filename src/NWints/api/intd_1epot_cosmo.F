@@ -120,7 +120,6 @@ c                       !< NOTE: nint*3 integral derivatives returned per unique
       double precision zeros(nefc) 
       double precision scr(lscr) !< [Input] scratch array
       double precision H1a(*)    !< [Output] derivative integrals
-      double precision invnuc(nefc)
 c
 c::local
       integer nint, offset, scrsize, nat
@@ -177,7 +176,6 @@ c                       ! NOTE: nint*3 integral derivatives returned per unique 
       double precision zeros(nefc)
       double precision H1a(nint,3,3)    ! [output] derivative integrals (nint,3,n_atoms)
       double precision scr(lscr) ! [scratch] 
-      double precision invnuc(nefc)
 c::local
       logical doT
       integer ucont,uconts

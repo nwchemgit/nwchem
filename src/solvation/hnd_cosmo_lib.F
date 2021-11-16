@@ -771,10 +771,6 @@ c
       if(.not.rtdb_put(rtdb,'cosmo:efcz',mt_dbl,  nefc,dbl_mb(k_efcz)))
      $   call errquit('hnd_cossas: rtdb put failed for efcz  ',913,
      &       rtdb_err)
-      if(.not.rtdb_put(rtdb,'cosmo:efczeta',mt_dbl,nefc,
-     &   dbl_mb(k_efczeta)))
-     $   call errquit('hnd_cossas: rtdb put failed for efczeta',915,
-     &       rtdb_err)
       if(.not.rtdb_put(rtdb,'cosmo:efcs',mt_dbl,  nefc,dbl_mb(k_efcs)))
      $   call errquit('hnd_cossas: rtdb put failed for efcs  ',914,
      &       rtdb_err)

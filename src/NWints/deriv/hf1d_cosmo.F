@@ -40,7 +40,7 @@ c     Implicit integer (i-n)
 
       Logical dryrun
       Logical canAB,GenCon ! what is canAB???
-      Integer Nint, maxW0, ncenters
+      Integer Nint, maxW0
 
 c--> Cartesian Coordinates, Primitives & Contraction Coefficients
 

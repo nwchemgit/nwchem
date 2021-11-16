@@ -33,7 +33,6 @@ c:tex-\end{verbatim}
 *
 c:tex-{\it Argument list:}
 c:tex-\begin{verbatim}
-      integer ncenters
       integer n_prim_A ! [input] num. prims in shell A
       integer n_cont_A ! [input] num general conts in shell A
       integer l_A      ! [input] angular momentum of shell A

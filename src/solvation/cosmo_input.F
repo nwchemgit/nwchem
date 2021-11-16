@@ -635,22 +635,6 @@ c
 c
 c <-- MN solvation models
 c
-      if (do_cosmo_model.eq.do_cosmo_ks) then
-        if (iflebedev.gt.0) iflebedev = 0
-      endif
-
-      if (iflebedev.gt.0 .and. zeta.eq.0d0) then
-        zeta = 4.907d0
-      elseif (zeta.eq.0d0) then
-        zeta = 4.50d0
-      endif
-
-      if (.not. rtdb_put(rtdb,'cosmo:zeta',mt_dbl,1,zeta))
-     $   call errquit('cosmo_input: put zeta failed',911,RTDB_ERR)
-      if (.not. rtdb_put(rtdb,'cosmo:iflebedev',mt_int,1,iflebedev))
-     $      call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
-      if (.not. rtdb_put(rtdb,'cosmo:iangleb',mt_int,1,iangleb))
-     $      call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 
       return
       end

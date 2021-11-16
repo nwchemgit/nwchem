@@ -105,10 +105,6 @@ c
       if(.not.rtdb_get(rtdb,'cosmo:efcz',mt_dbl,  nefc,dbl_mb(k_efcz)))
      &   call errquit('cosmo_charges: rtdb get failed for efcz  ',913,
      &       RTDB_ERR)
-      if(.not.rtdb_get(rtdb,'cosmo:efczeta',mt_dbl,nefc,
-     &   dbl_mb(k_efczeta)))
-     &   call errquit('cosmo_charges: rtdb get failed for efczeta',913,
-     &       RTDB_ERR)
       if(.not.rtdb_get(rtdb,'cosmo:efcs',mt_dbl,  nefc,dbl_mb(k_efcs)))
      &   call errquit('cosmo_charges: rtdb get failed for efcs  ',914,
      &       RTDB_ERR)
@@ -258,7 +254,6 @@ c
 #include "util_params.fh"
 c
       integer l_efcc, k_efcc, l_efcs, k_efcs, l_efcz, k_efcz
-      integer l_efczeta, k_efczeta
       integer l_efciat, k_efciat
       integer l_rad,  k_rad,  nrad
       integer l_occ,  k_occ
@@ -317,10 +312,6 @@ c
      &   call errquit('cosmo_charges: rtdb get failed for efcc  ',912,
      &       RTDB_ERR)
       if(.not.rtdb_get(rtdb,'cosmo:efcz',mt_dbl,  nefc,dbl_mb(k_efcz)))
-     &   call errquit('cosmo_charges: rtdb get failed for efcz  ',913,
-     &       RTDB_ERR)
-      if(.not.rtdb_get(rtdb,'cosmo:efczeta',mt_dbl,nefc,
-     &   dbl_mb(k_efczeta)))
      &   call errquit('cosmo_charges: rtdb get failed for efcz  ',913,
      &       RTDB_ERR)
       if(.not.rtdb_get(rtdb,'cosmo:efcs',mt_dbl,  nefc,dbl_mb(k_efcs)))

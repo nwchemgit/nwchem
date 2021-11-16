@@ -315,8 +315,6 @@ c
       status = rtdb_get(rtdb,'cosmo:maxbem',mt_int,1,maxbem)
       status = rtdb_get(rtdb,'cosmo:ificos',mt_int,1,ificos) 
       status = rtdb_get(rtdb,'cosmo:lineq',mt_int,1,lineq) 
-      status = rtdb_get(rtdb,'cosmo:iangleb',mt_int,1,iangleb) 
-      status = rtdb_get(rtdb,'cosmo:iflebedev',mt_int,1,iflebedev) 
       status = rtdb_get(rtdb,'cosmo:zeta',mt_dbl,1,zeta) 
       status = rtdb_get(rtdb,'cosmo:gamma_s',mt_dbl,1,gammas) 
       status = rtdb_get(rtdb,'cosmo:sw_tol',mt_dbl,1,swtol) 

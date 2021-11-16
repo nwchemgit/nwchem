@@ -239,9 +239,9 @@ c
       task_size = 1
 cc AJL/Begin/FDE
       if (do_parallel) then
-        next = nxtask(nproc,task_size)
+        next = nxtask(nproc,task_size)+1
       else
-        next = 0
+        next = 1
       endif
 cc AJL/End
       icount=0

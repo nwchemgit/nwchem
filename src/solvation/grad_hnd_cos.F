@@ -66,7 +66,6 @@ c     1. All regular QM derivatives
 #include "prop.fh"
 #include "util.fh"
 #include "util_params.fh"
-#include "schwarz.fh"
 
 C-------------------------parameters--------------------------------
       integer g_dens !< [Input] the total electron density matrix GA
@@ -154,16 +153,8 @@ c
 
 c     ---- -cosmo- gradient term -----
       logical odbug
-      integer map(nat,2), maxpts, locefc
-      double precision locder(3,3)
 
       pi = acos(-1.0d0)
-
-      odbug = ma_verify_allocator_stuff()
-      if (ga_nodeid().eq.0) then
-        call ma_summarize_allocated_blocks()
-      endif
-
       odbug=.false.
       if(odbug) then
          write(Luout,*) 'in -grad1_hnd_cos- ...'
@@ -205,55 +196,6 @@ c
      $                 int_mb(k_efciat)))
      $   call errquit('grad_hnd_cos: rtdb get failed for iatefc',915,
      $                rtdb_err)
-      if (.not.ma_push_get(mt_dbl,nefc,'efcs',l_efcs,k_efcs))
-     $  call errquit('grad_hnd_cos: could not allocate efcs',0,MA_ERR)
-      if (.not.rtdb_get(rtdb,'cosmo:efcs',mt_dbl,nefc,dbl_mb(k_efcs)))
-     $  call errquit('grad_hnd_cos: rtdb get failed efcs',0,RTDB_ERR)
-      if (.not.ma_push_get(mt_dbl,nefc,'efczeta',l_efczeta,k_efczeta))
-     $  call errquit('grad_hnd_cos: could not allocate efczet',0,MA_ERR)
-      if (.not.rtdb_get(rtdb,'cosmo:efczeta',mt_dbl,nefc,
-     $   dbl_mb(k_efczeta)))
-     $  call errquit('grad_hnd_cos: rtdb get failed efczeta',0,RTDB_ERR)
-      if (.not.ma_push_get(mt_dbl,max_at_bf**2,'loc p',l_p,k_p))
-     $  call errquit('grad_hnd_cos: could not allocate loc p',0,MA_ERR) 
-c
-c     *** Get charges map ***
-c
-      map(1:nat,1) = -1
-      map(1:nat,2) =  0
-
-      llefc = 1
-      maxpts = 0
-      do iat1=1,nat
-        do iefc=llefc,nefc
-          if (int_mb(k_efciat+iefc-1).eq.iat1) then
-            if (iefc.eq.llefc) map(iat1,1) = iefc
-            map(iat1,2) = iefc
-          endif
-        enddo
-        llefc = map(iat1,2) + 1
-        maxpts = max(maxpts,map(iat1,2)-map(iat1,1)+1)
-      enddo
-      if (.not.ma_push_get(mt_dbl,maxpts,'loc p',l_inv,iefc_inv))
-     $  call errquit('grad_hnd_cos: could not allocate inv',0,MA_ERR) 
-      call dfill(maxpts,0d0,dbl_mb(iefc_inv),1)
-c
-c     *** Memory for McMurchie-Davidson derivatives ***
-c
-      status = bas_high_angular(basis,lmax)
-      status = bas_nprim_cn_max(basis,npmax)
-      lp = 2*(lmax+1)+1
-      lp3 = ((lp+1)*(lp+2)*(lp+3))/6
-      npmax = npmax*npmax
-      lprod = lp*(lmax+1)**2
-      maxscr = 13*npmax + 6*npmax*lprod + lp3*npmax + (lp+1)**3 +
-     $         npmax*(lp+1)*lp3 
-      maxbuf = 6*npmax + 6*npmax*lprod + lp3*npmax + (lp+1)**3 +
-     $         6*npmax*((lmax+1)*(lmax+2)/2) + ((lmax+1)*(lmax+2))/2
-      maxscr = max(maxscr,maxbuf) + 3*npmax
-      maxscr = max(maxscr,lscr)
-      if (.not.ma_push_get(mt_dbl,maxscr,'loc scr',l_scr,k_scr))
-     $  call errquit('grad_hnd_cos: could not allocate scr',0,MA_ERR) 
 c
       if(.not.bas_nbf_cn_max(basis,max_sh_bf))
      $ call errquit('grad_hnd_cos: bas_nbf_cn_max failed',0,BASIS_ERR) 
@@ -298,8 +240,6 @@ c
       call hf_print_set(1)
 
       t0 = util_wallsec()
-      qmax = dabsmax(nefc,dbl_mb(iefc_q))
-
       ijatom = -1
       next = nxtask(nproc,task_size)
       do 90, iat1 = 1, nat
@@ -316,7 +256,7 @@ c
             if (iab1f.le.0 .or. iab2f.le.0) goto 1010
 
             est_int = schwarz_atom(iat1,iat2)
-            if (est_int*qmax*nefc.lt.1d-14) goto 1010
+            if (est_int*qmax.lt.1d-14) goto 1010
 
             ateq = iat1.eq.iat2
             est_int = schwarz_atom(iat1,iat2)
