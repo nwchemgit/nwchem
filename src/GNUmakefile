@@ -250,17 +250,18 @@ ifdef SUBDIRS
 endif
 
 
+.PHONY:	install
 install: link
-ifdef INSTALL_PREFIX
-	echo install_prefix is $(INSTALL_PREFIX)
-else
-errorp:
-$(info     )
-$(info please set INSTALL_PREFIX when using )
-$(info make install )
-$(info     )
-$(error )
-endif
+#ifdef INSTALL_PREFIX
+#	echo install_prefix is $(INSTALL_PREFIX)
+#else
+#errorp:
+#$(info     )
+#$(info please set INSTALL_PREFIX when using )
+#$(info make install )
+#$(info     )
+#$(error )
+#endif
 	@mkdir -p $(INSTALL_PREFIX)/bin  $(INSTALL_PREFIX)/share
 	@cp $(BINDIR)/$(NWBINNAME) $(INSTALL_PREFIX)/bin/.
 	@cp -r basis/libraries $(INSTALL_PREFIX)/share/.
