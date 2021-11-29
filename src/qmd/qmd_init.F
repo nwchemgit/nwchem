@@ -174,7 +174,7 @@ c
 c     random number seed
       svals=0
       if(ga_nodeid().eq.0) then
-         call date_and_timed(sdate,stime,szone,tvals)
+         call date_and_time(sdate,stime,szone,tvals)
 c     current seconds x milliseconds + minutes
          svals = tvals(7)*tvals(8)+tvals(6)
       endif
