@@ -31,12 +31,10 @@ c
       integer step_property
       integer step_tddft
       integer step_freq
-#ifdef XLFLINUX
+      character*8 sdate
+      character*10 stime
+      character*5 szone
       integer tvals(8)
-      CHARACTER (LEN = 10) BIG_BEN (3)
-#else
-      integer*4 tvals(8)
-#endif
       integer svals
       double precision dt_nucl      ! nuclear md time step
       character*32 thermostat       ! thermostat name
@@ -176,11 +174,7 @@ c
 c     random number seed
       svals=0
       if(ga_nodeid().eq.0) then
-#ifdef XLFLINUX
-         call date_and_time(big_ben(1),big_ben(2),big_ben(3),tvals)
-#else
-         call date_and_time(values=tvals)
-#endif
+         call date_and_timed(sdate,stime,szone,tvals)
 c     current seconds x milliseconds + minutes
          svals = tvals(7)*tvals(8)+tvals(6)
       endif
