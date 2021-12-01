@@ -1203,15 +1203,20 @@ c            write(luout,1706) E(18)
 
 *     **** write out extended Born solvation energies ****
       if (nwpw_born_on()) then
-         Egas = control_gas_energy()
-         if (oprint) then
-            write(luout,1740)
-            write(luout,1741) nwpw_born_screen()
-            write(luout,1745) E(52),E(52)*27.2116d0*23.06d0
-            if (dabs(Egas).gt.1.0d-6)
-     >         write(luout,1746)  E(1)-Egas,
+         if (pspw_V_APC_on()) then
+            Egas = control_gas_energy()
+            if (oprint) then
+               write(luout,1740)
+               write(luout,1741) nwpw_born_screen()
+               write(luout,1745) E(52),E(52)*27.2116d0*23.06d0
+               if (dabs(Egas).gt.1.0d-6)
+     >            write(luout,1746)  E(1)-Egas,
      >                           (E(1)-Egas)*27.2116d0*23.06d0
-            call nwpw_born_print(luout,Egas,E(1))
+               call nwpw_born_print(luout,Egas,E(1))
+            end if
+         else
+            call pspw_dngen_APC(ispin,ne,dbl_mb(dn(1)),.false.)
+            call pspw_print_APC(luout)
          end if
       end if
 

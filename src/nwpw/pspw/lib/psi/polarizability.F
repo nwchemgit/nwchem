@@ -4,7 +4,6 @@
 *     *  Calculate_Resta_Polarizability   *
 *     *                                   *
 *     *************************************
-
       subroutine Calculate_Resta_Polarizability(doprint,
      >                                  ispin,ne,neq,npack1,nfft3d,psi1,
      >                                  alpha)

@@ -2260,7 +2260,7 @@ c
       goto 10
 
 c
-c  born [dielc] on/off [r1 r2 r3...] 
+c  born [dielc] [relax] on/off [r1 r2 r3...] 
 c
  9010 n1 = 0
 
@@ -2270,7 +2270,19 @@ c
       end if
 
       move = .true.
-      if (inp_a(zone_name)) move = nwpw_parse_boolean(zone_name,.true.)
+      if (inp_a(zone_name)) then
+         if (inp_compare(.false.,zone_name,'relax')) then
+            if (.not.rtdb_put(rtdb,'nwpw:born_relax',mt_log,1,move))
+     >         call errquit('nwpw_input: error writing to rtdb',
+     >                      9010,RTDB_ERR)
+            if (inp_a(zone_name)) then
+               move = nwpw_parse_boolean(zone_name,.true.)
+            end if
+         else
+            move = rtdb_delete(rtdb,'nwpw:born_relax')
+            move = nwpw_parse_boolean(zone_name,.true.)
+         end if
+      end if
 
       if (.not.rtdb_put(rtdb,'nwpw:born',mt_log,1,move))
      > call errquit('nwpw_input: error writing to rtdb',9010,RTDB_ERR)
