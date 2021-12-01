@@ -5820,6 +5820,21 @@ c      end
       end 
 
 
+*     ***********************************
+*     *					*
+*     *		rho_1dngen_APC   	*
+*     *					*
+*     ***********************************
+      subroutine rho_1dngen_APC()
+      implicit none
+
+#include "bafdecls.fh"
+#include "psi.fh"
+
+      call pspw_dngen_APC(ispin,ne,dbl_mb(rho1(1)),.false.)
+      return
+      end 
+
 
 *     ***********************************
 *     *					*
@@ -8981,6 +8996,30 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
       return
       end
+
+
+*     **********************************
+*     *                                *
+*     *   psi1_crystal_polarizability  *
+*     *                                *
+*     **********************************
+*     
+*     Uses - electron_crystal_polarizability
+*       
+      subroutine psi1_crystal_polarizability(alpha)
+      implicit none
+      real*8 alpha(3,3)
+      
+#include "bafdecls.fh"
+#include "psi.fh" 
+      
+      call Calculate_Resta_Polarizability(.true.,
+     >                   ispin,ne,neq,npack1,nfft3d,
+     >                   dcpl_mb(psi1(1)),alpha)
+     
+      return
+      end
+
       
 
        
@@ -9905,6 +9944,181 @@ c      end if
      >  call errquit('epsi_finalize: error freeing heap',0, MA_ERR)
 
       epsi_finalize = value
+      return
+      end
+
+
+
+
+*     ***************************
+*     *                         *
+*     *     qpsi_initialize     *
+*     *                         *
+*     ***************************
+      logical function qpsi_initialize()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+#include "psi.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
+      logical value,psi_nogrid
+      integer nemax,ispin0
+
+      integer hversion,hnfft(3),hispin,hne(2)
+      real*8 hunita(3,3),sum1,sum2
+      integer rtdb,ind,nn
+      integer  control_rtdb,control_ngrid
+      external control_rtdb,control_ngrid
+      character*50 filename
+      character*50 control_input_qpsi
+      external     control_input_qpsi
+      logical  wvfnc_expander
+      external wvfnc_expander
+      integer  control_symmetry
+      external control_symmetry
+
+
+      nemax  = neq(1)  + neq(2)
+      nn = ne(1)*ne(1) + ne(2)*ne(2)
+
+*     **** allocate memory ****
+      value = BA_alloc_get(mt_dcpl,npack1*(nemax),
+     >         'psi2_pertab',psi2_pertab(2),psi2_pertab(1))
+      value = value.and.
+     >        BA_alloc_get(mt_dcpl,npack1*(nemax),
+     >         'psi1_pertab',psi1_pertab(2),psi1_pertab(1))
+      value = value.and.
+     >        BA_alloc_get(mt_dbl,(2*nemax),'eig_excited',
+     >                     eig_pertab(2),eig_pertab(1))
+      value = value.and.
+     >        BA_alloc_get(mt_dbl,nn,'hml_pertab',
+     >                     hml_pertab(2),hml_pertab(1))
+      if (.not.value)
+     >   call errquit('qpsi_initialize: out of heap memory',0,MA_ERR)
+
+      call Parallel_shared_vector_zero(.true.,2*npack1*nemax,
+     >                    dcpl_mb(psi2_pertab(1)))
+      call Parallel_shared_vector_zero(.true.,2*npack1*nemax,
+     >                    dcpl_mb(psi1_pertab(1)))
+      call Parallel_shared_vector_zero(.true.,2*nemax,
+     >                    dbl_mb(eig_pertab(1)))
+      call Parallel_shared_vector_zero(.true.,nn,
+     >                    dbl_mb(hml_pertab(1)))
+
+
+*     *****  read initial wavefunctions into psi1  ****
+      rtdb = control_rtdb()
+      if (.not.btdb_get(rtdb,'nwpw:psi_nogrid',
+     >                  mt_log,1,psi_nogrid))
+     >   psi_nogrid = .true.
+
+      if (psi_nogrid) then
+
+
+        filename =  control_input_qpsi()
+        call psi_get_header_filename(filename,
+     >                      hversion,hnfft,hunita,hispin,hne)
+
+        if ( (hnfft(1).ne.control_ngrid(1)) .or.
+     >       (hnfft(2).ne.control_ngrid(2)) .or.
+     >       (hnfft(3).ne.control_ngrid(3)) ) then
+
+        hnfft(1) = control_ngrid(1)
+        hnfft(2) = control_ngrid(2)
+        hnfft(3) = control_ngrid(3)
+        call Parallel_taskid(taskid)
+        value = btdb_parallel(.false.)
+        if (taskid.eq.MASTER) then
+
+
+          ind = index(filename,' ') - 1
+          if (.not. btdb_cput(rtdb,'xpndr:old_wavefunction_filename',
+     >                    1,filename(1:ind)))
+     >     call errquit(
+     >     'wvfnc_expander_input: btdb_cput failed', 0, RTDB_ERR)
+
+          if (.not. btdb_cput(rtdb,'xpndr:new_wavefunction_filename',
+     >                    1,filename(1:ind)))
+     >     call errquit(
+     >     'wvfnc_expander_input: btdb_cput failed', 0, RTDB_ERR)
+
+          if (.not. btdb_put(rtdb,'xpndr:ngrid',mt_int,3,hnfft))
+     >     call errquit(
+     >     'wvfnc_expander_input: btdb_put failed', 0, RTDB_ERR)
+
+          write(*,*)
+          write(*,*) "Grid is being converted:"
+          write(*,*) "------------------------"
+          write(*,*)
+          write(*,*) "To turn off automatic grid conversion:"
+          write(*,*)
+          write(*,*) "set nwpw:psi_nogrid .false."
+          write(*,*)
+          value = wvfnc_expander(rtdb)
+
+        end if
+        value = btdb_parallel(.true.)
+
+      end if
+
+      end if
+
+*     *****  read initial wavefunctions into psi1  ****
+      call qpsi_read(ispin,ne,dcpl_mb(psi1_pertab(1)))
+
+
+*     **** force inversion symmetry ****
+      if (control_symmetry().eq.1)  then
+         call Parallel_taskid(taskid)
+         if (taskid.eq.MASTER) then
+         write(*,*)
+         write(*,*)
+     >   "Projecting reponse wavefunctions to have inversion symmetry"
+         write(*,*)
+         end if
+         call psi_symm_project(ispin,neq,npack1,
+     >                         dcpl_mb(psi1_pertab(1)))
+      end if
+
+      qpsi_initialize = value
+      return
+      end
+
+
+*     ***************************
+*     *                         *
+*     *      qpsi_finalize      *
+*     *                         *
+*     ***************************
+
+      logical function qpsi_finalize(writeqpsi)
+      implicit none
+      logical writeqpsi
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "psi.fh"
+
+*     **** local variables ****
+      logical value
+
+*     ***** write psi1 wavefunctions ****
+      if (writeqpsi)
+     >  call qpsi_write(ispin,ne_excited,dcpl_mb(psi1_excited(1)))
+
+      value = BA_free_heap(hml_pertab(2))
+      value = value.and.BA_free_heap(eig_pertab(2))
+      value = value.and.BA_free_heap(psi2_pertab(2))
+      value = value.and.BA_free_heap(psi1_pertab(2))
+      if (.not. value)
+     >  call errquit('qpsi_finalize: error freeing heap',0, MA_ERR)
+
+      qpsi_finalize = value
       return
       end
 
