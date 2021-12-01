@@ -376,7 +376,7 @@ APPENDIX A - Reference Implementation
    if the symbol MD is defined on the C compiler command line as 2 or 4.
 
    The implementation is portable and should work on many different
-   plaforms. However, it is not difficult to optimize the implementation
+   platforms. However, it is not difficult to optimize the implementation
    on particular platforms, an exercise left to the reader. For example,
    on "little-endian" platforms where the lowest-addressed byte in a 32-
    bit word is the least significant and there are no alignment

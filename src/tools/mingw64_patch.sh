@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 rm -f win64_ma_nxtval.patch
 cat > win64_ma_nxtval.patch <<EOF
 --- $1/ma/ma.c.org	2020-02-28 11:39:16.000000000 -0800

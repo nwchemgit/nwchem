@@ -2318,8 +2318,8 @@ c        call D1dB_SumAll(ph)
       external lattice_omega
 
 !$OMP MASTER
-      ehfx = 0.0d0
-      phfx = 0.0d0
+      ehfx_dnc = 0.0d0
+      phfx_dnc = 0.0d0
 !$OMP END MASTER
 
 *     **************************************

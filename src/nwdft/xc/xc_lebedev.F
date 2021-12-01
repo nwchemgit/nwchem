@@ -1,9 +1,9 @@
-      subroutine xc_lebedev(l_ang, oprint)
+      subroutine xc_lebedev(l_ang, oprint, wa_leb, za_leb, ntheta, nphi,
+     $                      iangquad )
       implicit none
 c
 C$Id$
 c
-#include "cdft.fh"
 #include "stdio.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -18,9 +18,17 @@ c      Doklady Mathematics 366, 741 (1999)
 c
 c     integer iacc  ! [input]
 c
+      integer iac_max, mx_l_ang
+      parameter (iac_max = 29, mx_l_ang = 5810)
       integer MAXN, i
       parameter(MAXN = 1281)
       logical oprint
+
+      integer iangquad
+      integer ntheta(*), nphi(*)
+      double precision wa_leb(mx_l_ang,iac_max)
+      double precision za_leb(3,mx_l_ang,iac_max)
+
       double precision gjk(2,MAXN), wleb(MAXN), fasf(6), goh(3,3,48)
       integer njk(6,IAC_MAX), ivj(48,6), nvj(6),
      &        jkv(IAC_MAX+1),  itop(3,3,6), isig(3,8)

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 Vx=7
 Vy=0
 Vz=0

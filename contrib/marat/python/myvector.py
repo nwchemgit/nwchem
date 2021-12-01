@@ -5,6 +5,7 @@ Created on Feb 4, 2012
 '''
 import math
 from numpy import array
+from functools import reduce
 
 class Vector:
     def __init__(self, coord=[],name="Vector"):
@@ -24,7 +25,7 @@ class Vector:
     __rmul__ = __mul__
     
     def __repr__(self): 
-        return `self.coord`
+        return repr(self.coord)
 
     def norm1(self, start=0):
         return reduce(lambda x,y: x + abs(y), self.coord, start)
@@ -45,17 +46,17 @@ class Vector:
     
 def test():
     x = Vector([2, 4, 6])
-    print x + 3, 3 + x
-    print x * 4, 4 * x
-    print x.norm1(), x.prod()
+    print(x + 3, 3 + x)
+    print(x * 4, 4 * x)
+    print(x.norm1(), x.prod())
 
     y = Vector([1, 2, 3])
-    print x + y
-    print x * y
-    print x * y * 2
-    print x * y * x
+    print(x + y)
+    print(x * y)
+    print(x * y * 2)
+    print(x * y * x)
     
     z = Vector([1,1,1])
-    print z.length(), math.sqrt(3.0), z.size
+    print(z.length(), math.sqrt(3.0), z.size)
 
 if __name__ == '__main__': test()    # run my self-test code

@@ -259,10 +259,13 @@ c
       ificos   =0
       lineq    =-1 ! 0: direct solver, 1: iterative solver
       rsolv    =0.50d+00
-      zeta     =0.98d+00 ! apparently for Lebedev grids zeta=4.9
+      zeta     =4.50d+00 ! apparently for Lebedev grids zeta=4.9
       gammas   =1.00d+00 ! full switching, see York, Karplus Eq.86.
       swtol    =1.00d-04 ! switching tolerance, see York, Karplus
                          ! Eq.62-88.
+      iangleb  =-1
+      fibonacci=-1
+      thomson  =0
 c
 c MN solvation models -->
 c
@@ -316,6 +319,9 @@ c
       status = rtdb_get(rtdb,'cosmo:gamma_s',mt_dbl,1,gammas) 
       status = rtdb_get(rtdb,'cosmo:sw_tol',mt_dbl,1,swtol) 
       status = rtdb_cget(rtdb,'cosmo:solvent',1,solvname_short)
+      status = rtdb_get(rtdb,'cosmo:iangleb',mt_int,1,iangleb)
+      status = rtdb_get(rtdb,'cosmo:fibonacci',mt_int,1,fibonacci)
+      status = rtdb_get(rtdb,'cosmo:thomson',mt_int,1,thomson)
 c
 c      nrad = 0 ! this block was moved below
 c      if (.not. rtdb_get(rtdb,'cosmo:nrrad',mt_int,1,nrad)) nrad = 0
@@ -535,6 +541,31 @@ c
          endif
       enddo
 c
+c     ---- lebedev & fibonacci ----
+c
+      if ((iangleb.gt.0).and.(fibonacci.gt.0)) then
+        call errquit('cosmo_initialize: Lebedev or Fibonacci?',0,
+     $                INPUT_ERR)
+      endif
+
+      if ((do_cosmo_model.eq.do_cosmo_ks)) then
+        if (iangleb.gt.0) then
+          iangleb = -1
+        elseif (fibonacci.gt.0) then
+          fibonacci = -1
+        elseif (thomson.gt.0) then
+          thomson = 0
+        endif
+      endif
+
+      if (zeta.eq.0d0) then
+        if (iangleb.gt.0) then
+          zeta = 4.907d0
+        else
+          zeta = 4.500d0
+        endif
+      endif
+c
 c     ----- create boundary elements of cavity -----
 c
       call hnd_cosset(rtdb,nat,dbl_mb(k_coscoor),dbl_mb(k_rad))
@@ -553,14 +584,25 @@ c
 c
       if(osome.and.me.eq.0) then
          write(luout,9993) lineq
-         write(luout,9991) minbem
-         if (do_cosmo_model.eq.DO_COSMO_KS) then
-           write(luout,9992) maxbem
-         endif
-         if(ificos.eq.0) then
-            write(luout,9990)
+         if ((iangleb.lt.1).and.(fibonacci.lt.1)) then
+           write(luout,9991) minbem
+           if (do_cosmo_model.eq.DO_COSMO_KS) then
+             write(luout,9992) maxbem
+           endif
+           if(ificos.eq.0) then
+              write(luout,9990)
+           else
+              write(luout,9989)
+           endif
+         elseif (fibonacci.lt.1) then
+           write(luout,9969)
+           write(luout,9968) iangleb
          else
-            write(luout,9989)
+           write(luout,9967)
+           write(luout,9966) fibonacci
+         endif
+         if (thomson.gt.1) then
+           write(luout,9965)
          endif
          if (do_cosmo_model.eq.DO_COSMO_KS) then
            write(luout,9994) rsolv
@@ -685,6 +727,13 @@ c
  9972 format(' surface charge correction     = ',a)
  9971 format(' Cosmo: York-Karplus, doi: 10.1021/jp992097l')
  9970 format(' Cosmo: Klamt-Schuurmann, doi: 10.1039/P29930000799')
+
+ 9969 format(' Using -Lebedev- grid')
+ 9968 format(' -iangleb',I4)
+ 9967 format(' Using -Fibonacci spiral- grid')
+ 9966 format(' -Number of points:',I4)
+ 9965 format(' Minimizing -Thomson- energy')
+
       end
 C>
 C> @}

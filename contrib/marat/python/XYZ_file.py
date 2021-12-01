@@ -20,9 +20,9 @@ class XYZ_file:
             self.AtomPos = []
             self.AtomVel = []
             self.AtomId = []
-            print "am here"
+            print("am here")
         else:
-            print "loading file", name
+            print("loading file", name)
             self.LoadFile(name)
             
     def LoadFile(self,FileName):
@@ -103,6 +103,6 @@ class XYZ_file:
 
 if __name__ == '__main__':
     a = XYZ_file("test.xyz")
-    print a.AtomPos[0]
-    print a.BondLength(1, 2)
+    print(a.AtomPos[0])
+    print(a.BondLength(1, 2))
     a.WriteFile("test1.xyz")

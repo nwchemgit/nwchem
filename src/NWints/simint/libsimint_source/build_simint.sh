@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # script to download simint-generator, create the simint library, compile it
 # and link it in NWChem
 # FC=compilername can be used to set compiler, e.g.
@@ -166,7 +166,7 @@ if [[ ! -z "${PYTHONHOME}" ]]; then
     unset PYTHONHOME
     echo 'PYTHONOME unset'
 fi
-time -p ./create.py -g build/generator/ostei -l ${SIMINT_MAXAM} -p ${PERMUTE_SLOW} -d ${DERIV} ../simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}  -ve 4 -he 4 -vg 5 -hg 5
+time -p ./create.py -g build/generator/ostei -l ${SIMINT_MAXAM} -p ${PERMUTE_SLOW} -d ${DERIV} ../simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}  -ve 4 -he 4 -vg 5 -hg 5 -n 3
 if [[ ! -z "${PYTHONHOME}" ]]; then
     export PYTHONHOME=${PYTHONHOMESET}
     unset PYTHONHOMESET

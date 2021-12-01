@@ -1,4 +1,4 @@
-#!/bin/bash -f
+#!/usr/bin/env bash -f
 #
 # $Id: doqmtests.mpi 25922 2014-07-18 22:40:13Z edo $
 #

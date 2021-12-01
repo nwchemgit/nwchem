@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #echo "starting sleep_loop.sh for command: " ${@} >& /tmp/out
 for last_arg in $@; do :; done
 # echo "last arg of ${#} is $last_arg" >& /tmp/out

@@ -1062,8 +1062,9 @@ c      end if
       real*8 theta,ep,sp,e0old
       integer r1(2),t0(2),t(2),g(2),psig_r(2),psie_r(2)
       integer rhog(2),rhoe(2),rhoge(2),vcgg(2),vcge(2),vcee(2)
-      integer vc(2),vctmp(2),te(2)
-      integer psig_ptr,psie_ptr,psig_homo(2),hpsig(2),hpsig_r(2)
+      integer vc(2),vctmp(2),te(2),vcc(2)
+      integer psig_ptr,psie_ptr,psig_homo(2),hpsig(2)
+      integer hpsig_r(2),hpsie_r(2)
       real*8  Sgg,Sge,See
       real*8  H1gg,H1ge,H1ee
       real*8  H2gg,H2ge,H2ee
@@ -1120,12 +1121,14 @@ c      end if
      >        BA_push_get(mt_dbl,n2ft3d,'vc',vc(2),vc(1))
 
       value = value.and.
+     >        BA_push_get(mt_dbl,n2ft3d,'vcc',vcc(2),vcc(1))
+      value = value.and.
      >        BA_push_get(mt_dbl,n2ft3d,'vcgg',vcgg(2),vcgg(1))
       value = value.and.
      >        BA_push_get(mt_dbl,n2ft3d,'vcge',vcge(2),vcge(1))
       value = value.and.
      >        BA_push_get(mt_dbl,n2ft3d,'vcee',vcee(2),vcee(1))
-      if (ci_algorithm.eq.5) then
+cc      if (ci_algorithm.eq.5) then
          value = value.and.
      >           BA_push_get(mt_dcpl,npack1,'psig_homo',
      >                       psig_homo(2),psig_homo(1))
@@ -1135,8 +1138,11 @@ c      end if
          value = value.and.
      >           BA_push_get(mt_dbl,(neq(1)+neq(2))*n2ft3d,'hpsig_r',
      >                       hpsig_r(2),hpsig_r(1))
+         value = value.and.
+     >           BA_push_get(mt_dbl,(neq(1)+neq(2))*n2ft3d,'hpsie_r',
+     >                       hpsie_r(2),hpsie_r(1))
          call Pack_c_Copy(1,dcpl_mb(psig_ptr),dcpl_mb(psig_homo(1)))
-      end if
+cc      end if
       if (.not.value) call errquit(
      >     'psi_CI_update_virtual: out of stack memory',0, MA_ERR)
 
@@ -1160,32 +1166,38 @@ c      end if
  2    continue
          it = it + 1
 
-         if (ci_algorithm.eq.2) then
+        if (ci_algorithm.eq.2) then
 *        *** calculate residual (steepest descent) direction for psie ***
          call psi_2x2_virtual_gradient(dcpl_mb(psig_ptr),
-     >                                 dbl_mb(psig_r(1)),
-     >                                 dcpl_mb(psie_ptr),
-     >                                 dbl_mb(psie_r(1)),
-     >                                 eci,dcpl_mb(g(1)),
-     >                                 dcpl_mb(t(1)),
-     >                                 dbl_mb(rhog(1)),
-     >                                 dbl_mb(vcee(1)),dbl_mb(vcge(1)))
+     >                        dbl_mb(psig_r(1)),
+     >                        dcpl_mb(psie_ptr),
+     >                        dbl_mb(psie_r(1)),
+     >                        eci,dcpl_mb(g(1)),
+     >                        dcpl_mb(t(1)),
+     >                        dbl_mb(rhog(1)),
+     >                        dbl_mb(vcc(1)),
+     >                        dbl_mb(vcee(1)),dbl_mb(vcge(1)),
+     >                        dcpl_mb(hpsig(1)),
+     >                        dbl_mb(hpsig_r(1)),dbl_mb(hpsie_r(1)))
          else if (ci_algorithm.eq.3) then
          call psi_3x3_virtual_gradient(dcpl_mb(psig_ptr),
-     >                                 dbl_mb(psig_r(1)),
-     >                                 dcpl_mb(psie_ptr),
-     >                                 dbl_mb(psie_r(1)),
-     >                                 eci,dcpl_mb(g(1)),
-     >                                 dcpl_mb(t(1)),
-     >                                 dcpl_mb(te(1)),
-     >                                 dbl_mb(rhog(1)),
-     >                                 dbl_mb(rhoge(1)),
-     >                                 dbl_mb(rhoe(1)),
-     >                                 dbl_mb(vctmp(1)),
-     >                                 dbl_mb(vc(1)),
-     >                                 dbl_mb(vcgg(1)),
-     >                                 dbl_mb(vcge(1)),
-     >                                 dbl_mb(vcee(1)))
+     >                        dbl_mb(psig_r(1)),
+     >                        dcpl_mb(psie_ptr),
+     >                        dbl_mb(psie_r(1)),
+     >                        eci,dcpl_mb(g(1)),
+     >                        dcpl_mb(t(1)),
+     >                        dcpl_mb(te(1)),
+     >                        dbl_mb(rhog(1)),
+     >                        dbl_mb(rhoge(1)),
+     >                        dbl_mb(rhoe(1)),
+     >                        dbl_mb(vctmp(1)),
+     >                        dbl_mb(vc(1)),
+     >                        dbl_mb(vcc(1)),
+     >                        dbl_mb(vcgg(1)),
+     >                        dbl_mb(vcge(1)),
+     >                        dbl_mb(vcee(1)),
+     >                        dbl_mb(hpsig_r(1)),
+     >                        dbl_mb(hpsie_r(1)))
          else if (ci_algorithm.eq.4) then
          call psi_4x4_virtual_gradient(dcpl_mb(psig_ptr),
      >                                 dbl_mb(psig_r(1)),
@@ -1205,6 +1217,8 @@ c      end if
          else if (ci_algorithm.eq.5) then
          call psi_2x2ne_virtual_gradient(dcpl_mb(psig_ptr),
      >                          dbl_mb(electron_psi_r_ptr()),
+     >                          dcpl_mb(psie_ptr),
+     >                          dbl_mb(psie_r(1)),
      >                          dcpl_mb(psig_homo(1)),
      >                          dbl_mb(psig_r(1)),
      >                          dcpl_mb(psie_ptr),
@@ -1212,8 +1226,34 @@ c      end if
      >                          eci,dcpl_mb(g(1)),
      >                          dcpl_mb(t(1)),
      >                          dbl_mb(rhog(1)),
+     >                          dbl_mb(vcc(1)),
      >                          dbl_mb(vcee(1)),dbl_mb(vcge(1)),
-     >                          dcpl_mb(hpsig(1)),dbl_mb(hpsig_r(1)))
+     >                          dcpl_mb(hpsig(1)),
+     >                          dbl_mb(hpsig_r(1)),dbl_mb(hpsie_r(1)))
+         else if (ci_algorithm.eq.6) then
+         call psi_3x3ne_virtual_gradient(dcpl_mb(psig_ptr),
+     >                          dbl_mb(electron_psi_r_ptr()),
+     >                          dcpl_mb(psie_ptr),
+     >                          dbl_mb(psie_r(1)),
+     >                          dcpl_mb(psig_homo(1)),
+     >                          dbl_mb(psig_r(1)),
+     >                          dcpl_mb(psie_ptr),
+     >                          dbl_mb(psie_r(1)),
+     >                          eci,dcpl_mb(g(1)),
+     >                          dcpl_mb(t(1)),
+     >                          dcpl_mb(te(1)),
+     >                          dbl_mb(rhog(1)),
+     >                          dbl_mb(rhoge(1)),
+     >                          dbl_mb(rhoe(1)),
+     >                          dbl_mb(vctmp(1)),
+     >                          dbl_mb(vc(1)),
+     >                          dbl_mb(vcc(1)),
+     >                          dbl_mb(vcgg(1)),
+     >                          dbl_mb(vcge(1)),
+     >                          dbl_mb(vcee(1)),
+     >                          dcpl_mb(hpsig(1)),
+     >                          dbl_mb(hpsig_r(1)),
+     >                          dbl_mb(hpsie_r(1)))
          end if
 
 
@@ -1283,12 +1323,14 @@ c     >   write(*,*) "orb,it,eci,eold,eci-eold=",ii,it,eci,eold,eci-eold
      >                                  dbl_mb(rhoge(1)),
      >                                  dbl_mb(vctmp(1)),
      >                                  dbl_mb(vc(1)),
+     >                                  dbl_mb(vcc(1)),
      >                                  dbl_mb(vcgg(1)),
      >                                  dbl_mb(vcee(1)),
      >                                  dbl_mb(vcge(1)),
      >                                  psig_homo(1),
      >                                  electron_psi_r_ptr(),
-     >                                  hpsig(1),hpsig_r(1),
+     >                                  hpsig(1),
+     >                                  hpsig_r(1),hpsie_r(1),
      >                                  maxerror)
 
          !precondition = (dabs(eci-eold).gt.(sp*maxerror))
@@ -1314,14 +1356,16 @@ c     >   write(*,*) "orb,it,eci,eold,eci-eold=",ii,it,eci,eold,eci-eold
 
 *     **** release stack memory ****
       value = .true.
-      if (ci_algorithm.eq.5) then
-         value = BA_pop_stack(hpsig_r(2))
+cc      if (ci_algorithm.eq.5) then
+         value = BA_pop_stack(hpsie_r(2))
+         value = value.and.BA_pop_stack(hpsig_r(2))
          value = value.and.BA_pop_stack(hpsig(2))
          value = value.and.BA_pop_stack(psig_homo(2))
-      end if
+cc      end if
       value = value.and.BA_pop_stack(vcee(2))
       value = value.and.BA_pop_stack(vcge(2))
       value = value.and.BA_pop_stack(vcgg(2))
+      value = value.and.BA_pop_stack(vcc(2))
       value = value.and.BA_pop_stack(vc(2))
       value = value.and.BA_pop_stack(vctmp(2))
       value = value.and.BA_pop_stack(rhoge(2))
@@ -1362,15 +1406,17 @@ c     >   write(*,*) "orb,it,eci,eold,eci-eold=",ii,it,eci,eold,eci-eold
 *  e0 = <orb|g>
 *  de0 = 2*<t|g>
 *
+
       subroutine psi_linesearch_CI_virtual(ci_algorithm,maxit,
      >                                     ii,theta,e0,de0,t,
      >                                     psig,psig_r,psie_r,
      >                                     h1psig,h1psie,
      >                                     rho,rhoge,rhoee,
-     >                                     vctmp,vc,
+     >                                     vctmp,vc,vcc,
      >                                     vcgg,vcee,vcge,
      >                                     psig_homo_ptr,psiall_r_ptr,
-     >                                     hpsig_ptr,hpsig_r_ptr,
+     >                                     hpsig_ptr,
+     >                                     hpsig_r_ptr,hpsie_r_ptr,
      >                                     maxerror)
       implicit none
       integer ci_algorithm,maxit
@@ -1384,8 +1430,10 @@ c     >   write(*,*) "orb,it,eci,eold,eci-eold=",ii,it,eci,eold,eci-eold
       complex*16  h1psig(*),h1psie(*)
       real*8      rho(*),rhoge(*),rhoee(*)
       real*8      vctmp(*),vc(*)
+      complex*16  vcc(*)
       real*8      vcgg(*),vcee(*),vcge(*)
-      integer     psig_homo_ptr,psiall_r_ptr,hpsig_ptr,hpsig_r_ptr
+      integer     psig_homo_ptr,psiall_r_ptr,hpsig_ptr
+      integer     hpsig_r_ptr,hpsie_r_ptr
       real*8      maxerror
 
 #include "errquit.fh"
@@ -1455,12 +1503,17 @@ c      end if
 
 *     *** determine e1,g1, and de1/dtheta ***
 *     **** de/dtheta = -sin(theta)*<orb|g> + cos(theta)*<t|g> ****
+
       if (ci_algorithm.eq.2) then
       call psi_2x2_virtual_gradient(psig,psig_r,
      >                              dcpl_mb(psi_ptr+(ii-1)*npack1),
      >                              psie_r,
      >                              e1,dcpl_mb(g(1)),
-     >                              h1psie,rho,vcee,vcge)
+     >                              h1psie,rho,vcc,
+     >                              vcee,vcge,
+     >                              dcpl_mb(hpsig_ptr),
+     >                              dbl_mb(hpsig_r_ptr),
+     >                              dbl_mb(hpsie_r_ptr))
       else if (ci_algorithm.eq.3) then
       call psi_3x3_virtual_gradient(psig,psig_r,
      >                              dcpl_mb(psi_ptr+(ii-1)*npack1),
@@ -1468,8 +1521,10 @@ c      end if
      >                              e1,dcpl_mb(g(1)),
      >                              h1psig,h1psie,
      >                              rho,rhoge,rhoee,
-     >                              vctmp,vc,
-     >                              vcgg,vcge,vcee)
+     >                              vctmp,vc,vcc,
+     >                              vcgg,vcge,vcee,
+     >                              dbl_mb(hpsig_r_ptr),
+     >                              dbl_mb(hpsie_r_ptr))
       else if (ci_algorithm.eq.4) then
       call psi_4x4_virtual_gradient(psig,psig_r,
      >                              dcpl_mb(psi_ptr+(ii-1)*npack1),
@@ -1479,15 +1534,35 @@ c      end if
      >                              rho,rhoge,rhoee,
      >                              vctmp,vc,
      >                              vcgg,vcge,vcee)
+
       else if (ci_algorithm.eq.5) then
       call psi_2x2ne_virtual_gradient(psig,dbl_mb(psiall_r_ptr),
+     >                              dcpl_mb(psi_ptr+(ii-1)*npack1),
+     >                              psie_r,
      >                              dcpl_mb(psig_homo_ptr),psig_r,
      >                              dcpl_mb(psi_ptr+(ii-1)*npack1),
      >                              psie_r,
      >                              e1,dcpl_mb(g(1)),
-     >                              h1psie,rho,vcee,vcge,
+     >                              h1psie,rho,vcc,
+     >                              vcee,vcge,
      >                              dcpl_mb(hpsig_ptr),
-     >                              dbl_mb(hpsig_r_ptr))
+     >                              dbl_mb(hpsig_r_ptr),
+     >                              dbl_mb(hpsie_r_ptr))
+      else if (ci_algorithm.eq.6) then
+      call psi_3x3ne_virtual_gradient(psig,dbl_mb(psiall_r_ptr),
+     >                              dcpl_mb(psi_ptr+(ii-1)*npack1),
+     >                              psie_r,
+     >                              dcpl_mb(psig_homo_ptr),psig_r,
+     >                              dcpl_mb(psi_ptr+(ii-1)*npack1),
+     >                              psie_r,
+     >                              e1,dcpl_mb(g(1)),
+     >                              h1psig,h1psie,
+     >                              rho,rhoge,rhoee,
+     >                              vctmp,vc,vcc,
+     >                              vcgg,vcge,vcee,
+     >                              dcpl_mb(hpsig_ptr),
+     >                              dbl_mb(hpsig_r_ptr),
+     >                              dbl_mb(hpsie_r_ptr))
       end if
       call Pack_cc_dot(1,dcpl_mb(orb(1)),dcpl_mb(g(1)),de1a)
       call Pack_cc_dot(1,t,              dcpl_mb(g(1)),de1b)
@@ -1552,7 +1627,11 @@ cccccc 20   theta = 0.5d0*(theta0+theta1)
      >                              dcpl_mb(psi_ptr+(ii-1)*npack1),
      >                              psie_r,
      >                              e1,dcpl_mb(g(1)),
-     >                              h1psie,rho,vcee,vcge)
+     >                              h1psie,rho,vcc,
+     >                              vcee,vcge,
+     >                              dcpl_mb(hpsig_ptr),
+     >                              dbl_mb(hpsig_r_ptr),
+     >                              dbl_mb(hpsie_r_ptr))
       else if (ci_algorithm.eq.3) then
       call psi_3x3_virtual_gradient(psig,psig_r,
      >                              dcpl_mb(psi_ptr+(ii-1)*npack1),
@@ -1560,8 +1639,10 @@ cccccc 20   theta = 0.5d0*(theta0+theta1)
      >                              e1,dcpl_mb(g(1)),
      >                              h1psig,h1psie,
      >                              rho,rhoge,rhoee,
-     >                              vctmp,vc,
-     >                              vcgg,vcge,vcee)
+     >                              vctmp,vc,vcc,
+     >                              vcgg,vcge,vcee,
+     >                              dbl_mb(hpsig_r_ptr),
+     >                              dbl_mb(hpsie_r_ptr))
       else if (ci_algorithm.eq.4) then
       call psi_4x4_virtual_gradient(psig,psig_r,
      >                              dcpl_mb(psi_ptr+(ii-1)*npack1),
@@ -1573,13 +1654,32 @@ cccccc 20   theta = 0.5d0*(theta0+theta1)
      >                              vcgg,vcge,vcee)
       else if (ci_algorithm.eq.5) then
       call psi_2x2ne_virtual_gradient(psig,dbl_mb(psiall_r_ptr),
+     >                              dcpl_mb(psi_ptr+(ii-1)*npack1),
+     >                              psie_r,
      >                              dcpl_mb(psig_homo_ptr),psig_r,
      >                              dcpl_mb(psi_ptr+(ii-1)*npack1),
      >                              psie_r,
      >                              e1,dcpl_mb(g(1)),
-     >                              h1psie,rho,vcee,vcge,
+     >                              h1psie,rho,vcc,
+     >                              vcee,vcge,
      >                              dcpl_mb(hpsig_ptr),
-     >                              dbl_mb(hpsig_r_ptr))
+     >                              dbl_mb(hpsig_r_ptr),
+     >                              dbl_mb(hpsie_r_ptr))
+      else if (ci_algorithm.eq.6) then
+      call psi_3x3ne_virtual_gradient(psig,dbl_mb(psiall_r_ptr),
+     >                              dcpl_mb(psi_ptr+(ii-1)*npack1),
+     >                              psie_r,
+     >                              dcpl_mb(psig_homo_ptr),psig_r,
+     >                              dcpl_mb(psi_ptr+(ii-1)*npack1),
+     >                              psie_r,
+     >                              e1,dcpl_mb(g(1)),
+     >                              h1psig,h1psie,
+     >                              rho,rhoge,rhoee,
+     >                              vctmp,vc,vcc,
+     >                              vcgg,vcge,vcee,
+     >                              dcpl_mb(hpsig_ptr),
+     >                              dbl_mb(hpsig_r_ptr),
+     >                              dbl_mb(hpsie_r_ptr))
       end if
       call Pack_cc_dot(1,dcpl_mb(orb(1)),dcpl_mb(g(1)),de1a)
       call Pack_cc_dot(1,t,              dcpl_mb(g(1)),de1b)
@@ -1732,6 +1832,7 @@ c      end
       return
       end
 
+
 *     ***********************************
 *     *                                 *
 *     *      psi_2x2_virtual_gradient   *
@@ -1746,11 +1847,14 @@ c      end
 *    Exit - E,dEpsie
 *
 *    Use - psie_r
-*          h1psie,rho,vcee,vcge
+*          h1psie,rho,vcee,vcge,hpsig,hpsig_r,hpsie_r
 * 
       subroutine psi_2x2_virtual_gradient(psig,psig_r,psie,psie_r,
      >                                    E,dEdpsie,
-     >                                    h1psie,rho,vcee,vcge)
+     >                                    h1psie,rho,vcc,vcee,vcge,
+     >                                    hpsig,
+     >                                    hpsig_r,hpsie_r)
+
       implicit none
       complex*16 psig(*)
       real*8     psig_r(*)
@@ -1760,7 +1864,11 @@ c      end
       complex*16 dEdpsie(*)
 
       complex*16 h1psie(*)
+      complex*16 vcc(*)
       real*8     rho(*),vcee(*),vcge(*)
+      complex*16 hpsig(*)
+      real*8     hpsig_r(*)
+      real*8     hpsie_r(*)
 
 #include "bafdecls.fh"
 #include "psi.fh"
@@ -1770,12 +1878,18 @@ c      end
 
 *     **** local variables ****
       logical oprint
+      integer neq1(2),i,q,ms,n1q(2),n2q(2)
       integer nx,ny,nz,n2ft3d
       real*8 Sgg,Sge,See,A,B,C,c1,c2
       real*8 H1gg,H1ge,H1ee
       real*8 H2gg,H2ge,H2ee
       real*8 Hgg,Hge,Hee
-      real*8 ehartr,scal1,scal2,dv,Elow,Ehigh,lmbda
+      real*8 ehartr,scal1,scal2,dv,Elow,Ehigh,lmbda,sum1
+      real*8 ehfx,phfx,Eion
+      integer  control_version
+      external control_version
+      real*8   coulomb_e,ewald_e,ion_ion_e
+      external coulomb_e,ewald_e,ion_ion_e
 
 *     **** external functions ****
       real*8   lattice_omega
@@ -1804,10 +1918,19 @@ c      end
       call Pack_cc_dot(1,psie,psie,See)
       !if (oprint) write(*,*) "Sgg=",Sgg," Sge=",Sge," See=",See
 
+*     **** ion-ion part ****
+      if (control_version().eq.3) Eion = ewald_e()   !**** get ewald energy ****
+      if (control_version().eq.4) Eion = ion_ion_e() !**** get free-space ion-ion energy ****
+c     if (oprint) write(*,*) "Eion=",Eion
+      write(*,*) "Eion=",Eion
+
+*     ***************************
+*     **** one-electron part ****
+*     ***************************
 *     **** apply H1 operator ****
       call  psi_H1psi(ispin,neq,npack1,n2ft3d,psig,psig_r,dEdpsie)
       call  psi_H1psi(ispin,neq,npack1,n2ft3d,psie,psie_r,h1psie)
-
+ 
       call Pack_cc_dot(1,psig,dEdpsie,H1gg)
       call Pack_cc_dot(1,psig,h1psie,H1ge)
       call Pack_cc_dot(1,psie,h1psie,H1ee)
@@ -1820,31 +1943,104 @@ c      end
          H1ee = H1ee + H1ee
       end if
       H1ge = H1ge*Sge
-      !if (oprint) write(*,*) "H1gg=",H1gg," H1ge=",H1ge," H1ee=",H1ee
 
+      if (oprint) write(*,*) "H1gg=",H1gg," H1ge=",H1ge," H1ee=",H1ee
+      
 *     **** apply H2 operator  - note rho = 2*psi*psi ****
       call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rho)
-      call coulomb2_v(rho,vcee)
-      call D3dB_rr_dot(1,rho,vcee,ehartr)
-      H2gg = 0.5d0*(0.5d0*ehartr*dv)       
+      if (control_version().eq.4) then
+         call coulomb2_v(rho,vcee)
+         call D3dB_rr_dot(1,rho,vcee,ehartr)
+         H2gg = 0.5d0*(0.5d0*ehartr*dv) 
+         if (oprint) write(*,*) "Coulombgg=",2.0d0*H2gg,
+     >                          "Exchangegg=",-H2gg
+      else
+         call D3dB_r_SMul1(1,scal1,rho)
+         call D3dB_rc_fft3f(1,rho)
+         call Pack_c_pack(0,rho)
+         H2gg = coulomb_e(rho)
+         call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
+         call pspw_potential_HFX(ispin,psig_r,hpsig_r)
+         call pspw_energy_HFX(ispin,psig_r,ehfx,phfx)
+         if (oprint) write(*,*) "Coulombgg=",H2gg,
+     >                          "Exchangegg=",ehfx
+         H2gg = H2gg + ehfx
+      end if
+
 
       call pspw_et_gen_rho(ispin,neq,n2ft3d,psie_r,rho)
-      call coulomb2_v(rho,vcee)
-      call D3dB_rr_dot(1,rho,vcee,ehartr)
-      H2ee = 0.5d0*(0.5d0*ehartr*dv)
-      
+      if (control_version().eq.4) then
+         call coulomb2_v(rho,vcee)
+         call D3dB_rr_dot(1,rho,vcee,ehartr)
+         H2ee = 0.5d0*(0.5d0*ehartr*dv)
+         if (oprint) write(*,*) "Coulombee=",2.0d0*H2ee,
+     >                          "Exchangeee=",-H2ee
+      else
+         call D3dB_r_SMul1(1,scal1,rho)
+         call D3dB_rc_fft3f(1,rho)
+         call Pack_c_pack(0,rho)
+         H2ee = coulomb_e(rho)
+         call coulomb_v(rho,vcc)
+         call Pack_c_unpack(0,vcc)
+         call D3dB_cr_fft3b(1,vcc)
+         call D3dB_c_Copy(1,vcc,vcee)
+         call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
+         call pspw_potential_HFX(ispin,psie_r,hpsig_r)
+         call pspw_energy_HFX(ispin,psie_r,ehfx,phfx)
+         if (oprint) write(*,*) "Coulombee=",H2ee,
+     >                          "Exchangeee=",ehfx
+         H2ee = H2ee + ehfx
+         call D3dB_rr_Mul2(1,psie_r,vcee)
+         call D3dB_rr_Sum2(1,hpsig_r,vcee) 
+      end if 
 
       call pspw_et_gen_rho12(ispin,neq,n2ft3d,psig_r,psie_r,rho)
-      call coulomb2_v(rho,vcge)
-      call D3dB_rr_dot(1,rho,vcge,ehartr)
-      H2ge = 0.5d0*(0.5d0*ehartr*dv)
-      
-      !if (oprint) write(*,*) "H2gg=",H2gg," H2ge=",H2ge," H2ee=",H2ee
+      if (control_version().eq.4) then
+         call coulomb2_v(rho,vcge)
+         call D3dB_rr_dot(1,rho,vcge,ehartr)
+         H2ge = 0.5d0*(0.5d0*ehartr*dv)
+         if (oprint) write(*,*) "Coulombge=",2.0d0*H2ge,
+     >                          "Exchangege=",-H2ge
+      else
+         call D3dB_r_SMul1(1,scal1,rho)
+         call D3dB_rc_fft3f(1,rho)
+         call Pack_c_pack(0,rho)
+c        H2ge = coulomb_e(rho)
+c        call coulomb_v(rho,vcc)
+c        call Pack_c_unpack(0,vcc)
+c        call D3dB_cr_fft3b(1,vcc)
+c        call D3dB_c_Copy(1,vcc,vcge)
+         call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
+         call D3dB_r_nZero(1,neq(1)+neq(2),hpsie_r)
+         call pspw_potential_HFX2_dnc(ispin,psig_r,psie_r,
+     >                                   hpsig_r,hpsie_r,
+     >                                   ehfx,phfx)
+c        if (oprint) write(*,*) "HFX2_dnc:ehfx,phfx",ehfx,phfx
+c        call Pack_cc_dot(1,hpsig_r,hpsig_r,c1)
+c        call Pack_cc_dot(1,hpsie_r,hpsie_r,c2)
+c        if (oprint) write(*,*) "HFX2_dnc:hspi",c1,c2
+c
+c        call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
+c        call D3dB_r_nZero(1,neq(1)+neq(2),hpsie_r)
+c        call pspw_potential_HFX2(ispin,psig_r,psie_r,hpsig_r,hpsie_r)
+c        call pspw_energy_HFX2(ispin,psig_r,psie_r,ehfx,phfx)
+c        if (oprint) write(*,*) "HFX2:ehfx,phfx",ehfx,phfx
+c        call Pack_cc_dot(1,hpsig_r,hpsig_r,c1)
+c        call Pack_cc_dot(1,hpsie_r,hpsie_r,c2)
+c        if (oprint) write(*,*) "HFX2:hspi",c1,c2
+         if (oprint) write(*,*) "Coulombge=",H2ge,
+     >                          "Exchangege=",ehfx
+c        H2ge = H2ge + ehfx 
+         H2ge = -ehfx 
+      end if 
 
+      if (oprint) write(*,*) "H2gg=",H2gg," H2ge=",H2ge," H2ee=",H2ee
 *     **** generate and diagonalize 2x2 CI matrix ****
-      Hgg = H1gg + H2gg
-      Hge = H1ge + H2ge
-      Hee = H1ee + H2ee
+      Hgg = H1gg + H2gg + Eion
+      Hge = H1ge + H2ge 
+      Hee = H1ee + H2ee + Eion
+c     if (oprint) write(*,*) "Hgg=",Hgg," Hge=",Hge," Hee=",Hee
+      write(*,*) "Hgg=",Hgg," Hge=",Hge," Hee=",Hee
       A = 1.0d0
       B = -Hgg - Hee
       C = Hgg*Hee - Hge*Hge
@@ -1854,25 +2050,29 @@ c      end
       c1 =  1.0d0/dsqrt(1.0d0+lmbda**2)
       !c2 =  dsqrt(1.0d0-c1*c1)
       c2 =  lmbda/dsqrt(1.0d0+lmbda**2)
-      !if (oprint) write(*,*) "Elow=",Elow," Ehigh=",Ehigh
+      if (oprint) write(*,*) "Elow=",Elow," Ehigh=",Ehigh
+      if (oprint) write(*,*) "c1,c2=",c1,c2
 
 *     **** generate dElow/dpsie ****
-      call D3dB_rr_Mul2(1,psie_r,vcee)
-      call D3dB_rr_Mul2(1,psig_r,vcge)
+      if (control_version().eq.4) then
+         call D3dB_rr_Mul2(1,psie_r,vcee)
+         call D3dB_rr_Mul2(1,psig_r,vcge)
+         call D3dB_r_SMul1(1,(-1.0d0*c2*c2),vcee)
+         call D3dB_rr_daxpy(1,(-1.0d0*c1*c2),vcge,vcee)
+      else
+c        call D3dB_rr_Mul2(1,psig_r,vcge)
+c        call D3dB_rr_Sum2(1,hpsie_r,vcge) 
+         call D3dB_r_SMul1(1,(-2.0d0*c2*c2),vcee)
+c        call D3dB_rr_daxpy(1,(-2.0d0*c1*c2),vcge,vcee)
+         call D3dB_rr_daxpy(1,(2.0d0*c1*c2),hpsie_r,vcee)
+      end if
 
-      !call D3dB_r_SMul1(1,(-0.5d0*c2*c2),vcee)
-      !call D3dB_rr_daxpy(1,(-0.5d0*c1*c2),vcge,vcee)
-      call D3dB_r_SMul1(1,(-1.0d0*c2*c2),vcee)
-      call D3dB_rr_daxpy(1,(-1.0d0*c1*c2),vcge,vcee)
-      
       call D3dB_rc_fft3f(1,vcee)
       call Pack_c_pack(1,vcee)
       call Pack_c_SMul(1,scal1,vcee,dEdpsie)
      
       call Pack_cc_daxpy(1,2.0d0*c2*c2,h1psie,dEdpsie)
-      !call Pack_cc_daxpy(1,2.0d0*c2*c2,h1psie,dEdpsie)
       E = Elow
-      !if (oprint) write(*,*) "c1,c2=",c1,c2
 
       return
       end
@@ -1894,14 +2094,20 @@ c      end
 *          h1psie,rho,vcee,vcge
 * 
       subroutine psi_2x2ne_virtual_gradient(psig,psig_r,
+     >                                    psie,psie_r,
      >                                    psihomo,psihomo_r,
      >                                    psilumo,psilumo_r,
      >                                    E,dEdpsie,
-     >                                    h1psie,rho,vcee,vcge,
-     >                                    hpsig,hpsig_r)
+     >                                    h1psie,rho,vcc,
+     >                                    vcee,vcge,
+     >                                    hpsig,
+     >                                    hpsig_r,hpsie_r)
       implicit none
       complex*16 psig(*)
       real*8     psig_r(*)
+
+      complex*16 psie(*)
+      real*8     psie_r(*)
 
       complex*16 psihomo(*)
       real*8     psihomo_r(*)
@@ -1913,10 +2119,14 @@ c      end
       complex*16 dEdpsie(*)
 
       complex*16 h1psie(*)
+      complex*16 vcc(*)
+
       real*8     rho(*),vcee(*),vcge(*)
 
       complex*16 hpsig(*)
       real*8     hpsig_r(*)
+      real*8     hpsie_r(*)
+
 
 #include "bafdecls.fh"
 #include "psi.fh"
@@ -1936,11 +2146,15 @@ c      end
       real*8 H2gg,H2ge,H2ee
       real*8 Hge,Hee
       real*8 ehartr,scal1,scal2,dv,Elow,Ehigh,lmbda,sum1
-      real*8 ehfx,phfx
+      real*8 ehfx,phfx,Eion
 
 *     **** external functions ****
       real*8   lattice_omega
       external lattice_omega
+      integer  control_version
+      external control_version
+      real*8   coulomb_e,ewald_e,ion_ion_e
+      external coulomb_e,ewald_e,ion_ion_e
 
       !write(*,*) "ENTER 2x2 ne GRADIENT"
       oprint = .false.
@@ -1970,6 +2184,12 @@ c      end
       See = 1.0d0
       Sge = 0.0d0
       !if (oprint) write(*,*) "Sgg=",Sgg," Sge=",Sge," See=",See
+*     **** ion-ion part ****
+      if (control_version().eq.3) Eion = ewald_e()   !**** get ewald energy ****
+      if (control_version().eq.4) Eion = ion_ion_e() !**** get free-space ion-ion energy ****
+      if (oprint) write(*,*) "Eion=",Eion
+      write(*,*) "Eion=",Eion
+
 
 *     ***************************
 *     **** one-electron part ****
@@ -2004,23 +2224,39 @@ c      end
          H2gg=0.0d0
 *        **** coulomb part ****
          call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rho)
-         call coulomb2_v(rho,vcee)
-         call D3dB_rr_dot(1,rho,vcee,ehartr)
-         H2gg = (0.5d0*ehartr*dv)
+         if (control_version().eq.4) then
+            call coulomb2_v(rho,vcee)
+            call D3dB_rr_dot(1,rho,vcee,ehartr)
+            H2gg = (0.5d0*ehartr*dv)
+*        **** exchange part ****
+            call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
+            call pspw_potential_HFX(ispin,psig_r,hpsig_r)
+            call pspw_energy_HFX(ispin,psig_r,ehfx,phfx)
+            if (oprint) write(*,*) "Coulombgg=",H2gg,
+     >                             "Exchangegg=",ehfx
+            H2gg = H2gg + ehfx
+            Hgg = H1gg + H2gg + Eion
+            !write(*,*) "H2gg+ehfx=",H2gg
+            !write(*,*) "Hgg=",Hgg
+         else
+            call D3dB_r_SMul1(1,scal1,rho)
+            call D3dB_rc_fft3f(1,rho)
+            call Pack_c_pack(0,rho)
+            H2gg = coulomb_e(rho)
+            call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
+            call pspw_potential_HFX(ispin,psig_r,hpsig_r)
+            call pspw_energy_HFX(ispin,psig_r,ehfx,phfx)
+            if (oprint) write(*,*) "Coulombgg=",H2gg,
+     >                             "Exchangegg=",ehfx
+            H2gg = H2gg + ehfx 
+            Hgg = H1gg + H2gg + Eion
+          end if
+
          !write(*,*) "H2gg=",H2gg
 
-*        **** exchange part ****
-         call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
-         call pspw_potential_HFX(ispin,psig_r,hpsig_r)
-         call pspw_energy_HFX(ispin,psig_r,ehfx,phfx)
-         H2gg = H2gg + ehfx
-         Hgg = H1gg + H2gg
-         !write(*,*) "H2gg+ehfx=",H2gg
-         !write(*,*) "Hgg=",Hgg
       end if
       !write(*,*) "Hgg=",Hgg
       !write(*,*)
-
 
 
       !*** generate HF energy and gradient of state psie ****
@@ -2050,23 +2286,47 @@ c      end
       H2ee=0.0d0
 *     **** coulomb part ****
       call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rho)
-      call coulomb2_v(rho,vcee)
-      call D3dB_rr_dot(1,rho,vcee,ehartr)
-      H2ee = (0.5d0*ehartr*dv)
-      !write(*,*) "H2ee=",H2ee
+      if (control_version().eq.4) then
+         call coulomb2_v(rho,vcee)
+         call D3dB_rr_dot(1,rho,vcee,ehartr)
+         H2ee = (0.5d0*ehartr*dv)
+         !write(*,*) "H2ee=",H2ee
 
-*     **** exchange part ****
-      call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
-      call pspw_potential_HFX(ispin,psig_r,hpsig_r)
-      call pspw_energy_HFX(ispin,psig_r,ehfx,phfx)
-      H2ee = H2ee + ehfx
-      Hee = H1ee + H2ee
-      !write(*,*) "H2ee+ehfx=",H2ee,ehfx
-      !write(*,*) "Hee=",Hee
-      !write(*,*)
+*        **** exchange part ****
+         call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
+         call pspw_potential_HFX(ispin,psig_r,hpsig_r)
+         call pspw_energy_HFX(ispin,psig_r,ehfx,phfx)
+         if (oprint) write(*,*) "Coulombee=",H2ee,
+     >                          "Exchangeee=",ehfx
+         H2ee = H2ee + ehfx
+         Hee = H1ee + H2ee + Eion
+         !write(*,*) "H2ee+ehfx=",H2ee,ehfx
+         !write(*,*) "Hee=",Hee
+         !write(*,*)
+      else
+         call D3dB_r_SMul1(1,scal1,rho)
+         call D3dB_rc_fft3f(1,rho)
+         call Pack_c_pack(0,rho)
+         H2ee = coulomb_e(rho)
+         call coulomb_v(rho,vcc)
+         call Pack_c_unpack(0,vcc)
+         call D3dB_cr_fft3b(1,vcc)
+         call D3dB_c_Copy(1,vcc,vcee)
+         call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
+         call pspw_potential_HFX(ispin,psig_r,hpsig_r)
+         call pspw_energy_HFX(ispin,psig_r,ehfx,phfx)
+         if (oprint) write(*,*) "Coulombee=",H2ee,
+     >                          "Exchangeee=",ehfx
+         H2ee = H2ee + ehfx
+         Hee = H1ee + H2ee + Eion
+         call D3dB_rr_Mul2(1,psilumo_r,vcee)
+         call D3dB_rr_Sum2(1,hpsig_r,vcee)
+      end if
 
       call Pack_c_Copy(1,psihomo,psig)
       call D3dB_c_Copy(1,psihomo_r,psig_r)
+      call Pack_c_Copy(1,psilumo,psie)
+      call D3dB_c_Copy(1,psilumo_r,psie_r)
 
 
 *     *** generate <e|H|g> ***
@@ -2074,16 +2334,49 @@ c      end
 
       neq1(1) = 1
       neq1(2) = 0
+
+      H2ge = 0.0d0
       call pspw_et_gen_rho12(ispin,neq1,n2ft3d,psihomo_r,psilumo_r,rho)
-      call coulomb2_v(rho,vcge)
-      call D3dB_rr_dot(1,rho,vcge,ehartr)
-      H2ge = 0.5d0*(0.5d0*ehartr*dv)
-      Hge = H1ge + H2ge
+      if (control_version().eq.4) then
+         call coulomb2_v(rho,vcge)
+         call D3dB_rr_dot(1,rho,vcge,ehartr)
+         H2ge = 0.5d0*(0.5d0*ehartr*dv)
+         if (oprint) write(*,*) "Coulombge=",2.0d0*H2ge,
+     >                          "Exchangege=",-H2ge
+         Hge = H1ge + H2ge
+      else
+c        call D3dB_r_SMul1(1,scal1,rho)
+c        call D3dB_rc_fft3f(1,rho)
+c        call Pack_c_pack(0,rho)
+c        H2ge = coulomb_e(rho)
+c        call coulomb_v(rho,vcc)
+c        call Pack_c_unpack(0,vcc)
+c        call D3dB_cr_fft3b(1,vcc)
+c        call D3dB_c_Copy(1,vcc,vcge)
+         call D3dB_r_nZero(1,neq(1)+neq(2),hpsie_r)
+         call pspw_potential_HFX2_dnc(ispin,psig_r,psie_r,
+     >                                   hpsig_r,hpsie_r,
+     >                                   ehfx,phfx)
+c        call pspw_potential_HFX2(ispin,psig_r,psie_r,
+c    >                            hpsig_r,hpsie_r)
+c        call pspw_energy_HFX2(ispin,psig_r,psie_r,ehfx,phfx)
+         if (oprint) write(*,*) !"Coulombge=",H2ge, 
+     >                          "Exchangege=",ehfx
+c        H2ge = H2ge + ehfx
+         H2ge = -ehfx
+         Hge = H1ge + H2ge
+c        call D3dB_rr_Mul2(1,psihomo_r,vcge)
+c        call D3dB_rr_Sum2(1,hpsie_r,vcge)
+      end if
+      
       !write(*,*) "H1ge=",H1ge
       !write(*,*) "H2ge=",H2ge
       !write(*,*) "Hge=",Hge
       !write(*,*)
 
+      write(*,*) "H1gg,H1ge,H1ee",H1gg,H1ge,H1ee
+      write(*,*) "H2gg,H2ge,H2ee",H2gg,H2ge,H2ee
+      write(*,*) "Hgg,Hge,Hee",Hgg,Hge,Hee
 *     **** generate and diagonalize 2x2 CI matrix ****
       A = 1.0d0
       B = -Hgg - Hee
@@ -2098,15 +2391,23 @@ c      end
       !write(*,*)
 
 *     **** generate dElow/dpsie ****
-      call D3dB_rr_Mul2(1,psilumo_r,vcee)
-      call D3dB_rr_Sum2(1,hpsig_r,vcee)
+      if (control_version().eq.4) then
 
-      call D3dB_rr_Mul2(1,psihomo_r,vcge)
+         call D3dB_rr_Mul2(1,psilumo_r,vcee)
+         call D3dB_rr_Sum2(1,hpsig_r,vcee)
 
-      call D3dB_r_SMul1(1,(-2.0d0*c2*c2),vcee)
-      call D3dB_rr_daxpy(1,(-1.0d0*c1*c2),vcge,vcee)
-      !original call D3dB_rr_daxpy(1,(-1.0d0*c1*c2),vcge,vcee)
+         call D3dB_rr_Mul2(1,psihomo_r,vcge)
 
+         call D3dB_r_SMul1(1,(-2.0d0*c2*c2),vcee)
+         call D3dB_rr_daxpy(1,(-1.0d0*c1*c2),vcge,vcee)
+         !original call D3dB_rr_daxpy(1,(-1.0d0*c1*c2),vcge,vcee)
+      else
+         call D3dB_r_SMul1(1,(-2.0d0*c2*c2),vcee)
+c        call D3dB_rr_daxpy(1,(-2.0d0*c1*c2),vcge,vcee)
+         call D3dB_rr_daxpy(1,(2.0d0*c1*c2),hpsie_r,vcee)
+      end if
+
+        
       call D3dB_rc_fft3f(1,vcee)
       call Pack_c_pack(1,vcee)
       call Pack_c_SMul(1,scal1,vcee,dEdpsie)
@@ -2115,6 +2416,17 @@ c      end
       E = Elow
       !if (oprint) write(*,*) "2x2ne c1,c2=",c1,c2
       write(*,*) "2x2ne c1,c2=",c1,c2,Elow
+
+c     call Pack_cc_dot(1,psie,dEdpsie,c1)
+c     call Pack_cc_dot(1,psie,h1psie,c1)
+c     write(*,*) "check last gradient=",c1
+c     call Pack_cc_dot(1,psig,dEdpsie,c1)
+c     call Pack_cc_dot(1,psig,h1psie,c1)
+c     write(*,*) "check last gradient=",c1
+c     call Pack_cc_dot(1,dEdpsie,dEdpsie,c1)
+c     call Pack_cc_dot(1,h1psie,h1psie,c1)
+c     write(*,*) "check last gradient=",c1
+
 c
 
       return
@@ -2128,22 +2440,35 @@ c
 *     *      psi_3x3_virtual_gradient   *
 *     *                                 *
 *     ***********************************
-
-*     This routine calculates the 3x3 CI Energy and its gradient wrt to psie.
 *
-*       g    e    m    
-*   g  Hgg  Hge  Hgm  
+*    This routine calculates the 3x3 CI Energy and its gradient wrt to psie.
 *
-*   e  Heg  Hee  Hem  
+*    Entry - psig,psig_r
+*            psie 
 *
-*   m  Hmg  Hme  Hmm  
+*    Exit - E,dEpsie
+*
+*    Use - psie_r
+*          h1psig,h1psie,rhogg,rhoge,rhoee,
+*          vctmp,vc,vcc,vcgg,vcge,vcee,
+*          hpsig_r,hpsie_r
+*
+*    The matrix is
+*        g    e    m    
+*    g  Hgg  Hge  Hgm  
+*
+*    e  Heg  Hee  Hem  
+*
+*    m  Hmg  Hme  Hmm  
 
       subroutine psi_3x3_virtual_gradient(psig,psig_r,psie,psie_r,
      >                                    E,dEdpsie,
      >                                    h1psig,h1psie,
      >                                    rhogg,rhoge,rhoee,
      >                                    vctmp,vc,
-     >                                    vcgg,vcge,vcee)
+     >                                    vcc,
+     >                                    vcgg,vcge,vcee,
+     >                                    hpsig_r,hpsie_r)
       implicit none
       complex*16 psig(*)
       real*8     psig_r(*)
@@ -2156,6 +2481,9 @@ c
       real*8     rhogg(*),rhoee(*),rhoge(*)
       real*8     vcgg(*),vcee(*),vcge(*)
       real*8     vctmp(*),vc(*)
+      complex*16 vcc(*)
+      real*8     hpsig_r(*)
+      real*8     hpsie_r(*)
 
 #include "bafdecls.fh"
 #include "psi.fh"
@@ -2166,11 +2494,12 @@ c
 *     **** local variables ****
       logical oprint
       integer nx,ny,nz,n2ft3d
-      real*8 Sgg,Sge,See,c1,c2,c3,A,B,C
+      real*8 Sgg,Sge,See,c1,c2,c3,A,B,C,ttt
       real*8 H1gg,H1ge,H1gm,H1eg,H1ee,H1em,H1mg,H1me,H1mm
       real*8 H2gg,H2ge,H2gm,H2eg,H2ee,H2em,H2mg,H2me,H2mm
       real*8 Hgg,Hge,Hgm,Heg,Hee,Hem,Hmg,Hme,Hmm
       real*8 ehartr,scal1,scal2,dv,Elow,Ehigh,lmbda
+      real*8 ehfx,phfx,Eion
       real*8 Hci(3,3),Eci(3),wkopt(1),work(999)
       !real*8 Hci(2,2),Eci(2),wkopt(1),work(999)
       integer lwork,INFO
@@ -2178,9 +2507,13 @@ c
 *     **** external functions ****
       real*8   lattice_omega
       external lattice_omega
-
+      integer  control_version
+      external control_version
+      real*8   coulomb_e,ewald_e,ion_ion_e
+      external coulomb_e,ewald_e,ion_ion_e
 
       !write(*,*) "ENTER 3x3 GRADIENT"
+c     oprint = .true.
       oprint = .false.
 
       !*** generate psie_r ****
@@ -2197,11 +2530,16 @@ c
       scal2 = 1.0d0/lattice_omega()
       dv = scal1*lattice_omega()
 
+*     **** ion-ion part ****
+      if (control_version().eq.3) Eion = ewald_e()   !**** get ewald energy ****
+      if (control_version().eq.4) Eion = ion_ion_e() !**** get free-space ion-ion energy ****
+      if (oprint) write(*,*) "Eion=",Eion
+
       !*** calculate Sgg, Sge, See ***
       call Pack_cc_dot(1,psig,psig,Sgg)
       call Pack_cc_dot(1,psig,psie,Sge)
       call Pack_cc_dot(1,psie,psie,See)
-      !if (oprint) write(*,*) "Sgg=",Sgg," Sge=",Sge," See=",See
+      if (oprint) write(*,*) "Sgg=",Sgg," Sge=",Sge," See=",See
 
 
 *     **** apply H1 operator ****
@@ -2216,10 +2554,10 @@ c
       H1ee = -H1ee
       H1eg =  H1ge
       H1gm = dsqrt(2.0d0)*H1ge
-      H1mm = H1gg + H1ee
       H1em = H1gm
       H1mg = H1gm
       H1me = H1em
+      H1mm = H1gg + H1ee
       if (ispin.eq.1) then
          H1gg = H1gg + H1gg
          H1ge = H1ge + H1ge
@@ -2228,57 +2566,166 @@ c
       end if
       H1ge = H1ge*Sge
       H1eg = H1eg*Sge
-      !if (oprint) write(*,*) "H1gg=",H1gg," H1ge=",H1ge," H1ee=",H1ee
+
+      if (oprint) write(*,*) "H1gg=",H1gg," H1ge=",H1ge," H1gm=",H1gm
+      if (oprint) write(*,*) "H1eg=",H1eg," H1ee=",H1ee," H1em=",H1em
+      if (oprint) write(*,*) "H1mg=",H1mg," H1me=",H1me," H1mm=",H1mm
 
 *     **** apply H2 operator ****
 
       call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rhogg)
-      call coulomb2_v(rhogg,vcgg)
       call pspw_et_gen_rho12(ispin,neq,n2ft3d,psig_r,psie_r,rhoge)
-      call coulomb2_v(rhoge,vcge)
       call pspw_et_gen_rho(ispin,neq,n2ft3d,psie_r,rhoee)
-      call coulomb2_v(rhoee,vcee)
 
-      call D3dB_rr_dot(1,rhogg,vcgg,ehartr)
-      H2gg = 0.5d0*(0.5d0*ehartr*dv)
+      if (control_version().eq.4) then
+         call coulomb2_v(rhogg,vcgg)
+         call coulomb2_v(rhoge,vcge)
+         call coulomb2_v(rhoee,vcee)
 
-      call D3dB_rr_dot(1,rhoge,vcge,ehartr)
-      H2ge = 0.5d0*(0.5d0*ehartr*dv)
+         call D3dB_rr_dot(1,rhogg,vcgg,ehartr)
+         H2gg = 0.5d0*(0.5d0*ehartr*dv)
 
-      call D3dB_rr_dot(1,rhogg,vcge,ehartr)
-      H2gm = dsqrt(2.0d0)*0.5d0*(0.5d0*ehartr*dv)
+         call D3dB_rr_dot(1,rhoge,vcge,ehartr)
+         H2ge = 0.5d0*(0.5d0*ehartr*dv)
 
-      call D3dB_rr_dot(1,rhoge,vcge,ehartr)
-      H2eg = 0.5d0*(0.5d0*ehartr*dv)
+         call D3dB_rr_dot(1,rhogg,vcge,ehartr)
+         H2gm = dsqrt(2.0d0)*0.5d0*(0.5d0*ehartr*dv)
 
-      call D3dB_rr_dot(1,rhoee,vcee,ehartr)
-      H2ee = 0.5d0*(0.5d0*ehartr*dv)
+         call D3dB_rr_dot(1,rhoge,vcge,ehartr)
+         H2eg = 0.5d0*(0.5d0*ehartr*dv)
+
+         call D3dB_rr_dot(1,rhoee,vcee,ehartr)
+         H2ee = 0.5d0*(0.5d0*ehartr*dv)
       
-      call D3dB_rr_dot(1,rhoee,vcge,ehartr)
-      H2em = dsqrt(2.0d0)*0.5d0*(0.5d0*ehartr*dv)
+         call D3dB_rr_dot(1,rhoee,vcge,ehartr)
+         H2em = dsqrt(2.0d0)*0.5d0*(0.5d0*ehartr*dv)
  
-      call D3dB_rr_dot(1,rhoge,vcgg,ehartr)
-      H2mg = dsqrt(2.0d0)*0.5d0*(0.5d0*ehartr*dv)
+         call D3dB_rr_dot(1,rhoge,vcgg,ehartr)
+         H2mg = dsqrt(2.0d0)*0.5d0*(0.5d0*ehartr*dv)
 
-      call D3dB_rr_dot(1,rhoge,vcee,ehartr)
-      H2me = dsqrt(2.0d0)*0.5d0*(0.5d0*ehartr*dv)
+         call D3dB_rr_dot(1,rhoge,vcee,ehartr)
+         H2me = dsqrt(2.0d0)*0.5d0*(0.5d0*ehartr*dv)
 
-      call D3dB_rr_dot(1,rhogg,vcee,ehartr)
-      H2mm = 0.5d0*(0.5d0*ehartr*dv)
-      H2mm = H2mm + H2ge
-      !if (oprint) write(*,*) "H2gg=",H2gg," H2ge=",H2ge," H2ee=",H2ee
+         call D3dB_rr_dot(1,rhogg,vcee,ehartr)
+         H2mm = 0.5d0*(0.5d0*ehartr*dv)
+         H2mm = H2mm + H2ge
+      else
+*        *** generate <g|H2|g> ***
+         call D3dB_r_SMul1(1,scal1,rhogg)
+         call D3dB_rc_fft3f(1,rhogg)
+         call Pack_c_pack(0,rhogg)
+         H2gg = coulomb_e(rhogg)
+         call coulomb_v(rhogg,vcc)
+         call Pack_c_unpack(0,vcc)
+         call D3dB_cr_fft3b(1,vcc)
+         call D3dB_c_Copy(1,vcc,vcgg)
+         call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
+         call pspw_potential_HFX(ispin,psig_r,hpsig_r)
+         call pspw_energy_HFX(ispin,psig_r,ehfx,phfx)
+         H2gg = H2gg + ehfx
+
+*        *** generate <g|H2|e> ***
+         call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
+         call D3dB_r_nZero(1,neq(1)+neq(2),hpsie_r)
+         call pspw_potential_HFX2_dnc(ispin,psig_r,psie_r,
+     >                                   hpsig_r,hpsie_r,
+     >                                   ehfx,phfx)
+         H2ge = -ehfx 
+
+*        *** generate <g|H2|m> ***
+         call pspw_et_gen_rho12(ispin,neq,n2ft3d,psig_r,psie_r,rhoge)
+         call D3dB_r_SMul1(1,scal1,rhoge)
+         call D3dB_rc_fft3f(1,rhoge)
+         call Pack_c_pack(0,rhoge)
+         call coulomb_v(rhoge,vcc)
+         call Pack_c_unpack(0,vcc)
+         call D3dB_cr_fft3b(1,vcc)
+         call D3dB_c_Copy(1,vcc,vcge)
+
+         call pspw_et_gen_rho12(ispin,neq,n2ft3d,psig_r,psie_r,rhoge)
+         call D3dB_r_SMul1(1,scal1,rhoge)
+         call D3dB_rc_fft3f(1,rhoge)
+         call Pack_c_pack(0,rhoge)
+         call coulomb_screened_v(rhoge,vcc)
+         call Pack_c_unpack(0,vcc)
+         call D3dB_cr_fft3b(1,vcc)
+         call D3dB_rr_daxpy(1,-0.5d0,vcc,vcge)
+         call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rhogg)
+         call D3dB_rr_dot(1,rhogg,vcge,H2gm)
+         H2gm = dsqrt(2.0d0)*(0.50d0*H2gm*dv)
+
+*        *** generate <e|H2|e> ***
+         call D3dB_r_SMul1(1,scal1,rhoee)
+         call D3dB_rc_fft3f(1,rhoee)
+         call Pack_c_pack(0,rhoee)
+         H2ee = coulomb_e(rhoee)
+         call coulomb_v(rhoee,vcc)
+         call Pack_c_unpack(0,vcc)
+         call D3dB_cr_fft3b(1,vcc)
+         call D3dB_c_Copy(1,vcc,vcee)
+         call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
+         call pspw_potential_HFX(ispin,psie_r,hpsig_r)
+         call pspw_energy_HFX(ispin,psie_r,ehfx,phfx)
+         H2ee = H2ee + ehfx
+
+*        *** generate <e|H2|m> ***
+         call pspw_et_gen_rho12(ispin,neq,n2ft3d,psig_r,psie_r,rhoge)
+         call D3dB_r_SMul1(1,scal1,rhoge)
+         call D3dB_rc_fft3f(1,rhoge)
+         call Pack_c_pack(0,rhoge)
+         call coulomb_v(rhoge,vcc)
+         call Pack_c_unpack(0,vcc)
+         call D3dB_cr_fft3b(1,vcc)
+         call D3dB_c_Copy(1,vcc,vcge)
+
+         call pspw_et_gen_rho12(ispin,neq,n2ft3d,psig_r,psie_r,rhoge)
+         call D3dB_r_SMul1(1,scal1,rhoge)
+         call D3dB_rc_fft3f(1,rhoge)
+         call Pack_c_pack(0,rhoge)
+         call coulomb_screened_v(rhoge,vcc)
+         call Pack_c_unpack(0,vcc)
+         call D3dB_cr_fft3b(1,vcc)
+         call D3dB_rr_daxpy(1,-0.5d0,vcc,vcge)
+         call pspw_et_gen_rho(ispin,neq,n2ft3d,psie_r,rhoee)
+         call D3dB_rr_dot(1,rhoee,vcge,H2em)
+         H2em = dsqrt(2.0d0)*(0.50d0*H2em*dv)
+
+*        *** generate <m|H2|m> ***
+         call D3dB_r_SMul1(1,scal1,rhoee)
+         call D3dB_rc_fft3f(1,rhoee)
+         call Pack_c_pack(0,rhoee)
+         call coulomb_v(rhoee,vcc)
+         call Pack_c_unpack(0,vcc)
+         call D3dB_cr_fft3b(1,vcc)
+         call D3dB_c_Copy(1,vcc,vcee)
+         call coulomb_screened_v(rhoee,vcc)
+         call Pack_c_unpack(0,vcc)
+         call D3dB_cr_fft3b(1,vcc)
+         call D3dB_rr_daxpy(1,-0.5d0,vcc,vcee)
+         call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rhogg)
+         call D3dB_rr_dot(1,rhogg,vcee,H2mm)
+         H2mm = 0.50d0*H2mm*dv
+         H2mm = H2mm + H2ge
+      end if
+         !if (oprint) write(*,*) "H2gg=",H2gg," H2ge=",H2ge," H2ee=",H2ee
+      if (oprint) write(*,*) "H2gg=",H2gg," H2ge=",H2ge," H2gm=",H2gm
+      if (oprint) write(*,*) "H2eg=",H2eg," H2ee=",H2ee," H2em=",H2em
+      if (oprint) write(*,*) "H2mg=",H2mg," H2me=",H2me," H2mm=",H2mm
 
 
-*     **** generate and diagonalize 2x2 CI matrix ****
-      Hgg = H1gg + H2gg
-      Hge = H1ge + H2ge
-      Hgm = H1gm + H2gm
-      Heg = H1eg + H2eg
-      Hee = H1ee + H2ee
-      Hem = H1em + H2em
-      Hmg = H1mg + H2mg
-      Hme = H1me + H2me
-      Hmm = H1mm + H2mm
+*     **** generate and diagonalize 3x3 CI matrix ****
+      Hgg = H1gg + H2gg + Eion
+      Hge = H1ge + H2ge 
+      Hgm = H1gm + H2gm 
+c     Heg = H1eg + H2eg 
+      Heg = Hge
+      Hee = H1ee + H2ee + Eion
+      Hem = H1em + H2em 
+c     Hmg = H1mg + H2mg 
+      Hmg = Hgm
+c     Hme = H1me + H2me 
+      Hme = Hem
+      Hmm = H1mm + H2mm + Eion
 
       Hci(1,1) = Hgg
       Hci(1,2) = Hge
@@ -2290,6 +2737,12 @@ c
       Hci(3,2) = Hme
       Hci(3,3) = Hmm
 
+      if (oprint) then 
+         write(*,*)"Hgg,Hge,Hgm",Hci(1,1),Hci(1,2),Hci(1,3)
+         write(*,*)"Heg,Hee,Hem",Hci(2,1),Hci(2,2),Hci(2,3)
+         write(*,*)"Hmg,Hme,Hmm",Hci(3,1),Hci(3,2),Hci(3,3)
+      end if
+
       call DSYEV('V','U',3,Hci,3,Eci,wkopt,-1,INFO )
       lwork = wkopt(1)
       call DSYEV('V','U',3,Hci,3,Eci,work,lwork,INFO )
@@ -2297,39 +2750,127 @@ c
       c1 = Hci(1,1)
       c2 = Hci(2,1)
       c3 = Hci(3,1)
+      if (oprint) write(*,*) "c1,c2,c3",c1,c2,c3
 
 *     **** generate dElow/dpsie ****
-      call D3dB_r_Copy(1,vcee,vc)
-      call D3dB_rr_Mul2(1,psie_r,vc)
-      call D3dB_r_SMul1(1,(-2.0d0*c2*c2),vc)
+      if (control_version().eq.4) then
+         call D3dB_r_Copy(1,vcee,vc)
+         call D3dB_rr_Mul2(1,psie_r,vc)
+         call D3dB_r_SMul1(1,(-2.0d0*c2*c2),vc)
 
-      call D3dB_r_Copy(1,vcge,vctmp)
-      call D3dB_rr_Mul2(1,psig_r,vctmp)
-      call D3dB_rr_daxpy(1,(-2.0d0*c1*c2),vctmp,vc)
+         call D3dB_r_Copy(1,vcge,vctmp)
+         call D3dB_rr_Mul2(1,psig_r,vctmp)
+         call D3dB_rr_daxpy(1,(-2.0d0*c1*c2),vctmp,vc)
 
-      call D3dB_r_Copy(1,vcee,vctmp)
-      call D3dB_rr_Mul2(1,psig_r,vctmp)
-      call D3dB_rr_daxpy(1,(-dsqrt(2.0d0)*c2*c3),vctmp,vc)
+         call D3dB_r_Copy(1,vcee,vctmp)
+         call D3dB_rr_Mul2(1,psig_r,vctmp)
+         call D3dB_rr_daxpy(1,(-dsqrt(2.0d0)*c2*c3),vctmp,vc)
  
-      call D3dB_r_Copy(1,vcge,vctmp)
-      call D3dB_rr_Mul2(1,psie_r,vctmp)
-      call D3dB_rr_daxpy(1,(-dsqrt(2.0d0)*c2*c3),vctmp,vc)
+         call D3dB_r_Copy(1,vcge,vctmp)
+         call D3dB_rr_Mul2(1,psie_r,vctmp)
+         call D3dB_rr_daxpy(1,(-dsqrt(2.0d0)*c2*c3),vctmp,vc)
  
-      call D3dB_r_Copy(1,vcgg,vctmp)
-      call D3dB_rr_Mul2(1,psig_r,vctmp)
-      call D3dB_rr_daxpy(1,(-dsqrt(2.0d0)*c3*c1),vctmp,vc)
+         call D3dB_r_Copy(1,vcgg,vctmp)
+         call D3dB_rr_Mul2(1,psig_r,vctmp)
+         call D3dB_rr_daxpy(1,(-dsqrt(2.0d0)*c3*c1),vctmp,vc)
  
-      call D3dB_r_Copy(1,vcge,vctmp)
-      call D3dB_rr_Mul2(1,psie_r,vctmp)
-      call D3dB_rr_daxpy(1,(-dsqrt(2.0d0)*c3*c2),vctmp,vc)
+         call D3dB_r_Copy(1,vcge,vctmp)
+         call D3dB_rr_Mul2(1,psie_r,vctmp)
+         call D3dB_rr_daxpy(1,(-dsqrt(2.0d0)*c3*c2),vctmp,vc)
  
-      call D3dB_r_Copy(1,vcgg,vctmp)
-      call D3dB_rr_Mul2(1,psie_r,vctmp)
-      call D3dB_rr_daxpy(1,(-c3*c3),vctmp,vc)
+         call D3dB_r_Copy(1,vcgg,vctmp)
+         call D3dB_rr_Mul2(1,psie_r,vctmp)
+         call D3dB_rr_daxpy(1,(-c3*c3),vctmp,vc)
  
-      call D3dB_r_Copy(1,vcge,vctmp)
-      call D3dB_rr_Mul2(1,psig_r,vctmp)
-      call D3dB_rr_daxpy(1,(-c3*c3),vctmp,vc)
+         call D3dB_r_Copy(1,vcge,vctmp)
+         call D3dB_rr_Mul2(1,psig_r,vctmp)
+         call D3dB_rr_daxpy(1,(-c3*c3),vctmp,vc)
+      else
+         call coulomb_v(rhoee,vcc)
+         call Pack_c_unpack(0,vcc)
+         call D3dB_cr_fft3b(1,vcc)
+         call D3dB_c_Copy(1,vcc,vcee)
+
+         call D3dB_r_Copy(1,vcee,vc)
+         call D3dB_rr_Mul2(1,psie_r,vc)
+         call D3dB_rr_Sum2(1,hpsig_r,vc) 
+         call D3dB_r_SMul1(1,(-4.0d0*c2*c2),vc)
+
+         call D3dB_rr_daxpy(1,(4.0d0*c1*c2),hpsie_r,vc)
+
+         call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rhogg)
+         call D3dB_r_SMul1(1,scal1,rhogg)
+         call D3dB_rc_fft3f(1,rhogg)
+         call Pack_c_pack(0,rhogg)
+         call coulomb_v(rhogg,vcc)
+         call Pack_c_unpack(0,vcc)
+         call D3dB_cr_fft3b(1,vcc)
+         call D3dB_c_Copy(1,vcc,vcgg)
+         call coulomb_screened_v(rhogg,vcc)
+         call Pack_c_unpack(0,vcc)
+         call D3dB_cr_fft3b(1,vcc)
+         call D3dB_rr_daxpy(1,-0.5d0,vcc,vcgg)
+
+         call pspw_et_gen_rho(ispin,neq,n2ft3d,psie_r,rhoee)
+         call D3dB_r_SMul1(1,scal1,rhoee)
+         call D3dB_rc_fft3f(1,rhoee)
+         call Pack_c_pack(0,rhoee)
+         call coulomb_v(rhoee,vcc)
+         call Pack_c_unpack(0,vcc)
+         call D3dB_cr_fft3b(1,vcc)
+         call D3dB_c_Copy(1,vcc,vcee)
+         call coulomb_screened_v(rhoee,vcc)
+         call Pack_c_unpack(0,vcc)
+         call D3dB_cr_fft3b(1,vcc)
+         call D3dB_rr_daxpy(1,-0.5d0,vcc,vcee)
+
+         call pspw_et_gen_rho12(ispin,neq,n2ft3d,psig_r,psie_r,rhoge)
+         call D3dB_r_SMul1(1,scal1,rhoge)
+         call D3dB_rc_fft3f(1,rhoge)
+         call Pack_c_pack(0,rhoge)
+         call coulomb_v(rhoge,vcc)
+         call Pack_c_unpack(0,vcc)
+         call D3dB_cr_fft3b(1,vcc)
+         call D3dB_c_Copy(1,vcc,vcge)
+         call coulomb_screened_v(rhoge,vcc)
+         call Pack_c_unpack(0,vcc)
+         call D3dB_cr_fft3b(1,vcc)
+         call D3dB_rr_daxpy(1,-0.5d0,vcc,vcge)
+
+         call D3dB_r_Copy(1,vcee,vctmp)
+         call D3dB_rr_Mul2(1,psig_r,vctmp)
+         call D3dB_rr_daxpy(1,(-dsqrt(2.0d0)*2.0d0*c2*c3),vctmp,vc)
+
+         call D3dB_r_Copy(1,vcge,vctmp)
+         call D3dB_rr_Mul2(1,psie_r,vctmp)
+         call D3dB_rr_daxpy(1,(-dsqrt(2.0d0)*2.0d0*c2*c3),vctmp,vc)
+
+         call D3dB_r_Copy(1,vcgg,vctmp)
+         call D3dB_rr_Mul2(1,psig_r,vctmp)
+         call D3dB_rr_daxpy(1,(-dsqrt(2.0d0)*2.0d0*c3*c1),vctmp,vc)
+
+         call D3dB_r_Copy(1,vcge,vctmp)
+         call D3dB_rr_Mul2(1,psie_r,vctmp)
+         call D3dB_rr_daxpy(1,(-dsqrt(2.0d0)*2.0d0*c3*c2),vctmp,vc)
+
+         call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rhogg)
+         call D3dB_r_SMul1(1,scal1,rhogg)
+         call D3dB_rc_fft3f(1,rhogg)
+         call Pack_c_pack(0,rhogg)
+         call coulomb_v(rhogg,vcc)
+         call Pack_c_unpack(0,vcc)
+         call D3dB_cr_fft3b(1,vcc)
+         call D3dB_c_Copy(1,vcc,vcgg)
+         call coulomb_screened_v(rhogg,vcc)
+         call Pack_c_unpack(0,vcc)
+         call D3dB_cr_fft3b(1,vcc)
+         call D3dB_rr_daxpy(1,-0.5d0,vcc,vcgg)
+         call D3dB_r_Copy(1,vcgg,vctmp)
+         call D3dB_rr_Mul2(1,psie_r,vctmp)
+         call D3dB_rr_daxpy(1,(-2.0d0*c3*c3),vctmp,vc)
+
+         call D3dB_rr_daxpy(1,(2.0d0*c3*c3),hpsie_r,vc)
+      end if
 
       call D3dB_rc_fft3f(1,vc)
       call Pack_c_pack(1,vc)
@@ -2340,12 +2881,455 @@ c
       call Pack_cc_daxpy(1,2.0d0*dsqrt(2.0d0)*c3*c1,h1psig,dEdpsie)
       call Pack_cc_daxpy(1,2.0d0*c3*c3,h1psie,dEdpsie)
 
+c      call Pack_cc_dot(1,psie,dEdpsie,c1)
+c      write(*,*) "check last gradient=",c1
+c      call Pack_cc_dot(1,psig,dEdpsie,c1)
+c      write(*,*) "check last gradient=",c1
+c      call Pack_cc_dot(1,dEdpsie,dEdpsie,c1)
+c      write(*,*) "check last gradient=",c1
+
       E = Eci(1)
       !if (oprint) write(*,*) "c1,c2=",c1,c2
 
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *    psi_3x3ne_virtual_gradient   *
+*     *                                 *
+*     ***********************************
+
+*     This routine calculates the 3x3ne CI Energy and its gradient wrt to psie.
+*
+*       g    e    m    
+*   g  Hgg  Hge  Hgm  
+*
+*   e  Heg  Hee  Hem  
+*
+*   m  Hmg  Hme  Hmm  
+
+      subroutine psi_3x3ne_virtual_gradient(psig,psig_r,psie,psie_r,
+     >                                    psihomo,psihomo_r,
+     >                                    psilumo,psilumo_r,
+     >                                    E,dEdpsie,
+     >                                    h1psig,h1psie,
+     >                                    rhogg,rhoge,rhoee,
+     >                                    vctmp,vc,
+     >                                    vcc,
+     >                                    vcgg,vcge,vcee,
+     >                                    hpsig,
+     >                                    hpsig_r,hpsie_r)
+      implicit none
+      complex*16 psig(*)
+      real*8     psig_r(*)
+      complex*16 psie(*)
+      real*8     psie_r(*)
+      complex*16 psihomo(*)
+      real*8     psihomo_r(*)
+      complex*16 psilumo(*)
+      real*8     psilumo_r(*)
+      real*8     E
+      complex*16 dEdpsie(*)
+
+      complex*16 h1psie(*),h1psig(*)
+      real*8     rhogg(*),rhoee(*),rhoge(*)
+      real*8     vcgg(*),vcee(*),vcge(*)
+      real*8     vctmp(*),vc(*)
+      complex*16 vcc(*)
+      complex*16 hpsig(*)
+      real*8     hpsig_r(*)
+      real*8     hpsie_r(*)
+
+#include "bafdecls.fh"
+#include "psi.fh"
+#include "errquit.fh"
+#include "util.fh"
+#include "stdio.fh"
+
+      real*8 Hgg
+      common / CI_Hgg_common / Hgg
+
+*     **** local variables ****
+      logical oprint
+      integer neq1(2),i,q,ms,n1q(2),n2q(2)
+      integer nx,ny,nz,n2ft3d
+      real*8 Sgg,Sge,See,c1,c2,c3,A,B,C
+      real*8 H1gg,H1ge,H1gm,H1eg,H1ee,H1em,H1mg,H1me,H1mm
+      real*8 H2gg,H2ge,H2gm,H2eg,H2ee,H2em,H2mg,H2me,H2mm
+      real*8 Hge,Hgm,Heg,Hee,Hem,Hmg,Hme,Hmm
+      real*8 ehartr,scal1,scal2,dv,Elow,Ehigh,lmbda,sum1
+      real*8 ehfx,phfx,Eion
+      real*8 Hci(3,3),Eci(3),wkopt(1),work(999)
+      !real*8 Hci(2,2),Eci(2),wkopt(1),work(999)
+      integer lwork,INFO
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+      integer  control_version
+      external control_version
+      real*8   coulomb_e,ewald_e,ion_ion_e
+      external coulomb_e,ewald_e,ion_ion_e
+
+      !write(*,*) "ENTER 3x3 GRADIENT"
+      oprint = .true.!.false.
+
+      !*** generate psie_r ****
+      call Pack_c_Copy(1,psie,psie_r)
+      call Pack_c_unpack(1,psie_r)
+      call D3dB_cr_fft3b(1,psie_r)
+      call D3dB_r_Zero_Ends(1,psie_r)
+
+      call D3dB_n2ft3d(1,n2ft3d)
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+      scal1 = 1.0d0/dble(nx*ny*nz)
+      scal2 = 1.0d0/lattice_omega()
+      dv = scal1*lattice_omega()
+
+      call Pack_c_Zero(1,dEdpsie)
+
+*     **** ion-ion part ****
+      if (control_version().eq.3) Eion = ewald_e()   !**** get ewald energy ****
+      if (control_version().eq.4) Eion = ion_ion_e() !**** get free-space ion-ion energy ****
+      if (oprint) write(*,*) "Eion=",Eion
+
+      !*** calculate Sgg, Sge, See ***
+      call Pack_cc_dot(1,psig,psig,Sgg)
+      call Pack_cc_dot(1,psig,psie,Sge)
+      call Pack_cc_dot(1,psie,psie,See)
+      !if (oprint) write(*,*) "Sgg=",Sgg," Sge=",Sge," See=",See
+
+      n1q(1) = 1
+      n2q(1) = neq(1)
+      n1q(2) = neq(1)+1
+      n2q(2) = neq(1)+neq(2)
+      !*** generate HF energy and gradient of state psig ****
+      !*** generate Hgg if Hgg==0 ***
+*     *** generate <g|H|g> ***
+
+      if (dabs(Hgg).lt.1.0d-9) then
+*        **** apply H1 operator ****
+         call psi_H1psi(ispin,neq,npack1,n2ft3d,psig,psig_r,hpsig)
+
+         H1gg=0.0d0
+         do ms=1,ispin
+         if (neq(ms).gt.0) then
+            do q=n1q(ms),n2q(ms)
+               call Pack_cc_idot(1,psig(1+npack1*(q-1)),
+     >                            hpsig(1+npack1*(q-1)),sum1)
+               H1gg = H1gg - sum1
+            end do
+         end if
+         end do
+         call Parallel_SumAll(H1gg)
+         if (ispin.eq.1) H1gg = H1gg + H1gg
+
+*        **** apply H2 operator  - note rho = 2*psi*psi ****
+         H2gg=0.0d0
+         call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rhogg)
+         if (control_version().eq.4) then
+*        **** coulomb part ****
+            call coulomb2_v(rhogg,vcgg)
+            call D3dB_rr_dot(1,rhogg,vcgg,ehartr)
+            H2gg = (0.5d0*ehartr*dv)
+*        **** exchange part ****
+            call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
+            call pspw_potential_HFX(ispin,psig_r,hpsig_r)
+            call pspw_energy_HFX(ispin,psig_r,ehfx,phfx)
+            H2gg = H2gg + ehfx
+            Hgg = H1gg + H2gg + Eion
+         else
+            call D3dB_r_SMul1(1,scal1,rhogg)
+            call D3dB_rc_fft3f(1,rhogg)
+            call Pack_c_pack(0,rhogg)
+            H2gg = coulomb_e(rhogg)
+            call coulomb_v(rhogg,vcc)
+            call Pack_c_unpack(0,vcc)
+            call D3dB_cr_fft3b(1,vcc)
+            call D3dB_c_Copy(1,vcc,vcgg)
+            call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
+            call pspw_potential_HFX(ispin,psig_r,hpsig_r)
+            call pspw_energy_HFX(ispin,psig_r,ehfx,phfx)
+            H2gg = H2gg + ehfx
+            Hgg = H1gg + H2gg + Eion
+         end if
+      end if
+
+      !*** generate HF energy and gradient of state psie ****
+*     *** generate <e|H|e> ***
+      call Pack_c_Copy(1,psilumo,psig)
+      call D3dB_c_Copy(1,psilumo_r,psig_r)
+
+*     **** apply H1 operator ****
+      call psi_H1psi(ispin,neq,npack1,n2ft3d,psig,psig_r,hpsig)
+      call Pack_c_Copy(1,hpsig,h1psie)
+
+      H1ee=0.0d0
+      do ms=1,ispin
+         if (neq(ms).gt.0) then
+            do q=n1q(ms),n2q(ms)
+               call Pack_cc_idot(1,psig(1+npack1*(q-1)),
+     >                            hpsig(1+npack1*(q-1)),sum1)
+               H1ee = H1ee - sum1
+            end do
+         end if
+      end do
+      call Parallel_SumAll(H1ee)
+      if (ispin.eq.1) H1ee = H1ee + H1ee
+
+*     **** apply H2 operator  - note rho = 2*psi*psi ****
+      H2ee=0.0d0
+
+      call pspw_et_gen_rho(ispin,neq,n2ft3d,psie_r,rhoee)
+      if (control_version().eq.4) then
+*        **** coulomb part ****
+         call coulomb2_v(rhoee,vcee)
+         call D3dB_rr_dot(1,rhoee,vcee,ehartr)
+         H2ee = (0.5d0*ehartr*dv)
+*        **** exchange part ****
+         call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
+         call pspw_potential_HFX(ispin,psie_r,hpsig_r)
+         call pspw_energy_HFX(ispin,psie_r,ehfx,phfx)
+         H2ee = H2ee + ehfx
+         Hee = H1ee + H2ee + Eion
+      else
+         call D3dB_r_SMul1(1,scal1,rhoee)
+         call D3dB_rc_fft3f(1,rhoee)
+         call Pack_c_pack(0,rhoee)
+         H2ee = coulomb_e(rhoee)
+         call coulomb_v(rhoee,vcc)
+         call Pack_c_unpack(0,vcc)
+         call D3dB_cr_fft3b(1,vcc)
+         call D3dB_c_Copy(1,vcc,vcee)
+         call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
+         call pspw_potential_HFX(ispin,psie_r,hpsig_r)
+         call pspw_energy_HFX(ispin,psie_r,ehfx,phfx)
+         H2ee = H2ee + ehfx
+         Hee = H1ee + H2ee + Eion
+
+         call D3dB_r_Copy(1,vcee,vc)
+         call D3dB_rr_Mul2(1,psie_r,vc)
+         call D3dB_rr_Sum2(1,hpsig_r,vc) 
+         call D3dB_r_SMul1(1,(-4.0d0*c2*c2),vc)
+      end if
+      
+      call Pack_c_Copy(1,psihomo,psig)
+      call D3dB_c_Copy(1,psihomo_r,psig_r)
+      call Pack_c_Copy(1,psilumo,psie)
+      call D3dB_c_Copy(1,psilumo_r,psie_r)
+
+*     *** generate <g|H|e>  and <e|H|g>***
+      H1ge = 0.0d0
+
+      neq1(1) = 1
+      neq1(2) = 0
+
+      H2ge = 0.0d0
+      call pspw_et_gen_rho12(ispin,neq1,n2ft3d,
+     >                       psihomo_r,psilumo_r,rhoge)
+      if (control_version().eq.4) then
+         call coulomb2_v(rhoge,vcge)
+         call D3dB_rr_dot(1,rhoge,vcge,ehartr)
+         H2ge = 0.50d0*(0.5d0*ehartr*dv)
+         Hge = H1ge + H2ge 
+      else
+         call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
+         call D3dB_r_nZero(1,neq(1)+neq(2),hpsie_r)
+         call pspw_potential_HFX2_dnc(ispin,psig_r,psie_r,
+     >                                   hpsig_r,hpsie_r,
+     >                                   ehfx,phfx)
+         H2ge = -ehfx 
+         Hge = H1ge + H2ge 
+      end if
+
+      Heg = Hge
+
+*     *** generate <g|H|m>  and <m|H|g>***
+      H1gm = dsqrt(2.0d0)*H1ge
+
+      H2gm = 0.0d0
+      if (control_version().eq.4) then
+         call D3dB_rr_dot(1,rhogg,vcge,ehartr)
+         H2gm = dsqrt(2.0d0)*0.5d0*(0.5d0*ehartr*dv)
+         Hgm = H1gm + H2gm 
+      else
+         call D3dB_r_SMul1(1,scal1,rhoge)
+         call D3dB_rc_fft3f(1,rhoge)
+         call Pack_c_pack(0,rhoge)
+         call coulomb_screened_v(rhoge,vcge)
+         call Pack_c_unpack(0,vcge)
+         call D3dB_cr_fft3b(1,vcge)
+         call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rhogg)
+         call D3dB_rr_dot(1,rhogg,vcge,H2gm)
+         H2gm = dsqrt(2.0d0)*0.250d0*H2gm*dv
+         Hgm = H1gm + H2gm 
+      end if
+
+      Hmg = Hgm
+
+*     *** generate <e|H|m>  and <m|H|e>***
+      H1em = H1gm
+
+      H2em = 0.0d0
+      if (control_version().eq.4) then
+         call D3dB_rr_dot(1,rhoee,vcge,ehartr)
+         H2em = dsqrt(2.0d0)*0.5d0*(0.5d0*ehartr*dv)
+         Hem = H1em + H2em 
+      else
+         call pspw_et_gen_rho(ispin,neq,n2ft3d,psie_r,rhoee)
+         call D3dB_rr_dot(1,rhoee,vcge,H2em)
+         H2em = dsqrt(2.0d0)*0.25d0*H2em*dv
+         Hem = H1em + H2em 
+      end if
+
+      Hme = Hem
+
+*     *** generate <m|H|m>***
+      H1mm = H1gg + H1ee
+
+      H2mm = 0.0d0
+      if (control_version().eq.4) then
+         call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rhogg)
+         call D3dB_rr_dot(1,rhogg,vcee,ehartr)
+         H2mm = 0.50d0*(0.5d0*ehartr*dv)
+         H2mm = H2mm + H2ge
+         Hmm = H1mm + H2mm + Eion
+      else
+         call D3dB_r_SMul1(1,scal1,rhoee)
+         call D3dB_rc_fft3f(1,rhoee)
+         call Pack_c_pack(0,rhoee)
+         call coulomb_v(rhoee,vcc)
+         call Pack_c_unpack(0,vcc)
+         call D3dB_cr_fft3b(1,vcc)
+         call D3dB_c_Copy(1,vcc,vcee)
+         call coulomb_screened_v(rhoee,vcc)
+         call Pack_c_unpack(0,vcc)
+         call D3dB_cr_fft3b(1,vcc)
+         call D3dB_rr_daxpy(1,-0.5d0,vcc,vcee)
+         call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rhogg)
+         call D3dB_rr_dot(1,rhogg,vcee,H2mm)
+         H2mm = 0.50d0*H2mm*dv
+         H2mm = H2mm + H2ge
+         Hmm = H1mm + H2mm + Eion
+      end if
+         !if (oprint) write(*,*) "H2gg=",H2gg," H2ge=",H2ge," H2ee=",H2ee
+
+
+*     **** generate and diagonalize 3x3 CI matrix ****
+      Hci(1,1) = Hgg
+      Hci(1,2) = Hge
+      Hci(1,3) = Hgm
+      Hci(2,1) = Heg
+      Hci(2,2) = Hee
+      Hci(2,3) = Hem
+      Hci(3,1) = Hmg
+      Hci(3,2) = Hme
+      Hci(3,3) = Hmm
+
+      if (oprint) then 
+         write(*,*)"Hgg,Hge,Hgm",Hci(1,1),Hci(1,2),Hci(1,3)
+         write(*,*)"Heg,Hee,Hem",Hci(2,1),Hci(2,2),Hci(2,3)
+         write(*,*)"Hmg,Hme,Hmm",Hci(3,1),Hci(3,2),Hci(3,3)
+      end if
+
+      call DSYEV('V','U',3,Hci,3,Eci,wkopt,-1,INFO )
+      lwork = wkopt(1)
+      call DSYEV('V','U',3,Hci,3,Eci,work,lwork,INFO )
+
+      c1 = Hci(1,1)
+      c2 = Hci(2,1)
+      c3 = Hci(3,1)
+
+*     **** generate dElow/dpsie ****
+      if (control_version().eq.4) then
+         call D3dB_r_Copy(1,vcee,vc)
+         call D3dB_rr_Mul2(1,psilumo_r,vc)
+         call D3dB_r_SMul1(1,(-4.0d0*c2*c2),vc)
+
+         call D3dB_r_Copy(1,vcge,vctmp)
+         call D3dB_rr_Mul2(1,psihomo_r,vctmp)
+         call D3dB_rr_daxpy(1,(-2.0d0*c1*c2),vctmp,vc)
+
+         call D3dB_r_Copy(1,vcee,vctmp)
+         call D3dB_rr_Mul2(1,psihomo_r,vctmp)
+         call D3dB_rr_daxpy(1,(-dsqrt(2.0d0)*c2*c3),vctmp,vc)
+ 
+         call D3dB_r_Copy(1,vcge,vctmp)
+         call D3dB_rr_Mul2(1,psilumo_r,vctmp)
+         call D3dB_rr_daxpy(1,(-dsqrt(2.0d0)*c2*c3),vctmp,vc)
+ 
+         call D3dB_r_Copy(1,vcgg,vctmp)
+         call D3dB_rr_Mul2(1,psihomo_r,vctmp)
+         call D3dB_rr_daxpy(1,(-dsqrt(2.0d0)*c3*c1),vctmp,vc)
+ 
+         call D3dB_r_Copy(1,vcge,vctmp)
+         call D3dB_rr_Mul2(1,psilumo_r,vctmp)
+         call D3dB_rr_daxpy(1,(-dsqrt(2.0d0)*c3*c2),vctmp,vc)
+ 
+         call D3dB_r_Copy(1,vcgg,vctmp)
+         call D3dB_rr_Mul2(1,psilumo_r,vctmp)
+         call D3dB_rr_daxpy(1,(-2.0d0*c3*c3),vctmp,vc)
+ 
+         call D3dB_r_Copy(1,vcge,vctmp)
+         call D3dB_rr_Mul2(1,psihomo_r,vctmp)
+         call D3dB_rr_daxpy(1,(-2.0d0*c3*c3),vctmp,vc)
+      else
+         call coulomb_v(rhoee,vcc)
+         call Pack_c_unpack(0,vcc)
+         call D3dB_cr_fft3b(1,vcc)
+         call D3dB_c_Copy(1,vcc,vcee)
+
+         call D3dB_rr_daxpy(1,(4.0d0*c1*c2),hpsie_r,vc)
+
+         call D3dB_r_Copy(1,vcee,vctmp)
+         call D3dB_rr_Mul2(1,psig_r,vctmp)
+         call D3dB_rr_daxpy(1,(-dsqrt(2.0d0)*1.0d0*c2*c3),vctmp,vc)
+         call D3dB_r_Copy(1,vcge,vctmp)
+         call D3dB_rr_Mul2(1,psie_r,vctmp)
+         call D3dB_rr_daxpy(1,(-dsqrt(2.0d0)*1.0d0*c2*c3),vctmp,vc)
+
+         call D3dB_r_Copy(1,vcgg,vctmp)
+         call D3dB_rr_Mul2(1,psig_r,vctmp)
+         call D3dB_rr_daxpy(1,(-dsqrt(2.0d0)*1.0d0*c3*c1),vctmp,vc)
+         
+         call D3dB_r_Copy(1,vcge,vctmp)
+         call D3dB_rr_Mul2(1,psie_r,vctmp)
+         call D3dB_rr_daxpy(1,(-dsqrt(2.0d0)*1.0d0*c3*c2),vctmp,vc)
+
+         call D3dB_r_Copy(1,vcgg,vctmp)
+         call D3dB_rr_Mul2(1,psie_r,vctmp)
+         call D3dB_rr_daxpy(1,(-2.0d0*c3*c3),vctmp,vc)
+ 
+         call D3dB_r_Copy(1,vcge,vctmp)
+         call D3dB_rr_Mul2(1,psig_r,vctmp)
+         call D3dB_rr_daxpy(1,(-2.0d0*c3*c3),vctmp,vc)
+      end if
+
+      call D3dB_rc_fft3f(1,vc)
+      call Pack_c_pack(1,vc)
+      call Pack_c_SMul(1,scal1,vc,dEdpsie)
+
+      call Pack_cc_daxpy(1,4.0d0*c2*c2,h1psie,dEdpsie)
+      call Pack_cc_daxpy(1,2.0d0*dsqrt(2.0d0)*c2*c3,h1psig,dEdpsie)
+      call Pack_cc_daxpy(1,2.0d0*dsqrt(2.0d0)*c3*c1,h1psig,dEdpsie)
+      call Pack_cc_daxpy(1,2.0d0*c3*c3,h1psie,dEdpsie)
+
+c     call Pack_cc_dot(1,psie,dEdpsie,c1)
+c     write(*,*) "check last gradient=",c1
+c     call Pack_cc_dot(1,psig,dEdpsie,c1)
+c     write(*,*) "check last gradient=",c1
+c     call Pack_cc_dot(1,dEdpsie,dEdpsie,c1)
+c     write(*,*) "check last gradient=",c1
+
+      E = Eci(1)
+      !if (oprint) write(*,*) "c1,c2=",c1,c2
+
+      return
+      end
 
 
 *     ***********************************
@@ -10719,7 +11703,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
       end
 
 
-
 *     ***********************
 *     *                     *
 *     *  psi_2q_integrals   *
@@ -10745,8 +11728,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer psiij
       integer ipackm(2),jpackm(2)
       integer h1_integrals(2),h2_integrals(2)
-      integer vij(2),dnij(2),orbi(2),orbj(2)
-      real*8 e1,e2,scal1,scal2,dv
+      integer vij(2),dnij(2),orbi(2),orbj(2),vhij(2)
+      real*8 e1,e2,e2h,scal1,scal2,dv
 
 *     **** external functions ****
       integer  control_version
@@ -10758,167 +11741,224 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
       call Parallel2d_taskid_j(taskid_j)
       oprint = (taskid.eq.MASTER)
       version = control_version()
-      if (version.eq.4) then
 
-         if (oprint) then
-            write(luout,*) 
-     >      "== Generating One-Electron and Two-Electron Integrals =="
-            write(luout,*) 
-         end if
-         call D3dB_nx(1,nx)
-         call D3dB_ny(1,ny)
-         call D3dB_nz(1,nz)
-         scal1 = 1.0d0/dble(nx*ny*nz)
-         scal2 = 1.0d0/lattice_omega()
-         dv    = scal1*lattice_omega()
+      if (oprint) then
+         write(luout,*) 
+     >   "== Generating One-Electron and Two-Electron Integrals =="
+         write(luout,*) 
+      end if
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+      scal1 = 1.0d0/dble(nx*ny*nz)
+      scal2 = 1.0d0/lattice_omega()
+      dv    = scal1*lattice_omega()
 
-         nall = ne(1) + ne_excited(1)
-         nnall = (nall*(nall+1))/2
-         n4all = (nnall*(nnall+1))/2
+      nall = ne(1) + ne_excited(1)
+      nnall = (nall*(nall+1))/2
+      n4all = (nnall*(nnall+1))/2
 
-         value = BA_alloc_get(mt_dcpl,nfft3d,'vij',vij(2),vij(1))
-         value = value.and.
-     >           BA_alloc_get(mt_dcpl,nfft3d,'dnij',dnij(2),dnij(1))
-         value = value.and.
-     >           BA_alloc_get(mt_dcpl,nfft3d,'orbi',orbi(2),orbi(1))
-         value = value.and.
-     >           BA_alloc_get(mt_dcpl,nfft3d,'orbj',orbj(2),orbj(1))
-         value = value.and.
-     >           BA_alloc_get(mt_dbl,nnall,'h1_integrals',
-     >                        h1_integrals(2),h1_integrals(1))
-         value = value.and.
-     >           BA_alloc_get(mt_dbl,n4all,'h2_integrals',
-     >                        h2_integrals(2),h2_integrals(1))
-         value = value.and.
-     >           BA_alloc_get(mt_int,nnall,'ipackm',
-     >                        ipackm(2),ipackm(1))
-         value = value.and.
-     >           BA_alloc_get(mt_int,nnall,'jpackm',
-     >                        jpackm(2),jpackm(1))
-         if (.not.value)
+      value = BA_alloc_get(mt_dcpl,nfft3d,'vij',vij(2),vij(1))
+      value = value.and.
+     >        BA_alloc_get(mt_dcpl,nfft3d,'dnij',dnij(2),dnij(1))
+      value = value.and.
+     >        BA_alloc_get(mt_dcpl,nfft3d,'vhij',vhij(2),vhij(1))
+      value = value.and.
+     >        BA_alloc_get(mt_dcpl,nfft3d,'orbi',orbi(2),orbi(1))
+      value = value.and.
+     >        BA_alloc_get(mt_dcpl,nfft3d,'orbj',orbj(2),orbj(1))
+      value = value.and.
+     >        BA_alloc_get(mt_dbl,nnall,'h1_integrals',
+     >                     h1_integrals(2),h1_integrals(1))
+      value = value.and.
+     >        BA_alloc_get(mt_dbl,n4all,'h2_integrals',
+     >                     h2_integrals(2),h2_integrals(1))
+      value = value.and.
+     >        BA_alloc_get(mt_int,nnall,'ipackm',
+     >                     ipackm(2),ipackm(1))
+      value = value.and.
+     >        BA_alloc_get(mt_int,nnall,'jpackm',
+     >                     jpackm(2),jpackm(1))
+      if (.not.value)
      >   call errquit('psi_2q_integrals:error allocating heap',0,MA_ERR)
 
-         call Parallel_shared_vector_zero(.true.,nnall,
-     >                                    dbl_mb(h1_integrals(1)))
-         call Parallel_shared_vector_zero(.true.,n4all,
-     >                                    dbl_mb(h2_integrals(1)))
+      call Parallel_shared_vector_zero(.true.,nnall,
+     >                                 dbl_mb(h1_integrals(1)))
+      call Parallel_shared_vector_zero(.true.,n4all,
+     >                                 dbl_mb(h2_integrals(1)))
 
-         !**** generate 1e integrals - H1 only contains kinetic + ion-electron potentials ****
-         call electron_gen_vall0()
+      !**** generate 1e integrals - H1 only contains kinetic + ion-electron potentials ****
+      call electron_gen_vall0()
+      icount = 0
+      do i=1,nall
+         call psi_fetch_orbi_replicated(i,dcpl_mb(orbi(1)))
+         call electron_get_H0psi_k_orb(dcpl_mb(orbi(1)),
+     >                                 dcpl_mb(vij(1)))
+
+         do j=i,nall
+            call psi_fetch_orbj_indx(j,psiij,pj)
+            if (pj.eq.taskid_j) then
+               call Pack_cc_idot(1,dcpl_mb(psiij),dcpl_mb(vij(1)),e1)
+               dbl_mb(h1_integrals(1)+icount) = e1
+            end if
+            int_mb(ipackm(1) + icount) = i
+            int_mb(jpackm(1) + icount) = j
+            icount = icount + 1
+         end do
+         call ga_sync()
+      end do
+      call Parallel_Vector_SumAll(nnall,dbl_mb(h1_integrals(1)))
+
+      if (oprint) then
+         write(luout,*) "begin_one_electron_integrals"
          icount = 0
          do i=1,nall
-            call psi_fetch_orbi_replicated(i,dcpl_mb(orbi(1)))
-            call electron_get_H0psi_k_orb(dcpl_mb(orbi(1)),
-     >                                    dcpl_mb(vij(1)))
-
             do j=i,nall
-               call psi_fetch_orbj_indx(j,psiij,pj)
-               if (pj.eq.taskid_j) then
-                  call Pack_cc_idot(1,dcpl_mb(psiij),dcpl_mb(vij(1)),e1)
-                  dbl_mb(h1_integrals(1)+icount) = e1
-               end if
-               int_mb(ipackm(1) + icount) = i
-               int_mb(jpackm(1) + icount) = j
+               write(luout,'(I5,I5,F21.10)') 
+     >         j,i,dbl_mb(h1_integrals(1)+icount)
                icount = icount + 1
             end do
-            call ga_sync()
          end do
-         call Parallel_Vector_SumAll(nnall,dbl_mb(h1_integrals(1)))
+         write(luout,*) "end_one_electron_integrals"
+      end if
 
-         if (oprint) then
-            write(luout,*) "begin_one_electron_integrals"
-            icount = 0
-            do i=1,nall
-               do j=i,nall
-                  write(luout,'(I5,I5,F21.10)') 
-     >            j,i,dbl_mb(h1_integrals(1)+icount)
-                  icount = icount + 1
-               end do
-            end do
-            write(luout,*) "end_one_electron_integrals"
-         end if
+      !*** generate 2e integrals ***
+      iicount = 0
+      do ij=1,nnall
+         i = int_mb(ipackm(1)+ij-1)
+         j = int_mb(jpackm(1)+ij-1)
+         call psi_fetch_orbi_replicated(i,dcpl_mb(orbi(1)))
+         call Pack_c_unpack(1,   dcpl_mb(orbi(1)))
+         call D3dB_cr_pfft3b(1,1,dcpl_mb(orbi(1)))
+         call psi_fetch_orbi_replicated(j,dcpl_mb(orbj(1)))
+         call Pack_c_unpack(1,   dcpl_mb(orbj(1)))
+         call D3dB_cr_pfft3b(1,1,dcpl_mb(orbj(1)))
 
-         !*** generate 2e integrals ***
-         iicount = 0
-         do ij=1,nnall
-            i = int_mb(ipackm(1)+ij-1)
-            j = int_mb(jpackm(1)+ij-1)
-            call psi_fetch_orbi_replicated(i,dcpl_mb(orbi(1)))
-            call Pack_c_unpack(1,   dcpl_mb(orbi(1)))
-            call D3dB_cr_pfft3b(1,1,dcpl_mb(orbi(1)))
-            call psi_fetch_orbi_replicated(j,dcpl_mb(orbj(1)))
-            call Pack_c_unpack(1,   dcpl_mb(orbj(1)))
-            call D3dB_cr_pfft3b(1,1,dcpl_mb(orbj(1)))
-
-*           **** generate dnij for Vij  ****
+*        **** generate dnij for Vij  ****
+         if (version.eq.4) then
+            call D3dB_rr_Mul(1,dcpl_mb(orbi(1)),
+     >                       dcpl_mb(orbj(1)), 
+     >                       dcpl_mb(dnij(1)))
+            call D3dB_r_SMul1(1,scal2,dcpl_mb(dnij(1)))
+            call coulomb2_v(dcpl_mb(dnij(1)),dcpl_mb(vij(1)))
+         else
             call D3dB_rr_Mul(1,dcpl_mb(orbi(1)),
      >                         dcpl_mb(orbj(1)), 
      >                         dcpl_mb(dnij(1)))
             call D3dB_r_SMul1(1,scal2,dcpl_mb(dnij(1)))
-            call coulomb2_v(dcpl_mb(dnij(1)),dcpl_mb(vij(1)))
+            call D3dB_r_SMul1(1,scal1,dcpl_mb(dnij(1)))
+            call D3dB_rc_fft3f(1,dcpl_mb(dnij(1)))
+            call Pack_c_pack(0,dcpl_mb(dnij(1)))
 
+            call coulomb_v(dcpl_mb(dnij(1)),dcpl_mb(vhij(1)))
+            call Pack_c_unpack(0,dcpl_mb(vhij(1)))
+            call D3dB_cr_fft3b(1,dcpl_mb(vhij(1)))
 
-            do kl=ij,nnall
-               k = int_mb(ipackm(1)+kl-1)
-               l = int_mb(jpackm(1)+kl-1)
-               call psi_fetch_orbi_replicated(k,dcpl_mb(orbi(1)))
-               call Pack_c_unpack(1,   dcpl_mb(orbi(1)))
-               call D3dB_cr_pfft3b(1,1,dcpl_mb(orbi(1)))
-               call psi_fetch_orbi_replicated(l,dcpl_mb(orbj(1)))
-               call Pack_c_unpack(1,   dcpl_mb(orbj(1)))
-               call D3dB_cr_pfft3b(1,1,dcpl_mb(orbj(1)))
+            call coulomb_screened_v(dcpl_mb(dnij(1)),dcpl_mb(vij(1)))
+            call Pack_c_unpack(0,dcpl_mb(vij(1)))
+            call D3dB_cr_fft3b(1,dcpl_mb(vij(1)))
+         end if
 
-               call D3dB_rr_Mul(1,dcpl_mb(orbi(1)),
-     >                            dcpl_mb(orbj(1)), 
-     >                            dcpl_mb(dnij(1)))
-               call D3dB_r_SMul1(1,scal2,dcpl_mb(dnij(1)))
+         do kl=ij,nnall
+            k = int_mb(ipackm(1)+kl-1)
+            l = int_mb(jpackm(1)+kl-1)
+            call psi_fetch_orbi_replicated(k,dcpl_mb(orbi(1)))
+            call Pack_c_unpack(1,   dcpl_mb(orbi(1)))
+            call D3dB_cr_pfft3b(1,1,dcpl_mb(orbi(1)))
+            call psi_fetch_orbi_replicated(l,dcpl_mb(orbj(1)))
+            call Pack_c_unpack(1,   dcpl_mb(orbj(1)))
+            call D3dB_cr_pfft3b(1,1,dcpl_mb(orbj(1)))
 
+            call D3dB_rr_Mul(1,dcpl_mb(orbi(1)),
+     >                         dcpl_mb(orbj(1)), 
+     >                         dcpl_mb(dnij(1)))
+            call D3dB_r_SMul1(1,scal2,dcpl_mb(dnij(1)))
+
+            if (version .eq. 4) then
                call D3dB_rr_dot(1,dcpl_mb(dnij(1)),dcpl_mb(vij(1)),e2)
                !e2 = 0.5d0*e2*dv
                e2 = e2*dv
                dbl_mb(h2_integrals(1)+iicount) = e2
-            
-               !write(*,*) "i,j,k,l,e2=",i,j,k,l,e2
+
+            else 
+               if (i.eq.j .and. k.eq.l) then
+                  call D3dB_rr_dot(1,dcpl_mb(dnij(1)),dcpl_mb(vhij(1)),
+     >                             e2h)
+                  e2h = e2h*dv
+                  call D3dB_rr_dot(1,dcpl_mb(dnij(1)),dcpl_mb(vij(1)),
+     >                             e2)
+                  e2 = e2*dv
+                  e2 = 2.0d0*e2h - e2
+                  dbl_mb(h2_integrals(1)+iicount) = e2
+               else if (i.eq.j .and. k.ne.l) then
+                  call D3dB_rr_dot(1,dcpl_mb(dnij(1)),dcpl_mb(vhij(1)),
+     >                             e2h)
+                  e2h = e2h*dv
+                  call D3dB_rr_dot(1,dcpl_mb(dnij(1)),dcpl_mb(vij(1)),
+     >                             e2)
+                  e2 = e2*dv
+                  e2 = 2.0d0*e2h - e2
+                  dbl_mb(h2_integrals(1)+iicount) = e2
+               else if (i.ne.j .and. k.eq.l) then
+                  call D3dB_rr_dot(1,dcpl_mb(dnij(1)),dcpl_mb(vhij(1)),
+     >                             e2h)
+                  e2h = e2h*dv
+                  call D3dB_rr_dot(1,dcpl_mb(dnij(1)),dcpl_mb(vij(1)),
+     >                             e2)
+                  e2 = e2*dv
+                  e2 = 2.0d0*e2h - e2
+                  dbl_mb(h2_integrals(1)+iicount) = e2
+               else
+                  call D3dB_rr_dot(1,dcpl_mb(dnij(1)),dcpl_mb(vij(1)),
+     >                             e2)
+                  e2 = e2*dv
+                  dbl_mb(h2_integrals(1)+iicount) = e2
+               end if
+            end if
+
+            !write(*,*) "i,j,k,l,e2=",i,j,k,l,e2
+            iicount = iicount + 1
+         end do
+      end do
+
+
+      if (oprint) then
+         write(luout,*)
+         write(luout,*) "begin_two_electron_integrals"
+         iicount = 0
+         do ij=1,nnall
+            i = int_mb(ipackm(1)+ij-1)
+            j = int_mb(jpackm(1)+ij-1)
+            do kl=ij,nnall
+               k = int_mb(ipackm(1)+kl-1)
+               l = int_mb(jpackm(1)+kl-1)
+               write(luout,'(I5,I5,I5,I5,F20.10)') 
+     >         j,i,l,k,dbl_mb(h2_integrals(1)+iicount)
                iicount = iicount + 1
             end do
          end do
+         write(luout,*) "end_two_electron_integrals"
+         write(luout,*)
 
-
-         if (oprint) then
-            write(luout,*)
-            write(luout,*) "begin_two_electron_integrals"
-            iicount = 0
-            do ij=1,nnall
-               i = int_mb(ipackm(1)+ij-1)
-               j = int_mb(jpackm(1)+ij-1)
-               do kl=ij,nnall
-                  k = int_mb(ipackm(1)+kl-1)
-                  l = int_mb(jpackm(1)+kl-1)
-                  write(luout,'(I5,I5,I5,I5,F20.10)') 
-     >            j,i,l,k,dbl_mb(h2_integrals(1)+iicount)
-                  iicount = iicount + 1
-               end do
-            end do
-            write(luout,*) "end_two_electron_integrals"
-            write(luout,*)
-         end if
-
-
-*        **** deallocate memory from heap ****
-         value = BA_free_heap(vij(2))
-         value = value.and.BA_free_heap(dnij(2))
-         value = value.and.BA_free_heap(orbi(2))
-         value = value.and.BA_free_heap(orbj(2))
-         value = value.and.BA_free_heap(h1_integrals(2))
-         value = value.and.BA_free_heap(h2_integrals(2))
-         value = value.and.BA_free_heap(ipackm(2))
-         value = value.and.BA_free_heap(jpackm(2))
-         if (.not. value)
-     >   call errquit('psi_2q_integrals:error freeing heap',1,MA_ERR)
       end if
+
+*     **** deallocate memory from heap ****
+      value = BA_free_heap(vij(2))
+      value = value.and.BA_free_heap(dnij(2))
+      value = value.and.BA_free_heap(vhij(2))
+      value = value.and.BA_free_heap(orbi(2))
+      value = value.and.BA_free_heap(orbj(2))
+      value = value.and.BA_free_heap(h1_integrals(2))
+      value = value.and.BA_free_heap(h2_integrals(2))
+      value = value.and.BA_free_heap(ipackm(2))
+      value = value.and.BA_free_heap(jpackm(2))
+      if (.not. value)
+     >   call errquit('psi_2q_integrals:error freeing heap',1,MA_ERR)
 
       return
       end
+
+
 
       subroutine psi_fetch_orbi_replicated(i,orbi)
       implicit none

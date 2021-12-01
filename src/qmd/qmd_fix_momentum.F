@@ -142,6 +142,12 @@ c      make sure center-of-mass velocity is still zero
       end if
 c     calculate current kinetic energy
       call qmd_kinetic(n,m,v,KE_after)
+      if(KE_after.lt.1d-12) then
+       if(ga_nodeid().eq.0)
+     C        write(luout,*)
+     C        ' zero velocities after removal of roto-translations'
+       call errquit(' zero Kinetic Energy',0,GEOM_ERR)
+      endif
 c     rescale velocities to match kinetic energy on entry
       call qmd_rescale(n,m,v,KE_after,KE_in)
 c

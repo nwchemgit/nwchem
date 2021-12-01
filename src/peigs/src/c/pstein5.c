@@ -143,14 +143,13 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
    char            msg[ 25 ];
    char            msg2[ 25 ];
 
-   Integer           **piwork, max_sz, sync_proc;
+   Integer           max_sz, sync_proc;
 
    DoublePrecision         *dwork, *ptbeval, *d_scrat, dbad;
    extern DoublePrecision tcgtime_();
 
 
    extern Integer      mxnprc_(), mxmynd_();
-   extern void     reduce_maps();
    extern Integer clustrf5_();
    
    extern Integer      reduce_list2(), count_list(), clustrinv5_();
@@ -392,7 +391,6 @@ void pstein5 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
 
   iwork  = iiwork;
   dwork  = ddwork;
-  piwork = ppiwork;
   
   /*
    * Set up proclist work array.

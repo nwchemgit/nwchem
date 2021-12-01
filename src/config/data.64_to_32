@@ -40,6 +40,7 @@ dsymv      ysymv
 dsyr2      ysyr2         
 dsyr2k     ysyr2k        
 dsyrk      ysyrk         
+dsysv      ysysv
 dtrmm      ytrmm         
 dtrmv      ytrmv         
 dtrsm      ytrsm         

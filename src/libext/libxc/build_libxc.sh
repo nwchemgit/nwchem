@@ -19,13 +19,29 @@ get_cmake38(){
 
 }
 
-VERSION=5.1.5
+check_tgz() {
+    myexit=0
+    [ -f $1 ] && gunzip -t $1 > /dev/null && myexit=1
+    echo $myexit
+}
 
-if [[ -f "libxc-${VERSION}.tar.gz" ]]; then
-    echo "using existing  libxc-${VERSION}.tar.gz"
+VERSION=5.1.7
+TGZ=libxc-${VERSION}.tar.gz
+if [ `check_tgz $TGZ` == 1 ]; then
+    echo "using existing $TGZ"
 else
-    echo "downloading libxc-${VERSION}.tar.gz"
-    curl -L https://gitlab.com/libxc/libxc/-/archive/${VERSION}/libxc-${VERSION}.tar.gz -o libxc-${VERSION}.tar.gz
+    echo "downloading $TGZ"
+    curl -L https://gitlab.com/libxc/libxc/-/archive/${VERSION}/libxc-${VERSION}.tar.gz -o $TGZ
+    if [ `check_tgz $TGZ` != 1 ]; then
+	rm -f libxc-${VERSION}.tar.gz
+	curl -L https://github.com/ElectronicStructureLibrary/libxc/archive/refs/tags/${VERSION}.tar.gz -o $TGZ
+	if [ `check_tgz $TGZ` != 1 ]; then
+	    echo
+	    echo libxc download failed
+	    echo
+	    exit 1
+	fi
+    fi
 fi
 
 tar -xzf libxc-${VERSION}.tar.gz
