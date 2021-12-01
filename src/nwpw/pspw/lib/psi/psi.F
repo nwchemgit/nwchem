@@ -3545,6 +3545,9 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
       logical value
       integer neall
 
+*     **** define pointers ****
+      integer Y,U,HY,HU
+
 *     **** external functions ****
       logical  control_precondition,psp_pawexist
       external control_precondition,psp_pawexist
@@ -3560,6 +3563,13 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
       external psi_geodesic_energy0,psi_geodesic_denergy
       real*8   linesearch
       external linesearch
+      integer  geodesic_get_U_ptr
+      external geodesic_get_U_ptr
+      logical  Dneall_m_pop_stack,Dneall_m_push_get_block
+      external Dneall_m_pop_stack,Dneall_m_push_get_block
+      real*8   geodesic_ABC_energy,geodesic_ABC_denergy
+      external geodesic_ABC_energy,geodesic_ABC_denergy
+
 
       !maxit_orb  = control_ks_maxit_orb()   !*** should be read from rtdb ***
       !maxit_orbs = control_ks_maxit_orbs()  !*** should be read from rtdb ***
@@ -3577,6 +3587,8 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
 
       neall = neq(1)+neq(2)
 
+      call geodesic_ABC_init()
+
 *     **** allocate G0, S0 ****
       value = BA_push_get(mt_dcpl,npack1*neall,
      >                     'S0',S0(2),S0(1))
@@ -3585,6 +3597,12 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
      >                     'G0',G0(2),G0(1))
       if (.not.value) 
      >   call errquit('psi_KS_block_update:out of heap memory',0,MA_ERR)
+
+*     **** set ptrs ****
+      Y = psi1(1)
+      U = geodesic_get_U_ptr()
+      HY = G0(1)
+      HU = S0(1)
 
       call Parallel_shared_vector_zero(.true.,2*npack1*neall,
      >                                 dcpl_mb(G0(1)))
@@ -3667,6 +3685,14 @@ c         write(*,*) "     --- it,Enew,deltae=",it,Enew,deltae
 *     **** initialize the geoedesic line data structure ****
       call geodesic_start(dcpl_mb(S0(1)),max_sigma,dE0)
 
+
+*     **** Copy Hpsi_k to HY then ****
+*     **** generate Hpsi using psi_k=U and copy Hpsi_k to HU ****
+*     **** compute A,B,C, <S0|H|S0>, <U|H|S0> and <U|H|U> matrices ****
+      call geodesic_ABC_start(ispin,ne,npack1,
+     >                        dcpl_mb(Y), dcpl_mb(U),
+     >                        dcpl_mb(HY),dcpl_mb(HU))
+
 *     ******* line search *********
       if ((tmin.gt.deltat_min).and.(tmin.lt.1.0d4)) then
          deltat = tmin
@@ -3677,9 +3703,13 @@ c         write(*,*) "     --- it,Enew,deltae=",it,Enew,deltae
  25   continue
       tmin0 = tmin
       deltae0 = deltae
+c      Enew0 = linesearch(0.0d0,E0,dE0,deltat,
+c     >                        psi_geodesic_energy0,
+c     >                        psi_geodesic_denergy,
+c     >                        0.50d0,tmin0,deltae0,2)
       Enew0 = linesearch(0.0d0,E0,dE0,deltat,
-     >                        psi_geodesic_energy0,
-     >                        psi_geodesic_denergy,
+     >                        geodesic_ABC_energy,
+     >                        geodesic_ABC_denergy,
      >                        0.50d0,tmin0,deltae0,2)
 !$OMP MASTER
          tmin = tmin0
@@ -3688,17 +3718,28 @@ c         write(*,*) "     --- it,Enew,deltae=",it,Enew,deltae
 !$OMP END MASTER
 !$OMP BARRIER
 
+c      write(*,*) "psi_geodesic_energy0=",tmin,
+c     >            psi_geodesic_energy0(tmin),Enew0,
+c     >            geodesic_ABC_energy(tmin),
+c     >            geodesic_ABC_energy(tmin)-psi_geodesic_energy0(tmin)
+c
+c      write(*,*) "psi_geodesic_denergy=",tmin,
+c     >            psi_geodesic_denergy(tmin),
+c     >            geodesic_ABC_denergy(tmin),
+c     >            geodesic_ABC_denergy(tmin)-psi_geodesic_denergy(tmin)
+ 
       call psi_geodesic_final(tmin)
 
  30   CONTINUE
 
 
 *     **** free memory ****
-      value = BA_pop_stack(G0(2))
-      value = value.and.
-     >        BA_pop_stack(S0(2))
+      value =           BA_pop_stack(G0(2))
+      value = value.and.BA_pop_stack(S0(2))
       if (.not. value)
      >  call errquit('bfgsminimize:error freeing heap memory',0, MA_ERR)
+
+      call geodesic_ABC_finalize()
 
       call psi_2to1()
 

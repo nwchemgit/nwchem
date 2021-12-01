@@ -705,7 +705,7 @@ c        call tce_sdtime0(t0)
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
      3        k_range_p7b_1,
-     4        triplesx,t2sub,v2sub,scratch,
+     4        triplesx,t2sub,v2sub,
      D        deltat_mic)
 c         call tce_sdtime(t0,deltat_mic,
 c     ,        fdist_sdkrnl23,fdist_sdcomp23)

@@ -34,14 +34,15 @@ if [[ "$FC" == "nvfortran" ]]; then
 #    source /etc/profile.d/lmod.sh
 #    module use /opt/nvidia/hpc_sdk/modulefiles
 #    module load nvhpc
-     export BUILD_MPICH=1
+#     export BUILD_MPICH=1
      nv_major=21
-     nv_minor=3
+     nv_minor=9
      nverdot="$nv_major"."$nv_minor"
      export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:$PATH
      export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH
      sudo /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x
      export FC=nvfortran
+     export MPICH_FC=nvfortran
 #	if [ -z "$BUILD_MPICH" ] ; then
 ##use bundled openmpi
 #	export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/comm_libs/mpi/bin:$PATH
@@ -89,7 +90,11 @@ fi
 if [[ "$os" == "Linux" ]]; then 
    export NWCHEM_TARGET=LINUX64 
   if [[ "$MPI_IMPL" == "mpich" ]]; then
+  if [[ "$arch" == "aarch64" ]]; then
+    export MPICH_FC=$FC
+  else
     export BUILD_MPICH=1
+  fi
   fi
 fi
 export OMP_NUM_THREADS=1
@@ -132,6 +137,16 @@ if [[ -z "$USE_INTERNALBLAS" ]]; then
 	    if [[ -z "$SCALAPACK_SIZE" ]] ; then
 		export SCALAPACK_SIZE=8
 	    fi
+#elpa
+	    GFORTRAN_EXTRA=$(echo $FC | cut -c 1-8)
+#	    if  [[ ${FC} == gfortran ]] || [[ ${GFORTRAN_EXTRA} == gfortran ]] ; then
+	    if  [[ ${FC} == gfortran ]]  ; then
+		if [[ "$arch" == "x86_64" ]]; then
+		    if [[ ! -z "$BUILD_OPENBLAS" ]]; then
+			export BUILD_ELPA=1
+		    fi
+		fi
+	    fi
 	else
 	    unset BUILD_SCALAPACK
 	fi
@@ -141,5 +156,10 @@ fi
 echo "from nwchem.bashrc"
 echo "BLAS_SIZE = " "$BLAS_SIZE"
 echo "SCALAPACK_SIZE = " "$SCALAPACK_SIZE"
-echo "USE_64TO32 = " "$USE_64TO32"
+if [[ ! -z "$USE_64TO32" ]]; then
+    echo "USE_64TO32 = " "$USE_64TO32"
+fi
+if [[ ! -z "$BUILD_ELPA" ]]; then
+echo "BUILD_ELPA = " "$BUILD_ELPA"
+fi
 export NWCHEM_EXECUTABLE=$TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET/nwchem_"$arch"_`echo $NWCHEM_MODULES|sed 's/ /-/g'`_"$MPI_IMPL"
