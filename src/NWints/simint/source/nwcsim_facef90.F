@@ -67,6 +67,9 @@ c     needed for 1-e integrals
 c
 c     create shells simint structure
 c
+      call simint_initialize_multi_shellpair(bra_msh)
+      call simint_initialize_multi_shellpair(ket_msh)
+ 
       nwcsim_nbas=nbas
       do ibasis=1,nbas
          basis = bases(ibasis) 
@@ -176,6 +179,8 @@ c
       pname="nwcsim_termina"
 c
       if(nwcsim_initialized) then
+      call simint_free_multi_shellpair(bra_msh)
+      call simint_free_multi_shellpair(ket_msh)
       do ibasis=1,nwcsim_nbas
          bas=nwcsim_bas(ibasis)
             do icsh=1,nwcsim_noshell(bas)

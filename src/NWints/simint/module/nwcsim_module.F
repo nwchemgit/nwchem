@@ -10,6 +10,7 @@ C     shells
       type(c_simint_shell), target :: smnt_sh(nw_max_shells,3)
 c dummy shell for 3c- 
       type(c_simint_shell), target :: zero_sh(nw_max_shells,3)
+      type(c_simint_multi_shellpair), target :: bra_msh, ket_msh
       integer :: nwcsim_noshell(3), nwcsim_bas(3)
       integer :: nwcsim_nbas
       logical :: nwcsim_initialized = .false.
