@@ -833,7 +833,7 @@ ifeq ($(TARGET),IBM64)
    COPTIONS = -q64
   FOPTIMIZE = -O3 -qstrict -NQ40000 -NT80000  -qarch=auto -qtune=auto
   RSQRT=y
-  FDEBUG = -O2 -qmaxmem=8192
+  FDEBUG = -O2 -qmaxmem=8192 -qsuppress=1500-030
   ifdef RSQRT
     FOPTIMIZE  += -qfloat=rsqrt:fltint
   endif
@@ -849,7 +849,7 @@ ifeq ($(TARGET),IBM64)
     FOPTIMIZE  += -qfloat=rsqrt:fltint
     FVECTORIZE  += -qfloat=rsqrt:fltint
   endif
-  COPTIMIZE = -O -qmaxmem=8192
+  COPTIMIZE = -O -qmaxmem=8192 -qsuppress=1500-030
 
   DEFINES = -DIBM -DAIX -DEXTNAME
   DEFINES += -DCHKUNDFLW
@@ -1032,7 +1032,7 @@ ifeq ($(TARGET),MACX)
     _FC=xlf
     XLFMAC=y
     FOPTIONS = -qextname -qfixed -qnosave  -qalign=4k
-    FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qxlf77=leadzero
+    FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qsuppress=1500-030 -qxlf77=leadzero
     FOPTIMIZE= -O3 -qstrict  -qarch=auto -qtune=auto -qcache=auto -qcompact
     ifdef RSQRT
       FOPTIMIZE  += -qfloat=rsqrt:fltint
@@ -1685,7 +1685,7 @@ endif
     endif
     ifeq ($(_FC),xlf)
       FOPTIONS  = -q32  -qextname -qfixed 
-      FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qxlf77=leadzero
+      FOPTIONS +=  -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qsuppress=1500-030 -qxlf77=leadzero
       FOPTIMIZE= -O3 -qstrict -qfloat=fltint
       ifeq ($(FC),blrts_xlf)
         FOPTIMIZE+= -qarch=440 -qtune=440
@@ -2555,7 +2555,7 @@ ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
       ifeq ($(_FC),xlf)
 #RSQRT=y breaks intchk QA
         FOPTIONS  =  -q64 -qextname -qfixed #-qnosave  #-qalign=4k
-        FOPTIONS +=  -NQ40000 -NT80000 -qmaxmem=8192 -qxlf77=leadzero
+        FOPTIONS +=  -NQ40000 -NT80000 -qmaxmem=8192 -qsuppress=1500-030 -qxlf77=leadzero
         ifdef  USE_GPROF
           FOPTIONS += -pg
           LDOPTIONS += -pg
@@ -2647,7 +2647,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
     RANLIB     = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-ranlib
     DEFINES   += -DXLFLINUX -DBGL
     FOPTIMIZE += -qarch=440 -qtune=440 -qfloat=rsqrt:fltint
-    FOPTIONS   = -qEXTNAME -qxlf77=leadzero -NQ40000 -NT80000 -NS2048 -qmaxmem=8192
+    FOPTIONS   = -qEXTNAME -qxlf77=leadzero -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qsuppress=1500-030
    endif
 
 #for BGP
@@ -2660,7 +2660,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
     AS     = powerpc-bgp-linux-as
     RANLIB = powerpc-bgp-linux-ranlib
     DEFINES += -DXLFLINUX
-    FOPTIONS = -qEXTNAME -qxlf77=leadzero -NQ40000 -NT80000 -NS2048 -qmaxmem=8192
+    FOPTIONS = -qEXTNAME -qxlf77=leadzero -NQ40000 -NT80000 -NS2048 -qmaxmem=8192 -qsuppress=1500-030
     FOPTIONS += -O3 -qstrict -qthreaded -qnosave -qalign=4k
     FOPTIMIZE += -O3 -qarch=450d -qtune=450 -qcache=auto -qunroll=auto -qfloat=rsqrt:fltint
     XLF11 = $(shell bgxlf -qversion  2>&1|grep Version|head -1| awk ' / 11./ {print "Y"}')
