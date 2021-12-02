@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # script to download simint-generator, create the simint library, compile it
 # and link it in NWChem
 # FC=compilername can be used to set compiler, e.g.
@@ -198,7 +198,7 @@ if [[ -z "${FC}" ]]; then
     fi
 fi    
     GFORTRAN_EXTRA=$(echo $FC | cut -c 1-8)
-if [[ ${FC} == gfortran  || ${FC} == flang  ||  ${GFORTRAN_EXTRA} == gfortran || (${FC} == ftn && ${PE_ENV} == GNU) ]] ; then
+if [[ ${FC} == gfortran  || ${FC} == flang  ||  ${GFORTRAN_EXTRA} == gfortran || (${FC} == ftn && ${PE_ENV} == GNU) || (${FC} == ftn && ${PE_ENV} == AOCC) ]] ; then
     Fortran_FLAGS="-fdefault-integer-8 -cpp"
     GNUMAJOR=$(${FC} -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
     echo GNUMAJOR is $GNUMAJOR
@@ -215,9 +215,12 @@ elif  [[ ${FC} == nvfortran || ${FC} == pgf90 || (${FC} == ftn && ${PE_ENV} == N
     Fortran_FLAGS="-i8 -cpp"
     CC=gcc
     CXX=g++
+    if  [[ ${PE_ENV} == NVIDIA ]]; then
+	unset CPATH
+    fi
 fi
 echo Fortran_FLAGS equal "$Fortran_FLAGS"
-FC="${FC}" CXX="${CXX}" $MYCMAKE \
+FC="${FC}" CC="${CC}" CXX="${CXX}" $MYCMAKE \
  -DCMAKE_BUILD_TYPE="${SIMINT_BUILD_TYPE}" -DSIMINT_VECTOR=${VEC}  \
  -DCMAKE_INSTALL_LIBDIR=lib -DENABLE_FORTRAN=ON -DSIMINT_MAXAM=${SIMINT_MAXAM} -DSIMINT_MAXDER=${DERIV} \
  -DENABLE_TESTS=OFF     -DSIMINT_STANDALONE=OFF   \

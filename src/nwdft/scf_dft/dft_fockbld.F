@@ -70,6 +70,8 @@ c
 c
       integer g_frozemb       ! frozen embedding ga
       double precision Efrozemb  ! energy
+
+      integer g_cosmo
 c
 c     timings
 c
@@ -103,6 +105,8 @@ cc AJL/Begin/FDE
 c      double precision rho_n_fde ![out]
       integer g_dens_fde(2)
 cc AJL/End
+      double precision t0
+      integer g_dmr
 c
       do_cosmo_smd = .false.
       do_cosmo_vem = 0
@@ -266,11 +270,19 @@ c
 cc AJL/Begin/SPIN ECPs
       if(cosmo_on.and.cosmo_phase.eq.2) then
 c         call int_1e_ga(ao_bas_han,ao_bas_han,g_fock,
-         call int_1e_ga(ao_bas_han,ao_bas_han,g_focks(1),
-     &                  'cos_chg_pot',.false.)
+         t0 = util_wallsec()
+         if (.not.ga_duplicate(g_focks(1),g_cosmo,'cosmo'))
+     &     call errquit('dft_fockbld: create g_cosmo',0,GA_ERR)
+         call ga_zero(g_cosmo)
+         call cosmo_fock(ao_bas_han, g_cosmo)
+         call ga_add(1d0, g_cosmo, 1d0, g_focks(1), g_focks(1))
          if (ecp_channels.gt.1)
-     &     call int_1e_ga(ao_bas_han,ao_bas_han,g_focks(2),
-     &                    'cos_chg_pot',.false.)
+     &     call ga_add(1d0, g_cosmo, 1d0, g_focks(2), g_focks(2))
+         if (.not.ga_destroy(g_cosmo))
+     &     call errquit('dft_fockbld: destroy g_cosmo',0,GA_ERR)    
+         if (me.eq.0) then
+           write(*,'("cos_chg_pot: ",F8.3)') util_wallsec()-t0
+         endif
       endif
 
 c     == Copy Fock matrix to individual components for normal calcs ==

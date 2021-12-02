@@ -155,7 +155,7 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
    char            msg[ 25 ];
    char            msg2[ 25 ];
 
-   Integer           **piwork, max_sz, sync_proc, numclstr;
+   Integer           max_sz, sync_proc, numclstr;
 
    DoublePrecision         *dwork, *d_scrat, dbad[1], syncco[1];
    extern DoublePrecision tcgtime_();
@@ -168,7 +168,7 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   extern Integer      reduce_list2(), count_list(), clustrinv4_();
   extern Integer      indxL ();
 
-  extern void reduce_maps();
+  //  extern void reduce_maps();
   extern void     xstop_();
   extern void     pgexit();
   extern void     pdiff();
@@ -239,7 +239,7 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
       if ( info != NULL )
         *info = linfo;
       
-      fprintf( stderr, " %s me = %d argument %d is a pointer to NULL. \n",
+      fprintf( stderr, " %s me = %ld argument %ld is a pointer to NULL. \n",
                msg, me, -linfo );
       xstop_( &linfo );
       return;
@@ -307,7 +307,7 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   
   if( *info != 0 ) {
      linfo = *info;
-     fprintf( stderr, " %s me = %d argument %d has an illegal value. \n",
+     fprintf( stderr, " %s me = %ld argument %ld has an illegal value. \n",
               msg, me, -linfo);
      xstop_( info );
      return;
@@ -404,8 +404,9 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
 */
   iwork  = iscratch;
   dwork  = ddwork;
+  /*
   piwork = ppiwork;
-  
+  */
   /*
    * Set up proclist work array.
    */
@@ -471,7 +472,7 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   
   if ( isize < 0 ){
     *info = -99;
-    fprintf(stderr, " Node %d: error in clustrf isize = %d neigval = %d \n", 
+    fprintf(stderr, " Node %ld: error in clustrf isize = %ld neigval = %ld \n", 
 	    me, isize, neigval );
     xstop_( info );
   }
@@ -526,7 +527,7 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   */
   
   /*
-    printf(" in pstein4 after bbcast00 me = %d \n", me);
+    printf(" in pstein4 after bbcast00 me = %ld \n", me);
     fflush(stdout);
   */
   
@@ -565,7 +566,7 @@ void pstein4 ( n, dd, ee, dplus, lplus, ld, lld, meigval, eval, iblock, nsplit, 
   
   
 #ifdef DEBUG7
-  printf(" out pstein4 me = %d \n", me);
+  printf(" out pstein4 me = %ld \n", me);
 #endif
   
   return;

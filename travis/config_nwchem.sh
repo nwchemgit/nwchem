@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # source env. variables
 if [[ -z "$TRAVIS_BUILD_DIR" ]] ; then
     TRAVIS_BUILD_DIR=$(pwd)

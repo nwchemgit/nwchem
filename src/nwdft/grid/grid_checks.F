@@ -62,7 +62,7 @@ c
       else
          iangquad=mxnangpp
       endif
-      call xc_lebedev(dum,.false.)
+      call xc_lebedev(dum,.false.,wa_leb,za_leb,ntheta,nphi,iangquad)
       iangquad=iag_old
       
 

@@ -41,17 +41,8 @@ c            call dscal(nri,factor(ipole,1),ovup(1,ipole),1)
           enddo
           enddo
 !$omp     end parallel do simd
-#ifdef GWDEBUG
-        if (main) write(luout,*) '       ## scale ',util_wallsec()-t0
-#endif
 
-
-          t0 = util_wallsec()
           call dsfrk('n','l','n',nri,npoles(1),scal,ovup,nri,0d0,pi)
-#ifdef GWDEBUG
-        if (main) write(luout,*) '       ## dsfrk ',util_wallsec()-t0
-#endif
-
 
 !$omp     parallel do simd schedule(static) collapse(2)
           do ipole=1,npoles(1)

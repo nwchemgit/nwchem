@@ -23,7 +23,7 @@ c:tex-\begin{verbatim}
       subroutine rel_oneld_cosmo (
      &    Axyz,zeta_A,coefL_A,coefS_A,n_prim_A,n_cont_A,l_A,ictr_A,
      &    Bxyz,zeta_B,coefL_B,coefS_B,n_prim_B,n_cont_B,l_B,ictr_B,
-     &    Cxyz,zan,V,lstv,canAB,
+     &    Cxyz,zan,zeros,ncenters,V,lstv,canAB,
      &    do_nw,do_hnd,nonrel,DryRun,scr,lscr,ibug,ntyp)
 c:tex-\end{verbatim}
       implicit none
@@ -45,6 +45,7 @@ c:tex-\begin{verbatim}
       integer lstv     ! [input] size of any integral buffer
       integer ibug    ! [input] debug variable
       integer ntyp    ! [input] potential energy integral type
+      integer ncenters
       double precision Axyz(3)          ! [input] position of center A
       double precision zeta_A(n_prim_A) ! [input] exponents of shell A
       double precision coefL_A(n_prim_A,n_cont_A) ! [input] A large coeffs
@@ -53,8 +54,9 @@ c:tex-\begin{verbatim}
       double precision zeta_B(n_prim_B) ! [input] exponents of shell B 
       double precision coefL_B(n_prim_B,n_cont_B)  ! [input] B large coeffs
       double precision coefS_B(n_prim_B,n_cont_B)  ! [input] B small coeffs
-      double precision Cxyz(3,1)  ! [input] all atom positions
-      double precision zan(1)     ! [input] charges on all atoms
+      double precision Cxyz(3,ncenters)  ! [input] all atom positions
+      double precision zan(ncenters)     ! [input] charges on all atoms
+      double precision zeros(ncenters)
       double precision scr(lscr)    ! [scratch] scratch buffers
       double precision V(lstv*3*3,ntyp) ! [output] potential integrals
       logical canAB   ! [input] compute only canonical ints (false only)
@@ -187,7 +189,7 @@ c     doV = doVtil
         call hf1d_cosmo(
      &      Axyz,zeta_A,coefL_A,n_prim_A,n_cont_A,l_A,ictr_A,
      &      Bxyz,zeta_B,coefL_B,n_prim_B,n_cont_B,l_B,ictr_B,
-     &      Cxyz,zan,V,n_ab,canAB,
+     &      Cxyz,zan,zeros,ncenters,V,n_ab,canAB,
      &      DryRun,scr,memscr)
       else
         call errquit("rel_oneld_cosmo: need NW",0,CAPMIS_ERR)
@@ -412,7 +414,7 @@ c     doT = .false.
         call hf1d_cosmo(
      &      Axyz,zeta_A,scr(i_xca),n_prim_A,n_cont_A,l_A+1,ictr_A,
      &      Bxyz,zeta_B,scr(i_xcb),n_prim_B,n_cont_B,l_B+1,ictr_B,
-     &      Cxyz,zan,scr(i_pp),n_intpp,
+     &      Cxyz,zan,zeros,ncenters,scr(i_pp),n_intpp,
      &      canAB,DryRun,scr(i_scr),memscr)
       else
         call errquit("rel_oneld_cosmo: need NW",0,CAPMIS_ERR)
@@ -447,7 +449,7 @@ c    &      scr(i_scr),memscr)
           call hf1d_cosmo(
      &        Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A-1,ictr_A,
      &        Bxyz,zeta_B,scr(i_xcb),n_prim_B,n_cont_B,l_B+1,ictr_B,
-     &        Cxyz,zan,scr(i_pm),n_intpm,
+     &        Cxyz,zan,zeros,ncenters,scr(i_pm),n_intpm,
      &        canAB,DryRun,scr(i_scr),memscr)
         else
           call errquit("rel_oneld_cosmo: need NW",0,CAPMIS_ERR)
@@ -483,7 +485,7 @@ c    &        scr(i_scr),memscr)
           call hf1d_cosmo(
      &        Axyz,zeta_A,scr(i_xca),n_prim_A,n_cont_A,l_A+1,ictr_A,
      &        Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B-1,ictr_B,
-     &        Cxyz,zan,scr(i_mp),n_intmp,
+     &        Cxyz,zan,zeros,ncenters,scr(i_mp),n_intmp,
      &        canAB,DryRun,scr(i_scr),memscr)
         else
           call errquit("rel_oneld_cosmo: need NW",0,CAPMIS_ERR)
@@ -518,7 +520,7 @@ c    &        scr(i_scr),memscr)
             call hf1d_cosmo(
      &          Axyz,zeta_A,coefS_A,n_prim_A,n_cont_A,l_A-1,ictr_A,
      &          Bxyz,zeta_B,coefS_B,n_prim_B,n_cont_B,l_B-1,ictr_B,
-     &          Cxyz,zan,scr(i_mm),n_intmm,
+     &          Cxyz,zan,zeros,ncenters,scr(i_mm),n_intmm,
      &          canAB,DryRun,scr(i_scr),memscr)
           else
             call errquit("rel_oneld_cosmo: need NW",0,CAPMIS_ERR)

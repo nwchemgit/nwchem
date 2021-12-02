@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 os=`uname`
 dist="ubuntu"
 arch=`uname -m`
@@ -27,17 +27,17 @@ esac
  if [[ "$os" == "Darwin" ]]; then 
 #  HOMEBREW_NO_AUTO_UPDATE=1 brew cask uninstall oclint || true  
 #  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python3 ||true
-     HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" python3 gsed grep ||true
+     HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" python3 gsed grep automake autoconf ||true
      if [[ "$FC" == "ifort" ]]; then
          if [[ -f ~/apps/oneapi/setvars.sh ]]; then 
 	     echo ' using intel cache installation '
 	 else
 	mkdir -p ~/mntdmg ~/apps/oneapi || true
 	cd ~/Downloads
-	dir_base="17969"
-	dir_hpc="17890"
-	base="m_BaseKit_p_2021.3.0.3043_offline"
-	hpc="m_HPCKit_p_2021.3.0.3226_offline"
+	dir_base="18256"
+	dir_hpc="18242"
+	base="m_BaseKit_p_2021.4.0.3384_offline"
+	hpc="m_HPCKit_p_2021.4.0.3389_offline"
 	curl -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_base"/"$base".dmg
 	curl -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".dmg
 	echo "installing BaseKit"
@@ -65,10 +65,17 @@ esac
 	icc -V
      else
 	 #hack to fix Github actions mpif90
-	 ln -sf /usr/local/bin/$FC /usr/local/bin/gfortran
+	 gccver=`brew list --versions gcc| head -1 |cut -c 5-`
+	 echo brew gccver is $gccver
+	 ln -sf /usr/local/Cellar/gcc/$gccver/bin/gfortran-* /usr/local/Cellar/gcc/$gccver/bin/gfortran || true
+	 ln -sf /usr/local/Cellar/gcc/$gccver/bin/gfortran-* /usr/local/bin/gfortran || true
+#	 ln -sf /usr/local/bin/$FC /usr/local/bin/gfortran
 	 $FC --version
 	 gfortran --version
      fi
+     #hack to get 3.10 as default
+     brew install python@3.10
+     brew link --force --overwrite python@3.10
 #  if [[ "$MPI_IMPL" == "openmpi" ]]; then
 #      HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install scalapack
 #  fi
@@ -148,7 +155,7 @@ fi
     if [[ "$FC" == "nvfortran" ]]; then
 	sudo apt-get -y install lmod g++ libtinfo5 libncursesw5 lua-posix lua-filesystem lua-lpeg lua-luaossl
 	nv_major=21
-	nv_minor=7
+	nv_minor=9
 	nverdot="$nv_major"."$nv_minor"
 	nverdash="$nv_major"-"$nv_minor"
 	arch_dpkg=`dpkg --print-architecture`

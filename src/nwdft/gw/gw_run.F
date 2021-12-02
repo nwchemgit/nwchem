@@ -79,8 +79,6 @@ c
 
       call gw_vxc(dbl_mb(k_sigma),nmo,pars)
 
-      if (.not.ma_verify_allocator_stuff()) stop ' VXC'
-
       pars%timer%vxc = pars%timer%vxc + util_wallsec() - timer
 c
 c     Obtain Sigma_x
@@ -95,7 +93,6 @@ c
 c
       call gw_sigmax(pars,dbl_mb(k_sigmax),nri,nmo)
 
-      if (.not.ma_verify_allocator_stuff()) stop ' Sigmax'
       pars%timer%sigmax = pars%timer%sigmax + util_wallsec() - timer
 c
 c     Allocation
@@ -114,7 +111,6 @@ c     Shift eigenvalues
 c
       call gw_shift(dbl_mb(pars%k_evals),dbl_mb(k_eold),efermi,nbf_ao,
      $              pars%nmo,pars%ipol)
-      if (.not.ma_verify_allocator_stuff()) stop ' Shift'
 c
       eviter = 0
 c
@@ -138,7 +134,6 @@ c
      $                  dbl_mb(k_eia+lSize),pars%nocc(isp),
      $                  pars%nvir(isp))
       enddo
-      if (.not.ma_verify_allocator_stuff()) stop ' Eia'
 c
 c     RPA polarizability
 c
@@ -150,7 +145,6 @@ c
       call gw_analytic_rpa(pars,dbl_mb(k_eia),dbl_mb(k_omega),maxpoles,
      $                     maxnpoles,nri)
 
-      if (.not.ma_verify_allocator_stuff()) stop ' RPA'
       pars%timer%rpa = pars%timer%rpa + util_wallsec() - timer
 c
   200 continue ! evGW0 calculations recompute the rest

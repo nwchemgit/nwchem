@@ -101,8 +101,6 @@ c
      $                        ipol, dbl_mb(k_rdens_atom), 'absmax',
      $                        dbl_mb(k_scr),nbf_ao_mxnbf_ce,.true.) 
 
-      ok = ma_verify_allocator_stuff()
-
       if (.not.ma_pop_stack(l_scr))
      $  call errquit(pname//'failed to pop stack',0,MA_ERR)
 c
@@ -111,8 +109,8 @@ c
       npol = (ipol*(ipol+1))/2
       exc = 0d0
 c
-      call xc_rep_init(pars%rtdb,geom,ao_bas_han,g_dens,g_vxc,nbf_ao,
-     $                 ipol,.true.,.false.) 
+c      call xc_rep_init(pars%rtdb,geom,ao_bas_han,g_dens,g_vxc,nbf_ao,
+c     $                 ipol,.true.,.false.) 
 c
       call xc_getv(pars%rtdb, exc, ecoul, 2, 0, 0,
      $             g_dens, g_vxc, .false., g_wght, g_xyz, g_nq,
@@ -121,8 +119,8 @@ c
       pars%exscf = exc(1)
       pars%ecscf = exc(2)
 
-      if (.not.xc_rep_close(pars%rtdb,nbf_ao,ipol,g_vxc,g_dens,.false.))
-     $  call errquit(pname//'xc_rep_close failed',0,DISK_ERR) 
+c      if (.not.xc_rep_close(pars%rtdb,nbf_ao,ipol,g_vxc,g_dens,.false.))
+c     $  call errquit(pname//'xc_rep_close failed',0,DISK_ERR) 
 c
       if (.not.ma_push_get(mt_dbl,2*nbf_ao,'vxc temp',l_tmp,k_tmp))
      $  call errquit(pname//'failed to allocate temp',0,MA_ERR) 

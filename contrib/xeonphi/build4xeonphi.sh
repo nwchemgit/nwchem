@@ -1,4 +1,4 @@
-#!/bin/bash -f
+#!/usr/bin/env bash -f
 cd nwchem-6.5
 export NWCHEM_TOP=`pwd`
 export NWCHEM_TARGET=LINUX64

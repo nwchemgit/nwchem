@@ -160,6 +160,14 @@ endif
 ifeq ($(shell echo $(BLASOPT) |awk '/Accelerate/ {print "Y"; exit}'),Y)
   EXTRA_OBJ += veclib_threads.o
 endif
+_PDSYEVR = $(shell [ -e ${NWCHEM_TOP}/src/tools/install/lib/libga.a ] &&  nm ${NWCHEM_TOP}/src/tools/install/lib/libga.a|egrep T |egrep  ga_pdsyevr |awk '/ga_pdsyevr/ {print "Y"}')
+ifeq ($(_PDSYEVR),Y) 
+ LIB_DEFINES += -DUSE_PDSYEVR
+endif
+_USE_ELPA = $(shell ${GA_PATH}/bin/ga-config  --use_elpa| awk ' /1/ {print "Y"}')
+ifeq ($(_USE_ELPA),Y)
+ LIB_DEFINES += -DUSE_ELPA
+endif
 
        BLAS = dfill.o ifill.o  mabyte_fill.o zfill.o
 
@@ -224,7 +232,7 @@ endif
               util_intrsc2008.o util_fadvise.o  util_scalapack_info.o\
               ga_conjg.o nwmolden.o ao_1prdm_read.o ao_1prdm_write.o\
               util_strips.o util_poltensor.o  util_mygop.o util_isnan.o \
-              util_blasthreads.o util_gpu_affinity.o \
+              util_blasthreads.o util_gpu_affinity.o util_scalapack.o \
               $(EXTRA_OBJ)
 ifndef USE_MLIB
               OBJ_OPTIMIZE += icopy.o dsum.o dgefa.o zsum.o

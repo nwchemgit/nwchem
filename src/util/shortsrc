@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 mv util_version.F bigv.F
 cat > util_version.F<<EOF 
       subroutine util_version()

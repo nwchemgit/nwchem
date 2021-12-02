@@ -278,7 +278,7 @@ c
      &                                  1,           ! 1 = closed  shell
      &                                  g_dens,      ! input density
      &                                  cosmo_file)  ! cosmo charges file name
-       call int_1e_ga(basis,basis,g_hcore,'cos_chg_pot',.false.)
+       call cosmo_fock(basis,g_hcore)
        if (.not.ga_destroy(g_dens))
      &  call errquit('dft_roks_fock: ga_destroy failed g_dens',0,GA_ERR)
       endif  ! cosmo check
