@@ -125,7 +125,7 @@ c
       call slexit
       call slexit2
       if (.not. rtdb_cget(rtdb, 'dft:scaladiag',1,yev))
-#ifdef USE_PDSYEVR
+#ifdef USE_PDSYEVR__
      &     yev='r'
 #else
      &     yev='d'
