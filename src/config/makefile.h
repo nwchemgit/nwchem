@@ -2577,6 +2577,7 @@ ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
              OFFLOAD_FOPTIONS = -qtgtarch=sm_70 -qoffload
              LDOPTIONS += -qoffload -lcudart -L$(NWC_CUDAPATH)
            endif
+	  LINK.f   = xlf_r   $(LDFLAGS)
         endif
         ifdef USE_I4FLAGS
           FOPTIONS += -qintsize=4
