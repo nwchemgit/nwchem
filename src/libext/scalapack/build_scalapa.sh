@@ -62,6 +62,7 @@ if [[  -z "${NWCHEM_TOP}" ]]; then
     dir2=$(dirname "$dir3")
     NWCHEM_TOP=$(dirname "$dir2")
 fi
+GFORTRAN_EXTRA=$(${NWCHEM_TOP}/src/config/strip_compiler.sh ${FC})
 if [[ "$FC" = "ftn"  ]] || [[ ! -z "$USE_CMAKE_MASTER" ]] ; then
     get_cmake_master
 else
@@ -198,7 +199,7 @@ if [[ ${FC} == ftn ]]; then
         export LD_LIBRARY_PATH=/opt/cray/pe/cce/$CRAY_FTN_VERSION/cce-clang/x86_64/lib:/opt/cray/pe/lib64/cce/:$LD_LIBRARY_PATH
     fi
 fi
-GFORTRAN_EXTRA=$(echo $FC | cut -c 1-8)
+#GFORTRAN_EXTRA=$(echo $FC | cut -c 1-8)
 if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
     if  [[ ${FC} == gfortran ]] || [[ ${FC} == f95 ]] || [[ ${GFORTRAN_EXTRA} == gfortran ]] ; then
     Fortran_FLAGS+=" -fdefault-integer-8 -w "

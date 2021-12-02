@@ -197,7 +197,14 @@ if [[ -z "${FC}" ]]; then
 	FC=gfortran
     fi
 fi    
-    GFORTRAN_EXTRA=$(echo $FC | cut -c 1-8)
+if [[  -z "${NWCHEM_TOP}" ]]; then
+    dir4=$(dirname `pwd`)
+    dir3=$(dirname "$dir4")
+    dir2=$(dirname "$dir3")
+    dir1=$(dirname "$dir2")
+    NWCHEM_TOP=$(dirname "$dir1")
+fi
+GFORTRAN_EXTRA=$(${NWCHEM_TOP}/config/strip_compiler.sh ${FC})
 if [[ ${FC} == gfortran  || ${FC} == flang  ||  ${GFORTRAN_EXTRA} == gfortran || (${FC} == ftn && ${PE_ENV} == GNU) || (${FC} == ftn && ${PE_ENV} == AOCC) ]] ; then
     Fortran_FLAGS="-fdefault-integer-8 -cpp"
     GNUMAJOR=$(${FC} -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)

@@ -2466,7 +2466,19 @@ ifeq ($(_CPU),$(findstring $(_CPU),aarch64))
   endif
 
   ifeq ($(_CC),armclang)
-    COPTIONS += -O3 -funroll-loops -mcpu=native -armpl
+    COPTIONS += -O3 -funroll-loops
+      ifeq ($(shell $(CNFDIR)/check_env.sh $(USE_HWOPT)),1)
+        ifeq ($(BLAS_SIZE),8)
+          COPTIMIZE +=  -armpl=ilp64
+        else
+          COPTIMIZE +=  -armpl=lp64
+        endif
+        ifdef USE_A64FX
+          COPTIMIZE += -mtune=a64fx -mcpu=a64fx 
+        else
+	 COPTIMIZE +=  -mcpu=native
+        endif
+      endif
     ifdef USE_OPENMP
       COPTIONS += -fopenmp
     endif
@@ -2496,7 +2508,14 @@ ifeq ($(_CPU),$(findstring $(_CPU),aarch64))
 
     ifeq ($(GNU_GE_4_6),true)
      ifeq ($(shell $(CNFDIR)/check_env.sh $(USE_HWOPT)),1)
-      FOPTIMIZE +=  -mtune=native
+      ifdef USE_A64FX
+        FOPTIMIZE += -mtune=a64fx -mcpu=a64fx
+	FOPTIMIZE += -march=armv8.2-a+sve
+      else
+	FOPTIMIZE += -mtune=native -mcpu=native
+      endif
+        FOPTIMIZE += -ffp-contract=fast -fopt-info-vec 
+        FOPTIMIZE += -fstack-arrays
      endif
 # causes slowdows in mp2/ccsd
 #      FOPTIONS += -finline-functions
@@ -2523,8 +2542,18 @@ ifeq ($(_CPU),$(findstring $(_CPU),aarch64))
     endif
 
     FDEBUG += -g -O
-    ifeq ($(shell $(CNFDIR)/check_env.sh $(USE_HWOPT)),1)
-    FOPTIMIZE +=  -mtune=native -armpl
+    ifeq ($(shell $(CNFDIR)/check_env.sh $(USE_HWOPT)),1) 
+        ifeq ($(BLAS_SIZE),8)
+          FOPTIMIZE +=  -armpl=ilp64
+        else
+          FOPTIMIZE +=  -armpl=lp64
+        endif
+      ifdef USE_A64FX
+#mpcu=a64fx breaks integrals	    
+        FOPTIMIZE += -mtune=a64fx #-mcpu=a64fx 
+      else
+	FOPTIMIZE +=  -mcpu=native
+      endif
     endif
 
     ifndef USE_FPE
