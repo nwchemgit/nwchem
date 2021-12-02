@@ -69,10 +69,7 @@ c
       if (pars%me.eq.0) write(luout,9000)
  9000 format(10x,'Computing 2-center integrals')
 c
-      call dft_get2eri(cd_bas_han, g_2ceris, oskel)
-      if (oskel) then
-        call sym_symmetrize(geom, cd_bas_han,.false., g_2ceris)
-      endif
+      call dft_get2eri(cd_bas_han, g_2ceris, .false.)
 c
 c     Obtain inverse Cholesky factor
 c
