@@ -2585,6 +2585,7 @@ ifeq ($(_CPU),$(findstring $(_CPU), ppc64 ppc64le))
 #RSQRT=y breaks intchk QA
         FOPTIONS  =  -q64 -qextname -qfixed #-qnosave  #-qalign=4k
         FOPTIONS +=  -NQ40000 -NT80000 -qmaxmem=8192 -qsuppress=1500-030 -qxlf77=leadzero
+        FOPTIONS +=  -qsuppress=cmpmsg
         ifdef  USE_GPROF
           FOPTIONS += -pg
           LDOPTIONS += -pg
