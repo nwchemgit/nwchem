@@ -202,8 +202,9 @@ FC_EXTRA=$(${NWCHEM_TOP}/src/config/strip_compiler.sh ${FC})
 if [[  -z "$PE_ENV"   ]] ; then
     #check if mpif90 and FC are consistent
     MPIF90_EXTRA=$(${NWCHEM_TOP}/src/config/strip_compiler.sh `${MPIF90} -show`)
-    echo mpif90_extra $MPIF90_EXTRA
     if [[ $MPIF90_EXTRA != $FC_EXTRA ]]; then
+        echo which mpif90 is `which mpif90`
+        echo mpif90show `${MPIF90} -show`
 	echo FC and MPIF90 are not consistent
 	echo FC is $FC_EXTRA
 	echo MPIF90 is $MPIF90_EXTRA
