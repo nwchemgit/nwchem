@@ -198,14 +198,15 @@ if [[ -z "${FC}" ]]; then
     fi
 fi    
 if [[  -z "${NWCHEM_TOP}" ]]; then
-    dir4=$(dirname `pwd`)
+    dir5=$(dirname `pwd`)
+    dir4=$(dirname "$dir5")
     dir3=$(dirname "$dir4")
     dir2=$(dirname "$dir3")
     dir1=$(dirname "$dir2")
     NWCHEM_TOP=$(dirname "$dir1")
 fi
-GFORTRAN_EXTRA=$(${NWCHEM_TOP}/config/strip_compiler.sh ${FC})
-if [[ ${FC} == gfortran  || ${FC} == flang  ||  ${GFORTRAN_EXTRA} == gfortran || (${FC} == ftn && ${PE_ENV} == GNU) || (${FC} == ftn && ${PE_ENV} == AOCC) ]] ; then
+FC_EXTRA=$(${NWCHEM_TOP}/src/config/strip_compiler.sh ${FC})
+if [[ ${FC_EXTRA} == gfortran  || ${FC_EXTRA} == flang || ${FC_EXTRA} == armflang || (${FC} == ftn && ${PE_ENV} == GNU) || (${FC} == ftn && ${PE_ENV} == AOCC) ]] ; then
     Fortran_FLAGS="-fdefault-integer-8 -cpp"
     GNUMAJOR=$(${FC} -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
     echo GNUMAJOR is $GNUMAJOR
@@ -218,7 +219,7 @@ elif  [[ ${FC} == ifort || (${FC} == ftn && ${PE_ENV} == INTEL) ]]; then
     Fortran_FLAGS="-i8 -fpp"
 elif  [ ${FC} == ftn ]  && [ ${PE_ENV} == CRAY  ]; then
     Fortran_FLAGS=" -ffree -s integer64 -e F "
-elif  [[ ${FC} == nvfortran || ${FC} == pgf90 || (${FC} == ftn && ${PE_ENV} == NVIDIA) ]]; then
+elif  [[ ${FC_EXTRA} == nvfortran || ${FC} == pgf90 || (${FC} == ftn && ${PE_ENV} == NVIDIA) ]]; then
     Fortran_FLAGS="-i8 -cpp"
     CC=gcc
     CXX=g++
