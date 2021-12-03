@@ -7148,6 +7148,38 @@ c      end
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *         psi_2get_remainder0     *
+*     *                                 *
+*     ***********************************
+*     
+*     Must be called after call to psi_2get_Tgradient0 or psi_2get_Tgradient
+*     
+      subroutine psi_2get_remainder0(Eremainder)
+      implicit none
+      real*8 Eremainder
+      
+#include "bafdecls.fh"                 
+#include "errquit.fh"
+#include "psi.fh"
+      
+*     ***** rhoall common block ****
+      integer rho1_all(2)
+      integer rho2_all(2)
+      common / rhoall_block / rho1_all,rho2_all
+            
+*     **** external functions ****
+      real*8   electron_energy_remainder
+      external electron_energy_remainder
+      
+      Eremainder =  electron_energy_remainder(dcpl_mb(psi2(1)),
+     >                        dbl_mb(rho2(1)),
+     >                        dcpl_mb(dng2(1)),
+     >                        dbl_mb(rho2_all(1)))
+      return
+      end
+
 
 *     ***********************************
 *     *                                 *

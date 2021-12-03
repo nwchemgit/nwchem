@@ -538,6 +538,7 @@ c         end if
          if (minimizer.eq.7) write(luout,1377)
          if (minimizer.eq.8) write(luout,1378)
          if (minimizer.eq.9) write(luout,1379)
+         if (minimizer.eq.10) write(luout,1380)
          write(luout,1280) control_time_step(),control_fake_mass()
          write(luout,1290) control_tole(),control_tolc()
          write(luout,1281) control_it_in()*control_it_out(),
@@ -1320,6 +1321,7 @@ c      call frac_occ_end()
  1377 FORMAT(5X,' Stiefel lmbfgs iteration')
  1378 FORMAT(5X,' Kohn-Sham scf iteration (density)')
  1379 FORMAT(5X,' Grassmann cg (Stich linesearch) iteration')
+ 1380 FORMAT(5X,' Grassmann lmbfgs (Stich linesearch) iteration')
 
  1393 format(/' Pressure Output Generated         ')
  1394 format(/' Constant Energy Simulation                     ')

@@ -23,6 +23,7 @@
                 bfgsminimize.o  \
                 bfgsminimize2.o  \
                 bfgsminimize3.o \
+                bfgsminimizeABC.o \
                 bybminimize0.o \
                 bybminimize.o \
                 bybminimize2.o \
@@ -40,7 +41,7 @@
     USES_BLAS = cgsdv5.F cgmdv5.F cgmontecarlov1.F cgoptimize1.F cgsd_energy.F \
             bybminimize.F bybminimize2.F pspw_bq_gradient.F \
             cgminimize.F mmmdv1.F bfgsminimize2.F bfgsminimize3.F md_energy.F \
-            cgminimize2.F cgminimizeABC.F cgsd_noit_energy.F bfgsminimize.F 
+            cgminimize2.F cgminimizeABC.F cgsd_noit_energy.F bfgsminimize.F bfgsminimizeABC.F
 
   LIB_DEFINES = 
   LIB_INCLUDES = -I../../nwpwlib/include
