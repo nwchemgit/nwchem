@@ -4500,7 +4500,7 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
       subroutine psi_KS_block_update(Enew,deltae,current_iteration,
      >                               maxit_orbs,maxerror)
       implicit none
-      real*8  Enew,deltae
+      real*8  Enew,deltae,Ermdr
       integer current_iteration
       integer maxit_orbs
       real*8  maxerror
@@ -4510,10 +4510,13 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
 #include "psi.fh"
 
 *     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
+
       real*8  deltat_min
       parameter (deltat_min=1.0d-2)
 
-      integer G0(2),S0(2)
+      integer G0(2),S0(2),G1(2),G2(2)
       real*8  E0,dE0,Enew0
 
       logical precondition
@@ -4555,12 +4558,14 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
       external geodesic_ABC_energy,geodesic_ABC_denergy
 
 
+
       !maxit_orb  = control_ks_maxit_orb()   !*** should be read from rtdb ***
       !maxit_orbs = control_ks_maxit_orbs()  !*** should be read from rtdb ***
       it_in = maxit_orbs
 
       dt = control_time_step()
 
+      call Parallel_taskid(taskid) 
 
 !$OMP MASTER
       if (current_iteration.eq.1) then
@@ -4579,6 +4584,12 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
       value = value.and.
      >        BA_push_get(mt_dcpl,npack1*neall,
      >                     'G0',G0(2),G0(1))
+      value = value.and.
+     >        BA_push_get(mt_dcpl,npack1*neall,
+     >                     'G1',G1(2),G1(1))
+      value = value.and.
+     >        BA_push_get(mt_dcpl,npack1*neall,
+     >                     'G2',G2(2),G2(1))
       if (.not.value) 
      >   call errquit('psi_KS_block_update:out of heap memory',0,MA_ERR)
 
@@ -4601,7 +4612,8 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
             call psi_1get_Tgradient0(dcpl_mb(G0(1)),Enew0)
          end if
       end if
-      E0 = Enew0
+      call psi_1get_remainder0(Ermdr)
+      E0    = Enew0
 
 *     ***** use the initial gradient for the direction ****
       call pspw_lmbfgs_init(control_lmbfgs_size(),dcpl_mb(G0(1)))
@@ -4612,6 +4624,13 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
       do it=2,it_in
 *        **** initialize the geoedesic line data structure ****
          call geodesic_start(dcpl_mb(S0(1)),max_sigma,dE0)
+
+*        **** Copy Hpsi_k to HY then ****
+*        **** generate Hpsi using psi_k=U and copy Hpsi_k to HU ****
+*        **** compute A,B,C, <S0|H|S0>, <U|H|S0> and <U|H|U> matrices ****
+         call geodesic_ABC_start(ispin,ne,npack1,Ermdr,
+     >                        dcpl_mb(Y), dcpl_mb(U),
+     >                        dcpl_mb(HY),dcpl_mb(HU))
 
 *        ******* line search *********
          if ((tmin.gt.deltat_min).and.(tmin.lt.1.0d4)) then
@@ -4631,7 +4650,7 @@ c         write(*,*) "     --- tmin0=",tmin
 !$OMP MASTER
          tmin = tmin0
          deltae = deltae0
-         Enew = Enew0
+         Enew = Enew0 + Ermdr
 !$OMP END MASTER
 !$OMP BARRIER
 c         write(*,*) "     --- tmin=",tmin
@@ -4673,7 +4692,7 @@ c         write(*,*) "     --- it,Enew,deltae=",it,Enew,deltae
 *     **** Copy Hpsi_k to HY then ****
 *     **** generate Hpsi using psi_k=U and copy Hpsi_k to HU ****
 *     **** compute A,B,C, <S0|H|S0>, <U|H|S0> and <U|H|U> matrices ****
-      call geodesic_ABC_start(ispin,ne,npack1,
+      call geodesic_ABC_start(ispin,ne,npack1,Ermdr,
      >                        dcpl_mb(Y), dcpl_mb(U),
      >                        dcpl_mb(HY),dcpl_mb(HU))
 
@@ -4691,14 +4710,26 @@ c      Enew0 = linesearch(0.0d0,E0,dE0,deltat,
 c     >                        psi_geodesic_energy0,
 c     >                        psi_geodesic_denergy,
 c     >                        0.50d0,tmin0,deltae0,2)
-      Enew0 = linesearch(0.0d0,E0,dE0,deltat,
+c      Enew0 = linesearch(0.0d0,E0,dE0,deltat,
+c     >                        geodesic_ABC_energy,
+c     >                        geodesic_ABC_denergy,
+c     >                        0.50d0,tmin0,deltae0,2)
+      Enew0 = linesearch(0.0d0,E0+Ermdr,dE0,deltat,
      >                        geodesic_ABC_energy,
      >                        geodesic_ABC_denergy,
-     >                        0.50d0,tmin0,deltae0,2)
+     >                        maxerror,tmin0,deltae0,1)
+
+c       if (taskid.eq.MASTER) then
+c          write(*,*) "ABC energy E0+Ermdr,Enew0,deltae0 =", 
+c     >            E0+Ermdr,Enew0,deltae0,
+c     >            tmin0,maxerror,it
+c       end if
+
+
 !$OMP MASTER
          tmin = tmin0
          deltae = deltae0
-         Enew = Enew0
+         Enew = Enew0 + Ermdr
 !$OMP END MASTER
 !$OMP BARRIER
 
@@ -4718,10 +4749,12 @@ c     >            geodesic_ABC_denergy(tmin)-psi_geodesic_denergy(tmin)
 
 
 *     **** free memory ****
-      value =           BA_pop_stack(G0(2))
+      value =           BA_pop_stack(G2(2))
+      value = value.and.BA_pop_stack(G1(2))
+      value = value.and.BA_pop_stack(G0(2))
       value = value.and.BA_pop_stack(S0(2))
       if (.not. value)
-     >  call errquit('bfgsminimize:error freeing heap memory',0, MA_ERR)
+     >  call errquit('psi_KS_block_update:freeing heap',0, MA_ERR)
 
       call geodesic_ABC_finalize()
 
@@ -7077,6 +7110,40 @@ c      end
       if (.not.Dneall_m_pop_stack(tmp1))
      > call errquit('psi_1get_Tgradient:error popping stack',1,
      >     MA_ERR)
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *         psi_1get_remainder0     *
+*     *                                 *
+*     ***********************************
+*
+*     Must be called after call to psi_1get_Tgradient0 or psi_1get_Tgradient
+*
+      subroutine psi_1get_remainder0(Eremainder)
+      implicit none
+      real*8 Eremainder
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "psi.fh"
+
+*     ***** rhoall common block ****
+      integer rho1_all(2)
+      integer rho2_all(2)
+      common / rhoall_block / rho1_all,rho2_all
+
+*     **** external functions ****
+      real*8   electron_energy_remainder
+      external electron_energy_remainder
+
+      Eremainder =  electron_energy_remainder(dcpl_mb(psi1(1)),
+     >                        dbl_mb(rho1(1)),
+     >                        dcpl_mb(dng1(1)),
+     >                        dbl_mb(rho1_all(1)))
 
       return
       end
@@ -12014,5 +12081,27 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *         psi_get_psi_ptr         *
+*     *                                 *
+*     ***********************************
+      integer function psi_get_psi_ptr(i)
+      implicit none
+      integer i
+
+#include "psi.fh"
+
+      if (i.eq.1) then
+         psi_get_psi_ptr = psi1(1)
+      else
+         psi_get_psi_ptr = psi2(1)
+      end if
+
+      return
+      end
+
+
 
 

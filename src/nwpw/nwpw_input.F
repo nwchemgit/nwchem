@@ -1067,6 +1067,7 @@ c
  4601 if (.not.inp_a(zone_name)) goto 4602
        if (inp_compare(.false.,zone_name,'stiefel'))  nx=4
        if (inp_compare(.false.,zone_name,'grassman')) nx=1
+       if (inp_compare(.false.,zone_name,'stich'))    nx=9
       go to 4601
 
  4602 if (.not.rtdb_put(rtdb,'nwpw:minimizer',mt_int,1,nx))
@@ -1081,6 +1082,7 @@ c
  4701 if (.not.inp_a(zone_name)) goto 4702
        if (inp_compare(.false.,zone_name,'stiefel'))  nx=7
        if (inp_compare(.false.,zone_name,'grassman')) nx=2
+       if (inp_compare(.false.,zone_name,'stich'))    nx=10
       go to 4701
 
  4702 if (.not.rtdb_put(rtdb,'nwpw:minimizer',mt_int,1,nx))

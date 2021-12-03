@@ -123,7 +123,8 @@ c      value = value.and.BA_free_heap(Vt(2))
 
 *     **** common block ****
       integer ABC(2)
-      common / geodesic_ABC_block / ABC
+      real*8  Ermdr
+      common / geodesic_ABC_block / ABC,Ermdr
 
 *     **** external functions ****
       logical  Dneall_m_allocate_block
@@ -147,7 +148,8 @@ c      value = value.and.BA_free_heap(Vt(2))
 
 *     **** ABC common block ****
       integer ABC(2)
-      common / geodesic_ABC_block / ABC
+      real*8  Ermdr
+      common / geodesic_ABC_block / ABC,Ermdr
 
 *     **** external functions ****
       logical  Dneall_m_free
@@ -165,9 +167,10 @@ c      value = value.and.BA_free_heap(Vt(2))
 *     *	       geodesic_ABC_start       *
 *     *					*
 *     ***********************************
-      subroutine geodesic_ABC_start(ispin,ne,npack1,Y,Z,HY,HZ)
+      subroutine geodesic_ABC_start(ispin,ne,npack1,Ermdr0,Y,Z,HY,HZ)
       implicit none
       integer    ispin,ne(2),npack1
+      real*8     Ermdr0
       complex*16 Y(*),Z(*),HY(*),HZ(*)
 
 #include "bafdecls.fh"
@@ -175,7 +178,8 @@ c      value = value.and.BA_free_heap(Vt(2))
 
 *     **** ABC common block ****
       integer ABC(2)
-      common / geodesic_ABC_block / ABC
+      real*8  Ermdr
+      common / geodesic_ABC_block / ABC,Ermdr
 
 *     **** geodesic common block ***
       integer U(2)
@@ -193,6 +197,8 @@ c      value = value.and.BA_free_heap(Vt(2))
       external psi_ne
       real*8   Dneall_m_trace
       external Dneall_m_trace
+
+      Ermdr = Ermdr0
 
       call Dneall_m_size(0,ishift)
       A    = ABC(1)
@@ -263,7 +269,8 @@ c      value = value.and.BA_free_heap(Vt(2))
 
 *     **** ABC common block ****
       integer ABC(2)
-      common / geodesic_ABC_block / ABC
+      real*8  Ermdr
+      common / geodesic_ABC_block / ABC,Ermdr
 
 *     **** geodesic common block ***
       integer U(2)
@@ -358,7 +365,7 @@ c      value = value.and.BA_free_heap(Vt(2))
       value = value.and.Dneall_m_pop_stack(tmp1)
       if (.not.value) call errquit('geodesic_ABC_energy:pop',1,MA_ERR)
 
-      geodesic_ABC_energy = energy
+      geodesic_ABC_energy = energy + Ermdr
       return
       end
 
@@ -376,7 +383,8 @@ c      value = value.and.BA_free_heap(Vt(2))
 
 *     **** ABC common block ****
       integer ABC(2)
-      common / geodesic_ABC_block / ABC
+      real*8  Ermdr
+      common / geodesic_ABC_block / ABC,Ermdr
 
 *     **** geodesic common block ***
       integer U(2)

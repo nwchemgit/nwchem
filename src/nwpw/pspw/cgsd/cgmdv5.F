@@ -529,6 +529,15 @@ c         end if
          end if
 
          write(luout,1270)
+         if (minimizer.eq.1) write(luout,1371)
+         if (minimizer.eq.2) write(luout,1372)
+         if (minimizer.eq.3) write(luout,1373)
+         if (minimizer.eq.4) write(luout,1374)
+         if (minimizer.eq.5) write(luout,1375)
+         if (minimizer.eq.6) write(luout,1376)
+         if (minimizer.eq.7) write(luout,1377)
+         if (minimizer.eq.8) write(luout,1378)
+         if (minimizer.eq.9) write(luout,1379)
          write(luout,1280) control_time_step(),control_fake_mass()
          write(luout,1290) control_tole(),control_tolc()
          write(luout,1281) control_it_in()*control_it_out(),
@@ -1274,6 +1283,8 @@ c      call frac_occ_end()
   
  1260 FORMAT(5X,' Ewald summation: cut radius=',F8.2,'  and',I3)
  1261 FORMAT(5X,'                   madelung=',f14.8)
+
+
  1270 FORMAT(/' technical parameters for minimizer:')
  1271 FORMAT(5x, ' translation constrained')
  1272 FORMAT(5x, ' rotation constrained')
@@ -1300,6 +1311,15 @@ c      call frac_occ_end()
  1340 FORMAT(/5X, ' cooling/heatting rate= ',e12.5,' (ion)')
  1350 FORMAT(I8,2E19.10,E14.5,4F14.2,2E19.10,2F8.4)
  1360 format(100e19.10)
+ 1371 FORMAT(5X,'Grassmann conjugate gradient iteration')
+ 1372 FORMAT(5X,'Grassmann lmbfgs iteration')
+ 1373 FORMAT(5X,'Grassmann diis iteration')
+ 1374 FORMAT(5X,'Stiefel conjugate gradient iteration')
+ 1375 FORMAT(5X,'Kohn-Sham scf iteration (potential)')
+ 1376 FORMAT(5X,'Projected Grassmann lmbfgs iteration')
+ 1377 FORMAT(5X,'Stiefel lmbfgs iteration')
+ 1378 FORMAT(5X,'Kohn-Sham scf iteration (density)')
+ 1379 FORMAT(5X,'Grassmann cg (linear linesearch) iteration')
 
  1393 format(/' Pressure Output Generated         ')
  1394 format(/' Constant Energy Simulation                     ')
