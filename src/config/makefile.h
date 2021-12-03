@@ -2540,6 +2540,9 @@ ifeq ($(_CPU),$(findstring $(_CPU),aarch64))
     ifeq ($(V),1)
     $(info     ARMFLANG FOPTIMIZE = ${FOPTIMIZE})
     endif
+    ifeq ($(V),-1)
+      FOPTIONS += -w
+    endif
 
     FDEBUG += -g -O
     ifeq ($(shell $(CNFDIR)/check_env.sh $(USE_HWOPT)),1) 
