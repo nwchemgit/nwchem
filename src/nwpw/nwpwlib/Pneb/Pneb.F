@@ -4322,7 +4322,7 @@ cccccccccccccccc
 
 *     **********************************************
 *     *                                            *
-*     *             Pneb_w_trace               *
+*     *             Pneb_w_trace                   *
 *     *                                            *
 *     **********************************************
       subroutine Pneb_w_trace(mbb,nbb,hml,val)
