@@ -4500,7 +4500,7 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
       subroutine psi_KS_block_update(Enew,deltae,current_iteration,
      >                               maxit_orbs,maxerror)
       implicit none
-      real*8  Enew,deltae
+      real*8  Enew,deltae,Ermdr
       integer current_iteration
       integer maxit_orbs
       real*8  maxerror
@@ -4510,10 +4510,13 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
 #include "psi.fh"
 
 *     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
+
       real*8  deltat_min
       parameter (deltat_min=1.0d-2)
 
-      integer G0(2),S0(2)
+      integer G0(2),S0(2),G1(2),G2(2)
       real*8  E0,dE0,Enew0
 
       logical precondition
@@ -4528,6 +4531,9 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
 
       logical value
       integer neall
+
+*     **** define pointers ****
+      integer Y,U,HY,HU
 
 *     **** external functions ****
       logical  control_precondition,psp_pawexist
@@ -4544,6 +4550,14 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
       external psi_geodesic_energy0,psi_geodesic_denergy
       real*8   linesearch
       external linesearch
+      integer  geodesic_get_U_ptr
+      external geodesic_get_U_ptr
+      logical  Dneall_m_pop_stack,Dneall_m_push_get_block
+      external Dneall_m_pop_stack,Dneall_m_push_get_block
+      real*8   geodesic_ABC_energy,geodesic_ABC_denergy
+      external geodesic_ABC_energy,geodesic_ABC_denergy
+
+
 
       !maxit_orb  = control_ks_maxit_orb()   !*** should be read from rtdb ***
       !maxit_orbs = control_ks_maxit_orbs()  !*** should be read from rtdb ***
@@ -4551,6 +4565,7 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
 
       dt = control_time_step()
 
+      call Parallel_taskid(taskid) 
 
 !$OMP MASTER
       if (current_iteration.eq.1) then
@@ -4561,14 +4576,28 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
 
       neall = neq(1)+neq(2)
 
+      call geodesic_ABC_init()
+
 *     **** allocate G0, S0 ****
       value = BA_push_get(mt_dcpl,npack1*neall,
      >                     'S0',S0(2),S0(1))
       value = value.and.
      >        BA_push_get(mt_dcpl,npack1*neall,
      >                     'G0',G0(2),G0(1))
+      value = value.and.
+     >        BA_push_get(mt_dcpl,npack1*neall,
+     >                     'G1',G1(2),G1(1))
+      value = value.and.
+     >        BA_push_get(mt_dcpl,npack1*neall,
+     >                     'G2',G2(2),G2(1))
       if (.not.value) 
      >   call errquit('psi_KS_block_update:out of heap memory',0,MA_ERR)
+
+*     **** set ptrs ****
+      Y = psi1(1)
+      U = geodesic_get_U_ptr()
+      HY = G0(1)
+      HU = S0(1)
 
       call Parallel_shared_vector_zero(.true.,2*npack1*neall,
      >                                 dcpl_mb(G0(1)))
@@ -4583,7 +4612,8 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
             call psi_1get_Tgradient0(dcpl_mb(G0(1)),Enew0)
          end if
       end if
-      E0 = Enew0
+      call psi_1get_remainder0(Ermdr)
+      E0    = Enew0
 
 *     ***** use the initial gradient for the direction ****
       call pspw_lmbfgs_init(control_lmbfgs_size(),dcpl_mb(G0(1)))
@@ -4594,6 +4624,13 @@ c     >            dcpl_mb(psi1(1) +(i-1)*npack1))
       do it=2,it_in
 *        **** initialize the geoedesic line data structure ****
          call geodesic_start(dcpl_mb(S0(1)),max_sigma,dE0)
+
+*        **** Copy Hpsi_k to HY then ****
+*        **** generate Hpsi using psi_k=U and copy Hpsi_k to HU ****
+*        **** compute A,B,C, <S0|H|S0>, <U|H|S0> and <U|H|U> matrices ****
+         call geodesic_ABC_start(ispin,ne,npack1,Ermdr,
+     >                        dcpl_mb(Y), dcpl_mb(U),
+     >                        dcpl_mb(HY),dcpl_mb(HU))
 
 *        ******* line search *********
          if ((tmin.gt.deltat_min).and.(tmin.lt.1.0d4)) then
@@ -4613,7 +4650,7 @@ c         write(*,*) "     --- tmin0=",tmin
 !$OMP MASTER
          tmin = tmin0
          deltae = deltae0
-         Enew = Enew0
+         Enew = Enew0 + Ermdr
 !$OMP END MASTER
 !$OMP BARRIER
 c         write(*,*) "     --- tmin=",tmin
@@ -4651,6 +4688,14 @@ c         write(*,*) "     --- it,Enew,deltae=",it,Enew,deltae
 *     **** initialize the geoedesic line data structure ****
       call geodesic_start(dcpl_mb(S0(1)),max_sigma,dE0)
 
+
+*     **** Copy Hpsi_k to HY then ****
+*     **** generate Hpsi using psi_k=U and copy Hpsi_k to HU ****
+*     **** compute A,B,C, <S0|H|S0>, <U|H|S0> and <U|H|U> matrices ****
+      call geodesic_ABC_start(ispin,ne,npack1,Ermdr,
+     >                        dcpl_mb(Y), dcpl_mb(U),
+     >                        dcpl_mb(HY),dcpl_mb(HU))
+
 *     ******* line search *********
       if ((tmin.gt.deltat_min).and.(tmin.lt.1.0d4)) then
          deltat = tmin
@@ -4661,28 +4706,57 @@ c         write(*,*) "     --- it,Enew,deltae=",it,Enew,deltae
  25   continue
       tmin0 = tmin
       deltae0 = deltae
-      Enew0 = linesearch(0.0d0,E0,dE0,deltat,
-     >                        psi_geodesic_energy0,
-     >                        psi_geodesic_denergy,
-     >                        0.50d0,tmin0,deltae0,2)
+c      Enew0 = linesearch(0.0d0,E0,dE0,deltat,
+c     >                        psi_geodesic_energy0,
+c     >                        psi_geodesic_denergy,
+c     >                        0.50d0,tmin0,deltae0,2)
+c      Enew0 = linesearch(0.0d0,E0,dE0,deltat,
+c     >                        geodesic_ABC_energy,
+c     >                        geodesic_ABC_denergy,
+c     >                        0.50d0,tmin0,deltae0,2)
+      Enew0 = linesearch(0.0d0,E0+Ermdr,dE0,deltat,
+     >                        geodesic_ABC_energy,
+     >                        geodesic_ABC_denergy,
+     >                        maxerror,tmin0,deltae0,1)
+
+c       if (taskid.eq.MASTER) then
+c          write(*,*) "ABC energy E0+Ermdr,Enew0,deltae0 =", 
+c     >            E0+Ermdr,Enew0,deltae0,
+c     >            tmin0,maxerror,it
+c       end if
+
+
 !$OMP MASTER
          tmin = tmin0
          deltae = deltae0
-         Enew = Enew0
+         Enew = Enew0 + Ermdr
 !$OMP END MASTER
 !$OMP BARRIER
 
+c      write(*,*) "psi_geodesic_energy0=",tmin,
+c     >            psi_geodesic_energy0(tmin),Enew0,
+c     >            geodesic_ABC_energy(tmin),
+c     >            geodesic_ABC_energy(tmin)-psi_geodesic_energy0(tmin)
+c
+c      write(*,*) "psi_geodesic_denergy=",tmin,
+c     >            psi_geodesic_denergy(tmin),
+c     >            geodesic_ABC_denergy(tmin),
+c     >            geodesic_ABC_denergy(tmin)-psi_geodesic_denergy(tmin)
+ 
       call psi_geodesic_final(tmin)
 
  30   CONTINUE
 
 
 *     **** free memory ****
-      value = BA_pop_stack(G0(2))
-      value = value.and.
-     >        BA_pop_stack(S0(2))
+      value =           BA_pop_stack(G2(2))
+      value = value.and.BA_pop_stack(G1(2))
+      value = value.and.BA_pop_stack(G0(2))
+      value = value.and.BA_pop_stack(S0(2))
       if (.not. value)
-     >  call errquit('bfgsminimize:error freeing heap memory',0, MA_ERR)
+     >  call errquit('psi_KS_block_update:freeing heap',0, MA_ERR)
+
+      call geodesic_ABC_finalize()
 
       call psi_2to1()
 
@@ -6804,6 +6878,21 @@ c      end
       end 
 
 
+*     ***********************************
+*     *					*
+*     *		rho_1dngen_APC   	*
+*     *					*
+*     ***********************************
+      subroutine rho_1dngen_APC()
+      implicit none
+
+#include "bafdecls.fh"
+#include "psi.fh"
+
+      call pspw_dngen_APC(ispin,ne,dbl_mb(rho1(1)),.false.)
+      return
+      end 
+
 
 *     ***********************************
 *     *					*
@@ -7022,6 +7111,72 @@ c      end
      > call errquit('psi_1get_Tgradient:error popping stack',1,
      >     MA_ERR)
 
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *         psi_1get_remainder0     *
+*     *                                 *
+*     ***********************************
+*
+*     Must be called after call to psi_1get_Tgradient0 or psi_1get_Tgradient
+*
+      subroutine psi_1get_remainder0(Eremainder)
+      implicit none
+      real*8 Eremainder
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "psi.fh"
+
+*     ***** rhoall common block ****
+      integer rho1_all(2)
+      integer rho2_all(2)
+      common / rhoall_block / rho1_all,rho2_all
+
+*     **** external functions ****
+      real*8   electron_energy_remainder
+      external electron_energy_remainder
+
+      Eremainder =  electron_energy_remainder(dcpl_mb(psi1(1)),
+     >                        dbl_mb(rho1(1)),
+     >                        dcpl_mb(dng1(1)),
+     >                        dbl_mb(rho1_all(1)))
+
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *         psi_2get_remainder0     *
+*     *                                 *
+*     ***********************************
+*     
+*     Must be called after call to psi_2get_Tgradient0 or psi_2get_Tgradient
+*     
+      subroutine psi_2get_remainder0(Eremainder)
+      implicit none
+      real*8 Eremainder
+      
+#include "bafdecls.fh"                 
+#include "errquit.fh"
+#include "psi.fh"
+      
+*     ***** rhoall common block ****
+      integer rho1_all(2)
+      integer rho2_all(2)
+      common / rhoall_block / rho1_all,rho2_all
+            
+*     **** external functions ****
+      real*8   electron_energy_remainder
+      external electron_energy_remainder
+      
+      Eremainder =  electron_energy_remainder(dcpl_mb(psi2(1)),
+     >                        dbl_mb(rho2(1)),
+     >                        dcpl_mb(dng2(1)),
+     >                        dbl_mb(rho2_all(1)))
       return
       end
 
@@ -9965,6 +10120,30 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
       return
       end
+
+
+*     **********************************
+*     *                                *
+*     *   psi1_crystal_polarizability  *
+*     *                                *
+*     **********************************
+*     
+*     Uses - electron_crystal_polarizability
+*       
+      subroutine psi1_crystal_polarizability(alpha)
+      implicit none
+      real*8 alpha(3,3)
+      
+#include "bafdecls.fh"
+#include "psi.fh" 
+      
+      call Calculate_Resta_Polarizability(.true.,
+     >                   ispin,ne,neq,npack1,nfft3d,
+     >                   dcpl_mb(psi1(1)),alpha)
+     
+      return
+      end
+
       
 
        
@@ -10893,6 +11072,181 @@ c      end if
       end
 
 
+
+
+*     ***************************
+*     *                         *
+*     *     qpsi_initialize     *
+*     *                         *
+*     ***************************
+      logical function qpsi_initialize()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+#include "psi.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
+      logical value,psi_nogrid
+      integer nemax,ispin0
+
+      integer hversion,hnfft(3),hispin,hne(2)
+      real*8 hunita(3,3),sum1,sum2
+      integer rtdb,ind,nn
+      integer  control_rtdb,control_ngrid
+      external control_rtdb,control_ngrid
+      character*50 filename
+      character*50 control_input_qpsi
+      external     control_input_qpsi
+      logical  wvfnc_expander
+      external wvfnc_expander
+      integer  control_symmetry
+      external control_symmetry
+
+
+      nemax  = neq(1)  + neq(2)
+      nn = ne(1)*ne(1) + ne(2)*ne(2)
+
+*     **** allocate memory ****
+      value = BA_alloc_get(mt_dcpl,npack1*(nemax),
+     >         'psi2_pertab',psi2_pertab(2),psi2_pertab(1))
+      value = value.and.
+     >        BA_alloc_get(mt_dcpl,npack1*(nemax),
+     >         'psi1_pertab',psi1_pertab(2),psi1_pertab(1))
+      value = value.and.
+     >        BA_alloc_get(mt_dbl,(2*nemax),'eig_excited',
+     >                     eig_pertab(2),eig_pertab(1))
+      value = value.and.
+     >        BA_alloc_get(mt_dbl,nn,'hml_pertab',
+     >                     hml_pertab(2),hml_pertab(1))
+      if (.not.value)
+     >   call errquit('qpsi_initialize: out of heap memory',0,MA_ERR)
+
+      call Parallel_shared_vector_zero(.true.,2*npack1*nemax,
+     >                    dcpl_mb(psi2_pertab(1)))
+      call Parallel_shared_vector_zero(.true.,2*npack1*nemax,
+     >                    dcpl_mb(psi1_pertab(1)))
+      call Parallel_shared_vector_zero(.true.,2*nemax,
+     >                    dbl_mb(eig_pertab(1)))
+      call Parallel_shared_vector_zero(.true.,nn,
+     >                    dbl_mb(hml_pertab(1)))
+
+
+*     *****  read initial wavefunctions into psi1  ****
+      rtdb = control_rtdb()
+      if (.not.btdb_get(rtdb,'nwpw:psi_nogrid',
+     >                  mt_log,1,psi_nogrid))
+     >   psi_nogrid = .true.
+
+      if (psi_nogrid) then
+
+
+        filename =  control_input_qpsi()
+        call psi_get_header_filename(filename,
+     >                      hversion,hnfft,hunita,hispin,hne)
+
+        if ( (hnfft(1).ne.control_ngrid(1)) .or.
+     >       (hnfft(2).ne.control_ngrid(2)) .or.
+     >       (hnfft(3).ne.control_ngrid(3)) ) then
+
+        hnfft(1) = control_ngrid(1)
+        hnfft(2) = control_ngrid(2)
+        hnfft(3) = control_ngrid(3)
+        call Parallel_taskid(taskid)
+        value = btdb_parallel(.false.)
+        if (taskid.eq.MASTER) then
+
+
+          ind = index(filename,' ') - 1
+          if (.not. btdb_cput(rtdb,'xpndr:old_wavefunction_filename',
+     >                    1,filename(1:ind)))
+     >     call errquit(
+     >     'wvfnc_expander_input: btdb_cput failed', 0, RTDB_ERR)
+
+          if (.not. btdb_cput(rtdb,'xpndr:new_wavefunction_filename',
+     >                    1,filename(1:ind)))
+     >     call errquit(
+     >     'wvfnc_expander_input: btdb_cput failed', 0, RTDB_ERR)
+
+          if (.not. btdb_put(rtdb,'xpndr:ngrid',mt_int,3,hnfft))
+     >     call errquit(
+     >     'wvfnc_expander_input: btdb_put failed', 0, RTDB_ERR)
+
+          write(*,*)
+          write(*,*) "Grid is being converted:"
+          write(*,*) "------------------------"
+          write(*,*)
+          write(*,*) "To turn off automatic grid conversion:"
+          write(*,*)
+          write(*,*) "set nwpw:psi_nogrid .false."
+          write(*,*)
+          value = wvfnc_expander(rtdb)
+
+        end if
+        value = btdb_parallel(.true.)
+
+      end if
+
+      end if
+
+*     *****  read initial wavefunctions into psi1  ****
+      call qpsi_read(ispin,ne,dcpl_mb(psi1_pertab(1)))
+
+
+*     **** force inversion symmetry ****
+      if (control_symmetry().eq.1)  then
+         call Parallel_taskid(taskid)
+         if (taskid.eq.MASTER) then
+         write(*,*)
+         write(*,*)
+     >   "Projecting reponse wavefunctions to have inversion symmetry"
+         write(*,*)
+         end if
+         call psi_symm_project(ispin,neq,npack1,
+     >                         dcpl_mb(psi1_pertab(1)))
+      end if
+
+      qpsi_initialize = value
+      return
+      end
+
+
+*     ***************************
+*     *                         *
+*     *      qpsi_finalize      *
+*     *                         *
+*     ***************************
+
+      logical function qpsi_finalize(writeqpsi)
+      implicit none
+      logical writeqpsi
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "psi.fh"
+
+*     **** local variables ****
+      logical value
+
+*     ***** write psi1 wavefunctions ****
+      if (writeqpsi)
+     >  call qpsi_write(ispin,ne_excited,dcpl_mb(psi1_excited(1)))
+
+      value = BA_free_heap(hml_pertab(2))
+      value = value.and.BA_free_heap(eig_pertab(2))
+      value = value.and.BA_free_heap(psi2_pertab(2))
+      value = value.and.BA_free_heap(psi1_pertab(2))
+      if (.not. value)
+     >  call errquit('qpsi_finalize: error freeing heap',0, MA_ERR)
+
+      qpsi_finalize = value
+      return
+      end
+
+
 *     ***********************
 *     *			    *
 *     *	    psi_Mulliken    *
@@ -11074,7 +11428,6 @@ c      end if
 *     *     epsi_DOS        *
 *     *                     *
 *     ***********************
-
       subroutine epsi_DOS(rtdb)
       implicit none
       integer rtdb
@@ -11169,24 +11522,43 @@ c      end if
       end
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+*     ***********************
+*     *                     *
+*     *     psi_polariz     *
+*     *                     *
+*     ***********************
+
+*** Early version of periodic dipole written by Patrick Nichols                                               ***
+*** This routine has been replace by Calculate_Resta_Dipole, but keeping around as a reference implementation ***
+*** this routine only works for cubic unit cells                                                              ***
+
       subroutine psi_polariz()
       implicit none
+
 #include "psi.fh"
 #include "bafdecls.fh"
 #include "errquit.fh"
 #include "util.fh"
-      integer psirx(2),asize
-      logical val
-      asize=(ne(1)+ne(2))*nfft3d*2
-      val=BA_push_get(mt_dbl,asize,"psir",psirx(2),psirx(1))
-      if (.not.val) then
-        call errquit("psi_polariz stack empty",0,0)
-      end if
-      call berry_phase_pol(psi2,psirx)
-      val=BA_pop_stack(psirx(2))
-      if (.not.val) then
-        call errquit("psi_polariz failed pop stack",0,0)
-      end if
+
+*     **** local variables ****
+      logical value
+      integer psirx(2),tsirx(2),asize
+
+      asize=(neq(1)+neq(2))*2*nfft3d
+      value=          BA_push_get(mt_dbl,asize,"psir",psirx(2),psirx(1))
+      value=value.and.BA_push_get(mt_dbl,asize,"tsir",tsirx(2),tsirx(1))
+      if (.not.value) call errquit("psi_polariz stack empty",0,MA_ERR)
+
+      call berry_phase_pol(ispin,ne,neq,npack1,nfft3d,
+     >                     dcpl_mb(psi2(1)),
+     >                     dbl_mb(psirx(1)),
+     >                     dbl_mb(tsirx(1)))
+
+      value=          BA_pop_stack(tsirx(2))
+      value=value.and.BA_pop_stack(psirx(2))
+      if (.not.value) call errquit("psi_polariz: pop stack",0,MA_ERR)
+
       return
       end
 ccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -11741,5 +12113,27 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *         psi_get_psi_ptr         *
+*     *                                 *
+*     ***********************************
+      integer function psi_get_psi_ptr(i)
+      implicit none
+      integer i
+
+#include "psi.fh"
+
+      if (i.eq.1) then
+         psi_get_psi_ptr = psi1(1)
+      else
+         psi_get_psi_ptr = psi2(1)
+      end if
+
+      return
+      end
+
+
 
 

@@ -23,8 +23,8 @@
 
 *     **** external functions **** 
       integer  cpsi_ne,cpsi_neq,cpsi_nbrillq,Pneb_w_size
-      integer  cpsi_data_alloc
       external cpsi_ne,cpsi_neq,cpsi_nbrillq,Pneb_w_size
+      integer  cpsi_data_alloc
       external cpsi_data_alloc
 
       call Cram_max_npack(npack1)
@@ -145,7 +145,7 @@
         
 *     ***********************************
 *     *                                 *
-*     *         c_geodesic_start00        *
+*     *        c_geodesic_start00       *
 *     *                                 *
 *     ***********************************
 *           
@@ -1272,3 +1272,489 @@ c         tGshift   = cpsi_data_get_chnk(  tG_tag,nb)
 
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *        c_geodesic_get_U_tag     *
+*     *                                 *
+*     ***********************************
+      integer function c_geodesic_get_U_tag()
+      implicit none
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "c_geodesic_common.fh"
+
+      c_geodesic_get_U_tag = U_tag
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *       c_geodesic_ABC_init       *
+*     *                                 *
+*     ***********************************
+      subroutine c_geodesic_ABC_init()
+      implicit none
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** ABC common block ****
+      integer ABC(2)
+      real*8  Ermdr
+      common / c_geodesic_ABC_block / ABC,Ermdr
+
+*     **** external functions ****
+      logical  Pneb_w_allocate_block
+      external Pneb_w_allocate_block
+
+      if (.not.Pneb_w_allocate_block(0,0,3,ABC))
+     >   call errquit('c_geodesic_ABC_init:alloc ABC',0,MA_ERR)
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *       c_geodesic_ABC_finalize   *
+*     *                                 *
+*     ***********************************
+      subroutine c_geodesic_ABC_finalize()
+      implicit none
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** ABC common block ****
+      integer ABC(2)
+      real*8  Ermdr
+      common / c_geodesic_ABC_block / ABC,Ermdr
+
+*     **** external functions ****
+      logical  Pneb_w_free
+      external Pneb_w_free
+
+      if (.not.Pneb_w_free(ABC))
+     > call errquit('c_geodesic_ABC_end:deallocate ABC',0,MA_ERR)
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *       c_geodesic_ABC_start      *
+*     *                                 *
+*     ***********************************
+      subroutine c_geodesic_ABC_start(Ermdr0,Y_tag,Z_tag,HY_tag,HZ_tag)
+      implicit none
+      real*8  Ermdr0
+      integer Y_tag,Z_tag,HY_tag,HZ_tag
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "c_geodesic_common.fh"
+
+*     **** ABC common block ****
+      integer ABC(2)
+      real*8  Ermdr
+      common / c_geodesic_ABC_block / ABC,Ermdr
+
+*     **** local variables ****
+      complex*16 zero,one
+      parameter (zero=(0.0d0,0.0d0), one=(1.0d0,0.0d0))
+
+      integer nb,ms,ishift,A,Bdag,C,tmp1(2),nbrillq,npack1
+      real*8 etmp,weight
+
+*     **** external functions ****
+      logical  Pneb_w_push_get,Pneb_w_pop_stack
+      external Pneb_w_push_get,Pneb_w_pop_stack
+      integer  Pneb_w_size,cpsi_data_get_allptr,cpsi_nbrillq
+      external Pneb_w_size,cpsi_data_get_allptr,cpsi_nbrillq
+      real*8   c_electron_eorbit,brillioun_weight
+      external c_electron_eorbit,brillioun_weight
+
+      Ermdr = Ermdr0
+      call Cram_max_npack(npack1)
+      nbrillq = cpsi_nbrillq()
+
+      ishift = Pneb_w_size(0,0)
+      A    = ABC(1)
+      Bdag = ABC(1) +   ishift
+      C    = ABC(1) + 2*ishift
+
+      if (.not.Pneb_w_push_get(0,0,tmp1))
+     >   call errquit('c_geodesic_ABC_start:stack',0,MA_ERR)
+      
+*     **** Copy Hpsi_k to HY then ****
+*     **** generate Hpsi using psi_k=U and copy Hpsi_k to HU ****
+      call c_electron_get_Hpsi_k(HY_tag)
+      do nb=1,nbrillq
+         call c_electron_run0(nb,Z_tag)
+      end do
+      call c_electron_get_Hpsi_k(HZ_tag)
+
+
+*     **** generate A=<Y|HY>, Bdag=<U|HY>, C=<U|HU> matrices ****
+      call Pneb_ffw_hermit_Multiply(0,0,
+     >                           dbl_mb(cpsi_data_get_allptr(Y_tag)),
+     >                           dbl_mb(cpsi_data_get_allptr(HY_tag)),
+     >                           npack1,dcpl_mb(A))
+      call Pneb_ffw_Multiply(0,0,dbl_mb(cpsi_data_get_allptr(Z_tag)),
+     >                           dbl_mb(cpsi_data_get_allptr(HY_tag)),
+     >                           npack1,dcpl_mb(Bdag))
+      call Pneb_ffw_hermit_Multiply(0,0,
+     >                           dbl_mb(cpsi_data_get_allptr(Z_tag)),
+     >                           dbl_mb(cpsi_data_get_allptr(HZ_tag)),
+     >                           npack1,dcpl_mb(C))
+
+*     **** compute V'*A*V ****
+      call Pneb_www_Multiply3(0,0,one,
+     >                        dcpl_mb(A),
+     >                        dbl_mb(cpsi_data_get_allptr(Vt_tag)),
+     >                        zero,
+     >                        dcpl_mb(tmp1(1)))
+      call Pneb_www_Multiply1(0,0,one,
+     >                        dbl_mb(cpsi_data_get_allptr(Vt_tag)),
+     >                        dcpl_mb(tmp1(1)),
+     >                        zero,
+     >                        dcpl_mb(A))
+
+*     **** compute B'*V ****
+      call Pneb_www_Multiply3(0,0,one,
+     >                       dcpl_mb(Bdag),
+     >                       dbl_mb(cpsi_data_get_allptr(Vt_tag)),
+     >                       zero,
+     >                       dcpl_mb(tmp1(1)))
+      call Parallel_shared_vector_copy(.true.,2*ishift,
+     >                                 dcpl_mb(tmp1(1)),dcpl_mb(Bdag))
+
+      if (.not.Pneb_w_pop_stack(tmp1))
+     >   call errquit('c_geodesic_ABC_start:pop',1,MA_ERR)
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *       c_geodesic_ABC_energy     *
+*     *                                 *
+*     ***********************************
+      real*8 function c_geodesic_ABC_energy(t)
+      implicit none
+      real*8 t
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "c_geodesic_common.fh"
+
+*     **** ABC common block ****
+      integer ABC(2)
+      real*8  Ermdr
+      common / c_geodesic_ABC_block / ABC,Ermdr
+
+*     **** local variables ****
+      complex*16 zero,one
+      parameter (zero=(0.0d0,0.0d0), one=(1.0d0,0.0d0))
+
+      logical value
+      integer ishift,A,Bdag,C,nemax,nbrillq
+      integer tmp1(2),tmp2(2),tmp3(2),tmpC(2),tmpS(2),tmp4(2)
+      real*8  energy,etmp
+
+*     **** external functions ****
+      logical  Pneb_w_push_get,Pneb_w_pop_stack
+      external Pneb_w_push_get,Pneb_w_pop_stack
+      integer  cpsi_ispin,cpsi_ne,cpsi_nbrillq
+      external cpsi_ispin,cpsi_ne,cpsi_nbrillq
+      integer  Pneb_w_size,cpsi_data_get_allptr
+      external Pneb_w_size,cpsi_data_get_allptr
+
+      ishift = Pneb_w_size(0,0)
+      A    = ABC(1)
+      Bdag = ABC(1) +   ishift
+      C    = ABC(1) + 2*ishift
+
+      nemax   = cpsi_ne(1) + cpsi_ne(2)
+      nbrillq = cpsi_nbrillq()
+
+*     **** push stack space ****
+      value =           Pneb_w_push_get(0,0,tmp1)
+      value = value.and.Pneb_w_push_get(0,0,tmp2)
+      value = value.and.Pneb_w_push_get(0,0,tmp3)
+      value = value.and.Pneb_w_push_get(0,0,tmp4)
+      value = value.and.
+     >        BA_push_get(mt_dbl,nbrillq*nemax,'tmpC',tmpC(2),tmpC(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,nbrillq*nemax,'tmpS',tmpS(2),tmpS(1))
+      if (.not.value) 
+     >   call errquit('c_geodesic_ABC_energy:stack',0,MA_ERR)
+
+      call Pneb_SCVtrans1(0,0,t,
+     >                    dbl_mb(cpsi_data_get_allptr(S_tag)),
+     >                    dbl_mb(cpsi_data_get_allptr(Vt_tag)),
+     >                    dcpl_mb(tmp1(1)),
+     >                    dcpl_mb(tmp3(1)),
+     >                    dbl_mb(tmpC(1)),
+     >                    dbl_mb(tmpS(1)))
+
+*     **** V*cos*B*sin*V' ****
+      call Pneb_www_Multiply2(0,0,one,
+     >                        dcpl_mb(Bdag),
+     >                        dcpl_mb(tmp3(1)),
+     >                        zero,
+     >                        dcpl_mb(tmp2(1)))
+      call Pneb_www_Multiply2(0,0,one,
+     >                        dcpl_mb(tmp1(1)),
+     >                        dcpl_mb(tmp2(1)),
+     >                        zero,
+     >                        dcpl_mb(tmp4(1)))
+*     **** V*cos*A*cos*V' ****
+      call Pneb_www_Multiply2(0,0,one,
+     >                        dcpl_mb(tmp1(1)),
+     >                        dcpl_mb(A),
+     >                        zero,
+     >                        dcpl_mb(tmp2(1)))
+      call Pneb_www_Multiply1(0,0,one,
+     >                        dcpl_mb(tmp2(1)),
+     >                        dcpl_mb(tmp1(1)),
+     >                        one,
+     >                        dcpl_mb(tmp4(1)))
+*     **** V*sin*B'*cos*V' ****
+      call Pneb_www_Multiply2(0,0,one,
+     >                        dcpl_mb(tmp3(1)),
+     >                        dcpl_mb(Bdag),
+     >                        zero,
+     >                        dcpl_mb(tmp2(1)))
+      call Pneb_www_Multiply1(0,0,one,
+     >                        dcpl_mb(tmp2(1)),
+     >                        dcpl_mb(tmp1(1)),
+     >                        one,
+     >                        dcpl_mb(tmp4(1)))
+
+*     **** V*sin*C*sin*V' ****
+      call Pneb_www_Multiply2(0,0,one,
+     >                        dcpl_mb(tmp3(1)),
+     >                        dcpl_mb(C),
+     >                        zero,
+     >                        dcpl_mb(tmp2(1)))
+      call Pneb_www_Multiply1(0,0,one,
+     >                        dcpl_mb(tmp2(1)),
+     >                        dcpl_mb(tmp3(1)),
+     >                        one,
+     >                        dcpl_mb(tmp4(1)))
+
+      call Pneb_w_trace_weight(0,0,dcpl_mb(tmp4(1)),energy)
+      if (cpsi_ispin().eq.1) energy = energy+energy
+
+*     **** pop stack space ****
+      value =           BA_pop_stack(tmpS(2))
+      value = value.and.BA_pop_stack(tmpC(2))
+      value = value.and.Pneb_w_pop_stack(tmp4)
+      value = value.and.Pneb_w_pop_stack(tmp3)
+      value = value.and.Pneb_w_pop_stack(tmp2)
+      value = value.and.Pneb_w_pop_stack(tmp1)
+      if (.not.value) 
+     >   call errquit('c_geodesic_ABC_energy:pop',1,MA_ERR)
+
+      c_geodesic_ABC_energy = energy + Ermdr
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *      c_geodesic_ABC_denergy     *
+*     *                                 *
+*     ***********************************
+      real*8 function c_geodesic_ABC_denergy(t)
+      implicit none
+      real*8 t
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "c_geodesic_common.fh"
+
+*     **** ABC common block ****
+      integer ABC(2)
+      real*8  Ermdr
+      common / c_geodesic_ABC_block / ABC,Ermdr
+
+*     **** local variables ****
+      complex*16 zero,one,mone
+      parameter (zero=(0.0d0,0.0d0), one=(1.0d0,0.0d0))
+      parameter (mone=(-1.0d0,0.0d0))
+
+      logical value
+      integer nemax,nbrillq,ishift,A,Bdag,C
+      integer CV(2),SV(2),SSV(2),CSV(2),tmpC(2),tmpS(2)
+      integer tmp1(2),tmp4(2)
+      real*8  denergy,denergyB,denergyA,denergyC,denergyBdag
+
+*     **** external functions ****
+      logical  Pneb_w_push_get,Pneb_w_pop_stack
+      external Pneb_w_push_get,Pneb_w_pop_stack
+      integer  cpsi_ispin,cpsi_ne,cpsi_nbrillq
+      external cpsi_ispin,cpsi_ne,cpsi_nbrillq
+      integer  Pneb_w_size,cpsi_data_get_allptr
+      external Pneb_w_size,cpsi_data_get_allptr
+
+      ishift = Pneb_w_size(0,0)
+      A    = ABC(1)
+      Bdag = ABC(1) +   ishift
+      C    = ABC(1) + 2*ishift
+
+      nemax   = cpsi_ne(1) + cpsi_ne(2)
+      nbrillq = cpsi_nbrillq()
+
+*     **** push stack space ****
+      value =           Pneb_w_push_get(0,0,CV)
+      value = value.and.Pneb_w_push_get(0,0,SV)
+      value = value.and.Pneb_w_push_get(0,0,SSV)
+      value = value.and.Pneb_w_push_get(0,0,CSV)
+      value = value.and.Pneb_w_push_get(0,0,tmp1)
+      value = value.and.Pneb_w_push_get(0,0,tmp4)
+      value = value.and.
+     >        BA_push_get(mt_dbl,nbrillq*nemax,'tmpC',tmpC(2),tmpC(1))
+      value = value.and.
+     >        BA_push_get(mt_dbl,nbrillq*nemax,'tmpS',tmpS(2),tmpS(1))
+      if (.not.value) 
+     >   call errquit('c_geodesic_ABC_denergy:push',0,MA_ERR)
+
+      call Pneb_SCVtrans1(0,0,t,
+     >                    dbl_mb(cpsi_data_get_allptr(S_tag)),
+     >                    dbl_mb(cpsi_data_get_allptr(Vt_tag)),
+     >                    dcpl_mb(CV(1)),
+     >                    dcpl_mb(SV(1)),
+     >                    dbl_mb(tmpC(1)),
+     >                    dbl_mb(tmpS(1)))
+      call Pneb_SCVtrans2(0,0,t,
+     >                    dbl_mb(cpsi_data_get_allptr(S_tag)),
+     >                    dbl_mb(cpsi_data_get_allptr(Vt_tag)),
+     >                    dcpl_mb(SSV(1)),
+     >                    dcpl_mb(CSV(1)),
+     >                    dbl_mb(tmpC(1)),
+     >                    dbl_mb(tmpS(1)))
+
+*     **** -V*S*sin*B*sin*V' ****
+      call Pneb_www_Multiply2(0,0,one,
+     >                       dcpl_mb(Bdag),
+     >                       dcpl_mb(SV(1)),
+     >                       zero,
+     >                       dcpl_mb(tmp1(1)))
+      call Pneb_www_Multiply2(0,0,one,
+     >                        dcpl_mb(SSV(1)),
+     >                        dcpl_mb(tmp1(1)),
+     >                        zero,
+     >                        dcpl_mb(tmp4(1)))
+
+      call Pneb_w_trace_weight(0,0,dcpl_mb(tmp4(1)),denergyA)
+
+*     ****  V*cos*B*cos*S*V' ****
+      call Pneb_www_Multiply2(0,0,one,
+     >                        dcpl_mb(Bdag),
+     >                        dcpl_mb(CSV(1)),
+     >                        zero,
+     >                        dcpl_mb(tmp1(1)))
+      call Pneb_www_Multiply2(0,0,one,
+     >                        dcpl_mb(CV(1)),
+     >                        dcpl_mb(tmp1(1)),
+     >                        zero,
+     >                        dcpl_mb(tmp4(1)))
+
+      call Pneb_w_trace_weight(0,0,dcpl_mb(tmp4(1)),denergyB)
+      denergy = denergy + denergyB
+
+
+*     **** -V*S*sin*A*cos*V' ****
+      call Pneb_www_Multiply2(0,0,one,
+     >                        dcpl_mb(SSV(1)),
+     >                        dcpl_mb(A),
+     >                        zero,
+     >                        dcpl_mb(tmp1(1)))
+      call Pneb_www_Multiply1(0,0,mone,
+     >                        dcpl_mb(tmp1(1)),
+     >                        dcpl_mb(CV(1)), 
+     >                        zero,
+     >                        dcpl_mb(tmp4(1)))
+*     **** -V*cos*A*sin*S*V' ****
+      call Pneb_www_Multiply2(0,0,one,
+     >                        dcpl_mb(CV(1)),
+     >                        dcpl_mb(A),
+     >                        zero,
+     >                        dcpl_mb(tmp1(1)))
+      call Pneb_www_Multiply1(0,0,mone,
+     >                        dcpl_mb(tmp1(1)),
+     >                        dcpl_mb(SSV(1)),
+     >                        one,
+     >                        dcpl_mb(tmp4(1)))
+
+*     **** V*S*cos* B' *cos*V' ****
+      call Pneb_www_Multiply2(0,0,one,
+     >                        dcpl_mb(CSV(1)),
+     >                        dcpl_mb(Bdag),
+     >                        zero,
+     >                        dcpl_mb(tmp1(1)))
+      call Pneb_www_Multiply1(0,0,one,
+     >                        dcpl_mb(tmp1(1)),
+     >                        dcpl_mb(CV(1)),
+     >                        one,
+     >                        dcpl_mb(tmp4(1)))
+*     **** -V*sin*B'*sin*S*V' ****
+      call Pneb_www_Multiply2(0,0,one,
+     >                        dcpl_mb(SV(1)),
+     >                        dcpl_mb(Bdag),
+     >                        zero,
+     >                        dcpl_mb(tmp1(1)))
+      call Pneb_www_Multiply1(0,0,mone,
+     >                        dcpl_mb(tmp1(1)),
+     >                        dcpl_mb(SSV(1)), 
+     >                        one,
+     >                        dcpl_mb(tmp4(1)))
+
+*     ****  V*S*cos*C*sin*V' ****
+      call Pneb_www_Multiply2(0,0,one,
+     >                        dcpl_mb(CSV(1)),
+     >                        dcpl_mb(C),
+     >                        zero,
+     >                        dcpl_mb(tmp1(1)))
+      call Pneb_www_Multiply1(0,0,one,
+     >                        dcpl_mb(tmp1(1)),
+     >                        dcpl_mb(SV(1)),
+     >                        one,
+     >                        dcpl_mb(tmp4(1)))
+*     ****  V*sin*C*cos*S*V' ****
+      call Pneb_www_Multiply2(0,0,one,
+     >                        dcpl_mb(SV(1)),
+     >                        dcpl_mb(C),
+     >                        zero,
+     >                        dcpl_mb(tmp1(1)))
+      call Pneb_www_Multiply1(0,0,one,
+     >                        dcpl_mb(tmp1(1)),
+     >                        dcpl_mb(CSV(1)),
+     >                        one,
+     >                        dcpl_mb(tmp4(1)))
+
+      call Pneb_w_trace_weight(0,0,dcpl_mb(tmp4(1)),denergyC)
+      denergy = denergy + denergyC
+      if (cpsi_ispin().eq.1) denergy = denergy+denergy
+
+
+*     **** pop stack space ****
+      value =           BA_pop_stack(tmpS(2))
+      value = value.and.BA_pop_stack(tmpC(2))
+      value = value.and.BA_pop_stack(tmp4(2))
+      value = value.and.BA_pop_stack(tmp1(2))
+      value = value.and.Pneb_w_pop_stack(CSV)
+      value = value.and.Pneb_w_pop_stack(SSV)
+      value = value.and.Pneb_w_pop_stack(SV)
+      value = value.and.Pneb_w_pop_stack(CV)
+      if (.not.value) 
+     >   call errquit('c_geodesic_ABC_denergy:pop',1,MA_ERR)
+
+      c_geodesic_ABC_denergy = denergy
+      return
+      end
+

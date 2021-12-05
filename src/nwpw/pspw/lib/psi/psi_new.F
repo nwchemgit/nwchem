@@ -247,3 +247,75 @@
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *           qpsi_new              *
+*     *                                 *
+*     ***********************************
+
+* qpsi are used for the perturbative wavefunctions
+
+      subroutine qpsi_new()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*    *** local variables ***
+      logical success,adjust_skip
+      integer ispin,ne(2)
+      integer version,rtdb
+      integer ngrid(3)
+      real*8  unita(3,3)
+      character*50 filename
+
+*     ***** local functions ****
+      character*50 control_input_qpsi
+      external     control_input_qpsi
+      double precision control_unita
+      external         control_unita
+      integer  control_ngrid,control_ispin,control_excited_ne
+      external control_ngrid,control_ispin,control_excited_ne
+      integer  control_rtdb,control_version
+      external control_rtdb,control_version
+      logical  qpsi_filefind
+      external qpsi_filefind
+      integer  psi_ispin,psi_ne
+      external psi_ispin,psi_ne
+
+      filename = control_input_qpsi()
+      version = control_version()
+      ngrid(1) = control_ngrid(1)
+      ngrid(2) = control_ngrid(2)
+      ngrid(3) = control_ngrid(3)
+      unita(1,1) = control_unita(1,1)
+      unita(2,1) = control_unita(2,1)
+      unita(3,1) = control_unita(3,1)
+      unita(1,2) = control_unita(1,2)
+      unita(2,2) = control_unita(2,2)
+      unita(3,2) = control_unita(3,2)
+      unita(1,3) = control_unita(1,3)
+      unita(2,3) = control_unita(2,3)
+      unita(3,3) = control_unita(3,3)
+
+      ispin = psi_ispin()
+      ne(1) = psi_ne(1)
+      ne(2) = psi_ne(2)
+
+      rtdb = control_rtdb()
+      if (.not.btdb_get(rtdb,
+     >         'nwpw:adjust_skip',mt_log,1,adjust_skip))
+     >   adjust_skip = .false.
+      if (qpsi_filefind().and.(.not.adjust_skip)) then
+         call wvfnc_adjust(filename,ispin,ne)
+      else
+         call wvfnc_new(filename,
+     >                  version,
+     >                  ngrid,
+     >                  unita,
+     >                  ispin,
+     >                  ne,.false.)
+      end if
+      return
+      end

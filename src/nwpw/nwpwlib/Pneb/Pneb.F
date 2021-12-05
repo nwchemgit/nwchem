@@ -4315,14 +4315,9 @@ cccccccccccccccc
 
 
 
-
-
-
-
-
 *     **********************************************
 *     *                                            *
-*     *             Pneb_w_trace               *
+*     *             Pneb_w_trace                   *
 *     *                                            *
 *     **********************************************
       subroutine Pneb_w_trace(mbb,nbb,hml,val)
@@ -4358,10 +4353,66 @@ cccccccccccccccc
         shift3 = (nb-nb1)*ishift3
         do ms=ms1,ms2
           if (ne(ms).le.0) go to 30
-          shift2 = (ms1-1)*ishift2 + shift3
+          shift2 = (ms-ms1)*ishift2 + shift3
           do k=1,ne(ms)
              indx = k + (k-1)*ne(ms) + shift2
              val = val + dble(hml(indx))
+          end do
+ 30     continue
+        end do
+      end do
+      return
+      end
+
+
+*     **********************************************
+*     *                                            *
+*     *             Pneb_w_trace_weight            *
+*     *                                            *
+*     **********************************************
+      subroutine Pneb_w_trace_weight(mbb,nbb,hml,val)
+      implicit none
+      integer mbb,nbb
+      complex*16 hml(*)
+      real*8 val
+
+#include "Pneb.fh"
+
+*     **** local variables ****
+      integer nb,ms,nb1,nb2,ms1,ms2,ishift2,ishift3,shift2,shift3
+      integer j,k,indx,indxt
+      real*8  weight
+
+*     **** external functions ****
+      real*8   brillioun_weight
+      external brillioun_weight
+
+      val = 0.0d0
+      call assign_nb(nbb,nb1,nb2)
+      call assign_ms(mbb,ms1,ms2)
+      if (mbb.eq.0) then
+         ishift2 = ne(1)*ne(1)
+      else
+         ishift2 = 0
+      end if
+      if (nbb.eq.0) then
+         if (spin_orbit) then
+           ishift3 = ne(1)*ne(1)
+         else
+           ishift3 = ne(1)*ne(1) + ne(2)*ne(2)
+         end if
+      else
+         ishift3 = 0
+      end if
+      do nb=nb1,nb2
+        weight = brillioun_weight(nb)
+        shift3 = (nb-nb1)*ishift3
+        do ms=ms1,ms2
+          if (ne(ms).le.0) go to 30
+          shift2 = (ms-ms1)*ishift2 + shift3
+          do k=1,ne(ms)
+             indx = k + (k-1)*ne(ms) + shift2
+             val = val + dble(hml(indx))*weight
           end do
  30     continue
         end do
