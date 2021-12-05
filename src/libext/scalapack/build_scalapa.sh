@@ -198,9 +198,21 @@ if [[ ${FC} == ftn ]]; then
         export LD_LIBRARY_PATH=/opt/cray/pe/cce/$CRAY_FTN_VERSION/cce-clang/x86_64/lib:/opt/cray/pe/lib64/cce/:$LD_LIBRARY_PATH
     fi
 fi
-GFORTRAN_EXTRA=$(echo $FC | cut -c 1-8)
+FC_EXTRA=$(${NWCHEM_TOP}/src/config/strip_compiler.sh ${FC})
+if [[  -z "$PE_ENV"   ]] ; then
+    #check if mpif90 and FC are consistent
+    MPIF90_EXTRA=$(${NWCHEM_TOP}/src/config/strip_compiler.sh `${MPIF90} -show`)
+    if [[ $MPIF90_EXTRA != $FC_EXTRA ]]; then
+        echo which mpif90 is `which mpif90`
+        echo mpif90show `${MPIF90} -show`
+	echo FC and MPIF90 are not consistent
+	echo FC is $FC_EXTRA
+	echo MPIF90 is $MPIF90_EXTRA
+	exit 1
+    fi
+fi
 if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
-    if  [[ ${FC} == gfortran ]] || [[ ${FC} == f95 ]] || [[ ${GFORTRAN_EXTRA} == gfortran ]] ; then
+    if  [[ ${FC} == f95 ]] || [[ ${FC_EXTRA} == gfortran ]] ; then
     Fortran_FLAGS+=" -fdefault-integer-8 -w "
     elif  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
     Fortran_FLAGS=" -qintsize=8 -qextname "
@@ -212,7 +224,7 @@ if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
     C_FLAGS+=" -DInt=long"
 fi
 #skip argument check for gfortran
-if  [[ ${FC} == gfortran ]] || [[ ${FC} == f95 ]] || [[ ${GFORTRAN_EXTRA} == gfortran ]] ; then
+if  [[ ${FC_EXTRA} == gfortran ]] || [[ ${FC} == f95 ]]; then
     Fortran_FLAGS+=" -fPIC "
     if [[ "$(expr `${FC} -dumpversion | cut -f1 -d.` \> 7)" == 1 ]]; then
 	Fortran_FLAGS+=" -std=legacy "
