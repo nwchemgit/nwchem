@@ -2,7 +2,6 @@
 *     $Id$                       
 *
 
-
 *  ************************************************************
 *  *                MPI cgminimize ABC routine                *
 *  *               (Fletcher-Reeves' steps)                   *
@@ -147,7 +146,6 @@
 *        **** compute A,B,C, <S0|H|S0>, <U|H|S0> and <U|H|U> matrices ****
          call c_geodesic_ABC_start(Ermdr,Y,U,HY,HU)
 
-
 *        ******* line search *********
          if (tmin.gt.0.0d0) then
             deltat = tmin
@@ -162,13 +160,8 @@ c     >                        tole,tmin,deltae,1)
      >                        c_geodesic_ABC_energy,
      >                        c_geodesic_ABC_denergy,
      >                        tole,tmin,deltae,1)
-
-c         write(*,*)'e0= ',e0
-c         write(*,*)'de0 = ',de0
-c         write(*,*)'tmin = ',tmin
-c         call flush(6)
          call cpsi_geodesic_final(tmin)
-
+         call cpsi_2toelectron()
          deltac = c_rho_error()
 
 *        **** exit loop early ****
@@ -186,7 +179,6 @@ c         call flush(6)
 *        **** get the new gradient - also updates densities****
          call cpsi_1get_Tgradient(G1_tag,E0)
 
-c         call BGrsm_fff_Sub_tag(G1_tag,G0_tag,G0_tag)
 
          sum0  = sum1
 
@@ -222,6 +214,7 @@ c         call BGrsm_fff_Sub_tag(G1_tag,G0_tag,G0_tag)
 *     **** compute A,B,C, <S0|H|S0>, <U|H|S0> and <U|H|U> matrices ****
       call c_geodesic_ABC_start(Ermdr,Y,U,HY,HU)
 
+
 *     ******* line search *********
       if (tmin.gt.0.0d0) then
          deltat = tmin
@@ -239,7 +232,7 @@ c     >                        tole,tmin,deltae,1)
      >                        tole,tmin,deltae,1)
 
       call cpsi_geodesic_final(tmin)
-
+      call cpsi_2toelectron()
       deltac = c_rho_error()
 
 *     **** free memory ****
@@ -248,10 +241,12 @@ c     >                        tole,tmin,deltae,1)
       call cpsi_data_pop_stack(G0_tag)
       call cpsi_data_pop_stack(H0_tag)
 
-      call geodesic_ABC_finalize()
+      call c_geodesic_ABC_finalize()
 
       call cpsi_2to1()
-      call cpsi_1toelectron() 
+      !call cpsi_1toelectron() 
+      call c_rho_2to1()
+      call c_dng_2to1()
       call cpsi_check()
 
       eion     = ewald_e()

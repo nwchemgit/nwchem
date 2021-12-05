@@ -376,6 +376,10 @@ c              scale = sum3/sum0
      >                        dcpl_mb(Y), dcpl_mb(U),
      >                        dcpl_mb(HY),dcpl_mb(HU))
 
+      eapc = geodesic_ABC_energy(0.0d0)
+      write(*,*) "ABC Ermdr=",Ermdr
+      write(*,*) "ABC Egeo =",eapc
+
 
 *     ******* line search *********
       if (tmin.gt.deltat_min) then
@@ -383,8 +387,6 @@ c              scale = sum3/sum0
       else
          deltat = deltat_min
       end if
-
-c      Eold = psi_geodesic_energy(0.0d0)
       tmin0   = tmin
       deltae0 = deltae
       call nwpw_cosmo_fix_q()

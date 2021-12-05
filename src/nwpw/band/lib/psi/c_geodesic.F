@@ -1311,7 +1311,7 @@ c         tGshift   = cpsi_data_get_chnk(  tG_tag,nb)
       logical  Pneb_w_allocate_block
       external Pneb_w_allocate_block
 
-      if (.not.Pneb_w_allocate_block(0,0,4,ABC))
+      if (.not.Pneb_w_allocate_block(0,0,3,ABC))
      >   call errquit('c_geodesic_ABC_init:alloc ABC',0,MA_ERR)
       return
       end
@@ -1367,12 +1367,15 @@ c         tGshift   = cpsi_data_get_chnk(  tG_tag,nb)
       parameter (zero=(0.0d0,0.0d0), one=(1.0d0,0.0d0))
 
       integer nb,ms,ishift,A,Bdag,C,tmp1(2),nbrillq,npack1
+      real*8 etmp,weight
 
 *     **** external functions ****
       logical  Pneb_w_push_get,Pneb_w_pop_stack
       external Pneb_w_push_get,Pneb_w_pop_stack
       integer  Pneb_w_size,cpsi_data_get_allptr,cpsi_nbrillq
       external Pneb_w_size,cpsi_data_get_allptr,cpsi_nbrillq
+      real*8   c_electron_eorbit,brillioun_weight
+      external c_electron_eorbit,brillioun_weight
 
       Ermdr = Ermdr0
       call Cram_max_npack(npack1)
@@ -1387,12 +1390,13 @@ c         tGshift   = cpsi_data_get_chnk(  tG_tag,nb)
      >   call errquit('c_geodesic_ABC_start:stack',0,MA_ERR)
       
 *     **** Copy Hpsi_k to HY then ****
-*     ****   generate Hpsi using psi_k=U and copy Hpsi_k to HU ****
+*     **** generate Hpsi using psi_k=U and copy Hpsi_k to HU ****
       call c_electron_get_Hpsi_k(HY_tag)
       do nb=1,nbrillq
          call c_electron_run0(nb,Z_tag)
       end do
       call c_electron_get_Hpsi_k(HZ_tag)
+
 
 *     **** generate A=<Y|HY>, Bdag=<U|HY>, C=<U|HU> matrices ****
       call Pneb_ffw_hermit_Multiply(0,0,
@@ -1430,6 +1434,7 @@ c         tGshift   = cpsi_data_get_chnk(  tG_tag,nb)
 
       if (.not.Pneb_w_pop_stack(tmp1))
      >   call errquit('c_geodesic_ABC_start:pop',1,MA_ERR)
+
       return
       end
 
@@ -1459,7 +1464,7 @@ c         tGshift   = cpsi_data_get_chnk(  tG_tag,nb)
       logical value
       integer ishift,A,Bdag,C,nemax,nbrillq
       integer tmp1(2),tmp2(2),tmp3(2),tmpC(2),tmpS(2),tmp4(2)
-      real*8  energy
+      real*8  energy,etmp
 
 *     **** external functions ****
       logical  Pneb_w_push_get,Pneb_w_pop_stack
@@ -1508,19 +1513,17 @@ c         tGshift   = cpsi_data_get_chnk(  tG_tag,nb)
      >                        dcpl_mb(tmp2(1)),
      >                        zero,
      >                        dcpl_mb(tmp4(1)))
-
 *     **** V*cos*A*cos*V' ****
       call Pneb_www_Multiply2(0,0,one,
      >                        dcpl_mb(tmp1(1)),
      >                        dcpl_mb(A),
      >                        zero,
      >                        dcpl_mb(tmp2(1)))
-      call Pneb_www_Multiply1(0,0,1.0d0,
+      call Pneb_www_Multiply1(0,0,one,
      >                        dcpl_mb(tmp2(1)),
      >                        dcpl_mb(tmp1(1)),
      >                        one,
      >                        dcpl_mb(tmp4(1)))
-
 *     **** V*sin*B'*cos*V' ****
       call Pneb_www_Multiply2(0,0,one,
      >                        dcpl_mb(tmp3(1)),
@@ -1545,8 +1548,7 @@ c         tGshift   = cpsi_data_get_chnk(  tG_tag,nb)
      >                        one,
      >                        dcpl_mb(tmp4(1)))
 
-
-      call Pneb_w_trace(0,0,dcpl_mb(tmp4(1)),energy)
+      call Pneb_w_trace_weight(0,0,dcpl_mb(tmp4(1)),energy)
       if (cpsi_ispin().eq.1) energy = energy+energy
 
 *     **** pop stack space ****
@@ -1608,12 +1610,12 @@ c         tGshift   = cpsi_data_get_chnk(  tG_tag,nb)
       nbrillq = cpsi_nbrillq()
 
 *     **** push stack space ****
-      value =           Pneb_w_push_get(0,CV)
-      value = value.and.Pneb_w_push_get(0,SV)
-      value = value.and.Pneb_w_push_get(0,SSV)
-      value = value.and.Pneb_w_push_get(0,CSV)
-      value = value.and.Pneb_w_push_get(0,tmp1)
-      value = value.and.Pneb_w_push_get(0,tmp4)
+      value =           Pneb_w_push_get(0,0,CV)
+      value = value.and.Pneb_w_push_get(0,0,SV)
+      value = value.and.Pneb_w_push_get(0,0,SSV)
+      value = value.and.Pneb_w_push_get(0,0,CSV)
+      value = value.and.Pneb_w_push_get(0,0,tmp1)
+      value = value.and.Pneb_w_push_get(0,0,tmp4)
       value = value.and.
      >        BA_push_get(mt_dbl,nbrillq*nemax,'tmpC',tmpC(2),tmpC(1))
       value = value.and.
@@ -1648,8 +1650,7 @@ c         tGshift   = cpsi_data_get_chnk(  tG_tag,nb)
      >                        zero,
      >                        dcpl_mb(tmp4(1)))
 
-      call Pneb_w_trace(0,0,dcpl_mb(tmp4(1)),denergyA)
-      denergy = -denergyA
+      call Pneb_w_trace_weight(0,0,dcpl_mb(tmp4(1)),denergyA)
 
 *     ****  V*cos*B*cos*S*V' ****
       call Pneb_www_Multiply2(0,0,one,
@@ -1663,7 +1664,7 @@ c         tGshift   = cpsi_data_get_chnk(  tG_tag,nb)
      >                        zero,
      >                        dcpl_mb(tmp4(1)))
 
-      call Pneb_w_trace(0,0,dcpl_mb(tmp4(1)),denergyB)
+      call Pneb_w_trace_weight(0,0,dcpl_mb(tmp4(1)),denergyB)
       denergy = denergy + denergyB
 
 
@@ -1736,7 +1737,7 @@ c         tGshift   = cpsi_data_get_chnk(  tG_tag,nb)
      >                        one,
      >                        dcpl_mb(tmp4(1)))
 
-      call Pneb_w_trace(0,0,dcpl_mb(tmp4(1)),denergyC)
+      call Pneb_w_trace_weight(0,0,dcpl_mb(tmp4(1)),denergyC)
       denergy = denergy + denergyC
       if (cpsi_ispin().eq.1) denergy = denergy+denergy
 
