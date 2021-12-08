@@ -43,5 +43,7 @@ c
       if (.not.bas_destroy(ihdl_bfao)) 
      +    call errquit(pname//'failed to destroy basis set')
 c
+      call tddft_finalize_fit()
+c
       end
 c $Id$
