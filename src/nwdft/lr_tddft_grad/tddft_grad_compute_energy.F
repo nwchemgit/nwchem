@@ -4,7 +4,7 @@ c     HvD 9/2006, NG 11/2012, DS 1/2013
 c
       subroutine tddft_grad_compute_energy(rtdb,ihdl_geom,ihdl_bfao,
      +  tol2e,tda,ipol,nao,nfc,naoc,nocc,nav,nfv,
-     +  nroot,o_eig,g_mo,g_xpy,g_xmy,kfac,lhashf,otriplet)
+     +  nroot,o_eig,g_mo,g_xpy,g_xmy,kfac,lhashf,otriplet,lhascd)
 c
 c     This subroutine simply evaluates the TDDFT energy using the
 c     information read in. The energy expression evaluated is
