@@ -48,6 +48,7 @@ c
       logical tda                       ! True if Tamm-Dancoff approximation
       logical singlet                   ! True if singlet excited states
       logical triplet                   ! True if triplet excited states
+      logical lhascd
       integer nroots           ! Number of roots sought
       integer maxvecs          ! Maximum number of trial vectors
       integer maxiter          ! Maximum number of Davidson iterations
@@ -134,7 +135,7 @@ c
      4  tda,singlet,triplet,nroots,maxvecs,tol2e,thresh,
      5  maxiter,target,targetsym,symmetry,algorithm,g_movecs,
      6  l_evl,k_evl,l_occ,k_occ,l_irs,k_irs,mult,lecut,ecut,diff_max,
-     7  lowin,owstart,owend,lewin,ewinl,ewinh,vshift)
+     7  lowin,owstart,owend,lewin,ewinl,ewinh,vshift,lhascd)
 
       if (lhasdft) then
         if (.not.rtdb_get(rtdb,'bgj:xc_active',mt_log,1,
@@ -400,7 +401,7 @@ c     1 g_bigvp(i),1,nov(i),ideg,ideg)
      1  nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_prod_p,g_prod_m,
      3  g_movecs,dbl_mb(k_evl),1,nproducts,
      4  tda,oskel,singlet,triplet,tol2e,xfac(1),lhashf,thresh,
-     5  target,targetsym,algorithm,mult,l_irs,k_irs,1)
+     5  target,targetsym,algorithm,mult,l_irs,k_irs,1,lhascd)
 
 cc        call ga_print(g_prod_p)
 

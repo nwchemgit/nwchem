@@ -59,6 +59,7 @@ c
       logical otriplet      ! =.true.  triplet excited states
                             ! =.false. singlet excited states
                             ! value does not matter for TDUDFT
+      logical lhascd
 c
       double precision kfac       ! the weight of the Hartree-Fock
                                   ! exchange contributions
@@ -174,9 +175,11 @@ c
       endif
 c
       call tddft_nga_cont(rtdb,ihdl_geom,ihdl_bfao,g_x,g_apbx,g_ambx,
-     +     nao,ipol,tol2e,tda,oskel,kfac,lhashf,otriplet,nroot,iwhich)
+     +     nao,ipol,tol2e,tda,oskel,kfac,lhashf,otriplet,nroot,iwhich,
+     +     lhascd)
       call tddft_nga_cont(rtdb,ihdl_geom,ihdl_bfao,g_y,g_apby,g_amby,
-     +     nao,ipol,tol2e,tda,oskel,kfac,lhashf,otriplet,nroot,iwhich)
+     +     nao,ipol,tol2e,tda,oskel,kfac,lhashf,otriplet,nroot,iwhich,
+     +     lhascd)
 c
 c     Dispose of X and Y
 c

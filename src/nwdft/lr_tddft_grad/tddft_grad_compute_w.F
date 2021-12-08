@@ -43,6 +43,7 @@ c
       logical otriplet  ! =.true.  triplet excited states
                         ! =.false. singlet excited states
                         ! value does not matter for TDUDFT
+      logical lhascd
 c
       double precision kfac          ! the weight of the Hartree-Fock
                                      ! exchange contributions
@@ -472,7 +473,8 @@ c fock_xc:triplet here for restricted triplet calculations to work.
      1    call errquit(pname//'failed to set triplet',0,RTDB_ERR)
       endif
       call tddft_nga_cont(rtdb,ihdl_geom,ihdl_bfao,g_puv,g_apbp,g_ambp,
-     +     nao,ipol,tol2e,tda,oskel,kfac,lhashf,.false.,nroots,iwhich)
+     +     nao,ipol,tol2e,tda,oskel,kfac,lhashf,.false.,nroots,iwhich,
+     +     lhascd)
 c Daniel (2-26-13): Reset fock_xc:triplet here for restricted triplet 
 c calculations to work.
       if (otriplet) then
@@ -768,9 +770,11 @@ c the global one.
         endif
       endif
       call tddft_nga_cont(rtdb,ihdl_geom,ihdl_bfao,g_x,g_apbx,g_ambx,
-     +   nao,ipol,tol2e,tdaloc,oskel,kfac,lhashf,otriplet,nroots,iwhich)
+     +   nao,ipol,tol2e,tdaloc,oskel,kfac,lhashf,otriplet,nroots,iwhich,
+     +   lhascd)
       call tddft_nga_cont(rtdb,ihdl_geom,ihdl_bfao,g_y,g_apby,g_amby,
-     +   nao,ipol,tol2e,tdaloc,oskel,kfac,lhashf,otriplet,nroots,iwhich)
+     +   nao,ipol,tol2e,tdaloc,oskel,kfac,lhashf,otriplet,nroots,iwhich,
+     +   lhascd)
 c
 c     - Dispose of X and Y
 c

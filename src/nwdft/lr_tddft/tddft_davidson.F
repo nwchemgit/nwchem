@@ -3,7 +3,8 @@
      2  g_buffer1,g_buffer2,d_trials,d_prod_p,d_prod_m,
      3  g_movecs,evl,ntrials,nproducts,
      4  tda,oskel,singlet,triplet,tol2e,kfac,lhashf,thresh,
-     5  maxiter,target,targetsym,algorithm,mult,l_irs,k_irs)
+     5  maxiter,target,targetsym,algorithm,mult,l_irs,k_irs,
+     6  lhascd)
 c
 c $Id$
 c
@@ -130,6 +131,7 @@ c
       logical singlet          ! True if singlet excited states
       logical triplet          ! True if triplet excited states
       logical oskel            ! True if use symmetry in fock_2e
+      logical lhascd           ! True if a CD basis is available
       double precision tol2e   ! 2-e integral tolerance
       double precision kfac    ! Prefactor for HF exchange contribution
       logical lhashf           ! True if XC has HF contribution
@@ -414,7 +416,7 @@ c ---------------------------------------------------------
 c
           call tddft_nga_cont(rtdb,geom,ao_bas_han,
      1      g_ntrl,g_nprd_p,g_nprd_m,nbf_ao,ipol,tol2e,tda,oskel,kfac,
-     2      lhashf,triplet,nvectors,iwhich)
+     2      lhashf,triplet,nvectors,iwhich,lhascd)
           ccpu=ccpu+util_cpusec()
           cwall=cwall+util_wallsec()
           if (nodezero.and.util_print('timings',print_high))
@@ -617,7 +619,7 @@ c ---------------------------------------------------------
 c
             call tddft_contract(rtdb,geom,ao_bas_han,
      1        g_td,g_pd,g_qd,nbf_ao,ipol,tol2e,tda,oskel,kfac,
-     2        lhashf,triplet)
+     2        lhashf,triplet,lhascd)
             ccpu=ccpu+util_cpusec()
             cwall=cwall+util_wallsec()
             if (nodezero.and.util_print('timings',print_high))
