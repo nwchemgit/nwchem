@@ -1911,7 +1911,6 @@ endif
        ifneq ($(DONTHAVEM64OPT),Y)
          FOPTIONS   = -m64
        endif
-        COPTIONS += -Wall
        ifdef  USE_FPE
          FOPTIONS += -ffpe-trap=invalid,zero,overflow  -fbacktrace
        else
@@ -1919,8 +1918,10 @@ endif
        endif
 	ifeq ($(V),-1)
         FOPTIONS += -w
+        COPTIONS += -w
         else
         FOPTIMIZE  += -Wuninitialized
+        COPTIONS += -Wall
         ifndef USE_FLANG
         FOPTIMIZE  += -Wno-maybe-uninitialized
         endif
