@@ -1997,6 +1997,12 @@ endif
         else
              FOPTIONS += -s integer64
         endif
+      else ifeq ($(_FC),frt)
+       ifdef USE_I4FLAGS
+         FOPTIONS += -CcdLL8
+       else
+         FOPTIONS += -CcdLL8 -CcdII8
+       endif
       else
         ifdef USE_I4FLAGS
              FOPTIONS += -i4
@@ -2485,6 +2491,13 @@ ifeq ($(_CPU),$(findstring $(_CPU),aarch64))
     endif
   endif
 
+  ifeq ($(_CC),fcc)
+    COPTIONS += -O3
+    ifdef USE_OPENMP
+      COPTIONS += -Kopenmp
+    endif
+  endif
+
   ifeq ($(_FC),gfortran)
     ifdef  USE_GPROF
       FOPTIONS += -pg
@@ -2528,6 +2541,23 @@ ifeq ($(_CPU),$(findstring $(_CPU),aarch64))
       FOPTIONS += -ffpe-trap=invalid,zero,overflow  -fbacktrace
     endif
   endif  # end of gfortran
+
+  # A64fx
+  ifeq ($(FC),frt)
+
+    DEFINES += -DFUJITSU
+    FOPTIONS += -fs
+
+    LINK.f = $(FC)  $(LDFLAGS)
+    FOPTIMIZE  = -O3
+
+    ifeq ($(V),1)
+    $(info     FUJITSU FOPTIMIZE = ${FOPTIMIZE})
+    endif
+
+    FDEBUG += -g -O
+
+  endif
 
   ifeq ($(FC),armflang)
 
