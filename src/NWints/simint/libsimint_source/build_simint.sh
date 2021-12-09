@@ -40,7 +40,7 @@ GOTAVX512=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /avx512f/{print "Y"}')
 if [[ -n "${SIMINT_VECTOR}" ]]; then
       VEC=${SIMINT_VECTOR}
 elif [[ "${GOTAVX512}" == "Y" ]]; then
-    VEC=avx512
+    VEC=commonavx512
 elif [[ "${GOTAVX2}" == "Y" ]]; then
     VEC=avx2
 elif [[ "${GOTAVX}" == "Y" ]]; then
@@ -79,7 +79,8 @@ GITHUB_USERID=edoapra
 #rm -rf simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIVE}* *-chem-simint-generator-?????? simint-chem-simint-generator.tar.gz simint_lib
 rm -rf simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIVE}* *-chem-simint-generator-?????? simint_lib
 
-GITHUB_URL=https://github.com/${GITHUB_USERID}/simint-generator/tarball/master
+#GITHUB_URL=https://github.com/${GITHUB_USERID}/simint-generator/tarball/master
+GITHUB_URL=https://github.com/${GITHUB_USERID}/simint-generator/tarball/hangua1994-2021commits
 #GITHUB_URL=https://github.com/simint-chem/simint-generator/tarball/master
 TAR_NAME=simint-chem-simint-generator.tar.gz
 if [ -f  ${TAR_NAME} ]; then
@@ -93,43 +94,6 @@ fi
 fi
 tar xzf simint-chem-simint-generator.tar.gz
 cd *-simint-generator-???????
-rm -f generator_types.patch
-cat > generator_types.patch <<EOF
---- simint-chem-simint-generator-c589bd7/generator/CommandLine.hpp	2018-12-11 10:48:31.000000000 -0800
-+++ modif/generator/CommandLine.hpp	2019-09-17 09:25:45.000000000 -0700
-@@ -10,6 +10,7 @@
- 
- #include <vector>
- #include "generator/Options.hpp"
-+#include "generator/Types.hpp"
- 
- 
- /*! \brief Get the next argument on the command line
---- simint-chem-simint-generator-c589bd7/skel/simint/vectorization/intrinsics_avx512.h.org	2019-09-19 23:15:32.768327180 -0700
-+++ modif/skel/simint/vectorization/intrinsics_avx512.h	2019-09-19 23:15:49.232376802 -0700
-@@ -207,7 +207,7 @@
-         return u.v;
-     }
-     
--    #define SIMINT_PRIM_SCREEN_STAT
-+    #define SIMINT_PRIM_SCREEN_STAT__
-     static inline
-     int count_prim_screen_survival(__m512d screen_val, const double screen_tol)
-     {
-edo@durian:~/nwchem/nwchem-master/src/NWints/simint/libsimint_source/edoapra-simint-generator-f690e3a$ diff -u skel/simint/vectorization/intrinsics_avx.h.org skel/simint/vectorization/intrinsics_avx.h 
---- simint-chem-simint-generator-c589bd7/skel/simint/vectorization/intrinsics_avx.h.org	2019-09-19 23:16:00.400410460 -0700
-+++ modif/skel/simint/vectorization/intrinsics_avx.h	2019-09-19 23:16:11.060442586 -0700
-@@ -216,7 +216,7 @@
-         return u.v;
-     }
-     
--    #define SIMINT_PRIM_SCREEN_STAT
-+    #define SIMINT_PRIM_SCREEN_STAT__
-     static inline
-     int count_prim_screen_survival(__m256d screen_val, const double screen_tol)
-     {
-EOF
-patch -p1 < ./generator_types.patch
 pwd
 mkdir -p build; cd build
 if [[ -z "${MYCMAKE}" ]]; then
