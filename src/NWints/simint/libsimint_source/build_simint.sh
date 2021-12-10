@@ -79,8 +79,8 @@ GITHUB_USERID=edoapra
 #rm -rf simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIVE}* *-chem-simint-generator-?????? simint-chem-simint-generator.tar.gz simint_lib
 rm -rf simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIVE}* *-chem-simint-generator-?????? simint_lib
 
-#GITHUB_URL=https://github.com/${GITHUB_USERID}/simint-generator/tarball/master
-GITHUB_URL=https://github.com/${GITHUB_USERID}/simint-generator/tarball/hangua1994-2021commits
+GITHUB_URL=https://github.com/${GITHUB_USERID}/simint-generator/tarball/master
+#GITHUB_URL=https://github.com/${GITHUB_USERID}/simint-generator/tarball/hangua1994-2021commits
 #GITHUB_URL=https://github.com/simint-chem/simint-generator/tarball/master
 TAR_NAME=simint-chem-simint-generator.tar.gz
 if [ -f  ${TAR_NAME} ]; then
