@@ -80,7 +80,6 @@ GITHUB_USERID=edoapra
 rm -rf simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIVE}* *-chem-simint-generator-?????? simint_lib
 
 GITHUB_URL=https://github.com/${GITHUB_USERID}/simint-generator/tarball/master
-#GITHUB_URL=https://github.com/${GITHUB_USERID}/simint-generator/tarball/hangua1994-2021commits
 #GITHUB_URL=https://github.com/simint-chem/simint-generator/tarball/master
 TAR_NAME=simint-chem-simint-generator.tar.gz
 if [ -f  ${TAR_NAME} ]; then
@@ -130,7 +129,15 @@ if [[ ! -z "${PYTHONHOME}" ]]; then
     unset PYTHONHOME
     echo 'PYTHONOME unset'
 fi
-time -p ./create.py -g build/generator/ostei -l ${SIMINT_MAXAM} -p ${PERMUTE_SLOW} -d ${DERIV} ../simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}  -ve 4 -he 4 -vg 5 -hg 5 -n 3
+if [[ -z "${GENERATOR_PROCESSES}" ]]; then
+    GENERATOR_PROCESSES=3
+    #parallel processing broken for g++-10 and later (at least on macos)
+    if [[ $(expr `${CXX} -dumpversion | cut -f1 -d.` \> 9) == 1 ]]; then
+	GENERATOR_PROCESSES=1
+    fi
+fi
+echo GENERATOR_PROCESSES is ${GENERATOR_PROCESSES}
+time -p ./create.py -g build/generator/ostei -l ${SIMINT_MAXAM} -p ${PERMUTE_SLOW} -d ${DERIV} ../simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}  -ve 4 -he 4 -vg 5 -hg 5 -n ${GENERATOR_PROCESSES}
 if [[ ! -z "${PYTHONHOME}" ]]; then
     export PYTHONHOME=${PYTHONHOMESET}
     unset PYTHONHOMESET
