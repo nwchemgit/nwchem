@@ -17,7 +17,7 @@
       GWTYP, intent(out) :: I,dI
 
       integer igl,jmo,mynmo
-      GWTYP,dimension(iwidx(0)) :: etavec
+      double complex,dimension(iwidx(0)) :: etavec
       double precision          :: vector(iwidx(0))
 
       double complex             :: iomega, factor, res(2), tmp(2)
@@ -33,7 +33,7 @@
 
       do jmo=1,mynmo
         vector(jmo) = omega - Evals(iwidx(jmo))
-        etavec(jmo) = sign(1d0,evals(iwidx(jmo)))*ieta
+        etavec(jmo) = sign(1d0,evals(iwidx(jmo)))*ieta*0d0
       enddo
 
 !$omp parallel do private(iomega,jmo,factor) reduction(+:res)

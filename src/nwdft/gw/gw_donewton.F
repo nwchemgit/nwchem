@@ -13,6 +13,9 @@
       z = -1.0d0/idfx
       step = z*fx
       pole = .false.
+#ifdef GWDEBUG
+      write(*,*) z
+#endif
 
       ! when dfx is positive, we are sitting on a pole
       ! perhaps we should do somehting to get out of it
@@ -21,7 +24,7 @@
       endif  
 
       !take full newton step for large enough z
-      if (z.gt.0.3d0 .and. z.le.1d0 ) then 
+      if (z.gt.0.4d0 .and. z.le.1d0 ) then 
         xout = xin + step
 
       ! when we have bracketed the solution, the
@@ -37,7 +40,7 @@
         endif
 
       elseif (z.gt.0.1d0) then
-        xout = xin + 0.80d0*step
+        xout = xin + 0.60d0*step
       else
         xout = xin + radius*fx
 

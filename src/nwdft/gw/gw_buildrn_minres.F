@@ -52,7 +52,7 @@
       logical main, ok, parallel_diag
       logical, external :: is_near
 
-      double precision, parameter :: shift = 0.00001d0
+      double precision, parameter :: shift = 0.0001d0
       double complex :: w, R1, dR1
       double complex :: ieta
 
@@ -128,6 +128,7 @@
         endif
 
         if (is_near(eig(jmo),omega,shift)) then
+          cycle
           fac = sgn*0.5d0
           arg = 0d0
         else

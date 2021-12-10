@@ -106,9 +106,9 @@
 
           if (eviter.lt.3) then
             if (myul.lt.ulqp) then
-              Eout = Enew(llmo+iqp,isp)
+              Eout = Enew(llmo+iqp,isp) + 0.001d0
             elseif (myll.gt.llqp) then
-              Eout = Enew(llmo+iqp-2,isp)
+              Eout = Enew(llmo+iqp-2,isp) - 0.001d0
             endif
           endif
 
