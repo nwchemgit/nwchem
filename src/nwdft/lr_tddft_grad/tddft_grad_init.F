@@ -170,7 +170,6 @@ c      if (.not.int_normalize(rtdb,ihdl_bfao))
 c     +  call errquit(pname//'int_normalize failed',0, BASIS_ERR)
       if (.not.bas_numbf(ihdl_bfao,nao))
      +  call errquit(pname//'bas_numbf failed',0, BASIS_ERR)
-      write(*,*) ga_nodeid(),ihdl_bfao,lhascd
 c
 c     get XC functionals
       if (.not.rtdb_get(rtdb,'dft:xfac',mt_dbl,numfunc,xfac))

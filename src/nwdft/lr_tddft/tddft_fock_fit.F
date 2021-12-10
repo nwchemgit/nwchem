@@ -10,6 +10,7 @@ c
 #include "global.fh"
 #include "schwarz.fh"
 #include "sym.fh"
+#include "util.fh"
 
       integer ndens
       integer nder
@@ -53,36 +54,43 @@ c
 
       double precision threshold, az, shmax, cd_coef_max
       double precision pmat_max,eri_est,fac,vcoul_est,q1,qscale,qsym
+      double precision maxf, t0
 
       integer,external :: nxtask_static, nxtask
       double precision, external :: ddot, dabsmax
 
+      ! GA information
       me = ga_nodeid()
+      nproc  = ga_nnodes()
+
+      ! Whether we read or not CDINV from disk
       iolgc = noio.ne.1
 
-      nproc  = ga_nnodes()
-      THRESHOLD = 10.d0**(-itol2e)
+      ! Integral screening threshold
+      THRESHOLD = 10.d0**(-itol2e-2)
 
+      ! Initialize Fock matrices
       call ga_zero(g_fock)
 
+      ! Skip ERIs and go straight to XC part
       if (sum(abs(jfac(1:ndens))).eq.0d0) goto 100
 
-
+      ! Memory allocation
       if(.not.MA_Push_Get(MT_Dbl,nbf_cd*ndens,'Tvec',lTvec,iTvec))
-     &  call errquit('dft_fitcd: cannot allocate Tvec',0, MA_ERR)
+     &  call errquit('tddft_fock_fit: cannot allocate Tvec',0, MA_ERR)
       call dcopy(nbf_cd*ndens, 0.D0, 0, Dbl_MB(iTvec), 1)
       if(.not.MA_Push_Get(MT_Dbl,nbf_cd*ndens,'CDCvec',lcdc,icdc))
-     &  call errquit('dft_fitcd: cannot allocate CDCvec',0, MA_ERR)
+     &  call errquit('tddft_fock_fit: cannot allocate CDCvec',0, MA_ERR)
       call dcopy(nbf_cd*ndens, 0.D0, 0, Dbl_MB(icdc), 1)
 
       Nao2 = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
       if(.not.MA_Push_Get(MT_Dbl,Nao2*ndens,'gather vector',l_p,k_p))
-     &  call errquit('dft_fitcd: cannot allocate gather vector',0,
+     &  call errquit('tddft_fock_fit: cannot allocate gather vector',0,
      &       MA_ERR)
       Nao2 = nbf_ao_mxnbf_cn*nbf_ao_mxnbf_cn
       if(.not.MA_Push_Get(MT_Dbl,Nao2*ndens,'gathervector',
      &        lgvec,igvec))
-     &  call errquit('dft_fitcd: cannot allocate gather vector',0,
+     &  call errquit('tddft_fock_fit: cannot allocate gather vector',0,
      &       MA_ERR)
 
       call int_mem_2e3c(maxg, mscratch_2e3c)
@@ -92,123 +100,125 @@ c
       if(.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
      &  call errquit('dft_fitcd: cannot allocate scr',0, MA_ERR)
 
+      ! Limits for NGA_put and NGA_get
+      lo(1) = 1
+      hi(1) = ndens
+      ld(1) = ndens
+
+      ! Part 1. Contract 3c-ERIs with density matrices
+      t0 = util_wallsec()
       icount = 0
       n1 = nxtask_static(nproc,1)
-
       do atom_c=1,ncenters
         if (.not. bas_ce2cnr( AO_bas_han, atom_c, sh_lo_c, sh_hi_c)) 
-     &       call errquit('Exiting in dft_fitcd',110, BASIS_ERR)
+     &       call errquit('Exiting in tddft_fock_fit',110, BASIS_ERR)
         if (.not. bas_ce2bfr( AO_bas_han, atom_c, bf_lo_c, bf_hi_c)) 
-     &       call errquit('Exiting in dft_fitcd',110, BASIS_ERR)
+     &       call errquit('Exiting in tddft_fock_fit',110, BASIS_ERR)
         nbf_at_c=bf_hi_c - bf_lo_c + 1
 
         do atom_d=1,atom_c
           dowork=n1.eq.icount
-          if(dowork) then
 
-            if (.not.bas_ce2bfr(AO_bas_han,atom_d,bf_lo_d,bf_hi_d)) 
-     &       call errquit('Exiting in dft_fitcd',110, BASIS_ERR)
-            if (.not.bas_ce2cnr(AO_bas_han,atom_d,sh_lo_d,sh_hi_d)) 
-     &       call errquit('Exiting in dft_fitcd',110, BASIS_ERR)
-            nbf_at_d=bf_hi_d - bf_lo_d + 1
-
-c     get DM atom block
-            size_atblock= nbf_at_d*nbf_at_c
-            do idens = 1, ndens
-               lo(1:3) = (/ idens, bf_lo_d, bf_lo_c /)
-               hi(1:3) = (/ idens, bf_hi_d, bf_hi_c /)
-               ld(1:2) = (/ 1, bf_hi_d - bf_lo_d + 1 /)
-               call nga_get(g_dens,lo,hi,
-     .              dbl_mb(k_p+(idens-1)*size_atblock),ld)
-            enddo
-            icount_c=0
-            do ishc = sh_lo_c,sh_hi_c
-               if (.not. bas_cn2bfr(AO_bas_han,ishc,ifirstc,ilastc)) 
-     &          call errquit('Exiting in dft_fitcd',111, BASIS_ERR)
-               nshbfc = ilastc-ifirstc+1
-
-               icount_d=0
-               do ishd =  sh_lo_d, sh_hi_d
-c
-                 if (.not. bas_cn2bfr(AO_bas_han,ishd,ifirstd,ilastd))
-     &             call errquit('Exiting in dft_fitcd',1111, BASIS_ERR)
-                 nshbfd = ilastd-ifirstd+1
-c
-c                Screen integral blocks using the Schwarz inequality:  (p|cd) .le. (cd|cd)
-c
-                 ERI_est = schwarz_shell(ishc,ishd)
-                 if(ERI_est .gt.THRESHOLD) then
-                   Nao2 = nshbfd*nshbfc
-                   pmat_max=1d0
-
-                   do idens = 1, ndens
-                     call dft_copyfrom(
-     I                     nbf_at_d,nshbfd,nshbfc,
-     I                     dbl_mb(k_p+(idens-1)*size_atblock),
-     $                     dbl_mb(igvec+(idens-1)*Nao2),
-     A                     icount_d,icount_c)
-                   enddo
-c     
-c                 Determine the maximum density matrix element for this product of AO shells.
-c     
-                   Pmat_max = dabsmax(Nao2*ndens,DBL_MB(igvec))
-                   if( Pmat_max*ERI_est.gt.THRESHOLD*1d-3 )then
-
-                     istart = iERI
-                     call dcopy(nao2*nbf_cd,0d0,0,dbl_mb(istart),1)
-
-                     fac = 2.0d0
-                     if(atom_c.eq.atom_d) fac = 1.d0
-
-                     do ishp = 1,nshells_cd
-c                  
-c                   Compute 3-ctr ERIs between a given pair of AO shells and a CD shell.
-c                  
-                       if (.not.bas_cn2bfr(CD_bas_han,ishp,ifirstp,
-     .                                    ilastp))
-     &                    call errquit('fitcd.',5, BASIS_ERR)
-                       nshbfp = ilastp-ifirstp+1
-c                  
-                       nintegrals = nshbfp*Nao2
-                       Ninteg_api = maxg
-c
-                       q1=1.d0
-                       doshell=.true.
-                       if (doshell) then
-                          call int_2e3c(CD_bas_han,ishp,AO_bas_han,
-     I                             ishc,ishd,nscr,Dbl_MB(iscr),
-     N                             Ninteg_api,Dbl_MB(istart))
-                          call dscal(nintegrals,q1,dbl_mb(istart),1)
-                       else
-                          call dcopy(nintegrals,0d0,0,dbl_mb(istart),1)
-                       endif
-                       istart = istart+nintegrals
-c     
-                     enddo       !ishp
-                     do idens=1,ndens
-                       call dgemv('T',Nao2,nbf_cd,fac,dbl_mb(ieri),
-     .                             nao2,dbl_mb(igvec+(idens-1)*nao2),1,
-     T                            1.d0,dbl_mb(iTvec+(idens-1)*nbf_cd),1)
-                     enddo
-                   endif
-                 endif
-                 icount_d = icount_d + nshbfd
-              enddo
-              icount_c = icount_c  + nshbfc
-            enddo
-            n1 = nxtask_static(nproc,1)
+          ! Skip until assigned task
+          if(.not.dowork) then
+            icount = icount + 1
+            cycle
           endif
+
+          if (.not.bas_ce2bfr(AO_bas_han,atom_d,bf_lo_d,bf_hi_d)) 
+     &     call errquit('Exiting in tddft_fock_fit',110, BASIS_ERR)
+          if (.not.bas_ce2cnr(AO_bas_han,atom_d,sh_lo_d,sh_hi_d)) 
+     &     call errquit('Exiting in tddft_fock_fit',110, BASIS_ERR)
+          nbf_at_d=bf_hi_d - bf_lo_d + 1
+
+          ! Get DM block for current atom pair
+          size_atblock= nbf_at_d*nbf_at_c
+          lo(2:3) = (/ bf_lo_d, bf_lo_c /)
+          hi(2:3) = (/ bf_hi_d, bf_hi_c /)
+          ld(2) = nbf_at_d
+          call nga_get(g_dens,lo,hi,dbl_mb(k_p),ld)
+
+          icount_c=0
+          do ishc = sh_lo_c,sh_hi_c
+             if (.not. bas_cn2bfr(AO_bas_han,ishc,ifirstc,ilastc)) 
+     &        call errquit('Exiting in dft_fitcd',111, BASIS_ERR)
+             nshbfc = ilastc-ifirstc+1
+
+             icount_d=0
+             do ishd =  sh_lo_d, sh_hi_d
+c
+               if (.not. bas_cn2bfr(AO_bas_han,ishd,ifirstd,ilastd))
+     &           call errquit('Exiting in dft_fitcd',1111, BASIS_ERR)
+               nshbfd = ilastd-ifirstd+1
+c
+               ! First schwarz screening
+               ERI_est = schwarz_shell(ishc,ishd)
+               if(ERI_est.lt.THRESHOLD) then
+                 icount_d = icount_d + nshbfd
+                 cycle
+               endif
+
+               ! Copy DM block for current shell pair
+               call tddft_copyfrom(ndens,nbf_at_d,nbf_at_c,nshbfd,
+     +          nshbfc,dbl_mb(k_p),dbl_mb(igvec),icount_d,icount_c)
+c     
+               Nao2 = nshbfd*nshbfc
+
+               ! Second Schwarz screening
+               Pmat_max = dabsmax(Nao2*ndens,DBL_MB(igvec))
+               if( Pmat_max*ERI_est.lt.THRESHOLD )then
+                 icount_d = icount_d + nshbfd
+                 cycle
+               endif
+
+               fac = 2.0d0
+               if(atom_c.eq.atom_d) fac = 1.d0
+
+               istart = iERI
+               do ishp = 1,nshells_cd
+c                  
+                 if (.not.bas_cn2bfr(CD_bas_han,ishp,ifirstp,ilastp))
+     &             call errquit('fitcd.',5, BASIS_ERR)
+                 nshbfp = ilastp-ifirstp+1
+c                  
+                 nintegrals = nshbfp*Nao2
+                 Ninteg_api = maxg
+c
+                 call int_2e3c(CD_bas_han,ishp,AO_bas_han,
+     I                           ishc,ishd,nscr,Dbl_MB(iscr),
+     N                           Ninteg_api,Dbl_MB(istart))
+                 istart = istart+nintegrals
+               enddo
+
+               ! Contract DM blocks with 3c-ERIs
+               call dgemm('T','N',nbf_cd,ndens,nao2,fac,
+     .               dbl_mb(ieri),nao2,dbl_mb(igvec),nao2,1d0,
+     .               dbl_mb(itvec),nbf_cd)
+
+               icount_d = icount_d + nshbfd
+            enddo
+            icount_c = icount_c  + nshbfc
+          enddo
+          n1 = nxtask_static(nproc,1)
           icount = icount + 1
         enddo
       enddo
-
       n1 = nxtask_static(-nproc,1)
+
 c
+      ! Collect results from all ranks
       call ga_mask_sync(.false.,.true.)
       call ga_dgop(1,dbl_mb(iTvec),nbf_cd*ndens,'+')
-c
       call ga_sync()
 
+      if (me.eq.0) then
+        write(*,'("Part 1: ",F12.3," s")') util_wallsec()-t0
+      endif
+
+      ! Part 2. Multiply by inverse metric
+
+      t0 = util_wallsec()
+      ! Read CDINV if necessary
       if (IOLGC)then
          if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERInv', 
      &                       nbf_cd, 0, g_cdinv)) 
@@ -221,9 +231,8 @@ c
         if(lmiss.ne.0)call errquit
      &       (' dft_fitcd; dft_invio - abnormal read of CDI ',0, GA_ERR)
       endif
-c
-c     Multiply T and cgtf by S**(-1) and store
-c
+
+      !Multiply T and by CDINV 
       call  ga_distribution(g_cdinv,me,ilo,ihi,jlo,jhi)
       if (ilo.gt.0) then
         call ga_access(g_cdinv, ilo, ihi, jlo, jhi, adrc, ldc)
@@ -237,21 +246,30 @@ c
           enddo
         enddo
         call ga_release(g_cdinv, ilo, ihi, jlo, jhi)
-      endif! own patch
+      endif
       call ga_mask_sync(.true.,.false.)
       call ga_dgop(1,dbl_mb(icdc),nbf_cd*ndens,'+')
-      if (.not.ga_destroy(g_cdinv))
-     $  call errquit("tddft_fock_fit: destroy GA",g_cdinv,GA_ERR) 
 
+      ! Destroy GA if necessary
+      if (iolgc) then
+        if (.not.ga_destroy(g_cdinv))
+     $    call errquit("tddft_fock_fit: destroy GA",g_cdinv,GA_ERR) 
+      endif
+
+      if (me.eq.0) then
+        write(*,'("Part 2: ",F12.3," s")') util_wallsec()-t0
+      endif
+
+      ! Obtain maximum values for all Shells
       if(.not.MA_Push_Get(MT_Dbl,nshells_cd,'CD shell max',
      &  lcd_shell,icd_shell))
-     &  call errquit('dft_fitvc: cannot allocate CD shell max',0,0)
+     &  call errquit('tddft_fock_fit: cannot allocate CD shell max',0,0)
 c
       CD_coef_max = 0.D0
       i1 = 1
       do  ishp = 1,nshells_cd
         if( .not. bas_cn2bfr(CD_bas_han,ishp,ishbf,lshbf) )then
-          call errquit('Exiting in fitvcoul.',4,0)
+          call errquit('tddft_fock_fit',4,0)
         end if
         shmax = 0.D0
         do i = ishbf,lshbf
@@ -263,6 +281,8 @@ c
         CD_coef_max = max(shmax, CD_coef_max)
       enddo
 
+      ! Part 3. Obtain Fock matrices
+      t0 = util_wallsec()
       icount = 0
       n1 = nxtask(nproc,1)
       do atom_c = 1,ncenters
@@ -284,6 +304,7 @@ c
                icount_c=0
 czero k_p
                call dcopy(nbf_at_d*nbf_at_c*ndens,0d0,0,dbl_mb(k_p),1)
+               maxf = 0d0
                do ishc=sh_lo_c,sh_hi_c
 
                   if( .not. bas_cn2bfr( AO_bas_han,ishc,ifirstc,ilastc))
@@ -297,115 +318,91 @@ czero k_p
                   icount_d=0
                   do ishd =  ishd_0,  ishd_1
                      
-                     if (.not. bas_cn2bfr( AO_bas_han, ishd, ifirstd, 
-     I                    ilastd))
-     &                    call errquit('Exiting in fitvcoul.',4,0)
-                     nshbfd=ilastd-ifirstd+1
-                     Nao2 = nshbfc*nshbfd
+                    if (.not. bas_cn2bfr( AO_bas_han, ishd, ifirstd, 
+     I                   ilastd))
+     &                   call errquit('Exiting in fitvcoul.',4,0)
+                    nshbfd=ilastd-ifirstd+1
+                    Nao2 = nshbfc*nshbfd
 c           
-c     Screen integral blocks using the Schwarz inequality:  (p|cd) .le. (cd|cd)
-c           
-                     ERI_est=schwarz_shell(ishc,ishd)
-                     if( ERI_est*CD_coef_max.gt.THRESHOLD )then
+                    ERI_est=schwarz_shell(ishc,ishd)
+                    if( ERI_est*CD_coef_max.lt.THRESHOLD )then
+                      icount_d = icount_d + nshbfd
+                      cycle
+                    endif
 
-                        v_nonzero=.true.
-                        qscale=1d0
-                        if(ishc.ne.ishd) qscale=2d0
-                           call dcopy(Nao2*ndens,0.D0,0,dbl_mb(igvec),1)
-                           nfunz=0
-                           do ishp = 1,nshells_cd
+                    v_nonzero=.true.
+                    qscale=1d0
+                    if(ishc.ne.ishd) qscale=2d0
+                    istart=ieri
+                    nfunz=0
+                    call dfill(nao2*ndens,0d0,dbl_mb(igvec),1)
+                    do ishp = 1,nshells_cd
 c     
-                              if( .not.bas_cn2bfr(CD_bas_han, ishp, 
-     I                             ifirstp, ilastp))
-     &                             call errquit('fitvc',0,BASIS_ERR)
-                              nshbf_cd=ilastp-ifirstp+1
-                              Vcoul_est=dbl_mb(icd_shell+ishp-1)*ERI_est
-                              if( Vcoul_est.gt.THRESHOLD )then
-                                 Ninteg_api=maxg
-c                  
-c     Compute 3-ctr ERIs between a given pair of AO shells and a CD shell.
-c     
-c     check for use of symmetry
-                                 qsym=1d0
-                                 doshell=.true.
-
-                                 if(doshell) then
-                                    call int_2e3c(CD_bas_han,ishp,
-     A                                   AO_bas_han,ishc,ishd,nscr,
-     D                                   Dbl_MB(iscr),Ninteg_api,
-     &                                   Dbl_MB(iERI))
-c     
-c     Multiply the matrix of 3-ctr ERIs by the CD expansion coefficients.
-c     
-                                    q1=qscale*qsym
-                                    do idens=1,ndens
-                                    call dgemv('N',Nao2,nshbf_cd,q1,
-     &                                   Dbl_MB(iERI),Nao2,
-     .                             dbl_mb(icdc+nfunz+(idens-1)*nbf_cd),
-     &                                   1,1.D0,
-     &                                   Dbl_MB(igvec+(idens-1)*nao2),1)
-                                    enddo
-                                 endif
-                              endif ! schw on VCoul_est
+                      if( .not.bas_cn2bfr(CD_bas_han, ishp, 
+     I                         ifirstp, ilastp))
+     &                         call errquit('fitvc',0,BASIS_ERR)
+                      nshbf_cd=ilastp-ifirstp+1
+                      Vcoul_est=dbl_mb(icd_shell+ishp-1)*ERI_est
+                      nintegrals = nao2*nshbf_cd
+                      if( Vcoul_est.gt.THRESHOLD )then
+                        Ninteg_api=maxg
+                        call int_2e3c(CD_bas_han,ishp,ao_bas_han,ishc,
+     A                            ishd,nscr,dbl_mb(iscr),ninteg_api,
+     &                            Dbl_MB(istart))
+                        call dgemm('N','N',nao2,ndens,
+     .                    nshbf_cd,qscale,dbl_mb(istart),nao2,
+     .                    dbl_mb(icdc+nfunz),nbf_cd,1d0,dbl_mb(igvec),
+     .                    nao2)
+                      endif ! schw on VCoul_est
 c
-                              nfunz=nfunz+nshbf_cd
+                      istart = istart + nintegrals
+                      nfunz=nfunz+nshbf_cd
 c               
-                           enddo ! ishp
+                    enddo ! ishp
 c
-c     Scatter the computed values of Vcoul.
-c           
+                    call tddft_copyto(ndens,nbf_at_d,nbf_at_c,
+     .                    nshbfd,
+     .                    nshbfc,dbl_mb(k_p),dbl_mb(igvec),icount_d,
+     .                    icount_c)
 
-                           do idens=1,ndens
-                           call dft_copyto(
-     I                          nbf_at_d,nshbfd,nshbfc,
-     I                          dbl_mb(k_p+(idens-1)*nbf_at_c*nbf_at_d),
-     .                          dbl_mb(igvec+(idens-1)*nao2),
-     A                          icount_d,icount_c)
-                           enddo
-                        endif   ! schwartz with cdmax
-
-                     icount_d=icount_d+nshbfd
+                    icount_d=icount_d+nshbfd
                   enddo         ! ishd
                   icount_c=icount_c+nshbfc
                enddo            ! ishc
-c     ga_put only if anything ever survived the schwarz scr
                
                if(v_nonzero) then
-                 do idens=1,ndens
-                    lo(1:3) = (/ idens, bf_lo_d, bf_lo_c /)
-                    hi(1:3) = (/ idens, bf_hi_d, bf_hi_c /)
-                    ld(1:2) = (/ 1, nbf_at_d /)
-                    call nga_put(g_fock, lo, hi,
-     B                dbl_mb(k_p+(idens-1)*nbf_at_d*nbf_at_c),ld)
-                 enddo
-               endif
-
-               n1 = nxtask(nproc,1)
+                 lo(2:3) = (/ bf_lo_d, bf_lo_c /)
+                 hi(2:3) = (/ bf_hi_d, bf_hi_c /)
+                 ld(2) = nbf_at_d
+                 call nga_put(g_fock,lo,hi,dbl_mb(k_p),ld)
+              endif
+              n1 = nxtask(nproc,1)
             endif
-c     
           icount = icount + 1
-c     
-       enddo                    ! atom_d
+        enddo                    ! atom_d
       enddo                     ! atom_c
 c
-c      lo(2) = 1
-c      lo(3) = 1
-c      hi(2) = nbf
-c      hi(3) = nbf
-c      do idens=1,ndens
-c         lo(1)=idens
-c         hi(1)=idens
-c         call nga_print_patch(g_fock,lo,hi,0)
-c      enddo
-c
+      ! Chop stack
       if(.not.ma_chop_stack(ltvec))
      &  call errquit('dft_fitcd: cannot pop stack',12, MA_ERR)
+
       n1 = nxtask(-nproc,1)
+      call ga_sync()
+
+      if (me.eq.0) then
+        write(*,'("Part 3: ",F12.3," s")') util_wallsec()-t0
+      endif
+
 
   100 continue
 
+      ! Part 4. XC 
+      t0 = util_wallsec()
       call xc_newfock(geom,ao_bas_han,jfac,jfac,nbf_ao,
      &        nder, ndens, ndens, g_fock,g_dens)
+      if (me.eq.0) then
+        write(*,'("Part 4: ",F12.3," s")') util_wallsec()-t0
+      endif
 
       call ga_mask_sync(.false.,.false.)
       call ga_symmetrize(g_fock)
@@ -427,4 +424,46 @@ c
         if (.not.ga_destroy(g_2ceri) .or. .not.ga_destroy(g_cdinv))
      $    call errquit("tddft: cannot destroy GAs",0,GA_ERR)   
       endif
+      end
+
+      subroutine tddft_copyfrom(nmat,ld1,ld2,row_sub,col_sub,mat,matsub,
+     $                          row_ptr,col_ptr)
+      implicit none
+      integer nmat, ld1, ld2, row_sub, col_sub
+      double precision mat(nmat,ld1,ld2), matsub(row_sub,col_sub,nmat)
+      integer row_ptr, col_ptr
+
+      integer imat,j,i
+
+      do imat=1,nmat
+      do j=1,col_sub
+      do i=1,row_sub
+        matsub(i,j,imat) = mat(imat,row_ptr+i,col_ptr+j)
+      enddo
+      enddo
+      enddo
+
+      end
+
+      subroutine tddft_copyto(nmat,ld1,ld2,row_sub,col_sub,mat,matsub,
+     $                        row_ptr,col_ptr)
+      implicit none
+      integer nmat, ld1, ld2, row_sub, col_sub
+c      double precision mat(ld1,ld2,nmat), matsub(row_sub,col_sub,nmat)
+      double precision mat(nmat,ld1,ld2), matsub(row_sub,col_sub,nmat)
+      integer row_ptr, col_ptr
+
+      integer imat,j,i
+
+c      do imat=1,nmat
+      do j=1,col_sub
+      do i=1,row_sub
+      do imat=1,nmat
+c        mat(row_ptr+i,col_ptr+j,imat) = matsub(i,j,imat)
+        mat(imat,row_ptr+i,col_ptr+j) = matsub(i,j,imat)
+      enddo
+      enddo
+      enddo
+c      enddo
+
       end

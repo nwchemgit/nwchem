@@ -190,8 +190,8 @@ c
       integer ispintag
       integer iwhich
 c
-      integer ga_create_atom_blocked
-      external ga_create_atom_blocked
+      integer ga_create_atom_blocked, ga_create3d_atom_blocked
+      external ga_create_atom_blocked, ga_create3d_atom_blocked
 c
       nodezero=(ga_nodeid().eq.0)
       iwhich = 0   ! call to tddft_nga_cont()
@@ -351,6 +351,7 @@ c
           idim(1)=ipol*nvectors
           idim(2)=nbf_ao
           idim(3)=nbf_ao
+#if 0
           ichunk(1)=ipol*nvectors
           ichunk(2)=-1
           ichunk(3)=-1
@@ -365,6 +366,16 @@ c
      1        ichunk,g_nprd_m)) call errquit
      2        ('tddft_davidson: failed to create g_nprd_m',0, GA_ERR)
           endif
+#else
+          g_ntrl=ga_create3d_atom_blocked(geom,ao_bas_han,'Work trial',
+     1      ipol*nvectors)
+          g_nprd_p=ga_create3d_atom_blocked(geom,ao_bas_han,
+     1             'Work product p',ipol*nvectors)
+          if (.not.tda) then
+            g_nprd_m=ga_create3d_atom_blocked(geom,ao_bas_han,
+     1             'Work product m',ipol*nvectors)
+          endif
+#endif
 c
 c -----------------------
 c MO to AO transformation

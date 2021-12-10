@@ -1267,7 +1267,7 @@ c
      ,        ' ndens ',ndens
          call util_flush(luout)
       endif
-#if 1
+#if 0
       dims(1) = nfock
       dims(2) = nbf
       dims(3) = nbf
