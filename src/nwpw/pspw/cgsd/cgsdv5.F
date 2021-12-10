@@ -662,6 +662,8 @@ c     end if
       if (flag.gt.-1) then
         call rho_dipole(dipole)
         if (control_periodic_dipole()) call psi1_crystal_dipole(cdipole)
+
+c        !call psi_polariz() !early cubic implementation
       end if
 
 *     ****  calculate gradient ***

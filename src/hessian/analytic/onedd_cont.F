@@ -147,7 +147,7 @@ c
       call oned_calc(n3xyz,g_rhs,dbl_mb(k_buf),
      *  max1e,dbl_mb(k_scr),mscratch_1e,.false.,
 !     *  max1e,dbl_mb(k_scr),mscratch_1e,skelsym,
-     *  doS,doT,doV,geom,basis,ncent)
+     *  doS,doT,doV,geom,basis,ncent,1)
       if (ndens.gt.1) then     ! UHF case
         alo(1) = 1
         ahi(1) = n3xyz

@@ -2823,6 +2823,20 @@ c      end
       return 
       end
 
+*     ***********************************
+*     *					*
+*     *		control_output_qpsi	*
+*     *					*
+*     ***********************************
+      character*50 function control_output_qpsi()
+      implicit none
+
+#include "control.fh"
+
+      control_output_qpsi = output_qwavefunction_filename
+      return 
+      end
+
 
 *     ***********************************
 *     *					*
@@ -2850,6 +2864,20 @@ c      end
 #include "control.fh"
 
       control_input_epsi = input_ewavefunction_filename
+      return 
+      end
+
+*     ***********************************
+*     *					*
+*     *		control_input_qpsi	*
+*     *					*
+*     ***********************************
+      character*50 function control_input_qpsi()
+      implicit none
+
+#include "control.fh"
+
+      control_input_qpsi = input_qwavefunction_filename
       return 
       end
 
@@ -3298,6 +3326,50 @@ c     >               (ispin.eq.ispin_wf))
       control_check_number_virtuals = check
       return
       end
+
+
+*     *****************************************
+*     *                                       *
+*     *      control_check_q_orbitals         *
+*     *                                       *
+*     *****************************************
+      logical function control_check_q_orbitals()
+      implicit none
+
+#include "control.fh"
+
+*    *** local variables ***
+      logical check
+      integer ispin_wf,ne_wf(2),ne(2)
+
+*     ***** local functions ****
+      logical  qpsi_filefind
+      external qpsi_filefind
+      integer  psi_ne
+      external psi_ne
+
+*     **** check wavefunction file ****
+      if (qpsi_filefind()) then
+
+*        **** get mult and e-charge from wavefunction file ****
+         call psi_get_ne_qpsi(ispin_wf,ne_wf)
+         ne(1) = psi_ne(1)
+         ne(2) = psi_ne(2)
+
+         check = ((ne(1).eq.ne_wf(1)).and.
+     >            (ne(2).eq.ne_wf(2)).and.
+     >            (ispin.eq.ispin_wf))
+
+*     **** no wavefunction file ***
+      else
+         check = .false.
+      end if
+
+      control_check_q_orbitals = check
+      return
+      end
+
+
 
 
 
