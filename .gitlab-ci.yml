@@ -200,30 +200,30 @@ linux_ubuntu:run_gcc:
   tags:
     - ubuntu_xenial
 
-macos:build_gcc:
-  stage: build
-  <<: *compile_step
-  variables:
-#    BLASOPT: "-L/usr/local/opt/openblas/lib -lopenblas"
-#    LAPACK_LIB: "-L/usr/local/opt/openblas/lib -lopenblas"
-#    SCALAPACK_LIB: "-L/usr/local/opt/scalapack/lib/ -lscalapack -L/usr/local/opt/openblas/lib  -lopenblas"
-    BUILD_SCALAPACK: 1
-    BUILD_OPENBLAS: 1
-    BLAS_SIZE: 8
-    SCALAPACK_SIZE: 8
-    ARMCI_NETWORK: "SOCKETS"
-    USE_DCOMBSSQPATCH: "Y"
-    PATH: "/usr/local/opt/python@3.9/bin:/opt/local/bin:/usr/local/bin/:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin"
-  tags:
-    - macos_10.13
-
-linux64_centos8:run_gcc:
-  stage: test
-  needs: ["linux64_centos8:build_gcc"]
-  <<: *centos8_sourcing
-  <<: *test_step
-  tags:
-    - centos8
+#macos:build_gcc:
+#  stage: build
+#  <<: *compile_step
+#  variables:
+##    BLASOPT: "-L/usr/local/opt/openblas/lib -lopenblas"
+##    LAPACK_LIB: "-L/usr/local/opt/openblas/lib -lopenblas"
+##    SCALAPACK_LIB: "-L/usr/local/opt/scalapack/lib/ -lscalapack -L/usr/local/opt/openblas/lib  -lopenblas"
+#    BUILD_SCALAPACK: 1
+#    BUILD_OPENBLAS: 1
+#    BLAS_SIZE: 8
+#    SCALAPACK_SIZE: 8
+#    ARMCI_NETWORK: "SOCKETS"
+#    USE_DCOMBSSQPATCH: "Y"
+#    PATH: "/usr/local/opt/python@3.9/bin:/opt/local/bin:/usr/local/bin/:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin"
+#  tags:
+#    - macos_10.13
+#
+#linux64_centos8:run_gcc:
+#  stage: test
+#  needs: ["linux64_centos8:build_gcc"]
+#  <<: *centos8_sourcing
+#  <<: *test_step
+#  tags:
+#    - centos8
   
 linux64_ubuntu:run_gcc:
   stage: test
@@ -249,11 +249,11 @@ linux64_ubuntu:run_intel:
     - ubuntu_bionic
 
 
-macos:run_gcc:
-  stage: test
-  needs: ["macos:build_gcc"]
-  variables:
-    PATH: "/usr/local/opt/python@3.9/bin:/opt/local/bin:/usr/local/bin/:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin"
-  <<: *test_step
-  tags:
-    - macos_10.13
+#macos:run_gcc:
+#  stage: test
+#  needs: ["macos:build_gcc"]
+#  variables:
+#    PATH: "/usr/local/opt/python@3.9/bin:/opt/local/bin:/usr/local/bin/:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin"
+#  <<: *test_step
+#  tags:
+#    - macos_10.13
