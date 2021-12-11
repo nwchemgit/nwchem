@@ -1912,7 +1912,14 @@ endif
          FOPTIONS   = -m64
        endif
        ifdef  USE_FPE
+	ifdef USE_FLANG
+$(info     )
+$(info     USE_FPE not ready for flang)
+$(info     )
+$(error )
+	else
          FOPTIONS += -ffpe-trap=invalid,zero,overflow  -fbacktrace
+       endif
        else
         FOPTIONS   += -ffast-math #-Wunused  
        endif
@@ -2430,7 +2437,14 @@ endif
         endif
 #        FVECTORIZE  += -ftree-vectorize -ftree-vectorizer-verbose=1
        ifdef  USE_FPE
+	ifdef USE_FLANG
+$(info     )
+$(info     USE_FPE not ready for flang)
+$(info     )
+$(error )
+	else
          FOPTIONS += -ffpe-trap=invalid,zero,overflow  -fbacktrace
+	endif
        endif
         ifeq ($(GOTMINGW64),1)
           EXTRA_LIBS += -lwsock32
