@@ -102,28 +102,38 @@
       if (.not.ma_alloc_get(mt_dbl,nri*mynmo,'temp',l_tmp,tmp))
      $  call errquit(pname//'can''t allocate tmp',0,MA_ERR) 
 
+      kOO = 1
+      kOV = 1
+      kVV = 1
 
-      call ga_access(pars%g_eriov(1),1,nri,pars%ovlo(1),pars%ovhi(1),
+      if (pars%ovlo(1).le.pars%ovhi(1) .and.pars%ovlo(1).gt.0) then
+        call ga_access(pars%g_eriov(1),1,nri,pars%ovlo(1),pars%ovhi(1),
      $               kOV(1),ld)
-      call ga_access(pars%g_erioo(1),1,nri,pars%oolo(1),pars%oohi(1),
-     $               kOO(1),ld) 
-      if (pars%nvqp(1).gt.0) then
+      endif
+      if (pars%oolo(1).le.pars%oohi(1) .and.pars%oolo(1).gt.0) then
+        call ga_access(pars%g_erioo(1),1,nri,pars%oolo(1),pars%oohi(1),
+     $                 kOO(1),ld) 
+      endif
+      if (pars%nvqp(1).gt.0. and. pars%vvlo(1).le.pars%vvhi(1) .and.
+     $    pars%vvlo(1).gt.0) then
         call ga_access(pars%g_erivv(1),1,nri,pars%vvlo(1),pars%vvhi(1),
      $                 kVV(1),ld) 
       end if
 
       if (ipol.gt.1 .and. pars%mynpoles(2).gt.0 ) then
+        if (pars%ovlo(2).le.pars%ovhi(2) .and. pars%ovlo(2).gt.0) then
         call ga_access(pars%g_eriov(2),1,nri,pars%ovlo(2),pars%ovhi(2),
      $                 kOV(2),ld)
+        endif
+        if (pars%oolo(2).le.pars%oohi(2) .and. pars%oolo(2).gt.0) then
         call ga_access(pars%g_erioo(2),1,nri,pars%oolo(2),pars%oohi(2),
      $                 kOO(2),ld) 
-        if (pars%nvqp(2).gt.0) then
+        endif
+        if (pars%nvqp(2).gt.0 .and. pars%vvlo(2).le.pars%vvhi(2) .and.
+     $      pars%vvlo(2).gt.0) then
           call ga_access(pars%g_erivv(2),1,nri,pars%vvlo(2),
      $                   pars%vvhi(2),kVV(2),ld) 
         endif
-      else
-        kOV(2) = 1
-        kOO(2) = 1
       endif
       t0=util_wallsec()
 

@@ -288,6 +288,7 @@ c
 c     Transform OO block
 c
         call ga_distribution(pars%g_erioo(isp),pars%me,ilo,ihi,jlo,jhi)
+        if (jlo.gt.jhi) goto 101
         call ga_access(pars%g_erioo(isp),ilo,ihi,jlo,jhi,k_eri,ld)
         nij = jhi-jlo+1
         call dtrmm('l','l','n','n',nbf_cd,nij,1.0d0,dbl_mb(k_tmp),
@@ -295,7 +296,9 @@ c
 c
 c     Transform OV block
 c
+ 101    continue
         call ga_distribution(pars%g_eriov(isp),pars%me,ilo,ihi,jlo,jhi)
+        if (jlo.gt.jhi) goto 102
         call ga_access(pars%g_eriov(isp),ilo,ihi,jlo,jhi,k_eri,ld)
         nij = jhi-jlo+1
         call dtrmm('l','l','n','n',nbf_cd,nij,1.0d0,dbl_mb(k_tmp),
@@ -303,14 +306,17 @@ c
 c
 c     Transform VV block
 c
+ 102    continue
         if (pars%nstates(isp).gt.pars%nocc(isp)) then
           call ga_distribution(pars%g_erivv(isp),pars%me,ilo,ihi,
      $                         jlo,jhi)
+          if (jlo.gt.jhi) goto 103
           call ga_access(pars%g_erivv(isp),ilo,ihi,jlo,jhi,k_eri,ld)
           nij = jhi-jlo+1
           call dtrmm('l','l','n','n',nbf_cd,nij,1.0d0,dbl_mb(k_tmp),
      $                nbf_cd,dbl_mb(k_eri),nbf_cd)
         endif
+ 103    continue
       enddo
 c
       pars%timer%distr = util_wallsec() - timer
@@ -397,6 +403,7 @@ c     *****************************************************************
       integer ni,nj,l_tmp,k_tmp,k_loc,ld
       integer l_pair,k_pair,mynpairs,jpair,iproc,nprocs,ulpair,llpair
       integer ibatch,nbatch,myllpair,myulpair,ma_dbl
+      integer lmap, kmap
 
       logical ok
       integer,external :: gw_get_pair
@@ -418,7 +425,20 @@ c     *****************************************************************
       npairs = ni*nj
       mynpairs = npairs/nprocs + 1
 
-      if (.not.ga_create(mt_dbl,nri,npairs,erilabel,nri,0,eri))
+      if (.not.ma_push_get(mt_int,nprocs,'map',lmap,kmap))
+     $  call errquit(pname//'can''t create '//blk//' map',0,MA_ERR)
+
+      ulpair = 0
+      do iproc=0,min(npairs-1,nprocs-1)
+        llpair = ulpair + 1
+        ulpair = ulpair + npairs/nprocs
+        if (iproc.lt.mod(npairs,nprocs)) ulpair = ulpair  + 1
+        int_mb(kmap+iproc) = llpair
+      enddo
+
+c      if (.not.ga_create(mt_dbl,nri,npairs,erilabel,nri,0,eri))
+      if (.not.ga_create_irreg(mt_dbl,nri,npairs,erilabel,1,1,
+     $   int_mb(kmap),min(npairs,nprocs),eri))
      $  call errquit(pname//'can''t create '//blk//' block',0,GA_ERR)
       if (.not.ma_push_get(mt_int,2*npairs,idxlabel,l_tmp,k_tmp))
      $  call errquit(pname//'can''t create '//blk//' index',0,MA_ERR)
@@ -440,6 +460,7 @@ c     *****************************************************************
         llpair = ulpair + 1
         ulpair = ulpair + npairs/nprocs
         if (iproc.lt.mod(npairs,nprocs)) ulpair = ulpair  + 1
+        if (llpair.gt.ulpair) goto 101
         do ibatch=1,nbatch
           myllpair = (ibatch-1)*mynpairs + llpair
           myulpair = min(myllpair + mynpairs,ulpair)
@@ -452,6 +473,7 @@ c     *****************************************************************
           call ga_put(eri,rilo,rihi,myllpair,myulpair,dbl_mb(k_pair),
      $                nri_me)
         enddo
+ 101    continue
         call ga_sync()
       enddo
 

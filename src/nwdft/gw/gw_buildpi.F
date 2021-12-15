@@ -42,7 +42,9 @@ c            call dscal(nri,factor(ipole,1),ovup(1,ipole),1)
           enddo
 !$omp     end parallel do simd
 
-          call dsfrk('n','l','n',nri,npoles(1),scal,ovup,nri,0d0,pi)
+          if (npoles(1).gt.0) then
+            call dsfrk('n','l','n',nri,npoles(1),scal,ovup,nri,0d0,pi)
+          endif
 
 !$omp     parallel do simd schedule(static) collapse(2)
           do ipole=1,npoles(1)
@@ -63,7 +65,9 @@ c            call dscal(nri,1d0/factor(ipole,1),ovup(1,ipole),1)
           enddo
 !$omp     end parallel do 
 
-          call dsfrk('n','l','n',nri,npoles(2),scal,ovdw,nri,1d0,pi)
+          if (npoles(2).gt.0) then
+            call dsfrk('n','l','n',nri,npoles(2),scal,ovdw,nri,1d0,pi)
+          endif
 
 !$omp     parallel do schedule(static)
           do ipole=1,npoles(2)

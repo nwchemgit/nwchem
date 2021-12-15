@@ -407,11 +407,18 @@ c     *****************************************************************
 
       do ipol=1,pars%ipol
         if (pars%nqp(ipol).eq.0) cycle
-
-        call ga_access(pars%g_erioo(ipol),1,nri,pars%oolo(ipol),
-     $                 pars%oohi(ipol),addrOO,idum)
-        call ga_access(pars%g_eriov(ipol),1,nri,pars%ovlo(ipol),
-     $                 pars%ovhi(ipol),addrOV,idum)
+        if (pars%oolo(ipol).gt.pars%oohi(ipol)) then
+          addrOO = 1
+        else
+          call ga_access(pars%g_erioo(ipol),1,nri,pars%oolo(ipol),
+     $                   pars%oohi(ipol),addrOO,idum)
+        endif
+        if (pars%ovlo(ipol).gt.pars%ovhi(ipol)) then
+          addrOV = 1
+        else
+          call ga_access(pars%g_eriov(ipol),1,nri,pars%ovlo(ipol),
+     $                   pars%ovhi(ipol),addrOV,idum)
+        endif
 
 
         do imo=min(1,pars%llmo(ipol)),

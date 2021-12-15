@@ -13,9 +13,6 @@
       z = -1.0d0/idfx
       step = z*fx
       pole = .false.
-#ifdef GWDEBUG
-      write(*,*) z
-#endif
 
       ! when dfx is positive, we are sitting on a pole
       ! perhaps we should do somehting to get out of it
