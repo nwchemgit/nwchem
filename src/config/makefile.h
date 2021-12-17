@@ -1911,16 +1911,24 @@ endif
        ifneq ($(DONTHAVEM64OPT),Y)
          FOPTIONS   = -m64
        endif
-        COPTIONS += -Wall
        ifdef  USE_FPE
+	ifdef USE_FLANG
+$(info     )
+$(info     USE_FPE not ready for flang)
+$(info     )
+$(error )
+	else
          FOPTIONS += -ffpe-trap=invalid,zero,overflow  -fbacktrace
+       endif
        else
         FOPTIONS   += -ffast-math #-Wunused  
        endif
 	ifeq ($(V),-1)
         FOPTIONS += -w
+        COPTIONS += -w
         else
         FOPTIMIZE  += -Wuninitialized
+        COPTIONS += -Wall
         ifndef USE_FLANG
         FOPTIMIZE  += -Wno-maybe-uninitialized
         endif
@@ -1996,6 +2004,12 @@ endif
         else
              FOPTIONS += -s integer64
         endif
+      else ifeq ($(_FC),frt)
+       ifdef USE_I4FLAGS
+         FOPTIONS += -CcdLL8
+       else
+         FOPTIONS += -CcdLL8 -CcdII8
+       endif
       else
         ifdef USE_I4FLAGS
              FOPTIONS += -i4
@@ -2423,7 +2437,14 @@ endif
         endif
 #        FVECTORIZE  += -ftree-vectorize -ftree-vectorizer-verbose=1
        ifdef  USE_FPE
+	ifdef USE_FLANG
+$(info     )
+$(info     USE_FPE not ready for flang)
+$(info     )
+$(error )
+	else
          FOPTIONS += -ffpe-trap=invalid,zero,overflow  -fbacktrace
+	endif
        endif
         ifeq ($(GOTMINGW64),1)
           EXTRA_LIBS += -lwsock32
@@ -2484,6 +2505,13 @@ ifeq ($(_CPU),$(findstring $(_CPU),aarch64))
     endif
   endif
 
+  ifeq ($(_CC),fcc)
+    COPTIONS += -O3
+    ifdef USE_OPENMP
+      COPTIONS += -Kopenmp
+    endif
+  endif
+
   ifeq ($(_FC),gfortran)
     ifdef  USE_GPROF
       FOPTIONS += -pg
@@ -2527,6 +2555,23 @@ ifeq ($(_CPU),$(findstring $(_CPU),aarch64))
       FOPTIONS += -ffpe-trap=invalid,zero,overflow  -fbacktrace
     endif
   endif  # end of gfortran
+
+  # A64fx
+  ifeq ($(FC),frt)
+
+    DEFINES += -DFUJITSU
+    FOPTIONS += -fs
+
+    LINK.f = $(FC)  $(LDFLAGS)
+    FOPTIMIZE  = -O3
+
+    ifeq ($(V),1)
+    $(info     FUJITSU FOPTIMIZE = ${FOPTIMIZE})
+    endif
+
+    FDEBUG += -g -O
+
+  endif
 
   ifeq ($(FC),armflang)
 
