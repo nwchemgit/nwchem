@@ -39,6 +39,9 @@ mkdocs  gh-deploy --config-file ../mkdocs.yml --remote-branch master
 #echo "********"
 cd ..
 rm -rf  nwchemgit.github.io_temp
+elif [[ "${MKDOCS_SERVE}" == "B" ]]; then
+    echo 'building'
+    mkdocs build
 else
     mkdocs serve
 fi    
