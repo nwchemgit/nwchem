@@ -58,6 +58,4 @@ jobs:
         shell: bash
         working-directory: contrib/mkdocs
         run: |
-          MKDOCS_SERVE=B bash ./build_website.sh
-          ls -lart || true
-          ls -lart site || true
+          bash ./build_website.sh
