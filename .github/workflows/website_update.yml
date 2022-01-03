@@ -1,0 +1,33 @@
+name: NWChem-wiki.mirroring
+on:
+  release:
+  schedule:
+    - cron: '0 0 * * *'
+  repository_dispatch:
+    types: [backend_automation]
+  workflow_dispatch:
+
+jobs:
+  build-deploy:
+    name: Build and deploy docs
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout nwchem code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 40
+          
+      - name: Set up Python 3
+        uses: actions/setup-python@v2
+      
+      - name: install mkdocs and plugins
+        shell: bash
+        working-directory: contrib/mkdocs
+        run: |
+          pwd
+          bash ./install_mkdocs.sh
+          mkdocs -h || true
+          
+    
