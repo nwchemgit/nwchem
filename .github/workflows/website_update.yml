@@ -58,4 +58,12 @@ jobs:
         shell: bash
         working-directory: contrib/mkdocs
         run: |
-          bash ./build_website.sh
+          MKDOCS_SERVE=B bash ./build_website.sh
+          ls -lart || true
+          ls -lart site/index.html || true
+      - name: checkout website
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.REPOSITORY_TOKEN }}
+          path: contrib/mkdocs/docs/nwchemgit.github.io
+          repository: nwchemgit/nwchemgit.github.io
