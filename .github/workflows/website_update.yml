@@ -33,6 +33,6 @@ jobs:
         shell: bash
         working-directory: contrib/mkdocs
         run: |
-          MKDOCS_SERVE=1 bash ./build_website.sh
-          ls -lart site || true
+          MKDOCS_SERVE=B bash ./build_website.sh
           ls -lart || true
+          ls -lart site || true
