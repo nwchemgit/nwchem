@@ -29,6 +29,31 @@ jobs:
           pwd
           bash ./install_mkdocs.sh
           mkdocs -h || true
+      - name: checkout wiki
+        uses: actions/checkout@v2
+        with:
+          path: contrib/mkdocs/docs
+          repository: nwchemgit/nwchem-wiki
+          persist-credentials: false
+          fetch-depth: 0
+      - name: check wiki source
+        shell: bash
+        working-directory: contrib/mkdocs
+        run: |
+          ls -lrt docs
+      - name: checkout archived forum
+        uses: actions/checkout@v2
+        with:
+          path: contrib/mkdocs/docs/archivedforum
+          repository: nwchemgit/archivedforum
+          persist-credentials: false
+          fetch-depth: 0
+      - name: check archiveforum source
+        shell: bash
+        working-directory: contrib/mkdocs/docs/
+        run: |
+          ls -lrt archivedforum
+          mv archivedforum/Special_AWCforum .
       - name: build website
         shell: bash
         working-directory: contrib/mkdocs
