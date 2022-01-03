@@ -1,4 +1,4 @@
-name: NWChem-wiki.mirroring
+name: NWChem website update
 on:
   release:
   schedule:
@@ -29,5 +29,10 @@ jobs:
           pwd
           bash ./install_mkdocs.sh
           mkdocs -h || true
-          
-    
+      - name: build website
+        shell: bash
+        working-directory: contrib/mkdocs
+        run: |
+          MKDOCS_SERVE=1 bash ./build_website.sh
+          ls -lart site || true
+          ls -lart || true
