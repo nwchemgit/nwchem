@@ -11,11 +11,19 @@ if [[ "${MYPWD}" != ${NWCHEM_TOP}/contrib/mkdocs ]]; then
     exit
 fi
 #fresh clone of wiki
+if [ -d "docs" ]; then
+    echo ' WARNING'
+    echo ' since the docs directory is already present, '
+    echo ' it will not be updated'
+    echo ' '
+    cd docs
+else    
 rm -rf docs #archivedforum
 git clone --depth 1 git@github.com:nwchemgit/nwchem-wiki.git docs
 cd docs
 git clone --depth 1 git@github.com:nwchemgit/archivedforum.git
 mv archivedforum/Special_AWCforum .
+fi
 #rsync -av archivedforum/Special_AWCforum docs/.
 #cd docs
 #git pull
