@@ -29,7 +29,12 @@ jobs:
 #        uses: actions/checkout@v2
 #        with:
 #          fetch-depth: 1
-          
+      - name: check nwchem/contrib/mkdocs
+        shell: bash
+        run: |
+          ls -lrta
+          ls -larta nwchem
+          ls -Rlarta nwchem
       - name: Set up Python 3
         uses: actions/setup-python@v2
       
