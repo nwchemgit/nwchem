@@ -17,7 +17,7 @@ jobs:
       - name: Checkout nwchem code
         uses: actions/checkout@v2
         with:
-          fetch-depth: 40
+          fetch-depth: 2
           
       - name: Set up Python 3
         uses: actions/setup-python@v2
@@ -72,17 +72,12 @@ jobs:
         working-directory: contrib/mkdocs
         run: |
           rsync --exclude=.git -a site/* nwchemgit.github.io/.
-          ls -lart || true
           ls -lart site/index.html || true
-          ls -lart nwchemgit.github.io//index.html || true
-          echo '## tail of nwchemgit.github.io ##'
-          ls -lart nwchemgit.github.io/ |tail -2 || true
-          echo '## tail of site dir ##'
-          ls -lart site/ |tail -2 || true
+          ls -lart nwchemgit.github.io/index.html || true
           cd nwchemgit.github.io
-          git diff .
+          git diff --stat
           git log -1
-      - name: Commit files
+      - name: Commit changes
         shell: bash
         working-directory: contrib/mkdocs/nwchemgit.github.io
         run: |
