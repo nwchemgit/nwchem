@@ -88,7 +88,7 @@ jobs:
         run: |
             git config user.name "nwchemgit"
             git config user.email "nwchemgit@gmail.com"
-            git commit -m "website changes" -a
+            git commit -m website\ changes\ on\ `date +%a_%b_%d_%H:%M:%S_%Y` -a
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
