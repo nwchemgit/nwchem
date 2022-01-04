@@ -81,6 +81,14 @@ jobs:
           ls -lart site/ |tail -2 || true
           cd nwchemgit.github.io
           git diff .
+          git log -1
+      - name: Commit files
+        shell: bash
+        working-directory: contrib/mkdocs/nwchemgit.github.io
+        run: |
+            git config user.name "nwchemgit"
+            git config user.email "nwchemgit@gmail.com"
+            git commit -m "website changes" -a
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
@@ -88,3 +96,8 @@ jobs:
           github_token: ${{ secrets.REPOSITORY_TOKEN }}
           branch: ${{ github.ref }}
           repository: nwchemgit/nwchemgit.github.io
+      - name: Check commit result
+        shell: bash
+        working-directory: contrib/mkdocs/nwchemgit.github.io
+        run: |
+            git log -2
