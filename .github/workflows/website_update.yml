@@ -65,5 +65,24 @@ jobs:
         uses: actions/checkout@v2
         with:
           token: ${{ secrets.REPOSITORY_TOKEN }}
-          path: contrib/mkdocs/docs/nwchemgit.github.io
+          path: contrib/mkdocs/nwchemgit.github.io
+          repository: nwchemgit/nwchemgit.github.io
+      - name: update nwchemgit.github.io with new content
+        shell: bash
+        working-directory: contrib/mkdocs
+        run: |
+          rsync --exclude=.git -av site/* nwchemgit.github.io/.
+          ls -lart || true
+          ls -lart site/index.html || true
+          ls -lart nwchemgit.github.io//index.html || true
+          echo '## tail of nwchemgit.github.io ##'
+          ls -lart nwchemgit.github.io/ |tail -2 || true
+          echo '## tail of site dir ##'
+          ls -lart site/ |tail -2 || true
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          directory: contrib/mkdocs/docs/nwchemgit.github.io
+          github_token: ${{ secrets.REPOSITORY_TOKEN }}
+          branch: ${{ github.ref }}
           repository: nwchemgit/nwchemgit.github.io
