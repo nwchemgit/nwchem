@@ -21,7 +21,7 @@ jobs:
           cd ..
           ls -lart
           git clone  --depth 1  --filter=blob:none --sparse \
-          https://github.com/nwchemgit/nwchem nwchem
+          https://github.com/$GITHUB_REPOSITORY nwchem
           cd nwchem
           git sparse-checkout set contrib/mkdocs
       - name: check nwchem/contrib/mkdocs
