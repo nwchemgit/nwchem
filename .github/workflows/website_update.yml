@@ -52,19 +52,12 @@ jobs:
         run: |
           ls -lrt docs
       - name: checkout archived forum
-        shell: bash
-        working-directory: contrib/mkdocs/docs
-        run: |
-          git clone  --depth 1  --filter=blob:none --sparse \
-          https://github.com/nwchemgit/archivedforum
-          cd archivedforum
-          git sparse-checkout set Special_AWCforum
-#        uses: actions/checkout@v2
-#        with:
-#          path: contrib/mkdocs/docs/archivedforum
-#          repository: nwchemgit/archivedforum
-#          persist-credentials: false
-#          fetch-depth: 1
+        uses: actions/checkout@v2
+        with:
+          path: contrib/mkdocs/docs/archivedforum
+          repository: nwchemgit/archivedforum
+          persist-credentials: false
+          fetch-depth: 1
       - name: soft-link archiveforum source
         shell: bash
         working-directory: contrib/mkdocs/docs/
