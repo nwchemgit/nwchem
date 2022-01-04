@@ -90,6 +90,8 @@ jobs:
         shell: bash
         working-directory: contrib/mkdocs/nwchemgit.github.io
         run: |
+            pwd
+            ls -lrt ../
             bash ../commit_changes.sh
 #      - name: Push changes
 #        uses: ad-m/github-push-action@master
