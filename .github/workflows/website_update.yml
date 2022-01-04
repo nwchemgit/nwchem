@@ -71,7 +71,7 @@ jobs:
         shell: bash
         working-directory: contrib/mkdocs
         run: |
-          rsync --exclude=.git -av site/* nwchemgit.github.io/.
+          rsync --exclude=.git -a site/* nwchemgit.github.io/.
           ls -lart || true
           ls -lart site/index.html || true
           ls -lart nwchemgit.github.io//index.html || true
@@ -79,6 +79,8 @@ jobs:
           ls -lart nwchemgit.github.io/ |tail -2 || true
           echo '## tail of site dir ##'
           ls -lart site/ |tail -2 || true
+          cd nwchemgit.github.io
+          git diff .
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
