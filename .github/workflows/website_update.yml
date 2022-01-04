@@ -15,9 +15,20 @@ jobs:
 
     steps:
       - name: Checkout nwchem code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 1
+        shell: bash
+        run: |
+          cd $GITHUB_WORKSPACE
+          pwd
+          ls -lart
+          cd ..
+          ls -lart
+          git clone  --depth 1  --filter=blob:none --sparse \
+          https://github.com/nwchemgit/nwchem nwchem
+          cd nwchem
+          git sparse-checkout set contrib/mkdocs
+#        uses: actions/checkout@v2
+#        with:
+#          fetch-depth: 1
           
       - name: Set up Python 3
         uses: actions/setup-python@v2
