@@ -15,10 +15,20 @@ jobs:
 
     steps:
       - name: Checkout nwchem code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 1
-          
+        shell: bash
+        run: |
+          env|egrep GITHU
+          cd $GITHUB_WORKSPACE
+          cd ..
+          ls -lart
+          git clone -b $GITHUB_REF_NAME --depth 1  --filter=blob:none --sparse \
+          https://github.com/$GITHUB_REPOSITORY nwchem
+          cd nwchem
+          git sparse-checkout set contrib/mkdocs
+      - name: check nwchem/contrib/mkdocs
+        shell: bash
+        run: |
+          ls -Rlart contrib
       - name: Set up Python 3
         uses: actions/setup-python@v2
       
@@ -48,7 +58,7 @@ jobs:
           repository: nwchemgit/archivedforum
           persist-credentials: false
           fetch-depth: 1
-      - name: check archiveforum source
+      - name: soft-link archiveforum source
         shell: bash
         working-directory: contrib/mkdocs/docs/
         run: |
@@ -81,16 +91,16 @@ jobs:
         shell: bash
         working-directory: contrib/mkdocs/nwchemgit.github.io
         run: |
-            git config user.name "nwchemgit"
-            git config user.email "nwchemgit@gmail.com"
-            git commit -m website\ changes\ on\ `date +%a_%b_%d_%H:%M:%S_%Y` -a
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          directory: contrib/mkdocs/nwchemgit.github.io
-          github_token: ${{ secrets.REPOSITORY_TOKEN }}
-          branch: ${{ github.ref }}
-          repository: nwchemgit/nwchemgit.github.io
+            pwd
+            ls -lrt ../
+            bash ../commit_changes.sh
+#      - name: Push changes
+#        uses: ad-m/github-push-action@master
+#        with:
+#          directory: contrib/mkdocs/nwchemgit.github.io
+#          github_token: ${{ secrets.REPOSITORY_TOKEN }}
+#          branch: ${{ github.ref }}
+#          repository: nwchemgit/nwchemgit.github.io
       - name: Check commit result
         shell: bash
         working-directory: contrib/mkdocs/nwchemgit.github.io
