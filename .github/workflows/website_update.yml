@@ -17,10 +17,11 @@ jobs:
       - name: Checkout nwchem code
         shell: bash
         run: |
+          env|egrep GITHU
           cd $GITHUB_WORKSPACE
           cd ..
           ls -lart
-          git clone  --depth 1  --filter=blob:none --sparse \
+          git clone -b $GITHUB_REF_NAME --depth 1  --filter=blob:none --sparse \
           https://github.com/$GITHUB_REPOSITORY nwchem
           cd nwchem
           git sparse-checkout set contrib/mkdocs
