@@ -18,22 +18,15 @@ jobs:
         shell: bash
         run: |
           cd $GITHUB_WORKSPACE
-          pwd
-          ls -lart
           cd ..
           ls -lart
           git clone  --depth 1  --filter=blob:none --sparse \
           https://github.com/nwchemgit/nwchem nwchem
           cd nwchem
           git sparse-checkout set contrib/mkdocs
-#        uses: actions/checkout@v2
-#        with:
-#          fetch-depth: 1
       - name: check nwchem/contrib/mkdocs
         shell: bash
         run: |
-          pwd
-          ls -Rlrt
           ls -Rlart contrib
       - name: Set up Python 3
         uses: actions/setup-python@v2
@@ -97,16 +90,14 @@ jobs:
         shell: bash
         working-directory: contrib/mkdocs/nwchemgit.github.io
         run: |
-            git config user.name "nwchemgit"
-            git config user.email "nwchemgit@gmail.com"
-            git commit -m website\ changes\ on\ `date +%a_%b_%d_%H:%M:%S_%Y` -a
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          directory: contrib/mkdocs/nwchemgit.github.io
-          github_token: ${{ secrets.REPOSITORY_TOKEN }}
-          branch: ${{ github.ref }}
-          repository: nwchemgit/nwchemgit.github.io
+            bash ../commit_changes.sh
+#      - name: Push changes
+#        uses: ad-m/github-push-action@master
+#        with:
+#          directory: contrib/mkdocs/nwchemgit.github.io
+#          github_token: ${{ secrets.REPOSITORY_TOKEN }}
+#          branch: ${{ github.ref }}
+#          repository: nwchemgit/nwchemgit.github.io
       - name: Check commit result
         shell: bash
         working-directory: contrib/mkdocs/nwchemgit.github.io
