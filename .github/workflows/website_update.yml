@@ -82,7 +82,7 @@ jobs:
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:
-          directory: contrib/mkdocs/docs/nwchemgit.github.io
+          directory: contrib/mkdocs/nwchemgit.github.io
           github_token: ${{ secrets.REPOSITORY_TOKEN }}
           branch: ${{ github.ref }}
           repository: nwchemgit/nwchemgit.github.io
