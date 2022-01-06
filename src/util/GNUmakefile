@@ -212,7 +212,7 @@ endif
               util_nwchemrc.o util_md.o util_md_c.o util_md_sockets.o\
 	      dgewr.o atoi.o indint.o util_wall_remain.o \
 		ga_normf.o corr_mk_ref.o \
-              nw_inp_from_file.o \
+              nw_inp_from_file.o push_inp_cstring.o \
               bgj.o movecs_ecce.o\
               get_density.o moeig_read.o\
               util_file_copy.o \
