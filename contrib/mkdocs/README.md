@@ -1,5 +1,14 @@
 # Updating the website https://nwchemgit.github.io using mkdocs
 
+The wiki source hosted on the repository https://github.com/nwchemgit/nwchem-wiki (and mirrored in https://github.com/nwchemgit/nwchem/wiki) is used to generated the content of the https://nwchemgit.github.io using [mkdocs](https://mkdocs.readthedocs.io/). 
+
+This directory contains scripts to generate the mkdocs content:  
+ - install_mkdocs.sh  
+ - build_website.sh  
+ - commit_changes.sh  
+ 
+ This scripts are used by the Github Action https://github.com/nwchemgit/nwchem-wiki/blob/master/.github/workflows/website_update.yml so that every time a new commit is pushed to the NWChem wiki, the content of the website  https://nwchemgit.github.io is updated.
+
 `IMPORTANT`: The Information below is for reference ONLY, since the wiki source is now automatically uploaded to the https://nwchemgit.github.io by means of the Github Action https://github.com/nwchemgit/nwchem-wiki/blob/master/.github/workflows/website_update.yml
 
 ## Install mkdocs https://www.mkdocs.org/
