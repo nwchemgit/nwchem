@@ -11,14 +11,14 @@ This directory contains scripts to generate the mkdocs content:
 
 `IMPORTANT`: The Information below is for reference ONLY, since the wiki source is now automatically uploaded to the https://nwchemgit.github.io by means of the Github Action https://github.com/nwchemgit/nwchem-wiki/blob/master/.github/workflows/website_update.yml
 
-## Install mkdocs https://www.mkdocs.org/
+## Install mkdocs https://www.mkdocs.org/ (for reference ONLY)
 
 ```
  python3 -m pip install --user mkdocs
  python3 -m pip install --user mkdocs-material
 ``` 
 
-## Install the MkDocs plugin that simplifies internal links creation
+## Install the MkDocs plugin that simplifies internal links creation (for reference ONLY)
 
 ```
  git clone https://github.com/cmitu/mkdocs-altlink-plugin
@@ -26,30 +26,30 @@ This directory contains scripts to generate the mkdocs content:
  python3 -m pip install --user -e .
 ```
 
-## Install the  python-markdown-math plugin for MathJax (work in progress)
+## Install the  python-markdown-math plugin for MathJax (for reference ONLY)
 
 ```
 python3 -m pip  install --user python-markdown-math
 ```
-# Edit the configuration
+# Edit the configuration (for reference ONLY)
 ```
 mkdocs.yml
 ```
 https://www.mkdocs.org/#theming-our-documentation  
 https://www.mkdocs.org/user-guide/plugins/  
 
-## Checkout the Markdown source of the Wiki pages
+## Checkout the Markdown source of the Wiki pages (for reference ONLY)
 ```
 git clone https://github.com/nwchemgit/nwchem-wiki docs
 ```
 
-## Checkout the html files of the archive forum
+## Checkout the html files of the archive forum (for reference ONLY)
 ```
 git clone https://github.com/nwchemgit/archivedforum
 rsync -av archivedforum/Special_AWCforum docs/.
 ```
 
-## Test the changes 
+## Test the changes (for reference ONLY)
 
 The file `index.md` is the main file
 
@@ -87,7 +87,7 @@ mkdocs -v gh-deploy --config-file /path/to/mkdocs/mkdocs.yml --remote-branch mas
 Browse new web pages at
 https://nwchemgit.github.io/
 
-## tools for rendering latex math equations
+## tools for rendering latex math equations (for reference ONLY)
 
 * python-markdown-math
 https://github.com/mitya57/python-markdown-math
