@@ -1,3 +1,7 @@
+# Updating the website https://nwchemgit.github.io using mkdocs
+
+`IMPORTANT`: The Information below is for reference ONLY, since the wiki source is now automatically uploaded to the https://nwchemgit.github.io by means of the Github Action https://github.com/nwchemgit/nwchem-wiki/blob/master/.github/workflows/website_update.yml
+
 ## Install mkdocs https://www.mkdocs.org/
 
 ```
@@ -100,3 +104,4 @@ python3 -m pip install markdown-katex
 Not tried yet
 
 * more in https://github.com/Python-Markdown/markdown/wiki/Third-Party-Extensions
+
