@@ -36,7 +36,7 @@ esac
 	cd ~/Downloads
 	dir_base="18342"
 	dir_hpc="18341"
-	base="m_BaseKit_p_2022.1.92_offline"
+	base="m_BaseKit_p_2022.1.0.92_offline"
 	hpc="m_HPCKit_p_2022.1.0.86_offline"
 	curl -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_base"/"$base".dmg
 	curl -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".dmg
