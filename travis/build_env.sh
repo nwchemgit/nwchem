@@ -141,7 +141,7 @@ fi
 	    export LD_LIBRARY_PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/lib:$LD_LIBRARY_PATH
 	    ls -lrt /usr/lib | grep aomp ||true
 	else
-	    aocc_version=3.1.0
+	    aocc_version=3.2.0
 	    aocc_dir=aocc-compiler-${aocc_version}
 	    curl -LJO https://developer.amd.com/wordpress/media/files/${aocc_dir}.tar
 	    tar xf ${aocc_dir}.tar
@@ -154,8 +154,8 @@ fi
     fi
     if [[ "$FC" == "nvfortran" ]]; then
 	sudo apt-get -y install lmod g++ libtinfo5 libncursesw5 lua-posix lua-filesystem lua-lpeg lua-luaossl
-	nv_major=21
-	nv_minor=11
+	nv_major=22
+	nv_minor=1
 	nverdot="$nv_major"."$nv_minor"
 	nverdash="$nv_major"-"$nv_minor"
 	arch_dpkg=`dpkg --print-architecture`
