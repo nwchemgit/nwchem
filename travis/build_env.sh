@@ -160,7 +160,7 @@ fi
 	nverdash="$nv_major"-"$nv_minor"
 	arch_dpkg=`dpkg --print-architecture`
         nv_p1=nvhpc-"$nverdash"_"$nverdot"_"$arch_dpkg".deb
-	nv_p2=nvhpc-2021_"$nverdot"_"$arch_dpkg".deb
+	nv_p2=nvhpc-20"$nv_major"_"$nverdot"_"$arch_dpkg".deb
 	wget https://developer.download.nvidia.com/hpc-sdk/"$nverdot"/"$nv_p1"
 	wget https://developer.download.nvidia.com/hpc-sdk/"$nverdot"/"$nv_p2"
 	sudo dpkg -i "$nv_p1" "$nv_p2"
