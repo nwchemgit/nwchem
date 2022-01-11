@@ -165,7 +165,7 @@ jobs:
             armci_network: MPI-TS
             nwchem_modules: "tinyqmpw"
             fc: gfortran-11
-            xcode_version: 12.5.1
+            xcode_version: 13.2.1
           - os: macos-10.15
             experimental: true
             mpi_impl: openmpi
