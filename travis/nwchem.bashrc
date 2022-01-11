@@ -35,8 +35,8 @@ if [[ "$FC" == "nvfortran" ]]; then
 #    module use /opt/nvidia/hpc_sdk/modulefiles
 #    module load nvhpc
 #     export BUILD_MPICH=1
-     nv_major=21
-     nv_minor=11
+     nv_major=22
+     nv_minor=1
      nverdot="$nv_major"."$nv_minor"
      export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:$PATH
      export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH
