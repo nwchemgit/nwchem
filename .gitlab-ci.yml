@@ -217,13 +217,13 @@ linux_ubuntu:run_gcc:
 #  tags:
 #    - macos_10.13
 #
-#linux64_centos8:run_gcc:
-#  stage: test
-#  needs: ["linux64_centos8:build_gcc"]
-#  <<: *centos8_sourcing
-#  <<: *test_step
-#  tags:
-#    - centos8
+linux64_centos8:run_gcc:
+  stage: test
+  needs: ["linux64_centos8:build_gcc"]
+  <<: *centos8_sourcing
+  <<: *test_step
+  tags:
+    - centos8
   
 linux64_ubuntu:run_gcc:
   stage: test
