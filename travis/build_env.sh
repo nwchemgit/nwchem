@@ -156,7 +156,7 @@ fi
 	sudo apt-get install -y wget gnupg2 coreutils dialog tzdata
 	rocm_version=4.5.2
 	wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key |  sudo apt-key add -
-	echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/"$rocm_version"/ ubuntu main' | sudo tee /etc/apt/sources.list.d/rocm.list
+	echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/'$rocm_version'/ ubuntu main' | sudo tee /etc/apt/sources.list.d/rocm.list
 	sudo apt-get  update -y && sudo apt-get -y install rocm-llvm
 	export PATH=/opt/rocm-"$rocm_version"/bin:$PATH
 	export LD_LIBRARY_PATH=/opt/rocm-"$rocm_version"/lib:/opt/rocm-"$rocm_version"/llvm/lib:$LD_LIBRARY_PATH
