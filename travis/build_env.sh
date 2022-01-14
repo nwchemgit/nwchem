@@ -158,12 +158,13 @@ fi
 	rocm_minor=40502-1
 	rocm_version=4.5.2
 	wget https://repo.radeon.com/amdgpu-install/"$rocm_major"/ubuntu/focal/amdgpu-install_"$rocm_major"."$rocm_minor"_all.deb
-	dpkg -i amdgpu*all.deb
-	apt-get  update -y
-	amdgpu-install --usecase=rocm --no-dkms -y --accept-eula
+	sudo dpkg -i amdgpu*all.deb
+	sudo apt-get  update -y
+	sudo amdgpu-install --usecase=rocm --no-dkms -y --accept-eula
 	export PATH=/opt/rocm-"$rocm_version"/bin:$PATH
 	export LD_LIBRARY_PATH=/opt/rocm-"$rocm_version"/lib:$LD_LIBRARY_PATH
 	amdflang -v
+	amdclang -v
     fi
     if [[ "$FC" == "nvfortran" ]]; then
 	sudo apt-get -y install lmod g++ libtinfo5 libncursesw5 lua-posix lua-filesystem lua-lpeg lua-luaossl
