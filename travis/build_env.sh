@@ -154,13 +154,10 @@ fi
     fi
     if [[ "$FC" == "amdflang" ]]; then
 	sudo apt-get install -y wget gnupg2 coreutils dialog tzdata
-	rocm_major=21.40.2
-	rocm_minor=40502-1
 	rocm_version=4.5.2
-	wget https://repo.radeon.com/amdgpu-install/"$rocm_major"/ubuntu/focal/amdgpu-install_"$rocm_major"."$rocm_minor"_all.deb
-	sudo dpkg -i amdgpu*all.deb
-	sudo apt-get  update -y
-	sudo amdgpu-install --usecase=rocm --no-dkms -y --accept-eula
+	wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key |  sudo apt-key add -
+	echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/"$rocm_version"/ ubuntu main' | sudo tee /etc/apt/sources.list.d/rocm.list
+	sudo apt-get  update -y && sudo apt-get -y install rocm-llvm
 	export PATH=/opt/rocm-"$rocm_version"/bin:$PATH
 	export LD_LIBRARY_PATH=/opt/rocm-"$rocm_version"/lib:/opt/rocm-"$rocm_version"/llvm/lib:$LD_LIBRARY_PATH
 	amdflang -v

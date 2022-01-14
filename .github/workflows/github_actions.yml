@@ -48,14 +48,14 @@ jobs:
             nwchem_modules: "tinyqmpw python"
             fc: flang
             cc: clang
-          - os: ubuntu-20.04
+          - os: ubuntu-18.04
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS
             nwchem_modules: "tinyqmpw python"
             fc: amdflang
             cc: amdclang
-          - os: ubuntu-20.04
+          - os: ubuntu-18.04
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS
