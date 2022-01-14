@@ -33,7 +33,7 @@ fi
 if [[ "$FC" == "amdflang" ]]; then
     rocm_version=4.5.2
     export PATH=/opt/rocm-"$rocm_version"/bin:$PATH
-    export LD_LIBRARY_PATH=/opt/rocm-"$rocm_version"/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH=/opt/rocm-"$rocm_version"/lib:/opt/rocm-"$rocm_version"/llvm/lib:$LD_LIBRARY_PATH
 fi
 
 if [[ "$FC" == "nvfortran" ]]; then

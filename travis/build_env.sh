@@ -162,7 +162,7 @@ fi
 	sudo apt-get  update -y
 	sudo amdgpu-install --usecase=rocm --no-dkms -y --accept-eula
 	export PATH=/opt/rocm-"$rocm_version"/bin:$PATH
-	export LD_LIBRARY_PATH=/opt/rocm-"$rocm_version"/lib:$LD_LIBRARY_PATH
+	export LD_LIBRARY_PATH=/opt/rocm-"$rocm_version"/lib:/opt/rocm-"$rocm_version"/llvm/lib:$LD_LIBRARY_PATH
 	amdflang -v
 	amdclang -v
     fi
