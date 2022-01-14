@@ -115,7 +115,7 @@ if [[ -n ${FC} ]] &&  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == 
     FORCETARGET+=" CC=gcc "
     _FC=xlf
     LAPACK_FPFLAGS_VAL=" -qstrict=ieeefp -O2 -g" 
-elif  [[ -n ${FC} ]] && [[ "${FC}" == "flang" ]]; then
+elif  [[ -n ${FC} ]] && [[ "${FC}" == "flang" ]] || [[ "${FC}" == "amdflang" ]]; then
     FORCETARGET+=' F_COMPILER=FLANG '
     LAPACK_FPFLAGS_VAL=" -O1 -g -Kieee"
 elif  [[ -n ${FC} ]] && [[ "${FC}" == "pgf90" ]] || [[ "${FC}" == "nvfortran" ]]; then
