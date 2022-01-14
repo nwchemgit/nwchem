@@ -51,8 +51,8 @@ c      Commutator = 1, PT Order = 2
         DO  m  = 1, NOS
         DO  e  = NOS+1, NOS+NVS
         DO  f  = NOS+1, NOS+NVS
-        HT(j,i) = HT(j,i) +
-     & -(1.0/2.0)*V(m,j,e,f)*T2(i,m,e,f)
+        HT(j,i) = HT(j,i) -
+     &  (1.0/2.0)*V(m,j,e,f)*T2(i,m,e,f)
         ENDDO; ENDDO; ENDDO; ENDDO; ENDDO
         ENDIF
 !
