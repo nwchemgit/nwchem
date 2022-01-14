@@ -2576,6 +2576,11 @@ ifeq ($(_CPU),$(findstring $(_CPU),aarch64))
     $(info     FUJITSU FOPTIMIZE = ${FOPTIMIZE})
     endif
 
+    ifdef USE_OPENMP
+      FOPTIONS  += -Kopenmp
+      LDOPTIONS += -Kopenmp
+    endif
+
     FDEBUG += -g -O
 
   endif
