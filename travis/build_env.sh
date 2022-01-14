@@ -152,6 +152,20 @@ fi
 	flang -v
 	which flang
     fi
+    if [[ "$FC" == "amdflang" ]]; then
+	sudo apt-get install -y wget gnupg2 coreutils dialog tzdata
+	rocm_major=21.40.2
+	rocm_minor=40502-1
+	rocm_version=4.5.2
+	wget https://repo.radeon.com/amdgpu-install/"$rocm_major"/ubuntu/focal/amdgpu-install_"$rocm_major"."$rocm_minor"_all.deb
+	sudo dpkg -i amdgpu*all.deb
+	sudo apt-get  update -y
+	sudo amdgpu-install --usecase=rocm --no-dkms -y --accept-eula
+	export PATH=/opt/rocm-"$rocm_version"/bin:$PATH
+	export LD_LIBRARY_PATH=/opt/rocm-"$rocm_version"/lib:/opt/rocm-"$rocm_version"/llvm/lib:$LD_LIBRARY_PATH
+	amdflang -v
+	amdclang -v
+    fi
     if [[ "$FC" == "nvfortran" ]]; then
 	sudo apt-get -y install lmod g++ libtinfo5 libncursesw5 lua-posix lua-filesystem lua-lpeg lua-luaossl
 	nv_major=22

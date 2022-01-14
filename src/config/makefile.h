@@ -1857,7 +1857,14 @@ endif
        _FC=gfortran
        USE_FLANG=1
       endif
+      ifeq ($(shell $(CNFDIR)/strip_compiler.sh $(FC)),amdflang)
+       _FC=gfortran
+       USE_FLANG=1
+      endif
       ifeq ($(CC),clang)
+       _CC=gcc
+      endif
+      ifeq ($(CC),amdclang)
        _CC=gcc
       endif
       ifeq ($(CC),icx)
