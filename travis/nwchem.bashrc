@@ -150,7 +150,9 @@ if [[ -z "$USE_INTERNALBLAS" ]]; then
 	    if  [[ ${FC} == gfortran ]]  ; then
 		if [[ "$arch" == "x86_64" ]]; then
 		    if [[ ! -z "$BUILD_OPENBLAS" ]]; then
+		        if [[ "$(expr `${CC} -dumpversion | cut -f1 -d.` \> 7)" == 1 ]]; then
 			export BUILD_ELPA=1
+			fi
 		    fi
 		fi
 	    fi
