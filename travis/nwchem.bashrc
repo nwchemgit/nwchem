@@ -149,7 +149,7 @@ if [[ -z "$USE_INTERNALBLAS" ]]; then
 	    if  [[ ${FC} == gfortran ]] || [[ ${GFORTRAN_EXTRA} == gfortran ]] ; then
 #	    if  [[ ${FC} == gfortran ]]  ; then
 		if [[ `${CC} -dM -E - < /dev/null 2> /dev/null | grep -c clang` == 0 ]] && [[ `${CC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] && [[ "$(expr `${CC} -dumpversion | cut -f1 -d.` \> 7)" == 1 ]]; then
-		    if [[ "$arch" == "x86_64" ]]; then
+		    if [[ "$os" == "Linux" ]] && [[ "$arch" == "x86_64" ]]; then
 			if [[ ! -z "$BUILD_OPENBLAS" ]]; then
 			    export BUILD_ELPA=1
 			fi
