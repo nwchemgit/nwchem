@@ -28,7 +28,7 @@ esac
 #  HOMEBREW_NO_AUTO_UPDATE=1 brew cask uninstall oclint || true  
 #  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python3 ||true
      HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" python3 gsed grep automake autoconf ||true
-     if [[ "$FC" == "ifort" ]]; then
+     if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
          if [[ -f ~/apps/oneapi/setvars.sh ]]; then 
 	     echo ' using intel cache installation '
 	 else
@@ -56,12 +56,13 @@ esac
 	     "$IONEAPI_ROOT"/ipp "$IONEAPI_ROOT"/conda_channel 	"$IONEAPI_ROOT"/dnnl \
 	     "$IONEAPI_ROOT"/installer "$IONEAPI_ROOT"/vtune_profiler "$IONEAPI_ROOT"/tbb || true
 	fi
-	source "$IONEAPI_ROOT"/setvars.sh || true
+	 source "$IONEAPI_ROOT"/setvars.sh || true
+	 export I_MPI_F90="$FC"
 	ls -lrta ~/apps/oneapi ||true
 	df -h 
 	rm -f *dmg || true
 	df -h
-	ifort -V
+	"$FC" -V
 	icc -V
      else
 	 #hack to fix Github actions mpif90
@@ -105,7 +106,7 @@ fi
     if [[ "$MPI_IMPL" == "mpich" ]]; then
         mpi_bin="mpich" ; mpi_libdev="libmpich-dev" scalapack_libdev="libscalapack-mpich-dev"
     fi
-    if [[ "$MPI_IMPL" == "intel" || "$FC" == "ifort" ]]; then
+    if [[ "$MPI_IMPL" == "intel" || "$FC" == "ifort" || "$FC" == "ifx" ]]; then
 	export APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
         tries=0 ; until [ "$tries" -ge 10 ] ; do \
 	wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
@@ -123,7 +124,7 @@ fi
     sudo add-apt-repository universe && sudo apt-get update
 #    sudo apt-get -y install gfortran python3-dev python-dev cmake "$mpi_libdev" "$mpi_bin" "$scalapack_libdev"  make perl  libopenblas-dev python3 rsync
     sudo apt-get -y install gfortran python3-dev python-dev cmake "$mpi_libdev" "$mpi_bin"  make perl  python3 rsync
-    if [[ "$FC" == "ifort" ]]; then
+    if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]]; then
 	sudo apt-get -y install intel-oneapi-ifort intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic  intel-oneapi-mkl
 	if [[ "$?" != 0 ]]; then
 	    echo "apt-get install failed: exit code " "${?}"

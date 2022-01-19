@@ -101,6 +101,18 @@ jobs:
             nwchem_modules: "tce"
             fc: ifort
           - os: ubuntu-18.04
+            experimental: true 
+            mpi_impl: intel
+            armci_network: MPI-PR
+            nwchem_modules: "tinyqmpw python"
+            fc: ifx
+          - os: ubuntu-18.04
+            experimental: true 
+            mpi_impl: intel
+            armci_network: SOCKETS
+            nwchem_modules: "tce"
+            fc: ifx
+          - os: ubuntu-18.04
             experimental: true
             mpi_impl: openmpi
             armci_network: MPI-TS
@@ -327,6 +339,8 @@ jobs:
           egrep d=  QA/testoutputs/dft_smear.out || true; fi
           if [[ -f QA/testoutputs/dft_smear.out ]]; then \
           tail -2000  QA/testoutputs/dft_smear.out || true; fi
+          if [[ -f QA/testoutputs/pspw_md.out ]]; then \
+          grep 'PSPW energy'  QA/testoutputs/pspw_md.out || true; fi
   
 
 
