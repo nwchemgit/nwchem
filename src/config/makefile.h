@@ -1831,7 +1831,9 @@ endif
        _FC=ifort
       endif
       ifeq ($(FC),ifx)
-       _FC=ifx
+        USE_IFX=1
+       _IFCV8=1
+       _FC=ifort
       endif
       ifeq ($(shell $(CNFDIR)/strip_compiler.sh $(FC)),gfortran)
         _FC := gfortran
@@ -2127,7 +2129,7 @@ ifeq ($(NWCHEM_TARGET),CATAMOUNT)
 endif
 
       # support for Intel(R) Fortran compiler
-      ifeq ($(_FC),ifx)
+      ifeq ($(_FC),ifxold)
         DEFINES += -DIFCV8 -DIFCLINUX
         FOPTIONS += -fpp -align
         FOPTIMIZE = -g -O3 -fimf-arch-consistency=true
@@ -2182,7 +2184,9 @@ endif
        endif
        FDEBUG= -O2 -g
        FOPTIMIZE = -O3  -unroll
+       ifndef USE_IFX
        FOPTIMIZE += -ip
+       endif
        FOPTIONS += -align -fpp
 # might be not need and the root cause for https://github.com/nwchemgit/nwchem/issues/255
 #           CPP=fpp -P
@@ -2203,10 +2207,17 @@ endif
                FOPTIONS  += -no-simd
              endif
              ifdef USE_OPENMP
+	     ifdef USE_IFX
+              FOPTIONS += -fiopenmp
+              ifdef USE_OFFLOAD
+              FOPTIONS += -fopenmp-targets=spirv64
+              endif
+	     else
                FOPTIONS += -qopenmp
                ifdef USE_OPTREPORT
                    FOPTIONS += -qopt-report-phase=openmp
                endif
+	      endif
              else
                FOPTIONS += -qno-openmp
              endif
@@ -2247,6 +2258,7 @@ endif
            DEFINES+= -DINTEL_64ALIGN
          else
 #           FOPTIMIZE += -xHost
+	   ifndef USE_IFX
 #crazy simd options
            ifeq ($(shell $(CNFDIR)/check_env.sh $(USE_HWOPT)),1)
 	     ifeq ($(_IFCV17), Y)
@@ -2264,6 +2276,7 @@ endif
 	     endif
 	   endif
        FOPTIONS += -finline-limit=250
+       endif
          endif
        else
         ifeq ($(shell $(CNFDIR)/check_env.sh $(USE_HWOPT)),1)
@@ -2274,7 +2287,9 @@ endif
            FOPTIMIZE += -xW
          endif
 	endif
+        ifndef USE_IFX
          FOPTIMIZE +=  -ip
+	endif
        endif
 
 
