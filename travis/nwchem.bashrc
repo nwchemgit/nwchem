@@ -56,7 +56,7 @@ if [[ "$FC" == "nvfortran" ]]; then
 #	fi
 #    export CC=gcc
 fi
-if [[ "$FC" == "ifort" ]]; then
+if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
     case "$os" in
 	Darwin)
 	    IONEAPI_ROOT=~/apps/oneapi
@@ -66,7 +66,7 @@ if [[ "$FC" == "ifort" ]]; then
 	    ;;		
     esac			
     source "$IONEAPI_ROOT"/compiler/latest/env/vars.sh
-    ifort -V
+    "$FC" -V
     if [ -f "$IONEAPI_ROOT"/mkl/latest/env/vars.sh ] ; then
 	source "$IONEAPI_ROOT"/mkl/latest/env/vars.sh
     fi

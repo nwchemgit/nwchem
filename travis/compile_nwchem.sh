@@ -38,7 +38,7 @@ if [[ "$arch" == "aarch64" ]]; then
 	fi
     fi
 else
-    if [[ "$FC" == "ifort" ]] ; then
+    if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
 	FOPT=-O2
 	if [[ "$os" == "Darwin" ]]; then
 	    export BUILD_MPICH=1
