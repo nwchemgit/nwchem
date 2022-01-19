@@ -339,6 +339,8 @@ jobs:
           egrep d=  QA/testoutputs/dft_smear.out || true; fi
           if [[ -f QA/testoutputs/dft_smear.out ]]; then \
           tail -2000  QA/testoutputs/dft_smear.out || true; fi
+          if [[ -f QA/testoutputs/pspw_md.out ]]; then \
+          grep 'PSPW energy'  QA/testoutputs/pspw_md.out || true; fi
   
 
 
