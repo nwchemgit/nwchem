@@ -626,8 +626,8 @@ sub set_to_digits
     for ($i = 0; $i < $digits ; $i++) {$value *= 10.0;}
     if ($value < 0.0) {$value -= 0.5;}
     else              {$value += 0.5;}
-    if ($value < 0.0) {$value -= 10.**(-2);}
-    else              {$value += 10.**(-2);}
+    if ($value < 0.0) {$value -= 5*10.**(-2);}
+    else              {$value += 5*10.**(-2);}
     $value = int ($value);
     for ($i = 0; $i < $digits ; $i++) {$value /= 10.0;}
     if (abs($value) == 0.0) {$value = 0.0;}
