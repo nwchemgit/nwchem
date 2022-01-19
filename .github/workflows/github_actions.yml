@@ -100,13 +100,13 @@ jobs:
             armci_network: SOCKETS
             nwchem_modules: "tce"
             fc: ifort
-          - os: ubuntu-20.04
+          - os: ubuntu-18.04
             experimental: true 
             mpi_impl: intel
             armci_network: MPI-PR
             nwchem_modules: "tinyqmpw python"
             fc: ifx
-          - os: ubuntu-20.04
+          - os: ubuntu-18.04
             experimental: true 
             mpi_impl: intel
             armci_network: SOCKETS
