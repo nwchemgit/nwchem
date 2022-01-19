@@ -53,6 +53,7 @@ else
         unset BUILD_OPENBLAS
 	export BLAS_SIZE=8
 	export LAPACK_LIB="$BLASOPT"
+	export I_MPI_F90="$FC"
     elif [[ "$FC" == "flang" ]] || [[ "$(basename -- $FC | cut -d \- -f 1)" == "nvfortran" ]] ; then
 	export BUILD_MPICH=1
         if [[ "$FC" == "flang" ]]; then
