@@ -58,21 +58,23 @@ variables:
     GIT_CLEAN_FLAGS: -ffdx -e bin -e build -e install
   script:
     - if [ "$FC" == "ifort" ]; then source /opt/intel/compilers_and_libraries_2019/linux/bin/compilervars.sh  intel64 ; fi
+    - if [ "$FC" == "ifx" ]; then source /opt/intel/oneapi/setvars.sh ; fi
     - export NWCHEM_TOP=$CI_PROJECT_DIR
     - if [ "$(lsb_release -i|cut -c 17-)" == "CentOS" ]; then export USE_CENTOS="1" ; else export USE_CENTOS="0" ; fi
     - if [ "$USE_CENTOS" == "1" ]; then export NWCHEM_TOP=$HOME/$CI_PROJECT_DIR ; fi
     - if [ "$USE_CENTOS" == "1" ]; then mkdir -p $NWCHEM_TOP/bin/LINUX64 ; scp -p edo@10.0.2.2:gitlab/nwchem_centos8 $NWCHEM_TOP/bin/LINUX64/nwchem ; fi
     - if [ "$FC" == "ifort" ]; then  export NWCHEM_EXECUTABLE=${NWCHEM_TOP}/../binaries/nwchem_intel; fi
+    - if [ "$FC" == "ifx" ]; then  export NWCHEM_EXECUTABLE=${NWCHEM_TOP}/../binaries/nwchem_ifx; fi
     - if [ "$FC" == "flang" ]; then  export NWCHEM_EXECUTABLE=${NWCHEM_TOP}/../binaries/nwchem_flang; fi
     - env|egrep -i mkl || true
     - env|egrep  LD_LIBR || true
     - cd $NWCHEM_TOP/QA
     - NNPROCS=1
     - if [ "$(uname -s)" == "Darwin" ]; then NNPROCS=2; fi
-    - if [ "$(uname -s)" == "Linux" ]; then NNPROCS=4; fi
+    - if [ "$(uname -s)" == "Linux" ]; then NNPROCS=3; fi
     - if [ "$USE_CENTOS" == "1" ]; then NNPROCS=3; fi
     - env | grep CI_ || mtrue
-    - if [[ "$NWCHEM_TARGET" != "LINUX"  && ( "$CI_RUNNER_TAGS" == "ubuntu_xenial" ||  "$CI_RUNNER_TAGS" == "ubuntu_bionic" ) ]]; then ./doqmtests.mpi $NNPROCS  ; else ./doqmtests.mpi $NNPROCS fast ; fi
+    - if [[ "$NWCHEM_TARGET" != "LINUX"  && "$FC" != "ifx" && ( "$CI_RUNNER_TAGS" == "ubuntu_xenial" ||  "$CI_RUNNER_TAGS" == "ubuntu_bionic" ) ]]; then ./doqmtests.mpi $NNPROCS  ; else ./doqmtests.mpi $NNPROCS fast ; fi
   only:
     - master
     - /^release-.*$/
@@ -88,6 +90,13 @@ variables:
     - source /opt/intel/compilers_and_libraries_2019/linux/bin/compilervars.sh  intel64
     - export NWCHEM_EXECUTABLE=${NWCHEM_TOP}/../binaries/nwchem_intel
     - export FC=ifort
+
+.intel_template: &ifx_sourcing
+  before_script:
+    - export NWCHEM_TOP=$CI_PROJECT_DIR
+    - source /opt/intel/oneapi/setvars.sh
+    - export NWCHEM_EXECUTABLE=${NWCHEM_TOP}/../binaries/nwchem_ifx
+    - export FC=ifx
 
 .flang_template: &flang_sourcing
   before_script:
@@ -176,6 +185,27 @@ linux64_ubuntu:build_intel:
   tags:
     - ubuntu_bionic
 
+linux64_ubuntu:build_ifx:
+  stage: build
+  <<: *ifx_sourcing
+  <<: *compile_step
+  variables:
+    FC: ifort
+    BLAS_SIZE: 8
+    SCALAPACK_SIZE: 8
+    BLAS_LIB: "   -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core -lpthread -lm -ldl"
+    LAPACK_LIB: " -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core -lpthread -lm -ldl"
+    SCALAPACK_LIB: " -lmkl_scalapack_ilp64 -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core -lmkl_blacs_intelmpi_ilp64 -lpthread -lm -ldl"
+    ARMCI_NETWORK: "SOCKETS"
+    USE_FPICF: "Y"
+  after_script:
+    - export NWCHEM_TOP=$CI_PROJECT_DIR
+    - echo "NWCHEM_TOP is " $NWCHEM_TOP
+    - mkdir -p ${NWCHEM_TOP}/../binaries || true
+    - cp ${NWCHEM_TOP}/bin/LINUX64/nwchem ${NWCHEM_TOP}/../binaries/nwchem_ifx
+  tags:
+    - ubuntu_bionic
+
 linux_ubuntu:build_gcc:
   stage: build
   <<: *beforescript_linuxubuntu
@@ -244,6 +274,14 @@ linux64_ubuntu:run_intel:
   stage: test
   needs: ["linux64_ubuntu:build_intel"]
   <<: *intel_sourcing
+  <<: *test_step
+  tags:
+    - ubuntu_bionic
+
+linux64_ubuntu:run_ifx:
+  stage: test
+  needs: ["linux64_ubuntu:build_ifx"]
+  <<: *ifx_sourcing
   <<: *test_step
   tags:
     - ubuntu_bionic
