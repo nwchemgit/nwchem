@@ -3362,6 +3362,11 @@ endif
 ifeq ($(shell echo $(BLASOPT) |awk '/latlas/ {print "Y"; exit}'),Y)
       DEFINES += -DBLAS_NOTHREADS
 endif
+ifeq ($(shell echo $(BLASOPT) |awk '/SSL2BLAMP/ {print "Y"; exit}'),Y)
+      DEFINES += -DBLAS_OPENMP
+else ifeq ($(shell echo $(BLASOPT) |awk '/SSL2/ {print "Y"; exit}'),Y)
+      DEFINES += -DBLAS_NOTHREADS
+endif
 ifeq ($(shell echo $(BLASOPT) |awk '/lessl/ {print "Y"; exit}'),Y)
   ifeq ($(shell echo $(BLASOPT) |awk '/smp/ {print "Y"; exit}'),Y)
 erroresslsmp:
