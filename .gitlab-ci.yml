@@ -58,7 +58,7 @@ variables:
     GIT_CLEAN_FLAGS: -ffdx -e bin -e build -e install
   script:
     - if [ "$FC" == "ifort" ]; then source /opt/intel/compilers_and_libraries_2019/linux/bin/compilervars.sh  intel64 ; fi
-    - if [ "$FC" == "ifx" ]; then source /opt/intel/oneapi/setvars.sh ; fi
+#   - if [ "$FC" == "ifx" ]; then source /opt/intel/oneapi/setvars.sh ; fi
     - export NWCHEM_TOP=$CI_PROJECT_DIR
     - if [ "$(lsb_release -i|cut -c 17-)" == "CentOS" ]; then export USE_CENTOS="1" ; else export USE_CENTOS="0" ; fi
     - if [ "$USE_CENTOS" == "1" ]; then export NWCHEM_TOP=$HOME/$CI_PROJECT_DIR ; fi
