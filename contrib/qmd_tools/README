@@ -4,7 +4,7 @@ the LAPACK/BLAS included with NWChem. The makefile requires NWCHEM_TOP to be def
 Code for computing the IR spectrum and vibrational density of states from the 
 time correlation functions of the dipole moment and atomic momenta, respectively.
 The harmonic approximation quantum correction (see J. Chem. Phys. 121, 3973 (2004)) 
-is applied to the IR spectrum (the spectrum is also ouput without the correction). 
+is applied to the IR spectrum (the spectrum is also output without the correction). 
 If option -align is specified, every frame in the trajectory will be aligned with 
 the first frame and a new trajectory will be output containing the aligned frames.
 

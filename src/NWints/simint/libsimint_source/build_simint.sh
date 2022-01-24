@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # script to download simint-generator, create the simint library, compile it
 # and link it in NWChem
 # FC=compilername can be used to set compiler, e.g.
@@ -40,7 +40,7 @@ GOTAVX512=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /avx512f/{print "Y"}')
 if [[ -n "${SIMINT_VECTOR}" ]]; then
       VEC=${SIMINT_VECTOR}
 elif [[ "${GOTAVX512}" == "Y" ]]; then
-    VEC=avx512
+    VEC=commonavx512
 elif [[ "${GOTAVX2}" == "Y" ]]; then
     VEC=avx2
 elif [[ "${GOTAVX}" == "Y" ]]; then
@@ -55,7 +55,10 @@ if [[ "${VEC}" == "avx512" ]]; then
 if [[   -z "${CC}" ]]; then
     CC=cc
 fi
+GCC_EXTRA=$(echo $CC | cut -c 1-3)
+if [ "$GCC_EXTRA" == gcc ]; then
 let GCCVERSIONGT5=$(expr `${CC} -dumpversion | cut -f1 -d.` \> 5)
+#echo exit code "$?"
     if [[ ${GCCVERSIONGT5} != 1 ]]; then
 	echo
 	echo you have gcc version $(${CC} -dumpversion | cut -f1 -d.)
@@ -63,6 +66,7 @@ let GCCVERSIONGT5=$(expr `${CC} -dumpversion | cut -f1 -d.` \> 5)
 	echo
 	exit 1
     fi
+fi
 fi
 SRC_HOME=`pwd`
 DERIV=1
@@ -89,43 +93,6 @@ fi
 fi
 tar xzf simint-chem-simint-generator.tar.gz
 cd *-simint-generator-???????
-rm -f generator_types.patch
-cat > generator_types.patch <<EOF
---- simint-chem-simint-generator-c589bd7/generator/CommandLine.hpp	2018-12-11 10:48:31.000000000 -0800
-+++ modif/generator/CommandLine.hpp	2019-09-17 09:25:45.000000000 -0700
-@@ -10,6 +10,7 @@
- 
- #include <vector>
- #include "generator/Options.hpp"
-+#include "generator/Types.hpp"
- 
- 
- /*! \brief Get the next argument on the command line
---- simint-chem-simint-generator-c589bd7/skel/simint/vectorization/intrinsics_avx512.h.org	2019-09-19 23:15:32.768327180 -0700
-+++ modif/skel/simint/vectorization/intrinsics_avx512.h	2019-09-19 23:15:49.232376802 -0700
-@@ -207,7 +207,7 @@
-         return u.v;
-     }
-     
--    #define SIMINT_PRIM_SCREEN_STAT
-+    #define SIMINT_PRIM_SCREEN_STAT__
-     static inline
-     int count_prim_screen_survival(__m512d screen_val, const double screen_tol)
-     {
-edo@durian:~/nwchem/nwchem-master/src/NWints/simint/libsimint_source/edoapra-simint-generator-f690e3a$ diff -u skel/simint/vectorization/intrinsics_avx.h.org skel/simint/vectorization/intrinsics_avx.h 
---- simint-chem-simint-generator-c589bd7/skel/simint/vectorization/intrinsics_avx.h.org	2019-09-19 23:16:00.400410460 -0700
-+++ modif/skel/simint/vectorization/intrinsics_avx.h	2019-09-19 23:16:11.060442586 -0700
-@@ -216,7 +216,7 @@
-         return u.v;
-     }
-     
--    #define SIMINT_PRIM_SCREEN_STAT
-+    #define SIMINT_PRIM_SCREEN_STAT__
-     static inline
-     int count_prim_screen_survival(__m256d screen_val, const double screen_tol)
-     {
-EOF
-patch -p1 < ./generator_types.patch
 pwd
 mkdir -p build; cd build
 if [[ -z "${MYCMAKE}" ]]; then
@@ -162,7 +129,15 @@ if [[ ! -z "${PYTHONHOME}" ]]; then
     unset PYTHONHOME
     echo 'PYTHONOME unset'
 fi
-time -p ./create.py -g build/generator/ostei -l ${SIMINT_MAXAM} -p ${PERMUTE_SLOW} -d ${DERIV} ../simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}  -ve 4 -he 4 -vg 5 -hg 5
+if [[ -z "${GENERATOR_PROCESSES}" ]]; then
+    GENERATOR_PROCESSES=3
+    #parallel processing broken for g++-10 and later (at least on macos)
+    if [[ $(expr `${CXX} -dumpversion | cut -f1 -d.` \> 9) == 1 ]]; then
+	GENERATOR_PROCESSES=1
+    fi
+fi
+echo GENERATOR_PROCESSES is ${GENERATOR_PROCESSES}
+time -p ./create.py -g build/generator/ostei -l ${SIMINT_MAXAM} -p ${PERMUTE_SLOW} -d ${DERIV} ../simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}  -ve 4 -he 4 -vg 5 -hg 5 -n ${GENERATOR_PROCESSES}
 if [[ ! -z "${PYTHONHOME}" ]]; then
     export PYTHONHOME=${PYTHONHOMESET}
     unset PYTHONHOMESET
@@ -193,8 +168,16 @@ if [[ -z "${FC}" ]]; then
 	FC=gfortran
     fi
 fi    
-    GFORTRAN_EXTRA=$(echo $FC | cut -c 1-8)
-if [ ${FC} == gfortran ] || [ ${FC} == flang ] || [[ ${GFORTRAN_EXTRA} == gfortran ]] ; then
+if [[  -z "${NWCHEM_TOP}" ]]; then
+    dir5=$(dirname `pwd`)
+    dir4=$(dirname "$dir5")
+    dir3=$(dirname "$dir4")
+    dir2=$(dirname "$dir3")
+    dir1=$(dirname "$dir2")
+    NWCHEM_TOP=$(dirname "$dir1")
+fi
+FC_EXTRA=$(${NWCHEM_TOP}/src/config/strip_compiler.sh ${FC})
+if [[ ${FC_EXTRA} == gfortran  || ${FC_EXTRA} == flang || ${FC_EXTRA} == armflang || (${FC} == ftn && ${PE_ENV} == GNU) || (${FC} == ftn && ${PE_ENV} == AOCC) ]] ; then
     Fortran_FLAGS="-fdefault-integer-8 -cpp"
     GNUMAJOR=$(${FC} -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
     echo GNUMAJOR is $GNUMAJOR
@@ -203,21 +186,30 @@ if [ ${FC} == gfortran ] || [ ${FC} == flang ] || [[ ${GFORTRAN_EXTRA} == gfortr
     fi
 elif  [ ${FC} == xlf ] || [ ${FC} == xlf_r ] || [ ${FC} == xlf90 ]|| [ ${FC} == xlf90_r ]; then
     Fortran_FLAGS=" -qintsize=8 -qextname -qpreprocess"
-elif  [ ${FC} == ifort ]; then
+elif  [[ ${FC} == ifort || (${FC} == ftn && ${PE_ENV} == INTEL) ]]; then
     Fortran_FLAGS="-i8 -fpp"
-elif  [ ${FC} == nvfortran ] || [ ${FC} == pgf90 ] ; then
+elif  [ ${FC} == ftn ]  && [ ${PE_ENV} == CRAY  ]; then
+    Fortran_FLAGS=" -ffree -s integer64 -e F "
+elif  [[ ${FC_EXTRA} == nvfortran || ${FC} == pgf90 || (${FC} == ftn && ${PE_ENV} == NVIDIA) ]]; then
     Fortran_FLAGS="-i8 -cpp"
     CC=gcc
     CXX=g++
+    if  [[ ${PE_ENV} == NVIDIA ]]; then
+	unset CPATH
+    fi
 fi
 echo Fortran_FLAGS equal "$Fortran_FLAGS"
-FC="${FC}" CXX="${CXX}" $MYCMAKE \
+FC="${FC}" CC="${CC}" CXX="${CXX}" $MYCMAKE \
  -DCMAKE_BUILD_TYPE="${SIMINT_BUILD_TYPE}" -DSIMINT_VECTOR=${VEC}  \
  -DCMAKE_INSTALL_LIBDIR=lib -DENABLE_FORTRAN=ON -DSIMINT_MAXAM=${SIMINT_MAXAM} -DSIMINT_MAXDER=${DERIV} \
  -DENABLE_TESTS=OFF     -DSIMINT_STANDALONE=OFF   \
  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DCMAKE_INSTALL_PREFIX=${SRC_HOME}/simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install ../
 time -p make  -j2
-make simint install/fast
+make simint
+if [[ (${FC} == ftn && ${PE_ENV} == CRAY) ]] ; then
+    cp simint/SIMINTFORTRAN.mod simint/simintfortran.mod
+fi
+make install/fast
 cd ../..
 echo ln -sf  simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install simint_install
 ln -sf  simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install simint_install

@@ -94,7 +94,7 @@ def numderiv(func,x,step,eps):
     
     Some care is taken to adjust the step so that the gradient and
     Hessian diagonal are estimated with about 4 digits of precision
-    but some noise is unavaoidable due either to the noise in the
+    but some noise is unavoidable due either to the noise in the
     function or cubic/higher terms in the Taylor expansion.
     '''
     

@@ -159,6 +159,7 @@
       integer range_ov,range_occ
       integer nos,nvs,noas,nobs,nvas,nvbs,nactv,mov
       integer nacto,nrotv,nrot
+      integer ducc_model
       integer q_ele_a,q_ele_b,q_orb
       double precision xxx,xnorm1,xnorm2,xnorm
       double precision l1norm,ehfa,enrep_tce
@@ -167,7 +168,7 @@ c      double precision f2m(50,50)
       integer k_f2m,l_f2m,size_f2m
       integer k_v4m,l_v4m,size_v4m
       integer l_xrot,k_xrot
-      logical quantumc,spust
+      logical quantumc,spust, nonhf
       logical qrotation   !quantum rotation in active orbital space
 c
       logical pwtce
@@ -726,11 +727,22 @@ cold        rec_mem=1
 !QuantumComputing
        if (.not.rtdb_get(rtdb,'tce:qducc',
      4  mt_log,1,qducc)) qducc=.false.
+            if (.not.rtdb_get(rtdb,'tce:nonhf',
+     4  mt_log,1,nonhf)) nonhf=.false.
 !QuantumComputing
        if(qducc) then 
        nactv=0
+       ducc_model = 0
         if (.not.rtdb_get(rtdb,'tce:nactv',mt_int,1,nactv)) then
          call errquit('tce_energy:nactv=0 while qducc=true',0,
+     2      RTDB_ERR)
+        end if
+        if(.not.rtdb_get(rtdb,'tce:ducc_model',mt_int,1,ducc_model))then
+         call errquit('tce_energy:ducc model not defined',0,
+     2      RTDB_ERR)
+        end if
+        if(ducc_model.gt.6)then
+         call errquit('tce_energy:ducc model not allowed',0,
      2      RTDB_ERR)
         end if
        end if ! if qducc
@@ -3216,7 +3228,7 @@ c -------------------
         if (.not.MA_PUSH_GET(mt_dbl,(nos+nvs)**4,'v',
      1      l_v,k_v))
      1      call errquit('v',202,MA_ERR)
-        if (.not.MA_PUSH_GET(mt_dbl,nos*(nos+nvs),'t1',
+        if (.not.MA_PUSH_GET(mt_dbl,(nos*nvs),'t1',
      1      l_t1,k_t1))
      1      call errquit('t1',203,MA_ERR)
         if (.not.MA_PUSH_GET(mt_dbl,(nos*nvs)**2,'t2',
@@ -3235,7 +3247,7 @@ c -------------------
      D        byte_mb(k_act2),byte_mb(k_prt2),
      D        dbl_mb(k_h),dbl_mb(k_horb),dbl_mb(k_v),
      D        dbl_mb(k_t1),dbl_mb(k_t2),
-     D        dbl_mb(k_ht),dbl_mb(k_vt))
+     D        dbl_mb(k_ht),dbl_mb(k_vt),ducc_model,nonhf)
               if (.not.ma_chop_stack(l_transf))
      1        call errquit('tce_energy: chopstack ducc',4,MA_ERR)
           endif ! qducc
@@ -3957,7 +3969,7 @@ c -------------------
         if (.not.MA_PUSH_GET(mt_dbl,(nos+nvs)**4,'v',
      1      l_v,k_v))
      1      call errquit('v',202,MA_ERR)
-        if (.not.MA_PUSH_GET(mt_dbl,nos*(nos+nvs),'t1',
+        if (.not.MA_PUSH_GET(mt_dbl,(nos*nvs),'t1',
      1      l_t1,k_t1))
      1      call errquit('t1',203,MA_ERR)
         if (.not.MA_PUSH_GET(mt_dbl,(nos*nvs)**2,'t2',
@@ -3977,7 +3989,7 @@ c -------------------
      D        byte_mb(k_act2),byte_mb(k_prt2),
      D        dbl_mb(k_h),dbl_mb(k_horb),dbl_mb(k_v),
      D        dbl_mb(k_t1),dbl_mb(k_t2),
-     D        dbl_mb(k_ht),dbl_mb(k_vt))
+     D        dbl_mb(k_ht),dbl_mb(k_vt),ducc_model,nonhf)
               if (.not.ma_chop_stack(l_transf))
      1        call errquit('tce_energy: chopstack ducc',4,MA_ERR)
           endif ! qducc

@@ -10,5 +10,5 @@ solute-solvent RDFs and DCFs are calculated by 1D RISM-KH
 all other data listed in the article
 
 the calculations require Fourier transforms of solvent 
-as input. These transforms are to be refined before calcualtions
+as input. These transforms are to be refined before calculations
 to provide electroneutrality at k to 0.  

@@ -9,6 +9,8 @@
       character*50 input_v_wavefunction_filename
       character*50 output_ewavefunction_filename
       character*50 input_ewavefunction_filename
+      character*50 output_qwavefunction_filename
+      character*50 input_qwavefunction_filename
       character*50 xyz_filename,cell_name
       character*12 boundry
       real*8      unita(3,3),unita_frozen(3,3)
@@ -64,6 +66,8 @@
      >                         input_v_wavefunction_filename,
      >                         output_ewavefunction_filename,
      >                         input_ewavefunction_filename,
+     >                         output_qwavefunction_filename,
+     >                         input_qwavefunction_filename,
      >                         xyz_filename,cell_name,
      >                         boundry 
       common / control_blktime / cpu1_time,cpu2_time,

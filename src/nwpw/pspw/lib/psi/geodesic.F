@@ -66,9 +66,9 @@ c     >                     'Vt',Vt(2),Vt(1))
 
       subroutine geodesic_finalize()
       implicit none
-#include "errquit.fh"
 
 #include "bafdecls.fh"
+#include "errquit.fh"
 
 *     **** geodesic common block ***
       integer U(2)
@@ -88,6 +88,439 @@ c      value = value.and.BA_free_heap(Vt(2))
       if (.not. value) call errquit('error freeing of heap memory',0,
      &       MA_ERR)
 
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *		geodesic_get_U_ptr      *
+*     *					*
+*     ***********************************
+      integer function geodesic_get_U_ptr()
+      implicit none
+
+*     **** geodesic common block ***
+      integer U(2)
+      integer Vt(2)
+      integer S(2)
+      common / geodesic_block / U,Vt,S
+
+      geodesic_get_U_ptr = U(1)
+      return
+      end
+
+
+*     ***********************************
+*     *					*
+*     *	       geodesic_ABC_init        *
+*     *					*
+*     ***********************************
+      subroutine geodesic_ABC_init()
+      implicit none
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** common block ****
+      integer ABC(2)
+      real*8  Ermdr
+      common / geodesic_ABC_block / ABC,Ermdr
+
+*     **** external functions ****
+      logical  Dneall_m_allocate_block
+      external Dneall_m_allocate_block
+
+      if (.not.Dneall_m_allocate_block(0,4,ABC))
+     >   call errquit('geodesic_ABC_init:alloc ABC',0,MA_ERR)
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *	       geodesic_ABC_finalize    *
+*     *					*
+*     ***********************************
+      subroutine geodesic_ABC_finalize()
+      implicit none
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** ABC common block ****
+      integer ABC(2)
+      real*8  Ermdr
+      common / geodesic_ABC_block / ABC,Ermdr
+
+*     **** external functions ****
+      logical  Dneall_m_free
+      external Dneall_m_free
+
+      if (.not.Dneall_m_free(ABC))
+     >   call errquit('geodesic_ABC_end:deallocate ABC',0,MA_ERR)
+      return
+      end
+
+
+
+*     ***********************************
+*     *					*
+*     *	       geodesic_ABC_start       *
+*     *					*
+*     ***********************************
+      subroutine geodesic_ABC_start(ispin,ne,npack1,Ermdr0,Y,Z,HY,HZ)
+      implicit none
+      integer    ispin,ne(2),npack1
+      real*8     Ermdr0
+      complex*16 Y(*),Z(*),HY(*),HZ(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** ABC common block ****
+      integer ABC(2)
+      real*8  Ermdr
+      common / geodesic_ABC_block / ABC,Ermdr
+
+*     **** geodesic common block ***
+      integer U(2)
+      integer Vt(2)
+      integer S(2)
+      common / geodesic_block / U,Vt,S
+
+*     **** local variables ****
+      integer ms,ishift,A,Bdag,C,tmp1(2)
+
+*     **** external functions ****
+      logical  Dneall_m_push_get,Dneall_m_pop_stack
+      external Dneall_m_push_get,Dneall_m_pop_stack
+      integer  psi_ne
+      external psi_ne
+      real*8   Dneall_m_trace
+      external Dneall_m_trace
+
+      Ermdr = Ermdr0
+
+      call Dneall_m_size(0,ishift)
+      A    = ABC(1)
+      Bdag = ABC(1) +   ishift
+      C    = ABC(1) + 2*ishift
+
+      if (.not.Dneall_m_push_get(0,tmp1))
+     >   call errquit('geodesic_ABC_start:stack',0,MA_ERR)
+
+*     **** Copy Hpsi_k to HY then ****
+*     ****   generate Hpsi using psi_k=U and copy Hpsi_k to HU ****
+      call electron_get_Hpsi_k(HY)
+      call electron_run0(Z)
+      call electron_get_Hpsi_k(HZ)
+
+*     **** generate A=<Y|HY>, Bdag=<U|HY>, C=<U|HU> matrices ****
+      call Dneall_ffm_sym_Multiply(0,Y,HY,npack1,dbl_mb(A))
+      call Dneall_ffm_Multiply(0,Z,HY,npack1,dbl_mb(Bdag))
+      call Dneall_ffm_sym_Multiply(0,Z,HZ,npack1,dbl_mb(C))
+
+*     **** compute V'*A*V ****
+      call Dneall_mmm_Multiply3(0,dbl_mb(A),
+     >                            dbl_mb(Vt(1)),
+     >                            dbl_mb(tmp1(1)))
+      call Dneall_mmm_Multiply(0,dbl_mb(Vt(1)),
+     >                           dbl_mb(tmp1(1)),
+     >                           1.0d0,
+     >                           dbl_mb(A),0.0d0)
+
+*     **** compute B'*V ****
+      call Dneall_mmm_Multiply3(0,dbl_mb(Bdag),
+     >                           dbl_mb(Vt(1)),
+     >                           dbl_mb(tmp1(1)))
+      call Parallel_shared_vector_copy(.true.,ishift,
+     >                                 dbl_mb(tmp1(1)),dbl_mb(Bdag))
+
+      if (.not.Dneall_m_pop_stack(tmp1))
+     >   call errquit('geodesic_ABC_start:pop',1,MA_ERR)
+
+      return
+      end
+
+      subroutine junk_mat_print(n,A)
+      implicit none
+      integer n
+      real*8 A(n,n)
+      integer i,j
+
+      write(*,*) "mat_print:"
+      do i=1,n
+         write(*,*) (A(i,j),j=1,n)
+      end do
+      
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *	       geodesic_ABC_energy      *
+*     *					*
+*     ***********************************
+      real*8 function geodesic_ABC_energy(t)
+      implicit none
+      real*8 t
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** ABC common block ****
+      integer ABC(2)
+      real*8  Ermdr
+      common / geodesic_ABC_block / ABC,Ermdr
+
+*     **** geodesic common block ***
+      integer U(2)
+      integer Vt(2)
+      integer S(2)
+      common / geodesic_block / U,Vt,S
+
+*     **** local variables ****
+      logical value
+      integer ishift,A,Bdag,C,nemax
+      integer tmp1(2),tmp2(2),tmp3(2),tmpC(2),tmpS(2),tmp4(2)
+      real*8  energy
+
+*     **** external functions ****
+      logical  Dneall_m_push_get,Dneall_m_pop_stack
+      external Dneall_m_push_get,Dneall_m_pop_stack
+      integer  psi_ispin,psi_ne
+      external psi_ispin,psi_ne
+      real*8   Dneall_m_trace
+      external Dneall_m_trace
+
+
+      call Dneall_m_size(0,ishift)
+      A    = ABC(1)
+      Bdag = ABC(1) +   ishift
+      C    = ABC(1) + 2*ishift
+
+      nemax = psi_ne(1)+psi_ne(2)
+
+*     **** push stack space ****
+      value =           Dneall_m_push_get(0,tmp1)
+      value = value.and.Dneall_m_push_get(0,tmp2)
+      value = value.and.Dneall_m_push_get(0,tmp3)
+      value = value.and.Dneall_m_push_get(0,tmp4)
+      value = value.and.BA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
+      value = value.and.BA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
+      if (.not.value) call errquit('geodesic_ABC_energy:stack',0,MA_ERR)
+
+      call Dneall_mm_SCtimesVtrans(0,t,dbl_mb(S(1)),
+     >                                dbl_mb(Vt(1)),
+     >                                dbl_mb(tmp1(1)),
+     >                                dbl_mb(tmp3(1)),
+     >                                dbl_mb(tmpC(1)),
+     >                                dbl_mb(tmpS(1)))
+
+*     **** V*cos*B*sin*V' ****
+      call Dneall_mmm_Multiply2(0,dbl_mb(Bdag),
+     >                            dbl_mb(tmp3(1)),
+     >                            dbl_mb(tmp2(1)))
+      call Dneall_mmm_Multiply2(0,dbl_mb(tmp1(1)),
+     >                            dbl_mb(tmp2(1)),
+     >                            dbl_mb(tmp4(1)))
+
+*     **** V*cos*A*cos*V' ****
+      call Dneall_mmm_Multiply2(0,dbl_mb(tmp1(1)),
+     >                            dbl_mb(A),
+     >                            dbl_mb(tmp2(1)))
+      call Dneall_mmm_Multiply(0,dbl_mb(tmp2(1)),
+     >                           dbl_mb(tmp1(1)),1.0d0,
+     >                           dbl_mb(tmp4(1)),1.0d0)
+
+*     **** V*sin*B'*cos*V' ****
+      call Dneall_mmm_Multiply2(0,dbl_mb(tmp3(1)),
+     >                            dbl_mb(Bdag),
+     >                            dbl_mb(tmp2(1)))
+      call Dneall_mmm_Multiply(0,dbl_mb(tmp2(1)),
+     >                           dbl_mb(tmp1(1)),1.0d0,
+     >                           dbl_mb(tmp4(1)),1.0d0)
+
+*     **** V*sin*C*sin*V' ****
+      call Dneall_mmm_Multiply2(0,dbl_mb(tmp3(1)),
+     >                            dbl_mb(C),
+     >                            dbl_mb(tmp2(1)))
+      call Dneall_mmm_Multiply(0,dbl_mb(tmp2(1)),
+     >                           dbl_mb(tmp3(1)),1.0d0,
+     >                           dbl_mb(tmp4(1)),1.0d0)
+
+      !tmp4 = tmp1'*A*tmp1
+      !tmp4 += tmp1'*B*tmp3
+      !tmp4 += tmp3'*B'*tmp1
+      !tmp4 += tmp3'*C*tmp3
+
+      energy = Dneall_m_trace(0,dbl_mb(tmp4(1)))
+      if (psi_ispin().eq.1) energy = energy+energy
+
+*     **** pop stack space ****
+      value =           BA_pop_stack(tmpS(2))
+      value = value.and.BA_pop_stack(tmpC(2))
+      value = value.and.Dneall_m_pop_stack(tmp4)
+      value = value.and.Dneall_m_pop_stack(tmp3)
+      value = value.and.Dneall_m_pop_stack(tmp2)
+      value = value.and.Dneall_m_pop_stack(tmp1)
+      if (.not.value) call errquit('geodesic_ABC_energy:pop',1,MA_ERR)
+
+      geodesic_ABC_energy = energy + Ermdr
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *	      geodesic_ABC_denergy      *
+*     *					*
+*     ***********************************
+      real*8 function geodesic_ABC_denergy(t)
+      implicit none
+      real*8 t
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** ABC common block ****
+      integer ABC(2)
+      real*8  Ermdr
+      common / geodesic_ABC_block / ABC,Ermdr
+
+*     **** geodesic common block ***
+      integer U(2)
+      integer Vt(2)
+      integer S(2)
+      common / geodesic_block / U,Vt,S
+
+*     **** local variables ****
+      logical value
+      integer nemax,ishift,A,Bdag,C
+      integer CV(2),SV(2),SSV(2),CSV(2),tmpC(2),tmpS(2)
+      integer tmp1(2),tmp4(2)
+      real*8  denergy,denergyB,denergyA,denergyC,denergyBdag
+
+*     **** external functions ****
+      logical  Dneall_m_push_get,Dneall_m_pop_stack
+      external Dneall_m_push_get,Dneall_m_pop_stack
+      integer  psi_ispin,psi_ne
+      external psi_ispin,psi_ne
+      real*8   Dneall_m_trace
+      external Dneall_m_trace
+
+
+      call Dneall_m_size(0,ishift)
+      A    = ABC(1)
+      Bdag = ABC(1) +   ishift
+      C    = ABC(1) + 2*ishift
+
+      nemax = psi_ne(1)+psi_ne(2)
+
+*     **** push stack space ****
+      value =           Dneall_m_push_get(0,CV)
+      value = value.and.Dneall_m_push_get(0,SV)
+      value = value.and.Dneall_m_push_get(0,SSV)
+      value = value.and.Dneall_m_push_get(0,CSV)
+      value = value.and.Dneall_m_push_get(0,tmp1)
+      value = value.and.Dneall_m_push_get(0,tmp4)
+      value = value.and.BA_push_get(mt_dbl,nemax,'tmpC',tmpC(2),tmpC(1))
+      value = value.and.BA_push_get(mt_dbl,nemax,'tmpS',tmpS(2),tmpS(1))
+      if (.not.value) call errquit('geodesic_ABC_denergy:push',0,MA_ERR)
+
+      call Dneall_mm_SCtimesVtrans(0,t,dbl_mb(S(1)),
+     >                               dbl_mb(Vt(1)),
+     >                               dbl_mb(CV(1)),
+     >                               dbl_mb(SV(1)),
+     >                               dbl_mb(tmpC(1)),
+     >                               dbl_mb(tmpS(1)))
+      call Dneall_mm_SCtimesVtrans2(0,t,dbl_mb(S(1)),
+     >                                dbl_mb(Vt(1)),
+     >                                dbl_mb(SSV(1)),
+     >                                dbl_mb(CSV(1)),
+     >                                dbl_mb(tmpC(1)),
+     >                                dbl_mb(tmpS(1)))
+
+
+*     **** -V*S*sin*B*sin*V' ****
+      call Dneall_mmm_Multiply2(0,dbl_mb(Bdag),
+     >                            dbl_mb(SV(1)),
+     >                            dbl_mb(tmp1(1)))
+      call Dneall_mmm_Multiply2(0,dbl_mb(SSV(1)),
+     >                            dbl_mb(tmp1(1)),
+     >                            dbl_mb(tmp4(1)))
+
+      denergy = -Dneall_m_trace(0,dbl_mb(tmp4(1)))
+
+*     ****  V*cos*B*cos*S*V' ****
+      call Dneall_mmm_Multiply2(0,dbl_mb(Bdag),
+     >                            dbl_mb(CSV(1)),
+     >                            dbl_mb(tmp1(1)))
+      call Dneall_mmm_Multiply2(0,dbl_mb(CV(1)),
+     >                            dbl_mb(tmp1(1)),
+     >                            dbl_mb(tmp4(1)))
+
+      denergy = denergy + Dneall_m_trace(0,dbl_mb(tmp4(1)))
+
+
+*     **** -V*S*sin*A*cos*V' ****
+      call Dneall_mmm_Multiply2(0,dbl_mb(SSV(1)),
+     >                            dbl_mb(A),
+     >                            dbl_mb(tmp1(1)))
+      call Dneall_mmm_Multiply(0,dbl_mb(tmp1(1)),
+     >                           dbl_mb(CV(1)), -1.0d0,
+     >                           dbl_mb(tmp4(1)),0.0d0)
+*     **** -V*cos*A*sin*S*V' ****
+      call Dneall_mmm_Multiply2(0,dbl_mb(CV(1)),
+     >                            dbl_mb(A),
+     >                            dbl_mb(tmp1(1)))
+      call Dneall_mmm_Multiply(0,dbl_mb(tmp1(1)),
+     >                           dbl_mb(SSV(1)),-1.0d0,
+     >                           dbl_mb(tmp4(1)),1.0d0)
+
+*     **** V*S*cos* B' *cos*V' ****
+      call Dneall_mmm_Multiply2(0,dbl_mb(CSV(1)),
+     >                            dbl_mb(Bdag),
+     >                            dbl_mb(tmp1(1)))
+      call Dneall_mmm_Multiply(0,dbl_mb(tmp1(1)),
+     >                           dbl_mb(CV(1)),  1.0d0,
+     >                           dbl_mb(tmp4(1)),1.0d0)
+*     **** -V*sin*B'*sin*S*V' ****
+      call Dneall_mmm_Multiply2(0,dbl_mb(SV(1)),
+     >                            dbl_mb(Bdag),
+     >                            dbl_mb(tmp1(1)))
+      call Dneall_mmm_Multiply(0,dbl_mb(tmp1(1)),
+     >                           dbl_mb(SSV(1)), -1.0d0,
+     >                           dbl_mb(tmp4(1)), 1.0d0)
+
+*     ****  V*S*cos*C*sin*V' ****
+      call Dneall_mmm_Multiply2(0,dbl_mb(CSV(1)),
+     >                            dbl_mb(C),
+     >                            dbl_mb(tmp1(1)))
+      call Dneall_mmm_Multiply(0,dbl_mb(tmp1(1)),
+     >                           dbl_mb(SV(1)),  1.0d0,
+     >                           dbl_mb(tmp4(1)),1.0d0)
+*     ****  V*sin*C*cos*S*V' ****
+      call Dneall_mmm_Multiply2(0,dbl_mb(SV(1)),
+     >                            dbl_mb(C),
+     >                            dbl_mb(tmp1(1)))
+      call Dneall_mmm_Multiply(0,dbl_mb(tmp1(1)),
+     >                           dbl_mb(CSV(1)), 1.0d0,
+     >                           dbl_mb(tmp4(1)),1.0d0)
+
+      denergy = denergy + Dneall_m_trace(0,dbl_mb(tmp4(1)))
+      if (psi_ispin().eq.1) denergy = denergy+denergy
+
+*     **** pop stack space ****
+      value =           BA_pop_stack(tmpS(2))
+      value = value.and.BA_pop_stack(tmpC(2))
+      value = value.and.BA_pop_stack(tmp4(2))
+      value = value.and.BA_pop_stack(tmp1(2))
+      value = value.and.Dneall_m_pop_stack(CSV)
+      value = value.and.Dneall_m_pop_stack(SSV)
+      value = value.and.Dneall_m_pop_stack(SV)
+      value = value.and.Dneall_m_pop_stack(CV)
+      if (.not.value) call errquit('geodesic_ABC_denergy:pop',1,MA_ERR)
+
+      geodesic_ABC_denergy = denergy
       return
       end
 

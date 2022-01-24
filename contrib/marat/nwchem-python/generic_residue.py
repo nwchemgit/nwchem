@@ -179,7 +179,7 @@ class GenericResidue(object):
                         r = GenericAtom.bondlength(a1, a2)
                         if r < rOH:
                             plist.append([a1,a2])
-#        print "plist",plist
+#        print("plist",plist)
         for a1,a2 in plist:
             if a1.elemName()=='H':
                 res1,res2=res2,res1
@@ -217,7 +217,7 @@ class GenericResidue(object):
                         r = GenericAtom.bondlength(a1, a2)
                         if r < rOH:
                             plist.append([a1,a2])
-#        print "plist",plist
+#        print("plist",plist)
         for a1,a2 in plist:
             if a1.elemName()=='H':
                 res1,res2=res2,res1
@@ -277,7 +277,7 @@ class GenericResidue(object):
 #            return False
 #        a3 = res2.get_bonded(a2, 'O')[0]
 #        angle = GenericAtom.angle(a1, a2, a3)
-#        print r,angle
+#        print(r,angle)
 #        return angle>OHO
         
     @staticmethod
@@ -286,7 +286,7 @@ class GenericResidue(object):
         for a1 in res1.byFilter():
             for a2 in res2.byFilter():
                 dr=min(dr,GenericAtom.bondlength(a1, a2))
-                print dr,a1.name(),a2.name()
+                print(dr,a1.name(),a2.name())
         return dr
         
     def byElement(self,name):
@@ -309,33 +309,33 @@ if __name__ == '__main__':
 #    aline2 = "ATOM      1  I1  IO3     1      -1.555  -0.350   0.333        1.39     I"
 #
 #    res0 = GenericResidue()
-#    print res0
+#    print(res0)
 #    a = GenericAtom.fromPDBrecord(aline2)
-#    print a
+#    print(a)
 #    res0.AddAtom(a)
-#    print res0.size()
+#    print(res0.size())
     
     res0 = GenericResidue.fromPDBfile("io3.pdb")
-    print res0
+    print(res0)
  
     res1 = GenericResidue.fromPDBfile("h2o-1.pdb")
-    print res1.signature()
-    print res0.signature()
+    print(res1.signature())
+    print(res0.signature())
     res1.guess_name()
-    print res1.name
+    print(res1.name)
     res0.guess_name()
-    print res0.name
+    print(res0.name)
     
-    print "distance test"
+    print("distance test")
     (r,a1,a2)=GenericResidue.distance(res0, res1)
-    print r, a1.name(), a2.name()
-    print res1.get_bonded(a2, "O")
+    print(r, a1.name(), a2.name())
+    print(res1.get_bonded(a2, "O"))
     name = None
-    print (filter(lambda a: name is None or a.elemName()==name,res1.atoms ))
-    print GenericResidue.hbonded(res0,res1)
-    print "HERE COMES PDB RECORD"
-    print res0.toPDBrecord(1)
+    print((filter(lambda a: name is None or a.elemName()==name,res1.atoms)))
+    print(GenericResidue.hbonded(res0,res1))
+    print("HERE COMES PDB RECORD")
+    print(res0.toPDBrecord(1))
 #    b = ResAtom.fromPDBrecord(aline1)
 #    res0.AddAtom(a)
 #    res0.AddAtom(b)
-#    print res0.toPDBrecord(atom_start=1)
+#    print(res0.toPDBrecord(atom_start=1))

@@ -1,4 +1,4 @@
-#!/bin/bash -f
+#!/usr/bin/env bash
 #
 # $Id$
 #
@@ -13,18 +13,8 @@ if [ -z "$NWCHEM_TOP" ]; then
    echo "Usage: has_blas file_1 [file_2 file_3 ...]"
    exit 1
 fi
-  if [ -x /msrc/apps/bin/perl ]; then
-      perlexe=/msrc/apps/bin/perl
-  elif [ -x /usr/local/bin/perl ]; then
-      perlexe=/usr/local/bin/perl
-  elif [ -x /usr/local/gnu/bin/perl ]; then
-      perlexe=/usr/local/gnu/bin/perl
-  elif [ -x /usr/gnu/bin/perl ]; then
-      perlexe=/usr/gnu/bin/perl
-  else
 # assume perl is in your path
       perlexe=perl
-  fi
   perlscript=$NWCHEM_TOP/src/config/hasblas.pl
 
 if [[ $# -eq 0 ]] ; then

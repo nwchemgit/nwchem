@@ -54,7 +54,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ runner.os }}-${{ matrix.mpi_impl}}-${{ matrix.distro}}-${{ matrix.arch}}-nwchem-v006
+          key: ${{ runner.os }}-${{ matrix.mpi_impl}}-${{ matrix.distro}}-${{ matrix.arch}}-nwchem-v009
       - uses: actions/checkout@v2
         name: Checkout
         with:
@@ -110,7 +110,7 @@ jobs:
             export DEBIAN_FRONTEND=noninteractive
             apt-get install -y tzdata apt-utils
             dpkg-reconfigure --frontend noninteractive tzdata
-            DEBIAN_FRONTEND=noninteractive apt-get install -q -y sudo git  gfortran curl wget unzip perl rsync python3-dev python-dev cmake 
+            DEBIAN_FRONTEND=noninteractive apt-get install -q -y sudo git  gfortran curl wget unzip perl rsync python3-dev python-dev cmake libnuma1
             ;;
             fedora*)
             dnf -y update

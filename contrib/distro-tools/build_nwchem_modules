@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # This script tests various builds to ensure that routines are stubbed 
 # properly when not needed. 

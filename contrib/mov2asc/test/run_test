@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 if [ ${#NWCHEM_EXECUTABLE} -eq 0 ] ; then
   export NWCHEM_EXECUTABLE=`find ../../../bin -name nwchem`
 fi

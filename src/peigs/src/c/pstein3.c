@@ -153,7 +153,6 @@ void pstein ( n, dd, ee, meigval, eval, iblock, nsplit, isplit,
 
 
   extern Integer      mxnprc_(), mxmynd_();
-  extern void     reduce_maps_();
   extern Integer clustrf_();
   
   extern Integer      reduce_list2(), count_list(), clustrinv_();

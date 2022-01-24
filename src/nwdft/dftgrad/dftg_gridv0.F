@@ -132,7 +132,7 @@ c derivative multiplied by the gradient of the ground state density.
       integer mbf_dchiffp
 c Daniel (2-6-13): Variable for doing restricted triplet gradients for
 c the XC-kernel term in TDDFT gradients
-      integer triplet
+      logical triplet
 c Daniel (2-7-13): Variable for the alternative approach to the dVxc*P
 c term in the TDDFT gradients.
       logical do_tddftvxc

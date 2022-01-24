@@ -93,8 +93,10 @@ then
     if [ ! -f ga-"$GA_RELEASE_NO".tar.gz ]; then
 	if test "x$TAR_URL" = x
 	then
-#	TAR_URL=https://github.com/GlobalArrays/ga/releases/download/v"$GA_RELEASE_NO"/ga-"$GA_RELEASE_NO".tar.gz
-	 TAR_URL=https://github.com/edoapra/ga/releases/download/v"$GA_RELEASE_NO"/ga-"$GA_RELEASE_NO".tar.gz
+	TAR_URL=https://github.com/GlobalArrays/ga/releases/download/v"$GA_RELEASE_NO"/ga-"$GA_RELEASE_NO".tar.gz
+#	 TAR_URL=https://github.com/edoapra/ga/releases/download/v"$GA_RELEASE_NO"/ga-"$GA_RELEASE_NO".tar.gz
+#	 TAR_URL=https://github.com/edoapra/ga/releases/download/v"$GA_RELEASE_NO"/ga-5.8.1.v3.tar.gz
+#         TAR_URL=https://github.com/GlobalArrays/ga/archive/refs/tags/v"$GA_RELEASE_NO".tar.gz
 	 #         https://github.com/edoapra/ga/releases/download/v5.7.2/ga-5.7.2.tar.gz
 	fi
 	echo "downloading" ga-"$GA_RELEASE_NO".tar.gz  "from" "$TAR_URL"
@@ -206,6 +208,7 @@ echo "GOTMINGW64" $GOTMINGW64
 ./msmpi_patch.sh $GA_DIR
 ./mingw64_patch.sh $GA_DIR
 fi
+#patch -p0 -s -N < ./scala1.patch
 if test -e $GA_DIR/configure
 then
         echo "configure present. no autogen.sh required"

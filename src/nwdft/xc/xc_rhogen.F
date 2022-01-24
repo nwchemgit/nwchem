@@ -176,7 +176,7 @@ c
       if(grad) DELFUNC_MAX = dabsmax(natoms,rdelchi_atom)
 c
       nonzero=0
-      if(dftnbget) then
+      if(dftnbget.and.what.eq.0) then
          if (.not.ma_push_get
      &        (mt_int,(ipol*npert*natoms*(natoms+1))/2,
      N        'nzmap map',l_nz,i_nz))
@@ -276,7 +276,7 @@ c
                      sizeblk=nbfia*nbfja
                      call updist(monitor_size_ga_get, sizeblk)
 c
-                     if(dftnbget) then
+                     if(dftnbget.and.what.eq.0) then
                        call starttimer(monitor_wait3)
                        call ga_nbwait(nbhandl)
                        call endtimer(monitor_wait3)
@@ -562,7 +562,7 @@ c
       call endtimer(monitor_rhocomp2)
 c     
  1688 continue
-      if(dftnbget) then
+      if(dftnbget.and.what.eq.0) then
          if (.not.ma_pop_stack(l_nz))
      &        call errquit('xcrho:pop_stack failed', 13, MA_ERR)
       endif
@@ -972,7 +972,7 @@ c
       if(grad) DELFUNC_MAX = dabsmax(natoms,rdelchi_atom)
 c
       nonzero=0
-      if(dftnbget) then
+      if(dftnbget.and.what.eq.0) then
          if (.not.ma_push_get
      &        (mt_int,(ipol*npert*natoms*(natoms+1))/2,
      N        'nzmap map',l_nz,i_nz))
@@ -1066,7 +1066,7 @@ c
                sizeblk=nbfia*nbfja
                call updist(monitor_size_ga_get, sizeblk)
 c
-               if(dftnbget) then
+               if(dftnbget.and.what.eq.0) then
                   call starttimer(monitor_wait3)
                   call ga_nbwait(nbhandl)
                   call endtimer(monitor_wait3)
@@ -1235,7 +1235,7 @@ c
       call endtimer(monitor_rhocomp2)
 c     
  1688 continue
-      if(dftnbget) then
+      if(dftnbget.and.what.eq.0) then
          if (.not.ma_pop_stack(l_nz))
      &        call errquit('xcrho:pop_stack failed', 13, MA_ERR)
       endif

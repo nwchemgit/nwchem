@@ -36,6 +36,7 @@ noprint "final vectors analysis" multipole
 end
 set geometry w1
 set lindep:n_dep 0
+set grid:eaf_size_in_dbl              9304257
 task dft optimize ignore
 
 driver
