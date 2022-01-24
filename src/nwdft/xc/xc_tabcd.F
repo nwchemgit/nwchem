@@ -309,20 +309,20 @@ c
                   Dmat(1:nq,2,mu) = chi(1:nq,mu1)*Cmat(1:nq,2,ii,imat)
                   Dmat(1:nq,3,mu) = chi(1:nq,mu1)*Cmat(1:nq,3,ii,imat)
                 endif
-                if (kske) then
+                if (kske.and.grad) then
                   Dmat(1:nq,1,mu) = Dmat(1:nq,1,mu) + 
      &               Mmat(1:nq,ii,imat)*delchi(1:nq,1,mu1)
-                  Dmat(1:nq,2,mu) = Dmat(1:nq,1,mu) + 
+                  Dmat(1:nq,2,mu) = Dmat(1:nq,2,mu) + 
      &               Mmat(1:nq,ii,imat)*delchi(1:nq,2,mu1)
-                  Dmat(1:nq,3,mu) = Dmat(1:nq,1,mu) + 
+                  Dmat(1:nq,3,mu) = Dmat(1:nq,3,mu) + 
      &               Mmat(1:nq,ii,imat)*delchi(1:nq,3,mu1)
                 endif
-                if (kslap) then
+                if (kslap.and.grad) then
                   Dmat(1:nq,1,mu) = Dmat(1:nq,1,mu) + 
      &               2d0*Lmat(1:nq,ii,imat)*delchi(1:nq,1,mu1)
-                  Dmat(1:nq,2,mu) = Dmat(1:nq,1,mu) + 
+                  Dmat(1:nq,2,mu) = Dmat(1:nq,2,mu) + 
      &               2d0*Lmat(1:nq,ii,imat)*delchi(1:nq,2,mu1)
-                  Dmat(1:nq,3,mu) = Dmat(1:nq,1,mu) + 
+                  Dmat(1:nq,3,mu) = Dmat(1:nq,3,mu) + 
      &               2d0*Lmat(1:nq,ii,imat)*delchi(1:nq,3,mu1)
                   Bmat(1:nq,mu) = Bmat(1:nq,mu) + 
      &               Lmat(1:nq,ii,imat)*(heschi(1:nq,1,mu1)+
