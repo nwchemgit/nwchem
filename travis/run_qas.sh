@@ -54,6 +54,9 @@ env|egrep MP
  case "$ARMCI_NETWORK" in
     MPI-PR)
 	nprocs=$(( nprocs + 1 ))
+	if [[ "$BUILD_MPICH" == 1 && $nprocs > 2 ]]; then
+	    nprocs=2
+	fi
 	case "$MPI_IMPL" in
 	    openmpi)
 		export MPIRUN_NPOPT="-mca mpi_yield_when_idle 0 --oversubscribe -np "

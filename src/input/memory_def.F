@@ -69,7 +69,8 @@ C
 #ifdef DFLT_TOT_MEM
       Parameter (Total_Dflt = DFLT_TOT_MEM )   ! from compile flag
 #else
-      Parameter ( Total_Dflt = 52428800) ! 400 on 512 MB (per core)
+cold      Parameter ( Total_Dflt = 52428800) ! 400 on 512 MB (per core)
+      Parameter ( Total_Dflt = 104857600) ! 800 mb out of 1024 MB (per core)
 #endif
 C
 C     Fraction of total memory which goes into each memory category
