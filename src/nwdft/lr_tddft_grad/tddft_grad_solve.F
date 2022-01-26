@@ -5,7 +5,7 @@ c
       subroutine tddft_grad_solve(rtdb,ihdl_geom,ihdl_bfao,ipol,nroots,
      +           nao,nocc,naoc,nav,nfc,nfv,g_mo,iptr_mo_e,tda,oskel,
      +           kfac,lhashf,otriplet,solve_thresh,solve_maxsub,
-     +           solve_maxit,fn_solve,solve_when,tol2e,g_r,g_z)
+     +           solve_maxit,fn_solve,solve_when,tol2e,g_r,g_z,lhascd)
 c
 c     At this point Ria has just been computed. The quantities
 c     are stored in 3D global arrays as R(1)(1:nroot,1:nocca,1:nvirta),
@@ -70,6 +70,7 @@ c
       logical oskel       ! Use of symmetry in Fock build
       logical lhashf      ! has the functional got HF exchange
       logical otriplet    ! are we doing triplet excitations
+      logical lhascd
       integer nroots      ! the number of roots
       integer nao         ! the number of AOs
       integer nfc(2)      ! the number of frozen core orbitals
@@ -182,6 +183,7 @@ c      tdg_tda     = tda
       tdg_lhashf  = lhashf
 cold  tdg_triplet = otriplet
       tdg_triplet = .false.
+      tdg_lhascd  = lhascd
 c Daniel (2-26-13): It was not obvious that we need to unset
 c fock_xc:triplet here for restricted triplet calculations to work.
       if (otriplet) then
