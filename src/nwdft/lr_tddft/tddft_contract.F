@@ -501,7 +501,7 @@ c        write(6,*)'NOT HERE'
      1    ndu,nfu,nbf_ao,.false.)
         if (.not.cam_exch) then   ! normal calculations
           if (lhascd.and..not.lhashf) then
-           call tddft_fock_fit(0,nvectors,dbl_mb(k_jf),tol2e,g_nsym,
+           call tddft_fock_fit(0,ndu,dbl_mb(k_jf),tol2e,g_nsym,
      1                     g_nprd_p)
           else
             call shell_fock_build(geom,ao_bas_han,0,ndu,

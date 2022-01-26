@@ -1282,8 +1282,8 @@ c
       g_xc=ga_create3d_atom_blocked(geom, basis,'nfockxc:3dxc', nfock)
       call nga_distribution(g_xc,
      .     ga_nodeid(), ilo,ihi)
-      write(6,123) ga_nodeid(),' gxc distr ilo',ilo
-      write(6,123) ga_nodeid(),' gxc distr ihi',ihi
+c      write(6,123) ga_nodeid(),' gxc distr ilo',ilo
+c      write(6,123) ga_nodeid(),' gxc distr ihi',ihi
  123  format(i2,a,3i5)
 #endif
 

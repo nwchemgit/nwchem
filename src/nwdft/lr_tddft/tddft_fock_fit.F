@@ -13,10 +13,11 @@ c
 #include "util.fh"
 
       integer ndens
+      integer nfocks
       integer nder
       integer g_dens
       integer g_fock
-      integer tol2e
+      double precision tol2e
       double precision jfac(*)
 
       integer lo(3), hi(3), ld(2)
@@ -51,17 +52,22 @@ c
       integer idens,i,nnii,nfunz,ninteg_api
 
       integer g_tmp
+      integer ityp, ndim, dims(3)
 
       double precision threshold, az, shmax, cd_coef_max
       double precision pmat_max,eri_est,fac,vcoul_est,q1,qscale,qsym
       double precision maxf, t0
 
+      logical,external :: xc_gotxc
       integer,external :: nxtask_static, nxtask
       double precision, external :: ddot, dabsmax
 
       ! GA information
       me = ga_nodeid()
       nproc  = ga_nnodes()
+
+      call nga_inquire(g_fock, ityp, ndim, dims)
+      nfocks = dims(1)
 
       ! Whether we read or not CDINV from disk
       iolgc = noio.ne.1
@@ -106,7 +112,6 @@ c
       ld(1) = ndens
 
       ! Part 1. Contract 3c-ERIs with density matrices
-      t0 = util_wallsec()
       icount = 0
       n1 = nxtask_static(nproc,1)
       do atom_c=1,ncenters
@@ -160,7 +165,8 @@ c
 
                ! Copy DM block for current shell pair
                call tddft_copyfrom(ndens,nbf_at_d,nbf_at_c,nshbfd,
-     +          nshbfc,dbl_mb(k_p),dbl_mb(igvec),icount_d,icount_c)
+     +          nshbfc,dbl_mb(k_p),dbl_mb(igvec),icount_d,icount_c,
+     +          jfac)
 c     
                Nao2 = nshbfd*nshbfc
 
@@ -211,13 +217,7 @@ c
       call ga_dgop(1,dbl_mb(iTvec),nbf_cd*ndens,'+')
       call ga_sync()
 
-      if (me.eq.0) then
-        write(*,'("Part 1: ",F12.3," s")') util_wallsec()-t0
-      endif
-
       ! Part 2. Multiply by inverse metric
-
-      t0 = util_wallsec()
       ! Read CDINV if necessary
       if (IOLGC)then
          if (.not. ga_create(mt_dbl, nbf_cd, nbf_cd, 'CD 2cERInv', 
@@ -256,10 +256,6 @@ c
      $    call errquit("tddft_fock_fit: destroy GA",g_cdinv,GA_ERR) 
       endif
 
-      if (me.eq.0) then
-        write(*,'("Part 2: ",F12.3," s")') util_wallsec()-t0
-      endif
-
       ! Obtain maximum values for all Shells
       if(.not.MA_Push_Get(MT_Dbl,nshells_cd,'CD shell max',
      &  lcd_shell,icd_shell))
@@ -282,7 +278,6 @@ c
       enddo
 
       ! Part 3. Obtain Fock matrices
-      t0 = util_wallsec()
       icount = 0
       n1 = nxtask(nproc,1)
       do atom_c = 1,ncenters
@@ -389,23 +384,17 @@ c
       n1 = nxtask(-nproc,1)
       call ga_sync()
 
-      if (me.eq.0) then
-        write(*,'("Part 3: ",F12.3," s")') util_wallsec()-t0
-      endif
-
 
   100 continue
 
-      ! Part 4. XC 
-      t0 = util_wallsec()
-      call xc_newfock(geom,ao_bas_han,jfac,jfac,nbf_ao,
-     &        nder, ndens, ndens, g_fock,g_dens)
-      if (me.eq.0) then
-        write(*,'("Part 4: ",F12.3," s")') util_wallsec()-t0
+      if (xc_gotxc().and.nder.eq.0) then
+        call xc_newfock(geom,ao_bas_han,jfac,jfac,nbf_ao,
+     &        nder, ndens, nfocks, g_fock,g_dens)
       endif
 
       call ga_mask_sync(.false.,.false.)
       call ga_symmetrize(g_fock)
+
       end
 
       subroutine tddft_finalize_fit()
@@ -427,15 +416,20 @@ c
       end
 
       subroutine tddft_copyfrom(nmat,ld1,ld2,row_sub,col_sub,mat,matsub,
-     $                          row_ptr,col_ptr)
+     $                          row_ptr,col_ptr,fac)
       implicit none
       integer nmat, ld1, ld2, row_sub, col_sub
       double precision mat(nmat,ld1,ld2), matsub(row_sub,col_sub,nmat)
       integer row_ptr, col_ptr
+      double precision fac(*)
 
       integer imat,j,i
 
       do imat=1,nmat
+        if (fac(imat).eq.0d0) then
+          matsub(:,:,imat) = 0d0
+          cycle
+        endif
       do j=1,col_sub
       do i=1,row_sub
         matsub(i,j,imat) = mat(imat,row_ptr+i,col_ptr+j)
