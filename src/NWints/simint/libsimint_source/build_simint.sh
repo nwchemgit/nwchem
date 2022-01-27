@@ -233,7 +233,7 @@ FC="${FC}" CC="${CC}" CXX="${CXX}" $MYCMAKE \
  -DCMAKE_INSTALL_LIBDIR=lib -DENABLE_FORTRAN=ON -DSIMINT_MAXAM=${SIMINT_MAXAM} -DSIMINT_MAXDER=${DERIV} \
  -DENABLE_TESTS=OFF     -DSIMINT_STANDALONE=OFF   \
  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DCMAKE_INSTALL_PREFIX=${SRC_HOME}/simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install ../
-time -p make  -j2
+time -p make  -j4
 make simint
 if [[ (${FC} == ftn && ${PE_ENV} == CRAY) ]] ; then
     cp simint/SIMINTFORTRAN.mod simint/simintfortran.mod

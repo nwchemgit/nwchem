@@ -116,9 +116,9 @@ c     all inside
       enddo
 32     continue
 #ifdef USE_OPENMP
-!$omp parallel do 
-!$omp& default(shared)
-!$omp& private(n,p,d_p,dzeta)
+c!$omp parallel do 
+c!$omp& default(shared)
+c!$omp& private(n,p,d_p,dzeta)
 #endif
        do n=n1,n2
           call dftg_gridssw0(n,nn,AA,nctrs_pruned,nq,nq_orig,
@@ -128,7 +128,7 @@ c     all inside
      q         qwght,d_qwght)
       enddo ! n loop
 #ifdef USE_OPENMP
-!$omp end parallel do
+c!$omp end parallel do
 #endif
       return
       end
