@@ -30,13 +30,19 @@ if [[ "$FC" == "flang" ]]; then
     fi
      export BUILD_MPICH=1
 fi
+if [[ "$FC" == "amdflang" ]]; then
+    rocm_version=4.5.2
+    export PATH=/opt/rocm-"$rocm_version"/bin:$PATH
+    export LD_LIBRARY_PATH=/opt/rocm-"$rocm_version"/lib:/opt/rocm-"$rocm_version"/llvm/lib:$LD_LIBRARY_PATH
+fi
+
 if [[ "$FC" == "nvfortran" ]]; then
 #    source /etc/profile.d/lmod.sh
 #    module use /opt/nvidia/hpc_sdk/modulefiles
 #    module load nvhpc
 #     export BUILD_MPICH=1
-     nv_major=21
-     nv_minor=9
+     nv_major=22
+     nv_minor=1
      nverdot="$nv_major"."$nv_minor"
      export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:$PATH
      export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH
@@ -50,7 +56,7 @@ if [[ "$FC" == "nvfortran" ]]; then
 #	fi
 #    export CC=gcc
 fi
-if [[ "$FC" == "ifort" ]]; then
+if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
     case "$os" in
 	Darwin)
 	    IONEAPI_ROOT=~/apps/oneapi
@@ -60,7 +66,8 @@ if [[ "$FC" == "ifort" ]]; then
 	    ;;		
     esac			
     source "$IONEAPI_ROOT"/compiler/latest/env/vars.sh
-    ifort -V
+    export I_MPI_F90="$FC"
+    "$FC" -V
     if [ -f "$IONEAPI_ROOT"/mkl/latest/env/vars.sh ] ; then
 	source "$IONEAPI_ROOT"/mkl/latest/env/vars.sh
     fi
@@ -68,6 +75,7 @@ if [[ "$FC" == "ifort" ]]; then
 fi
 if [[ "$MPI_IMPL" == "intel" ]]; then
     source /opt/intel/oneapi/mpi/latest/env/vars.sh
+    export I_MPI_F90="$FC"
     mpif90 -v
     mpif90 -show
     if [ -f /opt/intel/oneapi/mkl/latest/env/vars.sh ] ; then
@@ -140,11 +148,13 @@ if [[ -z "$USE_INTERNALBLAS" ]]; then
 	    fi
 #elpa
 	    GFORTRAN_EXTRA=$(echo $FC | cut -c 1-8)
-#	    if  [[ ${FC} == gfortran ]] || [[ ${GFORTRAN_EXTRA} == gfortran ]] ; then
-	    if  [[ ${FC} == gfortran ]]  ; then
-		if [[ "$arch" == "x86_64" ]]; then
-		    if [[ ! -z "$BUILD_OPENBLAS" ]]; then
-			export BUILD_ELPA=1
+	    if  [[ ${FC} == gfortran ]] || [[ ${GFORTRAN_EXTRA} == gfortran ]] ; then
+#	    if  [[ ${FC} == gfortran ]]  ; then
+		if [[ `${CC} -dM -E - < /dev/null 2> /dev/null | grep -c clang` == 0 ]] && [[ `${CC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] && [[ "$(expr `${CC} -dumpversion | cut -f1 -d.` \> 7)" == 1 ]]; then
+		    if [[ "$os" == "Linux" ]] && [[ "$arch" == "x86_64" ]]; then
+			if [[ ! -z "$BUILD_OPENBLAS" ]]; then
+			    export BUILD_ELPA=1
+			fi
 		    fi
 		fi
 	    fi

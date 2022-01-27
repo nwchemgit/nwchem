@@ -28,16 +28,16 @@ esac
 #  HOMEBREW_NO_AUTO_UPDATE=1 brew cask uninstall oclint || true  
 #  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python3 ||true
      HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" python3 gsed grep automake autoconf ||true
-     if [[ "$FC" == "ifort" ]]; then
+     if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
          if [[ -f ~/apps/oneapi/setvars.sh ]]; then 
 	     echo ' using intel cache installation '
 	 else
 	mkdir -p ~/mntdmg ~/apps/oneapi || true
 	cd ~/Downloads
-	dir_base="18256"
-	dir_hpc="18242"
-	base="m_BaseKit_p_2021.4.0.3384_offline"
-	hpc="m_HPCKit_p_2021.4.0.3389_offline"
+	dir_base="18342"
+	dir_hpc="18341"
+	base="m_BaseKit_p_2022.1.0.92_offline"
+	hpc="m_HPCKit_p_2022.1.0.86_offline"
 	curl -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_base"/"$base".dmg
 	curl -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".dmg
 	echo "installing BaseKit"
@@ -56,12 +56,13 @@ esac
 	     "$IONEAPI_ROOT"/ipp "$IONEAPI_ROOT"/conda_channel 	"$IONEAPI_ROOT"/dnnl \
 	     "$IONEAPI_ROOT"/installer "$IONEAPI_ROOT"/vtune_profiler "$IONEAPI_ROOT"/tbb || true
 	fi
-	source "$IONEAPI_ROOT"/setvars.sh || true
+	 source "$IONEAPI_ROOT"/setvars.sh || true
+	 export I_MPI_F90="$FC"
 	ls -lrta ~/apps/oneapi ||true
 	df -h 
 	rm -f *dmg || true
 	df -h
-	ifort -V
+	"$FC" -V
 	icc -V
      else
 	 #hack to fix Github actions mpif90
@@ -105,7 +106,7 @@ fi
     if [[ "$MPI_IMPL" == "mpich" ]]; then
         mpi_bin="mpich" ; mpi_libdev="libmpich-dev" scalapack_libdev="libscalapack-mpich-dev"
     fi
-    if [[ "$MPI_IMPL" == "intel" || "$FC" == "ifort" ]]; then
+    if [[ "$MPI_IMPL" == "intel" || "$FC" == "ifort" || "$FC" == "ifx" ]]; then
 	export APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
         tries=0 ; until [ "$tries" -ge 10 ] ; do \
 	wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
@@ -123,7 +124,7 @@ fi
     sudo add-apt-repository universe && sudo apt-get update
 #    sudo apt-get -y install gfortran python3-dev python-dev cmake "$mpi_libdev" "$mpi_bin" "$scalapack_libdev"  make perl  libopenblas-dev python3 rsync
     sudo apt-get -y install gfortran python3-dev python-dev cmake "$mpi_libdev" "$mpi_bin"  make perl  python3 rsync
-    if [[ "$FC" == "ifort" ]]; then
+    if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]]; then
 	sudo apt-get -y install intel-oneapi-ifort intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic  intel-oneapi-mkl
 	if [[ "$?" != 0 ]]; then
 	    echo "apt-get install failed: exit code " "${?}"
@@ -141,7 +142,7 @@ fi
 	    export LD_LIBRARY_PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/lib:$LD_LIBRARY_PATH
 	    ls -lrt /usr/lib | grep aomp ||true
 	else
-	    aocc_version=3.1.0
+	    aocc_version=3.2.0
 	    aocc_dir=aocc-compiler-${aocc_version}
 	    curl -LJO https://developer.amd.com/wordpress/media/files/${aocc_dir}.tar
 	    tar xf ${aocc_dir}.tar
@@ -152,15 +153,26 @@ fi
 	flang -v
 	which flang
     fi
+    if [[ "$FC" == "amdflang" ]]; then
+	sudo apt-get install -y wget gnupg2 coreutils dialog tzdata
+	rocm_version=4.5.2
+	wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key |  sudo apt-key add -
+	echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/'$rocm_version'/ ubuntu main' | sudo tee /etc/apt/sources.list.d/rocm.list
+	sudo apt-get  update -y && sudo apt-get -y install rocm-llvm openmp-extras
+	export PATH=/opt/rocm-"$rocm_version"/bin:$PATH
+	export LD_LIBRARY_PATH=/opt/rocm-"$rocm_version"/lib:/opt/rocm-"$rocm_version"/llvm/lib:$LD_LIBRARY_PATH
+	amdflang -v
+	amdclang -v
+    fi
     if [[ "$FC" == "nvfortran" ]]; then
 	sudo apt-get -y install lmod g++ libtinfo5 libncursesw5 lua-posix lua-filesystem lua-lpeg lua-luaossl
-	nv_major=21
-	nv_minor=9
+	nv_major=22
+	nv_minor=1
 	nverdot="$nv_major"."$nv_minor"
 	nverdash="$nv_major"-"$nv_minor"
 	arch_dpkg=`dpkg --print-architecture`
         nv_p1=nvhpc-"$nverdash"_"$nverdot"_"$arch_dpkg".deb
-	nv_p2=nvhpc-2021_"$nverdot"_"$arch_dpkg".deb
+	nv_p2=nvhpc-20"$nv_major"_"$nverdot"_"$arch_dpkg".deb
 	wget https://developer.download.nvidia.com/hpc-sdk/"$nverdot"/"$nv_p1"
 	wget https://developer.download.nvidia.com/hpc-sdk/"$nverdot"/"$nv_p2"
 	sudo dpkg -i "$nv_p1" "$nv_p2"

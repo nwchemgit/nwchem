@@ -315,6 +315,10 @@ np_small=$(get_limit $np 16)
 #
 #libxc
 ./dolibxctests.mpi $np
+#ritddft
+./runtests.mpi.unix procs $np  ritddft_co
+./runtests.mpi.unix procs $np  ritddft_h2o
+./runtests.mpi.unix procs $np  ritddft_pyridine
 #
 #--- if we only want quick tests get out now!
 if [[ "$what" == "fast" ]]; then

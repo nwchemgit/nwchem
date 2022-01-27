@@ -38,7 +38,7 @@ if [[ "$arch" == "aarch64" ]]; then
 	fi
     fi
 else
-    if [[ "$FC" == "ifort" ]] ; then
+    if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
 	FOPT=-O2
 	if [[ "$os" == "Darwin" ]]; then
 	    export BUILD_MPICH=1
@@ -53,6 +53,7 @@ else
         unset BUILD_OPENBLAS
 	export BLAS_SIZE=8
 	export LAPACK_LIB="$BLASOPT"
+	export I_MPI_F90="$FC"
     elif [[ "$FC" == "flang" ]] || [[ "$(basename -- $FC | cut -d \- -f 1)" == "nvfortran" ]] ; then
 	export BUILD_MPICH=1
         if [[ "$FC" == "flang" ]]; then

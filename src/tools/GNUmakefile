@@ -557,6 +557,12 @@ endif
 #detect clang
 GOTCLANG= $(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
 GOTFREEBSD= $(shell uname -o 2>&1|awk ' /FreeBSD/ {print "1";exit}')
+ifeq ($(_FC),ifort)
+  USE_FPICF=1
+endif
+ifeq ($(_FC),ifx)
+  USE_FPICF=1
+endif
 ifdef USE_FPICF
   FFLAGS_FORGA += "-fPIC"
 endif
