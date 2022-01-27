@@ -459,7 +459,6 @@ c
           dbl_mb(k_kf+n-1)=-kfac*0.5d0*scale_k
        enddo
        if(.not.cam_exch) then ! normal calculations
-c        write(6,*)'HERE'
          if (lhascd.and..not.lhashf) then
            call tddft_fock_fit(0,nvectors,dbl_mb(k_jf),tol2e,g_nsym,
      1                     g_nprd_p)

@@ -7,7 +7,7 @@ c
       subroutine tddft_grad_compute_w(rtdb,ihdl_geom,ihdl_bfao,tol2e,
      +           tda,ipol,nroots,nfc,naoc,nocc,nav,
      +           nfv,nao,g_mo,g_p,g_z,g_xpy,g_xmy,eps,omega,g_w,
-     +           kfac,lhashf,otriplet)
+     +           kfac,lhashf,otriplet,lhascd)
 c
       implicit none
 c
