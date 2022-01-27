@@ -29,6 +29,7 @@ c:tex-\end{verbatim}
 #include "apiP.fh"
 #include "stdio.fh"
 #include "util.fh"
+#include "errquit.fh"
 c
 c:: functions
       logical api_is_atomic_basis
@@ -119,6 +120,18 @@ c.. Memory for Douglas-Kroll integrals
 c
       if (doug_kroll) then
          call emem_1e_dk(dk_fitbas,dk_fitbas,lsz_1e, lmem_1e)
+         mem_1e = max(mem_1e, lmem_1e)
+         isz_1e = max(isz_1e, lsz_1e)
+      endif
+c
+c ... jochen:
+c     Memory for X2C integrals. exact_2c and x2c_bas are
+c     common-block variables in apiP.fh
+
+      if (exact_2c) then
+        if (doug_kroll) call errquit(
+     &      'exact_mem: x2c and DK not allowed',1,INPUT_ERR)
+        call emem_1e_dk(x2c_bas,x2c_bas,lsz_1e, lmem_1e)
          mem_1e = max(mem_1e, lmem_1e)
          isz_1e = max(isz_1e, lsz_1e)
       endif

@@ -55,6 +55,9 @@ c procedure. The wrapper sets the Douglas-Kroll stuff and adds the new
 c fitting basis set to the list of active basis sets and calls 
 c int_init_org.
 c
+c ... jochen 01/22: the exact decoupling functionality needs 
+c     the same setup as Douglas-Kroll, so we added that here
+c
 c::passed
 c:tex-\begin{verbatim}
       integer rtdb        !< [Input] run time data base handle
@@ -162,7 +165,46 @@ c
          int_mb(mybIm_a+nbas) = dk_fitbas
          nrbas = nrbas + 1
       endif
-      if (doug_kroll .or. dyall_mod_dir) call rel_init_con (rtdb)
+
+c ... jochen 01/22: same idea as for douglas-kroll: we initialize
+c     an additional uncontracted basis. 
+c     in principle we could have used the corresponding D-K code
+c     and variables, but I want to avoid potentially conflicting
+c     variable definitions
+
+      if (.not. rtdb_get(rtdb,'x2c',MT_LOG,1,exact_2c)) 
+     &    exact_2c = .false.
+c      write (luout,*) 'jochen: in int_init x2c = ',exact_2c
+      if (exact_2c) then
+
+        if (doug_kroll) call errquit(
+     &      'int_init: x2c and DK not allowed',1,INPUT_ERR)
+        
+c       Generate the fitting basis set and add it to the list of 
+c       used basis sets
+        
+        do 300 ibas = 1, nbas
+          if (.not. bas_name(bases(ibas),dk_bas_name,dk_trans_name))
+     &        call errquit('int_init: x2c failed in bas_name',0,
+     &        INT_ERR)
+          if (dk_bas_name(1:8) .eq. 'ao basis') goto 350
+ 300    continue
+        call errquit('int_init: x2c could not find ao basis',0,
+     &      INT_ERR)
+ 350    call bas_create_uncont(rtdb,bases(ibas),'auto X2C basis',
+     &      x2c_bas)
+       
+c       Add fitting basis set to list of loaded basis sets
+       
+        int_mb(mybIm_a+nbas) = x2c_bas
+        nrbas = nrbas + 1
+      endif ! exact_2c
+c ... jochen end
+
+c     rel_init_con initializes some relativistic constants
+      if (doug_kroll .or. dyall_mod_dir .or. exact_2c)
+     &    call rel_init_con (rtdb)
+
       call int_init_org(rtdb, nrbas, int_mb(mybIm_a))
       if (.not. ma_pop_stack(mybm_a))
      $     call errquit('int_init: ma_pop_stack mybm_a',0, INT_ERR)

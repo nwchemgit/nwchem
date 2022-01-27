@@ -1,0 +1,15 @@
+c     exact decoupling (X2C) related variables
+
+        logical do_x2c, scale_x2c_hartree, scale_x2c_so_hartree
+        common/x2c_flags/
+     &     do_x2c,   
+     &     scale_x2c_hartree,
+     &     scale_x2c_so_hartree
+
+c       scaling for Hartree
+        double precision x2chscale, x2csoscale
+        common/x2c_params/x2chscale, x2csoscale
+c       cutoff
+        double precision x2ccutoff
+        common/x2c_tols/x2ccutoff
+
