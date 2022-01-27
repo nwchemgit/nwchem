@@ -1,7 +1,7 @@
 echo  
 start 
 title "RI-TDDFT/LDA geometry optimization of Pyridine with 6-31G"  
-geometry nocenter  
+geometry 
  N     0.00000000    0.00000000    1.41599295  
  C     0.00000000   -1.15372936    0.72067272  
  C     0.00000000    1.15372936    0.72067272  
@@ -26,11 +26,8 @@ driver
   maxiter 100  
 end  
 dft  
-  iterations 500  
-  xc slater 1.0 vwn_5 1.0  
-  grid xfine  
-  grid euler  
-  direct  
+  grid fine
+  convergence energy 1d-8
 end  
 tddft  
   nroots 2  
