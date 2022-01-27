@@ -10,7 +10,7 @@ c
       subroutine tddft_grad_compute_r(rtdb,ihdl_geom,ihdl_bfao,tol2e,
      +                             tda,ipol,nao,nfc,naoc,nocc,nav,nfv,
      +                             nroot,g_mo,g_xpy,g_xmy,g_tp,g_r,
-     +                             kfac,lhashf,otriplet)
+     +                             kfac,lhashf,otriplet,lhascd)
 c
 c     Eq. 19-22 (Furche & Ahlrichs)
 c     The algorithm is

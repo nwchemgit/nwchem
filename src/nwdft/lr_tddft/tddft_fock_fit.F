@@ -74,6 +74,7 @@ c
 
       ! Integral screening threshold
       THRESHOLD = 10.d0**(-itol2e-2)
+      THRESHOLD = tol2e
 
       ! Initialize Fock matrices
       call ga_zero(g_fock)
