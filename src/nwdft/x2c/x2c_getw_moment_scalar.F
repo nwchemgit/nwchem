@@ -56,7 +56,7 @@ c     == local variables ==
       logical me
 c
       me = (ga_nodeid().eq.0)
-      dbg=1
+      dbg=0
 
       if (dbg>0 .and. me) write (luout,*) 'entering getw_moment'
 
@@ -172,7 +172,7 @@ c              == chi ==
      &              int_mb(ibas_cent_info), int_mb(ibas_cset_info))
 c
 c              calculate integrals
-               if(me) write (luout,*) 'calling wmoment_sc'
+               if(dbg>0 .and. me) write (luout,*) 'calling wmoment_sc'
                call calc_x2c_wmoment_scalar(
      &            ao_bas_han, geom, ipol, g_dens,
      &            dbl_mb(idelchi_ao),
@@ -180,7 +180,7 @@ c              calculate integrals
      &            nbf_ao, nqpts, ncenters,
      &            origin,type,ncomp,
      &            dbl_mb(ix2c)) ! out
-               if(me) write (luout,*) 'return from wmoment_sc'
+               if(dbg>0 .and. me) write (luout,*) 'return wmoment_sc'
 
 
 c              == delete memory ==
