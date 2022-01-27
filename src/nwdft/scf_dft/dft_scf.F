@@ -192,7 +192,7 @@ c     == zora related ==
       logical dft_zora_read, dft_zora_write, dft_zora_inquire_file
       external dft_zora_read, dft_zora_write, dft_zora_inquire_file
       character*255 zorafilename
-      integer g_zora_sf(2)
+c      integer g_zora_sf(2)
       integer g_zora_scale_sf(2)
       double precision ener_scal
       integer icalczora
@@ -289,7 +289,7 @@ c <-- MN solvation models
 c
 c     =========================================================================
 c
-      dbg=1 ! debug level during code development.
+      dbg=0 ! debug level during code development.
 c
       k_3cERI  = 0
       k_3cwhat = 0
@@ -833,7 +833,7 @@ c 11          format('In dft_scf:: zetanuc_arr(',i3,')=',f35.8)
            dbl_mb(k_zetanuc+iatom-1)=dsqrt(dbl_mb(k_zetanuc+iatom-1)) !  Calc sqrt(zetanuc)
           enddo ! end-loop-iatom
 c------- FA-code-added-09-26-11 --------------------------- END
-         call zora_getv_sf(rtdb, g_dens_at, g_zora_sf,g_zora_scale_sf,
+         call zora_getv_sf(rtdb, g_dens_at, g_rel,g_zora_scale_sf,
      &                     ofinite,dbl_mb(k_zetanuc),
      &                     Knucl, nexc)
          if (.not. MA_free_heap(l_zetanuc))  call errquit
