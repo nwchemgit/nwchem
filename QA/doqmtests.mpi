@@ -168,6 +168,15 @@ np_small=$(get_limit $np 32)
 ./runtests.mpi.unix procs $np xe_zora_sf
 ./runtests.mpi.unix procs $np o2_zora_so
 ./runtests.mpi.unix procs $np hi_zora_so
+# zora mp
+./runtests.mpi.unix procs $np au-sarc-zora-mp
+./runtests.mpi.unix procs $np au2-sarc-zora-mp
+./runtests.mpi.unix procs $np ch3radical_rot_mp
+./runtests.mpi.unix procs $np ch3radical_unrot_mp
+./runtests.mpi.unix procs $np cs-ano-uncontr-so
+./runtests.mpi.unix procs $np cs-ano-uncontr
+./runtests.mpi.unix procs $np xe-zora-mp-so
+./runtests.mpi.unix procs $np xe-zora-mp
 #
 # qmmm tests
 #./runtests.mpi.unix procs $np asa_qmmm
