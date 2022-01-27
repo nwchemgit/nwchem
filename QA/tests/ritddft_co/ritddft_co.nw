@@ -1,0 +1,24 @@
+START
+TITLE "TDHF/aug-cc-pVDZ CO+"  
+CHARGE 1  
+GEOMETRY  
+ C  0.0  0.0  0.0  
+ O  1.2  0.0  0.0 
+ symmetry c1 
+END  
+BASIS  
+ * library aug-cc-pVDZ  
+END  
+basis "cd basis" spherical
+ * library cc-pvdz-ri
+ * library aug-cc-pvdz-ri_diffuse
+end
+DFT  
+ XC ncap
+ MULT 2  
+END  
+TDDFT  
+ RPA  
+ NROOTS 5  
+END  
+TASK TDDFT ENERGY
