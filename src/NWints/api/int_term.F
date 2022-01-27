@@ -70,6 +70,14 @@ c
        dk_fitbas = -1
       endif
 c
+c     terminate uncontracted basis used in the X2C code
+      if (exact_2c) then
+        if (.not. bas_destroy(x2c_bas)) call errquit(
+     &    'int_terminate: failed to destroy x2c uncontracted basis'
+     &    ,0, INT_ERR)
+        x2c_bas = -1
+      endif
+c
       end
 C>
 C> \brief The derivative integral termination routine

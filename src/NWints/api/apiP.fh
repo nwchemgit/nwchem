@@ -89,3 +89,10 @@ c
       common /DK_log/doug_kroll, dk_even_bas
       common /DK_int/dk_form_type, dk_fitbas
       common /DK_real/dk_ratio, dk_clight
+c
+c exact decoupling settings for the API (similar to DK)
+c
+      logical exact_2c
+      integer x2c_bas
+      common /X2C_log/exact_2c
+      common /X2C_int/x2c_bas

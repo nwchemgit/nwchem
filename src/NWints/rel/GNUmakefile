@@ -3,7 +3,8 @@
 HEADERS = rel_consts.fh \
           rel_nwc.fh \
           zora.fh \
-          modelpotential.fh
+          modelpotential.fh \
+          x2c.fh
 
 OBJ_ENERGY = \
       rel_onel.o \
@@ -17,7 +18,8 @@ OBJ_ENERGY = \
       rel_SSSS.o \
       rel_init_con.o \
       dmd_input.o \
-      zora_input.o
+      zora_input.o \
+      x2c_input.o
 
 OBJ_GRAD = \
       rel_oneld.o \

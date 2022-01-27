@@ -8,6 +8,7 @@
 	gridNuclearPotential.o\
 	gridHartreePotential.o\
 	gridQpqPotential.o\
+        grid_moments.o\
 	zora_getv_EFGZ4_SR.o\
 	calc_zora_EFGZ4_SR.o\
 	zora_getv_EFGZ4_SO.o\

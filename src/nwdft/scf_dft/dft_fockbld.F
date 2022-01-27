@@ -9,8 +9,8 @@
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time,
 cc AJL/Begin/FDE
-c     ,     g_zora_sf,g_frozemb)
-     ,     g_zora_sf,g_frozemb,g_vxc_fde,g_xcinv_fde,g_dens_fde,eelec )
+c     ,     g_rel_sf,g_frozemb)
+     ,     g_rel_sf,g_frozemb,g_vxc_fde,g_xcinv_fde,g_dens_fde,eelec )
 cc AJL/End
 c     
 c     $Id$
@@ -26,6 +26,7 @@ c
 #include "dftps.fh"
 #include "cosmo.fh"
 #include "zora.fh"
+#include "x2c.fh"
 #include "case.fh"
 c#include "dimqm.fh"
 c
@@ -65,8 +66,8 @@ c
 c
       double precision Ebq
 c
-      integer g_zora_sf(*)       ! spin-free zora ga
-      double precision Ezora_sf  ! spin-free zora energy
+      integer g_rel_sf(*)       ! spin-free zora/x2c ga
+      double precision Erel_sf  ! spin-free zora/x2c energy
 c
       integer g_frozemb       ! frozen embedding ga
       double precision Efrozemb  ! energy
@@ -440,22 +441,22 @@ c     == Calculate the HF exchange (exact Coulomb), DFT exchange-correlation ==
 c
       if (odftps) call pstat_off(ps_xc)
 c
-c     add zora contributions
-      if (do_zora) then
-        Ezora_sf =0.d0
+c     add relativistic energy contributions
+      if (do_zora .or. do_x2c) then
+        Erel_sf =0.d0
         if (ipol.gt.1) then
-          Ezora_sf = ga_ddot(g_dens(1),g_zora_sf(1))
-     &             + ga_ddot(g_dens(2),g_zora_sf(2))
+          Erel_sf = ga_ddot(g_dens(1),g_rel_sf(1))
+     &             + ga_ddot(g_dens(2),g_rel_sf(2))
         else
-          Ezora_sf = ga_ddot(g_dens(1),g_zora_sf(1))
+          Erel_sf = ga_ddot(g_dens(1),g_rel_sf(1))
         end if
-        Ecore = Ecore + Ezora_sf 
+        Ecore = Ecore + Erel_sf 
 c
-        call ga_dadd(1.d0,g_vxc(1),1.d0,g_zora_sf(1),g_vxc(1))
+        call ga_dadd(1.d0,g_vxc(1),1.d0,g_rel_sf(1),g_vxc(1))
         if (ipol.gt.1) 
-     &   call ga_dadd(1.d0,g_vxc(2),1.d0,g_zora_sf(2),g_vxc(2))
+     &   call ga_dadd(1.d0,g_vxc(2),1.d0,g_rel_sf(2),g_vxc(2))
 c
-      end if  ! do_zora
+      end if  ! do_zora .or. do_x2c
 c
 c     == if frozen embedding ==
       Efrozemb = 0.d0
