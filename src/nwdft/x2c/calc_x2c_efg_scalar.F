@@ -10,8 +10,7 @@ c     For the time being we MUST use an uncontracted basis !
 c     Integrals are supposed to be initialized by the calling
 c     routine.
 
-c     Driver (c) 2012 J. Autschbach, SUNY, jochena@buffalo.edu
-c     X2C 'relham' code (c) 2012 Daoling Peng
+c     Driver (c) 2012, 2022 J. Autschbach, SUNY, jochena@buffalo.edu
 
 c     Approach: The transformation matrices g_u come from calc_x2c_1e 
 c     if certain options are set.
@@ -57,17 +56,6 @@ c     GA handles used for temp storage in this routine:
 
 c     dimensioning arrays
       integer alo(3), ahi(3), blo(3), bhi(3), clo(3), chi(3)
-
-c     MA handles for arrays passed to relop routine:
-      integer l_dmem , k_dmem
-      integer l_amP  , k_amP
-      integer l_amQ  , k_amQ
-      integer l_omP  , k_omP 
-      integer l_amUL , k_amUL
-      integer l_amUS , k_amUS
-
-c     MA handles for the EFG matrices in the small component basis
-      integer l_w(6), k_w(6)
 
 c     other MA handles
       integer l_xyzpt, k_xyzpt, l_zanpt, k_zanpt
@@ -141,7 +129,7 @@ c     make sure the input GAs have the correct dimension
       if (master.and.dbg>0) write (luout,*) 'x2c: nbas =',nbas
       nbas2 = nbas * nbas
 
-c     in light of the recent updates of the x2c code, it is 
+c     in light of the recent updates of the x2c ham. code, it is 
 c     important to check that we are working with an uncontracted
 c     basis here. 
 c     eventually, this will be fixed
@@ -237,13 +225,6 @@ c     the field gradient integrals carry a factor of 3
 c     that we don't want:
 
       call ga_scale(g_efgint, third)
-
-c     temporarily add alpha and beta density, we only need the
-c     sum here: !!! CAREFUL, 
-c     TJHIS IS NOT CORRECT. SEE HFC ROUTINE
-
-      if (ipol.gt.1) 
-     &   call ga_dadd(1.d0, g_dscf(1), 1.d0, g_dscf(2), g_dscf(1))
 
       if (dbg>1 .and.master) write (luout,*) 'x2c_efg before iat loop'
 
@@ -475,39 +456,6 @@ c       (we'll calculate all 6 matrices in one go)
      &     nexc)
         if (dbg>0.and.master) write (luout,*) 'return from getw'
         
-c       -----------------------------------
-c       Allocate relop arrays with MA
-c       -----------------------------------
-        
-c       amP
-        if (.not. ma_push_get(mt_dbl, nbas2,
-     &     'amP', l_amP, k_amP))
-     &     call errquit('x2c1e: failed allocation amP', nbas2,
-     &     MA_ERR)
-        
-c       amQ
-        if (.not. ma_push_get(mt_dbl, nbas2,
-     &     'amQ0', l_amQ, k_amQ))
-     &     call errquit('x2c1e: failed allocation amQ', nbas2,
-     &     MA_ERR)
-                
-c       amUL
-        if (.not. ma_push_get(mt_dbl, nbas2,
-     &     'amUL', l_amUL, k_amUL))
-     &     call errquit('x2c1e: failed allocation amUL', nbas2,
-     &     MA_ERR)
-        
-c       amUS
-        if (.not. ma_push_get(mt_dbl, nbas2,
-     &     'amUS', l_amUS, k_amUS))
-     &     call errquit('x2c1e: failed allocation omUS', nbas2,
-     &     MA_ERR)
-        
-c       omP
-        if (.not. ma_push_get(mt_dbl, nbas2,
-     &     'omPr', l_omP, k_omP))
-     &     call errquit('x2c1e: failed allocation omP', nbas2,
-     &     MA_ERR)        
 
 c       --------------------
 c       allocate operator GA
@@ -518,12 +466,8 @@ c       --------------------
      &     call errquit(
      &     'x2c_efg: error creating g_P',666, GA_ERR)
 
-c       copy decoupling transformation into MA
-        
-        call dfill(nbas2, 0.0d0, dbl_mb(k_amUL), 1)
-        call dfill(nbas2, 0.0d0, dbl_mb(k_amUS), 1)
-        call ga_get(g_u(1),1,nbas,1,nbas, dbl_mb(k_amUL),nbas)
-        call ga_get(g_u(2),1,nbas,1,nbas, dbl_mb(k_amUS),nbas)
+c
+
         
 c       ------------------------------------------------------------
 c       in a loop over the EFG components, transform the 
@@ -533,11 +477,9 @@ c       ------------------------------------------------------------
         
         do i = 1,6              ! loop over EFG components
           
-          call dfill(nbas2, 0.0d0, dbl_mb(k_amP),  1)
-          call dfill(nbas2, 0.0d0, dbl_mb(k_amQ),  1)
-          call dfill(nbas2, 0.0d0, dbl_mb(k_omP),  1)
+          call ga_zero(g_P)
 
-c         extract EFG component from GA:
+c         array bounds needed to extract EFG component from GA:
 
           alo(1) = 1
           ahi(1) = nbas
@@ -546,63 +488,38 @@ c         extract EFG component from GA:
           alo(3) = i
           ahi(3) = i
 
-          blo(1) = nbas
-          blo(2) = 1
+c         g_temp always uses the same dimensions clo, chi
+c         we use the same ones for g_u, g_P
+          clo(1) = 1
+          chi(1) = nbas
+          clo(2) = 1
+          chi(2) = nbas
 
-          call nga_get(g_efg, alo, ahi, dbl_mb(k_amP), blo)
+c         transform EFG operator
 
-c         extract EFG operator in small-component basis from GA
+c         UL' EFG UL, store in g_P
 
-          call ga_get(g_w(i),1,nbas,1,nbas,dbl_mb(k_amQ), nbas)
-
-c         debug:
-          if (dbg>1 .and. i<4) then
-            if (master) then
-              write (luout,*) 'EFG matrix, nuc, comp',iat,i
-              call moutr(dbl_mb(k_amP),nbas,nbas,'R','EFG-mat')
-              write (luout,*) 'pEFGp matrix, nuc, comp',iat,i
-              call moutr(dbl_mb(k_amQ),nbas,nbas,'R','pEFGp-mat')
-            end if
-          end if
-       
-c         -------------------------------
-c         allocate scratch memory,
-c         call the X2C relop routine
-c         -------------------------------
+          call nga_matmul_patch('t','n',1d0,0d0,
+     &      g_u(1),clo,chi,
+     &      g_efg,alo,ahi,
+     &      g_temp,clo,chi)
           
-          if (master) write(luout,*) 'calling RELOP routines'
+          call nga_matmul_patch('n','n',1d0,0d0,
+     &      g_temp,clo,chi,
+     &      g_u(1),clo,chi,
+     &      g_P,clo,chi)
           
-          call mem_relop_1c(nbas, ndmem)
-
-          if (master) write (luout,*) 'ndmem = ',ndmem
-c         dmem
-          if (.not. ma_push_get(mt_dbl, ndmem,
-     &       'dmem', l_dmem, k_dmem))
-     &       call errquit('x2cefg: failed allocation dmem', ndmem,
-     &       MA_ERR)
-
-          call dfill(nbas2, 0.0d0, dbl_mb(k_omP),  1)
+c         US' pEFGp US, add to g_P
           
-          call relop_1c(nbas, 
-     &       dbl_mb(k_amP),
-     &       dbl_mb(k_amQ), 
-     &       dbl_mb(k_amUL),
-     &       dbl_mb(k_amUS),
-     &       dbl_mb(k_omP),
-     &       dbl_mb(k_dmem), ndmem)
-
-c         delete dmem array
+          call nga_matmul_patch('t','n',1d0,0d0,
+     &      g_u(2),clo,chi,
+     &      g_w(i),clo,chi,
+     &      g_temp,clo,chi)
           
-          if (.not.ma_pop_stack(l_dmem)) call
-     &       errquit('x2c: ma_chop_stack failed k_dmem',l_dmem,MA_ERR)
-          
-
-c         -----------------------------------------
-c         Sort output MA arrays into Property Operator GA
-c         -----------------------------------------
-          
-          call ga_zero(g_P)
-          call ga_put(g_P,1,nbas,1,nbas, dbl_mb(k_omP), nbas)
+          call nga_matmul_patch('n','n',1d0,1d0,
+     &      g_temp,clo,chi,
+     &      g_u(2),clo,chi,
+     &      g_P,clo,chi)
 
 c          call ga_print(g_P)
 
@@ -612,13 +529,6 @@ c         using the transformed operator
 c         -----------------------------------------
 
           efgel(i) = 0.0d0
-
-c         g_temp always uses the same dimensions clo, chi
-          clo(1) = 1
-          chi(1) = nbas
-          clo(2) = 1
-          chi(2) = nbas
-          
           
           alo(1) = 1                
           ahi(1) = nbas
@@ -670,10 +580,6 @@ c       --------------------
           if (.not. ga_destroy(g_w(j))) call errquit
      &       ('x2cefg: failed destroying g_w',1+10*j, GA_ERR)
         end do
-        
-        if (.not.ma_chop_stack(l_amP)) call errquit
-     &   ('x2c_efg: ma_chop_stack l_amP failed',911,MA_ERR)
-
 
 c       --------------------------------------------------------
 c       end loop over refernce points at which EFG is calculated 
@@ -684,18 +590,6 @@ c       --------------------------------------------------------
 
       if (.not. ga_destroy(g_efgint)) call errquit
      &   ('x2cefg: ga corrupt?',11, GA_ERR)
-
-c     ------- Deallocate MA memory ------
-c
-      if (.not.ma_pop_stack(l_zanpt)) call errquit
-     &   ('x2cefg, ma_pop_stack of l_zanpt failed',911,MA_ERR)
-      if (.not.ma_pop_stack(l_xyzpt)) call errquit
-     &   ('x2cefg, ma_pop_stack of l_xyzpt failed',911,MA_ERR)
-
-c     undo addition of alpha and beta density matrix:
-
-      if (ipol.gt.1) 
-     &   call ga_dadd(1.d0, g_dscf(1), -1.d0, g_dscf(2), g_dscf(1))
 
 c     --------
 c     all done

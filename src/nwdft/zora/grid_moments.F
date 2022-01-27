@@ -16,7 +16,7 @@ c           qxyz     , grid points
 #include "stdio.fh"
 #include "zora.fh"
 #include "errquit.fh"
-      integer igrid,nqpts,ncomp
+      integer igrid,nqpts,ncomp,dbg
       integer closegridpts(*)
       double precision origin(3)
       double precision qxyz(3,nqpts)
@@ -27,8 +27,9 @@ c           qxyz     , grid points
 
 c     =================================================================
 
+      dbg = 0
       master = (ga_nodeid().eq.0)
-      if (master) write (luout,*) 'grid_moments: cutoff =',
+      if (dbg>0 .and. master) write (luout,*) 'grid_moments: cutoff =',
      &   zoracutoff_EFG
 
 
