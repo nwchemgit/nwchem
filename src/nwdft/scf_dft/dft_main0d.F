@@ -376,11 +376,13 @@ c
      .        sym_symmetrize(geom,cd_bas_han,.false.,g_2ceri)
          call ga_sync()
          if (.not. ga_duplicate(g_2ceri, g_cdinv, 'CD 2cERInv'))
-     &    call errquit(pname//'Error creating g_cdinv',0, GA_ERR)
+     &        call errquit(pname//'Error creating g_cdinv',0, GA_ERR)
+#if 1
+         call dft_cholinv(g_2ceri, g_cdinv)
+#else         
          if (odftps) call pstat_on(ps_inv)
          call ga_zero(g_cdinv)
          lmiss = 1
-c         if (lmiss.eq.1) then
             call ga_zero(g_cdinv)
             info = 0
          if (odftps) call pstat_on(ps_chol)
@@ -436,6 +438,7 @@ c         if (lmiss.eq.1) then
      &                          nbf_cd)
             endif
             if (odftps) call pstat_off(ps_inv)
+#endif            
 #ifndef SCALAPACK            
 c
 c     second build of g_2ceri needed becuase previous calls destroyed it

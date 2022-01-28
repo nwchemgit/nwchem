@@ -114,7 +114,17 @@ c
          call dft_get2eri(CD_bas_han, g_2ceri,.false.)
          call ga_sync()
          if (.not. ga_duplicate(g_2ceri, g_cdinv, 'CD 2cERInv'))
-     &    call errquit(pname//'Error creating g_cdinv',0, GA_ERR)
+     &        call errquit(pname//'Error creating g_cdinv',0, GA_ERR)
+#if 1
+         call dft_cholinv(g_2ceri,g_cdinv)
+#ifndef SCALAPACK            
+c
+c     second build of g_2ceri needed because previous calls destroyed it
+c     
+            call ga_zero(g_2ceri)
+            call dft_get2eri(CD_bas_han, g_2ceri,.false.)
+#endif
+#else         
          call ga_zero(g_cdinv)
          lmiss = 1
          info = 0
@@ -133,7 +143,8 @@ c
            call ga_inv_seq(g_tmpb, g_cdinv)
          else
            call dft_invdiag(g_2ceri, g_cdinv,nbf_cd)
-         endif
+        endif
+#endif        
          if (IOLGC.and.(me.eq.0)) then
            lmiss = 0
            call dft_invio('CDI', g_cdinv, nbf_cd, 'WRITE', lmiss)
