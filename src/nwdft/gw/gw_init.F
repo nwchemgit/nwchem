@@ -138,14 +138,12 @@ c
      $  call errquit(pname//'failed to read newton',0,RTDB_ERR)
       if (.not.rtdb_get(pars%rtdb,'gw:linear',mt_log,1,pars%linear))
      $  call errquit(pname//'failed to read linear',0,RTDB_ERR)
-      if (.not.rtdb_get(pars%rtdb,'gw:diis',mt_log,1,pars%diis))
-     $  call errquit(pname//'failed to read linear',0,RTDB_ERR)
 
-      if (pars%linear .or. pars%graph .or. pars%diis ) then
+      if (pars%linear .or. pars%graph ) then
         pars%newton = .false.
       endif
 
-      if (pars%newton .or. pars%diis ) then
+      if (pars%newton) then
         if (.not.rtdb_get(pars%rtdb,'gw:qpiter',mt_int,1,pars%qpiter))
      $    call errquit(pname//'failed to read qpiter',0,RTDB_ERR)
       endif
@@ -182,8 +180,11 @@ c     RI basis set
 c
       if (.not.bas_create(cd_bas_han,'ri basis'))
      $  call errquit(pname//'bas_create failed',0,BASIS_ERR)
-      if (.not.bas_rtdb_load(pars%rtdb,geom,cd_bas_han,'ri basis'))
-     $  call errquit(pname//'an "ri basis" is needed',0,BASIS_ERR)
+      if (.not.bas_rtdb_load(pars%rtdb,geom,cd_bas_han,'ri basis'))then
+        if (.not.bas_rtdb_load(pars%rtdb,geom,cd_bas_han,'cd basis'))
+     $  call errquit(pname//'a "cd basis" or "ri basis" is needed',0,
+     $  BASIS_ERR)
+      endif
       call int_init(pars%rtdb, 1, cd_bas_han)
       if (.not.int_norm_2c(pars%rtdb, cd_bas_han))
      $  call errquit(pname//'int_norm_2c failed',0,INT_ERR)

@@ -20,10 +20,10 @@ c
       integer, parameter :: num_dirs = 13
       character*11 dirs(num_dirs)
       data dirs /'evgw0', 'evgw' , 'method', 'solver',
-     &           'convergence', 'states', 'analyticw', 'ncap', 
+     &           'convergence', 'states', 'first', 'ncap', 
      &           'eta', 'rpa', 'diag', 'core', 'end'/
 c
-      integer ind, qpiter,eviter,noqp(2),nvqp(2), ngl
+      integer ind, qpiter,eviter,noqp(2),nvqp(2), ngl, first
       double precision threshold, eta
       double precision, parameter :: ha2ev = 27.211386245988d0
 c
@@ -91,6 +91,7 @@ c
       elseif (inp_compare(.false.,'acgw',test)) then
         if (.not.rtdb_put(rtdb, 'gw:acgw', mt_log, 1, .true.))
      &    call errquit('gw_input: rtdb_put failed', 400, RTDB_ERR)
+        call errquit('gw_input: AC-GW not ready yet',0,INPUT_ERR)
       elseif (.not. inp_compare(.false.,'analytic',test)) then
         call errquit('gw_input: unknown GW method',300,INPUT_ERR)
       endif
@@ -110,9 +111,6 @@ c
      &    call errquit('gw_input: rtdb_put failed', 400, RTDB_ERR)
       elseif (inp_compare(.false.,'linear',test)) then
         if (.not.rtdb_put(rtdb, 'gw:linear', mt_log, 1, .true.))
-     &    call errquit('gw_input: rtdb_put failed', 108, RTDB_ERR) 
-      elseif (inp_compare(.false.,'diis',test)) then
-        if (.not.rtdb_put(rtdb, 'gw:diis', mt_log, 1, .true.))
      &    call errquit('gw_input: rtdb_put failed', 108, RTDB_ERR) 
       else
         goto 8000
@@ -174,34 +172,42 @@ c
         goto 602
       endif
 c
+c     Set first orbital to star counting
 c
+ 700  if (.not.(inp_i(first)))
+     $  call errquit('gw_input: "first" must be followed by an integer',
+     $                0,INPUT_ERR)
+      if (.not.rtdb_put(rtdb,'gw:first',mt_int,1,first))
+     $  call errquit('gw_input: rtdb_put failed', 700, RTDB_ERR)
+      goto 10 
 c
-c
- 700  if(.not. rtdb_put( rtdb, 'gw:analyticw', mt_log, 1, .true.))
-     &  call errquit('gw_input: rtdb_put failed', 700, RTDB_ERR)
-      goto 10
-c
-c
+c     Start from NCAP modified eigenvalues
 c
  800  if(.not.rtdb_put(rtdb,'gw:ncap',mt_log,1,.true.))
      &  call errquit('gw_input: rtdb_put failed',800, RTDB_ERR)
       goto 10
 c
-c
+c     Value of imaginary infinitesimal
 c
  900  if (.not. inp_f(eta)) 
      &   call errquit('gw_input: eta <float>',0,INPUT_ERR)
       if(.not.rtdb_put(rtdb,'gw:eta',mt_dbl,1,eta))
      &  call errquit('gw_input: rtdb_put failed', 900, RTDB_ERR)
       goto 10
-
+c
+c     Compute RPA correlation energy
+c
  1000 if(.not.rtdb_put(rtdb,'gw:rpa',mt_log,1,.true.))
      &  call errquit('gw_input: rtdb_put failed',1000, RTDB_ERR)
       goto 10
 c
+c     Invert matrices by diagonalization 
+c
  1100 if(.not.rtdb_put(rtdb,'gw:diag',mt_log,1,.true.))
      &  call errquit('gw_input: rtdb_put failed',1100, RTDB_ERR)
       goto 10
+c
+c     Start counting from the core upwards
 c
  1200 if(.not.rtdb_put(rtdb,'gw:core',mt_log,1,.true.))
      &  call errquit('gw_input: rtdb_put failed',1200, RTDB_ERR)

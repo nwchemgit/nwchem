@@ -151,7 +151,8 @@ c
         ! *** BUILDRN ***
         extramem_buildrn = mynpoles*pars%ipol*2      + ! factor, dfactor
      $                      nri*10                     ! Minres
-        stack_buildrn = nri**2 + nri                   ! Pi
+        stack_buildrn = nri                            ! Pi
+        heap_buildrn  = 0
         ga_buildrn = 3*nri**2 + nri
 
         ga_mem = ga_mem + max(ga_buildiw,ga_buildrn)

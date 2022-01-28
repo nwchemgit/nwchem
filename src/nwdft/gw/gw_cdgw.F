@@ -223,9 +223,6 @@ c
      $          dbl_mb(pars%k_glw), GWMB(kiW), int_mb(kiWidx),
      $          pars%nmo,nri,pars%ngl,mynmo,maxpoles,maxqp,pars%ipol)
 
-c      call gw_buildiw_minres(pars,dbl_mb(kEia),dbl_mb(pars%k_glx),
-c     $          GWMB(kiW), int_mb(kiWidx),
-c     $          pars%nmo,nri,pars%ngl,mynmo,maxpoles,maxqp,pars%ipol)
 
       pars%timer%iw = pars%timer%iw + util_wallsec() - timer
 c
@@ -257,18 +254,6 @@ c
      $                      dbl_mb(kEia),
      $                      GWMB(kiW), int_mb(kiWidx),efermi,nri,
      $                      mynmo,maxqp,maxpoles,eviter)
-      elseif (pars%diis) then
-        call gw_cdgw_diis(pars,dbl_mb(kSigmax),dbl_mb(kSigma),
-     $                    dbl_mb(kEref),dbl_mb(kEmod),dbl_mb(kEnew),
-     $                    dbl_mb(kEia),
-     $                    GWMB(kiW), int_mb(kiWidx),efermi,nri,
-     $                    mynmo,maxqp,maxpoles,eviter)
-      else
-        call gw_cdgw_linear(pars,dbl_mb(kSigmax),dbl_mb(kSigma),
-     $                      dbl_mb(kEref),dbl_mb(kEmod),dbl_mb(kEnew),
-     $                      dbl_mb(kEia),
-     $                      GWMB(kiW), int_mb(kiWidx),efermi,nri,
-     $                      mynmo,maxqp,maxpoles)
       endif
 
       if (pars%evgw0.or.pars%evgw) then
@@ -280,15 +265,6 @@ c
      $       ma_sizeof(mt_dbl,nmo*pars%ipol,mt_byte),0)
         call ga_brdcst(mt_dbl,dbl_mb(kSigma),
      $       ma_sizeof(mt_dbl,nmo*pars%ipol,mt_byte),0)
-
-c        do isp=1,pars%ipol
-c          offset = (isp-1)*nmo
-c          call gw_diis(dbl_mb(kvalues+pars%eviter*offset),
-c     $                 dbl_mb(kerrors+pars%eviter*offset),
-c     $                 dbl_mb(kemod+offset+pars%llmo(isp)-1),
-c     $                 dbl_mb(kenew+offset+pars%llmo(isp)-1),
-c     $                 ndiis,eviter,pars%nqp(isp),efermi)
-c        enddo
 
         call dcopy(nmo*pars%ipol,dbl_mb(kEnew),1,dbl_mb(kEmod),1)
         eviter = eviter + 1
