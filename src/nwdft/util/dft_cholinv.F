@@ -60,12 +60,12 @@ c
          if (odftps) call pstat_on(ps_bdgemm)
 #ifndef SCALAPACK
          call ga_dgemm('T', 'N', n, n, n, 1.d0, 
-     &        g_a, g_a, 0.d0, g_cdinv)
+     &        g_a, g_a, 0.d0, g_b)
 #endif
          if (odftps) call pstat_off(ps_bdgemm)
 #else 
          call ga_copy(g_b, g_a)
-         call ga_inv_seq(g_a, g_cdinv)
+         call ga_inv_seq(g_a, g_b)
 #endif
       else
          call dft_invdiag(g_a, g_b, n)
