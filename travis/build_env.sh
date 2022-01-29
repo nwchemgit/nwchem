@@ -124,6 +124,10 @@ fi
     sudo add-apt-repository universe && sudo apt-get update
 #    sudo apt-get -y install gfortran python3-dev python-dev cmake "$mpi_libdev" "$mpi_bin" "$scalapack_libdev"  make perl  libopenblas-dev python3 rsync
     sudo apt-get -y install gfortran python3-dev python-dev cmake "$mpi_libdev" "$mpi_bin"  make perl  python3 rsync
+    if [[ "$FC" == "gfortran-11" ]] || [[ "$CC" == "gcc-11" ]]; then
+	sudo  add-apt-repository -y ppa:ubuntu-toolchain-r/test \
+        sudo  apt-get -y install gcc-11 gfortran-11 g++-11
+    fi
     if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]]; then
 	sudo apt-get -y install intel-oneapi-ifort intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic  intel-oneapi-mkl
 	if [[ "$?" != 0 ]]; then
