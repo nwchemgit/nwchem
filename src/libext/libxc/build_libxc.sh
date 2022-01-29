@@ -25,7 +25,7 @@ check_tgz() {
     echo $myexit
 }
 
-VERSION=5.1.7
+VERSION=5.2.0
 TGZ=libxc-${VERSION}.tar.gz
 if [ `check_tgz $TGZ` == 1 ]; then
     echo "using existing $TGZ"
