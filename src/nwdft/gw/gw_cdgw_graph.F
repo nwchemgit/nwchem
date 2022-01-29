@@ -123,7 +123,7 @@
 
             ! Contribution from the imaginary axis
             timer = util_wallsec()
-            call gw_buildin(iW(1,1,iqp,isp),Eold(1,isp),
+            call gw_cdgw_buildin(iW(1,1,iqp,isp),Eold(1,isp),
      $                      dbl_mb(pars%k_glx),dbl_mb(pars%k_glw),
      $                      iWidx(0,iqp,isp),Ein,pars%eta,I,dI,
      $                      pars%ngl,mynmo)
@@ -132,7 +132,7 @@
 
             ! Contribution from the poles enclosed by the contour
             timer = util_wallsec()
-            call gw_buildrn_minres(pars,Eold(1,isp),Eia,Ein,R,dR,
+            call gw_cdgw_buildrn_minres(pars,Eold(1,isp),Eia,Ein,R,dR,
      $                      llmo+iqp-1,maxpoles,nri,pars%me,pars%nmo,
      $                      pars%ipol,isp)
             call ga_sync()
@@ -259,7 +259,7 @@
 
 
             timer = util_wallsec()
-            call gw_buildin_graph(iW(1,1,myll,isp),Eold(1,isp),
+            call gw_cdgw_buildin_graph(iW(1,1,myll,isp),Eold(1,isp),
      $        dbl_mb(pars%k_glx),dbl_mb(pars%k_glw),iwidx(0,myll,isp),
      $        omega(ipoints),output,pars%ngl,mynmo,myul-myll+1)
             resmat(ipoints,myll:myul) = output(1,1:myul-myll+1)
@@ -268,9 +268,9 @@
 
 
             timer = util_wallsec()
-            call gw_buildrn_graph(pars,Eold(1,isp),Eia,omega(ipoints),
-     $        output,llmo+myll-1,maxpoles,nri,pars%me,pars%nmo,
-     $        pars%ipol,isp,myul-myll+1)
+            call gw_cdgw_buildrn_graph(pars,Eold(1,isp),Eia,
+     $        omega(ipoints),output,llmo+myll-1,maxpoles,nri,pars%me,
+     $        pars%nmo,pars%ipol,isp,myul-myll+1)
             call ga_sync()
             resmat(ipoints,myll:myul) = resmat(ipoints,myll:myul) +
      $        output(1,1:clusters(icluster)) - omega(ipoints)

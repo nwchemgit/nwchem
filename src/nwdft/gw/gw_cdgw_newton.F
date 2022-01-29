@@ -127,7 +127,7 @@ c
 
             call ga_sync()
             timer = util_wallsec()
-            call gw_buildin(iW(1,1,iqp,isp),Eold(1,isp),
+            call gw_cdgw_buildin(iW(1,1,iqp,isp),Eold(1,isp),
      $                      dbl_mb(pars%k_glx),dbl_mb(pars%k_glw),
      $                      iWidx(0,iqp,isp),Ein,pars%eta,I,dI,
      $                      pars%ngl,mynmo)
@@ -136,7 +136,7 @@ c
             call ga_sync()
             timer = util_wallsec()
 
-            call gw_buildrn_minres(pars,Eold(1,isp),Eia,Ein,R,dR,
+            call gw_cdgw_buildrn_minres(pars,Eold(1,isp),Eia,Ein,R,dR,
      $                      llmo+iqp-1,maxpoles,nri,pars%me,pars%nmo,
      $                      pars%ipol,isp)
 

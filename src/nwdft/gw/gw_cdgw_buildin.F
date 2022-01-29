@@ -4,7 +4,8 @@
 #define GWTYP double precision
 #endif
 
-      subroutine gw_buildin(iW,Evals,x,w,iWidx,omega,eta,I,dI,ngl,myld)
+      subroutine gw_cdgw_buildin(iW,Evals,x,w,iWidx,omega,eta,I,dI,ngl,
+     $                           myld)
       implicit none
 #include "mafdecls.fh"      
       integer,intent(in) :: ngl, myld

@@ -219,7 +219,7 @@ c
      $                    pars%nvir(i),mynmo,pars%nqp(i),pars%llmo(i))
       enddo
 
-      call gw_buildiw(pars,dbl_mb(kEia),dbl_mb(pars%k_glx),
+      call gw_cdgw_buildiw(pars,dbl_mb(kEia),dbl_mb(pars%k_glx),
      $          dbl_mb(pars%k_glw), GWMB(kiW), int_mb(kiWidx),
      $          pars%nmo,nri,pars%ngl,mynmo,maxpoles,maxqp,pars%ipol)
 

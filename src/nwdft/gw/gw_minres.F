@@ -317,7 +317,7 @@ c      end if
         if (.not.ma_push_get(mt_dbl,n**2,'pi',l_pi,k_pi))
      $    call errquit('gw_en: can''t allocate pi matrix',0,MA_ERR) 
         t0 = util_wallsec()
-        call gw_buildpi('r',ov1,ov2,dbl_mb(k_pi),factor,n,n,npoles,
+        call gw_cdgw_buildpi('r',ov1,ov2,dbl_mb(k_pi),factor,n,n,npoles,
      $                   main,ipol,maxpoles)
 #ifdef GWDEBUG
 c        if (main) write(*,'(A,F8.3)') 'BUILDPI: ',util_wallsec()-t0

@@ -16,7 +16,7 @@
 
 #define USE_ALLOC 1
 
-      subroutine gw_buildrn_minres(pars,Eig,Eia,omega,R,dR,imo,
+      subroutine gw_cdgw_buildrn_minres(pars,Eig,Eia,omega,R,dR,imo,
      $                      maxpoles,nri,me,nmo,ipol,isp)
       USE ISO_C_BINDING
       implicit none

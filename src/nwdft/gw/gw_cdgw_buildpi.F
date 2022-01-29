@@ -1,5 +1,5 @@
-      subroutine gw_buildpi(which,ovup,ovdw,pi,factor,ldpi,nri,npoles,
-     $                      main,ipol,maxpoles)
+      subroutine gw_cdgw_buildpi(which,ovup,ovdw,pi,factor,ldpi,nri,
+     $                           npoles,main,ipol,maxpoles)
       implicit none
 #include "mafdecls.fh"      
 #include "errquit.fh"
@@ -244,8 +244,8 @@ c            call dscal(nri,1d0/factor(ipole,1),ovup(1,ipole),1)
 
 
 
-      subroutine gw_buildpi_cmplx(which,ovup,ovdw,pi,factor,ldpi,nri,
-     $                      npoles,main,ipol,maxpoles)
+      subroutine gw_cdgw_buildpi_cmplx(which,ovup,ovdw,pi,factor,ldpi,
+     $                                 nri,npoles,main,ipol,maxpoles)
       implicit none
 #include "mafdecls.fh"      
       logical,intent(in) :: main

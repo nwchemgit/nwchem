@@ -1,4 +1,4 @@
-      subroutine gw_buildin_graph(iW,Evals,x,w,iWidx,omega,output,
+      subroutine gw_cdgw_buildin_graph(iW,Evals,x,w,iWidx,omega,output,
      $                            ngl,myld,nqp)
       implicit none
 #include "mafdecls.fh"      

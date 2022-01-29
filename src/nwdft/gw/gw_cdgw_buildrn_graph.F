@@ -16,7 +16,7 @@
 #define GWGEMV dgemv      
 #endif
 
-      subroutine gw_buildrn_graph(pars,Eig,Eia,omega,output,llmo,
+      subroutine gw_cdgw_buildrn_graph(pars,Eig,Eia,omega,output,llmo,
      $   maxpoles,nri,me,nmo,ipol,isp,nqp)
       implicit none
 #include "mafdecls.fh"
@@ -176,13 +176,13 @@
 
         !build Pi matrix
 #ifdef GWCMPLX
-        call gw_buildpi_cmplx('r',dbl_mb(kOV(1)),dbl_mb(kOV(2)),
+        call gw_cdgw_buildpi_cmplx('r',dbl_mb(kOV(1)),dbl_mb(kOV(2)),
      $              GWMB(k_pi),factor,nri,nri,pars%mynpoles,main,ipol,
      $              maxpoles)
 #else        
-        call gw_buildpi('r',dbl_mb(kOV(1)),dbl_mb(kOV(2)),GWMB(k_pi),
-     $                   factor,nri,nri,pars%mynpoles,main,ipol,
-     $                   maxpoles)
+        call gw_cdgw_buildpi('r',dbl_mb(kOV(1)),dbl_mb(kOV(2)),
+     $         GWMB(k_pi),factor,nri,nri,pars%mynpoles,main,ipol,
+     $         maxpoles)
 #endif        
         call GWGOP(GWMT,GWMB(k_pi),nri**2,'+')
 

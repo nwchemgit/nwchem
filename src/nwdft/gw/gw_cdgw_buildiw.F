@@ -7,8 +7,8 @@
 #endif 
 
 #define USE_ALLOC 1
-      subroutine gw_buildiw(pars,eia,x,wgt,iw,iwidx,nmo,nri,ngl,mynmo,
-     $                      maxpoles,maxqp,ipol)
+      subroutine gw_cdgw_buildiw(pars,eia,x,wgt,iw,iwidx,nmo,nri,ngl,
+     $                           mynmo,maxpoles,maxqp,ipol)
 #ifdef USE_ALLOC
       USE ISO_C_BINDING
 #endif
@@ -164,7 +164,7 @@ c
 c
 
 #ifdef GWCMPLX
-        call gw_buildpi_cmplx('w',dbl_mb(kOV(1)),dbl_mb(kOV(2)),
+        call gw_cdgw_buildpi_cmplx('w',dbl_mb(kOV(1)),dbl_mb(kOV(2)),
      $                         dcpl_mb(k_pi),factor,nri,nri,
      $                         pars%mynpoles,main,ipol,maxpoles)
         call ga_zgop(mt_dcpl,dcpl_mb(k_pi),nri**2,'+')
@@ -173,9 +173,9 @@ c
 #else
 c
         t0 = util_wallsec()
-        call gw_buildpi('w',dbl_mb(kOV(1)),dbl_mb(kOV(2)),dbl_mb(k_pi),
-     $                  factor,ldpi,nri,pars%mynpoles,main,ipol,
-     $                  maxpoles) 
+        call gw_cdgw_buildpi('w',dbl_mb(kOV(1)),dbl_mb(kOV(2)),
+     $           dbl_mb(k_pi),factor,ldpi,nri,pars%mynpoles,main,ipol,
+     $           maxpoles) 
 #ifdef GWDEBUG
         if (main) write(luout,*) '     ## buildpi ',util_wallsec()-t0
 #endif
