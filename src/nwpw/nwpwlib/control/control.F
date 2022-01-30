@@ -277,6 +277,11 @@ c        call nwpwxc_print()
      > spin_orbit=.false.
       if (spin_orbit) ispin=2
 
+      if (.not.btdb_get(rtdb,'cpsd:fei',mt_log,1,fei))
+     >  fei = .false.
+      if(.not.btdb_cget(rtdb,'cpsd:xyz_filename',1,xyz_filename))
+     >  call util_file_prefix('xyz',xyz_filename)
+
 
 *     ****************************************
 *     **** cpmd and band_cpmd code: stuff ****

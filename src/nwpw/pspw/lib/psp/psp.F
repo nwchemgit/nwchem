@@ -266,7 +266,7 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
          do l=0,psp_fmm_lmax
          do m=-l,l
             call Tesseral3_rgrid_lm_rl(l,m,
-     >                              n2ft3d,dbl_mb(rgrid(1)),
+     >                              n2ft3d,dbl_mb(tmp_rgrid(1)),
      >                              dbl_mb(psp_fmm_rTlm(1)+lm*n2ft3d))
             lm = lm + 1
          end do
