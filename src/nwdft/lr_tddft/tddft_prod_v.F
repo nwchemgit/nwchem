@@ -2,7 +2,7 @@
      1  nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_prod_p,g_prod_m,
      3  g_movecs,evl,ntrials,nproducts,
      4  tda,oskel,singlet,triplet,tol2e,kfac,lhashf,thresh,
-     5  target,targetsym,algorithm,mult,l_irs,k_irs,iwhich)
+     5  target,targetsym,algorithm,mult,l_irs,k_irs,iwhich,lhascd)
 c
 c
 c
@@ -47,6 +47,7 @@ c
       logical tda              ! True if Tamm-Dancoff approximation
       logical singlet          ! True if singlet excited states
       logical triplet          ! True if triplet excited states
+      logical lhascd
       logical oskel            ! True if use symmetry in fock_2e
       double precision tol2e   ! 2-e integral tolerance
       double precision kfac    ! Prefactor for HF exchange contribution
@@ -283,7 +284,7 @@ c          if(nodezero)write(6,*)'Before contractions'
 
           call tddft_nga_cont(rtdb,geom,ao_bas_han,
      1      g_ntrl,g_nprd_p,g_nprd_m,nbf_ao,ipol,tol2e,tda,oskel,kfac,
-     2      lhashf,triplet,nvectors,iwhich)
+     2      lhashf,triplet,nvectors,iwhich,lhascd)
  
           ccpu=ccpu+util_cpusec()
           cwall=cwall+util_wallsec()

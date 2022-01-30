@@ -54,6 +54,9 @@ env|egrep MP
  case "$ARMCI_NETWORK" in
     MPI-PR)
 	nprocs=$(( nprocs + 1 ))
+	if [[ "$BUILD_MPICH" == 1 && $nprocs > 2 ]]; then
+	    nprocs=2
+	fi
 	case "$MPI_IMPL" in
 	    openmpi)
 		export MPIRUN_NPOPT="-mca mpi_yield_when_idle 0 --oversubscribe -np "
@@ -112,6 +115,7 @@ fi
 	 if [[ ! $(grep -i cosmo $TRAVIS_BUILD_DIR/src/stubs.F| awk '/cosmo_input/') ]]; then
 	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs cosmo_h2o_dft
 	 fi
+	 cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs ritddft_h2o ritddft_co
      else
 	 echo ' dft_input stubbed'
      fi
@@ -137,6 +141,7 @@ fi
 	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_ch3_h2o_revm06
 	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_smear
 	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_he2p_wb97
+	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs ritddft_pyridine
 	   if [[ ! -z "$USE_LIBXC" ]]; then
 	       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs libxc_he2+
 	   fi

@@ -66,6 +66,8 @@ c
      $     ps_scfend)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:scf', pstat_qstat, 0, junk,
      $     ps_scfdft)) call errquit('dft: dft_pstat_init', 0,0)
+      if (.not. pstat_allocate('dft:cpks_coef', pstat_qstat, 0, junk,
+     $     ps_cpkscoef)) call errquit('dft: dft_pstat_init', 0,0)
       if (.not. pstat_allocate('dft:total', pstat_qstat, 0, junk,
      $     ps_dft)) call errquit('dft: dft_pstat_init', 0,0)
 c       

@@ -431,6 +431,13 @@ sync
       set overall_status = 1
       continue
     fi
+    #check if output is from EOMCCSD, since EOMCCSD output is non-deterministic
+    if [[ `grep -c EOMCCSD ${STUB}.out.nwparse` > 0 ]] ; then
+	rm -f sort.new
+	sort -n ${STUB}.ok.out.nwparse > sort.new && mv sort.new ${STUB}.ok.out.nwparse
+	rm -f sort.new
+	sort -n ${STUB}.out.nwparse > sort.new && mv sort.new ${STUB}.out.nwparse
+    fi
 
     diff -w ${STUB}.ok.out.nwparse ${STUB}.out.nwparse >& /dev/null
     diff1status=$?

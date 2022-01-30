@@ -18,7 +18,7 @@
 	int_1e_fde.o \
 	sca_lab_mat.o \
 	dft_utilmap.o \
-	dft_genutils.o
+	dft_genutils.o dft_cholinv.o
 
 
      LIBRARY = libnwdft.a

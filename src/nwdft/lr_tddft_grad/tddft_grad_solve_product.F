@@ -106,7 +106,8 @@ c
       call ga_zero(g_Ax_3d_ao)
       call tddft_nga_cont(tdg_rtdb,tdg_geom,tdg_bfao,g_x_3d_ao,
      +     g_Ax_3d_ao,g_ambt,tdg_nao,tdg_ipol,tdg_tol2e,tdg_tda,
-     +     tdg_oskel,tdg_kfac,tdg_lhashf,tdg_triplet,tdg_nroots,iwhich)
+     +     tdg_oskel,tdg_kfac,tdg_lhashf,tdg_triplet,tdg_nroots,iwhich,
+     +     tdg_lhascd)
       if (.not.tdg_tda) then
         if (.not.ga_destroy(g_ambt))
      +      call errquit(pname//'failed to destroy g_ambt',0,GA_ERR)

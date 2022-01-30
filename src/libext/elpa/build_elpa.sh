@@ -1,16 +1,19 @@
 #!/usr/bin/env bash
 #set -v
 arch=`uname -m`
-SHORTVERSION=2020.11.001
-VERSION=new_release_2020.11.001
+#SHORTVERSION=2020.11.001
+#ERSION=new_release_2020.11.001
 #SHORTVERSION=2021.05.002
 #VERSION=new_release_2021_05_002
+SHORTVERSION=2021.11.001
+VERSION=new_release_2021.11.001
 #https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/new_release_2020.11.001/elpa-new_release_2020.11.001.tar.gz
 export ARFLAGS=rU
 if [ -f  elpa-${VERSION}.tar.gz ]; then
     echo "using existing"  elpa-${VERSION}.tar.gz
 else
     rm -rf elpa*
+echo    curl -L https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
     curl -L https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
 fi
 tar xzf elpa-${VERSION}.tar.gz
@@ -101,7 +104,7 @@ fi
 if [[  -z "${FORCETARGET}" ]]; then
 FORCETARGET="-disable-sse -disable-sse-assembly --disable-avx --disable-avx2  --disable-avx512  "
 fi #FORCETARGET
-if [[ "${USE_HWOPT}" != "0" ]] && [[ "${USE_HWOPT}" != "n" ]] &&[[ "${USE_HWOPT}" != "N" ]] && [[ ${UNAME_S} == Linux ]]; then
+if [[ "${USE_HWOPT}" == "1" ]] && [[ "${USE_HWOPT}" == "y" ]] &&[[ "${USE_HWOPT}" != "Y" ]] && [[ ${UNAME_S} == Linux ]]; then
 if [[ ${UNAME_S} == Linux ]]; then
     CPU_FLAGS=$(cat /proc/cpuinfo | grep flags |tail -n 1)
     CPU_FLAGS_2=$(cat /proc/cpuinfo | grep flags |tail -n 1)
@@ -145,6 +148,15 @@ fi
 #	fi
 #    fi
 fi #USE_HWOPT
+if [[ `${CC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] ; then
+    if [[ "$(expr `${CC} -dumpversion | cut -f1 -d.` \< 8)" == 1 ]]; then
+	echo
+	echo you have gcc version $(${CC} -dumpversion | cut -f1 -d.)
+	echo gcc version 8 and later needed for elpa
+	echo
+	exit 1
+    fi
+fi
 ## check gcc version for skylake
 #let GCCVERSIONGT5=$(expr `${CC} -dumpversion | cut -f1 -d.` \> 5)
 #if [[ "$FORCETARGET" == *"SKYLAKEX"* ]]; then
