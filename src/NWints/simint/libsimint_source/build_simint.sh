@@ -94,20 +94,35 @@ fi
 tar xzf simint-chem-simint-generator.tar.gz
 cd *-simint-generator-???????
 pwd
+if [[  -z "${NWCHEM_TOP}" ]]; then
+    dir4=$(dirname `pwd`)
+    dir3=$(dirname "$dir4")
+    dir2=$(dirname "$dir3")
+    dir1=$(dirname "$dir2")
+    NWCHEM_TOP=$(dirname "$dir1")
+fi
 mkdir -p build; cd build
 if [[ -z "${MYCMAKE}" ]]; then
     #look for cmake
     if [[ -z "$(command -v cmake)" ]]; then
+	source ${NWCHEM_TOP}/src/libext/libext_utils/cmake.sh
+	cmake_instdir=${NWCHEM_TOP}/src/libext/libext_utils
+	get_cmake_release $cmake_instdir
+	status=$?
+	if [ $status -ne 0 ]; then
 	echo cmake required to build Simint
 	echo Please install cmake
 	echo define the CMAKE env. variable
 	exit 1
+	fi
+	MYCMAKE=$CMAKE
     else
 	MYCMAKE=cmake
     fi
 fi
-CMAKE_VER=$(${MYCMAKE} --version|cut -d " " -f 3|head -1|cut -c1)
-#echo CMAKE_VER is ${CMAKE_VER}
+CMAKE_VER=$(${MYCMAKE} --version|cut -d " " -f 3|head -1|cut -d. -f1)
+echo CMAKE_VER is ${CMAKE_VER}
+echo dirname is `pwd`
 if [[ ${CMAKE_VER} -lt 3 ]]; then
     echo CMake 3.0.2 or higher is required
     echo Please install CMake 3
@@ -168,14 +183,6 @@ if [[ -z "${FC}" ]]; then
 	FC=gfortran
     fi
 fi    
-if [[  -z "${NWCHEM_TOP}" ]]; then
-    dir5=$(dirname `pwd`)
-    dir4=$(dirname "$dir5")
-    dir3=$(dirname "$dir4")
-    dir2=$(dirname "$dir3")
-    dir1=$(dirname "$dir2")
-    NWCHEM_TOP=$(dirname "$dir1")
-fi
 FC_EXTRA=$(${NWCHEM_TOP}/src/config/strip_compiler.sh ${FC})
 if [[ ${FC_EXTRA} == gfortran  || ${FC_EXTRA} == flang || ${FC_EXTRA} == armflang || (${FC} == ftn && ${PE_ENV} == GNU) || (${FC} == ftn && ${PE_ENV} == AOCC) ]] ; then
     Fortran_FLAGS="-fdefault-integer-8 -cpp"
