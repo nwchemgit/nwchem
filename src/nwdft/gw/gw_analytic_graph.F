@@ -36,7 +36,7 @@
 c     Create screened-Coulomb array      
       npoles = sum(pars%npoles(1:pars%ipol))
       if (.not.ga_create(mt_dbl,pars%nmo,npoles,'wmn',pars%nmo,0,g_wmn))
-     $   call errquit('can''t create Wmnarray',0,GA_ERR)
+     $   call errquit('can''t create Wmn array',0,GA_ERR)
 
       do isp=1,pars%ipol
         totalqp = pars%noqp(isp) + pars%nvqp(isp)
@@ -79,9 +79,9 @@ c         Obtain screened-Coulomb matrix elements
 
 c         Compute Galiitski-Migdal correlation energy
           if (llmo+iqp-1.le.pars%nocc(isp)) then
-            call gw_analytic_ecgm(pars%ecgm,Eold(llmo+iqp-1,isp),Eold,
-     $                          omega,g_wmn,pars%eta**2,
-     $                          npoles,pars%nmo,plus,pars%me)
+            call gw_analytic_ecgm(pars%ecgm,Eold(llmo+iqp-1,isp),
+     $            Eold(1,isp),omega,g_wmn,pars%eta**2,
+     $            npoles,pars%nmo,plus,pars%me)
           endif
 c          
           ! Try just six steps and then use graphical solver
@@ -93,8 +93,9 @@ c
 
 c           Compute self-energy element            
             timer = util_wallsec()
-            call gw_analytic_sigmac(sigmaC,dsigmaC,d2sigmaC,Ein,Eold,
-     $           omega,g_wmn,pars%eta**2,npoles,pars%nmo,plus,pars%me)
+            call gw_analytic_sigmac(sigmaC,dsigmaC,d2sigmaC,Ein,
+     $           Eold(1,isp),omega,g_wmn,pars%eta**2,npoles,pars%nmo,
+     $           plus,pars%me)
             pars%timer%sigmac = pars%timer%sigmac - timer +  
      $                          util_wallsec()
 
@@ -149,7 +150,7 @@ c           Compute self-energy element
           enddo
 
           timer = util_wallsec()
-          call gw_analytic_sigmac_graph(sigmamat,omegamat,Eold,
+          call gw_analytic_sigmac_graph(sigmamat,omegamat,Eold(1,isp),
      $      omega,g_wmn,0.003d0**2,npoles,pars%nmo,plus,pars%me,npoints)
           pars%timer%sigmac = pars%timer%sigmac - timer + util_wallsec()
           resmat(:) = const + sigmamat(:) - omegamat(:)
