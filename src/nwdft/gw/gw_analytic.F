@@ -1,4 +1,4 @@
-      subroutine gw_run(pars)
+      subroutine gw_analytic(pars)
 c
       implicit none
 #include "errquit.fh"
@@ -11,11 +11,12 @@ c
 c
       type(gw_params_t) :: pars
 c
-      character(len=8), parameter :: pname = 'gw_run: '
+      character(len=13), parameter :: pname = 'gw_analytic: '
 c
-      integer nmo, nri, nocc, nvir, iocc, ivir, iqp, i, j, nri_me
-      integer npoles, ipole, lo1, lo2, eviter, ilo, ihi, ibf, lo3
-      integer nstates
+      integer,dimension(2) :: nocc,nvir,npoles,nstates,mynpoles
+
+      integer nmo, nri, iocc, ivir, iqp, i, j, nri_me
+      integer ipole, lo1, lo2, eviter, ilo, ihi, ibf, lo3
       integer l_sigmax, k_sigmax
       integer l_sigma, k_sigma
       integer l_eia, k_eia
@@ -25,14 +26,13 @@ c
       integer l_scr, k_scr
       integer l_eriia,k_eriia
       integer l_vxc, k_vxc
-      integer l_wmn, k_wmn
       integer l_smomega, k_smomega
       integer l_eritmp, k_eritmp
       integer l_eold, k_eold
       integer l_enew, k_enew
       integer l_sign, k_sign
       integer l_eriij, k_eriij
-      integer lo4,ld, istart, iend, g_erim, g_wmn
+      integer lo4,ld, istart, iend
       logical main,oactive,converged
 c
       double precision sigma_c, dsigma_c, eps_in, eps_out, sigma_old
@@ -57,10 +57,17 @@ c     initialize useful variables
 c
       nmo  = pars%nmo
       nri  = nbf_cd
-      nstates = pars%nstates(1)
       main = pars%me.eq.0
       maxpoles = maxval(pars%mynpoles(1:ipol))
       maxnpoles = maxval(pars%npoles(1:ipol))
+
+      do i=1,ipol
+        nocc(i) = pars%nocc(i)
+        nvir(i) = pars%nvir(i)
+        npoles(i) = nocc(i)*nvir(i)
+        nstates(i) = pars%nstates(i)
+        mynpoles(i) = pars%mynpoles(i)
+      enddo
 c
 c     Get fermi energy
 c
@@ -172,11 +179,6 @@ c
      $                               dbl_mb(k_eold),dbl_mb(k_enew),
      $                               dbl_mb(k_omega),efermi,nri,
      $                               maxnpoles,eviter)
-      else
-        call gw_analytic_linear(pars,dbl_mb(k_sigmax),dbl_mb(k_sigma),
-     $                               dbl_mb(k_eold),dbl_mb(k_enew),
-     $                               dbl_mb(k_omega),efermi,nri,
-     $                               maxnpoles)
       endif
 
 c
@@ -201,6 +203,9 @@ c
 c
       if (.not.ma_chop_stack(l_sigma))
      $  call errquit(pname//'could not free stack',0,MA_ERR)
+      if (pars%evgw0) then
+        if (.not.ga_destroy(pars%g_erim))
+     $    call errquit(pname//'could not destroy ERIs',0,GA_ERR)
+      endif
 c
-
-      end subroutine gw_run
+      end subroutine gw_analytic

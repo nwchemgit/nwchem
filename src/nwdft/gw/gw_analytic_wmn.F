@@ -15,6 +15,7 @@
       logical,external :: ga_create, ga_destroy
 
       double precision :: scr(nri)
+      double precision :: factor
 #ifdef USE_OPENMP
       integer iMaxThreads
       integer,external :: omp_get_max_threads
@@ -28,8 +29,8 @@
       oo = pars%g_erioo(isp)
       ov = pars%g_eriov(isp)
       vv = pars%g_erivv(isp)
-      erim = pars%g_erim(isp)
-      npoles = pars%npoles(isp)
+      erim = pars%g_erim               ! Spin-independent
+      npoles = sum(pars%npoles(1:isp)) ! Total number of poles
 
       if (.not.ga_create(mt_dbl,nri,nmo,'temp',nri,0,g_a))
      $  call errquit('gw_analytic_wmn: cannot create array',0,GA_ERR)
@@ -68,8 +69,10 @@
       endif
 
       call ga_sync()
+      factor = 1d0
+      if (isp.eq.1) factor = dsqrt(2d0)
 
-      call ga_dgemm('t','n',nmo,npoles,nri,dsqrt(2d0),g_a,erim,0d0,wmn)
+      call ga_dgemm('t','n',nmo,npoles,nri,factor,g_a,erim,0d0,wmn)
       call ga_elem_multiply(wmn,wmn,wmn)
 
       if (.not.ga_destroy(g_a))

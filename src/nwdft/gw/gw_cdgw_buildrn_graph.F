@@ -83,9 +83,13 @@
       if (ipol.eq.1) kOV(2) = 1
 
 #if PARALLEL_DIAG
-      parallel_diag = nri .gt. 4000
+      parallel_diag = nri .gt. 20000
 #else
       parallel_diag = .false.
+#endif
+
+#ifdef GWCMPLX
+      paralle_diag = .false.
 #endif
 
       if (parallel_diag) then
@@ -138,26 +142,25 @@
 
         ! Check for degeneracies
         if (is_near(eig(jmo),omega,shift)) then
+          cycle
           fac = sgn*0.5d0
           arg = 0d0
-          arg2 = 0d0
         else
           fac = sgn
           arg = eig(jmo) - omega
-          arg2 = arg**2
         endif
 
         !obtain the factor to build Pi matrix and its derivative
         do jsp=1,ipol
 !$omp     parallel do simd private(temp) schedule(static)
           do ipole=1,pars%mynpoles(jsp)
-            temp = (Eia(ipole,jsp) - ieta)/
-     $      ((Eia(ipole,jsp)**2-arg2)-2d0*ieta*(Eia(ipole,jsp)-sgn*arg))
-#ifdef GWCMPLX            
-            factor(ipole,jsp) = temp
-#else            
-            factor(ipole,jsp) = dble(temp)
-#endif            
+            temp = Eia(ipole,jsp) + ieta
+#ifdef GWCMPLX
+            factor(ipole,jsp) = 0.5d0/(arg + temp) + 0.5d0/(temp - arg)
+#else
+            factor(ipole,jsp) = dble( 0.5d0/(arg + temp) + 
+     $                                0.5d0/(temp - arg) )
+#endif
           enddo
 !$omp   end parallel do simd
         enddo
@@ -179,13 +182,15 @@
         call gw_cdgw_buildpi_cmplx('r',dbl_mb(kOV(1)),dbl_mb(kOV(2)),
      $              GWMB(k_pi),factor,nri,nri,pars%mynpoles,main,ipol,
      $              maxpoles)
+        call GWGOP(GWMT,GWMB(k_pi),nri**2,'+')
 #else        
         call gw_cdgw_buildpi('r',dbl_mb(kOV(1)),dbl_mb(kOV(2)),
      $         GWMB(k_pi),factor,nri,nri,pars%mynpoles,main,ipol,
      $         maxpoles)
-#endif        
-        call GWGOP(GWMT,GWMB(k_pi),nri**2,'+')
 
+        call GWGOP(GWMT,GWMB(k_pi),(nri*(nri+1))/2,'+')
+        call rfp2std(GWMB(k_pi),nri)
+#endif        
 
         if (parallel_diag) then
           call gw_invdiag(dbl_mb(k_pi),nri,nri,dummy,.false.)

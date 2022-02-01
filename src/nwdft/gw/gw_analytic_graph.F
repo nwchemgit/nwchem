@@ -15,11 +15,11 @@
       double precision,intent(inout) :: Sigma(pars%nmo,pars%ipol)
       double precision,intent(in) :: Eold(pars%nmo,pars%ipol)
       double precision,intent(inout) :: Enew(pars%nmo,pars%ipol)
-      double precision,intent(in) :: Omega(maxpoles,pars%ipol)
+      double precision,intent(in) :: Omega(maxpoles*pars%ipol)
 
       logical main, converged, bracket, warning, fixed
       integer isp, totalqp, llmo, iqp, iter, g_wmn, plus, imo
-      integer l_sw,k_sw,dbls,logs,iloc,ipoints,npoints
+      integer l_sw,k_sw,dbls,logs,iloc,ipoints,npoints, npoles
       double precision timer
       double precision Ein, Eout, SigmaOld, Sigma_X, SigmaC
       double precision d2SigmaC, dSigmaC, radius
@@ -32,6 +32,11 @@
       dbls = ma_sizeof(mt_dbl,1,mt_byte)
       logs = ma_sizeof(mt_log,1,mt_byte)
       pars%ecgm = 0d0
+
+c     Create screened-Coulomb array      
+      npoles = sum(pars%npoles(1:pars%ipol))
+      if (.not.ga_create(mt_dbl,pars%nmo,npoles,'wmn',pars%nmo,0,g_wmn))
+     $   call errquit('can''t create Wmnarray',0,GA_ERR)
 
       do isp=1,pars%ipol
         totalqp = pars%noqp(isp) + pars%nvqp(isp)
@@ -46,9 +51,6 @@
         llmo = pars%llmo(isp)
         warning = .false.
 
-        if (.not.ga_create(mt_dbl,pars%nmo,pars%npoles(isp),'wmn',
-     $                     pars%nmo,0,g_wmn))
-     $    call errquit('can''t create array',0,GA_ERR)
 
         do imo=1,pars%nmo
           if (Eold(imo,isp).gt.0d0) then
@@ -70,14 +72,16 @@
           lower = 0d0
           upper = 0d0
 
+c         Obtain screened-Coulomb matrix elements           
           timer = util_wallsec()
           call gw_analytic_wmn(pars,g_wmn,iqp+llmo-1,isp,nri)
           pars%timer%wm = pars%timer%wm - timer + util_wallsec()
-c        
+
+c         Compute Galiitski-Migdal correlation energy
           if (llmo+iqp-1.le.pars%nocc(isp)) then
             call gw_analytic_ecgm(pars%ecgm,Eold(llmo+iqp-1,isp),Eold,
-     $                          omega(1,isp),g_wmn,pars%eta**2,
-     $                          pars%npoles(isp),pars%nmo,plus,pars%me)
+     $                          omega,g_wmn,pars%eta**2,
+     $                          npoles,pars%nmo,plus,pars%me)
           endif
 c          
           ! Try just six steps and then use graphical solver
@@ -86,11 +90,11 @@ c
             Ein = Eout
 
             call ga_sync()
+
+c           Compute self-energy element            
             timer = util_wallsec()
             call gw_analytic_sigmac(sigmaC,dsigmaC,d2sigmaC,Ein,Eold,
-     $                              omega(1,isp),g_wmn,
-     $                              pars%eta**2,pars%npoles(isp),
-     $                              pars%nmo,plus,pars%me)
+     $           omega,g_wmn,pars%eta**2,npoles,pars%nmo,plus,pars%me)
             pars%timer%sigmac = pars%timer%sigmac - timer +  
      $                          util_wallsec()
 
@@ -146,8 +150,7 @@ c
 
           timer = util_wallsec()
           call gw_analytic_sigmac_graph(sigmamat,omegamat,Eold,
-     $            omega(1,isp),g_wmn,0.003d0**2,pars%npoles(isp),
-     $            pars%nmo,plus,pars%me,npoints)
+     $      omega,g_wmn,0.003d0**2,npoles,pars%nmo,plus,pars%me,npoints)
           pars%timer%sigmac = pars%timer%sigmac - timer + util_wallsec()
           resmat(:) = const + sigmamat(:) - omegamat(:)
 
@@ -188,18 +191,20 @@ c
      $                          abs(resmat(iloc))*ha2ev
           endif
         enddo
-        if (.not.(ga_destroy(g_wmn)))
-     $    call errquit('can''t destroy Wmn',0,GA_ERR)   
-        if ( .not.pars%evgw0 ) then
-          if (.not.(ga_destroy(pars%g_erim(isp))))
-     $      call errquit('can''t destroy ERIm',0,GA_ERR)   
-        endif
         if (warning.and.main) then
           write(luout,*)
           write(luout,*) ' * Graphical solution was not found'
           write(luout,*)
         endif
       enddo
+
+c     Destroy GAs      
+      if (.not.ga_destroy(g_wmn))
+     $  call errquit('can''t destroy Wmn',0,GA_ERR)   
+      if ( .not.pars%evgw0 ) then
+        if (.not.ga_destroy(pars%g_erim))
+     $    call errquit('can''t destroy ERIm',0,GA_ERR)   
+      endif
 
  9000 format(/,15x,'Alpha Orbitals',/,10x,'State',5x,'Energy (eV)',
      $       5x,'Error (eV)',/,10x,36('-'))

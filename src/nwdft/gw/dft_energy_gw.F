@@ -67,12 +67,7 @@ c
         if (params%cdgw) then
           call gw_cdgw(params)
         else
-          if (ipol.eq.1) then
-            call gw_run(params)
-          else
-            call errquit(pname//'Analytic open-shell not implemented',
-     $                   0,0)
-          endif
+          call gw_analytic(params)
         endif
 c
       elseif (theory.eq.'sodft') then

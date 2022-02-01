@@ -7,11 +7,7 @@
 
 #define ISOGW real(kind=C_DOUBLE)
 #define GWTYP double precision
-#ifdef GWEN
-#define SOLVER gw_en
-#else
 #define SOLVER gw_minres
-#endif
 #endif
 
 #define USE_ALLOC 1

@@ -11,12 +11,14 @@
       integer,intent(in) :: maxpoles, maxnpoles, nri
 
       double precision, intent(in)  :: eia(maxpoles,*)
-      double precision, intent(out) :: omega(maxnpoles,*)
+      double precision, intent(out) :: omega(*)
 
-      integer g_rpa, g_xpy
+      integer g_rpa, g_xpy, g_diag, g_diag1, g_diag2
       integer npoles,mynpoles,ipole,ilo,ihi,jlo,jhi
       integer kRPA,kOV1,kOV2,kXPY,ld
       integer iMaxThreads
+      integer lo,hi
+      logical ok
 
       character(len=17),parameter :: pname = 'gw_analytic_rpa: '
 
@@ -63,7 +65,6 @@
         call gw_analytic_ecrpa(dbl_mb(kRPA),eia(1,1),mynpoles,
      $                         pars%ovlo(1),pars%ecrpa)
 
-
 #ifdef PARALLEL_DIAG
 #ifdef SCALAPACK        
         call dft_scaleig(g_rpa,g_rpa,omega,0)
@@ -86,19 +87,20 @@
 
 !$omp   parallel do
         do ipole=1,npoles
-          omega(ipole,1) = dsqrt(omega(ipole,1))
+          omega(ipole) = dsqrt(omega(ipole))
         enddo
 !$omp   end parallel do
 
-        pars%ecrpa = pars%ecrpa + 0.5d0*sum(omega(1:npoles,1))
+        pars%ecrpa = pars%ecrpa + 0.5d0*sum(omega(1:npoles))
 
-        if (.not.ga_duplicate(pars%g_eriov(1),pars%g_erim(1),
+        if (.not.ga_duplicate(pars%g_eriov(1),pars%g_erim,
      $                        'transformed eri alpha'))
      $    call errquit(pname//'failed to duplicate array',0,GA_ERR)
 
         call gw_analytic_scalxpy(dbl_mb(kRPA),omega,mynpoles,npoles)
+        call ga_print(g_rpa)
         call ga_dgemm('n','n',nri,npoles,npoles,1d0,pars%g_eriov(1),
-     $                 g_rpa,0d0,pars%g_erim(1))
+     $                 g_rpa,0d0,pars%g_erim)
         call gw_analytic_ovscale(2,dbl_mb(kOV1),eia(1,1),nri,mynpoles)
 
         if (.not.(ga_destroy(g_rpa)))
@@ -106,6 +108,128 @@
 
 
       else
+
+        npoles = pars%npoles(1) + pars%npoles(2)
+
+        if (.not.ga_create(mt_dbl,npoles,npoles,'rpa',0,npoles,g_rpa))
+     $    call errquit(pname//'can''t create RPA GA',0,GA_ERR)
+        if (.not.nga_create(mt_dbl,1,pars%npoles(1),'RPA diag',0,
+     $       g_diag1))
+     $    call errquit(pname//'can''t create RPA diag',0,GA_ERR)
+        if (.not.nga_create(mt_dbl,1,pars%npoles(2),'RPA diag',0,
+     $       g_diag2))
+     $    call errquit(pname//'can''t create RPA diag 2',0,GA_ERR)
+        if (.not.nga_create(mt_dbl,1,npoles,'RPA diag',0,g_diag))
+     $    call errquit(pname//'can''t create RPA diag',0,GA_ERR)
+
+c       Gather eigenvalue differences in a GA vector
+        call nga_distribution(g_diag1,pars%me,lo,hi)
+        if (hi.ge.lo) then
+          call nga_put(g_diag1,lo,hi,eia(1,1),ld)
+        endif
+
+        call nga_distribution(g_diag2,pars%me,lo,hi)
+        if (hi.ge.lo) then
+          call nga_put(g_diag2,lo,hi,eia(1,2),ld)
+        endif
+
+        call ga_sync()
+        call nga_copy_patch('n',g_diag1,1,pars%npoles(1),
+     $                      g_diag,1,pars%npoles(1))
+        call nga_copy_patch('n',g_diag2,1,pars%npoles(2),
+     $                      g_diag,pars%npoles(1)+1,npoles)   
+
+c       Square eigenvalue differences        
+        call ga_elem_multiply(g_diag,g_diag,g_diag)
+
+c       Scale integrals with eigenvalue differences
+        call gw_analytic_ovscale(1,dbl_mb(kOV1),eia(1,1),nri,
+     $                           pars%mynpoles(1))
+        call gw_analytic_ovscale(1,dbl_mb(kOV2),eia(1,2),nri,
+     $                           pars%mynpoles(2))
+
+c       Form open-shell RPA matrix        
+        call ga_matmul_patch('t','n',2d0,0d0,
+     $                        pars%g_eriov(1),1,pars%npoles(1),1,nri,
+     $                        pars%g_eriov(1),1,nri,1,pars%npoles(1),
+     $                        g_rpa,1,pars%npoles(1),1,pars%npoles(1))
+        call ga_matmul_patch('t','n',2d0,0d0,
+     $                        pars%g_eriov(1),1,pars%npoles(1),1,nri,
+     $                        pars%g_eriov(2),1,nri,1,pars%npoles(2),
+     $                        g_rpa,1,pars%npoles(1),
+     $                              pars%npoles(1)+1,npoles)
+        call ga_matmul_patch('t','n',2d0,0d0,
+     $                        pars%g_eriov(2),1,pars%npoles(2),1,nri,
+     $                        pars%g_eriov(1),1,nri,1,pars%npoles(1),
+     $                        g_rpa,pars%npoles(1)+1,npoles,
+     $                              1,pars%npoles(1))
+        call ga_matmul_patch('t','n',2d0,0d0,
+     $                        pars%g_eriov(2),1,pars%npoles(2),1,nri,
+     $                        pars%g_eriov(2),1,nri,1,pars%npoles(2),
+     $                        g_rpa,pars%npoles(1)+1,npoles,
+     $                              pars%npoles(1)+1,npoles)
+        call ga_add_diagonal(g_rpa,g_diag)
+
+c       ECRPA pending
+c       pars%ecrpa =      
+
+c       Diagonalize RPA matrix
+#ifdef PARALLEL_DIAG
+#ifdef SCALAPACK        
+        call dft_scaleig(g_rpa,g_rpa,omega,0)
+#else
+        call ga_diag_std(g_rpa,g_rpa,omega)
+#endif
+#else
+        call ga_diag_std_seq(g_rpa,g_rpa,omega)
+#endif
+
+
+!$omp   parallel do
+        do ipole=1,npoles
+          omega(ipole) = dsqrt(omega(ipole))
+        enddo
+!$omp   end parallel do
+
+c       Create transformed ERI array        
+        if (.not.ga_create(mt_dbl,nri,npoles,'transformed eris',nri,0,
+     $       pars%g_erim))
+     $    call errquit(pname//'failed to create array',0,GA_ERR)
+          
+c       Gather neutral excitations vector
+        call nga_distribution(g_diag,pars%me,lo,hi)
+        if (hi.gt.lo) then
+          call nga_put(g_diag,lo,hi,1d0/dsqrt(omega(lo:hi)),ld)
+        endif
+        call ga_sync()
+        call ga_scale_rows(g_rpa,g_diag)
+        call ga_print(g_rpa)
+
+c       Transform ERIs with excitation vectors
+        call ga_matmul_patch('n','n',1d0,0d0,
+     $          pars%g_eriov(1),1,nri,1,pars%npoles(1),
+     $          g_rpa,1,pars%npoles(1),1,npoles,
+     $          pars%g_erim,1,nri,1,npoles)
+        call ga_matmul_patch('n','n',1d0,1d0,
+     $          pars%g_eriov(2),1,nri,1,pars%npoles(2),
+     $          g_rpa,pars%npoles(1)+1,npoles,1,npoles,
+     $          pars%g_erim,1,nri,1,npoles)   
+
+c       Scale back ERIs        
+        call gw_analytic_ovscale(2,dbl_mb(kOV1),eia(1,1),nri,
+     $                           pars%mynpoles(1))
+        call gw_analytic_ovscale(2,dbl_mb(kOV2),eia(1,2),nri,
+     $                           pars%mynpoles(2))
+
+c       Destroy GAs        
+        if (.not.(ga_destroy(g_rpa)))
+     $    call errquit(pname//'can''t destroy RPA GA',0,GA_ERR)
+        if (.not.(ga_destroy(g_diag)))
+     $    call errquit(pname//'can''t destroy RPA diag',0,GA_ERR)
+        if (.not.(ga_destroy(g_diag1)))
+     $    call errquit(pname//'can''t destroy RPA diag',0,GA_ERR)
+        if (.not.(ga_destroy(g_diag2)))
+     $    call errquit(pname//'can''t destroy RPA diag',0,GA_ERR)
 
       endif
 

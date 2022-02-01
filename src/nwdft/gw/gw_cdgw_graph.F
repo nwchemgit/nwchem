@@ -350,7 +350,7 @@
  9000 format(/,15x,'Alpha Orbitals',/,10x,'State',5x,'Energy (eV)',
      $       5x,' Error (eV)',/,10x,36('-'))
  9010 format(/,15x,' Beta Orbitals',/,10x,'State',5x,'Energy (eV)',
-     $       5x,' Error (eV)',/,10x,26('-'))
+     $       5x,' Error (eV)',/,10x,36('-'))
  9020 format(10x,I3,3x,F12.3,4x,F12.3)
  9030 format(10x,I3,3x,F12.3,4x,F12.3,' *')
 

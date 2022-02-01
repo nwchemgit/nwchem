@@ -34,7 +34,7 @@ c
         integer          :: fd
 c
         integer          :: g_movecs(2), g_moeris, g_sols
-	integer          :: g_erioo(2), g_eriov(2), g_erivv(2), g_erim(2)
+	integer          :: g_erioo(2), g_eriov(2), g_erivv(2), g_erim
         logical          :: noio
 c
         integer          :: eviter, qpiter, first

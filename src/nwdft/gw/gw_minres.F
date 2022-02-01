@@ -272,7 +272,6 @@
         test1 = rnorm/(Anorm*dxnorm + bnorm)
         test2 = Arnorm/(Anorm*(rnorm + eps))
         test3 = xnorm*rnorm + rnorm**2/gmin
-c        test3 = max(test3, tnorm2*(test3/gmin+rnorm*xnorm/gmin))
         t1 = 1d0 + test1
         t2 = 1d0 + test2
 
@@ -303,33 +302,27 @@ c       converge in 20 or less steps
 
  2000 continue
 
-#ifdef GWDEBUG
-c      if (main) then
-c        if (istop.gt.100) then
-c          write(*,*) ' MINRES : ',iter,rnorm
-c        endif
-c      end if
-#endif
 
+c     if we reached this point, convergence with
+c     MINRES seems rather slow. Let's better try
+c     actually building the matrix and solving the
+c     equation system using LAPACK.
       if ((istop.gt.100 .and. rnorm.gt.10d0*rtol)) then
 
-
+c       we need an n**2 matrix
         if (.not.ma_push_get(mt_dbl,n**2,'pi',l_pi,k_pi))
      $    call errquit('gw_en: can''t allocate pi matrix',0,MA_ERR) 
-        t0 = util_wallsec()
+
         call gw_cdgw_buildpi('r',ov1,ov2,dbl_mb(k_pi),factor,n,n,npoles,
      $                   main,ipol,maxpoles)
-#ifdef GWDEBUG
-c        if (main) write(*,'(A,F8.3)') 'BUILDPI: ',util_wallsec()-t0
-#endif
-        t0 = util_wallsec()
         call ga_mask_sync(.true.,.false.)
-        call ga_dgop(mt_dbl,dbl_mb(k_pi),(n*(n+1))/2+n,'+')
-#ifdef GWDEBUG
-c        if (main) write(*,'(A,F8.3)') 'GOP: ',util_wallsec()-t0
-#endif
+        call ga_dgop(mt_dbl,dbl_mb(k_pi),(n*(n+1))/2,'+')
+
+c       Pi is built in rectangular full packed format.
+c       Transform it to standard format.
         call rfp2std(dbl_mb(k_pi),n)
 
+c       Diagonalize matrix in parallel
         if (parallel_diag) then
           nprocs = ga_nnodes()
           mynri = n/nprocs
@@ -341,35 +334,35 @@ c        if (main) write(*,'(A,F8.3)') 'GOP: ',util_wallsec()-t0
           call dgemv('t',n,mynri,1d0,dbl_mb(llpi),n,b,1,0d0,x(pilo),1)
           call ga_mask_sync(.true.,.false.)
           call ga_dgop(mt_dbl,x,n,'+')
+
+c       Use DSYSV locally
         else
-          if (.not.ma_push_get(mt_int,n,'ipiv',l_ipiv,k_ipiv))
-     $      call errquit('gw_en: can''t allocate ipiv',0,MA_ERR) 
           lscr = 64*n
           x(:) = b(:)
+          if (.not.ma_push_get(mt_int,n,'ipiv',l_ipiv,k_ipiv))
+     $      call errquit('gw_en: can''t allocate ipiv',0,MA_ERR) 
           if (.not.ma_push_get(mt_dbl,lscr,'scr',l_scr,k_scr))
      $      call errquit('gw_en: can''t allocate scratch',0,MA_ERR) 
 
-          t0 = util_wallsec()
           call dsysv('l',n,1,dbl_mb(k_pi),n,int_mb(k_ipiv),x,n,
      $                dbl_mb(k_scr),lscr,info)
-#ifdef GWDEBUG
-c          if (main) write(*,'(A,F8.3)') 'DSYSV: ',util_wallsec()-t0
-#endif
         endif
 
         if (.not.ma_chop_stack(l_pi))
      $    call errquit('gw_en: can''t deallocate pi matrix',0,MA_ERR)   
         rnorm = 0d0
+
+c     MINRES converged, broadcast result from node 0
       else
         call ga_mask_sync(.true.,.false.)
         call ga_brdcst(mt_dbl,x,ma_sizeof(mt_dbl,n,mt_byte),0)
       endif
 
+c     Deallocate local fields
       deallocate(r1, r2, y, w, w1, w2, v, sol, stat=stat_alloc)
       if (stat_alloc.ne.0) then
         call errquit('gw_minres: error deallocating',0,MA_ERR)
       endif
-
 
       end subroutine
 
@@ -446,7 +439,7 @@ c          if (main) write(*,'(A,F8.3)') 'DSYSV: ',util_wallsec()-t0
 
       call dcopy(n,b,1,y,1)
       if (x0norm.gt.0d0) then
-        call dgemv('t',n,n,-1d0,A,n,x,1,1d0,y,1)
+        call dsymv('l',n,-1d0,A,n,x,1,1d0,y,1)
         beta1 = dsqrt(dot_product(y,y))
       else
         beta1 = bnorm
@@ -515,7 +508,7 @@ c          if (main) write(*,'(A,F8.3)') 'DSYSV: ',util_wallsec()-t0
 
         v(:) = s*y(:)
 
-        call dgemv('n',n,n,1d0,A,n,v,1,0d0,y,1)
+        call dsymv('l',n,1d0,A,n,v,1,0d0,y,1)
         if (iter.ge.2) call daxpy(n,-beta/oldb,r1,1,y,1)
 
         alpha = dot_product(v,y)
@@ -604,9 +597,7 @@ c          if (main) write(*,'(A,F8.3)') 'DSYSV: ',util_wallsec()-t0
 
         if (istop.ne.0) exit
       enddo
-#ifdef GWDEBUG
-c      write(*,*) istop,iter,rnorm
-#endif
+
       call daxpy(n,1d0,sol,1,x,1)
 
  1000 continue

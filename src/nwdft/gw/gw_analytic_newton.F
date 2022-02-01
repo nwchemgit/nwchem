@@ -13,7 +13,7 @@
       double precision,intent(in) :: Efermi(pars%ipol)
       double precision,intent(in) :: Sigmax(pars%nmo,pars%ipol)
       double precision,intent(in) :: Eold(pars%nmo,pars%ipol)
-      double precision,intent(in) :: Omega(maxpoles,pars%ipol)
+      double precision,intent(in) :: Omega(maxpoles*pars%ipol)
       double precision,intent(inout) :: Sigma(pars%nmo,pars%ipol)
       double precision,intent(out) :: Enew(pars%nmo,pars%ipol)
 
@@ -22,6 +22,7 @@
       logical main, warning, fixed(pars%nmo)
       integer isp, totalqp, llmo, iqp, iter, g_wmn, plus, imo
       integer l_sw,k_sw,dbls,logs
+      integer npoles
 
       double precision timer, timer2, thresh
       double precision Ein, Eout, SigmaOld, Sigma_X, SigmaC
@@ -39,6 +40,9 @@
       dbls = ma_sizeof(mt_dbl,1,mt_byte)
       logs = ma_sizeof(mt_log,1,mt_byte)
 
+c     Here, npoles is the sum of both spin channels      
+      npoles = sum(pars%npoles(1:pars%ipol))
+
       thresh = pars%thresh
       if (eviter.gt.2) thresh = thresh/10d0
 
@@ -51,6 +55,10 @@
       else
         maxradius = 0.1d0
       endif
+
+c     Create  Screened-Coulomb array      
+      if (.not.ga_create(mt_dbl,pars%nmo,npoles,'wmn',pars%nmo,0,g_wmn))
+     $  call errquit('can''t create Wmn array',0,GA_ERR)
 
       do isp=1,pars%ipol
         warning = .false.
@@ -78,9 +86,6 @@
         call ga_brdcst(mt_int,clusters,
      $                 ma_sizeof(mt_int,nclusters,mt_byte),0)
 
-        if (.not.ga_create(mt_dbl,pars%nmo,pars%npoles(isp),'wmn',
-     $                     pars%nmo,0,g_wmn))
-     $    call errquit('can''t create array',0,GA_ERR)
 
         do imo=1,pars%nmo
           if (Eold(imo,isp).gt.0d0) then
@@ -124,14 +129,15 @@
           lower = 0d0
           upper = 0d0
 
-          timer = util_wallsec()
+c         Comput Screened-Coulomb matrix elements
+          timer = util_wallsec()          
           call gw_analytic_wmn(pars,g_wmn,iqp+llmo-1,isp,nri)
           pars%timer%wm = pars%timer%wm - timer + util_wallsec()
 
-          if (llmo+iqp-1.le.pars%nocc(isp)) then
+c         Compute Galiitski-Migdal correlation energy
+          if (llmo+iqp-1.le.pars%nocc(isp) ) then
             call gw_analytic_ecgm(pars%ecgm,Eold(llmo+iqp-1,isp),Eold,
-     $                          omega(1,isp),g_wmn,pars%eta**2,
-     $                          pars%npoles(isp),pars%nmo,plus,pars%me)
+     $          omega,g_wmn,pars%eta**2,npoles,pars%nmo,plus,pars%me)
           endif
 c        
           do iter=1,pars%qpiter+5
@@ -142,10 +148,11 @@ c
 
             call ga_sync()
             timer = util_wallsec()
+
+c           Comput self-energy            
             call gw_analytic_sigmac(sigmaC,dsigmaC,d2sigmaC,Ein,Eold,
-     $                              omega(1,isp),g_wmn,
-     $                              pars%eta**2,pars%npoles(isp),
-     $                              pars%nmo,plus,pars%me)
+     $           omega,g_wmn,pars%eta**2,npoles,pars%nmo,plus,pars%me)
+
             pars%timer%sigmac = pars%timer%sigmac - timer +  
      $                          util_wallsec()
 
@@ -300,14 +307,14 @@ c
           write(luout,*) ' * Result did not converge'
           write(luout,*)
         endif
-        if (.not.(ga_destroy(g_wmn)))
-     $    call errquit('can''t destroy Wmn',0,GA_ERR)   
-        if ( .not.pars%evgw0 ) then
-          if (.not.(ga_destroy(pars%g_erim(isp))))
-     $      call errquit('can''t destroy ERIm',0,GA_ERR)   
-        endif
       enddo
 
+      if (.not.ga_destroy(g_wmn))
+     $  call errquit('can''t destroy Wmn',0,GA_ERR)   
+      if (.not.pars%evgw0) then
+        if (.not.ga_destroy(pars%g_erim))
+     $    call errquit('can''t destroy transformed ERIs',0,GA_ERR)   
+      endif
 
  9000 format(/,18x,'Alpha Orbitals',/,10x,'State',5x,'Energy (eV)',
      $       5x,'Error (eV)',/,10x,35('-'))
