@@ -6,10 +6,10 @@
 
       integer ipole,jpole
 
-!$omp parallel do
+!$omp parallel do simd
       do ipole=1,npoles
         XPY(:,ipole) = XPY(:,ipole)/dsqrt(omega(ipole))
       enddo
-!$omp end parallel do      
+!$omp end parallel do simd     
 
       end subroutine

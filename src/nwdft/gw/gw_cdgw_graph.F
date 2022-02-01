@@ -27,8 +27,8 @@
       double precision,intent(in)  :: Sigma(pars%nmo,pars%ipol)
       double precision,intent(out) :: Enew(pars%nmo,pars%ipol)
 
-      logical,target  :: lvars(3)
-      logical,pointer :: converged,skipped,bracket
+      logical,target  :: lvars(2)
+      logical,pointer :: converged,bracket
       logical main, warning, fixed(pars%nmo), done
       integer llqp, ulqp, ipoints, icluster, qplimit, npoints
       integer isp, totalqp, llmo, iqp, iter, logs, dbls
@@ -50,7 +50,6 @@
 
       converged => lvars(1)
       bracket   => lvars(2)
-      skipped   => lvars(3)
 
       do isp=1,pars%ipol
         warning = .false.
@@ -117,7 +116,6 @@
             timer2 = util_wallsec()
 
             Ein = Eout
-            skipped = .false.
 
             call ga_sync()
 
@@ -150,35 +148,8 @@
 
             radius = min(0.1d0,0.1d0/residual**2)
 
-            ! Find out if we might have skipped a solution
-            if ((iter.gt.1) .and. (.not.bracket) .and. 
-     $          (dble(dsigmac).lt.0d0) .and.
-     $          (errors(iter)*errors(iter-1).gt.0d0)) then
-              if (errors(iter).lt.errors(iter-1)) then
-
-                bracket = .true.
-                if (values(iter).lt.values(iter-1)) then
-                  lower = values(iter)
-                  upper = values(iter-1)
-                  reslower = errors(iter)
-                  resupper = errors(iter-1)
-                else
-                  lower = values(iter-1)
-                  upper = values(iter)
-                  reslower = errors(iter-1)
-                  resupper = errors(iter)
-                endif
-
-                eout = values(iter) - 
-     $                 0.6180d0*(values(iter)-values(iter-1))
-                values(iter) = values(iter-1)
-                errors(iter) = errors(iter-1)
-                skipped = .true.
-              endif
-            endif
-
             !bracket solution
-            if (iter.gt.1 .and. (.not.skipped) ) then
+            if (iter.gt.1) then
               call gw_findbracket(bracket,values(iter),errors(iter),
      $                            values(iter-1),errors(iter-1),
      $                            lower,upper,reslower,resupper)
@@ -190,28 +161,21 @@
      $                  (bracket .and. abs(upper-lower).lt.pars%thresh)
 
             ! Exit if converged
-            call ga_brdcst(mt_log,lvars,3*logs,0)
+            call ga_brdcst(mt_log,lvars,2*logs,0)
 
             if (converged) then
               eout = ein
               exit
             endif
 
-            if (.not.skipped) then
-              call gw_donewton(ein,eout,residual,dresidual,lower,upper,
+            call gw_donewton(ein,eout,residual,dresidual,lower,upper,
      $                       reslower,resupper,bracket,pars%thresh,
      $                       radius,iter)
-            endif
 
 #ifdef GWDEBUG
-            if (main) write(luout,9901) iter,iqp,util_wallsec()-timer2,
-     $                                  Ein,Eout
- 9901       format('  ## Finished iter',I3,' of qp ',I3,' in ',F12.2,'s'
-     $             ,/,'     Ein: ',F12.6,' Eout: ',F12.6)
-            if (main) write(luout,9902) residual,eout-ein,lower,upper
- 9902       format('    res ',F12.6,' step ',F12.6,' lower ',F12.6,
-     $             ' upper ', F12.6)
-            call util_flush(luout)
+            if (main) call gw_newton_debug(residual,eout,ein,lower,
+     $                  upper,efermi(isp),util_wallsec()-timer2,
+     $                  bracket,llmo+iqp-1,iter)
 #endif
             !save information
             rms3(3) = rms3(2)

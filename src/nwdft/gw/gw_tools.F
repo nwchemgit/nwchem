@@ -223,9 +223,11 @@
 
       end subroutine
 
+c     -----------------------------------------------------------------
 
       subroutine gw_analytic_ecgm(ecgm,omegain,Eold,Omegam,wmn,eta,
      $                            npoles,nmo,plus,me)
+
       implicit none
 #include "gw.fh"
 #include "errquit.fh"
@@ -272,8 +274,13 @@ c
 
       end subroutine
 
+c     -----------------------------------------------------------------
 
       subroutine gw_cdgw_ecgm(pi,vx,nri,ldpi,ecgm,ecrpa,diag)
+
+c     Compute the Galitskii-Migdal correlation energy using the
+c     information available in CDGW.
+
         implicit none
         logical diag
         integer nri,ldpi
@@ -324,8 +331,13 @@ c
 
       end subroutine
 
+c     -----------------------------------------------------------------
 
       subroutine gw_scissor(enew,eold,nmo,nocc,nvir,noqp,nvqp,ipol,me)
+
+c     Applies a scissor operator to energies not corrected by GW.
+c     Separate shifts for the occupied and virtual spaces.
+
       implicit none
       integer,intent(in) :: ipol, nmo, me
       integer,intent(in),dimension(ipol) :: nocc,nvir,noqp,nvqp
@@ -469,6 +481,8 @@ c     *****************************************************************
       return
       end function
 
+c     *****************************************************************
+
       subroutine gw_shift(eig,shifted,efermi,nbf,nmo,npol)
       implicit none
       integer,intent(in) :: nbf, nmo, npol
@@ -484,6 +498,8 @@ c     *****************************************************************
 !$omp end parallel do      
       return
       end subroutine
+
+c     *****************************************************************
 
       subroutine gw_get_eia(eig,eia,nocc,nvir)
       implicit none
@@ -509,6 +525,8 @@ c
 c      
       return
       end subroutine
+
+c     *****************************************************************
 
       subroutine gw_get_iwidx(idx,nmo,nocc,nvir,mynmo,nqp,llmo)
       implicit none
@@ -555,6 +573,8 @@ c
       return
       end subroutine
 
+c     *****************************************************************
+
       subroutine gw_symmat(matrix,n,lo,hi)
       implicit none
       integer,intent(in) :: n, lo, hi
@@ -568,7 +588,12 @@ c
       return
       end subroutine
 
+c     *****************************************************************
+
       subroutine gw_rfpmm(rfp,vecsb,vecsc,ld,n,nvec,packed)
+
+c     Matrix-matrix multiply using one rectangular full-packed matrix
+
       implicit none
       logical,intent(in) :: packed
       integer,intent(in) :: ld, n, nvec
@@ -597,5 +622,77 @@ c
       else
         call dgemm('n','n',n,nvec,n,1d0,rfp,n,vecsb,n,0d0,vecsc,n)
       endif
+
+      end subroutine
+
+c     *****************************************************************
+
+      subroutine gw_newton_debug(residual,eout,ein,lower,upper,efermi,
+     $                           time,bracket,iqp,iter)
+      implicit none
+
+#include "gw.fh"
+#include "stdio.fh"
+
+      integer iqp,iter
+      logical bracket
+      double precision residual, eout, ein, lower, upper, efermi, time
+
+      write(luout,9901) iter,iqp,time,
+     $                  ha2ev*(Ein+efermi),
+     $                  ha2ev*(Eout+efermi)
+      if (.not.bracket) then
+        write(luout,9902) ha2ev*residual,ha2ev*(eout-ein)
+      else
+        write(luout,9903) ha2ev*residual,ha2ev*(eout-ein),
+     $                    ha2ev*(lower+efermi),
+     $                    ha2ev*(upper+efermi)
+      endif
+
+      call util_flush(luout)
+
+ 9901 format('  ## Finished iter',I3,' of qp ',I3,' in ',F12.2,'s'
+     $             ,/,'     Ein: ',F12.6,' Eout: ',F12.6)
+ 9902 format('    res ',F12.6,' step ',F12.6)
+ 9903 format('    res ',F12.6,' step ',F12.6,' lower ',F12.6,
+     $             ' upper ', F12.6)
+      end subroutine
+
+c     *****************************************************************
+
+      subroutine gw_findfixed(npoints, resmat, omegamat, sigmamat,
+     $             sigma, enew, sigma_x, nspace, fixed, thresh)
+
+      implicit none
+
+      logical fixed
+      integer ipoints, npoints
+      double precision sigma_x, nspace, thresh
+      double precision sigma, enew 
+      double precision omegamat(npoints),sigmamat(npoints)
+      double precision resmat(npoints)
+
+      do ipoints=1,npoints
+
+        ! If residual is already small, the solution has been found
+        if (abs(resmat(ipoints)).lt.thresh) then
+          enew = omegamat(ipoints)
+          sigma = sigmamat(ipoints) + sigma_x
+          fixed = .true.
+          exit
+        endif
+
+        ! if residual just changed sign, bisect solution
+        if (ipoints.gt.1) then
+          if (resmat(ipoints-1)*resmat(ipoints).lt.0d0) then
+            enew = omegamat(ipoints) - nspace/2d0
+            sigma = sigma_x +   
+     $         (sigmamat(ipoints)+sigmamat(ipoints-1))/2d0
+            fixed = .true.
+            exit
+          endif
+        endif
+
+      enddo
 
       end subroutine

@@ -155,28 +155,9 @@ c           Compute self-energy element
           pars%timer%sigmac = pars%timer%sigmac - timer + util_wallsec()
           resmat(:) = const + sigmamat(:) - omegamat(:)
 
-          do ipoints=1,npoints
-
-            ! If residual is already small, the solution has been found
-            if (abs(resmat(ipoints)).lt.pars%thresh) then
-              enew(llmo+iqp-1,isp) = omegamat(ipoints)
-              sigma(llmo+iqp-1,isp) = sigmamat(ipoints) + sigma_x
-              fixed = .true.
-              exit
-            endif
-
-            ! if residual just changed sign, bisect solution
-            if (ipoints.gt.1) then
-              if (resmat(ipoints-1)*resmat(ipoints).lt.0d0) then
-                enew(llmo+iqp-1,isp) = omegamat(ipoints) - nspace/2d0
-                sigma(llmo+iqp-1,isp) = sigma_x +   
-     $             (sigmamat(ipoints)+sigmamat(ipoints-1))/2d0
-                fixed = .true.
-                exit
-              endif
-            endif
-
-          enddo
+          call gw_findfixed(npoints,resmat,omegamat,sigmamat,
+     $             sigma(llmo+iqp-1,isp),enew(llmo+iqp-1,isp),sigma_x,
+     $             nspace,fixed,pars%thresh)
 
           if (main.and.fixed) then
              write(luout,9020) llmo+iqp-1,

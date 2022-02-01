@@ -27,8 +27,8 @@
       double precision,intent(inout) :: Sigma(pars%nmo,pars%ipol)
       double precision,intent(out) :: Enew(pars%nmo,pars%ipol)
 
-      logical,target  :: lvars(3)
-      logical,pointer :: converged, bracket, skipped
+      logical,target  :: lvars(2)
+      logical,pointer :: converged, bracket
       logical main, warning, fixed(maxqp)
       integer isp, totalqp, llmo, iqp, iter, logs, dbls, irms
       double precision timer, timer2, rms6(6), m, thresh
@@ -52,7 +52,6 @@
 
       converged => lvars(1)
       bracket   => lvars(2)
-      skipped   => lvars(3)
 
       if (eviter.gt.4) then 
         maxradius = 0.010d0
@@ -123,7 +122,6 @@ c
             timer2 = util_wallsec()
 
             Ein = Eout
-            skipped = .false.
 
             call ga_sync()
             timer = util_wallsec()
@@ -153,38 +151,8 @@ c
 
             radius = min(maxradius,0.1d0*maxradius/residual**2)
 
-            ! Find out if we might have skipped a solution
-            ! skip for now
-#ifdef GW_DOSKIP
-            if ((iter.gt.1) .and. (.not.bracket) .and. 
-     $          (dble(dsigmac).lt.0d0) .and.
-     $          (errors(iter)*errors(iter-1).gt.0d0)) then
-              if (abs(errors(iter)).gt.abs(errors(iter-1))) then
-
-                bracket = .true.
-                if (values(iter).lt.values(iter-1)) then
-                  lower = values(iter)
-                  upper = values(iter-1)
-                  reslower = errors(iter)
-                  resupper = errors(iter-1)
-                else
-                  lower = values(iter-1)
-                  upper = values(iter)
-                  reslower = errors(iter-1)
-                  resupper = errors(iter)
-                endif
-
-                eout = values(iter) - 
-     $                 0.80d0*(values(iter)-values(iter-1))
-                values(iter) = values(iter-1)
-                errors(iter) = errors(iter-1)
-                skipped = .true.
-              endif
-            endif
-#endif
-
             ! Find out if we have bracketed the solution
-            if (iter.gt.1 .and. (.not.skipped) ) then
+            if (iter.gt.1) then
               call gw_findbracket(bracket,values(iter),errors(iter),
      $                            values(iter-1),errors(iter-1),
      $                            lower,upper,reslower,resupper)
@@ -196,54 +164,25 @@ c
      $                  (bracket .and. abs(upper-lower).lt.thresh)
 
             ! Exit if converged
-            call ga_brdcst(mt_log,lvars,3*logs,0)
+            call ga_brdcst(mt_log,lvars,2*logs,0)
             if (converged) then
               Eout = Ein
 #ifdef GWDEBUG
-             if (main) write(luout,9901) iter,llmo+iqp-1,
-     $                                   util_wallsec()-timer2,
-     $                                   ha2ev*(Ein+efermi(isp)),
-     $                                   ha2ev*(Eout+efermi(isp))
-              if (.not.bracket.and.main) then
-                write(luout,9902) ha2ev*residual,
-     $                           ha2ev*(eout-ein)
-              elseif (main) then
-                write(luout,9903) ha2ev*residual,
-     $                           ha2ev*(eout-ein),
-     $                           ha2ev*(lower+efermi(isp)),
-     $                           ha2ev*(upper+efermi(isp))
-              endif
+              if (main) call gw_newton_debug(residual,eout,ein,lower,
+     $                  upper,efermi(isp),util_wallsec()-timer2,
+     $                  bracket,llmo+iqp-1,iter)
 #endif
               exit
             endif
 
-            if (.not.skipped) then
-              call gw_donewton(ein,eout,residual,dresidual,lower,upper,
+            call gw_donewton(ein,eout,residual,dresidual,lower,upper,
      $                       reslower,resupper,bracket,thresh,
      $                       radius,iter)
-            endif
 
 #ifdef GWDEBUG
-            if (main) write(luout,9901) iter,llmo+iqp-1,
-     $                                  util_wallsec()-timer2,
-     $                                  ha2ev*(Ein+efermi(isp)),
-     $                                  ha2ev*(Eout+efermi(isp))
- 9901       format('  ## Finished iter',I3,' of qp ',I3,' in ',F12.2,'s'
-     $             ,/,'     Ein: ',F12.6,' Eout: ',F12.6)
-            if (.not.bracket .and. main) then
-              write(luout,9902) ha2ev*residual,
-     $                          ha2ev*(eout-ein)
-            elseif (main) then
-              write(luout,9903) ha2ev*residual,
-     $                          ha2ev*(eout-ein),
-     $                          ha2ev*(lower+efermi(isp)),
-     $                          ha2ev*(upper+efermi(isp))
-            endif
-
- 9902       format('    res ',F12.6,' step ',F12.6)
- 9903       format('    res ',F12.6,' step ',F12.6,' lower ',F12.6,
-     $             ' upper ', F12.6)
-            call util_flush(luout)
+            if (main) call gw_newton_debug(residual,eout,ein,lower,
+     $                  upper,efermi(isp),util_wallsec()-timer2,
+     $                  bracket,llmo+iqp-1,iter)
 #endif
 
             ! Save information
