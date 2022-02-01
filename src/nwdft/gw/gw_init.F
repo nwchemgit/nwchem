@@ -371,7 +371,7 @@ c
       if (pars%cdgw) then
         call slinit2(nbf_cd)
       else
-        call slinit2(pars%npoles(1))
+        call slinit2(sum(pars%npoles(1:pars%ipol)))
       endif
 
 #endif

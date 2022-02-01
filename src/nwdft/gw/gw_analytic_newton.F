@@ -19,7 +19,7 @@
 
       logical,target  :: lvars(3)
       logical,pointer :: converged, bracket, skipped
-      logical main, warning, fixed(pars%nmo)
+      logical main, warning, fixed(pars%nmo), ok
       integer isp, totalqp, llmo, iqp, iter, g_wmn, plus, imo
       integer l_sw,k_sw,dbls,logs
       integer npoles
@@ -129,29 +129,33 @@ c     Create  Screened-Coulomb array
           lower = 0d0
           upper = 0d0
 
-c         Comput Screened-Coulomb matrix elements
+c         Compute Screened-Coulomb matrix elements
           timer = util_wallsec()          
           call gw_analytic_wmn(pars,g_wmn,iqp+llmo-1,isp,nri)
           pars%timer%wm = pars%timer%wm - timer + util_wallsec()
 
+
 c         Compute Galiitski-Migdal correlation energy
           if (llmo+iqp-1.le.pars%nocc(isp) ) then
-            call gw_analytic_ecgm(pars%ecgm,Eold(llmo+iqp-1,isp),Eold,
-     $          omega,g_wmn,pars%eta**2,npoles,pars%nmo,plus,pars%me)
+            call gw_analytic_ecgm(pars%ecgm,Eold(llmo+iqp-1,isp),
+     $       Eold(1,isp),omega,g_wmn,pars%eta**2,npoles,pars%nmo,plus,
+     $       pars%me)
           endif
+
+          skipped = .false.
 c        
           do iter=1,pars%qpiter+5
             timer2 = util_wallsec()
 
             Ein = Eout
-            skipped = .false.
 
             call ga_sync()
             timer = util_wallsec()
 
 c           Comput self-energy            
-            call gw_analytic_sigmac(sigmaC,dsigmaC,d2sigmaC,Ein,Eold,
-     $           omega,g_wmn,pars%eta**2,npoles,pars%nmo,plus,pars%me)
+            call gw_analytic_sigmac(sigmaC,dsigmaC,d2sigmaC,Ein,
+     $           Eold(1,isp),omega,g_wmn,pars%eta**2,npoles,pars%nmo,
+     $           plus,pars%me)
 
             pars%timer%sigmac = pars%timer%sigmac - timer +  
      $                          util_wallsec()

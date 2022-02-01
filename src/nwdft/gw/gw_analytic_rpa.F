@@ -11,7 +11,7 @@
       integer,intent(in) :: maxpoles, maxnpoles, nri
 
       double precision, intent(in)  :: eia(maxpoles,*)
-      double precision, intent(out) :: omega(*)
+      double precision, intent(out) :: omega(2*maxnpoles)
 
       integer g_rpa, g_xpy, g_diag, g_diag1, g_diag2
       integer npoles,mynpoles,ipole,ilo,ihi,jlo,jhi
@@ -98,7 +98,6 @@
      $    call errquit(pname//'failed to duplicate array',0,GA_ERR)
 
         call gw_analytic_scalxpy(dbl_mb(kRPA),omega,mynpoles,npoles)
-        call ga_print(g_rpa)
         call ga_dgemm('n','n',nri,npoles,npoles,1d0,pars%g_eriov(1),
      $                 g_rpa,0d0,pars%g_erim)
         call gw_analytic_ovscale(2,dbl_mb(kOV1),eia(1,1),nri,mynpoles)
@@ -124,11 +123,15 @@
 
 c       Gather eigenvalue differences in a GA vector
         call nga_distribution(g_diag1,pars%me,lo,hi)
+        if (pars%ovlo(1).ne.lo .or. pars%ovhi(1).ne.hi)
+     $    call errquit('gw_rpa: wrong distribution diag1',0,GA_ERR)
         if (hi.ge.lo) then
           call nga_put(g_diag1,lo,hi,eia(1,1),ld)
         endif
 
         call nga_distribution(g_diag2,pars%me,lo,hi)
+        if (pars%ovlo(2).ne.lo .or. pars%ovhi(2).ne.hi)
+     $    call errquit('gw_rpa: wrong distribution diag2',0,GA_ERR)
         if (hi.ge.lo) then
           call nga_put(g_diag2,lo,hi,eia(1,2),ld)
         endif
@@ -149,6 +152,7 @@ c       Scale integrals with eigenvalue differences
      $                           pars%mynpoles(2))
 
 c       Form open-shell RPA matrix        
+        call ga_zero(g_rpa)
         call ga_matmul_patch('t','n',2d0,0d0,
      $                        pars%g_eriov(1),1,pars%npoles(1),1,nri,
      $                        pars%g_eriov(1),1,nri,1,pars%npoles(1),
@@ -199,11 +203,10 @@ c       Create transformed ERI array
 c       Gather neutral excitations vector
         call nga_distribution(g_diag,pars%me,lo,hi)
         if (hi.gt.lo) then
-          call nga_put(g_diag,lo,hi,1d0/dsqrt(omega(lo:hi)),ld)
+          call nga_put(g_diag,lo,hi,1d0/dsqrt(omega(lo:hi)),hi-lo+1)
         endif
         call ga_sync()
-        call ga_scale_rows(g_rpa,g_diag)
-        call ga_print(g_rpa)
+        call ga_scale_cols(g_rpa,g_diag)
 
 c       Transform ERIs with excitation vectors
         call ga_matmul_patch('n','n',1d0,0d0,

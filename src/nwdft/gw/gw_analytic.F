@@ -71,7 +71,10 @@ c
 c
 c     Get fermi energy
 c
-      efermi = gw_efermi(dbl_mb(pars%k_evals),pars%nocc(1))
+      do i=1,ipol
+        lSize = pars%k_evals + (i-1)*nbf_ao
+        efermi(i) = gw_efermi(dbl_mb(lSize),pars%nocc(i))
+      enddo
 c
 c     Obtain Vxc and store it in Sigma
 c
@@ -81,8 +84,9 @@ c
 
       timer = util_wallsec()
 c      
-      if (.not.ma_push_get(mt_dbl,2*nmo,'Sigma',l_sigma,k_sigma))
+      if (.not.ma_push_get(mt_dbl,ipol*nmo,'Sigma',l_sigma,k_sigma))
      $  call errquit(pname//'cannot allocate Sigma',0,MA_ERR)
+      call dfill(ipol*nmo,0d0,dbl_mb(k_sigma),1)
 
       call gw_vxc(dbl_mb(k_sigma),nmo,pars)
 
