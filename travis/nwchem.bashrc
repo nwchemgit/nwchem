@@ -113,7 +113,8 @@ if [[ "$DISTR" == "fedora" ]] || [[ "$DISTR" == "centos" ]]; then
 fi
 if [[ "$BLAS_ENV" == "internal" ]]; then
     export USE_INTERNALBLAS=1
-    export BLAS_SIZE=8
+    export BLAS_SIZE=4
+    export USE_64TO32=y
     export SCALAPACK_ENV="off"
 elif [[ "$BLAS_ENV" == "build_openblas" ]]; then
     export BUILD_OPENBLAS="y"
