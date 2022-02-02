@@ -41,15 +41,22 @@ jobs:
             mpi_impl: mpich
             nwchem_modules: "qmandpw qmd"
         include:
-          - os: ubuntu-18.04
+          - os: ubuntu-latest
             experimental: true
+            mpi_impl: mpich
+            armci_network: MPI-TS
+            nwchem_modules: "all"
+            fc: gfortran
+            blas: "internal"
+          - os: ubuntu-18.04
+            experimental: false
             mpi_impl: mpich
             armci_network: MPI-PR
             nwchem_modules: "tinyqmpw python"
             fc: gfortran-11
             cc: gcc-11
           - os: ubuntu-20.04
-            experimental: true
+            experimental: false
             mpi_impl: mpich
             armci_network: MPI-TS
             nwchem_modules: "tce"
@@ -237,13 +244,6 @@ jobs:
             nwchem_modules: "qmandpw qmd"
             fc: ifort
             use_openmp: 2
-          - os: ubuntu-latest
-            experimental: true
-            mpi_impl: mpich
-            armci_network: MPI-TS
-            nwchem_modules: "tinyqmpw"
-            fc: gfortran
-            blas: "internal"
       fail-fast: false
     env:
         MPI_IMPL: ${{ matrix.mpi_impl }}
