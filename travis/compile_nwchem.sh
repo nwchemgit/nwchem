@@ -20,6 +20,7 @@ if [[ "$NWCHEM_MODULES" == "tce" ]]; then
 fi
 cd $TRAVIS_BUILD_DIR/src
 #FDOPT="-O0 -g"
+export MPICH_FC=$FC
 if [[ "$arch" == "aarch64" ]]; then 
     if [[ "$FC" == "flang" ]]  ; then
 	export BUILD_MPICH=1
@@ -27,7 +28,6 @@ if [[ "$arch" == "aarch64" ]]; then
     elif [[ "$(basename -- $FC | cut -d \- -f 1)" == "nvfortran" ]] ; then
 	export USE_FPICF=1
 #	export MPICH_FC=nvfortran
-	export MPICH_FC=$FC
 	env|egrep FC
     else
 #should be gfortran	

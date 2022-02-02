@@ -1,44 +1,7 @@
 #!/usr/bin/env bash
-get_cmake_master(){
-    CMAKE_COMMIT=09dd52c9d2684e933a3e013abc4f6848cb1befbf
-    if [[ -f "cmake-$CMAKE_COMMIT.zip" ]]; then
-	echo "using existing"  "cmake-$CMAKE_COMMIT.zip"
-    else
-	curl -L https://gitlab.kitware.com/cmake/cmake/-/archive/$CMAKE_COMMIT.zip -o cmake-$CMAKE_COMMIT.zip
-    fi
-    unzip -n -q cmake-$CMAKE_COMMIT.zip
-    mkdir -p  cmake-$CMAKE_COMMIT/build
-    cd cmake-$CMAKE_COMMIT/build
-    if [[ -x "$(command -v cmake)" ]]; then
-        cmake -DBUILD_CursesDialog=OFF -DBUILD_TESTING=OFF -DBUILD_QtDialog=OFF -DCMAKE_INSTALL_PREFIX=`pwd`/.. ../
-    else
-	../bootstrap --parallel=4 --prefix=`pwd`/..
-    fi
-    make -j4
-    make -j4 install
-    CMAKE=`pwd`/../bin/cmake
-    ${CMAKE} -version
-    cd ../..
-    return 0
-}
-get_cmake38(){
-	UNAME_S=$(uname -s)
-	if [[ ${UNAME_S} == "Linux" ]] || [[ ${UNAME_S} == "Darwin" ]] && [[ $(uname -m) == "x86_64" ]] ; then
-	    CMAKE_VER=3.16.8
-	    rm -f cmake-${CMAKE_VER}-${UNAME_S}-x86_64.tar.gz
-	    curl -L https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-${UNAME_S}-x86_64.tar.gz -o cmake-${CMAKE_VER}-${UNAME_S}-x86_64.tar.gz
-	    tar xzf cmake-${CMAKE_VER}-${UNAME_S}-x86_64.tar.gz
-	    if [[ ${UNAME_S} == "Darwin" ]] ;then
-		CMAKE=`pwd`/cmake-${CMAKE_VER}-${UNAME_S}-x86_64/CMake.app/Contents/bin/cmake
-	    else
-		CMAKE=`pwd`/cmake-${CMAKE_VER}-${UNAME_S}-x86_64/bin/cmake
-	    fi
-	    return 0
-	else
-	    return 1
-	fi
+source ../libext_utils/cmake.sh
 
-}
+
 if [[ "$FC" = "ftn"  ]] ; then
     MPIF90="ftn"
     MPICC="cc"
@@ -68,7 +31,8 @@ else
 if [[ -z "${CMAKE}" ]]; then
     #look for cmake
     if [[ -z "$(command -v cmake)" ]]; then
-	get_cmake38
+	cmake_instdir=../libext_utils
+	get_cmake_release $cmake_instdir
 	status=$?
 	if [ $status -ne 0 ]; then
 	    echo cmake required to build scalapack
@@ -85,7 +49,8 @@ CMAKE_VER_MAJ=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -d. -f1)
 CMAKE_VER_MIN=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -d. -f2)
 echo CMAKE_VER is ${CMAKE_VER_MAJ} ${CMAKE_VER_MIN}
 if ((CMAKE_VER_MAJ < 3)) || (((CMAKE_VER_MAJ > 2) && (CMAKE_VER_MIN < 8))); then
-    get_cmake38
+    cmake_instdir=../libext_utils
+    get_cmake_release $cmake_instdir
     status=$?
     if [ $status -ne 0 ]; then
 	echo cmake required to build scalapack

@@ -98,11 +98,10 @@ fi
 if [[ "$os" == "Linux" ]]; then 
    export NWCHEM_TARGET=LINUX64 
   if [[ "$MPI_IMPL" == "mpich" ]]; then
-  if [[ "$arch" == "aarch64" ]]; then
-    export MPICH_FC=$FC
-  else
-    export BUILD_MPICH=1
-  fi
+      export MPICH_FC=$FC
+      if [[ "$arch" != "aarch64" ]]; then
+	  export BUILD_MPICH=1
+      fi
   fi
 fi
 export OMP_NUM_THREADS=1

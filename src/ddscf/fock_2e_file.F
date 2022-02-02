@@ -154,6 +154,8 @@ c
          j = idamax(nbf*nbf, dens(i,1), nfock)
          denmax = max(denmax, abs(dens(i,j)))
       end do
+c     return if DM is null (e.g imaginary part of RTTDFT DM at t=0)
+      if(denmax.lt.1d-12) return
       den_tol = min(dentolmax,tol2e/denmax,tol2e/denmax**2) ! Threshold to screen integs only
 c
       if (ga_nodeid().eq.0 .and. util_print('fockfile',print_debug))

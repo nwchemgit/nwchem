@@ -1,6 +1,6 @@
       subroutine tddft_contract(rtdb,geom,ao_bas_han,
      1  g_td,g_pd,g_qd,nbf_ao,ipol,tol2e,tda,oskel,kfac,
-     2  lhashf,triplet)
+     2  lhashf,triplet,lhascd)
 c
 c $Id$
 c
@@ -46,6 +46,7 @@ c
       double precision kfac    ! Prefactor for HF exchange
       logical lhashf           ! True if XC has HF contribution
       logical triplet          ! True if restricted triplet
+      logical lhascd           ! True if CD basis is available
 c
       integer idim(3)          ! Dimension array for NGA create
       integer ichunk(3)        ! Chunk array for NGA create
@@ -313,7 +314,7 @@ c
 c
       subroutine tddft_nga_cont(rtdb,geom,ao_bas_han,
      1  g_ntrl,g_nprd_p,g_nprd_m,nbf_ao,ipol,tol2e,tda,oskel,kfac,
-     2  lhashf,triplet,nvectors,iwhich)
+     2  lhashf,triplet,nvectors,iwhich,lhascd)
 c
 c $Id: tddft_contract.F 26045 2014-08-26 04:09:46Z niri $
 c
@@ -352,6 +353,7 @@ c
       double precision jfac    ! Prefactor for Coulomb exchange
       logical lhashf           ! True if XC has HF contribution
       logical triplet          ! True if restricted triplet
+      logical lhascd           ! True if CD basis available
       integer nvectors         ! Number of vectors to be processed
 c
       integer idim(3)          ! Dimension array for NGA create
@@ -457,9 +459,13 @@ c
           dbl_mb(k_kf+n-1)=-kfac*0.5d0*scale_k
        enddo
        if(.not.cam_exch) then ! normal calculations
-c        write(6,*)'HERE'
-        call shell_fock_build(geom,ao_bas_han,0,nvectors,
-     1    dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_p,.true.)
+         if (lhascd.and..not.lhashf) then
+           call tddft_fock_fit(0,nvectors,dbl_mb(k_jf),tol2e,g_nsym,
+     1                     g_nprd_p)
+         else
+           call shell_fock_build(geom,ao_bas_han,0,nvectors,
+     1     dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_p,.true.)
+         endif
        else   ! attenuated calculations
 c        write(6,*)'NOT HERE'
 
@@ -472,8 +478,13 @@ c        write(6,*)'NOT HERE'
           dbl_mb(k_kf+n-1)=-kfac*0.5d0*scale_k
        enddo
        if (.not.cam_exch) then   ! normal calculations
-        call shell_fock_build(geom,ao_bas_han,0,nvectors,
-     1    dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_p,.true.)
+         if (lhascd.and..not.lhashf) then
+           call tddft_fock_fit(0,nvectors,dbl_mb(k_jf),tol2e,g_nsym,
+     1                     g_nprd_p)
+         else
+           call shell_fock_build(geom,ao_bas_han,0,nvectors,
+     1      dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_p,.true.)
+         endif
        else   ! attenuated calculations
         call shell_fock_build_cam(geom,ao_bas_han,0,nvectors,
      1    dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_p,.true.)
@@ -488,8 +499,13 @@ c        write(6,*)'NOT HERE'
         call uhf_fock_setup(g_nsym,g_nprd_p,dbl_mb(k_jf),dbl_mb(k_kf),
      1    ndu,nfu,nbf_ao,.false.)
         if (.not.cam_exch) then   ! normal calculations
-          call shell_fock_build(geom,ao_bas_han,0,ndu,
-     1    dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_p,.true.)
+          if (lhascd.and..not.lhashf) then
+           call tddft_fock_fit(0,ndu,dbl_mb(k_jf),tol2e,g_nsym,
+     1                     g_nprd_p)
+          else
+            call shell_fock_build(geom,ao_bas_han,0,ndu,
+     1      dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_p,.true.)
+          endif
         else
           call shell_fock_build_cam(geom,ao_bas_han,0,ndu,
      1    dbl_mb(k_jf),dbl_mb(k_kf),tol2e,g_nsym,g_nprd_p,.true.)
