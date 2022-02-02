@@ -21,7 +21,7 @@
       ! user prescribes how many to use
       call util_getenv('NWCHEM_OPENACC_USE_NGPUS',char_use_ngpus)
       if (me.eq.0) then
-        print*,'CU NWCHEM_OPENACC_USE_NGPUS=',trim(char_use_ngpus)
+        write(6,701) 'CU NWCHEM_OPENACC_USE_NGPUS=',trim(char_use_ngpus)
       endif
       if (len(trim(char_use_ngpus)).gt.0) then
         read(char_use_ngpus,'(i255)') use_ngpus
@@ -48,6 +48,7 @@
         write(6,700) 'ga_nodeid',me
         write(6,700) 'my_gpu   ',my_gpu
   700   format('CU ',a12,'=',i5)
+  701   format('CU ',a30,'=',i5)
       endif
       err = cudaSetDevice(my_gpu)
       if (err.ne.0) call errquit('cudaSetDevice',my_gpu,UNKNOWN_ERR)
