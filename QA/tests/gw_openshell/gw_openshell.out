@@ -38,10 +38,12 @@ dft
  direct
  grid fine nodisk
  tolerances accCoul 12
+ convergence energy 1d-7
  noprint "final vectors analysis"
 end
 
 gw
+ eta 0.001
  states alpha occ 5 vir 5
  states beta occ 5 vir 5
  method cdgw
@@ -57,6 +59,7 @@ dft
 end
 
 gw
+ eta 0.001
  states alpha occ 5 vir 5
  states beta occ 5 vir 5
  method cdgw 128
@@ -70,6 +73,7 @@ dft
 end
 
 gw
+ eta 0.001
  states alpha occ 5 vir 5
  states beta occ 5 vir 5
  solver newton 15
@@ -80,6 +84,7 @@ task dft gw
 dft; noscf; end
 
 gw
+ eta 0.001
  states alpha occ 5 vir 5
  states beta occ 5 vir 5
  solver graph
@@ -128,9 +133,9 @@ task dft gw
 
     hostname        = dmejiar-VirtualBox
     program         = nwchem
-    date            = Wed Feb  2 13:01:33 2022
+    date            = Wed Feb  2 16:41:33 2022
 
-    compiled        = Wed_Feb_02_12:41:12_2022
+    compiled        = Wed_Feb_02_16:41:27_2022
     source          = /home/dmejiar/Software/nwchem_gfortran_gw
     nwchem branch   = 7.0.0
     nwchem revision = nwchem_on_git-3444-ge9bfc90177
@@ -735,7 +740,7 @@ task dft gw
           A Charge density fitting basis will be used.
           CD basis - number of functions:   420
                      number of shells:   138
-          Convergence on energy requested:  1.00D-06
+          Convergence on energy requested:  1.00D-07
           Convergence on density requested:  1.00D-05
           Convergence on gradient requested:  5.00D-04
 
@@ -780,7 +785,7 @@ task dft gw
       Screening Tolerance Information
       -------------------------------
           Density screening/tol_rho:  1.00D-10
-          AO Gaussian exp screening on grid/accAOfunc:  14
+          AO Gaussian exp screening on grid/accAOfunc:  16
           CD Gaussian exp screening on grid/accCDfunc:  20
           XC Gaussian exp screening on grid/accXCfunc:  20
           Schwarz screening/accCoul:  1.00D-12
@@ -824,44 +829,48 @@ task dft gw
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1   -505.9509224078 -8.41D+02  4.22D-02  8.68D-01     3.4
+ d= 0,ls=0.0,diis     1   -505.9509224068 -8.41D+02  4.22D-02  8.68D-01     3.4
                                                      1.64D-02  8.69D-01
- d= 0,ls=0.0,diis     2   -503.7942546729  2.16D+00  1.67D-02  6.60D+00     6.2
+ d= 0,ls=0.0,diis     2   -503.7942549601  2.16D+00  1.67D-02  6.60D+00     6.0
                                                      1.27D-02  6.44D+00
- d= 0,ls=0.0,diis     3   -506.2282738913 -2.43D+00  3.74D-02  3.25D-01     8.8
+ d= 0,ls=0.0,diis     3   -506.2282739187 -2.43D+00  3.74D-02  3.25D-01     8.6
                                                      5.95D-03  3.58D-01
- d= 0,ls=0.0,diis     4   -506.2176208352  1.07D-02  3.73D-02  2.81D-01    11.5
+ d= 0,ls=0.0,diis     4   -506.2176208300  1.07D-02  3.73D-02  2.81D-01    11.2
                                                      3.56D-03  2.83D-01
- d= 0,ls=0.0,diis     5   -506.3653157394 -1.48D-01  1.59D-03  4.89D-02    14.3
+ d= 0,ls=0.0,diis     5   -506.3653157487 -1.48D-01  1.59D-03  4.89D-02    14.1
                                                      1.43D-03  5.92D-02
   Resetting Diis
- d= 0,ls=0.0,diis     6   -506.3877247164 -2.24D-02  8.76D-04  1.37D-02    17.2
+ d= 0,ls=0.0,diis     6   -506.3877247181 -2.24D-02  8.76D-04  1.37D-02    16.9
                                                      9.89D-04  1.57D-02
- d= 0,ls=0.5,diis     7   -506.3954795288 -7.75D-03  2.48D-04  7.57D-04    20.1
+ d= 0,ls=0.5,diis     7   -506.3954795353 -7.75D-03  2.48D-04  7.57D-04    19.8
                                                      2.75D-04  1.05D-03
- d= 0,ls=0.5,diis     8   -506.3957467028 -2.67D-04  7.59D-05  4.74D-04    23.0
+ d= 0,ls=0.5,diis     8   -506.3957467076 -2.67D-04  7.59D-05  4.74D-04    22.7
                                                      7.71D-05  3.87D-04
- d= 0,ls=0.5,diis     9   -506.3958842661 -1.38D-04  3.92D-05  5.22D-05    25.8
+ d= 0,ls=0.5,diis     9   -506.3958842697 -1.38D-04  3.92D-05  5.22D-05    25.5
                                                      3.82D-05  3.66D-05
- d= 0,ls=0.5,diis    10   -506.3959042664 -2.00D-05  2.48D-05  8.97D-06    28.7
+ d= 0,ls=0.5,diis    10   -506.3959042721 -2.00D-05  2.48D-05  8.97D-06    28.4
                                                      2.25D-05  5.63D-06
- d= 0,ls=0.5,diis    11   -506.3959088002 -4.53D-06  1.42D-05  1.20D-06    31.6
+ d= 0,ls=0.5,diis    11   -506.3959088036 -4.53D-06  1.42D-05  1.20D-06    31.2
                                                      1.34D-05  8.66D-07
- d= 0,ls=0.5,diis    12   -506.3959099937 -1.19D-06  7.91D-06  1.65D-07    34.5
+ d= 0,ls=0.5,diis    12   -506.3959099986 -1.19D-06  7.91D-06  1.65D-07    34.1
                                                      9.18D-06  3.02D-07
- d= 0,ls=0.5,diis    13   -506.3959104462 -4.53D-07  5.61D-06  7.03D-08    37.3
+ d= 0,ls=0.5,diis    13   -506.3959104544 -4.56D-07  5.61D-06  7.03D-08    37.0
                                                      6.35D-06  1.16D-07
+ d= 0,ls=0.5,diis    14   -506.3959106610 -2.07D-07  4.02D-06  3.74D-08    39.9
+                                                     4.50D-06  5.74D-08
+ d= 0,ls=0.5,diis    15   -506.3959107599 -9.90D-08  2.94D-06  1.49D-08    42.8
+                                                     3.16D-06  2.66D-08
 
 
-         Total DFT energy =     -506.395910656137
-      One electron energy =    -1379.594707665119
-           Coulomb energy =      596.650563389521
-    Exchange-Corr. energy =      -58.421666154293
+         Total DFT energy =     -506.395910807008
+      One electron energy =    -1379.594121702817
+           Coulomb energy =      596.649979027430
+    Exchange-Corr. energy =      -58.421667905374
  Nuclear repulsion energy =      334.969899773753
 
- Numeric. integr. density =       57.000003136387
+ Numeric. integr. density =       57.000003177372
 
-     Total iterative time =     39.4s
+     Total iterative time =     44.8s
 
 
 
@@ -896,12 +905,12 @@ task dft gw
 
    alpha     51     52     53     54     55     56     57     58     59     60
     beta     51     52     53     54     55     56     57     58     59     60
- overlap   0.998  0.997  1.000  0.989  0.991  0.998  0.996  0.997  0.998  0.999
+ overlap   0.998  0.997  1.000  0.990  0.991  0.998  0.996  0.997  0.998  0.999
 
 
    alpha     61     62     63     64     65     66     67     68     69     70
     beta     61     62     63     64     65     66     67     68     69     70
- overlap   1.000  1.000  0.999  1.000  1.000  1.000  1.000  0.999  0.982  0.981
+ overlap   1.000  1.000  0.999  1.000  1.000  1.000  1.000  0.999  0.982  0.980
 
 
    alpha     71     72     73     74     75     76     77     78     79     80
@@ -946,16 +955,16 @@ task dft gw
      -   - - -        -----         -----         ----         -------
      0   0 0 0     -1.000000    -29.000000    -28.000000     56.000000
 
-     1   1 0 0     -1.330314     -0.896695     -0.433619     -0.000000
-     1   0 1 0      0.878866      1.152953     -0.274087      0.000000
-     1   0 0 1     -0.001678     -0.003977      0.002299      0.000000
+     1   1 0 0     -1.330080     -0.897319     -0.432761     -0.000000
+     1   0 1 0      0.879521      1.153485     -0.273964      0.000000
+     1   0 0 1     -0.001675     -0.003978      0.002302      0.000000
 
-     2   2 0 0    -32.558267   -100.860509    -98.180508    166.482750
-     2   1 1 0      3.939322     -1.995196     -2.912919      8.847437
-     2   1 0 1     -0.001225     -0.004518     -0.001991      0.005284
-     2   0 2 0    -34.805938   -164.883043   -159.985449    290.062553
-     2   0 1 1     -0.000701     -0.001488     -0.010533      0.011320
-     2   0 0 2    -31.185405    -54.765171    -52.833632     76.413398
+     2   2 0 0    -32.559123   -100.860396    -98.181477    166.482750
+     2   1 1 0      3.938075     -1.993515     -2.915846      8.847437
+     2   1 0 1     -0.001240     -0.004542     -0.001982      0.005284
+     2   0 2 0    -34.807922   -164.883016   -159.987459    290.062553
+     2   0 1 1     -0.000720     -0.001498     -0.010542      0.011320
+     2   0 0 2    -31.185337    -54.764810    -52.833925     76.413398
 
   
                       ***********************
@@ -992,30 +1001,30 @@ task dft gw
                   Alpha Orbitals
           State     Energy (eV)     Error (eV)
           -----------------------------------
-@GW        25         -5.434           0.002
-@GW        26         -5.402           0.006
-@GW        27         -2.264           0.009
-@GW        28         -1.527           0.003
+@GW        25         -5.432           0.002
+@GW        26         -5.401           0.008
+@GW        27         -2.262           0.006
+@GW        28         -1.528           0.001
 @GW        29          3.272           0.000
-@GW        30          9.011           0.003
-@GW        31         10.466           0.000
-@GW        32         13.044           0.000
-@GW        33         14.274           0.000
-@GW        34         14.481           0.001
+@GW        30          9.002           0.000
+@GW        31         10.467           0.001
+@GW        32         13.043           0.002
+@GW        33         14.123           0.005
+@GW        34         14.946           0.002
 
                    Beta Orbitals
           State     Energy (eV)     Error (eV)
           -----------------------------------
-@GW        24         -7.024           0.000
-@GW        25         -4.566           0.000
+@GW        24         -7.025           0.001
+@GW        25         -4.573           0.003
 @GW        26         -4.507           0.000
-@GW        27         -1.789           0.000
-@GW        28         -1.280           0.000
-@GW        29          9.049           0.000
-@GW        30         10.335           0.004
-@GW        31         10.489           0.003
-@GW        32         13.167           0.002
-@GW        33         14.381           0.005
+@GW        27         -1.794           0.004
+@GW        28         -1.280           0.001
+@GW        29          9.047           0.000
+@GW        30         10.332           0.000
+@GW        31         10.492           0.005
+@GW        32         13.165           0.001
+@GW        33         13.393           0.004
 
      GW Timing Statistics
    ------------------------
@@ -1026,11 +1035,11 @@ task dft gw
    Vmo     :          0.0s
    iW      :          5.4s
    I_n     :          0.0s
-   R_n     :          4.5s
-   GW total:         13.5s
+   R_n     :          4.4s
+   GW total:         13.3s
 
 
- Task  times  cpu:       53.5s     wall:       53.7s
+ Task  times  cpu:       58.7s     wall:       58.9s
 
 
                                 NWChem Input Module
@@ -1086,7 +1095,7 @@ task dft gw
           A Charge density fitting basis will be used.
           CD basis - number of functions:   420
                      number of shells:   138
-          Convergence on energy requested:  1.00D-06
+          Convergence on energy requested:  1.00D-07
           Convergence on density requested:  1.00D-05
           Convergence on gradient requested:  5.00D-04
 
@@ -1131,7 +1140,7 @@ task dft gw
       Screening Tolerance Information
       -------------------------------
           Density screening/tol_rho:  1.00D-10
-          AO Gaussian exp screening on grid/accAOfunc:  14
+          AO Gaussian exp screening on grid/accAOfunc:  16
           CD Gaussian exp screening on grid/accCDfunc:  20
           XC Gaussian exp screening on grid/accXCfunc:  20
           Schwarz screening/accCoul:  1.00D-12
@@ -1141,7 +1150,7 @@ task dft gw
 
 GW Trifluoroacetamide
 
-   Time after variat. SCF:     53.8
+   Time after variat. SCF:     59.1
 
       3 Center 2 Electron Integral Information
       ----------------------------------------
@@ -1155,18 +1164,18 @@ GW Trifluoroacetamide
                               no. integral batches is:            1000
 
           Incore memory use for 3-center 2e- integrals is turned off. 
-   Time prior to 1st pass:     53.8
+   Time prior to 1st pass:     59.1
 
 
-         Total DFT energy =     -506.395910657434
-      One electron energy =    -1379.594707665120
-           Coulomb energy =      596.650563389522
-    Exchange-Corr. energy =      -58.421666155589
+         Total DFT energy =     -506.395910806972
+      One electron energy =    -1379.594121702817
+           Coulomb energy =      596.649979027430
+    Exchange-Corr. energy =      -58.421667905339
  Nuclear repulsion energy =      334.969899773753
 
- Numeric. integr. density =       57.000003148416
+ Numeric. integr. density =       57.000003177272
 
-     Total iterative time =      2.8s
+     Total iterative time =      2.9s
 
 
 
@@ -1201,12 +1210,12 @@ GW Trifluoroacetamide
 
    alpha     51     52     53     54     55     56     57     58     59     60
     beta     51     52     53     54     55     56     57     58     59     60
- overlap   0.998  0.997  1.000  0.989  0.991  0.998  0.996  0.997  0.998  0.999
+ overlap   0.998  0.997  1.000  0.990  0.991  0.998  0.996  0.997  0.998  0.999
 
 
    alpha     61     62     63     64     65     66     67     68     69     70
     beta     61     62     63     64     65     66     67     68     69     70
- overlap   1.000  1.000  0.999  1.000  1.000  1.000  1.000  0.999  0.982  0.981
+ overlap   1.000  1.000  0.999  1.000  1.000  1.000  1.000  0.999  0.982  0.980
 
 
    alpha     71     72     73     74     75     76     77     78     79     80
@@ -1251,16 +1260,16 @@ GW Trifluoroacetamide
      -   - - -        -----         -----         ----         -------
      0   0 0 0     -1.000000    -29.000000    -28.000000     56.000000
 
-     1   1 0 0     -1.330314     -0.896695     -0.433619     -0.000000
-     1   0 1 0      0.878866      1.152953     -0.274087      0.000000
-     1   0 0 1     -0.001678     -0.003977      0.002299      0.000000
+     1   1 0 0     -1.330080     -0.897319     -0.432761     -0.000000
+     1   0 1 0      0.879521      1.153485     -0.273964      0.000000
+     1   0 0 1     -0.001675     -0.003978      0.002302      0.000000
 
-     2   2 0 0    -32.558267   -100.860509    -98.180508    166.482750
-     2   1 1 0      3.939322     -1.995196     -2.912919      8.847437
-     2   1 0 1     -0.001225     -0.004518     -0.001991      0.005284
-     2   0 2 0    -34.805938   -164.883043   -159.985449    290.062553
-     2   0 1 1     -0.000701     -0.001488     -0.010533      0.011320
-     2   0 0 2    -31.185405    -54.765171    -52.833632     76.413398
+     2   2 0 0    -32.559123   -100.860396    -98.181477    166.482750
+     2   1 1 0      3.938075     -1.993515     -2.915846      8.847437
+     2   1 0 1     -0.001240     -0.004542     -0.001982      0.005284
+     2   0 2 0    -34.807922   -164.883016   -159.987459    290.062553
+     2   0 1 1     -0.000720     -0.001498     -0.010542      0.011320
+     2   0 0 2    -31.185337    -54.764810    -52.833925     76.413398
 
   
                       ***********************
@@ -1297,53 +1306,45 @@ GW Trifluoroacetamide
                Alpha Orbitals
           State     Energy (eV)      Error (eV)
           ------------------------------------
-@GW        25         -5.284           0.005
-@GW        26         -5.394           0.019 *
-@GW        27         -2.908           0.005
+@GW        25         -5.432           0.006
+@GW        26         -5.400           0.018
+@GW        27         -2.257           0.003
 @GW        28         -1.528           0.001
 @GW        29          3.272           0.000
-@GW        30          8.975           0.000
-@GW        31         10.466           0.004
-@GW        32         13.044           0.000
+@GW        30          9.002           0.000
+@GW        31         10.467           0.000
+@GW        32         13.043           0.002
 @GW        33         14.274           0.000
-@GW        34         14.479           0.004
-
-  * Graphical solution not found.
-    Energy with smallest residual is shown.
-
+@GW        34         14.945           0.001
 
                 Beta Orbitals
           State     Energy (eV)      Error (eV)
           ------------------------------------
-@GW        24         -7.024           0.000
-@GW        25         -4.497           0.020 *
-@GW        26         -4.299           0.005
-@GW        27         -1.789           0.000
-@GW        28         -1.280           0.000
-@GW        29          9.049           0.005
-@GW        30         10.332           0.001
-@GW        31         10.489           0.002
-@GW        32         13.165           0.000
-@GW        33         14.109           0.004
-
-  * Graphical solution not found.
-    Energy with smallest residual is shown.
-
+@GW        24         -7.025           0.001
+@GW        25         -5.211           0.003
+@GW        26         -4.507           0.000
+@GW        27         -1.794           0.003
+@GW        28         -1.280           0.001
+@GW        29          9.047           0.000
+@GW        30         10.332           0.000
+@GW        31         10.495           0.002
+@GW        32         13.165           0.001
+@GW        33         14.384           0.000
 
      GW Timing Statistics
    ------------------------
    Init.   :          0.1s
      ERIs  :          0.7s
      Distr.:          0.0s
-     Vxc   :          2.0s
+     Vxc   :          2.1s
    Vmo     :          0.0s
    iW      :          3.4s
    I_n     :          0.0s
-   R_n     :         18.6s
-   GW total:         24.8s
+   R_n     :          4.8s
+   GW total:         11.1s
 
 
- Task  times  cpu:       27.7s     wall:       27.8s
+ Task  times  cpu:       14.1s     wall:       14.1s
 
 
                                 NWChem Input Module
@@ -1399,7 +1400,7 @@ GW Trifluoroacetamide
           A Charge density fitting basis will be used.
           CD basis - number of functions:   420
                      number of shells:   138
-          Convergence on energy requested:  1.00D-06
+          Convergence on energy requested:  1.00D-07
           Convergence on density requested:  1.00D-05
           Convergence on gradient requested:  5.00D-04
 
@@ -1444,7 +1445,7 @@ GW Trifluoroacetamide
       Screening Tolerance Information
       -------------------------------
           Density screening/tol_rho:  1.00D-10
-          AO Gaussian exp screening on grid/accAOfunc:  14
+          AO Gaussian exp screening on grid/accAOfunc:  16
           CD Gaussian exp screening on grid/accCDfunc:  20
           XC Gaussian exp screening on grid/accXCfunc:  20
           Schwarz screening/accCoul:  1.00D-12
@@ -1454,7 +1455,7 @@ GW Trifluoroacetamide
 
 GW Trifluoroacetamide
 
-   Time after variat. SCF:     81.6
+   Time after variat. SCF:     73.2
 
       3 Center 2 Electron Integral Information
       ----------------------------------------
@@ -1468,18 +1469,18 @@ GW Trifluoroacetamide
                               no. integral batches is:            1000
 
           Incore memory use for 3-center 2e- integrals is turned off. 
-   Time prior to 1st pass:     81.6
+   Time prior to 1st pass:     73.2
 
 
-         Total DFT energy =     -506.395910657434
-      One electron energy =    -1379.594707665120
-           Coulomb energy =      596.650563389522
-    Exchange-Corr. energy =      -58.421666155589
+         Total DFT energy =     -506.395910806755
+      One electron energy =    -1379.594121702816
+           Coulomb energy =      596.649979027430
+    Exchange-Corr. energy =      -58.421667905122
  Nuclear repulsion energy =      334.969899773753
 
- Numeric. integr. density =       57.000003148415
+ Numeric. integr. density =       57.000003176929
 
-     Total iterative time =      2.8s
+     Total iterative time =      2.9s
 
 
 
@@ -1514,12 +1515,12 @@ GW Trifluoroacetamide
 
    alpha     51     52     53     54     55     56     57     58     59     60
     beta     51     52     53     54     55     56     57     58     59     60
- overlap   0.998  0.997  1.000  0.989  0.991  0.998  0.996  0.997  0.998  0.999
+ overlap   0.998  0.997  1.000  0.990  0.991  0.998  0.996  0.997  0.998  0.999
 
 
    alpha     61     62     63     64     65     66     67     68     69     70
     beta     61     62     63     64     65     66     67     68     69     70
- overlap   1.000  1.000  0.999  1.000  1.000  1.000  1.000  0.999  0.982  0.981
+ overlap   1.000  1.000  0.999  1.000  1.000  1.000  1.000  0.999  0.982  0.980
 
 
    alpha     71     72     73     74     75     76     77     78     79     80
@@ -1564,16 +1565,16 @@ GW Trifluoroacetamide
      -   - - -        -----         -----         ----         -------
      0   0 0 0     -1.000000    -29.000000    -28.000000     56.000000
 
-     1   1 0 0     -1.330314     -0.896695     -0.433619     -0.000000
-     1   0 1 0      0.878866      1.152953     -0.274087      0.000000
-     1   0 0 1     -0.001678     -0.003977      0.002299      0.000000
+     1   1 0 0     -1.330080     -0.897319     -0.432761     -0.000000
+     1   0 1 0      0.879521      1.153485     -0.273964      0.000000
+     1   0 0 1     -0.001675     -0.003978      0.002302      0.000000
 
-     2   2 0 0    -32.558267   -100.860509    -98.180508    166.482750
-     2   1 1 0      3.939322     -1.995196     -2.912919      8.847437
-     2   1 0 1     -0.001225     -0.004518     -0.001991      0.005284
-     2   0 2 0    -34.805938   -164.883043   -159.985449    290.062553
-     2   0 1 1     -0.000701     -0.001488     -0.010533      0.011320
-     2   0 0 2    -31.185405    -54.765171    -52.833632     76.413398
+     2   2 0 0    -32.559123   -100.860396    -98.181477    166.482750
+     2   1 1 0      3.938075     -1.993515     -2.915846      8.847437
+     2   1 0 1     -0.001240     -0.004542     -0.001982      0.005284
+     2   0 2 0    -34.807922   -164.883016   -159.987459    290.062553
+     2   0 1 1     -0.000720     -0.001498     -0.010542      0.011320
+     2   0 0 2    -31.185337    -54.764810    -52.833925     76.413398
 
   
                       ***********************
@@ -1610,45 +1611,45 @@ GW Trifluoroacetamide
                   Alpha Orbitals
           State     Energy (eV)     Error (eV)
           -----------------------------------
-@GW        25         -5.434           0.002
-@GW        26         -5.795           0.000
-@GW        27         -2.265           0.001
-@GW        28         -1.528           0.001
-@GW        29          3.270           0.003
-@GW        30          9.011           0.003
-@GW        31         10.463           0.004
+@GW        25         -5.132           0.000
+@GW        26         -5.796           0.000
+@GW        27         -2.272           0.004
+@GW        28         -1.527           0.002
+@GW        29          3.269           0.004
+@GW        30          8.983           0.001
+@GW        31         10.467           0.000
 @GW        32         13.044           0.000
-@GW        33         14.273           0.001
-@GW        34         14.947           0.002
+@GW        33         14.271           0.005
+@GW        34         14.946           0.002
 
                    Beta Orbitals
           State     Energy (eV)     Error (eV)
           -----------------------------------
-@GW        24         -7.024           0.000
-@GW        25         -5.211           0.005
-@GW        26         -4.507           0.001
+@GW        24         -7.026           0.002
+@GW        25         -5.217           0.001
+@GW        26         -4.504           0.003
 @GW        27         -1.789           0.000
 @GW        28         -1.282           0.003
-@GW        29          9.047           0.003
+@GW        29          9.046           0.000
 @GW        30         10.332           0.000
-@GW        31         10.489           0.003
-@GW        32         13.166           0.000
-@GW        33         13.393           0.004
+@GW        31         10.490           0.001
+@GW        32         13.165           0.000
+@GW        33         14.383           0.000
 
      GW Timing Statistics
    ------------------------
    Init.   :          0.1s
-     ERIs  :          0.7s
+     ERIs  :          1.3s
      Distr.:          0.0s
-     Vxc   :          2.0s
+     Vxc   :          2.1s
    Sigma_x :          0.0s
-   RPA     :         16.2s
+   RPA     :         16.1s
    Wmn     :          0.3s
    Sigma_c :          0.2s
-   GW total:         19.5s
+   GW total:         20.0s
 
 
- Task  times  cpu:       22.3s     wall:       22.5s
+ Task  times  cpu:       22.8s     wall:       23.0s
 
 
                                 NWChem Input Module
@@ -1704,7 +1705,7 @@ GW Trifluoroacetamide
           A Charge density fitting basis will be used.
           CD basis - number of functions:   420
                      number of shells:   138
-          Convergence on energy requested:  1.00D-06
+          Convergence on energy requested:  1.00D-07
           Convergence on density requested:  1.00D-05
           Convergence on gradient requested:  5.00D-04
 
@@ -1749,7 +1750,7 @@ GW Trifluoroacetamide
       Screening Tolerance Information
       -------------------------------
           Density screening/tol_rho:  1.00D-10
-          AO Gaussian exp screening on grid/accAOfunc:  14
+          AO Gaussian exp screening on grid/accAOfunc:  16
           CD Gaussian exp screening on grid/accCDfunc:  20
           XC Gaussian exp screening on grid/accXCfunc:  20
           Schwarz screening/accCoul:  1.00D-12
@@ -1759,7 +1760,7 @@ GW Trifluoroacetamide
 
 GW Trifluoroacetamide
 
-   Time after variat. SCF:    104.1
+   Time after variat. SCF:     96.3
 
       3 Center 2 Electron Integral Information
       ----------------------------------------
@@ -1773,18 +1774,18 @@ GW Trifluoroacetamide
                               no. integral batches is:            1000
 
           Incore memory use for 3-center 2e- integrals is turned off. 
-   Time prior to 1st pass:    104.1
+   Time prior to 1st pass:     96.3
 
 
-         Total DFT energy =     -506.395910652341
-      One electron energy =    -1379.594707665120
-           Coulomb energy =      596.650563389522
-    Exchange-Corr. energy =      -58.421666150497
+         Total DFT energy =     -506.395910807005
+      One electron energy =    -1379.594121702817
+           Coulomb energy =      596.649979027430
+    Exchange-Corr. energy =      -58.421667905371
  Nuclear repulsion energy =      334.969899773753
 
- Numeric. integr. density =       57.000003130745
+ Numeric. integr. density =       57.000003177377
 
-     Total iterative time =      2.8s
+     Total iterative time =      2.9s
 
 
 
@@ -1819,12 +1820,12 @@ GW Trifluoroacetamide
 
    alpha     51     52     53     54     55     56     57     58     59     60
     beta     51     52     53     54     55     56     57     58     59     60
- overlap   0.998  0.997  1.000  0.989  0.991  0.998  0.996  0.997  0.998  0.999
+ overlap   0.998  0.997  1.000  0.990  0.991  0.998  0.996  0.997  0.998  0.999
 
 
    alpha     61     62     63     64     65     66     67     68     69     70
     beta     61     62     63     64     65     66     67     68     69     70
- overlap   1.000  1.000  0.999  1.000  1.000  1.000  1.000  0.999  0.982  0.981
+ overlap   1.000  1.000  0.999  1.000  1.000  1.000  1.000  0.999  0.982  0.980
 
 
    alpha     71     72     73     74     75     76     77     78     79     80
@@ -1869,16 +1870,16 @@ GW Trifluoroacetamide
      -   - - -        -----         -----         ----         -------
      0   0 0 0     -1.000000    -29.000000    -28.000000     56.000000
 
-     1   1 0 0     -1.330314     -0.896695     -0.433619     -0.000000
-     1   0 1 0      0.878866      1.152953     -0.274087      0.000000
-     1   0 0 1     -0.001678     -0.003977      0.002299      0.000000
+     1   1 0 0     -1.330080     -0.897319     -0.432761     -0.000000
+     1   0 1 0      0.879521      1.153485     -0.273964      0.000000
+     1   0 0 1     -0.001675     -0.003978      0.002302      0.000000
 
-     2   2 0 0    -32.558267   -100.860509    -98.180508    166.482750
-     2   1 1 0      3.939322     -1.995196     -2.912919      8.847437
-     2   1 0 1     -0.001225     -0.004518     -0.001991      0.005284
-     2   0 2 0    -34.805938   -164.883043   -159.985449    290.062553
-     2   0 1 1     -0.000701     -0.001488     -0.010533      0.011320
-     2   0 0 2    -31.185405    -54.765171    -52.833632     76.413398
+     2   2 0 0    -32.559123   -100.860396    -98.181477    166.482750
+     2   1 1 0      3.938075     -1.993515     -2.915846      8.847437
+     2   1 0 1     -0.001240     -0.004542     -0.001982      0.005284
+     2   0 2 0    -34.807922   -164.883016   -159.987459    290.062553
+     2   0 1 1     -0.000720     -0.001498     -0.010542      0.011320
+     2   0 0 2    -31.185337    -54.764810    -52.833925     76.413398
 
   
                       ***********************
@@ -1915,30 +1916,30 @@ GW Trifluoroacetamide
                Alpha Orbitals
           State     Energy (eV)     Error (eV)
           ------------------------------------
-@GW        25         -3.498          -0.000
-@GW        26         -5.794          -0.000
-@GW        27         -2.902          -0.000
-@GW        28         -1.513          -0.000
+@GW        25         -5.287          -0.000
+@GW        26         -5.793          -0.000
+@GW        27         -2.271          -0.000
+@GW        28         -1.523          -0.000
 @GW        29          3.276          -0.000
-@GW        30          8.981           0.000
-@GW        31         10.462           0.000
-@GW        32         13.042           0.000
-@GW        33         14.270           0.000
-@GW        34         14.519           0.000
+@GW        30          8.977           0.000
+@GW        31         10.463           0.000
+@GW        32         13.041           0.000
+@GW        33         14.271           0.000
+@GW        34         14.944           0.000
 
                 Beta Orbitals
           State     Energy (eV)     Error (eV)
           ------------------------------------
 @GW        24         -7.022          -0.000
-@GW        25         -5.510          -0.000
-@GW        26         -4.500          -0.000
-@GW        27         -1.788          -0.000
+@GW        25         -5.295          -0.000
+@GW        26         -4.504          -0.000
+@GW        27         -1.786          -0.000
 @GW        28         -1.277          -0.000
-@GW        29          9.036           0.000
+@GW        29          9.041           0.000
 @GW        30         10.329           0.000
 @GW        31         10.485           0.000
-@GW        32         13.164           0.000
-@GW        33         14.382           0.000
+@GW        32         13.162           0.000
+@GW        33         14.381           0.000
 
      GW Timing Statistics
    ------------------------
@@ -1947,13 +1948,13 @@ GW Trifluoroacetamide
      Distr.:          0.0s
      Vxc   :          2.1s
    Sigma_x :          0.0s
-   RPA     :         16.3s
-   Wmn     :          0.3s
-   Sigma_c :         36.8s
-   GW total:         56.9s
+   RPA     :         16.0s
+   Wmn     :          0.2s
+   Sigma_c :         18.0s
+   GW total:         37.8s
 
 
- Task  times  cpu:       59.7s     wall:       59.9s
+ Task  times  cpu:       40.6s     wall:       40.8s
 
 
                                 NWChem Input Module
@@ -2033,4 +2034,4 @@ MA usage statistics:
       T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
 
- Total times  cpu:      163.2s     wall:      163.9s
+ Total times  cpu:      136.3s     wall:      137.0s

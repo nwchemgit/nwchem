@@ -35,7 +35,8 @@
       double precision timer, timer2, rms3(3), const, nspace
       double precision Ein, Eout, SigmaOld, Sigma_X
       double precision residual, dresidual, der
-      double precision values(20),errors(20),esterror(pars%nmo),radius
+      double precision values(20),errors(20),esterror(pars%nmo)
+      double precision radius,maxradius
       GWTYP :: I,dI,R,dR,SigmaC,dSigmaC
       GWTYP :: resmat(100,pars%nmo)
 
@@ -50,6 +51,12 @@
 
       converged => lvars(1)
       bracket   => lvars(2)
+
+      if (eviter.gt.4) then 
+        maxradius = 0.010d0
+      else
+        maxradius = 0.030d0
+      endif
 
       do isp=1,pars%ipol
         warning = .false.
@@ -112,7 +119,7 @@
           const = Eref(llmo+iqp-1,isp) + Sigma_X -  SigmaOld
 
           ! we only need a guess
-          do iter=1,6
+          do iter=1,8
             timer2 = util_wallsec()
 
             Ein = Eout
@@ -146,7 +153,7 @@
             values(iter) = Ein
             errors(iter) = residual
 
-            radius = min(0.1d0,0.1d0/residual**2)
+            radius = min(maxradius,0.1d0*maxradius/residual**2)
 
             !bracket solution
             if (iter.gt.1) then
@@ -209,17 +216,17 @@
           endif
 
           !Decide number of points
-          nspace = sign(0.00037d0,eout)
+          nspace = sign(0.0001d0,eout)
           interval = maxval(eold(llmo+myll-1:llmo+myul-1,isp)) -
-     $               minval(eold(llmo+myll-1:llmo+myul-1,isp)) + 0.004d0
-          npoints = min(int(interval/abs(nspace))+1,100)
+     $               minval(eold(llmo+myll-1:llmo+myul-1,isp)) + 0.01d0
+          npoints = min(int(interval/abs(nspace))+1,500)
           nspace = interval/dble(npoints)
 
-          omega(1) = eout - sign(0.00037d0,eout)
+          omega(1) = eout - sign(0.0001d0,eout)
           do ipoints=1,npoints
             timer2 = util_wallsec()
             if (ipoints.gt.1)
-     $         omega(ipoints) = omega(ipoints-1) + nspace
+     $         omega(ipoints) = omega(ipoints-1) + sign(nspace,eout)
 
 
             timer = util_wallsec()

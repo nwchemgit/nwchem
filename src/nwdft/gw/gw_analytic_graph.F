@@ -26,13 +26,19 @@
       double precision residual, residualOld, dresidual, d2residual
       double precision Etmp, lower, upper, resupper, reslower
       double precision rms3(3), const, nspace, der, interval
-      double precision resmat(8192),sigmamat(8192),omegamat(8192)
-      double precision esterror(pars%nmo)
+      double precision resmat(4096),sigmamat(4096),omegamat(4096)
+      double precision esterror(pars%nmo),maxradius
 
       main = pars%me .eq. 0
       dbls = ma_sizeof(mt_dbl,1,mt_byte)
       logs = ma_sizeof(mt_log,1,mt_byte)
       pars%ecgm = 0d0
+
+      if (eviter.gt.4) then 
+        maxradius = 0.010d0
+      else
+        maxradius = 0.1d0
+      endif
 
 c     Create screened-Coulomb array      
       npoles = sum(pars%npoles(1:pars%ipol))
@@ -86,7 +92,7 @@ c         Compute Galiitski-Migdal correlation energy
           endif
 c          
           ! Try just six steps and then use graphical solver
-          do iter=1,6
+          do iter=1,8
 
             Ein = Eout
 
@@ -105,15 +111,13 @@ c           Compute self-energy element
             dresidual = dSigmaC - 1d0
             d2residual = d2SigmaC
 
-            radius = min(0.1d0,0.1d0/residual**2)
+            radius = min(maxradius,0.1d0*maxradius/residual**2)
 
             ! Find out if we have bracketed the solution
             if (iter.gt.1) then
               call gw_findbracket(bracket,ein,residual,etmp,residualold,
      $                            lower,upper,reslower,resupper)
             endif
-
- 1234       format(5(F15.8))
 
             ! Check convergence of QP equation
             converged = abs(residual).lt.pars%thresh .or. 
@@ -122,6 +126,7 @@ c           Compute self-energy element
 
             ! Exit if converged
             call ga_brdcst(mt_log,converged,logs,0)
+            call ga_brdcst(mt_log,bracket,logs,0)
             if (converged) then
               Eout = Ein
               exit
@@ -141,18 +146,18 @@ c           Compute self-energy element
 
           ! Try graphical solver
           nspace   = sign(1d-5,eout)
-          npoints  = 8192
+          npoints  = 4096
           fixed = .false.
 
-
-          omegamat(1) = eout - sign(0.040d0,eout)
+          omegamat(1) = eout - sign(0.010d0,eout)
           do ipoints=2,npoints
             omegamat(ipoints) = omegamat(ipoints-1) + nspace
           enddo
 
           timer = util_wallsec()
           call gw_analytic_sigmac_graph(sigmamat,omegamat,Eold(1,isp),
-     $      omega,g_wmn,0.003d0**2,npoles,pars%nmo,plus,pars%me,npoints)
+     $      omega,g_wmn,pars%eta**2,npoles,pars%nmo,plus,pars%me,
+     $      npoints)
           pars%timer%sigmac = pars%timer%sigmac - timer + util_wallsec()
           resmat(:) = const + sigmamat(:) - omegamat(:)
 
@@ -164,7 +169,7 @@ c           Compute self-energy element
 
           if (.not.fixed) then
             warning = .true.
-            iloc = minloc(abs(resmat),dim=1)
+            iloc = minloc(abs(resmat(:)),dim=1)
             enew(llmo+iqp-1,isp) = omegamat(iloc)
             esterror(llmo+iqp-1) = min(resmat(iloc),2*nspace)
           else
