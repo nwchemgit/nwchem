@@ -76,6 +76,7 @@ env|egrep MP
         ;;
     MPI-PT)
         do_largeqas=0
+        export COMEX_MAX_NB_OUTSTANDING=16
         ;;
     MPI3)
         case "$os" in
