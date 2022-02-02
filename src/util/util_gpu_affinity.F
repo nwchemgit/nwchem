@@ -48,7 +48,7 @@
         write(6,700) 'ga_nodeid',me
         write(6,700) 'my_gpu   ',my_gpu
   700   format('CU ',a12,'=',i5)
-  701   format('CU ',a30,'=',i5)
+  701   format('CU ',a30,'=',a10)
       endif
       err = cudaSetDevice(my_gpu)
       if (err.ne.0) call errquit('cudaSetDevice',my_gpu,UNKNOWN_ERR)
