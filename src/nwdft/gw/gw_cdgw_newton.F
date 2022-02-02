@@ -220,22 +220,11 @@ c
 
           if (myll.le.myul) goto 100
 
-          if (main) then
-            do iqp=llqp,ulqp
-              if (fixed(iqp)) then
-                write(luout,9020) llmo+iqp-1,
-     $                       (Enew(llmo+iqp-1,isp)+efermi(isp))*ha2ev,
-     $                       esterror(llmo+iqp-1)*ha2ev
-              else
-                warning = .true.
-                write(luout,9030) llmo+iqp-1,
-     $                       (Enew(llmo+iqp-1,isp)+efermi(isp))*ha2ev,
-     $                       esterror(llmo+iqp-1)*ha2ev
-              endif
-            enddo
-          endif
-
+          if (main) call gw_print_energy(llmo,llqp,ulqp,
+     $                       enew(llmo+llqp-1,isp),efermi(isp),
+     $                       esterror(llmo+llqp-1),fixed(llqp))
         enddo
+
         if (warning.and.main) then
           write(luout,*)
           write(luout,*) ' * Result did not converge'
@@ -248,7 +237,5 @@ c
      $       5x,'Error (eV)',/,10x,35('-'))
  9010 format(/,18x,' Beta Orbitals',/,10x,'State',5x,'Energy (eV)',
      $       5x,'Error (eV)',/,10x,35('-'))
- 9020 format(10x,I3,3x,F12.3,4x,F12.3)
- 9030 format(10x,I3,3x,F12.3,4x,F12.3,' *')
 
       end subroutine

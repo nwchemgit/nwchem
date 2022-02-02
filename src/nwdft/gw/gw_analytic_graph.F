@@ -27,6 +27,7 @@
       double precision Etmp, lower, upper, resupper, reslower
       double precision rms3(3), const, nspace, der, interval
       double precision resmat(8192),sigmamat(8192),omegamat(8192)
+      double precision esterror(pars%nmo)
 
       main = pars%me .eq. 0
       dbls = ma_sizeof(mt_dbl,1,mt_byte)
@@ -159,19 +160,20 @@ c           Compute self-energy element
      $             sigma(llmo+iqp-1,isp),enew(llmo+iqp-1,isp),sigma_x,
      $             nspace,fixed,pars%thresh)
 
-          if (main.and.fixed) then
-             write(luout,9020) llmo+iqp-1,
-     $                         (Enew(llmo+iqp-1,isp)+efermi(isp))*ha2ev,
-     $                         1d-5*ha2ev/2d0
-           elseif(main) then
-             warning = .true.
-             iloc = minloc(abs(resmat),dim=1)
-             enew(llmo+iqp-1,isp) = omegamat(iloc)
-             sigma(llmo+iqp-1,isp) = sigmamat(iloc) + sigma_x
-             write(luout,9030) llmo+iqp-1,
-     $                         (Enew(llmo+iqp-1,isp)+efermi(isp))*ha2ev,
-     $                          abs(resmat(iloc))*ha2ev
+          if (.not.main) cycle
+
+          if (.not.fixed) then
+            warning = .true.
+            iloc = minloc(abs(resmat),dim=1)
+            enew(llmo+iqp-1,isp) = omegamat(iloc)
+            esterror(llmo+iqp-1) = min(resmat(iloc),2*nspace)
+          else
+            esterror(llmo+iqp-1) = nspace/2d0
           endif
+
+          call gw_print_energy(llmo,iqp,iqp,enew(llmo+iqp-1,isp),
+     $           efermi(isp),esterror(llmo+iqp-1),(/fixed/),warning)
+
         enddo
         if (warning.and.main) then
           write(luout,*)
@@ -192,7 +194,5 @@ c     Destroy GAs
      $       5x,'Error (eV)',/,10x,36('-'))
  9010 format(/,15x,' Beta Orbitals',/,10x,'State',5x,'Energy (eV)',
      $       5x,'Error (eV)',/,10x,36('-'))
- 9020 format(10x,I3,3x,F12.3,4x,F12.3)
- 9030 format(10x,I3,3x,F12.3,4x,F12.3,' *')
 
       end

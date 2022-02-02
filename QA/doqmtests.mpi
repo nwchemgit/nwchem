@@ -328,6 +328,9 @@ np_small=$(get_limit $np 16)
 ./runtests.mpi.unix procs $np  ritddft_co
 ./runtests.mpi.unix procs $np  ritddft_h2o
 ./runtests.mpi.unix procs $np  ritddft_pyridine
+# GW
+./runtests.mpi.unix procs $np gw_closedshell
+./runtests.mpi.unix procs $np gw_openshell
 #
 #--- if we only want quick tests get out now!
 if [[ "$what" == "fast" ]]; then

@@ -284,19 +284,16 @@
           if (.not.main) cycle
 
           do iqp=llqp,ulqp
-            if (fixed(iqp)) then
-              write(luout,9020) llmo+iqp-1,
-     $                      (enew(llmo+iqp-1,isp)+efermi(isp))*ha2ev,
-     $                       esterror(llmo+iqp-1)*ha2ev
-            else
-              enew(llmo+iqp-1,isp) = omega( 
-     $                minloc(abs(resmat(1:npoints,iqp)),dim=1) )
-              warning = .true.
-              write(luout,9030) llmo+iqp-1,
-     $                        (enew(llmo+iqp-1,isp)+efermi(isp))*ha2ev,
-     $                         nspace*ha2ev
+            if (.not.fixed(iqp)) then
+              enew(llmo+iqp-1,isp) = omega( minloc(abs(
+     $               resmat(1:npoints,iqp) ),dim=1))
+              esterror(llmo+iqp-1) = min(minval(abs(
+     $               resmat(1:npoints,iqp))),2*nspace)
             endif
           enddo
+
+          call gw_print_energy(llmo,llqp,ulqp,enew(llmo+llqp-1,isp),
+     $           efermi(isp),esterror(llmo+llqp-1),fixed(llqp),warning)
 
         enddo
 
@@ -315,8 +312,6 @@
      $       5x,' Error (eV)',/,10x,36('-'))
  9010 format(/,15x,' Beta Orbitals',/,10x,'State',5x,'Energy (eV)',
      $       5x,' Error (eV)',/,10x,36('-'))
- 9020 format(10x,I3,3x,F12.3,4x,F12.3)
- 9030 format(10x,I3,3x,F12.3,4x,F12.3,' *')
 
       end subroutine
 

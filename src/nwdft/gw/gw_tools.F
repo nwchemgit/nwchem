@@ -696,3 +696,33 @@ c     *****************************************************************
       enddo
 
       end subroutine
+
+c     *****************************************************************
+
+      subroutine gw_print_energy(llmo,llqp,ulqp,enew,efermi,error,fixed,
+     $                           warning)
+      implicit none
+#include "gw.fh"
+#include "stdio.fh"
+      integer llmo, llqp, ulqp
+      logical fixed(*), warning
+      double precision enew(*), efermi, error(*)
+
+      integer iqp, jqp
+
+      do iqp=llqp,ulqp
+        jqp = iqp - llqp + 1
+        if (fixed(jqp)) then
+          write(luout,9020) llmo+iqp-1,
+     $                     (enew(jqp)+efermi)*ha2ev,error(jqp)*ha2ev
+        else
+          warning = .true.
+          write(luout,9030) llmo+iqp-1,
+     $                      (enew(jqp)+efermi)*ha2ev,error(jqp)*ha2ev
+        endif
+      enddo
+
+ 9020 format('@GW',7x,I3,3x,F12.3,4x,F12.3)
+ 9030 format('@GW',7x,I3,3x,F12.3,4x,F12.3,' *')
+
+      end subroutine
