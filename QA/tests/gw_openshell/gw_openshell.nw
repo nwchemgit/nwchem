@@ -39,26 +39,10 @@ end
 
 gw
  eta 0.001
- states alpha occ 5 vir 5
- states beta occ 5 vir 5
  method cdgw
  solver newton 15
-end
-
-task dft gw
-
-
-
-dft
- noscf
-end
-
-gw
- eta 0.001
  states alpha occ 5 vir 5
  states beta occ 5 vir 5
- method cdgw 128
- solver graph
 end
 
 task dft gw
@@ -69,20 +53,10 @@ end
 
 gw
  eta 0.001
- states alpha occ 5 vir 5
- states beta occ 5 vir 5
  solver newton 15
-end
-
-task dft gw
-
-dft; noscf; end
-
-gw
- eta 0.001
  states alpha occ 5 vir 5
  states beta occ 5 vir 5
- solver graph
 end
 
 task dft gw
+

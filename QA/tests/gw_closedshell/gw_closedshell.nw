@@ -26,38 +26,23 @@ end
 
 
 dft
- tolerances acccoul 12
- xc xpbe96 0.55 hfexch 0.45 cpbe96 1.0
  direct
- noprint "final vectors analysis"
  grid nodisk
+ tolerances acccoul 12
+ noprint "final vectors analysis"
+ xc xpbe96 0.55 hfexch 0.45 cpbe96 1.0
 end
 
 gw
  core
  eta 0.01
- states alpha occ 7
  method cdgw
+ states alpha occ 7
  solver newton 15
 end
 
 task dft gw
 
-
-
-dft
- noscf
-end
-
-gw
- core
- eta 0.01
- states alpha occ 7
- method cdgw
- solver graph
-end
-
-task dft gw
 
 dft
  noscf
@@ -67,9 +52,9 @@ gw
  core
  first 4
  eta 0.01
+ method cdgw 128
  solver newton 15
  states alpha occ 4
- method cdgw
 end
 
 task dft gw
@@ -83,20 +68,8 @@ unset gw:first
 gw
  core
  eta 0.01
- states alpha occ 7
  solver newton 15
-end
-
-task dft gw
-
-dft; noscf; end
-
-gw
- core
- eta 0.01
- first 4
- states alpha occ 4
- solver graph
+ states alpha occ 7
 end
 
 task dft gw

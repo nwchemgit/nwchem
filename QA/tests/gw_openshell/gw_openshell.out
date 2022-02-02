@@ -44,26 +44,10 @@ end
 
 gw
  eta 0.001
- states alpha occ 5 vir 5
- states beta occ 5 vir 5
  method cdgw
  solver newton 15
-end
-
-task dft gw
-
-
-
-dft
- noscf
-end
-
-gw
- eta 0.001
  states alpha occ 5 vir 5
  states beta occ 5 vir 5
- method cdgw 128
- solver graph
 end
 
 task dft gw
@@ -74,23 +58,13 @@ end
 
 gw
  eta 0.001
- states alpha occ 5 vir 5
- states beta occ 5 vir 5
  solver newton 15
-end
-
-task dft gw
-
-dft; noscf; end
-
-gw
- eta 0.001
  states alpha occ 5 vir 5
  states beta occ 5 vir 5
- solver graph
 end
 
 task dft gw
+
 ================================================================================
 
 
@@ -133,7 +107,7 @@ task dft gw
 
     hostname        = dmejiar-VirtualBox
     program         = nwchem
-    date            = Wed Feb  2 16:41:33 2022
+    date            = Wed Feb  2 17:09:49 2022
 
     compiled        = Wed_Feb_02_16:41:27_2022
     source          = /home/dmejiar/Software/nwchem_gfortran_gw
@@ -829,48 +803,48 @@ task dft gw
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1   -505.9509224068 -8.41D+02  4.22D-02  8.68D-01     3.4
+ d= 0,ls=0.0,diis     1   -505.9509224091 -8.41D+02  4.22D-02  8.68D-01     3.5
                                                      1.64D-02  8.69D-01
- d= 0,ls=0.0,diis     2   -503.7942549601  2.16D+00  1.67D-02  6.60D+00     6.0
+ d= 0,ls=0.0,diis     2   -503.7942546127  2.16D+00  1.67D-02  6.60D+00     6.2
                                                      1.27D-02  6.44D+00
- d= 0,ls=0.0,diis     3   -506.2282739187 -2.43D+00  3.74D-02  3.25D-01     8.6
+ d= 0,ls=0.0,diis     3   -506.2282738833 -2.43D+00  3.74D-02  3.25D-01     8.8
                                                      5.95D-03  3.58D-01
- d= 0,ls=0.0,diis     4   -506.2176208300  1.07D-02  3.73D-02  2.81D-01    11.2
+ d= 0,ls=0.0,diis     4   -506.2176208496  1.07D-02  3.73D-02  2.81D-01    11.7
                                                      3.56D-03  2.83D-01
- d= 0,ls=0.0,diis     5   -506.3653157487 -1.48D-01  1.59D-03  4.89D-02    14.1
+ d= 0,ls=0.0,diis     5   -506.3653157554 -1.48D-01  1.59D-03  4.89D-02    15.4
                                                      1.43D-03  5.92D-02
   Resetting Diis
- d= 0,ls=0.0,diis     6   -506.3877247181 -2.24D-02  8.76D-04  1.37D-02    16.9
+ d= 0,ls=0.0,diis     6   -506.3877247180 -2.24D-02  8.76D-04  1.37D-02    18.4
                                                      9.89D-04  1.57D-02
- d= 0,ls=0.5,diis     7   -506.3954795353 -7.75D-03  2.48D-04  7.57D-04    19.8
+ d= 0,ls=0.5,diis     7   -506.3954795345 -7.75D-03  2.48D-04  7.57D-04    21.9
                                                      2.75D-04  1.05D-03
- d= 0,ls=0.5,diis     8   -506.3957467076 -2.67D-04  7.59D-05  4.74D-04    22.7
+ d= 0,ls=0.5,diis     8   -506.3957467071 -2.67D-04  7.59D-05  4.74D-04    26.4
                                                      7.71D-05  3.87D-04
- d= 0,ls=0.5,diis     9   -506.3958842697 -1.38D-04  3.92D-05  5.22D-05    25.5
+ d= 0,ls=0.5,diis     9   -506.3958842697 -1.38D-04  3.92D-05  5.22D-05    29.8
                                                      3.82D-05  3.66D-05
- d= 0,ls=0.5,diis    10   -506.3959042721 -2.00D-05  2.48D-05  8.97D-06    28.4
+ d= 0,ls=0.5,diis    10   -506.3959042722 -2.00D-05  2.48D-05  8.97D-06    32.9
                                                      2.25D-05  5.63D-06
- d= 0,ls=0.5,diis    11   -506.3959088036 -4.53D-06  1.42D-05  1.20D-06    31.2
+ d= 0,ls=0.5,diis    11   -506.3959088037 -4.53D-06  1.42D-05  1.20D-06    36.2
                                                      1.34D-05  8.66D-07
- d= 0,ls=0.5,diis    12   -506.3959099986 -1.19D-06  7.91D-06  1.65D-07    34.1
+ d= 0,ls=0.5,diis    12   -506.3959099985 -1.19D-06  7.91D-06  1.65D-07    39.2
                                                      9.18D-06  3.02D-07
- d= 0,ls=0.5,diis    13   -506.3959104544 -4.56D-07  5.61D-06  7.03D-08    37.0
+ d= 0,ls=0.5,diis    13   -506.3959104548 -4.56D-07  5.61D-06  7.03D-08    42.3
                                                      6.35D-06  1.16D-07
- d= 0,ls=0.5,diis    14   -506.3959106610 -2.07D-07  4.02D-06  3.74D-08    39.9
+ d= 0,ls=0.5,diis    14   -506.3959106610 -2.06D-07  4.02D-06  3.74D-08    45.3
                                                      4.50D-06  5.74D-08
- d= 0,ls=0.5,diis    15   -506.3959107599 -9.90D-08  2.94D-06  1.49D-08    42.8
+ d= 0,ls=0.5,diis    15   -506.3959107594 -9.85D-08  2.94D-06  1.49D-08    49.2
                                                      3.16D-06  2.66D-08
 
 
-         Total DFT energy =     -506.395910807008
-      One electron energy =    -1379.594121702817
-           Coulomb energy =      596.649979027430
-    Exchange-Corr. energy =      -58.421667905374
+         Total DFT energy =     -506.395910806979
+      One electron energy =    -1379.594121654796
+           Coulomb energy =      596.649978976951
+    Exchange-Corr. energy =      -58.421667902888
  Nuclear repulsion energy =      334.969899773753
 
- Numeric. integr. density =       57.000003177372
+ Numeric. integr. density =       57.000003177272
 
-     Total iterative time =     44.8s
+     Total iterative time =     51.7s
 
 
 
@@ -959,8 +933,8 @@ task dft gw
      1   0 1 0      0.879521      1.153485     -0.273964      0.000000
      1   0 0 1     -0.001675     -0.003978      0.002302      0.000000
 
-     2   2 0 0    -32.559123   -100.860396    -98.181477    166.482750
-     2   1 1 0      3.938075     -1.993515     -2.915846      8.847437
+     2   2 0 0    -32.559123   -100.860397    -98.181477    166.482750
+     2   1 1 0      3.938075     -1.993516     -2.915846      8.847437
      2   1 0 1     -0.001240     -0.004542     -0.001982      0.005284
      2   0 2 0    -34.807922   -164.883016   -159.987459    290.062553
      2   0 1 1     -0.000720     -0.001498     -0.010542      0.011320
@@ -1029,17 +1003,17 @@ task dft gw
      GW Timing Statistics
    ------------------------
    Init.   :          0.1s
-     ERIs  :          1.3s
+     ERIs  :          1.4s
      Distr.:          0.0s
-     Vxc   :          2.1s
+     Vxc   :          2.2s
    Vmo     :          0.0s
-   iW      :          5.4s
+   iW      :          5.5s
    I_n     :          0.0s
-   R_n     :          4.4s
-   GW total:         13.3s
+   R_n     :          4.5s
+   GW total:         13.7s
 
 
- Task  times  cpu:       58.7s     wall:       58.9s
+ Task  times  cpu:       66.0s     wall:       66.2s
 
 
                                 NWChem Input Module
@@ -1150,7 +1124,7 @@ task dft gw
 
 GW Trifluoroacetamide
 
-   Time after variat. SCF:     59.1
+   Time after variat. SCF:     66.4
 
       3 Center 2 Electron Integral Information
       ----------------------------------------
@@ -1164,16 +1138,16 @@ GW Trifluoroacetamide
                               no. integral batches is:            1000
 
           Incore memory use for 3-center 2e- integrals is turned off. 
-   Time prior to 1st pass:     59.1
+   Time prior to 1st pass:     66.4
 
 
-         Total DFT energy =     -506.395910806972
-      One electron energy =    -1379.594121702817
-           Coulomb energy =      596.649979027430
-    Exchange-Corr. energy =      -58.421667905339
+         Total DFT energy =     -506.395910807014
+      One electron energy =    -1379.594121654796
+           Coulomb energy =      596.649978976951
+    Exchange-Corr. energy =      -58.421667902922
  Nuclear repulsion energy =      334.969899773753
 
- Numeric. integr. density =       57.000003177272
+ Numeric. integr. density =       57.000003177373
 
      Total iterative time =      2.9s
 
@@ -1264,313 +1238,8 @@ GW Trifluoroacetamide
      1   0 1 0      0.879521      1.153485     -0.273964      0.000000
      1   0 0 1     -0.001675     -0.003978      0.002302      0.000000
 
-     2   2 0 0    -32.559123   -100.860396    -98.181477    166.482750
-     2   1 1 0      3.938075     -1.993515     -2.915846      8.847437
-     2   1 0 1     -0.001240     -0.004542     -0.001982      0.005284
-     2   0 2 0    -34.807922   -164.883016   -159.987459    290.062553
-     2   0 1 1     -0.000720     -0.001498     -0.010542      0.011320
-     2   0 0 2    -31.185337    -54.764810    -52.833925     76.413398
-
-  
-                      ***********************
-                      ***      GW@DFT     ***
-                      ***********************
-  
-
-                 Memory Information
-                 ------------------
-          Available GA per process is           999.8 MBs
-          Available stack per process is        500.0 MBs
-          Available heap per process is         499.9 MBs
-
-          Peak memory in Initialization
-              Peak GA per process is                 11.9 MBs
-              Peak stack per process is               0.1 MBs
-              Peak heap per process is               12.9 MBs
-              Memory not in MA per process            0.0 MBs
-
-          Peak memory in CDGW Calculation
-              Peak GA per process is                 13.3 MBs
-              Peak stack per process is               2.7 MBs
-              Peak heap per process is                2.9 MBs
-              Memory not in MA per process            0.0 MBs
-
-          Computing 2-center integrals
-          Computing Inverse Cholesky factor
-          Computing 3-center integrals
-          Computing Vxc
-          Computing Sigma_x
-          Computing W(iw) on the imaginary grid
-          Solving quasiparticle equations
-
-               Alpha Orbitals
-          State     Energy (eV)      Error (eV)
-          ------------------------------------
-@GW        25         -5.432           0.006
-@GW        26         -5.400           0.018
-@GW        27         -2.257           0.003
-@GW        28         -1.528           0.001
-@GW        29          3.272           0.000
-@GW        30          9.002           0.000
-@GW        31         10.467           0.000
-@GW        32         13.043           0.002
-@GW        33         14.274           0.000
-@GW        34         14.945           0.001
-
-                Beta Orbitals
-          State     Energy (eV)      Error (eV)
-          ------------------------------------
-@GW        24         -7.025           0.001
-@GW        25         -5.211           0.003
-@GW        26         -4.507           0.000
-@GW        27         -1.794           0.003
-@GW        28         -1.280           0.001
-@GW        29          9.047           0.000
-@GW        30         10.332           0.000
-@GW        31         10.495           0.002
-@GW        32         13.165           0.001
-@GW        33         14.384           0.000
-
-     GW Timing Statistics
-   ------------------------
-   Init.   :          0.1s
-     ERIs  :          0.7s
-     Distr.:          0.0s
-     Vxc   :          2.1s
-   Vmo     :          0.0s
-   iW      :          3.4s
-   I_n     :          0.0s
-   R_n     :          4.8s
-   GW total:         11.1s
-
-
- Task  times  cpu:       14.1s     wall:       14.1s
-
-
-                                NWChem Input Module
-                                -------------------
-
-
-
-                               NWChem GW@DFT Module
-                               --------------------
-
-
-                               GW Trifluoroacetamide
-
-
-
-                                 NWChem DFT Module
-                                 -----------------
-
-
-                               GW Trifluoroacetamide
-
-
-
-
- Summary of "ao basis" -> "ao basis" (spherical)
- ------------------------------------------------------------------------------
-       Tag                 Description            Shells   Functions and Types
- ---------------- ------------------------------  ------  ---------------------
- F                          cc-pvdz                  6       14   3s2p1d
- O                          cc-pvdz                  6       14   3s2p1d
- N                          cc-pvdz                  6       14   3s2p1d
- C                          cc-pvdz                  6       14   3s2p1d
- H                          cc-pvdz                  3        5   2s1p
-
-
-  Caching 1-el integrals 
-
-            General Information
-            -------------------
-          SCF calculation type: DFT
-          Wavefunction type:  spin polarized.
-          No. of atoms     :     9
-          No. of electrons :    57
-           Alpha electrons :    29
-            Beta electrons :    28
-          Charge           :    -1
-          Spin multiplicity:     2
-          Use of symmetry is: off; symmetry adaption is: off
-          Maximum number of iterations:  50
-          This is a Direct SCF calculation.
-          AO basis - number of functions:   108
-                     number of shells:    48
-          A Charge density fitting basis will be used.
-          CD basis - number of functions:   420
-                     number of shells:   138
-          Convergence on energy requested:  1.00D-07
-          Convergence on density requested:  1.00D-05
-          Convergence on gradient requested:  5.00D-04
-
-              XC Information
-              --------------
-                        PBE96 Method XC Functional
-          PerdewBurkeErnzerhof Exchange Functional  1.000          
-            Perdew 1991 LDA Correlation Functional  1.000 local    
-           PerdewBurkeErnz. Correlation Functional  1.000 non-local
-
-             Grid Information
-             ----------------
-          Grid used for XC integration:  fine      
-          Radial quadrature: Mura-Knowles        
-          Angular quadrature: Lebedev. 
-          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
-          ---              ---------- --------- --------- ---------
-          F                   0.50       70          11.0       590
-          O                   0.60       70          10.0       590
-          N                   0.65       70           8.0       590
-          C                   0.70       70          10.0       590
-          H                   0.35       60          10.0       590
-          Grid pruning is: on 
-          Number of quadrature shells:   610
-          Spatial weights used:  Erf1
-
-          Convergence Information
-          -----------------------
-          Convergence aids based upon iterative change in 
-          total energy or number of iterations. 
-          Levelshifting, if invoked, occurs when the 
-          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
-          DIIS, if invoked, will attempt to extrapolate 
-          using up to (NFOCK): 10 stored Fock matrices.
-
-                    Damping( 0%)  Levelshifting(0.5)       DIIS
-                  --------------- ------------------- ---------------
-          dE  on:    start            ASAP                start   
-          dE off:    2 iters         50 iters            50 iters 
-
-
-      Screening Tolerance Information
-      -------------------------------
-          Density screening/tol_rho:  1.00D-10
-          AO Gaussian exp screening on grid/accAOfunc:  16
-          CD Gaussian exp screening on grid/accCDfunc:  20
-          XC Gaussian exp screening on grid/accXCfunc:  20
-          Schwarz screening/accCoul:  1.00D-12
-
-
- Loading old vectors from job with title :
-
-GW Trifluoroacetamide
-
-   Time after variat. SCF:     73.2
-
-      3 Center 2 Electron Integral Information
-      ----------------------------------------
-          Maximum number of 3-center 2e- integrals is:         4898880.
-            This is reduced with Schwarz screening to:         2717820.
-            Incore requires a per proc buffer size of:         1377181.
-          Minimum dble words available (all nodes) is:       131060572
-                   This is reduced (for later use) to:       130464662
-                      proc 0 Suggested buffer size is:         1377181
-                         Max Suggested buffer size is:         1377181
-                              no. integral batches is:            1000
-
-          Incore memory use for 3-center 2e- integrals is turned off. 
-   Time prior to 1st pass:     73.2
-
-
-         Total DFT energy =     -506.395910806755
-      One electron energy =    -1379.594121702816
-           Coulomb energy =      596.649979027430
-    Exchange-Corr. energy =      -58.421667905122
- Nuclear repulsion energy =      334.969899773753
-
- Numeric. integr. density =       57.000003176929
-
-     Total iterative time =      2.9s
-
-
-
-   alpha - beta orbital overlaps 
-   ----------------------------- 
-
-
-   alpha      1      2      3      4      5      6      7      8      9     10
-    beta      1      2      3      4      5      6      7      8      9     10
- overlap   1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
-
-
-   alpha     11     12     13     14     15     16     17     18     19     20
-    beta     11     12     13     14     15     16     17     18     19     20
- overlap   1.000  1.000  0.998  0.997  1.000  1.000  0.999  1.000  1.000  1.000
-
-
-   alpha     21     22     23     24     25     26     27     28     29     30
-    beta     21     22     23     24     26     25     27     28     30     29
- overlap   0.995  0.991  0.994  0.999  0.981  0.991  0.997  1.000  0.997  1.000
-
-
-   alpha     31     32     33     34     35     36     37     38     39     40
-    beta     31     32     33     34     35     36     37     38     39     40
- overlap   1.000  1.000  0.999  0.998  0.997  1.000  0.997  0.997  0.995  0.999
-
-
-   alpha     41     42     43     44     45     46     47     48     49     50
-    beta     41     42     44     43     45     46     47     48     49     50
- overlap   0.999  0.998  0.993  0.996  0.999  0.998  1.000  0.999  1.000  0.997
-
-
-   alpha     51     52     53     54     55     56     57     58     59     60
-    beta     51     52     53     54     55     56     57     58     59     60
- overlap   0.998  0.997  1.000  0.990  0.991  0.998  0.996  0.997  0.998  0.999
-
-
-   alpha     61     62     63     64     65     66     67     68     69     70
-    beta     61     62     63     64     65     66     67     68     69     70
- overlap   1.000  1.000  0.999  1.000  1.000  1.000  1.000  0.999  0.982  0.980
-
-
-   alpha     71     72     73     74     75     76     77     78     79     80
-    beta     71     72     73     74     75     76     77     78     79     80
- overlap   0.999  0.999  0.999  1.000  0.998  0.996  0.998  1.000  1.000  0.995
-
-
-   alpha     81     82     83     84     85     86     87     88     89     90
-    beta     81     82     83     84     85     86     88     87     89     90
- overlap   0.995  1.000  1.000  1.000  0.999  0.998  0.995  0.992  0.999  1.000
-
-
-   alpha     91     92     93     94     95     96     97     98     99    100
-    beta     91     92     93     94     95     96     97     98     99    100
- overlap   1.000  0.999  0.999  0.998  1.000  1.000  0.999  0.999  1.000  1.000
-
-
-   alpha    101    102    103    104    105    106    107    108
-    beta    101    102    103    104    105    106    107    108
- overlap   1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
-
-     --------------------------
-     Expectation value of S2:  
-     --------------------------
-      <S2> =      0.7512 (Exact =     0.7500)
-
-
- center of mass
- --------------
- x =   0.05046829 y =   0.11377991 z =   0.00004386
-
- moments of inertia (a.u.)
- ------------------
-         724.808949354496           0.000000000000           0.000000000000
-           0.000000000000         484.336918953950          -0.000000000000
-           0.000000000000          -0.000000000000         886.538753836127
-
-     Multipole analysis of the density
-     ---------------------------------
-
-     L   x y z        total         alpha         beta         nuclear
-     -   - - -        -----         -----         ----         -------
-     0   0 0 0     -1.000000    -29.000000    -28.000000     56.000000
-
-     1   1 0 0     -1.330080     -0.897319     -0.432761     -0.000000
-     1   0 1 0      0.879521      1.153485     -0.273964      0.000000
-     1   0 0 1     -0.001675     -0.003978      0.002302      0.000000
-
-     2   2 0 0    -32.559123   -100.860396    -98.181477    166.482750
-     2   1 1 0      3.938075     -1.993515     -2.915846      8.847437
+     2   2 0 0    -32.559123   -100.860397    -98.181477    166.482750
+     2   1 1 0      3.938075     -1.993516     -2.915846      8.847437
      2   1 0 1     -0.001240     -0.004542     -0.001982      0.005284
      2   0 2 0    -34.807922   -164.883016   -159.987459    290.062553
      2   0 1 1     -0.000720     -0.001498     -0.010542      0.011320
@@ -1643,318 +1312,13 @@ GW Trifluoroacetamide
      Distr.:          0.0s
      Vxc   :          2.1s
    Sigma_x :          0.0s
-   RPA     :         16.1s
+   RPA     :         17.0s
    Wmn     :          0.3s
    Sigma_c :          0.2s
-   GW total:         20.0s
+   GW total:         20.9s
 
 
- Task  times  cpu:       22.8s     wall:       23.0s
-
-
-                                NWChem Input Module
-                                -------------------
-
-
-
-                               NWChem GW@DFT Module
-                               --------------------
-
-
-                               GW Trifluoroacetamide
-
-
-
-                                 NWChem DFT Module
-                                 -----------------
-
-
-                               GW Trifluoroacetamide
-
-
-
-
- Summary of "ao basis" -> "ao basis" (spherical)
- ------------------------------------------------------------------------------
-       Tag                 Description            Shells   Functions and Types
- ---------------- ------------------------------  ------  ---------------------
- F                          cc-pvdz                  6       14   3s2p1d
- O                          cc-pvdz                  6       14   3s2p1d
- N                          cc-pvdz                  6       14   3s2p1d
- C                          cc-pvdz                  6       14   3s2p1d
- H                          cc-pvdz                  3        5   2s1p
-
-
-  Caching 1-el integrals 
-
-            General Information
-            -------------------
-          SCF calculation type: DFT
-          Wavefunction type:  spin polarized.
-          No. of atoms     :     9
-          No. of electrons :    57
-           Alpha electrons :    29
-            Beta electrons :    28
-          Charge           :    -1
-          Spin multiplicity:     2
-          Use of symmetry is: off; symmetry adaption is: off
-          Maximum number of iterations:  50
-          This is a Direct SCF calculation.
-          AO basis - number of functions:   108
-                     number of shells:    48
-          A Charge density fitting basis will be used.
-          CD basis - number of functions:   420
-                     number of shells:   138
-          Convergence on energy requested:  1.00D-07
-          Convergence on density requested:  1.00D-05
-          Convergence on gradient requested:  5.00D-04
-
-              XC Information
-              --------------
-                        PBE96 Method XC Functional
-          PerdewBurkeErnzerhof Exchange Functional  1.000          
-            Perdew 1991 LDA Correlation Functional  1.000 local    
-           PerdewBurkeErnz. Correlation Functional  1.000 non-local
-
-             Grid Information
-             ----------------
-          Grid used for XC integration:  fine      
-          Radial quadrature: Mura-Knowles        
-          Angular quadrature: Lebedev. 
-          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
-          ---              ---------- --------- --------- ---------
-          F                   0.50       70          11.0       590
-          O                   0.60       70          10.0       590
-          N                   0.65       70           8.0       590
-          C                   0.70       70          10.0       590
-          H                   0.35       60          10.0       590
-          Grid pruning is: on 
-          Number of quadrature shells:   610
-          Spatial weights used:  Erf1
-
-          Convergence Information
-          -----------------------
-          Convergence aids based upon iterative change in 
-          total energy or number of iterations. 
-          Levelshifting, if invoked, occurs when the 
-          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
-          DIIS, if invoked, will attempt to extrapolate 
-          using up to (NFOCK): 10 stored Fock matrices.
-
-                    Damping( 0%)  Levelshifting(0.5)       DIIS
-                  --------------- ------------------- ---------------
-          dE  on:    start            ASAP                start   
-          dE off:    2 iters         50 iters            50 iters 
-
-
-      Screening Tolerance Information
-      -------------------------------
-          Density screening/tol_rho:  1.00D-10
-          AO Gaussian exp screening on grid/accAOfunc:  16
-          CD Gaussian exp screening on grid/accCDfunc:  20
-          XC Gaussian exp screening on grid/accXCfunc:  20
-          Schwarz screening/accCoul:  1.00D-12
-
-
- Loading old vectors from job with title :
-
-GW Trifluoroacetamide
-
-   Time after variat. SCF:     96.3
-
-      3 Center 2 Electron Integral Information
-      ----------------------------------------
-          Maximum number of 3-center 2e- integrals is:         4898880.
-            This is reduced with Schwarz screening to:         2717820.
-            Incore requires a per proc buffer size of:         1377181.
-          Minimum dble words available (all nodes) is:       131060572
-                   This is reduced (for later use) to:       130464662
-                      proc 0 Suggested buffer size is:         1377181
-                         Max Suggested buffer size is:         1377181
-                              no. integral batches is:            1000
-
-          Incore memory use for 3-center 2e- integrals is turned off. 
-   Time prior to 1st pass:     96.3
-
-
-         Total DFT energy =     -506.395910807005
-      One electron energy =    -1379.594121702817
-           Coulomb energy =      596.649979027430
-    Exchange-Corr. energy =      -58.421667905371
- Nuclear repulsion energy =      334.969899773753
-
- Numeric. integr. density =       57.000003177377
-
-     Total iterative time =      2.9s
-
-
-
-   alpha - beta orbital overlaps 
-   ----------------------------- 
-
-
-   alpha      1      2      3      4      5      6      7      8      9     10
-    beta      1      2      3      4      5      6      7      8      9     10
- overlap   1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
-
-
-   alpha     11     12     13     14     15     16     17     18     19     20
-    beta     11     12     13     14     15     16     17     18     19     20
- overlap   1.000  1.000  0.998  0.997  1.000  1.000  0.999  1.000  1.000  1.000
-
-
-   alpha     21     22     23     24     25     26     27     28     29     30
-    beta     21     22     23     24     26     25     27     28     30     29
- overlap   0.995  0.991  0.994  0.999  0.981  0.991  0.997  1.000  0.997  1.000
-
-
-   alpha     31     32     33     34     35     36     37     38     39     40
-    beta     31     32     33     34     35     36     37     38     39     40
- overlap   1.000  1.000  0.999  0.998  0.997  1.000  0.997  0.997  0.995  0.999
-
-
-   alpha     41     42     43     44     45     46     47     48     49     50
-    beta     41     42     44     43     45     46     47     48     49     50
- overlap   0.999  0.998  0.993  0.996  0.999  0.998  1.000  0.999  1.000  0.997
-
-
-   alpha     51     52     53     54     55     56     57     58     59     60
-    beta     51     52     53     54     55     56     57     58     59     60
- overlap   0.998  0.997  1.000  0.990  0.991  0.998  0.996  0.997  0.998  0.999
-
-
-   alpha     61     62     63     64     65     66     67     68     69     70
-    beta     61     62     63     64     65     66     67     68     69     70
- overlap   1.000  1.000  0.999  1.000  1.000  1.000  1.000  0.999  0.982  0.980
-
-
-   alpha     71     72     73     74     75     76     77     78     79     80
-    beta     71     72     73     74     75     76     77     78     79     80
- overlap   0.999  0.999  0.999  1.000  0.998  0.996  0.998  1.000  1.000  0.995
-
-
-   alpha     81     82     83     84     85     86     87     88     89     90
-    beta     81     82     83     84     85     86     88     87     89     90
- overlap   0.995  1.000  1.000  1.000  0.999  0.998  0.995  0.992  0.999  1.000
-
-
-   alpha     91     92     93     94     95     96     97     98     99    100
-    beta     91     92     93     94     95     96     97     98     99    100
- overlap   1.000  0.999  0.999  0.998  1.000  1.000  0.999  0.999  1.000  1.000
-
-
-   alpha    101    102    103    104    105    106    107    108
-    beta    101    102    103    104    105    106    107    108
- overlap   1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
-
-     --------------------------
-     Expectation value of S2:  
-     --------------------------
-      <S2> =      0.7512 (Exact =     0.7500)
-
-
- center of mass
- --------------
- x =   0.05046829 y =   0.11377991 z =   0.00004386
-
- moments of inertia (a.u.)
- ------------------
-         724.808949354496           0.000000000000           0.000000000000
-           0.000000000000         484.336918953950          -0.000000000000
-           0.000000000000          -0.000000000000         886.538753836127
-
-     Multipole analysis of the density
-     ---------------------------------
-
-     L   x y z        total         alpha         beta         nuclear
-     -   - - -        -----         -----         ----         -------
-     0   0 0 0     -1.000000    -29.000000    -28.000000     56.000000
-
-     1   1 0 0     -1.330080     -0.897319     -0.432761     -0.000000
-     1   0 1 0      0.879521      1.153485     -0.273964      0.000000
-     1   0 0 1     -0.001675     -0.003978      0.002302      0.000000
-
-     2   2 0 0    -32.559123   -100.860396    -98.181477    166.482750
-     2   1 1 0      3.938075     -1.993515     -2.915846      8.847437
-     2   1 0 1     -0.001240     -0.004542     -0.001982      0.005284
-     2   0 2 0    -34.807922   -164.883016   -159.987459    290.062553
-     2   0 1 1     -0.000720     -0.001498     -0.010542      0.011320
-     2   0 0 2    -31.185337    -54.764810    -52.833925     76.413398
-
-  
-                      ***********************
-                      ***      GW@DFT     ***
-                      ***********************
-  
-
-                 Memory Information
-                 ------------------
-          Available GA per process is           999.8 MBs
-          Available stack per process is        500.0 MBs
-          Available heap per process is         499.9 MBs
-
-          Peak memory in Initialization
-              Peak GA per process is                 11.9 MBs
-              Peak stack per process is               0.1 MBs
-              Peak heap per process is               12.9 MBs
-              Memory not in MA per process            0.0 MBs
-
-          Peak memory in AFF Calculation
-              Peak GA per process is                 96.7 MBs
-              Peak stack per process is             156.6 MBs
-              Peak heap per process is                0.1 MBs
-              Memory not in MA per process          156.6 MBs
-
-          Computing 2-center integrals
-          Computing Inverse Cholesky factor
-          Computing 3-center integrals
-          Computing V_xc ... 
-          Computing Sigma_x
-          Computing RPA polarizability
-          Solving quasiparticle equations
-
-               Alpha Orbitals
-          State     Energy (eV)     Error (eV)
-          ------------------------------------
-@GW        25         -5.287          -0.000
-@GW        26         -5.793          -0.000
-@GW        27         -2.271          -0.000
-@GW        28         -1.523          -0.000
-@GW        29          3.276          -0.000
-@GW        30          8.977           0.000
-@GW        31         10.463           0.000
-@GW        32         13.041           0.000
-@GW        33         14.271           0.000
-@GW        34         14.944           0.000
-
-                Beta Orbitals
-          State     Energy (eV)     Error (eV)
-          ------------------------------------
-@GW        24         -7.022          -0.000
-@GW        25         -5.295          -0.000
-@GW        26         -4.504          -0.000
-@GW        27         -1.786          -0.000
-@GW        28         -1.277          -0.000
-@GW        29          9.041           0.000
-@GW        30         10.329           0.000
-@GW        31         10.485           0.000
-@GW        32         13.162           0.000
-@GW        33         14.381           0.000
-
-     GW Timing Statistics
-   ------------------------
-   Init.   :          0.1s
-     ERIs  :          1.3s
-     Distr.:          0.0s
-     Vxc   :          2.1s
-   Sigma_x :          0.0s
-   RPA     :         16.0s
-   Wmn     :          0.2s
-   Sigma_c :         18.0s
-   GW total:         37.8s
-
-
- Task  times  cpu:       40.6s     wall:       40.8s
+ Task  times  cpu:       23.7s     wall:       24.0s
 
 
                                 NWChem Input Module
@@ -2034,4 +1398,4 @@ MA usage statistics:
       T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
 
- Total times  cpu:      136.3s     wall:      137.0s
+ Total times  cpu:       89.7s     wall:       90.2s
