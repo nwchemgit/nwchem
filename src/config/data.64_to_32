@@ -46,6 +46,10 @@ dtrmv      ytrmv
 dtrsm      ytrsm         
 dtrsv      ytrsv         
 dznrm2     ycnrm2        
+dpftrf     ypftrf
+dpftri     ypftri
+dtfsm      ytfsm
+dtftri     ytftri
 idamax     iyamax        
 zaxpy      jaxpy         
 zcopy      jcopy         
@@ -66,6 +70,7 @@ ztrmm      jtrmm
 ztrmv      jtrmv         
 ztrsm      jtrsm         
 ztrsv      jtrsv            
+zlacp2     jlacp2
 # lapack transliterations
 dbdsqr    ybdsqr    
 dgebd2    ygebd2    

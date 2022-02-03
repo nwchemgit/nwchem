@@ -52,14 +52,14 @@
      $    call errquit('gw_rpa: wrong distribution',0,GA_ERR)
 
 
-        call ga_access(g_rpa,pars%ovlo(1),pars%ovhi(1),1,npoles,
-     $                 kRPA,ld)   
-        if (ld.ne.mynpoles)
-     $    call errquit('gw_rpa: wrong distribution',0,GA_ERR)   
 
         call gw_analytic_ovscale(1,dbl_mb(kOV1),eia(1,1),nri,mynpoles)
         call ga_dgemm('t','n',pars%npoles(1),pars%npoles(1),nri,4d0,
      $                 pars%g_eriov(1),pars%g_eriov(1),0d0,g_rpa)
+        call ga_access(g_rpa,pars%ovlo(1),pars%ovhi(1),1,npoles,
+     $                 kRPA,ld)   
+        if (ld.ne.mynpoles)
+     $    call errquit('gw_rpa: wrong distribution',0,GA_ERR)   
         call gw_analytic_addrpa(dbl_mb(kRPA),eia(1,1),mynpoles,
      $                          pars%ovlo(1))
         call gw_analytic_ecrpa(dbl_mb(kRPA),eia(1,1),mynpoles,
