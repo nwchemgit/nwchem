@@ -43,6 +43,7 @@ gw
  solver newton 15
  states alpha occ 5 vir 5
  states beta occ 5 vir 5
+ convergence 0.001 ev
 end
 
 task dft gw
@@ -56,6 +57,7 @@ gw
  solver newton 15
  states alpha occ 5 vir 5
  states beta occ 5 vir 5
+ convergence 0.001 ev
 end
 
 task dft gw

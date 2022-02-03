@@ -48,6 +48,7 @@ gw
  solver newton 15
  states alpha occ 5 vir 5
  states beta occ 5 vir 5
+ convergence 0.001 ev
 end
 
 task dft gw
@@ -61,6 +62,7 @@ gw
  solver newton 15
  states alpha occ 5 vir 5
  states beta occ 5 vir 5
+ convergence 0.001 ev
 end
 
 task dft gw
@@ -107,12 +109,12 @@ task dft gw
 
     hostname        = dmejiar-VirtualBox
     program         = nwchem
-    date            = Wed Feb  2 17:09:49 2022
+    date            = Wed Feb  2 18:43:53 2022
 
-    compiled        = Wed_Feb_02_16:41:27_2022
+    compiled        = Wed_Feb_02_18:36:49_2022
     source          = /home/dmejiar/Software/nwchem_gfortran_gw
     nwchem branch   = 7.0.0
-    nwchem revision = nwchem_on_git-3444-ge9bfc90177
+    nwchem revision = nwchem_on_git-3481-g697f3026d1
     ga revision     = 5.8.0
     use scalapack   = T
     input           = gw_openshell.nw
@@ -127,8 +129,8 @@ task dft gw
            Memory information
            ------------------
 
-    heap     =   65535994 doubles =    500.0 Mbytes
-    stack    =   65535999 doubles =    500.0 Mbytes
+    heap     =   65535998 doubles =    500.0 Mbytes
+    stack    =   65535995 doubles =    500.0 Mbytes
     global   =  131072000 doubles =   1000.0 Mbytes (distinct from heap & stack)
     total    =  262143993 doubles =   2000.0 Mbytes
     verify   = yes
@@ -798,53 +800,53 @@ task dft gw
    Time prior to 1st pass:      0.8
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       65.53            65525786
-          Stack Space remaining (MW):       65.53            65534740
+           Heap Space remaining (MW):       65.53            65525790
+          Stack Space remaining (MW):       65.53            65534732
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1   -505.9509224091 -8.41D+02  4.22D-02  8.68D-01     3.5
+ d= 0,ls=0.0,diis     1   -505.9509224070 -8.41D+02  4.22D-02  8.68D-01     3.5
                                                      1.64D-02  8.69D-01
- d= 0,ls=0.0,diis     2   -503.7942546127  2.16D+00  1.67D-02  6.60D+00     6.2
+ d= 0,ls=0.0,diis     2   -503.7942550811  2.16D+00  1.67D-02  6.60D+00     6.1
                                                      1.27D-02  6.44D+00
- d= 0,ls=0.0,diis     3   -506.2282738833 -2.43D+00  3.74D-02  3.25D-01     8.8
+ d= 0,ls=0.0,diis     3   -506.2282739638 -2.43D+00  3.74D-02  3.25D-01     8.8
                                                      5.95D-03  3.58D-01
- d= 0,ls=0.0,diis     4   -506.2176208496  1.07D-02  3.73D-02  2.81D-01    11.7
+ d= 0,ls=0.0,diis     4   -506.2176205758  1.07D-02  3.73D-02  2.81D-01    11.4
                                                      3.56D-03  2.83D-01
- d= 0,ls=0.0,diis     5   -506.3653157554 -1.48D-01  1.59D-03  4.89D-02    15.4
+ d= 0,ls=0.0,diis     5   -506.3653157693 -1.48D-01  1.59D-03  4.89D-02    14.3
                                                      1.43D-03  5.92D-02
   Resetting Diis
- d= 0,ls=0.0,diis     6   -506.3877247180 -2.24D-02  8.76D-04  1.37D-02    18.4
+ d= 0,ls=0.0,diis     6   -506.3877247193 -2.24D-02  8.76D-04  1.37D-02    17.1
                                                      9.89D-04  1.57D-02
- d= 0,ls=0.5,diis     7   -506.3954795345 -7.75D-03  2.48D-04  7.57D-04    21.9
+ d= 0,ls=0.5,diis     7   -506.3954795317 -7.75D-03  2.48D-04  7.57D-04    19.9
                                                      2.75D-04  1.05D-03
- d= 0,ls=0.5,diis     8   -506.3957467071 -2.67D-04  7.59D-05  4.74D-04    26.4
+ d= 0,ls=0.5,diis     8   -506.3957467065 -2.67D-04  7.59D-05  4.74D-04    22.8
                                                      7.71D-05  3.87D-04
- d= 0,ls=0.5,diis     9   -506.3958842697 -1.38D-04  3.92D-05  5.22D-05    29.8
+ d= 0,ls=0.5,diis     9   -506.3958842694 -1.38D-04  3.92D-05  5.22D-05    25.6
                                                      3.82D-05  3.66D-05
- d= 0,ls=0.5,diis    10   -506.3959042722 -2.00D-05  2.48D-05  8.97D-06    32.9
+ d= 0,ls=0.5,diis    10   -506.3959042725 -2.00D-05  2.48D-05  8.97D-06    28.4
                                                      2.25D-05  5.63D-06
- d= 0,ls=0.5,diis    11   -506.3959088037 -4.53D-06  1.42D-05  1.20D-06    36.2
+ d= 0,ls=0.5,diis    11   -506.3959088034 -4.53D-06  1.42D-05  1.20D-06    31.1
                                                      1.34D-05  8.66D-07
- d= 0,ls=0.5,diis    12   -506.3959099985 -1.19D-06  7.91D-06  1.65D-07    39.2
+ d= 0,ls=0.5,diis    12   -506.3959099982 -1.19D-06  7.91D-06  1.65D-07    34.0
                                                      9.18D-06  3.02D-07
- d= 0,ls=0.5,diis    13   -506.3959104548 -4.56D-07  5.61D-06  7.03D-08    42.3
+ d= 0,ls=0.5,diis    13   -506.3959104548 -4.57D-07  5.61D-06  7.03D-08    36.8
                                                      6.35D-06  1.16D-07
- d= 0,ls=0.5,diis    14   -506.3959106610 -2.06D-07  4.02D-06  3.74D-08    45.3
+ d= 0,ls=0.5,diis    14   -506.3959106610 -2.06D-07  4.02D-06  3.74D-08    39.6
                                                      4.50D-06  5.74D-08
- d= 0,ls=0.5,diis    15   -506.3959107594 -9.85D-08  2.94D-06  1.49D-08    49.2
+ d= 0,ls=0.5,diis    15   -506.3959107601 -9.91D-08  2.94D-06  1.49D-08    42.4
                                                      3.16D-06  2.66D-08
 
 
-         Total DFT energy =     -506.395910806979
-      One electron energy =    -1379.594121654796
-           Coulomb energy =      596.649978976951
-    Exchange-Corr. energy =      -58.421667902888
+         Total DFT energy =     -506.395910807001
+      One electron energy =    -1379.594121715188
+           Coulomb energy =      596.649979040526
+    Exchange-Corr. energy =      -58.421667906092
  Nuclear repulsion energy =      334.969899773753
 
- Numeric. integr. density =       57.000003177272
+ Numeric. integr. density =       57.000003177372
 
-     Total iterative time =     51.7s
+     Total iterative time =     44.4s
 
 
 
@@ -933,8 +935,8 @@ task dft gw
      1   0 1 0      0.879521      1.153485     -0.273964      0.000000
      1   0 0 1     -0.001675     -0.003978      0.002302      0.000000
 
-     2   2 0 0    -32.559123   -100.860397    -98.181477    166.482750
-     2   1 1 0      3.938075     -1.993516     -2.915846      8.847437
+     2   2 0 0    -32.559123   -100.860396    -98.181477    166.482750
+     2   1 1 0      3.938075     -1.993515     -2.915846      8.847437
      2   1 0 1     -0.001240     -0.004542     -0.001982      0.005284
      2   0 2 0    -34.807922   -164.883016   -159.987459    290.062553
      2   0 1 1     -0.000720     -0.001498     -0.010542      0.011320
@@ -975,45 +977,45 @@ task dft gw
                   Alpha Orbitals
           State     Energy (eV)     Error (eV)
           -----------------------------------
-@GW        25         -5.432           0.002
-@GW        26         -5.401           0.008
-@GW        27         -2.262           0.006
-@GW        28         -1.528           0.001
+@GW        25         -5.432           0.001
+@GW        26         -5.401           0.005
+@GW        27         -2.262           0.005
+@GW        28         -1.529           0.000
 @GW        29          3.272           0.000
 @GW        30          9.002           0.000
-@GW        31         10.467           0.001
-@GW        32         13.043           0.002
-@GW        33         14.123           0.005
-@GW        34         14.946           0.002
+@GW        31         10.467           0.000
+@GW        32         13.044           0.000
+@GW        33         14.274           0.000
+@GW        34         14.947           0.000
 
                    Beta Orbitals
           State     Energy (eV)     Error (eV)
           -----------------------------------
 @GW        24         -7.025           0.001
-@GW        25         -4.573           0.003
+@GW        25         -4.572           0.000
 @GW        26         -4.507           0.000
-@GW        27         -1.794           0.004
+@GW        27         -1.791           0.000
 @GW        28         -1.280           0.001
 @GW        29          9.047           0.000
 @GW        30         10.332           0.000
-@GW        31         10.492           0.005
-@GW        32         13.165           0.001
-@GW        33         13.393           0.004
+@GW        31         10.494           0.000
+@GW        32         13.166           0.000
+@GW        33         13.393           0.000
 
      GW Timing Statistics
    ------------------------
    Init.   :          0.1s
-     ERIs  :          1.4s
+     ERIs  :          1.3s
      Distr.:          0.0s
-     Vxc   :          2.2s
+     Vxc   :          2.0s
    Vmo     :          0.0s
    iW      :          5.5s
    I_n     :          0.0s
-   R_n     :          4.5s
-   GW total:         13.7s
+   R_n     :          4.9s
+   GW total:         13.9s
 
 
- Task  times  cpu:       66.0s     wall:       66.2s
+ Task  times  cpu:       58.9s     wall:       59.1s
 
 
                                 NWChem Input Module
@@ -1124,7 +1126,7 @@ task dft gw
 
 GW Trifluoroacetamide
 
-   Time after variat. SCF:     66.4
+   Time after variat. SCF:     59.2
 
       3 Center 2 Electron Integral Information
       ----------------------------------------
@@ -1138,16 +1140,16 @@ GW Trifluoroacetamide
                               no. integral batches is:            1000
 
           Incore memory use for 3-center 2e- integrals is turned off. 
-   Time prior to 1st pass:     66.4
+   Time prior to 1st pass:     59.2
 
 
-         Total DFT energy =     -506.395910807014
-      One electron energy =    -1379.594121654796
-           Coulomb energy =      596.649978976951
-    Exchange-Corr. energy =      -58.421667902922
+         Total DFT energy =     -506.395910806375
+      One electron energy =    -1379.594121715189
+           Coulomb energy =      596.649979040527
+    Exchange-Corr. energy =      -58.421667905467
  Nuclear repulsion energy =      334.969899773753
 
- Numeric. integr. density =       57.000003177373
+ Numeric. integr. density =       57.000003177328
 
      Total iterative time =      2.9s
 
@@ -1238,8 +1240,8 @@ GW Trifluoroacetamide
      1   0 1 0      0.879521      1.153485     -0.273964      0.000000
      1   0 0 1     -0.001675     -0.003978      0.002302      0.000000
 
-     2   2 0 0    -32.559123   -100.860397    -98.181477    166.482750
-     2   1 1 0      3.938075     -1.993516     -2.915846      8.847437
+     2   2 0 0    -32.559123   -100.860396    -98.181477    166.482750
+     2   1 1 0      3.938075     -1.993515     -2.915846      8.847437
      2   1 0 1     -0.001240     -0.004542     -0.001982      0.005284
      2   0 2 0    -34.807922   -164.883016   -159.987459    290.062553
      2   0 1 1     -0.000720     -0.001498     -0.010542      0.011320
@@ -1282,43 +1284,43 @@ GW Trifluoroacetamide
           -----------------------------------
 @GW        25         -5.132           0.000
 @GW        26         -5.796           0.000
-@GW        27         -2.272           0.004
-@GW        28         -1.527           0.002
-@GW        29          3.269           0.004
-@GW        30          8.983           0.001
+@GW        27         -2.272           0.000
+@GW        28         -1.526           0.000
+@GW        29          3.272           0.000
+@GW        30          8.982           0.000
 @GW        31         10.467           0.000
 @GW        32         13.044           0.000
-@GW        33         14.271           0.005
-@GW        34         14.946           0.002
+@GW        33         14.273           0.000
+@GW        34         14.946           0.000
 
                    Beta Orbitals
           State     Energy (eV)     Error (eV)
           -----------------------------------
-@GW        24         -7.026           0.002
-@GW        25         -5.217           0.001
-@GW        26         -4.504           0.003
+@GW        24         -7.025           0.000
+@GW        25         -5.217           0.000
+@GW        26         -4.505           0.000
 @GW        27         -1.789           0.000
-@GW        28         -1.282           0.003
+@GW        28         -1.280           0.000
 @GW        29          9.046           0.000
 @GW        30         10.332           0.000
-@GW        31         10.490           0.001
+@GW        31         10.489           0.000
 @GW        32         13.165           0.000
 @GW        33         14.383           0.000
 
      GW Timing Statistics
    ------------------------
    Init.   :          0.1s
-     ERIs  :          1.3s
+     ERIs  :          0.7s
      Distr.:          0.0s
-     Vxc   :          2.1s
+     Vxc   :          2.0s
    Sigma_x :          0.0s
-   RPA     :         17.0s
+   RPA     :         16.7s
    Wmn     :          0.3s
-   Sigma_c :          0.2s
-   GW total:         20.9s
+   Sigma_c :          0.1s
+   GW total:         19.9s
 
 
- Task  times  cpu:       23.7s     wall:       24.0s
+ Task  times  cpu:       22.6s     wall:       22.9s
 
 
                                 NWChem Input Module
@@ -1340,7 +1342,7 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	        28	        58
 	current total bytes		         0	         0
-	maximum total bytes		  33477416	 330033368
+	maximum total bytes		  33477384	 330033336
 	maximum total K-bytes		     33478	    330034
 	maximum total M-bytes		        34	       331
 
@@ -1398,4 +1400,4 @@ MA usage statistics:
       T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
 
- Total times  cpu:       89.7s     wall:       90.2s
+ Total times  cpu:       81.6s     wall:       82.0s

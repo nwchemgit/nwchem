@@ -39,6 +39,7 @@ gw
  method cdgw
  states alpha occ 7
  solver newton 15
+ convergence 0.001 ev
 end
 
 task dft gw
@@ -55,6 +56,7 @@ gw
  method cdgw 128
  solver newton 15
  states alpha occ 4
+ convergence 0.001 ev
 end
 
 task dft gw
@@ -70,6 +72,7 @@ gw
  eta 0.01
  solver newton 15
  states alpha occ 7
+ convergence 0.001 ev
 end
 
 task dft gw
