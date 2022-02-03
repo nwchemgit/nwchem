@@ -652,6 +652,8 @@ c
 #include "zora.fh"
 #include "frozemb.fh"
 #include "cosmo.fh"
+#include "inp.fh"
+#include "stdio.fh"
 c     
 c     $Id$
 c
@@ -1042,11 +1044,13 @@ c      call ga_zero(g_hcore)
 c
       call int_1e_ga(basis, basis, g_a_hcore, 'kinetic', oskel)  ! kinetic
       if (do_zora .and. .not.(do_NonRel)) then
-c     is uhf() called from cphf_solve2 (say from hnd_hyperfine_zora)?
-c     hack: use 'cphf:skew' to check this condition
-         if (.not. rtdb_get(rtdb, 'cphf:skew', mt_log, 1,
-     $        noskew_uhf)) then
-            call errquit('ZORA not available yet for SCF ',0,CAPMIS_ERR)
+         if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $        call errquit('uhf: theory not specified',555,
+     &        INPUT_ERR)
+         if (theory(1:inp_strlen(theory)).ne.'dft') then
+            if (ga_nodeid().eq.0) write(luout,*)' theory is ',
+     T           theory(1:inp_strlen(theory)),'!'
+            call errquit('ZORA available only for DFT ',0,CAPMIS_ERR)
          endif
         call ga_dadd(1.d0,g_a_hcore,1.d0,g_zora_Kinetic(1),g_a_hcore) ! zora kinetic
       endif
