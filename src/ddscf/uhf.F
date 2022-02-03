@@ -684,6 +684,7 @@ c AJL/End
       double precision ecosmo !< [Output] The COSMO solvation energy
       integer g_dens(2),i
       character*255 cosmo_file
+      character*32 theory
 c     DIM/QM JEM
       logical ldimqm
       integer g_vdim
