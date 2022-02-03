@@ -270,7 +270,8 @@ c
 
 #ifdef USE_OPENMP
       call util_blas_set_num_threads(1)
-#endif      
+#endif
+      call ga_release(wmn,ilo,ihi,jlo,jhi)
 
       end subroutine
 

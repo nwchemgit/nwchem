@@ -245,5 +245,11 @@ c        w = ddot(nri,vector,1,xvec,1) - ddot(nri,vector,1,vector,1)
       dR = dble(dR1)
 #endif
 
+      do jsp=1,ipol
+        if (pars%mynpoles(jsp).eq.0) cycle
+        call ga_release(pars%g_eriov(jsp),1,nri,pars%ovlo(jsp),
+     $                  pars%ovhi(jsp),kOV(jsp),ld)   
+      enddo
+
       return
       end subroutine

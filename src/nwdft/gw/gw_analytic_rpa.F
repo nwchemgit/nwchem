@@ -28,17 +28,6 @@
       call util_blas_set_num_threads(iMaxThreads)
 #endif      
 
-
-
-      call ga_access(pars%g_eriov(1),1,nri,pars%ovlo(1),pars%ovhi(1),
-     $               kOV1,ld)
-      if (pars%ipol.gt.1) then
-        call ga_access(pars%g_eriov(2),1,nri,pars%ovlo(2),pars%ovhi(2),
-     $                 kOV2,ld)
-      else
-        kOV2 = 1
-      endif
-
       if (pars%ipol.eq.1) then
 
         npoles = pars%npoles(1)
@@ -51,19 +40,25 @@
         if (pars%ovlo(1).ne.ilo .or. pars%ovhi(1).ne.ihi)
      $    call errquit('gw_rpa: wrong distribution',0,GA_ERR)
 
+        call ga_access(pars%g_eriov(1),1,nri,pars%ovlo(1),pars%ovhi(1),
+     $                 kOV1,ld)                
+        call gw_analytic_ovscale(1,dbl_mb(kOV1),eia,nri,mynpoles)
+        call ga_release_update(pars%g_eriov(1),1,nri,pars%ovlo(1),
+     $                         pars%ovhi(1))   
 
-
-        call gw_analytic_ovscale(1,dbl_mb(kOV1),eia(1,1),nri,mynpoles)
         call ga_dgemm('t','n',pars%npoles(1),pars%npoles(1),nri,4d0,
      $                 pars%g_eriov(1),pars%g_eriov(1),0d0,g_rpa)
+
         call ga_access(g_rpa,pars%ovlo(1),pars%ovhi(1),1,npoles,
      $                 kRPA,ld)   
-        if (ld.ne.mynpoles)
-     $    call errquit('gw_rpa: wrong distribution',0,GA_ERR)   
-        call gw_analytic_addrpa(dbl_mb(kRPA),eia(1,1),mynpoles,
-     $                          pars%ovlo(1))
-        call gw_analytic_ecrpa(dbl_mb(kRPA),eia(1,1),mynpoles,
-     $                         pars%ovlo(1),pars%ecrpa)
+        call gw_analytic_addrpa(dbl_mb(kRPA),eia,mynpoles,pars%ovlo(1))
+        call ga_release_update(g_rpa,ilo,ihi,jlo,jhi)
+
+
+        call ga_access(g_rpa,pars%ovlo(1),pars%ovhi(1),1,npoles,kRPA,ld)
+        call gw_analytic_ecrpa(dbl_mb(kRPA),eia,mynpoles,pars%ovlo(1),
+     $                         pars%ecrpa)
+        call ga_release(g_rpa,ilo,ihi,jlo,jhi)
 
 #ifdef PARALLEL_DIAG
 #ifdef SCALAPACK        
@@ -74,16 +69,6 @@
 #else
         call ga_diag_std_seq(g_rpa,g_rpa,omega)
 #endif
-
-        call ga_check_handle(g_rpa, 'something went wrong in ELPA')
-        call ga_distribution(g_rpa,pars%me,ilo,ihi,jlo,jhi)
-        if (pars%ovlo(1).ne.ilo .or. pars%ovhi(1).ne.ihi)
-     $    call errquit('gw_rpa: wrong distribution',0,GA_ERR)
-        call ga_access(g_rpa,pars%ovlo(1),pars%ovhi(1),1,npoles,
-     $                 kRPA,ld)   
-        if (ld.ne.mynpoles)
-     $    call errquit('gw_rpa: wrong distribution',0,GA_ERR)   
-        
 
 !$omp   parallel do
         do ipole=1,npoles
@@ -97,10 +82,22 @@
      $                        'transformed eri alpha'))
      $    call errquit(pname//'failed to duplicate array',0,GA_ERR)
 
+        call ga_access(g_rpa,pars%ovlo(1),pars%ovhi(1),1,npoles,
+     $                 kRPA,ld)   
         call gw_analytic_scalxpy(dbl_mb(kRPA),omega,mynpoles,npoles)
+        call ga_release_update(g_rpa,pars%ovlo(1),pars%ovhi(1),1,
+     $                         npoles)   
+
+
         call ga_dgemm('n','n',nri,npoles,npoles,1d0,pars%g_eriov(1),
      $                 g_rpa,0d0,pars%g_erim)
+
+
+        call ga_access(pars%g_eriov(1),1,nri,pars%ovlo(1),pars%ovhi(1),
+     $                 kOV1,ld)
         call gw_analytic_ovscale(2,dbl_mb(kOV1),eia(1,1),nri,mynpoles)
+        call ga_release_update(pars%g_eriov(1),1,nri,pars%ovlo(1),
+     $                         pars%ovhi(1))   
 
         if (.not.(ga_destroy(g_rpa)))
      $    call errquit(pname//'can''t destroy RPA GA',0,GA_ERR)
@@ -146,10 +143,20 @@ c       Square eigenvalue differences
         call ga_elem_multiply(g_diag,g_diag,g_diag)
 
 c       Scale integrals with eigenvalue differences
-        call gw_analytic_ovscale(1,dbl_mb(kOV1),eia(1,1),nri,
+        call ga_access(pars%g_eriov(1),1,nri,pars%ovlo(1),pars%ovhi(1),
+     $                 kOV1,ld)   
+        call gw_analytic_ovscale(1,dbl_mb(kOV1),nri,eia,
      $                           pars%mynpoles(1))
+        call ga_release_update(pars%g_eriov(1),1,nri,pars%ovlo(1),
+     $                         pars%ovhi(1))   
+
+
+        call ga_access(pars%g_eriov(2),1,nri,pars%ovlo(2),pars%ovhi(2),
+     $                 kOV2,ld)   
         call gw_analytic_ovscale(1,dbl_mb(kOV2),eia(1,2),nri,
      $                           pars%mynpoles(2))
+        call ga_release_update(pars%g_eriov(2),1,nri,pars%ovlo(2),
+     $                         pars%ovhi(2))   
 
 c       Form open-shell RPA matrix        
         call ga_zero(g_rpa)
@@ -219,10 +226,19 @@ c       Transform ERIs with excitation vectors
      $          pars%g_erim,1,nri,1,npoles)   
 
 c       Scale back ERIs        
-        call gw_analytic_ovscale(2,dbl_mb(kOV1),eia(1,1),nri,
+        call ga_access(pars%g_eriov(1),1,nri,pars%ovlo(1),pars%ovhi(1),
+     $                 kOV1,ld)   
+        call gw_analytic_ovscale(2,dbl_mb(kOV1),eia,nri,
      $                           pars%mynpoles(1))
+        call ga_release_update(pars%g_eriov(1),1,nri,pars%ovlo(1),
+     $                         pars%ovhi(1))   
+
+        call ga_access(pars%g_eriov(2),1,nri,pars%ovlo(2),pars%ovhi(2),
+     $                 kOV2,ld)   
         call gw_analytic_ovscale(2,dbl_mb(kOV2),eia(1,2),nri,
      $                           pars%mynpoles(2))
+        call ga_release_update(pars%g_eriov(2),1,nri,pars%ovlo(2),
+     $                         pars%ovhi(2))   
 
 c       Destroy GAs        
         if (.not.(ga_destroy(g_rpa)))

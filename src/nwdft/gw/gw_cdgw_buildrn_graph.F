@@ -245,5 +245,10 @@ c
       call util_blas_set_num_threads(1)
 #endif
 
+      do jsp=1,ipol
+        call ga_release(pars%g_eriov(jsp),1,nri,pars%ovlo(jsp),
+     $                  pars%ovhi(jsp))
+      enddo
+
       return
       end subroutine

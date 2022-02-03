@@ -48,6 +48,8 @@ c
 !$omp end  do      
 !$omp end parallel
 c
+      call ga_release(wmn, ilo, ihi ,jlo, jhi)
+
       call ga_dgop(mt_dbl,sigma,npoints,'+')
 
 #ifdef USE_OPENMP

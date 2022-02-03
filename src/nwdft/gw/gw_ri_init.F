@@ -293,6 +293,7 @@ c
         nij = jhi-jlo+1
         call dtrmm('l','l','n','n',nbf_cd,nij,1.0d0,dbl_mb(k_tmp),
      $              nbf_cd,dbl_mb(k_eri),nbf_cd)
+        call ga_release_update(pars%g_erioo(isp),ilo,ihi,jlo,jhi)
 c
 c     Transform OV block
 c
@@ -303,6 +304,7 @@ c
         nij = jhi-jlo+1
         call dtrmm('l','l','n','n',nbf_cd,nij,1.0d0,dbl_mb(k_tmp),
      $              nbf_cd,dbl_mb(k_eri),nbf_cd)
+        call ga_release_update(pars%g_eriov(isp),ilo,ihi,jlo,jhi)
 c
 c     Transform VV block
 c
@@ -315,6 +317,7 @@ c
           nij = jhi-jlo+1
           call dtrmm('l','l','n','n',nbf_cd,nij,1.0d0,dbl_mb(k_tmp),
      $                nbf_cd,dbl_mb(k_eri),nbf_cd)
+          call ga_release_update(pars%g_erivv(isp),ilo,ihi,jlo,jhi)
         endif
  103    continue
       enddo

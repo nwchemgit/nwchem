@@ -332,6 +332,34 @@ c
       pars%ecrpa = pars%ecrpa*0.5d0
       pars%ecgm  = pars%ecgm*0.5d0
 
+
+      if (pars%ovlo(1).le.pars%ovhi(1) .and.pars%ovlo(1).gt.0) then
+        call ga_release_update(pars%g_eriov(1),1,nri,pars%ovlo(1),
+     $                         pars%ovhi(1))
+      endif
+      if (pars%oolo(1).le.pars%oohi(1) .and.pars%oolo(1).gt.0) then
+        call ga_release(pars%g_erioo(1),1,nri,pars%oolo(1),pars%oohi(1))
+      endif
+      if (pars%nvqp(1).gt.0. and. pars%vvlo(1).le.pars%vvhi(1) .and.
+     $    pars%vvlo(1).gt.0) then
+        call ga_release(pars%g_erivv(1),1,nri,pars%vvlo(1),pars%vvhi(1))
+      end if
+
+      if (ipol.gt.1 .and. pars%mynpoles(2).gt.0 ) then
+        if (pars%ovlo(2).le.pars%ovhi(2) .and. pars%ovlo(2).gt.0) then
+        call ga_release_update(pars%g_eriov(2),1,nri,pars%ovlo(2),
+     $                         pars%ovhi(2))
+        endif
+        if (pars%oolo(2).le.pars%oohi(2) .and. pars%oolo(2).gt.0) then
+        call ga_release(pars%g_erioo(2),1,nri,pars%oolo(2),pars%oohi(2))
+        endif
+        if (pars%nvqp(2).gt.0 .and. pars%vvlo(2).le.pars%vvhi(2) .and.
+     $      pars%vvlo(2).gt.0) then
+          call ga_release(pars%g_erivv(2),1,nri,pars%vvlo(2),
+     $                   pars%vvhi(2))
+        endif
+      endif
+
 #ifdef USE_OPENMP
       call util_blas_set_num_threads(1)
 #endif      

@@ -28,7 +28,6 @@ c
      &  call errquit('dft_invdiag: cannot allocate evals',0, MA_ERR)
 
       call ga_distribution(g_tmp,me,idum,idum,ll,ul)
-      if (me.eq.0) call nga_access(g_diag,1,n,idx,idum)
       call ga_zero(g_tmp)
 
       ecrpa = 0d0
@@ -79,10 +78,12 @@ c
 c
       call ga_get_diag(g_tmp,g_diag)
       if (me.eq.0) then
+        call nga_access(g_diag,1,n,idx,idum)
         do i=0,n-1
          ecrpa = ecrpa - dbl_mb(idx+i)
         enddo
         ecrpa = ecrpa + dble(n)
+        call nga_release(g_diag,1,n)
       endif
 
 c
@@ -115,6 +116,7 @@ C     (U * sigma^-1)
       do i=ll,ul
         call dscal(n,dbl_mb(iev+i-1),dbl_mb(idx+(i-ll)*n),1)
       enddo
+      call ga_release(g_tmp,1,n,ll,ul)
 
       if (.not.ga_create(mt_dbl, n, n, 'ga_temp3', n, 0, g_tmp3))
      $  call errquit('gw_invdiag: error creating ga_temp2',0,GA_ERR)
