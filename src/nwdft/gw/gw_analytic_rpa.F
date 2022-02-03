@@ -95,7 +95,7 @@
 
         call ga_access(pars%g_eriov(1),1,nri,pars%ovlo(1),pars%ovhi(1),
      $                 kOV1,ld)
-        call gw_analytic_ovscale(2,dbl_mb(kOV1),eia(1,1),nri,mynpoles)
+        call gw_analytic_ovscale(2,dbl_mb(kOV1),eia,nri,mynpoles)
         call ga_release_update(pars%g_eriov(1),1,nri,pars%ovlo(1),
      $                         pars%ovhi(1))   
 
@@ -112,7 +112,7 @@
         if (.not.nga_create(mt_dbl,1,pars%npoles(1),'RPA diag',0,
      $       g_diag1))
      $    call errquit(pname//'can''t create RPA diag',0,GA_ERR)
-        if (.not.nga_create(mt_dbl,1,pars%npoles(2),'RPA diag',0,
+        if (.not.nga_create(mt_dbl,1,pars%npoles(2),'RPA diag 2',0,
      $       g_diag2))
      $    call errquit(pname//'can''t create RPA diag 2',0,GA_ERR)
         if (.not.nga_create(mt_dbl,1,npoles,'RPA diag',0,g_diag))
@@ -145,7 +145,7 @@ c       Square eigenvalue differences
 c       Scale integrals with eigenvalue differences
         call ga_access(pars%g_eriov(1),1,nri,pars%ovlo(1),pars%ovhi(1),
      $                 kOV1,ld)   
-        call gw_analytic_ovscale(1,dbl_mb(kOV1),nri,eia,
+        call gw_analytic_ovscale(1,dbl_mb(kOV1),eia,nri,
      $                           pars%mynpoles(1))
         call ga_release_update(pars%g_eriov(1),1,nri,pars%ovlo(1),
      $                         pars%ovhi(1))   

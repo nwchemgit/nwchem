@@ -109,9 +109,9 @@ task dft gw
 
     hostname        = dmejiar-VirtualBox
     program         = nwchem
-    date            = Wed Feb  2 18:43:53 2022
+    date            = Thu Feb  3 13:07:27 2022
 
-    compiled        = Wed_Feb_02_18:36:49_2022
+    compiled        = Thu_Feb_03_13:04:11_2022
     source          = /home/dmejiar/Software/nwchem_gfortran_gw
     nwchem branch   = 7.0.0
     nwchem revision = nwchem_on_git-3481-g697f3026d1
@@ -129,10 +129,10 @@ task dft gw
            Memory information
            ------------------
 
-    heap     =   65535998 doubles =    500.0 Mbytes
-    stack    =   65535995 doubles =    500.0 Mbytes
+    heap     =   65536000 doubles =    500.0 Mbytes
+    stack    =   65535997 doubles =    500.0 Mbytes
     global   =  131072000 doubles =   1000.0 Mbytes (distinct from heap & stack)
-    total    =  262143993 doubles =   2000.0 Mbytes
+    total    =  262143997 doubles =   2000.0 Mbytes
     verify   = yes
     hardfail = no 
 
@@ -800,53 +800,53 @@ task dft gw
    Time prior to 1st pass:      0.8
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       65.53            65525790
-          Stack Space remaining (MW):       65.53            65534732
+           Heap Space remaining (MW):       65.53            65525792
+          Stack Space remaining (MW):       65.53            65534740
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1   -505.9509224070 -8.41D+02  4.22D-02  8.68D-01     3.5
+ d= 0,ls=0.0,diis     1   -505.9509223984 -8.41D+02  4.22D-02  8.68D-01     3.3
                                                      1.64D-02  8.69D-01
- d= 0,ls=0.0,diis     2   -503.7942550811  2.16D+00  1.67D-02  6.60D+00     6.1
+ d= 0,ls=0.0,diis     2   -503.7942546539  2.16D+00  1.67D-02  6.60D+00     6.0
                                                      1.27D-02  6.44D+00
- d= 0,ls=0.0,diis     3   -506.2282739638 -2.43D+00  3.74D-02  3.25D-01     8.8
+ d= 0,ls=0.0,diis     3   -506.2282739246 -2.43D+00  3.74D-02  3.25D-01     8.4
                                                      5.95D-03  3.58D-01
- d= 0,ls=0.0,diis     4   -506.2176205758  1.07D-02  3.73D-02  2.81D-01    11.4
+ d= 0,ls=0.0,diis     4   -506.2176207391  1.07D-02  3.73D-02  2.81D-01    10.9
                                                      3.56D-03  2.83D-01
- d= 0,ls=0.0,diis     5   -506.3653157693 -1.48D-01  1.59D-03  4.89D-02    14.3
+ d= 0,ls=0.0,diis     5   -506.3653157560 -1.48D-01  1.59D-03  4.89D-02    14.0
                                                      1.43D-03  5.92D-02
   Resetting Diis
- d= 0,ls=0.0,diis     6   -506.3877247193 -2.24D-02  8.76D-04  1.37D-02    17.1
+ d= 0,ls=0.0,diis     6   -506.3877247146 -2.24D-02  8.76D-04  1.37D-02    16.8
                                                      9.89D-04  1.57D-02
- d= 0,ls=0.5,diis     7   -506.3954795317 -7.75D-03  2.48D-04  7.57D-04    19.9
+ d= 0,ls=0.5,diis     7   -506.3954795336 -7.75D-03  2.48D-04  7.57D-04    19.6
                                                      2.75D-04  1.05D-03
- d= 0,ls=0.5,diis     8   -506.3957467065 -2.67D-04  7.59D-05  4.74D-04    22.8
+ d= 0,ls=0.5,diis     8   -506.3957467072 -2.67D-04  7.59D-05  4.74D-04    22.3
                                                      7.71D-05  3.87D-04
- d= 0,ls=0.5,diis     9   -506.3958842694 -1.38D-04  3.92D-05  5.22D-05    25.6
+ d= 0,ls=0.5,diis     9   -506.3958842696 -1.38D-04  3.92D-05  5.22D-05    25.1
                                                      3.82D-05  3.66D-05
- d= 0,ls=0.5,diis    10   -506.3959042725 -2.00D-05  2.48D-05  8.97D-06    28.4
+ d= 0,ls=0.5,diis    10   -506.3959042725 -2.00D-05  2.48D-05  8.97D-06    28.0
                                                      2.25D-05  5.63D-06
- d= 0,ls=0.5,diis    11   -506.3959088034 -4.53D-06  1.42D-05  1.20D-06    31.1
+ d= 0,ls=0.5,diis    11   -506.3959088034 -4.53D-06  1.42D-05  1.20D-06    30.7
                                                      1.34D-05  8.66D-07
- d= 0,ls=0.5,diis    12   -506.3959099982 -1.19D-06  7.91D-06  1.65D-07    34.0
+ d= 0,ls=0.5,diis    12   -506.3959099985 -1.20D-06  7.91D-06  1.65D-07    33.4
                                                      9.18D-06  3.02D-07
- d= 0,ls=0.5,diis    13   -506.3959104548 -4.57D-07  5.61D-06  7.03D-08    36.8
+ d= 0,ls=0.5,diis    13   -506.3959104548 -4.56D-07  5.61D-06  7.03D-08    36.2
                                                      6.35D-06  1.16D-07
- d= 0,ls=0.5,diis    14   -506.3959106610 -2.06D-07  4.02D-06  3.74D-08    39.6
+ d= 0,ls=0.5,diis    14   -506.3959106608 -2.06D-07  4.02D-06  3.74D-08    38.9
                                                      4.50D-06  5.74D-08
- d= 0,ls=0.5,diis    15   -506.3959107601 -9.91D-08  2.94D-06  1.49D-08    42.4
+ d= 0,ls=0.5,diis    15   -506.3959107602 -9.94D-08  2.94D-06  1.49D-08    41.6
                                                      3.16D-06  2.66D-08
 
 
-         Total DFT energy =     -506.395910807001
-      One electron energy =    -1379.594121715188
-           Coulomb energy =      596.649979040526
-    Exchange-Corr. energy =      -58.421667906092
+         Total DFT energy =     -506.395910806884
+      One electron energy =    -1379.594121762883
+           Coulomb energy =      596.649979090532
+    Exchange-Corr. energy =      -58.421667908286
  Nuclear repulsion energy =      334.969899773753
 
- Numeric. integr. density =       57.000003177372
+ Numeric. integr. density =       57.000003177220
 
-     Total iterative time =     44.4s
+     Total iterative time =     43.6s
 
 
 
@@ -939,8 +939,8 @@ task dft gw
      2   1 1 0      3.938075     -1.993515     -2.915846      8.847437
      2   1 0 1     -0.001240     -0.004542     -0.001982      0.005284
      2   0 2 0    -34.807922   -164.883016   -159.987459    290.062553
-     2   0 1 1     -0.000720     -0.001498     -0.010542      0.011320
-     2   0 0 2    -31.185337    -54.764810    -52.833925     76.413398
+     2   0 1 1     -0.000720     -0.001497     -0.010542      0.011320
+     2   0 0 2    -31.185337    -54.764809    -52.833925     76.413398
 
   
                       ***********************
@@ -986,7 +986,7 @@ task dft gw
 @GW        31         10.467           0.000
 @GW        32         13.044           0.000
 @GW        33         14.274           0.000
-@GW        34         14.947           0.000
+@GW        34         14.520           0.001
 
                    Beta Orbitals
           State     Energy (eV)     Error (eV)
@@ -1007,15 +1007,15 @@ task dft gw
    Init.   :          0.1s
      ERIs  :          1.3s
      Distr.:          0.0s
-     Vxc   :          2.0s
+     Vxc   :          1.9s
    Vmo     :          0.0s
-   iW      :          5.5s
+   iW      :          5.3s
    I_n     :          0.0s
-   R_n     :          4.9s
-   GW total:         13.9s
+   R_n     :          5.4s
+   GW total:         14.0s
 
 
- Task  times  cpu:       58.9s     wall:       59.1s
+ Task  times  cpu:       58.3s     wall:       58.5s
 
 
                                 NWChem Input Module
@@ -1126,7 +1126,7 @@ task dft gw
 
 GW Trifluoroacetamide
 
-   Time after variat. SCF:     59.2
+   Time after variat. SCF:     58.6
 
       3 Center 2 Electron Integral Information
       ----------------------------------------
@@ -1140,18 +1140,18 @@ GW Trifluoroacetamide
                               no. integral batches is:            1000
 
           Incore memory use for 3-center 2e- integrals is turned off. 
-   Time prior to 1st pass:     59.2
+   Time prior to 1st pass:     58.6
 
 
-         Total DFT energy =     -506.395910806375
-      One electron energy =    -1379.594121715189
-           Coulomb energy =      596.649979040527
-    Exchange-Corr. energy =      -58.421667905467
+         Total DFT energy =     -506.395910806982
+      One electron energy =    -1379.594121762883
+           Coulomb energy =      596.649979090531
+    Exchange-Corr. energy =      -58.421667908384
  Nuclear repulsion energy =      334.969899773753
 
- Numeric. integr. density =       57.000003177328
+ Numeric. integr. density =       57.000003177372
 
-     Total iterative time =      2.9s
+     Total iterative time =      2.7s
 
 
 
@@ -1244,8 +1244,8 @@ GW Trifluoroacetamide
      2   1 1 0      3.938075     -1.993515     -2.915846      8.847437
      2   1 0 1     -0.001240     -0.004542     -0.001982      0.005284
      2   0 2 0    -34.807922   -164.883016   -159.987459    290.062553
-     2   0 1 1     -0.000720     -0.001498     -0.010542      0.011320
-     2   0 0 2    -31.185337    -54.764810    -52.833925     76.413398
+     2   0 1 1     -0.000720     -0.001497     -0.010542      0.011320
+     2   0 0 2    -31.185337    -54.764809    -52.833925     76.413398
 
   
                       ***********************
@@ -1310,17 +1310,17 @@ GW Trifluoroacetamide
      GW Timing Statistics
    ------------------------
    Init.   :          0.1s
-     ERIs  :          0.7s
+     ERIs  :          1.3s
      Distr.:          0.0s
-     Vxc   :          2.0s
+     Vxc   :          1.9s
    Sigma_x :          0.0s
-   RPA     :         16.7s
+   RPA     :         16.1s
    Wmn     :          0.3s
    Sigma_c :          0.1s
    GW total:         19.9s
 
 
- Task  times  cpu:       22.6s     wall:       22.9s
+ Task  times  cpu:       22.5s     wall:       22.8s
 
 
                                 NWChem Input Module
@@ -1342,7 +1342,7 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	        28	        58
 	current total bytes		         0	         0
-	maximum total bytes		  33477384	 330033336
+	maximum total bytes		  33477368	 330033352
 	maximum total K-bytes		     33478	    330034
 	maximum total M-bytes		        34	       331
 
@@ -1400,4 +1400,4 @@ MA usage statistics:
       T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
 
- Total times  cpu:       81.6s     wall:       82.0s
+ Total times  cpu:       80.8s     wall:       81.3s

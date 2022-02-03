@@ -116,7 +116,7 @@ C     (U * sigma^-1)
       do i=ll,ul
         call dscal(n,dbl_mb(iev+i-1),dbl_mb(idx+(i-ll)*n),1)
       enddo
-      call ga_release(g_tmp,1,n,ll,ul)
+      call ga_release_update(g_tmp,1,n,ll,ul)
 
       if (.not.ga_create(mt_dbl, n, n, 'ga_temp3', n, 0, g_tmp3))
      $  call errquit('gw_invdiag: error creating ga_temp2',0,GA_ERR)

@@ -439,9 +439,9 @@ c     *****************************************************************
         int_mb(kmap+iproc) = llpair
       enddo
 
-      if (.not.ga_create(mt_dbl,nri,npairs,erilabel,nri,0,eri))
-c      if (.not.ga_create_irreg(mt_dbl,nri,npairs,erilabel,1,1,
-c     $   int_mb(kmap),min(npairs,nprocs),eri))
+c      if (.not.ga_create(mt_dbl,nri,npairs,erilabel,nri,0,eri))
+      if (.not.ga_create_irreg(mt_dbl,nri,npairs,erilabel,1,1,
+     $   int_mb(kmap),min(npairs,nprocs),eri))
      $  call errquit(pname//'can''t create '//blk//' block',0,GA_ERR)
       if (.not.ma_push_get(mt_int,2*npairs,idxlabel,l_tmp,k_tmp))
      $  call errquit(pname//'can''t create '//blk//' index',0,MA_ERR)
