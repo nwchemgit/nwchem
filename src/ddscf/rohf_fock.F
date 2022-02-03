@@ -149,8 +149,13 @@ c     One-electron integrals and energies
 c     
       call ga_zero(g_hcore)
       call int_1e_ga(basis, basis, g_hcore, 'kinetic', oskel) ! kinetic
+      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $     call errquit('rohf_fock: theory not specified',555,
+     &     INPUT_ERR)
       if (do_zora .and. .not. (do_NonRel)) then
          if (theory(1:inp_strlen(theory)).ne.'dft') then
+            if (ga_nodeid().eq.0) write(luout,*)' theory is ',
+     T           theory(1:inp_strlen(theory)),'!'
             call errquit('ZORA available only for DFT ',0,CAPMIS_ERR)
          endif
         call ga_dadd(1.d0,g_hcore,1.d0,g_zora_Kinetic(1),g_hcore) ! zora kinetic
