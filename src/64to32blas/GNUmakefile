@@ -10,9 +10,9 @@
                  ypotri.o ypotrf.o ysygv.o ygeev.o ygeevx.o \
                  ifily.o\
                  jscal.o jaxpy.o jgemm.o jheev.o jcopy.o jdotc.o \
-                 ijamax.o jgesvd.o \
+                 ijamax.o jgesvd.o jgeev.o jgetrs.o jgetrf.o \
                  ysfrk.o ysysv.o ysytrf.o ysytrs.o ysymm.o ysymv.o \
-                 ysyr2k.o ytrmm.o ytrtri.o
+                 ysyr2k.o ytrmm.o ytrtri.o 
 
         ifndef BLAS_SIZE
 	LIB_DEFINES += -DUSE_INTEGER8
