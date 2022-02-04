@@ -7,7 +7,7 @@
       character          uplo
       integer            info, lda, lwork, n
       integer            ipiv( * )
-      double complex   a( lda, * ), b( ldb, * ), work( * )
+      double complex   a( lda, * ), work( * )
 c
       INTGR4 n4,lda4,lwork4,info4
 c
