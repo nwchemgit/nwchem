@@ -6,7 +6,7 @@
 #include "y64.fh"
       character            uplo, trans
       integer              lda, ldc, n, k
-      double precision     alpha, beta, a( lda, * ), c( ldb, * )
+      double precision     alpha, beta, a( lda, * ), c( ldc, * )
 c
       INTGR4 n4, k4, lda4, ldc4
 c
