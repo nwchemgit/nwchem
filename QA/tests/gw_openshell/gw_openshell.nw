@@ -5,12 +5,8 @@ echo
 memory 2000 mb
 
 geometry
-F  -1.0459    -1.2746    -0.0047
-F  -1.1324     0.6060     1.0928
-F  -1.1342     0.6142    -1.0878
 O   1.5154     1.1380    -0.0012
 N   1.4926    -1.1655    -0.0010
-C  -0.5961     0.0059    -0.0002
 C   0.9005     0.0760     0.0021
 H   2.5025    -1.2628    -0.0022
 H   0.9511    -2.0241    -0.0008
@@ -24,7 +20,6 @@ basis "cd basis" spherical
  * library cc-pvdz-rifit
 end
 
-charge -1.0
 
 dft
  odft
@@ -32,15 +27,15 @@ dft
  xc pbe96
  direct
  grid fine nodisk
- tolerances accCoul 12
- convergence energy 1d-7
+ tolerances accCoul 14
+ convergence energy 1d-8
  noprint "final vectors analysis"
 end
 
 gw
- eta 0.003
+ eta 0.001
  method cdgw
- solver newton 15
+ solver newton 20
  states alpha occ 5 vir 5
  states beta occ 5 vir 5
  convergence 0.001 ev
@@ -53,8 +48,8 @@ dft
 end
 
 gw
- eta 0.003
- solver newton 15
+ eta 0.001
+ solver newton 20
  states alpha occ 5 vir 5
  states beta occ 5 vir 5
  convergence 0.001 ev
