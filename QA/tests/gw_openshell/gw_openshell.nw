@@ -38,7 +38,7 @@ dft
 end
 
 gw
- eta 0.001
+ eta 0.003
  method cdgw
  solver newton 15
  states alpha occ 5 vir 5
@@ -53,7 +53,7 @@ dft
 end
 
 gw
- eta 0.001
+ eta 0.003
  solver newton 15
  states alpha occ 5 vir 5
  states beta occ 5 vir 5

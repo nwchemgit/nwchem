@@ -106,12 +106,13 @@
       else
 
         npoles = pars%npoles(1) + pars%npoles(2)
+        omega(1:npoles) = 0d0
 
         if (.not.ga_create(mt_dbl,npoles,npoles,'rpa',0,npoles,g_rpa))
      $    call errquit(pname//'can''t create RPA GA',0,GA_ERR)
-        if (.not.nga_create(mt_dbl,1,pars%npoles(1),'RPA diag',0,
+        if (.not.nga_create(mt_dbl,1,pars%npoles(1),'RPA diag 1',0,
      $       g_diag1))
-     $    call errquit(pname//'can''t create RPA diag',0,GA_ERR)
+     $    call errquit(pname//'can''t create RPA diag 1',0,GA_ERR)
         if (.not.nga_create(mt_dbl,1,pars%npoles(2),'RPA diag 2',0,
      $       g_diag2))
      $    call errquit(pname//'can''t create RPA diag 2',0,GA_ERR)
@@ -180,6 +181,7 @@ c       Form open-shell RPA matrix
      $                        g_rpa,pars%npoles(1)+1,npoles,
      $                              pars%npoles(1)+1,npoles)
         call ga_add_diagonal(g_rpa,g_diag)
+        call ga_sync()
 
 c       ECRPA pending
 c       pars%ecrpa =      
@@ -195,6 +197,7 @@ c       Diagonalize RPA matrix
         call ga_diag_std_seq(g_rpa,g_rpa,omega)
 #endif
 
+        ok = ma_verify_allocator_stuff()
 
 !$omp   parallel do
         do ipole=1,npoles
@@ -209,7 +212,7 @@ c       Create transformed ERI array
           
 c       Gather neutral excitations vector
         call nga_distribution(g_diag,pars%me,lo,hi)
-        if (hi.gt.lo) then
+        if (hi.ge.lo) then
           call nga_put(g_diag,lo,hi,1d0/dsqrt(omega(lo:hi)),hi-lo+1)
         endif
         call ga_sync()

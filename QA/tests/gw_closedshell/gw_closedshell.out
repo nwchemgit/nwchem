@@ -123,13 +123,13 @@ task dft gw
 
     hostname        = dmejiar-VirtualBox
     program         = nwchem
-    date            = Thu Feb  3 13:09:05 2022
+    date            = Fri Feb  4 04:13:35 2022
 
-    compiled        = Thu_Feb_03_13:04:11_2022
+    compiled        = Fri_Feb_04_04:04:58_2022
     source          = /home/dmejiar/Software/nwchem_gfortran_gw
     nwchem branch   = 7.0.0
-    nwchem revision = nwchem_on_git-3481-g697f3026d1
-    ga revision     = 5.8.0
+    nwchem revision = nwchem_on_git-3497-g0c7e480c37
+    ga revision     = 5.8.1
     use scalapack   = T
     input           = gw_closedshell.nw
     prefix          = gw_closedshell.
@@ -143,10 +143,10 @@ task dft gw
            Memory information
            ------------------
 
-    heap     =   65535998 doubles =    500.0 Mbytes
-    stack    =   65535995 doubles =    500.0 Mbytes
+    heap     =   65536000 doubles =    500.0 Mbytes
+    stack    =   65535997 doubles =    500.0 Mbytes
     global   =  131072000 doubles =   1000.0 Mbytes (distinct from heap & stack)
-    total    =  262143993 doubles =   2000.0 Mbytes
+    total    =  262143997 doubles =   2000.0 Mbytes
     verify   = yes
     hardfail = no 
 
@@ -796,12 +796,12 @@ task dft gw
  HOMO         =      -0.354463
  LUMO         =       0.023799
 
-   Time after variat. SCF:      0.8
+   Time after variat. SCF:      1.2
 
       3 Center 2 Electron Integral Information
       ----------------------------------------
           Maximum number of 3-center 2e- integrals is:         4898880.
-            This is reduced with Schwarz screening to:         2717820.
+            This is reduced with Schwarz screening to:         3084900.
             Incore requires a per proc buffer size of:         1377181.
           Minimum dble words available (all nodes) is:       131060988
                    This is reduced (for later use) to:       130785792
@@ -810,34 +810,34 @@ task dft gw
                               no. integral batches is:            1000
 
           Incore memory use for 3-center 2e- integrals is turned off. 
-   Time prior to 1st pass:      0.8
+   Time prior to 1st pass:      1.2
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       65.53            65525790
-          Stack Space remaining (MW):       65.54            65535148
+           Heap Space remaining (MW):       65.53            65525792
+          Stack Space remaining (MW):       65.54            65535156
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1   -506.2138586259 -8.41D+02  1.85D-02  2.46D+00     3.4
- d= 0,ls=0.0,diis     2   -505.9428729878  2.71D-01  1.15D-02  5.90D+00     6.1
- d= 0,ls=0.0,diis     3   -506.4729357370 -5.30D-01  2.21D-03  1.04D-01     8.7
- d= 0,ls=0.0,diis     4   -506.4807116866 -7.78D-03  8.40D-04  2.68D-02    11.4
- d= 0,ls=0.0,diis     5   -506.4832631824 -2.55D-03  1.26D-04  5.68D-04    15.0
+ d= 0,ls=0.0,diis     1   -506.2138586363 -8.41D+02  1.85D-02  2.46D+00     5.4
+ d= 0,ls=0.0,diis     2   -505.9428729180  2.71D-01  1.15D-02  5.90D+00     9.7
+ d= 0,ls=0.0,diis     3   -506.4729357426 -5.30D-01  2.21D-03  1.04D-01    13.9
+ d= 0,ls=0.0,diis     4   -506.4807116964 -7.78D-03  8.40D-04  2.68D-02    18.1
+ d= 0,ls=0.0,diis     5   -506.4832631842 -2.55D-03  1.27D-04  5.68D-04    23.8
   Resetting Diis
- d= 0,ls=0.0,diis     6   -506.4833170169 -5.38D-05  4.21D-05  2.12D-05    18.7
- d= 0,ls=0.0,diis     7   -506.4833201150 -3.10D-06  2.25D-05  3.93D-06    22.3
- d= 0,ls=0.0,diis     8   -506.4833202120 -9.70D-08  9.51D-06  4.40D-06    25.9
+ d= 0,ls=0.0,diis     6   -506.4833170187 -5.38D-05  4.21D-05  2.12D-05    29.7
+ d= 0,ls=0.0,diis     7   -506.4833201162 -3.10D-06  2.25D-05  3.93D-06    36.1
+ d= 0,ls=0.0,diis     8   -506.4833202140 -9.77D-08  9.51D-06  4.40D-06    42.1
 
 
-         Total DFT energy =     -506.483320211978
-      One electron energy =    -1365.175909562814
-           Coulomb energy =      581.765579705556
-    Exchange-Corr. energy =      -58.042890128474
+         Total DFT energy =     -506.483320213950
+      One electron energy =    -1365.175909550851
+           Coulomb energy =      581.765579688889
+    Exchange-Corr. energy =      -58.042890125742
  Nuclear repulsion energy =      334.969899773753
 
- Numeric. integr. density =       56.000003716923
+ Numeric. integr. density =       56.000003719920
 
-     Total iterative time =     25.1s
+     Total iterative time =     40.9s
 
 
 
@@ -915,17 +915,17 @@ task dft gw
      GW Timing Statistics
    ------------------------
    Init.   :          0.1s
-     ERIs  :          0.6s
+     ERIs  :          0.7s
      Distr.:          0.0s
-     Vxc   :          2.8s
+     Vxc   :          4.9s
    Vmo     :          0.0s
-   iW      :          2.5s
+   iW      :          2.8s
    I_n     :          0.0s
-   R_n     :          1.0s
-   GW total:          7.0s
+   R_n     :          1.1s
+   GW total:          9.6s
 
 
- Task  times  cpu:       32.8s     wall:       32.9s
+ Task  times  cpu:       51.4s     wall:       51.6s
 
 
                                 NWChem Input Module
@@ -1036,12 +1036,12 @@ task dft gw
 
 GW Trifluoroacetamide
 
-   Time after variat. SCF:     33.1
+   Time after variat. SCF:     51.9
 
       3 Center 2 Electron Integral Information
       ----------------------------------------
           Maximum number of 3-center 2e- integrals is:         4898880.
-            This is reduced with Schwarz screening to:         2717820.
+            This is reduced with Schwarz screening to:         3084900.
             Incore requires a per proc buffer size of:         1377181.
           Minimum dble words available (all nodes) is:       131060988
                    This is reduced (for later use) to:       130586152
@@ -1050,18 +1050,18 @@ GW Trifluoroacetamide
                               no. integral batches is:            1000
 
           Incore memory use for 3-center 2e- integrals is turned off. 
-   Time prior to 1st pass:     33.1
+   Time prior to 1st pass:     51.9
 
 
-         Total DFT energy =     -506.483320616857
-      One electron energy =    -1365.176616641329
-           Coulomb energy =      581.766179270772
-    Exchange-Corr. energy =      -58.042783020052
+         Total DFT energy =     -506.483320618786
+      One electron energy =    -1365.176616645610
+           Coulomb energy =      581.766179275143
+    Exchange-Corr. energy =      -58.042783022072
  Nuclear repulsion energy =      334.969899773753
 
- Numeric. integr. density =       56.000003717324
+ Numeric. integr. density =       56.000003720190
 
-     Total iterative time =      3.6s
+     Total iterative time =      5.9s
 
 
 
@@ -1136,17 +1136,17 @@ GW Trifluoroacetamide
      GW Timing Statistics
    ------------------------
    Init.   :          0.1s
-     ERIs  :          1.2s
+     ERIs  :          0.8s
      Distr.:          0.0s
-     Vxc   :          2.8s
+     Vxc   :          4.9s
    Vmo     :          0.0s
-   iW      :          1.4s
+   iW      :          1.6s
    I_n     :          0.0s
    R_n     :          0.6s
-   GW total:          6.2s
+   GW total:          8.0s
 
 
- Task  times  cpu:       10.0s     wall:       10.0s
+ Task  times  cpu:       14.1s     wall:       14.1s
 
 
                                 NWChem Input Module
@@ -1257,12 +1257,12 @@ GW Trifluoroacetamide
 
 GW Trifluoroacetamide
 
-   Time after variat. SCF:     43.1
+   Time after variat. SCF:     66.0
 
       3 Center 2 Electron Integral Information
       ----------------------------------------
           Maximum number of 3-center 2e- integrals is:         4898880.
-            This is reduced with Schwarz screening to:         2717820.
+            This is reduced with Schwarz screening to:         3084900.
             Incore requires a per proc buffer size of:         1377181.
           Minimum dble words available (all nodes) is:       131060988
                    This is reduced (for later use) to:       130586152
@@ -1271,18 +1271,18 @@ GW Trifluoroacetamide
                               no. integral batches is:            1000
 
           Incore memory use for 3-center 2e- integrals is turned off. 
-   Time prior to 1st pass:     43.1
+   Time prior to 1st pass:     66.0
 
 
-         Total DFT energy =     -506.483320617543
-      One electron energy =    -1365.176616641330
-           Coulomb energy =      581.766179270772
-    Exchange-Corr. energy =      -58.042783020738
+         Total DFT energy =     -506.483320619392
+      One electron energy =    -1365.176616645610
+           Coulomb energy =      581.766179275142
+    Exchange-Corr. energy =      -58.042783022677
  Nuclear repulsion energy =      334.969899773753
 
- Numeric. integr. density =       56.000003719124
+ Numeric. integr. density =       56.000003721840
 
-     Total iterative time =      3.6s
+     Total iterative time =      5.9s
 
 
 
@@ -1360,17 +1360,17 @@ GW Trifluoroacetamide
      GW Timing Statistics
    ------------------------
    Init.   :          0.1s
-     ERIs  :          1.1s
+     ERIs  :          0.7s
      Distr.:          0.0s
-     Vxc   :          2.8s
+     Vxc   :          4.7s
    Sigma_x :          0.0s
-   RPA     :          2.4s
+   RPA     :          2.6s
    Wmn     :          0.1s
    Sigma_c :          0.0s
-   GW total:          6.6s
+   GW total:          8.4s
 
 
- Task  times  cpu:       10.3s     wall:       10.4s
+ Task  times  cpu:       14.3s     wall:       14.4s
 
 
                                 NWChem Input Module
@@ -1392,7 +1392,7 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	        28	        56
 	current total bytes		         0	         0
-	maximum total bytes		  25980296	  80584248
+	maximum total bytes		  25980280	  80584200
 	maximum total K-bytes		     25981	     80585
 	maximum total M-bytes		        26	        81
 
@@ -1450,4 +1450,4 @@ MA usage statistics:
       T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
 
- Total times  cpu:       53.1s     wall:       53.3s
+ Total times  cpu:       79.8s     wall:       80.2s
