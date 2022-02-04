@@ -31,7 +31,7 @@ fi
 
 for file in "$@"
 do
-
+if [ -f "$file" ]; then
    echo converting "$file" to 32-bit integers for BLAS/LAPACK
       ($perlexe $perlscript $file) &	
 
@@ -40,7 +40,7 @@ do
      wait
      let njob=0
    fi
-
+fi
 done
 
 if [ $njob -gt  0 ] ; then
