@@ -269,7 +269,8 @@ endif
 	$(CNFDIR)/dbl_to_sngl $(USES_BLAS)
 
 64_to_32:
-	$(CNFDIR)/64_to_32 $(USES_BLAS)
+	$(CNFDIR)/64_to_32 *.F *.f *.c *.f90
+#	$(CNFDIR)/64_to_32 $(USES_BLAS)
 ifdef SUBDIRS
 	$(MAKESUBDIRS)
 endif
