@@ -88,7 +88,7 @@ foreach $file (@ARGV){
     open(FILETOFIX,$filebak) || die "Could not open file: $filebak\n";
     open(FIXEDFILE,$file) || die "Could not open file: $file\n";
     while (<FILETOFIX>) {
-	if ( /^c/ || /^C/ || /^\*/ || /^\#/ || /^$/){
+	if ( /^c/ || /^C/ || /^\*/ || /^$/){
 	    print FIXEDFILE $_;
 	}
 	else	{

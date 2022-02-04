@@ -71,6 +71,7 @@ ztrmv      jtrmv
 ztrsm      jtrsm         
 ztrsv      jtrsv            
 zlacp2     jlacp2
+zsyrk      jsyrk
 # lapack transliterations
 dbdsqr    ybdsqr    
 dgebd2    ygebd2    
@@ -217,6 +218,8 @@ zung2r    jung2r
 zungql    jungql   
 zungqr    jungqr   
 zungtr    jungtr   
+zsysv     jsysv
+zsytrf    jsytrf
 izamax    ijamax
 #underline for peigs
 dasum_     yasum_

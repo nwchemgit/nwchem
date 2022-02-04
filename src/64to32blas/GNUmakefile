@@ -13,7 +13,8 @@
                  jscal.o jaxpy.o jgemm.o jheev.o jcopy.o jdotc.o \
                  ijamax.o jgesvd.o \
                  ysfrk.o ysysv.o ysytrf.o ysytrs.o ysymm.o ysymv.o \
-                 ysyr2k.o ytrmm.o ytrtri.o jlacp2.o
+                 ysyr2k.o ytrmm.o ytrtri.o jlacp2.o \
+		 ysyrk.o jsyrk.o jsysv.o jsytrf.o
 
         ifndef BLAS_SIZE
 	LIB_DEFINES += -DUSE_INTEGER8

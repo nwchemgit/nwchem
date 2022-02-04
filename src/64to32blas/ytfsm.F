@@ -1,4 +1,4 @@
-      subroutine ytfsm( transr, side, uplo, trans, m, n, alpha, a,
+      subroutine ytfsm( transr, side, uplo, trans, diag, m, n, alpha, a,
      $                  b, ldb )
 *
 * $Id$

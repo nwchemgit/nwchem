@@ -128,7 +128,7 @@ c            call dscal(nri,1d0/factor(ipole,1),ovup(1,ipole),1)
           call dsyr2k('l','n',nri,mymax,scal,ovup,nri,dbl_mb(k_scr),
      $                 nri,0d0,pi,nri)     
         elseif (dorfp) then
-          call dsfr2k_(ovup,dbl_mb(k_scr),pi,nri,mymax,scal,0d0)
+          call dsfr2k_dmr(ovup,dbl_mb(k_scr),pi,nri,mymax,scal,0d0)
         else
           call dgemm('n','t',nri,nri,mymax,2d0*scal,ovup,nri,
      $                dbl_mb(k_scr),nri,0d0,pi,nri)     
@@ -153,8 +153,8 @@ c            call dscal(nri,1d0/factor(ipole,1),ovup(1,ipole),1)
             call dsyr2k('l','n',nri,mynpoles,scal,ovup(1,llpole),nri,
      $                   dbl_mb(k_scr),nri,1d0,pi,nri)     
           elseif (dorfp) then
-            call dsfr2k_(ovup(1,llpole),dbl_mb(k_scr),pi,nri,mynpoles,
-     $                  scal,1d0)
+            call dsfr2k_dmr(ovup(1,llpole),dbl_mb(k_scr),pi,nri,
+     $                      mynpoles,scal,1d0)
           else
             call dgemm('n','t',nri,nri,mynpoles,2d0*scal,ovup(1,llpole),
      $                  nri,dbl_mb(k_scr),nri,1d0,pi,nri)
@@ -183,7 +183,7 @@ c            call dscal(nri,1d0/factor(ipole,1),ovup(1,ipole),1)
             call dsyr2k('l','n',nri,mymax,scal,ovdw,nri,dbl_mb(k_scr),
      $                   nri,1d0,pi,nri)
           elseif (dorfp) then
-            call dsfr2k_(ovdw,dbl_mb(k_scr),pi,nri,mymax,scal,1d0)
+            call dsfr2k_dmr(ovdw,dbl_mb(k_scr),pi,nri,mymax,scal,1d0)
           else
             call dgemm('n','t',nri,nri,mymax,2d0*scal,ovdw,nri,
      $                  dbl_mb(k_scr),nri,1d0,pi,nri)
@@ -207,8 +207,8 @@ c            call dscal(nri,1d0/factor(ipole,1),ovup(1,ipole),1)
               call dsyr2k('l','n',nri,mynpoles,scal,ovdw(1,llpole),nri,
      $                     dbl_mb(k_scr),nri,1d0,pi,nri)     
             elseif (dorfp) then
-              call dsfr2k_(ovdw(1,llpole),dbl_mb(k_scr),pi,nri,mynpoles,
-     $                    scal,1d0)
+              call dsfr2k_dmr(ovdw(1,llpole),dbl_mb(k_scr),pi,nri,
+     $                        mynpoles,scal,1d0)
             else
               call dgemm('n','t',nri,nri,mynpoles,2d0*scal,
      $                    ovdw(1,llpole),nri,dbl_mb(k_scr),nri,1d0,
@@ -334,7 +334,7 @@ c            call dscal(nri,1d0/factor(ipole,1),ovup(1,ipole),1)
 
       end subroutine
 
-      subroutine dsfr2k_(a,b,c,m,n,alpha,beta)
+      subroutine dsfr2k_dmr(a,b,c,m,n,alpha,beta)
       implicit none
       integer m,n
       double precision,intent(in) :: a(m,n),b(m,n),alpha,beta
