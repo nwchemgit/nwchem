@@ -96,6 +96,7 @@ variables:
     - export NWCHEM_TOP=$CI_PROJECT_DIR
     - source /opt/intel/oneapi/setvars.sh
     - export NWCHEM_EXECUTABLE=${NWCHEM_TOP}/../binaries/nwchem_ifx
+    - export PYTHONVERSON=3.8
     - export FC=ifx
 
 .flang_template: &flang_sourcing
