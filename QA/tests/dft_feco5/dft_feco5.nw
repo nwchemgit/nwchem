@@ -30,6 +30,7 @@ basis "cd basis"
 end
 
 dft
+convergence energy 1d-9
 end
 title  "case t19 --- Default DFT (energy)"
 task dft energy
