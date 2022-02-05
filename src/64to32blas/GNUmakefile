@@ -26,3 +26,5 @@
 include ../config/makefile.h
 include ../config/makelib.h
 
+sngl_to_dbl dbl_to_sngl 64_to_32 32_to_64:
+	@echo No blas conversion done here
