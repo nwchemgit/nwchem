@@ -19,6 +19,6 @@ fi
      make nwchem_config
 if [[ ! -z "$USE_64TO32"  ]]; then
      echo " CONVERSION 64_to_32"
-          make 64_to_32
+          make 64_to_32 CONVERT_ALL=y
 fi
 env

@@ -253,7 +253,14 @@ ifdef SUBDIRS
 endif
 	touch include_stamp
 endif
-
+ifdef CONVERT_ALL
+64_to_32:
+	$(CNFDIR)/64_to_32 *.F *.f *.c *.f90
+ifdef SUBDIRS
+	$(MAKESUBDIRS)
+endif
+	@/bin/rm -f dependencies
+else
 ifdef USES_BLAS
 .PHONY:	sngl_to_dbl dbl_to_sngl 64_to_32 32_to_64
 sngl_to_dbl:
@@ -269,8 +276,7 @@ endif
 	$(CNFDIR)/dbl_to_sngl $(USES_BLAS)
 
 64_to_32:
-	$(CNFDIR)/64_to_32 *.F *.f *.c *.f90
-#	$(CNFDIR)/64_to_32 $(USES_BLAS)
+	$(CNFDIR)/64_to_32 $(USES_BLAS)
 ifdef SUBDIRS
 	$(MAKESUBDIRS)
 endif
@@ -291,6 +297,7 @@ ifdef SUBDIRS
 endif
 	@/bin/rm -f dependencies
 	@echo $@ : no conversion necessary
+endif
 endif
 
 .PHONY:	clean
