@@ -126,8 +126,6 @@ dlabrd_   ylabrd_
 dlacon_   ylacon_   
 dlacpy_   ylacpy_   
 dladiv_   yladiv_
-dlae2_    ylae2_
-dlaev2_   ylaev2_   
 dlagtf_   ylagtf_   
 dlagts_   ylagts_   
 dlange_   ylange_   
@@ -140,7 +138,6 @@ dlarfg_   ylarfg_
 dlarft_   ylarft_   
 dlarnv_   ylarnv_   
 dlaruv_   ylaruv_   
-dlas2_    ylas2_   
 dlascl_   ylascl_   
 dlaset_   ylaset_   
 dlasr_    ylasr_   
@@ -381,11 +378,9 @@ dlaed8    ylaed8
 dlaed9    ylaed9
 dlaeda    ylaeda
 dlaein    ylaein
-dlaev2    ylaev2
 dlaexc    ylaexc
 dlag2s    ylag2s
 dlag2     ylag2
-dlags2    ylags2
 dlagtf    ylagtf
 dlagtm    ylagtm
 dlagts    ylagts
@@ -850,10 +845,7 @@ zlaed0    jlaed0
 zlaed7    jlaed7
 zlaed8    jlaed8
 zlaein    jlaein
-zlaesy    jlaesy
-zlaev2    jlaev2
 zlag2c    jlag2c
-zlags2    jlags2
 zlagtm    jlagtm
 zlahef    jlahef
 zlahqr    jlahqr
