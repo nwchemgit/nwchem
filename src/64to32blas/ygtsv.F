@@ -1,4 +1,4 @@
-      SUBROUTINE YGSTV( N, NRHS, DL, D, DU, B, LDB, INFO )
+      SUBROUTINE YGTSV( N, NRHS, DL, D, DU, B, LDB, INFO )
 *
 * $Id$
 *     .. Scalar Arguments ..
