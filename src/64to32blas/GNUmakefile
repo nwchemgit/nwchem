@@ -8,7 +8,7 @@
                  ylange.o ytrevc.o yhseqr.o yorghr.o ygehrd.o\
                  ysterf.o ylarnv.o ylagtf.o ylagts.o yasum.o \
                  ypotri.o ypotrf.o ysygv.o ygeev.o ygeevx.o \
-                 ygels.o ygelss.o \
+                 ygels.o ygelss.o ygtsv.o\
                  ifily.o\
                  jscal.o jaxpy.o jgemm.o jheev.o jcopy.o jdotc.o \
                  ijamax.o jgesvd.o jgeev.o jgetrs.o jgetrf.o \
