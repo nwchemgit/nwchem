@@ -76,6 +76,7 @@ env|egrep MP
         ;;
     MPI-PT)
         do_largeqas=0
+        export COMEX_MAX_NB_OUTSTANDING=16
         ;;
     MPI3)
         case "$os" in
@@ -116,6 +117,7 @@ fi
 	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs cosmo_h2o_dft
 	 fi
 	 cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs ritddft_h2o ritddft_co
+         cd $TRAVIS_BUILD_DIR/QA && NWCHEM_BASIS_LIBRARY=${NWCHEM_TOP}/src/basis/libraries.bse/ ./runtests.mpi.unix procs $nprocs gw_closedshell gw_openshell
      else
 	 echo ' dft_input stubbed'
      fi

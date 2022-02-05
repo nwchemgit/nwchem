@@ -9,12 +9,14 @@
                  ysterf.o ylarnv.o ylagtf.o ylagts.o yasum.o \
                  ypotri.o ypotrf.o ysygv.o ygeev.o ygeevx.o \
                  ygels.o ygelss.o ygtsv.o\
+                 ypftrf.o ypftri.o ytfsm.o \
                  ifily.o\
                  jscal.o jaxpy.o jgemm.o jheev.o jcopy.o jdotc.o \
                  ijamax.o jgesvd.o jgeev.o jgetrs.o jgetrf.o \
                  jlacpy.o \
                  ysfrk.o ysysv.o ysytrf.o ysytrs.o ysymm.o ysymv.o \
-                 ysyr2k.o ytrmm.o ytrtri.o 
+                 ysyr2k.o ytrmm.o ytrtri.o jlacp2.o \
+		 ysyrk.o jsyrk.o jsysv.o jsytrf.o
 
         ifndef BLAS_SIZE
 	LIB_DEFINES += -DUSE_INTEGER8

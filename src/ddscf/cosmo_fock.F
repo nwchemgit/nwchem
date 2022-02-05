@@ -133,7 +133,6 @@ cold      vecl=vecl*vecl*maxg
                 endif
 
                 endif ! schwarz
-
                 iptr=iptr+nao2
               enddo            ! i shell loop
               call ga_put(g_loc,ifirstp,ilastp,jn0,jn1,

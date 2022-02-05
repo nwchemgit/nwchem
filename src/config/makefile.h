@@ -3279,6 +3279,23 @@ ifdef USE_F90_ALLOCATABLE
   DEFINES += -DUSE_F90_ALLOCATABLE
 endif
 
+ifdef GWCMPLX
+  ifdef GWEN
+    errorgw:
+$(info  GWCMPLX and GWEN are incompatible )
+$(error )
+  endif
+  DEFINES += -DGWCMPLX
+endif
+
+ifdef GWEN
+  DEFINES += -DGWEN
+endif
+
+ifdef GWDEBUG
+  DEFINES += -DGWDEBUG
+endif
+
 # lower level libs used by communication libraries 
 #case guard against case when tools have not been compiled yet
 #  ifeq ("$(wildcard ${GA_PATH}/bin/ga-config)","")

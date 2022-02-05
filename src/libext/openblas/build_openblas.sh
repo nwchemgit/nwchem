@@ -20,6 +20,7 @@ ln -sf OpenBLAS-${VERSION} OpenBLAS
 cd OpenBLAS
 # patch for apple clang -fopenmp
 patch -p0 -s -N < ../clang_omp.patch
+patch -p0 -s -N < ../icc_avx512.patch
 # patch for pgi/nvfortran missing -march=armv8
 patch -p0 -s -N < ../arm64_fopt.patch
 if [[  -z "${FORCETARGET}" ]]; then
