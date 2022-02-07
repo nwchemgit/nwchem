@@ -194,6 +194,9 @@ c           end if
          else if (minimizer.eq.9) then
            bfgscount = bfgscount + 1
            call c_cgminimizeABC(E,deltae,deltac,bfgscount,it_in)
+         else if (minimizer.eq.10) then
+           bfgscount = bfgscount + 1
+           call c_bfgsminimizeABC(E,deltae,deltac,bfgscount,minimizer)
          end if
 
          if ((dabs(deltae).gt.dabs(deltae_old)).or.
