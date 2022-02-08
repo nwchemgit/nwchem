@@ -13,7 +13,7 @@ c
 #include "msgids.fh"
 #include "stdio.fh"
 #ifdef SCALAPACK
-#include "dft_scaleig.fh"
+#include "scaleig.fh"
 #endif
 #include "gw.fh"
 c

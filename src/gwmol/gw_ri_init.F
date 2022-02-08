@@ -9,7 +9,7 @@ c
 #include "stdio.fh"
 #include "util.fh"      
 #ifdef SCALAPACK
-#include "dft_scaleig.fh"
+#include "scaleig.fh"
       integer ga_cholesky, ga_llt_i
       external ga_cholesky, ga_llt_i
 #endif

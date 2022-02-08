@@ -13,7 +13,7 @@ c
 #include "global.fh"      
 #include "gw.fh"
 #ifdef SCALAPACK
-#include "dft_scaleig.fh"
+#include "scaleig.fh"
 #endif
 c
       type(gw_params_t) :: pars
