@@ -66,20 +66,26 @@
      >                        dbl_mb(dns(1)),
      >                        dbl_mb(dnsp(1)))
       do i=1,n2ft3d
-       dbl_mb(dns(1)+i-1) = log(dn(i))
+        dbl_mb(dns(1)+i-1) = log(dn(i))
+        write(*,*) "i,dns=",i,dbl_mb(dns(1)+i-1)
       end do
+      call D3dB_r_Zero_Ends(1,dbl_mb(dns(1)))
 
 *     **** elf <-- elf + |del*rho|^2/rho ****
-      do i=1,n2ft3d
-       dbl_mb(dns(1)+i-1) = log(dn(i))
-      end do
+      !do i=1,n2ft3d
+      ! dbl_mb(dns(1)+i-1) = log(dn(i))
+      !end do
       !call D3dB_r_SMul(1,scal1,dbl_mb(dns(1)),dcpl_mb(dng(1)))
-      call D3dB_r_SMul(1,scal1,dbl_mb(int(dn(1))),dcpl_mb(dng(1)))
+      !call D3dB_r_SMul(1,scal1,dbl_mb(int(dn(1))),dcpl_mb(dng(1)))
+
+      call D3dB_r_SMul(1,scal1,dn,dcpl_mb(dng(1)))
       call D3dB_r_SMul(1,scal1,dbl_mb(dns(1)),dcpl_mb(dng2(1)))
       call D3dB_r_Zero_Ends(1,dcpl_mb(dng(1)))
       call D3dB_r_Zero_Ends(1,dcpl_mb(dng2(1)))
+
       call D3dB_rc_fft3f(1,dcpl_mb(dng(1)))
       call D3dB_rc_fft3f(1,dcpl_mb(dng2(1)))
+
       call Pack_c_pack(0,dcpl_mb(dng(1)))
       call Pack_c_pack(0,dcpl_mb(dng2(1)))
       call gradient_energy_density2(0,npack0,

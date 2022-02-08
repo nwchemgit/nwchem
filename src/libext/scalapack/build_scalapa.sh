@@ -2,6 +2,7 @@
 source ../libext_utils/cmake.sh
 
 
+if [[ -z "${MPIF90}" ]]; then
 if [[ "$FC" = "ftn"  ]] ; then
     MPIF90="ftn"
     MPICC="cc"
@@ -17,6 +18,7 @@ else
         MPICC=mpicc
     fi
 fi
+fi
 if [[  -z "${FC}" ]]; then
     FC=$($MPIF90 -show|cut -d " " -f 1)
 fi
@@ -24,6 +26,9 @@ if [[  -z "${NWCHEM_TOP}" ]]; then
     dir3=$(dirname `pwd`)
     dir2=$(dirname "$dir3")
     NWCHEM_TOP=$(dirname "$dir2")
+fi
+if [[ ! -z "${BUILD_MPICH}" ]]; then
+      export PATH=${NWCHEM_TOP}/src/libext/bin:$PATH
 fi
 if [[ "$FC" = "ftn"  ]] || [[ ! -z "$USE_CMAKE_MASTER" ]] ; then
     get_cmake_master
