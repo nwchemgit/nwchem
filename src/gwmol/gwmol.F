@@ -1,4 +1,4 @@
-      logical function dft_energy_gw(rtdb)
+      logical function gwmol(rtdb)
       implicit none
 #include "rtdb.fh"
       integer rtdb
@@ -6,33 +6,31 @@ c
       logical nwdft
       external nwdft
 c
-      logical gw_dft
-      external gw dft
+      logical gw_doit
+      external gw doit
 c
       logical status
 c
       status = rtdb_cput(rtdb,'dft:theory', 1, 'dft')
-      status = nwdft(rtdb)
-      if (status) status = gw_dft(rtdb)
-      dft_energy_gw = status
+      if (status) status = gw_doit(rtdb)
+      gwmol = status
       call grid_cleanup(.false.)
 c
       end function
 c
 c     -----------------------------------------------------------------
 c
-      logical function gw_dft(rtdb)
+      logical function gw_doit(rtdb)
       implicit none
 #include "errquit.fh"
 #include "global.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
-#include "cdft.fh"
 #include "util.fh"
 #include "gw.fh"
 
       integer, intent(in) :: rtdb
-      character(*), parameter :: pname = "gw_dft: "
+      character(*), parameter :: pname = "gw_doit: "
 
       type(gw_params_t) :: params
       character*80 theory
@@ -40,7 +38,9 @@ c
 c
 c     -----------------------------------------------------------------
 c
-      gw_dft = .false.
+c     Initialize
+c
+      gw_doit = .false.
 c
 c     Determine the theory we are using
 c
@@ -52,14 +52,6 @@ c
       params%rtdb = rtdb
       params%me = ga_nodeid()
 c
-      if (params%me.eq.0) then
-        write(luout,*) " "
-        write(luout,'(22X,A)') "***********************"
-        write(luout,'(22X,A)') "***      GW@DFT     ***"
-        write(luout,'(22X,A)') "***********************"
-        write(luout,*) " "
-        call util_flush(luout)
-      endif
       call gw_init(params)
 c
       if (theory.eq."dft") then
@@ -77,7 +69,7 @@ c
       endif
 c
       call gw_finalize(params)
-      gw_dft = .true.
+      gw_doit = .true.
 c
 c     -----------------------------------------------------------------
 c

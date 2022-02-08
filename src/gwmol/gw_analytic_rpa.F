@@ -5,7 +5,7 @@
 #include "global.fh"      
 #include "gw.fh"
 #ifdef SCALAPACK
-#include "dft_scaleig.fh"
+#include "scaleig.fh"
 #endif
       type(gw_params_t)  :: pars
       integer,intent(in) :: maxpoles, maxnpoles, nri

@@ -151,8 +151,8 @@ c
       logical task_fcidump
       external task_fcidump
 
-      logical task_gw
-      external task_gw
+      logical task_gwmol
+      external task_gwmol
 
 c      logical embed_optimize
 c      external embed_optimize
@@ -452,7 +452,7 @@ c         status=embed_prepare(rtdb)
       else if(inp_compare(.false.,'dntmc',operation)) then
          status=task_dntmc(rtdb)
       else if (inp_compare(.false., 'gw', operation)) then
-         status = task_gw(rtdb)
+         status = task_gwmol(rtdb)
 c
 c     **** check for theories that have specific operations ****
 c

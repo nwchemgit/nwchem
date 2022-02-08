@@ -1,4 +1,4 @@
-OBJ = task_gw.o dft_energy_gw.o ga_chol_inv_seq.o gw_input.o \
+OBJ = gwmol.o ga_chol_inv_seq.o gw_input.o \
       gw_defaults.o gw_init.o gw_finalize.o gw_memory.o \
       gw_vxc.o mycpu.o gw_donewton.o \
       gw_cdgw.o gw_cdgw_buildin.o gw_cdgw_newton.o gw_cdgw_graph.o \
@@ -22,12 +22,29 @@ OBJ_OPTIMIZE = gw_ri_init.o gw_invdiag.o gw_tools.o \
 	       gw_cdgw_buildrn_minres.o
 
 
-LIBRARY = libnwdft.a
+LIBRARY = libgwmol.a
 
-HEADERS = 
+HEADERS = ../nwdft/include/cdft.fh ../nwdft/grid/cgridfile.fh 
 
 LIB_DEFINES =
-LIB_INCLUDES = -I../include -I../grid -I./
+LIB_INCLUDES = -I./
 
-include ../../config/makefile.h
-include ../../config/makelib.h
+include ../config/makefile.h
+
+ifeq ($(_USE_SCALAPACK),Y)
+_USE_ELPA = $(shell ${GA_PATH}/bin/ga-config  --use_elpa| awk ' /1/ {print "Y"}')
+
+ifeq ($(_USE_ELPA),Y)
+ LIB_DEFINES += -DUSE_ELPA
+endif
+#assuming we have GAPZHEEVD
+GOTGAPZHEEVD= Y
+ifeq ($(GOTGAPZHEEVD),Y)
+ LIB_DEFINES += -DUSE_GAPZHEEVD
+endif
+_PDSYEVR = $(shell [ -e ${NWCHEM_TOP}/src/tools/install/lib/libga.a ] &&  nm ${NWCHEM_TOP}/src/tools/install/lib/libga.a|egrep T |egrep  ga_pdsyevr |awk '/ga_pdsyevr/ {print "Y"}')
+ifeq ($(_PDSYEVR),Y) 
+ LIB_DEFINES += -DUSE_PDSYEVR
+endif
+endif
+include ../config/makelib.h
