@@ -219,7 +219,7 @@
 
       ecrpa = -0.5d0*ecrpa
 
-      call dgop(1,ecrpa,1,'+')
+      call ga_dgop(1,ecrpa,1,'+')
 
       end subroutine
 

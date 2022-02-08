@@ -84,7 +84,7 @@
         call gw_aprod(OV2,factor(1,2),x,y,-2d0,1d0,npoles(2),n)
       endif
       call ga_mask_sync(.true.,.false.)
-      call dgop(mt_dbl,y,n,'+')
+      call ga_dgop(mt_dbl,y,n,'+')
 
 !$omp parallel do simd schedule(static)
       do i=1,n
@@ -167,7 +167,7 @@
           call gw_aprod(OV2,factor(1,2),v,y,2d0,1d0,npoles(2),n)
         endif
         call ga_mask_sync(.true.,.false.)
-        call dgop(mt_dbl,y,n,'+')
+        call ga_dgop(mt_dbl,y,n,'+')
 
         call daxpy(n,1d0,v,1,y,1)
         if (iter.ge.2) call daxpy(n,-beta/oldb,r1,1,y,1)
