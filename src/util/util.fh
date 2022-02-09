@@ -29,5 +29,5 @@ c
       external util_get_io_unit
 c
       integer nw_max_path_len   ! Maximum path len -> posix standard is what?
-      parameter (nw_max_path_len = 256)
+      parameter (nw_max_path_len = 255)
 c
