@@ -234,7 +234,7 @@ c
       character*80 pname
 c
       logical okspace
-      character*255 compiled_name
+      character*(nw_max_path_len) compiled_name
       logical rism_util_power_2
       external rism_util_power_2
 c 
