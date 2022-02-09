@@ -13,7 +13,8 @@ end
 
 dft
 xc pbe0
-convergence  energy 1d-8
+convergence  energy 1d-9
+grid fine
 noprint "final vectors analysis" multipole
 end
 relativistic
