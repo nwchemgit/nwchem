@@ -38,11 +38,11 @@
       double precision values(20),errors(20),esterror(pars%nmo)
       double precision radius,maxradius
       GWTYP :: I,dI,R,dR,SigmaC,dSigmaC
-      GWTYP :: resmat(100,pars%nmo)
+      GWTYP :: resmat(500,pars%nmo)
 
       integer nclusters, clusters(pars%nmo),myll,myul
       double precision upper,lower,resupper,reslower,interval
-      double precision omega(100), output(2,pars%nmo)
+      double precision omega(500), output(2,pars%nmo)
 
 
       main = pars%me .eq. 0
@@ -106,13 +106,12 @@
             Eout = Enew(llmo+iqp-2,isp)
           endif
 
-          !Trying to enhance reproducibility by rounding-off to 8 digits
-          eout = nint(eout*1d8)/1d8
-
           !initialize variables
           call ga_zero(pars%g_sols)
           bracket = .false.
           converged = .false.
+          upper = 1d100
+          lower = -1d100
           rms3(:) = 1d100
 
           !fixed contribution
@@ -168,22 +167,26 @@
      $                  (bracket .and. abs(upper-lower).lt.pars%thresh)
 
             ! Exit if converged
-            call ga_brdcst(mt_log,lvars,2*logs,0)
+            call ga_brdcst(1038,lvars,2*logs,0)
 
             if (converged) then
               eout = ein
               exit
             endif
 
-            call gw_donewton(ein,eout,residual,dresidual,lower,upper,
+            if (main) then
+              call gw_donewton(ein,eout,residual,dresidual,lower,upper,
      $                       reslower,resupper,bracket,pars%thresh,
      $                       radius,iter)
 
 #ifdef GWDEBUG
-            if (main) call gw_newton_debug(residual,eout,ein,lower,
+              call gw_newton_debug(residual,eout,ein,lower,
      $                  upper,efermi(isp),util_wallsec()-timer2,
      $                  bracket,llmo+iqp-1,iter)
 #endif
+            endif
+            call ga_brdcst(1038,eout,ma_sizeof(mt_dbl,1,mt_byte),0)
+
             !save information
             rms3(3) = rms3(2)
             rms3(2) = rms3(1)
@@ -232,7 +235,7 @@
             timer = util_wallsec()
             call gw_cdgw_buildin_graph(iW(1,1,myll,isp),Eold(1,isp),
      $        dbl_mb(pars%k_glx),dbl_mb(pars%k_glw),iwidx(0,myll,isp),
-     $        omega(ipoints),output,pars%ngl,mynmo,myul-myll+1)
+     $        omega(ipoints),output,pars%eta,pars%ngl,mynmo,myul-myll+1)
             resmat(ipoints,myll:myul) = output(1,1:myul-myll+1)
             call ga_sync()
             pars%timer%in = pars%timer%in + util_wallsec() - timer
@@ -260,21 +263,30 @@
               ! If residual is small, solution has been found
               if (abs(resmat(ipoints,iqp)).lt.pars%thresh) then
                 fixed(iqp) = .true.
+
                 enew(llmo+iqp-1,isp) = omega(ipoints) 
                 esterror(llmo+iqp-1) = abs(resmat(ipoints,iqp))
-                cycle
               endif
+              call ga_brdcst(1038,fixed(iqp),ma_sizeof(mt_log,1,
+     $                       mt_byte),0)
 
               ! See if there is a fixed point solution
-              if (ipoints.gt.1) then
+              if (ipoints.gt.1 .and. .not.fixed(iqp) ) then
                 if(resmat(ipoints-1,iqp)*resmat(ipoints,iqp).lt.0d0)then
                   fixed(iqp) = .true.
                   der=(resmat(ipoints,iqp)-resmat(ipoints-1,iqp))/nspace
                   enew(llmo+iqp-1,isp) = omega(ipoints) - 
      $                                   resmat(ipoints,iqp)/der
                   esterror(llmo+iqp-1) = nspace/2d0
-                  cycle
                 endif
+                call ga_brdcst(1038,fixed(iqp),ma_sizeof(mt_log,1,
+     $                         mt_byte),0)
+              endif
+
+              if (fixed(iqp)) then
+                call ga_brdcst(1038,enew(llmo+iqp-1,isp),
+     $                       ma_sizeof(mt_dbl,1,mt_byte),0)
+                cycle
               endif
 
               done = .false.

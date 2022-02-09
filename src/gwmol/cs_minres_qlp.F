@@ -48,7 +48,7 @@
        call gw_aprod_cmplx(OV2,factor(1,2),x,r2,2d0,1d0,
      $                      npoles(2),n)
       endif
-      call ga_zgop(mt_dcpl,r2,n,'+')
+      call ga_dgop(1038,r2,n,'+')
       r2 = dcmplx(b,0d0) - (r2 + x)
       xbak = x
 
@@ -122,7 +122,7 @@ c      r2(:) = b(:)
          call gw_aprod_cmplx(OV2,factor(1,2),conjg(v),r3,2d0,1d0,
      $                        npoles(2),n)
         endif
-        call ga_zgop(mt_dcpl,r3,n,'+')
+        call ga_dgop(1038,r3,n,'+')
 
         r3(:) = r3(:) + conjg(v(:))
 

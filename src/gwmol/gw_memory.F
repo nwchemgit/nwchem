@@ -42,7 +42,7 @@ c
       stack_mem = ma_inquire_stack(mt_dbl)
       heap_mem = ma_inquire_heap(mt_dbl)
 
-      call ga_dgop(mt_dbl,ga_mb,1,"min")
+      call ga_dgop(1038,ga_mb,1,"min")
 
 
       if (pars%me.eq.0) then

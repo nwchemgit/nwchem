@@ -40,7 +40,7 @@
       integer nclusters, clusters(pars%nmo),myll,myul
       integer llqp,ulqp,icluster
       double precision upper,lower,resupper,reslower,const
-      double precision values(20),errors(20),radius
+      double precision values(25),errors(25),radius
 
 
       main = pars%me .eq. 0
@@ -78,8 +78,8 @@
 
         call gw_findclusters(Eold(llmo,isp),clusters,nclusters,totalqp,
      $                       0.05d0)
-        call ga_brdcst(mt_int,nclusters,ma_sizeof(mt_int,1,mt_byte),0)
-        call ga_brdcst(mt_int,clusters,
+        call ga_brdcst(1038,nclusters,ma_sizeof(mt_int,1,mt_byte),0)
+        call ga_brdcst(1038,clusters,
      $                 ma_sizeof(mt_int,nclusters,mt_byte),0)
 
         ulqp = 0
@@ -115,8 +115,8 @@
           bracket = .false.
           rms6 = 1d100
           const = Eref(llmo+iqp-1,isp) + Sigma_X - sigmaold
-          lower = 0d0
-          upper = 0d0
+          lower = -1d100
+          upper = 1d100
 c        
           do iter=1,pars%qpiter+5
             timer2 = util_wallsec()
@@ -143,6 +143,7 @@ c
             SigmaC   = I + R
             dSigmaC  = dI + dR
 
+
             residual = const + dble(SigmaC) - Ein
             dresidual = (dble(dSigmaC) - 1d0)
 
@@ -164,7 +165,7 @@ c
      $                  (bracket .and. abs(upper-lower).lt.thresh)
 
             ! Exit if converged
-            call ga_brdcst(mt_log,lvars,2*logs,0)
+            call ga_brdcst(1038,lvars,2*logs,0)
             if (converged) then
               Eout = Ein
 #ifdef GWDEBUG
@@ -175,15 +176,18 @@ c
               exit
             endif
 
-            call gw_donewton(ein,eout,residual,dresidual,lower,upper,
+            if (main) then
+              call gw_donewton(ein,eout,residual,dresidual,lower,upper,
      $                       reslower,resupper,bracket,thresh,
      $                       radius,iter)
 
 #ifdef GWDEBUG
-            if (main) call gw_newton_debug(residual,eout,ein,lower,
+              call gw_newton_debug(residual,eout,ein,lower,
      $                  upper,efermi(isp),util_wallsec()-timer2,
      $                  bracket,llmo+iqp-1,iter)
 #endif
+            endif
+            call ga_brdcst(1038,eout,ma_sizeof(mt_dbl,1,mt_byte),0)
 
             ! Save information
             do irms=6,2,-1
@@ -222,7 +226,8 @@ c
 
           if (main) call gw_print_energy(llmo,llqp,ulqp,
      $                       enew(llmo+llqp-1,isp),efermi(isp),
-     $                       esterror(llmo+llqp-1),fixed(llqp))
+     $                       esterror(llmo+llqp-1),fixed(llqp),
+     $                       warning)
         enddo
 
         if (warning.and.main) then

@@ -219,7 +219,7 @@
 
       ecrpa = -0.5d0*ecrpa
 
-      call dgop(1,ecrpa,1,'+')
+      call ga_dgop(1,ecrpa,1,'+')
 
       end subroutine
 
@@ -265,7 +265,7 @@ c     -----------------------------------------------------------------
 !$omp end  do      
 !$omp end parallel
 c
-      call ga_dgop(mt_dbl,tecgm,1,'+')
+      call ga_dgop(1038,tecgm,1,'+')
       ecgm = ecgm + 2d0*tecgm
 
 #ifdef USE_OPENMP
@@ -464,7 +464,7 @@ c
 
       enddo
 
-      call ga_dgop(mt_dbl,sigmax,nmo*pars%ipol,'+')
+      call ga_dgop(1038,sigmax,nmo*pars%ipol,'+')
 
       do ipol=1,pars%ipol
         pars%ex = pars%ex+sum(sigmax(1:pars%nocc(ipol),ipol))/pars%ipol

@@ -34,7 +34,7 @@
 
       do jmo=1,mynmo
         vector(jmo) = omega - Evals(iwidx(jmo))
-        etavec(jmo) = sign(1d0,evals(iwidx(jmo)))*ieta*0d0
+        etavec(jmo) = sign(1d0,evals(iwidx(jmo)))*ieta
       enddo
 
 !$omp parallel do private(iomega,jmo,factor) reduction(+:res)
@@ -43,14 +43,14 @@
         iomega = imag*dsqrt(x(igl))
 
         do jmo=1,mynmo
-          factor = 1d0/(vector(jmo) + iomega + etavec(jmo))
+          factor = 1d0/(vector(jmo) + iomega + etavec(jmo)*0d0)
           res(1) = res(1) - w(igl)*iw(jmo,igl)*factor
           res(2) = res(2) + w(igl)*iw(jmo,igl)*factor**2
         enddo
 
       enddo
 
- 100  call ga_zgop(mt_dcpl,res,2,'+')
+ 100  call ga_zgop(1038,res,2,'+')
 
 #ifdef GWCMPLX
       I = res(1)

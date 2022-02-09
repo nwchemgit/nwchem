@@ -76,8 +76,8 @@ c     Create screened-Coulomb array
           rms3 = 1d100
           residualOld = 0d0
           const = Eold(llmo+iqp-1,isp) + Sigma_X - sigmaold
-          lower = 0d0
-          upper = 0d0
+          lower = -1d100
+          upper = 1d100
 
 c         Obtain screened-Coulomb matrix elements           
           timer = util_wallsec()
@@ -125,17 +125,20 @@ c           Compute self-energy element
 
 
             ! Exit if converged
-            call ga_brdcst(mt_log,converged,logs,0)
-            call ga_brdcst(mt_log,bracket,logs,0)
+            call ga_brdcst(1038,converged,logs,0)
+            call ga_brdcst(1038,bracket,logs,0)
             if (converged) then
               Eout = Ein
               exit
             endif
 
             ! Take next newton step
-            call gw_donewton(ein,eout,residual,dresidual,lower,upper,
+            if (main) then
+              call gw_donewton(ein,eout,residual,dresidual,lower,upper,
      $                       reslower,resupper,bracket,pars%thresh,
      $                       radius,iter)
+            endif
+            call ga_brdcst(1038,eout,ma_sizeof(mt_dbl,1,mt_byte),0)
 
 
             ! Save information

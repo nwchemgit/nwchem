@@ -35,7 +35,7 @@
       logical, external :: is_near
 
       logical parallel_diag
-      logical main, ok, active
+      logical main, ok, active, skip
       integer imo, jmo, kmo, lmo, ints
       integer mynpoles, ipole, kov(2), ga
       integer root, idx, nspace, nprocs, first, second, step
@@ -132,23 +132,27 @@
 
         ! Loop over omega < eig(jmo) < 0d0
         !   or over 0d0 < eig(jmo) < omega
+        skip = .false.
         if (omega.lt.0d0) then
-          if (eig(jmo) .lt. omega-shift) cycle
-          if (eig(jmo) .gt. 0d0) cycle
+          if (eig(jmo) .lt. omega-shift) skip = .true.
+          if (eig(jmo) .gt. 0d0) skip = .true.
         else
-          if (eig(jmo) .gt. omega+shift) cycle
-          if (eig(jmo) .lt. 0d0) cycle
+          if (eig(jmo) .gt. omega+shift) skip = .true.
+          if (eig(jmo) .lt. 0d0) skip = .true.
         endif
 
         ! Check for degeneracies
         if (is_near(eig(jmo),omega,shift)) then
-          cycle
+          skip = .true.
           fac = sgn*0.5d0
           arg = 0d0
         else
           fac = sgn
           arg = eig(jmo) - omega
         endif
+
+        call ga_brdcst(1038,skip,ma_sizeof(mt_log,1,mt_byte),0)
+        if (skip) cycle
 
         !obtain the factor to build Pi matrix and its derivative
         do jsp=1,ipol
@@ -232,7 +236,7 @@
 
       enddo
        
-      call ga_dgop(mt_dbl,output,2*nqp,'+')
+      call ga_dgop(1038,output,2*nqp,'+')
 
 
       if (.not.ma_chop_stack(l_ipiv))

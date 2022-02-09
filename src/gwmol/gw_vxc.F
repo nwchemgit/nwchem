@@ -28,7 +28,7 @@ c
       integer l_cntoce,l_cntobfr,l_cetobfr,l_rdens_atom,l_tmp
       integer k_cntoce,k_cntobfr,k_cetobfr,k_rdens_atom,k_tmp
 
-      double precision rho_n, ecoul, exc(ipol)
+      double precision rho_n, ecoul, exc(2)
 
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
