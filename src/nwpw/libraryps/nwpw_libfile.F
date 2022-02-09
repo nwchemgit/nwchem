@@ -30,7 +30,7 @@ c
       logical does_it_exist,foundit,is_it_open,noslash
       logical nwrcopen,from_environment,from_nwchemrc,from_compile
 
-      character*255 libname,rtdb_name,library,library_name
+      character*(nw_max_path_len) libname,rtdb_name,library,library_name
       character*128 test
       character*24  basis_library
       integer lgth,l,ind,rtdb,unitrc
