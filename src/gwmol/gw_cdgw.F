@@ -261,9 +261,9 @@ c
         call gw_scissor(dbl_mb(kEnew),dbl_mb(kEmod),pars%nmo,pars%nocc,
      $                  pars%nvir,pars%noqp,pars%nvqp,pars%ipol,pars%me)
 
-        call ga_brdcst(mt_dbl,dbl_mb(kEnew),
+        call ga_brdcst(1038,dbl_mb(kEnew),
      $       ma_sizeof(mt_dbl,nmo*pars%ipol,mt_byte),0)
-        call ga_brdcst(mt_dbl,dbl_mb(kSigma),
+        call ga_brdcst(1038,dbl_mb(kSigma),
      $       ma_sizeof(mt_dbl,nmo*pars%ipol,mt_byte),0)
 
         call dcopy(nmo*pars%ipol,dbl_mb(kEnew),1,dbl_mb(kEmod),1)

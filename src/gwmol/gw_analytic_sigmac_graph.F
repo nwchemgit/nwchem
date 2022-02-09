@@ -50,7 +50,7 @@ c
 c
       call ga_release(wmn, ilo, ihi ,jlo, jhi)
 
-      call ga_dgop(mt_dbl,sigma,npoints,'+')
+      call ga_dgop(1038,sigma,npoints,'+')
 
 #ifdef USE_OPENMP
       call util_blas_set_num_threads(1)

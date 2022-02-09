@@ -84,7 +84,7 @@
         call gw_aprod(OV2,factor(1,2),x,y,-2d0,1d0,npoles(2),n)
       endif
       call ga_mask_sync(.true.,.false.)
-      call ga_dgop(mt_dbl,y,n,'+')
+      call ga_dgop(1038,y,n,'+')
 
 !$omp parallel do simd schedule(static)
       do i=1,n
@@ -167,7 +167,7 @@
           call gw_aprod(OV2,factor(1,2),v,y,2d0,1d0,npoles(2),n)
         endif
         call ga_mask_sync(.true.,.false.)
-        call ga_dgop(mt_dbl,y,n,'+')
+        call ga_dgop(1038,y,n,'+')
 
         call daxpy(n,1d0,v,1,y,1)
         if (iter.ge.2) call daxpy(n,-beta/oldb,r1,1,y,1)
@@ -293,7 +293,7 @@ c       converge in 20 or less steps
         if (rnorm .le. rtol     ) istop=8
 
         call ga_mask_sync(.true.,.false.)
-        call ga_brdcst(mt_int,istop,ma_sizeof(mt_int,1,mt_byte),0)
+        call ga_brdcst(1038,istop,ma_sizeof(mt_int,1,mt_byte),0)
 
         if (istop.ne.0) exit
       enddo
@@ -316,7 +316,7 @@ c       we need an n**2 matrix
         call gw_cdgw_buildpi('r',ov1,ov2,dbl_mb(k_pi),factor,n,n,npoles,
      $                   main,ipol,maxpoles)
         call ga_mask_sync(.true.,.false.)
-        call ga_dgop(mt_dbl,dbl_mb(k_pi),(n*(n+1))/2,'+')
+        call ga_dgop(1038,dbl_mb(k_pi),(n*(n+1))/2,'+')
 
 c       Pi is built in rectangular full packed format.
 c       Transform it to standard format.
@@ -333,7 +333,7 @@ c       Diagonalize matrix in parallel
           call gw_invdiag(dbl_mb(k_pi),n,n,dummy,.false.)
           call dgemv('t',n,mynri,1d0,dbl_mb(llpi),n,b,1,0d0,x(pilo),1)
           call ga_mask_sync(.true.,.false.)
-          call ga_dgop(mt_dbl,x,n,'+')
+          call ga_dgop(1038,x,n,'+')
 
 c       Use DSYSV locally
         else
@@ -355,7 +355,7 @@ c       Use DSYSV locally
 c     MINRES converged, broadcast result from node 0
       else
         call ga_mask_sync(.true.,.false.)
-        call ga_brdcst(mt_dbl,x,ma_sizeof(mt_dbl,n,mt_byte),0)
+        call ga_brdcst(1038,x,ma_sizeof(mt_dbl,n,mt_byte),0)
       endif
 
 c     Deallocate local fields

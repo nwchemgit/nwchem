@@ -167,7 +167,7 @@ c
         call gw_cdgw_buildpi_cmplx('w',dbl_mb(kOV(1)),dbl_mb(kOV(2)),
      $                         dcpl_mb(k_pi),factor,nri,nri,
      $                         pars%mynpoles,main,ipol,maxpoles)
-        call ga_zgop(mt_dcpl,dcpl_mb(k_pi),nri**2,'+')
+        call ga_dgop(1038,dcpl_mb(k_pi),nri**2,'+')
         call zsytrf('l',nri,dcpl_mb(k_pi),nri,int_mb(ipiv),
      $              dcpl_mb(work),32*nri,info)
 #else
@@ -181,7 +181,7 @@ c
 #endif
         t0 = util_wallsec()
         call ga_mask_sync(.true.,.false.)
-        call ga_dgop(mt_dbl,dbl_mb(k_pi),sizepi,'+')
+        call ga_dgop(1038,dbl_mb(k_pi),sizepi,'+')
 #ifdef GWDEBUG
         if (main) write(luout,*) '     ## dgop ',util_wallsec()-t0
 #endif

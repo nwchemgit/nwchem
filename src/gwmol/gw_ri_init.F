@@ -276,7 +276,7 @@ c
       call ga_sync()
       if (.not. ga_destroy(g_2cinv))
      $  call errquit(pname//'failed to destroy g_2cinv',0,GA_ERR)
-      call ga_brdcst(mt_dbl,dbl_mb(k_tmp),ma_sizeof(mt_dbl,nri**2,
+      call ga_brdcst(1038,dbl_mb(k_tmp),ma_sizeof(mt_dbl,nri**2,
      $               mt_byte),0)
 
 #ifdef GWDEBUG

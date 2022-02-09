@@ -45,7 +45,7 @@
       ISOGW,allocatable,dimension(:,:) :: factor, dfactor
       ISOGW,dimension(nri) :: xvec
 
-      logical main, ok, parallel_diag
+      logical main, ok, parallel_diag, skip
       logical, external :: is_near
 
       double precision, parameter :: shift = 0.0001d0
@@ -115,16 +115,17 @@
       endif
        
       do jmo=first,second,step
+        skip = .false.
         if (omega.lt.0d0) then
-          if (eig(jmo) .lt. omega-shift) cycle
-          if (eig(jmo) .gt. 0d0) cycle
+          if (eig(jmo) .lt. omega-shift) skip = .true.
+          if (eig(jmo) .gt. 0d0) skip = .true.
         else
-          if (eig(jmo) .gt. omega+shift) cycle
-          if (eig(jmo) .lt. 0d0) cycle
+          if (eig(jmo) .gt. omega+shift) skip = .true.
+          if (eig(jmo) .lt. 0d0) skip = .true.
         endif
 
         if (is_near(eig(jmo),omega,shift)) then
-          cycle
+          skip = .true.
           fac = sgn*0.5d0
           arg = 0d0
         else
@@ -132,6 +133,8 @@
           arg = eig(jmo) - omega
         endif
 
+        call ga_brdcst(1038,skip,ma_sizeof(mt_log,1,mt_byte),0)
+        if (skip) cycle
 
         do jsp=1,ipol
 !$omp     parallel do simd private(temp) schedule(static)
@@ -179,9 +182,9 @@
         if (me.eq.owner) call ga_get(gb,1,nri,jmo,jmo,xvec,nri)
         if (me.eq.root) call ga_get(ga,1,nri,idx,idx,vector,nri)
         call ga_mask_sync(.true.,.false.)
-        call ga_brdcst(mt_dbl,vector,ma_sizeof(mt_dbl,nri,mt_byte),root)
+        call ga_brdcst(1038,vector,ma_sizeof(mt_dbl,nri,mt_byte),root)
         call ga_mask_sync(.true.,.false.)
-        call ga_brdcst(mt_dbl,xvec,ma_sizeof(mt_dbl,nri,mt_byte),owner)
+        call ga_brdcst(1038,xvec,ma_sizeof(mt_dbl,nri,mt_byte),owner)
 
 
         call SOLVER(dbl_mb(kOV(1)),dbl_mb(kOV(2)),factor,xvec,

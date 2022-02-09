@@ -191,9 +191,9 @@ c
      $                  pars%nocc,pars%nvir,pars%noqp,pars%nvqp,
      $                  pars%ipol,pars%me)
 
-        call ga_brdcst(mt_dbl,dbl_mb(k_enew),
+        call ga_brdcst(1038,dbl_mb(k_enew),
      $       ma_sizeof(mt_dbl,nmo,mt_byte),0)
-        call ga_brdcst(mt_dbl,dbl_mb(k_sigma),
+        call ga_brdcst(1038,dbl_mb(k_sigma),
      $       ma_sizeof(mt_dbl,nmo,mt_byte),0)
         call dcopy(nmo,dbl_mb(k_enew),1,dbl_mb(k_eold),1)
         eviter = eviter + 1      
