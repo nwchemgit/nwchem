@@ -838,6 +838,35 @@ c     > call errquit("psi_1_get_Tgradient:error popping stack",0,MA_ERR)
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *         cpsi_1get_remainder0    *
+*     *                                 *
+*     ***********************************
+      subroutine cpsi_1get_remainder0(E0)
+      implicit none
+      real*8     E0
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "cpsi_common.fh"
+#include "rhoall_common.fh"
+
+*     **** external functions ****
+      real*8   c_electron_energy_remainder
+      external c_electron_energy_remainder
+
+      E0 = c_electron_energy_remainder(psi1_tag,
+     >                       dbl_mb(rho1(1)),
+     >                       dcpl_mb(dng1(1)),
+     >                       dbl_mb(rho1_all(1)))
+
+      return
+      end
+
+
+
 *     ***********************************
 *     *                                 *
 *     *        cpsi_1get_TSgradient     *

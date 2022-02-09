@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #set -v
 arch=`uname -m`
-VERSION=0.3.18
+VERSION=0.3.19
 #COMMIT=974acb39ff86121a5a94be4853f58bd728b56b81
 BRANCH=develop
 if [ -f  OpenBLAS-${VERSION}.tar.gz ]; then
@@ -115,7 +115,7 @@ if [[ -n ${FC} ]] &&  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == 
     FORCETARGET+=" CC=gcc "
     _FC=xlf
     LAPACK_FPFLAGS_VAL=" -qstrict=ieeefp -O2 -g" 
-elif  [[ -n ${FC} ]] && [[ "${FC}" == "flang" ]]; then
+elif  [[ -n ${FC} ]] && [[ "${FC}" == "flang" ]] || [[ "${FC}" == "amdflang" ]]; then
     FORCETARGET+=' F_COMPILER=FLANG '
     LAPACK_FPFLAGS_VAL=" -O1 -g -Kieee"
 elif  [[ -n ${FC} ]] && [[ "${FC}" == "pgf90" ]] || [[ "${FC}" == "nvfortran" ]]; then
@@ -136,7 +136,9 @@ fi
 if [[   -z "${CC}" ]]; then
     CC=cc
 fi
-let GCCVERSIONGT5=$(expr `${CC} -dumpversion | cut -f1 -d.` \> 5)
+if [[ `${CC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] ; then
+    let GCCVERSIONGT5=$(expr `${CC} -dumpversion | cut -f1 -d.` \> 5)
+fi
 # check gcc version for skylake
 if [[ "$FORCETARGET" == *"SKYLAKEX"* ]]; then
     if [[ ${GCCVERSIONGT5} != 1 ]]; then
@@ -156,8 +158,12 @@ fi
 echo arch is "$arch"
 if [[ "$arch" == "ppc64le" ]]; then
 if [[ ${GCCVERSIONGT5} != 1 ]]; then
-    echo gcc version 6 and later needed for ppc64le
-    exit 1
+       echo
+       echo gcc version 6 and later needed for ppc64le
+       echo please specify CC=gcc
+       echo where the gcc version is 6 or later
+       echo
+       exit 1
 fi
     THREADOPT="0"
 else
@@ -171,13 +177,18 @@ if [[  ! -z "${USE_OPENMP}" ]]; then
     unset USE_OPENMP
     NWCHEM_USE_OPENMP=1
 fi
-echo make $FORCETARGET  LAPACK_FPFLAGS=$LAPACK_FPFLAGS_VAL  INTERFACE64=$sixty4_int BINARY=$binary NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD=$THREADOPT  libs netlib -j4
+echo make $FORCETARGET LAPACK_FPFLAGS=$LAPACK_FPFLAGS_VAL  INTERFACE64=$sixty4_int BINARY=$binary NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD=$THREADOPT  libs netlib -j4
+echo
+echo OpenBLAS compilation in progress
+echo output redirected to libext/openblas/Openblas/openblas.log
+echo
 if [[ ${_FC} == xlf ]]; then
- make FC="xlf -qextname" $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4
+ make FC="xlf -qextname" $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4 >& openblas.log
 else
- make $FORCETARGET  OPENBLAS_VERBOSE=2 LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4
+ make $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4 >& openblas.log
 fi
 if [[ "$?" != "0" ]]; then
+    tail -500 openblas.log
     echo " "
     echo "OpenBLAS compilation failed"
     echo " "

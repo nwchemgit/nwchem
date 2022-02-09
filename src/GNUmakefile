@@ -249,4 +249,17 @@ ifdef SUBDIRS
 	done
 endif
 
-
+.PHONY:	install
+install: link
+	@test $${INSTALL_PREFIX?Please set the environment variable INSTALL_PREFIX}
+	@echo install_prefix is $(INSTALL_PREFIX)
+	@mkdir -p $(INSTALL_PREFIX)/bin  $(INSTALL_PREFIX)/share
+	@cp $(BINDIR)/$(NWBINNAME) $(INSTALL_PREFIX)/bin/.
+	@cp -r basis/libraries $(INSTALL_PREFIX)/share/.
+	@cp -r nwpw/libraryps $(INSTALL_PREFIX)/share/.
+	@cp -r data $(INSTALL_PREFIX)/share/.
+	@ls -l $(INSTALL_PREFIX)
+	@ls -l $(INSTALL_PREFIX)/bin
+	@ls -l $(INSTALL_PREFIX)/share
+	@echo set NWCHEM_BASIS_LIBRARY=$(INSTALL_PREFIX)/share/libraries/
+	@echo set NWCHEM_NWPW_LIBRARY=$(INSTALL_PREFIX)/share/libraryps/

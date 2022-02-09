@@ -297,7 +297,7 @@ void pdspeval ( ivector, irange, n, vecA, mapA, lb, ub, ilb, iub, abstol,
 
     extern Integer  mapchk_(), count_list();
     extern void     memreq_();
-    extern void     pdiff(), xstop_(), pgexit(), mapdif_(), reduce_maps_();
+    extern void     pdiff(), xstop_(), pgexit(), mapdif_();
     extern void     mdiff1_(), mdiff2_(), bbcast00();
     extern void     mem_cpy();
     extern void     dshellsort_(), sorteig();

@@ -86,6 +86,7 @@ c     xps variables
       logical int_forcenwints,gonwxc
       external int_forcenwints
       character*20 rtdb_errmsg
+      character*4 mytest
       data dirs /'convergence','decomp','dft','direct','semidirect',
      $         'ecp','grid','vectors','incore','iterations', 
      $         'max_ovl','mulliken','mult','noio','noprint','odft', 
@@ -864,6 +865,12 @@ c we enforce cgmin since diis breaks loose in the gradients
       cgmin=.true.
       if (.not.rtdb_put(rtdb,'dft:cgmin', mt_log, 1, cgmin))
      &   call errquit('dft_input: rtdb_put failed', 3600, RTDB_ERR)
+c     remove scftype from rtdb to avoid getting stuck in UKS
+      if(rtdb_cget(rtdb,'dft:scftype',1, mytest)) then
+         if (.not.rtdb_delete(rtdb,'dft:scftype'))
+     &    call errquit('dft_input: rtdb_delete failed', 3610, RTDB_ERR)
+      endif
+
 c
 c     fukui indices
 c

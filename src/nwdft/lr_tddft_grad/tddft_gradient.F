@@ -41,6 +41,7 @@ c
       logical oskel       ! Use of symmetry in Fock build
       logical osinglet    ! Compute singlet excited states?
       logical otriplet    ! Compute triplet excited states?
+      logical lhascd
       integer nsroots     ! the number of singlet roots
       integer ihdl_sroots ! the singlet roots handle
       integer iptr_sroots ! the singlet roots list
@@ -181,7 +182,7 @@ c     Parameter initialization
      +  ntroots,iptr_troots,ihdl_troots,fn_civecs_triplet,
      +  osinglet,otriplet, ntotroots,ihdl_bfao,ihdl_geom,tol2e,
      +  solve_thresh,solve_maxit,solve_maxsub,
-     +  fn_solve,solve_when,kfac,title)
+     +  fn_solve,solve_when,kfac,title,lhascd)
 c
 c     Cosmo initialization, if necessary
       cosmo_on = .false.
@@ -277,7 +278,7 @@ c     Compute the TDDFT energy for each root using the solution vectors
      &    write(luout,*)"call tddft_grad_compute_energy"
       call tddft_grad_compute_energy(rtdb,ihdl_geom,ihdl_bfao,tol2e,tda,
      +   ipol,nao,nfc,naoc,nocc,nav,nfv,ntotroots,
-     +   dbl_mb(iptr_mo_e),g_mo,g_xpy,g_xmy,kfac,lhashf,otriplet)
+     +   dbl_mb(iptr_mo_e),g_mo,g_xpy,g_xmy,kfac,lhashf,otriplet,lhascd)
       if (oroot.and.odebug)
      &    write(luout,*)"done tddft_grad_compute_energy"
 c
@@ -297,7 +298,7 @@ c     Assemble right hand side: R
       if (oroot.and.odebug) write(luout,*) "call tddft_grad_compute_r"
       call tddft_grad_compute_r(rtdb,ihdl_geom,ihdl_bfao,tol2e,tda,ipol,
      +     nao,nfc,naoc,nocc,nav,nfv,ntotroots,g_mo,g_xpy,g_xmy,g_tp,
-     +     g_r,kfac,lhashf,otriplet)
+     +     g_r,kfac,lhashf,otriplet,lhascd)
       if (oroot.and.odebug) write(luout,*) "done tddft_grad_compute_r"
 c
 c     Solve the Z equation: (A+B)Z = -R
@@ -306,7 +307,7 @@ c     Note: g_z has the solutions
       call tddft_grad_solve(rtdb,ihdl_geom,ihdl_bfao,ipol,ntotroots,
      +     nao,nocc,naoc,nav,nfc,nfv,g_mo,iptr_mo_e,tda,oskel,kfac,
      +     lhashf,otriplet,solve_thresh,solve_maxsub,solve_maxit,
-     +     fn_solve,solve_when,tol2e,g_r,g_z)
+     +     fn_solve,solve_when,tol2e,g_r,g_z,lhascd)
       if (oroot.and.odebug) write(luout,*) "done tddft_grad_solve"
 c
 c     Deallocate right hand side: R
@@ -330,7 +331,7 @@ c     W is the energy-weighted difference density matrix
       call tddft_grad_compute_w(rtdb,ihdl_geom,ihdl_bfao,tol2e,tda,ipol,
      +     ntotroots,nfc,naoc,nocc,nav,nfv,nao,g_mo,g_tp,g_z,
      +     g_xpy,g_xmy,dbl_mb(iptr_mo_e),dbl_mb(iptr_root_e),g_w,
-     +     kfac,lhashf,otriplet)
+     +     kfac,lhashf,otriplet,lhascd)
       if (oroot.and.odebug) write(luout,*) "done tddft_grad_compute_w"
 c
 c     Finalize integrals

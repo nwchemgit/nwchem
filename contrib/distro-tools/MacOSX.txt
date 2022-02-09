@@ -3,7 +3,7 @@ Here are a list of potential problems that you might run into:
 1.  Older compilers:
 older gfortran versions do not have fseek (added in  4.3.1), and you need it for some modules
 
--static-libgfortran is not supported by all versions (remove from contrib/distro-tools/build_nwchem, and enviroment)
+-static-libgfortran is not supported by all versions (remove from contrib/distro-tools/build_nwchem, and environment)
 
 Some versions use -arch, others use -m32/-m64 to determine if 32 or 64 bit application.
 
@@ -29,7 +29,7 @@ If you get an error about _FE_INEXACT, etc. being undefined, then add these line
 #endif
 
 4. Mixed arch *.a files.
-During the build process you might accidently generate a *.a file that is multi-arch.
+During the build process you might accidentally generate a *.a file that is multi-arch.
 This will cause link errors.
 If the wrong type of *.o is in the *.a, you can use "lipo" to remove it.
 

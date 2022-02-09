@@ -57,7 +57,7 @@ c
 *rak:      endif
 *
       call ga_sync()
-      if (.not. ga_duplicate(g_a, g_b, 'sym_sym: b')) call errquit
+      if (.not. ga_duplicate(g_a, g_b, 'sym_sym b')) call errquit
      $     ('sym_symmetrize: failed to allocate temp GA', 0, GA_ERR)
       call ga_zero(g_b)
 c

@@ -21,3 +21,4 @@ typedef   long double    DoublePrecision;
 #include "blas_lapack.h"
 #include "peigs_types.h"
 
+extern void reduce_maps(Integer , Integer *, Integer , Integer *, Integer , Integer *, Integer *, Integer *);

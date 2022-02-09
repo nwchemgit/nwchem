@@ -25,6 +25,7 @@ c
       integer iptr,in0,in1,jn0,jn1,nbfa,nbfb
       integer natoms 
       integer vecl
+      integer fjat
       double precision q2
       integer i0,i1,j0,j1,ilo,ihi
       integer iat1,iat2,jat1,jat2
@@ -39,6 +40,8 @@ c
       if (.not. geom_ncent(geom, natoms))
      &     call errquit('ga_get2eri: geom_ncent failed',73, GEOM_ERR)
       g_2 = ga_create_atom_blocked(geom, basis,'g2g2')
+      call ga_zero(g_2)
+
 
       if (util_ga2atoms(g_2, natoms, basis,
      A     iat1,iat2,jat1,jat2)) then
@@ -46,6 +49,7 @@ c
       call ga_distribution(g_2,
      .     ga_nodeid(), i0, i1, j0, j1)
       call ga_access(g_2, i0, i1, j0, j1, adrc, ldc)
+
 c     
 c     Compute the matrix of 2-ctr ERIs.
 c     
@@ -87,7 +91,12 @@ c
      &        call errquit('ga_get2eri:  bas_cn2bfr',0,
      &        BASIS_ERR)
          nbfa=in1-in0+1
-         do jat=jat1,jat2
+         if (oskel) then
+           fjat = jat2
+         else
+           fjat = min(iat,jat2)
+         endif
+         do jat=jat1,fjat
             if (.not. bas_ce2cnr(basis, jat, ishq1, ishq2))
      &           call errquit('ga_get2eri:bas_cn2bfr',0,
      &           BASIS_ERR)
@@ -120,6 +129,7 @@ c
                   if (oskel.and.iat.ne.jat) odoit=
      =                 sym_shell_pair(basis,ishq,ishp,q2)
                   if (odoit) then
+                     if (iat.ne.jat.and..not.oskel) q2 = 2d0*q2
                      Nintegrals=maxg
                      if(nintegrals+iptr-ibuf.gt.vecl) then
                      write(0,*) ga_nodeid(),
@@ -157,6 +167,7 @@ c
       call ga_copy(g_2,g_2ceri)
       if (.not. ga_destroy(g_2)) call errquit('ga_get2eri: gad?',
      &     0, 0)
+      if (.not.oskel) call ga_symmetrize(g_2ceri)
 c
       return
       end

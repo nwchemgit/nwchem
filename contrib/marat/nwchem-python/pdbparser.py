@@ -28,7 +28,7 @@ class PDBAtomParser(object):
     
     @staticmethod
     def record(name,buf):
-#        print inspect.getsource(PDBAtomParser.recordName)        
+#        print(inspect.getsource(PDBAtomParser.recordName))
         ir=PDBAtomParser.irec[name]
         atype=PDBAtomParser.atype[name]
         value = buf[ir[0]:ir[1]]
@@ -59,7 +59,7 @@ class PDBAtomParser(object):
     @staticmethod
     def getDict(buf):
 #        d = dict((name,PDBAtomParser.record(name,buf)) 
-#                 for name in PDBAtomParser.irec.iterkeys() )
+#                 for name in PDBAtomParser.irec.iterkeys())
         d={}
         for name in PDBAtomParser.irec.iterkeys():
             value=PDBAtomParser.record(name,buf)
@@ -82,11 +82,11 @@ if __name__ == '__main__':
     aline2="ATOM    588      GLU           -13.363  -4.163  -2.372  1.00  0.00"
     aline3="ATTM    588      GLU           -13.363  -4.163  -2.372  1.00  0.00"
     
-    print PDBAtomParser.record("name",aline2) 
-    print PDBAtomParser.record("name",aline1) 
-    print PDBAtomParser.getDict(aline1)
-    print PDBAtomParser.getDict(aline2)
-    print PDBAtomParser.getDict(aline3)
+    print(PDBAtomParser.record("name",aline2))
+    print(PDBAtomParser.record("name",aline1))
+    print(PDBAtomParser.getDict(aline1))
+    print(PDBAtomParser.getDict(aline2))
+    print(PDBAtomParser.getDict(aline3))
 
 
 #     1 -  6      Record name      "ATOM    "

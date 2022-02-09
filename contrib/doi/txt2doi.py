@@ -3,7 +3,7 @@
 # vi:ts=4:et
 
 # Collect DOI-s from text files and write the list of unique DOI-s.
-# DOI-s are indicated by the preceeding "DOI:" or "doi:" string.
+# DOI-s are indicated by the preceding "DOI:" or "doi:" string.
 
 from argparse import ArgumentParser
 import sys
@@ -76,7 +76,7 @@ def remove_duplicates(doi_table):
 def print_dois(doi_table):
     """Print the list of DOI-s."""
     for doi in doi_table:
-        print( doi )
+        print(doi)
 
 def main ():
     """Run the whole thing (limited capability at the moment)"""

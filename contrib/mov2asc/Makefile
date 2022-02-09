@@ -4,20 +4,35 @@
 # Tested on KSR, Cray-T3D
 # Requires NWCHEM_TARGET to be set.
 # Requires NWChem includes and library for MA (in libnwcutil.a)
-
-ifeq ($(NWCHEM_TARGET),CRAY-T3D) # (must run on MPP not host)
-   FFLAGS = -Wf"-dp" -Wp"-F" -Ccray-t3d 
+ifndef NWCHEM_TOP
+NWCHEM_TOP= $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))| \
+ sed -e 's/\/contrib.*//' )
+endif
+ifndef NWCHEM_TARGET
+  UNAME_S := $(shell uname -s)
+  ifeq ($(UNAME_S),Linux)
+    NWCHEM_TARGET=LINUX64
+  else ifeq ($(UNAME_S),Darwin)
+    NWCHEM_TARGET=MACX64
+  else
+error2:
+$(info     )
+$(info You must define NWCHEM_TARGET in your environment to be the name)
+$(info of the machine you wish to build for ... for example)
+$(info     setenv NWCHEM_TARGET SOLARIS)
+$(info Known targets are SOLARIS, ...)
+$(info See the INSTALL instructions for a complete list)
+$(error )
+  endif
 endif
 
-ifeq ($(NWCHEM_TARGET),CRAY-T3E)
-   FFLAGS = -O 1 -d p -F
-   FC     = f90
+ifeq ($(FC),f77)
+  FC=gfortran
 endif
-
 ifeq ($(NWCHEM_TARGET),LINUX)
    FFLAGS = -fno-second-underscore
 endif
-ifeq ($(NWCHEM_TARGET),LINUX64)
+ifeq ($(NWCHEM_TARGET),$(findstring $(NWCHEM_TARGET), LINUX64 MACX64))
   ifeq ($(FC),gfortran)
    FFLAGS = -fdefault-integer-8
   else
@@ -26,9 +41,6 @@ ifeq ($(NWCHEM_TARGET),LINUX64)
   endif	
 endif
 
-ifeq ($(NWCHEM_TARGET),KSR)
-   FFLAGS = -r8
-endif
 
 ifeq ($(NWCHEM_TARGET),IBM)
    FFLAGS = -qEXTNAME
@@ -82,8 +94,18 @@ endif
 COMM_LIBS=  $(shell grep ARMCI_NETWORK_LIBS\ = ${NWCHEM_TOP}/src/tools/build/Makefile | cut -b 22-)
 LDFLAGS += $(COMM_LIBS)
 
-ifdef BLASOPT
-  LDFLAGS += $(BLASOPT)
+#ifdef BLASOPT
+#  LDFLAGS += $(BLASOPT)
+#endif
+#ifdef BLAS_LIB
+#  LDFLAGS += $(BLAS_LIB)
+#endif
+#ifdef BUILD_OPENBLAS
+#  LDFLAGS += -L$(NWCHEM_TOP)/src/libext/lib -lnwc_openblas -lpthread
+#endif
+ifneq ("$(wildcard ${NWCHEM_TOP}/src/tools/install/bin/ga-config)","")
+  LDFLAGS+=  $(shell ${NWCHEM_TOP}/src/tools/install/bin/ga-config --ldflags  )
+  LDFLAGS+=  $(shell ${NWCHEM_TOP}/src/tools/install/bin/ga-config --libs  )
 endif
 
 all:    mov2asc asc2mov

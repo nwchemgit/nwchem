@@ -1,31 +1,30 @@
 #!/usr/bin/env bash
 #set -x
-get_cmake38(){
-	UNAME_S=$(uname -s)
-	if [[ ${UNAME_S} == "Linux" ]] || [[ ${UNAME_S} == "Darwin" ]] && [[ $(uname -m) == "x86_64" ]] ; then
-	    CMAKE_VER=3.16.8
-	    rm -f cmake-${CMAKE_VER}-${UNAME_S}-x86_64.tar.gz
-	    curl -L https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-${UNAME_S}-x86_64.tar.gz -o cmake-${CMAKE_VER}-${UNAME_S}-x86_64.tar.gz
-	    tar xzf cmake-${CMAKE_VER}-${UNAME_S}-x86_64.tar.gz
-	    if [[ ${UNAME_S} == "Darwin" ]] ;then
-		CMAKE=`pwd`/cmake-${CMAKE_VER}-${UNAME_S}-x86_64/CMake.app/Contents/bin/cmake
-	    else
-		CMAKE=`pwd`/cmake-${CMAKE_VER}-${UNAME_S}-x86_64/bin/cmake
-	    fi
-	    return 0
-	else
-	    return 1
-	fi
+source ../libext_utils/cmake.sh
 
+check_tgz() {
+    myexit=0
+    [ -f $1 ] && gunzip -t $1 > /dev/null && myexit=1
+    echo $myexit
 }
 
-VERSION=5.1.5
-
-if [[ -f "libxc-${VERSION}.tar.gz" ]]; then
-    echo "using existing  libxc-${VERSION}.tar.gz"
+VERSION=5.2.0
+TGZ=libxc-${VERSION}.tar.gz
+if [ `check_tgz $TGZ` == 1 ]; then
+    echo "using existing $TGZ"
 else
-    echo "downloading libxc-${VERSION}.tar.gz"
-    curl -L https://gitlab.com/libxc/libxc/-/archive/${VERSION}/libxc-${VERSION}.tar.gz -o libxc-${VERSION}.tar.gz
+    echo "downloading $TGZ"
+    curl -L https://gitlab.com/libxc/libxc/-/archive/${VERSION}/libxc-${VERSION}.tar.gz -o $TGZ
+    if [ `check_tgz $TGZ` != 1 ]; then
+	rm -f libxc-${VERSION}.tar.gz
+	curl -L https://github.com/ElectronicStructureLibrary/libxc/archive/refs/tags/${VERSION}.tar.gz -o $TGZ
+	if [ `check_tgz $TGZ` != 1 ]; then
+	    echo
+	    echo libxc download failed
+	    echo
+	    exit 1
+	fi
+    fi
 fi
 
 tar -xzf libxc-${VERSION}.tar.gz
@@ -50,7 +49,8 @@ fi
 if [[ -z "${CMAKE}" ]]; then
     #look for cmake
     if [[ -z "$(command -v cmake)" ]]; then
-	get_cmake38
+	cmake_instdir=../libext_utils
+	get_cmake_release $cmake_instdir
 	status=$?
 	if [ $status -ne 0 ]; then
 	    echo cmake required to build libxc
@@ -66,7 +66,7 @@ CMAKE_VER_MAJ=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -d. -f1)
 CMAKE_VER_MIN=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -d. -f2)
 echo CMAKE_VER is ${CMAKE_VER_MAJ} ${CMAKE_VER_MIN}
 if ((CMAKE_VER_MAJ < 3)) || (((CMAKE_VER_MAJ > 2) && (CMAKE_VER_MIN < 8))); then
-    get_cmake38
+    get_cmake_release  $cmake_instdir
     status=$?
     if [ $status -ne 0 ]; then
 	echo cmake required to build scalapack

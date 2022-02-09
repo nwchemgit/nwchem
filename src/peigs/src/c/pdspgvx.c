@@ -319,7 +319,6 @@ void pdspgvx( ifact, ivector, irange, n, vecA, mapA, vecB, mapB,
   extern Integer  mxmynd_(), mxnprc_();
   extern Integer  mapchk_(), count_list(), fil_mapvec_(), reduce_list2();
 
-  extern void     reduce_maps();
   extern void     xstop_(), pdiff();
   extern void     pgexit();
   extern void     mapdif_();

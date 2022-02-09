@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 if [ ! -f h2o1.movecs ] || [ ! -f h2o2.movecs ]; then 
   mpirun -np 4 ~/Programs/nwchem-dev-new-build/bin/LINUX64/./nwchem dimer.nw > dimer.out.rhf;

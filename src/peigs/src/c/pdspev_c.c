@@ -222,7 +222,7 @@ void pdspev(n, vecA, mapA, vecZ, mapZ, eval, iscratch, iscsize,
 
   extern Integer  mapchk_(), count_list();
   extern void     memreq_();
-  extern void     pdiff(), xstop_(), pgexit(), mapdif_(), reduce_maps();
+  extern void     pdiff(), xstop_(), pgexit(), mapdif_();
 
   extern void     pdspevx();
   

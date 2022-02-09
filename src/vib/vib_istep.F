@@ -259,7 +259,7 @@ c
       endif
       if (.not.rtdb_cget(rtdb,'vib:animate:filename',
      &                   1,filesetname)) then
-         filesetname = ""
+         filesetname = " "
       endif
       filesetnamelength = inp_strlen(filesetname)
       cur_step = 0.0d00

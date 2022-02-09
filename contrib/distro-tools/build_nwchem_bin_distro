@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 if [ $# != 3 ] ; then
   echo "Usage: $0 source-directory linux-version gcc-version"
   echo ""

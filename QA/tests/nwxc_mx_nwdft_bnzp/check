@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 exec=/home/d3y133/nwchem-dev/nwchem-ref/QA/tests/nwxc_nwdft_4n
 tkdiff $exec/4n_b1b95.out  4n_b1b95.out
 tkdiff $exec/4n_b97-3.out  4n_b97-3.out

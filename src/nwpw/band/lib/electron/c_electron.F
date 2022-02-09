@@ -531,6 +531,97 @@ cccccccccccccccccc
 
 
 *     ***********************************
+*     *                                 *
+*     *   c_electron_energy_remainder   *
+*     *                                 *
+*     ***********************************
+      real*8 function c_electron_energy_remainder(psi_k_tag,
+     >                                            dn,dng,dnall)
+      implicit none
+      integer    psi_k_tag
+      real*8     dn(*)
+      complex*16 dng(*)
+      real*8     dnall(*)
+
+#include "bafdecls.fh"
+#include "c_electron_common.fh"
+
+*     **** local variables ****
+      integer nbq,ii,nx,ny,nz,neall
+      integer psi_shift,Hpsi_shift,nshift1,nshift2,occ_shift,occ_tag
+      real*8  sum,eorbit,ehartr,exc,pxc,exc2,pxc2,dv,weight
+      real*8  total_energy
+
+*     **** external functions *****
+      logical  band_HFX,band_HFX_relaxed
+      integer  cpsi_data_get_chnk,cpsi_data_nsize,Pneb_convert_nb
+      integer  cpsi_data_get_next
+      real*8   lattice_omega,c_coulomb_e,brillioun_weight
+      external band_HFX,band_HFX_relaxed
+      external cpsi_data_get_chnk,cpsi_data_nsize,Pneb_convert_nb
+      external cpsi_data_get_next
+      external lattice_omega,c_coulomb_e,brillioun_weight
+
+      call C3dB_nx(1,nx)
+      call C3dB_ny(1,ny)
+      call C3dB_nz(1,nz)
+      dv = lattice_omega()/dble(nx*ny*nz)
+
+      neall = neq(1) + neq(2)
+      nshift1 = cpsi_data_nsize(psi_k_tag)
+      nshift2 = cpsi_data_nsize(Hpsi_k_tag)
+      occ_tag = cpsi_data_get_next(psi_k_tag)
+
+*     *** get orbital energies ****
+      eorbit = 0.0d0
+
+*     **** get coulomb energy ****
+      ehartr = c_coulomb_e(dng)
+
+*     **** get exchange-correlation energy ****
+      call C3dB_rr_dot(1,dnall(1),
+     >                dbl_mb(xce(1)),
+     >                exc)
+      call C3dB_rr_dot(1,dn(1),
+     >                 dbl_mb(xcp(1)),
+     .                 pxc)
+      if (ispin.eq.1) then
+         exc= exc + exc
+         pxc= pxc + pxc
+      else
+         call C3dB_rr_dot(1,dnall(1+nfft3d),
+     >                    dbl_mb(xce(1)),
+     >                    exc2)
+         call C3dB_rr_dot(1,dn(1+nfft3d),
+     >                    dbl_mb(xcp(1)+nfft3d),
+     >                    pxc2)
+         exc= exc + exc2
+         pxc= pxc + pxc2
+      end if
+      exc = exc*dv
+      pxc = pxc*dv
+
+      total_energy = eorbit + exc - ehartr - pxc
+
+*     **** HFX energy ****
+      if (band_HFX()) then
+      if (band_HFX_relaxed()) then
+         call band_energy_HFX(ispin,psi_r_tag,
+     >                        ehfx,
+     >                        phfx)
+         total_energy = total_energy + ehfx - phfx
+      end if
+      end if
+
+*     **** total energy ****
+      c_electron_energy_remainder = total_energy
+      return
+      end
+
+
+
+
+*     ***********************************
 *     *					*
 *     *		c_electron_eorbit	*
 *     *					*

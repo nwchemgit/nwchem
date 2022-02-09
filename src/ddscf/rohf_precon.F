@@ -214,6 +214,8 @@ c
             ls_tol = 0.1d0
          endif
       endif
+c     guard against case nvir=0
+      if((nmo - nclosed - nopen).eq.0) pflg=0
 c     
 c     Determine if should canonicalize the orbitals to make the
 c     Hessian more diagonally dominant ... right now do a diag

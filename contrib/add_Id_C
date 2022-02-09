@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Add the $Id: $ construct to a C file. For simplicity it is simply appended.
 #

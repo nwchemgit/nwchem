@@ -60,15 +60,15 @@ c I choose to carry out full matrix multiplication in the space
 c of nbf_ao*nbf_ao, while leaving the meaningless part of the 
 c space zeroed.
 c
-      if (.not.ma_push_get(mt_dbl,nbf_ao**2,'Work array',
-     1  l_w1,k_w1)) call errquit
-     2  ('tddft_transfm: failed to allocate w1',0, MA_ERR)
-      if (.not.ma_push_get(mt_dbl,nbf_ao**2,'Work array',
-     1  l_w2,k_w2)) call errquit
-     2  ('tddft_transfm: failed to allocate w2',0, MA_ERR)
-      if (.not.ma_push_get(mt_dbl,nbf_ao**2,'Work MO vectors',
-     1  l_w3,k_w3)) call errquit
-     2  ('tddft_transfm: failed to allocate w2',0, MA_ERR)
+c      if (.not.ma_push_get(mt_dbl,nbf_ao**2,'Work array',
+c     1  l_w1,k_w1)) call errquit
+c     2  ('tddft_transfm: failed to allocate w1',0, MA_ERR)
+c      if (.not.ma_push_get(mt_dbl,nbf_ao**2,'Work array',
+c     1  l_w2,k_w2)) call errquit
+c     2  ('tddft_transfm: failed to allocate w2',0, MA_ERR)
+c      if (.not.ma_push_get(mt_dbl,nbf_ao**2,'Work MO vectors',
+c     1  l_w3,k_w3)) call errquit
+c     2  ('tddft_transfm: failed to allocate w2',0, MA_ERR)
 c
 c ------
 c Type 1
@@ -255,12 +255,12 @@ c ------
 c Return
 c ------
 c
-      if (.not.ma_pop_stack(l_w3)) call errquit
-     1  ('tddft_transfm: failed to deallocate w3',0, MA_ERR)
-      if (.not.ma_pop_stack(l_w2)) call errquit
-     1  ('tddft_transfm: failed to deallocate w2',0, MA_ERR)
-      if (.not.ma_pop_stack(l_w1)) call errquit
-     1  ('tddft_transfm: failed to deallocate w1',0, MA_ERR)
+c      if (.not.ma_pop_stack(l_w3)) call errquit
+c     1  ('tddft_transfm: failed to deallocate w3',0, MA_ERR)
+c      if (.not.ma_pop_stack(l_w2)) call errquit
+c     1  ('tddft_transfm: failed to deallocate w2',0, MA_ERR)
+c      if (.not.ma_pop_stack(l_w1)) call errquit
+c     1  ('tddft_transfm: failed to deallocate w1',0, MA_ERR)
       return
  9000 format(' Vector: ',i5,' Spin: ',i5)
       end

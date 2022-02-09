@@ -13,6 +13,8 @@ markdown_extensions:
     - toc:
         permalink: True
     - tables
+    - footnotes:
+        SEPARATOR: _footnote_
 #    - markdown_katex:
 #         no_inline_svg: True
 #         insert_fonts_css: True

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #export RELEASE=6.5
 function usage()
 {

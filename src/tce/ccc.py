@@ -1,10 +1,13 @@
 # Ground-state coupled-cluster ansatz generator for OCE
 # (c) All rights reserved by Battelle & Pacific Northwest Nat'l Lab (2002)
 
-from Tkinter import *
-import tkMessageBox
-import tkSimpleDialog
-import tkFileDialog
+from tkinter import *
+import tkinter.messagebox
+import tkinter.simpledialog
+import tkinter.filedialog
+#import tkMessageBox
+#import tkSimpleDialog
+#import tkFileDialog
 
 import string
 import copy
@@ -148,7 +151,7 @@ class Window:
 
    def read_oceinput(self):
       
-      filename = tkFileDialog.askopenfilename()
+      filename = tkinter.filedialog.askopenfilename()
       if (filename != ""):
          self.oce_result = oce.readfromfile(filename)
          self.listbox.delete(0,END)
@@ -163,7 +166,7 @@ class Window:
 
    def read_tceinput(self):
       
-      filename = tkFileDialog.askopenfilename()
+      filename = tkinter.filedialog.askopenfilename()
       if (filename != ""):
          self.tce_result = tce.readfromfile(filename)
          self.listbox.delete(0,END)
@@ -180,10 +183,10 @@ class Window:
       sys.exit()
 
    def about(self):
-      tkMessageBox.showinfo("About", "Tensor Contraction Engine, Version 1.0\nCopyright (c) 2003, Battelle & Pacific Northwest National Laboratory\n")
+      tkinter.messagebox.showinfo("About", "Tensor Contraction Engine, Version 1.0\nCopyright (c) 2003, Battelle & Pacific Northwest National Laboratory\n")
 
    def references(self):
-      tkMessageBox.showinfo("References", "S. Hirata, J. Phys. Chem. A 107, 9887-9897 (2003).\n")
+      tkinter.messagebox.showinfo("References", "S. Hirata, J. Phys. Chem. A 107, 9887-9897 (2003).\n")
 
    def go(self):
 
@@ -194,7 +197,7 @@ class Window:
          if (self.h2.get() != 0):
             horders.append(self.h2.get())
          if (not horders):
-	    horders.append(0)
+            horders.append(0)
          torders = [0]
          if (self.t1.get() != 0):
             torders.append(self.t1.get())
@@ -331,7 +334,7 @@ class Window:
                               # right projection
          #
          # 6/18/03 we promoted right projection logic here, just to reserve
-         #         the same consequtive sets of indexes for the externals.
+         #         the same consecutive sets of indexes for the externals.
          #         If externals have different indexes, the factorization will
          #         break.  The actual insertion of right projection occurs later.
          #
@@ -427,7 +430,7 @@ class Window:
                                  curly = [g1+"+",g2+"+",g4,g3]
                                  operator.append(curly)
                               elif (hamiltonian != 0):
-                                 raise RuntimeError, "unsupported operator rank"
+                                 raise RuntimeError("unsupported operator rank")
                               list = []
                               if (t1 > 0):
                                  list.append(t1)
@@ -550,7 +553,7 @@ class Window:
                                  for index in curly:
                                     ansatz = string.join([ansatz,index])
                                  ansatz = string.join([ansatz,"}"])
-                              print ansatz
+                              print (ansatz)
                               listofansatz.append(ansatz)
          
          self.oce_result = oce.ListOperatorSequences()
@@ -633,25 +636,25 @@ class Window:
          self.listbox.pack(fill=X)
          newlen = len(self.oce_result.show())
          self.status.config(text = repr(newlen)+" multiple tensor contractions ("+repr(originallen-newlen)+" diagrams merged)")
-         if tkMessageBox.askyesno("TCE", "Relabel operators?\n"):
-            oldname = tkSimpleDialog.askstring("TCE", "Old label for operator?\n")
-            newname = tkSimpleDialog.askstring("TCE", "New label for operator?\n")
+         if tkinter.messagebox.askyesno("TCE", "Relabel operators?\n"):
+            oldname = tkinter.simpledialog.askstring("TCE", "Old label for operator?\n")
+            newname = tkinter.simpledialog.askstring("TCE", "New label for operator?\n")
             while (oldname and newname):
                self.oce_result.relabelamplitudes(oldname,newname)
                self.listbox.delete(0,END)
                for line in self.oce_result.show():
                   self.listbox.insert(END,line)
                self.listbox.pack(fill=X)
-               oldname = tkSimpleDialog.askstring("TCE", "Old label for operator?\n")
-               newname = tkSimpleDialog.askstring("TCE", "New label for operator?\n")
+               oldname = tkinter.simpledialog.askstring("TCE", "Old label for operator?\n")
+               newname = tkinter.simpledialog.askstring("TCE", "New label for operator?\n")
          self.status.update_idletasks()
          self.progress = 5
          self.buttonOK = Button(self.frame, text = "Save Working Equations...", command = self.go, width = 100).grid(row=8,columnspan=6)
          return
 
       if (self.progress == 5):
-         if tkMessageBox.askyesno("TCE", "Save working equations?\n"):
-            filename = tkFileDialog.asksaveasfilename()
+         if tkinter.messagebox.askyesno("TCE", "Save working equations?\n"):
+            filename = tkinter.filedialog.asksaveasfilename()
             if (filename != ""):
                self.oce_result.writetofile(filename)
                self.status.config(text = "Working equation saved")
@@ -842,8 +845,8 @@ class Window:
                general = "'" + type + "' "
          if (general):
             message = message + general + "are general tensors\n"
-         if tkMessageBox.askyesno("TCE", message):
-            subroutinename = tkSimpleDialog.askstring("TCE", "Stub Name of Fortran77 code?\n")
+         if tkinter.messagebox.askyesno("TCE", message):
+            subroutinename = tkinter.simpledialog.askstring("TCE", "Stub Name of Fortran77 code?\n")
             if (subroutinename):
                self.tce_result = self.tce_result.fortran77(subroutinename)
                self.listbox.delete(0,END)
@@ -859,19 +862,19 @@ class Window:
             deexcitationlist = []
             intermediatelist = []
             generallist = []
-            dialogresult = tkSimpleDialog.askstring("TCE","Excitation Tensors",initialvalue=excitationold)
+            dialogresult = tkinter.simpledialog.askstring("TCE","Excitation Tensors",initialvalue=excitationold)
             if (dialogresult):
                excitationlist = string.split(dialogresult)
-            dialogresult = tkSimpleDialog.askstring("TCE","Deexcitation Tensors",initialvalue=deexcitationold)
+            dialogresult = tkinter.simpledialog.askstring("TCE","Deexcitation Tensors",initialvalue=deexcitationold)
             if (dialogresult):
                deexcitationlist = string.split(dialogresult)
-            dialogresult = tkSimpleDialog.askstring("TCE","Intermediate Tensors",initialvalue=intermediateold)
+            dialogresult = tkinter.simpledialog.askstring("TCE","Intermediate Tensors",initialvalue=intermediateold)
             if (dialogresult):
                intermediatelist = string.split(dialogresult)
-            dialogresult = tkSimpleDialog.askstring("TCE","General Tensors",initialvalue=generalold)
+            dialogresult = tkinter.simpledialog.askstring("TCE","General Tensors",initialvalue=generalold)
             if (dialogresult):
                generallist = string.split(dialogresult)
-            subroutinename = tkSimpleDialog.askstring("TCE", "Stub Name of Fortran77 code?\n")
+            subroutinename = tkinter.simpledialog.askstring("TCE", "Stub Name of Fortran77 code?\n")
             if (subroutinename):
                self.tce_result = self.tce_result.fortran77(subroutinename,excitationlist,deexcitationlist,intermediatelist,generallist)
                self.listbox.delete(0,END)
@@ -885,8 +888,8 @@ class Window:
          return
 
       if (self.progress == 9):
-         if tkMessageBox.askyesno("TCE", "Save Fortran77 code?\n"):
-            filename = tkFileDialog.asksaveasfilename()
+         if tkinter.messagebox.askyesno("TCE", "Save Fortran77 code?\n"):
+            filename = tkinter.filedialog.asksaveasfilename()
             if (filename != ""):
                self.tce_result.writetofile(filename)
          self.status.config(text = "")
@@ -899,11 +902,11 @@ class Window:
    def skip(self):
    
       if (self.progress == 0):
-         tkMessageBox.showwarning("TCE", "Unable to skip")
+         tkinter.messagebox.showwarning("TCE", "Unable to skip")
          return
 
       if (self.progress == 1):
-         tkMessageBox.showwarning("TCE", "Unable to skip")
+         tkinter.messagebox.showwarning("TCE", "Unable to skip")
          return
 
       if (self.progress == 2):
@@ -917,7 +920,7 @@ class Window:
          return
 
       if (self.progress == 4):
-         tkMessageBox.showwarning("TCE", "Unable to skip")
+         tkinter.messagebox.showwarning("TCE", "Unable to skip")
          return
 
       if (self.progress == 5):
@@ -926,7 +929,7 @@ class Window:
          return
             
       if (self.progress == 6):
-         tkMessageBox.showwarning("TCE", "Unable to skip")
+         tkinter.messagebox.showwarning("TCE", "Unable to skip")
          return
          
       if (self.progress == 7):
@@ -935,7 +938,7 @@ class Window:
          return
 
       if (self.progress == 8):
-         tkMessageBox.showwarning("TCE", "Unable to skip")
+         tkinter.messagebox.showwarning("TCE", "Unable to skip")
          return
 
       if (self.progress == 9):

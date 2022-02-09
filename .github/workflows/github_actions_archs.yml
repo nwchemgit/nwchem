@@ -93,7 +93,7 @@ jobs:
           env: |
             FORCETARGET: ${{ matrix.ftarget }}
             COMEX_MAX_NB_OUTSTANDING: 4
-            SIMINT_MAXAM: 3
+            SIMINT_MAXAM: 4
             MPI_IMPL: ${{ matrix.mpi_impl }}
             ARMCI_NETWORK: MPI-TS
             FC: ${{ matrix.fc }}

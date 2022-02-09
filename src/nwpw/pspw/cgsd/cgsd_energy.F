@@ -124,6 +124,8 @@ c#include "global.fh"
          if (minimizer.eq.6) write(luout,1311)
          if (minimizer.eq.7) write(luout,1312)
          if (minimizer.eq.8) write(luout,1313)
+         if (minimizer.eq.9) write(luout,1315)
+         if (minimizer.eq.10) write(luout,1316)
          call util_flush(luout)
       end if
 
@@ -247,6 +249,14 @@ c          **** reset minimizer if failed ****
                  call nwpw_message(2)
               end if
            end if
+
+         else if (minimizer.eq.9) then
+           bfgscount = bfgscount + 1
+           call cgminimizeABC(E,deltae,deltac,bfgscount,it_in)
+
+         else if (minimizer.eq.10) then
+           bfgscount = bfgscount + 1
+           call bfgsminimizeABC(E,deltae,deltac,bfgscount,minimizer)
          end if
 
          if ((dabs(deltae).gt.dabs(deltae_old)).or.
@@ -632,15 +642,20 @@ c            end do
 
 *     **** write out extended Born solvation energies ****
       if (nwpw_born_on()) then
-         Egas = control_gas_energy()
-         if (oprint) then
-            write(luout,1740)
-            write(luout,1741) nwpw_born_screen()
-            write(luout,1745) E(22),E(22)*27.2116d0*23.06d0
-            if (dabs(Egas).gt.1.0d-6)
-     >         write(luout,1746)  E(1)-Egas,
-     >                           (E(1)-Egas)*27.2116d0*23.06d0
-            call nwpw_born_print(luout,Egas,E(1))
+         if (pspw_V_APC_on()) then
+            Egas = control_gas_energy()
+            if (oprint) then
+               write(luout,1740)
+               write(luout,1741) nwpw_born_screen()
+               write(luout,1745) E(22),E(22)*27.2116d0*23.06d0
+               if (dabs(Egas).gt.1.0d-6)
+     >            write(luout,1746) E(1)-Egas,
+     >                             (E(1)-Egas)*27.2116d0*23.06d0
+               call nwpw_born_print(luout,Egas,E(1))
+            end if
+         else
+            call rho_1dngen_APC()
+            call pspw_print_APC(luout)
          end if
       end if
 
@@ -733,6 +748,8 @@ c     >   'cgsd_noit_energy: numerical stress - error writing rtdb',0)
  1312 FORMAT(10X,'============= Stiefel lmbfgs iteration =============')
  1313 FORMAT(10X,'======== Kohn-Sham scf iteration (density) =========')
  1314 FORMAT(10X,'======== Kohn-Sham scf iteration failed    =========')
+ 1315 FORMAT(10X,'==== Grassmann cg (Stich linesearch) iteration  ====')
+ 1316 FORMAT(10X,'===== Grassmann lmbfgs (Stich l.s.) iteration  =====')
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
  1321 FORMAT(' total charge of system:',F11.5,A)
  1322 FORMAT('     plane-wave part:         ',F11.5,'       ',F11.5,A)

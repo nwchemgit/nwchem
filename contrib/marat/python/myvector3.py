@@ -51,7 +51,7 @@ class Vector(object):
 if __name__ == '__main__':
     a = Vector(1.0,1.0,0.0)
     b = Vector(1.0,1.0,0.0)
-    print a
+    print(a)
     c=a-b
-    print c
-    print "Length ", c.length()
+    print(c)
+    print("Length ", c.length())

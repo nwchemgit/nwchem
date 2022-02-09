@@ -277,6 +277,11 @@ c        call nwpwxc_print()
      > spin_orbit=.false.
       if (spin_orbit) ispin=2
 
+      if (.not.btdb_get(rtdb,'cpsd:fei',mt_log,1,fei))
+     >  fei = .false.
+      if(.not.btdb_cget(rtdb,'cpsd:xyz_filename',1,xyz_filename))
+     >  call util_file_prefix('xyz',xyz_filename)
+
 
 *     ****************************************
 *     **** cpmd and band_cpmd code: stuff ****
@@ -2823,6 +2828,20 @@ c      end
       return 
       end
 
+*     ***********************************
+*     *					*
+*     *		control_output_qpsi	*
+*     *					*
+*     ***********************************
+      character*50 function control_output_qpsi()
+      implicit none
+
+#include "control.fh"
+
+      control_output_qpsi = output_qwavefunction_filename
+      return 
+      end
+
 
 *     ***********************************
 *     *					*
@@ -2850,6 +2869,20 @@ c      end
 #include "control.fh"
 
       control_input_epsi = input_ewavefunction_filename
+      return 
+      end
+
+*     ***********************************
+*     *					*
+*     *		control_input_qpsi	*
+*     *					*
+*     ***********************************
+      character*50 function control_input_qpsi()
+      implicit none
+
+#include "control.fh"
+
+      control_input_qpsi = input_qwavefunction_filename
       return 
       end
 
@@ -3298,6 +3331,50 @@ c     >               (ispin.eq.ispin_wf))
       control_check_number_virtuals = check
       return
       end
+
+
+*     *****************************************
+*     *                                       *
+*     *      control_check_q_orbitals         *
+*     *                                       *
+*     *****************************************
+      logical function control_check_q_orbitals()
+      implicit none
+
+#include "control.fh"
+
+*    *** local variables ***
+      logical check
+      integer ispin_wf,ne_wf(2),ne(2)
+
+*     ***** local functions ****
+      logical  qpsi_filefind
+      external qpsi_filefind
+      integer  psi_ne
+      external psi_ne
+
+*     **** check wavefunction file ****
+      if (qpsi_filefind()) then
+
+*        **** get mult and e-charge from wavefunction file ****
+         call psi_get_ne_qpsi(ispin_wf,ne_wf)
+         ne(1) = psi_ne(1)
+         ne(2) = psi_ne(2)
+
+         check = ((ne(1).eq.ne_wf(1)).and.
+     >            (ne(2).eq.ne_wf(2)).and.
+     >            (ispin.eq.ispin_wf))
+
+*     **** no wavefunction file ***
+      else
+         check = .false.
+      end if
+
+      control_check_q_orbitals = check
+      return
+      end
+
+
 
 
 
@@ -5776,6 +5853,33 @@ c      end if
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *       control_3x3ne_virtual     *
+*     *                                 *
+*     ***********************************
+      logical function control_3x3ne_virtual()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .false.
+      if (.not.btdb_get(rtdb,'nwpw:3x3ne_virtual',mt_log,1,value))
+     >   value = .false.
+
+      control_3x3ne_virtual = value
+      return
+      end
+
+
 *     ***********************************
 *     *                                 *
 *     *       control_4x4_virtual       *
@@ -5823,8 +5927,8 @@ c      end if
       external control_2x2_virtual,control_3x3_virtual
       logical  control_4x4_virtual
       external control_4x4_virtual
-      logical  control_2x2ne_virtual
-      external control_2x2ne_virtual
+      logical  control_2x2ne_virtual,control_3x3ne_virtual
+      external control_2x2ne_virtual,control_3x3ne_virtual
       
       ivalue = 0
       if (.not.btdb_get(rtdb,'nwpw:CI_virtual',mt_int,1,ivalue)) then
@@ -5836,6 +5940,8 @@ c      end if
             ivalue = 4
          else if (control_2x2ne_virtual()) then
             ivalue = 5
+         else if (control_3x3ne_virtual()) then
+            ivalue = 6
          end if
       end if
       

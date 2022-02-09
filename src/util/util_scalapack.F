@@ -21,7 +21,7 @@ c
 C#ifdef USE_ELPA
 C      call ga_evp_real(g_fock, g_evecs, evals,nb, mout)
 C#else
-#ifdef USE_PDSYEVR
+#ifdef USE_PDSYEVR__
       if(ga_nnodes().gt.1) then
          call ga_pdsyevr(g_fock, g_evecs, evals, nb, mout)
       else

@@ -25,10 +25,9 @@
             else if (((dist-vradii(jj)).le.vradii(ii)).and.
      >               (vradii(ii).le.(dist+vradii(jj)))) then
                L = vradii(jj)
-            else
+            else if (vradii(ii).le.(dist+vradii(jj))) then
                L = dist - vradii(jj)
             end if
-            invL = 1.0d0/L
 
             U=0.0d0
             if ((dist+vradii(jj)).le.vradii(ii)) then
@@ -36,9 +35,10 @@
             else if (vradii(ii).lt.(dist+vradii(jj))) then
                U = dist + vradii(jj)
             end if
-            invU = 1.0d0/U
 
             if ((U.gt.0.0d0).and.(L.gt.0.0d0)) then
+               invL = 1.0d0/L
+               invU = 1.0d0/U
                delta = -0.5d0*( (invL - invU)
      >                        + 0.25d0*dist*(invU**2 - invL**2)
      >                        + 0.50d0/dist*dlog(L/U)
@@ -119,12 +119,12 @@ c     radii for heavy elements: 1.17*1.9
 
 
 *     **** nwpw_born common blocks ****
-      logical born_on
+      logical born_on,born_relax
       integer uborn(2),qborn(2)
       integer bradii(2),vradii(2),rtdb
       real*8  dielec
       common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
-     >                       rtdb,born_on
+     >                       rtdb,born_on,born_relax
 
 
 *     ***** external functions *****
@@ -145,8 +145,12 @@ c
       oprint = omaster.and.control_print(print_medium)
 
 
+      if (.not.btdb_get(rtdb,'nwpw:born_relax',mt_log,1,born_relax)) 
+     >   born_relax = .false.
+
       if (.not.btdb_get(rtdb,'nwpw:born',mt_log,1,born_on)) 
      >   born_on = .false.
+
 
       if (born_on) then
          if (.not.btdb_get(rtdb,'nwpw:born_dielec',mt_dbl,1,dielec)) 
@@ -194,6 +198,11 @@ c
      >                    " Chem. Phys. Lett., vol. 246, pages 122-129."
             write(luout,*)
             write(luout,'(5x,A,F11.6)') "dielectric constant = ",dielec
+            if (born_relax) then
+               write(luout,'(5x,A)') "self-consistent solvation"
+            else
+               write(luout,'(5x,A)') "perturbative solvation"
+            end if
             write(luout,'(5x,A)') "generalized Born radii:"
             do ii=1,nion
                write(luout,101) ion_atom(ion_katm(ii)),ii,
@@ -225,12 +234,12 @@ c
 #include "errquit.fh"
 
 *     **** nwpw_born common blocks ****
-      logical born_on
+      logical born_on,born_relax
       integer uborn(2),qborn(2)
       integer bradii(2),vradii(2),rtdb
       real*8  dielec
       common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
-     >                       rtdb,born_on
+     >                       rtdb,born_on,born_relax
 
 *     **** local variables ****
       logical value
@@ -271,14 +280,34 @@ c     *** Clean up born stuff, if necessary ***
       implicit none
 
 *     **** nwpw_born common blocks ****
-      logical born_on
+      logical born_on,born_relax
       integer uborn(2),qborn(2)
       integer bradii(2),vradii(2),rtdb
       real*8  dielec
       common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
-     >                       rtdb,born_on
+     >                       rtdb,born_on,born_relax
 
       nwpw_born_on = born_on
+      return
+      end
+
+*     *******************************************
+*     *                                         *
+*     *              nwpw_born_relax            *
+*     *                                         *
+*     *******************************************
+      logical function nwpw_born_relax()
+      implicit none
+
+*     **** nwpw_born common blocks ****
+      logical born_on,born_relax
+      integer uborn(2),qborn(2)
+      integer bradii(2),vradii(2),rtdb
+      real*8  dielec
+      common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
+     >                       rtdb,born_on,born_relax
+
+      nwpw_born_relax = born_relax
       return
       end
 
@@ -299,12 +328,12 @@ c     *** Clean up born stuff, if necessary ***
 
 
 *     **** nwpw_born common blocks ****
-      logical born_on
+      logical born_on,born_relax
       integer uborn(2),qborn(2)
       integer bradii(2),vradii(2),rtdb
       real*8  dielec
       common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
-     >                       rtdb,born_on
+     >                       rtdb,born_on,born_relax
 
 *     **** local variables ****
       integer MASTER,taskid
@@ -392,12 +421,12 @@ c     *** Clean up born stuff, if necessary ***
       implicit none
 
 *     **** nwpw_born common blocks ****
-      logical born_on
+      logical born_on,born_relax
       integer uborn(2),qborn(2)
       integer bradii(2),vradii(2),rtdb
       real*8  dielec
       common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
-     >                       rtdb,born_on
+     >                       rtdb,born_on,born_relax
 
       nwpw_born_screen = (1.0d0 - 1.0d0/dielec)
       return
@@ -416,12 +445,12 @@ c     *** Clean up born stuff, if necessary ***
 #include "errquit.fh"
 
 *     **** nwpw_born common blocks ****
-      logical born_on
+      logical born_on,born_relax
       integer uborn(2),qborn(2)
       integer bradii(2),vradii(2),rtdb
       real*8  dielec
       common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
-     >                       rtdb,born_on
+     >                       rtdb,born_on,born_relax
 
 *     **** external functions ****
       integer  ion_rion_ptr,ion_nion_qm
@@ -497,12 +526,12 @@ c      end do
 #include "errquit.fh"
 
 *     **** nwpw_born common blocks ****
-      logical born_on
+      logical born_on,born_relax
       integer uborn(2),qborn(2)
       integer bradii(2),vradii(2),rtdb
       real*8  dielec
       common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
-     >                       rtdb,born_on
+     >                       rtdb,born_on,born_relax
 
 *     **** external functions ****
       integer  ion_rion_ptr,ion_nion_qm
@@ -624,12 +653,12 @@ c      end do
 #include "errquit.fh"
 
 *     **** nwpw_born common blocks ****
-      logical born_on
+      logical born_on,born_relax
       integer uborn(2),qborn(2)
       integer bradii(2),vradii(2),rtdb
       real*8  dielec
       common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
-     >                       rtdb,born_on
+     >                       rtdb,born_on,born_relax
 
       integer  ion_rion_ptr
       external ion_rion_ptr
@@ -700,12 +729,12 @@ c      end do
       implicit none
 
 *     **** nwpw_born common blocks ****
-      logical born_on
+      logical born_on,born_relax
       integer uborn(2),qborn(2)
       integer bradii(2),vradii(2),rtdb
       real*8  dielec
       common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
-     >                       rtdb,born_on
+     >                       rtdb,born_on,born_relax
 
       nwpw_born_u_ptr = uborn(1)
       return
@@ -721,12 +750,12 @@ c      end do
       implicit none
 
 *     **** nwpw_born common blocks ****
-      logical born_on
+      logical born_on,born_relax
       integer uborn(2),qborn(2)
       integer bradii(2),vradii(2),rtdb
       real*8  dielec
       common /nwpw_born_blk/ uborn,qborn,bradii,vradii,dielec,
-     >                       rtdb,born_on
+     >                       rtdb,born_on,born_relax
 
       nwpw_born_q_ptr = qborn(1)
       return

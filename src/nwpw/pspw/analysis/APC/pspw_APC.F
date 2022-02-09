@@ -57,6 +57,7 @@ c
      >          nwpw_cosmo2_on().or.
      >          nwpw_cdft_on()
 
+
 *     **** read in nga from rtdb ***
       value = btdb_get(rtdb,'nwpw_APC:nga',mt_int,1,nga)
 
@@ -344,6 +345,7 @@ c     >                          dcpl_mb(gaus_i(1)))
 !$OMP MASTER
                !dbl_mb(b(1)+i-1) = sum*omega
                dbl_mb(b(1)+i-1) = e1*omega
+               !write(*,*) "i,b =",i,e1*omega
 !$OMP END MASTER
 
                if (move) then
@@ -424,6 +426,7 @@ c     >                               dcpl_mb(gaus_i(1)))
                     !dbl_mb(A(1)+indxt) = sum
                     dbl_mb(A(1)+indx)  = e1*omega
                     dbl_mb(A(1)+indxt) = e1*omega
+               !write(*,*) "i,j,Aij =",i,j,e1*omega
 !$OMP END MASTER
 
                     if (move) then
@@ -555,6 +558,7 @@ c     >                        j)
               sum1 = sum1 + dbl_mb(Am(1)+indx)
            end do
            end do
+           !write(*,*) "sum,sum1,N=",sum,sum1,N
            sum = (sum-N)/sum1
    
            do i=1,ngs
@@ -569,9 +573,12 @@ c     >                        j)
 !$OMP END MASTER
            end do
          end if
+
 *        **** synchronization ****
-         call D3dB_Vector_SumAll(ngs,dbl_mb(q(1)))
-         call D3dB_Vector_SumAll(ngs*ngs,dbl_mb(Am(1)))
+         !call D3dB_Vector_SumAll(ngs,dbl_mb(q(1)))
+         !call D3dB_Vector_SumAll(ngs*ngs,dbl_mb(Am(1)))
+         call Parallel_Vector_SumAll(ngs,dbl_mb(q(1)))
+         call Parallel_Vector_SumAll(ngs*ngs,dbl_mb(Am(1)))
 
       end if
 !$OMP BARRIER
@@ -1549,7 +1556,7 @@ c      write(*,*)
 *     ***********************************
 
       real*8 function pspw_generate_dQdR(lb,nga,nion,db,q,u,dA,
-     >                              Am,SumAm,
+     >                              Am,sumAm,
      >                              dbtmp,dAtmp)
       implicit none
       integer lb,nga,nion
@@ -1632,11 +1639,11 @@ c      write(*,*)
       implicit none
 
 *     **** external functions ****
-      logical  nwpw_cosmo2_on,nwpw_born_on,nwpw_cdft_on
-      external nwpw_cosmo2_on,nwpw_born_on,nwpw_cdft_on
+      logical  nwpw_cosmo2_on,nwpw_born_relax,nwpw_cdft_on
+      external nwpw_cosmo2_on,nwpw_born_relax,nwpw_cdft_on
 
       pspw_V_APC_on =  nwpw_cosmo2_on().or.
-     >                 nwpw_born_on().or.
+     >                 nwpw_born_relax().or.
      >                 nwpw_cdft_on()
       return
       end

@@ -65,12 +65,12 @@ if __name__ == '__main__':
     try:
         b = Atom.fromPDBrecord(aline1)
     except SystemExit:
-        print "error reading PDB line"
+        print("error reading PDB line")
         sys.exit(1)
     try:
         a = Atom.fromPDBrecord(aline2)
     except SystemExit:
-        print "error reading PDB line"
+        print("error reading PDB line")
         sys.exit(1)        
-    print "bondlength is", Atom.bondlength(a,b)
-    print "finished I am"
+    print("bondlength is", Atom.bondlength(a,b))
+    print("finished I am")

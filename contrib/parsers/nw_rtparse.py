@@ -149,7 +149,7 @@ def check_args_determine_labels (opts):
         elif opts.polarization == "z":
             dataindex = 4
         else:
-            raise Exception ("Invalid polarization: {0}".format(polarization))
+            raise Exception ("Invalid polarization: {0}".format(opts.polarization))
     else:
         dataindex = 2
 

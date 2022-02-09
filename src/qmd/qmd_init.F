@@ -31,7 +31,10 @@ c
       integer step_property
       integer step_tddft
       integer step_freq
-      integer*4 tvals(8)
+      character*8 sdate
+      character*10 stime
+      character*5 szone
+      integer tvals(8)
       integer svals
       double precision dt_nucl      ! nuclear md time step
       character*32 thermostat       ! thermostat name
@@ -171,7 +174,7 @@ c
 c     random number seed
       svals=0
       if(ga_nodeid().eq.0) then
-         call date_and_time(values=tvals)
+         call date_and_time(sdate,stime,szone,tvals)
 c     current seconds x milliseconds + minutes
          svals = tvals(7)*tvals(8)+tvals(6)
       endif

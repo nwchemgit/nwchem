@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 rm -f comex_configure.patch
 cat > comex_configure.patch <<EOF
 --- $1/comex/configure.orig	2020-06-04 11:16:29.506196033 -0700

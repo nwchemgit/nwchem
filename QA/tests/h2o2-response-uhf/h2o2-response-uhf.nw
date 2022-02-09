@@ -2,7 +2,7 @@ echo
 
 title "h2o2"
 
-memory 128 mb
+#memory 128 mb
 #memory global 73 mb stack 20 mb heap 5 mb
 
 start h2o2

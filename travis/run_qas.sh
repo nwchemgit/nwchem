@@ -1,11 +1,13 @@
-#!/bin/bash 
+#!/usr/bin/env bash 
 # Exit on error
 set -e
 # source env. variables
 if [[ -z "$TRAVIS_BUILD_DIR" ]] ; then
     TRAVIS_BUILD_DIR=$(pwd)
 fi
+if [[ "$SKIP_CACHE" != 1 ]] ; then
 source $TRAVIS_BUILD_DIR/travis/nwchem.bashrc
+fi
 # check if nwchem binary has been cached
 echo NWCHEM_EXECUTABLE is "$NWCHEM_EXECUTABLE"
 if [[ -f "$NWCHEM_EXECUTABLE" ]] ; then
@@ -23,8 +25,10 @@ fi
 
 os=`uname`
 arch=`uname -m`
+if [[ -d "$TRAVIS_BUILD_DIR/.cachedir/files/libraries" ]]; then
 export NWCHEM_BASIS_LIBRARY=$TRAVIS_BUILD_DIR/.cachedir/files/libraries/
 export NWCHEM_NWPW_LIBRARY=$TRAVIS_BUILD_DIR/.cachedir/files/libraryps/
+fi
 nprocs=2
 if [[ ! -z "$USE_OPENMP" ]]; then
     nprocs=1
@@ -50,6 +54,9 @@ env|egrep MP
  case "$ARMCI_NETWORK" in
     MPI-PR)
 	nprocs=$(( nprocs + 1 ))
+	if [[ "$BUILD_MPICH" == 1 && $nprocs > 2 ]]; then
+	    nprocs=2
+	fi
 	case "$MPI_IMPL" in
 	    openmpi)
 		export MPIRUN_NPOPT="-mca mpi_yield_when_idle 0 --oversubscribe -np "
@@ -81,8 +88,10 @@ env|egrep MP
 if [[ "$MPI_IMPL" == "openmpi" ]]; then
 export MPIRUN_NPOPT=" --allow-run-as-root -mca mpi_yield_when_idle 0 --oversubscribe -np "
 fi
+if [[ -d "$TRAVIS_BUILD_DIR/.cachedir/files/libraries" ]]; then
  echo === ls binaries cache ===
  ls -lrt $TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET/ || true
+fi
  echo =========================
  if [[ -z "$TRAVIS_HOME" ]]; then
      echo 'no using sleep loop'
@@ -106,6 +115,7 @@ fi
 	 if [[ ! $(grep -i cosmo $TRAVIS_BUILD_DIR/src/stubs.F| awk '/cosmo_input/') ]]; then
 	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs cosmo_h2o_dft
 	 fi
+	 cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs ritddft_h2o ritddft_co
      else
 	 echo ' dft_input stubbed'
      fi
@@ -131,6 +141,8 @@ fi
 	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_ch3_h2o_revm06
 	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_smear
 	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_he2p_wb97
+	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs ritddft_pyridine
+	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs au2-sarc-zora-mp
 	   if [[ ! -z "$USE_LIBXC" ]]; then
 	       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs libxc_he2+
 	   fi

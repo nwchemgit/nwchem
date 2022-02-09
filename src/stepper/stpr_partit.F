@@ -448,6 +448,7 @@ C
 C    Determine all eigenvectors of internal hessian.
 C
       call dfill(NAT3SQ,0.0d00,VECSQ,1)
+#if 0
       DO 330 N = 1, NINTER
         DO 340 ICART = 1,NAT3
           VECSQ(ICART,N) = 0.0D0
@@ -457,6 +458,12 @@ C
   350     CONTINUE
   340   CONTINUE
   330 CONTINUE
+#else
+      call dgemm('n','n',nat3,ninter,ninter,
+     a     1d0,VC(1,nexter+1),nat3,
+     b     SCRSQ,nat3,
+     c     1d0,vecsq,nat3)
+#endif
 C
 C     Write out the eigenvectors.
 C

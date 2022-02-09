@@ -101,6 +101,8 @@
          if (minimizer.eq.6) write(luout,1311)
          if (minimizer.eq.7) write(luout,1312)
          if (minimizer.eq.8) write(luout,1313)
+         if (minimizer.eq.9) write(luout,1314)
+         if (minimizer.eq.10) write(luout,1315)
          call util_flush(luout)
       end if
 
@@ -189,7 +191,12 @@ c           end if
          else if (minimizer.eq.8) then
            bfgscount = bfgscount + 1
            call c_bybminimize2(E,deltae,deltac,bfgscount,.false.,1)
-
+         else if (minimizer.eq.9) then
+           bfgscount = bfgscount + 1
+           call c_cgminimizeABC(E,deltae,deltac,bfgscount,it_in)
+         else if (minimizer.eq.10) then
+           bfgscount = bfgscount + 1
+           call c_bfgsminimizeABC(E,deltae,deltac,bfgscount,minimizer)
          end if
 
          if ((dabs(deltae).gt.dabs(deltae_old)).or.
@@ -384,6 +391,8 @@ c          if (mprint) write(luout,1511)
  1311 FORMAT(10X,'=== Projected bundled Grassmann lmbfgs iteration ===')
  1312 FORMAT(10X,'========= bundled Stiefel lmbfgs iteration =========')
  1313 FORMAT(10X,'============ scf minimization (density) ============')
+ 1314 FORMAT(10X,'==== bundled Grassmann cg (Stich ls.) iteration ====')
+ 1315 FORMAT(10X,'== bundled Grassmann lmbfgs (Stich ls.) iteration ==')
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
  1340 FORMAT(I3,2I3,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)

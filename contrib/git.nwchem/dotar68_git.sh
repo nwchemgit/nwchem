@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/usr/bin/env bash 
 rm -rf temp.`date +%Y%m%d`
 mkdir -p temp.`date +%Y%m%d`
 cd temp.`date +%Y%m%d`

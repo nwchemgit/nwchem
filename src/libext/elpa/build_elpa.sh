@@ -1,16 +1,19 @@
 #!/usr/bin/env bash
 #set -v
 arch=`uname -m`
-SHORTVERSION=2020.11.001
-VERSION=new_release_2020.11.001
+#SHORTVERSION=2020.11.001
+#ERSION=new_release_2020.11.001
 #SHORTVERSION=2021.05.002
 #VERSION=new_release_2021_05_002
+SHORTVERSION=2021.11.001
+VERSION=new_release_2021.11.001
 #https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/new_release_2020.11.001/elpa-new_release_2020.11.001.tar.gz
 export ARFLAGS=rU
 if [ -f  elpa-${VERSION}.tar.gz ]; then
     echo "using existing"  elpa-${VERSION}.tar.gz
 else
     rm -rf elpa*
+echo    curl -L https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
     curl -L https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
 fi
 tar xzf elpa-${VERSION}.tar.gz
@@ -44,6 +47,7 @@ else
         MPICC=mpicc
 	#fix include path
 	FCFLAGS+="-I`${NWCHEM_TOP}/src/tools/guess-mpidefs --mpi_include`"
+	CFLAGS+="-I`${NWCHEM_TOP}/src/tools/guess-mpidefs --mpi_include`"
     fi
 fi
 if [[  -z "${FC}" ]]; then
@@ -63,21 +67,28 @@ fi
 if [[   -z "${CC}" ]]; then
     CC=cc
 fi
-GOTCLANG=$( "$MPICC" -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
+if [[ ${FC} == flang ]] || [[ ${PE_ENV} == AOCC ]]; then
+    GOTCLANG=1
+else
+    GOTCLANG=$( "$MPICC" -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
+fi
 if [[ ${GOTCLANG} == "1" ]] ; then
-    if [[ ${UNAME_S} == Linux ]]; then
-	export FORTRAN_CPP=/usr/bin/cpp
-    fi
+#    if [[ ${UNAME_S} == Linux ]]; then
+#	export FORTRAN_CPP=/usr/bin/cpp
+#    fi
     CFLAGS+=" -Wno-error=implicit-function-declaration "
 fi
 # check gfortran version for arg check
 GFORTRAN_EXTRA=$(echo $FC | cut -c 1-8)
-if [[ ${GFORTRAN_EXTRA} == gfortran ]] || [[ ${PE_ENV} == GNU ]]; then
+if [[ ${GFORTRAN_EXTRA} == gfortran ]] || [[ ${PE_ENV} == GNU ]] || [[ ${FC} == flang ]] || [[ ${PE_ENV} == AOCC ]]; then
     let GFOVERSIONGT7=$(expr `${FC} -dumpversion | cut -f1 -d.` \> 7)
     if [[ ${GFOVERSIONGT7} == 1 ]]; then
 	FCFLAGS+=' -std=legacy '
     fi
   sixty4_int+=" --disable-mpi-module "
+fi
+if [[ ${FC} == nvfortran ]]  || [[ ${PE_ENV} == NVIDIA ]] ; then
+    sixty4_int+=" --disable-mpi-module "
 fi
 if [[ ${FC} == ifort ]]  || [[ ${PE_ENV} == INTEL ]] ; then
     FCFLAGS+=' -fpp'
@@ -93,7 +104,7 @@ fi
 if [[  -z "${FORCETARGET}" ]]; then
 FORCETARGET="-disable-sse -disable-sse-assembly --disable-avx --disable-avx2  --disable-avx512  "
 fi #FORCETARGET
-if [[ "${USE_HWOPT}" != "0" ]] && [[ "${USE_HWOPT}" != "no" ]] &&[[ "${USE_HWOPT}" != "NO" ]] && [[ ${UNAME_S} == Linux ]]; then
+if [[ "${USE_HWOPT}" == "1" ]] && [[ "${USE_HWOPT}" == "y" ]] &&[[ "${USE_HWOPT}" != "Y" ]] && [[ ${UNAME_S} == Linux ]]; then
 if [[ ${UNAME_S} == Linux ]]; then
     CPU_FLAGS=$(cat /proc/cpuinfo | grep flags |tail -n 1)
     CPU_FLAGS_2=$(cat /proc/cpuinfo | grep flags |tail -n 1)
@@ -107,9 +118,11 @@ fi
 GOTAVX512=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /avx512f/{print "Y"}')
 GOTCLZERO=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /clzero/{print "Y"}')
 if [[ ${CC} == icc ]] ; then
-    CFLAGS=" -xhost "
+    CFLAGS+=" -xhost "
+elif [[ ${CC} == nvc ]]  || [[ ${PE_ENV} == NVIDIA ]] ; then
+    CFLAGS+=" -tp native"
 elif [[ ${CC} == gcc ]] || [[ ${GOTCLANG} == "1" ]] || [[ ${CC} == cc ]]; then
-    CFLAGS=" -mtune=native -march=native "
+    CFLAGS+=" -mtune=native -march=native "
 fi    
     if [[ "${GOTAVX}" == "Y" ]]; then
 	echo "using AVX instructions"
@@ -135,6 +148,15 @@ fi
 #	fi
 #    fi
 fi #USE_HWOPT
+if [[ `${CC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] ; then
+    if [[ "$(expr `${CC} -dumpversion | cut -f1 -d.` \< 8)" == 1 ]]; then
+	echo
+	echo you have gcc version $(${CC} -dumpversion | cut -f1 -d.)
+	echo gcc version 8 and later needed for elpa
+	echo
+	exit 1
+    fi
+fi
 ## check gcc version for skylake
 #let GCCVERSIONGT5=$(expr `${CC} -dumpversion | cut -f1 -d.` \> 5)
 #if [[ "$FORCETARGET" == *"SKYLAKEX"* ]]; then
@@ -177,7 +199,7 @@ export SCALAPACK_FCFLAGS="${MYLINK}"
 export SCALAPACK_LDFLAGS="${MYLINK}"
 export LIBS="${MYLINK}"
 export    FC=$MPIF90
-export CC=$MPICC 
+export CC=$MPICC
 ../configure \
     $sixty4_int \
   --disable-option-checking \
@@ -196,11 +218,14 @@ unset CFLAGS
 unset SCALAPACK_FCFLAGS
 unset SCALAPACK_LDFLAGS
 MYFC=$($MPIF90 -show|cut -d " " -f 1)
-if [[ ${MYFC} == ifort ]] || [[ ${PE_ENV} == INTEL ]]; then
-    top_srcdir=`pwd`/..
-    make V=0 FC="${top_srcdir}/remove_xcompiler ${top_srcdir}/manual_cpp $MPIF90" -j4 install-libLTLIBRARIES install-data
+if [[ "${FORTRAN_CPP}" != "" ]] ; then
+    make V=0 -j4
+    make V=0 -j4 install
+#    make V=0 -j4 install-libLTLIBRARIES install-data
 else    
-    make  V=0 -j4 install-libLTLIBRARIES install-data
+    top_srcdir=`pwd`/..
+    make V=0 FC="${top_srcdir}/remove_xcompiler ${top_srcdir}/manual_cpp $MPIF90" -j4
+    make V=0 FC="${top_srcdir}/remove_xcompiler ${top_srcdir}/manual_cpp $MPIF90" -j4 install
 fi
 
 if [[ "$?" != "0" ]]; then
