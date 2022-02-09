@@ -5,6 +5,7 @@
 
 include ../config/makefile.h
 
+
 SUBDIRS=
 ifdef BUILD_OPENBLAS
     SUBDIRS += openblas
@@ -23,6 +24,9 @@ ifdef USE_LIBXC
 endif
 
 include ../config/makelib.h
+
+64_to_32 32_to_64:
+	@echo No blas conversion done here
 
 
 

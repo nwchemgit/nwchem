@@ -1289,6 +1289,10 @@ endif
            FOPTIONS  += -fopenmp
            LDOPTIONS += -fopenmp
         endif
+       ifdef  USE_ASAN
+         FOPTIONS += -fsanitize=address -fsanitize-recover=address
+         LDOPTIONS += -fsanitize=address -fsanitize-recover=address
+       endif
        ifdef  USE_FPE
          FOPTIONS += -ffpe-trap=invalid,zero,overflow  -fbacktrace
        endif
@@ -1919,6 +1923,10 @@ endif
       ifeq ($(_FC),gfortran)
        ifneq ($(DONTHAVEM64OPT),Y)
          FOPTIONS   = -m64
+       endif
+       ifdef  USE_ASAN
+         FOPTIONS += -fsanitize=address -fsanitize-recover=address
+         LDOPTIONS += -fsanitize=address -fsanitize-recover=address
        endif
        ifdef  USE_FPE
 	ifdef USE_FLANG

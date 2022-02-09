@@ -12,3 +12,5 @@ include ../../../config/makelib.h
 
 clean:
 	@rm -rf simint_install simint-chem-simint-generator.tar.gz simint.l* *-simint-generator-??????? dependencies
+64_to_32 32_to_64:
+	@echo No blas conversion done here

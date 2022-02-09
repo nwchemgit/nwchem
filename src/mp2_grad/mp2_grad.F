@@ -16,7 +16,7 @@
       integer rtdb 
       integer geom, basis
       character*255 title
-      character*255 movecs_in
+      character*(nw_max_path_len) movecs_in
       logical status
       character*8 task
       double precision threshscf

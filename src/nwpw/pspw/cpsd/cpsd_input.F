@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 34)
+      parameter (num_dirs = 38)
  
       character*30 dirs(num_dirs)
       character*255 test, id
@@ -51,11 +51,17 @@ c
      >            'mult',
      >            'dft',
      >            'odft',
+     >            'fei',
+     >            'xyz_filename',
+     >            'ion_motion_filename',
+     >            'emotion_filename',
      >            'end'/
 
        character*50 cell_name
        character*50 input_wavefunction_filename
        character*50 output_wavefunction_filename
+       character*50 ion_motion_filename,xyz_filename
+       character*50 emotion_filename
        character*50 exchange_correlation
        logical geometry_optimize,frac_coord,mulliken
        double precision fake_mass,time_step,rcut
@@ -83,7 +89,7 @@ c      call cpsd_input_default(rtdb)
       goto ( 100,100, 200, 300,300, 400,400, 500,500, 600,600, 
      >       700,700, 800,800, 900,900, 1000,1000, 1100,1100,
      >       1200,1200, 1300,1300, 1400,1400,1400,
-     >       1500,1600,1700,1800,1900,
+     >       1500,1600,1700,1800,1900,2000,2100,2200,2300,
      >      9999) ind
       call errquit(
      >      'cpsd_input: unimplemented directive', ind, INPUT_ERR)
@@ -328,6 +334,67 @@ c
       if (.not.value)
      > call errquit('cpsd_input: writing ispin', 0, RTDB_ERR)
       goto 10
+
+c
+c Fei
+c
+ 2000 if (inp_a(ion_motion_filename)) then
+         ind = index(ion_motion_filename,' ') - 1
+         value = rtdb_cput(rtdb,'cpsd:fei_filename',
+     >                    1,ion_motion_filename(1:ind))
+         value = rtdb_cput(rtdb,'nwpw:fei_filename',
+     >                    1,ion_motion_filename(1:ind))
+          if (.not.value)
+     >    call errquit('cpsd_input: writing ', 2000, RTDB_ERR)
+      end if
+      value = .true.
+      if (.not.rtdb_put(rtdb,'cpsd:fei',mt_log,1,value))
+     > call errquit('cpsd_input: writing fei ', 2000, RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'nwpw:fei',mt_log,1,value))
+     > call errquit('cpsd_input: writing fei ', 2000, RTDB_ERR)
+      goto 10
+
+c
+c  xyz_filename
+c
+ 2100 if (.not. inp_a(xyz_filename))
+     >     call errquit(
+     >          'cpsd_input: failed to read xyz_filename', 0, INPUT_ERR)
+      ind = index(xyz_filename,' ') - 1
+      value = rtdb_cput(rtdb,'cpsd:xyz_filename',
+     >                    1,xyz_filename(1:ind))
+      if (.not.value)
+     > call errquit('cpsd_input: writing', 2100, RTDB_ERR)
+      goto 10
+
+c
+c  ion_motion_filename
+c
+ 2200 if (.not. inp_a(ion_motion_filename))
+     >     call errquit(
+     >          'cpsd_input: failed to read ion_motion_filename', 0,
+     &       INPUT_ERR)
+      ind = index(ion_motion_filename,' ') - 1
+      value = rtdb_cput(rtdb,'cpsd:ion_motion_filename',
+     >                    1,ion_motion_filename(1:ind))
+      if (.not.value)
+     > call errquit('cpsd_input: writing ', 2400, RTDB_ERR)
+      goto 10
+
+c
+c  emotion_filename
+c
+ 2300 if (.not. inp_a(emotion_filename))
+     >     call errquit(
+     >          'cpsd_input: failed to read emotion_filename', 0,
+     &       INPUT_ERR)
+      ind = index(emotion_filename,' ') - 1
+      value = rtdb_cput(rtdb,'cpsd:emotion_filename',
+     >                    1,emotion_filename(1:ind))
+      if (.not.value)
+     > call errquit('cpsd_input: writing ', 2300, RTDB_ERR)
+      goto 10
+
 
 
 

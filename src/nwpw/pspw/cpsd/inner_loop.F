@@ -94,13 +94,13 @@ c     real*8     fion(3,natmx)
       integer nion1
 
 *     ***** external functions ****
-      logical  control_move,psp_semicore,psp_pawexist
+      logical  control_move,psp_semicore,psp_pawexist,control_Fei
       logical  pspw_SIC,pspw_SIC_relaxed
       logical  pspw_HFX,pspw_HFX_relaxed
       integer  ion_nion,control_gga
       real*8   control_time_step,control_fake_mass,ion_dti
       real*8   lattice_omega,coulomb_e,ewald_e
-      external control_move,psp_semicore,psp_pawexist
+      external control_move,psp_semicore,psp_pawexist,control_Fei
       external pspw_SIC,pspw_SIC_relaxed
       external pspw_HFX,pspw_HFX_relaxed
       external ion_nion,control_gga
@@ -205,6 +205,7 @@ c     real*8     fion(3,natmx)
       cosmo_on  = nwpw_cosmo_on()
       cosmo1_on = nwpw_cosmo1_on()
       V_APC_on  = pspw_V_APC_on()
+
 
       call nwpw_timing_start(12)
 *     **** allocate MA local variables ****
@@ -978,6 +979,8 @@ c     >        - ehartree_atom - ecmp_cmp - ecmp_pw
          E(1)  = E(1) + E(33)
       end if
 
+*     **** output Forces for Fei ***
+      if (control_Fei()) call fei_output(E(1),dbl_mb(fion(1)))
 
 
 *     **** set convergence variables ****
