@@ -52,7 +52,7 @@ if [[ -z "${NWCHEM_TOP}" ]]; then
     MYPWD=`pwd`
     NWCHEM_TOP=`echo ${MYPWD}/${DIRQA} | sed -e 's/\/QA.*//' `
 fi
-if [[ ! -z "{BUILD_MPICH}" ]]; then
+if [[ ! -z "${BUILD_MPICH}" ]]; then
     export MPIRUN_PATH=$NWCHEM_TOP/src/libext/bin/mpiexec
 fi
 cd $NWCHEM_TOP/QA
