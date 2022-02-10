@@ -3800,15 +3800,18 @@ ifndef FLINT
             endif
 (%.o):  %.cu
 	$(CUDA) -c -DTCE_CUDA $(CUDA_FLAGS) $(CUDA_INCLUDE) -I$(NWCHEM_TOP)/src/tce/ttlg/includes -o $% $<
+
         else
 (%.o):  %.cu
 	$(CUDA) -c -DTCE_CUDA $(CUDA_FLAGS) $(CUDA_INCLUDE) -o $% $<
+
         endif
     endif
 
     ifdef TCE_HIP
 (%.o):  %.hip.cpp
 	$(HIP) -c -DTCE_HIP -fno-gpu-rdc -o $% $<
+
     endif
 
 (%.o):  %.o
@@ -3821,6 +3824,7 @@ ifndef FLINT
         ifeq ($(TARGET),LINUX)
 .F.f:
 	$(FC) -c $(FFLAGS) -E $(CPPFLAGS) $< -o $*.f
+
         endif
     endif
 
@@ -3834,10 +3838,12 @@ else
 .F.o:; flint $(CPPFLAGS) -L $(SRCDIR)/nwchem.lbt $<
 
 .f.o:; flint $(CPPFLAGS) -L $(SRCDIR)/nwchem.lbt $<
+
     else
 .F.o:; flint $(CPPFLAGS) -g -f -u $(SRCDIR)/nwchem.lbt $<
 
 .f.o:; flint $(CPPFLAGS) -g -f -u $(SRCDIR)/nwchem.lbt $<
+
     endif
 
 endif
