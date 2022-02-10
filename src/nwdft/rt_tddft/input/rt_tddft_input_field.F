@@ -69,6 +69,8 @@ C     == Variables ==
       lhave_start = .false.
 
       phase = 0d0  ! default phase = 0
+      width = 0d0
+      center = 0d0
       
 C     
 C     Parse the input; we will put in rtdb later after checking.

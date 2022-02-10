@@ -17,7 +17,7 @@ c
 c
       integer rtdb ! [input] handle to database
 c    
-      character*255 libname
+      character*(nw_max_path_len) libname
       character*32 pname
       character*2 atsym
       integer i,j

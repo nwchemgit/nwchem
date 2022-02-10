@@ -60,6 +60,7 @@ c
       integer l_i110, i110
       integer l_i120, i120
       integer l_i130, i130
+      integer l_i140, i140
       integer need
 c
       dbug=.false.
@@ -111,6 +112,8 @@ c
      c     call errquit('hndcosset: not enuf mem',11,MA_ERR)
       if(.not.ma_push_get(mt_dbl,  mxface*nat,"xyzff",l_i130,i130))
      c     call errquit('hndcosset: not enuf mem',12,MA_ERR)
+      if(.not.ma_push_get(mt_dbl,mxface,"Lebedev w",l_i140,i140))
+     c     call errquit('hndcosset: not enuf mem',13,MA_ERR)
 c     i10 =init                    ! xyzatm(3,nat)
 c     i20 =i10 +3*nat              !   ratm(  nat)
 c     i30 =i20 +  nat              !   nspa(  nat)
@@ -130,7 +133,7 @@ c
      1                dbl_mb(i10),dbl_mb(i20),int_mb(i30),int_mb(i40),
      2                int_mb(i50),dbl_mb(i60),int_mb(i70),log_mb(i80),
      3                dbl_mb(i90),int_mb(i100),int_mb(i110),
-     4                dbl_mb(i120),dbl_mb(i130),rtdb)
+     4                dbl_mb(i120),dbl_mb(i130),dbl_mb(i140),rtdb)
 
 c
 c     ----- release memory block -----
@@ -149,7 +152,7 @@ C>
       subroutine hnd_cossrf(nat,c,radius,mxatm,mxfac,mxapx,
      1                  xyzatm,ratm,nspa,nppa,
      2                  ijkfac,xyzseg,ijkseg,insseg,
-     3                  xyzspa,ijkspa,numpps,apex,xyzff,rtdb)
+     3                  xyzspa,ijkspa,numpps,apex,xyzff,wleb,rtdb)
       implicit none
 c
 #include "nwc_const.fh"
@@ -192,6 +195,7 @@ c
       integer jat
 c
       dbug=.false.
+      dbug=.true.
       more=.false.
       more=more.or.dbug
       out =.false. 
@@ -648,6 +652,15 @@ c
       srfmol=0d0
       volmol=0d0
       ief   =0
+
+      if(dbug.and.ga_nodeid().eq.0) then
+        write(luout,*)
+        write(luout,'(" --- Geometry including SAS --- ")')
+        do iat=1,nat
+          write(luout,'(3F12.6)') (xyzatm(i,iat)*cau2ang,i=1,3)
+        enddo
+      endif
+
       do iat=1,nat
          if(ratm(iat).ne.0d0) then
             ratm_real=-1d99
@@ -656,6 +669,7 @@ c
             else if (do_cosmo_model.eq.DO_COSMO_YK) then
               ratm_real=ratm(iat)
             endif 
+            
             do iseg=1,nseg
                if(.not.insseg(iseg,iat)) then
                   ief=ief+1
@@ -663,6 +677,10 @@ c
                      dbl_mb(k_efcc+3*(ief-1)+i-1)=xyzatm(i,iat)
      1                          +xyzseg(i,iseg)*ratm_real
                   enddo
+                  if(dbug.and.ga_nodeid().eq.0) then
+                    write(luout,'(3F12.6)') 
+     1       ((xyzatm(i,iat)+xyzseg(i,iseg)*ratm_real)*cau2ang,i=1,3)
+                  endif
                   ipp=numpps(iseg,iat)
                   if (do_cosmo_model.eq.DO_COSMO_KS) then
                     dbl_mb(k_efcs+ief-1) = dble(ipp)*dsurf*ratm_real**2
@@ -692,6 +710,7 @@ c
                   dbl_mb(k_efczz+ief-1) =zetai
                endif
             enddo
+            if(dbug.and.ga_nodeid().eq.0) write(luout,*)
          endif
       enddo
       srfmol=srfmol*(cau2ang**2)
@@ -1901,7 +1920,7 @@ c
             zetaj = efczz(j)
             zetaij= zeta*zetaj/sqrt(zetai**2+zetaj**2)
             dij=r(i,j)
-            if (dij.lt.1.0d-5) then
+            if (dij.lt.1.0d-8) then
               aij=factor2*zetaij*(1d0 - (zetaij*dij)**2/3d0)
             else
               aij=derf(zetaij*dij)/dij
