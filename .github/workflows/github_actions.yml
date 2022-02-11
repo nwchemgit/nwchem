@@ -246,10 +246,11 @@ jobs:
             use_openmp: 2
           - os: ubuntu-18.04
             experimental: true
-            mpi_impl: nvfortran
+            mpi_impl: mpich
             armci_network: MPI-TS
             nwchem_modules: "qmandpw qmd"
-            fc: ifort
+            fc: nvfortran
+            cc: gcc
             use_openmp: 2
       fail-fast: false
     env:
