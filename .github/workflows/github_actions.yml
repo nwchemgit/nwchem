@@ -244,6 +244,13 @@ jobs:
             nwchem_modules: "qmandpw qmd"
             fc: ifort
             use_openmp: 2
+          - os: ubuntu-18.04
+            experimental: true
+            mpi_impl: nvfortran
+            armci_network: MPI-TS
+            nwchem_modules: "qmandpw qmd"
+            fc: ifort
+            use_openmp: 2
       fail-fast: false
     env:
         MPI_IMPL: ${{ matrix.mpi_impl }}
