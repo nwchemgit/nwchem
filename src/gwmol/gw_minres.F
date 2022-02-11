@@ -1,3 +1,8 @@
+#if defined(PGLINUX)
+#define DOSIMD do
+#else
+#define DOSIMD do simd
+#endif
       subroutine gw_minres(OV1,OV2,factor,x,b,npoles,maxpoles,n,ipol)
       use iso_c_binding
       implicit none
@@ -117,32 +122,32 @@
       gmax = 0d0
 
 !$omp parallel 
-!$omp do simd schedule(static)
+!$omp DOSIMD schedule(static)
       do i=1,n
         r1(i) = y(i)
       enddo
-!$omp end do simd nowait
-!$omp do simd schedule(static)
+!$omp end DOSIMD nowait
+!$omp DOSIMD schedule(static)
       do i=1,n
         r2(i) = y(i)
       enddo
-!$omp end do simd nowait
-!$omp do simd schedule(static)
+!$omp end DOSIMD nowait
+!$omp DOSIMD schedule(static)
       do i=1,n
         w(i) = 0d0
       enddo
-!$omp end do simd nowait
-!$omp do simd schedule(static)
+!$omp end DOSIMD nowait
+!$omp DOSIMD schedule(static)
       do i=1,n
         w1(i) = 0d0
       enddo
-!$omp end do simd nowait
-!$omp do simd schedule(static)
+!$omp end DOSIMD nowait
+!$omp DOSIMD schedule(static)
       do i=1,n
         w2(i) = 0d0
       enddo
-!$omp end do simd nowait
-!$omp do simd
+!$omp end DOSIMD nowait
+!$omp DOSIMD
       do i=1,n
         sol(i) = 0d0
       enddo
@@ -178,16 +183,16 @@
         call daxpy(n,-alpha/beta,r2,1,y,1)
 
 !$omp   parallel 
-!$omp   do simd schedule(static)
+!$omp   DOSIMD schedule(static)
         do i=1,n
           r1(i) = r2(i)
         enddo
-!$omp   end do simd nowait
-!$omp   do simd schedule(static)
+!$omp   end DOSIMD nowait
+!$omp   DOSIMD schedule(static)
         do i=1,n
           r2(i) = y(i)
         enddo
-!$omp   end do simd 
+!$omp   end DOSIMD 
 !$omp   end parallel
 
         beta = dsqrt(dot_product(r2,r2))
@@ -233,21 +238,21 @@
         phibar = sn*phibar
 
 !$omp   parallel
-!$omp   do simd schedule(static)
+!$omp   DOSIMD schedule(static)
         do i=1,n
         w1(i) = w2(i)
         enddo
-!$omp   end do simd nowait
-!$omp   do simd schedule(static)
+!$omp   end DOSIMD nowait
+!$omp   DOSIMD schedule(static)
         do i=1,n
         w2(i) = w(i)
         enddo
-!$omp   end do simd nowait
-!$omp   do simd schedule(static)
+!$omp   end DOSIMD nowait
+!$omp   DOSIMD schedule(static)
         do i=1,n
         w(i) = (v(i) - oldeps*w1(i) - delta*w(i))/gam
         enddo
-!$omp   end do simd 
+!$omp   end DOSIMD 
 !$omp   end parallel
 
         call daxpy(n,phi,w,1,sol,1)
@@ -468,36 +473,36 @@ c     Deallocate local fields
       gmax = 0d0
 
 !$omp parallel if (doparallel)
-!$omp do simd schedule(static)
+!$omp DOSIMD schedule(static)
       do i=1,n
         r1(i) = y(i)
       end do
-!$omp end do simd nowait
-!$omp do simd schedule(static)
+!$omp end DOSIMD nowait
+!$omp DOSIMD schedule(static)
       do i=1,n
         r2(i) = y(i)
       end do
-!$omp end do simd nowait
-!$omp do simd schedule(static)
+!$omp end DOSIMD nowait
+!$omp DOSIMD schedule(static)
       do i=1,n
         w(i) = 0d0
       end do
-!$omp end do simd nowait
-!$omp do simd schedule(static)
+!$omp end DOSIMD nowait
+!$omp DOSIMD schedule(static)
       do i=1,n
         w1(i) = 0d0
       end do
-!$omp end do simd nowait
-!$omp do simd schedule(static)
+!$omp end DOSIMD nowait
+!$omp DOSIMD schedule(static)
       do i=1,n
         w2(i) = 0d0
       end do
-!$omp end do simd nowait
-!$omp do simd schedule(static)
+!$omp end DOSIMD nowait
+!$omp DOSIMD schedule(static)
       do i=1,n
         sol(i) = 0d0
       end do
-!$omp end do simd nowait
+!$omp end DOSIMD nowait
 !$omp end parallel
 
 
