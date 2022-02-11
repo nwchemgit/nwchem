@@ -3013,6 +3013,10 @@ ifneq ($(TARGET),LINUX)
                 FOPTIONS  += -mp -Minfo=mp
                 LDOPTIONS += -mp
             endif
+	    ifdef USE_FPE
+	        FOPTIONS += -traceback
+		FOPTIONS += -Ktrap=inv,divz,ovf
+	    endif
         endif
 
 
