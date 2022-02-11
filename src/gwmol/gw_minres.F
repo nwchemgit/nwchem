@@ -92,7 +92,7 @@
       enddo
 !$omp end parallel do simd
 
-1000  beta1 = dsqrt(dot_product(y,y))
+1000  beta1 = norm2(y)
 
       ! Solution already converged
       if (beta1.lt.rtol) then
@@ -127,7 +127,7 @@
       enddo
 !$omp end parallel do simd
 
-      bnorm = dsqrt(dot_product(b,b))
+      bnorm = norm2(b)
 
       do
         iter = iter + 1
@@ -163,7 +163,7 @@
         enddo
 !$omp   end parallel do simd
 
-        beta = dsqrt(dot_product(r2,r2))
+        beta = norm2(r2)
 
         tnorm2 = tnorm2 + alpha**2 + oldb**2 + beta**2
 
@@ -215,7 +215,7 @@
 
         call daxpy(n,phi,w,1,sol,1)
 
-        dxnorm = dsqrt(dot_product(sol,sol))
+        dxnorm = norm2(sol)
         xnorm = dsqrt(x0norm + dxnorm**2 + 2d0*dot_product(x,sol))
         
         gmax = max(gmax,gam)
@@ -398,12 +398,12 @@ c     Deallocate local fields
       test3 = 0d0
 
       x0norm = dot_product(x,x)
-      bnorm = dsqrt(dot_product(b,b))
+      bnorm = norm2(b)
 
       call dcopy(n,b,1,y,1)
       if (x0norm.gt.0d0) then
         call dsymv('l',n,-1d0,A,n,x,1,1d0,y,1)
-        beta1 = dsqrt(dot_product(y,y))
+        beta1 = norm2(y)
       else
         beta1 = bnorm
       end if
@@ -457,7 +457,7 @@ c     Deallocate local fields
         r2(:) = y(:)
 
         oldb = beta
-        beta = dsqrt(dot_product(r2,r2))
+        beta = norm2(r2)
 
         tnorm2 = tnorm2 + alpha**2 + oldb**2 + beta**2
 
@@ -504,7 +504,7 @@ c     Deallocate local fields
         w(:) = (v(:) - oldeps*w1(:) - delta*w(:))/gam
         call daxpy(n,phi,w,1,sol,1)
       
-        dxnorm = dsqrt(dot_product(sol,sol))
+        dxnorm = norm2(sol)
         xnorm = dsqrt(x0norm + dxnorm**2 + 2d0*dot_product(sol,x))
 
         gmax = max(gmax,gam)
