@@ -92,7 +92,7 @@
       enddo
 !$omp end parallel do simd
 
-1000  beta1 = dsqrt(dot_product(y,y))
+1000  beta1 = norm2(y)
 
       ! Solution already converged
       if (beta1.lt.rtol) then
@@ -116,39 +116,18 @@
       sn = 0d0
       gmax = 0d0
 
-!$omp parallel 
-!$omp do simd schedule(static)
+!$omp parallel do simd schedule(static)
       do i=1,n
         r1(i) = y(i)
-      enddo
-!$omp end do simd nowait
-!$omp do simd schedule(static)
-      do i=1,n
         r2(i) = y(i)
-      enddo
-!$omp end do simd nowait
-!$omp do simd schedule(static)
-      do i=1,n
         w(i) = 0d0
-      enddo
-!$omp end do simd nowait
-!$omp do simd schedule(static)
-      do i=1,n
         w1(i) = 0d0
-      enddo
-!$omp end do simd nowait
-!$omp do simd schedule(static)
-      do i=1,n
         w2(i) = 0d0
-      enddo
-!$omp end do simd nowait
-!$omp do simd
-      do i=1,n
         sol(i) = 0d0
       enddo
-!$omp end parallel
+!$omp end parallel do simd
 
-      bnorm = dsqrt(dot_product(b,b))
+      bnorm = norm2(b)
 
       do
         iter = iter + 1
@@ -177,20 +156,14 @@
 
         call daxpy(n,-alpha/beta,r2,1,y,1)
 
-!$omp   parallel 
-!$omp   do simd schedule(static)
+!$omp   parallel do simd schedule(static)
         do i=1,n
           r1(i) = r2(i)
-        enddo
-!$omp   end do simd nowait
-!$omp   do simd schedule(static)
-        do i=1,n
           r2(i) = y(i)
         enddo
-!$omp   end do simd 
-!$omp   end parallel
+!$omp   end parallel do simd
 
-        beta = dsqrt(dot_product(r2,r2))
+        beta = norm2(r2)
 
         tnorm2 = tnorm2 + alpha**2 + oldb**2 + beta**2
 
@@ -232,27 +205,17 @@
         phi    = cs*phibar
         phibar = sn*phibar
 
-!$omp   parallel
-!$omp   do simd schedule(static)
+!$omp   parallel do schedule(static)
         do i=1,n
-        w1(i) = w2(i)
+          w1(i) = w2(i)
+          w2(i) = w(i)
+          w(i) = (v(i) - oldeps*w1(i) - delta*w(i))/gam
         enddo
-!$omp   end do simd nowait
-!$omp   do simd schedule(static)
-        do i=1,n
-        w2(i) = w(i)
-        enddo
-!$omp   end do simd nowait
-!$omp   do simd schedule(static)
-        do i=1,n
-        w(i) = (v(i) - oldeps*w1(i) - delta*w(i))/gam
-        enddo
-!$omp   end do simd 
-!$omp   end parallel
+!$omp   end parallel do
 
         call daxpy(n,phi,w,1,sol,1)
 
-        dxnorm = dsqrt(dot_product(sol,sol))
+        dxnorm = norm2(sol)
         xnorm = dsqrt(x0norm + dxnorm**2 + 2d0*dot_product(x,sol))
         
         gmax = max(gmax,gam)
@@ -435,12 +398,12 @@ c     Deallocate local fields
       test3 = 0d0
 
       x0norm = dot_product(x,x)
-      bnorm = dsqrt(dot_product(b,b))
+      bnorm = norm2(b)
 
       call dcopy(n,b,1,y,1)
       if (x0norm.gt.0d0) then
         call dsymv('l',n,-1d0,A,n,x,1,1d0,y,1)
-        beta1 = dsqrt(dot_product(y,y))
+        beta1 = norm2(y)
       else
         beta1 = bnorm
       end if
@@ -467,39 +430,16 @@ c     Deallocate local fields
       sn = 0d0
       gmax = 0d0
 
-!$omp parallel if (doparallel)
-!$omp do simd schedule(static)
+!$omp parallel do simd schedule(static) if (doparallel)
       do i=1,n
         r1(i) = y(i)
-      end do
-!$omp end do simd nowait
-!$omp do simd schedule(static)
-      do i=1,n
         r2(i) = y(i)
-      end do
-!$omp end do simd nowait
-!$omp do simd schedule(static)
-      do i=1,n
         w(i) = 0d0
-      end do
-!$omp end do simd nowait
-!$omp do simd schedule(static)
-      do i=1,n
         w1(i) = 0d0
-      end do
-!$omp end do simd nowait
-!$omp do simd schedule(static)
-      do i=1,n
         w2(i) = 0d0
-      end do
-!$omp end do simd nowait
-!$omp do simd schedule(static)
-      do i=1,n
         sol(i) = 0d0
       end do
-!$omp end do simd nowait
-!$omp end parallel
-
+!$omp end parallel do simd
 
       do
         iter = iter + 1
@@ -517,7 +457,7 @@ c     Deallocate local fields
         r2(:) = y(:)
 
         oldb = beta
-        beta = dsqrt(dot_product(r2,r2))
+        beta = norm2(r2)
 
         tnorm2 = tnorm2 + alpha**2 + oldb**2 + beta**2
 
@@ -564,7 +504,7 @@ c     Deallocate local fields
         w(:) = (v(:) - oldeps*w1(:) - delta*w(:))/gam
         call daxpy(n,phi,w,1,sol,1)
       
-        dxnorm = dsqrt(dot_product(sol,sol))
+        dxnorm = norm2(sol)
         xnorm = dsqrt(x0norm + dxnorm**2 + 2d0*dot_product(sol,x))
 
         gmax = max(gmax,gam)
