@@ -75,7 +75,7 @@ external linterp,spharm
     rrel(ii)=rrel(ii)+rprimd(ii,jj)*(rr(jj)-xred(jj,iatom))
   enddo
   enddo
-  rrmag=sqrt(dot_product(rrel,rrel))
+  rrmag=norm2(rrel)
   wfval=0.d0
   if (rrmag.gt.rphigrid(itpaw,gridsize(itpaw,iphigrid(itpaw)))) return
   do iorb=1,nlmn(itpaw)
@@ -111,7 +111,7 @@ external linterp,spharm
     rrel(ii)=rrel(ii)+rprimd(ii,jj)*(rr(jj)-xred(jj,iatom))
   enddo
   enddo
-  rrmag=sqrt(dot_product(rrel,rrel))
+  rrmag=norm2(rrel)
   wfval=0.d0
   if (rrmag.gt.rphigrid(itpaw,gridsize(itpaw,iphigrid(itpaw)))) return
   do iorb=1,nlmn(itpaw)
@@ -146,7 +146,7 @@ external linterp,spharm
     rrel(ii)=rrel(ii)+rprimd(ii,jj)*(rr(jj)-xred(jj,iatom))
   enddo
   enddo
-  rrmag=sqrt(dot_product(rrel,rrel))
+  rrmag=norm2(rrel)
   wfval=0.d0
   if (rrmag.gt.rphigrid(itpaw,gridsize(itpaw,iphigrid(itpaw)))) return
   do iorb=1,nlmn(itpaw)

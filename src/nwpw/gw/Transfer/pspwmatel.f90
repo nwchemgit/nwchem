@@ -20,7 +20,7 @@ do ii=1,3
     qqgg(jj)=qqgg(jj)+blat(ii,jj)*(-qq(ii)-dble(igg(ii)))
   enddo
 enddo
-qqggmag=sqrt(dot_product(qqgg,qqgg))
+qqggmag=norm2(qqgg)
 !write(6,*) qqgg
 !write(6,*) qqggmag
 !write(6,*) rphigrid(itpaw,gridsize(itpaw,iphigrid(itpaw)))
