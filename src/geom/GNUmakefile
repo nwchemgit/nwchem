@@ -11,7 +11,7 @@
  HEADERS = geom.fh geomP.fh
 
  USES_BLAS = geom.F geom_input.F geom_print_ecce.F geom_hnd.F geom_3d.F geom_getsym.F geom_2d.F
-undefine USE_OPENMP
+unexport USE_OPENMP
 include ../config/makefile.h
 include ../config/makelib.h
 
