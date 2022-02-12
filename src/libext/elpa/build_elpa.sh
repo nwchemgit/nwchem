@@ -89,8 +89,10 @@ if [[ ${GFORTRAN_EXTRA} == gfortran ]] || [[ ${PE_ENV} == GNU ]] || [[ ${FC} == 
 fi
 if [[ ${FC} == nvfortran ]]  || [[ ${PE_ENV} == NVIDIA ]] ; then
     sixty4_int+=" --disable-mpi-module "
+    FCFLAGS+=" -fPIC"
+    CFLAGS+=" -fPIC"
 fi
-if [[ ${FC} == ifort ]]  || [[ ${PE_ENV} == INTEL ]] ; then
+if [[ ${FC} == ifort ]] || [[ ${FC} == ifx ]] || [[ ${PE_ENV} == INTEL ]] ; then
     FCFLAGS+=' -fpp'
     FCFLAGS+=" -fPIC"
     CFLAGS+=" -fPIC"
@@ -217,7 +219,10 @@ unset CFLAGS
 #unset MPICC
 unset SCALAPACK_FCFLAGS
 unset SCALAPACK_LDFLAGS
-MYFC=$($MPIF90 -show|cut -d " " -f 1)
+if [[  -z "$MPICH_FC"   ]] ; then
+    MPICH_FC="$FC"
+    echo MPICH_FC is nvfortran
+fi    
 if [[ "${FORTRAN_CPP}" != "" ]] ; then
     make V=0 -j4
     make V=0 -j4 install

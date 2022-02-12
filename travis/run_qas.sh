@@ -126,7 +126,10 @@ fi
      if [[ "$USE_SIMINT" != "1" ]] ; then
 # check if pspw is among modules
 	 if [[ ! $(grep -i pspw $TRAVIS_BUILD_DIR/src/stubs.F| awk '/pspw_input/') ]]; then
+#skip pspw when openmp is on
+	   if [[ -z "$USE_OPENMP" ]]; then
 	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs pspw
+           fi
 	 fi
      fi
 # check if python is among modules

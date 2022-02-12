@@ -3010,9 +3010,15 @@ ifneq ($(TARGET),LINUX)
             FDEBUG = -g -O2
             DEFINES  += -DCHKUNDFLW -DPGLINUX
             ifdef USE_OPENMP
+	      ifndef UNSET_OPENMP
                 FOPTIONS  += -mp -Minfo=mp
                 LDOPTIONS += -mp
+	      endif
             endif
+	    ifdef USE_FPE
+	        FOPTIONS += -traceback
+		FOPTIONS += -Ktrap=inv,divz,ovf
+	    endif
         endif
 
 
