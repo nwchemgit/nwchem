@@ -121,6 +121,9 @@ elif  [[ -n ${FC} ]] && [[ "${FC}" == "flang" ]] || [[ "${FC}" == "amdflang" ]];
     LAPACK_FPFLAGS_VAL=" -O1 -g -Kieee"
 elif  [[ -n ${FC} ]] && [[ "${FC}" == "pgf90" ]] || [[ "${FC}" == "nvfortran" ]]; then
     FORCETARGET+=' F_COMPILER=PGI '
+  if  [[ "${FC}" == "nvfortran" ]]; then
+    FORCETARGET+=' NEWPGI2=1 '
+  fi
 #    if [[ "$arch" == "aarch64" ]]; then
 	LAPACK_FLAGS="-O2  -Mrecursive -Kieee -fPIC"
         if [[ ${BLAS_SIZE} == 8 ]]; then
