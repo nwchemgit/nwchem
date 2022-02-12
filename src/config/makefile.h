@@ -3009,6 +3009,11 @@ ifneq ($(TARGET),LINUX)
             FVECTORIZE   = -fast    -O3   #-Mipa=fast
             FDEBUG = -g -O2
             DEFINES  += -DCHKUNDFLW -DPGLINUX
+            ifeq ($(shell $(CNFDIR)/check_env.sh $(USE_HWOPT)),1)
+              FOPTIONS += -tp host
+            else
+              FOPTIONS += -tp px
+            endif
             ifdef USE_OPENMP
 	      ifndef UNSET_OPENMP
                 FOPTIONS  += -mp -Minfo=mp
