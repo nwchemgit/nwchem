@@ -201,7 +201,9 @@ fi
 #skip argument check for gfortran
 if  [[ ${FC_EXTRA} == nvfortran ]]; then
     if  [[ ${USE_HWOPT} == n ]]; then
+      if [[ "$(uname -m)" == "x86_64" ]]; then
 	Fortran_FLAGS+=" -tp px "
+      fi
     fi
 fi
 if  [[ ${FC_EXTRA} == gfortran ]] || [[ ${FC} == f95 ]]; then
