@@ -199,9 +199,11 @@ if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
     C_FLAGS+=" -DInt=long"
 fi
 #skip argument check for gfortran
+arch=`uname -m`
+echo arch is $arch
 if  [[ ${FC_EXTRA} == nvfortran ]]; then
     if  [[ ${USE_HWOPT} == n ]]; then
-      if [[ "$(uname -m)" == "x86_64" ]]; then
+      if [[ "$arch" == "x86_64" ]]; then
 	Fortran_FLAGS+=" -tp px "
       fi
     fi
