@@ -7,6 +7,7 @@
 #
 #  SIMINT_MAXAM=5 ./build_simint.sh
 #
+mysimpwd=`pwd`
 if  [ -z "$(command -v python3)" ]; then
     echo python3 not installed
     echo please install python3
@@ -101,7 +102,6 @@ if [[  -z "${NWCHEM_TOP}" ]]; then
     dir1=$(dirname "$dir2")
     NWCHEM_TOP=$(dirname "$dir1")
 fi
-mkdir -p build; cd build
 if [[ -z "${MYCMAKE}" ]]; then
     #look for cmake
     if [[ -z "$(command -v cmake)" ]]; then
@@ -120,6 +120,8 @@ if [[ -z "${MYCMAKE}" ]]; then
 	MYCMAKE=cmake
     fi
 fi
+cd $mysimpwd
+mkdir -p build; cd build
 CMAKE_VER=$(${MYCMAKE} --version|cut -d " " -f 3|head -1|cut -d. -f1)
 echo CMAKE_VER is ${CMAKE_VER}
 echo dirname is `pwd`

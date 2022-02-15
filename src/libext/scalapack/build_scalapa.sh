@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
+myscalapwd=`pwd`
 source ../libext_utils/cmake.sh
-
+cd $myscalapwd
 
 if [[ -z "${MPIF90}" ]]; then
 if [[ "$FC" = "ftn"  ]] ; then
@@ -64,6 +65,7 @@ if ((CMAKE_VER_MAJ < 3)) || (((CMAKE_VER_MAJ > 2) && (CMAKE_VER_MIN < 8))); then
 	exit 1
     fi
 fi
+cd $myscalapwd
 pwd
 
 #if [[ "$SCALAPACK_SIZE" != "4"  ]] ; then
