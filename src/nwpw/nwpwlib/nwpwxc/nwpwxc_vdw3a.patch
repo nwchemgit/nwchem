@@ -1,12 +1,15 @@
---- dftd3.f	2016-06-07 18:30:18.000000000 -0700
-+++ nwpwxc_vdw3a.F	2021-04-30 12:30:16.000000000 -0700
-@@ -27,5 +27,26 @@
+--- nwpwxc_vdw3a.F.org	2016-06-07 18:30:18.000000000 -0700
++++ nwpwxc_vdw3a.F	2022-02-14 18:23:20.000000000 -0800
+@@ -25,9 +25,31 @@
+ 
+ C For the GNU General Public License, see <http://www.gnu.org/licenses/>
  
 +
   
 -      program dftd3
 -      implicit none             
 +      subroutine  nwpwxc_vdw3_dftd3(options,n,iz,xyz,lat,eout,g,g_lat)
++      use, intrinsic :: ieee_arithmetic
 +      implicit none
 +      character*(*) options
 +c number of atoms
@@ -29,7 +32,11 @@
 +c      implicit none             
 +
        integer maxat,max_elem,maxc                      
-@@ -45,14 +66,15 @@
+ c conversion factors
+       real*8 autoang,autokcal,c6conv,autoev
+@@ -43,18 +65,19 @@
+ c DFT-D version
+       integer version
  c number of atoms
 -      integer n
 +      !integer n
@@ -52,24 +59,38 @@
 -      integer,dimension(:), allocatable :: iz  
 +      !integer,dimension(:), allocatable :: iz  
  c cut-off radii for all element pairs
-@@ -98,3 +120,3 @@
+       real*8 r0ab(max_elem,max_elem)
+ c C6 for all element pairs 
+@@ -96,12 +119,16 @@
+ c Integer for assigning only max/min cn C6 (0=normal, 1=min, 2=max)
+ c local and dummy variables
        character*80 atmp,btmp,ctmp,dtmp,etmp,ftmp,func
 -      character*2  esym 
 +      character*2  nwpwxc_esym 
        integer i,j,k,z,nn,iat,jat,i1,i2
-@@ -104,2 +126,6 @@
+       integer ida(max_elem),ipot
+       real*8  x,y,dispr,displ,gdsp,dum,xx(10),dum6(86)
+       real*8  dum1,dum2,dum3(3)
        logical ex,pot,fdum
 +#if defined(__FLANG) || defined(XLFLINUX) || defined (PGLINUX)
 +      logical util_isnan
 +      external util_isnan
 +#endif
        logical minc6list(max_elem),maxc6list(max_elem),minc6,maxc6
-@@ -131,3 +157,3 @@
+ 
+ c PBE0/def2-QZVP atomic values 
+@@ -129,7 +156,7 @@
+ c which effectively mimics higher R^n terms neglected due
+ c to stability reasons
        
 -!  r2r4 =sqrt(0.5*r2r4(i)*dfloat(i)**0.5 ) with i=elementnumber
 +!  r2r4 =sqrt(0.5*r2r4(i)*dble(i)**0.5 ) with i=elementnumber
  !  the large number of digits is just to keep the results consistent
-@@ -194,4 +220,22 @@
+ !  with older versions. They should not imply any higher accuracy than
+ !  the old values
+@@ -192,8 +219,26 @@
+      . 3.82984466, 3.85504098, 3.88023730, 3.90543362 /
+ 
  c k1-k3
 -      include 'param'
 +      !include 'param'
@@ -93,27 +114,42 @@
 +      integer  ga_nodeid
 +      external ga_nodeid
  
-@@ -205,3 +249,3 @@
+ !      write(*,'(94(F12.8,'',''))')r2r4
+ !      stop
+@@ -203,7 +248,7 @@
+ !      write(*,'(94(F11.8,'',''))')rcov
+ !      stop
  !      do i=1,max_elem
 -!         dum    =0.5*r2r4(i)*dfloat(i)**0.5   
 +!         dum    =0.5*r2r4(i)*dble(i)**0.5   
  c store it as sqrt because the geom. av. is taken
-@@ -220,3 +264,3 @@
+ !         r2r4(i)=sqrt(dum)                         
+ !      enddo
+@@ -218,7 +263,7 @@
+       func=' none (read from parameter file)'
+       version=0
        pbc=.false.
 -      fix=.false.
 +      !fix=.false.
        minc6=.false.
-@@ -242,3 +286,3 @@
+       maxc6=.false.
+       minc6list=.false.
+@@ -240,64 +285,67 @@
+ 
+ c set radii
  c     call rdab('~/.r0ab.dat',autoang,max_elem,r0ab)
 -      call setr0ab(max_elem,autoang,r0ab)
 +      call nwpwxc_setr0ab(max_elem,autoang,r0ab)
  
-@@ -249,3 +293,3 @@
+ c read C6 file by default from $HOME     
+ c     btmp='~/.c6ab.dat'
+ c     inquire(file=btmp,exist=ex)
+ c Muenster directory as second default
  c     if(.not.ex)btmp='/usr/qc/dftd3/c6ab.dat'
 -c     call loadc6(btmp,maxc,max_elem,c6ab,mxc)         
 +c     call nwpwxc_loadc6(btmp,maxc,max_elem,c6ab,mxc)         
  
-@@ -253,6 +297,6 @@
+       
  
 -c get coord filename
 -      call getarg(1,etmp)
@@ -124,7 +160,7 @@
 +c      inquire(file=etmp,exist=ex)
 +c      if(.not.ex) call printoptions       
        ex=.false.
-@@ -260,33 +304,35 @@
+       ipot=0
  c options
 -      do i=1,iargc()
 -      call getarg(i,ftmp)
@@ -191,7 +227,7 @@
 +           ENDDO
 +         endif
        if(index(ftmp,'-max')    .ne.0) then
-@@ -294,8 +340,9 @@
+         maxc6=.true.
          k=0
 -        DO 
 -          call getarg(i+k+1,atmp)
@@ -205,7 +241,11 @@
 -     .        call stoprun('Could not recognize max Element')
 +     .        call nwpwxc_stoprun('Could not recognize max Element')
              maxc6list(nn)=.true.
-@@ -307,18 +354,21 @@
+             k=k+1
+           else
+@@ -305,87 +353,92 @@
+           endif
+         ENDDO
        endif
 -      if(index(ftmp,'-pot')    .ne.0) then
 -                                      pot=.true. 
@@ -242,7 +282,7 @@
 +         ex=.true.
 +      endif
         
-@@ -326,7 +376,7 @@
+ 
  
 -      if(index(ftmp,'-cutoff') .ne.0) then
 -                                      call getarg(i+1,atmp)
@@ -255,11 +295,12 @@
 +c                                      rthr=xx(1)**2
 +c                                      endif
  c      if(index(ftmp,'-pot')    .ne.0) then
-@@ -334,2 +384,3 @@
+       enddo
  
 +      echo = echo.and.(ga_nodeid().eq.0)
  c     Check command line input
-@@ -338,6 +389,6 @@
+ 
+ 
        if(minc6.and.j.lt.1)then
 -       call stoprun('No Element given for min/max')
 +       call nwpwxc_stoprun('No Element given for min/max')
@@ -268,19 +309,24 @@
 -       call stoprun('No Element given for min/max')
 +       call nwpwxc_stoprun('No Element given for min/max')
        endif
-@@ -346,3 +397,3 @@
+       do i=1,max_elem
+ 
          if (minc6list(i).and.maxc6list(i)) 
 -     .    call stoprun('Unreasonable min/max input!')
 +     .    call nwpwxc_stoprun('Unreasonable min/max input!')
  !      if (minc6list(i)) write(*,*)'min:',i
-@@ -351,4 +402,4 @@
+ !      if (maxc6list(i)) write(*,*)'max:',i
+       enddo
  c C6 hard-coded (c6ab.dat not used)
 -c this is alternative to loadc6
 -      call copyc6(btmp,maxc,max_elem,c6ab,mxc,
 +c this is alternative to nwpwxc_loadc6
 +      call nwpwxc_copyc6(btmp,maxc,max_elem,c6ab,mxc,
       .            minc6,minc6list,maxc6,maxc6list)   
-@@ -359,11 +410,11 @@
+        cn_thr=rthr2
+ 
+ !       write(*,*)'CN(P):',c6ab(15,15,mxc(15),1,2)
+ !       write(*,*)'mxc(P):',mxc(15)
  
 -       if (pbc) then
 -         call pbcrdatomnumber(etmp,n)
@@ -300,7 +346,9 @@
 +      !allocate(g(3,n))
 +      !allocate(iz(n))
        allocate(cn(n))
-@@ -373,6 +424,7 @@
+ 
+ c reading coordinates and cell in VASP.5.2-format
+ c determing repetitions of unitcell
        if (pbc) then
 -              call pbcrdcoord(etmp,lat,n,xyz,iz,autoang)
 -              call set_criteria(rthr,lat,dum3)
@@ -311,12 +359,12 @@
 +              !rep_vdw=0
 +              call nwpwxc_set_criteria(cn_thr,lat,dum3)
                rep_cn=int(dum3)+1
-@@ -380,3 +432,3 @@
+ c              write(*,*)'VDW-cutoff:',sqrt(rthr)*autoang
  c              write(*,*)'CN-cutoff :',sqrt(cn_thr)*autoang
 -c              write(*,*)'repvdw:',rep_vdw
 +              !write(*,*)'repvdw:',rep_vdw
  c              write(*,*)'repcn :',rep_cn
-@@ -384,6 +436,6 @@
+       else !no pbc
  c read coordinates, either TM or xmol file
 -              call rdcoord(etmp,n,xyz,iz,fix,fdum)
 +              !call nwpwxc_rdcoord(etmp,n,xyz,iz,fix,fdum)
@@ -326,7 +374,11 @@
 +      if(n.lt.1)     call nwpwxc_stoprun( 'no atoms' )
 +      if(n.gt.maxat) call nwpwxc_stoprun( 'too many atoms' )
  
-@@ -396,5 +448,5 @@
+ 
+      
+@@ -394,9 +447,9 @@
+      
+ c set parameters for functionals
        if(ex) then
 -         call setfuncpar(func,version,tz,s6,rs6,s18,rs18,alp)
 +         call nwpwxc_setfuncpar(func,version,tz,s6,rs6,s18,rs18,alp)
@@ -334,7 +386,11 @@
 -         call rdpar     (dtmp,version,s6,s18,rs6,rs18,alp)
 +         call nwpwxc_rdpar     (dtmp,version,s6,s18,rs6,rs18,alp)
        endif
-@@ -435,5 +487,5 @@
+ 
+       if(echo)then
+@@ -433,14 +486,14 @@
+ 
+ c CNs for output
        if (pbc) then
 -          call pbcncoord(n,rcov,iz,xyz,cn,lat,rep_cn,cn_thr)
 +          call nwpwxc_pbcncoord(n,rcov,iz,xyz,cn,lat,rep_cn,cn_thr)
@@ -342,12 +398,17 @@
 -          call ncoord(n,rcov,iz,xyz,cn,cn_thr)
 +          call nwpwxc_ncoord(n,rcov,iz,xyz,cn,cn_thr)
        endif
-@@ -442,3 +494,3 @@
+ 
+       if(version.eq.2)then
            if(echo)write(*,'(''loading DFT-D2 parameters ...'')')
 -          call loadoldpar(autoang,max_elem,maxc,c6ab,r0ab,dum6)
 +          call nwpwxc_loadoldpar(autoang,max_elem,maxc,c6ab,r0ab,dum6)
  c number of CNs for each element
-@@ -481,5 +533,7 @@
+           mxc=1
+ convert to au
+@@ -479,9 +532,11 @@
+           btmp=''
+           do i=1,n
            z=iz(i)
 -          call getc6(maxc,max_elem,c6ab,mxc,iz(i),iz(i),cn(i),cn(i),c6)
 +          call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(i),iz(i),
@@ -357,7 +418,11 @@
 +          call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(i),iz(j),
 +     >                      cn(i),cn(j),dum)
            x=x+dum
-@@ -494,8 +548,8 @@
+           enddo
+ c compute C8/C10 for output
+@@ -492,12 +547,12 @@
+             dum=rs6*0.5*autoang*sqrt(c8/c6)
+           endif
            atmp=' '
 -          if(fix(i)) then
 -           atmp='f'
@@ -371,22 +436,38 @@
 -     .    i,xyz(1:3,i),esym(z),atmp,
 +     .    i,xyz(1:3,i),nwpwxc_esym(z),atmp,
       .    dum,cn(i),
-@@ -519,3 +573,3 @@
+      .    c6,c8,c10
+           enddo
+@@ -517,7 +572,7 @@
+       
+ c testoutput of radii
  c     do i=1,94
 -c        call getc6(maxc,max_elem,c6ab,mxc,i,i,0.d0,0.0d0,c6)
 +c        call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,i,i,0.d0,0.0d0,c6)
  c        c8 =r2r4(i)**2*3.0d0*c6     
-@@ -530,3 +584,3 @@
+ c        write(22,*) i, sqrt(c8/c6)
+ c     enddo
+@@ -528,7 +583,7 @@
+ c     stop
+ 
  c for global ad hoc parameters see
 -c k3 in subroutine getc6, k1 and k2 in subroutine ncoord*
 +c k3 in subroutine nwpwxc_getc6, k1 and k2 in subroutine nwpwxc_ncoord*
  c fixed or dependent ones:
-@@ -547,3 +601,3 @@
+       rs8  = rs18       
+       rs10 = rs18
+@@ -545,7 +600,7 @@
+       if(pot.and.ipot.gt.100)then
+       x=0
        do i=1,100
 -      call getc6(maxc,max_elem,c6ab,mxc,ipot-100,ipot-100,
 +      call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,ipot-100,ipot-100,
       .                              x,x,C6)
-@@ -555,33 +609,37 @@
+       write(2,*) x,c6
+       x=x+0.05
+@@ -553,37 +608,41 @@
+       stop
+       endif
  c Edisp pot curve for testing. Caution: C6 is not constant along R!
 -      if(pot)then
 -      write(*,*) 'Computing Edisp potential curve for atom ',ipot
@@ -455,22 +536,32 @@
 +c      stop 'pot curve done'
 +c      endif
  c end testing code
-@@ -595,3 +653,3 @@
+ c*********************************************************************
+ c*********************************************************************
+@@ -593,17 +652,17 @@
+          do jat=iat+1,n
+             if(r0ab(iz(jat),iz(iat)).lt.0.1) then
                 write(*,*) iat,jat,iz(jat),iz(iat)
 -               call stoprun( 'radius missing' )
 +               call nwpwxc_stoprun( 'radius missing' )
              endif
-@@ -600,3 +658,3 @@
+             if (version.eq.2)then
+               c6=c6ab(iz(jat),iz(iat),1,1,1)
              else 
 -              call getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
 +              call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
       .                                      cn(iat),cn(jat),c6)
-@@ -605,3 +663,3 @@
+             endif
+             if(c6.lt.1.d-6) then
                 write(*,*) iat,jat,iz(jat),iz(iat),cn(iat),cn(jat)
 -               call stoprun( 'C6 missing' )
 +               call nwpwxc_stoprun( 'C6 missing' )
              endif
-@@ -614,5 +672,5 @@
+          enddo
+       enddo
+@@ -612,21 +671,23 @@
+ c Not omnipotent but better than nothing. S.E. 15.09.2011
+ c      call checkcn(n,iz,cn,c6ab,max_elem,maxc)
        if (pbc) then
 -        call pbccheckrcov(n,iz,rcov,xyz,lat)
 +        call nwpwxc_pbccheckrcov(n,iz,rcov,xyz,lat)
@@ -478,40 +569,58 @@
 -        call checkrcov(n,iz,rcov,xyz)
 +        call nwpwxc_checkrcov(n,iz,rcov,xyz)
        endif
-@@ -623,3 +681,4 @@
+ 
+ cccccccccccccc
+ c energy call
+ cccccccccccccc
        if (pbc) then
 -        call  pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
 +        call  nwpwxc_pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
 +     >     r2r4,r0ab,rcov,
       .     rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
-@@ -628,3 +687,4 @@
+      .     e6,e8,e10,e12,e6abc,lat,rthr,rep_vdw,cn_thr,rep_cn)
+  
        else
 -        call edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
 +        call nwpwxc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
 +     >     r2r4,r0ab,rcov,
       .     rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,rthr,cn_thr,
-@@ -641,2 +701,3 @@
+      .     e6,e8,e10,e12,e6abc)
+       endif
+@@ -639,6 +700,7 @@
+ 
+       disp =-e6-e8-e6abc
  
 +      eout = disp
  c e10 has been tested once again with BJ-damping but has no good effect
-@@ -725,3 +786,4 @@
+ c     e10  = e10  *s18
+ c     disp =-e6-e8-e10-e6abc
+@@ -723,11 +785,13 @@
+       if(anal) then
+        if (pbc) then
  
 -        call pbcadisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
 +        call nwpwxc_pbcadisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
 +     >           r2r4,r0ab,rcov,
       .           rs6,rs8,rs10,alp6,alp8,alp10,version,autokcal,autoang,
-@@ -729,3 +791,4 @@
+      .           rthr,rep_vdw,cn_thr,rep_cn,s6,s18,disp*autokcal,lat)
         else
 -        call adisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
 +        call nwpwxc_adisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
 +     >           r2r4,r0ab,rcov,
       .           rs6,rs8,rs10,alp6,alp8,alp10,version,autokcal,
-@@ -742,3 +805,3 @@
+      .           autoang,rthr,cn_thr,s6,s18,disp*autokcal)
+        endif !pbc
+@@ -740,28 +804,37 @@
+       g=0.0d0
+       call cpu_time(dum1)
        if (pbc) then
 -      call pbcgdisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
 +      call nwpwxc_pbcgdisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
       .           rcov,s6,s18,rs6,rs8,rs10,alp6,alp8,alp10,noabc,numgrad,
-@@ -748,18 +811,27 @@
+      .                 version,g,gdsp,x,g_lat,lat,rep_vdw,rep_cn,
+      .                 rthr,echo,cn_thr)
+  
        else
 -        call gdisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
 +c        call nwpwxc_gdisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
@@ -538,7 +647,7 @@
 +      if (util_isnan(dum)) call
 +     c     nwpwxc_stoprun('internal NaN-error')
 +#else
-+      if (ISNAN(dum)) call nwpwxc_stoprun('internal NaN-error')
++      if (ieee_is_nan(dum)) call nwpwxc_stoprun('internal NaN-error')
 +#endif      
 +!      if (dum/=dum) call nwpwxc_stoprun('internal NaN-error') 
        if(dum.gt.1.d-8) then
@@ -546,55 +655,78 @@
 -         call stoprun('internal error')
 +         call nwpwxc_stoprun('internal error')
        endif !sanitycheck
-@@ -773,3 +845,3 @@
+ c write to energy and gradient files in TM style
+       if (pbc) then
+@@ -771,12 +844,12 @@
+      . to file dftd3_cellgradient. (a.u.)'
+         endif !echo
          g_lat=g_lat!*autoev
 -        call pbcwregrad(n,g,g_lat)
 +        !call nwpwxc_pbcwregrad(n,g,g_lat)
        else !not pbc
-@@ -778,3 +850,3 @@
+         if (echo) then
+           write(*,*) 'Cartesian gradient written to file dftd3_gradient'
          endif !echo
 -        call outg(n,g,'dftd3_gradient')
 +        !call nwpwxc_outg(n,g,'dftd3_gradient')
  !        call wregrad(n,xyz,iz,disp,g)
-@@ -791,3 +863,3 @@
+ 
+       endif !pbc
+@@ -789,11 +862,12 @@
+ c test test tesc test test tesc test test tesc test test tesc test test
+ c gradient test 6-7 digits should be the same
        if (pbc) then
 -       call pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
 +       call nwpwxc_pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
       .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
-@@ -795,3 +867,4 @@
+      .           e6,e8,e10,e12,e6abc,lat,rthr,rep_vdw,cn_thr,rep_cn)
        else
 -        call edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
 +        call nwpwxc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
 +     >     r2r4,r0ab,rcov,
       .     rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,rthr,cn_thr,
-@@ -804,3 +877,3 @@
+      .     e6,e8,e10,e12,e6abc)
+       endif
+@@ -802,11 +876,12 @@
+       do j=1,3
+       xyz(j,i)=xyz(j,i)+0.00001
        if (pbc) then
 -       call pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
 +       call nwpwxc_pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
       .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
-@@ -808,3 +881,4 @@
+      .           e6,e8,e10,e12,e6abc,lat,rthr,rep_vdw,cn_thr,rep_cn)
        else
 -        call edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
 +        call nwpwxc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
 +     >     r2r4,r0ab,rcov,
       .     rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,rthr,cn_thr,
-@@ -817,3 +891,3 @@
+      .     e6,e8,e10,e12,e6abc)
+       endif
+@@ -815,11 +890,12 @@
+       dispr =-e6-e8-e6abc
+       xyz(j,i)=xyz(j,i)-0.00002
        if (pbc) then
 -       call pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
 +       call nwpwxc_pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
       .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
-@@ -821,3 +895,4 @@
+      .           e6,e8,e10,e12,e6abc,lat,rthr,rep_vdw,cn_thr,rep_cn)
        else
 -        call edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
 +        call nwpwxc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
 +     >     r2r4,r0ab,rcov,
       .     rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,rthr,cn_thr,
-@@ -837,3 +912,3 @@
+      .     e6,e8,e10,e12,e6abc)
+       endif
+@@ -835,15 +911,15 @@
+         IF (echo) write(*,*)'Doing numerical stresstensor...'
+       allocate(abc(3,n))
  
 -        call xyz_to_abc(xyz,abc,lat,n)
 +        call nwpwxc_xyz_to_abc(xyz,abc,lat,n)
          dum1=1.d-5
-@@ -843,5 +918,5 @@
+         if (echo) write(*,*)'step: ',dum1
+         do i=1,3
+           do j=1,3
              lat(j,i)=lat(j,i)+dum1
 -            call abc_to_xyz(abc,xyz,lat,n)
 -            !call edisp...dum1
@@ -603,7 +735,11 @@
 +            !call nwpwxc_edisp...dum1
 +       call nwpwxc_pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
       .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
-@@ -853,5 +928,5 @@
+      .           e6,e8,e10,e12,e6abc,lat,rthr,rep_vdw,cn_thr,rep_cn)
+ 
+@@ -851,9 +927,9 @@
+ 
+ 
              lat(j,i)=lat(j,i)-2*dum1
 -            call abc_to_xyz(abc,xyz,lat,n)
 -            !call edisp...dum2
@@ -612,7 +748,11 @@
 +            !call nwpwxc_edisp...dum2
 +       call nwpwxc_pbcedisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,
       .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
-@@ -863,5 +938,5 @@
+      .           e6,e8,e10,e12,e6abc,lat,rthr,rep_vdw,cn_thr,rep_cn)
+ 
+@@ -861,9 +937,9 @@
+             dum=(dispr-displ)/(dum1*2.0)
+ 
              lat(j,i)=lat(j,i)+dum1
 -            call abc_to_xyz(abc,xyz,lat,n)
 +            call nwpwxc_abc_to_xyz(abc,xyz,lat,n)
@@ -620,7 +760,11 @@
 -            write(*,'("L"2i1,2E14.6)'),i,j,dum,g_lat(j,i)
 +            write(*,'("L"2i1,2E14.6)') i,j,dum,g_lat(j,i)
            enddo !j
-@@ -877,4 +952,5 @@
+         enddo !i
+ 
+@@ -875,12 +951,13 @@
+ c test test tesc test test tesc test test tesc test test tesc test test
+ c test test tesc test test tesc test test tesc test test tesc test test
        
 -999   deallocate(xyz,g,iz,cn)
 -      end Program
@@ -628,52 +772,83 @@
 +999   deallocate(cn)
 +      end subroutine
  
-@@ -882,3 +958,3 @@
+ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
  
 -      subroutine printoptions
 +      subroutine nwpwxc_printoptions
        write(*,*) 'dftd3 <coord filename> [-options]'
-@@ -910,3 +986,3 @@
+       write(*,*) 'options:'
+       write(*,*) '-func <functional name in TM style>'
+@@ -908,13 +985,13 @@
+       write(*,*) 'variable parameters read from ~/.dftd3par.<hostname>'
+       write(*,*) 'if -func is used, -zero or -bj or -old is required!"'
        stop
 -      end subroutine printoptions
 +      end subroutine nwpwxc_printoptions
  
-@@ -916,3 +992,3 @@
+ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+ C set parameters
+ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
  
 -      subroutine setfuncpar(func,version,TZ,s6,rs6,s18,rs18,alp)
 +      subroutine nwpwxc_setfuncpar(func,version,TZ,s6,rs6,s18,rs18,alp)
        implicit none  
-@@ -963,3 +1039,3 @@
+       integer version
+       real*8 s6,rs6,s18,alp,rs18
+@@ -961,7 +1038,7 @@
+              s18 =0.906564
+              rs18=3.593680
          case DEFAULT
 -              call stoprun( 'functional name unknown' )
 +              call nwpwxc_stoprun( 'functional name unknown' )
        end select
-@@ -1006,3 +1082,3 @@
+       endif
+ 
+@@ -1004,7 +1081,7 @@
+              s18 =1.280619
+              rs18=0.003160
          case DEFAULT
 -              call stoprun( 'functional name unknown' )
 +              call nwpwxc_stoprun( 'functional name unknown' )
        end select
-@@ -1245,3 +1321,3 @@
+       endif
+ 
+@@ -1243,7 +1320,7 @@
+             rs18=4.5000d0
+               
           case DEFAULT
 -              call stoprun( 'functional name unknown' )
 +              call nwpwxc_stoprun( 'functional name unknown' )
        end select
-@@ -1412,3 +1488,3 @@
+       endif
+ 
+@@ -1410,7 +1487,7 @@
+               rs6=1.221
+               s18=1.206
           case DEFAULT
 -              call stoprun( 'functional name unknown' )
 +              call nwpwxc_stoprun( 'functional name unknown' )
        end select
-@@ -1452,3 +1528,3 @@
+       else
+ c special TZVPP parameter
+@@ -1450,7 +1527,7 @@
+               s18=1.109
+               s6=0.5
           case DEFAULT
 -              call stoprun( 'functional name unknown (TZ case)' )
 +              call nwpwxc_stoprun( 'functional name unknown (TZ case)' )
        end select
-@@ -1490,3 +1566,3 @@
+       endif
+       endif
+@@ -1488,14 +1565,14 @@
+               s6=0.41
+               alp=60.0d0
           case DEFAULT
 -              call stoprun( 'functional name unknown' )
 +              call nwpwxc_stoprun( 'functional name unknown' )
        end select
-@@ -1495,5 +1571,5 @@
+ 
+       endif
  
 -      end subroutine setfuncpar
 +      end subroutine nwpwxc_setfuncpar
@@ -681,28 +856,46 @@
 -      subroutine rdpar(dtmp,version,s6,s18,rs6,rs18,alp)
 +      subroutine nwpwxc_rdpar(dtmp,version,s6,s18,rs6,rs18,alp)
        implicit none
-@@ -1518,3 +1594,3 @@
+       real*8 s6,s18,rs6,rs18,alp
+       integer version
+@@ -1516,7 +1593,7 @@
+        write(dtmp,'(a)')'.dftd3par.local'
+        open(unit=43,file=dtmp)
           read(43,'(a)',end=10)ftmp 
 -         call readl(ftmp,xx,nn)
 +         call nwpwxc_readl(ftmp,xx,nn)
           if(nn.eq.6) then
-@@ -1542,3 +1618,3 @@
+                      s6  =xx(1)
+                      rs6 =xx(2)
+@@ -1540,7 +1617,7 @@
+       if(ex)then
+          open(unit=42,file=dtmp)
           read(42,'(a)',end=9)ftmp 
 -         call readl(ftmp,xx,nn)
 +         call nwpwxc_readl(ftmp,xx,nn)
           if(nn.eq.6) then
-@@ -1554,3 +1630,3 @@
+                      s6  =xx(1)
+                      rs6 =xx(2)
+@@ -1552,13 +1629,14 @@
+   9      close(42)
+       endif
  
 -      end subroutine rdpar
 +      end subroutine nwpwxc_rdpar
  
-@@ -1560,3 +1636,4 @@
+ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+ C compute energy
+ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
  
 -      subroutine edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
 +      subroutine nwpwxc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
 +     >           r2r4,r0ab,rcov,
       .           rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,rthr,cn_thr,
-@@ -1579,3 +1656,13 @@
+      .           e6,e8,e10,e12,e63)
+       implicit none  
+@@ -1577,7 +1655,17 @@
+       real*8 abcthr
+       integer*2 icomp(n*n)
        integer ij,ik,jk,k
 -      integer,external :: lin
 +      integer,external :: nwpwxc_lin
@@ -717,11 +910,19 @@
 +      pcount = 0
 +
  
-@@ -1598,2 +1685,3 @@
+       e6 =0
+       e8 =0
+@@ -1596,6 +1684,7 @@
+ 
+       do iat=1,n-1
           do jat=iat+1,n
 +         if (mod(pcount,np).eq.taskid) then
              dx=xyz(1,iat)-xyz(1,jat)
-@@ -1608,4 +1696,8 @@
+             dy=xyz(2,iat)-xyz(2,jat)
+             dz=xyz(3,iat)-xyz(3,jat)
+@@ -1606,16 +1695,24 @@
+             damp6=1./(1.+exp(-alp6*(r/(rs6*r0ab(iz(jat),iz(iat)))-1.)))
+             r6=r2**3      
              e6 =e6+c6*damp6/r6
 +         end if
 +         pcount = pcount + 1
@@ -730,7 +931,7 @@
 +      if (np.gt.1) call GA_DGOP(9+MSGDBL,e6,1,'+')
 +
  
-@@ -1613,7 +1705,11 @@
+       else
  C DFT-D3
 -      call ncoord(n,rcov,iz,xyz,cn,cn_thr)
 +      call nwpwxc_ncoord(n,rcov,iz,xyz,cn,cn_thr)
@@ -743,17 +944,29 @@
           do jat=iat+1,n
 +         if (mod(pcount,np).eq.taskid) then
              dx=xyz(1,iat)-xyz(1,jat)
-@@ -1642,3 +1738,3 @@
+             dy=xyz(2,iat)-xyz(2,jat)
+             dz=xyz(3,iat)-xyz(3,jat)
+@@ -1640,7 +1737,7 @@
+               damp8 =1.d0/( 1.d0+6.d0*tmp**(-alp8) )
+             endif
  c get C6
 -            call getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
 +            call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
       .                                    cn(iat),cn(jat),c6)
-@@ -1665,3 +1761,3 @@
+ 
+             r6=r2**3      
+@@ -1663,7 +1760,7 @@
+ 
+ !            if(.not.noabc) then
              if((.not.noabc).and.(r2.lt.abcthr)) then
 -              ij=lin(jat,iat)
 +              ij=nwpwxc_lin(jat,iat)
                icomp(ij)=1
-@@ -1674,4 +1770,12 @@
+ c store C6 for C9, calc as sqrt
+               cc6ab(ij)=sqrt(c6)
+@@ -1672,20 +1769,29 @@
+ c store for abc damping
+               dmp(ij)=(1./rr)**(1./3.) 
              endif !noabc
 +         end if
 +         pcount = pcount + 1
@@ -766,20 +979,27 @@
 +      if (np.gt.1) call GA_DGOP(9+MSGDBL,dmp,n*n,'+')
 +      if (np.gt.1) call GA_IGOP(9+MSGINT,icomp,n*n,'+')
  
-@@ -1682,3 +1786,4 @@
+       if(noabc)return
+ 
+ C compute non-additive third-order energy using averaged C6
+       do iat=1,n
           do jat=1,iat-1
 -            ij=lin(jat,iat)
 +         if (mod(pcount,np).eq.taskid) then
 +            ij=nwpwxc_lin(jat,iat)
              if(icomp(ij).eq.1)then
-@@ -1686,4 +1791,4 @@
+             do kat=1,jat-1
  
 -              ik=lin(kat,iat)
 -              jk=lin(kat,jat)
 +              ik=nwpwxc_lin(kat,iat)
 +              jk=nwpwxc_lin(kat,jat)
                if((icomp(ik).eq.0).or.(icomp(jk).eq.0)) cycle
-@@ -1708,4 +1813,7 @@
+ c damping func product
+ c           tmp=dmp(ik)*dmp(jk)*dmp(ij)
+@@ -1706,18 +1812,22 @@
+ 
+             enddo
              endif
 +         end if
 +         pcount = pcount + 1
@@ -787,54 +1007,86 @@
        enddo
 +      if (np.gt.1) call GA_DGOP(9+MSGDBL,e63,1,'+')
  
-@@ -1713,3 +1821,3 @@
+       endif
  
 -      end subroutine edisp
 +      end subroutine nwpwxc_edisp
  
-@@ -1719,3 +1827,4 @@
+ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+ C analyse all pairs
+ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
  
 -      subroutine adisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
 +      subroutine nwpwxc_adisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,
 +     >                r2r4,r0ab,rcov,
       .                rs6,rs8,rs10,alp6,alp8,alp10,version,autokcal,
-@@ -1737,3 +1846,3 @@
+      .                autoang,rthr,cn_thr,s6,s18,etot)
+       implicit none  
+@@ -1735,7 +1845,7 @@
+       integer grplist(500,20)
+       integer grpn(20),at(n)
        integer ngrp,dash
 -      integer lin, iiii, jjjj, iii, jjj, ii, jj, ni, nj 
 +      integer nwpwxc_lin, iiii, jjjj, iii, jjj, ii, jj, ni, nj 
        integer iout(500)
-@@ -1781,3 +1890,3 @@
+       logical ex
+       character*80 atmp
+@@ -1779,7 +1889,7 @@
+       li(15,2)=10.0          
+       nbin=15
  
 -      call ncoord(n,rcov,iz,xyz,cn,cn_thr)
 +      call nwpwxc_ncoord(n,rcov,iz,xyz,cn,cn_thr)
  
-@@ -1825,3 +1934,3 @@
+       write(*,*)
+       write(*,*)'analysis of pair-wise terms (in kcal/mol)'
+@@ -1823,7 +1933,7 @@
+               e6 =s6*autokcal*c6*damp6/r6
+               e8=0.0
              else
 -              call getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
 +              call nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iz(iat),iz(jat),
       .                                      cn(iat),cn(jat),c6)
-@@ -1885,3 +1994,3 @@
+             endif
+ 
+@@ -1883,7 +1993,7 @@
+       i=0
+       at=0
   111  read(55,'(a)',end=222) atmp
 -      call readfrag(atmp,iout,j)
 +      call nwpwxc_readfrag(atmp,iout,j)
        if(j.gt.0)then
-@@ -1932,3 +2041,3 @@
+          i=i+1
+          grpn(i)=j
+@@ -1930,7 +2040,7 @@
+         write(*,'(i4)',advance='no') grplist(j-1,i)
+         dash=0
         endif
 -      write(*,*)''
 +      write(*,*)' '
        enddo
-@@ -1955,3 +2064,4 @@
+ 
+ c old display list code
+@@ -1953,7 +2063,8 @@
+                do jj=1,nj
+                   jjjj=grplist(jj,j)
                    if(jjjj.lt.iiii)cycle
 -                  eg(lin(iii,jjj))=eg(lin(iii,jjj))+ed(iiii,jjjj)
 +                  eg(nwpwxc_lin(iii,jjj))=eg(nwpwxc_lin(iii,jjj))
 +     >                                   +ed(iiii,jjjj)
                 enddo
-@@ -1974,3 +2084,3 @@
+             enddo
+          enddo
+@@ -1972,24 +2083,47 @@
+       enddo
+       write(*,*) 'checksum (Edisp) ',check
  
 -      end subroutine adisp
 +      end subroutine nwpwxc_adisp
  
-@@ -1980,7 +2090,29 @@
+ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+ C compute gradient
+ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
  
 -      subroutine gdisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
 +c      subroutine nwpwxc_gdisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
@@ -867,26 +1119,44 @@
 +c values >5 might lead to bumps in the potential
 +      parameter (k3=-4.)
  
-@@ -1991,3 +2123,4 @@
+       integer n,iz(*),max_elem,maxc,version,mxc(max_elem)
+       real*8 xyz(3,*),r0ab(max_elem,max_elem),r2r4(*)
+       real*8 c6ab(max_elem,max_elem,maxc,maxc,3)
+       real*8 g(3,*),s6,s18,rcov(max_elem)
        real*8 rs6,rs8,rs10,alp10,alp8,alp6,a1,a2        
 -      logical noabc,num,echo,fix(n)
 +      !logical noabc,num,echo,fix(n)
 +      logical noabc,num,echo
   
-@@ -2004,2 +2137,3 @@
+       integer iat,jat,i,j,kat,k
+       real*8 R0,C6,alp,R42,disp,x1,y1,z1,x2,y2,z2,rr,e6abc  
+@@ -2002,6 +2136,7 @@
+       real*8 rij(3),rik(3),rjk(3),r7,r9
+       real*8 rik_dist,rjk_dist
        real*8 drij(n*(n+1)/2)  !d(E)/d(r_ij) derivative wrt. dist. iat-jat
 +      real*8 drijtmp(n*(n+1)/2)
        real*8 drik,drjk
-@@ -2011,3 +2145,3 @@
+       real*8 rcovij
+       real*8 dc6,c6chk !d(C6ij)/d(r_ij)
+@@ -2009,13 +2144,14 @@
+       real*8 dcn               !dCN(iat)/d(r_ij) is equal to
+                                !dCN(jat)/d(r_ij)     
        real*8 dc6_rest ! saves (1/r^6*f_dmp + 3*r4r2/r^8*f_dmp) for kat loop
 -      integer,external :: lin
 +      integer,external :: nwpwxc_lin
        integer  linij,linik,linjk
-@@ -2018,2 +2152,3 @@
+       real*8 vec(3),vec2(3)
+       real*8 dc6i(n)       ! dE_disp/dCN(iat) in dc6i(iat)
+       real*8 dc6ij(n,n)    ! saves dC6(ij)/dCN(iat)
+       real*8 dc6iji,dc6ijj
        logical abccalc(n*(n+1)/2)                        
 +      integer iabccalc(n*(n+1)/2)                        
        real*8 abcthr
-@@ -2028,2 +2163,7 @@
+       real*8 gtmp(3) ! temporary container to store iat gradient
+       real*8 labc,rabc
+@@ -2026,11 +2162,21 @@
+       real*8 r2ij,r2jk,r2ik,mijk,imjk,ijmk,rijk3
+       integer mat,linim,linjm,linkm,kk
  
 +      integer taskid,np,pcount
 +
@@ -894,7 +1164,7 @@
 +      taskid = GA_Nodeid()
 +      pcount = 0
  
-@@ -2031,4 +2171,9 @@
+       dc6i=0.0d0
        abccalc=.FALSE.
 +      iabccalc=0
        abcthr=cn_thr
@@ -904,50 +1174,82 @@
 +      r2abc = 0.0d0
 +      r3abc = 0.0d0
  
-@@ -2040,3 +2185,3 @@
+ 
+       
+@@ -2038,7 +2184,7 @@
+       if(num) then
+       if(echo)write(*,*) 'doing numerical gradient O(N^3) ...'
  
 -      call edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
 +      call nwpwxc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
       .     rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,rthr,cn_thr,
-@@ -2050,3 +2195,3 @@
+      .     e6,e8,e10,e12,e6abc)
+       disp=-s6*e6-s18*e8-e6abc
+@@ -2048,13 +2194,13 @@
+       do i=1,n
+       do j=1,3
        xyz(j,i)=xyz(j,i)+step        
 -      call edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
 +      call nwpwxc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
       .     rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,rthr,cn_thr,
-@@ -2056,3 +2201,3 @@
+      .     e6,e8,e10,e12,e6abc)
+       dispr=-s6*e6-s18*e8-e6abc
+       rabc=e6abc
        xyz(j,i)=xyz(j,i)-2*step      
 -      call edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
 +      call nwpwxc_edisp(max_elem,maxc,n,xyz,iz,c6ab,mxc,r2r4,r0ab,rcov,
       .     rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,rthr,cn_thr,
-@@ -2065,3 +2210,3 @@
+      .     e6,e8,e10,e12,e6abc)
+       displ=-s6*e6-s18*e8-e6abc
+@@ -2063,7 +2209,7 @@
+       xyz(j,i)=xyz(j,i)+step        
+       enddo
        enddo
 -      goto 999
 +      goto 1001
        endif
-@@ -2080,2 +2225,3 @@
+ 
+ c this is the crucial threshold to reduce the N^3 to an
+@@ -2078,6 +2224,7 @@
+       disp=0
+       do iat=1,n-1
           do jat=iat+1,n
 +         if (mod(pcount,np).eq.taskid) then
              R0=r0ab(iz(jat),iz(iat))*rs6
-@@ -2106,2 +2252,4 @@
+             dx=(xyz(1,iat)-xyz(1,jat))
+             dy=(xyz(2,iat)-xyz(2,jat))
+@@ -2104,6 +2251,8 @@
+             g(2,jat)=g(2,jat)-gy2*c6      
+             g(3,jat)=g(3,jat)-gz2*c6      
              disp=disp+c6*(1./damp1)/r2**3
 +         end if
 +         pcount = pcount + 1
           enddo
-@@ -2118,3 +2266,3 @@
+       enddo
+       disp=-disp
+@@ -2116,7 +2265,7 @@
+       elseif ((version.eq.3).or.(version.eq.5)) then
+ 
        if(echo)write(*,*) 'doing analytical gradient O(N^2) ...'
 -      call ncoord(n,rcov,iz,xyz,cn,cn_thr)
 +      call nwpwxc_ncoord(n,rcov,iz,xyz,cn,cn_thr)
        s8 =s18
-@@ -2132,2 +2280,3 @@
+       s10=s18
+ 
+@@ -2130,19 +2279,20 @@
+       kk=0
+       do iat=1,n
          do jat=1,iat-1
 +        if (mod(pcount,np).eq.taskid) then
            rij=xyz(:,jat)-xyz(:,iat)
-@@ -2135,3 +2284,3 @@
+           r2=sum(rij*rij)
            if (r2.gt.rthr) cycle
 -          linij=lin(iat,jat)
 +          linij=nwpwxc_lin(iat,jat)
  
-@@ -2141,6 +2290,6 @@
+           r0=r0ab(iz(jat),iz(iat))
+           r42=r2r4(iz(iat))*r2r4(iz(jat))
+ !          rcovij=rcov(iz(iat))+rcov(iz(jat))
  !
 -!      get_dC6_dCNij calculates the derivative dC6(iat,jat)/dCN(iat) and
 +!      nwpwxc_get_dC6_dCNij calculates the derivative dC6(iat,jat)/dCN(iat) and
@@ -956,11 +1258,19 @@
 -          call get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
 +          call nwpwxc_get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
       .          mxc(iz(jat)),cn(iat),cn(jat),iz(iat),iz(jat),iat,jat,
-@@ -2192,2 +2341,3 @@
+      .          c6,dc6iji,dc6ijj)
+ 
+@@ -2190,6 +2340,7 @@
+ 
+             if ((.not.noabc).and.(r2.lt.abcthr)) then
  !          if (.not.noabc) then
 +              iabccalc(linij)=1
                abccalc(linij)=.TRUE.
-@@ -2210,4 +2360,10 @@
+               dc6ij(iat,jat)=dc6iji
+               dc6ij(jat,iat)=dc6ijj
+@@ -2208,8 +2359,14 @@
+           dc6i(jat)=dc6i(jat)+dc6_rest*dc6ijj
+ 
  
 +        end if
 +        pcount = pcount + 1
@@ -971,21 +1281,30 @@
 +         abccalc(i) = (iabccalc(i).gt.0)
 +      end do
  
-@@ -2229,3 +2385,3 @@
+ 
+ 
+@@ -2227,7 +2384,7 @@
+ 
+       if(echo)write(*,*) 'doing analytical gradient O(N^2) ...'
        disp=0
 -      call ncoord(n,rcov,iz,xyz,cn,cn_thr)
 +      call nwpwxc_ncoord(n,rcov,iz,xyz,cn,cn_thr)
  
-@@ -2238,2 +2394,3 @@
+       drij=0.0d0
+       dc6_rest=0.0d0
+@@ -2236,18 +2393,19 @@
+ 
+       do iat=1,n
          do jat=1,iat-1
 +        if (mod(pcount,np).eq.taskid) then
            rij=xyz(:,jat)-xyz(:,iat)
-@@ -2242,3 +2399,3 @@
+           r2=sum(rij*rij)
+           if (r2.gt.rthr) cycle
  
 -          linij=lin(iat,jat)
 +          linij=nwpwxc_lin(iat,jat)
            r0=r0ab(iz(jat),iz(iat))
-@@ -2246,6 +2403,6 @@
+           r42=r2r4(iz(iat))*r2r4(iz(jat))
  !
 -!      get_dC6_dCNij calculates the derivative dC6(iat,jat)/dCN(iat) and
 +!      nwpwxc_get_dC6_dCNij calculates the derivative dC6(iat,jat)/dCN(iat) and
@@ -994,11 +1313,19 @@
 -          call get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
 +          call nwpwxc_get_dC6_dCNij(maxc,max_elem,c6ab,mxc(iz(iat)),
       .          mxc(iz(jat)),cn(iat),cn(jat),iz(iat),iz(jat),iat,jat,
-@@ -2261,2 +2418,3 @@
+      .          c6,dc6iji,dc6ijj)
+ 
+@@ -2259,6 +2417,7 @@
+ 
+           if ((.not.noabc).and.(r2.lt.abcthr)) then
  !          if (.not.noabc) then
 +            iabccalc(linij)=1
              abccalc(linij)=.TRUE.
-@@ -2285,7 +2443,17 @@
+             dc6ij(iat,jat)=dc6iji
+             dc6ij(jat,iat)=dc6ijj
+@@ -2283,24 +2442,36 @@
+           dc6i(iat)=dc6i(iat)+dc6_rest*dc6iji
+           dc6i(jat)=dc6i(jat)+dc6_rest*dc6ijj
  
 +        end if
 +        pcount = pcount + 1
@@ -1017,7 +1344,8 @@
 +      end do
 +
  
-@@ -2294,5 +2462,6 @@
+       if(.not.noabc)then
+ 
        if(echo)write(*,*) 'doing analytical gradient O(N^3) ...'
 +        eabc    = 0.0d0
          do iat=1,n
@@ -1025,7 +1353,7 @@
 -            linij=lin(iat,jat)
 +            linij=nwpwxc_lin(iat,jat)
              if(.NOT.abccalc(linij))cycle
-@@ -2300,5 +2469,6 @@
+               r2ij=r2abc(linij)
              do kat=1,jat-1
 +            if (mod(pcount,np).eq.taskid) then
  
@@ -1034,17 +1362,27 @@
 +              linik=nwpwxc_lin(iat,kat)
 +              linjk=nwpwxc_lin(jat,kat)
                if(.NOT.(abccalc(linjk).AND.abccalc(linik)))cycle    !cutoff crit
-@@ -2377,2 +2547,4 @@
+ ! calculating the 3body energy:              
+               r2jk=r2abc(linjk)
+@@ -2375,21 +2546,26 @@
+               dc9=-0.5d0*c9*dc9
+               dc6i(kat)=dc6i(kat)+dc6_rest*dc9
  
 +            end if
 +            pcount = pcount + 1
              ENDDO !kat
-@@ -2383,2 +2555,4 @@
+           ENDDO !jat
+         ENDDO !iat
+ 
+         disp=disp+eabc
        endif !noabc
 +      if (np.gt.1) call GA_DGOP(9+MSGDBL,dc6i,n,'+')
 +      if (np.gt.1) call GA_DGOP(9+MSGDBL,drij,n*(n+1)/2,'+')
  
-@@ -2389,5 +2563,6 @@
+ 
+ 
+ ! After calculating all derivatives dE/dr_ij w.r.t. distances,
+ ! the grad w.r.t. the coordinates is calculated dE/dr_ij * dr_ij/dxyz_i       
        do iat=2,n
 -        gtmp=0.0
 +        gtmp=0.0d0
@@ -1053,18 +1391,29 @@
 +        if (mod(pcount,np).eq.taskid) then
 +          linij=nwpwxc_lin(iat,jat)
            rij=xyz(:,jat)-xyz(:,iat)
-@@ -2411,2 +2586,4 @@
+ 
+          
+@@ -2409,6 +2585,8 @@
+           !g(:,iat)=g(:,iat)+x1*rij/r
+           g(:,jat)=g(:,jat)-x1*rij/r
           
 +        end if
 +        pcount = pcount + 1
          enddo !iat
-@@ -2418,2 +2595,5 @@
+         g(:,iat)=g(:,iat)+gtmp
+       enddo !jat
+@@ -2416,30 +2594,50 @@
+ 
+ 
   999  continue
 +      if (np.gt.1) call GA_DGOP(9+MSGDBL,disp,1,'+')
 +      if (np.gt.1) call GA_DGOP(9+MSGDBL,g,3*n,'+')
 + 1001 continue
        gnorm=sum(abs(g(1:3,1:n)))
-@@ -2424,5 +2604,5 @@
+       if(echo)then
+       write(*,*)
+       write(*,*)'|G|=',gnorm
+       endif
  
 -      do i=1,n                 !fixed atoms have no gradient
 -       if(fix(i))g(:,i)=0.0
@@ -1073,18 +1422,21 @@
 +c       if(fix(i))g(:,i)=0.0
 +c      enddo
  
-@@ -2430,3 +2610,3 @@
+        
  
 -      end subroutine gdisp
 +      end subroutine nwpwxc_gdisp
  
-@@ -2437,3 +2617,4 @@
+ 
+ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+ C      The   N E W   gradC6 routine    C
+ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
  !
 -      subroutine get_dC6_dCNij(maxc,max_elem,c6ab,mxci,mxcj,cni,cnj,
 +      subroutine nwpwxc_get_dC6_dCNij(maxc,max_elem,c6ab,mxci,mxcj,
 +     >           cni,cnj,
       .           izi,izj,iat,jat,c6check,dc6i,dc6j)
-@@ -2441,3 +2622,19 @@
+ 
        IMPLICIT NONE
 -      include  'param'
 +      !include  'param'
@@ -1105,17 +1457,29 @@
 +
 +
        integer maxc,max_elem
-@@ -2506,3 +2703,3 @@
+       real*8 c6ab(max_elem,max_elem,maxc,maxc,3)
+       integer mxci,mxcj   !mxc(iz(iat))
+@@ -2504,7 +2702,7 @@
+         dc6i=0.0d0
+         dc6j=0.0d0
        endif
 -      end subroutine get_dC6_dCNij
 +      end subroutine nwpwxc_get_dC6_dCNij
  
-@@ -2514,3 +2711,3 @@
+ 
+ 
+@@ -2512,7 +2710,7 @@
+ C interpolate c6  
+ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
  
 -      subroutine getc6(maxc,max_elem,c6ab,mxc,iat,jat,nci,ncj,c6)
 +      subroutine nwpwxc_getc6(maxc,max_elem,c6ab,mxc,iat,jat,nci,ncj,c6)
        implicit none
-@@ -2524,3 +2721,19 @@
+       integer maxc,max_elem
+       integer iat,jat,i,j,mxc(max_elem)
+@@ -2522,7 +2720,23 @@
+ c when nci or ncj is much larger than cn1/cn2
+       real*8  cn1,cn2,r,rsum,csum,tmp,tmp1   
        real*8  r_save
 -      include 'param'
 +      !include 'param'
@@ -1136,12 +1500,18 @@
 +
 +
  
-@@ -2557,3 +2770,3 @@
+       c6mem=-1.d+99
+       rsum=0.0d0
+@@ -2555,15 +2769,31 @@
+          c6=c6mem
+       endif
  
 -      end subroutine getc6
 +      end subroutine nwpwxc_getc6
  
-@@ -2563,5 +2776,21 @@
+ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+ C compute coordination numbers by adding an inverse damping function
+ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
  
 -      subroutine ncoord(natoms,rcov,iz,xyz,cn,cn_thr)
 +      subroutine nwpwxc_ncoord(natoms,rcov,iz,xyz,cn,cn_thr)
@@ -1165,22 +1535,36 @@
 +
 +
        integer iz(*),natoms,i,max_elem
-@@ -2600,3 +2829,3 @@
+       real*8 xyz(3,*),cn(*),rcov(94),input
+       real*8 cn_thr
+@@ -2598,13 +2828,13 @@
+ c      endif  
+       enddo
  
 -      end subroutine ncoord
 +      end subroutine nwpwxc_ncoord
  
-@@ -2606,3 +2835,3 @@
+ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+ C load C6 coefficients from file
+ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
  
 -      subroutine loadc6(fname,maxc,max_elem,c6ab,maxci)
 +      subroutine nwpwxc_loadc6(fname,maxc,max_elem,c6ab,maxci)
        implicit none
-@@ -2624,3 +2853,3 @@
+       integer maxc,max_elem,maxci(max_elem)
+       real*8  c6ab(max_elem,max_elem,maxc,maxc,3)
+@@ -2622,7 +2852,7 @@
+       open(unit=1,file=fname)
+       read(1,'(a)')btmp
   10   read(1,*,end=11) y,iat,jat,cn1,cn2  
 -      call limit(iat,jat,iadr,jadr)
 +      call nwpwxc_limit(iat,jat,iadr,jadr)
        maxci(iat)=max(maxci(iat),iadr)
-@@ -2639,5 +2868,5 @@
+       maxci(jat)=max(maxci(jat),jadr)
+       c6ab(iat,jat,iadr,jadr,1)=y  
+@@ -2637,17 +2867,17 @@
+  11   continue
+       close(1)
  
 -      end subroutine loadc6
 +      end subroutine nwpwxc_loadc6
@@ -1188,7 +1572,7 @@
 -      integer function lin(i1,i2)
 +      integer function nwpwxc_lin(i1,i2)
        integer i1,i2,idum1,idum2
-@@ -2645,7 +2874,7 @@
+       idum1=max(i1,i2)
        idum2=min(i1,i2)
 -      lin=idum2+idum1*(idum1-1)/2
 +      nwpwxc_lin=idum2+idum1*(idum1-1)/2
@@ -1199,7 +1583,11 @@
 -      subroutine limit(iat,jat,iadr,jadr)
 +      subroutine nwpwxc_limit(iat,jat,iadr,jadr)
        implicit none
-@@ -2668,4730 +2897,3 @@
+       integer iat,jat,iadr,jadr,i
+       iadr=1
+@@ -2666,4733 +2896,6 @@
+          goto 20
+       endif
  
 -      end subroutine limit
 -
@@ -5930,4 +6318,5 @@
 -      end subroutine removebksl
 -
 +      end subroutine nwpwxc_limit
+ 
  
