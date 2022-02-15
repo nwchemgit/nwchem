@@ -3012,7 +3012,9 @@ ifneq ($(TARGET),LINUX)
             ifeq ($(shell $(CNFDIR)/check_env.sh $(USE_HWOPT)),1)
               FOPTIONS += -tp host
             else
-              FOPTIONS += -tp px
+              ifeq ($(_CPU),x86_64)
+                FOPTIONS += -tp px
+	      endif
             endif
             ifdef USE_OPENMP
 	      ifndef UNSET_OPENMP
