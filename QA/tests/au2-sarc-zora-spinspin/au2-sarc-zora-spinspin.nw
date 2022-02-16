@@ -18,6 +18,7 @@ noprint "final vectors analysis" multipole
 end
 relativistic
  zora on
+ zora:cutoff 1d-30
  modelpotential 1
 end
 
