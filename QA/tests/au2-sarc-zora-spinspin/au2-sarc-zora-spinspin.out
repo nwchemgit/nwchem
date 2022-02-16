@@ -19,12 +19,12 @@ end
 
 dft
 xc pbe0
-convergence  energy 1d-9
-grid fine
+convergence  energy 1d-8
 noprint "final vectors analysis" multipole
 end
 relativistic
  zora on
+ zora:cutoff 1d-30
  modelpotential 1
 end
 
@@ -32,6 +32,8 @@ property
 shielding
 spinspin
 end
+
+set int:cando_txs f
 
 task dft property
 ================================================================================
@@ -76,9 +78,9 @@ task dft property
 
     hostname        = WE40672
     program         = /Users/edo/nwchem/nwchem/bin/MACX64/nwchem
-    date            = Tue Feb  8 17:44:40 2022
+    date            = Wed Feb 16 10:48:29 2022
 
-    compiled        = Tue_Feb_08_16:37:12_2022
+    compiled        = Mon_Feb_14_18:24:48_2022
     source          = /Users/edo/nwchem/nwchem
     nwchem branch   = 7.0.0
     nwchem revision = nwchem_on_git-3195-g27fae8c638
@@ -88,7 +90,7 @@ task dft property
     prefix          = au2-sarc-zora-spinspin.
     data base       = ./au2-sarc-zora-spinspin.db
     status          = startup
-    nproc           =        2
+    nproc           =        3
     time left       =     -1s
 
 
@@ -343,11 +345,8 @@ task dft property
  Reading Model Potential File:
  /Users/edo/nwchem/nwchem/src/basis/libraries/rel-modelpotentials/modbas.4c
 
+  int_init: cando_txs set to always be  F
   Caching 1-el integrals 
-  itol2e modified to match energy
-  convergence criterion.
-  tol_rho modified to match energy
-  convergence criterion.
 
             General Information
             -------------------
@@ -363,7 +362,7 @@ task dft property
           Maximum number of iterations:  50
           AO basis - number of functions:   222
                      number of shells:    78
-          Convergence on energy requested:  1.00D-09
+          Convergence on energy requested:  1.00D-08
           Convergence on density requested:  1.00D-05
           Convergence on gradient requested:  5.00D-04
 
@@ -404,11 +403,11 @@ task dft property
 
       Screening Tolerance Information
       -------------------------------
-          Density screening/tol_rho:  1.00D-12
-          AO Gaussian exp screening on grid/accAOfunc:  21
+          Density screening/tol_rho:  1.00D-11
+          AO Gaussian exp screening on grid/accAOfunc:  18
           CD Gaussian exp screening on grid/accCDfunc:  20
           XC Gaussian exp screening on grid/accXCfunc:  20
-          Schwarz screening/accCoul:  1.00D-10
+          Schwarz screening/accCoul:  1.00D-09
 
           Performing ZORA calculations
           ----------------------------
@@ -429,7 +428,7 @@ task dft property
 
  Grid_pts file          = ./au2-sarc-zora-spinspin.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     51        Max. recs in file   = 506625431
+ Max. records in memory =     34        Max. recs in file   = 337750284
 
 
  Wrote atomic ZORA corrections to ./au2-sarc-zora-spinspin.zora_sf
@@ -445,88 +444,87 @@ task dft property
 
  Total energy =  -35687.058137
  1-e energy   =  -51935.569939
- 2-e energy   =   14927.473718
- HOMO         =      -0.396395
- LUMO         =      -0.125334
+ 2-e energy   =   14927.473717
+ HOMO         =      -0.396397
+ LUMO         =      -0.125365
 
-   Time after variat. SCF:     10.5
-   Time prior to 1st pass:     10.5
- Grid integrated density:     158.000080696040
+   Time after variat. SCF:     26.2
+   Time prior to 1st pass:     26.2
+ Grid integrated density:     158.000051182435
  Requested integration accuracy:   0.10E-06
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       18.01            18009011
+           Heap Space remaining (MW):       18.22            18222163
           Stack Space remaining (MW):       52.10            52095940
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1 -38152.0827703763 -3.95D+04  5.28D-02  9.94D+07    16.7
- Grid integrated density:     158.000092617615
+ d= 0,ls=0.0,diis     1 -38152.0826006637 -3.95D+04  5.28D-02  9.94D+07    52.7
+ Grid integrated density:     158.000046119060
  Requested integration accuracy:   0.10E-06
- d= 0,ls=0.0,diis     2 -39313.2494599881 -1.16D+03  1.49D-02  3.90D+03    23.0
- Grid integrated density:     158.000070308499
+ d= 0,ls=0.0,diis     2 -39313.2492881675 -1.16D+03  1.49D-02  3.90D+03    80.4
+ Grid integrated density:     158.000041523153
  Requested integration accuracy:   0.10E-06
- d= 0,ls=0.0,diis     3 -39314.4384044668 -1.19D+00  1.89D-02  2.16D+02    29.3
- Grid integrated density:     158.000089588307
+ d= 0,ls=0.0,diis     3 -39314.4381725120 -1.19D+00  1.89D-02  2.16D+02   105.3
+ Grid integrated density:     158.000050689908
  Requested integration accuracy:   0.10E-06
- d= 0,ls=0.0,diis     4 -39314.7836306808 -3.45D-01  1.29D-02  7.28D+01    35.5
- Grid integrated density:     158.000078871978
+ d= 0,ls=0.0,diis     4 -39314.7833886934 -3.45D-01  1.29D-02  7.28D+01   129.3
+ Grid integrated density:     158.000044204186
  Requested integration accuracy:   0.10E-06
- d= 0,ls=0.0,diis     5 -39316.4345953802 -1.65D+00  3.72D-03  2.43D+00    41.7
- Grid integrated density:     158.000081188789
+ d= 0,ls=0.0,diis     5 -39316.4344110473 -1.65D+00  3.72D-03  2.43D+00   154.4
+ Grid integrated density:     158.000045765337
  Requested integration accuracy:   0.10E-06
- d= 0,ls=0.0,diis     6 -39316.5350508352 -1.00D-01  1.27D-03  2.04D-01    48.0
- Grid integrated density:     158.000080744746
+ d= 0,ls=0.0,diis     6 -39316.5348608712 -1.00D-01  1.26D-03  2.04D-01   178.6
+ Grid integrated density:     158.000045556152
  Requested integration accuracy:   0.10E-06
   Resetting Diis
- d= 0,ls=0.0,diis     7 -39316.5485666387 -1.35D-02  2.64D-04  1.65D-02    54.9
- d= 0,ls=0.0,diis     8 -39316.5495048602 -9.38D-04  1.02D-04  2.85D-04    62.1
- d= 0,ls=0.0,diis     9 -39316.5494917989  1.31D-05  4.45D-05  8.63D-04    69.0
- d= 0,ls=0.0,diis    10 -39316.5495334271 -4.16D-05  1.14D-05  1.44D-05    75.7
- d= 0,ls=0.0,diis    11 -39316.5495345765 -1.15D-06  7.28D-06  9.05D-07    82.1
- d= 0,ls=0.0,diis    12 -39316.5495347204 -1.44D-07  3.84D-06  4.01D-07    88.6
- d= 0,ls=0.0,diis    13 -39316.5495347757 -5.53D-08  1.19D-06  1.63D-08    94.9
- d= 0,ls=0.0,diis    14 -39316.5495347778 -2.09D-09  2.26D-07  5.85D-09   101.6
- d= 0,ls=0.0,diis    15 -39316.5495347780 -2.33D-10  2.10D-08  1.62D-11   108.1
+ d= 0,ls=0.0,diis     7 -39316.5483760146 -1.35D-02  2.62D-04  1.65D-02   202.4
+ d= 0,ls=0.0,diis     8 -39316.5494708880 -1.09D-03  1.02D-04  2.82D-04   229.3
+ d= 0,ls=0.0,diis     9 -39316.5494577669  1.31D-05  4.43D-05  8.67D-04   255.6
+ d= 0,ls=0.0,diis    10 -39316.5494994425 -4.17D-05  1.13D-05  1.47D-05   285.2
+ d= 0,ls=0.0,diis    11 -39316.5495006194 -1.18D-06  7.33D-06  9.35D-07   310.4
+ d= 0,ls=0.0,diis    12 -39316.5495007673 -1.48D-07  4.01D-06  3.86D-07   336.2
+ d= 0,ls=0.0,diis    13 -39316.5495008228 -5.55D-08  1.07D-06  1.23D-08   360.6
+ d= 0,ls=0.0,diis    14 -39316.5495008252 -2.43D-09  5.14D-08  9.08D-11   385.2
 
       Commencing ZORA Property Calculations
       -------------------------------------
 
-dia1(k,t,iat1,ispin)=(  1,  1,  1,  1)=(  9417.11878552,  9417.11878552) ppm
-dia1(k,t,iat1,ispin)=(  1,  2,  1,  1)=(     0.00000000,     0.00000000) ppm
-dia1(k,t,iat1,ispin)=(  1,  3,  1,  1)=(     0.00000000,     0.00000000) ppm
-dia1(k,t,iat1,ispin)=(  2,  1,  1,  1)=(     0.00000000,     0.00000000) ppm
-dia1(k,t,iat1,ispin)=(  2,  2,  1,  1)=(  9417.11878552,  9417.11878552) ppm
-dia1(k,t,iat1,ispin)=(  2,  3,  1,  1)=(     0.00000000,     0.00000000) ppm
-dia1(k,t,iat1,ispin)=(  3,  1,  1,  1)=(     0.00000001,     0.00000001) ppm
-dia1(k,t,iat1,ispin)=(  3,  2,  1,  1)=(     0.00000001,     0.00000001) ppm
-dia1(k,t,iat1,ispin)=(  3,  3,  1,  1)=(  9432.92842640,  9432.92842640) ppm
-(dia2,par1)(k,t,iat1,spin)=(  1,  1,  1,  1)=(     3.16092166,     3.16092166,     0.00000000,     0.00000000) ppm
-(dia2,par1)(k,t,iat1,spin)=(  2,  1,  1,  1)=(     0.00000000,     0.00000000,     0.00000000,     0.00000000) ppm
+dia1(k,t,iat1,ispin)=(  1,  1,  1,  1)=(  9417.70845835,  9417.70845835) ppm
+dia1(k,t,iat1,ispin)=(  1,  2,  1,  1)=(     0.00000048,     0.00000048) ppm
+dia1(k,t,iat1,ispin)=(  1,  3,  1,  1)=(     0.00000022,     0.00000022) ppm
+dia1(k,t,iat1,ispin)=(  2,  1,  1,  1)=(     0.00000048,     0.00000048) ppm
+dia1(k,t,iat1,ispin)=(  2,  2,  1,  1)=(  9417.70845832,  9417.70845832) ppm
+dia1(k,t,iat1,ispin)=(  2,  3,  1,  1)=(    -0.00000014,    -0.00000014) ppm
+dia1(k,t,iat1,ispin)=(  3,  1,  1,  1)=(     0.00000025,     0.00000025) ppm
+dia1(k,t,iat1,ispin)=(  3,  2,  1,  1)=(    -0.00000015,    -0.00000015) ppm
+dia1(k,t,iat1,ispin)=(  3,  3,  1,  1)=(  9432.92861638,  9432.92861638) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  1,  1,  1)=(     3.70298454,     3.70298454,     0.00000000,     0.00000000) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  1,  1,  1)=(    -0.00000011,    -0.00000011,     0.00000000,     0.00000000) ppm
 (dia2,par1)(k,t,iat1,spin)=(  3,  1,  1,  1)=(     0.00000000,     0.00000000,     0.00000000,     0.00000000) ppm
-(dia2,par1)(k,t,iat1,spin)=(  1,  2,  1,  1)=(     0.00000000,     0.00000000,     0.00000000,     0.00000000) ppm
-(dia2,par1)(k,t,iat1,spin)=(  2,  2,  1,  1)=(     3.16092166,     3.16092166,     0.00000000,     0.00000000) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  2,  1,  1)=(    -0.00000011,    -0.00000011,     0.00000000,     0.00000000) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  2,  1,  1)=(     3.70298454,     3.70298454,     0.00000000,     0.00000000) ppm
 (dia2,par1)(k,t,iat1,spin)=(  3,  2,  1,  1)=(     0.00000000,     0.00000000,     0.00000000,     0.00000000) ppm
-(dia2,par1)(k,t,iat1,spin)=(  1,  3,  1,  1)=(     0.00000000,     0.00000000,     0.00000000,     0.00000000) ppm
-(dia2,par1)(k,t,iat1,spin)=(  2,  3,  1,  1)=(     0.00000001,     0.00000001,     0.00000000,     0.00000000) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  3,  1,  1)=(    -0.00000003,    -0.00000003,     0.00000000,     0.00000000) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  3,  1,  1)=(    -0.00000001,    -0.00000001,     0.00000000,     0.00000000) ppm
 (dia2,par1)(k,t,iat1,spin)=(  3,  3,  1,  1)=(     0.00000000,     0.00000000,     0.00000000,     0.00000000) ppm
-dia1(k,t,iat1,ispin)=(  1,  1,  2,  1)=(  9417.75604681,  9417.75604681) ppm
-dia1(k,t,iat1,ispin)=(  1,  2,  2,  1)=(     0.00000000,     0.00000000) ppm
-dia1(k,t,iat1,ispin)=(  1,  3,  2,  1)=(     0.00000000,     0.00000000) ppm
-dia1(k,t,iat1,ispin)=(  2,  1,  2,  1)=(     0.00000000,     0.00000000) ppm
-dia1(k,t,iat1,ispin)=(  2,  2,  2,  1)=(  9417.75604681,  9417.75604681) ppm
+dia1(k,t,iat1,ispin)=(  1,  1,  2,  1)=(  9417.70833667,  9417.70833667) ppm
+dia1(k,t,iat1,ispin)=(  1,  2,  2,  1)=(    -0.00000006,    -0.00000006) ppm
+dia1(k,t,iat1,ispin)=(  1,  3,  2,  1)=(    -0.00000006,    -0.00000006) ppm
+dia1(k,t,iat1,ispin)=(  2,  1,  2,  1)=(    -0.00000006,    -0.00000006) ppm
+dia1(k,t,iat1,ispin)=(  2,  2,  2,  1)=(  9417.70833667,  9417.70833667) ppm
 dia1(k,t,iat1,ispin)=(  2,  3,  2,  1)=(     0.00000001,     0.00000001) ppm
-dia1(k,t,iat1,ispin)=(  3,  1,  2,  1)=(     0.00000001,     0.00000001) ppm
+dia1(k,t,iat1,ispin)=(  3,  1,  2,  1)=(    -0.00000001,    -0.00000001) ppm
 dia1(k,t,iat1,ispin)=(  3,  2,  2,  1)=(     0.00000000,     0.00000000) ppm
-dia1(k,t,iat1,ispin)=(  3,  3,  2,  1)=(  9432.92817521,  9432.92817521) ppm
-(dia2,par1)(k,t,iat1,spin)=(  1,  1,  2,  1)=(     3.72521408,     3.72521408,     0.00000000,     0.00000000) ppm
+dia1(k,t,iat1,ispin)=(  3,  3,  2,  1)=(  9432.92850070,  9432.92850070) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  1,  2,  1)=(     3.70298159,     3.70298159,     0.00000000,     0.00000000) ppm
 (dia2,par1)(k,t,iat1,spin)=(  2,  1,  2,  1)=(    -0.00000001,    -0.00000001,     0.00000000,     0.00000000) ppm
 (dia2,par1)(k,t,iat1,spin)=(  3,  1,  2,  1)=(     0.00000000,     0.00000000,     0.00000000,     0.00000000) ppm
 (dia2,par1)(k,t,iat1,spin)=(  1,  2,  2,  1)=(    -0.00000001,    -0.00000001,     0.00000000,     0.00000000) ppm
-(dia2,par1)(k,t,iat1,spin)=(  2,  2,  2,  1)=(     3.72521408,     3.72521408,     0.00000000,     0.00000000) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  2,  2,  1)=(     3.70298159,     3.70298159,     0.00000000,     0.00000000) ppm
 (dia2,par1)(k,t,iat1,spin)=(  3,  2,  2,  1)=(     0.00000000,     0.00000000,     0.00000000,     0.00000000) ppm
-(dia2,par1)(k,t,iat1,spin)=(  1,  3,  2,  1)=(     0.00000000,     0.00000000,     0.00000000,     0.00000000) ppm
-(dia2,par1)(k,t,iat1,spin)=(  2,  3,  2,  1)=(     0.00000000,     0.00000000,     0.00000000,     0.00000000) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  3,  2,  1)=(    -0.00000002,    -0.00000002,     0.00000000,     0.00000000) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  3,  2,  1)=(    -0.00000001,    -0.00000001,     0.00000000,     0.00000000) ppm
 (dia2,par1)(k,t,iat1,spin)=(  3,  3,  2,  1)=(     0.00000000,     0.00000000,     0.00000000,     0.00000000) ppm
 
  Wrote ZORA NMR data to ./au2-sarc-zora-spinspin.zora_nmrcs
@@ -534,17 +532,17 @@ dia1(k,t,iat1,ispin)=(  3,  3,  2,  1)=(  9432.92817521,  9432.92817521) ppm
 (nogshift,skip_gshiftAOev,done_Fji)=( 1,F,T)
 
 
-         Total DFT energy =   -39316.549534777994
-      One electron energy =   -56031.886356529794
-           Coulomb energy =    16129.093153062229
-    Exchange-Corr. energy =     -734.794415713283
+         Total DFT energy =   -39316.549500825240
+      One electron energy =   -56031.887493380913
+           Coulomb energy =    16129.094347467302
+    Exchange-Corr. energy =     -734.794439314477
  Nuclear repulsion energy =     1321.038084402847
 
-       Scaling correction =     1343.554774232967
+       Scaling correction =     1343.554765572659
 
- Numeric. integr. density =      158.000000000265
+ Numeric. integr. density =      158.000000561023
 
-     Total iterative time =    249.4s
+     Total iterative time =    562.5s
 
 
 
@@ -574,6 +572,7 @@ dia1(k,t,iat1,ispin)=(  3,  3,  2,  1)=(  9432.92817521,  9432.92817521) ppm
           Chemical Shielding Tensors (GIAO, in ppm)
           -----------------------------------------
 
+  int_init: cando_txs set to always be  F
 
  Read ZORA NMR data from ./au2-sarc-zora-spinspin.zora_nmrcs
 
@@ -581,6 +580,7 @@ dia1(k,t,iat1,ispin)=(  3,  3,  2,  1)=(  9432.92817521,  9432.92817521) ppm
                                 ------------------
 
 
+  int_init: cando_txs set to always be  F
   scftype          =     RHF 
   nclosed          =       79
   nopen            =        0
@@ -591,7 +591,7 @@ dia1(k,t,iat1,ispin)=(  3,  3,  2,  1)=(  9432.92817521,  9432.92817521) ppm
   max iterations   =       50
   max subspace     =       30
 
- SCF residual:    6.2671678955137841E-007
+ SCF residual:    1.2705275877037538E-005
 
 
 Iterative solution of linear equations
@@ -600,80 +600,81 @@ Iterative solution of linear equations
   Maximum subspace       30
         Iterations       50
        Convergence  1.0D-04
-        Start time    451.6
+        Start time    953.3
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1      3    1.58D-01     484.3
-     2      6    2.61D-02     519.2
-     3      9    1.42D-03     554.3
-     4     12    1.49D-04     588.0
-     5     15    9.65D-06     621.1
+     1      3    1.54D-01    1025.2
+     2      6    2.38D-02    1098.1
+     3      9    1.14D-03    1170.0
+     4     12    1.27D-04    1241.2
+     5     15    8.67D-06    1308.3
 
  Wrote CPHF data to ./au2-sarc-zora-spinspin.shieldcphf
 
+  int_init: cando_txs set to always be  F
  Calc. par tensor-> zora
       Atom:    1  Au
         Diamagnetic
-   9420.2797      0.0000      0.0000
-      0.0000   9420.2797      0.0000
-      0.0000      0.0000   9432.9284
+   9421.4114      0.0000      0.0000
+      0.0000   9421.4114     -0.0000
+      0.0000     -0.0000   9432.9286
 
         Paramagnetic
-   -647.2633      0.0000      0.0000
-      0.0000   -647.2633      0.0000
-      0.0000      0.0000    296.0678
+   -628.3694      0.0001      0.0000
+      0.0001   -628.3694     -0.0000
+      0.0000     -0.0000    296.0678
 
         Total Shielding Tensor
-   8773.0164      0.0000      0.0000
-      0.0000   8773.0164      0.0000
-      0.0000      0.0000   9728.9962
+   8793.0420      0.0001      0.0000
+      0.0001   8793.0420     -0.0000
+      0.0000     -0.0000   9728.9964
 
-           isotropic =    9091.6763
-          anisotropy =     955.9798
+           isotropic =    9105.0268
+          anisotropy =     935.9544
 
           Principal Components and Axis System
                  1           2           3
-             9728.9962   8773.0164   8773.0164
+             9728.9964   8793.0421   8793.0420
 
-      1         0.0000      0.6813      0.7320
-      2         0.0000      0.7320     -0.6813
-      3         1.0000     -0.0000     -0.0000
+      1         0.0000      0.7036      0.7106
+      2        -0.0000      0.7106     -0.7036
+      3         1.0000      0.0000     -0.0000
 
 
 
       Atom:    2  Au
         Diamagnetic
-   9421.4813     -0.0000      0.0000
-     -0.0000   9421.4813      0.0000
-      0.0000      0.0000   9432.9282
+   9421.4113     -0.0000     -0.0000
+     -0.0000   9421.4113      0.0000
+     -0.0000      0.0000   9432.9285
 
         Paramagnetic
-   -628.0490     -0.0000      0.0000
-     -0.0000   -628.0490      0.0000
-      0.0000      0.0000    296.0678
+   -628.3704     -0.0000     -0.0000
+     -0.0000   -628.3704      0.0000
+     -0.0000      0.0000    296.0678
 
         Total Shielding Tensor
-   8793.4322     -0.0000      0.0000
-     -0.0000   8793.4322      0.0000
-      0.0000      0.0000   9728.9959
+   8793.0409     -0.0000     -0.0000
+     -0.0000   8793.0409      0.0000
+     -0.0000      0.0000   9728.9963
 
-           isotropic =    9105.2868
-          anisotropy =     935.5637
+           isotropic =    9105.0260
+          anisotropy =     935.9554
 
           Principal Components and Axis System
                  1           2           3
-             9728.9959   8793.4322   8793.4322
+             9728.9963   8793.0409   8793.0408
 
-      1         0.0000      0.7146      0.6995
-      2         0.0000     -0.6995      0.7146
-      3         1.0000      0.0000     -0.0000
-
-
+      1        -0.0000      0.7177      0.6963
+      2         0.0000     -0.6963      0.7177
+      3         1.0000      0.0000      0.0000
 
 
- Task  times  cpu:      621.2s     wall:      621.2s
+
+
+ Task  times  cpu:     1308.4s     wall:     1308.4s
 
 
                                 NWChem Input Module
@@ -686,11 +687,11 @@ Iterative solution of linear equations
 
 
 MA_summarize_allocated_blocks: starting scan ...
-heap block 'gridpts', handle 115, address 0x7fda6340ab98:
+heap block 'gridpts', handle 103, address 0x120c5cf18:
 	type of elements:		double precision
 	number of elements:		33554432
-	address of client space:	0x7fda6340ac00
-	index for client space:		17571421933521
+	address of client space:	0x120c5cf80
+	index for client space:		17944609
 	total number of bytes:		268435568
 MA_summarize_allocated_blocks: scan completed: 1 heap block, 0 stack blocks
 MA usage statistics:
@@ -699,11 +700,11 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         1	         0
-	maximum number of blocks	        63	        60
+	maximum number of blocks	        60	        60
 	current total bytes		 268435568	         0
-	maximum total bytes		 288087592	  42224536
-	maximum total K-bytes		    288088	     42225
-	maximum total M-bytes		       289	        43
+	maximum total bytes		 286382376	  45753304
+	maximum total K-bytes		    286383	     45754
+	maximum total M-bytes		       287	        46
 
 
                                      CITATION
@@ -759,6 +760,4 @@ MA usage statistics:
       T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
 
- Total times  cpu:      621.3s     wall:      621.3s
- 0 freed nb_state ptr 0x7fdaa361ec70 
- 1 freed nb_state ptr 0x7fdf4211bab0 
+ Total times  cpu:     1308.5s     wall:     1308.5s
