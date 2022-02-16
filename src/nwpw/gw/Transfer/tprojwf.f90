@@ -71,7 +71,7 @@ do iz=1,ngkpt(3)
       kkgg(jj)=kkgg(jj)+blat(ii,jj)*(kk(ii)+dble(igg(ii)))
     enddo
     enddo
-    kkggmag=sqrt(dot_product(kkgg,kkgg))
+    kkggmag=norm2(kkgg)
     nnold=-1
     do ll=0,llmax(itpaw)
       do mm=-ll,ll
@@ -124,7 +124,7 @@ do iz=1,ngkpt(3)
         kkgg(jj)=kkgg(jj)+blat(ii,jj)*(kk(ii)+dble(igg(ii)))
       enddo
       enddo
-      kkggmag=sqrt(dot_product(kkgg,kkgg))
+      kkggmag=norm2(kkgg)
       nnold=-1
       do ll=0,llmax(itpaw)
         do mm=-ll,ll

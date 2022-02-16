@@ -166,7 +166,7 @@ double precision :: www
         do jj=1,3
           bgrad=bgrad+(evtx(jj+1)-evtx(1))*rg(:,jj)
         enddo
-        xmult=4.d0*pi/sqrt(dot_product(bgrad,bgrad))
+        xmult=4.d0*pi/norm2(bgrad)
         do iw=1,nwpt
           vpyr(:)=vpyr0(:,iw)/vqvtx0
           aa0(iw)=vpyr(indxe(1))

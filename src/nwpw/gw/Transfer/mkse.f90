@@ -204,7 +204,7 @@ do ii=1,3
   pln(1)=blat(jj,2)*blat(kk,3)-blat(jj,3)*blat(kk,2)
   pln(2)=-blat(jj,1)*blat(kk,3)+blat(jj,3)*blat(kk,1)
   pln(3)=blat(jj,1)*blat(kk,2)-blat(jj,2)*blat(kk,1)
-  dist(ii)=dot_product(gamma,pln)/sqrt(dot_product(pln,pln))
+  dist(ii)=dot_product(gamma,pln)/norm2(pln)
 enddo
 gfo=minval(dist)
 
@@ -838,7 +838,7 @@ do ibp=test_bands_se(1),test_bands_se(2)
             do jj=1,3
               bgrad=bgrad+(evtx(jj+1)-evtx(1))*rgc(:,jj)
             enddo
-            xmult=1.d0/sqrt(dot_product(bgrad,bgrad))
+            xmult=1.d0/norm2(bgrad)
             if (lc) then
 ! DEBUG
 !cdum = 0.d0
@@ -1267,7 +1267,7 @@ double complex :: cdummy1,cdummy2
   vt1=xkv0+xq2
   vt2=xq1-xq2
   call crossreduced(xq1,xq2,xnorm)
-  area=sqrt(dot_product(xnorm,xnorm))
+  area=norm2(xnorm)
   aa0=xkv0(iv)*xkv0(jv)
   aa1=xq1(iv)*xkv0(jv)+xq1(jv)*xkv0(iv)
   aa2=xq1(iv)*xq1(jv)
