@@ -13,9 +13,11 @@ end
 
 dft
 xc pbe0
-convergence  energy 1d-8
+convergence  energy 1d-10
 noprint "final vectors analysis" multipole
+grid fine
 end
+
 relativistic
  zora on
  zora:cutoff 1d-30
