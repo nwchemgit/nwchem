@@ -168,8 +168,6 @@ c     >                        tole,tmin,deltae,1)
          if ((dabs(deltae).lt.tole).and.(deltac.lt.tolc)) 
      >      go to 30
      
-   
-
 *        **** transport the previous search directions ****
          call cpsi_1geodesic_transport( tmin,H0_tag)
 
@@ -178,7 +176,7 @@ c     >                        tole,tmin,deltae,1)
 
 *        **** get the new gradient - also updates densities****
          call cpsi_1get_Tgradient(G1_tag,E0)
-
+         call cpsi_1get_remainder0(Ermdr)
 
          sum0  = sum1
 

@@ -1246,7 +1246,7 @@ c
 *passed
       character*(*) libname ! [output] filename for library file
 *local
-      character*256 compiled_name
+      character*(nw_max_path_len) compiled_name
       character*128 test
       character*24  basis_library
       integer length

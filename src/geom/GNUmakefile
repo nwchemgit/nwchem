@@ -11,12 +11,13 @@
  HEADERS = geom.fh geomP.fh
 
  USES_BLAS = geom.F geom_input.F geom_print_ecce.F geom_hnd.F geom_3d.F geom_getsym.F geom_2d.F
+ UNSET_OPENMP = 1
 include ../config/makefile.h
 include ../config/makelib.h
 
 
-  ifeq ($(FC),pgf90)
-            FDEBUG += -Mnorecursive
+  ifeq ($(_FC),pgf90)
+            FOPTIONS += -Mnorecursive
   endif
   ifeq ($(FC),gfortran)
         ifdef USE_OPENMP

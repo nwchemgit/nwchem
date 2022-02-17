@@ -1,4 +1,4 @@
-      subroutine int2e_file_balance
+      subroutine int2e_file_balance(nproc,info)
 *
 * $Id$
 *
@@ -14,15 +14,14 @@ c     Attempt to load balance the integral file ... version 2
 c
 c     Eliminate intermediate syncrhonizations, attempt to overlap
 c     big transfers, fuzzy termination.
+c
+      integer nproc             ! [in]
+      integer info(2,0:nproc-1) ! [in]  1=node#, 2=nrec
 c     
-      integer nrec, me, nproc, him, msglen, from, record
+      integer nrec, me, him, msglen, from, record
       integer tmp, i, j, p, q, test, nexch, nmoved, npass
       integer his_count, my_count, total, shift
       double precision newfilelen, used
-c
-      integer maxproc
-      parameter (maxproc = 200000)
-      integer info(2,0:maxproc-1) ! 1=node#, 2=nrec
       logical int2e_packed_buf_read, int2e_packed_buf_write
      $     , int2e_file_rewind
       external int2e_packed_buf_read, int2e_packed_buf_write
@@ -32,11 +31,11 @@ c
 c     
 c Return immediately if in subgroups since the snd and rcv do not work in subgroups
 c
-      if(GA_PGROUP_GET_DEFAULT() .ne. GA_PGROUP_GET_WORLD()) return
+      if(ga_pgroup_get_default() .ne. ga_pgroup_get_world()) return
 
       npass = 0                 ! Used for paranoid infinite loop avoidance
       me = ga_nodeid()          ! Not true on workstation clusters
-      nproc = ga_nnodes()
+c      nproc = ga_nnodes()
       if (nproc.eq.1) return
 c
       call ga_sync()            ! So can use message passing

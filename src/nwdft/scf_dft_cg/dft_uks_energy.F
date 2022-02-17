@@ -206,7 +206,7 @@ c
          call ga_zero(g_tmp(ifock))
         end do
         call fock_2e(geom, basis, nfock, jfac, kfac, tol2e, 
-     &     oskel, d, g_tmp, .false., .false.)
+     &     oskel, d, g_tmp, .false.)
         do ifock = 1,nfock
          call ga_dadd(1d0,f(ifock),1d0,g_tmp(ifock),f(ifock))
         end do 
@@ -226,7 +226,7 @@ c
          call ga_zero(g_tmp(ifock))
         end do
         call fock_2e(geom, basis, nfock, jfac, kfac, tol2e, 
-     &     oskel, d, g_tmp, .false., .false.)
+     &     oskel, d, g_tmp, .false.)
         do ifock = 1,nfock
          call ga_dadd(1d0,f(ifock),1d0,g_tmp(ifock),f(ifock))
         end do

@@ -41,13 +41,34 @@ jobs:
             mpi_impl: mpich
             nwchem_modules: "qmandpw qmd"
         include:
+          - os: ubuntu-latest
+            experimental: true
+            mpi_impl: mpich
+            armci_network: MPI-TS
+            nwchem_modules: "all"
+            fc: gfortran
+            blas: "internal"
+          - os: ubuntu-18.04
+            experimental: false
+            mpi_impl: mpich
+            armci_network: MPI-PR
+            nwchem_modules: "tinyqmpw python"
+            fc: gfortran-11
+            cc: gcc-11
+          - os: ubuntu-20.04
+            experimental: false
+            mpi_impl: mpich
+            armci_network: MPI-TS
+            nwchem_modules: "tce"
+            fc: gfortran-11
+            cc: gcc-11
           - os: ubuntu-20.04
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS
-            nwchem_modules: "tinyqmpw python"
-            fc: flang
-            cc: clang
+            nwchem_modules: "qmandpw qmd"
+            fc: gfortran-11
+            cc: gcc-11
           - os: ubuntu-18.04
             experimental: true
             mpi_impl: mpich
@@ -223,13 +244,14 @@ jobs:
             nwchem_modules: "qmandpw qmd"
             fc: ifort
             use_openmp: 2
-          - os: ubuntu-latest
+          - os: ubuntu-18.04
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS
-            nwchem_modules: "tinyqmpw"
-            fc: gfortran
-            blas: "internal"
+            nwchem_modules: "qmandpw qmd"
+            fc: nvfortran
+            cc: gcc
+            use_openmp: 2
       fail-fast: false
     env:
         MPI_IMPL: ${{ matrix.mpi_impl }}
@@ -263,7 +285,7 @@ jobs:
           path: |
             ~/cache
             ~/apps
-          key: ${{ matrix.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-blas${{ matrix.blas}}-simd${{ steps.get-simd.outputs.simd }}-nwchemcache-v015
+          key: ${{ matrix.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-blas${{ matrix.blas}}-simd${{ steps.get-simd.outputs.simd }}-nwchemcache-v018
       - name: fetch apps cache
         if: steps.setup-cache.outputs.cache-hit == 'true'
         run: |
@@ -339,6 +361,10 @@ jobs:
           egrep d=  QA/testoutputs/dft_smear.out || true; fi
           if [[ -f QA/testoutputs/dft_smear.out ]]; then \
           tail -2000  QA/testoutputs/dft_smear.out || true; fi
+          if [[ -f QA/testoutputs/ritddft_h2o.out ]]; then \
+          tail -2000  QA/testoutputs/ritddft_h2o.out || true; fi
+          if [[ -f QA/testoutputs/ritddft_co.out ]]; then \
+          tail -2000  QA/testoutputs/ritddft_co.out || true; fi
           if [[ -f QA/testoutputs/pspw_md.out ]]; then \
           grep 'PSPW energy'  QA/testoutputs/pspw_md.out || true; fi
   

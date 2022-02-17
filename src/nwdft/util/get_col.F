@@ -2,12 +2,11 @@
 C$Id$
       implicit none
 c
-c     Apparently this is a wrapper routine to get a single column out
-c     of a Global Array. So logically VEC is intended as an array of
-c     N-by-1, and hence the leading dimension fed to GA_GET should be N.
+c     wrapper routine to get a single column out
+c     of a Global Array. 
 c
       integer g_a,n,i
-      double precision vec(n,1)
+      double precision vec(*)
       call ga_get(g_a,1,n,i,i,vec,n)
       return
       end
@@ -16,12 +15,11 @@ c
       subroutine put_col(g_a,n,i,vec)
       implicit none
 c
-c     Apparently this is a wrapper routine to put a single column into
-c     a Global Array. So logically VEC is intended as an array of
-c     N-by-1, and hence the leading dimension fed to GA_PUT should be N.
+c     wrapper routine to put a single column into
+c     a Global Array.
 c
       integer g_a,n,i
-      double precision vec(n,1)
+      double precision vec(*)
       call ga_put(g_a,1,n,i,i,vec,n)
       return
       end

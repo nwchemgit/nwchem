@@ -982,6 +982,7 @@ c
       stpang = mepgs_cosang(abvec, bcvec, .true.)
 c
       grms = 0d0
+c      ogrms = 0d0
       srms = 0d0
       gmax  = 0d0
       smax  = 0d0

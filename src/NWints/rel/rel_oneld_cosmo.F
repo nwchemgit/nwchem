@@ -33,7 +33,6 @@ c:tex-\end{verbatim}
 *
 c:tex-{\it Argument list:}
 c:tex-\begin{verbatim}
-      integer ncenters
       integer n_prim_A ! [input] num. prims in shell A
       integer n_cont_A ! [input] num general conts in shell A
       integer l_A      ! [input] angular momentum of shell A
@@ -46,6 +45,7 @@ c:tex-\begin{verbatim}
       integer lstv     ! [input] size of any integral buffer
       integer ibug    ! [input] debug variable
       integer ntyp    ! [input] potential energy integral type
+      integer ncenters
       double precision Axyz(3)          ! [input] position of center A
       double precision zeta_A(n_prim_A) ! [input] exponents of shell A
       double precision coefL_A(n_prim_A,n_cont_A) ! [input] A large coeffs

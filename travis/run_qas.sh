@@ -76,6 +76,7 @@ env|egrep MP
         ;;
     MPI-PT)
         do_largeqas=0
+        export COMEX_MAX_NB_OUTSTANDING=16
         ;;
     MPI3)
         case "$os" in
@@ -115,14 +116,20 @@ fi
 	 if [[ ! $(grep -i cosmo $TRAVIS_BUILD_DIR/src/stubs.F| awk '/cosmo_input/') ]]; then
 	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs cosmo_h2o_dft
 	 fi
-	 cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs ritddft_h2o ritddft_co
+         if [[ ! $(grep -i gw $TRAVIS_BUILD_DIR/src/stubs.F| awk '/gw_input/') ]]; then
+  	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs ritddft_h2o ritddft_co
+             cd $TRAVIS_BUILD_DIR/QA && NWCHEM_BASIS_LIBRARY=${NWCHEM_TOP}/src/basis/libraries.bse/ ./runtests.mpi.unix procs $nprocs gw_closedshell gw_openshell
+         fi
      else
 	 echo ' dft_input stubbed'
      fi
      if [[ "$USE_SIMINT" != "1" ]] ; then
 # check if pspw is among modules
 	 if [[ ! $(grep -i pspw $TRAVIS_BUILD_DIR/src/stubs.F| awk '/pspw_input/') ]]; then
+#skip pspw when openmp is on
+	   if [[ -z "$USE_OPENMP" ]]; then
 	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs pspw
+           fi
 	 fi
      fi
 # check if python is among modules
@@ -142,6 +149,7 @@ fi
 	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_smear
 	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_he2p_wb97
 	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs ritddft_pyridine
+	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs au2-sarc-zora-mp
 	   if [[ ! -z "$USE_LIBXC" ]]; then
 	       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs libxc_he2+
 	   fi

@@ -349,7 +349,7 @@ c
       if (ga_nodeid() .eq. 0) then
          if (util_print('ga summary', print_default))
      $        call ga_summarize(0)
-         if (util_print('ga stats', print_default)) then
+         if (util_print('ga stats', print_high)) then
             call ga_print_stats()
             write(LuOut,*)
          endif

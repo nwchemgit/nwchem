@@ -2435,6 +2435,7 @@ c
 
 
 
+
 *     ***********************************
 *     *                                 *
 *     *      psi_3x3_virtual_gradient   *
@@ -2492,9 +2493,11 @@ c
 #include "stdio.fh"
 
 *     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
       logical oprint
       integer nx,ny,nz,n2ft3d
-      real*8 Sgg,Sge,See,c1,c2,c3,A,B,C,ttt
+      real*8 Sgg,Sge,See,c1,c2,c3,A,B,C
       real*8 H1gg,H1ge,H1gm,H1eg,H1ee,H1em,H1mg,H1me,H1mm
       real*8 H2gg,H2ge,H2gm,H2eg,H2ee,H2em,H2mg,H2me,H2mm
       real*8 Hgg,Hge,Hgm,Heg,Hee,Hem,Hmg,Hme,Hmm
@@ -2512,9 +2515,14 @@ c
       real*8   coulomb_e,ewald_e,ion_ion_e
       external coulomb_e,ewald_e,ion_ion_e
 
+c     call Parallel_taskid(taskid)
       !write(*,*) "ENTER 3x3 GRADIENT"
 c     oprint = .true.
+c     oprint = (taskid.eq.MASTER)
       oprint = .false.
+c     if (oprint) then
+c        write(*,*) "here here taskid=",taskid
+c     end if
 
       !*** generate psie_r ****
       call Pack_c_Copy(1,psie,psie_r)
@@ -2618,7 +2626,7 @@ c     oprint = .true.
          call coulomb_v(rhogg,vcc)
          call Pack_c_unpack(0,vcc)
          call D3dB_cr_fft3b(1,vcc)
-         call D3dB_c_Copy(1,vcc,vcgg)
+         call D3dB_r_Copy(1,vcc,vcgg)
          call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
          call pspw_potential_HFX(ispin,psig_r,hpsig_r)
          call pspw_energy_HFX(ispin,psig_r,ehfx,phfx)
@@ -2633,19 +2641,13 @@ c     oprint = .true.
          H2ge = -ehfx 
 
 *        *** generate <g|H2|m> ***
-         call pspw_et_gen_rho12(ispin,neq,n2ft3d,psig_r,psie_r,rhoge)
          call D3dB_r_SMul1(1,scal1,rhoge)
          call D3dB_rc_fft3f(1,rhoge)
          call Pack_c_pack(0,rhoge)
          call coulomb_v(rhoge,vcc)
          call Pack_c_unpack(0,vcc)
          call D3dB_cr_fft3b(1,vcc)
-         call D3dB_c_Copy(1,vcc,vcge)
-
-         call pspw_et_gen_rho12(ispin,neq,n2ft3d,psig_r,psie_r,rhoge)
-         call D3dB_r_SMul1(1,scal1,rhoge)
-         call D3dB_rc_fft3f(1,rhoge)
-         call Pack_c_pack(0,rhoge)
+         call D3dB_r_Copy(1,vcc,vcge)
          call coulomb_screened_v(rhoge,vcc)
          call Pack_c_unpack(0,vcc)
          call D3dB_cr_fft3b(1,vcc)
@@ -2662,30 +2664,13 @@ c     oprint = .true.
          call coulomb_v(rhoee,vcc)
          call Pack_c_unpack(0,vcc)
          call D3dB_cr_fft3b(1,vcc)
-         call D3dB_c_Copy(1,vcc,vcee)
+         call D3dB_r_Copy(1,vcc,vcee)
          call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
          call pspw_potential_HFX(ispin,psie_r,hpsig_r)
          call pspw_energy_HFX(ispin,psie_r,ehfx,phfx)
          H2ee = H2ee + ehfx
 
 *        *** generate <e|H2|m> ***
-         call pspw_et_gen_rho12(ispin,neq,n2ft3d,psig_r,psie_r,rhoge)
-         call D3dB_r_SMul1(1,scal1,rhoge)
-         call D3dB_rc_fft3f(1,rhoge)
-         call Pack_c_pack(0,rhoge)
-         call coulomb_v(rhoge,vcc)
-         call Pack_c_unpack(0,vcc)
-         call D3dB_cr_fft3b(1,vcc)
-         call D3dB_c_Copy(1,vcc,vcge)
-
-         call pspw_et_gen_rho12(ispin,neq,n2ft3d,psig_r,psie_r,rhoge)
-         call D3dB_r_SMul1(1,scal1,rhoge)
-         call D3dB_rc_fft3f(1,rhoge)
-         call Pack_c_pack(0,rhoge)
-         call coulomb_screened_v(rhoge,vcc)
-         call Pack_c_unpack(0,vcc)
-         call D3dB_cr_fft3b(1,vcc)
-         call D3dB_rr_daxpy(1,-0.5d0,vcc,vcge)
          call pspw_et_gen_rho(ispin,neq,n2ft3d,psie_r,rhoee)
          call D3dB_rr_dot(1,rhoee,vcge,H2em)
          H2em = dsqrt(2.0d0)*(0.50d0*H2em*dv)
@@ -2697,7 +2682,7 @@ c     oprint = .true.
          call coulomb_v(rhoee,vcc)
          call Pack_c_unpack(0,vcc)
          call D3dB_cr_fft3b(1,vcc)
-         call D3dB_c_Copy(1,vcc,vcee)
+         call D3dB_r_Copy(1,vcc,vcee)
          call coulomb_screened_v(rhoee,vcc)
          call Pack_c_unpack(0,vcc)
          call D3dB_cr_fft3b(1,vcc)
@@ -2789,15 +2774,15 @@ c     Hme = H1me + H2me
          call coulomb_v(rhoee,vcc)
          call Pack_c_unpack(0,vcc)
          call D3dB_cr_fft3b(1,vcc)
-         call D3dB_c_Copy(1,vcc,vcee)
-
+         call D3dB_r_Copy(1,vcc,vcee)
+ 
          call D3dB_r_Copy(1,vcee,vc)
          call D3dB_rr_Mul2(1,psie_r,vc)
          call D3dB_rr_Sum2(1,hpsig_r,vc) 
          call D3dB_r_SMul1(1,(-4.0d0*c2*c2),vc)
-
+ 
          call D3dB_rr_daxpy(1,(4.0d0*c1*c2),hpsie_r,vc)
-
+ 
          call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rhogg)
          call D3dB_r_SMul1(1,scal1,rhogg)
          call D3dB_rc_fft3f(1,rhogg)
@@ -2805,7 +2790,7 @@ c     Hme = H1me + H2me
          call coulomb_v(rhogg,vcc)
          call Pack_c_unpack(0,vcc)
          call D3dB_cr_fft3b(1,vcc)
-         call D3dB_c_Copy(1,vcc,vcgg)
+         call D3dB_r_Copy(1,vcc,vcgg)
          call coulomb_screened_v(rhogg,vcc)
          call Pack_c_unpack(0,vcc)
          call D3dB_cr_fft3b(1,vcc)
@@ -2818,7 +2803,7 @@ c     Hme = H1me + H2me
          call coulomb_v(rhoee,vcc)
          call Pack_c_unpack(0,vcc)
          call D3dB_cr_fft3b(1,vcc)
-         call D3dB_c_Copy(1,vcc,vcee)
+         call D3dB_r_Copy(1,vcc,vcee)
          call coulomb_screened_v(rhoee,vcc)
          call Pack_c_unpack(0,vcc)
          call D3dB_cr_fft3b(1,vcc)
@@ -2831,7 +2816,7 @@ c     Hme = H1me + H2me
          call coulomb_v(rhoge,vcc)
          call Pack_c_unpack(0,vcc)
          call D3dB_cr_fft3b(1,vcc)
-         call D3dB_c_Copy(1,vcc,vcge)
+         call D3dB_r_Copy(1,vcc,vcge)
          call coulomb_screened_v(rhoge,vcc)
          call Pack_c_unpack(0,vcc)
          call D3dB_cr_fft3b(1,vcc)
@@ -2840,35 +2825,23 @@ c     Hme = H1me + H2me
          call D3dB_r_Copy(1,vcee,vctmp)
          call D3dB_rr_Mul2(1,psig_r,vctmp)
          call D3dB_rr_daxpy(1,(-dsqrt(2.0d0)*2.0d0*c2*c3),vctmp,vc)
-
+ 
          call D3dB_r_Copy(1,vcge,vctmp)
          call D3dB_rr_Mul2(1,psie_r,vctmp)
          call D3dB_rr_daxpy(1,(-dsqrt(2.0d0)*2.0d0*c2*c3),vctmp,vc)
-
+c
          call D3dB_r_Copy(1,vcgg,vctmp)
          call D3dB_rr_Mul2(1,psig_r,vctmp)
          call D3dB_rr_daxpy(1,(-dsqrt(2.0d0)*2.0d0*c3*c1),vctmp,vc)
-
+c
          call D3dB_r_Copy(1,vcge,vctmp)
          call D3dB_rr_Mul2(1,psie_r,vctmp)
          call D3dB_rr_daxpy(1,(-dsqrt(2.0d0)*2.0d0*c3*c2),vctmp,vc)
 
-         call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rhogg)
-         call D3dB_r_SMul1(1,scal1,rhogg)
-         call D3dB_rc_fft3f(1,rhogg)
-         call Pack_c_pack(0,rhogg)
-         call coulomb_v(rhogg,vcc)
-         call Pack_c_unpack(0,vcc)
-         call D3dB_cr_fft3b(1,vcc)
-         call D3dB_c_Copy(1,vcc,vcgg)
-         call coulomb_screened_v(rhogg,vcc)
-         call Pack_c_unpack(0,vcc)
-         call D3dB_cr_fft3b(1,vcc)
-         call D3dB_rr_daxpy(1,-0.5d0,vcc,vcgg)
          call D3dB_r_Copy(1,vcgg,vctmp)
          call D3dB_rr_Mul2(1,psie_r,vctmp)
          call D3dB_rr_daxpy(1,(-2.0d0*c3*c3),vctmp,vc)
-
+ 
          call D3dB_rr_daxpy(1,(2.0d0*c3*c3),hpsie_r,vc)
       end if
 
@@ -2881,18 +2854,13 @@ c     Hme = H1me + H2me
       call Pack_cc_daxpy(1,2.0d0*dsqrt(2.0d0)*c3*c1,h1psig,dEdpsie)
       call Pack_cc_daxpy(1,2.0d0*c3*c3,h1psie,dEdpsie)
 
-c      call Pack_cc_dot(1,psie,dEdpsie,c1)
-c      write(*,*) "check last gradient=",c1
-c      call Pack_cc_dot(1,psig,dEdpsie,c1)
-c      write(*,*) "check last gradient=",c1
-c      call Pack_cc_dot(1,dEdpsie,dEdpsie,c1)
-c      write(*,*) "check last gradient=",c1
-
       E = Eci(1)
       !if (oprint) write(*,*) "c1,c2=",c1,c2
 
       return
       end
+
+
 
 
 *     ***********************************

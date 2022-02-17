@@ -83,7 +83,7 @@
       do im=ll-mmm+1,ll+mmm
         fact=fact*im
       enddo
-      costheta=rr(3)/sqrt(dot_product(rr,rr))
+      costheta=rr(3)/norm2(rr)
       rmag=sqrt(dot_product(rr(1:2),rr(1:2)))
       if (rmag.le.0.d0) then
         if (mmm.eq.0) then
