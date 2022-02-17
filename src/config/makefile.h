@@ -2897,6 +2897,11 @@ ifneq ($(TARGET),LINUX)
                     FOPTIONS+= -fPIC
                 endif
 
+                ifdef USE_OPENMP
+                  FOPTIONS  += -fopenmp
+                  LDOPTIONS += -fopenmp
+                endif
+
                 DEFINES   +=   -DARMFLANG
                 LINK.f = $(FC)  $(LDFLAGS) 
                 FOPTIMIZE  = -O3 -Mfma -ffp-contract=fast -fno-backslash
@@ -2973,7 +2978,8 @@ ifneq ($(TARGET),LINUX)
                 DEFINES  +=   -DXLFLINUX -DCHKUNDFLW
 
                 ifdef USE_OPENMP
-                    FOPTIONS += -qsmp=omp
+                    FOPTIONS  += -qsmp=omp
+		    LDOPTIONS += -qsmp=omp
                     ifdef USE_OFFLOAD
                         DEFINES +=-DUSE_F90_ALLOCATABLE -DOPENMP_OFFLOAD -DUSE_OMP_TEAMS_DISTRIBUTE
                         OFFLOAD_FOPTIONS = -qtgtarch=sm_70 -qoffload
