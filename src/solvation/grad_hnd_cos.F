@@ -123,6 +123,7 @@ C-------------------------local variables--------------------------
       integer jefc
       integer nefc_at_k
       integer nao2
+      integer fjat
 
       double precision locder(3,3), q1
       double precision dE, qfac, fact, dx, dy, dz, rr
@@ -259,16 +260,12 @@ c      t0 = util_wallsec()
             est_int = schwarz_atom(iat1,iat2)
             if (est_int*qmax.lt.1d-14) goto 1010
 
-            ateq = iat1.eq.iat2
-            est_int = schwarz_atom(iat1,iat2)
-            if (est_int*qmax.lt.1d-14) goto 1010
-
-            if (oskel) then
-               if (.not. sym_atom_pair(geom, iat1, iat2, qfac))
-     $              goto 1010
-            else
+c            if (oskel) then
+c               if (.not. sym_atom_pair(geom, iat1, iat2, qfac))
+c     $              goto 1010
+c            else
                qfac = 1.0d0
-            endif
+c            endif
             qfac = -qfac
 
             status = bas_ce2cnr(basis,iat1,iac1f,iac1l)

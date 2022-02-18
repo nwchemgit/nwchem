@@ -568,7 +568,7 @@ c
 c
 c     ----- create boundary elements of cavity -----
 c
-      call hnd_cosset(rtdb,nat,dbl_mb(k_coscoor),dbl_mb(k_rad))
+      call hnd_cosset(rtdb,nat,dbl_mb(k_coscoor),dbl_mb(k_rad),geom)
 c
       if(.not.rtdb_get(rtdb,'cosmo:nefc',mt_int,1     ,nefc))
      $   call errquit('cosmo_initialize: rtdb get failed for nefc',911,
