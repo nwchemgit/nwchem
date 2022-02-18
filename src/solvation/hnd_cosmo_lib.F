@@ -199,7 +199,6 @@ c
       integer jat
 c
       dbug=.false.
-      dbug=.true.
       more=.false.
       more=more.or.dbug
       out =.false. 
@@ -223,9 +222,11 @@ c
      2                  dsurf,dvol,adiag)
       elseif (fibonacci.lt.1) then
         call cosmo_lebedev(iangleb, nseg, wleb, xyzseg)
+        ijkseg(1:nseg) = 0
       else
         nseg = fibonacci
         call cosmo_fibonacci(nseg, xyzseg, dsurf, dvol)
+        ijkseg(1:nseg) = 0
       endif
 
       if (thomson.gt.0) then
