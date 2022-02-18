@@ -271,7 +271,7 @@ c
 cc AJL/Begin/SPIN ECPs
       if(cosmo_on.and.cosmo_phase.eq.2) then
 c         call int_1e_ga(ao_bas_han,ao_bas_han,g_fock,
-         t0 = util_wallsec()
+c         t0 = util_wallsec()
          if (.not.ga_duplicate(g_focks(1),g_cosmo,'cosmo'))
      &     call errquit('dft_fockbld: create g_cosmo',0,GA_ERR)
          call ga_zero(g_cosmo)
@@ -281,9 +281,9 @@ c         call int_1e_ga(ao_bas_han,ao_bas_han,g_fock,
      &     call ga_add(1d0, g_cosmo, 1d0, g_focks(2), g_focks(2))
          if (.not.ga_destroy(g_cosmo))
      &     call errquit('dft_fockbld: destroy g_cosmo',0,GA_ERR)    
-         if (me.eq.0) then
-           write(*,'("cos_chg_pot: ",F8.3)') util_wallsec()-t0
-         endif
+c         if (me.eq.0) then
+c           write(*,'("cos_chg_pot: ",F8.3)') util_wallsec()-t0
+c         endif
       endif
 
 c     == Copy Fock matrix to individual components for normal calcs ==
