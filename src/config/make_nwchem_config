@@ -185,7 +185,7 @@ MODULES := $(patsubst nwpw,nwpw fft,$(MODULES) )
 
 MODULES := $(patsubst ddscf,ddscf  atomscf nwdft NWints gradients,$(MODULES) )
 
-MODULES := $(patsubst gwmol, gwmol nwdft ddscf NWints,$(MODULES) )
+MODULES := $(patsubst gwmol, gwmol nwdft ddscf gradients hessian atomscf NWints,$(MODULES) )
 
 # This dependency is the other way round (matchnxyz used by symmetry)
 # but is required for correct linking on SOLARIS.  Nasty kludge.
