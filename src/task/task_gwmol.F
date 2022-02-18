@@ -87,12 +87,16 @@ c
 c
 c     Make sure a DFT solution is available
 c
-      if (.not.rtdb_get(rtdb, 'dft:converged', mt_log, 1, converged))
-     &  status = task_energy(rtdb)
+      status = rtdb_get(rtdb, 'dft:converged', mt_log, 1, converged)
+      if (.not.status) then
+        status = task_energy(rtdb)
+        if (.not.rtdb_get(rtdb, 'dft:converged', mt_log, 1, converged))
+     &    call errquit('task_gwmol: failed to read convergence info',0,
+     &                  RTDB_ERR)   
+      endif
 
-      if (.not.rtdb_get(rtdb, 'dft:converged', mt_log, 1, converged))
-     &  call errquit('task_gwmol: failed to read convergence info',0,
-     &               RTDB_ERR)   
+      status = converged
+
 
       if (ga_nodeid().eq.0) then
         write(luout,*) " "
