@@ -38,7 +38,8 @@
       implicit none
       integer,intent(inout) :: ndiis,nqp,niter
       double precision,intent(inout) :: errors(nqp,*),values(nqp,*)
-      double precision,intent(out)  :: old(nqp),new(nqp)
+      double precision,intent(out)  :: new(nqp)
+      double precision,intent(in)  :: old(nqp)
       double precision,allocatable :: deltax(:,:),deltaf(:,:)
       double precision,allocatable :: work(:),f(:,:),b(:)
       double precision,allocatable :: x(:,:),step(:)
@@ -464,7 +465,7 @@ c
 
       enddo
 
-      call ga_dgop(1038,sigmax,nmo*pars%ipol,'+')
+      call ga_dgop(1038,sigmax(1,1),nmo*pars%ipol,'+')
 
       do ipol=1,pars%ipol
         pars%ex = pars%ex+sum(sigmax(1:pars%nocc(ipol),ipol))/pars%ipol
