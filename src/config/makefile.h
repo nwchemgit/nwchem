@@ -3727,9 +3727,9 @@ endif
 ifeq ($(shell echo $(BLASOPT) |awk '/latlas/ {print "Y"; exit}'),Y)
     DEFINES += -DBLAS_NOTHREADS
 endif
-ifeq ($(shell echo $(BLASOPT) |awk '/SSL2BLAMP/ {print "Y"; exit}'),Y)
+ifeq ($(shell echo $(BLASOPT) |awk '/[Ss][Ss][Ll]2[Bb][Ll][Aa][Mm][Pp]/ {print "Y"; exit}'),Y)
     DEFINES += -DBLAS_OPENMP
-else ifeq ($(shell echo $(BLASOPT) |awk '/SSL2/ {print "Y"; exit}'),Y)
+else ifeq ($(shell echo $(BLASOPT) |awk '/[Ss][Ss][Ll]2/ {print "Y"; exit}'),Y)
     DEFINES += -DBLAS_NOTHREADS
 endif
 
