@@ -239,7 +239,8 @@ c
 c
       call hf_print_set(1)
 
-      t0 = util_wallsec()
+c      t0 = util_wallsec()
+
       ijatom = -1
       next = nxtask(nproc,task_size)
       do 90, iat1 = 1, nat
@@ -377,9 +378,9 @@ c
  90   continue
       next = nxtask(-nproc,task_size)
 
-      if (ga_nodeid().eq.0) then
-        write(*,'("cosmo b grad: ",F8.3)') util_wallsec()-t0
-      endif
+c      if (ga_nodeid().eq.0) then
+c        write(*,'("cosmo b grad: ",F8.3)') util_wallsec()-t0
+c      endif
 c
       if (ga_nodeid().eq.0) then
 c
