@@ -7,7 +7,7 @@ C> Library of HONDO routines used to implement COSMO
 C>
 C> \brief Setup the COSMO cavity surface
 C>
-      subroutine hnd_cosset(rtdb,nat,c,radius)
+      subroutine hnd_cosset(rtdb,nat,c,radius,geom)
       implicit none
 c
 c              ----- starting from -icosahedron- -----
@@ -41,6 +41,7 @@ c
       integer nat                  !< [Input] The number of atoms
       double precision c(3,nat)    !< [Input] The atomic coordinates
       double precision radius(nat) !< [Input] The atomic radii
+      integer geom
 c
 c
       integer   mxface, mxapex
@@ -133,7 +134,8 @@ c
      1                dbl_mb(i10),dbl_mb(i20),int_mb(i30),int_mb(i40),
      2                int_mb(i50),dbl_mb(i60),int_mb(i70),log_mb(i80),
      3                dbl_mb(i90),int_mb(i100),int_mb(i110),
-     4                dbl_mb(i120),dbl_mb(i130),dbl_mb(i140),rtdb)
+     4                dbl_mb(i120),dbl_mb(i130),dbl_mb(i140),
+     5                geom,rtdb)
 
 c
 c     ----- release memory block -----
@@ -152,7 +154,8 @@ C>
       subroutine hnd_cossrf(nat,c,radius,mxatm,mxfac,mxapx,
      1                  xyzatm,ratm,nspa,nppa,
      2                  ijkfac,xyzseg,ijkseg,insseg,
-     3                  xyzspa,ijkspa,numpps,apex,xyzff,wleb,rtdb)
+     3                  xyzspa,ijkspa,numpps,apex,xyzff,wleb,
+     4                  geom,rtdb)
       implicit none
 c
 #include "nwc_const.fh"
@@ -167,6 +170,7 @@ c
       integer mxatm
       integer mxfac
       integer mxapx
+      integer geom
       double precision      c(3,nat  )
       double precision radius(    nat)
       double precision xyzatm(3,mxatm)
@@ -195,7 +199,6 @@ c
       integer jat
 c
       dbug=.false.
-      dbug=.true.
       more=.false.
       more=more.or.dbug
       out =.false. 
@@ -219,9 +222,11 @@ c
      2                  dsurf,dvol,adiag)
       elseif (fibonacci.lt.1) then
         call cosmo_lebedev(iangleb, nseg, wleb, xyzseg)
+        ijkseg(1:nseg) = 0
       else
         nseg = fibonacci
         call cosmo_fibonacci(nseg, xyzseg, dsurf, dvol)
+        ijkseg(1:nseg) = 0
       endif
 
       if (thomson.gt.0) then
@@ -277,7 +282,7 @@ c
       call hnd_cossas(nat,xyzatm,ratm,mxatm,
      1                nspa,nppa,xyzspa,ijkspa,
      2                nseg,nfac,xyzseg,ijkseg,insseg,
-     3                numpps,xyzff,wleb,mxfac,rtdb)
+     3                numpps,xyzff,wleb,mxfac,geom,rtdb)
 c
       return
  9999 format(' nseg,nfac,ndiv=nfac/nseg,dsurf,dvol = ',3i7,2f10.6)
@@ -370,7 +375,8 @@ C>
       subroutine hnd_cossas(nat,xyzatm,ratm,mxatom,
      1                      nspa,nppa,xyzspa,ijkspa,
      2                      nseg,nfac,xyzseg,ijkseg,insseg,
-     3                      numpps,xyzff,wleb,mxface,rtdb)
+     3                      numpps,xyzff,wleb,mxface,geom,
+     4                      rtdb)
       implicit none
 #include "cosmo_params.fh"
 #include "errquit.fh"
@@ -390,6 +396,8 @@ c
       integer mxatom  !< [Input] The maximum number of atoms
       integer nseg    !< [Input] The actual number of segments
       integer nfac    !< [Input] The actual number of faces
+
+      integer geom
 c
       logical     dbug
       double precision xyzatm(3,mxatom) !< [Input] The atom positions
@@ -424,9 +432,18 @@ c
       double precision ratm_real,dij,dum,cavdsp,pi,zetai,zetaii
       integer m,mfac,mseg
       integer nefc,iat,jat,npp,i,iseg,ifac,ief,ipp
+
+      integer op, iat_new
+      double precision vector(3), symfact
 c
       double precision cosff
       external         cosff
+
+      logical  sym_atom
+      external sym_atom
+
+      integer sym_number_ops, sym_center_map
+      external sym_number_ops, sym_center_map
 c
 c     MN solvation models -->
 c
@@ -479,23 +496,64 @@ c     ----- sift through atomic centers and decide if a face -----
 c           belongs to the -sas- or is inside the molecule.
 c
       do iat=1,nat
-c
          if(ratm(iat).ne.0d0) then
-            do iseg=1,nseg
-               ijkspa(iseg,iat)=ijkseg(iseg)
-               xyzff(iseg,iat)=one
-               do m=1,3
-                  xyzspa(m,iseg,iat)=xyzseg(m,iseg)*ratm(iat)
-     1                              +xyzatm(m,iat)
-               enddo
-            enddo
-            do ifac=1,nfac
-               ijkspa(ifac+nseg,iat)=ijkseg(ifac+nseg)
-               do m=1,3
-                  xyzspa(m,ifac+nseg,iat)=xyzseg(m,ifac+nseg)*ratm(iat)
-     1                                   +xyzatm(m,iat)
-               enddo
-            enddo
+            if (sym_number_ops(geom).gt.0) then
+              if (.not.sym_atom(geom, iat, symfact)) cycle
+
+              ! Identity operator first
+              do iseg=1,nseg
+                ijkspa(iseg,iat)=ijkseg(iseg)
+                xyzff(iseg,iat)=one
+                vector(:)=xyzseg(:,iseg)
+                xyzspa(:,iseg,iat)=vector(:)*ratm(iat)+xyzatm(:,iat)
+              enddo
+              do ifac=1,nfac
+                ijkspa(ifac+nseg,iat) = ijkseg(ifac+nseg)
+                vector(:)=xyzseg(:,ifac+nseg)
+                xyzspa(:,ifac+nseg,iat)=vector(:)*ratm(iat)
+     $                                 +xyzatm(:,iat)
+              enddo
+
+              ! Loop over rest of operators
+              do op=1, sym_number_ops(geom)
+                iat_new = sym_center_map(geom, iat, op)
+                if (iat_new.eq.iat) cycle
+                do iseg=1,nseg
+                  ijkspa(iseg,iat_new)=ijkseg(iseg)
+                  xyzff(iseg,iat_new)=one
+                  call sym_apply_op(geom, op, xyzseg(1,iseg),vector)
+                  xyzspa(1:3,iseg,iat_new)=vector(:)*ratm(iat_new) +
+     $                                     xyzatm(:,iat_new)
+                enddo
+                do ifac=1,nfac
+                  ijkspa(ifac+nseg,iat_new) = ijkseg(ifac+nseg)
+                  call sym_apply_op(geom,op,xyzseg(1,ifac+nseg),vector)
+                  xyzspa(1:3,ifac+nseg,iat_new)=vector(:)*ratm(iat_new) 
+     $                                         + xyzatm(:,iat_new)
+                enddo
+              enddo
+            else
+              do iseg=1,nseg
+                 ijkspa(iseg,iat)=ijkseg(iseg)
+                 xyzff(iseg,iat)=one
+                 do m=1,3
+                    xyzspa(m,iseg,iat)=xyzseg(m,iseg)*ratm(iat)
+     1                                +xyzatm(m,iat)
+                 enddo
+              enddo
+              do ifac=1,nfac
+                 ijkspa(ifac+nseg,iat)=ijkseg(ifac+nseg)
+                 do m=1,3
+                   xyzspa(m,ifac+nseg,iat)=xyzseg(m,ifac+nseg)*ratm(iat)
+     1                                    +xyzatm(m,iat)
+                 enddo
+              enddo
+            endif
+         endif
+      enddo
+
+      do iat=1,nat
+         if(ratm(iat).ne.0d0) then
             if(dbug.and.ga_nodeid().eq.0) then
                write(luout,9996) iat
                write(luout,9995) (ijkspa(ifac+nseg,iat),ifac=1,nfac)
@@ -673,13 +731,21 @@ c
             do iseg=1,nseg
                if(.not.insseg(iseg,iat)) then
                   ief=ief+1
-                  do i=1,3
-                     dbl_mb(k_efcc+3*(ief-1)+i-1)=xyzatm(i,iat)
-     1                          +xyzseg(i,iseg)*ratm_real
-                  enddo
+
+                  if (do_cosmo_model.eq.DO_COSMO_KS) then
+                    do i=1,3
+                      dbl_mb(k_efcc+3*(ief-1)+i-1)=
+     1                     (xyzspa(i,iseg,iat)-xyzatm(i,iat))*
+     2                     ratm_real/ratm(iat) + xyzatm(i,iat)
+                    enddo
+                  elseif (do_cosmo_model.eq.DO_COSMO_YK) then
+                    do i=1,3
+                     dbl_mb(k_efcc+3*(ief-1)+i-1)=xyzspa(i,iseg,iat)
+                    enddo
+                  endif
                   if(dbug.and.ga_nodeid().eq.0) then
                     write(luout,'(3F12.6)') 
-     1       ((xyzatm(i,iat)+xyzseg(i,iseg)*ratm_real)*cau2ang,i=1,3)
+     1              (dbl_mb(k_efcc+3*(ief-1)+i-1)*cau2ang,i=1,3)
                   endif
                   ipp=numpps(iseg,iat)
                   if (do_cosmo_model.eq.DO_COSMO_KS) then
