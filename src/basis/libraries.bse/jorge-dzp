@@ -1,5 +1,5 @@
-# BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T21:21
+# BSE Version v0.9
+# Data downloaded on 2022-02-15T18:31
 # jorge-DZP version number 1
 # Description: DZP: Double zeta valence quality plus polarization
 # Role: orbital
@@ -94,7 +94,7 @@
 #             Martins, L. S. C.
 #     Segmented all-electron Gaussian basis sets of double and triple zeta
 #             qualities for Fr, Ra, and Ac
-#     Chem. Phys. Lett. 675, 1-5 (2017a)
+#     Chem. Phys. Lett. 675, 1-5 (2017)
 #     10.1016/j.cplett.2017.02.080
 # 
 # jorge2016a

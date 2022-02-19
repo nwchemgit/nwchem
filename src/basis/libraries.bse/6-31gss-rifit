@@ -1,0 +1,671 @@
+# BSE Version v0.9
+# Data downloaded on 2022-02-15T18:31
+# 6-31G**-RIFIT version number 1
+# Description: RI-MP2 auxiliary basis for 6-31G** basis
+# Role: rifit
+# 
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
+# 
+# feller1996a
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem. 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+# schuchardt2007a
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# 
+#  References for the basis set
+# 
+#  H-Ar
+#      RI-MP2 auxiliary basis for 6-31G** basis
+#          tanaka2013a
+# 
+# 
+# 
+# tanaka2013a
+#     Tanaka, Masato, Katouda, Michio, Nagase, Shigeru
+#     Optimization of RI-MP2 Auxiliary Basis Functions for 6-31G** and
+#             6-311G** Basis Sets for First-, Second-, and Third-Row
+#             Elements
+#     J. Comput. Chem. 34, 2568-2575 (2013)
+#     10.1002/jcc.23430
+# 
+# # 
+basis "H_6-31G**-RIFIT" CARTESIAN 
+#basis SET: (3s,2p,1d) -> [3s,2p,1d]
+H    S
+     13.087376               1.0
+H    S
+      1.185515               1.0
+H    S
+      0.368163               1.0
+H    P
+      2.288385               1.0
+H    P
+      1.311828               1.0
+H    D
+      1.875349               1.0
+end
+basis "He_6-31G**-RIFIT" CARTESIAN 
+#basis SET: (3s,2p,1d) -> [3s,2p,1d]
+He    S
+     19.248269               1.0
+He    S
+      3.746353               1.0
+He    S
+      0.729165               1.0
+He    P
+      4.523992               1.0
+He    P
+      1.648567               1.0
+He    D
+      1.472906               1.0
+end
+basis "Li_6-31G**-RIFIT" CARTESIAN 
+#basis SET: (6s,4p,3d,1f,1g) -> [6s,4p,3d,1f,1g]
+Li    S
+     44.408083               1.0
+Li    S
+     12.013820               1.0
+Li    S
+      3.250126               1.0
+Li    S
+      0.879264               1.0
+Li    S
+      0.237869               1.0
+Li    S
+      0.064351               1.0
+Li    P
+      2.289800               1.0
+Li    P
+      0.708943               1.0
+Li    P
+      0.219495               1.0
+Li    P
+      0.067958               1.0
+Li    D
+      0.641872               1.0
+Li    D
+      0.340209               1.0
+Li    D
+      0.180320               1.0
+Li    F
+      0.235054               1.0
+Li    G
+      0.299999               1.0
+end
+basis "Be_6-31G**-RIFIT" CARTESIAN 
+#basis SET: (6s,4p,3d,1f,1g) -> [6s,4p,3d,1f,1g]
+Be    S
+    125.555856               1.0
+Be    S
+     32.426072               1.0
+Be    S
+      8.374361               1.0
+Be    S
+      2.162764               1.0
+Be    S
+      0.558556               1.0
+Be    S
+      0.144253               1.0
+Be    P
+      4.997162               1.0
+Be    P
+      1.599968               1.0
+Be    P
+      0.512270               1.0
+Be    P
+      0.164016               1.0
+Be    D
+      1.479514               1.0
+Be    D
+      0.508390               1.0
+Be    D
+      0.174693               1.0
+Be    F
+      0.607087               1.0
+Be    G
+      0.518946               1.0
+end
+basis "B_6-31G**-RIFIT" CARTESIAN 
+#basis SET: (6s,4p,3d,1f,1g) -> [6s,4p,3d,1f,1g]
+B    S
+    143.984140               1.0
+B    S
+     44.596243               1.0
+B    S
+     13.812805               1.0
+B    S
+      4.278244               1.0
+B    S
+      1.325101               1.0
+B    S
+      0.410424               1.0
+B    P
+      8.590813               1.0
+B    P
+      2.638957               1.0
+B    P
+      0.810644               1.0
+B    P
+      0.249017               1.0
+B    D
+      2.746101               1.0
+B    D
+      0.854346               1.0
+B    D
+      0.265798               1.0
+B    F
+      0.911700               1.0
+B    G
+      0.637363               1.0
+end
+basis "C_6-31G**-RIFIT" CARTESIAN 
+#basis SET: (6s,4p,3d,1f,1g) -> [6s,4p,3d,1f,1g]
+C    S
+    120.498651               1.0
+C    S
+     45.116782               1.0
+C    S
+     16.892505               1.0
+C    S
+      6.324846               1.0
+C    S
+      2.368132               1.0
+C    S
+      0.886670               1.0
+C    P
+     13.216186               1.0
+C    P
+      3.884909               1.0
+C    P
+      1.141972               1.0
+C    P
+      0.335684               1.0
+C    D
+      3.750089               1.0
+C    D
+      1.207332               1.0
+C    D
+      0.388698               1.0
+C    F
+      1.344106               1.0
+C    G
+      0.769479               1.0
+end
+basis "N_6-31G**-RIFIT" CARTESIAN 
+#basis SET: (6s,4p,3d,1f,1g) -> [6s,4p,3d,1f,1g]
+N    S
+    151.440439               1.0
+N    S
+     59.396988               1.0
+N    S
+     23.296302               1.0
+N    S
+      9.137125               1.0
+N    S
+      3.583704               1.0
+N    S
+      1.405577               1.0
+N    P
+     20.411097               1.0
+N    P
+      5.431907               1.0
+N    P
+      1.445567               1.0
+N    P
+      0.384702               1.0
+N    D
+      4.255896               1.0
+N    D
+      1.417789               1.0
+N    D
+      0.472315               1.0
+N    F
+      1.485662               1.0
+N    G
+      0.979199               1.0
+end
+basis "O_6-31G**-RIFIT" CARTESIAN 
+#basis SET: (6s,4p,3d,1f,1g) -> [6s,4p,3d,1f,1g]
+O    S
+    327.922894               1.0
+O    S
+    103.186715               1.0
+O    S
+     32.469517               1.0
+O    S
+     10.217106               1.0
+O    S
+      3.214992               1.0
+O    S
+      1.011654               1.0
+O    P
+     24.005447               1.0
+O    P
+      6.308031               1.0
+O    P
+      1.657593               1.0
+O    P
+      0.435574               1.0
+O    D
+      5.263808               1.0
+O    D
+      1.743135               1.0
+O    D
+      0.577247               1.0
+O    F
+      1.582739               1.0
+O    G
+      1.297901               1.0
+end
+basis "F_6-31G**-RIFIT" CARTESIAN 
+#basis SET: (6s,4p,3d,1f,1g) -> [6s,4p,3d,1f,1g]
+F    S
+    573.951315               1.0
+F    S
+    168.382717               1.0
+F    S
+     49.399206               1.0
+F    S
+     14.492471               1.0
+F    S
+      4.251722               1.0
+F    S
+      1.247347               1.0
+F    P
+     28.763485               1.0
+F    P
+      7.280992               1.0
+F    P
+      1.843060               1.0
+F    P
+      0.466540               1.0
+F    D
+      7.084925               1.0
+F    D
+      2.352044               1.0
+F    D
+      0.780828               1.0
+F    F
+      1.686449               1.0
+F    G
+      1.287498               1.0
+end
+basis "Ne_6-31G**-RIFIT" CARTESIAN 
+#basis SET: (6s,4p,3d,1f,1g) -> [6s,4p,3d,1f,1g]
+Ne    S
+    342.098276               1.0
+Ne    S
+    110.242196               1.0
+Ne    S
+     35.525879               1.0
+Ne    S
+     11.448321               1.0
+Ne    S
+      3.689256               1.0
+Ne    S
+      1.188874               1.0
+Ne    P
+     33.148687               1.0
+Ne    P
+      7.457743               1.0
+Ne    P
+      1.677832               1.0
+Ne    P
+      0.377476               1.0
+Ne    D
+      9.258256               1.0
+Ne    D
+      2.997447               1.0
+Ne    D
+      0.970451               1.0
+Ne    F
+      1.790922               1.0
+Ne    G
+      0.921868               1.0
+end
+basis "Na_6-31G**-RIFIT" CARTESIAN 
+#basis SET: (7s,5p,4d,2f,1g) -> [7s,5p,4d,2f,1g]
+Na    S
+     86.336180               1.0
+Na    S
+     24.398958               1.0
+Na    S
+      6.895246               1.0
+Na    S
+      1.948625               1.0
+Na    S
+      0.550689               1.0
+Na    S
+      0.155627               1.0
+Na    S
+      0.043981               1.0
+Na    P
+      1.902174               1.0
+Na    P
+      0.762683               1.0
+Na    P
+      0.305800               1.0
+Na    P
+      0.122611               1.0
+Na    P
+      0.049161               1.0
+Na    D
+     13.224919               1.0
+Na    D
+      3.418644               1.0
+Na    D
+      0.883720               1.0
+Na    D
+      0.228442               1.0
+Na    F
+      2.682661               1.0
+Na    F
+      0.645994               1.0
+Na    G
+      0.214407               1.0
+end
+basis "Mg_6-31G**-RIFIT" CARTESIAN 
+#basis SET: (7s,5p,4d,2f,1g) -> [7s,5p,4d,2f,1g]
+Mg    S
+    184.332273               1.0
+Mg    S
+     42.424145               1.0
+Mg    S
+      9.763933               1.0
+Mg    S
+      2.247173               1.0
+Mg    S
+      0.517188               1.0
+Mg    S
+      0.119031               1.0
+Mg    S
+      0.027395               1.0
+Mg    P
+      1.822390               1.0
+Mg    P
+      0.684182               1.0
+Mg    P
+      0.256863               1.0
+Mg    P
+      0.096435               1.0
+Mg    P
+      0.036205               1.0
+Mg    D
+      6.491104               1.0
+Mg    D
+      2.048807               1.0
+Mg    D
+      0.646671               1.0
+Mg    D
+      0.204111               1.0
+Mg    F
+      2.667018               1.0
+Mg    F
+      0.237331               1.0
+Mg    G
+      0.212396               1.0
+end
+basis "Al_6-31G**-RIFIT" CARTESIAN 
+#basis SET: (7s,5p,4d,2f,1g) -> [7s,5p,4d,2f,1g]
+Al    S
+    133.983279               1.0
+Al    S
+     28.607331               1.0
+Al    S
+      6.108071               1.0
+Al    S
+      1.304160               1.0
+Al    S
+      0.278457               1.0
+Al    S
+      0.059454               1.0
+Al    S
+      0.012694               1.0
+Al    P
+     38.467497               1.0
+Al    P
+      9.079408               1.0
+Al    P
+      2.142995               1.0
+Al    P
+      0.505807               1.0
+Al    P
+      0.119385               1.0
+Al    D
+     15.604294               1.0
+Al    D
+      4.762967               1.0
+Al    D
+      1.453821               1.0
+Al    D
+      0.443756               1.0
+Al    F
+      1.867749               1.0
+Al    F
+      0.413588               1.0
+Al    G
+      0.308735               1.0
+end
+basis "Si_6-31G**-RIFIT" CARTESIAN 
+#basis SET: (7s,5p,4d,2f,1g) -> [7s,5p,4d,2f,1g]
+Si    S
+    222.876013               1.0
+Si    S
+     72.405071               1.0
+Si    S
+     23.522021               1.0
+Si    S
+      7.641529               1.0
+Si    S
+      2.482481               1.0
+Si    S
+      0.806476               1.0
+Si    S
+      0.261998               1.0
+Si    P
+     45.746892               1.0
+Si    P
+     11.227286               1.0
+Si    P
+      2.755421               1.0
+Si    P
+      0.676240               1.0
+Si    P
+      0.165964               1.0
+Si    D
+     12.961918               1.0
+Si    D
+      2.810770               1.0
+Si    D
+      0.609511               1.0
+Si    D
+      0.132171               1.0
+Si    F
+      2.584156               1.0
+Si    F
+      0.628890               1.0
+Si    G
+      0.532589               1.0
+end
+basis "P_6-31G**-RIFIT" CARTESIAN 
+#basis SET: (7s,5p,4d,2f,1g) -> [7s,5p,4d,2f,1g]
+P    S
+    635.975307               1.0
+P    S
+    180.513806               1.0
+P    S
+     51.236634               1.0
+P    S
+     14.542891               1.0
+P    S
+      4.127822               1.0
+P    S
+      1.171632               1.0
+P    S
+      0.332553               1.0
+P    P
+     55.706954               1.0
+P    P
+     13.878548               1.0
+P    P
+      3.457631               1.0
+P    P
+      0.861417               1.0
+P    P
+      0.214609               1.0
+P    D
+     15.725920               1.0
+P    D
+      3.522654               1.0
+P    D
+      0.789085               1.0
+P    D
+      0.176758               1.0
+P    F
+      3.353072               1.0
+P    F
+      0.814023               1.0
+P    G
+      0.624289               1.0
+end
+basis "S_6-31G**-RIFIT" CARTESIAN 
+#basis SET: (7s,5p,4d,2f,1g) -> [7s,5p,4d,2f,1g]
+S    S
+    345.597110               1.0
+S    S
+    106.894156               1.0
+S    S
+     33.062662               1.0
+S    S
+     10.226374               1.0
+S    S
+      3.163046               1.0
+S    S
+      0.978339               1.0
+S    S
+      0.302603               1.0
+S    P
+     63.546100               1.0
+S    P
+     16.023875               1.0
+S    P
+      4.040603               1.0
+S    P
+      1.018884               1.0
+S    P
+      0.256923               1.0
+S    D
+     17.787941               1.0
+S    D
+      4.170908               1.0
+S    D
+      0.977993               1.0
+S    D
+      0.229319               1.0
+S    F
+      3.895639               1.0
+S    F
+      1.017971               1.0
+S    G
+      0.693729               1.0
+end
+basis "Cl_6-31G**-RIFIT" CARTESIAN 
+#basis SET: (7s,5p,4d,2f,1g) -> [7s,5p,4d,2f,1g]
+Cl    S
+    383.876581               1.0
+Cl    S
+    118.767601               1.0
+Cl    S
+     36.745516               1.0
+Cl    S
+     11.368698               1.0
+Cl    S
+      3.517362               1.0
+Cl    S
+      1.088237               1.0
+Cl    S
+      0.336690               1.0
+Cl    P
+     77.779577               1.0
+Cl    P
+     19.576299               1.0
+Cl    P
+      4.927148               1.0
+Cl    P
+      1.240111               1.0
+Cl    P
+      0.312123               1.0
+Cl    D
+     20.131474               1.0
+Cl    D
+      4.909666               1.0
+Cl    D
+      1.197370               1.0
+Cl    D
+      0.292015               1.0
+Cl    F
+      4.997096               1.0
+Cl    F
+      1.195450               1.0
+Cl    G
+      0.830367               1.0
+end
+basis "Ar_6-31G**-RIFIT" CARTESIAN 
+#basis SET: (7s,5p,4d,2f,1g) -> [7s,5p,4d,2f,1g]
+Ar    S
+    397.702742               1.0
+Ar    S
+    126.437368               1.0
+Ar    S
+     40.196877               1.0
+Ar    S
+     12.779362               1.0
+Ar    S
+      4.062806               1.0
+Ar    S
+      1.291644               1.0
+Ar    S
+      0.410639               1.0
+Ar    P
+     10.054096               1.0
+Ar    P
+      4.456528               1.0
+Ar    P
+      1.975378               1.0
+Ar    P
+      0.875596               1.0
+Ar    P
+      0.388112               1.0
+Ar    D
+     22.797455               1.0
+Ar    D
+      5.770279               1.0
+Ar    D
+      1.460519               1.0
+Ar    D
+      0.369673               1.0
+Ar    F
+      5.915528               1.0
+Ar    F
+      1.371509               1.0
+Ar    G
+      1.588712               1.0
+end

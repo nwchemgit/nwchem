@@ -1,7 +1,7 @@
-# BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T21:21
+# BSE Version v0.9
+# Data downloaded on 2022-02-15T18:31
 # aug-admm-3 version number 1
-# Description: Auxilliary basis with diffuse functions for use with aug-pcseg-3 and the Auxiliary-Density Matrix Method (ADMM)
+# Description: Auxiliary basis with diffuse functions for use with aug-pcseg-3 and the Auxiliary-Density Matrix Method (ADMM)
 # Role: admmfit
 # 
 #  If you downloaded data from the basis set
@@ -33,7 +33,7 @@
 #  References for the basis set
 # 
 #  H,Li-Ar
-#      Auxilliary basis with diffuse functions for use with aug-pcseg-3 and the Auxiliary-Density Matrix Method (ADMM)
+#      Auxiliary basis with diffuse functions for use with aug-pcseg-3 and the Auxiliary-Density Matrix Method (ADMM)
 #          kumar2018a
 # 
 # 
