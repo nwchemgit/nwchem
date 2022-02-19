@@ -1,5 +1,5 @@
-# BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T21:21
+# BSE Version v0.9
+# Data downloaded on 2022-02-15T18:31
 # 6-311+G* version number 0
 # Description: VTZ Valence Triple Zeta: 3 Funct.'s/Valence AO with diffuse+polarization on heavy atoms
 # Role: orbital
@@ -47,7 +47,7 @@
 #      1P Polarization functions associated with 6-311G
 #          krishnan1980a
 # 
-#      Diffuse functions asociated with 6-31G
+#      Diffuse functions associated with 6-31G
 #          clark1983a
 # 
 #  Ne
@@ -57,7 +57,7 @@
 #      1P Polarization functions associated with 6-311G
 #          krishnan1980a
 # 
-#      Diffuse functions asociated with 6-31G
+#      Diffuse functions associated with 6-31G
 #          gill1992a
 # 
 #  Na-Cl
@@ -67,7 +67,7 @@
 #      Polarization functions associated with 6-31G
 #          francl1982a
 # 
-#      Diffuse functions asociated with 6-31G
+#      Diffuse functions associated with 6-31G
 #          spitznagel1987a
 # 
 #  Ar
@@ -77,7 +77,7 @@
 #      Polarization functions associated with 6-31G
 #          francl1982a
 # 
-#      Diffuse functions asociated with 6-31G
+#      Diffuse functions associated with 6-31G
 #          gill1992a
 # 
 #  K,Ca
@@ -87,7 +87,7 @@
 #      1P Polarization functions associated with 6-311G
 #          blaudeau1997a
 # 
-#      Diffuse functions asociated with 6-31G
+#      Diffuse functions associated with 6-31G
 #          (...no reference...)
 # 
 # 

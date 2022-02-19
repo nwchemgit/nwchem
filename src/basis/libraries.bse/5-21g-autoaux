@@ -1,0 +1,165 @@
+# BSE Version v0.9
+# Data downloaded on 2022-02-15T18:31
+# 5-21G version number 1 AutoAux 
+# Role: JK Fitting 
+# Stoychev GL, Auer AA, Neese F. 
+# Automatic Generation of Auxiliary Basis Sets.
+# J Chem Theory Comput. 2017 Feb 14;13(2):554-562.
+# doi: 10.1021/acs.jctc.6b01041.
+# 
+basis "H_5-21G-autoaux" SPHERICAL 
+#basis SET: (7s) -> [7s]
+H    S
+      1.246151e+01           1.0
+H    S
+      6.923059e+00           1.0
+H    S
+      3.846144e+00           1.0
+H    S
+      2.136747e+00           1.0
+H    S
+      1.187081e+00           1.0
+H    S
+      6.594897e-01           1.0
+H    S
+      3.663832e-01           1.0
+end
+basis "He_5-21G-autoaux" SPHERICAL 
+#basis SET: (8s) -> [8s]
+He    S
+      4.689520e+01           1.0
+He    S
+      2.605289e+01           1.0
+He    S
+      1.447383e+01           1.0
+He    S
+      8.041015e+00           1.0
+He    S
+      4.467230e+00           1.0
+He    S
+      2.481795e+00           1.0
+He    S
+      1.378775e+00           1.0
+He    S
+      7.659860e-01           1.0
+end
+basis "Li_5-21G-autoaux" SPHERICAL 
+#basis SET: (13s,10p,5d) -> [13s,10p,5d]
+Li    S
+      9.356142e+01           1.0
+Li    S
+      5.197856e+01           1.0
+Li    S
+      2.887698e+01           1.0
+Li    S
+      1.604277e+01           1.0
+Li    S
+      8.912648e+00           1.0
+Li    S
+      4.951471e+00           1.0
+Li    S
+      2.750817e+00           1.0
+Li    S
+      1.528232e+00           1.0
+Li    S
+      8.490177e-01           1.0
+Li    S
+      4.716765e-01           1.0
+Li    S
+      2.620425e-01           1.0
+Li    S
+      1.455792e-01           1.0
+Li    S
+      8.087731e-02           1.0
+Li    P
+      1.604277e+01           1.0
+Li    P
+      8.912648e+00           1.0
+Li    P
+      4.951471e+00           1.0
+Li    P
+      2.750817e+00           1.0
+Li    P
+      1.528232e+00           1.0
+Li    P
+      8.490177e-01           1.0
+Li    P
+      4.716765e-01           1.0
+Li    P
+      2.620425e-01           1.0
+Li    P
+      1.455792e-01           1.0
+Li    P
+      8.087731e-02           1.0
+Li    D
+      8.490177e-01           1.0
+Li    D
+      4.716765e-01           1.0
+Li    D
+      2.620425e-01           1.0
+Li    D
+      1.455792e-01           1.0
+Li    D
+      8.087731e-02           1.0
+end
+basis "Be_5-21G-autoaux" SPHERICAL 
+#basis SET: (13s,10p,6d) -> [13s,10p,6d]
+Be    S
+      2.335906e+02           1.0
+Be    S
+      1.297726e+02           1.0
+Be    S
+      7.209587e+01           1.0
+Be    S
+      4.005326e+01           1.0
+Be    S
+      2.225181e+01           1.0
+Be    S
+      1.236212e+01           1.0
+Be    S
+      6.867843e+00           1.0
+Be    S
+      3.815468e+00           1.0
+Be    S
+      2.119705e+00           1.0
+Be    S
+      1.177614e+00           1.0
+Be    S
+      6.542298e-01           1.0
+Be    S
+      3.634610e-01           1.0
+Be    S
+      2.019228e-01           1.0
+Be    P
+      4.005326e+01           1.0
+Be    P
+      2.225181e+01           1.0
+Be    P
+      1.236212e+01           1.0
+Be    P
+      6.867843e+00           1.0
+Be    P
+      3.815468e+00           1.0
+Be    P
+      2.119705e+00           1.0
+Be    P
+      1.177614e+00           1.0
+Be    P
+      6.542298e-01           1.0
+Be    P
+      3.634610e-01           1.0
+Be    P
+      2.019228e-01           1.0
+Be    D
+      3.815468e+00           1.0
+Be    D
+      2.119705e+00           1.0
+Be    D
+      1.177614e+00           1.0
+Be    D
+      6.542298e-01           1.0
+Be    D
+      3.634610e-01           1.0
+Be    D
+      2.019228e-01           1.0
+end
