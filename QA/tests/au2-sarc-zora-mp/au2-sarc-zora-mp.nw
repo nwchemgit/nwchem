@@ -1,8 +1,9 @@
 echo
+set int:cando_txs f
 
 start au2-sarc-zora-mp
 
-geometry noautoz units angstrom
+geometry
  Au   0.00000000     0.00000000    -1.25
  Au   0.00000000     0.00000000     1.25
 end
@@ -104,15 +105,11 @@ Au    F
       0.3738410000           1.0000000        
 end
 
-set dft:no_prune T
-set dft:job_grid_acc 1d-20
-set dft:tol_rho 1d-30
 
 dft
- grid lebedev Au 350 10
+grid fine
  xc b3lyp
- maxiter 100
- tolerances tight
+ convergence energy 1d-8
 end
 
 driver

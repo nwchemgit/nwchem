@@ -1,5 +1,5 @@
-All connections between all procs tested: SUCCESS
- argument  1 = sadsmall.nw
+ argument  1 = /Users/edo/nwchem/nwchem/QA/tests/sadsmall/sadsmall.nw
+  NWChem w/ OpenMP: maximum threads =    1
 
 
 
@@ -36,15 +36,15 @@ task scf saddle
                                          
 
 
-              Northwest Computational Chemistry Package (NWChem) 6.3
-              ------------------------------------------------------
+             Northwest Computational Chemistry Package (NWChem) 7.0.1
+             --------------------------------------------------------
 
 
                     Environmental Molecular Sciences Laboratory
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
 
-                              Copyright (c) 1994-2013
+                              Copyright (c) 1994-2020
                        Pacific Northwest National Laboratory
                             Battelle Memorial Institute
 
@@ -69,20 +69,21 @@ task scf saddle
            Job information
            ---------------
 
-    hostname        = arcen
-    program         = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/../bin/LINUX64/nwchem
-    date            = Tue Sep 24 14:37:13 2013
+    hostname        = WE40672
+    program         = /Users/edo/nwchem/nwchem/bin/MACX64/nwchem
+    date            = Fri Feb  4 17:06:32 2022
 
-    compiled        = Tue_Sep_24_14:15:10_2013
-    source          = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10
-    nwchem branch   = Development
-    nwchem revision = 24582
-    ga revision     = 10418
-    input           = sadsmall.nw
+    compiled        = Thu_Feb_03_11:51:49_2022
+    source          = /Users/edo/nwchem/nwchem
+    nwchem branch   = 7.0.0
+    nwchem revision = nwchem_on_git-3195-g27fae8c638
+    ga revision     = 5.8.1
+    use scalapack   = T
+    input           = /Users/edo/nwchem/nwchem/QA/tests/sadsmall/sadsmall.nw
     prefix          = sadsmall.
-    data base       = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.db
+    data base       = ./sadsmall.db
     status          = startup
-    nproc           =        4
+    nproc           =        1
     time left       =     -1s
 
 
@@ -90,10 +91,10 @@ task scf saddle
            Memory information
            ------------------
 
-    heap     =   13107201 doubles =    100.0 Mbytes
-    stack    =   13107201 doubles =    100.0 Mbytes
-    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
-    total    =   52428802 doubles =    400.0 Mbytes
+    heap     =   52195779 doubles =    398.2 Mbytes
+    stack    =   52195783 doubles =    398.2 Mbytes
+    global   =   29826161 doubles =    227.6 Mbytes (distinct from heap & stack)
+    total    =  134217723 doubles =   1024.0 Mbytes
     verify   = yes
     hardfail = no 
 
@@ -101,8 +102,8 @@ task scf saddle
            Directory information
            ---------------------
 
-  0 permanent = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir
-  0 scratch   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir
+  0 permanent = .
+  0 scratch   = .
 
 
 
@@ -111,9 +112,6 @@ task scf saddle
                                 -------------------
 
 
-  library name resolved from: environment
-  library file name is: </home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/../src/basis/libraries/>
-  
                       Basis "ao basis" -> "" (cartesian)
                       -----
   c (Carbon)
@@ -235,6 +233,8 @@ task scf saddle
  Connecting clusters   1   2 via atoms    1    3 r = 1.40
   autoz: regenerating connections with new bonds
   Looking for out-of-plane bends
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
 
 
                              Geometry "geometry" -> ""
@@ -264,7 +264,7 @@ task scf saddle
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-     0.0000000000     0.0000000000     0.0000000000
+    -0.0000000000     0.0000000000     0.0000000000
 
       Symmetry information
       --------------------
@@ -351,6 +351,7 @@ task scf saddle
                                   H3CO <-> H2COH
 
 
+  no constraints, skipping    0.0000000000000000     
  maximum gradient threshold         (gmax) =   0.000450
  rms gradient threshold             (grms) =   0.000300
  maximum cartesian step threshold   (xmax) =   0.001800
@@ -358,7 +359,7 @@ task scf saddle
  fixed trust radius                (trust) =   0.100000
  maximum step size to saddle      (sadstp) =   0.100000
  energy precision                  (eprec) =   1.0D-07
- maximum number of steps          (nptopt) =   20
+ maximum number of steps          (nptopt) =   40
  initial hessian option           (inhess) =    0
  line search option               (linopt) =    0
  hessian update option            (modupd) =    2
@@ -417,7 +418,7 @@ task scf saddle
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-     0.0000000000     0.0000000000     0.0000000000
+    -0.0000000000     0.0000000000     0.0000000000
 
       Symmetry information
       --------------------
@@ -447,31 +448,31 @@ task scf saddle
   charge          =   0.00
   wavefunction    = UHF 
   input vectors   = atomic
-  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
+  output vectors  = ./sadsmall.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at       1.1s
+ Forming initial guess at       0.0s
 
 
- Starting SCF solution at       1.1s
+ Starting SCF solution at       0.1s
 
 
 
        Final UHF  results 
        ------------------ 
 
-         Total SCF energy =   -113.706031585359
-      One electron energy =   -220.055731561900
-      Two electron energy =     73.681865369211
+         Total SCF energy =   -113.706031510827
+      One electron energy =   -220.055731331119
+      Two electron energy =     73.681865212962
  Nuclear repulsion energy =     32.667834607329
 
                        Sz =      0.5000
                  Sz(Sz+1) =      0.7500
                       S^2 =      0.7600
 
-        Time for solution =      0.2s
+        Time for solution =      0.4s
 
 
                               NWChem Gradients Module
@@ -489,10 +490,11 @@ task scf saddle
    4 h      -0.891783   2.032430  -1.660883   -0.022008  -0.005837   0.006884
    5 h      -0.891783   2.032430   1.660883   -0.022008  -0.005837  -0.006884
 
+  no constraints, skipping    0.0000000000000000     
 
 @ Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
 @ ---- ---------------- -------- -------- -------- -------- -------- --------
-@    0    -113.70603159  0.0D+00  0.08198  0.03537  0.00000  0.00000      2.0
+@    0    -113.70603151  0.0D+00  0.08198  0.03537  0.00000  0.00000      0.5
                                                                     
 
 
@@ -539,6 +541,14 @@ task scf saddle
     9 Bend                     3     1     5               123.95136    0.19115
    10 Bend                     4     1     5               108.93730    0.00000
 
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
 
           --------
           Step   1
@@ -552,11 +562,11 @@ task scf saddle
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 c                    6.0000     0.00964542     0.69364914     0.00000000
-    2 o                    8.0000    -0.04205942    -0.78544741     0.00000000
-    3 h                    1.0000     1.32755320     0.10503018     0.00000000
-    4 h                    1.0000    -0.48690021     1.07962500    -0.87798923
-    5 h                    1.0000    -0.48690021     1.07962500     0.87798923
+    1 c                    6.0000     0.00964543     0.69364915     0.00000000
+    2 o                    8.0000    -0.04205940    -0.78544741     0.00000000
+    3 h                    1.0000     1.32755318     0.10503018     0.00000000
+    4 h                    1.0000    -0.48690020     1.07962500    -0.87798923
+    5 h                    1.0000    -0.48690020     1.07962500     0.87798923
 
       Atomic Mass 
       ----------- 
@@ -566,13 +576,13 @@ task scf saddle
       h                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)      32.6223535868
+ Effective nuclear repulsion energy (a.u.)      32.6223536818
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-     0.1420129144     0.2694669486     0.0000000000
+     0.1420131256     0.2694669866     0.0000000000
 
       Symmetry information
       --------------------
@@ -601,26 +611,26 @@ task scf saddle
   beta  electrons =     8
   charge          =   0.00
   wavefunction    = UHF 
-  input vectors   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
-  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
+  input vectors   = ./sadsmall.movecs
+  output vectors  = ./sadsmall.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at       2.0s
+ Forming initial guess at       0.5s
 
 
- Starting SCF solution at       2.0s
+ Starting SCF solution at       0.5s
 
 
 
        Final UHF  results 
        ------------------ 
 
-         Total SCF energy =   -113.694174070778
-      One electron energy =   -219.965644955616
-      Two electron energy =     73.649117298051
- Nuclear repulsion energy =     32.622353586788
+         Total SCF energy =   -113.694174000269
+      One electron energy =   -219.965645034666
+      Two electron energy =     73.649117352604
+ Nuclear repulsion energy =     32.622353681794
 
                        Sz =      0.5000
                  Sz(Sz+1) =      0.7500
@@ -644,10 +654,11 @@ task scf saddle
    4 h      -0.920108   2.040195  -1.659159   -0.022226  -0.006399   0.007376
    5 h      -0.920108   2.040195   1.659159   -0.022226  -0.006399  -0.007376
 
+  no constraints, skipping    0.0000000000000000     
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    1    -113.69417407  1.2D-02  0.08124  0.03435  0.02443  0.06000      2.8
+@    1    -113.69417400  1.2D-02  0.08124  0.03435  0.02443  0.06000      0.8
                                                                     
 
 
@@ -699,6 +710,14 @@ task scf saddle
  Restricting large step in mode    6 eval= 1.2D-01 step=-2.0D-01 new=-1.0D-01
  Search mode= 1 eval=-4.7D-02 grad=-9.5D-02 step=-1.0D-01
  Restricting overall step due to large component. alpha=  0.75
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
 
           --------
           Step   2
@@ -712,11 +731,11 @@ task scf saddle
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 c                    6.0000    -0.00354658     0.69480232     0.00000000
-    2 o                    8.0000    -0.00375062    -0.78760000     0.00000000
-    3 h                    1.0000     1.29308940     0.08717762     0.00000000
-    4 h                    1.0000    -0.48222670     1.08905099    -0.88266437
-    5 h                    1.0000    -0.48222670     1.08905099     0.88266437
+    1 c                    6.0000    -0.00354657     0.69480233     0.00000000
+    2 o                    8.0000    -0.00375061    -0.78759996     0.00000000
+    3 h                    1.0000     1.29308939     0.08717760     0.00000000
+    4 h                    1.0000    -0.48222671     1.08905097    -0.88266441
+    5 h                    1.0000    -0.48222671     1.08905097     0.88266441
 
       Atomic Mass 
       ----------- 
@@ -726,13 +745,13 @@ task scf saddle
       h                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)      32.6992560654
+ Effective nuclear repulsion energy (a.u.)      32.6992564049
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-     0.5241184656     0.2518881712     0.0000000000
+     0.5241186135     0.2518888573     0.0000000000
 
       Symmetry information
       --------------------
@@ -761,26 +780,26 @@ task scf saddle
   beta  electrons =     8
   charge          =   0.00
   wavefunction    = UHF 
-  input vectors   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
-  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
+  input vectors   = ./sadsmall.movecs
+  output vectors  = ./sadsmall.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at       2.8s
+ Forming initial guess at       0.8s
 
 
- Starting SCF solution at       2.8s
+ Starting SCF solution at       0.8s
 
 
 
        Final UHF  results 
        ------------------ 
 
-         Total SCF energy =   -113.692437271784
-      One electron energy =   -220.095298781446
-      Two electron energy =     73.703605444269
- Nuclear repulsion energy =     32.699256065392
+         Total SCF energy =   -113.692437257067
+      One electron energy =   -220.095299418265
+      Two electron energy =     73.703605756305
+ Nuclear repulsion energy =     32.699256404894
 
                        Sz =      0.5000
                  Sz(Sz+1) =      0.7500
@@ -804,10 +823,11 @@ task scf saddle
    4 h      -0.911276   2.058008  -1.667994   -0.019062  -0.004138   0.006521
    5 h      -0.911276   2.058008   1.667994   -0.019062  -0.004138  -0.006521
 
+  no constraints, skipping    0.0000000000000000     
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    2    -113.69243727  1.7D-03  0.07263  0.03058  0.02836  0.07205      3.5
+@    2    -113.69243726  1.7D-03  0.07263  0.03058  0.02836  0.07205      1.1
                                                                     
 
 
@@ -860,6 +880,14 @@ task scf saddle
  Restricting large step in mode    6 eval= 9.2D-02 step= 1.7D-01 new= 1.0D-01
  Search mode= 1 eval=-9.5D-02 grad=-7.8D-02 step=-1.0D-01
  Restricting overall step due to large component. alpha=  0.95
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
 
           --------
           Step   3
@@ -873,11 +901,11 @@ task scf saddle
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 c                    6.0000    -0.02998580     0.69027622     0.00000000
-    2 o                    8.0000     0.03583212    -0.78767718     0.00000000
-    3 h                    1.0000     1.24803551     0.07786366     0.00000000
-    4 h                    1.0000    -0.46627152     1.09600961    -0.89610828
-    5 h                    1.0000    -0.46627152     1.09600961     0.89610828
+    1 c                    6.0000    -0.02998393     0.69027669     0.00000000
+    2 o                    8.0000     0.03583216    -0.78767687     0.00000000
+    3 h                    1.0000     1.24803428     0.07786369     0.00000000
+    4 h                    1.0000    -0.46627186     1.09600920    -0.89610771
+    5 h                    1.0000    -0.46627186     1.09600920     0.89610771
 
       Atomic Mass 
       ----------- 
@@ -887,13 +915,13 @@ task scf saddle
       h                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)      32.8785987870
+ Effective nuclear repulsion energy (a.u.)      32.8786054986
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-     0.7979078513     0.2081018424     0.0000000000
+     0.7979259816     0.2081103349     0.0000000000
 
       Symmetry information
       --------------------
@@ -922,32 +950,32 @@ task scf saddle
   beta  electrons =     8
   charge          =   0.00
   wavefunction    = UHF 
-  input vectors   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
-  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
+  input vectors   = ./sadsmall.movecs
+  output vectors  = ./sadsmall.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at       3.6s
+ Forming initial guess at       1.2s
 
 
- Starting SCF solution at       3.6s
+ Starting SCF solution at       1.2s
 
 
 
        Final UHF  results 
        ------------------ 
 
-         Total SCF energy =   -113.692918644306
-      One electron energy =   -220.419604145546
-      Two electron energy =     73.848086714221
- Nuclear repulsion energy =     32.878598787020
+         Total SCF energy =   -113.692918776320
+      One electron energy =   -220.419616978708
+      Two electron energy =     73.848092703762
+ Nuclear repulsion energy =     32.878605498626
 
                        Sz =      0.5000
                  Sz(Sz+1) =      0.7500
                       S^2 =      0.8309
 
-        Time for solution =      0.1s
+        Time for solution =      0.2s
 
 
                               NWChem Gradients Module
@@ -959,16 +987,17 @@ task scf saddle
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 c      -0.056665   1.304433   0.000000   -0.039830   0.063446   0.000000
-   2 o       0.067713  -1.488494   0.000000    0.026307   0.000815   0.000000
-   3 h       2.358445   0.147141   0.000000    0.039937  -0.059588   0.000000
-   4 h      -0.881125   2.071158  -1.693399   -0.013207  -0.002337   0.004210
-   5 h      -0.881125   2.071158   1.693399   -0.013207  -0.002337  -0.004210
+   1 c      -0.056661   1.304434   0.000000   -0.039829   0.063447   0.000000
+   2 o       0.067713  -1.488493   0.000000    0.026307   0.000815   0.000000
+   3 h       2.358443   0.147141   0.000000    0.039936  -0.059588   0.000000
+   4 h      -0.881126   2.071157  -1.693398   -0.013207  -0.002337   0.004210
+   5 h      -0.881126   2.071157   1.693398   -0.013207  -0.002337  -0.004210
 
+  no constraints, skipping    0.0000000000000000     
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    3    -113.69291864 -4.8D-04  0.06176  0.02550  0.03522  0.08394      4.2
+@    3    -113.69291878 -4.8D-04  0.06176  0.02550  0.03522  0.08395      1.4
                                                                     
 
 
@@ -980,16 +1009,16 @@ task scf saddle
 
       Type          Name      I     J     K     L     M      Value     Gradient
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
-    1 Stretch                  1     3                       1.41718    0.06176
+    1 Stretch                  1     3                       1.41717    0.06176
     2 Stretch                  1     2                       1.47942    0.00036
     3 Stretch                  1     4                       1.07609    0.00097
     4 Stretch                  1     5                       1.07609    0.00097
     5 Bend                     2     1     3                61.84694   -0.04619
-    6 Bend                     2     1     4               113.24772   -0.00859
-    7 Bend                     2     1     5               113.24772   -0.00859
-    8 Bend                     3     1     4               121.90813    0.01417
-    9 Bend                     3     1     5               121.90813    0.01417
-   10 Bend                     4     1     5               112.76307   -0.00203
+    6 Bend                     2     1     4               113.24765   -0.00859
+    7 Bend                     2     1     5               113.24765   -0.00859
+    8 Bend                     3     1     4               121.90824    0.01417
+    9 Bend                     3     1     5               121.90824    0.01417
+   10 Bend                     4     1     5               112.76295   -0.00203
 
  Hessian eigenvalues: positive=   9 negative=  1 zero=  0
  Hessian has correct structure - following negative mode, overlap= 1.0D+00
@@ -1004,22 +1033,30 @@ task scf saddle
 
       Type          Name      I     J     K     L     M      Value      Sadmode
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
-    1 Stretch                  1     3                       1.41718   -0.41116
+    1 Stretch                  1     3                       1.41717   -0.41115
     2 Stretch                  1     2                       1.47942    0.05609
     3 Stretch                  1     4                       1.07609    0.00639
     4 Stretch                  1     5                       1.07609    0.00639
     5 Bend                     2     1     3                61.84694    0.88194
-    6 Bend                     2     1     4               113.24772   -0.10704
-    7 Bend                     2     1     5               113.24772   -0.10704
-    8 Bend                     3     1     4               121.90813   -0.02270
-    9 Bend                     3     1     5               121.90813   -0.02270
-   10 Bend                     4     1     5               112.76307   -0.16110
+    6 Bend                     2     1     4               113.24765   -0.10704
+    7 Bend                     2     1     5               113.24765   -0.10704
+    8 Bend                     3     1     4               121.90824   -0.02270
+    9 Bend                     3     1     5               121.90824   -0.02270
+   10 Bend                     4     1     5               112.76295   -0.16110
 
  Restricting large step in mode    1 eval=-1.1D-01 step=-4.4D-01 new=-1.0D-01
  Restricting large step in mode    2 eval= 4.4D-02 step= 2.9D-01 new= 1.0D-01
  Restricting large step in mode    5 eval= 8.6D-02 step= 1.5D-01 new= 1.0D-01
  Restricting large step in mode    6 eval= 9.8D-02 step=-3.7D-01 new=-1.0D-01
  Search mode= 1 eval=-1.1D-01 grad=-6.5D-02 step=-1.0D-01
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
 
           --------
           Step   4
@@ -1033,11 +1070,11 @@ task scf saddle
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 c                    6.0000    -0.06193520     0.67905726     0.00000000
-    2 o                    8.0000     0.07603959    -0.78330001     0.00000000
-    3 h                    1.0000     1.20012029     0.07126828     0.00000000
-    4 h                    1.0000    -0.44644294     1.10272820    -0.90829326
-    5 h                    1.0000    -0.44644294     1.10272820     0.90829326
+    1 c                    6.0000    -0.06193227     0.67905832     0.00000000
+    2 o                    8.0000     0.07604061    -0.78329998     0.00000000
+    3 h                    1.0000     1.20011681     0.07126825     0.00000000
+    4 h                    1.0000    -0.44644318     1.10272767    -0.90829280
+    5 h                    1.0000    -0.44644318     1.10272767     0.90829280
 
       Atomic Mass 
       ----------- 
@@ -1047,13 +1084,13 @@ task scf saddle
       h                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)      33.1820183379
+ Effective nuclear repulsion energy (a.u.)      33.1820254339
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-     1.0278974063     0.1599995025     0.0000000000
+     1.0279385944     0.1600099693     0.0000000000
 
       Symmetry information
       --------------------
@@ -1082,32 +1119,32 @@ task scf saddle
   beta  electrons =     8
   charge          =   0.00
   wavefunction    = UHF 
-  input vectors   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
-  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
+  input vectors   = ./sadsmall.movecs
+  output vectors  = ./sadsmall.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at       4.2s
+ Forming initial guess at       1.5s
 
 
- Starting SCF solution at       4.2s
+ Starting SCF solution at       1.5s
 
 
 
        Final UHF  results 
        ------------------ 
 
-         Total SCF energy =   -113.693314710934
-      One electron energy =   -220.982605069812
-      Two electron energy =     74.107272021012
- Nuclear repulsion energy =     33.182018337866
+         Total SCF energy =   -113.693314969910
+      One electron energy =   -220.982617490893
+      Two electron energy =     74.107277087068
+ Nuclear repulsion energy =     33.182025433916
 
                        Sz =      0.5000
                  Sz(Sz+1) =      0.7500
                       S^2 =      0.8448
 
-        Time for solution =      0.1s
+        Time for solution =      0.2s
 
 
                               NWChem Gradients Module
@@ -1119,16 +1156,17 @@ task scf saddle
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 c      -0.117041   1.283232   0.000000   -0.040067   0.045722   0.000000
-   2 o       0.143694  -1.480222   0.000000    0.021908   0.000835   0.000000
-   3 h       2.267898   0.134678   0.000000    0.032131  -0.045856   0.000000
-   4 h      -0.843655   2.083854  -1.716425   -0.006986  -0.000350   0.002603
-   5 h      -0.843655   2.083854   1.716425   -0.006986  -0.000350  -0.002603
+   1 c      -0.117035   1.283234   0.000000   -0.040066   0.045723   0.000000
+   2 o       0.143696  -1.480222   0.000000    0.021908   0.000835   0.000000
+   3 h       2.267892   0.134677   0.000000    0.032130  -0.045857   0.000000
+   4 h      -0.843655   2.083853  -1.716425   -0.006986  -0.000350   0.002603
+   5 h      -0.843655   2.083853   1.716425   -0.006986  -0.000350  -0.002603
 
+  no constraints, skipping    0.0000000000000000     
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    4    -113.69331471 -4.0D-04  0.04885  0.01933  0.03787  0.08887      4.8
+@    4    -113.69331497 -4.0D-04  0.04884  0.01933  0.03787  0.08888      1.7
                                                                     
 
 
@@ -1140,16 +1178,16 @@ task scf saddle
 
       Type          Name      I     J     K     L     M      Value     Gradient
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
-    1 Stretch                  1     3                       1.40078    0.04885
+    1 Stretch                  1     3                       1.40078    0.04884
     2 Stretch                  1     2                       1.46885    0.00123
     3 Stretch                  1     4                       1.07347    0.00016
     4 Stretch                  1     5                       1.07347    0.00016
-    5 Bend                     2     1     3                58.89520   -0.03411
-    6 Bend                     2     1     4               115.25040   -0.00277
-    7 Bend                     2     1     5               115.25040   -0.00277
-    8 Bend                     3     1     4               119.60143    0.00918
-    9 Bend                     3     1     5               119.60143    0.00918
-   10 Bend                     4     1     5               115.58587    0.00069
+    5 Bend                     2     1     3                58.89513   -0.03412
+    6 Bend                     2     1     4               115.25029   -0.00278
+    7 Bend                     2     1     5               115.25029   -0.00278
+    8 Bend                     3     1     4               119.60159    0.00918
+    9 Bend                     3     1     5               119.60159    0.00918
+   10 Bend                     4     1     5               115.58576    0.00069
 
  Hessian eigenvalues: positive=   9 negative=  1 zero=  0
  Hessian has correct structure - following negative mode, overlap= 1.0D+00
@@ -1168,18 +1206,26 @@ task scf saddle
     2 Stretch                  1     2                       1.46885    0.07479
     3 Stretch                  1     4                       1.07347    0.00624
     4 Stretch                  1     5                       1.07347    0.00624
-    5 Bend                     2     1     3                58.89520    0.88393
-    6 Bend                     2     1     4               115.25040   -0.11299
-    7 Bend                     2     1     5               115.25040   -0.11299
-    8 Bend                     3     1     4               119.60143    0.00378
-    9 Bend                     3     1     5               119.60143    0.00378
-   10 Bend                     4     1     5               115.58587   -0.19232
+    5 Bend                     2     1     3                58.89513    0.88393
+    6 Bend                     2     1     4               115.25029   -0.11299
+    7 Bend                     2     1     5               115.25029   -0.11299
+    8 Bend                     3     1     4               119.60159    0.00378
+    9 Bend                     3     1     5               119.60159    0.00378
+   10 Bend                     4     1     5               115.58576   -0.19232
 
  Restricting large step in mode    1 eval=-1.3D-01 step=-3.3D-01 new=-1.0D-01
  Restricting large step in mode    2 eval= 4.6D-02 step= 2.2D-01 new= 1.0D-01
  Restricting large step in mode    6 eval= 1.0D-01 step=-3.0D-01 new=-1.0D-01
  Search mode= 1 eval=-1.3D-01 grad=-4.8D-02 step=-1.0D-01
  Restricting overall step due to large component. alpha=  0.84
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
 
           --------
           Step   5
@@ -1193,11 +1239,11 @@ task scf saddle
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 c                    6.0000    -0.07160303     0.68116786     0.00000000
-    2 o                    8.0000     0.11062422    -0.76611851     0.00000000
-    3 h                    1.0000     1.15040288     0.05934639     0.00000000
-    4 h                    1.0000    -0.43404264     1.09904309    -0.91880741
-    5 h                    1.0000    -0.43404264     1.09904309     0.91880741
+    1 c                    6.0000    -0.07160301     0.68116744     0.00000000
+    2 o                    8.0000     0.11062564    -0.76611902     0.00000000
+    3 h                    1.0000     1.15039959     0.05934699     0.00000000
+    4 h                    1.0000    -0.43404171     1.09904326    -0.91880753
+    5 h                    1.0000    -0.43404171     1.09904326     0.91880753
 
       Atomic Mass 
       ----------- 
@@ -1207,13 +1253,13 @@ task scf saddle
       h                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)      33.5681808384
+ Effective nuclear repulsion energy (a.u.)      33.5681898916
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-     1.3940380334     0.4072201817     0.0000000000
+     1.3940569404     0.4072093951     0.0000000000
 
       Symmetry information
       --------------------
@@ -1242,32 +1288,32 @@ task scf saddle
   beta  electrons =     8
   charge          =   0.00
   wavefunction    = UHF 
-  input vectors   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
-  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
+  input vectors   = ./sadsmall.movecs
+  output vectors  = ./sadsmall.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at       4.8s
+ Forming initial guess at       1.7s
 
 
- Starting SCF solution at       4.9s
+ Starting SCF solution at       1.8s
 
 
 
        Final UHF  results 
        ------------------ 
 
-         Total SCF energy =   -113.693310514650
-      One electron energy =   -221.710297794194
-      Two electron energy =     74.448806441170
- Nuclear repulsion energy =     33.568180838374
+         Total SCF energy =   -113.693310613930
+      One electron energy =   -221.710313209786
+      Two electron energy =     74.448812704235
+ Nuclear repulsion energy =     33.568189891621
 
                        Sz =      0.5000
                  Sz(Sz+1) =      0.7500
                       S^2 =      0.8446
 
-        Time for solution =      0.1s
+        Time for solution =      0.2s
 
 
                               NWChem Gradients Module
@@ -1279,16 +1325,17 @@ task scf saddle
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 c      -0.135310   1.287221   0.000000   -0.025698   0.030826   0.000000
-   2 o       0.209049  -1.447754   0.000000    0.012799   0.001358   0.000000
-   3 h       2.173946   0.112148   0.000000    0.020759  -0.029431   0.000000
-   4 h      -0.820222   2.076890  -1.736294   -0.003930  -0.001376   0.000856
-   5 h      -0.820222   2.076890   1.736294   -0.003930  -0.001376  -0.000856
+   1 c      -0.135310   1.287220   0.000000   -0.025698   0.030826   0.000000
+   2 o       0.209052  -1.447755   0.000000    0.012800   0.001358   0.000000
+   3 h       2.173940   0.112150   0.000000    0.020758  -0.029431   0.000000
+   4 h      -0.820220   2.076891  -1.736294   -0.003930  -0.001376   0.000856
+   5 h      -0.820220   2.076891   1.736294   -0.003930  -0.001376  -0.000856
 
+  no constraints, skipping    0.0000000000000000     
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    5    -113.69331051  4.2D-06  0.03185  0.01232  0.03363  0.09360      5.4
+@    5    -113.69331061  4.4D-06  0.03185  0.01232  0.03363  0.09360      2.0
                                                                     
 
 
@@ -1300,16 +1347,16 @@ task scf saddle
 
       Type          Name      I     J     K     L     M      Value     Gradient
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
-    1 Stretch                  1     3                       1.37112    0.03185
+    1 Stretch                  1     3                       1.37111    0.03185
     2 Stretch                  1     2                       1.45871    0.00025
     3 Stretch                  1     4                       1.07247    0.00006
     4 Stretch                  1     5                       1.07247    0.00006
-    5 Bend                     2     1     3                55.85427   -0.02054
-    6 Bend                     2     1     4               115.39168   -0.00278
-    7 Bend                     2     1     5               115.39168   -0.00278
-    8 Bend                     3     1     4               118.54856    0.00570
-    9 Bend                     3     1     5               118.54856    0.00570
-   10 Bend                     4     1     5               117.90096    0.00107
+    5 Bend                     2     1     3                55.85419   -0.02054
+    6 Bend                     2     1     4               115.39173   -0.00278
+    7 Bend                     2     1     5               115.39173   -0.00278
+    8 Bend                     3     1     4               118.54853    0.00570
+    9 Bend                     3     1     5               118.54853    0.00570
+   10 Bend                     4     1     5               117.90098    0.00107
 
  Hessian eigenvalues: positive=   9 negative=  1 zero=  0
  Hessian has correct structure - following negative mode, overlap= 1.0D+00
@@ -1324,21 +1371,29 @@ task scf saddle
 
       Type          Name      I     J     K     L     M      Value      Sadmode
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
-    1 Stretch                  1     3                       1.37112   -0.32013
+    1 Stretch                  1     3                       1.37111   -0.32014
     2 Stretch                  1     2                       1.45871    0.08288
     3 Stretch                  1     4                       1.07247    0.00590
     4 Stretch                  1     5                       1.07247    0.00590
-    5 Bend                     2     1     3                55.85427    0.90668
-    6 Bend                     2     1     4               115.39168   -0.08345
-    7 Bend                     2     1     5               115.39168   -0.08345
-    8 Bend                     3     1     4               118.54856    0.02548
-    9 Bend                     3     1     5               118.54856    0.02548
-   10 Bend                     4     1     5               117.90096   -0.23083
+    5 Bend                     2     1     3                55.85419    0.90668
+    6 Bend                     2     1     4               115.39173   -0.08345
+    7 Bend                     2     1     5               115.39173   -0.08345
+    8 Bend                     3     1     4               118.54853    0.02549
+    9 Bend                     3     1     5               118.54853    0.02549
+   10 Bend                     4     1     5               117.90098   -0.23083
 
  Restricting large step in mode    1 eval=-1.8D-01 step=-1.5D-01 new=-1.0D-01
  Restricting large step in mode    6 eval= 1.4D-01 step=-1.9D-01 new=-1.0D-01
  Search mode= 1 eval=-1.8D-01 grad=-2.8D-02 step=-1.0D-01
  Restricting overall step due to large component. alpha=  0.87
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
 
           --------
           Step   6
@@ -1352,11 +1407,11 @@ task scf saddle
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 c                    6.0000    -0.07792154     0.68159314     0.00000000
-    2 o                    8.0000     0.14601820    -0.75220204     0.00000000
-    3 h                    1.0000     1.10317211     0.04546718     0.00000000
-    4 h                    1.0000    -0.42496499     1.09881182    -0.92421516
-    5 h                    1.0000    -0.42496499     1.09881182     0.92421516
+    1 c                    6.0000    -0.07792312     0.68159250     0.00000000
+    2 o                    8.0000     0.14601930    -0.75220171     0.00000000
+    3 h                    1.0000     1.10316875     0.04546832     0.00000000
+    4 h                    1.0000    -0.42496307     1.09881140    -0.92421631
+    5 h                    1.0000    -0.42496307     1.09881140     0.92421631
 
       Atomic Mass 
       ----------- 
@@ -1366,13 +1421,13 @@ task scf saddle
       h                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)      33.9344403377
+ Effective nuclear repulsion energy (a.u.)      33.9344605740
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-     1.8025311786     0.5953266894     0.0000000000
+     1.8025308294     0.5953249878     0.0000000000
 
       Symmetry information
       --------------------
@@ -1401,32 +1456,32 @@ task scf saddle
   beta  electrons =     8
   charge          =   0.00
   wavefunction    = UHF 
-  input vectors   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
-  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
+  input vectors   = ./sadsmall.movecs
+  output vectors  = ./sadsmall.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at       5.5s
+ Forming initial guess at       2.0s
 
 
- Starting SCF solution at       5.5s
+ Starting SCF solution at       2.0s
 
 
 
        Final UHF  results 
        ------------------ 
 
-         Total SCF energy =   -113.693413071183
-      One electron energy =   -222.389903307863
-      Two electron energy =     74.762049898983
- Nuclear repulsion energy =     33.934440337696
+         Total SCF energy =   -113.693413047454
+      One electron energy =   -222.389941006908
+      Two electron energy =     74.762067385501
+ Nuclear repulsion energy =     33.934460573953
 
                        Sz =      0.5000
                  Sz(Sz+1) =      0.7500
                       S^2 =      0.8321
 
-        Time for solution =      0.1s
+        Time for solution =      0.2s
 
 
                               NWChem Gradients Module
@@ -1438,16 +1493,17 @@ task scf saddle
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 c      -0.147250   1.288024   0.000000   -0.006017   0.014772   0.000000
-   2 o       0.275934  -1.421456   0.000000    0.003384  -0.002317   0.000000
-   3 h       2.084693   0.085921   0.000000    0.006680  -0.009550   0.000000
-   4 h      -0.803067   2.076453  -1.746513   -0.002024  -0.001453   0.000197
-   5 h      -0.803067   2.076453   1.746513   -0.002024  -0.001453  -0.000197
+   1 c      -0.147253   1.288023   0.000000   -0.006017   0.014772   0.000000
+   2 o       0.275936  -1.421455   0.000000    0.003385  -0.002317   0.000000
+   3 h       2.084687   0.085923   0.000000    0.006680  -0.009550   0.000000
+   4 h      -0.803064   2.076452  -1.746516   -0.002024  -0.001453   0.000197
+   5 h      -0.803064   2.076452   1.746516   -0.002024  -0.001453  -0.000197
 
+  no constraints, skipping    0.0000000000000000     
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    6    -113.69341307 -1.0D-04  0.01041  0.00424  0.03137  0.08898      6.1
+@    6    -113.69341305 -1.0D-04  0.01041  0.00424  0.03137  0.08898      2.3
                                                                     
 
 
@@ -1459,16 +1515,16 @@ task scf saddle
 
       Type          Name      I     J     K     L     M      Value     Gradient
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
-    1 Stretch                  1     3                       1.34151    0.01041
+    1 Stretch                  1     3                       1.34150    0.01041
     2 Stretch                  1     2                       1.45118    0.00281
     3 Stretch                  1     4                       1.07177   -0.00008
     4 Stretch                  1     5                       1.07177   -0.00008
-    5 Bend                     2     1     3                52.81639   -0.00579
-    6 Bend                     2     1     4               115.75898   -0.00252
-    7 Bend                     2     1     5               115.75898   -0.00252
-    8 Bend                     3     1     4               118.01340    0.00290
-    9 Bend                     3     1     5               118.01340    0.00290
-   10 Bend                     4     1     5               119.15809    0.00028
+    5 Bend                     2     1     3                52.81631   -0.00579
+    6 Bend                     2     1     4               115.75900   -0.00252
+    7 Bend                     2     1     5               115.75900   -0.00252
+    8 Bend                     3     1     4               118.01321    0.00290
+    9 Bend                     3     1     5               118.01321    0.00290
+   10 Bend                     4     1     5               119.15834    0.00028
 
  Hessian eigenvalues: positive=   9 negative=  1 zero=  0
  Hessian has correct structure - following negative mode, overlap= 1.0D+00
@@ -1483,18 +1539,26 @@ task scf saddle
 
       Type          Name      I     J     K     L     M      Value      Sadmode
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
-    1 Stretch                  1     3                       1.34151   -0.31418
+    1 Stretch                  1     3                       1.34150   -0.31419
     2 Stretch                  1     2                       1.45118    0.10844
     3 Stretch                  1     4                       1.07177    0.00432
     4 Stretch                  1     5                       1.07177    0.00432
-    5 Bend                     2     1     3                52.81639    0.90966
-    6 Bend                     2     1     4               115.75898   -0.07912
-    7 Bend                     2     1     5               115.75898   -0.07912
-    8 Bend                     3     1     4               118.01340    0.02950
-    9 Bend                     3     1     5               118.01340    0.02950
-   10 Bend                     4     1     5               119.15809   -0.21851
+    5 Bend                     2     1     3                52.81631    0.90966
+    6 Bend                     2     1     4               115.75900   -0.07912
+    7 Bend                     2     1     5               115.75900   -0.07912
+    8 Bend                     3     1     4               118.01321    0.02951
+    9 Bend                     3     1     5               118.01321    0.02951
+   10 Bend                     4     1     5               119.15834   -0.21852
 
  Search mode= 1 eval=-2.3D-01 grad=-7.7D-03 step=-3.3D-02
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
 
           --------
           Step   7
@@ -1508,11 +1572,11 @@ task scf saddle
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 c                    6.0000    -0.08933667     0.67075638     0.00000000
-    2 o                    8.0000     0.16319131    -0.74767906     0.00000000
-    3 h                    1.0000     1.07963321     0.04477962     0.00000000
-    4 h                    1.0000    -0.41607453     1.10231249    -0.92481235
-    5 h                    1.0000    -0.41607453     1.10231249     0.92481235
+    1 c                    6.0000    -0.08933834     0.67075643     0.00000000
+    2 o                    8.0000     0.16319167    -0.74767892     0.00000000
+    3 h                    1.0000     1.07963225     0.04477990     0.00000000
+    4 h                    1.0000    -0.41607339     1.10231225    -0.92481340
+    5 h                    1.0000    -0.41607339     1.10231225     0.92481340
 
       Atomic Mass 
       ----------- 
@@ -1522,13 +1586,13 @@ task scf saddle
       h                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)      34.1886479631
+ Effective nuclear repulsion energy (a.u.)      34.1886468352
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-     1.9218411184     0.5527644995     0.0000000000
+     1.9218301330     0.5527668988     0.0000000000
 
       Symmetry information
       --------------------
@@ -1557,32 +1621,32 @@ task scf saddle
   beta  electrons =     8
   charge          =   0.00
   wavefunction    = UHF 
-  input vectors   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
-  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
+  input vectors   = ./sadsmall.movecs
+  output vectors  = ./sadsmall.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at       6.1s
+ Forming initial guess at       2.3s
 
 
- Starting SCF solution at       6.1s
+ Starting SCF solution at       2.3s
 
 
 
        Final UHF  results 
        ------------------ 
 
-         Total SCF energy =   -113.693635151307
-      One electron energy =   -222.862137152894
-      Two electron energy =     74.979854038440
- Nuclear repulsion energy =     34.188647963147
+         Total SCF energy =   -113.693635036622
+      One electron energy =   -222.862135349789
+      Two electron energy =     74.979853477962
+ Nuclear repulsion energy =     34.188646835205
 
                        Sz =      0.5000
                  Sz(Sz+1) =      0.7500
                       S^2 =      0.8229
 
-        Time for solution =      0.1s
+        Time for solution =      0.2s
 
 
                               NWChem Gradients Module
@@ -1594,16 +1658,17 @@ task scf saddle
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 c      -0.168822   1.267546   0.000000    0.001019   0.001563   0.000000
-   2 o       0.308387  -1.412909   0.000000    0.001275  -0.000125   0.000000
-   3 h       2.040211   0.084621   0.000000   -0.001121  -0.001371   0.000000
-   4 h      -0.786267   2.083069  -1.747642   -0.000586  -0.000033   0.000302
-   5 h      -0.786267   2.083069   1.747642   -0.000586  -0.000033  -0.000302
+   1 c      -0.168825   1.267546   0.000000    0.001019   0.001563   0.000000
+   2 o       0.308388  -1.412908   0.000000    0.001275  -0.000126   0.000000
+   3 h       2.040209   0.084622   0.000000   -0.001121  -0.001371   0.000000
+   4 h      -0.786265   2.083068  -1.747644   -0.000586  -0.000033   0.000302
+   5 h      -0.786265   2.083068   1.747644   -0.000586  -0.000033  -0.000302
 
+  no constraints, skipping    0.0000000000000000     
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    7    -113.69363515 -2.2D-04  0.00193  0.00073  0.01743  0.04419      6.7
+@    7    -113.69363504 -2.2D-04  0.00193  0.00073  0.01743  0.04419      2.6
                                                                     
 
 
@@ -1619,12 +1684,12 @@ task scf saddle
     2 Stretch                  1     2                       1.44074    0.00035
     3 Stretch                  1     4                       1.07158   -0.00010
     4 Stretch                  1     5                       1.07158   -0.00010
-    5 Bend                     2     1     3                51.73644   -0.00193
-    6 Bend                     2     1     4               116.73982   -0.00031
-    7 Bend                     2     1     5               116.73982   -0.00031
-    8 Bend                     3     1     4               117.31722    0.00078
-    9 Bend                     3     1     5               117.31722    0.00078
-   10 Bend                     4     1     5               119.31908   -0.00004
+    5 Bend                     2     1     3                51.73639   -0.00193
+    6 Bend                     2     1     4               116.73979   -0.00031
+    7 Bend                     2     1     5               116.73979   -0.00031
+    8 Bend                     3     1     4               117.31706    0.00078
+    9 Bend                     3     1     5               117.31706    0.00078
+   10 Bend                     4     1     5               119.31931   -0.00004
 
  Hessian eigenvalues: positive=   9 negative=  1 zero=  0
  Hessian has correct structure - following negative mode, overlap= 1.0D+00
@@ -1639,18 +1704,26 @@ task scf saddle
 
       Type          Name      I     J     K     L     M      Value      Sadmode
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
-    1 Stretch                  1     3                       1.32602   -0.34874
-    2 Stretch                  1     2                       1.44074    0.10493
+    1 Stretch                  1     3                       1.32602   -0.34875
+    2 Stretch                  1     2                       1.44074    0.10494
     3 Stretch                  1     4                       1.07158    0.00327
     4 Stretch                  1     5                       1.07158    0.00327
-    5 Bend                     2     1     3                51.73644    0.89890
-    6 Bend                     2     1     4               116.73982   -0.05780
-    7 Bend                     2     1     5               116.73982   -0.05780
-    8 Bend                     3     1     4               117.31722    0.02919
-    9 Bend                     3     1     5               117.31722    0.02919
-   10 Bend                     4     1     5               119.31908   -0.22569
+    5 Bend                     2     1     3                51.73639    0.89890
+    6 Bend                     2     1     4               116.73979   -0.05781
+    7 Bend                     2     1     5               116.73979   -0.05781
+    8 Bend                     3     1     4               117.31706    0.02921
+    9 Bend                     3     1     5               117.31706    0.02921
+   10 Bend                     4     1     5               119.31931   -0.22569
 
  Search mode= 1 eval=-2.2D-01 grad=-1.5D-03 step=-6.8D-03
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
 
           --------
           Step   8
@@ -1664,11 +1737,11 @@ task scf saddle
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 c                    6.0000    -0.09571187     0.66776521     0.00000000
-    2 o                    8.0000     0.16353784    -0.74743781     0.00000000
-    3 h                    1.0000     1.08155894     0.04538889     0.00000000
-    4 h                    1.0000    -0.41402306     1.10338281    -0.92597705
-    5 h                    1.0000    -0.41402306     1.10338281     0.92597705
+    1 c                    6.0000    -0.09571212     0.66776547     0.00000000
+    2 o                    8.0000     0.16353738    -0.74743767     0.00000000
+    3 h                    1.0000     1.08155882     0.04538914     0.00000000
+    4 h                    1.0000    -0.41402264     1.10338249    -0.92597755
+    5 h                    1.0000    -0.41402264     1.10338249     0.92597755
 
       Atomic Mass 
       ----------- 
@@ -1678,13 +1751,13 @@ task scf saddle
       h                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)      34.1961751526
+ Effective nuclear repulsion energy (a.u.)      34.1961737306
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-     1.8661881505     0.5276933289     0.0000000000
+     1.8661796615     0.5276976632     0.0000000000
 
       Symmetry information
       --------------------
@@ -1713,32 +1786,32 @@ task scf saddle
   beta  electrons =     8
   charge          =   0.00
   wavefunction    = UHF 
-  input vectors   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
-  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
+  input vectors   = ./sadsmall.movecs
+  output vectors  = ./sadsmall.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at       6.7s
+ Forming initial guess at       2.6s
 
 
- Starting SCF solution at       6.7s
+ Starting SCF solution at       2.6s
 
 
 
        Final UHF  results 
        ------------------ 
 
-         Total SCF energy =   -113.693646997692
-      One electron energy =   -222.879775495833
-      Two electron energy =     74.989953345533
- Nuclear repulsion energy =     34.196175152608
+         Total SCF energy =   -113.693646878605
+      One electron energy =   -222.879772953427
+      Two electron energy =     74.989952344204
+ Nuclear repulsion energy =     34.196173730618
 
                        Sz =      0.5000
                  Sz(Sz+1) =      0.7500
                       S^2 =      0.8240
 
-        Time for solution =      0.1s
+        Time for solution =      0.2s
 
 
                               NWChem Gradients Module
@@ -1750,16 +1823,17 @@ task scf saddle
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 c      -0.180869   1.261893   0.000000   -0.000300  -0.000393   0.000000
-   2 o       0.309042  -1.412453   0.000000   -0.000116  -0.000287   0.000000
+   1 c      -0.180870   1.261894   0.000000   -0.000301  -0.000393   0.000000
+   2 o       0.309041  -1.412452   0.000000   -0.000116  -0.000287   0.000000
    3 h       2.043850   0.085773   0.000000    0.000458   0.000102   0.000000
-   4 h      -0.782390   2.085091  -1.749843   -0.000021   0.000289   0.000069
-   5 h      -0.782390   2.085091   1.749843   -0.000021   0.000289  -0.000069
+   4 h      -0.782389   2.085091  -1.749844   -0.000021   0.000289   0.000068
+   5 h      -0.782389   2.085091   1.749844   -0.000021   0.000289  -0.000068
 
+  no constraints, skipping    0.0000000000000000     
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    8    -113.69364700 -1.2D-05  0.00036  0.00022  0.00400  0.01203      7.2
+@    8    -113.69364688 -1.2D-05  0.00036  0.00022  0.00400  0.01202      2.8
                                      ok       ok                    
 
 
@@ -1775,12 +1849,12 @@ task scf saddle
     2 Stretch                  1     2                       1.43875    0.00026
     3 Stretch                  1     4                       1.07169    0.00006
     4 Stretch                  1     5                       1.07169    0.00006
-    5 Bend                     2     1     3                51.75551    0.00034
-    6 Bend                     2     1     4               116.95843    0.00021
-    7 Bend                     2     1     5               116.95843    0.00021
-    8 Bend                     3     1     4               116.90789   -0.00013
-    9 Bend                     3     1     5               116.90789   -0.00013
-   10 Bend                     4     1     5               119.54537   -0.00019
+    5 Bend                     2     1     3                51.75552    0.00034
+    6 Bend                     2     1     4               116.95839    0.00021
+    7 Bend                     2     1     5               116.95839    0.00021
+    8 Bend                     3     1     4               116.90783   -0.00013
+    9 Bend                     3     1     5               116.90783   -0.00013
+   10 Bend                     4     1     5               119.54548   -0.00019
 
  Hessian eigenvalues: positive=   9 negative=  1 zero=  0
  Hessian has correct structure - following negative mode, overlap= 1.0D+00
@@ -1796,17 +1870,25 @@ task scf saddle
       Type          Name      I     J     K     L     M      Value      Sadmode
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
     1 Stretch                  1     3                       1.33166   -0.34818
-    2 Stretch                  1     2                       1.43875    0.11378
+    2 Stretch                  1     2                       1.43875    0.11379
     3 Stretch                  1     4                       1.07169    0.00433
     4 Stretch                  1     5                       1.07169    0.00433
-    5 Bend                     2     1     3                51.75551    0.89321
-    6 Bend                     2     1     4               116.95843   -0.05755
-    7 Bend                     2     1     5               116.95843   -0.05755
-    8 Bend                     3     1     4               116.90789    0.04611
-    9 Bend                     3     1     5               116.90789    0.04611
-   10 Bend                     4     1     5               119.54537   -0.23893
+    5 Bend                     2     1     3                51.75552    0.89321
+    6 Bend                     2     1     4               116.95839   -0.05756
+    7 Bend                     2     1     5               116.95839   -0.05756
+    8 Bend                     3     1     4               116.90783    0.04612
+    9 Bend                     3     1     5               116.90783    0.04612
+   10 Bend                     4     1     5               119.54548   -0.23892
 
  Search mode= 1 eval=-2.2D-01 grad= 2.2D-04 step= 9.9D-04
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
 
           --------
           Step   9
@@ -1820,11 +1902,11 @@ task scf saddle
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 c                    6.0000    -0.09444424     0.66854585     0.00000000
-    2 o                    8.0000     0.16318888    -0.74676050     0.00000000
-    3 h                    1.0000     1.08082618     0.04554218     0.00000000
-    4 h                    1.0000    -0.41411601     1.10257720    -0.92616738
-    5 h                    1.0000    -0.41411601     1.10257720     0.92616738
+    1 c                    6.0000    -0.09444458     0.66854600     0.00000000
+    2 o                    8.0000     0.16318885    -0.74676040     0.00000000
+    3 h                    1.0000     1.08082592     0.04554205     0.00000000
+    4 h                    1.0000    -0.41411570     1.10257713    -0.92616774
+    5 h                    1.0000    -0.41411570     1.10257713     0.92616774
 
       Atomic Mass 
       ----------- 
@@ -1834,13 +1916,13 @@ task scf saddle
       h                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)      34.2058471885
+ Effective nuclear repulsion energy (a.u.)      34.2058465136
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-     1.8735494725     0.5440287673     0.0000000000
+     1.8735458498     0.5440315782     0.0000000000
 
       Symmetry information
       --------------------
@@ -1869,26 +1951,26 @@ task scf saddle
   beta  electrons =     8
   charge          =   0.00
   wavefunction    = UHF 
-  input vectors   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
-  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
+  input vectors   = ./sadsmall.movecs
+  output vectors  = ./sadsmall.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at       7.3s
+ Forming initial guess at       2.9s
 
 
- Starting SCF solution at       7.3s
+ Starting SCF solution at       2.9s
 
 
 
        Final UHF  results 
        ------------------ 
 
-         Total SCF energy =   -113.693648659652
-      One electron energy =   -222.898117999688
-      Two electron energy =     74.998622151586
- Nuclear repulsion energy =     34.205847188450
+         Total SCF energy =   -113.693648539113
+      One electron energy =   -222.898116463028
+      Two electron energy =     74.998621410363
+ Nuclear repulsion energy =     34.205846513552
 
                        Sz =      0.5000
                  Sz(Sz+1) =      0.7500
@@ -1906,16 +1988,17 @@ task scf saddle
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 c      -0.178474   1.263368   0.000000    0.000024  -0.000146   0.000000
+   1 c      -0.178474   1.263369   0.000000    0.000024  -0.000146   0.000000
    2 o       0.308382  -1.411173   0.000000    0.000074   0.000212   0.000000
    3 h       2.042465   0.086062   0.000000    0.000037  -0.000175   0.000000
-   4 h      -0.782566   2.083569  -1.750203   -0.000067   0.000055   0.000044
-   5 h      -0.782566   2.083569   1.750203   -0.000067   0.000055  -0.000044
+   4 h      -0.782565   2.083569  -1.750203   -0.000067   0.000055   0.000044
+   5 h      -0.782565   2.083569   1.750203   -0.000067   0.000055  -0.000044
 
+  no constraints, skipping    0.0000000000000000     
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    9    -113.69364866 -1.7D-06  0.00020  0.00009  0.00106  0.00240      7.7
+@    9    -113.69364854 -1.7D-06  0.00020  0.00009  0.00106  0.00240      3.1
                                      ok       ok       ok           
 
 
@@ -1931,12 +2014,12 @@ task scf saddle
     2 Stretch                  1     2                       1.43856   -0.00020
     3 Stretch                  1     4                       1.07162    0.00000
     4 Stretch                  1     5                       1.07162    0.00000
-    5 Bend                     2     1     3                51.75542   -0.00015
-    6 Bend                     2     1     4               116.86574    0.00001
-    7 Bend                     2     1     5               116.86574    0.00001
-    8 Bend                     3     1     4               116.95329    0.00006
-    9 Bend                     3     1     5               116.95329    0.00006
-   10 Bend                     4     1     5               119.59943   -0.00004
+    5 Bend                     2     1     3                51.75540   -0.00015
+    6 Bend                     2     1     4               116.86572    0.00001
+    7 Bend                     2     1     5               116.86572    0.00001
+    8 Bend                     3     1     4               116.95325    0.00006
+    9 Bend                     3     1     5               116.95325    0.00006
+   10 Bend                     4     1     5               119.59950   -0.00004
 
  Hessian eigenvalues: positive=   9 negative=  1 zero=  0
  Hessian has correct structure - following negative mode, overlap= 1.0D+00
@@ -1951,18 +2034,21 @@ task scf saddle
 
       Type          Name      I     J     K     L     M      Value      Sadmode
       ----------- --------  ----- ----- ----- ----- ----- ---------- ----------
-    1 Stretch                  1     3                       1.33019   -0.38206
+    1 Stretch                  1     3                       1.33019   -0.38203
     2 Stretch                  1     2                       1.43856    0.12471
-    3 Stretch                  1     4                       1.07162    0.00297
-    4 Stretch                  1     5                       1.07162    0.00297
-    5 Bend                     2     1     3                51.75542    0.87753
-    6 Bend                     2     1     4               116.86574   -0.11032
-    7 Bend                     2     1     5               116.86574   -0.11032
-    8 Bend                     3     1     4               116.95329    0.06043
-    9 Bend                     3     1     5               116.95329    0.06043
-   10 Bend                     4     1     5               119.59943   -0.19171
+    3 Stretch                  1     4                       1.07162    0.00298
+    4 Stretch                  1     5                       1.07162    0.00298
+    5 Bend                     2     1     3                51.75540    0.87754
+    6 Bend                     2     1     4               116.86572   -0.11028
+    7 Bend                     2     1     5               116.86572   -0.11028
+    8 Bend                     3     1     4               116.95325    0.06045
+    9 Bend                     3     1     5               116.95325    0.06045
+   10 Bend                     4     1     5               119.59950   -0.19178
 
  Search mode= 1 eval=-2.4D-01 grad=-1.9D-04 step=-8.0D-04
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
 
           --------
           Step  10
@@ -1976,11 +2062,11 @@ task scf saddle
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 c                    6.0000    -0.09466377     0.66868922     0.00000000
-    2 o                    8.0000     0.16331977    -0.74675620     0.00000000
-    3 h                    1.0000     1.08060988     0.04556461     0.00000000
-    4 h                    1.0000    -0.41396354     1.10249214    -0.92638809
-    5 h                    1.0000    -0.41396354     1.10249214     0.92638809
+    1 c                    6.0000    -0.09466382     0.66868921     0.00000000
+    2 o                    8.0000     0.16331961    -0.74675626     0.00000000
+    3 h                    1.0000     1.08060989     0.04556447     0.00000000
+    4 h                    1.0000    -0.41396344     1.10249225    -0.92638816
+    5 h                    1.0000    -0.41396344     1.10249225     0.92638816
 
       Atomic Mass 
       ----------- 
@@ -1990,13 +2076,13 @@ task scf saddle
       h                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)      34.2040488530
+ Effective nuclear repulsion energy (a.u.)      34.2040474549
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-     1.8732066394     0.5454403843     0.0000000000
+     1.8732040309     0.5454394126     0.0000000000
 
       Symmetry information
       --------------------
@@ -2025,26 +2111,26 @@ task scf saddle
   beta  electrons =     8
   charge          =   0.00
   wavefunction    = UHF 
-  input vectors   = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
-  output vectors  = /home/d3y133/nwchem-dev/nwchem-dev-2013-09-10/QA/scratchdir/sadsmall.movecs
+  input vectors   = ./sadsmall.movecs
+  output vectors  = ./sadsmall.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at       7.7s
+ Forming initial guess at       3.1s
 
 
- Starting SCF solution at       7.7s
+ Starting SCF solution at       3.1s
 
 
 
        Final UHF  results 
        ------------------ 
 
-         Total SCF energy =   -113.693648756114
-      One electron energy =   -222.894756201769
-      Two electron energy =     74.997058592675
- Nuclear repulsion energy =     34.204048852980
+         Total SCF energy =   -113.693648635339
+      One electron energy =   -222.894753134231
+      Two electron energy =     74.997057044016
+ Nuclear repulsion energy =     34.204047454876
 
                        Sz =      0.5000
                  Sz(Sz+1) =      0.7500
@@ -2063,15 +2149,16 @@ task scf saddle
     atom               coordinates                        gradient
                  x          y          z           x          y          z
    1 c      -0.178889   1.263639   0.000000    0.000034  -0.000034   0.000000
-   2 o       0.308630  -1.411165   0.000000    0.000023   0.000046   0.000000
-   3 h       2.042057   0.086105   0.000000    0.000004  -0.000051   0.000000
-   4 h      -0.782278   2.083408  -1.750620   -0.000030   0.000019   0.000007
-   5 h      -0.782278   2.083408   1.750620   -0.000030   0.000019  -0.000007
+   2 o       0.308629  -1.411165   0.000000    0.000023   0.000046   0.000000
+   3 h       2.042057   0.086104   0.000000    0.000004  -0.000051   0.000000
+   4 h      -0.782277   2.083408  -1.750620   -0.000030   0.000019   0.000007
+   5 h      -0.782277   2.083408   1.750620   -0.000030   0.000019  -0.000007
 
+  no constraints, skipping    0.0000000000000000     
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@   10    -113.69364876 -9.6D-08  0.00005  0.00003  0.00026  0.00042      8.1
+@   10    -113.69364864 -9.6D-08  0.00005  0.00003  0.00026  0.00042      3.2
                                      ok       ok       ok       ok  
 
 
@@ -2088,8 +2175,8 @@ task scf saddle
     3 Stretch                  1     4                       1.07160    0.00001
     4 Stretch                  1     5                       1.07160    0.00001
     5 Bend                     2     1     3                51.73815   -0.00005
-    6 Bend                     2     1     4               116.85177    0.00000
-    7 Bend                     2     1     5               116.85177    0.00000
+    6 Bend                     2     1     4               116.85177   -0.00000
+    7 Bend                     2     1     5               116.85177   -0.00000
     8 Bend                     3     1     4               116.92861    0.00003
     9 Bend                     3     1     5               116.92861    0.00003
    10 Bend                     4     1     5               119.64869   -0.00001
@@ -2102,7 +2189,7 @@ task scf saddle
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@   10    -113.69364876 -9.6D-08  0.00005  0.00003  0.00026  0.00042      8.1
+@   10    -113.69364864 -9.6D-08  0.00005  0.00003  0.00026  0.00042      3.2
                                      ok       ok       ok       ok  
 
 
@@ -2119,8 +2206,8 @@ task scf saddle
     3 Stretch                  1     4                       1.07160    0.00001
     4 Stretch                  1     5                       1.07160    0.00001
     5 Bend                     2     1     3                51.73815   -0.00005
-    6 Bend                     2     1     4               116.85177    0.00000
-    7 Bend                     2     1     5               116.85177    0.00000
+    6 Bend                     2     1     4               116.85177   -0.00000
+    7 Bend                     2     1     5               116.85177   -0.00000
     8 Bend                     3     1     4               116.92861    0.00003
     9 Bend                     3     1     5               116.92861    0.00003
    10 Bend                     4     1     5               119.64869   -0.00001
@@ -2134,11 +2221,11 @@ task scf saddle
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 c                    6.0000    -0.09466377     0.66868922     0.00000000
-    2 o                    8.0000     0.16331977    -0.74675620     0.00000000
-    3 h                    1.0000     1.08060988     0.04556461     0.00000000
-    4 h                    1.0000    -0.41396354     1.10249214    -0.92638809
-    5 h                    1.0000    -0.41396354     1.10249214     0.92638809
+    1 c                    6.0000    -0.09466382     0.66868921     0.00000000
+    2 o                    8.0000     0.16331961    -0.74675626     0.00000000
+    3 h                    1.0000     1.08060989     0.04556447     0.00000000
+    4 h                    1.0000    -0.41396344     1.10249225    -0.92638816
+    5 h                    1.0000    -0.41396344     1.10249225     0.92638816
 
       Atomic Mass 
       ----------- 
@@ -2148,13 +2235,13 @@ task scf saddle
       h                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)      34.2040488530
+ Effective nuclear repulsion energy (a.u.)      34.2040474549
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-     1.8732066394     0.5454403843     0.0000000000
+     1.8732040309     0.5454394126     0.0000000000
 
       Symmetry information
       --------------------
@@ -2221,22 +2308,12 @@ task scf saddle
 
 
 
- Task  times  cpu:        2.3s     wall:        7.1s
+ Task  times  cpu:        3.2s     wall:        3.2s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
 
 
-
-                         GA Statistics for process    0
-                         ------------------------------
-
-       create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 8386     8386     7.56e+04 9730     2.38e+04 1115        0     6388     
-number of processes/call 1.15e+00 1.42e+00 1.31e+00 1.70e+00 0.00e+00
-bytes total:             2.83e+07 1.41e+07 8.41e+06 2.19e+05 0.00e+00 5.11e+04
-bytes remote:            7.05e+06 1.91e+06 4.29e+06 -2.38e+05 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 57032 bytes
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -2247,14 +2324,13 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	        20	        33
 	current total bytes		         0	         0
-	maximum total bytes		   1059512	  22510080
-	maximum total K-bytes		      1060	     22511
-	maximum total M-bytes		         2	        23
+	maximum total bytes		     80136	  22510296
+	maximum total K-bytes		        81	     22511
+	maximum total M-bytes		         1	        23
 
 
                                 NWChem Input Module
                                 -------------------
-
 
 
 
@@ -2264,31 +2340,52 @@ MA usage statistics:
                 Please cite the following reference when publishing
                            results obtained with NWChem:
 
-                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
-              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
-                        E. Apra, T.L. Windus, W.A. de Jong
-                 "NWChem: a comprehensive and scalable open-source
-                  solution for large scale molecular simulations"
-                      Comput. Phys. Commun. 181, 1477 (2010)
-                           doi:10.1016/j.cpc.2010.04.018
-
-                              AUTHORS & CONTRIBUTORS
-                              ----------------------
           E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
-       T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
-        J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
-     F. Aquino, S. Hirata, M. T. Hackler, T. Risthaus, M. Malagoli, J. Mullin,
-        P. Nichols, R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan, A. Fonari,
-     R. J. Harrison, M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha,
-       V. Tipparaju, M. Krishnan, B. E. Van Kuiken,  A. Vazquez-Mayagoitia,
-        L. Jensen, M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen,
-      L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza,
-   K. Hirao, R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
-       D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
-        K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
-   B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long,
-        B. Meng,T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann,
-      G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong,
-                                     Z.Zhang.
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, Y. Alexeev, J. Anchell,
+       V. Anisimov, F. W. Aquino, R. Atta-Fynn, J. Autschbach, N. P. Bauman,
+     J. C. Becca, D. E. Bernholdt, K. Bhaskaran-Nair, S. Bogatko, P. Borowski,
+         J. Boschen, J. Brabec, A. Bruner, E. Cauet, Y. Chen, G. N. Chuev,
+      C. J. Cramer, J. Daily, M. J. O. Deegan, T. H. Dunning Jr., M. Dupuis,
+   K. G. Dyall, G. I. Fann, S. A. Fischer, A. Fonari, H. Fruchtl, L. Gagliardi,
+      J. Garza, N. Gawande, S. Ghosh, K. Glaesemann, A. W. Gotz, J. Hammond,
+       V. Helms, E. D. Hermes, K. Hirao, S. Hirata, M. Jacquelin, L. Jensen,
+   B. G. Johnson, H. Jonsson, R. A. Kendall, M. Klemm, R. Kobayashi, V. Konkov,
+      S. Krishnamoorthy, M. Krishnan, Z. Lin, R. D. Lins, R. J. Littlefield,
+      A. J. Logsdail, K. Lopata, W. Ma, A. V. Marenich, J. Martin del Campo,
+   D. Mejia-Rodriguez, J. E. Moore, J. M. Mullin, T. Nakajima, D. R. Nascimento,
+    J. A. Nichols, P. J. Nichols, J. Nieplocha, A. Otero-de-la-Roza, B. Palmer,
+    A. Panyala, T. Pirojsirikul, B. Peng, R. Peverati, J. Pittner, L. Pollack,
+   R. M. Richard, P. Sadayappan, G. C. Schatz, W. A. Shelton, D. W. Silverstein,
+   D. M. A. Smith, T. A. Soares, D. Song, M. Swart, H. L. Taylor, G. S. Thomas,
+            V. Tipparaju, D. G. Truhlar, K. Tsemekhman, T. Van Voorhis,
+      A. Vazquez-Mayagoitia, P. Verma, O. Villa, A. Vishnu, K. D. Vogiatzis,
+        D. Wang, J. H. Weare, M. J. Williamson, T. L. Windus, K. Wolinski,
+        A. T. Wong, Q. Wu, C. Yang, Q. Yu, M. Zacharias, Z. Zhang, Y. Zhao,
+                                and R. J. Harrison
+                        "NWChem: Past, present, and future
+                         J. Chem. Phys. 152, 184102 (2020)
+                               doi:10.1063/5.0004997
 
- Total times  cpu:        2.3s     wall:        8.1s
+                                      AUTHORS
+                                      -------
+     E. Apra, E. J. Bylaska, N. Govind, K. Kowalski, M. Valiev, W. A. de Jong,
+      T. P. Straatsma, H. J. J. van Dam, D. Wang, T. L. Windus, N. P. Bauman,
+       A. Panyala, J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec,
+    K. Lopata, S. A. Fischer, S. Krishnamoorthy, M. Jacquelin, W. Ma, M. Klemm,
+       O. Villa, Y. Chen, V. Anisimov, F. Aquino, S. Hirata, M. T. Hackler,
+           Eric Hermes, L. Jensen, J. E. Moore, J. C. Becca, V. Konjkov,
+            D. Mejia-Rodriguez, T. Risthaus, M. Malagoli, A. Marenich,
+   A. Otero-de-la-Roza, J. Mullin, P. Nichols, R. Peverati, J. Pittner, Y. Zhao,
+        P.-D. Fan, A. Fonari, M. J. Williamson, R. J. Harrison, J. R. Rehr,
+      M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
+      M. Krishnan, B. E. Van Kuiken, A. Vazquez-Mayagoitia, M. Swart, Q. Wu,
+   T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros,
+     G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall, J. A. Nichols,
+       K. Tsemekhman, K. Wolinski, J. Anchell, D. E. Bernholdt, P. Borowski,
+       T. Clark, D. Clerc, H. Dachsel, M. J. O. Deegan, K. Dyall, D. Elwood,
+      E. Glendening, M. Gutowski, A. C. Hess, J. Jaffe, B. G. Johnson, J. Ju,
+        R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
+      T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
+      M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
+
+ Total times  cpu:        3.3s     wall:        3.3s

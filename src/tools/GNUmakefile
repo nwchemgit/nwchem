@@ -563,6 +563,9 @@ endif
 ifeq ($(_FC),ifx)
   USE_FPICF=1
 endif
+ifeq ($(_FC),pgf90)
+  USE_FPICF=1
+endif
 ifdef USE_FPICF
   FFLAGS_FORGA += "-fPIC"
 endif

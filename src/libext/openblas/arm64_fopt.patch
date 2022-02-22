@@ -1,7 +1,16 @@
---- Makefile.arm64.org	2021-09-13 12:32:56.075397000 -0700
-+++ Makefile.arm64	2021-09-13 12:33:41.513710000 -0700
-@@ -1,35 +1,35 @@
- ifneq ($(C_COMPILER), PGI)
+--- Makefile.arm64.orig	2021-12-19 11:55:57.000000000 -0800
++++ Makefile.arm64	2022-02-08 12:56:50.000000000 -0800
+@@ -5,7 +5,7 @@
+ endif
+ ifneq (1, $(filter 1,$(GCCVERSIONGT4) $(ISCLANG)))
+ CCOMMON_OPT += -march=armv8-a
+-ifneq ($(F_COMPILER), NAG)
++ifneq ($(F_COMPILER),$(findstring $(F_COMPILER),PGI NAG))
+ FCOMMON_OPT += -march=armv8-a
+ endif
+ 
+@@ -15,7 +15,7 @@
+ 
  ifeq ($(CORE), ARMV8)
  CCOMMON_OPT += -march=armv8-a
 -ifneq ($(F_COMPILER), NAG)
@@ -9,40 +18,8 @@
  FCOMMON_OPT += -march=armv8-a
  endif
  endif
- 
- ifeq ($(CORE), CORTEXA53)
- CCOMMON_OPT += -march=armv8-a -mtune=cortex-a53
--ifneq ($(F_COMPILER), NAG)
-+ifneq ($(F_COMPILER),$(findstring $(F_COMPILER),PGI NAG))
- FCOMMON_OPT += -march=armv8-a -mtune=cortex-a53
- endif
- endif
- 
- ifeq ($(CORE), CORTEXA57)
- CCOMMON_OPT += -march=armv8-a -mtune=cortex-a57
--ifneq ($(F_COMPILER), NAG)
-+ifneq ($(F_COMPILER),$(findstring $(F_COMPILER),PGI NAG))
- FCOMMON_OPT += -march=armv8-a -mtune=cortex-a57
- endif
- endif
- 
- ifeq ($(CORE), CORTEXA72)
- CCOMMON_OPT += -march=armv8-a -mtune=cortex-a72
--ifneq ($(F_COMPILER), NAG)
-+ifneq ($(F_COMPILER),$(findstring $(F_COMPILER),PGI NAG))
- FCOMMON_OPT += -march=armv8-a -mtune=cortex-a72
- endif
- endif
- 
- ifeq ($(CORE), CORTEXA73)
- CCOMMON_OPT += -march=armv8-a -mtune=cortex-a73
--ifneq ($(F_COMPILER), NAG)
-+ifneq ($(F_COMPILER),$(findstring $(F_COMPILER),PGI NAG))
- FCOMMON_OPT += -march=armv8-a -mtune=cortex-a73
- endif
- endif
-@@ -40,18 +40,18 @@
- ifeq ($(GCCVERSIONGTEQ7), 1)
+@@ -61,18 +61,18 @@
+ ifeq (1, $(filter 1,$(GCCVERSIONGTEQ7) $(ISCLANG)))
  ifeq ($(GCCVERSIONGTEQ9), 1)
  CCOMMON_OPT += -march=armv8.2-a -mtune=neoverse-n1
 -ifneq ($(F_COMPILER), NAG)
@@ -63,8 +40,8 @@
  FCOMMON_OPT += -march=armv8-a -mtune=cortex-a72
  endif
  endif
-@@ -62,18 +62,18 @@
- ifeq ($(GCCVERSIONGTEQ7), 1)
+@@ -83,18 +83,18 @@
+ ifeq (1, $(filter 1,$(GCCVERSIONGTEQ7) $(ISCLANG)))
  ifeq ($(GCCVERSIONGTEQ8), 1)
  CCOMMON_OPT += -march=armv8.2-a -mtune=cortex-a55
 -ifneq ($(F_COMPILER), NAG)
@@ -85,7 +62,7 @@
  FCOMMON_OPT += -march=armv8-a -mtune=cortex-a53
  endif
  endif
-@@ -81,21 +81,21 @@
+@@ -102,21 +102,21 @@
  
  ifeq ($(CORE), THUNDERX)
  CCOMMON_OPT += -march=armv8-a -mtune=thunderx
@@ -110,7 +87,7 @@
  FCOMMON_OPT += -march=armv8.1-a -mtune=thunderx2t99
  endif
  endif
-@@ -103,12 +103,12 @@
+@@ -124,12 +124,12 @@
  ifeq ($(CORE), THUNDERX3T110)
  ifeq ($(GCCVERSIONGTEQ10), 1)
  CCOMMON_OPT += -march=armv8.3-a -mtune=thunderx3t110
@@ -125,7 +102,7 @@
  FCOMMON_OPT += -march=armv8.1-a -mtune=thunderx2t99
  endif
  endif
-@@ -116,7 +116,7 @@
+@@ -137,7 +137,7 @@
  
  ifeq ($(CORE), VORTEX)
  CCOMMON_OPT += -march=armv8.3-a
@@ -134,8 +111,8 @@
  FCOMMON_OPT += -march=armv8.3-a
  endif
  endif
-@@ -124,7 +124,7 @@
- ifeq ($(GCCVERSIONGTEQ9), 1)
+@@ -145,7 +145,7 @@
+ ifeq (1, $(filter 1,$(GCCVERSIONGTEQ9) $(ISCLANG)))
  ifeq ($(CORE), TSV110)
  CCOMMON_OPT += -march=armv8.2-a -mtune=tsv110
 -ifneq ($(F_COMPILER), NAG)
@@ -143,7 +120,7 @@
  FCOMMON_OPT += -march=armv8.2-a -mtune=tsv110
  endif
  endif
-@@ -133,7 +133,7 @@
+@@ -154,7 +154,7 @@
  ifeq ($(GCCVERSIONGTEQ9), 1)
  ifeq ($(CORE), EMAG8180)
  CCOMMON_OPT += -march=armv8-a -mtune=emag

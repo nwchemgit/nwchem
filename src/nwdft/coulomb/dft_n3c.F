@@ -40,8 +40,8 @@ c
       oprint_3c2eh = util_print('3c 2e integrals details', print_high)
       THRESHOLD=10.d0**(-itol2e)
       nproc=ga_nnodes()
-      spherical_ao=bas_spherical(ao_bas_han)
-      spherical_cd=bas_spherical(cd_bas_han)
+      spherical_ao=bas_is_spherical(ao_bas_han)
+      spherical_cd=bas_is_spherical(cd_bas_han)
 c      
 c     Determine the characteristics of the AO and CD Gaussian basis sets.
 c      
