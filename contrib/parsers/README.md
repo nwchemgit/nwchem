@@ -1,8 +1,8 @@
 ### Script for extracting data from RT-TDDFT simulations
 
-The following options can be used to extract data from RT-TDDFT simulations using the `RT-TDDFT simulations` script
+The following options can be used to extract data from RT-TDDFT simulations using the `nw_rtparse.py` script
 ```
-$ python RT-TDDFT simulations  -help
+$ python nw_rtparse.py  -help
 Usage: nw_rtparse [options] output.nwo [output2.nwo] 
 
 Parse NWChem real-time TDDFT output for time-dependent quantities.
