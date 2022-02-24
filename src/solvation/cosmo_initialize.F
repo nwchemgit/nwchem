@@ -216,7 +216,7 @@ c
       if(.not.ma_push_get(mt_dbl,nat,'cosmo rads',l_rad,k_rad))
      & call errquit('cosmo_init malloc k_rad failed',911,MA_ERR)
 c
-      call cosmo_def_radii(rtdb,geom,nat,dbl_mb(k_rad))
+      call cosmo_def_radii(rtdb,geom,nat,dbl_mb(k_rad),.true.)
 c
       if(.not.ma_push_get(mt_dbl,nat*3,'coord',l_coscoor,k_coscoor))
      & call errquit('cosmo_init malloc k_coscoor failed',911,MA_ERR)
@@ -426,7 +426,7 @@ c     set cosmo radii to smd radii if do_cosmo_smd is true; if the radii
 c     are provided by the user then we will use those
 c
       if (do_cosmo_smd) then
-       call cosmo_def_radii(rtdb,geom,nat,dbl_mb(k_rad))
+       call cosmo_def_radii(rtdb,geom,nat,dbl_mb(k_rad),.true.)
       endif
 c
       if (.not.

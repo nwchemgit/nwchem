@@ -38,7 +38,7 @@ C>     and physics, 91st Edition, 2010-2011; W.M. Haynes, Ed.;
 C>     CRC Press, Boca Raton, FL, 2010; pp. 9-49 -- 9-50,
 C>     ISBN-13: 978-1439820773.
 C>
-      subroutine cosmo_def_radii(rtdb,geom,nat,radius)
+      subroutine cosmo_def_radii(rtdb,geom,nat,radius,oprint)
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -52,6 +52,7 @@ c
       integer nat  !< [Input] The number of atoms
 c
       double precision radius(nat) !< [Output] The atom radii
+      logical oprint
 c
       logical ostatus
       integer mxelm
@@ -313,7 +314,7 @@ c
      &                     aname,
      &                     ctag(i))) then
               radius(iat) = crad(i)
-              if(ga_nodeid().eq.0) 
+              if(ga_nodeid().eq.0 .and. oprint) 
      &            write(*,9977) ctag(i),crad(i)
               cycle atomloop
              
@@ -363,7 +364,7 @@ c bq with zero charge. extract element
      &                     symb,
      &                     ctag(i))) then
               radius(iat) = crad(i)
-              if(ga_nodeid().eq.0) 
+              if(ga_nodeid().eq.0 .and. oprint) 
      &            write(*,9978) ctag(i),symb, crad(i)
               cycle atomloop
              
