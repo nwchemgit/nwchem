@@ -183,7 +183,7 @@ c
 c
       if (.not.ma_push_get(MT_DBL,nat,"rad",l_rad,k_rad))
      $  call errquit("grad_hnd_cos: could not allocate rad",nat,MA_ERR)
-      call cosmo_def_radii(rtdb,geom,nat,dbl_mb(k_rad))
+      call cosmo_def_radii(rtdb,geom,nat,dbl_mb(k_rad),.false.)
       status = rtdb_get(rtdb,'cosmo:radius',mt_dbl,nat,
      $                  dbl_mb(k_rad))
       do iat1=0,nat-1
