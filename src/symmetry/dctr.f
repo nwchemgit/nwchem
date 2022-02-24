@@ -231,10 +231,10 @@ c         write(*,999)
 c
 c--->Zero out temp arrays
       do 10 i=1,3
+         trans(i)=0d0
          do 20 j=1,4
             temp(i,j)=0d0
             temp2(i,j)=0d0
-            trans(j)=0d0
 20       continue
 10    continue
 c
