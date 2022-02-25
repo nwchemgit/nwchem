@@ -229,6 +229,7 @@ endif
 endif
 
 
+ifndef QUICK_BUILD
 ifdef HEADERS
 include_stamp:	$(HEADERS)
 ifdef SUBDIRS
@@ -252,6 +253,7 @@ ifdef SUBDIRS
 	$(MAKESUBDIRS)
 endif
 	touch include_stamp
+endif
 endif
 ifdef CONVERT_ALL
 64_to_32:
@@ -389,8 +391,9 @@ $(BINDIR)/depend.x:
 	( cd $(CNFDIR); $(MAKE) $@ ; )
 
 dependencies:	$(wildcard *.c) $(wildcard *.F) $(BINDIR)/depend.x
+ifndef QUICK_BUILD
 	$(BINDIR)/depend.x $(LIB_INCLUDES) $(INCPATH) > dependencies
-
+endif
 
 -include dependencies
 

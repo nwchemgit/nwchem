@@ -184,7 +184,10 @@ endif
 #
 
 HEADERS =
-
+MAKEV_GE_4= $(shell echo $(MAKE_VERSION)\>=4.0 | bc )
+ifeq ($(MAKEV_GE_4),1)
+	override undefine CONVERT_ALL
+endif
 include ../config/makefile.h
 include ../config/makelib.h
 

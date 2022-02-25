@@ -159,13 +159,13 @@ sngl_to_dbl dbl_to_sngl 64_to_32 32_to_64:
 		$(MAKE)	-C $$dir $@ || exit 1 ;  \
 	done
 	touch $@
-
+ifndef QUICK_BUILD
 deps_stamp:
 	for dir in $(SUBDIRS); do \
 		$(MAKE)	-i -C $$dir dependencies include_stamp ;  \
 	done
 	touch $@
-
+endif
 clear_64_to_32:
 	-$(RM) 32_to_64
 
