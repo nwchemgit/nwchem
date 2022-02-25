@@ -2808,7 +2808,7 @@ ifneq ($(TARGET),LINUX)
                     ifdef USE_A64FX
                         COPTIMIZE += -mtune=a64fx -mcpu=a64fx 
                     else
-                        COPTIMIZE +=  -mcpu=native
+                        COPTIMIZE += -mtune=native -march=native
                     endif 
                 endif
 
@@ -2842,7 +2842,10 @@ ifneq ($(TARGET),LINUX)
 
                 FOPTIMIZE  += -fprefetch-loop-arrays #-ftree-loop-linear
                 ifeq ($(GNU_GE_4_8),true)
-                    FOPTIMIZE  += -ftree-vectorize   -fopt-info-vec
+                    FOPTIMIZE  += -ftree-vectorize
+                         ifdef USE_OPTREPORT
+                              FOPTIMIZE += -fopt-info-vec
+			 endif
                 endif
 
                 FDEBUG += -g -O
@@ -2853,9 +2856,12 @@ ifneq ($(TARGET),LINUX)
                             FOPTIMIZE += -mtune=a64fx -mcpu=a64fx
                             FOPTIMIZE += -march=armv8.2-a+sve
                         else
-                            FOPTIMIZE += -mtune=native -mcpu=native
+                            FOPTIMIZE += -mtune=native -march=native
                         endif
-                        FOPTIMIZE += -ffp-contract=fast -fopt-info-vec 
+                        FOPTIMIZE += -ffp-contract=fast
+                             ifdef USE_OPTREPORT
+			          FOPTIMIZE += -fopt-info-vec
+			     endif
                         FOPTIMIZE += -fstack-arrays
                     endif
 #                   causes slowdows in mp2/ccsd
