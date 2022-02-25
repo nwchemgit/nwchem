@@ -1,0 +1,96 @@
+name: nwchem_docker
+
+on:
+  release:
+  schedule:
+    - cron: '0 2 * * *'
+  repository_dispatch:
+    types: [backend_automation]
+  workflow_dispatch:
+
+jobs:
+  docker_build:
+    strategy:
+        fail-fast: false
+        matrix:
+          include:
+            - {folder: nwchem-dev, archs: linux/aarch64, fc: gfortran}
+            - {folder: nwchem-dev, archs: linux/aarch64, fc: gfortran}
+            - {folder: nwchem-dev, archs: linux/ppc64le, fc: gfortran}
+            - {folder: nwchem-dev.xlf, archs: linux/ppc64le, fc: xlf}
+            - {folder: nwchem-dev, archs: linux/arm/v7, fc: gfortran}
+ 
+    runs-on: ubuntu-latest
+    timeout-minutes: 420
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          repository: 'nwchemgit/nwchem-dockerfiles'
+          fetch-depth: 5
+      - name: Setup cache
+        id: setup-cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/cache
+          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchem-dockeractions-v001
+      - name: Qemu
+        id: qemu
+        uses: docker/setup-qemu-action@v1
+        with:
+          image: crazymax/binfmt:v6.0.0
+      - name: Available platforms
+        run: |
+          echo ${{ steps.qemu.outputs.platforms }}
+          docker images
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          driver-opts: |
+              image=moby/buildkit:master
+      - name: Get Arch
+        id: get-arch
+        run: |
+          echo "::set-output name=arch::$(echo ${{matrix.archs }} | sed 's/linux//'|sed  's/\///g' )"
+        shell: bash
+      - name: FC tag
+        id: fc-tag
+        run: |
+          if [[ ${{ matrix.fc }} == 'gfortran'  ]]; then 
+            echo "::set-output name=fc::"  
+          else 
+            echo "::set-output name=fc::$(echo -${{matrix.fc }}  )"  
+          fi
+        shell: bash
+      - name: fetch cache
+        if: (steps.setup-cache.outputs.cache-hit == 'true') && ( matrix.folder  != 'helloworld' )
+        run: |
+          cd ${{ matrix.folder }}
+          if [[ -f ~/cache/libext.tar.bz2 ]]; then \
+          mkdir -p cache|| true ; \
+          rsync -av ~/cache/libext* cache/. ; \
+          echo "libext cache fetched" ; \
+          fi
+      - name: build_schedule
+        uses: docker/build-push-action@v2
+        with:
+          push: false
+          context: ${{ matrix.folder }}
+          platforms: ${{ matrix.archs }}
+          outputs: type=docker,dest=/tmp/nwchem_image.tar
+          tags: nwchem_image
+          build-args: |
+            FC=${{ matrix.fc }}
+      - name: store cache
+        run: |
+            mkdir -p ~/cache/
+            ls -l /tmp/nwchem_image.tar || true
+            docker load --input /tmp/nwchem_image.tar
+            docker images
+            docker inspect nwchem_image
+            docker run --privileged --user 0 --rm --platform ${{matrix.archs }} \
+            --entrypoint='/bin/cp' -v ~/cache:/data \
+            nwchem_image \
+            -rp /opt/nwchem/src/libext/libext.tar.bz2 /data/.  || true
+            ls -Ralrt ~/cache || true
