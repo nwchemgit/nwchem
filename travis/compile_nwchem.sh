@@ -77,6 +77,17 @@ fi
    fi
    if [[ -z "$TRAVIS_HOME" ]]; then
        env
+       mkdir -p ../bin/MACX64
+       gcc -o ../bin/MACX64/depend.x config/depend.c
+       make nwchem_config
+       cd libext   && make V=-1  && cd ..
+       cd tools    && make V=-1  && cd ..
+       nohup make USE_INTERNALBLAS=y deps_stamp  >& deps.log &
+       sleep 120s
+       echo tail deps.log '@@@'
+       tail -10  deps.log
+       echo done tail deps.log '@@@'
+       export QUICK_BUILD=1
        if [[ -z "$FOPT" ]]; then
 	   make V=0   -j3
        else
@@ -85,6 +96,7 @@ fi
    else
        ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT"   -j3
    fi
+     unset QUICK_BUILD
      cd $TRAVIS_BUILD_DIR/src/64to32blas 
      make
      cd $TRAVIS_BUILD_DIR/src
@@ -97,6 +109,17 @@ fi
      export MAKEFLAGS=-j3
      echo    "$FOPT$FDOPT"
 if [[ -z "$TRAVIS_HOME" ]]; then
+    mkdir -p ../bin/LINUX64
+    gcc -o ../bin/LINUX64/depend.x config/depend.c
+    make nwchem_config
+    cd libext   && make V=-1  && cd ..
+    cd tools    && make V=-1  && cd ..
+    make USE_INTERNALBLAS=y deps_stamp  >& deps.log &
+    sleep 75s
+    echo tail deps.log '@@@'
+    tail -10  deps.log
+    echo done tail deps.log '@@@'
+    export QUICK_BUILD=1
     if [[ -z "$FOPT" ]]; then
 	make V=0   -j3
     else
@@ -105,6 +128,7 @@ if [[ -z "$TRAVIS_HOME" ]]; then
 else
     ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT"  -j3
 fi
+     unset QUICK_BUILD
      cd $TRAVIS_BUILD_DIR/src/64to32blas 
      make
      cd $TRAVIS_BUILD_DIR/src
