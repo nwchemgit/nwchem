@@ -3008,6 +3008,9 @@ ifneq ($(TARGET),LINUX)
                 else
                     FOPTIONS += -qintsize=8
                 endif
+                ifeq ($(V),-1)
+                    FOPTIONS += -w
+                endif
             endif
 
             ifdef USE_ESSL
