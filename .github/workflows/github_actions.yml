@@ -41,7 +41,7 @@ jobs:
             mpi_impl: mpich
             nwchem_modules: "qmandpw qmd"
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-18.04
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS
@@ -318,6 +318,7 @@ jobs:
         run: |
           cat src/tools/build/config.log || true
           cat src/tools/build/comex/config.log || true
+          tail -100 64log || true
       - name: store cache
         run: |
           mkdir -p ~/apps || true
