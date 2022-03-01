@@ -51,7 +51,7 @@ C> either express or implied. See the License for the specific language governin
 C> permissions and limitations under the License.
 C>
 C> Further information, including user documentation and forums, may be found at
-C> <a href="http://www.nwchem-sw.org/">http://www.nwchem-sw.org/</a>. Alternatively,
+C> <a href="https://nwchemgit.github.io">https:/nwchemgit.github.io</a>. Alternatively,
 C> the paper
 C>
 C> * M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski, T.P. Straatsma, H.J.J. Van Dam,
