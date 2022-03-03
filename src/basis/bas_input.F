@@ -367,7 +367,6 @@ c
       logical oIs_rel
       logical oshell_is_rel
       logical oIs_star
-      logical read_sphere       !< [Input] flag for reading spherical from library
       integer spvalues(nsptypes)
       integer num_elec
       integer l_value, ind, icount
@@ -382,7 +381,7 @@ cc AJL/End
 c
 #include "ecpso_sfnP.fh"
 c
-      read_sphere=.false.
+      star_details=.false.
       oIs_ecp = Is_ECP_in(basis)
       oIs_so  = Is_SO_in(basis)
 c
@@ -560,7 +559,7 @@ c
 c
 c     details, ie read spherical from library
 c
- 101           read_sphere = .true.
+ 101           star_details = .true.
                goto 22
 c
 c...  nelec  ...  =>  number of electrons for ecp
@@ -603,7 +602,7 @@ c
 c
       if (standard .ne. ' ') then
          call bas_tag_lib(basis, osegment, tag, tag_in_lib, standard,
-     $        filename, oshell_is_rel, read_sphere)
+     $        filename, oshell_is_rel, star_details)
          goto 10
       endif
 c
@@ -1553,3 +1552,5 @@ c    .     close(unit=unitrc,status='keep') ! close file after library name foun
 10002 format(1x,f5.0,31(2x,1pe15.6))
 10003 format(31(2x,1pe15.6))
       end
+
+      
