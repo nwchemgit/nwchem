@@ -1,6 +1,3 @@
-#if defined(FUJITSU_VPP)
-!ocl scalar
-#endif
 #ifndef SECOND_DERIV
       Subroutine xc_s12x(tol_rho, fac, lfac, nlfac, rho, delrho, 
      &              Amat, Cmat, nq, ipol, Ex, qwght,ldew,func,is12x)

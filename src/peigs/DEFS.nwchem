@@ -443,11 +443,6 @@ peigs_CPP = /usr/bin/cpp -I${peigs_HDIR} -D${peigs_CPU} -D${peigs_COMM} \
 -D${peigs_TARGET_definition}
 endif
 
-ifeq ($(peigs_TARGET),FUJITSU_VPP)
-peigs_CODEOBJ = DBLE
-peigs_CPU = VPP
-endif
-
 export peigs_COMM
 export peigs_CC
 export peigs_FC

@@ -634,18 +634,6 @@ ifeq ($(TARGET),PURESOLARIS)
 endif
 
 
-ifeq ($(TARGET),FUJITSU_VPP)
-    @echo DEPRECATED
-    @exit
-endif
-
-
-ifeq ($(TARGET),FUJITSU_VPP64)
-    @echo DEPRECATED
-    @exit
-endif
-
-
 ifeq ($(TARGET),cray-sv2)
     @echo DEPRECATED
     @exit

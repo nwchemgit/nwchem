@@ -221,15 +221,6 @@
 
 
 #endif
-#ifdef FUJITSU_VPP
-
-#define DLAMCHE  1.1102230246251565e-016
-#define DLAMCHP  1.1102230246251565e-016
-#define DLAMCHB  2.e0
-#define DLAMCHS  2.2250738585072014e-308
-#define DLAMCHU  2.2250738585072014e-308
-
-#endif
 
 /* DLAMCH guesses when they are not set */
 #ifndef DLAMCHE
