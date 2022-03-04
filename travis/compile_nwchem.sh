@@ -114,11 +114,20 @@ if [[ -z "$TRAVIS_HOME" ]]; then
     make nwchem_config
     cd libext   && make V=-1  && cd ..
     cd tools    && make V=-1  && cd ..
-    make USE_INTERNALBLAS=y deps_stamp  >& deps.log &
-    sleep 75s
-    echo tail deps.log '@@@'
+    nohup make USE_INTERNALBLAS=y deps_stamp  >& deps.log &
+    cd hessian
+    nohup make USE_INTERNALBLAS=y dependencies include_stamp >& ../deps2.log &
+    cd ../nwdft/xc
+    nohup make USE_INTERNALBLAS=y dependencies include_stamp >& ../../deps3.log &
+    cd ../..
+    sleep 360s
+    echo tail deps.log '11@@@'
     tail -10  deps.log
-    echo done tail deps.log '@@@'
+    echo done tail deps.log '11@@@'
+    echo tail deps2.log '11@@@'
+    tail deps2.log || true
+    echo tail deps3.log '11@@@'
+    tail deps3.log || true
     export QUICK_BUILD=1
     if [[ -z "$FOPT" ]]; then
 	make V=0   -j3
@@ -140,5 +149,6 @@ fi
  echo === ls binaries cache ===
  ls -lrt $TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET/ 
  echo =========================
+ rsync -av $TRAVIS_BUILD_DIR/src/basis/libraries.bse  $TRAVIS_BUILD_DIR/.cachedir/files/.
  rsync -av $TRAVIS_BUILD_DIR/src/basis/libraries  $TRAVIS_BUILD_DIR/.cachedir/files/.
  rsync -av $TRAVIS_BUILD_DIR/src/nwpw/libraryps  $TRAVIS_BUILD_DIR/.cachedir/files/.
