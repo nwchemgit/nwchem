@@ -166,6 +166,7 @@ c
 #include "cosmoP.fh"
 #include "mafdecls.fh"
 #include "util_params.fh"
+#include "util.fh"
       integer rtdb, nat
       integer mxatm
       integer mxfac
@@ -189,22 +190,20 @@ c
       double precision  wleb(mxfac)
       double precision  energy
 c
-      logical    some
-      logical    out
-      logical    more
-      logical    dbug
+      logical    oprint_out
+      logical    oprint_more
+      logical    oprint_debug
 c
       integer i, iat, lfac, lseg, ndiv, nfac, nseg
       integer mfac
       integer jat
 c
-      dbug=.false.
-      more=.false.
-      more=more.or.dbug
-      out =.false. 
-      out =out.or.more
-      some=.false.
-      some=some.or.out
+      oprint_out = util_print("cosmo_cossrf_out",print_high).and.
+     D     (ga_nodeid().eq.0)
+      oprint_debug = util_print("cosmo_cossrf_debug",print_debug).and.
+     D     (ga_nodeid().eq.0)
+      oprint_more = util_print("cosmo_cossrf_more",print_never).and.
+     D     (ga_nodeid().eq.0)
 c
 c     ----- approximate sphere with segments and points -----
 c
@@ -237,17 +236,17 @@ c
 c
 c     ----- debug printing -----
 c
-      if(out.and.ga_nodeid().eq.0) then
+      if(oprint_out) then
          write(luout,9999) nseg,nfac,ndiv,dsurf,dvol
          write(luout,9995) adiag
-         if(more) then
+         if(oprint_more) then
             write(luout,9998)
             do lseg=1,nseg
                write(luout,9997) lseg,xyzseg(1,lseg),xyzseg(2,lseg),
      1                             xyzseg(3,lseg),ijkseg(  lseg)
             enddo
          endif
-         if(dbug .and. (iangleb.lt.1).and.(fibonacci.lt.1)) then
+         if(oprint_debug.and. (iangleb.lt.1).and.(fibonacci.lt.1)) then
             write(luout,9996)
             do lfac=1,nfac
                mfac=lfac+nseg
@@ -389,6 +388,7 @@ C>
 cnew
 #include "cosmoP.fh"
 #include "util_params.fh"
+#include "util.fh"
 c
       integer rtdb    !< [Input] The RTDB handle
       integer nat     !< [Input] The actual number of atoms
@@ -453,12 +453,15 @@ c     <-- MN solvation models
 c
       double precision dist, xi, yi, zi, xj, yj, zj, rin, rout, alphai
       parameter (alphai = 0.5d0)
+      logical oprint_debug
+c
       dist(xi,yi,zi,xj,yj,zj)=sqrt((xj-xi)**2+(yj-yi)**2+(zj-zi)**2)
       rin(iat)=ratm(iat)*(1.0d0-alphai*gammas*sqrt(0.25d0**minbem))
       rout(iat)=ratm(iat)*(1.0d0+(1.0d0-alphai)*gammas*
      &                     sqrt(0.25d0**minbem))
 c
-      dbug=.false.
+      oprint_debug = util_print("cosmo_cossas_debug",print_debug).and.
+     D     (ga_nodeid().eq.0)
       pi = acos(-1.0d0)
 c
       if(ga_nodeid().eq.0) then
@@ -554,7 +557,7 @@ c
 
       do iat=1,nat
          if(ratm(iat).ne.0d0) then
-            if(dbug.and.ga_nodeid().eq.0) then
+            if(oprint_debug) then
                write(luout,9996) iat
                write(luout,9995) (ijkspa(ifac+nseg,iat),ifac=1,nfac)
             endif
@@ -667,7 +670,7 @@ c
             write(luout,9991) iat,nspa(iat),nppa(iat),npp
          enddo
       endif
-      if(dbug.and.ga_nodeid().eq.0) then
+      if(oprint_debug) then
          write(luout,9987)
          do iat=1,nat
             do iseg=1,nseg
@@ -711,7 +714,7 @@ c
       volmol=0d0
       ief   =0
 
-      if(dbug.and.ga_nodeid().eq.0) then
+      if(oprint_debug) then
         write(luout,*)
         write(luout,'(" --- Geometry including SAS --- ")')
         do iat=1,nat
@@ -739,11 +742,14 @@ c
      2                     ratm_real/ratm(iat) + xyzatm(i,iat)
                     enddo
                   elseif (do_cosmo_model.eq.DO_COSMO_YK) then
-                    do i=1,3
-                     dbl_mb(k_efcc+3*(ief-1)+i-1)=xyzspa(i,iseg,iat)
-                    enddo
+c                    do i=1,3
+c                     dbl_mb(k_efcc+3*(ief-1)+i-1)=xyzspa(i,iseg,iat)
+                     dbl_mb(k_efcc+3*(ief-1))  =xyzspa(1,iseg,iat)
+                     dbl_mb(k_efcc+3*(ief-1)+1)=xyzspa(2,iseg,iat)
+                     dbl_mb(k_efcc+3*(ief-1)+2)=xyzspa(3,iseg,iat)
+c                    enddo
                   endif
-                  if(dbug.and.ga_nodeid().eq.0) then
+                  if(oprint_debug) then
                     write(luout,'(3F12.6)') 
      1              (dbl_mb(k_efcc+3*(ief-1)+i-1)*cau2ang,i=1,3)
                   endif
@@ -776,7 +782,7 @@ c
                   dbl_mb(k_efczz+ief-1) =zetai
                endif
             enddo
-            if(dbug.and.ga_nodeid().eq.0) write(luout,*)
+            if(oprint_debug) write(luout,*)
          endif
       enddo
       srfmol=srfmol*(cau2ang**2)
@@ -811,7 +817,7 @@ c <-- MN solvation models
 c
 c     ----- print segment surfaces -----
 c
-      if(dbug.and.ga_nodeid().eq.0) then
+      if(oprint_debug) then
          write(luout,9989)
          do ief=1,nefc
             write(luout,9988) ief,dbl_mb(k_efcs+ief-1),
@@ -1997,7 +2003,7 @@ c
         enddo
       endif
 c
-      call ga_dgop(msg_cosaxd,ax,nefc,'+')
+      call ga_dgop(msg_cosaxd,ax(1),nefc,'+')
 c
       return
       end
