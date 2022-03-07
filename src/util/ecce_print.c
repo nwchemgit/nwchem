@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#if defined(CRAY) && !defined(__crayx1)
+#if defined(CRAY)
 #define FATR
 #include <fortran.h>
 #endif

@@ -116,32 +116,6 @@
 */
 
 #endif
-#ifdef __crayx1
-#define DLAMCHE 2.2204460492503130e-16
-#define DLAMCHP 2.2204460492503130e-16
-#define DLAMCHB 2.0000000000000000e+00
-#define DLAMCHS 2.2250738585072014e-308
-#define DLAMCHU 2.2250738585072014e-308
-
-#define dscal_  sscal_
-#define ddot_   sdot_
-#define daxpy_  saxpy_
-#define dnrm2_  snrm2_
-#define dasum_  sasum_
-#define dcopy_  scopy_
-#define idamax_ isamax_
-
-/*
-  lapack
-  */
-
-#define dlagtf_ slagtf_
-#define dlagts_ slagts_
-#define dlamch_ slamch_
-#define dlarnv_ slarnv_
-
-
-#endif
 #ifdef PENTIUM
 /* wild ass guess; same as sparc */
 #define DLAMCHE 2.2204460492503131e-16

@@ -1,6 +1,6 @@
 /*$Id$*/
 /* Name munging to handle the various conventions for Fortran-C interfacing */
-#if (defined(CRAY) || defined(ARDENT) || defined(WIN32)) && !defined(__crayx1)&&!defined(__MINGW32__)
+#if (defined(CRAY) || defined(ARDENT) || defined(WIN32)) && !defined(__MINGW32__)
 #   define FCSND_  FCSND
 #   define FCRCV_  FCRCV
 #else
@@ -18,7 +18,7 @@
 
 #include <tcgmsg.h>
 #include <string.h>
-#if defined(CRAY) && !defined(__crayx1)
+#if defined(CRAY)
 #define FATR
 #include <fortran.h> /* Required for Fortran-C string interface on Crays */
 #endif /* CRAY */

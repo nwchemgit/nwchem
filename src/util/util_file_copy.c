@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#if defined(CRAY) && !defined(__crayx1)
+#if defined(CRAY)
 #include <fortran.h>
 #define FATR
 #endif

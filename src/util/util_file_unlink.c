@@ -16,7 +16,7 @@
 #else
 #include <unistd.h>
 #endif
-#if defined(CRAY) && !defined(__crayx1)
+#if defined(CRAY)
 #include <fortran.h>
 #define FATR
 #endif
