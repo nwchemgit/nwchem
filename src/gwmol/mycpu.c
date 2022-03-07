@@ -1,16 +1,18 @@
-#if defined (MACX) || defined (MACX64)
-#include <cpuid.h>
-#include <stdint.h>
+#if defined(__x86_64__) && ( defined (MACX) || defined (MACX64) )
+    #include <cpuid.h>
 #else
-#include <utmpx.h>
-int sched_getcpu();
+    // sched_getcpu is non-standard and may only be found in glibc,
+    // so this code is not portable to Alpine Linux, BSD,
+    // or anything else that uses something else, e.g. MUSL
+    #include <sched.h>
+    int sched_getcpu(void);
 #endif
-
 
 int findmycpu_ ()
 {
-  int cpu;
-#if defined (MACX) || defined (MACX64)
+  int cpu = -1;
+
+#if defined(__x86_64__) && ( defined (MACX) || defined (MACX64) )
   int cpuinfo[4];
   __cpuid_count(1, 0, cpuinfo[0], cpuinfo[1], cpuinfo[2], cpuinfo[3]);
   if ( (cpuinfo[3] & (1 << 9)) == 0 ) {
