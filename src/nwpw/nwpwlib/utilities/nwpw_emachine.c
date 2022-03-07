@@ -1,7 +1,3 @@
-/*
- $Id: nwpw_emachine.c 25745 2014-06-08 07:46:01Z d3y133 $
-*/
-
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -22,10 +18,6 @@
 
 
 
-#if defined(CRAY)
-#include <fortran.h>
-#define USE_FCD
-#endif
 
 extern void lattice_min_difference_();
 
@@ -943,29 +935,13 @@ double nwpw_fmachine(Integer i0, Integer ii0, Integer ln, Integer code[], double
 #define nwpw_emachine_parse_ nwpw_emachine_parse
 #endif
 
-void FATR nwpw_emachine_parse_
-#if defined(USE_FCD)
-( const _fcd fcd_eqn_string,
- Integer *n1,
- Integer *nc0,
- Integer code0[],
- Integer *nf0,
- double fconst0[])
+void FATR nwpw_emachine_parse_ (char	eqn_string[],
+                                Integer	*n1,
+                                Integer	*nc0,
+                                Integer code0[],
+                                Integer	*nf0,
+                                double fconst0[])
 {
-    char *eqn_string = _fcdtocp(fcd_eqn_string);
-
-#else
-(eqn_string,n1,nc0,code0,nf0,fconst0)
-char	eqn_string[];
-Integer	*n1;
-Integer	*nc0;
-Integer code0[];
-Integer	*nf0;
-double fconst0[];
-{
-
-#endif
-
    int i;
    char nstr[500];
    int ns = *n1;
@@ -996,28 +972,13 @@ double fconst0[];
 #define nwpw_emachine_f_ nwpw_emachine_f
 #endif
 
-double FATR nwpw_emachine_f_
-#if defined(USE_FCD)
-(
- Integer *nc0,
- Integer code0[],
- Integer *nf0,
- double fconst0[],
- Integer *nion0,
- double  *rion0[])
+double FATR nwpw_emachine_f_ (Integer *nc0,
+                              Integer code0[],
+                              Integer *nf0,
+                              double fconst0[],
+                              Integer *nion0,
+                              double rion0[])
 {
-
-#else
-(nc0,code0,nf0,fconst0,nion0,rion0)
-Integer *nc0;
-Integer code0[];
-Integer *nf0;
-double fconst0[];
-Integer *nion0;
-double rion0[];
-{
-
-#endif
    double f;
 
    f = nwpw_emachine(0,code0,fconst0,*nion0,rion0);
@@ -1034,36 +995,19 @@ double rion0[];
  *                                                      *
  ********************************************************/
 
-#if (defined(CRAY) || defined(WIN32)) && !defined(__MINGW32__)
+#if (defined(WIN32)) && !defined(__MINGW32__)
 #define nwpw_emachine_df_ nwpw_emachine_df
 #endif
 
-double FATR nwpw_emachine_df_
-#if defined(USE_FCD)
-(
- Integer *i0,
- Integer *ii0,
- Integer *nc0,
- Integer code0[],
- Integer *nf0,
- double fconst0[],
- Integer *nion0,
- double  *rion0[])
+double FATR nwpw_emachine_df_ (Integer *i0,
+                               Integer *ii0,
+                               Integer *nc0,
+                               Integer code0[],
+                               Integer *nf0,
+                               double fconst0[],
+                               Integer *nion0,
+                               double rion0[])
 {
-
-#else
-(i0,ii0,nc0,code0,nf0,fconst0,nion0,rion0)
-Integer *i0;
-Integer *ii0;
-Integer *nc0;
-Integer code0[];
-Integer *nf0;
-double fconst0[];
-Integer *nion0;
-double rion0[];
-{
-
-#endif
    double df;
 
    df = nwpw_fmachine(*i0,*ii0,0,code0,fconst0,*nion0,rion0);
