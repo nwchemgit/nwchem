@@ -43,7 +43,7 @@ extern int  	index_r_LogGrid();
 
 #endif
 #include <math.h>
-#if defined(CRAY) &&!defined(__crayx1)
+#if defined(CRAY)
 #include <fp.h>
 #endif
 

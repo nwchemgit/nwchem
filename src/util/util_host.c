@@ -1,6 +1,6 @@
 /*$Id$*/
 #include <stdio.h>
-#if defined(CRAY) && !defined(__crayx1)
+#if defined(CRAY)
 #include <fortran.h>
 #define FATR
 #endif

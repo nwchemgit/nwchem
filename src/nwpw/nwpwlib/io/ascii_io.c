@@ -30,9 +30,7 @@
 #include <string.h>
 #include "typesf2c.h"
 
-#if !defined(__crayx1)
-
-#if (defined(CRAY) || defined(WIN32)) && !defined(__crayx1) &&!defined(__MINGW32__)
+#if (defined(CRAY) || defined(WIN32)) && !defined(__MINGW32__)
 #define ascii_cwrite_ ASCII_CWRITE
 #define ascii_cread_  ASCII_CREAD
 #define ascii_iwrite_ ASCII_IWRITE
@@ -43,8 +41,6 @@
 #define ascii_ishift_fileptr_  ASCII_ISHIFT_FILEPTR
 #define ascii_openfile_  ASCII_OPENFILE
 #define ascii_closefile_ ASCII_CLOSEFILE
-#endif
-
 #endif
 
 
