@@ -173,9 +173,14 @@ fi
 FC_EXTRA=$(${NWCHEM_TOP}/src/config/strip_compiler.sh ${FC})
 
 if [[  -z "$MPICH_FC"   ]] ; then
-    MPICH_FC="$FC"
-    echo MPICH_FC is nvfortran
-fi    
+    export MPICH_FC="$FC"
+    echo MPICH_FC is "$MPICH_FC"
+fi
+#Intel MPI
+if [[  -z "$I_MPI_F90"   ]] ; then
+    export I_MPI_F90="$FC"
+    echo I_MPI_F90 is "$I_MPI_F90"
+fi
 if [[  -z "$PE_ENV"   ]] ; then
     #check if mpif90 and FC are consistent
     MPIF90_EXTRA=$(${NWCHEM_TOP}/src/config/strip_compiler.sh `${MPIF90} -show`)
