@@ -60,7 +60,7 @@ c
          enddo
       enddo
 c
-      if (bottom.gt.0.0d0) then
+      if (bottom.gt.1.0d-99) then
          c6cn=top/bottom
       else
          c6cn=0.0d0
@@ -125,7 +125,7 @@ C>
       double precision t1,t2,dt1x,dt1y,dt1z,dt2x,dt2y,dt2z
       double precision tmp1,tmp2,tmp3,tmp4,fac1,fac2
       double precision eps
-      parameter (eps=1d-19)
+      parameter (eps=1d-99)
       integer i,j
 c
       cni=crd_nr(iat,n,x,z)
