@@ -151,21 +151,6 @@
 #define DLAMCHU 2.2250738585072014e-308
 
 #endif
-#ifdef MIPS
-/*
-  SGI PowerChallenge R4010 fpu ... R8000 chip
-  seems to have the same reps .... probably have
-  to print out hex to get real differences
-  */
-
-#define DLAMCHE 1.1102230246251565e-16
-#define DLAMCHP 1.1102230246251565e-16
-#define DLAMCHB 2.e0
-#define DLAMCHS 2.2250738585072014e-308
-#define DLAMCHU 2.2250738585072014e-308
-
-
-#endif
 #ifdef RS6000
 
 /* rs6000 */

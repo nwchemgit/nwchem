@@ -17,7 +17,7 @@ c
       lshift(iiibit,jjjbit)=shiftl(iiibit,jjjbit)
       rshift(iiibit,jjjbit)=shiftr(iiibit,jjjbit)
 #endif
-#if  (defined(SGI) && defined(_LANGUAGE_FORTRAN90)) || ( __GNUC__ >= 4)
+#if  ( __GNUC__ >= 4)
       lshift(iiibit,jjjbit) = ishft(iiibit,jjjbit)
       rshift(iiibit,jjjbit) = ishft(iiibit,-jjjbit)
 #endif

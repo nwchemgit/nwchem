@@ -20,11 +20,6 @@ c $Id$
       external etime
 #endif
       util_cpusec = etime(tarray)
-#elif defined(SGI)
-      real tarray(2)
-      real etime
-      external etime
-      util_cpusec = etime(tarray)
 #elif (defined(LINUX) || defined(CYGNUS)) && !defined(LINUXIA64) && !defined(CATAMOUNT)
       double precision linux_cputime
       external linux_cputime

@@ -541,32 +541,6 @@ endif
 
 
 
-ifeq ($(TARGET),SGI)
-#SGI/TCGMSG
-AR              = ar r
-RANLIB          = echo
-CC              = cc  ${DEF_TIMING} -DMIPS
-F77             = f77 -static -DTCGMSG -DMIPS
-CCF77 = $(F77)
-LINK            = f77 -O
-CODEOBJ		= DBLE
-CUBIX_OPTS      =
-NODE_EXT        = o
-HOST_EXT        = out
-HOST            = SUN 
-NODE_TYPE       = SUN 
-CPU             = 
-COMM_PKG        = TCGMSG
-IO_STYLE        = FILE_IO
-COMMLIB         = $(SRC)/tcgmsg/ipcv4.0/libtcgmsg.a
-CTOFLIB         =  -lftn -lm -lc /usr/lib/crtn.o
-BLASLIB         = -lblas
-CPP = /usr/lib/cpp -P  -D${NODE_TYPE} -D${COMM_PKG} -D${IO_STYLE} -D${INT_TYPE} ${DEF_TIMING} -I$(HDIR) -DMIPS
-
-
-HOST_EXT        = out
-endif  
-
 
 ifeq ($(TARGET),KSR8)
 #
