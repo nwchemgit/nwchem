@@ -59,7 +59,7 @@ class nwchem_NWChem implements ActionListener, ChangeListener, WindowListener {
 
     nwchemSocket = new nwchem_Socket();
 
-    command="/usr/people/d3j191/nwchem/bin/SGITFP/nwchem "+nwFile;
+    command="$NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem "+nwFile;
     System.out.println("Command: "+command);
     try{
       nwchemRun = Runtime.getRuntime();

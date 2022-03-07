@@ -11,7 +11,7 @@ c
 #if defined(IBM) || defined(SP1) || ( defined(BGQ) && !defined(GFORTRAN) )
       if(iseed.gt.0) call srand(dble(iseed))
       util_random=rand()
-#elif defined(SGI) || defined(SGITFP)
+#elif defined(SGI)
        real*8 rand
        external rand
        if(iseed.gt.0) call srand(dble(iseed))

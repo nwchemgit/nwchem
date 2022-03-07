@@ -110,7 +110,7 @@ static int __sigtemp;		/* For the use of sigprocmask */
  * MISC line in your Makefile.
  */
 #if 1
-/* !(defined(SGI) || defined(SGITFP)) */
+/* !defined(SGI) */
 #define	realloc	__fix_realloc
 #endif
 

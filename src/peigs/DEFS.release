@@ -302,64 +302,6 @@ endif
 endif
 
 
-ifeq ($(TARGET),SGITFP)
-# uname -a IRIX64 irix 6.4 cpu=IP27
-#
-# if you have r8000 should add -r8000 to the cc and f77
-# if you have r10000 should add -r10000 to the cc and f77
-#SGI/TCGMSG
-AR              = ar r
-RANLIB          = echo
-#
-# In CC -woff 1174,1552 turns off the warning messages:
-#     warning(1174): variable "*" was declared but never referenced
-#     warning(1552): variable "*" was set but never used
-#
-# Should fix this code in next release
-#
-
-CPP = /usr/lib/cpp -I$(HDIR) -DSGI64 -D${NODE_TYPE} -D${COMM_PKG} -D${IO_STYLE} -D${INT_TYPE} ${DEF_TIMING} -DMIPS
-
-CC = cc -DSTD_DBL -I$(HDIR) -DSGI64 -64 -mips4 -O3 -ansi -inline \
--OPT:const_copy_limit=20000 -TENV:X=3 \ -WK,-so=1,-o=1,-r=3,-dr=AKC -DMIPS
-
-FC = f77 -i8 -O3 -I$(HDIR) -DSGI64 -DTCGMSG -64 -mips4 \
--W K,-so=1,-o=1,-r=3,-dr=AKC \
--OPT:roundoff=3:div_split=ON:alias=typed -TENV:X=3 -DMIPS
-
-#  -OPT:fold_arith_limit=4000:const_copy_limit=20000:global_limit=20000:fprop_limit=2000
-
-F77 = $(FC)
-CCF77 = $(F77)
-
-#
-
-LINK = f77 -i8 -I$(HDIR) -r8 -64 -mips4 -DTCGMSG
-
-#
-# 64 bit but using r8 compiler flag
-#
-CODEOBJ		= DBLE
-CUBIX_OPTS      =
-NODE_EXT        = o
-HOST_EXT        = out
-HOST            =
-NODE_TYPE       =
-COMM_PKG        = TCGMSG
-IO_STYLE        = FILE_IO
-# zodiac commlib
-COMMLIB         = -L/scratch/nwchem/lib/SGITFP -lcomplib.sgimath -ltcgmsg \
--llapack -lblas
-CTOFLIB         = -lftn -lm -lc -lutil
-BLASLIB         = 
-LAPACKLIB       = 
-HOST_EXT        = out
-LIBS 		= 
-#
-# no i8 for  mpi c.f. SGI_N32
-#
-endif
-
 ifeq ($(TARGET),SGI_N32)
 AR              = ar r
 RANLIB          = echo
