@@ -37,7 +37,7 @@ c
 #ifdef TCGMSG
          call parerr(status)
 #endif
-#if defined(SUN) || defined(SGI)  || defined(SOLARIS)
+#if defined(SUN) || defined(SOLARIS)
          call abort
 #else
          stop status

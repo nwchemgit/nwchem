@@ -744,9 +744,6 @@ c
 #if defined(SP1) || defined(SOLARIS)
       character*26 string
 #endif
-#if defined(SGI)
-      character*9 string
-#endif
 c
       today='00/00/00  '
       now='00:00:00'
@@ -804,25 +801,6 @@ c
       today(7:8)=string(23:24)
       today(4:5)=string(9:10)
       now=string(11:20)
-#endif
-#if defined(SGI)
-      call date(string)
-      if(string(4:6).eq.'Jan') today(1:2)='01'
-      if(string(4:6).eq.'Feb') today(1:2)='02'
-      if(string(4:6).eq.'Mar') today(1:2)='03'
-      if(string(4:6).eq.'Apr') today(1:2)='04'
-      if(string(4:6).eq.'May') today(1:2)='05'
-      if(string(4:6).eq.'Jun') today(1:2)='06'
-      if(string(4:6).eq.'Jul') today(1:2)='07'
-      if(string(4:6).eq.'Aug') today(1:2)='08'
-      if(string(4:6).eq.'Sep') today(1:2)='09'
-      if(string(4:6).eq.'Oct') today(1:2)='10'
-      if(string(4:6).eq.'Nov') today(1:2)='11'
-      if(string(4:6).eq.'Dec') today(1:2)='12'
-      today(7:8)=string(8:9)
-      today(4:5)=string(1:2)
-      call time(now(1:8))
-      now(9:10)='  '
 #endif
       if(today(4:4).eq.' ') today(4:4)='0'
       return
