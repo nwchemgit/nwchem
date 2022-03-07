@@ -302,62 +302,6 @@ endif
 endif
 
 
-ifeq ($(TARGET),SGI_N32)
-AR              = ar r
-RANLIB          = echo
-#SGI/TCGMSG
-CPP = /usr/lib/cpp -I$(HDIR) -DSGI64 -D${NODE_TYPE} -D${COMM_PKG} -D${IO_STYLE} -D${INT_TYPE} ${DEF_TIMING}  -DMIPS
-AR              = ar r
-RANLIB          = echo
-#
-# In CC -woff 1174,1552 turns off the warning messages:
-#     warning(1174): variable "*" was declared but never referenced
-#     warning(1552): variable "*" was set but never used
-#
-# Should fix this code in next release
-#
-CC              = cc  -n32 -DSTD_DBL -I$(HDIR) -DSGI64 -DMIPS
-F77             = f77 -n32 -I$(HDIR) -DTCGMSG -DMIPS
-FC             = f77 -n32  -I$(HDIR) -DTCGMSG -DMIPS
-CCF77 = $(F77)
-OPT  		= -O3 -WK,-so=5,-ro=3,-o=5,-ur=12,-ur2=200,-inline=daxpy:dscal:ddot:dcopy
-OPT  		= 
-OPTC 		= -O3 -Wk,-so=5,-ro=3,-o=5,-ur=12,-ur2=200,-inline=daxpy:dscal:ddot:dcopy
-OPTC 		= 
-LINK            = f77 -n32 -I$(HDIR) -DTCGMSG
-#
-# 64 bit but using r8 compiler flag
-CODEOBJ		= DBLE
-CUBIX_OPTS      =
-NODE_EXT        = o
-HOST_EXT        = out
-HOST            = MIPS
-NODE_TYPE       = MIPS
-CPU = SGITFP
-COMM_PKG        = TCGMSG
-IO_STYLE        = FILE_IO
-# zodiac commlib
-COMMLIB         = /usr/people/d3g270/nwchem/lib/SGI_N32/libtcgmsg.a
-CTOFLIB         =  -lftn -lm -lc /usr/lib/crtn.o
-# BLASLIB  = -lblas
-# LAPACKLIB= / -lcomplib.sgimath
-HOST_EXT        = out
-BLASLIB=  -L$(HOME)/peigs3 -llapack -lblas # -lcomplib.sgimath
-ifdef PEIGS_MPI_USE
-CC              = cc  -n32 -DSTD_DBL -I$(HDIR) -DSGI64 -DMIPS -woff 1174,1552
-F77             = f77 -n32 -I$(HDIR) -DMPI -DMIPS
-FC             = f77 -n32  -I$(HDIR) -DMPI -DMIPS
-CCF77 = $(F77)
-COMM_PKG      = MPI
-MPIR_HOME = $(HOME)/mpich
-MPI_INCLUDE   = 
-MPI_COMM = 
-MPI_COMM = -lmpi
-COMMLIB  = -lmpi
-BLASLIB=  -L/scratch/peigs3 -lpeigs -lcomplib.sgimath -lblas
-endif
-endif
-
 ifeq ($(TARGET),SUN)
 # sun using
 # old sun...should work with solaris with minimal changes
