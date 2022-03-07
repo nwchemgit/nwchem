@@ -21,15 +21,9 @@ c $Id$
 #endif
       util_cpusec = etime(tarray)
 #elif defined(SGI)
-#if defined(SGITFP)
-      real*4 tarray(2)        ! nb: real == real*8 on TFP
-      real*4 etime
-      external etime
-#else
       real tarray(2)
       real etime
       external etime
-#endif
       util_cpusec = etime(tarray)
 #elif (defined(LINUX) || defined(CYGNUS)) && !defined(LINUXIA64) && !defined(CATAMOUNT)
       double precision linux_cputime

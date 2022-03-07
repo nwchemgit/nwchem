@@ -89,7 +89,7 @@ void FATR util_debug_(Integer *rtdb)
   argv[9] = 0;
   if (!xterm[0])
     strcpy(xterm, "/usr/bin/X11/xterm");
-#elif defined(SGI_N32) || defined(SGI) || defined(SGITFP)
+#elif defined(SGI)
   argv[6] = "dbx";
   argv[7] = "-p";
   argv[8] = pid;
