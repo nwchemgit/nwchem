@@ -2373,7 +2373,7 @@ ifneq ($(TARGET),LINUX)
                     FOPTIONS += -i8
                 endif
                 ifdef USE_OPENMP
-                    FOPTIONS += -fiopenmp
+                    FOPTIONS += -fopenmp
                     ifdef USE_OFFLOAD
                         FOPTIONS += -fopenmp-targets=spirv64
                     endif
@@ -2444,6 +2444,9 @@ ifneq ($(TARGET),LINUX)
                             FOPTIONS += -qopt-report-annotate-position=both
                         endif
                         FOPTIONS += -qopt-report-file=stderr
+                    endif
+                    ifeq ($(V),-1)
+                        FOPTIONS += -diag-disable=8291,15009
                     endif
 #                   to avoid compiler crashes on simd directive. e.g .Version 15.0.2.164 Build 20150121
                     ifdef USE_NOSIMD
