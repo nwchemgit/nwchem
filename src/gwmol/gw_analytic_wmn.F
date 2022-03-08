@@ -16,12 +16,6 @@
 
       double precision :: scr(nri)
       double precision :: factor
-#ifdef USE_OPENMP
-      integer iMaxThreads
-      integer,external :: omp_get_max_threads
-      iMaxThreads = omp_get_max_threads()
-      call util_blas_set_num_threads(iMaxThreads)
-#endif      
 
       nmo = pars%nmo
       nocc = pars%nocc(isp)
@@ -78,8 +72,5 @@
       if (.not.ga_destroy(g_a))
      $  call errquit('gw_analytic_wmn: can''t destroy array',0,GA_ERR)
 
-#ifdef USE_OPENMP
-      call util_blas_set_num_threads(1)
-#endif
 
       end subroutine

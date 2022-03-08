@@ -12,12 +12,6 @@
 
       integer :: ilo, ihi, jlo, jhi, ipole, imo, ld, adrWMN
       double precision :: omega(npoints),w,delta,denom, eta3
-#ifdef USE_OPENMP
-      integer iMaxThreads
-      integer,external :: omp_get_max_threads
-      iMaxThreads = omp_get_max_threads()
-      call util_blas_set_num_threads(iMaxThreads)
-#endif      
 
       call ga_distribution(wmn, me, ilo, ihi, jlo , jhi)
 
@@ -51,9 +45,5 @@ c
       call ga_release(wmn, ilo, ihi ,jlo, jhi)
 
       call ga_dgop(1038,sigma,npoints,'+')
-
-#ifdef USE_OPENMP
-      call util_blas_set_num_threads(1)
-#endif      
 
       end subroutine

@@ -14,12 +14,6 @@
       integer :: ilo, ihi, jlo, jhi, ipole, imo, ld, adrWMN
       double precision :: omega,w,delta,denom, eta3
       double precision  :: resp(3),resm(3)
-#ifdef USE_OPENMP
-      integer iMaxThreads
-      integer,external :: omp_get_max_threads
-      iMaxThreads = omp_get_max_threads()
-      call util_blas_set_num_threads(iMaxThreads)
-#endif      
 
       call ga_distribution(wmn, me, ilo, ihi, jlo , jhi)
 
@@ -63,10 +57,6 @@ c
       sigma = resp(1)
       dsigma = resp(2)
       d2sigma = resp(3)
-
-#ifdef USE_OPENMP
-      call util_blas_set_num_threads(1)
-#endif 
 
       call ga_release(wmn, ilo, ihi ,jlo, jhi)
 

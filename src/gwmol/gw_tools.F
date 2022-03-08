@@ -241,12 +241,6 @@ c     -----------------------------------------------------------------
 
       integer :: ilo, ihi, jlo, jhi, ipole, imo, ld, adrWMN
       double precision :: omega,w,denom,tecgm
-#ifdef USE_OPENMP
-      integer iMaxThreads
-      integer,external :: omp_get_max_threads
-      iMaxThreads = omp_get_max_threads()
-      call util_blas_set_num_threads(iMaxThreads)
-#endif      
 
       call ga_distribution(wmn, me, ilo, ihi, jlo , jhi)
       call ga_access(wmn, ilo, ihi ,jlo, jhi, adrWMN, ld)
@@ -269,9 +263,6 @@ c
       call ga_dgop(1038,tecgm,1,'+')
       ecgm = ecgm + 2d0*tecgm
 
-#ifdef USE_OPENMP
-      call util_blas_set_num_threads(1)
-#endif
       call ga_release(wmn,ilo,ihi,jlo,jhi)
 
       end subroutine
