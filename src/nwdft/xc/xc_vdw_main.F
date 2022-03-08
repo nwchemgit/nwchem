@@ -238,13 +238,6 @@ c
          enddo
 c
       endif
-
-      if (ga_nodeid().eq.0) then
-      do A=1,n
-        write(*,'(3F16.8)') force(1:3,A)
-      enddo
-      write(*,*) sqrt(sum(force**2))
-      endif
 c
 #ifdef DEBUG
       write(6,*) ' gradient vdw called'
