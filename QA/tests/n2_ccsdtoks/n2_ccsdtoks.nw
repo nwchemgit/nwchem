@@ -1,0 +1,33 @@
+echo
+start n2_cccsd2ks
+geometry
+ n 0 0  0.53879155
+ n 0 0 -0.53879155
+ symmetry c2v
+end
+basis; n library cc-pvdz;end
+
+tce
+ ccsd
+ densmat
+end
+task tce energy
+
+dplot
+ TITLE HOMO
+ LimitXYZ
+ -3.0 3.0 10
+ -3.0 3.0 10
+ -3.0 3.0 10
+ spin total
+ gaussian
+ densmat 
+ output ccsddensity.cube
+end
+task dplot
+
+dft
+ densmat
+ noscf
+end
+task dft 

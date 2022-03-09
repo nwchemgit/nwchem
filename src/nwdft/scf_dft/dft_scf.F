@@ -241,7 +241,8 @@ c
 C     RTDB flag for printing out all matrices
       logical lprint_mats  !print matrices to stdout?
       logical lsave_mats   !save matrices to file?
-      logical molden, forceatguess, save_evals
+      logical molden, forceatguess, save_evals, densmat
+      character*256 file_mat1
       integer ma_type, no_sflip,l_at_flip,k_at_flip
       character*26 date
 
@@ -791,6 +792,9 @@ c     == determine guess ==
      ,     vecs_or_dens,
      ,     ipol,nbf_ao,g_movecs,g_gmovecs,
      ,     toll_s,svals)
+      if(.not.rtdb_get(rtdb,'dft:densmat',mt_log,1,densmat))
+     D     densmat=.false.
+      if(densmat) goto 2022
 c
 c     == better have static ldb at high node counts ==
       if (odftps) call pstat_on(ps_guess)
@@ -810,7 +814,7 @@ c     == better have static ldb at high node counts ==
      &     write(LuOut,'(2x," Time after variat. SCF: ",f8.1)')
      &     util_wallsec()
       if (odftps) call pstat_off(ps_guess)
-
+2022  continue
       if(.not.rtdb_get(rtdb,'quickguess',mt_log,1,quickguess)) 
      .     quickguess=.false.
       if(quickguess.and.movecs_in.eq.'atomic') then
@@ -822,11 +826,25 @@ c     == better have static ldb at high node counts ==
         if (.not. rtdb_cput(rtdb, 'dft:output vectors', 1, movecs_out))
      $       call errquit('dft_scf: DFT MO vectors not defined',0,
      &                     RTDB_ERR)
-        if (oskel) call ga_symmetrize(g_dens(1))
+        if(densmat) then
+            call util_file_name('densmat', .false.,.false.,file_mat1)
+            if(ga_nodeid().eq.0)
+     W           write(6,*) ' reading DM from file ',file_mat1
+           call ao_1prdm_read(nbf_ao,g_dens(1),file_mat1)
+        endif
+
         if(ipol.eq.2) then
+           if(densmat) then
+            call errquit(' code not ready for open-shell ',0,CAPMIS_ERR)
+            call util_file_name('densmat', .false.,.false.,file_mat1)
+            if(ga_nodeid().eq.0)
+     W           write(6,*) ' reading DM from file ',file_mat1
+           call ao_1prdm_read(nbf_ao,g_dens(2),file_mat1)
+        else
           call ga_copy(g_dens(1),g_dens(2))
           call ga_dscal(g_dens(1),dble(ntotel-nclosed)/(ntotel))
           call ga_dscal(g_dens(2),dble(nclosed)/(ntotel))
+       endif
         endif
       if(oskel) then
         call ga_symmetrize(g_dens(1))
