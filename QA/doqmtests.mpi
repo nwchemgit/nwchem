@@ -128,6 +128,7 @@ np_small=$(get_limit $np 64)
 ./runtests.mpi.unix procs $np tce_eomsd_eomsol1
 ./runtests.mpi.unix procs $np tce_cc2_c2
 ./runtests.mpi.unix procs $np ducc_be
+./runtests.mpi.unix procs $np n2_ccsdtoks
 #./runtests.mpi.unix procs $np li2h2_tce_ccsd # always hangs
 if [[ ! -z "$MRCC_METHODS" ]]; then
 #  if ( "x$MRCC_METHODS" == "xy" ) then
