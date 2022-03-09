@@ -792,6 +792,8 @@ c     == determine guess ==
      ,     vecs_or_dens,
      ,     ipol,nbf_ao,g_movecs,g_gmovecs,
      ,     toll_s,svals)
+      if(.not.rtdb_get(rtdb,'dft:densmat',mt_log,1,densmat))
+     D     densmat=.false.
       if(densmat) goto 2022
 c
 c     == better have static ldb at high node counts ==
@@ -824,8 +826,6 @@ c     == better have static ldb at high node counts ==
         if (.not. rtdb_cput(rtdb, 'dft:output vectors', 1, movecs_out))
      $       call errquit('dft_scf: DFT MO vectors not defined',0,
      &                     RTDB_ERR)
-        if(.not.rtdb_get(rtdb,'dft:densmat',mt_log,1,densmat))
-     D       densmat=.false.
         if(densmat) then
             call util_file_name('densmat', .false.,.false.,file_mat1)
             if(ga_nodeid().eq.0)
