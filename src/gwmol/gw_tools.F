@@ -522,6 +522,13 @@ c
 c     *****************************************************************
 
       subroutine gw_get_iwidx(idx,nmo,nocc,nvir,mynmo,nqp,llmo)
+C
+C     Array of MO pairs whose integrals are stored in the
+C     current MPI rank. 
+C
+C     This info will be used to compute and store matrix elements of
+C     the screened Coulomb matrix for the same MO pairs.
+C
       implicit none
       integer,intent(in) :: nmo, nocc, nvir, mynmo, nqp, llmo
       integer,intent(out),dimension(0:mynmo,*) :: idx

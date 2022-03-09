@@ -10,6 +10,9 @@
 c
 c     Contour Deformation GW
 c
+c     D. Mejia-Rodriguez, A. Kunitsa, E. Apra, N. Govind
+c     J. Chem. Theory Comput. 17, 7504 (2021).
+c
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -188,6 +191,9 @@ c
      $                  pars%nocc(i),pars%nvir(i))
       enddo
 
+c
+c     Experimental bit, might be useful for BSE calculations
+c
       if (eviter.eq.0 .and. pars%ncap .and. (.not.pars%evgw)) then
         do i=1,ipol
           do j=0,pars%nmo-1
@@ -257,7 +263,9 @@ c
       endif
 
       if (pars%evgw0.or.pars%evgw) then
-
+c
+c       Apply shift to the eigenvalues that were not modified by GW
+c
         call gw_scissor(dbl_mb(kEnew),dbl_mb(kEmod),pars%nmo,pars%nocc,
      $                  pars%nvir,pars%noqp,pars%nvqp,pars%ipol,pars%me)
 
@@ -268,7 +276,6 @@ c
 
         call dcopy(nmo*pars%ipol,dbl_mb(kEnew),1,dbl_mb(kEmod),1)
         eviter = eviter + 1
-
         
         if (eviter.lt.pars%eviter) then
           if (pars%evgw0) goto 200

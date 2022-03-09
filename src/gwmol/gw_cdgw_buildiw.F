@@ -1,9 +1,9 @@
 #ifdef GWCMPLX
-  #define ISOGW complex(kind=c_double_complex)
-  #define GWTYP double complex
+#define ISOGW complex(kind=c_double_complex)
+#define GWTYP double complex
 #else
-  #define ISOGW real(kind=c_double)
-  #define GWTYP double precision
+#define ISOGW real(kind=c_double)
+#define GWTYP double precision
 #endif 
 
 #define USE_ALLOC 1
@@ -46,7 +46,6 @@ C**********************************************************************
       integer pilo,pihi,k_pi,l_pi,idx,idy,l_tmp,tmp,l_vx,k_vx
       integer imo,jmo,kmo,lmo,nprocs,kOV1,kOV2,isp,addr,idz,kOO(2)
       integer kVV(2),kOV(2),mynvir,mynocc,nlocal,nmod
-      integer l_work,work,l_ipiv,ipiv
       double precision w2,ecrpa,ecgm
       double precision, external :: gw_ddot
       double complex, external :: gw_ddot_cmplx
@@ -104,10 +103,6 @@ C
       if (.not.ma_alloc_get(mt_dcpl,nri**2,'Pi',l_pi,k_pi))
      $  call errquit(pname//'can''t allocate Pi',0,MA_ERR) 
       if (.not.ma_alloc_get(mt_dcpl,nri*mynmo,'sol',l_sol,k_sol))
-     $  call errquit(pname//'can''t allocate sol',0,MA_ERR) 
-      if (.not.ma_alloc_get(mt_dcpl,32*nri,'work',l_work,work))
-     $  call errquit(pname//'can''t allocate sol',0,MA_ERR) 
-      if (.not.ma_alloc_get(mt_int,nri,'ipiv',l_ipiv,ipiv))
      $  call errquit(pname//'can''t allocate sol',0,MA_ERR) 
 #else
       if (.not.ma_alloc_get(mt_dbl,sizepi,'Pi',l_pi,k_pi))
@@ -167,9 +162,9 @@ C
       !
       do igl=ngl,1,-1
 c
-        #ifdef GWDEBUG
+#ifdef GWDEBUG
         if (main) write(luout,*) ' ## igl ',igl, ' diag ',diag
-        #endif
+#endif
 
         !
         ! Load imaginary omega
@@ -183,14 +178,14 @@ c
         do isp=1,ipol
 !$omp      parallel do simd schedule(static)
            do ipole=1,pars%mynpoles(isp)
-             #ifdef GWCMPLX
+#ifdef GWCMPLX
              factor(ipole,isp) = sqrt(
      $                           0.5d0/(eia(ipole,isp) - imw + ieta) +
      $                           0.5d0/(eia(ipole,isp) + imw + ieta) )
-             #else
+#else
              factor(ipole,isp) = 
      $            dsqrt(eia(ipole,isp)/(eia(ipole,isp)**2 + w2))
-             #endif
+#endif
           enddo
 !$omp     end parallel do simd
         enddo
@@ -203,41 +198,41 @@ c
         ! In real arithmetic, the matrix is stored in RFP format.
         ! In complex arithmetic, the matrix is stored in full format.
         !
-        #ifdef GWDEBUG
+#ifdef GWDEBUG
         t0 = util_wallsec()
-        #endif
+#endif
 
-        #ifdef GWCMPLX
+#ifdef GWCMPLX
         call gw_cdgw_buildpi_cmplx('w',dbl_mb(kOV(1)),dbl_mb(kOV(2)),
      $                         dcpl_mb(k_pi),factor,nri,nri,
      $                         pars%mynpoles,main,ipol,maxpoles)
-        #else
+#else
         call gw_cdgw_buildpi('w',dbl_mb(kOV(1)),dbl_mb(kOV(2)),
      $           dbl_mb(k_pi),factor,ldpi,nri,pars%mynpoles,main,ipol,
      $           maxpoles) 
-        #endif
+#endif
 
-        #ifdef GWDEBUG
+#ifdef GWDEBUG
         if (main) write(luout,*) '     ## buildpi ',util_wallsec()-t0
-        #endif
+#endif
 
         !
         ! Sum contributions from all MPI ranks
         !
-        #ifdef GWDEBUG
+#ifdef GWDEBUG
         t0 = util_wallsec()
-        #endif
+#endif
         call ga_mask_sync(.true.,.false.)
 
-        #ifdef GWCMPLX
+#ifdef GWCMPLX
         call ga_zgop(1038,dcpl_mb(k_pi),nri**2,'+')
-        #else
+#else
         call ga_dgop(1038,dbl_mb(k_pi),sizepi,'+')
-        #endif
+#endif
 
-        #ifdef GWDEBUG
+#ifdef GWDEBUG
         if (main) write(luout,*) '     ## gop ',util_wallsec()-t0
-        #endif
+#endif
 
         !
         ! Copy dielectric matrix in case we need to compute the
@@ -257,34 +252,34 @@ c
         ! In real arithmetic, the decomposition is performed directly in
         ! RFP format.
         !
-        #ifdef GWDEBUG
+#ifdef GWDEBUG
         t0 = util_wallsec()
-        #endif
+#endif
 
-        #ifdef GWCMPLX
+#ifdef GWCMPLX
         call zpotrf('l',nri,dcpl_mb(k_pi),nri,info)
-        #else
+#else
         if (diag) then
           call gw_invdiag(dbl_mb(k_vx),ldpi,nri,ecrpa,.true.)
         else
           call dpftrf('n','l',nri,dbl_mb(k_pi),info)
         endif
-        #endif
-        #ifdef GWDEBUG
+#endif
+#ifdef GWDEBUG
         if (main) write(luout,*) '     ## inverse ',util_wallsec()-t0
-        #endif
+#endif
 
         !
         ! Compute the RPA correlation energy, if requested
         !
-        #ifndef GWCMPLX
+#ifndef GWCMPLX
         if (me.eq.0 .and. pars%rpa) then
           if (.not.diag) then
             call gw_cdgw_ecrpa(dbl_mb(k_pi),ldpi,nri,ecrpa)
           endif
           pars%ecrpa = pars%ecrpa + wgt(igl)*ecrpa
         endif
-        #endif
+#endif
 
 
         ! So far we have either \epsilon^{-1} or the lower Cholesky
@@ -295,9 +290,9 @@ c
         !
         ! All the work perfomed here is done locally in each MPI rank.
         !
-        #ifdef GWDEBUG
+#ifdef GWDEBUG
         t0 = util_wallsec()
-        #endif
+#endif
 
         do isp=1,ipol
           if (pars%nstates(isp).eq.0) cycle
@@ -356,9 +351,9 @@ c
             ! Reactivate threaded BLAS for the matrix-matrix operations
             ! below
             !
-            #ifdef USE_OPENMP
+#ifdef USE_OPENMP
             call util_blas_set_num_threads(iMaxThreads)
-            #endif            
+#endif            
 
             !
             ! If diagonalization was requested, we directly transform
@@ -384,12 +379,12 @@ c
             ! In complex arithmetic, we compute
             ! \epsilon^{-1} (Q|mn) directly.
             !
-              #ifdef GWCMPLX
+#ifdef GWCMPLX
               call zlacp2('A',nri,iwidx(0,jmo,isp),dbl_mb(tmp),nri,
      $                   dcpl_mb(k_sol),nri)
               call zpotrs('l',nri,iwidx(0,jmo,isp),dcpl_mb(k_pi),nri,
      $                   dcpl_mb(k_sol),nri,info)
-              #else
+#else
               ! Copy the ERIs into the solution array
               call gw_copy(nri*iwidx(0,jmo,isp),dbl_mb(tmp),
      $                     dbl_mb(k_sol))
@@ -397,7 +392,7 @@ c
               ! Obtain \epsilon^{-1/2} (Q|mn)
               call dtfsm('n','l','l','n','n',nri,iwidx(0,jmo,isp),1d0,
      $                   dbl_mb(k_pi),dbl_mb(k_sol),nri)       
-              #endif
+#endif
             endif
 
             !
@@ -423,26 +418,26 @@ c
      $           gw_ddot(nri,dbl_mb(idx),dbl_mb(idy)) - 
      $           gw_ddot(nri,dbl_mb(idx),dbl_mb(idx))
               else
-                #ifdef GWCMPLX
+#ifdef GWCMPLX
                 iw(kmo,igl,jmo,isp) = 
      $             gw_ddot_cmplx(nri,dbl_mb(idx),dcpl_mb(idy)) -
      $             gw_ddot(nri,dbl_mb(idx),dbl_mb(idx))
-                #else
+#else
                 iw(kmo,igl,jmo,isp) = 
      $             gw_ddot(nri,dbl_mb(idy),dbl_mb(idy)) - 
      $             gw_ddot(nri,dbl_mb(idx),dbl_mb(idx))
-                #endif
+#endif
               endif
             enddo
 !$omp       end parallel do
           enddo
         enddo
 
-        #ifdef GWDEBUG
+#ifdef GWDEBUG
         if (main) write(luout,*) '     ## transf. ',util_wallsec()-t0
-        #endif
+#endif
 
-        #ifndef GWCMPLX
+#ifndef GWCMPLX
         ! Compute the RPA correlation energy according to the
         ! Galitskii-Migdal formula.
         if (me.eq.0 .and. pars%rpa) then
@@ -451,7 +446,7 @@ c
           pars%ecgm = pars%ecgm + wgt(igl)*ecgm
           pars%ecrpa = pars%ecrpa + wgt(igl)*ecrpa
         endif
-        #endif
+#endif
 
       enddo
 
@@ -468,17 +463,12 @@ c
      $  call errquit(pname//'can''t free TMP heap',me,MA_ERR) 
       if (.not.(ma_free_heap(l_pi)))
      $  call errquit(pname//'can''t free PI heap',me,MA_ERR) 
-      #ifdef GWCMPLX
-      if (.not.(ma_free_heap(l_ipiv)))
-     $  call errquit(pname//'can''t free vX heap',me,MA_ERR) 
-      if (.not.(ma_free_heap(l_work)))
-     $  call errquit(pname//'can''t free vX heap',me,MA_ERR) 
-      #else
+#ifndef GWCMPLX
       if (pars%rpa) then
         if (.not.(ma_free_heap(l_vx)))
      $  call errquit(pname//'can''t free vX heap',me,MA_ERR) 
       endif
-      #endif
+#endif
 
       pars%ecrpa = pars%ecrpa*0.5d0
       pars%ecgm  = pars%ecgm*0.5d0
@@ -515,9 +505,9 @@ c
       endif
 
       ! Go back to 1 thread
-      #ifdef USE_OPENMP
+#ifdef USE_OPENMP
       call util_blas_set_num_threads(1)
-      #endif      
+#endif      
 c
       end subroutine
 
