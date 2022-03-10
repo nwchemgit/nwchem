@@ -710,8 +710,9 @@ c
       if(.not.ma_push_get(mt_byte,nefc*8,'cosmo tags',l_efclb,k_efclb))
      &     call errquit('cosmo_cossas malloc k_tag failed',911,MA_ERR)
       if(oprint_molsurf)  then
-         if(.not.ma_push_get(mt_dbl,nseg*nat,'molsurf',l_msrf,k_msrf))
+         if(.not.ma_push_get(mt_dbl,nefc,'molsurf',l_msrf,k_msrf))
      &        call errquit('cosmo_cossas malloc k_tag failed',1,MA_ERR)
+         call dfill(nefc,0.0d0,dbl_mb(k_msrf),1)
       endif
 c
 c     ----- save coordinates of surface points -----
@@ -776,7 +777,7 @@ c
                       dbl_mb(k_efcs+ief-1) = (zetaii/xyzff(iseg,iat))
 c     769
                       if(oprint_molsurf)  then
-                         dbl_mb(k_msrf+(iat-1)*nseg+iseg-1)=
+                         dbl_mb(k_msrf+ief-1)=
      x                        xyzff(iseg,iat)*dsurf*ratm_real**2
                       endif
                       srfmol = srfmol+xyzff(iseg,iat)*dsurf*ratm_real**2
@@ -787,7 +788,7 @@ c     769
                       dbl_mb(k_efcs+ief-1) = zetaii/xyzff(iseg,iat)
 c 775
                       if(oprint_molsurf)  then
-                         dbl_mb(k_msrf+(iat-1)*nseg+iseg-1)=
+                         dbl_mb(k_msrf+ief-1)=
      x                        xyzff(iseg,iat)*wleb(iseg)*ratm_real**2
                       endif
                       srfmol = srfmol + xyzff(iseg,iat)*
@@ -844,11 +845,9 @@ c
       endif
       if(oprint_molsurf) then
          write(luout,*) ' Contributions to the molecular surface '
-         do iat=1,nat
-            do iseg=1,nseg
-               write(luout,*) iat,iseg,
-     W              dbl_mb(k_msrf+(iat-1)*nseg+iseg-1)
-            enddo
+         do ief=1,nefc
+            write(luout,*) ief,
+     W           dbl_mb(k_msrf+ief-1)
          enddo
       endif
 c
