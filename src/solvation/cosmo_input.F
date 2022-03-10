@@ -187,9 +187,7 @@ c
       if(.not.ma_push_get(mt_dbl,nw_max_atom,'cosmo rads',l_rad,k_rad))
      & call errquit('cosmo_input malloc k_rad failed',nw_max_atom,
      &              MA_ERR)
-      do iat=1,nw_max_atom
-         dbl_mb(k_rad+iat-1)=0.0d+00
-      enddo
+      call dfill(nw_max_atom,0d0,dbl_mb(k_rad),1)
 c
 c     ----- read values from input -----
 c
@@ -591,6 +589,8 @@ c
      $      call errquit('cosmo_input: put cosmo:sw_tol failed',
      $                   911, RTDB_ERR)
 c
+      else if(inp_compare(.false.,'print',field)) then
+         call util_print_input(rtdb, 'cosmo')
       else
          if (ga_nodeid().eq.0) then
            write(LuOut,*)'cosmo_input: read unknown keyword: ',field
