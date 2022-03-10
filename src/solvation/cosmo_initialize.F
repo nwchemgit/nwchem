@@ -89,6 +89,8 @@ c
 c
       odbug=.false.
       osome=oprint
+      call util_print_push
+      call util_print_rtdb_load(rtdb, 'cosmo')
 c
       if(odbug.and.me.eq.0) then
          write(Luout,*) 'in cosmo_initialize ...'

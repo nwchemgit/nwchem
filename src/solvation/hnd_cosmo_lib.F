@@ -429,6 +429,7 @@ c
       integer l_efcc, k_efcc, l_efcs, k_efcs, l_efcz, k_efcz
       integer l_efclb, k_efclb, k_efciat, l_efciat
       integer l_efczz, k_efczz
+      integer l_msrf,k_msrf
       double precision ratm_real,dij,dum,cavdsp,pi,zetai,zetaii
       integer m,mfac,mseg
       integer nefc,iat,jat,npp,i,iseg,ifac,ief,ipp
@@ -454,6 +455,7 @@ c
       double precision dist, xi, yi, zi, xj, yj, zj, rin, rout, alphai
       parameter (alphai = 0.5d0)
       logical oprint_debug
+      logical oprint_molsurf
 c
       dist(xi,yi,zi,xj,yj,zj)=sqrt((xj-xi)**2+(yj-yi)**2+(zj-zi)**2)
       rin(iat)=ratm(iat)*(1.0d0-alphai*gammas*sqrt(0.25d0**minbem))
@@ -461,6 +463,8 @@ c
      &                     sqrt(0.25d0**minbem))
 c
       oprint_debug = util_print("cosmo_cossas_debug",print_debug).and.
+     D     (ga_nodeid().eq.0)
+      oprint_molsurf = util_print("cosmo_mol_surface",print_never).and.
      D     (ga_nodeid().eq.0)
       pi = acos(-1.0d0)
 c
@@ -704,7 +708,12 @@ c
       if(.not.ma_push_get(mt_dbl,nefc,'cosmo zeta',l_efczz,k_efczz))
      & call errquit('cosmo_cossas malloc k_efczz failed',911,MA_ERR) 
       if(.not.ma_push_get(mt_byte,nefc*8,'cosmo tags',l_efclb,k_efclb))
-     & call errquit('cosmo_cossas malloc k_tag failed',911,MA_ERR)
+     &     call errquit('cosmo_cossas malloc k_tag failed',911,MA_ERR)
+      if(oprint_molsurf)  then
+         if(.not.ma_push_get(mt_dbl,nefc,'molsurf',l_msrf,k_msrf))
+     &        call errquit('cosmo_cossas malloc k_tag failed',1,MA_ERR)
+         call dfill(nefc,0.0d0,dbl_mb(k_msrf),1)
+      endif
 c
 c     ----- save coordinates of surface points -----
 c           save segment surfaces
@@ -766,12 +775,22 @@ c
                       zetai=zeta/sqrt(dsurf)/ratm_real
                       zetaii=zetai*sqrt(2d0/pi)
                       dbl_mb(k_efcs+ief-1) = (zetaii/xyzff(iseg,iat))
+c     769
+                      if(oprint_molsurf)  then
+                         dbl_mb(k_msrf+ief-1)=
+     x                        xyzff(iseg,iat)*dsurf*ratm_real**2
+                      endif
                       srfmol = srfmol+xyzff(iseg,iat)*dsurf*ratm_real**2
                       volmol = volmol+xyzff(iseg,iat)*dvol *ratm_real**3
                     else
                       zetai=zeta/(ratm_real*sqrt(wleb(iseg)))
                       zetaii=zetai*sqrt(2d0/pi)
                       dbl_mb(k_efcs+ief-1) = zetaii/xyzff(iseg,iat)
+c 775
+                      if(oprint_molsurf)  then
+                         dbl_mb(k_msrf+ief-1)=
+     x                        xyzff(iseg,iat)*wleb(iseg)*ratm_real**2
+                      endif
                       srfmol = srfmol + xyzff(iseg,iat)*
      $                                  wleb(iseg)*ratm_real**2
                       volmol = volmol + xyzff(iseg,iat)*
@@ -824,6 +843,13 @@ c
      &                        int_mb(k_efciat+ief-1)
          enddo
       endif
+      if(oprint_molsurf) then
+         write(luout,*) ' Contributions to the molecular surface '
+         do ief=1,nefc
+            write(luout,*) ief,
+     W           dbl_mb(k_msrf+ief-1)
+         enddo
+      endif
 c
       do ief=1,nefc
          dbl_mb(k_efcz+ief-1)=0d0
@@ -870,17 +896,7 @@ c     if(.not.rtdb_cput(rtdb,'char variable',nefc,byte_mb(k_efclb)))
 c    $   call errquit('hnd_cossas: rtdb put failed for efclab',917,
 c    &       rtdb_err)
 c
-      if(.not.ma_pop_stack(l_efclb)) call
-     &   errquit('cosmo_cossas chop stack k_efclb failed',911,MA_ERR)
-      if(.not.ma_pop_stack(l_efczz)) call
-     &   errquit('cosmo_cossas chop stack k_efczz failed',911,MA_ERR) 
-      if(.not.ma_pop_stack(l_efcz)) call
-     &   errquit('cosmo_cossas chop stack k_efcz failed',911,MA_ERR)
-      if(.not.ma_pop_stack(l_efciat)) call
-     &   errquit('cosmo_cossas chop stack k_efciat failed',911,MA_ERR)
-      if(.not.ma_pop_stack(l_efcs)) call
-     &   errquit('cosmo_cossas chop stack k_efcs failed',911,MA_ERR)
-      if(.not.ma_pop_stack(l_efcc)) call
+      if(.not.ma_chop_stack(l_efcc)) call
      &   errquit('cosmo_cossas chop stack k_efcc failed',911,MA_ERR)
 c
       return
