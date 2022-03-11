@@ -124,8 +124,28 @@ C     Note that we actually compute -\Pi.
 
         endif
 
-
-
+        !
+        ! Transform \Pi into the dielectric matrix \epsilon. Since
+        ! contributions from all MPI ranks are going to be summed, only
+        ! one rank needs to add 1.
+        !
+        ! Note: Here we employ the rigt RFP format since the matrix
+        ! was obtained with DSFRK and LDPI will have the right value.
+        !
+        if (main) then
+          if ( mod(nri,2) .eq. 0 ) then
+            do iri=1,nri/2
+              pi(iri,iri) = pi(iri,iri) + 1d0
+              pi(iri+1,iri) = pi(iri+1,iri) + 1d0
+            enddo
+          else
+            pi(1,1) = pi(1,1) + 1d0
+            do iri=2,nri/2+1
+              pi(iri-1,iri) = pi(iri-1,iri) + 1d0
+              pi(iri,iri) = pi(iri,iri) + 1d0
+            enddo
+          endif
+        endif
 
 
       !
@@ -209,6 +229,7 @@ C     Note that we actually compute -\Pi.
           ! faster depending on the matrix shape. The current values
           ! have not been optimized across different platforms.
           !
+          !
           scal2 = 1d0
           if (ibatch.eq.1) scal2 = 0d0
 
@@ -290,27 +311,30 @@ C     Note that we actually compute -\Pi.
         !
         if (.not.dorfp) call std2rfp(pi,nri)
 
+        !
+        ! Transform \Pi into the dielectric matrix \epsilon. Since
+        ! contributions from all MPI ranks are going to be summed, only
+        ! one rank needs to add 1.
+        !
+        ! Note: Here we employ the shifted RFP format (see std2rfp).
+        !
+        if (main) then
+          if ( mod(nri,2) .eq. 0 ) then
+            do iri=1,nri/2
+              pi(iri,iri) = pi(iri,iri) + 1d0
+              pi(iri,iri+1) = pi(iri,iri+1) + 1d0
+            enddo
+          else
+            pi(1,1) = pi(1,1) + 1d0
+            do iri=2,nri/2+1
+              pi(iri-1,iri) = pi(iri-1,iri) + 1d0
+              pi(iri,iri) = pi(iri,iri) + 1d0
+            enddo
+          endif
+        endif
+
       endif
 
-      !
-      ! Transform \Pi into the dielectric matrix \epsilon. Since
-      ! contributions from all MPI ranks are going to be summed, only
-      ! one rank needs to add 1.
-      !
-      if (main) then
-        if ( mod(nri,2) .eq. 0 ) then
-          do iri=1,nri/2
-            pi(iri,iri) = pi(iri,iri) + 1d0
-            pi(iri+1,iri) = pi(iri+1,iri) + 1d0
-          enddo
-        else
-          pi(1,1) = pi(1,1) + 1d0
-          do iri=2,nri/2+1
-            pi(iri-1,iri) = pi(iri-1,iri) + 1d0
-            pi(iri,iri) = pi(iri,iri) + 1d0
-          enddo
-        endif
-      endif
 
       end subroutine
 
@@ -409,7 +433,25 @@ C
 ! *********************************************************************
 
       subroutine dsfr2k_dmr(a,b,c,m,n,alpha,beta)
+      !
       ! In-house RFP version of DSYR2K
+      !
+      ! Note: when the size of the matrix is even, in reality we are
+      ! using a shifted RFP. For example, for N=4 the full format and
+      ! RFP formats are given by:
+      !
+      ! [  a11  ---  ---  ---  ]        [  a33  a34  ]
+      ! [  a12  a22  ---  ---  ]        [  a11  a44  ]
+      ! [  a13  a23  a33  ---  ]        [  a12  a22  ]
+      ! [  a14  a24  a34  a44  ]        [  a13  a23  ]
+      !                                 [  a14  a24  ]
+      !
+      ! The format we are obtaining here is
+      !
+      ! [  a11  a33  a34 ]
+      ! [  a12  a22  a44 ]
+      ! [  a13  a23  --- ]
+      ! [  a14  a24  --- ]
 
       implicit none
       integer m,n
@@ -435,7 +477,26 @@ C
 ! *********************************************************************
 
       subroutine std2rfp(matrix,n)
+
       ! Transform a matrix from full format to RFP format
+      !
+      ! Note: when the size of the matrix is even, in reality we are
+      ! using a shifted RFP. For example, for N=4 the full format and
+      ! RFP formats are given by:
+      !
+      ! [  a11  ---  ---  ---  ]        [  a33  a34  ]
+      ! [  a12  a22  ---  ---  ]        [  a11  a44  ]
+      ! [  a13  a23  a33  ---  ]        [  a12  a22  ]
+      ! [  a14  a24  a34  a44  ]        [  a13  a23  ]
+      !                                 [  a14  a24  ]
+      !
+      ! The format we are using here is
+      !
+      ! [  a11  a33  a34 ]
+      ! [  a12  a22  a44 ]
+      ! [  a13  a23  --- ]
+      ! [  a14  a24  --- ]
+
       implicit none
       integer,intent(in) :: n
       double precision   :: matrix(n,n)

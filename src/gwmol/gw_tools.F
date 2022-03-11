@@ -592,7 +592,12 @@ c     *****************************************************************
 
       subroutine gw_rfpmm(rfp,vecsb,vecsc,ld,n,nvec,packed)
 
-c     Matrix-matrix multiply using one rectangular full-packed matrix
+      ! Matrix-matrix multiply using one rectangular full-packed matrix
+      !
+      ! Note: Here we are using the right RFP format, not the shifted
+      ! one used in other places. LD must have the right dimensions: 
+      ! LD = n+(1-mod(n/2))
+      !
 
       implicit none
       logical,intent(in) :: packed

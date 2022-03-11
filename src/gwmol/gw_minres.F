@@ -585,8 +585,25 @@ C
 
       subroutine rfp2std(matrix,n)
 C
-C     Converts a matrix from RFP packed format, to lower-triangular full
-C     format
+      ! Converts a matrix from RFP packed format, to lower-triangular full
+      ! format
+      !
+      ! Note: when the size of the matrix is even, in reality we are
+      ! using a shifted RFP. For example, for N=4 the full format and
+      ! RFP formats are given by:
+      !
+      ! [  a11  ---  ---  ---  ]        [  a33  a34  ]
+      ! [  a12  a22  ---  ---  ]        [  a11  a44  ]
+      ! [  a13  a23  a33  ---  ]        [  a12  a22  ]
+      ! [  a14  a24  a34  a44  ]        [  a13  a23  ]
+      !                                 [  a14  a24  ]
+      !
+      ! The format we are using here is
+      !
+      ! [  a11  a33  a34 ]
+      ! [  a12  a22  a44 ]
+      ! [  a13  a23  --- ]
+      ! [  a14  a24  --- ]
 C
       implicit none
       integer n
