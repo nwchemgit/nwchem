@@ -159,6 +159,7 @@ C
         endif
         !
         if (is_near(eig(jmo),omega,shift)) then
+          skip = .true.
           fac = sgn*0.5d0
           arg = 0d0
         else
