@@ -186,8 +186,8 @@ C
         !
         ! Precompute the factor in square brackets of Equation (39)
         !
-!$omp   parallel do simd private(temp) schedule(static) collapse(2)
         do jsp=1,ipol
+!$omp     parallel do simd private(temp) schedule(static)
           do ipole=1,pars%mynpoles(jsp)
             temp = Eia(ipole,jsp) + ieta
 #ifdef GWCMPLX
@@ -197,8 +197,8 @@ C
      $                                0.5d0/(temp - arg) )
 #endif
           enddo
+!$omp     end parallel do simd
         enddo
-!$omp   end parallel do simd
 
         !
         ! Gather all ERI vectors which are local to the current MPI rank
