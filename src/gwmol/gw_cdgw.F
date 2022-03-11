@@ -277,13 +277,13 @@ c
         ! Update Fermi energy
         !
         do i=1,ipol
-          lSize = pars%k_enew + (i-1)*nbf_ao
+          lSize = kEnew + (i-1)*nbf_ao
           efermi_new(i) = gw_efermi(dbl_mb(lSize),pars%nocc(i))
         enddo
-        call gw_shift(dbl_mb(pars%k_enew),dbl_mb(kemod),efermi_new,
+        call gw_shift(dbl_mb(kEnew),dbl_mb(kemod),efermi_new,
      $                nbf_ao,pars%nmo,pars%ipol)
         efermi(:) = efermi(:) + efermi_new(:)
-        call dcopy(pars%ipol*nmo,dbl_mb(kemod),1,dbl_mb(k_enew),1)
+        call dcopy(pars%ipol*nmo,dbl_mb(kemod),1,dbl_mb(kEnew),1)
 
         eviter = eviter + 1
         
