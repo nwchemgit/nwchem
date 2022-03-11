@@ -1,6 +1,10 @@
       subroutine gw_analytic_sigmac(sigma,dsigma,d2sigma,omegain,Eold,
      $                              Omegam,wmn,eta,npoles,nmo,
      $                              plus,me)
+c
+c     Obtains the diagonal matrix elements of the self-energy operator
+c     (Equation (37)). 
+c
       implicit none
 #include "gw.fh"
 #include "errquit.fh"
@@ -23,6 +27,9 @@
       call ga_access(wmn, ilo, ihi ,jlo, jhi, adrWMN, ld)
       eta3 = 3d0*eta
 
+      !
+      ! Perform the summation over the occupied orbitals
+      !
 !$omp parallel private(delta,omega,w,denom)
 !$omp do collapse(2) reduction(+: resp )
       do imo=1,plus
@@ -37,6 +44,9 @@
       enddo
 !$omp end do      
 c
+      !
+      ! Perform the summation over the unoccupied orbitals
+      !
 !$omp do collapse(2) reduction(+: resm )
       do imo=plus+1,nmo
         do ipole=jlo,jhi
@@ -53,6 +63,9 @@ c
 c
       resp = resp + resm
 
+      !
+      ! Sum contributions from all MPI ranks
+      !
       call ga_dgop(1038,resp,3,'+')
       sigma = resp(1)
       dsigma = resp(2)

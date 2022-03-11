@@ -1,5 +1,9 @@
       subroutine gw_analytic_sigmac_graph(sigma,omegain,Eold,Omegam,
      $                              wmn,eta,npoles,nmo,plus,me,npoints)
+c
+c     Obtains the diagonal matrix elements of the self-energy operator
+c     (Equation (37)). This version computes many omegas at once.
+c
       implicit none
 #include "gw.fh"
 #include "errquit.fh"
@@ -20,6 +24,9 @@
       call ga_access(wmn, ilo, ihi ,jlo, jhi, adrWMN, ld)
       eta3 = 3d0*eta
 
+      !
+      ! Perform the summation over the occupied orbitals
+      !
 !$omp parallel private(omega,w)
 !$omp do collapse(2) reduction(+: sigma )
       do imo=1,plus
@@ -31,6 +38,9 @@
       enddo
 !$omp end do      
 c
+      !
+      ! Perform the summation over the unoccupied orbitals
+      !
 !$omp do collapse(2) reduction(+: sigma )
       do imo=plus+1,nmo
         do ipole=jlo,jhi
@@ -44,6 +54,9 @@ c
 c
       call ga_release(wmn, ilo, ihi ,jlo, jhi)
 
+      !
+      ! Sum contributions from all MPI ranks.
+      !
       call ga_dgop(1038,sigma,npoints,'+')
 
       end subroutine

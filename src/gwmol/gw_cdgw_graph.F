@@ -72,9 +72,17 @@
 
         llmo = pars%llmo(isp)
 
+        !
+        ! Find eigenvalues tightly clustered. The solution will be
+        ! attempted starting from the value closer to the Fermi energy
+        ! and using its result as guess for the subsequent orbitals.
+        !
         call gw_findclusters(Eold(llmo,isp),clusters,nclusters,totalqp,
      $                       0.020d0)
 
+        !
+        ! Loop over all clusters of eigenvalues
+        ! 
         ulqp = 0
         do icluster=1,nclusters
 
@@ -88,7 +96,11 @@
 
  100      continue
 
-          !obtain a partial solution for one state in the cluster
+          !
+          ! First, we will do a few Newton steps in order to get an
+          ! approximated solution. This will define the region were the
+          ! omega grid is laid
+          !
           if (llmo+llqp-1.le.pars%nocc(isp)) then
             iqp  = myul
           else
@@ -194,7 +206,10 @@
 
           enddo
 
-          ! Skip graphical solution 
+          !
+          ! If all Quasi-particle equations already converged in the
+          ! Newton steps, then we need to do nothing
+          !
           if (converged) then
             enew(llmo+iqp-1,isp) = eout
             fixed(iqp) = .true.
@@ -225,6 +240,9 @@
           npoints = min(int(interval/abs(nspace))+1,500)
           nspace = interval/dble(npoints)
 
+          !
+          ! Loop over omega grid
+          !
           omega(1) = eout - sign(0.0001d0,eout)
           do ipoints=1,npoints
             timer2 = util_wallsec()

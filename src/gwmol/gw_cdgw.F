@@ -43,7 +43,7 @@ c
       integer eviter, i, j, ibf, ilo, ihi, lo2, ipole, iqp, lo4, mynmo
       integer oolo,oohi,jlo,jhi,vvlo,vvhi,kiW,liW,kiWidx,liWidx
 
-      double precision efermi(ipol)
+      double precision efermi(ipol),efermi_new(ipol)
       double precision timer
 
       logical converged,ok
@@ -273,8 +273,18 @@ c
      $       ma_sizeof(mt_dbl,nmo*pars%ipol,mt_byte),0)
         call ga_brdcst(1038,dbl_mb(kSigma),
      $       ma_sizeof(mt_dbl,nmo*pars%ipol,mt_byte),0)
+        !
+        ! Update Fermi energy
+        !
+        do i=1,ipol
+          lSize = pars%k_enew + (i-1)*nbf_ao
+          efermi_new(i) = gw_efermi(dbl_mb(lSize),pars%nocc(i))
+        enddo
+        call gw_shift(dbl_mb(pars%k_enew),dbl_mb(kemod),efermi_new,
+     $                nbf_ao,pars%nmo,pars%ipol)
+        efermi(:) = efermi(:) + efermi_new(:)
+        call dcopy(pars%ipol*nmo,dbl_mb(kemod),1,dbl_mb(k_enew),1)
 
-        call dcopy(nmo*pars%ipol,dbl_mb(kEnew),1,dbl_mb(kEmod),1)
         eviter = eviter + 1
         
         if (eviter.lt.pars%eviter) then

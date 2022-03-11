@@ -2,7 +2,8 @@
 c
 c     Scale Occ-Vir ERI block with the root of the eigenvalue
 c     differences. This scaling will produce the right 
-c     matrix structure.
+c     matrix structure for the (A-B)^{1/2}(A+B)(A-B)^{1/2}
+c     matrix.
 c
       implicit none
       integer,intent(in)            :: id, nri, npoles
@@ -11,6 +12,9 @@ c
 
       integer ipole,iMaxThreads,iri
 
+      !
+      ! Scale the elements
+      !
       if (id.eq.1) then
 
 !$omp   parallel do simd collapse(2)
@@ -21,6 +25,9 @@ c
         enddo
 !$omp   end parallel do simd
 
+      !
+      ! Get the original ERIs
+      !
       else
 
 !$omp   parallel do simd collapse(2)
