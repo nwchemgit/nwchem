@@ -1,6 +1,8 @@
       subroutine gw_memory(pars)
 c
-c     Based on tddft_memory
+c     Obtain an estimate of the memory usage of the algorithm. This is
+c     only a rough guide and likely gives overestimated values. Memory
+c     allocated by MKL, SCALAPACK, ELPA is not all taken into account.
 c
       implicit none
 #include "errquit.fh"
@@ -67,7 +69,9 @@ c
  9040 format(/,10x,'Peak memory in AFF Calculation') 
  9050 format(/,10x,'Peak memory in CDGW Calculation')     
 
+      !
       ! ERI computation and transformation
+      !
       if (pars%me.eq.0) write(luout,9020)
       totmopairs = 0
       do isp=1,pars%ipol
@@ -100,6 +104,9 @@ c
       mynmo = pars%nmo/pars%nprocs+maxval(pars%nocc(1:pars%ipol))+1
       maxqp = maxval(pars%nqp(1:pars%ipol))
 
+      !
+      ! CD-GW algorithm
+      !
       if (pars%cdgw) then
         if (pars%me.eq.0) write(luout,9050) 
 
@@ -136,7 +143,9 @@ c
 #endif
         endif
 #endif 
+        !
         ! *** BUILDIW ***
+        !
         extramem_buildiw = maxnpoles*ipol ! factor
         heap_buildiw = (nri*(nri+1))/2 + ! Pi             
      $                  nri*mynmo      + ! Solutions
@@ -148,7 +157,9 @@ c
         stack_buildiw = nri
 #endif
 
+        !
         ! *** BUILDRN ***
+        !
         extramem_buildrn = mynpoles*pars%ipol*2      + ! factor, dfactor
      $                      nri*10                     ! Minres
         stack_buildrn = nri                            ! Pi
@@ -167,6 +178,10 @@ c
         if (pars%me.eq.0) write(luout,9030) ga_mem*dbl2mb,
      $    stack_mem*dbl2mb,heap_mem*dbl2mb,extramem*dbl2mb
 
+
+      !
+      !  Spectral decomposition algorithm
+      !
       else
 
         if (pars%me.eq.0) write(luout,9040) 

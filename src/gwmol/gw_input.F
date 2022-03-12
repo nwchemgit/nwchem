@@ -88,10 +88,14 @@ c
         if (.not.inp_i(ngl)) goto 10
         if (.not.rtdb_put(rtdb, 'gw:ngl', mt_int, 1, ngl))
      &    call errquit('gw_input: rtdb_put failed', 300, RTDB_ERR)
-      elseif (inp_compare(.false.,'acgw',test)) then
-        if (.not.rtdb_put(rtdb, 'gw:acgw', mt_log, 1, .true.))
-     &    call errquit('gw_input: rtdb_put failed', 400, RTDB_ERR)
-        call errquit('gw_input: AC-GW not ready yet',0,INPUT_ERR)
+!
+!      Analytic continuation method not yet implemented
+!
+!      elseif (inp_compare(.false.,'acgw',test)) then
+!        if (.not.rtdb_put(rtdb, 'gw:acgw', mt_log, 1, .true.))
+!     &    call errquit('gw_input: rtdb_put failed', 400, RTDB_ERR)
+!        call errquit('gw_input: AC-GW not ready yet',0,INPUT_ERR)
+!
       elseif (.not. inp_compare(.false.,'analytic',test)) then
         call errquit('gw_input: unknown GW method',300,INPUT_ERR)
       endif
@@ -109,9 +113,6 @@ c
      &    call errquit('gw_input: rtdb_put failed', 400, RTDB_ERR)
         if (.not.rtdb_put(rtdb, 'gw:qpiter', mt_int, 1, qpiter))
      &    call errquit('gw_input: rtdb_put failed', 400, RTDB_ERR)
-      elseif (inp_compare(.false.,'linear',test)) then
-        if (.not.rtdb_put(rtdb, 'gw:linear', mt_log, 1, .true.))
-     &    call errquit('gw_input: rtdb_put failed', 108, RTDB_ERR) 
       else
         goto 8000
       endif
@@ -172,7 +173,7 @@ c
         goto 602
       endif
 c
-c     Set first orbital to star counting
+c     Set first orbital to start counting
 c
  700  if (.not.(inp_i(first)))
      $  call errquit('gw_input: "first" must be followed by an integer',

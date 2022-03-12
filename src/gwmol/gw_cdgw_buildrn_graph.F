@@ -18,6 +18,18 @@
 
       subroutine gw_cdgw_buildrn_graph(pars,Eig,Eia,omega,output,llmo,
      $   maxpoles,nri,me,nmo,ipol,isp,nqp)
+C
+C     Computes the contribution to the self-energy matrix elements, and
+C     their derivatives with respect to omega, from the residues inside 
+C     the contours. 
+C
+C     Either MINRES or the Bunch-Kaufmann triangular factorization can
+C     be used, depending on the number of eigenvalues within the current
+C     cluster.
+C
+C     See Equations (42)-(47) of
+C     JCTC 17, 7504 (2021)
+C
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -44,7 +56,7 @@
       integer mynri, llpi, pilo, myimo
       double precision fac, arg, w, arg2, dfac, sgn, dummy
 
-      GWTYPE :: factor(maxpoles,ipol),dfactor(maxpoles,ipol)
+      GWTYPE :: factor(maxpoles,ipol)
       GWTYPE :: vectors2(nri,nqp)
       double complex :: temp
       double precision :: vectors(nri,nqp)
@@ -59,12 +71,18 @@
       call util_blas_set_num_threads(iMaxThreads)
 #endif
 
+      !
+      ! Initialization
+      !
       ieta = dcmplx(0d0,pars%eta)
-
       main = me.eq.0
       nprocs = ga_nnodes()
       ints = ma_sizeof(mt_int,1,mt_byte)
+      output(:,:) = 0d0
 
+      !
+      ! Allocate local fields
+      !
       if (.not.ma_alloc_get( GWMT ,nri**2,'pi',l_pi,k_pi))
      $  call errquit(pname//'can''t allocate pi matri',0,MA_ERR) 
       if (.not.ma_push_get(mt_int,nri,'ipiv',l_ipiv,k_ipiv))
@@ -72,7 +90,6 @@
       call GWSYTRF ('l',nri,GWMB(k_pi),nri,int_mb(k_ipiv),
      $               factor,-1,info)
       lscr = int(dble(factor(1,1)))
-
       if (.not.ma_push_get( GWMT ,lscr,'scr',l_scr,k_scr))
      $  call errquit(pname//'can''t allocate scratch',0,MA_ERR) 
 
@@ -82,12 +99,11 @@
       enddo
       if (ipol.eq.1) kOV(2) = 1
 
-#if PARALLEL_DIAG
+      !
+      ! If the size of the dielectric matrix gets too large, opt for a
+      ! parallel diagonalization instead
+      !
       parallel_diag = nri .gt. 20000
-#else
-      parallel_diag = .false.
-#endif
-
 #ifdef GWCMPLX
       paralle_diag = .false.
 #endif
@@ -99,11 +115,12 @@
         if (me.lt.mod(nri,nprocs)) mynri = mynri + 1
       endif
 
-      output(:,:) = 0d0
-
-      dfac = 4d0
-      if (ipol.eq.1) dfac = 2d0*dfac
-
+      !
+      ! Set the arrays according to the occ/vir label of the current
+      ! orbital. For occupied orbitals, the loop will go from the Fermi
+      ! level down, while for unocuppied orbitals the loop will go from
+      ! the Fermi level up.
+      !
       if (llmo.le.pars%nocc(isp)) then
         ga = pars%g_erioo(isp)
         spacelo = pars%oolo(isp)
@@ -122,6 +139,11 @@
         nspace = pars%nvir(isp)
       endif
 
+      !
+      ! The sign of the contribution will depend on wether omega is
+      ! below or above the Fermi level (first or second term of Equation
+      ! (42)).
+      !
       if (omega.lt.0d0) then
         sgn = -1d0
       else
@@ -130,8 +152,13 @@
 
       do jmo=first,second,step
 
-        ! Loop over omega < eig(jmo) < 0d0
-        !   or over 0d0 < eig(jmo) < omega
+        !
+        ! Only orbitals closer to the Fermi level than omega contribute
+        ! to the resiude term (the Heaviside step functions in Equation
+        ! (42) take care of this). 
+        ! 
+        ! Skip the rest, but leave some space for possible degeneracies.
+        ! 
         skip = .false.
         if (omega.lt.0d0) then
           if (eig(jmo) .lt. omega-shift) skip = .true.
@@ -141,7 +168,6 @@
           if (eig(jmo) .lt. 0d0) skip = .true.
         endif
 
-        ! Check for degeneracies
         if (is_near(eig(jmo),omega,shift)) then
           skip = .true.
           fac = sgn*0.5d0
@@ -151,10 +177,15 @@
           arg = eig(jmo) - omega
         endif
 
+        !
+        ! Make sure all MPI ranks skip the same set of orbitals
+        !
         call ga_brdcst(1038,skip,ma_sizeof(mt_log,1,mt_byte),0)
         if (skip) cycle
 
-        !obtain the factor to build Pi matrix and its derivative
+        !
+        ! Precompute the factor in square brackets of Equation (39)
+        !
         do jsp=1,ipol
 !$omp     parallel do simd private(temp) schedule(static)
           do ipole=1,pars%mynpoles(jsp)
@@ -166,10 +197,12 @@
      $                                0.5d0/(temp - arg) )
 #endif
           enddo
-!$omp   end parallel do simd
+!$omp     end parallel do simd
         enddo
 
-        !get all active vectors
+        !
+        ! Gather all ERI vectors which are local to the current MPI rank
+        !
         mynmo = 0
         active = .false.
         do imo=llmo,llmo+nqp-1
@@ -181,7 +214,14 @@
           call ga_get(ga,1,nri,idx,idx,vectors(1,mynmo),nri)
         enddo
 
-        !build Pi matrix
+        !
+        ! Build the polarizability matrix \Pi and transform it into the
+        ! dielectric matrix \epsilon. Equation (39).
+        !
+        ! In real arithmetics, the dielectric matrix is obtained in RFP
+        ! format, so we need to take care to bring it back to full
+        ! format for subsequent steps.
+        !
 #ifdef GWCMPLX
         call gw_cdgw_buildpi_cmplx('r',dbl_mb(kOV(1)),dbl_mb(kOV(2)),
      $              GWMB(k_pi),factor,nri,nri,pars%mynpoles,main,ipol,
@@ -196,6 +236,10 @@
         call rfp2std(GWMB(k_pi),nri)
 #endif        
 
+        !
+        ! If parallel_diag = .true., invert the dielectric matrix using
+        ! a parallel eigensolver.
+        !
         if (parallel_diag) then
           call gw_invdiag(dbl_mb(k_pi),nri,nri,dummy,.false.)
           call GWGOP(GWMT,GWMB(k_pi),nri**2,'+')
@@ -204,12 +248,19 @@
      $                nri,0d0,vectors2,nri)
         else
           if (.not.active) cycle
+
+          !
+          ! Get \epsilon_{PQ}^{-1} (Q|mn) for all active mn pairs. This
+          ! step uses MINRES for a small number of pairs, and switches
+          ! to Baunch-Kauffmann LDL^T factorization otherwise.
+          !
+          ! Obtains the `x` vectors of Equations (43), (45)
+          !
 #ifdef GWCMPLX        
           vectors2(:,1:mynmo) = dcmplx(vectors(:,1:mynmo),0d0)
 #else
           vectors2(:,1:mynmo) = vectors(:,1:mynmo)
 #endif
-          !solve the linear equation systems
           if (mynmo.gt.5) then
             call GWSYSV('l',nri,mynmo,GWMB(k_pi),nri,int_mb(k_ipiv),
      $                  vectors2,nri,GWMB(k_scr),lscr,info)
@@ -222,6 +273,10 @@
           endif
         endif
 
+        !
+        ! Complete the contribution in Equations (43), (45) by
+        ! contracting with the untransformed ERIs (vectors `b`).
+        !
         lmo = 0
         do imo=llmo,llmo+nqp-1
           root = mod((imo-off-1)*nspace+jmo-off-1,nprocs)
@@ -235,7 +290,10 @@
         enddo
 
       enddo
-       
+      
+      !
+      ! Sum contributions from all MPI ranks.
+      !
       call ga_dgop(1038,output,2*nqp,'+')
 
 

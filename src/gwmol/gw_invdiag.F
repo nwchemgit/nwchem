@@ -1,4 +1,8 @@
       Subroutine gw_invdiag(rfp, ld, n, ecrpa, packed)
+C
+C     Compute the inverse of a matrix, possibly packed in RFP format,
+C     by calling the appropriate eigendecomposition subroutines.
+C
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -32,6 +36,9 @@ c
 
       ecrpa = 0d0
 
+      !
+      ! If matrix is in RFP format, we first need to unpack it.
+      !
       if (packed) then
 
         ! N is odd
@@ -76,6 +83,9 @@ c
 
       endif
 c
+      !
+      ! Compute the contribution to the RPA correlation energy
+      !
       call ga_get_diag(g_tmp,g_diag)
       if (me.eq.0) then
         call nga_access(g_diag,1,n,idx,idum)
@@ -87,6 +97,9 @@ c
       endif
 
 c
+      !
+      ! Perform the diagonalization
+      !
       call ga_sync
 
 #ifdef SCALAPACK
@@ -96,8 +109,9 @@ c
       call ga_diag_std(g_tmp,g_tmp2,DBl_MB(iev))
 #endif
 
-C     check on eigenvalues
-
+      !
+      ! Remove small eigenvalues
+      !
       do i=0,n-1
         if (dbl_mb(iev+i).gt.0d0) ecrpa = ecrpa + log(dbl_mb(iev+i))
         if(abs(DBl_MB(iev+i)).lt.toll) then
@@ -109,8 +123,9 @@ C     check on eigenvalues
         endif 
       enddo
 
-C     (U * sigma^-1)
-
+      !
+      ! Obtain the (pseudo) inverse of the matrix
+      !
       call ga_copy(g_tmp2,g_tmp)
       call ga_access(g_tmp,1,n,ll,ul,idx,idum)
       do i=ll,ul
@@ -121,8 +136,6 @@ C     (U * sigma^-1)
       if (.not.ga_create(mt_dbl, n, n, 'ga_temp3', n, 0, g_tmp3))
      $  call errquit('gw_invdiag: error creating ga_temp2',0,GA_ERR)
 
-C     (U * sigma^-1) * U(transp) 
-      
       call ga_dgemm('N','T',n,n,n,1.d0,g_tmp,g_tmp2,0.d0,g_tmp3)
 
       if (.not. ga_destroy(g_tmp)) call errquit
@@ -133,6 +146,9 @@ C     (U * sigma^-1) * U(transp)
      &  call errquit('dft_invdiag: cannot pop stack',0, MA_ERR)
 
 
+      !
+      ! Go back to RFP format
+      !
       if (packed) then
         ! N is odd
         if (ld.eq.n) then

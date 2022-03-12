@@ -241,12 +241,6 @@ c     -----------------------------------------------------------------
 
       integer :: ilo, ihi, jlo, jhi, ipole, imo, ld, adrWMN
       double precision :: omega,w,denom,tecgm
-#ifdef USE_OPENMP
-      integer iMaxThreads
-      integer,external :: omp_get_max_threads
-      iMaxThreads = omp_get_max_threads()
-      call util_blas_set_num_threads(iMaxThreads)
-#endif      
 
       call ga_distribution(wmn, me, ilo, ihi, jlo , jhi)
       call ga_access(wmn, ilo, ihi ,jlo, jhi, adrWMN, ld)
@@ -269,9 +263,6 @@ c
       call ga_dgop(1038,tecgm,1,'+')
       ecgm = ecgm + 2d0*tecgm
 
-#ifdef USE_OPENMP
-      call util_blas_set_num_threads(1)
-#endif
       call ga_release(wmn,ilo,ihi,jlo,jhi)
 
       end subroutine
@@ -531,6 +522,13 @@ c
 c     *****************************************************************
 
       subroutine gw_get_iwidx(idx,nmo,nocc,nvir,mynmo,nqp,llmo)
+C
+C     Array of MO pairs whose integrals are stored in the
+C     current MPI rank. 
+C
+C     This info will be used to compute and store matrix elements of
+C     the screened Coulomb matrix for the same MO pairs.
+C
       implicit none
       integer,intent(in) :: nmo, nocc, nvir, mynmo, nqp, llmo
       integer,intent(out),dimension(0:mynmo,*) :: idx
@@ -594,7 +592,12 @@ c     *****************************************************************
 
       subroutine gw_rfpmm(rfp,vecsb,vecsc,ld,n,nvec,packed)
 
-c     Matrix-matrix multiply using one rectangular full-packed matrix
+      ! Matrix-matrix multiply using one rectangular full-packed matrix
+      !
+      ! Note: Here we are using the right RFP format, not the shifted
+      ! one used in other places. LD must have the right dimensions: 
+      ! LD = n+(1-mod(n/2))
+      !
 
       implicit none
       logical,intent(in) :: packed

@@ -1,4 +1,15 @@
       subroutine gw_minres(OV1,OV2,factor,x,b,npoles,maxpoles,n,ipol)
+C
+C     Obtain the action of the inverse dielectric matrix on a given ERI
+C     vector by using the MINRES solver. (See Equations (43)-(46))
+C     without the explicit computation of the polarizability or
+C     dielectric matrices.
+C
+C     If the convergence seems to be slow, the algorithm switches to
+C     actually building the dielectric matrix and decompose it with the
+C     LDL^T Bunch-Kaufmann factorization.
+C
+
       use iso_c_binding
       implicit none
 #include "errquit.fh"
@@ -34,7 +45,7 @@
      $                                                w1, w2, y
 
       
-      logical main,converged,oactive,parallel_diag,doparallel
+      logical main,converged,oactive,parallel_diag
       integer iter, istop, i, gy, me, ld, nmax, nlocal, ithread
       integer lo, hi, jthread
       double precision,parameter :: shift = 0.000d0, rtol=1d-5
@@ -50,14 +61,10 @@
       me = ga_nodeid()
       main = me.eq.0
       converged = .false.
-      doparallel = n > 32768
 
-#ifdef PARALLEL_DIAG
-      parallel_diag = n.gt.28000
-#else
-      parallel_diag = .false.
-#endif
-
+      !
+      ! Initialize MINRES variables
+      !
       eps  = epsilon(eps)
       iter = 0
       istop = 0
@@ -68,6 +75,10 @@
       test3 = 0d0
       x0norm = dot_product(x,x)
 
+      !
+      ! Check the starting residual.
+      ! If the solution vector is 0, just skip the computation
+      !
       if (x0norm.eq.0d0) then
 !$omp   parallel do simd schedule(static)
         do i=1,n
@@ -77,6 +88,10 @@
         goto 1000
       endif
 
+      !
+      ! Obtain the action of the polarizability matrix on a vector
+      ! (bottom line of Equation (47)).
+      !
       if (ipol.eq.1) then
         call gw_aprod(OV1,factor,x,y,-4d0,0d0,npoles,n)
       else
@@ -86,6 +101,10 @@
       call ga_mask_sync(.true.,.false.)
       call ga_dgop(1038,y,n,'+')
 
+      !
+      ! Obtain the residual by completing the action of the dielectric
+      ! matrix (top line of Equation (47)).
+      !
 !$omp parallel do simd schedule(static)
       do i=1,n
         y(i) = y(i) + b(i) - x(i)
@@ -94,14 +113,18 @@
 
 1000  beta1 = util_norm2(n,y)
 
+      !
       ! Solution already converged
+      !
       if (beta1.lt.rtol) then
         rnorm = beta1
         istop = -1
         goto 2000
       endif
 
+      !
       ! Continue with MINRES
+      !
       oldb = 0d0
       beta = beta1
       dbar = 0d0
@@ -139,6 +162,10 @@
         enddo
 !$omp   end parallel do simd
 
+        !
+        ! Obtain the action of the polarizability matrix
+        ! (bottom line of Equation (47)).
+        !
         if (ipol.eq.1) then
           call gw_aprod(OV1,factor,v,y,4d0,0d0,npoles,n)
         else
@@ -148,12 +175,15 @@
         call ga_mask_sync(.true.,.false.)
         call ga_dgop(1038,y,n,'+')
 
+        !
+        ! Complete the action of the dielectric matrix
+        ! (top line of Equation (47)).
+        !
         call daxpy(n,1d0,v,1,y,1)
-        if (iter.ge.2) call daxpy(n,-beta/oldb,r1,1,y,1)
 
+        if (iter.ge.2) call daxpy(n,-beta/oldb,r1,1,y,1)
         alpha = dot_product(v,y)
         oldb = beta
-
         call daxpy(n,-alpha/beta,r2,1,y,1)
 
 !$omp   parallel do simd schedule(static)
@@ -238,8 +268,10 @@
         t1 = 1d0 + test1
         t2 = 1d0 + test2
 
-c       MINRES did not converge or is not going to 
-c       converge in 20 or less steps
+        !
+        ! Check how slow is MINRES convergence. If it seems to take many
+        ! iterations, then explicitly build the dielectric matrix.
+        !
         if (iter  .ge. maxiter  )                   istop = 101
         if (iter  .ge.  5 .and. rnorm .ge. 5.0d0)   istop = 102
         if (iter  .ge. 10 .and. rnorm .ge. 1.0d0)   istop = 103
@@ -261,6 +293,9 @@ c       converge in 20 or less steps
         if (istop.ne.0) exit
       enddo
 
+      !
+      ! Update the solution vector
+      !
       call daxpy(n,1d0,sol,1,x,1)
 
  2000 continue
@@ -276,6 +311,9 @@ c       we need an n**2 matrix
         if (.not.ma_push_get(mt_dbl,n**2,'pi',l_pi,k_pi))
      $    call errquit('gw_en: can''t allocate pi matrix',0,MA_ERR) 
 
+        !
+        ! Build the polarizability matrix and transform it
+        !
         call gw_cdgw_buildpi('r',ov1,ov2,dbl_mb(k_pi),factor,n,n,npoles,
      $                   main,ipol,maxpoles)
         call ga_mask_sync(.true.,.false.)
@@ -285,31 +323,16 @@ c       Pi is built in rectangular full packed format.
 c       Transform it to standard format.
         call rfp2std(dbl_mb(k_pi),n)
 
-c       Diagonalize matrix in parallel
-        if (parallel_diag) then
-          nprocs = ga_nnodes()
-          mynri = n/nprocs
-          pilo = me*mynri + min(me,mod(n,nprocs)) + 1
-          llpi = k_pi + (pilo-1)*n
-          if (me.lt.mod(n,nprocs)) mynri = mynri + 1
-          x(:) = 0d0
-          call gw_invdiag(dbl_mb(k_pi),n,n,dummy,.false.)
-          call dgemv('t',n,mynri,1d0,dbl_mb(llpi),n,b,1,0d0,x(pilo),1)
-          call ga_mask_sync(.true.,.false.)
-          call ga_dgop(1038,x,n,'+')
-
 c       Use DSYSV locally
-        else
-          lscr = 64*n
-          x(:) = b(:)
-          if (.not.ma_push_get(mt_int,n,'ipiv',l_ipiv,k_ipiv))
-     $      call errquit('gw_en: can''t allocate ipiv',0,MA_ERR) 
-          if (.not.ma_push_get(mt_dbl,lscr,'scr',l_scr,k_scr))
-     $      call errquit('gw_en: can''t allocate scratch',0,MA_ERR) 
+        lscr = 64*n
+        x(:) = b(:)
+        if (.not.ma_push_get(mt_int,n,'ipiv',l_ipiv,k_ipiv))
+     $    call errquit('gw_en: can''t allocate ipiv',0,MA_ERR) 
+        if (.not.ma_push_get(mt_dbl,lscr,'scr',l_scr,k_scr))
+     $    call errquit('gw_en: can''t allocate scratch',0,MA_ERR) 
 
-          call dsysv('l',n,1,dbl_mb(k_pi),n,int_mb(k_ipiv),x,n,
-     $                dbl_mb(k_scr),lscr,info)
-        endif
+        call dsysv('l',n,1,dbl_mb(k_pi),n,int_mb(k_ipiv),x,n,
+     $              dbl_mb(k_scr),lscr,info)
 
         if (.not.ma_chop_stack(l_pi))
      $    call errquit('gw_en: can''t deallocate pi matrix',0,MA_ERR)   
@@ -331,6 +354,9 @@ c     Deallocate local fields
 
 
       subroutine gw_aprod(ov,factor,x,y,scal,mult,npoles,n)
+C
+C     Computes the action of the polarizability matrix on a given vector
+C
       implicit none
       integer,intent(in) :: npoles, n
       double precision, intent(in) :: scal, mult
@@ -341,20 +367,32 @@ c     Deallocate local fields
       integer :: i,tid,lo,hi
       double precision :: tmp(npoles)
 
+      !
+      ! Rightmost sum on the bottom line of Equation (47)
+      !
       call dgemv('t',n,npoles,scal,ov,n,x,1,0d0,tmp,1)
 
+      !
+      ! Factor in square brackets of Equation (47)
+      !
 !$omp parallel do simd schedule(static)
       do i=1,npoles
         tmp(i) = tmp(i)*factor(i)
       enddo
 !$omp end parallel do simd
 
+      !
+      ! First sum on the bottom line of Equation (47)
+      !
       call dgemv('n',n,npoles,1d0,ov,n,tmp,1,mult,y,1)
 
       end subroutine
 
       
       subroutine minres(A,x,b,n)
+C
+C     This version of MINRES explicitly uses the dielectric matrix A
+C
       implicit none
 #include "errquit.fh"
 #include "global.fh"      
@@ -546,6 +584,27 @@ c     Deallocate local fields
       end subroutine
 
       subroutine rfp2std(matrix,n)
+C
+      ! Converts a matrix from RFP packed format, to lower-triangular full
+      ! format
+      !
+      ! Note: when the size of the matrix is even, in reality we are
+      ! using a shifted RFP. For example, for N=4 the full format and
+      ! RFP formats are given by:
+      !
+      ! [  a11  ---  ---  ---  ]        [  a33  a34  ]
+      ! [  a12  a22  ---  ---  ]        [  a11  a44  ]
+      ! [  a13  a23  a33  ---  ]        [  a12  a22  ]
+      ! [  a14  a24  a34  a44  ]        [  a13  a23  ]
+      !                                 [  a14  a24  ]
+      !
+      ! The format we are using here is
+      !
+      ! [  a11  a33  a34 ]
+      ! [  a12  a22  a44 ]
+      ! [  a13  a23  --- ]
+      ! [  a14  a24  --- ]
+C
       implicit none
       integer n
       double precision matrix(n,n)
