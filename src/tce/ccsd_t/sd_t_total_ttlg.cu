@@ -185,7 +185,7 @@ double* output_d;
 
         cublasDgemm(handle, transa, transb, m, n, k, &alpha, t2sub_d, h7d, v2sub_d, n, &beta, output_d, m);
        ttlg_transpose(6, o, perm, output_d, t3_d, 1, beta);
-        cudaThreadSynchronize();
+        cudaDeviceSynchronize();
         freeGpuMem(t2sub_d);
         freeGpuMem(v2sub_d);
   	freeGpuMem(output_d);
@@ -408,7 +408,7 @@ double* output_d;
 
         cublasDgemm(handle, transa, transb, m, n, k, &alpha, t2sub_d, p7d, v2sub_d, n, &beta, output_d, m);
      ttlg_transpose(6, o, perm, output_d, t3_d, 1, beta);
-        cudaThreadSynchronize();
+        cudaDeviceSynchronize();
         freeGpuMem(t2sub_d);
         freeGpuMem(v2sub_d);
         	freeGpuMem(output_d);
@@ -618,7 +618,7 @@ extern   "C" void compute_energy(double factor, double* energy, double* eval1, d
     dim3 dimBlock(1); //T2*T1);
     dim3 dimGrid(total_block);
     compute_energy_kernel<<<dimGrid,dimBlock,0>>>(h1d,h2d,h3d,p4d,p5d,p6d, eval_d1,eval_d2,eval_d3,eval_d4,eval_d5,eval_d6,energy_d, factor, h1d*h2d*p4d*p5d*p6d, t3_d, t3_s_d);
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
     //CHECK_ERR("Kernel execution failed");
     CUDA_SAFE(cudaMemcpy(((char *) energy_h) , ((char *) energy_d) , 
     size_energy*total_block*2, cudaMemcpyDeviceToHost));
@@ -784,7 +784,7 @@ sd_t_s1_1_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
 		stream++;
 	}
 */
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 //	CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
 	for (i = 0; i < nstreams; ++i) {
@@ -916,7 +916,7 @@ sd_t_s1_2_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d, double *t3,
 		}
 		stream++;
 	}*/
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 //	CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
 /*
 	for (i = 0; i < nstreams; ++i) {
@@ -1003,7 +1003,7 @@ sd_t_s1_3_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 		}
 		stream++;
 	}
-*/	cudaThreadSynchronize();
+*/	cudaDeviceSynchronize();
 	//CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
 
 	for (i = 0; i < nstreams; ++i) {
@@ -1123,7 +1123,7 @@ sd_t_s1_4_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 //	}
 
 
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 	/*	CUDA_SAFE(cudaMemcpy(((char *) t3_p) , ((char *) t3_d) , size_block_t3, cudaMemcpyDeviceToHost));
 	printf("Time for Async DeviceToHost %f\n", et-st);
 	stream = 0;
@@ -1137,7 +1137,7 @@ sd_t_s1_4_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 //		stream++;
 //	}
 */
-//	cudaThreadSynchronize();
+//	cudaDeviceSynchronize();
 /*
 	for (i = 0; i < nstreams; ++i) {
 		cudaStreamDestroy(streams[i]);
@@ -1269,7 +1269,7 @@ sd_t_s1_5_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 		stream++;
 	}
 */
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 
 	//CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
 	for (i = 0; i < nstreams; ++i) {
@@ -1400,7 +1400,7 @@ sd_t_s1_6_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 		}
 		stream++;
 	}*/
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 	//CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
 
 	for (i = 0; i < nstreams; ++i) {
@@ -1537,7 +1537,7 @@ sd_t_s1_7_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 		}
 		stream++;
 	}*/
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 	//CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
 
 	for (i = 0; i < nstreams; ++i) {
@@ -1667,7 +1667,7 @@ sd_t_s1_8_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 		}
 		stream++;
 	}*/
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 //	CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
 
 	for (i = 0; i < nstreams; ++i) {
@@ -1758,7 +1758,7 @@ sd_t_s1_9_cuda(int h1d, int h2d, int h3d, int p4d, int p5d, int p6d,  double *t3
 		}
 		stream++;
 	}*/
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 	//CUDA_SAFE(cudaMemcpy(((char *) t3) , ((char *) t3_s_d) , size_t3, cudaMemcpyDeviceToHost));
 
 //  printf("out is %lf\n", t3_p[0]);
