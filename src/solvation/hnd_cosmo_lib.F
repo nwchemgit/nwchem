@@ -767,6 +767,10 @@ c                    enddo
                     dbl_mb(k_efcs+ief-1) = dble(ipp)*dsurf*ratm_real**2
                     srfmol = srfmol + dble(ipp)*dsurf*ratm_real**2
                     volmol = volmol + dble(ipp)*dvol *ratm_real**3
+                    if(oprint_molsurf) then
+                      dbl_mb(k_msrf+ief-1) = dble(ipp)*dsurf*
+     $                                       ratm_real**2
+                    endif
                   else if (do_cosmo_model.eq.DO_COSMO_YK) then
 c
 c                   --- eval eq.(67) from [2] ---
