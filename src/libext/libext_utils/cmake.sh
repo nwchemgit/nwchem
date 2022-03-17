@@ -26,12 +26,10 @@ get_cmake_release(){
     fi
     if [ -f ${CMAKE} ]; then
 	echo using existing ${CMAKE_VER} Cmake
-	return 0
     else
 	curl -L ${CMAKE_URL} -o cmake-${CMAKE_VER}.tar.gz
 	tar xzf cmake-${CMAKE_VER}.tar.gz
 	CMAKE=`pwd`/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}/bin/cmake
-	return 0
     fi
     cd $orgdir
 
