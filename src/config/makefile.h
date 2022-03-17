@@ -2159,7 +2159,9 @@ ifneq ($(TARGET),LINUX)
                 COPTIONS += -w
             else
                 FOPTIMIZE  += -Wuninitialized
-                COPTIONS += -Wall
+                ifeq ($(_CC),$(findstring $(_CC),gcc clang))
+                    COPTIONS += -Wall
+		endif
                 ifndef USE_FLANG
                     FOPTIMIZE  += -Wno-maybe-uninitialized
                 endif
