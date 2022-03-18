@@ -2200,6 +2200,7 @@ ifneq ($(TARGET),LINUX)
 #                   FDEBUG =-O2 -g
                 endif
                 FDEBUG +=-fno-aggressive-loop-optimizations
+                FOPTIONS +=-fno-aggressive-loop-optimizations
                 FOPTIMIZE +=-fno-aggressive-loop-optimizations
                 FFLAGS_FORGA += -fno-aggressive-loop-optimizations
                 ifeq ($(V),-1)
