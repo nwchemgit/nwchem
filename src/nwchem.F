@@ -86,10 +86,13 @@ c
       integer omp_get_max_threads
       external omp_get_max_threads
 #endif
+      logical printaff
+      integer linux_printaff
 c
 c     Create parallel processes and initialize IPC layer
 c
       call pbeginf()
+
 c
 c     MXINIT is needed by PeIGS and PFFT to initialize
 c     the communication fabric they use.
@@ -163,13 +166,21 @@ C
 !     testing that does not enable OpenMP.
 !
  99   format(2x,'NWChem w/ OpenMP: maximum threads = ',i4)
+      printaff=.false.
 #if defined(USE_OPENMP)
       !$omp parallel
       !$omp master
       if (ga_nodeid().eq.0) write(luout,99) omp_get_max_threads()
+      if(omp_get_max_threads().gt.1) printaff=.true.
       !$omp end master
       !$omp end parallel
 #endif
+c
+      write(0,*) ' printadf ',printaff
+      if(printaff) then
+         if(linux_printaff().ne.0) call errquit(
+     A   ' call to linux_printaff failed ',0,CAPMIS_ERR)
+      endif
 c     set no. threads for threaded BLAS to 1
       call util_blas_set_num_threads(1)
 !
