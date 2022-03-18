@@ -1,5 +1,4 @@
 #ifndef linux
-#warning __cpu_set_t_defined
 Integer linux_printaff_(){
   return (Integer) 0;
 }
@@ -40,7 +39,11 @@ Integer linux_printaff_(){
     numaff=0;
     CPU_ZERO(&mycpuid);
     (void) sched_getaffinity(0, sizeof(mycpuid), &mycpuid);
+#if defined(USE_OPENMP)
     thread = omp_get_thread_num();
+#else
+    thread = 0;
+#endif
   for (i = 0; i < MXCPUS; i++){
     if (CPU_ISSET(i, &mycpuid)) {
      caff[numaff]=i;  numaff+=1;
