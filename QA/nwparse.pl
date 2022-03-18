@@ -396,9 +396,9 @@ foreach $filename (@FILES_TO_PARSE) {
               printf FILE_OUTPUT "%s ", @line_tokens[$itok];
             }
             if (!$quiet) {
-              printf "%.5f\n", set_to_digits(@line_tokens[$itok],5);
+              printf "%.4f\n", set_to_digits(@line_tokens[$itok],4);
             }
-            printf FILE_OUTPUT "%.5f\n", set_to_digits(@line_tokens[$itok],5);
+            printf FILE_OUTPUT "%.4f\n", set_to_digits(@line_tokens[$itok],4);
           }
         }
 
