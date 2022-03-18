@@ -1,3 +1,4 @@
+#include "typesf2c.h"
 #ifndef linux
 Integer linux_printaff_(){
   return (Integer) 0;
@@ -11,7 +12,6 @@ int linux_setffaff_(){
 #else
 #include "ga.h"
 #include "macdecls.h"
-#include "typesf2c.h"
 #endif
 #define __USE_GNU
 
@@ -19,7 +19,9 @@ int linux_setffaff_(){
 #include <unistd.h>
 #include <string.h>
 #include <sched.h>
+#ifdef USE_OPENMP
 #include <omp.h>
+#endif
 #include <sys/syscall.h>
 #define MXCPUS 1024
 unsigned int i, caff[MXCPUS], numaff=0;
@@ -34,12 +36,14 @@ Integer linux_printaff_(){
 #endif
   memset(hname, 0, sizeof(hname));
   (void)gethostname(hname, sizeof(hname));
+#ifdef USE_OPENMP
   #pragma omp parallel private(thread, mycpuid, caff, numaff)
+#endif
   {
     numaff=0;
     CPU_ZERO(&mycpuid);
     (void) sched_getaffinity(0, sizeof(mycpuid), &mycpuid);
-#if defined(USE_OPENMP)
+#ifdef USE_OPENMP
     thread = omp_get_thread_num();
 #else
     thread = 0;
@@ -57,7 +61,9 @@ Integer linux_printaff_(){
     printf(" \n");
     fflush(stdout);
   }
+#ifdef USE_OPENMP
 #pragma omp barrier
+#endif
   }
   return (Integer) 0;
 }
