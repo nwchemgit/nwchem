@@ -434,6 +434,9 @@ c
       integer m,mfac,mseg
       integer nefc,iat,jat,npp,i,iseg,ifac,ief,ipp
 
+      integer l_dum1, l_dum2, l_attag, k_dum1, k_dum2, k_attag
+      character(len=16) aname
+
       integer op, iat_new
       double precision vector(3), symfact
 c
@@ -445,6 +448,9 @@ c
 
       integer sym_number_ops, sym_center_map
       external sym_number_ops, sym_center_map
+
+      logical geom_cart_get
+      external geom_cart_get
 c
 c     MN solvation models -->
 c
@@ -714,6 +720,19 @@ c
      &        call errquit('cosmo_cossas malloc k_tag failed',1,MA_ERR)
          call dfill(nefc,0.0d0,dbl_mb(k_msrf),1)
       endif
+
+      if(oprint_debug) then
+        if(.not.ma_push_get(mt_dbl,nat*3,'coord',l_dum1,k_dum1))
+     &   call errquit('cosmo_cossas malloc dum1 failed',911,MA_ERR)
+        if(.not.ma_push_get(mt_dbl,nat,'cosmo z',l_dum2,k_dum2)) call
+     &    errquit('cosmo_cossas malloc k_dum2 failed',911,MA_ERR)
+        if(.not.ma_push_get(mt_byte,nat*16,'tags',l_attag,k_attag)) call
+     &    errquit('cosmo_cossas malloc k_attag failed',911,MA_ERR)
+c
+        if(.not.geom_cart_get(geom,nat,byte_mb(k_attag),
+     &     dbl_mb(k_dum1),dbl_mb(k_dum2))) call errquit
+     $      (' cosmo_cossas: geom_cart_get failed.',911, GEOM_ERR)
+      endif
 c
 c     ----- save coordinates of surface points -----
 c           save segment surfaces
@@ -723,13 +742,6 @@ c
       volmol=0d0
       ief   =0
 
-      if(oprint_debug) then
-        write(luout,*)
-        write(luout,'(" --- Geometry including SAS --- ")')
-        do iat=1,nat
-          write(luout,'(3F12.6)') (xyzatm(i,iat)*cau2ang,i=1,3)
-        enddo
-      endif
 
       do iat=1,nat
          if(ratm(iat).ne.0d0) then
@@ -757,10 +769,6 @@ c                     dbl_mb(k_efcc+3*(ief-1)+i-1)=xyzspa(i,iseg,iat)
                      dbl_mb(k_efcc+3*(ief-1)+1)=xyzspa(2,iseg,iat)
                      dbl_mb(k_efcc+3*(ief-1)+2)=xyzspa(3,iseg,iat)
 c                    enddo
-                  endif
-                  if(oprint_debug) then
-                    write(luout,'(3F12.6)') 
-     1              (dbl_mb(k_efcc+3*(ief-1)+i-1)*cau2ang,i=1,3)
                   endif
                   ipp=numpps(iseg,iat)
                   if (do_cosmo_model.eq.DO_COSMO_KS) then
@@ -801,11 +809,32 @@ c 775
                   dbl_mb(k_efczz+ief-1) =zetai
                endif
             enddo
-            if(oprint_debug) write(luout,*)
          endif
       enddo
       srfmol=srfmol*(cau2ang**2)
       volmol=volmol*(cau2ang**3)
+c
+      if(oprint_debug) then
+        write(luout,*)
+        write(luout,'(" --- Geometry including SAS --- ")')
+        write(luout,*) nat+nefc
+        write(luout,*)
+        do iat=1,nat
+          call util_set_ma_char_arrays(16,
+     $                                byte_mb(k_attag+16*(iat-1)),
+     $                                aname)
+          write(luout,'(A10,3F12.6)') aname(1:2),
+     $                                (xyzatm(i,iat)*cau2ang,i=1,3)
+        enddo
+        do ief=1,nefc
+          write(luout,'(A10,3F12.6)') "X",
+     1    (dbl_mb(k_efcc+3*(ief-1)+i-1)*cau2ang,i=1,3)
+        enddo
+        write(luout,'(" --- End of Geometry including SAS --- ")')
+        write(luout,*)
+        if (.not.ma_chop_stack(l_dum1))
+     $    call errquit('hnd_cossas: could not chop stack',0,MA_ERR)   
+      endif
 c
       if(ga_nodeid().eq.0) then
          write(luout,9990) nefc
@@ -836,19 +865,21 @@ c <-- MN solvation models
 c
 c     ----- print segment surfaces -----
 c
-      if(oprint_debug) then
-         write(luout,9989)
-         do ief=1,nefc
-            write(luout,9988) ief,dbl_mb(k_efcs+ief-1),
-     &                        int_mb(k_efciat+ief-1)
-         enddo
-      endif
       if(oprint_molsurf) then
-         write(luout,*) ' Contributions to the molecular surface '
-         do ief=1,nefc
-            write(luout,*) ief,
+        if (do_cosmo_model.eq.DO_COSMO_KS) then
+           write(luout,9989)
+           do ief=1,nefc
+              write(luout,9988) ief,dbl_mb(k_efcs+ief-1),
+     &                          int_mb(k_efciat+ief-1)
+           enddo
+        else if (do_cosmo_model.eq.DO_COSMO_YK) then
+           write(luout,*) ' Contributions to the molecular surface '
+           do ief=1,nefc
+              write(luout,*) ief,
      W           dbl_mb(k_msrf+ief-1)
-         enddo
+           enddo
+
+        endif
       endif
 c
       do ief=1,nefc
