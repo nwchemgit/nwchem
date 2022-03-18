@@ -46,7 +46,7 @@ if [ $NWCHEM_TARGET == LINUX ] || [ $NWCHEM_TARGET == LINUX64 ]; then
   nproc=`nproc --all`
   memtot=`egrep -i MemT /proc/meminfo | sed -e "s/kB//g"|sed -e "s/MemTotal://"  `
 elif [ $NWCHEM_TARGET == MACX64 ]; then
-    nproc=`sysctl -n hw.ncpu`
+    nproc=`sysctl -n hw.physicalcpu`
     memtot=`sysctl -n hw.memsize`
     memtot=$(( memtot / 1024 ))
 elif [ $NWCHEM_TARGET == SOLARIS ]; then
