@@ -315,6 +315,7 @@ np_small=$(get_limit $np 16)
 ./runtests.mpi.unix procs $np dft_rscan
 ./runtests.mpi.unix procs $np dft_scan
 ./runtests.mpi.unix procs $np rt_tddft_dimer_charge
+./runtests.mpi.unix procs $np rt_tddft_mocap
 ./runtests.mpi.unix procs $np dft_ne_n12
 ./runtests.mpi.unix procs $np dft_mfm_ch3
 #
