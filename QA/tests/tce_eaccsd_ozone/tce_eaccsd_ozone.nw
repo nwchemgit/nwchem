@@ -6,7 +6,7 @@ title "tce_eaccsd_ozone"
 
 echo
 
-memory stack 1000 mb heap 200 mb global 500 mb
+#memory stack 1000 mb heap 200 mb global 500 mb
 
 #permanent_dir /work/kiran/Ozone/tce_eaccsd_ozone/
 
