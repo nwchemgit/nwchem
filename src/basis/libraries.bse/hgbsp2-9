@@ -1,7 +1,7 @@
-# BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T21:21
+# BSE Version v0.9
+# Data downloaded on 2022-02-15T18:31
 # HGBSP2-9 version number 1
-# Description: HGBSP2-9
+# Description: Hydrogenic Gaussian basis set formed at tolerance 10^{-9} with 2 polarization shells
 # Role: orbital
 # 
 #  If you downloaded data from the basis set
@@ -33,7 +33,7 @@
 #  References for the basis set
 # 
 #  H-Og
-#      HGBSP2-9
+#      Hydrogenic Gaussian basis set formed at tolerance 10^{-9} with 2 polarization shells
 #          lehtola2020a
 # 
 # 

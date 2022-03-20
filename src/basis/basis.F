@@ -1191,7 +1191,7 @@ c
         tmp(lentmp:) = ' '
         tmp(lentmp:) = ':star nr except'
         rtdb_status = rtdb_status .and. rtdb_get(
-     &         rtdb,tmp,mt_int,star_nr_tags,star_nr_excpt)
+     &         rtdb,tmp,mt_int,star_nr_tags,star_nr_excpt(1))
         tmp(lentmp:) = ' '
         tmp(lentmp:) = ':star rel'
         rtdb_status = rtdb_status .and. rtdb_get(
@@ -1200,6 +1200,10 @@ c
         tmp(lentmp:) = ':star segment'
         rtdb_status = rtdb_status .and. rtdb_get(
      &         rtdb,tmp,mt_log,1,star_segment)
+        tmp(lentmp:) = ' ' 
+        tmp(lentmp:) = ':star details'
+        rtdb_status = rtdb_status .and. rtdb_get(
+     &         rtdb,tmp,mt_log,1,star_details)
 c
 c get a list of tags from the current geometry
 c
@@ -1280,7 +1284,7 @@ c
      &              tag_in_lib = tag_to_add
                  call bas_tag_lib(basisin,star_segment,tag_to_add, 
      &                tag_in_lib, star_bas_typ(istar), star_file(istar), 
-     &                star_rel(istar),.false.)
+     &                star_rel(istar),star_details)
               endif
 00011         continue
            enddo
@@ -1962,7 +1966,7 @@ c
      &    channels,  ! AJL/SPIN-POLARISED ECPs
      &    star_nr_tags, star_tag, star_in_lib, star_bas_typ,
      &    star_file, star_nr_excpt, star_excpt, star_tot_excpt,
-     &    star_rel, star_segment)
+     &    star_rel, star_segment, star_details)
 c
       end
 C> @}
@@ -1972,7 +1976,7 @@ C> @}
      &       nucontin, nexcf, stdnamein, ecp_name, ecp_channels,
      &       star_nr_tags, star_tag, star_in_lib, star_bas_typ,
      &       star_file, star_nr_excpt, star_excpt, star_tot_excpt,
-     &       star_rel, star_segment)
+     &       star_rel, star_segment, star_details)
       implicit none
 c
 c stores from argument data structures the basis set information to
@@ -2021,6 +2025,7 @@ c. . . . . . . . . . . . . . . . . . .         contractions coeffs.
       character*255 star_file(star_nr_tags) ! [input] star filename data
       logical star_rel(star_nr_tags) ! [input] star relativistic data
       logical star_segment ! [input] star segment or not ?
+      logical star_details ! [input] star read details from library file
       integer star_tot_excpt ! [input] star total number of except tags
       integer star_nr_excpt(star_nr_tags) ! [input] number of except per tag
       character*16 star_excpt(star_nr_tags) ! [input] except tag list
@@ -2073,23 +2078,23 @@ c
       if (nexcf .gt. 0) then
          tmp(lentmp:) = ' ' 
          tmp(lentmp:) = ':exps and coeffs'
-         status = status .and. rtdb_put(rtdb,tmp,mt_dbl,nexcf,excfin)
+         status = status .and. rtdb_put(rtdb,tmp,mt_dbl,nexcf,excfin(1))
       endif
 
       tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':header'
       status = status .and.
-     &       rtdb_put(rtdb,tmp,mt_int,ndbs_head,head_array)
+     &       rtdb_put(rtdb,tmp,mt_int,ndbs_head,head_array(1))
 
       tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':tags info'
       status = status .and. rtdb_put(
-     &       rtdb,tmp,mt_int,(ndbs_tags*ntags_bsmx), tags_array)
+     &       rtdb,tmp,mt_int,(ndbs_tags*ntags_bsmx), tags_array(1,1))
 
       tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':contraction info'
       status = status .and. rtdb_put(
-     &       rtdb,tmp,mt_int,(ndbs_ucont*nucont_bsmx),ucont_array)
+     &       rtdb,tmp,mt_int,(ndbs_ucont*nucont_bsmx),ucont_array(1,1))
       tmp(lentmp:) = ' ' 
       tmp(lentmp:) = ':star nr tags'
       status = status .and. rtdb_put(
@@ -2128,7 +2133,7 @@ c
         tmp(lentmp:) = ' ' 
         tmp(lentmp:) = ':star nr except'
         status = status .and. rtdb_put(
-     &         rtdb,tmp,mt_int,star_nr_tags,star_nr_excpt)
+     &         rtdb,tmp,mt_int,star_nr_tags,star_nr_excpt(1))
         tmp(lentmp:) = ' ' 
         tmp(lentmp:) = ':star rel'
         status = status .and. rtdb_put(
@@ -2137,6 +2142,9 @@ c
         tmp(lentmp:) = ':star segment'
         status = status .and. rtdb_put(
      &         rtdb,tmp,mt_log,1,star_segment)
+        tmp(lentmp:) = ':star details'
+        status = status .and. rtdb_put(
+     &         rtdb,tmp,mt_log,1,star_details)
       endif
 c
 c reset the stag tag data array for reuse
@@ -2660,7 +2668,7 @@ c
                write(key,'(''basis:'',a,'':header'')')
      $              bs_names_rtdb(basis)(1:len_bs_rtdb(basis))
                if (.not. rtdb_get(rtdb, key, mt_int, 
-     $              ndbs_head, head_array)) then
+     $              ndbs_head, head_array(1))) then
                   write(LuOut,*) ' Warning: basis set ', basis, 
      $                 ' may be corrupt'
                   natom = -1

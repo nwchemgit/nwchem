@@ -35,14 +35,22 @@
       double precision upper, lower, resupper, reslower, const
       double precision values(20), errors(20), radius, maxradius
 c
+      !
+      ! Initialize variables
+      !
       pars%ecgm = 0d0
       main = pars%me .eq. 0
       dbls = ma_sizeof(mt_dbl,1,mt_byte)
       logs = ma_sizeof(mt_log,1,mt_byte)
 
-c     Here, npoles is the sum of both spin channels      
+c     !
+      ! The total number of poles 
+      !
       npoles = sum(pars%npoles(1:pars%ipol))
 
+      !
+      ! Tighten threshold for evGW0 and evGW iterations
+      !
       thresh = pars%thresh
       if (eviter.gt.2) thresh = thresh/10d0
 
@@ -55,7 +63,9 @@ c     Here, npoles is the sum of both spin channels
         maxradius = 0.1d0
       endif
 
-c     Create  Screened-Coulomb array      
+c     !
+      ! Screened-Coulomb matrix elements array
+      !
       if (.not.ga_create(mt_dbl,pars%nmo,npoles,'wmn',pars%nmo,0,g_wmn))
      $  call errquit('can''t create Wmn array',0,GA_ERR)
 
@@ -79,8 +89,17 @@ c     Create  Screened-Coulomb array
         llmo = pars%llmo(isp)
         fixed(:) = .false.
 
+        !
+        ! Find eigenvalues tightly clustered. The solution will be
+        ! attempted starting from the value closer to the Fermi energy
+        ! and using its result as guess for the subsequent orbitals.
+        !
         call gw_findclusters(Eold(llmo,isp),clusters,nclusters,totalqp,
      $                       0.05d0)
+
+        !
+        ! Make sure all ranks have the same information
+        !
         call ga_brdcst(1038,nclusters,ma_sizeof(mt_int,1,mt_byte),0)
         call ga_brdcst(1038,clusters,
      $                 ma_sizeof(mt_int,nclusters,mt_byte),0)
@@ -94,6 +113,9 @@ c     Create  Screened-Coulomb array
         enddo
 
 
+        !
+        ! Loop over all clusters of eigenvalues
+        !
         ulqp = 0
         do icluster=1,nclusters
 
@@ -115,7 +137,7 @@ c     Create  Screened-Coulomb array
           SigmaOld = Sigma(llmo+iqp-1,isp)
           Sigma_X  = Sigmax(llmo+iqp-1,isp)
 
-          if (eviter.lt.3) then
+          if (eviter.lt.10) then
             if (myul.lt.ulqp) then
               Eout = Enew(llmo+iqp,isp) + 0.002d0
             elseif (myll.gt.llqp) then

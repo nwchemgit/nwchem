@@ -46,8 +46,6 @@ c
       integer,external :: ga_nnodes
 #ifdef USE_OPENMP
       integer,external :: omp_get_max_threads
-      iMaxThreads = omp_get_max_threads()
-      call util_blas_set_num_threads(iMaxThreads)
 #endif
 
       timer = util_wallsec()
@@ -163,6 +161,11 @@ c
      $              dbl_mb(k_vecs+(isp-1)*nbf_ao*nmo),nbf_ao)
       enddo
 c
+#ifdef USE_OPENMP
+      iMaxThreads = omp_get_max_threads()
+      call util_blas_set_num_threads(iMaxThreads)
+#endif
+
       do ish=1,nshells_ao
         ok = bas_cn2bfr(ao_bas_han,ish,ifirst,ilast)
         ni = ilast - ifirst + 1

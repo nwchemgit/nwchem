@@ -30,7 +30,7 @@ c
       integer num_dirs          ! No. of known directives
 cc AJL/Begin/FDE
 c      parameter (num_dirs = 48)
-      parameter (num_dirs = 51)
+      parameter (num_dirs = 52)
 cc AJL/End
       character*12 dirs(num_dirs)
       character*255 test
@@ -95,7 +95,8 @@ c     xps variables
      $         'dftmp2','molden','noscf','steric','efield','swapab',
      $         'frozemb', 'frozemb_xc', 'frozemb_ts',
      $         'cgmin','nocgmin','tol2e','ri-scf','lock',
-     $         'rodft','fukui','maxiter','vspec','xps','xdm','end'/
+     $         'rodft','fukui','maxiter','vspec','xps','xdm',
+     $         'densmat','end'/
 c
 c Qin / cdft
       integer nconstr
@@ -150,7 +151,7 @@ c
      $     2700, 2800, 2900, 3000, 3100, 3200, 3300, 3400, 
      $     3500, 3520, 3530,
      $     3600, 3600, 3700, 3800, 3900, 4000, 4100, 4200, 4300,
-     $     4400, 4500, 9999) ind
+     $     4400, 4500, 4600, 9999) ind
 
       call errquit('dft_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -986,6 +987,16 @@ c     read XDM options
       endif
 
       goto 4510
+c
+c     read Density Matrix as starting guess (from TCE/CCSD)
+c
+ 4600 continue
+      if (.not.rtdb_put(rtdb,'dft:densmat', mt_log, 1, .true.))
+     &   call errquit('dft_input: rtdb_put failed', 4600, RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'quickguess', mt_log, 1, .true.))
+     &     call errquit('dft_input: rtdb_put failed', 4601, RTDB_ERR)
+
+      goto 10
 c
 
 

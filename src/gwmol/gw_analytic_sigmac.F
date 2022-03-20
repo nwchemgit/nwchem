@@ -1,6 +1,10 @@
       subroutine gw_analytic_sigmac(sigma,dsigma,d2sigma,omegain,Eold,
      $                              Omegam,wmn,eta,npoles,nmo,
      $                              plus,me)
+c
+c     Obtains the diagonal matrix elements of the self-energy operator
+c     (Equation (37)). 
+c
       implicit none
 #include "gw.fh"
 #include "errquit.fh"
@@ -14,12 +18,6 @@
       integer :: ilo, ihi, jlo, jhi, ipole, imo, ld, adrWMN
       double precision :: omega,w,delta,denom, eta3
       double precision  :: resp(3),resm(3)
-#ifdef USE_OPENMP
-      integer iMaxThreads
-      integer,external :: omp_get_max_threads
-      iMaxThreads = omp_get_max_threads()
-      call util_blas_set_num_threads(iMaxThreads)
-#endif      
 
       call ga_distribution(wmn, me, ilo, ihi, jlo , jhi)
 
@@ -29,6 +27,9 @@
       call ga_access(wmn, ilo, ihi ,jlo, jhi, adrWMN, ld)
       eta3 = 3d0*eta
 
+      !
+      ! Perform the summation over the occupied orbitals
+      !
 !$omp parallel private(delta,omega,w,denom)
 !$omp do collapse(2) reduction(+: resp )
       do imo=1,plus
@@ -43,6 +44,9 @@
       enddo
 !$omp end do      
 c
+      !
+      ! Perform the summation over the unoccupied orbitals
+      !
 !$omp do collapse(2) reduction(+: resm )
       do imo=plus+1,nmo
         do ipole=jlo,jhi
@@ -59,14 +63,13 @@ c
 c
       resp = resp + resm
 
+      !
+      ! Sum contributions from all MPI ranks
+      !
       call ga_dgop(1038,resp,3,'+')
       sigma = resp(1)
       dsigma = resp(2)
       d2sigma = resp(3)
-
-#ifdef USE_OPENMP
-      call util_blas_set_num_threads(1)
-#endif 
 
       call ga_release(wmn, ilo, ihi ,jlo, jhi)
 

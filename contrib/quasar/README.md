@@ -2,7 +2,7 @@ Using NWChem with Microsoft Quantum Development Kit
 ===================================================
 
 Instructions on building and running NWChem are available
-[here](http://www.nwchem-sw.org/index.php/Main_Page).
+[here](https://nwchemgit.github.io).
 
 Alternatively, you can run the NWChem docker image using the
 instructions at:

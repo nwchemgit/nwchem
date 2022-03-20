@@ -18,9 +18,6 @@ c
 #if defined(CRAY)
       integer ilen,ierror
 #endif
-#if defined(FUJITSU_VPP)
-      logical file_exists
-#endif
       integer l
 #ifdef USE_POSIXF
       integer*4 ipxfargc
@@ -65,13 +62,8 @@ c
       call fix_windows_path(input_filename)
 #endif
 c
-#ifdef FUJITSU_VPP
-      inquire (file=input_filename, exist=file_exists)
-       if (.not. file_exists) goto 10
-#else
       open(LuIn,file=input_filename,status='old',err=10)
       close(LuIn)
-#endif
       return
 c
  10   l = inp_strlen(input_filename)

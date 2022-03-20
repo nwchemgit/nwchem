@@ -51,6 +51,9 @@ env|egrep MP
  if [[ "$os" == "Darwin" && "NWCHEM_MODULES" == "tce" ]]; then
     do_largeqas=0
  fi
+ if [[ ! -z "$USE_INTERNALBLAS" ]]; then
+    do_largeqas=0
+ fi
  case "$ARMCI_NETWORK" in
     MPI-PR)
 	nprocs=$(( nprocs + 1 ))

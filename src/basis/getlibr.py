@@ -66,7 +66,10 @@ def writebs(md, bas_name, summary_file, get_aux=0):
     n_elements=0
     for element in elements_list:
         n_elements = n_elements + 1
-    summary_file.write('Basis set \"'+bas_name+'\" (number of atoms '+str(n_elements)+')\n')
+    if get_aux==1:
+        summary_file.write('Basis set \"'+bas_name+'-autoaux\" (number of atoms '+str(n_elements)+')\n')
+    else:
+        summary_file.write('Basis set \"'+bas_name+'\" (number of atoms '+str(n_elements)+')\n')
     for element in elements_list:
         #element='h'
         try:

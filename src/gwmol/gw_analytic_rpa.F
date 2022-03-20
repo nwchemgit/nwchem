@@ -1,4 +1,15 @@
       subroutine gw_analytic_rpa(pars,eia,omega,maxpoles,maxnpoles,nri)
+C
+C     Build and diagonalize the RPA polarizability Casida matrix.
+C     Transform the ERIs with the eigenvectors obtained.
+C
+C     We convert the full Casida matrix (Equation (12) and (13)), into
+C     the Hermitian matrix `A+B` appearing on Equations (32) and (33).
+C     The matrix `A-B` and, in principle, should be positive definite.
+C
+C     See Equations (12), (13), (34), (36) of
+C     JCTC 17, 7504 (2021).
+C
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -28,6 +39,9 @@
       call util_blas_set_num_threads(iMaxThreads)
 #endif      
 
+      !
+      ! Closed-shell case
+      !
       if (pars%ipol.eq.1) then
 
         npoles = pars%npoles(1)
@@ -42,24 +56,44 @@
 
         call ga_access(pars%g_eriov(1),1,nri,pars%ovlo(1),pars%ovhi(1),
      $                 kOV1,ld)                
+
+        !
+        ! In order to obtain the matrix (A-B)^{1/2}(A+B)(A-B)^{1/2} is
+        ! convenient to scale the ERIs with (A-B)^{1/2} and then use
+        ! DYSRK.
+        !
         call gw_analytic_ovscale(1,dbl_mb(kOV1),eia,nri,mynpoles)
         call ga_release_update(pars%g_eriov(1),1,nri,pars%ovlo(1),
      $                         pars%ovhi(1))   
 
+        !
+        ! We use GA_DGEMM instead of the missing GA_DSYRK
+        !
         call ga_dgemm('t','n',pars%npoles(1),pars%npoles(1),nri,4d0,
      $                 pars%g_eriov(1),pars%g_eriov(1),0d0,g_rpa)
 
+        !
+        ! We still need to add the square of the eigenvalue differences
+        ! (Equation (34) scaled by (A-B)^{1/2} on both sides)
+        !
         call ga_access(g_rpa,pars%ovlo(1),pars%ovhi(1),1,npoles,
      $                 kRPA,ld)   
         call gw_analytic_addrpa(dbl_mb(kRPA),eia,mynpoles,pars%ovlo(1))
         call ga_release_update(g_rpa,ilo,ihi,jlo,jhi)
 
 
+        !
+        ! Obtain the RPA correlation energy from the diagonal of the
+        ! Casida matrix.
+        !
         call ga_access(g_rpa,pars%ovlo(1),pars%ovhi(1),1,npoles,kRPA,ld)
         call gw_analytic_ecrpa(dbl_mb(kRPA),eia,mynpoles,pars%ovlo(1),
      $                         pars%ecrpa)
         call ga_release(g_rpa,ilo,ihi,jlo,jhi)
 
+        !
+        ! Perform the Eigendecomposition of the Casida matrix
+        !
 #ifdef PARALLEL_DIAG
 #ifdef SCALAPACK        
         call dft_scaleig(g_rpa,g_rpa,omega,0)
@@ -70,6 +104,11 @@
         call ga_diag_std_seq(g_rpa,g_rpa,omega)
 #endif
 
+        !
+        ! Since we transform the eigenvalue equation to an Hermitian
+        ! form, we obtain the square of the neutral excitations
+        ! (Equation (32)).
+        !
 !$omp   parallel do
         do ipole=1,npoles
           omega(ipole) = dsqrt(omega(ipole))
@@ -78,6 +117,14 @@
 
         pars%ecrpa = pars%ecrpa + 0.5d0*sum(omega(1:npoles))
 
+
+        !
+        ! Include 1/\Omega^{1/2} factor in the eigenvectors.
+        !
+        ! The manuscript has the 1/\Omega^{1/2} missing!
+        ! (see Equations (42a) and (42b) from Comp. Phys. Comm. 208, 149
+        ! (2016)).
+        !
         if (.not.ga_duplicate(pars%g_eriov(1),pars%g_erim,
      $                        'transformed eri alpha'))
      $    call errquit(pname//'failed to duplicate array',0,GA_ERR)
@@ -89,10 +136,20 @@
      $                         npoles)   
 
 
+        !
+        ! We do not need to multiply Equation (33) by (A-B)^{1/2} since
+        ! this factor is already present in the ERIs. Therefore, we just
+        ! transform the scaled ERIs by the scaled T, to obtain the
+        ! first summation of Equation (36).
+        !
         call ga_dgemm('n','n',nri,npoles,npoles,1d0,pars%g_eriov(1),
      $                 g_rpa,0d0,pars%g_erim)
 
 
+        !
+        ! We will need the original ERIs, so we remove the (A-B)^{1/2}
+        ! factor.
+        !
         call ga_access(pars%g_eriov(1),1,nri,pars%ovlo(1),pars%ovhi(1),
      $                 kOV1,ld)
         call gw_analytic_ovscale(2,dbl_mb(kOV1),eia,nri,mynpoles)
@@ -103,6 +160,9 @@
      $    call errquit(pname//'can''t destroy RPA GA',0,GA_ERR)
 
 
+      !
+      ! Open-shell case
+      !
       else
 
         npoles = pars%npoles(1) + pars%npoles(2)

@@ -255,7 +255,7 @@ c     of a unit sphere. Spherical coordinates are used.
       enddo
 
       call ga_dgop(0,energy,1,'+')
-      call ga_dgop(0,grad,2*n,'+')
+      call ga_dgop(0,grad(1),2*n,'+')
       call dscal(2*n,0.5d0,grad,1)
 
       end subroutine

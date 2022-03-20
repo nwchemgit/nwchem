@@ -1,0 +1,64 @@
+# BSE Version v0.9
+# Data downloaded on 2022-02-15T18:31
+# DFO-1-BHS version number 1 AutoAux 
+# Role: JK Fitting 
+# Stoychev GL, Auer AA, Neese F. 
+# Automatic Generation of Auxiliary Basis Sets.
+# J Chem Theory Comput. 2017 Feb 14;13(2):554-562.
+# doi: 10.1021/acs.jctc.6b01041.
+# 
+basis "Si_DFO-1-BHS-autoaux" SPHERICAL 
+#basis SET: (8s,8p,7d,3f) -> [8s,8p,7d,3f]
+Si    S
+      6.639257e+00           1.0
+Si    S
+      3.688476e+00           1.0
+Si    S
+      2.049153e+00           1.0
+Si    S
+      1.138419e+00           1.0
+Si    S
+      6.324547e-01           1.0
+Si    S
+      3.513637e-01           1.0
+Si    S
+      1.952021e-01           1.0
+Si    S
+      1.084456e-01           1.0
+Si    P
+      6.639257e+00           1.0
+Si    P
+      3.688476e+00           1.0
+Si    P
+      2.049153e+00           1.0
+Si    P
+      1.138419e+00           1.0
+Si    P
+      6.324547e-01           1.0
+Si    P
+      3.513637e-01           1.0
+Si    P
+      1.952021e-01           1.0
+Si    P
+      1.084456e-01           1.0
+Si    D
+      3.688476e+00           1.0
+Si    D
+      2.049153e+00           1.0
+Si    D
+      1.138419e+00           1.0
+Si    D
+      6.324547e-01           1.0
+Si    D
+      3.513637e-01           1.0
+Si    D
+      1.952021e-01           1.0
+Si    D
+      1.084456e-01           1.0
+Si    F
+      1.000403e+00           1.0
+Si    F
+      4.547286e-01           1.0
+Si    F
+      2.066948e-01           1.0
+end

@@ -2,7 +2,10 @@
 c
 c     Adds squared eigenvalue differences to diagonal of
 c     RPA matrix. Each rank has all columns and only a
-c     subset of rows.
+c     subset of rows. 
+c
+c     This is the first term of (A-B)^{1/2}(A+B)(A-B)^{1/2} in
+c     Equation (32), (34).
 
       implicit none
       integer,intent(in) :: mynpoles,lpole

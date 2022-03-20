@@ -71,7 +71,7 @@ ifndef NWCHEM_TARGET
     endif
 endif
 
-ifneq ($(NWCHEM_TARGET),$(findstring $(NWCHEM_TARGET), LINUX64 LINUX MACX MACX64 CATAMOUNT CYGWIN64 CYGNUYS CYGWIN BGL BGP BGQ HPUX HPUX64 IBM IBM64 LAPI LAPI64 PURESOLARIS SOLARIS SOLARIS64 SGI_N32 SGITFP))
+ifneq ($(NWCHEM_TARGET),$(findstring $(NWCHEM_TARGET), LINUX64 LINUX MACX MACX64 CATAMOUNT CYGWIN64 CYGNUYS CYGWIN BGL BGP BGQ HPUX HPUX64 IBM IBM64 LAPI LAPI64 PURESOLARIS SOLARIS SOLARIS64))
     error20:
 	$(info     )
 	$(info unrecognized NWCHEM_TARGET value $(NWCHEM_TARGET))
@@ -634,18 +634,6 @@ ifeq ($(TARGET),PURESOLARIS)
 endif
 
 
-ifeq ($(TARGET),FUJITSU_VPP)
-    @echo DEPRECATED
-    @exit
-endif
-
-
-ifeq ($(TARGET),FUJITSU_VPP64)
-    @echo DEPRECATED
-    @exit
-endif
-
-
 ifeq ($(TARGET),cray-sv2)
     @echo DEPRECATED
     @exit
@@ -653,18 +641,6 @@ endif
 
 
 ifeq ($(TARGET),CRAY-T3E)
-    @echo DEPRECATED
-    @exit
-endif
-
-
-ifeq ($(TARGET),SGITFP)
-    @echo DEPRECATED
-    @exit
-endif
-
-
-ifeq ($(TARGET),SGI_N32)
     @echo DEPRECATED
     @exit
 endif
@@ -1726,6 +1702,15 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
             DEFINES   += -DPGLINUX
 #           added -Kieee to get dlamc1 to work on pgf77 3.1-3 EA Jun 8th 2000
             FOPTIONS   = -Mdalign -Minform,warn -Mnolist -Minfo=loop -Munixlogical -Kieee
+            FOPTIONS   = -Mdalign -Minform,warn -Mnolist -Munixlogical -Kieee
+            ifeq ($(V),-1)
+                 FOPTIONS += -Minform,fatal
+            else
+                 FOPTIONS += -Minform,warn
+            endif
+            ifdef USE_OPTREPORT
+                 FOPTIONS += -Minfo=loop
+            endif
             ifeq ($(shell $(CNFDIR)/check_env.sh $(USE_HWOPT)),1)
                 ifeq ($(_CPU),i586)
                     FOPTIONS  += -tp p5  
@@ -2174,7 +2159,9 @@ ifneq ($(TARGET),LINUX)
                 COPTIONS += -w
             else
                 FOPTIMIZE  += -Wuninitialized
-                COPTIONS += -Wall
+                ifeq ($(_CC),$(findstring $(_CC),gcc clang))
+                    COPTIONS += -Wall
+		endif
                 ifndef USE_FLANG
                     FOPTIMIZE  += -Wno-maybe-uninitialized
                 endif
@@ -2213,6 +2200,7 @@ ifneq ($(TARGET),LINUX)
 #                   FDEBUG =-O2 -g
                 endif
                 FDEBUG +=-fno-aggressive-loop-optimizations
+                FOPTIONS +=-fno-aggressive-loop-optimizations
                 FOPTIMIZE +=-fno-aggressive-loop-optimizations
                 FFLAGS_FORGA += -fno-aggressive-loop-optimizations
                 ifeq ($(V),-1)
@@ -2388,7 +2376,7 @@ ifneq ($(TARGET),LINUX)
                     FOPTIONS += -i8
                 endif
                 ifdef USE_OPENMP
-                    FOPTIONS += -fiopenmp
+                    FOPTIONS += -fopenmp
                     ifdef USE_OFFLOAD
                         FOPTIONS += -fopenmp-targets=spirv64
                     endif
@@ -2459,6 +2447,9 @@ ifneq ($(TARGET),LINUX)
                             FOPTIONS += -qopt-report-annotate-position=both
                         endif
                         FOPTIONS += -qopt-report-file=stderr
+                    endif
+                    ifeq ($(V),-1)
+                        FOPTIONS += -diag-disable=8291,15009
                     endif
 #                   to avoid compiler crashes on simd directive. e.g .Version 15.0.2.164 Build 20150121
                     ifdef USE_NOSIMD
@@ -2808,7 +2799,7 @@ ifneq ($(TARGET),LINUX)
                     ifdef USE_A64FX
                         COPTIMIZE += -mtune=a64fx -mcpu=a64fx 
                     else
-                        COPTIMIZE +=  -mcpu=native
+                        COPTIMIZE += -mtune=native -march=native
                     endif 
                 endif
 
@@ -2842,7 +2833,10 @@ ifneq ($(TARGET),LINUX)
 
                 FOPTIMIZE  += -fprefetch-loop-arrays #-ftree-loop-linear
                 ifeq ($(GNU_GE_4_8),true)
-                    FOPTIMIZE  += -ftree-vectorize   -fopt-info-vec
+                    FOPTIMIZE  += -ftree-vectorize
+                         ifdef USE_OPTREPORT
+                              FOPTIMIZE += -fopt-info-vec
+			 endif
                 endif
 
                 FDEBUG += -g -O
@@ -2853,9 +2847,12 @@ ifneq ($(TARGET),LINUX)
                             FOPTIMIZE += -mtune=a64fx -mcpu=a64fx
                             FOPTIMIZE += -march=armv8.2-a+sve
                         else
-                            FOPTIMIZE += -mtune=native -mcpu=native
+                            FOPTIMIZE += -mtune=native -march=native
                         endif
-                        FOPTIMIZE += -ffp-contract=fast -fopt-info-vec 
+                        FOPTIMIZE += -ffp-contract=fast
+                             ifdef USE_OPTREPORT
+			          FOPTIMIZE += -fopt-info-vec
+			     endif
                         FOPTIMIZE += -fstack-arrays
                     endif
 #                   causes slowdows in mp2/ccsd
@@ -2993,6 +2990,9 @@ ifneq ($(TARGET),LINUX)
                 else
                     FOPTIONS += -qintsize=8
                 endif
+                ifeq ($(V),-1)
+                    FOPTIONS += -w
+                endif
             endif
 
             ifdef USE_ESSL
@@ -3011,7 +3011,10 @@ ifneq ($(TARGET),LINUX)
             endif
             FOPTIONS   += -Mbackslash
             FOPTIONS   += -Mcache_align  # -Kieee 
-            FOPTIMIZE   =  -fast -O3 -Mvect=simd  -Munroll -Minfo=loop # -Mipa=fast
+            FOPTIMIZE   =  -fast -O3 -Mvect=simd  -Munroll # -Mipa=fast
+            ifdef USE_OPTREPORT
+                 FOPTIMIZE += -Minfo=loop
+            endif
             FVECTORIZE   = -fast    -O3   #-Mipa=fast
             FDEBUG = -g -O2
             DEFINES  += -DCHKUNDFLW -DPGLINUX
@@ -3024,7 +3027,10 @@ ifneq ($(TARGET),LINUX)
             endif
             ifdef USE_OPENMP
 	      ifndef UNSET_OPENMP
-                FOPTIONS  += -mp -Minfo=mp
+                FOPTIONS  += -mp
+                ifdef USE_OPTREPORT
+                    FOPTIONS  += -Minfo=mp
+                endif
                 LDOPTIONS += -mp
 	      endif
             endif

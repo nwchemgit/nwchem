@@ -1,6 +1,6 @@
 OBJ = gwmol.o ga_chol_inv_seq.o gw_input.o \
       gw_defaults.o gw_init.o gw_finalize.o gw_memory.o \
-      gw_vxc.o mycpu.o gw_donewton.o \
+      gw_vxc.o gw_donewton.o \
       gw_cdgw.o gw_cdgw_buildin.o gw_cdgw_newton.o gw_cdgw_graph.o \
       gw_analytic.o gw_analytic_newton.o gw_analytic_graph.o
 

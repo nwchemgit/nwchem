@@ -76,6 +76,11 @@
         llmo = pars%llmo(isp)
         fixed(:) = .false.
 
+        !
+        ! Find eigenvalues tightly clustered. The solution will be
+        ! attempted starting from the value closer to the Fermi energy
+        ! and using its result as guess for the subsequent orbitals.
+        !
         call gw_findclusters(Eold(llmo,isp),clusters,nclusters,totalqp,
      $                       0.05d0)
         call ga_brdcst(1038,nclusters,ma_sizeof(mt_int,1,mt_byte),0)
@@ -176,6 +181,9 @@ c
               exit
             endif
 
+            !
+            ! Take a step
+            !
             if (main) then
               call gw_donewton(ein,eout,residual,dresidual,lower,upper,
      $                       reslower,resupper,bracket,thresh,

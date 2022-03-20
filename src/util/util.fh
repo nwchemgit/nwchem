@@ -32,3 +32,5 @@ c
       integer nw_max_path_len   ! Maximum path len -> posix standard is what?
       parameter (nw_max_path_len = MAXLENGTH)
 c
+      double precision util_norm2
+      external util_norm2

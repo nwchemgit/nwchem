@@ -39,6 +39,7 @@ c
       integer dim_mu_h,dim_mu_p,dim_mo_h,dim_mo_p
       integer l_mu_h,k_mu_h,l_mu_p,k_mu_p
       integer hole,particle
+      integer g_dens
       character*256 filename
       logical  ao_rdm_write
       external ao_rdm_write
@@ -49,9 +50,7 @@ c
       if(.not.ma_push_get(mt_dbl,dim_rdm_ao,'rdm_ao',
      1     l_rdm_ao,k_rdm_ao)) 
      2     call errquit('ccsd_1prdm: ma problem',1,ma_err)
-      do i=1,dim_rdm_ao
-         dbl_mb(k_rdm_ao+i-1)=0.d0
-      enddo
+      call dfill(dim_rdm_ao,0d0,dbl_mb(k_rdm_ao),1)
 c     
 c     allocate memory for MOs
 c     
@@ -531,8 +530,18 @@ c
      1   call errquit('ccsd_1prdm: rtdb_cgett failed - file_densmat',0,
      1        RTDB_ERR)
 c
+#if 0
       if(.not.ao_rdm_write(filename,k_rdm_ao))
      1     call errquit('ccsd_1prdm: disk problem',1,disk_err)
+#else
+c     nodezero loads DM into g_dens
+      if(.not.ga_duplicate(g_movecs(1),g_dens,'dm'))
+     1     call errquit('ccsd_1prdm: ga_duplicate failed',0,GA_ERR)
+      call ga_put(g_dens,1,nbf,1,nbf,dbl_mb(k_rdm_ao),nbf)
+      call ao_1prdm_write(nbf,g_dens,filename)
+      if (.not. ga_destroy(g_dens))
+     1     call errquit('ccsd_1prdm: ga_destroy failed',0,GA_ERR)
+#endif
       if(.not.ma_pop_stack(l_rdm_ao))
      1     call errquit('ccsd_1prdm: ma problem',03,ma_err)
 c     

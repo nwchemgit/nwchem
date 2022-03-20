@@ -1,6 +1,3 @@
-#if defined(FUJITSU_VPP)
-!ocl scalar
-#endif
       Subroutine xc_cs00(tol_rho, fac, rho, delrho, 
      &                      Amat, nq, ipol, delta, e_homo)
 c

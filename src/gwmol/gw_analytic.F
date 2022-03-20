@@ -35,8 +35,7 @@ c
       integer lo4,ld, istart, iend
       logical main,oactive,converged
 c
-      double precision sigma_c, dsigma_c, eps_in, eps_out, sigma_old
-      double precision z, sigma, func, linear, efermi(2), sigma_x
+      double precision efermi(2), efermi_new(2)
 
       double precision cputime,walltime,timer,timer_wm,timer_sigmac
       double precision timer_vxc,timer_sigmax,timer_rpa
@@ -195,7 +194,19 @@ c
      $       ma_sizeof(mt_dbl,nmo,mt_byte),0)
         call ga_brdcst(1038,dbl_mb(k_sigma),
      $       ma_sizeof(mt_dbl,nmo,mt_byte),0)
-        call dcopy(nmo,dbl_mb(k_enew),1,dbl_mb(k_eold),1)
+
+        !
+        ! Update Fermi energy
+        !
+        do i=1,ipol
+          lSize = k_enew + (i-1)*nbf_ao
+          efermi_new(i) = gw_efermi(dbl_mb(lSize),pars%nocc(i))
+        enddo
+        call gw_shift(dbl_mb(k_enew),dbl_mb(k_eold),efermi_new,
+     $                nbf_ao,pars%nmo,pars%ipol)
+        efermi(:) = efermi(:) + efermi_new(:)
+        call dcopy(pars%ipol*nmo,dbl_mb(k_eold),1,dbl_mb(k_enew),1)
+
         eviter = eviter + 1      
         if (eviter.lt.pars%eviter) then
           if (pars%evgw0) goto 200

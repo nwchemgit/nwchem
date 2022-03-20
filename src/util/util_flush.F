@@ -20,13 +20,6 @@ c
 #if defined(PSCALE)
       call util_cflush()
 #endif
-#if defined(SGI)
-      if (unit.eq.luout) then
-        call sgi_flush6()
-      else
-        call flush(unit)
-      endif
-#endif
 #if defined(GFORTRAN)
       call flush(unit)
 #endif

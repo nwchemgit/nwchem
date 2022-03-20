@@ -1,4 +1,9 @@
       subroutine gw_analytic_wmn(pars,wmn,imo,isp,nri)
+c
+c     Complete Equation (36). On entry, the global array ERIm has the
+c     ERIs modified with the sum of the (X+Y) eigenvectors. Here, we
+c     do the reamining sum over the fitting basis functions.
+c
       implicit none
 #include "gw.fh"
 #include "mafdecls.fh"
@@ -16,12 +21,6 @@
 
       double precision :: scr(nri)
       double precision :: factor
-#ifdef USE_OPENMP
-      integer iMaxThreads
-      integer,external :: omp_get_max_threads
-      iMaxThreads = omp_get_max_threads()
-      call util_blas_set_num_threads(iMaxThreads)
-#endif      
 
       nmo = pars%nmo
       nocc = pars%nocc(isp)
@@ -35,6 +34,10 @@
       if (.not.ga_create(mt_dbl,nri,nmo,'temp',nri,0,g_a))
      $  call errquit('gw_analytic_wmn: cannot create array',0,GA_ERR)
 
+      !
+      ! Gather all ERI vectors for all MO pairs involving the target
+      ! orbital
+      !
       if (imo.le.nocc) then
 
         do kmo=1,nocc
@@ -72,14 +75,18 @@
       factor = 1d0
       if (pars%ipol.eq.1) factor = dsqrt(2d0)
 
+      !
+      ! Contract the ERIs with the modified ERIm
+      !
       call ga_dgemm('t','n',nmo,npoles,nri,factor,g_a,erim,0d0,wmn)
+
+      !
+      ! We will need the square of these quantities for Equation (37)
+      !
       call ga_elem_multiply(wmn,wmn,wmn)
 
       if (.not.ga_destroy(g_a))
      $  call errquit('gw_analytic_wmn: can''t destroy array',0,GA_ERR)
 
-#ifdef USE_OPENMP
-      call util_blas_set_num_threads(1)
-#endif
 
       end subroutine

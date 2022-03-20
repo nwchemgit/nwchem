@@ -40,33 +40,15 @@ C$Id$
        INTEGER START, END
        INTEGER I
        LOGICAL INONE, SIGN
-#if defined(SGITFP)
-       logical l_llt, l_lgt, l_lge, l_lle
-       integer ic_c, ic_0, ic_9
-#endif
 C
        START = 0
        END = 0
        INONE = .FALSE.
        SIGN = .FALSE.
-#if defined(SGITFP)
-c
-       ic_0  = ichar('0')
-       ic_9  = ichar('9')
-#endif
 C
        DO 100 I = 1, LEN(STRING)
           C = STRING(I:I)
-#if defined(SGITFP)
-          ic_c  = ichar(c)
-          l_llt = ic_c.lt.ic_0
-          l_lgt = ic_c.gt.ic_9
-          l_lge = ic_c.ge.ic_0
-          l_lle = ic_c.le.ic_9
-          IF (INONE .AND. (l_llt .OR. l_lgt)) THEN
-#else
           IF (INONE .AND. (LLT(C,'0') .OR. LGT(C,'9'))) THEN
-#endif
 C               End of an integer...
              INONE = .FALSE.
 C               Check to make sure it wasn't just a + or a -
@@ -83,13 +65,8 @@ C               This is a sign character, which may begin an integer
              SIGN = .TRUE.
              INONE = .TRUE.
              START = I
-#if defined(SGITFP)
-          ELSEIF (.NOT.INONE .AND. 
-     1           (l_lge .AND. l_lle)) THEN
-#else
           ELSEIF (.NOT.INONE .AND. 
      1           (LGE(C,'0') .AND. LLE(C,'9'))) THEN
-#endif
 C               This is a digit, which does begin an integer
              INONE = .TRUE.
              START = I

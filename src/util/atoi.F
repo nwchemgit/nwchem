@@ -37,11 +37,6 @@ C$Id$
        CHARACTER*1 C
        INTEGER I
        LOGICAL NEG
-#if defined(SGITFP)
-c
-       integer ic_c, ic_0, ic_9
-       logical l_lge, l_lle
-#endif
 C
        ATOI = 0
        NEG = .FALSE.
@@ -70,16 +65,7 @@ C
 C
 C      Continue as long as its a digit...
 C
-#if defined(SGITFP)
-       ic_0 = ichar('0')
-       ic_9 = ichar('9')
-00200  ic_c = ichar(C)
-       l_lge = ic_c.ge.ic_0
-       l_lle = ic_c.le.ic_9
-       if (l_lge .and .l_lle) then
-#else
  200   IF (LGE(C, '0') .AND. LLE(C,'9')) THEN
-#endif
 C            Shift number over & add new digit
           ATOI = 10*ATOI + ICHAR(C)-48
           I = I + 1
