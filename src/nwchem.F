@@ -323,6 +323,7 @@ c
       if(do_printaff) then
          if(ga_nodeid().eq.0)
      W        write(luout,*) '%%%%%% CPU Affinity %%%%%%%'
+         call util_flush(luout)
          call ga_sync()
          if(linux_printaff().ne.0) call errquit(
      A   ' call to linux_printaff failed ',0,CAPMIS_ERR)

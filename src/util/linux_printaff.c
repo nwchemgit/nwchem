@@ -29,15 +29,17 @@ cpu_set_t mycpuid;
 int myrank, thread;
 char hname[128];
 Integer linux_printaff_(){
+  char affbuf[200 + 7*CPU_SETSIZE];
 #ifdef MPI
   MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 #else
   myrank=GA_Nodeid();
 #endif
+  memset(affbuf,0, sizeof(affbuf));
   memset(hname, 0, sizeof(hname));
   (void)gethostname(hname, sizeof(hname));
 #ifdef USE_OPENMP
-  #pragma omp parallel private(thread, mycpuid, caff, numaff)
+  #pragma omp parallel private(thread, mycpuid, caff, numaff, affbuf, i)
 #endif
   {
     numaff=0;
@@ -54,16 +56,16 @@ Integer linux_printaff_(){
     }
   }
   if(numaff>0) {
-    printf("rank %d thread %d host %s bind to %d CPUs:", myrank,  thread, hname, numaff);
+    sprintf(affbuf,"rank %d thread %d host %s bind to %d CPUs:", myrank,  thread, hname, numaff);
     for (i = 0; i < numaff; i++){
-      printf(" %i ", caff[i]);
+      sprintf(affbuf + strlen(affbuf)," %i ", caff[i]);
     }
-    printf(" \n");
-    fflush(stdout);
   }
 #ifdef USE_OPENMP
 #pragma omp barrier
 #endif
+  puts(affbuf);
+  fflush(stdout);
   }
   return (Integer) 0;
 }
