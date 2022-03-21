@@ -3003,6 +3003,13 @@ ifneq ($(TARGET),LINUX)
 #           EXTRA_LIBS +=  -dynamic-linker /lib64/ld64.so.1 -melf64ppc -lxlf90_r -lxlopt -lxlomp_ser -lxl -lxlfmath -ldl -lm -lc -lgcc -lm
         endif # end of ppc64 arch
 
+	ifeq ($(_CC),pgcc)
+            COPTIONS += -fast -O3 -Munroll
+            ifdef USE_OPENMP
+                COPTIONS += -mp
+            endif
+	endif
+
 
         ifeq ($(_FC),pgf90)
             FOPTIONS   += -Mdalign -Kieee
