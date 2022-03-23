@@ -337,6 +337,7 @@ c
       logical function xc_getxcfac(rtdb)
       implicit none
       integer rtdb
+      logical dolibxc
 c     load cfac and xfac into cdft.fh
 #include "cdft.fh"
 #include "rtdb.fh"
@@ -364,6 +365,13 @@ c
       xc_getxcfac=xc_getxcfac.and.
      A     rtdb_get(rtdb, 'dft:cfac', mt_dbl, numfunc,
      &     cfac)
+
+      xc_getxcfac=xc_getxcfac.and.
+     &      rtdb_get(rtdb, 'dft:libxcon', mt_log, 1, dolibxc)
+      if (dolibxc) then
+        call nwchem_libxc_rdinput(rtdb,'dft')
+      endif
+
       return
       end
 c
