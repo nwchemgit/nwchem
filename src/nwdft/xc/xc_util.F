@@ -367,7 +367,7 @@ c
      &     cfac)
       if(.not.rtdb_get(rtdb, 'dft:libxcon', mt_log, 1, dolibxc))
      D     dolibxc=.false.
-      xc_getxcfac=xc_getxcfac.and.dolibxc
+      xc_getxcfac=xc_getxcfac.or.dolibxc
       if (dolibxc) then
         call nwchem_libxc_rdinput(rtdb,'dft')
       endif
