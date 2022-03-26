@@ -34,7 +34,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchem-dockeractions-v001
+          key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchem-dockeractions-v002
       - name: Qemu
         id: qemu
         uses: docker/setup-qemu-action@v1
@@ -54,15 +54,6 @@ jobs:
         run: |
           echo "::set-output name=arch::$(echo ${{matrix.archs }} | sed 's/linux//'|sed  's/\///g' )"
         shell: bash
-      - name: FC tag
-        id: fc-tag
-        run: |
-          if [[ ${{ matrix.fc }} == 'gfortran'  ]]; then 
-            echo "::set-output name=fc::"  
-          else 
-            echo "::set-output name=fc::$(echo -${{matrix.fc }}  )"  
-          fi
-        shell: bash
       - name: fetch cache
         if: (steps.setup-cache.outputs.cache-hit == 'true') && ( matrix.folder  != 'helloworld' )
         run: |
@@ -72,6 +63,12 @@ jobs:
           rsync -av ~/cache/libext* cache/. ; \
           echo "libext cache fetched" ; \
           fi
+      - uses: haya14busa/action-cond@v1
+        id: cache-hit-reporter
+        with:
+          cond: ${{ steps.setup-cache.outputs.cache-hit != '' }}
+          if_true: "Y"
+          if_false: "N"
       - name: build_schedule
         uses: docker/build-push-action@v2
         with:
@@ -82,6 +79,7 @@ jobs:
           tags: nwchem_image
           build-args: |
             FC=${{ matrix.fc }}
+            CACHE_HIT=${{ steps.cache-hit-reporter.outputs.value }}
       - name: store cache
         run: |
             mkdir -p ~/cache/
