@@ -155,22 +155,22 @@
 
       itemp(:) = libxc_funcs(:)
       if (.not.rtdb_put(rtdb,modname//':libxc_funcs',mt_int,
-     $    libxc_nfuncs,itemp))
+     $    libxc_nfuncs,itemp(1)))
      $  call errquit(' libxc_rtdbput: rtdb_put failed',1,RTDB_ERR)
 
       itemp(:) = libxc_family(:)
       if (.not.rtdb_put(rtdb,modname//':libxc_family',mt_int,
-     $    libxc_nfuncs,itemp))
+     $    libxc_nfuncs,itemp(1)))
      $  call errquit(' libxc_rtdbput: rtdb_put failed',2,RTDB_ERR)
 
       itemp(:) = libxc_kind(:)
       if (.not.rtdb_put(rtdb,modname//':libxc_kind',mt_int,
-     $    libxc_nfuncs,itemp))
+     $    libxc_nfuncs,itemp(1)))
      $  call errquit(' libxc_rtdbput: rtdb_put failed',3,RTDB_ERR)
 
       itemp(:) = libxc_flags(:)
       if (.not.rtdb_put(rtdb,modname//':libxc_flags',mt_int,
-     $    libxc_nfuncs,itemp))
+     $    libxc_nfuncs,itemp(1)))
      $  call errquit(' libxc_rtdbput: rtdb_put failed',4,RTDB_ERR)
 
       if (.not.rtdb_put(rtdb,modname//':libxc_facs',mt_dbl,libxc_nfuncs,
@@ -196,22 +196,22 @@
      $  call errquit(' libxc_rtdbput: rtdb_get failed',1,RTDB_ERR)
 
       if (.not.rtdb_get(rtdb,modname//':libxc_funcs',mt_int,
-     $    libxc_nfuncs,itemp))
+     $    libxc_nfuncs,itemp(1)))
      $  call errquit(' libxc_rtdbput: rtdb_get failed',1,RTDB_ERR)
       libxc_funcs(:libxc_nfuncs) = int(itemp(:libxc_nfuncs),kind=c_int)
 
       if (.not.rtdb_get(rtdb,modname//':libxc_family',mt_int,
-     $    libxc_nfuncs,itemp))
+     $    libxc_nfuncs,itemp(1)))
      $  call errquit(' libxc_rtdbput: rtdb_get failed',2,RTDB_ERR)
       libxc_family(:libxc_nfuncs) = int(itemp(:libxc_nfuncs),kind=c_int)
 
       if (.not.rtdb_get(rtdb,modname//':libxc_kind',mt_int,libxc_nfuncs,
-     $    itemp))
+     $    itemp(1)))
      $  call errquit(' libxc_rtdbput: rtdb_get failed',3,RTDB_ERR)
       libxc_kind(:libxc_nfuncs) = int(itemp(:libxc_nfuncs),kind=c_int)
 
       if (.not.rtdb_get(rtdb,modname//':libxc_flags',mt_int,
-     $    libxc_nfuncs,itemp))
+     $    libxc_nfuncs,itemp(1)))
      $  call errquit(' libxc_rtdbput: rtdb_get failed',4,RTDB_ERR)
       libxc_flags(:libxc_nfuncs) = int(itemp(:libxc_nfuncs),kind=c_int)
 
