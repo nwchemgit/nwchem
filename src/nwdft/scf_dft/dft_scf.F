@@ -192,7 +192,6 @@ c     == zora related ==
       logical dft_zora_read, dft_zora_write, dft_zora_inquire_file
       external dft_zora_read, dft_zora_write, dft_zora_inquire_file
       character*255 zorafilename
-c      integer g_zora_sf(2)
       integer g_zora_scale_sf(2)
       double precision ener_scal
       integer icalczora
