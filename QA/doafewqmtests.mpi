@@ -28,6 +28,7 @@ fi
 ./runtests.mpi.unix procs $np tddft_n2+
 ./runtests.mpi.unix procs $np tddft_ac_co
 ./runtests.mpi.unix procs $np hi_zora_sf
+./runtests.mpi.unix procs $np ch3radical_unrot
 #
 # newproperty tests
 ./runtests.mpi.unix procs $np prop_ch3f 
