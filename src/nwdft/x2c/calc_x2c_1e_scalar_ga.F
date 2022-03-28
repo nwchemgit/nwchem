@@ -752,12 +752,24 @@ c     destroy temp GA and reallocate with nubas**2 elements
      &  errquit(pname//': ga_dup failed g_temp',73,GA_ERR)    
 
 c     solve matrix equation X A = B for X, store in g_h
-c     that is, solve A' X' = B' (' = Transpose), then transpose
+c     that is, solve A' X' = B' (' = Transpose), then transpose.
+c     matrix A is square, but not symmetric.
+      
       call ga_transpose(g_m, g_temp)
       call ga_copy(g_temp, g_m)
       call ga_transpose(g_h, g_temp)
       call ga_copy(g_temp, g_h) ! keep copy of B' in g_temp, too
+      
+#ifdef SCALAPACK
+      if (dbg>0.and.master) write(luout,*) 'calling ga_solve'
       info = ga_solve(g_m, g_h) ! g_h now has solution X
+      if (dbg>0.and.master) write(luout,*) 'info from ga_solve:', info
+#else
+      if (dbg>0.and.master) write(luout,*) 'calling ma_solve'
+      call ma_solve(g_m, g_h)
+#endif      
+
+c     test quality of the solution:
       call ga_dgemm('N', 'N', nu, nu, nu, 1.d0,
      &  g_m, g_h, -1.d0, g_temp) ! g_temp = A'X'-B', should be zero
       call ga_maxelt(g_temp, rtemp)
