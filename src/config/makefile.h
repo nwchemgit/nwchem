@@ -2956,8 +2956,10 @@ ifneq ($(TARGET),LINUX)
             ifeq ($(_FC),xlf)
                 #RSQRT=y breaks intchk QA
                 FOPTIONS  =  -q64 -qextname -qfixed #-qnosave  #-qalign=4k
-                FOPTIONS +=  -NQ40000 -NT80000 -qmaxmem=8192 -qsuppress=1500-030 -qxlf77=leadzero
-                FOPTIONS +=  -qsuppress=cmpmsg
+                FOPTIONS +=  -NQ40000 -NT80000 -qmaxmem=8192 -qxlf77=leadzero
+                ifeq ($(V),-1)
+                   FOPTIONS += -qsuppress=cmpmsg -qsuppress=1501-264 -qsuppress=1500-030
+		endif
                 ifdef  USE_GPROF
                     FOPTIONS += -pg
                     LDOPTIONS += -pg
