@@ -1,0 +1,62 @@
+Comment: 
+Comment: PAW basis set generation file for Ytterbium
+Comment: 
+
+[psp_type] 4
+[cutoff] 60.0
+
+<atom_charge> 70.0
+<orbitals>
+13   1 4
+   1   0    2.00
+   2   0    2.00
+   2   1    6.00
+   3   0    2.00
+   3   1    6.00
+   3   2   10.00
+   4   0    2.00
+   4   1    6.00
+   4   2   10.00
+   4   3   14.00
+   5   0    2.00
+   5   1    6.00
+   6   0    2.00
+   5   2    0.00
+   5   3    0.00  1.00
+   6   1    0.00  1.00
+   6   2    0.00  1.00
+   7   0    0.00  1.00
+
+<solver> 
+pauli
+
+<grid>
+25.0  3000 0.002
+
+<atomic_sphere_radius> 
+2.0
+
+<paw_basis>
+7
+4 3 1.700
+5 0 1.400
+5 1 1.571
+5 2 2.400
+5 3 2.400
+6 0 2.000
+6 1 2.400
+
+<ref_potential_matching_radius> 1.2
+<ref_potential_at_zero>  +1.5
+<compensation_charge_radius> 1.0
+<nodal_constraint> on
+<projector_method> vanderbilt
+
+<scattering_test>
+4
+0  -5.5   0  1.2 300
+1  -5.5   0  1.2 300
+2  -5.5   0  1.2 300
+3  -5.5   0  1.2 300
+
+
