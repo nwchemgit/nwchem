@@ -125,7 +125,7 @@ then
 	#    exit 1
     else
 	if [ ! -f "$GA_DIR"/configure ]; then 
-	    tar xvzf ga-"$GA_RELEASE_NO".tar.gz
+	    tar xzf ga-"$GA_RELEASE_NO".tar.gz
 	fi
     fi
 fi
