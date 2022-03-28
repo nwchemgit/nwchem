@@ -1,0 +1,288 @@
+# BSE Version v0.9
+# Data downloaded on 2022-02-15T18:31
+# ccX-DZ version number 1
+# Description: Basis set for calculation of core excitations by the correlated wave function linear response and equation-of-motion methods
+# Role: orbital
+# 
+#  If you downloaded data from the basis set
+#  exchange or used the basis set exchange python library, please cite:
+# 
+# pritchard2019a
+#     Pritchard, Benjamin P., Altarawy, Doaa, Didier, Brett, Gibsom, Tara
+#             D., Windus, Theresa L.
+#     A New Basis Set Exchange: An Open, Up-to-date Resource for the
+#             Molecular Sciences Community
+#     J. Chem. Inf. Model. 59, 4814-4820 (2019)
+#     10.1021/acs.jcim.9b00725
+# 
+# feller1996a
+#     Feller, David
+#     The role of databases in support of computational chemistry
+#             calculations
+#     J. Comput. Chem. 17, 1571-1586 (1996)
+#     10.1002/(SICI)1096-987X(199610)17:13<1571::AID-JCC9>3.0.CO;2-P
+# 
+# schuchardt2007a
+#     Schuchardt, Karen L., Didier, Brett T., Elsethagen, Todd, Sun, Lisong,
+#             Gurumoorthi, Vidhya, Chase, Jared, Li, Jun, Windus, Theresa L.
+#     Basis Set Exchange: A Community Database for Computational Sciences
+#     J. Chem. Inf. Model. 47, 1045-1052 (2007)
+#     10.1021/ci600510j
+# 
+# 
+#  References for the basis set
+# 
+#  B-F
+#      Basis set for calculation of core excitations by the correlated wave function linear response and equation-of-motion methods
+#          ambroise2021a
+# 
+# 
+# 
+# ambroise2021a
+#     Ambroise, Maximilien A., Dreuw, Andreas, Jensen, Frank
+#     Probing Basis Set Requirements for Calculating Core Ionization and
+#             Core Excitation Spectra Using Correlated Wave Function Methods
+#     J. Chem. Theory Comput. null, null (2021)
+#     10.1021/acs.jctc.1c00042
+# 
+# # 
+basis "B_ccX-DZ" SPHERICAL 
+#basis SET: (19s,8p,2d) -> [7s,7p,2d]
+B    S
+      0.23830E+05            0.14795E-03
+      0.35705E+04            0.11485E-02
+      0.81260E+03            0.60080E-02
+      0.23012E+03            0.24860E-01
+      0.75025E+02            0.85301E-01
+      0.27001E+02            0.23730E+00
+      0.10405E+02            0.50000E+00
+B    S
+      0.23830E+05            0.12532E-03
+      0.35705E+04            0.97898E-03
+      0.81260E+03            0.50884E-02
+      0.23012E+03            0.21437E-01
+      0.75025E+02            0.73855E-01
+      0.27001E+02            0.21942E+00
+      0.10405E+02            0.50000E+00
+B    S
+      0.42062E+01            0.10000E+01
+B    S
+      0.17351E+01            0.10000E+01
+B    S
+      0.47137E+00            0.10000E+01
+B    S
+      0.19017E+00            0.10000E+01
+B    S
+      0.74120E-01            0.10000E+01
+B    P
+      0.69065E+02            0.64639E-01
+      0.16315E+02            0.50000E+00
+B    P
+      0.51152E+01            0.10000E+01
+B    P
+      0.18221E+01            0.10000E+01
+B    P
+      0.71361E+00            0.10000E+01
+B    P
+      0.29211E+00            0.10000E+01
+B    P
+      0.12113E+00            0.10000E+01
+B    P
+      0.49636E-01            0.10000E+01
+B    D
+     13.0150000              1.000000
+B    D
+      0.3430000              1.000000
+end
+basis "C_ccX-DZ" SPHERICAL 
+#basis SET: (19s,8p,2d) -> [7s,7p,2d]
+C    S
+      0.35087E+05            0.14558E-03
+      0.52572E+04            0.11301E-02
+      0.11965E+04            0.59133E-02
+      0.33882E+03            0.24486E-01
+      0.11048E+03            0.84220E-01
+      0.39783E+02            0.23559E+00
+      0.15366E+02            0.50000E+00
+C    S
+      0.35087E+05            0.12250E-03
+      0.52572E+04            0.95704E-03
+      0.11965E+04            0.49757E-02
+      0.33882E+03            0.20982E-01
+      0.11048E+03            0.72488E-01
+      0.39783E+02            0.21689E+00
+      0.15366E+02            0.50000E+00
+C    S
+      0.62404E+01            0.10000E+01
+C    S
+      0.25893E+01            0.10000E+01
+C    S
+      0.74115E+00            0.10000E+01
+C    S
+      0.29338E+00            0.10000E+01
+C    S
+      0.11187E+00            0.10000E+01
+C    P
+      0.10623E+03            0.63490E-01
+      0.25120E+02            0.50000E+00
+C    P
+      0.79281E+01            0.10000E+01
+C    P
+      0.28601E+01            0.10000E+01
+C    P
+      0.11287E+01            0.10000E+01
+C    P
+      0.46231E+00            0.10000E+01
+C    P
+      0.18991E+00            0.10000E+01
+C    P
+      0.76149E-01            0.10000E+01
+C    D
+     14.8390000              1.000000
+C    D
+      0.5500000              1.000000
+end
+basis "N_ccX-DZ" SPHERICAL 
+#basis SET: (19s,8p,2d) -> [7s,7p,2d]
+N    S
+      0.48331E+05            0.14428E-03
+      0.72416E+04            0.11200E-02
+      0.16481E+04            0.58613E-02
+      0.46673E+03            0.24281E-01
+      0.15219E+03            0.83639E-01
+      0.54824E+02            0.23474E+00
+      0.21208E+02            0.50000E+00
+N    S
+      0.48331E+05            0.12128E-03
+      0.72416E+04            0.94703E-03
+      0.16481E+04            0.49279E-02
+      0.46673E+03            0.20766E-01
+      0.15219E+03            0.71928E-01
+      0.54824E+02            0.21552E+00
+      0.21208E+02            0.50000E+00
+N    S
+      0.86401E+01            0.10000E+01
+N    S
+      0.35989E+01            0.10000E+01
+N    S
+      0.10624E+01            0.10000E+01
+N    S
+      0.41534E+00            0.10000E+01
+N    S
+      0.15610E+00            0.10000E+01
+N    P
+      0.15007E+03            0.62787E-01
+      0.35504E+02            0.50000E+00
+N    P
+      0.11252E+02            0.10000E+01
+N    P
+      0.40908E+01            0.10000E+01
+N    P
+      0.16215E+01            0.10000E+01
+N    P
+      0.66375E+00            0.10000E+01
+N    P
+      0.27070E+00            0.10000E+01
+N    P
+      0.10682E+00            0.10000E+01
+N    D
+     14.2000000              1.000000
+N    D
+      0.8170000              1.000000
+end
+basis "O_ccX-DZ" SPHERICAL 
+#basis SET: (19s,8p,2d) -> [7s,7p,2d]
+O    S
+      0.63639E+05            0.14342E-03
+      0.95353E+04            0.11133E-02
+      0.21701E+04            0.58272E-02
+      0.61456E+03            0.24146E-01
+      0.20040E+03            0.83263E-01
+      0.72211E+02            0.23420E+00
+      0.27966E+02            0.50000E+00
+O    S
+      0.63639E+05            0.12087E-03
+      0.95353E+04            0.94408E-03
+      0.21701E+04            0.49110E-02
+      0.61456E+03            0.20709E-01
+      0.20040E+03            0.71727E-01
+      0.72211E+02            0.21546E+00
+      0.27966E+02            0.50000E+00
+O    S
+      0.11420E+02            0.10000E+01
+O    S
+      0.47722E+01            0.10000E+01
+O    S
+      0.14399E+01            0.10000E+01
+O    S
+      0.55979E+00            0.10000E+01
+O    S
+      0.20799E+00            0.10000E+01
+O    P
+      0.18523E+03            0.62760E-01
+      0.43814E+02            0.50000E+00
+O    P
+      0.13891E+02            0.10000E+01
+O    P
+      0.50699E+01            0.10000E+01
+O    P
+      0.20071E+01            0.10000E+01
+O    P
+      0.81062E+00            0.10000E+01
+O    P
+      0.32204E+00            0.10000E+01
+O    P
+      0.12275E+00            0.10000E+01
+O    D
+     15.8580000              1.000000
+O    D
+      1.1850000              1.000000
+end
+basis "F_ccX-DZ" SPHERICAL 
+#basis SET: (19s,8p,2d) -> [7s,7p,2d]
+F    S
+      0.80940E+05            0.14290E-03
+      0.12127E+05            0.11093E-02
+      0.27601E+04            0.58065E-02
+      0.78163E+03            0.24065E-01
+      0.25488E+03            0.83043E-01
+      0.91863E+02            0.23393E+00
+      0.35607E+02            0.50000E+00
+F    S
+      0.80940E+05            0.12087E-03
+      0.12127E+05            0.94396E-03
+      0.27601E+04            0.49107E-02
+      0.78163E+03            0.20706E-01
+      0.25488E+03            0.71740E-01
+      0.91863E+02            0.21557E+00
+      0.35607E+02            0.50000E+00
+F    S
+      0.14566E+02            0.10000E+01
+F    S
+      0.61007E+01            0.10000E+01
+F    S
+      0.18692E+01            0.10000E+01
+F    S
+      0.72314E+00            0.10000E+01
+F    S
+      0.26646E+00            0.10000E+01
+F    P
+      0.23872E+03            0.62341E-01
+      0.56485E+02            0.50000E+00
+F    P
+      0.17954E+02            0.10000E+01
+F    P
+      0.65817E+01            0.10000E+01
+F    P
+      0.26104E+01            0.10000E+01
+F    P
+      0.10513E+01            0.10000E+01
+F    P
+      0.41382E+00            0.10000E+01
+F    P
+      0.15524E+00            0.10000E+01
+F    D
+     19.1080000              1.000000
+F    D
+      1.6400000              1.000000
+end

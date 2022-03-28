@@ -1,6 +1,3 @@
-#if defined(FUJITSU_VPP)
-!ocl scalar
-#endif
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine xc_camb88(tol_rho, fac, lfac, nlfac, rho, delrho, 
      &                      Amat, Cmat, nq, ipol, Ex, qwght,ldew,func)

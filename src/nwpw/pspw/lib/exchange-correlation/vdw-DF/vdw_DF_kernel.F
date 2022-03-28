@@ -23,7 +23,7 @@
       logical value
       logical lprint,mprint,hprint,debug,does_it_exist
       integer unitf,print_level,i,j,l,k
-      character*255 qmesh_data_name,fname
+      character*(nw_max_path_len) qmesh_data_name
 
       integer Nqs,qmesh(2),g(2),phir(2),phir0(2),phik(2),phik0(2)
       integer rphi(2),sphi(2),utmp(2),xtmp(2),phik2(2)

@@ -180,6 +180,7 @@ c
       double precision chi1
       double precision scr(nq) !< [Scratch] Temporary stuff in
                                !< quadrature
+      double precision scr2(nq)
       double precision dabsmax
       double precision tolrho15
       external dabsmax
@@ -205,8 +206,8 @@ c
       data indh / 1, 2, 3,
      &            2, 4, 5,
      &            3, 5, 6 /
-      data nbhandl1 /0./
-      data nbhandl2 /0./
+      data nbhandl1 /0/
+      data nbhandl2 /0/
       save nbhandl1
       save nbhandl2
       double precision ddot
@@ -275,10 +276,10 @@ c     repl stuff
 c
         if (xcreplicated.and.dorepxc) then
           g_update(1)=k_repxc(1)
-          g_update(2)=k_repxc(2)
+          if(ipol.eq.2.and.(.not.l3d)) g_update(2)=k_repxc(2)
         else
           g_update(1)=g_vxc(1)
-          g_update(2)=g_vxc(2)
+          if(ipol.eq.2.and.(.not.l3d)) g_update(2)=g_vxc(2)
         endif
         do 430 iat0=1,natleft
           call starttimer(monitor_screen2)
@@ -295,53 +296,40 @@ c
             nnia = ifinia - inizia + 1
             nbfia = ilast - ifirst + 1
             do ii = 1, ipol
+              call starttimer(monitor_mult1)
               do mu = 1, nnia
-
-                call starttimer(monitor_mult1)
-
                 mu1 = mu+inizia-1
+                Bmat(1:nq,mu) = Amat(1:nq,ii,imat)*chi(1:nq,mu1)
                 if (GRAD) then
-                  do n = 1, nq
-                    chi1 = chi(n,mu1)
-
-
-                    Bmat(n,mu) = Amat(n,ii,imat)*chi1 +
-     &                   delchi(n,1,mu1)*Cmat(n,1,ii,imat) +
-     &                   delchi(n,2,mu1)*Cmat(n,2,ii,imat) +
-     &                   delchi(n,3,mu1)*Cmat(n,3,ii,imat)
-                    Dmat(n,1,mu) = Cmat(n,1,ii,imat)*chi1
-                    Dmat(n,2,mu) = Cmat(n,2,ii,imat)*chi1
-                    Dmat(n,3,mu) = Cmat(n,3,ii,imat)*chi1
-                    
-                    if(kske) then 
-                      Dmat(n,1,mu) = Dmat(n,1,mu) +
-     &                     Mmat(n,ii,imat)*delchi(n,1,mu1)
-                      Dmat(n,2,mu) = Dmat(n,2,mu) +
-     &                     Mmat(n,ii,imat)*delchi(n,2,mu1)
-                      Dmat(n,3,mu) = Dmat(n,3,mu) +
-     &                     Mmat(n,ii,imat)*delchi(n,3,mu1)
-                    endif
-
-                    if(kslap) then
-                      Dmat(n,1,mu) = Dmat(n,1,mu) +
-     &                     2d0*Lmat(n,ii,imat)*delchi(n,1,mu1)
-                      Dmat(n,2,mu) = Dmat(n,2,mu) +
-     &                     2d0*Lmat(n,ii,imat)*delchi(n,2,mu1)
-                      Dmat(n,3,mu) = Dmat(n,3,mu) +
-     &                     2d0*Lmat(n,ii,imat)*delchi(n,3,mu1)
-                      Bmat(n,mu) = Bmat(n,mu) + Lmat(n,ii,imat)*
-     &                (heschi(n,1,mu1)+heschi(n,4,mu1)+heschi(n,6,mu1))
-                      Gmat(n,mu) = Lmat(n,ii,imat)*chi1
-                    endif
-
-                    
-                  enddo
-                else
-                  do n = 1, nq
-                    Bmat(n,mu) = chi(n,mu1)*Amat(n,ii,imat)
-                  enddo
-                endif ! GRAD
-              enddo ! mu
+                  Bmat(1:nq,mu) = Bmat(1:nq,mu) +
+     &               delchi(1:nq,1,mu1)*Cmat(1:nq,1,ii,imat) +  
+     &               delchi(1:nq,2,mu1)*Cmat(1:nq,2,ii,imat) +  
+     &               delchi(1:nq,3,mu1)*Cmat(1:nq,3,ii,imat)
+                  Dmat(1:nq,1,mu) = chi(1:nq,mu1)*Cmat(1:nq,1,ii,imat)
+                  Dmat(1:nq,2,mu) = chi(1:nq,mu1)*Cmat(1:nq,2,ii,imat)
+                  Dmat(1:nq,3,mu) = chi(1:nq,mu1)*Cmat(1:nq,3,ii,imat)
+                endif
+                if (kske.and.grad) then
+                  Dmat(1:nq,1,mu) = Dmat(1:nq,1,mu) + 
+     &               Mmat(1:nq,ii,imat)*delchi(1:nq,1,mu1)
+                  Dmat(1:nq,2,mu) = Dmat(1:nq,2,mu) + 
+     &               Mmat(1:nq,ii,imat)*delchi(1:nq,2,mu1)
+                  Dmat(1:nq,3,mu) = Dmat(1:nq,3,mu) + 
+     &               Mmat(1:nq,ii,imat)*delchi(1:nq,3,mu1)
+                endif
+                if (kslap.and.grad) then
+                  Dmat(1:nq,1,mu) = Dmat(1:nq,1,mu) + 
+     &               2d0*Lmat(1:nq,ii,imat)*delchi(1:nq,1,mu1)
+                  Dmat(1:nq,2,mu) = Dmat(1:nq,2,mu) + 
+     &               2d0*Lmat(1:nq,ii,imat)*delchi(1:nq,2,mu1)
+                  Dmat(1:nq,3,mu) = Dmat(1:nq,3,mu) + 
+     &               2d0*Lmat(1:nq,ii,imat)*delchi(1:nq,3,mu1)
+                  Bmat(1:nq,mu) = Bmat(1:nq,mu) + 
+     &               Lmat(1:nq,ii,imat)*(heschi(1:nq,1,mu1)+
+     &               heschi(1:nq,4,mu1)+heschi(1:nq,6,mu1))
+                  Gmat(1:nq,mu) = Lmat(1:nq,ii,imat)*chi(1:nq,mu1)
+                endif
+              enddo
 c     Monitoring 
 
               call endtimer(monitor_mult1)
@@ -477,20 +465,16 @@ c     leading dimension of delchi must be set correctly
                         enddo
                       endif
                     endif ! GRAD
-                    if(kslap) then
-                       if (w01) then
-                          indT=0
-                          do nu = 1, nnja
-                             nu1 = nu+inizja-1
-                             do mu = 1, nnia
-                               indT = indT + 1
-                               Tmat(indT) = Tmat(indT) +
-     &                         ddot(nq,Gmat(1,mu),1,heschi(1,1,nu1),1) +
-     &                         ddot(nq,Gmat(1,mu),1,heschi(1,4,nu1),1) +
-     &                         ddot(nq,Gmat(1,mu),1,heschi(1,6,nu1),1)
-                             enddo
-                          enddo
-                       endif
+                    if(kslap.and.w01) then
+                      indT=1
+                      do nu = 1, nnja
+                        nu1 = nu+inizja-1
+                        scr2(1:nq) = heschi(1:nq,1,nu1) +
+     &                  heschi(1:nq,4,nu1) + heschi(1:nq,6,nu1)
+                        call dgemv('T',nq,nnia,1d0,Gmat,nq,scr2,1,1d0,
+     &                              Tmat(indT),1)
+                        indT = indT + nnia
+                      enddo
                     endif
 c Daniel (2-7-13): For the CPKS RHS stuff, the first call has what=1,
 c so n3d=1.  Also, dofull is true in that case.

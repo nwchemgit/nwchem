@@ -234,7 +234,7 @@ c
       character*80 pname
 c
       logical okspace
-      character*256 compiled_name
+      character*(nw_max_path_len) compiled_name
       logical rism_util_power_2
       external rism_util_power_2
 c 
@@ -351,7 +351,7 @@ c
       integer  i_epsvv
       integer  i_qvv
       character*80 pname 
-      character*256 compiled_name
+      character*255 compiled_name
 c
       pname = "rism_prepare_solvent"
 #ifdef RISM_PREP_DEBUG      

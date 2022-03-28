@@ -20,6 +20,7 @@ if [[ "$NWCHEM_MODULES" == "tce" ]]; then
 fi
 cd $TRAVIS_BUILD_DIR/src
 #FDOPT="-O0 -g"
+export MPICH_FC=$FC
 if [[ "$arch" == "aarch64" ]]; then 
     if [[ "$FC" == "flang" ]]  ; then
 	export BUILD_MPICH=1
@@ -27,7 +28,6 @@ if [[ "$arch" == "aarch64" ]]; then
     elif [[ "$(basename -- $FC | cut -d \- -f 1)" == "nvfortran" ]] ; then
 	export USE_FPICF=1
 #	export MPICH_FC=nvfortran
-	export MPICH_FC=$FC
 	env|egrep FC
     else
 #should be gfortran	
@@ -77,6 +77,17 @@ fi
    fi
    if [[ -z "$TRAVIS_HOME" ]]; then
        env
+       mkdir -p ../bin/MACX64
+       gcc -o ../bin/MACX64/depend.x config/depend.c
+       make nwchem_config
+       cd libext   && make V=-1  && cd ..
+       cd tools    && make V=-1  && cd ..
+       nohup make USE_INTERNALBLAS=y deps_stamp  >& deps.log &
+       sleep 120s
+       echo tail deps.log '@@@'
+       tail -10  deps.log
+       echo done tail deps.log '@@@'
+       export QUICK_BUILD=1
        if [[ -z "$FOPT" ]]; then
 	   make V=0   -j3
        else
@@ -85,6 +96,7 @@ fi
    else
        ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT"   -j3
    fi
+     unset QUICK_BUILD
      cd $TRAVIS_BUILD_DIR/src/64to32blas 
      make
      cd $TRAVIS_BUILD_DIR/src
@@ -97,6 +109,26 @@ fi
      export MAKEFLAGS=-j3
      echo    "$FOPT$FDOPT"
 if [[ -z "$TRAVIS_HOME" ]]; then
+    mkdir -p ../bin/LINUX64
+    gcc -o ../bin/LINUX64/depend.x config/depend.c
+    make nwchem_config
+    cd libext   && make V=-1  && cd ..
+    cd tools    && make V=-1  && cd ..
+    nohup make USE_INTERNALBLAS=y deps_stamp  >& deps.log &
+    cd hessian
+    nohup make USE_INTERNALBLAS=y dependencies include_stamp >& ../deps2.log &
+    cd ../nwdft/xc
+    nohup make USE_INTERNALBLAS=y dependencies include_stamp >& ../../deps3.log &
+    cd ../..
+    sleep 360s
+    echo tail deps.log '11@@@'
+    tail -10  deps.log
+    echo done tail deps.log '11@@@'
+    echo tail deps2.log '11@@@'
+    tail deps2.log || true
+    echo tail deps3.log '11@@@'
+    tail deps3.log || true
+    export QUICK_BUILD=1
     if [[ -z "$FOPT" ]]; then
 	make V=0   -j3
     else
@@ -105,6 +137,7 @@ if [[ -z "$TRAVIS_HOME" ]]; then
 else
     ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT"  -j3
 fi
+     unset QUICK_BUILD
      cd $TRAVIS_BUILD_DIR/src/64to32blas 
      make
      cd $TRAVIS_BUILD_DIR/src
@@ -116,5 +149,6 @@ fi
  echo === ls binaries cache ===
  ls -lrt $TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET/ 
  echo =========================
+ rsync -av $TRAVIS_BUILD_DIR/src/basis/libraries.bse  $TRAVIS_BUILD_DIR/.cachedir/files/.
  rsync -av $TRAVIS_BUILD_DIR/src/basis/libraries  $TRAVIS_BUILD_DIR/.cachedir/files/.
  rsync -av $TRAVIS_BUILD_DIR/src/nwpw/libraryps  $TRAVIS_BUILD_DIR/.cachedir/files/.

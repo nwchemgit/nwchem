@@ -46,7 +46,7 @@ if [ $NWCHEM_TARGET == LINUX ] || [ $NWCHEM_TARGET == LINUX64 ]; then
   nproc=`nproc --all`
   memtot=`egrep -i MemT /proc/meminfo | sed -e "s/kB//g"|sed -e "s/MemTotal://"  `
 elif [ $NWCHEM_TARGET == MACX64 ]; then
-    nproc=`sysctl -n hw.ncpu`
+    nproc=`sysctl -n hw.physicalcpu`
     memtot=`sysctl -n hw.memsize`
     memtot=$(( memtot / 1024 ))
 elif [ $NWCHEM_TARGET == SOLARIS ]; then
@@ -56,11 +56,11 @@ elif [ $NWCHEM_TARGET == SOLARIS ]; then
 else 
     good=0
 fi
-# give at least 512mb
+# give at least 1024mb
 if [[ -n "$1" ]]; then
     mem_min=$(( $1 * 1024 ))
 else
-    mem_min=$(( 512 * 1024 ))
+    mem_min=$(( 1024 * 1024 ))
 fi
   echo "Input Minum Memory   :" $mem_min "KB"
 if [[ $good != 0  ]]; then

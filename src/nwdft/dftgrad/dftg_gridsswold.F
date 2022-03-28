@@ -247,9 +247,11 @@ c
                            endif
                            if(mu.lt.0d0) sk=1d0-sk
                         else
-#if defined(SGI) || defined (WIN32) || defined(LINUX) || defined(CRAY)
+#if defined (WIN32) || defined(LINUX) || defined(CRAY)
+! DERFC is a GNU extension
                            sk=0.5d0*derfc(mu1)
 #else
+! ERFC is Fortran 2008
                            sk=0.5d0*erfc(mu1)
 #endif
                         endif

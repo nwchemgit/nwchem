@@ -233,6 +233,7 @@ endif
               ga_conjg.o nwmolden.o ao_1prdm_read.o ao_1prdm_write.o\
               util_strips.o util_poltensor.o  util_mygop.o util_isnan.o \
               util_blasthreads.o util_gpu_affinity.o util_scalapack.o \
+              util_norm2.o \
               $(EXTRA_OBJ)
 ifndef USE_MLIB
               OBJ_OPTIMIZE += icopy.o dsum.o dgefa.o zsum.o
@@ -243,7 +244,7 @@ endif
     HEADERS = util.fh itri.fh msgids.fh  numerical_constants.fh stdio.fh \
               printlevels.fh bitops.fh bitops_decls.fh bitops_funcs.fh \
               bgj.fh bgj_common.fh nwc_const.fh errquit.fh util_sgroup.fh \
-	      util_params.fh utilc_nwchem_srcdir.fh
+	      util_params.fh utilc_nwchem_srcdir.fh util_maxlength.fh
 #if USE_VTUNE
     HEADERS += vtune.fh
 #endif

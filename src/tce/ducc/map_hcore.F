@@ -465,7 +465,6 @@ C     kowalski $
 #include "bas.fh"
 #include "schwarz.fh"
 #include "sym.fh"
-#include "sf.fh"
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
@@ -931,14 +930,12 @@ c mov  - total # of correlated ORBITALS = noas+nvas
 c
       implicit none
 #include "mafdecls.fh"
-#include "tcgmsg.fh"
 #include "global.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "util.fh"
 #include "msgids.fh"
 #include "stdio.fh"
-#include "sf.fh"
 #include "inp.fh"
 #include "errquit.fh"
 #include "tce.fh"

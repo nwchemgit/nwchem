@@ -25,9 +25,6 @@ C>     spectra", J. Chem. Phys. <b>113</b>, 8918-8935 (2000), DOI:
 C>     <A HREF="https://doi.org/10.1063/1.1319649">
 C>     10.1063/1.1319649</A>.
 C>
-#if defined(FUJITSU_VPP)
-!ocl scalar
-#endif
       Subroutine nwxc_cs00(param, tol_rho, ipol, nq, wght, rho,
      &                     rgamma, func, Amat, Cmat)
 c

@@ -279,7 +279,14 @@ c
          if (.not. int2e_buf_write(.true.)) 
      $        call errquit('ao_replicated: failed writing last block',0,
      &       UNKNOWN_ERR)
-         if (incmax.eq.-1) call int2e_file_balance()
+         if (incmax.eq.-1)  then
+            if(.not. ma_push_get(MT_INT, 2*ga_nnodes(),
+     $     'balance:info',    l_pinfo, k_pinfo))
+     c           call errquit('fock_2e: ma_push', 2, MA_ERR)
+            call int2e_file_balance(ga_nnodes(),int_mb(k_pinfo))
+            if(.not. ma_pop_stack(l_pinfo))
+     c           call errquit('fock_2e: ma_pop', 2, MA_ERR)
+         endif
       end if
 c     
       end

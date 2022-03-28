@@ -48,6 +48,7 @@ c
       logical tda                       ! True if Tamm-Dancoff approximation
       logical singlet                   ! True if singlet excited states
       logical triplet                   ! True if triplet excited states
+      logical lhascd                    ! True if CD basis available
       integer nroots           ! Number of roots sought
       integer maxvecs          ! Maximum number of trial vectors
       integer maxiter          ! Maximum number of Davidson iterations
@@ -134,7 +135,7 @@ c
      4  tda,singlet,triplet,nroots,maxvecs,tol2e,thresh,
      5  maxiter,target,targetsym,symmetry,algorithm,g_movecs,
      6  l_evl,k_evl,l_occ,k_occ,l_irs,k_irs,mult,lecut,ecut,diff_max,
-     7  lowin,owstart,owend,lewin,ewinl,ewinh,vshift)
+     7  lowin,owstart,owend,lewin,ewinl,ewinh,vshift,lhascd)
 
       if (lhasdft) then
         if (.not.rtdb_get(rtdb,'bgj:xc_active',mt_log,1,
@@ -366,7 +367,7 @@ c********************************
      1  nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_prod_p,g_prod_m,
      3  g_movecs,dbl_mb(k_evl),1,nproducts,
      4  tda,oskel,singlet,triplet,tol2e,xfac(1),lhashf,thresh,
-     5  target,targetsym,algorithm,mult,l_irs,k_irs,1)
+     5  target,targetsym,algorithm,mult,l_irs,k_irs,1,lhascd)
 c
 c keep result in memory
 c
@@ -400,7 +401,7 @@ c
      1  nocc,nmo,nfc,nfv,nroots,maxvecs,g_prod_p,g_prod_p,g_prod_m,
      3  g_movecs,dbl_mb(k_evl),1,nproducts,
      4  tda,oskel,singlet,triplet,tol2e,xfac(1),lhashf,thresh,
-     5  target,targetsym,algorithm,mult,l_irs,k_irs,2)
+     5  target,targetsym,algorithm,mult,l_irs,k_irs,2,lhascd)
 
 cjb spectral transform
 
@@ -418,13 +419,13 @@ cjb spectral transform
      1  nocc,nmo,nfc,nfv,nroots,maxvecs,g_prod_m,g_prod_p,g_prod_m,
      3  g_movecs,dbl_mb(k_evl),1,nproducts,
      4  tda,oskel,singlet,triplet,tol2e,xfac(1),lhashf,thresh,
-     5  target,targetsym,algorithm,mult,l_irs,k_irs,1)
+     5  target,targetsym,algorithm,mult,l_irs,k_irs,1,lhascd)
 
        call tddft_prod_vec(rtdb,geom,ao_bas_han,nbf_ao,ipol,
      1  nocc,nmo,nfc,nfv,nroots,maxvecs,g_prod_p,g_prod_p,g_prod_m,
      3  g_movecs,dbl_mb(k_evl),1,nproducts,
      4  tda,oskel,singlet,triplet,tol2e,xfac(1),lhashf,thresh,
-     5  target,targetsym,algorithm,mult,l_irs,k_irs,2)
+     5  target,targetsym,algorithm,mult,l_irs,k_irs,2,lhascd)
 
        do i = 1,ipol
 

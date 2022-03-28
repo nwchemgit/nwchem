@@ -380,7 +380,7 @@ c
         kfactor(2)=0d0
         kfactor(3)=-0.5d0*xc_hfexch()
         call fock_2e(geom, basis, nfock, jfactor, kfactor,
-     $     tol2e, oskel, iv_dens, g_tmp, .false., .false.)
+     $     tol2e, oskel, iv_dens, g_tmp, .false.)
         call ga_dadd(1d0,iv_fock,1d0,g_tmp(1),iv_fock)
         if (nopen.gt.0) then
           call ga_dadd(1d0,iv_fock(2),1d0,g_tmp(2),iv_fock(2))
@@ -403,7 +403,7 @@ c
         kfactor(2)=0d0
         kfactor(3)=0d0
         call fock_2e(geom, basis, nfock, jfactor, kfactor,
-     $     tol2e, oskel, iv_dens, g_tmp, .false., .true.)
+     $     tol2e, oskel, iv_dens, g_tmp, .false.)
         call ga_dadd(1d0,iv_fock,1d0,g_tmp(1),iv_fock)
         if (nopen.gt.0) then
           call ga_dadd(1d0,iv_fock(2),1d0,g_tmp(2),iv_fock(2))

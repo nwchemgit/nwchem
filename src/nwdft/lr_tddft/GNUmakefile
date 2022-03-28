@@ -6,13 +6,17 @@ tddft_subspace.o tddft_diagon.o tddft_residual.o tddft_analysis.o tddft_dftinit.
 tddft_finalize.o tddft_schmidt.o tddft_fold.o \
 tddft_bdtensor.o tddft_patch.o tddft_civecs_phase.o tddft_oscstr.o \
 tddft_checkpoint.o tddft_restart.o tddft_s2.o tddft_simpleso.o \
-tddft_lanczos.o tddft_lanczos_tda.o tddft_dipole.o tddft_prod_v.o
+tddft_lanczos.o tddft_lanczos_tda.o tddft_dipole.o tddft_prod_v.o \
+tddft_basis.o
 
-OBJ_OPTIMIZE = 
+OBJ_OPTIMIZE = tddft_fock_fit.o 
 
 LIBRARY = libnwdft.a
 
-USES_BLAS = tddft_diagon.F tddft_transfm.F tddft_analysis.F tddft_restart.F tddft_civecs_phase.F
+LIB_INCLUDES = -I../include
+
+USES_BLAS = tddft_diagon.F tddft_transfm.F tddft_analysis.F tddft_restart.F tddft_civecs_phase.F \
+tddft_fock_fit.F
 
 LIB_DEFINES = -DDEBUG_PRINT
 #

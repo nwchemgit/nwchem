@@ -978,7 +978,6 @@ c
       onw1e_ok = cando_nw_1e(i_basis,ish,0)
      &    .and. cando_nw_1e(j_basis,jsh,0)
 c
-      !write(*,*) " *** int_1eefc ",ohnd_ok,onw_ok,onw1e_ok
 
       if (orel) then
         call rel_onel (
@@ -1343,7 +1342,6 @@ c
       onw1e_ok = cando_nw_1e(i_basis,ish,0)
      &    .and. cando_nw_1e(j_basis,jsh,0)
 
-      write(*,*) " *** int_1eefc1",ohnd_ok, onw_ok, onw1e_ok
 c
 c     get external charges here (MV)
 c     ------------------------------

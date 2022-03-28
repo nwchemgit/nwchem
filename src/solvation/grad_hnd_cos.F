@@ -64,6 +64,7 @@ c     1. All regular QM derivatives
 #include "stdio.fh"
 #include "schwarz.fh"
 #include "prop.fh"
+#include "util.fh"
 #include "util_params.fh"
 
 C-------------------------parameters--------------------------------
@@ -122,6 +123,7 @@ C-------------------------local variables--------------------------
       integer jefc
       integer nefc_at_k
       integer nao2
+      integer fjat
 
       double precision locder(3,3), q1
       double precision dE, qfac, fact, dx, dy, dz, rr
@@ -140,8 +142,10 @@ C-------------------------local variables--------------------------
       double precision dabsmax
       external dabsmax
 c
+      double precision, external :: ddot
       double precision rin, rout, alphai, xyzff
       integer iat
+      double precision t0
       parameter (alphai = 0.5d0)
       rin(iat)=dbl_mb(k_rad-1+iat)
      &        *(1.0d0-alphai*gammas*sqrt(0.25d0**minbem))
@@ -178,9 +182,8 @@ c
      $                cosmo_bq_efc,MA_ERR)
 c
       if (.not.ma_push_get(MT_DBL,nat,"rad",l_rad,k_rad))
-     $  call errquit("grad_hnd_cos: could not allocate rad",
-     $               ma_sizeof(MT_BYTE,nat,MT_DBL),MA_ERR)
-      call cosmo_def_radii(rtdb,geom,nat,dbl_mb(k_rad))
+     $  call errquit("grad_hnd_cos: could not allocate rad",nat,MA_ERR)
+      call cosmo_def_radii(rtdb,geom,nat,dbl_mb(k_rad),.false.)
       status = rtdb_get(rtdb,'cosmo:radius',mt_dbl,nat,
      $                  dbl_mb(k_rad))
       do iat1=0,nat-1
@@ -237,6 +240,8 @@ c
 c
       call hf_print_set(1)
 
+c      t0 = util_wallsec()
+
       ijatom = -1
       next = nxtask(nproc,task_size)
       do 90, iat1 = 1, nat
@@ -245,26 +250,22 @@ c
           ijatom = ijatom + 1
           if ( ijatom .eq. next ) then
 
+            ateq = iat1.eq.iat2
+
             status = bas_ce2bfr(basis,iat1,iab1f,iab1l)
             status = bas_ce2bfr(basis,iat2,iab2f,iab2l)
 
-            if (iab1f.le.0 .or. iab2f.le.0) then
-c     
-c     At least one center has no functions on it ... next atom
-c
-              goto 1010
-            endif
+            if (iab1f.le.0 .or. iab2f.le.0) goto 1010
 
-            ateq = iat1.eq.iat2
             est_int = schwarz_atom(iat1,iat2)
             if (est_int*qmax.lt.1d-14) goto 1010
 
-            if (oskel) then
-               if (.not. sym_atom_pair(geom, iat1, iat2, qfac))
-     $              goto 1010
-            else
+c            if (oskel) then
+c               if (.not. sym_atom_pair(geom, iat1, iat2, qfac))
+c     $              goto 1010
+c            else
                qfac = 1.0d0
-            endif
+c            endif
             qfac = -qfac
 
             status = bas_ce2cnr(basis,iat1,iac1f,iac1l)
@@ -274,28 +275,30 @@ c
 
             do 70, ish1 = iac1f, iac1l
               if ( ateq ) iac2l = ish1
+
+C             shell block in atomic (D/Dw)-matrix block
+              status = bas_cn2bfr(basis,ish1,if1,il1)
+              if1 = if1 - iab1f + 1
+              il1 = il1 - iab1f + 1
+c
+c             Work out the number of Cartesian basis functions
+c             The integrals are evaluated in the Cartesian basis set
+c             and then transformed to spherical harmonics. So the
+c             buffer size depends on the number of Cartesian functions
+c
+              status = bas_continfo(basis,ish1,ityp1,nprim,ngen,
+     +                                sphcart)
+              if (sphcart.eq.1.and.ityp1.ge.2) then
+                im1 = if1 + (ityp1+1)*(ityp1+2)/2 - 1
+              else
+                im1 = il1
+              endif
+
               do 60, ish2 = iac2f, iac2l
 
                 est_int = schwarz_shell(ish1,ish2)
-                if (est_int*qmax.lt.1d-14) goto 60
+                if (est_int*qmax*nefc.lt.1d-14) goto 60
 
-C               shell block in atomic (D/Dw)-matrix block
-                status = bas_cn2bfr(basis,ish1,if1,il1)
-                if1 = if1 - iab1f + 1
-                il1 = il1 - iab1f + 1
-c
-c               Work out the number of Cartesian basis functions
-c               The integrals are evaluated in the Cartesian basis set
-c               and then transformed to spherical harmonics. So the
-c               buffer size depends on the number of Cartesian functions
-c
-                status = bas_continfo(basis,ish1,ityp1,nprim,ngen,
-     +                                sphcart)
-                if (sphcart.eq.1.and.ityp1.ge.2) then
-                  im1 = if1 + (ityp1+1)*(ityp1+2)/2 - 1
-                else
-                  im1 = il1
-                endif
                 status = bas_cn2bfr(basis,ish2,if2,il2)
                 if2 = if2 - iab2f + 1
                 il2 = il2 - iab2f + 1
@@ -371,6 +374,10 @@ c
  80     continue
  90   continue
       next = nxtask(-nproc,task_size)
+
+c      if (ga_nodeid().eq.0) then
+c        write(*,'("cosmo b grad: ",F8.3)') util_wallsec()-t0
+c      endif
 c
       if (ga_nodeid().eq.0) then
 c
@@ -389,6 +396,9 @@ c
           endif
 
           do iat1 = 1, nat
+            if (iat1.eq.int_mb(k_efciat+ich1-1)) cycle
+
+
             dx = coords(1,iat1,geom) - dbl_mb(0+3*(ich1-1)+iefc_c)
             dy = coords(2,iat1,geom) - dbl_mb(1+3*(ich1-1)+iefc_c)
             dz = coords(3,iat1,geom) - dbl_mb(2+3*(ich1-1)+iefc_c)

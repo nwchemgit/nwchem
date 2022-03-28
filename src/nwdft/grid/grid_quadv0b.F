@@ -389,6 +389,7 @@ c AJL/End
      &        ttau, kske)
          endif
       else  if (do_cpks_l.or.do_gxc) then
+         if (odftps) call pstat_on(ps_xcrho)
             call xc_rhogen(1,
      T        tol_rho, AO_bas_han, g_dens, nbf_ao_mxnbf_ce, 
      N        natoms, 1,1, nmat+1,
@@ -399,6 +400,7 @@ c AJL/End
      &        rchi_atom, rdelchi_atom, 
      &        rdens_atom, cetobfr,wmax, 
      &        ttau, kske, .false.)
+         if (odftps) call pstat_off(ps_xcrho)
       else if (do_cpks_r) then
        call errquit(pname//'what do do for cpks rhs?',0, CALC_ERR)
       endif
@@ -744,11 +746,14 @@ c
 c     Combine derivs of functional with deriv densities to get coeffs
 c     of bfn pairs in CPKS LHS --> these are written back into rho, delrho, ttau
 c
+            if (odftps) call pstat_on(ps_cpkscoef)
             call xc_cpks_coeff(rho, delrho, ttau, 
      &           Amat2, Cmat2, Cmat, Mmat2,
      &           delrho(iscf_delrho), nmat, ipol, nqpts, grad, kske, 
      &           triplet)
+            if (odftps) call pstat_off(ps_cpkscoef)
 c
+            if (odftps) call pstat_on(ps_tabcd)
             call xc_tabcd(1,l3d,
      T           tol_rho,Fmat,Pmat, rho, Bmat,delrho, Dbl_MB(iDmat), 
      N           0d0,0d0,0d0,0d0,
@@ -760,6 +765,7 @@ c
      &           rdens_atom, cetobfr,
      &           kske, ttau,
      &           .false.,0d0,0d0,0d0)
+            if (odftps) call pstat_off(ps_tabcd)
 c
 c Daniel (1-11-13): Need specific control over contraction for the 
 c XC-third derivatives

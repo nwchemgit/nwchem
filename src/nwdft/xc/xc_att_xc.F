@@ -1,6 +1,3 @@
-#if defined(FUJITSU_VPP)
-!ocl scalar
-#endif
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
       Subroutine xc_att_xc(rho,ipol,Ex,Amat,Cmat)
 #elif defined(SECOND_DERIV) && !defined(THIRD_DERIV)

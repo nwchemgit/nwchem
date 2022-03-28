@@ -1,0 +1,88 @@
+# BSE Version v0.9
+# Data downloaded on 2022-02-15T18:31
+# aug-mcc-pVQZ version number 0 AutoAux 
+# Role: JK Fitting 
+# Stoychev GL, Auer AA, Neese F. 
+# Automatic Generation of Auxiliary Basis Sets.
+# J Chem Theory Comput. 2017 Feb 14;13(2):554-562.
+# doi: 10.1021/acs.jctc.6b01041.
+# 
+basis "H_aug-mcc-pVQZ-autoaux" SPHERICAL 
+#basis SET: (15s,7p,6d,5f,5g) -> [15s,7p,6d,5f,5g]
+H    S
+      1.476765e+02           1.0
+H    S
+      8.204248e+01           1.0
+H    S
+      4.557916e+01           1.0
+H    S
+      2.532175e+01           1.0
+H    S
+      1.406764e+01           1.0
+H    S
+      7.815356e+00           1.0
+H    S
+      4.341864e+00           1.0
+H    S
+      2.412147e+00           1.0
+H    S
+      1.340082e+00           1.0
+H    S
+      7.444898e-01           1.0
+H    S
+      4.136054e-01           1.0
+H    S
+      2.297808e-01           1.0
+H    S
+      1.276560e-01           1.0
+H    S
+      7.092000e-02           1.0
+H    S
+      3.940000e-02           1.0
+H    P
+      6.560000e+00           1.0
+H    P
+      3.280000e+00           1.0
+H    P
+      1.640000e+00           1.0
+H    P
+      8.200000e-01           1.0
+H    P
+      4.100000e-01           1.0
+H    P
+      2.050000e-01           1.0
+H    P
+      1.025000e-01           1.0
+H    D
+      8.534415e+00           1.0
+H    D
+      3.879279e+00           1.0
+H    D
+      1.763309e+00           1.0
+H    D
+      8.015040e-01           1.0
+H    D
+      3.643200e-01           1.0
+H    D
+      1.656000e-01           1.0
+H    F
+      6.331940e+00           1.0
+H    F
+      2.878154e+00           1.0
+H    F
+      1.308252e+00           1.0
+H    F
+      5.946600e-01           1.0
+H    F
+      2.703000e-01           1.0
+H    G
+      8.784600e+00           1.0
+H    G
+      3.993000e+00           1.0
+H    G
+      1.815000e+00           1.0
+H    G
+      8.250000e-01           1.0
+H    G
+      3.750000e-01           1.0
+end

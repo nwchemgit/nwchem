@@ -37,7 +37,7 @@
 
       INTEGER             NBYTEI, NBYTED
 
-#if defined(SGI) || defined(EXT_INT)
+#if defined(EXT_INT)
       PARAMETER(          NBYTED = 8,
      $                    NBYTEI = 8 )
 #else

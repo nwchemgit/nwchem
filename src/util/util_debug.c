@@ -89,13 +89,6 @@ void FATR util_debug_(Integer *rtdb)
   argv[9] = 0;
   if (!xterm[0])
     strcpy(xterm, "/usr/bin/X11/xterm");
-#elif defined(SGI_N32) || defined(SGI) || defined(SGITFP)
-  argv[6] = "dbx";
-  argv[7] = "-p";
-  argv[8] = pid;
-  argv[9] = 0;
-  if (!xterm[0])
-    strcpy(xterm, "/usr/bin/X11/xterm");
 #else
   GA_Error("Don't know how to debug on this machine", 0);
 #endif

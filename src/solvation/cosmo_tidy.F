@@ -20,6 +20,7 @@ c
 #include "stdio.fh"
       integer rtdb !< [Input] the RTDB handle
 c
+      call util_print_pop
       if (.not. bq_destroy(cosmo_bq_efc)) call errquit
      $     ('cosmo_tidy: bq destroy failed', 0, GEOM_ERR)
       if (.not. bq_destroy(cosmo_bq_invnuc)) call errquit

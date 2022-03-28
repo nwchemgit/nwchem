@@ -28,8 +28,9 @@ c
       logical tdg_oskel
       logical tdg_lhashf
       logical tdg_triplet 
+      logical tdg_lhascd
       common/tddft_grad_solve_common/tdg_tol2e,tdg_kfac,tdg_rtdb,
      +       tdg_geom,tdg_bfao,tdg_ipol,tdg_nroots,tdg_nao,tdg_nocc,
      +       tdg_naoc,tdg_nav,tdg_nfc,tdg_nfv,tdg_nmo,
      +       tdg_g_mo,tdg_e_mo,tdg_tda,
-     +       tdg_oskel,tdg_lhashf,tdg_triplet
+     +       tdg_oskel,tdg_lhashf,tdg_triplet,tdg_lhascd

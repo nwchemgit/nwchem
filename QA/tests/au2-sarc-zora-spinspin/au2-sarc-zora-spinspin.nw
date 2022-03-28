@@ -1,0 +1,34 @@
+echo
+start au2-sarc-zora-spinspin
+
+geometry
+Au 0.000 0.000 -1.25
+Au 0.000 0.000  1.25
+end
+
+basis spherical
+* library sarc-zora
+end
+
+
+dft
+xc pbe0
+convergence  energy 1d-10
+noprint "final vectors analysis" multipole
+grid fine
+end
+
+relativistic
+ zora on
+ zora:cutoff 1d-30
+ modelpotential 1
+end
+
+property
+shielding
+spinspin
+end
+
+set int:cando_txs f
+
+task dft property

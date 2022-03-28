@@ -7,5 +7,6 @@
       integer(c_int),dimension(maxfunc) :: libxc_flags
       double precision,dimension(maxfunc) :: libxc_facts
 
-      common /libxc/ libxc_nfuncs,libxc_family,libxc_funcs,libxc_kind,
-     $               libxc_flags,libxc_facts
+      common /libxc/ libxc_facts,
+     I libxc_nfuncs,libxc_family,libxc_funcs,libxc_kind,
+     I               libxc_flags

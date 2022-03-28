@@ -596,8 +596,8 @@ c      Commutator = 2, PT Order = 3
         DO  n  = 1, NOS
         DO  e  = NOS+1, NOS+NVS
         DO  f  = NOS+1, NOS+NVS
-        INTERMVV(e,a) = INTERMVV(e,a) +
-     & -(1.0/4.0)*T2(m,n,e,f)*T2(m,n,a,f)
+        INTERMVV(e,a) = INTERMVV(e,a) -
+     &          (1.0/4.0)*T2(m,n,e,f)*T2(m,n,a,f)
         ENDDO; ENDDO; ENDDO; ENDDO; ENDDO
         DO  a  = NOS+1, NOS+NVS
         IF( a .GT.(NOS+NACTV).AND. a .LE.(NOS+NVAS))CYCLE
@@ -666,8 +666,8 @@ c      Commutator = 2, PT Order = 3
         DO  n  = 1, NOS
         DO  e  = NOS+1, NOS+NVS
         DO  f  = NOS+1, NOS+NVS
-        INTERMVV(d,f) = INTERMVV(d,f) +
-     & -(1.0/4.0)*T2(m,n,e,d)*T2(m,n,e,f)
+        INTERMVV(d,f) = INTERMVV(d,f) -
+     &          (1.0/4.0)*T2(m,n,e,d)*T2(m,n,e,f)
         ENDDO; ENDDO; ENDDO; ENDDO; ENDDO
         DO  a  = NOS+1, NOS+NVS
         IF( a .GT.(NOS+NACTV).AND. a .LE.(NOS+NVAS))CYCLE
@@ -860,8 +860,8 @@ c      Commutator = 2, PT Order = 3
         DO  n  = 1, NOS
         DO  e  = NOS+1, NOS+NVS
         DO  f  = NOS+1, NOS+NVS
-        INTERMVVVV(e,c,a,f) = INTERMVVVV(e,c,a,f) +
-     & -(1.0/2.0)*T2(m,n,e,c)*T2(m,n,a,f)
+        INTERMVVVV(e,c,a,f) = INTERMVVVV(e,c,a,f) -
+     &          (1.0/2.0)*T2(m,n,e,c)*T2(m,n,a,f)
         ENDDO; ENDDO; ENDDO; ENDDO; ENDDO; ENDDO
         DO  a  = NOS+1, NOS+NVS
         IF( a .GT.(NOS+NACTV).AND. a .LE.(NOS+NVAS))CYCLE
@@ -940,8 +940,8 @@ c      Commutator = 2, PT Order = 3
         DO  n  = 1, NOS
         DO  e  = NOS+1, NOS+NVS
         DO  f  = NOS+1, NOS+NVS
-        INTERMVVVV(e,d,b,f) = INTERMVVVV(e,d,b,f) +
-     & -(1.0/2.0)*T2(m,n,e,d)*T2(m,n,b,f)
+        INTERMVVVV(e,d,b,f) = INTERMVVVV(e,d,b,f) -
+     &          (1.0/2.0)*T2(m,n,e,d)*T2(m,n,b,f)
         ENDDO; ENDDO; ENDDO; ENDDO; ENDDO; ENDDO
         DO  a  = NOS+1, NOS+NVS
         IF( a .GT.(NOS+NACTV).AND. a .LE.(NOS+NVAS))CYCLE
@@ -979,8 +979,8 @@ c      Commutator = 2, PT Order = 3
         DO  n  = 1, NOS
         DO  o  = 1, NOS
         DO  e  = NOS+1, NOS+NVS
-        INTERMOVVO(m,d,b,o) = INTERMOVVO(m,d,b,o) +
-     & -(1.0)*T2(m,n,e,d)*T2(n,o,b,e)
+        INTERMOVVO(m,d,b,o) = INTERMOVVO(m,d,b,o) -
+     &          (1.0)*T2(m,n,e,d)*T2(n,o,b,e)
         ENDDO; ENDDO; ENDDO; ENDDO; ENDDO; ENDDO
         DO  a  = NOS+1, NOS+NVS
         IF( a .GT.(NOS+NACTV).AND. a .LE.(NOS+NVAS))CYCLE
@@ -1097,8 +1097,8 @@ c      Commutator = 2, PT Order = 3
         DO  n  = 1, NOS
         DO  o  = 1, NOS
         DO  e  = NOS+1, NOS+NVS
-        INTERMOVVO(m,c,a,o) = INTERMOVVO(m,c,a,o) +
-     & -(1.0)*T2(m,n,e,c)*T2(n,o,a,e)
+        INTERMOVVO(m,c,a,o) = INTERMOVVO(m,c,a,o) -
+     &          (1.0)*T2(m,n,e,c)*T2(n,o,a,e)
         ENDDO; ENDDO; ENDDO; ENDDO; ENDDO; ENDDO
         DO  a  = NOS+1, NOS+NVS
         IF( a .GT.(NOS+NACTV).AND. a .LE.(NOS+NVAS))CYCLE
@@ -1181,8 +1181,8 @@ c      Commutator = 2, PT Order = 3
 !         IF( d .GT.(NOS+NVAS+NACTV).AND. d .LE.(NOS+NVS))CYCLE
 !         DO  m  = 1, NOS
 !         DO  n  = 1, NOS
-!         INTERMVOVV(d,n,c,a) = INTERMVOVV(d,n,c,a) +
-!      & -(1.0/2.0)*T2(m,n,d,c)*FOCK(a,m)
+!         INTERMVOVV(d,n,c,a) = INTERMVOVV(d,n,c,a) -
+!     & (1.0/2.0)*T2(m,n,d,c)*FOCK(a,m)
 !         ENDDO; ENDDO; ENDDO; ENDDO; ENDDO
 !         DO  a  = NOS+1, NOS+NVS
 !         IF( a .GT.(NOS+NACTV).AND. a .LE.(NOS+NVAS))CYCLE
@@ -1223,8 +1223,8 @@ c      Commutator = 2, PT Order = 3
 !         IF( d .GT.(NOS+NVAS+NACTV).AND. d .LE.(NOS+NVS))CYCLE
 !         DO  m  = 1, NOS
 !         DO  n  = 1, NOS
-!         INTERMVVVO(d,a,b,n) = INTERMVVVO(d,a,b,n) +
-!      & -(1.0/2.0)*T1(m,d)*T2(m,n,a,b)
+!         INTERMVVVO(d,a,b,n) = INTERMVVVO(d,a,b,n) -
+!     & (1.0/2.0)*T1(m,d)*T2(m,n,a,b)
 !         ENDDO; ENDDO; ENDDO; ENDDO; ENDDO
 !         DO  a  = NOS+1, NOS+NVS
 !         IF( a .GT.(NOS+NACTV).AND. a .LE.(NOS+NVAS))CYCLE
@@ -1524,8 +1524,8 @@ c      Commutator = 2, PT Order = 4
         DO  m  = 1, NOS
         DO  n  = 1, NOS
         DO  e  = NOS+1, NOS+NVS
-        INTERMVO(a,n) = INTERMVO(a,n) +
-     & -(1.0/2.0)*T1(m,e)*T2(m,n,a,e)
+        INTERMVO(a,n) = INTERMVO(a,n) -
+     &          (1.0/2.0)*T1(m,e)*T2(m,n,a,e)
         ENDDO; ENDDO; ENDDO; ENDDO
         DO  a  = NOS+1, NOS+NVS
         IF( a .GT.(NOS+NACTV).AND. a .LE.(NOS+NVAS))CYCLE
@@ -1558,8 +1558,8 @@ c      Commutator = 2, PT Order = 4
         DO  m  = 1, NOS
         DO  n  = 1, NOS
         DO  e  = NOS+1, NOS+NVS
-        INTERMOV(m,d) = INTERMOV(m,d) +
-     & -(1.0/2.0)*T2(m,n,e,d)*T1(n,e)
+        INTERMOV(m,d) = INTERMOV(m,d) -
+     &          (1.0/2.0)*T2(m,n,e,d)*T1(n,e)
         ENDDO; ENDDO; ENDDO; ENDDO
         DO  a  = NOS+1, NOS+NVS
         IF( a .GT.(NOS+NACTV).AND. a .LE.(NOS+NVAS))CYCLE
@@ -1596,8 +1596,8 @@ c      Commutator = 2, PT Order = 4
 !         DO  m  = 1, NOS
 !         DO  n  = 1, NOS
 !         DO  e  = NOS+1, NOS+NVS
-!         INTERMOVVV(m,e,d,a) = INTERMOVVV(m,e,d,a) +
-!      & -(1.0/2.0)*T2(m,n,e,d)*T1(n,a)
+!         INTERMOVVV(m,e,d,a) = INTERMOVVV(m,e,d,a) -
+!     & (1.0/2.0)*T2(m,n,e,d)*T1(n,a)
 !         ENDDO; ENDDO; ENDDO; ENDDO; ENDDO
 !         DO  a  = NOS+1, NOS+NVS
 !         IF( a .GT.(NOS+NACTV).AND. a .LE.(NOS+NVAS))CYCLE
@@ -1635,8 +1635,8 @@ c      Commutator = 2, PT Order = 4
 !         DO  m  = 1, NOS
 !         DO  n  = 1, NOS
 !         DO  e  = NOS+1, NOS+NVS
-!         INTERMOVVV(m,e,c,b) = INTERMOVVV(m,e,c,b) +
-!      & -(1.0/2.0)*T2(m,n,e,c)*T1(n,b)
+!         INTERMOVVV(m,e,c,b) = INTERMOVVV(m,e,c,b) -
+!     & (1.0/2.0)*T2(m,n,e,c)*T1(n,b)
 !         ENDDO; ENDDO; ENDDO; ENDDO; ENDDO
 !         DO  a  = NOS+1, NOS+NVS
 !         IF( a .GT.(NOS+NACTV).AND. a .LE.(NOS+NVAS))CYCLE
@@ -1713,8 +1713,8 @@ c      Commutator = 2, PT Order = 4
 !         DO  m  = 1, NOS
 !         DO  n  = 1, NOS
 !         DO  e  = NOS+1, NOS+NVS
-!         INTERMVVOV(c,a,n,e) = INTERMVVOV(c,a,n,e) +
-!      & -(1.0/2.0)*T1(m,c)*T2(n,m,a,e)
+!         INTERMVVOV(c,a,n,e) = INTERMVVOV(c,a,n,e) -
+!     & (1.0/2.0)*T1(m,c)*T2(n,m,a,e)
 !         ENDDO; ENDDO; ENDDO; ENDDO; ENDDO
 !         DO  a  = NOS+1, NOS+NVS
 !         IF( a .GT.(NOS+NACTV).AND. a .LE.(NOS+NVAS))CYCLE
@@ -1752,8 +1752,8 @@ c      Commutator = 2, PT Order = 4
 !         DO  m  = 1, NOS
 !         DO  n  = 1, NOS
 !         DO  o  = 1, NOS
-!         INTERMVOOV(d,n,o,c) = INTERMVOOV(d,n,o,c) +
-!      & -(1.0/2.0)*T1(m,d)*V(n,o,m,c)
+!         INTERMVOOV(d,n,o,c) = INTERMVOOV(d,n,o,c) -
+!     & (1.0/2.0)*T1(m,d)*V(n,o,m,c)
 !         ENDDO; ENDDO; ENDDO; ENDDO; ENDDO
 !         DO  a  = NOS+1, NOS+NVS
 !         IF( a .GT.(NOS+NACTV).AND. a .LE.(NOS+NVAS))CYCLE
@@ -1830,8 +1830,8 @@ c      Commutator = 2, PT Order = 4
 !         DO  m  = 1, NOS
 !         DO  n  = 1, NOS
 !         DO  e  = NOS+1, NOS+NVS
-!         INTERMVVOV(d,b,n,e) = INTERMVVOV(d,b,n,e) +
-!      & -(1.0/2.0)*T1(m,d)*T2(n,m,b,e)
+!         INTERMVVOV(d,b,n,e) = INTERMVVOV(d,b,n,e) -
+!     & (1.0/2.0)*T1(m,d)*T2(n,m,b,e)
 !         ENDDO; ENDDO; ENDDO; ENDDO; ENDDO
 !         DO  a  = NOS+1, NOS+NVS
 !         IF( a .GT.(NOS+NACTV).AND. a .LE.(NOS+NVAS))CYCLE
@@ -1908,8 +1908,8 @@ c      Commutator = 2, PT Order = 4
 !         DO  m  = 1, NOS
 !         DO  n  = 1, NOS
 !         DO  o  = 1, NOS
-!         INTERMVOOV(b,m,n,a) = INTERMVOOV(b,m,n,a) +
-!      & -(1.0/2.0)*V(b,o,m,n)*T1(o,a)
+!         INTERMVOOV(b,m,n,a) = INTERMVOOV(b,m,n,a) -
+!     & (1.0/2.0)*V(b,o,m,n)*T1(o,a)
 !         ENDDO; ENDDO; ENDDO; ENDDO; ENDDO
 !         DO  a  = NOS+1, NOS+NVS
 
@@ -2097,8 +2097,8 @@ c      Commutator = 2, PT Order = 5
 !         IF( a .GT.(NOS+NVAS+NACTV).AND. a .LE.(NOS+NVS))CYCLE
 !         DO  m  = 1, NOS
 !         DO  e  = NOS+1, NOS+NVS
-!         INTERMVV(e,a) = INTERMVV(e,a) +
-!      & -(1.0/2.0)*T1(m,e)*T1(m,a)
+!         INTERMVV(e,a) = INTERMVV(e,a) -
+!     & (1.0/2.0)*T1(m,e)*T1(m,a)
 !         ENDDO; ENDDO; ENDDO
 !         DO  a  = NOS+1, NOS+NVS
 !         IF( a .GT.(NOS+NACTV).AND. a .LE.(NOS+NVAS))CYCLE
@@ -2131,8 +2131,8 @@ c      Commutator = 2, PT Order = 5
 !         IF( d .GT.(NOS+NVAS+NACTV).AND. d .LE.(NOS+NVS))CYCLE
 !         DO  m  = 1, NOS
 !         DO  e  = NOS+1, NOS+NVS
-!         INTERMVV(d,e) = INTERMVV(d,e) +
-!      & -(1.0/2.0)*T1(m,d)*T1(m,e)
+!         INTERMVV(d,e) = INTERMVV(d,e) -
+!     & (1.0/2.0)*T1(m,d)*T1(m,e)
 !         ENDDO; ENDDO; ENDDO
 !         DO  a  = NOS+1, NOS+NVS
 !         IF( a .GT.(NOS+NACTV).AND. a .LE.(NOS+NVAS))CYCLE
@@ -2245,8 +2245,8 @@ c      Commutator = 2, PT Order = 5
 !         IF( d .GT.(NOS+NVAS+NACTV).AND. d .LE.(NOS+NVS))CYCLE
 !         DO  m  = 1, NOS
 !         DO  n  = 1, NOS
-!         INTERMVVVO(c,a,d,n) = INTERMVVVO(c,a,d,n) +
-!      & -(1.0)*T1(m,c)*V(a,n,d,m)
+!         INTERMVVVO(c,a,d,n) = INTERMVVVO(c,a,d,n) -
+!     & (1.0)*T1(m,c)*V(a,n,d,m)
 !         ENDDO; ENDDO; ENDDO; ENDDO; ENDDO
 !         DO  a  = NOS+1, NOS+NVS
 !         IF( a .GT.(NOS+NACTV).AND. a .LE.(NOS+NVAS))CYCLE
@@ -2285,8 +2285,8 @@ c      Commutator = 2, PT Order = 5
 !         IF( d .GT.(NOS+NVAS+NACTV).AND. d .LE.(NOS+NVS))CYCLE
 !         DO  m  = 1, NOS
 !         DO  n  = 1, NOS
-!         INTERMVVVO(d,b,c,n) = INTERMVVVO(d,b,c,n) +
-!      & -(1.0)*T1(m,d)*V(b,n,c,m)
+!         INTERMVVVO(d,b,c,n) = INTERMVVVO(d,b,c,n) -
+!     & (1.0)*T1(m,d)*V(b,n,c,m)
 !         ENDDO; ENDDO; ENDDO; ENDDO; ENDDO
 !         DO  a  = NOS+1, NOS+NVS
 !         IF( a .GT.(NOS+NACTV).AND. a .LE.(NOS+NVAS))CYCLE
@@ -2361,8 +2361,8 @@ c      Commutator = 3, PT Order = 4
 !         DO  n  = 1, NOS
 !         DO  o  = 1, NOS
 !         DO  e  = NOS+1, NOS+NVS
-!         INTERMVO(b,n) = INTERMVO(b,n) +
-!      & -(1.0/6.0)*FOCK(o,e)*T2(n,o,b,e)
+!         INTERMVO(b,n) = INTERMVO(b,n) -
+!     & (1.0/6.0)*FOCK(o,e)*T2(n,o,b,e)
 !         ENDDO; ENDDO; ENDDO; ENDDO
 !         ALLOCATE(INTERMVOVV(NOS+1:NOS+NVS,1:NOS,NOS+1:NOS+NVS,NOS+1:NOS+NVS))
 !         INTERMVOVV = 0.0d0
@@ -2412,8 +2412,8 @@ c      Commutator = 3, PT Order = 4
 !         DO  m  = 1, NOS
 !         DO  o  = 1, NOS
 !         DO  e  = NOS+1, NOS+NVS
-!         INTERMOO(o,m) = INTERMOO(o,m) +
-!      & -(2.0/3.0)*FOCK(o,e)*T1(m,e)
+!         INTERMOO(o,m) = INTERMOO(o,m) -
+!     & (2.0/3.0)*FOCK(o,e)*T1(m,e)
 !         ENDDO; ENDDO; ENDDO
 !         ALLOCATE(INTERMOVOV(1:NOS,NOS+1:NOS+NVS,1:NOS,NOS+1:NOS+NVS))
 !         INTERMOVOV = 0.0d0
@@ -2572,8 +2572,8 @@ c      Commutator = 3, PT Order = 4
 !         IF( a .GT.(NOS+NVAS+NACTV).AND. a .LE.(NOS+NVS))CYCLE
 !         DO  o  = 1, NOS
 !         DO  e  = NOS+1, NOS+NVS
-!         INTERMVV(e,a) = INTERMVV(e,a) +
-!      & -(1.0/4.0)*FOCK(o,e)*T1(o,a)
+!         INTERMVV(e,a) = INTERMVV(e,a) -
+!     & (1.0/4.0)*FOCK(o,e)*T1(o,a)
 !         ENDDO; ENDDO; ENDDO
 !         ALLOCATE(INTERMVVOO(NOS+1:NOS+NVS,NOS+1:NOS+NVS,1:NOS,1:NOS))
 !         INTERMVVOO = 0.0d0
@@ -2625,8 +2625,8 @@ c      Commutator = 3, PT Order = 4
 !         DO  m  = 1, NOS
 !         DO  o  = 1, NOS
 !         DO  e  = NOS+1, NOS+NVS
-!         INTERMVO(b,o) = INTERMVO(b,o) +
-!      & -(1.0/6.0)*T1(m,e)*T2(m,o,b,e)
+!         INTERMVO(b,o) = INTERMVO(b,o) -
+!     & (1.0/6.0)*T1(m,e)*T2(m,o,b,e)
 !         ENDDO; ENDDO; ENDDO; ENDDO
 !         ALLOCATE(INTERMVOVV(NOS+1:NOS+NVS,1:NOS,NOS+1:NOS+NVS,NOS+1:NOS+NVS))
 !         INTERMVOVV = 0.0d0
@@ -2678,8 +2678,8 @@ c      Commutator = 3, PT Order = 4
 !         IF( c .GT.(NOS+NVAS+NACTV).AND. c .LE.(NOS+NVS))CYCLE
 !         DO  o  = 1, NOS
 !         DO  e  = NOS+1, NOS+NVS
-!         INTERMVV(c,e) = INTERMVV(c,e) +
-!      & -(1.0/12.0)*FOCK(o,c)*T1(o,e)
+!         INTERMVV(c,e) = INTERMVV(c,e) -
+!     & (1.0/12.0)*FOCK(o,c)*T1(o,e)
 !         ENDDO; ENDDO; ENDDO
 !         ALLOCATE(INTERMVOOV(NOS+1:NOS+NVS,1:NOS,1:NOS,NOS+1:NOS+NVS))
 !         INTERMVOOV = 0.0d0
@@ -2728,8 +2728,8 @@ c      Commutator = 3, PT Order = 4
 !         DO  m  = 1, NOS
 !         DO  n  = 1, NOS
 !         DO  e  = NOS+1, NOS+NVS
-!         INTERMOO(m,n) = INTERMOO(m,n) +
-!      & -(2.0/3.0)*T1(m,e)*FOCK(e,n)
+!         INTERMOO(m,n) = INTERMOO(m,n) -
+!     & (2.0/3.0)*T1(m,e)*FOCK(e,n)
 !         ENDDO; ENDDO; ENDDO
 !         ALLOCATE(INTERMOVOV(1:NOS,NOS+1:NOS+NVS,1:NOS,NOS+1:NOS+NVS))
 !         INTERMOVOV = 0.0d0
@@ -2781,8 +2781,8 @@ c      Commutator = 3, PT Order = 4
 !         DO  m  = 1, NOS
 !         DO  n  = 1, NOS
 !         DO  e  = NOS+1, NOS+NVS
-!         INTERMOV(n,c) = INTERMOV(n,c) +
-!      & -(1.0/6.0)*T2(m,n,e,c)*T1(m,e)
+!         INTERMOV(n,c) = INTERMOV(n,c) -
+!     & (1.0/6.0)*T2(m,n,e,c)*T1(m,e)
 !         ENDDO; ENDDO; ENDDO; ENDDO
 !         ALLOCATE(INTERMVVOV(NOS+1:NOS+NVS,NOS+1:NOS+NVS,1:NOS,NOS+1:NOS+NVS))
 !         INTERMVVOV = 0.0d0
@@ -2834,8 +2834,8 @@ c      Commutator = 3, PT Order = 4
 !         IF( a .GT.(NOS+NVAS+NACTV).AND. a .LE.(NOS+NVS))CYCLE
 !         DO  m  = 1, NOS
 !         DO  e  = NOS+1, NOS+NVS
-!         INTERMVV(e,a) = INTERMVV(e,a) +
-!      & -(1.0/12.0)*T1(m,e)*FOCK(a,m)
+!         INTERMVV(e,a) = INTERMVV(e,a) -
+!     & (1.0/12.0)*T1(m,e)*FOCK(a,m)
 !         ENDDO; ENDDO; ENDDO
 !         ALLOCATE(INTERMVVOO(NOS+1:NOS+NVS,NOS+1:NOS+NVS,1:NOS,1:NOS))
 !         INTERMVVOO = 0.0d0
@@ -2994,8 +2994,8 @@ c      Commutator = 3, PT Order = 4
 !         DO  n  = 1, NOS
 !         DO  o  = 1, NOS
 !         DO  e  = NOS+1, NOS+NVS
-!         INTERMOV(o,c) = INTERMOV(o,c) +
-!      & -(1.0/6.0)*T2(n,o,e,c)*FOCK(e,n)
+!         INTERMOV(o,c) = INTERMOV(o,c) -
+!     & (1.0/6.0)*T2(n,o,e,c)*FOCK(e,n)
 !         ENDDO; ENDDO; ENDDO; ENDDO
 !         ALLOCATE(INTERMVVOV(NOS+1:NOS+NVS,NOS+1:NOS+NVS,1:NOS,NOS+1:NOS+NVS))
 !         INTERMVVOV = 0.0d0
@@ -3205,8 +3205,8 @@ c      Commutator = 3, PT Order = 4
 !         IF( d .GT.(NOS+NVAS+NACTV).AND. d .LE.(NOS+NVS))CYCLE
 !         DO  m  = 1, NOS
 !         DO  e  = NOS+1, NOS+NVS
-!         INTERMVV(d,e) = INTERMVV(d,e) +
-!      & -(1.0/4.0)*T1(m,d)*FOCK(e,m)
+!         INTERMVV(d,e) = INTERMVV(d,e) -
+!     & (1.0/4.0)*T1(m,d)*FOCK(e,m)
 !         ENDDO; ENDDO; ENDDO
 !         ALLOCATE(INTERMVOVO(NOS+1:NOS+NVS,1:NOS,NOS+1:NOS+NVS,1:NOS))
 !         INTERMVOVO = 0.0d0
@@ -3313,8 +3313,8 @@ c      Commutator = 3, PT Order = 4
 !         DO  m  = 1, NOS
 !         DO  n  = 1, NOS
 !         DO  e  = NOS+1, NOS+NVS
-!         INTERMVOVV(e,n,d,a) = INTERMVOVV(e,n,d,a) +
-!      & -(1.0/6.0)*T2(m,n,e,d)*T1(m,a)
+!         INTERMVOVV(e,n,d,a) = INTERMVOVV(e,n,d,a) -
+!     & (1.0/6.0)*T2(m,n,e,d)*T1(m,a)
 !         ENDDO; ENDDO; ENDDO; ENDDO; ENDDO
 !         ALLOCATE(INTERMVVVO(NOS+1:NOS+NVS,NOS+1:NOS+NVS,NOS+1:NOS+NVS,1:NOS))
 !         INTERMVVVO = 0.0d0
@@ -3429,8 +3429,8 @@ c      Commutator = 3, PT Order = 4
 !         DO  m  = 1, NOS
 !         DO  o  = 1, NOS
 !         DO  e  = NOS+1, NOS+NVS
-!         INTERMVVVO(d,b,e,o) = INTERMVVVO(d,b,e,o) +
-!      & -(1.0/6.0)*T1(m,d)*T2(m,o,b,e)
+!         INTERMVVVO(d,b,e,o) = INTERMVVVO(d,b,e,o) -
+!     & (1.0/6.0)*T1(m,d)*T2(m,o,b,e)
 !         ENDDO; ENDDO; ENDDO; ENDDO; ENDDO
 !         ALLOCATE(INTERMVVOV(NOS+1:NOS+NVS,NOS+1:NOS+NVS,1:NOS,NOS+1:NOS+NVS))
 !         INTERMVVOV = 0.0d0
@@ -3545,8 +3545,8 @@ c      Commutator = 3, PT Order = 4
 !         DO  m  = 1, NOS
 !         DO  n  = 1, NOS
 !         DO  e  = NOS+1, NOS+NVS
-!         INTERMVOVV(e,n,c,b) = INTERMVOVV(e,n,c,b) +
-!      & -(1.0/6.0)*T2(m,n,e,c)*T1(m,b)
+!         INTERMVOVV(e,n,c,b) = INTERMVOVV(e,n,c,b) -
+!     & (1.0/6.0)*T2(m,n,e,c)*T1(m,b)
 !         ENDDO; ENDDO; ENDDO; ENDDO; ENDDO
 !         ALLOCATE(INTERMVVVO(NOS+1:NOS+NVS,NOS+1:NOS+NVS,NOS+1:NOS+NVS,1:NOS))
 !         INTERMVVVO = 0.0d0
@@ -3720,8 +3720,8 @@ c      Commutator = 3, PT Order = 4
 !         DO  m  = 1, NOS
 !         DO  o  = 1, NOS
 !         DO  e  = NOS+1, NOS+NVS
-!         INTERMVVVO(c,a,e,o) = INTERMVVVO(c,a,e,o) +
-!      & -(1.0/6.0)*T1(m,c)*T2(m,o,a,e)
+!         INTERMVVVO(c,a,e,o) = INTERMVVVO(c,a,e,o) -
+!     & (1.0/6.0)*T1(m,c)*T2(m,o,a,e)
 !         ENDDO; ENDDO; ENDDO; ENDDO; ENDDO
 !         ALLOCATE(INTERMVVOV(NOS+1:NOS+NVS,NOS+1:NOS+NVS,1:NOS,NOS+1:NOS+NVS))
 !         INTERMVVOV = 0.0d0
@@ -3824,8 +3824,8 @@ c      Commutator = 3, PT Order = 5
 !         IF( a .GT.(NOS+NVAS+NACTV).AND. a .LE.(NOS+NVS))CYCLE
 !         DO  n  = 1, NOS
 !         DO  e  = NOS+1, NOS+NVS
-!         INTERMVO(a,n) = INTERMVO(a,n) +
-!      & -(1.0/6.0)*FOCK(a,e)*T1(n,e)
+!         INTERMVO(a,n) = INTERMVO(a,n) -
+!     & (1.0/6.0)*FOCK(a,e)*T1(n,e)
 !         ENDDO; ENDDO; ENDDO
 !         ALLOCATE(INTERMVOVV(NOS+1:NOS+NVS,1:NOS,NOS+1:NOS+NVS,NOS+1:NOS+NVS))
 !         INTERMVOVV = 0.0d0
@@ -3930,8 +3930,8 @@ c      Commutator = 3, PT Order = 5
 !         IF( b .GT.(NOS+NVAS+NACTV).AND. b .LE.(NOS+NVS))CYCLE
 !         DO  m  = 1, NOS
 !         DO  o  = 1, NOS
-!         INTERMOV(m,b) = INTERMOV(m,b) +
-!      & -(1.0/2.0)*FOCK(o,m)*T1(o,b)
+!         INTERMOV(m,b) = INTERMOV(m,b) -
+!     & (1.0/2.0)*FOCK(o,m)*T1(o,b)
 !         ENDDO; ENDDO; ENDDO
 !         ALLOCATE(INTERMVVOV(NOS+1:NOS+NVS,NOS+1:NOS+NVS,1:NOS,NOS+1:NOS+NVS))
 !         INTERMVVOV = 0.0d0
@@ -3985,8 +3985,8 @@ c      Commutator = 3, PT Order = 5
 !         DO  m  = 1, NOS
 !         DO  n  = 1, NOS
 !         DO  e  = NOS+1, NOS+NVS
-!         INTERMVVOO(b,a,m,n) = INTERMVVOO(b,a,m,n) +
-!      & -(1.0/3.0)*FOCK(b,e)*T2(m,n,a,e)
+!         INTERMVVOO(b,a,m,n) = INTERMVVOO(b,a,m,n) -
+!     & (1.0/3.0)*FOCK(b,e)*T2(m,n,a,e)
 !         ENDDO; ENDDO; ENDDO; ENDDO; ENDDO
 !         ALLOCATE(INTERMVVOV(NOS+1:NOS+NVS,NOS+1:NOS+NVS,1:NOS,NOS+1:NOS+NVS))
 !         INTERMVVOV = 0.0d0
@@ -4036,8 +4036,8 @@ c      Commutator = 3, PT Order = 5
 !         IF( a .GT.(NOS+NVAS+NACTV).AND. a .LE.(NOS+NVS))CYCLE
 !         DO  m  = 1, NOS
 !         DO  o  = 1, NOS
-!         INTERMOV(m,a) = INTERMOV(m,a) +
-!      & -(1.0/2.0)*FOCK(o,m)*T1(o,a)
+!         INTERMOV(m,a) = INTERMOV(m,a) -
+!     & (1.0/2.0)*FOCK(o,m)*T1(o,a)
 !         ENDDO; ENDDO; ENDDO
 !         ALLOCATE(INTERMVVOV(NOS+1:NOS+NVS,NOS+1:NOS+NVS,1:NOS,NOS+1:NOS+NVS))
 !         INTERMVVOV = 0.0d0
@@ -4138,8 +4138,8 @@ c      Commutator = 3, PT Order = 5
 !         IF( c .GT.(NOS+NVAS+NACTV).AND. c .LE.(NOS+NVS))CYCLE
 !         DO  n  = 1, NOS
 !         DO  e  = NOS+1, NOS+NVS
-!         INTERMOV(n,c) = INTERMOV(n,c) +
-!      & -(1.0/6.0)*T1(n,e)*FOCK(e,c)
+!         INTERMOV(n,c) = INTERMOV(n,c) -
+!     & (1.0/6.0)*T1(n,e)*FOCK(e,c)
 !         ENDDO; ENDDO; ENDDO
 !         ALLOCATE(INTERMVVOV(NOS+1:NOS+NVS,NOS+1:NOS+NVS,1:NOS,NOS+1:NOS+NVS))
 !         INTERMVVOV = 0.0d0
@@ -4189,8 +4189,8 @@ c      Commutator = 3, PT Order = 5
 !         IF( d .GT.(NOS+NVAS+NACTV).AND. d .LE.(NOS+NVS))CYCLE
 !         DO  m  = 1, NOS
 !         DO  o  = 1, NOS
-!         INTERMVO(d,o) = INTERMVO(d,o) +
-!      & -(1.0/2.0)*T1(m,d)*FOCK(o,m)
+!         INTERMVO(d,o) = INTERMVO(d,o) -
+!     & (1.0/2.0)*T1(m,d)*FOCK(o,m)
 !         ENDDO; ENDDO; ENDDO
 !         ALLOCATE(INTERMVVOV(NOS+1:NOS+NVS,NOS+1:NOS+NVS,1:NOS,NOS+1:NOS+NVS))
 !         INTERMVVOV = 0.0d0
@@ -4295,8 +4295,8 @@ c      Commutator = 3, PT Order = 5
 !         DO  m  = 1, NOS
 !         DO  n  = 1, NOS
 !         DO  e  = NOS+1, NOS+NVS
-!         INTERMOOVV(m,n,c,d) = INTERMOOVV(m,n,c,d) +
-!      & -(1.0/3.0)*T2(m,n,e,c)*FOCK(e,d)
+!         INTERMOOVV(m,n,c,d) = INTERMOOVV(m,n,c,d) -
+!     & (1.0/3.0)*T2(m,n,e,c)*FOCK(e,d)
 !         ENDDO; ENDDO; ENDDO; ENDDO; ENDDO
 !         ALLOCATE(INTERMOVVV(1:NOS,NOS+1:NOS+NVS,NOS+1:NOS+NVS,NOS+1:NOS+NVS))
 !         INTERMOVVV = 0.0d0

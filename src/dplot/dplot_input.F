@@ -176,9 +176,11 @@ c     guess dft as theory  (is this really needed???)
 *
 *---- Read the information about the source of the one particle reduced density matrices
   250 Continue
-      if (.not.inp_a(File_Mat1))
-     1   call errquit('dplot_input: densmat <file1> [<file2>]',0,
-     1        input_err)
+      if (.not.inp_a(File_Mat1)) then
+         call util_file_name('densmat', .false.,.false.,file_mat1)
+      endif
+c     1   call errquit('dplot_input: densmat <file1> [<file2>]',0,
+c     1        input_err)
       if (inp_a(test)) then
          lth = inp_strlen(test)
          File_Mat2(1:lth) = test(1:lth)

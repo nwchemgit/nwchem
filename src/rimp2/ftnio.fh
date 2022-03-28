@@ -7,7 +7,7 @@ C
 #if defined(sun) || defined(IBM) || defined(SP1) || defined(_CRAY) || defined(__ksr__) || (defined(LINUX)&&!defined(__alpha)) || defined(WIN32) || defined(MACX)
 C$Id$
       Parameter ( MT_DAFRecL = MT_BYTE )
-#elif defined(__PARAGON__) || defined(__IPSC__) ||defined(HPUX) ||defined(FUJITSU_VPP) || defined(FUJITSU_VPP64)
+#elif defined(__PARAGON__) || defined(__IPSC__) ||defined(HPUX)
       Parameter ( MT_DAFRecL = MT_BYTE )
 #elif defined(sgi) || defined(__alpha)
       Parameter ( MT_DAFRecL = MT_INT )

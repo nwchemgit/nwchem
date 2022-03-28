@@ -17,7 +17,7 @@ c
       intrinsic shiftr, shiftl
       integer iiibit, jjjbit
 #endif
-#if (defined(SGI) && defined(_LANGUAGE_FORTRAN90)) || ( __GNUC__ >= 4)
+#if ( __GNUC__ >= 4)
       integer rshift, lshift
       integer iiibit, jjjbit
 #endif
