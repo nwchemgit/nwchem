@@ -85,7 +85,7 @@ set lucia:gsoccx 4 4 4 4 2 4 4 4
 set lucia:nseqci 1
 #set lucia:nseqci 1 1
 set lucia:seq_1_1 "MCSCF,20,1"
-set lucia:seq_2_1 "AKBKCI"
+#set lucia:seq_2_1 "AKBKCI"
 set lucia:mxciv 20
 set lucia:maxitm 20
 set lucia:resdim 20

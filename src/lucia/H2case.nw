@@ -54,9 +54,10 @@ set lucia:machine "CRAY"
 set lucia:ncispc 2
 set lucia:nirrep 1
 set lucia:gsoccx 2 2 2 2  0 2 2 2
-set lucia:nseqci 1 1
+set lucia:nseqci 1 
+#set lucia:nseqci 1 1
 set lucia:seq_1_1 "MCSCF,20,1"
-set lucia:seq_2_1 "AKBKCI,20"
+#set lucia:seq_2_1 "AKBKCI,20"
 set lucia:mxciv 5
 set lucia:maxitm 20
 set lucia:resdim 20
