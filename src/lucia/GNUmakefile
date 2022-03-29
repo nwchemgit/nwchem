@@ -1,7 +1,7 @@
 # $Id$
 
 
-  OBJ = atim.o cio.o  flush.o lucia.o
+  OBJ = atim.o cio.o  lucia.o
 
   OBJ_OPTIMIZE = aixopn.o aixrd.o baserou.o cdafile.o crop_simple.o \
 	daname.o daname_main.o ddafile.o densi2_ab.o determinant.o \

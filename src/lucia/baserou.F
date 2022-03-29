@@ -502,7 +502,7 @@ C RECORDS WITH LENGTH NBLOCK.
 *
 *
 C?    write(6,*) ' entering TODSCP, file = ', IFIL
-C?    CALL FLUSH(6)
+C?    CALL UTIL_FLUSH(6)
       IPACK = 1
       IF(IPACK.NE.0) THEN
 *. Check norm of A before writing
@@ -563,7 +563,7 @@ C
       END IF
  1001 CONTINUE
 *
-C?    CALL FLUSH(6)
+C?    CALL UTIL_FLUSH(6)
       RETURN
       END
       SUBROUTINE ADDDIA(A,FACTOR,NDIM,IPACK)

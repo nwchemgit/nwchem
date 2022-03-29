@@ -156,14 +156,14 @@ c     &     0,work(ksrho1))
       end if
 c dbg
       print *,'call to densi2_ab'
-      call flush(6)
+      call util_flush(6)
 c dbg
       call densi2_ab(iden,work(krho1),work(krho2),
      &     vec1,vec2,lulst,lurst,exps2,
      &     0,work(ksrho1),isepab)
 c dbg
       print *,'after densi2_ab'
-      call flush(6)
+      call util_flush(6)
 c dbg
 
       ! symmetrize one-body density matrix
