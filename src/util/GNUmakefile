@@ -233,7 +233,7 @@ endif
               ga_conjg.o nwmolden.o ao_1prdm_read.o ao_1prdm_write.o\
               util_strips.o util_poltensor.o  util_mygop.o util_isnan.o \
               util_blasthreads.o util_gpu_affinity.o util_scalapack.o \
-              util_norm2.o \
+              util_norm2.o util_dpofa.o util_dgedi.o \
               $(EXTRA_OBJ)
 ifndef USE_MLIB
               OBJ_OPTIMIZE += icopy.o dsum.o dgefa.o zsum.o
@@ -251,7 +251,7 @@ endif
 
     USES_BLAS = util.fh ga_it_lsolve.F ga_maxelt.F ga_mix.F ga_iter_diag.F \
                 ga_orthog.F dabsmax.F ga_normf.F corr_mk_ref.F ga_it2.F ga_lkain_ext.F util_file_name.F dgefa.f util_patch_test.F stpr_sjacobi.F util_dgeev.F \
-		util_test_cholesky.F dfill.F ga_lkain_2cpl3_ext.F ga_it2.F util_poltensor.F
+		util_test_cholesky.F dfill.F ga_lkain_2cpl3_ext.F ga_it2.F util_poltensor.F util_dpofa.F util_dgedi.F
 
 ifdef SPEECH
    LIB_DEFINES += -DSPEECH
