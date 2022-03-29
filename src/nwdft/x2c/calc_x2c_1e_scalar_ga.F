@@ -105,7 +105,7 @@ c     other local variables:
       integer dbg
       double precision jfac(1),kfac(1)
 
-      character*32 pname
+      character*13 pname
 
 c     =================================================================
 
@@ -114,7 +114,7 @@ c     dbg = 0: no debug output
       dbg=1
       me=ga_nodeid()
       master = me.eq.0
-      pname = "calc_x2c_1e_scalar"
+      pname = "x2c_1e_scalar"
       
       if (dbg>0.and.master) write(luout,*) 'entering '//pname
       
@@ -148,18 +148,18 @@ c     make sure the input GAs have the correct dimension
 
       call ga_inquire(g_x2c,type,nc,nc)
       if (nc.ne.nbf_ao) then
-        call errquit('x2c1e: g_x2c has wrong dimension',nc,GA_ERR)
+        call errquit(pname//': g_x2c has wrong dimension',nc,GA_ERR)
       end if
 
       if (.not. bas_numbf(cbas,ntemp))
-     &  call errquit('x2c1e: bas_ao error',ntemp, BASIS_ERR)
+     &  call errquit(pname//': bas_ao error',ntemp, BASIS_ERR)
       if (ntemp.ne.nc)
-     &  call errquit('x2c1e: nc.ne.ntemp',ntemp, BASIS_ERR)
+     &  call errquit(pname//': nc.ne.ntemp',ntemp, BASIS_ERR)
       if (.not. bas_numbf(ubas,nu))
-     &  call errquit('x2c1e: nu error',nu, BASIS_ERR)
+     &  call errquit(pname//': nu error',nu, BASIS_ERR)
 
       if (master.and.dbg>0) write (luout,*)
-     &  'x2c: nu, nc =',nu,nc
+     &  pname//': nu, nc =',nu,nc
 
       if (nu.lt.nc) call errquit(
      &  'x2c uncontracted basis smaller than contracted', 1,
@@ -214,7 +214,7 @@ c     in GA, or call relham routines with MA arrays
       if (.not.rtdb_get(rtdb, 'x2c:usega', mt_log, 1,
      &  use_ga)) continue
       if (master.and.use_ga) write(luout,*)
-     &  'x2c: will perform decoupling in GA mode'
+     &  pname//': will perform decoupling in GA mode'
       
 c     -----------------------------------------
 c     allocate GAs for T, V, S, and for W = pVp
@@ -257,7 +257,7 @@ c     symmetrize, just in case ...
 
       call ga_sync()
 
-      if (master.and.dbg>0) write(luout,*) 'x2c: T,V,S done'
+      if (master.and.dbg>0) write(luout,*) pname//': T,V,S done'
 
 c     ------------------------------------------------------
 c     later we need a transformation from the contracted (c)
@@ -283,7 +283,7 @@ c     but this is how it is done in the DKH routines)
         if (.not. ga_create(MT_DBL,nu,nu,'temp',1,1,g_temp))
      &    call errquit(pname//': error creating temp',53,GA_ERR)
         
-        if (master.and.dbg>0) write(luout,*) 'x2c: u2c mem done'
+        if (master.and.dbg>0) write(luout,*) pname//': u2c mem done'
         
         call int_1e_ga(ubas, cbas, g_smix, 'overlap' ,oskel)
         call ga_copy(g_s,g_temp)
@@ -292,12 +292,12 @@ c     but this is how it is done in the DKH routines)
      &    g_temp, g_smix, 0.0d0, g_u2c)
         
         if (.not. ga_destroy(g_temp))
-     &    call errquit('x2c1e: error destroy temp',53, GA_ERR)
+     &    call errquit(pname//': error destroy temp',53, GA_ERR)
         
         if (.not. ga_destroy(g_smix))
-     &    call errquit('x2c1e: error destroy smix',52, GA_ERR)
+     &    call errquit(pname//': error destroy smix',52, GA_ERR)
         
-        if (master.and.dbg>0) write(luout,*) 'x2c: u2c done'
+        if (master.and.dbg>0) write(luout,*) pname//': u2c done'
         
       end if                    ! needu2c
 
@@ -314,21 +314,21 @@ c     Use [(A^T A)**(-1) A^T] A = 1 to define the left-inverse.
         if (.not. ga_create(MT_DBL,nc,nc,'temp',1,1,g_temp))
      &    call errquit(pname//': failed creating temp',55,GA_ERR)
         
-        if (master.and.dbg>0) write(luout,*) 'x2c: c2u mem done'
+        if (master.and.dbg>0) write(luout,*) pname//': c2u mem done'
         
         call ga_dgemm('t','n',nc,nc,nu,1.0d0,g_u2c,g_u2c,
      &    0.0d0,g_temp)   
         
         call ga_matpow(g_temp, -1.0d0, 1d-12)
-        if (master.and.dbg>0) write(luout,*) 'x2c: c2u matpow done'
+        if (master.and.dbg>0) write(luout,*) pname//': c2u matpow done'
         
         call ga_dgemm('n','t',nc,nu,nc,1.0d0,g_temp,g_u2c,
      &    0.0d0,g_c2u)
         
         if (.not. ga_destroy(g_temp))
-     &    call errquit('x2c1e: error destroy temp',55, GA_ERR)
+     &    call errquit(pname//': error destroy temp',55, GA_ERR)
         
-        if (master.and.dbg>0) write(luout,*) 'x2c: c2u done'
+        if (master.and.dbg>0) write(luout,*) pname//': c2u done'
         
 c       check c2u * u2c
         
@@ -357,9 +357,9 @@ c       c2u*u2c must be a unit matrix of dimension nc
         end if
 
         if (.not. ga_destroy(g_temp))
-     &    call errquit('x2c1e: error destroy temp',56, GA_ERR)
+     &    call errquit(pname//': error destroy temp',56, GA_ERR)
 
-        if (master.and.dbg>0) write(luout,*) 'x2c: c2u done'
+        if (master.and.dbg>0) write(luout,*) pname//': c2u done'
 
       end if                    ! needc2u
 
@@ -381,12 +381,12 @@ c       P(u) = u2c P(c) u2c^T.
         if (.not. ga_create(MT_DBL,nu,nu,'densu',1,1,g_densu))
      &    call errquit(pname//': error creating densu',58,GA_ERR)
         
-        if (master.and.dbg>0) write(luout,*) 'x2c: dens c2u start'
+        if (master.and.dbg>0) write(luout,*) pname//': dens c2u start'
         
         call ga_zero(g_densu)
         call ga_dgemm('n','t',nc,nu,nc, 1.0d0,
      &    g_dens(1),g_u2c,0.0d0,g_temp)
-        if (master.and.dbg>0) write(luout,*) 'x2c: dens c2u step1'
+        if (master.and.dbg>0) write(luout,*) pname//': dens c2u step1'
         call ga_dgemm('n','n',nu,nu,nc ,1.0d0,
      &    g_u2c, g_temp, 0.0d0,g_densu)
         call ga_symmetrize(g_densu)
@@ -394,7 +394,7 @@ c       P(u) = u2c P(c) u2c^T.
         if (.not. ga_destroy(g_temp))
      &    call errquit(pname//': error destroy temp',57, GA_ERR) 
         
-        if (master.and.dbg>0) write(luout,*) 'x2c: dens c2u done'
+        if (master.and.dbg>0) write(luout,*) pname//': dens c2u done'
 
       else
 
@@ -419,7 +419,7 @@ c     ------------------------------------
      &  errquit(pname//': ga_create g_temp failed',59,GA_ERR)
       call ga_zero(g_temp)
      
-      if (master.and.dbg>0) write(luout,*) 'x2c: debug S:'
+      if (master.and.dbg>0) write(luout,*) pname//': debug S:'
 
       call ga_dgemm('n','n',nu,nu,nu, 1.0d0,
      &  g_densu,g_s,0.0d0,g_temp)
@@ -427,9 +427,9 @@ c     ------------------------------------
       sum = ga_trace_diag(g_temp)
       
       if (master) write (luout,'(1x,a,1x,e15.7)')
-     &  'calc_x2c: tr(P * S) : ',sum
+     &  pname//': tr(P * S) : ',sum
 
-      if (master.and.dbg>0) write(luout,*) 'x2c: debug T:'
+      if (master.and.dbg>0) write(luout,*) pname//': debug T:'
 
       call ga_dgemm('n','n',nu,nu,nu, 1.0d0,
      &  g_densu,g_t,0.0d0,g_temp)
@@ -437,10 +437,10 @@ c     ------------------------------------
       sum = ga_trace_diag(g_temp)
       
       if (master) write (luout,'(1x,a,1x,e15.7)')
-     &  'calc_x2c: tr(P * T) : ',sum
+     &  pname//': tr(P * T) : ',sum
       energy = energy + sum
 
-      if (master.and.dbg>0) write(luout,*) 'x2c: debug V:'
+      if (master.and.dbg>0) write(luout,*) pname//': debug V:'
 
       call ga_dgemm('n','n',nu,nu,nu, 1.0d0,
      &  g_densu,g_v,0.0d0,g_temp)
@@ -448,14 +448,14 @@ c     ------------------------------------
       sum = ga_trace_diag(g_temp)
       
       if (master) write (luout,'(1x,a,1x,e15.7)')
-     &  'calc_x2c: tr(P * V) : ',sum
+     &  pname//': tr(P * V) : ',sum
       energy = energy + sum
 
       if (.not. ga_destroy(g_temp)) call errquit
      &  (pname//': temp ga corrupt?',59, GA_ERR)
 
       if (master) write (luout,'(1x,a,1x,e15.7)')
-     &  'calc_x2c: 1e energy : ',energy
+     &  pname//': 1e energy : ',energy
 
 c     ----------------------------------------------------------
 c     as this routine gets embedded in the scalar DFT framework, 
@@ -536,7 +536,7 @@ c     ---------------------------------------------------------------
       
       if (analytic_pvp) then
         if (master) write (luout,*)
-     &    'x2c: calculating analytic p.Vp integrals'
+     &    pname//': calculating analytic p.Vp integrals'
         
 c       add scalar part p.Vp to g_w:
         call int_1e_ga(ubas, ubas ,g_w, 'pvp' ,oskel)
@@ -552,10 +552,11 @@ c     integrals are done analytically
 c     --------------------------------------------------
 
       if (analytic_pvp .and. .not.modelpot_2e) then
-        if (master) write(luout,*)'x2c: skipping numerical W integrals'
+        if (master) write(luout,*)
+     &    pname//': skipping numerical W integrals'
       else
         
-        if (master) write(luout,*) 'x2c: calculating W numerically'
+        if (master) write(luout,*) pname//': calculating W numerically'
         if (modelpot_2e .and. master)
      &    write(luout,*) '     (2e model pot. only)'
         
@@ -575,14 +576,14 @@ c         g_vxc has the right dimension already
 c         transform to ubas: tmpv = c2u^T g_tmpv c2u, add to g_w
 
           if(.not.ga_create(mt_dbl,nc,nu,'temp',0,0,g_temp))
-     &      call errquit('x2c1e: error creating temp',148, GA_ERR)
+     &      call errquit(pname//': error creating temp',148, GA_ERR)
           call ga_zero(g_temp)
           call ga_dgemm('n','n',nc,nu,nc, 1.0d0,
      &      g_tmpv,g_c2u,0.0d0,g_temp)
-          if (master.and.dbg>0) write(luout,*) 'x2c: g_w c2u step1'
+          if (master.and.dbg>0) write(luout,*) pname//': g_w c2u step1'
           call ga_dgemm('t','n',nu,nu,nc ,1.0d0,
      &      g_c2u, g_temp, 1.0d0,g_w)
-          if (master.and.dbg>0) write(luout,*) 'x2c: g_w c2u step2'
+          if (master.and.dbg>0) write(luout,*) pname//': g_w c2u step2'
           if (.not. ga_destroy(g_tmpv)) call errquit
      &      (pname//': ga corrupt?',147, GA_ERR)
           if (.not. ga_destroy(g_temp)) call errquit
@@ -604,7 +605,7 @@ c     sanity checks:
 
       if (.not.needu2c) then
         if (g_X.ne.g_x2c) call errquit(
-     &    'x2c1e: g_X/g_x2c inconsistency 1',g_X-g_x2c, UNKNOWN_ERR)
+     &    pname//': g_X/g_x2c inconsistency 1',g_X-g_x2c, UNKNOWN_ERR)
       end if
 
 c     -----------------------------------------------
@@ -918,9 +919,10 @@ c     store in g_x2c. Otherwise, we are already done
 c     ----------------------------------------------
 
       if (needu2c) then
-        if (dbg>0.and.master) write(luout,*) 'x2c: u2c trafo of result'
+        if (dbg>0.and.master) write(luout,*)
+     &    pname//': u2c trafo of result'
         if (.not. ga_create(MT_DBL,nc,nu,'temp',1,1,g_temp))
-     &    call errquit('x2c1e: ga_create failed temp',77,
+     &    call errquit(pname//': ga_create failed temp',77,
      &    GA_ERR)
         if (g_X.eq.g_x2c) call errquit(
      &    pname//': g_X/g_x2c inconsistency 3',g_X-g_x2c, UNKNOWN_ERR)
@@ -933,7 +935,7 @@ c       same. Hence, g_x2c is over-written here
      &    g_temp,g_u2c, 0.0d0,g_x2c)
 
         if (.not. ga_destroy(g_temp))
-     &    call errquit('x2c1e: ga_destroy failed temp',77,GA_ERR)
+     &    call errquit(pname//': ga_destroy failed temp',77,GA_ERR)
       end if                    ! needu2c
 
       call ga_symmetrize(g_x2c)
@@ -942,7 +944,7 @@ c     de-allocate g_X, if needed, and related arrays
 
       if (needu2c) then
         if (.not. ga_destroy(g_X))
-     &    call errquit('x2c1e: ga_destroy failed g_X',61,GA_ERR)
+     &    call errquit(pname//': ga_destroy failed g_X',61,GA_ERR)
 
         if (.not.keepU) then
           if (.not. ga_destroy(g_u2c)) call errquit

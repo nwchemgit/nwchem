@@ -55,3 +55,6 @@ fi
 ./runtests.mpi.unix procs $np h2o2-response-uhf-damping
 ./runtests.mpi.unix procs $np h2o2-prop-notrans
 #
+#--- relativity tests
+./runtests.mpi.unix procs $np x2c-h2se
+#
