@@ -27,7 +27,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 # specified in an order that will link correctly, but that shouldn't
 # be too hard to come up with.  These should be platform-independent.
 
-KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
+KNOWN_MODULE_LIBS = -ltest -lccsd -llucia -lmcscf -lselci -lmp2 -lmoints \
                     -lstepper -ldriver -loptim -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lesp -lddscf -ldangchang -lleps -lguess -lhessian \
                     -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lsolvation -lnwints \
@@ -36,7 +36,7 @@ KNOWN_MODULE_LIBS = -ltest -lccsd -lmcscf -lselci -lmp2 -lmoints \
                     -lcafe -lspace -lanalyze -ldiana -lqhop \
                     -lpfft -ldplot -lnwpython -ldrdy -lvscf -lqmmm -lrism -lqmd -letrans\
                     -lpspw -ltce  -lgeninterface -lbq -lmm  -lcons -lperfm -lnbo -ldntmc -lccca\
-                    -llucia -ldimqm -lrdmft -lfcidump -lgwmol
+                    -ldimqm -lrdmft -lfcidump -lgwmol
 
 # This include file handles configuration of the NW_MODULE_SUBDIRS and
 # NW_MODULE_LIBS macros for what we actually want to build.  It
@@ -186,6 +186,8 @@ MODULES := $(patsubst nwpw,nwpw fft,$(MODULES) )
 MODULES := $(patsubst ddscf,ddscf  atomscf nwdft NWints gradients,$(MODULES) )
 
 MODULES := $(patsubst gwmol, gwmol nwdft ddscf gradients hessian atomscf NWints,$(MODULES) )
+
+MODULES := $(patsubst lucia, lucia mp2_grad ddscf nwdft property cphf gradients hessian atomscf NWints moints,$(MODULES) )
 
 # This dependency is the other way round (matchnxyz used by symmetry)
 # but is required for correct linking on SOLARIS.  Nasty kludge.
