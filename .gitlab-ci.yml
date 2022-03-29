@@ -90,6 +90,7 @@ variables:
 #    - source /opt/intel/compilers_and_libraries_2019/linux/bin/compilervars.sh  intel64
     - source /opt/intel/oneapi/setvars.sh
     - export NWCHEM_EXECUTABLE=${NWCHEM_TOP}/../binaries/nwchem_intel
+    - export PYTHONVERSION=3.8
     - export FC=ifort
 
 .intel_template: &ifx_sourcing
