@@ -1,4 +1,3 @@
-No protocol specified
  argument  1 = testcase-O3.nw
                                          
                                          
@@ -39,17 +38,17 @@ No protocol specified
 
     hostname        = fryslan
     program         = ../../bin/LINUX64/nwchem
-    date            = Mon Mar 28 18:05:14 2022
+    date            = Mon Mar 28 20:07:44 2022
 
-    compiled        = Mon_Mar_28_17:39:43_2022
+    compiled        = Mon_Mar_28_19:15:37_2022
     source          = /home/wadejong/MCSCF/nwchem
     nwchem branch   = 7.0.0
-    nwchem revision = nwchem_on_git-3767-g17b56d925e
+    nwchem revision = nwchem_on_git-3769-g659162eb31
     ga revision     = 5.8.1
     use scalapack   = F
     input           = testcase-O3.nw
-    prefix          = c2h4.
-    data base       = ./c2h4.db
+    prefix          = o3mol.
+    data base       = ./o3mol.db
     status          = startup
     nproc           =        1
     time left       =     -1s
@@ -59,8 +58,8 @@ No protocol specified
            Memory information
            ------------------
 
-    heap     =   26214398 doubles =    200.0 Mbytes
-    stack    =   26214395 doubles =    200.0 Mbytes
+    heap     =   26214394 doubles =    200.0 Mbytes
+    stack    =   26214399 doubles =    200.0 Mbytes
     global   =  471859200 doubles =   3600.0 Mbytes (distinct from heap & stack)
     total    =  524287993 doubles =   4000.0 Mbytes
     verify   = yes
@@ -80,8 +79,8 @@ No protocol specified
                                 -------------------
 
 
-                                       RXdia
-                                       -----
+                                     MCSCF O3
+                                     --------
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -231,7 +230,7 @@ No protocol specified
                                  -----------------
 
 
-                                       RXdia
+                                     MCSCF O3
 
 
 
@@ -243,7 +242,7 @@ No protocol specified
   charge          =   0.00
   wavefunction    = RHF 
   input vectors   = atomic
-  output vectors  = ./c2h4.movecs
+  output vectors  = ./o3mol.movecs
   use symmetry    = T
   symmetry adapt  = T
 
@@ -314,7 +313,7 @@ No protocol specified
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
                  1     -224.0886492447  1.94D+00  6.64D-01      0.3
-                 2     -224.2512109729  3.77D-01  1.09D-01      0.4
+                 2     -224.2512109729  3.77D-01  1.09D-01      0.5
                  3     -224.2634852563  1.66D-01  4.98D-02      0.7
                  4     -224.2652919948  7.31D-03  3.43D-03      1.2
                  5     -224.2653053129  5.04D-05  2.08D-05      2.0
@@ -1007,7 +1006,23 @@ No protocol specified
  Largest Symmetry-type-type block(as real)   0.2500000000000E+02
  Largest type-type block (all symmetries)(as real)    0.4100000000000E+02
 
+  Number of TTS subblocks per CI expansion 
+  ======================================== 
+  Internal CI space                     1
+
+<  1>        4       2       2       2
+  Internal CI space                     2
+
+<  1>       16      12      12      12
   Largest number of blocks in CI expansion                   16
+  Number of columns per CI expansion 
+  =================================== 
+  Internal CI space                     1
+
+<  1>        3       1       1       1
+  Internal CI space                     2
+
+<  1>       18      14      14      14
   TEST: LBLOCK =                    25
  Number of blocks         2
  Number of batches         1
@@ -1086,7 +1101,23 @@ nblocks, nnod, nfragagain         2         1         0
  Largest Symmetry-type-type block(as real)   0.2500000000000E+02
  Largest type-type block (all symmetries)(as real)    0.4100000000000E+02
 
+  Number of TTS subblocks per CI expansion 
+  ======================================== 
+  Internal CI space                     1
+
+<  1>        4       2       2       2
+  Internal CI space                     2
+
+<  1>       16      12      12      12
   Largest number of blocks in CI expansion                   16
+  Number of columns per CI expansion 
+  =================================== 
+  Internal CI space                     1
+
+<  1>        3       1       1       1
+  Internal CI space                     2
+
+<  1>       18      14      14      14
   one-electron term to Ecore   -398.36743024794276     
   Core energy: updated and read in   -219.19960386048859        68.819515579371725     
   MO-AO transformation matrix of starting orbitals
@@ -1750,7 +1781,7 @@ nblocks, nnod, nfragagain         2         1         0
 ----------------------------------------------
 
      ROUTINE     CALLS      CPU     I/O
-      REST          1      0.02    0.00
+      REST          1      0.01    0.00
       STRTY         2      0.00    0.00
       GNOCCL        2      0.00    0.00
       STRIN         2      0.00    0.00
@@ -1761,22 +1792,22 @@ nblocks, nnod, nfragagain         2         1         0
       NGASD        16      0.00    0.00
       MO1           1      0.00    0.00
       MO1GA         1      0.00    0.00
-      MO2           1      0.84    0.00
+      MO2           1      0.87    0.00
       MO2GA         1      0.07    0.00
-      TRAIN        23      0.09    0.00
+      TRAIN        23      0.14    0.00
       GETIN     43005      0.10    0.00
-      gin2a     43005      0.08    0.00
+      gin2a     43005      0.07    0.00
       MCSCF         1      0.00    0.00
-      ORBTR        33      0.04    0.00
+      ORBTR        33      0.00    0.00
       gasci        12      0.00    0.00
-      CIDIA        12      0.02    0.00
+      CIDIA        12      0.01    0.00
       GETST       466      0.00    0.00
       CIEIG        12      0.00    0.00
       MINDV        12      0.00    0.00
       MV7          45      0.00    0.00
-      RASSG        45      0.00    0.00
+      RASSG        45      0.01    0.00
       ACTBL        57      0.00    0.00
-      SBLOK        45      0.00    0.00
+      SBLOK        45      0.01    0.00
       SBLOS        45      0.00    0.00
       GSTBL       138      0.00    0.00
       SDCMR       137      0.00    0.00
@@ -1784,7 +1815,7 @@ nblocks, nnod, nfragagain         2         1         0
       RSSBE       178      0.00    0.00
       RS2B2       178      0.00    0.00
       SKICK       534      0.00    0.00
-      SKAII       890      0.01    0.00
+      SKAII       890      0.00    0.00
       RS1          89      0.00    0.00
       ADAST       980      0.00    0.00
       RS2A         89      0.00    0.00
@@ -1798,13 +1829,13 @@ nblocks, nnod, nfragagain         2         1         0
       ADADS       240      0.00    0.00
       MATCG       120      0.00    0.00
       GSD2N        48      0.00    0.00
-      enden        32      0.01    0.00
-      fmats        11      0.01    0.00
-      ORBHE        10      0.01    0.00
-      EIS_D        10      0.03    0.00
+      enden        32      0.00    0.00
+      fmats        11      0.00    0.00
+      ORBHE        10      0.04    0.00
+      EIS_D        10      0.01    0.00
       e1frf        11      0.00    0.00
 
- Total time in above routines: .133E+01
+ Total time in above routines: .134E+01
 MA usage statistics:
 
 	allocation statistics:
@@ -1813,7 +1844,7 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	       109	       120
 	current total bytes		         0	         0
-	maximum total bytes		   1820112	  22510008
+	maximum total bytes		   1820144	  22510040
 	maximum total K-bytes		      1821	     22511
 	maximum total M-bytes		         2	        23
 
@@ -1872,7 +1903,7 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	       109	       120
 	current total bytes		         0	         0
-	maximum total bytes		   1820112	  22510008
+	maximum total bytes		   1820144	  22510040
 	maximum total K-bytes		      1821	     22511
 	maximum total M-bytes		         2	        23
 

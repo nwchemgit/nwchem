@@ -1,8 +1,4 @@
-#
-# $Id$
-#
-
-title "Water geometry optimization in cc-pvdz basis set"
+title "MCSCF C4H2"
 
 memory 2000 mb 
 start c2h4

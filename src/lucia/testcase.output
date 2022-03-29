@@ -1,4 +1,3 @@
-No protocol specified
  argument  1 = testcase.nw
                                          
                                          
@@ -39,12 +38,12 @@ No protocol specified
 
     hostname        = fryslan
     program         = ../../bin/LINUX64/nwchem
-    date            = Mon Mar 28 18:04:44 2022
+    date            = Mon Mar 28 20:07:59 2022
 
-    compiled        = Mon_Mar_28_17:39:43_2022
+    compiled        = Mon_Mar_28_19:15:37_2022
     source          = /home/wadejong/MCSCF/nwchem
     nwchem branch   = 7.0.0
-    nwchem revision = nwchem_on_git-3767-g17b56d925e
+    nwchem revision = nwchem_on_git-3769-g659162eb31
     ga revision     = 5.8.1
     use scalapack   = F
     input           = testcase.nw
@@ -59,8 +58,8 @@ No protocol specified
            Memory information
            ------------------
 
-    heap     =   65535996 doubles =    500.0 Mbytes
-    stack    =   65536001 doubles =    500.0 Mbytes
+    heap     =   65536000 doubles =    500.0 Mbytes
+    stack    =   65535997 doubles =    500.0 Mbytes
     global   =  131072000 doubles =   1000.0 Mbytes (distinct from heap & stack)
     total    =  262143997 doubles =   2000.0 Mbytes
     verify   = yes
@@ -80,8 +79,8 @@ No protocol specified
                                 -------------------
 
 
-                 Water geometry optimization in cc-pvdz basis set
-                 ------------------------------------------------
+                                    MCSCF C4H2
+                                    ----------
  Turning off AUTOSYM since
  SYMMETRY directive was detected!
 
@@ -268,7 +267,7 @@ No protocol specified
                                  -----------------
 
 
-                 Water geometry optimization in cc-pvdz basis set
+                                    MCSCF C4H2
 
 
 
@@ -340,7 +339,7 @@ No protocol specified
     16 b1u        17 b3u        18 b3g     
 
 
- Starting SCF solution at       0.1s
+ Starting SCF solution at       0.2s
 
 
 
@@ -1100,7 +1099,17 @@ No protocol specified
  Largest Symmetry-type-type block(as real)   0.1600000000000E+02
  Largest type-type block (all symmetries)(as real)    0.5600000000000E+02
 
+  Number of TTS subblocks per CI expansion 
+  ======================================== 
+  Internal CI space                     1
+
+<  1>        8       4       4       4       4       4       4       4
   Largest number of blocks in CI expansion                    8
+  Number of columns per CI expansion 
+  =================================== 
+  Internal CI space                     1
+
+<  1>       20       8       8       8      10      10      10      10
   TEST: LBLOCK =                    16
  Number of blocks         8
  Number of batches         4
@@ -1169,7 +1178,17 @@ nblocks, nnod, nfragagain         8         1         0
  Largest Symmetry-type-type block(as real)   0.1600000000000E+02
  Largest type-type block (all symmetries)(as real)    0.5600000000000E+02
 
+  Number of TTS subblocks per CI expansion 
+  ======================================== 
+  Internal CI space                     1
+
+<  1>        8       4       4       4       4       4       4       4
   Largest number of blocks in CI expansion                    8
+  Number of columns per CI expansion 
+  =================================== 
+  Internal CI space                     1
+
+<  1>       20       8       8       8      10      10      10      10
   one-electron term to Ecore   -184.67564301557923     
   Core energy: updated and read in   -75.554775573351534        46.854123441322670     
   MO-AO transformation matrix of starting orbitals
@@ -1840,7 +1859,7 @@ nblocks, nnod, nfragagain         8         1         0
 ----------------------------------------------
 
      ROUTINE     CALLS      CPU     I/O
-      REST          1      0.02    0.00
+      REST          1      0.01    0.00
       STRTY         2      0.00    0.00
       GNOCCL        2      0.00    0.00
       STRIN         2      0.00    0.00
@@ -1849,36 +1868,36 @@ nblocks, nnod, nfragagain         8         1         0
       ABSPG         4      0.00    0.00
       LCISP         2      0.00    0.00
       NGASD        16      0.00    0.00
-      MO1           1      0.00    0.00
+      MO1           1      0.01    0.00
       MO1GA         1      0.00    0.00
-      MO2           1      1.23    0.00
-      MO2GA         1      0.05    0.00
+      MO2           1      1.24    0.00
+      MO2GA         1      0.06    0.00
       TRAIN        19      0.06    0.00
-      GETIN     92429      0.12    0.00
-      gin2a     92429      0.07    0.00
-      MCSCF         1      0.00    0.00
+      GETIN     92429      0.19    0.00
+      gin2a     92429      0.05    0.00
+      MCSCF         1      0.01    0.00
       ORBTR        26      0.01    0.00
       gasci         9      0.00    0.00
-      CIDIA         9      0.02    0.00
+      CIDIA         9      0.01    0.00
       GETST      2588      0.00    0.00
       CIEIG         9      0.00    0.00
-      MINDV         9      0.00    0.00
+      MINDV         9      0.02    0.00
       MV7          55      0.00    0.00
       RASSG        55      0.00    0.00
       ACTBL        64      0.00    0.00
-      SBLOK       220      0.00    0.00
-      SBLOS       220      0.01    0.00
+      SBLOK       220      0.01    0.00
+      SBLOS       220      0.02    0.00
       GSTBL      2120      0.00    0.00
-      SDCMR      2080      0.02    0.00
-      tr3g2      2080      0.00    0.00
-      RSSBE      3440      0.01    0.00
+      SDCMR      2080      0.01    0.00
+      tr3g2      2080      0.01    0.00
+      RSSBE      3440      0.02    0.00
       RS2B2      3440      0.04    0.00
-      SKICK     34872      0.05    0.00
+      SKICK     34872      0.01    0.00
       SKAII     34872      0.00    0.00
-      RS1         430      0.01    0.00
+      RS1         430      0.00    0.00
       ADAST     28164      0.00    0.00
       RS2A        430      0.00    0.00
-      BB2A4       430      0.01    0.00
+      BB2A4       430      0.05    0.00
       H0M1T        46      0.00    0.00
       DENSI         9      0.00    0.00
       GASDN         9      0.00    0.00
@@ -1887,14 +1906,14 @@ nblocks, nnod, nfragagain         8         1         0
       GSBDA       144      0.01    0.00
       ADADS      9936      0.00    0.00
       MATCG      7452      0.00    0.00
-      GSD2N       576      0.01    0.00
-      enden        25      0.00    0.00
+      GSD2N       576      0.00    0.00
+      enden        25      0.01    0.00
       fmats         8      0.00    0.00
-      ORBHE         7      0.00    0.00
-      EIS_D         7      0.01    0.00
+      ORBHE         7      0.02    0.00
+      EIS_D         7      0.00    0.00
       e1frf         8      0.00    0.00
 
- Total time in above routines: .176E+01
+ Total time in above routines: .188E+01
 MA usage statistics:
 
 	allocation statistics:
@@ -1903,7 +1922,7 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	       106	       120
 	current total bytes		         0	         0
-	maximum total bytes		   1640160	  22510248
+	maximum total bytes		   1640128	  22510280
 	maximum total K-bytes		      1641	     22511
 	maximum total M-bytes		         2	        23
 
@@ -1962,7 +1981,7 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	       106	       120
 	current total bytes		         0	         0
-	maximum total bytes		   1640160	  22510248
+	maximum total bytes		   1640128	  22510280
 	maximum total K-bytes		      1641	     22511
 	maximum total M-bytes		         2	        23
 

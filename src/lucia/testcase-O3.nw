@@ -1,10 +1,6 @@
-#
-# $Id: testcase.nw 25870 2014-06-26 19:46:25Z bert $
-#
+title "MCSCF O3"
 
-title "RXdia"
-
-start c2h4
+start o3mol
 
 charge 0
 memory stack 200 mb heap 200 mb global 3600 mb
