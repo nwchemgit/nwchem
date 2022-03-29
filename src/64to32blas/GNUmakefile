@@ -10,6 +10,7 @@
                  ypotri.o ypotrf.o ysygv.o ygeev.o ygeevx.o \
                  ygels.o ygelss.o ygtsv.o\
                  ypftrf.o ypftri.o ytfsm.o \
+                 ygetrf.o ygetri.o \
                  ifily.o\
                  jscal.o jaxpy.o jgemm.o jheev.o jcopy.o jdotc.o \
                  ijamax.o jgesvd.o jgeev.o jgetrs.o jgetrf.o \

@@ -84,7 +84,7 @@ OBJ_OPTIMIZE = dbdsqr.o      dgebd2.o      dgebrd.o       dgelq2.o     \
                dlanhs.o dlarfx.o dlahrd.o dlanv2.o \
                dlarra.o dlarrb.o dlarrc.o dlarrd.o dlarrf.o dlarrk.o dlarrv.o\
                dlar1v.o dlaneg.o dgelss.o dormtr.o dormql.o dorm2l.o \
-               dsfrk.o dsytrf.o  \
+               dsfrk.o dsytrf.o  dgetri.o dtrsm.o dtrmv.o dtrmm.o\
 	       dpftrf.o dpftri.o dtfsm.o dtftri.o zlacp2.o \
 	       zsysv.o zsytrf.o zsytf2.o zsytrs.o zsytrs2.o zsyr.o \
 	       zsyconv.o zlasyf.o
