@@ -1,17 +1,17 @@
- argument  1 = testcase.nw
+ argument  1 = c2h4_case.nw
                                          
                                          
 
 
-              Northwest Computational Chemistry Package (NWChem) 6.3
-              ------------------------------------------------------
+             Northwest Computational Chemistry Package (NWChem) 7.0.1
+             --------------------------------------------------------
 
 
                     Environmental Molecular Sciences Laboratory
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
 
-                              Copyright (c) 1994-2013
+                              Copyright (c) 1994-2020
                        Pacific Northwest National Laboratory
                             Battelle Memorial Institute
 
@@ -38,13 +38,14 @@
 
     hostname        = fryslan
     program         = ../../bin/LINUX64/nwchem
-    date            = Wed Dec 10 10:44:46 2014
+    date            = Mon Mar 28 20:07:59 2022
 
-    compiled        = Wed_Dec_10_10:43:37_2014
-    source          = /home/users/wadejong/nwchem
-    nwchem branch   = Development
-    nwchem revision = 25154
-    ga revision     = 10481
+    compiled        = Mon_Mar_28_19:15:37_2022
+    source          = /home/wadejong/MCSCF/nwchem
+    nwchem branch   = 7.0.0
+    nwchem revision = nwchem_on_git-3769-g659162eb31
+    ga revision     = 5.8.1
+    use scalapack   = F
     input           = testcase.nw
     prefix          = c2h4.
     data base       = ./c2h4.db
@@ -57,10 +58,10 @@
            Memory information
            ------------------
 
-    heap     =   13107201 doubles =    100.0 Mbytes
-    stack    =   13107201 doubles =    100.0 Mbytes
-    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
-    total    =   52428802 doubles =    400.0 Mbytes
+    heap     =   65536000 doubles =    500.0 Mbytes
+    stack    =   65535997 doubles =    500.0 Mbytes
+    global   =  131072000 doubles =   1000.0 Mbytes (distinct from heap & stack)
+    total    =  262143997 doubles =   2000.0 Mbytes
     verify   = yes
     hardfail = no 
 
@@ -78,8 +79,8 @@
                                 -------------------
 
 
-                 Water geometry optimization in cc-pvdz basis set
-                 ------------------------------------------------
+                                    MCSCF C4H2
+                                    ----------
  Turning off AUTOSYM since
  SYMMETRY directive was detected!
 
@@ -87,6 +88,8 @@
           ------
           auto-z
           ------
+  no constraints, skipping    0.0000000000000000     
+  no constraints, skipping    0.0000000000000000     
 
 
                              Geometry "geometry" -> ""
@@ -264,7 +267,7 @@
                                  -----------------
 
 
-                 Water geometry optimization in cc-pvdz basis set
+                                    MCSCF C4H2
 
 
 
@@ -336,7 +339,7 @@
     16 b1u        17 b3u        18 b3g     
 
 
- Starting SCF solution at       0.1s
+ Starting SCF solution at       0.2s
 
 
 
@@ -349,33 +352,24 @@
  ----------------------------------------------
 
 
- Integral file          = ./c2h4.aoints.0
- Record size in doubles =    65536    No. of integs per rec  =    43688
- Max. records in memory =        5    Max. records in file   =  1655763
- No. of bits per label  =        8    No. of bits per value  =       64
-
-
- #quartets = 1.456D+04 #integrals = 1.145D+05 #direct =  0.0% #cached =100.0%
-
-
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
                  1      -76.7085050001  9.28D-01  3.73D-01      0.3
-                 2      -76.7580178785  2.72D-01  9.92D-02      0.3
-                 3      -76.7622239631  4.75D-03  2.78D-03      0.3
-                 4      -76.7622266010  4.40D-06  2.06D-06      0.3
-                 5      -76.7622266010  4.79D-12  1.96D-12      0.3
+                 2      -76.7580178785  2.72D-01  9.92D-02      0.4
+                 3      -76.7622239631  4.75D-03  2.78D-03      0.7
+                 4      -76.7622266010  4.40D-06  2.06D-06      1.2
+                 5      -76.7622266010  3.63D-12  1.48D-12      2.0
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =    -76.762226601001
+         Total SCF energy =    -76.762226601002
       One-electron energy =   -193.360500674699
       Two-electron energy =     69.744150632375
  Nuclear repulsion energy =     46.854123441323
 
-        Time for solution =      0.2s
+        Time for solution =      1.9s
 
 
 
@@ -421,19 +415,19 @@
                        -------------------------------------
 
  Vector    1  Occ=2.000000D+00  E=-1.113747D+01  Symmetry=ag
-              MO Center=  1.0D-19,  1.5D-20,  1.2D-16, r^2= 3.1D-01
+              MO Center=  1.4D-20,  3.5D-51,  1.8D-17, r^2= 3.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1      0.702789  1 C  s                 15      0.702789  2 C  s          
 
  Vector    2  Occ=2.000000D+00  E=-1.112751D+01  Symmetry=b1u
-              MO Center=  3.4D-21,  6.6D-36, -1.7D-16, r^2= 3.1D-01
+              MO Center= -5.1D-21,  2.1D-36,  1.1D-16, r^2= 3.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1      0.705563  1 C  s                 15     -0.705563  2 C  s          
 
  Vector    3  Occ=2.000000D+00  E=-1.175823D+00  Symmetry=ag
-              MO Center= -3.5D-18, -7.7D-34,  6.2D-17, r^2= 9.4D-01
+              MO Center=  2.0D-17, -2.9D-34,  4.1D-17, r^2= 9.4D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.544262  1 C  s                 16      0.544262  2 C  s          
@@ -442,7 +436,7 @@
      3     -0.312223  1 C  s                 17     -0.312223  2 C  s          
 
  Vector    4  Occ=2.000000D+00  E=-9.808453D-01  Symmetry=b1u
-              MO Center=  3.5D-17,  2.5D-33,  1.3D-16, r^2= 1.4D+00
+              MO Center= -1.6D-17, -1.7D-34,  4.8D-16, r^2= 1.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     29     -0.482560  3 H  s                 34     -0.482560  4 H  s          
@@ -452,7 +446,7 @@
      2     -0.315526  1 C  s                 16      0.315526  2 C  s          
 
  Vector    5  Occ=2.000000D+00  E=-7.900821D-01  Symmetry=b3u
-              MO Center= -3.0D-17, -5.0D-17, -9.4D-17, r^2= 1.1D+00
+              MO Center=  2.9D-17,  1.1D-31, -9.7D-17, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.561982  1 C  px                18      0.561982  2 C  px         
@@ -461,7 +455,7 @@
      7     -0.239783  1 C  px                21     -0.239783  2 C  px         
 
  Vector    6  Occ=2.000000D+00  E=-7.399097D-01  Symmetry=ag
-              MO Center= -1.3D-17, -3.8D-33, -4.9D-16, r^2= 9.4D-01
+              MO Center=  4.8D-18,  8.0D-34,  2.7D-16, r^2= 9.4D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      0.716431  1 C  pz                20     -0.716431  2 C  pz         
@@ -470,7 +464,7 @@
      9     -0.280202  1 C  pz                23      0.280202  2 C  pz         
 
  Vector    7  Occ=2.000000D+00  E=-5.374922D-01  Symmetry=b2g
-              MO Center= -1.3D-16, -2.2D-17,  3.7D-16, r^2= 1.4D+00
+              MO Center=  1.0D-16, -4.1D-33, -2.1D-17, r^2= 1.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     29      0.606038  3 H  s                 34     -0.606038  4 H  s          
@@ -479,13 +473,13 @@
      7     -0.349759  1 C  px                21      0.349759  2 C  px         
 
  Vector    8  Occ=2.000000D+00  E=-4.469646D-01  Symmetry=b2u
-              MO Center=  1.7D-16, -3.9D-16,  3.6D-16, r^2= 1.2D+00
+              MO Center=  3.0D-17,  1.1D-18,  6.9D-17, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.613069  1 C  py                19      0.613069  2 C  py         
 
  Vector    9  Occ=0.000000D+00  E= 2.128522D-01  Symmetry=ag
-              MO Center=  2.6D-16,  4.5D-16,  4.1D-15, r^2= 5.3D+00
+              MO Center= -1.6D-16, -1.5D-20,  4.1D-16, r^2= 5.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      2.219285  1 C  s                 17      2.219285  2 C  s          
@@ -494,14 +488,14 @@
      9      0.553754  1 C  pz                23     -0.553754  2 C  pz         
 
  Vector   10  Occ=0.000000D+00  E= 2.394681D-01  Symmetry=b3g
-              MO Center=  1.3D-42,  2.2D-31, -6.2D-16, r^2= 2.4D+00
+              MO Center= -2.5D-17,  3.0D-16,  8.3D-17, r^2= 2.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      8      0.760355  1 C  py                22     -0.760355  2 C  py         
      5      0.468017  1 C  py                19     -0.468017  2 C  py         
 
  Vector   11  Occ=0.000000D+00  E= 2.505574D-01  Symmetry=b1u
-              MO Center=  5.0D-16, -7.9D-31, -5.6D-15, r^2= 6.3D+00
+              MO Center= -1.1D-16, -4.0D-16, -4.8D-16, r^2= 6.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     30     -1.834547  3 H  s                 35     -1.834547  4 H  s          
@@ -510,7 +504,7 @@
      9      1.026358  1 C  pz                23      1.026358  2 C  pz         
 
  Vector   12  Occ=0.000000D+00  E= 2.638021D-01  Symmetry=b3u
-              MO Center=  2.2D-15, -6.8D-16, -1.8D-15, r^2= 5.8D+00
+              MO Center= -1.1D-15,  6.3D-33, -2.4D-16, r^2= 5.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     30      2.286159  3 H  s                 35     -2.286159  4 H  s          
@@ -519,7 +513,7 @@
      4     -0.249135  1 C  px                18     -0.249135  2 C  px         
 
  Vector   13  Occ=0.000000D+00  E= 3.192497D-01  Symmetry=b2g
-              MO Center= -4.1D-15,  1.2D-19, -1.4D-15, r^2= 7.0D+00
+              MO Center=  3.3D-15, -1.5D-31, -1.2D-14, r^2= 7.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     30      3.920616  3 H  s                 35     -3.920616  4 H  s          
@@ -528,7 +522,7 @@
      4     -0.191237  1 C  px                18      0.191237  2 C  px         
 
  Vector   14  Occ=0.000000D+00  E= 5.394588D-01  Symmetry=ag
-              MO Center=  5.4D-17, -4.5D-17,  1.5D-15, r^2= 3.4D+00
+              MO Center=  1.2D-16, -2.0D-20, -3.0D-15, r^2= 3.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      9      1.772217  1 C  pz                23     -1.772217  2 C  pz         
@@ -538,7 +532,7 @@
     30     -0.328466  3 H  s                 35     -0.328466  4 H  s          
 
  Vector   15  Occ=0.000000D+00  E= 5.742623D-01  Symmetry=b1u
-              MO Center= -3.0D-16,  4.3D-30, -1.2D-14, r^2= 4.3D+00
+              MO Center=  1.5D-15,  7.2D-17,  3.7D-15, r^2= 4.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      8.804670  1 C  s                 17     -8.804670  2 C  s          
@@ -547,14 +541,14 @@
     40     -2.157169  5 H  s                 45     -2.157169  6 H  s          
 
  Vector   16  Occ=0.000000D+00  E= 6.174917D-01  Symmetry=b2u
-              MO Center= -7.7D-17,  2.3D-16, -1.9D-15, r^2= 2.5D+00
+              MO Center= -1.6D-16, -6.6D-16,  1.4D-15, r^2= 2.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      8      0.989871  1 C  py                22      0.989871  2 C  py         
      5     -0.766415  1 C  py                19     -0.766415  2 C  py         
 
  Vector   17  Occ=0.000000D+00  E= 7.210797D-01  Symmetry=b3u
-              MO Center= -5.2D-16, -5.7D-30, -3.3D-15, r^2= 2.5D+00
+              MO Center=  6.8D-16, -6.0D-31,  4.4D-16, r^2= 2.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      7      1.874560  1 C  px                21      1.874560  2 C  px         
@@ -564,7 +558,7 @@
     39      0.775786  5 H  s                 44     -0.775786  6 H  s          
 
  Vector   18  Occ=0.000000D+00  E= 8.293715D-01  Symmetry=b3g
-              MO Center= -2.3D-17, -4.9D-17,  2.7D-15, r^2= 2.5D+00
+              MO Center=  2.0D-17, -3.4D-17, -1.8D-15, r^2= 2.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      8      1.813876  1 C  py                22     -1.813876  2 C  py         
@@ -572,7 +566,7 @@
     11     -0.179811  1 C  d -1              25     -0.179811  2 C  d -1       
 
  Vector   19  Occ=0.000000D+00  E= 9.062411D-01  Symmetry=ag
-              MO Center= -1.8D-15, -3.2D-16, -9.0D-16, r^2= 2.3D+00
+              MO Center= -1.9D-15,  7.1D-16,  1.3D-15, r^2= 2.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      3.995356  1 C  s                 17      3.995356  2 C  s          
@@ -582,7 +576,7 @@
     34     -0.705973  4 H  s                 35     -0.709273  4 H  s          
 
  Vector   20  Occ=0.000000D+00  E= 9.883383D-01  Symmetry=b2g
-              MO Center= -6.3D-15, -2.1D-31,  1.4D-14, r^2= 4.1D+00
+              MO Center= -3.6D-15, -4.7D-30,  1.3D-15, r^2= 4.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      7      6.152702  1 C  px                21     -6.152702  2 C  px         
@@ -592,7 +586,7 @@
     29     -0.383001  3 H  s                 34      0.383001  4 H  s          
 
  Vector   21  Occ=0.000000D+00  E= 1.016007D+00  Symmetry=b1u
-              MO Center=  6.4D-15,  6.1D-17,  1.6D-15, r^2= 3.2D+00
+              MO Center=  3.9D-15,  4.1D-17,  3.0D-15, r^2= 3.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      6.270993  1 C  s                 17     -6.270993  2 C  s          
@@ -602,7 +596,7 @@
      2     -0.907189  1 C  s                 16      0.907189  2 C  s          
 
  Vector   22  Occ=0.000000D+00  E= 1.032701D+00  Symmetry=b3u
-              MO Center= -5.6D-16,  3.3D-16,  5.8D-16, r^2= 2.4D+00
+              MO Center= -1.0D-14, -2.5D-16, -6.1D-15, r^2= 2.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     30      1.872316  3 H  s                 35     -1.872316  4 H  s          
@@ -612,13 +606,13 @@
     13      0.326794  1 C  d  1              27     -0.326794  2 C  d  1       
 
  Vector   23  Occ=0.000000D+00  E= 1.184490D+00  Symmetry=b1g
-              MO Center=  2.0D-15,  6.4D-16, -1.2D-14, r^2= 1.2D+00
+              MO Center=  2.2D-15, -5.3D-17, -1.1D-14, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      0.557180  1 C  d -2              24      0.557180  2 C  d -2       
 
  Vector   24  Occ=0.000000D+00  E= 1.217626D+00  Symmetry=ag
-              MO Center=  2.9D-15,  1.6D-17, -5.2D-15, r^2= 2.2D+00
+              MO Center=  1.6D-14,  1.7D-17, -8.3D-15, r^2= 2.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      3.424581  1 C  s                 17      3.424581  2 C  s          
@@ -628,7 +622,7 @@
      9      0.908106  1 C  pz                23     -0.908106  2 C  pz         
 
  Vector   25  Occ=0.000000D+00  E= 1.363372D+00  Symmetry=b1u
-              MO Center=  3.0D-16, -8.8D-17,  4.9D-15, r^2= 2.0D+00
+              MO Center=  1.2D-15, -2.3D-18,  6.8D-15, r^2= 2.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      8.954652  1 C  s                 17     -8.954652  2 C  s          
@@ -638,7 +632,7 @@
     40     -0.828599  5 H  s                 45     -0.828599  6 H  s          
 
  Vector   26  Occ=0.000000D+00  E= 1.390417D+00  Symmetry=b1u
-              MO Center= -1.7D-15, -3.2D-17, -4.5D-15, r^2= 1.8D+00
+              MO Center= -4.3D-15,  2.9D-17,  8.0D-15, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      9      0.870020  1 C  pz                23      0.870020  2 C  pz         
@@ -648,7 +642,7 @@
     29      0.391631  3 H  s                 34      0.391631  4 H  s          
 
  Vector   27  Occ=0.000000D+00  E= 1.429729D+00  Symmetry=b2u
-              MO Center= -5.2D-17,  2.2D-18, -1.0D-14, r^2= 1.4D+00
+              MO Center= -5.2D-17,  7.8D-18, -1.1D-14, r^2= 1.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     11      0.464818  1 C  d -1              25     -0.464818  2 C  d -1       
@@ -657,7 +651,7 @@
      8     -0.195025  1 C  py                22     -0.195025  2 C  py         
 
  Vector   28  Occ=0.000000D+00  E= 1.552191D+00  Symmetry=au
-              MO Center=  2.1D-15, -5.2D-16,  1.5D-14, r^2= 1.5D+00
+              MO Center=  2.2D-15,  8.3D-17,  1.4D-14, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      0.442117  1 C  d -2              24     -0.442117  2 C  d -2       
@@ -665,7 +659,7 @@
     42      0.299229  5 H  py                47     -0.299229  6 H  py         
 
  Vector   29  Occ=0.000000D+00  E= 1.654258D+00  Symmetry=b2g
-              MO Center= -2.8D-16,  4.1D-16,  5.7D-15, r^2= 2.0D+00
+              MO Center=  1.7D-16,  3.9D-17,  1.1D-14, r^2= 2.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      7      1.854264  1 C  px                21     -1.854264  2 C  px         
@@ -675,7 +669,7 @@
     40     -0.638937  5 H  s                 45      0.638937  6 H  s          
 
  Vector   30  Occ=0.000000D+00  E= 1.862442D+00  Symmetry=ag
-              MO Center=  4.2D-17,  7.7D-17,  1.1D-14, r^2= 2.1D+00
+              MO Center=  1.8D-16, -3.7D-17,  6.9D-15, r^2= 2.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.923150  1 C  s                 16      0.923150  2 C  s          
@@ -685,7 +679,7 @@
     43      0.391619  5 H  pz                48      0.391619  6 H  pz         
 
  Vector   31  Occ=0.000000D+00  E= 2.056753D+00  Symmetry=ag
-              MO Center=  1.6D-15,  4.3D-17, -9.4D-16, r^2= 1.7D+00
+              MO Center=  1.3D-16, -7.3D-17, -1.4D-14, r^2= 1.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      2.149650  1 C  s                 17      2.149650  2 C  s          
@@ -695,7 +689,7 @@
      2     -0.691579  1 C  s                 16     -0.691579  2 C  s          
 
  Vector   32  Occ=0.000000D+00  E= 2.232517D+00  Symmetry=b3g
-              MO Center=  1.9D-15,  2.8D-16,  1.2D-14, r^2= 1.6D+00
+              MO Center=  2.0D-15,  2.5D-18,  1.4D-14, r^2= 1.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      1.357373  1 C  py                19     -1.357373  2 C  py         
@@ -704,7 +698,7 @@
     42      0.249631  5 H  py                47      0.249631  6 H  py         
 
  Vector   33  Occ=0.000000D+00  E= 2.272826D+00  Symmetry=b1g
-              MO Center= -1.3D-14,  1.8D-14,  4.9D-15, r^2= 1.7D+00
+              MO Center= -1.2D-14, -3.0D-15,  8.5D-15, r^2= 1.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     32      0.871010  3 H  py                37     -0.871010  4 H  py         
@@ -712,7 +706,7 @@
     10     -0.758154  1 C  d -2              24     -0.758154  2 C  d -2       
 
  Vector   34  Occ=0.000000D+00  E= 2.305778D+00  Symmetry=b3u
-              MO Center= -7.4D-16, -1.4D-14, -7.7D-16, r^2= 1.9D+00
+              MO Center= -1.2D-15,  2.3D-15, -5.7D-15, r^2= 1.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     31      0.760282  3 H  px                36      0.760282  4 H  px         
@@ -722,7 +716,7 @@
     29      0.443513  3 H  s                 34     -0.443513  4 H  s          
 
  Vector   35  Occ=0.000000D+00  E= 2.430945D+00  Symmetry=b2g
-              MO Center= -1.2D-15,  3.7D-17,  2.8D-16, r^2= 2.1D+00
+              MO Center=  3.0D-15,  1.4D-17,  4.6D-15, r^2= 2.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      7      2.617392  1 C  px                21     -2.617392  2 C  px         
@@ -732,7 +726,7 @@
     41      0.866863  5 H  px                46      0.866863  6 H  px         
 
  Vector   36  Occ=0.000000D+00  E= 2.552230D+00  Symmetry=b1u
-              MO Center=  2.0D-15, -1.5D-16, -1.5D-14, r^2= 2.0D+00
+              MO Center=  2.8D-17,  1.4D-17, -1.3D-14, r^2= 2.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      1.990604  1 C  s                 17     -1.990604  2 C  s          
@@ -742,7 +736,7 @@
     43     -1.003967  5 H  pz                48     -1.003967  6 H  pz         
 
  Vector   37  Occ=0.000000D+00  E= 2.553368D+00  Symmetry=b3u
-              MO Center= -6.1D-15, -3.7D-15, -1.3D-14, r^2= 1.8D+00
+              MO Center= -3.0D-15,  7.6D-16, -9.5D-15, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     33      0.763018  3 H  pz                38     -0.763018  4 H  pz         
@@ -752,7 +746,7 @@
     13      0.528862  1 C  d  1              27     -0.528862  2 C  d  1       
 
  Vector   38  Occ=0.000000D+00  E= 2.605454D+00  Symmetry=b3g
-              MO Center= -2.2D-14, -8.0D-17, -1.8D-13, r^2= 1.8D+00
+              MO Center= -2.4D-14, -1.1D-17, -9.4D-14, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     11      1.807361  1 C  d -1              25      1.807361  2 C  d -1       
@@ -762,7 +756,7 @@
      8     -0.210799  1 C  py                22      0.210799  2 C  py         
 
  Vector   39  Occ=0.000000D+00  E= 2.661709D+00  Symmetry=b2u
-              MO Center=  1.1D-14, -7.2D-17,  1.8D-13, r^2= 1.5D+00
+              MO Center=  9.7D-15,  2.7D-17,  9.2D-14, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      1.628063  1 C  py                19      1.628063  2 C  py         
@@ -772,7 +766,7 @@
      8     -0.629779  1 C  py                22     -0.629779  2 C  py         
 
  Vector   40  Occ=0.000000D+00  E= 2.861096D+00  Symmetry=b1u
-              MO Center= -2.8D-16, -1.2D-17,  8.2D-15, r^2= 1.4D+00
+              MO Center=  1.8D-15,  7.9D-18,  6.0D-15, r^2= 1.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      6.006193  1 C  s                 17     -6.006193  2 C  s          
@@ -782,7 +776,7 @@
     29     -0.999457  3 H  s                 34     -0.999457  4 H  s          
 
  Vector   41  Occ=0.000000D+00  E= 2.996957D+00  Symmetry=au
-              MO Center=  1.8D-14, -5.1D-17, -8.7D-15, r^2= 1.7D+00
+              MO Center=  2.0D-14, -9.5D-17, -1.1D-14, r^2= 1.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      1.746945  1 C  d -2              24     -1.746945  2 C  d -2       
@@ -790,7 +784,7 @@
     42     -1.156152  5 H  py                47      1.156152  6 H  py         
 
  Vector   42  Occ=0.000000D+00  E= 3.499598D+00  Symmetry=b2g
-              MO Center=  5.6D-17, -2.2D-17,  7.9D-15, r^2= 1.6D+00
+              MO Center=  1.6D-15, -3.9D-17,  2.6D-15, r^2= 1.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      2.413677  1 C  px                18     -2.413677  2 C  px         
@@ -800,7 +794,7 @@
     43     -0.911449  5 H  pz                48      0.911449  6 H  pz         
 
  Vector   43  Occ=0.000000D+00  E= 3.680626D+00  Symmetry=ag
-              MO Center=  6.7D-15,  2.4D-18,  3.0D-15, r^2= 1.9D+00
+              MO Center=  8.7D-15, -1.7D-17,  5.8D-15, r^2= 1.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      4.173268  1 C  s                 17      4.173268  2 C  s          
@@ -810,7 +804,7 @@
     33     -1.196590  3 H  pz                38     -1.196590  4 H  pz         
 
  Vector   44  Occ=0.000000D+00  E= 4.372960D+00  Symmetry=b1u
-              MO Center=  1.1D-15,  7.2D-17,  2.2D-15, r^2= 1.4D+00
+              MO Center= -8.6D-16, -1.3D-17,  2.4D-15, r^2= 1.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      3.214337  1 C  s                 17     -3.214337  2 C  s          
@@ -820,7 +814,7 @@
     29     -2.277615  3 H  s                 34     -2.277615  4 H  s          
 
  Vector   45  Occ=0.000000D+00  E= 4.827129D+00  Symmetry=b3u
-              MO Center= -1.4D-15, -1.0D-15, -1.7D-15, r^2= 1.2D+00
+              MO Center=  2.8D-15,  1.8D-16,  2.2D-15, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     29      4.126185  3 H  s                 34     -4.126185  4 H  s          
@@ -830,7 +824,7 @@
     40      1.543504  5 H  s                 45     -1.543504  6 H  s          
 
  Vector   46  Occ=0.000000D+00  E= 6.247416D+00  Symmetry=b2g
-              MO Center= -5.1D-15,  1.6D-16,  7.7D-15, r^2= 1.6D+00
+              MO Center= -1.7D-15, -2.5D-18, -6.0D-15, r^2= 1.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     29      6.984854  3 H  s                 34     -6.984854  4 H  s          
@@ -840,7 +834,7 @@
     40     -3.535386  5 H  s                 45      3.535386  6 H  s          
 
  Vector   47  Occ=0.000000D+00  E= 6.568522D+00  Symmetry=ag
-              MO Center=  4.0D-15,  1.3D-17, -1.6D-14, r^2= 1.3D+00
+              MO Center= -9.4D-16,  1.6D-17, -5.9D-15, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      8.575082  1 C  s                 16      8.575082  2 C  s          
@@ -850,7 +844,7 @@
      6      2.607855  1 C  pz                20     -2.607855  2 C  pz         
 
  Vector   48  Occ=0.000000D+00  E= 8.804303D+00  Symmetry=b1u
-              MO Center= -3.3D-15, -3.2D-18, -2.5D-14, r^2= 1.5D+00
+              MO Center= -8.7D-15, -2.7D-18, -1.8D-14, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2     13.705845  1 C  s                 16    -13.705845  2 C  s          
@@ -890,21 +884,18 @@
      0   0 0 0     -0.000000      0.000000     16.000000
 
      1   1 0 0      0.000000      0.000000      0.000000
-     1   0 1 0      0.000000      0.000000      0.000000
+     1   0 1 0     -0.000000      0.000000      0.000000
      1   0 0 1     -0.000000      0.000000      0.000000
 
      2   2 0 0     -8.653692      0.000000      4.000000
      2   1 1 0      0.000000      0.000000      0.000000
      2   1 0 1      0.000000      0.000000      0.000000
      2   0 2 0     -9.130481      0.000000      0.000000
-     2   0 1 1      0.000000      0.000000      0.000000
+     2   0 1 1     -0.000000      0.000000      0.000000
      2   0 0 2     -7.813911      0.000000     24.960000
 
 
- Parallel integral file used       3 records with       0 large values
-
-
- Task  times  cpu:        0.3s     wall:        0.3s
+ Task  times  cpu:        2.0s     wall:        2.0s
 
 
                                 NWChem Input Module
@@ -926,6 +917,7 @@
               Telephone: +45 23382435
               E-mail: jeppe@chem.au.dk   
 
+  Default algorithm for MO distribution to multiple GAS
 
  ******************
  *  Title of run  *
@@ -947,7 +939,7 @@
       Point group ............ D2h
       Spatial symmetry ....... 1
       2 times spinprojection   0
-      Active electrons .....  12
+      Active electrons .....   6
 
  *********************************************
  *  Shell spaces and occupation constraints  *
@@ -963,8 +955,8 @@
 
                  Irrep    1   2   3   4   5   6   7   8
                  =====   ================================
-        Inactive          1   0   0   0   1   0   0   0
-        GAS 1             3   2   1   0   3   2   1   0
+        Inactive          3   1   0   0   3   1   0   0
+        GAS 1             1   1   1   0   1   1   1   0
         Secondary         7   5   3   2   7   5   3   2
 
         Secondary space provided by courtesy of LUCIA 
@@ -980,7 +972,7 @@
 
          Min. occ    Max. occ 
          ========    ======== 
-   GAS 1    12          12
+   GAS 1     6           6
 
   ******************************************
   Specification of Sequence of calculations 
@@ -1064,34 +1056,141 @@
        Default print level for integrals             =   0
 
 
+  ****************************************************
+   Pre-calculating supergroups for Optimum CI batches 
+  ****************************************************
+
+
+  ***********************************
+    Input GAS Spaces for CI batches  
+  ***********************************
+
+ Orbital subspaces:
+ ================== 
+
+                 Irrep    1   2   3   4   5   6   7   8
+                 =====   ================================
+        Inactive          3   1   0   0   3   1   0   0
+        GAS 1             1   1   1   0   1   1   1   0
+        Secondary         7   5   3   2   7   5   3   2
+
+        Gas space provided by courtesy of LUCIA:***
+ Number of Occupation spaces:   1
+
+ Bounds on accumulated occupations for space:   1
+ ====================================================== 
+
+         Min. occ    Max. occ 
+         ========    ======== 
+   GAS 1     6           6
+
+
+
+
+  Dimension of CI-expansions per symmetry 
+  ====================================== 
+  CI space                     1
+  0.380000000000000E+02 0.240000000000000E+02 0.240000000000000E+02 0.240000000000000E+02
+  0.280000000000000E+02 0.240000000000000E+02 0.240000000000000E+02 0.240000000000000E+02
+
+  Largest Symmetry-type-type block                    16
+  Largest type-type block (all symmetries)                    56
+
+ Largest Symmetry-type-type block(as real)   0.1600000000000E+02
+ Largest type-type block (all symmetries)(as real)    0.5600000000000E+02
+
+  Number of TTS subblocks per CI expansion 
+  ======================================== 
+  Internal CI space                     1
+
+<  1>        8       4       4       4       4       4       4       4
+  Largest number of blocks in CI expansion                    8
+  Number of columns per CI expansion 
+  =================================== 
+  Internal CI space                     1
+
+<  1>       20       8       8       8      10      10      10      10
+  TEST: LBLOCK =                    16
+ Number of blocks         8
+ Number of batches         4
+ Number of blocks         8
+ Number of batches         4
+ NCBATCH-final                    4
+ NCBLOCK-final                    8
+ LBPNODE                    4                    1
+  ==================
+   CI_batches_info  
+  ==================
+  SUM            38
+  MAX            10
+  ==================
+ISUM, NNOD, NBLKRATIO                  38        1       38
+nblocks, nnod, nfragagain         8         1         0
+
+  ***********************************
+   Updated GAS Spaces for CI batches 
+  ***********************************
+
+ Orbital subspaces:
+ ================== 
+
+                 Irrep    1   2   3   4   5   6   7   8
+                 =====   ================================
+        Inactive          3   1   0   0   3   1   0   0
+        GAS 1             1   1   1   0   1   1   1   0
+        Secondary         7   5   3   2   7   5   3   2
+
+        Gas space provided by courtesy of LUCIA:***
+ Number of Occupation spaces:   1
+
+ Bounds on accumulated occupations for space:   1
+ ====================================================== 
+
+         Min. occ    Max. occ 
+         ========    ======== 
+   GAS 1     6           6
+
+ Total number of TTSS BLOCKS :                    8
+ Total number of TTSS BATCHES:                    4
+
+  Exiting optimum_gas_for_blocks 
+
+
        Ratio between Integer and Real word length  1
 
-  MINOP ==                     0
-  Largest number of supergroups, any type                     1
 
   Number of single excitations of symmetry                     1 ,                  214
   Number of double excitations obtained                 93892
   Number of double excitations obtained                186608
   Number of double excitations obtained                354976
   Number of double excitations obtained                707648
-  NSBCLS ==                     1
 
 
   Dimension of CI-expansions per symmetry 
   ====================================== 
   CI space                     1
-  0.544380000000000E+05 0.537280000000000E+05 0.529440000000000E+05 0.528960000000000E+05
-  0.537760000000000E+05 0.537280000000000E+05 0.529440000000000E+05 0.528960000000000E+05
+  0.380000000000000E+02 0.240000000000000E+02 0.240000000000000E+02 0.240000000000000E+02
+  0.280000000000000E+02 0.240000000000000E+02 0.240000000000000E+02 0.240000000000000E+02
 
-  Largest Symmetry-type-type block                 17424
-  Largest type-type block (all symmetries)                107952
+  Largest Symmetry-type-type block                    16
+  Largest type-type block (all symmetries)                    56
 
- Largest Symmetry-type-type block(as real)   0.1742400000000E+05
- Largest type-type block (all symmetries)(as real)    0.1079520000000E+06
+ Largest Symmetry-type-type block(as real)   0.1600000000000E+02
+ Largest type-type block (all symmetries)(as real)    0.5600000000000E+02
 
+  Number of TTS subblocks per CI expansion 
+  ======================================== 
+  Internal CI space                     1
+
+<  1>        8       4       4       4       4       4       4       4
   Largest number of blocks in CI expansion                    8
-  one-electron term to Ecore   -92.637123809125484     
-  Core energy: updated and read in   -36.795230742452063        46.854123441322670     
+  Number of columns per CI expansion 
+  =================================== 
+  Internal CI space                     1
+
+<  1>       20       8       8       8      10      10      10      10
+  one-electron term to Ecore   -184.67564301557923     
+  Core energy: updated and read in   -75.554775573351534        46.854123441322670     
   MO-AO transformation matrix of starting orbitals
   MO - AO transformation matrix 
   ------------------------------
@@ -1237,168 +1336,150 @@
   Output from outer iteration                    1
   ----------------------------------
 
-  Output from FNDMND
-  ===================
-
-  LBLK =                 54438
-  Lowest elements and their original place 
-  Number of elements obtained                     4
-0  1    -0.7676222660100053E+02  -0.7612243629557724E+02  -0.7606203295759839E+02  -0.7594927002415585E+02
- 
-
-<  1>    11755   11775   11756   45748
+ Number of blocks         8
+ Number of batches         4
   MINDV4 in action 
-  Convergence threshold for residual =   9.99999999999999955E-007
- >>> CI-OPT Iter Root E g-norm g-red  9  1-0.767779E+02 0.611E-06 0.238E+06
-  Energy from density   -76.777936013523572     
-  Energy and residual from CI :  -76.777936013521057       6.10927060987134375E-007
-  Energy from density matrices   -76.777936013523572     
-  Norm of updated kappa step =  0.71392413349155892     
-  Energy for rotated orbitals  -76.797422150744950     
+  Convergence threshold for residual =    9.9999999999999995E-007
+ >>> CI-OPT Iter Root E g-norm g-red  9  1-0.724445E+02 0.288E-06 0.456E+06
+  Energy from density   -72.444453410301648     
+  Energy and residual from CI :  -72.444453410301648        2.8769397862975553E-007
+  Energy from density matrices   -72.444453410301648     
+  Norm of updated kappa step =  0.66930866525985389     
+  Energy for rotated orbitals  -72.511236434681422     
 
   ----------------------------------
   Output from outer iteration                    2
   ----------------------------------
 
+ Number of blocks         8
+ Number of batches         4
   MINDV4 in action 
-  Convergence threshold for residual =   9.99999999999999955E-007
- >>> CI-OPT Iter Root E g-norm g-red 10  1-0.768104E+02 0.457E-06 0.322E+06
-  Energy from density   -76.810358269218284     
-  Energy and residual from CI :  -76.810358269215087       4.57333794951818948E-007
-  Energy from density matrices   -76.810358269218284     
-  Norm of updated kappa step =  0.73466628795563860     
-  Energy for rotated orbitals  -76.834256684406768     
+  Convergence threshold for residual =    9.9999999999999995E-007
+ >>> CI-OPT Iter Root E g-norm g-red  8  1-0.725128E+02 0.432E-06 0.788E+05
+  Energy from density   -72.512808722477885     
+  Energy and residual from CI :  -72.512808722477857        4.3189028631157579E-007
+  Energy from density matrices   -72.512808722477885     
+  Norm of updated kappa step =  0.70748748997501287     
+  Energy for rotated orbitals  -72.514810627528590     
 
   ----------------------------------
   Output from outer iteration                    3
   ----------------------------------
 
+ Number of blocks         8
+ Number of batches         4
   MINDV4 in action 
-  Convergence threshold for residual =   9.99999999999999955E-007
- >>> CI-OPT Iter Root E g-norm g-red 10  1-0.768380E+02 0.426E-06 0.235E+06
-  Energy from density   -76.837987182396063     
-  Energy and residual from CI :  -76.837987182395324       4.25557787968591148E-007
-  Energy from density matrices   -76.837987182396063     
-  Norm of updated kappa step =   1.0276061893029602     
-  Energy for rotated orbitals  -76.850862749655846     
+  Convergence threshold for residual =    9.9999999999999995E-007
+ >>> CI-OPT Iter Root E g-norm g-red  7  1-0.725162E+02 0.909E-06 0.507E+05
+  Energy from density   -72.516228855052020     
+  Energy and residual from CI :  -72.516228855052049        9.0876184221338830E-007
+  Energy from density matrices   -72.516228855052020     
+  Norm of updated kappa step =   1.1000079860299232     
+  Energy for rotated orbitals  -72.524244494985652     
 
   ----------------------------------
   Output from outer iteration                    4
   ----------------------------------
 
+ Number of blocks         8
+ Number of batches         4
   MINDV4 in action 
-  Convergence threshold for residual =   9.99999999999999955E-007
- >>> CI-OPT Iter Root E g-norm g-red  9  1-0.768520E+02 0.760E-06 0.690E+05
-  Energy from density   -76.852047376559966     
-  Energy and residual from CI :  -76.852047376558744       7.60331949631340569E-007
-  Energy from density matrices   -76.852047376559966     
-  Norm of updated kappa step =  7.02335396487194508E-002
-  Energy for rotated orbitals  -76.852192738302975     
+  Convergence threshold for residual =    9.9999999999999995E-007
+ >>> CI-OPT Iter Root E g-norm g-red  8  1-0.725277E+02 0.572E-06 0.177E+06
+  Energy from density   -72.527725066303063     
+  Energy and residual from CI :  -72.527725066303091        5.7227230651721529E-007
+  Energy from density matrices   -72.527725066303063     
+  Norm of updated kappa step =  0.18928167181704991     
+  Energy for rotated orbitals  -72.528160894153771     
 
   ----------------------------------
   Output from outer iteration                    5
   ----------------------------------
 
+ Number of blocks         8
+ Number of batches         4
   MINDV4 in action 
-  Convergence threshold for residual =   9.99999999999999955E-007
- >>> CI-OPT Iter Root E g-norm g-red  8  1-0.768522E+02 0.606E-06 0.156E+05
-  Energy from density   -76.852227406028675     
-  Energy and residual from CI :  -76.852227406028277       6.06263867115305883E-007
-  Energy from density matrices   -76.852227406028675     
-  Norm of updated kappa step =  2.26035604788432549E-002
-  Energy for rotated orbitals  -76.852239020635466     
+  Convergence threshold for residual =    9.9999999999999995E-007
+ >>> CI-OPT Iter Root E g-norm g-red  7  1-0.725282E+02 0.401E-06 0.286E+05
+  Energy from density   -72.528215171039037     
+  Energy and residual from CI :  -72.528215171039051        4.0071277452430137E-007
+  Energy from density matrices   -72.528215171039037     
+  Norm of updated kappa step =   1.9119786796775843E-002
+  Energy for rotated orbitals  -72.528220861177104     
 
   ----------------------------------
   Output from outer iteration                    6
   ----------------------------------
 
+ Number of blocks         8
+ Number of batches         4
   MINDV4 in action 
-  Convergence threshold for residual =   9.99999999999999955E-007
- >>> CI-OPT Iter Root E g-norm g-red  7  1-0.768522E+02 0.892E-06 0.367E+04
-  Energy from density   -76.852243033669708     
-  Energy and residual from CI :  -76.852243033667378       8.92398237971359366E-007
-  Energy from density matrices   -76.852243033669708     
-  Norm of updated kappa step =  8.47925109734681999E-003
-  Energy for rotated orbitals  -76.852244500362247     
+  Convergence threshold for residual =    9.9999999999999995E-007
+ >>> CI-OPT Iter Root E g-norm g-red  6  1-0.725282E+02 0.493E-06 0.240E+04
+  Energy from density   -72.528221552252106     
+  Energy and residual from CI :  -72.528221552252077        4.9332755893233151E-007
+  Energy from density matrices   -72.528221552252106     
+  Norm of updated kappa step =   2.3894973722808676E-003
+  Energy for rotated orbitals  -72.528221645157942     
 
   ----------------------------------
   Output from outer iteration                    7
   ----------------------------------
 
+ Number of blocks         8
+ Number of batches         4
   MINDV4 in action 
-  Convergence threshold for residual =   9.99999999999999955E-007
- >>> CI-OPT Iter Root E g-norm g-red  7  1-0.768522E+02 0.308E-06 0.398E+04
-  Energy from density   -76.852245043120135     
-  Energy and residual from CI :  -76.852245043118089       3.08155460565638514E-007
-  Energy from density matrices   -76.852245043120135     
-  Norm of updated kappa step =  3.23874347604921359E-003
-  Energy for rotated orbitals  -76.852245248372824     
+  Convergence threshold for residual =    9.9999999999999995E-007
+ >>> CI-OPT Iter Root E g-norm g-red  5  1-0.725282E+02 0.292E-06 0.502E+03
+  Energy from density   -72.528221657481438     
+  Energy and residual from CI :  -72.528221657481495        2.9244232775642675E-007
+  Energy from density matrices   -72.528221657481438     
+  Norm of updated kappa step =   2.9282353125270984E-004
+  Energy for rotated orbitals  -72.528221659203894     
 
   ----------------------------------
   Output from outer iteration                    8
   ----------------------------------
 
+ Number of blocks         8
+ Number of batches         4
   MINDV4 in action 
-  Convergence threshold for residual =   9.99999999999999955E-007
- >>> CI-OPT Iter Root E g-norm g-red  6  1-0.768522E+02 0.519E-06 0.907E+03
-  Energy from density   -76.852245327037167     
-  Energy and residual from CI :  -76.852245327036314       5.18655027729686194E-007
-  Energy from density matrices   -76.852245327037167     
-  Norm of updated kappa step =  1.27254635317291891E-003
-  Energy for rotated orbitals  -76.852245357978020     
-
-  ----------------------------------
-  Output from outer iteration                    9
-  ----------------------------------
-
-  MINDV4 in action 
-  Convergence threshold for residual =   9.99999999999999955E-007
- >>> CI-OPT Iter Root E g-norm g-red  5  1-0.768522E+02 0.982E-06 0.193E+03
-  Energy from density   -76.852245370706441     
-  Energy and residual from CI :  -76.852245370703812       9.81928585665433644E-007
-  Energy from density matrices   -76.852245370706441     
-  Norm of updated kappa step =  5.82795279392641394E-004
-  Energy for rotated orbitals  -76.852245376427305     
-
-  ----------------------------------
-  Output from outer iteration                   10
-  ----------------------------------
-
-  MINDV4 in action 
-  Convergence threshold for residual =   9.99999999999999955E-007
- >>> CI-OPT Iter Root E g-norm g-red  5  1-0.768522E+02 0.472E-06 0.194E+03
-  Energy from density   -76.852245379403755     
-  Energy and residual from CI :  -76.852245379401438       4.72436268318609407E-007
+  Convergence threshold for residual =    9.9999999999999995E-007
+ >>> CI-OPT Iter Root E g-norm g-red  4  1-0.725282E+02 0.215E-06 0.889E+02
+  Energy from density   -72.528221659457145     
+  Energy and residual from CI :  -72.528221659457159        2.1464522875270924E-007
   MCSCF calculation has converged
-  Convergence of MCSCF was obtained in                     9  iterations
-  Total number of inner iterations    9
+  Convergence of MCSCF was obtained in                     7  iterations
+  Total number of inner iterations    7
   Final MO-AO transformation stored in MOAOIN, MOAO_ACT, MOAOUT
+ Number of blocks         8
+ Number of batches         4
   MINDV4 in action 
-  Convergence threshold for residual =   9.99999999999999955E-007
- >>> CI-OPT Iter Root E g-norm g-red  1  1-0.768522E+02 0.472E-06 0.100E+01
+  Convergence threshold for residual =    9.9999999999999995E-007
+ >>> CI-OPT Iter Root E g-norm g-red  1  1-0.725282E+02 0.215E-06 0.100E+01
 
   Natural occupation numbers for general symmetry 
   =================================================
 
  Symmetry =     1
   ===================
-0  1     0.1993652825673591E+01   0.1990471862669064E+01   0.7089239709129691E-02
+0  1     0.1993032330646710E+01
  Symmetry =     2
   ===================
-0  1     0.1992694922869108E+01   0.6782084993392952E-02
+0  1     0.1576503147013434E+01
  Symmetry =     3
   ===================
-0  1     0.1964458485363101E+01
+0  1     0.1969078263560874E+01
  Symmetry =     5
   ===================
-0  1     0.1992410986596412E+01   0.9374341384610057E-02   0.6787260495589515E-02
+0  1     0.7014741778515006E-02
  Symmetry =     6
   ===================
-0  1     0.1991336864668055E+01   0.8107767552069035E-02
+0  1     0.4234980158012102E+00
  Symmetry =     7
   ===================
-0  1     0.3683335802605548E-01
-  Energy from density   -76.852245379403755     
+0  1     0.3087350119925911E-01
+  Energy from density   -72.528221659457145     
   Final MOs in AO basis (not natural or canonical)
   MO - AO transformation matrix 
   ------------------------------
@@ -1406,48 +1487,48 @@
   MO's with symmetry                     1
 
                    1      2      3      4      5      6      7      8      9     10
-                0.993 -0.112  0.031  0.154  0.107 -0.513 -0.345  0.284 -0.408 -1.356
-                0.000  0.782 -0.155  1.521  0.801 -2.041 -1.338  0.970 -1.182 -3.913
-               -0.004 -0.457 -0.100 -1.415  1.366  6.179  5.398 -0.688  2.762  5.695
-               -0.017 -0.151  1.026  0.977 -0.548  0.276  0.228 -0.047 -0.158  2.514
-                0.003 -0.012 -0.408 -0.790  2.442  1.163  1.280  1.303  0.548 -0.663
-                0.009  0.016 -0.003  0.181  0.054 -0.040  0.115 -0.864 -0.162  3.300
-               -0.003 -0.006  0.010 -0.078 -0.018 -0.306  0.517  0.059  1.034 -0.907
-                0.002  0.645  0.553 -0.762 -0.522 -1.370 -0.418 -0.549 -2.347 -1.041
-                0.002 -0.234 -0.148  0.357 -0.943 -1.924 -2.836  0.607  0.771 -0.742
-                0.001 -0.019 -0.016 -0.203 -0.097 -0.050  0.286 -0.066 -0.983  1.720
-               -0.007 -0.025 -0.017 -0.487 -0.168 -0.043 -0.225 -0.631  0.263 -2.348
+                0.988  0.028 -0.219 -0.075  0.095 -0.477 -0.319  0.278 -0.418 -1.365
+               -0.004  0.667  0.107  0.493  0.499 -2.058 -1.840  1.303 -0.978 -3.829
+                0.072 -2.343  2.736 -0.284  1.474  5.505  4.684 -0.431  3.034  5.883
+               -0.011  0.181  0.336 -0.972 -0.769  0.211 -0.200  0.210  0.012  2.592
+                0.018 -0.576  0.527  0.285  2.550  1.006  1.247  1.277  0.560 -0.640
+                0.010 -0.035  0.062  0.015 -0.018 -0.081 -0.049 -0.769 -0.095  3.331
+               -0.002 -0.017  0.018 -0.017 -0.004 -0.308  0.536  0.045  1.026 -0.910
+                0.014  0.654  0.507 -0.201 -0.435 -1.420 -0.314 -0.634 -2.384 -1.049
+               -0.063  1.303 -2.463  0.167 -0.798 -1.296 -1.801  0.121  0.361 -0.982
+                0.001 -0.052  0.018  0.008 -0.053 -0.049  0.358 -0.113 -1.012  1.708
+               -0.008 -0.010 -0.040  0.006 -0.042 -0.003  0.025 -0.783  0.161 -2.393
                   11
-                3.630
-               12.073
-               -7.014
-                3.651
-               -1.538
-               -0.115
-                0.731
-               -8.633
-                4.569
-                1.722
-                1.748
+                3.633
+               12.127
+               -7.046
+                3.688
+               -1.561
+               -0.103
+                0.729
+               -8.650
+                4.556
+                1.714
+                1.727
 
   MO's with symmetry                     2
 
                    1      2      3      4      5      6      7
-                0.810 -1.611 -0.048  0.118  0.097  0.561 -4.279
-               -0.353  1.348  2.624 -1.996 -0.803  0.323  1.217
-               -0.026  0.410 -0.097  0.611  0.729  0.719  1.232
-                0.767  1.183 -1.837 -0.172  0.576  0.288  8.157
-               -0.178 -0.854 -3.762  4.946 -0.657 -1.481 -3.416
-               -0.047  0.435 -0.219 -0.008  1.401 -0.578 -1.605
-               -0.037  0.228 -0.151 -0.216  0.214  1.513 -1.107
+                0.784 -0.333 -0.580  0.790 -0.461  0.426 -4.453
+               -0.416 -1.409  2.609 -1.964 -0.775  0.312  1.234
+               -0.014  0.039  0.019  0.461  0.854  0.748  1.271
+                0.760 -0.083 -1.562 -0.550  0.890  0.357  8.252
+                0.089  4.922 -2.586  3.407  0.449 -1.159 -3.098
+               -0.058 -0.022 -0.109 -0.149  1.520 -0.551 -1.568
+               -0.044 -0.061 -0.098 -0.283  0.273  1.526 -1.089
 
   MO's with symmetry                     3
 
                    1      2      3      4
-                0.902 -1.066  0.193  2.298
-               -0.122  1.398 -0.275 -0.890
-               -0.039  0.187  0.658  1.134
-                0.031 -0.180  0.415 -1.783
+                0.806 -1.141  0.204  2.297
+                0.004  1.403 -0.276 -0.890
+               -0.028  0.191  0.657  1.134
+                0.007 -0.182  0.415 -1.783
 
   MO's with symmetry                     4
 
@@ -1458,48 +1539,48 @@
   MO's with symmetry                     5
 
                    1      2      3      4      5      6      7      8      9     10
-                0.999  0.116 -0.036  0.418 -0.505  0.078  0.088 -0.241 -0.151 -0.944
-               -0.003 -0.456  0.728  2.476 -1.908  0.186  0.167 -0.653  0.089 -3.247
-               -0.021  0.657 -1.754 -1.188  6.339 18.914  0.823  4.809  6.052  5.703
-                0.000 -0.492  1.380 -2.190  0.241 -0.748 -0.062  0.322 -1.814  3.424
-                0.002  0.158 -0.750  1.083  3.724-10.844  0.839 -0.383 -0.201 -2.943
-               -0.002 -0.014 -0.071 -0.298  0.252  0.713  0.047  1.528  0.030 -4.070
-                0.002  0.013 -0.011  0.045 -0.175 -0.002  0.631  0.106  1.593  2.441
-                0.004 -0.952 -0.637 -0.115 -1.722 -0.742  0.644 -1.393 -2.006 -4.532
-                0.003  0.306  0.433 -0.074 -4.768  3.949 -2.442  0.382  0.335  2.595
-               -0.003  0.017 -0.334 -0.194  0.139 -0.075  0.308  0.472 -1.258 -1.447
-               -0.002  0.051 -0.345  0.085 -0.409  0.217  0.035 -1.907  0.533  2.937
+                0.998  0.128 -0.078  0.395 -0.575  0.229  0.142 -0.201 -0.211 -0.921
+                0.000 -0.449 -0.031  2.254 -2.659  0.852 -0.093 -0.158 -0.203 -3.035
+               -0.024  0.644  2.301 -0.277 10.720 16.132  3.446  4.880  7.106  5.383
+                0.001 -0.483  0.114 -2.338  0.075 -0.734 -0.343  0.642 -1.861  3.526
+                0.002  0.148  2.034  0.793  0.468-10.967 -2.462 -1.328 -0.073 -3.116
+               -0.001 -0.013  0.082 -0.274  0.362  0.603  0.085  1.482  0.074 -4.095
+                0.001  0.021  0.014  0.028 -0.115 -0.141  0.582  0.048  1.652  2.415
+                0.012 -0.954 -0.013 -0.009 -1.705 -0.456  0.935 -1.287 -2.118 -4.491
+                0.000  0.314 -4.060 -0.017 -2.403  4.757  0.379  0.503  0.022  2.618
+               -0.004  0.022  0.062 -0.138  0.323 -0.205  0.429  0.343 -1.197 -1.500
+               -0.002  0.056 -0.062  0.119 -0.354  0.376  0.239 -1.924  0.476  2.937
                   11
-                5.630
-               19.297
-               -9.293
+                5.623
+               19.276
+               -9.275
                 1.032
-               -0.311
-                2.937
-                0.055
-               -9.635
-                4.468
-                2.947
-                0.257
+               -0.213
+                2.940
+                0.063
+               -9.663
+                4.392
+                2.949
+                0.244
 
   MO's with symmetry                     6
 
                    1      2      3      4      5      6      7
-                0.800 -1.677 -0.224 -0.063  0.243  3.278 -2.442
-               -0.521  1.911  9.448  2.251  3.385 -2.047  0.195
-                0.006 -0.153  0.399  0.292 -0.040  3.308  5.604
-                1.196  0.540 -0.810 -1.421 -0.634  1.471 13.965
-                0.009 -0.396-11.937  0.758 -1.865 -0.676 -7.206
-               -0.058  0.430 -0.418 -0.159 -1.633  0.707 -1.882
-               -0.016  0.099  0.094 -0.786  0.531  1.829 -0.062
+                0.754 -0.323 -1.064  0.518  0.597  3.414 -2.489
+               -0.909 -3.883  8.556  2.666  3.696 -2.009  0.176
+               -0.014 -0.124  0.298  0.359  0.001  3.323  5.599
+                1.148 -0.425 -0.776 -1.474 -0.659  1.460 13.970
+                0.889  8.116 -8.297 -1.359 -3.274 -1.048 -7.065
+               -0.057  0.095 -0.179 -0.323 -1.733  0.670 -1.869
+               -0.032 -0.051  0.122 -0.808  0.518  1.823 -0.060
 
   MO's with symmetry                     7
 
                    1      2      3      4
-                1.607 -0.712  1.736  0.601
-               -0.564  2.722 -0.056 -0.306
-                0.020 -0.223 -1.405  2.555
-                0.011 -0.151 -0.503 -2.091
+                1.474 -0.891  1.769  0.606
+               -0.205  2.771 -0.094 -0.309
+                0.004 -0.239 -1.401  2.555
+                0.005 -0.159 -0.501 -2.091
 
   MO's with symmetry                     8
 
@@ -1510,64 +1591,62 @@
   Part of CMO2 that is spanned by CMO1
  Symmetry =     1
   ===================
-0  1     0.9999999868570483E+00   0.9999886947636474E+00   0.9999759632744055E+00   0.2935825203250459E+00
+0  1     0.9999963983837702E+00   0.9974562564991342E+00   0.9953755885719587E+00   0.9999066761027142E+00
  
  Symmetry =     2
   ===================
-0  1     0.9999707353304870E+00   0.3241331294253792E+00
+0  1     0.9995610397244561E+00   0.9936936816685661E+00
  Symmetry =     3
   ===================
-0  1     0.9994940254740132E+00
+0  1     0.9952686918385970E+00
  Symmetry =     5
   ===================
-0  1     0.9999999639739783E+00   0.9999773760677547E+00   0.2826430261694582E+00   0.1024284925119517E+00
+0  1     0.9999995252889605E+00   0.9998172454323171E+00   0.9965352165859155E+00   0.1092793697583311E+00
  
  Symmetry =     6
   ===================
-0  1     0.9999441254944241E+00   0.2546790509972184E+00
+0  1     0.9998346980631729E+00   0.9984815035723292E+00
  Symmetry =     7
   ===================
-0  1     0.6673910613587100E+00
+0  1     0.7822693035485309E+00
 
   Projecting final (MO2) on initial (MO1) active orbitals
   Part of CMO2 that is spanned by CMO1
  Symmetry =     1
   ===================
-0  1     0.9999880167570948E+00   0.9996132762359521E+00   0.2935824797057023E+00
+0  1     0.2561493248710440E-02
  Symmetry =     2
   ===================
-0  1     0.9999707353304862E+00   0.3241331294253792E+00
+0  1     0.9903279954909673E+00
  Symmetry =     3
   ===================
-0  1     0.9994940254740137E+00
+0  1     0.9952686918385970E+00
  Symmetry =     5
   ===================
-0  1     0.9999341189499635E+00   0.2826430177935662E+00   0.1024284559616207E+00
+0  1     0.1091870626218743E+00
  Symmetry =     6
   ===================
-0  1     0.9999441254944241E+00   0.2546790509972184E+00
+0  1     0.9852147864540571E+00
  Symmetry =     7
   ===================
-0  1     0.6673910613587100E+00
+0  1     0.7822693035485309E+00
 
 
   Summary of MCSCF convergence: 
   ==============================
   Iter Orb-gradient  Orb-step  CI-gradient     Energy 
   ==========================================================
-   1    .521E-01    .714E+00   .611E-06    -76.777936013521
-   2    .655E-01    .735E+00   .457E-06    -76.810358269215
-   3    .380E-01    .103E+01   .426E-06    -76.837987182395
-   4    .183E-01    .702E-01   .760E-06    -76.852047376559
-   5    .493E-02    .226E-01   .606E-06    -76.852227406028
-   6    .138E-02    .848E-02   .892E-06    -76.852243033667
-   7    .399E-03    .324E-02   .308E-06    -76.852245043118
-   8    .121E-03    .127E-02   .519E-06    -76.852245327036
-   9    .381E-04    .583E-03   .982E-06    -76.852245370704
+   1    .690E+00    .669E+00   .288E-06    -72.444453410302
+   2    .785E-01    .707E+00   .432E-06    -72.512808722478
+   3    .289E-01    .110E+01   .909E-06    -72.516228855052
+   4    .191E-01    .189E+00   .572E-06    -72.527725066303
+   5    .169E-02    .191E-01   .401E-06    -72.528215171039
+   6    .165E-03    .239E-02   .493E-06    -72.528221552252
+   7    .269E-04    .293E-03   .292E-06    -72.528221657481
 
 
- Final energy =     -76.852245379403
- Final norm of orbital gradient =       0.000014178350
+ Final energy =     -72.528221659457
+ Final norm of orbital gradient =       0.000004838755
   Final, final, final orbitals: 
   MO - AO transformation matrix 
   ------------------------------
@@ -1575,48 +1654,48 @@
   MO's with symmetry                     1
 
                    1      2      3      4      5      6      7      8      9     10
-                0.993 -0.112  0.031  0.154  0.107 -0.513 -0.345  0.284 -0.408 -1.356
-                0.000  0.782 -0.155  1.521  0.801 -2.041 -1.338  0.970 -1.182 -3.913
-               -0.004 -0.457 -0.100 -1.415  1.366  6.179  5.398 -0.688  2.762  5.695
-               -0.017 -0.151  1.026  0.977 -0.548  0.276  0.228 -0.047 -0.158  2.514
-                0.003 -0.012 -0.408 -0.790  2.442  1.163  1.280  1.303  0.548 -0.663
-                0.009  0.016 -0.003  0.181  0.054 -0.040  0.115 -0.864 -0.162  3.300
-               -0.003 -0.006  0.010 -0.078 -0.018 -0.306  0.517  0.059  1.034 -0.907
-                0.002  0.645  0.553 -0.762 -0.522 -1.370 -0.418 -0.549 -2.347 -1.041
-                0.002 -0.234 -0.148  0.357 -0.943 -1.924 -2.836  0.607  0.771 -0.742
-                0.001 -0.019 -0.016 -0.203 -0.097 -0.050  0.286 -0.066 -0.983  1.720
-               -0.007 -0.025 -0.017 -0.487 -0.168 -0.043 -0.225 -0.631  0.263 -2.348
+                0.988  0.028 -0.219 -0.075  0.095 -0.477 -0.319  0.278 -0.418 -1.365
+               -0.004  0.667  0.107  0.493  0.499 -2.058 -1.840  1.303 -0.978 -3.829
+                0.072 -2.343  2.736 -0.284  1.474  5.505  4.684 -0.431  3.034  5.883
+               -0.011  0.181  0.336 -0.972 -0.769  0.211 -0.200  0.210  0.012  2.592
+                0.018 -0.576  0.527  0.285  2.550  1.006  1.247  1.277  0.560 -0.640
+                0.010 -0.035  0.062  0.015 -0.018 -0.081 -0.049 -0.769 -0.095  3.331
+               -0.002 -0.017  0.018 -0.017 -0.004 -0.308  0.536  0.045  1.026 -0.910
+                0.014  0.654  0.507 -0.201 -0.435 -1.420 -0.314 -0.634 -2.384 -1.049
+               -0.063  1.303 -2.463  0.167 -0.798 -1.296 -1.801  0.121  0.361 -0.982
+                0.001 -0.052  0.018  0.008 -0.053 -0.049  0.358 -0.113 -1.012  1.708
+               -0.008 -0.010 -0.040  0.006 -0.042 -0.003  0.025 -0.783  0.161 -2.393
                   11
-                3.630
-               12.073
-               -7.014
-                3.651
-               -1.538
-               -0.115
-                0.731
-               -8.633
-                4.569
-                1.722
-                1.748
+                3.633
+               12.127
+               -7.046
+                3.688
+               -1.561
+               -0.103
+                0.729
+               -8.650
+                4.556
+                1.714
+                1.727
 
   MO's with symmetry                     2
 
                    1      2      3      4      5      6      7
-                0.810 -1.611 -0.048  0.118  0.097  0.561 -4.279
-               -0.353  1.348  2.624 -1.996 -0.803  0.323  1.217
-               -0.026  0.410 -0.097  0.611  0.729  0.719  1.232
-                0.767  1.183 -1.837 -0.172  0.576  0.288  8.157
-               -0.178 -0.854 -3.762  4.946 -0.657 -1.481 -3.416
-               -0.047  0.435 -0.219 -0.008  1.401 -0.578 -1.605
-               -0.037  0.228 -0.151 -0.216  0.214  1.513 -1.107
+                0.784 -0.333 -0.580  0.790 -0.461  0.426 -4.453
+               -0.416 -1.409  2.609 -1.964 -0.775  0.312  1.234
+               -0.014  0.039  0.019  0.461  0.854  0.748  1.271
+                0.760 -0.083 -1.562 -0.550  0.890  0.357  8.252
+                0.089  4.922 -2.586  3.407  0.449 -1.159 -3.098
+               -0.058 -0.022 -0.109 -0.149  1.520 -0.551 -1.568
+               -0.044 -0.061 -0.098 -0.283  0.273  1.526 -1.089
 
   MO's with symmetry                     3
 
                    1      2      3      4
-                0.902 -1.066  0.193  2.298
-               -0.122  1.398 -0.275 -0.890
-               -0.039  0.187  0.658  1.134
-                0.031 -0.180  0.415 -1.783
+                0.806 -1.141  0.204  2.297
+                0.004  1.403 -0.276 -0.890
+               -0.028  0.191  0.657  1.134
+                0.007 -0.182  0.415 -1.783
 
   MO's with symmetry                     4
 
@@ -1627,48 +1706,48 @@
   MO's with symmetry                     5
 
                    1      2      3      4      5      6      7      8      9     10
-                0.999  0.116 -0.036  0.418 -0.505  0.078  0.088 -0.241 -0.151 -0.944
-               -0.003 -0.456  0.728  2.476 -1.908  0.186  0.167 -0.653  0.089 -3.247
-               -0.021  0.657 -1.754 -1.188  6.339 18.914  0.823  4.809  6.052  5.703
-                0.000 -0.492  1.380 -2.190  0.241 -0.748 -0.062  0.322 -1.814  3.424
-                0.002  0.158 -0.750  1.083  3.724-10.844  0.839 -0.383 -0.201 -2.943
-               -0.002 -0.014 -0.071 -0.298  0.252  0.713  0.047  1.528  0.030 -4.070
-                0.002  0.013 -0.011  0.045 -0.175 -0.002  0.631  0.106  1.593  2.441
-                0.004 -0.952 -0.637 -0.115 -1.722 -0.742  0.644 -1.393 -2.006 -4.532
-                0.003  0.306  0.433 -0.074 -4.768  3.949 -2.442  0.382  0.335  2.595
-               -0.003  0.017 -0.334 -0.194  0.139 -0.075  0.308  0.472 -1.258 -1.447
-               -0.002  0.051 -0.345  0.085 -0.409  0.217  0.035 -1.907  0.533  2.937
+                0.998  0.128 -0.078  0.395 -0.575  0.229  0.142 -0.201 -0.211 -0.921
+                0.000 -0.449 -0.031  2.254 -2.659  0.852 -0.093 -0.158 -0.203 -3.035
+               -0.024  0.644  2.301 -0.277 10.720 16.132  3.446  4.880  7.106  5.383
+                0.001 -0.483  0.114 -2.338  0.075 -0.734 -0.343  0.642 -1.861  3.526
+                0.002  0.148  2.034  0.793  0.468-10.967 -2.462 -1.328 -0.073 -3.116
+               -0.001 -0.013  0.082 -0.274  0.362  0.603  0.085  1.482  0.074 -4.095
+                0.001  0.021  0.014  0.028 -0.115 -0.141  0.582  0.048  1.652  2.415
+                0.012 -0.954 -0.013 -0.009 -1.705 -0.456  0.935 -1.287 -2.118 -4.491
+                0.000  0.314 -4.060 -0.017 -2.403  4.757  0.379  0.503  0.022  2.618
+               -0.004  0.022  0.062 -0.138  0.323 -0.205  0.429  0.343 -1.197 -1.500
+               -0.002  0.056 -0.062  0.119 -0.354  0.376  0.239 -1.924  0.476  2.937
                   11
-                5.630
-               19.297
-               -9.293
+                5.623
+               19.276
+               -9.275
                 1.032
-               -0.311
-                2.937
-                0.055
-               -9.635
-                4.468
-                2.947
-                0.257
+               -0.213
+                2.940
+                0.063
+               -9.663
+                4.392
+                2.949
+                0.244
 
   MO's with symmetry                     6
 
                    1      2      3      4      5      6      7
-                0.800 -1.677 -0.224 -0.063  0.243  3.278 -2.442
-               -0.521  1.911  9.448  2.251  3.385 -2.047  0.195
-                0.006 -0.153  0.399  0.292 -0.040  3.308  5.604
-                1.196  0.540 -0.810 -1.421 -0.634  1.471 13.965
-                0.009 -0.396-11.937  0.758 -1.865 -0.676 -7.206
-               -0.058  0.430 -0.418 -0.159 -1.633  0.707 -1.882
-               -0.016  0.099  0.094 -0.786  0.531  1.829 -0.062
+                0.754 -0.323 -1.064  0.518  0.597  3.414 -2.489
+               -0.909 -3.883  8.556  2.666  3.696 -2.009  0.176
+               -0.014 -0.124  0.298  0.359  0.001  3.323  5.599
+                1.148 -0.425 -0.776 -1.474 -0.659  1.460 13.970
+                0.889  8.116 -8.297 -1.359 -3.274 -1.048 -7.065
+               -0.057  0.095 -0.179 -0.323 -1.733  0.670 -1.869
+               -0.032 -0.051  0.122 -0.808  0.518  1.823 -0.060
 
   MO's with symmetry                     7
 
                    1      2      3      4
-                1.607 -0.712  1.736  0.601
-               -0.564  2.722 -0.056 -0.306
-                0.020 -0.223 -1.405  2.555
-                0.011 -0.151 -0.503 -2.091
+                1.474 -0.891  1.769  0.606
+               -0.205  2.771 -0.094 -0.309
+                0.004 -0.239 -1.401  2.555
+                0.005 -0.159 -0.501 -2.091
 
   MO's with symmetry                     8
 
@@ -1686,80 +1765,80 @@
 
   Space   Form of calc.      E(final)       Error norm Converged?
  ---------------------------------------------------------------
-    1        MCSCF     -76.852245379403     0.14651E-04    + 
+    1        MCSCF     -72.528221659457     0.50534E-05    + 
 
   Information about COPVEC calls: 
   ===============================
 
- Number of calls = .418E+06
- Number of R*8 words copied = .699E+08
+ Number of calls = .224E+06
+ Number of R*8 words copied = .104E+08
 
   Information about MATML7 calls: 
   ================================
 
- Number of calls=    53520084.000000000     
- Number of flops executed = .206E+11
- Average row length of C = .212E+02
- Average column  length of C = .256E+01
- Average number of operations per element of  C = .840E+01
- Average number of operations per per call = .384E+03
- Number of seconds spent in MATML7 = .128E+02
- Average MFLOPS = .161E+04
+ Number of calls=    0.0000000000000000     
+ Number of flops executed = .000E+00
+ Average row length of C =      NaN
+ Average column  length of C =      NaN
+ Average number of operations per element of  C =      NaN
+ Average number of operations per per call =      NaN
+ Number of seconds spent in MATML7 = .000E+00
+ Average MFLOPS =      NaN
   ========
    MATCG: 
   ========
 
- Number of calls =               3340690
- Number of operations = .519E+09
+ Number of calls =                 22077
+ Number of operations = .648E+05
 
   ========
    MATCAS: 
   ========
 
- Number of calls =               1831050
- Number of operations = .273E+09
+ Number of calls =                 13221
+ Number of operations = .285E+05
 
   ============
    ADD_SKAIIB: 
   ============
 
- Number of calls =                736930
- Number of operations = .904E+09
+ Number of calls =                 34872
+ Number of operations = .145E+06
 
   ============
    GET_CKAJJB: 
   ============
 
- Number of calls =                732558
- Number of operations = .153E+10
+ Number of calls =                 38544
+ Number of operations = .205E+06
 
   ==========
    COPVEC: 
   ==========
 
- Number of calls =                417744
- Number of operations = .699E+08
+ Number of calls =                223727
+ Number of operations = .104E+08
 
   ==========
    SETVEC: 
   ==========
 
- Number of calls =               1902170
- Number of operations = .207E+10
+ Number of calls =                163526
+ Number of operations = .465E+07
 
   ==========
    SCALVE: 
   ==========
 
- Number of calls =                  4362
- Number of operations = .149E+08
+ Number of calls =                  3057
+ Number of operations = .371E+05
 
   ========
    TRPMT: 
   ========
 
- Number of calls =                  6763
- Number of operations = .543E+08
+ Number of calls =                  5356
+ Number of operations = .242E+07
 
   ======================= 
   I/O traffic (R*8) words 
@@ -1781,122 +1860,117 @@
 
      ROUTINE     CALLS      CPU     I/O
       REST          1      0.01    0.00
-      STRTY         1      0.00    0.00
-      GNOCCL        1      0.00    0.00
-      STRIN         1      0.00    0.00
-      STIN2         1      0.00    0.00
-      SPGPA         1      0.00    0.00
-      LCISP         1      0.00    0.00
-      NGASD         8      0.00    0.00
+      STRTY         2      0.00    0.00
+      GNOCCL        2      0.00    0.00
+      STRIN         2      0.00    0.00
+      STIN2         2      0.00    0.00
+      SPGPA         2      0.00    0.00
+      ABSPG         4      0.00    0.00
+      LCISP         2      0.00    0.00
+      NGASD        16      0.00    0.00
       MO1           1      0.01    0.00
       MO1GA         1      0.00    0.00
-      MO2           1      1.26    0.00
-      MO2GA         1      0.03    0.00
-      TRAIN        26      0.14    0.00
-      GETIN    132127      0.12    0.00
-      gin2a    132127      0.09    0.00
+      MO2           1      1.24    0.00
+      MO2GA         1      0.06    0.00
+      TRAIN        19      0.06    0.00
+      GETIN     92429      0.19    0.00
+      gin2a     92429      0.05    0.00
       MCSCF         1      0.01    0.00
-      ORBTR        35      0.01    0.00
-      gasci        11      0.00    0.00
-      CIDIA        11      0.04    0.00
-      GETST      3330      0.00    0.00
-      CIEIG        11      0.00    0.00
-      MINDV        11      0.18    0.00
-      MV7          77      0.01    0.00
-      RASSG        77      0.00    0.00
-      SBLOK       616      0.04    0.00
-      SBLOS       616      0.05    0.00
-      GSTBL      5720      0.02    0.00
-      SDCMR      5664      0.00    0.00
-      tr3g2      5664      0.29    0.00
-      RSSBE      4872      0.00    0.00
-      RS2B2      4872      1.34    0.00
-      SKICK    341666      6.51    0.00
-      SKAII    736930      0.54    0.00
-      gdgop       616      0.01    0.00
-      RS1         609      0.10    0.00
-      ADAST    124700      0.21    0.00
-      RS2A        609      0.00    0.00
-      BB2A4       609      2.51    0.00
-      H0M1T        66      0.02    0.00
-      DENSI        11      0.01    0.00
-      GASDN        11      0.00    0.00
-      GSDN2       704      0.03    0.00
-      GSBD1       176      0.07    0.00
-      GSBDA       176      0.80    0.00
-      ADADS    268422      0.20    0.00
-      MATCG    268422      0.22    0.00
-      GSD2N       704      1.23    0.00
-      enden        34      0.01    0.00
-      fmats        10      0.02    0.00
-      ORBHE         9      0.00    0.00
-      EIS_D         9      0.01    0.00
-      e1frf        10      0.00    0.00
+      ORBTR        26      0.01    0.00
+      gasci         9      0.00    0.00
+      CIDIA         9      0.01    0.00
+      GETST      2588      0.00    0.00
+      CIEIG         9      0.00    0.00
+      MINDV         9      0.02    0.00
+      MV7          55      0.00    0.00
+      RASSG        55      0.00    0.00
+      ACTBL        64      0.00    0.00
+      SBLOK       220      0.01    0.00
+      SBLOS       220      0.02    0.00
+      GSTBL      2120      0.00    0.00
+      SDCMR      2080      0.01    0.00
+      tr3g2      2080      0.01    0.00
+      RSSBE      3440      0.02    0.00
+      RS2B2      3440      0.04    0.00
+      SKICK     34872      0.01    0.00
+      SKAII     34872      0.00    0.00
+      RS1         430      0.00    0.00
+      ADAST     28164      0.00    0.00
+      RS2A        430      0.00    0.00
+      BB2A4       430      0.05    0.00
+      H0M1T        46      0.00    0.00
+      DENSI         9      0.00    0.00
+      GASDN         9      0.00    0.00
+      GSDN2       576      0.00    0.00
+      GSBD1       144      0.00    0.00
+      GSBDA       144      0.01    0.00
+      ADADS      9936      0.00    0.00
+      MATCG      7452      0.00    0.00
+      GSD2N       576      0.00    0.00
+      enden        25      0.01    0.00
+      fmats         8      0.00    0.00
+      ORBHE         7      0.02    0.00
+      EIS_D         7      0.00    0.00
+      e1frf         8      0.00    0.00
 
- Total time in above routines: .162E+02
+ Total time in above routines: .188E+01
 MA usage statistics:
 
 	allocation statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	       160	       117
+	maximum number of blocks	       106	       120
 	current total bytes		         0	         0
-	maximum total bytes		   2648232	  22510104
-	maximum total K-bytes		      2649	     22511
-	maximum total M-bytes		         3	        23
+	maximum total bytes		   1640128	  22510280
+	maximum total K-bytes		      1641	     22511
+	maximum total M-bytes		         2	        23
 
 	calls per routine:
 		       182  MA_alloc_get
 		       185  MA_allocate_heap
-		      1666  MA_chop_stack
+		      2743  MA_chop_stack
 		       185  MA_free_heap
 		         0  MA_free_heap_piece
-		     21388  MA_get_index
+		     14352  MA_get_index
 		         5  MA_get_mbase
 		         0  MA_get_next_memhandle
 		         0  MA_get_numalign
-		        25  MA_get_pointer
+		        28  MA_get_pointer
 		         1  MA_init
 		         0  MA_initialized
 		         0  MA_init_memhandle_iterator
-		       246  MA_inquire_avail
+		       248  MA_inquire_avail
 		         1  MA_inquire_heap
 		         0  MA_inquire_heap_check_stack
 		         0  MA_inquire_heap_no_partition
-		         3  MA_inquire_stack
+		         5  MA_inquire_stack
 		         0  MA_inquire_stack_check_heap
 		         0  MA_inquire_stack_no_partition
-		      4956  MA_pop_stack
+		      6095  MA_pop_stack
 		         1  MA_print_stats
-		     21203  MA_push_get
-		     21222  MA_push_stack
+		     14167  MA_push_get
+		     14189  MA_push_stack
 		         3  MA_set_auto_verify
 		         1  MA_set_error_print
 		         3  MA_set_hard_fail
-		         0  MA_set_numalign
-		     17878  MA_sizeof
+		         1  MA_set_numalign
+		      5518  MA_sizeof
 		        19  MA_sizeof_overhead
 		         0  MA_summarize_allocated_blocks
 		         0  MA_trace
-		    103639  MA_verify_allocator_stuff
+		     67396  MA_verify_allocator_stuff
 
- Task  times  cpu:       16.9s     wall:       35.7s
+ Task  times  cpu:        2.2s     wall:        2.5s
  Summary of allocated global arrays
 -----------------------------------
-  No active global arrays
+  array 0 => double precision INT1BU(2304,1),  handle: -987 
+  array 1 => double precision INT2BU(93892,1),  handle: -986 
+  array 2 => double precision H1(2304,1),  handle: -985 
+  array 3 => double precision FIBU(2304,1),  handle: -984 
+  array 4 => double precision movecbu(2304,1),  handle: -983 
 
 
-
-                         GA Statistics for process    0
-                         ------------------------------
-
-       create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  559      559     7.99e+05 2.13e+04 7.01e+05    0        0     3.69e+04 
-number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
-bytes total:             4.09e+08 7.67e+08 1.66e+07 0.00e+00 0.00e+00 2.95e+05
-bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 21934088 bytes
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -1905,16 +1979,15 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	       160	       117
+	maximum number of blocks	       106	       120
 	current total bytes		         0	         0
-	maximum total bytes		   2648232	  22510104
-	maximum total K-bytes		      2649	     22511
-	maximum total M-bytes		         3	        23
+	maximum total bytes		   1640128	  22510280
+	maximum total K-bytes		      1641	     22511
+	maximum total M-bytes		         2	        23
 
 
                                 NWChem Input Module
                                 -------------------
-
 
 
 
@@ -1924,31 +1997,52 @@ MA usage statistics:
                 Please cite the following reference when publishing
                            results obtained with NWChem:
 
-                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
-              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
-                        E. Apra, T.L. Windus, W.A. de Jong
-                 "NWChem: a comprehensive and scalable open-source
-                  solution for large scale molecular simulations"
-                      Comput. Phys. Commun. 181, 1477 (2010)
-                           doi:10.1016/j.cpc.2010.04.018
-
-                              AUTHORS & CONTRIBUTORS
-                              ----------------------
           E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
-       T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus,
-        J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec, K. Lopata,
-     F. Aquino, S. Hirata, M. T. Hackler, T. Risthaus, M. Malagoli, J. Mullin,
-        P. Nichols, R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan, A. Fonari,
-     R. J. Harrison, M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha,
-       V. Tipparaju, M. Krishnan, B. E. Van Kuiken,  A. Vazquez-Mayagoitia,
-        L. Jensen, M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen,
-      L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza,
-   K. Hirao, R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
-       D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
-        K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
-   B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long,
-        B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann,
-      G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong,
-                                     Z. Zhang.
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, Y. Alexeev, J. Anchell,
+       V. Anisimov, F. W. Aquino, R. Atta-Fynn, J. Autschbach, N. P. Bauman,
+     J. C. Becca, D. E. Bernholdt, K. Bhaskaran-Nair, S. Bogatko, P. Borowski,
+         J. Boschen, J. Brabec, A. Bruner, E. Cauet, Y. Chen, G. N. Chuev,
+      C. J. Cramer, J. Daily, M. J. O. Deegan, T. H. Dunning Jr., M. Dupuis,
+   K. G. Dyall, G. I. Fann, S. A. Fischer, A. Fonari, H. Fruchtl, L. Gagliardi,
+      J. Garza, N. Gawande, S. Ghosh, K. Glaesemann, A. W. Gotz, J. Hammond,
+       V. Helms, E. D. Hermes, K. Hirao, S. Hirata, M. Jacquelin, L. Jensen,
+   B. G. Johnson, H. Jonsson, R. A. Kendall, M. Klemm, R. Kobayashi, V. Konkov,
+      S. Krishnamoorthy, M. Krishnan, Z. Lin, R. D. Lins, R. J. Littlefield,
+      A. J. Logsdail, K. Lopata, W. Ma, A. V. Marenich, J. Martin del Campo,
+   D. Mejia-Rodriguez, J. E. Moore, J. M. Mullin, T. Nakajima, D. R. Nascimento,
+    J. A. Nichols, P. J. Nichols, J. Nieplocha, A. Otero-de-la-Roza, B. Palmer,
+    A. Panyala, T. Pirojsirikul, B. Peng, R. Peverati, J. Pittner, L. Pollack,
+   R. M. Richard, P. Sadayappan, G. C. Schatz, W. A. Shelton, D. W. Silverstein,
+   D. M. A. Smith, T. A. Soares, D. Song, M. Swart, H. L. Taylor, G. S. Thomas,
+            V. Tipparaju, D. G. Truhlar, K. Tsemekhman, T. Van Voorhis,
+      A. Vazquez-Mayagoitia, P. Verma, O. Villa, A. Vishnu, K. D. Vogiatzis,
+        D. Wang, J. H. Weare, M. J. Williamson, T. L. Windus, K. Wolinski,
+        A. T. Wong, Q. Wu, C. Yang, Q. Yu, M. Zacharias, Z. Zhang, Y. Zhao,
+                                and R. J. Harrison
+                        "NWChem: Past, present, and future
+                         J. Chem. Phys. 152, 184102 (2020)
+                               doi:10.1063/5.0004997
 
- Total times  cpu:       17.2s     wall:       36.0s
+                                      AUTHORS
+                                      -------
+     E. Apra, E. J. Bylaska, N. Govind, K. Kowalski, M. Valiev, W. A. de Jong,
+      T. P. Straatsma, H. J. J. van Dam, D. Wang, T. L. Windus, N. P. Bauman,
+       A. Panyala, J. Hammond, J. Autschbach, K. Bhaskaran-Nair, J. Brabec,
+    K. Lopata, S. A. Fischer, S. Krishnamoorthy, M. Jacquelin, W. Ma, M. Klemm,
+       O. Villa, Y. Chen, V. Anisimov, F. Aquino, S. Hirata, M. T. Hackler,
+           Eric Hermes, L. Jensen, J. E. Moore, J. C. Becca, V. Konjkov,
+            D. Mejia-Rodriguez, T. Risthaus, M. Malagoli, A. Marenich,
+   A. Otero-de-la-Roza, J. Mullin, P. Nichols, R. Peverati, J. Pittner, Y. Zhao,
+        P.-D. Fan, A. Fonari, M. J. Williamson, R. J. Harrison, J. R. Rehr,
+      M. Dupuis, D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
+      M. Krishnan, B. E. Van Kuiken, A. Vazquez-Mayagoitia, M. Swart, Q. Wu,
+   T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros,
+     G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall, J. A. Nichols,
+       K. Tsemekhman, K. Wolinski, J. Anchell, D. E. Bernholdt, P. Borowski,
+       T. Clark, D. Clerc, H. Dachsel, M. J. O. Deegan, K. Dyall, D. Elwood,
+      E. Glendening, M. Gutowski, A. C. Hess, J. Jaffe, B. G. Johnson, J. Ju,
+        R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
+      T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone,
+      M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. T. Wong, Z. Zhang.
+
+ Total times  cpu:        4.2s     wall:        4.5s
