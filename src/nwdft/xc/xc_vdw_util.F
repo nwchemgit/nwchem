@@ -43,6 +43,8 @@ C>
       double precision top,bottom,dist,c6_ref
       double precision cna,cnb
       integer i,j
+      double precision eps
+      parameter (eps=1d-30)
 c
       c6cn=0.0d0
       top=0.0d0
@@ -60,7 +62,7 @@ c
          enddo
       enddo
 c
-      if (bottom.gt.1.0d-99) then
+      if (bottom.gt.eps) then
          c6cn=top/bottom
       else
          c6cn=0.0d0
@@ -102,7 +104,7 @@ C>
       double precision t1,t2,nomi,nomj,denomi,denomj
       double precision tmp1,tmp2,tmp3,tmp4,fac1,fac2
       double precision eps
-      parameter (eps=1d-99)
+      parameter (eps=1d-30)
       integer i,j
 c
       t1=0.0d0
@@ -131,7 +133,7 @@ c
         enddo
       enddo
 
-      if (t2.gt.1d-99) then
+      if (t2.gt.eps) then
         dc6i = ((nomi*t2 - denomi*t1))/(t2*t2)
         dc6j = ((nomj*t2 - denomj*t1))/(t2*t2)
       else
