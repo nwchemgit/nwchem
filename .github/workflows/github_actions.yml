@@ -47,7 +47,7 @@ jobs:
             armci_network: ARMCI
             nwchem_modules: "all"
             fc: gfortran
-            blas: "internal"
+            blas: "build_openblas"
           - os: ubuntu-18.04
             experimental: true
             mpi_impl: mpich
