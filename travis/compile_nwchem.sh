@@ -64,7 +64,16 @@ else
 #	    FOPT="-O2 -tp haswell"
 	fi
     fi
+fi
+# install armci-mpi if needed
+if [[ "$ARMCI_NETWORK" == "ARMCI" ]]; then
+    cd tools
+    ./install-armci-mpi
+    export EXTERNAL_ARMCI_PATH=$NWCHEM_TOP/external-armci
+    cd ..
 fi    
+
+#compilation
  if [[ "$os" == "Darwin" ]]; then 
    if [[ "$NWCHEM_MODULES" == "tce" ]]; then
      FOPT="-O1 -fno-aggressive-loop-optimizations"
