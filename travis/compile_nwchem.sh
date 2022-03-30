@@ -67,9 +67,10 @@ else
 fi
 # install armci-mpi if needed
 if [[ "$ARMCI_NETWORK" == "ARMCI" ]]; then
-    cd $NWCHEM_TOP/src/tools
+    cd tools
     ./install-armci-mpi
     export EXTERNAL_ARMCI_PATH=$NWCHEM_TOP/external-armci
+    cd ..
 fi    
 
 #compilation
