@@ -326,6 +326,9 @@ ifdef USE_MPI
     endif
     ifneq ($(LIBMPI),)
         MPI_COMBINED += $(LIBMPI)
+        ifeq ($(ARMCI_NETWORK),ARMCI)
+           MPI_COMBINED += -lpthread
+        endif
     endif
     ifneq ($(MPI_LOC),)
         MPI_COMBINED += $(MPI_LOC)
