@@ -2162,8 +2162,12 @@ ifneq ($(TARGET),LINUX)
                 ifeq ($(_CC),$(findstring $(_CC),gcc clang))
                     COPTIONS += -Wall
 		endif
-                ifndef USE_FLANG
-                    FOPTIMIZE  += -Wno-maybe-uninitialized
+                ifeq ($(GNU_GE_4_8),true)
+                    ifndef USE_FLANG
+                        FOPTIMIZE  += -Wno-maybe-uninitialized
+                    endif
+                else
+                    FOPTIONS   += -Wuninitialized
                 endif
             endif
 
@@ -2203,20 +2207,6 @@ ifneq ($(TARGET),LINUX)
                 FOPTIONS +=-fno-aggressive-loop-optimizations
                 FOPTIMIZE +=-fno-aggressive-loop-optimizations
                 FFLAGS_FORGA += -fno-aggressive-loop-optimizations
-                ifeq ($(V),-1)
-                    FOPTIONS += -w
-                else
-                    FOPTIONS += -Warray-bounds
-                endif
-            else
-                ifeq ($(V),-1)
-                    FOPTIONS += -w
-                else
-                    FOPTIONS   += -Wuninitialized
-                    ifndef USE_FLANG
-                        FOPTIONS   += -Wno-maybe-uninitialized # -Wextra -Wunused
-                    endif
-                endif
             endif
 
             ifeq ($(GNU_GE_8),true)
