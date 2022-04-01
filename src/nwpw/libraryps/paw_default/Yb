@@ -7,6 +7,8 @@ Comment:
 [psp_type] 4
 [cutoff] 60.0
 
+<comment> Parameterized Yb paw (4f5s5p5d5f6s6p projectors, 3/31/2022 by EJB) <end>
+
 <atom_charge> 70.0
 <orbitals>
 13   1 4
