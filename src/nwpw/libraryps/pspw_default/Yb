@@ -1,0 +1,49 @@
+#
+# $Id$
+#
+Comment: Yb pseudopotential parameters
+Comment: Relativistic TM, quadratic semicore
+Comment: Fitted 03-31-22
+Comment: by Eric Bylaska
+
+<comment>  Parameterized (E. Bylaska 3-31-22) TM psp <end>
+
+[lmax] 3
+[locp] 0
+[rlocal] 1.0
+[cutoff] 75.0
+
+<atom>
+ Yb
+  70.00  173.054   9 3
+   1   0    2.00
+   2   0    2.00
+   2   1    6.00
+   3   0    2.00
+   3   1    6.00
+   3   2   10.00
+   4   0    2.00
+   4   1    6.00
+   4   2   10.00
+   4   3   14.00
+   5   0    2.00
+   5   1    6.00
+<end>
+<solver> pauli                         <end>
+<pseudopotential> troullier-martins    <end>
+<rcut>
+0       1.618000
+1       1.828000
+2       1.213000
+3       1.203000
+<end>
+<kb_expansion>
+0 2
+1 2
+<end>
+<semicore> 0.800 <end>
+<semicore_type> quadratic <end>
+
+<screening_cut> 0.10 <end>
+
+
