@@ -171,15 +171,13 @@ fi
     if [[ "$FC" == "nvfortran" ]]; then
 	sudo apt-get -y install lmod g++ libtinfo5 libncursesw5 lua-posix lua-filesystem lua-lpeg lua-luaossl
 	nv_major=22
-	nv_minor=1
+	nv_minor=3
 	nverdot="$nv_major"."$nv_minor"
 	nverdash="$nv_major"-"$nv_minor"
 	arch_dpkg=`dpkg --print-architecture`
-        nv_p1=nvhpc-"$nverdash"_"$nverdot"_"$arch_dpkg".deb
-	nv_p2=nvhpc-20"$nv_major"_"$nverdot"_"$arch_dpkg".deb
-	wget https://developer.download.nvidia.com/hpc-sdk/"$nverdot"/"$nv_p1"
-	wget https://developer.download.nvidia.com/hpc-sdk/"$nverdot"/"$nv_p2"
-	sudo dpkg -i "$nv_p1" "$nv_p2"
+	echo 'deb [trusted=yes] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
+	sudo apt-get update -y
+        sudo apt-get install -y nvhpc-"$nverdash"
 	export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:$PATH
 	export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH
 	sudo /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x
