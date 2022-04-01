@@ -2,6 +2,7 @@
 /* $Id$ */
 #include <assert.h>
 ///#define NUM_DEVICES 1
+#define OLD_CUDA 1
 static long long device_id=-1;
 #include <stdio.h>
 #include <stdlib.h>

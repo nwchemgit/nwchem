@@ -1484,6 +1484,9 @@ ifeq ($(TARGET),MACX64)
                 FOPTIONS += -fimf-arch-consistency=true
             endif
         endif
+        ifeq ($(V),-1)
+            FOPTIONS += -diag-disable=7713,8291,15009
+        endif
     endif #ifort
 
 
@@ -2439,7 +2442,7 @@ ifneq ($(TARGET),LINUX)
                         FOPTIONS += -qopt-report-file=stderr
                     endif
                     ifeq ($(V),-1)
-                        FOPTIONS += -diag-disable=8291,15009
+                        FOPTIONS += -diag-disable=7713,8291,15009
                     endif
 #                   to avoid compiler crashes on simd directive. e.g .Version 15.0.2.164 Build 20150121
                     ifdef USE_NOSIMD
