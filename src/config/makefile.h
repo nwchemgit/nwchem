@@ -3605,7 +3605,10 @@ endif
 
 
 #TBLITE
-ifdef USE_TBLITE
+ifdef USE_TBLITE    
+    ifneq (xtb, $(findstring xtb, $(NWSUBDIRS))) 
+      $(error Add xtb to NWCHEM_MODULES )
+    endif
     DEFINES  += -DUSE_TBLITE
     EXTRA_LIBS += -L$(NWCHEM_TOP)/src/libext/lib/
     EXTRA_LIBS += -lnwc_tblite
