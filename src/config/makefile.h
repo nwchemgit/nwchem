@@ -255,6 +255,9 @@ ifdef USE_LIBXC
     NW_CORE_SUBDIRS += libext
 endif
 
+ifdef USE_TBLITE
+    NW_CORE_SUBDIRS += libext
+endif
 
 ifdef BUILD_OPENBLAS
     ifndef BLAS_SIZE
@@ -3598,6 +3601,16 @@ ifdef USE_PLUMED
 	    $(info  Please file an issue at https://github.com/nwchemgit/nwchem/issues )
 	    $(info )
     endif
+endif
+
+
+#TBLITE
+ifdef USE_TBLITE
+    DEFINES  += -DUSE_TBLITE
+    EXTRA_LIBS += -L$(NWCHEM_TOP)/src/libext/lib/
+    EXTRA_LIBS += -lnwc_tblite
+    TBLITE_MODS=$(NWCHEM_TOP)/src/libext/tblite/tblite/_build/libtblite.so.0.2.0.p
+    MCTC_MODS=$(NWCHEM_TOP)/src/libext/tblite/tblite/_build/subprojects/mctc-lib/libmctc-lib.a.p
 endif
 
 # CUDA
