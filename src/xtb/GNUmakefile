@@ -1,4 +1,5 @@
-OBJ = xtb_energy.o xtb_input.o xtb_utils.o xtb_energy_gradient.o
+OBJ = xtb_energy.o xtb_input.o xtb_utils.o xtb_energy_gradient.o \
+      xtb_rdinput.o
 
 LIBRARY = libnwxtb.a
 

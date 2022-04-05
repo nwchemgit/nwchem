@@ -23,12 +23,15 @@ c
       integer rtdb
       character*255 test
 c
-      integer, parameter :: num_dirs = 3
+      integer, parameter :: num_dirs = 5
       character*11 dirs(num_dirs)
-      data dirs /'acc','uhf', 'end'/
+      data dirs /'acc','uhf', 'method', 'etemp', 'end'/
 c
       integer uhf, ind
-      double precision acc
+      double precision acc, etemp
+
+      character(len=255) test
+      character(len=4) method
 c
 c     Parse the input file
 c
@@ -44,13 +47,13 @@ c
         call errquit('xtb_input: unknown directive', 0, INPUT_ERR)
       end if
 c
-      goto (100, 200, 9999) ind
+      goto (100, 200, 300, 400, 9999) ind
 
       call errquit('xtb_input: unknown directive',ind, INPUT_ERR)
 c
 c     -----------------------------------------------------------------
 c
-c     acc
+c     accuracy
 c
  100  if (.not. inp_f(acc))
      $   call errquit('xtb_input: accuracy value not found',0,INPUT_ERR)
@@ -58,12 +61,36 @@ c
      $  call errquit('xtb_input: rtdb_put failed',100,RTDB_ERR)
       goto 10
 c
-c     evGW
+c     number of unpaired electrons
 c
  200  if (.not. inp_i(uhf))
      $  call errquit('xtb_input: no. unpaired e not found',0,INPUT_ERR)
       if (.not.rtdb_put(rtdb, 'xtb:uhf', mt_int, 1, uhf))
      $  call errquit('xtb_input: rtdb_put failed', 200, RTDB_ERR)
+      goto 10
+c
+c     method gff, gfn1 or gfn2
+c
+ 300  if (.not.inp_a(test))
+     $  call errquit('xtb_input: method not found',0,INPUT_ERR)
+      if (inp_compare(.false.,'gfn1',test)) then
+        method = 'gfn1'
+      elseif (inp_compare(.false.,'gfn2',test)) then   
+        method = 'gfn2'
+      else
+        call errquit('xtb_input: unknown xTB method',0,INPUT_ERR)
+      endif
+      if (.not.rtdb_cput(rtdb, 'xtb:method', 1, method))
+     $  call errquit('xtb_input: rtdb_put failed',303, RTDB_ERR)
+      goto 10
+c
+c     electronic temperature
+c
+ 400  if (.not. inp_f(etemp))
+     $   call errquit('xtb_input: temperature not found',0,INPUT_ERR)
+      etemp = etemp*3.166808578545117d-06
+      if (.not.rtdb_put(rtdb, 'xtb:kt', mt_dbl, 1, etemp))
+     $  call errquit('xtb_input: rtdb_put failed',100,RTDB_ERR)
       goto 10
 c
 c     normal termination

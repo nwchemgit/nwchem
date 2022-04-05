@@ -12,6 +12,7 @@
       use tblite_context_type, only: context_type
       use tblite_xtb_calculator, only : xtb_calculator
       use tblite_xtb_gfn2, only : new_gfn2_calculator
+      use tblite_xtb_gfn1, only : new_gfn1_calculator
       use tblite_xtb_singlepoint, only : xtb_singlepoint
       implicit none
 #include "rtdb.fh"
@@ -21,6 +22,7 @@
 #include "stdio.fh"
 #include "errquit.fh"
 #include "util.fh"
+#include "xtb.fh"
 
       integer rtdb
       integer geom, i, iat
@@ -32,7 +34,6 @@
       integer ncenters,nat,dummybq,atn
 
       integer iuhf8
-      double precision rcharge
 
       character(len=16) aname,elem
       character(len=2) symb
@@ -47,10 +48,6 @@
       type(xtb_calculator) :: calc
       type(wavefunction_type) :: wfn
       type(context_type) :: ctx
-
-      double precision kt, acc
-      parameter(kt = 300.0d0*3.166808578545117d-06)
-      parameter(acc = 0.01d0)
       parameter(one4=1, zero4=0)
 
 
@@ -84,11 +81,7 @@
      $  call errquit('xtb_energy: geom_ncent failed',0,GEOM_ERR) 
       if (.not.rtdb_get(rtdb,'charge',mt_dbl,1,rcharge))
      $  rcharge = 0d0
-      if (.not.rtdb_get(rtdb,'xtb:uhf',mt_int,1,iuhf8))then
-        iuhf4 = 0
-      else
-        iuhf4 = iuhf8
-      endif
+      iuhf4 = uhf
 
       nspin4 = 1
       if (iuhf4.gt.0) nspin4 = 2
@@ -148,7 +141,11 @@
 
       if (ga_nodeid().eq.0) then
         call new(mol,atnum,coords,charge=rcharge,uhf=iuhf4)
-        call new_gfn2_calculator(calc, mol)
+        if (gfn2) then
+          call new_gfn2_calculator(calc, mol)
+        elseif (gfn1) then
+          call new_gfn1_calculator(calc, mol)
+        endif
         call new_wavefunction(wfn,mol%nat,calc%bas%nsh,calc%bas%nao,
      $                      nspin4,kt)
         call xtb_singlepoint(ctx,mol,calc,wfn,acc,energy,verbosity=one4)
