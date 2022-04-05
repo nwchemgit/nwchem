@@ -73,7 +73,11 @@ c
 
 #ifdef USE_OPENMP
       pars%iMaxThreads = omp_get_max_threads()
+#ifdef NO_MPIF
+      names = 'Not Available (NO_MPIF)'
+#else
       call mpi_get_processor_name(names,resultlen,ierr)
+#endif
       do iproc=0,pars%nprocs-1
         if (iproc.eq.pars%me) then
 !$omp     parallel private(tid,cpu)
