@@ -6,8 +6,14 @@
 include ../../config/makefile.h
 
 ../lib/libnwc_tblite.a:
+ifdef TBLITE_MESON
 	./build_tblite.sh 
+else
+	./build_tblite_cmake.sh
+endif
+
 LIB_TARGETS += tblite
+
 
 include ../../config/makelib.h
 
