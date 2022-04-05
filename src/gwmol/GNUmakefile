@@ -31,6 +31,7 @@ LIB_INCLUDES = -I./
 
 include ../config/makefile.h
 
+
 ifeq ($(_USE_SCALAPACK),Y)
 _USE_ELPA = $(shell ${GA_PATH}/bin/ga-config  --use_elpa| awk ' /1/ {print "Y"}')
 
