@@ -3610,10 +3610,16 @@ ifdef USE_TBLITE
       $(error Add xtb to NWCHEM_MODULES )
     endif
     DEFINES  += -DUSE_TBLITE
-    EXTRA_LIBS += -L$(NWCHEM_TOP)/src/libext/lib/
-    EXTRA_LIBS += -lnwc_tblite
-    TBLITE_MODS=$(NWCHEM_TOP)/src/libext/tblite/tblite/_build/libtblite.so.0.2.0.p
-    MCTC_MODS=$(NWCHEM_TOP)/src/libext/tblite/tblite/_build/subprojects/mctc-lib/libmctc-lib.a.p
+    EXTRA_LIBS += -L$(NWCHEM_TOP)/src/libext/tblite/tblite/install/lib
+    EXTRA_LIBS += -ltblite -ldftd4 -ls-dftd3 -lmulticharge -lmctc-lib -lmstore -ltoml-f 
+    ifdef TBLITE_MESON
+        TBLITE_MODS=$(NWCHEM_TOP)/src/libext/tblite/tblite/_build/libtblite.so.0.2.0.p
+        MCTC_MODS=$(NWCHEM_TOP)/src/libext/tblite/tblite/_build/subprojects/mctc-lib/libmctc-lib.a.p
+    else
+        TBLITE_MODS=$(NWCHEM_TOP)/src/libext/tblite/tblite/install/include/tblite
+        MCTC_MODS=$(sort $(dir $(wildcard $(NWCHEM_TOP)/src/libext/tblite/tblite/install/include/mctc-lib/*/)))
+        $(info MCTC_MODS is $(MCTC_MODS))
+    endif
 endif
 
 # CUDA

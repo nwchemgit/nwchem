@@ -273,6 +273,8 @@ c
       external tce_energy_fragment
       logical  paw_gradient
       external paw_gradient
+      logical xtb_energy_gradient
+      external xtb_energy_gradient
 c
       logical mcscf_gradient, scf_gradient, grad_dft, task_num_grad
       external mcscf_gradient, scf_gradient, grad_dft, task_num_grad
@@ -364,6 +366,12 @@ c
            status=task_num_grad(rtdb)
          else
            status = sodft_energy_gradient(rtdb)
+         endif
+      else if (theory .eq. 'xtb') then
+         if (numerical) then
+           status=task_num_grad(rtdb)
+         else
+           status = xtb_energy_gradient(rtdb)
          endif
       else if (theory .eq. 'mp2' .or. theory .eq. 'semi_dir_mp2') then
          if (numerical) then

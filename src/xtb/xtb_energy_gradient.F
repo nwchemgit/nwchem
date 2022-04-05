@@ -1,4 +1,4 @@
-      logical function xtb_energy(rtdb)
+      logical function xtb_energy_gradient(rtdb)
 #ifndef USE_TBLITE
       implicit none
 #include "errquit.fh"
@@ -21,18 +21,22 @@
 #include "stdio.fh"
 #include "errquit.fh"
 #include "util.fh"
+#include "sym.fh"
 
       integer rtdb
-      integer geom, i, iat
+      integer geom, i, j, iat
       logical converged, status, oprint
       double precision walltime, cputime
 
       integer istat
-      integer icharge,lcharge,itags,ltags
+      integer icharge,lcharge,itags,ltags,iact,lact
       integer ncenters,nat,dummybq,atn
 
       integer iuhf8
       double precision rcharge
+
+      logical oskel
+      integer nactive
 
       character(len=16) aname,elem
       character(len=2) symb
@@ -40,8 +44,8 @@
       integer*4 :: iuhf4, one4, zero4, nspin4
       integer*4,allocatable :: atnum(:)
 
-      double precision energy
-      double precision, allocatable :: coords(:,:)
+      double precision energy, sigma(3,3)
+      double precision, allocatable :: coords(:,:),grad(:,:)
 
       type(structure_type) :: mol
       type(xtb_calculator) :: calc
@@ -54,8 +58,9 @@
       parameter(one4=1, zero4=0)
 
 
-      xtb_energy = .false.
+      xtb_energy_gradient = .false.
       oprint = ga_nodeid().eq.0
+      status = rtdb_parallel(.true.) ! Broadcast reads to all processes
 
       if (oprint) then
         write(luout,*)
@@ -93,15 +98,35 @@
       nspin4 = 1
       if (iuhf4.gt.0) nspin4 = 2
 
+C     symmetry or not
+      if (.not. rtdb_get(rtdb, 'gradients:use symmetry', mt_log, 1,
+     $     oskel)) then
+         if (.not. rtdb_get(rtdb, 'scf:skeleton', mt_log, 1,
+     $        oskel)) then
+            oskel = sym_number_ops(geom) .gt. 0
+         end if
+      end if
+c     
+      if (oskel .and. ga_nodeid().eq.0 .and. 
+     $     util_print('information', print_default)) then
+         write(luout,*) ' Using symmetry'
+         call util_flush(luout)
+      end if
+
       !
       ! Allocate space for atomic coordinates
       !
       allocate(coords(3,ncenters),stat=istat)
       if (istat.ne.0) 
      $  call errquit('xtb_energy: failed to alloc coordinates',0,MA_ERR)
+      allocate(grad(3,ncenters),stat=istat)
+      if (istat.ne.0) 
+     $  call errquit('xtb_energy: failed to alloc gradient',0,MA_ERR)
       if (.not.ma_push_get(mt_dbl,ncenters,'charges',lcharge,icharge))
      $  call errquit('xtb_energy: failed to alloc charges',0,MA_ERR)
       if (.not.ma_push_get(mt_byte,ncenters*16,'tags',ltags,itags))
+     $  call errquit('xtb_energy: failed to alloc tags',0,MA_ERR)
+      if (.not.ma_push_get(mt_log,ncenters,'active',lact,iact))
      $  call errquit('xtb_energy: failed to alloc tags',0,MA_ERR)
 
       !
@@ -145,17 +170,24 @@
       enddo
 
       energy = 0.0d0
+      grad(:,:) = 0.0d0
+      sigma(:,:) = 0.0d0
 
       if (ga_nodeid().eq.0) then
         call new(mol,atnum,coords,charge=rcharge,uhf=iuhf4)
         call new_gfn2_calculator(calc, mol)
         call new_wavefunction(wfn,mol%nat,calc%bas%nsh,calc%bas%nao,
      $                      nspin4,kt)
-        call xtb_singlepoint(ctx,mol,calc,wfn,acc,energy,verbosity=one4)
+        call xtb_singlepoint(ctx,mol,calc,wfn,acc,energy,grad,sigma,
+     $                       verbosity=one4)
 
-        write(luout,*)
-        write(luout,*) '          Total xTB energy = ',energy
-        write(luout,*)
+c
+C     zero force contributions on inactive atoms
+        call grad_active_atoms(rtdb, nat, log_mb(iact), nactive)
+        call zero_forces(grad, log_mb(iact), nat)
+         
+C     symmetrize
+        if (oskel) call sym_grad_symmetrize(geom, grad)
 
         if (oprint) then
           write(luout,*)
@@ -177,6 +209,16 @@
             write(luout,*)
             write(luout,*)
           endif
+
+          write(luout,*) '      Gradient '
+          write(luout,*)
+          do i=1,nat
+            call util_set_ma_char_arrays(16, byte_mb(itags+16*(i-1)),
+     $                                   aname)
+            write(luout,'(A10,3F16.8)') aname,(grad(j,i),j=1,3)
+          enddo
+          write(luout,*)
+
         endif
         call xtb_deallocate_wavefunction(wfn)
         call xtb_deallocate_structure(mol)
@@ -191,13 +233,21 @@
       if (istat.ne.0) 
      $  call errquit('xtb_energy: failed to deallocate',0,MA_ERR)
 
-
       if (.not.rtdb_put(rtdb,'xtb:energy',mt_dbl,1,energy))
      $  call errquit('xtb_energy: failed to put in rtdb',0,RTDB_ERR)
       if (.not.rtdb_put(rtdb,'xtb:converged',mt_log,1,.true.))
      $  call errquit('xtb_energy: failed to put in rtdb',0,RTDB_ERR)
 
-      xtb_energy = .not.ctx%failed()
+      if (.not.rtdb_put(rtdb,'xtb:gradient',mt_dbl,3*nat,grad))
+     $  call errquit('xtb_energy: failed to put in rtdb',0,RTDB_ERR)
+
+      deallocate(grad,stat=istat)
+      if (istat.ne.0) 
+     $  call errquit('xtb_energy: failed to deallocate',0,MA_ERR)
+
+
+      xtb_energy_gradient = .not.ctx%failed()
+
 
 #endif
       end
