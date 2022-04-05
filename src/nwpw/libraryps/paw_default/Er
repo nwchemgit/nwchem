@@ -56,9 +56,6 @@ pauli
 <nodal_constraint> on
 <projector_method> vanderbilt
 
-<grid>
-25.0  5000 0.002
-
 <scattering_test>
 4
 0  -5.5   0  1.2 300
