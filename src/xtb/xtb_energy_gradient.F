@@ -59,6 +59,8 @@
       oprint = ga_nodeid().eq.0
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
 
+      call xtb_rdinput(rtdb)
+
       if (oprint) then
         write(luout,*)
         call util_print_centered(6,

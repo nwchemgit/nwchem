@@ -30,7 +30,6 @@ c
       integer uhf, ind
       double precision acc, etemp
 
-      character(len=255) test
       character(len=4) method
 c
 c     Parse the input file

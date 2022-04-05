@@ -54,6 +54,8 @@
       xtb_energy = .false.
       oprint = ga_nodeid().eq.0
 
+      call xtb_rdinput(rtdb)
+
       if (oprint) then
         write(luout,*)
         call util_print_centered(6,
