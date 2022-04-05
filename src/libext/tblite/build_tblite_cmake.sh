@@ -84,9 +84,9 @@ fi
 cd tblite
 rm -rf _build
 
-FC=$FC CC=$CC cmake -B _build -DLAPACK_LIBRARIES="$BLASOPT" -DWITH_ILP64=$ilp64 -DCMAKE_INSTALL_PREFIX="./install"
-cmake --build _build --parallel 4
-cmake --install _build
+FC=$FC CC=$CC $CMAKE -B _build -DLAPACK_LIBRARIES="$BLASOPT" -DWITH_ILP64=$ilp64 -DCMAKE_INSTALL_PREFIX="./install"
+$CMAKE --build _build --parallel 4
+$CMAKE --install _build
 
 cd ..
 
