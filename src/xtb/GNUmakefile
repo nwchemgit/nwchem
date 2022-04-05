@@ -1,3 +1,7 @@
+ifndef USE_TBLITE
+$(error USE_TBLITE must be set in order to use xTB methods)
+endif
+
 OBJ = xtb_energy.o xtb_input.o xtb_utils.o xtb_energy_gradient.o \
       xtb_rdinput.o
 

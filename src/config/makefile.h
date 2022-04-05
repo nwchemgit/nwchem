@@ -3606,8 +3606,8 @@ endif
 
 #TBLITE
 ifdef USE_TBLITE    
-    ifneq (xtb, $(findstring xtb, $(NWSUBDIRS))) 
-      $(error Add xtb to NWCHEM_MODULES )
+    ifneq (xtb, $(findstring xtb, $(NWCHEM_MODULES))) 
+      $(error Add xtb to NWCHEM_MODULES when setting USE_TBLITE )
     endif
     DEFINES  += -DUSE_TBLITE
     EXTRA_LIBS += -L$(NWCHEM_TOP)/src/libext/tblite/tblite/install/lib
