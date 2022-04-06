@@ -9,6 +9,12 @@ check_tgz() {
 
 VERSION=0.2.2-ilp64-alpha
 TGZ=tblite-${VERSION}.tar.gz
+if [ ! -z "${USE_INTERNALBLAS}" ]; then
+    echo USE_TBLITE not compatible with USE_INTERNALBLAS
+    echo Please set BUILD_OPENBLAS or
+    echo BLASOPT/LAPACK_LIB
+    exit 1
+fi
 if [ `check_tgz $TGZ` == 1 ]; then
     echo "using existing $TGZ"
 else
@@ -84,10 +90,10 @@ fi
 cd tblite
 rm -rf _build
 
-FC=$FC CC=$CC $CMAKE -B _build -DLAPACK_LIBRARIES="$BLASOPT" -DWITH_ILP64=$ilp64 -DCMAKE_INSTALL_PREFIX="./install"
+FC=$FC CC=$CC $CMAKE -B _build -DLAPACK_LIBRARIES="$BLASOPT" -DWITH_ILP64=$ilp64 -DCMAKE_INSTALL_PREFIX="../.."
 $CMAKE --build _build --parallel 4
 $CMAKE --install _build
 
 cd ..
 
-touch ../lib/libnwc_tblite.a
+ln -sf  ../lib/libtblite.a  ../lib/libnwc_tblite.a

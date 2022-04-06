@@ -18,7 +18,7 @@ LIB_TARGETS += tblite
 include ../../config/makelib.h
 
 clean:
-	@rm -rf tblite*  ../lib/libnwc_tblite*
+	@rm -rf tblite*  ../lib/lib*tblite*
 
 
 

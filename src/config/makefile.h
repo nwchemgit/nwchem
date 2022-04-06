@@ -3605,21 +3605,37 @@ endif
 
 
 #TBLITE
-ifdef USE_TBLITE    
-    ifneq (xtb, $(findstring xtb, $(NWCHEM_MODULES))) 
-      $(error Add xtb to NWCHEM_MODULES when setting USE_TBLITE )
+ifeq ("$(wildcard $(NWCHEM_TOP)/src/config/NWCHEM_CONFIG)","")
+    ifeq (xtb, $(findstring xtb, $(NWCHEM_MODULES)))
+        MODULES_HAS_XTB=Y
+    endif
+else
+    MODULES_HAS_XTB = $(shell head -2 $(NWCHEM_TOP)/src/config/NWCHEM_CONFIG| awk '/xtb/ {print "Y"}')
+endif
+
+ifeq ($(MODULES_HAS_XTB),Y)
+    ifndef USE_TBLITE
+        $(error the xtb module requires setting the env variable USE_TBLITE)
+    endif
+endif
+
+ifdef USE_TBLITE
+    ifneq ($(MODULES_HAS_XTB),Y)
+        $(error Add xtb to NWCHEM_MODULES when setting USE_TBLITE )
     endif
     DEFINES  += -DUSE_TBLITE
-    EXTRA_LIBS += -L$(NWCHEM_TOP)/src/libext/tblite/tblite/install/lib
-    EXTRA_LIBS += -ltblite -ldftd4 -ls-dftd3 -lmulticharge -lmctc-lib -lmstore -ltoml-f 
+    EXTRA_LIBS += -L$(NWCHEM_TOP)/src/libext/lib
     ifdef TBLITE_MESON
         TBLITE_MODS=$(NWCHEM_TOP)/src/libext/tblite/tblite/_build/libtblite.so.0.2.0.p
         MCTC_MODS=$(NWCHEM_TOP)/src/libext/tblite/tblite/_build/subprojects/mctc-lib/libmctc-lib.a.p
+        EXTRA_LIBS += -ltblite
     else
-        TBLITE_MODS=$(NWCHEM_TOP)/src/libext/tblite/tblite/install/include/tblite
-        MCTC_MODS=$(sort $(dir $(wildcard $(NWCHEM_TOP)/src/libext/tblite/tblite/install/include/mctc-lib/*/)))
+        EXTRA_LIBS += -ltblite -ldftd4 -ls-dftd3 -lmulticharge -lmctc-lib -lmstore -ltoml-f
+        TBLITE_MODS=$(NWCHEM_TOP)/src/libext/include/tblite
+        MCTC_MODS=$(sort $(dir $(wildcard $(NWCHEM_TOP)/src/libext/include/mctc-lib/*/)))
         $(info MCTC_MODS is $(MCTC_MODS))
     endif
+    EXTRA_LIBS += $(LAPACK_LIB) $(BLASOPT)
 endif
 
 # CUDA
