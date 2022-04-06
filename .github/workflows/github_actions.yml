@@ -43,6 +43,14 @@ jobs:
         include:
           - os: ubuntu-18.04
             experimental: true
+            mpi_impl: openmpi
+            armci_network: MPI-TS
+            nwchem_modules: "xtb"
+            fc: gfortran
+            blas: "build_openblas"
+            use_tblite: 1
+          - os: ubuntu-18.04
+            experimental: true
             mpi_impl: mpich
             armci_network: ARMCI
             nwchem_modules: "all"
@@ -266,6 +274,7 @@ jobs:
         NWCHEM_MODULES: ${{ matrix.nwchem_modules }}
         USE_SIMINT: ${{ matrix.use_simint }}
         USE_LIBXC: ${{ matrix.use_libxc }}
+        USE_TBLITE: ${{ matrix.use_tblite }}
         FC: ${{ matrix.fc }}
         CC: ${{ matrix.cc }}
         COMEX_MAX_NB_OUTSTANDING: 4

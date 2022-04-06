@@ -156,6 +156,9 @@ fi
 	   if [[ ! -z "$USE_LIBXC" ]]; then
 	       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs libxc_he2+
 	   fi
+	   if [[ ! -z "$USE_TBLITE" ]]; then
+	       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix xtb_siosi7
+	   fi
 	 fi
        if [[ ! $(grep -i mp2_input $TRAVIS_BUILD_DIR/src/stubs.F| awk '/mp2_input/') ]]; then
 	   if [[ ! $(grep -i ccsd_input $TRAVIS_BUILD_DIR/src/stubs.F| awk '/ccsd_input/') ]]; then
