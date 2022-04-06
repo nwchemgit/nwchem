@@ -31,14 +31,21 @@
       double precision, allocatable, device :: f2t(:,:)
       double precision, allocatable, device :: f3t(:,:)
       double precision, allocatable, device :: f4t(:,:)
-      double precision, allocatable, managed :: Tij(:), Tkj(:)
-      double precision, allocatable, managed :: Tia(:), Tka(:)
-      double precision, allocatable, managed :: Xia(:), Xka(:)
-      double precision, allocatable, managed :: Jia(:), Jka(:)
-      double precision, allocatable, managed :: Jij(:), Jkj(:)
-      double precision, allocatable, managed :: Kia(:), Kka(:)
-      double precision, allocatable, managed :: Kij(:), Kkj(:)
-      double precision, allocatable, managed :: Dja(:), Djka(:), Djia(:)
+      double precision, allocatable, pinned :: Tij(:), Tkj(:)
+      double precision, allocatable, pinned :: Tia(:), Tka(:)
+      double precision, allocatable, pinned :: Xia(:), Xka(:)
+      double precision, allocatable, pinned :: Jia(:), Jka(:)
+      double precision, allocatable, pinned :: Jij(:), Jkj(:)
+      double precision, allocatable, pinned :: Kia(:), Kka(:)
+      double precision, allocatable, pinned :: Kij(:), Kkj(:)
+      double precision, allocatable, pinned :: Dja(:), Djka(:), Djia(:)
+      double precision, allocatable, device :: xTij(:), xTkj(:)
+      double precision, allocatable, device :: xTia(:), xTka(:)
+      double precision, allocatable, device :: xXia(:), xXka(:)
+      double precision, allocatable, device :: xJia(:), xJka(:)
+      double precision, allocatable, device :: xJij(:), xJkj(:)
+      double precision, allocatable, device :: xKia(:), xKka(:)
+      double precision, allocatable, device :: xKij(:), xKkj(:)
 ! used to make inline threaded tengy correct - for now
 ! it is correct that dint[cx]1 are paired with t1v2 and vice versa
 ! in the inlined tengy loops.  see ccsd_tengy in ccsd_trpdrv.F for
@@ -156,16 +163,25 @@
 !
 ! UM arrays, produced by GA Get, consumed by DGEMM
 !
-      allocate( Tij(1:lnvv), Tkj(1:kchunk*lnvv),
+      allocate( Tij(1:lnvv),      Tkj(1:kchunk*lnvv),
      &          Tia(1:lnov*nocc), Tka(1:kchunk*lnov),
      &          Xia(1:lnov*nocc), Xka(1:kchunk*lnov),
-     &          Jia(1:lnvv), Jka(1:kchunk*lnvv),
-     &          Kia(1:lnvv), Kka(1:kchunk*lnvv),
+     &          Jia(1:lnvv),      Jka(1:kchunk*lnvv),
+     &          Kia(1:lnvv),      Kka(1:kchunk*lnvv),
      &          Jij(1:lnov*nocc), Jkj(1:kchunk*lnov),
      &          Kij(1:lnov*nocc), Kkj(1:kchunk*lnov),
-     &          Dja(1:lnov), Djka(1:nvir*kchunk),
+     &          Dja(1:lnov),      Djka(1:nvir*kchunk),
      &          Djia(1:nvir*nocc), stat=alloc_error)
       if (alloc_error.ne.0) call errquit('TKJKD alloc',1,MA_ERR)
+      allocate( xTij(1:lnvv),      xTkj(1:kchunk*lnvv),
+     &          xTia(1:lnov*nocc), xTka(1:kchunk*lnov),
+     &          xXia(1:lnov*nocc), xXka(1:kchunk*lnov),
+     &          xJia(1:lnvv),      xJka(1:kchunk*lnvv),
+     &          xKia(1:lnvv),      xKka(1:kchunk*lnvv),
+     &          xJij(1:lnov*nocc), xJkj(1:kchunk*lnov),
+     &          xKij(1:lnov*nocc), xKkj(1:kchunk*lnov),
+     &          stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('TKJKD GPU alloc',1,MA_ERR)
 !
 !      call ga_sync() ! ga_sync called just before trpdrv in aoccsd2
 !
@@ -295,6 +311,22 @@
                             call ga_nbwait(nbh_coul2)
                         endif
 
+                        ! these should be moved up
+                            xTij  = Tij
+                            xTia  = Tia
+                            xXia  = Xia
+                            xJia  = Jia
+                            xJij  = Jij
+                            xKia  = Kia
+                            xKij  = Kij
+                            xTkj  = Tkj
+                            xTka  = Tka
+                            xXka  = Xka
+                            xJka  = Jka
+                            xJkj  = Jkj
+                            xKka  = Kka
+                            xKkj  = Kkj
+
                         tc0 = util_wallsec()
 
                         nv4 = nvir ! no possibility of overflow
@@ -303,7 +335,7 @@
                         err = cublasDgemm_v2(handle(1),
      &                        cu_op_n,cu_op_t,
      &                        nv4,nv4,nv4,1.0d0,
-     &                        Jia,nv4,Tkj(1+(k-klo)*lnvv),nv4,0.0d0,
+     &                        xJia,nv4,xTkj(1+(k-klo)*lnvv),nv4,0.0d0,
      &                        f1n,nv4)
                         if (err.ne.0) then
                           call errquit('cublasDgemm_v2',err,UNKNOWN_ERR)
@@ -311,7 +343,7 @@
                         err = cublasDgemm_v2(handle(1),
      &                        cu_op_n,cu_op_n,
      &                        nv4,nv4,no4,-1.0d0,
-     &                        Tia,nv4,Kkj(1+(k-klo)*lnov),no4,1.0d0,
+     &                        xTia,nv4,xKkj(1+(k-klo)*lnov),no4,1.0d0,
      &                        f1n,nv4)
                         if (err.ne.0) then
                           call errquit('cublasDgemm_v2',err,UNKNOWN_ERR)
@@ -320,7 +352,7 @@
                         err = cublasDgemm_v2(handle(2),
      &                        cu_op_n,cu_op_t,
      &                        nv4,nv4,nv4,1.0d0,
-     &                        Kia,nv4,Tkj(1+(k-klo)*lnvv),nv4,0.0d0,
+     &                        xKia,nv4,xTkj(1+(k-klo)*lnvv),nv4,0.0d0,
      &                        f2n,nv4)
                         if (err.ne.0) then
                           call errquit('cublasDgemm_v2',err,UNKNOWN_ERR)
@@ -328,7 +360,7 @@
                         err = cublasDgemm_v2(handle(2),
      &                        cu_op_n,cu_op_n,
      &                        nv4,nv4,no4,-1.0d0,
-     &                        Xia,nv4,Kkj(1+(k-klo)*lnov),no4,1.0d0,
+     &                        xXia,nv4,xKkj(1+(k-klo)*lnov),no4,1.0d0,
      &                        f2n,nv4)
                         if (err.ne.0) then
                           call errquit('cublasDgemm_v2',err,UNKNOWN_ERR)
@@ -337,7 +369,7 @@
                         err = cublasDgemm_v2(handle(3),
      &                        cu_op_n,cu_op_n,
      &                        nv4,nv4,nv4,1.0d0,
-     &                        Jia,nv4,Tkj(1+(k-klo)*lnvv),nv4,0.0d0,
+     &                        xJia,nv4,xTkj(1+(k-klo)*lnvv),nv4,0.0d0,
      &                        f3n,nv4)
                         if (err.ne.0) then
                           call errquit('cublasDgemm_v2',err,UNKNOWN_ERR)
@@ -345,7 +377,7 @@
                         err = cublasDgemm_v2(handle(3),
      &                        cu_op_n,cu_op_n,
      &                        nv4,nv4,no4,-1.0d0,
-     &                        Tia,nv4,Jkj(1+(k-klo)*lnov),no4,1.0d0,
+     &                        xTia,nv4,xJkj(1+(k-klo)*lnov),no4,1.0d0,
      &                        f3n,nv4)
                         if (err.ne.0) then
                           call errquit('cublasDgemm_v2',err,UNKNOWN_ERR)
@@ -354,7 +386,7 @@
                         err = cublasDgemm_v2(handle(4),
      &                        cu_op_n,cu_op_n,
      &                        nv4,nv4,nv4,1.0d0,
-     &                        Kia,nv4,Tkj(1+(k-klo)*lnvv),nv4,0.0d0,
+     &                        xKia,nv4,xTkj(1+(k-klo)*lnvv),nv4,0.0d0,
      &                        f4n,nv4)
                         if (err.ne.0) then
                           call errquit('cublasDgemm_v2',err,UNKNOWN_ERR)
@@ -362,7 +394,7 @@
                         err = cublasDgemm_v2(handle(4),
      &                        cu_op_n,cu_op_n,
      &                        nv4,nv4,no4,-1.0d0,
-     &                        Xia,nv4,Jkj(1+(k-klo)*lnov),no4,1.0d0,
+     &                        xXia,nv4,xJkj(1+(k-klo)*lnov),no4,1.0d0,
      &                        f4n,nv4)
                         if (err.ne.0) then
                           call errquit('cublasDgemm_v2',err,UNKNOWN_ERR)
@@ -371,7 +403,7 @@
                         err = cublasDgemm_v2(handle(5),
      &                        cu_op_n,cu_op_t,
      &                        nv4,nv4,nv4,1.0d0,
-     &                        Jka(1+(k-klo)*lnvv),nv4,Tij,nv4,0.0d0,
+     &                        xJka(1+(k-klo)*lnvv),nv4,xTij,nv4,0.0d0,
      &                        f1t,nv4)
                         if (err.ne.0) then
                           call errquit('cublasDgemm_v2',err,UNKNOWN_ERR)
@@ -379,7 +411,7 @@
                         err = cublasDgemm_v2(handle(5),
      &                        cu_op_n,cu_op_n,
      &                        nv4,nv4,no4,-1.0d0,
-     &                        Tka(1+(k-klo)*lnov),nv4,Kij,no4,1.0d0,
+     &                        xTka(1+(k-klo)*lnov),nv4,xKij,no4,1.0d0,
      &                        f1t,nv4)
                         if (err.ne.0) then
                           call errquit('cublasDgemm_v2',err,UNKNOWN_ERR)
@@ -388,7 +420,7 @@
                         err = cublasDgemm_v2(handle(6),
      &                        cu_op_n,cu_op_t,
      &                        nv4,nv4,nv4,1.0d0,
-     &                        Kka(1+(k-klo)*lnvv),nv4,Tij,nv4,0.0d0,
+     &                        xKka(1+(k-klo)*lnvv),nv4,xTij,nv4,0.0d0,
      &                        f2t,nv4)
                         if (err.ne.0) then
                           call errquit('cublasDgemm_v2',err,UNKNOWN_ERR)
@@ -396,7 +428,7 @@
                         err = cublasDgemm_v2(handle(6),
      &                        cu_op_n,cu_op_n,
      &                        nv4,nv4,no4,-1.0d0,
-     &                        Xka(1+(k-klo)*lnov),nv4,Kij,no4,1.0d0,
+     &                        xXka(1+(k-klo)*lnov),nv4,xKij,no4,1.0d0,
      &                        f2t,nv4)
                         if (err.ne.0) then
                           call errquit('cublasDgemm_v2',err,UNKNOWN_ERR)
@@ -405,7 +437,7 @@
                         err = cublasDgemm_v2(handle(7),
      &                        cu_op_n,cu_op_n,
      &                        nv4,nv4,nv4,1.0d0,
-     &                        Jka(1+(k-klo)*lnvv),nv4,Tij,nv4,0.0d0,
+     &                        xJka(1+(k-klo)*lnvv),nv4,xTij,nv4,0.0d0,
      &                        f3t,nv4)
                         if (err.ne.0) then
                           call errquit('cublasDgemm_v2',err,UNKNOWN_ERR)
@@ -413,7 +445,7 @@
                         err = cublasDgemm_v2(handle(7),
      &                        cu_op_n,cu_op_n,
      &                        nv4,nv4,no4,-1.0d0,
-     &                        Tka(1+(k-klo)*lnov),nv4,Jij,no4,1.0d0,
+     &                        xTka(1+(k-klo)*lnov),nv4,xJij,no4,1.0d0,
      &                        f3t,nv4)
                         if (err.ne.0) then
                           call errquit('cublasDgemm_v2',err,UNKNOWN_ERR)
@@ -422,7 +454,7 @@
                         err = cublasDgemm_v2(handle(8),
      &                        cu_op_n,cu_op_n,
      &                        nv4,nv4,nv4,1.0d0,
-     &                        Kka(1+(k-klo)*lnvv),nv4,Tij,nv4,0.0d0,
+     &                        xKka(1+(k-klo)*lnvv),nv4,xTij,nv4,0.0d0,
      &                        f4t,nv4)
                         if (err.ne.0) then
                           call errquit('cublasDgemm_v2',err,UNKNOWN_ERR)
@@ -430,7 +462,7 @@
                         err = cublasDgemm_v2(handle(8),
      &                        cu_op_n,cu_op_n,
      &                        nv4,nv4,no4,-1.0d0,
-     &                        Xka(1+(k-klo)*lnov),nv4,Jij,no4,1.0d0,
+     &                        xXka(1+(k-klo)*lnov),nv4,xJij,no4,1.0d0,
      &                        f4t,nv4)
                         if (err.ne.0) then
                           call errquit('cublasDgemm_v2',err,UNKNOWN_ERR)
@@ -577,9 +609,14 @@
      &            stat=alloc_error)
       if (alloc_error.ne.0) call errquit('free CXT1 temps',6,MA_ERR)
 
-      deallocate( Tij, Tkj, Tia, Tka, Xia, Xka, Jia, Jka, Kia, Kka,
-     &            Jij, Jkj, Kij, Kkj, Dja, Djka, Djia, stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('free TKJKD alloc',1,MA_ERR)
+      deallocate( Tij, Tkj, Tia, Tka, Xia, Xka,
+     &            Jia, Jka, Kia, Kka, Jij, Jkj, Kij, Kkj,
+     &            Dja, Djka, Djia, stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('free TKJKD',1,MA_ERR)
+      deallocate( xTij, xTkj, xTia, xTka, xXia, xXka,
+     &            xJia, xJka, xKia, xKka, xJij, xJkj, xKij, xKkj,
+     &            stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('free TKJKD GPU',1,MA_ERR)
 !
 ! CUDA stuff
 !
