@@ -14,6 +14,9 @@
       use tblite_xtb_gfn2, only : new_gfn2_calculator
       use tblite_xtb_gfn1, only : new_gfn1_calculator
       use tblite_xtb_singlepoint, only : xtb_singlepoint
+#ifdef USE_OPENMP
+      use omp_lib, only : omp_get_max_threads
+#endif
       implicit none
 #include "rtdb.fh"
 #include "geom.fh"
@@ -49,7 +52,11 @@
       type(wavefunction_type) :: wfn
       type(context_type) :: ctx
       parameter(one4=1, zero4=0)
-
+#ifdef USE_OPENMP
+      integer maxthreads
+      maxthreads = omp_get_max_threads()
+      call util_blas_set_num_threads(maxthreads)
+#endif
 
       xtb_energy = .false.
       oprint = ga_nodeid().eq.0
@@ -86,7 +93,7 @@
       iuhf4 = uhf
 
       nspin4 = 1
-      if (iuhf4.gt.0) nspin4 = 2
+C      if (iuhf4.gt.0) nspin4 = 2
 
       !
       ! Allocate space for atomic coordinates
@@ -197,6 +204,10 @@
      $  call errquit('xtb_energy: failed to put in rtdb',0,RTDB_ERR)
 
       xtb_energy = .not.ctx%failed()
+
+#ifdef USE_OPENMP
+      call util_blas_set_num_threads(1)
+#endif
 
 #endif
       end

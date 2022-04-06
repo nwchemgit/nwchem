@@ -87,10 +87,16 @@ if [[ ! -z "$BUILD_OPENBLAS"   ]] ; then
     BLASOPT="-L`pwd`/../lib -lnwc_openblas"
 fi
 
+if [[ -z "$USE_OPENMP" ]]; then
+  DOOPENMP=OFF
+else
+  DOOPENMP=ON
+fi
+
 cd tblite
 rm -rf _build
 
-FC=$FC CC=$CC $CMAKE -B _build -DLAPACK_LIBRARIES="$BLASOPT" -DWITH_ILP64=$ilp64 -DCMAKE_INSTALL_PREFIX="../.."
+FC=$FC CC=$CC $CMAKE -B _build -DLAPACK_LIBRARIES="$BLASOPT" -DWITH_ILP64=$ilp64 -DWITH_OpenMP=$DOOPENMP -DCMAKE_INSTALL_PREFIX="../.."
 $CMAKE --build _build --parallel 4
 $CMAKE --install _build
 

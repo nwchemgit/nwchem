@@ -8,8 +8,8 @@
       integer rtdb
       character(len=4) method
 
-      if (.not.rtdb_get(rtdb,'xtb:acc',mt_dbl,1,acc)) acc = 0.01d0
-      if (.not.rtdb_get(rtdb,'xtb:kt',mt_dbl,1,acc)) then
+      if (.not.rtdb_get(rtdb,'xtb:acc',mt_dbl,1,acc)) acc = 1.0d0
+      if (.not.rtdb_get(rtdb,'xtb:kt',mt_dbl,1,kt)) then
         kt = 300.0d0*3.166808578545117d-06
       endif
       if (.not.rtdb_get(rtdb,'xtb:uhf',mt_int,1,uhf)) uhf = 0
