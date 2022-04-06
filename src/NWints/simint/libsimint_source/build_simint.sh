@@ -56,6 +56,7 @@ if [[ "${VEC}" == "avx512" ]]; then
 if [[   -z "${CC}" ]]; then
     CC=cc
 fi
+echo CC is $CC
 GCC_EXTRA=$(echo $CC | cut -c 1-3)
 if [ "$GCC_EXTRA" == gcc ]; then
 let GCCVERSIONGT5=$(expr `${CC} -dumpversion | cut -f1 -d.` \> 5)
@@ -76,7 +77,8 @@ if [[  -z "${SIMINT_MAXAM}" ]]; then
 fi
 #PERMUTE_SLOW=1
 PERMUTE_SLOW=${SIMINT_MAXAM}
-GITHUB_USERID=edoapra
+#GITHUB_USERID=edoapra
+GITHUB_USERID=simint-chem
 #rm -rf simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIVE}* *-chem-simint-generator-?????? simint-chem-simint-generator.tar.gz simint_lib
 rm -rf simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIVE}* *-chem-simint-generator-?????? simint_lib
 
@@ -146,6 +148,17 @@ if [[ ! -z "${PYTHONHOME}" ]]; then
     unset PYTHONHOME
     echo 'PYTHONOME unset'
 fi
+if [[ -z "${CXX}" ]]; then
+    #look for c++
+    if  [ -z "$(command -v c++)" ]; then
+        echo c++ not installed
+        echo please install a C++ compiler and
+        echo define the CXX env. variable
+	exit 1
+    else
+	CXX=c++
+    fi
+fi    
 if [[ -z "${GENERATOR_PROCESSES}" ]]; then
     GENERATOR_PROCESSES=3
     #parallel processing broken for g++-10 and later (at least on macos)
@@ -163,17 +176,6 @@ fi
 cd ../simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}
 mkdir -p build
 cd build
-if [[ -z "${CXX}" ]]; then
-    #look for c++
-    if  [ -z "$(command -v c++)" ]; then
-        echo c++ not installed
-        echo please install a C++ compiler and
-        echo define the CXX env. variable
-	exit 1
-    else
-	CXX=c++
-    fi
-fi    
 if [[ -z "${FC}" ]]; then
     #look for gfortran
     if  [ -z "$(command -v gfortran)" ]; then
