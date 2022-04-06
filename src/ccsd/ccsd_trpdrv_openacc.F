@@ -96,6 +96,7 @@
       integer n_progr,pct_progr
       parameter(n_progr=20)
       logical i_progr(n_progr+1)
+      logical got_ak
       ! timers
       double precision :: tt0, tt1, tc0, tc1
       integer(INT32) :: shi
@@ -256,6 +257,9 @@
                      call ga_nbget(g_objv,1+2*lnoov+(klo-1)*lnov,
      &                    2*lnoov+khi*lnov,av,av,Xka,(khi-klo+1)*lnov,
      &                    nbh_objv3)
+                     got_ak=.true.
+                  else
+                     got_ak=.false.
                   endif
 
                   do i=1,nocc
@@ -279,7 +283,9 @@
 
 !                     call dcopy(nvir,t1((i-1)*nvir+1),1,t1v2,1)
                      t1v2(:) = t1((i-1)*nvir+1:i*nvir)
-                     call ga_nbwait(nbh_objv1) ! Dja
+                     if(i.eq.1) then
+                        call ga_nbwait(nbh_objv1) ! Dja
+                     endif
 !                     call dcopy(nvir,Dja(1+(i-1)*nvir),1,dintc1,1)
                      dintc1(:) = Dja(1+(i-1)*nvir:i*nvir)
                      call ga_nbwait(nbh_objv5) ! Djia
@@ -292,7 +298,9 @@
                         t1v1(:) = t1((k-1)*nvir+1:k*nvir)
                         !call dcopy(nvir,Dja(1+(k-1)*nvir),1,dintc2,1)
                         dintc2(:) = Dja(1+(k-1)*nvir:k*nvir)
-                        call ga_nbwait(nbh_objv4(k)) ! Djka
+                        if(i.eq.1) then
+                           call ga_nbwait(nbh_objv4(k)) ! Djka
+                        endif
                         !call dcopy(nvir,Djka(1+(k-klo)*nvir),1,dintx2,1)
                         dintx2(:) = Djka(1+(k-klo)*nvir:(k-klo+1)*nvir)
                         emp4i = 0.0d0
@@ -310,9 +318,13 @@
 !  All of these are independent of k, so we wait on them only
 !  at the first trip of the loop.
 !
-                        if (k.eq.klo) then
-                            call ga_nbwait(nbh_objv2)
-                            call ga_nbwait(nbh_objv3)
+                        if (i.eq.1.and.k.eq.klo) then
+                           if(got_ak) then
+                              call ga_nbwait(nbh_exch1)
+                              call ga_nbwait(nbh_coul1)
+                              call ga_nbwait(nbh_objv2)
+                              call ga_nbwait(nbh_objv3)
+                           endif
                             call ga_nbwait(nbh_objv6)
                             call ga_nbwait(nbh_objv7)
                             call ga_nbwait(nbh_objo1)
@@ -321,9 +333,7 @@
                             call ga_nbwait(nbh_objo4)
                             call ga_nbwait(nbh_objo5)
                             call ga_nbwait(nbh_objo6)
-                            call ga_nbwait(nbh_exch1)
                             call ga_nbwait(nbh_exch2)
-                            call ga_nbwait(nbh_coul1)
                             call ga_nbwait(nbh_coul2)
                         endif
 
