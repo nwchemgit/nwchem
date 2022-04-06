@@ -16,7 +16,7 @@ Comment:
 
 <atom>
  Eu
-  63.00 151.964 9 4
+  63.00 151.964 9 3
    1   0    2.00
    2   0    2.00
    2   1    6.00
@@ -26,17 +26,16 @@ Comment:
    4   0    2.00
    4   1    6.00
    4   2   10.00
-   4   3    6.98
+   4   3    7.00
    5   0    2.00
    5   1    6.00
-   5   2    0.02
 <end>
 <solver> pauli                         <end>
 <pseudopotential> troullier-martins    <end>
 <rcut>
 0       1.618000
 1       1.828000
-2       1.813000
+2       3.813000
 3       1.403000
 <end>
 <kb_expansion>
