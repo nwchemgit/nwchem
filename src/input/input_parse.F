@@ -332,6 +332,8 @@ ckbn mrcc-r-1 -3
 #endif
             else if (inp_compare(.false.,test,'gw')) then
                call gw_input(rtdb)
+            else if (inp_compare(.false.,test,'xtb')) then
+               call xtb_input(rtdb)
 c
 c     INSERT NEW ELSE IF CLAUSES ABOVE HERE
 c

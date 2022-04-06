@@ -1,0 +1,7 @@
+      double precision acc, rcharge, kt
+      logical gfn1, gfn2, gff
+      integer uhf
+      common /cxtb/
+     $    acc, rcharge, kt,
+     $    gfn1, gfn2, gff,
+     $    uhf
