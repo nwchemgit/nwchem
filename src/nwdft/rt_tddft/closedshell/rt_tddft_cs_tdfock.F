@@ -8,7 +8,7 @@ C> Constructs the time-dependent Fock matrix including
 C> building Fock matrix from density matrix in AO basis,
 C> and calculating and adding dipole interation with external uniform E-field.
 C--------------------------------------------------------------------
-      logical function rt_tddft_cs_tdfock (params, tt, g_zdens_ao,
+      logical function rt_tddft_cs_tdfock (rtdb, params, tt, g_zdens_ao,
      $     energies, g_zfock_ao)
 
       implicit none
@@ -24,6 +24,7 @@ C--------------------------------------------------------------------
 
 
 C     == Inputs ==
+      integer, intent(in)           :: rtdb
       type(rt_params_t), intent(in) :: params         !< struct containing parameters
       double precision, intent(in)  :: tt             !< current time
       integer, intent(in)           :: g_zdens_ao     !< complex dens mat, ns_ao x ns_ao
@@ -69,7 +70,8 @@ C     Build new complex fock mat from complex dens mat; this also
 C     calculates energies.  Note, the input g_zdens_ao is in AO basis,
 C     and the output g_zfock_ao is also in AO basis.
 C
-      call zfock_cs_build (params, g_zdens_ao, energies, g_zfock_ao)
+      call zfock_cs_build (rtdb, params, g_zdens_ao, energies,
+     &                     g_zfock_ao)
       call ga_sync ()           !XXX needed?
 
       

@@ -537,7 +537,7 @@ c
 c
 c     == Add exact pot contributions ==
       if (exact_pot.eq.1) then
-        call xc_exact_pot(Ecoul_aux, g_dens, g_vxc, g_rho_exact,
+        call xc_exact_pot(rtdb, Ecoul_aux, g_dens, g_vxc, g_rho_exact,
      &                    dif_lamda, g_tmp_exact, g_addit_exact)
       end if
 c

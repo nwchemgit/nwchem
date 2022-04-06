@@ -1,4 +1,4 @@
-      subroutine uhf_hessv2(rtdb, acc, g_x, g_ax)
+      subroutine uhf_hessv2(acc, g_x, g_ax)
 *
 * $Id$
 *
@@ -24,9 +24,13 @@ c
       integer ilo(2), ihi(2)
 c
       logical oprint, olprint
+      integer scf_get_rtdb
+      external scf_get_rtdb
 c
       oprint = util_print("hessv",print_high)
       olprint = oprint .and. (ga_nodeid().eq.0)
+
+      rtdb = scf_get_rtdb()
 c
 c     Multiply a set of vectors by the level-shifted UHF hessian.
 c     
