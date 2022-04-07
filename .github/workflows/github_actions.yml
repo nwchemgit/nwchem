@@ -46,8 +46,7 @@ jobs:
             mpi_impl: openmpi
             armci_network: MPI-TS
             nwchem_modules: "xtb"
-            fc: gfortran-10
-            cc: gcc-10
+            fc: gfortran-9
             blas: "build_openblas"
             use_openmp: 2
             use_tblite: 1
