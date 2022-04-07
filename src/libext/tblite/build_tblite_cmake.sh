@@ -7,7 +7,7 @@ check_tgz() {
     echo $myexit
 }
 
-VERSION=0.2.3-ilp64-alpha
+VERSION=0.2.4-ilp64-alpha
 TGZ=tblite-${VERSION}.tar.gz
 if [ ! -z "${USE_INTERNALBLAS}" ]; then
     echo USE_TBLITE not compatible with USE_INTERNALBLAS
