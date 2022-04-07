@@ -9,7 +9,7 @@
       type(param_record) :: param
       integer*4 :: nat, nshl
       integer*4 :: nshl_at(nat)
-      integer   :: atnum(nat)
+      integer*4 :: atnum(nat)
       double precision :: qat(nat), qshl(nshl)
 
       type(mchrg_model_type) :: model
