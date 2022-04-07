@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -v
 arch=`uname -m`
-VERSION=0.2.0-ilp64-alpha
+VERSION=0.2.3-ilp64-alpha
 if [ ! -z "${USE_INTERNALBLAS}" ]; then
     echo USE_TBLITE not compatible with USE_INTERNALBLAS
     echo Please set BUILD_OPENBLAS or

@@ -1,0 +1,32 @@
+--- src/libext/tblite/build_tblite.sh
++++ src/libext/tblite/build_tblite.sh
+@@ -2,12 +2,6 @@
+ set -v
+ arch=`uname -m`
+ VERSION=0.2.0-ilp64-alpha
+-if [ ! -z "${USE_INTERNALBLAS}" ]; then
+-    echo USE_TBLITE not compatible with USE_INTERNALBLAS
+-    echo Please set BUILD_OPENBLAS or
+-    echo BLASOPT/LAPACK_LIB
+-    exit 1
+-fi
+ if [ -f  tblite-${VERSION}.tar.gz ]; then
+     echo "using existing"  tblite-${VERSION}.tar.gz
+ else
+@@ -29,15 +23,12 @@ else
+   ilp64=false
+ fi
+ 
+-if [[ ! -z "$BUILD_OPENBLAS"   ]] ; then
+-    BLASOPT="-L`pwd`/../lib -lnwc_openblas"
+-fi
+ TEST=$( echo $BLASOPT | cut -f1 -d" " | sed 's/-L//' )
+ 
+ SLP=$LIBRARY_PATH
+ LIBRARY_PATH=$TEST
+ 
+-meson setup _build -Dlapack=mkl -Dilp64=$ilp64 -Ddftd4:ilp64=$ilp64 -Dmulticharge:ilp64=$ilp64 -Ds-dftd3:ilp64=$ilp64 --prefix $NWCHEM_TOP/src/libext
++meson setup _build -Dlapack=mkl -Dilp64=$ilp64 -Ddftd4:ilp64=$ilp64 -Dmulticharge:ilp64=$ilp64 -Ds-dftd3:ilp64=$ilp64
+ meson compile -C _build
+ 
+ LIBRARY_PATH=$SLP
