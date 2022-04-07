@@ -161,6 +161,7 @@ c
 c
       logical task_bsse
 c
+      integer verb
       integer ecce_old_print, ecce_junk_print
       logical status, ignore, numerical, analytic
       double precision delta_pass
@@ -240,6 +241,12 @@ c
         default_delta = 0.001d00  ! should it be 0.0025
         if (inp_compare(.false.,theory,'dft'))
      &       default_delta = 0.01d00
+        if (inp_compare(.false.,theory,'xtb')) then
+          default_delta = 0.005d0   
+          if (.not.rtdb_get(rtdb,'xtb:verb',mt_int,1,verb)) verb=1
+          if (.not.rtdb_put(rtdb,'xtb:verb',mt_int,1,0))
+     &       call errquit('task_hessian: verbosity put',0,RTDB_ERR)   
+        endif
         if (inp_compare(.false.,theory,'pspw')   .or.
      &      inp_compare(.false.,theory,'band')   .or.
      &      inp_compare(.false.,theory,'paw'))
@@ -253,6 +260,11 @@ c
         call ecce_print_control(0, ecce_old_print) ! disable ECCE printing
         status = stpr_gen_hess_at(rtdb,delta_pass)
         call ecce_print_control(ecce_old_print,ecce_junk_print) ! re-enable ECCE printing
+
+        if (inp_compare(.false.,theory,'xtb')) then
+          if (.not.rtdb_put(rtdb,'xtb:verb',mt_int,1,verb))
+     &       call errquit('task_hessian: verbosity put',0,RTDB_ERR)   
+        endif
 
       else  ! analytic hessian
 c

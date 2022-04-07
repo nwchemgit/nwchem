@@ -85,6 +85,7 @@
      $       'NWChem TBlite interface',
      $       40,.true.)
         write(luout,*)   
+
       endif
 
       !
@@ -165,6 +166,10 @@ C      if (iuhf4.gt.0) nspin4 = 2
 
       energy = 0.0d0
 
+      if (oprint) then
+        write(luout,'(10X,A,I6)') 'No. of atoms     :',ncenters
+        write(luout,*)
+      endif
       if (ga_nodeid().eq.0) then
         call new(mol,atnum,coords,charge=rcharge,uhf=iuhf4)
         if (gfn2) then
