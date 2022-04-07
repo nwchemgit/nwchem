@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#define OLD_CUDA 1
 #ifdef TCE_CUDA
 #ifdef OLD_CUDA
 #include <cuda_runtime_api.h>

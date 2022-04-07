@@ -179,7 +179,7 @@ c      call util_blas_set_num_threads(4)
                if (inode.eq.next)then
 
                   call ga_nbget(g_objv,1+(j-1)*lnov,j*lnov,av,av,Dja,
-     &                 lnov,nbh_objv1)
+     &                          lnov,nbh_objv1)
                   do k = klo, khi
                      call ga_nbget(g_objv,1+(j-1)*nvir+(k-1)*lnov,
      &                    j*nvir+(k-1)*lnov,av,av,
@@ -241,8 +241,9 @@ c      call util_blas_set_num_threads(4)
 
                         call dcopy(nvir,t1((k-1)*nvir+1),1,t1v1,1)
                         call dcopy(nvir,Dja(1+(k-1)*nvir),1,dintc2,1)
-                        if(i.eq.1)
-     K                       call ga_nbwait(nbh_objv4(k)) ! Djka
+                        if(i.eq.1) then
+                           call ga_nbwait(nbh_objv4(k)) ! Djka
+                        endif
                         call dcopy(nvir,Djka(1+(k-klo)*nvir),1,dintx2,1)
                         emp4i = 0.0d0
                         emp5i = 0.0d0
@@ -266,17 +267,17 @@ c      call util_blas_set_num_threads(4)
                               call ga_nbwait(nbh_objv2)
                               call ga_nbwait(nbh_objv3)
                            endif
-                            call ga_nbwait(nbh_objv6)
-                            call ga_nbwait(nbh_objv7)
-                            call ga_nbwait(nbh_objo1)
-                            call ga_nbwait(nbh_objo2)
-                            call ga_nbwait(nbh_objo3)
-                            call ga_nbwait(nbh_objo4)
-                            call ga_nbwait(nbh_objo5)
-                            call ga_nbwait(nbh_objo6)
-                            call ga_nbwait(nbh_exch2)
-                            call ga_nbwait(nbh_coul2)
+                           call ga_nbwait(nbh_objo1)
+                           call ga_nbwait(nbh_objo2)
+                           call ga_nbwait(nbh_objo3)
                         endif
+                        call ga_nbwait(nbh_objo4)
+                        call ga_nbwait(nbh_objo5)
+                        call ga_nbwait(nbh_objo6)
+                        call ga_nbwait(nbh_coul2)
+                        call ga_nbwait(nbh_exch2)
+                        call ga_nbwait(nbh_objv6)
+                        call ga_nbwait(nbh_objv7)
 
 #if USE_OMP_SECTIONS
 !$omp parallel
