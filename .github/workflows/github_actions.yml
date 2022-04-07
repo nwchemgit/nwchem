@@ -46,7 +46,7 @@ jobs:
             mpi_impl: openmpi
             armci_network: MPI-TS
             nwchem_modules: "xtb"
-            fc: gfortran
+            fc: gfortran-9
             blas: "build_openblas"
             use_tblite: 1
           - os: ubuntu-18.04
