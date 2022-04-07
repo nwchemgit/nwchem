@@ -61,7 +61,7 @@ fi
 CMAKE_VER_MAJ=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -d. -f1)
 CMAKE_VER_MIN=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -d. -f2)
 echo CMAKE_VER is ${CMAKE_VER_MAJ} ${CMAKE_VER_MIN}
-if ((CMAKE_VER_MAJ < 3)) || (((CMAKE_VER_MAJ > 2) && (CMAKE_VER_MIN < 8))); then
+if ((CMAKE_VER_MAJ < 3)) || (((CMAKE_VER_MAJ > 2) && (CMAKE_VER_MIN < 11))); then
     get_cmake_release  $cmake_instdir
     status=$?
     if [ $status -ne 0 ]; then
@@ -84,7 +84,7 @@ else
 fi
 
 if [[ ! -z "$BUILD_OPENBLAS"   ]] ; then
-    BLASOPT="-L`pwd`/../lib -lnwc_openblas"
+    BLASOPT="-L`pwd`/../lib -lnwc_openblas -lpthread"
 fi
 if [[ `${FC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] ; then
     let GCCVERSIONGT8=$(expr `${FC} -dumpversion | cut -f1 -d.` \> 8)
@@ -102,7 +102,7 @@ fi
 cd tblite
 rm -rf _build
 
-FC=$FC CC=$CC $CMAKE -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -B _build -DLAPACK_LIBRARIES="$BLASOPT" -DWITH_ILP64=$ilp64 -DCMAKE_INSTALL_PREFIX="../.."
+FC=$FC CC=$CC $CMAKE -DCMAKE_VERBOSE_MAKEFILE:BOOL=OFF -B _build -DLAPACK_LIBRARIES="$BLASOPT" -DWITH_ILP64=$ilp64 -DCMAKE_INSTALL_PREFIX="../.."
 $CMAKE --build _build --parallel 4
 status=$?
 if [ $status -ne 0 ]; then
