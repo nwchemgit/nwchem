@@ -3630,9 +3630,10 @@ ifdef USE_TBLITE
         MCTC_MODS=$(NWCHEM_TOP)/src/libext/tblite/tblite/_build/subprojects/mctc-lib/libmctc-lib.a.p
         EXTRA_LIBS += -ltblite
     else
-        EXTRA_LIBS += -ltblite -ltoml-f -ldftd4 -lmulticharge -ls-dftd3 -lgomp -lpthread -lmctc-lib
+        EXTRA_LIBS += -ltblite -ltoml-f -ldftd4 -lmulticharge -ls-dftd3 -lmctc-lib
         TBLITE_MODS=$(NWCHEM_TOP)/src/libext/include/tblite
         MCTC_MODS=$(sort $(dir $(wildcard $(NWCHEM_TOP)/src/libext/include/mctc-lib/*/)))
+        MCHR_MODS=$(sort $(dir $(wildcard $(NWCHEM_TOP)/src/libext/include/multicharge/*/)))
     endif
     EXTRA_LIBS += $(LAPACK_LIB) $(BLASOPT)
 endif
