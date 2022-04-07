@@ -255,27 +255,21 @@
                      call ga_nbget(g_objv,1+2*lnoov+(i-1)*lnov,
      &                    2*lnoov+i*lnov,av,av,Xia,lnov,nbh_objv7)
 
-!                     call dcopy(nvir,t1((i-1)*nvir+1),1,t1v2,1)
                      t1v2(:) = t1((i-1)*nvir+1:i*nvir)
                      if(i.eq.1) then
                         call ga_nbwait(nbh_objv1) ! Dja
                      endif
-!                     call dcopy(nvir,Dja(1+(i-1)*nvir),1,dintc1,1)
                      dintc1(:) = Dja(1+(i-1)*nvir:i*nvir)
                      call ga_nbwait(nbh_objv5) ! Djia
-!                     call dcopy(nvir,Djia,1,dintx1,1)
                      dintx1(:) = Djia(1:nvir)
 
                      do k=klo,min(khi,i)
 
-                        !call dcopy(nvir,t1((k-1)*nvir+1),1,t1v1,1)
                         t1v1(:) = t1((k-1)*nvir+1:k*nvir)
-                        !call dcopy(nvir,Dja(1+(k-1)*nvir),1,dintc2,1)
                         dintc2(:) = Dja(1+(k-1)*nvir:k*nvir)
                         if(i.eq.1) then
                            call ga_nbwait(nbh_objv4(k)) ! Djka
                         endif
-                        !call dcopy(nvir,Djka(1+(k-klo)*nvir),1,dintx2,1)
                         dintx2(:) = Djka(1+(k-klo)*nvir:(k-klo+1)*nvir)
                         emp4i = 0.0d0
                         emp5i = 0.0d0
@@ -295,37 +289,35 @@
                         if (i.eq.1.and.k.eq.klo) then
                            if(got_ak) then
                               call ga_nbwait(nbh_exch1)
+                              xKka  = Kka
                               call ga_nbwait(nbh_coul1)
+                              xJka  = Jka
                               call ga_nbwait(nbh_objv2)
+                              xTka  = Tka
                               call ga_nbwait(nbh_objv3)
+                              xXka  = Xka
                            endif
-                            call ga_nbwait(nbh_objv6)
-                            call ga_nbwait(nbh_objv7)
-                            call ga_nbwait(nbh_objo1)
-                            call ga_nbwait(nbh_objo2)
-                            call ga_nbwait(nbh_objo3)
-                            call ga_nbwait(nbh_objo4)
-                            call ga_nbwait(nbh_objo5)
-                            call ga_nbwait(nbh_objo6)
-                            call ga_nbwait(nbh_exch2)
-                            call ga_nbwait(nbh_coul2)
+                           call ga_nbwait(nbh_objo1)
+                           xTkj  = Tkj
+                           call ga_nbwait(nbh_objo2)
+                           xJkj  = Jkj
+                           call ga_nbwait(nbh_objo3)
+                           xKkj  = Kkj
                         endif
-
-                        ! these should be moved up
-                            xTij  = Tij
-                            xTia  = Tia
-                            xXia  = Xia
-                            xJia  = Jia
-                            xJij  = Jij
-                            xKia  = Kia
-                            xKij  = Kij
-                            xTkj  = Tkj
-                            xTka  = Tka
-                            xXka  = Xka
-                            xJka  = Jka
-                            xJkj  = Jkj
-                            xKka  = Kka
-                            xKkj  = Kkj
+                        call ga_nbwait(nbh_objo4)
+                        xTij  = Tij
+                        call ga_nbwait(nbh_objo5)
+                        xJij  = Jij
+                        call ga_nbwait(nbh_objo6)
+                        xKij  = Kij
+                        call ga_nbwait(nbh_coul2)
+                        xJia  = Jia
+                        call ga_nbwait(nbh_exch2)
+                        xKia  = Kia
+                        call ga_nbwait(nbh_objv6)
+                        xTia  = Tia
+                        call ga_nbwait(nbh_objv7)
+                        xXia  = Xia
 
                         tc0 = util_wallsec()
 
