@@ -45,7 +45,7 @@ jobs:
             experimental: true
             mpi_impl: openmpi
             armci_network: MPI-TS
-            nwchem_modules: "xtb"
+            nwchem_modules: "xtb driver solvation"
             fc: gfortran-9
             blas: "build_openblas"
             use_openmp: 2
