@@ -31,3 +31,18 @@
       deallocate(struct%sym)
 
       end
+
+      subroutine xtb_deallocate_params(param)
+      use tblite_param, only : param_record
+      implicit none
+      type(param_record) :: param
+      deallocate(param%name)
+      deallocate(param%reference)
+      deallocate(param%dispersion)
+      deallocate(param%repulsion)
+      deallocate(param%charge)
+      deallocate(param%multipole)
+      deallocate(param%halogen)
+      deallocate(param%thirdorder)
+      deallocate(param%record)
+      end

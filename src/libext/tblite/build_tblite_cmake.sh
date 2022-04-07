@@ -7,7 +7,7 @@ check_tgz() {
     echo $myexit
 }
 
-VERSION=0.2.2-ilp64-alpha
+VERSION=0.2.4-ilp64-alpha
 TGZ=tblite-${VERSION}.tar.gz
 if [ ! -z "${USE_INTERNALBLAS}" ]; then
     echo USE_TBLITE not compatible with USE_INTERNALBLAS
@@ -87,10 +87,16 @@ if [[ ! -z "$BUILD_OPENBLAS"   ]] ; then
     BLASOPT="-L`pwd`/../lib -lnwc_openblas"
 fi
 
+if [[ -z "$USE_OPENMP" ]]; then
+  DOOPENMP=OFF
+else
+  DOOPENMP=ON
+fi
+
 cd tblite
 rm -rf _build
 
-FC=$FC CC=$CC $CMAKE -B _build -DLAPACK_LIBRARIES="$BLASOPT" -DWITH_ILP64=$ilp64 -DCMAKE_INSTALL_PREFIX="../.."
+FC=$FC CC=$CC $CMAKE -B _build -DLAPACK_LIBRARIES="$BLASOPT" -DWITH_ILP64=$ilp64 -DWITH_OpenMP=$DOOPENMP -DCMAKE_INSTALL_PREFIX="../.."
 $CMAKE --build _build --parallel 4
 $CMAKE --install _build
 
