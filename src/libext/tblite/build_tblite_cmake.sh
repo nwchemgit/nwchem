@@ -102,8 +102,14 @@ fi
 cd tblite
 rm -rf _build
 
-FC=$FC CC=$CC $CMAKE -B _build -DLAPACK_LIBRARIES="$BLASOPT" -DWITH_ILP64=$ilp64 -DCMAKE_INSTALL_PREFIX="../.."
+FC=$FC CC=$CC $CMAKE -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -B _build -DLAPACK_LIBRARIES="$BLASOPT" -DWITH_ILP64=$ilp64 -DCMAKE_INSTALL_PREFIX="../.."
 $CMAKE --build _build --parallel 4
+status=$?
+if [ $status -ne 0 ]; then
+    echo tblite compilation failed
+    exit 1
+fi
+
 $CMAKE --install _build
 
 cd ..
