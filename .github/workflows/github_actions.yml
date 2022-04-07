@@ -47,7 +47,9 @@ jobs:
             armci_network: MPI-TS
             nwchem_modules: "xtb"
             fc: gfortran-9
+            cc: gcc-9
             blas: "build_openblas"
+            use_openmp: 2
             use_tblite: 1
           - os: ubuntu-18.04
             experimental: true
