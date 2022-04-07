@@ -19,15 +19,17 @@ c
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
+#include "util_params.fh"
 c
       integer rtdb
       character*255 test
 c
-      integer, parameter :: num_dirs = 5
+      integer, parameter :: num_dirs = 9
       character*11 dirs(num_dirs)
-      data dirs /'acc','uhf', 'method', 'etemp', 'end'/
+      data dirs /'acc','uhf', 'method', 'etemp', 'guess', 
+     $           'verbosity', 'print', 'noprint', 'end'/
 c
-      integer uhf, ind
+      integer uhf, ind, verb
       double precision acc, etemp
 
       character(len=4) method
@@ -46,7 +48,7 @@ c
         call errquit('xtb_input: unknown directive', 0, INPUT_ERR)
       end if
 c
-      goto (100, 200, 300, 400, 9999) ind
+      goto (100, 200, 300, 400, 500, 600, 700, 800, 9999) ind
 
       call errquit('xtb_input: unknown directive',ind, INPUT_ERR)
 c
@@ -87,9 +89,31 @@ c     electronic temperature
 c
  400  if (.not. inp_f(etemp))
      $   call errquit('xtb_input: temperature not found',0,INPUT_ERR)
-      etemp = etemp*3.166808578545117d-06
+      etemp = etemp*kb_au
       if (.not.rtdb_put(rtdb, 'xtb:kt', mt_dbl, 1, etemp))
-     $  call errquit('xtb_input: rtdb_put failed',100,RTDB_ERR)
+     $  call errquit('xtb_input: rtdb_put failed',400,RTDB_ERR)
+      goto 10
+c
+c     guess
+c
+ 500  if (.not.rtdb_put(rtdb, 'xtb:guess', mt_log, 1, .true.))
+     $  call errquit('xtb_input: rtdb_put failed',500,RTDB_ERR) 
+      goto 10
+c
+c     verbosity level
+c
+  600 if(.not.inp_i(verb))
+     $  call errquit('xtb_input: verb level not found',600,INPUT_ERR)
+      if (.not.rtdb_put(rtdb, 'xtb:verb', mt_int, 1, verb))
+     $  call errquit('xtb_input: rtdb_put failed',600,RTDB_ERR)
+      goto 10
+c
+c     print
+c
+  700 call util_print_input(rtdb, 'xtb')
+      goto 10
+
+  800 call util_print_input(rtdb, 'xtb')
       goto 10
 c
 c     normal termination
