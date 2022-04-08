@@ -15,7 +15,7 @@
       endif
       if (.not.rtdb_get(rtdb,'xtb:uhf',mt_int,1,uhf)) uhf=0
       if (.not.rtdb_cget(rtdb,'xtb:method',1,method)) method='gfn2'
-      if (.not.rtdb_get(rtdb,'xtb:verb',mt_int,1,uhf)) verb=1
+      if (.not.rtdb_get(rtdb,'xtb:verb',mt_int,1,verb)) verb=1
       if (.not.rtdb_get(rtdb,'xtb:guess',mt_log,1,guess)) guess=.false.
 
       if (method.eq.'gfn2') then

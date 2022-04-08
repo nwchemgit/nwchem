@@ -53,7 +53,7 @@
       integer*4 :: iuhf4, one4, zero4, nspin4
       integer*4,allocatable :: atnum(:)
 
-      double precision energy, sigma(3,3)
+      double precision energy, sigma(3,3), dipole(3)
       double precision, allocatable :: coords(:,:),grad(:,:)
       double precision, allocatable :: rcov(:), trans(:,:), cn(:)
 
@@ -191,6 +191,11 @@ c
       grad(:,:) = 0.0d0
       sigma(:,:) = 0.0d0
 
+      if (oprint) then
+        write(luout,'(10X,A,I6)') 'No. of atoms     :',ncenters
+        write(luout,*)
+      endif
+
       if (ga_nodeid().eq.0) then
 
         ! Create mol object
@@ -268,9 +273,8 @@ c
           call util_flush(luout)
         endif
 
-
         call xtb_singlepoint(ctx,mol,calc,wfn,acc,energy,grad,sigma,
-     $                       verbosity=int(2,kind=4))
+     $                       verbosity=int(verb,kind=4))
 
 
         write(luout,*)
@@ -336,6 +340,10 @@ C     symmetrize
         if (.not.status)
      $    call errquit('xtb_energy_gradients: could not put charges',0,
      $                  RTDB_ERR)   
+
+        dipole(1:3) = sum(wfn%dpat(:,:,1),dim=2)
+        status = rtdb_put(rtdb,'task:dipole',mt_dbl,3,dipole)
+
         call xtb_deallocate_wavefunction(wfn)
         call xtb_deallocate_structure(mol)
       endif
