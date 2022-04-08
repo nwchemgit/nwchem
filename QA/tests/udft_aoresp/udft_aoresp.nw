@@ -3,7 +3,6 @@ echo
 start udft_aoresp
 title udft_aoresp
 
-memory total 800 stack 400 heap 50 global 350 mb
 
 geometry noautoz units angstrom nocenter
 symmetry c1
