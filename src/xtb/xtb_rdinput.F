@@ -16,7 +16,10 @@
       if (.not.rtdb_get(rtdb,'xtb:uhf',mt_int,1,uhf)) uhf=0
       if (.not.rtdb_cget(rtdb,'xtb:method',1,method)) method='gfn2'
       if (.not.rtdb_get(rtdb,'xtb:verb',mt_int,1,verb)) verb=1
+      if (.not.rtdb_get(rtdb,'xtb:nspin',mt_int,1,nspin)) nspin=1
       if (.not.rtdb_get(rtdb,'xtb:guess',mt_log,1,guess)) guess=.false.
+      if (.not.rtdb_get(rtdb,'xtb:broyden',mt_dbl,1,broyden)) 
+     $   broyden=0.4d0
 
       if (method.eq.'gfn2') then
         gfn2 = .true.
@@ -44,5 +47,9 @@
      $  call errquit('xtb_rdinput: cannot put in rtdb',5,RTDB_ERR) 
       if (.not.rtdb_cput(rtdb,'xtb:method',1,method))
      $  call errquit('xtb_rdinput: cannot put in rtdb',6,RTDB_ERR) 
+      if (.not.rtdb_put(rtdb,'xtb:nspin',mt_int,1,nspin))
+     $  call errquit('xtb_rdinput: cannot put in rtdb',7,RTDB_ERR) 
+      if (.not.rtdb_put(rtdb,'xtb:broyden',mt_dbl,1,broyden)) 
+     $  call errquit('xtb_rdinput: cannot put in rtdb',8,RTDB_ERR) 
 
       end subroutine
