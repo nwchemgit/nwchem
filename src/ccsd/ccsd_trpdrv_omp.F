@@ -99,19 +99,19 @@ c#define BLAS_THREAD 1
 !
 !  non-blocking handles
 !
-       integer nbh_objv1,nbh_objv2,nbh_objv3
-       integer nbh_objv5,nbh_objv6,nbh_objv7
-       integer nbh_objv4(nocc)
+      integer nbh_objv1,nbh_objv2,nbh_objv3
+      integer nbh_objv5,nbh_objv6,nbh_objv7
+      integer nbh_objv4(nocc)
 !
-       integer nbh_objo1,nbh_objo2,nbh_objo3
-       integer nbh_objo4,nbh_objo5,nbh_objo6
+      integer nbh_objo1,nbh_objo2,nbh_objo3
+      integer nbh_objo4,nbh_objo5,nbh_objo6
 !
-       integer nbh_exch1,nbh_exch2,nbh_coul1,nbh_coul2
-       integer n_progr,pct_progr
-       parameter(n_progr=20)
-       logical i_progr(n_progr+1)
-       logical ldyn_org
-       logical got_ak
+      integer nbh_exch1,nbh_exch2,nbh_coul1,nbh_coul2
+      integer n_progr,pct_progr
+      parameter(n_progr=20)
+      logical i_progr(n_progr+1)
+      logical ldyn_org
+      logical got_ak
 !
 #if defined(USE_OPENMP)
       integer  omp_get_thread_num
@@ -133,18 +133,10 @@ c#define BLAS_THREAD 1
       tzero=util_wallsec()
       flopzero=perfm_flop()
 #ifdef USE_F90_ALLOCATABLE
-      allocate( dintc1(1:nvir), stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('dintc1',1,MA_ERR)
-      allocate( dintx1(1:nvir), stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('dintx1',2,MA_ERR)
-      allocate( t1v1(1:nvir), stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('t1v1',3,MA_ERR)
-      allocate( dintc2(1:nvir), stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('dintc2',4,MA_ERR)
-      allocate( dintx2(1:nvir), stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('dintx2',5,MA_ERR)
-      allocate( t1v2(1:nvir), stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('t1v2',6,MA_ERR)
+      allocate( dintc1(1:nvir), dintc2(1:nvir),
+     &          dintx1(1:nvir), dintx2(1:nvir),
+     &          t1v1(1:nvir), t1v2(1:nvir), stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('CXT1 temps',6,MA_ERR)
 #endif
 !
 #ifdef BLAS_THREAD
@@ -260,24 +252,26 @@ c      call util_blas_set_num_threads(4)
 !  All of these are independent of k, so we wait on them only
 !  at the first trip of the loop.
 !
-                        if (i.eq.1.and.k.eq.klo) then
-                           if(got_ak) then
-                              call ga_nbwait(nbh_exch1)
-                              call ga_nbwait(nbh_coul1)
-                              call ga_nbwait(nbh_objv2)
-                              call ga_nbwait(nbh_objv3)
+                        if (k.eq.klo) then
+                           if (i.eq.1) then
+                              if(got_ak) then
+                                 call ga_nbwait(nbh_exch1)
+                                 call ga_nbwait(nbh_coul1)
+                                 call ga_nbwait(nbh_objv2)
+                                 call ga_nbwait(nbh_objv3)
+                              endif
+                              call ga_nbwait(nbh_objo1)
+                              call ga_nbwait(nbh_objo2)
+                              call ga_nbwait(nbh_objo3)
                            endif
-                           call ga_nbwait(nbh_objo1)
-                           call ga_nbwait(nbh_objo2)
-                           call ga_nbwait(nbh_objo3)
+                           call ga_nbwait(nbh_objo4)
+                           call ga_nbwait(nbh_objo5)
+                           call ga_nbwait(nbh_objo6)
+                           call ga_nbwait(nbh_coul2)
+                           call ga_nbwait(nbh_exch2)
+                           call ga_nbwait(nbh_objv6)
+                           call ga_nbwait(nbh_objv7)
                         endif
-                        call ga_nbwait(nbh_objo4)
-                        call ga_nbwait(nbh_objo5)
-                        call ga_nbwait(nbh_objo6)
-                        call ga_nbwait(nbh_coul2)
-                        call ga_nbwait(nbh_exch2)
-                        call ga_nbwait(nbh_objv6)
-                        call ga_nbwait(nbh_objv7)
 
 #if USE_OMP_SECTIONS
 !$omp parallel
@@ -520,18 +514,9 @@ c     call mkl_set_dynamic(0)
 #endif
 !
 #ifdef USE_F90_ALLOCATABLE
-      deallocate( dintc1, stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('dintc1',11,MA_ERR)
-      deallocate( dintx1, stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('dintx1',12,MA_ERR)
-      deallocate( t1v1, stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('t1v1',13,MA_ERR)
-      deallocate( dintc2, stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('dintc2',14,MA_ERR)
-      deallocate( dintx2, stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('dintx2',15,MA_ERR)
-      deallocate( t1v2, stat=alloc_error)
-      if (alloc_error.ne.0) call errquit('t1v2',16,MA_ERR)
+      deallocate( dintc1, dintx1, t1v1, dintc2, dintx2, t1v2,
+     &            stat=alloc_error)
+      if (alloc_error.ne.0) call errquit('free CXT1 temps',6,MA_ERR)
 #endif
 !
       end
