@@ -161,7 +161,7 @@
      &          t1v1(1:nvir), t1v2(1:nvir), stat=alloc_error)
       if (alloc_error.ne.0) call errquit('CXT1 temps',6,MA_ERR)
 !
-! UM arrays, produced by GA Get, consumed by DGEMM
+! H/D arrays, produced by GA Get, consumed by DGEMM
 !
       allocate( Tij(1:lnvv),      Tkj(1:kchunk*lnvv),
      &          Tia(1:lnov*nocc), Tka(1:kchunk*lnov),
@@ -286,38 +286,40 @@
 !  All of these are independent of k, so we wait on them only
 !  at the first trip of the loop.
 !
-                        if (i.eq.1.and.k.eq.klo) then
-                           if(got_ak) then
-                              call ga_nbwait(nbh_exch1)
-                              xKka  = Kka
-                              call ga_nbwait(nbh_coul1)
-                              xJka  = Jka
-                              call ga_nbwait(nbh_objv2)
-                              xTka  = Tka
-                              call ga_nbwait(nbh_objv3)
-                              xXka  = Xka
+                        if (k.eq.klo) then
+                           if (i.eq.1) then
+                              if(got_ak) then
+                                 call ga_nbwait(nbh_exch1)
+                                 xKka  = Kka
+                                 call ga_nbwait(nbh_coul1)
+                                 xJka  = Jka
+                                 call ga_nbwait(nbh_objv2)
+                                 xTka  = Tka
+                                 call ga_nbwait(nbh_objv3)
+                                 xXka  = Xka
+                              endif
+                              call ga_nbwait(nbh_objo1)
+                              xTkj  = Tkj
+                              call ga_nbwait(nbh_objo2)
+                              xJkj  = Jkj
+                              call ga_nbwait(nbh_objo3)
+                              xKkj  = Kkj
                            endif
-                           call ga_nbwait(nbh_objo1)
-                           xTkj  = Tkj
-                           call ga_nbwait(nbh_objo2)
-                           xJkj  = Jkj
-                           call ga_nbwait(nbh_objo3)
-                           xKkj  = Kkj
+                           call ga_nbwait(nbh_objo4)
+                           xTij  = Tij
+                           call ga_nbwait(nbh_objo5)
+                           xJij  = Jij
+                           call ga_nbwait(nbh_objo6)
+                           xKij  = Kij
+                           call ga_nbwait(nbh_coul2)
+                           xJia  = Jia
+                           call ga_nbwait(nbh_exch2)
+                           xKia  = Kia
+                           call ga_nbwait(nbh_objv6)
+                           xTia  = Tia
+                           call ga_nbwait(nbh_objv7)
+                           xXia  = Xia
                         endif
-                        call ga_nbwait(nbh_objo4)
-                        xTij  = Tij
-                        call ga_nbwait(nbh_objo5)
-                        xJij  = Jij
-                        call ga_nbwait(nbh_objo6)
-                        xKij  = Kij
-                        call ga_nbwait(nbh_coul2)
-                        xJia  = Jia
-                        call ga_nbwait(nbh_exch2)
-                        xKia  = Kia
-                        call ga_nbwait(nbh_objv6)
-                        xTia  = Tia
-                        call ga_nbwait(nbh_objv7)
-                        xXia  = Xia
 
                         tc0 = util_wallsec()
 
