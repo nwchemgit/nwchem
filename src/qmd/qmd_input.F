@@ -85,7 +85,7 @@ c
 c     Nose-Hoover mass parameter
       nh_mass(1)=0.1d0
       nh_mass(2)=0.1d0
-      if (.not.rtdb_put(rtdb,'qmd:nh_mass',mt_dbl,2,nh_mass))
+      if (.not.rtdb_put(rtdb,'qmd:nh_mass',mt_dbl,2,nh_mass(1)))
      &  call errquit(pname//'failed to write nh_mass',0,RTDB_ERR)
 c
 c     Nuclear MD integrator
@@ -201,7 +201,7 @@ c       Nose-Hoover: get masses
         if (thermostat.eq.'nose-hoover') then
           if (.not.inp_f(nh_mass(1))) nh_mass(1) = 0.1d0
           if (.not.inp_f(nh_mass(2))) nh_mass(2) = 0.1d0
-          if (.not.rtdb_put(rtdb,'qmd:nh_mass',mt_dbl,2,nh_mass))
+          if (.not.rtdb_put(rtdb,'qmd:nh_mass',mt_dbl,2,nh_mass(1)))
      &     call errquit(pname//'failed to write nh_mass',0,RTDB_ERR)
 c       Berendsen or svr (Bussi, Donadio, Parrinello 2007): get tau
         else if (thermostat.eq.'berendsen'.or.thermostat.eq.'svr') then
@@ -247,7 +247,7 @@ c     Do we need cavity constraints  ?
        if (.not.inp_f(cavity_axis(1))) cavity_axis(1) = 10.d0
        if (.not.inp_f(cavity_axis(2))) cavity_axis(2) = 10.d0
        if (.not.inp_f(cavity_axis(3))) cavity_axis(3) = 10.d0
-       if (.not.rtdb_put(rtdb,'qmd:cavity_axis',mt_dbl,3,cavity_axis))
+       if(.not.rtdb_put(rtdb,'qmd:cavity_axis',mt_dbl,3,cavity_axis(1)))
      &  call errquit(pname//'failed to write cavity_axis',0,RTDB_ERR)
 c
 c     Cavity force
@@ -334,3 +334,70 @@ c
  20   return
       end
 c $Id$
+      subroutine qmd_rdinput(rtdb)
+      implicit none
+      integer rtdb ! [in]
+#include "rtdb.fh"
+#include "geom.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+c
+      integer nstep_nucl
+      double precision dt_nucl
+      double precision targ_temp
+      double precision nh_mass(2)
+      double precision tau
+      character*32 thermostat
+      character*32 integrator_nucl
+      character*13 pname
+c
+      pname = "qmd_rdinput: "
+c     load default values if not set
+c     total nuclear steps
+      if (.not.rtdb_get(rtdb,'qmd:nstep_nucl',mt_int,1,nstep_nucl)) then
+         nstep_nucl = 1000
+         if (.not.rtdb_put(rtdb,'qmd:nstep_nucl',mt_int,1,nstep_nucl))
+     &      call errquit(pname//'failed to write nstep_nucl',0,RTDB_ERR)
+      endif
+c     Nuclear MD time step: dt_nucl
+      if (.not.rtdb_get(rtdb,'qmd:dt_nucl',mt_dbl,1,dt_nucl)) then
+         dt_nucl = 10d0
+         if (.not.rtdb_put(rtdb,'qmd:dt_nucl',mt_dbl,1,dt_nucl))
+     &        call errquit(pname//'failed to write dt_nucl',0,RTDB_ERR)
+      endif
+c     Target nuclear MD temperature: targ_temp (Kelvin)
+      if (.not.rtdb_get(rtdb,'qmd:targ_temp',mt_dbl,1,targ_temp))then
+         targ_temp = 298.15d0   ! Kelvin
+         if (.not.rtdb_put(rtdb,'qmd:targ_temp',mt_dbl,1,targ_temp))
+     &       call errquit(pname//'failed to write targ_temp',0,RTDB_ERR)
+      endif
+c     Nuclear thermostat
+      if (.not.rtdb_cget(rtdb,'qmd:thermostat',1,thermostat))then
+         thermostat='none'
+         if (.not.rtdb_cput(rtdb,'qmd:thermostat',1,thermostat))
+     &      call errquit(pname//'failed to write thermostat',0,RTDB_ERR)
+      endif
+c     Nose-Hoover mass parameter
+      if (.not.rtdb_get(rtdb,'qmd:nh_mass',mt_dbl,2,nh_mass(1)))then
+         nh_mass(1)=0.1d0
+         nh_mass(2)=0.1d0
+         if (.not.rtdb_put(rtdb,'qmd:nh_mass',mt_dbl,2,nh_mass(1)))
+     &        call errquit(pname//'failed to write nh_mass',0,RTDB_ERR)
+      endif
+c     Berendsen tau parameter, also used for svr
+      if (.not.rtdb_get(rtdb,'qmd:tau',mt_dbl,1,tau)) then
+         tau=1.d3
+         if (.not.rtdb_put(rtdb,'qmd:tau',mt_dbl,1,tau))
+     &        call errquit(pname//'failed to write tau',0,RTDB_ERR)
+      endif
+c     Nuclear MD integrator
+      if (.not.rtdb_cget(rtdb,'qmd:integrator_nucl',1,
+     I     integrator_nucl)) then
+         integrator_nucl='velocity-verlet'
+         if (.not.rtdb_cput(rtdb,'qmd:integrator_nucl',1,
+     1        integrator_nucl))
+     &        call errquit(pname//'failed to write nuclear integrator',
+     &        0,RTDB_ERR)
+      endif
+      return
+      end
