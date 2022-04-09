@@ -112,7 +112,7 @@ endif
 ifdef USE_OPENACC_TRPDRV
   OBJ_OPTIMIZE += ccsd_trpdrv_openacc.o
   USES_BLAS    += ccsd_trpdrv_openacc.F
-  FOPTIONS += -acc -cuda -cudalib=cublas -DUSE_OPENACC_TRPDRV
+  FOPTIONS += -Mextend -acc -cuda -cudalib=cublas -DUSE_OPENACC_TRPDRV
 endif
 
 
