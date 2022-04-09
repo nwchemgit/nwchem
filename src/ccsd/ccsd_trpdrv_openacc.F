@@ -56,7 +56,8 @@
       integer :: alloc_error, err
 !
       double precision :: emp4i,emp5i,emp4k,emp5k
-      double precision :: eaijk,denom
+      double precision, device :: eaijk
+      double precision :: denom
       integer :: inode,next,nodes,me
       integer :: a,b,c,i,j,k,akold,av,nbf
       integer :: klo, khi
@@ -236,6 +237,11 @@
                      got_ak=.false.
                   endif
 
+                  emp4i = 0.0d0
+                  emp5i = 0.0d0
+                  emp4k = 0.0d0
+                  emp5k = 0.0d0
+
                   do i=1,nocc
 
                      call ga_nbget(g_objv,1+(j-1)*nvir+(i-1)*lnov,
@@ -255,6 +261,8 @@
                      call ga_nbget(g_objv,1+2*lnoov+(i-1)*lnov,
      &                    2*lnoov+i*lnov,av,av,Xia,lnov,nbh_objv7)
 
+!$acc wait(9)
+!$acc wait(10)
                      t1v2(:) = t1((i-1)*nvir+1:i*nvir)
                      if(i.eq.1) then
                         call ga_nbwait(nbh_objv1) ! Dja
@@ -264,17 +272,14 @@
                      dintx1(:) = Djia(1:nvir)
 
                      do k=klo,min(khi,i)
-
+!$acc wait(9)
+!$acc wait(10)
                         t1v1(:) = t1((k-1)*nvir+1:k*nvir)
                         dintc2(:) = Dja(1+(k-1)*nvir:k*nvir)
                         if(i.eq.1) then
                            call ga_nbwait(nbh_objv4(k)) ! Djka
                         endif
                         dintx2(:) = Djka(1+(k-klo)*nvir:(k-klo+1)*nvir)
-                        emp4i = 0.0d0
-                        emp5i = 0.0d0
-                        emp4k = 0.0d0
-                        emp5k = 0.0d0
                         if (occsdps) then
                            call pstat_on(ps_doxxx)
                         else
@@ -390,7 +395,8 @@
 
                         nv4 = nvir ! no possibility of overflow
                         no4 = nocc
-
+!$acc wait(9)
+!$acc wait(10)
                         err = cublasDgemm_v2(handle(1),
      &                        cu_op_n,cu_op_t,
      &                        nv4,nv4,nv4,1.0d0,
@@ -553,9 +559,12 @@
                            call qenter('tengy',0)
                         endif
 
+!$acc kernels
                         eaijk=eorb(a) - (  eorb(ncor+i)
      &                                    +eorb(ncor+j)
      &                                    +eorb(ncor+k) )
+!$acc end kernels
+
 #ifdef USE_YFLOP
       flops_ycount = flops_ycount + nvir*nvir*(
      &                       3 + 2*(
@@ -565,10 +574,11 @@
      &                       2*27 )
 #endif
 
-!$acc parallel loop collapse(2) private(denom)
-!$acc&         reduction(+:emp4i,emp4k,emp5i,emp5k)
-           do b=1,nvir
-             do c=1,nvir
+!$acc parallel loop tile(32,32) private(denom)
+!$acc&         reduction(+:emp4i,emp5i)
+!$acc&         async(9)
+               do b=1,nvir
+                 do c=1,nvir
                    denom=-1.0d0/( eorb(ncor+nocc+b)
      &                           +eorb(ncor+nocc+c)+eaijk )
                    emp4i=emp4i+denom*
@@ -580,6 +590,24 @@
      &                        +3*denom*(
      &                  f1n(b,c)*(f1n(b,c)+f3n(c,b)+2*f4t(c,b))+
      &                  f2n(b,c)*f2t(c,b)+f3n(b,c)*f4t(b,c))
+                   emp5i=emp5i+denom*t1v1(b)*dintx1(c)*
+     &                 (    f1t(b,c)+f2n(b,c)+f4n(c,b)
+     &                  -2*(f3t(b,c)+f4n(b,c)+f2n(c,b)+
+     &                      f1n(b,c)+f2t(b,c)+f3n(c,b))
+     &                  +4*(f3n(b,c)+f4t(b,c)+f1n(c,b)))
+     &                        +denom*t1v1(b)*dintc1(c)*
+     &                 (     f1n(b,c)+f4n(b,c)+f1t(c,b)
+     &                   -2*(f2n(b,c)+f3n(b,c)+f2t(c,b)))
+                 end do
+               end do
+               if (i.ne.k) then
+!$acc parallel loop tile(32,32) private(denom)
+!$acc&         reduction(+:emp4k,emp5k)
+!$acc&         async(10)
+               do b=1,nvir
+                 do c=1,nvir
+                   denom=-1.0d0/( eorb(ncor+nocc+b)
+     &                           +eorb(ncor+nocc+c)+eaijk )
                    emp4k=emp4k+denom*
      &                  (f1n(b,c)+f1t(c,b)+f2n(c,b)+f3t(b,c)+f4t(c,b))*
      &                  (f1n(b,c)-2*f2n(b,c)-2*f3n(b,c)+f4n(b,c))
@@ -589,14 +617,6 @@
      &                        +3*denom*(
      &                  f1t(b,c)*(f1t(b,c)+f3t(c,b)+2*f4n(c,b))+
      &                  f2t(b,c)*f2n(c,b)+f3t(b,c)*f4n(b,c))
-                   emp5i=emp5i+denom*t1v1(b)*dintx1(c)*
-     &                 (    f1t(b,c)+f2n(b,c)+f4n(c,b)
-     &                  -2*(f3t(b,c)+f4n(b,c)+f2n(c,b)+
-     &                      f1n(b,c)+f2t(b,c)+f3n(c,b))
-     &                  +4*(f3n(b,c)+f4t(b,c)+f1n(c,b)))
-     &                        +denom*t1v1(b)*dintc1(c)*
-     &                 (     f1n(b,c)+f4n(b,c)+f1t(c,b)
-     &                   -2*(f2n(b,c)+f3n(b,c)+f2t(c,b)))
                    emp5k=emp5k+denom*t1v2(b)*dintx2(c)*
      &                 (    f1n(b,c)+f2t(b,c)+f4t(c,b)
      &                  -2*(f3n(b,c)+f4t(b,c)+f2t(c,b)+
@@ -605,8 +625,9 @@
      &                        +denom*t1v2(b)*dintc2(c)*
      &                 (     f1t(b,c)+f4t(b,c)+f1n(c,b)
      &                   -2*(f2t(b,c)+f3t(b,c)+f2n(c,b)))
-             end do
-           end do
+                 end do
+               end do
+               end if ! (i.ne.k)
            tengy_flops = nvir*nvir*( 3 + 2*( 12 + 11 + 11 ) + 2*27 )
            agg_flops = agg_flops + tengy_flops
 
@@ -618,14 +639,14 @@
                             call qexit('tengy',0)
                          endif
 
-                         emp4 = emp4 + emp4i
-                         emp5 = emp5 + emp5i
-                         if (i.ne.k) then
-                             emp4 = emp4 + emp4k
-                             emp5 = emp5 + emp5k
-                         end if ! (i.ne.k)
                      end do    ! k
                   end do       ! i
+!$acc wait(9)
+!$acc wait(10)
+                  emp4 = emp4 + emp4i
+                  emp5 = emp5 + emp5i
+                  emp4 = emp4 + emp4k
+                  emp5 = emp5 + emp5k
                   if (iprt.gt.50)then
                      write(6,1234)me,a,j,emp4,emp5
  1234                format(' me aijk',3i5,2e15.5)
