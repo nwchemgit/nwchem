@@ -30,7 +30,7 @@
       call model%solve(mol, cn, qvec=qat)
 
       ! transform atomic charges into shell charges
-      ksh = 0
+      ksh = 0      
       do i=1,nat
         tot = sum(param%record(atnum(i))%refocc(:))
         do j=1,nshl_at(i)

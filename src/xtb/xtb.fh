@@ -1,7 +1,7 @@
-      double precision acc, rcharge, kt
+      double precision acc, rcharge, kt, broyden
       logical gfn1, gfn2, gff, guess
-      integer uhf, verb
+      integer uhf, verb, nspin
       common /cxtb/
-     $    acc, rcharge, kt,
+     $    acc, rcharge, kt, broyden,
      $    gfn1, gfn2, gff, guess,
-     $    uhf, verb
+     $    uhf, verb, nspin
