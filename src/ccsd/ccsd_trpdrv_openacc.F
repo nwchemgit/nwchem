@@ -292,6 +292,30 @@
 !  at the first trip of the loop.
 !
                         if (k.eq.klo) then
+                           call ga_nbwait(nbh_coul2)
+                           !xJia  = Jia
+                           err = cudaMemcpyAsync(xJia,Jia,size(Jia),stream(1))
+                           if (err.ne.0) then
+                             call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
+                           endif
+                           call ga_nbwait(nbh_objv6)
+                           !xTia  = Tia
+                           err = cudaMemcpyAsync(xTia,Tia,size(Tia),stream(1))
+                           if (err.ne.0) then
+                             call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
+                           endif
+                           call ga_nbwait(nbh_exch2)
+                           !xKia  = Kia
+                           err = cudaMemcpyAsync(xKia,Kia,size(Kia),stream(2))
+                           if (err.ne.0) then
+                             call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
+                           endif
+                           call ga_nbwait(nbh_objv7)
+                           !xXia  = Xia
+                           err = cudaMemcpyAsync(xXia,Xia,size(Xia),stream(2))
+                           if (err.ne.0) then
+                             call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
+                           endif
                            if (i.eq.1) then
                               call ga_nbwait(nbh_objo1)
                               !xTkj  = Tkj
@@ -338,30 +362,6 @@
                                  endif
                               endif ! got_ak
                            endif ! i==1
-                           call ga_nbwait(nbh_coul2)
-                           !xJia  = Jia
-                           err = cudaMemcpyAsync(xJia,Jia,size(Jia),stream(1))
-                           if (err.ne.0) then
-                             call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
-                           endif
-                           call ga_nbwait(nbh_exch2)
-                           !xKia  = Kia
-                           err = cudaMemcpyAsync(xKia,Kia,size(Kia),stream(2))
-                           if (err.ne.0) then
-                             call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
-                           endif
-                           call ga_nbwait(nbh_objv6)
-                           !xTia  = Tia
-                           err = cudaMemcpyAsync(xTia,Tia,size(Tia),stream(1))
-                           if (err.ne.0) then
-                             call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
-                           endif
-                           call ga_nbwait(nbh_objv7)
-                           !xXia  = Xia
-                           err = cudaMemcpyAsync(xXia,Xia,size(Xia),stream(2))
-                           if (err.ne.0) then
-                             call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
-                           endif
                            call ga_nbwait(nbh_objo4)
                            !xTij  = Tij
                            err = cudaMemcpyAsync(xTij,Tij,size(Tij),stream(5))
