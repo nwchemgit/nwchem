@@ -53,5 +53,4 @@ end
 
 task xtb optimize
 
-
 task xtb freq
