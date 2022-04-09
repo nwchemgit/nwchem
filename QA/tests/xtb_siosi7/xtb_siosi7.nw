@@ -299,7 +299,7 @@ end
 
 
 xtb
-  acc 10.
+  acc 0.1
 end
 
 task xtb gradient
