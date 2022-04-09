@@ -43,6 +43,15 @@ jobs:
         include:
           - os: ubuntu-18.04
             experimental: true
+            mpi_impl: openmpi
+            armci_network: MPI-TS
+            nwchem_modules: "xtb driver solvation"
+            fc: gfortran-9
+            blas: "build_openblas"
+            use_openmp: 2
+            use_tblite: 1
+          - os: ubuntu-18.04
+            experimental: true
             mpi_impl: mpich
             armci_network: ARMCI
             nwchem_modules: "all"
@@ -266,6 +275,7 @@ jobs:
         NWCHEM_MODULES: ${{ matrix.nwchem_modules }}
         USE_SIMINT: ${{ matrix.use_simint }}
         USE_LIBXC: ${{ matrix.use_libxc }}
+        USE_TBLITE: ${{ matrix.use_tblite }}
         FC: ${{ matrix.fc }}
         CC: ${{ matrix.cc }}
         COMEX_MAX_NB_OUTSTANDING: 4
@@ -292,7 +302,7 @@ jobs:
           path: |
             ~/cache
             ~/apps
-          key: ${{ matrix.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-blas${{ matrix.blas}}-simd${{ steps.get-simd.outputs.simd }}-nwchemcache-v018
+          key: ${{ matrix.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-blas${{ matrix.blas}}-simd${{ steps.get-simd.outputs.simd }}-nwchemcache-v019
       - name: fetch apps cache
         if: steps.setup-cache.outputs.cache-hit == 'true'
         run: |

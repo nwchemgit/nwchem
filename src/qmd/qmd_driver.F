@@ -160,6 +160,9 @@ c
 c     get rstfilename
       call util_file_name('qmdrst',.false.,.false.,rstfilename)
 c
+c     check defaults
+c
+      call qmd_rdinput(rtdb)
 c     initialize parameters
       call qmd_init(rtdb,nstep_nucl,dt_nucl,do_none,com_step,print_xyz,
      &   restart,do_namd,step_property,do_property,step_tddft,do_tddft,

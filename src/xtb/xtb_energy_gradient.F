@@ -11,9 +11,13 @@
      $                                     new_wavefunction
       use tblite_context_type, only: context_type
       use tblite_xtb_calculator, only : xtb_calculator
-      use tblite_xtb_gfn2, only : new_gfn2_calculator
-      use tblite_xtb_gfn1, only : new_gfn1_calculator
+      use tblite_xtb_gfn2, only : new_gfn2_calculator, export_gfn2_param
+      use tblite_xtb_gfn1, only : new_gfn1_calculator, export_gfn1_param
       use tblite_xtb_singlepoint, only : xtb_singlepoint
+      use tblite_param, only : param_record
+#ifdef USE_OPENMP
+      use omp_lib, only : omp_get_max_threads
+#endif
       implicit none
 #include "rtdb.fh"
 #include "geom.fh"
@@ -22,12 +26,13 @@
 #include "stdio.fh"
 #include "errquit.fh"
 #include "util.fh"
+#include "util_params.fh"
 #include "sym.fh"
 #include "xtb.fh"
 
       integer rtdb
       integer geom, i, j, iat
-      logical converged, status, oprint
+      logical converged, status, oprint, oparam, ovecs
       double precision walltime, cputime
 
       integer istat
@@ -41,23 +46,39 @@
 
       character(len=16) aname,elem
       character(len=2) symb
+      character(len=8) theory
+      character(len=255) temp
 
-      integer*4 :: iuhf4, one4, zero4, nspin4
-      integer*4,allocatable :: atnum(:)
+      integer*4 :: iuhf4, verb4, nspin4
+      integer*4,allocatable :: atnum4(:)
 
-      double precision energy, sigma(3,3)
+      double precision energy, sigma(3,3), dipole(3)
       double precision, allocatable :: coords(:,:),grad(:,:)
+      double precision, allocatable :: rcov(:), trans(:,:), cn(:)
 
-      type(structure_type) :: mol
-      type(xtb_calculator) :: calc
-      type(wavefunction_type) :: wfn
-      type(context_type) :: ctx
-      parameter(one4=1, zero4=0)
+      type(structure_type),allocatable    :: mol
+      type(xtb_calculator),allocatable    :: calc
+      type(wavefunction_type),allocatable :: wfn
+      type(context_type),allocatable      :: ctx
+      type(param_record),allocatable      :: param
 
+#ifdef USE_OPENMP
+      integer maxthreads
+      maxthreads = omp_get_max_threads()
+      call util_blas_set_num_threads(maxthreads)
+#endif
 
       xtb_energy_gradient = .false.
-      oprint = ga_nodeid().eq.0
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
+
+      !
+      ! Printing options
+      !
+      call util_print_push()
+      call util_print_rtdb_load(rtdb,'xtb')
+      oprint = util_print('information',print_low).and.ga_nodeid().eq.0
+      oparam = ga_nodeid().eq.0 .and.util_print('params',print_high)
+      ovecs = ga_nodeid().eq.0 .and. util_print('vecs',print_default)
 
       call xtb_rdinput(rtdb)
 
@@ -72,7 +93,7 @@
       !
       ! Initialize
       !
-      if (.not.rtdb_put(rtdb, 'xtb:energy', mt_dbl, 1, 0d0))
+      if (.not.rtdb_put(rtdb, 'xtb:energy', mt_dbl, 1, 0.0d0))
      $  call errquit('xtb_energy: faild to store energy',0,RTDB_ERR)
       if (.not.rtdb_put(rtdb, 'xtb:converged', mt_log, 1, .false.))
      $  call errquit('xtb_energy: failed to store converged',0,RTDB_ERR)
@@ -88,10 +109,11 @@
      $  call errquit('xtb_energy: geom_ncent failed',0,GEOM_ERR) 
       if (.not.rtdb_get(rtdb,'charge',mt_dbl,1,rcharge))
      $  rcharge = 0d0
-      iuhf4 = uhf
 
-      nspin4 = 1
-      if (iuhf4.gt.0) nspin4 = 2
+
+      iuhf4 = uhf
+      nspin4 = nspin
+      verb4 = verb
 
 C     symmetry or not
       if (.not. rtdb_get(rtdb, 'gradients:use symmetry', mt_log, 1,
@@ -156,39 +178,123 @@ c
       if (nat.ne.ncenters)
      $  call errquit('xtb_energy: not ready for dummy atoms',0,GEOM_ERR)
 
-      allocate(atnum(ncenters),stat=istat)
+      !
+      ! Atomic numbers
+      !
+      allocate(atnum4(ncenters),stat=istat)
       if (istat.ne.0)
      $  call errquit('xtb_energy: could not allocate numbers',0,MA_ERR)
-
       do i=0,ncenters-1
-        atnum(i+1) = nint(dbl_mb(icharge+i))
+        atnum4(i+1) = nint(dbl_mb(icharge+i))
       enddo
 
       energy = 0.0d0
       grad(:,:) = 0.0d0
       sigma(:,:) = 0.0d0
 
+      !
+      ! This line is needed for MOLDEN
+      !
+      if (oprint) then
+        write(luout,'(10X,A,I6)') 'No. of atoms     :',ncenters
+        write(luout,*)
+      endif
+
+      !
+      ! Allocate xTB objects
+      !
+      allocate(mol)
+      allocate(param)
+      allocate(wfn)
+      allocate(calc)
+      allocate(ctx)
+
       if (ga_nodeid().eq.0) then
-        call new(mol,atnum,coords,charge=rcharge,uhf=iuhf4)
+        status = rtdb_parallel(.false.)
+
+        !
+        ! Create mol object
+        !
+        call new(mol,atnum4,coords,charge=rcharge,uhf=iuhf4)
+
+        !
+        ! Select the calculator type and get params
+        !
         if (gfn2) then
+          theory = 'xTB GFN2'
           call new_gfn2_calculator(calc, mol)
+          call export_gfn2_param(param)
         elseif (gfn1) then
+          theory = 'xTB GFN1'
           call new_gfn1_calculator(calc, mol)
+          call export_gfn1_param(param)
         endif
+
+        !
+        ! Initialize wavefunction object
+        !
         call new_wavefunction(wfn,mol%nat,calc%bas%nsh,calc%bas%nao,
      $                      nspin4,kt)
-        call xtb_singlepoint(ctx,mol,calc,wfn,acc,energy,grad,sigma,
-     $                       verbosity=one4)
 
-c
-C     zero force contributions on inactive atoms
+        !
+        ! Compute starting charges 
+        !
+        status = rtdb_get(rtdb,'xtb:qat',mt_dbl,nat,wfn%qat)
+        status = status .and. rtdb_get(rtdb,'xtb:qsh',mt_dbl,
+     $                       int(calc%bas%nsh),wfn%qsh)
+        if (guess.and..not.status) then
+          call xtb_guess(mol,wfn%qat,wfn%qsh,param,mol%nat,
+     $                   calc%bas%nsh,calc%bas%nsh_at,atnum4)
+        endif
+
+        !
+        ! Setup spin-unrestricted calculation
+        !
+        if (nspin.eq.2) then
+          call xtb_spinpol(mol, calc, calc%bas)
+        endif
+
+        !
+        ! Set other parameters
+        !
+        calc%mixer_damping = broyden
+
+        !
+        ! Print params
+        !
+        if (oparam) then
+          call xtb_print_param(calc, param)
+        endif
+
+        !
+        ! Obtain energy and gradients
+        !
+        call xtb_singlepoint(ctx,mol,calc,wfn,acc,energy,grad,sigma,
+     $                       verbosity=verb4)
+
+
+        !
+        ! Total energy output
+        !
+        write(luout,*)
+        write(luout,'(A,F15.8)') '          Total xTB energy = ',energy
+        write(luout,*)
+
+        !
+        ! zero force contributions on inactive atoms
+        !
         call grad_active_atoms(rtdb, nat, log_mb(iact), nactive)
         call zero_forces(grad, log_mb(iact), nat)
-         
-C     symmetrize
+        
+        !
+        ! symmetrize
+        !
         if (oskel) call sym_grad_symmetrize(geom, grad)
 
-        if (oprint) then
+        !
+        ! Print Orbital Energies
+        !
+        if (ovecs) then
           write(luout,*)
           write(luout,*) '      Alpha Orbital Energies '
           do i=1,calc%bas%nao
@@ -208,45 +314,80 @@ C     symmetrize
             write(luout,*)
             write(luout,*)
           endif
+        endif
 
-          write(luout,*) '      Gradient '
-          write(luout,*)
+        !
+        ! Print Forces
+        !
+        if (ga_nodeid().eq.0 .and.
+     $      util_print('forces', print_low)) then
+ 1000     format(/,/,25X,A,' ENERGY GRADIENTS',/,/,4X,'atom',
+     $           15X,'coordinates',24X,'gradient',/,6X,
+     $           2(1X,(3(10X,A1))))
+ 2000     format(1X,I4,1X,A4,2(1X,3(1X,F10.6)))
+          write(luout,1000) theory,'x','y','z','x','y','z'
+          call util_flush(luout)
           do i=1,nat
             call util_set_ma_char_arrays(16, byte_mb(itags+16*(i-1)),
      $                                   aname)
-            write(luout,'(A10,3F16.8)') aname,(grad(j,i),j=1,3)
+            write(luout,2000) i,aname,(coords(j,i),j=1,3),
+     $                                  (grad(j,i),j=1,3)
           enddo
-          write(luout,*)
-
+          call util_flush(luout)
         endif
-        call xtb_deallocate_wavefunction(wfn)
-        call xtb_deallocate_structure(mol)
+
+        status = rtdb_put(rtdb,'xtb:qat',mt_dbl,nat,wfn%qat)
+        status = status .and. rtdb_put(rtdb,'xtb:qsh',mt_dbl,
+     $                       int(calc%bas%nsh),wfn%qsh)
+        if (.not.status)
+     $    call errquit('xtb_energy_gradients: could not put charges',0,
+     $                  RTDB_ERR)   
+
+        dipole(1:3) = sum(wfn%dpat(:,:,1),dim=2)
+        status = rtdb_put(rtdb,'task:dipole',mt_dbl,3,dipole)
+        status = rtdb_parallel(.true.)
       endif
 
+      xtb_energy_gradient = .not.ctx%failed()
+
+      !
+      ! Deallocate all xTB objects
+      !
+      deallocate(ctx)
+      deallocate(wfn)
+      deallocate(calc)
+      deallocate(mol)
+      deallocate(param)
      
       if (.not.ma_chop_stack(lcharge))
      $  call errquit('xtb_energy: failed to pop stack',0,MA_ERR)
       if (.not.geom_destroy(geom))
      $  call errquit('xtb_energy: could not destroy geom',0,GEOM_ERR)
-      deallocate(coords,atnum,stat=istat)
+      deallocate(coords,atnum4,stat=istat)
       if (istat.ne.0) 
      $  call errquit('xtb_energy: failed to deallocate',0,MA_ERR)
 
-      if (.not.rtdb_put(rtdb,'xtb:energy',mt_dbl,1,energy))
-     $  call errquit('xtb_energy: failed to put in rtdb',0,RTDB_ERR)
-      if (.not.rtdb_put(rtdb,'xtb:converged',mt_log,1,.true.))
-     $  call errquit('xtb_energy: failed to put in rtdb',0,RTDB_ERR)
+      if (ga_nodeid().eq.0) then
+        status = rtdb_parallel(.false.)
+        if (.not.rtdb_put(rtdb,'xtb:energy',mt_dbl,1,energy))
+     $    call errquit('xtb_energy: failed to put in rtdb',0,RTDB_ERR)
+        if (.not.rtdb_put(rtdb,'xtb:converged',mt_log,1,.true.))
+     $    call errquit('xtb_energy: failed to put in rtdb',0,RTDB_ERR)
 
-      if (.not.rtdb_put(rtdb,'xtb:gradient',mt_dbl,3*nat,grad))
-     $  call errquit('xtb_energy: failed to put in rtdb',0,RTDB_ERR)
+        if (.not.rtdb_put(rtdb,'xtb:gradient',mt_dbl,3*nat,grad))
+     $    call errquit('xtb_energy: failed to put in rtdb',0,RTDB_ERR)
+        status = rtdb_parallel(.true.)
+      endif
 
       deallocate(grad,stat=istat)
       if (istat.ne.0) 
      $  call errquit('xtb_energy: failed to deallocate',0,MA_ERR)
 
 
-      xtb_energy_gradient = .not.ctx%failed()
+      call util_print_pop()
 
-
+#ifdef USE_OPENMP
+      call util_blas_set_num_threads(1)
+#endif
 #endif
       end

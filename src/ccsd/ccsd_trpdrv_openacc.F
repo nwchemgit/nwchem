@@ -161,7 +161,7 @@
      &          t1v1(1:nvir), t1v2(1:nvir), stat=alloc_error)
       if (alloc_error.ne.0) call errquit('CXT1 temps',6,MA_ERR)
 !
-! UM arrays, produced by GA Get, consumed by DGEMM
+! H/D arrays, produced by GA Get, consumed by DGEMM
 !
       allocate( Tij(1:lnvv),      Tkj(1:kchunk*lnvv),
      &          Tia(1:lnov*nocc), Tka(1:kchunk*lnov),

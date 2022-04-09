@@ -344,6 +344,8 @@ fi
 ./runtests.mpi.unix procs $np dft_s66x8_waterdimer
 ./runtests.mpi.unix procs $np dft_c2br6_vdw4
 #
+./runtests.mpi.unix procs $np ccsdt_ompt_w3pvdz
+./runtests.mpi.unix procs $np ccsdt_w3pvdz
 ./runtests.mpi.unix procs $np aump2 
 ./runtests.mpi.unix procs $np n2_ccsd 
 ./runtests.mpi.unix procs $np benzene_ccsd 
@@ -368,8 +370,15 @@ echo 'This test requires 16 processors to run quickly'
 ./runtests.mpi.unix procs $np hess_biph
 #echo 'This test requires >100 processors to run quickly'
 #./runtests.mpi.unix procs $np tce_hyperpolar_ccsd_big
-echo 'The following 2 tests require few processors but a lot of time'
+echo 'misc tests'
+./runtests.mpi.unix procs $np ch3oh-transden
+./runtests.mpi.unix procs $np cho_cs_analytic_trans
+./runtests.mpi.unix procs $np h2o-td
+./runtests.mpi.unix procs $np o2minus-td
+./runtests.mpi.unix procs $np udft_aoresp
+echo 'The following  tests require few processors but a lot of time'
 ./runtests.mpi.unix procs $np ch4cl_zts
+./runtests.mpi.unix procs $np cui_hiraobs
 if [[ "$what" != "flaky" ]]; then
   exit
 fi

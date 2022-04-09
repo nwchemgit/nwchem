@@ -126,6 +126,10 @@ fi
      else
 	 echo ' dft_input stubbed'
      fi
+     if [[ ! $(grep -i xtb $TRAVIS_BUILD_DIR/src/stubs.F| awk '/xtb_input/') ]]; then
+	 cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix xtb_siosi7
+#	 cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix xtb_siosi3
+     fi
      if [[ "$USE_SIMINT" != "1" ]] ; then
 # check if pspw is among modules
 	 if [[ ! $(grep -i pspw $TRAVIS_BUILD_DIR/src/stubs.F| awk '/pspw_input/') ]]; then
@@ -159,6 +163,7 @@ fi
 	 fi
        if [[ ! $(grep -i mp2_input $TRAVIS_BUILD_DIR/src/stubs.F| awk '/mp2_input/') ]]; then
 	   if [[ ! $(grep -i ccsd_input $TRAVIS_BUILD_DIR/src/stubs.F| awk '/ccsd_input/') ]]; then
+	       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs ccsdt_w3pvdz ccsdt_ompt_w3pvdz
 	       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs n2_ccsd h2mp2 auh2o aump2
 	   fi
        fi

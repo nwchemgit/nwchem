@@ -3,7 +3,7 @@ echo
 start cho_cs_analytic_trans
 title cho_cs_analytic_trans
 
-memory total 800 stack 400 heap 50 global 350 mb
+
 
 geometry noautoz units angstrom nocenter
 symmetry c1

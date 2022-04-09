@@ -312,7 +312,7 @@ foreach $filename (@FILES_TO_PARSE) {
 	}
         if (! $sgroup) {
 	if (/Total/ && /energy/) {
-	 if (/SCF/ || /DFT/ || /CCSD/ || /MP2/ || /MCSCF/ || /RIMP2/ || /RISCF/ || /BAND/ || /PAW/ || /PSPW/ || /WFN1/ ) {
+	 if (/SCF/ || /DFT/ || /CCSD/ || /MP2/ || /MCSCF/ || /RIMP2/ || /RISCF/ || /BAND/ || /PAW/ || /PSPW/ || /WFN1/ || /xTB/ ) {
 		if ($debug) {print "\ndebug: $_";}
 		@line_tokens = split(' ');
 		$num_line_tokens = @line_tokens;
