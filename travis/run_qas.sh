@@ -128,7 +128,7 @@ fi
      fi
      if [[ ! $(grep -i xtb $TRAVIS_BUILD_DIR/src/stubs.F| awk '/xtb_input/') ]]; then
 	 cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix xtb_siosi7
-#	 cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix xtb_siosi3
+	 cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix xtb_siosi3
      fi
      if [[ "$USE_SIMINT" != "1" ]] ; then
 # check if pspw is among modules

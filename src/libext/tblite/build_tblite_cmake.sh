@@ -86,16 +86,16 @@ fi
 if [[ ! -z "$BUILD_OPENBLAS"   ]] ; then
     BLASOPT="-L`pwd`/../lib -lnwc_openblas -lpthread"
 fi
+# check gfortran version
 if [[ `${FC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] ; then
     let GCCVERSIONGT8=$(expr `${FC} -dumpversion | cut -f1 -d.` \> 8)
-fi
-# check gfortran version
-if [[ ${GCCVERSIONGT8} != 1 ]]; then
-    echo
-    echo you have gfortran version $(${FC} -dumpversion | cut -f1 -d.)
-    echo gcc version 9 and later needed for tblite
-    echo
-    exit 1
+    if [[ ${GCCVERSIONGT8} != 1 ]]; then
+	echo
+	echo you have gfortran version $(${FC} -dumpversion | cut -f1 -d.)
+	echo gcc version 9 and later needed for tblite
+	echo
+	exit 1
+    fi
 fi
 
 
