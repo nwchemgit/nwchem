@@ -121,8 +121,9 @@
         write(6,99)
       endif
    99 format(2x,'Using Fortran OpenACC+CUBLAS in CCSD(T)')
-      tt0 = util_wallsec()
       agg_flops = 0
+!
+      tt0 = util_wallsec()
       ! setup CUDA streams
       do shi=1,8
         err = cudaStreamCreate(stream(shi))
@@ -132,11 +133,6 @@
         err = cublasSetStream(handle(shi), stream(shi))
         if (err.ne.0) call errquit('cublasSetStream',err,UNKNOWN_ERR)
       end do
-      tt1 = util_wallsec()
-      if (me.eq.0) then
-        write(6,500) tt1-tt0
-  500   format('CU init took ',e15.5,' seconds')
-      endif
 !
 ! device-only temp arrays
 ! produced by DGEMM, consumed by TENGY
@@ -183,6 +179,12 @@
      &          xKij(1:lnov*nocc), xKkj(1:kchunk*lnov),
      &          stat=alloc_error)
       if (alloc_error.ne.0) call errquit('TKJKD GPU alloc',1,MA_ERR)
+
+      tt1 = util_wallsec()
+      if (me.eq.0) then
+        write(6,500) tt1-tt0
+  500   format('CU+MEM init took ',e15.5,' seconds')
+      endif
 !
 !      call ga_sync() ! ga_sync called just before trpdrv in aoccsd2
 !
@@ -261,8 +263,19 @@
                      call ga_nbget(g_objv,1+2*lnoov+(i-1)*lnov,
      &                    2*lnoov+i*lnov,av,av,Xia,lnov,nbh_objv7)
 
+                     if (occsdps) then
+                        call pstat_on(ps_accwait)
+                     else
+                        call qenter('accwait',0)
+                     endif
 !$acc wait(9)
 !$acc wait(10)
+                     if (occsdps) then
+                        call pstat_off(ps_accwait)
+                     else
+                        call qexit('accwait',0)
+                     endif
+
                      t1v2(:) = t1((i-1)*nvir+1:i*nvir)
                      if(i.eq.1) then
                         call ga_nbwait(nbh_objv1) ! Dja
@@ -272,19 +285,25 @@
                      dintx1(:) = Djia(1:nvir)
 
                      do k=klo,min(khi,i)
-!$acc wait(9)
-!$acc wait(10)
+                        if (occsdps) then
+                           call pstat_on(ps_accwait)
+                        else
+                           call qenter('accwait',0)
+                        endif
+!$acc wait(9)           
+!$acc wait(10)          
+                        if (occsdps) then
+                           call pstat_off(ps_accwait)
+                        else
+                           call qexit('accwait',0)
+                        endif
+
                         t1v1(:) = t1((k-1)*nvir+1:k*nvir)
                         dintc2(:) = Dja(1+(k-1)*nvir:k*nvir)
                         if(i.eq.1) then
                            call ga_nbwait(nbh_objv4(k)) ! Djka
                         endif
                         dintx2(:) = Djka(1+(k-klo)*nvir:(k-klo+1)*nvir)
-                        if (occsdps) then
-                           call pstat_on(ps_doxxx)
-                        else
-                           call qenter('doxxx',0)
-                        endif
 !
 !  These are the input dependencies for the DGEMM calls below.
 !  We wait on all of them here because GA is not even remotely thread-safe.
@@ -292,6 +311,11 @@
 !  at the first trip of the loop.
 !
                         if (k.eq.klo) then
+                           if (occsdps) then
+                              call pstat_on(ps_gpumove)
+                           else
+                              call qenter('gpumove',0)
+                           endif
                            call ga_nbwait(nbh_coul2)
                            !xJia  = Jia
                            err = cudaMemcpyAsync(xJia,Jia,size(Jia),stream(1))
@@ -389,14 +413,37 @@
                              call errquit('cudaStreamSync',err,UNKNOWN_ERR)
                             endif
                            enddo
+                           if (occsdps) then
+                              call pstat_off(ps_gpumove)
+                           else
+                              call qexit('gpumove',0)
+                           endif
                         endif ! k==klo
+
+                        if (occsdps) then
+                           call pstat_on(ps_doxxx)
+                        else
+                           call qenter('doxxx',0)
+                        endif
 
                         tc0 = util_wallsec()
 
                         nv4 = nvir ! no possibility of overflow
                         no4 = nocc
-!$acc wait(9)
-!$acc wait(10)
+
+                        if (occsdps) then
+                           call pstat_on(ps_accwait)
+                        else
+                           call qenter('accwait',0)
+                        endif
+!$acc wait(9)           
+!$acc wait(10)          
+                        if (occsdps) then
+                           call pstat_off(ps_accwait)
+                        else
+                           call qexit('accwait',0)
+                        endif
+
                         err = cublasDgemm_v2(handle(1),
      &                        cu_op_n,cu_op_t,
      &                        nv4,nv4,nv4,1.0d0,
@@ -628,8 +675,8 @@
                  end do
                end do
                end if ! (i.ne.k)
-           tengy_flops = nvir*nvir*( 3 + 2*( 12 + 11 + 11 ) + 2*27 )
-           agg_flops = agg_flops + tengy_flops
+               tengy_flops = nvir*nvir*( 3 + 2*( 12 + 11 + 11 ) + 2*27 )
+               agg_flops = agg_flops + tengy_flops
 
                          tc1 = util_wallsec()
 
@@ -641,8 +688,20 @@
 
                      end do    ! k
                   end do       ! i
-!$acc wait(9)
-!$acc wait(10)
+
+                  if (occsdps) then
+                     call pstat_on(ps_accwait)
+                  else
+                     call qenter('accwait',0)
+                  endif
+!$acc wait(9)     
+!$acc wait(10)    
+                  if (occsdps) then
+                     call pstat_off(ps_accwait)
+                  else
+                     call qexit('accwait',0)
+                  endif
+
                   emp4 = emp4 + emp4i
                   emp5 = emp5 + emp5i
                   emp4 = emp4 + emp4k
@@ -690,6 +749,7 @@
          call qexit('trpdrv',0)
       endif
 !
+      tt0 = util_wallsec()
       deallocate( f1n, f1t, f2n, f2t, f3n, f3t, f4n, f4t,
      &            stat=alloc_error)
       if (alloc_error.ne.0) call errquit('free f[1234][tn]',8,MA_ERR)
@@ -715,5 +775,11 @@
         err = cudaStreamDestroy(stream(shi))
         if (err.ne.0) call errquit('cudaStreamDestroy',err,UNKNOWN_ERR)
       end do
+!
+      tt1 = util_wallsec()
+      if (me.eq.0) then
+        write(6,501) tt1-tt0
+  501   format('CU+MEM free took ',e15.5,' seconds')
+      endif
 !
       end
