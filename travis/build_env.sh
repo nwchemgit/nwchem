@@ -2,6 +2,8 @@
 os=`uname`
 dist="ubuntu"
 arch=`uname -m`
+env | grep FC || true
+env | grep CC || true
 if test -f "/usr/lib/os-release"; then
     dist=$(grep ID= /etc/os-release |head -1 |cut -c4-| sed 's/\"//g')
 fi
@@ -175,8 +177,13 @@ fi
 	nverdot="$nv_major"."$nv_minor"
 	nverdash="$nv_major"-"$nv_minor"
 	arch_dpkg=`dpkg --print-architecture`
-	echo 'deb [trusted=yes] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
+	echo 'deb [trusted=yes] https://developer.download.nvidia.com/hpc-sdk/ubuntu/'$arch_dpkg' /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
+	echo '*** added hpc-sdk source to /etc/aps ***'
+	ls -lrt /etc/apt/sources.list.d/ || true
+	ls -lrt	/etc/apt/sources.list.d/nvhpc.list || true
+	sudo cat /etc/apt/sources.list.d/nvhpc.list || true
 	sudo apt-get update -y
+	apt-cache search nvhpc
         sudo apt-get install -y nvhpc-"$nverdash"
 	export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:$PATH
 	export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH
@@ -192,7 +199,6 @@ fi
 #	export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/comm_libs/mpi/lib:$LD_LIBRARY_PATH
 #	fi
 	export CC=gcc
-	env | grep FC || true
 	nvfortran -v
 	nvfortran
 	which nvfortran
