@@ -177,7 +177,7 @@ fi
 	nverdot="$nv_major"."$nv_minor"
 	nverdash="$nv_major"-"$nv_minor"
 	arch_dpkg=`dpkg --print-architecture`
-	echo 'deb [trusted=yes] https://developer.download.nvidia.com/hpc-sdk/ubuntu/amd64 /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
+	echo 'deb [trusted=yes] https://developer.download.nvidia.com/hpc-sdk/ubuntu/'$arch_dpkg' /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
 	echo '*** added hpc-sdk source to /etc/aps ***'
 	ls -lrt /etc/apt/sources.list.d/ || true
 	ls -lrt	/etc/apt/sources.list.d/nvhpc.list || true
