@@ -31,7 +31,7 @@
 
       integer rtdb
       integer geom, i, iat
-      logical converged, status, oprint, ovecs, oparam
+      logical converged, status, oprint, ovecs, oparam, restart
       double precision walltime, cputime
 
       integer istat
@@ -216,17 +216,17 @@
         !
         ! Compute starting charges 
         !
-        if (guess) then
-          call xtb_guess(mol,wfn%qat,wfn%qsh,param,mol%nat,
+        status = rtdb_get(rtdb,'xtb:restart',mt_log,1,restart)
+        if (guess.and..not.status) then
+          call xtb_guess(mol,wfn%qat,wfn%qsh,wfn%dpat,wfn%qpat,
+     $                   param,mol%nat,
      $                   calc%bas%nsh,calc%bas%nsh_at,atnum4)
-          !
-          ! Copy charges to second spin-channel, if available
-          !
           if (nspin.eq.2) then
             wfn%qat(:,2) = wfn%qat(:,1)
             wfn%qsh(:,2) = wfn%qsh(:,1)
           endif
-
+        elseif(status) then
+          call xtb_restart_read(mol, calc, wfn)
         endif
 
 
@@ -275,12 +275,14 @@
             write(luout,*)
           endif
         endif
+        call xtb_restart_write(mol, calc, wfn)
+        status = rtdb_put(rtdb,'xtb:restart',mt_log,1,.true.)
+        xtb_energy = .not.ctx%failed()
       endif
 
       !
       ! Check if something failed during the calculation
       !
-      xtb_energy = .not.ctx%failed()
       call ga_brdcst(101,xtb_energy,ma_sizeof(mt_log,1,mt_byte),0)
 
       ! 

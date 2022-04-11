@@ -1,4 +1,5 @@
-      subroutine xtb_guess(mol,qat,qshl,param,nat,nshl,nshl_at,atnum)
+      subroutine xtb_guess(mol,qat,qshl,dpat,qpat,param,nat,nshl,
+     $                     nshl_at,atnum)
       use mctc_io, only: structure_type
       use tblite_param, only : param_record
       use multicharge, only : mchrg_model_type, new_eeq2019_model,
@@ -10,11 +11,11 @@
       integer*4 :: nat, nshl
       integer*4 :: nshl_at(nat)
       integer*4 :: atnum(nat)
-      double precision :: qat(nat), qshl(nshl)
+      double precision :: qat(nat), qshl(nshl), dpat(3,nat), qpat(6,nat)
 
       type(mchrg_model_type) :: model
       integer :: i, j, ksh
-      double precision :: tot
+      double precision :: tot, vec(3), tr
       double precision, allocatable :: rcov(:), cn(:), trans(:,:)
 
 
@@ -38,6 +39,20 @@
           qshl(ksh) = param%record(atnum(i))%refocc(j)/tot*qat(i)
         enddo
       enddo
+
+
+      do i=1,nat
+        dpat(:,i) = qat(i)*mol%xyz(:,i)
+        qpat(1,i) = qat(i)*mol%xyz(1,i)**2
+        qpat(2,i) = qat(i)*mol%xyz(1,i)*mol%xyz(2,i)
+        qpat(3,i) = qat(i)*mol%xyz(2,i)**2
+        qpat(4,i) = qat(i)*mol%xyz(3,i)*mol%xyz(1,i)
+        qpat(5,i) = qat(i)*mol%xyz(3,i)*mol%xyz(2,i)
+        qpat(6,i) = qat(i)*mol%xyz(3,i)**2
+      enddo
+
+      dpat = 0d0
+      qpat = 0d0
 
       deallocate(rcov,cn,trans)
 
