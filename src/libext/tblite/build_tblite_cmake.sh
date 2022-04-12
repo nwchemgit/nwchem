@@ -87,9 +87,10 @@ if [[ ! -z "$BUILD_OPENBLAS"   ]] ; then
     BLASOPT="-L`pwd`/../lib -lnwc_openblas -lpthread"
 fi
 # check gfortran version
+FFLAGS_IN=" "
 if [[ `${FC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] ; then
-    let GCCVERSIONGT8=$(expr `${FC} -dumpversion | cut -f1 -d.` \> 8)
-    if [[ ${GCCVERSIONGT8} != 1 ]]; then
+    let GFORTRANVERSIONGT8=$(expr `${FC} -dumpversion | cut -f1 -d.` \> 8)
+    if [[ ${GFORTRANVERSIONGT8} != 1 ]]; then
 	echo
 	echo you have gfortran version $(${FC} -dumpversion | cut -f1 -d.)
 	echo gcc version 9 and later needed for tblite
@@ -97,8 +98,24 @@ if [[ `${FC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] ; then
 	exit 1
     fi
 fi
-
-
+# stop if FC is flang from AOCC
+if [[ ${FC} == flang ]]; then
+    if [[ `${FC} -dM -E - < /dev/null 2> /dev/null | grep -c AOCC` > 0 ]] ; then
+	echo
+	echo flang from AOCC not compatible with tblite
+	echo https://tblite.readthedocs.io/en/latest/installation.html#supported-compilers
+	echo
+	exit 1
+    fi
+fi
+#nvfortran
+if [[ ${FC} == nvfortran ]]; then
+	echo
+	echo nvfortran not compatible with tblite
+	echo https://tblite.readthedocs.io/en/latest/installation.html#supported-compilers
+	echo
+	exit 1
+fi
 if [[ -z "$USE_OPENMP" ]]; then
   DOOPENMP=OFF
 else
@@ -108,7 +125,7 @@ fi
 cd tblite
 rm -rf _build
 
-FC=$FC CC=$CC $CMAKE -B _build -DLAPACK_LIBRARIES="$BLASOPT" -DWITH_ILP64=$ilp64 -DWITH_OpenMP=$DOOPENMP -DCMAKE_INSTALL_PREFIX="../.." -DWITH_TESTS=OFF -DWITH_API=OFF -DCMAKE_INSTALL_LIBDIR="lib"
+FC=$FC CC=$CC $CMAKE -B _build -DLAPACK_LIBRARIES="$BLASOPT" -DWITH_ILP64=$ilp64 -DWITH_OpenMP=$DOOPENMP -DCMAKE_INSTALL_PREFIX="../.." -DWITH_TESTS=OFF -DWITH_API=OFF -DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_IGNORE_PATH=/usr/local
 $CMAKE --build _build --parallel 4
 status=$?
 if [ $status -ne 0 ]; then
