@@ -41,7 +41,7 @@
 
       integer iuhf8
 
-      logical oskel
+      logical oskel, restart
       integer nactive
 
       character(len=16) aname,elem
@@ -239,12 +239,13 @@ c
         !
         ! Compute starting charges 
         !
-        status = rtdb_get(rtdb,'xtb:qat',mt_dbl,nat,wfn%qat)
-        status = status .and. rtdb_get(rtdb,'xtb:qsh',mt_dbl,
-     $                       int(calc%bas%nsh),wfn%qsh)
+        status = rtdb_get(rtdb,'xtb:restart',mt_log,1,restart)
         if (guess.and..not.status) then
-          call xtb_guess(mol,wfn%qat,wfn%qsh,param,mol%nat,
+          call xtb_guess(mol,wfn%qat,wfn%qsh,wfn%dpat,wfn%qpat,
+     $                   param,mol%nat,
      $                   calc%bas%nsh,calc%bas%nsh_at,atnum4)
+        elseif(status) then
+          call xtb_restart_read(mol, calc, wfn)
         endif
 
         !
@@ -336,12 +337,9 @@ c
           call util_flush(luout)
         endif
 
-        status = rtdb_put(rtdb,'xtb:qat',mt_dbl,nat,wfn%qat)
-        status = status .and. rtdb_put(rtdb,'xtb:qsh',mt_dbl,
-     $                       int(calc%bas%nsh),wfn%qsh)
-        if (.not.status)
-     $    call errquit('xtb_energy_gradients: could not put charges',0,
-     $                  RTDB_ERR)   
+        !call xtb_restart_write(wfn%density, int(calc%bas%nao))
+        call xtb_restart_write(mol, calc, wfn)
+        status = rtdb_put(rtdb,'xtb:restart',mt_log,1,.true.)
 
         dipole(1:3) = sum(wfn%dpat(:,:,1),dim=2)
         status = rtdb_put(rtdb,'task:dipole',mt_dbl,3,dipole)

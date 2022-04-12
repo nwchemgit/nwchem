@@ -21,6 +21,17 @@
       if (.not.rtdb_get(rtdb,'xtb:broyden',mt_dbl,1,broyden)) 
      $   broyden=0.4d0
 
+      ! Figure restart file name
+      if(.not.rtdb_cget(rtdb,'xtb:restart_out',1,restart_out))
+     $  restart_out = ' '
+
+      if (restart_out.eq.' ') then
+        call util_file_name('xtbrestart',.false.,.false.,restart_out)
+      endif  
+
+      !Resolve restart file names to full paths
+      call util_file_name_resolve(restart_out,.false.)
+
       if (method.eq.'gfn2') then
         gfn2 = .true.
         gfn1 = .false.
@@ -51,5 +62,7 @@
      $  call errquit('xtb_rdinput: cannot put in rtdb',7,RTDB_ERR) 
       if (.not.rtdb_put(rtdb,'xtb:broyden',mt_dbl,1,broyden)) 
      $  call errquit('xtb_rdinput: cannot put in rtdb',8,RTDB_ERR) 
+      if(.not.rtdb_cput(rtdb,'xtb:restart_out',1,restart_out))
+     $  call errquit('xtb_rdinput: cannot put in rtdb',9,RTDB_ERR) 
 
       end subroutine
