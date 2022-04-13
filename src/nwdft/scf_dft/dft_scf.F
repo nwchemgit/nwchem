@@ -226,17 +226,17 @@ c
       gotsmear(ss)=abs(ss).gt.1d-9
 c
 c ... exact decoupling and other relativistic Hamiltonians
-      integer g_rel(2), g_x2c_u(2), g_x2c_u2c, g_x2c_c2u
-      logical lx2c_efg, lx2c_moment, lx2c_hfc, lx2c_keepU
-      logical lx2c_c2u, lx2c_u2c, lx2c_noatm, ltemp
+      integer g_rel(2)
+      integer  g_x2c_u(2), g_x2c_u2c, g_x2c_c2u
 c
 c     misc
 c
       logical debug_fon
       logical do_zora_recalc, zora_recalc
-      external zora_recalc
-      integer dbg
-c
+      external zora_recalcc
+      logical x2c_noatm
+      external x2c_noatm
+
 c MN solvation models -->
 c
       double precision gcds, gspol, espol, gspoldyn, gspolneq
@@ -289,7 +289,6 @@ c <-- MN solvation models
 c
 c     =========================================================================
 c
-      dbg=0 ! debug level during code development.
 c
       k_3cERI  = 0
       k_3cwhat = 0
@@ -337,8 +336,6 @@ c     I changed the array name for g_zora_sf to g_rel and use
 c     it now for both methods. 
 c     ---------------------------------------------------------
 
-      if(me.eq.0 .and. dbg>0)
-     &   write(luout,*) 'do_x2c =',do_x2c
 
 c     make sure we don't use zora, x2c, or another
 c     two-component relativistic method at the same time
@@ -357,26 +354,6 @@ c     write output about the relativistic treatment
         if (me.eq.0) write (luout,*) 'dft: using X2C'
       end if
 
-c     check for additional x2c keywords and set
-c     lx2c_keepU to T if we need it for any of the properties:
-
-      lx2c_keepU = .false.
-      lx2c_efg = .false.
-      if (rtdb_get(rtdb, 'x2c:efg', mt_log, 1,
-     &   lx2c_efg))    lx2c_keepU = .true.
-      lx2c_hfc = .false.
-      if (rtdb_get(rtdb, 'x2c:hfc', mt_log, 1,
-     &   lx2c_hfc))    lx2c_keepU = .true.
-      lx2c_moment = .false.
-      if (rtdb_get(rtdb, 'x2c:moment', mt_log, 1,
-     &   lx2c_moment)) lx2c_keepU = .true.
-      lx2c_noatm = .false.
-      if (rtdb_get(rtdb, 'x2c:noatm', mt_log, 1,
-     &  lx2c_noatm)) continue
-
-      if (lx2c_efg .and. me.eq.0) write (luout,*)
-     &  'x2c: will calculate EFGs, too'
-      
 c
 c !!! BGJ
 c     Store SCF hamiltonian type as DFT for use in BGJ routines
@@ -716,18 +693,14 @@ c     calculate superposition of atomic densities
 c     if ZORA or X2C functionality is requested
 c     -------------------------------------------
 
-      if ((do_zora .or. do_x2c) .and. .not.lx2c_noatm) then
+      if ((do_zora .or. do_x2c) .and. .not.x2c_noatm()) then
         call ga_zero(g_dens_at(1))
         if (ipol.gt.1) call ga_zero(g_dens_at(2))
         call guess_dens(rtdb, geom, ao_bas_han, g_dens_at)
-        if (oskel) call ga_symmetrize(g_dens_at(1))
-        if(ipol.gt.1) then
-          call ga_copy(g_dens_at(1),g_dens_at(2))
-          call ga_dscal(g_dens_at(1),dble(ntotel-nclosed)/(ntotel))
-          call ga_dscal(g_dens_at(2),dble(nclosed)/(ntotel))
-          if(oskel) call ga_symmetrize(g_dens_at(2))
-        end if
-      else if (do_x2c .and. lx2c_noatm) then
+        call dft_quickguess(ipol,nbf_ao,g_dens_at,oskel,
+     N     ntotel,nclosed,
+     D     .false.)
+      else if (do_x2c .and. x2c_noatm()) then
         call ga_zero(g_dens_at(1))
         if (ipol.gt.1) call ga_zero(g_dens_at(2)) 
       end if                    ! do_zora .or. do_x2c
@@ -872,19 +845,19 @@ c       g_x2c_u2c is created in the x2c routine and survives
 c       if keepU=.T. Same for the transformation matrices g_xc_u(:).
 c       optionally, g_x2c_c2u is also allocated and kept.
 
-        call calc_x2c_1e_scalar_ga(rtdb, lx2c_keepU,
-     &    lx2c_u2c, lx2c_c2u,
+        call calc_x2c_1e_scalar_ga(rtdb, 
      &    nexc, g_dens_at, g_vxc, g_rel(1), g_x2c_u,
      &    g_x2c_u2c, g_x2c_c2u, toll_s)
 
 c       debug: print the X2C U matrices
-
-        if(me.eq.0 .and. dbg>1) then
+#ifdef DEBUG
+        if(me.eq.0) then
           write (luout,*) 'x2c U-L'
           call ga_print(g_x2c_u(1))
           write (luout,*) 'x2c U-S'
           call ga_print(g_x2c_u(2))
-        end if ! debug
+       end if                   ! debug
+#endif       
 
         if (ipol.gt.1) then
           if(.not.ga_duplicate(g_vxc(2),g_rel(2),'x2c 2'))
@@ -937,30 +910,9 @@ c     == better have static ldb at high node counts ==
         if (.not. rtdb_cput(rtdb, 'dft:output vectors', 1, movecs_out))
      $       call errquit('dft_scf: DFT MO vectors not defined',0,
      &                     RTDB_ERR)
-        if(densmat) then
-            call util_file_name('densmat', .false.,.false.,file_mat1)
-            if(ga_nodeid().eq.0)
-     W           write(6,*) ' reading DM from file ',file_mat1
-           call ao_1prdm_read(nbf_ao,g_dens(1),file_mat1)
-        endif
-
-        if(ipol.eq.2) then
-           if(densmat) then
-            call errquit(' code not ready for open-shell ',0,CAPMIS_ERR)
-            call util_file_name('densmat', .false.,.false.,file_mat1)
-            if(ga_nodeid().eq.0)
-     W           write(6,*) ' reading DM from file ',file_mat1
-           call ao_1prdm_read(nbf_ao,g_dens(2),file_mat1)
-        else
-          call ga_copy(g_dens(1),g_dens(2))
-          call ga_dscal(g_dens(1),dble(ntotel-nclosed)/(ntotel))
-          call ga_dscal(g_dens(2),dble(nclosed)/(ntotel))
-       endif
-        endif
-      if(oskel) then
-        call ga_symmetrize(g_dens(1))
-        if(ipol.eq.2) call ga_symmetrize(g_dens(2))
-      endif
+      call dft_quickguess(ipol,nbf_ao,g_dens,oskel,
+     N     ntotel,nclosed,
+     D     densmat)
         goto 1789
       endif
       if(oskel) then
@@ -2002,21 +1954,6 @@ c     AOR end
 
 c ... jochen: calculate x2c properties if so requested:
       if (do_x2c) then
-        if (lx2c_efg) then
-c         x2c EFG 
-          if (me.eq.0 .and. dbg>0)
-     &      write (luout,*) 'calling calc_x2c_efg' 
-          call calc_x2c_efg_scalar(rtdb,
-     &      nexc, g_dens, g_dens_at, g_x2c_u)
-        end if
-        
-        if (lx2c_moment) then
-c         x2c dipole moment
-          if (me.eq.0 .and. dbg>0)
-     &      write (luout,*) 'calling x2c_moment' 
-          call calc_x2c_moment_scalar(rtdb,
-     &      nexc, g_dens, g_dens_at, g_x2c_u, 'dipole', 3)
-        end if
       end if ! do_x2c
 
 c     vdw  bit
@@ -2642,26 +2579,8 @@ c     Deallocate zora related arrays
 c
 c     deallocate x2c arrays if necessary
       if (do_x2c) then
-        if (.not. ga_destroy(g_rel(1))) call errquit(
-     &     'dft_scf: ga_destroy failed g_rel',0, GA_ERR)
-        if (ipol.gt.1) then
-          if (.not. ga_destroy(g_rel(1))) call errquit(
-     &       'dft_scf: ga_destroy failed g_rel',0, GA_ERR)
-        end if
-        if (lx2c_keepU) then
-          if(.not.ga_destroy(g_x2c_u(1))) call errquit(
-     &       'dft_scf: ga_destroy failed x2c_u(1)',1, GA_ERR)
-          if(.not.ga_destroy(g_x2c_u(2))) call errquit(
-     &       'dft_scf: ga_destroy failed x2c_u(2)',2, GA_ERR)
-          if (lx2c_u2c) then
-            if(.not.ga_destroy(g_x2c_u2c)) call errquit(
-     &        'dft_scf: ga_destroy failed x2c_u2c',51, GA_ERR)
-          end if
-          if (lx2c_c2u) then
-            if(.not.ga_destroy(g_x2c_c2u)) call errquit(
-     &        'dft_scf: ga_destroy failed x2c_c2u',54, GA_ERR)
-          end if
-        end if
+         call x2c_scf_terminate(rtdb,ipol,g_rel,
+     g     g_x2c_u,g_x2c_u2c,g_x2c_c2u)
       end if ! do_x2c
 c
 c     AOR begin

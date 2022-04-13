@@ -12,7 +12,7 @@
        calc_x2c_wmoment_scalar.o \
        write_x2c_pc_dip.o \
        read_x2c_pc_dip.o \
-       ma_solve.o
+       ma_solve.o x2c_scf.o
 
 
  LIBRARY = libnwdft.a

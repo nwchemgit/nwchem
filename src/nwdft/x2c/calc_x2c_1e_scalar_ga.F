@@ -1,4 +1,4 @@
-      subroutine calc_x2c_1e_scalar_ga (rtdb, keepU, needu2c, needc2u,
+      subroutine calc_x2c_1e_scalar_ga (rtdb, 
      &  nexc, g_dens, g_vxc, g_x2c, g_u, g_u2c, g_c2u, toll_s)
 
 c     -----------------------------------------------------------------
@@ -59,11 +59,11 @@ c     -----------------------------------------------------------------
 #include "rel_consts.fh"
 #include "cint1cache.fh"
 #include "numerical_constants.fh"
+#include "x2c_scf.fh"
 
 c     subroutine arguments:
 
       integer rtdb              ! [inp] runtime database GA handle
-      logical keepU             ! [inp] keep U-matrix?
       integer nexc              ! [inp] no. of XC terms
       integer g_dens(2)         ! [inp] atom densities for model pot.
       integer g_vxc(4)          ! scratch 
@@ -71,8 +71,6 @@ c     subroutine arguments:
       integer g_u(2)            ! [out] decoupling transformation
       integer g_u2c             ! [out] basis trafo
       integer g_c2u             ! [out] basis trafo
-      logical needu2c           ! [out] u2c trafo needed?
-      logical needc2u           ! [out] c2u trafo needed?
       double precision toll_s   ! [inp] Smat diag. tolerance
 
 c     GA handles used for temp storage in this routine:
@@ -165,9 +163,9 @@ c     make sure the input GAs have the correct dimension
      &  'x2c uncontracted basis smaller than contracted', 1,
      &  RTDB_ERR)
 
-      needu2c = (nu.gt.nc)
+      lx2c_u2c = (nu.gt.nc)
       if (master) then
-        if (needu2c) then
+        if (lx2c_u2c) then
           write (luout,*)
      &      'x2c INFO: the operator will be calculated in an'
           write (luout,*)
@@ -203,8 +201,8 @@ c     if analyticpvp is .F. or if we need the model potential,
 c     we also need a contracted-to-uncontracted basis transformation
 c     unless the two bases are identical
 
-      needc2u = ((.not.analytic_pvp .or. modelpot_2e).and.needu2c)
-      if (master.and.needc2u) write (luout,*)
+      lx2c_c2u = ((.not.analytic_pvp .or. modelpot_2e).and.lx2c_u2c)
+      if (master.and.lx2c_c2u) write (luout,*)
      &  'x2c INFO: x2c options require constructing the c2u trafo'
 
 c     check rtdb switch to see whether we should perform decoupling
@@ -270,7 +268,7 @@ c     u2c transforms the basis from uncontracted to contracted
 c     (really, these are just the contraction coefficients,
 c     but this is how it is done in the DKH routines)
 
-      if (needu2c) then
+      if (lx2c_u2c) then
 
         if (.not. ga_create(MT_DBL,nu,nc,'u2c',1,1,g_u2c))
      &    call errquit(pname//': create u2c failed',51,GA_ERR)
@@ -299,13 +297,13 @@ c     but this is how it is done in the DKH routines)
         
         if (master.and.dbg>0) write(luout,*) pname//': u2c done'
         
-      end if                    ! needu2c
+      end if                    ! lx2c_u2c
 
 c     c2u transforms the basis from contracted to uncontracted.
 c     we have to do this as a generalized left-inverse of u2c.
 c     Use [(A^T A)**(-1) A^T] A = 1 to define the left-inverse.
 
-      if (needc2u) then
+      if (lx2c_c2u) then
 
         if (.not. ga_create(MT_DBL,nc,nu,'c2u',1,1,g_c2u))
      &    call errquit(pname//': create c2u failed',54,GA_ERR)
@@ -361,9 +359,9 @@ c       c2u*u2c must be a unit matrix of dimension nc
 
         if (master.and.dbg>0) write(luout,*) pname//': c2u done'
 
-      end if                    ! needc2u
+      end if                    ! lx2c_c2u
 
-      if (needu2c) then
+      if (lx2c_u2c) then
 
 c       transform density matrix to the uncontracted basis:
 c       c2u is how the basis would transform in this case.
@@ -403,7 +401,7 @@ c       just assign the GA handle of g_dens(1) to g_densu
 
         g_densu = g_dens(1)
 
-      end if                    ! needu2c
+      end if                    ! lx2c_u2c
 
       if (master.and.dbg>0) write (luout,*)
      &  'g_densu, g_dens(1) = ',g_densu,g_dens(1)
@@ -464,17 +462,17 @@ c     we need to SUBTRACT the nonrel H from the operator.
 c     this is done here, upfront. 
 c     ----------------------------------------------------------
 
-c     if needu2c is .T., we now need to allocate an array for the
+c     if lx2c_u2c is .T., we now need to allocate an array for the
 c     x2c operator in the uncontracted basis => g_X
 c     otherwise, we simply use the GA handle of g_x2c.
 
-      if (needu2c) then
+      if (lx2c_u2c) then
         if (.not.ga_duplicate(g_s, g_X, 'g_X')) call
      &  errquit(pname//': ga_create failed g_X',61,GA_ERR)  
         call ga_zero(g_X)
       else
         g_X = g_x2c
-      end if                    ! needu2c
+      end if                    ! lx2c_u2c
 
       call ga_dadd(1.d0, g_X, -1.0d0, g_t, g_X)
       call ga_dadd(1.d0, g_X, -1.0d0, g_v, g_X)
@@ -516,7 +514,7 @@ c       add Coul. pot. to g_v:
       end if                    ! modelpot_2e
      
 c     g_densu not needed past this point
-      if (needu2c) then
+      if (lx2c_u2c) then
         if (.not. ga_destroy(g_densu))
      &    call errquit(pname//': error destroy densu',58, GA_ERR) 
       else
@@ -561,7 +559,7 @@ c     --------------------------------------------------
      &    write(luout,*) '     (2e model pot. only)'
         
         
-        if (needu2c) then
+        if (lx2c_u2c) then
           
 c         here we need to use the contracted basis ...
 c         use g_tmpv to hold the array.
@@ -594,7 +592,7 @@ c         cbas = ubas. Just continue as usual
           call x2c_getw_scalar(rtdb, g_dens(1), g_w, g_vxc, nexc,
      &      analytic_pvp, .not.modelpot_2e)
           if (dbg>0.and.master) write (luout,*) 'g_w numint end'
-        end if                  ! needu2c
+        end if                  ! lx2c_u2c
 
       end if                    ! need analytic integration
       
@@ -603,7 +601,7 @@ c     W is the pVp matrix, incl model pot if requested:
 
 c     sanity checks:
 
-      if (.not.needu2c) then
+      if (.not.lx2c_u2c) then
         if (g_X.ne.g_x2c) call errquit(
      &    pname//': g_X/g_x2c inconsistency 1',g_X-g_x2c, UNKNOWN_ERR)
       end if
@@ -887,7 +885,7 @@ c     if we don't keep the transformation we also don't
 c     need to keep the u2c [or c2u] transformation
 c     -----------------------------------------------------
       
-      if (keepU) then
+      if (lx2c_keepU) then
         if (.not. ga_create(MT_DBL,nu,nu,'x2c_UL',1,1,g_u(1)))
      &    call errquit(pname//': ga_create failed UL',75, GA_ERR)
         if (.not. ga_create(MT_DBL,nu,nu,'x2c_US',1,1,g_u(2)))
@@ -896,7 +894,7 @@ c     -----------------------------------------------------
         call ga_copy(g_s, g_u(1))
         call ga_copy(g_m, g_u(2))
         call ga_scale(g_u(2), c_2c)
-      end if ! keepU
+      end if ! lx2c_keepU
 
       if (.not. ga_destroy(g_s))
      &  call errquit(pname//': ga_destroy failed s',11, GA_ERR)
@@ -908,7 +906,7 @@ c     -----------------------------------------------------
 
 c     sanity check:
 
-      if (.not.needu2c) then
+      if (.not.lx2c_u2c) then
         if (g_X.ne.g_x2c) call errquit(
      &    pname//': g_X/g_x2c inconsistency 2',g_X-g_x2c, UNKNOWN_ERR)
       end if
@@ -918,7 +916,7 @@ c     transform x2c operator to contracted basis and
 c     store in g_x2c. Otherwise, we are already done
 c     ----------------------------------------------
 
-      if (needu2c) then
+      if (lx2c_u2c) then
         if (dbg>0.and.master) write(luout,*)
      &    pname//': u2c trafo of result'
         if (.not. ga_create(MT_DBL,nc,nu,'temp',1,1,g_temp))
@@ -929,32 +927,32 @@ c     ----------------------------------------------
         
         call ga_dgemm('t','n',nc,nu,nu,1.0d0,
      &    g_u2c,g_X,0.0d0,g_temp)
-c       note: if needu2c.eq..T. then g_x2c and g_X are not the 
+c       note: if lx2c_u2c.eq..T. then g_x2c and g_X are not the 
 c       same. Hence, g_x2c is over-written here
         call ga_dgemm('n','n',nc,nc,nu,1.0d0,
      &    g_temp,g_u2c, 0.0d0,g_x2c)
 
         if (.not. ga_destroy(g_temp))
      &    call errquit(pname//': ga_destroy failed temp',77,GA_ERR)
-      end if                    ! needu2c
+      end if                    ! lx2c_u2c
 
       call ga_symmetrize(g_x2c)
 
 c     de-allocate g_X, if needed, and related arrays
 
-      if (needu2c) then
+      if (lx2c_u2c) then
         if (.not. ga_destroy(g_X))
      &    call errquit(pname//': ga_destroy failed g_X',61,GA_ERR)
 
-        if (.not.keepU) then
+        if (.not.lx2c_keepU) then
           if (.not. ga_destroy(g_u2c)) call errquit
      &      (pname//': ga_destroy failed u2c',51,GA_ERR)
         end if
-      end if ! needu2c
-      if (needc2u .and. .not.keepU) then
+      end if ! lx2c_u2c
+      if (lx2c_c2u .and. .not.lx2c_keepU) then
         if (.not. ga_destroy(g_c2u)) call errquit
      &    (pname//': ga_destroy failed c2u',54,GA_ERR)
-      end if ! needc2u
+      end if ! lx2c_c2u
 
 c     restore model alpha and beta densities:
 
