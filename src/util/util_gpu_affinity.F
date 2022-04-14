@@ -3,14 +3,16 @@
       use iso_fortran_env
       use cudafor
       use openacc
+      implicit none
 #include "errquit.fh"
 #include "global.fh"
       integer(INT32) :: num_devices, use_ngpus, my_gpu
       integer :: ppn, node_rank, me
+      integer :: err
       character*255 :: char_use_ngpus
-      integer(acc_device_kind) :: devicetype
+      integer(kind=acc_device_kind) :: devicetype
       me = ga_nodeid()
-      devicetype = NVIDIA
+      devicetype = acc_device_nvidia
       !
       ! CUDA stuff
       !
