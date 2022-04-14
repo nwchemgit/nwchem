@@ -57,7 +57,7 @@ uprime[];
     fss,gamma,
     L2,L0,
     r2,
-    sum, a, scale, m1scale,
+    sum, a,aa, scale, m1scale,
     uout,upout,upin,
     *r,
     *f_upp,
@@ -221,7 +221,12 @@ uprime[];
             if ((Ninf+5) > Ngrid) Ninf = Ngrid - 5;
 
             /* define boundry near infinity */
-            a = sqrt( L2/(r[Ninf]*r[Ninf]) + 2.0*(v[Ninf]-E) );
+            aa = ( L2/(r[Ninf]*r[Ninf]) + 2.0*(v[Ninf]-E) );
+            if (aa>=0.0) 
+               a = sqrt( L2/(r[Ninf]*r[Ninf]) + 2.0*(v[Ninf]-E) );
+            else
+               a = 0.0;
+
             for (i=Ninf; i<=(Ninf+4); ++i)
             {
                 u[i]      = exp(-a*(r[i]-r[Ninf]));
@@ -248,7 +253,15 @@ uprime[];
             }
 
             /* make the outside u, match the inside u */
-            scale = uout/u[match];
+            if (match>Ninf)
+            {
+               scale = uout/u[Ninf];
+            }
+            else
+            {
+               scale = uout/u[match];
+            }
+
             for (i=match; i<=Ninf; ++i)
             {
                 u[i]      = scale*u[i];
@@ -301,6 +314,7 @@ uprime[];
             E = E + de;
             if ( (E > Emax) || (E < Emin))
                 E = 0.5*(Emin+Emax);
+
 
         } /* nodes ok */
     } /* while */

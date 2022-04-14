@@ -1,5 +1,5 @@
 Comment: 
-Comment: PAW basis set generation file for Erbium
+Comment: PAW basis set generation file for Terbium
 Comment: Fitted 04-02-22
 Comment: by Eric Bylaska
 Comment: 
@@ -7,9 +7,9 @@ Comment:
 [psp_type] 4
 [cutoff] 60.0
 
-<comment> Parameterized Er paw (4f5s5p5d5f6s6p projectors, 4/2/2022 by EJB) <end>
+<comment> Parameterized Tb paw (4f5s5p5d5f6s6p projectors, 4/2/2022 by EJB) <end>
 
-<atom_charge> 68.0
+<atom_charge> 65.0
 <orbitals>
 13   2 3
    1   0    2.00
@@ -21,7 +21,7 @@ Comment:
    4   0    2.00
    4   1    6.00
    4   2   10.00
-   4   3   12.00
+   4   3    9.00
    5   0    2.00
    5   1    6.00
    6   0    2.00
@@ -55,6 +55,7 @@ pauli
 <compensation_charge_radius> 1.8
 <nodal_constraint> on
 <projector_method> vanderbilt
+
 
 <scattering_test>
 4
