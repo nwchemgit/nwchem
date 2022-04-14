@@ -849,15 +849,6 @@ c       optionally, g_x2c_c2u is also allocated and kept.
      &    nexc, g_dens_at, g_vxc, g_rel(1), g_x2c_u,
      &    g_x2c_u2c, g_x2c_c2u, toll_s)
 
-c       debug: print the X2C U matrices
-#ifdef DEBUG
-        if(me.eq.0) then
-          write (luout,*) 'x2c U-L'
-          call ga_print(g_x2c_u(1))
-          write (luout,*) 'x2c U-S'
-          call ga_print(g_x2c_u(2))
-       end if                   ! debug
-#endif       
 
         if (ipol.gt.1) then
           if(.not.ga_duplicate(g_vxc(2),g_rel(2),'x2c 2'))
@@ -1954,6 +1945,8 @@ c     AOR end
 
 c ... jochen: calculate x2c properties if so requested:
       if (do_x2c) then
+         call x2c_prop(rtdb,
+     N     nexc, g_dens, g_dens_at, g_x2c_u)
       end if ! do_x2c
 
 c     vdw  bit
