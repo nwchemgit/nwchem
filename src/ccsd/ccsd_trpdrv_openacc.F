@@ -56,7 +56,8 @@
       integer :: alloc_error, err
 !
       double precision :: emp4i,emp5i,emp4k,emp5k
-      double precision :: eaijk,denom
+      double precision, device :: eaijk
+      double precision :: denom
       integer :: inode,next,nodes,me
       integer :: a,b,c,i,j,k,akold,av,nbf
       integer :: klo, khi
@@ -120,8 +121,9 @@
         write(6,99)
       endif
    99 format(2x,'Using Fortran OpenACC+CUBLAS in CCSD(T)')
-      tt0 = util_wallsec()
       agg_flops = 0
+!
+      tt0 = util_wallsec()
       ! setup CUDA streams
       do shi=1,8
         err = cudaStreamCreate(stream(shi))
@@ -131,11 +133,6 @@
         err = cublasSetStream(handle(shi), stream(shi))
         if (err.ne.0) call errquit('cublasSetStream',err,UNKNOWN_ERR)
       end do
-      tt1 = util_wallsec()
-      if (me.eq.0) then
-        write(6,500) tt1-tt0
-  500   format('CU init took ',e15.5,' seconds')
-      endif
 !
 ! device-only temp arrays
 ! produced by DGEMM, consumed by TENGY
@@ -182,6 +179,12 @@
      &          xKij(1:lnov*nocc), xKkj(1:kchunk*lnov),
      &          stat=alloc_error)
       if (alloc_error.ne.0) call errquit('TKJKD GPU alloc',1,MA_ERR)
+
+      tt1 = util_wallsec()
+      if (me.eq.0) then
+        write(6,500) tt1-tt0
+  500   format('CU+MEM init took ',e15.5,' seconds')
+      endif
 !
 !      call ga_sync() ! ga_sync called just before trpdrv in aoccsd2
 !
@@ -236,6 +239,11 @@
                      got_ak=.false.
                   endif
 
+                  emp4i = 0.0d0
+                  emp5i = 0.0d0
+                  emp4k = 0.0d0
+                  emp5k = 0.0d0
+
                   do i=1,nocc
 
                      call ga_nbget(g_objv,1+(j-1)*nvir+(i-1)*lnov,
@@ -255,6 +263,19 @@
                      call ga_nbget(g_objv,1+2*lnoov+(i-1)*lnov,
      &                    2*lnoov+i*lnov,av,av,Xia,lnov,nbh_objv7)
 
+                     if (occsdps) then
+                        call pstat_on(ps_accwait)
+                     else
+                        call qenter('accwait',0)
+                     endif
+!$acc wait(9)
+!$acc wait(10)
+                     if (occsdps) then
+                        call pstat_off(ps_accwait)
+                     else
+                        call qexit('accwait',0)
+                     endif
+
                      t1v2(:) = t1((i-1)*nvir+1:i*nvir)
                      if(i.eq.1) then
                         call ga_nbwait(nbh_objv1) ! Dja
@@ -264,6 +285,18 @@
                      dintx1(:) = Djia(1:nvir)
 
                      do k=klo,min(khi,i)
+                        if (occsdps) then
+                           call pstat_on(ps_accwait)
+                        else
+                           call qenter('accwait',0)
+                        endif
+!$acc wait(9)           
+!$acc wait(10)          
+                        if (occsdps) then
+                           call pstat_off(ps_accwait)
+                        else
+                           call qexit('accwait',0)
+                        endif
 
                         t1v1(:) = t1((k-1)*nvir+1:k*nvir)
                         dintc2(:) = Dja(1+(k-1)*nvir:k*nvir)
@@ -271,15 +304,6 @@
                            call ga_nbwait(nbh_objv4(k)) ! Djka
                         endif
                         dintx2(:) = Djka(1+(k-klo)*nvir:(k-klo+1)*nvir)
-                        emp4i = 0.0d0
-                        emp5i = 0.0d0
-                        emp4k = 0.0d0
-                        emp5k = 0.0d0
-                        if (occsdps) then
-                           call pstat_on(ps_doxxx)
-                        else
-                           call qenter('doxxx',0)
-                        endif
 !
 !  These are the input dependencies for the DGEMM calls below.
 !  We wait on all of them here because GA is not even remotely thread-safe.
@@ -287,44 +311,138 @@
 !  at the first trip of the loop.
 !
                         if (k.eq.klo) then
-                           if (i.eq.1) then
-                              if(got_ak) then
-                                 call ga_nbwait(nbh_exch1)
-                                 xKka  = Kka
-                                 call ga_nbwait(nbh_coul1)
-                                 xJka  = Jka
-                                 call ga_nbwait(nbh_objv2)
-                                 xTka  = Tka
-                                 call ga_nbwait(nbh_objv3)
-                                 xXka  = Xka
-                              endif
-                              call ga_nbwait(nbh_objo1)
-                              xTkj  = Tkj
-                              call ga_nbwait(nbh_objo2)
-                              xJkj  = Jkj
-                              call ga_nbwait(nbh_objo3)
-                              xKkj  = Kkj
+                           if (occsdps) then
+                              call pstat_on(ps_gpumove)
+                           else
+                              call qenter('gpumove',0)
                            endif
-                           call ga_nbwait(nbh_objo4)
-                           xTij  = Tij
-                           call ga_nbwait(nbh_objo5)
-                           xJij  = Jij
-                           call ga_nbwait(nbh_objo6)
-                           xKij  = Kij
                            call ga_nbwait(nbh_coul2)
-                           xJia  = Jia
-                           call ga_nbwait(nbh_exch2)
-                           xKia  = Kia
+                           !xJia  = Jia
+                           err = cudaMemcpyAsync(xJia,Jia,size(Jia),stream(1))
+                           if (err.ne.0) then
+                             call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
+                           endif
                            call ga_nbwait(nbh_objv6)
-                           xTia  = Tia
+                           !xTia  = Tia
+                           err = cudaMemcpyAsync(xTia,Tia,size(Tia),stream(1))
+                           if (err.ne.0) then
+                             call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
+                           endif
+                           call ga_nbwait(nbh_exch2)
+                           !xKia  = Kia
+                           err = cudaMemcpyAsync(xKia,Kia,size(Kia),stream(2))
+                           if (err.ne.0) then
+                             call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
+                           endif
                            call ga_nbwait(nbh_objv7)
-                           xXia  = Xia
+                           !xXia  = Xia
+                           err = cudaMemcpyAsync(xXia,Xia,size(Xia),stream(2))
+                           if (err.ne.0) then
+                             call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
+                           endif
+                           if (i.eq.1) then
+                              call ga_nbwait(nbh_objo1)
+                              !xTkj  = Tkj
+                              err = cudaMemcpyAsync(xTkj,Tkj,size(Tkj),stream(1))
+                              if (err.ne.0) then
+                                call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
+                              endif
+                              call ga_nbwait(nbh_objo3)
+                              !xKkj  = Kkj
+                              err = cudaMemcpyAsync(xKkj,Kkj,size(Kkj),stream(1))
+                              if (err.ne.0) then
+                                call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
+                              endif
+                              call ga_nbwait(nbh_objo2)
+                              !xJkj  = Jkj
+                              err = cudaMemcpyAsync(xJkj,Jkj,size(Jkj),stream(3))
+                              if (err.ne.0) then
+                                call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
+                              endif
+                              if (got_ak) then
+                                 call ga_nbwait(nbh_coul1)
+                                 !xJka  = Jka
+                                 err = cudaMemcpyAsync(xJka,Jka,size(Jka),stream(5))
+                                 if (err.ne.0) then
+                                   call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
+                                 endif
+                                 call ga_nbwait(nbh_objv2)
+                                 !xTka  = Tka
+                                 err = cudaMemcpyAsync(xTka,Tka,size(Tka),stream(5))
+                                 if (err.ne.0) then
+                                   call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
+                                 endif
+                                 call ga_nbwait(nbh_exch1)
+                                 !xKka  = Kka
+                                 err = cudaMemcpyAsync(xKka,Kka,size(Kka),stream(6))
+                                 if (err.ne.0) then
+                                   call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
+                                 endif
+                                 call ga_nbwait(nbh_objv3)
+                                 !xXka  = Xka
+                                 err = cudaMemcpyAsync(xXka,Xka,size(Xka),stream(6))
+                                 if (err.ne.0) then
+                                   call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
+                                 endif
+                              endif ! got_ak
+                           endif ! i==1
+                           call ga_nbwait(nbh_objo4)
+                           !xTij  = Tij
+                           err = cudaMemcpyAsync(xTij,Tij,size(Tij),stream(5))
+                           if (err.ne.0) then
+                             call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
+                           endif
+                           call ga_nbwait(nbh_objo6)
+                           !xKij  = Kij
+                           err = cudaMemcpyAsync(xKij,Kij,size(Kij),stream(5)) ! and 6
+                           if (err.ne.0) then
+                             call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
+                           endif
+                           call ga_nbwait(nbh_objo5)
+                           !xJij  = Jij
+                           err = cudaMemcpyAsync(xJij,Jij,size(Jij),stream(7)) ! and 8
+                           if (err.ne.0) then
+                             call errquit('cudaMemcpyAsync',err,UNKNOWN_ERR)
+                           endif
+
+                           ! arrays and thus copies contribute to more than one CUBLAS call
+                           ! but the copies on streams 1:4 and 5:8 are separable.
+                           do shi=1,4
+                            err = cudaStreamSynchronize(stream(shi))
+                            if (err.ne.0) then
+                             call errquit('cudaStreamSync',err,UNKNOWN_ERR)
+                            endif
+                           enddo
+                           if (occsdps) then
+                              call pstat_off(ps_gpumove)
+                           else
+                              call qexit('gpumove',0)
+                           endif
+                        endif ! k==klo
+
+                        if (occsdps) then
+                           call pstat_on(ps_doxxx)
+                        else
+                           call qenter('doxxx',0)
                         endif
 
                         tc0 = util_wallsec()
 
                         nv4 = nvir ! no possibility of overflow
                         no4 = nocc
+
+                        if (occsdps) then
+                           call pstat_on(ps_accwait)
+                        else
+                           call qenter('accwait',0)
+                        endif
+!$acc wait(9)           
+!$acc wait(10)          
+                        if (occsdps) then
+                           call pstat_off(ps_accwait)
+                        else
+                           call qexit('accwait',0)
+                        endif
 
                         err = cublasDgemm_v2(handle(1),
      &                        cu_op_n,cu_op_t,
@@ -393,6 +511,15 @@
                         if (err.ne.0) then
                           call errquit('cublasDgemm_v2',err,UNKNOWN_ERR)
                         endif
+
+                        if (k.eq.klo) then
+                           do shi=5,8
+                            err = cudaStreamSynchronize(stream(shi))
+                            if (err.ne.0) then
+                             call errquit('cudaStreamSync',err,UNKNOWN_ERR)
+                            endif
+                           enddo
+                        endif ! k==klo
 
                         err = cublasDgemm_v2(handle(5),
      &                        cu_op_n,cu_op_t,
@@ -479,9 +606,12 @@
                            call qenter('tengy',0)
                         endif
 
+!$acc kernels
                         eaijk=eorb(a) - (  eorb(ncor+i)
      &                                    +eorb(ncor+j)
      &                                    +eorb(ncor+k) )
+!$acc end kernels
+
 #ifdef USE_YFLOP
       flops_ycount = flops_ycount + nvir*nvir*(
      &                       3 + 2*(
@@ -491,10 +621,11 @@
      &                       2*27 )
 #endif
 
-!$acc parallel loop collapse(2) private(denom)
-!$acc&         reduction(+:emp4i,emp4k,emp5i,emp5k)
-           do b=1,nvir
-             do c=1,nvir
+!$acc parallel loop tile(32,32) private(denom)
+!$acc&         reduction(+:emp4i,emp5i)
+!$acc&         async(9)
+               do b=1,nvir
+                 do c=1,nvir
                    denom=-1.0d0/( eorb(ncor+nocc+b)
      &                           +eorb(ncor+nocc+c)+eaijk )
                    emp4i=emp4i+denom*
@@ -506,6 +637,24 @@
      &                        +3*denom*(
      &                  f1n(b,c)*(f1n(b,c)+f3n(c,b)+2*f4t(c,b))+
      &                  f2n(b,c)*f2t(c,b)+f3n(b,c)*f4t(b,c))
+                   emp5i=emp5i+denom*t1v1(b)*dintx1(c)*
+     &                 (    f1t(b,c)+f2n(b,c)+f4n(c,b)
+     &                  -2*(f3t(b,c)+f4n(b,c)+f2n(c,b)+
+     &                      f1n(b,c)+f2t(b,c)+f3n(c,b))
+     &                  +4*(f3n(b,c)+f4t(b,c)+f1n(c,b)))
+     &                        +denom*t1v1(b)*dintc1(c)*
+     &                 (     f1n(b,c)+f4n(b,c)+f1t(c,b)
+     &                   -2*(f2n(b,c)+f3n(b,c)+f2t(c,b)))
+                 end do
+               end do
+               if (i.ne.k) then
+!$acc parallel loop tile(32,32) private(denom)
+!$acc&         reduction(+:emp4k,emp5k)
+!$acc&         async(10)
+               do b=1,nvir
+                 do c=1,nvir
+                   denom=-1.0d0/( eorb(ncor+nocc+b)
+     &                           +eorb(ncor+nocc+c)+eaijk )
                    emp4k=emp4k+denom*
      &                  (f1n(b,c)+f1t(c,b)+f2n(c,b)+f3t(b,c)+f4t(c,b))*
      &                  (f1n(b,c)-2*f2n(b,c)-2*f3n(b,c)+f4n(b,c))
@@ -515,14 +664,6 @@
      &                        +3*denom*(
      &                  f1t(b,c)*(f1t(b,c)+f3t(c,b)+2*f4n(c,b))+
      &                  f2t(b,c)*f2n(c,b)+f3t(b,c)*f4n(b,c))
-                   emp5i=emp5i+denom*t1v1(b)*dintx1(c)*
-     &                 (    f1t(b,c)+f2n(b,c)+f4n(c,b)
-     &                  -2*(f3t(b,c)+f4n(b,c)+f2n(c,b)+
-     &                      f1n(b,c)+f2t(b,c)+f3n(c,b))
-     &                  +4*(f3n(b,c)+f4t(b,c)+f1n(c,b)))
-     &                        +denom*t1v1(b)*dintc1(c)*
-     &                 (     f1n(b,c)+f4n(b,c)+f1t(c,b)
-     &                   -2*(f2n(b,c)+f3n(b,c)+f2t(c,b)))
                    emp5k=emp5k+denom*t1v2(b)*dintx2(c)*
      &                 (    f1n(b,c)+f2t(b,c)+f4t(c,b)
      &                  -2*(f3n(b,c)+f4t(b,c)+f2t(c,b)+
@@ -531,10 +672,11 @@
      &                        +denom*t1v2(b)*dintc2(c)*
      &                 (     f1t(b,c)+f4t(b,c)+f1n(c,b)
      &                   -2*(f2t(b,c)+f3t(b,c)+f2n(c,b)))
-             end do
-           end do
-           tengy_flops = nvir*nvir*( 3 + 2*( 12 + 11 + 11 ) + 2*27 )
-           agg_flops = agg_flops + tengy_flops
+                 end do
+               end do
+               end if ! (i.ne.k)
+               tengy_flops = nvir*nvir*( 3 + 2*( 12 + 11 + 11 ) + 2*27 )
+               agg_flops = agg_flops + tengy_flops
 
                          tc1 = util_wallsec()
 
@@ -544,14 +686,26 @@
                             call qexit('tengy',0)
                          endif
 
-                         emp4 = emp4 + emp4i
-                         emp5 = emp5 + emp5i
-                         if (i.ne.k) then
-                             emp4 = emp4 + emp4k
-                             emp5 = emp5 + emp5k
-                         end if ! (i.ne.k)
                      end do    ! k
                   end do       ! i
+
+                  if (occsdps) then
+                     call pstat_on(ps_accwait)
+                  else
+                     call qenter('accwait',0)
+                  endif
+!$acc wait(9)     
+!$acc wait(10)    
+                  if (occsdps) then
+                     call pstat_off(ps_accwait)
+                  else
+                     call qexit('accwait',0)
+                  endif
+
+                  emp4 = emp4 + emp4i
+                  emp5 = emp5 + emp5i
+                  emp4 = emp4 + emp4k
+                  emp5 = emp5 + emp5k
                   if (iprt.gt.50)then
                      write(6,1234)me,a,j,emp4,emp5
  1234                format(' me aijk',3i5,2e15.5)
@@ -595,6 +749,7 @@
          call qexit('trpdrv',0)
       endif
 !
+      tt0 = util_wallsec()
       deallocate( f1n, f1t, f2n, f2t, f3n, f3t, f4n, f4t,
      &            stat=alloc_error)
       if (alloc_error.ne.0) call errquit('free f[1234][tn]',8,MA_ERR)
@@ -620,5 +775,11 @@
         err = cudaStreamDestroy(stream(shi))
         if (err.ne.0) call errquit('cudaStreamDestroy',err,UNKNOWN_ERR)
       end do
+!
+      tt1 = util_wallsec()
+      if (me.eq.0) then
+        write(6,501) tt1-tt0
+  501   format('CU+MEM free took ',e15.5,' seconds')
+      endif
 !
       end

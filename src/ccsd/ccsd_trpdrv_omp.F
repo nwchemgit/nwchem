@@ -254,16 +254,16 @@ c      call util_blas_set_num_threads(4)
 !
                         if (k.eq.klo) then
                            if (i.eq.1) then
-                              if(got_ak) then
+                              if (got_ak) then
                                  call ga_nbwait(nbh_exch1)
                                  call ga_nbwait(nbh_coul1)
                                  call ga_nbwait(nbh_objv2)
                                  call ga_nbwait(nbh_objv3)
-                              endif
+                              endif ! got_ak
                               call ga_nbwait(nbh_objo1)
                               call ga_nbwait(nbh_objo2)
                               call ga_nbwait(nbh_objo3)
-                           endif
+                           endif ! i==1
                            call ga_nbwait(nbh_objo4)
                            call ga_nbwait(nbh_objo5)
                            call ga_nbwait(nbh_objo6)
@@ -271,7 +271,7 @@ c      call util_blas_set_num_threads(4)
                            call ga_nbwait(nbh_exch2)
                            call ga_nbwait(nbh_objv6)
                            call ga_nbwait(nbh_objv7)
-                        endif
+                        endif ! k==klo
 
 #if USE_OMP_SECTIONS
 !$omp parallel
