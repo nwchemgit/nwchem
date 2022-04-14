@@ -49,9 +49,9 @@
       parameter (nw_max_coor = 3*nw_max_atom)
 *------------------------------------------------------------------------------
 * Maximum angular momentum (union of all integral functionality)
-*                                 0=S, 1=P, 2=D, 3=F, 4=G, 5=H, 6=I
+*                                 0=S, 1=P, 2=D, 3=F, 4=G, 5=H, 6=I, 7=K
       integer nw_max_angular
-      parameter (nw_max_angular = 6)
+      parameter (nw_max_angular = 7)
 *------------------------------------------------------------------------------
 * Maximum number of primitive gaussians in a segmented shell 
 *....................................................... or general contraction

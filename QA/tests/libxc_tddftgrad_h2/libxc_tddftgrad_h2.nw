@@ -1,0 +1,36 @@
+echo
+#https://github.com/nwchemgit/nwchem/issues/228
+title "H2"
+
+start h2
+
+geometry 
+  H     0.00000000      0.00000000      0.0000000
+  H     0.              0.              0.7299595  
+  symmetry c2v
+end
+
+basis 
+  * library 6-31G
+end
+
+dft
+xc pbe0
+end
+
+tddft
+  nroots 5
+  notriplet
+  civecs
+  grad
+   root 1
+  end
+  end
+  
+task tddft gradient     
+
+dft
+xc hyb_gga_xc_pbeh
+end
+
+task tddft gradient

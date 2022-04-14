@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # $Id$
 #
@@ -25,13 +25,13 @@ fi
    perlscript=${NWCHEM_TOP}/src/config/64_to_32.pl
 
 
- JOB_LIMIT=4
+ JOB_LIMIT=8
 
  njob=0
 
 for file in "$@"
 do
-
+if [ -f "$file" ]; then
    echo converting "$file" to 32-bit integers for BLAS/LAPACK
       ($perlexe $perlscript $file) &	
 
@@ -40,7 +40,7 @@ do
      wait
      let njob=0
    fi
-
+fi
 done
 
 if [ $njob -gt  0 ] ; then

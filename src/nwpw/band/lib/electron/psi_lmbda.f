@@ -49,11 +49,11 @@
       st1  = 6*nn + 1
       st2  = 7*nn + 1
 
-      call dcopy(8*nn,0.0d0,0,tmp,1)
+      call Parallel_shared_vector_zero(.false.,8*nn,tmp)
 
       sl(1)  = 0*nn + 1
       sl(2)  = 1*nn + 1
-      call dcopy(2*nn,0.0d0,0,lmbda,1)
+      call Parallel_shared_vector_zero(.true.,2*nn,lmbda)
 
       n1(1)=1
       n2(1)=ne(1)
@@ -100,6 +100,7 @@ c     >                          tmp(s11))
 
 
 *       ***** scale the overlap matrices ****
+$OMP DO
         do i=1,ne(ms)
           index = (i-1) + (i-1)*n
       
@@ -123,11 +124,13 @@ c     >                          tmp(s11))
              tmp(s11+indext)=tmp(s11+index)
           end do
         end do
+$OMP END DO
 
-        call dcopy(nn,tmp(s22),1,tmp(sa0),1)
+        call Parallel_shared_vector_copy(.true.,nn,tmp(s22),tmp(sa0))
 
         do it=1,itrlmd
-          CALL dcopy(nn,tmp(s22),1,tmp(sa1),1)
+          CALL Parallel_shared_vector_copy(.true.,nn,tmp(s22),tmp(sa1))
+!$OMP MASTER
           CALL DMMUL(n,ne(MS), tmp(s21), tmp(sa0), tmp(st1))
           CALL DMMUL(n,ne(MS), tmp(sa0), tmp(s12), tmp(st2))
           CALL DMADD(n,ne(MS), tmp(st1), tmp(st2), tmp(st1))
@@ -136,9 +139,12 @@ c     >                          tmp(s11))
           CALL DMMUL(n,ne(MS), tmp(sa0), tmp(st1), tmp(st2))
           CALL DMADD(n,ne(MS), tmp(st2), tmp(sa1), tmp(sa1))
           CALL DMSUB(n,ne(MS), tmp(sa1), tmp(sa0), tmp(st1))
+!$OMP END MASTER
+!$OMP BARRIER
           adiff=tmp(st1 - 1 + (idamax(n*ne(ms),tmp(st1),1)))
           if(adiff.lt.convg) GO TO 630
-          call dcopy(n*ne(ms),tmp(sa1),1,tmp(sa0),1)
+          call Parallel_shared_vector_copy(.true.,n*ne(ms),
+     >                                     tmp(sa1),tmp(sa0))
         end do
 
         ierr=10
@@ -152,7 +158,8 @@ c     >                          tmp(s11))
 
 C       return
   630   continue
-        call dcopy(n*ne(ms),tmp(sa1),1,lmbda(sl(ms)),1)
+        call Parallel_shared_vector_copy(.true.,n*ne(ms),
+     >                                   tmp(sa1),lmbda(sl(ms)))
   640 continue
 
 *:::::::::::::::::  correction due to the constraint  :::::::::::::::::

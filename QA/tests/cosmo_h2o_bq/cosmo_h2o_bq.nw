@@ -31,27 +31,13 @@ bQ library h 6-31G
 Bq library h cc-pVQZ
 end
 
-dft
-print medium tasks
-xc hfexch
-iterations 200
-noio
-direct
-GRID nodisk
-end
 
 set "geometry" "bq_end"
 set "ao basis" "atoms_only"
-set dft:xcreplicated f
-set fock:replicated .false.
-task dft energy
+task scf
 
 set "geometry" "bq_mid"
-set dft:xcreplicated f
-set fock:replicated .false.
-task dft energy
+task scf
 
 set "ao basis" "atoms_bq"
-set dft:xcreplicated f
-set fock:replicated .false.
-task dft energy
+task scf

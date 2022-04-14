@@ -74,7 +74,7 @@ c
       real*8 e_lj,e_q,e_spring
       real*8 ehfx,phfx
       
-      logical cosmo_on,cosmo1_on,V_APC_on
+      logical cosmo_on,cosmo1_on,V_APC_on,field_exist
       real*8  eapc,papc
 
 
@@ -124,6 +124,10 @@ c
       external pspw_charge_found,control_precondition,pspw_HFX
       external pspw_HFX_relaxed,psp_U_psputerm,meta_found
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
+      logical  pspw_Efield_found
+      external pspw_Efield_found
+      real*8   pspw_Efield_Energy_ion
+      external pspw_Efield_Energy_ion
 
       real*8   psi_1_noupdate_energy,psi_eigenvalue
       external psi_1_noupdate_energy,psi_eigenvalue
@@ -143,6 +147,8 @@ c
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
       external control_ks_maxit_orb,control_ks_maxit_orbs
 
+      integer   control_diis_histories
+      external  control_diis_histories
 
       Ein = E(1)
       call Parallel_taskid(taskid)
@@ -151,6 +157,7 @@ c
       cosmo_on  = nwpw_cosmo_on()
       cosmo1_on = nwpw_cosmo1_on()
       V_APC_on  = pspw_V_APC_on()
+      field_exist = pspw_charge_found().or.pspw_Efield_found()
 
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
@@ -214,30 +221,30 @@ c
          alpha  = control_ks_alpha()
 
          ks_deltae = tole
-         value = .false.
-         if (rho_read) call rho_2to1()
-c         if (control_fractional()) then
-c            if (control_use_fractional_rho()) then
-c               value = psi_try_read_density(1)
-c            end if
-c         end if
-         call electron_gen_vall()
-         call psi_get_density(1,dbl_mb(rho_in(1)))
-         call psi_get_density(1,dbl_mb(rho_out(1)))
+
+         if (rho_read) then
+            call rho_2to1()
+            call psi_get_density(1,dbl_mb(rho_in(1)))
+            call psi_get_density(1,dbl_mb(rho_out(1)))
+            call psi_set_density(1,dbl_mb(rho_out(1)))
+         else
+            call psi_get_density(1,dbl_mb(rho_in(1)))
+            call psi_get_density(1,dbl_mb(rho_out(1)))
+            call electron_gen_vall()
+         end if
 
          call psi_1gen_hml()
          call psi_diagonalize_hml_assending()
          if (.not.rho_read) then
-            !call psi_1gen_hml()
-            !call psi_diagonalize_hml_assending()
             call psi_1rotate2()
             call psi_2to1()
          end if
+
          if (dohfx) call psi_1genrho()
          if (control_fractional()) then
             call psi_1assending_occupation()
-            call psi_1define_occupation(0.0d0,.false.)
-            Enew1 = Enew1 + psi_smearcorrection()
+            call psi_1define_occupation(-1.0d0,.false.)
+            !write(*,*) "FIRST Energy=",Enew1+eion
          end if
 !$OMP MASTER
          Enew_shared  = Enew1
@@ -261,7 +268,8 @@ c         end if
   
 *     **** iniitialize SCF Mixing ****    
       call nwpw_scf_mixing_init(control_scf_algorithm(),alpha,
-     >                5,ispin,n2ft3d,dbl_mb(rho_out(1)))
+     >                          control_diis_histories(),
+     >                          ispin,n2ft3d,dbl_mb(rho_out(1)))
 
 *     **** iniitialize RMM-DIIS ****
       if (control_ks_algorithm().eq.1) call pspw_rmmdiis_init(5)
@@ -298,13 +306,16 @@ c         end if
       call psi_1rotate2()
       call psi_2to1()
 
+
 !$OMP BARRIER
 
 *     **** define fractional occupation ****
       if (control_fractional()) 
      >   call psi_1define_occupation(-1.0d0,.false.)
 
+
 !$OMP BARRIER
+
 
       e00 = psi_1energy()
 !$OMP MASTER
@@ -315,13 +326,11 @@ c         end if
       deltae = Enew_shared - Eold_shared
 !$OMP END MASTER
 
+
       !call electron_gen_vall()
       call psi_get_density(1,dbl_mb(rho_in(1)))
 
 *     **** compute deltaV ****
-c      call dcopy(ispin*n2ft3d,
-c     >           dbl_mb(rho_in(1)),1,
-c     >           dbl_mb(rho_junk(1)),1)
       call Parallel_shared_vector_copy(.true.,ispin*n2ft3d,
      >                                 dbl_mb(rho_in(1)), 
      >                                 dbl_mb(rho_junk(1)))
@@ -610,7 +619,7 @@ c         E(14) = E(14) + dng_1vl_mm()
             E(48) = e00  !** E(q|q)
 
             !E(1)  = E(1) + E(22) - E(23) + E(47) + E(48)
-            E(1)  = E(1) + E(22) - E(23)
+            E(1)  = E(1) + E(22) - E(23) !*** probably NOT CORRECT ***
 !$OMP END MASTER
          end if
 
@@ -619,22 +628,23 @@ c         E(14) = E(14) + dng_1vl_mm()
 !$OMP MASTER
          E(22) = eapc
          E(23) = papc
-         E(1)  = E(1) + eapc - papc
+         E(1)  = E(1) + eapc - papc !*** probably NOT CORRECT ***
 !$OMP END MASTER
       end if
 
 
-*     **** get pspw_charge  energies ****
-      if (pspw_charge_found()) then
+*     **** get pspw_charge and pspw_Efield  energies ****
+      if (field_exist) then
          evl  = psi_1v_field()
          evnl = pspw_charge_Energy_ion()
+     >        + pspw_Efield_Energy_ion()
          e00  = pspw_charge_Energy_charge()
 
 !$OMP MASTER
-         E(19)  = evl
-         E(20)  = evnl
-         E(21)  = e00
-         E(1)   = E(1) + E(20) + E(21)
+         E(49)  = evl
+         E(50)  = evnl
+         E(51)  = e00
+         E(1)   = E(1) + E(50) + E(51)
 !$OMP END MASTER
       end if
 

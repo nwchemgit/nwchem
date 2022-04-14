@@ -33,7 +33,7 @@ c
      .                'gausleg','lebedev'/
       data grid_acc /
      .     1d-4,1d-5,1d-6,1d-7,1d-8,1d-10,
-     .     1d-8,1d-4/
+     .     1d-8,1d-8/
 c
       double precision ictr_coord(3), ictr_chg
       integer itype, ictr, iaz, i_atomic_number,iangat
@@ -392,7 +392,7 @@ c     Define the quadrature size for each atomic center:
 c      - nrad, nang, mxnrad, mxnang
       mxnrad = 0
       mxnang = 0
-c     
+c
       do 50 itype = 1, ntypes
 c
 c        find an atom of this kind in the complete list
@@ -472,13 +472,19 @@ c
                   nrad(itype) = nradin(igridin)
                   iangat=nangin(igridin)
                else
-                  nrad(itype) = grid_params(min(grid_acc_index,6),
-     A                 1,grptr, i_atomic_number)
-                  iangat=grid_params(min(grid_acc_index,6),
-     A                 2,grptr,       i_atomic_number)
+cfix case for generic bq input
+                  if(grid_acc_index.gt.6)then
+                     nrad(itype) = nradpts
+                     iangat=iangquad
+                  else
+                     nrad(itype) = grid_params(min(grid_acc_index,6),
+     A                    1,grptr, i_atomic_number)
+                     iangat=grid_params(min(grid_acc_index,6),
+     A                    2,grptr,       i_atomic_number)
                   endif
                   nang(itype) = xc_leb_acc2nrd(iangat)
                   iangquad=max(iangquad,iangat)
+                  endif
                endif
 c                
                if(nrad(itype).gt.mxnrad)mxnrad = nrad(itype)

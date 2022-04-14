@@ -1093,7 +1093,7 @@ c
       if (.not. rtdb_get(rtdb,'driver:xrms_tol',mt_dbl,1,xrms_tol))
      $     xrms_tol = 0.0012d0
       if (.not. rtdb_get(rtdb,'driver:nptopt',mt_int,1,nptopt))
-     $     nptopt=20
+     $     nptopt=40
       if (.not. rtdb_get(rtdb,'driver:inhess',mt_int,1,inhess))
      $     inhess=0
       if (.not. rtdb_get(rtdb,'driver:linopt',mt_int,1,linopt)) 
@@ -1424,6 +1424,8 @@ c
       integer istrss
       double precision strss1,strss2,dum1,dum2,dum3,dum4
       logical redo_hessian
+      double precision ddot
+      external ddot
 
 ! This is a statement function
       ind(i,j) = k_hess + i + (j-1)*nvar - 1
@@ -1651,6 +1653,8 @@ c
       logical ophigh
       logical geom_lattice_get
       external geom_lattice_get
+      double precision ddot
+      external ddot
 c
       ophigh = util_print('high', print_high)
 c     
@@ -2001,6 +2005,8 @@ c
       double precision e0, e1, e2p, dsgrad
       double precision hess, a0, a1, a2
       double precision driver_energy_step
+      double precision ddot
+      external ddot
 c
       dsgrad = ddot(nvar, ds, 1, g, 1)
       if (dsgrad*alpha .ge. 0d0) then
@@ -2154,6 +2160,8 @@ c
       integer i, j
       double precision walka(5), walke(5),dum
       logical success
+      double precision ddot
+      external ddot
 c
       dsgrad = ddot(nvar, ds, 1, g, 1)
       if (dsgrad*alpha .ge. 0d0) then
@@ -2763,6 +2771,8 @@ c
       logical omm
       logical task_qmmm
       logical opt_geom_cart_coords_get
+      double precision ddot
+      external ddot
       ind(i,j) = k_pmat + i-1 + (j-1)*ncart
 c     
 c     FRACTIONAL?
@@ -3118,6 +3128,9 @@ c
 c
       logical geom_print_zmatrix, omatchneg
       save saddir, evalp
+
+      double precision ddot
+      external ddot
 c     
       omatchneg = .true.
       ovtol     = 0.7d0

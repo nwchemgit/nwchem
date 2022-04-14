@@ -277,6 +277,11 @@ c        call nwpwxc_print()
      > spin_orbit=.false.
       if (spin_orbit) ispin=2
 
+      if (.not.btdb_get(rtdb,'cpsd:fei',mt_log,1,fei))
+     >  fei = .false.
+      if(.not.btdb_cget(rtdb,'cpsd:xyz_filename',1,xyz_filename))
+     >  call util_file_prefix('xyz',xyz_filename)
+
 
 *     ****************************************
 *     **** cpmd and band_cpmd code: stuff ****
@@ -452,13 +457,24 @@ c
          end if
       end if
 
-      if (.not.btdb_cget(rtdb,'cgsd:input_ewavefunction_filename',
-     >                  1,input_ewavefunction_filename))
-     >  call util_file_prefix('emovecs',input_ewavefunction_filename)
+      !**** determing input_ewavefunction_filename ****
+      if (.not.btdb_cget(rtdb, 'pspw:input evectors', 
+     >                   1,input_ewavefunction_filename)) then
+         if (.not.btdb_cget(rtdb,'cgsd:input_ewavefunction_filename',
+     >                     1,input_ewavefunction_filename))
+     >     call util_file_prefix('emovecs',input_ewavefunction_filename)
+      end if
 
-      if (.not.btdb_cget(rtdb,'cgsd:output_ewavefunction_filename',
-     >                  1,output_ewavefunction_filename))
-     >  call util_file_prefix('emovecs',output_ewavefunction_filename)
+
+      !**** determing output_ewavefunction_filename ****
+      if (.not.btdb_cget(rtdb,'pspw:output evectors', 
+     >                   1,output_ewavefunction_filename)) then
+         if (.not.btdb_cget(rtdb,'cgsd:output_ewavefunction_filename',
+     >                     1,output_ewavefunction_filename)) then
+            output_ewavefunction_filename=input_ewavefunction_filename
+         end if
+      end if
+
 
       if (code.eq.11) then
      
@@ -511,6 +527,10 @@ c        call nwpwxc_print()
       if (.not.btdb_get(rtdb,'nwpw:scf_algorithm',
      >                  mt_int,1,scf_algorithm))
      >   scf_algorithm = 3
+
+      if (.not.btdb_get(rtdb,'nwpw:diis_histories',
+     >                  mt_int,1,diis_histories))
+     >   diis_histories = 15
 
       if (.not.btdb_get(rtdb,'nwpw:ks_algorithm',
      >                  mt_int,1,ks_algorithm))
@@ -767,6 +787,11 @@ c        call nwpwxc_print()
       if (.not.btdb_get(rtdb,'nwpw:scf_algorithm',
      >                  mt_int,1,scf_algorithm))
      >   scf_algorithm = 3
+
+      if (.not.btdb_get(rtdb,'nwpw:diis_histories',
+     >                  mt_int,1,diis_histories))
+     >   diis_histories = 15
+
       if (.not.btdb_get(rtdb,'nwpw:ks_algorithm',
      >                  mt_int,1,ks_algorithm))
      >   ks_algorithm = 0
@@ -1208,6 +1233,11 @@ c         return
       if ((code.eq.4) .or.(code.eq.9).or.(code.eq.10))
      >   has_ngrid_small = .false.
 
+*     **** set single_p;recision hfx ****
+      if (.not.btdb_get(rtdb,'pspw:HFX_single_precision',mt_log,1,
+     >                  single_precision_on))
+     >   single_precision_on = .false.
+
 
 *     **** set fractional (smearing) parameters ****
       if (.not.
@@ -1232,6 +1262,12 @@ c         return
 *     **** set attenuation parameter ****
       if (.not.btdb_get(rtdb,'nwpw:attenuation',mt_dbl,1,attenuation))
      >  attenuation = 0.5d0
+
+*     **** set preconditioning parameters Ep,Sp ****
+      if (.not.btdb_get(rtdb,'nwpw:Eprecondition',mt_dbl,1,Ep))
+     >   Ep = 20.0d0
+      if (.not.btdb_get(rtdb,'nwpw:Sprecondition',mt_dbl,1,Sp))
+     >   Sp = 200.0d0
 
 *     **** set out of time variables ****
       est_step_time   = -1
@@ -2356,6 +2392,20 @@ c      write(*,*) "L3=",L3
 
 *     ***********************************
 *     *                                 *
+*     *       control_diis_histories    *
+*     *                                 *
+*     ***********************************
+      integer function control_diis_histories()
+      implicit none
+
+#include "control.fh"
+
+      control_diis_histories = diis_histories
+      return
+      end
+
+*     ***********************************
+*     *                                 *
 *     *         control_ks_algorithm    *
 *     *                                 *
 *     ***********************************
@@ -2778,6 +2828,20 @@ c      end
       return 
       end
 
+*     ***********************************
+*     *					*
+*     *		control_output_qpsi	*
+*     *					*
+*     ***********************************
+      character*50 function control_output_qpsi()
+      implicit none
+
+#include "control.fh"
+
+      control_output_qpsi = output_qwavefunction_filename
+      return 
+      end
+
 
 *     ***********************************
 *     *					*
@@ -2805,6 +2869,20 @@ c      end
 #include "control.fh"
 
       control_input_epsi = input_ewavefunction_filename
+      return 
+      end
+
+*     ***********************************
+*     *					*
+*     *		control_input_qpsi	*
+*     *					*
+*     ***********************************
+      character*50 function control_input_qpsi()
+      implicit none
+
+#include "control.fh"
+
+      control_input_qpsi = input_qwavefunction_filename
       return 
       end
 
@@ -3253,6 +3331,50 @@ c     >               (ispin.eq.ispin_wf))
       control_check_number_virtuals = check
       return
       end
+
+
+*     *****************************************
+*     *                                       *
+*     *      control_check_q_orbitals         *
+*     *                                       *
+*     *****************************************
+      logical function control_check_q_orbitals()
+      implicit none
+
+#include "control.fh"
+
+*    *** local variables ***
+      logical check
+      integer ispin_wf,ne_wf(2),ne(2)
+
+*     ***** local functions ****
+      logical  qpsi_filefind
+      external qpsi_filefind
+      integer  psi_ne
+      external psi_ne
+
+*     **** check wavefunction file ****
+      if (qpsi_filefind()) then
+
+*        **** get mult and e-charge from wavefunction file ****
+         call psi_get_ne_qpsi(ispin_wf,ne_wf)
+         ne(1) = psi_ne(1)
+         ne(2) = psi_ne(2)
+
+         check = ((ne(1).eq.ne_wf(1)).and.
+     >            (ne(2).eq.ne_wf(2)).and.
+     >            (ispin.eq.ispin_wf))
+
+*     **** no wavefunction file ***
+      else
+         check = .false.
+      end if
+
+      control_check_q_orbitals = check
+      return
+      end
+
+
 
 
 
@@ -4178,7 +4300,6 @@ c      end if
          
 
 
-
 *     ***************************
 *     *                	   	*
 *     *        control_Ep	*
@@ -4187,20 +4308,7 @@ c      end if
       real*8 function control_Ep()
       implicit none
 
-#include "bafdecls.fh"
-#include "btdb.fh"
-
-*     **** control_rtdb common block ****
-      integer rtdb
-      common / control_rtdb1 / rtdb
-
-      real*8 Ep
-
-      if (.not.btdb_get(rtdb,'nwpw:Eprecondition',
-     >                  mt_dbl,1,Ep)) 
-     >  then
-         Ep = 20.0d0
-      end if
+#include "control.fh"
 
       control_Ep = Ep
       return
@@ -4216,20 +4324,7 @@ c      end if
       real*8 function control_Sp()
       implicit none
 
-#include "bafdecls.fh"
-#include "btdb.fh"
-
-*     **** control_rtdb common block ****
-      integer rtdb
-      common / control_rtdb1 / rtdb
-
-      real*8 Sp
-      
-      if (.not.btdb_get(rtdb,'nwpw:Sprecondition',
-     >                  mt_dbl,1,Sp))
-     >  then
-         Sp = 200.0d0
-      end if
+#include "control.fh"
 
       control_Sp = Sp
       return
@@ -7089,13 +7184,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       common / control_rtdb1 / rtdb
 
 *     **** external functions ****
-      logical  nwpw_cosmo_on
-      external nwpw_cosmo_on
+      logical  nwpw_cosmo_on, nwpw_born_on
+      external nwpw_cosmo_on, nwpw_born_on
 
       real*8 egas
 
       egas = 0.0d0
-      if (nwpw_cosmo_on()) then
+      if (nwpw_cosmo_on().or.nwpw_born_on()) then
          if (.not.btdb_get(rtdb,'nwpw:gas_energy',mt_dbl,1,egas))
      >      egas = 0.0d0
       end if
@@ -7122,12 +7217,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       common / control_rtdb1 / rtdb
 
 *     **** extertnal functions ****
-      logical  nwpw_cosmo_on
-      external nwpw_cosmo_on
+      logical  nwpw_cosmo_on,nwpw_born_on
+      external nwpw_cosmo_on,nwpw_born_on
       logical ok
 
       ok=.true.
-      if (.not.nwpw_cosmo_on()) then
+      if (.not.(nwpw_cosmo_on().or.nwpw_born_on())) then
          ok=ok.and.btdb_put(rtdb,'nwpw:gas_energy',mt_dbl,1,egas)
       end if
       control_gas_energy_set=ok
@@ -7336,3 +7431,43 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *        control_Efield_on        *
+*     *                                 *
+*     ***********************************
+      logical function control_Efield_on()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .true.
+      if (.not.btdb_get(rtdb,'nwpw:efield',mt_log,1,value))
+     >   value = .false.
+
+      control_Efield_on = value
+      return
+      end
+
+
+*     *********************************************
+*     *                                           *
+*     *        control_single_precision_on        *
+*     *                                           *
+*     *********************************************
+      logical function control_single_precision_on()
+      implicit none
+
+#include "control.fh"
+
+      control_single_precision_on = single_precision_on
+      return
+      end

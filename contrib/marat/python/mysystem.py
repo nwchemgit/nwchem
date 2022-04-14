@@ -56,13 +56,13 @@ if __name__ == '__main__':
     try:
         b = ResAtom.fromPDBrecord(aline1)
     except SystemExit:
-        print "error reading PDB line"
+        print("error reading PDB line")
         sys.exit(1)
     sim0.AddAtom(b)
     a = ResAtom.fromPDBrecord(aline2)
     sim0.AddAtom(a)
     sim1 = MySystem.fromPDBfile("test.pdb")
-    print sim1.residues
+    print(sim1.residues)
 
     
 #    def AddAtom1(self,a1):
@@ -73,7 +73,7 @@ if __name__ == '__main__':
 #            rmap[a1.resid]["atoms"]=[]
 #            rmap[a1.resid]["name"]=a1.resname
 #        if rmap[a1.resid]["name"]!=a1.resname:
-#            print "different names for the same residue index"
+#            print("different names for the same residue index")
 #            sys.exit(1)
 #        rmap[a1.resid]["atoms"].append(a1)
 #        print "added atom", a1.resid    

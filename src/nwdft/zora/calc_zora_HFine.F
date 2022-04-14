@@ -880,6 +880,7 @@ c
        implicit none
 #include "msgids.fh"
 #include "stdio.fh"
+#include "util_params.fh"
 c
        double precision atmass
        double precision parnuc1,parnuc2,
@@ -892,6 +893,7 @@ c
        data three     /3.0d0/
        data threehalf /1.5d0/
        data fm2bohr   /52917.7249d0/
+       fm2bohr=cau2ang*100000d0
        rtemp = (parnuc1 * atmass**(one/three) + parnuc2) / fm2bohr
        zetanuc = three / ( two * (rtemp**2))
        return

@@ -41,15 +41,7 @@ c
       call rohf_get_fock(g_fock)
 c
       if (oaufbau) then
-#if defined(PARALLEL_DIAG)
-#ifdef SCALAPACK
-         call ga_pdsyev(g_fock, g_u, dbl_mb(k_eval), 0)
-#else
-         call ga_diag_std(g_fock, g_u, dbl_mb(k_eval))
-#endif
-#else 
-         call ga_diag_std_seq(g_fock, g_u, dbl_mb(k_eval))
-#endif
+         call util_diag_std(g_fock, g_u, dbl_mb(k_eval))
       else
 c
 c     closed-closed piece
@@ -210,15 +202,7 @@ c
             enddo
             call ga_sync
 c
-#if defined(PARALLEL_DIAG)
-#ifdef SCALAPACK
-      call ga_pdsyev(g_tmp, g_v, tmp, 0) 
-#else
-      call ga_diag_std(g_tmp, g_v, tmp)
-#endif
-#else 
-      call ga_diag_std_seq(g_tmp, g_v, tmp)
-#endif
+            call util_diag_std(g_tmp, g_v, tmp)
             call ga_sync
             do i = 1, n
                evals(map(i)-ilo+1) = tmp(i)

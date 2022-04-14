@@ -66,14 +66,25 @@ Integer     map[];
    mapjj = (int *) malloc(count*count*sizeof(int));
 
 
+   //create_olist(&olist2,count*count);
+   //for (jj=0; jj<count; ++jj)
+   //for (ii=0; ii<count; ++ii)
+   //{
+   //
+   //   map2[ii+jj*count] = hilbert2d(ii,jj,level);
+   //   insert_olist(&olist2,map2[ii+jj*count]);
+   //}
+
+   for (jj=0; jj<count; ++jj)
+   for (ii=0; ii<count; ++ii)
+      map2[ii+jj*count] = hilbert2d(ii,jj,level);
+   
    create_olist(&olist2,count*count);
    for (jj=0; jj<count; ++jj)
    for (ii=0; ii<count; ++ii)
-   {
-
-      map2[ii+jj*count] = hilbert2d(ii,jj,level);
       insert_olist(&olist2,map2[ii+jj*count]);
-   }
+   
+
    for (jj=0; jj<count; ++jj)
    for (ii=0; ii<count; ++ii)
       map2[ii+jj*count] = index_olist(&olist2,map2[ii+jj*count]);

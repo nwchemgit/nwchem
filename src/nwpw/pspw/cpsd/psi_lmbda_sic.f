@@ -49,7 +49,7 @@ c      real*8  tmp1(1000000)
       sa1  = 5*nn + 1
       st1  = 6*nn + 1
       st2  = 7*nn + 1
-      call dcopy(8*nn,0.0d0,0,tmp,1)
+      call Parallel_shared_vector_zero(.true.,8*nn,tmp)
 
 *     ::::::::::::::::::::::  Lagrangian multipliers  ::::::::::::::::::::::
       DO 640 ms=1,ispin
@@ -86,10 +86,10 @@ c        enddo
         call Dneall_m_scale_s21(ms,dte,tmp(s12))
         call Dneall_m_scale_s11(ms,dte,tmp(s11))
           
-        call dcopy(nn,tmp(s22),1,tmp(sa0),1)
+        call Parallel_shared_vector_copy(.true.,nn,tmp(s22),tmp(sa0))
 
         do it=1,itrlmd
-          CALL dcopy(nn,tmp(s22),1,tmp(sa1),1)
+          CALL Parallel_shared_vector_copy(.true.,nn,tmp(s22),tmp(sa1))
 
           call Dneall_mmm_Multiply(ms,
      >                              tmp(s21),tmp(sa0),1.0d0,
@@ -103,12 +103,12 @@ c        enddo
           call Dneall_mmm_Multiply(ms,
      >                              tmp(sa0),tmp(st1),1.0d0,
      >                              tmp(sa1),1.0d0)
-          call dcopy(nn,tmp(sa1),1,tmp(st1),1)
-          call daxpy(nn,(-1.0d0),tmp(sa0),1,tmp(st1),1)
+          call Parallel_shared_vector_copy(.true.,nn,tmp(sa1),tmp(st1))
+          call DAXPY_OMP(nn,(-1.0d0),tmp(sa0),1,tmp(st1),1)
 
           adiff = Dneall_m_dmax(ms,tmp(st1))
           if(adiff.lt.convg) GO TO 630
-          call dcopy(nn,tmp(sa1),1,tmp(sa0),1)
+          call Parallel_shared_vector_copy(.true.,nn,tmp(sa1),tmp(sa0))
         end do
 
         ierr=10

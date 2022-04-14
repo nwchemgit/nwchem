@@ -237,6 +237,8 @@ c     external oimp2
       external leps_energy
       logical  wfn1_task_energy
       external wfn1_task_energy
+      logical xtb_energy
+      external xtb_energy
 c
       logical status
       double precision dipole(3)
@@ -291,6 +293,8 @@ c
          else
             status = dft_energy(rtdb)
          endif
+      else if (theory .eq. 'xtb')then
+         status = xtb_energy(rtdb)
       else if (theory .eq. 'sodft')then 
          status = sodft_energy(rtdb)
       else if (theory .eq. 'tddft') then

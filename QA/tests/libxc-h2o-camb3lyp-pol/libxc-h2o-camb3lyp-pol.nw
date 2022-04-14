@@ -1,0 +1,28 @@
+echo
+start libxc-h2o-camb3lyp-pol
+
+geometry units angstrom
+O      0.00000000     0.00000000     0.11726921
+H      0.75698224     0.00000000    -0.46907685
+H     -0.75698224     0.00000000    -0.46907685
+end
+
+basis spherical
+  * library aug-cc-pvdz
+end
+
+#set int:cando_txs f
+
+dft
+xc hyb_gga_xc_cam_b3lyp
+  direct  
+  iterations 100 
+end
+task dft energy
+
+property
+  center com
+  dipole
+  aoresponse 1 0.0
+end
+task dft property

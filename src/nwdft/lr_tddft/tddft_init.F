@@ -5,7 +5,8 @@
      4  tda,singlet,triplet,nroots,maxvecs,tol2e,thresh,
      5  maxiter,target,targetsym,symmetry,algorithm,g_movecs,
      6  l_evl,k_evl,l_occ,k_occ,l_irs,k_irs,mult,lecut,ecut,diff_max,
-     7  lowin,owstart,owend,lewin,ewinl,ewinh,vshift)
+     7  lowin,owstart,owend,lewin,ewinl,ewinh,vshift,
+     8  lhascd)
 c
 c $Id$
 c
@@ -81,6 +82,7 @@ c
       logical lb94             ! LB94 asymptotic correction
       logical cs00             ! CS00 asymptotic correction
       logical ncap             ! NCAP derivative discontinuity
+      logical lhascd           ! Has CD basis available
       double precision shift   ! Shift for CS00 or NCAP
 C     character*80 vector      ! CI vector filename
 c
@@ -116,6 +118,7 @@ c
       external ga_create_atom_blocked
       logical xc_got2nd, xc_gotxc
       external xc_got2nd, xc_gotxc
+      logical, external :: is_libxcon
 c
       nodezero=(ga_nodeid().eq.0)
 c
@@ -155,14 +158,16 @@ c
 c ---------
 c Basis set
 c ---------
-      if (.not.bas_create(ao_bas_han,'ao basis'))
-     1  call errquit('tddft_init: bas_create failed',0, BASIS_ERR)
-      if (.not.bas_rtdb_load(rtdb,geom,ao_bas_han,'ao basis'))
-     1  call errquit('tddft_init: no ao basis found',0, BASIS_ERR)
-      if (.not.int_normalize(rtdb,ao_bas_han))
-     1  call errquit('tddft_init: int_normalize failed',0, BASIS_ERR)
+c      if (.not.bas_create(ao_bas_han,'ao basis'))
+c     1  call errquit('tddft_init: bas_create failed',0, BASIS_ERR)
+c      if (.not.bas_rtdb_load(rtdb,geom,ao_bas_han,'ao basis'))
+c     1  call errquit('tddft_init: no ao basis found',0, BASIS_ERR)
+c      if (.not.int_normalize(rtdb,ao_bas_han))
+c     1  call errquit('tddft_init: int_normalize failed',0, BASIS_ERR)
+      call tddft_basis(rtdb,geom,ao_bas_han,lhascd)
       if (.not.bas_numbf(ao_bas_han,nbf_ao))
      1  call errquit('tddft_init: failed to read nbf_ao',0, BASIS_ERR)
+
 c ----------
 c MO vectors
 c ----------
@@ -389,7 +394,6 @@ c ----------------------
 c ----------------------
 c Initialize integrators
 c ----------------------
-      call int_init(rtdb,1,ao_bas_han)
       call schwarz_init(geom,ao_bas_han)
       call scf_get_fock_param(rtdb,tol2e)
 c --------------------------
@@ -402,6 +406,7 @@ c --------------------------
       do n=1,numfunc
         a=a+dabs(cfac(n))
       enddo
+      if (is_libxcon()) a = a + 1d0
       if ((a.gt.1.0d-8).and.(dabs(xfac(1)).le.1.0d-8)) then
 c Pure DFT
         ldft=.true.
@@ -613,6 +618,7 @@ c
         write(LuOut,*)
         call util_print_centered
      1    (LuOut,'XC Information',20,.true.)
+        if (is_libxcon()) call nwchem_libxc_print_header()
         do n=1,numfunc
           if (xccomb(n)) write(LuOut,9300) xcname(n)
         enddo
@@ -636,6 +642,7 @@ c
             write(LuOut,9310) cname(n),cfac(n),'non-local'
           endif
         enddo
+        if (is_libxcon()) call nwchem_libxc_print()
 c
         if (cam_exch)
      &        write(LuOut,9500)cam_alpha,cam_beta,cam_omega

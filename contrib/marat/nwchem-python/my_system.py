@@ -126,10 +126,10 @@ class MySystem(object):
         G=nx.MultiDiGraph()
         for i,r in enumerate(self.reslist):
             G.add_node(i+1,name=r.name)
-        print G.nodes()
+        print(G.nodes())
         solvent = [n for n,d in G.nodes_iter(data=True) if d['name'] in ['WAT','HOH','WTR' ]]
         solute = [n for n,d in G.nodes_iter(data=True) if d['name'] not in ['WAT','HOH','WTR' ]]
-        print "solute",solute
+        print("solute",solute)
         
         nr = len(self.reslist)
         for i in range(nr):
@@ -149,18 +149,18 @@ class MySystem(object):
                 if GenericResidue.spec_bonded(ri, rj):
                     G.add_edge(j+1,i+1,name="special")                     
          
-        print "all",[(u,v) for u,v,d in G.edges_iter(data=True)]                   
+        print("all",[(u,v) for u,v,d in G.edges_iter(data=True)])
         esolute = [(u,v,d) for u,v,d in G.edges_iter(data=True) if (u in solute or v in solute) and  d['name']=='hbond'  ]
-        print "solute-solute",esolute
+        print("solute-solute",esolute)
 
         esolute2 = [(u,v) for u,v,d in G.edges_iter(data=True) if (u in solute or v in solute) and  d['name']=='hbond2'  ]
-        print "double solute",esolute2
+        print("double solute",esolute2)
                 
         esolvent= [(u,v) for u,v,d in G.edges_iter(data=True) if (u in solvent and v in solvent) and  d['name']=='hbond']
-        print "solvent-solvent",esolvent       
+        print("solvent-solvent",esolvent)
 
         especial= [(u,v) for u,v,d in G.edges_iter(data=True) if d['name']=='special' ]
-        print especial      
+        print(especial)
         
         G=nx.relabel_nodes(G,lambda x: str(x))        
         pos0=nx.spectral_layout(G)
@@ -188,7 +188,7 @@ class MySystem(object):
 #        T=nx.dfs_tree(G)
 #        print(sorted(T.edges(data=True)))
         nx.write_dot(G,"shell.dot")
-#        print "density=",nx.density(G)
+#        print("density=",nx.density(G))
         nx.write_gml(G, "test.gml")
 #        plt.show() # display
 #        return G
@@ -200,10 +200,10 @@ class MySystem(object):
         G=nx.MultiGraph()
         for i,r in enumerate(self.reslist):
             G.add_node(i+1,name=r.name)
-        print G.nodes()
+        print(G.nodes())
         solvent = [n for n,d in G.nodes_iter(data=True) if d['name'] in ['WAT','HOH','WTR' ]]
         solute = [n for n,d in G.nodes_iter(data=True) if d['name'] not in ['WAT','HOH','WTR' ]]
-        print "solute",solute
+        print("solute",solute)
         
         h = self.hbond_matrix1()
         nr = numpy.size(h,0)
@@ -217,18 +217,18 @@ class MySystem(object):
                 elif GenericResidue.spec_bonded(self.reslist[i], self.reslist[j]):
                     G.add_edge(i+1,j+1,name="special")                     
          
-        print "all",[(u,v) for u,v,d in G.edges_iter(data=True)]                   
+        print("all",[(u,v) for u,v,d in G.edges_iter(data=True)])
         esolute = [(u,v) for u,v,d in G.edges_iter(data=True) if (u in solute or v in solute) and  d['name']=='hbond'  ]
-        print esolute
+        print(esolute)
 
         esolute2 = [(u,v) for u,v,d in G.edges_iter(data=True) if (u in solute or v in solute) and  d['name']=='hbond2'  ]
-        print esolute2
+        print(esolute2)
                 
         esolvent= [(u,v) for u,v,d in G.edges_iter(data=True) if (u in solvent and v in solvent) and  d['name']=='hbond']
-        print esolvent       
+        print(esolvent)
 
         especial= [(u,v) for u,v,d in G.edges_iter(data=True) if d['name']=='special' ]
-        print especial      
+        print(especial)
                 
         pos0=nx.spectral_layout(G)
         pos=nx.spring_layout(G,iterations=500,pos=pos0)
@@ -254,7 +254,7 @@ class MySystem(object):
 #        T=nx.dfs_tree(G)
 #        print(sorted(T.edges(data=True)))
 #        nx.write_dot(G,"shell.dot")
-#        print "density=",nx.density(G)
+#        print("density=",nx.density(G))
   
 #        plt.show() # display
 #        return G
@@ -311,7 +311,7 @@ class MySystem(object):
         G=nx.Graph()
         for i,r in enumerate(self.reslist):
             G.add_node(i+1,name=r.name)
-        print G.nodes()
+        print(G.nodes())
 
         
         h = self.hbond_matrix()
@@ -319,7 +319,7 @@ class MySystem(object):
         for i in range(nr):
             for j in range(i+1,nr):
                 if GenericResidue.touching(self.reslist[i], self.reslist[j],2.8):
-                    print 'adding edge',i+1,j+1
+                    print('adding edge',i+1,j+1)
                     G.add_edge(i+1,j+1,name="special")                     
  
 #        pos0=nx.spectral_layout(G)
@@ -415,8 +415,8 @@ class MySystem(object):
                     
     def info(self):
         for tag,res in self.residues.iteritems():
-            print tag 
-            print res       
+            print(tag)
+            print(res)
     
 if __name__ == '__main__':
 #    sim0 = MySystem("test")
@@ -430,23 +430,23 @@ if __name__ == '__main__':
     
 #    
     sim1 = MySystem.from_file("w10-11.xyz")
-    print sim1.num_hbonds(rOH=2.18, HOH=138)
+    print(sim1.num_hbonds(rOH=2.18, HOH=138))
 #    sim1.create_graph_directed("test.png")
 #    sim1.toPDBfile("shell-1.pdb")       
 #    sim1.create_graph("shell.png")
 #    G=sim1.graph()
-#    print nx.density(G)
-#    print sim1.num_hbonds()[0]
+#    print(nx.density(G))
+#    print(sim1.num_hbonds()[0])
 #    dm=sim1.dist_matrix(2.8)
 #    chain0=[0]
 #    level=2
 #    chain1=[]
-#    print dm
+#    print(dm)
 #    for i in chain0:
 #        for j in range(i+1,25):
 #            if dm[i][j]==1:
 #                chain1.append([i,j])
-#    print chain1
+#    print(chain1)
 #    
 #    chain0=chain1
 #    chain1=[]
@@ -455,7 +455,7 @@ if __name__ == '__main__':
 #        for j in range(i+1,25):
 #            if dm[i][j]==1:
 #                chain1.append([i,j])
-#    print chain1
+#    print(chain1)
 # 
 #    slist=set() 
 #    while len(slist)<15:
@@ -469,7 +469,7 @@ if __name__ == '__main__':
 #    for i,s in enumerate(slist):
 #        filename = "cw9-%d.pdb"%(i)
 #        comment="-".join(["%s" % el for el in s])
-#        print s,filename,comment
+#        print(s,filename,comment)
 #        sim1.toPDBfile1(filename,s,comment)
 
 #    it = iter(slist)
@@ -479,7 +479,7 @@ if __name__ == '__main__':
 #    nx.draw_spring(H)
 #    plt.show()
 
-    print "finished"
+    print("finished")
     sys.exit(0)
     
 
@@ -488,17 +488,17 @@ if __name__ == '__main__':
 #    sim2 = MySystem.fromPDBfile("test.pdb")
 #    sim3 = MySystem.fromXYZfile("w2-test.xyz")
 #    sim3.groupAtoms()
-#    print sim1.residues["XYZ"]
+#    print(sim1.residues["XYZ"])
 #    sim1.connectAtoms()
 
     
 #    G=nx.Graph(hbond)
 #
 #    for i in range(nr):
-#        print i+1, hbond[i], sum(hbond[i])
+#        print(i+1, hbond[i], sum(hbond[i]))
 #        
-#    print nx.connected_components(G)
-#    print nx.clustering(G)
+#    print(nx.connected_components(G))
+#    print(nx.clustering(G))
 #    nx.write_dot(G,'file.dot')
 #    pos=nx.spring_layout(G)
 #    colors=range(20)
@@ -506,10 +506,10 @@ if __name__ == '__main__':
 #    nx.draw_spring(G)
 #    plt.show()
 #    plt.savefig("path.png")
-#    print "looking for cliques"
-#    print list(nx.find_cliques(G))
-#    print nx.number_connected_components(G)
-#    print sorted(nx.degree(G).values())
+#    print("looking for cliques")
+#    print(list(nx.find_cliques(G)))
+#    print(nx.number_connected_components(G))
+#    print(sorted(nx.degree(G).values()))
 #    
 #    sim1.toPDBfile("mytest.pdb")    
 #    try:
@@ -520,22 +520,22 @@ if __name__ == '__main__':
 #
 #    L=nx.generalized_laplacian(G)
 #    e=eigenvalues(L)
-#    print e
-#    print "pagerank"
+#    print(e)
+#    print("pagerank")
 #    d= nx.degree(G)
 #    for w in sorted(d, key=d.get, reverse=True):
-#      print w, d[w]
+#      print(w, d[w])
 
 #    T=nx.minimum_spanning_tree(G)
 #    print(sorted(T.edges(data=True)))
 #    print(nx.cycle_basis(G))
  #   nx.draw_spring(G)
  #   plt.show()
-#    print len(hbond)
+#    print(len(hbond))
     
 #    sim1.info()
 #    r=list(sim1.residues.itervalues())
-#    print r
+#    print(r)
 
 #    sim1 = MySystem.fromPDBfile("test.pdb")
 # 

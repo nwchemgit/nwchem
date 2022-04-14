@@ -91,6 +91,8 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       stupid_integer = MPI_INTEGER
       stupid_double  = MPI_DOUBLE_PRECISION
       stupid_complex = MPI_DOUBLE_COMPLEX
+      stupid_real    = MPI_REAL
+      stupid_scomplex = MPI_COMPLEX
       stupid_comm_i   = comm_world
       stupid_comm_j   = -99
       stupid_comm_k   = -99

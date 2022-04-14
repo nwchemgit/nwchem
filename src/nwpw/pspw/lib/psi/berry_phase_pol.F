@@ -1,48 +1,77 @@
 *
 * $Id$
 *
+*     ******************************
+*     *                            *
+*     *       berry_phase_pol      *
+*     *                            *
+*     ******************************
+
+*** Early version of periodic dipole written by Patrick Nichols                                               ***
+*** This routine has been replace by Calculate_Resta_Dipole, but keeping around as a reference implementation ***
+*** this routine only works for cubic unit cells                                                              ***
+
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Polarization calculated through Berry's Phase Approach
 c  This is really simple since we have the Silvestrelli Overlap
 c  Matrix routine from pspw_wannier. 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      subroutine berry_phase_pol(psi,psir)
+
+      subroutine berry_phase_pol(ispin,ne,neq,npack1,nfft3d,
+     >                           psi,psi_r,tsi_r)
       implicit none
-      integer psi(2),psir(2)
+      integer ispin,ne(2),neq(2),npack1,nfft3d
+      complex*16 psi(npack1,*)
+      real*8     psi_r(2*nfft3d,*)
+      real*8     tsi_r(2*nfft3d,*)
+
 #include "bafdecls.fh"
 #include "errquit.fh"
 #include "util.fh"
-      integer i,npack1,nfft3d,n2fft,nesq,idir,ms,ispin,ne(2)
-      integer pivs(2),smat(2),nemax,info,n,ik,j
+#include "stdio.fh"
+
+*     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
+
+      integer i,nesq,idir,ms,n
+      integer pivs(2),smat(2),nemax,info,ik,j
       real*8 pol(3,3),tx,ty,tz,ex,ey,ez,dx,dy,dz,tmp
       real*8 gs,g(3),dv
       complex*16 det
-      logical val
+      logical val,oprint
+
 ccccc external ccccccccccccccccccccccccccc
       integer ion_katm,ion_nion
-      real*8 ion_rion,psp_zv,lattice_unitg,lattice_omega
       external ion_katm,ion_nion
+      real*8 ion_rion,psp_zv,lattice_unitg,lattice_omega
       external ion_rion,psp_zv,lattice_unitg,lattice_omega
+      logical  control_print
+      external control_print
 cccccccccccccccccccccccccccccccccccccccccc
-c      VAL=BA_set_auto_verify(.TRUE.)
+c      val=BA_set_auto_verify(.true.)
 ccccccccccccccccccccccccccccccccccccccccccc
-      call Pack_npack(1,npack1)
-      call D3db_nfft3d(1,nfft3d)
-      call psi_get_ne(ispin,ne)
-      n2fft=nfft3d*2
-      nesq=ne(1)*ne(1)*2
-      val=BA_push_get(mt_int,ne(1),'pivs',pivs(2),pivs(1))
-      val=val.and.BA_push_get(mt_dcpl,nesq,'smat',smat(2),smat(1))
-      if (.not.val) then
-        call errquit("berry_phase_pol: stack depleted",0,0)
-      end if
-      nemax = ne(1)+ne(2)
-      do n=1,nemax
-         call Pack_c_Copy(1,dcpl_mb(psi(1)+(n-1)*npack1),
-     >                       dbl_mb(psir(1)+(n-1)*n2fft))
+
+      call Parallel_taskid(taskid)
+      oprint = (taskid.eq.MASTER).and.control_print(print_medium)
+
+      nesq = 2*ne(1)*ne(1)
+      val  = BA_push_get(mt_int,ne(1),'pivs',pivs(2),pivs(1))
+      val  = val.and.BA_push_get(mt_dcpl,nesq,'smat',smat(2),smat(1))
+      if (.not.val) 
+     >   call errquit("berry_phase_pol:stack depleted",0,MA_ERR)
+
+*     *******************;
+*     **** get psi_r ****
+*     *******************
+!$OMP DO private(n)
+      do n=1,neq(1)+neq(2)
+         call Pack_c_Copy0(1,psi(1,n),psi_r(1,n))
       end do
-      call Grsm_gh_fftb(nfft3d,nemax,dbl_mb(psir(1)))
-      call Grsm_h_Zero_Ends(nfft3d,nemax,dbl_mb(psir(1)))
+!$OMP END DO
+      call Grsm_gh_fftb(nfft3d,neq(1)+neq(2),psi_r)
+
+
       do idir=1,3
          det=dcmplx(1.0d0,0.0d0)
          g(1)=lattice_unitg(1,idir)
@@ -54,11 +83,14 @@ ccccccccccccccccccccccccccccccccccccccccccc
          end if
          gs=1.d0/gs
          do ms=1,ispin
-            call silvestrelli_overlap(g,ne(ms),
-     &          dbl_mb( psir(1)+(ms-1)*n2fft*ne(1) ),
-     &          dcpl_mb(smat(1)))
-            call zgetrf(ne(ms),ne(ms),dcpl_mb(smat(1)),
-     &         ne(ms),int_mb(pivs(1)),info)
+            call silvestrelli_overlap(g,ms,ne,neq,
+     >          psi_r(1,1+(ms-1)*neq(1)),
+     >          tsi_r,
+     >          dcpl_mb(smat(1)))
+
+            call ZGETRF(ne(ms),ne(ms),dcpl_mb(smat(1)),
+     >                  ne(ms),int_mb(pivs(1)),info)
+
             if (info.ne.0) then
               call errquit("berry_phase_pol:failed",0,0)
             end if
@@ -74,6 +106,7 @@ ccccccccccccccccccccccccccccccccccccccccccc
          pol(2,idir)= tmp*g(2)*gs
          pol(3,idir)= tmp*g(3)*gs 
       end do
+
       dx=0.0d0
       dy=0.0d0
       dz=0.0d0
@@ -94,31 +127,32 @@ ccccccccccccccccccccccccccccccccccccccccccc
       tx=dx-ex
       ty=dy-ey
       tz=dz-ez
-c      if (nodeid.eq.MASTER) then
-      write(6,*)"--------------------------------"
-      write(6,*)"Berry Phase Results for the"
-      write(6,*)"Components of the Polarization Tensor"
-      write(6,1000)pol(1,1),pol(2,1),pol(3,1) 
-      write(6,1000)pol(1,2),pol(2,2),pol(3,2) 
-      write(6,1000)pol(1,3),pol(2,3),pol(3,3) 
-      write(6,*)"--------------------------------"
-      write(6,*)"Electronic DelP = P Omega in"
-      write(6,*)"Cartesian Cooridinates"
-      write(6,*)"--------------------------------"
-      write(6,*)"Nuclear"
-      write(6,1000)dx,dy,dz
-      tmp=dsqrt(dx*dx+dy*dy+dz*dz)
-      write(6,1010)tmp
-      write(6,*)"Electronic"
-      write(6,1000)ex,ey,ez
-      tmp=dsqrt(ex*ex+ey*ey+ez*ez)
-      write(6,1010)tmp
-      write(6,*)"Total"
-      write(6,1000)tx,ty,tz
-      tmp=dsqrt(tx*tx+ty*ty+tz*tz)
-      write(6,1010)tmp
-      call flush(6)
-c      end if
+      if (oprint) then
+         write(luout,*)"--------------------------------"
+         write(luout,*)"Berry Phase Results for the"
+         write(luout,*)"Components of the Polarization Tensor"
+         write(luout,1000)pol(1,1),pol(2,1),pol(3,1) 
+         write(luout,1000)pol(1,2),pol(2,2),pol(3,2) 
+         write(luout,1000)pol(1,3),pol(2,3),pol(3,3) 
+         write(luout,*)"--------------------------------"
+         write(luout,*)"Electronic DelP = P Omega in"
+         write(luout,*)"Cartesian Cooridinates"
+         write(luout,*)"--------------------------------"
+         write(luout,*)"Nuclear"
+         write(luout,1000)dx,dy,dz
+         tmp=dsqrt(dx*dx+dy*dy+dz*dz)
+         write(luout,1010)tmp
+         write(luout,*)"Electronic"
+         write(luout,1000)ex,ey,ez
+         tmp=dsqrt(ex*ex+ey*ey+ez*ez)
+         write(luout,1010)tmp
+         write(luout,*)"Total"
+         write(luout,1000)tx,ty,tz
+         tmp=dsqrt(tx*tx+ty*ty+tz*tz)
+         write(luout,1010)tmp
+         call flush(luout)
+      end if
+
       val=BA_pop_stack(smat(2))
       val=val.and.BA_pop_stack(pivs(2))
       if (.not.val) then

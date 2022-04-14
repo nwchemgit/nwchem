@@ -142,8 +142,8 @@ def rationaltofractional(x):
       num1 = max(0,newnum1)
       num2 = min(den,newnum2+1)
       if (den > 1000):
-         print x
-         raise RuntimeError, "irrational number"
+         print(x)
+         raise RuntimeError("irrational number")
 
 def factorial(n):
    """Returns a factorial of an integer n"""
@@ -238,7 +238,7 @@ def arethesamepermutation(permutationa,permutationb):
    if (permutationb == []):
       for nindex in range(len(permutationa)/2):
          if (not permutationa[nindex].isidenticalto(permutationa[nindex+len(permutationa)/2])):
-            print permutationa[nindex].show(),permutationa[nindex+len(permutationa)/2].show()
+            print(permutationa[nindex].show(),permutationa[nindex+len(permutationa)/2].show())
             return 0
       return 1
    if (len(permutationa) != len(permutationb)):
@@ -307,7 +307,7 @@ def parityofpermutation(permutation):
             found = 0
       if (found):
          return onepermutation[0]
-   raise RuntimeError, "permutation not found"
+   raise RuntimeError("permutation not found")
 
 def arethesamelists(list1,list2):
    """Returns true if two lists of indexes are the same (permutation allowed)"""
@@ -341,7 +341,7 @@ def picknfromlist(n,list):
    return result
 
 def pick1fromlist(choices,list):
-   """Appends one additional non-overlapping choice of an integer from the list to the exisiting choices"""
+   """Appends one additional non-overlapping choice of an integer from the list to the existing choices"""
    newchoices = []
    for choice in choices:
       for i in list:
@@ -386,7 +386,7 @@ def printindexes(self):
    for index in self:
       show = string.join([show,index.show()])
    show = string.join([show,")"])
-   print show
+   print(show)
 
 def printpermutation(self):
    """Prints a permutation of indexes"""
@@ -399,7 +399,7 @@ def printpermutation(self):
       index = self[nindex]
       show = string.join([show,index.show()])
    show = string.join([show,")"])
-   print show
+   print(show)
 
 def expand(nestedlist):
    """Expands a nested list into a non-nested list"""
@@ -668,11 +668,11 @@ class Factor:
          coefficient = self.coefficients[0]
          for n in range(len(self.coefficients)):
             if (abs(self.coefficients[n]) != abs(coefficient)):
-               raise RuntimeError, "unrealistic factor"
+               raise(RuntimeError, "unrealistic factor")
          if (abs(coefficient) < 1.0):
             fraction = abs(int(1.0/coefficient))
             if (1.0/float(fraction) != abs(coefficient)):
-               print " !!! WARNING !!! inaccurate arithmatic"
+               print(" !!! WARNING !!! inaccurate arithmetic")
             if (fraction == 1):
                frac = ""
             else:
@@ -718,7 +718,7 @@ class Factor:
          if (abs(coefficient) < 1.0):
             fraction = abs(int(1.0/coefficient))
             if (1.0/float(fraction) != abs(coefficient)):
-               print " !!! WARNING !!! inaccurate arithmatic"
+               print(" !!! WARNING !!! inaccurate arithmetic")
             if (fraction == 1):
                frac = ""
             else:
@@ -773,6 +773,7 @@ class Factor:
                continue
             anotherpermutation = another.permutations[nanother]
             anothercoefficient = another.coefficients[nanother]
+            previousratio = 0
             if (arethesamepermutation(selfpermutation,anotherpermutation)):
                ratio = anothercoefficient/selfcoefficient
                if ((nself != 0) and (ratio != previousratio)):
@@ -871,6 +872,7 @@ class Factor:
    def product(self,another):
       """Returns a product of two permutation operators"""
       factorobjectiscreated = 0
+      product = 0
       for iself in range(len(self.permutations)):
          selfpermutation = self.permutations[iself]
          selfcoefficient = self.coefficients[iself]
@@ -891,7 +893,7 @@ class Factor:
       another = self.duplicate()
       nterms = len(another.coefficients)
       if (nterms == 0):
-         raise RuntimeError, "unable to normalize a factor"
+         raise(RuntimeError, "unable to normalize a factor")
       another.multiply(1.0/nterms)
       return another 
 
@@ -1927,7 +1929,7 @@ class TensorContraction:
       ntensors = len(self.tensors)
       nbreakdowns = factorial(ntensors)
       breakdowns = permutation(ntensors)
-      print " ... there are %d ways of breaking down the sequence into elementary tensor contractions" % (nbreakdowns)
+      print(" ... there are %d ways of breaking down the sequence into elementary tensor contractions" % (nbreakdowns))
       if (ntensors == 1):
          ibest = 0
          minoperationcost = [0,0,0]
@@ -1989,7 +1991,7 @@ class TensorContraction:
                      stringbreakdowna = stringbreakdowna + "("
                      stringbreakdownb = stringbreakdownb + ")*" + self.tensors[breakdowns[ibreakdown][itensor]-1].type \
                                       + repr(len(self.tensors[breakdowns[ibreakdown][itensor]-1].indexes)/2)
-               print " ... ", ibreakdown + 1, breakdowns[ibreakdown], stringbreakdowna + stringbreakdownb
+               print(" ... ", ibreakdown + 1, breakdowns[ibreakdown], stringbreakdowna + stringbreakdownb)
             # The triplets are the exponents of N, O, V
             maxoperationcost = [0,0,0]
             maxmemorycost = [0,0,0]
@@ -2045,9 +2047,9 @@ class TensorContraction:
                         maxmemorycost = memorycost
             if (verbose):
                if (newdiscouraged):
-                  print " ...... this breakdown: ", maxoperationcost, maxmemorycost, aggoperationcost, aggmemorycost," (discouraged)"
+                  print(" ...... this breakdown: ", maxoperationcost, maxmemorycost, aggoperationcost, aggmemorycost," (discouraged)")
                else:
-                  print " ...... this breakdown: ", maxoperationcost, maxmemorycost, aggoperationcost, aggmemorycost
+                  print(" ...... this breakdown: ", maxoperationcost, maxmemorycost, aggoperationcost, aggmemorycost)
             if (maxoperationcost[0]+maxoperationcost[1]+maxoperationcost[2] < minoperationcost[0]+minoperationcost[1]+minoperationcost[2]):
                minoperationcost = maxoperationcost
                minmemorycost = maxmemorycost
@@ -2139,18 +2141,18 @@ class TensorContraction:
                                                 ibest = ibreakdown
                                                 discouraged = newdiscouraged
             if (verbose):
-               print " ...... current best:   ", minoperationcost, minmemorycost, minaggoperationcost, minaggmemorycost
+               print(" ...... current best:   ", minoperationcost, minmemorycost, minaggoperationcost, minaggmemorycost)
 
-      print " ... the best breakdown is %s with operationcost=N%d O%d V%d, memorycost=N%d O%d V%d " % (breakdowns[ibest], \
-      minoperationcost[0], minoperationcost[1], minoperationcost[2], minmemorycost[0], minmemorycost[1], minmemorycost[2])
+      print(" ... the best breakdown is %s with operationcost=N%d O%d V%d, memorycost=N%d O%d V%d " % (breakdowns[ibest], \
+      minoperationcost[0], minoperationcost[1], minoperationcost[2], minmemorycost[0], minmemorycost[1], minmemorycost[2]))
 
       if ((len(breakdowns[ibest]) >= 3) and (self.tensors[breakdowns[ibest][0]-1].type in excitation) \
                                         and (self.tensors[breakdowns[ibest][1]-1].type in excitation)):
-         raise RuntimeError, "null contraction appeared"
+         raise(RuntimeError, "null contraction appeared")
 
       if ((len(breakdowns[ibest]) >= 3) and (self.tensors[breakdowns[ibest][0]-1].type not in excitation) \
                                         and (self.tensors[breakdowns[ibest][1]-1].type not in excitation)):
-         raise RuntimeError, "illegal contraction order has been selected"
+         raise(RuntimeError, "illegal contraction order has been selected")
 
       return breakdowns[ibest]
 
@@ -2331,10 +2333,10 @@ class TensorContraction:
             factorproduct = factorproduct.canonicalize(sub)
          if (factorproduct.isthesameas(another.factor)):
             factorisbrokendown = 1
-            print " ... the suggested decomposition of the permutation operator is valid"
+            print(" ... the suggested decomposition of the permutation operator is valid")
          else:
             factorisbrokendown = 0
-            raise RuntimeError, "Cannot breakdown permutation operator"
+            raise(RuntimeError, "Cannot breakdown permutation operator")
 
          # breakdown of a multiple tensor contraction
          tensorone = another.tensors[order[0]-1]
@@ -2360,7 +2362,7 @@ class TensorContraction:
       """ Canonicalizes the permutation operators"""
  
       if (verbose):
-         print " ... canonicalizing permutation operator expressions"
+         print(" ... canonicalizing permutation operator expressions")
       another = self.duplicate()
       for tensor in self.tensors:
          super = []
@@ -2495,16 +2497,16 @@ class TensorContraction:
                   symmetrized = 1
                   factor = createasmallfactor(before,after,targetsuper+targetsub)
                   if (verbose):
-                     print factor.show()," will be multiplied"
+                     print(factor.show()," will be multiplied")
                   another.factor = factor.product(another.factor)
 
       if (symmetrized):
-         print " ... expression has been symmetrized"
+         print(" ... expression has been symmetrized")
       if (verbose):
          if (symmetrized):
-            print self.show()
-            print another.show()
-            print ""
+            print(self.show())
+            print(another.show())
+            print("")
 
       return another
 
@@ -2516,9 +2518,9 @@ class ListTensorContractions:
  
    def __str__(self):
       """Prints the content"""
-      print ""
+      print("")
       for line in self.show():
-         print line
+         print(line)
       return ""
  
    def show(self,verbose=1):
@@ -2579,7 +2581,7 @@ class ListTensorContractions:
    def findthebestbreakdown(self,verbose=0):
       """Iteratively calls findthebestbreakdown() for all tensor contractions"""
       for tensorcontraction in self.list:
-         print tensorcontraction.show()
+         print(tensorcontraction.show())
          tensorcontraction.findthebestbreakdown(self.excitationtensortypes(),verbose)
 
    def breakdown(self,verbose=0):
@@ -2610,7 +2612,7 @@ class ListTensorContractions:
       return self
 
    def pythongen(self,filename="NONAME"):
-      """Genrates a python code for debugging purposes"""
+      """Generates a python code for debugging purposes"""
 
       pythoncode = []
       newline = "# This is a Python program generated by Tensor Contraction Engine v.1.0"
@@ -2919,9 +2921,9 @@ class ElementaryTensorContraction:
                   if (minimum.label > targetindex.label):
                      minimum = copy.deepcopy(targetindex)
          if (minimum == "empty"):
-            print self
+            print(self)
             printindexes(globaltargetindexes) 
-            raise RuntimeError, "unable to canonicalize"
+            raise(RuntimeError("unable to canonicalize"))
          indexesintheneworder.append(minimum)
 
       for nindex in range(len(self.tensors[0].indexes)):
@@ -2992,9 +2994,9 @@ class ElementaryTensorContraction:
    def isthesameas(self,another,globaltargetindexes,verbose=0):
       """Returns a ratio when the two contractions are essentially the same (returns 0 otherwise)"""
       if (verbose):
-         print " ... comparing"
-         print self
-         print another
+         print(" ... comparing")
+         print(self)
+         print(another)
       self.canonicalize(globaltargetindexes)
       another.canonicalize(globaltargetindexes)
       if ((len(self.tensors) == 2) or (len(another.tensors) == 2)):
@@ -3153,9 +3155,9 @@ class ElementaryTensorContraction:
                   anothercopy.summation.indexes[nindex] = copy.deepcopy(anothercopy.summation.indexes[mindex])
                   anothercopy.summation.indexes[mindex] = copy.deepcopy(swap)
       if (verbose):
-         print " ... after canonicalization and relabeling"
-         print selfcopy
-         print anothercopy
+         print(" ... after canonicalization and relabeling")
+         print(selfcopy)
+         print(anothercopy)
       for ntensor in range(len(selfcopy.tensors)):
          tensor = selfcopy.tensors[ntensor]
          for nindex in range(len(tensor.indexes)):
@@ -3171,7 +3173,7 @@ class ElementaryTensorContraction:
          if (selfindex.label != anotherindex.label):
             return 0
       if (verbose):
-         print " ... essentially the same"
+         print(" ... essentially the same")
       return selfcopy.factor.isthesameas(anothercopy.factor)
 
    def fortran77(self,globaltargetindexes,types,subroutinename="NONAME"):
@@ -3180,8 +3182,8 @@ class ElementaryTensorContraction:
       verbose = 0
 
       if (verbose):
-         print self
-         print "globaltargetindexes"
+         print(self)
+         print("globaltargetindexes")
          printindexes(globaltargetindexes)
 
       if (len(self.tensors) == 3):
@@ -3259,13 +3261,13 @@ class ElementaryTensorContraction:
          else:
             sublocalzero.append(index)
       if (verbose):
-         print "Tensor 0 superglobal"
+         print("Tensor 0 superglobal")
          printindexes(superglobalzero)
-         print "Tensor 0 subglobal"
+         print("Tensor 0 subglobal")
          printindexes(subglobalzero)
-         print "Tensor 0 superlocal"
+         print("Tensor 0 superlocal")
          printindexes(superlocalzero)
-         print "Tensor 0 sublocal"
+         print("Tensor 0 sublocal")
          printindexes(sublocalzero)
 
       # Tensor 1
@@ -3304,17 +3306,17 @@ class ElementaryTensorContraction:
          else:
             sublocalone.append(index)
       if (verbose):
-         print "Tensor 1 superglobal"
+         print("Tensor 1 superglobal")
          printindexes(superglobalone)
-         print "Tensor 1 subglobal"
+         print("Tensor 1 subglobal")
          printindexes(subglobalone)
-         print "Tensor 1 superlocal"
+         print("Tensor 1 superlocal")
          printindexes(superlocalone)
-         print "Tensor 1 sublocal"
+         print("Tensor 1 sublocal")
          printindexes(sublocalone)
-         print "Tensor 1 supercommon"
+         print("Tensor 1 supercommon")
          printindexes(supercommonone)
-         print "Tensor 1 subcommon"
+         print("Tensor 1 subcommon")
          printindexes(subcommonone)
 
       # Tensor 2
@@ -3354,17 +3356,17 @@ class ElementaryTensorContraction:
             else:
                sublocaltwo.append(index)
          if (verbose):
-            print "Tensor 2 superglobal"
+            print("Tensor 2 superglobal")
             printindexes(superglobaltwo)
-            print "Tensor 2 subglobal"
+            print("Tensor 2 subglobal")
             printindexes(subglobaltwo)
-            print "Tensor 2 superlocal"
+            print("Tensor 2 superlocal")
             printindexes(superlocaltwo)
-            print "Tensor 2 sublocal"
+            print("Tensor 2 sublocal")
             printindexes(sublocaltwo)
-            print "Tensor 2 supercommon"
+            print("Tensor 2 supercommon")
             printindexes(supercommontwo)
-            print "Tensor 2 subcommon"
+            print("Tensor 2 subcommon")
             printindexes(subcommontwo)
       if (len(supercommonone) > len(subcommontwo)):
          supercommon = supercommonone
@@ -3977,7 +3979,7 @@ class ElementaryTensorContraction:
             elif (index.isparticle()):
                supercommonparticle.append(index)
             else:
-               raise RuntimeError, "a general summation index appeared"
+               raise(RuntimeError, "a general summation index appeared")
          subcommonhole = []
          subcommonparticle = []
          for index in subcommon:
@@ -3986,7 +3988,7 @@ class ElementaryTensorContraction:
             elif (index.isparticle()):
                subcommonparticle.append(index)
             else:
-               raise RuntimeError, "a general summation index appeared"
+               raise(RuntimeError, "a general summation index appeared")
          factorialforsuperhole = 0
          if (len(supercommonhole) > 1):
             factorialforsuperhole = 1
@@ -4236,7 +4238,7 @@ class ElementaryTensorContraction:
       ifblock = 0
 # DEEXCITATION EXTENSION FROM HERE ...
       if ((len(deexcitationfactor.permutations) > 1) and (len(self.factor.permutations) > 1)):
-         raise RuntimeError, "A logical error in code generator regarding deexcitation operator"
+         raise(RuntimeError, "A logical error in code generator regarding deexcitation operator")
       if (len(deexcitationfactor.permutations) > 1):
          deexcitationfactor.multiply(self.factor.coefficients[0])
          currentfactor = deexcitationfactor.duplicate()
@@ -4305,7 +4307,7 @@ class ElementaryTensorContraction:
             if (indexa.type != indexb.type):
                continue
             if (verbose):
-               print indexa, " .le. ",indexb
+               print(indexa, " .le. ",indexb)
             inequality = " .le. "
             if (newline):
                newline = string.join([newline," .and. (",indexa.show(),"b",inequality,indexb.show(),"b)"],"")
@@ -5597,9 +5599,9 @@ class OperationTree:
  
    def __str__(self):
       """Prints the content"""
-      print ""
+      print("")
       for line in self.show():
-         print line
+         print(line)
       return ""
 
    def show(self,ntab=0,verbose=1):
@@ -5767,7 +5769,7 @@ class OperationTree:
       # check if the two operator trees have valid contraction operations
       if (not (selfcopy.contraction.isoperation() and anothercopy.contraction.isoperation())):
          if (verbose):
-            print "not a valid contraction operation"
+            print("not a valid contraction operation")
          return 0
 
       # check if the output tensors have the identical form
@@ -5775,19 +5777,19 @@ class OperationTree:
       nselfindex = len(selfcopy.contraction.tensors[0].indexes)
       if (nselfindex != len(anothercopy.contraction.tensors[0].indexes)):
          if (verbose):
-            print "output tensors imcompatible"
+            print("output tensors incompatible")
          return 0
       for nindex in range(nselfindex):
          if (not selfcopy.contraction.tensors[0].indexes[nindex].isidenticalto(anothercopy.contraction.tensors[0].indexes[nindex])):
             if (verbose):
-               print "output tensors imcompatible"
+               print("output tensors incompatible")
             return 0
 
       # check if the factors (permutation operators) are compatible
       ratio = selfcopy.contraction.factor.isthesameas(anothercopy.contraction.factor)
       if (ratio == 0):
          if (verbose):
-            print "factors incompatible"
+            print("factors incompatible")
          return 0
 
       # check if the summation indexes have the same number of holes and particles
@@ -5796,7 +5798,7 @@ class OperationTree:
       nselfgeneral = 0
       if (not selfcopy.contraction.summation):
          if (verbose):
-            print "summations incompatible"
+            print("summations incompatible")
          return 0
       for index in selfcopy.contraction.summation.indexes:
          if (index.type == 'hole'):
@@ -5810,7 +5812,7 @@ class OperationTree:
       nanothergeneral = 0
       if (not anothercopy.contraction.summation):
          if (verbose):
-            print "summations incompatible"
+            print("summations incompatible")
          return 0
       for index in anothercopy.contraction.summation.indexes:
          if (index.type == 'hole'):
@@ -5821,7 +5823,7 @@ class OperationTree:
             nanothergeneral = nanothergeneral + 1
       if ((nselfhole != nanotherhole) or (nselfparticle != nanotherparticle) or (nselfgeneral != nanothergeneral)):
          if (verbose):
-            print "summations incompatible"
+            print("summations incompatible")
          return 0
 
       # find a common tensor
@@ -5923,7 +5925,7 @@ class OperationTree:
 
       # no common tensor found
       if (verbose):
-         print "no common tensor"
+         print("no common tensor")
       return 0
 
    def factorize(self,reserved=[],verbose=0):
@@ -5944,16 +5946,16 @@ class OperationTree:
                   childc = copy.deepcopy(childa)
                   if (childa.isfactorizablewith(childb,reserved)):
                      if (verbose):
-                        print childc
-                        print " ... and"
-                        print childb
-                        print " ... have been consolidated into"
-                        print childa
-                        print ""
+                        print(childc)
+                        print(" ... and")
+                        print(childb)
+                        print(" ... have been consolidated into")
+                        print(childa)
+                        print("")
                      self.children[nchilda] = childa
                      deletelist.append(nchildb)
       if (deletelist):
-         print " ... %d terms have been consolidated" %(len(deletelist))
+         print(" ... %d terms have been consolidated" %(len(deletelist)))
          for nchildb in range(len(self.children)-1,-1,-1):
             if (nchildb in deletelist):
                del self.children[nchildb]
@@ -5965,26 +5967,26 @@ class OperationTree:
       """Performs factorize() recursively until fully factorized"""
       if ((iteration == 0) and (generation == 1)):
          if (self.sisters):
-            raise RuntimeError, "factorize before reuseintermediate"
+            raise(RuntimeError, "factorize before reuseintermediate")
          reserved = []
          globaltargetindexes = []
          for targetindex in self.children[0].contraction.tensors[0].indexes:
             reserved.append(targetindex.label)
             globaltargetindexes.append(targetindex)
-         print " ... commencing full factorization"
-         print " ... initial contraction cost %d" %(self.operationcost())
-      print " ... tensor contraction tier %d" %(generation)
+         print(" ... commencing full factorization")
+         print(" ... initial contraction cost %d" %(self.operationcost()))
+      print(" ... tensor contraction tier %d" %(generation))
       self.canonicalize(globaltargetindexes)
       while (self.factorize(reserved,verbose)):
          self.canonicalize(globaltargetindexes)
          iteration = iteration + 1
-         print " ... iteration %d cost %d" %(iteration, self.operationcost())
+         print(" ... iteration %d cost %d" %(iteration, self.operationcost()))
       if (self.children):
          for child in self.children:
             child.fullyfactorize(verbose,0,generation+1,reserved,globaltargetindexes)
       if (generation == 1):
-         print " ... exiting full factorization"
-         print " ... final contraction cost %d" %(self.operationcost())
+         print(" ... exiting full factorization")
+         print(" ... final contraction cost %d" %(self.operationcost()))
       self.sortindexes()
       return self
 
@@ -6024,7 +6026,7 @@ class OperationTree:
    def reuseintermediates(self):
       """Eliminates redundant intermediates from the tree"""
 
-      print " ... commencing common subexpression elimination"
+      print(" ... commencing common subexpression elimination")
 
       if (self.children[0].contraction.isoperation()):
          globaltargetindexes = copy.deepcopy(self.children[0].contraction.tensors[0].indexes)
@@ -6032,14 +6034,14 @@ class OperationTree:
          return "The tree top must be an addition"
 
       intermediatesreused = self.collectuniqueintermediates()
-      print " ... %d new intermediates are created" % (len(intermediatesreused))
+      print(" ... %d new intermediates are created" % (len(intermediatesreused)))
 
       numberofreuse = self.renameintermediates(intermediatesreused,globaltargetindexes)
-      print " ... %d reusable intermediates are found" % (numberofreuse)
+      print(" ... %d reusable intermediates are found" % (numberofreuse))
 
       self.sisters = self.sisters + intermediatesreused
 
-      print " ... final contraction cost %d" % (self.operationcost())
+      print(" ... final contraction cost %d" % (self.operationcost()))
 
       # sort sisters
       for isister in range(len(self.sisters)):
@@ -6230,8 +6232,8 @@ class OperationTree:
    def fortran77(self,filename="NONAME",excitation=[],deexcitation=[],intermediate=[],general=[]):
       """Suggests an implementation in Fortran77 for the whole operation tree"""
 
-      print " ... generating a Fortran77 code"
-      print " "
+      print(" ... generating a Fortran77 code")
+      print(" ")
       all = excitation+deexcitation+intermediate+general
       if (not all):
          types = self.tensortypes()
@@ -6239,28 +6241,28 @@ class OperationTree:
          types = [all,excitation,deexcitation,intermediate,general]
       for type in types[0]:
          if (type in types[1]):
-            print " '"+type+"' is an excitaion tensor"
+            print(" '"+type+"' is an excitaion tensor")
             if ((type == 'v') and (not all)):
-               print " !!! WARNING !!! unusual naming convention"
+               print(" !!! WARNING !!! unusual naming convention")
             if ((type == 'f') and (not all)):
-               print " !!! WARNING !!! unusual naming convention"
+               print(" !!! WARNING !!! unusual naming convention")
             if ((type == 'd') and (not all)):
-               print " !!! WARNING !!! unusual naming convention"
+               print(" !!! WARNING !!! unusual naming convention")
          elif (type in types[2]):
-            print " '"+type+"' is a de-excitaion tensor"
+            print(" '"+type+"' is a de-excitaion tensor")
             if ((type == 'v') and (not all)):
-               print " !!! WARNING !!! unusual naming convention"
+               print(" !!! WARNING !!! unusual naming convention")
             if ((type == 'f') and (not all)):
-               print " !!! WARNING !!! unusual naming convention"
+               print(" !!! WARNING !!! unusual naming convention")
             if ((type == 'd') and (not all)):
-               print " !!! WARNING !!! unusual naming convention"
+               print(" !!! WARNING !!! unusual naming convention")
          elif (type in types[3]):
-            print " '"+type+"' is an intermediate tensor"
+            print(" '"+type+"' is an intermediate tensor")
          elif (type in types[4]):
-            print " '"+type+"' is a general tensor"
+            print(" '"+type+"' is a general tensor")
          else:
-            raise RuntimeError, "unknown tensor type"
-      print " "
+            raise(RuntimeError, "unknown tensor type")
+      print(" ")
 
       newlistofcodes = ListofCodes()
 
@@ -6277,9 +6279,9 @@ class OperationTree:
       # target indexes
       if (selfcopy.children[0].contraction.isoperation()):
          globaltargetindexes = copy.deepcopy(selfcopy.children[0].contraction.tensors[0].indexes)
-         print "Target indices"
+         print("Target indices")
          printindexes(globaltargetindexes)
-         print " "
+         print(" ")
       else:
          return "The tree top must be an addition"
 
@@ -7008,7 +7010,7 @@ class OperationTree:
       return newcode
 
    def pythongen(self,filename="NONAME"):
-      """Genrates a python code for debugging purposes"""
+      """Generates a python code for debugging purposes"""
 
       pythoncode = []
 
@@ -7137,13 +7139,13 @@ class OperationTree:
       return pythoncode
 
    def fortran90(self,filename="NONAME",mode="nopermutation",excitation=[],deexcitation=[],intermediate=[],general=[]):
-      """Genrates a partial Fortran90 code for debugging purposes"""
+      """Generates a partial Fortran90 code for debugging purposes"""
       # Mode = "permutation"   : writes a code which takes index permutation into account
       # Mode = "nopermutation" : writes a code without index permutation considered
       # Mode = "analysis"      : stdouts a plan of implementation with index permutation
 
-      print " ... generating a Fortran90 code"
-      print " "
+      print(" ... generating a Fortran90 code")
+      print(" ")
       all = excitation+deexcitation+intermediate+general
       if (not all):
          types = self.tensortypes()
@@ -7151,28 +7153,28 @@ class OperationTree:
          types = [all,excitation,deexcitation,intermediate,general]
       for type in types[0]:
          if (type in types[1]):
-            print " '"+type+"' is an excitaion tensor"
+            print(" '"+type+"' is an excitaion tensor")
             if ((type == 'v') and (not all)):
-               raise RuntimeError, "unusual naming convention"
+               raise(RuntimeError, "unusual naming convention")
             if ((type == 'f') and (not all)):
-               raise RuntimeError, "unusual naming convention"
+               raise(RuntimeError, "unusual naming convention")
             if ((type == 'd') and (not all)):
-               raise RuntimeError, "unusual naming convention"
+               raise(RuntimeError, "unusual naming convention")
          elif (type in types[2]):
-            print " '"+type+"' is a de-excitaion tensor"
+            print(" '"+type+"' is a de-excitaion tensor")
             if ((type == 'v') and (not all)):
-               raise RuntimeError, "unusual naming convention"
+               raise(RuntimeError, "unusual naming convention")
             if ((type == 'f') and (not all)):
-               raise RuntimeError, "unusual naming convention"
+               raise(RuntimeError, "unusual naming convention")
             if ((type == 'd') and (not all)):
-               raise RuntimeError, "unusual naming convention"
+               raise(RuntimeError, "unusual naming convention")
          elif (type in types[3]):
-            print " '"+type+"' is an intermediate tensor"
+            print(" '"+type+"' is an intermediate tensor")
          elif (type in types[4]):
-            print " '"+type+"' is a general tensor"
+            print(" '"+type+"' is a general tensor")
          else:
-            raise RuntimeError, "unknown tensor type"
-      print " "
+            raise(RuntimeError, "unknown tensor type")
+      print(" ")
 
       f90code = Code("Fortran90",filename)
       newline = "IMPLICIT NONE"
@@ -7193,8 +7195,8 @@ class OperationTree:
          show = "Global target indexes: "
          for index in globaltargetindexes:
             show = string.join([show,index.show()])
-         print show
-         print ""
+         print(show)
+         print("")
  
       # loop over the tree
       f90code.statements.insert(f90code.pointer,selfcopy.fortran90a(globaltargetindexes,types,mode))
@@ -7343,7 +7345,7 @@ class OperationTree:
                subcommon = subcommonone
             else:
                subcommon = supercommontwo
-# DEEXCITATION EXTENTION FROM HERE ...
+# DEEXCITATION EXTENSION FROM HERE ...
             superlocalparticleone  = []
             superlocalparticletwo  = []
             superlocalholeone  = []
@@ -7414,21 +7416,21 @@ class OperationTree:
                elif (index.isparticle()):
                   supercommonparticle.append(index)
                else:
-                  raise RuntimeError, "a general common index appeared"
+                  raise(RuntimeError, "a general common index appeared")
             for index in subcommon:
                if (index.ishole()):
                   subcommonhole.append(index)
                elif (index.isparticle()):
                   subcommonparticle.append(index)
                else:
-                  raise RuntimeError, "a general common index appeared"
+                  raise(RuntimeError, "a general common index appeared")
 # ... TO HERE
 
             if (mode == "analysis"):
 
                # Zero scratch?
                if (zeroscratch):
-                  print child.contraction.tensors[0].show(),"will be zeroscratched"
+                  print(child.contraction.tensors[0].show(),"will be zeroscratched")
                   zeroscratch = 0
 
                # Structure of tensor 1
@@ -7496,7 +7498,7 @@ class OperationTree:
                         show = string.join([show,"<"])
                      show = string.join([show,index.show()])
                   show = string.join([show,"]"])
-               print show
+               print(show)
 
                # Structure of tensor 2
                tensoroneexpanded = 0
@@ -7662,7 +7664,7 @@ class OperationTree:
                            show = string.join([show,"<"])
                         show = string.join([show,index.show()])
                      show = string.join([show,"]"])
-               print show
+               print(show)
 
                # Structure of tensor 3
                if (len(child.contraction.tensors) > 2):
@@ -7829,7 +7831,7 @@ class OperationTree:
                               show = string.join([show,"<"])
                            show = string.join([show,index.show()])
                         show = string.join([show,"]"])
-                  print show
+                  print(show)
 # DEEXCITATION EXTENSION FROM HERE ...
                   if (superlocalparticleone and superlocalparticletwo):
                      show = "["
@@ -7851,7 +7853,7 @@ class OperationTree:
                            show = string.join([show,"<"])
                         show = string.join([show,index.show()])
                      show = string.join([show,"]"])
-                     print show
+                     print(show)
                   if (sublocalholeone and sublocalholetwo):
                      show = "["
                      for nindex in range(len(sublocalholeone)):
@@ -7872,7 +7874,7 @@ class OperationTree:
                            show = string.join([show,"<"])
                         show = string.join([show,index.show()])
                      show = string.join([show,"]"])
-                     print show
+                     print(show)
                   if ((superlocalparticleone and superlocalparticletwo) or \
                       (sublocalholeone and sublocalholetwo)):
                      newfactor = Factor([1.0],[[]])
@@ -7880,7 +7882,7 @@ class OperationTree:
                                                                   sublocalholeone,       sublocalholetwo, \
                                                                   superlocalparticlezero,sublocalholezero)
                      newfactor = newfactor.normalize()
-                     print newfactor
+                     print(newfactor)
 # ... TO HERE
 
                # Summation indexes
@@ -7923,7 +7925,7 @@ class OperationTree:
                   factor = factorial(len(supercommonhole)) * factorial(len(supercommonparticle)) \
                          * factorial(len(subcommonhole)) * factorial(len(subcommonparticle))
                   show = string.join([show,"with a factor of",repr(factor)])
-               print show
+               print(show)
 
                # Target indexes
                show = "Target composite indexes:"
@@ -7991,9 +7993,9 @@ class OperationTree:
                         show = string.join([show,"<"])
                      show = string.join([show,index.show()])
                   show = string.join([show,"]"])
-               print show
-               print child.contraction
-               print ""
+               print(show)
+               print(child.contraction)
+               print("")
 
             # zero scratch
             if ((zeroscratch) and (mode == "nopermutation")):
@@ -8653,7 +8655,7 @@ class OperationTree:
                   elif (index.isparticle()):
                      supercommonparticle.append(index)
                   else:
-                     raise RuntimeError, "a general summation index appeared"
+                     raise(RuntimeError, "a general summation index appeared")
                if (len(supercommonhole) > 1):
                   newcode.insertif(supercommonhole,1)
                   factor = factor * factorial(len(supercommonhole))
@@ -8670,7 +8672,7 @@ class OperationTree:
                   elif (index.isparticle()):
                      subcommonparticle.append(index)
                   else:
-                     raise RuntimeError, "a general summation index appeared"
+                     raise(RuntimeError, "a general summation index appeared")
                if (len(subcommonhole) > 1):
                   newcode.insertif(subcommonhole,1)
                   factor = factor * factorial(len(subcommonhole))
@@ -8715,7 +8717,7 @@ class OperationTree:
                   newline = string.join([newdbl,"=",newdbl,"+"],"")
 # DEEXCITATION EXTENSION FROM HERE ...
                if ((len(deexcitationfactor.permutations) > 1) and (len(child.contraction.factor.permutations) > 1)):
-                  raise RuntimeError, "A logical error in code generator regarding deexcitation operator"
+                  raise(RuntimeError, "A logical error in code generator regarding deexcitation operator")
                if (len(deexcitationfactor.permutations) > 1):
                   deexcitationfactor.multiply(child.contraction.factor.coefficients[0])
                   currentfactor = deexcitationfactor.duplicate()
@@ -8794,9 +8796,9 @@ class Code:
 
    def __str__(self):
       """Prints code"""
-      print ""
+      print("")
       for line in self.wrap():
-         print line
+         print(line)
       return ""
 
    def isnested(self):
@@ -8864,7 +8866,7 @@ class Code:
                self.statements[nstatement] = statement[position+8:]
                return nstatement
 
-      raise ValueError, "Maker not found"
+      raise(ValueError, "Maker not found")
 
    def deleteamark(self,number):
       """Delete a marker"""
@@ -9214,7 +9216,7 @@ class Code:
          if (not redundant):
             self.headers.append(what)
       else:
-         raise ValueError, "Unknown variable type"
+         raise(ValueError, "Unknown variable type")
 
    def insertdoloop(self,index):
       """Inserts a DO-ENDDO pair into a code"""
@@ -9255,7 +9257,7 @@ class Code:
 #              return
 # ... TO HERE
             elif ((indexa.type == "particle") and (indexb.type == "hole")):
-               raise ValueError, "A particle, hole sequence in a tensor"
+               raise(ValueError, "A particle, hole sequence in a tensor")
          newline = string.join(["IF (",indexa.show(),">=",indexb.show(),") CYCLE"],"")
          self.statements.insert(self.pointer,newline)
          self.pointer = self.pointer + 1
@@ -9282,7 +9284,7 @@ class Code:
                if (previoustype == 'hole'):
                   newline = string.join(["DO ",newint," = ",previousint,",noab"],"")
                else:
-                  raise ValueError, "non-canonical expression found"
+                  raise(ValueError, "non-canonical expression found")
             if (index.type == 'particle'):
                if (previoustype == 'hole'):
                   newline = string.join(["DO ",newint," = noab+1,noab+nvab"],"")
@@ -9328,7 +9330,7 @@ class Code:
 #        return
 # ... TO HERE
       if ((super and (not sub)) or ((not super) and sub)):
-         raise ValueError, "asymmetric IF encountered"
+         raise(ValueError, "asymmetric IF encountered")
 
       # spin symmetry
 # SYMMETRY EXTENSION FROM HERE ...
@@ -9419,7 +9421,7 @@ class Code:
 #              return
 # ... TO HERE
             elif ((indexa.type == "particle") and (indexb.type == "hole")):
-               raise ValueError, "A particle, hole sequence in a tensor"
+               raise(ValueError, "A particle, hole sequence in a tensor")
          if (self.language == "Fortran77"):
             newline = string.join(["IF (",indexa.show(),"b .le. ",indexb.show(),"b) THEN"],"")
          elif (self.language == "Fortran90"):
@@ -9468,7 +9470,7 @@ class Code:
       self.statements = copy.deepcopy(newstatements)
 
    def removeredundantio(self):
-      """Removes unneccesary GATODRA-DRATOGA pairs"""
+      """Removes unnecessary GATODRA-DRATOGA pairs"""
 
       newstatements = []
       temporary = []
@@ -9532,9 +9534,9 @@ class ListofCodes:
 
    def __str__(self):
       """Prints code"""
-      print ""
+      print("")
       for line in self.show():
-         print line
+         print(line)
       return ""
 
    def writetofile(self,filename):

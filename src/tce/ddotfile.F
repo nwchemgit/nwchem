@@ -29,6 +29,8 @@ cc      integer nxtask
       EXTERNAL NXTASK
 cc      external nxtask
       logical noloadbalance
+      double precision ddot
+      external ddot
 c
 c     new
 c
@@ -143,6 +145,8 @@ cc      external nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
       logical noloadbalance
+      double precision ddot
+      external ddot
 c
 c     new
 c
@@ -267,6 +271,8 @@ cc      external nxtask
       INTEGER NXTASK
       EXTERNAL NXTASK
       logical noloadbalance
+      double precision ddot
+      external ddot
 c
 c     new
 c

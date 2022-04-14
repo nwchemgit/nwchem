@@ -9,7 +9,7 @@ c
       integer vc_charge(2),vc2_charge(2)
       integer nion
       integer charge_type,geom,n_sigma
-      real*8  s_d,s_rho,s_sigma
+      real*8  s_d,s_rho,s_sigma,eetmp 
       common / pspw_charge / 
      > r1,                        ! charge positions
      > charge,                    ! charges
@@ -17,6 +17,7 @@ c
      > nion,                      ! number charges
      > charge_type,               ! 1-point charges,2-switching charge,3-charge model,4-periodic model
      > s_d,s_rho,s_sigma,n_sigma, ! parameters for switching charge model 
+     > eetmp,
      > geom,
      > bqext,bqgeom
 *     ******************************************************************

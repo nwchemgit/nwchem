@@ -6,14 +6,17 @@
          mnsol.o\
          solv_data.o\
          cosmo_smd_output.o\
-         cosmo_vem_output.o hnd_cosmo_lib.o
+         cosmo_vem_output.o\
+	 cosmo_lebedev.o\
+	 cosmo_fibonacci.o
 
    OBJ_OPTIMIZE = cosmo_input.o \
          cosmo_initialize.o\
          cosmo_tidy.o\
          cosmo_def_radii.o\
          cosmo_charges.o\
-         grad_hnd_cos.o
+         grad_hnd_cos.o hnd_cosmo_lib.o hnd_coschg.o\
+	 cosmo_thomson.o
 
    LIBRARY = libsolvation.a
 
@@ -24,7 +27,7 @@
 
    LIB_INCLUDES = -I../nwdft/include -I../ddscf
 
-USES_BLAS = hnd_cosmo_lib.F
+USES_BLAS = hnd_cosmo_lib.F cosmo_lebedev.F
 
 HEADERS = ../property/prop.fh ../property/atomdata.fh cosmoP.fh cosmo_params.fh
 

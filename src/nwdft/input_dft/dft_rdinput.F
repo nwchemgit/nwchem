@@ -199,7 +199,7 @@ c
 c     
       if (.not. rtdb_get(rtdb, 'dft:iterations', mt_int, 1,
      &   iterations))then
-         iterations=30
+         iterations=50
          if (.not. rtdb_put(rtdb, 'dft:iterations',
      &      mt_int, 1, iterations))
      &      call errquit('dft_rdinput: rtdb_put failed', 101, RTDB_ERR)
@@ -443,7 +443,7 @@ c
 c
 c     case with multiple tasks and we changed iterations ... (increased)
 c
-      else  if(iterations.gt.30) then
+      else  if(iterations.gt.50) then
          ncysh=iterations
       endif
       if (.not. rtdb_put(rtdb, 'dft:ncysh',
@@ -460,7 +460,7 @@ c
 c
 c     case with multiple tasks and we changed iterations ... (increased)
 c
-      else  if(iterations.gt.30) then
+      else  if(iterations.gt.50) then
          ncyds=iterations
       endif
       if (.not. rtdb_put(rtdb, 'dft:ncyds',
@@ -607,6 +607,16 @@ c
       cname(73)='           r^2SCAN Correlation Potential'
       cname(74)='         r^2SCAN-L Correlation Potential'
       cname(75)='     HCTH147@TZ2P Correlation Functional'
+      cname(76)='             wb97 Correlation Functional'
+      cname(77)='            wb97x Correlation Functional'
+      cname(78)='         wb97x-d3 Correlation Functional'
+      cname(79)='            revM11 Correlation Potential'
+      cname(80)='            MN12-L Correlation Potential'
+      cname(81)='           MN12-SX Correlation Potential'
+      cname(82)='            N12-SX Correlation Potential'
+      cname(83)='            MN15-L Correlation Potential'
+      cname(84)='              MN15 Correlation Potential'
+      cname(85)='            M06-SX Correlation Potential'
 c
 c     Exchange functional name defaults.
 c
@@ -678,6 +688,16 @@ c
       xname(73)='     r^2SCAN metaGGA Exchange Functional'
       xname(74)='   r^2SCAN-L metaGGA Exchange Functional'
       xname(75)='       HCTH147@TZ2P  Exchange Functional'
+      xname(76)='                wb97 Exchange Functional'
+      xname(77)='               wb97x Exchange Functional'
+      xname(78)='            wb97x-d3 Exchange Functional'
+      xname(79)='              revM11 Exchange Functional'
+      xname(80)='              MN12-L Exchange Functional'
+      xname(81)='             MN12-SX Exchange Functional'
+      xname(82)='              N12-SX Exchange Functional'
+      xname(83)='              MN15-L Exchange Functional'
+      xname(84)='                MN15 Exchange Functional'
+      xname(85)='              M06-SX Exchange Functional'
 c
 c     Exchange-Correlation combination functional name defaults.
 c
@@ -749,6 +769,16 @@ c
       xcname(73)='            r^2SCAN Method XC Functional'
       xcname(74)='          r^2SCAN-L Method XC Functional'
       xcname(75)='      HCTH147@TZ2P  Method XC Functional'
+      xcname(76)='              wb97  Method XC Functional'
+      xcname(77)='             wb97x  Method XC Functional'
+      xcname(78)='          wb97x-d3  Method XC Functional'
+      xcname(79)='             revM11 Method XC Functional'
+      xcname(80)='             MN12-L Method XC Functional'
+      xcname(81)='            MN12-SX Method XC Functional'
+      xcname(82)='             N12-SX Method XC Functional'
+      xcname(83)='             MN15-L Method XC Functional'
+      xcname(84)='               MN15 Method XC Functional'
+      xcname(85)='             M06-SX Method XC Functional'
 c     
 c     place character XC parameters in rtdb
 c     
@@ -768,6 +798,12 @@ c
      &     call errquit('rdinput: geom_create?',70, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
      &     call errquit('rdinput: no geometry ',72, RTDB_ERR)
+c     check 0-d
+      if(.not. geom_systype_get(geom,itype)) itype = 0
+      if(itype.ne.0)
+     c     call errquit('dft_rdinput: detected periodicity = ',
+     c    itype , INPUT_ERR)
+
       if (.not.rtdb_get(rtdb, 'dft:skeleton',MT_LOG, 1, oskel))then
          oskel = sym_number_ops(geom) .gt. 0
       endif
@@ -1259,6 +1295,11 @@ c
       if (.not. rtdb_put(rtdb, 'bgj:scf_type', MT_INT, 1, 2))
      $     call errquit('dft_scf: put of bgj:scf_type failed',0,
      &       RTDB_ERR)
+c
+c
+      if (.not.rtdb_get(rtdb, 'dft:libxcon', mt_log,1,libxcon))
+     $  libxcon = .false.
+      if (libxcon) call nwchem_libxc_rdinput(rtdb,'dft') 
 c
       if (.not. MA_Pop_Stack(lznuc))
      &   call errquit('dft_rdinput: pop stack failed.',0, MA_ERR)

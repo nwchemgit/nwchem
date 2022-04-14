@@ -14,6 +14,7 @@ c
 c     see if any Gradient Corrected Functional is not null
 c
       logical out1,out2
+      logical,external :: nwchem_libxc_family
       double precision tot,eps
       parameter(eps=1.d-10)
 c
@@ -42,6 +43,11 @@ c
      +     cfac(68)+  cfac(69) + xfac(70) + xfac(71) + cfac(71) +
      +     xfac(72) + xfac(73) + xfac(74) +
      +     xfac(75) + cfac(75) +
+     w     xfac(76) + xfac(77) + cfac(76) + cfac(77) +
+     w     xfac(78) + cfac(78) + xfac(79) + cfac(79) +
+     x     xfac(80) + cfac(80) + xfac(81) + cfac(81) +
+     n     cfac(82) + xfac(82) + cfac(83) + xfac(83) +
+     c     cfac(84) + xfac(84) + cfac(85) + xfac(85) +
      L     lxdm +
 cc AJL/Begin/FDE
      + xfac_fde(3) + xfac_fde(4) + xfac_fde(5) + xfac_fde(6) + 
@@ -91,6 +97,9 @@ c
          call nwxc_getvals("nwxc_is_mgga",out2)
          xc_chkgrad = xc_chkgrad .or. out1.or.out2
       endif
+      out1 = nwchem_libxc_family("gga")
+      out2 = nwchem_libxc_family("mgga")
+      xc_chkgrad = xc_chkgrad .or. out1 .or. out2
 c
       return
       end
@@ -118,6 +127,8 @@ cc AJL/End
          call nwxc_getvals("nwxc_has_xc",out1)
         xc_gotxc = xc_gotxc.or.out1
       endif
+      if (libxcon) xc_gotxc = .true.
+
       return
       end
       logical function xc_gothfx()
@@ -152,6 +163,7 @@ c
 #include "cdft.fh"
 #include "util.fh"
       logical out1
+      logical, external :: nwchem_libxc_family
 c
       xc_got2nd=.not.(
 c
@@ -194,6 +206,17 @@ cb973     .     xfac(22).ne.0d0.or.
      .     xfac(71).ne.0d0.or.
      .     xfac(73).ne.0d0.or.
      .     xfac(74).ne.0d0.or.
+cwb97 should have 2nds
+     .     xfac(76).ne.0d0.or.
+     .     xfac(77).ne.0d0.or.
+     .     xfac(78).ne.0d0.or.
+     .     xfac(79).ne.0d0.or.
+     .     xfac(80).ne.0d0.or.
+     .     xfac(81).ne.0d0.or.
+     .     xfac(82).ne.0d0.or.
+     .     xfac(83).ne.0d0.or.
+     .     xfac(84).ne.0d0.or.
+     .     xfac(85).ne.0d0.or.
 c
 chcth     .     cfac(13).ne.0d0.or.
 cCbecke97     .     cfac(14).ne.0d0.or.
@@ -230,10 +253,24 @@ chp414     .     cfac(21).ne.0d0.or.
      .     cfac(71).ne.0d0.or.
      .     cfac(73).ne.0d0.or.
      .     cfac(74).ne.0d0.or.
+cwb97 should have 2nds
+     .     cfac(76).ne.0d0.or.
+     .     cfac(77).ne.0d0.or.
+     .     cfac(78).ne.0d0.or.
+     .     cfac(79).ne.0d0.or.
+     .     cfac(80).ne.0d0.or.
+     .     cfac(81).ne.0d0.or.
+     .     cfac(83).ne.0d0.or.
+     .     cfac(84).ne.0d0.or.
+     .     cfac(85).ne.0d0.or.
      .     cfac(36).ne.0d0)
       if (util_module_avail("nwxc")) then
          call nwxc_getvals("nwxc_has_2nd",out1)
         xc_got2nd = xc_got2nd .or. out1
+      endif
+
+      if (libxcon .and. xc_got2nd) then
+        xc_got2nd = xc_got2nd .and. nwchem_libxc_family("fxc")
       endif
 c
       return
@@ -253,6 +290,7 @@ c
 C  note in cdft.fh,they define cfac(numfunc) and xfac(numfunc)
 c 
       logical out1
+      logical,external :: nwchem_libxc_family
       double precision tot,eps
       parameter(eps=1.d-10)
       tot = xfac(18) + cfac(25) + xfac(21) + cfac(27) +
@@ -266,6 +304,9 @@ c
      +      xfac(66) + cfac(66) + xfac(67) + cfac(67) +
      +      xfac(68) + cfac(68) + xfac(69) + cfac(69) +
      +      xfac(71) + cfac(71) + xfac(73) + cfac(73) +
+     +      xfac(79) + cfac(79) + xfac(80) + cfac(80) +
+     +      xfac(81) + cfac(81) + xfac(83) + cfac(83) +
+     +      xfac(84) + cfac(84) + xfac(85) + cfac(85) +
 cc AJL/Begin/FDE
      +      xfac_fde(18) + cfac_fde(25) + xfac_fde(21) + cfac_fde(27) +
      +      xfac_fde(28) + xfac_fde(29) + xfac_fde(33) + xfac_fde(34) + 
@@ -288,12 +329,15 @@ c
          call nwxc_getvals("nwxc_is_mgga",out1)
          xc_chktau = xc_chktau .or. out1
       endif
+      out1 = nwchem_libxc_family("mgga")
+      xc_chktau = xc_chktau .or. out1
       return
       end
 c
       logical function xc_getxcfac(rtdb)
       implicit none
       integer rtdb
+      logical dolibxc
 c     load cfac and xfac into cdft.fh
 #include "cdft.fh"
 #include "rtdb.fh"
@@ -321,6 +365,13 @@ c
       xc_getxcfac=xc_getxcfac.and.
      A     rtdb_get(rtdb, 'dft:cfac', mt_dbl, numfunc,
      &     cfac)
+      if(.not.rtdb_get(rtdb, 'dft:libxcon', mt_log, 1, dolibxc))
+     D     dolibxc=.false.
+      xc_getxcfac=xc_getxcfac.or.dolibxc
+      if (dolibxc) then
+        call nwchem_libxc_rdinput(rtdb,'dft')
+      endif
+
       return
       end
 c
@@ -346,6 +397,13 @@ c
      .     xfac(42).ne.0d0.or.
      .     xfac(43).ne.0d0.or.
      .     xfac(50).ne.0d0.or.
+     .     xfac(76).ne.0d0.or.
+     .     xfac(77).ne.0d0.or.
+     .     xfac(78).ne.0d0.or.
+     .     xfac(79).ne.0d0.or.
+     .     xfac(80).ne.0d0.or.
+     .     xfac(81).ne.0d0.or.
+     .     xfac(85).ne.0d0.or.
      .     xfac(51).ne.0d0)
       if (.not.rtdb_get(rtdb, 'dft:cam_exch', mt_log, 1, cam_exch)) 
      &     cam_exch=.false.
@@ -447,6 +505,7 @@ c     return true for functionals without 3rds
 c
       logical function xc_ngot3rd()
       implicit none
+      logical,external :: nwchem_libxc_family
 c
 #include "cdft.fh"
 c
@@ -501,6 +560,16 @@ c
      .     xfac(73).ne.0d0.or.  ! r^2SCAN
      .     xfac(74).ne.0d0.or.  ! r^2SCAN-L
      .     xfac(75).ne.0d0.or.  ! hcth147@tz2p
+     .     xfac(76).ne.0d0.or.  ! wb97
+     .     xfac(77).ne.0d0.or.  ! wb97x
+     .     xfac(78).ne.0d0.or.  ! wb97x-d3
+     .     xfac(79).ne.0d0.or.  ! revm11
+     .     xfac(80).ne.0d0.or.  ! mn12-l
+     .     xfac(81).ne.0d0.or.  ! mn12-sx
+     .     xfac(82).ne.0d0.or.  ! n12-sx
+     .     xfac(83).ne.0d0.or.  ! mn15-l
+     .     xfac(84).ne.0d0.or.  ! mn15
+     .     xfac(85).ne.0d0.or.  ! m06-sx
 c
      .     cfac(5).ne.0d0.or.   ! PW91
      .     cfac(13).ne.0d0.or.  ! HCTH
@@ -549,9 +618,23 @@ c
      .     cfac(71).ne.0d0.or.  ! rSCAN
      .     cfac(73).ne.0d0.or.  ! r^2SCAN
      .     cfac(74).ne.0d0.or.  ! r^2SCAN-L
-     .     cfac(75).ne.0d0      ! hcth147@tz2p
+     .     cfac(75).ne.0d0.or.  ! hcth147@tz2p
+     .     cfac(76).ne.0d0.or.  ! wb97
+     .     cfac(77).ne.0d0.or.  ! wb97x
+     .     cfac(78).ne.0d0.or.  ! wb97x-d3
+     .     cfac(79).ne.0d0.or.  ! revm11
+     .     cfac(80).ne.0d0.or.  ! mn12-l
+     .     cfac(81).ne.0d0.or.  ! mn12-sx
+     .     cfac(82).ne.0d0.or.  ! n12-sx
+     .     cfac(83).ne.0d0.or.  ! mn15-l
+     .     cfac(84).ne.0d0.or.  ! mn15
+     .     cfac(85).ne.0d0      ! m06-sx
      .                )
 c
+      if (libxcon .and. .not.xc_ngot3rd) then
+        xc_ngot3rd = xc_ngot3rd .and. (.not.nwchem_libxc_family("kxc"))
+      endif
+
       return
       end
 C
@@ -559,8 +642,10 @@ C
       implicit none
 #include "cdft.fh"
 #include "util.fh"
+      logical out1,nwchem_libxc_family
       double precision tot,eps
       parameter(eps=1.d-10)
+      external nwchem_libxc_family
       tot = xfac(67) + cfac(67) + xfac(74) + cfac(74)
 
       if (abs(tot).gt.eps) then
@@ -568,6 +653,8 @@ C
       else
         xc_chklap = .false.
       end if
+      out1 = nwchem_libxc_family("lapl")
+      xc_chklap = xc_chklap .or. out1
       return
       end
       logical function xc_chkdelrq()
@@ -588,3 +675,136 @@ C
 
 cc DMR/End
 
+      subroutine xc_os2cs(funcxc,
+     &     tol_rho, fac,lfac,nlfac, rho, delrho, 
+     &                     amat, cmat, nq, ipol, ex, 
+     &                     qwght, ldew, func)
+      implicit none
+c     convert open-shell fxc to closed-shell
+#include "errquit.fh"
+#include "dft2drv.fh"
+c      
+      external funcx
+      double precision fac, Ex
+      integer nq, ipol
+      logical lfac, nlfac,ldew
+      double precision func(*)  ! value of the functional [output]
+      double precision rho(nq,ipol*(ipol+1)/2)
+      double precision delrho(nq,3,ipol)
+      double precision qwght(nq)
+      double precision Amat(nq,ipol), Cmat(nq,*)
+      double precision tol_rho, pi,fact_cs
+      integer r_a,r_b,dr_a,dr_b
+      integer a_a,a_b,c_a,c_b
+      if(ipol.eq.1) then
+         r_a=1
+         r_b=1
+         dr_a=1
+         dr_b=1
+         a_a=D1_RA
+         a_b=D1_RA
+         c_a=D1_GAA
+         c_b=D1_GAA
+         fact_cs=2d0
+         call dscal(nq,0.5d0,rho,1)
+         call dscal(nq*3,0.5d0,delrho,1)
+      else
+         r_a=2
+         r_b=3
+         dr_a=1
+         dr_b=2
+         a_a=D1_RA
+         a_b=D1_RB
+         c_a=D1_GAA
+         c_b=D1_GBB
+         fact_cs=1d0
+      endif
+c     alpha
+      call funcxc(tol_rho, fac,lfac,nlfac,
+     C     rho(1,r_a), delrho(1,1,dr_a), 
+     &     amat(1,a_a), cmat(1,c_a), nq,  ex, 
+     &     qwght, ldew, func, fact_cs)
+c     beta
+      if (ipol.eq.2) then
+      call funcxc(tol_rho, fac,lfac,nlfac,
+     C     rho(1,r_b), delrho(1,1,dr_b), 
+     &     amat(1,a_b), cmat(1,c_b), nq,  ex, 
+     &        qwght, ldew, func, fact_cs)
+      endif
+      if(ipol.eq.1) then
+         call dscal(nq,2d0,rho,1)
+         call dscal(nq*3,2d0,delrho,1)
+      endif
+      return
+      end
+      subroutine xc_os2cs_mgga(funcxc,
+     &     tol_rho, fac,lfac,nlfac, rho, delrho, tau,
+     &     amat, cmat, mmat,
+     N     nq, ipol, ex, 
+     &     qwght, ldew, func)
+      implicit none
+c     convert open-shell fxc to closed-shell
+#include "errquit.fh"
+#include "dft2drv.fh"
+c      
+      external funcx
+      double precision fac, Ex
+      integer nq, ipol
+      logical lfac, nlfac,ldew
+      double precision func(*)  ! value of the functional [output]
+      double precision rho(nq,ipol*(ipol+1)/2)
+      double precision delrho(nq,3,ipol)
+      double precision tau(nq,ipol)
+      double precision qwght(nq)
+      double precision Amat(nq,ipol), Cmat(nq,*),mmat(nq,*)
+      double precision tol_rho, pi,fact_cs
+      integer r_a,r_b,dr_a,dr_b
+      integer a_a,a_b,c_a,c_b
+      if(ipol.eq.1) then
+         r_a=1
+         r_b=1
+         dr_a=1
+         dr_b=1
+         a_a=D1_RA
+         a_b=D1_RA
+         c_a=D1_GAA
+         c_b=D1_GAA
+         fact_cs=2d0
+         call dscal(nq,0.5d0,rho,1)
+         call dscal(nq*3,0.5d0,delrho,1)
+      else
+         r_a=2
+         r_b=3
+         dr_a=1
+         dr_b=2
+         a_a=D1_RA
+         a_b=D1_RB
+         c_a=D1_GAA
+         c_b=D1_GBB
+         fact_cs=1d0
+         call dscal(nq*ipol,2d0,tau,1)
+      endif
+c     alpha
+      call funcxc(tol_rho, fac,lfac,nlfac,
+     C     rho(1,r_a), delrho(1,1,dr_a),
+     t     tau(1,dr_a),
+     &     amat(1,a_a), cmat(1,c_a), mmat(1,dr_a),
+     N     nq,  ex, 
+     &     qwght, ldew, func, fact_cs)
+c     beta
+      if (ipol.eq.2) then
+      call funcxc(tol_rho, fac,lfac,nlfac,
+     C        rho(1,r_b), delrho(1,1,dr_b),
+     t        tau(1,dr_b),
+     &        amat(1,a_b), cmat(1,c_b), mmat(1,dr_b),
+     n        nq,  ex, 
+     &        qwght, ldew, func, fact_cs)
+      endif
+      if(ipol.eq.1) then
+         call dscal(nq,2d0,rho,1)
+         call dscal(nq*3,2d0,delrho,1)
+      else
+         call dscal(nq*ipol,0.5d0,tau,1)
+      endif
+      return
+      end

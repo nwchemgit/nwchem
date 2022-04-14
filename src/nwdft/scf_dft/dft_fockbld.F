@@ -9,8 +9,8 @@
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time,
 cc AJL/Begin/FDE
-c     ,     g_zora_sf,g_frozemb)
-     ,     g_zora_sf,g_frozemb,g_vxc_fde,g_xcinv_fde,g_dens_fde,eelec )
+c     ,     g_rel_sf,g_frozemb)
+     ,     g_rel_sf,g_frozemb,g_vxc_fde,g_xcinv_fde,g_dens_fde,eelec )
 cc AJL/End
 c     
 c     $Id$
@@ -26,6 +26,7 @@ c
 #include "dftps.fh"
 #include "cosmo.fh"
 #include "zora.fh"
+#include "x2c.fh"
 #include "case.fh"
 c#include "dimqm.fh"
 c
@@ -65,11 +66,13 @@ c
 c
       double precision Ebq
 c
-      integer g_zora_sf(*)       ! spin-free zora ga
-      double precision Ezora_sf  ! spin-free zora energy
+      integer g_rel_sf(*)       ! spin-free zora/x2c ga
+      double precision Erel_sf  ! spin-free zora/x2c energy
 c
       integer g_frozemb       ! frozen embedding ga
       double precision Efrozemb  ! energy
+
+      integer g_cosmo
 c
 c     timings
 c
@@ -103,6 +106,8 @@ cc AJL/Begin/FDE
 c      double precision rho_n_fde ![out]
       integer g_dens_fde(2)
 cc AJL/End
+      double precision t0
+      integer g_dmr
 c
       do_cosmo_smd = .false.
       do_cosmo_vem = 0
@@ -266,11 +271,19 @@ c
 cc AJL/Begin/SPIN ECPs
       if(cosmo_on.and.cosmo_phase.eq.2) then
 c         call int_1e_ga(ao_bas_han,ao_bas_han,g_fock,
-         call int_1e_ga(ao_bas_han,ao_bas_han,g_focks(1),
-     &                  'cos_chg_pot',.false.)
+c         t0 = util_wallsec()
+         if (.not.ga_duplicate(g_focks(1),g_cosmo,'cosmo'))
+     &     call errquit('dft_fockbld: create g_cosmo',0,GA_ERR)
+         call ga_zero(g_cosmo)
+         call cosmo_fock(ao_bas_han, g_cosmo)
+         call ga_add(1d0, g_cosmo, 1d0, g_focks(1), g_focks(1))
          if (ecp_channels.gt.1)
-     &     call int_1e_ga(ao_bas_han,ao_bas_han,g_focks(2),
-     &                    'cos_chg_pot',.false.)
+     &     call ga_add(1d0, g_cosmo, 1d0, g_focks(2), g_focks(2))
+         if (.not.ga_destroy(g_cosmo))
+     &     call errquit('dft_fockbld: destroy g_cosmo',0,GA_ERR)    
+c         if (me.eq.0) then
+c           write(*,'("cos_chg_pot: ",F8.3)') util_wallsec()-t0
+c         endif
       endif
 
 c     == Copy Fock matrix to individual components for normal calcs ==
@@ -434,22 +447,22 @@ c     == Calculate the HF exchange (exact Coulomb), DFT exchange-correlation ==
 c
       if (odftps) call pstat_off(ps_xc)
 c
-c     add zora contributions
-      if (do_zora) then
-        Ezora_sf =0.d0
+c     add relativistic energy contributions
+      if (do_zora .or. do_x2c) then
+        Erel_sf =0.d0
         if (ipol.gt.1) then
-          Ezora_sf = ga_ddot(g_dens(1),g_zora_sf(1))
-     &             + ga_ddot(g_dens(2),g_zora_sf(2))
+          Erel_sf = ga_ddot(g_dens(1),g_rel_sf(1))
+     &             + ga_ddot(g_dens(2),g_rel_sf(2))
         else
-          Ezora_sf = ga_ddot(g_dens(1),g_zora_sf(1))
+          Erel_sf = ga_ddot(g_dens(1),g_rel_sf(1))
         end if
-        Ecore = Ecore + Ezora_sf 
+        Ecore = Ecore + Erel_sf 
 c
-        call ga_dadd(1.d0,g_vxc(1),1.d0,g_zora_sf(1),g_vxc(1))
+        call ga_dadd(1.d0,g_vxc(1),1.d0,g_rel_sf(1),g_vxc(1))
         if (ipol.gt.1) 
-     &   call ga_dadd(1.d0,g_vxc(2),1.d0,g_zora_sf(2),g_vxc(2))
+     &   call ga_dadd(1.d0,g_vxc(2),1.d0,g_rel_sf(2),g_vxc(2))
 c
-      end if  ! do_zora
+      end if  ! do_zora .or. do_x2c
 c
 c     == if frozen embedding ==
       Efrozemb = 0.d0

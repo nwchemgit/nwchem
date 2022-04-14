@@ -7,7 +7,7 @@ the C version of the PeIGS library.
 The user should beware that the definition for CTOFLIB in the DEFS files in the
 peigs directory is important here for building the C examples.
 Unfortunately, the MXSUBS on the SUN seems to need a F77 driver program
-to perserve the common block.
+to preserve the common block.
 
 
 This directory also contains the file teslamach for generating

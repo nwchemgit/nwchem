@@ -41,10 +41,10 @@ c
      $     MT_INT, 1, memsize)) memsize = 0
       if (.not. rtdb_get(rtdb, 'grid:eaf_size_in_dbl',
      $     MT_INT, 1, eaf_size_in_dbl)) then
-c     give at least 6mb dbles plus 50 pctage load imbalance on guessize
+c     give at least 32mb dbles plus 50 pctage load imbalance on guessize
 c
          gsize=(2*nq_list*150*4)/(ga_nnodes()*100)
-         eaf_size_in_dbl = max(6*1024*1024,gsize)
+         eaf_size_in_dbl = max(32*1024*1024,gsize)
 c     grabbing 1/5 of avail mem at least?
          eaf_size_in_dbl=max(eaf_size_in_dbl,
      C        MA_inquire_avail(mt_dbl)/5)

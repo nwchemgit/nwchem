@@ -23,9 +23,6 @@ C> Phys. Rev. A <b>38</b>, 3098-3100 (1998), DOI:
 C> <a href="https://doi.org/10.1103/PhysRevA.38.3098">
 C> 10.1103/PhysRevA.38.3098</a>.
 C>
-#if defined(FUJITSU_VPP)
-!ocl scalar
-#endif
 #ifndef SECOND_DERIV
       Subroutine nwpwxc_x_b88(tol_rho, ipol, nq, wght, rho, rgamma,
      &                      func, Amat, Cmat)

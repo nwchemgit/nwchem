@@ -123,15 +123,7 @@ c
 *      call ga_summarize(0)
 c     
       if (oscfps) call pstat_on(ps_diag)
-#ifdef PARALLEL_DIAG
-#ifdef SCALAPACK
-      call ga_pdsyev(g_mofock, g_u, evals, 0)
-#else
-      call ga_diag_std(g_mofock, g_u, evals )
-#endif
-#else
-      call ga_diag_std_seq(g_mofock, g_u, evals )
-#endif
+      call util_diag_std(g_mofock, g_u, evals )
       if (oscfps) call pstat_off(ps_diag)
       call ga_sync()
 c     

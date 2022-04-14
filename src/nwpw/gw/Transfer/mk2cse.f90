@@ -136,7 +136,7 @@ do ii=1,3
   pln(1)=blat(jj,2)*blat(kk,3)-blat(jj,3)*blat(kk,2)
   pln(2)=-blat(jj,1)*blat(kk,3)+blat(jj,3)*blat(kk,1)
   pln(3)=blat(jj,1)*blat(kk,2)-blat(jj,2)*blat(kk,1)
-  dist(ii)=dot_product(gamma,pln)/sqrt(dot_product(pln,pln))
+  dist(ii)=dot_product(gamma,pln)/norm2(pln)
 enddo
 gfo=minval(dist)
 
@@ -466,7 +466,7 @@ do ibp=nbcore+1,ncband
           do jj=1,3
             bgrad=bgrad+(evtx(jj+1)-evtx(1))*rg(:,jj)
           enddo
-          xmult=4.d0*pi/sqrt(dot_product(bgrad,bgrad))
+          xmult=4.d0*pi/norm2(bgrad)
           if (lc) then
             do iw=1,nwpt
               vpyr(:)=vpyr0(:,iw)/vqvtx0
@@ -757,7 +757,7 @@ external xfn1,xfn2,xfn3,grater
 !write(6,'(3f10.6)') xkvtx
 !write(6,'(3f10.6)') xkv0
   call cross(xq1,xq2,xnorm)
-  area=sqrt(dot_product(xnorm,xnorm))
+  area=norm2(xnorm)
 !write(6,*)
 !write(6,'(a,es15.5)') 'area  ',area
   aa=dot_product(xq1,xq1)
@@ -975,7 +975,7 @@ external xfn4,xfn5,xfn6,grater
 !write(6,'(3f10.6)') xkvtx
 !write(6,'(3f10.6)') xkv0
   call cross(xq1,xq2,xnorm)
-  area=sqrt(dot_product(xnorm,xnorm))
+  area=norm2(xnorm)
 !write(6,*)
 !write(6,'(a,es15.5)') 'area  ',area
   aa=dot_product(xq1,xq1)

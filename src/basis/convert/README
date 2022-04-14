@@ -3,7 +3,7 @@ gbasis program in nwchem format into NWCHEM library format.
 
 
 The most time consuming steps cannot be automated since
-they require assesment of the correctness of the contents.
+they require assessment of the correctness of the contents.
 A useful command is
   
    egrep '^BASIS|^END|^Effec' NWCHEM.BSLIB

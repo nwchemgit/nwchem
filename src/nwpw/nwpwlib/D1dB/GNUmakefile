@@ -18,7 +18,7 @@ else
 endif
 
 ifeq ($(USE_MPIF),y)
-  OBJ_OPTIMIZE += D1dB-mpi.o
+  OBJ_OPTIMIZE += D1dB-mpi.o D1dBs-mpi.o
 else
   OBJ_OPTIMIZE += D1dB-tcgmsg.o
 endif
@@ -27,7 +27,7 @@ endif
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = D1dB-mpi.F Dne.F skew.F Dne_omp.F Dnex.F
+    USES_BLAS = D1dB-mpi.F D1dBs-mpi.F Dne.F skew.F Dne_omp.F Dnex.F
 
   LIB_DEFINES = 
 

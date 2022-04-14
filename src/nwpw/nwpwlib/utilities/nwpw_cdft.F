@@ -91,7 +91,7 @@ c
 
       endif
 
-  101 format(1x,"CDFT Potential ",A4," - u(",I1,") = ",F14.9,
+  101 format(1x,"CDFT Potential ",A4," - u(",I3,") = ",F14.9,
      >       " Hartree")
          
       return

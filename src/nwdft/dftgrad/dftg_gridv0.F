@@ -132,7 +132,7 @@ c derivative multiplied by the gradient of the ground state density.
       integer mbf_dchiffp
 c Daniel (2-6-13): Variable for doing restricted triplet gradients for
 c the XC-kernel term in TDDFT gradients
-      integer triplet
+      logical triplet
 c Daniel (2-7-13): Variable for the alternative approach to the dVxc*P
 c term in the TDDFT gradients.
       logical do_tddftvxc
@@ -308,12 +308,12 @@ c
      &   call errquit(' exiting in dftg_gridv0: insuff stack',11,
      &       MA_ERR)
       nd_qwght = 1
-      if (ldew)nd_qwght = 3*n_per_rec*natoms
+      if (ldew.or.do_gxc)nd_qwght = 3*n_per_rec*natoms
       if (.not.MA_Push_get(mt_dbl,nd_qwght,'qwght',ld_qwght,id_qwght))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',11,
      &       MA_ERR)
       nd_func=1
-      if (ldew) nd_func=n_per_rec
+      if (ldew.or.do_gxc) nd_func=n_per_rec
       if (.not.MA_Push_get(mt_dbl,nd_func,'func',lfunc,ifunc))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',11,
      &       MA_ERR)

@@ -486,8 +486,12 @@ c
             call ga_zero(g_dns(1))
 c           Read first density matrix from file
             call util_file_name_resolve(File_Mat1, .false.)
+#if 0
             if (.not.ao_rdm_read(File_Mat1,ao_bas_han,g_Dns(1)))
-     1         call errquit('DPlot: ao_rdm_read failed ',0,0)
+     1           call errquit('DPlot: ao_rdm_read failed ',0,0)
+#else
+            call ao_1prdm_read(nbf,g_dns(1),file_mat1)
+#endif
 c
 c           Read second density matrix from file
             if (File_Mat2.ne.' ') then
@@ -497,8 +501,12 @@ c           Read second density matrix from file
      1                         'Dn1')
                call ga_zero(g_Dns2(1))
                call util_file_name_resolve(File_Mat2, .false.)
+#if 0
                if(.not.ao_rdm_read(File_Mat2,ao_bas_han,g_Dns2(1)))
      1         call errquit('DPlot: ao_rdm_read failed',1,0)
+#else
+            call ao_1prdm_read(nbf,g_dns(2),file_mat2)
+#endif
 c
 c              Compute the difference between the density matrices
                call GA_dAdd(1.d0,g_Dns(1),-1.d0,g_Dns2(1),g_Dns(1))

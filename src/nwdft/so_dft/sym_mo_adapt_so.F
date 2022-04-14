@@ -62,6 +62,8 @@ c
       integer l_u,k_u
       logical sym_char_table_so
       external sym_char_table_so
+      double precision ddot
+      external ddot
 c
       logical odebug            ! True if debugging
       logical owarn             ! True if to print warning messages

@@ -43,38 +43,38 @@ LIB_DEFINES = -D${IO_STYLE} -DIBM ${GENDEFS}
 
 #CPP		= /usr/lib/cpp -P -C -D${COMM_PKG} -D${IO_STYLE} -DIBM ${GENDEFS}
 
-OBJ_OPTIMIZE=	dcfftb.o \
-		dcfftf.o \
-		dcffti.o \
-		dcftb1.o \
-		dcftf1.o \
-		dcfti1.o \
-		dpssb.o \
-		dpssb2.o \
-		dpssb3.o \
-		dpssb4.o \
-		dpssb5.o \
-		dpssf.o \
-		dpssf2.o \
-		dpssf3.o \
-		dpssf4.o \
-		dpssf5.o \
-		drfftb.o \
-		drfftf.o \
-		drffti.o \
-		drftb1.o \
-		drftf1.o \
-		drfti1.o \
-		dradb2.o \
-		dradb3.o \
-		dradb4.o \
-		dradb5.o \
-		dradbg.o \
-		dradf2.o \
-		dradf3.o \
-		dradf4.o \
-		dradf5.o \
-		dradfg.o
+OBJ_OPTIMIZE=	dcfftb.o scfftb.o  \
+		dcfftf.o scfftf.o  \
+		dcffti.o scffti.o  \
+		dcftb1.o scftb1.o \
+		dcftf1.o scftf1.o \
+		dcfti1.o scfti1.o \
+		dpssb.o  spssb.o  \
+		dpssb2.o spssb2.o \
+		dpssb3.o spssb3.o \
+		dpssb4.o spssb4.o \
+		dpssb5.o spssb5.o \
+		dpssf.o  spssf.o  \
+		dpssf2.o spssf2.o \
+		dpssf3.o spssf3.o \
+		dpssf4.o spssf4.o \
+		dpssf5.o spssf5.o \
+		drfftb.o srfftb.o  \
+		drfftf.o srfftf.o  \
+		drffti.o srffti.o  \
+		drftb1.o srftb1.o \
+		drftf1.o srftf1.o \
+		drfti1.o srfti1.o \
+		dradb2.o sradb2.o \
+		dradb3.o sradb3.o \
+		dradb4.o sradb4.o \
+		dradb5.o sradb5.o \
+		dradbg.o sradbg.o \
+		dradf2.o sradf2.o \
+		dradf3.o sradf3.o \
+		dradf4.o sradf4.o \
+		dradf5.o sradf5.o \
+		dradfg.o sradfg.o 
 
 include ../../../config/makefile.h
 include $(CNFDIR)/makelib.h

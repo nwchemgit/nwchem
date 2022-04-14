@@ -28,24 +28,34 @@ c
       integer k_rij,l_rij
       integer idp, ldp, 
      &        izeta, lzeta, idzeta, ldzeta,
-     &        lbp,ibp
+     &        lbp,ibp,nq3
 c
 c     works for new grid
 c     combine xc_signf
 c     
       nq_orig=nqpts
 
-      if (.not.ma_push_get(mt_dbl, nqpts*3*natoms, 'dp',
+      if(lssw) then
+         nq3=3*natoms
+      else
+         nq3= nqpts*3*natoms
+      endif
+      if (.not.ma_push_get(mt_dbl, nq3, 'dp',
      &     ldp, idp))call errquit
      &     (' exiting in dftg_gridpart: insuff stack',133,
      &       MA_ERR)
+      if (.not.ma_push_get(mt_dbl, nq3, 
+     &     'dzeta', ldzeta, idzeta))call errquit
+     &     (' exiting in dftg_gridpart: insuff stack',133, MA_ERR)
       if (.not.ma_push_get(mt_dbl, nqpts, 'zeta',
      &     lzeta, izeta))call errquit
      &     (' exiting in dftg_gridpart: insuff stack',133, MA_ERR)
-      if (.not.ma_push_get(mt_dbl, 3*nqpts*natoms, 
-     &     'dzeta', ldzeta, idzeta))call errquit
-     &     (' exiting in dftg_gridpart: insuff stack',133, MA_ERR)
-      if (.not.ma_push_get(mt_dbl,nqpts*natoms,'bp',lbp,ibp))
+      if(lssw) then
+         nq3=natoms
+      else
+         nq3= nqpts*natoms
+      endif
+      if (.not.ma_push_get(mt_dbl,nq3,'bp',lbp,ibp))
      &     call errquit
      &     (' exiting in dftg_quadv0: insuff stack',13, MA_ERR)
       natoms_l=0
@@ -73,14 +83,14 @@ c
        if(whichfunc.eq.'erf1') then
           call dftg_gridssw(.true.,d_qwght,qwght, qxyz, xyzm, 
      .        dbl_mb(k_Rij),  rq, dbl_mb(ibp),
-     &        dbl_mb(izeta), dbl_mb(idzeta),
+     &        dbl_mb(idzeta),
      &        dbl_mb(idp),ictr_scr, natoms_l, 
      .        nq_orig, nqpts,
      ,        .true.)
        else
          call dftg_gridsswold(.true.,d_qwght,qwght, qxyz, xyzm, 
      .        dbl_mb(k_Rij),  rq, dbl_mb(ibp),
-     &        dbl_mb(izeta), dbl_mb(idzeta),
+     &         dbl_mb(idzeta),
      &        dbl_mb(idp),ictr_scr, natoms_l, 
      .        nq_orig, nqpts,
      ,        whichfunc,.true.)

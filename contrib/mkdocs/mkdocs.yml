@@ -13,6 +13,8 @@ markdown_extensions:
     - toc:
         permalink: True
     - tables
+    - footnotes:
+        SEPARATOR: _footnote_
 #    - markdown_katex:
 #         no_inline_svg: True
 #         insert_fonts_css: True
@@ -28,14 +30,14 @@ plugins:
   - alternate-link
 nav:
       - 'NWChem Manual': Home.md
-      - 'How to download NWChem': Download.md
+      - 'How to download and install NWChem': Download.md
+      - 'Introduction ': Introduction.md
       - Quantum-Mechanical-Methods.md
       - Quantum-Molecular-Dynamics.md
       - 'Hybrid Approaches': Hybrid-Approaches.md
       - Other-Capabilities.md
       - 'NWChem Examples': Examples.md
-      - Supplementary-Information.md
-      - 'How to install NWChem': Compiling-NWChem.md
+      - 'How to Compile NWChem': Compiling-NWChem.md
       - Benchmarks.md
       - Known-Bugs.md
       - 'FAQ': FAQ.md
@@ -43,4 +45,6 @@ nav:
       - Forum.md
       - 'Archived Forum': Archived-Forum.md
       - 'EMSL Arrows': EMSL_Arrows.md
+      - Software-supporting-NWChem.md
+      - Supplementary-Information.md
       - 'Containers': Containers.md

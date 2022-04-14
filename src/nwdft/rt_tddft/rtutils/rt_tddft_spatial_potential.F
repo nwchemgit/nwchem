@@ -578,7 +578,8 @@ C
 C      type(rt_params_t), intent(in) :: params
       integer, intent(in)           :: nao, nq
       double precision, intent(in)  :: chi_ao(nq, nao), wgt(nq), pot(nq)
-      double precision, intent(out) :: pot_ao(nao,nao), ovl_ao(nao,nao)
+      double precision, intent(inout) :: pot_ao(nao,nao)
+      double precision, intent(inout) :: ovl_ao(nao,nao)
 
       character(len=*), parameter :: pname = 
      $     "rt_tddft_spatial_potential_integrate: "
@@ -854,7 +855,8 @@ C
       integer, intent(in)            :: rtdb
 C      type(rt_params_t), intent(in) :: params
       integer, intent(in)           :: nao, nq
-      double precision, intent(out) :: pot_ao(nao,nao), ovl_ao(nao,nao)
+      double precision, intent(inout) :: pot_ao(nao,nao)
+      double precision, intent(inout) :: ovl_ao(nao,nao)
 
       character(len=*), parameter :: pname = 
      $     "rt_tddft_spatial_potential_print: "

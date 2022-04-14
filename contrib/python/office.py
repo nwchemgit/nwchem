@@ -10,7 +10,7 @@ from string import uppercase
 
 class Excel:
     '''
-    Wrapper for MS Excel derived from that in Python Programing on Win32
+    Wrapper for MS Excel derived from that in Python Programming on Win32
     '''
     def __init__(self,filename=None):
         '''
@@ -125,7 +125,7 @@ class Excel:
         
         Optionally, you specify only the top-left corner of range in
         row1, cell1 and specify row2<=0 - the other coordinate is figured
-        out from the dimension of the data.  This can always be overriden by
+        out from the dimension of the data.  This can always be overridden by
         specifying the full range coordinates.
 
         If no coordinates are given, the data is put into the top left
@@ -146,7 +146,7 @@ class Excel:
 
     def getContiguousRange(self, row1, col1, sheet=1):
         '''
-        Returns data in the range which forms a continguous
+        Returns data in the range which forms a contiguous
         block with top-left corner in cell (row1,col1).
         
         Starting from the specified cell, scan down/across
@@ -208,14 +208,14 @@ class Excel:
 
         charttype = 'xy'   ... XY scatter plot with lines and points.
         .           First series is X.  Others are y1, y2, etc.
-        .         = 'surface' ... Surfce plot of a scalar function of
+        .         = 'surface' ... Surface plot of a scalar function of
         .           two variables.  Data should be a grid of the function.
         .         = 'contour' or 'colorcontour' ... Contour plot of a scalar
         .           function of two variables.  Data should be a grid of
         .           values.
         xmin and xmax = min/max values of the x or category axis
         .         It defaults to autoscale by Excel.  This only applies to
-        .         XY plots (since the surfce/contor plots do not use
+        .         XY plots (since the surface/contor plots do not use
         .         values for the category axes ... they use string labels)
         ymin and ymax = min/max values of the y or value axis
         .         It defaults to auto by Excel.  Applies to all charts.
@@ -239,7 +239,7 @@ class Excel:
         try:
             charttype = charttypes[charttype]
         except KeyError:
-            print('Excel.chartSelectedRange: Unkown charttype', charttype, ' defaulting to XY')
+            print('Excel.chartSelectedRange: Unknown charttype', charttype, ' defaulting to XY')
             charttype = charttypes['xy']
 
         # Make the chart and set how the data will be interpreted
@@ -307,21 +307,21 @@ class Excel:
 
     def a1(self, row, col, absrow=0, abscol=0):
         '''
-        Return a string that may be used to adress the cell in
-        a formula.  The row and/or column adress may be made absolute
+        Return a string that may be used to address the cell in
+        a formula.  The row and/or column address may be made absolute
         by setting absrow/col to true values.
         
-        Internally we are adressing cells in the spreadsheet using
+        Internally we are addressing cells in the spreadsheet using
         integers (row,col), which is what Excel calls R1C1 style
         references.  But, unless the user has turned-on R1C1 style
-        adressing (unlikely!) this will not work in formulae
-        so we must translate to the usual adressing style, called A1,
+        addressing (unlikely!) this will not work in formulae
+        so we must translate to the usual addressing style, called A1,
         which uses letters for the columns and numbers for the rows,
         writing the column index first.
 
         E.g., A1 = R1C1 = (1,1), and B3 = R3C2 = (3,2).
 
-        Absolute adresses are preceded with a $ symbol.
+        Absolute addresses are preceded with a $ symbol.
         '''
         ar = ac = ''
         if absrow: ar = '$'

@@ -76,8 +76,8 @@ TOOLGIT=`which git`
 CONFIG=$NWCHEM_TOP/src/config/makefile.h
 if test "x$DEV_GA" != x
 then
-    GA_DIR=ga-5.8
-    GA_BRANCH=release/5.8
+    GA_DIR=ga-5.8.1
+    GA_BRANCH=hotfix/5.8.1
 fi
 if test "x$GA_BRANCH" = x 
 then
@@ -87,7 +87,7 @@ if test "x$USE_GA_RELEASE" != x
 then
     if test "x$GA_RELEASE_NO" = x
     then
-	GA_RELEASE_NO=5.8
+	GA_RELEASE_NO=5.8.1
     fi
     GA_DIR=ga-"$GA_RELEASE_NO"
     if [ ! -f ga-"$GA_RELEASE_NO".tar.gz ]; then
@@ -95,6 +95,8 @@ then
 	then
 	TAR_URL=https://github.com/GlobalArrays/ga/releases/download/v"$GA_RELEASE_NO"/ga-"$GA_RELEASE_NO".tar.gz
 #	 TAR_URL=https://github.com/edoapra/ga/releases/download/v"$GA_RELEASE_NO"/ga-"$GA_RELEASE_NO".tar.gz
+#	 TAR_URL=https://github.com/edoapra/ga/releases/download/v"$GA_RELEASE_NO"/ga-5.8.1.v3.tar.gz
+#         TAR_URL=https://github.com/GlobalArrays/ga/archive/refs/tags/v"$GA_RELEASE_NO".tar.gz
 	 #         https://github.com/edoapra/ga/releases/download/v5.7.2/ga-5.7.2.tar.gz
 	fi
 	echo "downloading" ga-"$GA_RELEASE_NO".tar.gz  "from" "$TAR_URL"
@@ -123,7 +125,7 @@ then
 	#    exit 1
     else
 	if [ ! -f "$GA_DIR"/configure ]; then 
-	    tar xvzf ga-"$GA_RELEASE_NO".tar.gz
+	    tar xzf ga-"$GA_RELEASE_NO".tar.gz
 	fi
     fi
 fi
@@ -145,8 +147,8 @@ else
 	    GA_DIR=`echo $GA_DIR0 | sed -e 's/\//_/g'`
 	fi
     else
-	GA_DIR=ga-5.8
-	GA_BRANCH=release/5.8
+	GA_DIR=ga-5.8.1
+	GA_BRANCH=hotfix/5.8.1
     fi
 fi
 if test "x$GA_URL" != x
@@ -206,6 +208,12 @@ echo "GOTMINGW64" $GOTMINGW64
 ./msmpi_patch.sh $GA_DIR
 ./mingw64_patch.sh $GA_DIR
 fi
+./strdup_patch.sh $GA_DIR
+./nodelist_patch.sh $GA_DIR
+./nompif_patch.sh $GA_DIR
+./ptstride_patch.sh $GA_DIR
+
+#patch -p0 -s -N < ./scala1.patch
 if test -e $GA_DIR/configure
 then
         echo "configure present. no autogen.sh required"

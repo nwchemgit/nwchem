@@ -160,6 +160,11 @@ c
            ds = 1d0
            dx = 1d0
            gc = 1d0
+           zeta=0d0
+           opz=1d0
+           omz=1d0
+           opz23=1d0
+           omz23=1d0
          else
            zeta = (rho(n,2) - rho(n,3))/ntot      
            if (zeta.lt.-1d0) zeta=-1d0

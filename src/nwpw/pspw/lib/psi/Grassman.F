@@ -843,15 +843,18 @@ c      call D3dB_cr_mpfft3b(1,1,n,A)
       real*8 sum
 
       call Parallel_np(np)
-      call dcopy(m*m,0.0d0,0,MM,1)
+      call Parallel_shared_vector_zero(.true.,m*m,MM)
       do k=1,n
       do j=1,n
 c       call D3dB_cc_idot(1,A(1,j),B(1,k),sum)
        call Pack_cc_idot(1,A(1,j),B(1,k),sum) 
+!$OMP MASTER
        MM(j,k) = sum
+!$OMP END MASTER
       end do
       end do
-      if (np.gt.1) call D3dB_Vector_Sumall(m*m,MM)
+!$OMP BARRIER
+      if (np.gt.1) call D3dB_Vector_SumAll(m*m,MM)
 
       return
       end

@@ -1,0 +1,4 @@
+      double precision gamma
+      parameter(gamma=0.004d0)
+      double precision dg,dg1,dg2,dg3
+      dg(dg1,dg2,dg3)=dg2**(8d0/3d0)+dg1*(dg3**2)

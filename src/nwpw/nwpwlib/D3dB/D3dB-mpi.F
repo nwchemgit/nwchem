@@ -767,11 +767,9 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
 *     *         D3dB_SumAll             *
 *     *                                 *
 *     ***********************************
-
       subroutine D3dB_SumAll(sum)
 c     implicit none
       real*8  sum
-
 
 #ifdef MPI4
 #include "stupid_mpi4.fh"
@@ -802,7 +800,6 @@ c     implicit none
 !$OMP END MASTER
 !$OMP BARRIER
       end if
-
       return
       end
 
@@ -910,7 +907,6 @@ c     implicit none
 *     *         D3dB_Vector_SumAll      *
 *     *                                 *
 *     ***********************************
-
       subroutine D3dB_Vector_SumAll(n,sum)
 c     implicit none
       integer n
@@ -935,7 +931,6 @@ c     implicit none
       integer  Parallel2d_comm_i
       external Parallel2d_comm_i
 
-
       call Parallel2d_np_i(np)
       call nwpw_timing_start(2)
       if (np.gt.1) then
@@ -944,7 +939,6 @@ c     implicit none
       value = BA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
       if (.not. value) 
      > call errquit('D3dB_Vector_SumAll:out of stack',0, MA_ERR)
-
 
 !$OMP MASTER
 #ifdef MPI4
@@ -958,13 +952,11 @@ c     implicit none
      >                MPI_DOUBLE_PRECISION,
      >                MPI_SUM,Parallel2d_comm_i(),mpierr)
 #endif
-
       call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
 !$OMP END MASTER
 !$OMP BARRIER
 
       value = BA_pop_stack(sumall(2))
-
       end if
       call nwpw_timing_end(2)
       return
@@ -1220,7 +1212,9 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       end
 
 
-
+    
+      
+      
 
       
 *     ***********************************

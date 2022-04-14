@@ -21,8 +21,8 @@ class GenericAtom(object):
 
         if d:
             if type(d) is not type({}):
-                print "wrong type ", type(d)
-                print "expecting", type({})
+                print("wrong type ", type(d))
+                print("expecting", type({}))
                 sys.exit(1)
             else:
                 self.dct  = d
@@ -77,15 +77,15 @@ if __name__ == '__main__':
     aline4="ATOM      2  O1                 -0.985  -1.156   1.840       -0.80           O"
 
     a=GenericAtom.fromPDBrecord(aline2)   
-    print a.groupTag()
-    print a.coord
-    print a.dct     
+    print(a.groupTag())
+    print(a.coord)
+    print(a.dct)
     b=GenericAtom.fromPDBrecord(aline3)
-    print b.coord
-    print b.dct         
-    print GenericAtom.bondlength(a,b),GenericAtom.bonded(a,b)
-    print a.covRadius()+b.covRadius()
+    print(b.coord)
+    print(b.dct)
+    print(GenericAtom.bondlength(a,b),GenericAtom.bonded(a,b))
+    print(a.covRadius()+b.covRadius())
     c=GenericAtom.fromPDBrecord(aline1)
-    print GenericAtom.bondlength(a,c),GenericAtom.bonded(a,c)
+    print(GenericAtom.bondlength(a,c),GenericAtom.bonded(a,c))
     c=GenericAtom.fromPDBrecord(aline4)    
-    print c.groupTag()
+    print(c.groupTag())

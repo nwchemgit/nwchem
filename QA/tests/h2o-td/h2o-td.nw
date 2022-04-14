@@ -3,7 +3,6 @@ echo
 start h2o-td
 title h2o-td
 
-memory total 800 stack 400 heap 50 global 350 mb
 
 geometry units au noautoz nocenter
 symmetry group c1

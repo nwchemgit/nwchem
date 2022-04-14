@@ -578,18 +578,20 @@ c     determine frequency and number of components
       lstatic = (abs(omega).lt.tenm8) ! static response or not
       ncomp = 2                 ! no. of Fourier components to treat
       if (lstatic) ncomp = 1
-c  jbecca START: static and damping do not work properly. Instead of 
-c     trying to fix this fringe case of little value, make sure
-c     if static, do not run with damping.
+
+c     static response with lifetime setting: make sure it is 
+c     routed through the dynamic response solver. We put a warning
+c     in the output, as this was potentially not the intended 
+c     setup for the calculation
       if (lstatic .and. lifetime) then
-         write(luout,*)'***********************************************'
-         write(luout,*)'Damping was requested with static frequency'
-         write(luout,*)'Turning off damping and sending to the static'
-         write(luout,*)'routine to save computational time'
-         write(luout,*)'***********************************************'
-         lifetime = .false.
+         write(luout,*)'***************************************'
+         write(luout,*)'Damping was requested with static field'
+         write(luout,*)'Please make sure that this is intended'
+         write(luout,*)'***************************************'
+         lstatic = .false.
+         ncomp = 2
       endif
-c  jbecca END
+
 c  jbecca START
       if (use_dimqm) then
          call dimqm_used(ldimqm)

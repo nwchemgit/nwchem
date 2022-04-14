@@ -796,8 +796,8 @@ c
 c
 c JACOBI
 c
-      call tce_jacobi_x1(x1(imicro),k_x1_offset,omega)
-      call tce_jacobi_x2(x2(imicro),k_x2_offset,omega)
+      call tce_jacobi_x1(x1(imicro),k_x1_offset)
+      call tce_jacobi_x2(x2(imicro),k_x2_offset)
 c
 c
 c
@@ -1377,7 +1377,7 @@ c
 c
 c JACOBI
 c
-      call tce_jacobi_x1(x1(imicro),k_x1_offset,omega)
+      call tce_jacobi_x1(x1(imicro),k_x1_offset)
       call tce_jacobi_x2a(x2(imicro),k_x2_offset,omega)
 c
 c
@@ -1970,9 +1970,9 @@ c
 c JACOBI
 c
       call tce_jacobi_x1(x1((imicro-1)*nroots_reduced+iroot),
-     &     k_x1_offset,omega)
+     &     k_x1_offset)
       call tce_jacobi_x2(x2((imicro-1)*nroots_reduced+iroot),
-     &     k_x2_offset,omega)
+     &     k_x2_offset)
 c
 c
 c
@@ -2480,7 +2480,7 @@ c
 c JACOBI
 c
       call tce_jacobi_x1(x1((imicro-1)*nroots_reduced+iroot),
-     &     k_x1_offset,omega)
+     &     k_x1_offset)
       call tce_jacobi_x2a(x2((imicro-1)*nroots_reduced+iroot),
      &     k_x2_offset,omega)
 c

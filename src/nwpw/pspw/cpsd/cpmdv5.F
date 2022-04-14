@@ -69,7 +69,7 @@ cccc#include "frac_occ.fh"
     
 
 *     ***** energy variables ****
-      real*8  E(50),eke,eave,evar,cv,have,hvar,qave,qvar
+      real*8  E(60),eke,eave,evar,cv,have,hvar,qave,qvar,Egas
 
 *     real*8  eig(2*nemax)
 *     real*8  hml(2*nemax*nemax)
@@ -86,6 +86,7 @@ cccc#include "frac_occ.fh"
 
 *     **** local variables ****
       logical verlet,mulliken,SA,found,calc_pressure,found_bak
+      logical field_exist
       integer ms
       real*8  gx,gy,gz,cx,cy,cz
       real*8  vgx,vgy,vgz,vcx,vcy,vcz
@@ -148,10 +149,12 @@ cccc#include "frac_occ.fh"
       character*12 control_boundry
       external     control_boundry
 
-      logical      psp_semicore,pspw_qmmm_found
-      real*8       psp_rcore,psp_ncore,psp_rlocal
-      external     psp_semicore,pspw_qmmm_found
-      external     psp_rcore,psp_ncore,psp_rlocal
+      logical  psp_semicore,pspw_qmmm_found,pspw_charge_found
+      external psp_semicore,pspw_qmmm_found,pspw_charge_found
+      real*8   psp_rcore,psp_ncore,psp_rlocal
+      external psp_rcore,psp_ncore,psp_rlocal
+      logical  pspw_Efield_found
+      external pspw_Efield_found
 
       logical  control_Nose,control_Mulliken,Nose_restart
       external control_Nose,control_Mulliken,Nose_restart
@@ -201,6 +204,15 @@ cccc#include "frac_occ.fh"
       logical  psp_pawexist,ion_makehmass2,control_has_ngrid_small
       external psp_pawexist,ion_makehmass2,control_has_ngrid_small
 
+      logical  nwpw_born_on
+      external nwpw_born_on
+      real*8   nwpw_born_screen
+      external nwpw_born_screen
+      logical  pspw_V_APC_on
+      external pspw_V_APC_on
+      real*8   control_gas_energy
+      external control_gas_energy
+
       character*50 control_cell_name
       external     control_cell_name
       integer  Parallel_maxthreads
@@ -215,7 +227,7 @@ cccc#include "frac_occ.fh"
       pi = 4.0d0*datan(1.0d0)
 
       call nwpw_timing_init()
-      call dcopy(50,0.0d0,0,E,1)
+      call dcopy(60,0.0d0,0,E,1)
 
 
 *     **** get parallel variables ****
@@ -388,7 +400,11 @@ cccc#include "frac_occ.fh"
       if (control_version().eq.3) call ewald_init()
       
 *     **** initialize QM/MM ****
+      call pspw_init_APC(rtdb)
       call pspw_qmmm_init(rtdb)
+      call pspw_charge_init(rtdb)
+      call pspw_Efield_init(rtdb,ispin,ne)
+      field_exist = pspw_charge_found().or.pspw_Efield_found()
 
 *     ******************************
 *     **** scaling psi velocity ****
@@ -591,6 +607,8 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
          write(luout,1210) vgx,vgy,vgz
          write(luout,1211) ion_nconstraints(),ion_ndof()
 
+         call pspw_charge_Print(luout)
+         call pspw_Efield_Print(luout)
 
          if (fractional) then
            write(luout,1219) en(1),en(ispin),' (   fractional)'
@@ -1191,6 +1209,8 @@ c         end if
          write(luout,1210) vgx,vgy,vgz
          write(luout,1211) ion_nconstraints(),ion_ndof()
 
+         call pspw_charge_Print(luout)
+         call pspw_Efield_Print(luout)
 
          write(luout,*)
          write(luout,1320) en(1),en(ispin),' (real space)'
@@ -1203,6 +1223,9 @@ c         end if
             write(luout,1434) (E(1)+E(36)+E(45)),
      >                        (E(1)+E(36)+E(45))/ion_nion()
          end if
+
+*       **** write APC potential and charges ***
+        if (pspw_V_APC_on()) call pspw_shortprint_APC(luout)
 
          write(luout,1430) E(2),E(2)/ion_nion()
          write(luout,1440) E(5),E(5)/n2(ispin)
@@ -1223,6 +1246,9 @@ c         end if
          end if
          if (tamd_found()) then
            write(luout,1461) E(34),E(34)/ion_nion()
+         end if
+         if (pspw_V_APC_on()) then
+           write(luout,1505) E(52),E(52)/ion_nion()
          end if
          write(luout,1470) E(8),E(8)/ion_nion()
          write(luout,1471) E(3),E(3)/n2(ispin)
@@ -1246,6 +1272,14 @@ c         end if
             write(luout,1720) E(33)
         end if
 
+        if (field_exist) then
+           write(luout,1800)
+           write(luout,1801)
+           write(luout,1805) E(19)+E(20)+E(21)
+           write(luout,1802) E(19)
+           write(luout,1803) E(20)
+           write(luout,1804) E(21)
+        end if
 
          if (control_Nose()) then
            write(luout,1473) E(9),E(9)/n2(ispin)
@@ -1328,7 +1362,23 @@ c         end if
          end if
 
          end if
+      end if
 
+*     **** write out extended Born solvation energies ****
+      if (nwpw_born_on()) then
+         Egas = control_gas_energy()
+         if (taskid.eq.MASTER) then
+            write(luout,1740)
+            write(luout,1741) nwpw_born_screen()
+            write(luout,1745) E(52),E(52)*27.2116d0*23.06d0
+            if (dabs(Egas).gt.1.0d-6)
+     >            write(luout,1746) E(2)-Egas,
+     >                             (E(2)-Egas)*27.2116d0*23.06d0
+            call nwpw_born_print(luout,Egas,E(2))
+         end if
+      end if
+
+      if (taskid.eq.MASTER) then
 *        *** Extra energy output added for QA test ****
          write(luout,1600) E(2)
       end if
@@ -1352,6 +1402,7 @@ c         end if
       call v_psi_write(ispin,ne,dcpl_mb(psi0(1)))
 
 *     **** write geometry to rtdb ****
+      call pspw_charge_write(rtdb)
       call ion_write(rtdb)
 
 *     **** deallocate heap memory ****
@@ -1363,22 +1414,26 @@ c         end if
       call mask_end()
       call Pack_end()
       call G_end()
-      call ion_end()
-      call psp_end()
-      call ion_end_FixIon()
       call psp_U_end()
       call vdw_DF_end()
       call nwpw_meta_gga_end()
       call pspw_end_SIC()
       call pspw_end_HFX()
+      call pspw_end_APC()
       call pspw_qmmm_end()
       call meta_finalize(rtdb)
       call tamd_finalize(rtdb)
       call dplot_iteration_end()
+      call pspw_charge_end()
+      call pspw_Efield_end()
 c      call frac_occ_end()
       if (control_Nose()) call Nose_end()
       if (psp_pawexist()) call nwpw_gintegrals_end()
       !if (psp_pawexist()) call nwpw_cgintegrals_end()
+
+      call ion_end()
+      call psp_end()
+      call ion_end_FixIon()
 
       value = BA_free_heap(psir(2))
       value = BA_free_heap(Hpsi(2))
@@ -1452,13 +1507,13 @@ c      call frac_occ_end()
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ input data ========================')
  1111 FORMAT(/' number of processors used:',I10)
- 1112 FORMAT( ' parallel mapping         :      1d slab')
- 1113 FORMAT( ' parallel mapping         :   2d hilbert')
+ 1112 FORMAT( ' parallel mapping         :      1d-slab')
+ 1113 FORMAT( ' parallel mapping         :   2d-hilbert')
  1114 FORMAT( ' parallel mapping         :     balanced')
  1115 FORMAT(/' options:')
  1116 FORMAT( ' parallel mapping         : not balanced')
  1117 FORMAT( ' processor grid           :',I4,' x',I4)
- 1118 FORMAT( ' parallel mapping         :    2d hcurve')
+ 1118 FORMAT( ' parallel mapping         :    2d-hcurve')
  1119 FORMAT( ' parallel io              :        on')
  1120 FORMAT( ' parallel io              :       off')
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
@@ -1585,6 +1640,8 @@ c     >        ' set nwpw:makehmass2 .false.')
  1420 FORMAT(/' final position of ions:')
  1421 FORMAT(/' final velocity of ions:')
  1430 FORMAT(/' total     energy    :',E19.10,' (',E15.5,'/ion)')
+ 1431 FORMAT(/' QM Energies')
+ 1432 FORMAT( '------------')
  1434 FORMAT(//' total paw energy    :',E19.10,' (',E15.5,'/ion)')
  1440 FORMAT( ' total orbital energy:',E19.10,' (',E15.5,'/electron)')
  1450 FORMAT( ' hartree   energy    :',E19.10,' (',E15.5,'/electron)')
@@ -1612,6 +1669,7 @@ c     >        ' set nwpw:makehmass2 .false.')
      >        ' (',E15.5,'/electron)')
  
  1500 FORMAT(/' orbital energies:')
+ 1505 FORMAT( ' APC energy          :',E19.10,' (',E15.5,'/ion)')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  1511 FORMAT(2(E18.7,' (',F8.3,'eV) occ=',F6.3))
  1600 FORMAT(/' Total PSPW energy   :',E19.10)
@@ -1628,6 +1686,21 @@ c     >        ' set nwpw:makehmass2 .false.')
  1707 FORMAT( ' QM/MM coupling param.  :',E19.10)
 
  1720 FORMAT(/' Dispersion energy   :',E19.10)
+
+
+ 1740 FORMAT(/' extended Born solvation energies:')
+ 1741 FORMAT(5x,' screen=(epsilon-1)/(epsilon):',F11.6)
+ 1745 FORMAT(5x,' solvation energy (w/o QM polarization) :',E19.10,
+     >   ' (',F8.3,' kcal/mol)')
+ 1746 FORMAT(5x,' solvation energy (w/  QM polarization) :',E19.10,
+     >   ' (',F8.3,' kcal/mol)')
+
+ 1800 FORMAT(/' Charge Field Energies')
+ 1801 FORMAT( ' ---------------------')
+ 1802 FORMAT( ' - Charge Field/Electron    :',E19.10)
+ 1803 FORMAT( ' - Charge Field/Ion         :',E19.10)
+ 1804 FORMAT( ' - Charge Field/Charge Field:',E19.10)
+ 1805 FORMAT( ' Charge Field Energy        :',E19.10)
 
  9010 FORMAT(//' >> job terminated due to code =',I3,' <<')
 

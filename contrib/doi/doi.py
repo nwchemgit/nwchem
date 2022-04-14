@@ -94,7 +94,7 @@ def lookup_dois(doi_table):
 def print_bibliography(bibliography):
     """Print the list of bibliography entries."""
     for reference in bibliography:
-        print( reference )
+        print(reference)
 
 def main ():
     """Run the whole thing (limited capability at the moment)"""

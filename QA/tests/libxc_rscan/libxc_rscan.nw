@@ -1,0 +1,21 @@
+start c2h4_rscan_libxc
+geometry 
+c 	0.0000 	0.0000 	0.6695
+c 	0.0000 	0.0000 -0.6695
+h 	0.0000 	0.9289 	1.2321
+h 	0.0000 -0.9289 	1.2321
+h 	0.0000 	0.9289 -1.2321
+h 	0.0000 -0.9289 -1.2321
+ symmetry d2h
+end  
+basis spherical  
+ * library aug-cc-pvdz
+end  
+dft  
+ xc mgga_c_rscan 1.0 mgga_x_rscan 1.0
+end  
+task dft
+dft
+ grid xfine
+end
+task dft

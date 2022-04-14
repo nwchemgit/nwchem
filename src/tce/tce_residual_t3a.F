@@ -31,6 +31,8 @@ c
       external nxtask
       logical nodezero
       logical acolo
+      double precision ddot
+      external ddot
 c
 c     new
 c

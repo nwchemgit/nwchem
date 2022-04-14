@@ -55,7 +55,7 @@ c
             gammaval=0.25d0*(delrho(n,1,1)*delrho(n,1,1) +
      &           delrho(n,2,1)*delrho(n,2,1) +
      &           delrho(n,3,1)*delrho(n,3,1))
-            if(gammaval.gt.tol_rho**2)  za=sqrt(gammaval)
+            if(gammaval.gt.0.25d0*tol_rho**2)  za=sqrt(gammaval)
             zb=za
             call hcth(ipol,funcname,
      *           dfdrax,dfdrac, dfdzax,dfdzac, 
@@ -404,7 +404,8 @@ cDEC$ NOVECTOR
         dfdrax = dfdrax + F(n*3+1,1) 
         dfdrac = dfdrac + F(n*3+2,1) + F(n*3+3,1) 
         if(za.gt.tol_rho) then
-            dfdzax = dfdzax + F(n*3+1,3) / za
+           if(abs(F(n*3+1,3)).gt.tol_rho)
+     d          dfdzax = dfdzax + F(n*3+1,3) / za
             dfdzac = dfdzac + (F(n*3+2,3)+F(n*3+3,3)) / za
         endif
       if(ipol.eq.2) then
@@ -495,23 +496,31 @@ C      DOUBLE PRECISION du_cab_by_dzb_dzb
       DOUBLE PRECISION F_xs,F_xs0 ! this is a function which is called. 
       DOUBLE PRECISION dF_xs_by_drhos, dF_xs_by_dzs,
      ,dF_xs_by_drhos0,dF_xs_by_drhos1,  dF_xs_by_dzs1
+      DOUBLE PRECISION f_xs_new,
+     ,dF_xs_by_drhos_new, dF_xs_by_dzs_new
+      external f_xs_new,
+     ,dF_xs_by_drhos_new, dF_xs_by_dzs_new
+      external          xc_kernel_lrlda
       INTEGER i, j,  n
       integer n1
       double precision x1,x2,x3,x4
-      double precision e_crs1
       double precision drsbydrh
       double precision d2ez
-      double precision decrsdrs
+#include "2ndDerivB97.h"
+#include "case.fh"
+      double precision FCLDA(0:_FXC_RARB)
 C
 C     F_xs computes HCTH contribution to exchange Energy
 C     using Dirac functional as LDA part
 C     usage of F_xs
 C     F_xs(n, sol(), rhoa, za)
-C
+C     =
+c     sol_i*u(za)^n*ex_lda(rhoa)
       F_xs(n1, x1, x2, x3) =
      = (-3.D0*x1*(3.D0/Pi)**(1.D0/3.D0)*x2**(4.D0/3.D0)*
      -     ((0.004D0*x3**2.D0)/(0.004D0*x3**2.D0 +
      -     x2**(8.D0/3.D0)))**n1)/(2.D0*2.D0**(2.D0/3.D0))
+c     special case i=0
       F_xs0( x1, x2, x3) =
      = (-3.D0*x1*(3.D0/Pi)**(1.D0/3.D0)*x2**(4.D0/3.D0)
      -     )/(2.D0*2.D0**(2.D0/3.D0))
@@ -533,8 +542,10 @@ C
      *     x2**3.D0*x3*x3*((0.004D0*x3*x3)/
      /     (x2**(8.D0/3.D0)+0.004D0*x3*x3))**(-1 + n1))/
      /     (x2**(8.D0/3.D0)+0.004D0*x3*x3)**2
+c     special case i=0
        dF_xs_by_drhos0(x1, x2, x3) =  -(x1*(6.D0/Pi)**
      *     (1.D0/3.D0)*x2**(1.D0/3.D0))
+c     special case i=1
        dF_xs_by_drhos1(x1, x2, x3) =  -(x1*(6.D0/Pi)**
      *     (1.D0/3.D0)*x2**(1.D0/3.D0)*((0.004D0*x3*x3)/
      /     (x2**(8.D0/3.D0)+0.004D0*x3*x3)))+
@@ -567,21 +578,8 @@ c
 c     usage
 c     e_crsa1 = e_crs1(rsa12,rsa,rsa32,rsa21)
 c
-      e_crs1(x1,x2,x3,x4) = -0.03108999999999999d0*
-     *  dlog(1.d0 + 32.16468317787069d0/
-     /     (14.1189d0*x1+6.1977d0*x2 + 3.3662d0*x3 +
-     +     0.6251699999999999d0*x4))*(1.d0 + 0.20548d0*x2)
       drsbydrh(x1) = -((1.d0/x1)**(4.D0/3.D0)/
-     -    (6.d0**(2.D0/3.D0)*Pi**(1.D0/3.D0)))
-c     usage decrsdrs(rsa,rsa12,rsa21,rsa32)
-      decrsdrs(x1,x2,x3,x4) = ((1.d0 + 0.20548d0*x1)*
-     -     (6.1977d0 + 7.05945d0/x2 + 1.25034d0*x1+5.0493d0*x2))/
-     -     ((6.1977d0*x1+14.1189d0*x2+0.6251699999999999d0*x3 + 
-     +     3.3662d0*x4)**2d0*(1.d0 + 32.16468317787069d0/
-     -     (6.1977d0*x1+14.1189d0*x2+0.6251699999999999d0*x3+
-     +     3.3662d0*x4))) - 0.006388373199999999d0*
-     -   dlog(1.d0 + 32.16468317787069d0/(6.1977d0*x1 + 14.1189d0*x2 + 
-     -        0.6251699999999999d0*x3 + 3.3662d0*x4)) 
+     -     (6.d0**(2.D0/3.D0)*Pi**(1.D0/3.D0)))
 c
       DO j = 1, 4
         DO n = 1, (max_pow_u+1)*3
@@ -651,10 +649,13 @@ Cfah with the various powers of u.
          rsb32 = rsb**(3.D0/2.D0)
          rsb21 = rsb**2.D0
 C     
-C     pw91 LDA Ecorr
+C     pw91 LDA Ecorr for rho beta
 C
          if(rhob.gt.tol_rho) then
-            call xc_pw91ldag(rsb, 2, e_crsb1 ,de_crsb1_by_drsb, d2ez)
+               call xc_pw91ldag(rsb, 2, e_crsb1 ,de_crsb1_by_drsb, d2ez)
+c               call dft_xckernel_pwlda(0d0, rhob, FCLDA)
+c               e_crsb1     = FCLDA(_FXC_E)
+c               de_crsb1_by_drsb   = FCLDA(_FXC_RB)
          else
             e_crsb1 = 0d0
             de_crsb1_by_drsb = 0d0
@@ -941,9 +942,19 @@ Cfah construction of the F_xc itself
 Cfah -------------------------------
         IF (rhoa.GT.tol_rho) THEN
           if(n.eq.0) then
+           if(cam_omega.eq.0) then
             F_xc(1) = F_xs0 (sol(1), rhoa, za)
+           else
+            F_xc(1) = f_xs_new(0, sol(1), rhoa, za,
+     c           xc_kernel_lrlda, cam_omega)
+           endif
           else
+           if(cam_omega.eq.0) then
             F_xc(n*3+1) = F_xs (n, sol((n*3) + 1), rhoa, za)
+           else
+            F_xc(n*3+1) = f_xs_new(n, sol((n*3) + 1), rhoa, za,
+     c          xc_kernel_lrlda, cam_omega)
+           endif
           endif
         ENDIF
           if(u_caa.gt.tol_rho)then
@@ -956,9 +967,19 @@ Cfah -------------------------------
 
         IF (rhob.GT.tol_rho) THEN
            if(n.eq.0) then
+            if(cam_omega.eq.0) then
           F_xc(1) = F_xc(1)+F_xs0(sol(1), rhob, zb)
+            else
+          F_xc(1) = F_xc(1)+f_xs_new(0,sol(1), rhob, zb,
+     c          xc_kernel_lrlda, cam_omega)
+            endif
            else
+            if(cam_omega.eq.0) then
           F_xc(n*3+1) = F_xc(n*3+1)+F_xs(n, sol((n*3) + 1), rhob, zb)
+            else
+          F_xc(n*3+1) = F_xc(n*3+1)+f_xs_new(n,sol((n*3) + 1), rhob,zb,
+     c          xc_kernel_lrlda, cam_omega)
+            endif
           endif
         ENDIF
           if(u_cbb.gt.tol_rho) then
@@ -984,27 +1005,65 @@ Cfah ---------------------
 
         if(za.gt.tol_rho)then 
            if(n.eq.0) then
+           if(cam_omega.eq.0) then
             dF_xa(1) = dF_xs_by_drhos0 ( sol(1), rhoa, za) 
+           else
+            dF_xa(1) = dF_xs_by_drhos_new(0,sol(1), rhoa, za,
+     c           xc_kernel_lrlda, cam_omega)
+           endif
             dF_xa(3) = 0d0
          elseif(n.eq.1) then
+           if(cam_omega.eq.0) then
             dF_xa(1) = dF_xs_by_drhos1 (sol(4), rhoa, za) 
             dF_xa(3) = dF_xs_by_dzs1 ( sol(4), rhoa, za)
+           else
+            dF_xa(1) = dF_xs_by_drhos_new(1,sol(4), rhoa, za,
+     c           xc_kernel_lrlda, cam_omega)
+            dF_xa(3) = dF_xs_by_dzs_new(1,sol(4), rhoa, za,
+     c           xc_kernel_lrlda, cam_omega)
+           endif
          else
+           if(cam_omega.eq.0) then
             dF_xa(1) = dF_xs_by_drhos (n, sol((n*3) + 1), rhoa, za) 
             dF_xa(3) = dF_xs_by_dzs (n, sol((n*3) + 1), rhoa, za)
+           else
+            dF_xa(1) = dF_xs_by_drhos_new(n, sol((n*3) + 1), rhoa, za,
+     c           xc_kernel_lrlda, cam_omega)
+            dF_xa(3) = dF_xs_by_dzs_new(n, sol((n*3) + 1), rhoa, za,
+     c           xc_kernel_lrlda, cam_omega)
+           endif
          endif
           endif
 
         if(zb.gt.tol_rho) then
            if(n.eq.0) then
+            if(cam_omega.eq.0) then
              dF_xb(2) = dF_xs_by_drhos0(sol(1), rhob, zb)
+            else
+             dF_xb(2) = dF_xs_by_drhos_new(0,sol(1), rhob, zb,
+     c             xc_kernel_lrlda, cam_omega)
+            endif
              dF_xb(4) = 0d0
           elseif(n.eq.1) then
+           if(cam_omega.eq.0) then
              dF_xb(2) = dF_xs_by_drhos1(sol(4), rhob, zb)
              dF_xb(4) = dF_xs_by_dzs1 ( sol(4), rhob, zb)
+           else
+             dF_xb(2) = dF_xs_by_drhos_new(1,sol(4), rhob, zb,
+     c            xc_kernel_lrlda, cam_omega)
+             dF_xb(4) = dF_xs_by_dzs_new(1,sol(4), rhob, zb,
+     c            xc_kernel_lrlda, cam_omega)
+           endif
           else
+           if(cam_omega.eq.0) then
              dF_xb(2) = dF_xs_by_drhos (n, sol((n*3) + 1), rhob, zb)
              dF_xb(4) = dF_xs_by_dzs (n, sol((n*3) + 1), rhob, zb)
+           else
+             dF_xb(2) = dF_xs_by_drhos_new(n, sol((n*3) + 1), rhob, zb,
+     c            xc_kernel_lrlda, cam_omega)
+             dF_xb(4) = dF_xs_by_dzs_new(n, sol((n*3) + 1), rhob, zb,
+     c            xc_kernel_lrlda, cam_omega)
+           endif
           endif
            endif
 

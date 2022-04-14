@@ -48,7 +48,7 @@
       U    = Bs
       st2  = B
 
-      call dcopy(8*nn,0.0d0,0,tmp,1)
+      call Parallel_shared_vector_zero(.true.,8*nn,tmp)
 
       do ms=1,ispin
         IF(ne(ms).le.0) go to 640
@@ -83,7 +83,7 @@ c          call Dneall_f_ortho(ms,psi2,npack1)
      >                          psi1,npack1,
      >                          tmp(st1), 1.0d0,
      >                          psi2,1.0d0)
-          call dscal(nn,(1.0d0/dte),tmp(st1),1)
+          call DSCAL_OMP(nn,(1.0d0/dte),tmp(st1),1)
           call Dneall_mm_Expand(ms,tmp(st1),lmbda)
         end if
    

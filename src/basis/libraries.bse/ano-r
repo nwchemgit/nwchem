@@ -1,6 +1,6 @@
-# BSE Version v0.8.13+78.g32721c8f
-# Data downloaded on 2021-02-20T21:21
-# ANO-R version number 1
+# BSE Version v0.9
+# Data downloaded on 2022-02-15T18:31
+# ANO-R version number 2
 # Description: ANO-R
 # Role: orbital
 # 
@@ -34,7 +34,7 @@
 # 
 #  H-Rn
 #      ANO-R
-#          zobel2020a
+#          zobel2020a zobel2021a
 # 
 # 
 # 
@@ -43,6 +43,12 @@
 #     The ANO-R Basis Set
 #     J. Chem. Theory Comput. 16, 278-294 (2020)
 #     10.1021/acs.jctc.9b00873
+# 
+# zobel2021a
+#     Zobel, J. Patrick, Widmark, Per-Olof, Veryazov, Valera
+#     Correction to "The ANO-R Basis Set"
+#     J. Chem. Theory Comput. 17, 3233-3234 (2021)
+#     10.1021/acs.jctc.1c00329
 # 
 # # 
 basis "H_ANO-R" SPHERICAL 

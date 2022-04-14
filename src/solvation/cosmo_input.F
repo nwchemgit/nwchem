@@ -72,6 +72,9 @@ c
       integer iat, nfield, nrad, irad
       integer iscren, ifscrn, minbem, maxbem, ificos, lineq
       integer cosmo_screen, cosmo_sccor
+      integer iangleb
+      integer fibonacci
+      integer thomson
       integer l_rad, k_rad
       double precision dielec,dielecinf,rsolv,rad,zeta,gammas,swtol
       character*255 field
@@ -80,8 +83,6 @@ c
       logical status
       character*30 tag
       character*255 token
-      double precision bohr
-      parameter  (bohr=0.529177249d+00)
       character*(rtdb_max_file) geom_geom  ! The "geometry" value
       character*(rtdb_max_file) cosmo_geom ! The geometry for which the COSMO
                                            ! parameters were set
@@ -106,6 +107,7 @@ c
       double precision soln
       double precision pol_cosmo_vem(2)
       double precision polgs_cosmo_vem, poles_cosmo_vem
+      integer icds
 c
 c     vem model parameters
 c
@@ -138,9 +140,12 @@ c
       ificos   =0
       lineq    =0  ! 0 fast direct solver, 1 slow iterative solver
       rsolv    =0.50d+00
-      zeta     =0.98d+00 ! apparently for Lebedev grids zeta=4.9
+      zeta     =4.50d+00 ! apparently for Lebedev grids zeta=4.9
       gammas   =1.00d+00 ! full switching, see York, Karplus Eq.86.
       swtol    =1.00d-04 ! switching tolerance, see York, Karplus Eq.62-88.
+      iangleb  =-1
+      fibonacci=-1
+      thomson  =0
 c
 c MN solvation models -->
 c
@@ -182,9 +187,7 @@ c
       if(.not.ma_push_get(mt_dbl,nw_max_atom,'cosmo rads',l_rad,k_rad))
      & call errquit('cosmo_input malloc k_rad failed',nw_max_atom,
      &              MA_ERR)
-      do iat=1,nw_max_atom
-         dbl_mb(k_rad+iat-1)=0.0d+00
-      enddo
+      call dfill(nw_max_atom,0d0,dbl_mb(k_rad),1)
 c
 c     ----- read values from input -----
 c
@@ -295,6 +298,10 @@ c
         status = inp_f(soln)
         if (.not. rtdb_put(rtdb,'cosmo:soln',mt_dbl,1,soln))
      $    call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+      else if(inp_compare(.false.,'icds',field)) then
+        status = inp_i(icds)
+        if (.not. rtdb_put(rtdb,'cosmo:icds',mt_int,1,icds))
+     $    call errquit('cosmo_input: rtdb put failed',912,RTDB_ERR)
 c
 c <-- MN solvation models
 c
@@ -489,6 +496,31 @@ c
          if (.not. rtdb_put(rtdb,'cosmo:ificos',mt_int,1,ificos))
      $        call errquit('cosmo_input: rtdb put failed',911, RTDB_ERR)
 c
+c   --- lebedev
+c
+      else if(inp_compare(.false.,'lebedev',field)) then
+         if(.not. inp_i(iangleb)) iangleb = 4
+         if (iangleb.lt.1)
+     $     call errquit('cosmo_input: lebedev <1',911,INPUT_ERR)
+         if(.not. rtdb_put(rtdb,'cosmo:iangleb',mt_int,1,iangleb))
+     $     call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+c
+c   --- fibonacci
+c
+      else if(inp_compare(.false.,'fibonacci',field)) then
+         if(.not. inp_i(fibonacci)) fibonacci = 86
+         if (fibonacci.lt.1)
+     $     call errquit('cosmo_input: fibonacci <1',911,INPUT_ERR)
+         if(.not. rtdb_put(rtdb,'cosmo:fibonacci',mt_int,1,fibonacci))
+     $     call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+c
+c   --- Thomson
+c
+      else if(inp_compare(.false.,'thomson',field)) then
+        thomson = 1
+        if(.not. rtdb_put(rtdb,'cosmo:thomson',mt_int,1,thomson))
+     $     call errquit('cosmo_input: rtdb put failed',911,RTDB_ERR)
+c
 c   --- lineq
 c
       else if(inp_compare(.false.,'lineq',field)) then
@@ -557,6 +589,8 @@ c
      $      call errquit('cosmo_input: put cosmo:sw_tol failed',
      $                   911, RTDB_ERR)
 c
+      else if(inp_compare(.false.,'print',field)) then
+         call util_print_input(rtdb, 'cosmo')
       else
          if (ga_nodeid().eq.0) then
            write(LuOut,*)'cosmo_input: read unknown keyword: ',field
@@ -601,6 +635,7 @@ c
 c
 c <-- MN solvation models
 c
+
       return
       end
 c $Id$

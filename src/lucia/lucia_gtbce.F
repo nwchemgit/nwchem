@@ -1661,7 +1661,7 @@ c          end if
           write (6,'(">>>",i6,f21.12,3(2x,e10.4))')
      &             imacit,energy,variance,xnamp,xngrad
          end if
-         call flush(6)
+         call util_flush(6)
         end if
 
 * analysis section:
@@ -4054,7 +4054,7 @@ c        if (mod(npnts,2).eq.0) npnts = npnts-1
       if (iamp_rst.gt.0) then
 
         write(6,*) 'position unit ',lufoo,' after record ',iamp_rst
-        call flush(6)
+        call util_flush(6)
         call skpvcd(lufoo,iamp_rst,ccvec2,1,lblk)
 
       end if

@@ -206,7 +206,7 @@ c
          call ga_zero(g_tmp(ifock))
         end do
         call fock_2e(geom, basis, nfock, jfac, kfac, tol2e, 
-     &     oskel, d, g_tmp, .false., .false.)
+     &     oskel, d, g_tmp, .false.)
         do ifock = 1,nfock
          call ga_dadd(1d0,f(ifock),1d0,g_tmp(ifock),f(ifock))
         end do 
@@ -226,7 +226,7 @@ c
          call ga_zero(g_tmp(ifock))
         end do
         call fock_2e(geom, basis, nfock, jfac, kfac, tol2e, 
-     &     oskel, d, g_tmp, .false., .false.)
+     &     oskel, d, g_tmp, .false.)
         do ifock = 1,nfock
          call ga_dadd(1d0,f(ifock),1d0,g_tmp(ifock),f(ifock))
         end do
@@ -352,7 +352,7 @@ c
      &                                  2,           ! 2 = open shell
      &                                  g_dens,      ! input density
      &                                  cosmo_file)  ! cosmo charges file name
-        call int_1e_ga(basis,basis,g_hcore,'cos_chg_pot',.false.)
+        call cosmo_fock(basis,g_hcore)
         do i = 1, 2
          if (.not.ga_destroy(g_dens(i)))
      &    call errquit('uhf_energy: ga_destroy failed g_dens',0,GA_ERR)

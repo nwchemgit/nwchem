@@ -71,7 +71,7 @@ optimization are:
 2. After 1. the variable set is represented by a single integer and hence it
    is easy to compare them. If in a binary operator the input sets of variables
    are the same then a simpler loop structure can be used.
-3. In binary operations the array indeces can be pre-computed and re-used.
+3. In binary operations the array indices can be pre-computed and re-used.
 4. In some operations quantities can be precalculated and re-used.
 5. In the functionals the code has been optimized for the calculation of the
    energy AND the 1st derivatives. With automatic differentiation the code 
@@ -125,9 +125,9 @@ The results show that whereas the unoptimized code has an overall overhead of
 unoptimized code leaving an overhead of about 20%.
 
 Potential optimization steps 3 and 4 are unlikely to help very much. 
-Precomputing the indeces only helps for higher order derivatives such as in the
+Precomputing the indices only helps for higher order derivatives such as in the
 TDDFT calculations. In the regular energy evaluation we already use stored
-indeces and no further gain can be obtained from that approach. Also, the most
+indices and no further gain can be obtained from that approach. Also, the most
 costly operators are the multiplication and addition operators. In their 
 implementations there are no quantities we can precompute and reuse (this could
 be done for the division and exponentiation but they take relatively little

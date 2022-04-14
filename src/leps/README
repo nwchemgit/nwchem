@@ -18,15 +18,15 @@ iNeed to figure out why Traj.txt does not contain the entire run, seems to only 
 
 FEB 5, 2009
 
-The traj.txt writing has been fixed. This on seem sto be working fine, so it was commited to CVS. 
-The next steps will include cleaning up of the code from unused variables, print statements and proper memmory dealocation.
+The traj.txt writing has been fixed. This on seem sto be working fine, so it was committed to CVS. 
+The next steps will include cleaning up of the code from unused variables, print statements and proper memory dealocation.
 
 FEB 11, 2009
 
 crossing, mc_main and md_driver have been modified so that recrossing is tracked at each step. Seems to work fine.
 Removed passing traj_num to md_driver and then to crossing. It is set properly to be varriable in mc_data
 Next step:
-Double check the inital conditions for the start of MD
+Double check the initial conditions for the start of MD
 change the restart, but parhaps starting a BIGMol run is also a good idea.
 
 FEB 20, 2009
@@ -40,7 +40,7 @@ BUG: rtdb gets corrupted in MD run when SCF is used instead of LEPS.Error was fi
   
 The bug is not consistently reproducible. Some times crashes after few trajectories, and other times at the first frajectory. Looks like memory issue.  
 
-Located bug in mc_init in the vay that forcees were accessed. So acceleration generated are garbage. Still not completelly fixed.
+Located bug in mc_init in the vay that forcees were accessed. So acceleration generated are garbage. Still not completely fixed.
 
 MARCH 3, 2009
 md-init subroutine is not being used. Not sure why I keep it. 

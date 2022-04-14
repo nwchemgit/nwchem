@@ -9,7 +9,7 @@ c
       character*16 star_tag, star_in_lib, star_excpt
       character*255 star_bas_typ, star_file
       integer star_nr_tags, star_nr_excpt, star_tot_excpt
-      logical star_rel, star_segment
+      logical star_rel, star_segment, star_details
 
       common /startagsc/
      &       star_tag(max_star_tag), star_in_lib(max_star_tag),
@@ -18,4 +18,5 @@ c
 
       common /startags/
      &       star_nr_tags, star_nr_excpt(max_star_tag), 
-     &       star_tot_excpt, star_rel(max_star_tag), star_segment
+     &       star_tot_excpt, star_rel(max_star_tag), star_segment,
+     &       star_details

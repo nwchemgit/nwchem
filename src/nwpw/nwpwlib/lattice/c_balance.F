@@ -358,7 +358,7 @@ c        ave = ave + nwave2(i)
 *     *         c_Balance_c_balance      *
 *     *                                  *
 *     ************************************
-
+c!!!!!!!! Needs to be changed to MPI !!!!!!!!!!!!!!!!
       subroutine c_Balance_c_balance(nb,A)
       implicit none
       integer nb
@@ -423,6 +423,7 @@ c            recieve data....
 *     *         c_Balance_t_balance      *
 *     *                                  *
 *     ************************************
+c!!!!!!!! Needs to be changed to MPI !!!!!!!!!!!!!!!!
 
       subroutine c_Balance_t_balance(nb,A)
       implicit none
@@ -490,6 +491,7 @@ c            recieve data....
 *     *         c_Balance_c_unbalance    *
 *     *                                  *
 *     ************************************
+c!!!!!!!! Needs to be changed to MPI !!!!!!!!!!!!!!!!
 
       subroutine c_Balance_c_unbalance(nb,A)
       implicit none
@@ -554,6 +556,7 @@ c            send data....
 *     *         c_Balance_i_balance      *
 *     *                                  *
 *     ************************************
+c!!!!!!!! Needs to be changed to MPI !!!!!!!!!!!!!!!!
 
       subroutine c_Balance_i_balance(nb,A)
       implicit none

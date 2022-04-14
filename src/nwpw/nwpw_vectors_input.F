@@ -30,13 +30,14 @@ c
 c     vectors output filename
 c     
       integer num_dirs, ind
-      parameter (num_dirs = 10)
+      parameter (num_dirs = 12)
       character*12 dirs(num_dirs)
       integer max_swap
       parameter (max_swap = 20)
       integer swap(max_swap), nswap, itest, mlen
       character*255 test, vectors_in, vectors_out
       character*255 vvectors_in, vvectors_out
+      character*255 evectors_in, evectors_out
       integer maxfrag
       parameter (maxfrag = 60)
       character*255 fragments(maxfrag)
@@ -45,7 +46,8 @@ c
       character*50 swapname
       logical olock
       data dirs /'input', 'output', 'atomic', 'hcore', 'swap',
-     $     'project', 'lock', 'fragment','vinput','voutput'/
+     $     'project', 'lock', 'fragment','vinput','voutput',
+     $     'einput','eoutput'/
 c     
       nfrag = 0  
       vectors_in = ' '
@@ -53,6 +55,10 @@ c
 
       vvectors_in = ' '
       vvectors_out = ' '
+
+      evectors_in = ' '
+      evectors_out = ' '
+
 
       olock = .false.
       mlen = inp_strlen(module)
@@ -69,7 +75,7 @@ c
          goto 10
       endif
 c     
-      goto (100,200,300,400,500,600,700,800,900,1000,
+      goto (100,200,300,400,500,600,700,800,900,1000,1100,1200,
      >      9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -194,6 +200,24 @@ c
       vvectors_out = test
       goto 10
 
+c    
+c     einput filename
+c
+ 1100 if (.not. inp_a(test)) call errquit
+     $ ('nwpw_vectors_output:evectors input filename',0,INPUT_ERR)
+      if (evectors_in .ne. ' ')  goto 10000
+      evectors_in = test
+      goto 10
+c
+c     eoutput filename
+c
+ 1200 if (.not. inp_a(test)) call errquit
+     $ ('nwpw_vectors_output:evectors output filename',0,INPUT_ERR)
+      if (evectors_out .ne. ' ')  goto 10000
+      evectors_out = test
+      goto 10
+
+
 c     
  9999 continue
       if (vectors_in .ne. ' ') then
@@ -258,6 +282,26 @@ c
      >     ('vvectors_out: failed to store vvectors_out',0,
      >     RTDB_ERR)
       endif
+
+      if (evectors_in .ne. ' ') then
+         test = ' '
+         write(test,'(a,'':'',a)') module(1:mlen),
+     >                             'input evectors'
+         if (.not. rtdb_cput(rtdb, test, 1, evectors_in))
+     >    call errquit
+     >     ('evectors_in: failed to store evectors_in',0,
+     >     RTDB_ERR)
+      endif
+      if (evectors_out .ne. ' ') then
+         test = ' '
+         write(test,'(a,'':'',a)') module(1:mlen),
+     >                             'output evectors'
+         if (.not. rtdb_cput(rtdb, test, 1, evectors_out))
+     >    call errquit
+     >     ('evectors_out: failed to store evectors_out',0,
+     >     RTDB_ERR)
+      endif
+
 
 c     
       return

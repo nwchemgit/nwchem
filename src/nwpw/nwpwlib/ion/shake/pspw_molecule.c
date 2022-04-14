@@ -177,9 +177,9 @@ void	pspw_molecule_cyclic(int m, int cyclic)
 }
 
 /************************************************
- *												*
- *         pspw_molecule_data  					*
- *												*
+ *						*
+ *         pspw_molecule_data  			*
+ *						*
  ************************************************/
 void FATR pspw_molecule_data_
 		(Integer *m,

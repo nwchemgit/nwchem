@@ -229,13 +229,11 @@
 
 
       SUBROUTINE socket_current_second(T)
+      implicit none
+#include "util.fh"
       real*8 T
-      real*4 dummy,etime
-      real*4 s(2)
-      real   t2(2)
          
-      dummy = etime(s)
-      T = dble(s(1))
+      T = util_wallsec()
 
       RETURN
       END

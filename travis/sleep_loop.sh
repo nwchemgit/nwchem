@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 rm -f make.log
 echo "starting sleep_loop.sh for command: " ${@}
 "${@}" >& make.log &

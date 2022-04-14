@@ -823,6 +823,9 @@ c
       integer i_nbf_x, j_nbf_x
       integer i_nbf_s, j_nbf_s
 c
+      logical oskip
+      integer nintlocal
+
       integer WarnP
       save WarnP
       data WarnP /0/
@@ -946,6 +949,21 @@ c
      +  call errquit("int_1eefc: bq_index_coord failed",iefc_c,uerr)
       if (.not.bq_index_charge(cosmo_bq_efc,iefc_q))
      +  call errquit("int_1eefc: bq_index_charge failed",iefc_q,uerr)
+
+      call cosmo_screen(
+     &      coords(1,i_cent,i_geom),dbl_mb(mb_exndcf(i_iexp,ibas)),
+     &      dbl_mb(mb_exndcf(i_icfp,ibas)), i_prim, i_gen, Li,
+     &      coords(1,j_cent,j_geom),dbl_mb(mb_exndcf(j_iexp,jbas)),
+     &      dbl_mb(mb_exndcf(j_icfp,jbas)), j_prim, j_gen, Lj,
+     &      dbl_mb(iefc_c),dbl_mb(iefc_q), nefc,  oskip)
+
+      if (oskip) then
+        nintlocal = i_gen*j_gen*(li+1)*(li+2)*(lj+1)*(lj+2)/4
+        if (doS) s(:) = 0d0
+        if (doT) t(:) = 0d0
+        if (doV) v(1:nintlocal) = 0d0
+        return
+      endif
 c
 c     Pick up the array we created and zeroed in cosmo_initialize
 c
@@ -960,6 +978,7 @@ c
       onw1e_ok = cando_nw_1e(i_basis,ish,0)
      &    .and. cando_nw_1e(j_basis,jsh,0)
 c
+
       if (orel) then
         call rel_onel (
      &      coords(1,i_cent,i_geom),
@@ -1322,6 +1341,7 @@ c
       onw_ok = cando_nw(i_basis,ish,0) .and. cando_nw(j_basis,jsh,0)
       onw1e_ok = cando_nw_1e(i_basis,ish,0)
      &    .and. cando_nw_1e(j_basis,jsh,0)
+
 c
 c     get external charges here (MV)
 c     ------------------------------

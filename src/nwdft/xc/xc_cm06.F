@@ -10,6 +10,7 @@ c                              ijzy - 3  M06
 c                              ijzy - 4  M06-2X
 c                              ijzy - 5 revM06-L
 c                              ijzy - 6 revM06
+c                              ijzy - 7 M06-SX
 
       Subroutine xc_cm06(tol_rho, cfac, lcfac, nlcfac, rho, delrho, 
      &                     nq, ipol, Ec, qwght, ldew, func,
@@ -144,6 +145,13 @@ C     Parameters for revM06 Correlation
          sopp2= -1.884581043D+00
          sopp3= -2.780360568D+00
          sopp4= -3.068579344D+00
+      elseif (ijzy.eq.7) then
+C     Parameters for M06-SX Correlation
+         sopp0=  1.63738167314691D-01
+         sopp1=  -4.36481171027951D-01
+         sopp2=  -1.90232628449712D+00
+         sopp3=  -1.42432902881841D+00
+         sopp4=  -9.05909137360893D-01
       else
          call errquit("xc_cm06: illegal value of ijzy",ijzy,UERR)
       endif
@@ -396,6 +404,13 @@ C     Parameters for revM06 Correlation
          sss2=  -1.823747562D+00
          sss3=  -1.384430429D+00
          sss4=  -4.423253381D-01
+      elseif (ijzy.eq.7) then
+C     Parameters for M06-SX Correlation
+         sss0=  1.17575011057022D+00
+         sss1=  6.58083496678423D-01
+         sss2=  -2.78913774852905D+00
+         sss3=  -1.18597601856255D+00
+         sss4=  1.16439928209688D+00
       else
          call errquit("m06css: illegal value of ijzy",ijzy,UERR)
       endif

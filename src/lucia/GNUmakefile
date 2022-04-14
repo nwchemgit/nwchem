@@ -1,7 +1,7 @@
 # $Id$
 
 
-  OBJ = atim.o cio.o  flush.o
+  OBJ = atim.o cio.o  lucia.o
 
   OBJ_OPTIMIZE = aixopn.o aixrd.o baserou.o cdafile.o crop_simple.o \
 	daname.o daname_main.o ddafile.o densi2_ab.o determinant.o \
@@ -16,8 +16,10 @@
 	luciaw.o lucifc.o matml7.o micdv6o.o numint.o optcont.o optcont_lambda.o \
 	optcont_orbopt.o optc_routines.o prtim.o qenter.o \
 	strnln.o tra_kappa.o tra_simple.o triprt.o \
-	ucc_grad.o vg.o wr_motra_info.o  lucia.o \
+	ucc_grad.o vg.o wr_motra_info.o  \
         rsbb2ben.o rsbb2b_m.o rsbb2bn_ms.o
+#	ucc_grad.o vg.o wr_motra_info.o  lucia.o \
+#       rsbb2ben.o rsbb2b_m.o rsbb2bn_ms.o
 
       LIBRARY =	liblucia.a
 

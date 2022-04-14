@@ -3,7 +3,6 @@ echo
 start ch3oh-transden
 title ch3oh-transden
 
-memory total 800 stack 400 heap 50 global 350 mb
 
 charge 0
 

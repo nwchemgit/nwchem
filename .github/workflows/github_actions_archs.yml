@@ -25,6 +25,17 @@ jobs:
             blas: "build_openblas"
             scalapack: "off"
             nwchem_modules: "tinyqmpw"
+            mpi_impl: "openmpi"
+            fc: "gfortran"
+          - arch: aarch64
+            distro_short: ubuntu
+            distro: ubuntu20.04
+            ftarget: " TARGET=ARMV8"
+            blas: "build_openblas"
+            scalapack: "off"
+            nwchem_modules: "tinyqmpw"
+            mpi_impl: "mpich"
+            fc: "nvfortran"
           - arch: ppc64le
             distro_short: ubuntu
             distro: ubuntu18.04
@@ -32,6 +43,8 @@ jobs:
             scalapack: "on"
             ftarget: " TARGET=POWER8"
             nwchem_modules: "tinyqmpw"
+            mpi_impl: "openmpi"
+            fc: "gfortran"
 
       fail-fast: false
     steps: 
@@ -41,7 +54,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ runner.os }}-${{ matrix.mpi_impl}}-${{ matrix.distro}}-${{ matrix.arch}}-nwchem-v005
+          key: ${{ runner.os }}-${{ matrix.mpi_impl}}-${{ matrix.distro}}-${{ matrix.arch}}-nwchem-v009
       - uses: actions/checkout@v2
         name: Checkout
         with:
@@ -52,17 +65,13 @@ jobs:
           cd src/tools
           ./get-tools-github
           cd ..
-          mkdir -p ../bin/LINUX64
-          gcc -o ../bin/LINUX64/depend.x config/depend.c
           make USE_INTERNALBLAS=y nwchem_config NWCHEM_MODULES="${{ matrix.nwchem_modules }}"
-          make USE_INTERNALBLAS=y deps_stamp
-          rm -f ../bin/LINUX64/depend.x
       - name: reconfig when needed
         if: steps.setup-cache.outputs.cache-hit != 'true'
         run: |
           cd src
           make USE_INTERNALBLAS=y nwchem_config NWCHEM_MODULES="nwdft driver solvation"
-      - uses: uraimo/run-on-arch-action@v2.0.8
+      - uses: uraimo/run-on-arch-action@v2.0.9
         name: Build and Test NWChem
         id: build
         with:
@@ -80,23 +89,28 @@ jobs:
           env: |
             FORCETARGET: ${{ matrix.ftarget }}
             COMEX_MAX_NB_OUTSTANDING: 4
-            SIMINT_MAXAM: 3
-            MPI_IMPL: openmpi
+            SIMINT_MAXAM: 4
+            MPI_IMPL: ${{ matrix.mpi_impl }}
             ARMCI_NETWORK: MPI-TS
-            FC: gfortran
+            FC: ${{ matrix.fc }}
             DISTR: ${{ matrix.distro_short }}
             BLAS_ENV:  ${{ matrix.blas }}
             SCALAPACK_ENV:  ${{ matrix.scalapack }}
+            DEBIAN_FRONTEND: noninteractive
           shell: /bin/sh
           install: |
             case "${{ matrix.distro }}" in
             ubuntu*|jessie|stretch|buster)
             apt-get update -q -y 
-            apt-get install -q -y sudo git gfortran libopenmpi-dev curl wget unzip perl rsync python3-dev python-dev cmake
+            ln -fs /usr/share/zoneinfo/America/Los_Angeles /etc/localtime
+            export DEBIAN_FRONTEND=noninteractive
+            apt-get install -y tzdata apt-utils
+            dpkg-reconfigure --frontend noninteractive tzdata
+            DEBIAN_FRONTEND=noninteractive apt-get install -q -y sudo git  gfortran curl wget unzip perl rsync python3-dev python-dev cmake libnuma1
             ;;
             fedora*)
             dnf -y update
-            dnf -y install git  which sudo curl wget unzip openblas-serial64 openmpi-devel perl python3-devel gcc-gfortran unzip cmake patch time
+            dnf -y install git  which sudo curl wget unzip openblas-serial64  perl python3-devel gcc-gfortran unzip cmake patch time
             ;;
             esac
           run: |

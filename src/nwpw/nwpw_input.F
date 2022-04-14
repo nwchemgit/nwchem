@@ -23,7 +23,7 @@ c#include "nwpwxc.fh"
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 132)
+      parameter (num_dirs = 136)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -156,6 +156,10 @@ c
      >            'dos-fft-grid',
      >            'director',
      >            'efield',
+     >            '1d-slab',
+     >            '2d-hilbert',
+     >            '2d-hcurve',
+     >            'single_precision_hfx',
      >            'end'/
 
       double precision kb
@@ -237,6 +241,7 @@ c
      >       6700,6800,6900,7000,4250,7100,7200,7300,7400,7500,7600,
      >       7700,7800,7900,8000,8100,6650,8200,8300,8400,8500,8600,
      >       8700,8800,8900,9000,9010,9020,9030,1810,1811,1812,9040,
+     >       4501,4502,4503,4504,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -1017,6 +1022,43 @@ c
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 4500, RTDB_ERR)
       goto 10
+c
+c  1d-slab mapping
+c
+ 4501 cell_expand(1) = 1
+      value = rtdb_put(rtdb,'nwpw:mapping',mt_int,1,cell_expand)
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 4501, RTDB_ERR)
+      goto 10
+c
+c  2d-hilbert mapping
+c
+ 4502 cell_expand(1) = 2
+      value = rtdb_put(rtdb,'nwpw:mapping',mt_int,1,cell_expand)
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 4502, RTDB_ERR)
+      goto 10
+c
+c  2d-hcurve mapping
+c
+ 4503 cell_expand(1) = 3
+      value = rtdb_put(rtdb,'nwpw:mapping',mt_int,1,cell_expand)
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 4503, RTDB_ERR)
+      goto 10
+
+c
+c  single_precision_hfx
+c
+ 4504 value=rtdb_put(rtdb,'pspw:HFX_single_precision',mt_log,1,.true.)
+      if (.not.value)
+     >  call errquit(
+     >       'nwpw_input: error writing to rtdb', 4504, RTDB_ERR)
+      goto 10
+
 
 c
 c  CG minimizer
@@ -1025,6 +1067,7 @@ c
  4601 if (.not.inp_a(zone_name)) goto 4602
        if (inp_compare(.false.,zone_name,'stiefel'))  nx=4
        if (inp_compare(.false.,zone_name,'grassman')) nx=1
+       if (inp_compare(.false.,zone_name,'stich'))    nx=9
       go to 4601
 
  4602 if (.not.rtdb_put(rtdb,'nwpw:minimizer',mt_int,1,nx))
@@ -1039,6 +1082,7 @@ c
  4701 if (.not.inp_a(zone_name)) goto 4702
        if (inp_compare(.false.,zone_name,'stiefel'))  nx=7
        if (inp_compare(.false.,zone_name,'grassman')) nx=2
+       if (inp_compare(.false.,zone_name,'stich'))    nx=10
       go to 4701
 
  4702 if (.not.rtdb_put(rtdb,'nwpw:minimizer',mt_int,1,nx))
@@ -1122,6 +1166,14 @@ c
      >      call errquit('nwpw_input: error reading iterations',
      >                   4800,RTDB_ERR)
           if(.not.rtdb_put(rtdb,'nwpw:ks_maxit_orbs',mt_int,1,nx))
+     >    call errquit('nwpw_input: error writing to rtdb',
+     >                 4800,RTDB_ERR)
+       end if
+       if (inp_compare(.false.,zone_name,'diis_histories')) then
+          if (.not.inp_i(nx)) 
+     >      call errquit('nwpw_input: error reading diis histories',
+     >                   4800,RTDB_ERR)
+          if(.not.rtdb_put(rtdb,'nwpw:diis_histories',mt_int,1,nx))
      >    call errquit('nwpw_input: error writing to rtdb',
      >                 4800,RTDB_ERR)
        end if
@@ -2210,7 +2262,7 @@ c
       goto 10
 
 c
-c  born [dielc] on/off [r1 r2 r3...] 
+c  born [dielc] [relax] on/off [r1 r2 r3...] 
 c
  9010 n1 = 0
 
@@ -2220,7 +2272,19 @@ c
       end if
 
       move = .true.
-      if (inp_a(zone_name)) move = nwpw_parse_boolean(zone_name,.true.)
+      if (inp_a(zone_name)) then
+         if (inp_compare(.false.,zone_name,'relax')) then
+            if (.not.rtdb_put(rtdb,'nwpw:born_relax',mt_log,1,move))
+     >         call errquit('nwpw_input: error writing to rtdb',
+     >                      9010,RTDB_ERR)
+            if (inp_a(zone_name)) then
+               move = nwpw_parse_boolean(zone_name,.true.)
+            end if
+         else
+            move = rtdb_delete(rtdb,'nwpw:born_relax')
+            move = nwpw_parse_boolean(zone_name,.true.)
+         end if
+      end if
 
       if (.not.rtdb_put(rtdb,'nwpw:born',mt_log,1,move))
      > call errquit('nwpw_input: error writing to rtdb',9010,RTDB_ERR)

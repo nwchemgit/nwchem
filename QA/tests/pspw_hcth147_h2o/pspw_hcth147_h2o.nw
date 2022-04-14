@@ -4,6 +4,7 @@ echo
 
 start pspw_hcth147_H2O1
 
+memory 1900 mb
 
 charge 0
 

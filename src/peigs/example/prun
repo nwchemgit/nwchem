@@ -27,7 +27,6 @@ set TARGETS  = ( "SunUniproc ....... Sun uniprocessor" \
                  'Paragon .......... Intel paragon' \
                  'iPSC_860 ......... Intel delta' \
                  'SUN .............. network of SUNs using tcgmsg' \
-                 'SGI64 ............ SGI Power Challenge using tcgmsg' \
                  'KSR .............. KSR using tcgmsg' \
                  'CRAY-T3D ......... CRAY-T3D' \
                  'SP-1.............. IBM SP-1/2 using poe or loadleveler' )
@@ -344,7 +343,6 @@ switch ( $TARGET )
       breaksw
 
    case SUN:
-   case SGI64:
       set MACHINE = "tcgmsg"
       breaksw
 

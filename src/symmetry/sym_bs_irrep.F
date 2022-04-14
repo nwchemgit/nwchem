@@ -41,6 +41,9 @@ c
       double precision sym_trace_bas_op
       external sym_trace_bas_op
 c
+      double precision ddot
+      external ddot
+c
 c     Get basis and geom info
 c     
       if (.not. bas_geom(basis, geom)) call errquit

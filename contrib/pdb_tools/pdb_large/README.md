@@ -6,7 +6,7 @@ large format 6 digits can be used. However, for applications it is
 useful to be able to convert to and from the large format.
 
 The large format is specified by providing the PDB keyword "LRGPDB"
-before the first "ATOM" or "HETATM" keywork.
+before the first "ATOM" or "HETATM" keyword.
 
 This converter detects what format the input PDB file is in and 
 generates a PDB output file in the other format.

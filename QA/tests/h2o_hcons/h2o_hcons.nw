@@ -26,7 +26,13 @@ constraints
   spring bond 1 3 5.0 1.30 
   fix atom 1:2
 end
-
+dft
+ convergence energy 1d-8
+end
+driver
+ clear
+ tight
+end
 task dft optimize
 
 constraints
@@ -40,6 +46,10 @@ constraints
   fix atom 1
 end
 dft;print low;end
+driver
+ clear
+ tight
+end
 task dft optimize
 
 constraints
@@ -57,11 +67,19 @@ constraints
   spring bond 1 3 5.0 1.30 
   fix atom 1:2
 end
+driver
+ clear
+ tight
+end
 task dft optimize
 
 constraints 
   spring bond 1 2 5.0 1.70 
   unfix atom 2
+end
+driver
+ clear
+ tight
 end
 task dft optimize
 
@@ -88,9 +106,17 @@ constraints two
 end
 
 set constraints one
+driver
+ clear
+ tight
+end
 task dft optimize
 
 set constraints two
+driver
+ clear
+ tight
+end
 task dft optimize
 
 

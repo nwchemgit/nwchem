@@ -32,6 +32,12 @@
      >                      hml_excited,eig_excited,
      >                      ne_excited,neq_excited
 
+      integer psi1_pertab(2),psi2_pertab(2)
+      integer hml_pertab(2), eig_pertab(2)
+      common / qpsi_block / psi1_pertab,psi2_pertab,
+     >                      hml_pertab,eig_pertab
+
+
 *     **** psi smearing block ****
       integer smearoccupation,smeartype
       real*8 smearfermi(2),smearcorrection,smearkT

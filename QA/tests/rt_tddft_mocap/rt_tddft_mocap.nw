@@ -1,0 +1,61 @@
+#
+# Delta-function kick simulation on a water molecule
+# using a molecular orbital complex absorbing potential
+# (MO CAP) to remove the high virtual states.
+#
+# The basis here is far too small to get a continuum falloff,
+# this gives you the basic idea.
+#
+# For comparison, you might want to run with the MO CAP turned off.
+#
+# see: K. Lopata and N. Govind, J. Chem. Theory Comput. 9, 4939 (2013)
+#
+echo
+title "Water MO CAP"
+start water
+
+## aug-cc-pvtz/PBE0 optimized
+geometry "system" units angstroms noautosym noautoz nocenter
+  O     0.00000043     0.11188833     0.00000000
+  H     0.76000350    -0.47275229     0.00000000
+  H    -0.76000393    -0.47275063     0.00000000
+end
+
+set geometry "system"
+
+basis spherical
+  * library 6-31G*
+end
+
+dft
+  xc pbe0
+  convergence density 1d-9
+end
+task dft
+
+rt_tddft
+  dt 0.2
+  tmax 250.0
+
+  print dipole field energy charge
+
+  mocap
+    expconst 1.0     # exponential constant for CAP
+    emin 0.5         # any MO with eigenvalue >= 0.5 Ha will have CAP applied to it
+    prefac 1.0       # prefactor for exponential
+    maxval 100.0     # clamp CAP at this value (in Ha)
+    off              # turn off CAP
+    nochecks         # disable checks for speed
+    noprint          # don't print CAP value
+  end
+
+  field "kick"
+    type delta
+    max 0.0001
+    polarization z
+  end
+
+  excite "system" with "kick"
+end
+task dft rt_tddft
+

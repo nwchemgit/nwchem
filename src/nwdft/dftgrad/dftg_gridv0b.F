@@ -158,6 +158,9 @@ c Daniel (2-7-13): Logical variable storing if we're calculating the
 c dVxc*P contribution.
       logical do_tddftvxc
       logical ldew2 ! Prevent weighting of derivative matrices
+
+      double precision ddot
+      external ddot
 c     
 c           Evaluate the AO basis set at each of the quad. points.
 c           allocate arrays for exponents and contraction coefficients

@@ -14,10 +14,10 @@ c
       integer ind               
       logical      value
       character*50 cell_name,zone_name,structure_name
-      character*50 input_wavefunction_filename
-      character*50 output_wavefunction_filename
-      character*50 input_ewavefunction_filename
-      character*50 output_ewavefunction_filename
+c      character*50 input_wavefunction_filename
+c      character*50 output_wavefunction_filename
+c      character*50 input_ewavefunction_filename
+c      character*50 output_ewavefunction_filename
 
       character*50 exchange_correlation
       double precision fake_mass,time_step,rcut
@@ -40,10 +40,10 @@ c
       cell_name             = 'cell_default'
       zone_name             = 'zone_default'
       structure_name        = 'structure_default'
-      call util_file_prefix('movecs',input_wavefunction_filename)
-      call util_file_prefix('movecs',output_wavefunction_filename)
-      call util_file_prefix('emovecs',input_ewavefunction_filename)
-      call util_file_prefix('emovecs',output_ewavefunction_filename)
+c      call util_file_prefix('movecs',input_wavefunction_filename)
+c      call util_file_prefix('movecs',output_wavefunction_filename)
+c      call util_file_prefix('emovecs',input_ewavefunction_filename)
+c      call util_file_prefix('emovecs',output_ewavefunction_filename)
       exchange_correlation         = 'vosko'
       frac_coord                   = .false.
       mulliken                     = .false.
@@ -87,14 +87,14 @@ c     ind = index(cell_name,' ') - 1
 c     value = btdb_cput(rtdb,'cgsd:cell_name',1,cell_name(1:ind))
 c     value = btdb_cput(rtdb,'band:cell_name',1,cell_name(1:ind))
 
-      if (input_wavefunction_filename.eq.' ') 
-     >  call errquit(
-     >       'nwpw_default: nead an input wavefunction_filename', 0,
-     &       INPUT_ERR)
-      if (output_wavefunction_filename.eq.' ') 
-     >  call errquit(
-     >       'nwpw_default: nead an output wavefunction_filename', 0,
-     &       INPUT_ERR)
+c      if (input_wavefunction_filename.eq.' ') 
+c     >  call errquit(
+c     >       'nwpw_default: nead an input wavefunction_filename', 0,
+c     &       INPUT_ERR)
+c      if (output_wavefunction_filename.eq.' ') 
+c     >  call errquit(
+c     >       'nwpw_default: nead an output wavefunction_filename', 0,
+c     &       INPUT_ERR)
 
 
       ind = index(zone_name,' ') - 1
@@ -103,48 +103,48 @@ c     value = btdb_cput(rtdb,'band:cell_name',1,cell_name(1:ind))
       value = btdb_cput(rtdb,'band_structure:zone_name',1,
      >                  structure_name(1:ind))
 
-      ind = index(input_wavefunction_filename,' ') - 1
-      value = value.and.
-     >        btdb_cput(rtdb,'cgsd:input_wavefunction_filename',
-     >                    1,input_wavefunction_filename(1:ind))
-      value = value.and.
-     >        btdb_cput(rtdb,'band:input_wavefunction_filename',
-     >                    1,input_wavefunction_filename(1:ind))
-
-      ind = index(input_ewavefunction_filename,' ') - 1
-      value = value.and.
-     >        btdb_cput(rtdb,'cgsd:input_ewavefunction_filename',
-     >                    1,input_ewavefunction_filename(1:ind))
+c      ind = index(input_wavefunction_filename,' ') - 1
+c      value = value.and.
+c     >        btdb_cput(rtdb,'cgsd:input_wavefunction_filename',
+c     >                    1,input_wavefunction_filename(1:ind))
+c      value = value.and.
+c     >        btdb_cput(rtdb,'band:input_wavefunction_filename',
+c     >                    1,input_wavefunction_filename(1:ind))
+c
+c      ind = index(input_ewavefunction_filename,' ') - 1
+c      value = value.and.
+c     >        btdb_cput(rtdb,'cgsd:input_ewavefunction_filename',
+c     >                    1,input_ewavefunction_filename(1:ind))
 
 *     *********************************
 *     **** used by task_save_state ****
 *     *********************************
-      ind = index(input_wavefunction_filename,' ') - 1
-      value = value.and.
-     >        btdb_cput(rtdb,'pspw:input vectors',
-     >                    1,input_wavefunction_filename(1:ind))
-      value = value.and.
-     >        btdb_cput(rtdb,'band:input vectors',
-     >                    1,input_wavefunction_filename(1:ind))
-
-      ind = index(output_wavefunction_filename,' ') - 1
-      value = value.and.
-     >        btdb_cput(rtdb,'cgsd:output_wavefunction_filename',
-     >                    1,output_wavefunction_filename(1:ind))
-      value = value.and.
-     >        btdb_cput(rtdb,'band:output_wavefunction_filename',
-     >                    1,output_wavefunction_filename(1:ind))
-      value = value.and.
-     >        btdb_cput(rtdb,'pspw:output vectors',
-     >                    1,output_wavefunction_filename(1:ind))
-      value = value.and.
-     >        btdb_cput(rtdb,'band:output vectors',
-     >                    1,output_wavefunction_filename(1:ind))
-
-      ind = index(output_ewavefunction_filename,' ') - 1
-      value = value.and.
-     >        btdb_cput(rtdb,'cgsd:output_ewavefunction_filename',
-     >                    1,output_ewavefunction_filename(1:ind))
+c      ind = index(input_wavefunction_filename,' ') - 1
+c      value = value.and.
+c     >        btdb_cput(rtdb,'pspw:input vectors',
+c     >                    1,input_wavefunction_filename(1:ind))
+c      value = value.and.
+c     >        btdb_cput(rtdb,'band:input vectors',
+c     >                    1,input_wavefunction_filename(1:ind))
+c
+c      ind = index(output_wavefunction_filename,' ') - 1
+c      value = value.and.
+c     >        btdb_cput(rtdb,'cgsd:output_wavefunction_filename',
+c     >                    1,output_wavefunction_filename(1:ind))
+c      value = value.and.
+c     >        btdb_cput(rtdb,'band:output_wavefunction_filename',
+c     >                    1,output_wavefunction_filename(1:ind))
+c      value = value.and.
+c     >        btdb_cput(rtdb,'pspw:output vectors',
+c     >                    1,output_wavefunction_filename(1:ind))
+c      value = value.and.
+c     >        btdb_cput(rtdb,'band:output vectors',
+c     >                    1,output_wavefunction_filename(1:ind))
+c
+c      ind = index(output_ewavefunction_filename,' ') - 1
+c      value = value.and.
+c     >        btdb_cput(rtdb,'cgsd:output_ewavefunction_filename',
+c     >                    1,output_ewavefunction_filename(1:ind))
 
       value = value.and.
      >        btdb_put(rtdb,'cgsd:fractional_coordinates',mt_log,1,

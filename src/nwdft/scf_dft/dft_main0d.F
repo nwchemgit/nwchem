@@ -34,6 +34,7 @@ c
 c     
 #include "zora.fh"
 #include "rel_consts.fh"
+#include "x2c.fh"
 #include "case.fh"
 c
       integer  ga_create_atom_blocked
@@ -125,7 +126,11 @@ c
       call slexit
       call slexit2
       if (.not. rtdb_cget(rtdb, 'dft:scaladiag',1,yev))
+#ifdef USE_PDSYEVR__
+     &     yev='r'
+#else
      &     yev='d'
+#endif
       if (.not. rtdb_get(rtdb, 'dft:scalanb',mt_int,1,nb))
      &     nb=0
 #endif
@@ -208,6 +213,17 @@ c     == Get the grid cutoff or set default ==
       if(.not.rtdb_get(rtdb,'zora:not_zora_scale',      ! FA
      &                 mt_log,1,not_zora_scale))        ! FA
      &  not_zora_scale = .false.                        ! FA
+
+c ... jochen:
+c     == X2C options ==
+      do_x2c = .false.
+      if (rtdb_get(rtdb,'x2c:on',mt_log,1,do_x2c))
+     &     do_x2c = .true.
+c     we use the variable zoracutoff also for the x2c option
+      if(.not.rtdb_get(rtdb,'x2c:cutoff',mt_dbl,1,zoracutoff))
+     &  zoracutoff = 1.0d-08
+c
+
 c
 c     == Get the light speed and other constants, if specified ==
       call rel_init_con(rtdb)
@@ -291,37 +307,9 @@ c
      .           g_oi, 'overlap', oskel)
             if (oskel)call sym_symmetrize(
      (           geom, xc_bas_han, .false., g_oi)
-         if (odftps) call pstat_on(ps_chol)
-#if defined(PARALLEL_DIAG)
-            call ga_chol(g_oi, g_xcinv, info)
-#else 
-            call ga_chol_seq(g_oi, g_xcinv, info)
-#endif
-         if (odftps) call pstat_off(ps_chol)
-            if (info.ne.0)then
-               if (me.eq.0)then
-                  write(LuOut,*)' Problem in performing a Cholesky '
-                  write(LuOut,*)' decomposition of the 2-ctr overlap '
-                  write(LuOut,*)' matrix using XC fitting basis. '
-                  write(LuOut,*)' Attempting a diag/inverse. '
-               endif
-            endif
-            if (odftps) call pstat_on(ps_inv)
-            if (info.eq.0) then
-#if defined(PARALLEL_DIAG)
-               call ga_inverse(g_xcinv, g_oi)
-               if (odftps) call pstat_on(ps_bdgemm)
-               call ga_dgemm('T', 'N', nbf_xc, nbf_xc, nbf_xc, 1.d0, 
-     &              g_oi, g_oi, 0.d0, g_xcinv)
-               if (odftps) call pstat_off(ps_bdgemm)
-#else 
-               call ga_copy(g_xcinv, g_oi)
-               call ga_inv_seq(g_oi, g_xcinv)
-#endif
-            else
-               call dft_invdiag(g_oi, g_xcinv, nbf_xc)
-            endif
-            if (odftps) call pstat_off(ps_inv)
+
+            call dft_cholinv(g_oi, g_xcinv)
+
             if (.not. ga_destroy(g_oi)) call errquit
      &         (pname//'Could not destroy g_oi', 0, GA_ERR)
             if (me.eq.0.and.IOLGC) then
@@ -372,66 +360,9 @@ c
      .        sym_symmetrize(geom,cd_bas_han,.false.,g_2ceri)
          call ga_sync()
          if (.not. ga_duplicate(g_2ceri, g_cdinv, 'CD 2cERInv'))
-     &    call errquit(pname//'Error creating g_cdinv',0, GA_ERR)
-         if (odftps) call pstat_on(ps_inv)
-         call ga_zero(g_cdinv)
-         lmiss = 1
-c         if (lmiss.eq.1) then
-            call ga_zero(g_cdinv)
-            info = 0
-         if (odftps) call pstat_on(ps_chol)
-#if defined(PARALLEL_DIAG)
-#ifdef SCALAPACK
-            call ga_copy(g_2ceri, g_cdinv)
-            call ga_sync()
-            info= ga_cholesky('U',g_cdinv)
-#else
-            call ga_chol(g_2ceri, g_cdinv, info)
-#endif
-#else 
-            call ga_chol_seq(g_2ceri, g_cdinv, info)
-#endif
-         if (odftps) call pstat_off(ps_chol)
-            if (info.ne.0)then
-               if (me.eq.0)then
-                  write(LuOut,*)' Problem in performing a Cholesky '
-                  write(LuOut,*)' decomposition of the 2-ctr ERI '
-                  write(LuOut,*)' matrix using CD fitting basis. '
-                  write(LuOut,*)' Attempting a diag/inverse. '
-               endif
-            endif
-            if (info.eq.0) then
-               g_tmpb = g_2ceri
-#if defined(PARALLEL_DIAG)
-#ifdef SCALAPACK
-               info = ga_llt_i('U',g_cdinv,-1)
-            if (info.ne.0)then
-               if (me.eq.0)then
-                  write(LuOut,*)' Problem in performing a Invers. '
-                  write(LuOut,*)' of the 2-ctr ERI '
-               endif
-               call ga_sync
-               call errquit(pname//'Inverse failed ',0,0)
-            endif
-               
-#else
-               call ga_inverse(g_cdinv, g_tmpb)
-#endif
-               if (odftps) call pstat_on(ps_bdgemm)
-#ifndef SCALAPACK
-               call ga_dgemm('T', 'N', nbf_cd, nbf_cd, nbf_cd, 1.d0, 
-     &              g_tmpb, g_tmpb, 0.d0, g_cdinv)
-#endif
-               if (odftps) call pstat_off(ps_bdgemm)
-#else 
-               call ga_copy(g_cdinv, g_tmpb)
-               call ga_inv_seq(g_tmpb, g_cdinv)
-#endif
-            else
-               call dft_invdiag(g_2ceri, g_cdinv, 
-     &                          nbf_cd)
-            endif
-            if (odftps) call pstat_off(ps_inv)
+     &        call errquit(pname//'Error creating g_cdinv',0, GA_ERR)
+
+         call dft_cholinv(g_2ceri, g_cdinv)
 #ifndef SCALAPACK            
 c
 c     second build of g_2ceri needed becuase previous calls destroyed it

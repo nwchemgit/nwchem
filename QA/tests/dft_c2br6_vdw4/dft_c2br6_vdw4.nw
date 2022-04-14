@@ -15,7 +15,7 @@ geometry
 end
 
 basis spherical
- * library  def2-qzvp
+ * library  def2-tzvp
 end
 
 dft
@@ -24,6 +24,7 @@ dft
  xc xtpss03 ctpss03  
   mult 1
   disp vdw 4
+  convergence energy 1d-8
   grid fine
 end
 

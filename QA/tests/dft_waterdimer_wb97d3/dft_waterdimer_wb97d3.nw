@@ -1,0 +1,59 @@
+echo
+start w_dim_s22
+#S22 geometry http://www.begdb.org/index.php?action=oneMolecule&state=show&id=82
+#DOI:10.1021/ct300715s Supp. inform. Table S7
+#627.5*(152.887640305943-76.439682992521-76.4399284507)=5.04
+
+geometry dimer
+ O   -1.551007  -0.114520   0.000000
+ H   -1.934259   0.762503   0.000000
+ H   -0.599677   0.040712   0.000000
+ O    1.350625   0.111469   0.000000
+ H    1.680398  -0.373741  -0.758561
+ H    1.680398  -0.373741   0.758561
+end
+geometry w1@dimg_b
+  O  -1.551007  -0.114520   0.000000
+  H  -1.934259   0.762503   0.000000
+  H  -0.599677   0.040712   0.000000
+bqO   1.350625   0.111469   0.000000
+bqH   1.680398  -0.373741  -0.758561
+bqH   1.680398  -0.373741   0.758561
+end
+geometry w2@dimg_b
+bqO  -1.551007  -0.114520   0.000000
+bqH  -1.934259   0.762503   0.000000
+bqH  -0.599677   0.040712   0.000000
+  O   1.350625   0.111469   0.000000
+  H   1.680398  -0.373741  -0.758561
+  H   1.680398  -0.373741   0.758561
+end
+
+basis spherical
+  * library   6-311++g(3df,3pd)
+bqH library H 6-311++g(3df,3pd)
+bqO library O 6-311++g(3df,3pd)
+end
+
+dft
+ xc wb97x-d3
+ noprint "final vectors analysis" multipole
+end
+
+set geometry dimer
+
+dft;vectors input atomic;end
+
+task dft
+
+set geometry w1@dimg_b
+
+dft;vectors input atomic;end
+
+task dft
+
+set geometry w2@dimg_b
+
+dft;vectors input atomic;end
+
+task dft

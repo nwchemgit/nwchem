@@ -22,6 +22,7 @@ c       ijzy - 1 M08-HX (a)                                            c
 c       ijzy - 2 M08-SO (a)                                            c
 c       ijzy - 3 M11 (b)                                               c
 c       ijzy - 4 M11-L (c)                                             c
+*       ijzy - 5 revM11 (d)                                            *
 c                                                                      c
 c Coded by Roberto Peverati (12/11)                                    c
 c                                                                      c
@@ -305,8 +306,39 @@ C
         UseLC=.True.
         Emu =0.25D+00
 C
+      elseif (ijzy.eq.5) then
+C     Parameters for revM11
+        at00= -0.32888608850D+00
+        at01= -8.38881504760D+00
+        at02=  0.71238910570D+00
+        at03=  3.61962129520D+00
+        at04=  4.39417082070D+00
+        at05=  5.04533455840D+00
+        at06=  7.86670611910D+00
+        at07=  0.00000000000D+00
+        at08=  0.00000000000D+00
+        at09=  0.00000000000D+00
+        at10=  0.00000000000D+00
+        at11=  0.00000000000D+00
+C
+        bt00=  1.10388608850D+00
+        bt01=  8.04763695870D+00
+        bt02= -0.73536247730D+00
+        bt03= -2.47352755500D+00
+        bt04= -4.73190603550D+00
+        bt05= -5.85025020960D+00
+        bt06= -7.50599753270D+00
+        bt07=  0.00000000000D+00
+        bt08=  0.00000000000D+00
+        bt09=  0.00000000000D+00
+        bt10=  0.00000000000D+00
+        bt11=  0.00000000000D+00
+C
+        UseLC=.True.
+        Emu =0.40D+00
+C
       else
-        call errquit("xc_xm11: illegal value of ijzy",ijzy,UERR)
+         call errquit(' xc_xm11: ijzy not valid ',ijzy, 0)
       endif
       DTol=tol_rho
       F1o3 = F1/F3 
@@ -378,7 +410,9 @@ c
          S = X/(F48*PI*PI)**F1o3
          s2     = s*s
          Deno = (F1 + Mu*s2/kapa)
+c fx_pbe(s)         
          fx1=F1+kapa*(F1-F1/Deno)
+c fx_rpbe(s)         
          fx2=F1+kapas*(F1-DExp(-Mus*s2/kapas))
          If(UseLC) then
            CALL LRCLSDA(EMU,RHOO,ElSR,PDUM)
@@ -791,15 +825,29 @@ c
 c   OUTPUT:                                     
 c      F      - Functional value               
 c      D1F    - First derivative               
-c                                               
+c
+c     J.-D. Chai and M. Head-Gordon
+c  J. Chem. Phys. 128, 084106 (2008); https://doi.org/10.1063/1.283491
 c***********************************************
 c
-      IMPLICIT REAL*8 (a-h,o-z)
+      implicit none
+c
+      double precision emu      ! mu/omega [in]
+      double precision rho      ! [in]
+      double precision f,d1f
+c
+      double precision pi,pi12,ax,cmu,rho13
+      double precision f1o2,f1o3,f1o4,f4o3,f8o3
+      double precision tmu,tmu2,tmu3
+      double precision w,erfv,dtmudr,fsr,dfsrdtmu,rho43
+      double precision F1, F2, F3, F4, F5, F6, F7, F8, F9
       Save F1, F2, F3, F4, F5, F6, F7, F8, F9
       DATA F1/1.0D+00/,F2/2.0D+00/,F3/3.0D+00/,F4/4.0D+00/,F5/5.0D+00/,
      $     F6/6.0D+00/,F7/7.0D+00/,F8/8.0D+00/,F9/9.0D+00/
 C
-      PARAMETER( PI = 3.1415926535897932384626433832795D+00 )
+c      PARAMETER( PI = 3.1415926535897932384626433832795D+00 )
+      pi=acos(-1d0)
+
 C
       F1o2 = F1 / F2
       F1o3 = F1 / F3
@@ -818,8 +866,8 @@ c
       tmu2 = tmu*tmu
       tmu3 = tmu*tmu2
 c
-      W    = DExp(-F1o4/tmu2)
-      ERFV = DErf( F1o2/tmu)
+      W    = Exp(-F1o4/tmu2)
+      ERFV = Erf( F1o2/tmu)
       dtmudR = -F1o3*tmu / Rho
 c
       Fsr = F1-F4o3*tmu*(-F6*tmu+F8*tmu3+W*

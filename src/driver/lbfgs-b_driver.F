@@ -138,7 +138,7 @@ C      trust = 1.0d3
 
 c
       if (.not. rtdb_get(irtdb,'driver:nptopt',mt_int,1,maxiter))
-     $     maxiter=20
+     $     maxiter=40
 c
       if (.not. rtdb_cget(irtdb,'driver:xyz',1,xyz))
      $     xyz = ' '

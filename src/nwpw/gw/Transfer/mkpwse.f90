@@ -216,7 +216,7 @@ do ii=1,3
   pln(1)=blat(jj,2)*blat(kk,3)-blat(jj,3)*blat(kk,2)
   pln(2)=-blat(jj,1)*blat(kk,3)+blat(jj,3)*blat(kk,1)
   pln(3)=blat(jj,1)*blat(kk,2)-blat(jj,2)*blat(kk,1)
-  dist(ii)=dot_product(gamma,pln)/sqrt(dot_product(pln,pln))
+  dist(ii)=dot_product(gamma,pln)/norm2(pln)
 enddo
 gfo=minval(dist)
 
@@ -558,7 +558,7 @@ gfo=minval(dist)
             do jj=1,3
               bgrad=bgrad+(evtx(jj+1)-evtx(1))*rgc(:,jj)
             enddo
-            xmult=1.d0/sqrt(dot_product(bgrad,bgrad))
+            xmult=1.d0/norm2(bgrad)
             if (lc) then
               do iww=iwwlim(1)-1,iwwlim(4)+1
                 wwwlo=dw*(iww-0.5d0)
@@ -987,7 +987,7 @@ do ii=1,3
   pln(1)=blat(jj,2)*blat(kk,3)-blat(jj,3)*blat(kk,2)
   pln(2)=-blat(jj,1)*blat(kk,3)+blat(jj,3)*blat(kk,1)
   pln(3)=blat(jj,1)*blat(kk,2)-blat(jj,2)*blat(kk,1)
-  dist(ii)=dot_product(gamma,pln)/sqrt(dot_product(pln,pln))
+  dist(ii)=dot_product(gamma,pln)/norm2(pln)
 enddo
 gfo=minval(dist)
 

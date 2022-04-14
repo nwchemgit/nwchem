@@ -52,7 +52,7 @@ OBJ_OPTIMIZE = dbdsqr.o      dgebd2.o      dgebrd.o       dgelq2.o     \
                dorml2.o      dormlq.o      dormqr.o       dpotf2.o     \
                dpotrf.o      dpotri.o      dspcon.o       dsprfs.o     \
                dspsvx.o      dsptrf.o      dsptrs.o       dsteqr.o     \
-               dsterf.o      dsyev.o       dsygs2.o       dsygst.o     \
+               dsterf.o      dsyev.o       dsygs2.o       dsygst.o     dsysv.o \
                dsygv.o       dsytd2.o      dsytrd.o       dtrexc.o dtrtri.o     \
                dlasq1.o      dlasq2.o      dlasq3.o       dlasq5.o     \
                dlasq4.o      dlasq6.o      dposv.o        dtrtrs.o     \
@@ -83,7 +83,11 @@ OBJ_OPTIMIZE = dbdsqr.o      dgebd2.o      dgebrd.o       dgelq2.o     \
                dhseqr.o dorghr.o dtrevc.o dlaln2.o dlahqr.o dgehd2.o \
                dlanhs.o dlarfx.o dlahrd.o dlanv2.o \
                dlarra.o dlarrb.o dlarrc.o dlarrd.o dlarrf.o dlarrk.o dlarrv.o\
-               dlar1v.o dlaneg.o dgelss.o dormtr.o dormql.o dorm2l.o
+               dlar1v.o dlaneg.o dgelss.o dormtr.o dormql.o dorm2l.o \
+               dsfrk.o dsytrf.o  dgetri.o dtrsm.o dtrmv.o dtrmm.o\
+	       dpftrf.o dpftri.o dtfsm.o dtftri.o zlacp2.o \
+	       zsysv.o zsytrf.o zsytf2.o zsytrs.o zsytrs2.o zsyr.o \
+	       zsyconv.o zlasyf.o
 
 #pgf77 on Linux, hpux (and possibly others) puts dlamch routines into infinite loop
         OBJ = $(OBJ_DLAMCH)
@@ -133,7 +137,9 @@ OBJ_OPTIMIZE = sbdsqr.o      sgebd2.o      sgebrd.o       sgelq2.o     \
                chseqr.o clacpy.o clahqr.o clange.o clanhs.o clarfx.o \
                clatrs.o ctrevc.o cunghr.o slabad.o claswp.o \
                sgebak.o sgebal.o sgehrd.o shseqr.o sorghr.o strevc.o \
-	       dormtr.o dormql.o dorm2l.o
+               ssfrk.o ssytrf.o  \
+	       spftrf.o spftri.o stfsm.o stftri.o clacp2.o
+
 endif
 
 include ../config/makelib.h

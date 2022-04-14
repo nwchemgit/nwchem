@@ -570,8 +570,8 @@ c         endif
       if (.not. rtdb_put(rtdb, 'molden:do_norm_janpa', mt_log, 1,
      $                               .false.          ))
      $     call errquit('prop_input: rtdb_put failed', 1, RTDB_ERR)
-      if (.not.rtdb_put(rtdb,'prop:do_fockbuild',mt_log,1,.false.))
-     $     call errquit('prop_input: rtdb_put failed',9, RTDB_ERR)
+c      if (.not.rtdb_put(rtdb,'prop:do_fockbuild',mt_log,1,.false.))
+c     $     call errquit('prop_input: rtdb_put failed',9, RTDB_ERR)
        else
           call errquit('prop_input: wrong molden_norm value',2,RTDB_ERR)
        endif

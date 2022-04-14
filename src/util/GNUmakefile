@@ -160,6 +160,14 @@ endif
 ifeq ($(shell echo $(BLASOPT) |awk '/Accelerate/ {print "Y"; exit}'),Y)
   EXTRA_OBJ += veclib_threads.o
 endif
+_PDSYEVR = $(shell [ -e ${NWCHEM_TOP}/src/tools/install/lib/libga.a ] &&  nm ${NWCHEM_TOP}/src/tools/install/lib/libga.a|egrep T |egrep  ga_pdsyevr |awk '/ga_pdsyevr/ {print "Y"}')
+ifeq ($(_PDSYEVR),Y) 
+ LIB_DEFINES += -DUSE_PDSYEVR
+endif
+_USE_ELPA = $(shell ${GA_PATH}/bin/ga-config  --use_elpa| awk ' /1/ {print "Y"}')
+ifeq ($(_USE_ELPA),Y)
+ LIB_DEFINES += -DUSE_ELPA
+endif
 
        BLAS = dfill.o ifill.o  mabyte_fill.o zfill.o
 
@@ -224,7 +232,8 @@ endif
               util_intrsc2008.o util_fadvise.o  util_scalapack_info.o\
               ga_conjg.o nwmolden.o ao_1prdm_read.o ao_1prdm_write.o\
               util_strips.o util_poltensor.o  util_mygop.o util_isnan.o \
-              util_blasthreads.o \
+              util_blasthreads.o util_gpu_affinity.o util_scalapack.o \
+              util_norm2.o util_dpofa.o util_dgedi.o \
               $(EXTRA_OBJ)
 ifndef USE_MLIB
               OBJ_OPTIMIZE += icopy.o dsum.o dgefa.o zsum.o
@@ -235,14 +244,14 @@ endif
     HEADERS = util.fh itri.fh msgids.fh  numerical_constants.fh stdio.fh \
               printlevels.fh bitops.fh bitops_decls.fh bitops_funcs.fh \
               bgj.fh bgj_common.fh nwc_const.fh errquit.fh util_sgroup.fh \
-	      util_params.fh utilc_nwchem_srcdir.fh
+	      util_params.fh utilc_nwchem_srcdir.fh util_maxlength.fh
 #if USE_VTUNE
     HEADERS += vtune.fh
 #endif
 
     USES_BLAS = util.fh ga_it_lsolve.F ga_maxelt.F ga_mix.F ga_iter_diag.F \
                 ga_orthog.F dabsmax.F ga_normf.F corr_mk_ref.F ga_it2.F ga_lkain_ext.F util_file_name.F dgefa.f util_patch_test.F stpr_sjacobi.F util_dgeev.F \
-		util_test_cholesky.F dfill.F ga_lkain_2cpl3_ext.F ga_it2.F util_poltensor.F
+		util_test_cholesky.F dfill.F ga_lkain_2cpl3_ext.F ga_it2.F util_poltensor.F util_dpofa.F util_dgedi.F
 
 ifdef SPEECH
    LIB_DEFINES += -DSPEECH
@@ -304,6 +313,10 @@ endif
 ifdef TCE_HIP
   LIB_DEFINES += $(HIP_INCLUDE)
   OBJ += util_cuda_support.o
+endif
+
+ifdef USE_OPENACC_TRPDRV
+  FOPTIONS += -cuda -DUSE_CUDA_AFFINITY
 endif
 
 ifdef USE_FORTRAN2003

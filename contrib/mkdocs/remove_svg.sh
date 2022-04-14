@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 sed \
    -e  's/<img alt=\"\$\$/\$\$/' \
    -e  's/<img alt=\"\\(/\\(/' \

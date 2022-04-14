@@ -100,13 +100,6 @@ c
 
 
 
-*     **** get pspw_charge energies ****
-c      if (pspw_charge_found()) then
-c         E(19)  = 0.0d0
-c         E(20)  = pspw_charge_Energy_ion()
-c         E(21)  = pspw_charge_Energy_charge()
-c         E(1)   = E(1) + E(20) + E(21)
-c      end if
 
 
 c*:::::::::::::::::   report summary of results  :::::::::::::::::::::::

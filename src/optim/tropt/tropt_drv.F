@@ -1392,6 +1392,8 @@ c
       double precision dsds, dshds, dsdg
       integer l_hess, k_hess, i, j
       integer ind
+      double precision ddot
+      external ddot
       ind(i,j) = k_hess + i + (j-1)*nvar - 1
 c
       if (alpha .eq. 0d0) call errquit
@@ -1781,6 +1783,8 @@ c
       integer ind
       logical task_qmmm
       logical tropt_geom_cart_coords_get
+      double precision ddot
+      external ddot
       ind(i,j) = k_pmat + i-1 + (j-1)*ncart
 c     
 c     FRACTIONAL?
@@ -2515,6 +2519,8 @@ c
       double precision trustds  ! restriction of step in opt. variable
       logical geom_print_zmatrix
       logical ophigh
+      double precision ddot
+      external ddot
 c
 c     get the hessian and gradient with appropriate projectors
 c     applied following peng, ayala, schlegel and frisch so that
@@ -2929,6 +2935,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer l_hess, k_hess
       double precision epredict
       double precision gamma(nvar)
+      double precision ddot
+      external ddot
 !
 !     *** calculate predicted energy change ***
 !

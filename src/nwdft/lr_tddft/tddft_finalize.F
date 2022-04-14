@@ -37,6 +37,8 @@ c Basis set
 c ---------
       if (.not.bas_destroy(ao_bas_han))
      1  call errquit('tddft_finalize: bas_destroy failed',0, BASIS_ERR)
+
+      call tddft_finalize_fit()
 c ----------
 c MO vectors
 c ----------

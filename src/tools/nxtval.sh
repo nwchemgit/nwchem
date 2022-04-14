@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 sed -e 's/NXTVAL_/NXTVAL_OFF_/' $1/tcgmsg/tcgmsg-mpi/sndrcv.h > $1/tcgmsg/tcgmsg-mpi/sndrcv.h.mod
 mv $1/tcgmsg/tcgmsg-mpi/sndrcv.h.mod  $1/tcgmsg/tcgmsg-mpi/sndrcv.h
 sed -e 's/NXTVAL_/NXTVAL_OFF_/' $1/tcgmsg/tcgmsg-mpi/srftoc.h > $1/tcgmsg/tcgmsg-mpi/srftoc.h.mod
@@ -12,4 +12,6 @@ mv $1/tcgmsg/tcgmsg-mpi/nxtval-armci.c.mod $1/tcgmsg/tcgmsg-mpi/nxtval-armci.c
 sed -e 's/ NXTVAL_(/ NXTVAL_OFF_(/' $1/tcgmsg/capi.c > $1/tcgmsg/capi.c.mod
 mv $1/tcgmsg/capi.c.mod $1/tcgmsg/capi.c
 sed -e 's/ NXTVAL_(/ NXTVAL_OFF_(/' $1/tcgmsg/fapi.c > $1/tcgmsg/fapi.c.mod
+mv $1/tcgmsg/fapi.c.mod $1/tcgmsg/fapi.c
+sed -e 's/ _DGOP_(/ _DGOP_OFF_(/' $1/tcgmsg/fapi.c > $1/tcgmsg/fapi.c.mod
 mv $1/tcgmsg/fapi.c.mod $1/tcgmsg/fapi.c

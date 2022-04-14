@@ -219,3 +219,93 @@ cccc      call Dnex_end()
       end
 
 
+
+
+
+*     ***************************
+*     *                         *
+*     *       cgsd_response     *
+*     *                         *
+*     ***************************
+      subroutine cgsd_response()
+      implicit none
+
+#include "btdb.fh"
+#include "stdio.fh"
+
+      logical newpsi
+      integer MASTER
+      parameter (MASTER=0)
+
+      logical stalled,value,gvirtual,bvirtual,confine,oprint,gci
+      integer taskid
+      integer minimizer,gfac
+      integer i,j,ms,neall,NN
+      integer nexcited(2),ispin
+      integer it_in,it_out,icount,bfgscount
+      real*8  EV,virial
+      real*8  tole,tolc,deltae,deltac,deltae_old
+      real*8  cx,cy,cz
+      real*8  gx,gy,gz
+      real*8  en(2)
+      integer rtdb
+
+
+*     **** external functions ****
+      logical     qpsi_initialize,qpsi_finalize,control_check_q_orbitals
+      external    qpsi_initialize,qpsi_finalize,control_check_q_orbitals
+      integer     control_rtdb,psi_ne
+      external    control_rtdb,psi_ne
+      integer     control_symmetry,control_mapping1d,psi_ispin
+      external    control_symmetry,control_mapping1d,psi_ispin
+      character*4 psi_ab_irrep_name
+      external    psi_ab_irrep_name
+
+      logical     band_reformat_c_qwvfnc
+      external    band_reformat_c_qwvfnc
+      integer     qpsi_get_version
+      external    qpsi_get_version
+
+      call Parallel_taskid(taskid)
+      oprint = (taskid.eq.MASTER)
+
+      neall = psi_ne(1) + psi_ne(2)
+
+      if (neall.gt.0) then
+
+*        **** calculating repsonse orbitals ****
+         if (oprint) write(luout,1301)
+
+*           **** read in q wavefunctions and initialize qpsi ****
+         if (.not.control_check_q_orbitals()) then
+            call qpsi_new()
+            newpsi = .true.
+         else
+            newpsi = .false.
+
+*           **** convert from band format to pspw format ****
+            if (qpsi_get_version().eq.5) then
+              newpsi = .true.
+              value = btdb_parallel(.false.)
+              if (taskid.eq.MASTER) then
+                value= band_reformat_c_qwvfnc(1)
+              end if
+              value = btdb_parallel(.true.)
+            end if
+
+         end if
+
+*        **** initialize q wavefunctions ***
+         value = qpsi_initialize()
+
+*        **** write out q wavefunctions ***
+         value = qpsi_finalize(.true.)
+      end if
+
+      return
+ 1301 FORMAT(//'== Reponse Orbital Calculation =='/)
+ 1500 FORMAT(/' virtual orbital energies:')
+ 1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
+ 1512 FORMAT(2(E18.7,' (',F8.3,'eV)',A4))
+      end
+

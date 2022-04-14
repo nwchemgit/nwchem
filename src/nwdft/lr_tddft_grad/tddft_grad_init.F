@@ -11,7 +11,7 @@ c
      +   ntroots,iptr_troots,ihdl_troots,fn_civecs_triplet,
      +   osinglet,otriplet,ntotroots,ihdl_bfao,ihdl_geom,tol2e,
      +   solve_thresh,solve_maxit,solve_maxsub,
-     +   fn_solve,solve_when,kfac,title)
+     +   fn_solve,solve_when,kfac,title,lhascd)
 c
       implicit none
 c
@@ -71,6 +71,7 @@ c
       logical lhybrid                   ! True if hybrid DFT and HF
       logical lhasdft                   ! True if it has DFT
       logical lhashf                    ! True if it has HF
+      logical lhascd
       logical use_nwxc                  ! True if using NWXC library
 c
       logical cs00
@@ -127,6 +128,8 @@ c
 c
       logical xc_ngot3rd
       external xc_ngot3rd
+
+      logical,external :: is_libxcon
 c
 c     preliminaries: general parameters
       nao     = 0
@@ -158,12 +161,13 @@ c     get the geometry
      +  call errquit(pname//'geom_ncent failed',0,GEOM_ERR)
 c
 c     get the basis set
-      if (.not.bas_create(ihdl_bfao,'ao basis'))
-     +  call errquit(pname//'bas_create failed',0, BASIS_ERR)
-      if (.not.bas_rtdb_load(rtdb,ihdl_geom,ihdl_bfao,'ao basis'))
-     +  call errquit(pname//'bas_rtdb_load failed',0, BASIS_ERR)
-      if (.not.int_normalize(rtdb,ihdl_bfao))
-     +  call errquit(pname//'int_normalize failed',0, BASIS_ERR)
+      call tddft_basis(rtdb, ihdl_geom, ihdl_bfao, lhascd)
+c      if (.not.bas_create(ihdl_bfao,'ao basis'))
+c     +  call errquit(pname//'bas_create failed',0, BASIS_ERR)
+c      if (.not.bas_rtdb_load(rtdb,ihdl_geom,ihdl_bfao,'ao basis'))
+c     +  call errquit(pname//'bas_rtdb_load failed',0, BASIS_ERR)
+c      if (.not.int_normalize(rtdb,ihdl_bfao))
+c     +  call errquit(pname//'int_normalize failed',0, BASIS_ERR)
       if (.not.bas_numbf(ihdl_bfao,nao))
      +  call errquit(pname//'bas_numbf failed',0, BASIS_ERR)
 c
@@ -240,6 +244,7 @@ c     get calculation type
       do n=1,numfunc
         xca=xca+dabs(cfac(n))
       enddo
+      if (is_libxcon()) xca = xca + 1d0
       if ((xca.gt.1.0d-8).and.(dabs(xfac(1)).le.1.0d-8)) then
 c       Pure DFT
         ldft=.true.

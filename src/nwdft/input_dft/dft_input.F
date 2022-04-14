@@ -30,7 +30,7 @@ c
       integer num_dirs          ! No. of known directives
 cc AJL/Begin/FDE
 c      parameter (num_dirs = 48)
-      parameter (num_dirs = 51)
+      parameter (num_dirs = 52)
 cc AJL/End
       character*12 dirs(num_dirs)
       character*255 test
@@ -86,6 +86,7 @@ c     xps variables
       logical int_forcenwints,gonwxc
       external int_forcenwints
       character*20 rtdb_errmsg
+      character*4 mytest
       data dirs /'convergence','decomp','dft','direct','semidirect',
      $         'ecp','grid','vectors','incore','iterations', 
      $         'max_ovl','mulliken','mult','noio','noprint','odft', 
@@ -94,7 +95,8 @@ c     xps variables
      $         'dftmp2','molden','noscf','steric','efield','swapab',
      $         'frozemb', 'frozemb_xc', 'frozemb_ts',
      $         'cgmin','nocgmin','tol2e','ri-scf','lock',
-     $         'rodft','fukui','maxiter','vspec','xps','xdm','end'/
+     $         'rodft','fukui','maxiter','vspec','xps','xdm',
+     $         'densmat','end'/
 c
 c Qin / cdft
       integer nconstr
@@ -149,7 +151,7 @@ c
      $     2700, 2800, 2900, 3000, 3100, 3200, 3300, 3400, 
      $     3500, 3520, 3530,
      $     3600, 3600, 3700, 3800, 3900, 4000, 4100, 4200, 4300,
-     $     4400, 4500, 9999) ind
+     $     4400, 4500, 4600, 9999) ind
 
       call errquit('dft_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -258,8 +260,8 @@ c     iterations;
 c             
   900 if (.not. inp_i(iterations)) then
          write(LuOut,*)' dft_input: iterations value not found;',
-     &             ' defaulting to 30'
-         iterations = 30
+     &             ' defaulting to 50'
+         iterations = 50
       endif 
       if (.not. rtdb_put(rtdb, 'dft:iterations', mt_int, 1, iterations))
      &   call errquit('dft_input: rtdb_put failed', 900, RTDB_ERR)
@@ -864,6 +866,12 @@ c we enforce cgmin since diis breaks loose in the gradients
       cgmin=.true.
       if (.not.rtdb_put(rtdb,'dft:cgmin', mt_log, 1, cgmin))
      &   call errquit('dft_input: rtdb_put failed', 3600, RTDB_ERR)
+c     remove scftype from rtdb to avoid getting stuck in UKS
+      if(rtdb_cget(rtdb,'dft:scftype',1, mytest)) then
+         if (.not.rtdb_delete(rtdb,'dft:scftype'))
+     &    call errquit('dft_input: rtdb_delete failed', 3610, RTDB_ERR)
+      endif
+
 c
 c     fukui indices
 c
@@ -877,8 +885,8 @@ c     maxiter: same as iterations
 c             
  4200 if (.not. inp_i(maxiter)) then
          write(LuOut,*)' dft_input: maxiter value not found;',
-     &             ' defaulting to 30'
-         maxiter = 30
+     &             ' defaulting to 50'
+         maxiter = 50
       endif 
       iterations = maxiter
       if (.not. rtdb_put(rtdb, 'dft:iterations', mt_int, 1, iterations))
@@ -979,6 +987,16 @@ c     read XDM options
       endif
 
       goto 4510
+c
+c     read Density Matrix as starting guess (from TCE/CCSD)
+c
+ 4600 continue
+      if (.not.rtdb_put(rtdb,'dft:densmat', mt_log, 1, .true.))
+     &   call errquit('dft_input: rtdb_put failed', 4600, RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'quickguess', mt_log, 1, .true.))
+     &     call errquit('dft_input: rtdb_put failed', 4601, RTDB_ERR)
+
+      goto 10
 c
 
 

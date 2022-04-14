@@ -33,13 +33,15 @@ c
       integer g_dtmp
       integer ii, jj, iex, ph
       double precision xx
+      double precision ddot
+      external ddot
 c
 c
 c
       myid = ga_nodeid()
 *ga:1:0
       if (.not.(ga_create(MT_DBL, norb, norb, 'd', norb, 0, g_dtmp )))
-     $   call errquit('detci_twopdm: cannot create global',0, GA_ERR)
+     $   call errquit('detci_onepdm: cannot create global',0, GA_ERR)
       call ga_zero(g_dtmp)
       call ga_distribution( g_civec, myid, rlo, rhi, cilo, cihi )
       if (((cilo.ne.0).and.(cihi.ne.-1)).and.
@@ -162,6 +164,8 @@ c
       integer l_t, k_t, l_s, k_s, lds
 **      integer g_dentmp
       integer myid, nn, rlo, rhi, cilo, cihi, dilo, dihi
+      double precision ddot
+      external ddot
 c
 c
       myid = ga_nodeid()
@@ -425,6 +429,8 @@ c
       double precision tx
       integer nxtask
       external nxtask
+      double precision ddot
+      external ddot
 c      
 c
 c   Initialize parallel stuff

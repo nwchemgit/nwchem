@@ -381,9 +381,6 @@ c      common / c_cgsd_block / Enew,Eold,Estart
       logical value
 
       dt = control_time_step()
-c     dte = dt/dsqrt(control_fake_mass())
-c     dte = dsqrt(control_fake_mass())/dt
-c     dte = 1.0d0
 
       call Cram_max_npack(npack1)
       ispin = cpsi_ispin()
@@ -394,13 +391,9 @@ c     dte = 1.0d0
 
 
 *     **** allocate G0, S0 ****
-c      E0_tag  = cpsi_data_push_stack(nbrillq,1,1)
-c      dE0_tag = cpsi_data_push_stack(nbrillq,1,1)
       S0_tag  = cpsi_data_push_stack(nbrillq,neall,2*npack1)
       G0_tag  = cpsi_data_push_stack(nbrillq,neall,2*npack1)
 
-c      E0_shift  = cpsi_data_get_allptr(E0_tag)
-c      dE0_shift = cpsi_data_get_allptr(dE0_tag)
       S0_shift  = cpsi_data_get_allptr(S0_tag)
       G0_shift  = cpsi_data_get_allptr(G0_tag)
 
@@ -409,10 +402,8 @@ c      dE0_shift = cpsi_data_get_allptr(dE0_tag)
       if (precondition) then
          call cpsi_1get_TMgradient00(G0_tag,E0)
       else
-         !call cpsi_1get_Tgradient(G0_tag,E0)
          call cpsi_1get_Tgradient00(G0_tag,E0)
       end if
-      !write(*,*) "1 gradient E0=",E0
 
 
       if (current_iteration.eq.1) then
@@ -421,12 +412,8 @@ c      dE0_shift = cpsi_data_get_allptr(dE0_tag)
          call band_lmbfgs_init(control_lmbfgs_size(),dbl_mb(G0_shift))
          call BGrsm_ff_Copy_tag(G0_tag,S0_tag)
 
-         !do nb=1,nbrillq
-         !   tmin(nb)  = 10*deltat_min
-         !end do
          tmin  = 10*deltat_min
       else
-         !call band_lmbfgs0(tmin,dbl_mb(G0_shift),dbl_mb(S0_shift))
          call band_lmbfgs(tmin,dbl_mb(G0_shift),dbl_mb(S0_shift))
          call Pneb_ff_traceall_tag(0,0,G0_tag,S0_tag,sum1)
          if (dabs(sum1).gt.1.0d3) call BGrsm_ff_Copy_tag(G0_tag,S0_tag)
@@ -440,37 +427,6 @@ c      dE0_shift = cpsi_data_get_allptr(dE0_tag)
 *     ******************************************
       do it=2,maxit_orbs
 
-
-c*        **** initialize the geoedesic line data structure ****
-c         call c_geodesic_start0(S0_tag,max_sigma,dE0_tag)
-c
-c*        ******* line search *********
-c         do nb=1,nbrillq
-c            E0_shift  = cpsi_data_get_chnk(E0_tag,nb)
-c            dE0_shift = cpsi_data_get_chnk(dE0_tag,nb)
-c
-c            if ((tmin(nb).gt.deltat_min).and.(tmin(nb).lt.1.0d4)) then
-c               deltat = tmin(nb)
-c            else
-c               deltat = deltat_min
-c            end if
-c            if ((tmin(nb).gt.deltat_min).and.(tmin(nb).lt.1.0d4)) then
-c               deltat = tmin(nb)
-c            else
-c               deltat = deltat_min
-c            end if
-cc            deltat = 1.0d0  !** debug **
-c            call cpsi_geodesic0_setnb(nb)
-c            Enew(nb) = linesearch(0.0d0,
-c     >                            dbl_mb(E0_shift),dbl_mb(dE0_shift),
-c     >                            deltat,
-c     >                            cpsi_geodesic_energy0,
-c     >                            cpsi_geodesic_denergy0,
-c     >                            0.50d0,tmin(nb),deltae,2)
-c            call cpsi_geodesic_final0(nb,tmin(nb))
-c         end do
-c         !deltac = c_rho_error()
-
 *        **** initialize the geoedesic line data structure ****
          call c_geodesic_start00(S0_tag,max_sigma,dE0)
 
@@ -480,7 +436,6 @@ c         !deltac = c_rho_error()
          else
             deltat = deltat_min
          end if
-c         deltat = 1.0d0  !** debug **
          Enew = linesearch(0.0d0,E0,dE0,deltat,
      >                        cpsi_geodesic_energy00,
      >                        cpsi_geodesic_denergy00,
@@ -509,39 +464,9 @@ c         deltat = 1.0d0  !** debug **
        
 *        **** make psi1 <--- psi2(tmin) ****
          call cpsi_2to1()
-c        call c_rho_2to1()
-c        call c_dng_2to1()
 
       end do
 
-c*     **** initialize the geoedesic line data structure ****
-c      call c_geodesic_start0(S0_tag,max_sigma,dE0_tag)
-c
-c*     ******* line search *********
-c      call Parallel_taskid(taskid)
-c      do nb=1,nbrillq
-c         E0_shift  = cpsi_data_get_chnk(E0_tag,nb)
-c         dE0_shift = cpsi_data_get_chnk(dE0_tag,nb)
-c
-c         if ((tmin(nb).gt.deltat_min).and.(tmin(nb).lt.1.0d4)) then
-c            deltat = tmin(nb)
-c         else
-c            deltat = deltat_min
-c         end if
-c         call cpsi_geodesic0_setnb(nb)
-c         write(*,*) "nb,deltat=",nb,deltat
-c         Enew(nb) = linesearch(0.0d0,
-c     >                            dbl_mb(E0_shift),dbl_mb(dE0_shift),
-c     >                            deltat,
-c     >                            cpsi_geodesic_energy0,
-c     >                            cpsi_geodesic_denergy0,
-c     >                            0.50d0,tmin(nb),deltae,2)
-c         call cpsi_geodesic_final0(nb,tmin(nb))
-c         if (taskid.eq.0) then
-c            write(*,*) "nb,E0,Enew,tmin=",nb,dbl_mb(E0_shift),Enew(nb),
-c     >         tmin(nb)
-c         end if
-c      end do
 
 *     **** initialize the geoedesic line data structure ****
       call c_geodesic_start00(S0_tag,max_sigma,dE0)
@@ -557,22 +482,14 @@ c      end do
      >                        cpsi_geodesic_denergy00,
      >                        0.50d0,tmin,deltae,2)
       call cpsi_geodesic_final(tmin)
-c      deltac = c_rho_error()
-
 
 
 *     **** free memory ****
  30   call cpsi_data_pop_stack(G0_tag)
       call cpsi_data_pop_stack(S0_tag)
-      !call cpsi_data_pop_stack(dE0_tag)
-      !call cpsi_data_pop_stack(E0_tag)
 
       call cpsi_2to1()
       call cpsi_1toelectron00()
-
-      !sum1 = cpsi_1energy()
-      !write(*,*) "block final Energy=",sum1
-c     call c_rho_2to1()
 
       return
       end
@@ -712,7 +629,7 @@ c     >                      dbl_mb(psi1_shift))
            call Cram_c_SMul1(nb,sum,dbl_mb(psi1_shift))
 
 
-            call cpsi_KS_update_orb(psi_number,precondition,maxit_orb,
+           call cpsi_KS_update_orb(psi_number,precondition,maxit_orb,
      >                           maxerror,
      >                           0.1d0,nb,i,error_out)
 
@@ -2733,57 +2650,109 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
       implicit none
 
 #include "bafdecls.fh"
+#include "errquit.fh"
 #include "cpsi_common.fh"
       
       !*** local variables ***
-      integer maxit_orb,taskid_k
-      integer ii,l,nb,epsi_ptr,eig_ptr
+      integer maxit_orb
+      integer ii,l,l2,nb,epsi_ptr,eig_ptr
       real*8  sum,maxerror,error_out,e0
 
       !*** external functions ***
       integer  cpsi_data_get_ptr
-      real*8   control_tole
       external cpsi_data_get_ptr
+      real*8   control_tole
       external control_tole
+
 
       maxit_orb=120
       maxerror = control_tole()
-      call Parallel3d_taskid_k(taskid_k)
 
       do nb=1,nbrillq
       do ii=1,(ne_excited(1)+ne_excited(2))
+         l2 = 0
          epsi_ptr = cpsi_data_get_ptr(psi1_excited_tag,nb,ii)
          eig_ptr  = cpsi_data_get_ptr(eig_excited_tag,nb,ii)
      
          !*** orthogonalize to lower orbitals  ****
+ 2       l2 = l2 + 1
          call cpsi_project_out_virtual1(nb,ii,dbl_mb(epsi_ptr))
 
          !*** normalize ****
-         call Cram_cc_dot(nb,
-     >            dbl_mb(epsi_ptr),
-     >            dbl_mb(epsi_ptr),
-     >            sum)
+         call Cram_cc_dot(nb,dbl_mb(epsi_ptr),dbl_mb(epsi_ptr),sum)
          sum = 1.0d0/dsqrt(sum)
          call Cram_c_SMul1(nb,sum,dbl_mb(epsi_ptr))
 
 
          !*** minimize orbital ****
           l = 0
- 2        call cpsi_KS_update_virtual(maxit_orb,
-     >                               maxerror,
-     >                               0.001d0,nb,ii,error_out,e0)
+ 3        call cpsi_KS_update_virtual(maxit_orb,
+     >                                maxerror,
+     >                                0.001d0,nb,ii,error_out,e0)
           l = l+1
-          if ((error_out.gt.maxerror).and.(l.le.4)) go to 2
+
+          if ((error_out.gt.maxerror).and.(l.le.(1+(l2-1)*3))) then
+             go to 3
+          end if
+
+          if (((error_out.gt.maxerror).or.(e0.gt.4.0d0))
+     >        .and.(l2.le.1)) then
+            call cpsi_corrector_orb(nb,dbl_mb(epsi_ptr))
+            go to 2
+          end if 
 
           dbl_mb(eig_ptr) = e0
 
       end do
       end do
+
+
       call cpsi_sort_virtual()
+
 
       return
       end
 *
+
+*     ***********************************
+*     *                                 *
+*     *       cpsi_corrector_orb        *
+*     *                                 *
+*     ***********************************
+      subroutine cpsi_corrector_orb(nb,orb)
+      implicit none
+      integer nb
+      complex*16 orb(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+#include "cpsi_common.fh"
+
+      !***** local variables ****
+      integer k,g(2)
+      real*8  sum
+
+      if (.not. BA_push_get(mt_dcpl,nfft3d,'g',g(2),g(1)))
+     >   call errquit('cpsi_corrector_orb:out stack',0,MA_ERR)
+
+      do k=1,nfft3d
+        dcpl_mb(g(1)+k-1)=dcmplx(0.1d0,0.002d0*dsin(0.001d0*k))
+      end do
+      call C3dB_rc_fft3f(1,dcpl_mb(g(1)))
+      call Cram_c_pack(nb,dcpl_mb(g(1)))
+      call Cram_cc_dot(nb,dcpl_mb(g(1)),dcpl_mb(g(1)),sum)
+      sum = 1.0d0/dsqrt(sum)
+      call Cram_c_SMul1(nb,sum,dcpl_mb(g(1)))
+
+      call Parallel_shared_vector_zero(.true.,2*npack1,orb)
+      call Cram_c_Copy(nb,dcpl_mb(g(1)),orb)
+
+      if (.not.BA_pop_stack(g(2)))
+     >   call errquit('cpsi_corrector_orb:pop stack',1,MA_ERR)
+
+      return
+      end 
+
 c      subroutine cpsi_check_orthodebug(nb,i,Horb)
 c      implicit none
 c      integer nb,i
@@ -3018,22 +2987,36 @@ c     >            dcpl_mb(x(1)))
 
 #include "bafdecls.fh"
 #include "errquit.fh"
+#include "util.fh"
+#include "stdio.fh"
 #include "cpsi_common.fh"
 
 
 *     **** local variables ****
-      logical value,done,oneloop
-      integer it
+c      integer MASTER,taskid
+c      parameter (MASTER=0)
+c      logical oprint
+
+      logical value,done,oneloop,precondition
+      integer it,pit
       real*8 e0,eold,percent_error,error0,de0,lmbda_r0,lmbda_r1
-      real*8 theta
+      real*8 theta,ep,sp
       integer r1(2),t0(2),t(2),g(2)
       integer psi_ptr
 
 *     **** external functions ****
-      integer  cpsi_data_get_ptr
-      external cpsi_data_get_ptr
+      integer  cpsi_data_get_ptr,Pneb_convert_nb
+      external cpsi_data_get_ptr,Pneb_convert_nb
+      logical  control_print
+      external control_print
+      real*8   control_Ep,control_Sp
+      external control_Ep,control_Sp
 
       psi_ptr=cpsi_data_get_ptr(psi1_excited_tag,nb,i)
+
+c      call Parallel3d_taskid_i(taskid)
+c      call Parallel3d_taskid_k(taskid_k)
+c      oprint= ((taskid.eq.MASTER).and.control_print(print_medium))
 
       lmbda_r0 = 1.0d0
 
@@ -3047,11 +3030,15 @@ c     >            dcpl_mb(x(1)))
       if (.not. value) call errquit(
      >     'cpsi_KS_update_virtual: out of stack memory',0, MA_ERR)
 
+      ep = control_Ep()
+      sp = control_Sp()
+      precondition = .true.
       done = .false.
       error0 = 0.0d0
       e0 = 0.0d0
       theta = -3.14159d0/600.0d0
       it = 0
+      pit = 0
  2    continue
  
          it = it + 1
@@ -3066,17 +3053,25 @@ c     >            dcpl_mb(x(1)))
 
          percent_error=0.0d0
          if(error0.ne.0.0d0)
-     A      percent_error = dabs(e0-eold)/error0
+     >      percent_error = dabs(e0-eold)/error0
 
          done = ((it.gt.maxiteration)
      >           .or.
      >           (dabs(e0-eold).lt.maxerror))
 
+         precondition = (dabs(e0-eold).gt.(sp*maxerror))
          if (done) go to 4
 
          call Cram_c_Copy(nb,dcpl_mb(g(1)),dcpl_mb(r1(1)))
          call Cram_cc_daxpy(nb,e0,dbl_mb(psi_ptr),dcpl_mb(r1(1)))
 
+*        **** preconditioning ****
+         if (precondition) then
+            pit = pit + 1
+            call cke_Precondition(nb,npack1,1,
+     >                            dbl_mb(psi_ptr),
+     >                            dcpl_mb(g(1)))
+         end if
 
 *        *** determine conjuagate direction ***
          call Cram_cc_dot(nb,dcpl_mb(r1(1)),
@@ -3126,6 +3121,17 @@ c     >            dcpl_mb(x(1)))
       value = value.and.BA_pop_stack(t0(2))
       if (.not.value) call errquit(
      >     'cpsi_KS_update_virtual: popping stack memory',1,MA_ERR)
+
+c      if (oprint) then
+c         write(luout,921) Pneb_convert_nb(nb),nb,i,-e0,
+c     >                    dabs(e0-eold),it,pit,ep,sp
+c  921 format(5x,"nb",I4,1x,"nbq",I4,1x,"orbital",I4," current e=",E10.3,
+c     >       " (error=",E9.3,")",
+c     >       " iterations",I4,"(",I4,
+c     >       " preconditioned, Ep,Sp=",F5.1,F7.1,")")
+c      end if
+
+
 
       error_out = dabs(e0-eold)
       e0 = -e0

@@ -343,7 +343,7 @@ c
                       else
                       if(.not.rtdb_cput(rtdb,'sdmp2:task',1,'energy'))
      1                  call errquit('tce_energy_fragment',0, RTDB_ERR)
-                      if (.not.semi_dir_mp2(rtdb,.false.)) call errquit
+                      if (.not.semi_dir_mp2(rtdb)) call errquit
      1                  ('tce_energy_fragment: mp2',0,
      2                  UNKNOWN_ERR)
                       if (.not.rtdb_get(rtdb,'mp2:energy',mt_dbl,1,

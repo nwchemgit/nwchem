@@ -1471,7 +1471,6 @@ cccc  E =  Kr0(1,b)*(1.0d0+dcos(Kr0(2,b)*phi-Kr0(3,b))) cccc
          energy  = K0*(gamm-gamm0)**2
          denergy = -2.0d0*K0*(gamm-gamm0)
 
-         gamm = 0.0d0
          do i=1,n1
             i1 = indx1(ii+2*i-1)
             i2 = indx1(ii+2*i)
@@ -1487,9 +1486,11 @@ cccc  E =  Kr0(1,b)*(1.0d0+dcos(Kr0(2,b)*phi-Kr0(3,b))) cccc
             dz12 = z1-z2
             call lattice_min_difference(dx12,dy12,dz12)
             r12  = dsqrt(dx12**2 + dy12**2 + dz12**2)
+
             fion(1,i1) = fion(1,i1) + denergy*coef*(dx12/r12)
             fion(2,i1) = fion(2,i1) + denergy*coef*(dy12/r12)
             fion(3,i1) = fion(3,i1) + denergy*coef*(dz12/r12)
+
             fion(1,i2) = fion(1,i2) - denergy*coef*(dx12/r12)
             fion(2,i2) = fion(2,i2) - denergy*coef*(dy12/r12)
             fion(3,i2) = fion(3,i2) - denergy*coef*(dz12/r12)

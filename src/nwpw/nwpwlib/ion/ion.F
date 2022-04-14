@@ -16,7 +16,7 @@
 
       logical value
 
-      if (.not.periodic) call nwpw_cdft_end()
+      call nwpw_cdft_end()
       if (.not.periodic) call nwpw_born_end()
       if (.not.periodic) call nwpw_cosmo_end()
       call FMM_end()
@@ -104,6 +104,7 @@
          value = beom_cent_set(geom,i,t,dbl_mb(r1(1)+(i-1)*3),q)
       end do
 
+
 *     **** if md code then write velocities ****
       if ((control_code().eq.2).or.
      >    (control_code().eq.7).or.
@@ -156,7 +157,7 @@
       else
         value = beom_rtdb_delete(rtdb,'chargepspwgeometry')
         value = beom_rtdb_delete(rtdb,'pspwgeometry')
-        value = beom_rtdb_delete(rtdb,'qmmmgeometry')
+        !value = beom_rtdb_delete(rtdb,'qmmmgeometry')
       end if
       call nwpw_timing_end(50)
       return
@@ -484,12 +485,12 @@ c         eki1=0.5d0*eki1
          end if
       end if
 
-*     ***** try to initialize Born and COSMO and CDFT if aperiodic *****
+*     ***** try to initialize CDFT, and also try to initialize Born and COSMO if aperiodic *****
+      call nwpw_cdft_init(rtdb)
       nion_q = 0
       cosmo1_on = .false.
       call nwpw_cosmo_off()
       if  (.not.periodic) then
-         call nwpw_cdft_init(rtdb)
          call nwpw_born_init(rtdb)
          call nwpw_cosmo_init(rtdb,geom)
          cosmo1_on = nwpw_cosmo1_on()
@@ -4796,6 +4797,8 @@ c
       double precision test_norm
       integer i, j, k, l, m, n, mu, nu, indx, iatom, iaxis, itemp
       integer nhess, nhesst,IMAX
+      double precision ddot
+      external ddot
 C****
       nhess = nat3*nat3
       nhesst =  nat3*(nat3+1)/2 ! dimension of lower triangular hessian

@@ -652,6 +652,8 @@ c
 #include "zora.fh"
 #include "frozemb.fh"
 #include "cosmo.fh"
+#include "inp.fh"
+#include "stdio.fh"
 c     
 c     $Id$
 c
@@ -682,6 +684,7 @@ c AJL/End
       double precision ecosmo !< [Output] The COSMO solvation energy
       integer g_dens(2),i
       character*255 cosmo_file
+      character*32 theory
 c     DIM/QM JEM
       logical ldimqm
       integer g_vdim
@@ -695,6 +698,18 @@ cc AJL/Begin/SPIN ECPs
       logical ecp_get_high_chan
       external ecp_get_high_chan
 cc AJL/End
+c     
+c ... jochen 05/20: added an option to print contributions to
+c     the MO energies
+      logical epsana, master
+      integer l_diag, k_diag 
+      integer l_eps(2), k_eps(2)
+      integer imo, na, nb
+      double precision rtemp
+
+c     end of declarations
+c     -----------------------------------------------------------------
+
 c     
 c     Check
 c     
@@ -711,6 +726,23 @@ c
      &     'cphf_solve:cphf_uhf', mt_log, 1, cphf_uhf)) then
          cphf_uhf = .false.
       endif
+c ... analysis of orbital energies requested?      
+      master = (ga_nodeid().eq.0)
+      !if (master) write (6,*) 'hello from uhf_energy'
+      epsana = .false.
+      if (.not. rtdb_get(rtdb, 'dft:epscontributions',
+     &  mt_log, 1, epsana)) continue
+      
+      if (epsana) then               
+        if (.not.ma_push_get(MT_DBL,nbf,'uhf:diag',l_diag,k_diag))
+     &    call errquit('uhf: cannot allocate diag',1,MA_ERR)
+        if (.not.ma_push_get(MT_DBL,nbf,'uhf:eps1',l_eps(1),k_eps(1)))
+     &    call errquit('uhf: cannot allocate eps1',1,MA_ERR)
+        if (.not.ma_push_get(MT_DBL,nbf,'uhf:eps2',l_eps(2),k_eps(2)))
+     &    call errquit('uhf: cannot allocate eps2',1,MA_ERR)
+        call dfill(nbf, 0.0d0, dbl_mb(k_eps(1)), 1)
+        call dfill(nbf, 0.0d0, dbl_mb(k_eps(2)), 1)
+      end if ! epsana
 c     
 c     Arrays for AO density, coulomb and exchange matrices
 c
@@ -859,8 +891,10 @@ c
         call ga_dadd(1d0,f(4),1d0,g_tmp(4),f(4))   ! DFT xc part
 c
 c       destroy work space
-        if (.not. ga_destroy(g_tmp)) 
-     &   call errquit('uhf: ga corrupt?',0, GA_ERR)
+        do ifock = 1,nfock
+          if (.not. ga_destroy(g_tmp(ifock))) 
+     &      call errquit('uhf: ga corrupt?',0, GA_ERR)
+        end do
       end if  ! cam_exch
       call do_riscf (.true.)
 c
@@ -876,6 +910,91 @@ c
          e_b_xc = ga_ddot(g_b_dens,g_b_xc)
          etwo = etwo + e_a_xc + e_b_xc        
       endif
+c     
+c ... jochen: now that we have the C and XC Fock matrices,
+c     we can calculate their contributions to the orbital energies
+c     the arrays g_tmp(:) can be re-used for this purpose.
+c     
+      if (epsana) then
+        g_tmp(1) = ga_create_atom_blocked(geom, basis, 'tmp1')
+        g_tmp(2) = ga_create_atom_blocked(geom, basis, 'tmp2')
+c        
+c       Coulomb, alpha spin MOs
+        call ga_zero(g_tmp(1))
+        call ga_zero(g_tmp(2))
+        call two_index_transf(g_a_coul, g_vecs(1), g_vecs(1),
+     &    g_tmp(1), g_tmp(2))
+        call ga_get_diagonal(g_tmp(2),dbl_mb(k_diag))
+        do imo = 1,nbf
+          dbl_mb(k_eps(1)+imo-1) = dbl_mb(k_diag+imo-1)
+        end do
+        call ga_zero(g_tmp(1))
+        call ga_zero(g_tmp(2))
+        call two_index_transf(g_b_coul, g_vecs(1), g_vecs(1),
+     &    g_tmp(1), g_tmp(2))
+        call ga_get_diagonal(g_tmp(2),dbl_mb(k_diag))
+        do imo = 1,nbf
+          dbl_mb(k_eps(1)+imo-1) = dbl_mb(k_eps(1)+imo-1)
+     &      + dbl_mb(k_diag+imo-1)
+        end do
+        if (master) write(6,*) 'V(C) alfa MOs'
+        do imo=1,nbf
+          if (master) write (6,*) imo, dbl_mb(k_eps(1)+imo-1)
+        end do
+c
+c       Coulomb, beta spin MOs
+        call ga_zero(g_tmp(1))
+        call ga_zero(g_tmp(2))
+        call two_index_transf(g_a_coul, g_vecs(2), g_vecs(2),
+     &    g_tmp(1), g_tmp(2))
+        call ga_get_diagonal(g_tmp(2),dbl_mb(k_diag))
+        do imo = 1,nbf
+          dbl_mb(k_eps(2)+imo-1) = dbl_mb(k_diag+imo-1)
+        end do
+        call ga_zero(g_tmp(1))
+        call ga_zero(g_tmp(2))
+        call two_index_transf(g_b_coul, g_vecs(2), g_vecs(2),
+     &    g_tmp(1), g_tmp(2))
+        call ga_get_diagonal(g_tmp(2),dbl_mb(k_diag))
+        do imo = 1,nbf
+          dbl_mb(k_eps(2)+imo-1) = dbl_mb(k_eps(2)+imo-1)
+     &      + dbl_mb(k_diag+imo-1)
+        end do
+        if (master) write(6,*) 'V(C) beta MOs'
+        do imo=1,nbf
+          if (master) write (6,*) imo, dbl_mb(k_eps(2)+imo-1)
+        end do
+c        
+c       XC, alfa spin MOs
+        call ga_zero(g_tmp(1))
+        call ga_zero(g_tmp(2))
+        call two_index_transf(g_a_exch, g_vecs(1), g_vecs(1),
+     &    g_tmp(1), g_tmp(2))
+        call ga_get_diagonal(g_tmp(2),dbl_mb(k_diag))
+        if (master) write(6,*) 'V(XC) alfa MOs'
+        do imo=1,nbf
+          if (master) write (6,*) imo, -dbl_mb(k_diag+imo-1)
+        end do
+        do imo = 1,nbf
+          dbl_mb(k_eps(1)+imo-1) = dbl_mb(k_eps(1)+imo-1)
+     &      - dbl_mb(k_diag+imo-1)
+        end do
+c        
+c       XC, beta spin MOs
+        call ga_zero(g_tmp(1))
+        call ga_zero(g_tmp(2))
+        call two_index_transf(g_b_exch, g_vecs(2), g_vecs(2),
+     &    g_tmp(1), g_tmp(2))
+        call ga_get_diagonal(g_tmp(2),dbl_mb(k_diag))
+        if (master) write(6,*) 'V(XC) beta MOs'
+        do imo=1,nbf
+          if (master) write (6,*) imo, -dbl_mb(k_diag+imo-1)
+        end do
+        do imo = 1,nbf
+          dbl_mb(k_eps(2)+imo-1) = dbl_mb(k_eps(2)+imo-1)
+     &      - dbl_mb(k_diag+imo-1)
+        end do        
+      end if ! epsana
 c
       if (odebug .and. ga_nodeid().eq.0) then
          write(6,*) ' coulomb energies', e_a_coul, e_b_coul
@@ -925,15 +1044,42 @@ c      call ga_zero(g_hcore)
 c
       call int_1e_ga(basis, basis, g_a_hcore, 'kinetic', oskel)  ! kinetic
       if (do_zora .and. .not.(do_NonRel)) then
-c     is uhf() called from cphf_solve2 (say from hnd_hyperfine_zora)?
-c     hack: use 'cphf:skew' to check this condition
-         if (.not. rtdb_get(rtdb, 'cphf:skew', mt_log, 1,
-     $        noskew_uhf)) then
-            call errquit('ZORA not available yet for SCF ',0,CAPMIS_ERR)
+         if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $        call errquit('uhf: theory not specified',555,
+     &        INPUT_ERR)
+         if (theory(1:inp_strlen(theory)).ne.'dft') then
+            if (ga_nodeid().eq.0) write(luout,*)' theory is ',
+     T           theory(1:inp_strlen(theory)),'!'
+            call errquit('ZORA available only for DFT ',0,CAPMIS_ERR)
          endif
         call ga_dadd(1.d0,g_a_hcore,1.d0,g_zora_Kinetic(1),g_a_hcore) ! zora kinetic
       endif
 
+      if (epsana) then
+c       MO energy analysis: print T contribs, but do not yet
+c       add to the accumulated MO energies
+c        
+c       T, alfa spin MOs
+        call ga_zero(g_tmp(1))
+        call ga_zero(g_tmp(2))
+        call two_index_transf(g_a_hcore, g_vecs(1), g_vecs(1),
+     &    g_tmp(1), g_tmp(2))
+        call ga_get_diagonal(g_tmp(2),dbl_mb(k_diag))
+        if (master) write(6,*) 'T alfa MOs'
+        do imo=1,nbf
+          if (master) write (6,*) imo, dbl_mb(k_diag+imo-1)
+        end do
+c       T, beta spin MOs
+        call ga_zero(g_tmp(1))
+        call ga_zero(g_tmp(2))
+        call two_index_transf(g_a_hcore, g_vecs(2), g_vecs(2),
+     &    g_tmp(1), g_tmp(2))
+        call ga_get_diagonal(g_tmp(2),dbl_mb(k_diag))
+        if (master) write(6,*) 'T beta MOs'
+        do imo=1,nbf
+          if (master) write (6,*) imo, dbl_mb(k_diag+imo-1)
+        end do
+      end if ! epsana
 cc If spin polarised ECP, split g_hcore
       if (ecp_channels.gt.1)
      &  call ga_copy(g_a_hcore,g_b_hcore)
@@ -947,12 +1093,56 @@ c      call int_1e_ga(basis, basis, g_hcore, 'potential', oskel) !potential
         call ga_copy(g_a_hcore,g_b_hcore)
       endif
 cc AJL/End
+
+      if (epsana) then
+c       MO energy analysis: 
+c        
+c       alfa spin MOs
+        call ga_zero(g_tmp(1))
+        call ga_zero(g_tmp(2))
+        call two_index_transf(g_a_hcore, g_vecs(1), g_vecs(1),
+     &    g_tmp(1), g_tmp(2))
+        call ga_get_diagonal(g_tmp(2),dbl_mb(k_diag))
+        if (master) write(6,*) 'T+V(nuc) alfa MOs'
+        do imo=1,nbf
+          if (master) write (6,*) imo, dbl_mb(k_diag+imo-1)
+          dbl_mb(k_eps(1)+imo-1) = dbl_mb(k_eps(1)+imo-1)
+     &      + dbl_mb(k_diag+imo-1)
+        end do
+c        
+c       beta spin MOs
+        call ga_zero(g_tmp(1))
+        call ga_zero(g_tmp(2))
+        call two_index_transf(g_b_hcore, g_vecs(2), g_vecs(2),
+     &    g_tmp(1), g_tmp(2))
+        call ga_get_diagonal(g_tmp(2),dbl_mb(k_diag))
+        if (master) write(6,*) 'T+V(nuc) beta MOs'
+        do imo=1,nbf
+          if (master) write (6,*) imo, dbl_mb(k_diag+imo-1)
+          dbl_mb(k_eps(2)+imo-1) = dbl_mb(k_eps(2)+imo-1)
+     &      + dbl_mb(k_diag+imo-1)
+        end do
+        if (master) write (6,'(//1x,a)')
+     &    'spin MO energies with T + V(nuc) + V(C) + V(XC)'
+        do imo = 1,nbf
+          if (master) write (6,*) imo,
+     &       dbl_mb(k_eps(1)+imo-1) ,  dbl_mb(k_eps(2)+imo-1)
+        end do
+      end if ! epsana      
 c
 c     cosmo charges, potential and energy contribution
 c
       if (cosmo_on) then
-         call errquit('uhf_energy not compatible with COSMO',0,
-     C     CAPMIS_ERR)
+c     check if we are doing dft (e.g. cphf case)
+         if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
+     $        call errquit('hnd_property: theory not specified',555,
+     &        INPUT_ERR)
+         if (theory.eq.'hyb') theory = 'dft'
+         if(theory.ne.'dft') then
+            if(master) write(6,*) ' UHF theory ',theory
+            call errquit('uhf_energy not compatible with COSMO',0,
+     C           CAPMIS_ERR)
+         endif
       endif
       if(cosmo_on.and.cosmo_phase.eq.2) then
         cosmo_file = "cosmo.xyz"
@@ -967,8 +1157,10 @@ c
      &                                  g_dens,      ! input density
      &                                  cosmo_file)  ! cosmo charges file name
 cc AJL/Begin/SPIN ECPs
-        call int_1e_ga(basis,basis,g_a_hcore,'cos_chg_pot',.false.)
-        call int_1e_ga(basis,basis,g_b_hcore,'cos_chg_pot',.false.)
+        call ga_zero(g_dens(1))
+        call cosmo_fock(basis,g_dens)
+        call ga_add(1d0, g_dens, 1d0, g_a_hcore, g_a_hcore)
+        call ga_add(1d0, g_dens, 1d0, g_b_hcore, g_b_hcore)
 cc AJL/End
         do i = 1, 2
          if (.not.ga_destroy(g_dens(i)))
@@ -1037,6 +1229,334 @@ c
          call ga_print(cuhf_g_falpha)
          call ga_print(cuhf_g_fbeta)
       endif
+c
+       if (epsana) then
+c ... jochen: full MO energies, with all additional contributions
+         
+         call ga_get_diagonal(cuhf_g_falpha,dbl_mb(k_eps(1)))
+         call ga_get_diagonal(cuhf_g_fbeta,dbl_mb(k_eps(2)))
+         
+         if (master) write (6,'(//1x,a)')
+     &     'spin MO energies with all contributions (COSMO, etc.)'
+         do imo = 1,nbf
+           if (master) write (6,*) imo,
+     &       dbl_mb(k_eps(1)+imo-1) ,  dbl_mb(k_eps(2)+imo-1)
+         end do
+
+c ... jochen: for good measure, let's also calculate some ERIs
+c        for the frontier MOs. This is NOT efficient, but oh well ...
+c        we use g_?_dens etc for scratch and assign them to
+c        shorter variable names
+
+         d(1) = g_a_dens
+         d(2) = g_b_dens
+         f(1) = g_a_coul
+         f(2) = g_b_coul
+
+         na = nalpha
+         nb = nbeta
+
+         if (master) write(6,'(/1x,a/)')
+     &     'Some ERIs, Mulliken notation [1 1* | 2 2*]'
+
+c        ------------------------------------------------------         
+c        Fock 2e matrix from alfa HOMO-1 density
+         
+         call ga_matmul_patch('n','t', one,0d0,
+     &     g_vecs(1) ,1, nbf, na-1, na-1,
+     &     g_vecs(1) ,na-1, na-1, 1, nbf,
+     &     d(1)      ,1,nbf,1,nbf)
+
+         jfac(1) = 1.0d0
+         kfac(1) = 0.0d0
+
+         call ga_zero (f(1))
+         call fock_2e(geom, basis, 1, jfac, kfac,
+     &     tol2e, oskel, d(1), f(1), .false.)
+
+         call two_index_transf(f(1), g_vecs(1), g_vecs(1),
+     $     d(2), f(2))
+
+         call ga_sync()
+         
+         call ga_get(f(2), na-1, na-1, na-1, na-1, rtemp,1)
+ 1001    format(1x,"[",i3,"a,",i3,"a |",i3,"a,",i3,"a]=",f15.8)
+         if (master) write(6,1001) na-1,na-1,na-1,na-1,rtemp
+
+         call ga_get(f(2), na, na, na, na, rtemp,1)
+         if (master) write(6,1001) na-1,na-1,na,na,rtemp
+         
+         call ga_get(f(2), na+1, na+1, na+1, na+1, rtemp,1)
+         if (master) write(6,1001) na-1,na-1,na+1,na+1,rtemp
+
+         call two_index_transf(f(1), g_vecs(2), g_vecs(2),
+     $     d(2), f(2))
+
+         call ga_sync()
+         
+         call ga_get(f(2), nb, nb, nb, nb, rtemp,1)
+         if (master) write(6,1001) na-1,na-1,nb,nb,rtemp
+         
+         call ga_get(f(2), nb+1, nb+1, nb+1, nb+1, rtemp,1)
+         if (master) write(6,1001) na-1,na-1,nb+1,nb+1,rtemp            
+
+c        ------------------------------------------------------         
+c        Fock 2e matrix from alfa HOMO density
+         
+         call ga_matmul_patch('n','t', one,0d0,
+     &     g_vecs(1) ,1, nbf, na, na,
+     &     g_vecs(1) ,na, na, 1, nbf,
+     &     d(1)      ,1,nbf,1,nbf)
+
+         jfac(1) = 1.0d0
+         kfac(1) = 0.0d0
+
+         call ga_zero (f(1))
+         call fock_2e(geom, basis, 1, jfac, kfac,
+     &     tol2e, oskel, d(1), f(1), .false.)
+
+         call two_index_transf(f(1), g_vecs(1), g_vecs(1),
+     $     d(2), f(2))
+
+         call ga_sync()
+         
+         call ga_get(f(2), na-1, na-1, na-1, na-1, rtemp,1)
+         if (master) write(6,1001) na,na,na-1,na-1,rtemp
+         
+         call ga_get(f(2), na, na, na, na, rtemp,1)
+         if (master) write(6,1001) na,na,na,na,rtemp
+         
+         call ga_get(f(2), na+1, na+1, na+1, na+1, rtemp,1)
+         if (master) write(6,1001) na,na,na+1,na+1,rtemp
+
+         call two_index_transf(f(1), g_vecs(2), g_vecs(2),
+     $     d(2), f(2))
+
+         call ga_sync()
+         
+         call ga_get(f(2), nb, nb, nb, nb, rtemp,1)
+         if (master) write(6,1001) na,na,nb,nb,rtemp
+         
+         call ga_get(f(2), nb+1, nb+1, nb+1, nb+1, rtemp,1)
+         if (master) write(6,1001) na,na,nb+1,nb+1,rtemp         
+
+         
+c        ------------------------------------------------------
+c        Fock 2e matrix from alfa LUMO density
+         na = nalpha
+         call ga_matmul_patch('n','t', one,0d0,
+     &     g_vecs(1) ,1, nbf, na+1, na+1,
+     &     g_vecs(1) ,na+1, na+1, 1, nbf,
+     &     d(1)      ,1,nbf,1,nbf)
+
+         jfac(1) = 1.0d0
+         kfac(1) = 0.0d0
+
+         call ga_zero (f(1))
+         call fock_2e(geom, basis, 1, jfac, kfac,
+     &     tol2e, oskel, d(1), f(1), .false.)
+
+         call two_index_transf(f(1), g_vecs(1), g_vecs(1),
+     $     d(2), f(2))
+
+         call ga_sync()
+         
+         call ga_get(f(2), na-1, na-1, na-1, na-1, rtemp,1)
+         if (master) write(6,1001) na+1,na+1,na-1,na-1,rtemp         
+
+         call ga_get(f(2), na, na, na, na, rtemp,1)
+         if (master) write(6,1001) na+1,na+1,na,na,rtemp         
+
+         call ga_get(f(2), na+1, na+1, na+1, na+1, rtemp,1)
+         if (master) write(6,1001) na+1,na+1,na+1,na+1,rtemp         
+
+         call two_index_transf(f(1), g_vecs(2), g_vecs(2),
+     $     d(2), f(2))
+
+         call ga_sync()
+         
+         call ga_get(f(2), nb, nb, nb, nb, rtemp,1)
+         if (master) write(6,1001) na+1,na+1,nb,nb,rtemp
+         
+         call ga_get(f(2), nb+1, nb+1, nb+1, nb+1, rtemp,1)
+         if (master) write(6,1001) na+1,na+1,nb+1,nb+1,rtemp             
+
+
+c        ------------------------------------------------------
+c        Fock 2e matrix from SYMMETRIZED alfa HOMO-HOMO-1 product
+         na = nalpha
+         call ga_matmul_patch('n','t', one,0d0,
+     &     g_vecs(1) ,1, nbf, na, na,
+     &     g_vecs(1) ,na-1, na-1, 1, nbf,
+     &     d(1)      ,1,nbf,1,nbf)
+
+         call ga_matmul_patch('n','t', 0.5d0,0.5d0,
+     &     g_vecs(1) ,1, nbf, na-1, na-1,
+     &     g_vecs(1) ,na, na, 1, nbf,
+     &     d(1)      ,1,nbf,1,nbf)         
+
+         jfac(1) = 1.0d0
+         kfac(1) = 0.0d0
+
+         call ga_zero (f(1))
+         call fock_2e(geom, basis, 1, jfac, kfac,
+     &     tol2e, oskel, d(1), f(1), .false.)
+
+         call two_index_transf(f(1), g_vecs(1), g_vecs(1),
+     $     d(2), f(2))
+
+         call ga_sync()
+
+         rtemp = zero
+         call ga_get(f(2), na-1, na-1, na, na, rtemp,1)
+         if (master) write(6,1001) na,na-1,na,na-1,rtemp
+         
+         rtemp = zero
+         call ga_get(f(2), na, na, na-1, na-1, rtemp,1)
+         if (master) write(6,1001) na-1,na,na-1,na,rtemp
+
+
+c        ------------------------------------------------------
+c        Fock 2e matrix from SYMMETRIZED alfa LUMO-HOMO-1 product
+         na = nalpha
+         call ga_matmul_patch('n','t', one,0d0,
+     &     g_vecs(1) ,1, nbf, na+1, na+1,
+     &     g_vecs(1) ,na-1, na-1, 1, nbf,
+     &     d(1)      ,1,nbf,1,nbf)
+
+         call ga_matmul_patch('n','t', 0.5d0,0.5d0,
+     &     g_vecs(1) ,1, nbf, na-1, na-1,
+     &     g_vecs(1) ,na+1, na+1, 1, nbf,
+     &     d(1)      ,1,nbf,1,nbf)         
+
+         jfac(1) = 1.0d0
+         kfac(1) = 0.0d0
+
+         call ga_zero (f(1))
+         call fock_2e(geom, basis, 1, jfac, kfac,
+     &     tol2e, oskel, d(1), f(1), .false.)
+
+         call two_index_transf(f(1), g_vecs(1), g_vecs(1),
+     $     d(2), f(2))
+         
+         rtemp = zero
+         call ga_get(f(2), na-1, na-1, na+1, na+1, rtemp,1)
+         if (master) write(6,1001) na+1,na-1,na+1,na-1,rtemp         
+
+         rtemp = zero
+         call ga_get(f(2), na+1, na+1, na-1, na-1, rtemp,1)
+         if (master) write(6,1001) na-1,na+1,na-1,na+1,rtemp  
+         
+c        ------------------------------------------------------
+c        Fock 2e matrix from SYMMETRIZED alfa LUMO-HOMO product
+         na = nalpha
+         call ga_matmul_patch('n','t', one,0d0,
+     &     g_vecs(1) ,1, nbf, na+1, na+1,
+     &     g_vecs(1) ,na, na, 1, nbf,
+     &     d(1)      ,1,nbf,1,nbf)
+
+         call ga_matmul_patch('n','t', 0.5d0,0.5d0,
+     &     g_vecs(1) ,1, nbf, na, na,
+     &     g_vecs(1) ,na+1, na+1, 1, nbf,
+     &     d(1)      ,1,nbf,1,nbf)         
+
+         jfac(1) = 1.0d0
+         kfac(1) = 0.0d0
+
+         call ga_zero (f(1))
+         call fock_2e(geom, basis, 1, jfac, kfac,
+     &     tol2e, oskel, d(1), f(1), .false.)
+
+         call two_index_transf(f(1), g_vecs(1), g_vecs(1),
+     $     d(2), f(2))
+
+         call ga_sync()
+
+         rtemp = zero
+         call ga_get(f(2), na, na, na+1, na+1, rtemp,1)
+         if (master) write(6,1001) na+1,na,na+1,na,rtemp
+
+         rtemp = zero
+         call ga_get(f(2), na+1, na+1, na, na, rtemp,1)
+         if (master) write(6,1001) na,na+1,na,na+1,rtemp
+
+
+c        ------------------------------------------------------
+c        Fock 2e matrix from SYMMETRIZED beta LUMO-HOMO product
+         na = nalpha
+         call ga_matmul_patch('n','t', one,0d0,
+     &     g_vecs(2) ,1, nbf, nb+1, nb+1,
+     &     g_vecs(2) ,nb, nb, 1, nbf,
+     &     d(1)      ,1,nbf,1,nbf)
+
+         call ga_matmul_patch('n','t', 0.5d0,0.5d0,
+     &     g_vecs(2) ,1, nbf, nb, nb,
+     &     g_vecs(2) ,nb+1, nb+1, 1, nbf,
+     &     d(1)      ,1,nbf,1,nbf)         
+
+         jfac(1) = 1.0d0
+         kfac(1) = 0.0d0
+
+         call ga_zero (f(1))
+         call fock_2e(geom, basis, 1, jfac, kfac,
+     &     tol2e, oskel, d(1), f(1), .false.)
+
+         call two_index_transf(f(1), g_vecs(1), g_vecs(1),
+     $     d(2), f(2))
+
+         call ga_sync()
+
+         rtemp = zero
+         call ga_get(f(2), nb, nb, nb+1, nb+1, rtemp,1)
+         if (master) write(6,1001) nb+1,nb,nb+1,nb,rtemp
+
+         rtemp = zero
+         call ga_get(f(2), nb+1, nb+1, nb, nb, rtemp,1)
+         if (master) write(6,1001) nb,nb+1,nb,nb+1,rtemp
+         
+         
+c        ------------------------------------------------------
+c        Fock 2e matrix from alfa HOMO + exchange setting
+c        This gives exactly the same exchange integral as when I
+c        call the routine with jfac instead and a symmetrized
+c        transition density. However, this only works OK when
+c        the functional is hfexch so we'll leaver this commented out
+c$$$         na = nalpha
+c$$$         call ga_matmul_patch('n','t', one,0d0,
+c$$$     &     g_vecs(1) ,1, nbf, na, na,
+c$$$     &     g_vecs(1) ,na, na, 1, nbf,
+c$$$     &     d(1)      ,1,nbf,1,nbf)
+c$$$       
+c$$$         jfac(1) = 0.0d0
+c$$$         kfac(1) = 1.0d0
+c$$$
+c$$$         call ga_zero (f(1))
+c$$$         call fock_2e(geom, basis, 1, jfac, kfac,
+c$$$     &     tol2e, oskel, d(1), f(1), .false.)
+c$$$
+c$$$         call two_index_transf(f(1), g_vecs(1), g_vecs(1),
+c$$$     $     d(2), f(2))
+c$$$
+c$$$         call ga_sync()
+c$$$
+c$$$         rtemp = zero
+c$$$         call ga_get(f(2), na, na, na, na, rtemp,1)
+c$$$         if (master) write(6,1001) na,na,na,na,rtemp
+c$$$
+c$$$         rtemp = zero
+c$$$         call ga_get(f(2), na+1, na+1, na+1, na+1, rtemp,1)
+c$$$         if (master) write(6,1001) na,na+1,na,na+1,rtemp
+         
+      
+
+c        clean up memory used for MO energy decomposition:
+         if (.not.ma_chop_stack(l_diag)) call
+     &     errquit('uhf: ma_chop_stack failed k_diag',l_diag,MA_ERR)
+         if (.not. ga_destroy(g_tmp(1))) 
+     &     call errquit('uhf: ga corrupt?',0, GA_ERR)
+         if (.not. ga_destroy(g_tmp(2))) 
+     &     call errquit('uhf: ga corrupt?',0, GA_ERR)
+       end if
 c
 c     Free up dead global arrays
 c
@@ -1465,15 +1985,7 @@ c
          call ga_copy(g_f(iset), g_fock)
 c     
          if (oaufbau) then
-#if defined(PARALLEL_DIAG)
-#ifdef SCALAPACK
-            call ga_pdsyev(g_fock, g_u, dbl_mb(k_eval+ioff), 0)
-#else
-            call ga_diag_std(g_fock, g_u, dbl_mb(k_eval+ioff))
-#endif
-#else 
-            call ga_diag_std_seq(g_fock, g_u, dbl_mb(k_eval+ioff))
-#endif
+            call util_diag_std(g_fock, g_u, dbl_mb(k_eval+ioff))
          else
 c     
 c     occ-occ piece

@@ -44,7 +44,7 @@
     
 
 *     ***** energy variables ****
-      real*8  en(2),E(50)
+      real*8  en(2),E(60)
       real*8  dipole(3)
       real*8  stress(3,3),lstress(6)
 
@@ -57,7 +57,7 @@
 
 *     **** local variables ****
       logical oprint,lprint,hprint,qmmm,found,nose,SA,vverlet
-      logical calc_pressure
+      logical calc_pressure,field_exist
       real*8  gx,gy,gz,cx,cy,cz
       real*8  vgx,vgy,vgz,vcx,vcy,vcz,ekg,eki0,eki1,dt
       real*8  sum0,sum1,sum2,sum3,w,emotion_time_shift,wa,wr
@@ -120,8 +120,8 @@
       external ion_TotalCharge
       logical  control_check_charge_multiplicity,control_rotation
       external control_check_charge_multiplicity,control_rotation
-      logical   pspw_charge_found,ion_q_FixIon
-      external  pspw_charge_found,ion_q_FixIon
+      logical   pspw_charge_found,ion_q_FixIon,pspw_Efield_found
+      external  pspw_charge_found,ion_q_FixIon,pspw_Efield_found
       integer  control_minimizer,control_scf_algorithm
       external control_minimizer,control_scf_algorithm
       integer  control_ks_algorithm
@@ -158,6 +158,8 @@
       external ion_nconstraints,ion_ndof
       real*8   pspw_qmmm_lambda
       external pspw_qmmm_lambda
+      integer  pspw_Efield_type
+      external pspw_Efield_type
 
 
 *                            |************|
@@ -223,6 +225,9 @@
 *     **** initialize QM/MM ****
       call pspw_qmmm_init(rtdb)
       call pspw_charge_init(rtdb)
+
+
+      field_exist = pspw_charge_found()
 
 *     **** initialize FixIon constraint ****
       call ion_init_FixIon(rtdb)
@@ -642,12 +647,14 @@ c       **** inner loop ****
          write(luout,*)
          write(luout,1430) E(1),E(1)/ion_nion()
 
-         if (pspw_charge_found()) then
+
+         if (field_exist) then
             write(luout,1431)
             write(luout,1432)
-            write(luout,1433) (E(1)-E(19)-E(20)-E(21)),
-     >         (E(1)-E(19)-E(20)-E(21))/ion_nion()
+            write(luout,1433) (E(1)-E(49)-E(50)-E(51)),
+     >         (E(1)-E(49)-E(50)-E(51))/ion_nion()
          end if
+
 
          write(luout,1470) E(5),E(5)/ion_nion()
          if (pspw_qmmm_found()) then

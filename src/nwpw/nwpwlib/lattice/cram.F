@@ -1481,6 +1481,35 @@ c      end do
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *          Cram_c_setzero         *
+*     *                                 *
+*     ***********************************
+     
+      subroutine Cram_c_setzero(nb,vzero,A)
+      implicit none  
+      integer    nb
+      real*8     vzero
+      complex*16 A(*)
+          
+#include "bafdecls.fh"
+#include "cram_common.fh"
+      
+*     **** local variables ****
+      integer indx,p,q,taskid,id
+      
+      id = 1
+     
+      call Parallel3d_taskid_i(taskid)
+!$OMP MASTER
+      call C3dB_ijktoindexp(id,1,1,1,indx,p)
+      if (p.eq.taskid) A(indx) = dcmplx(vzero,0.0d0)
+!$OMP END MASTER
+
+      return
+      end
+
 
 
 *     ***********************************

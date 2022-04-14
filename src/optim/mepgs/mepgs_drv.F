@@ -430,6 +430,8 @@ c
       logical gsopt_geom_cart_coords_get
       logical gsopt_geom_cart_coords_set
       logical ophigh
+      double precision ddot
+      external ddot
 c
       ophigh = util_print('high', print_high)
 CCCCCCCCCCCCCCCCCCCCCC
@@ -511,6 +513,8 @@ c
       double precision avec(nvar), bvec(nvar)
 c
       double precision ctheta, factor(2)
+      double precision ddot
+      external ddot
 c
       mepgs_cosang = 0.0
 c
@@ -555,6 +559,8 @@ c
       double precision dsds, dshds, dsdg
       integer l_hess, k_hess, i, j
       integer ind
+      double precision ddot
+      external ddot
       ind(i,j) = k_hess + i + (j-1)*nvar - 1
 c
       if (.not. ma_push_get(mt_dbl, nvar**2, 'hess',
@@ -976,6 +982,7 @@ c
       stpang = mepgs_cosang(abvec, bcvec, .true.)
 c
       grms = 0d0
+c      ogrms = 0d0
       srms = 0d0
       gmax  = 0d0
       smax  = 0d0
@@ -2188,6 +2195,8 @@ c
       double precision dsds, dshds, dsdg
       integer l_hess, k_hess, i, j
       integer ind
+      double precision ddot
+      external ddot
       ind(i,j) = k_hess + i + (j-1)*nvar - 1
 c
       if (alpha .eq. 0d0) call errquit
@@ -2462,6 +2471,8 @@ c
       integer ind
       logical task_qmmm
       logical gsopt_geom_cart_coords_get
+      double precision ddot
+      external ddot
       ind(i,j) = k_pmat + i-1 + (j-1)*ncart
 c     
 c     FRACTIONAL?
@@ -2656,6 +2667,8 @@ c
       double precision desphere(max_nvar)
       double precision zeta(max_nvar)
       double precision norm
+      double precision ddot
+      external ddot
 c
 c     Compute stuff used for printing and convergence tests
 c
@@ -3058,6 +3071,8 @@ c
       double precision trustds  ! restriction of step in opt. variable
       logical ophigh
       logical gsopt_geom_cart_coords_get
+      double precision ddot
+      external ddot
 c
 c     get the hessian and gradient with appropriate projectors
 c     applied following peng, ayala, schlegel and frisch so that

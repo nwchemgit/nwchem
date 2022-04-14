@@ -10,13 +10,14 @@ c
       parameter(cau2kcal=627.509451d+00)
 c
       double precision cnm2au
-      parameter(cnm2au=1.88972598786d+01)
+      parameter(cnm2au  = 1.8897259878858d+01)
 c
       double precision cau2ang
       parameter(cau2ang = 0.529177249d00)
 c
+c value in sync with angstrom_to_au  in geom.F
       double precision cang2au
-      parameter(cang2au = 1.889725988d00)
+      parameter(cang2au = 1.8897259878858d00)
 c
       double precision cau2ev
       parameter(cau2ev=27.2113961d0)
@@ -25,7 +26,7 @@ c
       parameter (cau2debye=2.541766d0)
 c
       double precision cpm2au
-      parameter(cpm2au = 1.889725988d-2)
+      parameter(cpm2au  = 1.8897259878858d-2)
 c
       double precision cau2nm
       parameter(cau2nm=5.29177249d-02)

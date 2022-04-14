@@ -39,6 +39,8 @@ C
 c
       double precision vnorm
       integer col
+      double precision ddot
+      external ddot
       do col = 1,nvec
         vnorm = ddot(nvec,vectors(1,col),1,vectors(1,col),1)
         vnorm = sqrt(1.0d00/vnorm)
@@ -60,6 +62,8 @@ c
 c
       double precision vnorm
       integer col
+      double precision ddot
+      external ddot
       do col = 1,nvec
         vnorm = ddot(nvec,coord,1,vectors(1,col),1)
         if (vnorm.lt.0.0d0) then

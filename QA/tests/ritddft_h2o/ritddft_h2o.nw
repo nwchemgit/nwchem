@@ -1,0 +1,21 @@
+start
+TITLE "BLYP/6-31G* H2O"  
+GEOMETRY 
+ O     0.00000000     0.00000000     0.12982363  
+ H     0.75933475     0.00000000    -0.46621158 
+ H    -0.75933475     0.00000000    -0.46621158  
+END  
+BASIS  
+ * library 6-31G* 
+END  
+basis "cd basis" spherical
+ * library "Weigend Coulomb Fitting"
+end
+DFT  
+ XC becke88 1.0 lyp 1.0
+END  
+TDDFT  
+ RPA 
+ NROOTS 20  
+END  
+TASK TDDFT ENERGY

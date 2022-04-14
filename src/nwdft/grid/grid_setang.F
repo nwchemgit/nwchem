@@ -30,7 +30,8 @@ c
 
       if (ga_nodeid().ne.0) oprint = .false.
       if (leb) then ! lebedev
-         call xc_lebedev(l_ang, oprint)
+         call xc_lebedev(l_ang, oprint, wa_leb, za_leb, ntheta, nphi,
+     $                   iangquad)
          nang_leb_pts = l_ang
       else ! gauss-legendre
 c

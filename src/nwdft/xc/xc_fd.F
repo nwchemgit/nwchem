@@ -61,7 +61,7 @@ c
 c
 c     Set up perturbed density values
 c
-      call xc_pert_rho(tol_rho, rho, delrho, nq, ipol, GC,
+      call xc_pert_rho(tol_rho, rho, delrho, nq, ipol, npert,
      &     dbl_mb(i_prho), dbl_mb(i_pdelrho))
 c
       return

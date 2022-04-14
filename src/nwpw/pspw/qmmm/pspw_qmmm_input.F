@@ -778,7 +778,7 @@ c
       goto 601
 
 c
-c bond morse
+c bond_morse
 c
  607  if (inp_i(sindx(1))) then
       if (inp_i(sindx(2))) then
@@ -1041,7 +1041,7 @@ c
 
 
 c
-c bond pair i1 i2 type A B C D E F
+c bond_pair i1 i2 type A B C D E F
 c
 c Pair Ion-Ion parameters - 1 - 4*Aij*((Bij/rij)**12-(Bij/rij)**6),
 c                           2 - Aij*exp(-rij/Bij) - Cij/rij**6,
@@ -1051,6 +1051,7 @@ c                           5 - Aij*exp(-rij/Bij)
 c                           6 - Aij*(1-exp(-Bij*(rij-Cij)))**2
 c                           7 - ???
 c                           8 - Aij*exp(-(rij/Bij)**2)
+c                           9 - Aij*exp(-(rij/Bij)**Cij)
 c                           
 c                           11 - Aij*(1-tanh((rij-Bij)/Cij))
 

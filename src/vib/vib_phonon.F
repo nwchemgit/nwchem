@@ -550,7 +550,7 @@ c     **** animate at kq=<0,0,0> if no dispersion specified ****
       call util_ascii_setwindow(emin*autocm,emax*autocm,
      >                          gmin/autocm,gmax/autocm)
       !write(luout,'(A,E10.3,A)') "gmax=",gmax/autocm," states/cm-1"
-      call util_ascii_plotter("",luout,npoints,efn(1,1),efn(1,2),'*',
+      call util_ascii_plotter(" ",luout,npoints,efn(1,1),efn(1,2),'*',
      >                     "g(w) - Vibrational Density of States",
      >                      "w (cm-1)","g(w) (states/cm-1)")
       !write(luout,'(A,E10.3,A)') "gmin=",gmin/autocm," states/cm-1"
@@ -560,7 +560,7 @@ c     **** animate at kq=<0,0,0> if no dispersion specified ****
       write(luout,*)
       call util_ascii_setwindow(emin*autocm,emax*autocm,nmin,nmax)
       !write(luout,'(A,F7.1,A)') "Nmax=",nmax," states"
-      call util_ascii_plotter("",luout,npoints,efn(1,1),efn(1,3),'*',
+      call util_ascii_plotter(" ",luout,npoints,efn(1,1),efn(1,3),'*',
      >                     "N(w) - Number of Vibrational States",
      >                     "w (cm-1)", "N(w) (states)")
       !write(luout,'(A,F7.1,A)') "Nmin=",nmin," states"

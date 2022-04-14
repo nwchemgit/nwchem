@@ -2512,6 +2512,7 @@ c        end if
       integer w1,n1,ks1,ia
       real*8  rcm(3),mtotal
 
+!$OMP DO
       do w1=1,nfrag
 c        ia = int_mb(kfrag(1)+w1-1)
 c        if (log_mb(incell_frag(1)+ia-1)) then
@@ -2521,6 +2522,7 @@ c        if (log_mb(incell_frag(1)+ia-1)) then
         call lattice_incell2_frag(rcm,n1,r1(1,ks1),r2(1,ks1))
 c        end if
       end do
+!$OMP END DO
       return
       end
 
@@ -2551,6 +2553,7 @@ c        end if
       real*8  rcm(3),mtotal
 
 
+!$OMP DO 
       do w1=1,nfrag
 c        ia = int_mb(kfrag(1)+w1-1)
 c        if (log_mb(incell_frag(1)+ia-1)) then
@@ -2560,6 +2563,7 @@ c        if (log_mb(incell_frag(1)+ia-1)) then
         call lattice_incell3_frag(rcm,n1,r1(1,ks1),r2(1,ks1),r3(1,ks1))
 c        end if
       end do
+!$OMP END DO
 
       return
       end

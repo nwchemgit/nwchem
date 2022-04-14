@@ -7,7 +7,7 @@
 c
 c     SSF original 0.64d0 value for polynomial function
 c
-#if defined(SGI)|| defined(WIN32) || defined(LINUX)|| defined(CRAY)
+#if defined(WIN32) || defined(LINUX)|| defined(CRAY)
       double precision derfc
 #ifdef PSCALE
       external derfc
@@ -20,7 +20,7 @@ c
      ,     alpha_erf2=1d0/0.28d0,
      ,     eps=0.002d0)	
       double precision erf1,erf2,taux,erfcc,erfcco,erf1c,erf2c
-#if defined(SGI)|| defined (WIN32)|| defined(LINUX)|| defined(CRAY)
+#if defined (WIN32)|| defined(LINUX)|| defined(CRAY)
       erf1(x)=0.5d0*derfc((x/(1d0-x*x))*alpha_erf1)
       erf2(x)=0.5d0*derfc((x/(1d0-x*x)**2)*alpha_erf2)
 #else

@@ -8,7 +8,7 @@
 *     ****************************************************
 *
       subroutine coulomb_screened_small_init(flag,rcut,pp)
-      implicit none 
+      logical sngle_prcsn
       integer flag
       real*8 rcut,pp
 
@@ -18,6 +18,10 @@
 *     **** common block used for coulomb.f ****
       integer vc_indx,vc_hndl
       common / vc_screened_small_block / vc_indx,vc_hndl
+
+      logical has_single
+      integer svc_indx,svc_hndl
+      common / svc_screened_small_block / svc_indx,svc_hndl,has_single
 
 *     **** local variables ****
       real*8 EPSILON
@@ -41,7 +45,10 @@ c      parameter (EPSILON=1.0d0)
       external util_erf,lattice_omega_small,lattice_unita_small
       external kiril_coulomb_transform, kiril_coulomb_transform0
       external control_attenuation
+      logical  control_single_precision_on
+      external control_single_precision_on
 
+      has_single = control_single_precision_on()
       if (flag.eq.2) then
          EPSILON = control_attenuation()
       else
@@ -61,6 +68,9 @@ c      parameter (EPSILON=1.0d0)
 
 *     **** allocate vc memory ****
       value = BA_alloc_get(mt_dbl,npack0,'vc',vc_hndl,vc_indx)
+      if (has_single) 
+     >   value = value.and.
+     >           BA_alloc_get(mt_real,npack0,'svc',svc_hndl,svc_indx)
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
 
       value = BA_push_get(mt_dcpl,nfft3d,'gk',gk(2),gk(1))
@@ -354,10 +364,16 @@ c            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
 *     **** common block used for coulomb.f ****
       integer vc_indx,vc_hndl
       common / vc_screened_small_block / vc_indx,vc_hndl
+
+      logical has_single
+      integer svc_indx,svc_hndl
+      common / svc_screened_small_block / svc_indx,svc_hndl,has_single
+
       logical value
 
       value = BA_free_heap(vc_hndl)
-      if (.not. value) 
+      if (has_single) value=value.and.BA_free_heap(svc_hndl)
+      if (.not.value) 
      >   call errquit('coulomb_screened_small_end: free heap',0,
      >                MA_ERR)
       return
@@ -388,6 +404,34 @@ c            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
 
       return 
       end
+
+*     ****************************************************
+*     *                                                  *
+*     *             coulomb_screened_small_s_v           *
+*     *                                                  *
+*     ****************************************************
+      subroutine coulomb_screened_small_s_v(dng,vc_out)
+      implicit none
+      complex dng(*)
+      complex vc_out(*)
+
+#include "bafdecls.fh"
+
+*     **** common block used for coulomb.f ****
+      logical has_single
+      integer svc_indx,svc_hndl
+      common / svc_screened_small_block / svc_indx,svc_hndl,has_single
+
+      call nwpw_timing_start(7)
+
+      call Packs_tc_Mul(2,real_mb(svc_indx),dng,vc_out)
+
+      call nwpw_timing_end(7)
+
+      return
+      end
+
+
 
 
 *     ****************************************************
@@ -441,6 +485,56 @@ c            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
 
 *     ****************************************************
 *     *                                                  *
+*     *             coulomb_screened_small_s_e           *
+*     *                                                  *
+*     ****************************************************
+      real function coulomb_screened_small_s_e(dng)
+      implicit none
+      complex dng(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** common block used for coulomb.f ****
+      logical has_single
+      integer svc_indx,svc_hndl
+      common / svc_screened_small_block / svc_indx,svc_hndl,has_single
+
+*     **** local variables ****
+      integer npack0
+      real ec
+
+      integer tmp1(2)
+      logical value
+
+*     **** external functions ****
+      real*8   lattice_omega_small
+      external lattice_omega_small
+
+      call nwpw_timing_start(7)
+
+      call Pack_npack(2,npack0)
+      value = BA_push_get(mt_real,npack0,'tmp1',tmp1(2),tmp1(1))
+      if (.not.value)
+     >call errquit('coulomb_screened_small_e:out stack',0,MA_ERR)
+
+      call Pack_ct_Sqr(2,dng,real_mb(tmp1(1)))
+      call Pack_tt_dot(2,real_mb(tmp1(1)),real_mb(svc_indx),ec)
+
+      ec = 0.50*ec*real(lattice_omega_small())
+
+      value = BA_pop_stack(tmp1(2))
+      if (.not.value)
+     >   call errquit('coulomb_screened_small_s_e:pop stack',1,MA_ERR)
+
+      call nwpw_timing_end(7)
+      coulomb_screened_small_s_e = ec
+      return
+      end
+
+
+*     ****************************************************
+*     *                                                  *
 *     *            icoulomb_screened_small_e             *
 *     *                                                  *
 *     ****************************************************
@@ -481,6 +575,52 @@ c            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
       icoulomb_screened_small_e = ec
       return
       end
+
+*     ****************************************************
+*     *                                                  *
+*     *            icoulomb_screened_small_s_e           *
+*     *                                                  *
+*     ****************************************************
+      real function icoulomb_screened_small_s_e(dng)
+      implicit none
+      complex dng(*)
+
+#include "bafdecls.fh"
+#include "errquit.fh"
+
+*     **** common block used for coulomb.f ****
+      logical has_single
+      integer svc_indx,svc_hndl
+      common / svc_screened_small_block / svc_indx,svc_hndl,has_single
+
+*     **** local variables ****
+      integer tmp1(2)
+      integer npack0
+      real ec
+
+*     **** external functions ****
+      real*8   lattice_omega_small
+      external lattice_omega_small
+
+      call nwpw_timing_start(7)
+      call Pack_npack(2,npack0)
+      if (.not.BA_push_get(mt_real,npack0,'tmp1',tmp1(2),tmp1(1)))
+     >   call errquit('icoulomb_screened_small_e:out stack',0,MA_ERR)
+
+      call Packs_ct_Sqr(2,dng,real_mb(tmp1(1)))
+      call Packs_tt_idot(2,real_mb(tmp1(1)),real_mb(svc_indx),ec)
+
+      ec = 0.5*ec*real(lattice_omega_small())
+
+      if (.not.BA_pop_stack(tmp1(2)))
+     >   call errquit('icoulomb_screened_small_e:pop stack',0,MA_ERR)
+      call nwpw_timing_end(7)
+
+      icoulomb_screened_small_s_e = ec
+      return
+      end
+
+
 
 
 

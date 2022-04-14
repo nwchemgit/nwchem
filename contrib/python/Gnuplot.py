@@ -56,9 +56,9 @@ Features:
     Builtin PlotItem types:
         
     * 'Data(array1)' -- data from a Python list or NumPy array
-                      (permits additional option 'cols' )
+                      (permits additional option 'cols')
     * 'File("filename")' -- data from an existing data file (permits
-                      additional option 'using' )
+                      additional option 'using')
     * 'Func("exp(4.0 * sin(x))")' -- functions (passed as a string
                       for gnuplot to evaluate)
     * 'GridData(m, x, y)' -- data tabulated on a grid of (x,y) values
@@ -245,7 +245,7 @@ class Func(PlotItem):
 
         gnuplot> plot sin(x)
 
-    The argument to the contructor is a string which is a expression.
+    The argument to the constructor is a string which is a expression.
     Example:
 
         g.plot(Func("sin(x)", with_="line 3"))
@@ -302,10 +302,10 @@ def write_array(f, set,
     A general recursive array writer.  The last four parameters allow a
     great deal of freedom in choosing the output format of the
     array.  The defaults for those parameters give output that is
-    gnuplot-readable.  But using, for example, ( ',', '{', '}', ',\\n'
-    ) would output an array in a format that Mathematica could
-    read.  item_sep should not contain '%' (or if it does, it should be
-    escaped to '%%' ) since item_sep is put into a format string.
+    gnuplot-readable.  But using, for example, ( ',', '{', '}', ',\\n')
+    would output an array in a format that Mathematica could read.
+    item_sep should not contain '%' (or if it does, it should be
+    escaped to '%%') since item_sep is put into a format string.
 
     """
 
@@ -398,7 +398,7 @@ class File(PlotItem):
         '<file>' can be either a string holding the filename of an
         existing file, or it can be an object of a class derived from
         'AnyFile' (such as a 'TempArrayFile').  Keyword arguments
-        recognized (in addition to those recognized by 'PlotItem' ):
+        recognized (in addition to those recognized by 'PlotItem'):
 
             'using=<n>' -- plot that column against line number
             'using=<tuple>' -- plot using a:b:c:d etc.
@@ -611,7 +611,7 @@ class Gnuplot:
               options; a string, which is plotted as a Func; or
               anything else, which is plotted as a Data.
     'hardcopy' -- replot the plot to a postscript file (if filename
-                  argument is specified) or pipe it to lpr othewise.
+                  argument is specified) or pipe it to lpr otherwise.
                   If the option `color' is set to true, then output
                   color postscript.
     'replot' -- replot the old items, adding any arguments as
@@ -769,7 +769,7 @@ class Gnuplot:
         'splot(item, ...)' -- Clear the current plot and create a new
                 3-d plot containing the specified items.  Arguments can
                 be of the following types:
-        'PlotItem' (e.g., 'Data', 'File', 'Func', 'GridData' ) -- This
+        'PlotItem' (e.g., 'Data', 'File', 'Func', 'GridData') -- This
                 is the most flexible way to call plot because the
                 PlotItems can contain suboptions.  Moreover, PlotItems
                 can be saved to variables so that their lifetime is

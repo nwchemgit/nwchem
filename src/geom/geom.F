@@ -555,6 +555,8 @@ c
       logical geom_check_handle, geom_rtdb_in, geom_get_user_scale
       external geom_check_handle, geom_rtdb_in, geom_get_user_scale
       logical getsym
+      double precision ddot
+      external ddot
 c     
       geom_rtdb_load = geom_check_handle(geom, 'geom_rtdb_load')
       if (.not. geom_rtdb_load) return
@@ -948,6 +950,8 @@ c
       logical geom_tag_to_element
       external geom_tag_to_element
       logical is_atom
+      double precision ddot
+      external ddot
       is_atom(i) = (.not. inp_compare(.false., 'bq', tags(i,geom)(1:2)))
 c
       e = 0.0d0
@@ -980,11 +984,7 @@ c
               rz = coords(3,i,geom)-coords(3,j,geom)
               rz = rz*rz
               r  = sqrt(rx+ry+rz)
-#ifdef FUJITSU_VPP
-              if (r > 1.d-10) e = e + charge(i,geom)*charge(j,geom)/r
-#else
               e = e + charge(i,geom)*charge(j,geom)/r
-#endif
             endif
          end do
       end do
@@ -2697,6 +2697,8 @@ c     external functions
      $     geom_print_zmatrix, geom_any_finuc
       double precision deter3
       external         deter3
+      double precision ddot
+      external ddot
 c
       if (.not. geom_check_handle(geom, 'geom_print')) then
          geom_print = .false.

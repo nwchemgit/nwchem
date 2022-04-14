@@ -62,7 +62,7 @@ write(6,*) xint(9)
 f0=enval(1)
 !!grad=(/1.d0,1.d0,1.d0/)
 grad=xgrad(:,1)
-agrad=sqrt(dot_product(grad,grad))
+agrad=norm2(grad)
 enval=(/(dot_product(grad,vtx(:,ii))+f0,ii=1,8)/)
 !
 !!enval=(/(0.5d0*(-1)**((ii-1)/1),ii=1,8)/)

@@ -27,8 +27,10 @@
 
 *     **** external functions ****
       logical  ion_chargeexist,ion_mmexist,psp_pawexist
-      integer  psi_ispin,psi_ne,psi_neq,control_version
       external ion_chargeexist,ion_mmexist,psp_pawexist
+      logical  control_Efield_on
+      external control_Efield_on
+      integer  psi_ispin,psi_ne,psi_neq,control_version
       external psi_ispin,psi_ne,psi_neq,control_version
 
 !$OMP MASTER
@@ -40,7 +42,9 @@
       ne(2) = psi_ne(2)
       neq(1) = psi_neq(1)
       neq(2) = psi_neq(2)
-      field_exist = ion_chargeexist().or.ion_mmexist()
+      field_exist = ion_chargeexist().or.
+     >              ion_mmexist()    .or.
+     >              control_Efield_on()
       confine_exist = .false.
 
 *     **** get nfft3d, and n2ft3d ****
@@ -352,6 +356,8 @@ c      end do
 c
 c      return
 c      end
+
+
  
 *     ***********************************
 *     *					*
@@ -399,6 +405,10 @@ c      end
       external psp_hartree_cmp_pw
       logical  pspw_V_APC_on
       external pspw_V_APC_on
+      integer  pspw_Efield_type
+      external pspw_Efield_type
+      real*8   dipole_Efield_e,dipole_Efield_p
+      external dipole_Efield_e,dipole_Efield_p
       
       call D3dB_nx(1,nx)
       call D3dB_ny(1,ny)
@@ -553,6 +563,11 @@ c     >                + eke_core + eion_core
          total_energy = total_energy + eapc - papc
       end if
 
+*     **** get pspw_charge and pspw_Efield energies ****
+      if ((field_exist).and.(pspw_Efield_type().eq.0)) then
+         total_energy=total_energy+dipole_Efield_e()-dipole_Efield_p()
+      end if
+
 
 *     **** total energy ****
       electron_energy = total_energy
@@ -614,6 +629,184 @@ c     >                + eke_core + eion_core
 
       return
       end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *    electron_energy_remainder    *
+*     *                                 *
+*     ***********************************
+      real*8 function electron_energy_remainder(psi_k,dn,dng,dnall)
+      implicit none
+      complex*16 psi_k(*)
+      real*8     dn(*)
+      complex*16 dng(*)
+      real*8     dnall(*)
+
+#include "bafdecls.fh"
+#include "electron_common.fh"
+
+
+*     **** local variables ****
+      integer n2ft3d
+      integer ii,ms,n1(2),n2(2),nx,ny,nz
+      real*8  sum,eorbit,ehartr,exc,pxc,exc2,pxc2,dv,eion_core
+      real*8  ehartree_atom,ecmp_cmp,ecmp_pw,exc_atom,pxc_atom,eke_core
+      real*8  total_energy
+
+      real*8 e1,e2
+      common /eenergy_tmp_common/ e1,e2
+
+
+*     **** external functions *****
+      logical  pspw_SIC,pspw_SIC_relaxed,psp_U_psputerm,psp_pawexist
+      logical  pspw_HFX,pspw_HFX_relaxed,meta_found,nwpw_meta_gga_on
+      integer  control_version
+      real*8   lattice_omega,coulomb_e,electron_ehartree2
+      real*8   nwpw_meta_gga_pxc,psp_kinetic_core,psp_ion_core
+      real*8   psp_hartree_atom,psp_hartree_cmp_cmp
+      real*8   psp_hartree_cmp_pw
+      external pspw_SIC,pspw_SIC_relaxed,psp_U_psputerm,psp_pawexist
+      external pspw_HFX,pspw_HFX_relaxed,meta_found,nwpw_meta_gga_on
+      external control_version
+      external lattice_omega,coulomb_e,electron_ehartree2
+      external nwpw_meta_gga_pxc,psp_kinetic_core,psp_ion_core
+      external psp_hartree_atom,psp_hartree_cmp_cmp
+      external psp_hartree_cmp_pw
+      logical  pspw_V_APC_on
+      external pspw_V_APC_on
+      integer  pspw_Efield_type
+      external pspw_Efield_type
+      real*8   dipole_Efield_e,dipole_Efield_p
+      external dipole_Efield_e,dipole_Efield_p
+
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+
+
+      dv = lattice_omega()/dble(nx*ny*nz)
+
+      n2ft3d = 2*nfft3d
+      n1(1) = 1
+      n1(2) = neq(1) + 1
+      n2(1) = neq(1)
+      n2(2) = neq(1) + neq(2)
+
+
+*     *** get orbital energies - zero out eorbit ****
+      eorbit = 0.0d0 
+
+*     **** get coulomb energy ****
+      ehartr = 0.0d0
+      if (control_version().eq.3) ehartr = coulomb_e(dng)
+      if (control_version().eq.4) ehartr = electron_ehartree2(dn)
+
+*     **** get exchange-correlation energy ****
+      call D3dB_rr_dot(1,dnall(1),
+     >                dbl_mb(xce(1)),
+     >                e1)
+      call D3dB_rr_dot(1,dn(1),
+     >                 dbl_mb(xcp(1)),
+     .                 e2)
+      exc = e1
+      pxc = e2
+      if (ispin.eq.1) then
+         exc= exc + exc
+         pxc= pxc + pxc
+      else
+         call D3dB_rr_dot(1,dnall(1+n2ft3d),
+     >                    dbl_mb(xce(1)),
+     >                    e1)
+         call D3dB_rr_dot(1,dn(1+n2ft3d),
+     >                    dbl_mb(xcp(1)+n2ft3d),
+     >                    e2)
+         exc2 = e1
+         pxc2 = e2
+         exc = exc + exc2
+         pxc = pxc + pxc2
+      end if
+      exc = exc*dv
+      pxc = pxc*dv
+
+*     **** meta_GGA energy ****
+      if (nwpw_meta_gga_on()) then
+         pxc = pxc + nwpw_meta_gga_pxc(ispin,neq,psi_k)
+      end if
+
+      total_energy = eorbit + exc - ehartr - pxc
+
+
+
+*     **** PAW ee terms ****
+      if (psp_pawexist()) then
+         eke_core      = psp_kinetic_core()
+         eion_core     = psp_ion_core()
+         ehartree_atom = psp_hartree_atom(ispin,neq,psi_k)
+         ecmp_cmp      = psp_hartree_cmp_cmp(ispin)
+         ecmp_pw       = psp_hartree_cmp_pw(ispin,dng,dn)
+         call psp_xc_atom(ispin,neq,psi_k,exc_atom,pxc_atom)
+
+         total_energy = total_energy + exc_atom - pxc_atom
+     >                - ehartree_atom - ecmp_cmp - ecmp_pw
+c     >                + eke_core + eion_core
+      end if
+
+*     **** SIC corrections ****
+      if (pspw_SIC()) then
+      if (pspw_SIC_relaxed()) then
+         call pspw_energy_SIC(ispin,dbl_mb(psi_r(1)),
+     >                        ehsic,
+     >                        phsic,
+     >                        exsic,
+     >                        pxsic)
+         total_energy = total_energy + ehsic + exsic - phsic - pxsic
+      end if
+      end if
+
+*     **** HFX energy ****
+      if (pspw_HFX()) then
+      if (pspw_HFX_relaxed()) then
+         call pspw_energy_HFX(ispin,dbl_mb(psi_r(1)),
+     >                        ehfx,
+     >                        phfx)
+         total_energy = total_energy + ehfx - phfx
+      end if
+      end if
+
+*     **** DFT+U energy ****
+      if (psp_U_psputerm()) then
+         call psp_U_psputerm_energy(edftu,pdftu)
+         total_energy = total_energy + edftu - pdftu
+      end if
+
+
+*     **** metadynamics energy ****
+      if (meta_found()) then
+         call meta_energypotential(ispin,neq,psi_k,emeta,pmeta)
+         total_energy = total_energy + emeta - pmeta
+      end if
+
+*     **** APC energy ****
+      if (pspw_V_APC_on()) then
+         call pspw_E_APC(eapc,papc)
+         total_energy = total_energy + eapc - papc
+      end if
+
+*     **** get pspw_charge and pspw_Efield energies ****
+      if ((field_exist).and.(pspw_Efield_type().eq.0)) then
+         total_energy=total_energy+dipole_Efield_e()-dipole_Efield_p()
+      end if
+
+
+*     **** total energy ****
+      electron_energy_remainder = total_energy
+
+      return
+      end
+
+
 
 
 *     ***********************************
@@ -2486,7 +2679,7 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
       logical value
       integer n2ft3d,gga
       integer tmp1(2),r_grid(2)
-      real*8  gmma
+      real*8  gmma,ftmp(3)
 
 *     **** external functions ****
       integer  control_gga,control_version
@@ -2528,15 +2721,21 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
      >                      1,MA_ERR)
          end if
 
-         if (pspw_V_APC_on()) then
-            call electron_gen_vl_potential()
-            call pspw_V_APC(ispin,ne,dng,dcpl_mb(vl(1)),eapc,papc)
-         end if
+c         if (pspw_V_APC_on()) then
+c            call electron_gen_vl_potential()
+c            call pspw_V_APC(ispin,ne,dng,dcpl_mb(vl(1)),eapc,papc)
+c         end if
 
          value = BA_pop_stack(tmp1(2)) 
          if (.not. value) call errquit(
      >   'electron_gen_scf_potentials: error popping stack memory',0,
      >       MA_ERR)
+      end if
+
+      if (pspw_V_APC_on()) then
+         call electron_gen_vl_potential()
+         call pspw_V_APC(ispin,ne,dng,dcpl_mb(vl(1)),eapc,papc,
+     >                   .false.,ftmp)
       end if
 
 *    **** xc potential ****
@@ -2608,11 +2807,12 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
       integer r_grid(2)
 
 *     **** external functions *****
-      logical  pspw_charge_found
-      external pspw_charge_found
+      logical  pspw_charge_found,pspw_Efield_found
+      external pspw_charge_found,pspw_Efield_found
       integer  control_version
       external control_version
 
+      field_exist = pspw_charge_found().or.pspw_Efield_found()
       value = BA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1)) 
       value = value.and.
      >        BA_push_get(mt_dbl,(3),'tmp2',tmp2(2),tmp2(1))
@@ -2634,8 +2834,7 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
      &       MA_ERR)
 
 *     **** generate real-space fields ****
-      if ((control_version().eq.4).or.
-     >    (pspw_charge_found()))    then
+      if ((control_version().eq.4).or.field_exist) then
 
          value = BA_push_get(mt_dbl,(6*nfft3d),'r_grid',
      >                       r_grid(2),r_grid(1)) 
@@ -2653,13 +2852,18 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
          call Parallel_shared_vector_zero(.true.,
      >               2*nfft3d,dbl_mb(v_field(1)))
 
-*        **** generate charge potential ****
-         if (pspw_charge_found()) then
+*        **** generate other realspace fields ****
+         if (field_exist) then
            field_exist = .true.
            n2ft3d = 2*nfft3d
+*          **** generate charge potential ****
            call pspw_charge_Generate_V(n2ft3d,
      >                                 dbl_mb(r_grid(1)),
      >                                 dbl_mb(v_field(1)))
+*          **** generate Efield potential ****
+           call pspw_Efield_Generate_V(n2ft3d,
+     >                                    dbl_mb(r_grid(1)),
+     >                                    dbl_mb(v_field(1)))
          end if
 
          value = BA_pop_stack(r_grid(2))

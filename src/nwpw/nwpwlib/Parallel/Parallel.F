@@ -629,6 +629,67 @@ c     **** external functions ****
       end 
 
 
+*     *************************************
+*     *                                   *
+*     *    Parallel_shared_vector_scopy   *
+*     *                                   *
+*     *************************************
+      subroutine Parallel_shared_vector_scopy(barrier,n,a,b)
+      implicit none
+      logical barrier
+      integer n
+      real a(*),b(*)
+
+#ifdef USE_OPENMP
+      integer nbig,tid,nthr,nsz,istart
+      parameter (nbig=1000)
+
+c     **** external functions ****
+      integer  Parallel_nthreads,Parallel_threadid
+      external Parallel_nthreads,Parallel_threadid
+
+      nthr = Parallel_nthreads()
+      if (nthr.eq.1) then
+         call scopy(n,a,1,b,1)
+      else
+
+         if (n.gt.nbig) then
+            tid    = Parallel_threadid()
+            istart = 1 + tid*(n/nthr)
+            if (tid.eq.(nthr-1)) then
+               nsz = n/nthr + mod(n,nthr)
+            else
+               nsz = n/nthr
+            end if
+            if (barrier) then
+               call scopy(nsz,a(istart),1,b(istart),1)
+!$OMP BARRIER
+            else
+               call scopy(nsz,a(istart),1,b(istart),1)
+            end if
+
+         else
+            if (barrier) then
+!$OMP MASTER
+               call scopy(n,a,1,b,1)
+!$OMP END MASTER
+!$OMP BARRIER
+            else
+!$OMP MASTER
+               call scopy(n,a,1,b,1)
+!$OMP END MASTER
+            end if
+         end if
+      end if
+#else
+      call scopy(n,a,1,b,1)
+#endif
+      return
+      end
+
+
+
+
 
 *     *************************************
 *     *                                   *
@@ -749,6 +810,65 @@ c     **** external functions ****
       return
       end 
 
+*     *************************************
+*     *                                   *
+*     *    Parallel_shared_vector_szero   *
+*     *                                   *
+*     *************************************
+      subroutine Parallel_shared_vector_szero(barrier,n,b)
+      implicit none
+      logical barrier
+      integer n
+      real b(*)
+
+#ifdef USE_OPENMP
+      integer nbig,tid,nthr,nsz,istart
+      parameter (nbig=1000)
+
+c     **** external functions ****
+      integer  Parallel_nthreads,Parallel_threadid
+      external Parallel_nthreads,Parallel_threadid
+
+      nthr = Parallel_nthreads()
+      if (nthr.eq.1) then
+         call scopy(n,0.0,0,b,1)
+      else
+
+         if (n.gt.nbig) then
+            tid    = Parallel_threadid()
+            istart = 1 + tid*(n/nthr)
+            if (tid.eq.(nthr-1)) then
+               nsz = n/nthr + mod(n,nthr)
+            else
+               nsz = n/nthr
+            end if
+            if (barrier) then
+               call scopy(nsz,0.0,0,b(istart),1)
+!$OMP BARRIER
+            else
+               call scopy(nsz,0.0,0,b(istart),1)
+            end if
+
+         else
+            if (barrier) then
+!$OMP MASTER
+               call scopy(n,0.0,0,b,1)
+!$OMP END MASTER
+!$OMP BARRIER
+            else
+!$OMP MASTER
+               call scopy(n,0.0,0,b,1)
+!$OMP END MASTER
+            end if
+         end if
+      end if
+#else
+      call scopy(n,0.0,0,b,1)
+#endif
+      return
+      end
+
+
 
 *     *************************************
 *     *                                   *
@@ -852,6 +972,41 @@ c     **** external functions ****
       return
       end
 
+
+*     *************************************
+*     *                                   *
+*     *        Parallel_shared_scopy      *
+*     *                                   *
+*     *************************************
+      subroutine Parallel_shared_scopy(barrier,a,b)
+      implicit none
+      logical barrier
+      real a,b
+
+#ifdef USE_OPENMP
+c     **** external functions ****
+      integer  Parallel_nthreads
+      external Parallel_nthreads
+
+      if (Parallel_nthreads().eq.1) then
+         b = a
+      else
+         if (barrier) then
+!$OMP MASTER
+            b = a
+!$OMP END MASTER
+!$OMP BARRIER
+         else
+!$OMP MASTER
+            b = a
+!$OMP END MASTER
+         end if
+      end if
+#else
+      b = a
+#endif
+      return
+      end
 
 *     *************************************
 *     *                                   *

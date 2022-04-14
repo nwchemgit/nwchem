@@ -190,7 +190,7 @@ do ii=1,3
   pln(1)=blat(jj,2)*blat(kk,3)-blat(jj,3)*blat(kk,2)
   pln(2)=-blat(jj,1)*blat(kk,3)+blat(jj,3)*blat(kk,1)
   pln(3)=blat(jj,1)*blat(kk,2)-blat(jj,2)*blat(kk,1)
-  dist(ii)=dot_product(gamma,pln)/sqrt(dot_product(pln,pln))
+  dist(ii)=dot_product(gamma,pln)/norm2(pln)
 enddo
 gfo=minval(dist)
 
@@ -809,7 +809,7 @@ do ibp=test_bands_se(1),test_bands_se(2)
             do jj=1,3
               bgrad=bgrad+(evtx(jj+1)-evtx(1))*rgc(:,jj)
             enddo
-            xmult=1.d0/sqrt(dot_product(bgrad,bgrad))
+            xmult=1.d0/norm2(bgrad)
 ! DEBUG
 !cdum = 0.d0
 ! DEBUG

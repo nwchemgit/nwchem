@@ -41,7 +41,7 @@
       real*8  dipole(3)
 
 *     ***** energy variables ****
-      real*8  E(30)
+      real*8  E(60)
 
 
 *     **** psi smearing block ****

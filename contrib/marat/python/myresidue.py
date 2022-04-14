@@ -26,7 +26,7 @@ class MyResidue:
             
     def AddAtom(self,a1):
         self.atoms.append(a1)
-        print self.atoms
+        print(self.atoms)
             
 if __name__ == '__main__':
     res0 = MyResidue("test")
@@ -36,9 +36,9 @@ if __name__ == '__main__':
     try:
         b = Atom.fromPDBrecord(aline1)
     except SystemExit:
-        print "error reading PDB line"
+        print("error reading PDB line")
         sys.exit(1)
     res0.AddAtom(b)
 #    a = Atom.fromPDBrecord(aline2)
 #    sim0.AddAtom(a)
-    print res0
+    print(res0)

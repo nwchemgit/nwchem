@@ -48,7 +48,7 @@ class Residue:
             self.name = a.resname
         else:
             if a.resname != self.name:
-                print "different names for the same residue index"
+                print("different names for the same residue index")
                 sys.exit(1)                             
         self.atoms.append(a)
         
@@ -61,4 +61,4 @@ if __name__ == '__main__':
     b = ResAtom.fromPDBrecord(aline1)
     res0.AddAtom(a)
     res0.AddAtom(b)
-    print res0.toPDBrecord(id_atom=4)
+    print(res0.toPDBrecord(id_atom=4))

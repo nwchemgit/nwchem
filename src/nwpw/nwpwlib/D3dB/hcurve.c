@@ -133,8 +133,8 @@ Rect_Type *felds(int xm, int ym){
 	if (bfeld[xm+nx1*ym]) {return &feld[xm+nx1*ym];} else {
 		r = &feld[xm+nx1*ym]; bfeld[xm+nx1*ym]=1;
         r->x=xm; r->y=ym; xn=xm/2; yn=ym/2; r->g=xm*ym;
-        if (xn==(xn/2)*2) {xn= xm -xn;};
-        if (yn==(yn/2)*2) {yn= ym -yn;};
+        if (xn==(xn/2)*2) {xn= xm-xn;};
+        if (yn==(yn/2)*2) {yn= ym-yn;};
         if ((xm-xn)*(ym-yn)==0) {r->h=xm*ym-1;
         if (xm*ym==0) {r->h+=1;};
         r->lo = felds(0,0); r->ro = felds(0,0);
@@ -167,7 +167,7 @@ Rect_Type *felds(int xm, int ym){
          if ((xm == 3) && ((2*(yn/2)) == yn) && ((2*yn) == ym)) {
           r->h = r->h - r->lu->h +1;
         }}
-        if ((2*r->lo->x == xm) && (2*r->lo->y != ym)) {
+        if ((2*(r->lo->x) == xm) && (2*(r->lo->y) != ym)) {
          r->sp = felds(ym,xm);
          r->h = r->sp->g - r->sp->h;
         }
@@ -187,8 +187,18 @@ Integer     map[];
 
 	nx = *sizex_ptr;
 	ny = *sizey_ptr;
-	nx1 = nx+1;
-	ny1 = ny+1;
+
+     	//nx1 = nx+1;
+     	//ny1 = ny+1;
+	//nx1 = 257;
+	//ny1 = 257;
+        if (nx>=ny) {
+     	   nx1 = nx+1;
+  	   ny1 = nx+1;
+        } else {
+     	   nx1 = ny+1;
+  	   ny1 = ny+1;
+        }
 
 	bfel  = (int *) malloc(2*nx1*sizeof(int));
 	bfeld = (int *) malloc(2*nx1*ny1*sizeof(int));
@@ -205,6 +215,7 @@ Integer     map[];
 		jj = ycor(r,i);
 		map[ii+nx*jj] = i;
 	}
+
 	free(feld);
 	free(fel);
 	free(bfeld);

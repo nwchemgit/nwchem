@@ -18,7 +18,7 @@ c
 c
       integer nbf               ! No. of functions in basis
       integer g_dens
-      character*255  filename
+      character*(*)  filename
 c
       integer ok
       integer l_dens, k_dens

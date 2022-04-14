@@ -85,6 +85,8 @@ c
       integer info
 c
       integer i,j,i1
+      double precision ddot
+      external ddot
 c
 c     Prepare arrays for diagonalization
 c

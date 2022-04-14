@@ -33,7 +33,7 @@ c     Code
      +    calc_type)) 
      +  call errquit(pname//'failed to set calc_type_save',0,RTDB_ERR)
 c
-      call int_init(rtdb,1,ihdl_bfao)
+c      call int_init(rtdb,1,ihdl_bfao)
       call schwarz_init(ihdl_geom,ihdl_bfao)
       call scf_get_fock_param(rtdb,tol2e)
 c

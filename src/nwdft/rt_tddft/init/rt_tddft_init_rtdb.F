@@ -106,7 +106,12 @@ c$$$     $     "failed to read nsnapshots from rtdb", 0, RTDB_ERR)
          if (.not. rtdb_get (params%rtdb, "rt_tddft:viz_treference",
      $        mt_dbl, 1, params%viz_treference)) call errquit (pname//
      $        "failed to read viz_treference from rtdb", 0, RTDB_ERR)
-
+      else
+         params%viz_dplot=.false.
+         params%viz_subgs=.false.
+         params%viz_treference=0d0
+         params%viz_tstart=0d0
+         params%viz_tend=0d0
       endif
          
       if (.not.rtdb_get(params%rtdb, "rt_tddft:print_dipole",

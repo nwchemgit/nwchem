@@ -32,6 +32,8 @@ c
       integer nxtask
       external nxtask
       logical nodezero
+      double precision ddot
+      external ddot
 c
 c     new
 c
@@ -208,6 +210,8 @@ c
       integer nxtask
       external nxtask
       logical nodezero
+      double precision ddot
+      external ddot
 c
 c     new
 c

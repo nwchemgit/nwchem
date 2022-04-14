@@ -51,8 +51,8 @@
       external control_pfft3_qsize
       external lattice_ggcut,lattice_wggcut,lattice_unitg
       external lattice_unitg_small
-      logical  lattice_has_small
-      external lattice_has_small
+      logical  lattice_has_small,control_single_precision_on
+      external lattice_has_small,control_single_precision_on
 
 
 
@@ -454,6 +454,8 @@
       end if
 
       call D3dB_pfft3_queue_init(control_pfft3_qsize())
+      if (control_single_precision_on())
+     >   call D3dBs_pfft3_queue_init(control_pfft3_qsize())
 
       return
       end
@@ -513,8 +515,8 @@
 
       logical value,has_small
       integer i
-      logical  lattice_has_small
-      external lattice_has_small
+      logical  lattice_has_small,control_single_precision_on
+      external lattice_has_small,control_single_precision_on
 
       has_small = lattice_has_small()
 
@@ -616,6 +618,9 @@
      > call errquit('D3dB_pfft_end:error freeing heap',0,MA_ERR)
 
       call D3dB_pfft3_queue_end()
+
+      if (control_single_precision_on())
+     >   call D3dBs_pfft3_queue_end()
       return
       end
 

@@ -1358,11 +1358,7 @@ c-----------------------------------------------------
      &      icheck
       endif
 c-----------------------------------------------------
-#ifdef SGITFP
-      ncache=64    ! result of tuning on c12h14 6-31g*
-#else
-      ncache=32    ! Punt
-#endif
+      ncache=32
       if (rtdb_get(rtdb,'int:txs:ncache',MT_INT,1,int_tmp)) then
         ncache = int_tmp
         if (ga_nodeid().eq.0)

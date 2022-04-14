@@ -75,12 +75,12 @@ end
 
 task dft gradient
 
-title "XC ft97 "
-dft
-XC ft97
-end
-
-task dft gradient
+#title "XC ft97 "
+#dft
+#XC ft97
+#end
+#
+#task dft gradient
 
 title "XC BOP "
 dft

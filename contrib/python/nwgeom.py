@@ -57,7 +57,7 @@ def geom_set_coords(name,coords):
 
 def bond_length(i,j):  # atoms numbered 1,2,...
   #
-  # Return the distance betwen atoms i and j in user
+  # Return the distance between atoms i and j in user
   # units in the default geometry
   #
   coords = geom_get_coords('geometry')

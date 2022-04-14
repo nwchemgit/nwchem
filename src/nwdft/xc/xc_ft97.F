@@ -258,10 +258,22 @@ C     BETA   : Beta(sigma), eq.(16a) for variant B.
       IF(VARIA) THEN
         BETA = BETAA
       ELSE
-        BETA = BETA0+AX*AMA/(BX*BX+AMA)
+         if(ama.gt.tol_rho**2) then
+            BETA = BETA0+AX*AMA/(BX*BX+AMA)
+         else
+            BETA = BETA0
+         endif
       ENDIF
 C     XALPHA : Reduced density gradient xi(sigma), below eq.(11).
-      XALPHA = (AMA/(RHOA*RHOA13)**2)
+      IF(RHOA.LT.tol_rho) THEN
+         FT97 = 0d0
+         corrai=0d0
+      else
+         if(ama.gt.tol_rho**2) then
+            XALPHA = (AMA/(RHOA*RHOA13)**2)
+         else
+            XALPHA = 0d0
+         endif
 C     DENOMA : Denominator in f(xi), eqs. (15) and (16).
       SINHIA = LOG(XALPHA+SQRT(XALPHA*XALPHA+1.0D0))
       DENOMA = SQRT(1.0D0+9.D0*(BETA**2)*XALPHA*(SINHIA**2))
@@ -269,12 +281,23 @@ C     CORRAI : Nonlocal correction to exchange energy density ex.
 C     CORRAI : See eqs.(9),(11),(15) and (16).
 C     CORRAI : Part of integrand in eq.(11) beyond ex(LDA).
       CORRAI =-RHOA*RHOA13*BETA*XALPHA/DENOMA
+      endif
       IF(UHF) THEN
          IF(RHOB.LT.tol_rho) THEN
             FT97   = CORRAI
          ELSE
-            IF(.NOT.VARIA) BETA = BETA0+AX*AMB/(BX*BX+AMB)
-            XBETA  = (AMB/(RHOB*RHOB13)**2)
+            IF(.NOT.VARIA) then
+               if(amb.gt.tol_rho**2) then
+                  BETA = BETA0+AX*AMB/(BX*BX+AMB)
+               else
+                  BETA = BETA0
+               endif
+            endif
+            if(amb.gt.tol_rho**2) then
+               XBETA  = (AMB/(RHOB*RHOB13)**2)
+            else
+               XBETA = 0d0
+            endif
             SINHIB = LOG(XBETA+SQRT(XBETA*XBETA+1.0D0))
             DENOMB = SQRT(1.0D0+9.D0*BETA**2*XBETA*SINHIB**2)
             CORRBI =-BETA*RHOB*RHOB13*XBETA/DENOMB

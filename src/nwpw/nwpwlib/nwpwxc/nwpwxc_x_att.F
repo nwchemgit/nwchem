@@ -10,9 +10,6 @@ C> @}
 C>
 C> \ingroup nwpwxc_priv
 C> @{
-#if defined(FUJITSU_VPP)
-!ocl scalar
-#endif
 #ifndef SECOND_DERIV
       Subroutine nwpwxc_x_att(param,tol_rho,rho,ipol,Ex,Amat,Cmat)
 #else

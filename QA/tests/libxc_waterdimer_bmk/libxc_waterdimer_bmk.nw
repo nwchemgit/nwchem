@@ -1,0 +1,57 @@
+echo
+start w2_mbk
+#https://theochem.weizmann.ac.il/web/papers/BMK/hbonds.txt
+geometry w2
+O    -0.06669458    -1.51548186     0.00000000
+H     0.81006678    -1.89582288     0.00000000
+H     0.06441562    -0.55983810     0.00000000
+O     0.05688431     1.38863235     0.00000000
+H    -0.41923751     1.71488519    -0.76387049
+H    -0.41923751     1.71488519     0.76387049
+end
+geometry w1
+  O   0.06178101    -1.39076908     0.00000000
+  H  -0.41362063    -1.71843908    -0.76373356
+  H  -0.41362063    -1.71843908     0.76373356
+end
+
+basis spherical
+* library aug-pc-2
+bqH library H aug-pc-2
+bqO library O aug-pc-2
+end
+
+driver
+clear
+tight
+end
+
+dft
+direct
+grid xfine
+convergence energy 1d-9
+tolerances acccoul 14
+xc GGA_C_BMK  HYB_MGGA_X_BMK
+noprint "final vectors analysis" multipole
+end
+set geometry w1
+set lindep:n_dep 0
+set grid:eaf_size_in_dbl              9304257
+task dft optimize ignore
+
+driver
+clear
+tight
+maxiter 40
+eprec 1d-7
+end
+
+set geometry w2
+task dft optimize ignore
+bsse
+mon first 1 2 3
+mon second 4 5 6
+end
+
+task dft optimize
+

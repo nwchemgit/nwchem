@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # $Id$
 #
@@ -35,7 +35,6 @@ fi
 ./runtests.mpi.unix procs $np cosmo_trichloroethene esp esp_uhf
 ./runtests.mpi.unix procs $np dft_bsse dft_bsse_d3 dft_bsse_d3_opt bsse_dft_trimer bsse_tce_mult
 PERMANENT_DIR=`pwd`/testoutputs ./runtests.mpi.unix procs $np dft_hess_start dft_hess_rest
-./runtests.mpi.unix procs $np h2o_selci
 ./runtests.mpi.unix procs $np c4h4_wfn
 ./runtests.mpi.unix procs $np disp_dimer_ch4 disp_dimer_ch4_cgmin h2o-b3lyp-disp
 ./runtests.mpi.unix procs $np cosmo_h2cco2 cosmo_h2cco2mg cosmo_h2cco2mg_ecp
@@ -81,13 +80,9 @@ np_small=$(get_limit $np 32)
 ./runtests.mpi.unix procs $np_small pspw
 ./runtests.mpi.unix procs $np pspw_SiC
 ./runtests.mpi.unix procs $np pspw_blyp_h2o
-./runtests.mpi.unix procs $np pspw_vs98_h2o
 ./runtests.mpi.unix procs $np pspw_revpbe_h2o
 ./runtests.mpi.unix procs $np pspw_pbesol_h2o
-./runtests.mpi.unix procs $np pspw_pbe0_h2o
-./runtests.mpi.unix procs $np pspw_hse_h2o
 ./runtests.mpi.unix procs $np pspw_tpss03_h2o
-./runtests.mpi.unix procs $np pspw_scan_h2o
 ./runtests.mpi.unix procs $np pspw_acm_h2o
 ./runtests.mpi.unix procs $np pspw_becke97_h2o
 ./runtests.mpi.unix procs $np pspw_becke98_h2o
@@ -98,8 +93,10 @@ np_small=$(get_limit $np 32)
 ./runtests.mpi.unix procs $np pspw_mpw1k_h2o 
 ./runtests.mpi.unix procs $np pspw_sogga_h2o
 ./runtests.mpi.unix procs $np pspw_sogga11-x_h2o
-./runtests.mpi.unix procs $np pspw_b3lyp_h2o
 ./runtests.mpi.unix procs $np pspw_beef_h2o
+./runtests.mpi.unix procs $np pspw_b3lyp_h2o
+./runtests.mpi.unix procs $np pspw_pbe0_h2o
+./runtests.mpi.unix procs $np pspw_hse_h2o
 np_small=$(get_limit $np 64)
 ./runtests.mpi.unix procs $np_small pspw_md
 ./runtests.mpi.unix procs $np_small paw
@@ -131,6 +128,7 @@ np_small=$(get_limit $np 64)
 ./runtests.mpi.unix procs $np tce_eomsd_eomsol1
 ./runtests.mpi.unix procs $np tce_cc2_c2
 ./runtests.mpi.unix procs $np ducc_be
+./runtests.mpi.unix procs $np n2_ccsdtoks
 #./runtests.mpi.unix procs $np li2h2_tce_ccsd # always hangs
 if [[ ! -z "$MRCC_METHODS" ]]; then
 #  if ( "x$MRCC_METHODS" == "xy" ) then
@@ -160,7 +158,6 @@ fi
 np_small=$(get_limit $np 32)
 ./runtests.mpi.unix procs $np_small oniom4
 ./runtests.mpi.unix procs $np c60_ecp
-./runtests.mpi.unix procs $np h2o_vscf
 #
 # pure zora energy tests
 #
@@ -168,6 +165,16 @@ np_small=$(get_limit $np 32)
 ./runtests.mpi.unix procs $np xe_zora_sf
 ./runtests.mpi.unix procs $np o2_zora_so
 ./runtests.mpi.unix procs $np hi_zora_so
+# zora mp
+./runtests.mpi.unix procs $np au-sarc-zora-mp
+./runtests.mpi.unix procs $np au2-sarc-zora-mp
+./runtests.mpi.unix procs $np au2-sarc-zora-spinspin
+./runtests.mpi.unix procs $np ch3radical_rot_mp
+./runtests.mpi.unix procs $np ch3radical_unrot_mp
+./runtests.mpi.unix procs $np cs-ano-uncontr-so
+./runtests.mpi.unix procs $np cs-ano-uncontr
+./runtests.mpi.unix procs $np xe-zora-mp-so
+./runtests.mpi.unix procs $np xe-zora-mp
 #
 # qmmm tests
 #./runtests.mpi.unix procs $np asa_qmmm
@@ -175,7 +182,6 @@ np_small=$(get_limit $np 8)
 ./runtests.mpi.unix procs $np_small qmmm_grad0
 ./runtests.mpi.unix procs $np_small lys_qmmm
 ./runtests.mpi.unix procs $np_small ethane_qmmm
-./runtests.mpi.unix procs $np qmmm_opt0
 echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $np qmmm_freq
 #
@@ -267,7 +273,6 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $np h2o2-response-uhf-damping
 #
 #--- other tests
-./runtests.mpi.unix procs $np mep-test
 ./runtests.mpi.unix procs $np pkzb
 ./runtests.mpi.unix procs $np k6h2o
 np_small=$(get_limit $np 16)
@@ -310,8 +315,21 @@ np_small=$(get_limit $np 16)
 ./runtests.mpi.unix procs $np dft_rscan
 ./runtests.mpi.unix procs $np dft_scan
 ./runtests.mpi.unix procs $np rt_tddft_dimer_charge
+./runtests.mpi.unix procs $np rt_tddft_mocap
 ./runtests.mpi.unix procs $np dft_ne_n12
+./runtests.mpi.unix procs $np dft_mfm_ch3
 #
+#libxc
+./dolibxctests.mpi $np
+#ritddft
+./runtests.mpi.unix procs $np  ritddft_co
+./runtests.mpi.unix procs $np  ritddft_h2o
+./runtests.mpi.unix procs $np  ritddft_pyridine
+# GW
+./runtests.mpi.unix procs $np gw_closedshell
+./runtests.mpi.unix procs $np gw_openshell
+# x2c
+./runtests.mpi.unix procs $np x2c-h2se
 #--- if we only want quick tests get out now!
 if [[ "$what" == "fast" ]]; then
   exit
@@ -320,7 +338,15 @@ fi
 #---   long  may not run on workstations
 # new xc functionals for 7.0.0
 ./runtests.mpi.unix procs $np dft_scanl
+./runtests.mpi.unix procs $np dft_he2p_wb97
+./runtests.mpi.unix procs $np dft_ne2p_wb97x
+./runtests.mpi.unix procs $np dft_ar2p_wb97
+./runtests.mpi.unix procs $np dft_waterdimer_wb97d3
+./runtests.mpi.unix procs $np dft_s66x8_waterdimer
+./runtests.mpi.unix procs $np dft_c2br6_vdw4
 #
+./runtests.mpi.unix procs $np ccsdt_ompt_w3pvdz
+./runtests.mpi.unix procs $np ccsdt_w3pvdz
 ./runtests.mpi.unix procs $np aump2 
 ./runtests.mpi.unix procs $np n2_ccsd 
 ./runtests.mpi.unix procs $np benzene_ccsd 
@@ -337,16 +363,29 @@ fi
 ./runtests.mpi.unix procs $np tce_active_ccsdt
 ./runtests.mpi.unix procs $np tce_uracil_creomact
 ./runtests.mpi.unix procs $np tce_eomsd_eomsol2
+./runtests.mpi.unix procs $np tddftgrad_pyridine_opt 
+./runtests.mpi.unix procs $np tddftgrad_phenoxy_radical
+./runtests.mpi.unix procs $np  qmd_props
 echo 'This test requires 16 processors to run quickly'
 ./runtests.mpi.unix procs $np tce_polar_ccsd_big
 ./runtests.mpi.unix procs $np hess_biph
 #echo 'This test requires >100 processors to run quickly'
 #./runtests.mpi.unix procs $np tce_hyperpolar_ccsd_big
-echo 'The following 2 tests require few processors but a lot of time'
-./runtests.mpi.unix procs $np ch4_zts
+echo 'misc tests'
+./runtests.mpi.unix procs $np ch3oh-transden
+./runtests.mpi.unix procs $np cho_cs_analytic_trans
+./runtests.mpi.unix procs $np h2o-td
+./runtests.mpi.unix procs $np o2minus-td
+./runtests.mpi.unix procs $np udft_aoresp
+echo 'The following  tests require few processors but a lot of time'
 ./runtests.mpi.unix procs $np ch4cl_zts
+./runtests.mpi.unix procs $np cui_hiraobs
+if [[ "$what" != "flaky" ]]; then
+  exit
+fi
 echo 'The intermediate values for this test may cause some differences.'
 echo 'Please check the final values for the last optimized structure.'
+./runtests.mpi.unix procs $np ch4_zts
 ./runtests.mpi.unix procs $np dielsalder
 ./runtests.mpi.unix procs $np talc
 echo 'The intermediate energy values for the numerical gradient '
@@ -354,7 +393,10 @@ echo 'test may cause some differences.'
 echo 'Please check the final gradient values for correctness.'
 ./runtests.mpi.unix procs $np neb-fch3cl neb-isobutene
 
-./runtests.mpi.unix procs $np tddftgrad_pyridine_opt 
-./runtests.mpi.unix procs $np tddftgrad_phenoxy_radical
-
-./runtests.mpi.unix procs $np  qmd_props
+echo 'the following tests are know to be numerically unstable'
+./runtests.mpi.unix procs $np qmmm_opt0
+./runtests.mpi.unix procs $np pspw_scan_h2o
+./runtests.mpi.unix procs $np pspw_vs98_h2o
+./runtests.mpi.unix procs $np h2o_selci
+./runtests.mpi.unix procs $np h2o_vscf
+./runtests.mpi.unix procs $np mep-test

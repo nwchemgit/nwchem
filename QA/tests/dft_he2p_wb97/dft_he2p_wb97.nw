@@ -1,0 +1,44 @@
+echo
+start he2p_wb97
+
+charge +1
+#table XI of doi:10.1063/1.2834918
+# De = E_X plus E_Xp minus E_X2p,re 
+#aqz: 627.51*(5.013221096134-1.996190983271-2.902521085929)=71.855
+#atz: 627.51*(5.012259194211-1.995410367049-2.902074114773)=72.022
+
+
+geometry he 
+he 0.   0.  0.
+end
+geometry he2 
+he 0.   0.6 0.
+he 0.  -0.6 0.
+end
+
+basis "ao basis" spherical
+* library aug-cc-pvtz
+#in the paper * library aug-cc-pvqz
+end
+
+set geometry he2
+dft
+mult 2
+xc wb97
+grid fine
+convergence energy 1d-9
+noprint "final vectors analysis" multipole
+end
+task dft optimize
+
+set geometry he
+dft
+mult 2
+end
+task dft
+
+charge 0
+dft
+mult 1
+end
+task dft

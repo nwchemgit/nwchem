@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/usr/bin/env bash 
 #
 # $Id$
 #
@@ -28,6 +28,7 @@ fi
 ./runtests.mpi.unix procs $np tddft_n2+
 ./runtests.mpi.unix procs $np tddft_ac_co
 ./runtests.mpi.unix procs $np hi_zora_sf
+./runtests.mpi.unix procs $np ch3radical_unrot
 #
 # newproperty tests
 ./runtests.mpi.unix procs $np prop_ch3f 
@@ -41,6 +42,7 @@ fi
 ./runtests.mpi.unix procs $np h2o-lcpbe
 ./runtests.mpi.unix procs $np o2_bnl
 ./runtests.mpi.unix procs $np o2_hfattn
+./runtests.mpi.unix procs $np dft_he2p_wb97
 #
 #--- cdspectrum tests
 ./runtests.mpi.unix procs $np dmo_tddft_cd
@@ -52,4 +54,7 @@ fi
 ./runtests.mpi.unix procs $np h2o2-response-uhf
 ./runtests.mpi.unix procs $np h2o2-response-uhf-damping
 ./runtests.mpi.unix procs $np h2o2-prop-notrans
+#
+#--- relativity tests
+./runtests.mpi.unix procs $np x2c-h2se
 #
