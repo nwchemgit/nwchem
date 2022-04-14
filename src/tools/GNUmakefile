@@ -524,10 +524,11 @@ ifdef USE_KNL
     ifeq ($(_CC),icc)
     CFLAGS_FORGA+="-no-vec"
     endif
-    ifeq ($(FC),ftn)
-    MAYBE_HOST=--host=x86_64-pc-linux-gnu 
-    endif
 endif
+ifeq ($(FC),frtpx)
+    MAYBE_HOST=--host=aarch64-pc-linux-gnu
+endif
+
 ifdef USE_OFFLOAD
     MAYBE_OFFLOAD= INTEL_64ALIGN=1
 endif

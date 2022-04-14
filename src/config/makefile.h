@@ -2090,6 +2090,14 @@ ifneq ($(TARGET),LINUX)
             _FC=xlf
         endif
 
+        ifeq ($(FC),$(findstring $(FC),frt frtpx))
+            _FC=frt
+        endif
+
+        ifeq ($(CC),$(findstring $(FC),fcc fccpx))
+            _CC=fcc
+        endif
+
         ifndef _FC
             FC=gfortran
             _FC=gfortran
@@ -2863,7 +2871,7 @@ ifneq ($(TARGET),LINUX)
             endif  # end of gfortran
 
             # A64fx
-            ifeq ($(FC),frt)
+            ifeq ($(_FC),frt)
 
                 DEFINES += -DFUJITSU
                 FOPTIONS += -fs
