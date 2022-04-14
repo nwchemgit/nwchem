@@ -2,7 +2,6 @@ echo
 start testjob
 title efgjob
 
-memory total 2000 mb stack 1000 mb
 
 geometry noautoz units bohr nocenter
 symmetry c1
