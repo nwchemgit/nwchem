@@ -34,6 +34,7 @@ c
 c     
 #include "zora.fh"
 #include "rel_consts.fh"
+#include "x2c.fh"
 #include "case.fh"
 c
       integer  ga_create_atom_blocked
@@ -212,6 +213,17 @@ c     == Get the grid cutoff or set default ==
       if(.not.rtdb_get(rtdb,'zora:not_zora_scale',      ! FA
      &                 mt_log,1,not_zora_scale))        ! FA
      &  not_zora_scale = .false.                        ! FA
+
+c ... jochen:
+c     == X2C options ==
+      do_x2c = .false.
+      if (rtdb_get(rtdb,'x2c:on',mt_log,1,do_x2c))
+     &     do_x2c = .true.
+c     we use the variable zoracutoff also for the x2c option
+      if(.not.rtdb_get(rtdb,'x2c:cutoff',mt_dbl,1,zoracutoff))
+     &  zoracutoff = 1.0d-08
+c
+
 c
 c     == Get the light speed and other constants, if specified ==
       call rel_init_con(rtdb)

@@ -14,6 +14,7 @@
 #include "errquit.fh"
 #include "zora.fh"
 #include "modelpotential.fh"
+#include "x2c.fh"
 c     
 c     Read input for the relativistic block
 c     
@@ -25,6 +26,7 @@ c
       logical dk_run              ! Douglas-Kroll
       logical dmd_run             ! Dyall modified Dirac
       logical zora_run            ! ZORA
+      logical x2c_run             ! exact decoupling (X2C)
       integer mpoption
 c
       logical status
@@ -56,6 +58,11 @@ c     ZORA
       if (.not. rtdb_put(rtdb, 'zora', mt_log, 1, zora_run))
      &  call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
 c
+c     X2C
+      x2c_run = .false.
+      if (.not. rtdb_put(rtdb, 'x2c', mt_log, 1, x2c_run))
+     &  call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
+c
 c     Set some relativistic variables we could need later on
 c
    1  if (.not. inp_read()) call errquit('rel_input: inp_read failed',0,
@@ -75,7 +82,7 @@ c
          endif
          write(luout,10) clight
   10        format(/,'The speed of light used in the relativistic ',
-     $               'calculations is ',F16.10, 'au.'/)
+     $               'calculations is ',E15.7, 'au.'/)
 c
       elseif (inp_compare(.false.,'douglas-kroll', test)) then
          dk_run = .true.
@@ -88,6 +95,12 @@ c
          if (.not. rtdb_put(rtdb, 'dyall_mod_dir', mt_log, 1, dmd_run))
      $     call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
          call dmd_input(rtdb)
+c
+      elseif (inp_compare(.false.,'x2c', test)) then
+        x2c_run = .true.
+        if (.not. rtdb_put(rtdb, 'x2c', mt_log, 1, x2c_run))
+     &     call errquit('rel_input: rtdb_put failed', 0, RTDB_ERR)
+         call x2c_input(rtdb)
 c
       elseif (inp_compare(.false.,'zora', test)) then
          call zora_input(rtdb)
@@ -106,6 +119,11 @@ c
       elseif(inp_compare(.false.,'zora:cutoff',test)) then
          if(.not. inp_f(zoracutoff)) zoracutoff = 1.0d-15  ! set a default cutoff
          if (.not. rtdb_put(rtdb,'zora:cutoff',mt_dbl,1,zoracutoff))
+     &    call errquit('rel_input: rtdb put failed',0, RTDB_ERR)
+c
+      elseif(inp_compare(.false.,'x2c:cutoff',test)) then
+         if(.not. inp_f(x2ccutoff)) x2ccutoff = 1.0d-15  ! set a default cutoff
+         if (.not. rtdb_put(rtdb,'x2c:cutoff',mt_dbl,1,x2ccutoff))
      &    call errquit('rel_input: rtdb put failed',0, RTDB_ERR)
 c
 c     zoracutoff_EFG, used in get_rhoS() from dft_zora_utils.F

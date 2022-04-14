@@ -328,7 +328,8 @@ np_small=$(get_limit $np 16)
 # GW
 ./runtests.mpi.unix procs $np gw_closedshell
 ./runtests.mpi.unix procs $np gw_openshell
-#
+# x2c
+./runtests.mpi.unix procs $np x2c-h2se
 #--- if we only want quick tests get out now!
 if [[ "$what" == "fast" ]]; then
   exit

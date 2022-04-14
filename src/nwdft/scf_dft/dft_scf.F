@@ -40,6 +40,7 @@ c
 #include "dftps.fh"
 #include "cosmo.fh"
 #include "zora.fh"
+#include "x2c.fh"
 #include "modelpotential.fh"
 cold#include "dimqm.fh"
 c     
@@ -191,7 +192,6 @@ c     == zora related ==
       logical dft_zora_read, dft_zora_write, dft_zora_inquire_file
       external dft_zora_read, dft_zora_write, dft_zora_inquire_file
       character*255 zorafilename
-      integer g_zora_sf(2)
       integer g_zora_scale_sf(2)
       double precision ener_scal
       integer icalczora
@@ -225,12 +225,18 @@ cc     AJL/End
 c
       gotsmear(ss)=abs(ss).gt.1d-9
 c
+c ... exact decoupling and other relativistic Hamiltonians
+      integer g_rel(2)
+      integer  g_x2c_u(2), g_x2c_u2c, g_x2c_c2u
+c
 c     misc
 c
       logical debug_fon
       logical do_zora_recalc, zora_recalc
-      external zora_recalc
-c
+      external zora_recalcc
+      logical x2c_noatm
+      external x2c_noatm
+
 c MN solvation models -->
 c
       double precision gcds, gspol, espol, gspoldyn, gspolneq
@@ -283,6 +289,7 @@ c <-- MN solvation models
 c
 c     =========================================================================
 c
+c
       k_3cERI  = 0
       k_3cwhat = 0
 c
@@ -317,6 +324,38 @@ c
 
       me = ga_nodeid()
       nproc = ga_nnodes()
+
+c     ---------------------------------------------------------
+c     check which relativistic Hamiltonian (if any) we're using
+c     and write some information to the output.
+c     comment: Niri's zora implementation added an array g_zora_sf
+c     to the Fock matrix in dft_fockbld. This array contains
+c     T(rel) - T(nrel). The nonrelativistic kinetic energy is always
+c     added to the Fock matrix in dft_fockbld. 
+c     I changed the array name for g_zora_sf to g_rel and use
+c     it now for both methods. 
+c     ---------------------------------------------------------
+
+
+c     make sure we don't use zora, x2c, or another
+c     two-component relativistic method at the same time
+
+      if (do_zora .and. do_x2c) then
+        call errquit ('dft_scf: zora and x2c options conflict',
+     &     666, INPUT_ERR)
+      end if
+
+c     write output about the relativistic treatment
+
+      if (do_zora) then
+        if (me.eq.0) write (luout,*) 'dft: using ZORA'
+      end if
+      if (do_x2c) then
+        if (me.eq.0) write (luout,*) 'dft: using X2C'
+      end if
+
+      call x2c_scf_init(rtdb)
+
 c
 c !!! BGJ
 c     Store SCF hamiltonian type as DFT for use in BGJ routines
@@ -651,6 +690,23 @@ c
 c     == force sleazy SCF into "direct" mode ==
       call fock_force_direct(rtdb)
 c
+c     -------------------------------------------
+c     calculate superposition of atomic densities
+c     if ZORA or X2C functionality is requested
+c     -------------------------------------------
+
+      if ((do_zora .or. do_x2c) .and. .not.x2c_noatm()) then
+        call ga_zero(g_dens_at(1))
+        if (ipol.gt.1) call ga_zero(g_dens_at(2))
+        call guess_dens(rtdb, geom, ao_bas_han, g_dens_at)
+        call dft_quickguess(ipol,nbf_ao,g_dens_at,oskel,
+     N     ntotel,nclosed,
+     D     .false.)
+      else if (do_x2c .and. x2c_noatm()) then
+        call ga_zero(g_dens_at(1))
+        if (ipol.gt.1) call ga_zero(g_dens_at(2)) 
+      end if                    ! do_zora .or. do_x2c
+c
 c     == get atomic zora contributions ==
       if (.not.rtdb_get(rtdb,'zora',mt_log,1,do_zora)) do_zora = .false.
 c
@@ -665,13 +721,13 @@ c       == get filename for the zora data ==
         call util_file_name('zora_sf',.false.,.false.,zorafilename)
 c
 c       == zora arrays ==
-        if(.not.ga_duplicate(g_vxc(1),g_zora_sf(1),'sf 1'))
+        if(.not.ga_duplicate(g_vxc(1),g_rel(1),'sf 1'))
      &     call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
-        call ga_zero(g_zora_sf(1))
+        call ga_zero(g_rel(1))
         if(ipol.gt.1) then
-         if(.not.ga_duplicate(g_vxc(2),g_zora_sf(2),'sf 2'))
+         if(.not.ga_duplicate(g_vxc(2),g_rel(2),'sf 2'))
      &     call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
-           call ga_zero(g_zora_sf(2))
+           call ga_zero(g_rel(2))
         endif
 c
 c       == zora energy scaling arrays ==
@@ -691,18 +747,6 @@ c       == create g_zora_Kinetic array ==
          call ga_zero(g_zora_Kinetic(i))
         enddo
 c
-c       == generate an superposition of atomic densities ==
-        call ga_zero(g_dens_at(1))
-        if (ipol.gt.1) call ga_zero(g_dens_at(2))
-        call guess_dens(rtdb, geom, ao_bas_han, g_dens_at)
-        if (oskel) call ga_symmetrize(g_dens_at(1))
-        if(ipol.gt.1) then
-            call ga_copy(g_dens_at(1),g_dens_at(2))
-            call ga_dscal(g_dens_at(1),dble(ntotel-nclosed)/(ntotel))
-            call ga_dscal(g_dens_at(2),dble(nclosed)/(ntotel))
-            if(oskel) call ga_symmetrize(g_dens_at(2))
-        end if
-c
 c       == in case fon is used together with zora ==
 c       pstrace is queried in the grid code ==
         if (fon) then
@@ -715,7 +759,7 @@ c
 c       == try reading the zora atomic corrections from file ==
         icalczora = 0  ! initialize the flag
         if (.not.dft_zora_read(zorafilename, nbf_ao, ipol, nmo,
-     &            mult, g_zora_sf, g_zora_scale_sf)) icalczora = 1
+     &            mult, g_rel, g_zora_scale_sf)) icalczora = 1
 c
 c       check if zora corrections have to recalculated
         do_zora_recalc = zora_recalc(rtdb)
@@ -764,7 +808,7 @@ c 11          format('In dft_scf:: zetanuc_arr(',i3,')=',f35.8)
            dbl_mb(k_zetanuc+iatom-1)=dsqrt(dbl_mb(k_zetanuc+iatom-1)) !  Calc sqrt(zetanuc)
           enddo ! end-loop-iatom
 c------- FA-code-added-09-26-11 --------------------------- END
-         call zora_getv_sf(rtdb, g_dens_at, g_zora_sf,g_zora_scale_sf,
+         call zora_getv_sf(rtdb, g_dens_at, g_rel,g_zora_scale_sf,
      &                     ofinite,dbl_mb(k_zetanuc),
      &                     Knucl, nexc)
          if (.not. MA_free_heap(l_zetanuc))  call errquit
@@ -772,7 +816,7 @@ c------- FA-code-added-09-26-11 --------------------------- END
 c
 c       == write out the atomic zora corrections to file ==
         if (.not.dft_zora_write(rtdb, ao_bas_han, zorafilename,
-     &   nbf_ao, ipol, nmo, mult, g_zora_sf, g_zora_scale_sf))
+     &   nbf_ao, ipol, nmo, mult, g_rel, g_zora_scale_sf))
      &   call errquit('dft_scf: dft_zora_write failed', 0, DISK_ERR)
         end if   ! icalczora
 c
@@ -780,9 +824,42 @@ c       == NOTE.-Storing g_zora_Kinetic to be used in rohf_fock.F ==
 c       == for cphf routine - FA-11-08-10 ==
 c       == -> g_zora_Kinetic is defined in zora.fh ==
         do i=1,ipol
-          call ga_copy(g_zora_sf(i),g_zora_Kinetic(i))
+          call ga_copy(g_rel(i),g_zora_Kinetic(i))
         enddo
       end if  ! do_zora
+c
+c     -------------------------------------------------
+c     set up an exact decoupling Hamiltonian (optional)
+c     -------------------------------------------------
+
+      if (do_x2c) then
+        if (me.eq.0) write (luout,*) 'allocating g_x2c',nbf_ao
+
+        if(.not.ga_duplicate(g_vxc(1),g_rel(1),'x2c 1'))
+     &     call errquit('dft_scf: ga_duplicate failed',666, GA_ERR)
+        call ga_zero(g_rel(1))
+
+        if (me.eq.0) write (luout,*) 'calling calc_x2c_1e_scalar'
+
+c       note: g_vxc is used as temp array in the numerical
+c       integration routines.
+c       g_x2c_u2c is created in the x2c routine and survives
+c       if keepU=.T. Same for the transformation matrices g_xc_u(:).
+c       optionally, g_x2c_c2u is also allocated and kept.
+
+        call calc_x2c_1e_scalar_ga(rtdb, 
+     &    nexc, g_dens_at, g_vxc, g_rel(1), g_x2c_u,
+     &    g_x2c_u2c, g_x2c_c2u, toll_s)
+
+
+        if (ipol.gt.1) then
+          if(.not.ga_duplicate(g_vxc(2),g_rel(2),'x2c 2'))
+     &     call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
+          call ga_copy(g_rel(1),g_rel(2))
+        end if
+        
+
+      end if                    ! do_x2c
 c
 c     == determine guess ==
       if(.not.rtdb_get(rtdb,'forceatguess',mt_log,1,forceatguess)) 
@@ -826,30 +903,9 @@ c     == better have static ldb at high node counts ==
         if (.not. rtdb_cput(rtdb, 'dft:output vectors', 1, movecs_out))
      $       call errquit('dft_scf: DFT MO vectors not defined',0,
      &                     RTDB_ERR)
-        if(densmat) then
-            call util_file_name('densmat', .false.,.false.,file_mat1)
-            if(ga_nodeid().eq.0)
-     W           write(6,*) ' reading DM from file ',file_mat1
-           call ao_1prdm_read(nbf_ao,g_dens(1),file_mat1)
-        endif
-
-        if(ipol.eq.2) then
-           if(densmat) then
-            call errquit(' code not ready for open-shell ',0,CAPMIS_ERR)
-            call util_file_name('densmat', .false.,.false.,file_mat1)
-            if(ga_nodeid().eq.0)
-     W           write(6,*) ' reading DM from file ',file_mat1
-           call ao_1prdm_read(nbf_ao,g_dens(2),file_mat1)
-        else
-          call ga_copy(g_dens(1),g_dens(2))
-          call ga_dscal(g_dens(1),dble(ntotel-nclosed)/(ntotel))
-          call ga_dscal(g_dens(2),dble(nclosed)/(ntotel))
-       endif
-        endif
-      if(oskel) then
-        call ga_symmetrize(g_dens(1))
-        if(ipol.eq.2) call ga_symmetrize(g_dens(2))
-      endif
+      call dft_quickguess(ipol,nbf_ao,g_dens,oskel,
+     N     ntotel,nclosed,
+     D     densmat)
         goto 1789
       endif
       if(oskel) then
@@ -1227,8 +1283,8 @@ c     remove flipping to avoid multiple operation in geom opt.
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time,
 cc AJL/Begin/FDE
-c     &     g_zora_sf,g_frozemb)
-     &     g_zora_sf,g_frozemb,g_vxc_fde,g_xcinv_fde,g_dens_fde,eelec)
+c     &     g_rel,g_frozemb)
+     &     g_rel,g_frozemb,g_vxc_fde,g_xcinv_fde,g_dens_fde,eelec)
 cc AJL/End
       if(util_print('dft timings', print_high))
      &      time2=util_wallsec()  ! end fock matrix build time
@@ -1889,6 +1945,12 @@ c     AOR begin
       endif
 c     AOR end
 
+c ... jochen: calculate x2c properties if so requested:
+      if (do_x2c) then
+         call x2c_prop(rtdb,
+     N     nexc, g_dens, g_dens_at, g_x2c_u)
+      end if ! do_x2c
+
 c     vdw  bit
 c
 c     activate disp if is present in rtdb
@@ -2498,18 +2560,24 @@ cdft...Deallocate cdft arrays
 c
 c     Deallocate zora related arrays
       if (do_zora) then
-       if (.not. ga_destroy(g_zora_sf(1))) call errquit(
+       if (.not. ga_destroy(g_rel(1))) call errquit(
      &          'dft_scf: ga_destroy failed ',0, GA_ERR)
        if (.not. ga_destroy(g_zora_scale_sf(1))) call errquit(
      &          'dft_scf: ga_destroy failed ',0, GA_ERR)
        if(ipol.gt.1) then
-         if (.not. ga_destroy(g_zora_sf(2))) call errquit(
+         if (.not. ga_destroy(g_rel(2))) call errquit(
      &        'dft_scf: ga_destroy failed ',0, GA_ERR)
          if (.not. ga_destroy(g_zora_scale_sf(2))) call errquit(
      &        'dft_scf: ga_destroy failed ',0, GA_ERR)
        end if
       end if
-
+c
+c     deallocate x2c arrays if necessary
+      if (do_x2c) then
+         call x2c_scf_terminate(rtdb,ipol,g_rel,
+     g     g_x2c_u,g_x2c_u2c,g_x2c_c2u)
+      end if ! do_x2c
+c
 c     AOR begin
 c     deallocate xdm arrays
       if (lxdm.eq.1) then
