@@ -354,6 +354,8 @@ c     write output about the relativistic treatment
         if (me.eq.0) write (luout,*) 'dft: using X2C'
       end if
 
+      call x2c_scf_init(rtdb)
+
 c
 c !!! BGJ
 c     Store SCF hamiltonian type as DFT for use in BGJ routines
