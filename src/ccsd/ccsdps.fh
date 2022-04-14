@@ -7,7 +7,7 @@ c
      ,  ps_trpdrv,ps_doooo,ps_dovvv,ps_z2pm,ps_hz2pm,ps_zvecs,
      ,  ps_pdiis,ps_ht2pm,ps_t2pm,ps_sxy,ps_itrdrv,ps_tengy,
      ,  ps_t2eriw,ps_t2erin,ps_t2erih,ps_doxxx,ps_rdtrpo,
-     ,  ps_trpmos
+     ,  ps_trpmos,ps_gpumove,ps_accwait
 
 
       logical occsdps            ! True if gathering stats
@@ -17,4 +17,4 @@ c
      $     ps_trpdrv,ps_doooo,ps_dovvv,ps_z2pm,ps_hz2pm,ps_zvecs,
      $     ps_pdiis,ps_ht2pm,ps_t2pm,ps_sxy,ps_itrdrv,ps_tengy,
      $     ps_t2eriw,ps_t2erin,ps_t2erih,ps_doxxx,ps_rdtrpo,
-     $     ps_trpmos
+     $     ps_trpmos,ps_gpumove,ps_accwait
