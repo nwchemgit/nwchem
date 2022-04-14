@@ -10,7 +10,6 @@ C>
 *
 * $Id$
 *
-*include "implicit.fh"
 #include "cconf.fh"
 #include "mptr.fh"
 #include "cselcifiles.fh"

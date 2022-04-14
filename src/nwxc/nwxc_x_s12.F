@@ -24,9 +24,6 @@ C> Chem. Phys. Lett. <b>580</b> (2013) 166-171, DOI:
 C> <a href="https://doi.org/10.1016/j.cplett.2013.06.045">
 C> 10.1016/j.cplett.2013.06.045</a>.
 C>
-#if defined(FUJITSU_VPP)
-!ocl scalar
-#endif
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)
       Subroutine nwxc_x_s12_p(param, tol_rho, ipol, nq, wght, rho,

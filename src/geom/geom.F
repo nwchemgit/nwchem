@@ -984,11 +984,7 @@ c
               rz = coords(3,i,geom)-coords(3,j,geom)
               rz = rz*rz
               r  = sqrt(rx+ry+rz)
-#ifdef FUJITSU_VPP
-              if (r > 1.d-10) e = e + charge(i,geom)*charge(j,geom)/r
-#else
               e = e + charge(i,geom)*charge(j,geom)/r
-#endif
             endif
          end do
       end do

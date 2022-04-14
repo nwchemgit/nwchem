@@ -3754,7 +3754,7 @@ cVOG  DIMENSION CB(*), HCB(*)
       CALL MEMMAN(IDUM,IDUM,'MARK  ',1,'AKBKSI')
       CALL LUCIAQENTER('AKBKSI')
 *
-      NTEST = 10000
+      NTEST = 10
       IF(NTEST.GE.10.and.ga_nodeid().eq.0) THEN
         WRITE(6,*) ' Information from AKBKSIGMA2'
         WRITE(6,*) ' ==========================='

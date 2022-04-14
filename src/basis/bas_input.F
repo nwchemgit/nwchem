@@ -12,7 +12,7 @@ c $Id$
 c
 c   basis [<name>] [library [<standard set>] [file <filename>] \
 c         [spherical|cartesian] [segment||nosegment] [print|noprint]\
-c         [ecpset ecp_name] [soset so_name] [rel]
+c         [ecpset ecp_name] [soset so_name] [rel] [bse]
 c
 c     tag library [tag in library] <standard set> [file <filename>]
 c     tag <shell type>
@@ -53,10 +53,11 @@ c::passed
       integer rtdb              ! [input] handle to database
 c::local
       integer nopt
-      parameter (nopt = 12)
+      parameter (nopt = 13)
       character*10 opts(nopt)
       character*255 test, name, filename, standard
       character*255 ecpname, soname
+      character*256 mydir
       character*1000 errmsg
       logical status, ospherical, osegment, oprint
       logical o_add_ecpname, o_add_soname
@@ -68,10 +69,11 @@ c::local
       data opts /
      &    'spherical', 'cartesian', 'segment', 'nosegment', 'library',
      &    'file',      'print',     'noprint', 'ecpset',    'soset',
-     &    'version', 'rel'/
+     &    'version', 'rel','bse'/
 c
       ecpname = '                                                '
       soname = '                                                '
+      mydir = ' '
 c
 c     Check is a basis/ecp directive and read in name of the basis
 c
@@ -120,7 +122,7 @@ c
          endif
 c
          goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000,
-     &         1100,1200) ind
+     &         1100,1200,1300) ind
          goto 10000
 c
 c     spherical
@@ -205,12 +207,18 @@ c
          endif
          goto 10
 c
+c use libraries.bse
+c
+01300    continue
+         mydir='libraries.bse'
+         goto 10
+c
       endif
 c
 c initialize the default library name based on rules in bas_library_file
 c the file parameter can overide this setting for a given standard basis set
 c 
-      call bas_set_library_name()
+      call bas_set_library_name(mydir)
 c
       
 c
@@ -305,7 +313,7 @@ c
      $    '      [file <filename>] [segment]\\',
      $    '      [spherical|cartesian]\\',
      &    '      [print|noprint] [rel] [ecpset name_of_ecp]',
-     &    ' [soset name_of_so_potential]')
+     &    ' [soset name_of_so_potential] [bse]')
       call errquit('bas_input: invalid format for basis directive', 0,
      &       INPUT_ERR)
 c
@@ -367,7 +375,6 @@ c
       logical oIs_rel
       logical oshell_is_rel
       logical oIs_star
-      logical read_sphere       !< [Input] flag for reading spherical from library
       integer spvalues(nsptypes)
       integer num_elec
       integer l_value, ind, icount
@@ -382,7 +389,16 @@ cc AJL/End
 c
 #include "ecpso_sfnP.fh"
 c
-      read_sphere=.false.
+      star_details=.false.
+c
+c     if user_library_name ends in /libraries.bse/ star_details=t
+c
+      if(user_library_name(
+     /     (inp_strlen(user_library_name)-14):
+     /     inp_strlen(user_library_name)).eq.
+     /     '/libraries.bse/') then
+         star_details=.true.
+      endif
       oIs_ecp = Is_ECP_in(basis)
       oIs_so  = Is_SO_in(basis)
 c
@@ -560,7 +576,7 @@ c
 c
 c     details, ie read spherical from library
 c
- 101           read_sphere = .true.
+ 101           star_details = .true.
                goto 22
 c
 c...  nelec  ...  =>  number of electrons for ecp
@@ -603,7 +619,7 @@ c
 c
       if (standard .ne. ' ') then
          call bas_tag_lib(basis, osegment, tag, tag_in_lib, standard,
-     $        filename, oshell_is_rel, read_sphere)
+     $        filename, oshell_is_rel, star_details)
          goto 10
       endif
 c
@@ -622,7 +638,7 @@ c
 c
 10000 write(LuOut,1)
  1    format(' basis directive body format is:',/,
-     $       '       tag library <standard set> [file <filename>]',/,
+     $'       tag library [details] <standard set> [file <filename>]',/,
      $       '                   [except <exceptions list>] [rel]',/,
      $       '       tag <contraction type> [rel]',/,
      $       '           <exponent> <contraction coefficients>',/,
@@ -1119,13 +1135,18 @@ c     Now read the basis for this magical atom type in using
 c     the given tag
 c
  10   if (.not. inp_a(field)) field=' '
+c
+c     ignore spherical vs cartesian from bse for He/H
+c     since they do assign spherical when the other elements are cartesian
+c
+      if (.not.inp_compare(.false., 'h', string(1:1))) then
       if(read_sphere) then
          if (inp_compare(.false., 'spherical', field)) then
-c            write(0,*) ' setting basis spherical'
             if (.not. bas_set_spherical(basis, .true.))
      &           call errquit
      &           (' bas_set_spherical failed ',911, BASIS_ERR)
          endif
+      endif
       endif
       if (.not. inp_read()) call errquit
      $     ('bas_tag_lib: premature EOF', 0, INPUT_ERR)
@@ -1246,7 +1267,7 @@ c
 *passed
       character*(*) libname ! [output] filename for library file
 *local
-      character*256 compiled_name
+      character*(nw_max_path_len) compiled_name
       character*128 test
       character*24  basis_library
       integer length
@@ -1278,8 +1299,13 @@ c
 c
 c     add here basis/libraries bit
 c
+      if(libname.ne.' ') then
+      compiled_name=compiled_name(1:inp_strlen(compiled_name))
+     $     //"/basis/"//libname(1:inp_strlen(libname))//"/"
+      else
       compiled_name=compiled_name(1:inp_strlen(compiled_name))
      $     //"/basis/libraries/"
+      endif
 *
 * order of precedence for choosing name
 * 1) value of NWCHEM_BASIS_LIBRARY environment variable
@@ -1381,9 +1407,12 @@ c
 c     if (nwrcopen)
 c    .     close(unit=unitrc,status='keep') ! close file after library name found
       end
-      subroutine bas_set_library_name()
+      subroutine bas_set_library_name(mydir)
       implicit none
+      character*(*) mydir
 #include "baslibraryP.fh"
+#include "inp.fh"
+      user_library_name=mydir
       call bas_library_file(user_library_name)
       end
 *.....................................................................
@@ -1553,3 +1582,5 @@ c    .     close(unit=unitrc,status='keep') ! close file after library name foun
 10002 format(1x,f5.0,31(2x,1pe15.6))
 10003 format(31(2x,1pe15.6))
       end
+
+      

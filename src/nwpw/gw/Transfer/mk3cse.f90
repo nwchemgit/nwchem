@@ -152,7 +152,7 @@ do ii=1,3
   pln(1)=blat(jj,2)*blat(kk,3)-blat(jj,3)*blat(kk,2)
   pln(2)=-blat(jj,1)*blat(kk,3)+blat(jj,3)*blat(kk,1)
   pln(3)=blat(jj,1)*blat(kk,2)-blat(jj,2)*blat(kk,1)
-  dist(ii)=dot_product(gamma,pln)/sqrt(dot_product(pln,pln))
+  dist(ii)=dot_product(gamma,pln)/norm2(pln)
 enddo
 gfo=minval(dist)
 
@@ -607,7 +607,7 @@ do ibp=test_bands_se(1),test_bands_se(2)
             do jj=1,3
               bgrad=bgrad+(evtx(jj+1)-evtx(1))*rg(:,jj)
             enddo
-            xmult=4.d0*pi/sqrt(dot_product(bgrad,bgrad))
+            xmult=4.d0*pi/norm2(bgrad)
             if (lc) then
               do iw=1,nwpt
                 aa0(iw)=xmat2(ictr(1),ictr(2),ictr(3))*max(dimag(lossfn(iw,iqctr,1)),0.d0)
@@ -676,7 +676,7 @@ do ibp=test_bands_se(1),test_bands_se(2)
             do jj=1,3
               bgrad=bgrad+(evtx(jj+1)-evtx(1))*rg(:,jj)
             enddo
-            xmult=4.d0*pi/sqrt(dot_product(bgrad,bgrad))
+            xmult=4.d0*pi/norm2(bgrad)
             if (lc) then
               do iw=1,nwpt
                 vpyr(:)=vpyr0(:,iw)/vqvtx0
@@ -1139,7 +1139,7 @@ external xfn1,xfn2,xfn3,grater
   xq2=xkp(:,2)-xkp(:,3)
   xkv0=xkp(:,3)+xkvtx
   call cross(xq1,xq2,xnorm)
-  area=sqrt(dot_product(xnorm,xnorm))
+  area=norm2(xnorm)
   aa=dot_product(xq1,xq1)
   bb=2*dot_product(xq1,xkv0)
   cc=2*dot_product(xq1,xq2)
@@ -1349,7 +1349,7 @@ external xfn4,xfn5,xfn6,grater
   xq2=xkp(:,2)-xkp(:,3)
   xkv0=xkp(:,3)+xkvtx
   call cross(xq1,xq2,xnorm)
-  area=sqrt(dot_product(xnorm,xnorm))
+  area=norm2(xnorm)
   aa=dot_product(xq1,xq1)
   bb=2*dot_product(xq1,xkv0)
   cc=2*dot_product(xq1,xq2)

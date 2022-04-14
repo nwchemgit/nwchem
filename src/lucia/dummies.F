@@ -57,9 +57,9 @@ c      END
 *. Outer routine for flushing UNITS !
 *
 *. RISC/6000 
-C       CALL FLUSH_(LU)
+C       CALL UTIL_FLUSH_(LU)
 *. CRAY and gfortran
-        CALL FLUSH(LU)
+        CALL UTIL_FLUSH(LU)
 *
       RETURN
       END

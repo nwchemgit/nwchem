@@ -12,9 +12,6 @@ C> @}
 C>
 C> \ingroup nwxc_priv
 C> @{
-#if defined(FUJITSU_VPP)
-!ocl scalar
-#endif
 #if !defined(SECOND_DERIV) && !defined(THIRD_DERIV)
 #if defined(NWAD_PRINT)
       Subroutine nwxc_x_att_p(param,tol_rho,rho,ipol,Ex)

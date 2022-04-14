@@ -7,6 +7,7 @@
 #
 #  SIMINT_MAXAM=5 ./build_simint.sh
 #
+mysimpwd=`pwd`
 if  [ -z "$(command -v python3)" ]; then
     echo python3 not installed
     echo please install python3
@@ -55,6 +56,7 @@ if [[ "${VEC}" == "avx512" ]]; then
 if [[   -z "${CC}" ]]; then
     CC=cc
 fi
+echo CC is $CC
 GCC_EXTRA=$(echo $CC | cut -c 1-3)
 if [ "$GCC_EXTRA" == gcc ]; then
 let GCCVERSIONGT5=$(expr `${CC} -dumpversion | cut -f1 -d.` \> 5)
@@ -75,7 +77,8 @@ if [[  -z "${SIMINT_MAXAM}" ]]; then
 fi
 #PERMUTE_SLOW=1
 PERMUTE_SLOW=${SIMINT_MAXAM}
-GITHUB_USERID=edoapra
+#GITHUB_USERID=edoapra
+GITHUB_USERID=simint-chem
 #rm -rf simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIVE}* *-chem-simint-generator-?????? simint-chem-simint-generator.tar.gz simint_lib
 rm -rf simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIVE}* *-chem-simint-generator-?????? simint_lib
 
@@ -91,17 +94,6 @@ else
     wget -O "${TAR_NAME}" "${GITHUB_URL}"
 fi
 fi
-tar xzf simint-chem-simint-generator.tar.gz
-cd *-simint-generator-???????
-pwd
-if [[  -z "${NWCHEM_TOP}" ]]; then
-    dir4=$(dirname `pwd`)
-    dir3=$(dirname "$dir4")
-    dir2=$(dirname "$dir3")
-    dir1=$(dirname "$dir2")
-    NWCHEM_TOP=$(dirname "$dir1")
-fi
-mkdir -p build; cd build
 if [[ -z "${MYCMAKE}" ]]; then
     #look for cmake
     if [[ -z "$(command -v cmake)" ]]; then
@@ -120,6 +112,18 @@ if [[ -z "${MYCMAKE}" ]]; then
 	MYCMAKE=cmake
     fi
 fi
+cd $mysimpwd
+tar xzf simint-chem-simint-generator.tar.gz
+cd *-simint-generator-???????
+pwd
+if [[  -z "${NWCHEM_TOP}" ]]; then
+    dir4=$(dirname `pwd`)
+    dir3=$(dirname "$dir4")
+    dir2=$(dirname "$dir3")
+    dir1=$(dirname "$dir2")
+    NWCHEM_TOP=$(dirname "$dir1")
+fi
+mkdir -p build; cd build
 CMAKE_VER=$(${MYCMAKE} --version|cut -d " " -f 3|head -1|cut -d. -f1)
 echo CMAKE_VER is ${CMAKE_VER}
 echo dirname is `pwd`
@@ -144,6 +148,17 @@ if [[ ! -z "${PYTHONHOME}" ]]; then
     unset PYTHONHOME
     echo 'PYTHONOME unset'
 fi
+if [[ -z "${CXX}" ]]; then
+    #look for c++
+    if  [ -z "$(command -v c++)" ]; then
+        echo c++ not installed
+        echo please install a C++ compiler and
+        echo define the CXX env. variable
+	exit 1
+    else
+	CXX=c++
+    fi
+fi    
 if [[ -z "${GENERATOR_PROCESSES}" ]]; then
     GENERATOR_PROCESSES=3
     #parallel processing broken for g++-10 and later (at least on macos)
@@ -161,17 +176,6 @@ fi
 cd ../simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}
 mkdir -p build
 cd build
-if [[ -z "${CXX}" ]]; then
-    #look for c++
-    if  [ -z "$(command -v c++)" ]; then
-        echo c++ not installed
-        echo please install a C++ compiler and
-        echo define the CXX env. variable
-	exit 1
-    else
-	CXX=c++
-    fi
-fi    
 if [[ -z "${FC}" ]]; then
     #look for gfortran
     if  [ -z "$(command -v gfortran)" ]; then
@@ -211,7 +215,7 @@ FC="${FC}" CC="${CC}" CXX="${CXX}" $MYCMAKE \
  -DCMAKE_INSTALL_LIBDIR=lib -DENABLE_FORTRAN=ON -DSIMINT_MAXAM=${SIMINT_MAXAM} -DSIMINT_MAXDER=${DERIV} \
  -DENABLE_TESTS=OFF     -DSIMINT_STANDALONE=OFF   \
  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DCMAKE_INSTALL_PREFIX=${SRC_HOME}/simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install ../
-time -p make  -j2
+time -p make  -j4
 make simint
 if [[ (${FC} == ftn && ${PE_ENV} == CRAY) ]] ; then
     cp simint/SIMINTFORTRAN.mod simint/simintfortran.mod

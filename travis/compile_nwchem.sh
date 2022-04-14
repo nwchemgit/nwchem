@@ -45,8 +45,8 @@ else
  	    export BLASOPT="-L$MKLROOT  -Wl,-rpath,${MKLROOT}/lib -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core  -lpthread -lm -ldl"
 	else
 	    export USE_FPICF=Y
- 	    export BLASOPT="-L$MKLROOT -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core  -lpthread -lm -ldl"
-	    export SCALAPACK_LIB="-L$MKLROOT -lmkl_scalapack_ilp64 -lmkl_blacs_intelmpi_ilp64 -lpthread -lm -ldl"
+            export BLASOPT="-L$MKLROOT/lib/intel64 -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core  -lpthread -lm -ldl"
+            export SCALAPACK_LIB="-L$MKLROOT/lib/intel64 -lmkl_scalapack_ilp64 -lmkl_blacs_intelmpi_ilp64 -lpthread -lm -ldl"
 	    export SCALAPACK_SIZE=8
 	    unset BUILD_SCALAPACK
 	fi
@@ -64,7 +64,16 @@ else
 #	    FOPT="-O2 -tp haswell"
 	fi
     fi
+fi
+# install armci-mpi if needed
+if [[ "$ARMCI_NETWORK" == "ARMCI" ]]; then
+    cd tools
+    ./install-armci-mpi
+    export EXTERNAL_ARMCI_PATH=$NWCHEM_TOP/external-armci
+    cd ..
 fi    
+
+#compilation
  if [[ "$os" == "Darwin" ]]; then 
    if [[ "$NWCHEM_MODULES" == "tce" ]]; then
      FOPT="-O1 -fno-aggressive-loop-optimizations"
@@ -77,6 +86,17 @@ fi
    fi
    if [[ -z "$TRAVIS_HOME" ]]; then
        env
+       mkdir -p ../bin/MACX64
+       gcc -o ../bin/MACX64/depend.x config/depend.c
+       make nwchem_config
+       cd libext   && make V=-1  && cd ..
+       cd tools    && make V=-1  && cd ..
+       nohup make USE_INTERNALBLAS=y deps_stamp  >& deps.log &
+       sleep 120s
+       echo tail deps.log '@@@'
+       tail -10  deps.log
+       echo done tail deps.log '@@@'
+       export QUICK_BUILD=1
        if [[ -z "$FOPT" ]]; then
 	   make V=0   -j3
        else
@@ -85,6 +105,7 @@ fi
    else
        ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT"   -j3
    fi
+     unset QUICK_BUILD
      cd $TRAVIS_BUILD_DIR/src/64to32blas 
      make
      cd $TRAVIS_BUILD_DIR/src
@@ -97,6 +118,26 @@ fi
      export MAKEFLAGS=-j3
      echo    "$FOPT$FDOPT"
 if [[ -z "$TRAVIS_HOME" ]]; then
+    mkdir -p ../bin/LINUX64
+    gcc -o ../bin/LINUX64/depend.x config/depend.c
+    make nwchem_config
+    cd libext   && make V=-1  && cd ..
+    cd tools    && make V=-1  && cd ..
+    nohup make USE_INTERNALBLAS=y deps_stamp  >& deps.log &
+    cd hessian
+    nohup make USE_INTERNALBLAS=y dependencies include_stamp >& ../deps2.log &
+    cd ../nwdft/xc
+    nohup make USE_INTERNALBLAS=y dependencies include_stamp >& ../../deps3.log &
+    cd ../..
+    sleep 360s
+    echo tail deps.log '11@@@'
+    tail -10  deps.log
+    echo done tail deps.log '11@@@'
+    echo tail deps2.log '11@@@'
+    tail deps2.log || true
+    echo tail deps3.log '11@@@'
+    tail deps3.log || true
+    export QUICK_BUILD=1
     if [[ -z "$FOPT" ]]; then
 	make V=0   -j3
     else
@@ -105,6 +146,7 @@ if [[ -z "$TRAVIS_HOME" ]]; then
 else
     ../travis/sleep_loop.sh make V=1 FOPTIMIZE="$FOPT"  -j3
 fi
+     unset QUICK_BUILD
      cd $TRAVIS_BUILD_DIR/src/64to32blas 
      make
      cd $TRAVIS_BUILD_DIR/src
@@ -116,5 +158,6 @@ fi
  echo === ls binaries cache ===
  ls -lrt $TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET/ 
  echo =========================
+ rsync -av $TRAVIS_BUILD_DIR/src/basis/libraries.bse  $TRAVIS_BUILD_DIR/.cachedir/files/.
  rsync -av $TRAVIS_BUILD_DIR/src/basis/libraries  $TRAVIS_BUILD_DIR/.cachedir/files/.
  rsync -av $TRAVIS_BUILD_DIR/src/nwpw/libraryps  $TRAVIS_BUILD_DIR/.cachedir/files/.

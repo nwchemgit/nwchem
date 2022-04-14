@@ -43,6 +43,8 @@ C>
       double precision top,bottom,dist,c6_ref
       double precision cna,cnb
       integer i,j
+      double precision eps
+      parameter (eps=1d-30)
 c
       c6cn=0.0d0
       top=0.0d0
@@ -60,7 +62,7 @@ c
          enddo
       enddo
 c
-      if (bottom.gt.0.0d0) then
+      if (bottom.gt.eps) then
          c6cn=top/bottom
       else
          c6cn=0.0d0
@@ -70,32 +72,11 @@ c
 c
 c     Analytical gradient of coordination number dependent C6
 c
-C> \brief Gradient of \f$C_6\f$
-C>
-C> Calculate the gradient of the geometry dependent \f$C_6\f$ 
-C> coefficients. The \f$C_6\f$ coefficients
-C> are calculated according to Eq.(16) of [1]:
-C> \f{eqnarray*}{
-C>   C_6^{AB}\left(\mathrm{CN}^A(R),\mathrm{CN}^B(R)\right)
-C>   &=& \frac{\sum_i^{N_A}\sum_j^{N_B}C_{6,\mathrm{ref}}^{AB}\left(\mathrm{CN}_i^A,\mathrm{CN}_j^B\right)L_{ij}^{AB}(R)}{\sum_i^{N_A}\sum_j^{N_B}L_{ij}^{AB}(R)} \\\\
-C>   L_{ij}^{AB}(R) &=& e^{-k_3[(\mathrm{CN}^A(R)-\mathrm{CN}^A_i)^2
-C>                             +(\mathrm{CN}^B(R)-\mathrm{CN}^B_j)^2]}
-C> \f}
-C> where \f$\mathrm{CN}^A(R)\f$ and \f$\mathrm{CN}^B(R)\f$ are geometry
-C> dependent coordination numbers for atoms \f$A\f$ and \f$B\f$.
-C> The quantities \f$\mathrm{CN}^A_i\f$ and \f$\mathrm{CN}^B_j\f$
-C> are coordination numbers of atoms of the same type as \f$A\f$ and
-C> \f$B\f$ in reference molecules \f$i\f$ and \f$j\f$. These latter 
-C> quantities as well as \f$C_{6,\mathrm{ref}}^{AB}\f$ are precomputed
-C> constants, independent of the current geometry.
-C>
-C> Here we calculate 
-C> \f{eqnarray*}{
-C>   \frac{\partial C_6^{AB}\left(\mathrm{CN}^A(R),\mathrm{CN}^B(R)\right)}
-C>        {\partial \left(R_C\right)_i}
-C> \f}
-C> where atom \f$C\f$ maybe equal to \f$A\f$, \f$B\f$ or some other
-C> atom entirely, \f$i\f$ is either \f$x, y,\f$ or \f$z\f$.
+c  Comput derivatives of the C6 coefficients with respect to
+c  the coordination numbers.
+c
+c  The nuclear gradient will be assembled on a later stage
+c
 C> 
 C> ### References ###
 C>
@@ -107,91 +88,59 @@ C>     J. Chem. Phys. (2010) <b>132</b>, 154104, DOI:
 C>     <a href="https://doi.org/10.1063/1.3382344"> 
 C>     10.1063/1.3382344</a>.
 C>
-      subroutine c6_grad(grad,iat,jat,kat,x,z,n,cnij,cnijk)
+      subroutine c6_grad(iat,jat,x,z,n,dc6i,dc6j,cni,cnj)
       implicit none
 #include "xc_vdw.fh"
       integer n   !< [Input] The number of atoms
       integer iat !< [Input] Atom \f$A\f$
       integer jat !< [Input] Atom \f$B\f$
-      integer kat !< [Input] Atom \f$C\f$
       integer z(n) !< [Input] The atomic numbers of the atoms
-      double precision cnij(3,n) !< [Input] \f$\mathrm{cnij}(i,A)=\frac{\partial\mathrm{CN}^A(R)}{\partial \left(\vec{R}_A\right)_i}\f$
-      double precision cnijk(3,n,n) !< [Input] \f$\mathrm{cnijk}(i,B,A)=\frac{\partial\mathrm{CN}^A(R)}{\partial \left(\vec{R}_B\right)_i}\f$
-      double precision grad(3) !< [Output] The gradient
-      double precision cni,cnj
-      double precision crd_nr,cnik(3),cnjk(3)
       double precision x(3,n)
+      double precision dc6i, dc6j
+      double precision cni,cnj
+      double precision crd_nr
+      double precision c6ref
       external crd_nr
-      double precision t1,t2,dt1x,dt1y,dt1z,dt2x,dt2y,dt2z
+      double precision t1,t2,nomi,nomj,denomi,denomj
       double precision tmp1,tmp2,tmp3,tmp4,fac1,fac2
       double precision eps
-      parameter (eps=1d-19)
+      parameter (eps=1d-30)
       integer i,j
 c
-      cni=crd_nr(iat,n,x,z)
-      cnj=crd_nr(jat,n,x,z)
-      if (iat.eq.kat) then
-         cnik(1)=cnij(1,kat)
-         cnik(2)=cnij(2,kat)
-         cnik(3)=cnij(3,kat)
-         cnjk(1)=cnijk(1,kat,jat)
-         cnjk(2)=cnijk(2,kat,jat)
-         cnjk(3)=cnijk(3,kat,jat)
-      else if (jat.eq.kat) then
-         cnik(1)=cnijk(1,kat,iat)
-         cnik(2)=cnijk(2,kat,iat)
-         cnik(3)=cnijk(3,kat,iat)
-         cnjk(1)=cnij(1,kat)
-         cnjk(2)=cnij(2,kat)
-         cnjk(3)=cnij(3,kat)
-      else
-         cnik(1)=cnijk(1,kat,iat)
-         cnik(2)=cnijk(2,kat,iat)
-         cnik(3)=cnijk(3,kat,iat)
-         cnjk(1)=cnijk(1,kat,jat)
-         cnjk(2)=cnijk(2,kat,jat)
-         cnjk(3)=cnijk(3,kat,jat)
-      endif
       t1=0.0d0
       t2=0.0d0
-      dt1x=0.0d0
-      dt1y=0.0d0
-      dt1z=0.0d0
-      dt2x=0.0d0
-      dt2y=0.0d0
-      dt2z=0.0d0
+      nomi = 0d0
+      nomj = 0d0
+      denomi = 0d0
+      denomj = 0d0
+
       do i=1,maxcn(z(iat))
         do j=1,maxcn(z(jat))
-          tmp1=c6AB(z(iat),z(jat),i,j,3)-cnj
-          tmp2=c6AB(z(iat),z(jat),i,j,2)-cni
-          tmp3=dexp(k3*(tmp1*tmp1+tmp2*tmp2))
-          t1=t1+c6AB(z(iat),z(jat),i,j,1)*tmp3
-          t2=t2+tmp3
-          fac1=tmp3*k3*2.0d0
-          fac2=fac1*c6AB(z(iat),z(jat),i,j,1)
-          tmp4=(tmp2*cnik(1)+tmp1*cnjk(1))
-          dt1x=dt1x+fac2*tmp4
-          dt2x=dt2x+fac1*tmp4
-          tmp4=(tmp2*cnik(2)+tmp1*cnjk(2))
-          dt1y=dt1y+fac2*tmp4
-          dt2y=dt2y+fac1*tmp4
-          tmp4=(tmp2*cnik(3)+tmp1*cnjk(3))
-          dt1z=dt1z+fac2*tmp4
-          dt2z=dt2z+fac1*tmp4
+          c6ref = c6AB(z(iat),z(jat),i,j,1)
+          if (c6ref.gt.0d0) then
+            tmp1=c6AB(z(iat),z(jat),i,j,3)-cnj
+            tmp2=c6AB(z(iat),z(jat),i,j,2)-cni
+            tmp3=dexp(k3*(tmp1*tmp1+tmp2*tmp2))
+            t1=t1+c6AB(z(iat),z(jat),i,j,1)*tmp3
+            t2=t2+tmp3
+            fac1=tmp3*k3*2.0d0
+            fac2=fac1*c6ref
+            nomi = nomi - fac2*tmp2
+            denomi = denomi - fac1*tmp2
+            nomj = nomj - fac2*tmp1
+            denomj = denomj -  fac1*tmp1
+          endif
         enddo
       enddo
-c
-c     Numerical test to avoid division by zero (following Grimme)
-c
-      if (abs(t2).gt.eps) then
-        grad(1)=(dt1x*t2-dt2x*t1)/(t2**2)
-        grad(2)=(dt1y*t2-dt2y*t1)/(t2**2)
-        grad(3)=(dt1z*t2-dt2z*t1)/(t2**2)
+
+      if (t2.gt.eps) then
+        dc6i = ((nomi*t2 - denomi*t1))/(t2*t2)
+        dc6j = ((nomj*t2 - denomj*t1))/(t2*t2)
       else
-        grad(1)=0.0d0
-        grad(2)=0.0d0
-        grad(3)=0.0d0
+        dc6i = 0d0
+        dc6j = 0d0
       endif
+
       end
 c
       double precision function c6ij_sk(i,j,z)
@@ -320,6 +269,20 @@ c
          endif
       enddo
       return
+      end
+
+      double precision function dcndrij(iat,jat,r,iz)
+      implicit none
+#include "xc_vdw.fh"
+      integer iat,jat
+      double precision r
+      double precision rcov,expterm
+      integer iz(*)
+
+      rcov = cov_table(iz(iat))+cov_table(iz(jat))
+      expterm = exp(-k1*(rcov/r-1d0))
+      dcndrij = -k1*rcov*expterm/(r*(expterm+1d0))**2
+
       end
 c
 c     Coordination numbers based on inverse damping function 

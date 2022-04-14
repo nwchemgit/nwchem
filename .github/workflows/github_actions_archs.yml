@@ -65,11 +65,7 @@ jobs:
           cd src/tools
           ./get-tools-github
           cd ..
-          mkdir -p ../bin/LINUX64
-          gcc -o ../bin/LINUX64/depend.x config/depend.c
           make USE_INTERNALBLAS=y nwchem_config NWCHEM_MODULES="${{ matrix.nwchem_modules }}"
-          make USE_INTERNALBLAS=y deps_stamp
-          rm -f ../bin/LINUX64/depend.x
       - name: reconfig when needed
         if: steps.setup-cache.outputs.cache-hit != 'true'
         run: |

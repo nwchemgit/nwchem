@@ -13,21 +13,10 @@ c $Id$
       double precision ibm_cputime
       external ibm_cputime
       util_cpusec = ibm_cputime()
-#elif defined(SUN) || defined(SOLARIS) || defined(FUJITSU_VPP)|| defined(LINUXALPHA)
+#elif defined(SUN) || defined(SOLARIS) || defined(LINUXALPHA)
       real*4 tarray(2)
       real*4 etime
 #ifndef GCC4
-      external etime
-#endif
-      util_cpusec = etime(tarray)
-#elif defined(SGI)
-#if defined(SGITFP)
-      real*4 tarray(2)        ! nb: real == real*8 on TFP
-      real*4 etime
-      external etime
-#else
-      real tarray(2)
-      real etime
       external etime
 #endif
       util_cpusec = etime(tarray)

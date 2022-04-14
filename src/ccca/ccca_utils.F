@@ -720,7 +720,7 @@ c    +   .and.rtdb_get(rtdb,'vib:hthermal',MT_DBL,1,hthermal)
      &           errcode)
         zpe = zpe * sf
 c     following line commented . See
-c     http://www.nwchem-sw.org/index.php/Special:AWCforum/st/id2417/ccCA_code_defect.html
+c     https://nwchemgit.github.io/Special_AWCforum/st/id2417/index.html
 c        zpe = zpe / AUKCAL
 c       hthermal = hthermal / AUKCAL
         therm=.true.

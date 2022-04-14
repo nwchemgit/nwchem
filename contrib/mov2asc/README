@@ -6,7 +6,6 @@ another platform and converted back into a binary file for that
 machine.  They are quite simple, and don't do much error checking, but
 they seem to work.
 
-Known to work on Sun and SGI
 Requires NWChem's include files and libnwcutil.a containing the MA
 library.
 

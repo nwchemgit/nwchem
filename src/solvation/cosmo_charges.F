@@ -115,7 +115,7 @@ c
      &                 mt_int,nefc,int_mb(k_efciat)))
      &   call errquit('cosmo_charges: rtdb get failed for efciat',914,
      &       RTDB_ERR)
-      call cosmo_def_radii(rtdb,geom,nat,dbl_mb(k_rad))
+      call cosmo_def_radii(rtdb,geom,nat,dbl_mb(k_rad),.false.)
       status = rtdb_get(rtdb,'cosmo:radius',mt_dbl, nat,dbl_mb(k_rad))
       do i = 0, nat-1
         dbl_mb(k_rad+i) = dbl_mb(k_rad+i)/cau2ang
@@ -324,7 +324,7 @@ c
      &                 mt_int,nefc,int_mb(k_efciat)))
      &   call errquit('cosmo_charges: rtdb get failed for efciat',914,
      &       RTDB_ERR)
-      call cosmo_def_radii(rtdb,geom,nat,dbl_mb(k_rad))
+      call cosmo_def_radii(rtdb,geom,nat,dbl_mb(k_rad),.false.)
       status = rtdb_get(rtdb,'cosmo:radius',mt_dbl, nat,dbl_mb(k_rad))
       do i = 0, nat-1
         dbl_mb(k_rad+i) = dbl_mb(k_rad+i)/cau2ang

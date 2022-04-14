@@ -476,16 +476,18 @@ c     I(k) = [(k-1)*I(k-2) + r^(k-1)*exp(-alpha*r^2)]/(2*alpha)
 c
       integer i, ilo
       double precision value
-#if defined(SGI) || defined(WIN32) ||defined(LINUX)
+#if defined(WIN32) ||defined(LINUX)
+! DERFC is a GNU extension
       double precision derfc
 #else
+! ERFC is Fortran 2008
       double precision erfc
 #endif
 c
       ilo = mod(k,2)
 c
       if (ilo .eq. 0) then
-#if defined(SGI) || defined(WIN32) ||defined(LINUX)
+#if defined(WIN32) ||defined(LINUX)
          value = 0.5d0*sqrt(4.0d0*atan(1.0d0)/alpha)*
      $        derfc(sqrt(alpha)*r)
 #else

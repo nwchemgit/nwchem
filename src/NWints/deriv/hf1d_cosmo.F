@@ -76,6 +76,8 @@ c--> Other stuff
       Integer i_IPAIRp, i_ESp, i_ALPHAp, i_Ep
       Integer i_IJK, i_ff
 
+      double precision invnuc(ncenters)
+
       Data inder1/ 1,0,0,
      &             0,1,0,
      &             0,0,1 /
@@ -86,6 +88,7 @@ c--> Other stuff
      &             0,0,0,1,0,0,
      &             0,0,0,0,1,0,
      &             0,0,0,0,0,1 /
+
 c
 c Compute gradient of the overlap, kinetic energy, and nuclear attraction 
 c integrals for 2 shells of contracted Gaussians functions.

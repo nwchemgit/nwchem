@@ -18,7 +18,7 @@
 #           Richland, WA 99352-0999
 #
 $quiet = 0;
-$debug = 0;
+$debug = 1;
 $num_argv = @ARGV;
 
 if ($num_argv == 0) {
@@ -312,7 +312,7 @@ foreach $filename (@FILES_TO_PARSE) {
 	}
         if (! $sgroup) {
 	if (/Total/ && /energy/) {
-	 if (/SCF/ || /DFT/ || /CCSD/ || /MP2/ || /MCSCF/ || /RIMP2/ || /RISCF/ || /BAND/ || /PAW/ || /PSPW/ || /WFN1/ ) {
+	 if (/SCF/ || /DFT/ || /CCSD/ || /MP2/ || /MCSCF/ || /RIMP2/ || /RISCF/ || /BAND/ || /PAW/ || /PSPW/ || /WFN1/ || /xTB/ ) {
 		if ($debug) {print "\ndebug: $_";}
 		@line_tokens = split(' ');
 		$num_line_tokens = @line_tokens;
@@ -358,6 +358,50 @@ foreach $filename (@FILES_TO_PARSE) {
 	    }
 	}
 	}
+
+        if (!$sgroup) {
+          if (/\@GW/) {
+            if ($debug) {print "\ndebug: $_";}
+            @line_tokens = split(' ');
+            $num_line_tokens = @line_tokens;
+            if ($debug) {
+              print "debug:line_tokens: @line_tokens \n";
+              print "debug:number     : $num_line_tokens \n";
+            }
+            for($itok = 0; $itok <($num_line_tokens-2); $itok++){
+              if (! $quiet) {
+                printf "%s ", @line_tokens[$itok];
+              }
+              printf FILE_OUTPUT "%s ", @line_tokens[$itok];
+            }
+            if (!$quiet) {
+              printf "%.2f\n", set_to_digits(@line_tokens[$itok],2);
+            }
+            printf FILE_OUTPUT "%.2f\n", set_to_digits(@line_tokens[$itok],2);
+          }
+        }
+        if (!$sgroup) {
+	    if (/rt\_tddft/ && /Etot/) {
+            if ($debug) {print "\ndebug: $_";}
+            @line_tokens = split(' ');
+            $num_line_tokens = @line_tokens;
+            if ($debug) {
+              print "debug:line_tokens: @line_tokens \n";
+              print "debug:number     : $num_line_tokens \n";
+            }
+            for($itok = 0; $itok <($num_line_tokens-3); $itok++){
+              if (! $quiet) {
+                printf "%s ", @line_tokens[$itok];
+              }
+              printf FILE_OUTPUT "%s ", @line_tokens[$itok];
+            }
+            if (!$quiet) {
+              printf "%.4f\n", set_to_digits(@line_tokens[$itok],4);
+            }
+            printf FILE_OUTPUT "%.4f\n", set_to_digits(@line_tokens[$itok],4);
+          }
+        }
+
 	if (/Excitation energy/ || /Rotatory /) {
 	    if ($debug) {print "\ndebug: $_";}
 	    @line_tokens = split(' ');

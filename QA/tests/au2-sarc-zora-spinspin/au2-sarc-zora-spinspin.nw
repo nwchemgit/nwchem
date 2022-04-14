@@ -13,12 +13,14 @@ end
 
 dft
 xc pbe0
-convergence  energy 1d-9
-grid fine
+convergence  energy 1d-10
 noprint "final vectors analysis" multipole
+grid fine
 end
+
 relativistic
  zora on
+ zora:cutoff 1d-30
  modelpotential 1
 end
 
@@ -26,5 +28,7 @@ property
 shielding
 spinspin
 end
+
+set int:cando_txs f
 
 task dft property

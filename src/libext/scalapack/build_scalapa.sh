@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
+myscalapwd=`pwd`
 source ../libext_utils/cmake.sh
-
+cd $myscalapwd
 
 if [[ -z "${MPIF90}" ]]; then
 if [[ "$FC" = "ftn"  ]] ; then
@@ -64,6 +65,7 @@ if ((CMAKE_VER_MAJ < 3)) || (((CMAKE_VER_MAJ > 2) && (CMAKE_VER_MIN < 8))); then
 	exit 1
     fi
 fi
+cd $myscalapwd
 pwd
 
 #if [[ "$SCALAPACK_SIZE" != "4"  ]] ; then
@@ -169,6 +171,16 @@ if [[ ${FC} == ftn ]]; then
     fi
 fi
 FC_EXTRA=$(${NWCHEM_TOP}/src/config/strip_compiler.sh ${FC})
+
+if [[  -z "$MPICH_FC"   ]] ; then
+    export MPICH_FC="$FC"
+    echo MPICH_FC is "$MPICH_FC"
+fi
+#Intel MPI
+if [[  -z "$I_MPI_F90"   ]] ; then
+    export I_MPI_F90="$FC"
+    echo I_MPI_F90 is "$I_MPI_F90"
+fi
 if [[  -z "$PE_ENV"   ]] ; then
     #check if mpif90 and FC are consistent
     MPIF90_EXTRA=$(${NWCHEM_TOP}/src/config/strip_compiler.sh `${MPIF90} -show`)
@@ -194,6 +206,15 @@ if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
     C_FLAGS+=" -DInt=long"
 fi
 #skip argument check for gfortran
+arch=`uname -m`
+echo arch is $arch
+if  [[ ${FC_EXTRA} == nvfortran ]]; then
+    if  [[ ${USE_HWOPT} == n ]]; then
+      if [[ "$arch" == "x86_64" ]]; then
+	Fortran_FLAGS+=" -tp px "
+      fi
+    fi
+fi
 if  [[ ${FC_EXTRA} == gfortran ]] || [[ ${FC} == f95 ]]; then
     Fortran_FLAGS+=" -fPIC "
     if [[ "$(expr `${FC} -dumpversion | cut -f1 -d.` \> 7)" == 1 ]]; then
@@ -207,8 +228,17 @@ if [[ "$CRAY_CPU_TARGET" == "mic-knl" ]]; then
     module swap craype-mic-knl craype-haswell
     KNL_SWAP=1
 fi
-echo compiling with CC="$MPICC"  FC=$MPIF90 CFLAGS="$C_FLAGS" FFLAGS="$Fortran_FLAGS" $CMAKE -Wno-dev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_FLAGS="$C_FLAGS"  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY="$BLASOPT"  -DBLAS_LIBRARIES="$BLASOPT"  -DLAPACK_openblas_LIBRARY="$BLASOPT"  -DLAPACK_LIBRARIES="$BLASOPT"
-CC="$MPICC"  FC=$MPIF90 CFLAGS="$C_FLAGS" FFLAGS="$Fortran_FLAGS" $CMAKE -Wno-dev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_FLAGS="$C_FLAGS"  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY="$BLASOPT"  -DBLAS_LIBRARIES="$BLASOPT"  -DLAPACK_openblas_LIBRARY="$BLASOPT"  -DLAPACK_LIBRARIES="$BLASOPT"
+
+# force -m32 flag on 32-bit x86 linux to avoid -mx32
+Fortran_FLAGS_RELWITHDEB=" -O2 -g -DNDEBUG "
+if [[ "$arch" == "i686" ]] || [[ "$arch" == "x86_64" ]]; then
+    if [[ ${NWCHEM_TARGET} == LINUX ]] && [[ ${FC_EXTRA} == gfortran ]] ; then
+       Fortran_FLAGS+=" -m32 "
+       C_FLAGS+=" -m32 "
+    fi
+fi
+echo compiling with CC="$MPICC"  FC=$MPIF90 CFLAGS="$C_FLAGS" FFLAGS="$Fortran_FLAGS" $CMAKE -Wno-dev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_FLAGS="$C_FLAGS"  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY="$BLASOPT"  -DBLAS_LIBRARIES="$BLASOPT"  -DLAPACK_openblas_LIBRARY="$BLASOPT"  -DLAPACK_LIBRARIES="$BLASOPT" -DCMAKE_Fortran_FLAGS_RELWITHDEBINFO="-O2 -g -DNDEBUG  $Fortran_FLAGS"
+CC="$MPICC"  FC=$MPIF90 CFLAGS="$C_FLAGS" FFLAGS="$Fortran_FLAGS" $CMAKE -Wdev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_FLAGS="$C_FLAGS"  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY="$BLASOPT"  -DBLAS_LIBRARIES="$BLASOPT"  -DLAPACK_openblas_LIBRARY="$BLASOPT"  -DLAPACK_LIBRARIES="$BLASOPT" -DCMAKE_Fortran_FLAGS_RELWITHDEBINFO="-O2 -g -DNDEBUG  $Fortran_FLAGS"
 if [[ "$?" != "0" ]]; then
     echo " "
     echo "cmake failed"

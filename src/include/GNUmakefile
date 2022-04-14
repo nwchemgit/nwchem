@@ -8,7 +8,7 @@
 include ../config/makefile.h
 
 SUBDIRS = $(NWSUBDIRS)
-
+ifndef QUICK_BUILD
 includes:
 	for dir in $(SUBDIRS); do \
 		echo Making include_stamp in $(SRCDIR)/$$dir ; \
@@ -17,7 +17,7 @@ includes:
 
 include_stamp sngl_to_dbl dbl_to_sngl 64_to_32 32_to_64:
 	@echo Nothing to be done
-
+endif
 # In this directory, clean does not do anything -- we only want get rid of
 # up the include files if there's a serious cleanup.
 

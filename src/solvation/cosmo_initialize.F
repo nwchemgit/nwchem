@@ -89,6 +89,8 @@ c
 c
       odbug=.false.
       osome=oprint
+      call util_print_push
+      call util_print_rtdb_load(rtdb, 'cosmo')
 c
       if(odbug.and.me.eq.0) then
          write(Luout,*) 'in cosmo_initialize ...'
@@ -216,7 +218,7 @@ c
       if(.not.ma_push_get(mt_dbl,nat,'cosmo rads',l_rad,k_rad))
      & call errquit('cosmo_init malloc k_rad failed',911,MA_ERR)
 c
-      call cosmo_def_radii(rtdb,geom,nat,dbl_mb(k_rad))
+      call cosmo_def_radii(rtdb,geom,nat,dbl_mb(k_rad),.true.)
 c
       if(.not.ma_push_get(mt_dbl,nat*3,'coord',l_coscoor,k_coscoor))
      & call errquit('cosmo_init malloc k_coscoor failed',911,MA_ERR)
@@ -426,7 +428,7 @@ c     set cosmo radii to smd radii if do_cosmo_smd is true; if the radii
 c     are provided by the user then we will use those
 c
       if (do_cosmo_smd) then
-       call cosmo_def_radii(rtdb,geom,nat,dbl_mb(k_rad))
+       call cosmo_def_radii(rtdb,geom,nat,dbl_mb(k_rad),.true.)
       endif
 c
       if (.not.
@@ -568,7 +570,7 @@ c
 c
 c     ----- create boundary elements of cavity -----
 c
-      call hnd_cosset(rtdb,nat,dbl_mb(k_coscoor),dbl_mb(k_rad))
+      call hnd_cosset(rtdb,nat,dbl_mb(k_coscoor),dbl_mb(k_rad),geom)
 c
       if(.not.rtdb_get(rtdb,'cosmo:nefc',mt_int,1     ,nefc))
      $   call errquit('cosmo_initialize: rtdb get failed for nefc',911,

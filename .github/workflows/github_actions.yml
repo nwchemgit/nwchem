@@ -41,7 +41,31 @@ jobs:
             mpi_impl: mpich
             nwchem_modules: "qmandpw qmd"
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-18.04
+            experimental: true
+            mpi_impl: openmpi
+            armci_network: MPI-TS
+            nwchem_modules: "xtb driver solvation"
+            fc: gfortran-9
+            blas: "build_openblas"
+            use_openmp: 2
+            use_tblite: 1
+          - os: ubuntu-18.04
+            experimental: true
+            mpi_impl: intel
+            armci_network: MPI-TS
+            nwchem_modules: "xtb driver solvation"
+            fc: ifort
+            use_openmp: 2
+            use_tblite: 1
+          - os: ubuntu-18.04
+            experimental: true
+            mpi_impl: mpich
+            armci_network: ARMCI
+            nwchem_modules: "all"
+            fc: gfortran
+            blas: "build_openblas"
+          - os: ubuntu-18.04
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS
@@ -244,6 +268,14 @@ jobs:
             nwchem_modules: "qmandpw qmd"
             fc: ifort
             use_openmp: 2
+          - os: ubuntu-18.04
+            experimental: true
+            mpi_impl: mpich
+            armci_network: MPI-TS
+            nwchem_modules: "qmandpw qmd"
+            fc: nvfortran
+            cc: gcc
+            use_openmp: 2
       fail-fast: false
     env:
         MPI_IMPL: ${{ matrix.mpi_impl }}
@@ -251,6 +283,7 @@ jobs:
         NWCHEM_MODULES: ${{ matrix.nwchem_modules }}
         USE_SIMINT: ${{ matrix.use_simint }}
         USE_LIBXC: ${{ matrix.use_libxc }}
+        USE_TBLITE: ${{ matrix.use_tblite }}
         FC: ${{ matrix.fc }}
         CC: ${{ matrix.cc }}
         COMEX_MAX_NB_OUTSTANDING: 4
@@ -277,7 +310,7 @@ jobs:
           path: |
             ~/cache
             ~/apps
-          key: ${{ matrix.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-blas${{ matrix.blas}}-simd${{ steps.get-simd.outputs.simd }}-nwchemcache-v017
+          key: ${{ matrix.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-blas${{ matrix.blas}}-libxc${{matrix.use_libxc}}-tblite${{matrix.use_tblite}}-simd${{ steps.get-simd.outputs.simd }}-nwchemcache-v001
       - name: fetch apps cache
         if: steps.setup-cache.outputs.cache-hit == 'true'
         run: |
@@ -310,6 +343,7 @@ jobs:
         run: |
           cat src/tools/build/config.log || true
           cat src/tools/build/comex/config.log || true
+          tail -100 64log || true
       - name: store cache
         run: |
           mkdir -p ~/apps || true
@@ -353,6 +387,10 @@ jobs:
           egrep d=  QA/testoutputs/dft_smear.out || true; fi
           if [[ -f QA/testoutputs/dft_smear.out ]]; then \
           tail -2000  QA/testoutputs/dft_smear.out || true; fi
+          if [[ -f QA/testoutputs/ritddft_h2o.out ]]; then \
+          tail -2000  QA/testoutputs/ritddft_h2o.out || true; fi
+          if [[ -f QA/testoutputs/ritddft_co.out ]]; then \
+          tail -2000  QA/testoutputs/ritddft_co.out || true; fi
           if [[ -f QA/testoutputs/pspw_md.out ]]; then \
           grep 'PSPW energy'  QA/testoutputs/pspw_md.out || true; fi
   

@@ -326,6 +326,9 @@ ifdef USE_MPI
     endif
     ifneq ($(LIBMPI),)
         MPI_COMBINED += $(LIBMPI)
+        ifeq ($(ARMCI_NETWORK),ARMCI)
+           MPI_COMBINED += -lpthread
+        endif
     endif
     ifneq ($(MPI_LOC),)
         MPI_COMBINED += $(MPI_LOC)
@@ -647,11 +650,12 @@ ifndef ARMCI_NETWORK
     ARMCI_NETWORK=MPI-TS
     MAYBE_ARMCI = --with-mpi-ts
 endif
-# CUDA UM support
-ifdef NWCHEM_LINK_CUDA
-    MAYBE_ARMCI +=  --enable-cuda-mem
-endif
-#
+
+# CUDA UM support - disabled now that trpdrv_openacc does not need it
+#ifdef NWCHEM_LINK_CUDA
+#    MAYBE_ARMCI +=  --enable-cuda-mem
+#endif
+
 # Apparently weak bindings do not work with CYGWIN64 at the moment. There seems
 # to be an issue with the COFF object format that gets in the way (with ELF
 # this is apparently not a problem). Some details can be found at

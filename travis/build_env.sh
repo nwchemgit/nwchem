@@ -2,6 +2,8 @@
 os=`uname`
 dist="ubuntu"
 arch=`uname -m`
+env | grep FC || true
+env | grep CC || true
 if test -f "/usr/lib/os-release"; then
     dist=$(grep ID= /etc/os-release |head -1 |cut -c4-| sed 's/\"//g')
 fi
@@ -171,15 +173,18 @@ fi
     if [[ "$FC" == "nvfortran" ]]; then
 	sudo apt-get -y install lmod g++ libtinfo5 libncursesw5 lua-posix lua-filesystem lua-lpeg lua-luaossl
 	nv_major=22
-	nv_minor=1
+	nv_minor=3
 	nverdot="$nv_major"."$nv_minor"
 	nverdash="$nv_major"-"$nv_minor"
 	arch_dpkg=`dpkg --print-architecture`
-        nv_p1=nvhpc-"$nverdash"_"$nverdot"_"$arch_dpkg".deb
-	nv_p2=nvhpc-20"$nv_major"_"$nverdot"_"$arch_dpkg".deb
-	wget https://developer.download.nvidia.com/hpc-sdk/"$nverdot"/"$nv_p1"
-	wget https://developer.download.nvidia.com/hpc-sdk/"$nverdot"/"$nv_p2"
-	sudo dpkg -i "$nv_p1" "$nv_p2"
+	echo 'deb [trusted=yes] https://developer.download.nvidia.com/hpc-sdk/ubuntu/'$arch_dpkg' /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
+	echo '*** added hpc-sdk source to /etc/aps ***'
+	ls -lrt /etc/apt/sources.list.d/ || true
+	ls -lrt	/etc/apt/sources.list.d/nvhpc.list || true
+	sudo cat /etc/apt/sources.list.d/nvhpc.list || true
+	sudo apt-get update -y
+	apt-cache search nvhpc
+        sudo apt-get install -y nvhpc-"$nverdash"
 	export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:$PATH
 	export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH
 	sudo /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x
@@ -194,7 +199,6 @@ fi
 #	export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/comm_libs/mpi/lib:$LD_LIBRARY_PATH
 #	fi
 	export CC=gcc
-	env | grep FC || true
 	nvfortran -v
 	nvfortran
 	which nvfortran

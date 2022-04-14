@@ -199,46 +199,6 @@ peigs_CTOFLIB = /msrc/apps/lib/gcc-lib/sparc-sun-sunos4.1.3/2.4.3/libgcc.a -lF77
 #
 endif	
 
-ifeq ($(peigs_TARGET),SGI)
-#SGI/TCGMSG usually r4000
-
-peigs_CPU = MIPS
-peigs_COMM = TCGMSG
-peigs_CODEOBJ = DBLE
-peigs_CC += -DSTD_DBL -DSTD_INT
-peigs_FC += -align64 -DSTD_INT -DSTD_DBL -D$(peigs_COMM) -D$(peigs_CPU)
-peigs_CPP += -DSTD_INT -DSTD_DBL -P
-peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
-peigs_CTOFLIB = -lftn -lm -lc /usr/lib/crtn.o
-endif  
-
-ifeq ($(peigs_TARGET),SGI_N32)
-peigs_CPU = MIPS
-peigs_COMM = TCGMSG
-peigs_CODEOBJ = DBLE
-peigs_CC += -DSTD_DBL -DSTD_INT
-peigs_FC += -align64  -D$(peigs_COMM) -DSTD_INT -DSTD_DBL -D$(peigs_CPU)
-peigs_CPP += -DSTD_INT -DSTD_DBL -D$(peigs_CPU) -P
-peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
-peigs_CTOFLIB = -lftn -lm -lc /usr/lib/crtn.o
-endif  
-
-
-ifeq ($(peigs_TARGET),SGITFP)
-#SGI/TCGMSG, r10000 cpu 7.x compilers
-peigs_CPU = MIPS
-peigs_COMM = TCGMSG
-peigs_CODEOBJ = DBLE
-peigs_CC += -DSTD_DBL -64
-peigs_FC += -align64  -64 -DSTD_DBL  -D$(peigs_COMM) -D$(peigs_CPU)
-peigs_CPP += -DSTD_DBL -P
-peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
-peigs_CTOFLIB = -lftn -lm -lc /usr/lib/crtn.o
-peigs_FOPT = -O3 
-peigs_COPT = -O3
-peigs_COMM  = TCGMSG
-peigs_CTOFLIB = -lftn -lm -lc /usr/lib/crtn.o
-endif
 
 ifeq ($(peigs_TARGET),CONVEX-SPP)
 #
@@ -441,11 +401,6 @@ peigs_COMMLIB = -L$(TOPDIR)/lib/$(NWCHEM_TARGET) -ltcgmsg
 #
 peigs_CPP = /usr/bin/cpp -I${peigs_HDIR} -D${peigs_CPU} -D${peigs_COMM} \
 -D${peigs_TARGET_definition}
-endif
-
-ifeq ($(peigs_TARGET),FUJITSU_VPP)
-peigs_CODEOBJ = DBLE
-peigs_CPU = VPP
 endif
 
 export peigs_COMM

@@ -7,7 +7,7 @@ C> Library of HONDO routines used to implement COSMO
 C>
 C> \brief Setup the COSMO cavity surface
 C>
-      subroutine hnd_cosset(rtdb,nat,c,radius)
+      subroutine hnd_cosset(rtdb,nat,c,radius,geom)
       implicit none
 c
 c              ----- starting from -icosahedron- -----
@@ -41,6 +41,7 @@ c
       integer nat                  !< [Input] The number of atoms
       double precision c(3,nat)    !< [Input] The atomic coordinates
       double precision radius(nat) !< [Input] The atomic radii
+      integer geom
 c
 c
       integer   mxface, mxapex
@@ -60,6 +61,7 @@ c
       integer l_i110, i110
       integer l_i120, i120
       integer l_i130, i130
+      integer l_i140, i140
       integer need
 c
       dbug=.false.
@@ -111,6 +113,8 @@ c
      c     call errquit('hndcosset: not enuf mem',11,MA_ERR)
       if(.not.ma_push_get(mt_dbl,  mxface*nat,"xyzff",l_i130,i130))
      c     call errquit('hndcosset: not enuf mem',12,MA_ERR)
+      if(.not.ma_push_get(mt_dbl,mxface,"Lebedev w",l_i140,i140))
+     c     call errquit('hndcosset: not enuf mem',13,MA_ERR)
 c     i10 =init                    ! xyzatm(3,nat)
 c     i20 =i10 +3*nat              !   ratm(  nat)
 c     i30 =i20 +  nat              !   nspa(  nat)
@@ -130,7 +134,8 @@ c
      1                dbl_mb(i10),dbl_mb(i20),int_mb(i30),int_mb(i40),
      2                int_mb(i50),dbl_mb(i60),int_mb(i70),log_mb(i80),
      3                dbl_mb(i90),int_mb(i100),int_mb(i110),
-     4                dbl_mb(i120),dbl_mb(i130),rtdb)
+     4                dbl_mb(i120),dbl_mb(i130),dbl_mb(i140),
+     5                geom,rtdb)
 
 c
 c     ----- release memory block -----
@@ -149,7 +154,8 @@ C>
       subroutine hnd_cossrf(nat,c,radius,mxatm,mxfac,mxapx,
      1                  xyzatm,ratm,nspa,nppa,
      2                  ijkfac,xyzseg,ijkseg,insseg,
-     3                  xyzspa,ijkspa,numpps,apex,xyzff,rtdb)
+     3                  xyzspa,ijkspa,numpps,apex,xyzff,wleb,
+     4                  geom,rtdb)
       implicit none
 c
 #include "nwc_const.fh"
@@ -160,10 +166,12 @@ c
 #include "cosmoP.fh"
 #include "mafdecls.fh"
 #include "util_params.fh"
+#include "util.fh"
       integer rtdb, nat
       integer mxatm
       integer mxfac
       integer mxapx
+      integer geom
       double precision      c(3,nat  )
       double precision radius(    nat)
       double precision xyzatm(3,mxatm)
@@ -182,22 +190,20 @@ c
       double precision  wleb(mxfac)
       double precision  energy
 c
-      logical    some
-      logical    out
-      logical    more
-      logical    dbug
+      logical    oprint_out
+      logical    oprint_more
+      logical    oprint_debug
 c
       integer i, iat, lfac, lseg, ndiv, nfac, nseg
       integer mfac
       integer jat
 c
-      dbug=.false.
-      more=.false.
-      more=more.or.dbug
-      out =.false. 
-      out =out.or.more
-      some=.false.
-      some=some.or.out
+      oprint_out = util_print("cosmo_cossrf_out",print_high).and.
+     D     (ga_nodeid().eq.0)
+      oprint_debug = util_print("cosmo_cossrf_debug",print_debug).and.
+     D     (ga_nodeid().eq.0)
+      oprint_more = util_print("cosmo_cossrf_more",print_never).and.
+     D     (ga_nodeid().eq.0)
 c
 c     ----- approximate sphere with segments and points -----
 c
@@ -215,9 +221,11 @@ c
      2                  dsurf,dvol,adiag)
       elseif (fibonacci.lt.1) then
         call cosmo_lebedev(iangleb, nseg, wleb, xyzseg)
+        ijkseg(1:nseg) = 0
       else
         nseg = fibonacci
         call cosmo_fibonacci(nseg, xyzseg, dsurf, dvol)
+        ijkseg(1:nseg) = 0
       endif
 
       if (thomson.gt.0) then
@@ -228,17 +236,17 @@ c
 c
 c     ----- debug printing -----
 c
-      if(out.and.ga_nodeid().eq.0) then
+      if(oprint_out) then
          write(luout,9999) nseg,nfac,ndiv,dsurf,dvol
          write(luout,9995) adiag
-         if(more) then
+         if(oprint_more) then
             write(luout,9998)
             do lseg=1,nseg
                write(luout,9997) lseg,xyzseg(1,lseg),xyzseg(2,lseg),
      1                             xyzseg(3,lseg),ijkseg(  lseg)
             enddo
          endif
-         if(dbug .and. (iangleb.lt.1).and.(fibonacci.lt.1)) then
+         if(oprint_debug.and. (iangleb.lt.1).and.(fibonacci.lt.1)) then
             write(luout,9996)
             do lfac=1,nfac
                mfac=lfac+nseg
@@ -273,7 +281,7 @@ c
       call hnd_cossas(nat,xyzatm,ratm,mxatm,
      1                nspa,nppa,xyzspa,ijkspa,
      2                nseg,nfac,xyzseg,ijkseg,insseg,
-     3                numpps,xyzff,wleb,mxfac,rtdb)
+     3                numpps,xyzff,wleb,mxfac,geom,rtdb)
 c
       return
  9999 format(' nseg,nfac,ndiv=nfac/nseg,dsurf,dvol = ',3i7,2f10.6)
@@ -366,7 +374,8 @@ C>
       subroutine hnd_cossas(nat,xyzatm,ratm,mxatom,
      1                      nspa,nppa,xyzspa,ijkspa,
      2                      nseg,nfac,xyzseg,ijkseg,insseg,
-     3                      numpps,xyzff,wleb,mxface,rtdb)
+     3                      numpps,xyzff,wleb,mxface,geom,
+     4                      rtdb)
       implicit none
 #include "cosmo_params.fh"
 #include "errquit.fh"
@@ -379,6 +388,7 @@ C>
 cnew
 #include "cosmoP.fh"
 #include "util_params.fh"
+#include "util.fh"
 c
       integer rtdb    !< [Input] The RTDB handle
       integer nat     !< [Input] The actual number of atoms
@@ -386,6 +396,8 @@ c
       integer mxatom  !< [Input] The maximum number of atoms
       integer nseg    !< [Input] The actual number of segments
       integer nfac    !< [Input] The actual number of faces
+
+      integer geom
 c
       logical     dbug
       double precision xyzatm(3,mxatom) !< [Input] The atom positions
@@ -417,12 +429,28 @@ c
       integer l_efcc, k_efcc, l_efcs, k_efcs, l_efcz, k_efcz
       integer l_efclb, k_efclb, k_efciat, l_efciat
       integer l_efczz, k_efczz
+      integer l_msrf,k_msrf
       double precision ratm_real,dij,dum,cavdsp,pi,zetai,zetaii
       integer m,mfac,mseg
       integer nefc,iat,jat,npp,i,iseg,ifac,ief,ipp
+
+      integer l_dum1, l_dum2, l_attag, k_dum1, k_dum2, k_attag
+      character(len=16) aname
+
+      integer op, iat_new
+      double precision vector(3), symfact
 c
       double precision cosff
       external         cosff
+
+      logical  sym_atom
+      external sym_atom
+
+      integer sym_number_ops, sym_center_map
+      external sym_number_ops, sym_center_map
+
+      logical geom_cart_get
+      external geom_cart_get
 c
 c     MN solvation models -->
 c
@@ -432,12 +460,18 @@ c     <-- MN solvation models
 c
       double precision dist, xi, yi, zi, xj, yj, zj, rin, rout, alphai
       parameter (alphai = 0.5d0)
+      logical oprint_debug
+      logical oprint_molsurf
+c
       dist(xi,yi,zi,xj,yj,zj)=sqrt((xj-xi)**2+(yj-yi)**2+(zj-zi)**2)
       rin(iat)=ratm(iat)*(1.0d0-alphai*gammas*sqrt(0.25d0**minbem))
       rout(iat)=ratm(iat)*(1.0d0+(1.0d0-alphai)*gammas*
      &                     sqrt(0.25d0**minbem))
 c
-      dbug=.false.
+      oprint_debug = util_print("cosmo_cossas_debug",print_debug).and.
+     D     (ga_nodeid().eq.0)
+      oprint_molsurf = util_print("cosmo_mol_surface",print_never).and.
+     D     (ga_nodeid().eq.0)
       pi = acos(-1.0d0)
 c
       if(ga_nodeid().eq.0) then
@@ -475,24 +509,65 @@ c     ----- sift through atomic centers and decide if a face -----
 c           belongs to the -sas- or is inside the molecule.
 c
       do iat=1,nat
-c
          if(ratm(iat).ne.0d0) then
-            do iseg=1,nseg
-               ijkspa(iseg,iat)=ijkseg(iseg)
-               xyzff(iseg,iat)=one
-               do m=1,3
-                  xyzspa(m,iseg,iat)=xyzseg(m,iseg)*ratm(iat)
-     1                              +xyzatm(m,iat)
-               enddo
-            enddo
-            do ifac=1,nfac
-               ijkspa(ifac+nseg,iat)=ijkseg(ifac+nseg)
-               do m=1,3
-                  xyzspa(m,ifac+nseg,iat)=xyzseg(m,ifac+nseg)*ratm(iat)
-     1                                   +xyzatm(m,iat)
-               enddo
-            enddo
-            if(dbug.and.ga_nodeid().eq.0) then
+            if (sym_number_ops(geom).gt.0) then
+              if (.not.sym_atom(geom, iat, symfact)) cycle
+
+              ! Identity operator first
+              do iseg=1,nseg
+                ijkspa(iseg,iat)=ijkseg(iseg)
+                xyzff(iseg,iat)=one
+                vector(:)=xyzseg(:,iseg)
+                xyzspa(:,iseg,iat)=vector(:)*ratm(iat)+xyzatm(:,iat)
+              enddo
+              do ifac=1,nfac
+                ijkspa(ifac+nseg,iat) = ijkseg(ifac+nseg)
+                vector(:)=xyzseg(:,ifac+nseg)
+                xyzspa(:,ifac+nseg,iat)=vector(:)*ratm(iat)
+     $                                 +xyzatm(:,iat)
+              enddo
+
+              ! Loop over rest of operators
+              do op=1, sym_number_ops(geom)
+                iat_new = sym_center_map(geom, iat, op)
+                if (iat_new.eq.iat) cycle
+                do iseg=1,nseg
+                  ijkspa(iseg,iat_new)=ijkseg(iseg)
+                  xyzff(iseg,iat_new)=one
+                  call sym_apply_op(geom, op, xyzseg(1,iseg),vector)
+                  xyzspa(1:3,iseg,iat_new)=vector(:)*ratm(iat_new) +
+     $                                     xyzatm(:,iat_new)
+                enddo
+                do ifac=1,nfac
+                  ijkspa(ifac+nseg,iat_new) = ijkseg(ifac+nseg)
+                  call sym_apply_op(geom,op,xyzseg(1,ifac+nseg),vector)
+                  xyzspa(1:3,ifac+nseg,iat_new)=vector(:)*ratm(iat_new) 
+     $                                         + xyzatm(:,iat_new)
+                enddo
+              enddo
+            else
+              do iseg=1,nseg
+                 ijkspa(iseg,iat)=ijkseg(iseg)
+                 xyzff(iseg,iat)=one
+                 do m=1,3
+                    xyzspa(m,iseg,iat)=xyzseg(m,iseg)*ratm(iat)
+     1                                +xyzatm(m,iat)
+                 enddo
+              enddo
+              do ifac=1,nfac
+                 ijkspa(ifac+nseg,iat)=ijkseg(ifac+nseg)
+                 do m=1,3
+                   xyzspa(m,ifac+nseg,iat)=xyzseg(m,ifac+nseg)*ratm(iat)
+     1                                    +xyzatm(m,iat)
+                 enddo
+              enddo
+            endif
+         endif
+      enddo
+
+      do iat=1,nat
+         if(ratm(iat).ne.0d0) then
+            if(oprint_debug) then
                write(luout,9996) iat
                write(luout,9995) (ijkspa(ifac+nseg,iat),ifac=1,nfac)
             endif
@@ -605,7 +680,7 @@ c
             write(luout,9991) iat,nspa(iat),nppa(iat),npp
          enddo
       endif
-      if(dbug.and.ga_nodeid().eq.0) then
+      if(oprint_debug) then
          write(luout,9987)
          do iat=1,nat
             do iseg=1,nseg
@@ -639,7 +714,25 @@ c
       if(.not.ma_push_get(mt_dbl,nefc,'cosmo zeta',l_efczz,k_efczz))
      & call errquit('cosmo_cossas malloc k_efczz failed',911,MA_ERR) 
       if(.not.ma_push_get(mt_byte,nefc*8,'cosmo tags',l_efclb,k_efclb))
-     & call errquit('cosmo_cossas malloc k_tag failed',911,MA_ERR)
+     &     call errquit('cosmo_cossas malloc k_tag failed',911,MA_ERR)
+      if(oprint_molsurf)  then
+         if(.not.ma_push_get(mt_dbl,nefc,'molsurf',l_msrf,k_msrf))
+     &        call errquit('cosmo_cossas malloc k_tag failed',1,MA_ERR)
+         call dfill(nefc,0.0d0,dbl_mb(k_msrf),1)
+      endif
+
+      if(oprint_debug) then
+        if(.not.ma_push_get(mt_dbl,nat*3,'coord',l_dum1,k_dum1))
+     &   call errquit('cosmo_cossas malloc dum1 failed',911,MA_ERR)
+        if(.not.ma_push_get(mt_dbl,nat,'cosmo z',l_dum2,k_dum2)) call
+     &    errquit('cosmo_cossas malloc k_dum2 failed',911,MA_ERR)
+        if(.not.ma_push_get(mt_byte,nat*16,'tags',l_attag,k_attag)) call
+     &    errquit('cosmo_cossas malloc k_attag failed',911,MA_ERR)
+c
+        if(.not.geom_cart_get(geom,nat,byte_mb(k_attag),
+     &     dbl_mb(k_dum1),dbl_mb(k_dum2))) call errquit
+     $      (' cosmo_cossas: geom_cart_get failed.',911, GEOM_ERR)
+      endif
 c
 c     ----- save coordinates of surface points -----
 c           save segment surfaces
@@ -648,6 +741,8 @@ c
       srfmol=0d0
       volmol=0d0
       ief   =0
+
+
       do iat=1,nat
          if(ratm(iat).ne.0d0) then
             ratm_real=-1d99
@@ -656,13 +751,25 @@ c
             else if (do_cosmo_model.eq.DO_COSMO_YK) then
               ratm_real=ratm(iat)
             endif 
+            
             do iseg=1,nseg
                if(.not.insseg(iseg,iat)) then
                   ief=ief+1
-                  do i=1,3
-                     dbl_mb(k_efcc+3*(ief-1)+i-1)=xyzatm(i,iat)
-     1                          +xyzseg(i,iseg)*ratm_real
-                  enddo
+
+                  if (do_cosmo_model.eq.DO_COSMO_KS) then
+                    do i=1,3
+                      dbl_mb(k_efcc+3*(ief-1)+i-1)=
+     1                     (xyzspa(i,iseg,iat)-xyzatm(i,iat))*
+     2                     ratm_real/ratm(iat) + xyzatm(i,iat)
+                    enddo
+                  elseif (do_cosmo_model.eq.DO_COSMO_YK) then
+c                    do i=1,3
+c                     dbl_mb(k_efcc+3*(ief-1)+i-1)=xyzspa(i,iseg,iat)
+                     dbl_mb(k_efcc+3*(ief-1))  =xyzspa(1,iseg,iat)
+                     dbl_mb(k_efcc+3*(ief-1)+1)=xyzspa(2,iseg,iat)
+                     dbl_mb(k_efcc+3*(ief-1)+2)=xyzspa(3,iseg,iat)
+c                    enddo
+                  endif
                   ipp=numpps(iseg,iat)
                   if (do_cosmo_model.eq.DO_COSMO_KS) then
                     dbl_mb(k_efcs+ief-1) = dble(ipp)*dsurf*ratm_real**2
@@ -676,12 +783,22 @@ c
                       zetai=zeta/sqrt(dsurf)/ratm_real
                       zetaii=zetai*sqrt(2d0/pi)
                       dbl_mb(k_efcs+ief-1) = (zetaii/xyzff(iseg,iat))
+c     769
+                      if(oprint_molsurf)  then
+                         dbl_mb(k_msrf+ief-1)=
+     x                        xyzff(iseg,iat)*dsurf*ratm_real**2
+                      endif
                       srfmol = srfmol+xyzff(iseg,iat)*dsurf*ratm_real**2
                       volmol = volmol+xyzff(iseg,iat)*dvol *ratm_real**3
                     else
                       zetai=zeta/(ratm_real*sqrt(wleb(iseg)))
                       zetaii=zetai*sqrt(2d0/pi)
                       dbl_mb(k_efcs+ief-1) = zetaii/xyzff(iseg,iat)
+c 775
+                      if(oprint_molsurf)  then
+                         dbl_mb(k_msrf+ief-1)=
+     x                        xyzff(iseg,iat)*wleb(iseg)*ratm_real**2
+                      endif
                       srfmol = srfmol + xyzff(iseg,iat)*
      $                                  wleb(iseg)*ratm_real**2
                       volmol = volmol + xyzff(iseg,iat)*
@@ -696,6 +813,28 @@ c
       enddo
       srfmol=srfmol*(cau2ang**2)
       volmol=volmol*(cau2ang**3)
+c
+      if(oprint_debug) then
+        write(luout,*)
+        write(luout,'(" --- Geometry including SAS --- ")')
+        write(luout,*) nat+nefc
+        write(luout,*)
+        do iat=1,nat
+          call util_set_ma_char_arrays(16,
+     $                                byte_mb(k_attag+16*(iat-1)),
+     $                                aname)
+          write(luout,'(A10,3F12.6)') aname(1:2),
+     $                                (xyzatm(i,iat)*cau2ang,i=1,3)
+        enddo
+        do ief=1,nefc
+          write(luout,'(A10,3F12.6)') "X",
+     1    (dbl_mb(k_efcc+3*(ief-1)+i-1)*cau2ang,i=1,3)
+        enddo
+        write(luout,'(" --- End of Geometry including SAS --- ")')
+        write(luout,*)
+        if (.not.ma_chop_stack(l_dum1))
+     $    call errquit('hnd_cossas: could not chop stack',0,MA_ERR)   
+      endif
 c
       if(ga_nodeid().eq.0) then
          write(luout,9990) nefc
@@ -726,12 +865,21 @@ c <-- MN solvation models
 c
 c     ----- print segment surfaces -----
 c
-      if(dbug.and.ga_nodeid().eq.0) then
-         write(luout,9989)
-         do ief=1,nefc
-            write(luout,9988) ief,dbl_mb(k_efcs+ief-1),
-     &                        int_mb(k_efciat+ief-1)
-         enddo
+      if(oprint_molsurf) then
+        if (do_cosmo_model.eq.DO_COSMO_KS) then
+           write(luout,9989)
+           do ief=1,nefc
+              write(luout,9988) ief,dbl_mb(k_efcs+ief-1),
+     &                          int_mb(k_efciat+ief-1)
+           enddo
+        else if (do_cosmo_model.eq.DO_COSMO_YK) then
+           write(luout,*) ' Contributions to the molecular surface '
+           do ief=1,nefc
+              write(luout,*) ief,
+     W           dbl_mb(k_msrf+ief-1)
+           enddo
+
+        endif
       endif
 c
       do ief=1,nefc
@@ -779,17 +927,7 @@ c     if(.not.rtdb_cput(rtdb,'char variable',nefc,byte_mb(k_efclb)))
 c    $   call errquit('hnd_cossas: rtdb put failed for efclab',917,
 c    &       rtdb_err)
 c
-      if(.not.ma_pop_stack(l_efclb)) call
-     &   errquit('cosmo_cossas chop stack k_efclb failed',911,MA_ERR)
-      if(.not.ma_pop_stack(l_efczz)) call
-     &   errquit('cosmo_cossas chop stack k_efczz failed',911,MA_ERR) 
-      if(.not.ma_pop_stack(l_efcz)) call
-     &   errquit('cosmo_cossas chop stack k_efcz failed',911,MA_ERR)
-      if(.not.ma_pop_stack(l_efciat)) call
-     &   errquit('cosmo_cossas chop stack k_efciat failed',911,MA_ERR)
-      if(.not.ma_pop_stack(l_efcs)) call
-     &   errquit('cosmo_cossas chop stack k_efcs failed',911,MA_ERR)
-      if(.not.ma_pop_stack(l_efcc)) call
+      if(.not.ma_chop_stack(l_efcc)) call
      &   errquit('cosmo_cossas chop stack k_efcc failed',911,MA_ERR)
 c
       return
@@ -1901,7 +2039,7 @@ c
             zetaj = efczz(j)
             zetaij= zeta*zetaj/sqrt(zetai**2+zetaj**2)
             dij=r(i,j)
-            if (dij.lt.1.0d-5) then
+            if (dij.lt.1.0d-8) then
               aij=factor2*zetaij*(1d0 - (zetaij*dij)**2/3d0)
             else
               aij=derf(zetaij*dij)/dij
@@ -1912,7 +2050,7 @@ c
         enddo
       endif
 c
-      call ga_dgop(msg_cosaxd,ax,nefc,'+')
+      call ga_dgop(msg_cosaxd,ax(1),nefc,'+')
 c
       return
       end

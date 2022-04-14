@@ -276,10 +276,10 @@ c     repl stuff
 c
         if (xcreplicated.and.dorepxc) then
           g_update(1)=k_repxc(1)
-          g_update(2)=k_repxc(2)
+          if(ipol.eq.2.and.(.not.l3d)) g_update(2)=k_repxc(2)
         else
           g_update(1)=g_vxc(1)
-          g_update(2)=g_vxc(2)
+          if(ipol.eq.2.and.(.not.l3d)) g_update(2)=g_vxc(2)
         endif
         do 430 iat0=1,natleft
           call starttimer(monitor_screen2)

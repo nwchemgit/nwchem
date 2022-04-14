@@ -100,7 +100,7 @@ Summary:	Parallel Ab-Initio Quantum Chemistry Code
 
 Group:		Applications/Scientific
 License:	Various: NWChem: ECL2.0; Global Arrays: OpenSource; OpenMPI: New BSD
-URL:		http://www.nwchem-sw.org
+URL:		https://nwchemgit.github.io
 Source0:	nwchem-6.5.tar.gz
 Source1:	openmpi-1.8.4.tar.gz
 BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
@@ -109,7 +109,7 @@ BuildRequires:	gcc == 4.4.7
 
 %description
 NWChem parallel ab-initio quantum chemistry code targetting computer systems. \
-For more details see: http://www.nwchem-sw.org
+For more details see: https://nwchemgit.github.io
 
 
 %prep

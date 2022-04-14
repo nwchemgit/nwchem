@@ -21,7 +21,7 @@ c
 c
       integer nbf         ! [input] Number of basis functions
       integer g_dens      ! [input] 1-particle reduced density matrix
-      character*255 filename
+      character*(*) filename
 c
       integer l_dens, k_dens
       integer ok

@@ -43,6 +43,7 @@ c
          endif
       endif
       if (info.eq.0) then
+      if (odftps) call pstat_on(ps_inv)
 #if defined(PARALLEL_DIAG)
 #ifdef SCALAPACK
          info = ga_llt_i('U',g_b,-1)
