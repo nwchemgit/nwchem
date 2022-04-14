@@ -8,7 +8,7 @@
       character          trans
       integer ipiv(*)
       integer            info, lda, ldb, n, nrhs
-      double precision   a( lda, * ), b( ldb, * )
+      complex*16 a( lda, * ), b( ldb, * )
 c
       INTGR4 n4,info4,lda4,ldb4,nrhs4
 c

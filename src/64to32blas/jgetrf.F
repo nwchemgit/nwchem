@@ -6,7 +6,7 @@
 #include "y64.fh"
       integer ipiv(*)
       integer            info, lda, m, n
-      double precision   a( lda, * )
+      complex*16   a( lda, * )
 c
       INTGR4 m4,n4,info4,lda4
 c
