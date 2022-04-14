@@ -7,10 +7,8 @@
 #include "stdio.fh"
 #include "x2c_scf.fh"
 c
-      integer me
 c     check for additional x2c keywords and set
 c     lx2c_keepU to T if we need it for any of the properties:
-      me=ga_nodeid()
       lx2c_keepU = .false.
       lx2c_efg = .false.
       if (rtdb_get(rtdb, 'x2c:efg', mt_log, 1,
@@ -25,7 +23,7 @@ c     lx2c_keepU to T if we need it for any of the properties:
       if (rtdb_get(rtdb, 'x2c:noatm', mt_log, 1,
      &  lx2c_noatm)) continue
 
-      if (lx2c_efg .and. me.eq.0) write (luout,*)
+      if (lx2c_efg .and. ga_nodeid().eq.0) write (luout,*)
      &  'x2c: will calculate EFGs, too'
       
       return
@@ -45,7 +43,6 @@ c     lx2c_keepU to T if we need it for any of the properties:
 #include "errquit.fh"
 #include "x2c_scf.fh"
 c
-      integer me
 c     deallocate x2c arrays if necessary
       if (.not. ga_destroy(g_rel(1))) call errquit(
      &     'dft_scf: ga_destroy failed g_rel',0, GA_ERR)
@@ -80,10 +77,9 @@ c     deallocate x2c arrays if necessary
 #include "stdio.fh"
 #include "x2c_scf.fh"
 c
-      integer me
       if (lx2c_efg) then
 c     x2c EFG 
-         if (me.eq.0)
+         if (ga_nodeid().eq.0)
      &        write (luout,*) 'calling calc_x2c_efg' 
          call calc_x2c_efg_scalar(rtdb,
      &        nexc, g_dens, g_dens_at, g_x2c_u)
@@ -91,7 +87,7 @@ c     x2c EFG
       
       if (lx2c_moment) then
 c     x2c dipole moment
-         if (me.eq.0)
+         if (ga_nodeid().eq.0)
      &        write (luout,*) 'calling x2c_moment' 
          call calc_x2c_moment_scalar(rtdb,
      &        nexc, g_dens, g_dens_at, g_x2c_u, 'dipole', 3)
