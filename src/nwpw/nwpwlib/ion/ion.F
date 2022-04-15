@@ -689,7 +689,7 @@ c         eki1=0.5d0*eki1
       if (.not. beom_cent_tag(geom,i,t))
      >        call errquit(' ion_aname  failed ',i, GEOM_ERR)
 
-      if (.not. beom_tag_to_element(t,symbol,name,q))
+      if (.not. beom_tag_to_element(t,symbol,name,q, 2, 16))
      >        call errquit(' ion_aname  failed ',i, GEOM_ERR)
 
       if (ccode.eq.12) then
