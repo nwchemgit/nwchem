@@ -839,10 +839,12 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
 
 
          !**** emotion write ****
-         write(31,1311) icount*it_in*dt + emotion_time_shift,
-     >                  e(1),deltae,deltac,deltar,e(2),e(3),e(4),
-     >                  e(5),e(6),e(7),e(8),e(9),e(10)
-         call util_flush(31)
+         if (taskid.eq.MASTER) then
+            write(31,1311) icount*it_in*dt + emotion_time_shift,
+     >                     e(1),deltae,deltac,deltar,e(2),e(3),e(4),
+     >                     e(5),e(6),e(7),e(8),e(9),e(10)
+            call util_flush(31)
+         end if
 
          !**** xyz write ****
          call xyz_novelocity_write()
@@ -1545,10 +1547,10 @@ c      call frac_occ_end()
  1332 FORMAT(/' Elements of Hamiltonian matrix (down)')
  1333 FORMAT(/' Diagonal Elements of Hamiltonian matrix(up/restricted)')
  1334 FORMAT(/' Diagonal Elements of Hamiltonian matrix(down)')
- 1340 FORMAT(I3,2I3,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)
- 1341 FORMAT(I3,2I3,' H=',E16.6)
+ 1340 FORMAT(I5,2I5,' H=',E16.7,', L=',E16.7,', H-L=',E16.7)
+ 1341 FORMAT(I5,2I5,' H=',E16.6)
  1350 FORMAT(/' orthonormality')
- 1360 FORMAT(I3,2I3,E18.7)
+ 1360 FORMAT(I5,2I5,E18.7)
  1370 FORMAT(I3)
  1380 FORMAT(' ''',a,'''',I4)
  1390 FORMAT(I3)

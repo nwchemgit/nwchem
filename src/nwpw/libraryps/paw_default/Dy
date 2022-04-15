@@ -1,5 +1,5 @@
 Comment: 
-Comment: PAW basis set generation file for Erbium
+Comment: PAW basis set generation file for Dysprosium
 Comment: Fitted 04-02-22
 Comment: by Eric Bylaska
 Comment: 
@@ -7,9 +7,9 @@ Comment:
 [psp_type] 4
 [cutoff] 60.0
 
-<comment> Parameterized Er paw (4f5s5p5d5f6s6p projectors, 4/2/2022 by EJB) <end>
+<comment> Parameterized Dy paw (4f5s5p5d5f6s6p projectors, 4/2/2022 by EJB) <end>
 
-<atom_charge> 68.0
+<atom_charge> 66.0
 <orbitals>
 13   2 3
    1   0    2.00
@@ -21,12 +21,12 @@ Comment:
    4   0    2.00
    4   1    6.00
    4   2   10.00
-   4   3   12.00
+   4   3    9.98
    5   0    2.00
    5   1    6.00
    6   0    2.00
-   6   1    0.00 
-   5   2    0.00
+   5   2    0.02
+   6   1    0.00
    5   3    0.00  1.00
    6   2    0.00  1.00
    7   0    0.00  1.00
@@ -51,10 +51,11 @@ pauli
 6 1 2.400
 
 <ref_potential_matching_radius> 1.2
-<ref_potential_at_zero>   3.0
+<ref_potential_at_zero>   6.0
 <compensation_charge_radius> 1.8
 <nodal_constraint> on
 <projector_method> vanderbilt
+
 
 <scattering_test>
 4

@@ -41,6 +41,7 @@
 *   gga = 304 m06-l
 *   gga = 305  m06
 *   gga = 306  m06-2x
+*   gga = 307  r2scan
 *
       has_disp = .false.
       has_vdw  = .false.
@@ -1030,13 +1031,13 @@
         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
         value = value.and.
      >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.27d0)
-      !*** add grimmes here
-
       else if (inp_compare(.false.,exchange_correlation,'m06-2x')) then
         gga = 306
         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
         value = value.and.
      >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.54d0)
+      else if (inp_compare(.false.,exchange_correlation,'r2scan')) then
+        gga = 307
       !*** add grimmes here
 
       else

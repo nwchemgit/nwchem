@@ -1,13 +1,13 @@
 #
 # $Id$
 #
-Comment: Samarium pseudopotential parameters
+Comment: Ytterbium pseudopotential parameters
 Comment: Relativistic TM, quadratic semicore,P rojectors: 4f 5s 5p 5d 6s 6p
-Comment: Fitted 04-06-22
+Comment: Fitted 03-31-22
 Comment: by Eric Bylaska
 Comment:
 
-<comment> Parameterized Sm TM psp (4f5s5p5d6s6p projectors, 4/6/2022 by EJB) <end>
+<comment> Parameterized Yb TM psp (4f5s5p5d6s6p projectors, 3/31/2022 by EJB) <end>
 
 [lmax] 3
 [locp] 0
@@ -15,8 +15,8 @@ Comment:
 [cutoff] 75.0
 
 <atom>
- Sm
-  62.00 150.36 9 3
+ Yb
+  70.00  173.04  9 3
    1   0    2.00
    2   0    2.00
    2   1    6.00
@@ -26,16 +26,16 @@ Comment:
    4   0    2.00
    4   1    6.00
    4   2   10.00
-   4   3    6.00
+   4   3   14.00
    5   0    2.00
    5   1    6.00
 <end>
 <solver> pauli                         <end>
 <pseudopotential> troullier-martins    <end>
 <rcut>
-0       1.648000
-1       1.868000
-2       3.913000
+0       1.618000
+1       1.828000
+2       1.213000
 3       1.403000
 <end>
 <kb_expansion>
@@ -43,7 +43,7 @@ Comment:
 1 2
 3 2
 <end>
-<semicore> 0.920 <end>
+<semicore> 0.800 <end>
 <semicore_type> quadratic <end>
 
 <screening_cut> 0.10 <end>
