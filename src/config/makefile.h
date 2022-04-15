@@ -2094,8 +2094,15 @@ ifneq ($(TARGET),LINUX)
             _FC=frt
         endif
 
-        ifeq ($(CC),$(findstring $(FC),fcc fccpx))
+        ifeq ($(CC),$(findstring $(CC),fcc fccpx))
             _CC=fcc
+        endif
+#cross-compilation
+        ifeq ($(CC),fccpx)
+            _CPU=aarch64
+        endif
+        ifeq ($(FC),frtpx)
+            _CPU=aarch64
         endif
 
         ifndef _FC
@@ -3789,6 +3796,11 @@ endif
 ifeq ($(shell echo $(BLASOPT) |awk '/[Ss][Ss][Ll]2[Bb][Ll][Aa][Mm][Pp]/ {print "Y"; exit}'),Y)
     DEFINES += -DBLAS_OPENMP
 else ifeq ($(shell echo $(BLASOPT) |awk '/[Ss][Ss][Ll]2/ {print "Y"; exit}'),Y)
+    DEFINES += -DBLAS_NOTHREADS
+endif
+ifeq ($(shell echo $(BLASOPT) |awk '/lfjlapackex/ {print "Y"; exit}'),Y)
+    DEFINES += -DBLAS_OPENMP
+  else ifeq ($(shell echo $(BLASOPT) |awk '/lfjlapack/ {print "Y"; exit}'),Y)
     DEFINES += -DBLAS_NOTHREADS
 endif
 
