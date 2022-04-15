@@ -212,6 +212,7 @@ fi
 ./nodelist_patch.sh $GA_DIR
 ./nompif_patch.sh $GA_DIR
 ./ptstride_patch.sh $GA_DIR
+patch -p0 -s -N < ./fujitsu.patch
 
 #patch -p0 -s -N < ./scala1.patch
 if test -e $GA_DIR/configure
