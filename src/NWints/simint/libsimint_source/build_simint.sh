@@ -8,6 +8,8 @@
 #  SIMINT_MAXAM=5 ./build_simint.sh
 #
 mysimpwd=`pwd`
+source ../../../libext/libext_utils/cmake.sh
+cd $mysimpwd
 if  [ -z "$(command -v python3)" ]; then
     echo python3 not installed
     echo please install python3
@@ -38,6 +40,7 @@ fi
    GOTAVX=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /avx/    {print "Y"}')
   GOTAVX2=$(echo ${CPU_FLAGS_2} | tr  'A-Z' 'a-z'| awk ' /avx2/   {print "Y"}')
 GOTAVX512=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /avx512f/{print "Y"}')
+   GOTSVE=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /sve/{print "Y"}')
 if [[ -n "${SIMINT_VECTOR}" ]]; then
       VEC=${SIMINT_VECTOR}
 elif [[ "${GOTAVX512}" == "Y" ]]; then
@@ -48,6 +51,8 @@ elif [[ "${GOTAVX}" == "Y" ]]; then
     VEC=avx
 elif [[ "${GOTSSE2}" == "Y" ]]; then
     VEC=sse
+elif [[ "${GOTSVE}" == "Y" ]]; then
+    VEC=sve
 else
     VEC=scalar
 fi
@@ -88,28 +93,40 @@ TAR_NAME=simint-chem-simint-generator.tar.gz
 if [ -f  ${TAR_NAME} ]; then
     echo "using existing"  ${TAR_NAME}
 else
-if  [ ! -z "$(command -v curl)" ] ; then
-    curl -L "${GITHUB_URL}" -o "${TAR_NAME}"
-else
-    wget -O "${TAR_NAME}" "${GITHUB_URL}"
+    if  [ ! -z "$(command -v curl)" ] ; then
+	curl -L "${GITHUB_URL}" -o "${TAR_NAME}"
+    else
+	wget -O "${TAR_NAME}" "${GITHUB_URL}"
+    fi
 fi
-fi
-if [[ -z "${MYCMAKE}" ]]; then
+if [[ -z "${CMAKE}" ]]; then
     #look for cmake
     if [[ -z "$(command -v cmake)" ]]; then
-	source ${NWCHEM_TOP}/src/libext/libext_utils/cmake.sh
-	cmake_instdir=${NWCHEM_TOP}/src/libext/libext_utils
+	cmake_instdir=../../../libext/libext_utils
 	get_cmake_release $cmake_instdir
 	status=$?
 	if [ $status -ne 0 ]; then
-	echo cmake required to build Simint
+	    echo cmake required to build scalapack
+	    echo Please install cmake
+	    echo define the CMAKE env. variable
+	    exit 1
+	fi
+    else
+	CMAKE=cmake
+    fi
+fi
+CMAKE_VER_MAJ=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -d. -f1)
+CMAKE_VER_MIN=$(${CMAKE} --version|cut -d " " -f 3|head -1|cut -d. -f2)
+echo CMAKE_VER is ${CMAKE_VER_MAJ} ${CMAKE_VER_MIN}
+if ((CMAKE_VER_MAJ < 3)) || (((CMAKE_VER_MAJ > 2) && (CMAKE_VER_MIN < 21))); then
+    cmake_instdir=../../../libext/libext_utils/
+    get_cmake_release $cmake_instdir
+    status=$?
+    if [ $status -ne 0 ]; then
+	echo cmake required to build scalapack
 	echo Please install cmake
 	echo define the CMAKE env. variable
 	exit 1
-	fi
-	MYCMAKE=$CMAKE
-    else
-	MYCMAKE=cmake
     fi
 fi
 cd $mysimpwd
@@ -124,19 +141,10 @@ if [[  -z "${NWCHEM_TOP}" ]]; then
     NWCHEM_TOP=$(dirname "$dir1")
 fi
 mkdir -p build; cd build
-CMAKE_VER=$(${MYCMAKE} --version|cut -d " " -f 3|head -1|cut -d. -f1)
-echo CMAKE_VER is ${CMAKE_VER}
-echo dirname is `pwd`
-if [[ ${CMAKE_VER} -lt 3 ]]; then
-    echo CMake 3.0.2 or higher is required
-    echo Please install CMake 3
-    echo define the MYCMAKE env. variable
-    exit 1
-fi
 if [[ -z "${SIMINT_BUILD_TYPE}" ]]; then
     SIMINT_BUILD_TYPE=Release
 fi
-$MYCMAKE  -DCMAKE_BUILD_TYPE="${SIMINT_BUILD_TYPE}"  ../
+$CMAKE  -DCMAKE_BUILD_TYPE="${SIMINT_BUILD_TYPE}"  ../
 make -j2
 cd ..
 #./create.py -g build/generator/ostei -l 6 -p 4 -d 1 simint.l6_p4_d1
@@ -208,9 +216,12 @@ elif  [[ ${FC_EXTRA} == nvfortran || ${FC} == pgf90 || (${FC} == ftn && ${PE_ENV
     if  [[ ${PE_ENV} == NVIDIA ]]; then
 	unset CPATH
     fi
+elif  [ ${FC} == frt ] || [ ${FC} == frtpx ] ; then
+    Fortran_FLAGS=" -fs -CcdLL8 -CcdII8 -cpp "
+    CXX=FCCpx
 fi
 echo Fortran_FLAGS equal "$Fortran_FLAGS"
-FC="${FC}" CC="${CC}" CXX="${CXX}" $MYCMAKE \
+FC="${FC}" CC="${CC}" CXX="${CXX}" $CMAKE \
  -DCMAKE_BUILD_TYPE="${SIMINT_BUILD_TYPE}" -DSIMINT_VECTOR=${VEC}  \
  -DCMAKE_INSTALL_LIBDIR=lib -DENABLE_FORTRAN=ON -DSIMINT_MAXAM=${SIMINT_MAXAM} -DSIMINT_MAXDER=${DERIV} \
  -DENABLE_TESTS=OFF     -DSIMINT_STANDALONE=OFF   \
