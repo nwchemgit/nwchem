@@ -2097,7 +2097,7 @@ c               close(53)
              read(54,*,end=100)
            end do
   100      continue
-#if defined(FUJITSU_SOLARIS) || defined(SOLARIS) || defined(__crayx1) || defined(GCC46)
+#if defined(FUJITSU) || defined(SOLARIS) || defined(__crayx1) || defined(GCC46)
            backspace 54
 #endif
          else

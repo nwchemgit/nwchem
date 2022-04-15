@@ -271,6 +271,7 @@
       logical ok
       if(symbol_mxsize.ne.symbol_size.and.
      E     element_mxsize.ne.element_mxsize) then
+         write(6,*) ' beom_tag_to_element: wrong args'
          beom_tag_to_element = .false.
          return
       endif

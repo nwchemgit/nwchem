@@ -439,7 +439,7 @@ c     >                 control_it_in(),control_it_out()
            icount_shift = icount_shift + 1
            end do
   100      continue
-#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1) || defined(GCC46)
+#if defined(FUJITSU) || defined(PSCALE) || defined(__crayx1) || defined(GCC46)
            backspace 31
 #endif
          else

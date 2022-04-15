@@ -523,7 +523,7 @@ c         end if
            E26 = E26 + EV*EV
            end do
   100      continue
-#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1)
+#if defined(FUJITSU) || defined(PSCALE) || defined(__crayx1)
            backspace 31
 #endif
          else

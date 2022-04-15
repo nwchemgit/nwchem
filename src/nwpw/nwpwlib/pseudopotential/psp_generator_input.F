@@ -643,7 +643,7 @@ c        *** PBE96 ***
              read(99,*,ERR=30,END=30) ch_tmp
            end do
    30      continue
-#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1) || defined(MACX) || defined(GCC46)
+#if defined(FUJITSU) || defined(PSCALE) || defined(__crayx1) || defined(MACX) || defined(GCC46)
            backspace 99
 #endif
            write(99,*) '<exchange>    pbe96 <end>'
@@ -659,7 +659,7 @@ c        *** BLYP - use b3lyp gga until fixed! ***
              read(99,*,ERR=31,END=31) ch_tmp
            end do
    31      continue
-#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1) || defined(MACX) || defined(GCC46)
+#if defined(FUJITSU) || defined(PSCALE) || defined(__crayx1) || defined(MACX) || defined(GCC46)
            backspace 99
 #endif
            write(99,*) '<exchange>    becke <end>'
@@ -676,7 +676,7 @@ c        *** revPBE ***
              read(99,*,ERR=32,END=32) ch_tmp
            end do
    32      continue
-#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1) || defined(MACX) || defined(GCC46)
+#if defined(FUJITSU) || defined(PSCALE) || defined(__crayx1) || defined(MACX) || defined(GCC46)
            backspace 99
 #endif
            write(99,*) '<exchange>    revpbe <end>'
@@ -940,7 +940,7 @@ c        *** PBE96 ***
              read(99,*,ERR=30,END=30) ch_tmp
            end do
    30      continue
-#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1) || defined(MACX) || defined(GCC46)
+#if defined(FUJITSU) || defined(PSCALE) || defined(__crayx1) || defined(MACX) || defined(GCC46)
            backspace 99
 #endif
            write(99,*) '<exchange>    pbe96 <end>'
@@ -956,7 +956,7 @@ c        *** BLYP - use until blyp vxc fixed ***
              read(99,*,ERR=31,END=31) ch_tmp
            end do
    31      continue
-#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1) || defined(MACX) || defined(GCC46)
+#if defined(FUJITSU) || defined(PSCALE) || defined(__crayx1) || defined(MACX) || defined(GCC46)
            backspace 99
 #endif
            write(99,*) '<exchange>    becke <end>'
@@ -973,7 +973,7 @@ c        *** revPBE ***
              read(99,*,ERR=32,END=32) ch_tmp
            end do
    32      continue
-#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1) || defined(MACX) || defined(GCC46)
+#if defined(FUJITSU) || defined(PSCALE) || defined(__crayx1) || defined(MACX) || defined(GCC46)
            backspace 99
 #endif
            write(99,*) '<exchange>    revpbe <end>'
