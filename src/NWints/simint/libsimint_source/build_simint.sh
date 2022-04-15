@@ -218,7 +218,8 @@ elif  [[ ${FC_EXTRA} == nvfortran || ${FC} == pgf90 || (${FC} == ftn && ${PE_ENV
     fi
 elif  [ ${FC} == frt ] || [ ${FC} == frtpx ] ; then
     Fortran_FLAGS=" -fs -CcdLL8 -CcdII8 -cpp "
-    CXX=FCCpx
+    CC=/opt/FJSVxos/devkit/aarch64/bin/aarch64-linux-gnu-gcc
+    CXX=/opt/FJSVxos/devkit/aarch64/bin/aarch64-linux-gnu-g++
 fi
 echo Fortran_FLAGS equal "$Fortran_FLAGS"
 FC="${FC}" CC="${CC}" CXX="${CXX}" $CMAKE \
