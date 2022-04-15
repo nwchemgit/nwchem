@@ -82,13 +82,12 @@ if [[  -z "${SIMINT_MAXAM}" ]]; then
 fi
 #PERMUTE_SLOW=1
 PERMUTE_SLOW=${SIMINT_MAXAM}
-#GITHUB_USERID=edoapra
-GITHUB_USERID=simint-chem
+GITHUB_USERID=edoapra
+#GITHUB_USERID=simint-chem
 #rm -rf simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIVE}* *-chem-simint-generator-?????? simint-chem-simint-generator.tar.gz simint_lib
 rm -rf simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIVE}* *-chem-simint-generator-?????? simint_lib
 
 GITHUB_URL=https://github.com/${GITHUB_USERID}/simint-generator/tarball/master
-#GITHUB_URL=https://github.com/simint-chem/simint-generator/tarball/master
 TAR_NAME=simint-chem-simint-generator.tar.gz
 if [ -f  ${TAR_NAME} ]; then
     echo "using existing"  ${TAR_NAME}
