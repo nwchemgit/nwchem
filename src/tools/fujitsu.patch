@@ -1,0 +1,164 @@
+--- ga-5.8.1/configure.org	2022-04-16 05:00:13.000000000 +0900
++++ ga-5.8.1/configure	2022-04-16 05:01:49.000000000 +0900
+@@ -23135,6 +23135,8 @@
+      cat > conftest.$ac_ext <<_ACEOF
+       program main
+       integer i
++      i=0
++      write(6,*) i
+       end program
+ _ACEOF
+ if ac_fn_f77_try_link "$LINENO"
+@@ -23146,7 +23148,7 @@
+ fi
+ if test "x$ga_result" = x
+ then :
+-  for flag in -fdefault-integer-4 -qintsize=4 "-integer-size 32" -CcdII4 "-s integer32" -xtypemap=integer:32 -i4 +i4
++  for flag in -fdefault-integer-4 -qintsize=4 "-integer-size 32" "-CcdII4 -CcdLL8" "-s integer32" -xtypemap=integer:32 -i4 +i4
+      do
+         FFLAGS="$ga_save_suppress_FFLAGS $flag"
+         rm -f a.out
+@@ -23154,6 +23156,8 @@
+         cat > conftest.$ac_ext <<_ACEOF
+       program main
+       integer i
++      i=0
++      write(6,*) i
+       end program
+ _ACEOF
+ if ac_fn_f77_try_link "$LINENO"
+@@ -23164,6 +23168,8 @@
+              cat > conftest.$ac_ext <<_ACEOF
+       program main
+       integer i
++      i=0
++      write(6,*) i
+       end program
+ _ACEOF
+ if ac_fn_f77_try_link "$LINENO"
+@@ -23212,6 +23218,8 @@
+      cat > conftest.$ac_ext <<_ACEOF
+       program main
+       integer i
++      i=0
++      write(6,*) i
+       end program
+ _ACEOF
+ if ac_fn_f77_try_link "$LINENO"
+@@ -23223,7 +23231,7 @@
+ fi
+ if test "x$ga_result" = x
+ then :
+-  for flag in -fdefault-integer-8 -qintsize=8 "-integer-size 64" -CcdII8 "-s integer64" -xtypemap=integer:64 -i8 +i8
++  for flag in -fdefault-integer-8 -qintsize=8 "-integer-size 64" "-CcdII8 -CcdLL8" "-s integer64" -xtypemap=integer:64 -i8 +i8
+      do
+         FFLAGS="$ga_save_suppress_FFLAGS $flag"
+         rm -f a.out
+@@ -23231,6 +23239,8 @@
+         cat > conftest.$ac_ext <<_ACEOF
+       program main
+       integer i
++      i=0
++      write(6,*) i
+       end program
+ _ACEOF
+ if ac_fn_f77_try_link "$LINENO"
+@@ -23241,6 +23251,8 @@
+              cat > conftest.$ac_ext <<_ACEOF
+       program main
+       integer i
++      i=0
++      write(6,*) i
+       end program
+ _ACEOF
+ if ac_fn_f77_try_link "$LINENO"
+@@ -23267,7 +23279,7 @@
+ 
+  ;; #(
+   *:4) :
+-    for flag in none $FFLAG_INT -fdefault-integer-4 -qintsize=4 "-integer-size 32" -CcdII4 "-s integer32" -xtypemap=integer:32 -i4 +i4
++    for flag in none $FFLAG_INT -fdefault-integer-4 -qintsize=4 "-integer-size 32" "-CcdII4 -CcdLL8" "-s integer32" -xtypemap=integer:32 -i4 +i4
+ do
+     ga_save_FFLAGS="$FFLAGS"
+     if test "x$flag" != xnone
+@@ -23405,7 +23417,7 @@
+ done
+  ;; #(
+   *:8) :
+-    for flag in none $FFLAG_INT -fdefault-integer-8 -qintsize=8 "-integer-size 64" -CcdII8 "-s integer64" -xtypemap=integer:64 -i8 +i8
++    for flag in none $FFLAG_INT -fdefault-integer-8 -qintsize=8 "-integer-size 64" "-CcdII8 -CcdLL8" "-s integer64" -xtypemap=integer:64 -i8 +i8
+ do
+     ga_save_FFLAGS="$FFLAGS"
+     if test "x$flag" != xnone
+--- ga-5.8.1/m4/ga_f77_integer_size.m4.org	2022-04-16 04:59:42.000000000 +0900
++++ ga-5.8.1/m4/ga_f77_integer_size.m4	2022-04-16 04:59:48.000000000 +0900
+@@ -2,13 +2,13 @@
+ # -----------------------------
+ # These are the known flags for promoting INTEGERs to 8 bytes.
+ AC_DEFUN([_GA_F77_INTEGER_4_KNOWN_FLAGS],
+-[-fdefault-integer-4 -qintsize=4 "-integer-size 32" -CcdII4 "-s integer32" -xtypemap=integer:32 -i4 +i4])dnl
++[-fdefault-integer-4 -qintsize=4 "-integer-size 32" "-CcdII4 -CcdLL8" "-s integer32" -xtypemap=integer:32 -i4 +i4])dnl
+ 
+ # _GA_F77_INTEGER_8_KNOWN_FLAGS
+ # -----------------------------
+ # These are the known flags for promoting INTEGERs to 8 bytes.
+ AC_DEFUN([_GA_F77_INTEGER_8_KNOWN_FLAGS],
+-[-fdefault-integer-8 -qintsize=8 "-integer-size 64" -CcdII8 "-s integer64" -xtypemap=integer:64 -i8 +i8])dnl
++[-fdefault-integer-8 -qintsize=8 "-integer-size 64" "-CcdII8 -CcdLL8" "-s integer64" -xtypemap=integer:64 -i8 +i8])dnl
+ 
+ # _GA_F77_INTEGER_4_FLAG(VARIABLE)
+ # --------------------------------
+@@ -69,6 +69,8 @@
+      AC_LINK_IFELSE(
+ [[      program main
+       integer i
++      i=0
++      write(6,*) i
+       end program]],
+         [ga_result=$flag])])
+ AS_IF([test "x$ga_result" = x],
+@@ -80,6 +82,8 @@
+         AC_LINK_IFELSE(
+ [[      program main
+       integer i
++      i=0
++      write(6,*) i
+       end program]],
+             [ac_ext=F
+              rm -f a.out
+@@ -87,6 +91,8 @@
+              AC_LINK_IFELSE(
+ [[      program main
+       integer i
++      i=0
++      write(6,*) i
+       end program]],
+              	[ga_result=$flag; break])
+              ac_ext=f])
+@@ -123,6 +129,8 @@
+      AC_LINK_IFELSE(
+ [[      program main
+       integer i
++      i=0
++      write(6,*) i
+       end program]],
+         [ga_result=$flag])])
+ AS_IF([test "x$ga_result" = x],
+@@ -134,6 +142,8 @@
+         AC_LINK_IFELSE(
+ [[      program main
+       integer i
++      i=0
++      write(6,*) i
+       end program]],
+             [ac_ext=F
+              rm -f a.out
+@@ -141,6 +151,8 @@
+              AC_LINK_IFELSE(
+ [[      program main
+       integer i
++      i=0
++      write(6,*) i
+       end program]],
+                 [ga_result=$flag; break])
+              ac_ext=f])

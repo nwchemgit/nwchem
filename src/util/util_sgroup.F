@@ -868,7 +868,7 @@ C>
             read(LuOut,*,ERR=30,END=30) ch_tmp
          end do
  30      continue
-#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1)
+#if defined(FUJITSU) || defined(PSCALE) || defined(__crayx1)
          backspace LuOut
 #endif
 *     **** FILE does not exist ****

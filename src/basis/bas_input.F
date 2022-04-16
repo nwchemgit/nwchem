@@ -1368,7 +1368,9 @@ c
       endif
       libname = compiled_name
       does_it_exist = .false.
+#ifndef FUJITSU
       inquire(file=libname,exist=does_it_exist)
+#endif
 c
 c     check if it is a directory
 c

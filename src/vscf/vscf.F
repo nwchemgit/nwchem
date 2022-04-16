@@ -805,7 +805,7 @@ c
                    dm2y(im,jm,il,jl) = dmy - dmy0
                    dm2z(im,jm,il,jl) = dmz - dmz0
                    if (ga_nodeid().eq.0) then
-#if defined(FUJITSU_SOLARIS) || defined(SOLARIS) || defined(GCC46)
+#if defined(FUJITSU) || defined(SOLARIS) || defined(GCC46)
                       backspace 82
 #endif
                     write(lcoup,9022) im, jm, RQ(im,il), RQ(jm,jl),

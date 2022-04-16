@@ -786,7 +786,8 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
            read(31,*,end=100) emotion_time_shift,w,sumall,gx,gy,gz
            end do
   100      continue
-#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1) || defined(GCC46)
+#if defined(FUJITSU) || defined(PSCALE) || defined(__crayx1) || defined(GCC46)
+#warning backspace           
            backspace 31
 #endif
          else

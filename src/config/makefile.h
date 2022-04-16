@@ -511,7 +511,7 @@ ifeq ($(TARGET),SOLARIS)
         # Fujitsu SPARC systems (thanks to Herbert Fruchtl)
         COPTIONS = -Kdalign
         COPTIMIZE = -Kfast_GP=2
-        DEFINES += -DFUJITSU_SOLARIS
+        DEFINES += -DFUJITSU -DFUJITSU_SOLARIS
     endif
 
     ifeq ($(FC),frt)
@@ -519,7 +519,7 @@ ifeq ($(TARGET),SOLARIS)
         # Fujitsu with Parallelnavi compilers
         # If using Fujitsu compilers on Sun hardware, replace -Kfast_GP=2 with
         #  -Kfast
-        DEFINES += -DFUJITSU_SOLARIS -DEXTNAME
+        DEFINES += -DFUJITSU -DFUJITSU_SOLARIS -DEXTNAME
         FOPTIONS = -Kdalign -w -fw -X9 
         FOPTIMIZE = -Kfast_GP=2 
         FDEBUG=
@@ -581,7 +581,7 @@ ifeq ($(TARGET),SOLARIS64)
         # Fujitsu SPARC systems (thanks to Herbert Fruchtl)
         COPTIONS = -Kdalign -KV9FMADD
         COPTIMIZE = -Kfast_GP=2 -KV9FMADD
-        DEFINES += -DFUJITSU_SOLARIS
+        DEFINES += -DFUJITSU -DFUJITSU_SOLARIS
     else
         # SUN/Solaris options for WS6.1
         COPTIONS = -xarch=v9 -dalign
@@ -592,7 +592,7 @@ ifeq ($(TARGET),SOLARIS64)
         # Fujitsu with Parallelnavi compilers
         # If using Fujitsu compilers on Sun hardware, replace -Kfast_GP=2 with
         #  -Kfast
-        DEFINES += -DFUJITSU_SOLARIS -DEXTNAME
+        DEFINES += -DFUJITSU -DEXTNAME -DFUJITSU_SOLARIS
         FOPTIONS = -Kdalign -w -fw -X9  -KV9FMADD
         ifdef USE_I4FLAGS
             FOPTIONS += -CcdLL8
@@ -2090,6 +2090,21 @@ ifneq ($(TARGET),LINUX)
             _FC=xlf
         endif
 
+        ifeq ($(FC),$(findstring $(FC),frt frtpx))
+            _FC=frt
+        endif
+
+        ifeq ($(CC),$(findstring $(CC),fcc fccpx))
+            _CC=fcc
+        endif
+#cross-compilation
+        ifeq ($(CC),fccpx)
+            _CPU=aarch64
+        endif
+        ifeq ($(FC),frtpx)
+            _CPU=aarch64
+        endif
+
         ifndef _FC
             FC=gfortran
             _FC=gfortran
@@ -2863,7 +2878,7 @@ ifneq ($(TARGET),LINUX)
             endif  # end of gfortran
 
             # A64fx
-            ifeq ($(FC),frt)
+            ifeq ($(_FC),frt)
 
                 DEFINES += -DFUJITSU
                 FOPTIONS += -fs
@@ -3781,6 +3796,11 @@ endif
 ifeq ($(shell echo $(BLASOPT) |awk '/[Ss][Ss][Ll]2[Bb][Ll][Aa][Mm][Pp]/ {print "Y"; exit}'),Y)
     DEFINES += -DBLAS_OPENMP
 else ifeq ($(shell echo $(BLASOPT) |awk '/[Ss][Ss][Ll]2/ {print "Y"; exit}'),Y)
+    DEFINES += -DBLAS_NOTHREADS
+endif
+ifeq ($(shell echo $(BLASOPT) |awk '/lfjlapackex/ {print "Y"; exit}'),Y)
+    DEFINES += -DBLAS_OPENMP
+  else ifeq ($(shell echo $(BLASOPT) |awk '/lfjlapack/ {print "Y"; exit}'),Y)
     DEFINES += -DBLAS_NOTHREADS
 endif
 

@@ -63,7 +63,7 @@ c     $Id$
                 read(20,*,ERR=30,END=30) ch_tmp
               end do
  30           continue
-#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1) || defined(GCC46)
+#if defined(FUJITSU) || defined(PSCALE) || defined(__crayx1) || defined(GCC46)
               backspace 20
 #endif
 

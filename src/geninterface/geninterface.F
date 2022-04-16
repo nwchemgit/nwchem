@@ -84,7 +84,7 @@ c10000    call errquit('nwchem: failed to open the input file', 0)
 c10001    continue
 c
 c      else
-c#if !(defined(KSR) || defined(IBM) || defined(FUJITSU_SOLARIS) )
+c#if !(defined(KSR) || defined(IBM) || defined(FUJITSU) )
 c         close(LuIn)
 c#endif
 c      endif

@@ -736,7 +736,7 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
            icount_shift = icount_shift + 1
            end do
   100      continue
-#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1) || defined(GCC46)
+#if defined(FUJITSU) || defined(PSCALE) || defined(__crayx1) || defined(GCC46)
            backspace 31
 #endif
          else

@@ -33,7 +33,7 @@ C  Worry about input file.  For now use a dummy one
 10001    continue
 c
       else
-#if !(defined(KSR) || defined(IBM) || defined(FUJITSU_SOLARIS) )
+#if !(defined(KSR) || defined(IBM) || defined(FUJITSU) )
          close(LuIn)
 #endif
       endif

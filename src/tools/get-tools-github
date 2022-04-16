@@ -208,10 +208,17 @@ echo "GOTMINGW64" $GOTMINGW64
 ./msmpi_patch.sh $GA_DIR
 ./mingw64_patch.sh $GA_DIR
 fi
-./strdup_patch.sh $GA_DIR
-./nodelist_patch.sh $GA_DIR
-./nompif_patch.sh $GA_DIR
-./ptstride_patch.sh $GA_DIR
+if [[ -d "ga-5.8.1" ]]; then
+    if [[ ! -f "ga-5.8.1/patched581" ]]; then
+	./strdup_patch.sh $GA_DIR
+	./nodelist_patch.sh $GA_DIR
+	./nompif_patch.sh $GA_DIR
+	./ptstride_patch.sh $GA_DIR
+	patch -p0 -s -N < ./fujitsu.patch
+	echo patched
+	touch ga-5.8.1/patched581
+    fi
+fi
 
 #patch -p0 -s -N < ./scala1.patch
 if test -e $GA_DIR/configure
