@@ -15,7 +15,6 @@ jobs:
         matrix:
           include:
             - {folder: nwchem-dev, archs: linux/aarch64, fc: gfortran}
-            - {folder: nwchem-dev, archs: linux/aarch64, fc: gfortran}
             - {folder: nwchem-dev, archs: linux/ppc64le, fc: gfortran}
             - {folder: nwchem-dev.xlf, archs: linux/ppc64le, fc: xlf}
             - {folder: nwchem-dev, archs: linux/arm/v7, fc: gfortran}
