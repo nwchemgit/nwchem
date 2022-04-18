@@ -2090,11 +2090,17 @@ ifneq ($(TARGET),LINUX)
             _FC=xlf
         endif
 
-        ifeq ($(FC),$(findstring $(FC),frt frtpx))
+        ifeq ($(FC),frt)
+            _FC=frt
+        endif
+        ifeq ($(FC),frtpx)
             _FC=frt
         endif
 
-        ifeq ($(CC),$(findstring $(CC),fcc fccpx))
+        ifeq ($(CC),fcc)
+            _CC=fcc
+        endif
+        ifeq ($(CC),fccpx)
             _CC=fcc
         endif
 #cross-compilation
