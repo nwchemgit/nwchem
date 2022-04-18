@@ -13,6 +13,9 @@ include ../config/makefile.h
 LIB_INCLUDES += -I$(TBLITE_MODS)
 LIB_INCLUDES += -I$(MCTC_MODS)
 LIB_INCLUDES += -I$(MCHR_MODS)
+LIB_INCLUDES += -I$(TOMLF_MODS)
+LIB_INCLUDES += -I$(DFTD3_MODS)
+LIB_INCLUDES += -I$(DFTD4_MODS)
 LIB_INCLUDES += -I.
 
 include ../config/makelib.h

@@ -7,7 +7,7 @@ check_tgz() {
     echo $myexit
 }
 
-VERSION=0.2.6-ilp64-alpha
+VERSION=0.2.7-ilp64-alpha
 TGZ=tblite-${VERSION}.tar.gz
 if [ ! -z "${USE_INTERNALBLAS}" ]; then
     echo USE_TBLITE not compatible with USE_INTERNALBLAS
@@ -110,11 +110,9 @@ if [[ ${FC} == flang ]]; then
 fi
 #nvfortran
 if [[ ${FC} == nvfortran ]]; then
-	echo
-	echo nvfortran not compatible with tblite
-	echo https://tblite.readthedocs.io/en/latest/installation.html#supported-compilers
-	echo
-	exit 1
+  FFLAGS="-Mbackslash -Mallocatable=03 -Mfree -traceback -Mcache_align -Mllalign"
+else
+  FFLAGS=""
 fi
 if [[ -z "$USE_OPENMP" ]]; then
   DOOPENMP=OFF
@@ -125,7 +123,7 @@ fi
 cd tblite
 rm -rf _build
 
-FC=$FC CC=$CC $CMAKE -B _build -DLAPACK_LIBRARIES="$BLASOPT" -DWITH_ILP64=$ilp64 -DWITH_OpenMP=$DOOPENMP -DCMAKE_INSTALL_PREFIX="../.." -DWITH_TESTS=OFF -DWITH_API=OFF -DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_IGNORE_PATH=/usr/local
+FC=$FC CC=$CC $CMAKE -B _build -DLAPACK_LIBRARIES="$BLASOPT" -DWITH_ILP64=$ilp64 -DWITH_OpenMP=$DOOPENMP -DCMAKE_INSTALL_PREFIX="../.." -DWITH_TESTS=OFF -DWITH_API=OFF -DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_IGNORE_PATH=/usr/local -DCMAKE_Fortran_FLAGS="$FFLAGS" -DWITH_API=OFF -DWITH_TESTS=OFF -DWITH_APP=OFF
 $CMAKE --build _build --parallel 4
 status=$?
 if [ $status -ne 0 ]; then
