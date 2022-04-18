@@ -3637,6 +3637,9 @@ ifdef USE_TBLITE
         TBLITE_MODS=$(NWCHEM_TOP)/src/libext/include/tblite
         MCTC_MODS=$(sort $(dir $(wildcard $(NWCHEM_TOP)/src/libext/include/mctc-lib/*/)))
         MCHR_MODS=$(sort $(dir $(wildcard $(NWCHEM_TOP)/src/libext/include/multicharge/*/)))
+        TOMLF_MODS=$(sort $(dir $(wildcard $(NWCHEM_TOP)/src/libext/include/toml-f/*/)))
+        DFTD3_MODS=$(sort $(dir $(wildcard $(NWCHEM_TOP)/src/libext/include/s-dftd3/*/)))
+        DFTD4_MODS=$(sort $(dir $(wildcard $(NWCHEM_TOP)/src/libext/include/dftd4/*/)))
     endif
     EXTRA_LIBS += $(LAPACK_LIB) $(BLASOPT)
 endif
