@@ -82,7 +82,7 @@ fi
 
 if [[ ${BLAS_SIZE} == 8 ]]; then
   ilp64=ON
-    if  [[ ${FC} == f95 ]] || [[ ${FC_EXTRA} == gfortran ]] ; then
+    if  [[ ${FC} == f95 ]] || [[ ${FC} == gfortran ]] ; then
       Fortran_FLAGS=" -fdefault-integer-8 -w "
     elif  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
       Fortran_FLAGS=" -qintsize=8 -qextname "
