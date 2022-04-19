@@ -28,9 +28,79 @@ tar -xzf tblite-${VERSION}.tar.gz
 ln -sf dmejiar-tblite-??????? tblite
 
 
-if [[  -z "${CC}" ]]; then
-    CC=cc
+if [[ -z "${MPIF90}" ]]; then
+  if [[ "$FC" = "ftn"  ]] ; then
+    MPIF90="ftn"
+    MPICC="cc"
+  else
+    if ! [ -x "$(command -v mpif90)" ]; then
+	echo
+	echo mpif90 not installed
+	echo mpif90 is required for building Scalapack
+	echo
+	exit 1
+    else
+	MPIF90="mpif90"
+        MPICC=mpicc
+    fi
+  fi
 fi
+
+if [[  -z "${FC}" ]]; then
+    FC=$($MPIF90 -show|cut -d " " -f 1)
+fi
+
+if [[  -z "${NWCHEM_TOP}" ]]; then
+    dir3=$(dirname `pwd`)
+    dir2=$(dirname "$dir3")
+    NWCHEM_TOP=$(dirname "$dir2")
+fi
+
+
+if [[ -n ${FC} ]] &&   [[ ${FC} == ftn ]]; then
+    if [[ ${PE_ENV} == PGI ]]; then
+          FC=pgf90
+    fi
+    if [[ ${PE_ENV} == INTEL ]]; then
+	FC=ifort
+    fi
+    if [[ ${PE_ENV} == GNU ]]; then
+	FC=gfortran
+    fi
+    if [[ ${PE_ENV} == AOCC ]]; then
+	FC=flang
+    fi
+    if [[ ${PE_ENV} == NVIDIA ]]; then
+	FC=nvfortran
+    fi
+    if [[ ${PE_ENV} == CRAY ]]; then
+	FC=crayftn
+	CC=clang
+	#fix for libunwind.so link problem
+        export LD_LIBRARY_PATH=/opt/cray/pe/cce/$CRAY_FTN_VERSION/cce-clang/x86_64/lib:/opt/cray/pe/lib64/cce/:$LD_LIBRARY_PATH
+    fi
+fi
+
+FC_EXTRA=$(${NWCHEM_TOP}/src/config/strip_compiler.sh ${FC})
+
+#Intel MPI
+if [[  -z "$I_MPI_F90"   ]] ; then
+    export I_MPI_F90="$FC"
+    echo I_MPI_F90 is "$I_MPI_F90"
+fi
+if [[  -z "$PE_ENV"   ]] ; then
+    #check if mpif90 and FC are consistent
+    MPIF90_EXTRA=$(${NWCHEM_TOP}/src/config/strip_compiler.sh `${MPIF90} -show`)
+    if [[ $MPIF90_EXTRA != $FC_EXTRA ]]; then
+        echo which mpif90 is `which mpif90`
+        echo mpif90show `${MPIF90} -show`
+	echo FC and MPIF90 are not consistent
+	echo FC is $FC_EXTRA
+	echo MPIF90 is $MPIF90_EXTRA
+	exit 1
+    fi
+fi
+
 if [[  -z "${FC}" ]]; then
 #FC not defined. Look for gfortran
     if [[ ! -x "$(command -v gfortran)" ]]; then
@@ -74,17 +144,12 @@ if ((CMAKE_VER_MAJ < 3)) || (((CMAKE_VER_MAJ > 2) && (CMAKE_VER_MIN < 11))); the
     fi
 fi
 
-if [[  -z "${FC}" ]]; then
-    FC=$($MPIF90 -show|cut -d " " -f 1)
-fi
-
 if [[  -z "${BLAS_SIZE}" ]]; then
    BLAS_SIZE=8
 fi
 
 if [[ ${BLAS_SIZE} == 8 ]]; then
-  ilp64=ON
-    if  [[ ${FC} == f95 ]] || [[ ${FC} == gfortran ]] ; then
+  if  [[ ${FC} == f95 ]] || [[ ${FC_EXTRA} == gfortran ]] ; then
       Fortran_FLAGS=" -fdefault-integer-8 -w "
     elif  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
       Fortran_FLAGS=" -qintsize=8 -qextname "
@@ -103,6 +168,7 @@ fi
 if [[ ! -z "$BUILD_OPENBLAS"   ]] ; then
     BLASOPT="-L`pwd`/../lib -lnwc_openblas -lpthread"
 fi
+
 # check gfortran version
 FFLAGS_IN=" "
 if [[ `${FC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] ; then
@@ -127,7 +193,7 @@ if [[ ${FC} == flang ]]; then
 fi
 
 #nvfortran
-if [[ ${PE_ENV} == NVIDIA ]] || [[ ${FC} == nvfortran ]]; then
+if [[ ${FC} == nvfortran ]] || [[ ${FC} == pgf90 ]]; then
   Fortran_FLAGS+="-Mbackslash -fast -tp host"
 fi
 
