@@ -45,8 +45,8 @@
       character(len=8) theory
       character(len=255) temp
 
-      integer*4 :: iuhf4, nspin4, verb4
-      integer*4,allocatable :: atnum4(:)
+      integer :: iuhf4, nspin4, verb4
+      integer,allocatable :: atnum4(:)
 
       double precision energy
       double precision, allocatable :: coords(:,:)

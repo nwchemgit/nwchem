@@ -7,23 +7,25 @@ check_tgz() {
     echo $myexit
 }
 
-VERSION=0.2.7-ilp64-alpha
+VERSION=ilp64
 TGZ=tblite-${VERSION}.tar.gz
+
 if [ ! -z "${USE_INTERNALBLAS}" ]; then
     echo USE_TBLITE not compatible with USE_INTERNALBLAS
     echo Please set BUILD_OPENBLAS or
     echo BLASOPT/LAPACK_LIB
     exit 1
 fi
+
 if [ `check_tgz $TGZ` == 1 ]; then
     echo "using existing $TGZ"
 else
     rm -rf tblite*
-    curl -L https://github.com/dmejiar/tblite/archive/v${VERSION}.tar.gz -o $TGZ
+    curl -L https://github.com/dmejiar/tblite/tarball/${VERSION} -o $TGZ
 fi
 
 tar -xzf tblite-${VERSION}.tar.gz
-ln -sf tblite-${VERSION} tblite
+ln -sf dmejiar-tblite-??????? tblite
 
 
 if [[  -z "${CC}" ]]; then
@@ -77,10 +79,23 @@ fi
 if [[  -z "${BLAS_SIZE}" ]]; then
    BLAS_SIZE=8
 fi
+
 if [[ ${BLAS_SIZE} == 8 ]]; then
   ilp64=ON
+    if  [[ ${FC} == f95 ]] || [[ ${FC_EXTRA} == gfortran ]] ; then
+      Fortran_FLAGS=" -fdefault-integer-8 -w "
+    elif  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
+      Fortran_FLAGS=" -qintsize=8 -qextname "
+    elif  [[ ${FC} == crayftn ]]; then
+      Fortran_FLAGS=" -s integer64 -h nopattern"
+    elif  [[ ${FC} == frtpx ]] || [[ ${FC} == frt ]]; then
+      Fortran_FLAGS=" -fs -CcdLL8 -CcdII8 "
+    else
+      Fortran_FLAGS=" -i8 "
+    fi
 else
   ilp64=OFF
+  Fortran_FLAGS=""
 fi
 
 if [[ ! -z "$BUILD_OPENBLAS"   ]] ; then
@@ -108,12 +123,12 @@ if [[ ${FC} == flang ]]; then
 	exit 1
     fi
 fi
+
 #nvfortran
-if [[ ${FC} == nvfortran ]]; then
-  FFLAGS="-Mbackslash -Mallocatable=03 -Mfree -traceback -Mcache_align -Mllalign"
-else
-  FFLAGS=""
+if [[ ${PE_ENV} == NVIDIA ]] || [[ ${FC} == nvfortran ]]; then
+  Fortran_FLAGS+="-Mbackslash -Mallocatable=03 -Mfree -traceback -Mcache_align -Mllalign -Kieee -tp host"
 fi
+
 if [[ -z "$USE_OPENMP" ]]; then
   DOOPENMP=OFF
 else
@@ -123,7 +138,9 @@ fi
 cd tblite
 rm -rf _build
 
-FC=$FC CC=$CC $CMAKE -B _build -DLAPACK_LIBRARIES="$BLASOPT" -DWITH_ILP64=$ilp64 -DWITH_OpenMP=$DOOPENMP -DCMAKE_INSTALL_PREFIX="../.." -DWITH_TESTS=OFF -DWITH_API=OFF -DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_IGNORE_PATH=/usr/local -DCMAKE_Fortran_FLAGS="$FFLAGS" -DWITH_API=OFF -DWITH_TESTS=OFF -DWITH_APP=OFF
+echo compiling TBlite stack with FC=$FC CC=$CC $CMAKE -B _build -DLAPACK_LIBRARIES="$BLASOPT" -DWITH_ILP64=$ilp64 -DWITH_OpenMP=$DOOPENMP -DCMAKE_INSTALL_PREFIX="../.." -DWITH_TESTS=OFF -DWITH_API=OFF -DWITH_APP=OFF -DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_IGNORE_PATH="/usr/local" -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS"
+
+FC=$FC CC=$CC $CMAKE -B _build -DLAPACK_LIBRARIES="$BLASOPT" -DWITH_ILP64=$ilp64 -DWITH_OpenMP=$DOOPENMP -DCMAKE_INSTALL_PREFIX="../.." -DWITH_TESTS=OFF -DWITH_API=OFF -DWITH_APP=OFF -DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_IGNORE_PATH="/usr/local" -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS"
 $CMAKE --build _build --parallel 4
 status=$?
 if [ $status -ne 0 ]; then

@@ -8,9 +8,9 @@
       implicit none
       type(structure_type) :: mol
       type(param_record) :: param
-      integer*4 :: nat, nshl
-      integer*4 :: nshl_at(nat)
-      integer*4 :: atnum(nat)
+      integer :: nat, nshl
+      integer :: nshl_at(nat)
+      integer :: atnum(nat)
       double precision :: qat(nat), qshl(nshl), dpat(3,nat), qpat(6,nat)
 
       type(mchrg_model_type) :: model
