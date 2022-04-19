@@ -58,6 +58,14 @@ jobs:
             fc: ifort
             use_openmp: 2
             use_tblite: 1
+          - os: ubuntu-20.04
+            experimental: true
+            mpi_impl: mpich
+            armci_network: MPI-TS
+            nwchem_modules: "xtb driver solvation"
+            fc: nvfortran
+            use_openmp: 2
+            use_tblite: 1
           - os: ubuntu-18.04
             experimental: true
             mpi_impl: mpich
@@ -310,7 +318,7 @@ jobs:
           path: |
             ~/cache
             ~/apps
-          key: ${{ matrix.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-blas${{ matrix.blas}}-libxc${{matrix.use_libxc}}-tblite${{matrix.use_tblite}}-simd${{ steps.get-simd.outputs.simd }}-nwchemcache-v001
+          key: ${{ matrix.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-blas${{ matrix.blas}}-libxc${{matrix.use_libxc}}-tblite${{matrix.use_tblite}}-simd${{ steps.get-simd.outputs.simd }}-nwchemcache-v002
       - name: fetch apps cache
         if: steps.setup-cache.outputs.cache-hit == 'true'
         run: |
