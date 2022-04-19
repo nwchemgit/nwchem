@@ -126,7 +126,7 @@ fi
 
 #nvfortran
 if [[ ${PE_ENV} == NVIDIA ]] || [[ ${FC} == nvfortran ]]; then
-  Fortran_FLAGS+="-Mbackslash -Mallocatable=03 -Mfree -traceback -Mcache_align -Mllalign -Kieee -tp host"
+  Fortran_FLAGS+="-Mbackslash -fast -tp host"
 fi
 
 if [[ -z "$USE_OPENMP" ]]; then
