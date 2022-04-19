@@ -74,7 +74,9 @@ if ((CMAKE_VER_MAJ < 3)) || (((CMAKE_VER_MAJ > 2) && (CMAKE_VER_MIN < 11))); the
     fi
 fi
 
-
+if [[  -z "${FC}" ]]; then
+    FC=$($MPIF90 -show|cut -d " " -f 1)
+fi
 
 if [[  -z "${BLAS_SIZE}" ]]; then
    BLAS_SIZE=8
