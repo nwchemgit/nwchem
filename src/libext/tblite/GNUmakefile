@@ -18,7 +18,7 @@ LIB_TARGETS += tblite
 include ../../config/makelib.h
 
 clean:
-	@rm -rf tblite*  ../lib/lib*tblite* ../include/tbli*  ../lib/cmake/tblite*
+	@rm -rf dmejiar* tblite*  ../lib/lib*tblite* ../include/tbli*  ../lib/cmake/tblite*
 	@rm -rf  ../lib/pkgconfig/tbli*pc ../lib/pkgconfig/mctc-lib.pc ../lib/pkgconfig/mstore.pc ../lib/pkgconfig/toml-f.pc ../lib/pkgconfig/dftd4.pc ../lib/pkgconfig/multicharge.pc ../lib/pkgconfig/s-dftd3.pc ../lib/pkgconfig/test-drive.pc
 	@rm -rf   ../lib/libmctc-lib.a ../lib/libmstore.a ../lib/libtoml-f.a ../lib/libdftd4.a ../lib/libmulticharge.a ../lib/libs-dftd3.a ../lib/libtest-drive.a
 	@rm -rf   ../lib/cmake/mctc-lib ../lib/cmake/mstore ../lib/cmake/toml-f ../lib/cmake/dftd4 ../lib/cmake/multicharge ../lib/cmake/s-dftd3  ../lib/cmake/test-drive
