@@ -1,6 +1,6 @@
---- nwpwxc_vdw3a.F.org	2016-06-07 18:30:18.000000000 -0700
-+++ nwpwxc_vdw3a.F	2022-02-14 18:23:20.000000000 -0800
-@@ -25,9 +25,31 @@
+--- dftd3.f	2016-06-07 18:30:18.000000000 -0700
++++ nwpwxc_vdw3a.F	2022-04-21 18:29:00.016746797 -0700
+@@ -25,9 +25,36 @@
  
  C For the GNU General Public License, see <http://www.gnu.org/licenses/>
  
@@ -8,8 +8,13 @@
   
 -      program dftd3
 -      implicit none             
++#if defined(FUJITSU) || defined(__FLANG) || defined(XLFLINUX)
++#define IEEE_SUPPORT_NAN 1
++#endif
 +      subroutine  nwpwxc_vdw3_dftd3(options,n,iz,xyz,lat,eout,g,g_lat)
++#ifdef IEEE_SUPPORT_NAN
 +      use, intrinsic :: ieee_arithmetic
++#endif
 +      implicit none
 +      character*(*) options
 +c number of atoms
@@ -34,7 +39,7 @@
        integer maxat,max_elem,maxc                      
  c conversion factors
        real*8 autoang,autokcal,c6conv,autoev
-@@ -43,18 +65,19 @@
+@@ -43,18 +70,19 @@
  c DFT-D version
        integer version
  c number of atoms
@@ -61,7 +66,7 @@
  c cut-off radii for all element pairs
        real*8 r0ab(max_elem,max_elem)
  c C6 for all element pairs 
-@@ -96,12 +119,16 @@
+@@ -96,12 +124,16 @@
  c Integer for assigning only max/min cn C6 (0=normal, 1=min, 2=max)
  c local and dummy variables
        character*80 atmp,btmp,ctmp,dtmp,etmp,ftmp,func
@@ -72,14 +77,14 @@
        real*8  x,y,dispr,displ,gdsp,dum,xx(10),dum6(86)
        real*8  dum1,dum2,dum3(3)
        logical ex,pot,fdum
-+#if defined(__FLANG) || defined(XLFLINUX) || defined (PGLINUX)
++#if defined (PGLINUX)
 +      logical util_isnan
 +      external util_isnan
 +#endif
        logical minc6list(max_elem),maxc6list(max_elem),minc6,maxc6
  
  c PBE0/def2-QZVP atomic values 
-@@ -129,7 +156,7 @@
+@@ -129,7 +161,7 @@
  c which effectively mimics higher R^n terms neglected due
  c to stability reasons
        
@@ -88,7 +93,7 @@
  !  the large number of digits is just to keep the results consistent
  !  with older versions. They should not imply any higher accuracy than
  !  the old values
-@@ -192,8 +219,26 @@
+@@ -192,8 +224,26 @@
       . 3.82984466, 3.85504098, 3.88023730, 3.90543362 /
  
  c k1-k3
@@ -116,7 +121,7 @@
  
  !      write(*,'(94(F12.8,'',''))')r2r4
  !      stop
-@@ -203,7 +248,7 @@
+@@ -203,7 +253,7 @@
  !      write(*,'(94(F11.8,'',''))')rcov
  !      stop
  !      do i=1,max_elem
@@ -125,7 +130,7 @@
  c store it as sqrt because the geom. av. is taken
  !         r2r4(i)=sqrt(dum)                         
  !      enddo
-@@ -218,7 +263,7 @@
+@@ -218,7 +268,7 @@
        func=' none (read from parameter file)'
        version=0
        pbc=.false.
@@ -134,7 +139,7 @@
        minc6=.false.
        maxc6=.false.
        minc6list=.false.
-@@ -240,64 +285,67 @@
+@@ -240,64 +290,67 @@
  
  c set radii
  c     call rdab('~/.r0ab.dat',autoang,max_elem,r0ab)
@@ -243,7 +248,7 @@
              maxc6list(nn)=.true.
              k=k+1
            else
-@@ -305,87 +353,92 @@
+@@ -305,87 +358,92 @@
            endif
          ENDDO
        endif
@@ -376,7 +381,7 @@
  
  
       
-@@ -394,9 +447,9 @@
+@@ -394,9 +452,9 @@
       
  c set parameters for functionals
        if(ex) then
@@ -388,7 +393,7 @@
        endif
  
        if(echo)then
-@@ -433,14 +486,14 @@
+@@ -433,14 +491,14 @@
  
  c CNs for output
        if (pbc) then
@@ -406,7 +411,7 @@
  c number of CNs for each element
            mxc=1
  convert to au
-@@ -479,9 +532,11 @@
+@@ -479,9 +537,11 @@
            btmp=''
            do i=1,n
            z=iz(i)
@@ -420,7 +425,7 @@
            x=x+dum
            enddo
  c compute C8/C10 for output
-@@ -492,12 +547,12 @@
+@@ -492,12 +552,12 @@
              dum=rs6*0.5*autoang*sqrt(c8/c6)
            endif
            atmp=' '
@@ -438,7 +443,7 @@
       .    dum,cn(i),
       .    c6,c8,c10
            enddo
-@@ -517,7 +572,7 @@
+@@ -517,7 +577,7 @@
        
  c testoutput of radii
  c     do i=1,94
@@ -447,7 +452,7 @@
  c        c8 =r2r4(i)**2*3.0d0*c6     
  c        write(22,*) i, sqrt(c8/c6)
  c     enddo
-@@ -528,7 +583,7 @@
+@@ -528,7 +588,7 @@
  c     stop
  
  c for global ad hoc parameters see
@@ -456,7 +461,7 @@
  c fixed or dependent ones:
        rs8  = rs18       
        rs10 = rs18
-@@ -545,7 +600,7 @@
+@@ -545,7 +605,7 @@
        if(pot.and.ipot.gt.100)then
        x=0
        do i=1,100
@@ -465,7 +470,7 @@
       .                              x,x,C6)
        write(2,*) x,c6
        x=x+0.05
-@@ -553,37 +608,41 @@
+@@ -553,37 +613,41 @@
        stop
        endif
  c Edisp pot curve for testing. Caution: C6 is not constant along R!
@@ -538,7 +543,7 @@
  c end testing code
  c*********************************************************************
  c*********************************************************************
-@@ -593,17 +652,17 @@
+@@ -593,17 +657,17 @@
           do jat=iat+1,n
              if(r0ab(iz(jat),iz(iat)).lt.0.1) then
                 write(*,*) iat,jat,iz(jat),iz(iat)
@@ -559,7 +564,7 @@
              endif
           enddo
        enddo
-@@ -612,21 +671,23 @@
+@@ -612,21 +676,23 @@
  c Not omnipotent but better than nothing. S.E. 15.09.2011
  c      call checkcn(n,iz,cn,c6ab,max_elem,maxc)
        if (pbc) then
@@ -587,7 +592,7 @@
       .     rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,rthr,cn_thr,
       .     e6,e8,e10,e12,e6abc)
        endif
-@@ -639,6 +700,7 @@
+@@ -639,6 +705,7 @@
  
        disp =-e6-e8-e6abc
  
@@ -595,7 +600,7 @@
  c e10 has been tested once again with BJ-damping but has no good effect
  c     e10  = e10  *s18
  c     disp =-e6-e8-e10-e6abc
-@@ -723,11 +785,13 @@
+@@ -723,11 +790,13 @@
        if(anal) then
         if (pbc) then
  
@@ -611,7 +616,7 @@
       .           rs6,rs8,rs10,alp6,alp8,alp10,version,autokcal,
       .           autoang,rthr,cn_thr,s6,s18,disp*autokcal)
         endif !pbc
-@@ -740,28 +804,37 @@
+@@ -740,28 +809,39 @@
        g=0.0d0
        call cpu_time(dum1)
        if (pbc) then
@@ -643,12 +648,14 @@
  !if this check gives compiler errors, replace is with a different NaN check
 -      if (ISNAN(dum)) call stoprun('internal NaN-error') 
 -!      if (dum/=dum) call stoprun('internal NaN-error') 
-+#if defined(__FLANG) || defined(XLFLINUX)  || defined (PGLINUX)
-+      if (util_isnan(dum)) call
-+     c     nwpwxc_stoprun('internal NaN-error')
++#if defined (PGLINUX)
++      if (util_isnan(dum)) 
++#elif defined(IEEE_SUPPORT_NAN)
++      if (ieee_support_nan(dum)) 
 +#else
-+      if (ieee_is_nan(dum)) call nwpwxc_stoprun('internal NaN-error')
++      if (isnan(dum)) 
 +#endif      
++     c     call nwpwxc_stoprun('internal NaN-error')
 +!      if (dum/=dum) call nwpwxc_stoprun('internal NaN-error') 
        if(dum.gt.1.d-8) then
           write(*,*) disp,gdsp
@@ -657,7 +664,7 @@
        endif !sanitycheck
  c write to energy and gradient files in TM style
        if (pbc) then
-@@ -771,12 +844,12 @@
+@@ -771,12 +851,12 @@
       . to file dftd3_cellgradient. (a.u.)'
          endif !echo
          g_lat=g_lat!*autoev
@@ -672,7 +679,7 @@
  !        call wregrad(n,xyz,iz,disp,g)
  
        endif !pbc
-@@ -789,11 +862,12 @@
+@@ -789,11 +869,12 @@
  c test test tesc test test tesc test test tesc test test tesc test test
  c gradient test 6-7 digits should be the same
        if (pbc) then
@@ -687,7 +694,7 @@
       .     rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,rthr,cn_thr,
       .     e6,e8,e10,e12,e6abc)
        endif
-@@ -802,11 +876,12 @@
+@@ -802,11 +883,12 @@
        do j=1,3
        xyz(j,i)=xyz(j,i)+0.00001
        if (pbc) then
@@ -702,7 +709,7 @@
       .     rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,rthr,cn_thr,
       .     e6,e8,e10,e12,e6abc)
        endif
-@@ -815,11 +890,12 @@
+@@ -815,11 +897,12 @@
        dispr =-e6-e8-e6abc
        xyz(j,i)=xyz(j,i)-0.00002
        if (pbc) then
@@ -717,7 +724,7 @@
       .     rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,rthr,cn_thr,
       .     e6,e8,e10,e12,e6abc)
        endif
-@@ -835,15 +911,15 @@
+@@ -835,15 +918,15 @@
          IF (echo) write(*,*)'Doing numerical stresstensor...'
        allocate(abc(3,n))
  
@@ -737,7 +744,7 @@
       .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
       .           e6,e8,e10,e12,e6abc,lat,rthr,rep_vdw,cn_thr,rep_cn)
  
-@@ -851,9 +927,9 @@
+@@ -851,9 +934,9 @@
  
  
              lat(j,i)=lat(j,i)-2*dum1
@@ -750,7 +757,7 @@
       .           rcov,rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,
       .           e6,e8,e10,e12,e6abc,lat,rthr,rep_vdw,cn_thr,rep_cn)
  
-@@ -861,9 +937,9 @@
+@@ -861,9 +944,9 @@
              dum=(dispr-displ)/(dum1*2.0)
  
              lat(j,i)=lat(j,i)+dum1
@@ -762,7 +769,7 @@
            enddo !j
          enddo !i
  
-@@ -875,12 +951,13 @@
+@@ -875,12 +958,13 @@
  c test test tesc test test tesc test test tesc test test tesc test test
  c test test tesc test test tesc test test tesc test test tesc test test
        
@@ -779,7 +786,7 @@
        write(*,*) 'dftd3 <coord filename> [-options]'
        write(*,*) 'options:'
        write(*,*) '-func <functional name in TM style>'
-@@ -908,13 +985,13 @@
+@@ -908,13 +992,13 @@
        write(*,*) 'variable parameters read from ~/.dftd3par.<hostname>'
        write(*,*) 'if -func is used, -zero or -bj or -old is required!"'
        stop
@@ -795,7 +802,7 @@
        implicit none  
        integer version
        real*8 s6,rs6,s18,alp,rs18
-@@ -961,7 +1038,7 @@
+@@ -961,7 +1045,7 @@
               s18 =0.906564
               rs18=3.593680
          case DEFAULT
@@ -804,7 +811,7 @@
        end select
        endif
  
-@@ -1004,7 +1081,7 @@
+@@ -1004,7 +1088,7 @@
               s18 =1.280619
               rs18=0.003160
          case DEFAULT
@@ -813,7 +820,7 @@
        end select
        endif
  
-@@ -1243,7 +1320,7 @@
+@@ -1243,7 +1327,7 @@
              rs18=4.5000d0
                
           case DEFAULT
@@ -822,7 +829,7 @@
        end select
        endif
  
-@@ -1410,7 +1487,7 @@
+@@ -1410,7 +1494,7 @@
                rs6=1.221
                s18=1.206
           case DEFAULT
@@ -831,7 +838,7 @@
        end select
        else
  c special TZVPP parameter
-@@ -1450,7 +1527,7 @@
+@@ -1450,7 +1534,7 @@
                s18=1.109
                s6=0.5
           case DEFAULT
@@ -840,7 +847,7 @@
        end select
        endif
        endif
-@@ -1488,14 +1565,14 @@
+@@ -1488,14 +1572,14 @@
                s6=0.41
                alp=60.0d0
           case DEFAULT
@@ -858,7 +865,7 @@
        implicit none
        real*8 s6,s18,rs6,rs18,alp
        integer version
-@@ -1516,7 +1593,7 @@
+@@ -1516,7 +1600,7 @@
         write(dtmp,'(a)')'.dftd3par.local'
         open(unit=43,file=dtmp)
           read(43,'(a)',end=10)ftmp 
@@ -867,7 +874,7 @@
           if(nn.eq.6) then
                       s6  =xx(1)
                       rs6 =xx(2)
-@@ -1540,7 +1617,7 @@
+@@ -1540,7 +1624,7 @@
        if(ex)then
           open(unit=42,file=dtmp)
           read(42,'(a)',end=9)ftmp 
@@ -876,7 +883,7 @@
           if(nn.eq.6) then
                       s6  =xx(1)
                       rs6 =xx(2)
-@@ -1552,13 +1629,14 @@
+@@ -1552,13 +1636,14 @@
    9      close(42)
        endif
  
@@ -893,7 +900,7 @@
       .           rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,rthr,cn_thr,
       .           e6,e8,e10,e12,e63)
        implicit none  
-@@ -1577,7 +1655,17 @@
+@@ -1577,7 +1662,17 @@
        real*8 abcthr
        integer*2 icomp(n*n)
        integer ij,ik,jk,k
@@ -912,7 +919,7 @@
  
        e6 =0
        e8 =0
-@@ -1596,6 +1684,7 @@
+@@ -1596,6 +1691,7 @@
  
        do iat=1,n-1
           do jat=iat+1,n
@@ -920,7 +927,7 @@
              dx=xyz(1,iat)-xyz(1,jat)
              dy=xyz(2,iat)-xyz(2,jat)
              dz=xyz(3,iat)-xyz(3,jat)
-@@ -1606,16 +1695,24 @@
+@@ -1606,16 +1702,24 @@
              damp6=1./(1.+exp(-alp6*(r/(rs6*r0ab(iz(jat),iz(iat)))-1.)))
              r6=r2**3      
              e6 =e6+c6*damp6/r6
@@ -946,7 +953,7 @@
              dx=xyz(1,iat)-xyz(1,jat)
              dy=xyz(2,iat)-xyz(2,jat)
              dz=xyz(3,iat)-xyz(3,jat)
-@@ -1640,7 +1737,7 @@
+@@ -1640,7 +1744,7 @@
                damp8 =1.d0/( 1.d0+6.d0*tmp**(-alp8) )
              endif
  c get C6
@@ -955,7 +962,7 @@
       .                                    cn(iat),cn(jat),c6)
  
              r6=r2**3      
-@@ -1663,7 +1760,7 @@
+@@ -1663,7 +1767,7 @@
  
  !            if(.not.noabc) then
              if((.not.noabc).and.(r2.lt.abcthr)) then
@@ -964,7 +971,7 @@
                icomp(ij)=1
  c store C6 for C9, calc as sqrt
                cc6ab(ij)=sqrt(c6)
-@@ -1672,20 +1769,29 @@
+@@ -1672,20 +1776,29 @@
  c store for abc damping
                dmp(ij)=(1./rr)**(1./3.) 
              endif !noabc
@@ -997,7 +1004,7 @@
                if((icomp(ik).eq.0).or.(icomp(jk).eq.0)) cycle
  c damping func product
  c           tmp=dmp(ik)*dmp(jk)*dmp(ij)
-@@ -1706,18 +1812,22 @@
+@@ -1706,18 +1819,22 @@
  
              enddo
              endif
@@ -1022,7 +1029,7 @@
       .                rs6,rs8,rs10,alp6,alp8,alp10,version,autokcal,
       .                autoang,rthr,cn_thr,s6,s18,etot)
        implicit none  
-@@ -1735,7 +1845,7 @@
+@@ -1735,7 +1852,7 @@
        integer grplist(500,20)
        integer grpn(20),at(n)
        integer ngrp,dash
@@ -1031,7 +1038,7 @@
        integer iout(500)
        logical ex
        character*80 atmp
-@@ -1779,7 +1889,7 @@
+@@ -1779,7 +1896,7 @@
        li(15,2)=10.0          
        nbin=15
  
@@ -1040,7 +1047,7 @@
  
        write(*,*)
        write(*,*)'analysis of pair-wise terms (in kcal/mol)'
-@@ -1823,7 +1933,7 @@
+@@ -1823,7 +1940,7 @@
                e6 =s6*autokcal*c6*damp6/r6
                e8=0.0
              else
@@ -1049,7 +1056,7 @@
       .                                      cn(iat),cn(jat),c6)
              endif
  
-@@ -1883,7 +1993,7 @@
+@@ -1883,7 +2000,7 @@
        i=0
        at=0
   111  read(55,'(a)',end=222) atmp
@@ -1058,7 +1065,7 @@
        if(j.gt.0)then
           i=i+1
           grpn(i)=j
-@@ -1930,7 +2040,7 @@
+@@ -1930,7 +2047,7 @@
          write(*,'(i4)',advance='no') grplist(j-1,i)
          dash=0
         endif
@@ -1067,7 +1074,7 @@
        enddo
  
  c old display list code
-@@ -1953,7 +2063,8 @@
+@@ -1953,7 +2070,8 @@
                 do jj=1,nj
                    jjjj=grplist(jj,j)
                    if(jjjj.lt.iiii)cycle
@@ -1077,7 +1084,7 @@
                 enddo
              enddo
           enddo
-@@ -1972,24 +2083,47 @@
+@@ -1972,24 +2090,47 @@
        enddo
        write(*,*) 'checksum (Edisp) ',check
  
@@ -1130,7 +1137,7 @@
   
        integer iat,jat,i,j,kat,k
        real*8 R0,C6,alp,R42,disp,x1,y1,z1,x2,y2,z2,rr,e6abc  
-@@ -2002,6 +2136,7 @@
+@@ -2002,6 +2143,7 @@
        real*8 rij(3),rik(3),rjk(3),r7,r9
        real*8 rik_dist,rjk_dist
        real*8 drij(n*(n+1)/2)  !d(E)/d(r_ij) derivative wrt. dist. iat-jat
@@ -1138,7 +1145,7 @@
        real*8 drik,drjk
        real*8 rcovij
        real*8 dc6,c6chk !d(C6ij)/d(r_ij)
-@@ -2009,13 +2144,14 @@
+@@ -2009,13 +2151,14 @@
        real*8 dcn               !dCN(iat)/d(r_ij) is equal to
                                 !dCN(jat)/d(r_ij)     
        real*8 dc6_rest ! saves (1/r^6*f_dmp + 3*r4r2/r^8*f_dmp) for kat loop
@@ -1154,7 +1161,7 @@
        real*8 abcthr
        real*8 gtmp(3) ! temporary container to store iat gradient
        real*8 labc,rabc
-@@ -2026,11 +2162,21 @@
+@@ -2026,11 +2169,21 @@
        real*8 r2ij,r2jk,r2ik,mijk,imjk,ijmk,rijk3
        integer mat,linim,linjm,linkm,kk
  
@@ -1176,7 +1183,7 @@
  
  
        
-@@ -2038,7 +2184,7 @@
+@@ -2038,7 +2191,7 @@
        if(num) then
        if(echo)write(*,*) 'doing numerical gradient O(N^3) ...'
  
@@ -1185,7 +1192,7 @@
       .     rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,rthr,cn_thr,
       .     e6,e8,e10,e12,e6abc)
        disp=-s6*e6-s18*e8-e6abc
-@@ -2048,13 +2194,13 @@
+@@ -2048,13 +2201,13 @@
        do i=1,n
        do j=1,3
        xyz(j,i)=xyz(j,i)+step        
@@ -1201,7 +1208,7 @@
       .     rs6,rs8,rs10,alp6,alp8,alp10,version,noabc,rthr,cn_thr,
       .     e6,e8,e10,e12,e6abc)
        displ=-s6*e6-s18*e8-e6abc
-@@ -2063,7 +2209,7 @@
+@@ -2063,7 +2216,7 @@
        xyz(j,i)=xyz(j,i)+step        
        enddo
        enddo
@@ -1210,7 +1217,7 @@
        endif
  
  c this is the crucial threshold to reduce the N^3 to an
-@@ -2078,6 +2224,7 @@
+@@ -2078,6 +2231,7 @@
        disp=0
        do iat=1,n-1
           do jat=iat+1,n
@@ -1218,7 +1225,7 @@
              R0=r0ab(iz(jat),iz(iat))*rs6
              dx=(xyz(1,iat)-xyz(1,jat))
              dy=(xyz(2,iat)-xyz(2,jat))
-@@ -2104,6 +2251,8 @@
+@@ -2104,6 +2258,8 @@
              g(2,jat)=g(2,jat)-gy2*c6      
              g(3,jat)=g(3,jat)-gz2*c6      
              disp=disp+c6*(1./damp1)/r2**3
@@ -1227,7 +1234,7 @@
           enddo
        enddo
        disp=-disp
-@@ -2116,7 +2265,7 @@
+@@ -2116,7 +2272,7 @@
        elseif ((version.eq.3).or.(version.eq.5)) then
  
        if(echo)write(*,*) 'doing analytical gradient O(N^2) ...'
@@ -1236,7 +1243,7 @@
        s8 =s18
        s10=s18
  
-@@ -2130,19 +2279,20 @@
+@@ -2130,19 +2286,20 @@
        kk=0
        do iat=1,n
          do jat=1,iat-1
@@ -1260,7 +1267,7 @@
       .          mxc(iz(jat)),cn(iat),cn(jat),iz(iat),iz(jat),iat,jat,
       .          c6,dc6iji,dc6ijj)
  
-@@ -2190,6 +2340,7 @@
+@@ -2190,6 +2347,7 @@
  
              if ((.not.noabc).and.(r2.lt.abcthr)) then
  !          if (.not.noabc) then
@@ -1268,7 +1275,7 @@
                abccalc(linij)=.TRUE.
                dc6ij(iat,jat)=dc6iji
                dc6ij(jat,iat)=dc6ijj
-@@ -2208,8 +2359,14 @@
+@@ -2208,8 +2366,14 @@
            dc6i(jat)=dc6i(jat)+dc6_rest*dc6ijj
  
  
@@ -1283,7 +1290,7 @@
  
  
  
-@@ -2227,7 +2384,7 @@
+@@ -2227,7 +2391,7 @@
  
        if(echo)write(*,*) 'doing analytical gradient O(N^2) ...'
        disp=0
@@ -1292,7 +1299,7 @@
  
        drij=0.0d0
        dc6_rest=0.0d0
-@@ -2236,18 +2393,19 @@
+@@ -2236,18 +2400,19 @@
  
        do iat=1,n
          do jat=1,iat-1
@@ -1315,7 +1322,7 @@
       .          mxc(iz(jat)),cn(iat),cn(jat),iz(iat),iz(jat),iat,jat,
       .          c6,dc6iji,dc6ijj)
  
-@@ -2259,6 +2417,7 @@
+@@ -2259,6 +2424,7 @@
  
            if ((.not.noabc).and.(r2.lt.abcthr)) then
  !          if (.not.noabc) then
@@ -1323,7 +1330,7 @@
              abccalc(linij)=.TRUE.
              dc6ij(iat,jat)=dc6iji
              dc6ij(jat,iat)=dc6ijj
-@@ -2283,24 +2442,36 @@
+@@ -2283,24 +2449,36 @@
            dc6i(iat)=dc6i(iat)+dc6_rest*dc6iji
            dc6i(jat)=dc6i(jat)+dc6_rest*dc6ijj
  
@@ -1364,7 +1371,7 @@
                if(.NOT.(abccalc(linjk).AND.abccalc(linik)))cycle    !cutoff crit
  ! calculating the 3body energy:              
                r2jk=r2abc(linjk)
-@@ -2375,21 +2546,26 @@
+@@ -2375,21 +2553,26 @@
                dc9=-0.5d0*c9*dc9
                dc6i(kat)=dc6i(kat)+dc6_rest*dc9
  
@@ -1393,7 +1400,7 @@
            rij=xyz(:,jat)-xyz(:,iat)
  
           
-@@ -2409,6 +2585,8 @@
+@@ -2409,6 +2592,8 @@
            !g(:,iat)=g(:,iat)+x1*rij/r
            g(:,jat)=g(:,jat)-x1*rij/r
           
@@ -1402,7 +1409,7 @@
          enddo !iat
          g(:,iat)=g(:,iat)+gtmp
        enddo !jat
-@@ -2416,30 +2594,50 @@
+@@ -2416,30 +2601,50 @@
  
  
   999  continue
@@ -1459,7 +1466,7 @@
        integer maxc,max_elem
        real*8 c6ab(max_elem,max_elem,maxc,maxc,3)
        integer mxci,mxcj   !mxc(iz(iat))
-@@ -2504,7 +2702,7 @@
+@@ -2504,7 +2709,7 @@
          dc6i=0.0d0
          dc6j=0.0d0
        endif
@@ -1468,7 +1475,7 @@
  
  
  
-@@ -2512,7 +2710,7 @@
+@@ -2512,7 +2717,7 @@
  C interpolate c6  
  CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
  
@@ -1477,7 +1484,7 @@
        implicit none
        integer maxc,max_elem
        integer iat,jat,i,j,mxc(max_elem)
-@@ -2522,7 +2720,23 @@
+@@ -2522,7 +2727,23 @@
  c when nci or ncj is much larger than cn1/cn2
        real*8  cn1,cn2,r,rsum,csum,tmp,tmp1   
        real*8  r_save
@@ -1502,7 +1509,7 @@
  
        c6mem=-1.d+99
        rsum=0.0d0
-@@ -2555,15 +2769,31 @@
+@@ -2555,15 +2776,31 @@
           c6=c6mem
        endif
  
@@ -1537,7 +1544,7 @@
        integer iz(*),natoms,i,max_elem
        real*8 xyz(3,*),cn(*),rcov(94),input
        real*8 cn_thr
-@@ -2598,13 +2828,13 @@
+@@ -2598,13 +2835,13 @@
  c      endif  
        enddo
  
@@ -1553,7 +1560,7 @@
        implicit none
        integer maxc,max_elem,maxci(max_elem)
        real*8  c6ab(max_elem,max_elem,maxc,maxc,3)
-@@ -2622,7 +2852,7 @@
+@@ -2622,7 +2859,7 @@
        open(unit=1,file=fname)
        read(1,'(a)')btmp
   10   read(1,*,end=11) y,iat,jat,cn1,cn2  
@@ -1562,7 +1569,7 @@
        maxci(iat)=max(maxci(iat),iadr)
        maxci(jat)=max(maxci(jat),jadr)
        c6ab(iat,jat,iadr,jadr,1)=y  
-@@ -2637,17 +2867,17 @@
+@@ -2637,17 +2874,17 @@
   11   continue
        close(1)
  
@@ -1585,7 +1592,7 @@
        implicit none
        integer iat,jat,iadr,jadr,i
        iadr=1
-@@ -2666,4733 +2896,6 @@
+@@ -2666,4733 +2903,6 @@
           goto 20
        endif
  
