@@ -1234,8 +1234,9 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       subroutine nwpwxc_stoprun(s)
       character*(*) s
       write(*,*)'program stopped due to: ',s
-      call system('touch dscf_problem')
-      stop 'must stop!'
+c      call system('touch dscf_problem')
+c     stop 'must stop!'
+      call errquit('nwpwxc failure',0,0)
       end subroutine nwpwxc_stoprun
 
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
