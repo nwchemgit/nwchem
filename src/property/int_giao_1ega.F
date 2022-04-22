@@ -120,10 +120,19 @@ c
       else if (inp_compare(.false., integ_type, 'bq10')) then
          type = 15
          nblocks = 3
+c ... jochen: ops = pso-like integrals, for one nucleus
+c        but all combinations of operators
+      else if (inp_compare(.false., integ_type, 'ops')) then
+         type = 16
+         nblocks = 9 
       else
          write(6,*) ' integ_type = ', integ_type,ga_nodeid()
          call errquit('int_giao_1ega: unknown integ_type', 0, INT_ERR)
       end if
+
+      if(osome) then
+         write(6,*) 'in -int_giao_1ega- ... integ_type = ', type
+      endif
 c     
 c     Get info about the basis sets
 c     
@@ -150,6 +159,8 @@ c
          call int_init_dso(max1e,mem1,ibas,nat)
       elseif (type.eq.10) then
          call int_init_pso(max1e,mem1,ibas,nat)
+      elseif (type.eq.16) then
+         call int_init_ops(max1e,mem1,ibas)
       elseif (type.eq.11.or.type.eq.12) then
          call int_init_1eelec(max1e,mem1,ibas,2,nat)
       elseif (type.eq.15) then
@@ -160,6 +171,10 @@ c
          max1e = max1e*nblocks
       endif
       mem1 = max(mem1,max1e)
+
+      if(osome) then
+         write(6,*) 'in -int_giao_1ega- max1e, mem1 = ', max1e, mem1
+      endif
 c
       if(.not.MA_push_get(MT_DBL,max1e,'int_giao_1ega:buf',l_buf,k_buf))
      $     call errquit('int_giao_1ega: ma failed', max1e, MA_ERR)
@@ -293,6 +308,10 @@ c
                      call int_giaobq10(jbas, jshell, ibas, ishell, 
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf),
      &                    dbl_mb(k_qbq),dbl_mb(k_cbq),nbq)
+                  else if (type .eq. 16) then ! 9
+                     call int_ops (jbas, jshell, ibas, ishell,
+     $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf),
+     $                    xyzpt, nat)
                   else
                      call errquit('int_giao_1ega: invalid type?', type,
      &       GA_ERR)
@@ -314,6 +333,10 @@ c
             ijshell = ijshell + 1
          end do
       end do
+
+      if(osome) then
+         write(6,*) 'in -int_giao_1ega- end of loops'
+      endif
 c     
 c     chop stack at first item allocated
 c     

@@ -51,6 +51,7 @@ include ../../config/makefile.h
                  hnd_jkwrys.o \
                  hnd_spdgia.o \
                  hnd_pso.o \
+                 hnd_ops.o \
                  hnd_dso.o \
                  hnd_wleg.o \
                  hnd_herxyz.o \
@@ -58,6 +59,7 @@ include ../../config/makefile.h
                  hnd_init_dso.o \
                  hnd_init_1emtpl.o \
                  hnd_init_pso.o \
+                 hnd_init_ops.o \
                  hnd_veloc.o \
                  hnd_angmom.o \
                  hnd_dipxyz.o \
@@ -76,8 +78,9 @@ include ../../config/makefile.h
        LIBRARY = libnwints.a
 
      USES_BLAS = hnd_stvint.F hnd_stvintd.F hnd_stvintdd.F\
-hnd_elfder.F hnd_pso.F hnd_dso.F hnd_giaoh11.F hnd_giaoh01.F hnd_giaotv10.F hnd_giaobq10.F hnd_giaol10.F hnd_giaos10.F \
-hnd_giaos100.F hnd_vstat.F hnd_veloc.F hnd_dipder.F hnd_angmom.F hnd_dipvel.F hnd_giahnd.F
+hnd_elfder.F hnd_pso.F hnd_ops.F hnd_dso.F hnd_giaoh11.F hnd_giaoh01.F hnd_giaotv10.F hnd_giaobq10.F \
+hnd_giaol10.F hnd_giaos10.F hnd_giaos100.F hnd_vstat.F hnd_veloc.F hnd_dipder.F hnd_angmom.F \
+hnd_dipvel.F hnd_giahnd.F
 
 include ../../config/makelib.h
   ifeq ($(FC),efc)
