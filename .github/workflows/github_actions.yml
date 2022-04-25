@@ -63,6 +63,7 @@ jobs:
         FC: ${{ matrix.fc }}
         COMEX_MAX_NB_OUTSTANDING: 4
         SIMINT_MAXAM: 3
+        SIMINT_VECTOR: avx2
     continue-on-error: ${{ matrix.experimental }}
     steps: 
       - name: Checkout code
