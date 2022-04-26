@@ -114,12 +114,6 @@ c     thermostat
          do_berendsen = .true.
       else if (thermostat.eq.'nose-hoover') then
          do_nosehoover = .true.
-         do ichain = 1,maxchain
-            r_nh(ichain) = 0.d0            ! position of chains
-            v_nh(ichain) = 0.d0            ! velocity of chains
-            m_nh(ichain) = nh_mass(ichain) ! mass of chains
-            g_nh(ichain) = 0.d0            ! bath coupling
-         end do
        else if (thermostat.eq.'langevin') then
          do_langevin = .true.
        else if (thermostat.eq.'rescale') then
@@ -140,6 +134,12 @@ c     nose-hoover mass parameter
       if (.not.rtdb_get(rtdb,'qmd:nh_mass',mt_dbl,2,nh_mass))
      & call errquit(pname//'failed to read nh_mass',0,RTDB_ERR)
       if (do_nosehoover) then
+       do ichain = 1,maxchain
+          r_nh(ichain) = 0.d0            ! position of chains
+          v_nh(ichain) = 0.d0            ! velocity of chains
+          m_nh(ichain) = nh_mass(ichain) ! mass of chains
+          g_nh(ichain) = 0.d0            ! bath coupling
+       end do
        if (ga_nodeid().eq.0) 
      &      write(luout,130) "NH mass(1):",nh_mass(1)
        if (ga_nodeid().eq.0) 
