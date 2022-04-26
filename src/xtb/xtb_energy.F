@@ -58,6 +58,8 @@
       type(wavefunction_type),allocatable :: wfn
       type(context_type),allocatable      :: ctx
       type(param_record),allocatable      :: param
+
+      logical oldmode
       
 #ifdef USE_OPENMP
       integer maxthreads
@@ -180,6 +182,7 @@
       allocate(ctx)
       allocate(param)
 
+      oldmode =  rtdb_parallel(.false.)
       if (ga_nodeid().eq.0) then
         !
         ! Pass geometry info and create mol object
@@ -279,6 +282,7 @@
         status = rtdb_put(rtdb,'xtb:restart',mt_log,1,.true.)
         xtb_energy = .not.ctx%failed()
       endif
+      oldmode =  rtdb_parallel(oldmode)
 
       !
       ! Check if something failed during the calculation
