@@ -44,7 +44,7 @@ C>
       double precision cna,cnb
       integer i,j
       double precision eps
-      parameter (eps=1d-30)
+      parameter (eps=1d-90)
 c
       c6cn=0.0d0
       top=0.0d0
@@ -66,6 +66,7 @@ c
          c6cn=top/bottom
       else
          c6cn=0.0d0
+         call errquit(' c6cn returning zero ',0,0)
       endif
       return
       end
