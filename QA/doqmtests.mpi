@@ -330,6 +330,9 @@ np_small=$(get_limit $np 16)
 ./runtests.mpi.unix procs $np gw_openshell
 # x2c
 ./runtests.mpi.unix procs $np x2c-h2se
+./runtests.mpi.unix procs $np hgh-hfc-x2c-gnuc
+./runtests.mpi.unix procs $np hgh-hfc-x2c-pnuc
+./runtests.mpi.unix procs $np hg-1e-hfc-x2c
 #--- if we only want quick tests get out now!
 if [[ "$what" == "fast" ]]; then
   exit

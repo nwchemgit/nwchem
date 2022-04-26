@@ -67,10 +67,10 @@ c     deallocate x2c arrays if necessary
       return
       end
       subroutine x2c_prop(rtdb,
-     N     nexc, g_dens, g_dens_at, g_x2c_u)
+     &     nexc, g_dens, g_dens_at, g_x2c_u, g_x2c_u2c, g_x2c_c2u)
       implicit none
       integer rtdb
-      integer nexc, g_dens, g_dens_at, g_x2c_u
+      integer nexc, g_dens, g_dens_at, g_x2c_u, g_x2c_u2c, g_x2c_c2u
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -79,16 +79,25 @@ c     deallocate x2c arrays if necessary
 c
       if (lx2c_efg) then
 c     x2c EFG 
-         if (ga_nodeid().eq.0)
-     &        write (luout,*) 'calling calc_x2c_efg' 
-         call calc_x2c_efg_scalar(rtdb,
-     &        nexc, g_dens, g_dens_at, g_x2c_u)
+        if (ga_nodeid().eq.0)
+     &    write (luout,*) 'calling calc_x2c_efg_scalar' 
+        call calc_x2c_efg_scalar(rtdb,
+     &    nexc, g_dens, g_dens_at, g_x2c_u)
       end if
+      
+      if (lx2c_hfc) then
+c     x2c hyperfine coupling
+         if (ga_nodeid().eq.0)
+     &        write (luout,*) 'calling calc_x2c_hfc_scalar' 
+         call calc_x2c_hfc_scalar(rtdb, lx2c_u2c,
+     &     nexc, g_dens, g_dens_at, g_x2c_u, g_x2c_u2c, g_x2c_c2u)
+
+      end if       
       
       if (lx2c_moment) then
 c     x2c dipole moment
          if (ga_nodeid().eq.0)
-     &        write (luout,*) 'calling x2c_moment' 
+     &        write (luout,*) 'calling calc_x2c_moment_scalar' 
          call calc_x2c_moment_scalar(rtdb,
      &        nexc, g_dens, g_dens_at, g_x2c_u, 'dipole', 3)
       end if
