@@ -342,7 +342,7 @@ c
         status = rtdb_put(rtdb,'xtb:restart',mt_log,1,.true.)
 
         dipole(1:3) = sum(wfn%dpat(:,:,1),dim=2)
-        status = rtdb_put(rtdb,'task:dipole',mt_dbl,3,dipole)
+        status = rtdb_put(rtdb,'task:dipole',mt_dbl,3,dipole(1))
         status = rtdb_parallel(.true.)
       endif
 
@@ -372,7 +372,7 @@ c
         if (.not.rtdb_put(rtdb,'xtb:converged',mt_log,1,.true.))
      $    call errquit('xtb_energy: failed to put in rtdb',0,RTDB_ERR)
 
-        if (.not.rtdb_put(rtdb,'xtb:gradient',mt_dbl,3*nat,grad))
+        if (.not.rtdb_put(rtdb,'xtb:gradient',mt_dbl,3*nat,grad(1,1)))
      $    call errquit('xtb_energy: failed to put in rtdb',0,RTDB_ERR)
         status = rtdb_parallel(.true.)
       endif
