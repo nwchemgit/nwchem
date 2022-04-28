@@ -19,12 +19,6 @@
                  ysyr2k.o ytrmm.o ytrtri.o jlacp2.o \
 		 ysyrk.o jsyrk.o jsysv.o jsytrf.o
 
-        ifndef BLAS_SIZE
-	LIB_DEFINES += -DUSE_INTEGER8
-	endif
-        ifeq ($(BLAS_SIZE),8)
-	LIB_DEFINES += -DUSE_INTEGER8
-	endif
 
 include ../config/makefile.h
 include ../config/makelib.h

@@ -1,0 +1,5 @@
+#ifdef USE_INTEGER8
+#define INTGR4 integer*8
+#else
+#define INTGR4 integer*4
+#endif

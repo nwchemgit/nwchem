@@ -3829,6 +3829,12 @@ ifeq ($(shell echo $(BLASOPT) |awk '/lessl/ {print "Y"; exit}'),Y)
     CORE_SUBDIRS_EXTRA = lapack
 endif
 
+ifndef BLAS_SIZE
+    LIB_DEFINES += -DUSE_INTEGER8
+endif
+ifeq ($(BLAS_SIZE),8)
+    LIB_DEFINES += -DUSE_INTEGER8
+endif
 
 #
 # Define known suffixes mostly so that .p files don\'t cause pc to be invoked
