@@ -56,6 +56,15 @@ jobs:
             armci_network: MPI-TS
             nwchem_modules: "xtb driver solvation"
             fc: ifort
+            blas: "internal"
+            use_openmp: 2
+            use_tblite: 1
+          - os: ubuntu-18.04
+            experimental: true
+            mpi_impl: intel
+            armci_network: MPI-TS
+            nwchem_modules: "xtb driver solvation"
+            fc: ifort
             use_openmp: 2
             use_tblite: 1
           - os: ubuntu-20.04
