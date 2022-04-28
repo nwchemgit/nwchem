@@ -6,11 +6,12 @@
      $                        get_covalent_rad, get_coordination_number,
      $                        get_lattice_points 
       implicit none
+#include "util_intsize.fh"
       type(structure_type) :: mol
       type(param_record) :: param
-      integer :: nat, nshl
-      integer :: nshl_at(nat)
-      integer :: atnum(nat)
+      INTGR4 :: nat, nshl
+      INTGR4 :: nshl_at(nat)
+      INTGR4 :: atnum(nat)
       double precision :: qat(nat), qshl(nshl), dpat(3,nat), qpat(6,nat)
 
       type(mchrg_model_type) :: model
