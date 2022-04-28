@@ -111,22 +111,22 @@ if [[ "$DISTR" == "fedora" ]] || [[ "$DISTR" == "centos" ]]; then
     export PATH=/usr/lib64/"$MPI_IMPL"/bin:$PATH
     export LD_LIBRARY_PATH=/usr/lib64/"$MPI_IMPL"/lib:$LD_LIBRARY_PATH
 fi
+if [[ -z "$BLAS_SIZE" ]] ; then
+    export BLAS_SIZE=8
+fi
 if [[ "$BLAS_ENV" == "internal" ]]; then
     export USE_INTERNALBLAS=1
-    export BLAS_SIZE=4
-    export USE_64TO32=y
     export SCALAPACK_ENV="off"
 elif [[ "$BLAS_ENV" == "build_openblas" ]]; then
     export BUILD_OPENBLAS="y"
-    export BLAS_SIZE=8
 elif [[ "$BLAS_ENV" == "accelerate" ]]; then
     export BLASOPT="-framework Accelerate"
     export BLAS_LIB=${BLASOPT}
     export LAPACK_LIB=${BLASOPT}
     export BLAS_SIZE=4
-    export SCALAPACK_SIZE=4
 fi
 if [[ "$BLAS_SIZE" == "4" ]]; then
+  export SCALAPACK_SIZE=4
   export USE_64TO32=y
 fi
 if [[ -z "$USE_INTERNALBLAS" ]]; then

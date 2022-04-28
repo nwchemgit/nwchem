@@ -18,6 +18,7 @@ jobs:
     strategy:
       matrix:
         blas: [build_openblas]
+        blas_size: 8
         os: [ubuntu-20.04, macos-10.15]
         experimental: [false]
         mpi_impl:
@@ -56,7 +57,8 @@ jobs:
             armci_network: MPI-TS
             nwchem_modules: "xtb driver solvation"
             fc: ifort
-            blas: "internal"
+            blas: "build_openblas"
+            blas_size: 4
             use_openmp: 2
             use_tblite: 1
           - os: ubuntu-18.04
@@ -89,6 +91,7 @@ jobs:
             nwchem_modules: "all"
             fc: gfortran
             blas: "internal"
+            blas_size: 4
           - os: ubuntu-18.04
             experimental: false
             mpi_impl: mpich
@@ -261,6 +264,7 @@ jobs:
             nwchem_modules: "tinyqmpw"
             fc: gfortran-9
             blas: "accelerate"
+            blas_size: 4
             xcode_version: 12.1.1
           - os: macos-10.15
             experimental: true
@@ -308,6 +312,7 @@ jobs:
         SIMINT_VECTOR: avx2
         DEVELOPER_DIR: /Applications/Xcode_${{ matrix.xcode_version}}.app/Contents/Developer
         BLAS_ENV:  ${{ matrix.blas }}
+        BLAS_SIZE:  ${{ matrix.blas_size }}
         USE_OPENMP:  ${{ matrix.use_openmp }}
     continue-on-error: ${{ matrix.experimental }}
     steps:
@@ -327,7 +332,7 @@ jobs:
           path: |
             ~/cache
             ~/apps
-          key: ${{ matrix.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-blas${{ matrix.blas}}-libxc${{matrix.use_libxc}}-tblite${{matrix.use_tblite}}-simd${{ steps.get-simd.outputs.simd }}-nwchemcache-v002
+          key: ${{ matrix.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-blas${{ matrix.blas}}-blas_size${{ matrix.blas_size}}-libxc${{matrix.use_libxc}}-tblite${{matrix.use_tblite}}-simd${{ steps.get-simd.outputs.simd }}-nwchemcache-v002
       - name: fetch apps cache
         if: steps.setup-cache.outputs.cache-hit == 'true'
         run: |
