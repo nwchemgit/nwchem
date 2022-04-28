@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 echo "start compile"
+echo "BLAS_SIZE is " $BLAS_SIZE
 set -e
 # source env. variables
 if [[ -z "$TRAVIS_BUILD_DIR" ]] ; then

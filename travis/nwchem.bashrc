@@ -1,4 +1,6 @@
 #- env: == default ==
+echo "start nwchem.bashrc"
+echo "BLAS_SIZE is " $BLAS_SIZE
 os=`uname`
 arch=`uname -m`
 if test -f "/usr/lib/os-release"; then
@@ -112,6 +114,7 @@ if [[ "$DISTR" == "fedora" ]] || [[ "$DISTR" == "centos" ]]; then
     export LD_LIBRARY_PATH=/usr/lib64/"$MPI_IMPL"/lib:$LD_LIBRARY_PATH
 fi
 if [[ -z "$BLAS_SIZE" ]] ; then
+    echo "BLAS_SIZE not set, setting = 8"
     export BLAS_SIZE=8
 fi
 if [[ "$BLAS_ENV" == "internal" ]]; then
@@ -130,12 +133,6 @@ if [[ "$BLAS_SIZE" == "4" ]]; then
   export USE_64TO32=y
 fi
 if [[ -z "$USE_INTERNALBLAS" ]]; then
-    if [[ -z "$BLASOPT" ]] ; then
-	export BUILD_OPENBLAS="y"
-	export BLAS_SIZE=8
-    else
-	unset BUILD_OPENBLAS
-    fi
     if [[ "$SCALAPACK_ENV" == "off" ]]; then
 	unset BUILD_SCALAPACK
 	unset SCALAPACK
