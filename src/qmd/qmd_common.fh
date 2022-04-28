@@ -7,13 +7,14 @@ c
       common/qmd_int/lgeom,igeom,jdebug
 c
 c     nose-hoover thermostat parameters
-      integer maxchain
-      parameter (maxchain = 2)
+      integer maxchain,maxnsy,nnhos,nnhsy
+      parameter (maxchain = 10, maxnsy = 7)
       logical do_nosehoover
       double precision r_nh(maxchain)    ! chain positions
-      double precision v_nh(maxchain)    ! chain velocities
+      double precision v_nh(maxchain)  ! chain velocities
       double precision m_nh(maxchain)    ! chain masses
       double precision g_nh(maxchain)    ! bath couplings
+      double precision syw_nh(maxnsy)    ! Suzuki-Yoshida weights
 c
 c     berendsen thermostat
       logical do_berendsen
@@ -31,7 +32,8 @@ c     stochastic velocity rescaling
       logical do_svr
 c     
       common/qmd_thermostats/do_berendsen,tau,
-     &                       do_nosehoover,r_nh,v_nh,m_nh,g_nh,
+     &                       do_nosehoover,r_nh,v_nh,m_nh,g_nh,syw_nh,
+     &                       nnhos, nnhsy,
      &                       do_langevin,friction,
      &                       do_rescale,idum,
      &                       do_svr
