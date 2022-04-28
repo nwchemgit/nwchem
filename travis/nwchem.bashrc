@@ -1,6 +1,8 @@
 #- env: == default ==
 echo "start nwchem.bashrc"
 echo "BLAS_SIZE is " $BLAS_SIZE
+echo "BLASOPT is " $BLASOPT
+echo "BUILD_OPENBLAS is " $BUILD_OPENBLAS
 os=`uname`
 arch=`uname -m`
 if test -f "/usr/lib/os-release"; then
@@ -117,6 +119,7 @@ if [[ -z "$BLAS_SIZE" ]] ; then
     echo "BLAS_SIZE not set, setting = 8"
     export BLAS_SIZE=8
 fi
+
 if [[ "$BLAS_ENV" == "internal" ]]; then
     export USE_INTERNALBLAS=1
     export SCALAPACK_ENV="off"

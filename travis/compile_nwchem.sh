@@ -68,6 +68,11 @@ else
 	fi
     fi
 fi
+#check linear algebra
+if [[ -z "$BLASOPT" ]] && [[ -z "$BUILD_OPENBLAS" ]] && [[ -z "$USE_INTERNALBLAS" ]] ; then
+    echo " no existing BLAS settings, defaulting to BUILD_OPENBLAS=y "
+    export BUILD_OPENBLAS=1
+fi
 # install armci-mpi if needed
 if [[ "$ARMCI_NETWORK" == "ARMCI" ]]; then
     cd tools
