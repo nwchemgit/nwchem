@@ -2145,9 +2145,9 @@ c
          coords(1,i,geom) = c(1,i)
          coords(2,i,geom) = c(2,i)
          coords(3,i,geom) = c(3,i)
-         velocities(1,i,geom) = c(1,i)
-         velocities(2,i,geom) = c(2,i)
-         velocities(3,i,geom) = c(3,i)
+         velocities(1,i,geom) = v(1,i)
+         velocities(2,i,geom) = v(2,i)
+         velocities(3,i,geom) = v(3,i)
       end do
 c
       end
