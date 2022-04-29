@@ -220,9 +220,13 @@ unset CFLAGS
 unset SCALAPACK_FCFLAGS
 unset SCALAPACK_LDFLAGS
 if [[  -z "$MPICH_FC"   ]] ; then
-    MPICH_FC="$FC"
-    echo MPICH_FC is nvfortran
-fi    
+    export MPICH_FC="$FC"
+    echo MPICH_FC is "$MPICH_FC"
+fi
+if [[  -z "$MPICH_CC"   ]] ; then
+    export MPICH_CC="$CC"
+    echo MPICH_CC is "$MPICH_CC"
+fi
 if [[ "${FORTRAN_CPP}" != "" ]] ; then
     make V=0 -j4
     make V=0 -j4 install

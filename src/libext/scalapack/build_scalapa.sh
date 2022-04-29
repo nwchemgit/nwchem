@@ -180,6 +180,10 @@ if [[  -z "$MPICH_FC"   ]] ; then
     export MPICH_FC="$FC"
     echo MPICH_FC is "$MPICH_FC"
 fi
+if [[  -z "$MPICH_CC"   ]] ; then
+    export MPICH_CC="$CC"
+    echo MPICH_CC is "$MPICH_CC"
+fi
 #Intel MPI
 if [[  -z "$I_MPI_F90"   ]] ; then
     export I_MPI_F90="$FC"
