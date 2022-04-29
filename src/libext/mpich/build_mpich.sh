@@ -6,6 +6,10 @@ curl -L http://www.mpich.org/static/downloads/${VERSION}/mpich-${VERSION}.tar.gz
 tar xzf mpich.tgz
 ln -sf mpich-${VERSION} mpich
 cd mpich
+if [[  -z "${FC}" ]]; then
+    export FC=gfortran
+fi
+
 GNUMAJOR=`$FC -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-`
 if [[ $GNUMAJOR -ge 10  ]]; then
     export FFLAGS=-std=legacy
