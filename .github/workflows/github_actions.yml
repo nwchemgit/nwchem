@@ -44,7 +44,7 @@ jobs:
         include:
           - os: ubuntu-18.04
             experimental: true
-            mpi_impl: openmpi
+            mpi_impl: mpich
             armci_network: MPI-TS
             nwchem_modules: "xtb driver solvation"
             fc: gfortran-11
