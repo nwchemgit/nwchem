@@ -15,11 +15,15 @@ if [[  -z "${NWCHEM_TOP}" ]]; then
     dir2=$(dirname "$dir3")
     NWCHEM_TOP=$(dirname "$dir2")
 fi
+echo FC is $FC
 FC_EXTRA=$(${NWCHEM_TOP}/src/config/strip_compiler.sh ${FC})
-
-GNUMAJOR=`$FC_EXTRA -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-`
-if [[ $GNUMAJOR -ge 10  ]]; then
-    export FFLAGS=-std=legacy
+echo FC_EXTRA is $FC_EXTRA
+if  [[ ${FC_EXTRA} == gfortran ]] ; then
+    GNUMAJOR=`$FC -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-`
+    echo GNUMAJOR is $GNUMAJOR
+    if [[ $GNUMAJOR -ge 10  ]]; then
+	export FFLAGS=-std=legacy
+    fi
 fi
 if  [[ ${FC_EXTRA} == nvfortran ]] ; then
     export FFLAGS+=" -fPIC "
