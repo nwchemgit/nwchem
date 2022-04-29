@@ -18,7 +18,7 @@ fi
 unset F90
 unset F90FLAGS
 echo 'using FFLAGS=' $FFLAGS
-./configure --prefix=`pwd`/../.. --enable-fortran=all --disable-shared --disable-cxx --enable-romio --with-pm=gforker --with-device=ch3:nemesis --disable-cuda --disable-opencl --enable-silent-rules  --enable-fortran=all
+./configure --prefix=`pwd`/../.. --enable-fortran=all --enable-shared --disable-cxx --enable-romio --with-pm=gforker --with-device=ch3:nemesis --disable-cuda --disable-opencl --enable-silent-rules  --enable-fortran=all
 mkdir -p ../../../lib
 echo
 echo mpich compilation in progress
