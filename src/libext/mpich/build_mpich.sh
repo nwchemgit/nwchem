@@ -22,11 +22,13 @@ if  [[ ${FC_EXTRA} == gfortran ]] ; then
     GNUMAJOR=`$FC -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-`
     echo GNUMAJOR is $GNUMAJOR
     if [[ $GNUMAJOR -ge 10  ]]; then
-	export FFLAGS=-std=legacy
+	export FFLAGS=" -fallow-argument-mismatch "
+        export FCFLAGS=" -fallow-argument-mismatch "
     fi
 fi
 if  [[ ${FC_EXTRA} == nvfortran ]] ; then
     export FFLAGS+=" -fPIC "
+    export FCFLAGS+=" -fPIC "
 fi
 #mpich crashes when F90 and F90FLAGS are set
 unset F90
