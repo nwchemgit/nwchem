@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 echo "start compile"
+echo "BLAS_SIZE is " $BLAS_SIZE
 set -e
 # source env. variables
 if [[ -z "$TRAVIS_BUILD_DIR" ]] ; then
@@ -40,6 +41,7 @@ if [[ "$arch" == "aarch64" ]]; then
 else
     if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
 	FOPT=-O2
+    if [[ -z "$BUILD_OPENBLAS" ]] ; then
 	if [[ "$os" == "Darwin" ]]; then
 	    export BUILD_MPICH=1
  	    export BLASOPT="-L$MKLROOT  -Wl,-rpath,${MKLROOT}/lib -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core  -lpthread -lm -ldl"
@@ -53,6 +55,7 @@ else
         unset BUILD_OPENBLAS
 	export BLAS_SIZE=8
 	export LAPACK_LIB="$BLASOPT"
+    fi
 	export I_MPI_F90="$FC"
     elif [[ "$FC" == "flang" ]] || [[ "$(basename -- $FC | cut -d \- -f 1)" == "nvfortran" ]] ; then
 	export BUILD_MPICH=1
@@ -64,6 +67,11 @@ else
 #	    FOPT="-O2 -tp haswell"
 	fi
     fi
+fi
+#check linear algebra
+if [[ -z "$BLASOPT" ]] && [[ -z "$BUILD_OPENBLAS" ]] && [[ -z "$USE_INTERNALBLAS" ]] ; then
+    echo " no existing BLAS settings, defaulting to BUILD_OPENBLAS=y "
+    export BUILD_OPENBLAS=1
 fi
 # install armci-mpi if needed
 if [[ "$ARMCI_NETWORK" == "ARMCI" ]]; then
