@@ -29,7 +29,8 @@ if [[  -z "${NWCHEM_TOP}" ]]; then
     NWCHEM_TOP=$(dirname "$dir2")
 fi
 if [[ ! -z "${BUILD_MPICH}" ]]; then
-      export PATH=${NWCHEM_TOP}/src/libext/bin:$PATH
+    export PATH=${NWCHEM_TOP}/src/libext/bin:$PATH
+    export LDFLAGS=`pkg-config --libs-only-L hwloc`
 fi
 if [[ "$FC" = "ftn"  ]] || [[ ! -z "$USE_CMAKE_MASTER" ]] ; then
     get_cmake_master
@@ -253,6 +254,7 @@ if [[ "$arch" == "i686" ]] || [[ "$arch" == "x86_64" ]]; then
        C_FLAGS+=" -m32 "
     fi
 fi
+echo LDFLAGS is $LDFLAGS
 echo compiling with CC="$MPICC"  FC=$MPIF90 CFLAGS="$C_FLAGS" FFLAGS="$Fortran_FLAGS" $CMAKE -Wno-dev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_FLAGS="$C_FLAGS"  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY="$BLASOPT"  -DBLAS_LIBRARIES="$BLASOPT"  -DLAPACK_openblas_LIBRARY="$BLASOPT"  -DLAPACK_LIBRARIES="$BLASOPT" -DCMAKE_Fortran_FLAGS_RELWITHDEBINFO="-O2 -g -DNDEBUG  $Fortran_FLAGS"  $CMAKE_EXTRA
 CC="$MPICC"  FC=$MPIF90 CFLAGS="$C_FLAGS" FFLAGS="$Fortran_FLAGS" $CMAKE -Wdev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_FLAGS="$C_FLAGS"  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY="$BLASOPT"  -DBLAS_LIBRARIES="$BLASOPT"  -DLAPACK_openblas_LIBRARY="$BLASOPT"  -DLAPACK_LIBRARIES="$BLASOPT" -DCMAKE_Fortran_FLAGS_RELWITHDEBINFO="-O2 -g -DNDEBUG  $Fortran_FLAGS" $CMAKE_EXTRA
 if [[ "$?" != "0" ]]; then
