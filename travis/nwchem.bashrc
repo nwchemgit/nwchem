@@ -35,7 +35,7 @@ if [[ "$FC" == "flang" ]]; then
      export BUILD_MPICH=1
 fi
 if [[ "$FC" == "amdflang" ]]; then
-    rocm_version=4.5.2
+    rocm_version=5.1.1
     export PATH=/opt/rocm-"$rocm_version"/bin:$PATH
     export LD_LIBRARY_PATH=/opt/rocm-"$rocm_version"/lib:/opt/rocm-"$rocm_version"/llvm/lib:$LD_LIBRARY_PATH
 fi
@@ -153,9 +153,9 @@ if [[ -z "$USE_INTERNALBLAS" ]]; then
 		if [[ `${CC} -dM -E - < /dev/null 2> /dev/null | grep -c clang` == 0 ]] && [[ `${CC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] && [[ "$(expr `${CC} -dumpversion | cut -f1 -d.` \> 7)" == 1 ]]; then
 		    if [[ "$os" == "Linux" ]] && [[ "$arch" == "x86_64" ]]; then
 			if [[ ! -z "$BUILD_OPENBLAS" ]]; then
-			    if [[ "$SCALAPACK_SIZE" == "8" ]]; then
+#			    if [[ "$SCALAPACK_SIZE" == "8" ]]; then
 				export BUILD_ELPA=1
-			    fi
+#			    fi
 			fi
 		    fi
 		fi
