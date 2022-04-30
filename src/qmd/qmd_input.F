@@ -88,9 +88,9 @@ c     Nose-Hoover mass parameter
       nnhsy = 3
       if (.not.rtdb_put(rtdb,'qmd:nhfreq',mt_dbl,1,nh_freq))
      & call errquit(pname//'failed to write tau',0,RTDB_ERR)
-      if (.not.rtdb_put(rtdb,'qmd:nnhos',mt_dbl,1,nnhos))
+      if (.not.rtdb_put(rtdb,'qmd:nnhos',mt_int,1,nnhos))
      & call errquit(pname//'failed to write tau',0,RTDB_ERR)
-      if (.not.rtdb_put(rtdb,'qmd:nnhsy',mt_dbl,1,nnhsy))
+      if (.not.rtdb_put(rtdb,'qmd:nnhsy',mt_int,1,nnhsy))
      & call errquit(pname//'failed to write tau',0,RTDB_ERR)
 c
 c     Nuclear MD integrator
