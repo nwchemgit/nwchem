@@ -35,7 +35,7 @@ if [[ "$FC" == "flang" ]]; then
      export BUILD_MPICH=1
 fi
 if [[ "$FC" == "amdflang" ]]; then
-    rocm_version=4.5.2
+    rocm_version=5.1.1
     export PATH=/opt/rocm-"$rocm_version"/bin:$PATH
     export LD_LIBRARY_PATH=/opt/rocm-"$rocm_version"/lib:/opt/rocm-"$rocm_version"/llvm/lib:$LD_LIBRARY_PATH
 fi
