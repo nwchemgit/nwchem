@@ -1,6 +1,10 @@
 # Notes on NWChem-Plumed interface
 
-Used Plumed version 2.6
+
+## Automated installation in NWChem
+
+The `BUILD_PLUMED` env. variable installs Plumed and compiles the qmd module.
+
 
 ## Plumed Installation
 
