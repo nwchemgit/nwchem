@@ -44,6 +44,16 @@ jobs:
         include:
           - os: ubuntu-18.04
             experimental: true
+            mpi_impl: openmpi
+            armci_network: MPI-TS
+            nwchem_modules: "xtb qmd driver solvation"
+            fc: gfortran-9
+            blas: "build_openblas"
+            build_plumed: 1
+            use_openmp: 2
+            use_tblite: 1
+          - os: ubuntu-18.04
+            experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS
             nwchem_modules: "xtb driver solvation"
@@ -316,6 +326,7 @@ jobs:
         USE_SIMINT: ${{ matrix.use_simint }}
         USE_LIBXC: ${{ matrix.use_libxc }}
         USE_TBLITE: ${{ matrix.use_tblite }}
+        BUILD_PLUMED: ${{ matrix.build_plumed }}
         FC: ${{ matrix.fc }}
         CC: ${{ matrix.cc }}
         COMEX_MAX_NB_OUTSTANDING: 4
