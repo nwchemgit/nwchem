@@ -47,8 +47,7 @@ c
       integer spindensity
       integer spindensitymap
       integer stoneanalysis
-      integer boyslocalization
-      integer pmlocalization
+      integer localization
       integer hyperfine
       integer spinspin, spnspnpairs
       integer giao, giaoatoms
@@ -68,7 +67,8 @@ c
 c ... jochen:
       integer aoresponse, nfreq, l_fr, k_fr, 
      &        velocity, magneticpert, aor_giao, aor_damp, aor_conv,
-     &        aor_orbeta, aor_gprime, aor_quad, aor_analyze
+     &        aor_orbeta, aor_gprime, aor_quad, aor_analyze,
+     &        loc_boys, loc_pm, loc_ibo
       double precision gamwidth, convergence
 c     
 c>>>  declarations from NWdft
@@ -112,8 +112,6 @@ c
       spindensity       = 1
       spindensitymap    = 1
       stoneanalysis     = 1
-      boyslocalization  = 1
-      pmlocalization    = 1 
       hyperfine         = 1
       spinspin          = 1
       giao              = 1
@@ -142,6 +140,10 @@ c ... jochen:
       cphf3write        = 0 ! FA
       checkorth         = 0 ! FA
       gamwidth          = 0d0
+      localization      = 1
+      loc_boys          = 1
+      loc_pm            = 1
+      loc_ibo           = 1
 c     
 c     read inputs; store in rtdb
 c     
@@ -306,12 +308,24 @@ c        write(*,*) 'Reading checkorth=',checkorth
            call errquit('Response: error reading convergence crit.',
      &        0, INPUT_ERR)
          endif
-c ... jochen end
-      elseif ( inp_compare(.false., 'boyslocalization', test)) then
-         boyslocalization = 0
-c         boyslocalization = 1
-      elseif ( inp_compare(.false., 'pmlocalization', test)) then
-         pmlocalization = 0
+c        ... jochen end
+c ... jochen: localization input         
+      elseif ( inp_compare(.false., 'localization', test)) then
+        localization = 0
+        if (inp_a(test)) then
+          if ( inp_compare(.false., 'boys', test)) then
+            loc_boys = 0
+          elseif ( inp_compare(.false., 'ibo', test)) then
+            loc_ibo = 0
+          elseif ( inp_compare(.false., 'pm', test)) then
+            loc_pm = 0
+          else ! default is PM
+            loc_pm = 0
+          end if
+        else
+          loc_pm = 0
+        end if
+c ... jochen end        
       elseif ( inp_compare(.false., 'stoneanalysis', test)) then
          stoneanalysis  = 0
          stoneanalysis  = 1
@@ -462,8 +476,8 @@ c     what EFG options will appear
       elseif ( inp_compare(.false., 'all', test)) then
          giao   = 0
          gshift = 0
-         boyslocalization = 0
-         pmlocalization = 0
+         localization = 0
+         loc_pm = 0
          stoneanalysis  = 0
          stoneanalysis  = 1
          spindensitymap = 0
@@ -663,13 +677,17 @@ c ... Fredy: also write EFG option key to RTDB:
      $                               stoneanalysis     ))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
 c
-      if (.not. rtdb_put(rtdb, 'prop:boyslocalization', mt_int, 1,
-     $                               boyslocalization  ))
+      if (.not. rtdb_put(rtdb, 'prop:loc_boys', mt_int, 1,
+     $                               loc_boys  ))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
 c
-      if (.not. rtdb_put(rtdb, 'prop:pmlocalization', mt_int, 1,
-     $                               pmlocalization  ))
-     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'prop:loc_pm', mt_int, 1,
+     $                               loc_pm  ))
+     $  call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+c      
+      if (.not. rtdb_put(rtdb, 'prop:loc_ibo', mt_int, 1,
+     $                               loc_ibo  ))
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)      
       if (.not. rtdb_put(rtdb, 'prop:spinspin', mt_int, 1,
      $                               spinspin         ))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)

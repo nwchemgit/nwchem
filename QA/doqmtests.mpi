@@ -202,6 +202,7 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $np ch3radical_unrot
 ./runtests.mpi.unix procs $np cho_bp_props
 ./runtests.mpi.unix procs $np prop_cg_nh3_b3lyp
+./runtests.mpi.unix procs $np localize-ibo-aa
 #
 #--- range-separated functionals tests
 ./runtests.mpi.unix procs $np acr-camb3lyp-cdfit
