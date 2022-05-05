@@ -323,6 +323,7 @@ ifdef BUILD_MPICH
     MPI_INCLUDE = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
     MPI_LIB     = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH)  $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
     LIBMPI      = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
+    LIBMPI	+=  $(shell pkg-config --libs-only-L hwloc)
 endif
 
 
@@ -3829,6 +3830,12 @@ ifeq ($(shell echo $(BLASOPT) |awk '/lessl/ {print "Y"; exit}'),Y)
     CORE_SUBDIRS_EXTRA = lapack
 endif
 
+ifndef BLAS_SIZE
+    LIB_DEFINES += -DUSE_INTEGER8
+endif
+ifeq ($(BLAS_SIZE),8)
+    LIB_DEFINES += -DUSE_INTEGER8
+endif
 
 #
 # Define known suffixes mostly so that .p files don\'t cause pc to be invoked

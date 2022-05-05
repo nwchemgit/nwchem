@@ -8,6 +8,7 @@ arch=`uname -m`
 SHORTVERSION=2021.11.001
 VERSION=new_release_2021.11.001
 #https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/new_release_2020.11.001/elpa-new_release_2020.11.001.tar.gz
+echo mpif90 is `which mpif90`
 export ARFLAGS=rU
 if [ -f  elpa-${VERSION}.tar.gz ]; then
     echo "using existing"  elpa-${VERSION}.tar.gz
@@ -43,11 +44,11 @@ else
 	echo
 	exit 1
     else
-	MPIF90="mpif90"
+	MPIF90=mpif90
         MPICC=mpicc
 	#fix include path
-	FCFLAGS+="-I`${NWCHEM_TOP}/src/tools/guess-mpidefs --mpi_include`"
-	CFLAGS+="-I`${NWCHEM_TOP}/src/tools/guess-mpidefs --mpi_include`"
+#	FCFLAGS+="-I`${NWCHEM_TOP}/src/tools/guess-mpidefs --mpi_include`"
+#	CFLAGS+="-I`${NWCHEM_TOP}/src/tools/guess-mpidefs --mpi_include`"
     fi
 fi
 if [[  -z "${FC}" ]]; then
@@ -139,16 +140,6 @@ fi
 	echo "using AVX512 instructions"
 	FORCETARGET=" --disable-sse-assembly --enable-avx --enable-avx2  --enable-avx512 "
     fi
-#    if [[ ! -z ${USE_KNL} ]]; then
-#	if [[ ${FC} == ifort ]] || [[ ${PE_ENV} == INTEL ]]; then
-#	echo "using compiling for KNL "
-#	sixty4_int+=" --enable-cross-compile --host=x86_64-unknown-linux-gnu "
-#	CFLAGS+=" -xMIC-AVX512 "
-#	FCFLAGS+=" -xMIC-AVX512 "
-##	FORCETARGET=" --disable-sse-assembly --disable-avx --disable-avx2  --enable-avx512 "
-#	FORCETARGET=" "
-#	fi
-#    fi
 fi #USE_HWOPT
 if [[ `${CC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] ; then
     if [[ "$(expr `${CC} -dumpversion | cut -f1 -d.` \< 8)" == 1 ]]; then
@@ -159,17 +150,6 @@ if [[ `${CC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] ; then
 	exit 1
     fi
 fi
-## check gcc version for skylake
-#let GCCVERSIONGT5=$(expr `${CC} -dumpversion | cut -f1 -d.` \> 5)
-#if [[ "$FORCETARGET" == *"SKYLAKEX"* ]]; then
-#    if [[ ${GCCVERSIONGT5} != 1 ]]; then
-#	echo
-#	echo you have gcc version $(${CC} -dumpversion | cut -f1 -d.)
-#	echo gcc version 6 and later needed for skylake
-#	echo
-#	exit 1
-#    fi
-#fi
 
 if [ ! -f  configure ]; then
     sh ./autogen.sh
@@ -207,37 +187,24 @@ export CC=$MPICC
   --disable-option-checking \
  --disable-dependency-tracking \
  --disable-shared --enable-static  \
+ --disable-c-tests \
  ${FORCETARGET} \
 --prefix=${NWCHEM_TOP}/src/libext
 unset LIBS
 unset FCFLAGS
 unset CFLAGS
-#unset I_MPI_CC
-#unset CC
-#unset FC
-#unset MPIF90
-#unset MPICC
 unset SCALAPACK_FCFLAGS
 unset SCALAPACK_LDFLAGS
-if [[  -z "$MPICH_FC"   ]] ; then
-    MPICH_FC="$FC"
-    echo MPICH_FC is nvfortran
-fi    
-if [[ "${FORTRAN_CPP}" != "" ]] ; then
-    make V=0 -j4
-    make V=0 -j4 install
-#    make V=0 -j4 install-libLTLIBRARIES install-data
-else    
-    top_srcdir=`pwd`/..
-    make V=0 FC="${top_srcdir}/remove_xcompiler ${top_srcdir}/manual_cpp $MPIF90" -j4
-    make V=0 FC="${top_srcdir}/remove_xcompiler ${top_srcdir}/manual_cpp $MPIF90" -j4 install
-fi
-
+echo mpif90 is `which mpif90`
+echo MPIF90 is "$MPIF90"
+    make V=1 -j1 FC=$MPIF90 CC=$MPICC -l0.0001
 if [[ "$?" != "0" ]]; then
     echo " "
     echo "Elpa compilation failed"
     echo " "
     exit 1
 fi
+    make V=0   install
+
 ln -sf ${NWCHEM_TOP}/src/libext/lib/libelpa.a  ${NWCHEM_TOP}/src/libext/lib/libnwc_elpa.a
 ln -sf ${NWCHEM_TOP}/src/libext/include/elpa-${SHORTVERSION}  ${NWCHEM_TOP}/src/libext/include/elpa

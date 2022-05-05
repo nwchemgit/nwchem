@@ -54,6 +54,7 @@ if [[ -z "${NWCHEM_TOP}" ]]; then
 fi
 if [[ ! -z "${BUILD_MPICH}" ]]; then
     export MPIRUN_PATH=$NWCHEM_TOP/src/libext/bin/mpiexec
+    export LD_LIBRARY_PATH=$NWCHEM_TOP/src/libext/lib:$LD_LIBRARY_PATH
 fi
 cd $NWCHEM_TOP/QA
 # A subdirectory of the current directory name testoutputs is made

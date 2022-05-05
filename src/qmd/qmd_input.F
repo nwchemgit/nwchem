@@ -31,9 +31,9 @@ c
       integer tvals(8)
       double precision targ_temp
       double precision friction
-      integer idum
+      integer idum, nnhos, nnhsy
       double precision tau
-      double precision nh_mass(2)
+      double precision nh_freq
       character*32 test
       character*32 thermostat
       character*32 integrator_nucl
@@ -83,10 +83,15 @@ c     Berendsen tau parameter, also used for svr
      & call errquit(pname//'failed to write tau',0,RTDB_ERR)
 c
 c     Nose-Hoover mass parameter
-      nh_mass(1)=0.1d0
-      nh_mass(2)=0.1d0
-      if (.not.rtdb_put(rtdb,'qmd:nh_mass',mt_dbl,2,nh_mass(1)))
-     &  call errquit(pname//'failed to write nh_mass',0,RTDB_ERR)
+      nh_freq = 0.013669d0
+      nnhos = 3
+      nnhsy = 3
+      if (.not.rtdb_put(rtdb,'qmd:nhfreq',mt_dbl,1,nh_freq))
+     & call errquit(pname//'failed to write tau',0,RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'qmd:nnhos',mt_int,1,nnhos))
+     & call errquit(pname//'failed to write tau',0,RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'qmd:nnhsy',mt_int,1,nnhsy))
+     & call errquit(pname//'failed to write tau',0,RTDB_ERR)
 c
 c     Nuclear MD integrator
       integrator_nucl='velocity-verlet'
@@ -199,10 +204,48 @@ c     Nuclear thermostat
      1   call errquit(pname//'failed to write thermostat',0,RTDB_ERR)
 c       Nose-Hoover: get masses
         if (thermostat.eq.'nose-hoover') then
-          if (.not.inp_f(nh_mass(1))) nh_mass(1) = 0.1d0
-          if (.not.inp_f(nh_mass(2))) nh_mass(2) = 0.1d0
-          if (.not.rtdb_put(rtdb,'qmd:nh_mass',mt_dbl,2,nh_mass(1)))
-     &     call errquit(pname//'failed to write nh_mass',0,RTDB_ERR)
+  200     if (.not.inp_a(test)) goto 10
+  201     if (inp_compare(.false.,'nnhos',test)) then
+            if (.not.inp_i(nnhos))
+     &      call errquit(pname//'failed to read number of oscillators',
+     &         0,INPUT_ERR)
+            if (.not.rtdb_put(rtdb,'qmd:nnhos',mt_int,1,nnhos))
+     &        call errquit(pname//'failed to write nnhos',0,RTDB_ERR)
+            goto 200
+          elseif(inp_compare(.false.,'frequency',test)) then
+            if (.not.inp_f(nh_freq))
+     &      call errquit(pname//'failed to read frequency',0,INPUT_ERR)
+            if (.not.rtdb_put(rtdb,'qmd:nhfreq',mt_dbl,1,nh_freq))
+     &        call errquit(pname//'failed to write nhfreq',0,RTDB_ERR)
+            if (.not.inp_a(test)) goto 10
+            if (inp_compare(.false.,'1/cm',test)) then
+              nh_freq = nh_freq*4.5563352529120d-6
+            elseif (inp_compare(.false.,'cm^-1',test)) then
+              nh_freq = nh_freq*4.5563352529120d-6
+            elseif (inp_compare(.false.,'ev',test)) then
+              nh_freq = nh_freq*3.6749322175655d-2
+            elseif (inp_compare(.false.,'au',test)) then
+              nh_freq = nh_freq
+            elseif (inp_compare(.false.,'ha',test)) then
+              nh_freq = nh_freq
+            else
+              goto 201
+            endif
+            if (.not.rtdb_put(rtdb,'qmd:nhfreq',mt_dbl,1,nh_freq))
+     &        call errquit(pname//'failed to write nnhos',0,RTDB_ERR)
+            goto 200
+          elseif(inp_compare(.false.,'nsy',test)) then
+            if (.not.inp_i(nnhsy))
+     &      call errquit(pname//'failed to number of Suzuki-Yoshida'//
+     &                        ' points',0,INPUT_ERR)
+            if (.not.rtdb_put(rtdb,'qmd:nnhsy',mt_int,1,nnhsy))
+     &        call errquit(pname//'failed to write nnhsy',0,RTDB_ERR)
+            goto 200
+          else
+            call errquit(pname//'unknown nose-hoover option '//
+     $                   trim(test),0,INPUT_ERR)
+          endif
+
 c       Berendsen or svr (Bussi, Donadio, Parrinello 2007): get tau
         else if (thermostat.eq.'berendsen'.or.thermostat.eq.'svr') then
           if (.not.inp_f(tau)) tau = 1.d3
@@ -342,10 +385,10 @@ c $Id$
 #include "mafdecls.fh"
 #include "errquit.fh"
 c
-      integer nstep_nucl
+      integer nstep_nucl, nnhos, nnhsy
       double precision dt_nucl
       double precision targ_temp
-      double precision nh_mass(2)
+      double precision nhfreq
       double precision tau
       character*32 thermostat
       character*32 integrator_nucl
@@ -378,11 +421,22 @@ c     Nuclear thermostat
      &      call errquit(pname//'failed to write thermostat',0,RTDB_ERR)
       endif
 c     Nose-Hoover mass parameter
-      if (.not.rtdb_get(rtdb,'qmd:nh_mass',mt_dbl,2,nh_mass(1)))then
-         nh_mass(1)=0.1d0
-         nh_mass(2)=0.1d0
-         if (.not.rtdb_put(rtdb,'qmd:nh_mass',mt_dbl,2,nh_mass(1)))
-     &        call errquit(pname//'failed to write nh_mass',0,RTDB_ERR)
+      if (.not.rtdb_get(rtdb,'qmd:nhfreq',mt_dbl,1,nhfreq))then
+         nhfreq = 0.013669d0
+         if (.not.rtdb_put(rtdb,'qmd:nhfreq',mt_dbl,1,nhfreq))
+     &        call errquit(pname//'failed to write nhfreq',0,RTDB_ERR)
+      endif
+c     Nose-Hoover number of oscillators
+      if (.not.rtdb_get(rtdb,'qmd:nnhos',mt_int,1,nnhos))then
+         nnhos = 3
+         if (.not.rtdb_put(rtdb,'qmd:nnhos',mt_int,1,nnhos))
+     &        call errquit(pname//'failed to write nnhos',0,RTDB_ERR)
+      endif
+c     Nose-Hoover number of Suzuki-Yoshida points
+      if (.not.rtdb_get(rtdb,'qmd:nnhsy',mt_int,1,nnhsy))then
+         nnhsy = 3
+         if (.not.rtdb_put(rtdb,'qmd:nnhsy',mt_int,1,nnhsy))
+     &        call errquit(pname//'failed to write nnhsy',0,RTDB_ERR)
       endif
 c     Berendsen tau parameter, also used for svr
       if (.not.rtdb_get(rtdb,'qmd:tau',mt_dbl,1,tau)) then

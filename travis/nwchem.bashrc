@@ -1,4 +1,8 @@
 #- env: == default ==
+echo "start nwchem.bashrc"
+echo "BLAS_SIZE is " $BLAS_SIZE
+echo "BLASOPT is " $BLASOPT
+echo "BUILD_OPENBLAS is " $BUILD_OPENBLAS
 os=`uname`
 arch=`uname -m`
 if test -f "/usr/lib/os-release"; then
@@ -31,7 +35,7 @@ if [[ "$FC" == "flang" ]]; then
      export BUILD_MPICH=1
 fi
 if [[ "$FC" == "amdflang" ]]; then
-    rocm_version=4.5.2
+    rocm_version=5.1.1
     export PATH=/opt/rocm-"$rocm_version"/bin:$PATH
     export LD_LIBRARY_PATH=/opt/rocm-"$rocm_version"/lib:/opt/rocm-"$rocm_version"/llvm/lib:$LD_LIBRARY_PATH
 fi
@@ -111,31 +115,27 @@ if [[ "$DISTR" == "fedora" ]] || [[ "$DISTR" == "centos" ]]; then
     export PATH=/usr/lib64/"$MPI_IMPL"/bin:$PATH
     export LD_LIBRARY_PATH=/usr/lib64/"$MPI_IMPL"/lib:$LD_LIBRARY_PATH
 fi
+if [[ -z "$BLAS_SIZE" ]] ; then
+    echo "BLAS_SIZE not set, setting = 8"
+    export BLAS_SIZE=8
+fi
+
 if [[ "$BLAS_ENV" == "internal" ]]; then
     export USE_INTERNALBLAS=1
-    export BLAS_SIZE=4
-    export USE_64TO32=y
     export SCALAPACK_ENV="off"
 elif [[ "$BLAS_ENV" == "build_openblas" ]]; then
     export BUILD_OPENBLAS="y"
-    export BLAS_SIZE=8
 elif [[ "$BLAS_ENV" == "accelerate" ]]; then
     export BLASOPT="-framework Accelerate"
     export BLAS_LIB=${BLASOPT}
     export LAPACK_LIB=${BLASOPT}
     export BLAS_SIZE=4
-    export SCALAPACK_SIZE=4
 fi
 if [[ "$BLAS_SIZE" == "4" ]]; then
+  export SCALAPACK_SIZE=4
   export USE_64TO32=y
 fi
 if [[ -z "$USE_INTERNALBLAS" ]]; then
-    if [[ -z "$BLASOPT" ]] ; then
-	export BUILD_OPENBLAS="y"
-	export BLAS_SIZE=8
-    else
-	unset BUILD_OPENBLAS
-    fi
     if [[ "$SCALAPACK_ENV" == "off" ]]; then
 	unset BUILD_SCALAPACK
 	unset SCALAPACK
@@ -153,7 +153,9 @@ if [[ -z "$USE_INTERNALBLAS" ]]; then
 		if [[ `${CC} -dM -E - < /dev/null 2> /dev/null | grep -c clang` == 0 ]] && [[ `${CC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] && [[ "$(expr `${CC} -dumpversion | cut -f1 -d.` \> 7)" == 1 ]]; then
 		    if [[ "$os" == "Linux" ]] && [[ "$arch" == "x86_64" ]]; then
 			if [[ ! -z "$BUILD_OPENBLAS" ]]; then
-			    export BUILD_ELPA=1
+#			    if [[ "$SCALAPACK_SIZE" == "8" ]]; then
+				export BUILD_ELPA=1
+#			    fi
 			fi
 		    fi
 		fi

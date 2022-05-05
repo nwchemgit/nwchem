@@ -18,7 +18,6 @@
 #ifdef USE_OPENMP
       use omp_lib, only : omp_get_max_threads
 #endif
-      implicit none
 #include "rtdb.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
@@ -45,8 +44,8 @@
       character(len=8) theory
       character(len=255) temp
 
-      integer :: iuhf4, nspin4, verb4
-      integer,allocatable :: atnum4(:)
+      INTGR4 :: iuhf4, nspin4, verb4
+      INTGR4 ,allocatable :: atnum4(:)
 
       double precision energy
       double precision, allocatable :: coords(:,:)
@@ -242,7 +241,7 @@
 
 
         !
-        ! Actually do the sinlgepoint calculations
+        ! Actually do the singlepoint calculations
         !
         call xtb_singlepoint(ctx,mol,calc,wfn,acc,energy,
      $                       verbosity=verb4)
