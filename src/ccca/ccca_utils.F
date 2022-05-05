@@ -148,6 +148,10 @@ c
         endif
         call bas_tag_lib(basis, osegment, atom_lab(idx), atom_lab(idx),
      $        mybas, filename, orel, .false.)
+c     load bq to keep DFT quiet
+        call bas_tag_lib(basis, osegment,
+     B       'bq'//atom_lab(idx), atom_lab(idx),
+     $        mybas, filename, orel, .false.)
    30 continue
 c
       if (.not. bas_set_spherical(basis, ospherical)) call
