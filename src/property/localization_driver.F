@@ -549,22 +549,25 @@ c       via solving S1 P12 = S12 for P12 etc.
 #endif
 
         if (.not. ga_create(MT_DBL, nbf_iao, nbf, 'loc:p21',
-     &    nbf, 0, g_p21)) call errquit(pname//': P21',63, GA_ERR)
+     &    nbf_iao, 0, g_p21)) call errquit(pname//': P21',63, GA_ERR)
 
         call ga_transpose(g_s12, g_p21)
+        if (debug) write(luout,*) 'P12 assembled' 
 
 c       S12 no longer needed
         if (.not. ga_destroy(g_s12))
      &    call errquit(pname//': ga_destroy failed g_s12',61, GA_ERR)  
-  
-#ifdef SCALAPACK
-        info = ga_solve(g_s2, g_p21) 
-        if (debug) write(luout,*)
-     &    'info from ga_solve P21:', info
-#else
+
+c : scalapack throws a 'ga_to_SL: rows/cols error' so we're using
+c       ma_solve for the time being
+c#ifdef SCALAPACK
+c        info = ga_solve(g_s2, g_p21) 
+c        if (debug) write(luout,*)
+c     &    'info from ga_solve P21:', info
+c#else
         if (debug) write(luout,*) 'call 2 ma_solve' 
         call ma_solve(g_s2, g_p21)
-#endif
+c#endif
 
 c       g_s2 no longer needed
         if (.not. ga_destroy(g_s2)) call errquit(
