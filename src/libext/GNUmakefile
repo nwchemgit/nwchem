@@ -25,6 +25,9 @@ endif
 ifdef USE_TBLITE
     SUBDIRS += tblite
 endif
+ifdef BUILD_PLUMED
+    SUBDIRS += plumed
+endif
 
 include ../config/makelib.h
 
