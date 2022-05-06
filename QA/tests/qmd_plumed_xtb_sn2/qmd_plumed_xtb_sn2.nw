@@ -1,0 +1,35 @@
+start qmd_plumed_xtb_sn2
+charge -1d0
+memory stack 1500 mb heap 100 mb global 500 mb noverify
+#scratch_dir /big_scratch
+geometry units bohr 
+symmetry c1
+#celldm(2) = 0.666666d0,celldm(3) = 0.666666d0,nat  = 6,ntyp = 3,tot_charge = -1,ecutwfc = 25.0,ecutrho = 100.0,nr1b = 24, nr2b = 24, nr3b = 24,nosym = .true./&electronsconv_thr =  1.0d-8mixing_beta = 0.7/&ionspot_extrapolation=’second-order’wfc_extrapolation=’second-order’ion_temperature=’berendsen’tempw= 300.nraise=20/ATOMIC_SPECIESCl 35.4527d0 Cl.blyp-mt.UPFC 12.0107d0 C.blyp-mt.UPFH 1.00794d0 H.blyp-vbc.UPFATOMIC_POSITIONS bohr
+Cl        3.470        6.000000000   6.
+Cl       -5.900        6.000000000   6.
+C        0.000000000   6.000000000   6.
+H       -0.668         4.313700292   5.030609604
+H       -0.668         7.686299708   5.030609604
+H       -0.668         6.000000000   7.952930073
+end
+
+
+task xtb 
+
+
+
+qmd
+ nstep_nucl  50
+ rand_seed   12345
+ dt_nucl     41.3393964448119057461d0
+ targ_temp   300d0
+ thermostat  berendsen
+ ext_forces plumed
+ print_xyz 25
+end
+
+
+xtb
+ acc 0.001
+end
+task xtb qmd
