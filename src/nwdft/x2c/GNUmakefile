@@ -13,7 +13,7 @@
        calc_x2c_hfc_scalar.o \
        write_x2c_pc_dip.o \
        read_x2c_pc_dip.o \
-       ma_solve.o x2c_scf.o
+       x2c_scf.o
 
 
  LIBRARY = libnwdft.a
