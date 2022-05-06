@@ -319,6 +319,12 @@ do
   fi
 
 #
+# copy the Plumed file
+#
+  PLUMEDFILE=${STUB}.plumed.dat
+  [ -f ${TESTDIR}/${PLUMEDFILE} ] && cp ${TESTDIR}/${PLUMEDFILE} ${SCRATCHDIR}
+
+#
 
 # Run the calculation in the scratch directory
 

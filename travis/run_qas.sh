@@ -181,7 +181,9 @@ fi
 	   cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs rt_tddft_dimer_charge
 	   # check if qmd is among modules
 	   if [[ ! $(grep -i qmd $TRAVIS_BUILD_DIR/src/stubs.F| awk '/qmd/') ]]; then
-               cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs qmd_dft_h2o_svr
+	       if [[ ! -z "$BUILD_PLUMED" ]]; then
+		   cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs qmd_plumed_xtb_sn2
+	       fi
 	   fi
        fi
      fi
