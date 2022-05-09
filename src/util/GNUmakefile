@@ -198,6 +198,7 @@ endif
               util_nwchem_paper.o util_nwchem_srcdir.o utilc_nwchem_srcdir.o \
               mk_fit_xf.o \
               int_2c_ga.o \
+              ma_solve.o \
               ga_local_mdot.o \
               util_cpusec.o util_wallsec.o \
 	      gather.o scatter.o \
