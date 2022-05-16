@@ -114,6 +114,16 @@ c
       if (fon) call errquit(pname//' cg not ready for FON ',0,
      E     CAPMIS_ERR)
 c
+c     cg not ready for smear
+c
+      if (rtdb_get(rtdb, 'dft:smear_sigma', mt_dbl, 1,
+     &     ssmear))then
+         if(ssmear.gt.1d-9)
+     c        call errquit(pname//' cg not ready for SMEAR ',0,
+     E        CAPMIS_ERR)
+      endif
+
+c
 c     read MO analysis threshold
       if (.not.rtdb_get(rtdb,'movecs:tanalyze',MT_DBL,1,tanalyze))
      &        tanalyze = 0.025d0
