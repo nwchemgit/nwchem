@@ -659,6 +659,7 @@ c
       double precision q_old (mx_atm), q_new (mx_atm)
       double precision c(3,mx_atm)
       double precision ctmp(3,mx_atm)
+      logical allbq
 c
       logical bsse_rtdb_store
       external bsse_rtdb_store
@@ -712,15 +713,23 @@ c
 c
 c       Sort out the masses of the various centers
 c
+        allbq=.true.
         do l = 1, natoms
           is_atm = geom_tag_to_element(tag_new(l),symbol,element,atn)
+          if(symbol.ne.'bq') allbq=.false.
           if ((.not. is_atm) .and. symbol.ne.'bq')
      $       call errquit('bsse_create_geom: not atom or bq',
      $                    0,GEOM_ERR)
           if (.not.geom_atn_to_default_mass(atn,mass(l)))
      $       call errquit('bsse_create_geom: default mass failed',
      $                    911,GEOM_ERR)
-        enddo
+       enddo
+
+       if(allbq) then
+          write(6,*) ' !!!! BSSE generated geometry made of all bqs'
+          call errquit(' task_bsse: wrong geometry ',0,0)
+       endif
+
 c
         lenname= inp_strlen(mon_name(j)) 
 c
@@ -1843,7 +1852,7 @@ c: do square
           call trin2squa(dbl_mb(k_exy_mon),dbl_mb(k_exy_mont),n3xyz)
 
 c:sum of no-ghost monomer case
-          call dcopy(nat2,dbl_mb(k_exybs),1,dbl_mb(k_exycp),1)
+          call ycopy(nat2,dbl_mb(k_exybs),1,dbl_mb(k_exycp),1)
 
 c
           call sum_small_matrix(dbl_mb(k_exybs),dbl_mb(k_exycp),
