@@ -136,7 +136,7 @@ c
      $           gradient))
      $           call errquit('task_gradient: no gradient in rtdb?',0,
      &       RTDB_ERR)
-            if (rtdb_get(rtdb, 'oniom:dipole', mt_dbl, 3, dipole)) then
+            if (rtdb_get(rtdb, 'oniom:dipole', mt_dbl,3,dipole(1))) then
                if (.not. rtdb_put(rtdb,'task:dipole',mt_dbl,3,dipole))
      $              call errquit('task_energy: failed storing dipole',0,
      &       RTDB_ERR)
@@ -563,8 +563,8 @@ c
 c
          key = ' '
          write(key,'(a,'':dipole'')') prefix(1:inp_strlen(prefix))
-         if (rtdb_get(rtdb, key, mt_dbl, 3, dipole)) then
-           if (.not. rtdb_put(rtdb, 'task:dipole', mt_dbl, 3, dipole))
+         if (rtdb_get(rtdb, key, mt_dbl, 3, dipole(1))) then
+           if (.not. rtdb_put(rtdb, 'task:dipole', mt_dbl,3,dipole(1)))
      $        call errquit('task_gradient: failed storing dipole',0,
      &       RTDB_ERR)
 	 endif
