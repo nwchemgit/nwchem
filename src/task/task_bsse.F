@@ -1852,7 +1852,7 @@ c: do square
           call trin2squa(dbl_mb(k_exy_mon),dbl_mb(k_exy_mont),n3xyz)
 
 c:sum of no-ghost monomer case
-          call ycopy(nat2,dbl_mb(k_exybs),1,dbl_mb(k_exycp),1)
+          call dcopy(nat2,dbl_mb(k_exybs),1,dbl_mb(k_exycp),1)
 
 c
           call sum_small_matrix(dbl_mb(k_exybs),dbl_mb(k_exycp),
