@@ -24,16 +24,6 @@ cd docs
 git clone --depth 1 git@github.com:nwchemgit/archivedforum.git
 mv archivedforum/Special_AWCforum .
 fi
-#rsync -av archivedforum/Special_AWCforum docs/.
-#cd docs
-#git pull
-while read fname; do
-    ls "$fname"
-    rm -f tmptmp.txt
-    ../remove_svg.sh $fname > tmptmp.txt
-    cp $fname "$fname".tmp
-    mv tmptmp.txt $fname
-done <../mathfiles.txt
 cd ..
 if [[ -z "${MKDOCS_SERVE}" ]]; then
     #git clone --depth 1 https://github.com/nwchemgit/nwchemgit.github.io  nwchemgit.github.io_temp
