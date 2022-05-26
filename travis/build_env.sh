@@ -161,7 +161,7 @@ fi
     fi
     if [[ "$FC" == "amdflang" ]]; then
 	sudo apt-get install -y wget gnupg2 coreutils dialog tzdata
-	rocm_version=5.1.1
+	rocm_version=5.1.3
 	wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key |  sudo apt-key add -
 	echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/'$rocm_version'/ ubuntu main' | sudo tee /etc/apt/sources.list.d/rocm.list
 	sudo apt-get  update -y && sudo apt-get -y install rocm-llvm openmp-extras
@@ -173,7 +173,7 @@ fi
     if [[ "$FC" == "nvfortran" ]]; then
 	sudo apt-get -y install lmod g++ libtinfo5 libncursesw5 lua-posix lua-filesystem lua-lpeg lua-luaossl
 	nv_major=22
-	nv_minor=5
+	nv_minor=3
 	nverdot="$nv_major"."$nv_minor"
 	nverdash="$nv_major"-"$nv_minor"
 	arch_dpkg=`dpkg --print-architecture`
