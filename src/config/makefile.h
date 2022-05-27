@@ -3065,6 +3065,10 @@ ifneq ($(TARGET),LINUX)
 	        FOPTIONS += -traceback
 		FOPTIONS += -Ktrap=inv,divz,ovf
 	    endif
+            PGF90VER=$(shell $(FC) -V| head -2|tail -1 |cut -d ' ' -f 2)
+            ifeq ($(PGF90VER),22.5-0)
+                DEFINES  += -DPGI_NOSIMD
+            endif
         endif
 
 
