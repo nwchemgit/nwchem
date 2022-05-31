@@ -3067,6 +3067,10 @@ ifneq ($(TARGET),LINUX)
 	    endif
             PGF90VER=$(shell $(FC) -V| head -2|tail -1 |cut -d ' ' -f 2)
             ifeq ($(PGF90VER),22.5-0)
+                $(info     )
+                $(info     nvfortran 22.5 not validated)
+                $(info     )
+                $(error )
                 DEFINES  += -DPGI_NOSIMD
             endif
         endif
