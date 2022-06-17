@@ -1,7 +1,7 @@
       SubRoutine Create_Contour(rtdb,geom,AO_bas_han,nbf,nGrid,
      &                          nSet,nSetTri,g_Dns,g_Vec,
      &                          Grid,Values,
-     .                          no_of_spacings,tol_rho,
+     .                          no_of_spacings,tol_rho,blur,
      &                          What,Spin,Orb_No)
 *
 * $Id$
@@ -29,6 +29,7 @@
       Double Precision Grid(3,nGrid),Values(nGrid)
       Character*8 What,Spin
       double precision tol_rho
+      double precision blur, aa
 *---- Geometry variables
       Integer nAtom, iAtom, nxyz, l_xyz, k_xyz
       Integer l_Charge, k_Charge, l_Tags, k_Tags
@@ -55,12 +56,14 @@
      .     k_rdat,l_rdat,lcntoce, icntoce, 
      .     lcntobfr, icntobfr,
      .     iscr,lscr,nscr,nbf_ao_mxnbf_ce,nbf_ao_mxnbf_ce2
+      integer l_valz, k_valz ! For the nuclear charges on grid.
       integer lbas_cent_info, ibas_cent_info,
      &     lbas_cset_info, ibas_cset_info,
      &     ldocset, idocset
       integer ii,ioffg,nstride
       integer nxtask,next,icount
       external nxtask
+      double precision z_tot
 
             
 
@@ -91,6 +94,11 @@
       If (.not.Geom_Cart_Get(Geom,nAtom,Byte_mb(k_Tags),
      &   Dbl_mb(k_xyz),Dbl_mb(k_charge)))
      &   Call ErrQuit('C_C: Geom_Cart_Get failed',0,0)
+*
+      z_tot = 0.0d0
+      do ii = 0, nAtom-1
+        z_tot = z_tot + Dbl_mb(k_charge+ii)
+      enddo
 *
       If (DeBug . and . me.eq.0) Then
          Write(LuOut,*)' nAtom      = ',nAtom
@@ -285,12 +293,34 @@ c
       endif
 
 *
-      if(.not.MA_chop_Stack(l_xyz))
-     .  Call errquit('C_C: Failed to deallocate xyz',0, MA_ERR)
-*
 *---- Put values into the global array and synchronize
       next=nxtask(-nodes,icount)
       call ga_dgop(1964,values,ngrid,'+')
+
+c     Spin == Charge:
+c     Normalize nuclear charge and electron charge
+c
+      if (Spin.eq."charge") then
+        call ga_dgop(1964,dbl_mb(k_valz),ngrid,'+')
+        z_el  = 0.0d0
+        z_nuc = 0.0d0
+        do igrid = 1, ngrid
+          z_el  = z_el  + values(igrid)
+          z_nuc = z_nuc + dbl_mb(k_valz-1+igrid)
+        enddo
+        do igrid = 0, ngrid-1
+          dbl_mb(k_valz+igrid) = dbl_mb(k_valz+igrid)*z_tot/z_nuc
+        enddo
+        do igrid = 1, ngrid
+          values(igrid) = values(igrid)*z_tot/z_el
+        enddo
+        do igrid = 1, ngrid
+          values(igrid) = dbl_mb(k_valz-1+igrid) - values(igrid)
+        enddo
+      endif
+*
+      if(.not.MA_chop_Stack(l_xyz))
+     .  Call errquit('C_C: Failed to deallocate xyz',0, MA_ERR)
  9999 Continue
       if(.not.ma_free_heap(l_tags)) then
          call Ma_summarize_allocated_blocks()

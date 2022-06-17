@@ -184,6 +184,10 @@ c --  Read the total charge of the molecule
       If (.not.rtdb_get(rtdb,'charge',mt_dbl,1,Tot_Charge))
      &   Tot_Charge = 0.d0
 c
+c --  Read blur 
+      if (.not. rtdb_get(rtdb, 'dplot:blur', mt_dbl, 1, blur)) 
+     &   call errquit('DPlot:rtdb_get failed - blur',11, RTDB_ERR)
+c
 c -- If there is no specified file names of MO vectors, then looking for
 c    the scf or dft MO vectors names in RTDB.
       if (inp_compare(.false.,File_Vec,' ')) then
@@ -608,7 +612,7 @@ c          Calculate the difference
          Call Create_Contour(rtdb,Geom,AO_Bas_Han,nBF,nPoint,
      &                       nSet,nSetTri,g_Dns(1),g_Vec(1),
      &                       Dbl_mb(k_Grid),Dbl_mb(k_Vls),
-     .                       no_of_spacings, tol_rho,
+     .                       no_of_spacings, tol_rho, blur,
      &                       What,Spin,Int_mb(k_Orb))
          maxelt=0d0
          do i=1,npoint

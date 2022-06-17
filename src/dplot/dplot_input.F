@@ -17,12 +17,13 @@
       Integer No_Of_Spacings(3),ValueI,iroot
       Integer nOrb,iOrb,k_Orb,l_Orb
       Double Precision Ext_From_To(3,2),ValueR
+      Double Precision blur
 *
       Integer   Num_Dirs,Num_Units,Num_What,Num_Spin,Num_Where
-      Parameter (Num_Dirs  = 18)
+      Parameter (Num_Dirs  = 19)
       Parameter (Num_Units = 3)
       Parameter (Num_What  = 2)
-      Parameter (Num_Spin  = 4)
+      Parameter (Num_Spin  = 5)
       Parameter (Num_Where = 3)
 *
       Character*255 test, Title
@@ -45,11 +46,16 @@
      .            'densmat','Output','Title','Orbitals',
      &            'Spin','Where','Charges','Gaussian','print',
      A            'dos','tol_rho','transden','diffden',
-     .            'End' /
+     .            'End', 'blur' /
 c
       Data Allowed_Units / 'angstrom','au','bohr' /
       Data Allowed_What  / 'density','view' /
-      Data Allowed_Spin  / 'total','spindens','alpha','beta' /
+      Data Allowed_Spin  / 'total','spindens','alpha','beta','charge' /
+c
+c     Allowed_Spin == charge calculate total charge density on the grid,
+c                     i.e. electron + nuclear. Nuclear charge is blurred
+c                     with a Gaussian distribution
+c
       Data Allowed_Where / 'grid','nuclei','g+n' /
 *
 ************************************************************************
@@ -63,8 +69,15 @@ c
       dodos     =.false.
       iroot     = 1
       ltransden = .true.
-      ldiffden = .false.
-      tol_rho = 1d-40
+      ldiffden  = .false.
+      tol_rho   = 1d-40
+c
+c     Use Z*exp(-a*r**2)*(a/pi)**(3.0/2.0), a=1/blur
+c
+c     Also note that int(exp(-a*x*2),x=-inf:inf) = sqrt(pi/a), see:
+c     https://mathworld.wolfram.com/GaussianIntegral.html
+c
+      blur      = 10.d0
 c
 c     try to get a scf movecs
 c
@@ -110,7 +123,7 @@ c     guess dft as theory  (is this really needed???)
      &   Call ErrQuit('DPlot_Input: unknown directive',0,
      &       INPUT_ERR)
       GoTo (100, 200, 225, 230, 250, 300, 400, 500, 600, 700, 800, 
-     &     900, 964, 1997, 1998, 1999, 2000, 9999) ind
+     &     900, 964, 1997, 1998, 1999, 2000, 9999, 2010) ind
       Call ErrQuit('DPlot_Input: unimplemented directive',ind,
      &       INPUT_ERR)
 *
@@ -285,6 +298,14 @@ c
       ldiffden = .true.
       goto 10
 c
+ 2010 continue
+c     blur (because a=1/blur blur must be greater than 0, the greater
+c           blur the more blurred the nuclii become)
+      if (.not. inp_f(blur))
+     &  call errquit('DPlot_Input: failed to read blur',0,INPUT_ERR)
+      blur=max(1.0d-5,blur)
+      goto 10
+c
  9999 Continue
 *
       If (Charges.eq.'yes') What = 'charges'
@@ -380,6 +401,11 @@ c---- Write the names of the density matrix files to rtdb
       If (.not.rtdb_put(rtdb,'dplot:diffden',mt_log,
      &   1,ldiffden))
      &   Call ErrQuit('DPlot_Input: rtdb_put failed - ldiffden',0,
+     &       RTDB_ERR)
+*
+      If (.not.rtdb_put(rtdb,'dplot:blur',mt_dbl,
+     &   1,blur))
+     &   Call ErrQuit('DPlot_Input: rtdb_put failed - blur',0,
      &       RTDB_ERR)
 
       End
