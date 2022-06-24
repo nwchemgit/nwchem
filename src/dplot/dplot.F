@@ -60,6 +60,7 @@ c
       Logical LResult, DeBug
       logical lgaussian,dodos
       double precision tol_rho
+      double precision blur
       logical ltransden,ldiffden
 c     
       integer  ga_create_atom_blocked
