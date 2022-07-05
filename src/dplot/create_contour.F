@@ -1,7 +1,7 @@
       SubRoutine Create_Contour(rtdb,geom,AO_bas_han,nbf,nGrid,
      &                          nSet,nSetTri,g_Dns,g_Vec,
      &                          Grid,Values,
-     .                          no_of_spacings,tol_rho,blur,
+     .                          no_of_spacings,tol_rho,blur,volume,
      &                          What,Spin,Orb_No)
 *
 * $Id$
@@ -29,7 +29,7 @@
       Double Precision Grid(3,nGrid),Values(nGrid)
       Character*8 What,Spin
       double precision tol_rho
-      double precision blur, aa
+      double precision blur, aa, volume
 *---- Geometry variables
       Integer nAtom, iAtom, nxyz, l_xyz, k_xyz
       Integer l_Charge, k_Charge, l_Tags, k_Tags
@@ -63,10 +63,8 @@
       integer ii,ioffg,nstride
       integer nxtask,next,icount
       external nxtask
-      double precision z_tot
-
-            
-
+      double precision z_tot, z_el, z_nuc
+      integer igrid
       Logical LResult,DeBug,GRAD
 *
 ************************************************************************
@@ -95,10 +93,20 @@
      &   Dbl_mb(k_xyz),Dbl_mb(k_charge)))
      &   Call ErrQuit('C_C: Geom_Cart_Get failed',0,0)
 *
+c     z_tot is the total nuclear and negative of the total electron
+c     charge. For our application the total molecular charge should
+c     be zero. Mapping the nuclear and electron charge density onto
+c     a grid generates discretization errors that we seek to fix by
+c     rescaling the nuclear charge density and the electron charge
+c     density separately.
+c
       z_tot = 0.0d0
       do ii = 0, nAtom-1
         z_tot = z_tot + Dbl_mb(k_charge+ii)
       enddo
+      if (ga_nodeid().eq.0) then
+        write(*,*)' total    charge = ',z_tot
+      endif
 *
       If (DeBug . and . me.eq.0) Then
          Write(LuOut,*)' nAtom      = ',nAtom
@@ -110,8 +118,8 @@
          End Do
       End If
 *
-      if(.not.MA_Pop_Stack(l_Charge))
-     .     Call errquit('C_C: Failed to deallocate Charge',0, MA_ERR)
+c     if(.not.MA_Pop_Stack(l_Charge))
+c    .     Call errquit('C_C: Failed to deallocate Charge',0, MA_ERR)
 c
 c     get basis set information
 c
@@ -300,7 +308,12 @@ c
 c     Spin == Charge:
 c     Normalize nuclear charge and electron charge
 c
-      if (Spin.eq."charge") then
+      if (Spin.eq."CHARGE") then
+        if(.not.ma_push_get(mt_dbl,ngrid,"grid",l_valz,k_valz)) then
+          call errquit("allocating nuclear grid",ma_err,1000)
+        endif
+        call get_nuclear(ngrid,natom,grid,dbl_mb(k_valz),
+     +                   dbl_mb(k_charge),dbl_mb(k_xyz),blur)
         call ga_dgop(1964,dbl_mb(k_valz),ngrid,'+')
         z_el  = 0.0d0
         z_nuc = 0.0d0
@@ -308,6 +321,12 @@ c
           z_el  = z_el  + values(igrid)
           z_nuc = z_nuc + dbl_mb(k_valz-1+igrid)
         enddo
+        z_el  = volume*z_el
+        z_nuc = volume*z_nuc
+        if (ga_nodeid().eq.0) then
+          write(*,*)' electron charge = ',z_el
+          write(*,*)' nuclear  charge = ',z_nuc
+        endif
         do igrid = 0, ngrid-1
           dbl_mb(k_valz+igrid) = dbl_mb(k_valz+igrid)*z_tot/z_nuc
         enddo
@@ -317,6 +336,9 @@ c
         do igrid = 1, ngrid
           values(igrid) = dbl_mb(k_valz-1+igrid) - values(igrid)
         enddo
+        if(.not.ma_pop_stack(l_valz)) then
+          call errquit("deallocating nuclear grid",ma_err,1000)
+        endif
       endif
 *
       if(.not.MA_chop_Stack(l_xyz))

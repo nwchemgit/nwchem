@@ -60,6 +60,7 @@ c
       Logical LResult, DeBug
       logical lgaussian,dodos
       double precision tol_rho
+      double precision blur
       logical ltransden,ldiffden
 c     
       integer  ga_create_atom_blocked
@@ -509,7 +510,7 @@ c           Read second density matrix from file
                if(.not.ao_rdm_read(File_Mat2,ao_bas_han,g_Dns2(1)))
      1         call errquit('DPlot: ao_rdm_read failed',1,0)
 #else
-            call ao_1prdm_read(nbf,g_dns(2),file_mat2)
+               call ao_1prdm_read(nbf,g_dns(2),file_mat2)
 #endif
 c
 c              Compute the difference between the density matrices
@@ -612,7 +613,7 @@ c          Calculate the difference
          Call Create_Contour(rtdb,Geom,AO_Bas_Han,nBF,nPoint,
      &                       nSet,nSetTri,g_Dns(1),g_Vec(1),
      &                       Dbl_mb(k_Grid),Dbl_mb(k_Vls),
-     .                       no_of_spacings, tol_rho, blur,
+     .                       no_of_spacings, tol_rho, blur, volume,
      &                       What,Spin,Int_mb(k_Orb))
          maxelt=0d0
          do i=1,npoint
