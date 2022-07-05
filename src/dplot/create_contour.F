@@ -61,6 +61,7 @@
      &     lbas_cset_info, ibas_cset_info,
      &     ldocset, idocset
       integer ii,ioffg,nstride
+      integer igrid
       integer nxtask,next,icount
       external nxtask
       double precision z_tot, z_el, z_nuc
