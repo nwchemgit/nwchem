@@ -1,0 +1,39 @@
+echo
+start h2o-dat
+
+geometry
+  load ../xyz/propene.xyz
+end
+
+basis "cc-pvdz" spherical
+  * library cc-pvdz
+end
+basis "cc-pvtz" spherical
+  * library cc-pvtz
+end
+basis "cc-pvqz" spherical
+  * library cc-pvqz
+end
+basis "cc-pv5z" spherical
+  * library cc-pv5z
+end
+
+dft 
+  direct
+  # select PBE functional following https://doi.org/10.1002/aic.15517
+  xc xpbe96 cpbe96
+end
+
+set int:txs:limxmem              16000000
+
+set "ao basis" "cc-pvdz"
+task dft optimize
+
+set "ao basis" "cc-pvtz"
+task dft optimize
+
+set "ao basis" "cc-pvqz"
+task dft optimize
+
+set "ao basis" "cc-pv5z"
+task dft optimize
