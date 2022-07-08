@@ -65,7 +65,6 @@
       integer nxtask,next,icount
       external nxtask
       double precision z_tot, z_el, z_nuc
-      integer igrid
       Logical LResult,DeBug,GRAD
 *
 ************************************************************************
