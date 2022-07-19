@@ -290,6 +290,8 @@ c
          if (.not. bas_numbf(XC_bas_han, nbf_xc)) then
             call errquit('Exiting from scfdriver',4, BASIS_ERR)
          endif 
+
+         if (.not.ADFT) then
 c     
 c           Compute the matrix inverse of the 2-ctr OIs.
 c     
@@ -322,6 +324,7 @@ c
          if (IOLGC)then
             if (.not. ga_destroy(g_xcinv)) call errquit
      &         (pname//'Could not destroy g_xcinv', 0, GA_ERR)
+         endif
          endif
       endif
 c
@@ -396,6 +399,9 @@ c         endif
      &         (pname//'Could not destroy g_xcinv', 0, GA_ERR)
             if (.not. ga_destroy(g_2ceri)) call errquit
      &         (pname//'Could not destroy g_xcinv', 0, GA_ERR)
+         elseif(ADFT) then
+            g_xcinv = g_cdinv
+            g_oi = g_2ceri
          endif
       endif
 c
@@ -608,7 +614,7 @@ c     == Clean up memory usage ==
             call dft_invio('CD', idum, 1, 'KILL', lmiss)
             call dft_invio('CDI', idum, 1, 'KILL', lmiss)
          endif
-         if (XCFIT.and.IOLGC) then
+         if ((.not.ADFT).and.XCFIT.and.IOLGC) then
             call dft_invio('XC', idum, 1, 'KILL', lmiss)
          endif
       endif
@@ -618,7 +624,7 @@ c     == Clean up memory usage ==
          if (.not. ga_destroy(g_2ceri)) call errquit
      &      (pname//'Could not destroy g_2ceri', 0, GA_ERR)
       endif
-      if (XCFIT.and.(.not.IOLGC))then
+      if (XCFIT.and.(.not.IOLGC).and.(.not.ADFT))then
          if (.not. ga_destroy(g_xcinv)) call errquit
      &      (pname//'Could not destroy g_xcinv', 0, GA_ERR)
       endif

@@ -102,11 +102,15 @@ c
       call dft_rdinput(rtdb)
       call util_print_set_level(plevel)
 c
-      if (XCFIT.and.CDFIT)then
+      if (XCFIT.and.CDFIT.and.(.not.ADFT))then
          nbases = 3
          bases(1) = AO_bas_han
          bases(2) = CD_bas_han
          bases(3) = XC_bas_han
+      elseif (XCFIT.and.CDFIT.and.ADFT)then
+         nbases = 2
+         bases(1) = AO_bas_han
+         bases(2) = CD_bas_han
       elseif((.not.XCFIT).and.CDFIT)then
          nbases = 2
          bases(1) = AO_bas_han
@@ -178,7 +182,7 @@ c
      &     call errquit('grad_dft:not able to destroy CD_bas:',86,
      &       BASIS_ERR)
       endif
-      if(XCFIT)then
+      if(XCFIT.and.(.not.ADFT))then
         if (.not.bas_destroy(XC_bas_han))
      &     call errquit('grad_dft:not able to destroy XC_bas:',86,
      &       BASIS_ERR)

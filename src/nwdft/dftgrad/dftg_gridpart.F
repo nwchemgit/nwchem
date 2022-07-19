@@ -1,7 +1,7 @@
       Subroutine dftg_gridpart(d_qwght,qwght, qxyz, xyz, xyzm,rq,  
      .     ictr, natoms, iandex,nqpts, 
      ,      whichfunc,
-     ,     rad,expo)
+     ,     rad,expo,basis)
 c
 C$Id$
 c
@@ -11,6 +11,7 @@ c
 #include "cdft.fh"
       integer natoms  ![input/out] return atoms with significant contrib
       integer  nqpts  ![input]
+      integer basis
 c
       double precision qxyz(3,*)! grid points [input]
       double precision xyz(3,*)  ! atom coordinates [input] 
@@ -76,7 +77,7 @@ c
       if(lssw) then
          ictr_scr=ictr
          if(trunc_neigh)
-     .        call dftg_signf(AO_bas_han,   natoms_l, 
+     .        call dftg_signf(basis,   natoms_l, 
      &        xyz,xyzm,ictr_scr,
      &        rad, expo, iandex,iatype_pt_chg)
 
