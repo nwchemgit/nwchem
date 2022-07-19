@@ -16,7 +16,7 @@ c
 #include "cdft.fh"
 #include "util.fh"
 c
-      integer g_vc
+      integer g_vc(*)
       integer iVcoul_opt
       integer n_batch        ! no. batches computed by this node [out]
       integer n_bmax  ! max no. batches
@@ -41,8 +41,8 @@ c
       call ga_sync
 c
       if( iVcoul_opt.eq.0 )then
-         call ga_zero(g_vc)
-            Ecoul = 0.0d0
+        call ga_zero(g_vc(1))
+        if (ipol.gt.1) call ga_zero(g_vc(2))
 c
       else if( iVcoul_opt.eq.1 )then
 c       Compute the Coulomb potential via a LSQ fitting procedure.

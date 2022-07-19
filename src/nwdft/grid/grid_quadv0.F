@@ -39,8 +39,8 @@ c
       double precision Exc(2)
       double precision rho_n
       integer nmat              ! [input] number of XC matrices to make;
-      double precision tmat(*)  ! XC fit
 c                               !         only used for lhs cpks
+      double precision tmat(*)  ! XC fit
       integer calc_type         ! what to calculate [input]
 c                               !   1 = XC matrices for SCF
 c                               !   2 = XC matrices for CPKS LHS
@@ -708,6 +708,8 @@ c     compute variables for scratch space in function evaluation
 c     assumes cartesian; spherical set would only require 2*MXang + 1
 c     
       max_component = (nbf_ao_mxang+1)*(nbf_ao_mxang+2)/2 
+      if (xcfit) max_component = max(max_component,
+     $  (nbf_cd_mxang+1)*(nbf_cd_mxang+2)/2) 
 c     
 c     Allocate scratch space.
 c     
@@ -718,6 +720,14 @@ c
       else                      ! general case
          max_elem_ang_scr = max_component * 28
       endif 
+
+      if (xcfit) then
+        if (nbf_cd_mxang.le.3) then
+          max_elem_ang_scr = max(max_elem_ang_scr, max_component*9)
+        else
+          max_elem_ang_scr = max(max_elem_ang_scr, max_component*28)
+        endif
+      endif
       nscr = 3*n_per_rec*nbf_ao_mxcont + 
      &     max(3*n_per_rec*nbf_ao_mxprim,
      &     n_per_rec*max_elem_ang_scr) + 1
@@ -887,7 +897,7 @@ c
       if (.not.ma_chop_stack(lqxyz))
      &   call errquit(pname//'cannot pop stack',0, MA_ERR)
       call ga_sync()
-      if((do_scf.or.do_xdm).and.(.not.l3d)) then
+      if((do_scf.or.do_xdm).and.(.not.l3d).and.(.not.adft)) then
 c
 c         write(0,*) ' symmetr scf l r',do_scf,do_cpks_l,do_cpks_r,
 c     A        calc_type
@@ -905,7 +915,11 @@ cc AJL/Begin/FDE
 c Skip through as we are calculating ESP on the grid
         continue
       else
-        if(xcfit) call ga_dgop(Msg_Tmat,Tmat,nbf_xc*ipol,'+')
+        if(xcfit.and.(.not.adft)) then
+          call ga_dgop(Msg_Tmat,Tmat,nbf_xc*ipol,'+')
+        elseif(adft) then
+          call ga_dgop(Msg_Tmat,Tmat(nbf_xc*ipol+1),nbf_xc*ipol,'+')
+        endif
         if (nExc.eq.1)then
            Exc(1) = Exc(1) + Ec + Ex
         else
