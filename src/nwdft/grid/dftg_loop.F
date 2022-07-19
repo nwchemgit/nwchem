@@ -121,6 +121,13 @@ c used for anything in dftg_gridv0b
       double precision delrhosave(*)
       logical triplet
       logical do_tddftvxc ! dVxc*P contribution to the TDDFT grads
+      integer basis
+
+      if (adft) then
+        basis = xc_bas_han
+      else
+        basis = ao_bas_han
+      endif
 c
 c Qin
       ldbw = .false.
@@ -174,7 +181,7 @@ c
       enddo
 c
       if(nq.ne.0) then
-      if (.not.bas_numcont(AO_bas_han, ncontrset))
+      if (.not.bas_numcont(basis, ncontrset))
      &     call errquit('Exiting in dftg_gridv0a',0, BASIS_ERR)
       if (.not.MA_Push_Get(mt_log, ncontrset, 'docset',
      &     ldocset, idocset))
@@ -188,7 +195,7 @@ c
      &     lbas_cset_info, ibas_cset_info))
      &     call errquit('dftg_gridv0a: cannot allocate bas_cset_info',0,
      &       MA_ERR)
-      call xc_make_basis_info(AO_bas_han, int_mb(ibas_cent_info),
+      call xc_make_basis_info(basis, int_mb(ibas_cent_info),
      &     int_mb(ibas_cset_info), natoms)
 c     
 c     copy to buffer for XC stuff and compute if needed
@@ -217,7 +224,7 @@ c
      &     ldbw, fact, dtype, nconstr,  ! Qin
      &     do_gxc, Amat3, Cmat3, ngxc,
      &     rhosave, delrhosave, triplet,
-     &     do_tddftvxc)
+     &     do_tddftvxc,tmat)
 
 c         
          if (.not.MA_Pop_Stack(lbas_cset_info))

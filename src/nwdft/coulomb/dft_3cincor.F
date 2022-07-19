@@ -209,7 +209,8 @@ c
 c     copy pmat into gvec for now
                     call dft_copyfrom(
      I                   nbf_at_d,nshbfd,nshbfc,
-     I                   dbl_mb(k_p),dbl_mb(igvec+(ifit-1)*Nao2),
+     I                   dbl_mb(k_p+(ifit-1)*size_atblock),
+     I                   dbl_mb(igvec+(ifit-1)*Nao2),
      A                   icount_d,icount_c)
                  enddo
 c     
@@ -289,21 +290,27 @@ c     copy (ahia!) ints to i3c_eri
 c               
 c             Multiply the matrix of 3-ctr ERIs by the density matrix elements.
 c               
-                    if (nfit.eq.1) then
                        if(incore) then
 
                           call dgemv('T',Nao2,nbf_cd,fac,
      &                         i3c_eri(ipoint),nao2,dbl_mb(igvec),1,
      T                         1.d0,Tvec,1)
+                          if (nfit.eq.2) then
+                            call dgemv('T',Nao2,nbf_cd,fac,
+     &                       i3c_eri(ipoint),nao2,dbl_mb(igvec+nao2),1,
+     T                       1.d0,Tvec(nbf_cd+1),1)
+                          endif
 
                        else
                           call dgemv('T',Nao2,nbf_cd,fac,
      &                         dbl_mb(ieri),nao2,dbl_mb(igvec),1,
      T                         1.d0,Tvec,1)
+                          if (nfit.eq.2) then
+                            call dgemv('T',Nao2,nbf_cd,fac,
+     &                         dbl_mb(ieri),nao2,dbl_mb(igvec+nao2),1,
+     T                         1.d0,Tvec(nbf_cd+1),1)
+                          endif
                        endif
-                    else
-                       call errquit('dft_fitcd: not impl',1, BASIS_ERR)
-                    endif
                  endif
                  endif
                  ndone  = ndone  + Nao2*nbf_cd

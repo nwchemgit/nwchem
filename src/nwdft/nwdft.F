@@ -321,7 +321,7 @@ c      if(XCFIT.and.CDFIT) then
         bases(1) = AO_bas_han
         bases(2) = XC_bas_han
         bases(3) = FD_bas_han
-      elseif((.not.frozemb_fde).and.XCFIT.and.CDFIT) then
+      elseif((.not.frozemb_fde).and.XCFIT.and.CDFIT.and.(.not.ADFT))then
         i3 = 3
         bases(1) = AO_bas_han
         bases(2) = CD_bas_han
@@ -335,6 +335,10 @@ c      if(XCFIT.and.CDFIT) then
         bases(1) = AO_bas_han
         bases(2) = XC_bas_han
       elseif((.not.frozemb_fde).and.(.not.XCFIT).and.CDFIT) then
+        i3 = 2
+        bases(1) = AO_bas_han
+        bases(2) = CD_bas_han
+      elseif((.not.frozemb_fde).and.ADFT) then
         i3 = 2
         bases(1) = AO_bas_han
         bases(2) = CD_bas_han
@@ -457,7 +461,7 @@ c      if (frozemb_fde) then
       endif
 cc AJL/END
 c
-      if(XCFIT)then
+      if(.not.(ADFT) .and. XCFIT)then
        if(.not.bas_destroy(XC_bas_han))
      &   call errquit(pname//'Destroying XC basis handle',0, BASIS_ERR)
       endif

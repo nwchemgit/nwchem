@@ -18,7 +18,7 @@
      &     ldbw, fact, dtype, nconstr,  ! Qin
      1     do_gxc, Amat3, Cmat3, ngxc, 
      2     crho, cdelrho, triplet,
-     3     do_tddftvxc)
+     3     do_tddftvxc,cd_coef)
 c      
 c     $Id$
 c     
@@ -47,6 +47,7 @@ c !!! temporary !!!
       integer ispin, i, ii, nconstr
       double precision fact(nconstr)
       integer dtype(nconstr)          ! Qin
+      double precision cd_coef(nbf_cd,*)
 c
       integer nqpts, ictr_buf ! [in]
       double precision rad ! [in]
@@ -93,7 +94,7 @@ c
       double precision xyz(3,natoms),xyzm(3,natoms)
       integer iandex(natoms)
       integer iniz(natoms), ifin(natoms)
-      integer ibf_ao(nbf_ao),curatoms(natoms)
+      integer ibf_ao(*),curatoms(natoms)
       integer bas_cent_info(3,natoms),bas_cset_info(6,*)
       logical docset(*)
       double precision rchi_atom(natoms),rdelchi_atom(natoms)
@@ -161,6 +162,8 @@ c dVxc*P contribution.
 
       double precision ddot
       external ddot
+
+      integer basis
 c     
 c           Evaluate the AO basis set at each of the quad. points.
 c           allocate arrays for exponents and contraction coefficients
@@ -178,6 +181,7 @@ c Daniel (2-14-13): Fixed the indentation in this routine.
       k_Acof2 = 0
       k_Ccof2 = 0
       k_Mcof2 = 0
+
 c
       Ex=0
       Ec=0
@@ -190,12 +194,19 @@ c
       else
          maxdbas = 0
       endif
+
+      if (adft) then
+        basis = cd_bas_han
+        mbf_ao = nbf_cd
+      else
+        basis = ao_bas_han
+        mbf_ao = nbf_ao
+      endif
 c
 c Daniel (1-14-13): Fixed the indenting in this routine because it
 c made the code difficult to read.
-      mbf_ao = nbf_ao
       call ifill(mbf_ao, 0, ibf_ao, 1)
-      mbf_ao=grid_nbfm( AO_bas_han,  natoms, 
+      mbf_ao=grid_nbfm( basis,  natoms, 
      &     ictr_buf,rad,xyz,qxyz,nqpts,
      &     ibf_ao, docset, iniz, ifin, expo, 
      .     minexp,ldiff, acc_AO_gauss,iatype_pt_chg)
@@ -232,7 +243,7 @@ c
 c
       if (odftps) call pstat_on(ps_excf)
       call qdist(rq0, rq, qxyz, xyz, nqpts, natoms)
-      call xc_eval_basis(ao_bas_han, maxdbas, dbl_mb(ichi_ao),
+      call xc_eval_basis(basis, maxdbas, dbl_mb(ichi_ao),
      &     dbl_mb(idelchi_ao), dbl_mb(iheschi_ao),
      &     dbl_mb(id3chi_ao), rq, qxyz, xyz, nqpts, natoms,
      &     iniz, docset, bas_cent_info, bas_cset_info)
@@ -271,7 +282,14 @@ c Daniel (1-16-13): Avoid this part when we do the third derivatives.
 c      do_pertdens = do_gxc
       do_pertdens = (do_gxc .or. do_tddftvxc)
       if (.not. do_pertdens) then
-        call xc_rhogen(0,
+        if (adft) then
+          call xc_rhogen_adft(tol_rho,natoms,ipol,nqpts,
+     $         nbf_cd,mbf_ao,max_at_bf,grad,(ipol*(ipol+1))/2,
+     $         dbl_mb(ichi_ao),dbl_mb(idelchi_ao),dbl_mb(iheschi_ao),
+     $         ibf_ao, iniz, ifin, rho, delrho, dbl_mb(ilap), rchi_atom,
+     $         rdelchi_atom, cetobfr, wmax, kslap, cd_coef)
+        else
+          call xc_rhogen(0,
      T       tol_rho, AO_bas_han, iga_dens, max_at_bf,
      &       natoms, 1,1,1,
      I       ipol, nqpts, nbf_ao, mbf_ao, grad,
@@ -282,6 +300,7 @@ c      do_pertdens = do_gxc
      &       rchi_atom, rdelchi_atom,
      &       rdens_atom, cetobfr,wmax, 
      &       dttau, kske, kslap)
+        endif
       else
 c Daniel (1-16-13): Here, the call is identical to the call to 
 c xc_rhogen in grid_quadv0b.
@@ -407,13 +426,21 @@ c
       if (do_force) then
 c 
          if (grad) then
-            if (.not. MA_Push_Get(MT_Dbl, nqpts*mbf_ao*ipol, 
+            if (.not. MA_Push_Get(MT_Dbl,
+     $           max(10*nqpts,nqpts*mbf_ao*ipol), 
      &           'gradchi_ao2', l_ccdel,i_ccdel))call errquit
      &           (' exit dftggridv0b: insuff stack',9, 0)
          endif
 
          if (odftps) call pstat_on(ps_qv0b)
-         call dftg_quadv0_b(ictr_buf, ldew, AO_bas_han, ipol,
+         if (adft) then
+           call dftg_quadv0_b_adft(ictr_buf,ldew,basis,ipol,grad,
+     $          kslap,nbf_cd,mbf_ao,natoms,nqpts,dbl_mb(ichi_ao),
+     $          dbl_mb(idelchi_ao),dbl_mb(iheschi_ao),
+     $          dbl_mb(id3chi_ao),Amat,Cmat,Lmat,dbl_mb(i_ccdel),
+     $          ibf_ao,iniz,ifin,cetobfr,force,oactive,cd_coef)
+         else
+           call dftg_quadv0_b(ictr_buf, ldew, AO_bas_han, ipol,
      &                      grad, kske, kslap, nbf_ao, mbf_ao, natoms,
      &                      nqpts,
      &                      dbl_mb(ichi_ao),dbl_mb(idelchi_ao),
@@ -424,6 +451,7 @@ c
      &                      ppp, ff, 
      &                      zzz, hh, iga_dens, force,
      &                      oactive)
+         endif
         if (odftps) call pstat_off(ps_qv0b)
         if (grad) then
            if (.not.ma_pop_stack(l_ccdel))
@@ -571,7 +599,7 @@ c We calculate derivatives of quadrature weights by reusing the code
 c from the ground state gradients.
         call dftg_gridpart(d_qwght, qwght, qxyz, xyz, xyzm, rq,
      1    ictr_buf, natoms_l, iandex, nqpts,
-     2    whichssw, rad, expo)
+     2    whichssw, rad, expo, basis)
 c Construct the quadrature weight derivatives multiplied by the 
 c XC-kernel.  The call to the following routine is identical to the 
 c call for ground state gradients, but func contains the XC-kernel
@@ -736,7 +764,7 @@ c
          call dftg_gridpart(d_qwght,qwght, qxyz, xyz,xyzm, 
      .        rq, ictr_buf, natoms_l, iandex,
      .        nqpts,whichssw,
-     ,        rad,expo)
+     ,        rad,expo,basis)
          call dftg_wderiv(ictr_buf, natoms, nqpts, nqpts, 
      .        iandex, 
      &        natoms_l, func, d_qwght,

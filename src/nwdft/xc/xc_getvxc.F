@@ -18,7 +18,7 @@ C> products. See subsequent subroutines for further explanation.
 C>
       Subroutine xc_getvxc(rtdb, Exc, nExc, iVxc_opt, g_xcinv,
      &                   g_dens, g_vxc, IOLGC, rho_n, fde_option,
-     &                   g_dens_fde)
+     &                   g_dens_fde, cd_coef)
 c
       implicit none
 #include "errquit.fh"
@@ -80,6 +80,7 @@ c
                               !<   correlation 
                               !< - nExc=2: Exc(1) = exchange,
                               !<           Exc(2) = correlation 
+      double precision cd_coef(nbf_cd,*)
 c
 c This driver routine solves for the XC energy and potential (Vxc) via 
 c numerical quadrature methods. The results are obtained either by direct 
@@ -144,10 +145,16 @@ c     Get the DFT exchange-correlation contribution
          if(xcfit) then       
             nTrows = nbf_xc
             nTcols = ipol
-            if (.not.ma_push_get(MT_Dbl,nTrows*nTcols,'Tmat',lTmat,
+            if (.not.ma_push_get(MT_Dbl,nTrows*nTcols*2,'Tmat',lTmat,
      &           iTmat))call errquit('xc_getv: cannot allocate Tmat',0,
      &       MA_ERR)
-            call dfill(nTrows*nTcols,0.D0,dbl_mb(iTmat),1)
+            if (ADFT) then
+              call dcopy(nTrows*nTcols,cd_coef,1,dbl_mb(iTmat),1)
+              call dfill(nTrows*nTcols,0.D0,
+     $                   dbl_mb(iTmat+nTrows*nTcols),1)
+            else
+              call dfill(nTrows*nTcols,0.D0,dbl_mb(iTmat),1)
+            endif
          endif
          
          if(havehfxc.or.(.not.cdfit)) then
@@ -206,11 +213,32 @@ c
      &                    Dbl_MB(iTmat+nbf_xc))
                endif
             endif
+
+            if (ADFT) then
+              call dcopy(nTrows*nTcols,dbl_mb(itmat+nTrows*nTcols),1,
+     &                   dbl_mb(iTmat),1)
+            endif
+
+
             call xc_fitv(rtdb,Dbl_MB(iTmat), nTrows, nTcols,
      &           g_vxc, g_xcinv, IOLGC)  
+
+            if (ADFT) then
+              call dcopy(ipol*nbf_cd,dbl_mb(iTmat),1,
+     $                   cd_coef(1,ipol+1),1)
+              if (ipol.gt.1) then
+                call daxpy(nbf_cd,1.0d0,cd_coef(1,2),1,cd_coef(1,1),1)
+                call dcopy(nbf_cd,cd_coef(1,1),1,cd_coef(1,2),1)
+              endif
+              call daxpy(ipol*nbf_cd,1.0d0,dbl_mb(iTmat),1,cd_coef,1)
+            endif
+
             if (.not.ma_pop_stack(lTmat))
-     &           call errquit('xc_getv: cannot pop stack',0, MA_ERR)
+     &             call errquit('xc_getv: cannot pop stack',0, MA_ERR)
 c     
+         elseif (CDFIT .and. (ipol.gt.1)) then
+            call daxpy(nbf_cd,1.0d0,cd_coef(1,2),1,cd_coef(1,1),1)
+            call dcopy(nbf_cd,cd_coef(1,1),1,cd_coef(1,2),1)
          endif
       endif
 c
