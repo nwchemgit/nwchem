@@ -23,8 +23,8 @@
       do iatm = 1, natom
         newatom = newatom + 1
         label(newatom) = label(iatm)
-        xyz(1,newatom) = xyz(1,iatm) + lattice_vec(1)
-        xyz(2,newatom) = xyz(2,iatm)
+        xyz(1,newatom) = xyz(1,iatm)
+        xyz(2,newatom) = xyz(2,iatm) + lattice_vec(2)
         xyz(3,newatom) = xyz(3,iatm)
       enddo
       natom = newatom
