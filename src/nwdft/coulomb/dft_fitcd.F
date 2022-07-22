@@ -355,16 +355,16 @@ c
 c      
 c     Compute the integrated electron density from the fit.
 c      
-      do ifit = 1, nfit
-         rho_int = ddot(nbf_cd,CD_coef(1,ifit),1,Dbl_MB(icgtf),1)
-         if (dabs(rho_int-Q(ifit)).gt.0.001d0) then
-            write(*,*)' rho_int check 2, density',ifit,' = ',rho_int
+c      do ifit = 1, nfit
+c         rho_int = ddot(nbf_cd,CD_coef(1,ifit),1,Dbl_MB(icgtf),1)
+c         if (dabs(rho_int-Q(ifit)).gt.0.001d0) then
+c            write(*,*)' rho_int check 2, density',ifit,' = ',rho_int
 c            call errquit('dft_fitcd: problem w/fitted density',911,
 c     &       UNKNOWN_ERR)
 c     write(*,*)' Dbl_MB(icgtf) = ',(Dbl_MB(icgtf+i),i=0,nbf_cd-1)
 c     write(*,*)' CD_coef = ',(CD_coef(i,ifit),i=1,nbf_cd)
-         endif
-      enddo
+c         endif
+c      enddo
       if(.not.ma_pop_stack(lscr))
      &  call errquit('dft_fitcd: cannot pop stack',4, MA_ERR)
       if(.not.ma_pop_stack(lcgtf))
