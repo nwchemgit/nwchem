@@ -26,7 +26,9 @@ if [[ ${UNAME_S} == Linux ]]; then
     CPU_FLAGS_2=$(cat /proc/cpuinfo | grep flags |tail -n 1)
 elif [[ ${UNAME_S} == Darwin ]]; then
     CPU_FLAGS=$(/usr/sbin/sysctl -n machdep.cpu.features)
+    if [[ "$arch" == "x86_64" ]]; then
     CPU_FLAGS_2=$(/usr/sbin/sysctl -n machdep.cpu.leaf7_features)
+    fi
 fi
   GOTSSE2=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /sse2/   {print "Y"}')
    GOTAVX=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /avx/    {print "Y"}')
