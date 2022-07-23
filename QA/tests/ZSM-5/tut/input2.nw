@@ -1,0 +1,21 @@
+echo 
+start c2h2-dat
+
+geometry noautoz
+h_c         0.00000000     0.00000000    -1.98532341
+c           0.00000000     0.00000000    -0.59795517
+c           0.00000000     0.00000000     0.59795517
+h_c         0.00000000     0.00000000     1.98532341
+end
+
+basis 
+  * library cc-pvdz
+end
+
+scf
+  direct
+end
+
+set geometry:actlist 1 4
+
+task scf optimize

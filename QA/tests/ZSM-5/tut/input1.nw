@@ -1,0 +1,23 @@
+echo 
+start c6h2-dat
+
+geometry
+h 0 0 -3.75
+c 0 0 -2.75
+c 0 0 -1.75
+c 0 0 -0.75
+c 0 0  0.75
+c 0 0  1.75
+c 0 0  2.75
+h 0 0  3.75
+end
+
+basis 
+  * library cc-pvdz
+end
+
+scf
+  direct
+end
+
+task scf optimize
