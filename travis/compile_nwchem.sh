@@ -100,7 +100,7 @@ fi
        cd libext   && make V=-1  && cd ..
        cd tools    && make V=-1  && cd ..
        nohup make USE_INTERNALBLAS=y deps_stamp  >& deps.log &
-       sleep 120s
+       sleep 120
        echo tail deps.log '@@@'
        tail -10  deps.log
        echo done tail deps.log '@@@'
@@ -137,7 +137,7 @@ if [[ -z "$TRAVIS_HOME" ]]; then
     cd ../nwdft/xc
     nohup make USE_INTERNALBLAS=y dependencies include_stamp >& ../../deps3.log &
     cd ../..
-    sleep 360s
+    sleep 360
     echo tail deps.log '11@@@'
     tail -10  deps.log
     echo done tail deps.log '11@@@'

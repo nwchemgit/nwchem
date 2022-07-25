@@ -19,7 +19,7 @@ jobs:
       matrix:
         blas: [build_openblas]
         blas_size: [8]
-        os: [ubuntu-20.04, macos-10.15]
+        os: [ubuntu-20.04, macos-11]
         experimental: [false]
         mpi_impl:
           - openmpi
@@ -27,7 +27,7 @@ jobs:
         armci_network:
           - MPI-TS
         xcode_version:
-          - 11.7
+          - 13.2.1
         nwchem_modules:
           - "tinyqmpw python"
           - "qmandpw qmd"
@@ -35,10 +35,10 @@ jobs:
         fc:
           - gfortran
         exclude:
-          - os: macos-10.15 
+          - os: macos-11
             mpi_impl: mpich
             nwchem_modules: "tinyqmpw python"
-          - os: macos-10.15 
+          - os: macos-11
             mpi_impl: mpich
             nwchem_modules: "qmandpw qmd"
         include:
@@ -214,14 +214,13 @@ jobs:
             fc: ifort
             cc: icc
             use_libxc: 1
-          - os: macos-10.15
+          - os: macos-11
             experimental: true 
             mpi_impl: openmpi
             armci_network: MPI-TS
             nwchem_modules: "tinyqmpw"
             fc: gfortran-10
             cc: gcc
-            xcode_version: 12.4
             use_libxc: 1
           - os: ubuntu-18.04
             experimental: true 
@@ -255,30 +254,29 @@ jobs:
             fc: gfortran-10
             cc: gcc-10
             use_libxc: 1
-          - os: macos-10.15
+          - os: macos-11
             experimental: true 
             mpi_impl: openmpi
             armci_network: MPI-PR
             nwchem_modules: "qmandpw qmd"
             fc: gfortran-10
             cc: gcc-10
-            xcode_version: 12.3
-          - os: macos-11.0
+          - os: macos-12
             experimental: true
             mpi_impl: openmpi
             armci_network: MPI-PR
             nwchem_modules: "tce"
-            fc: gfortran-10
-            cc: gcc-10
-            xcode_version: 12.5.1
-          - os: macos-11.0
+            fc: gfortran-11
+            cc: gcc-11
+            xcode_version: 13.4.1
+          - os: macos-12
             experimental: true
             mpi_impl: openmpi
             armci_network: MPI-TS
             nwchem_modules: "tinyqmpw"
             fc: gfortran-11
-            xcode_version: 13.2.1
-          - os: macos-10.15
+            xcode_version: 13.4.1
+          - os: macos-11
             experimental: true
             mpi_impl: openmpi
             armci_network: MPI-TS
@@ -286,8 +284,7 @@ jobs:
             fc: gfortran-9
             blas: "accelerate"
             blas_size: 4
-            xcode_version: 12.1.1
-          - os: macos-10.15
+          - os: macos-11
             experimental: true
             mpi_impl: mpich
             armci_network: SOCKETS
@@ -332,7 +329,6 @@ jobs:
         COMEX_MAX_NB_OUTSTANDING: 4
         SIMINT_MAXAM: 4
         SIMINT_VECTOR: avx2
-        DEVELOPER_DIR: /Applications/Xcode_${{ matrix.xcode_version}}.app/Contents/Developer
         BLAS_ENV:  ${{ matrix.blas }}
         BLAS_SIZE:  ${{ matrix.blas_size }}
         USE_OPENMP:  ${{ matrix.use_openmp }}
