@@ -165,8 +165,8 @@ fi
 	wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key |  sudo apt-key add -
 	echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/'$rocm_version'/ ubuntu main' | sudo tee /etc/apt/sources.list.d/rocm.list
 	sudo apt-get  update -y && sudo apt-get -y install rocm-llvm openmp-extras
-	export PATH=/opt/rocm-"$rocm_version"/bin:$PATH
-	export LD_LIBRARY_PATH=/opt/rocm-"$rocm_version"/lib:/opt/rocm-"$rocm_version"/llvm/lib:$LD_LIBRARY_PATH
+	export PATH=/opt/rocm/bin:$PATH
+	export LD_LIBRARY_PATH=/opt/rocm/lib:/opt/rocm/llvm/lib:$LD_LIBRARY_PATH
 	amdflang -v
 	amdclang -v
     fi
