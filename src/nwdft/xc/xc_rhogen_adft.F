@@ -103,7 +103,7 @@ c
          P_MAXI = dabsmax(nbfia,cd_coef(ifirst,1))
          if (ipol.gt.1) 
      $      P_MAXI = max(P_MAXI,dabsmax(nbfia,cd_coef(ifirst,2)))
-         if (wmax*FUNC_MAXI*P_MAXI*nbfia.lt.tol_rho) goto 230
+         if (FUNC_MAXI*P_MAXI.lt.tol_rho) goto 230
 
          do ii=1,ipol
            do mu=inizia,ifinia

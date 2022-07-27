@@ -116,7 +116,7 @@ c
      &       MA_ERR)
       call xc_make_basis_info(basis, int_mb(ibas_cent_info),
      &     int_mb(ibas_cset_info), natoms)
-      if (xcfit) then
+      if (xcfit.and.(.not.adft)) then
          if (.not.MA_Push_Get(mt_int, 3*natoms, 'bas_cent_xinfo',
      &        lbas_cent_xinfo, ibas_cent_xinfo))
      &        call errquit(pname//'cant alloca bas_cent_info',0,
