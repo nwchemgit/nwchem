@@ -26,12 +26,13 @@ C>
       subroutine grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
      ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,chi,delchi,
      ,     heschi,
-     ,     mbf_ao,grad,dolap,ipol,iscratch)
+     ,     mbf_ao,grad,dolap,ipol,iscratch,adft)
 c
 c$Id$
 c
       implicit none
 #include "mafdecls.fh"
+      logical adft
       integer natoms !< [Input] The number of atoms
       integer nqpts !< [In/output] The number of grid points
       double precision qwght(*) !< [In/output] The grid point weights
@@ -84,29 +85,11 @@ c
       enddo
       ff=abs(funcmax*delmax*pmax)
       if (dolap) ff=max(ff,abs(2d0*pmax*delmax**2))
+      if (adft) ff=delmax*pmax
       do i=1,nqpts
          if(abs(ff*qwght(i)).lt.tol_rho) then
             nzero=nzero+1
             qwght(i)=0d0
-c
-c     invalidate all the functions
-c
-            do j=1,mbf_ao
-               chi(i+(j-1)*nqpts)=0d0
-               if(grad)then
-                  delchi(i+(j-1)*3*nqpts)=0d0
-                  delchi(i+(j-1)*3*nqpts+nqpts)=0d0
-                  delchi(i+(j-1)*3*nqpts+nqpts*2)=0d0
-               endif
-               if(dolap)then
-                  heschi(i+(j-1)*6*nqpts)=0d0
-                  heschi(i+(j-1)*6*nqpts+nqpts)=0d0
-                  heschi(i+(j-1)*6*nqpts+nqpts*2)=0d0
-                  heschi(i+(j-1)*6*nqpts+nqpts*3)=0d0
-                  heschi(i+(j-1)*6*nqpts+nqpts*4)=0d0
-                  heschi(i+(j-1)*6*nqpts+nqpts*5)=0d0
-               endif
-            enddo
          endif
       enddo
       if(nzero.ne.0) then
@@ -127,7 +110,7 @@ c
       double precision toll ![input]
 c
       integer q,nzero,mq0,mq1,j,iscr(*),
-     ,     nq_orig
+     ,     nq_orig,llq
 #if defined(DEBUG)
       integer nqxmbf
       nqxmbf=nq*mbf_ao
@@ -147,6 +130,7 @@ c
             iscr(nzero)=q
          endif
       enddo
+
       if(nzero.eq.nq) return
       nq=nzero
       mq0=0
