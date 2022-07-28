@@ -25,7 +25,7 @@ echo NWCHEM_TOP is $NWCHEM_TOP
 export USE_MPI=y
 if [[ "$FC" == "flang" ]]; then
     if [[ "USE_AOMP" == "Y" ]]; then
-	aomp_major=13
+	aomp_major=15
 	aomp_minor=0-2
 	export PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/bin/:$PATH
 	export LD_LIBRARY_PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/lib:$LD_LIBRARY_PATH
@@ -35,9 +35,8 @@ if [[ "$FC" == "flang" ]]; then
      export BUILD_MPICH=1
 fi
 if [[ "$FC" == "amdflang" ]]; then
-    rocm_version=5.1.3
-    export PATH=/opt/rocm-"$rocm_version"/bin:$PATH
-    export LD_LIBRARY_PATH=/opt/rocm-"$rocm_version"/lib:/opt/rocm-"$rocm_version"/llvm/lib:$LD_LIBRARY_PATH
+    export PATH=/opt/rocm/bin:$PATH
+    export LD_LIBRARY_PATH=/opt/rocm-"$rocm_version"/lib:/opt/rocm/llvm/lib:$LD_LIBRARY_PATH
 fi
 
 if [[ "$FC" == "nvfortran" ]]; then
