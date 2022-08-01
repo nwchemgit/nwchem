@@ -303,18 +303,18 @@ c
         if (.not. geom_rtdb_load(rtdb, geom, 'tsreference'))
      &      call errquit('hnd_opt: no geometry ', 911, RTDB_ERR)
       end if
-CJMC mass
-      if (start .and. mswg) then
-        if (.not. geom_masses_get(geom, nat, atmass))
-     &      call errquit('ircgs: geom_masses_get failed',911, GEOM_ERR)
-      end if
-CJMC mass
 c
       if (.not. geom_ncent(geom,nat))
      $     call errquit('hnd_opt: natoms?',nat, GEOM_ERR)
       call grad_active_atoms(rtdb, nat, oactive, nactive)
       if (.not. geom_systype_get(geom, isystype))
      $     call errquit('mepgs: systype?',0, GEOM_ERR)
+CJMC mass
+      if (start .and. mswg) then
+        if (.not. geom_masses_get(geom, nat, atmass))
+     &      call errquit('ircgs: geom_masses_get failed',911, GEOM_ERR)
+      end if
+CJMC mass
 c
       if (oprint) then
         if (ga_nodeid().eq.0) then
@@ -471,13 +471,13 @@ c
          do iat = 1, nat
             if (.not. oactive(iat)) then
                do i = 1, 3
-                  ds((iat-1)*3+i) = 0.0
+                  ds((iat-1)*3+i) = 0.0d0
                end do
             end if
          end do
       end if
 c
-      call ga_brdcst(1,ds,8*nvar,0)
+      call ga_brdcst(1,ds,ma_sizeof(mt_dbl,nvar,mt_byte),0)
 c
 c     Get original coordinates
 c
@@ -516,7 +516,7 @@ c
       double precision ddot
       external ddot
 c
-      mepgs_cosang = 0.0
+      mepgs_cosang = 0.0d0
 c
       factor(1) = ddot(nvar, avec, 1, bvec, 1)
 c
@@ -527,7 +527,7 @@ c
 c
       ctheta = factor(1)/factor(2)
 c
-      if (abs(ctheta).gt.1.0) ctheta = dsign(1.d0,ctheta) 
+      if (abs(ctheta).gt.1.0d0) ctheta = dsign(1.d0,ctheta) 
 c
       if (angle) then
         mepgs_cosang = acos(ctheta)
@@ -913,7 +913,7 @@ c
         do iat = 1, nat_real
           if (.not. oactive(iat)) then
             do ixyz = 1, 3
-               gx((iat-1)*3+ixyz) = 0.0
+               gx((iat-1)*3+ixyz) = 0.0d0
             end do
           end if
         end do
@@ -982,7 +982,7 @@ c
       stpang = mepgs_cosang(abvec, bcvec, .true.)
 c
       grms = 0d0
-c      ogrms = 0d0
+      ogrms = 0d0
       srms = 0d0
       gmax  = 0d0
       smax  = 0d0
