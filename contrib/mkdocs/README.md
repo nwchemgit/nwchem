@@ -60,7 +60,7 @@ Point your browser to  http://127.0.0.1:8000
 
 
 
-## push files to the nwchemgit.github.io: method #1
+## ~~push files to the nwchemgit.github.io: method #1~~ (for reference ONLY)
 
 ### Build the html source
 ```
@@ -76,7 +76,7 @@ git commit -m
 git push
 ```
 
-## push files to the nwchemgit.github.io: method #2
+## ~~push files to the nwchemgit.github.io: method #2~~ (for reference ONLY)
 
 ```
 git clone https://github.com/nwchemgit/nwchemgit.github.io
