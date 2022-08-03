@@ -31,7 +31,9 @@ if [[ ${UNAME_S} == Linux ]]; then
     CPU_FLAGS_2=$(cat /proc/cpuinfo | grep flags |tail -n 1)
 elif [[ ${UNAME_S} == Darwin ]]; then
     CPU_FLAGS=$(sysctl -n machdep.cpu.features)
-    CPU_FLAGS_2=$(sysctl -n machdep.cpu.leaf7_features)
+    if [[ "$arch" == "x86_64" ]]; then
+	CPU_FLAGS_2=$(sysctl -n machdep.cpu.leaf7_features)
+    fi
 else
     echo Operating system not supported yet
     exit 1
