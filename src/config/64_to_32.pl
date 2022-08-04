@@ -37,6 +37,7 @@ sub copy_case() {   # Take case from "from" and apply it to "to" and return that
 $debug = 0;
 @from = ();
 @to   = ();
+use File::stat;
 use File::Basename;
 $data_path = dirname(__FILE__);
 if($debug) {print "{$data_path} \n";}
@@ -78,13 +79,20 @@ else
     $num_compare = $num_from;
 }
 if ($debug) { print "arguments: @ARGV\n";}
-foreach $file (@ARGV){
+foreach my $file (@ARGV){
     if ($debug){print "file        : $file\n";}
+    my $orgfile = $file;
     $filebak = $file . ".$$" ;
     if ($debug){print "backup file : $filebak\n";}
     rename($file,$filebak);
     $file = '>' . $file;
-    open(FILETOFIX,$filebak) || die "Could not open file: $filebak\n";
+    my $my_pid = $pid;
+    if (open(FILETOFIX,$filebak)) {
+#	print " open OK\n";
+    }else{
+	print "Exiting: Could not open file: $filebak\n";
+	kill 15, -$my_pid;
+    }
     open(FIXEDFILE,$file) || die "Could not open file: $file\n";
     while (<FILETOFIX>) {
 	if ( /^c/ || /^C/ || /^\*/ || /^$/){
@@ -120,6 +128,11 @@ foreach $file (@ARGV){
     close(FIXEDFILE);
     close(FILETOFIX);
     unlink($filebak);
+    my $filesize = stat("$orgfile")->size;
+    if($filesize eq "0") {
+	print("Exiting: converted file $orgfile has size $filesize\n");
+	kill 15, -$my_pid;
+    }
 }
 
 
