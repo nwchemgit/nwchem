@@ -25,7 +25,7 @@
 
     USES_BLAS = psi_lmbda.f psi_lmbda2.f psi_lmbda3.f psi_lmbda_sic.f psi_lmbda_paw.f \
                 inner_loop.F inner_loop_md.F cpsdv5.F cpmdv5.F psi_lmbda2.f psi_lmbda_omp.F \
- 		mmsdv1.F inner_loop_qmmm_step.F cpmd_qmmm_start.F cpmd_qmmm_stop.F mm_loop.F pspw_et.F psi_lmbda_omp.F
+		mmsdv1.F inner_loop_qmmm_step.F cpmd_qmmm_start.F cpmd_qmmm_stop.F mm_loop.F pspw_et.F
 
   LIB_DEFINES =
 
