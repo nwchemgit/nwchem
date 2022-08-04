@@ -586,7 +586,7 @@ c for this gradient term in restricted triplet gradients.
         call dftgh_gridv0(rtdb,ihdl_geom,ihdl_bfao, ipol,nao,
      &       g_d, dum, dum, g_rhs_xc, calc_type,
      &       nat, log_mb(k_act), nat, dbl_mb(k_rdens_atom),
-     &       int_mb(k_cetobfr), 0, .false.)
+     &       int_mb(k_cetobfr), 0, .false., 0d0, .false.)
         call xc_exit_index(l_cntoce, l_cntobfr, l_cetobfr,
      &                     l_rdens_atom)
       endif
@@ -849,7 +849,7 @@ c
      &         g_d, 
      &         dbl_mb(k_frc_df0), dum, idum, calc_type,
      &         nat, log_mb(k_act), nat, dbl_mb(k_rdens_atom),
-     &         int_mb(k_cetobfr), 0, otriplet)
+     &         int_mb(k_cetobfr), 0, otriplet, 0d0, .false.)
           call xc_exit_index(l_cntoce, l_cntobfr, l_cetobfr,
      &                       l_rdens_atom)
           if (ipol.eq.1) then
@@ -931,7 +931,7 @@ c the number of Fock matrices is always equal to 1.
           call dftgh_gridv0(rtdb,ihdl_geom,ihdl_bfao, ipol,nao,
      &         g_dtmp, dbl_mb(k_frc_dft), dum, idum, calc_type,
      &         nat, log_mb(k_act), nat, dbl_mb(k_rdens_atom),
-     &         int_mb(k_cetobfr), 1, otriplet)
+     &         int_mb(k_cetobfr), 1, otriplet, 0d0, .false.)
 c          call dftgh_gridv0(rtdb,ihdl_geom,ihdl_bfao, ipol,nao,
 c     &         g_dtmp, dbl_mb(k_frc_dft), dum, idum, calc_type,
 c     &         nat, log_mb(k_act), nat, dbl_mb(k_rdens_atom),
