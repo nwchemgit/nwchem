@@ -27,6 +27,7 @@ c
       integer nscr, l_scr, k_scr, npol, natoms
       integer l_cntoce,l_cntobfr,l_cetobfr,l_rdens_atom,l_tmp
       integer k_cntoce,k_cntobfr,k_cetobfr,k_rdens_atom,k_tmp
+      integer lcd_coef,icd_coef
 
       double precision rho_n, ecoul, exc(2)
 
@@ -112,10 +113,15 @@ c
 c      call xc_rep_init(pars%rtdb,geom,ao_bas_han,g_dens,g_vxc,nbf_ao,
 c     $                 ipol,.true.,.false.) 
 c
+      if (.not.MA_Push_Get(MT_Dbl,4*nbf_cd,'cd_coef',lcd_coef,
+     &     icd_coef))
+     &    call errquit('gw_vxc: cannot allocate cd_coef',0, MA_ERR)
       call xc_getv(pars%rtdb, exc, ecoul, 2, 0, 0,
      $             g_dens, g_vxc, .false., g_wght, g_xyz, g_nq,
      $             .false., rho_n, dbl_mb(k_rdens_atom),
-     $             dbl_mb(k_cetobfr), natoms) 
+     $             dbl_mb(k_cetobfr), natoms, dbl_mb(icd_coef)) 
+      if (.not.ma_pop_stack(lcd_coef))
+     &     call errquit('gw_vxc: cannot pop stack',0, MA_ERR)
       pars%exscf = exc(1)
       pars%ecscf = exc(2)
 
