@@ -12,11 +12,11 @@ H   2.5025    -1.2628    -0.0022
 H   0.9511    -2.0241    -0.0008
 end
 
-basis "ao basis" bse
+basis "ao basis" bse spherical
  * library cc-pvdz
 end
 
-basis "cd basis" bse
+basis "cd basis" bse spherical
  * library cc-pvdz-rifit
 end
 
