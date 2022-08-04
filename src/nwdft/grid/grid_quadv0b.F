@@ -336,7 +336,7 @@ c      call grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
      ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,
      ,     dbl_mb(ichi_ao),dbl_mb(idelchi_ao),dbl_mb(iheschi_ao),
      M     mbf_ao,grad,kslap,
-     ,     ipol,iscratch)
+     ,     ipol,iscratch,adft)
            if (odftps) call pstat_off(ps_fitv)
       endif
       if (.not.MA_Push_Get(mt_dbl,mxnbf_ce*nqpts*3,
