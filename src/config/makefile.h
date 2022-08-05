@@ -2817,7 +2817,7 @@ ifneq ($(TARGET),LINUX)
                     ifdef USE_A64FX
                         COPTIMIZE += -mtune=a64fx -mcpu=a64fx 
                     else
-                        COPTIMIZE += -mtune=native -march=native
+                        COPTIMIZE += -mtune=native
                     endif 
                 endif
 
