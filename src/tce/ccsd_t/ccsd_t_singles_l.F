@@ -232,6 +232,81 @@ c
      &                      (h2b_2-1+(noab+nvab)*(p6b_2-1+(noab+nvab)*
      &                      (p5b_2-1)))),h3b_2,h2b_2,p6b_2,p5b_2)
       end if
+
+#ifdef TCE_OPENACC
+
+      IF ((t_p4b.eq.p4b).and.(t_p5b.eq.p5b).and.(t_p6b.eq.p6b)
+     &.and.(t_h1b.eq.h1b).and.(t_h2b.eq.h2b).and.(t_h3b.eq.h3b)) THEN
+      call acc_sd_t_s1_1(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+     1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
+     2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
+     4               a_c,dbl_mb(k_a_sort),dbl_mb(k_b_sort))
+
+      END IF
+      IF ((t_p4b.eq.p4b).and.(t_p5b.eq.p5b).and.(t_p6b.eq.p6b)
+     &.and.(t_h1b.eq.h2b).and.(t_h2b.eq.h1b).and.(t_h3b.eq.h3b)) THEN
+      call acc_sd_t_s1_2(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+     1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
+     2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
+     4               a_c,dbl_mb(k_a_sort),dbl_mb(k_b_sort))
+
+      END IF
+      IF ((t_p4b.eq.p4b).and.(t_p5b.eq.p5b).and.(t_p6b.eq.p6b)
+     &.and.(t_h1b.eq.h2b).and.(t_h2b.eq.h3b).and.(t_h3b.eq.h1b)) THEN
+      call acc_sd_t_s1_3(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+     1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
+     2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
+     4               a_c,dbl_mb(k_a_sort),dbl_mb(k_b_sort))
+
+      END IF
+      IF ((t_p4b.eq.p5b).and.(t_p5b.eq.p4b).and.(t_p6b.eq.p6b)
+     &.and.(t_h1b.eq.h1b).and.(t_h2b.eq.h2b).and.(t_h3b.eq.h3b)) THEN
+      call acc_sd_t_s1_4(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+     1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
+     2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
+     4               a_c,dbl_mb(k_a_sort),dbl_mb(k_b_sort))
+
+      END IF
+      IF ((t_p4b.eq.p5b).and.(t_p5b.eq.p4b).and.(t_p6b.eq.p6b)
+     &.and.(t_h1b.eq.h2b).and.(t_h2b.eq.h1b).and.(t_h3b.eq.h3b)) THEN
+      call acc_sd_t_s1_5(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+     1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
+     2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
+     4               a_c,dbl_mb(k_a_sort),dbl_mb(k_b_sort))
+
+      END IF
+      IF ((t_p4b.eq.p5b).and.(t_p5b.eq.p4b).and.(t_p6b.eq.p6b)
+     &.and.(t_h1b.eq.h2b).and.(t_h2b.eq.h3b).and.(t_h3b.eq.h1b)) THEN
+      call acc_sd_t_s1_6(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+     1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
+     2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
+     4               a_c,dbl_mb(k_a_sort),dbl_mb(k_b_sort))
+
+      END IF
+      IF ((t_p4b.eq.p5b).and.(t_p5b.eq.p6b).and.(t_p6b.eq.p4b)
+     &.and.(t_h1b.eq.h1b).and.(t_h2b.eq.h2b).and.(t_h3b.eq.h3b)) THEN
+      call acc_sd_t_s1_7(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+     1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
+     2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
+     4               a_c,dbl_mb(k_a_sort),dbl_mb(k_b_sort))
+
+      END IF
+      IF ((t_p4b.eq.p5b).and.(t_p5b.eq.p6b).and.(t_p6b.eq.p4b)
+     &.and.(t_h1b.eq.h2b).and.(t_h2b.eq.h1b).and.(t_h3b.eq.h3b)) THEN
+      call acc_sd_t_s1_8(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+     1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
+     2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
+     4               a_c,dbl_mb(k_a_sort),dbl_mb(k_b_sort))
+
+      END IF
+      IF ((t_p4b.eq.p5b).and.(t_p5b.eq.p6b).and.(t_p6b.eq.p4b)
+     &.and.(t_h1b.eq.h2b).and.(t_h2b.eq.h3b).and.(t_h3b.eq.h1b)) THEN
+      call acc_sd_t_s1_9(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+     1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
+     2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
+     4               a_c,dbl_mb(k_a_sort),dbl_mb(k_b_sort))
+
+#else
       IF ((t_p4b.eq.p4b).and.(t_p5b.eq.p5b).and.(t_p6b.eq.p6b)
      &.and.(t_h1b.eq.h1b).and.(t_h2b.eq.h2b).and.(t_h3b.eq.h3b)) THEN
       call sd_t_s1_1(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
@@ -302,6 +377,8 @@ c
      1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
      4               a_c,dbl_mb(k_a_sort),dbl_mb(k_b_sort))
+
+#endif
 
       END IF
       IF (.not.MA_POP_STACK(l_b_sort)) 
