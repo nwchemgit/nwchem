@@ -52,6 +52,17 @@ ifdef TCE_HIP
 endif
 
 
+ifdef TCE_OPENACC
+  OBJ_OPTIMIZE += ccsd_t_kernels_acc.o
+  FOPTIONS += -DTCE_OPENACC -acc
+#   ifeq ($(_FC),pgf90)
+#       FOPTIONS += -Mextend -acc -cuda -cudalib=cublas
+#   endif
+#   ifeq ($(_FC),gfortran)
+#       FOPTIONS += -ffree-form -fopenacc -lcublas
+#   endif
+endif
+
 
 ifdef TCE_NEW_OPENMP
  OBJ_OPTIMIZE += ccsd_t_omp.o

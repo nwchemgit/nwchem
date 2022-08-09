@@ -343,6 +343,8 @@ c     figure out  cycles to work on
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d1_1(k_range_h3b_1,k_range_h2b_1,
+#elif defined(TCE_OPENACC)
+         call acc_sd_t_d1_1(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d1_1(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -360,6 +362,8 @@ c     ,     fdist_sdkrnl11,fdist_sdcomp11)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d1_2(k_range_h3b_1,k_range_h2b_1,
+#elif defined(TCE_OPENACC)
+         call acc_sd_t_d1_2(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d1_2(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -377,6 +381,8 @@ c     ,        fdist_sdkrnl12,fdist_sdcomp12)
 c      call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
       call offl_sdtransp_t_d1_3(k_range_h3b_1,k_range_h2b_1,
+#elif defined(TCE_OPENACC)
+         call acc_sd_t_d1_3(k_range_h3b_1,k_range_h2b_1,
 #else
       call sdtransp_t_d1_3(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -394,6 +400,8 @@ c     ,     fdist_sdkrnl13,fdist_sdcomp13)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d1_4(k_range_h3b_1,k_range_h2b_1,
+#elif defined(TCE_OPENACC)
+         call acc_sd_t_d1_4(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d1_4(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -411,6 +419,8 @@ c     ,        fdist_sdkrnl14,fdist_sdcomp14)
 c      call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
       call offl_sdtransp_t_d1_5(k_range_h3b_1,k_range_h2b_1,
+#elif defined(TCE_OPENACC)
+         call acc_sd_t_d1_5(k_range_h3b_1,k_range_h2b_1,
 #else
       call sdtransp_t_d1_5(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -428,6 +438,8 @@ c     ,     fdist_sdkrnl15,fdist_sdcomp15)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d1_6(k_range_h3b_1,k_range_h2b_1,
+#elif defined(TCE_OPENACC)
+         call acc_sd_t_d1_6(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d1_6(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -445,6 +457,8 @@ c     ,        fdist_sdkrnl16,fdist_sdcomp16)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d1_7(k_range_h3b_1,k_range_h2b_1,
+#elif defined(TCE_OPENACC)
+         call acc_sd_t_d1_7(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d1_7(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -462,6 +476,8 @@ c     ,        fdist_sdkrnl17,fdist_sdcomp17)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d1_8(k_range_h3b_1,k_range_h2b_1,
+#elif defined(TCE_OPENACC)
+         call acc_sd_t_d1_8(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d1_8(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -479,6 +495,8 @@ c     ,        fdist_sdkrnl18,fdist_sdcomp18)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d1_9(k_range_h3b_1,k_range_h2b_1,
+#elif defined(TCE_OPENACC)
+         call acc_sd_t_d1_9(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d1_9(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -665,6 +683,8 @@ c     figure out  cycles to work on
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_1(k_range_h3b_1,k_range_h2b_1,
+#elif defined(TCE_OPENACC)
+         call acc_sd_t_d2_1(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d2_1(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -682,6 +702,8 @@ c     ,        fdist_sdkrnl21,fdist_sdcomp21)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_2(k_range_h3b_1,k_range_h2b_1,
+#elif defined(TCE_OPENACC)
+         call acc_sd_t_d2_2(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d2_2(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -699,6 +721,8 @@ c     ,        fdist_sdkrnl22,fdist_sdcomp22)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_3(k_range_h3b_1,k_range_h2b_1,
+#elif defined(TCE_OPENACC)
+         call acc_sd_t_d2_3(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d2_3(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -716,6 +740,8 @@ c     ,        fdist_sdkrnl23,fdist_sdcomp23)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_4(k_range_h3b_1,k_range_h2b_1,
+#elif defined(TCE_OPENACC)
+         call acc_sd_t_d2_4(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d2_4(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -734,6 +760,8 @@ c     ,        fdist_sdkrnl24,fdist_sdcomp24)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_5(k_range_h3b_1,k_range_h2b_1,
+#elif defined(TCE_OPENACC)
+         call acc_sd_t_d2_5(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d2_5(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -751,6 +779,8 @@ c     ,        fdist_sdkrnl25,fdist_sdcomp25)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_6(k_range_h3b_1,k_range_h2b_1,
+#elif defined(TCE_OPENACC)
+         call acc_sd_t_d2_6(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d2_6(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -768,6 +798,8 @@ c     ,        fdist_sdkrnl26,fdist_sdcomp26)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_7(k_range_h3b_1,k_range_h2b_1,
+#elif defined(TCE_OPENACC)
+         call acc_sd_t_d2_7(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d2_7(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -785,6 +817,8 @@ c     ,        fdist_sdkrnl27,fdist_sdcomp27)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_8(k_range_h3b_1,k_range_h2b_1,
+#elif defined(TCE_OPENACC)
+         call acc_sd_t_d2_8(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d2_8(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -802,6 +836,8 @@ c     ,        fdist_sdkrnl28,fdist_sdcomp28)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_9(k_range_h3b_1,k_range_h2b_1,
+#elif defined(TCE_OPENACC)
+         call acc_sd_t_d2_9(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d2_9(k_range_h3b_1,k_range_h2b_1,
 #endif
