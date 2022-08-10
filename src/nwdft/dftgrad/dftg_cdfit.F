@@ -77,6 +77,18 @@ c
 c-->  Charge Density Expansion Coefficients
 c     
       double precision CD_coef(nbf_cd,3*nfit)
+                       ! nfit = 1:
+                       ! cd_coef(:,1) -> CD_tot
+                       ! cd_coef(:,2) -> XC_tot
+                       ! cd_coef(:,3) -> Work_tot
+
+                       ! nfit = 2:
+                       ! cd_coef(:,1) -> CD_up
+                       ! cd_coef(:,2) -> CD_dw
+                       ! cd_coef(:,3) -> XC_up
+                       ! cd_coef(:,4) -> XC_dw
+                       ! cd_coef(:,5) -> Work_up
+                       ! cd_coef(:,6) -> Work_dw
 c     
 c     force vector
 c     
@@ -184,6 +196,8 @@ c
              call errquit('dftg_fitcd: read failed',0, DISK_ERR)
           endif
         enddo
+
+        ! Read XC fitting coefficients as well
         if (adft) then
           do ifit=nfit+1,2*nfit
             offset = (ifit-1)*nbf_cd*8d0
@@ -214,16 +228,21 @@ c
       call ga_brdcst(Msg_dftg_cdf,CD_coef,
      M     ma_sizeof(MT_DBL,lencd,MT_BYTE),0)
 c
+      ! Get CD_tot in working entry 2*nfit+1
       call dcopy(nbf_cd,cd_coef(1,1),1,cd_coef(1,2*nfit+1),1)
       if (nfit.gt.1) then
         call daxpy(nbf_cd,1d0,cd_coef(1,2),1,cd_coef(1,2*nfit+1),1)
       endif
 
+      ! For ADFT we need to XC coeff as well
       if (adft) then
+        ! Open shell cases must be spin-resolved, so first copy
+        ! CD_tot to last entry (3*nfit) and then add XC_dw
         if (nfit.gt.1) then
           call dcopy(nbf_cd,cd_coef(1,2*nfit+1),1,cd_coef(1,3*nfit),1)
           call daxpy(nbf_cd,1d0,cd_coef(1,2*nfit),1,cd_coef(1,3*nfit),1)
         endif
+        ! Add XC_up to entry 2*nfit+1
         call daxpy(nbf_cd,1d0,cd_coef(1,nfit+1),1,cd_coef(1,2*nfit+1),1)
       endif
 
@@ -394,6 +413,14 @@ c
                         if (idatom(iat).gt.0)then
                            call dgemv('t',nao2,3*nshbfd,1d0,
      &                       buf(icount),nao2,ppp,1,0d0,vec,1)
+
+                           ! For standard CDFIT or (ADFT.and.(ipol.eq.1))
+                           ! this step is
+                           !     Ptot * d3cERI * (CD_tot + XC_tot)
+                           !
+                           ! for ADFT and ipol > 1:
+                           !     P_up * d3cERI * (CD_tot + XC_up)
+
                            do icart=1,3
                              dE = dot_product(vec((icart-1)*nshbfd+1:
      &                                        icart*nshbfd),
@@ -401,13 +428,21 @@ c
                              force(icart,idatom(iat)) = 
      &                       force(icart,idatom(iat)) + dE * fac * q1
                            enddo
+
+                           ! Need to complete ADFT open-shell case with
+                           !    P_dw * d3cERI * (CD_tot + XC_dw)
+                           !
+                           ! so we end up with
+                           !    P_tot * d3cERI * CD_tot +
+                           !    P_up * d3cERI * XC_up +
+                           !    P_dw * d3cERI * XC_dw
                            if (adft.and.(nfit.eq.2)) then
                              call dgemv('t',nao2,3*nshbfd,1d0,
      &                         buf(icount),nao2,ppp(nao2+1),1,0d0,vec,1)
                              do icart=1,3
                                dE = dot_product(vec((icart-1)*nshbfd+1:
      &                                        icart*nshbfd),
-     &                            cd_coef(ifirstd:ilastd,2*nfit+1))
+     &                            cd_coef(ifirstd:ilastd,3*nfit))
                                force(icart,idatom(iat)) = 
      &                         force(icart,idatom(iat)) + dE * fac * q1
                              enddo
@@ -479,11 +514,28 @@ c     involved are different, the loops are set up to run only over
 c     pairs of shells on different centers, saving a small amount
 c     of work
 c
+      ! Prepare the fitting coefficients for the 2cERI part in AFDT.
+      ! Here, we need our working fields to be
+      !
+      ! Closed-shell
+      !   cd_coef(:,3) -> CD_tot + 2*XC_tot
+      !
+      ! Open-shell
+      !   cd_coef(:,5) -> CD_tot + 2*XC_up
+      !   cd_coef(:,6) -> CD_tot + 2*XC_dw
+      !
+      ! (see bldcblk below)
+      !
+      ! We already the XC_coeffs included in the working fields, 
+      ! so we only need to add again the corresponding XC coeffs.
       if (adft) then
         call daxpy(nbf_cd,1d0,cd_coef(1,nfit+1),1,cd_coef(1,2*nfit+1),1)
         if (nfit.gt.1) then
           call daxpy(nbf_cd,1d0,cd_coef(1,2*nfit),1,cd_coef(1,3*nfit),1)
         endif
+
+      ! We will use cd_coef(:,1) to handle CD_tot in standard 
+      ! CD fitting
       elseif(nfit.gt.1)then
         call daxpy(nbf_cd,1d0,cd_coef(1,2),1,cd_coef(1,1),1)
       endif
@@ -574,6 +626,27 @@ c
       end 
 
       subroutine bldcblk(na,nb,inia,inib,buf,cd,cdxc)
+      ! We need to contract the derivatives of the 2cERIs
+      ! we the appropriate fitting coefficients.
+      !
+      ! This amounts to build to block: 
+      !
+      ! blk = 0.5*CD_ispin(i)*CD_tot(j) + CD_ispin(i)*XC_ispin(j)
+      !     = 0.5*CD_ispin(i)*(CD_tot(j) + 2*XC_ispin(j))
+      !     = 0.5*CD_ispin(i)*CDXC_ispin(j)
+      !
+      ! (The factor 2 was included earlier)
+      !
+      ! For closed-shells and standard CDFIT, this subroutine will
+      ! be called only once with CD_tot in the CD_ispin fields,
+      ! and XC_tot in the XC_ispin field.
+      ! 
+      ! For open-shell ADFT, this subroutine will be called twice
+      ! to get
+      !
+      ! 0.5*CD_tot*d2cERI*CD_tot + CD_up*d2cERI*XC_up + CD_dw*d2cERI*XC_dw
+      !
+
       implicit none
       integer na,nb,inia,inib
       double precision buf(na,nb),cd(*),cdxc(*)

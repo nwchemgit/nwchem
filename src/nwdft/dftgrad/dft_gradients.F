@@ -432,6 +432,7 @@ c
      &       MA_ERR)
 c     
 c     allocate local density matrix block
+c     we can eventually need up and down spins at the same time
 c     
       lsqa = 2 * max_at_bf * max_at_bf
 c     
@@ -440,7 +441,8 @@ c
       if (.not.status)call errquit('could not allocate l_dens',1,
      &       MA_ERR)
 c     
-c     store total DM in ga_dens(1)
+c     store total DM in ga_dens(1) for standard CDFIT cases,
+c     otherwise have the spin-resolved case
 c     
       if ((.not.adft) .and. ipol .eq. 2)then
          call ga_dadd (one,iga_dens(1),one,iga_dens(2),iga_dens(1))
@@ -459,6 +461,7 @@ c
          if(.not.bas_nbf_cn_max(cd_bas_han, max_sh_bfcd))
      $        call errquit('dftg_force: basnbfcdmax broken?',0,
      &       BASIS_ERR)
+         
          lenvec=max(6*max_sh_bfcd,3*max_sh_bf*max_sh_bf)
          if (.not. MA_Push_get(MT_DBL, lenvec, 'svec',
      $        lsvec, isvec))
