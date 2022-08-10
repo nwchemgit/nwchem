@@ -8,8 +8,6 @@ C>
      &     ibf, rchi_atom, rdelchi_atom, 
      &     cetobfr,kslap,xc_coef)
 c
-c     We are using xc_tabcd for CPKS purposes
-c
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"
@@ -25,8 +23,6 @@ c
       integer max_at_bf !< [Input] The maximum number of basis functions
                         !< on an atom
       integer nmat !< [Input] Number of XC matrices (alpha + beta sets)
-                   !< to compute, e.g. the number of perturbations for
-                   !< CPSCF.
       integer ipol  !< [Input] The number of spin channels
       integer nq    !< [Input] The number of grid points
       integer nbf    !< [Input] The number of basis functions

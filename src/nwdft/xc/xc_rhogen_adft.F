@@ -1,5 +1,6 @@
 #define STAG 1
-C> \brief Evaluate the density and their derivatives on a grid
+C> \brief Evaluate the density and their derivatives from the fitting
+C>        basis on a grid
 C>
 C> 
       Subroutine xc_rhogen_adft(

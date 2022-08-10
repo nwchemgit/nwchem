@@ -152,6 +152,8 @@ c      if (IOLGC)call gadest(g_xcinv)
      &      ('xc_fitv: could not destroy g_xcinv', 0, GA_ERR)
       endif
 
+      ! Copy the XC fitting coefficients to the beginning of
+      ! Tmat and exit
       if (ADFT) then
         call dcopy(nTrows*nTcols,dbl_mb(ixc_coef),1,tmat,1)
         if(.not.ma_pop_stack(lxc_coef))

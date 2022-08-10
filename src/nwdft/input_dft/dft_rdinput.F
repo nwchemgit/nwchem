@@ -960,10 +960,24 @@ c
 c
       endif
 c
+c     ADFT
+c
       if (.not.rtdb_get(rtdb,'dft:adft',mt_log,1,adft)) then
         adft=.false. 
         if (.not.rtdb_put(rtdb,'dft:adft',mt_log,1,adft))
      $    call errquit(pname//'rtdb_put failed',966, RTDB_ERR)
+      endif   
+c
+c     Unconstrained (free) CD fitting
+c
+      if (.not.rtdb_get(rtdb,'dft:freecdfit',mt_log,1,freecdfit)) then
+        if (adft) then
+          freecdfit = .true.
+        else
+          freecdfit = .false.
+        endif
+        if (.not.rtdb_put(rtdb,'dft:freecdfit',mt_log,1,freecdfit))
+     $    call errquit(pname//'rtdb_put failed',980, RTDB_ERR)
       endif   
 C
 C AJL/END

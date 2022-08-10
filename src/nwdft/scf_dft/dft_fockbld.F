@@ -168,7 +168,8 @@ c
       icd_coef = 1
 
       if (cdfit) then
-        if (.not.MA_Push_Get(MT_Dbl,4*nbf_cd,'cd_coef',lcd_coef,
+        ! We need 2*ipol coefficients for ADFT calculations
+        if (.not.MA_Push_Get(MT_Dbl,2*ipol*nbf_cd,'cd_coef',lcd_coef,
      &       icd_coef))
      &    call errquit('dft_scf: cannot allocate cd_coef',0, MA_ERR)
       endif
@@ -408,6 +409,8 @@ c
      &        call dft_tstamp(' Before call to FITCD.   ')
          if (odftps) call pstat_on(ps_fitcd)
          call case_setflags(.false.)  ! no attenuation for Coulomb
+
+         ! Compute spin-resolved fitting coefficients
          call dft_fitcd(ipol,Dbl_MB(icd_coef),dd3cERI,Ecoul,
      &                  g_dens, nTotEl, n_batch, n3c_int,
      &                  ii3cwhat, n3c_dbl, IOLGC,
@@ -433,6 +436,7 @@ c
       if (odftps) call pstat_on(ps_xc)
 c
 c     == Calculate the HF exchange (exact Coulomb), DFT exchange-correlation ==
+c     ! ADFT: pass fitting coefficients to build fitted density on the grid
       call xc_getv(rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
      &             g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
      &             rdens_atom, cetobfr, natoms, dbl_mb(icd_coef))
@@ -446,6 +450,9 @@ c
       if (oprint_time)
      &     call dft_tstamp(' Before call to GETVCOUL.')
       if (odftps) call pstat_on(ps_vcoul)
+
+      ! Compute contribution to Fock matrix from fitted
+      ! quantities
       call dft_getvc(Dbl_MB(icd_coef), dd3cERI, Ecoul,
      &               g_vxc, iVcoul_opt, n_batch, 
      &               n3c_int, ii3cwhat, n3c_dbl,
