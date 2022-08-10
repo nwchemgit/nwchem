@@ -192,6 +192,9 @@ c
       if (alloc_error.ne.0) then
         call errquit('ccsd_t_doubles_t: MA error d_scratch',0,MA_ERR)
       endif
+
+!$acc  enter data copyin(d_t1sub(1:t1size))
+!$acc& copyin(d_v2sub(1:v2size))
 #endif
 c
       do ia6=1,9
@@ -258,9 +261,8 @@ c
      &                      (p5b_2-1)))),h3b_2,h2b_2,p6b_2,p5b_2)
       end if
 
-!$acc  enter data copyin(d_t1sub(1:t1size))
-!$acc& copyin(d_v2sub(1:v2size))
-!$acc& copyin(d_scratch(1:t1size))
+!$acc update device(d_t1sub(1:t1size))      
+!$acc update device(d_v2sub(1:v2size))      
 
       IF ((t_p4b.eq.p4b).and.(t_p5b.eq.p5b).and.(t_p6b.eq.p6b)
      &.and.(t_h1b.eq.h1b).and.(t_h2b.eq.h2b).and.(t_h3b.eq.h3b)) THEN
@@ -333,18 +335,17 @@ c
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
      4               a_c,d_t1sub,d_v2sub)
 
-!$acc  exit data copyout(d_t1sub(1:t1size))
-!$acc& copyout(d_v2sub(1:v2size))
-!$acc& copyout(d_scratch(1:t1size))
+!$acc update self(d_t1sub(1:t1size))      
+!$acc update self(d_v2sub(1:v2size))      
 #else
       IF (.not.MA_PUSH_GET(mt_dbl,dima,'noname',l_a_sort,k_a_sort)) 
      &           CALL ERRQUIT('ccsd_t_singles_1',1,MA_ERR)
       IF (.not.MA_PUSH_GET(mt_dbl,dima,'noname',l_a,k_a)) 
      &           CALL ERRQUIT('ccsd_t_singles_1',2,MA_ERR)
-      CALL GET_HASH_BLOCK_MA(dbl_mb(d_a),d_scratch,dima,
+      CALL GET_HASH_BLOCK_MA(dbl_mb(d_a),dbl_mb(k_a),dima,
      &                       int_mb(k_a_offset),
      &                       (h1b_1-1+noab*(p4b_1-noab-1)))
-      CALL TCE_SORT_2(d_scratch,dbl_mb(k_a_sort),
+      CALL TCE_SORT_2(dbl_mb(k_a),dbl_mb(k_a_sort),
      &                int_mb(k_range+p4b-1),int_mb(k_range+h1b-1),
      &                2,1,1.0d0)
       IF (.not.MA_POP_STACK(l_a)) 
@@ -360,8 +361,7 @@ c
      &                      int_mb(k_b_offset),(h3b_2-1+(noab+nvab)*
      &                      (h2b_2-1+(noab+nvab)*(p6b_2-1+(noab+nvab)*
      &                      (p5b_2-1)))),h3b_2,h2b_2,p6b_2,p5b_2)
-      end if
-      
+      end if 
       
       IF ((t_p4b.eq.p4b).and.(t_p5b.eq.p5b).and.(t_p6b.eq.p6b)
      &.and.(t_h1b.eq.h1b).and.(t_h2b.eq.h2b).and.(t_h3b.eq.h3b)) THEN
@@ -454,6 +454,8 @@ c
       END IF
       END DO
 #if defined(TCE_OPENACC) && defined(USE_F90_ALLOCATABLE)
+!$acc  exit data delete(d_t1sub(1:t1size))
+!$acc& delete(d_v2sub(1:v2size))
       deallocate(d_t1sub)
       deallocate(d_v2sub)
       deallocate(d_scratch)
