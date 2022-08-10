@@ -265,6 +265,11 @@ c
       call offl_dbl_map(scratch, l_t2sub)
 #endif
 #endif
+#ifdef TCE_OPENACC
+!$acc  enter data copyin(scratch(1:l_t2sub))
+!$acc& copyin(t2sub(1:l_t2sub))
+!$acc& copyin(v2sub(1:l_v2sub))
+#endif
       do ia6=1,9
       p4b=a3(ia6,1)
       p5b=a3(ia6,2)
@@ -337,6 +342,12 @@ c     figure out  cycles to work on
       call offl_dbl_map(v2sub, l_v2sub)
 #endif
 #endif
+
+#ifdef TCE_OPENACC
+!$acc update device(t2sub(1:l_t2sub))      
+!$acc update device(v2sub(1:l_v2sub))      
+#endif
+
       IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p5b) .and. (t_p6b .eq. p6b)
      & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h2b) .and. (t_h3b .eq. h
      &3b)) THEN
@@ -508,6 +519,10 @@ c        call tce_sdtime0(t0)
 c         call tce_sdtime(t0,deltat_mic,
 c     ,        fdist_sdkrnl19,fdist_sdcomp19)
       END IF
+#ifdef TCE_OPENACC
+!$acc update self(t2sub(1:l_t2sub))      
+!$acc update self(v2sub(1:l_v2sub))      
+#endif
 #ifdef OFFLOAD_CODE
 #if AOMP_MAPPING_FIXED
 c     unmap(to:t2sub(1:l_t2sub)) unmap(to:v2sub(1:l_v2sub))
@@ -668,6 +683,10 @@ c     figure out  cycles to work on
             k_range_p7b_1 = int_mb(k_range+p7b-1)
 #ifdef VERY_VERBOSE
       write (*, '(A)', advance="no") '='
+#endif
+#ifdef TCE_OPENACC
+!$acc update device(t2sub(1:l_t2sub))      
+!$acc update device(v2sub(1:l_v2sub))      
 #endif
 #ifdef OFFLOAD_CODE
 #if AOMP_MAPPING_FIXED
@@ -849,6 +868,10 @@ c        call tce_sdtime0(t0)
 c         call tce_sdtime(t0,deltat_mic,
 c     ,        fdist_sdkrnl29,fdist_sdcomp29)
       END IF
+#ifdef TCE_OPENACC
+!$acc update self(t2sub(1:l_t2sub))      
+!$acc update self(v2sub(1:l_v2sub))      
+#endif
 #ifdef OFFLOAD_CODE
 #ifdef AOMP_MAPPING_FIXED
 c     unmap(to:t2sub(1:l_t2sub)) unmap(to:v2sub(1:l_v2sub))
@@ -866,6 +889,13 @@ c
 c
       END IF
       END DO ! ia6 loop
+
+#ifdef TCE_OPENACC
+!$acc  exit data delete(t2sub(1:l_t2sub))
+!$acc& delete(v2sub(1:l_v2sub))
+!$acc& delete(scratch(1:l_t2sub))
+#endif
+
 #ifdef OFFLOAD_CODE
 #ifdef AOMP_MAPPING_FIXED
 c     unmap(to:scratch(1:l_t2sub))
