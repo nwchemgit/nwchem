@@ -637,7 +637,6 @@ c
       double precision t2sub(p7d,p4d,h1d,h2d)
       double precision t2tmp(p7d,h2d,h1d,p4d)
       double precision v2sub(p7d,h3d,p6d,p5d)
-!$acc data create(t2tmp)
 !$acc parallel loop collapse(4)
       do h2=1,h2d
       do h1=1,h1d
@@ -668,7 +667,6 @@ c
       enddo
       enddo
 !$acc end parallel loop
-!$acc end data
       return
       end
 c
