@@ -118,6 +118,10 @@ c     estimate triplesx size
       if (alloc_error.ne.0) then
         call errquit('ccsd_t: MA error dbl',0,MA_ERR)
       endif
+#ifdef TCE_OPENACC
+!$acc enter data create(f_singles(1:size), f_doubles(1:size))
+#endif
+
 #if USE_OPENMP
 #if USE_OFFLOAD
       if (offload_enabled()) then
@@ -255,6 +259,9 @@ c
       if (.not.MA_POP_STACK(l_list))
      1     call errquit('ordering',3,MA_ERR)
 #ifdef USE_F90_ALLOCATABLE
+#ifdef TCE_OPENACC
+!$acc exit data delete(f_singles(1:size), f_doubles(1:size))
+#endif
 #if USE_OPENMP
 #if USE_OFFLOAD
       if (offload_enabled()) then
@@ -399,6 +406,10 @@ c
       size = range_p4 * range_p5 * range_p6
      &     * range_h1 * range_h2 * range_h3
 c zeroing ---
+#ifdef TCE_OPENACC
+      call acc_zero(a_singles, size)
+      call acc_zero(a_doubles, size)
+#endif
 #if USE_OPENMP
 #if USE_OFFLOAD
       if (offload_enabled()) then

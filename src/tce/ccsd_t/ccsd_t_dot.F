@@ -89,6 +89,14 @@ c
 !$omp& reduction(+:energy1) reduction(+:energy2)
 #endif
 #endif
+#ifdef TCE_OPENACC
+c vector_length(32) gang vector collapse(3)
+!$acc  parallel loop collapse(3)
+!$acc& private(p4,p5,p6,h1,h2,h3,sing,doub,denom)
+!$acc& private(d_p4,d_p5,d_p6,d_h1,d_h2,d_h3)
+!$acc& reduction(+:energy1) reduction(+:energy2)
+
+#endif
       do p4 = 1, r_p4
        do p5 = 1, r_p5
         do p6 = 1, r_p6
@@ -120,6 +128,9 @@ c
 #ifdef USE_OPENMP
 !$omp end parallel do
 #endif
+#endif
+#ifdef TCE_OPENACC
+!$acc end parallel loop
 #endif
       return
       end
