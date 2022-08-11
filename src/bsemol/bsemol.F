@@ -55,6 +55,8 @@ c
         
         if (params%davidson) then
           call bse_davidson(params)
+        elseif (params%lanczos) then
+          call bse_lanczos(params)
         else
           call bse_analytic(params)
         endif
