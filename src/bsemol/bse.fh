@@ -1,0 +1,35 @@
+
+      double precision, parameter :: ha2ev = 27.211386245988d0
+
+      type :: bse_params_t
+        sequence
+        integer          :: rtdb
+        integer          :: me, nprocs, iMaxThreads
+        integer          :: ipol
+	logical          :: main, odft
+c
+        integer          :: natoms
+        integer          :: nmo
+	integer          :: nocc(2),nvir(2),npoles(2)
+        integer          :: noqp(2),nvqp(2),nstates(2),mynpoles(2)
+	integer          :: oolo(2),oohi(2)
+	integer          :: ovlo(2),ovhi(2)
+	integer          :: vvlo(2),vvhi(2)
+	integer          :: llmo(2),nqp(2)
+	integer          :: ngl
+        double precision :: tol2e, eta
+c
+        integer          :: l_evals, k_evals
+        integer          :: l_occ, k_occ
+c
+        integer          :: fd
+c
+        integer          :: g_movecs(2), g_moeris, g_sols
+	integer          :: g_erioo(2), g_eriov(2), g_erivv(2), g_erim
+        logical          :: noio
+c
+        logical          :: ncap, davidson, lanczos
+        double precision :: thresh, fdstep, vxddp(2), vxddm(2)
+
+      end type bse_params_t
+
