@@ -1,12 +1,13 @@
 OBJ = bsemol.o bse_input.o bse_init.o bse_analytic.o \
-      bse_davidson.o bse_lanczos.o bse_defaults.o
+      bse_davidson.o bse_lanczos.o bse_defaults.o \
+      bse_finalize.o
 
 USES_BLAS =
 OBJ_OPTIMIZE =
 
 LIBRARY = libbsemol.a
 
-HEADERS = ../nwdft/include/cdft.fh ../nwdft/grid/cgridfile.fh 
+HEADERS = ../nwdft/include/cdft.fh ../nwdft/grid/cgridfile.fh ../nwdft/include/dft_scaleig.fh
 
 LIB_DEFINES =
 LIB_INCLUDES = -I./

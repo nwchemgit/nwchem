@@ -19,7 +19,8 @@ c
 	integer          :: ngl
         double precision :: tol2e, eta
 c
-        integer          :: l_evals, k_evals
+        integer          :: l_mf_evals, k_mf_evals
+        integer          :: l_gw_evals, k_gw_evals
         integer          :: l_occ, k_occ
 c
         integer          :: fd
@@ -28,7 +29,7 @@ c
 	integer          :: g_erioo(2), g_eriov(2), g_erivv(2), g_erim
         logical          :: noio
 c
-        logical          :: ncap, davidson, lanczos
+        logical          :: ncap, davidson, lanczos, analytic, tda
         double precision :: thresh, fdstep, vxddp(2), vxddm(2)
 
       end type bse_params_t

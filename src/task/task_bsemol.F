@@ -25,8 +25,6 @@ c
       logical bsemol, task_energy
       external bsemol, task_energy
 c
-c      call ecce_print_module_entry('task gwmol')
-c
 c     Initialization 
 c
       task_bsemol = .false.
@@ -91,7 +89,7 @@ c
       if (.not.status) then
         status = task_energy(rtdb)
         if (.not.rtdb_get(rtdb, 'dft:converged', mt_log, 1, converged))
-     &    call errquit('task_gwmol: failed to read convergence info',0,
+     &    call errquit('task_bsemol: failed to read convergence info',0,
      &                  RTDB_ERR)   
       endif
 
