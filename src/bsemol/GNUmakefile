@@ -1,4 +1,5 @@
-OBJ = bsemol.o bse_input.o
+OBJ = bsemol.o bse_input.o bse_init.o bse_analytic.o \
+      bse_davidson.o bse_lanczos.o bse_defaults.o
 
 USES_BLAS =
 OBJ_OPTIMIZE =
