@@ -323,9 +323,7 @@ ifdef BUILD_MPICH
     MPI_INCLUDE = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
     MPI_LIB     = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH)  $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
     LIBMPI      = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
-    ifeq ($(shell pkg-config --exists hwloc),0)
-       LIBMPI	+=  $(shell pkg-config --libs-only-L hwloc)
-    endif
+    LIBMPI	+= $(shell /usr/local/bin/pkg-config --libs-only-L hwloc 2> /dev/null)
 endif
 
 
