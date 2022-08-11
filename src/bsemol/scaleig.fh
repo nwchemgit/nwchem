@@ -1,0 +1,7 @@
+c Copy of DFT scaleig
+c     
+c     $Id$
+c     
+      character*1 yev
+      integer nb
+      common /dft_scaleigp/ nb, yev	
