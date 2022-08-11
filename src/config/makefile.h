@@ -3847,6 +3847,9 @@ ifeq ($(shell echo $(BLASOPT) |awk '/lessl/ {print "Y"; exit}'),Y)
     EXTRA_LIBS += -lnwclapack
     CORE_SUBDIRS_EXTRA = lapack
 endif
+ifeq ($(shell echo $(BLASOPT) |awk '/lblas/ {print "Y"; exit}'),Y)
+    DEFINES += -DBLAS_NOTHREADS
+endif
 
 ifndef BLAS_SIZE
     LIB_DEFINES += -DUSE_INTEGER8
