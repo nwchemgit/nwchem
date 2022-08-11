@@ -11,6 +11,7 @@ fi
 
 if [ ! -z "${BUILD_MPICH}" ] ; then
     echo "BUILD_MPICH is set. using mpicc from BUILD_MPICH"
+    export PATH=${NWCHEM_TOP}/src/libext/bin:$PATH
 fi
 if [ ! -z "${MPICC}" ] ; then
     echo "Found MPICC=${MPICC} in your environment.  Using that."
