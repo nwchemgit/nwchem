@@ -2,8 +2,208 @@
 
       implicit none
 
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "cdft.fh"
+#include "bas.fh"
+#include "case.fh"
+#include "geom.fh"
+#include "global.fh"
 #include "bse.fh"
+#include "util.fh"
+#include "stdio.fh"
+#include "rtdb.fh"
+
+#ifdef SCALAPACK
+#include "scaleig.fh"
+#endif
 
       type(bse_params_t) :: pars
+      character(*), parameter :: pname = 'bse_init: '
 
+      character(len=255) :: basisname, scftype
+      integer i, ilo, ihi, j
+      integer nbf_temp, ipol_temp, nocc, nvir, nmo_temp(2)
+      logical ldum
+
+      logical int_normalize, int_norm_2c
+      external int_normalize, int_norm_2c
+c
+      logical movecs_read, movecs_read_header, atom_tag_check
+      external movecs_read, movecs_read_header, atom_tag_check
+c
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
+
+      integer resultlen,tid,cpu,ierr,iproc,itid
+      character(len=80) names
+      double precision t0, ehomo, vxddp, vxddm, aq2, zeta
+
+#ifdef USE_OPENMP
+      integer,external :: omp_get_max_threads, omp_get_thread_num
+      integer,external :: omp_get_num_threads
+#endif      
+
+
+      ! Initialize GA variables
+      pars%me = ga_nodeid()
+      pars%nprocs = ga_nnodes()
+
+      ! Initialize OMP variables
+#ifdef USE_OPENMP
+      pars%iMaxThreads = omp_get_max_threads()
+#else
+      pars%iMaxThreads = 1
+#endif
+
+      ! Get defaults in case input block is not present
+      if (.not.rtdb_get(pars%rtdb,'bse:init',mt_log,1,ldum))
+     &  call bse_defaults(pars%rtdb)
+
+      ! Check method to solve BSE
+      if (.not.rtdb_get(pars%rtdb,'bse:analytic',mt_log,1,
+     &                  pars%analytic))
+     &  call errquit(pname//'could not read from rtdb',1,RTDB_ERR)
+      if (.not.rtdb_get(pars%rtdb,'bse:davidson',mt_log,1,
+     &                  pars%davidson))
+     &  call errquit(pname//'could not read from rtdb',2,RTDB_ERR)
+      if (.not.rtdb_get(pars%rtdb,'bse:lanczos',mt_log,1,
+     &                  pars%lanczos))
+     &  call errquit(pname//'could not read from rtdb',3,RTDB_ERR)
+
+      if ((pars%analytic.and.(pars%davidson.or.pars%lanczos)) .or.
+     &    (pars%davidson.and.(pars%analytic.or.pars%lanczos)) .or.
+     &    (pars%lanczos.and.(pars%analytic.or.pars%davidson)))
+     &  call errquit(pname//'more than one method',4,INPUT_ERR)
+
+      ! Check if we are doing Tamm-Dancoff approximation
+      if (.not.rtdb_get(pars%rtdb,'bse:tda',mt_log,1,pars%tda))
+     &  call errquit(pname//'could not read from rtdb',5,RTDB_ERR)
+
+      ! Get some info from DFT module
+      call dft_rdinput(pars%rtdb)
+      if (cdfit) then
+        if (.not.bas_destroy(cd_bas_han))      
+     $    call errquit(pname//'failed to destroy cd_bas',0,BASIS_ERR)
+      endif
+      if (.not.rtdb_get(pars%rtdb, 'dft:itol2e',mt_int,1,itol2e))
+     $  call errquit(pname//'failed to read itol2e',0,RTDB_ERR)
+      pars%tol2e = 10.0d0**(-itol2e-2)
+
+      ! Fitting basis
+      if (.not.bas_create(cd_bas_han,'ri basis'))
+     $  call errquit(pname//'bas_create failed',0,BASIS_ERR)
+      if (.not.bas_rtdb_load(pars%rtdb,geom,cd_bas_han,'ri basis'))then
+        if (.not.bas_rtdb_load(pars%rtdb,geom,cd_bas_han,'cd basis'))
+     $  call errquit(pname//'a "cd basis" or "ri basis" is needed',0,
+     $  BASIS_ERR)
+      endif
+      call int_init(pars%rtdb, 1, cd_bas_han)
+      if (.not.int_norm_2c(pars%rtdb, cd_bas_han))
+     $  call errquit(pname//'int_norm_2c failed',0,INT_ERR)
+      call int_terminate()
+      if (.not. bas_numbf(cd_bas_han, nbf_cd))
+     $  call errquit(pname//'basis set error',0,BASIS_ERR)
+      if (.not. bas_nprim_cn_max(cd_bas_han,nbf_cd_mxprim))
+     $  call errquit(pname//'basis set error:', 86, BASIS_ERR)
+      if (.not. bas_high_angular(cd_bas_han,nbf_cd_mxang))
+     $  call errquit(pname//'basis set error:', 86, BASIS_ERR)
+      if (.not. bas_ncontr_cn_max(cd_bas_han,nbf_cd_mxcont))
+     $  call errquit(pname//'basis set error:', 86, BASIS_ERR)
+      if (.not. bas_nbf_cn_max(cd_bas_han,nbf_cd_mxnbf_cn))
+     $  call errquit(pname//'basis set error:', 86, BASIS_ERR)
+      if (.not. bas_nbf_ce_max(cd_bas_han,nbf_cd_mxnbf_ce))
+     $  call errquit(pname//'basis set error:', 86, BASIS_ERR)
+      if (.not. bas_numcont(cd_bas_han,nshells_cd))
+     $  call errquit(pname//'basis set error:', 86, BASIS_ERR)
+      if (bas_is_spherical(ao_bas_han).and.
+     $   (.not.bas_is_spherical(cd_bas_han)))
+     $        call int_app_set_no_texas(pars%rtdb)
+
+      !Spin multiplicity, occupations
+      if (.not.rtdb_get(pars%rtdb,'dft:ipol',mt_int,1,ipol))
+     $  call errquit(pname//'failed to read ipol',0,RTDB_ERR)
+      if (.not.rtdb_get(pars%rtdb, 'dft:noc',mt_int,2,noc))
+     $  call errquit(pname//'failed to read noc',0,RTDB_ERR)
+      if (.not.rtdb_get(pars%rtdb,'dft:mult',mt_int,1,mult))
+     $  call errquit(pname//'failed to read mult',0,RTDB_ERR)
+      pars%ipol = ipol
+
+      ! MO vectors
+      if (.not. rtdb_cget(pars%rtdb, 'dft:output vectors',1,movecs_out))
+     $     call errquit(pname//'no final MO found',0,RTDB_ERR)
+      if (.not.ma_push_get(mt_dbl,nbf_ao*ipol,
+     $    'mf evals', pars%l_mf_evals, pars%k_mf_evals))
+     $  call errquit(pname//'failed to allocate evals',0,MA_ERR)
+      if (.not.ma_push_get(mt_dbl,nbf_ao*ipol,
+     $    'gw evals', pars%l_gw_evals, pars%k_gw_evals))
+     $  call errquit(pname//'failed to allocate evals',0,MA_ERR)
+      if (.not.ma_push_get(mt_dbl,nbf_ao*ipol,'occupancies', pars%l_occ,
+     $  pars%k_occ))
+     $  call errquit(pname//'failed to allocate occ',0,MA_ERR)
+      if (.not.movecs_read_header(movecs_out,title,basisname,
+     $    scftype,nbf_temp,ipol_temp,nmo_temp,2))
+     $    call errquit(pname//'failed to read MO header',0,DISK_ERR)
+      if (nbf_ao.ne.nbf_temp)
+     $  call errquit(pname//'corrupted MO vectors',0,DISK_ERR)
+      if (ipol.ne.ipol_temp)
+     $  call errquit(pname//'corrupted MO vectors',0,DISK_ERR)
+
+      pars%nmo = nmo_temp(1)
+      do i=1,ipol
+        pars%g_movecs(i) = ga_create_atom_blocked(geom,
+     $    ao_bas_han,'MO eigenvectors')
+        if (.not.movecs_read(movecs_out,i,
+     $      dbl_mb(pars%k_occ+(i-1)*nbf_ao),
+     $      dbl_mb(pars%k_mf_evals+(i-1)*nbf_ao),
+     $      pars%g_movecs(i)))
+     $    call errquit(pname//'failed to read MO vectors',0,DISK_ERR)
+
+        nocc = 0
+        nvir = 0
+        do j=1,pars%nmo
+          if (dbl_mb(pars%k_occ+(i-1)*nbf_ao+j-1).gt.0.d0) then
+            nocc = nocc + 1
+            cycle
+          else
+            nvir = nvir + 1
+          endif
+        enddo
+        pars%nocc(i) = nocc
+        pars%nvir(i) = nvir
+        if (nocc+nvir.ne.pars%nmo)
+     $    call errquit(pname//'something went wrong',0,0)
+        pars%npoles(i) = pars%nocc(i)*pars%nvir(i)
+      enddo
+
+      ! Obtain NCAP DD shift
+ 1001 format(2X,A12,F8.3,A3)
+      if (.not.rtdb_get(pars%rtdb,'bse:ncap',mt_log,1,pars%ncap))
+     &  call errquit(pname//'rtdb_get failed',176,RTDB_ERR)
+      if (pars%ncap) then
+        zeta = 0.304121d0
+        aq2 = 2d0/9d0 * (1d0-zeta)**2
+        do i=1,ipol
+          ehomo = dbl_mb(pars%k_mf_evals+(i-1)*nbf_ao+pars%nocc(i)-1)
+          vxddp = -0.5d0*aq2*(1d0 + sqrt(1d0-4d0*ehomo/aq2))
+          vxddm = -0.5d0*aq2*(1d0 - sqrt(1d0-4d0*ehomo/aq2))
+          pars%vxddp(i) = vxddp
+          pars%vxddm(i) = vxddm
+          if (pars%me.eq.0) then
+            write(luout,1001) ' v_x^{DD+}: ',vxddp*ha2ev, ' eV'
+            write(luout,1001) ' v_x^(DD-): ',vxddm*ha2ev, ' eV'
+          endif
+        enddo
+      endif
+
+      !3-center ERIs 
+      call int_init(pars%rtdb, 2, (/ao_bas_han, cd_bas_han/))
+      call print_integrals((/ao_bas_han,cd_bas_han/),.false.)
+      call schwarz_init(geom, ao_bas_han)
+      call scf_get_fock_param(pars%rtdb, pars%tol2e)
+
+      !Clean previous grid
+      call grid_cleanup(.false.)
+
+     
       end subroutine bse_init
