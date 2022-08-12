@@ -20,7 +20,7 @@ jobs:
         include:
           - arch: aarch64
             distro_short: ubuntu
-            distro: ubuntu18.04
+            distro: ubuntu20.04
             ftarget: " TARGET=ARMV8"
             blas: "build_openblas"
             scalapack: "off"
@@ -29,7 +29,7 @@ jobs:
             fc: "gfortran"
           - arch: aarch64
             distro_short: ubuntu
-            distro: ubuntu20.04
+            distro: ubuntu22.04
             ftarget: " TARGET=ARMV8"
             blas: "build_openblas"
             scalapack: "off"
@@ -38,7 +38,7 @@ jobs:
             fc: "nvfortran"
           - arch: ppc64le
             distro_short: ubuntu
-            distro: ubuntu18.04
+            distro: ubuntu20.04
             blas: "build_openblas"
             scalapack: "on"
             ftarget: " TARGET=POWER8"
