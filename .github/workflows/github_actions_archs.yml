@@ -14,7 +14,7 @@ jobs:
     if: |
       github.event_name == 'schedule' ||
       (!contains(github.event.head_commit.message, 'ci skip') && (contains(github.event.head_commit.message, 'do_extra_archs')||github.event_name == 'workflow_dispatch'))
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         include:
@@ -29,7 +29,7 @@ jobs:
             fc: "gfortran"
           - arch: aarch64
             distro_short: ubuntu
-            distro: ubuntu22.04
+            distro: ubuntu20.04
             ftarget: " TARGET=ARMV8"
             blas: "build_openblas"
             scalapack: "off"
@@ -71,7 +71,7 @@ jobs:
         run: |
           cd src
           make USE_INTERNALBLAS=y nwchem_config NWCHEM_MODULES="nwdft driver solvation"
-      - uses: uraimo/run-on-arch-action@v2.0.9
+      - uses: uraimo/run-on-arch-action@v2
         name: Build and Test NWChem
         id: build
         with:
