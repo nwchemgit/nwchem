@@ -104,8 +104,9 @@ c
       double precision ddot
       external ddot
 
-      integer icntoce,lcntoce,lcntobfr,icntobfr,lcetobfr,icetobfr
       integer basis,mxnbf_ce,mbf_xc
+
+      if (odftps) call pstat_on(ps_qv0b)
 
       pname = 'grid_quadv0b: '
       mbf_fde = 0
@@ -123,20 +124,6 @@ c
         basis = xc_bas_han
         mbf_ao = nbf_xc
         mxnbf_ce = nbf_xc_mxnbf_ce
-        if (.not.ma_push_get
-     &     (mt_int,ncenters*2,'cntoce map',lcetobfr,icetobfr))
-     &     call errquit(pname//'push_get failed', 13, MA_ERR)
-        if (.not.ma_push_get
-     &     (mt_int,nshells_xc,'cntoce map',lcntoce,icntoce))
-     &     call errquit(pname//'push_get failed', 13, MA_ERR)
-        if (.not.ma_push_get
-     &     (mt_int,nshells_xc*2,'cntoce map',lcntobfr,icntobfr))
-     &     call errquit(pname//'push_get failed', 13, MA_ERR)
-c     
-        call build_maps(basis, int_mb(icntoce), int_mb(icntobfr), 
-     &                  int_mb(icetobfr), ncenters, nshells_xc)
-        if (.not.ma_chop_stack(lcntoce))
-     &     call errquit(pname//'cannot pop stack',1, MA_ERR)
       else
         basis = ao_bas_han
         mbf_ao = nbf_ao
@@ -146,7 +133,10 @@ c
       npol = (ipol*(ipol+1))/2
       acc_AO_gauss = dble(iAOacc)
       nbf_ao_mxnbf_ce2 = mxnbf_ce*mxnbf_ce
-      if(nqpts.eq.0) return
+      if(nqpts.eq.0) then
+        if (odftps) call pstat_off(ps_qv0b)
+        return
+      endif
 cc AJL/Begin/FDE
       if (kslap.or.do_xdm) then
          maxdbas = 2
@@ -203,7 +193,10 @@ c              ibf_ao(i)=i
 c           enddo
          endif
 cc AJL/End
-         if (mbf_ao.eq.0) return
+         if (mbf_ao.eq.0) then
+           if (odftps) call pstat_off(ps_qv0b)
+           return
+         endif
       else
 c We've only got one atom
       if (.not.bas_numcont(basis, ncontrset))
@@ -336,13 +329,16 @@ c We pre-screen grid points to see if they meet a threshold only if the
 c calculation involves addressing the QM density only. For the FDE and
 c combined systems we cannot screen in this same way as it will results in
 c losing useful grid points
-      if (fde_option.eq.0.or.fde_option.eq.2.or.fde_option.eq.5)
+      if (fde_option.eq.0.or.fde_option.eq.2.or.fde_option.eq.5) then
 c      call grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
-     ,     call grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
+           if (odftps) call pstat_on(ps_fitv)
+           call grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
      ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,
      ,     dbl_mb(ichi_ao),dbl_mb(idelchi_ao),dbl_mb(iheschi_ao),
      M     mbf_ao,grad,kslap,
      ,     ipol,iscratch)
+           if (odftps) call pstat_off(ps_fitv)
+      endif
       if (.not.MA_Push_Get(mt_dbl,mxnbf_ce*nqpts*3,
      &     'Dmat', lDmat,iDmat))
      &     call errquit(pname//'cannot allocate Dmat',0,
@@ -371,7 +367,7 @@ c For combined systems we cannot use this method of removing grid points
      ,       rdens_atom_fde,iniz_fde,
      ,       dbl_mb(ichi_fde),dbl_mb(idelchi_fde),dbl_mb(iheschi_fde),
      ,       mbf_fde,grad,do_xdm,
-     ,       ipol,iscratch)
+     ,       ipol,iscratch,adft)
 
         if (.not.MA_Push_Get(mt_dbl,nbf_fde_mxnbf_ce*nqpts*3,
      &       'Dmat_fde', lDmat_fde,iDmat_fde))
@@ -410,7 +406,7 @@ c AJL/End
      .          nbf_xc, mbf_ao, mxnbf_ce, grad, npol, dbl_mb(ichi_ao),
      .          dbl_mb(idelchi_ao), dbl_mb(iheschi_ao), ibf_ao, iniz,
      .          ifin, rho, delrho, dbl_mb(ilap), rchi_atom,
-     .          rdelchi_atom, int_mb(icetobfr), wmax, kslap, tmat)
+     .          rdelchi_atom, cetobfr, wmax, kslap, tmat)
             endif
          if (odftps) call pstat_off(ps_xcrho)
          if (sic_orb_index.eq.1) then
@@ -689,7 +685,7 @@ c
          call xc_tabcd_adft(tol_rho,amat,cmat,lmat,dbl_mb(ichi_ao),
      $   dbl_mb(idelchi_ao),dbl_mb(iheschi_ao),
      $   nmat,ipol,nqpts,nbf_xc,mxnbf_ce,grad,xc_bas_han,natoms,iniz,
-     $   ifin,ibf_ao,rchi_atom,rdelchi_atom,int_mb(icetobfr),kslap,
+     $   ifin,ibf_ao,rchi_atom,rdelchi_atom,cetobfr,kslap,
      $   tmat(nbf_xc*ipol+1))
          if (odftps) call pstat_off(ps_tabcd)
       elseif(xcfit) then
@@ -880,12 +876,10 @@ c        endif
      &     call errquit(pname//"chop lchi_fde", 1, MA_ERR)
       endif
 
-      if (adft) then
-        if(.not.ma_chop_stack(lcetobfr))
-     $    call errquit(pname//'chop cetobf',1,MA_ERR)
-      endif
 C
 cC AJL/End
+      if (odftps) call pstat_off(ps_qv0b)
+
       return
       end
 c

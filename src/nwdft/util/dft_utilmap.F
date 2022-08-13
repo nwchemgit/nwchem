@@ -309,6 +309,7 @@ C>
 c
       integer q,iat,jf
       double precision sum,mxsum
+      double precision,external :: ddot
 c
       mxsum=0d0
       do iat=1,natoms

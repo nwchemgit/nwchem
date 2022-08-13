@@ -164,6 +164,9 @@ c
       integer fde_option
       integer g_s
 
+      integer nshells_bas,nbf_mxnbf_ce2
+      integer basis
+
 #ifdef SOLARIS
 c     needed for -stackvar option
       save ex, dummy, ec, rho_int, rho_int_fde
@@ -181,6 +184,12 @@ c
       kslap = xc_chklap()
       ksdelrq = xc_chkdelrq()
       l3d = (ga_ndim(g_vxc).eq.3)
+
+      if (adft) then
+        basis = xc_bas_han
+      else
+        basis = ao_bas_han
+      endif
 c
       irdelchi_atom = 0
 c
@@ -403,20 +412,24 @@ c
      &   call errquit(pname//'cannot allocate hesdum',0, MA_ERR)
 c
 c     Assume this numerical density routine can be called from anywhere.
+
 c     -compute mapping vectors
-c 
+c
+      nshells_bas = nshells_ao
+      if (adft) nshells_bas = nshells_xc
+
       if (.not.ma_push_get
      &   (mt_int,nctrs*2,'cntoce map',lcetobfr,icetobfr))
      &   call errquit(pname//'push_get failed', 13, MA_ERR)
       if (.not.ma_push_get
-     &   (mt_int,nshells_ao,'cntoce map',lcntoce,icntoce))
+     &   (mt_int,nshells_bas,'cntoce map',lcntoce,icntoce))
      &   call errquit(pname//'push_get failed', 13, MA_ERR)
       if (.not.ma_push_get
-     &   (mt_int,nshells_ao*2,'cntoce map',lcntobfr,icntobfr))
+     &   (mt_int,nshells_bas*2,'cntoce map',lcntobfr,icntobfr))
      &   call errquit(pname//'push_get failed', 13, MA_ERR)
 c     
-      call build_maps(ao_bas_han, int_mb(icntoce), int_mb(icntobfr), 
-     &                int_mb(icetobfr), nctrs, nshells_ao)
+      call build_maps(basis, int_mb(icntoce), int_mb(icntobfr), 
+     &                int_mb(icetobfr), nctrs, nshells_bas)
       if (.not.ma_chop_stack(lcntoce))
      &   call errquit(pname//'cannot pop stack',1, MA_ERR)
 c
@@ -425,6 +438,7 @@ c
       if (.not.MA_Push_Get(MT_Dbl,ipol*nctrs*nctrs,'rdens_atom',
      &   lrdens_atom,irdens_atom))
      &   call errquit(pname//'cannot allocate rdens_atom',0, MA_ERR)
+c      
       nscr = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce*(nmat+1)
       if (.not.MA_Push_Get(MT_Dbl,nscr,'scr',lscr,iscr))
      &   call errquit(pname//'cannot allocate scr',0, MA_ERR)
@@ -444,7 +458,10 @@ c doesn't depend on having 3-dimensional GAs.
      &              dbl_mb(iscr), nbf_ao_mxnbf_ce,.false.)
             enddo
          enddo
-      else
+      elseif (adft) then
+        call adft_reduce(nbf_xc, nctrs, int_mb(icetobfr), tmat, ipol,
+     &                   dbl_mb(irdens_atom), nbf_xc_mxnbf_ce)
+      else   
       call util_ga_mat_reduce(nbf_ao, nctrs, int_mb(icetobfr), g_dens, 
      &                        ipol, dbl_mb(irdens_atom), 'absmax', 
      &                        dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
@@ -452,6 +469,7 @@ c doesn't depend on having 3-dimensional GAs.
 c
       if (.not.ma_pop_stack(lscr))
      &     call errquit(pname//'cannot pop stack',0, MA_ERR)
+
 c
 c
 cc AJL/BEGIN/FDE
@@ -728,6 +746,7 @@ c
           max_elem_ang_scr = max(max_elem_ang_scr, max_component*28)
         endif
       endif
+
       nscr = 3*n_per_rec*nbf_ao_mxcont + 
      &     max(3*n_per_rec*nbf_ao_mxprim,
      &     n_per_rec*max_elem_ang_scr) + 1
@@ -1019,4 +1038,27 @@ c
      &   1x,'Requested integration accuracy: ',e10.2)
 c
       return
+      end
+
+      subroutine adft_reduce(nbf, nat, cetobfr, coef, ipol, rdens_atom)
+      implicit none
+      integer nbf, nat, ipol, mxnbf
+      integer cetobfr(2,nat)
+      double precision rdens_atom(nat,nat,ipol),coef(nbf,ipol)
+      double precision dabsmax
+      external dabsmax
+
+      integer iat,istart,iend
+
+      rdens_atom(:,:,:) = 0d0
+
+      do iat=1,nat
+        istart = cetobfr(1,iat)
+        iend   = cetobfr(2,iat)
+        rdens_atom(1,iat,1) = dabsmax(iend-istart+1,coef(istart,1))
+        if (ipol.gt.1) then
+          rdens_atom(1,iat,2) = dabsmax(iend-istart+1,coef(istart,2))
+        endif
+      enddo
+
       end

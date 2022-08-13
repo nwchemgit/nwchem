@@ -133,7 +133,7 @@ c
           nbfia = ilast - ifirst + 1
           FUNC_MAXI = rchi_atom(iat)
           if(GRAD) FUNC_MAXI = max(FUNC_MAXI,rdelchi_atom(iat))
-          doitt=(AC_MAX*FUNC_MAXI*nbfia).ge.tol_rho
+          doitt=(AC_MAX*FUNC_MAXI).ge.tol_rho
           call endtimer(monitor_screen2)
 
           if (.not.doitt) goto 430

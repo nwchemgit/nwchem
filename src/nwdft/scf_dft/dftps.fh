@@ -8,7 +8,7 @@ c
      ,     ps_tabcd,ps_ebf,ps_excf,ps_bdgemm,ps_xmrge,
      ,     ps_xcopy,ps_inv,ps_2cer,ps_qv0b,ps_f2e,
      ,	   ps_chol,ps_getvxc,
-     ,     ps_cpkscoef
+     ,     ps_cpkscoef,ps_fitv
 
       logical odftps            ! True if gathering stats
       common /cdftps/ odftps,
@@ -18,6 +18,6 @@ c
      ,     ps_tabcd,ps_ebf,ps_excf,ps_bdgemm,ps_xmrge,
      ,     ps_xcopy,ps_inv,ps_2cer,ps_qv0b,ps_f2e,
      ,	   ps_chol,ps_getvxc,
-     ,     ps_cpkscoef
+     ,     ps_cpkscoef,ps_fitv
 
 c

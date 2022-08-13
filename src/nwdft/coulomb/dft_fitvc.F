@@ -59,6 +59,7 @@ c
       integer nbf_at_c,nbf_at_d
       integer k_p,l_p,icount_d,icount_c, n_batch_done
       integer k_at,l_at,atom_c_in,atom_d_in
+      integer nbffac
       logical v_nonzero
       external nxtask
       double precision ddot
@@ -236,7 +237,7 @@ c
      &                             call errquit('fitvc',0,BASIS_ERR)
                               nshbf_cd=ilastp-ifirstp+1
                               Vcoul_est=dbl_mb(icd_shell+ishp-1)*ERI_est
-                              if( Vcoul_est.gt.THRESHOLD )then
+                              if( Vcoul_est*nshbf_cd.gt.THRESHOLD )then
                                  Ninteg_api=maxg
 c                  
 c     Compute 3-ctr ERIs between a given pair of AO shells and a CD shell.
