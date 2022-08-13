@@ -1,9 +1,10 @@
 OBJ = bsemol.o bse_input.o bse_init.o bse_analytic.o \
       bse_davidson.o bse_lanczos.o bse_defaults.o \
-      bse_finalize.o
+      bse_finalize.o bse_ri_init.o bse_wmn.o bse_casida.o
 
-USES_BLAS =
-OBJ_OPTIMIZE =
+USES_BLAS = bse_buildw.F bse_ri_init.F bse_wmn.F
+
+OBJ_OPTIMIZE = bse_buildw.o
 
 LIBRARY = libbsemol.a
 

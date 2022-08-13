@@ -12,6 +12,7 @@ c
       type(gw_params_t) :: pars
 c
       character(len=13), parameter :: pname = 'gw_analytic: '
+      character*255 gwevals
 c
       integer,dimension(2) :: nocc,nvir,npoles,nstates,mynpoles
 
@@ -45,6 +46,8 @@ c
       integer maxpoles,maxnpoles,isp,lSize
 
       logical ok
+
+      integer,parameter :: unitno = 66
 c
 c     -----------------------------------------------------------------
 c
@@ -185,15 +188,16 @@ c
       endif
 
 c
-      if (pars%evgw0.or.pars%evgw) then
-        call gw_scissor(dbl_mb(k_Enew),dbl_mb(k_Eold),pars%nmo,
+      call gw_scissor(dbl_mb(k_Enew),dbl_mb(k_Eold),pars%nmo,
      $                  pars%nocc,pars%nvir,pars%noqp,pars%nvqp,
      $                  pars%ipol,pars%me)
 
-        call ga_brdcst(1038,dbl_mb(k_enew),
-     $       ma_sizeof(mt_dbl,nmo,mt_byte),0)
-        call ga_brdcst(1038,dbl_mb(k_sigma),
-     $       ma_sizeof(mt_dbl,nmo,mt_byte),0)
+      call ga_brdcst(1038,dbl_mb(k_enew),
+     $     ma_sizeof(mt_dbl,nmo,mt_byte),0)
+      call ga_brdcst(1038,dbl_mb(k_sigma),
+     $     ma_sizeof(mt_dbl,nmo,mt_byte),0)
+
+      if (pars%evgw0.or.pars%evgw) then
 
         !
         ! Update Fermi energy
@@ -213,6 +217,18 @@ c
           if (pars%evgw)  goto 100
         endif  
       endif
+
+      !
+      !  Save eigenvalues
+      !
+      call gw_shift(dbl_mb(k_enew),dbl_mb(k_eold),-efermi,nmo,nmo,ipol)
+      call util_file_name('gwevals',.false.,.false.,gwevals)
+      call util_file_name_resolve(gwevals,.false.)
+      open(unit=unitno,status='unknown',form='unformatted',file=gwevals)
+      do i=1,ipol
+        call swrite(unitno, dbl_mb(k_eold+(i-1)*nmo),nmo)
+      enddo
+      close(unit=unitno)
 
  9050 format(10x,I3,6x,F8.3,6x,F6.3,6x,F8.3)
 c
