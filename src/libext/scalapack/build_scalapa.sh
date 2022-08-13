@@ -104,24 +104,27 @@ VERSION=2.1.0
 #COMMIT=ea5d20668a6b8bbee645b7ffe44623c623969d33
 COMMIT=5bad7487f496c811192334640ce4d3fc5f88144b
 rm -rf scalapack 
-if [[ -f "scalapack-$COMMIT.zip" ]]; then
-    echo "using existing"  "scalapack-$COMMIT.zip"
+if [[ -f "scalapack-$COMMIT.tar.gz" ]]; then
+    echo "using existing"  "scalapack-$COMMIT.tar.gz"
 else
-    echo "downloading"  "scalapack-$COMMIT.zip"
-    rm -f scalapack-$COMMIT.zip
-    curl -L https://github.com/Reference-ScaLAPACK/scalapack/archive/$COMMIT.zip -o scalapack-$COMMIT.zip
+    echo "downloading"  "scalapack-$COMMIT.tar.gz"
+    rm -f scalapack-$COMMIT.tar.gz
+    curl -L https://github.com/Reference-ScaLAPACK/scalapack/archive/$COMMIT.tar.gz -o scalapack-$COMMIT.tar.gz
 fi
-unzip -n -q scalapack-$COMMIT.zip
+tar xzf scalapack-$COMMIT.tar.gz
 ln -sf scalapack-$COMMIT scalapack
 #ln -sf scalapack-${VERSION} scalapack
 #curl -L http://www.netlib.org/scalapack/scalapack-${VERSION}.tgz -o scalapack.tgz
 #tar xzf scalapack.tgz
 cd scalapack
 # macos accelerate does not contain dcombossq
-if [[ $(echo "$BLASOPT" |awk '/Accelerate/ {print "Y"; exit}' ) == "Y" ]]; then
+if [[ $(echo "$LAPACK_LIB" |awk '/Accelerate/ {print "Y"; exit}' ) == "Y" ]]; then
     export USE_DCOMBSSQ=1
 fi
-if [[ $(echo ""$BLASOPT |awk '/lfjlapack/ {print "Y"; exit}'  ) == "Y" ]]; then
+if [[ $(echo "$LAPACK_LIB" |awk '/lapack/ {print "Y"; exit}' ) == "Y" ]]; then
+    export USE_DCOMBSSQ=1
+fi
+if [[ $(echo ""$LAPACK_LIB |awk '/lfjlapack/ {print "Y"; exit}'  ) == "Y" ]]; then
     export USE_DCOMBSSQ=1
 fi
 if [[  -z "$USE_DCOMBSSQ" ]]; then
@@ -263,7 +266,7 @@ if [[ "$?" != "0" ]]; then
     echo " "
     exit 1
 fi
-make V=0 -j4 scalapack/fast
+make V=0 -j3 scalapack/fast
 if [[ "$?" != "0" ]]; then
     echo " "
     echo "compilation failed"
