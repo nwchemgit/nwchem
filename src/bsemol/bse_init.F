@@ -21,7 +21,7 @@
       type(bse_params_t) :: pars
       character(*), parameter :: pname = 'bse_init: '
 
-      character(len=255) :: basisname, scftype
+      character(len=255) :: basisname, scftype, gwevals
       integer i, ilo, ihi, j
       integer nbf_temp, ipol_temp, nocc, nvir, nmo_temp(2)
       logical ldum
@@ -38,6 +38,8 @@ c
       integer resultlen,tid,cpu,ierr,iproc,itid
       character(len=80) names
       double precision t0, ehomo, vxddp, vxddm, aq2, zeta
+
+      integer,parameter :: unitno = 66
 
 #ifdef USE_OPENMP
       integer,external :: omp_get_max_threads, omp_get_thread_num
@@ -119,6 +121,7 @@ c
       if (bas_is_spherical(ao_bas_han).and.
      $   (.not.bas_is_spherical(cd_bas_han)))
      $        call int_app_set_no_texas(pars%rtdb)
+      pars%nri = nbf_cd
 
       !Spin multiplicity, occupations
       if (.not.rtdb_get(pars%rtdb,'dft:ipol',mt_int,1,ipol))
@@ -193,8 +196,32 @@ c
             write(luout,1001) ' v_x^{DD+}: ',vxddp*ha2ev, ' eV'
             write(luout,1001) ' v_x^(DD-): ',vxddm*ha2ev, ' eV'
           endif
+          call dcopy(nbf_ao,dbl_mb(pars%k_mf_evals+(i-1)*nbf_ao),1,
+     &                      dbl_mb(pars%k_gw_evals+(i-1)*nbf_ao),1)
+          dbl_mb(pars%k_gw_evals+(i-1)*nbf_ao:
+     &           pars%k_gw_evals+(i-1)*nbf_ao+pars%nocc(i)-1) =      
+     &     dbl_mb(pars%k_gw_evals+(i-1)*nbf_ao:
+     &           pars%k_gw_evals+(i-1)*nbf_ao+pars%nocc(i)-1) +
+     &           vxddp
+          dbl_mb(pars%k_gw_evals+(i-1)*nbf_ao+pars%nocc(i):
+     &           pars%k_gw_evals+(i-1)*nbf_ao+nbf_ao-1) =      
+     &     dbl_mb(pars%k_gw_evals+(i-1)*nbf_ao+pars%nocc(i):
+     &           pars%k_gw_evals+(i-1)*nbf_ao+nbf_ao-1) +
+     &           vxddm
         enddo
       endif
+
+      ! Read GW QP energies
+      if (.not.pars%ncap) then
+        call util_file_name('gwevals',.false.,.false.,gwevals)
+        call util_file_name_resolve(gwevals,.false.)
+        open(unit=unitno,status='old',form='unformatted',file=gwevals)
+        do i=1,pars%ipol
+          call sread(unitno, dbl_mb(pars%k_gw_evals+(i-1)*nbf_ao),
+     &               pars%nmo)     
+        enddo
+        close(unit=unitno)
+      endif  
 
       !3-center ERIs 
       call int_init(pars%rtdb, 2, (/ao_bas_han, cd_bas_han/))
@@ -205,5 +232,9 @@ c
       !Clean previous grid
       call grid_cleanup(.false.)
 
+      !Print expected memory requirements
+
+      !Compute three-center integrals
+      call bse_ri_init(pars)
      
       end subroutine bse_init
