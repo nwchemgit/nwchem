@@ -15,17 +15,20 @@
       integer isp,ilo,ihi,jlo,jhi,keri,ld
 
       do isp=1,ipol
-        ! copy and transform occ-vir block
-        if(.not.ga_duplicate(pars%g_eriov(isp),pars%g_wov(isp),'Wov'))
-     &    call errquit(pname//'could not duplicate ERI OV',0,GA_ERR)
-        call ga_copy(pars%g_eriov(isp),pars%g_wov(isp))
-        if(pars%mynpoles(isp).eq.0) cycle
-        call ga_access(pars%g_wov(isp),1,nri,pars%ovlo(isp),
-     &                 pars%ovhi(isp),keri,ld)
-        call dtfsm('n','l','l','n','n',nri,pars%mynpoles(isp),1d0,
-     &              w,dbl_mb(keri),nri)
-        call ga_release_update(pars%g_wov(isp),1,nri,pars%ovlo(isp),
-     &                         pars%ovhi(isp))    
+
+        if (.not.pars%tda) then
+          ! copy and transform occ-vir block
+          if(.not.ga_duplicate(pars%g_eriov(isp),pars%g_wov(isp),'Wov'))
+     &      call errquit(pname//'could not duplicate ERI OV',0,GA_ERR)
+          call ga_copy(pars%g_eriov(isp),pars%g_wov(isp))
+          if(pars%mynpoles(isp).eq.0) cycle
+          call ga_access(pars%g_wov(isp),1,nri,pars%ovlo(isp),
+     &                   pars%ovhi(isp),keri,ld)
+          call dtfsm('n','l','l','n','n',nri,pars%mynpoles(isp),1d0,
+     &                w,dbl_mb(keri),nri)
+          call ga_release_update(pars%g_wov(isp),1,nri,pars%ovlo(isp),
+     &                           pars%ovhi(isp))    
+        endif
 
         ! transform occ-occ and vir-vir blocks in place
         call ga_distribution(pars%g_erioo(isp),pars%me,ilo,ihi,jlo,jhi)
