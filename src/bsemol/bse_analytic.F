@@ -59,12 +59,16 @@
       enddo 
 
       ! Build and diagonalize Casida-like matrix
-      call bse_casida(pars,dbl_mb(k_dia),dbl_mb(k_omega),maxpoles,
-     &                totnpoles)
+      if (pars%tda) then
+        call bse_analytic_tda(pars,dbl_mb(k_dia),dbl_mb(k_omega),
+     &                        maxpoles,totnpoles,pars%singlet)
+      else
+        call bse_analytic_cis(pars,dbl_mb(k_dia),dbl_mb(k_omega),
+     &                        maxpoles,totnpoles,pars%singlet)
+      endif
 
       ! Compute oscillator strengths
-
-      ! Print output
+      call bse_oscstr(pars,dbl_mb(k_omega),totnpoles)
 
       ! Destroy GAs
       if (.not.ga_destroy(pars%g_apb))

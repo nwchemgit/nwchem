@@ -18,12 +18,13 @@ c
       character*255 test
       character(*), parameter :: pname = "bse_input: "
 c
-      integer, parameter :: num_dirs = 4
+      integer, parameter :: num_dirs = 8
       character*11 dirs(num_dirs)
-      data dirs / 'method', 'tda', 'ncap', 'end' /
+      data dirs / 'method', 'tda', 'ncap', 'singlet', 'triplet', 
+     &            'outwin', 'nroots', 'end' /
 c
-      integer ind, qpiter,eviter,noqp(2),nvqp(2), ngl, first
-      double precision threshold, eta
+      integer ind, itemp
+      double precision threshold, eta, temp
       double precision, parameter :: ha2ev = 27.211386245988d0
 c
 c     Set default values and put them in RTDB
@@ -44,7 +45,7 @@ c
         call errquit(pname//'unknown directive', 0, INPUT_ERR)
       end if
 c
-      goto (100, 200, 300, 9999) ind
+      goto (100, 200, 300, 400, 500, 600, 700, 9999) ind
 
       call errquit(pname//'unknown directive',ind, INPUT_ERR)
 c
@@ -84,6 +85,45 @@ c
  300  if (.not.rtdb_put(rtdb, 'bse:ncap', mt_log, 1, .true.))
      &  call errquit(pname//'rtdb_put failed', 300, RTDB_ERR)
       goto 10
+c
+c     compute singlet transitions
+c
+ 400  if (.not.rtdb_put(rtdb, 'bse:singlet', mt_log, 1, .true.))
+     &  call errquit(pname//'rtdb_put failed', 300, RTDB_ERR)
+      if (.not.rtdb_put(rtdb, 'bse:triplet', mt_log, 1, .false.))
+     &  call errquit(pname//'rtdb_put failed', 300, RTDB_ERR)
+      goto 10
+c
+c     compute singlet transitions
+c
+ 500  if (.not.rtdb_put(rtdb, 'bse:singlet', mt_log, 1, .false.))
+     &  call errquit(pname//'rtdb_put failed', 300, RTDB_ERR)
+      if (.not.rtdb_put(rtdb, 'bse:triplet', mt_log, 1, .true.))
+     &  call errquit(pname//'rtdb_put failed', 300, RTDB_ERR)
+      goto 10
+c
+c     output energy window
+c
+ 600  if (.not.rtdb_put(rtdb, 'bse:dowindow', mt_log, 1, .true.))
+     &  call errquit(pname//'rtdb_put failed', 600, RTDB_ERR)
+      if(.not.inp_f(temp))
+     &  call errquit(pname//'could not read lower energy',600,INPUT_ERR)
+      if(.not.rtdb_put(rtdb,'bse:elower',mt_dbl,1,temp))
+     &  call errquit(pname//'rtdb_put failed', 600, RTDB_ERR)
+      if(.not.inp_f(temp))
+     &  call errquit(pname//'could not read upper energy',600,INPUT_ERR)
+      if(.not.rtdb_put(rtdb,'bse:eupper',mt_dbl,1,temp))
+     &  call errquit(pname//'rtdb_put failed', 600, RTDB_ERR)
+      goto 10
+c
+c     number of roots
+c
+ 700  if(.not.inp_i(itemp))
+     &  call errquit(pname//'could not read no. of roots',700,INPUT_ERR)
+      if(.not.rtdb_put(rtdb,'bse:eupper',mt_int,1,itemp))
+     &  call errquit(pname//'rtdb_put failed', 700, RTDB_ERR)
+      goto 10
+     
 c
 c     normal termination
 c
