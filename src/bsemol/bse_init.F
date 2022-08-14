@@ -78,8 +78,32 @@ c
      &    (pars%lanczos.and.(pars%analytic.or.pars%davidson)))
      &  call errquit(pname//'more than one method',4,INPUT_ERR)
 
+      ! Check wether we are computing singlet or triplet excitations
+      if(.not.rtdb_get(pars%rtdb,'bse:singlet',mt_log,1,pars%singlet))
+     &  call errquit(pname//'could not read from rtdb',1,RTDB_ERR)
+      if(.not.rtdb_get(pars%rtdb,'bse:triplet',mt_log,1,pars%triplet))
+     &  call errquit(pname//'could not read from rtdb',1,RTDB_ERR)
+      if((pars%singlet .and. pars%triplet).and.(pars%analytic)) then
+        call errquit(pname//'select either triplet or singlet',0,
+     &               INPUT_ERR)
+      endif   
+
       ! Check if we are doing Tamm-Dancoff approximation
-      if (.not.rtdb_get(pars%rtdb,'bse:tda',mt_log,1,pars%tda))
+      if(.not.rtdb_get(pars%rtdb,'bse:tda',mt_log,1,pars%tda))
+     &  call errquit(pname//'could not read from rtdb',5,RTDB_ERR)
+
+      ! Check if Output is restricted to an energy window
+      if(.not.rtdb_get(pars%rtdb,'bse:dowindow',mt_log,1,pars%dowindow))
+     &  call errquit(pname//'could not read from rtdb',5,RTDB_ERR)
+      if(pars%dowindow) then
+        if(.not.rtdb_get(pars%rtdb,'bse:elower',mt_dbl,1,pars%elower))
+     &    call errquit(pname//'could not read from rtdb',5,RTDB_ERR)
+        if(.not.rtdb_get(pars%rtdb,'bse:eupper',mt_dbl,1,pars%eupper))
+     &    call errquit(pname//'could not read from rtdb',5,RTDB_ERR)
+      endif
+
+      ! Number of roots
+      if(.not.rtdb_get(pars%rtdb,'bse:nroots',mt_int,1,pars%nroots))
      &  call errquit(pname//'could not read from rtdb',5,RTDB_ERR)
 
       ! Get some info from DFT module
@@ -188,13 +212,14 @@ c
         aq2 = 2d0/9d0 * (1d0-zeta)**2
         do i=1,ipol
           ehomo = dbl_mb(pars%k_mf_evals+(i-1)*nbf_ao+pars%nocc(i)-1)
-          vxddp = -0.5d0*aq2*(1d0 + sqrt(1d0-4d0*ehomo/aq2))
-          vxddm = -0.5d0*aq2*(1d0 - sqrt(1d0-4d0*ehomo/aq2))
+          vxddp = -0.5d0*aq2*(1d0 + sqrt(1d0-4d0*ehomo/aq2))*0.8d0
+          vxddm = -0.5d0*aq2*(1d0 - sqrt(1d0-4d0*ehomo/aq2))*0.8d0
           pars%vxddp(i) = vxddp
           pars%vxddm(i) = vxddm
           if (pars%me.eq.0) then
-            write(luout,1001) ' v_x^{DD+}: ',vxddp*ha2ev, ' eV'
-            write(luout,1001) ' v_x^(DD-): ',vxddm*ha2ev, ' eV'
+            write(luout,*)    ' Shifting eigvals by 80% NCAP DD'
+            write(luout,1001) ' v_x^{DD-}: ',vxddp*ha2ev, ' eV'
+            write(luout,1001) ' v_x^(DD+): ',vxddm*ha2ev, ' eV'
           endif
           call dcopy(nbf_ao,dbl_mb(pars%k_mf_evals+(i-1)*nbf_ao),1,
      &                      dbl_mb(pars%k_gw_evals+(i-1)*nbf_ao),1)
@@ -228,6 +253,9 @@ c
       call print_integrals((/ao_bas_han,cd_bas_han/),.false.)
       call schwarz_init(geom, ao_bas_han)
       call scf_get_fock_param(pars%rtdb, pars%tol2e)
+
+      ! Get dipole in CIS basis
+      call bse_dipole(pars)
 
       !Clean previous grid
       call grid_cleanup(.false.)

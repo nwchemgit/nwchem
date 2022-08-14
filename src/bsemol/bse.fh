@@ -10,13 +10,12 @@
 c
         integer          :: natoms
         integer          :: nmo, nri
-	integer          :: nocc(2),nvir(2),npoles(2)
-        integer          :: noqp(2),nvqp(2),nstates(2),mynpoles(2)
+	integer          :: nocc(2),nvir(2),npoles(2),mynpoles(2)
 	integer          :: oolo(2),oohi(2)
 	integer          :: ovlo(2),ovhi(2)
 	integer          :: vvlo(2),vvhi(2)
 	integer          :: llmo(2),nqp(2)
-	integer          :: ngl
+	integer          :: nroots
         double precision :: tol2e, eta
 c
         integer          :: l_mf_evals, k_mf_evals
@@ -27,11 +26,13 @@ c
 c
         integer          :: g_movecs(2), g_moeris, g_sols
 	integer          :: g_erioo(2), g_eriov(2), g_erivv(2), g_erim
-        integer          :: g_wov(2), g_apb
+        integer          :: g_wov(2), g_apb, g_dipa(3), g_dipb(3)
         logical          :: noio
 c
         logical          :: ncap, davidson, lanczos, analytic, tda
+        logical          :: singlet, triplet, dowindow
         double precision :: thresh, fdstep, vxddp(2), vxddm(2)
+        double precision :: elower, eupper
 
       end type bse_params_t
 

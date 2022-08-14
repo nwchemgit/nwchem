@@ -1,6 +1,8 @@
 OBJ = bsemol.o bse_input.o bse_init.o bse_analytic.o \
       bse_davidson.o bse_lanczos.o bse_defaults.o \
-      bse_finalize.o bse_ri_init.o bse_wmn.o bse_casida.o
+      bse_finalize.o bse_ri_init.o bse_wmn.o \
+      bse_analytic_cis.o bse_analytic_tda.o \
+      bse_dipole.o bse_oscstr.o
 
 USES_BLAS = bse_buildw.F bse_ri_init.F bse_wmn.F
 
