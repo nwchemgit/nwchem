@@ -218,13 +218,22 @@ c        including the ADFT flavor
          if(xcfit) then
 c     
 c     symmetrize the "T" vector
-c     
+c    
             if (oskel)then
-               call sym_vec_symmetrize(
-     .              geom,xc_bas_han,Dbl_MB(iTmat))
-               if (ipol.gt.1)then
-                  call sym_vec_symmetrize(geom, xc_bas_han, 
-     &                    Dbl_MB(iTmat+nbf_xc))
+               if (adft) then
+                 call sym_vec_symmetrize(
+     .                geom,xc_bas_han,Dbl_MB(iTmat+nbf_xc*ipol))
+                 if (ipol.gt.1)then
+                    call sym_vec_symmetrize(geom, xc_bas_han, 
+     &                      Dbl_MB(iTmat+nbf_xc*ipol+nbf_xc))
+                 endif
+               else
+                 call sym_vec_symmetrize(
+     .                geom,xc_bas_han,Dbl_MB(iTmat))
+                 if (ipol.gt.1)then
+                    call sym_vec_symmetrize(geom, xc_bas_han, 
+     &                      Dbl_MB(iTmat+nbf_xc))
+                 endif
                endif
             endif
 

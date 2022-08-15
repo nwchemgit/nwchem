@@ -75,6 +75,9 @@ c
 c      
       me=ga_nodeid()
       nproc  = ga_nnodes()
+      do imat=1,nmat
+        call ga_zero(g_vc(imat))
+      enddo
 c      
 c     Compute the fitted Vcoul.
 c      
