@@ -235,19 +235,19 @@ c
         if (isp.eq.2) addr = k_mo + mopairs(1)*nri_me
 
         ! OO block
-        call gw_puteris(dbl_mb(addr),nmo,nmo,nri,nri_me,
+        call bse_puteris(dbl_mb(addr),nmo,nmo,nri,nri_me,
      $                  rilo,1,pars%nocc(isp),1,pars%nocc(isp),
      $                  pars%g_erioo(isp),'oo',pars%oolo(isp),
      $                  pars%oohi(isp),idum)
 
         ! OV block
-        call gw_puteris(dbl_mb(addr),nmo,nmo,nri,nri_me,
-     $                  rilo,1,pars%nocc(isp),pars%nocc(isp)+1,
-     $                  nmo,pars%g_eriov(isp),'ov',pars%ovlo(isp),
-     $                  pars%ovhi(isp),pars%mynpoles(isp))
+        call bse_puteris(dbl_mb(addr),nmo,nmo,nri,nri_me,
+     $                rilo,pars%nocc(isp)+1,nmo,1,pars%nocc(isp),
+     $                pars%g_eriov(isp),'ov',pars%ovlo(isp),
+     $                pars%ovhi(isp),pars%mynpoles(isp))
 
         ! VV block
-        call gw_puteris(dbl_mb(addr),nmo,nmo,nri,nri_me,
+        call bse_puteris(dbl_mb(addr),nmo,nmo,nri,nri_me,
      $                  rilo,pars%nocc(isp)+1,nmo,
      $                  pars%nocc(isp)+1,nmo,pars%g_erivv(isp),
      $                  'vv',pars%vvlo(isp),pars%vvhi(isp),idum)
