@@ -53,9 +53,10 @@
       ! obtain "GW" eigenvalue difference to build Casida matrix
       do isp=1,pars%ipol
          lSize = (isp-1)*pars%npoles(1)
-         call gw_get_eia(dbl_mb(pars%k_gw_evals+(isp-1)*pars%nmo),
+         call bse_get_eia(dbl_mb(pars%k_gw_evals+(isp-1)*pars%nmo),
      &                   dbl_mb(k_dia+lSize),pars%nocc(isp),
-     &                   pars%nvir(isp))    
+     &                   pars%nvir(isp),pars%ovlo(isp),
+     %                   pars%ovhi(isp))    
       enddo 
 
       ! Build and diagonalize Casida-like matrix

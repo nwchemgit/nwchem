@@ -59,19 +59,9 @@
      &                    pars%g_movecs(isp),1,pars%nvir(isp),1,nbf_ao,
      &                    g_tmp1,1,nbf_ao,1,pars%nocc(isp),
      &                    g_tmp2,1,pars%nvir(isp),1,pars%nocc(isp))
-
-          call ga_access(g_tmp2,ilo,ihi,jlo,jhi,ktmp,ld)
-          do imo=jlo,jhi
-            do amo=ilo,ihi
-              k = amo + (imo-1)*pars%nvir(isp)
-              kproc = mod(k-1,pars%nprocs)
-              klocal = (k-1)/pars%nprocs + 1
-              kglobal = klocal + tovern*kproc + min(kproc,modtn)
-              call nga_put(handle(ixyz),kglobal,kglobal,
-     &                     dbl_mb(ktmp+(imo-1)*(ihi-ilo+1)+amo-ilo),1)
-            enddo
-          enddo
-          call ga_release(g_tmp2,ilo,ihi,jlo,jhi)
+          call nga_copy_patch('n',g_tmp2,(/1,1/),
+     &         (/pars%nvir(isp),pars%nocc(isp)/),handle(ixyz),1,
+     &         pars%npoles(isp))
         enddo
         if ((.not.ga_destroy(g_tmp1)).and.(.not.ga_destroy(g_tmp2)))
      &    call errquit(pname//'could not destroy GAs',0,GA_ERR)   

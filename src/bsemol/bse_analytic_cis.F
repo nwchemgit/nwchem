@@ -25,7 +25,7 @@
       integer ipole,imo,jmo,amo,bmo
       integer k,l,kproc,lproc,klocal,llocal,kglobal,lglobal
       integer g_diag, g_tmp, g_amb, ktmp, ld, info, i, j
-      integer modtn,tovern
+      integer ij,jb,llia,ulia
 
 #ifdef USE_OPENMP
       call util_blas_set_num_threads(pars%iMaxthreads)
@@ -47,51 +47,40 @@
         call ga_distribution(pars%g_apb,pars%me,ilo,ihi,jlo,jhi)
         if (jhi.ge.jlo) call nga_put(g_diag,jlo,jhi,wia,jhi-jlo+1)
 
+        ! Screened Coulomb contribution from B
+        if(.not.ga_create(mt_dbl,nvir2(1),nocc2(1),'tmp',nvir2(1),0,
+     &                    g_tmp))
+     &    call errquit(pname//'could not create temp GA',1,GA_ERR) 
+        call ga_dgemm('t','n',nvir2(1),nocc2(1),pars%nri,-1d0,
+     %                 pars%g_erivv(1),pars%g_erioo(1),0d0,g_tmp)
+        call ga_distribution(g_tmp,pars%me,ilo,ihi,jlo,jhi)
+        call ga_access(g_tmp,ilo,ihi,jlo,jhi,ktmp,ld)
+        ! Need to take care about indexing
+        do ij=jlo,jhi
+          jmo = (ij-1)/pars%nocc(1) + 1
+          imo = ij - (jmo-1)*pars%nocc(1)
+          do bmo = 1,pars%nvir(1)
+            llia = (imo-1)*pars%nvir(1) + 1
+            ulia = imo*pars%nvir(1)
+            jb = (jmo-1)*pars%nvir(1) + bmo
+            call ga_put(pars%g_apb,llia,ulia,jb,jb,
+     &           dbl_mb(ktmp+(ij-jlo)*nvir2(1)+(bmo-1)*pars%nvir(1)),
+     &           pars%nvir(1))
+          enddo
+        enddo
+        call ga_copy(pars%g_apb,g_amb)
+        call ga_release(g_tmp,ilo,ihi,jlo,jhi)
+        if (.not.ga_destroy(g_tmp))
+     &    call errquit(pname//'could not destroy temp GA',1,GA_ERR) 
+
         ! Screened-Coulomb contribution from A
         if(.not.ga_create(mt_dbl,totpoles,totpoles,'tmp',0,totpoles,
      &     g_tmp))
      &    call errquit(pname//'could not create temp GA',1,GA_ERR) 
         call ga_dgemm('t','n',totpoles,totpoles,pars%nri,-1d0,
      &                 pars%g_wov(1),pars%g_wov(1),0d0,g_tmp)
-        call ga_copy(g_tmp,pars%g_apb)
-        call ga_zero(g_amb)
+        call ga_add(1d0,g_tmp,1d0,pars%g_apb,pars%g_apb)
         call ga_add(-1d0,g_tmp,1d0,g_amb,g_amb)
-        if (.not.ga_destroy(g_tmp))
-     &    call errquit(pname//'could not destroy temp GA',1,GA_ERR) 
-
-        ! Screened Coulomb contribution from B
-        if(.not.ga_create(mt_dbl,nocc2(1),nvir2(1),'tmp',nocc2(1),0,
-     &                    g_tmp))
-     &    call errquit(pname//'could not create temp GA',1,GA_ERR) 
-        call ga_dgemm('t','n',nocc2(1),nvir2(1),pars%nri,-1d0,
-     %                 pars%g_erioo(1),pars%g_erivv(1),0d0,g_tmp)
-        call ga_distribution(g_tmp,pars%me,ilo,ihi,jlo,jhi)
-        call ga_access(g_tmp,ilo,ihi,jlo,jhi,ktmp,ld)
-
-        ! Need to take care about some crazy indexing
-        tovern = totpoles/pars%nprocs
-        modtn  = mod(totpoles,pars%nprocs)
-        do i=1,nocc2(1)
-          jmo = (i-1)/pars%nocc(1) + 1
-          imo = i - (jmo-1)*pars%nocc(1)
-          do j=jlo,jhi
-            bmo = (j-1)/pars%nvir(1) + 1
-            amo = j - (bmo-1)*pars%nvir(1)
-            k = amo + (imo-1)*pars%nvir(1)
-            l = bmo + (jmo-1)*pars%nvir(1)
-            kproc = mod(k-1,pars%nprocs)
-            lproc = mod(l-1,pars%nprocs)
-            klocal = (k-1)/pars%nprocs + 1
-            llocal = (l-1)/pars%nprocs + 1
-            kglobal = klocal + kproc*tovern + min(kproc, modtn)
-            lglobal = llocal + lproc*tovern + min(lproc, modtn)
-            call ga_acc(pars%g_apb,kglobal,kglobal,lglobal,lglobal,
-     &                  dbl_mb(ktmp+(j-jlo)*nocc2(1)+i-1),1,1d0)       
-            call ga_acc(g_amb,kglobal,kglobal,lglobal,lglobal,
-     &                  dbl_mb(ktmp+(j-jlo)*nocc2(1)+i-1),1,1d0)       
-          enddo
-        enddo
-        call ga_release(g_tmp,ilo,ihi,jlo,jhi)
         if (.not.ga_destroy(g_tmp))
      &    call errquit(pname//'could not destroy temp GA',1,GA_ERR) 
 
