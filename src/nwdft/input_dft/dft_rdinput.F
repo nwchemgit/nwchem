@@ -959,6 +959,26 @@ c
         endif ! geom_fde is active
 c
       endif
+c
+c     ADFT
+c
+      if (.not.rtdb_get(rtdb,'dft:adft',mt_log,1,adft)) then
+        adft=.false. 
+        if (.not.rtdb_put(rtdb,'dft:adft',mt_log,1,adft))
+     $    call errquit(pname//'rtdb_put failed',966, RTDB_ERR)
+      endif   
+c
+c     Unconstrained (free) CD fitting
+c
+      if (.not.rtdb_get(rtdb,'dft:freecdfit',mt_log,1,freecdfit)) then
+        if (adft) then
+          freecdfit = .true.
+        else
+          freecdfit = .false.
+        endif
+        if (.not.rtdb_put(rtdb,'dft:freecdfit',mt_log,1,freecdfit))
+     $    call errquit(pname//'rtdb_put failed',980, RTDB_ERR)
+      endif   
 C
 C AJL/END
 c
@@ -1092,9 +1112,24 @@ c
          nbf_cd_mxnbf_ce = 0
          nshells_cd = 0
       endif
+
+      if (adft .and. cdfit) then
+        xc_bas_han = cd_bas_han
+        nbf_xc = nbf_cd
+        nbf_xc_mxprim = nbf_cd_mxprim
+        nbf_xc_mxang = nbf_cd_mxang
+        nbf_xc_mxcont = nbf_cd_mxcont
+        nbf_xc_mxnbf_cn = nbf_cd_mxnbf_cn
+        nbf_xc_mxnbf_ce = nbf_cd_mxnbf_ce
+        nshells_xc = nshells_cd
+        xcfit = .true.
+      elseif (adft) then
+        call errquit(pname//'Need a CD BASIS for ADFT',0,INPUT_ERR)
+      endif
 c
 c     Define the contracted Gaussian functions for the XC basis set.
 c
+      if (.not. adft) then
       if (.not. bas_create(XC_bas_han, 'xc basis'))
      &   call errquit('rdinput: bas_create?',124, BASIS_ERR)
       XCFIT=bas_rtdb_load(rtdb, geom, XC_bas_han, 'xc basis')
@@ -1127,6 +1162,7 @@ c
          nbf_xc_mxnbf_cn = 0
          nbf_xc_mxnbf_ce = 0
          nshells_xc = 0
+      endif
       endif
 c
 c     Set the switch to rotate the quadrature points.
@@ -1322,9 +1358,9 @@ c
 c
       dft_nbases=1
       if(CDFIT) dft_nbases=dft_nbases+1
-      if(XCFIT) dft_nbases=dft_nbases+1
+      if(XCFIT .and. .not. ADFT) dft_nbases=dft_nbases+1
 c
-      if(XCFIT.and.CDFIT) then
+      if((XCFIT.and. .not.ADFT).and.CDFIT) then
         bases(1) = AO_bas_han
         bases(2) = CD_bas_han
         bases(3) = XC_bas_han
@@ -1334,6 +1370,9 @@ c
       elseif((.not.CDFIT).and.XCFIT) then
         bases(1) = AO_bas_han
         bases(2) = XC_bas_han
+      elseif(ADFT)then
+        bases(1) = AO_bas_han
+        bases(2) = CD_bas_han
       else
         bases(1) = AO_bas_han
       endif

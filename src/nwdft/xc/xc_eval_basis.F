@@ -534,6 +534,7 @@ c
 c
       double precision cd(2), cf(7)
 c
+      integer nl2
       integer n, l, nl, nl1, i1s, i1, ix, iy, i, nx, nxy, lx, ly, lz,
      &     k, k1(dx:dz), k2(dxx:dzz), k3(dxxx:dzzz), iscr, lscr, nscr
       double precision x, y, z,
@@ -691,48 +692,49 @@ c     set the 0th angular function to 1
 
             nl  = nang_cart(l)
             nl1 = nang_cart(l-1)
+            nl2 = nang_cart_tot(l-2)
             i1s = nang_cart_tot(l-1)
             ix  = nl1
             iy  = nl - 1
             nx  = nang_cart(l-2)
-            nxy = nl1 - nx - 1
-            if(.not.spherical) then
+            nxy = nl1 - nx
+            if(.not.spherical .or. (l.gt.gen_l)) then
 c     Evaluate the remaining cartesian functions
 
-            do n = 1, nq
-               i1 = i1s
-c
-               x = ang(n,Ax)
-               y = ang(n,Ay)
-               z = ang(n,Az)
-c
-               ang(n,i1+ix) = x*ang(n,i1)
-               ang(n,i1+iy) = y*ang(n,i1)
-               ang(n,i1+nl) = z*ang(n,i1)
-c
-               do i = 1, nxy
-                  i1 = i1 - 1
-                  ang(n,i1+ix) = x*ang(n,i1)
-                  ang(n,i1+iy) = y*ang(n,i1)
-               enddo
-c
-               do i = 1, nx
-                  i1 = i1 - 1
-                  ang(n,i1+ix) = x*ang(n,i1)
-               enddo
-            enddo
+              do i=1,nl1
+                ang(:,i1s+i) = ang(:,Ax)*ang(:,nl2+i)
+              enddo
+
+              do i=1,nxy
+                ang(:,i1s+nl1+i) = ang(:,Ay)*ang(:,nl2+nx+i)
+              enddo
+
+              ang(:,i1s+nl1+nxy+1) = ang(:,Az)*ang(:,i1s)
          else
             nl1 = nang_cart_tot(l-1)
             do i=1,((l+1)*(l+2))/2
                call getNxyz(l,i,Nxyz)
-               do n = 1,nq
 
-               x = q(1,n) - ctr(1)
-               y = q(2,n) - ctr(2)
-               z = q(3,n) - ctr(3)
+               if (nxyz(1).gt.1) then
+                 ang(:,nl1+i) = ang(:,Ax)**nxyz(1)
+               elseif(nxyz(1).eq.1) then
+                 ang(:,nl1+i) = ang(:,Ax)
+               else
+                 ang(:,nl1+i) = 1d0
+               endif
 
-               ang(n,nl1+i) = x**nxyz(1)*y**nxyz(2)*z**nxyz(3)
-              enddo
+               if (nxyz(2).gt.1) then
+                 ang(:,nl1+i) = ang(:,nl1+i)*ang(:,Ay)**nxyz(2)
+               elseif(nxyz(2).eq.1) then
+                 ang(:,nl1+i) = ang(:,nl1+i)*ang(:,Ay)
+               endif
+
+               if (nxyz(3).gt.1) then
+                 ang(:,nl1+i) = ang(:,nl1+i)*ang(:,Az)**nxyz(3)
+               elseif(nxyz(3).eq.1) then
+                 ang(:,nl1+i) = ang(:,nl1+i)*ang(:,Az)
+               endif
+
             enddo
          endif
 #ifdef DEBUG

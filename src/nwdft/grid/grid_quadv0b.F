@@ -104,9 +104,12 @@ c
       double precision ddot
       external ddot
 
+      integer basis,mxnbf_ce,mbf_xc
+
+      if (odftps) call pstat_on(ps_qv0b)
+
       pname = 'grid_quadv0b: '
       mbf_fde = 0
-!      npol = 0
       Ex_qm = 0.0d0
       Ex_fde = 0.0d0
       Ex_tot = 0.0d0
@@ -117,10 +120,23 @@ c
       StericEnergy_fde = 0.0d0
       StericEnergy_tot = 0.0d0
 
+      if (adft) then
+        basis = xc_bas_han
+        mbf_ao = nbf_xc
+        mxnbf_ce = nbf_xc_mxnbf_ce
+      else
+        basis = ao_bas_han
+        mbf_ao = nbf_ao
+        mxnbf_ce = nbf_ao_mxnbf_ce
+      endif
+
       npol = (ipol*(ipol+1))/2
       acc_AO_gauss = dble(iAOacc)
-      nbf_ao_mxnbf_ce2 = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
-      if(nqpts.eq.0) return
+      nbf_ao_mxnbf_ce2 = mxnbf_ce*mxnbf_ce
+      if(nqpts.eq.0) then
+        if (odftps) call pstat_off(ps_qv0b)
+        return
+      endif
 cc AJL/Begin/FDE
       if (kslap.or.do_xdm) then
          maxdbas = 2
@@ -148,15 +164,15 @@ c     allocate arrays for exponents and contraction coefficients
 c     within int_eval_gbsets
 c     Evaluate the distances (squared) between each center and the points
 c     
-      if(xcfit) acc_xc_gauss=dble(ixcacc)
-      mbf_ao=nbf_ao
+      if((.not.adft).and.xcfit) acc_xc_gauss=dble(ixcacc)
+
       if(natoms.gt.1) then
          call icopy(mbf_ao, 0,0, ibf_ao, 1)  
 cc AJL/Begin/FDE
 c         if (fde_option.lt.1) then
 c No need to pre-screen basis functions if we are calculating ESP
          if (fde_option.ne.1) then
-           mbf_ao=grid_nbfm(AO_bas_han,  natoms, 
+           mbf_ao=grid_nbfm(basis,  natoms, 
      &            ictr_buf,rad,xyz,qxyz,nqpts,
      &            ibf_ao, docset, iniz, ifin, expo, 
      &            minexp,ldiff,acc_ao_gauss,iatype_pt_chg)
@@ -177,17 +193,21 @@ c              ibf_ao(i)=i
 c           enddo
          endif
 cc AJL/End
-         if (mbf_ao.eq.0) return
+         if (mbf_ao.eq.0) then
+           if (odftps) call pstat_off(ps_qv0b)
+           return
+         endif
       else
 c We've only got one atom
-      if (.not.bas_numcont(AO_bas_han, ncontrset))
+      if (.not.bas_numcont(basis, ncontrset))
      &     call errquit('Exiting in grid_quadv0b',0, BASIS_ERR)
          iniz(1)=1
          ifin(1)=nbf_ao
+         if (adft) ifin(1) = nbf_xc
          do i=1,ncontrset
             docset(i)=.true.
          enddo
-         do i=1,nbf_ao
+         do i=1,ifin(1)
             ibf_ao(i)=i
          enddo
       endif
@@ -263,7 +283,7 @@ cc AJL/End
 
       if (odftps) call pstat_on(ps_ebf)
       call qdist(rchi_atom, rq, qxyz, xyz, nqpts, natoms)
-      call xc_eval_basis(ao_bas_han, maxdbas, dbl_mb(ichi_ao),
+      call xc_eval_basis(basis, maxdbas, dbl_mb(ichi_ao),
      &     dbl_mb(idelchi_ao), dbl_mb(iheschi_ao), 0d0, rq, 
      Q     qxyz, xyz, nqpts, natoms,
      &     iniz, docset, bas_cent_info, bas_cset_info)
@@ -309,18 +329,21 @@ c We pre-screen grid points to see if they meet a threshold only if the
 c calculation involves addressing the QM density only. For the FDE and
 c combined systems we cannot screen in this same way as it will results in
 c losing useful grid points
-      if (fde_option.eq.0.or.fde_option.eq.2.or.fde_option.eq.5)
+      if (fde_option.eq.0.or.fde_option.eq.2.or.fde_option.eq.5) then
 c      call grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
-     ,     call grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
+           if (odftps) call pstat_on(ps_fitv)
+           call grid_pscreen(nqpts,qwght,qxyz,tol_rho,natoms,
      ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,
      ,     dbl_mb(ichi_ao),dbl_mb(idelchi_ao),dbl_mb(iheschi_ao),
      M     mbf_ao,grad,kslap,
-     ,     ipol,iscratch)
-      if (.not.MA_Push_Get(mt_dbl,nbf_ao_mxnbf_ce*nqpts*3,
+     ,     ipol,iscratch,adft)
+           if (odftps) call pstat_off(ps_fitv)
+      endif
+      if (.not.MA_Push_Get(mt_dbl,mxnbf_ce*nqpts*3,
      &     'Dmat', lDmat,iDmat))
      &     call errquit(pname//'cannot allocate Dmat',0,
      &    MA_ERR)
-      if (.not.MA_Push_get(mt_dbl,nbf_ao_mxnbf_ce*nqpts,
+      if (.not.MA_Push_get(mt_dbl,mxnbf_ce*nqpts,
      &    'Gmat',lGmat,iGmat))
      &     call errquit(pname//'cannot allocate Gmat',0,
      &    MA_ERR)
@@ -344,7 +367,7 @@ c For combined systems we cannot use this method of removing grid points
      ,       rdens_atom_fde,iniz_fde,
      ,       dbl_mb(ichi_fde),dbl_mb(idelchi_fde),dbl_mb(iheschi_fde),
      ,       mbf_fde,grad,do_xdm,
-     ,       ipol,iscratch)
+     ,       ipol,iscratch,adft)
 
         if (.not.MA_Push_Get(mt_dbl,nbf_fde_mxnbf_ce*nqpts*3,
      &       'Dmat_fde', lDmat_fde,iDmat_fde))
@@ -365,18 +388,26 @@ c AJL/End
       wmax= dabsmax(nqpts,qwght)
       if(do_scf.or.do_xdm.or.do_nmrks_r) then
          if (odftps) call pstat_on(ps_xcrho)
-            call xc_rhogen(0,
-     T        tol_rho,AO_bas_han,g_dens,nbf_ao_mxnbf_ce, 
-     N        natoms, 1,1,1,
-     I        ipol, nqpts, nbf_ao, mbf_ao, grad, (ipol*(ipol+1))/2,
-     F        Fmat, Pmat, Bmat, dbl_mb(iDmat),
-     &        dbl_mb(ichi_ao), dbl_mb(idelchi_ao), dbl_mb(iheschi_ao),
-     &        ibf_ao, iniz, ifin, rho, delrho, dbl_mb(ilap),
-     &        rchi_atom, rdelchi_atom,
-     &        rdens_atom, cetobfr,wmax, 
-     &        ttau, kske, kslap.or.do_xdm)
-            if(xc_chkdelrq()) call
-     X           xc_delrhodotr(nqpts,ipol,qxyz,rho,delrho,ttau)
+            if (.not.adft) then
+              call xc_rhogen(0,
+     T          tol_rho,AO_bas_han,g_dens,nbf_ao_mxnbf_ce, 
+     N          natoms, 1,1,1,
+     I          ipol, nqpts, nbf_ao, mbf_ao, grad, (ipol*(ipol+1))/2,
+     F          Fmat, Pmat, Bmat, dbl_mb(iDmat),
+     &          dbl_mb(ichi_ao), dbl_mb(idelchi_ao), dbl_mb(iheschi_ao),
+     &          ibf_ao, iniz, ifin, rho, delrho, dbl_mb(ilap),
+     &          rchi_atom, rdelchi_atom,
+     &          rdens_atom, cetobfr,wmax, 
+     &          ttau, kske, kslap.or.do_xdm)
+              if(xc_chkdelrq()) call
+     X             xc_delrhodotr(nqpts,ipol,qxyz,rho,delrho,ttau)
+            else
+              call xc_rhogen_adft(tol_rho, natoms, ipol, nqpts, 
+     .          nbf_xc, mbf_ao, mxnbf_ce, grad, npol, dbl_mb(ichi_ao),
+     .          dbl_mb(idelchi_ao), dbl_mb(iheschi_ao), ibf_ao, iniz,
+     .          ifin, rho, delrho, dbl_mb(ilap), rchi_atom,
+     .          rdelchi_atom, cetobfr, wmax, kslap, tmat)
+            endif
          if (odftps) call pstat_off(ps_xcrho)
          if (sic_orb_index.eq.1) then
             call grid_sicrho(nqpts,mbf_ao,cetobfr,wmax,
@@ -649,7 +680,15 @@ c
      ,     dbl_mb(idelrho_sig),dbl_mb(i_vect1))
       endif
 c
-      if(xcfit) then
+      if(adft) then
+         if (odftps) call pstat_on(ps_tabcd)
+         call xc_tabcd_adft(tol_rho,amat,cmat,lmat,dbl_mb(ichi_ao),
+     $   dbl_mb(idelchi_ao),dbl_mb(iheschi_ao),
+     $   nmat,ipol,nqpts,nbf_xc,mxnbf_ce,grad,xc_bas_han,natoms,iniz,
+     $   ifin,ibf_ao,rchi_atom,rdelchi_atom,cetobfr,kslap,
+     $   tmat(nbf_xc*ipol+1))
+         if (odftps) call pstat_off(ps_tabcd)
+      elseif(xcfit) then
          call grid_xcfit(xc_bas_han,nbf_xc,tmat,grad,
      ,     iniz,ifin,ibf_ao,ccoef,expo,nscr,iscr,hess,
      ,     amat,cmat,rq,rchi_atom,nbf_xc_mxprim, ncoef_max,
@@ -836,8 +875,11 @@ c        endif
         if(.not.MA_chop_stack(lchi_fde))
      &     call errquit(pname//"chop lchi_fde", 1, MA_ERR)
       endif
+
 C
 cC AJL/End
+      if (odftps) call pstat_off(ps_qv0b)
+
       return
       end
 c

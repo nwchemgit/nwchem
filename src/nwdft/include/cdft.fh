@@ -46,7 +46,7 @@ cc AJL/End
      &     XCFIT, CDFIT, store_wght, ldelley, lcfac, nlcfac, lxfac, 
      &     nlxfac, xccomb, levelshift, damp, diis, direct, oskel, 
      &     oadapt, lssw, lkeeps,trunc_neigh, lb94, cs00, bqdontcare,
-     &     ncap, libxcon,
+     &     ncap, libxcon, adft, freecdfit, 
 cc AJL/Begin/FDE
      &     frozemb, frozemb_fde, lcfac_fde, nlcfac_fde, lxfac_fde, 
      &     nlxfac_fde, xccomb_fde
@@ -97,7 +97,7 @@ c
      ,     nlcfac(numfunc),lxfac(numfunc), nlxfac(numfunc), 
      ,     xccomb(numfunc), levelshift, damp, diis, 
      &     direct, oskel, oadapt, lssw, lkeeps,trunc_neigh, 
-     &     lb94, cs00, bqdontcare, ncap, libxcon,
+     &     lb94, cs00, bqdontcare, ncap, libxcon, adft, freecdfit,
 cc AJL/Begin/FDE
      &     frozemb, frozemb_fde, lcfac_fde(numfunc), 
      &     nlcfac_fde(numfunc), lxfac_fde(numfunc), 

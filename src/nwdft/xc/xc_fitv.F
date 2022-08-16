@@ -113,7 +113,11 @@ c     &                     'XCinv', g_xcinv, 'row')
       endif
 c
       if(me.eq.0.and.IOLGC) then
-        call dft_invio('XC',g_xcinv,nbf_xc,'READ',lmiss)
+        if (ADFT) then
+          call dft_invio('CDI',g_xcinv,nbf_xc,'READ',lmiss)
+        else
+          call dft_invio('XC',g_xcinv,nbf_xc,'READ',lmiss)
+        endif
       endif
       call ga_sync
 c
@@ -140,11 +144,21 @@ c
       next=nxtask(-nproc, 1)
 c
       call ga_dgop(Msg_XC_Coef, DBL_MB(ixc_coef), ndbl, '+')
+
 c
 c      if (IOLGC)call gadest(g_xcinv)
       if (IOLGC)then
          if (.not. ga_destroy(g_xcinv)) call errquit
      &      ('xc_fitv: could not destroy g_xcinv', 0, GA_ERR)
+      endif
+
+      ! Copy the XC fitting coefficients to the beginning of
+      ! Tmat and exit
+      if (ADFT) then
+        call dcopy(nTrows*nTcols,dbl_mb(ixc_coef),1,tmat,1)
+        if(.not.ma_pop_stack(lxc_coef))
+     &    call errquit('xc_fitv: cannot pop stack',0, MA_ERR)
+        return
       endif
 c
 c

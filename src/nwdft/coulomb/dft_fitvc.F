@@ -16,15 +16,19 @@ c
 #include "eaf.fh"
 #include "cdft.fh"
 #include "sym.fh"
+#include "inp.fh"
 c
-      integer nmat    ! number of J matrices to make [input]
-      integer g_vc     ! GA handle for V Coulomb [output]
+      integer nmat           ! number of J matrices to make [input]
+      integer g_vc(nmat)     ! GA handle for V Coulomb [output]
       integer n_batch        ! no. batches computed by this node [out]
-      integer n_bmax  ! max no. batches
-      integer iwhat(n_bmax) ! what batches have been computed [out]
+      integer n_bmax         ! max no. batches
+      integer iwhat(n_bmax)  ! what batches have been computed [out]
       integer n3c_dbl
+      integer LU,ierr
+      character*(nw_max_path_len) cdfit_filename
+      character*255 errmsg
 c
-      double precision CD_coef(nbf_cd,nmat)
+      double precision CD_coef(nbf_cd,2*nmat)
       double precision i3c_ERI(n3c_dbl)
       double precision Ecoul2 ! [output]
 c
@@ -55,16 +59,15 @@ c
       integer nbf_at_c,nbf_at_d
       integer k_p,l_p,icount_d,icount_c, n_batch_done
       integer k_at,l_at,atom_c_in,atom_d_in
+      integer nbffac
       logical v_nonzero
       external nxtask
       double precision ddot
       external ddot
+      double precision offset
 c
       if(dermat) call errquit(
      C     'fitvc: dermat not coded yet',0,0)
-      if (.not.dermat .and. nmat.ne.1) then
-         call errquit('nmat must be 1 for regular fit in dft_fitvc',0,0)
-      endif
 
       oprint_ioinfo = util_print('io info',print_debug)
 c
@@ -72,6 +75,9 @@ c
 c      
       me=ga_nodeid()
       nproc  = ga_nnodes()
+      do imat=1,nmat
+        call ga_zero(g_vc(imat))
+      enddo
 c      
 c     Compute the fitted Vcoul.
 c      
@@ -127,7 +133,7 @@ c
       if(.not.MA_Push_Get(MT_Dbl,Nao2*nmat,'isvec',lsvec,isvec))
      &  call errquit('dft_fitvc: cannot allocate isvec',0,0)
       Nao2 = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
-      if(.not.MA_Push_Get(MT_Dbl,Nao2,'pp array',l_p,k_p))
+      if(.not.MA_Push_Get(MT_Dbl,Nao2*nmat,'pp array',l_p,k_p))
      &  call errquit('dft_fitcd: cannot allocate p',0,  MA_ERR)
 c
       call int_mem_2e3c(maxg, mscratch_2e3c)
@@ -141,7 +147,9 @@ c
 c
       if (.not.do_init) call errquit(
      C     ' dft_fitvc: do_init has to be true',0,0)
-      call ga_zero(g_vc)
+      do imat=1,nmat
+        call ga_zero(g_vc(imat))
+      enddo
       if(.not.MA_Push_Get(MT_int,ncenters,'at list',l_at,k_at))
      &  call errquit('dft_fitvc: cannot allocate at list',0, MA_ERR)
 c     sort atoms list based on decreasing atomic weight
@@ -179,7 +187,7 @@ c
      &              call errquit('Exiting in dft_fitcd',110, BASIS_ERR)
                icount_c=0
 czero k_p
-               call dcopy(nbf_at_d*nbf_at_c,0d0,0,dbl_mb(k_p),1)
+               call dcopy(nmat*nbf_at_d*nbf_at_c,0d0,0,dbl_mb(k_p),1)
                do ishc=sh_lo_c,sh_hi_c
 
                   if( .not. bas_cn2bfr( AO_bas_han,ishc,ifirstc,ilastc))
@@ -215,10 +223,12 @@ c     schwartz with CDmax=1 for incore ints reading
      A                             ipoint+nao2*nbf_cd-1,n3c_dbl
                               call errquit('dft_fitvc: out of i3c ',0,0)
                            endif
-                           call dgemv('N',Nao2,nbf_cd,qscale,
-     &                          i3c_eri(ipoint),Nao2,
-     C                          CD_coef,1,
-     D                          0.D0,Dbl_MB(isvec),1)
+                           do imat=1,nmat
+                             call dgemv('N',Nao2,nbf_cd,qscale,
+     &                            i3c_eri(ipoint),Nao2,
+     C                            CD_coef(1,imat),1,
+     D                            0.D0,Dbl_MB(isvec+(imat-1)*nao2),1)
+                           enddo
                            ipoint = ipoint + nao2*nbf_cd
                         else
                            call dcopy(Nao2*nmat,0.D0,0,dbl_mb(isvec),1)
@@ -230,7 +240,7 @@ c
      &                             call errquit('fitvc',0,BASIS_ERR)
                               nshbf_cd=ilastp-ifirstp+1
                               Vcoul_est=dbl_mb(icd_shell+ishp-1)*ERI_est
-                              if( Vcoul_est.gt.THRESHOLD )then
+                              if( Vcoul_est*nshbf_cd.gt.THRESHOLD )then
                                  Ninteg_api=maxg
 c                  
 c     Compute 3-ctr ERIs between a given pair of AO shells and a CD shell.
@@ -250,10 +260,12 @@ c
 c     Multiply the matrix of 3-ctr ERIs by the CD expansion coefficients.
 c     
                                     q1=qscale*qsym
+                                    do imat=1,nmat
                                     call dgemv('N',Nao2,nshbf_cd,q1,
      &                                   Dbl_MB(iERI),Nao2,
-     C                                   CD_coef(1+nfunz,1),
-     &                                   1,1.D0,Dbl_MB(isvec),1)
+     C                                   CD_coef(1+nfunz,imat),1,1.0D0,
+     &                                   Dbl_MB(isvec+(imat-1)*nao2),1)
+                                    enddo
                                  endif
                               endif ! schw on VCoul_est
 c
@@ -264,11 +276,13 @@ c
 c
 c     Scatter the computed values of Vcoul.
 c           
-
+                          do imat=1,nmat
                            call dft_copyto(
      I                          nbf_at_d,nshbfd,nshbfc,
-     I                          dbl_mb(k_p),dbl_mb(isvec),
+     I                          dbl_mb(k_p+(imat-1)*nbf_at_d*nbf_at_c),
+     D                          dbl_mb(isvec+(imat-1)*nao2),
      A                          icount_d,icount_c)
+                          enddo
                         endif   ! schwartz with cdmax
 
                      icount_d=icount_d+nshbfd
@@ -289,11 +303,13 @@ c     add extra bit to ipoint if ishd_1 is truncated
                enddo            ! ishc
 c     ga_put only if anything ever survived the schwarz scr
                
-               if(v_nonzero)
-     G              call ga_put(g_vc, 
-     B              bf_lo_d, bf_hi_d, 
-     C              bf_lo_c,bf_hi_c,
-     C              dbl_mb(k_p), nbf_at_d)
+               if(v_nonzero) then
+                    do imat=1,nmat
+                      call ga_put(g_vc(imat), 
+     B                     bf_lo_d, bf_hi_d,bf_lo_c,bf_hi_c,
+     C                 dbl_mb(k_p+(imat-1)*nbf_at_c*nbf_at_d), nbf_at_d)
+                    enddo
+               endif
 
                if(use_nxtask) then
                   n1 = nxtask(nproc,1)
@@ -312,8 +328,11 @@ c
      &     call errquit('dft_fitvc: cannot pop stack',0,0)
       if(use_nxtask) n1 = nxtask(-nproc,1)
       call ga_mask_sync(.not.use_nxtask,.false.)
-      call ga_symmetrize(g_vc)
-      if(oprint_ioinfo) call ga_print(g_vc)
+
+      do imat=1,nmat
+        call ga_symmetrize(g_vc(imat))
+        if(oprint_ioinfo) call ga_print(g_vc(imat))
+      enddo
 c      
 c
 c     Compute the Coulombic self-energy of the fitted charge density.
@@ -325,6 +344,15 @@ c
 c     Obtain the matrix of 2-ctr ERIs.
 c      
 c
+      ! For ADFT, the cd_coef fields had CD_up + CD_dw + XC_up
+      ! so we need to remove the XC part in order to compute
+      ! Ecoul2
+      if (ADFT) then
+        call daxpy(nbf_cd,-1d0,cd_coef(1,nmat+1),1,cd_coef,1)
+        if (ipol.gt.1) then
+          call daxpy(nbf_cd,-1d0,cd_coef(1,nmat+2),1,cd_coef(1,2),1)
+        endif
+      endif
 c
 c     Compute Ecoul2 only for the first set of fit coefficients
 c     !!! Should modify this so that nothing is done if nmat > 1
@@ -354,6 +382,46 @@ c         write(*,*)'*** After destroy g_2ceri'
          if (.not. ga_destroy(g_2ceri)) call errquit
      &   ('dft_fitvc: could not destroy g_2ceri', 0,0)
       endif         
+c
+      ! For ADFT we need to save CD_up, CD_dw, XC_up, and XC_dw
+      ! CD_up and CD_dw were already saved, so here we only add
+      ! XC_up and XC_dw to the file
+      if (adft) then
+      if(me.eq.0) then
+         call util_file_name('cdfit', .true., .false.,
+     &         cdfit_filename)
+         LU=79
+         ierr=eaf_open(cdfit_filename(1:inp_strlen(cdfit_filename)),
+     ,        eaf_rw, LU)
+        if (ierr .ne. 0) then
+           call eaf_errmsg(ierr,errmsg)
+           write(LuOut,*) ga_nodeid(),errmsg
+           call errquit('dft_fitcd: eaf_open failed', ierr, GA_ERR)
+        endif
+         do imat = nmat+1, 2*nmat
+            offset=(imat-1)*8d0*nbf_cd
+            ierr = eaf_write(LU, offset, cd_coef(1,imat),
+     .           8*nbf_cd)
+            if (ierr .ne. 0) then
+               call eaf_errmsg(ierr, errmsg)
+               write(LuOut,*) ' IO offset ', offset
+               write(LuOut,*) ' IO error message ',
+     $              errmsg(1:inp_strlen(errmsg))
+               call errquit('dft_fitcd: write failed',imat, INPUT_ERR)
+               endif
+         enddo
+         ierr=eaf_close(LU)
+         if (ierr .ne. 0) then
+            write(luout,*) ga_nodeid(),' closing FD =',LU,
+     ,           cdfit_filename(1:inp_strlen(cdfit_filename)) 
+            call eaf_errmsg(ierr, errmsg)
+            write(LuOut,*) ' IO error message ',
+     $           errmsg(1:inp_strlen(errmsg))
+            call util_flush(luout)
+            call errquit('dft_fitcd: eaf_close failed',0, DISK_ERR)
+         endif
+      endif
+      endif
 c
       return
       end
