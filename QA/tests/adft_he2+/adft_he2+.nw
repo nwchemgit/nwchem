@@ -22,12 +22,11 @@ charge +1.0
 dft
 adft
 mult 2
-convergence energy 1d-10
 XC hcth
 end
 
 task dft gradient
-
+#eof
 title "he2+ hcth147 functional"
 set dft:use_hcth147 t
 dft
@@ -82,20 +81,7 @@ task dft gradient
 title "XC BOP "
 dft
 XC bop
-end
-
-task dft gradient
-eof
-title "XC TPSS03 "
-dft
-XC xtpss03 ctpss03
-end
-
-task dft gradient
-
-title "XC PKZB "
-dft
-XC xpkzb99 cpkzb99
+grid nodisk
 end
 
 task dft gradient
