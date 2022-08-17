@@ -509,10 +509,6 @@ c        call tce_sdtime0(t0)
 c         call tce_sdtime(t0,deltat_mic,
 c     ,        fdist_sdkrnl19,fdist_sdcomp19)
       END IF
-#ifdef TCE_OPENACC
-!$acc update self(t2sub(1:l_t2sub))      
-!$acc update self(v2sub(1:l_v2sub))      
-#endif
 #ifdef OFFLOAD_CODE
 #if AOMP_MAPPING_FIXED
 c     unmap(to:t2sub(1:l_t2sub)) unmap(to:v2sub(1:l_v2sub))
