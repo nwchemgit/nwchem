@@ -241,7 +241,7 @@ macos:build_gcc:
     BUILD_OPENBLAS: 1
     BLAS_SIZE: 8
     SCALAPACK_SIZE: 8
-    ARMCI_NETWORK: "SOCKETS"
+    ARMCI_NETWORK: "MPI-PR"
     USE_DCOMBSSQPATCH: "Y"
     PATH: "/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin"
   tags:
