@@ -41,6 +41,7 @@ variables:
     - if [ "$(lsb_release -i|cut -c 17-)" == "CentOS" ]; then export NWCHEM_TOP=$HOME/$CI_PROJECT_DIR ; fi
     - cd $NWCHEM_TOP/src
     - rm -rf tools/ga-* ||true
+    - rm -rf libext/libext_utils/cmake*macos* || true
     - make nwchem_config
     - make -j3
     - ../contrib/getmem.nwchem 
