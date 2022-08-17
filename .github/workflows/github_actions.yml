@@ -2,6 +2,8 @@ name: NWChem_CI
 
 on:
   push:
+    paths-ignore:
+      - .gitlab-ci.yml
   pull_request:
   release:
   schedule:
