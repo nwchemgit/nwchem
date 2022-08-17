@@ -70,10 +70,12 @@ variables:
     - env|egrep  LD_LIBR || true
     - cd $NWCHEM_TOP/QA
     - NNPROCS=1
-    - if [ "$(uname -s)" == "Darwin" ]; then NNPROCS=2; fi
+    - if [ "$(uname -s)" == "Darwin" ]; then NNPROCS=3; fi
     - if [ "$(uname -s)" == "Linux" ]; then NNPROCS=3; fi
     - if [ "$USE_CENTOS" == "1" ]; then NNPROCS=3; fi
-    - env | grep CI_ || mtrue
+    - env | grep CI_ || true
+    - env | grep PATH || true
+    - which mpirun || true
     - if [[ "$NWCHEM_TARGET" != "LINUX"  && "$FC" != "ifx" && ( "$CI_RUNNER_TAGS" == "ubuntu_xenial" ||  "$CI_RUNNER_TAGS" == "ubuntu_bionic" ) ]]; then ./doqmtests.mpi $NNPROCS  ; else ./doqmtests.mpi $NNPROCS fast ; fi
   only:
     - master
