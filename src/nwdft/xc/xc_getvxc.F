@@ -270,11 +270,11 @@ c
          ! Standard cd fitting needs the coefficients for the full
          ! density in each spin channel to get the right Fock
          ! matrices
-         elseif (CDFIT .and. (ipol.gt.1)) then
-            call daxpy(nbf_cd,1.0d0,cd_coef(1,2),1,cd_coef(1,1),1)
-            call dcopy(nbf_cd,cd_coef(1,1),1,cd_coef(1,2),1)
          endif
-
+      endif
+      if (CDFIT .and. (ipol.gt.1)) then
+         call daxpy(nbf_cd,1.0d0,cd_coef(1,2),1,cd_coef(1,1),1)
+         call dcopy(nbf_cd,cd_coef(1,1),1,cd_coef(1,2),1)
       endif
 c
       if (oprint_intermediate_xc)then
