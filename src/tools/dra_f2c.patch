@@ -1,0 +1,13 @@
+--- ga-5.8.1/pario/dra/fortran.c	2021-12-24 09:41:28.000000000 -0800
++++ ga-5.8.1/pario/dra/fortran.c.new	2022-08-17 19:06:12.000000000 -0700
+@@ -43,6 +43,10 @@
+         )
+ {
+     ga_f2cstring(name, nlen, cname, DRA_MAX_NAME);
++    /* workaround for flen=0 on macos-12 */
++    if (flen == 0 ){
++      flen = strlen(filename);
++    }
+     ga_f2cstring(filename, flen, cfilename, DRA_MAX_FNAME);
+     return drai_create(type, dim1, dim2, cname, cfilename,
+             mode, reqdim1, reqdim2,d_a);

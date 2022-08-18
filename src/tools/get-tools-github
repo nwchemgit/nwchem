@@ -215,6 +215,7 @@ if [[ -d "ga-5.8.1" ]]; then
 	./nompif_patch.sh $GA_DIR
 	./ptstride_patch.sh $GA_DIR
 	patch -p0 -s -N < ./fujitsu.patch
+	patch -p0 -s -N < ./dra_f2c.patch
 	echo patched
 	touch ga-5.8.1/patched581
     fi
