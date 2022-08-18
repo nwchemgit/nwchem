@@ -272,7 +272,7 @@ c
          ! matrices
          endif
       endif
-      if (CDFIT .and. (ipol.gt.1)) then
+      if ((.not.adft).and.CDFIT .and. (ipol.gt.1)) then
          call daxpy(nbf_cd,1.0d0,cd_coef(1,2),1,cd_coef(1,1),1)
          call dcopy(nbf_cd,cd_coef(1,1),1,cd_coef(1,2),1)
       endif
