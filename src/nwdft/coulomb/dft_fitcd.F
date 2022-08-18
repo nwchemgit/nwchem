@@ -373,6 +373,14 @@ c
 c     write(*,*)' Dbl_MB(icgtf) = ',(Dbl_MB(icgtf+i),i=0,nbf_cd-1)
 c     write(*,*)' CD_coef = ',(CD_coef(i,ifit),i=1,nbf_cd)
          endif
+      if(oprint.and.me.eq.0.and..not.derfit )then
+        write(LuOut,*)
+        write(LuOut,'(a,f14.6,a,1pe13.6)')
+     &       '   CD fit integrated density:',rho_int,
+     &       '    Lagrange Mult.:  ',alpha
+        write(LuOut,*)
+        call util_flush(LuOut)
+      end if
       enddo
       endif
       if(.not.ma_pop_stack(lscr))
@@ -383,14 +391,6 @@ c     write(*,*)' CD_coef = ',(CD_coef(i,ifit),i=1,nbf_cd)
      &  call errquit('dft_fitcd: cannot pop stack',6, MA_ERR)
       
       
-      if(oprint.and.me.eq.0.and..not.derfit )then
-        write(LuOut,*)
-        write(LuOut,'(a,f14.6,a,1pe13.6)')
-     &       '   CD fit integrated density:',rho_int,
-     &       '    Lagrange Mult.:  ',alpha
-        write(LuOut,*)
-        call util_flush(LuOut)
-      end if
       
       return
       end
