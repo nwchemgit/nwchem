@@ -77,7 +77,7 @@ variables:
     - env | grep CI_ || true
     - env | grep PATH || true
     - which mpirun || true
-    - if [[ "$NWCHEM_TARGET" != "LINUX"  && "$FC" != "ifx" && ( "$CI_RUNNER_TAGS" == "ubuntu_xenial" ||  "$CI_RUNNER_TAGS" == "ubuntu_bionic" ) ]]; then ./doqmtests.mpi $NNPROCS  ; else ./doqmtests.mpi $NNPROCS fast ; fi
+    - if [[ "$NWCHEM_TARGET" != "LINUX"  && "$FC" != "ifx" && ( "$CI_RUNNER_TAGS" == "ubuntu_xenial" || "$CI_RUNNER_TAGS" == "ubuntu_bionic" ||  "$CI_RUNNER_TAGS" = "macos" ) ]]; then ./doqmtests.mpi $NNPROCS  ; else ./doqmtests.mpi $NNPROCS fast ; fi
   only:
     - master
     - /^release-.*$/
