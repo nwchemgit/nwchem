@@ -64,19 +64,22 @@ c     will assign offload capabilities to the calling GA rank.
      c    env_string.eq.'1') then
         offload_enabled=.false.
       else if (omp_get_num_devices().eq.0) then
-         write(6,*) '$$ omp_get_num_devices().eq.0'
         offload_enabled=.false.
       else
+#ifdef DEBUG         
          write(6,*) '$$ omp_get_num_devices=',
      C        omp_get_num_devices()
+#endif         
         span = offload_span()
         if (mod(ga_nodeid(), span).eq.0) then
           offload_enabled=.true.
         else
           offload_enabled=.false.
        endif
+#ifdef DEBUG       
        write(6,*) '$$ offl_span ',span,
      C      ' offload_enabled=',offload_enabled
+#endif       
       endif
       end
 #endif
