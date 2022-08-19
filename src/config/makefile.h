@@ -3061,8 +3061,8 @@ ifneq ($(TARGET),LINUX)
                 LDOPTIONS += -mp
 	      endif
 		ifdef USE_OFFLOAD
-		  FOPTIONS += -mp=gpu -gpu=cc70
-		  LDOPTIONS += -mp=gpu  -gpu=cc70
+		  FOPTIONS += -mp=gpu #-gpu=cc70
+		  LDOPTIONS += -mp=gpu # -gpu=cc70
 		endif
             endif
 	    ifdef USE_FPE
