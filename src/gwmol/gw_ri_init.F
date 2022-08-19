@@ -469,7 +469,7 @@ c      if (.not.ga_create(mt_dbl,nri,npairs,erilabel,nri,0,eri))
         if (llpair.gt.ulpair) goto 101
         do ibatch=1,nbatch
           myllpair = (ibatch-1)*mynpairs + llpair
-          myulpair = min(myllpair + mynpairs,ulpair)
+          myulpair = min(myllpair + mynpairs - 1,ulpair)
           do ipair=myllpair,myulpair
             imo = gw_get_pair(int_mb(k_tmp),ipair,1,npairs)
             jmo = gw_get_pair(int_mb(k_tmp),ipair,2,npairs)
