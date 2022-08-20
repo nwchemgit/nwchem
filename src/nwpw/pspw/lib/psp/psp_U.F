@@ -768,6 +768,7 @@
         F(4) = 8151.0d0/13840d0*J
       end if
 
+      call nwpw_gaunt_init(.false.,3)
       do m1=-l,l
       do m3=-l,l
       do m2=-l,l
@@ -791,6 +792,7 @@
       end do
       end do
       end do
+      call nwpw_gaunt_end()
 
       return
       end 
