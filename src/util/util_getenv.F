@@ -66,12 +66,20 @@ c     will assign offload capabilities to the calling GA rank.
       else if (omp_get_num_devices().eq.0) then
         offload_enabled=.false.
       else
+#ifdef DEBUG         
+         write(6,*) '$$ omp_get_num_devices=',
+     C        omp_get_num_devices()
+#endif         
         span = offload_span()
         if (mod(ga_nodeid(), span).eq.0) then
           offload_enabled=.true.
         else
           offload_enabled=.false.
-        endif
+       endif
+#ifdef DEBUG       
+       write(6,*) '$$ offl_span ',span,
+     C      ' offload_enabled=',offload_enabled
+#endif       
       endif
       end
 #endif
@@ -100,6 +108,7 @@ c     offloading enabled.
       span = offload_span()
 #if USE_OPENMP
       ndev = omp_get_num_devices()
+      write(6,*) ' omp_get_num_devices() ',ndev
       offload_device = mod(ga_nodeid() / span, ndev)
       call omp_set_default_device(offload_device)
 #else

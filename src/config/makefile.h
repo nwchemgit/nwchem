@@ -2245,7 +2245,7 @@ ifneq ($(TARGET),LINUX)
                 FOPTIONS  += -fopenmp
                 LDOPTIONS += -fopenmp
                 ifdef USE_OFFLOAD
-                    DEFINES +=-DUSE_F90_ALLOCATABLE -DUSE_OMP_TEAMS_DISTRIBUTE
+#                    DEFINES +=-DUSE_F90_ALLOCATABLE -DUSE_OMP_TEAMS_DISTRIBUTE
                 endif
             endif
         endif
@@ -2998,7 +2998,7 @@ ifneq ($(TARGET),LINUX)
                     FOPTIONS  += -qsmp=omp
 		    LDOPTIONS += -qsmp=omp
                     ifdef USE_OFFLOAD
-                        DEFINES +=-DUSE_F90_ALLOCATABLE -DOPENMP_OFFLOAD -DUSE_OMP_TEAMS_DISTRIBUTE
+#                        DEFINES +=-DUSE_F90_ALLOCATABLE -DOPENMP_OFFLOAD -DUSE_OMP_TEAMS_DISTRIBUTE
                         OFFLOAD_FOPTIONS = -qtgtarch=sm_70 -qoffload
                         LDOPTIONS += -qoffload -lcudart -L$(NWC_CUDAPATH)
                     endif
@@ -3060,6 +3060,10 @@ ifneq ($(TARGET),LINUX)
                 endif
                 LDOPTIONS += -mp
 	      endif
+		ifdef USE_OFFLOAD
+		  FOPTIONS += -mp=gpu #-gpu=cc70
+		  LDOPTIONS += -mp=gpu # -gpu=cc70
+		endif
             endif
 	    ifdef USE_FPE
 	        FOPTIONS += -traceback
@@ -3075,6 +3079,13 @@ ifneq ($(TARGET),LINUX)
             endif
         endif
 
+        ifdef USE_OPENMP
+            ifdef USE_OFFLOAD
+                DEFINES +=-DUSE_F90_ALLOCATABLE -DOPENMP_OFFLOAD -DUSE_OMP_TEAMS_DISTRIBUTE
+#                DEFINES +=-DUSE_F90_ALLOCATABLE -DUSE_OMP_TEAMS_DISTRIBUTE
+            endif
+        endif
+		
 
         ifeq ($(NWCHEM_TARGET),CATAMOUNT)
             DEFINES  += -DCATAMOUNT
