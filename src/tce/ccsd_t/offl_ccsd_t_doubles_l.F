@@ -154,6 +154,7 @@ C #endif
       integer n_h7b
       integer n_p7b
       double precision t0
+      integer deltat_mic,deltat_off
 #ifdef USE_OPENMP
       double precision omp_get_wtime
       external omp_get_wtime
@@ -265,7 +266,7 @@ c
 #endif
 #endif
 #ifdef TCE_OPENACC
-!$acc  enter data create(scratch(1:l_t2sub))
+!$acc  enter data copyin(scratch(1:l_t2sub))
 !$acc& copyin(t2sub(1:l_t2sub))
 !$acc& copyin(v2sub(1:l_v2sub))
 #endif
@@ -361,7 +362,8 @@ c        call tce_sdtime0(t0)
      1     k_range_h1b_1,k_range_p6b_1,
      2     k_range_p5b_1,k_range_p4b_1,
      3     k_range_h7b_1,
-     4     triplesx,t2sub,v2sub)
+     4     triplesx,t2sub,v2sub,
+     d     deltat_mic)
 c         call tce_sdtime(t0,deltat_mic,
 c     ,     fdist_sdkrnl11,fdist_sdcomp11)
       END IF
@@ -379,7 +381,8 @@ c        call tce_sdtime0(t0)
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
      3        k_range_h7b_1,
-     4        triplesx,t2sub,v2sub)
+     4        triplesx,t2sub,v2sub,scratch,
+     D        deltat_mic)
 c      call tce_sdtime(t0,deltat_mic,
 c     ,        fdist_sdkrnl12,fdist_sdcomp12)
       END IF
@@ -397,7 +400,8 @@ c      call tce_sdtime0(t0)
      1     k_range_h1b_1,k_range_p6b_1,
      2     k_range_p5b_1,k_range_p4b_1,
      3     k_range_h7b_1,
-     4     triplesx,t2sub,v2sub,scratch)
+     4     triplesx,t2sub,v2sub,scratch,
+     D     deltat_mic)
 c      call tce_sdtime(t0,deltat_mic,
 c     ,     fdist_sdkrnl13,fdist_sdcomp13)
        END IF
@@ -415,7 +419,8 @@ c        call tce_sdtime0(t0)
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
      3        k_range_h7b_1,
-     4        triplesx,t2sub,v2sub)
+     4        triplesx,t2sub,v2sub,
+     D        deltat_mic)
 c         call tce_sdtime(t0,deltat_mic,
 c     ,        fdist_sdkrnl14,fdist_sdcomp14)
       END IF
@@ -433,7 +438,8 @@ c      call tce_sdtime0(t0)
      1     k_range_h1b_1,k_range_p6b_1,
      2     k_range_p5b_1,k_range_p4b_1,
      3     k_range_h7b_1,
-     4     triplesx,t2sub,v2sub)
+     4     triplesx,t2sub,v2sub,scratch,
+     D     deltat_mic)
 c      call tce_sdtime(t0,deltat_mic,
 c     ,     fdist_sdkrnl15,fdist_sdcomp15)
       END IF
@@ -451,7 +457,8 @@ c        call tce_sdtime0(t0)
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
      3        k_range_h7b_1,
-     4        triplesx,t2sub,v2sub,scratch)
+     4        triplesx,t2sub,v2sub,scratch,
+     D        deltat_mic)
 c         call tce_sdtime(t0,deltat_mic,
 c     ,        fdist_sdkrnl16,fdist_sdcomp16)
       END IF
@@ -469,7 +476,8 @@ c        call tce_sdtime0(t0)
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
      3        k_range_h7b_1,
-     4        triplesx,t2sub,v2sub)
+     4        triplesx,t2sub,v2sub,
+     D        deltat_mic)
 c         call tce_sdtime(t0,deltat_mic,
 c     ,        fdist_sdkrnl17,fdist_sdcomp17)
       END IF
@@ -487,7 +495,8 @@ c        call tce_sdtime0(t0)
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
      3        k_range_h7b_1,
-     4        triplesx,t2sub,v2sub)
+     4        triplesx,t2sub,v2sub,scratch,
+     D        deltat_mic)
 c         call tce_sdtime(t0,deltat_mic,
 c     ,        fdist_sdkrnl18,fdist_sdcomp18)
       END IF
@@ -505,7 +514,8 @@ c        call tce_sdtime0(t0)
      1     k_range_h1b_1,k_range_p6b_1,
      2     k_range_p5b_1,k_range_p4b_1,
      3     k_range_h7b_1,
-     4     triplesx,t2sub,v2sub,scratch)
+     4     triplesx,t2sub,v2sub,scratch,
+     D     deltat_mic)
 c         call tce_sdtime(t0,deltat_mic,
 c     ,        fdist_sdkrnl19,fdist_sdcomp19)
       END IF
@@ -696,7 +706,8 @@ c        call tce_sdtime0(t0)
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
      3        k_range_p7b_1,
-     4        triplesx,t2sub,v2sub)
+     4        triplesx,t2sub,v2sub,scratch,
+     D        deltat_mic)
 c         call tce_sdtime(t0,deltat_mic,
 c     ,        fdist_sdkrnl21,fdist_sdcomp21)
       END IF
@@ -714,7 +725,8 @@ c        call tce_sdtime0(t0)
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
      3        k_range_p7b_1,
-     4        triplesx,t2sub,v2sub,scratch)
+     4        triplesx,t2sub,v2sub,scratch,
+     D        deltat_mic)
 c         call tce_sdtime(t0,deltat_mic,
 c     ,        fdist_sdkrnl22,fdist_sdcomp22)
       END IF
@@ -732,7 +744,8 @@ c        call tce_sdtime0(t0)
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
      3        k_range_p7b_1,
-     4        triplesx,t2sub,v2sub,scratch)
+     4        triplesx,t2sub,v2sub,
+     D        deltat_mic)
 c         call tce_sdtime(t0,deltat_mic,
 c     ,        fdist_sdkrnl23,fdist_sdcomp23)
       END IF
@@ -750,7 +763,8 @@ c        call tce_sdtime0(t0)
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
      3        k_range_p7b_1,
-     4        triplesx,t2sub,v2sub)
+     4        triplesx,t2sub,v2sub,scratch,
+     D        deltat_mic)
 c         call tce_sdtime(t0,deltat_mic,
 c     ,        fdist_sdkrnl24,fdist_sdcomp24)
       END IF
@@ -769,7 +783,8 @@ c        call tce_sdtime0(t0)
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
      3        k_range_p7b_1,
-     4        triplesx,t2sub,v2sub,scratch)
+     4        triplesx,t2sub,v2sub,scratch,
+     D        deltat_mic)
 c         call tce_sdtime(t0,deltat_mic,
 c     ,        fdist_sdkrnl25,fdist_sdcomp25)
       END IF
@@ -787,7 +802,8 @@ c        call tce_sdtime0(t0)
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
      3        k_range_p7b_1,
-     4        triplesx,t2sub,v2sub,scratch)
+     4        triplesx,t2sub,v2sub,scratch,
+     D        deltat_mic)
 c         call tce_sdtime(t0,deltat_mic,
 c     ,        fdist_sdkrnl26,fdist_sdcomp26)
       END IF
@@ -805,7 +821,8 @@ c        call tce_sdtime0(t0)
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
      3        k_range_p7b_1,
-     4        triplesx,t2sub,v2sub)
+     4        triplesx,t2sub,v2sub,
+     D        deltat_mic)
 c         call tce_sdtime(t0,deltat_mic,
 c     ,        fdist_sdkrnl27,fdist_sdcomp27)
       END IF
@@ -823,7 +840,8 @@ c        call tce_sdtime0(t0)
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
      3        k_range_p7b_1,
-     4        triplesx,t2sub,v2sub,scratch)
+     4        triplesx,t2sub,v2sub,scratch,
+     D        deltat_mic)
 c         call tce_sdtime(t0,deltat_mic,
 c     ,        fdist_sdkrnl28,fdist_sdcomp28)
       END IF
@@ -841,7 +859,8 @@ c        call tce_sdtime0(t0)
      1        k_range_h1b_1,k_range_p6b_1,
      2        k_range_p5b_1,k_range_p4b_1,
      3        k_range_p7b_1,
-     4        triplesx,t2sub,v2sub,scratch)
+     4        triplesx,t2sub,v2sub,scratch,
+     D        deltat_mic)
 c         call tce_sdtime(t0,deltat_mic,
 c     ,        fdist_sdkrnl29,fdist_sdcomp29)
       END IF
@@ -893,7 +912,8 @@ c     unmap(to:scratch(1:l_t2sub))
       subroutine sdtransp_t_d1_1(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               h7d,
-     2               triplesx,t2sub,v2sub)
+     2               triplesx,t2sub,v2sub,
+     3     deltat)
       IMPLICIT NONE
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
       integer h3,h2,h1,p6,p5,p4,h7
@@ -945,7 +965,8 @@ c
       subroutine sdtransp_t_d1_2(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               h7d,
-     2               triplesx,t2sub,v2sub,scratch)
+     2               triplesx,t2sub,v2sub,scratch,
+     3     deltat)
       IMPLICIT NONE
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
       integer h3,h2,h1,p6,p5,p4,h7
@@ -1012,7 +1033,8 @@ c
       subroutine sdtransp_t_d1_3(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               h7d,
-     2               triplesx,t2sub,v2sub,scratch)
+     2               triplesx,t2sub,v2sub,scratch,
+     3     deltat)
       IMPLICIT NONE
 
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
@@ -1081,7 +1103,8 @@ c
       subroutine sdtransp_t_d1_4(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               h7d,
-     2               triplesx,t2sub,v2sub)
+     2               triplesx,t2sub,v2sub,
+     D     deltat)
       IMPLICIT NONE
 
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
@@ -1132,7 +1155,8 @@ c
       subroutine sdtransp_t_d1_5(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               h7d,
-     2               triplesx,t2sub,v2sub,scratch)
+     2               triplesx,t2sub,v2sub,scratch,
+     d     deltat)
       IMPLICIT NONE
 
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
@@ -1202,7 +1226,8 @@ c
       subroutine sdtransp_t_d1_6(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               h7d,
-     2               triplesx,t2sub,v2sub,scratch)
+     2               triplesx,t2sub,v2sub,scratch,
+     3     deltat)
       IMPLICIT NONE
 
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
@@ -1269,7 +1294,8 @@ c
       subroutine sdtransp_t_d1_7(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               h7d,
-     2               triplesx,t2sub,v2sub)
+     2               triplesx,t2sub,v2sub,
+     3     deltat)
       IMPLICIT NONE
 
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
@@ -1320,7 +1346,8 @@ c
       subroutine sdtransp_t_d1_8(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               h7d,
-     2               triplesx,t2sub,v2sub,scratch)
+     2               triplesx,t2sub,v2sub,scratch,
+     3     deltat)
       IMPLICIT NONE
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
       integer h3,h2,h1,p6,p5,p4,h7
@@ -1388,7 +1415,8 @@ c
       subroutine sdtransp_t_d1_9(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               h7d,
-     2               triplesx,t2sub,v2sub,scratch)
+     2               triplesx,t2sub,v2sub,scratch,
+     3     deltat)
       IMPLICIT NONE
 
       integer h3d,h2d,h1d,p6d,p5d,p4d,h7d
@@ -1455,7 +1483,8 @@ c
       subroutine sdtransp_t_d2_1(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               p7d,
-     2               triplesx,t2sub,v2sub,scratch)
+     2               triplesx,t2sub,v2sub,scratch,
+     D     deltat)
       IMPLICIT NONE
 
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
@@ -1521,7 +1550,8 @@ c
       subroutine sdtransp_t_d2_2(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               p7d,
-     2               triplesx,t2sub,v2sub,scratch)
+     2               triplesx,t2sub,v2sub,scratch,
+     D     deltat)
       IMPLICIT NONE
 
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
@@ -1586,7 +1616,8 @@ c
       subroutine sdtransp_t_d2_3(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               p7d,
-     2               triplesx,t2sub,v2sub)
+     2               triplesx,t2sub,v2sub,
+     D     deltat)
       IMPLICIT NONE
 
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
@@ -1654,7 +1685,8 @@ c
       subroutine sdtransp_t_d2_4(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               p7d,
-     2               triplesx,t2sub,v2sub,scratch)
+     2               triplesx,t2sub,v2sub,scratch,
+     D     deltat)
       IMPLICIT NONE
 
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
@@ -1722,7 +1754,8 @@ c
       subroutine sdtransp_t_d2_5(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               p7d,
-     2               triplesx,t2sub,v2sub,scratch)
+     2               triplesx,t2sub,v2sub,scratch,
+     D     deltat)
       IMPLICIT NONE
 
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
@@ -1788,7 +1821,8 @@ c
       subroutine sdtransp_t_d2_6(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               p7d,
-     2               triplesx,t2sub,v2sub,scratch)
+     2               triplesx,t2sub,v2sub,scratch,
+     D     deltat)
       IMPLICIT NONE
 
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
@@ -1854,7 +1888,8 @@ c
       subroutine sdtransp_t_d2_7(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               p7d,
-     2               triplesx,t2sub,v2sub)
+     2               triplesx,t2sub,v2sub,
+     D     deltat)
       IMPLICIT NONE
 
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
@@ -1922,7 +1957,8 @@ c
       subroutine sdtransp_t_d2_8(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               p7d,
-     2               triplesx,t2sub,v2sub,scratch)
+     2               triplesx,t2sub,v2sub,scratch,
+     D     deltat)
       IMPLICIT NONE
 
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
@@ -1987,7 +2023,8 @@ c
       subroutine sdtransp_t_d2_9(h3d,h2d,h1d,p6d,p5d,p4d,
 #endif
      1               p7d,
-     2               triplesx,t2sub,v2sub,scratch)
+     2               triplesx,t2sub,v2sub,scratch,
+     D     deltat)
       IMPLICIT NONE
 
       integer h3d,h2d,h1d,p6d,p5d,p4d,p7d
