@@ -346,7 +346,90 @@ c     figure out  cycles to work on
 #ifdef TCE_OPENACC
 !$acc update device(t2sub(1:l_t2sub))      
 !$acc update device(v2sub(1:l_v2sub))      
-#endif
+      IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p5b) .and. (t_p6b .eq. p6b)
+     & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h2b) .and. (t_h3b .eq. h
+     &3b)) THEN
+         call acc_sd_t_d1_1(k_range_h3b_1,k_range_h2b_1,
+     1     k_range_h1b_1,k_range_p6b_1,
+     2     k_range_p5b_1,k_range_p4b_1,
+     3     k_range_h7b_1,
+     4     triplesx,t2sub,v2sub)
+      END IF
+      IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p5b) .and. (t_p6b .eq. p6b)
+     & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h1b) .and. (t_h3b .eq. h
+     &3b)) THEN
+         call acc_sd_t_d1_2(k_range_h3b_1,k_range_h2b_1,
+     1        k_range_h1b_1,k_range_p6b_1,
+     2        k_range_p5b_1,k_range_p4b_1,
+     3        k_range_h7b_1,
+     4        triplesx,t2sub,v2sub)
+      END IF
+      IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p5b) .and. (t_p6b .eq. p6b)
+     & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h3b) .and. (t_h3b .eq. h
+     &1b)) THEN
+         call acc_sd_t_d1_3(k_range_h3b_1,k_range_h2b_1,
+     1     k_range_h1b_1,k_range_p6b_1,
+     2     k_range_p5b_1,k_range_p4b_1,
+     3     k_range_h7b_1,
+     4     triplesx,t2sub,v2sub)
+       END IF
+      IF ((t_p4b .eq. p6b) .and. (t_p5b .eq. p4b) .and. (t_p6b .eq. p5b)
+     & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h2b) .and. (t_h3b .eq. h
+     &3b)) THEN
+         call acc_sd_t_d1_4(k_range_h3b_1,k_range_h2b_1,
+     1        k_range_h1b_1,k_range_p6b_1,
+     2        k_range_p5b_1,k_range_p4b_1,
+     3        k_range_h7b_1,
+     4        triplesx,t2sub,v2sub)
+      END IF
+      IF ((t_p4b .eq. p6b) .and. (t_p5b .eq. p4b) .and. (t_p6b .eq. p5b)
+     & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h1b) .and. (t_h3b .eq. h
+     &3b)) THEN
+         call acc_sd_t_d1_5(k_range_h3b_1,k_range_h2b_1,
+     1     k_range_h1b_1,k_range_p6b_1,
+     2     k_range_p5b_1,k_range_p4b_1,
+     3     k_range_h7b_1,
+     4     triplesx,t2sub,v2sub)
+      END IF
+      IF ((t_p4b .eq. p6b) .and. (t_p5b .eq. p4b) .and. (t_p6b .eq. p5b)
+     & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h3b) .and. (t_h3b .eq. h
+     &1b)) THEN
+         call acc_sd_t_d1_6(k_range_h3b_1,k_range_h2b_1,
+     1        k_range_h1b_1,k_range_p6b_1,
+     2        k_range_p5b_1,k_range_p4b_1,
+     3        k_range_h7b_1,
+     4        triplesx,t2sub,v2sub)
+      END IF
+      IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p6b) .and. (t_p6b .eq. p5b)
+     & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h2b) .and. (t_h3b .eq. h
+     &3b)) THEN
+         call acc_sd_t_d1_7(k_range_h3b_1,k_range_h2b_1,
+     1        k_range_h1b_1,k_range_p6b_1,
+     2        k_range_p5b_1,k_range_p4b_1,
+     3        k_range_h7b_1,
+     4        triplesx,t2sub,v2sub)
+      END IF
+      IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p6b) .and. (t_p6b .eq. p5b)
+     & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h1b) .and. (t_h3b .eq. h
+     &3b)) THEN
+         call acc_sd_t_d1_8(k_range_h3b_1,k_range_h2b_1,
+     1        k_range_h1b_1,k_range_p6b_1,
+     2        k_range_p5b_1,k_range_p4b_1,
+     3        k_range_h7b_1,
+     4        triplesx,t2sub,v2sub)
+      END IF
+      IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p6b) .and. (t_p6b .eq. p5b)
+     & .and. (t_h1b .eq. h2b) .and. (t_h2b .eq. h3b) .and. (t_h3b .eq. h
+     &1b)) THEN
+         call acc_sd_t_d1_9(k_range_h3b_1,k_range_h2b_1,
+     1     k_range_h1b_1,k_range_p6b_1,
+     2     k_range_p5b_1,k_range_p4b_1,
+     3     k_range_h7b_1,
+     4     triplesx,t2sub,v2sub)
+      END IF
+
+c if not using TCE_OPENACC:      
+#else 
 
       IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p5b) .and. (t_p6b .eq. p6b)
      & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h2b) .and. (t_h3b .eq. h
@@ -354,8 +437,6 @@ c     figure out  cycles to work on
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d1_1(k_range_h3b_1,k_range_h2b_1,
-#elif defined(TCE_OPENACC)
-         call acc_sd_t_d1_1(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d1_1(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -373,8 +454,6 @@ c     ,     fdist_sdkrnl11,fdist_sdcomp11)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d1_2(k_range_h3b_1,k_range_h2b_1,
-#elif defined(TCE_OPENACC)
-         call acc_sd_t_d1_2(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d1_2(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -392,8 +471,6 @@ c     ,        fdist_sdkrnl12,fdist_sdcomp12)
 c      call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
       call offl_sdtransp_t_d1_3(k_range_h3b_1,k_range_h2b_1,
-#elif defined(TCE_OPENACC)
-         call acc_sd_t_d1_3(k_range_h3b_1,k_range_h2b_1,
 #else
       call sdtransp_t_d1_3(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -411,8 +488,6 @@ c     ,     fdist_sdkrnl13,fdist_sdcomp13)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d1_4(k_range_h3b_1,k_range_h2b_1,
-#elif defined(TCE_OPENACC)
-         call acc_sd_t_d1_4(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d1_4(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -430,8 +505,6 @@ c     ,        fdist_sdkrnl14,fdist_sdcomp14)
 c      call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
       call offl_sdtransp_t_d1_5(k_range_h3b_1,k_range_h2b_1,
-#elif defined(TCE_OPENACC)
-         call acc_sd_t_d1_5(k_range_h3b_1,k_range_h2b_1,
 #else
       call sdtransp_t_d1_5(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -449,8 +522,6 @@ c     ,     fdist_sdkrnl15,fdist_sdcomp15)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d1_6(k_range_h3b_1,k_range_h2b_1,
-#elif defined(TCE_OPENACC)
-         call acc_sd_t_d1_6(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d1_6(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -468,8 +539,6 @@ c     ,        fdist_sdkrnl16,fdist_sdcomp16)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d1_7(k_range_h3b_1,k_range_h2b_1,
-#elif defined(TCE_OPENACC)
-         call acc_sd_t_d1_7(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d1_7(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -487,8 +556,6 @@ c     ,        fdist_sdkrnl17,fdist_sdcomp17)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d1_8(k_range_h3b_1,k_range_h2b_1,
-#elif defined(TCE_OPENACC)
-         call acc_sd_t_d1_8(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d1_8(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -506,8 +573,6 @@ c     ,        fdist_sdkrnl18,fdist_sdcomp18)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d1_9(k_range_h3b_1,k_range_h2b_1,
-#elif defined(TCE_OPENACC)
-         call acc_sd_t_d1_9(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d1_9(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -519,6 +584,10 @@ c        call tce_sdtime0(t0)
 c         call tce_sdtime(t0,deltat_mic,
 c     ,        fdist_sdkrnl19,fdist_sdcomp19)
       END IF
+c end if using using TCE_OPENACC kernels
+#endif
+
+
 #ifdef OFFLOAD_CODE
 #if AOMP_MAPPING_FIXED
 c     unmap(to:t2sub(1:l_t2sub)) unmap(to:v2sub(1:l_v2sub))
@@ -683,7 +752,90 @@ c     figure out  cycles to work on
 #ifdef TCE_OPENACC
 !$acc update device(t2sub(1:l_t2sub))      
 !$acc update device(v2sub(1:l_v2sub))      
-#endif
+      IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p5b) .and. (t_p6b .eq. p6b)
+     & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h2b) .and. (t_h3b .eq. h
+     &3b)) THEN
+         call acc_sd_t_d2_1(k_range_h3b_1,k_range_h2b_1,
+     1        k_range_h1b_1,k_range_p6b_1,
+     2        k_range_p5b_1,k_range_p4b_1,
+     3        k_range_p7b_1,
+     4        triplesx,t2sub,v2sub)
+      END IF
+      IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p5b) .and. (t_p6b .eq. p6b)
+     & .and. (t_h1b .eq. h3b) .and. (t_h2b .eq. h1b) .and. (t_h3b .eq. h
+     &2b)) THEN
+         call acc_sd_t_d2_2(k_range_h3b_1,k_range_h2b_1,
+     1        k_range_h1b_1,k_range_p6b_1,
+     2        k_range_p5b_1,k_range_p4b_1,
+     3        k_range_p7b_1,
+     4        triplesx,t2sub,v2sub)
+      END IF
+      IF ((t_p4b .eq. p4b) .and. (t_p5b .eq. p5b) .and. (t_p6b .eq. p6b)
+     & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h3b) .and. (t_h3b .eq. h
+     &2b)) THEN
+         call acc_sd_t_d2_3(k_range_h3b_1,k_range_h2b_1,
+     1        k_range_h1b_1,k_range_p6b_1,
+     2        k_range_p5b_1,k_range_p4b_1,
+     3        k_range_p7b_1,
+     4        triplesx,t2sub,v2sub)
+      END IF
+      IF ((t_p4b .eq. p5b) .and. (t_p5b .eq. p4b) .and. (t_p6b .eq. p6b)
+     & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h2b) .and. (t_h3b .eq. h
+     &3b)) THEN
+         call acc_sd_t_d2_4(k_range_h3b_1,k_range_h2b_1,
+     1        k_range_h1b_1,k_range_p6b_1,
+     2        k_range_p5b_1,k_range_p4b_1,
+     3        k_range_p7b_1,
+     4        triplesx,t2sub,v2sub)
+      END IF
+      IF ((t_p4b .eq. p5b) .and. (t_p5b .eq. p4b) .and. (t_p6b .eq. p6b)
+     & .and. (t_h1b .eq. h3b) .and. (t_h2b .eq. h1b) .and. (t_h3b .eq. h
+     &2b)) THEN
+         call acc_sd_t_d2_5(k_range_h3b_1,k_range_h2b_1,
+     1        k_range_h1b_1,k_range_p6b_1,
+     2        k_range_p5b_1,k_range_p4b_1,
+     3        k_range_p7b_1,
+     4        triplesx,t2sub,v2sub)
+      END IF
+      IF ((t_p4b .eq. p5b) .and. (t_p5b .eq. p4b) .and. (t_p6b .eq. p6b)
+     & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h3b) .and. (t_h3b .eq. h
+     &2b)) THEN
+         call acc_sd_t_d2_6(k_range_h3b_1,k_range_h2b_1,
+     1        k_range_h1b_1,k_range_p6b_1,
+     2        k_range_p5b_1,k_range_p4b_1,
+     3        k_range_p7b_1,
+     4        triplesx,t2sub,v2sub)
+      END IF
+      IF ((t_p4b .eq. p5b) .and. (t_p5b .eq. p6b) .and. (t_p6b .eq. p4b)
+     & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h2b) .and. (t_h3b .eq. h
+     &3b)) THEN
+         call acc_sd_t_d2_7(k_range_h3b_1,k_range_h2b_1,
+     1        k_range_h1b_1,k_range_p6b_1,
+     2        k_range_p5b_1,k_range_p4b_1,
+     3        k_range_p7b_1,
+     4        triplesx,t2sub,v2sub)
+      END IF
+      IF ((t_p4b .eq. p5b) .and. (t_p5b .eq. p6b) .and. (t_p6b .eq. p4b)
+     & .and. (t_h1b .eq. h3b) .and. (t_h2b .eq. h1b) .and. (t_h3b .eq. h
+     &2b)) THEN
+         call acc_sd_t_d2_8(k_range_h3b_1,k_range_h2b_1,
+     1        k_range_h1b_1,k_range_p6b_1,
+     2        k_range_p5b_1,k_range_p4b_1,
+     3        k_range_p7b_1,
+     4        triplesx,t2sub,v2sub)
+      END IF
+      IF ((t_p4b .eq. p5b) .and. (t_p5b .eq. p6b) .and. (t_p6b .eq. p4b)
+     & .and. (t_h1b .eq. h1b) .and. (t_h2b .eq. h3b) .and. (t_h3b .eq. h
+     &2b)) THEN
+         call acc_sd_t_d2_9(k_range_h3b_1,k_range_h2b_1,
+     1        k_range_h1b_1,k_range_p6b_1,
+     2        k_range_p5b_1,k_range_p4b_1,
+     3        k_range_p7b_1,
+     4        triplesx,t2sub,v2sub)
+      END IF
+
+c else if not using OPENACC kernels
+#else
 #ifdef OFFLOAD_CODE
 #if AOMP_MAPPING_FIXED
 !$omp target data map(to:t2sub(1:l_t2sub)) map(to:v2sub(1:l_v2sub))
@@ -698,8 +850,6 @@ c     figure out  cycles to work on
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_1(k_range_h3b_1,k_range_h2b_1,
-#elif defined(TCE_OPENACC)
-         call acc_sd_t_d2_1(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d2_1(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -717,8 +867,6 @@ c     ,        fdist_sdkrnl21,fdist_sdcomp21)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_2(k_range_h3b_1,k_range_h2b_1,
-#elif defined(TCE_OPENACC)
-         call acc_sd_t_d2_2(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d2_2(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -736,8 +884,6 @@ c     ,        fdist_sdkrnl22,fdist_sdcomp22)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_3(k_range_h3b_1,k_range_h2b_1,
-#elif defined(TCE_OPENACC)
-         call acc_sd_t_d2_3(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d2_3(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -755,8 +901,6 @@ c     ,        fdist_sdkrnl23,fdist_sdcomp23)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_4(k_range_h3b_1,k_range_h2b_1,
-#elif defined(TCE_OPENACC)
-         call acc_sd_t_d2_4(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d2_4(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -775,8 +919,6 @@ c     ,        fdist_sdkrnl24,fdist_sdcomp24)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_5(k_range_h3b_1,k_range_h2b_1,
-#elif defined(TCE_OPENACC)
-         call acc_sd_t_d2_5(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d2_5(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -794,8 +936,6 @@ c     ,        fdist_sdkrnl25,fdist_sdcomp25)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_6(k_range_h3b_1,k_range_h2b_1,
-#elif defined(TCE_OPENACC)
-         call acc_sd_t_d2_6(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d2_6(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -813,8 +953,6 @@ c     ,        fdist_sdkrnl26,fdist_sdcomp26)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_7(k_range_h3b_1,k_range_h2b_1,
-#elif defined(TCE_OPENACC)
-         call acc_sd_t_d2_7(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d2_7(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -832,8 +970,6 @@ c     ,        fdist_sdkrnl27,fdist_sdcomp27)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_8(k_range_h3b_1,k_range_h2b_1,
-#elif defined(TCE_OPENACC)
-         call acc_sd_t_d2_8(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d2_8(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -851,8 +987,6 @@ c     ,        fdist_sdkrnl28,fdist_sdcomp28)
 c        call tce_sdtime0(t0)
 #ifdef OFFLOAD_CODE
          call offl_sdtransp_t_d2_9(k_range_h3b_1,k_range_h2b_1,
-#elif defined(TCE_OPENACC)
-         call acc_sd_t_d2_9(k_range_h3b_1,k_range_h2b_1,
 #else
          call sdtransp_t_d2_9(k_range_h3b_1,k_range_h2b_1,
 #endif
@@ -864,9 +998,7 @@ c        call tce_sdtime0(t0)
 c         call tce_sdtime(t0,deltat_mic,
 c     ,        fdist_sdkrnl29,fdist_sdcomp29)
       END IF
-#ifdef TCE_OPENACC
-!$acc update self(t2sub(1:l_t2sub))      
-!$acc update self(v2sub(1:l_v2sub))      
+
 #endif
 #ifdef OFFLOAD_CODE
 #ifdef AOMP_MAPPING_FIXED
