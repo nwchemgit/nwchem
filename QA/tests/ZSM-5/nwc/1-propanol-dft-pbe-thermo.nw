@@ -1,0 +1,55 @@
+echo
+start 1-propanol-dat
+
+memory heap 100 mb stack 500 mb global 1024 mb
+
+geometry
+  #load ../xyz/1-propanol.xyz
+  load 1-propanol.xyz
+end
+
+basis "cc-pvdz" spherical
+  * library cc-pvdz
+end
+basis "cc-pvtz" spherical
+  * library cc-pvtz
+end
+basis "cc-pvqz" spherical
+  * library cc-pvqz
+end
+basis "cc-pv5z" spherical
+  * library cc-pv5z
+end
+basis "cc-pv6z" spherical
+  * library cc-pv6z
+end
+
+dft 
+  direct
+  # select PBE functional following https://doi.org/10.1002/aic.15517
+  xc xpbe96 cpbe96
+  convergence energy 1e-8 density 1e-7 gradient 1e-6
+end
+
+set int:txs:limxmem              50000000
+
+set "ao basis" "cc-pvdz"
+task dft optimize
+task dft frequencies
+vib
+  reuse
+  temp 2 398.15 498.15
+end
+task dft frequencies
+
+#set "ao basis" "cc-pvtz"
+#task dft optimize
+
+#set "ao basis" "cc-pvqz"
+#task dft optimize
+
+#set "ao basis" "cc-pv5z"
+#task dft optimize
+
+#set "ao basis" "cc-pv6z"
+#task dft optimize
