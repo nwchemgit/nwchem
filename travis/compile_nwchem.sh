@@ -81,6 +81,13 @@ if [[ "$ARMCI_NETWORK" == "ARMCI" ]]; then
     cd ..
 fi    
 
+if [ "$(gfortran -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c 18-)" -lt 9 ] ; then
+#disable xtb  if gfortran version < 9
+    unset USE_TBLITE
+    export NWCHEM_MODULES=$(echo $NWCHEM_MODULES |sed  's/xtb//')
+fi
+
+
 #compilation
  if [[ "$os" == "Darwin" ]]; then 
    if [[ "$NWCHEM_MODULES" == "tce" ]]; then
