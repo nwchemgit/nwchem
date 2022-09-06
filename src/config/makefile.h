@@ -3717,6 +3717,13 @@ ifdef TCE_CUDA
     endif
 endif
 
+ifdef TCE_OPENACC
+    DEFINES += -DTCE_OPENACC
+    ifeq ($(_FC),gfortran)
+        CORE_LIBS += -fopenacc
+    endif
+endif
+
 ifndef HIP
     HIP = hipcc
 endif
