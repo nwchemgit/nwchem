@@ -70,8 +70,8 @@ esac
 	 #hack to fix Github actions mpif90
 	 gccver=`brew list --versions gcc| head -1 |cut -c 5-`
 	 echo brew gccver is $gccver
-	 ln -sf /usr/local/Cellar/gcc/$gccver/bin/gfortran-* /usr/local/Cellar/gcc/$gccver/bin/gfortran || true
-	 ln -sf /usr/local/Cellar/gcc/$gccver/bin/gfortran-* /usr/local/bin/gfortran || true
+	 ln -sf $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran-* $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran || true
+	 ln -sf $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran-* /usr/local/bin/gfortran || true
 #	 ln -sf /usr/local/bin/$FC /usr/local/bin/gfortran
 	 $FC --version
 	 gfortran --version
