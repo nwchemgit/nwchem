@@ -321,7 +321,12 @@ ifdef USE_OPENACC_TRPDRV
 endif
 
 ifdef TCE_OPENACC
-  FOPTIONS += -cuda -DUSE_CUDA_AFFINITY
+#  ifeq ($(_FC),pgf90)
+#       FOPTIONS += -cuda -DUSE_CUDA_AFFINITY
+#   endif
+#   ifeq ($(_FC),gfortran)
+       FOPTIONS += -DUSE_OPENACC_AFFINITY
+#   endif
 endif
 
 ifdef USE_FORTRAN2003
