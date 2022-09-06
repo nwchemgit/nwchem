@@ -258,6 +258,11 @@ c
          end if
       enddo
 c
+#ifdef TCE_OPENACC
+!$acc  enter data copyin(scratch(1:l_t2sub))
+!$acc& copyin(t2sub(1:l_t2sub))
+!$acc& copyin(v2sub(1:l_v2sub))
+#else
 #ifdef OFFLOAD_CODE
 #ifdef AOMP_MAPPING_FIXED
 !$omp target data map(alloc:scratch(1:l_t2sub))
@@ -265,10 +270,6 @@ c
       call offl_dbl_map(scratch, l_t2sub)
 #endif
 #endif
-#ifdef TCE_OPENACC
-!$acc  enter data copyin(scratch(1:l_t2sub))
-!$acc& copyin(t2sub(1:l_t2sub))
-!$acc& copyin(v2sub(1:l_v2sub))
 #endif
       do ia6=1,9
       p4b=a3(ia6,1)
@@ -1022,7 +1023,7 @@ c
 !$acc  exit data delete(t2sub(1:l_t2sub))
 !$acc& delete(v2sub(1:l_v2sub))
 !$acc& delete(scratch(1:l_t2sub))
-#endif
+#else
 
 #ifdef OFFLOAD_CODE
 #ifdef AOMP_MAPPING_FIXED
@@ -1034,6 +1035,7 @@ c     unmap(to:scratch(1:l_t2sub))
 #endif
 #ifdef DEBUG_TRIPLESX
       call debug_triplesx_d(triplesx, l_triplesx)
+#endif
 #endif
       RETURN
       END
