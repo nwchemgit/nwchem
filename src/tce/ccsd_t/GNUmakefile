@@ -56,11 +56,11 @@ ifdef TCE_OPENACC
   OBJ_OPTIMIZE += ccsd_t_kernels_acc.o
   FOPTIONS += -DTCE_OPENACC
   ifeq ($(_FC),pgf90)
-       FOPTIONS += -acc -cuda
-   endif
-   ifeq ($(_FC),gfortran)
-       FOPTIONS += -fopenacc
-   endif
+    FOPTIONS += -acc -cuda
+  endif
+  ifeq ($(_FC),gfortran)
+    FOPTIONS += -fopenacc
+  endif
 endif
 
 
