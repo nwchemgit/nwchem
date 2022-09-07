@@ -60,14 +60,7 @@ if [[ "$FC" == "nvfortran" ]]; then
 #    export CC=gcc
 fi
 if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
-    case "$os" in
-	Darwin)
-	    IONEAPI_ROOT=~/apps/oneapi
-	    ;;
-	Linux)	
-	    IONEAPI_ROOT=/opt/intel/oneapi
-	    ;;		
-    esac			
+    IONEAPI_ROOT=~/apps/oneapi
     source "$IONEAPI_ROOT"/compiler/latest/env/vars.sh
     export I_MPI_F90="$FC"
     "$FC" -V
@@ -175,3 +168,9 @@ if [[ ! -z "$BUILD_ELPA" ]]; then
 echo "BUILD_ELPA = " "$BUILD_ELPA"
 fi
 export NWCHEM_EXECUTABLE=$TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET/nwchem_"$arch"_`echo $NWCHEM_MODULES|sed 's/ /-/g'`_"$MPI_IMPL"
+
+if [ "$(gfortran -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c 18-)" -lt 9 ] ; then
+#disable xtb  if gfortran version < 9
+    unset USE_TBLITE
+    export NWCHEM_MODULES=$(echo $NWCHEM_MODULES |sed  's/xtb//')
+fi

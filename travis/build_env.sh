@@ -18,14 +18,7 @@ if [ -z "$DISTR" ] ; then
     DISTR=$dist
 fi
 echo DISTR is "$DISTR"
-case "$os" in
-    Darwin)
 	IONEAPI_ROOT=~/apps/oneapi
-	;;
-    Linux)
-	IONEAPI_ROOT=/opt/intel/oneapi
-	;;
-esac
  if [[ "$os" == "Darwin" ]]; then 
 #  HOMEBREW_NO_AUTO_UPDATE=1 brew cask uninstall oclint || true  
 #  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python3 ||true
@@ -110,16 +103,18 @@ fi
     fi
     if [[ "$MPI_IMPL" == "intel" || "$FC" == "ifort" || "$FC" == "ifx" ]]; then
 	export APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
+        rm -f l_Base*sh l_HP*sh
         tries=0 ; until [ "$tries" -ge 10 ] ; do \
-	wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
-            && sudo -E apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB  \
-            && rm -f GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB || true \
-            && echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list \
-            && sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"  \
-	    && sudo apt-get update && break ;\
+	dir_base="18673"
+	dir_hpc="18679"
+	base="l_BaseKit_p_2022.2.0.262"
+	hpc="l_HPCKit_p_2022.2.0.191"
+        wget https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".sh \
+        && wget https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_base"/"$base".sh \
+	    && break ;\
             tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
 
-        mpi_bin="  " ; mpi_libdev="intel-oneapi-mpi-devel" scalapack_libdev="intel-oneapi-mkl"
+        mpi_bin="  " ; mpi_libdev=" " scalapack_libdev=" "
     fi
     sudo apt-get update
     sudo apt-get -y install software-properties-common
@@ -131,7 +126,14 @@ fi
         sudo  apt-get -y install gcc-11 gfortran-11 g++-11
     fi
     if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]]; then
-	sudo apt-get -y install intel-oneapi-ifort intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic  intel-oneapi-mkl
+        sh ./"$base".sh -a -c -s --action remove --install-dir ~/oneapi  --eula accept
+        sh ./"$hpc".sh -a -c -s --action remove --install-dir ~/oneapi  --eula accept
+
+        sh ./"$base".sh -a -c -s --action install --components intel.oneapi.lin.mkl.devel --install-dir ~/oneapi  --eula accept
+ 
+        sh ./"$hpc".sh -a -c -s --action install \
+        --components  intel.oneapi.lin.ifort-compiler:intel.oneapi.lin.mpi.devel \
+         --install-dir ~/oneapi     --eula accept
 	if [[ "$?" != 0 ]]; then
 	    echo "apt-get install failed: exit code " "${?}"
 	    exit 1
