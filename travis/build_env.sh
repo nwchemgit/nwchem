@@ -37,13 +37,13 @@ echo DISTR is "$DISTR"
 	curl -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".dmg
 	echo "installing BaseKit"
 	hdiutil attach "$base".dmg  -mountpoint ~/mntdmg -nobrowse
-	sudo ~/mntdmg/bootstrapper.app/Contents/MacOS/install.sh --cli  --eula accept \
+	 ~/mntdmg/bootstrapper.app/Contents/MacOS/install.sh --cli  --eula accept \
 	     --action install --components default  --install-dir ~/apps/oneapi
 	hdiutil detach ~/mntdmg
 	#
 	echo "installing HPCKit"
 	hdiutil attach "$hpc".dmg  -mountpoint ~/mntdmg -nobrowse
-	sudo ~/mntdmg/bootstrapper.app/Contents/MacOS/install.sh --cli  --eula accept \
+	 ~/mntdmg/bootstrapper.app/Contents/MacOS/install.sh --cli  --eula accept \
 	     --action install --components default --install-dir ~/apps/oneapi
 	hdiutil detach ~/mntdmg
 	ls -lrta ~/apps/oneapi ||true
