@@ -61,6 +61,9 @@ echo DISTR is "$DISTR"
 	 #hack to fix Github actions mpif90
 	 gccver=`brew list --versions gcc| head -1 |cut -c 5-`
 	 echo brew gccver is $gccver
+         if [ -z "$HOMEBREW_CELLAR" ] ; then
+	     HOMEBREW_CELLAR=/usr/local/Cellar
+	 fi
 	 ln -sf $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran-* $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran || true
 	 ln -sf $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran-* /usr/local/bin/gfortran || true
 #	 ln -sf /usr/local/bin/$FC /usr/local/bin/gfortran
