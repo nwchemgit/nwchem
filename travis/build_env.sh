@@ -132,7 +132,7 @@ fi
         sh ./"$base".sh -a -c -s --action install --components intel.oneapi.lin.mkl.devel --install-dir $IONEAPI_ROOT  --eula accept
  
         sh ./"$hpc".sh -a -c -s --action install \
-        --components  intel.oneapi.lin.ifort-compiler:intel.oneapi.lin.mpi.devel \
+        --components  intel.oneapi.lin.ifort-compiler:intel.oneapi.lin.mpi.devel:intel.oneapi.lin.dpcpp-cpp-compiler-pro  \
          --install-dir $IONEAPI_ROOT     --eula accept
 	if [[ "$?" != 0 ]]; then
 	    echo "apt-get install failed: exit code " "${?}"
