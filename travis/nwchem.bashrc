@@ -68,8 +68,8 @@ if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
     if [[ "$os" == "Darwin" ]]; then
        CC=icc
     fi
-    "$FC" -V
-    "$CC" -V
+    "$FC" -v
+    "$CC" -v
 fi
 if [[ -f "$IONEAPI_ROOT"/mpi/latest/env/vars.sh ]]; then
     source "$IONEAPI_ROOT"/mpi/latest/env/vars.sh
