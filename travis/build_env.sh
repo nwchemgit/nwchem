@@ -37,13 +37,13 @@ echo DISTR is "$DISTR"
 	curl -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".dmg
 	echo "installing BaseKit"
 	hdiutil attach "$base".dmg  -mountpoint ~/mntdmg -nobrowse
-	 ~/mntdmg/bootstrapper.app/Contents/MacOS/install.sh --cli  --eula accept \
-	     --action install --components default  --install-dir $IONEAPI_ROOT
+	sudo  ~/mntdmg/bootstrapper.app/Contents/MacOS/install.sh  -c -s --action install  \
+        --components intel.oneapi.mac.mkl.devel  --install-dir $IONEAPI_ROOT --eula accept
 	hdiutil detach ~/mntdmg
 	#
 	echo "installing HPCKit"
 	hdiutil attach "$hpc".dmg  -mountpoint ~/mntdmg -nobrowse
-	 ~/mntdmg/bootstrapper.app/Contents/MacOS/install.sh --cli  --eula accept \
+	sudo  ~/mntdmg/bootstrapper.app/Contents/MacOS/install.sh -c -s  --eula accept \
 	     --action install --components default --install-dir $IONEAPI_ROOT
 	hdiutil detach ~/mntdmg
 	ls -lrta $IONEAPI_ROOT ||true
