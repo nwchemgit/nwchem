@@ -66,7 +66,8 @@ if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
     export I_MPI_F90="$FC"
 #force icc on macos to cross-compile x86 on arm64    
     if [[ "$os" == "Darwin" ]]; then
-       CC=icc
+	CC=icc
+	CXX=icpc
 # Intel MPI not available on macos       
        export BUILD_MPICH=1
     fi
@@ -173,8 +174,10 @@ echo "BUILD_ELPA = " "$BUILD_ELPA"
 fi
 export NWCHEM_EXECUTABLE=$TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET/nwchem_"$arch"_`echo $NWCHEM_MODULES|sed 's/ /-/g'`_"$MPI_IMPL"
 
-if [ "$FC" == "gfortran" && "$($FC -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c 18-)" -lt 9 ] ; then
+if [[ "$FC" == "gfortran" ]]; then
+   if [[ "$($FC -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c 18-)" -lt 9 ]]; then
 #disable xtb  if gfortran version < 9
-    unset USE_TBLITE
-    export NWCHEM_MODULES=$(echo $NWCHEM_MODULES |sed  's/xtb//')
+     unset USE_TBLITE
+     export NWCHEM_MODULES=$(echo $NWCHEM_MODULES |sed  's/xtb//')
+   fi
 fi
