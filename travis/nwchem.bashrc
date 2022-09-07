@@ -64,8 +64,12 @@ if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
 #    source "$IONEAPI_ROOT"/compiler/latest/env/vars.sh
     source "$IONEAPI_ROOT"/setvars.sh --force
     export I_MPI_F90="$FC"
+#force icc on macos to cross-compile x86 on arm64    
+    if [[ "$os" == "Darwin" ]]; then
+       CC=icc
+    fi
     "$FC" -V
-
+    "$CC" -V
 fi
 if [[ -f "$IONEAPI_ROOT"/mpi/latest/env/vars.sh ]]; then
     source "$IONEAPI_ROOT"/mpi/latest/env/vars.sh
