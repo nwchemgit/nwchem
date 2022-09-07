@@ -47,7 +47,7 @@ echo DISTR is "$DISTR"
 	     --action install --components default --install-dir $IONEAPI_ROOT
 	hdiutil detach ~/mntdmg
 	ls -lrta $IONEAPI_ROOT ||true
-	sudo rm -rf "$IONEAPI_ROOT"/intelpython "$IONEAPI_ROOT"/dal "$IONEAPI_ROOT"/advisor \
+	rm -rf "$IONEAPI_ROOT"/intelpython "$IONEAPI_ROOT"/dal "$IONEAPI_ROOT"/advisor \
 	     "$IONEAPI_ROOT"/ipp "$IONEAPI_ROOT"/conda_channel 	"$IONEAPI_ROOT"/dnnl \
 	     "$IONEAPI_ROOT"/installer "$IONEAPI_ROOT"/vtune_profiler "$IONEAPI_ROOT"/tbb || true
 	fi
