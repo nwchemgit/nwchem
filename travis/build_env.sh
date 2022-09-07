@@ -51,12 +51,10 @@ echo DISTR is "$DISTR"
 	     "$IONEAPI_ROOT"/ipp "$IONEAPI_ROOT"/conda_channel 	"$IONEAPI_ROOT"/dnnl \
 	     "$IONEAPI_ROOT"/installer "$IONEAPI_ROOT"/vtune_profiler "$IONEAPI_ROOT"/tbb || true
 	fi
-	 source "$IONEAPI_ROOT"/setvars.sh || true
+	 source "$IONEAPI_ROOT"/setvars.sh --force || true
 	 export I_MPI_F90="$FC"
 	ls -lrta $IONEAPI_ROOT ||true
-	df -h 
 	rm -f *dmg || true
-	df -h
 	"$FC" -V
 	icc -V
      else
