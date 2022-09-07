@@ -169,7 +169,7 @@ echo "BUILD_ELPA = " "$BUILD_ELPA"
 fi
 export NWCHEM_EXECUTABLE=$TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET/nwchem_"$arch"_`echo $NWCHEM_MODULES|sed 's/ /-/g'`_"$MPI_IMPL"
 
-if [ "$(gfortran -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c 18-)" -lt 9 ] ; then
+if [ "$($FC -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c 18-)" -lt 9 ] ; then
 #disable xtb  if gfortran version < 9
     unset USE_TBLITE
     export NWCHEM_MODULES=$(echo $NWCHEM_MODULES |sed  's/xtb//')
