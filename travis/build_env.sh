@@ -27,7 +27,7 @@ echo DISTR is "$DISTR"
          if [[ -f ~/apps/oneapi/setvars.sh ]]; then 
 	     echo ' using intel cache installation '
 	 else
-	mkdir -p ~/mntdmg ~/apps/oneapi || true
+	mkdir -p ~/mntdmg $IONEAPI_ROOT || true
 	cd ~/Downloads
 	dir_base="18675"
 	dir_hpc="18681"
@@ -38,22 +38,22 @@ echo DISTR is "$DISTR"
 	echo "installing BaseKit"
 	hdiutil attach "$base".dmg  -mountpoint ~/mntdmg -nobrowse
 	 ~/mntdmg/bootstrapper.app/Contents/MacOS/install.sh --cli  --eula accept \
-	     --action install --components default  --install-dir ~/apps/oneapi
+	     --action install --components default  --install-dir $IONEAPI_ROOT
 	hdiutil detach ~/mntdmg
 	#
 	echo "installing HPCKit"
 	hdiutil attach "$hpc".dmg  -mountpoint ~/mntdmg -nobrowse
 	 ~/mntdmg/bootstrapper.app/Contents/MacOS/install.sh --cli  --eula accept \
-	     --action install --components default --install-dir ~/apps/oneapi
+	     --action install --components default --install-dir $IONEAPI_ROOT
 	hdiutil detach ~/mntdmg
-	ls -lrta ~/apps/oneapi ||true
+	ls -lrta $IONEAPI_ROOT ||true
 	sudo rm -rf "$IONEAPI_ROOT"/intelpython "$IONEAPI_ROOT"/dal "$IONEAPI_ROOT"/advisor \
 	     "$IONEAPI_ROOT"/ipp "$IONEAPI_ROOT"/conda_channel 	"$IONEAPI_ROOT"/dnnl \
 	     "$IONEAPI_ROOT"/installer "$IONEAPI_ROOT"/vtune_profiler "$IONEAPI_ROOT"/tbb || true
 	fi
 	 source "$IONEAPI_ROOT"/setvars.sh || true
 	 export I_MPI_F90="$FC"
-	ls -lrta ~/apps/oneapi ||true
+	ls -lrta $IONEAPI_ROOT ||true
 	df -h 
 	rm -f *dmg || true
 	df -h
@@ -126,19 +126,18 @@ fi
         sudo  apt-get -y install gcc-11 gfortran-11 g++-11
     fi
     if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]]; then
-        sh ./"$base".sh -a -c -s --action remove --install-dir ~/oneapi  --eula accept
-        sh ./"$hpc".sh -a -c -s --action remove --install-dir ~/oneapi  --eula accept
+        sh ./"$base".sh -a -c -s --action remove --install-dir $IONEAPI_ROOT   --eula accept
+        sh ./"$hpc".sh -a -c -s --action remove --install-dir  $IONEAPI_ROOT  --eula accept
 
-        sh ./"$base".sh -a -c -s --action install --components intel.oneapi.lin.mkl.devel --install-dir ~/oneapi  --eula accept
+        sh ./"$base".sh -a -c -s --action install --components intel.oneapi.lin.mkl.devel --install-dir $IONEAPI_ROOT  --eula accept
  
         sh ./"$hpc".sh -a -c -s --action install \
         --components  intel.oneapi.lin.ifort-compiler:intel.oneapi.lin.mpi.devel \
-         --install-dir ~/oneapi     --eula accept
+         --install-dir $IONEAPI_ROOT     --eula accept
 	if [[ "$?" != 0 ]]; then
 	    echo "apt-get install failed: exit code " "${?}"
 	    exit 1
 	fi
-	sudo apt-get -y install intel-oneapi-mpi-devel
     fi
     if [[ "$FC" == "flang" ]]; then
 	if [[ "USE_AOMP" == "Y" ]]; then
