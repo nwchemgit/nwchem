@@ -61,16 +61,14 @@ if [[ "$FC" == "nvfortran" ]]; then
 fi
 if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
     IONEAPI_ROOT=~/apps/oneapi
-    source "$IONEAPI_ROOT"/compiler/latest/env/vars.sh
+#    source "$IONEAPI_ROOT"/compiler/latest/env/vars.sh
+    source "$IONEAPI_ROOT"/setvars.sh
     export I_MPI_F90="$FC"
     "$FC" -V
-    if [ -f "$IONEAPI_ROOT"/mkl/latest/env/vars.sh ] ; then
-	source "$IONEAPI_ROOT"/mkl/latest/env/vars.sh
-    fi
 
 fi
-if [[ "$MPI_IMPL" == "intel" ]]; then
-    source /opt/intel/oneapi/mpi/latest/env/vars.sh
+if [[ -f "$IONEAPI_ROOT"/mpi/latest/env/vars.sh ]]; then
+    source "$IONEAPI_ROOT"/mpi/latest/env/vars.sh
     export I_MPI_F90="$FC"
     mpif90 -v
     mpif90 -show

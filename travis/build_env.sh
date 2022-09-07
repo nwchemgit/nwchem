@@ -24,7 +24,7 @@ echo DISTR is "$DISTR"
 #  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python3 ||true
      HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" python3 gsed grep automake autoconf ||true
      if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
-         if [[ -f ~/apps/oneapi/setvars.sh ]]; then 
+         if [[ -f "$IONEAPI_ROOT"/setvars.sh ]]; then 
 	     echo ' using intel cache installation '
 	 else
 	mkdir -p ~/mntdmg $IONEAPI_ROOT || true
@@ -138,6 +138,11 @@ fi
 	    echo "apt-get install failed: exit code " "${?}"
 	    exit 1
 	fi
+        source "$IONEAPI_ROOT"/setvars.sh || true
+	export I_MPI_F90="$FC"
+	"$FC" -V
+	icc -V
+
     fi
     if [[ "$FC" == "flang" ]]; then
 	if [[ "USE_AOMP" == "Y" ]]; then
