@@ -92,9 +92,9 @@ fi
 
 #compilation
  if [[ "$os" == "Darwin" ]]; then 
-   if [[ "$NWCHEM_MODULES" == "tce" ]]; then
+#   if [[ "$NWCHEM_MODULES" == "tce" ]]; then
 #     FOPT="-O1 -fno-aggressive-loop-optimizations"
-   fi
+#   fi
    if [[ ! -z "$USE_SIMINT" ]] ; then 
 #       FOPT="-O0 -fno-aggressive-loop-optimizations"
        SIMINT_BUILD_TYPE=Debug
