@@ -68,7 +68,9 @@
       character*255 :: char_use_ngpus
       integer(kind=acc_device_kind) :: devicetype
       me = ga_nodeid()
-      devicetype = acc_device_nvidia
+c Get device type currently used and find how many there are
+c By default this will be the GPU being used
+      devicetype = acc_get_device_type()
       num_devices = acc_get_num_devices(devicetype)
       if (num_devices.lt.1) call errquit('No GPU found!',0,UNKNOWN_ERR)
       ! user prescribes how many to use
