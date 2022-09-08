@@ -15,7 +15,7 @@
      &     Lmat,
      1     do_3rd, Amat3, Cmat3, ngxc,
      2     rhosave, delrhosave,
-     3     do_tddftvxc)
+     3     do_tddftvxc,cd_coef)
 c      
 c     $Id$
 c     
@@ -83,6 +83,7 @@ c
       double precision drhonuc(*),ddelrhonuc(*),d2scr(*),
      ,     iscr(*)
       integer nscr ! [in]
+      double precision cd_coef(*)
 c     external
 c
       double precision eps
@@ -123,8 +124,14 @@ c happening and prevent future issues when people add to the code.
 c Daniel (2-7-13): Variable for the alternative approach to doing
 c the dVxc*P contribution in TDDFT gradients.
       logical do_tddftvxc
+      integer basis
 c
 c     
+      if (adft) then
+        basis = cd_bas_han
+      else
+        basis = ao_bas_han
+      endif
       me = ga_nodeid()
       Ec = 0.d0
       Ex = 0.d0
@@ -136,7 +143,7 @@ c
 c     Determine the XC energy functionals.
 c
 c
-      if (.not.bas_nbf_cn_max(AO_bas_han, nbf_max))
+      if (.not.bas_nbf_cn_max(basis, nbf_max))
      &   call errquit('exiting in dftg_gridv0.',7, BASIS_ERR)
       nbf_ao_mxnbf_ce2 = nbf_ao_mxnbf_ce*nbf_ao_mxnbf_ce
 c
@@ -196,6 +203,8 @@ c
       
 c Daniel (1-11-13): Added XC-third derivative stuff to prevent problems
 c with subroutine calls after this one.
+cdebug      write(*,*) 'cd_coef', cd_coef(1:nbf_cd)
+
       call grid_loop(.true.,
      ,     nops,
      ,     oprint,grad,g_dens,
@@ -208,8 +217,8 @@ c with subroutine calls after this one.
      ,     ibf_ao,dbl_mb(ibp),rchi_atom,rdelchi_atom,
      ,     Ex, Ec, amat,cmat,idum1,
      ,     Amat2, Cmat2,
-     ,     idum1, ldum1, ldum1, do_cpks_r,ldum1,ddum1,
-     ,     ldum1,ldum1,ldum1,
+     ,     idum1, ldum1, ldum1, do_cpks_r,ldum1,ldum1,
+     ,     cd_coef,ldum1,ldum1,
      &     ttau, kske, Mmat, Mmat2,
      &     kslap, Lmat,
      ,     int_mb(k_qat),

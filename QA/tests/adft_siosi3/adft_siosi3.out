@@ -1,0 +1,643 @@
+ argument  1 = /Users/edo/nwchem/nwchem-adft-pull3/QA/tests/adft_siosi3/adft_siosi3.nw
+
+
+
+============================== echo of input deck ==============================
+echo
+
+start siosi3
+
+geometry units au noautoz noautosym noprint
+O 0.000000 0.000000 0.000000
+Si 3.014576 0.000000 0.000000
+Si -2.508676 -1.669137 0.090355
+O 3.981166 -1.323122 -2.508935
+O 3.870273 2.910825 0.000000
+O 4.041116 -1.465033 2.376888
+O -2.655663 -3.328781 -2.400368
+O -2.480544 -3.435889 2.483573
+O -4.832471 0.280842 0.142363
+Si 5.637169 -3.319181 -4.029830
+Si 5.930953 4.953101 0.791790
+Si 5.468246 -2.250324 4.885188
+Si -7.654391 0.847590 1.014023
+Si -3.158194 -4.857247 5.026302
+Si -2.974151 -5.921535 -3.888964
+H 5.270061 -6.079998 -2.949279
+H 8.494671 -2.562004 -3.822741
+H 4.688562 -3.250915 -6.887353
+H 4.114112 -1.013523 7.254688
+H 5.390639 -5.229699 5.239395
+H 8.311107 -1.375146 4.719652
+H 5.236878 7.507709 -0.616368
+H 5.938739 5.355645 3.732678
+H 8.621652 4.058320 -0.087848
+H -1.107625 -8.007345 -2.844945
+H -5.765149 -6.871347 -3.589463
+H -2.308182 -5.365343 -6.772894
+H -2.645080 -3.056162 7.365261
+H -1.433339 -7.291917 5.351028
+H -6.013502 -5.704069 4.953988
+H -8.533456 3.346292 -0.391100
+H -7.795607 1.205101 3.957357
+H -9.424475 -1.395251 0.207369
+end
+basis "ao basis" spherical
+* library def2-svp
+end
+
+basis "cd basis" bse spherical
+* library def2-universal-jfit
+end
+
+dft
+adft
+noio
+direct
+noprint "final vectors analysis" multipole
+tolerances acccoul 10
+convergence fast
+end
+
+task dft ignore
+
+
+================================================================================
+
+
+                                         
+                                         
+
+
+             Northwest Computational Chemistry Package (NWChem) 7.0.1
+             --------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                              Copyright (c) 1994-2020
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = WD86392
+    program         = /Users/edo/nwchem/nwchem-adft-pull3/bin/MACX64/nwchem
+    date            = Fri Aug 12 18:50:07 2022
+
+    compiled        = Fri_Aug_12_18:00:03_2022
+    source          = /Users/edo/nwchem/nwchem-adft-pull3
+    nwchem branch   = 7.0.0
+    nwchem revision = nwchem_on_git-4076-gf6982bfb4c
+    ga revision     = 5.8.1
+    use scalapack   = T
+    input           = /Users/edo/nwchem/nwchem-adft-pull3/QA/tests/adft_siosi3/adft_siosi3.nw
+    prefix          = siosi3.
+    data base       = ./siosi3.db
+    status          = startup
+    nproc           =        2
+    time left       =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   26214396 doubles =    200.0 Mbytes
+    stack    =   26214401 doubles =    200.0 Mbytes
+    global   =   52428800 doubles =    400.0 Mbytes (distinct from heap & stack)
+    total    =  104857597 doubles =    800.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+
+ Summary of "ao basis" -> "" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ *                          def2-svp                  on all atoms 
+
+
+
+
+ Summary of "cd basis" -> "" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ *                    def2-universal-jfit             on all atoms 
+
+
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+                      Basis "ao basis" -> "ao basis" (spherical)
+                      -----
+  O (Oxygen)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  2.26617678E+03 -0.005343
+  1 S  3.40870102E+02 -0.039890
+  1 S  7.73631352E+01 -0.178539
+  1 S  2.14796449E+01 -0.464277
+  1 S  6.65894331E+00 -0.443097
+
+  2 S  8.09759757E-01  1.000000
+
+  3 S  2.55307722E-01  1.000000
+
+  4 P  1.77215043E+01  0.043395
+  4 P  3.86355054E+00  0.230941
+  4 P  1.04809209E+00  0.513753
+
+  5 P  2.76415444E-01  1.000000
+
+  6 D  1.20000000E+00  1.000000
+
+  Si (Silicon)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  6.90371187E+03  0.001337
+  1 S  1.03843464E+03  0.009997
+  1 S  2.35875815E+02  0.044910
+  1 S  6.60693852E+01  0.114636
+  1 S  2.02479458E+01  0.102801
+
+  2 S  3.43534817E+01  0.070837
+  2 S  3.63707882E+00 -0.430288
+  2 S  1.40020486E+00 -0.413828
+
+  3 S  2.04844148E-01  1.000000
+
+  4 S  7.79940955E-02  1.000000
+
+  5 P  1.79839074E+02  0.006192
+  5 P  4.19072588E+01  0.043399
+  5 P  1.29552944E+01  0.156320
+  5 P  4.43832674E+00  0.294200
+  5 P  1.54622479E+00  0.235368
+
+  6 P  3.56076123E-01  1.000000
+
+  7 P  1.00085138E-01  1.000000
+
+  8 D  3.50000000E-01  1.000000
+
+  H (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.30107010E+01  0.019682
+  1 S  1.96225720E+00  0.137965
+  1 S  4.44537960E-01  0.478319
+
+  2 S  1.21949620E-01  1.000000
+
+  3 P  8.00000000E-01  1.000000
+
+
+
+ Summary of "ao basis" -> "ao basis" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ O                          def2-svp                 6       14   3s2p1d
+ Si                         def2-svp                 8       18   4s3p1d
+ H                          def2-svp                 3        5   2s1p
+
+
+                      Basis "cd basis" -> "cd basis" (spherical)
+                      -----
+  O (Oxygen)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  2.87682166E+03  0.144356
+  1 S  1.00474430E+03  0.292004
+  1 S  3.69757995E+02  1.025852
+  1 S  1.42944240E+02  2.287552
+  1 S  5.78366425E+01  3.608024
+  1 S  2.43864983E+01  2.373787
+  1 S  1.06622662E+01  0.048941
+
+  2 S  4.80704370E+00 -0.129519
+
+  3 S  2.22107700E+00  0.774716
+
+  4 S  1.04477950E+00  0.764782
+
+  5 S  4.96842500E-01  0.236980
+
+  6 S  2.37138400E-01  0.020810
+
+  7 P  6.42613382E+01 -0.012666
+  7 P  1.63006076E+01 -0.037874
+
+  8 P  4.35505420E+00  0.063808
+
+  9 P  1.20195540E+00  0.016952
+
+ 10 P  3.35419600E-01  0.006574
+
+ 11 D  9.21466110E+00 -0.059791
+ 11 D  2.84352510E+00 -0.084672
+
+ 12 D  9.95575900E-01 -0.046607
+
+ 13 D  3.64944100E-01 -0.009698
+
+ 14 F  2.64201150E+00  1.000000
+ 14 F  7.34561300E-01  1.000000
+
+ 15 G  1.39310000E+00 -0.001653
+
+  Si (Silicon)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  5.82676577E+03  0.567798
+  1 S  2.17312144E+03  1.011807
+  1 S  8.39496651E+02  3.279984
+  1 S  3.35265962E+02  6.736171
+  1 S  1.38117098E+02  8.694914
+  1 S  5.85516054E+01  3.243156
+  1 S  2.54744274E+01 -1.252074
+
+  2 S  1.13418415E+01  2.670610
+
+  3 S  5.15133560E+00  4.347476
+
+  4 S  2.37886540E+00  0.872901
+
+  5 S  1.11304980E+00 -0.324460
+
+  6 S  5.25742700E-01  0.295698
+
+  7 S  2.49757800E-01  0.194689
+
+  8 S  1.18876800E-01  0.031863
+
+  9 P  8.78369310E+00  0.024225
+  9 P  2.61582480E+00 -0.015327
+
+ 10 P  8.26604000E-01  0.006159
+
+ 11 P  2.71148700E-01  0.042807
+
+ 12 P  9.00870000E-02  0.001554
+
+ 13 D  1.08892767E+01  0.024059
+ 13 D  2.66059250E+00 -0.018990
+ 13 D  8.06752800E-01  0.024211
+
+ 14 D  2.85984800E-01  0.031715
+
+ 15 D  1.07432900E-01  0.002060
+
+ 16 F  8.10381600E-01  0.008822
+ 16 F  1.98852900E-01  0.002025
+
+ 17 G  4.01490000E-01 -0.001668
+
+  H (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.56752927E+01  0.018689
+  1 S  3.60635780E+00  0.063167
+  1 S  1.20800160E+00  0.120461
+
+  2 S  4.72679400E-01  0.059249
+
+  3 S  2.01810000E-01  0.005127
+
+  4 P  2.02813650E+00  1.000000
+  4 P  5.35873000E-01  1.000000
+
+  5 D  2.21651240E+00  0.003312
+
+
+
+ Summary of "cd basis" -> "cd basis" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ O                    def2-universal-jfit           15       49   6s4p3d1f1g
+ Si                   def2-universal-jfit           17       51   8s4p3d1f1g
+ H                    def2-universal-jfit            5       11   3s1p1d
+
+
+
+
+ Summary of "ao basis" -> "ao basis" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ O                          def2-svp                 6       14   3s2p1d
+ Si                         def2-svp                 8       18   4s3p1d
+ H                          def2-svp                 3        5   2s1p
+
+
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :    33
+          No. of electrons :   186
+           Alpha electrons :    93
+            Beta electrons :    93
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  50
+          This is a Direct SCF calculation.
+          AO basis - number of functions:   332
+                     number of shells:   160
+          A Charge density fitting basis will be used.
+          CD basis - number of functions:   949
+                     number of shells:   331
+          An Exch-Corr fitting basis will be used.
+          XC basis - number of functions:   949
+                     number of shells:   331
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+
+              XC Information
+              --------------
+                        Slater Exchange Functional  1.000 local    
+                      VWN V Correlation Functional  1.000 local    
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          O                   0.60       49          15.0       434
+          Si                  1.10       88          17.0       590
+          H                   0.35       45          18.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:  1857
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping(40%)  Levelshifting(0.0)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            0.00D+00            start   
+          dE off:   50 iters          0.00D+00           50 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-10
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:       -2841.73345392
+   Time after variat. SCF:      0.3
+
+      3 Center 2 Electron Integral Information
+      ----------------------------------------
+          Maximum number of 3-center 2e- integrals is:       104602576.
+            This is reduced with Schwarz screening to:        40025024.
+            Incore requires a per proc buffer size of:        18542512.
+          Minimum dble words available (all nodes) is:        52392452
+                   This is reduced (for later use) to:        51321847
+                      proc 0 Suggested buffer size is:        18542512
+                         Max Suggested buffer size is:        18542512
+                              no. integral batches is:            1122
+
+          Incore memory use for 3-center 2e- integrals is turned off. 
+   Time prior to 1st pass:      0.3
+
+ Grid_pts file          = ./siosi3.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =    198        Max. recs in file   = 506625431
+
+ Grid integrated density:     186.006356117982
+ Requested integration accuracy:   0.10E-05
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):        0.00                1029
+          Stack Space remaining (MW):       26.21            26211244
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d=40,ls=0.0,diis     1  -2841.6845070418 -5.15D+03  1.80D-02  1.62D+02     4.4
+ Grid integrated density:     186.001109585051
+ Requested integration accuracy:   0.10E-05
+ d=40,ls=0.0,diis     2  -2840.3521228639  1.33D+00  1.31D-02  2.65D+01     9.7
+ Grid integrated density:     186.001969752572
+ Requested integration accuracy:   0.10E-05
+ d=40,ls=0.0,diis     3  -2839.0840774258  1.27D+00  5.84D-03  9.47D+00    15.1
+ Grid integrated density:     186.001164353572
+ Requested integration accuracy:   0.10E-05
+ d=40,ls=0.0,diis     4  -2839.5245481397 -4.40D-01  2.00D-03  1.47D+00    20.4
+ Grid integrated density:     186.000930412281
+ Requested integration accuracy:   0.10E-05
+ d=40,ls=0.0,diis     5  -2839.6028029137 -7.83D-02  8.35D-04  2.67D-01    25.8
+ Grid integrated density:     186.000845083686
+ Requested integration accuracy:   0.10E-05
+  Resetting Diis
+ d=40,ls=0.0,diis     6  -2839.6247535481 -2.20D-02  3.77D-04  5.26D-02    31.2
+ Grid integrated density:     186.000904334919
+ Requested integration accuracy:   0.10E-05
+ d=40,ls=0.0,diis     7  -2839.6321598777 -7.41D-03  4.35D-04  1.02D-02    37.4
+ Grid integrated density:     186.000904609801
+ Requested integration accuracy:   0.10E-05
+ d=40,ls=0.0,diis     8  -2839.6338729599 -1.71D-03  1.38D-04  6.04D-03    43.7
+ Grid integrated density:     186.000902839105
+ Requested integration accuracy:   0.10E-05
+ d=40,ls=0.0,diis     9  -2839.6353936418 -1.52D-03  4.97D-05  7.72D-04    50.0
+ Grid integrated density:     186.000903152795
+ Requested integration accuracy:   0.10E-05
+ d=40,ls=0.0,diis    10  -2839.6359170603 -5.23D-04  2.20D-05  1.58D-04    56.2
+ Grid integrated density:     186.000904030567
+ Requested integration accuracy:   0.10E-05
+ d=40,ls=0.0,diis    11  -2839.6361235376 -2.06D-04  9.44D-06  2.41D-05    62.5
+ Grid integrated density:     186.000903567405
+ Requested integration accuracy:   0.10E-05
+ d=40,ls=0.0,diis    12  -2839.6362042990 -8.08D-05  3.37D-06  3.62D-06    68.8
+ Grid integrated density:     186.000903443687
+ Requested integration accuracy:   0.10E-05
+ d=40,ls=0.0,diis    13  -2839.6362362981 -3.20D-05  1.31D-06  5.66D-07    75.0
+ Grid integrated density:     186.000903411752
+ Requested integration accuracy:   0.10E-05
+ d=40,ls=0.0,diis    14  -2839.6362490528 -1.28D-05  5.15D-07  8.88D-08    81.3
+ Grid integrated density:     186.000903425055
+ Requested integration accuracy:   0.10E-05
+ d=40,ls=0.0,diis    15  -2839.6362541500 -5.10D-06  2.10D-07  1.43D-08    87.6
+ Grid integrated density:     186.000903416737
+ Requested integration accuracy:   0.10E-05
+ d=40,ls=0.0,diis    16  -2839.6362561842 -2.03D-06  8.38D-08  2.29D-09    93.8
+ Grid integrated density:     186.000903421243
+ Requested integration accuracy:   0.10E-05
+ d=40,ls=0.0,diis    17  -2839.6362570024 -8.18D-07  3.36D-08  3.68D-10   100.1
+
+
+         Total DFT energy =    -2839.636257002359
+      One electron energy =    -8559.371905974978
+           Coulomb energy =     3627.695582737698
+    Exchange-Corr. energy =     -221.202310538477
+ Nuclear repulsion energy =     2313.242376773399
+
+ Numeric. integr. density =      186.000903421243
+
+     Total iterative time =     99.8s
+
+
+
+ center of mass
+ --------------
+ x =  -0.00952295 y =   0.03028985 z =  -0.02257135
+
+ moments of inertia (a.u.)
+ ------------------
+        6246.693956998223       -1350.867456527316         178.358701865298
+       -1350.867456527316       10287.349148271958        -337.687957306077
+         178.358701865298        -337.687957306077       10500.339172729240
+
+ Task  times  cpu:      100.2s     wall:      100.2s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+MA_summarize_allocated_blocks: starting scan ...
+heap block 'gridpts', handle 116, address 0x280042f30:
+	type of elements:		double precision
+	number of elements:		33554432
+	address of client space:	0x280042fc0
+	index for client space:		781715293
+	total number of bytes:		268435608
+MA_summarize_allocated_blocks: scan completed: 1 heap block, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         1	         0
+	maximum number of blocks	        27	        57
+	current total bytes		 268435608	         0
+	maximum total bytes		 288171568	  40788712
+	maximum total K-bytes		    288172	     40789
+	maximum total M-bytes		       289	        41
+
+
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, Y. Alexeev, J. Anchell,
+       V. Anisimov, F. W. Aquino, R. Atta-Fynn, J. Autschbach, N. P. Bauman,
+     J. C. Becca, D. E. Bernholdt, K. Bhaskaran-Nair, S. Bogatko, P. Borowski,
+         J. Boschen, J. Brabec, A. Bruner, E. Cauet, Y. Chen, G. N. Chuev,
+      C. J. Cramer, J. Daily, M. J. O. Deegan, T. H. Dunning Jr., M. Dupuis,
+   K. G. Dyall, G. I. Fann, S. A. Fischer, A. Fonari, H. Fruchtl, L. Gagliardi,
+      J. Garza, N. Gawande, S. Ghosh, K. Glaesemann, A. W. Gotz, J. Hammond,
+       V. Helms, E. D. Hermes, K. Hirao, S. Hirata, M. Jacquelin, L. Jensen,
+   B. G. Johnson, H. Jonsson, R. A. Kendall, M. Klemm, R. Kobayashi, V. Konkov,
+      S. Krishnamoorthy, M. Krishnan, Z. Lin, R. D. Lins, R. J. Littlefield,
+      A. J. Logsdail, K. Lopata, W. Ma, A. V. Marenich, J. Martin del Campo,
+   D. Mejia-Rodriguez, J. E. Moore, J. M. Mullin, T. Nakajima, D. R. Nascimento,
+    J. A. Nichols, P. J. Nichols, J. Nieplocha, A. Otero-de-la-Roza, B. Palmer,
+    A. Panyala, T. Pirojsirikul, B. Peng, R. Peverati, J. Pittner, L. Pollack,
+   R. M. Richard, P. Sadayappan, G. C. Schatz, W. A. Shelton, D. W. Silverstein,
+   D. M. A. Smith, T. A. Soares, D. Song, M. Swart, H. L. Taylor, G. S. Thomas,
+            V. Tipparaju, D. G. Truhlar, K. Tsemekhman, T. Van Voorhis,
+      A. Vazquez-Mayagoitia, P. Verma, O. Villa, A. Vishnu, K. D. Vogiatzis,
+        D. Wang, J. H. Weare, M. J. Williamson, T. L. Windus, K. Wolinski,
+        A. T. Wong, Q. Wu, C. Yang, Q. Yu, M. Zacharias, Z. Zhang, Y. Zhao,
+                                and R. J. Harrison
+                        "NWChem: Past, present, and future
+                         J. Chem. Phys. 152, 184102 (2020)
+                               doi:10.1063/5.0004997
+
+                                      AUTHORS
+                                      -------
+  E. Apra, E. J. Bylaska, N. Govind, K. Kowalski, M. Valiev, D. Mejia-Rodriguez,
+       A. Kunitsa, N. P. Bauman, A. Panyala, W. A. de Jong, T. P. Straatsma,
+        H. J. J. van Dam, D. Wang, T. L. Windus, J. Hammond, J. Autschbach,
+    K. Bhaskaran-Nair, J. Brabec, K. Lopata, S. A. Fischer, S. Krishnamoorthy,
+     M. Jacquelin, W. Ma, M. Klemm, O. Villa, Y. Chen, V. Anisimov, F. Aquino,
+    S. Hirata, M. T. Hackler, Eric Hermes, L. Jensen, J. E. Moore, J. C. Becca,
+      V. Konjkov, T. Risthaus, M. Malagoli, A. Marenich, A. Otero-de-la-Roza,
+        J. Mullin, P. Nichols, R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan,
+        A. Fonari, M. J. Williamson, R. J. Harrison, J. R. Rehr, M. Dupuis,
+     D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan,
+     B. E. Van Kuiken, A. Vazquez-Mayagoitia, M. Swart, Q. Wu, T. Van Voorhis,
+     A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann,
+   H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall, J. A. Nichols, K. Tsemekhman,
+    K. Wolinski, J. Anchell, D. E. Bernholdt, P. Borowski, T. Clark, D. Clerc,
+   H. Dachsel, M. J. O. Deegan, K. Dyall, D. Elwood, E. Glendening, M. Gutowski,
+   A. C. Hess, J. Jaffe, B. G. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin,
+   R. Littlefield, X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
+   K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
+                               A. T. Wong, Z. Zhang.
+
+ Total times  cpu:      100.2s     wall:      100.2s

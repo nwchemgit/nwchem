@@ -59,6 +59,7 @@ c
       logical kske, kslap
       integer k_becke
       integer l_becke
+      integer basis
       logical oprint_qbecke
       double precision StericEnergy
 c
@@ -75,6 +76,8 @@ cc AJL/Begin/FDE
       idocset_fde = 0
 cc AJL/End
 c
+      basis = ao_bas_han
+      if(adft) basis = xc_bas_han
 c     becke charges
 c
       oprint_qbecke = util_print('becke charges', print_high)
@@ -86,7 +89,7 @@ c
 c
 c     Allocate and create info for new basis function evaluator
 c
-      if (.not.bas_numcont(AO_bas_han, ncontrset))
+      if (.not.bas_numcont(basis, ncontrset))
      &     call errquit('Exiting in grid_quadv0c',0, BASIS_ERR)
       if (.not.MA_Push_Get(mt_int, 3*natoms, 'bas_cent_info',
      &     lbas_cent_info, ibas_cent_info))
@@ -96,9 +99,9 @@ c
      &     lbas_cset_info, ibas_cset_info))
      &     call errquit(pname//'cannot allocate bas_cset_info',0,
      &       MA_ERR)
-      call xc_make_basis_info(AO_bas_han, int_mb(ibas_cent_info),
+      call xc_make_basis_info(basis, int_mb(ibas_cent_info),
      &     int_mb(ibas_cset_info), natoms)
-      if (xcfit) then
+      if (xcfit.and.(.not.adft)) then
          if (.not.MA_Push_Get(mt_int, 3*natoms, 'bas_cent_xinfo',
      &        lbas_cent_xinfo, ibas_cent_xinfo))
      &        call errquit(pname//'cannot alloc bas_cent_info',0,

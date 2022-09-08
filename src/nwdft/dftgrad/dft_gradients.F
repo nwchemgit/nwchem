@@ -407,6 +407,13 @@ c
       lbuf = max(lbuf, max2e3c) + 500
       lscratch = max(mscratch_1e, mscratch_2e)
       lscratch = max(lscratch, mscratch_2e3c)
+c
+c     fitting coefficients
+c
+      if (.not. ma_push_get(mt_dbl, nbf_cd*3*ipol, 'CD coef',
+     $     l_cdcoef, i_cdcoef))
+     $     call errquit('dft_gradient: could not alloc CD coef',0,
+     &     MA_ERR)
 c     
 c     one-electron contribution
 c     buffers for one electron integral derivatives
@@ -425,17 +432,19 @@ c
      &       MA_ERR)
 c     
 c     allocate local density matrix block
+c     we can eventually need up and down spins at the same time
 c     
-      lsqa = max_at_bf * max_at_bf
+      lsqa = 2 * max_at_bf * max_at_bf
 c     
       status = ma_push_get(mt_dbl, lsqa, 'local_w_density', 
      $     l_wdens, k_wdens)
       if (.not.status)call errquit('could not allocate l_dens',1,
      &       MA_ERR)
 c     
-c     store total DM in ga_dens(1)
+c     store total DM in ga_dens(1) for standard CDFIT cases,
+c     otherwise have the spin-resolved case
 c     
-      if (ipol .eq. 2)then
+      if ((.not.adft) .and. ipol .eq. 2)then
          call ga_dadd (one,iga_dens(1),one,iga_dens(2),iga_dens(1))
       endif 
 c     
@@ -448,15 +457,12 @@ c     compute 3 center coulomb derivative
 c     
 c     Determine the characteristics of the AO and CD Gaussian basis sets.
 c     
-         if (.not. ma_push_get(mt_dbl, nbf_cd, 'CD coef',
-     $        l_cdcoef, i_cdcoef))
-     $        call errquit('dft_gradient: could not alloc CD coef',0,
-     &       MA_ERR)
 c     
          if(.not.bas_nbf_cn_max(cd_bas_han, max_sh_bfcd))
      $        call errquit('dftg_force: basnbfcdmax broken?',0,
      &       BASIS_ERR)
-         lenvec=max(3*max_sh_bfcd,max_sh_bf*max_sh_bf)
+         
+         lenvec=max(6*max_sh_bfcd,3*max_sh_bf*max_sh_bf)
          if (.not. MA_Push_get(MT_DBL, lenvec, 'svec',
      $        lsvec, isvec))
      $        call errquit('dftg_force: could not alloc svec',0, MA_ERR)
@@ -470,7 +476,7 @@ c
      $        lscratch, dbl_mb(k_buf), lbuf,
      $        dbl_mb(isvec), dbl_mb(ippp), max_sh_bf,
      $        iga_dens, dbl_mb(k_frc_2el), 
-     $        DBL_MB(i_cdcoef), oskel)
+     $        DBL_MB(i_cdcoef), oskel, ipol, adft)
          if(.not.xc_rep_close(rtdb, nbf_ao,ipol,ipol,
      D        iga_dens,iga_dens,.true.)) call
      .        errquit(' dftggrad: xcrepclose failed ',0, 0)
@@ -483,11 +489,13 @@ c
 c     
 c        restore alpha DM in g_dens(1)
 c     
-         if (ipol .eq. 2)then
+         if ((.not.adft).and.ipol .eq. 2)then
             onem = -1.d0
             call ga_dadd(one, iga_dens(1), onem, iga_dens(2), 
      &                   iga_dens(1))
          endif 
+      else
+        i_cdcoef = 1
       endif  ! cdfit
 c     
 c     get exchange-correlation contribution to the gradient
@@ -504,7 +512,13 @@ c$$$      write(LuOut,*) (int_mb(icetobfr+i),i=0,2*nat-1)
       if (odftps) call pstat_on(ps_xc)
       call dftg_getxc(rtdb, nat, iga_dens, dbl_mb(k_frc_xc), 
      $     log_mb(k_act), nactive, 
-     $     dbl_mb(irdens_atom),  int_mb(icetobfr))
+     $     dbl_mb(irdens_atom),  int_mb(icetobfr), dbl_mb(i_cdcoef))
+
+      if (cdfit.and..not.cgmin) then
+         if (.not.ma_chop_stack(l_cdcoef))
+     $     call errquit('dft_gradient: cannot chop stack',0, MA_ERR)
+      endif
+
       call ga_dgop(msg_grad_xc,  dbl_mb(k_frc_xc),  lforce, '+')
       if(oprint_force_comps.and.me.eq.0)then
             write(luout,2200) 

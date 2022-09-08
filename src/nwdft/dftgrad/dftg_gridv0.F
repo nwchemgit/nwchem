@@ -4,15 +4,15 @@ c     routine a wrapper for the more general routine
 c
 c     BGJ - 8/98
 c
-      Subroutine dftg_gridv0(rtdb, geom,ao_bas_han,ipol,nbf_ao,
+      Subroutine dftg_gridv0(rtdb, geom,basis,ipol,nbf_ao,
      ,     iga_dens, force, natoms, oactive,
-     &                       nactive, rdens_atom, cetobfr)
+     &     nactive, rdens_atom, cetobfr, cd_coef, adft)
 c
 c     $Id$
 c
       implicit none      
 c
-      integer rtdb,geom,ao_bas_han,ipol,nbf_ao
+      integer rtdb,geom,ipol,nbf_ao
       integer natoms
       integer nactive
       logical oactive(natoms)
@@ -20,16 +20,19 @@ c
       double precision force(3*natoms)
       integer cetobfr(*)
       double precision rdens_atom(*)
+      double precision cd_coef(*)
+      logical adft
+      integer basis
 c
 c Daniel (2-27-13): The last 0 in the call is the number of perturbed
 c densities.  Since this routine is a wrapper for doing ground state
 c gradients, there are no perturbed densities in this call.  The false
 c is for consistency because these routines are also used for TDDFT
 c gradients. 
-      call dftgh_gridv0(rtdb, geom, ao_bas_han,ipol,nbf_ao,
+      call dftgh_gridv0(rtdb, geom, basis,ipol,nbf_ao,
      .     iga_dens, force, 0d0, 0, 1, natoms,
      &                  oactive, nactive, rdens_atom, cetobfr,
-     1                  0, .false.)
+     1                  0, .false.,cd_coef, adft)
 c
       return
       end
@@ -37,22 +40,25 @@ c
 c
 c     Generalized to do XC gradient and hessian
 c
-      Subroutine dftgh_gridv0(rtdb, geom, ao_bas_han,ipol,nbf_ao,
+      Subroutine dftgh_gridv0(rtdb, geom, basis,ipol,nbf_ao,
      ,     iga_dens, force, hess, g_rhs,
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr,
-     1     ngxc, triplet)
+     1     ngxc, triplet,cd_coef,adft)
 c      
 c $Id$
 c     
       implicit none      
 #include "errquit.fh"
 c
-      integer rtdb,geom,ao_bas_han,ipol,nbf_ao ![in]
+      logical adft
+      integer basis
+      integer rtdb,geom,ipol,nbf_ao ![in]
       integer natoms
       integer nactive
       logical oactive(natoms)
       integer iga_dens(2)
+      double precision cd_coef(*)
       double precision Force(3*natoms), hess(3*natoms,3*natoms)
       integer g_rhs(*)          ! [input] handles for CPKS RHS mats
       integer calc_type         ! [input] 1 = XC gradient
@@ -154,14 +160,15 @@ c     1          .or. do_gxc)) then
       me = ga_nodeid()
       nproc = ga_nnodes()
       oprint = util_print('quadrature', print_high)
+
 c
 c     Define the number of basis functions in the AO Gaussian basis set.
 c
-      if (.not. bas_nbf_ce_max(AO_bas_han,nbf_ao_mxnbf_ce))
+      if (.not. bas_nbf_ce_max(basis,nbf_ao_mxnbf_ce))
      .     call errquit('dftggridv0: cemax failed ',0, BASIS_ERR)
-       if (.not. bas_nprim_cn_max(AO_bas_han, NXprim))
+       if (.not. bas_nprim_cn_max(basis, NXprim))
      &   call errquit('exiting in dftg_gridv0',6, BASIS_ERR)
-      if (.not.bas_nbf_cn_max(AO_bas_han, nbf_max))
+      if (.not.bas_nbf_cn_max(basis, nbf_max))
      &   call errquit('exiting in dftg_gridv0.',7, BASIS_ERR)
 c
 c     Define the max number of basis functions, contractions,
@@ -233,7 +240,7 @@ c     get max dimens of atom block
 c     
       max_at_bf = 0
       do iatom = 1, natoms
-         if (.not. bas_ce2bfr(AO_bas_han, iatom, ilo, ihi))
+         if (.not. bas_ce2bfr(basis, iatom, ilo, ihi))
      &      call errquit('dftg_gridv0: bas_ce2bfr failed', iatom,
      &       BASIS_ERR)
          max_at_bf = max(max_at_bf, ihi-ilo+1)
@@ -496,9 +503,9 @@ c
 c
 c     Define the number of basis functions in the AO Gaussian basis set.
 c
-      if (.not. bas_ncontr_cn_max(ao_bas_han, MXcont))
+      if (.not. bas_ncontr_cn_max(basis, MXcont))
      &   call errquit('Exiting in dftg_quadv0.',1, BASIS_ERR)
-      if (.not. bas_high_angular(AO_bas_han, NXang))
+      if (.not. bas_high_angular(basis, NXang))
      &   call errquit('exiting in dftg_quadv0.',7, BASIS_ERR)
       llMAX=((NXang+2)*(NXang+1))/2
 c scratch for eval_func
@@ -565,8 +572,10 @@ c                 Allocate scratch space.
 c     
       endif 
 c     
-      call xc_rep_init(rtdb, geom, ao_bas_han,iga_dens,iga_dens,
+      if (.not.adft) then
+        call xc_rep_init(rtdb, geom, basis,iga_dens,iga_dens,
      &     nbf_ao,ipol,do_force,.true.)
+      endif
       
 c
       if(grid_written) then
@@ -597,7 +606,7 @@ c through here so we can evaluate the gradient of the XC-kernel.
      &     dbl_mb(iLmat),
      1     do_gxc, dbl_mb(k_Amat3), dbl_mb(k_Cmat3), ngxc,
      2     dbl_mb(k_rho_save), dbl_mb(k_delrho_save), triplet, 
-     3     do_tddftvxc)
+     3     do_tddftvxc,cd_coef)
       else
        if (.not.MA_Push_Get(mt_dbl, nscr, 'scrCD', lscr, iscr))
      &     call errquit
@@ -631,13 +640,15 @@ c to true.
      &     dbl_mb(iLmat),
      1     do_gxc, dbl_mb(k_Amat3), dbl_mb(k_Cmat3), 0,
      2     dbl_mb(k_rho_save), dbl_mb(k_delrho_save),
-     3     do_tddftvxc)
+     3     do_tddftvxc,cd_coef)
       if (.not.ma_pop_stack(lscr))
      &   call errquit('dftg_gridv0: cannot pop stack',21, MA_ERR)
       endif
-      if(.not.xc_rep_close(rtdb, nbf_ao,ipol,ipol,
+      if (.not.adft) then
+        if(.not.xc_rep_close(rtdb, nbf_ao,ipol,ipol,
      D     iga_dens, .true.)) call
      .     errquit(' dftggridv0: xcrepclose failed ',0, 0)
+      endif
       if (.not.ma_chop_stack(lhh))
      &   call errquit('dftg_gridv0: cannot chop stack',1, MA_ERR)
       if (.not.ma_chop_stack(lCmat))

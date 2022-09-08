@@ -15,7 +15,8 @@ c
      $     ,stotal
       integer 
      $     modirc               ! [user] +/- mode for initial saddle step
-     $     ,nircopt
+     $     ,nircopt,
+     $     nbounded
 cjmc
 c
       logical 
@@ -33,7 +34,7 @@ c     doubles
      $     energyref, evib, stride, maxst, svalue, ctrust2, distcx,
      $     stotal,
 c     integers
-     $     modirc, nircopt, 
+     $     modirc, nircopt,nbounded,
 c     logicals
      $    mswg, flip, redogs, ircdone, forward, backward, ircboth
 c

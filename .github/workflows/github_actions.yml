@@ -2,6 +2,8 @@ name: NWChem_CI
 
 on:
   push:
+    paths-ignore:
+      - .gitlab-ci.yml
   pull_request:
   release:
   schedule:
@@ -42,7 +44,7 @@ jobs:
             mpi_impl: mpich
             nwchem_modules: "qmandpw qmd"
         include:
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
             experimental: true
             mpi_impl: openmpi
             armci_network: MPI-TS
@@ -52,7 +54,7 @@ jobs:
             build_plumed: 1
             use_openmp: 2
             use_tblite: 1
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS
@@ -63,7 +65,7 @@ jobs:
             blas_size: 4
             use_openmp: 2
             use_tblite: 1
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
             experimental: true
             mpi_impl: openmpi
             armci_network: MPI-TS
@@ -72,7 +74,7 @@ jobs:
             blas: "build_openblas"
             use_openmp: 2
             use_tblite: 1
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
             experimental: true
             mpi_impl: intel
             armci_network: MPI-TS
@@ -82,7 +84,7 @@ jobs:
             blas_size: 4
             use_openmp: 2
             use_tblite: 1
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
             experimental: true
             mpi_impl: intel
             armci_network: MPI-TS
@@ -90,7 +92,7 @@ jobs:
             fc: ifort
             use_openmp: 2
             use_tblite: 1
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS
@@ -98,14 +100,14 @@ jobs:
             fc: nvfortran
             use_openmp: 2
             use_tblite: 1
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
             experimental: true
             mpi_impl: mpich
             armci_network: ARMCI
             nwchem_modules: "all"
             fc: gfortran
             blas: "build_openblas"
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS
@@ -113,92 +115,92 @@ jobs:
             fc: gfortran
             blas: "internal"
             blas_size: 4
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
             experimental: false
             mpi_impl: mpich
             armci_network: MPI-PR
             nwchem_modules: "tinyqmpw python"
             fc: gfortran-11
             cc: gcc-11
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             experimental: false
             mpi_impl: mpich
             armci_network: MPI-TS
             nwchem_modules: "tce"
             fc: gfortran-11
             cc: gcc-11
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS
             nwchem_modules: "qmandpw qmd"
             fc: gfortran-11
             cc: gcc-11
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS
             nwchem_modules: "tinyqmpw python"
             fc: amdflang
             cc: amdclang
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS
             nwchem_modules: "tce"
             fc: amdflang
             cc: amdclang
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             experimental: true
             mpi_impl: intel
             armci_network: MPI-PR
             nwchem_modules: "tinyqmpw python"
             fc: ifort
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS
             nwchem_modules: "tinyqmpw python"
             fc: nvfortran
             cc: gcc
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             experimental: true
             mpi_impl: intel
             armci_network: SOCKETS
             nwchem_modules: "tce"
             fc: ifort
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             experimental: true 
             mpi_impl: mpich
             armci_network: MPI-TS
             nwchem_modules: "tce"
             fc: flang
             cc: clang
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             experimental: true 
             mpi_impl: intel
             armci_network: MPI-PR
             nwchem_modules: "tinyqmpw python"
             fc: ifort
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             experimental: true 
             mpi_impl: intel
             armci_network: SOCKETS
             nwchem_modules: "tce"
             fc: ifort
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
             experimental: true 
             mpi_impl: intel
             armci_network: MPI-PR
             nwchem_modules: "tinyqmpw python"
             fc: ifx
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
             experimental: true 
             mpi_impl: intel
             armci_network: SOCKETS
             nwchem_modules: "tce"
             fc: ifx
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
             experimental: true
             mpi_impl: openmpi
             armci_network: MPI-TS
@@ -206,7 +208,7 @@ jobs:
             fc: gfortran
             cc: gcc
             use_libxc: 1
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
             experimental: true
             mpi_impl: intel
             armci_network: MPI-TS
@@ -222,7 +224,7 @@ jobs:
             fc: gfortran-10
             cc: gcc
             use_libxc: 1
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
             experimental: true 
             mpi_impl: mpich
             armci_network: MPI-PT
@@ -230,7 +232,7 @@ jobs:
             fc: gfortran-10
             cc: gcc-10
             use_simint: 1
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS
@@ -238,7 +240,7 @@ jobs:
             fc: nvfortran
             cc: gcc
             use_simint: 1
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             experimental: true
             mpi_impl: intel
             armci_network: MPI-TS
@@ -246,7 +248,7 @@ jobs:
             fc: ifort
             cc: icc
             use_simint: 1
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
             experimental: true 
             mpi_impl: mpich
             armci_network: MPI-PR
@@ -291,7 +293,7 @@ jobs:
             nwchem_modules: "tinyqmpw"
             fc: ifort
             xcode_version: 12.4
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS
@@ -300,14 +302,14 @@ jobs:
             cc: gcc-10
             use_openmp: 2
             blas: "build_openblas"
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             experimental: true
             mpi_impl: intel
             armci_network: MPI-TS
             nwchem_modules: "qmandpw qmd"
             fc: ifort
             use_openmp: 2
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS

@@ -1,0 +1,87 @@
+echo
+
+title "he2+ hcth functional"
+
+start he2+
+
+geometry units angstrom print
+he 0.   0.58 0.
+symmetry c2v
+end
+
+basis "ao basis" bse
+he library def2-svp
+end
+
+basis "cd basis" bse
+he library def2-svp-autoaux
+end
+
+charge +1.0
+
+dft
+adft
+mult 2
+XC hcth
+end
+
+task dft gradient
+#eof
+title "he2+ hcth147 functional"
+set dft:use_hcth147 t
+dft
+XC hcth147
+end
+
+task dft gradient 
+
+title "he2+ hcth147@tz2p functional"
+dft
+XC hcth147@tz2p
+end
+
+task dft gradient
+
+title "he2+ Becke 1997 functional"
+dft
+XC becke97-1
+end
+
+task dft gradient
+
+title "XC perdew91 "
+dft
+XC xperdew91 perdew91
+end
+
+task dft gradient
+
+
+title "XC pbe96 "
+dft
+XC xpbe96 cpbe96
+end
+
+task dft gradient
+
+title "XC b3lyp "
+dft
+XC b3lyp
+end
+
+task dft gradient
+
+#title "XC ft97 "
+#dft
+#XC ft97
+#end
+#
+#task dft gradient
+
+title "XC BOP "
+dft
+XC bop
+grid nodisk
+end
+
+task dft gradient

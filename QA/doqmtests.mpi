@@ -58,6 +58,7 @@ echo 'The oh2 test is testing the perl parsing script and SHOULD fail'
 ./runtests.mpi.unix procs $np CH3OH2pWat_SMD_M062X_opt
 ./runtests.mpi.unix procs $np dft_feco5 
 ./runtests.mpi.unix procs $np dft_siosi3
+./runtests.mpi.unix procs $np adft_siosi3
 ./runtests.mpi.unix procs $np dft_cr2
 #./runtests.mpi.unix procs $np dft_mo3co
 ./runtests.mpi.unix procs $np dft_x

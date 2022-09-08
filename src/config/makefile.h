@@ -323,7 +323,7 @@ ifdef BUILD_MPICH
     MPI_INCLUDE = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
     MPI_LIB     = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH)  $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
     LIBMPI      = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
-    LIBMPI	+=  $(shell pkg-config --libs-only-L hwloc)
+    LIBMPI	+= $(shell /usr/local/bin/pkg-config --libs-only-L hwloc 2> /dev/null)
 endif
 
 
@@ -2245,7 +2245,7 @@ ifneq ($(TARGET),LINUX)
                 FOPTIONS  += -fopenmp
                 LDOPTIONS += -fopenmp
                 ifdef USE_OFFLOAD
-                    DEFINES +=-DUSE_F90_ALLOCATABLE -DUSE_OMP_TEAMS_DISTRIBUTE
+#                    DEFINES +=-DUSE_F90_ALLOCATABLE -DUSE_OMP_TEAMS_DISTRIBUTE
                 endif
             endif
         endif
@@ -2817,7 +2817,7 @@ ifneq ($(TARGET),LINUX)
                     ifdef USE_A64FX
                         COPTIMIZE += -mtune=a64fx -mcpu=a64fx 
                     else
-                        COPTIMIZE += -mtune=native -march=native
+                        COPTIMIZE += -mtune=native
                     endif 
                 endif
 
@@ -2998,7 +2998,7 @@ ifneq ($(TARGET),LINUX)
                     FOPTIONS  += -qsmp=omp
 		    LDOPTIONS += -qsmp=omp
                     ifdef USE_OFFLOAD
-                        DEFINES +=-DUSE_F90_ALLOCATABLE -DOPENMP_OFFLOAD -DUSE_OMP_TEAMS_DISTRIBUTE
+#                        DEFINES +=-DUSE_F90_ALLOCATABLE -DOPENMP_OFFLOAD -DUSE_OMP_TEAMS_DISTRIBUTE
                         OFFLOAD_FOPTIONS = -qtgtarch=sm_70 -qoffload
                         LDOPTIONS += -qoffload -lcudart -L$(NWC_CUDAPATH)
                     endif
@@ -3060,6 +3060,10 @@ ifneq ($(TARGET),LINUX)
                 endif
                 LDOPTIONS += -mp
 	      endif
+		ifdef USE_OFFLOAD
+		  FOPTIONS += -mp=gpu #-gpu=cc70
+		  LDOPTIONS += -mp=gpu # -gpu=cc70
+		endif
             endif
 	    ifdef USE_FPE
 	        FOPTIONS += -traceback
@@ -3075,6 +3079,13 @@ ifneq ($(TARGET),LINUX)
             endif
         endif
 
+        ifdef USE_OPENMP
+            ifdef USE_OFFLOAD
+                DEFINES +=-DUSE_F90_ALLOCATABLE -DOPENMP_OFFLOAD -DUSE_OMP_TEAMS_DISTRIBUTE
+#                DEFINES +=-DUSE_F90_ALLOCATABLE -DUSE_OMP_TEAMS_DISTRIBUTE
+            endif
+        endif
+		
 
         ifeq ($(NWCHEM_TARGET),CATAMOUNT)
             DEFINES  += -DCATAMOUNT
@@ -3861,6 +3872,9 @@ ifeq ($(shell echo $(BLASOPT) |awk '/lessl/ {print "Y"; exit}'),Y)
 #   essl does not has the full lapack library
     EXTRA_LIBS += -lnwclapack
     CORE_SUBDIRS_EXTRA = lapack
+endif
+ifeq ($(shell echo $(BLASOPT) |awk '/lblas/ {print "Y"; exit}'),Y)
+    DEFINES += -DBLAS_NOTHREADS
 endif
 
 ifndef BLAS_SIZE
