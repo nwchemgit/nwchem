@@ -93,10 +93,10 @@ fi
 #compilation
  if [[ "$os" == "Darwin" ]]; then 
    if [[ "$NWCHEM_MODULES" == "tce" ]]; then
-     FOPT="-O1 -fno-aggressive-loop-optimizations"
+#     FOPT="-O1 -fno-aggressive-loop-optimizations"
    fi
    if [[ ! -z "$USE_SIMINT" ]] ; then 
-       FOPT="-O0 -fno-aggressive-loop-optimizations"
+#       FOPT="-O0 -fno-aggressive-loop-optimizations"
        SIMINT_BUILD_TYPE=Debug
        export PATH="/usr/local/bin:$PATH"
 #       export LDFLAGS="-L/usr/local/opt/python@3.7/lib:$LDFLAGS"
