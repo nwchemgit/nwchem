@@ -3718,9 +3718,17 @@ ifdef TCE_CUDA
 endif
 
 ifdef TCE_OPENACC
-    DEFINES += -DTCE_OPENACC
+    ifdef USE_OPENMP
+        $(error USE_OPENMP must be unset when TCE_OPENACC is set)
+    endif
+    DEFINES +=-DUSE_F90_ALLOCATABLE -DTCE_OPENACC
     ifeq ($(_FC),gfortran)
+        FOPTIONS += -fopenacc
         CORE_LIBS += -fopenacc
+    endif
+    ifeq ($(_FC),pgf90)
+        FOPTIONS += -acc
+        CORE_LIBS += -acc
     endif
 endif
 
