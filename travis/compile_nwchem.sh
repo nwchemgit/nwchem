@@ -108,8 +108,8 @@ fi
        make nwchem_config
        cd libext   && make V=-1  && cd ..
        cd tools    && make V=-1  && cd ..
-       nohup make USE_INTERNALBLAS=y deps_stamp  >& deps.log &
-       sleep 120
+       make USE_INTERNALBLAS=y deps_stamp  >& deps.log
+       grep -i hess deps.log
        echo tail deps.log '@@@'
        tail -10  deps.log
        echo done tail deps.log '@@@'
