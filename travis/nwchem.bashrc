@@ -70,6 +70,12 @@ if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
 	CXX=icpc
 # Intel MPI not available on macos       
        export BUILD_MPICH=1
+       unset BUILD_PLUMED
+# python arm64 not compatible with x86_64       
+       if [[ "$arch" != "aarch64" ]]; then
+         export NWCHEM_MODULES=$(echo $NWCHEM_MODULES |sed  's/python//')
+       fi
+       
     fi
     "$FC" -v
     "$CC" -v
