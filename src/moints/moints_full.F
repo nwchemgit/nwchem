@@ -311,7 +311,8 @@ c
      $        nmixed)
          if (nmixed .ne. 0) then
             if (.not. ocontam) call errquit
-     $           ('moints: MOs are symmetry contaminated',0, INPUT_ERR)
+     $           ('moints: MOs are symmetry contaminated',nmixed,
+     I           INPUT_ERR)
 c     If forced to ignore contamination must orthog and 
 c     repeat projection to be sure
             if (oprint) then
@@ -355,9 +356,11 @@ c            call fcidump_symm(iunit,isym,norb,orbsym)
          end do
       else
          call ifill(nmo(1),0,int_mb(k_irs),1)
-         call fcidump_symm(moints_unit,
+         if (intfmt .eq. 'fcidump') then
+            call fcidump_symm(moints_unit,
      c           hi-lo+1,1,
      c           int_mb(k_irs+lo-1))
+         endif
       end if
 c
 c     Keep track of where the MOs will end up
