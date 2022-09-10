@@ -31,8 +31,8 @@ echo DISTR is "$DISTR"
 	cd ~/Downloads
 	dir_base="18675"
 	dir_hpc="18681"
-	base="m_BaseKit_p_2022.2.0.226_offline"
-	hpc="m_HPCKit_p_2022.2.0.158_offline"
+	base="m_BaseKit_p_2022.2.0.226"
+	hpc="m_HPCKit_p_2022.2.0.158"
 	curl -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_base"/"$base".dmg
 	curl -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".dmg
 	echo "installing BaseKit"
