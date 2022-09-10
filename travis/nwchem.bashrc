@@ -72,7 +72,7 @@ if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
        export BUILD_MPICH=1
        unset BUILD_PLUMED
 # python arm64 not compatible with x86_64       
-       if [[ "$arch" != "aarch64" ]]; then
+       if [[ "$arch" == "arm64" ]]; then
          export NWCHEM_MODULES=$(echo $NWCHEM_MODULES |sed  's/python//')
        fi
        
