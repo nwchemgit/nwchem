@@ -117,6 +117,7 @@ fi
 
         mpi_bin="  " ; mpi_libdev=" " scalapack_libdev=" "
     fi
+    if [[ "$GITHUB_WORKFLOW" != "NWChem_CI_selfhosted" ]]; then
     sudo apt-get update
     sudo apt-get -y install software-properties-common
     sudo add-apt-repository universe && sudo apt-get update
@@ -125,6 +126,7 @@ fi
     if [[ "$FC" == "gfortran-11" ]] || [[ "$CC" == "gcc-11" ]]; then
 	sudo  add-apt-repository -y ppa:ubuntu-toolchain-r/test 
         sudo  apt-get -y install gcc-11 gfortran-11 g++-11
+    fi
     fi
     if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]]; then
         sh ./"$base".sh -a -c -s --action remove --install-dir $IONEAPI_ROOT   --eula accept
