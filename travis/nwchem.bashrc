@@ -73,7 +73,8 @@ if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
        unset BUILD_PLUMED
 # python arm64 not compatible with x86_64       
        if [[ "$arch" == "arm64" ]]; then
-         export NWCHEM_MODULES=$(echo $NWCHEM_MODULES |sed  's/python//')
+#         export NWCHEM_MODULES=$(echo $NWCHEM_MODULES |sed  's/python//')
+          [ -d ~/.pyenv/versions/3.10.6_x86 ] && pyenv shell 3.10.6_x86
        fi
        
     fi
