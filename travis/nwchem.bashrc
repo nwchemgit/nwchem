@@ -74,7 +74,12 @@ if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
 # python arm64 not compatible with x86_64       
        if [[ "$arch" == "arm64" ]]; then
 #         export NWCHEM_MODULES=$(echo $NWCHEM_MODULES |sed  's/python//')
-          [ -d ~/.pyenv/versions/3.10.6_x86 ] && pyenv shell 3.10.6_x86
+           if [[ -d ~/.pyenv/versions/3.10.6_x86 ]]; then
+	       export PYENV_ROOT="$HOME/.pyenv"
+	       command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+	       eval "$(pyenv init -)"
+	       pyenv shell 3.10.6_x86
+	 fi	  	
        fi
        
     fi
