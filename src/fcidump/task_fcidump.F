@@ -42,6 +42,7 @@ c
          status = .false.
          write(luout,*) ' fcidump for theory ',
      &        theory(1:inp_strlen(theory)), ' not implemented yet'
+         call errquit(' fcidump stop',0,0)
       end if
 
 c     ! Perform the task
@@ -83,6 +84,10 @@ c     virtual
      $   call errquit('fcidump: rtdb failure for occ_virtual',555,
      &     RTDB_ERR)
       endif
+      if (.not. rtdb_put(rtdb,'fourindex:osym',MT_LOG,1,
+     $     .false.))
+     $   call errquit('fcidump: rtdb failure for :osym',557,
+     &     RTDB_ERR)
       call util_file_name('fcidump', .false., .false.,filename)
       iunit=1948
       if(ga_nodeid().eq.0) then
