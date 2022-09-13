@@ -3724,11 +3724,11 @@ ifdef TCE_OPENACC
     DEFINES +=-DUSE_F90_ALLOCATABLE -DTCE_OPENACC
     ifeq ($(_FC),gfortran)
         FOPTIONS += -fopenacc
-        CORE_LIBS += -fopenacc
+        LDOPTIONS += -fopenacc
     endif
     ifeq ($(_FC),pgf90)
         FOPTIONS += -acc
-        CORE_LIBS += -acc
+        LDOPTIONS += -acc
     endif
 endif
 

@@ -322,10 +322,12 @@ endif
 
 ifdef TCE_OPENACC
   ifeq ($(_FC),pgf90)
-    FOPTIONS += -cuda -acc -DUSE_CUDA_AFFINITY
+    FOPTIONS += -cuda -acc
+    LIB_DEFINES += -DUSE_CUDA_AFFINITY
   endif
   ifeq ($(_FC),gfortran)
-    FOPTIONS += -fopenacc -DUSE_OPENACC_AFFINITY
+    FOPTIONS += -fopenacc
+    LIB_DEFINES += -DUSE_OPENACC_AFFINITY
   endif
 endif
 
