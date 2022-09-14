@@ -3717,6 +3717,21 @@ ifdef TCE_CUDA
     endif
 endif
 
+ifdef TCE_OPENACC
+    ifdef USE_OPENMP
+        $(error USE_OPENMP must be unset when TCE_OPENACC is set)
+    endif
+    DEFINES +=-DUSE_F90_ALLOCATABLE -DTCE_OPENACC
+    ifeq ($(_FC),gfortran)
+        FOPTIONS += -fopenacc
+        LDOPTIONS += -fopenacc
+    endif
+    ifeq ($(_FC),pgf90)
+        FOPTIONS += -acc
+        LDOPTIONS += -acc
+    endif
+endif
+
 ifndef HIP
     HIP = hipcc
 endif

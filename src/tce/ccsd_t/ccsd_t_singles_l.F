@@ -89,6 +89,11 @@ c -- peta-exa --
 c --------------
       DOUBLE PRECISION a_c(*)
       LOGICAL skipped
+#if defined(TCE_OPENACC) && defined(USE_F90_ALLOCATABLE)
+      double precision, allocatable :: d_v2sub(:), d_t1sub(:)
+      double precision, allocatable :: d_scratch(:)
+      integer t1size, v2size, alloc_error
+#endif      
 
         a3(1,1)=t_p4b
         a3(1,2)=t_p5b
@@ -170,6 +175,27 @@ c
          enddo 
          end if
         enddo 
+
+#if defined(TCE_OPENACC) && defined(USE_F90_ALLOCATABLE)
+
+      call acc_ccsd_t_v2t1lgth(t1size,v2size)
+
+      allocate(d_t1sub(1:t1size), stat=alloc_error)
+      if (alloc_error.ne.0) then
+        call errquit('ccsd_t_doubles_t: MA error d_t1sub',0,MA_ERR)
+      endif
+      allocate(d_v2sub(1:v2size), stat=alloc_error)
+      if (alloc_error.ne.0) then
+        call errquit('ccsd_t_doubles_t: MA error d_v2sub',0,MA_ERR)
+      endif
+      allocate(d_scratch(1:t1size), stat=alloc_error)
+      if (alloc_error.ne.0) then
+        call errquit('ccsd_t_doubles_t: MA error d_scratch',0,MA_ERR)
+      endif
+
+!$acc  enter data copyin(d_t1sub(1:t1size))
+!$acc& copyin(d_v2sub(1:v2size))
+#endif
 c
       do ia6=1,9
       p4b=a3(ia6,1)
@@ -208,6 +234,110 @@ c
      &            int_mb(k_range+h2b-1) * int_mb(k_range+h3b-1)
       dimb = dim_common * dimb_sort
       IF ((dima .gt. 0).and.(dimb .gt. 0)) THEN
+
+#if defined(TCE_OPENACC) && defined(USE_F90_ALLOCATABLE)
+      IF (.not.MA_PUSH_GET(mt_dbl,dima,'noname',l_a_sort,k_a_sort)) 
+     &           CALL ERRQUIT('ccsd_t_singles_1',1,MA_ERR)
+      IF (.not.MA_PUSH_GET(mt_dbl,dima,'noname',l_a,k_a)) 
+     &           CALL ERRQUIT('ccsd_t_singles_1',2,MA_ERR)
+      CALL GET_HASH_BLOCK_MA(dbl_mb(d_a),dbl_mb(k_a),dima,
+     &                       int_mb(k_a_offset),
+     &                       (h1b_1-1+noab*(p4b_1-noab-1)))
+      CALL TCE_SORT_2(dbl_mb(k_a),d_t1sub,
+     &                int_mb(k_range+p4b-1),int_mb(k_range+h1b-1),
+     &                2,1,1.0d0)
+      IF (.not.MA_POP_STACK(l_a)) 
+     &           CALL ERRQUIT('ccsd_t_singles_1',3,MA_ERR)
+      IF (.not.MA_PUSH_GET(mt_dbl,dimb,'noname',l_b_sort,k_b_sort)) 
+     &           CALL ERRQUIT('ccsd_t_singles_1',4,MA_ERR)
+      if(.not.intorb) then
+      CALL GET_HASH_BLOCK(d_b,d_v2sub,dimb,int_mb(k_b_offset),
+     &                    (h3b_2-1+(noab+nvab)*(h2b_2-1+(noab+nvab)*
+     &                    (p6b_2-1+(noab+nvab)*(p5b_2-1)))))
+      else
+      CALL GET_HASH_BLOCK_I(d_b,d_v2sub,dimb,
+     &                      int_mb(k_b_offset),(h3b_2-1+(noab+nvab)*
+     &                      (h2b_2-1+(noab+nvab)*(p6b_2-1+(noab+nvab)*
+     &                      (p5b_2-1)))),h3b_2,h2b_2,p6b_2,p5b_2)
+      end if
+
+!$acc update device(d_t1sub(1:t1size))      
+!$acc update device(d_v2sub(1:v2size))      
+
+      IF ((t_p4b.eq.p4b).and.(t_p5b.eq.p5b).and.(t_p6b.eq.p6b)
+     &.and.(t_h1b.eq.h1b).and.(t_h2b.eq.h2b).and.(t_h3b.eq.h3b)) THEN
+      call acc_sd_t_s1_1(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+     1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
+     2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
+     4               a_c,d_t1sub,d_v2sub)
+
+      END IF
+      IF ((t_p4b.eq.p4b).and.(t_p5b.eq.p5b).and.(t_p6b.eq.p6b)
+     &.and.(t_h1b.eq.h2b).and.(t_h2b.eq.h1b).and.(t_h3b.eq.h3b)) THEN
+      call acc_sd_t_s1_2(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+     1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
+     2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
+     4               a_c,d_t1sub,d_v2sub)
+
+      END IF
+      IF ((t_p4b.eq.p4b).and.(t_p5b.eq.p5b).and.(t_p6b.eq.p6b)
+     &.and.(t_h1b.eq.h2b).and.(t_h2b.eq.h3b).and.(t_h3b.eq.h1b)) THEN
+      call acc_sd_t_s1_3(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+     1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
+     2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
+     4               a_c,d_t1sub,d_v2sub)
+
+      END IF
+      IF ((t_p4b.eq.p5b).and.(t_p5b.eq.p4b).and.(t_p6b.eq.p6b)
+     &.and.(t_h1b.eq.h1b).and.(t_h2b.eq.h2b).and.(t_h3b.eq.h3b)) THEN
+      call acc_sd_t_s1_4(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+     1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
+     2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
+     4               a_c,d_t1sub,d_v2sub)
+
+      END IF
+      IF ((t_p4b.eq.p5b).and.(t_p5b.eq.p4b).and.(t_p6b.eq.p6b)
+     &.and.(t_h1b.eq.h2b).and.(t_h2b.eq.h1b).and.(t_h3b.eq.h3b)) THEN
+      call acc_sd_t_s1_5(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+     1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
+     2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
+     4               a_c,d_t1sub,d_v2sub)
+
+      END IF
+      IF ((t_p4b.eq.p5b).and.(t_p5b.eq.p4b).and.(t_p6b.eq.p6b)
+     &.and.(t_h1b.eq.h2b).and.(t_h2b.eq.h3b).and.(t_h3b.eq.h1b)) THEN
+      call acc_sd_t_s1_6(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+     1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
+     2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
+     4               a_c,d_t1sub,d_v2sub)
+
+      END IF
+      IF ((t_p4b.eq.p5b).and.(t_p5b.eq.p6b).and.(t_p6b.eq.p4b)
+     &.and.(t_h1b.eq.h1b).and.(t_h2b.eq.h2b).and.(t_h3b.eq.h3b)) THEN
+      call acc_sd_t_s1_7(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+     1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
+     2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
+     4               a_c,d_t1sub,d_v2sub)
+
+      END IF
+      IF ((t_p4b.eq.p5b).and.(t_p5b.eq.p6b).and.(t_p6b.eq.p4b)
+     &.and.(t_h1b.eq.h2b).and.(t_h2b.eq.h1b).and.(t_h3b.eq.h3b)) THEN
+      call acc_sd_t_s1_8(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+     1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
+     2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
+     4               a_c,d_t1sub,d_v2sub)
+
+      END IF
+      IF ((t_p4b.eq.p5b).and.(t_p5b.eq.p6b).and.(t_p6b.eq.p4b)
+     &.and.(t_h1b.eq.h2b).and.(t_h2b.eq.h3b).and.(t_h3b.eq.h1b)) THEN
+      call acc_sd_t_s1_9(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
+     1               int_mb(k_range+h1b-1),int_mb(k_range+p6b-1),
+     2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
+     4               a_c,d_t1sub,d_v2sub)
+
+!$acc update self(d_t1sub(1:t1size))      
+!$acc update self(d_v2sub(1:v2size))      
+#else
       IF (.not.MA_PUSH_GET(mt_dbl,dima,'noname',l_a_sort,k_a_sort)) 
      &           CALL ERRQUIT('ccsd_t_singles_1',1,MA_ERR)
       IF (.not.MA_PUSH_GET(mt_dbl,dima,'noname',l_a,k_a)) 
@@ -231,7 +361,8 @@ c
      &                      int_mb(k_b_offset),(h3b_2-1+(noab+nvab)*
      &                      (h2b_2-1+(noab+nvab)*(p6b_2-1+(noab+nvab)*
      &                      (p5b_2-1)))),h3b_2,h2b_2,p6b_2,p5b_2)
-      end if
+      end if 
+      
       IF ((t_p4b.eq.p4b).and.(t_p5b.eq.p5b).and.(t_p6b.eq.p6b)
      &.and.(t_h1b.eq.h1b).and.(t_h2b.eq.h2b).and.(t_h3b.eq.h3b)) THEN
       call sd_t_s1_1(int_mb(k_range+h3b-1),int_mb(k_range+h2b-1),
@@ -303,6 +434,8 @@ c
      2               int_mb(k_range+p5b-1),int_mb(k_range+p4b-1),
      4               a_c,dbl_mb(k_a_sort),dbl_mb(k_b_sort))
 
+#endif
+
       END IF
       IF (.not.MA_POP_STACK(l_b_sort)) 
      &       CALL ERRQUIT('ccsd_t_singles_1',7,MA_ERR)
@@ -320,5 +453,36 @@ c
 c
       END IF
       END DO
+#if defined(TCE_OPENACC) && defined(USE_F90_ALLOCATABLE)
+!$acc  exit data delete(d_t1sub(1:t1size))
+!$acc& delete(d_v2sub(1:v2size))
+      deallocate(d_t1sub)
+      deallocate(d_v2sub)
+      deallocate(d_scratch)
+#endif
       RETURN
       END
+      subroutine acc_ccsd_t_v2t1lgth(t1size,v2size)
+      implicit none
+#include "mafdecls.fh"
+#include "tce.fh"
+c     compute v2sub and t1sub max length
+      integer t1size,v2size ! [out]
+c
+      integer range_p4,range_h1,ii
+c
+      range_p4=0
+      do ii = noab+1,noab+nvab
+         range_p4 = max(range_p4,int_mb(k_range+ii-1))
+      enddo
+      range_h1=0
+      do ii = 1,noab
+         range_h1 = max(range_h1,int_mb(k_range+ii-1))
+      enddo
+      t1size=(range_p4)*(range_h1)
+      v2size=max((range_p4)*(range_h1**3),
+     M     (range_p4**3)*(range_h1))
+      call util_align64(t1size)
+      call util_align64(v2size)
+      return
+      end

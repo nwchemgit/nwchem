@@ -52,6 +52,9 @@ ifdef TCE_HIP
 endif
 
 
+ifdef TCE_OPENACC
+  OBJ_OPTIMIZE += ccsd_t_kernels_acc.o
+endif
 
 ifdef TCE_NEW_OPENMP
  OBJ_OPTIMIZE += ccsd_t_omp.o
