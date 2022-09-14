@@ -23,7 +23,7 @@ facilitated, allowing efficient and speedy resolution of conflicts.
 This section provides a brief introduction and overview of the CVS system.
 Developers needing more detailed information on specific CVS commands and
 capabilities are refered to the on-line documentation included in the CVS 
-code package (i.e., the \verb+man+ pages; consult your system administrator
+code package (i.e., the \texttt{man} pages; consult your system administrator
 if your system does not have them installed.)
 
 \subsection{Introduction to CVS}
@@ -237,68 +237,68 @@ do anything.  Honest.)
 
 The following is provided as a quick reference guide to CVS.  A more
 detailed short-form reference is available in
-\verb+nwchem/doc/cvshelp.man+.  Detailed documentation can be obtained using 
+\texttt{nwchem/doc/cvshelp.man}.  Detailed documentation can be obtained using 
 the command
-\verb+man cvs+.
+\texttt{man cvs}.
 
 \begin{description}
-\item{\verb+setenv CVSROOT /msrc/proj/mss+} --- in \verb+csh+ this
+\item{\texttt{setenv CVSROOT /msrc/proj/mss}} --- in \texttt{csh} this
   defines the path to the CVS repository.  Put this in your
-  \verb+.cshrc+ or \verb+.mycshrc+.
+  \texttt{.cshrc} or \texttt{.mycshrc}.
  
-\item{\verb+cvs co nwchem+} --- checks out the entire source for NWChem into
-  the directory \verb+nwchem+.  The repository is unaffected.
+\item{\texttt{cvs co nwchem}} --- checks out the entire source for NWChem into
+  the directory \texttt{nwchem}.  The repository is unaffected.
   
-\item{\verb+cvs -n update+} --- compares the contents of the current
+\item{\texttt{cvs -n update}} --- compares the contents of the current
   directory and all subdirectories against the repository and flags
   files according to their status:
   \begin{description}
-  \item{\verb+?+} --- the file is not maintained by CVS.
-  \item{\verb+M+} --- your checked-out version differs from the original
+  \item{\texttt{?}} --- the file is not maintained by CVS.
+  \item{\texttt{M}} --- your checked-out version differs from the original
     (i.e., you edited it).
-  \item{\verb+U+} --- your checked-out version is out-of-date and
+  \item{\texttt{U}} --- your checked-out version is out-of-date and
     needs updating.
-  \item{\verb+C+} --- potential conflict. You have changed this file
+  \item{\texttt{C}} --- potential conflict. You have changed this file
     and the source in the repository has also changed.
   \item{File not listed} --- your source is the same as that in the repository.
   \end{description}
   Neither the repository nor your source are changed.
 
-\item{\verb+cvs update+} --- updates the contents of the current
+\item{\texttt{cvs update}} --- updates the contents of the current
   directory and all subdirectories with the latest versions of the
   source, again flagging files according to their status. {\em You are
     responsible for correcting files that CVS flags as containing
     conflicts between edits you and others have made.} However, CVS
   handles all other merging.  New files will also be added to your
   source, but to get new directories you must append the
-  \verb+-d+ flag.  Your source is changed; the repository is
+  \texttt{-d} flag.  Your source is changed; the repository is
   unaffected.
 
-\item{\verb+cvs diff filename+} --- generates differences between the
+\item{\texttt{cvs diff filename}} --- generates differences between the
   file and the version of the file you checked out (i.e., it indicates
   edits you made).  If you want to compare against the most recent
-  version in the repository use \verb+cvs diff -r head filename+.
+  version in the repository use \texttt{cvs diff -r head filename}.
   Neither the repository nor your source are changed.
 
-\item{\verb+cvs add filename+} --- adds a new file to the repository.
-  The new file is not actually added until you execute \verb+cvs
- commit+.  Changes CVS internal information in your source tree but
+\item{\texttt{cvs add filename}} --- adds a new file to the repository.
+  The new file is not actually added until you execute \texttt{cvs
+ commit}.  Changes CVS internal information in your source tree but
   does not affect the repository.
 
-\item{\verb+cvs rm filename+} --- to delete a file from the repository
-  delete it from your source with the standard UNIX \verb+rm+ command
+\item{\texttt{cvs rm filename}} --- to delete a file from the repository
+  delete it from your source with the standard UNIX \texttt{rm} command
   then tell CVS to delete it with this command.  The file
-  is not actually removed until you execute \verb+cvs commit+.  Changes CVS
+  is not actually removed until you execute \texttt{cvs commit}.  Changes CVS
   internal information in your source tree but does not affect the
   repository.
   
-\item{\verb+cvs commit+} --- this is the only command that affects the
+\item{\texttt{cvs commit}} --- this is the only command that affects the
   repository.  Before committing changes and updating the repository
   with changes in a list of files or the current directory tree you
   must
   \begin{itemize}
   \item ensure that all of your sources are up-to-date with respect to
-    the repository by using \verb+cvs update+,
+    the repository by using \texttt{cvs update},
   \item resolve all conflicts resulting from the update, and
   \item ensure that the updated code functions correctly.
   \end{itemize}
@@ -317,10 +317,10 @@ the command
 CVS version information is 
 "sticky".  That is, CVS usually remembers the specific version checked out
 to a working directory.  This can be confusing, 
-since the output of such commands as \verb+cvs update+, etc., will not 
+since the output of such commands as \texttt{cvs update}, etc., will not 
 always refer to the latest (or
 head) version.  Changes can magically
-disappear.  This may be desirable. Or it may not be.  The option \verb+-A+ 
+disappear.  This may be desirable. Or it may not be.  The option \texttt{-A} 
 forces the system to look at the lastest version when doing the update.
 The form of the command is
 
