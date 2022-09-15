@@ -57,6 +57,8 @@ c
       External int_normalize
       External int_norm_2c
       External atom_tag_check
+      logical bas_loadlibrary
+      external bas_loadlibrary
 c
       me=ga_nodeid()
 c
@@ -479,51 +481,51 @@ c
 c     Get/set/put XC info.
 c
       if (.not. rtdb_get(rtdb, 'dft:cfac', mt_dbl, numfunc,
-     &   cfac))then
+     &   cfac(1)))then
          if (.not. rtdb_put(rtdb, 'dft:cfac',
-     &      mt_dbl, numfunc, cfac))
+     &      mt_dbl, numfunc, cfac(1)))
      &      call errquit('dft_rdinput: rtdb_put failed', 210, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:xfac', mt_dbl, numfunc,
-     &   xfac))then
+     &   xfac(1)))then
          if (.not. rtdb_put(rtdb, 'dft:xfac',
-     &      mt_dbl, numfunc, xfac))
+     &      mt_dbl, numfunc, xfac(1)))
      &      call errquit('dft_rdinput: rtdb_put failed', 211, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:lcfac', mt_log, numfunc,
-     &   lcfac))then
+     &   lcfac(1)))then
          if (.not. rtdb_put(rtdb, 'dft:lcfac',
-     &      mt_log, numfunc, lcfac))
+     &      mt_log, numfunc, lcfac(1)))
      &      call errquit('dft_rdinput: rtdb_put failed', 9, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:nlcfac', mt_log, numfunc,
-     &   nlcfac))then
+     &   nlcfac(1)))then
          if (.not. rtdb_put(rtdb, 'dft:nlcfac',
-     &      mt_log, numfunc, nlcfac))
+     &      mt_log, numfunc, nlcfac(1)))
      &      call errquit('dft_rdinput: rtdb_put failed', 10, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:lxfac', mt_log, numfunc,
-     &   lxfac))then
+     &   lxfac(1)))then
          if (.not. rtdb_put(rtdb, 'dft:lxfac',
-     &      mt_log, numfunc, lxfac))
+     &      mt_log, numfunc, lxfac(1)))
      &      call errquit('dft_rdinput: rtdb_put failed', 11, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:nlxfac', mt_log, numfunc,
-     &   nlxfac))then
+     &   nlxfac(1)))then
          if (.not. rtdb_put(rtdb, 'dft:nlxfac',
-     &      mt_log, numfunc, nlxfac))
+     &      mt_log, numfunc, nlxfac(1)))
      &      call errquit('dft_rdinput: rtdb_put failed', 12, RTDB_ERR)
       endif
 c
       if (.not. rtdb_get(rtdb, 'dft:xccomb', mt_log, numfunc,
-     &   xccomb))then
+     &   xccomb(1)))then
          if (.not. rtdb_put(rtdb, 'dft:xccomb',
-     &      mt_log, numfunc, xccomb))
+     &      mt_log, numfunc, xccomb(1)))
      &      call errquit('dft_rdinput: rtdb_put failed', 13, RTDB_ERR)
       endif
 c
@@ -846,30 +848,30 @@ c     Get/set/put XC info.
 c     (Duplicated from above, but now for FDE)
 c
           if (.not. rtdb_get(rtdb,'dft:frozemb:cfac', mt_dbl, numfunc,
-     &        cfac_fde))then
+     &        cfac_fde(1)))then
             if (.not. rtdb_put(rtdb,'dft:frozemb:cfac',
-     &          mt_dbl, numfunc, cfac_fde))
+     &          mt_dbl, numfunc, cfac_fde(1)))
      &      call errquit(pname//'rtdb_put failed', 210, RTDB_ERR)
           endif
 c
           if (.not. rtdb_get(rtdb,'dft:frozemb:xfac', mt_dbl, numfunc,
-     &        xfac_fde))then
+     &        xfac_fde(1)))then
             if (.not. rtdb_put(rtdb,'dft:frozemb:xfac',
-     &          mt_dbl, numfunc, xfac_fde))
+     &          mt_dbl, numfunc, xfac_fde(1)))
      &      call errquit(pname//'rtdb_put failed', 211, RTDB_ERR)
           endif
 c
           if (.not. rtdb_get(rtdb,'dft:frozemb:lcfac', mt_log, numfunc,
-     &        lcfac_fde))then
+     &        lcfac_fde(1)))then
             if (.not. rtdb_put(rtdb,'dft:frozemb:lcfac',
-     &          mt_log, numfunc, lcfac_fde))
+     &          mt_log, numfunc, lcfac_fde(1)))
      &      call errquit(pname//'rtdb_put failed', 9, RTDB_ERR)
           endif
 c
           if (.not. rtdb_get(rtdb,'dft:frozemb:nlcfac', mt_log, numfunc,
-     &        nlcfac_fde))then
+     &        nlcfac_fde(1)))then
             if (.not. rtdb_put(rtdb,'dft:frozemb:nlcfac',
-     &          mt_log, numfunc, nlcfac_fde))
+     &          mt_log, numfunc, nlcfac_fde(1)))
      &      call errquit(pname//'rtdb_put failed', 10, RTDB_ERR)
           else
 c Check to see if we are using non-local functionals
@@ -883,16 +885,16 @@ c if we use them for FDE. If you are feeling brave then comment out.
           endif
 c
           if (.not. rtdb_get(rtdb,'dft:frozemb:lxfac', mt_log, numfunc,
-     &        lxfac_fde))then
+     &        lxfac_fde(1)))then
             if (.not. rtdb_put(rtdb,'dft:frozemb:lxfac',
-     &          mt_log, numfunc, lxfac_fde))
+     &          mt_log, numfunc, lxfac_fde(1)))
      &      call errquit(pname//'rtdb_put failed', 11, RTDB_ERR)
           endif
 c
           if (.not. rtdb_get(rtdb,'dft:frozemb:nlxfac', mt_log, numfunc,
-     &        nlxfac_fde))then
+     &        nlxfac_fde(1)))then
             if (.not. rtdb_put(rtdb,'dft:frozemb:nlxfac',
-     &          mt_log, numfunc, nlxfac_fde))
+     &          mt_log, numfunc, nlxfac_fde(1)))
      &      call errquit(pname//'rtdb_put failed', 12, RTDB_ERR)
           else
 c Check to see if we are using non-local functionals
@@ -906,9 +908,9 @@ c if we use them for FDE. If you are feeling brave then comment out.
           endif
 c
           if (.not. rtdb_get(rtdb,'dft:frozemb:xccomb', mt_log, numfunc,
-     &        xccomb_fde))then
+     &        xccomb_fde(1)))then
             if (.not. rtdb_put(rtdb,'dft:frozemb:xccomb',
-     &          mt_log, numfunc, xccomb_fde))
+     &          mt_log, numfunc, xccomb_fde(1)))
      &      call errquit(pname//'rtdb_put failed', 13, RTDB_ERR)
           endif
 
@@ -1008,6 +1010,43 @@ c
       if (.not. rtdb_cget(rtdb, 'title', 1, title))
      &     title = ' '
 c
+c     generate number of atom types and atom type array iatype(icenter) 
+c
+      ntypes = 0
+      do icenter = 1, ncenters
+c
+c        is this a new type of atom?
+c
+         isbq = geom_isbq(geom,icenter)
+         lnewtype = .true.
+         
+         do jcenter = 1, icenter - 1
+            same_atom = Dbl_MB(icharge + icenter - 1) .eq.
+     &         Dbl_MB(icharge + jcenter - 1)
+            same_bq = geom_isbq(geom,jcenter) .and. isbq
+            same_atom = same_atom .or. same_bq
+            if (same_atom .and.
+     &          atom_tag_check(Byte_MB(itags + (icenter - 1)*16), 
+     &                         Byte_MB(itags + (jcenter - 1)*16))
+     &         )then   ! same atom type
+               lnewtype = .false.
+               iatype(icenter) = iatype(jcenter)
+               goto 100
+            endif
+         enddo 
+  100    continue
+         if (lnewtype)then
+            ntypes = ntypes + 1
+            iatype(icenter) = ntypes
+c     stealing grtagin from grid_input (might be dangerous)
+            grtagin(ntypes)=Byte_MB(itags + (icenter - 1)*16)
+         endif 
+      enddo 
+      if (ntypes.gt.dft_ntags_bsmx)then
+        write(LuOut,*) 'RDINPUT:  Too many types of atoms.'
+        call errquit(' rdinput: raise dft_ntags_bsmx',2, INPUT_ERR)
+      end if
+c
 c     Define the contracted Gaussian functions for the AO basis set.
 c
       if (.not. bas_create(AO_bas_han, 'ao basis'))
@@ -1071,6 +1110,16 @@ c
       if (.not. bas_create(CD_bas_han, 'cd basis'))
      &   call errquit(pname//'bas_create?',102, BASIS_ERR)
       CDFIT=bas_rtdb_load(rtdb, geom, CD_bas_han, 'cd basis')
+c
+c     if adft && cdfit bas not provided, try to load
+c     	def2-universal-jfit
+c     load weigend_coulomb_fitting aka def2-universal-jfit
+c      
+      if (adft.and.(.not.cdfit)) then
+         cdfit=bas_loadlibrary(cd_bas_han,rtdb,geom,
+     N        ntypes, grtagin,
+     W   'cd basis','weigend coulomb fitting')
+      endif
       if (CDFIT)then
          call int_init(rtdb, 1, cd_bas_han)         
          if (.not. int_norm_2c(rtdb,CD_bas_han))
@@ -1177,40 +1226,6 @@ c
         if (.not. rtdb_put(rtdb, 'dft:iqrot', mt_int, 1, iqrot))
      &       call errquit('dft_rdinput: rtdb_put failed', 117, RTDB_ERR)
       endif
-c
-c     generate number of atom types and atom type array iatype(icenter) 
-c
-      ntypes = 0
-      do icenter = 1, ncenters
-c
-c        is this a new type of atom?
-c
-         isbq = geom_isbq(geom,icenter)
-         lnewtype = .true.
-         do jcenter = 1, icenter - 1
-            same_atom = Dbl_MB(icharge + icenter - 1) .eq.
-     &         Dbl_MB(icharge + jcenter - 1)
-            same_bq = geom_isbq(geom,jcenter) .and. isbq
-            same_atom = same_atom .or. same_bq
-            if (same_atom .and.
-     &          atom_tag_check(Byte_MB(itags + (icenter - 1)*16), 
-     &                         Byte_MB(itags + (jcenter - 1)*16))
-     &         )then   ! same atom type
-               lnewtype = .false.
-               iatype(icenter) = iatype(jcenter)
-               goto 100
-            endif
-         enddo 
-  100    continue
-         if (lnewtype)then
-            ntypes = ntypes + 1
-            iatype(icenter) = ntypes
-         endif 
-      enddo 
-      if (ntypes.gt.dft_ntags_bsmx)then
-        write(LuOut,*) 'RDINPUT:  Too many types of atoms.'
-        call errquit(' rdinput: raise dft_ntags_bsmx',2, INPUT_ERR)
-      end if
 c
 c     definition of grid
 c

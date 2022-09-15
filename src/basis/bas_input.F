@@ -1585,4 +1585,66 @@ c    .     close(unit=unitrc,status='keep') ! close file after library name foun
 10003 format(31(2x,1pe15.6))
       end
 
+      logical function bas_loadlibrary(basis,rtdb,geom,
+     .        ntypes, tag, name, librname)
+      implicit none
+#include "errquit.fh"
+#include "bas.fh"
+#include "baslibraryP.fh"
+      logical cdfit             ![out]
+      integer cd_bas_han
+      integer rtdb
+      integer geom
+      integer ntypes
+      integer basis
+      character*16 tag(*)
+      character*(*) name
+      character*(*) librname
+c
+      logical osegment
+      character*16 tag_in_lib
+      logical oshell_is_rel
+      logical star_details
+      integer i
+      logical bas_add_ucnt_init, bas_set_spherical, bas_add_ucnt_tidy
+      external bas_add_ucnt_init, bas_set_spherical, bas_add_ucnt_tidy
+      logical ma_verify_allocator_stuff
+      external ma_verify_allocator_stuff
+      logical  bas_do_destroy
+      external bas_do_destroy
+
+c
+      osegment=.true.
+      oshell_is_rel=.false.
+      star_details=.false.
+      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2b'
+      if (.not. bas_create(basis, name))
+     &     call errquit(' bas_create failed', 186, BASIS_ERR)
+      if (.not.bas_add_ucnt_init(basis)) call errquit
+     &    ('bas_input: failed to init add_ucnt ',911,
+     &     BASIS_ERR)
+c     force spherical basis
+      if (.not. bas_set_spherical(basis, .true.))
+     &      call errquit
+     &      (' bas_set_spherical failed ',911, BASIS_ERR)
+
+c     loop over atom types
+      do i=1,ntypes
+         call bas_tag_lib(basis, osegment, tag(i), tag(i),
+     $        librname,
+     $        user_library_name, oshell_is_rel, star_details)
+      enddo
+      if (.not. bas_print(basis))
+     $     call errquit('bas_input: print failed', 0, BASIS_ERR)
+      if (.not.bas_summary_print(basis))
+     &     call errquit('scf: basis summary print failed',911,
+     &     BASIS_ERR)
+      if (.not. bas_rtdb_store(rtdb, name, basis)) call errquit
+     $     ('bas_input: failed to store basis', 0, BASIS_ERR)
+c
+      if (.not. bas_add_ucnt_tidy(basis))
+     $     call errquit('bas_input: tidy failed',0, BASIS_ERR)
+      bas_loadcdfit=bas_rtdb_load(rtdb, geom, basis, name)
+      return
+      end
       
