@@ -1644,7 +1644,7 @@ c     loop over atom types
 c
       if (.not. bas_add_ucnt_tidy(basis))
      $     call errquit('bas_input: tidy failed',0, BASIS_ERR)
-      bas_loadcdfit=bas_rtdb_load(rtdb, geom, basis, name)
+      bas_loadlibrary=bas_rtdb_load(rtdb, geom, basis, name)
       return
       end
       
