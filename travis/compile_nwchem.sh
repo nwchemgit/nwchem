@@ -81,13 +81,22 @@ if [[ "$ARMCI_NETWORK" == "ARMCI" ]]; then
     cd ..
 fi    
 
+if [[ "$FC" == "gfortran" ]]; then
+   if [[ "$($FC -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c 18-)" -lt 9 ]]; then
+#disable xtb  if gfortran version < 9
+     unset USE_TBLITE
+     export NWCHEM_MODULES=$(echo $NWCHEM_MODULES |sed  's/xtb//')
+   fi
+fi
+
+
 #compilation
  if [[ "$os" == "Darwin" ]]; then 
-   if [[ "$NWCHEM_MODULES" == "tce" ]]; then
-     FOPT="-O1 -fno-aggressive-loop-optimizations"
-   fi
+#   if [[ "$NWCHEM_MODULES" == "tce" ]]; then
+#     FOPT="-O1 -fno-aggressive-loop-optimizations"
+#   fi
    if [[ ! -z "$USE_SIMINT" ]] ; then 
-       FOPT="-O0 -fno-aggressive-loop-optimizations"
+#       FOPT="-O0 -fno-aggressive-loop-optimizations"
        SIMINT_BUILD_TYPE=Debug
        export PATH="/usr/local/bin:$PATH"
 #       export LDFLAGS="-L/usr/local/opt/python@3.7/lib:$LDFLAGS"
@@ -99,8 +108,8 @@ fi
        make nwchem_config
        cd libext   && make V=-1  && cd ..
        cd tools    && make V=-1  && cd ..
-       nohup make USE_INTERNALBLAS=y deps_stamp  >& deps.log &
-       sleep 120
+       make USE_INTERNALBLAS=y deps_stamp  >& deps.log
+       grep -i hess deps.log
        echo tail deps.log '@@@'
        tail -10  deps.log
        echo done tail deps.log '@@@'
@@ -131,20 +140,10 @@ if [[ -z "$TRAVIS_HOME" ]]; then
     make nwchem_config
     cd libext   && make V=-1  && cd ..
     cd tools    && make V=-1  && cd ..
-    nohup make USE_INTERNALBLAS=y deps_stamp  >& deps.log &
-    cd hessian
-    nohup make USE_INTERNALBLAS=y dependencies include_stamp >& ../deps2.log &
-    cd ../nwdft/xc
-    nohup make USE_INTERNALBLAS=y dependencies include_stamp >& ../../deps3.log &
-    cd ../..
-    sleep 360
+    make USE_INTERNALBLAS=y deps_stamp  >& deps.log
     echo tail deps.log '11@@@'
     tail -10  deps.log
     echo done tail deps.log '11@@@'
-    echo tail deps2.log '11@@@'
-    tail deps2.log || true
-    echo tail deps3.log '11@@@'
-    tail deps3.log || true
     export QUICK_BUILD=1
     if [[ -z "$FOPT" ]]; then
 	make V=0   -j3

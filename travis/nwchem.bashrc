@@ -60,24 +60,34 @@ if [[ "$FC" == "nvfortran" ]]; then
 #    export CC=gcc
 fi
 if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
-    case "$os" in
-	Darwin)
-	    IONEAPI_ROOT=~/apps/oneapi
-	    ;;
-	Linux)	
-	    IONEAPI_ROOT=/opt/intel/oneapi
-	    ;;		
-    esac			
-    source "$IONEAPI_ROOT"/compiler/latest/env/vars.sh
+    IONEAPI_ROOT=~/apps/oneapi
+#    source "$IONEAPI_ROOT"/compiler/latest/env/vars.sh
+    source "$IONEAPI_ROOT"/setvars.sh --force
     export I_MPI_F90="$FC"
-    "$FC" -V
-    if [ -f "$IONEAPI_ROOT"/mkl/latest/env/vars.sh ] ; then
-	source "$IONEAPI_ROOT"/mkl/latest/env/vars.sh
+#force icc on macos to cross-compile x86 on arm64    
+    if [[ "$os" == "Darwin" ]]; then
+	CC=icc
+	CXX=icpc
+# Intel MPI not available on macos       
+       export BUILD_MPICH=1
+       unset BUILD_PLUMED
+# python arm64 not compatible with x86_64       
+       if [[ "$arch" == "arm64" ]]; then
+#         export NWCHEM_MODULES=$(echo $NWCHEM_MODULES |sed  's/python//')
+           if [[ -d ~/.pyenv/versions/3.10.6_x86 ]]; then
+	       export PYENV_ROOT="$HOME/.pyenv"
+	       command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+	       eval "$(pyenv init -)"
+	       pyenv shell 3.10.6_x86
+	 fi	  	
+       fi
+       
     fi
-
+    "$FC" -v
+    "$CC" -v
 fi
-if [[ "$MPI_IMPL" == "intel" ]]; then
-    source /opt/intel/oneapi/mpi/latest/env/vars.sh
+if [[ -f "$IONEAPI_ROOT"/mpi/latest/env/vars.sh ]]; then
+    source "$IONEAPI_ROOT"/mpi/latest/env/vars.sh
     export I_MPI_F90="$FC"
     mpif90 -v
     mpif90 -show
@@ -174,4 +184,12 @@ fi
 if [[ ! -z "$BUILD_ELPA" ]]; then
 echo "BUILD_ELPA = " "$BUILD_ELPA"
 fi
-export NWCHEM_EXECUTABLE=$TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET/nwchem_"$arch"_`echo $NWCHEM_MODULES|sed 's/ /-/g'`_"$MPI_IMPL"
+export NWCHEM_EXECUTABLE=$TRAVIS_BUILD_DIR/.cachedir/binaries/$NWCHEM_TARGET/nwchem_"$arch"_`echo $NWCHEM_MODULES|sed 's/ /-/g'`_"$MPI_IMPL"_"$FC"
+
+if [[ "$FC" == "gfortran" ]]; then
+   if [[ "$($FC -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c 18-)" -lt 9 ]]; then
+#disable xtb  if gfortran version < 9
+     unset USE_TBLITE
+     export NWCHEM_MODULES=$(echo $NWCHEM_MODULES |sed  's/xtb//')
+   fi
+fi

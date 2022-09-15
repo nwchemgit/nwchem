@@ -18,60 +18,54 @@ if [ -z "$DISTR" ] ; then
     DISTR=$dist
 fi
 echo DISTR is "$DISTR"
-case "$os" in
-    Darwin)
 	IONEAPI_ROOT=~/apps/oneapi
-	;;
-    Linux)
-	IONEAPI_ROOT=/opt/intel/oneapi
-	;;
-esac
  if [[ "$os" == "Darwin" ]]; then 
 #  HOMEBREW_NO_AUTO_UPDATE=1 brew cask uninstall oclint || true  
 #  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python3 ||true
      HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" python3 gsed grep automake autoconf ||true
      if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
-         if [[ -f ~/apps/oneapi/setvars.sh ]]; then 
+         if [[ -f "$IONEAPI_ROOT"/setvars.sh ]]; then 
 	     echo ' using intel cache installation '
 	 else
-	mkdir -p ~/mntdmg ~/apps/oneapi || true
+	mkdir -p ~/mntdmg $IONEAPI_ROOT || true
 	cd ~/Downloads
 	dir_base="18675"
 	dir_hpc="18681"
-	base="m_BaseKit_p_2022.2.0.226_offline"
-	hpc="m_HPCKit_p_2022.2.0.158_offline"
+	base="m_BaseKit_p_2022.2.0.226"
+	hpc="m_HPCKit_p_2022.2.0.158"
 	curl -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_base"/"$base".dmg
 	curl -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".dmg
 	echo "installing BaseKit"
 	hdiutil attach "$base".dmg  -mountpoint ~/mntdmg -nobrowse
-	sudo ~/mntdmg/bootstrapper.app/Contents/MacOS/install.sh --cli  --eula accept \
-	     --action install --components default  --install-dir ~/apps/oneapi
+	sudo  ~/mntdmg/bootstrapper.app/Contents/MacOS/install.sh  -c -s --action install  \
+        --components intel.oneapi.mac.mkl.devel  --install-dir $IONEAPI_ROOT --eula accept
 	hdiutil detach ~/mntdmg
 	#
 	echo "installing HPCKit"
 	hdiutil attach "$hpc".dmg  -mountpoint ~/mntdmg -nobrowse
-	sudo ~/mntdmg/bootstrapper.app/Contents/MacOS/install.sh --cli  --eula accept \
-	     --action install --components default --install-dir ~/apps/oneapi
+	sudo  ~/mntdmg/bootstrapper.app/Contents/MacOS/install.sh -c -s  --eula accept \
+	     --action install --components default --install-dir $IONEAPI_ROOT
 	hdiutil detach ~/mntdmg
-	ls -lrta ~/apps/oneapi ||true
-	sudo rm -rf "$IONEAPI_ROOT"/intelpython "$IONEAPI_ROOT"/dal "$IONEAPI_ROOT"/advisor \
+	ls -lrta $IONEAPI_ROOT ||true
+	rm -rf "$IONEAPI_ROOT"/intelpython "$IONEAPI_ROOT"/dal "$IONEAPI_ROOT"/advisor \
 	     "$IONEAPI_ROOT"/ipp "$IONEAPI_ROOT"/conda_channel 	"$IONEAPI_ROOT"/dnnl \
 	     "$IONEAPI_ROOT"/installer "$IONEAPI_ROOT"/vtune_profiler "$IONEAPI_ROOT"/tbb || true
 	fi
-	 source "$IONEAPI_ROOT"/setvars.sh || true
+	 source "$IONEAPI_ROOT"/setvars.sh --force || true
 	 export I_MPI_F90="$FC"
-	ls -lrta ~/apps/oneapi ||true
-	df -h 
+	ls -lrta $IONEAPI_ROOT ||true
 	rm -f *dmg || true
-	df -h
 	"$FC" -V
 	icc -V
      else
 	 #hack to fix Github actions mpif90
 	 gccver=`brew list --versions gcc| head -1 |cut -c 5-`
 	 echo brew gccver is $gccver
-	 ln -sf /usr/local/Cellar/gcc/$gccver/bin/gfortran-* /usr/local/Cellar/gcc/$gccver/bin/gfortran || true
-	 ln -sf /usr/local/Cellar/gcc/$gccver/bin/gfortran-* /usr/local/bin/gfortran || true
+         if [ -z "$HOMEBREW_CELLAR" ] ; then
+	     HOMEBREW_CELLAR=/usr/local/Cellar
+	 fi
+	 ln -sf $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran-* $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran || true
+	 ln -sf $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran-* /usr/local/bin/gfortran || true
 #	 ln -sf /usr/local/bin/$FC /usr/local/bin/gfortran
 	 $FC --version
 	 gfortran --version
@@ -110,17 +104,20 @@ fi
     fi
     if [[ "$MPI_IMPL" == "intel" || "$FC" == "ifort" || "$FC" == "ifx" ]]; then
 	export APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
+        rm -f l_Base*sh l_HP*sh
         tries=0 ; until [ "$tries" -ge 10 ] ; do \
-	wget https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB \
-            && sudo -E apt-key add GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB  \
-            && rm -f GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB || true \
-            && echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/oneAPI.list \
-            && sudo add-apt-repository "deb https://apt.repos.intel.com/oneapi all main"  \
-	    && sudo apt-get update && break ;\
+	dir_base="18673"
+	dir_hpc="18679"
+	base="l_BaseKit_p_2022.2.0.262"
+	hpc="l_HPCKit_p_2022.2.0.191"
+        wget https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".sh \
+        && wget https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_base"/"$base".sh \
+	    && break ;\
             tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
 
-        mpi_bin="  " ; mpi_libdev="intel-oneapi-mpi-devel" scalapack_libdev="intel-oneapi-mkl"
+        mpi_bin="  " ; mpi_libdev=" " scalapack_libdev=" "
     fi
+    if [[ "$GITHUB_WORKFLOW" != "NWChem_CI_selfhosted" ]]; then
     sudo apt-get update
     sudo apt-get -y install software-properties-common
     sudo add-apt-repository universe && sudo apt-get update
@@ -130,13 +127,25 @@ fi
 	sudo  add-apt-repository -y ppa:ubuntu-toolchain-r/test 
         sudo  apt-get -y install gcc-11 gfortran-11 g++-11
     fi
+    fi
     if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]]; then
-	sudo apt-get -y install intel-oneapi-ifort intel-oneapi-compiler-dpcpp-cpp-and-cpp-classic  intel-oneapi-mkl
+        sh ./"$base".sh -a -c -s --action remove --install-dir $IONEAPI_ROOT   --eula accept
+        sh ./"$hpc".sh -a -c -s --action remove --install-dir  $IONEAPI_ROOT  --eula accept
+
+        sh ./"$base".sh -a -c -s --action install --components intel.oneapi.lin.mkl.devel --install-dir $IONEAPI_ROOT  --eula accept
+ 
+        sh ./"$hpc".sh -a -c -s --action install \
+        --components  intel.oneapi.lin.ifort-compiler:intel.oneapi.lin.mpi.devel:intel.oneapi.lin.dpcpp-cpp-compiler-pro  \
+         --install-dir $IONEAPI_ROOT     --eula accept
 	if [[ "$?" != 0 ]]; then
 	    echo "apt-get install failed: exit code " "${?}"
 	    exit 1
 	fi
-	sudo apt-get -y install intel-oneapi-mpi-devel
+        source "$IONEAPI_ROOT"/setvars.sh || true
+	export I_MPI_F90="$FC"
+	"$FC" -V
+	icc -V
+
     fi
     if [[ "$FC" == "flang" ]]; then
 	if [[ "USE_AOMP" == "Y" ]]; then
