@@ -57,8 +57,7 @@ c
       External int_normalize
       External int_norm_2c
       External atom_tag_check
-      logical bas_loadlibrary
-      external bas_loadlibrary
+      logical status
 c
       me=ga_nodeid()
 c
@@ -1116,13 +1115,20 @@ c     	def2-universal-jfit
 c     load weigend_coulomb_fitting aka def2-universal-jfit
 c      
       if (adft.and.(.not.cdfit)) then
-         if(bas_loadlibrary(cd_bas_han,rtdb,geom,
-     N        ntypes, grtagin,
-     W        'cd basis','weigend coulomb fitting')) then
-            CDFIT=bas_rtdb_load(rtdb, geom, CD_bas_han, 'cd basis')
-         else
-            call errquit(" failed to load cd bas for adft",0, BASIS_ERR)
+         if (.not. bas_destroy(CD_bas_han))
+     &      call errquit('rdinput:not able to destroy CD_bas:',86,
+     &        BASIS_ERR)
+         if(ga_nodeid().eq.0) then
+              status = rtdb_parallel(.false.)
+            call bas_loadlibrary(cd_bas_han,rtdb,geom,
+     N           ntypes, grtagin,
+     W           'cd basis','weigend coulomb fitting')
          endif
+          status = rtdb_parallel(.true.)
+         call ga_sync()
+        if (.not. bas_create(CD_bas_han, 'cd basis'))
+     &           call errquit(pname//'bas_create?',102, BASIS_ERR)
+        CDFIT=bas_rtdb_load(rtdb, geom, CD_bas_han, 'cd basis')
       endif
       if (CDFIT)then
          call int_init(rtdb, 1, cd_bas_han)         

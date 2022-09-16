@@ -1585,9 +1585,10 @@ c    .     close(unit=unitrc,status='keep') ! close file after library name foun
 10003 format(31(2x,1pe15.6))
       end
 
-      logical function bas_loadlibrary(basis,rtdb,geom,
+      subroutine bas_loadlibrary(basis,rtdb,geom,
      .        ntypes, tag, name, librname)
       implicit none
+c     can be called only process zero
 #include "global.fh"
 #include "errquit.fh"
 #include "bas.fh"
@@ -1609,8 +1610,6 @@ c
       integer i
       logical bas_add_ucnt_init, bas_set_spherical, bas_add_ucnt_tidy
       external bas_add_ucnt_init, bas_set_spherical, bas_add_ucnt_tidy
-      logical ma_verify_allocator_stuff
-      external ma_verify_allocator_stuff
       logical  bas_do_destroy
       external bas_do_destroy
 
@@ -1618,7 +1617,6 @@ c
       osegment=.true.
       oshell_is_rel=.false.
       star_details=.false.
-      if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2b'
       if (.not. bas_create(basis, name))
      &     call errquit(' bas_create failed', 186, BASIS_ERR)
       if (.not.bas_add_ucnt_init(basis)) call errquit
@@ -1647,7 +1645,6 @@ c
      $     call errquit('bas_input: tidy failed',0, BASIS_ERR)
       if (.not. bas_do_destroy(basis)) call errquit
      $     ('bas_input: bas_destroy failed', 0, BASIS_ERR)
-      bas_loadlibrary=.true.
       return
       end
       
