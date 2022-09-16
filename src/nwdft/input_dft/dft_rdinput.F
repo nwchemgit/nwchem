@@ -35,6 +35,7 @@ c
       integer itype, icenter, jcenter
       integer lcoord, icoord, lcharge, icharge, ltags, itags,
      &        lznuc, iznuc
+      integer i_typetag,l_typetag
       integer iline
       integer nopen
       character*32 theory 
@@ -999,6 +1000,10 @@ c
       if (.not. Ma_Push_Get(MT_Byte, ncenters*16, 'center tags',
      &   ltags, itags))call errquit(
      .     pname//'failed to alloc center tags',0, MA_ERR)
+
+      if (.not. Ma_Push_Get(MT_Byte, ncenters*16, 'type tags',
+     &   l_typetag, i_typetag))call errquit(
+     .     pname//'failed to alloc type tags',0, MA_ERR)
 c     
       if (.not. geom_cart_get(geom, ncenters, Byte_MB(itags),
      &                        Dbl_MB(icoord), Dbl_MB(icharge)))
@@ -1037,8 +1042,9 @@ c
          if (lnewtype)then
             ntypes = ntypes + 1
             iatype(icenter) = ntypes
-c     stealing grtagin from grid_input (might be dangerous)
-            grtagin(ntypes)=Byte_MB(itags + (icenter - 1)*16)
+c           grtagin(ntypes)=Byte_MB(itags + (icenter - 1)*16)
+            Byte_MB(i_typetag + (ntypes - 1)*16) =
+     B           Byte_MB(itags + (icenter - 1)*16)
          endif 
       enddo 
       if (ntypes.gt.dft_ntags_bsmx)then
@@ -1121,7 +1127,7 @@ c
          if(ga_nodeid().eq.0) then
               status = rtdb_parallel(.false.)
             call bas_loadlibrary(cd_bas_han,rtdb,geom,
-     N           ntypes, grtagin,
+     N           ntypes, Byte_MB(i_typetag),
      W           'cd basis','weigend coulomb fitting')
          endif
           status = rtdb_parallel(.true.)
@@ -1362,13 +1368,7 @@ c
      $  libxcon = .false.
       if (libxcon) call nwchem_libxc_rdinput(rtdb,'dft') 
 c
-      if (.not. MA_Pop_Stack(lznuc))
-     &   call errquit('dft_rdinput: pop stack failed.',0, MA_ERR)
-      if (.not. MA_Pop_Stack(ltags))
-     &   call errquit('dft_rdinput: pop stack failed.',0, MA_ERR)
-      if (.not. MA_Pop_Stack(lcharge))
-     &   call errquit('dft_rdinput: pop stack failed.',0, MA_ERR)
-      if (.not. MA_Pop_Stack(lcoord))
+      if (.not. MA_chop_Stack(lcoord))
      &   call errquit('dft_rdinput: pop stack failed.',0, MA_ERR)
 c
       call ga_sync
