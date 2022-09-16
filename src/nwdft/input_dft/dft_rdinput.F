@@ -1116,9 +1116,13 @@ c     	def2-universal-jfit
 c     load weigend_coulomb_fitting aka def2-universal-jfit
 c      
       if (adft.and.(.not.cdfit)) then
-         cdfit=bas_loadlibrary(cd_bas_han,rtdb,geom,
+         if(bas_loadlibrary(cd_bas_han,rtdb,geom,
      N        ntypes, grtagin,
-     W   'cd basis','weigend coulomb fitting')
+     W        'cd basis','weigend coulomb fitting')) then
+            CDFIT=bas_rtdb_load(rtdb, geom, CD_bas_han, 'cd basis')
+         else
+            call errquit(" failed to load cd bas for adft",0, BASIS_ERR)
+         endif
       endif
       if (CDFIT)then
          call int_init(rtdb, 1, cd_bas_han)         

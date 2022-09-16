@@ -1588,6 +1588,7 @@ c    .     close(unit=unitrc,status='keep') ! close file after library name foun
       logical function bas_loadlibrary(basis,rtdb,geom,
      .        ntypes, tag, name, librname)
       implicit none
+#include "global.fh"
 #include "errquit.fh"
 #include "bas.fh"
 #include "baslibraryP.fh"
@@ -1644,7 +1645,9 @@ c     loop over atom types
 c
       if (.not. bas_add_ucnt_tidy(basis))
      $     call errquit('bas_input: tidy failed',0, BASIS_ERR)
-      bas_loadlibrary=bas_rtdb_load(rtdb, geom, basis, name)
+      if (.not. bas_do_destroy(basis)) call errquit
+     $     ('bas_input: bas_destroy failed', 0, BASIS_ERR)
+      bas_loadlibrary=.true.
       return
       end
       
