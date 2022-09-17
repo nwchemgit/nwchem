@@ -732,21 +732,28 @@ c
 c     return the name of the scratch/permanent directory for the
 c     specified process
 c
+      dir='. '
       if (oscratch) then
          call util_getenv('SCRATCH_DIR',envscr) 
-         if(.not.util_file_parse_dir(envscr, dir, ga_nodeid()))
-     I    then
-         if (.not. util_file_parse_dir(scratch_dir, dir, node)) then
-            dir = '. ' ! Final default is blank
-         endif
+         if(inp_strlen(envscr).gt.0)  then
+            if(.not.util_file_parse_dir(envscr, dir, ga_nodeid()))
+     I           then
+               if (.not. util_file_parse_dir(scratch_dir, 
+     d              dir, node)) then
+                  dir = '. '    ! Final default is blank
+               endif
+            endif
          endif
       else
          call util_getenv('PERMANENT_DIR',envscr) 
-         if(.not.util_file_parse_dir(envscr, dir, ga_nodeid()))
-     I    then
-         if (.not. util_file_parse_dir(permanent_dir, dir, node)) then
-            dir = '. ' ! Final default is blank
-         endif
+         if(inp_strlen(envscr).gt.0)  then
+            if(.not.util_file_parse_dir(envscr, dir, ga_nodeid()))
+     I           then
+               if (.not. util_file_parse_dir(permanent_dir, 
+     D              dir, node)) then
+                  dir = '. '    ! Final default is blank
+               endif
+            endif
          endif
       endif
 c
