@@ -41,9 +41,9 @@ basis "ao basis" spherical
 * library def2-svp
 end
 
-basis "cd basis" bse spherical
-* library def2-universal-jfit
-end
+#basis "cd basis" bse spherical
+#* library def2-universal-jfit
+#end
  
 dft
 adft
