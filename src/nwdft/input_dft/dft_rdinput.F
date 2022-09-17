@@ -1042,9 +1042,10 @@ c
          if (lnewtype)then
             ntypes = ntypes + 1
             iatype(icenter) = ntypes
-c           grtagin(ntypes)=Byte_MB(itags + (icenter - 1)*16)
-            Byte_MB(i_typetag + (ntypes - 1)*16) =
-     B           Byte_MB(itags + (icenter - 1)*16)
+            do jcenter=0,15
+               Byte_MB(i_typetag + (ntypes - 1)*16+jcenter) =
+     B              Byte_MB(itags + (icenter - 1)*16+jcenter)
+            enddo
          endif 
       enddo 
       if (ntypes.gt.dft_ntags_bsmx)then
