@@ -214,6 +214,7 @@ if [[ -d "ga-5.8.1" ]]; then
 	./nodelist_patch.sh $GA_DIR
 	./nompif_patch.sh $GA_DIR
 	./ptstride_patch.sh $GA_DIR
+	./pt.sh $GA_DIR
 	patch -p0 -s -N < ./fujitsu.patch
 	patch -p0 -s -N < ./dra_f2c.patch
 	echo patched
