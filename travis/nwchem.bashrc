@@ -105,7 +105,7 @@ if [[ "$os" == "Darwin" ]]; then
     export PATH=/usr/local/opt/mpich/bin/:$PATH 
   fi
   #python3 on brew
-  export PATH=/usr/local/bin:$PATH
+#  export PATH=/usr/local/bin:$PATH
 
 fi
 if [[ "$os" == "Linux" ]]; then 

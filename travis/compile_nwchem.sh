@@ -96,9 +96,12 @@ fi
 #     FOPT="-O1 -fno-aggressive-loop-optimizations"
 #   fi
    if [[ ! -z "$USE_SIMINT" ]] ; then 
-#       FOPT="-O0 -fno-aggressive-loop-optimizations"
        SIMINT_BUILD_TYPE=Debug
-       export PATH="/usr/local/bin:$PATH"
+       if [[ "$arch" != "x86_64" ]]; then
+	   SIMINT_VECTOR=scalar
+       fi
+       echo SIMINT_VECTOR is $SIMINT_VECTOR
+#       export PATH="/usr/local/bin:$PATH"
 #       export LDFLAGS="-L/usr/local/opt/python@3.7/lib:$LDFLAGS"
    fi
    if [[ -z "$TRAVIS_HOME" ]]; then
