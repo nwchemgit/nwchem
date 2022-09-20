@@ -114,11 +114,15 @@ c     *            ' overify=', overify,' ohardfail=',ohardfail
         call ga_set_memory_limit(ma_sizeof(mt_dbl,global,mt_byte))
       endif
 
+c     set no. threads for threaded BLAS to 1
+      call util_blas_set_num_threads(1)
+
 C  Open rtdb
 C  Need to get the input file name and the rtdb_name taken care of
 
 !      call input_file_info(input_filename, rtdb_name, 
 !     $                     ostartup, ocontinue)
+      call util_file_prefix_set("junk")
       rtdb_name = "junk.rtdb"
       ostartup = .true.
       ocontinue = .false.
