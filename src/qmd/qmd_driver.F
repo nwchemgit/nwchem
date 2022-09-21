@@ -111,8 +111,8 @@ c
       logical task_freq
       external task_freq
 c
-      logical qmd_property
-      external qmd_property
+      logical qmd_property,qmd_linear
+      external qmd_property,qmd_linear
 c
 c     preliminaries
       status_qmd = .true.
@@ -211,6 +211,11 @@ c
 c     set degrees of freedom depending on the type of thermostat
       ndeg = 3*nactive ! initialize ndeg for local thermostats (e.g. langevin)
       if (.not.do_langevin) then  ! for global thermostats
+         if(.not.do_linear) then
+c     check linearity of molecular geometry
+            do_linear=qmd_linear(geom,nat,dbl_mb(k_r))
+               write(6,*) ' do_linear ',do_linear
+         endif
        if (do_linear) then    ! check for linear flag
         ndeg = 3*nactive-5   ! 3N-5 (linear)
        else
@@ -518,3 +523,28 @@ c
 c
       end
 c $Id$
+      logical function qmd_linear(geom,n,xyz)
+      implicit none
+      integer n,geom
+      double precision xyz(3,*)
+c
+      integer i
+      double precision angle
+      logical  geom_calc_angle,geom_cart_coords_get
+      external geom_calc_angle,geom_cart_coords_get
+c      
+      qmd_linear=.true.
+      if(n.eq.2) return
+      if(.not.geom_cart_coords_get(geom, xyz))
+     c        call errquit(' geom_cart_coords fails ',0,0)
+      do i=1,n-2
+         if(.not.geom_calc_angle(
+     1        xyz(1,i),
+     2        xyz(1,i+1),
+     3        xyz(1,i+2),
+     a        angle))
+     c        call errquit(' geom_calc_angle fails ',0,0)
+         if(abs(angle-180d0).gt.1d-5) qmd_linear=.false.
+      enddo
+      return
+      end
