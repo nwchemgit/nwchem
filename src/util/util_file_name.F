@@ -1,3 +1,11 @@
+      block data scrperm
+      implicit none
+#include "cfileprefix.fh"
+c
+      data scratch_dir /'null'/
+      data permanent_dir /'null'/
+c
+      end
       subroutine util_file_info_rtdb(rtdb)
       implicit none
 #include "errquit.fh"
@@ -728,7 +736,8 @@ c
       character*1024 envscr
       integer util_getblnk
       external util_getblnk
-      logical envok
+      logical envok,util_getenvf
+      external util_getenvf
 c
 c     return the name of the scratch/permanent directory for the
 c     specified process
@@ -736,24 +745,26 @@ c
       dir='. '
       envok=.false.
       if (oscratch) then
-         call util_getenv('SCRATCH_DIR',envscr) 
-         if(inp_strlen(envscr).gt.0) then
+         if(util_getenvf('SCRATCH_DIR',envscr)) then
             envok =
      U           util_file_parse_dir(envscr, dir, ga_nodeid())
          endif
          if(.not.envok)   then
+            if(scratch_dir.eq.'null') call
+     E           errquit('scratch_dir not set ',0,0)
             if (.not. util_file_parse_dir(scratch_dir, 
      d           dir, node)) then
                dir = '. '       ! Final default is blank
             endif
          endif
       else
-         call util_getenv('PERMANENT_DIR',envscr)
-         if(inp_strlen(envscr).gt.0)  then
+         if(util_getenvf('PERMANENT_DIR',envscr)) then
             envok = 
      U           util_file_parse_dir(envscr, dir, ga_nodeid())
          endif
          if(.not.envok) then
+            if(permanent_dir.eq.'null') call
+     E           errquit('permanent_dir not set ',0,0)
             if (.not. util_file_parse_dir(permanent_dir, 
      D           dir, node)) then
                dir = '. '       ! Final default is blank
@@ -761,6 +772,19 @@ c
          endif
       endif
 c
+      end
+      logical function util_getenvf(env_name,env_value)
+      implicit none
+      character*(*) env_name  ! [input] the name of the environment variable to check for
+      character*(*) env_value ! [output] the value of the named environement variable
+c
+      integer len, status
+c
+      call get_environment_variable(env_name, env_value, len, status)
+cdbg      write(6,*) ' value is !', trim(env_value),'!'
+cdbg      write(6,*) ' len= ',len,' ; status= ',status
+      util_getenvf=status.eq.0
+      return
       end
       double precision function util_scratch_dir_avail_for_me()
       implicit none
