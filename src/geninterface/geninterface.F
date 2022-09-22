@@ -75,19 +75,19 @@ c--
       numatoms = natom
 C  Worry about input file.  For now use a dummy one.  Do I need to open it?
 
-      input_filename = "junk.nw"
-c      if (nodeid().eq.0) then
-c         open(LuIn, file=input_filename, status='old', form='formatted',
-c     $        err=10000)
-c         goto 10001
-c10000    call errquit('nwchem: failed to open the input file', 0)
-c10001    continue
+      input_filename = venusnw_file
+      if (ga_nodeid().eq.0) then
+         open(LuIn, file=input_filename, status='old', form='formatted',
+     $        err=10000)
+         goto 10001
+10000    call errquit('nwchem: failed to open the input file', 0)
+10001    continue
 c
-c      else
-c#if !(defined(KSR) || defined(IBM) || defined(FUJITSU) )
-c         close(LuIn)
-c#endif
-c      endif
+      else
+#if !(defined(KSR) || defined(IBM) || defined(FUJITSU) )
+         close(LuIn)
+#endif
+      endif
 
 C  Set up memory environment
 
@@ -120,10 +120,10 @@ c     set no. threads for threaded BLAS to 1
 C  Open rtdb
 C  Need to get the input file name and the rtdb_name taken care of
 
-!      call input_file_info(input_filename, rtdb_name, 
-!     $                     ostartup, ocontinue)
-      call util_file_prefix_set("junk")
-      rtdb_name = "junk.rtdb"
+!     sets permanent_ and scratch_dir
+!      rtdb_name = "junk.rtdb"
+      call input_file_info(input_filename, rtdb_name,
+     $                     ostartup, ocontinue)
       ostartup = .true.
       ocontinue = .false.
       if (.not. rtdb_open(rtdb_name, 'empty', rtdb))
