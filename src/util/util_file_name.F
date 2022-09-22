@@ -728,31 +728,35 @@ c
       character*1024 envscr
       integer util_getblnk
       external util_getblnk
+      logical envok
 c
 c     return the name of the scratch/permanent directory for the
 c     specified process
 c
       dir='. '
+      envok=.false.
       if (oscratch) then
          call util_getenv('SCRATCH_DIR',envscr) 
-         if(inp_strlen(envscr).gt.0)  then
-            if(.not.util_file_parse_dir(envscr, dir, ga_nodeid()))
-     I           then
-               if (.not. util_file_parse_dir(scratch_dir, 
-     d              dir, node)) then
-                  dir = '. '    ! Final default is blank
-               endif
+         if(inp_strlen(envscr).gt.0) then
+            envok =
+     U           util_file_parse_dir(envscr, dir, ga_nodeid())
+         endif
+         if(.not.envok)   then
+            if (.not. util_file_parse_dir(scratch_dir, 
+     d           dir, node)) then
+               dir = '. '       ! Final default is blank
             endif
          endif
       else
-         call util_getenv('PERMANENT_DIR',envscr) 
+         call util_getenv('PERMANENT_DIR',envscr)
          if(inp_strlen(envscr).gt.0)  then
-            if(.not.util_file_parse_dir(envscr, dir, ga_nodeid()))
-     I           then
-               if (.not. util_file_parse_dir(permanent_dir, 
-     D              dir, node)) then
-                  dir = '. '    ! Final default is blank
-               endif
+            envok = 
+     U           util_file_parse_dir(envscr, dir, ga_nodeid())
+         endif
+         if(.not.envok) then
+            if (.not. util_file_parse_dir(permanent_dir, 
+     D           dir, node)) then
+               dir = '. '       ! Final default is blank
             endif
          endif
       endif
