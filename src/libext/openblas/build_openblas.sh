@@ -14,7 +14,7 @@ tar xzf OpenBLAS-${VERSION}.tar.gz
 ln -sf OpenBLAS-${VERSION} OpenBLAS
 cd OpenBLAS
 # patch for apple clang -fopenmp
-patch -p0 -s -N < ../clang_omp.patch
+patch -p0 -s -N < ../makesys.patch
 #patch -p0 -s -N < ../icc_avx512.patch
 # patch for pgi/nvfortran missing -march=armv8
 patch -p0 -s -N < ../arm64_fopt.patch
@@ -48,6 +48,9 @@ if [[ "${GOTAVX512}" == "Y" ]]; then
     FORCETARGET=" TARGET=HASWELL "
 fi
 fi #FORCETARGET
+if [[ "$arch" == "riscv64" ]]; then
+	 FORCETARGET=" TARGET=RISCV64_GENERIC "
+fi
 if [[  -z "${BLAS_SIZE}" ]]; then
    BLAS_SIZE=8
 fi
@@ -132,7 +135,11 @@ elif  [[ -n ${FC} ]] && [[ "${FC}" == "ifort" ]] || [[ "${FC}" == "ifx" ]]; then
     FORCETARGET+=' F_COMPILER=INTEL '
     LAPACK_FPFLAGS_VAL=" -fp-model source -O2 -g "
 else
+	#assuming gfortran
     LAPACK_FPFLAGS_VAL=" "
+        if [[ ${BLAS_SIZE} == 8 ]]; then
+	    LAPACK_FLAGS_VAL+=" -fdefault-integer-8"
+	fi
 fi
 if [[   -z "${CC}" ]]; then
     CC=cc
@@ -157,7 +164,7 @@ fi
 
 #disable threading for ppc64le since it uses OPENMP
 echo arch is "$arch"
-if [[ "$arch" == "ppc64le" ]]; then
+if [[ "$arch" == "ppc64le" ||  "$arch" == "riscv64" ]]; then
 if [[ ${GCCVERSIONGT5} != 1 ]]; then
        echo
        echo gcc version 6 and later needed for ppc64le
@@ -167,8 +174,10 @@ if [[ ${GCCVERSIONGT5} != 1 ]]; then
        exit 1
 fi
     THREADOPT="0"
+    MYNTS="1"
 else
     THREADOPT="1"
+    MYNTS="128"
 fi
 
 #we want openblas to use pthreads and not openmp.
@@ -178,13 +187,13 @@ if [[  ! -z "${USE_OPENMP}" ]]; then
     unset USE_OPENMP
     NWCHEM_USE_OPENMP=1
 fi
-echo make $FORCETARGET LAPACK_FPFLAGS=$LAPACK_FPFLAGS_VAL  INTERFACE64=$sixty4_int BINARY=$binary NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD=$THREADOPT  libs netlib -j4
+echo make $FORCETARGET LAPACK_FPFLAGS=$LAPACK_FPFLAGS_VAL  INTERFACE64=$sixty4_int BINARY=$binary NUM_THREADS=$MYNTS NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD=$THREADOPT  libs netlib -j4
 echo
 echo OpenBLAS compilation in progress
 echo output redirected to libext/openblas/OpenBLAS/openblas.log
 echo
 if [[ ${_FC} == xlf ]]; then
- make FC="xlf -qextname" $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4 >& openblas.log
+ make FC="xlf -qextname" $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=$MYNTS NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4 >& openblas.log
 else
  make $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4 >& openblas.log
 fi
