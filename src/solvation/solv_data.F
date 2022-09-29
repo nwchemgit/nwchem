@@ -1,7 +1,7 @@
 c
 c     get solvent data
 c
-      subroutine solv_data(solvname_short,solvname_long, !short and long solvent names
+      logical function solv_data(solvname_short,solvname_long, !short and long solvent names
      &   eps,epsinf,sola,solb,solc,solg,solh,soln,icds)
 c
       implicit none
@@ -13,13 +13,21 @@ c
       double precision eps,epsinf
 c
       double precision sola,solb,solc,solg,solh,soln
+      solv_data=.true.
 c
 c     get the solvent data
 c
       if (solvname_short.eq.'h2o') solvname_long='water' ! default
+      eps=0d0
+      epsinf=0d0
       call DATSOLMN(solvname_short,solvname_long,
      &     EPS,EPSINF,
      &     SOLA,SOLB,SOLC,SOLG,SOLH,SOLN)
+      if(eps.eq.0d0.and.epsinf.eq.0d0) then
+cdbg         write(6,*) ' no data from solv_data'
+         solv_data=.false.
+         return
+      endif
 c
 c     set icds
 c

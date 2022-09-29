@@ -74,8 +74,8 @@ c
       character*(rtdb_max_file) geom_geom  ! The "geometry" value
       character*(rtdb_max_file) cosmo_geom ! The geometry for which the COSMO
                                            ! parameters were set
-      logical util_io_unit
-      external util_io_unit
+      logical util_io_unit,solv_data
+      external util_io_unit,solv_data
 c
       double precision zero, one, pt5, radtol, def
       integer          mxpass
@@ -339,9 +339,9 @@ c     get dielec, always used
 c
       if(odbug.and.me.eq.0) 
      &     write(luout,*) "calling solv_data"
-      call solv_data(solvname_short,solvname_long, !short and long solvent names
+      if(.not.solv_data(solvname_short,solvname_long, !short and long solvent names
      &          dielec,dielecinf, ! slow and fast components
-     &          sola,solb,solc,solg,solh,soln,icds) 
+     &          sola,solb,solc,solg,solh,soln,icds)) then
 c
 c     if set by the user
 c
@@ -354,6 +354,7 @@ c
       status = rtdb_get(rtdb,'cosmo:solh',mt_dbl,1,solh)
       status = rtdb_get(rtdb,'cosmo:soln',mt_dbl,1,soln)
       status = rtdb_get(rtdb,'cosmo:icds',mt_int,1,icds)
+      endif
 c
 c     set sola,solb,solc,solg,solh,soln,icds parameters (either from
 c     solv_data or user-defined)
