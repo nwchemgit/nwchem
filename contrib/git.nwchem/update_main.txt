@@ -28,15 +28,12 @@ jobs:
           git fetch origin
           git config user.name "edoapra"
           git config user.email "edoardo.apra@gmail.com"
-          git cherry-pick f75982cb4ff717a3edc67e03cecb45724201e218
-          git cherry-pick e43e464712fb9b6d3da6a9c632eeda29c53df16e
-          git cherry-pick fa0225cff5f0d2c2954ab559ed9b29cb41effbc8
-          git cherry-pick 15c5a425286d8e32c3fa6fc5eb540c1df5bd6feb
           cd .github/workflows
-          rm -f update_main.yml
+          rm -f update_main.yml github_actions_selfhosted.yml
           curl -L https://raw.githubusercontent.com/nwchemgit/nwchem/master/contrib/git.nwchem/update_main.txt > update_main.yml
-          git add update_main.yml
-          git commit -m 'update main from nwchemgit master plus selfhosted [ci skip]' update_main.yml
+          curl -L https://raw.githubusercontent.com/nwchemgit/nwchem/master/contrib/git.nwchem/github_actions_selfhosted.txt > github_actions_selfhosted.yml
+          git add update_main.yml github_actions_selfhosted.yml
+          git commit -m 'update main from nwchemgit master plus selfhosted [ci skip]' update_main.yml github_actions_selfhosted.yml
       - name: Push changes
         uses: ad-m/github-push-action@master
         with:

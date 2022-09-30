@@ -1,0 +1,148 @@
+name: NWChem_CI_selfhosted
+
+on:
+  release:
+  schedule:
+    - cron: '0 4 * * SAT'
+  repository_dispatch:
+    types: [backend_automation]
+  workflow_dispatch:
+jobs:
+  build:
+    if: |
+      github.event_name == 'schedule' ||
+      (!contains(github.event.head_commit.message, 'ci skip'))
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 1440
+    strategy:
+      matrix:
+        os:
+          - [self-hosted, ubuntu1604]
+          - [self-hosted, osx-arm64]
+        blas: [build_openblas]
+        blas_size:
+          - 8
+        experimental: [false]
+        armci_network:
+          - MPI-PR
+        nwchem_modules:
+          - "all python xtb"
+        fc:
+          - gfortran
+        use_openmp:
+          - 2
+        use_simint:
+          - 1
+        use_libxc:
+          - 1
+        use_tblite:
+          - 1
+        build_plumed:
+          - 1
+        include:
+          - os: [self-hosted, ubuntu1804]
+            experimental: false
+            mpi_impl: intel
+            armci_network: MPI-TS
+            nwchem_modules: "all python xtb"
+            fc: ifort
+            blas: "build_openblas"
+            use_libxc: 1
+            use_openmp: 2
+            use_tblite: 1
+          - os: [self-hosted, osx-arm64]
+            experimental: false
+            mpi_impl: intel
+            armci_network: MPI-PT
+            nwchem_modules: "xtb qmd driver solvation mp2_grad ccsd gwmol tce python"
+            fc: ifort
+            blas: "build_openblas"
+            use_libxc: 1
+            use_openmp: 2
+            use_tblite: 1
+          - os: [self-hosted, ubuntu1604]
+            experimental: false
+            mpi_impl: intel
+            armci_network: MPI-PT
+            nwchem_modules: "xtb qmd driver solvation mp2_grad ccsd gwmol tce python"
+            fc: ifx
+            blas: "build_openblas"
+            use_libxc: 1
+            use_openmp: 2
+            use_tblite: 1
+      fail-fast: false
+    env:
+        ARMCI_NETWORK: ${{ matrix.armci_network }}
+        NWCHEM_MODULES: ${{ matrix.nwchem_modules }}
+        USE_SIMINT: ${{ matrix.use_simint }}
+        USE_LIBXC: ${{ matrix.use_libxc }}
+        USE_TBLITE: ${{ matrix.use_tblite }}
+        BUILD_PLUMED: ${{ matrix.build_plumed }}
+        FC: ${{ matrix.fc }}
+        CC: ${{ matrix.cc }}
+        COMEX_MAX_NB_OUTSTANDING: 4
+        SIMINT_MAXAM: 4
+        SIMINT_VECTOR: avx2
+        BLAS_ENV:  ${{ matrix.blas }}
+        BLAS_SIZE:  ${{ matrix.blas_size }}
+        USE_OPENMP:  ${{ matrix.use_openmp }}
+    continue-on-error: ${{ matrix.experimental }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 40
+          clean: true
+      - name: Get Instruction
+        id: get-simd
+        run: |
+          echo "::set-output name=simd::$(./travis/guess_simd.sh)"
+        shell: bash
+      - name: Clear cache dir
+        run: |
+          rm -rf ~/cache || true
+        shell: bash
+      - name: Setup cache
+        id: setup-cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/cache
+          key: ${{ runner.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-blas${{ matrix.blas}}-blas_size${{ matrix.blas_size}}-libxc${{matrix.use_libxc}}-tblite${{matrix.use_tblite}}-simd${{ steps.get-simd.outputs.simd }}-nwchemcache-v003
+      - name: build environment
+        run: |
+          ./travis/build_env.sh
+      - name: fetch cache
+        if: steps.setup-cache.outputs.cache-hit == 'true'
+        run: |
+          ./travis/cache_fetch.sh
+      - name: compile
+        id: compile
+        run: |
+          ./travis/config_nwchem.sh
+          ./travis/compile_nwchem.sh
+      - name: Check compilation result
+        if: ${{ failure() }}
+        run: |
+          ./travis/compile_check.sh
+      - name: store cache
+        run: |
+          ./travis/cache_store.sh
+      - name: qa_test
+        id: qa_test
+        if: steps.compile.conclusion == 'success'
+        run: |
+          export TRAVIS_BUILD_DIR=`pwd`
+          unset USE_SIMINT
+          source travis/nwchem.bashrc; cd QA && ./doqmtests.mpi 3
+        shell: bash
+      - name: Check if QA testing has failed
+        if: ${{ failure() }} &&  steps.qa_test.outcome == 'failure'
+        run: |
+          ./travis/check_qas.sh
+
+  
+
+
+
+     
