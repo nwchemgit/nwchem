@@ -42,7 +42,7 @@ c
 #include "zora.fh"
 #include "x2c.fh"
 #include "modelpotential.fh"
-cold#include "dimqm.fh"
+#include "inp.fh"
 c     
       Logical movecs_write, movecs_converged, movecs_read
       External movecs_write, movecs_converged, movecs_read
@@ -248,7 +248,7 @@ C     RTDB flag for printing out all matrices
       logical lprint_mats  !print matrices to stdout?
       logical lsave_mats   !save matrices to file?
       logical molden, forceatguess, save_evals, densmat
-      character*256 file_mat1
+      character*256 file_mat1,movecs_in_org
       integer ma_type, no_sflip,l_at_flip,k_at_flip
       character*26 date
 
@@ -878,6 +878,7 @@ c     == better have static ldb at high node counts ==
       if (.not.rtdb_get(rtdb,'dft:staticguess',
      ,     mt_log,1,staticguess)) staticguess=.false.
       if(staticguess) llldb=util_statldb(.true.,rtdb)
+      movecs_in_org=movecs_in
       call scf_vectors_guess(rtdb, tol2e_sleazy, geom, ao_bas_han, 
      &                       basis_trans, movecs_in, movecs_out, 
      &                       movecs_guess, scftype, nclosed, nopen, 
@@ -885,6 +886,17 @@ c     == better have static ldb at high node counts ==
      &                       k_ir, g_gmovecs, g_dens, vecs_or_dens, 
      &                       'dft', title, oskel, oadapt, 
      &                       .true.) 
+c     check if movecs read has failed
+      if(movecs_in_org.ne.movecs_in) then
+         if(ga_nodeid().eq.0) then
+            write(luout,*) ' WARNING: movecs_in_org=',
+     c           movecs_in_org(1:inp_strlen(movecs_in_org)),
+     c           ' not equal to movecs_in=',
+     c           movecs_in(1:inp_strlen(movecs_in))
+         endif
+c     no movecs available, use svecs
+         ncanorg=0
+      endif
       if(staticguess) llldb_out=util_statldb(llldb,rtdb)
       call dft_guessout(nmo,nbf_ao,g_gmovecs,g_movecs,ipol)
       if (me.eq.0.and.oprint)
