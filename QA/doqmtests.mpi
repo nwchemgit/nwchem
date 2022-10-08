@@ -335,6 +335,11 @@ np_small=$(get_limit $np 16)
 ./runtests.mpi.unix procs $np hgh-hfc-x2c-gnuc
 ./runtests.mpi.unix procs $np hgh-hfc-x2c-pnuc
 ./runtests.mpi.unix procs $np hg-1e-hfc-x2c
+# tblite
+if [[ ! -z "${USE_TBLITE}" ]]; then
+./runtests.mpi.unix procs $np xtb_siosi3
+./runtests.mpi.unix procs $np xtb_siosi7
+fi
 #--- if we only want quick tests get out now!
 if [[ "$what" == "fast" ]]; then
   exit
