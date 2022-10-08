@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-rm -rf mpich*
+source ../libext_utils/get_tgz.sh
+rm -rf mpich  mpich-?.?.?
 #VERSION=3.4.2
-VERSION=4.0.2
+VERSION=4.0.22
 #curl -L http://www.mpich.org/static/downloads/${VERSION}/mpich-${VERSION}.tar.gz -o mpich.tgz
-curl -L https://github.com/pmodels/mpich/releases/download/v${VERSION}/mpich-${VERSION}.tar.gz -o mpich.tgz
+#curl -L https://github.com/pmodels/mpich/releases/download/v${VERSION}/mpich-${VERSION}.tar.gz -o mpich.tgz
+get_tgz https://github.com/pmodels/mpich/releases/download/v${VERSION}/mpich-${VERSION}.tar.gz  mpich.tgz
 tar xzf mpich.tgz
 ln -sf mpich-${VERSION} mpich
 cd mpich
