@@ -30,6 +30,10 @@
 # A subdirectory of the current directory named scratchdir is deleted
 # and remade for each calculation, and deleted at job end.
 export HYDRA_DEBUG=0
+# find memory leaks using  this glibc feature that
+# initialized memory blocks to non-zero values
+export MALLOC_PERTURB_=$(($RANDOM % 255 + 1))
+
 if [[ -z "${NWCHEM_TARGET}" ]]; then
     UNAME_S=$(uname -s)
   if [[ ${UNAME_S} == Linux ]]; then
