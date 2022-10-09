@@ -40,10 +40,6 @@ if [[ "$FC" == "amdflang" ]]; then
 fi
 
 if [[ "$FC" == "nvfortran" ]]; then
-#    source /etc/profile.d/lmod.sh
-#    module use /opt/nvidia/hpc_sdk/modulefiles
-#    module load nvhpc
-#     export BUILD_MPICH=1
      nv_major=22
      nv_minor=7
      nverdot="$nv_major"."$nv_minor"
@@ -52,12 +48,6 @@ if [[ "$FC" == "nvfortran" ]]; then
      sudo /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x
      export FC=nvfortran
      export MPICH_FC=nvfortran
-#	if [ -z "$BUILD_MPICH" ] ; then
-##use bundled openmpi
-#	export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/comm_libs/mpi/bin:$PATH
-#	export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/comm_libs/mpi/lib:$LD_LIBRARY_PATH
-#	fi
-#    export CC=gcc
 fi
 if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
     IONEAPI_ROOT=~/apps/oneapi

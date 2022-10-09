@@ -79,6 +79,9 @@ echo DISTR is "$DISTR"
      #hack to get 3.10 as default
      brew install python@3.10
      brew link --force --overwrite python@3.10
+     if [[ "$MPI_IMPL" == "mpich" ]]; then
+           brew install mpich && brew upgrade mpich && brew unlink openmpi && brew unlink mpich && brew link --overwrite  mpich ||true
+     fi
 #  if [[ "$MPI_IMPL" == "openmpi" ]]; then
 #      HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install scalapack
 #  fi
@@ -204,15 +207,7 @@ fi
 	export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH
 	sudo /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x
 
-#	source /etc/profile.d/lmod.sh
-#        module use /opt/nvidia/hpc_sdk/modulefiles
-#	module load nvhpc
 	export FC=nvfortran
-#	if [ -z "$BUILD_MPICH" ] ; then
-##use bundled openmpi
-#	export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/comm_libs/mpi/bin:$PATH
-#	export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/comm_libs/mpi/lib:$LD_LIBRARY_PATH
-#	fi
 	export CC=gcc
 	nvfortran -v
 	nvfortran
