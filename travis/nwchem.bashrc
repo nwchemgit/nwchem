@@ -59,7 +59,7 @@ if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
 	CC=icc
 	CXX=icpc
 # Intel MPI not available on macos       
-       export BUILD_MPICH=1
+#       export BUILD_MPICH=1
        unset BUILD_PLUMED
 # python arm64 not compatible with x86_64       
        if [[ "$arch" == "arm64" ]]; then
@@ -100,12 +100,6 @@ if [[ "$os" == "Darwin" ]]; then
 fi
 if [[ "$os" == "Linux" ]]; then 
    export NWCHEM_TARGET=LINUX64 
-  if [[ "$MPI_IMPL" == "mpich" ]]; then
-      export MPICH_FC=$FC
-      if [[ "$arch" != "aarch64" ]]; then
-	  export BUILD_MPICH=1
-      fi
-  fi
 fi
 export OMP_NUM_THREADS=1
 export USE_NOIO=1
@@ -149,6 +143,12 @@ if [[ -z "$USE_INTERNALBLAS" ]]; then
 	    GFORTRAN_EXTRA=$(echo $FC | cut -c 1-8)
 	    if  [[ ${FC} == gfortran ]] || [[ ${GFORTRAN_EXTRA} == gfortran ]] ; then
 #	    if  [[ ${FC} == gfortran ]]  ; then
+		if [[ "$MPI_IMPL" == "mpich" ]]; then
+		    export MPICH_FC=$FC
+		    if [[ "$arch" != "aarch64" ]]; then
+			export BUILD_MPICH=1
+		    fi
+		fi
 		if [[ `${CC} -dM -E - < /dev/null 2> /dev/null | grep -c clang` == 0 ]] && [[ `${CC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] && [[ "$(expr `${CC} -dumpversion | cut -f1 -d.` \> 7)" == 1 ]]; then
 		    if [[ "$os" == "Linux" ]] && [[ "$arch" == "x86_64" ]]; then
 			if [[ ! -z "$BUILD_OPENBLAS" ]]; then
