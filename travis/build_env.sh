@@ -131,7 +131,9 @@ fi
     sudo apt-get -y install software-properties-common
     sudo add-apt-repository universe && sudo apt-get update
 #    sudo apt-get -y install gfortran python3-dev python-dev cmake "$mpi_libdev" "$mpi_bin" "$scalapack_libdev"  make perl  libopenblas-dev python3 rsync
-    sudo apt-get -y install gfortran python3-dev python-dev cmake "$mpi_libdev" "$mpi_bin"  make perl  python3 rsync
+    sudo apt-get -y install gfortran python3-dev make "$mpi_libdev" "$mpi_bin"  make perl  python3 rsync
+    echo "mpif90 -show output is " `mpif90 -show` || true
+    echo "which mpif90 output is " `which mpif90` ||  true
     if [[ "$FC" == "gfortran-11" ]] || [[ "$CC" == "gcc-11" ]]; then
 	sudo  add-apt-repository -y ppa:ubuntu-toolchain-r/test 
         sudo  apt-get -y install gcc-11 gfortran-11 g++-11
