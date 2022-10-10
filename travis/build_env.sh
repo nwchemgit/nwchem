@@ -79,6 +79,9 @@ echo DISTR is "$DISTR"
      #hack to get 3.10 as default
      brew install python@3.10
      brew link --force --overwrite python@3.10
+     if [[ "$MPI_IMPL" == "mpich" ]]; then
+           brew install mpich && brew upgrade mpich && brew unlink openmpi && brew unlink mpich && brew link --overwrite  mpich ||true
+     fi
 #  if [[ "$MPI_IMPL" == "openmpi" ]]; then
 #      HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install scalapack
 #  fi
@@ -128,7 +131,9 @@ fi
     sudo apt-get -y install software-properties-common
     sudo add-apt-repository universe && sudo apt-get update
 #    sudo apt-get -y install gfortran python3-dev python-dev cmake "$mpi_libdev" "$mpi_bin" "$scalapack_libdev"  make perl  libopenblas-dev python3 rsync
-    sudo apt-get -y install gfortran python3-dev python-dev cmake "$mpi_libdev" "$mpi_bin"  make perl  python3 rsync
+    sudo apt-get -y install gfortran python3-dev make "$mpi_libdev" "$mpi_bin"  make perl  python3 rsync
+    echo "mpif90 -show output is " `mpif90 -show` || true
+    echo "which mpif90 output is " `which mpif90` ||  true
     if [[ "$FC" == "gfortran-11" ]] || [[ "$CC" == "gcc-11" ]]; then
 	sudo  add-apt-repository -y ppa:ubuntu-toolchain-r/test 
         sudo  apt-get -y install gcc-11 gfortran-11 g++-11
@@ -204,18 +209,9 @@ fi
 	export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH
 	sudo /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x
 
-#	source /etc/profile.d/lmod.sh
-#        module use /opt/nvidia/hpc_sdk/modulefiles
-#	module load nvhpc
 	export FC=nvfortran
-#	if [ -z "$BUILD_MPICH" ] ; then
-##use bundled openmpi
-#	export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/comm_libs/mpi/bin:$PATH
-#	export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/comm_libs/mpi/lib:$LD_LIBRARY_PATH
-#	fi
 	export CC=gcc
-	nvfortran -v
-	nvfortran
+	nvfortran -V
 	which nvfortran
     fi
     fi

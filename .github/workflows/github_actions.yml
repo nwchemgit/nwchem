@@ -92,7 +92,7 @@ jobs:
             fc: ifort
             use_openmp: 2
             use_tblite: 1
-          - os: ubuntu-22.04
+          - os: ubuntu-20.04
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS
@@ -156,7 +156,7 @@ jobs:
             armci_network: MPI-PR
             nwchem_modules: "tinyqmpw python"
             fc: ifort
-          - os: ubuntu-22.04
+          - os: ubuntu-20.04
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS
@@ -232,7 +232,7 @@ jobs:
             fc: gfortran-10
             cc: gcc-10
             use_simint: 1
-          - os: ubuntu-22.04
+          - os: ubuntu-20.04
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS

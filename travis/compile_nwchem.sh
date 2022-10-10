@@ -24,12 +24,12 @@ cd $TRAVIS_BUILD_DIR/src
 export MPICH_FC=$FC
 if [[ "$arch" == "aarch64" ]]; then 
     if [[ "$FC" == "flang" ]]  ; then
-	export BUILD_MPICH=1
         FOPT="-O2  -ffast-math"
     elif [[ "$(basename -- $FC | cut -d \- -f 1)" == "nvfortran" ]] ; then
 	export USE_FPICF=1
-#	export MPICH_FC=nvfortran
+	export MPICH_FC=nvfortran
 	env|egrep FC
+	nvfortran -V
     else
 #should be gfortran	
 	if [[ "$NWCHEM_MODULES" == "tce" ]]; then 
@@ -43,7 +43,6 @@ else
 	FOPT=-O2
     if [[ -z "$BUILD_OPENBLAS" ]] ; then
 	if [[ "$os" == "Darwin" ]]; then
-	    export BUILD_MPICH=1
  	    export BLASOPT="-L$MKLROOT  -Wl,-rpath,${MKLROOT}/lib -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core  -lpthread -lm -ldl"
 	else
 	    export USE_FPICF=Y
@@ -58,13 +57,13 @@ else
     fi
 	export I_MPI_F90="$FC"
     elif [[ "$FC" == "flang" ]] || [[ "$(basename -- $FC | cut -d \- -f 1)" == "nvfortran" ]] ; then
-	export BUILD_MPICH=1
         if [[ "$FC" == "flang" ]]; then
 	    FOPT="-O2  -ffast-math"
 	fi
         if [[ "$FC" == "nvfortran" ]]; then
 	    export USE_FPICF=1
-#	    FOPT="-O2 -tp haswell"
+            export MPICH_FC=nvfortran
+	    nvfortran -V
 	fi
     fi
 fi

@@ -182,17 +182,17 @@ FC_EXTRA=$(${NWCHEM_TOP}/src/config/strip_compiler.sh ${FC})
 
 if [[  -z "$MPICH_FC"   ]] ; then
     export MPICH_FC="$FC"
-    echo MPICH_FC is "$MPICH_FC"
 fi
+echo MPICH_FC is "$MPICH_FC"
 if [[  -z "$MPICH_CC"   ]] ; then
     export MPICH_CC="$CC"
-    echo MPICH_CC is "$MPICH_CC"
 fi
+echo MPICH_CC is "$MPICH_CC"
 #Intel MPI
 if [[  -z "$I_MPI_F90"   ]] ; then
     export I_MPI_F90="$FC"
-    echo I_MPI_F90 is "$I_MPI_F90"
 fi
+echo I_MPI_F90 is "$I_MPI_F90"
 if [[  -z "$PE_ENV"   ]] ; then
     #check if mpif90 and FC are consistent
     MPIF90_EXTRA=$(${NWCHEM_TOP}/src/config/strip_compiler.sh `${MPIF90} -show`)
@@ -229,6 +229,7 @@ fi
 arch=`uname -m`
 echo arch is $arch
 if  [[ ${FC_EXTRA} == nvfortran ]]; then
+echo 'nvfortran -V is ' `nvfortran -V`
     if  [[ ${USE_HWOPT} == n ]]; then
       if [[ "$arch" == "x86_64" ]]; then
 	Fortran_FLAGS+=" -tp px "
@@ -257,6 +258,7 @@ if [[ "$arch" == "i686" ]] || [[ "$arch" == "x86_64" ]]; then
        C_FLAGS+=" -m32 "
     fi
 fi
+echo " $MPIF90 -show is " `$MPIF90 -show`
 echo LDFLAGS is $LDFLAGS
 echo compiling with CC="$MPICC"  FC=$MPIF90 CFLAGS="$C_FLAGS" FFLAGS="$Fortran_FLAGS" $CMAKE -Wno-dev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_FLAGS="$C_FLAGS"  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY="$BLASOPT"  -DBLAS_LIBRARIES="$BLASOPT"  -DLAPACK_openblas_LIBRARY="$BLASOPT"  -DLAPACK_LIBRARIES="$BLASOPT" -DCMAKE_Fortran_FLAGS_RELWITHDEBINFO="-O2 -g -DNDEBUG  $Fortran_FLAGS"  $CMAKE_EXTRA
 CC="$MPICC"  FC=$MPIF90 CFLAGS="$C_FLAGS" FFLAGS="$Fortran_FLAGS" $CMAKE -Wdev ../ -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_FLAGS="$C_FLAGS"  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DTEST_SCALAPACK=OFF  -DBUILD_TESTING=OFF -DBUILD_SHARED_LIBS=OFF  -DBLAS_openblas_LIBRARY="$BLASOPT"  -DBLAS_LIBRARIES="$BLASOPT"  -DLAPACK_openblas_LIBRARY="$BLASOPT"  -DLAPACK_LIBRARIES="$BLASOPT" -DCMAKE_Fortran_FLAGS_RELWITHDEBINFO="-O2 -g -DNDEBUG  $Fortran_FLAGS" $CMAKE_EXTRA
