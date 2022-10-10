@@ -80,7 +80,9 @@ echo DISTR is "$DISTR"
      brew install python@3.10
      brew link --force --overwrite python@3.10
      if [[ "$MPI_IMPL" == "mpich" ]]; then
-           brew install mpich && brew upgrade mpich && brew unlink openmpi && brew unlink mpich && brew link --overwrite  mpich ||true
+	 #         brew install mpich && brew upgrade mpich && brew unlink openmpi && brew unlink mpich && brew link --overwrite  mpich ||true
+	 brew update || true
+	 brew unlink open-mpi && brew install mpich && brew upgrade mpich  && brew link --overwrite  mpich || true
      fi
 #  if [[ "$MPI_IMPL" == "openmpi" ]]; then
 #      HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install scalapack
