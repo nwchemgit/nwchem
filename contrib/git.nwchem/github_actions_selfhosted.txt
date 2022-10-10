@@ -80,7 +80,7 @@ jobs:
         BUILD_PLUMED: ${{ matrix.build_plumed }}
         FC: ${{ matrix.fc }}
         CC: ${{ matrix.cc }}
-        COMEX_MAX_NB_OUTSTANDING: 6
+        COMEX_MAX_NB_OUTSTANDING: 16
         SIMINT_MAXAM: 4
         SIMINT_VECTOR: avx2
         BLAS_ENV:  ${{ matrix.blas }}
