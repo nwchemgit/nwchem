@@ -55,16 +55,16 @@ echo DISTR is "$DISTR"
         --components intel.oneapi.mac.mkl.devel  --install-dir $IONEAPI_ROOT --eula accept
 	hdiutil detach ~/mntdmg
         #fix slow ifort https://community.intel.com/t5/Intel-oneAPI-HPC-Toolkit/slow-execution-of-ifort-icpc-on-MacOSX-catalina/m-p/1203190
-	$TRAVIS_BUILD_DIR/travis/fix_xcodebuild.sh
-	sudo cp xcodebuild "$IONEAPI_ROOT"/compiler/latest/mac/bin/intel64/.
 	#
 	echo "installing HPCKit"
 	hdiutil attach "$hpc".dmg  -mountpoint ~/mntdmg -nobrowse
 	sudo  ~/mntdmg/bootstrapper.app/Contents/MacOS/install.sh -c -s  --eula accept \
 	     --action install --components default --install-dir $IONEAPI_ROOT
 	hdiutil detach ~/mntdmg
+	$TRAVIS_BUILD_DIR/travis/fix_xcodebuild.sh
+	sudo cp xcodebuild "$IONEAPI_ROOT"/compiler/latest/mac/bin/intel64/.
 	ls -lrta $IONEAPI_ROOT ||true
-	rm -rf "$IONEAPI_ROOT"/intelpython "$IONEAPI_ROOT"/dal "$IONEAPI_ROOT"/advisor \
+	sudo rm -rf "$IONEAPI_ROOT"/intelpython "$IONEAPI_ROOT"/dal "$IONEAPI_ROOT"/advisor \
 	     "$IONEAPI_ROOT"/ipp "$IONEAPI_ROOT"/conda_channel 	"$IONEAPI_ROOT"/dnnl \
 	     "$IONEAPI_ROOT"/installer "$IONEAPI_ROOT"/vtune_profiler "$IONEAPI_ROOT"/tbb || true
 	fi
