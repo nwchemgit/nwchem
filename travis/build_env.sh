@@ -211,8 +211,7 @@ fi
 
 	export FC=nvfortran
 	export CC=gcc
-	nvfortran -v
-	nvfortran
+	nvfortran -V
 	which nvfortran
     fi
     fi

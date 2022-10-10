@@ -27,8 +27,9 @@ if [[ "$arch" == "aarch64" ]]; then
         FOPT="-O2  -ffast-math"
     elif [[ "$(basename -- $FC | cut -d \- -f 1)" == "nvfortran" ]] ; then
 	export USE_FPICF=1
-#	export MPICH_FC=nvfortran
+	export MPICH_FC=nvfortran
 	env|egrep FC
+	nvfortran -V
     else
 #should be gfortran	
 	if [[ "$NWCHEM_MODULES" == "tce" ]]; then 
@@ -61,6 +62,8 @@ else
 	fi
         if [[ "$FC" == "nvfortran" ]]; then
 	    export USE_FPICF=1
+            export MPICH_FC=nvfortran
+	    nvfortran -V
 	fi
     fi
 fi
