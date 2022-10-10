@@ -26,6 +26,17 @@ echo DISTR is "$DISTR"
 #  HOMEBREW_NO_AUTO_UPDATE=1 brew cask uninstall oclint || true  
 #  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python3 ||true
      HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" python3 gsed grep automake autoconf ||true
+     #hack to fix Github actions mpif90
+     gccver=`brew list --versions gcc| head -1 |cut -c 5-`
+     echo brew gccver is $gccver
+     if [ -z "$HOMEBREW_CELLAR" ] ; then
+	 HOMEBREW_CELLAR=/usr/local/Cellar
+     fi
+     ln -sf $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran-* $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran || true
+     ln -sf $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran-* /usr/local/bin/gfortran || true
+     #	 ln -sf /usr/local/bin/$FC /usr/local/bin/gfortran
+     $FC --version
+     gfortran --version
      if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
          if [[ -f "$IONEAPI_ROOT"/setvars.sh ]]; then 
 	     echo ' using intel cache installation '
@@ -63,18 +74,6 @@ echo DISTR is "$DISTR"
 	rm -f *dmg || true
 	"$FC" -V
 	icc -V
-     else
-	 #hack to fix Github actions mpif90
-	 gccver=`brew list --versions gcc| head -1 |cut -c 5-`
-	 echo brew gccver is $gccver
-         if [ -z "$HOMEBREW_CELLAR" ] ; then
-	     HOMEBREW_CELLAR=/usr/local/Cellar
-	 fi
-	 ln -sf $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran-* $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran || true
-	 ln -sf $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran-* /usr/local/bin/gfortran || true
-#	 ln -sf /usr/local/bin/$FC /usr/local/bin/gfortran
-	 $FC --version
-	 gfortran --version
      fi
      #hack to get 3.10 as default
      brew install python@3.10
