@@ -26,6 +26,17 @@ echo DISTR is "$DISTR"
 #  HOMEBREW_NO_AUTO_UPDATE=1 brew cask uninstall oclint || true  
 #  HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" openblas python3 ||true
      HOMEBREW_NO_INSTALL_CLEANUP=1  HOMEBREW_NO_AUTO_UPDATE=1 brew install gcc "$MPI_IMPL" python3 gsed grep automake autoconf ||true
+     #hack to fix Github actions mpif90
+     gccver=`brew list --versions gcc| head -1 |cut -c 5-`
+     echo brew gccver is $gccver
+     if [ -z "$HOMEBREW_CELLAR" ] ; then
+	 HOMEBREW_CELLAR=/usr/local/Cellar
+     fi
+     ln -sf $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran-* $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran || true
+     ln -sf $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran-* /usr/local/bin/gfortran || true
+     #	 ln -sf /usr/local/bin/$FC /usr/local/bin/gfortran
+     $FC --version
+     gfortran --version
      if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
          if [[ -f "$IONEAPI_ROOT"/setvars.sh ]]; then 
 	     echo ' using intel cache installation '
@@ -43,44 +54,34 @@ echo DISTR is "$DISTR"
 	sudo  ~/mntdmg/bootstrapper.app/Contents/MacOS/install.sh  -c -s --action install  \
         --components intel.oneapi.mac.mkl.devel  --install-dir $IONEAPI_ROOT --eula accept
 	hdiutil detach ~/mntdmg
+        #fix slow ifort https://community.intel.com/t5/Intel-oneAPI-HPC-Toolkit/slow-execution-of-ifort-icpc-on-MacOSX-catalina/m-p/1203190
 	#
 	echo "installing HPCKit"
 	hdiutil attach "$hpc".dmg  -mountpoint ~/mntdmg -nobrowse
 	sudo  ~/mntdmg/bootstrapper.app/Contents/MacOS/install.sh -c -s  --eula accept \
 	     --action install --components default --install-dir $IONEAPI_ROOT
 	hdiutil detach ~/mntdmg
+	$TRAVIS_BUILD_DIR/travis/fix_xcodebuild.sh
+	sudo cp xcodebuild "$IONEAPI_ROOT"/compiler/latest/mac/bin/intel64/.
 	ls -lrta $IONEAPI_ROOT ||true
-	rm -rf "$IONEAPI_ROOT"/intelpython "$IONEAPI_ROOT"/dal "$IONEAPI_ROOT"/advisor \
+	sudo rm -rf "$IONEAPI_ROOT"/intelpython "$IONEAPI_ROOT"/dal "$IONEAPI_ROOT"/advisor \
 	     "$IONEAPI_ROOT"/ipp "$IONEAPI_ROOT"/conda_channel 	"$IONEAPI_ROOT"/dnnl \
 	     "$IONEAPI_ROOT"/installer "$IONEAPI_ROOT"/vtune_profiler "$IONEAPI_ROOT"/tbb || true
 	fi
 	 source "$IONEAPI_ROOT"/setvars.sh --force || true
-	 #fix slow ifort https://community.intel.com/t5/Intel-oneAPI-HPC-Toolkit/slow-execution-of-ifort-icpc-on-MacOSX-catalina/m-p/1203190
-	 $TRAVIS_BUILD_DIR/travis/fix_xcodebuild.sh
-	 cp xcodebuild "$IONEAPI_ROOT"/compiler/latest/mac/bin/intel64/.
 	 export I_MPI_F90="$FC"
 	ls -lrta $IONEAPI_ROOT ||true
 	rm -f *dmg || true
 	"$FC" -V
 	icc -V
-     else
-	 #hack to fix Github actions mpif90
-	 gccver=`brew list --versions gcc| head -1 |cut -c 5-`
-	 echo brew gccver is $gccver
-         if [ -z "$HOMEBREW_CELLAR" ] ; then
-	     HOMEBREW_CELLAR=/usr/local/Cellar
-	 fi
-	 ln -sf $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran-* $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran || true
-	 ln -sf $HOMEBREW_CELLAR/gcc/$gccver/bin/gfortran-* /usr/local/bin/gfortran || true
-#	 ln -sf /usr/local/bin/$FC /usr/local/bin/gfortran
-	 $FC --version
-	 gfortran --version
      fi
      #hack to get 3.10 as default
      brew install python@3.10
      brew link --force --overwrite python@3.10
      if [[ "$MPI_IMPL" == "mpich" ]]; then
-           brew install mpich && brew upgrade mpich && brew unlink openmpi && brew unlink mpich && brew link --overwrite  mpich ||true
+	 #         brew install mpich && brew upgrade mpich && brew unlink openmpi && brew unlink mpich && brew link --overwrite  mpich ||true
+	 brew update || true
+	 brew unlink open-mpi && brew install mpich && brew upgrade mpich  && brew link --overwrite  mpich || true
      fi
 #  if [[ "$MPI_IMPL" == "openmpi" ]]; then
 #      HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install scalapack
