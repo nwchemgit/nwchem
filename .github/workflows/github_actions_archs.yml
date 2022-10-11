@@ -52,12 +52,12 @@ jobs:
     steps: 
       - name: Setup cache
         id: setup-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/cache
           key: ${{ runner.os }}-${{ matrix.mpi_impl}}-${{ matrix.distro}}-${{ matrix.arch}}-nwchem-v009
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         name: Checkout
         with:
           fetch-depth: 40
