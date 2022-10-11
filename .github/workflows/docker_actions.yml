@@ -23,13 +23,13 @@ jobs:
     timeout-minutes: 420
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: 'nwchemgit/nwchem-dockerfiles'
           fetch-depth: 5
       - name: Setup cache
         id: setup-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/cache

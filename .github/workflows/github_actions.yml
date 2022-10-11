@@ -337,7 +337,7 @@ jobs:
     continue-on-error: ${{ matrix.experimental }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 40
       - name: Get Instruction
@@ -347,7 +347,7 @@ jobs:
         shell: bash
       - name: Setup cache
         id: setup-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/cache
