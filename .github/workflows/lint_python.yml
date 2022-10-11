@@ -24,6 +24,7 @@ jobs:
       - run: python -m pip install --upgrade --no-cache-dir jinja2>=2.10.1
       - run: python -m pip install --upgrade --no-cache-dir httplib2>=0.14.0
       - run: python -m pip install --upgrade --no-cache-dir cryptography>=2.8
+      - run: python -m pip  install --upgrade requests
       - run: bandit --recursive --skip B101,B110,B306,B307,B311,B605,B607 .
       - run: black --check . || true
       - run: codespell --count
