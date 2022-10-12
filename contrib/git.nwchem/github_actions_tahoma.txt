@@ -47,5 +47,5 @@ jobs:
           export MPIRUN_PATH=`which srun`
           MYNN=$(( $SLURM_NNODES*$SLURM_CPUS_ON_NODE ))
           echo MYNN is $MYNN
-          ./doqmtests.mpi  $MYNN
+          ./doqmtests.mpi  $MYNN | tee doqmtests.mpi.log
         shell: bash
