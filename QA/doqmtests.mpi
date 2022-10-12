@@ -3,7 +3,9 @@
 # $Id$
 #
 function get_limit () {
-    echo $(($1 < $2 ? $1 : $2))
+    min=$(($1 < $2 ? $1 : $2))
+    # modulo 8
+    echo $(($min-$min%8))
 }
 let np=1
 if [ -n "$1" ]; then
