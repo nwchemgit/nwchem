@@ -104,6 +104,6 @@ $CMAKE -E env CFLAGS="$cflags" LDFLAGS="$ldflags" FCFLAGS="$fcflags" FFLAGS="$fc
 $CMAKE  -DCMAKE_INSTALL_PREFIX=${NWCHEM_TOP}/src/libext/libxc/install -DCMAKE_C_COMPILER=$CC -DENABLE_FORTRAN=ON -DCMAKE_Fortran_COMPILER=$FC -DDISABLE_KXC=OFF \
 -DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_BUILD_TYPE=Release ..
 
-make -j2 | tee make.log
+make -j4 | tee make.log
 make install
 
