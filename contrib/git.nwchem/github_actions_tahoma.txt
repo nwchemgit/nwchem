@@ -1,0 +1,51 @@
+name: NWChem_CI_tahoma
+
+on:
+  repository_dispatch:
+    types: [backend_automation]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 2880
+    strategy:
+      matrix:
+        os:
+          - [self-hosted, centos7]
+    env:
+        COMEX_MAX_NB_OUTSTANDING: 8
+        SINGULARITYENV_NWCHEM_BASIS_LIBRARY: /cluster/apps/nwchem/nwchem-7.0.2/src/basis/libraries/
+        SINGULARITYENV_SCRATCH_DIR: /big_scratch
+        SINGULARITYENV_UCX_LOG_LEVEL: INFO
+        MPIRUN_NPOPT: -n
+        NWCHEM_EXECUTABLE: "singularity exec /big_scratch/nwchems.img nwchem "
+    steps:
+      - name: Checkout QA code
+        run: |
+          rm -rf nwchem*
+          wget -q https://github.com/nwchemgit/nwchem/tarball/master -O - | tar -xz --exclude=src --exclude=contrib --exclude=web --exclude=examples --exclude=doc --exclude=travis --exclude="nwxc*" --exclude="talc*" --exclude="chem-library-tests"
+          mv nwchemgit-nwchem-* nwchem
+          ls -lr nwchem/QA
+        shell: bash
+
+      - name: load singularity image
+        run: |
+          export https_proxy=http://proxy.emsl.pnl.gov:3128
+          singularity pull -F --name ./nwchems_`id -u`.img oras://ghcr.io/edoapra/nwchem-singularity/nwchem-dev.ompi41x:latest
+          srun -N $SLURM_NNODES -n $SLURM_NNODES cp ./nwchems_`id -u`.img /big_scratch/nwchems.img
+        shell: bash
+      - name: run qa tests
+        run: |
+          pwd
+          cd QA
+          env|egrep SLUR
+          source /etc/profile.d/modules.sh
+          module purge
+          module load gcc/9.3.0
+          module load openmpi/4.1.4
+          export https_proxy=http://proxy.emsl.pnl.gov:3128
+          export MPIRUN_PATH=`which srun`
+          MYNN=$(( $SLURM_NNODES*$SLURM_CPUS_ON_NODE ))
+          echo MYNN is $MYNN
+          ./doqmtests.mpi  $MYNN
+        shell: bash
