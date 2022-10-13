@@ -33,7 +33,7 @@ jobs:
           curl -L https://raw.githubusercontent.com/nwchemgit/nwchem/master/contrib/git.nwchem/update_main.txt > update_main.yml
           curl -L https://raw.githubusercontent.com/nwchemgit/nwchem/master/contrib/git.nwchem/github_actions_selfhosted.txt > github_actions_selfhosted.yml
           curl -L https://raw.githubusercontent.com/nwchemgit/nwchem/master/contrib/git.nwchem/github_actions_tahoma.txt > github_actions_tahma.yml
-          git add update_main.yml github_actions_selfhosted.yml
+          git add update_main.yml github_actions_selfhosted.yml github_actions_tahoma.yml
           git commit -m 'update main from nwchemgit master plus selfhosted [ci skip]' update_main.yml github_actions_selfhosted.yml github_actions_tahoma.yml
       - name: Push changes
         uses: ad-m/github-push-action@master
