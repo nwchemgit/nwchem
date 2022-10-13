@@ -16,14 +16,14 @@ jobs:
         COMEX_MAX_NB_OUTSTANDING: 8
         SINGULARITYENV_NWCHEM_BASIS_LIBRARY: /cluster/apps/nwchem/nwchem-7.0.2/src/basis/libraries/
         SINGULARITYENV_SCRATCH_DIR: /big_scratch
-        SINGULARITYENV_UCX_LOG_LEVEL: INFO
+        SINGULARITYENV_UCX_LOG_LEVEL: DIAG
         MPIRUN_NPOPT: -n
         NWCHEM_EXECUTABLE: "singularity exec /big_scratch/nwchems.img nwchem "
     steps:
       - name: Checkout QA code
         run: |
           rm -rf nwchem*
-          wget -q https://github.com/nwchemgit/nwchem/tarball/master -O - | tar -xz --exclude=src --exclude=contrib --exclude=web --exclude=examples --exclude=doc --exclude=travis --exclude="nwxc*" --exclude="talc*" --exclude="chem-library-tests"
+          wget -q https://github.com/nwchemgit/nwchem/tarball/master -O - | tar -xz --exclude=src --exclude=contrib --exclude=web --exclude=examples --exclude=doc --exclude=travis --exclude="nwxc*"  --exclude="chem-library-tests"
           mv nwchemgit-nwchem-* nwchem
           ls -lr nwchem/QA
         shell: bash
@@ -36,7 +36,6 @@ jobs:
         shell: bash
       - name: run qa tests
         run: |
-          pwd
           cd QA
           env|egrep SLUR
           source /etc/profile.d/modules.sh
@@ -47,5 +46,5 @@ jobs:
           export MPIRUN_PATH=`which srun`
           MYNN=$(( $SLURM_NNODES*$SLURM_CPUS_ON_NODE ))
           echo MYNN is $MYNN
-          ./doqmtests.mpi  $MYNN | tee doqmtests.mpi.log
+          ./doqmtests.mpi  $MYNN flaky | tee ../../../../doqmtests.mpi.log.` date +%b%d%Y_%H:%M`
         shell: bash
