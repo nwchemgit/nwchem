@@ -101,7 +101,7 @@ done
  CURDIR=$(pwd)
 
  # Figure out where the executable is.
-if [[ $(echo $NWCHEM_EXECUTABLE|cut -c 1-11) == 'singularity' ]] || [[ -f $NWCHEM_EXECUTABLE ]]; then
+if [[ $(echo $NWCHEM_EXECUTABLE|cut -c 1-11) == 'singularity' ]] || [[ $(echo $NWCHEM_EXECUTABLE|cut -c 1-9) == 'apptainer' ]] || [[ -f $NWCHEM_EXECUTABLE ]]; then
   NWCHEM=$NWCHEM_EXECUTABLE
 else
   NWCHEM=${NWCHEM_PROJ_PATH}/nwchem
