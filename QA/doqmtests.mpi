@@ -5,7 +5,11 @@
 function get_limit () {
     min=$(($1 < $2 ? $1 : $2))
     # modulo 8
-    echo $(($min-$min%8))
+    if [[ min -gt 8 ]]; then
+	echo $(($min-$min%8))
+    else
+	echo $min
+    fi
 }
 let np=1
 if [ -n "$1" ]; then
