@@ -1,0 +1,21 @@
+name: Clear all Github Actions caches
+on:
+  repository_dispatch:
+    types: [backend_automation]
+  workflow_dispatch:
+
+jobs:
+  my-job:
+    name: Delete all caches
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: list caches
+        uses: easimon/wipe-cache@main
+        with:
+          dry-run: 'true'
+      - name: clear caches
+        if: ${{ github.actor == github.repository_owner }}
+        uses: easimon/wipe-cache@main
+        with:
+          dry-run: 'false'
