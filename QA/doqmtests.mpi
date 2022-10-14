@@ -393,6 +393,7 @@ echo 'misc tests'
 echo 'The following  tests require few processors but a lot of time'
 ./runtests.mpi.unix procs $np ch4cl_zts
 ./runtests.mpi.unix procs $np cui_hiraobs
+./runtests.mpi.unix procs $np mep-test
 if [[ "$what" != "flaky" ]]; then
   exit
 fi
@@ -413,4 +414,3 @@ echo 'the following tests are know to be numerically unstable'
 np_small=$(get_limit $np 8)
 ./runtests.mpi.unix procs $np_small h2o_selci
 ./runtests.mpi.unix procs $np h2o_vscf
-./runtests.mpi.unix procs $np mep-test
