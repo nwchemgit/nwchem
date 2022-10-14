@@ -3,7 +3,7 @@
 <!---[![Build Travis-CI Status](https://img.shields.io/travis/nwchemgit/nwchem.svg)](https://travis-ci.org/nwchemgit/nwchem/builds)--->
 [![License](https://img.shields.io/badge/license-ECL2-blue.svg)](https://raw.githubusercontent.com/nwchemgit/nwchem/master/LICENSE.md)  
 [![Github Downloads All Releases](https://img.shields.io/github/downloads/nwchemgit/nwchem/total.svg)](https://github.com/nwchemgit/nwchem/releases)   
-![Homebrew Downloads](https://img.shields.io/homebrew/installs/dq/nwchem?label=Homebrew%20downloads)![Conda-Forge Downloads](https://img.shields.io/conda/dn/conda-forge/nwchem?label=Conda-forge%20downloads)![Docker Pulls](https://img.shields.io/docker/pulls/nwchemorg/nwchem-700.fedora.sockets?label=Docker%20pulls)    
+![Homebrew Downloads](https://img.shields.io/homebrew/installs/dy/nwchem?label=Homebrew%20downloads)![Conda-Forge Downloads](https://img.shields.io/conda/dn/conda-forge/nwchem?label=Conda-forge%20downloads)![Docker Pulls](https://img.shields.io/docker/pulls/nwchemorg/nwchem-700.fedora.sockets?label=Docker%20pulls)    
 [![Github Downloads Release 6.8](https://img.shields.io/github/downloads/nwchemgit/nwchem/v6.8-release/total.svg)](https://github.com/nwchemgit/nwchem/releases/tag/v6.8-release)
 [![Github Downloads Release 6.8.1](https://img.shields.io/github/downloads/nwchemgit/nwchem/6.8.1-release/total.svg)](https://github.com/nwchemgit/nwchem/releases/tag/6.8.1-release)
 [![Github Downloads Release 7.0.0](https://img.shields.io/github/downloads/nwchemgit/nwchem/v7.0.0-release/total.svg)](https://github.com/nwchemgit/nwchem/releases/tag/v7.0.0-release)
