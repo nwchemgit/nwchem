@@ -102,6 +102,7 @@ np_small=$(get_limit $np 32)
 ./runtests.mpi.unix procs $np pspw_hse_h2o
 np_small=$(get_limit $np 64)
 ./runtests.mpi.unix procs $np_small pspw_md
+np_small=$(get_limit $np 32)
 ./runtests.mpi.unix procs $np_small paw
 np_small=$(get_limit $np 16)
 ./runtests.mpi.unix procs $np_small pspw_polarizability
