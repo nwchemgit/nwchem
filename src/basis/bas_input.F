@@ -1414,8 +1414,22 @@ c    .     close(unit=unitrc,status='keep') ! close file after library name foun
       character*(*) mydir
 #include "baslibraryP.fh"
 #include "inp.fh"
+      integer nlen
       user_library_name=mydir
       call bas_library_file(user_library_name)
+c     bas_library_file has redefined user_library_name but we want .bse
+c     if we have already appended .bse return
+      nlen=inp_strlen(user_library_name)
+      if(user_library_name(nlen-4:nlen).eq.'.bse/') return
+      if (mydir.ne.user_library_name) then
+         if (mydir.eq.'libraries.bse') then
+c     append .bse
+            user_library_name=
+     =           user_library_name(1:nlen-1)
+     /           //'.bse/'
+         write(*,*) 'new library ',trim(user_library_name)
+         endif
+      endif
       end
 *.....................................................................
       subroutine bas_ecce_print_basis(basisin,module_id)
