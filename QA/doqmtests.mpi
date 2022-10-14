@@ -410,6 +410,7 @@ echo 'the following tests are know to be numerically unstable'
 ./runtests.mpi.unix procs $np qmmm_opt0
 ./runtests.mpi.unix procs $np pspw_scan_h2o
 ./runtests.mpi.unix procs $np pspw_vs98_h2o
-./runtests.mpi.unix procs $np h2o_selci
+np_small=$(get_limit $np 8)
+./runtests.mpi.unix procs $np_small h2o_selci
 ./runtests.mpi.unix procs $np h2o_vscf
 ./runtests.mpi.unix procs $np mep-test
