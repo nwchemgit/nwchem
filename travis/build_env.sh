@@ -125,7 +125,9 @@ fi
 	    && break ;\
             tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
 
-        mpi_bin="  " ; mpi_libdev=" " scalapack_libdev=" "
+	if [[ "$MPI_IMPL" == "intel" ]]; then
+            mpi_bin="  " ; mpi_libdev=" " scalapack_libdev=" "
+	fi
     fi
     if [[ "$GITHUB_WORKFLOW" != "NWChem_CI_selfhosted" ]]; then
     sudo apt-get update
