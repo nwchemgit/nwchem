@@ -125,7 +125,9 @@ fi
 	    && break ;\
             tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
 
-        mpi_bin="  " ; mpi_libdev=" " scalapack_libdev=" "
+	if [[ "$MPI_IMPL" == "intel" ]]; then
+            mpi_bin="  " ; mpi_libdev=" " scalapack_libdev=" "
+	fi
     fi
     if [[ "$GITHUB_WORKFLOW" != "NWChem_CI_selfhosted" ]]; then
     sudo apt-get update
@@ -145,9 +147,12 @@ fi
         sh ./"$hpc".sh -a -c -s --action remove --install-dir  $IONEAPI_ROOT  --eula accept
 
         sh ./"$base".sh -a -c -s --action install --components intel.oneapi.lin.mkl.devel --install-dir $IONEAPI_ROOT  --eula accept
- 
+	intel_components="intel.oneapi.lin.ifort-compiler:intel.oneapi.lin.dpcpp-cpp-compiler-pro"
+	if [[ "$MPI_IMPL" == "intel" ]]; then
+	    intel_components+=":intel.oneapi.lin.mpi.devel"
+	fi
         sh ./"$hpc".sh -a -c -s --action install \
-        --components  intel.oneapi.lin.ifort-compiler:intel.oneapi.lin.mpi.devel:intel.oneapi.lin.dpcpp-cpp-compiler-pro  \
+        --components  "$intel_components"  \
          --install-dir $IONEAPI_ROOT     --eula accept
 	if [[ "$?" != 0 ]]; then
 	    echo "apt-get install failed: exit code " "${?}"

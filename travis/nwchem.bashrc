@@ -79,8 +79,10 @@ fi
 if [[ -f "$IONEAPI_ROOT"/mpi/latest/env/vars.sh ]]; then
     source "$IONEAPI_ROOT"/mpi/latest/env/vars.sh
     export I_MPI_F90="$FC"
-    mpif90 -v
-    mpif90 -show
+    if [[ "$MPI_IMPL" == "intel" ]]; then
+	mpif90 -v
+	mpif90 -show
+    fi
     if [ -f /opt/intel/oneapi/mkl/latest/env/vars.sh ] ; then
 	source /opt/intel/oneapi/mkl/latest/env/vars.sh
     fi
