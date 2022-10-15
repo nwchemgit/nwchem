@@ -12,6 +12,9 @@ jobs:
       matrix:
         os:
           - [self-hosted, centos7]
+        sing_image:
+          - ompi41x.ifx
+          - ompi41x
     env:
         COMEX_MAX_NB_OUTSTANDING: 8
         SINGULARITYENV_NWCHEM_BASIS_LIBRARY: /cluster/apps/nwchem/nwchem-7.0.2/src/basis/libraries/
@@ -31,7 +34,7 @@ jobs:
       - name: load singularity image
         run: |
           export https_proxy=http://proxy.emsl.pnl.gov:3128
-          singularity pull -F --name ./nwchems_`id -u`.img oras://ghcr.io/edoapra/nwchem-singularity/nwchem-dev.ompi41x:latest
+          singularity pull -F --name ./nwchems_`id -u`.img oras://ghcr.io/edoapra/nwchem-singularity/nwchem-dev.${{ matrix.sing_image }}:latest
           srun -N $SLURM_NNODES -n $SLURM_NNODES cp ./nwchems_`id -u`.img /big_scratch/nwchems.img
         shell: bash
       - name: run qa tests
