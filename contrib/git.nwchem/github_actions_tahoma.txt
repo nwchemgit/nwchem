@@ -25,6 +25,8 @@ jobs:
     steps:
       - name: Checkout QA code
         run: |
+          pwd
+          cd ..
           rm -rf nwchem*
           wget -q https://github.com/nwchemgit/nwchem/tarball/master -O - | tar -xz --exclude=src --exclude=contrib --exclude=web --exclude=examples --exclude=doc --exclude=travis --exclude="nwxc*"  --exclude="chem-library-tests"
           mv nwchemgit-nwchem-* nwchem
