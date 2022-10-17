@@ -15,6 +15,7 @@ jobs:
         sing_image:
           - ompi41x.ifx
           - ompi41x
+      fail-fast: false
     env:
         COMEX_MAX_NB_OUTSTANDING: 8
         SINGULARITYENV_NWCHEM_BASIS_LIBRARY: /cluster/apps/nwchem/nwchem-7.0.2/src/basis/libraries/
