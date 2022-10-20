@@ -13,6 +13,7 @@ jobs:
         os:
           - [self-hosted, centos7]
         sing_image:
+          - ompi41x.ifort
           - ompi41x.ifx
           - ompi41x
       fail-fast: false
