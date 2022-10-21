@@ -10,6 +10,8 @@ on:
 jobs:
   build_workflow:
     uses: ./.github/workflows/update_main.yml
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
   build:
     if: |
       github.event_name == 'schedule' ||
