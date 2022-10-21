@@ -96,6 +96,9 @@ if [[ "$os" == "Darwin" ]]; then
   if [[ "$MPI_IMPL" == "mpich" ]]; then 
     export PATH=/usr/local/opt/mpich/bin/:$PATH 
   fi
+  if [[ "$MPI_IMPL" == "build_mpich" ]]; then 
+    export BUILD_MPICH=1
+  fi
   #python3 on brew
 #  export PATH=/usr/local/bin:$PATH
 
