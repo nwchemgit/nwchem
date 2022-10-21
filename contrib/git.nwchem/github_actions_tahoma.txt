@@ -25,14 +25,17 @@ jobs:
         MPIRUN_NPOPT: -n
         NWCHEM_EXECUTABLE: "singularity exec /big_scratch/nwchems.img nwchem "
     steps:
+      - name:  dir name
+        run: |
+          echo "dirname=nwchem.${{ github.run_id }}.${{ github.run_number }}" >> $GITHUB_ENV
       - name: Checkout QA code
         run: |
           pwd
           cd ..
-          rm -rf nwchem*
+          rm  -rf ${{ env.dirname }}
           wget -q https://github.com/nwchemgit/nwchem/tarball/master -O - | tar -xz --exclude=src --exclude=contrib --exclude=web --exclude=examples --exclude=doc --exclude=travis --exclude="nwxc*"  --exclude="chem-library-tests"
-          mv nwchemgit-nwchem-* nwchem
-          ls -lr nwchem/QA
+          mv nwchemgit-nwchem-* ${{ env.dirname }}
+          ls -lr ${{ env.dirname }}/QA
         shell: bash
 
       - name: load singularity image
@@ -43,7 +46,7 @@ jobs:
         shell: bash
       - name: run qa tests
         run: |
-          cd QA
+          cd ../${{ env.dirname }}/QA
           env|egrep SLUR
           source /etc/profile.d/modules.sh
           module purge
