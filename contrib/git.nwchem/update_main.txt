@@ -38,6 +38,7 @@ jobs:
           git commit -m 'update main from nwchemgit master plus selfhosted [ci skip]' update_main.yml github_actions_selfhosted.yml github_actions_tahoma.yml
       - name: Push changes
         uses: ad-m/github-push-action@master
+	secrets: inherit
         with:
           github_token: ${{ secrets.UPDATE_TOKEN }}
           repository: edoapra/nwchem
