@@ -6,6 +6,7 @@ on:
   repository_dispatch:
     types: [backend_automation]
   workflow_dispatch:
+  workflow_call:
 jobs:
   update_branch:
     if: |

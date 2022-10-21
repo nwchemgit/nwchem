@@ -8,10 +8,13 @@ on:
     types: [backend_automation]
   workflow_dispatch:
 jobs:
+  build_workflow:
+    uses: ./.github/workflows/update_main.yml
   build:
     if: |
       github.event_name == 'schedule' ||
       (!contains(github.event.head_commit.message, 'ci skip'))
+    needs: [build_workflow]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 2880
     strategy:
