@@ -361,6 +361,7 @@ fi
 ./runtests.mpi.unix procs $np dft_waterdimer_wb97d3
 ./runtests.mpi.unix procs $np dft_s66x8_waterdimer
 ./runtests.mpi.unix procs $np dft_c2br6_vdw4
+./runtests.mpi.unix procs $np dft_r2scan0
 #
 ./runtests.mpi.unix procs $np ccsdt_ompt_w3pvdz
 ./runtests.mpi.unix procs $np ccsdt_w3pvdz
