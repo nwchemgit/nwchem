@@ -411,7 +411,7 @@ sync
 #
   if [ $runstatus -ne 0 ]; then
     echo "     NWChem execution failed"
-    overall_status=1
+    let "overall_status+=1"
     tail -50 $TESTOUTPUTS/$OUTPUTFILE
     continue
   fi
@@ -476,7 +476,7 @@ sync
 #    head -1000 ${STUB}.out
 #    echo "@@@     Paste End of Output File"  
 #    tail -1000 ${STUB}.out
-    overall_status=1
+    let "overall_status+=1"
     continue 
   else
 #
@@ -497,7 +497,7 @@ sync
     espstatus=$?
        if [[ $espstatus -ne 0 ]]; then
          echo "ESP comparison failed"
-         overall_status=1
+         let "overall_status+=1"
 	 diff -u esp_temp.ok.q esp_temp.q 
          continue 
        else
@@ -512,7 +512,7 @@ sync
        diff -w ${STUB}.ok.tst ${STUB}.tst >& /dev/null
        if [ $? -ne 0 ]; then
          echo "failed"
-         overall_status=1
+         let "overall_status+=1"
          continue 
        else
          echo "completed"
@@ -525,7 +525,7 @@ sync
         echo "completed "
        else
         echo "failed"
-        overall_status=1
+        let "overall_status+=1"
         continue 
        fi
       fi
