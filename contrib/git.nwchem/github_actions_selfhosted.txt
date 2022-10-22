@@ -77,6 +77,7 @@ jobs:
             use_tblite: 1
       fail-fast: false
     env:
+        MPI_IMPL: ${{ matrix.mpi_impl }}
         ARMCI_NETWORK: ${{ matrix.armci_network }}
         NWCHEM_MODULES: ${{ matrix.nwchem_modules }}
         USE_SIMINT: ${{ matrix.use_simint }}
