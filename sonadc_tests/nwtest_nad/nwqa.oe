@@ -1,0 +1,13 @@
+Start Prologue v2.5.3 Tue Apr 19 13:13:45 UTC 2022 
+r2i5n1: MemFree:        183402544 kB
+End Prologue v2.5.3 Tue Apr 19 13:13:48 UTC 2022 
+Start Epilogue v2.5.3 Tue Apr 19 13:13:49 UTC 2022 
+Memory usage reported in GB
+                    % of     user     user     user    total    total
+Node               limit      max    limit  current  current     phys
+r2i5n1              0.14     0.25   175.00     0.21     6.92   187.31
+Memory summary:
+		min    0.25 GB
+		max    0.25 GB
+		ave    0.25 GB
+End Epilogue v2.5.3 Tue Apr 19 13:13:52 UTC 2022 

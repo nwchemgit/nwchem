@@ -1,0 +1,1133 @@
+ gk: start in program NWChem
+ argument  1 = KHe_70_nwaoints.nw
+ gk: calling input_file_info from main
+ 
+
+
+============================== echo of input deck ==============================
+start KHe_sodft_grd
+echo
+Memory 128 mw
+title "KHe_sodft_grd"
+charge 0
+
+geometry noautoz noautosym nocenter units angstroms
+  K   0.00000  0.00000 0.00000
+  He   0.00000  0.00000  70000E-4
+end
+
+basis "ao basis" spherical print
+K s
+     2.889   -0.357900   0.079654
+     0.8196   0.655080  -0.157670
+     0.3127   0.579747  -0.288046
+     0.03388  0.015885   0.738296
+     0.01725 -0.007494   0.360381
+K p
+     8.714   -0.032020
+     1.089    0.335737
+     0.5906   0.430529
+     0.2267   0.342939
+K p
+     0.5906   1.000000
+K p
+     0.2267   1.000000
+He    S
+     13.6267000              0.1752300
+      1.9993500              0.8934830
+He    S
+      0.3829930              1.0000000
+END
+
+ECP
+K nelec 10
+K ul
+2      4.99889994            -1.96356797
+2     14.58220005           -15.53031635
+2     44.89559937           -38.57669830
+1    141.48350525            -7.30101395
+K S
+2      2.41030002            33.92499542
+2      2.77449989          -117.52191162
+2      3.33690000           108.25654602
+1      2.22169995             5.80375385
+0     12.19449997             3.21023202
+K P
+2      3.15459990           -69.97570801
+2      4.03189993           178.15260315
+2      5.16720009          -136.11946106
+1     11.33360004             4.43228197
+0      1.74329996             4.74835920
+END
+
+SO
+K p
+    2       3.154600        -.845252
+    2       4.031900        3.456178
+    2       5.167200       -3.072636
+    1      11.333600         .052312
+    0       1.743300        -.005898
+K d
+    2       4.998900        -.025066
+    2      14.582200         .044370
+    2      44.895600         .045586
+    1     141.483500         .236567
+END
+
+dft
+  mult 2
+  xc hfexch
+  #dft
+end
+
+task sodft aoints
+================================================================================
+
+
+ gk: back from input_file_info in main
+                                         
+                                         
+ 
+ 
+             Northwest Computational Chemistry Package (NWChem) 5.1.1
+             --------------------------------------------------------
+ 
+ 
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+ 
+                                         
+                                         
+ 
+ 
+                  COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999
+             2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+                        Pacific Northwest National Laboratory,
+                             Battelle Memorial Institute.
+ 
+                            >>> All Rights Reserved <<<
+ 
+ 
+                                    DISCLAIMER
+                                    ----------
+
+            This material was prepared as an account of work sponsored
+            by an agency of the United States Government.  Neither the
+            United States Government nor the United States Department
+            of Energy, nor Battelle, nor any of their employees, MAKES
+            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
+            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
+            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
+            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+
+
+                                    LIMITED USE
+                                    -----------
+
+            This software (including any documentation) is being made
+            available to you for your internal use only, solely for use
+            in performance of work directly for the U.S. Federal
+            Government or work under contracts with the U.S. Department
+            of Energy or other U.S. Federal Government agencies.  This
+            software is a version which has not yet been evaluated and
+            cleared for commercialization.  Adherence to this notice
+            may be necessary for the author, Battelle Memorial
+            Institute, to successfully assert copyright in and
+            commercialize this software. This software is not intended
+            for duplication or distribution to third parties without
+            the permission of the Manager of Software Products at
+            Pacific Northwest National Laboratory, Richland,
+            Washington, 99352.
+
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were produced with
+            Government support under Contract Number DE-AC05-76RL01830
+            awarded by the United States Department of Energy.  The
+            Government retains a paid-up non-exclusive, irrevocable
+            worldwide license to reproduce, prepare derivative works,
+            perform publicly and display publicly by or for the
+            Government, including the right to distribute to other
+            Government contractors.
+
+
+           Job information
+           ---------------
+
+    hostname      = r2i5n13
+    program       = /p/home/gkedz/Columbus/real_nwchem_for_columbus/bin/LINUX64/nwchem.dbg
+    date          = Fri Apr  1 18:48:33 2022
+
+    compiled      = Fri_Feb_18_17:55:39_2022
+    source        = /p/home/gkedz/Columbus/real_nwchem_for_columbus
+    nwchem branch = Development
+    input         = KHe_70_nwaoints.nw
+    prefix        = KHe_sodft_grd.
+    data base     = ./KHe_sodft_grd.db
+    status        = startup
+    nproc         =    1
+    time left     =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap      =   33554433 doubles =    256.0 Mbytes
+    stack     =   33554433 doubles =    256.0 Mbytes
+    global    =   67108864 doubles =    512.0 Mbytes (distinct from heap & stack)
+    total     =  134217730 doubles =   1024.0 Mbytes
+    verify    = yes
+    hardfail  = no 
+
+
+           Directory information
+           ---------------------
+ 
+  0 permanent = .
+  0 scratch   = .
+ 
+ 
+ gk: calling nxtask_init
+ gk: back from nxtask_init
+ gk: calling rtdb stuff from main
+ gk: in main calling task ocontinue= F
+ gk: in main back from task
+ gk: in main starting input parse
+ gk:    input_parse called here....
+ gk: entered input_parse
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+                                   KHe_sodft_grd
+                                   -------------
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ 
+ 
+                             Geometry "geometry" -> ""
+                             -------------------------
+ 
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 K                   19.0000     0.00000000     0.00000000     0.00000000
+    2 He                   2.0000     0.00000000     0.00000000     7.00000000
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      K                 38.963710
+      He                 4.002600
+ 
+
+ Effective nuclear repulsion energy (a.u.)       2.8726764946
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000    26.4561638401
+ 
+ 
+            XYZ format geometry
+            -------------------
+     2
+ geometry
+ K                     0.00000000     0.00000000     0.00000000
+ He                    0.00000000     0.00000000     7.00000000
+ 
+                      Basis "ao basis" -> "" (spherical)
+                      -----
+  K (Potassium)
+  -------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  2.88900000E+00 -0.357900
+  1 S  8.19600000E-01  0.655080
+  1 S  3.12700000E-01  0.579747
+  1 S  3.38800000E-02  0.015885
+  1 S  1.72500000E-02 -0.007494
+ 
+  2 S  2.88900000E+00  0.079654
+  2 S  8.19600000E-01 -0.157670
+  2 S  3.12700000E-01 -0.288046
+  2 S  3.38800000E-02  0.738296
+  2 S  1.72500000E-02  0.360381
+ 
+  3 P  8.71400000E+00 -0.032020
+  3 P  1.08900000E+00  0.335737
+  3 P  5.90600000E-01  0.430529
+  3 P  2.26700000E-01  0.342939
+ 
+  4 P  5.90600000E-01  1.000000
+ 
+  5 P  2.26700000E-01  1.000000
+ 
+  He (Helium)
+  -----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.36267000E+01  0.175230
+  1 S  1.99935000E+00  0.893483
+ 
+  2 S  3.82993000E-01  1.000000
+ 
+
+
+ Summary of "ao basis" -> "" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ K                       user specified              5       11   2s3p
+ He                      user specified              2        2   2s
+
+
+                 ECP       "ecp basis" -> "" (cartesian)
+                -----
+  K (Potassium) Replaces    10 electrons
+  --------------------------------------
+          R-exponent    Exponent     Coefficients 
+         ------------ ---------------------------------------------------------
+  1 U L      2.00        4.998900      -1.963568
+  1 U L      2.00       14.582200     -15.530316
+  1 U L      2.00       44.895599     -38.576698
+  1 U L      1.00      141.483505      -7.301014
+ 
+  2 U-s      2.00        2.410300      33.924995
+  2 U-s      2.00        2.774500    -117.521912
+  2 U-s      2.00        3.336900     108.256546
+  2 U-s      1.00        2.221700       5.803754
+  2 U-s      0.00       12.194500       3.210232
+ 
+  3 U-p      2.00        3.154600     -69.975708
+  3 U-p      2.00        4.031900     178.152603
+  3 U-p      2.00        5.167200    -136.119461
+  3 U-p      1.00       11.333600       4.432282
+  3 U-p      0.00        1.743300       4.748359
+ 
+             SO Potential "so potential" -> ""
+                      -----
+  K (Potassium)
+  -------------
+          R-exponent    Exponent     Coefficients 
+         ------------ ------------------------------------------------------------
+  1 U-p      2.00        3.154600      -0.845252
+  1 U-p      2.00        4.031900       3.456178
+  1 U-p      2.00        5.167200      -3.072636
+  1 U-p      1.00       11.333600       0.052312
+  1 U-p      0.00        1.743300      -0.005898
+ 
+  2 U-d      2.00        4.998900      -0.025066
+  2 U-d      2.00       14.582200       0.044370
+  2 U-d      2.00       44.895600       0.045586
+  2 U-d      1.00      141.483500       0.236567
+ 
+  xc_inp: hfexch multiplicative factor not found.
+ gk: calling task_input
+ gk: entered task_input...read aoints task here
+ gk:  setting operation to aoints in input_task
+ gk:    theory = sodft                           
+ gk: put task:operation, with operation = aoints                        on rtdb
+ gk: leaving task_input
+ gk: back from task_input
+ gk: leaving input_parse
+ gk: back from input parse in loop
+ gk: in main calling task from input parse loop
+ gk: entered task()
+ gk:  looking for routines, operation=aoints                        
+ gk: detected aoints operation, theory=sodft                           
+ gk: calling task_aoints sodft                           
+ gk: entered task_aoints
+ gk: in task_aoints_doit
+ gk: calling dft_pstat_init from sodft_aoints
+                                 NWChem DFT Module
+                                 -----------------
+ 
+ 
+                                   KHe_sodft_grd
+ 
+ 
+  WARNING: CD fitting not compatible with spinorbit
+  WARNING: disabling CD fitting
+ 
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  spin polarized.
+          No. of atoms     :     2
+          No. of electrons :    11
+           Alpha electrons :     6
+            Beta electrons :     5
+          Charge           :     0
+          Spin multiplicity:     2
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  30
+          AO basis - number of functions:    13
+                     number of shells:     7
+          Convergence on energy requested: 1.00D-06
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
+ 
+              XC Information
+              --------------
+                     Hartree-Fock (Exact) Exchange  1.000          
+ 
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            30 iters 
+
+ 
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho: 1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul: 1.00D-10
+
+ gk: in sifcfg
+ gk: in sifcfg
+ gk: bfnlab:
+   1  1 K  s  
+   2  1 K  s  
+   3  1 K  px 
+   4  1 K  py 
+   5  1 K  pz 
+   6  1 K  px 
+   7  1 K  py 
+   8  1 K  pz 
+   9  1 K  px 
+  10  1 K  py 
+  11  1 K  pz 
+  12  2 He s  
+  13  2 He s  
+ gk: in sifwh
+ gk: in sifwh
+ gk: in sifwh calling sifzwh
+ gk:    ntitle=            1
+ gk: in sifzwh, aoints=          23
+ gk:      vrsion=           1
+ gk:      ntitle=           1
+ gk:      nsym=           1
+ gk:      nbft=          13
+ gk:      ninfo=           5
+ gk:      nenrgy=           1
+ gk:      nmap=           2
+           1           1           1          13           5           1
+           2
+ gk: back from sifzwh
+ gk: in sifew1
+ gk: aoints =           23
+ gk: l1rec =         4096
+ gk: n1max =         3272
+ gk: num =           30
+ gk: fcore =   0.000000000000000E+000
+ gk: i,values:            1  0.837748769280171     
+ gk: i,values:            2 -0.242961476277768     
+ gk: i,values:            3  0.116880740472823     
+ gk: i,values:            4   1.40682525656829     
+ gk: i,values:            5   1.40682525656829     
+ gk: i,values:            6   1.40682525656829     
+ gk: i,values:            7   1.40694032761816     
+ gk: i,values:            8   1.40694032761816     
+ gk: i,values:            9   1.40694032761816     
+ gk: i,values:           10   1.47650000000000     
+ gk: i,values:           11   1.47650000000000     
+ gk: i,values:           12   1.47650000000000     
+ gk: i,values:           13  0.616101483159312     
+ gk: i,values:           14  0.616101483159312     
+ gk: i,values:           15  0.616101483159312     
+ gk: i,values:           16  0.621420982795316     
+ gk: i,values:           17  0.621420982795316     
+ gk: i,values:           18  0.621420982795316     
+ gk: i,values:           19  0.566750000000002     
+ gk: i,values:           20  0.566750000000002     
+ gk: i,values:           21  0.566750000000002     
+ gk: i,values:           22 -2.103138925751484E-007
+ gk: i,values:           23 -1.439648773438061E-004
+ gk: i,values:           24   3.91612379840220     
+ gk: i,values:           25 -1.847963374201679E-006
+ gk: i,values:           26 -5.539338208432141E-004
+ gk: i,values:           27 -2.480495737903029E-010
+ gk: i,values:           28 -7.233048078582003E-010
+ gk: i,values:           29  0.578949396692129     
+ gk: i,values:           30  0.574489500000002     
+ gk:  calling sife1
+ gk: in sife1
+ gk: calling plab16
+ gk: back from plab16
+ gk: calling cdcopy
+ gk: back from cdcopy
+ gk: in sife1, ifmt =            0
+ gk: in sife1, ibvtyp =            0
+ gk:  leaving sife1
+ gk:  back from sife1
+ gk:  back from seqwbf
+Wrote         30 kinetic    integrals to aoints
+ gk: in sifew1
+ gk: aoints =           23
+ gk: l1rec =         4096
+ gk: n1max =         3272
+ gk: num =           36
+ gk: fcore =   0.000000000000000E+000
+ gk: i,values:            1  -7.19423667950084     
+ gk: i,values:            2  0.499176067172287     
+ gk: i,values:            3  -2.18888461595626     
+ gk: i,values:            4 -8.841858265458703E-003
+ gk: i,values:            5 -2.882400957715831E-003
+ gk: i,values:            6  -6.90782388727413     
+ gk: i,values:            7  -6.90782388727413     
+ gk: i,values:            8  -6.90909543323255     
+ gk: i,values:            9 -8.691439204770042E-003
+ gk: i,values:           10 -7.317599064429808E-004
+ gk: i,values:           11  -6.88277348128094     
+ gk: i,values:           12  -6.88277348128094     
+ gk: i,values:           13  -6.88388861060973     
+ gk: i,values:           14  -6.96624094283914     
+ gk: i,values:           15  -6.96624094283913     
+ gk: i,values:           16  -6.96733819688041     
+ gk: i,values:           17 -8.173120715176336E-003
+ gk: i,values:           18 -8.045517356781225E-003
+ gk: i,values:           19  -4.75462096852925     
+ gk: i,values:           20  -4.75462096852925     
+ gk: i,values:           21  -4.75628296370810     
+ gk: i,values:           22  -4.56881720087890     
+ gk: i,values:           23  -4.56881720087890     
+ gk: i,values:           24  -4.57002030045492     
+ gk: i,values:           25  -4.64240562803378     
+ gk: i,values:           26  -4.64240562803378     
+ gk: i,values:           27  -4.64526419987664     
+ gk: i,values:           28  9.086530170695058E-005
+ gk: i,values:           29 -6.515522608210800E-003
+ gk: i,values:           30  -6.17005922236994     
+ gk: i,values:           31  1.693550655244884E-004
+ gk: i,values:           32 -1.336093675723220E-002
+ gk: i,values:           33 -5.768960689543537E-011
+ gk: i,values:           34 -1.682210914266415E-010
+ gk: i,values:           35  -2.64025974885889     
+ gk: i,values:           36  -2.65549977327227     
+ gk:  calling sife1
+ gk: in sife1
+ gk: calling plab16
+ gk: back from plab16
+ gk: calling cdcopy
+ gk: back from cdcopy
+ gk: in sife1, ifmt =            0
+ gk: in sife1, ibvtyp =            0
+ gk:  leaving sife1
+ gk:  back from sife1
+ gk:  back from seqwbf
+Wrote         36 potential  integrals to aoints
+ gk: in sifew1
+ gk: aoints =           23
+ gk: l1rec =         4096
+ gk: n1max =         3272
+ gk: num =           30
+ gk: fcore =   0.000000000000000E+000
+ gk: i,values:            1   1.00000000000000     
+ gk: i,values:            2  8.785612850724031E-008
+ gk: i,values:            3 -2.212663307307169E-005
+ gk: i,values:            4 -8.031831613513952E-005
+ gk: i,values:            5   1.00000000000000     
+ gk: i,values:            6  1.597387454090067E-003
+ gk: i,values:            7  6.478795266264853E-003
+ gk: i,values:            8   1.00000000000000     
+ gk: i,values:            9   1.00000000000000     
+ gk: i,values:           10   1.00000000000000     
+ gk: i,values:           11  0.984589869307485     
+ gk: i,values:           12  0.984589869307485     
+ gk: i,values:           13  0.984589869307485     
+ gk: i,values:           14  0.834242785783941     
+ gk: i,values:           15  0.834242785783941     
+ gk: i,values:           16  0.834242785783941     
+ gk: i,values:           17  3.884789153330229E-011
+ gk: i,values:           18   1.00000000000000     
+ gk: i,values:           19   1.00000000000000     
+ gk: i,values:           20   1.00000000000000     
+ gk: i,values:           21  0.758669186223952     
+ gk: i,values:           22  0.758669186223952     
+ gk: i,values:           23  0.758669186223952     
+ gk: i,values:           24   1.00000000000000     
+ gk: i,values:           25   1.00000000000000     
+ gk: i,values:           26   1.00000000000000     
+ gk: i,values:           27  1.132792380645078E-010
+ gk: i,values:           28   1.00000000000000     
+ gk: i,values:           29  0.595215949693136     
+ gk: i,values:           30   1.00000000000000     
+ gk:  calling sife1
+ gk: in sife1
+ gk: calling plab16
+ gk: back from plab16
+ gk: calling cdcopy
+ gk: back from cdcopy
+ gk: in sife1, ifmt =            0
+ gk: in sife1, ibvtyp =            0
+ gk:  leaving sife1
+ gk:  back from sife1
+ gk:  back from seqwbf
+Wrote         30 overlap    integrals to aoints
+ gk: symmap=                     1
+ gk: symmap=                     2
+ gk: symmap=                     3
+ gk: symmap=                     4
+ gk: symmap=                     5
+ gk: symmap=                     6
+ gk: symmap=                     7
+ gk: symmap=                     8
+ gk: symmap=                     9
+ gk: symmap=                    10
+ gk: symmap=                    11
+ gk: symmap=                    12
+ gk: symmap=                    13
+ gk: symmap=                    14
+ gk: symmap=                    15
+ gk: symmap=                    16
+ gk: symmap=                    17
+ gk: symmap=                    18
+ gk: symmap=                    19
+ gk: symmap=                    20
+ gk: symmap=                    21
+ gk: symmap=                    22
+ gk: symmap=                    23
+ gk: symmap=                    24
+ gk: symmap=                    25
+ gk: symmap=                    26
+ gk: symmap=                    27
+ gk: symmap=                    28
+ gk: symmap=                    37
+ gk: symmap=                    38
+ gk: symmap=                    47
+ gk: symmap=                    29
+ gk: symmap=                    30
+ gk: symmap=                    31
+ gk: symmap=                    39
+ gk: symmap=                    40
+ gk: symmap=                    41
+ gk: symmap=                    48
+ gk: symmap=                    49
+ gk: symmap=                    50
+ gk: symmap=                    32
+ gk: symmap=                    33
+ gk: symmap=                    34
+ gk: symmap=                    42
+ gk: symmap=                    43
+ gk: symmap=                    44
+ gk: symmap=                    51
+ gk: symmap=                    52
+ gk: symmap=                    53
+ gk: symmap=                    35
+ gk: symmap=                    45
+ gk: symmap=                    54
+ gk: symmap=                    36
+ gk: symmap=                    46
+ gk: symmap=                    55
+ gk: symmap=                    56
+ gk: symmap=                    57
+ gk: symmap=                    58
+ gk: symmap=                    64
+ gk: symmap=                    65
+ gk: symmap=                    71
+ gk: symmap=                    59
+ gk: symmap=                    60
+ gk: symmap=                    61
+ gk: symmap=                    66
+ gk: symmap=                    67
+ gk: symmap=                    68
+ gk: symmap=                    72
+ gk: symmap=                    73
+ gk: symmap=                    74
+ gk: symmap=                    62
+ gk: symmap=                    69
+ gk: symmap=                    75
+ gk: symmap=                    63
+ gk: symmap=                    70
+ gk: symmap=                    76
+ gk: symmap=                    77
+ gk: symmap=                    78
+ gk: symmap=                    79
+ gk: symmap=                    82
+ gk: symmap=                    83
+ gk: symmap=                    86
+ gk: symmap=                    80
+ gk: symmap=                    84
+ gk: symmap=                    87
+ gk: symmap=                    81
+ gk: symmap=                    85
+ gk: symmap=                    88
+ gk: symmap=                    89
+ gk: symmap=                    90
+ gk: symmap=                    91
+ gk: in sifew1
+ gk: aoints =           23
+ gk: l1rec =         4096
+ gk: n1max =         3272
+ gk: num =            9
+ gk: fcore =   0.000000000000000E+000
+ gk: i,values:            1  6.202343880004322E-003
+ gk: i,values:            2  5.611429207387993E-003
+ gk: i,values:            3  2.091409896409435E-003
+ gk: i,values:            4 -5.611429207387993E-003
+ gk: i,values:            5 -2.091409896409435E-003
+ gk: i,values:            6  5.024430655059247E-003
+ gk: i,values:            7  1.877487322544456E-003
+ gk: i,values:            8 -1.877487322544456E-003
+ gk: i,values:            9  6.899285934303796E-004
+ gk:  calling sife1
+ gk: in sife1
+ gk: calling plab16
+ gk: back from plab16
+ gk: calling cdcopy
+ gk: back from cdcopy
+ gk: in sife1, ifmt =            0
+ gk: in sife1, ibvtyp =            0
+ gk:  leaving sife1
+ gk:  back from sife1
+ gk:  back from seqwbf
+ gk: in sifew1
+ gk: aoints =           23
+ gk: l1rec =         4096
+ gk: n1max =         3272
+ gk: num =            9
+ gk: fcore =   0.000000000000000E+000
+ gk: i,values:            1 -6.202343880004324E-003
+ gk: i,values:            2 -5.611429207387994E-003
+ gk: i,values:            3 -2.091409896409435E-003
+ gk: i,values:            4  5.611429207387994E-003
+ gk: i,values:            5  2.091409896409435E-003
+ gk: i,values:            6 -5.024430655059248E-003
+ gk: i,values:            7 -1.877487322544456E-003
+ gk: i,values:            8  1.877487322544456E-003
+ gk: i,values:            9 -6.899285934303797E-004
+ gk:  calling sife1
+ gk: in sife1
+ gk: calling plab16
+ gk: back from plab16
+ gk: calling cdcopy
+ gk: back from cdcopy
+ gk: in sife1, ifmt =            0
+ gk: in sife1, ibvtyp =            0
+ gk:  leaving sife1
+ gk:  back from sife1
+ gk:  back from seqwbf
+ gk: in sifew1
+ gk: aoints =           23
+ gk: l1rec =         4096
+ gk: n1max =         3272
+ gk: num =            9
+ gk: fcore =   0.000000000000000E+000
+ gk: i,values:            1  6.202343880004324E-003
+ gk: i,values:            2  5.611429207387994E-003
+ gk: i,values:            3  2.091409896409435E-003
+ gk: i,values:            4 -5.611429207387994E-003
+ gk: i,values:            5 -2.091409896409435E-003
+ gk: i,values:            6  5.024430655059248E-003
+ gk: i,values:            7  1.877487322544456E-003
+ gk: i,values:            8 -1.877487322544456E-003
+ gk: i,values:            9  6.899285934303797E-004
+ gk:  calling sife1
+ gk: in sife1
+ gk: calling plab16
+ gk: back from plab16
+ gk: calling cdcopy
+ gk: back from cdcopy
+ gk: in sife1, ifmt =            0
+ gk: in sife1, ibvtyp =            0
+ gk:  leaving sife1
+ gk:  back from sife1
+ gk:  back from seqwbf
+ gk: entered int_mom_sifs
+ gk: max1e=              83954499
+ gk: mem1=       140737488338784
+ gk: nbft=                    13
+ gk: max1mom=                    27
+ gk: mem1mom=                   162
+ gk: maxint=                   169
+ gk: int_type =                      1
+ gk: in sifew1
+ gk: aoints =           23
+ gk: l1rec =         4096
+ gk: n1max =         3272
+ gk: num =            8
+ gk: fcore =   0.000000000000000E+000
+ gk: i,values:            1 -0.553083597671139     
+ gk: i,values:            2 -0.563090294661644     
+ gk: i,values:            3 -0.561965824505137     
+ gk: i,values:            4  0.181853693930084     
+ gk: i,values:            5  0.192391412443027     
+ gk: i,values:            6  0.158266146083468     
+ gk: i,values:            7  2.936774338718800E-012
+ gk: i,values:            8  8.563542223965463E-012
+ gk:  calling sife1
+ gk: in sife1
+ gk: calling plab16
+ gk: back from plab16
+ gk: calling cdcopy
+ gk: back from cdcopy
+ gk: in sife1, ifmt =            0
+ gk: in sife1, ibvtyp =            0
+ gk:  leaving sife1
+ gk:  back from sife1
+ gk:  back from seqwbf
+ gk: in sifew1
+ gk: aoints =           23
+ gk: l1rec =         4096
+ gk: n1max =         3272
+ gk: num =            8
+ gk: fcore =   0.000000000000000E+000
+ gk: i,values:            1 -0.553083597671139     
+ gk: i,values:            2 -0.563090294661644     
+ gk: i,values:            3 -0.561965824505137     
+ gk: i,values:            4  0.181853693930084     
+ gk: i,values:            5  0.192391412443027     
+ gk: i,values:            6  0.158266146083468     
+ gk: i,values:            7  2.936774338718800E-012
+ gk: i,values:            8  8.563542223965463E-012
+ gk:  calling sife1
+ gk: in sife1
+ gk: calling plab16
+ gk: back from plab16
+ gk: calling cdcopy
+ gk: back from cdcopy
+ gk: in sife1, ifmt =            0
+ gk: in sife1, ibvtyp =            0
+ gk:  leaving sife1
+ gk:  back from sife1
+ gk:  back from seqwbf
+ gk: in sifew1
+ gk: aoints =           23
+ gk: l1rec =         4096
+ gk: n1max =         3272
+ gk: num =           12
+ gk: fcore =   0.000000000000000E+000
+ gk: i,values:            1 -0.553083597671139     
+ gk: i,values:            2 -0.563090294661644     
+ gk: i,values:            3 -0.561965824505137     
+ gk: i,values:            4  7.593510600326487E-006
+ gk: i,values:            5  2.437388566743497E-005
+ gk: i,values:            6  0.181853693930084     
+ gk: i,values:            7  0.192391412443027     
+ gk: i,values:            8  0.158266146083468     
+ gk: i,values:            9 -8.355296427732882E-004
+ gk: i,values:           10 -3.326650934413216E-003
+ gk: i,values:           11 -1.434242605446982E-010
+ gk: i,values:           12 -4.182206630324111E-010
+ gk:  calling sife1
+ gk: in sife1
+ gk: calling plab16
+ gk: back from plab16
+ gk: calling cdcopy
+ gk: back from cdcopy
+ gk: in sife1, ifmt =            0
+ gk: in sife1, ibvtyp =            0
+ gk:  leaving sife1
+ gk:  back from sife1
+ gk:  back from seqwbf
+ gk: int_type =                      2
+ gk: in sifew1
+ gk: aoints =           23
+ gk: l1rec =         4096
+ gk: n1max =         3272
+ gk: num =           11
+ gk: fcore =   0.000000000000000E+000
+ gk: i,values:            1   1.00000000000000     
+ gk: i,values:            2  0.984589869307480     
+ gk: i,values:            3  0.834242785783937     
+ gk: i,values:            4  3.884789153330229E-011
+ gk: i,values:            5 -0.984589869307480     
+ gk: i,values:            6 -0.834242785783937     
+ gk: i,values:            7  0.999999999999998     
+ gk: i,values:            8  0.758669186223948     
+ gk: i,values:            9 -0.758669186223948     
+ gk: i,values:           10  0.999999999999999     
+ gk: i,values:           11  1.132792380645079E-010
+ gk:  calling sife1
+ gk: in sife1
+ gk: calling plab16
+ gk: back from plab16
+ gk: calling cdcopy
+ gk: back from cdcopy
+ gk: in sife1, ifmt =            0
+ gk: in sife1, ibvtyp =            0
+ gk:  leaving sife1
+ gk:  back from sife1
+ gk:  back from seqwbf
+ gk: in sifew1
+ gk: aoints =           23
+ gk: l1rec =         4096
+ gk: n1max =         3272
+ gk: num =           11
+ gk: fcore =   0.000000000000000E+000
+ gk: i,values:            1  -1.00000000000000     
+ gk: i,values:            2 -0.984589869307480     
+ gk: i,values:            3 -0.834242785783937     
+ gk: i,values:            4 -3.884789153330229E-011
+ gk: i,values:            5  0.984589869307480     
+ gk: i,values:            6  0.834242785783937     
+ gk: i,values:            7 -0.999999999999998     
+ gk: i,values:            8 -0.758669186223948     
+ gk: i,values:            9  0.758669186223948     
+ gk: i,values:           10 -0.999999999999999     
+ gk: i,values:           11 -1.132792380645079E-010
+ gk:  calling sife1
+ gk: in sife1
+ gk: calling plab16
+ gk: back from plab16
+ gk: calling cdcopy
+ gk: back from cdcopy
+ gk: in sife1, ifmt =            0
+ gk: in sife1, ibvtyp =            0
+ gk:  leaving sife1
+ gk:  back from sife1
+ gk:  back from seqwbf
+ gk: in sifew1
+ gk: aoints =           23
+ gk: l1rec =         4096
+ gk: n1max =         3272
+ gk: num =            9
+ gk: fcore =   0.000000000000000E+000
+ gk: i,values:            1   1.00000000000000     
+ gk: i,values:            2  0.984589869307480     
+ gk: i,values:            3  0.834242785783937     
+ gk: i,values:            4 -0.984589869307480     
+ gk: i,values:            5 -0.834242785783937     
+ gk: i,values:            6  0.999999999999998     
+ gk: i,values:            7  0.758669186223948     
+ gk: i,values:            8 -0.758669186223948     
+ gk: i,values:            9  0.999999999999999     
+ gk:  calling sife1
+ gk: in sife1
+ gk: calling plab16
+ gk: back from plab16
+ gk: calling cdcopy
+ gk: back from cdcopy
+ gk: in sife1, ifmt =            0
+ gk: in sife1, ibvtyp =            0
+ gk:  leaving sife1
+ gk:  back from sife1
+ gk:  back from seqwbf
+ gk: after int2e_test_mem  owritefile =  F
+ number of 2e integrals computed =                    644
+ number of 2e integrals written to aoints =                    644
+ gk: starting dft cleanup in sodft_aoints
+ gk: leaving task_aoints_doit
+ gk: leaving task_aoints
+ gk: back from task_aoints
+
+ Task  times  cpu:        0.0s     wall:        0.0s
+ gk: leaving task
+ gk: in main back from task in input parse loop
+ gk: entered input_parse
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+ gk: leaving input_parse
+ gk: in main done with input parse (and task) loop
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:    2        2        2       49        0        0        0        0     
+number of processes/call 1.00e+00 1.00e+00 0.00e+00 0.00e+00 0.00e+00
+bytes total:             3.52e+02 1.35e+03 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 2704 bytes
+ 
+MA_summarize_allocated_blocks: starting scan ...
+heap block 'ecp c2s routines', handle 5, address 0x12e98ef8:
+	type of elements:		double precision
+	number of elements:		2084
+	address of client space:	0x12e98f50
+	index for client space:		16880039
+	total number of bytes:		16768
+heap block 'ecp lexical indeces for ecp cen', handle 4, address 0x12e98e90:
+	type of elements:		integer
+	number of elements:		1
+	address of client space:	0x12e98ee8
+	index for client space:		16880022
+	total number of bytes:		104
+heap block 'ecp l_C', handle 3, address 0x12e97030:
+	type of elements:		integer
+	number of elements:		1
+	address of client space:	0x12e97088
+	index for client space:		16879050
+	total number of bytes:		120
+heap block 'ecp ind_z', handle 2, address 0x12e98df0:
+	type of elements:		integer
+	number of elements:		8
+	address of client space:	0x12e98e48
+	index for client space:		16880002
+	total number of bytes:		160
+heap block 'ecp ind_C', handle 1, address 0x12e98d50:
+	type of elements:		integer
+	number of elements:		8
+	address of client space:	0x12e98da8
+	index for client space:		16879982
+	total number of bytes:		160
+heap block 'ecp n_coef_C', handle 0, address 0x12e98cb0:
+	type of elements:		integer
+	number of elements:		8
+	address of client space:	0x12e98d08
+	index for client space:		16879962
+	total number of bytes:		160
+heap block 'ecp n_prim_C', handle 63, address 0x12e98b10:
+	type of elements:		integer
+	number of elements:		40
+	address of client space:	0x12e98b68
+	index for client space:		16879910
+	total number of bytes:		416
+heap block 'ecp coefficients', handle 62, address 0x12e989f8:
+	type of elements:		double precision
+	number of elements:		23
+	address of client space:	0x12e98a50
+	index for client space:		16879879
+	total number of bytes:		280
+heap block 'ecp exponents', handle 61, address 0x12e988e0:
+	type of elements:		double precision
+	number of elements:		23
+	address of client space:	0x12e98938
+	index for client space:		16879844
+	total number of bytes:		280
+heap block 'ecp center coords', handle 60, address 0x12e96fb8:
+	type of elements:		double precision
+	number of elements:		3
+	address of client space:	0x12e97010
+	index for client space:		16879039
+	total number of bytes:		120
+heap block 'for txs scratch', handle 59, address 0x12e98010:
+	type of elements:		double precision
+	number of elements:		270
+	address of client space:	0x12e98068
+	index for client space:		16879562
+	total number of bytes:		2256
+heap block 'txs-pnl mapping1', handle 57, address 0x12e97c70:
+	type of elements:		double precision
+	number of elements:		104
+	address of client space:	0x12e97cc8
+	index for client space:		16879446
+	total number of bytes:		928
+heap block 'texas basis/nuc', handle 56, address 0x12e97378:
+	type of elements:		double precision
+	number of elements:		275
+	address of client space:	0x12e973d0
+	index for client space:		16879159
+	total number of bytes:		2296
+heap block 'sph 2 cart scale arryy', handle 51, address 0x12e972e8:
+	type of elements:		double precision
+	number of elements:		6
+	address of client space:	0x12e97340
+	index for client space:		16879141
+	total number of bytes:		144
+heap block 'sph 2 cart trans array cmp', handle 50, address 0x12e97238:
+	type of elements:		double precision
+	number of elements:		10
+	address of client space:	0x12e97290
+	index for client space:		16879119
+	total number of bytes:		176
+heap block 'sph 2 cart trans array cmp', handle 49, address 0x12e97188:
+	type of elements:		double precision
+	number of elements:		10
+	address of client space:	0x12e971e0
+	index for client space:		16879097
+	total number of bytes:		176
+heap block ' ptrs array inverse xlm sph 2 c', handle 48, address 0x12e97118:
+	type of elements:		integer
+	number of elements:		2
+	address of client space:	0x12e97170
+	index for client space:		16879079
+	total number of bytes:		112
+heap block ' ptrs array xlm sph 2 cart', handle 47, address 0x12e970a8:
+	type of elements:		integer
+	number of elements:		2
+	address of client space:	0x12e97100
+	index for client space:		16879065
+	total number of bytes:		112
+stack block 'ovl eig vals', handle 40, address 0x32e96308:
+	type of elements:		double precision
+	number of elements:		13
+	address of client space:	0x32e96360
+	index for client space:		83987497
+	total number of bytes:		200
+MA_summarize_allocated_blocks: scan completed: 18 heap blocks, 1 stack block
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	        18	         1
+	maximum number of blocks	        38	        18
+	current total bytes		     24768	       200
+	maximum total bytes		     80096	    663336
+	maximum total K-bytes		        81	       664
+	maximum total M-bytes		         1	         1
+
+
+
+                                  ACKNOWLEDGEMENT
+                                  ---------------
+
+            Please use the following acknowledgement where appropriate 
+            for results obtained with NWChem:
+
+            High Performance Computational Chemistry Group, "NWChem, A
+            Computational Chemistry Package for Parallel Computers, 
+            Version 5.1.1" (2009), Pacific Northwest National Laboratory,
+            Richland, Washington 99352-0999, USA.
+
+
+                                     CITATION
+                                     --------
+
+          Please use the following citation when publishing results
+          obtained with NWChem:
+
+          E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
+          M. Valiev, D. Wang, E. Apra, T. L. Windus, J. Hammond, P. Nichols,
+          S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan, R. J. Harrison,
+          M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan,
+          A. Vazquez-Mayagoitia, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen,
+          L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl,
+          J. Garza, K. Hirao, R. Kendall, J. A. Nichols, K. Tsemekhman
+          K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski, T. Clark,
+          D. Clerc, H. Dachsel, M. Deegan, K. Dyall, D. Elwood, E. Glendening
+          M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju, R. Kobayashi,
+          R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng, T. Nakajima,
+          S. Niu, L. Pollack, M. Rosing, G. Sandrone, M. Stave, H. Taylor,
+          G. Thomas, J. van Lenthe, A. Wong, and Z. Zhang,
+          "NWChem, A Computational Chemistry Package for Parallel Computers, 
+          Version 5.1.1" (2009),
+                      Pacific Northwest National Laboratory,
+                      Richland, Washington 99352-0999, USA.
+
+
+
+ Total times  cpu:        0.0s     wall:        0.1s

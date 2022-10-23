@@ -1,0 +1,13 @@
+Start Prologue v2.5.3 Fri Apr 15 17:56:34 UTC 2022 
+r3i1n19: MemFree:        183871148 kB
+End Prologue v2.5.3 Fri Apr 15 17:56:37 UTC 2022 
+Start Epilogue v2.5.3 Fri Apr 15 17:56:38 UTC 2022 
+Memory usage reported in GB
+                    % of     user     user     user    total    total
+Node               limit      max    limit  current  current     phys
+r3i1n19             0.14     0.24   175.00     0.16     6.58   187.31
+Memory summary:
+		min    0.24 GB
+		max    0.24 GB
+		ave    0.24 GB
+End Epilogue v2.5.3 Fri Apr 15 17:56:40 UTC 2022 

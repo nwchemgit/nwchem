@@ -231,6 +231,36 @@ c            oembed = .true.
      >                        'rdf')) then
             operation='rdf'
          else if (inp_compare(.false.,test,
+     >                        'aoints')) then
+            operation='aoints'
+cgk debug
+       write(*,*)'gk:  setting operation to aoints in input_task'
+       write(*,*)'gk:    theory = ', theory
+cgk end
+C LB
+         else if (inp_compare(.false.,test,
+     >                        'grdtrc')) then
+            operation='grdtrc'
+cgk debug
+       write(*,*)'gk:  setting operation to grdtrc in input_task'
+       write(*,*)'gk:    theory = ', theory
+cgk end
+C LB
+         else if (inp_compare(.false.,test,
+     >                        'nadtrc')) then
+            operation='nadtrc'
+cgk debug
+       write(*,*)'gk:  setting operation to nadtrc in input_task'
+       write(*,*)'gk:    theory = ', theory
+cgk end
+         else if (inp_compare(.false.,test,
+     >                        'sodtrc')) then
+            operation='sodtrc'
+cgk debug
+       write(*,*)'gk:  setting operation to nadtrc in input_task'
+       write(*,*)'gk:    theory = ', theory
+cgk end
+         else if (inp_compare(.false.,test,
      >                        'lcao')) then
             operation='lcao'
          else if (inp_compare(.false.,test,

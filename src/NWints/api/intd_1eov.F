@@ -15,7 +15,7 @@ C> is 2 for the number of expansion centers on which the basis functions are
 C> positioned.
 C>
       subroutine intd_1eov(i_basis,ish,j_basis,jsh,lscr,scr,
-     &       lOva,Ova,idatom)
+     &       lOva,Ova,idatom,hlfdrv)
 c $Id$
       implicit none
 #include "stdio.fh"
@@ -34,6 +34,12 @@ c                       ! NOTE: nint*3 integral derivatives returned per unique 
       integer idatom(*) !< [Output] array identifying centers for derivatives
 c                       ! e.g., the first nint*3  derivatives go to center idatom(1)
 c                       !       the second nint*3 derivatives go to center idatom(2)
+C LB
+      logical hlfdrv    ! [input] if true, calculate same atom as well
+                        ! as different atom integrals. This is necessary
+                        ! when calculating the half-derivative overlap
+                        ! matrix for NADCTs
+C LB
 c
 c Order is...   nint*3*2 (3=> xyz, 2=atoms)
 c
@@ -74,11 +80,11 @@ c                            d[idatom(2),z]/
      &          INT_ERR)
       endif
       call intd_1eovP(i_basis,ish,j_basis,jsh,lscr,scr,nint,
-     &    OVa,idatom)
+     &    OVa,idatom,hlfdrv)
       end
       
       subroutine intd_1eovP(i_basis,ish,j_basis,jsh,lscr,scr,
-     &       nint,Ova,idatom)
+     &       nint,Ova,idatom,hlfdrv)
       implicit none
 c
 c returns 1e overlap derivative integrals for shells/contractions ish,jsh
@@ -117,6 +123,12 @@ c                       ! NOTE: nint*3 integral derivatives returned per unique 
       integer idatom(*) ! [output] array identifying centers for derivatives
 c                       ! e.g., the first nint*3  derivatives go to center idatom(1)
 c                       !       the second nint*3 derivatives go to center idatom(2)
+C LB
+      logical hlfdrv    ! [input] if true, calculate same atom as well
+                        ! as different atom integrals. This is necessary
+                        ! when calculating the half-derivative overlap
+                        ! matrix for NADCTs
+C LB
 c
 c Order is...   nint*3*2 (3=> xyz, 2=atoms)
 c
@@ -180,7 +192,7 @@ c
 c
       iatom = (sf_ibs_cn2ce(ish,ibas))
       jatom = (sf_ibs_cn2ce(jsh,jbas))
-      if (iatom.eq.jatom) then
+      if ((iatom.eq.jatom).and.(.not.hlfdrv))then
         idatom(1) = 0
         idatom(2) = 0
         return
