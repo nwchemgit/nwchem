@@ -1,0 +1,25 @@
+echo
+start h2o_cg_opt_cosmo
+
+geometry units au
+ O 0       0        0
+ H 0       1.430   -1.107
+ H 0      -1.430   -1.107
+end
+
+
+basis
+  O library 6-31g*
+  H library 6-31g*
+end
+
+dft
+  cgmin
+  print "force components"
+  convergence nr 0.0
+end
+
+cosmo
+end
+
+task dft optimize
