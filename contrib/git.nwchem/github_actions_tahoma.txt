@@ -9,8 +9,13 @@ jobs:
     uses: ./.github/workflows/update_main.yml
     secrets:
       inherit
-  build:
+  build_singularity:
     needs: [build_workflow]
+    uses: edoapra/nwchem-singularity/.github/workflows/apptainer_action.ifx.yml
+    secrets:
+      inherit
+  build:
+    needs: [build_singulariy]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 2880
     strategy:
