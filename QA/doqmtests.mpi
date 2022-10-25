@@ -72,6 +72,8 @@ let "myexit+=$?"
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o_diag_to_cg_ub3lyp h2o_cg_to_diag_ub3lyp
 let "myexit+=$?"
+./runtests.mpi.unix procs $np h2o_cg_opt_cosmo
+let "myexit+=$?"
 #
 #---   small tests that should fail!
 echo ' '
