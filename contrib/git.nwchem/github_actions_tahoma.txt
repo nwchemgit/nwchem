@@ -15,7 +15,7 @@ jobs:
     secrets:
       inherit
   build:
-    needs: [build_singulariy]
+    needs: [build_singularity]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 2880
     strategy:
