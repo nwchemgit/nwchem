@@ -11,7 +11,7 @@ jobs:
       inherit
   build_singularity:
     needs: [build_workflow]
-    uses: edoapra/nwchem-singularity/.github/workflows/apptainer_action.ifx.yml
+    uses: edoapra/nwchem-singularity/.github/workflows/apptainer_action.ifx.yml@master
     secrets:
       inherit
   build:
