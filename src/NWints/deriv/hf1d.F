@@ -21,6 +21,7 @@ C LB
                         ! as different atom integrals. This is necessary
                         ! when calculating the half-derivative overlap
                         ! matrix for NADCTs
+      integer ictrA, ictrB !NB already used implicitly
 C LB
 
       Logical dryrun

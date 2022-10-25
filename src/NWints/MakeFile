@@ -4,7 +4,7 @@
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
 
-SUBDIRS = api int auxil ints_sp deriv texas ecp hondo dk rel
+SUBDIRS = api int auxil ints_sp deriv texas ecp hondo dk rel aoints sifs
 
 OBJ =          $(OBJDIR)\intgrl_input.obj
 

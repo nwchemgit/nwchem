@@ -163,8 +163,9 @@ c:tex-\end{verbatim}
         max_type0 = 0
         max_type1 = 0
         max_type2 = 0
+        mem=0
       else
-        call dcopy (n_intt*n_blk,zero,0,ecp_ints,1)
+        call ycopy (n_intt*n_blk,zero,0,ecp_ints,1)
         if (debug_addresses) write (LuOut,*) 'memscr =',memscr
         if (memscr .lt. 0) call errquit (
      &      'Insufficient scratch memory in ecp_integral',99, MEM_ERR)
@@ -235,7 +236,7 @@ C     &        'zeta_C','E',81,5)
 C          call ecp_matpr (coef_C,1,n_zeta_C,1,1,i_zeta,i_zeta+n-1,1,1,
 C     &        'coef_C','E',81,5)
 C        end if
-        if (.not.DryRun) call dcopy (n_intt*n_blk,zero,0,scr,1)
+        if (.not.DryRun) call ycopy (n_intt*n_blk,zero,0,scr,1)
         i_zeta = ind_z(-1,i)
         i_coef = ind_c(-1,i)
         if ((i_c_A .eq. i_c_C) .and. (i_c_B .eq. i_c_C)) then
@@ -359,7 +360,7 @@ C        end if
 *     Add integrals from this centre to the total.
 *
         if (.not.DryRun) then
-          call daxpy (n_intt*n_blk,one,scr,1,ecp_ints,1)
+          call yaxpy (n_intt*n_blk,one,scr,1,ecp_ints,1)
           if (debug_arrays) then
             n = 1
             do j = 1,n_blk

@@ -219,6 +219,7 @@ do
       exit 1
     fi
   fi
+  echo "       scrath = $SCRATCHDIR"
 
   echo "     copying input and verified output files"
 

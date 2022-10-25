@@ -70,6 +70,8 @@ c
       integer nxtask, task_size
       external nxtask
 C LB
+c      hlfdrv= true => calculate half-derivative overlap ints for nadtrc
+c      hlfdrv= fals => half-deriv overlap ints not needed for gradients
       LOGICAL hlfdrv !true = calculate half-derivative overlap integrals
 C LB
 

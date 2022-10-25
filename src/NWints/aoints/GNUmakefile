@@ -9,14 +9,14 @@ include ../../config/makefile.h
                     rdhcid.o egrad_trace.o rd1mat.o sif2ga.o \
                     sif2da_2e_sort.o sif2arr.o rd_d2bl.o \
                     d2geri_trace.o dint_block_trc.o sequ.o sopgrdtrc.o \
-                    atr_grad.o asif2ga.o adaovl.o intd_1eaov.o \
+                    atr_grad.o asif2ga.o adaovl.o intd_1eov.o \
                     print_dint_block.o print_soblock.o trc_soblock.o \
                     int_mom_sifs.o hdoverlap.o 
 
      LIBRARY = libnwints.a
 
 LIB_INCLUDES = -I../../nwdft/grid -I../../nwdft/include \
- -I../../ddscf
+ -I../../ddscf -I../../nwdft/util
 
 include ../../config/makelib.h
 

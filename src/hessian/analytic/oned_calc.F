@@ -40,6 +40,7 @@ cc AJL/Begin/SPIN ECPs
 cc AJL/End
 C LB
       LOGICAL hlfdrv !true = calculate half-derivative overlap integrals
+                        ! for nadtrc
 C LB
 c
       nproc = ga_nnodes()

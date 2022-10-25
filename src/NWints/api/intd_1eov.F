@@ -375,7 +375,7 @@ c
             call spcart_tran1e(Ova(1,Zyx,Zatom),scr,
      &          j_nbf_x,i_nbf_x,0,jgen,
      &          j_nbf_s,i_nbf_s,Itype,igen,
-     &          .false.)
+     &          .true.)
           enddo
         enddo
       else if (bas_spherical(jbas)) then

@@ -52,6 +52,10 @@ c:tex-
      &    o_do_full = .false.
 c
       call int_mem_zero()
+cgk
+      lmem_1e=0
+      lsz_1e=0
+cgk
 c
       nbfmax = 0
       do 00100 ibas = 1,nbas

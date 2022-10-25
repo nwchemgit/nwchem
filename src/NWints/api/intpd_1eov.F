@@ -76,6 +76,8 @@ c... statement function for int_chk_sh
       inline_chk_sh(ibas,ish) =
      $    ((ish.gt.0) .and. (ish.le.ncont_tot_gb(ibas)))
 c
+
+      hlfdrv=.false. ! not calculating half-derivative overlap matrix
 c check initialization and shells
 c
       if (.not.int_chk_init('intpd_1eov'))
