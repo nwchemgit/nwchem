@@ -2166,8 +2166,8 @@ c        call D3dB_rr_daxpy(1,(-2.0d0*c1*c2),vcge,vcee)
       external coulomb_e,ewald_e,ion_ion_e
 
       !write(*,*) "ENTER 2x2 ne GRADIENT"
-c     oprint = .false.
-      oprint = .true.
+      oprint = .false.
+c      oprint = .true.
 
       !*** generate psilumo_r ****
       call Pack_c_Copy(1,psilumo,psilumo_r)
@@ -2535,7 +2535,7 @@ c
 
 c     call Parallel_taskid(taskid)
       !write(*,*) "ENTER 3x3 GRADIENT"
-      oprint = .true.
+      oprint = .false.
 c     oprint = (taskid.eq.MASTER)
 c     oprint = .false.
 c     if (oprint) then
@@ -2990,8 +2990,8 @@ c     common / CI_Hgg_common / Hgg
       external coulomb_e,ewald_e,ion_ion_e
 
 c     write(*,*) "ENTER 3x3 GRADIENT"
-      oprint = .true.
-c     oprint = .false.
+c      oprint = .true.
+      oprint = .false.
 
       !*** generate psilumo_r ****
       call Pack_c_Copy(1,psilumo,psilumo_r)
