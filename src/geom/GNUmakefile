@@ -38,7 +38,7 @@ include ../config/makelib.h
             FOPTIMIZE += -O0
     endif
   endif
-  ifeq ($(FC),ifort)
+  ifeq ($(_FC),ifort)
             FOPTIONS += -save
   endif
   ifeq ($(_FC),xlf)
