@@ -2425,7 +2425,7 @@ c        call D3dB_rr_daxpy(1,(-2.0d0*c1*c2),vcge,vcee)
       call Pack_cc_daxpy(1,2.0d0*c2*c2,h1psie,dEdpsie)
       E = Elow
       !if (oprint) write(*,*) "2x2ne c1,c2=",c1,c2
-      write(*,*) "2x2ne c1,c2=",c1,c2,Elow
+      !write(*,*) "2x2ne c1,c2=",c1,c2,Elow
 
       if (oprint) then
          call Pack_cc_dot(1,psig,h1psie,c1)
