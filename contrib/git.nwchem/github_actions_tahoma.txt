@@ -22,6 +22,9 @@ jobs:
       matrix:
         os:
           - [self-hosted, centos7]
+        branch:
+          - master
+          - release-7-2-0
         sing_image:
           - ompi41x.ifort
           - ompi41x.ifx
@@ -36,6 +39,13 @@ jobs:
         MPIRUN_NPOPT: -n
         NWCHEM_EXECUTABLE: "singularity exec /big_scratch/nwchems.img nwchem "
     steps:
+    - name: nwchem version tag
+      run: |
+        if [[ ${{ matrix.branch }} ==  master ]]; then
+          echo "nwversion=dev" >> $GITHUB_ENV
+        else
+          echo "nwversion=702" >> $GITHUB_ENV
+        fi
       - name:  dir name
         run: |
           echo "dirname=nwchem.${{ github.run_id }}.${{ github.run_number }}.${{ matrix.sing_image }}" >> $GITHUB_ENV
@@ -52,7 +62,7 @@ jobs:
       - name: load singularity image
         run: |
           export https_proxy=http://proxy.emsl.pnl.gov:3128
-          singularity pull -F --name ./nwchems_`id -u`.img oras://ghcr.io/edoapra/nwchem/nwchem-dev.${{ matrix.sing_image }}:latest
+          singularity pull -F --name ./nwchems_`id -u`.img oras://ghcr.io/edoapra/nwchem/nwchem-${{ matrix.nwversion }}.${{ matrix.sing_image }}:latest
           srun -N $SLURM_NNODES -n $SLURM_NNODES cp ./nwchems_`id -u`.img /big_scratch/nwchems.img
         shell: bash
       - name: run qa tests
