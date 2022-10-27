@@ -62,7 +62,7 @@ jobs:
       - name: load singularity image
         run: |
           export https_proxy=http://proxy.emsl.pnl.gov:3128
-          singularity pull -F --name ./nwchems_`id -u`.img oras://ghcr.io/edoapra/nwchem/nwchem-${{ matrix.nwversion }}.${{ matrix.sing_image }}:latest
+          singularity pull -F --name ./nwchems_`id -u`.img oras://ghcr.io/edoapra/nwchem/nwchem-${{ env.nwversion }}.${{ matrix.sing_image }}:latest
           srun -N $SLURM_NNODES -n $SLURM_NNODES cp ./nwchems_`id -u`.img /big_scratch/nwchems.img
         shell: bash
       - name: run qa tests
