@@ -39,13 +39,13 @@ jobs:
         MPIRUN_NPOPT: -n
         NWCHEM_EXECUTABLE: "singularity exec /big_scratch/nwchems.img nwchem "
     steps:
-    - name: nwchem version tag
-      run: |
-        if [[ ${{ matrix.branch }} ==  master ]]; then
-          echo "nwversion=dev" >> $GITHUB_ENV
-        else
-          echo "nwversion=702" >> $GITHUB_ENV
-        fi
+      - name: nwchem version tag
+        run: |
+          if [[ ${{ matrix.branch }} ==  master ]]; then
+            echo "nwversion=dev" >> $GITHUB_ENV
+          else
+            echo "nwversion=702" >> $GITHUB_ENV
+          fi
       - name:  dir name
         run: |
           echo "dirname=nwchem.${{ github.run_id }}.${{ github.run_number }}.${{ matrix.sing_image }}" >> $GITHUB_ENV
