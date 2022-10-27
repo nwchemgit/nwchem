@@ -65,7 +65,7 @@ jobs:
           module load openmpi/4.1.4
           export https_proxy=http://proxy.emsl.pnl.gov:3128
           export MPIRUN_PATH=`which srun`
-          MYNN=$(( $SLURM_NNODES*$SLURM_CPUS_ON_NODE ))
+          MYNN=$(( $SLURM_NNODES*$SLURM_NTASKS_PER_NODE ))
           echo MYNN is $MYNN
           ./doqmtests.mpi  $MYNN flaky | tee >(ts "%d%b%Y %H:%M:%S" > ../../../../doqmtests.mpi.log.` date +%b%d%Y_%H:%M`)
         shell: bash
