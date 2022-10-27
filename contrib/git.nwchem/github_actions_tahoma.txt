@@ -44,7 +44,7 @@ jobs:
           if [[ ${{ matrix.branch }} ==  master ]]; then
             echo "nwversion=dev" >> $GITHUB_ENV
           else
-            echo "nwversion=702" >> $GITHUB_ENV
+            echo "nwversion=720" >> $GITHUB_ENV
           fi
       - name:  dir name
         run: |
