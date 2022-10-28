@@ -32,7 +32,9 @@
 export HYDRA_DEBUG=0
 # find memory leaks using  this glibc feature that
 # initialized memory blocks to non-zero values
-export MALLOC_PERTURB_=$(($RANDOM % 255 + 1))
+if [[ -z "${USE_ASAN}" ]]; then
+    export MALLOC_PERTURB_=$(($RANDOM % 255 + 1))
+fi    
 
 if [[ -z "${NWCHEM_TARGET}" ]]; then
     UNAME_S=$(uname -s)
