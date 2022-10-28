@@ -902,7 +902,7 @@ c     >           dcpl_mb(psi1(1)),1)
       maxerror  = control_tole()
       if (oprint) then
          write(luout,*) 
-         write(luout,*) "COVOs Mimimization"
+         write(luout,*) "COVOs Minimization"
          write(luout,*) "------------------"
          write(luout,'(A,I9)') "CI gradient algorithm = ",ci_algorithm
          write(luout,'(A,I9)') "maxit_sweeps          = ",maxit_sweeps
@@ -1992,7 +1992,7 @@ c     if (oprint) write(*,*) "Eion=",Eion
          call coulomb_v(rho,vcc)
          call Pack_c_unpack(0,vcc)
          call D3dB_cr_fft3b(1,vcc)
-         call D3dB_c_Copy(1,vcc,vcee)
+         call D3dB_r_Copy(1,vcc,vcee)
          call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
          call pspw_potential_HFX(ispin,psie_r,hpsig_r)
          call pspw_energy_HFX(ispin,psie_r,ehfx,phfx)
@@ -2018,7 +2018,7 @@ c        H2ge = coulomb_e(rho)
 c        call coulomb_v(rho,vcc)
 c        call Pack_c_unpack(0,vcc)
 c        call D3dB_cr_fft3b(1,vcc)
-c        call D3dB_c_Copy(1,vcc,vcge)
+c        call D3dB_r_Copy(1,vcc,vcge)
          call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
          call D3dB_r_nZero(1,neq(1)+neq(2),hpsie_r)
          call pspw_potential_HFX2_dnc(ispin,psig_r,psie_r,
@@ -2272,7 +2272,7 @@ c    >                             "Exchangegg=",ehfx
       !*** generate HF energy and gradient of state psie ****
 *     *** generate <e|H|e> ***
       call Pack_c_Copy(1,psilumo,psig)
-      call D3dB_c_Copy(1,psilumo_r,psig_r)
+      call D3dB_r_Copy(1,psilumo_r,psig_r)
 
 *     **** apply H1 operator ****
       call psi_H1psi(ispin,neq,npack1,n2ft3d,psig,psig_r,hpsig)
@@ -2321,7 +2321,7 @@ c    >                          "Exchangeee=",ehfx
          call coulomb_v(rho,vcc)
          call Pack_c_unpack(0,vcc)
          call D3dB_cr_fft3b(1,vcc)
-         call D3dB_c_Copy(1,vcc,vcee)
+         call D3dB_r_Copy(1,vcc,vcee)
          call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
          call pspw_potential_HFX(ispin,psig_r,hpsig_r)
          call pspw_energy_HFX(ispin,psig_r,ehfx,phfx)
@@ -2334,9 +2334,9 @@ c    >                          "Exchangeee=",ehfx
       end if
 
       call Pack_c_Copy(1,psihomo,psig)
-      call D3dB_c_Copy(1,psihomo_r,psig_r)
+      call D3dB_r_Copy(1,psihomo_r,psig_r)
       call Pack_c_Copy(1,psilumo,psie)
-      call D3dB_c_Copy(1,psilumo_r,psie_r)
+      call D3dB_r_Copy(1,psilumo_r,psie_r)
 
 
 *     *** generate <e|H|g> ***
@@ -2362,7 +2362,7 @@ c        H2ge = coulomb_e(rho)
 c        call coulomb_v(rho,vcc)
 c        call Pack_c_unpack(0,vcc)
 c        call D3dB_cr_fft3b(1,vcc)
-c        call D3dB_c_Copy(1,vcc,vcge)
+c        call D3dB_r_Copy(1,vcc,vcge)
          call D3dB_r_nZero(1,neq(1)+neq(2),hpsie_r)
          call pspw_potential_HFX2_dnc(ispin,psig_r,psie_r,
      >                                   hpsig_r,hpsie_r,
@@ -3132,7 +3132,7 @@ c      oprint = .true.
       Heg = Hge
 
       call Pack_c_Copy(1,psilumo,psig)
-      call D3dB_c_Copy(1,psilumo_r,psig_r)
+      call D3dB_r_Copy(1,psilumo_r,psig_r)
 
 *     *** generate <e|H|e> ***
       call psi_H1psi(ispin,neq,npack1,n2ft3d,psig,psig_r,hpsie)
@@ -3231,9 +3231,9 @@ c      oprint = .true.
       end if
 
       call Pack_c_Copy(1,psihomo,psig)
-      call D3dB_c_Copy(1,psihomo_r,psig_r)
+      call D3dB_r_Copy(1,psihomo_r,psig_r)
       call Pack_c_Copy(1,psilumo,psie)
-      call D3dB_c_Copy(1,psilumo_r,psie_r)
+      call D3dB_r_Copy(1,psilumo_r,psie_r)
 
       if (oprint) write(*,*) "H1gg=",H1gg," H1ge=",H1ge," H1gm=",H1gm
       if (oprint) write(*,*) "H1eg=",H1eg," H1ee=",H1ee," H1em=",H1em
