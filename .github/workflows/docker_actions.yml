@@ -66,6 +66,7 @@ jobs:
       - name: print env
         run: |
           echo 'GITHUB_REF_NAME' $GITHUB_REF_NAME
+          echo "nwchem_branch=$(echo $GITHUB_REF_NAME)" >> $GITHUB_ENV 
           echo 'GITHUB_REF_TYPE' $GITHUB_REF_TYPE
       - name: build_schedule
         uses: docker/build-push-action@v3
@@ -78,7 +79,7 @@ jobs:
           build-args: |
             FC=${{ matrix.fc }}
             CACHE_HIT=${{ steps.cache-hit-reporter.outputs.value }}
-            NWCHEM_BRANCH=$GITHUB_REF_NAME
+            NWCHEM_BRANCH=${{ env.nwchem_branch }}
       - name: store cache
         run: |
             mkdir -p ~/cache/
