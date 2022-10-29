@@ -685,7 +685,8 @@ echo 'Please check the final values for the last optimized structure.'
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np dielsalder
 let "myexit+=$?"
-./runtests.mpi.unix procs $np talc
+np_small=$(get_limit $np 16)
+./runtests.mpi.unix procs $np_small talc
 let "myexit+=$?"
 echo 'The intermediate energy values for the numerical gradient '
 echo 'test may cause some differences.'
