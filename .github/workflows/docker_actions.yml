@@ -63,6 +63,10 @@ jobs:
           cond: ${{ steps.setup-cache.outputs.cache-hit != '' }}
           if_true: "Y"
           if_false: "N"
+      - name: print env
+          run: |
+              echo 'GITHUB_REF_NAME' $GITHUB_REF_NAME
+              echo 'GITHUB_REF_TYPE' $GITHUB_REF_TYPE
       - name: build_schedule
         uses: docker/build-push-action@v3
         with:
@@ -74,6 +78,7 @@ jobs:
           build-args: |
             FC=${{ matrix.fc }}
             CACHE_HIT=${{ steps.cache-hit-reporter.outputs.value }}
+            NWCHEM_BRANCH=$GITUB_REF_NAME
       - name: store cache
         run: |
             mkdir -p ~/cache/
