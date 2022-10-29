@@ -78,7 +78,7 @@ jobs:
           build-args: |
             FC=${{ matrix.fc }}
             CACHE_HIT=${{ steps.cache-hit-reporter.outputs.value }}
-            NWCHEM_BRANCH=$GITUB_REF_NAME
+            NWCHEM_BRANCH=$GITHUB_REF_NAME
       - name: store cache
         run: |
             mkdir -p ~/cache/
