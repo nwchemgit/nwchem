@@ -66,7 +66,8 @@ jobs:
       - name: print env
         run: |
           echo 'GITHUB_REF_NAME' $GITHUB_REF_NAME
-          echo "nwchem_branch=$(echo $GITHUB_REF_NAME)" >> $GITHUB_ENV 
+          echo "nwchem_branch=$(echo $GITHUB_REF_NAME)" >> $GITHUB_ENV
+          echo " ${{ github.ref_name }} "  ${{ github.ref_name }} ||true
           echo 'GITHUB_REF_TYPE' $GITHUB_REF_TYPE
       - name: build_schedule
         uses: docker/build-push-action@v3
