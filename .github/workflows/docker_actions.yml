@@ -75,6 +75,7 @@ jobs:
             FC=${{ matrix.fc }}
             CACHE_HIT=${{ steps.cache-hit-reporter.outputs.value }}
             NWCHEM_BRANCH=${{ github.ref_name }}
+            GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
       - name: store cache
         run: |
             mkdir -p ~/cache/
