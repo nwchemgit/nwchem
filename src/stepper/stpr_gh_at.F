@@ -369,7 +369,8 @@ c
       endif
             if(.not. rtdb_get(rtdb,'task:gradient',MT_DBL,
      &          rank_hess,dbl_mb(k_gradm)))
-     &          call errquit('stpr_gen_hess_at: rtdb_get failed',38)
+     &          call errquit('stpr_gen_hess_at: rtdb_get failed',38,
+     R     RTDB_ERR)
             if(.not. rtdb_get(rtdb,'task:dipole',mt_dbl,
      &          3,mdipole)) dipole_okay = .false.
       endif
