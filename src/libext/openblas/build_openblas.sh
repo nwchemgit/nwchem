@@ -136,10 +136,11 @@ elif  [[ -n ${FC} ]] && [[ "${FC}" == "ifort" ]] || [[ "${FC}" == "ifx" ]]; then
     LAPACK_FPFLAGS_VAL=" -fp-model source -O2 -g "
 else
 	#assuming gfortran
+    FORCETARGET+=' F_COMPILER=GFORTRAN '
     LAPACK_FPFLAGS_VAL=" "
         if [[ ${BLAS_SIZE} == 8 ]]; then
-	    LAPACK_FLAGS_VAL+=" -fdefault-integer-8"
-	fi
+           LAPACK_FPFLAGS_VAL+=" -fdefault-integer-8"
+       fi
 fi
 if [[   -z "${CC}" ]]; then
     CC=cc
@@ -187,7 +188,8 @@ if [[  ! -z "${USE_OPENMP}" ]]; then
     unset USE_OPENMP
     NWCHEM_USE_OPENMP=1
 fi
-echo make $FORCETARGET LAPACK_FPFLAGS=$LAPACK_FPFLAGS_VAL  INTERFACE64=$sixty4_int BINARY=$binary NUM_THREADS=$MYNTS NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD=$THREADOPT  libs netlib -j4
+echo FC is $FC
+echo make FC=$FC $FORCETARGET LAPACK_FPFLAGS=$LAPACK_FPFLAGS_VAL  INTERFACE64=$sixty4_int BINARY=$binary NUM_THREADS=$MYNTS NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD=$THREADOPT  libs netlib -j4
 echo
 echo OpenBLAS compilation in progress
 echo output redirected to libext/openblas/OpenBLAS/openblas.log
@@ -195,7 +197,7 @@ echo
 if [[ ${_FC} == xlf ]]; then
  make FC="xlf -qextname" $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=$MYNTS NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4 >& openblas.log
 else
- make $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4 >& openblas.log
+ make FC=$FC $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4 >& openblas.log
 fi
 if [[ "$?" != "0" ]]; then
     tail -500 openblas.log
