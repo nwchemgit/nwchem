@@ -887,6 +887,9 @@ c     >           dcpl_mb(psi1(1)),1)
       call Parallel_taskid(taskid)
       oprint= ((taskid.eq.MASTER).and.control_print(print_medium))
 
+      !*** need to redo cr_fft of psi1 ***
+      if (ci_algorithm.ge.5) call electron_gen_psi_r(dcpl_mb(psi1(1)))
+
       Hgg = 0.0d0
 
       if (.not.BA_push_get(mt_dcpl,npack1,'g93',g93(2),g93(1)))
@@ -2049,7 +2052,7 @@ c        H2ge = H2ge + ehfx
       Hge = H1ge + H2ge 
       Hee = H1ee + H2ee + Eion
 c     if (oprint) write(*,*) "Hgg=",Hgg," Hge=",Hge," Hee=",Hee
-      write(*,*) "Hgg=",Hgg," Hge=",Hge," Hee=",Hee
+      !write(*,*) "Hgg=",Hgg," Hge=",Hge," Hee=",Hee
       A = 1.0d0
       B = -Hgg - Hee
       C = Hgg*Hee - Hge*Hge
@@ -2213,6 +2216,7 @@ c      oprint = .true.
       !*** generate Hgg if Hgg==0 ***
 *     *** generate <g|H|g> ***
       if (dabs(Hgg).lt.1.0d-9) then
+
 *        **** apply H1 operator ****
          call psi_H1psi(ispin,neq,npack1,n2ft3d,psig,psig_r,hpsig)
          H1gg=0.0d0
@@ -2397,7 +2401,7 @@ c        call D3dB_rr_Sum2(1,hpsie_r,vcge)
       c1 =  1.0d0/dsqrt(1.0d0+lmbda**2)
       !c2 =  dsqrt(1.0d0-c1*c1)
       c2 =  lmbda/dsqrt(1.0d0+lmbda**2)
-      !write(*,*) "Elow=",Elow," Ehigh=",Ehigh
+      if (oprint)  write(*,*) "Elow=",Elow," Ehigh=",Ehigh 
       !write(*,*)
 
 *     **** generate dElow/dpsie ****
@@ -3767,7 +3771,6 @@ c     write(*,*) ciE(1),ciE(2),ciE(3),ciE(4)
 
 
 *     **** get H1psi  ****
-      !call dcopy(2*nemaxq*npack1,0.0d0,0,H1psi,1)
       call Parallel_shared_vector_zero(.true.,2*nemaxq*npack1,H1psi)
       if (aperiodic) then
          call psi_H1v4(ispin,neq,psi,psi_r,
