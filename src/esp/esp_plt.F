@@ -8,7 +8,9 @@ c
 #include "esp_common.fh"
 #include "global.fh"
 #include "msgids.fh"
+#include "geom.fh"
 #include "util.fh"
+#include "errquit.fh"
 c
       real*8 x(3,natoms),q(ndim,4)
       real*8 g(*)
@@ -83,6 +85,7 @@ c
 c
       call util_file_name('xyz',.false.,.false.,xyzfil)
       open(unit=lfnxyz,file=xyzfil,form='formatted',status='unknown')
+#if 0      
       write(lfnxyz,2000) natoms
  2000 format('* Coordinates in XYZ format',/,i5)
       do 5 i=1,natoms
@@ -90,6 +93,11 @@ c
      + (10.0d0*cau2nm*x(j,i),j=1,3),q(i,4)
  2001 format(a,t3,4f12.6)
     5 continue
+#else
+      if(.not.geom_print_xyz(igeom, lfnxyz))
+     A     call errquit(' failed geom_print_xyz',
+     E     0, GEOM_ERR)
+#endif      
       close(lfnxyz)
       endif
 c
