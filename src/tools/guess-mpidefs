@@ -158,6 +158,10 @@ function get_mpi_lib ()
         outlist="${outlist} ${word}"
       fi
    done
+   # homebrew hwloc
+   if pkg-config --exists hwloc; then
+       outlist="${outlist} $(pkg-config --libs-only-L hwloc 2> /dev/null) -lhwloc"
+   fi
    echo ${outlist}
 }
 function get_mpi_fortran ()
