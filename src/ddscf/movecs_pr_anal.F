@@ -249,7 +249,8 @@ c
 c     create a global array to store x, y, z and x^2, y^2, z^2 for each AO
 c
       if (.not. ga_create(mt_dbl, 6*nbf, nbf, 'GXLM',
-     $     32,32,g_xlm)) call errquit('mo_r_and_r2: g_xlm',6*nbf*nbf,
+c     $     32,32,g_xlm)) call errquit('mo_r_and_r2: g_xlm',6*nbf*nbf,
+     $     nbf,32,g_xlm)) call errquit('mo_r_and_r2: g_xlm',6*nbf*nbf,
      &       GA_ERR)
 c
 c     compute dipoles and quadrupole components for each AO
@@ -301,6 +302,7 @@ c
 #include "geom.fh"
 #include "stdio.fh"
 #include "util_params.fh"
+#include "util.fh"
 c     
       integer basis             ! [input] basis 
       double precision center(3) ! [input] the expansion center
@@ -318,6 +320,9 @@ c
       integer ilo, ihi, jlo, jhi, idim, jdim, ind, i, j, l, ioff
       integer l_scr, k_scr, l_mp, k_mp
       integer lmax              ! Maximum value of L = 2
+      integer clo, chi, rlo, rhi
+      integer type, dim1, dim2
+      logical doloop, oprint
 c
       if (.not. bas_geom(basis, geom)) call errquit
      $     ('multipole: bad basis', 0, BASIS_ERR)
@@ -349,11 +354,30 @@ c
      &     call errquit('xlm_pole: cannot allocate scratch', maxscr,
      &       MA_ERR)
 c     
+      call ga_distribution(g_xlm,
+     .     ga_nodeid(), rlo, rhi, clo, chi)
+      doloop=.not.(rlo.eq.0.and.rhi.eq.-1.and.clo.eq.0.and.chi.eq.-1)
+      call ga_inquire(g_xlm, type, dim1, dim2)
+      oprint=(ga_nodeid() .eq. 0 .and. 
+     $     util_print('debug_xlm_make', print_debug))
+      if(oprint) then
+         write(luout,*) ' dim1 dim2 ',dim1,dim2
+         write(luout,*) ' rlo rhi ',rlo,rhi
+         write(luout,*) ' clo chi ',clo,chi
+      endif
       call ga_zero(g_xlm)
+       nproc=0
+       if(doloop) nproc=1
+       call ga_igop(65536,nproc,1,'+')
+       if(oprint) then
+          write(luout,*) ' using ',nproc,
+     C      ' nodes out of ',ga_nnodes()
+          call util_flush(6)
+       endif
 c
+      if (doloop) then
       ijshell = -1
       me = ga_nodeid()
-      nproc = ga_nnodes()
       do ishell = 1, nshell
          if (.not. bas_cn2bfr(basis, ishell, ilo, ihi)) call errquit
      &        ('xlm_pole: bas_cn2bfr failed for basis', basis,
@@ -429,6 +453,7 @@ c
          end do
       end do
 c
+      endif
       call ga_sync
 c
 c      write(LuOut,*) ' THE AO MPOLES '
