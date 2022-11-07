@@ -50,8 +50,8 @@ echo DISTR is "$DISTR"
 	dir_hpc="18681"
 	base="m_BaseKit_p_2022.2.0.226"
 	hpc="m_HPCKit_p_2022.2.0.158"
-	curl -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_base"/"$base".dmg
-	curl -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".dmg
+	curl -sS -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_base"/"$base".dmg
+	curl -sS -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".dmg
 	echo "installing BaseKit"
 	hdiutil attach "$base".dmg  -mountpoint ~/mntdmg -nobrowse
 	sudo  ~/mntdmg/bootstrapper.app/Contents/MacOS/install.sh  -c -s --action install  \
@@ -129,8 +129,8 @@ fi
 	dir_hpc="18679"
 	base="l_BaseKit_p_2022.2.0.262"
 	hpc="l_HPCKit_p_2022.2.0.191"
-        wget https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".sh \
-        && wget https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_base"/"$base".sh \
+        wget -nv https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".sh \
+        && wget -nv  https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_base"/"$base".sh \
 	    && break ;\
             tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
 
@@ -180,7 +180,7 @@ fi
 	if [[ "USE_AOMP" == "Y" ]]; then
 	    aomp_major=15
 	    aomp_minor=0-2
-	    wget https://github.com/ROCm-Developer-Tools/aomp/releases/download/rel_"$aomp_major"."$aomp_minor"/aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
+	    wget -nv https://github.com/ROCm-Developer-Tools/aomp/releases/download/rel_"$aomp_major"."$aomp_minor"/aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
 	    sudo dpkg -i aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
 	    export PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/bin/:$PATH
 	    export LD_LIBRARY_PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/lib:$LD_LIBRARY_PATH
@@ -188,7 +188,7 @@ fi
 	else
 	    aocc_version=3.2.0
 	    aocc_dir=aocc-compiler-${aocc_version}
-	    curl -LJO https://developer.amd.com/wordpress/media/files/${aocc_dir}.tar
+	    curl -sS -LJO https://developer.amd.com/wordpress/media/files/${aocc_dir}.tar
 	    tar xf ${aocc_dir}.tar
 	    ./${aocc_dir}/install.sh
 	    source setenv_AOCC.sh
