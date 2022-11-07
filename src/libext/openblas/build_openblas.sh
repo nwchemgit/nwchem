@@ -158,6 +158,10 @@ if [[ "$FORCETARGET" == *"SKYLAKEX"* ]]; then
 	exit 1
     fi
 fi
+# cross compilation
+if [[ "${GOTMINGW64}" == "1" ]]; then
+    FORCETARGET+=HOSTCC=\"gcc\"
+fi
 #this fixes avx512 detection for icc
 if [[ "${CC}" == "icc" ]]; then
     FORCETARGET+=HOSTCC=\"icc -xhost\"
