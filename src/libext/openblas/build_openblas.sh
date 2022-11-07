@@ -180,6 +180,12 @@ else
     THREADOPT="1"
     MYNTS="128"
 fi
+# cross compilation
+if [[ "${GOTMINGW64}" == "1" ]]; then
+    FORCETARGET+=HOSTCC=\"gcc\"
+    THREADOPT="0"
+    MYNTS="1"
+fi
 
 #we want openblas to use pthreads and not openmp.
 #but NWChem and OpenBLAS both use USE_OPENMP
