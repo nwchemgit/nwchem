@@ -3,6 +3,15 @@ rm -f gamalloc.patch
 cat > gamalloc.patch <<EOF
 --- $1/global/src/ga_malloc.c
 +++ $1/global/src/ga_malloc.c
+@@ -8,7 +8,7 @@
+ #include "globalp.h"
+ #include "ga-papi.h"
+ #include "ga-wapi.h"
+-#define GA_MAXMEM_AVAIL ( ( (long)1 << (8*sizeof(Integer)-2) ) -1)
++#define GA_MAXMEM_AVAIL ( ( (size_t)1 << (8*sizeof(Integer)-2) ) -1)
+ #define CHECK           0
+ #define ALIGNMENT       sizeof(DoubleComplex)
+ 
 @@ -28,7 +28,7 @@
  void* ga_malloc(Integer nelem, int type, char *name)
  {
@@ -26,6 +35,7 @@ cat > gamalloc.patch <<EOF
                 (size_t)bytes, (int)item_size, name);
      }
  
+
 EOF
 patch -p0 -s -N < gamalloc.patch
 echo gamalloc.patch applied
