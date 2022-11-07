@@ -158,10 +158,6 @@ if [[ "$FORCETARGET" == *"SKYLAKEX"* ]]; then
 	exit 1
     fi
 fi
-# cross compilation
-if [[ "${GOTMINGW64}" == "1" ]]; then
-    FORCETARGET+=HOSTCC=\"gcc\"
-fi
 #this fixes avx512 detection for icc
 if [[ "${CC}" == "icc" ]]; then
     FORCETARGET+=HOSTCC=\"icc -xhost\"
@@ -183,6 +179,12 @@ fi
 else
     THREADOPT="1"
     MYNTS="128"
+fi
+# cross compilation
+if [[ "${GOTMINGW64}" == "1" ]]; then
+    FORCETARGET+=HOSTCC=\"gcc\"
+    THREADOPT="0"
+    MYNTS="1"
 fi
 
 #we want openblas to use pthreads and not openmp.
