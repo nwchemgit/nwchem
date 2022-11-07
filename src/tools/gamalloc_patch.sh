@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 rm -f gamalloc.patch
-cat > gamlloc.patch <<EOF
+cat > gamalloc.patch <<EOF
 --- $1/global/src/ga_malloc.c
 +++ $1/global/src/ga_malloc.c
 @@ -28,7 +28,7 @@
