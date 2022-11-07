@@ -114,6 +114,7 @@ fi
     fi
     if [[ "$MPI_IMPL" == "intel" || "$FC" == "ifort" || "$FC" == "ifx" ]]; then
 	export APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
+	export TERM=dumb
         rm -f l_Base*sh l_HP*sh
         tries=0 ; until [ "$tries" -ge 10 ] ; do \
 	dir_base="18673"
@@ -134,7 +135,10 @@ fi
     sudo apt-get -y install software-properties-common
     sudo add-apt-repository universe && sudo apt-get update
 #    sudo apt-get -y install gfortran python3-dev python-dev cmake "$mpi_libdev" "$mpi_bin" "$scalapack_libdev"  make perl  libopenblas-dev python3 rsync
-    sudo apt-get -y install gfortran python3-dev make "$mpi_libdev" "$mpi_bin"  make perl  python3 rsync
+    sudo apt-get -y install gfortran python3-dev  make perl  python3 rsync
+    if [[ "$MPI_IMPL" != "intel" ]]; then
+	sudo apt-get -y install "$mpi_libdev" "$mpi_bin"
+    fi
     echo "mpif90 -show output is " `mpif90 -show` || true
     echo "which mpif90 output is " `which mpif90` ||  true
     if [[ "$FC" == "gfortran-11" ]] || [[ "$CC" == "gcc-11" ]]; then
