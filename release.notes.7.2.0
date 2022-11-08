@@ -12,7 +12,16 @@ NWChem 7.2.0 will be released with the latest Global Arrays Toolkit (v5.8.2).
 
 NEW FUNCTIONALITY 
 
-TBD
+Modules:
+ Molecular GW
+
+Interfaces:
+ Plumed
+ Libxc
+ tblite
+ 
+env. variable USE_HWOPT: when USE_HWOPT=n all hardware (non-dynamic) optimizations are not  used (e.g. gcc -march=native)
+
    
 BUG FIXES/ENHANCEMENTS
 
