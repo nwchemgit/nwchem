@@ -100,8 +100,15 @@ else
     fcflags=" "
 fi
 rm -rf libxc/build
+if [[ "${USE_HWOPT}" == "n" ]]; then
+    enable_xhost_flag=OFF
+else
+    enable_xhost_flag=ON
+fi
+
 $CMAKE -E env CFLAGS="$cflags" LDFLAGS="$ldflags" FCFLAGS="$fcflags" FFLAGS="$fcflags" \
 $CMAKE  -DCMAKE_INSTALL_PREFIX=${NWCHEM_TOP}/src/libext/libxc/install -DCMAKE_C_COMPILER=$CC -DENABLE_FORTRAN=ON -DCMAKE_Fortran_COMPILER=$FC -DDISABLE_KXC=OFF \
+-DENABLE_XHOST="$enable_xhost_flag" \
 -DCMAKE_INSTALL_LIBDIR="lib" -DCMAKE_BUILD_TYPE=Release ..
 
 make -j4 | tee make.log
