@@ -49,6 +49,10 @@ c
       parameter (eps=1d-14)
 c
       logical otdebug
+      logical do_mirra,do_mirrb,do_mirr
+      integer g_ta_mirr,g_tb_mirr,g_ta_org,g_tb_org
+      logical util_mirrmat
+      external util_mirrmat
 c
       integer l_ia_uv, k_ia_uv, l_tmp, k_tmp, l_ia_jb, k_ia_jb
       double precision ddot
@@ -82,6 +86,24 @@ c
 *ga:1:0
       if(.not.ga_create(mt_dbl,nob*nvb,nva,'T_b',(nob*nvb),0,g_t_b))
      $     call errquit('could not alloc ga for T_b',1, GA_ERR)
+      do_mirra=util_mirrmat(1,g_t_a,g_ta_mirr,
+     D     .false., .true.)
+      do_mirrb=util_mirrmat(1,g_t_b,g_tb_mirr,
+     D        .false., .true.)
+         if(do_mirra.and.do_mirrb) then
+            if(ga_nodeid().eq.0)
+     w           write(6,*) 'mp2_make_tuhf mirroring'
+            do_mirr=.true.
+             g_ta_org=g_t_a
+             g_tb_org=g_t_b
+             g_t_a=g_ta_mirr
+             g_t_b=g_tb_mirr
+            else
+               if(do_mirra) then
+                  if(.not.ga_destroy(g_ta_mirr))call errquit(
+     $                 'could not destroy mirrt_a handle',1, GA_ERR)
+               endif
+            endif
       tunitptra=1
       tunitptrb=1
       do i=oseg_lo,oseg_hi 
@@ -189,6 +211,12 @@ c
             enddo
          enddo
          call ga_sync()
+         if (do_mirr) then
+            call ga_mask_sync(.true.,.false.)
+            call ga_merge_mirrored(g_t_a)
+            call ga_mask_sync(.true.,.false.)
+            call ga_merge_mirrored(g_t_b)
+         endif
          do a_a=nva_lo_local,nva_hi_local
             counta = 0
             do b=nva_lo,nva_hi
@@ -265,6 +293,15 @@ c
       esing = esing + (-4.0d0*eab + eaa)/4.0d0
       etrip = etrip + (-3.0d0*eaa)/4.0d0
 c
+      if(do_mirr) then
+         if(.not.ga_destroy(g_t_b))call errquit(
+     $        'could not destroy t_b handle',1, GA_ERR)
+         if(.not.ga_destroy(g_t_a))call errquit(
+     $        'could not destroy t_a handle',1, GA_ERR)
+             g_t_a=g_ta_org
+             g_t_b=g_tb_org
+       endif
+
       if(.not.ga_destroy(g_t_b))call errquit(
      $     'could not destroy t_b handle',1, GA_ERR)
       if(.not.ga_destroy(g_t_a))call errquit(
