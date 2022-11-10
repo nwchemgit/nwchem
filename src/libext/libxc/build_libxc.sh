@@ -12,6 +12,14 @@ if [ $# -eq 0 ];  then
 else
     VERSION=$1
 fi
+VERSION_MAJOR=$(echo $VERSION | cut -d . -f 1)
+if [[ "$VERSION_MAJOR" -lt 4 ]]; then
+    echo
+    echo "LIBXC unsupported version " "$VERSION"
+    echo "please use 4.0.0 and later versions"
+    echo
+    exit  1
+fi
 TGZ=libxc-${VERSION}.tar.gz
 if [ `check_tgz $TGZ` == 1 ]; then
     echo "using existing $TGZ"
