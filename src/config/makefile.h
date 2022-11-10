@@ -292,9 +292,6 @@ ifdef BUILD_SCALAPACK
         $(error )
     endif
 
-    ifndef SCALAPACK_SIZE
-        SCALAPACK_SIZE=8
-    endif
     SCALAPACK=-L$(NWCHEM_TOP)/src/libext/lib -lnwc_scalapack
 endif
 
@@ -2456,12 +2453,12 @@ ifneq ($(TARGET),LINUX)
 #
                 ifeq ($(_IFCV15ORNEWER), Y)
 		  IFORTVER=$(shell ifort -v 2>&1|cut -d " " -f 3)
-                ifeq ($(IFORTVER),2021.7.0)
-                   $(info     )
-                   $(info     ifort 2021.7.0 not validated)
-                   $(info     )
-                   $(error )
-                endif
+#                ifeq ($(IFORTVER),2021.7.0)
+#                   $(info     )
+#                   $(info     ifort 2021.7.0 not validated)
+#                   $(info     )
+#                   $(error )
+#                endif
 #                   fpp seems to get lost with ifort 15 in the offload bit
 #                   only use EXPLICITF for offload because otherwise we want debugging to be easy
 #                   FOPTIONS +=  -Qoption,fpp,-P -Qoption,fpp,-c_com=no  -allow nofpp_comments 
@@ -3884,8 +3881,24 @@ ifeq ($(shell echo $(BLASOPT) |awk '/lblas/ {print "Y"; exit}'),Y)
     DEFINES += -DBLAS_NOTHREADS
 endif
 
-ifndef BLAS_SIZE
-    LIB_DEFINES += -DUSE_INTEGER8
+ifneq ($(or $(SCALAPACK),$(SCALAPACK_LIB)),)
+   ifndef SCALAPACK_SIZE
+      $(info     )
+      $(info You must set)
+      $(info SCALAPACK_SIZE)
+      $(info )
+      $(error )
+   endif
+endif
+ifneq ($(or $(BLASOPT),$(BLAS_LIB)),)
+   ifndef BLAS_SIZE
+      $(info     )
+      $(info You must set)
+      $(info BLAS_SIZE)
+      $(info see https://nwchemgit.github.io/Compiling-NWChem.html#how-to-deal-with-integer-size-of-linear-algebra-libraries)
+      $(info )
+      $(error )
+   endif
 endif
 ifeq ($(BLAS_SIZE),8)
     LIB_DEFINES += -DUSE_INTEGER8
