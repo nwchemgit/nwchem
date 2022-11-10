@@ -117,10 +117,10 @@ fi
 	export TERM=dumb
         rm -f l_Base*sh l_HP*sh
         tries=0 ; until [ "$tries" -ge 10 ] ; do \
-	dir_base="18673"
-	dir_hpc="18679"
-	base="l_BaseKit_p_2022.2.0.262"
-	hpc="l_HPCKit_p_2022.2.0.191"
+	dir_base="18970"
+	dir_hpc="18975"
+	base="l_BaseKit_p_2022.3.1.17310"
+	hpc="l_HPCKit_p_2022.3.1.16997"
         wget -nv https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".sh \
         && wget -nv  https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_base"/"$base".sh \
 	    && break ;\
