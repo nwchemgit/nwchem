@@ -219,10 +219,13 @@
             call dfill(nq,0d0,dbl_mb(kexc),1)
           endif
 
+        case (XC_FLAGS_NEEDS_LAPLACIAN)
+           dolap = .true.
+           if(dolap.and.(.not.kslap)) call
+     E          errquit(' dolap=t & kslap=f',0,0)
         case (XC_FAMILY_MGGA, XC_FAMILY_HYB_MGGA)
           gga = .true.
           mgga = .true.
-          dolap = .true.
 
           
           if (iand(libxc_flags(ifunc),xc_flags_have_exc).eq.
