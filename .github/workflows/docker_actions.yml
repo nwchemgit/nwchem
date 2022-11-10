@@ -57,12 +57,13 @@ jobs:
           rsync -av ~/cache/libext* cache/. ; \
           echo "libext cache fetched" ; \
           fi
-      - uses: haya14busa/action-cond@dependabot/npm_and_yarn/actions/core-1.9.1
-        id: cache-hit-reporter
-        with:
-          cond: ${{ steps.setup-cache.outputs.cache-hit != '' }}
-          if_true: "Y"
-          if_false: "N"
+      - name: cache-hit-reporter
+        run: |
+          if [[ ${{ steps.setup-cache.outputs.cache-hit }} ==  'true' ]]; then
+            echo "cache_hit=Y" >> $GITHUB_ENV
+          else
+            echo "cache_hit=N" >> $GITHUB_ENV
+          fi
       - name: build_schedule
         uses: docker/build-push-action@v3
         with:
@@ -73,7 +74,7 @@ jobs:
           tags: nwchem_image
           build-args: |
             FC=${{ matrix.fc }}
-            CACHE_HIT=${{ steps.cache-hit-reporter.outputs.value }}
+            CACHE_HIT=${{ env.cache_hit }}
             NWCHEM_BRANCH=${{ github.ref_name }}
             GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
       - name: store cache
