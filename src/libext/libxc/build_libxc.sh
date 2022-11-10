@@ -8,13 +8,13 @@ check_tgz() {
     echo $myexit
 }
 
-VERSION=5.2.2
+VERSION=6.0.0
 TGZ=libxc-${VERSION}.tar.gz
 if [ `check_tgz $TGZ` == 1 ]; then
     echo "using existing $TGZ"
 else
     echo "downloading $TGZ"
-    curl -L https://gitlab.com/libxc/libxc/-/archive/${VERSION}/libxc-${VERSION}.tar.gz -o $TGZ
+    curl -sS -L https://gitlab.com/libxc/libxc/-/archive/${VERSION}/libxc-${VERSION}.tar.gz -o $TGZ
     if [ `check_tgz $TGZ` != 1 ]; then
 	rm -f libxc-${VERSION}.tar.gz
 	curl -L https://github.com/ElectronicStructureLibrary/libxc/archive/refs/tags/${VERSION}.tar.gz -o $TGZ

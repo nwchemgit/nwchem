@@ -1,0 +1,44 @@
+echo
+title "Test SCAN-L"
+
+start scanl
+
+geometry
+  H     -0.53613834     1.65036000     0.76488131
+  N     -0.20560016     1.19352105    -0.09517494
+  C      0.50994699     0.02103750     0.20703847
+  H      1.50546027    -0.04117360    -0.23494242
+  F     -0.24147792    -1.09742630    -0.06675439
+end
+
+basis cartesian
+  C library 6-31g*
+  N library 6-31g*
+  F library 6-31g*
+  H library 6-31g
+end
+
+dft
+ xc mgga_x_scanl mgga_c_scanl 
+ grid xfine 
+end
+task dft
+
+dft
+  mult 1
+  odft
+  vectors input atomic
+end
+task dft
+
+dft
+  noio
+  mult 3
+  odft
+  xc mgga_x_scanl mgga_c_scanl
+  tolerances tight
+  grid xfine 
+  vectors input atomic
+  convergence energy 1d-8
+end
+task dft optimize
