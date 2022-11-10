@@ -7,8 +7,11 @@ check_tgz() {
     [ -f $1 ] && gunzip -t $1 > /dev/null && myexit=1
     echo $myexit
 }
-
-VERSION=6.0.0
+if [ $# -eq 0 ];  then
+    VERSION=6.0.0
+else
+    VERSION=$1
+fi
 TGZ=libxc-${VERSION}.tar.gz
 if [ `check_tgz $TGZ` == 1 ]; then
     echo "using existing $TGZ"
@@ -78,7 +81,7 @@ fi
 
 cd libxc
 # patch pk09 to avoid compiler  memory problems
-patch -p0 -N < ../pk09.patch
+#patch -p0 -N < ../pk09.patch
 mkdir -p build
 cd build
 if [[ -z "${NWCHEM_TOP}" ]]; then
