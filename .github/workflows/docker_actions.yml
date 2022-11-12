@@ -57,13 +57,11 @@ jobs:
           rsync -av ~/cache/libext* cache/. ; \
           echo "libext cache fetched" ; \
           fi
-      - name: cache-hit-reporter
+          echo "cache_hit=Y" >> $GITHUB_ENV
+      - name: negative-cache-hit-reporter
+        if: (steps.setup-cache.outputs.cache-hit != 'true')
         run: |
-          if [[ ${{ steps.setup-cache.outputs.cache-hit }} ==  'true' ]]; then
-            echo "cache_hit=Y" >> $GITHUB_ENV
-          else
-            echo "cache_hit=N" >> $GITHUB_ENV
-          fi
+          echo "cache_hit=N" >> $GITHUB_ENV
       - name: build_schedule
         uses: docker/build-push-action@v3
         with:
