@@ -89,10 +89,12 @@ echo DISTR is "$DISTR"
 fi
  if [[ "$os" == "Linux" ]]; then
      if [[ "$DISTR" == "fedora" ]] || [[ "$DISTR" == "centos" ]] ; then
+	 env
 	 rpminst=dnf
 	 if [[ "$DISTR" == "centos" ]] ; then
 	     rpminst=yum
 	 fi
+	 if [[ "$HOSTNAME" != "fedoraqemuwe40672" ]]; then
 	 sudo $rpminst udate;  sudo $rpminst -y install perl perl python3-devel time patch openblas-serial64 openmpi-devel cmake gcc-gfortran unzip which make tar bzip2 openssh-clients rsync
 	 #	 module load mpi
 	 if [[ "$MPI_IMPL" == "openmpi" ]]; then
@@ -100,6 +102,7 @@ fi
 	 else
 	     echo ready only for openmpi
 	     exit 1
+	 fi
 	 fi
 	 export PATH=/usr/lib64/"$MPI_IMPL"/bin:$PATH
 	 export LD_LIBRARY_PATH=/usr/lib64/"$MPI_IMPL"/lib:$LD_LIBRARY_PATH
