@@ -44,8 +44,8 @@ jobs:
           - 1
         build_plumed:
           - 1
-	branch:
-	  - master
+        branch:
+          - master
         include:
           - os: [self-hosted, ubuntu1804]
             experimental: false
