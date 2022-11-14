@@ -111,7 +111,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 32
-	  ref: ${{ matrix.branch }}
+          ref: ${{ matrix.branch }}
           clean: true
       - name: Get Instruction
         id: get-simd
