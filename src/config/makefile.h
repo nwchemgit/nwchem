@@ -3317,7 +3317,7 @@ ifeq ($(BUILDING_PYTHON),python)
 
     ifndef GOT_PYTHONCONFIG	  
         PYMAJOR:=$(word 1, $(subst ., ,$(PYTHONVERSION)))
-        errorpythonconfig:$
+        errorpythonconfig:
 	    $(info )
 	    $(info python-config not found in your PATH)
 	    $(info Please install the packages)
