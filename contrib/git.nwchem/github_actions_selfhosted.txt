@@ -44,6 +44,8 @@ jobs:
           - 1
         build_plumed:
           - 1
+	branch:
+	  - master
         include:
           - os: [self-hosted, ubuntu1804]
             experimental: false
@@ -75,6 +77,17 @@ jobs:
             use_libxc: 1
             use_openmp: 2
             use_tblite: 1
+          - os: [self-hosted, fedora]
+            experimental: false
+            mpi_impl: mpich
+            armci_network: MPI-TS
+            nwchem_modules: "all python xtb"
+            fc: gfortran
+            blas: "build_openblas"
+            use_libxc: 1
+            use_openmp: 2
+            use_tblite: 1
+	    branch: release-7-2-0
       fail-fast: false
     env:
         MPI_IMPL: ${{ matrix.mpi_impl }}
@@ -97,7 +110,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 40
+          fetch-depth: 32
+	  ref: ${{ matrix.branch }}
           clean: true
       - name: Get Instruction
         id: get-simd
