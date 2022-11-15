@@ -34,8 +34,6 @@ jobs:
           - "all python xtb"
         fc:
           - gfortran
-        use_openmp:
-          - 2
         use_simint:
           - 1
         use_libxc:
@@ -75,7 +73,6 @@ jobs:
             fc: ifx
             blas: "build_openblas"
             use_libxc: 1
-            use_openmp: 2
             use_tblite: 1
           - os: [self-hosted, fedora]
             experimental: false
