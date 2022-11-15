@@ -132,10 +132,6 @@ int context_rtdb_match(int rtdb, const char *name, int reslen,
 }
 
 
-static void context_print()
-{
-  printf("context = -%s-\n", context);
-}
 
 int context_prefix(const char *name, char *result, int result_len)
 {
@@ -150,6 +146,10 @@ int context_prefix(const char *name, char *result, int result_len)
 }
 
 /*
+static void context_print()
+{
+  printf("context = -%s-\n", context);
+}
 int main()
 {
   int rtdb;
