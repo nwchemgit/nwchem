@@ -676,6 +676,10 @@ ifeq ($(FC),$(findstring $(FC),scorep scorep-wrapper scorep-gfortran scorep-mpif
 #fix for configure or cmake
      MAYBE_HOST += SCOREP_WRAPPER=OFF
 endif
+ifeq ($(V),$(findstring $(V),-1 0))
+     MAYBE_HOST += -q --enable-silent-rules
+     MAKE= make V=0
+endif
 BUILDDIR = build
 INSTALLDIR = install
 CONFIGURE_PATH = ../$(GA_DIR)/configure
