@@ -32,7 +32,7 @@ END-INFO-DIR-ENTRY
 @tex
 % {\parskip=0pt \hfill CMG \par
 % \hfill edited by George Fann\par}
-@end{tex}
+@end tex
 
 @page
 @vskip 0pt plus 1filll
@@ -101,14 +101,14 @@ symmetric eigensystem problem
 $
 {\bf Ax = \lambda B x}
 $
-@end{tex}
+@end tex
 where @b{A} and @b{B} are dense and real matrices with @b{B} positive definite
 and
 @tex
 $
 \lambda
 $
-@end{tex} 
+@end tex 
 is an eigenvalue corresponding to eigenvector @b{x}.  The intended
 computer architecture is a parallel message passing computer or
 a @b{homogeneous} network of workstations.  The current code is written in C and Fortran
@@ -304,7 +304,7 @@ Thus, the following software resources are needed to make the library:
 
 @item   3. GNU make utility,  version 3.68 and higher.
 
-@end{itemize}
+@end itemize
 
 We assume that all Fortran callable subroutines have a trailing
 underscore at the end of their name in the name-space.  Thus, we assume
@@ -385,7 +385,7 @@ codes in @b{PEIGSDIR/src/f77}.  On other machines the user must set
 @item type the command @b{make}.  The libraries @b{libblas.a}, @b{liblapack.a}
 and @b{libpeigs.a} will now be built.
 
-@end{itemize}
+@end itemize
 
 Compiler optimization can cause errors and unexpected results in certain
 situations.  We handle this in the @b{Makefile}s by having the files that
@@ -780,7 +780,7 @@ to arrive at
 $
 {\bf L^{-1} A L^{-t}}.
 $
-@end{tex}
+@end tex
 
 Since the scratch arrays are dependent on the distribution of matrix
 entries across the processors PeIGS provides a subroutine, FMEMREQ in
@@ -3932,6 +3932,7 @@ us all of the input parameters and the parallel ( or serial ) environment
 There are likely to be unknown bugs in the code and we strongly recommend
 that the user run the residual and orthogonality checking routines to check
 the results of computations whenever practical.
+@end itemize
 
 @node Index
 @unnumbered Index
