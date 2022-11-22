@@ -119,21 +119,18 @@
      $   call errquit('int_dip_ga:pop failed',0, MA_ERR)
 !
       if (do_mirr) then
-         call ga_mask_sync(.true.,.false.)
-         call ga_merge_mirrored(g_x_mirr)
-         call ga_mask_sync(.true.,.false.)
-         call ga_merge_mirrored(g_y_mirr)
-         call ga_mask_sync(.true.,.false.)
-         call ga_merge_mirrored(g_z_mirr)
+         g_x=g_x_org
+         call util_mirrmerge(g_x_mirr,g_x)
          if(.not.ga_destroy(g_x_mirr))call errquit(
      $        'could not destroy g_x_mirr handle',1, GA_ERR)
-         g_x=g_x_org
+         g_y=g_y_org
+         call util_mirrmerge(g_y_mirr,g_y)
          if(.not.ga_destroy(g_y_mirr))call errquit(
      $        'could not destroy g_y_mirr handle',1, GA_ERR)
-         g_y=g_y_org
+         g_z=g_z_org
+         call util_mirrmerge(g_z_mirr,g_z)
          if(.not.ga_destroy(g_z_mirr))call errquit(
      $        'could not destroy g_x_mirr handle',1, GA_ERR)
-         g_z=g_z_org
       endif
       call ga_sync()
 !
