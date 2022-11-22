@@ -18,6 +18,11 @@
       integer ijshell, ilo, ihi, jlo, jhi
       integer l_buf, l_scr
       integer k_buf, k_scr
+      logical do_mirr
+      logical util_mirrmat
+      external util_mirrmat
+      integer g_x_mirr,g_y_mirr,g_z_mirr
+      integer g_x_org,g_y_org,g_z_org
 !
       double precision center(3)
 !
@@ -27,6 +32,34 @@
       call ga_zero(g_x)
       call ga_zero(g_y)
       call ga_zero(g_z)
+      g_x_mirr=0
+      g_y_mirr=0
+      g_z_mirr=0
+      do_mirr=util_mirrmat(1,g_x,g_x_mirr,
+     D     .false., .true.)
+      do_mirr=do_mirr.and.util_mirrmat(1,g_y,g_y_mirr,
+     D     .false., .true.)
+      do_mirr=do_mirr.and.util_mirrmat(1,g_z,g_z_mirr,
+     D     .false., .true.)
+      if(do_mirr) then
+         g_x_org=g_x
+         g_x=g_x_mirr
+         g_y_org=g_y
+         g_y=g_y_mirr
+         g_z_org=g_z
+         g_z=g_z_mirr
+            
+      else
+         if(g_x_mirr.ne.0) then
+            if(.not.ga_destroy(g_x_mirr))call errquit(
+     $           'could not destroy mirrx handle',1, GA_ERR)
+         endif
+         if(g_y_mirr.ne.0) then
+            if(.not.ga_destroy(g_y_mirr))call errquit(
+     $           'could not destroy mirry handle',1, GA_ERR)
+         endif
+      endif
+
       if(oscfps) call pstat_on(ps_int_dip)
 !
 !     grab basis set info type stuff
@@ -85,6 +118,23 @@
       if(.not.MA_pop_stack(l_buf))
      $   call errquit('int_dip_ga:pop failed',0, MA_ERR)
 !
+      if (do_mirr) then
+         call ga_mask_sync(.true.,.false.)
+         call ga_merge_mirrored(g_x_mirr)
+         call ga_mask_sync(.true.,.false.)
+         call ga_merge_mirrored(g_y_mirr)
+         call ga_mask_sync(.true.,.false.)
+         call ga_merge_mirrored(g_z_mirr)
+         if(.not.ga_destroy(g_x_mirr))call errquit(
+     $        'could not destroy g_x_mirr handle',1, GA_ERR)
+         g_x=g_x_org
+         if(.not.ga_destroy(g_y_mirr))call errquit(
+     $        'could not destroy g_y_mirr handle',1, GA_ERR)
+         g_y=g_y_org
+         if(.not.ga_destroy(g_z_mirr))call errquit(
+     $        'could not destroy g_x_mirr handle',1, GA_ERR)
+         g_z=g_z_org
+      endif
       call ga_sync()
 !
       if (util_print('multipole', print_debug)) then
