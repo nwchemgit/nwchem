@@ -3455,14 +3455,6 @@ else
     CORE_LIBS += $(BLASOPT)
 endif
 
-ifdef NWCHEM_LINK_CUDA
-    ifeq ($(_FC),pgf90)
-       CORE_LIBS += -acc -cuda -cudalib=cublas
-    endif
-    ifeq ($(_FC),gfortran)
-       CORE_LIBS +=  -fopenacc -lcublas
-    endif
-endif
 
 
 ifdef BLASOPT
@@ -3737,6 +3729,7 @@ ifdef TCE_OPENACC
         FOPTIONS += -acc
         LDOPTIONS += -acc
     endif
+    NWCHEM_LINK_CUDA=1
 endif
 
 ifndef HIP
@@ -3751,6 +3744,15 @@ endif
 
 ifdef USE_F90_ALLOCATABLE
     DEFINES += -DUSE_F90_ALLOCATABLE
+endif
+
+ifdef NWCHEM_LINK_CUDA
+    ifeq ($(_FC),pgf90)
+       CORE_LIBS += -acc -cuda -cudalib=cublas
+    endif
+    ifeq ($(_FC),gfortran)
+       CORE_LIBS +=  -fopenacc -lcublas
+    endif
 endif
 
 ifdef GWCMPLX
