@@ -65,7 +65,8 @@
 !
 !     get the integrals we want
 !
-               call int_mpole(ibas, ishell, jbas, jshell,
+!               call int_mpole(ibas, ishell, jbas, jshell,
+               call int_mpole(jbas, jshell, ibas, ishell,
      $              1,
      $              center,
      $              mscratch, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
@@ -101,15 +102,16 @@
       implicit none
 #include "global.fh"
       integer g_x, g_y, g_z, ilo, ihi, jlo, jhi
-      double precision buf(jlo:jhi,3,ilo:ihi)
+!      double precision buf(jlo:jhi,3,ilo:ihi)
+      double precision buf(ilo:ihi,3,jlo:jhi)
       integer i, j
-      do i = ilo,ihi
+c      do i = ilo,ihi
          do j = jlo, jhi
-            call ga_put(g_x,i,i,j,j,buf(j,1,i),1)
-            call ga_put(g_y,i,i,j,j,buf(j,2,i),1)
-            call ga_put(g_z,i,i,j,j,buf(j,3,i),1)
+            call ga_put(g_x,ilo,ihi,j,j,buf(ilo,1,j),1)
+            call ga_put(g_y,ilo,ihi,j,j,buf(ilo,2,j),1)
+            call ga_put(g_z,ilo,ihi,j,j,buf(ilo,3,j),1)
          end do
-      end do
+c      end do
       end
 
       subroutine int_qdr_ga(ibas, jbas, g_xx, g_xy, g_xz,
