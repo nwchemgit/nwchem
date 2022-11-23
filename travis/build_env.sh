@@ -98,7 +98,8 @@ fi
 	     rpminst=yum
 	 fi
 	 if [[ "$HOSTNAME" != "fedoraqemuwe40672" ]]; then
-	 sudo $rpminst update;  sudo $rpminst -y install perl perl python3-devel time patch openblas-serial64 openmpi-devel cmake gcc-gfortran unzip which make tar bzip2 openssh-clients rsync
+	 sudo $rpminst update;  sudo $rpminst -y install perl perl python3-devel time patch cmake gcc-gfortran unzip which make tar bzip2 openssh-clients rsync
+	  sudo $rpminst -y install openblas-serial64 || true
 	 #	 module load mpi
 	 if [[ "$MPI_IMPL" == "openmpi" ]]; then
 	     sudo $rpminst -y install  openmpi-devel
