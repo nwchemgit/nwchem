@@ -36,8 +36,10 @@ c  08-oct-90 (columbus day) 1-e fcore change. chunk added. -rls
 c  05-jul-89 ibvtyp added. -rls
 c  01-aug-89  written by ron shepard.
 c
+
       implicit none
 c
+#include "stdio.fh"
       integer itype, lrecal, nbft, ibvtyp, ifmt, lrec, nmax, ierr
 c
       integer nbig, chunk, nword, ibvfac, space
@@ -54,12 +56,19 @@ c     # lrcinc = record length block size increments.
 c     # ndeflt = default number of block increments. such that
 c     #          the default record length = (lrecmn + ndeflt * lrcinc)
 c
-      integer    nbftmx
-      parameter( nbftmx=2**16-1 )
-      integer    lrecmn,     lrecmx,         lrcinc,      ndeflt
-      parameter( lrecmn=2048, lrecmx=2**16,   lrcinc=2048,  ndeflt=1 )
+C LB
+!      integer    nbftmx
+!      parameter( nbftmx=2**16-1 )
+!      integer*4  lrecmn,      lrecmx,           lrcinc,       ndeflt
+!      parameter( lrecmn=2048, lrecmx=2**16-1,   lrcinc=2048,  ndeflt=1 )
+      INTEGER, PARAMETER :: SHORT = SELECTED_INT_KIND(4)
+      INTEGER, PARAMETER :: LONG  = SELECTED_INT_KIND(9)
+      INTEGER(KIND=SHORT), PARAMETER :: lrecmn=2048,lrcinc=2048,ndeflt=1
+      INTEGER(KIND=LONG), PARAMETER :: nbftmx=2**16-1,lrecmx=2**16-1
+C LB
 cgk debug
-      write(*,*)'gk: in sifcfg'
+c      write(0,*)'gk: in sifcfg'
+c      write(LUOUT,*)'LB: lrecmx=',lrecmx,'lrecal=',lrecal 
 cgk end
 c
 c     # check the input parameters...
@@ -82,12 +91,18 @@ c
 c        # return the default values for everything.
          lrec = lrecmn + (ndeflt * lrcinc)
       else
+CLB debug
+c         write(LUOUT,*)'LB: lrecmx=',lrecmx,'lrecal=',lrecal 
+CLB end
 c        # want:     lrec = lrecmn + (n * lrcinc) <= lrecal
 c        #           for the largest possible n.
-         lrec = min( lrecmx, lrecal )
+         lrec = min( lrecmx, lrecal ) !lrecmx=2**16-1, lrecal=4096
          lrec = lrecmn + ( ((lrec - lrecmn) / lrcinc ) * lrcinc )
       endif
       lrec = min( lrecmx, lrec )
+C LB
+c      WRITE(LUOUT,*)"LB, lrec=",lrec
+C LB
       if ( lrec .lt. lrecmn ) then
          ierr = -3
          return

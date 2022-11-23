@@ -18,6 +18,8 @@ c  24-jul-89 written by ron shepard.
 c
       implicit none
 c
+#include "stdio.fh"
+
       integer  aoint2, ierr
       integer  info(*)
 c
@@ -34,14 +36,23 @@ c
       ierr = 0
 c
       fsplit = info(1)
+C LB
+c         WRITE(LUOUT,*)'LB: in sifsk1, fsplit =',fsplit
+C LB
       if ( fsplit .eq. 1 ) then
 c
 c        # header1, header2, 1-e records, and 2-e records are all
 c        # on the same file.
 c
+C LB
+         WRITE(LUOUT,*)'LB: calling sifskh, fsplit =',fsplit
+C LB
          call sifskh( aoint2, ierr )
          if ( ierr .ne. 0 ) return
 c
+C LB
+c         WRITE(LUOUT,*)'LB: back from sifskh'
+C LB
 c        # do while ( last .ne. nomore)...
          last = msame
 100      continue
@@ -51,6 +62,9 @@ c           # just read and decode the first word of each record.
 c
             read(aoint2,iostat=ierr)dword
             if ( ierr.ne.0 ) return
+C LB
+c            WRITE(LUOUT,*)'LB: calling sifd1'
+C LB
 c
             call sifd1(
      &       info,   nipv,   iretbv, dword,
@@ -58,6 +72,9 @@ c
      &       ifmt,   ibvtyp, wdummy, idummy,
      &       wdummy(1), idummy, ierr )
             if ( ierr.ne.0 ) return
+C LB
+c            WRITE(LUOUT,*)'LB: back from sifd1'
+C LB
 c
             goto 100
          endif
@@ -71,6 +88,7 @@ c        #       this may need modification later. -rls
          ierr = -1
          return
       endif
+c
 c
       return
       end

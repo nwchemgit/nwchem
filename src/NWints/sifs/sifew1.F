@@ -69,21 +69,22 @@ c
       l1rec = info(2)
       n1max = info(3)
 cgk debug
-      write(*,*)'gk: in sifew1'
-      write(*,*)'gk: aoints = ', aoints
-      write(*,*)'gk: l1rec = ', l1rec
-      write(*,*)'gk: n1max = ', n1max
-      write(*,*)'gk: num = ', num
-      write(*,*)'gk: fcore = ', fcore
-      do i = 1, num
-        write(*,*)'gk: i,values: ', i, values(i)
-      enddo
+c      write(*,*)'gk: **** in sifew1'
+c      write(*,*)'gk: aoints = ', aoints
+c      write(*,*)'gk: l1rec = ', l1rec
+c      write(*,*)'gk: n1max = ', n1max
+c      write(*,*)'gk: num = ', num
+c      write(*,*)'gk: fcore = ', fcore
+c      do i = 1, num
+c        write(*,*)'gk: i,values: ', i, values(i)
+c      enddo
 cgk end
 c
 c     # pack the buffer...
 c
 cgk debug
-      write(*,*)'gk:  calling sife1'
+c      write(*,*)'gk:  calling sife1'
+c      write(*,*)'LB: num=',num
 cgk end
       call sife1(
      & info,   nipv,   num,   last,
@@ -91,7 +92,7 @@ cgk end
      & values, labels, fcore, ibitv,
      & buffer, ierr )
 cgk debug
-      write(*,*)'gk:  back from sife1'
+c      write(*,*)'gk:  back from sife1'
 cgk end
       if ( ierr .ne. 0 ) return
 c
@@ -99,7 +100,7 @@ c     # write to the output file...
 c
       call seqwbf( aoints, buffer, l1rec )
 cgk debug
-      write(*,*)'gk:  back from seqwbf'
+c      write(*,*)'gk:  back from seqwbf'
 cgk end
 c     # seqwbf() does not return ierr.
       ierr = 0

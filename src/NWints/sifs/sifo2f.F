@@ -31,6 +31,8 @@ c
 c  08-oct-90 (columbus day) written by ron shepard.
 c
       implicit none
+
+#include "stdio.fh"
 c
       integer  aoints, iunit2, aoint2, ierr
       integer  info(*)
@@ -41,28 +43,47 @@ c
 c     # bummer error types.
       integer   wrnerr,  nfterr,  faterr
       parameter(wrnerr=0,nfterr=1,faterr=2)
+C LB
+c      WRITE(*,*)"LB: in sifo2f"
+C LB
 c
       fsplit = info(1)
       l2rec  = info(4)
 c
+C LB
+c      WRITE(*,*)'LB: fsplit=',fsplit
+C LB
       ierr   = 0
       if ( fsplit .eq. 1 ) then
+C LB
+c        WRITE(LUOUT,*)'LB: fsplit branch 1'
+C LB
 c
 c        # everything is on the same file.  assume aoints is already
 c        # opened.  set aoint2, position the file, and return.
 c
          aoint2 = aoints
+C LB
+c         WRITE(LUOUT,*)'LB: calling sifsk1, ierr=',ierr
+C LB
          call sifsk1( aoint2, info, ierr )
+C LB
+c         WRITE(LUOUT,*)'LB: back from sifsk1, ierr=', ierr
+C LB
          if ( ierr .ne. 0 ) then
 c           # 1-e records were not properly written.
             return
          endif
 c
       elseif ( fsplit .eq. 2 ) then
+C LB
+c        WRITE(LUOUT,*)'LB: fsplit branch 2'
+C LB
 c
 c        # 2-e records are separate.  use async i/o routines.
 c        # set aoint2 and open the file.
 c
+C LB before call to sifo2f, wrt_dft_aoints sets iunit2=aoints
          aoint2 = iunit2
          if ( aoints .eq. iunit2 ) then
 c           # can't use the same unit for two files, so close the old

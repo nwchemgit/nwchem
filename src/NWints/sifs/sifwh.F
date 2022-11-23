@@ -46,8 +46,12 @@ c
       parameter(lrecmx=2**16-1)
 c
 c     # using (*) dimensions until parameters are checked...
-      integer  aoints, ntitle, nsym,   nbft,   ninfo,
-     & nenrgy, nmap,   ierr
+C LB
+      integer   nbft, ierr
+      integer*4, intent(in) :: aoints, nsym, ninfo, ntitle,
+*      integer  aoints, ntitle, nsym,   nbft,   ninfo,
+C LB
+     & nenrgy, nmap
       character*80     title(*)
       integer  nbpsy(*)
       character*4      slabel(*)
@@ -67,8 +71,8 @@ c
 c     # check arguments for validity...
 c
 cgk debug
-      write(6,*)'gk: in sifwh'
-      write(*,*)'gk: in sifwh'
+c      write(*,*)'gk: in sifwh'
+c      WRITE(*,*)"LB: ntitle=",ntitle
 cgk end
       ierr = 0
       if ( ntitle.le.0 .or. ntitle.gt.ntitmx ) then
@@ -144,8 +148,8 @@ c
 c
       mapdim = max( nmap, 1 )
 cgk debug
-      write(*,*)'gk: in sifwh calling sifzwh'
-      write(*,*)'gk:    ntitle= ', ntitle
+c      write(*,*)'gk: in sifwh calling sifzwh'
+c      write(*,*)'gk:    ntitle= ', ntitle
 cgk end
       call sifzwh(
      & aoints, vrsion, ntitle, nsym,
@@ -154,7 +158,7 @@ cgk end
      & bfnlab, ietype, energy, imtype,
      & map,    mapdim, ierr )
 cgk debug
-      write(*,*)'gk: back from sifzwh'
+c      write(*,*)'gk: back from sifzwh'
 cgk end
       return
       end

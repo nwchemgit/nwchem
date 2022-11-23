@@ -62,7 +62,7 @@ c     # bummer error types.
       parameter(wrnerr=0,nfterr=1,faterr=2)
 c
 cgk debug
-      write(*,*)'gk: in sife1'
+c      write(6,*)'gk: **** in sife1'
 cgk end
       ierr  = 0
       l1rec = info(2)
@@ -122,11 +122,11 @@ c
       unpack(3) = (ibvtyp*8+itypea)*1024+itypeb
       unpack(4) = ifmt*4+last
 cgk debug
-      write(*,*)'gk: calling plab16'
+c      write(*,*)'gk: calling plab16'
 cgk end
       call plab16( buffer(1), unpack, 4 )
 cgk debug
-      write(*,*)'gk: back from plab16'
+c      write(*,*)'gk: back from plab16'
 cgk end
 c
 c     # if num=0, then don't bother with the packing.
@@ -136,11 +136,11 @@ c
 c     # pack/copy the values(*)...
 c
 cgk debug
-      write(*,*)'gk: calling cdcopy'
+c      write(*,*)'gk: calling cdcopy'
 cgk end
       call cdcopy( num, values, 1,   buffer(2), 1 )
 cgk debug
-      write(*,*)'gk: back from cdcopy'
+c      write(*,*)'gk: back from cdcopy'
 cgk end
 c
       buffer( num + 2 ) = fcore
@@ -182,7 +182,7 @@ c           # 2 integers/value input.
          endif
       endif
 cgk debug
-      write(*,*)'gk: in sife1, ibvtyp = ', ibvtyp
+c      write(*,*)'gk: in sife1, ibvtyp = ', ibvtyp
 cgk end
       if ( ibvtyp.ne.0 ) then
 c        # pack the bit vector at the end of buffer(*).
@@ -191,7 +191,7 @@ c        # pack the bit vector at the end of buffer(*).
          call plab1( buffer(bv1), ibitv, nuw )
       endif
 cgk debug
-      write(*,*)'gk:  leaving sife1'
+c      write(*,*)'gk:  leaving sife1'
 cgk end
 c
       return
