@@ -25,10 +25,10 @@ c
 #include "dftps.fh"
 #include "bgj.fh"
 #include "dft_scaleig.fh"
-#ifdef SCALAPACK
-      integer ga_cholesky,ga_llt_i
-      external ga_cholesky,ga_llt_i
-#endif
+!#ifdef SCALAPACK
+!      integer ga_cholesky,ga_llt_i
+!      external ga_cholesky,ga_llt_i
+!#endif
 c     
 #include "zora.fh"
 #include "rel_consts.fh"
@@ -79,6 +79,9 @@ c     sifs
 cgk debug
       integer mem1, max1e, mem2, max2e
 cgk end
+C LB
+      ierr=0 !initialize
+C LB
        
 
       wrt_dft_aoints = .false.
@@ -394,9 +397,20 @@ c     set up SIFS buffer and other data for 1e ints.
 c
       ibvtyp=0
       lrecal = 4096
+C LB
+c      write(*,*)'LB: before sifcfg(1), ierr=',ierr
+c      WRITE(*,*)'n1max=',n1max,'n2max=',n2max,'ifmt1=',ifmt1,'ifmt',ifmt
+C LB
       call sifcfg(1, lrecal, nbf_ao, ibvtyp, ifmt1, l1rec, n1max, ierr)
       lrecal = 4096
+C LB
+c      write(*,*)'LB: after sifcfg(1), ierr=',ierr
+c      WRITE(*,*)'n1max=',n1max,'n2max=',n2max,'ifmt1=',ifmt1,'ifmt',ifmt
+C LB
       call sifcfg(2, lrecal, nbf, ibvtyp, ifmt, l2rec, n2max, ierr)
+C LB
+c      write(*,*)'LB: after sifcfg(2), ierr=',ierr
+C LB
 
       info(1) = 1 ! =FSPLIT; do not split aoints file
       info(2) = l1rec
@@ -406,12 +420,12 @@ c
       nmax=max(n1max,n2max)
 
 cgk debug
-*     write(*,*)'gk: n1max = ', n1max
-*     write(*,*)'gk: l1rec = ', l1rec
-*     write(*,*)'gk: n2max = ', n1max
-*     write(*,*)'gk: l2rec = ', l2rec
-*     write(*,*)'gk: ifmt1 = ', ifmt1
-*     write(*,*)'gk: ifmt = ', ifmt
+c      write(*,*)'gk: n1max = ', n1max
+c      write(*,*)'gk: l1rec = ', l1rec
+c      write(*,*)'gk: n2max = ', n1max
+c      write(*,*)'gk: l2rec = ', l2rec
+c      write(*,*)'gk: ifmt1 = ', ifmt1
+c      write(*,*)'gk: ifmt = ', ifmt
 cgk end
       if(ierr.ne.0) 
      &   call errquit('wrt_dft_aoints: error in sifcfg', ierr,
@@ -487,8 +501,11 @@ cgk debug
 cgk write
 
 cgk debug
-*     write(*,*)'gk: done with one electron integrals'
-*     write(*,*)'gk: now let us do 2e ints.'
+c      write(*,*)'gk: done with one electron integrals'
+c      write(*,*)'gk: now let us do 2e ints.'
+c      write(*,*)'LB: aoints=',aoints,'iunit2=',iunit2,'aoint2=',aoint2
+c     &,'ierr=',ierr
+c      WRITE(*,*)'LB: info =',info(1),info(2),info(3),info(4)
 cgk end
 c     open 2 electron itegrals file
       iunit2=aoints
@@ -520,26 +537,26 @@ c
 
       wrt_dft_aoints=.true.
 
-      if (me.eq.0) then
-         if (CDFIT.and.IOLGC) then
-            call dft_invio('CD', idum, 1, 'KILL', lmiss)
-            call dft_invio('CDI', idum, 1, 'KILL', lmiss)
-         endif
-         if (XCFIT.and.IOLGC) then
-            call dft_invio('XC', idum, 1, 'KILL', lmiss)
-         endif
-      endif
-      if (CDFIT.and.(.not.IOLGC)) then
-         if (.not. ga_destroy(g_cdinv)) call errquit
-     &      ('wrt_dft_aoints: could not destroy g_cdinv', 0, GA_ERR)
-         if (.not. ga_destroy(g_2ceri)) call errquit
-     &      ('wrt_dft_aoints: could not destroy g_2ceri', 0, GA_ERR)
-      endif
-      if (XCFIT.and.(.not.IOLGC))then
-         if (.not. ga_destroy(g_xcinv)) call errquit
-     &      ('wrt_dft_aoints: could not destroy g_xcinv', 0, GA_ERR)
-         if (.not. ga_destroy(g_oi)) call errquit
-     &      ('wrt_dft_aoints: could not destroy g_oi', 0, GA_ERR)
-      endif
+!      if (me.eq.0) then
+!         if (CDFIT.and.IOLGC) then
+!            call dft_invio('CD', idum, 1, 'KILL', lmiss)
+!            call dft_invio('CDI', idum, 1, 'KILL', lmiss)
+!         endif
+!         if (XCFIT.and.IOLGC) then
+!            call dft_invio('XC', idum, 1, 'KILL', lmiss)
+!         endif
+!      endif
+!      if (CDFIT.and.(.not.IOLGC)) then
+!         if (.not. ga_destroy(g_cdinv)) call errquit
+!     &      ('wrt_dft_aoints: could not destroy g_cdinv', 0, GA_ERR)
+!         if (.not. ga_destroy(g_2ceri)) call errquit
+!     &      ('wrt_dft_aoints: could not destroy g_2ceri', 0, GA_ERR)
+!      endif
+!      if (XCFIT.and.(.not.IOLGC))then
+!         if (.not. ga_destroy(g_xcinv)) call errquit
+!     &      ('wrt_dft_aoints: could not destroy g_xcinv', 0, GA_ERR)
+!         if (.not. ga_destroy(g_oi)) call errquit
+!     &      ('wrt_dft_aoints: could not destroy g_oi', 0, GA_ERR)
+!      endif
       return
       end
