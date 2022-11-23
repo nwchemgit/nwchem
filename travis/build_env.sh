@@ -102,6 +102,8 @@ fi
 	 #	 module load mpi
 	 if [[ "$MPI_IMPL" == "openmpi" ]]; then
 	     sudo $rpminst -y install  openmpi-devel
+         elif [[ "$MPI_IMPL" == "mpich" ]]; then
+	     sudo $rpminst -y install mpich  mpich-devel
 	 else
 	     echo ready only for openmpi
 	     exit 1
