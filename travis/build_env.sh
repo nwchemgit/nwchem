@@ -16,6 +16,9 @@ fi
 if test -f "/usr/lib/centos-release"; then
     dist="centos"
 fi
+if [[ $(grep -c fedora /etc/os-release) > 0 ]]; then
+    dist="fedora"
+fi
 echo dist is "$dist"
 if [ -z "$DISTR" ] ; then
     DISTR=$dist
@@ -95,7 +98,7 @@ fi
 	     rpminst=yum
 	 fi
 	 if [[ "$HOSTNAME" != "fedoraqemuwe40672" ]]; then
-	 sudo $rpminst udate;  sudo $rpminst -y install perl perl python3-devel time patch openblas-serial64 openmpi-devel cmake gcc-gfortran unzip which make tar bzip2 openssh-clients rsync
+	 sudo $rpminst update;  sudo $rpminst -y install perl perl python3-devel time patch openblas-serial64 openmpi-devel cmake gcc-gfortran unzip which make tar bzip2 openssh-clients rsync
 	 #	 module load mpi
 	 if [[ "$MPI_IMPL" == "openmpi" ]]; then
 	     sudo $rpminst -y install  openmpi-devel
