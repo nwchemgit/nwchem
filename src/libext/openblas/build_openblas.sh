@@ -142,6 +142,9 @@ else
            LAPACK_FPFLAGS_VAL+=" -fdefault-integer-8"
        fi
 fi
+if [[   -z "${FC}" ]]; then
+    FC=gfortran
+fi
 if [[   -z "${CC}" ]]; then
     CC=cc
 fi
