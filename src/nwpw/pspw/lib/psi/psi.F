@@ -1889,6 +1889,8 @@ c      end
 #include "stdio.fh"
 
 *     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
       logical oprint
       integer neq1(2),i,q,ms,n1q(2),n2q(2)
       integer nx,ny,nz,n2ft3d
@@ -1933,8 +1935,13 @@ c      end
 *     **** ion-ion part ****
       if (control_version().eq.3) Eion = ewald_e()   !**** get ewald energy ****
       if (control_version().eq.4) Eion = ion_ion_e() !**** get free-space ion-ion energy ****
+      if (taskid.eq.MASTER) then
+         open(unit=103,file="ion_ion.dat")
+         write(103,*) Eion
+         close(103)
+      end if
 c     if (oprint) write(*,*) "Eion=",Eion
-      write(*,*) "Eion=",Eion
+c     write(*,*) "Eion=",Eion
 
 *     ***************************
 *     **** one-electron part ****
@@ -2150,6 +2157,8 @@ c        call D3dB_rr_daxpy(1,(-2.0d0*c1*c2),vcge,vcee)
       common / CI_Hgg_common / Hgg
 
 *     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
       logical oprint
       integer neq1(2),i,q,ms,n1q(2),n2q(2)
       integer nx,ny,nz,n2ft3d
@@ -2169,6 +2178,7 @@ c        call D3dB_rr_daxpy(1,(-2.0d0*c1*c2),vcge,vcee)
       external coulomb_e,ewald_e,ion_ion_e
 
       !write(*,*) "ENTER 2x2 ne GRADIENT"
+      call Parallel_taskid(taskid)
       oprint = .false.
 c      oprint = .true.
 
@@ -2201,6 +2211,12 @@ c      oprint = .true.
       if (control_version().eq.3) Eion = ewald_e()   !**** get ewald energy ****
       if (control_version().eq.4) Eion = ion_ion_e() !**** get free-space ion-ion energy ****
       if (oprint) write(*,*) "Eion=",Eion
+      if (taskid.eq.MASTER) then
+         open(unit=103,file="ion_ion.dat")
+         write(103,*) Eion
+         close(103)
+      end if
+      
       !write(*,*) "Eion=",Eion
 
 
@@ -2564,6 +2580,11 @@ c     end if
       if (control_version().eq.3) Eion = ewald_e()   !**** get ewald energy ****
       if (control_version().eq.4) Eion = ion_ion_e() !**** get free-space ion-ion energy ****
       if (oprint) write(*,*) "Eion=",Eion
+      if (taskid.eq.MASTER) then
+         open(unit=103,file="ion_ion.dat")
+         write(103,*) Eion
+         close(103)
+      end if
 
       !*** calculate Sgg, Sge, See ***
       call Pack_cc_dot(1,psig,psig,Sgg)
@@ -2973,6 +2994,8 @@ c     real*8 Hgg
 c     common / CI_Hgg_common / Hgg
 
 *     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
       logical oprint
       integer neq1(2),i,q,ms,n1q(2),n2q(2)
       integer nx,ny,nz,n2ft3d
@@ -3017,6 +3040,11 @@ c      oprint = .true.
       if (control_version().eq.3) Eion = ewald_e()   !**** get ewald energy ****
       if (control_version().eq.4) Eion = ion_ion_e() !**** get free-space ion-ion energy ****
       if (oprint) write(*,*) "Eion=",Eion
+      if (taskid.eq.MASTER) then
+         open(unit=103,file="ion_ion.dat")
+         write(103,*) Eion
+         close(103)
+      end if
 
       !*** calculate Sgg, Sge, See ***
       Sgg = 1.0d0
@@ -11908,6 +11936,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
       
       logical oprint,value
       integer icount,iicount,version
+      integer jcount,jjcount
       integer i,j,k,l,ij,kl
       integer nall,nnall,n4all,nx,ny,nz
       integer psiij
@@ -12005,6 +12034,18 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
             end do
          end do
          write(luout,*) "end_one_electron_integrals"
+
+         open(unit=101,file="one_electron_integrals.dat")
+         write(101,'(3I5)') ne(1),ne_excited(1),icount
+         icount = 0
+         do i=1,nall
+            do j=i,nall
+               write(101,'(I5,I5,F21.10)') 
+     >         j,i,dbl_mb(h1_integrals(1)+icount)
+               icount = icount + 1
+            end do
+         end do
+         close(101)
       end if
 
       !*** generate 2e integrals ***
@@ -12124,7 +12165,21 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
          end do
          write(luout,*) "end_two_electron_integrals"
          write(luout,*)
-
+         open(unit=102,file="two_electron_integrals.dat")
+         write(102,'(2I5,I10)') ne(1),ne_excited(1),iicount
+         iicount = 0
+         do ij=1,nnall
+            i = int_mb(ipackm(1)+ij-1)
+            j = int_mb(jpackm(1)+ij-1)
+            do kl=ij,nnall
+               k = int_mb(ipackm(1)+kl-1)
+               l = int_mb(jpackm(1)+kl-1)
+               write(102,'(I5,I5,I5,I5,F20.10)') 
+     >         j,i,l,k,dbl_mb(h2_integrals(1)+iicount)
+               iicount = iicount + 1
+            end do
+         end do
+         close(102)
       end if
 
 *     **** deallocate memory from heap ****
