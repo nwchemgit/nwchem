@@ -86,14 +86,14 @@ C LB
 c
 cgk debug
       write(*,*)'gk: entered egrad_trace'
-      write(*,*)'gk: nbft = ', nbft
-      write(*,*)'gk: nadct = ',nadct
+*      write(*,*)'gk: nbft = ', nbft
+*      write(*,*)'gk: nadct = ',nadct
 cgk end
 c     
 c     Get info about the basis sets
 c     
 cgk debug
-      write(*,*)'gk: ibas = ', ibas
+*      write(*,*)'gk: ibas = ', ibas
 cgk end
       if (.not. bas_numcont(ibas, nshell)) call errquit
      $     ('egrad_trace: bas_numcont failed for ibas', 
@@ -145,7 +145,7 @@ c     sifs value buffer
       numd1=nbft*(nbft+1)/2
       numd1s=numd1
 cgk debug
-      write(*,*)'gk: numd1=',numd1,' nbft=',nbft
+*      write(*,*)'gk: numd1=',numd1,' nbft=',nbft
 cgk end
 
 c     sifs total effective density
@@ -206,9 +206,9 @@ c       read one electron density
 cgk debug
 *     write(*,*)'gk:  getting effective density'
 *     write(*,*)'gk:  calling rd1mat from egrad_trace'
-        WRITE(*,*)"LB egrad_trace, l1rec=",l1rec,"n1max=",n1max,
-     &   "numd1s=",numd1s,"nsym=",nsym,"nmpsy=",nmpsy,"kntin=",kntin,
-     &   "nbfs=",nbfs
+*        WRITE(*,*)"LB egrad_trace, l1rec=",l1rec,"n1max=",n1max,
+*     &   "numd1s=",numd1s,"nsym=",nsym,"nmpsy=",nmpsy,"kntin=",kntin,
+*     &   "nbfs=",nbfs
 cgkd end
         call rd1mat(aodens, l1rec, n1max, info, dbl_mb(k_sifbuf), 
      &    int_mb(k_slab), dbl_mb(k_sifval), dbl_mb(k_sm), numd1s,
@@ -295,14 +295,14 @@ c
       mscratch_2e=0
 cgk debug
       call int_mem_1e(max1e,mscratch_1e)
-      write(*,*)'gk: max1e=',max1e
-      write(*,*)'gk: mscratch_1e=',mscratch_1e
+*      write(*,*)'gk: max1e=',max1e
+*      write(*,*)'gk: mscratch_1e=',mscratch_1e
 cgk end
       call int_mem(max1e, max2e, mscratch_1e, mscratch_2e)
 cgk debug
-      write(*,*)'gk: max1e=',max1e,' max2e=',max2e
-      write(*,*)'gk: mscratch_1e=',mscratch_1e,' mscratch_2e=',
-     & mscratch_2e
+*      write(*,*)'gk: max1e=',max1e,' max2e=',max2e
+*      write(*,*)'gk: mscratch_1e=',mscratch_1e,' mscratch_2e=',
+*     & mscratch_2e
 cgk end
 *     max2e = max(max2e,1296*100)          ! 100 D quartets 
       lbuf1 = max(max1e, max2e)
@@ -524,14 +524,14 @@ cgk end
       end if
 
 cgk debug
-      write(*,*)'gk:calling sopgrdtrc'
+*      write(*,*)'gk:calling sopgrdtrc'
 cgk end
       call sopgrdtrc(dbl_mb(k_buf),lbuf1,dbl_mb(k_scr),lscratch,
      & dbl_mb(k_eff),frc_sow,g_sod,g_eff,ibas,geom,nproc,nat,max_at_bf,
      & oskel,frc_sox,frc_soy,frc_soz, dbl_mb(k_sodx),dbl_mb(k_sody),
      & dbl_mb(k_sodz))
 cgk debug
-      write(*,*)'gk:  back from sopgrdtrc'
+*      write(*,*)'gk:  back from sopgrdtrc'
 cgk end
 
       if(me.eq.0) then
@@ -599,8 +599,8 @@ c     memory for basis function to shell mapping array
      &      ('egrad_trace;could not allocate l_smax',nshell, MA_ERR)
 
       call int_mem_2e4c(max2e4c, mscr2e4c) ! blocking algorithm
-      write(*,*)'gk:  max2e4c = ', max2e4c
-      write(*,*)'gk:  mscr2e4c = ', mscr2e4c
+*      write(*,*)'gk:  max2e4c = ', max2e4c
+*      write(*,*)'gk:  mscr2e4c = ', mscr2e4c
       lbuf2=3*4*max2e4c
       lscr2=mscr2e4c
 

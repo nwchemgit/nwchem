@@ -81,7 +81,7 @@ cgk end
       
 c
 cgk debug
-      write(*,*)'gk: entered int_mom_sifs'
+      write(*,*)'gk: **** entered int_mom_sifs'
 cgk end
       basok=.false.
       odbug=.true.
@@ -111,9 +111,9 @@ c
 c     k_* are the offsets corrsponding to the l_* handles
 c     
 cgk debug
-      write(*,*)'gk: max1e=', max1e
-      write(*,*)'gk: mem1=', mem1
-      write(*,*)'gk: nbft=', nbft
+*      write(*,*)'gk: max1e=', max1e
+*      write(*,*)'gk: mem1=', mem1
+*      write(*,*)'gk: nbft=', nbft
 cgk end
       call int_init_dip(max1e,mem1,ibas)
       max1mom=3*max1e
@@ -121,9 +121,9 @@ cgk end
       mem1mom=max(mem1mom,max1mom)
       maxint=nbft*nbft 
 cgk debug
-      write(*,*)'gk: max1mom=', max1mom
-      write(*,*)'gk: mem1mom=', mem1mom
-      write(*,*)'gk: maxint=', maxint
+*      write(*,*)'gk: max1mom=', max1mom
+*      write(*,*)'gk: mem1mom=', mem1mom
+*      write(*,*)'gk: maxint=', maxint
 cgk end
 
 c     get memory for integral buffer
@@ -170,7 +170,7 @@ c       int_type = 2, angular momentum
 
         if (0 .eq. ga_nodeid()) then
 cgk debug
-      write(*,*)'gk: int_type = ', int_type
+*      write(*,*)'gk: int_type = ', int_type
 cgk end
 
 c          start loop over integrals here.
@@ -288,6 +288,10 @@ cgk debug
             do j = 1, i
               if(ibuf.eq.n1max) then
                 numtot = numtot + ibuf
+C LB
+c                WRITE(*,*)"LB: in int_mom_sifs"
+c                WRITE(*,*)"LB: calling sifew1 1 ibuf=",ibuf
+C LB
                 call sifew1(aoints, info, 2, ibuf, msame, 
      &            itypea, itypeb, ifmt1, ibvtyp, 
      &            sifval, clab, fcore, ibitv, 
@@ -317,6 +321,10 @@ cgk debug
 *     write(*,*)'gk:  ibuf=', ibuf
 *     write(*,*)'gk:  numtot=', numtot
 cgk end
+C LB
+*          WRITE(*,*)"LB: in int_mom_sifs"
+*          WRITE(*,*)"LB: calling sifew1 2 ibuf=",ibuf
+C LB
           call sifew1(aoints, info, 2, ibuf, last, 
      &      itypea, itypeb, ifmt1, ibvtyp, 
      &      sifval, clab, fcore, ibitv, 

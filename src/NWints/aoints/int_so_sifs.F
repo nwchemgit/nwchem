@@ -83,7 +83,7 @@ cgk end
       
 c
 cgk debug
-*     write(*,*)'gk: entered int_so_sifs'
+*      write(*,*)'gk: **** entered int_so_sifs'
 cgk end
       basok=.false.
       odbug=.true.
@@ -205,7 +205,7 @@ cgk end
                        ijmap=(j-jlo)*(ihi-ilo+1)+(i-ilo)
                        if(i.ge.j) then
                          symmap=nbft*(j-1)-((j-1)*j)/2+i
-      write(*,*)'gk: symmap=',symmap
+*     write(*,*)'gk: symmap=',symmap
                          dbl_mb(k_sox+symmap-1)=
      &                     dbl_mb(k_buf+noffsetx+ijmap)
                          dbl_mb(k_soy+symmap-1)=
@@ -267,6 +267,12 @@ cgk debug
           do j = 1, i
             if(ibuf.eq.n1max) then
               numtot = numtot + ibuf
+cgk debug
+*      WRITE(*,*)"LB: calling sifew1 1"
+*      write(*,*)'gk: nrec=', nrec
+*      write(*,*)'gk:  ibuf=', ibuf
+*      write(*,*)'gk:  numtot=', numtot
+cgk end
               call sifew1(aoints, info, 2, ibuf, msame, 
      &          itypea, itypeb, ifmt1, ibvtyp, 
      &          sifval, clab, fcore, ibitv, 
@@ -292,6 +298,7 @@ cgk debug
 *       endif
         numtot=numtot+ibuf
 cgk debug
+*     WRITE(*,*)"LB: calling sifew1 2"
 *     write(*,*)'gk: nrec=', nrec
 *     write(*,*)'gk:  ibuf=', ibuf
 *     write(*,*)'gk:  numtot=', numtot

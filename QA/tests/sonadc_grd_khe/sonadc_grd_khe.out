@@ -1,0 +1,932 @@
+ argument  1 = khe_nwgrd.nw
+ 
+
+
+============================== echo of input deck ==============================
+start KHe_sogrd
+echo
+
+Memory 128 mw
+
+title "KHe_sogrd"
+
+charge 0
+
+geometry noautoz noautosym nocenter units angstroms
+  K   0.00000  0.00000 0.00000
+  He   0.00000  0.00000  2.8000
+end
+
+basis "ao basis" spherical print
+K s
+     2.889   -0.357900   0.079654
+     0.8196   0.655080  -0.157670
+     0.3127   0.579747  -0.288046
+     0.03388  0.015885   0.738296
+     0.01725 -0.007494   0.360381
+K p
+     8.714   -0.032020   0.000000   0.000000
+     1.089    0.335737   0.000000   0.000000
+     0.5906   0.430529   1.000000   0.000000
+     0.2267   0.342939   0.000000   1.000000
+He    S
+     13.6267000              0.1752300
+      1.9993500              0.8934830
+He    S
+      0.3829930              1.0000000
+END
+
+ECP
+K nelec 10
+K ul
+2      4.99889994            -1.96356797
+2     14.58220005           -15.53031635
+2     44.89559937           -38.57669830
+1    141.48350525            -7.30101395
+K S
+2      2.41030002            33.92499542
+2      2.77449989          -117.52191162
+2      3.33690000           108.25654602
+1      2.22169995             5.80375385
+0     12.19449997             3.21023202
+K P
+2      3.15459990           -69.97570801
+2      4.03189993           178.15260315
+2      5.16720009          -136.11946106
+1     11.33360004             4.43228197
+0      1.74329996             4.74835920
+END
+
+SO
+K p
+    2       3.154600        -.845252
+    2       4.031900        3.456178
+    2       5.167200       -3.072636
+    1      11.333600         .052312
+    0       1.743300        -.005898
+K d
+    2       4.998900        -.025066
+    2      14.582200         .044370
+    2      44.895600         .045586
+    1     141.483500         .236567
+END
+
+dft
+  mult 2
+  xc hfexch
+end
+
+task sodft grdtrc
+================================================================================
+
+
+                                         
+                                         
+ 
+ 
+             Northwest Computational Chemistry Package (NWChem) 7.0.1
+             --------------------------------------------------------
+ 
+ 
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+ 
+                              Copyright (c) 1994-2022
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+ 
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+ 
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = r3i2n33
+    program         = /p/home/lbelcher/nwchem/bin/LINUX64/nwchem
+    date            = Thu Nov 24 14:20:32 2022
+
+    compiled        = Thu_Nov_24_03:22:59_2022
+    source          = /p/home/lbelcher/nwchem
+    nwchem branch   = 7.0.0
+    nwchem revision = nwchem_on_git-4289-g5e150cd
+    ga revision     = 5.8.0
+    use scalapack   = T
+    input           = khe_nwgrd.nw
+    prefix          = KHe_sogrd.
+    data base       = ./KHe_sogrd.db
+    status          = startup
+    nproc           =        1
+    time left       =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   33554430 doubles =    256.0 Mbytes
+    stack    =   33554427 doubles =    256.0 Mbytes
+    global   =   67108864 doubles =    512.0 Mbytes (distinct from heap & stack)
+    total    =  134217721 doubles =   1024.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+ 
+  0 permanent = .
+  0 scratch   = .
+ 
+ 
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+                                     KHe_sogrd
+                                     ---------
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ 
+ 
+                             Geometry "geometry" -> ""
+                             -------------------------
+ 
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 K                   19.0000     0.00000000     0.00000000     0.00000000
+    2 He                   2.0000     0.00000000     0.00000000     2.80000000
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      K                 38.963710
+      He                 4.002600
+ 
+
+ Effective nuclear repulsion energy (a.u.)       7.1816912364
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000    10.5824655360
+ 
+ 
+            XYZ format geometry
+            -------------------
+     2
+ geometry
+ K                     0.00000000     0.00000000     0.00000000
+ He                    0.00000000     0.00000000     2.80000000
+ 
+
+ **** WARNING Zero Coefficient **** on atom "               K"
+ angular momentum value: 1  standard basis set name: "user specified"
+ input line that generated warning:
+    23:      8.714   -0.032020   0.000000   0.000000
+  
+
+ **** WARNING Zero Coefficient **** on atom "               K"
+ angular momentum value: 1  standard basis set name: "user specified"
+ input line that generated warning:
+    23:      8.714   -0.032020   0.000000   0.000000
+  
+
+ **** WARNING Zero Coefficient **** on atom "               K"
+ angular momentum value: 1  standard basis set name: "user specified"
+ input line that generated warning:
+    24:      1.089    0.335737   0.000000   0.000000
+  
+
+ **** WARNING Zero Coefficient **** on atom "               K"
+ angular momentum value: 1  standard basis set name: "user specified"
+ input line that generated warning:
+    24:      1.089    0.335737   0.000000   0.000000
+  
+
+ **** WARNING Zero Coefficient **** on atom "               K"
+ angular momentum value: 1  standard basis set name: "user specified"
+ input line that generated warning:
+    25:      0.5906   0.430529   1.000000   0.000000
+  
+
+ **** WARNING Zero Coefficient **** on atom "               K"
+ angular momentum value: 1  standard basis set name: "user specified"
+ input line that generated warning:
+    26:      0.2267   0.342939   0.000000   1.000000
+  
+                      Basis "ao basis" -> "" (spherical)
+                      -----
+  K (Potassium)
+  -------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  2.88900000E+00 -0.357900
+  1 S  8.19600000E-01  0.655080
+  1 S  3.12700000E-01  0.579747
+  1 S  3.38800000E-02  0.015885
+  1 S  1.72500000E-02 -0.007494
+ 
+  2 S  2.88900000E+00  0.079654
+  2 S  8.19600000E-01 -0.157670
+  2 S  3.12700000E-01 -0.288046
+  2 S  3.38800000E-02  0.738296
+  2 S  1.72500000E-02  0.360381
+ 
+  3 P  8.71400000E+00 -0.032020
+  3 P  1.08900000E+00  0.335737
+  3 P  5.90600000E-01  0.430529
+  3 P  2.26700000E-01  0.342939
+ 
+  4 P  5.90600000E-01  1.000000
+ 
+  5 P  2.26700000E-01  1.000000
+ 
+  He (Helium)
+  -----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.36267000E+01  0.175230
+  1 S  1.99935000E+00  0.893483
+ 
+  2 S  3.82993000E-01  1.000000
+ 
+
+
+ Summary of "ao basis" -> "" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ K                       user specified              5       11   2s3p
+ He                      user specified              2        2   2s
+
+
+                 ECP       "ecp basis" -> "" (cartesian)
+                -----
+  K (Potassium) Replaces    10 electrons
+  --------------------------------------
+             Channel    R-exponent     Exponent     Coefficients
+         ------------ ---------------------------------------------------------
+  1 U L       Both         2.00        4.998900      -1.963568
+  1 U L       Both         2.00       14.582200     -15.530316
+  1 U L       Both         2.00       44.895599     -38.576698
+  1 U L       Both         1.00      141.483505      -7.301014
+ 
+  2 U-s       Both         2.00        2.410300      33.924995
+  2 U-s       Both         2.00        2.774500    -117.521912
+  2 U-s       Both         2.00        3.336900     108.256546
+  2 U-s       Both         1.00        2.221700       5.803754
+  2 U-s       Both         0.00       12.194500       3.210232
+ 
+  3 U-p       Both         2.00        3.154600     -69.975708
+  3 U-p       Both         2.00        4.031900     178.152603
+  3 U-p       Both         2.00        5.167200    -136.119461
+  3 U-p       Both         1.00       11.333600       4.432282
+  3 U-p       Both         0.00        1.743300       4.748359
+ 
+             SO Potential "so potential" -> ""
+                      -----
+  K (Potassium)
+  -------------
+          R-exponent    Exponent     Coefficients 
+         ------------ ------------------------------------------------------------
+  1 U-p      2.00        3.154600      -0.845252
+  1 U-p      2.00        4.031900       3.456178
+  1 U-p      2.00        5.167200      -3.072636
+  1 U-p      1.00       11.333600       0.052312
+  1 U-p      0.00        1.743300      -0.005898
+ 
+  2 U-d      2.00        4.998900      -0.025066
+  2 U-d      2.00       14.582200       0.044370
+  2 U-d      2.00       44.895600       0.045586
+  2 U-d      1.00      141.483500       0.236567
+ 
+  xc_inp: hfexch multiplicative factor not found.
+ gk: entered task_nadtrc
+ gk: in task_aoints_doit
+ gk: calling dft_pstat_init from sodft_aoints
+                                 NWChem DFT Module
+                                 -----------------
+ 
+ 
+                                     KHe_sogrd
+ 
+ 
+ 
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  spin polarized.
+          No. of atoms     :     2
+          No. of electrons :    11
+           Alpha electrons :     6
+            Beta electrons :     5
+          Charge           :     0
+          Spin multiplicity:     2
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  50
+          AO basis - number of functions:    13
+                     number of shells:     7
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+ 
+              XC Information
+              --------------
+                     Hartree-Fock (Exact) Exchange  1.000          
+ 
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         50 iters            50 iters 
+
+ 
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-10
+
+ gk: in nadct_trace
+ gk: in rdhcid, nsym=           1
+ gk:  nmot =           13
+ gk:  nmap =            0
+ gk:  nenrgy =            6
+ ntitle=           6
+
+ ci density file header information:
+ AO integrals from NWChem                                                        
+ cidrtms input generated from ciml.x                                             
+ mcdrt description not specified                                                 
+ mofmt: formatted orbitals label=morbl   r2i6n32           15:36:02.656 07-Apr-22
+ SIFS file created by program tran.      r2i6n32           15:36:03.388 07-Apr-22
+ SIFS file created by program tran.      r2i6n32           15:37:28.936 07-Apr-22
+ (isym:nbpsy)  1: 13
+ gk: entered egrad_trace
+ gk: nbft =                     13
+ gk: nadct =  F
+ gk: ibas =                    566
+ gk: numd1=                    91  nbft=                    13
+ LB egrad_trace, l1rec=        4096 n1max=        3272 numd1s=          91 nsym=
+           1 nmpsy=          13 kntin=           0 nbfs=          13
+ gk: effective densitiy matrix global array
+
+ global array: total eff density matrix[1:13,1:13],  handle: -999 
+
+            1           2           3           4           5           6  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1       1.99953     0.00240     0.00000     0.00000    -0.00079     0.00000
+   2       0.00240     1.02806     0.00000     0.00000    -0.00284     0.00000
+   3       0.00000     0.00000     2.07351    -0.00000     0.00000    -0.04588
+   4       0.00000     0.00000    -0.00000     2.07324     0.00000     0.00000
+   5      -0.00079    -0.00284     0.00000     0.00000     2.07207     0.00000
+   6       0.00000     0.00000    -0.04588     0.00000     0.00000     0.01461
+   7       0.00000     0.00000     0.00000    -0.04580     0.00000     0.00000
+   8       0.00072     0.01889     0.00000     0.00000    -0.04470     0.00000
+   9       0.00000     0.00000    -0.02033    -0.00000     0.00000     0.01299
+  10       0.00000     0.00000    -0.00000    -0.02026     0.00000    -0.00000
+  11       0.00027    -0.01641     0.00000     0.00000    -0.02067     0.00000
+  12      -0.00387    -0.02270     0.00000     0.00000    -0.00724     0.00000
+  13      -0.00653    -0.11240     0.00000     0.00000    -0.01038     0.00000
+
+            7           8           9          10          11          12  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1       0.00000     0.00072     0.00000     0.00000     0.00027    -0.00387
+   2       0.00000     0.01889     0.00000     0.00000    -0.01641    -0.02270
+   3       0.00000     0.00000    -0.02033    -0.00000     0.00000     0.00000
+   4      -0.04580     0.00000    -0.00000    -0.02026     0.00000     0.00000
+   5       0.00000    -0.04470     0.00000     0.00000    -0.02067    -0.00724
+   6       0.00000     0.00000     0.01299    -0.00000     0.00000     0.00000
+   7       0.01462     0.00000    -0.00000     0.01298     0.00000     0.00000
+   8       0.00000     0.01588     0.00000     0.00000     0.01202    -0.01883
+   9      -0.00000     0.00000     0.01655     0.00000     0.00000     0.00000
+  10       0.01298     0.00000     0.00000     0.01656     0.00000     0.00000
+  11       0.00000     0.01202     0.00000     0.00000     0.01734     0.01470
+  12       0.00000    -0.01883     0.00000     0.00000     0.01470     0.42886
+  13       0.00000    -0.02999     0.00000     0.00000     0.02316     0.59438
+
+           13  
+       -----------
+   1      -0.00653
+   2      -0.11240
+   3       0.00000
+   4       0.00000
+   5      -0.01038
+   6       0.00000
+   7       0.00000
+   8      -0.02999
+   9       0.00000
+  10       0.00000
+  11       0.02316
+  12       0.59438
+  13       0.87584
+ gk: effective fock matrix global array
+
+ global array: effective fock matrix[1:13,1:13],  handle: -998 
+
+            1           2           3           4           5           6  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1      -3.53589     0.00233     0.00000     0.00000    -0.00131     0.00000
+   2       0.00233    -0.14546     0.00000     0.00000     0.00110     0.00000
+   3       0.00000     0.00000    -2.28903    -0.00000     0.00000     0.16500
+   4       0.00000     0.00000    -0.00000    -2.28924     0.00000     0.00000
+   5      -0.00131     0.00110     0.00000     0.00000    -2.28944     0.00000
+   6       0.00000     0.00000     0.16500     0.00000     0.00000    -0.06562
+   7       0.00000     0.00000     0.00000     0.16507     0.00000     0.00000
+   8      -0.00128    -0.00184     0.00000     0.00000     0.16471     0.00000
+   9       0.00000     0.00000     0.13675     0.00000     0.00000    -0.05272
+  10       0.00000     0.00000     0.00000     0.13681     0.00000    -0.00000
+  11      -0.00060     0.00176     0.00000     0.00000     0.13705     0.00000
+  12       0.00249    -0.01129     0.00000     0.00000    -0.00050     0.00000
+  13       0.00379    -0.00627     0.00000     0.00000    -0.00200     0.00000
+
+            7           8           9          10          11          12  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1       0.00000    -0.00128     0.00000     0.00000    -0.00060     0.00249
+   2       0.00000    -0.00184     0.00000     0.00000     0.00176    -0.01129
+   3       0.00000     0.00000     0.13675     0.00000     0.00000     0.00000
+   4       0.16507     0.00000     0.00000     0.13681     0.00000     0.00000
+   5       0.00000     0.16471     0.00000     0.00000     0.13705    -0.00050
+   6       0.00000     0.00000    -0.05272    -0.00000     0.00000     0.00000
+   7      -0.06562     0.00000    -0.00000    -0.05271     0.00000     0.00000
+   8       0.00000    -0.06659     0.00000     0.00000    -0.05210     0.01522
+   9      -0.00000     0.00000    -0.05368     0.00000     0.00000     0.00000
+  10      -0.05271     0.00000     0.00000    -0.05367     0.00000     0.00000
+  11       0.00000    -0.05210     0.00000     0.00000    -0.05419    -0.01257
+  12       0.00000     0.01522     0.00000     0.00000    -0.01257    -0.46357
+  13       0.00000     0.02468     0.00000     0.00000    -0.01928    -0.55147
+
+           13  
+       -----------
+   1       0.00379
+   2      -0.00627
+   3       0.00000
+   4       0.00000
+   5      -0.00200
+   6       0.00000
+   7       0.00000
+   8       0.02468
+   9       0.00000
+  10       0.00000
+  11      -0.01928
+  12      -0.55147
+  13      -0.78254
+ gk: max1e=                    64
+ gk: mscratch_1e=                 90009
+ gk: max1e=                    64  max2e=                  1458
+ gk: mscratch_1e=                 90009  mscratch_2e=                343188
+kinetic energy gradient  
+     0.0000000000     0.0000000000    -1.2178288086
+     0.0000000000     0.0000000000     1.2178288086
+
+nuclear repulsion gradient  
+     0.0000000000     0.0000000000     0.6429227163
+     0.0000000000     0.0000000000    -0.6429227163
+
+weighted density gradient  
+     0.0000000000     0.0000000000     0.0036211058
+     0.0000000000     0.0000000000    -0.0036211058
+
+ gk: x so effective density global array
+
+ global array: so density matrix[1:13,1:13],  handle: -995 
+
+            1           2           3           4           5           6  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1       0.00000     0.00000    -0.00000     0.00000     0.00000    -0.00000
+   2      -0.00000     0.00000     0.00000    -0.00004    -0.00000    -0.00000
+   3       0.00000    -0.00000     0.00000     0.00000     0.00000    -0.00000
+   4      -0.00000     0.00004    -0.00000     0.00000     0.01869    -0.00000
+   5      -0.00000     0.00000    -0.00000    -0.01869     0.00000     0.00000
+   6       0.00000     0.00000     0.00000     0.00000    -0.00000     0.00000
+   7       0.00000    -0.00002    -0.00000     0.00000    -0.00564     0.00000
+   8      -0.00000    -0.00000     0.00000     0.00564     0.00000     0.00000
+   9      -0.00000    -0.00000     0.00000    -0.00000    -0.00000     0.00000
+  10       0.00000    -0.00004     0.00000     0.00000    -0.00474     0.00000
+  11       0.00000    -0.00000    -0.00000     0.00475     0.00000     0.00000
+  12       0.00000     0.00000    -0.00000     0.00004    -0.00000    -0.00000
+  13       0.00000     0.00000    -0.00000     0.00011     0.00000    -0.00000
+
+            7           8           9          10          11          12  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1      -0.00000     0.00000     0.00000    -0.00000    -0.00000    -0.00000
+   2       0.00002     0.00000     0.00000     0.00004     0.00000    -0.00000
+   3       0.00000    -0.00000    -0.00000    -0.00000     0.00000     0.00000
+   4      -0.00000    -0.00564     0.00000    -0.00000    -0.00475    -0.00004
+   5       0.00564    -0.00000     0.00000     0.00474    -0.00000     0.00000
+   6      -0.00000    -0.00000    -0.00000    -0.00000    -0.00000     0.00000
+   7       0.00000     0.00021     0.00000    -0.00000     0.00010     0.00005
+   8      -0.00021     0.00000    -0.00000    -0.00009    -0.00000    -0.00000
+   9      -0.00000     0.00000     0.00000    -0.00000    -0.00000    -0.00000
+  10       0.00000     0.00009     0.00000     0.00000    -0.00002     0.00006
+  11      -0.00010     0.00000     0.00000     0.00002     0.00000    -0.00000
+  12      -0.00005     0.00000     0.00000    -0.00006     0.00000     0.00000
+  13      -0.00008    -0.00000     0.00000    -0.00009     0.00000     0.00000
+
+           13  
+       -----------
+   1      -0.00000
+   2      -0.00000
+   3       0.00000
+   4      -0.00011
+   5      -0.00000
+   6       0.00000
+   7       0.00008
+   8       0.00000
+   9      -0.00000
+  10       0.00009
+  11      -0.00000
+  12      -0.00000
+  13       0.00000
+ gk: y so effective density global array
+
+ global array: so density matrix[1:13,1:13],  handle: -994 
+
+            1           2           3           4           5           6  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1       0.00000    -0.00000    -0.00000     0.00000     0.00000     0.00000
+   2       0.00000     0.00000     0.00004     0.00000    -0.00000    -0.00002
+   3       0.00000    -0.00004     0.00000     0.00000    -0.01869     0.00000
+   4      -0.00000    -0.00000    -0.00000     0.00000     0.00000     0.00000
+   5      -0.00000     0.00000     0.01869    -0.00000     0.00000    -0.00564
+   6      -0.00000     0.00002    -0.00000    -0.00000     0.00564     0.00000
+   7       0.00000     0.00000     0.00000    -0.00000    -0.00000    -0.00000
+   8      -0.00000    -0.00000    -0.00564     0.00000    -0.00000     0.00021
+   9      -0.00000     0.00004     0.00000     0.00000     0.00474    -0.00000
+  10       0.00000     0.00000    -0.00000     0.00000    -0.00000    -0.00000
+  11       0.00000    -0.00000    -0.00475    -0.00000    -0.00000     0.00010
+  12      -0.00000    -0.00000    -0.00004    -0.00000    -0.00000     0.00005
+  13      -0.00000    -0.00000    -0.00011    -0.00000     0.00000     0.00008
+
+            7           8           9          10          11          12  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1      -0.00000     0.00000     0.00000    -0.00000    -0.00000     0.00000
+   2      -0.00000     0.00000    -0.00004    -0.00000     0.00000     0.00000
+   3      -0.00000     0.00564    -0.00000     0.00000     0.00475     0.00004
+   4       0.00000    -0.00000    -0.00000    -0.00000     0.00000     0.00000
+   5       0.00000     0.00000    -0.00474     0.00000     0.00000     0.00000
+   6       0.00000    -0.00021     0.00000     0.00000    -0.00010    -0.00005
+   7       0.00000    -0.00000    -0.00000     0.00000    -0.00000     0.00000
+   8       0.00000     0.00000     0.00009    -0.00000     0.00000     0.00000
+   9       0.00000    -0.00009     0.00000    -0.00000     0.00002    -0.00006
+  10      -0.00000     0.00000     0.00000     0.00000    -0.00000    -0.00000
+  11       0.00000    -0.00000    -0.00002     0.00000     0.00000    -0.00000
+  12      -0.00000    -0.00000     0.00006     0.00000     0.00000     0.00000
+  13       0.00000    -0.00000     0.00009     0.00000     0.00000     0.00000
+
+           13  
+       -----------
+   1       0.00000
+   2       0.00000
+   3       0.00011
+   4       0.00000
+   5      -0.00000
+   6      -0.00008
+   7      -0.00000
+   8       0.00000
+   9      -0.00009
+  10      -0.00000
+  11      -0.00000
+  12      -0.00000
+  13       0.00000
+ gk: z so effective density global array
+
+ global array: so density matrix[1:13,1:13],  handle: -993 
+
+            1           2           3           4           5           6  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1       0.00000    -0.00000    -0.00000    -0.00000     0.00000     0.00000
+   2       0.00000     0.00000    -0.00000     0.00000    -0.00000     0.00000
+   3       0.00000     0.00000     0.00000     0.01868     0.00000     0.00000
+   4       0.00000    -0.00000    -0.01868     0.00000     0.00000     0.00564
+   5      -0.00000     0.00000    -0.00000    -0.00000     0.00000     0.00000
+   6      -0.00000    -0.00000    -0.00000    -0.00564    -0.00000     0.00000
+   7       0.00000     0.00000     0.00564    -0.00000    -0.00000    -0.00022
+   8      -0.00000    -0.00000     0.00000     0.00000    -0.00000    -0.00000
+   9      -0.00000    -0.00000    -0.00000    -0.00475     0.00000    -0.00000
+  10      -0.00000     0.00000     0.00475    -0.00000     0.00000    -0.00009
+  11       0.00000     0.00000    -0.00000    -0.00000    -0.00000    -0.00000
+  12      -0.00000     0.00000     0.00000    -0.00000    -0.00000    -0.00000
+  13      -0.00000     0.00000     0.00000    -0.00000     0.00000    -0.00000
+
+            7           8           9          10          11          12  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1      -0.00000     0.00000     0.00000     0.00000    -0.00000     0.00000
+   2      -0.00000     0.00000     0.00000    -0.00000    -0.00000    -0.00000
+   3      -0.00564    -0.00000     0.00000    -0.00475     0.00000    -0.00000
+   4       0.00000    -0.00000     0.00475     0.00000     0.00000     0.00000
+   5       0.00000     0.00000    -0.00000    -0.00000     0.00000     0.00000
+   6       0.00022     0.00000     0.00000     0.00009     0.00000     0.00000
+   7       0.00000     0.00000    -0.00009     0.00000     0.00000     0.00000
+   8      -0.00000     0.00000    -0.00000    -0.00000     0.00000    -0.00000
+   9       0.00009     0.00000     0.00000    -0.00003    -0.00000    -0.00000
+  10      -0.00000     0.00000     0.00003     0.00000     0.00000    -0.00000
+  11      -0.00000    -0.00000     0.00000    -0.00000     0.00000    -0.00000
+  12      -0.00000     0.00000     0.00000     0.00000     0.00000     0.00000
+  13      -0.00000    -0.00000     0.00000     0.00000     0.00000     0.00000
+
+           13  
+       -----------
+   1       0.00000
+   2      -0.00000
+   3      -0.00000
+   4       0.00000
+   5      -0.00000
+   6       0.00000
+   7       0.00000
+   8       0.00000
+   9      -0.00000
+  10      -0.00000
+  11      -0.00000
+  12      -0.00000
+  13       0.00000
+ gk: spin orbit effective fock matrix global array
+
+ global array: effective fock matrix[1:13,1:13],  handle: -998 
+
+            1           2           3           4           5           6  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1      -0.00000     0.00000    -0.00000     0.00000    -0.00000     0.00000
+   2       0.00000     0.00000    -0.00000     0.00000     0.00000     0.00000
+   3      -0.00000    -0.00000    -0.00287     0.00000    -0.00000     0.00198
+   4       0.00000     0.00000     0.00000    -0.00270    -0.00000    -0.00000
+   5      -0.00000     0.00000    -0.00000    -0.00000    -0.00252     0.00000
+   6       0.00000     0.00000     0.00198    -0.00000     0.00000    -0.00138
+   7      -0.00000    -0.00000    -0.00000     0.00187    -0.00000    -0.00000
+   8       0.00000    -0.00000     0.00000     0.00000     0.00179    -0.00000
+   9       0.00000     0.00000     0.00117     0.00000    -0.00000    -0.00085
+  10      -0.00000    -0.00000     0.00000     0.00119     0.00000     0.00000
+  11       0.00000    -0.00000     0.00000    -0.00000     0.00119    -0.00000
+  12      -0.00000     0.00000    -0.00000     0.00000    -0.00001     0.00000
+  13      -0.00000    -0.00000     0.00000     0.00000     0.00000    -0.00000
+
+            7           8           9          10          11          12  
+       ----------- ----------- ----------- ----------- ----------- -----------
+   1      -0.00000     0.00000     0.00000    -0.00000     0.00000    -0.00000
+   2      -0.00000    -0.00000     0.00000    -0.00000    -0.00000     0.00000
+   3      -0.00000     0.00000     0.00117     0.00000     0.00000    -0.00000
+   4       0.00187     0.00000     0.00000     0.00119    -0.00000     0.00000
+   5      -0.00000     0.00179    -0.00000     0.00000     0.00119    -0.00001
+   6      -0.00000    -0.00000    -0.00085     0.00000    -0.00000     0.00000
+   7      -0.00140    -0.00000     0.00000    -0.00085     0.00000    -0.00000
+   8      -0.00000    -0.00138     0.00000    -0.00000    -0.00086     0.00001
+   9       0.00000     0.00000    -0.00044     0.00000     0.00000     0.00000
+  10      -0.00085    -0.00000     0.00000    -0.00044    -0.00000    -0.00000
+  11       0.00000    -0.00086     0.00000    -0.00000    -0.00044     0.00000
+  12      -0.00000     0.00001     0.00000    -0.00000     0.00000    -0.00000
+  13      -0.00000    -0.00000    -0.00000    -0.00000    -0.00001     0.00000
+
+           13  
+       -----------
+   1      -0.00000
+   2      -0.00000
+   3       0.00000
+   4       0.00000
+   5       0.00000
+   6      -0.00000
+   7      -0.00000
+   8      -0.00000
+   9      -0.00000
+  10      -0.00000
+  11      -0.00001
+  12       0.00000
+  13       0.00000
+ gk:calling sopgrdtrc
+forces sow  0.20461E-14  0.20132E-16  0.10319E-05 -0.20461E-14 -0.20132E-16 -0.10319E-05
+forces sox  0.00000E+00 -0.41485E-19 -0.76260E-10  0.00000E+00  0.41485E-19  0.76260E-10
+forces soy -0.27746E-18  0.00000E+00 -0.76260E-10  0.27746E-18  0.00000E+00  0.76260E-10
+forces soz  0.34733E-18  0.35460E-19  0.00000E+00 -0.34733E-18 -0.35460E-19  0.00000E+00
+ gk:  back from sopgrdtrc
+SOx gradient  
+       0.000000E+00      -0.414852E-19      -0.762599E-10
+       0.000000E+00       0.414852E-19       0.762599E-10
+
+SOy gradient  
+      -0.277455E-18       0.000000E+00      -0.762600E-10
+       0.277455E-18       0.000000E+00       0.762600E-10
+
+SOz gradient  
+       0.347326E-18       0.354601E-19       0.000000E+00
+      -0.347326E-18      -0.354601E-19       0.000000E+00
+
+SO F.dS gradient  
+       0.204611E-14       0.201322E-16       0.103185E-05
+      -0.204611E-14      -0.201322E-16      -0.103185E-05
+
+total SO gradient  
+      -0.204604E-14      -0.201382E-16      -0.103201E-05
+       0.204604E-14       0.201382E-16       0.103201E-05
+
+ LB: calling sifskh, fsplit =           1
+ gk:  max2e4c =                   1458
+ gk:  mscr2e4c =                 343188
+ gk: ijkl =                   4186
+ gk: mx_d2 =                   4186
+ n2max =         1364
+ nipv =            4
+ n2max =         1364
+ nipv =            4
+2 electron energy gradient  
+    -0.0000000000     0.0000000000     0.5759346800
+     0.0000000000    -0.0000000000    -0.5759346800
+
+total gradient  
+    -0.0000000000     0.0000000000     0.0046486614
+     0.0000000000    -0.0000000000    -0.0046486614
+
+sci total gradient  
+      -0.605926E-13       0.160987E-13       0.464866E-02
+       0.605926E-13      -0.160987E-13      -0.464866E-02
+
+ gk: leaving nadct_traces
+ gk: starting dft cleanup in sodft_aoints
+ gk: leaving task_aoints_doit
+ gk: leaving task_nadtrc
+
+ Task  times  cpu:        0.0s     wall:        0.0s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+ Summary of allocated global arrays
+-----------------------------------
+  array 0 => double precision forces(3,2),  handle: -1000 
+  array 1 => double precision total eff density matrix(13,13),  handle: -999 
+  array 2 => double precision effective fock matrix(13,13),  handle: -998 
+  array 3 => double precision antisymmteric density matrix(13,13),  handle: -997 
+  array 4 => double precision half-derivative overlap matrix(13,13),  handle: -996 
+  array 5 => double precision so density matrix(13,13),  handle: -995 
+  array 6 => double precision so density matrix(13,13),  handle: -994 
+  array 7 => double precision so density matrix(13,13),  handle: -993 
+
+
+MA_summarize_allocated_blocks: starting scan ...
+stack block 'forces', handle 34, address 0x37116028:
+	type of elements:		double precision
+	number of elements:		6
+	address of client space:	0x37116080
+	index for client space:		81232949
+	total number of bytes:		192
+stack block 'forces', handle 33, address 0x371160e8:
+	type of elements:		double precision
+	number of elements:		6
+	address of client space:	0x37116140
+	index for client space:		81232973
+	total number of bytes:		192
+stack block 'forces', handle 32, address 0x371161a8:
+	type of elements:		double precision
+	number of elements:		6
+	address of client space:	0x37116200
+	index for client space:		81232997
+	total number of bytes:		192
+stack block 'forces', handle 13, address 0x37116268:
+	type of elements:		double precision
+	number of elements:		6
+	address of client space:	0x371162c0
+	index for client space:		81233021
+	total number of bytes:		192
+stack block 'forces', handle 12, address 0x37116328:
+	type of elements:		double precision
+	number of elements:		6
+	address of client space:	0x37116380
+	index for client space:		81233045
+	total number of bytes:		192
+stack block 'forces', handle 11, address 0x371163e8:
+	type of elements:		double precision
+	number of elements:		6
+	address of client space:	0x37116440
+	index for client space:		81233069
+	total number of bytes:		192
+stack block 'forces', handle 10, address 0x371164a8:
+	type of elements:		double precision
+	number of elements:		6
+	address of client space:	0x37116500
+	index for client space:		81233093
+	total number of bytes:		192
+stack block 'forces', handle 9, address 0x37116568:
+	type of elements:		double precision
+	number of elements:		6
+	address of client space:	0x371165c0
+	index for client space:		81233117
+	total number of bytes:		192
+stack block 'forces', handle 8, address 0x37116628:
+	type of elements:		double precision
+	number of elements:		6
+	address of client space:	0x37116680
+	index for client space:		81233141
+	total number of bytes:		192
+stack block 'forces', handle 7, address 0x371166e8:
+	type of elements:		double precision
+	number of elements:		6
+	address of client space:	0x37116740
+	index for client space:		81233165
+	total number of bytes:		192
+stack block 'ovl eig vals', handle 6, address 0x371167a8:
+	type of elements:		double precision
+	number of elements:		13
+	address of client space:	0x37116800
+	index for client space:		81233189
+	total number of bytes:		248
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 11 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	        11
+	maximum number of blocks	        38	        32
+	current total bytes		         0	      2168
+	maximum total bytes		     80120	   6064760
+	maximum total K-bytes		        81	      6065
+	maximum total M-bytes		         1	         7
+ 
+ 
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+ 
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, Y. Alexeev, J. Anchell,
+       V. Anisimov, F. W. Aquino, R. Atta-Fynn, J. Autschbach, N. P. Bauman,
+     J. C. Becca, D. E. Bernholdt, K. Bhaskaran-Nair, S. Bogatko, P. Borowski,
+         J. Boschen, J. Brabec, A. Bruner, E. Cauet, Y. Chen, G. N. Chuev,
+      C. J. Cramer, J. Daily, M. J. O. Deegan, T. H. Dunning Jr., M. Dupuis,
+   K. G. Dyall, G. I. Fann, S. A. Fischer, A. Fonari, H. Fruchtl, L. Gagliardi,
+      J. Garza, N. Gawande, S. Ghosh, K. Glaesemann, A. W. Gotz, J. Hammond,
+       V. Helms, E. D. Hermes, K. Hirao, S. Hirata, M. Jacquelin, L. Jensen,
+   B. G. Johnson, H. Jonsson, R. A. Kendall, M. Klemm, R. Kobayashi, V. Konkov,
+      S. Krishnamoorthy, M. Krishnan, Z. Lin, R. D. Lins, R. J. Littlefield,
+      A. J. Logsdail, K. Lopata, W. Ma, A. V. Marenich, J. Martin del Campo,
+   D. Mejia-Rodriguez, J. E. Moore, J. M. Mullin, T. Nakajima, D. R. Nascimento,
+    J. A. Nichols, P. J. Nichols, J. Nieplocha, A. Otero-de-la-Roza, B. Palmer,
+    A. Panyala, T. Pirojsirikul, B. Peng, R. Peverati, J. Pittner, L. Pollack,
+   R. M. Richard, P. Sadayappan, G. C. Schatz, W. A. Shelton, D. W. Silverstein,
+   D. M. A. Smith, T. A. Soares, D. Song, M. Swart, H. L. Taylor, G. S. Thomas,
+            V. Tipparaju, D. G. Truhlar, K. Tsemekhman, T. Van Voorhis,
+      A. Vazquez-Mayagoitia, P. Verma, O. Villa, A. Vishnu, K. D. Vogiatzis,
+        D. Wang, J. H. Weare, M. J. Williamson, T. L. Windus, K. Wolinski,
+        A. T. Wong, Q. Wu, C. Yang, Q. Yu, M. Zacharias, Z. Zhang, Y. Zhao,
+                                and R. J. Harrison
+                        "NWChem: Past, present, and future
+                         J. Chem. Phys. 152, 184102 (2020)
+                               doi:10.1063/5.0004997
+ 
+                                      AUTHORS
+                                      -------
+  E. Apra, E. J. Bylaska, N. Govind, K. Kowalski, M. Valiev, D. Mejia-Rodriguez,
+       A. Kunitsa, N. P. Bauman, A. Panyala, W. A. de Jong, T. P. Straatsma,
+   H. J. J. van Dam, D. Wang, T. L. Windus, J. Hammond, J. Autschbach, A. Woods,
+    K. Bhaskaran-Nair, J. Brabec, K. Lopata, S. A. Fischer, S. Krishnamoorthy,
+     M. Jacquelin, W. Ma, M. Klemm, O. Villa, Y. Chen, V. Anisimov, F. Aquino,
+     S. Hirata, M. T. Hackler, E. Hermes, L. Jensen, J. E. Moore, J. C. Becca,
+      V. Konjkov, T. Risthaus, M. Malagoli, A. Marenich, A. Otero-de-la-Roza,
+        J. Mullin, P. Nichols, R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan,
+        A. Fonari, M. J. Williamson, R. J. Harrison, J. R. Rehr, M. Dupuis,
+     D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan,
+     B. E. Van Kuiken, A. Vazquez-Mayagoitia, M. Swart, Q. Wu, T. Van Voorhis,
+     A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann,
+   H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall, J. A. Nichols, K. Tsemekhman,
+    K. Wolinski, J. Anchell, D. E. Bernholdt, P. Borowski, T. Clark, D. Clerc,
+   H. Dachsel, M. J. O. Deegan, K. Dyall, D. Elwood, E. Glendening, M. Gutowski,
+   A. C. Hess, J. Jaffe, B. G. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin,
+   R. Littlefield, X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
+   K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
+                               A. T. Wong, Z. Zhang.
+
+ Total times  cpu:        0.0s     wall:        0.1s

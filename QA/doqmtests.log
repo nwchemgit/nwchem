@@ -1,0 +1,474 @@
+
+ =============================
+ QM: Running only sonadc tests
+ =============================
+
+ 
+ Running tests/sonadc_aoints_khe/sonadc_aoints_khe 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+OK
+ 
+ Running tests/sonadc_grd_khe/sonadc_grd_khe 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     NWChem execution failed
+          AO basis - number of functions:    13
+                     number of shells:     7
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+ 
+              XC Information
+              --------------
+                     Hartree-Fock (Exact) Exchange  1.000          
+ 
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         50 iters            50 iters 
+
+ 
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-10
+
+ gk: in nadct_trace
+forrtl: No such file or directory
+forrtl: severe (29): file not found, unit 24, file /p/home/lbelcher/nwchem/QA/scratchdir/aodens
+Image              PC                Routine            Line        Source             
+nwchem             000000000485629B  Unknown               Unknown  Unknown
+nwchem             0000000004870E40  Unknown               Unknown  Unknown
+nwchem             000000000146608D  Unknown               Unknown  Unknown
+nwchem             000000000145E9C3  Unknown               Unknown  Unknown
+nwchem             0000000000423FA2  Unknown               Unknown  Unknown
+nwchem             000000000042414F  Unknown               Unknown  Unknown
+nwchem             000000000041703D  Unknown               Unknown  Unknown
+nwchem             000000000040EC3F  Unknown               Unknown  Unknown
+nwchem             000000000040E6E2  Unknown               Unknown  Unknown
+libc-2.17.so       00002AAAB26AA555  __libc_start_main     Unknown  Unknown
+nwchem             000000000040E5E9  Unknown               Unknown  Unknown
+MPT ERROR: MPI_COMM_WORLD rank 0 has terminated without calling MPI_Finalize()
+	aborting job
+ 
+Failed
+ 
+ Running tests/sonadc_nad_khe/sonadc_nad_khe 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     NWChem execution failed
+          AO basis - number of functions:    28
+                     number of shells:    12
+          Convergence on energy requested:  1.00D-08
+          Convergence on density requested:  1.00D-08
+          Convergence on gradient requested:  1.00D-09
+ 
+              XC Information
+              --------------
+                     Hartree-Fock (Exact) Exchange  1.000          
+ 
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters        100 iters           100 iters 
+
+ 
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-11
+          AO Gaussian exp screening on grid/accAOfunc:  18
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-10
+
+ gk: in nadct_trace
+forrtl: No such file or directory
+forrtl: severe (29): file not found, unit 24, file /p/home/lbelcher/nwchem/QA/scratchdir/aodens
+Image              PC                Routine            Line        Source             
+nwchem             000000000485629B  Unknown               Unknown  Unknown
+nwchem             0000000004870E40  Unknown               Unknown  Unknown
+nwchem             000000000146608D  Unknown               Unknown  Unknown
+nwchem             000000000145E98E  Unknown               Unknown  Unknown
+nwchem             0000000000423FA2  Unknown               Unknown  Unknown
+nwchem             000000000042414F  Unknown               Unknown  Unknown
+nwchem             000000000041703D  Unknown               Unknown  Unknown
+nwchem             000000000040EC3F  Unknown               Unknown  Unknown
+nwchem             000000000040E6E2  Unknown               Unknown  Unknown
+libc-2.17.so       00002AAAB26AA555  __libc_start_main     Unknown  Unknown
+nwchem             000000000040E5E9  Unknown               Unknown  Unknown
+MPT ERROR: MPI_COMM_WORLD rank 0 has terminated without calling MPI_Finalize()
+	aborting job
+ 
+Failed
+ 
+ Running tests/h2o_opt/h2o_opt 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+ Running tests/c2h4/c2h4 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+OK
+ 
+ Running tests/auh2o/auh2o 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+ Running tests/autosym/autosym 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+ Running tests/dft_he2+/dft_he2+ 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+ Running tests/h2mp2/h2mp2 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+ Running tests/h2o/h2o 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+ Running tests/hess_h2o/hess_h2o 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+ Running tests/prop_h2o/prop_h2o 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+ Running tests/pyqa3/pyqa3 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     NWChem execution failed
+                                                                                
+                                                                                
+                   
+[0] Received an Error in Communication: (-1) 0:python_input is not in this build of NWChem:
+MPT ERROR: Rank 0(g:0) is aborting with error code -1.
+	Process ID: 249664, Host: r3i2n13, Program: /p/home/lbelcher/nwchem/bin/LINUX64/nwchem
+	MPT Version: HPE MPT 2.20  08/30/19 04:33:45
+
+MPT: --------stack traceback-------
+MPT: Attaching to program: /proc/249664/exe, process 249664
+MPT: [Thread debugging using libthread_db enabled]
+MPT: Using host libthread_db library "/lib64/libthread_db.so.1".
+MPT: (no debugging symbols found)...done.
+MPT: (no debugging symbols found)...done.
+MPT: 0x00002aaaab85d18c in waitpid () from /lib64/libpthread.so.0
+MPT: Missing separate debuginfos, use: debuginfo-install glibc-2.17-325.el7_9.x86_64 libbitmask-2.0-724.0790.210614T1930.r.rhel79hpe.x86_64 libcpuset-1.0-724.0790.210614T1930.r.rhel79hpe.x86_64 libgcc-4.8.5-44.el7.x86_64
+MPT: (gdb) #0  0x00002aaaab85d18c in waitpid () from /lib64/libpthread.so.0
+MPT: #1  0x00002aaab21b6806 in mpi_sgi_system (
+MPT: #2  MPI_SGI_stacktraceback (
+MPT:     header=header@entry=0x7fffffffc1e0 "MPT ERROR: Rank 0(g:0) is aborting with error code -1.\n\tProcess ID: 249664, Host: r3i2n13, Program: /p/home/lbelcher/nwchem/bin/LINUX64/nwchem\n\tMPT Version: HPE MPT 2.20  08/30/19 04:33:45\n")
+MPT:     at sig.c:340
+MPT: #3  0x00002aaab20fefc9 in print_traceback (ecode=ecode@entry=-1)
+MPT:     at abort.c:246
+MPT: #4  0x00002aaab20ff29a in PMPI_Abort (comm=<optimized out>, errorcode=-1)
+MPT:     at abort.c:68
+MPT: #5  0x00000000046f57d0 in wnga_error ()
+MPT: #6  0x000000000469b3b7 in ga_error_ ()
+MPT: #7  0x0000000000f27117 in errquit (
+MPT:     string=<error reading variable: Cannot access memory at address 0x3cf42>, 
+MPT:     icode=1, 
+MPT:     errcode=<error reading variable: Cannot access memory at address 0x0>, 
+MPT:     .tmp.STRING.len_V$4e=-1) at errquit.F:144
+MPT: #8  0x00000000004110d9 in input_parse (
+MPT:     rtdb=<error reading variable: Cannot access memory at address 0x3cf42>)
+MPT:     at input_parse.F:70
+MPT: #9  0x000000000040eb88 in nwchem () at nwchem.F:311
+MPT: #10 0x000000000040e6e2 in main ()
+MPT: #11 0x00002aaab26aa555 in __libc_start_main () from /lib64/libc.so.6
+MPT: #12 0x000000000040e5e9 in _start ()
+MPT: (gdb) A debugging session is active.
+MPT: 
+MPT: 	Inferior 1 [process 249664] will be detached.
+MPT: 
+MPT: Quit anyway? (y or n) [answered Y; input not from terminal]
+MPT: Detaching from program: /proc/249664/exe, process 249664
+MPT: [Inferior 1 (process 249664) detached]
+
+MPT: -----stack traceback ends-----
+MPT ERROR: MPI_COMM_WORLD rank 0 has terminated without calling MPI_Finalize()
+	aborting job
+ 
+Failed
+ 
+ Running tests/geom_zmatrix/geom_zmatrix 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+ Running tests/rimp2_ne/rimp2_ne 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+ Running tests/rimp2_he/rimp2_he 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+ Running tests/scf_feco5/scf_feco5 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+ Running tests/small_intchk/small_intchk 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+ Running tests/tagcheck/tagcheck 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+ Running tests/testtab/testtab 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+OK
+ 
+ Running tests/h2o_dk/h2o_dk 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+ Running tests/u_sodft/u_sodft 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+ Running tests/cosmo_h2o/cosmo_h2o 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+ Running tests/ch5n_nbo/ch5n_nbo 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... failed
+@@@     Comparison of Output Files
+@@ -1,3 +1,3 @@
+ Effective nuclear repulsion energy (a.u.) 42.05
+-Total SCF energy = -94.67944
+-Total SCF energy = -94.67944
++Total SCF energy = -94.67945
++Total SCF energy = -94.67945
+ 
+ Running tests/h2s_finite/h2s_finite 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+ Running tests/startag/startag 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+Failed
+ 
+ Running tests/cosmo_na/cosmo_na 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+ Running tests/cosmo_cl/cosmo_cl 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+ Running tests/cosmo_nacl/cosmo_nacl 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+OK
+ 
+ Running tests/cosmo_h2o_dft/cosmo_h2o_dft 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+ Running tests/cosmo_h2o_bq/cosmo_h2o_bq 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+ Running tests/be/be 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 
+     verifying output ... OK
+ 
+ Running tests/dft_s12gh/dft_s12gh 
+ 
+     cleaning scratch
+       scrath = /p/home/lbelcher/nwchem/QA/scratchdir
+     copying input and verified output files
+     running nwchem (/p/home/lbelcher/nwchem/bin/LINUX64/nwchem)  with 2 processors 
+ 

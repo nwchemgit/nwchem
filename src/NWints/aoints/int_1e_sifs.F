@@ -90,7 +90,7 @@ cgk end
       
 c
 cgk debug
-*     write(*,*)'gk: entered int_1e_sifs'
+*      write(*,*)'gk: **** entered int_1e_sifs'
 cgk end
       basok=.false.
       odbug=.true.
@@ -127,7 +127,7 @@ c     k_* are the offsets corrsponding to the l_* handles
 c     
       call int_mem_1e(max1e, mem1)
 cgk debug
-*     write(*,*)'gk: in int_mem_1e, max1e=', max1e, ' mem1=',mem1
+*      write(*,*)'gk: in int_mem_1e, max1e=', max1e, ' mem1=',mem1
 cgk end
 c     get memory for integral buffer
       if (.not. MA_push_get(MT_DBL,max1e,'int_1e_sifs:buf',l_buf,k_buf))
@@ -186,10 +186,10 @@ c     gk: consider this a temporary hack.  8 characters is not enough.
          enddo
       enddo
 cgk debug
-      write(*,*)'gk: bfnlab:'
-      do i=0,nbft-1
-         write(6,'(i4,2x,8a1)') i+1, (byte_mb(k_bfnlab+i*8+j), j=0,7)
-      enddo
+*      write(*,*)'gk: bfnlab:'
+*      do i=0,nbft-1
+*         write(6,'(i4,2x,8a1)') i+1, (byte_mb(k_bfnlab+i*8+j), j=0,7)
+*      enddo
 cgk end
 
 c     put effective nuclear repulsion energy in energy(1)
@@ -201,8 +201,8 @@ c     put effective nuclear repulsion energy in energy(1)
       fcore=0d0 
 
 cgk debug
-*     write(*,*)'gk:  i, iat, shmap(otype)'
-*     write(*,*)'gk:  nmap=',nmap
+*      write(*,*)'gk:  i, iat, shmap(otype)'
+*      write(*,*)'gk:  nmap=',nmap
 cgk end
       i=0
       do ishell=1,nshell
@@ -233,8 +233,8 @@ c
                map(i,1)=iat
                map(i,2)=shmap(otype)
 cgk debug
-*     write(*,'(a,i,i,i)')'gk: ', i, iat, shmap(otype)
-*     write(*,'(a,i,i,i)')'gk: ', i, map(i,1), map(i,2)
+*      write(*,'(a,i,i,i)')'gk: ', i, iat, shmap(otype)
+*      write(*,'(a,i,i,i)')'gk: ', i, map(i,1), map(i,2)
 cgk end
 *              int_mb(k_map+i-1) = iat
 *              int_mb(k_map+nbft+i-1) = shmap(otype)
@@ -256,17 +256,17 @@ cgk end
       if (0 .eq. ga_nodeid()) then
 
 cgk debug
-*      write(*,*)'gk: calling sifwh with aoints=',aoints
-*      write(*,*)'gk:    nenrgy=',nenrgy
-*      write(*,*)'gk:    ntitle=',ntitle
-*      write(*,*)'gk:    ninfo=',ninfo
+*       write(*,*)'gk: calling sifwh with aoints=',aoints
+*       write(*,*)'gk:    nenrgy=',nenrgy
+*       write(*,*)'gk:    ntitle=',ntitle
+*       write(*,*)'gk:    ninfo=',ninfo
 cgk end
          call sifwh( aoints,  ntitle,  nsym,    nbft,
      &      ninfo,   nenrgy,  nmap,    stitle,   nbpsy,   slabel,  info,
      &      byte_mb(k_bfnlab),  ietype,  energy,  imtype,  map, 
      &      ierr )
 cgk debug
-*      write(*,*)'gk: back from sifwh with ierr=',ierr
+*       write(*,*)'gk: back from sifwh with ierr=',ierr
 cgk end
 
 c        start loop over integral types here.
@@ -291,13 +291,13 @@ c        start loop over integral types here.
          end if
 
 cgk debug
-*     write(*,*)'gk: processing integral type: ', integ_type
+*      write(*,*)'gk: processing integral type: ', integ_type
 cgk end
 
          do jshell = 1, nshell
             do ishell = 1, nshell
 cgk debug
-*     write(*,*)'gk: ishell=',ishell,' jshell=',jshell
+*      write(*,*)'gk: ishell=',ishell,' jshell=',jshell
 cgk end
  
                odoit = .true.
@@ -319,24 +319,24 @@ cgk end
      $                  dbl_mb(k_buf), mem1, dbl_mb(k_scr), numints)
                   else if (type .eq. 2) then
 cgk debug
-*      write(*,*)'gk: calling int_l1epe'
-*      write(*,*)'gk: ibas = ', ibas
-*      write(*,*)'gk: ishell = ', ishell
-*      write(*,*)'gk: jshell = ', jshell
-*      write(*,*)'gk: thresh = ', thresh
-*      write(*,*)'gk: k_ilab = ', k_ilab
-*      write(*,*)'gk: k_jlab = ', k_jlab
-*      write(*,*)'gk: max1e = ', max1e
-*      write(*,*)'gk: k_buf = ', k_buf
-*      write(*,*)'gk: mem1 = ', mem1
-*      write(*,*)'gk: k_scr = ', k_scr
-*      write(*,*)'gk: numints = ', numints
+*       write(*,*)'gk: calling int_l1epe'
+*       write(*,*)'gk: ibas = ', ibas
+*       write(*,*)'gk: ishell = ', ishell
+*       write(*,*)'gk: jshell = ', jshell
+*       write(*,*)'gk: thresh = ', thresh
+*       write(*,*)'gk: k_ilab = ', k_ilab
+*       write(*,*)'gk: k_jlab = ', k_jlab
+*       write(*,*)'gk: max1e = ', max1e
+*       write(*,*)'gk: k_buf = ', k_buf
+*       write(*,*)'gk: mem1 = ', mem1
+*       write(*,*)'gk: k_scr = ', k_scr
+*       write(*,*)'gk: numints = ', numints
 cgk end
                      call int_l1epe (ibas, jshell, ibas, ishell, 
      &                  thresh, int_mb(k_ilab),int_mb(k_jlab), max1e,
      $                  dbl_mb(k_buf), mem1, dbl_mb(k_scr), numints)
 cgk debug
-*      write(*,*)'gk: back from int_l1epe'
+*       write(*,*)'gk: back from int_l1epe'
 cgk end
                   else if (type .eq. 3) then
 c                    ECP is summed here, but COLUMBUS should not care.
@@ -346,7 +346,7 @@ c                    ECP is summed here, but COLUMBUS should not care.
                   end if
 c     
 cgk debug
-*     write(*,*)'gk: this batch, numints = ', numints
+*      write(*,*)'gk: this batch, numints = ', numints
 cgk end
 
                   do i=1,numints
@@ -368,11 +368,11 @@ c                      contains the unwritten values, ditto for labels
                      clab(2,ibuf)=int_mb(k_jlab+i-1)
                      dbl_mb(k_sifval+ibuf-1)=dbl_mb(k_buf+i-1)      
 cgk debug
-*                    write(*,*)'gk: ibuf=', ibuf
-*                    write(*,'(a,2i4,f20.12)') 
-*    &               'gk:  ilab,jlab,dbl_mb:',
-*    &               int_mb(k_ilab+i-1),int_mb(k_jlab+i-1),
-*    &               dbl_mb(k_buf+i-1)
+*                     write(*,*)'gk: ibuf=', ibuf
+*                     write(*,'(a,2i4,f20.12)') 
+*     &               'gk:  ilab,jlab,dbl_mb:',
+*     &               int_mb(k_ilab+i-1),int_mb(k_jlab+i-1),
+*     &               dbl_mb(k_buf+i-1)
 cgk end
 
                   enddo
@@ -384,9 +384,9 @@ cgk end
          last=nmsame
          numtot=numtot+ibuf
 cgk debug
-*     write(*,*)'gk: nrec=', nrec
-*     write(*,*)'gk:  ibuf=', ibuf
-*     write(*,*)'gk:  numtot=', numtot
+*      write(*,*)'gk: nrec=', nrec
+*      write(*,*)'gk:  ibuf=', ibuf
+*      write(*,*)'gk:  numtot=', numtot
 cgk end
          call sifew1(aoints, info, 2, ibuf, last, 
      &     itypea, itypeb, ifmt1, ibvtyp, 
@@ -401,18 +401,22 @@ cgk end
       call ga_sync()            ! So that no nasty races can result
 
 cgk debug
-*     write(*,*)'gk: calling int_so_sifs from int_1e_sifs'
-*     write(*,*)'gk:  mem1=', mem1
+*      write(*,*)'gk: calling int_so_sifs from int_1e_sifs'
+*      write(*,*)'gk:  mem1=', mem1
 cgk end
       call int_so_sifs(ibas, oskel, aoints, nbft, max1e, mem1, l1rec,
      &  n1max, dbl_mb(k_sifbuf), dbl_mb(k_sifval), ninfo, info, clab,
      &  fcore, ibvtyp, ibitv, ifmt1)
 
+cgk debug
+*      write(*,*)'gk: calling int_mom_sifs from int_1e_sifs'
+*      write(*,*)'gk:  mem1=', mem1
+cgk end
       call int_mom_sifs(ibas, oskel, aoints, nbft, l1rec,
      &  n1max, dbl_mb(k_sifbuf), dbl_mb(k_sifval), ninfo, info, 
      &  fcore, ibvtyp, ibitv, ifmt1)
 cgk debug
-*     write(*,*)'gk: back from int_so_sifs in int_1e_sifs'
+*      write(*,*)'gk: back from int_so_sifs in int_1e_sifs'
 cgk end
 c     
 c     chop stack at first item allocated
@@ -450,6 +454,6 @@ c
       if (oscfps) call pstat_off(ps_int_1e)
 c     
 cgk debug
-*     write(*,*)'gk: leaving int_1e_sifs at end of routine'
+*      write(*,*)'gk: leaving int_1e_sifs at end of routine'
 cgk end
       end
