@@ -16,6 +16,9 @@ fi
 if test -f "/usr/lib/centos-release"; then
     dist="centos"
 fi
+if [[ $(grep -c fedora /etc/os-release) > 0 ]]; then
+    dist="fedora"
+fi
 echo dist is "$dist"
 if [ -z "$DISTR" ] ; then
     DISTR=$dist
@@ -95,10 +98,13 @@ fi
 	     rpminst=yum
 	 fi
 	 if [[ "$HOSTNAME" != "fedoraqemuwe40672" ]]; then
-	 sudo $rpminst udate;  sudo $rpminst -y install perl perl python3-devel time patch openblas-serial64 openmpi-devel cmake gcc-gfortran unzip which make tar bzip2 openssh-clients rsync
+	 sudo $rpminst update;  sudo $rpminst -y install perl perl python3-devel time patch cmake gcc-gfortran unzip which make tar bzip2 openssh-clients rsync
+	  sudo $rpminst -y install openblas-serial64 || true
 	 #	 module load mpi
 	 if [[ "$MPI_IMPL" == "openmpi" ]]; then
 	     sudo $rpminst -y install  openmpi-devel
+         elif [[ "$MPI_IMPL" == "mpich" ]]; then
+	     sudo $rpminst -y install mpich  mpich-devel
 	 else
 	     echo ready only for openmpi
 	     exit 1
@@ -206,7 +212,7 @@ fi
     if [[ "$FC" == "nvfortran" ]]; then
 	sudo apt-get -y install lmod g++ libtinfo5 libncursesw5 lua-posix lua-filesystem lua-lpeg lua-luaossl
 	nv_major=22
-	nv_minor=9
+	nv_minor=11
 	nverdot="$nv_major"."$nv_minor"
 	nverdash="$nv_major"-"$nv_minor"
 	arch_dpkg=`dpkg --print-architecture`
