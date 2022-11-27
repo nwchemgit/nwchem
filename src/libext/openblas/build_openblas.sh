@@ -65,8 +65,10 @@ if [[ "${NWCHEM_TARGET}" == "LINUX" ]]; then
 else
   binary=64
 fi
-if [ -n "${USE_DYNAMIC_ARCH}" ]; then
-    FORCETARGET+="DYNAMIC_ARCH=1 DYNAMIC_OLDER=1"
+if [[ -n "${USE_DYNAMIC_ARCH}" ]] || [[ "${USE_HWOPT}" == "n" ]]; then
+    if [[ "$arch" == "x86_64" ]]; then
+	FORCETARGET+="DYNAMIC_ARCH=1 DYNAMIC_OLDER=1"
+    fi
 fi
 #cray ftn wrapper
 if [[ ${FC} == ftn ]]; then
