@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 #gen_pbs version: 1.2.0
-#PBS -A ARLAP96070PET
+#PBS -A $ACCOUNT
 #PBS -N nwqa
 #PBS -j oe
 #PBS -e nwqa.oe
@@ -11,7 +11,6 @@
 
 cd $PBS_O_WORKDIR
 
-#NWCHEM=/p/home/gkedz/Columbus/real_nwchem_for_columbus/bin/LINUX64/nwchem.dbg
 export NWCHEM_TOP=/p/home/gkedz/Columbus/nwchem
 export NWCHEM_TARGET=LINUX64
 export NWCHEM_EXECUTABLE=/p/home/gkedz/Columbus/nwchem/bin/LINUX64/nwchem
