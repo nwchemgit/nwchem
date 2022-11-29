@@ -56,7 +56,8 @@ c::passed
       integer idatom(*)         !< [Output] array identifying centers for derivatives
 c                       ! e.g., the first nint*3  derivatives go to center idatom(1)
 c                       !       the second nint*3 derivatives go to center idatom(2)
-      logical,parameter :: hlfdrv = .false.
+      logical,parameter :: hlfdrv = .false. ! not calculating half-deriv
+                                            ! overlap matrix
 c::local
       logical shells_ok
       integer i_geom, j_geom, ibas, jbas, ucont, mynint
@@ -77,7 +78,6 @@ c... statement function for int_chk_sh
      $    ((ish.gt.0) .and. (ish.le.ncont_tot_gb(ibas)))
 c
 
-      hlfdrv=.false. ! not calculating half-derivative overlap matrix
 c check initialization and shells
 c
       if (.not.int_chk_init('intpd_1eov'))

@@ -44,19 +44,19 @@ c     # bummer error types.
       integer   wrnerr,  nfterr,  faterr
       parameter(wrnerr=0,nfterr=1,faterr=2)
 C LB
-c      WRITE(*,*)"LB: in sifo2f"
+*      WRITE(*,*)"LB: in sifo2f"
 C LB
 c
       fsplit = info(1)
       l2rec  = info(4)
 c
 C LB
-c      WRITE(*,*)'LB: fsplit=',fsplit
+*      WRITE(*,*)'LB: fsplit=',fsplit
 C LB
       ierr   = 0
       if ( fsplit .eq. 1 ) then
 C LB
-c        WRITE(LUOUT,*)'LB: fsplit branch 1'
+*        WRITE(LUOUT,*)'LB: fsplit branch 1'
 C LB
 c
 c        # everything is on the same file.  assume aoints is already
@@ -64,11 +64,11 @@ c        # opened.  set aoint2, position the file, and return.
 c
          aoint2 = aoints
 C LB
-c         WRITE(LUOUT,*)'LB: calling sifsk1, ierr=',ierr
+*         WRITE(LUOUT,*)'LB: calling sifsk1, ierr=',ierr
 C LB
          call sifsk1( aoint2, info, ierr )
 C LB
-c         WRITE(LUOUT,*)'LB: back from sifsk1, ierr=', ierr
+*         WRITE(LUOUT,*)'LB: back from sifsk1, ierr=', ierr
 C LB
          if ( ierr .ne. 0 ) then
 c           # 1-e records were not properly written.
@@ -77,7 +77,7 @@ c           # 1-e records were not properly written.
 c
       elseif ( fsplit .eq. 2 ) then
 C LB
-c        WRITE(LUOUT,*)'LB: fsplit branch 2'
+*        WRITE(LUOUT,*)'LB: fsplit branch 2'
 C LB
 c
 c        # 2-e records are separate.  use async i/o routines.

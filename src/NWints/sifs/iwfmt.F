@@ -75,7 +75,7 @@ c
       call sifrh1( aoints, ntitle, nsym, nbft,
      & ninfo, nenrgy, nmap, ierr )
       if ( ierr .ne. 0 ) then
-         call bummer('iwfmt: ierr=',ierr,faterr)
+         call bummer('iwfmt: ierr=',ierr,wrnerr)
       elseif ( ntitle .gt. 20 ) then
          call bummer('iwfmt: ntitle=',ntitle,faterr)
       elseif ( nbft .gt. nbfmxp ) then

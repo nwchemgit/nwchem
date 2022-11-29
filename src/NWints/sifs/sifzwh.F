@@ -35,20 +35,20 @@ c
       integer  map(nbft,mapdim)
 c
 cgk debug
-      write(6,*)'gk: in sifzwh, aoints=',aoints
-      write(6,*)'gk:      vrsion=',vrsion
-      write(6,*)'gk:      ntitle=',ntitle
-      write(6,*)'gk:      nsym=',nsym
-      write(6,*)'gk:      nbft=',nbft
-      write(6,*)'gk:      ninfo=',ninfo
-      write(6,*)'gk:      nenrgy=',nenrgy
-      write(6,*)'gk:      nmap=',nmap
+*      write(6,*)'gk: in sifzwh, aoints=',aoints
+*      write(6,*)'gk:      vrsion=',vrsion
+*      write(6,*)'gk:      ntitle=',ntitle
+*      write(6,*)'gk:      nsym=',nsym
+*      write(6,*)'gk:      nbft=',nbft
+*      write(6,*)'gk:      ninfo=',ninfo
+*      write(6,*)'gk:      nenrgy=',nenrgy
+*      write(6,*)'gk:      nmap=',nmap
 cgk end
       write(aoints,iostat=ierr)
      & vrsion, ntitle, nsym, nbft, ninfo, nenrgy, nmap
 cgk debug
-      write(6,*)
-     & vrsion, ntitle, nsym, nbft, ninfo, nenrgy, nmap
+*      write(6,*)
+*     & vrsion, ntitle, nsym, nbft, ninfo, nenrgy, nmap
 cgk end
 c
       if ( ierr .ne. 0 ) return

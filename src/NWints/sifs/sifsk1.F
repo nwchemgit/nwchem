@@ -45,7 +45,7 @@ c        # header1, header2, 1-e records, and 2-e records are all
 c        # on the same file.
 c
 C LB
-         WRITE(LUOUT,*)'LB: calling sifskh, fsplit =',fsplit
+*         WRITE(LUOUT,*)'LB: calling sifskh, fsplit =',fsplit
 C LB
          call sifskh( aoint2, ierr )
          if ( ierr .ne. 0 ) return

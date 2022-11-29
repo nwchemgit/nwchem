@@ -12,7 +12,7 @@ OBJ_OPTIMIZE = \
  siftdy.o siftyp.o sifw1x.o sifw2.o sifwh.o sifzh2.o sifzwh.o \
  bummer.o seqwbf.o plab1.o plab8.o plab16.o plab32.o cdcopy.o \
  ulab16.o ulab1.o ulab32.o ulab8.o aiopen.o izero.o aiwait.o  aiwrit.o \
- seqrbf.o airead.o
+ seqrbf.o airead.o 
 
 LIBRARY = libnwints.a
 
@@ -21,5 +21,13 @@ LIB_INCLUDES = -I../../nwdft/grid -I../../nwdft/include \
 
 include ../../config/makelib.h
 
-iwfmt.x:  $(OJB_OPTIMIZE) iwfmt.o
+iwfmt.x:  $(OBJ_OPTIMIZE) iwfmt.o
 	$(LINK.f) iwfmt.o $(LIBS) -o iwmft.x
+	
+irfmt.x:  $(OBJ_OPTIMIZE) irfmt.o
+	$(LINK.f) irfmt.o $(LIBS) -o irmft.x
+#
+#mv iwfmt.x $(NWCHEM_TOP)/bin/$(NWCHEM_TARGET)/
+#mv irfmt.x $(NWCHEM_TOP)/bin/$(NWCHEM_TARGET)/
+#
+#iwfmt.x: iwfmt.o
