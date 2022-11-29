@@ -1136,12 +1136,17 @@
 !      TCE_CUDA Number of CUDA devices per node
 !
       else if (inp_compare(.false.,test,'cuda')) then
+#if defined(TCE_CUDA) || defined(TCE_HIP)
         if (.not.inp_i(icuda))
      1    call errquit('tce_input: no icuda',0,INPUT_ERR)
         if (.not.rtdb_put(rtdb,'tce:cuda',mt_int,1,icuda))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 
+#else
+        call errquit('cuda option needs TCE_CUDA compiled code',
+     A       0, INPUT_ERR)
+#endif
 !
 !     MAXITER (the maximum number of Davidson iterations)
 !

@@ -21,11 +21,11 @@ if [ `check_tgz $TGZ` == 1 ]; then
     echo "using existing $TGZ"
 else
     rm -rf tblite*
-    curl -L https://github.com/dmejiar/tblite/tarball/${VERSION} -o $TGZ
+    curl  -sS -L https://github.com/dmejiar/tblite/tarball/${VERSION} -o $TGZ
 fi
 
 tar -xzf tblite-${VERSION}.tar.gz
-ln -sf dmejiar-tblite-??????? tblite
+ln -sf *tblite-??????? tblite
 
 
 if [[ -z "${MPIF90}" ]]; then
@@ -202,6 +202,19 @@ if [[ -z "$USE_OPENMP" ]]; then
 else
   DOOPENMP=ON
 fi
+# 2022 Intel compilers generate buggy code when USE_OPENMP=1
+if [[ ${FC} == ifort ]] || [[ ${FC} == ifx ]]; then
+    IFORTVER=$(ifort -v 2>&1|cut -d " " -f 3)
+    IFORTVER_YEAR=$(echo $IFORTVER | cut -d . -f 1)
+    if [[ "$IFORTVER_YEAR" -gt "2021" ]]; then
+	DOOPENMP=OFF
+    fi
+    if [[ ${FC} -eq "ifx" ]]; then
+	DOOPENMP=OFF
+    fi
+fi
+
+
 
 cd tblite
 rm -rf _build

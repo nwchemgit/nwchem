@@ -49,389 +49,683 @@ fi
 #
 #---   small tests
 #./runtests.mpi.unix procs $np testtask
+myexit=0
 ./runtests.mpi.unix procs $np h2o_opt c2h4
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa3
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np geom_zmatrix rimp2_ne rimp2_he scf_feco5 small_intchk tagcheck testtab
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o_dk u_sodft cosmo_h2o ch5n_nbo h2s_finite startag
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np cosmo_na cosmo_cl cosmo_nacl
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np cosmo_h2o_dft cosmo_h2o_bq be dft_s12gh
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np cosmo_trichloroethene esp esp_uhf
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_bsse dft_bsse_d3 dft_bsse_d3_opt bsse_dft_trimer bsse_tce_mult
+let "myexit+=$?"
 PERMANENT_DIR=`pwd`/testoutputs ./runtests.mpi.unix procs $np dft_hess_start dft_hess_rest
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np c4h4_wfn
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np disp_dimer_ch4 disp_dimer_ch4_cgmin h2o-b3lyp-disp
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np cosmo_h2cco2 cosmo_h2cco2mg cosmo_h2cco2mg_ecp
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np cosmo_h3co cosmo_h3co_ecp cosmo_h2cco2na cosmo_h3co_gp
+let "myexit+=$?"
 np_small=$(get_limit $np 16)
 ./runtests.mpi.unix procs $np_small dplot 
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_meta dft_mpwb1khf dft_m05nh2ch3 prop_uhf_h2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np et_zn_dimer vectors_rotate sad_ch3hf
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o_diag_to_cg h2o_cg_to_diag 
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o_diag_opt h2o_cg_opt h2o_diag_opt_ub3lyp h2o_cg_opt_ub3lyp h2o_cg_opt_rob3lyp
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o_diag_to_cg_ub3lyp h2o_cg_to_diag_ub3lyp
+let "myexit+=$?"
+./runtests.mpi.unix procs $np h2o_cg_opt_cosmo
+let "myexit+=$?"
 #
 #---   small tests that should fail!
 echo ' '
 echo 'The oh2 test is testing the perl parsing script and SHOULD fail'
 ./runtests.mpi.unix procs $np oh2
+let "myexit+=$?"
 #
 #---   medium tests
 ./runtests.mpi.unix procs $np PhoWat_SMD_HF
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np CH3OH2pWat_SMD_M062X
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np CH3OH2pWat_SMD_M062X_opt
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_feco5 
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_siosi3
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np adft_siosi3
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_cr2
+let "myexit+=$?"
 #./runtests.mpi.unix procs $np dft_mo3co
 ./runtests.mpi.unix procs $np dft_x
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_mpw1k dft_li2freq
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np grad_ozone
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_ozone 
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np hess_c6h6
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np hess_nh3_ub3lyp
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np intchk
+let "myexit+=$?"
 echo 'The intermediate values for this test may cause some differences.'
 echo 'Please check the final values for the last optimized structure.'
 ./runtests.mpi.unix procs $np sadsmall
+let "myexit+=$?"
 #
 #./runtests.mpi.unix procs $np sadbig
 ./runtests.mpi.unix procs $np br2_dk
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np uo2_sodft
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np uo2_sodft_grad
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np si2cl6_gc
+let "myexit+=$?"
 np_small=$(get_limit $np 32)
 ./runtests.mpi.unix procs $np_small pspw
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np_small pspw_SiC
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np pspw_blyp_h2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np pspw_revpbe_h2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np pspw_pbesol_h2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np pspw_tpss03_h2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np pspw_acm_h2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np pspw_becke97_h2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np pspw_becke98_h2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np pspw_hcth120_h2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np pspw_hcth147_h2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np pspw_hcth407_h2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np pspw_hcth_h2o  
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np pspw_mpw1k_h2o 
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np pspw_sogga_h2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np pspw_sogga11-x_h2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np pspw_beef_h2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np pspw_b3lyp_h2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np pspw_pbe0_h2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np pspw_hse_h2o
+let "myexit+=$?"
 np_small=$(get_limit $np 64)
 ./runtests.mpi.unix procs $np_small pspw_md
+let "myexit+=$?"
 np_small=$(get_limit $np 32)
 ./runtests.mpi.unix procs $np_small paw
+let "myexit+=$?"
 np_small=$(get_limit $np 16)
 ./runtests.mpi.unix procs $np_small pspw_polarizability
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np_small pspw_stress
+let "myexit+=$?"
 np_small=$(get_limit $np 64)
 ./runtests.mpi.unix procs $np_small band
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tddft_h2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tddft_h2o_uhf
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tddft_h2o_mxvc20
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tddft_h2o_uhf_mxvc20
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tddft_n2+
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tddft_ac_co
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_xdm1
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np natom_iorb
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tce_h2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tce_ccsd_t_h2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tce_h2o_dipole
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tce_h2o_eomcc
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tce_uhf_uccsd
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tce_cr_eom_t_ch_rohf
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tce_cr_eom_t_ozone
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tce_lr_ccsd_t
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tce_lr_ccsd_tq
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tce_ozone_2eorb
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tce_polar_ccsd_small
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tce_hyperpolar_ccsd_small
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tce_eomsd_eomsol1
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tce_cc2_c2
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np ducc_be
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np n2_ccsdtoks
-#./runtests.mpi.unix procs $np li2h2_tce_ccsd # always hangs
+let "myexit+=$?"
+
 if [[ ! -z "$MRCC_METHODS" ]]; then
 #  if ( "x$MRCC_METHODS" == "xy" ) then
     ./runtests.mpi.unix procs $np tce_mrcc_bwcc
+let "myexit+=$?"
     ./runtests.mpi.unix procs $np tce_mrcc_mkcc
+let "myexit+=$?"
     ./runtests.mpi.unix procs $np tce_mrcc_bwcc_subgroups
 #  endif
 fi
 if [[ ! -z "$TCE_CUDA" ]]; then
 #  if ("x$TCE_CUDA" == "xy") then
     ./runtests.mpi.unix procs $np tce_cuda
+    let "myexit+=$?"
 #  endif
 fi
 if [[ ! -z "$EACCSD" ]]; then
 #  if ("x$EACCSD" == "xy") then
     ./runtests.mpi.unix procs $np tce_eaccsd_ozone
+    let "myexit+=$?"
 #  endif
 fi
 if [[ ! -z "$IPCCSD" ]]; then
 #  if ("x$IPCCSD" == "xy") then
     ./runtests.mpi.unix procs $np tce_ipccsd_f2
+    let "myexit+=$?"
 #  endif
 fi
 ./runtests.mpi.unix procs $np oniom1
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np oniom2
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np oniom3
+let "myexit+=$?"
 np_small=$(get_limit $np 32)
 ./runtests.mpi.unix procs $np_small oniom4
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np c60_ecp
+let "myexit+=$?"
 #
 # pure zora energy tests
 #
 ./runtests.mpi.unix procs $np hi_zora_sf
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np xe_zora_sf
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np o2_zora_so
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np hi_zora_so
+let "myexit+=$?"
 # zora mp
 ./runtests.mpi.unix procs $np au-sarc-zora-mp
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np au2-sarc-zora-mp
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np au2-sarc-zora-spinspin
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np ch3radical_rot_mp
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np ch3radical_unrot_mp
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np cs-ano-uncontr-so
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np cs-ano-uncontr
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np xe-zora-mp-so
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np xe-zora-mp
+let "myexit+=$?"
 #
 # qmmm tests
 #./runtests.mpi.unix procs $np asa_qmmm
 np_small=$(get_limit $np 8)
 ./runtests.mpi.unix procs $np_small qmmm_grad0
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np_small lys_qmmm
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np_small ethane_qmmm
+let "myexit+=$?"
 echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $np qmmm_freq
+let "myexit+=$?"
 #
 # newproperty tests
 ./runtests.mpi.unix procs $np prop_ch3f
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np prop_uhf_ch3f
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np ch3f_rot
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np ch3f_unrot
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np ch3f_trans
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np ch3f_trans_cosmo
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np ch3f_trans_cam_nmr
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np ch3f_notrans_cosmo
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np ch3f-lc-wpbe
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np ch3f-lc-wpbeh
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np ch3f_zora_shielding
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np ch2_props4_bp
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np ch3radical_rot
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np ch3radical_unrot
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np cho_bp_props
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np prop_cg_nh3_b3lyp
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np localize-ibo-aa
+let "myexit+=$?"
 #
 #--- range-separated functionals tests
 ./runtests.mpi.unix procs $np acr-camb3lyp-cdfit
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np acr-camb3lyp-direct
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np acr_lcblyp
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2_bnl
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o_bnl
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o-camb3lyp-pol-cdfit
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o-camb3lyp-pol
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o-cambeckehh
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o-campbe0
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o-lcpbe
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np o2_bnl
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np o2_hfattn
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np n2_rodft_lrc
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o-hse
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np cdft_jarv1
+let "myexit+=$?"
 #
 #--- minnesota functionals
 ./runtests.mpi.unix procs $np m11_ch3
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np m11_h2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np m11-l_ch3
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np m11-l_h2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np m08hx_ch3
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np m08hx_h2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np m08so_ch3
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np m08so_h2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np ch3_m06-hf
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np cnh5_m06-2x
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np cu2_m06-l
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_ch3ochch32
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np fh_m06
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_m05nh2ch3
+let "myexit+=$?"
 #
 #--- dft + dispersion tests
 ./runtests.mpi.unix procs $np disp_dimer_ch4
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o-b3lyp-disp
+let "myexit+=$?"
 #
 #--- double hybrid and SCS-MP2 tests
 ./runtests.mpi.unix procs $np Ne_scf-mp2_cc-vqz
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np He_scf-mp2_cc-vqz
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np Ar_scf-mp2_cc-vqz
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np Ne_b2plyp_cc-vqz
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np He_b2plyp_cc-vqz
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np Ar_b2plyp_cc-vqz
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np Ne_scs-mp2_cc-vqz
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np He_scs-mp2_cc-vqz
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np Ar_scs-mp2_cc-vqz
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o_dftmp2_cgmin h2o_udftmp2_cgmin
+let "myexit+=$?"
 #
 #--- cdspectrum tests
 ./runtests.mpi.unix procs $np dmo_tddft_cd
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np dmo_tddft_cd_velocity
+let "myexit+=$?"
 #
 #--- spherical atom symmetry test
 ./runtests.mpi.unix procs $np ptatom
+let "myexit+=$?"
 #
 #--- xc ssb-d test
 ./runtests.mpi.unix procs $np h2o-ssb-d
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o-ssb-d-opt
+let "myexit+=$?"
 #
 #--- noscf test
 ./runtests.mpi.unix procs $np h2o-noscf
+let "myexit+=$?"
 #
 #--- response tests
 ./runtests.mpi.unix procs $np h2o-response
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o2-response
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o2-response-uhf
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o2-response-uhf-damping
+let "myexit+=$?"
 #
 #--- other tests
 ./runtests.mpi.unix procs $np pkzb
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np k6h2o
+let "myexit+=$?"
 np_small=$(get_limit $np 16)
 ./runtests.mpi.unix procs $np_small mcscf_ch2 mcscf_ozone
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o_raman_3
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o_raman_4
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tropt-ch3nh2
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h3tr1 h3_dirdyvtst
+let "myexit+=$?"
 #./runtests.mpi.unix procs $np h2o_zts
 ./runtests.mpi.unix procs $np geom_load_xyz
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_sicperth2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o_hcons
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np etf_hcons
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o2-prop-notrans
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np cnh5_m06-2x
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np bq_nio
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np hess_ch4
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o_frozemb
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np cho_bp_zora_finite
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o-ssb-d-b3lyp
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np cu2_m06-l
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np ch3_m06-hf
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_ch3_h2o_revm06
+let "myexit+=$?"
 #./runtests.mpi.unix procs $np dntmc_h2o_nh3 # this stuff does not work at all
 ./runtests.mpi.unix procs $np 5h2o_core
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o_core
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np co_core
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np carbon_fon
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np ch5n_nbo
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tpss tpssh
+let "myexit+=$?"
 #
 ##--- spin-polarised ECPs test
 ./runtests.mpi.unix procs $np spin_ecps_heh_grad spin_ecps_o_hess
+let "myexit+=$?"
 #
 ##--- frozen density embedding and kinetic-energy functionals
 ./runtests.mpi.unix procs $np h2o2_fde
+let "myexit+=$?"
 # tddft gradients
 ./runtests.mpi.unix procs $np tddftgrad_co_cis tddftgrad_n2 tddftgrad_co tddftgrad_n2_uks tddftgrad_ch2o
+let "myexit+=$?"
 # new xc functionals for 7.0.0
 ./runtests.mpi.unix procs $np dft_rscan
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_scan
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np rt_tddft_dimer_charge
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np rt_tddft_mocap
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_ne_n12
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_mfm_ch3
+let "myexit+=$?"
 #
 #libxc
 ./dolibxctests.mpi $np
+let "myexit+=$?"
 #ritddft
 ./runtests.mpi.unix procs $np  ritddft_co
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np  ritddft_h2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np  ritddft_pyridine
+let "myexit+=$?"
 # GW
 ./runtests.mpi.unix procs $np gw_closedshell
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np gw_openshell
+let "myexit+=$?"
 # x2c
 ./runtests.mpi.unix procs $np x2c-h2se
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np hgh-hfc-x2c-gnuc
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np hgh-hfc-x2c-pnuc
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np hg-1e-hfc-x2c
+let "myexit+=$?"
 # tblite
 if [[ ! -z "${USE_TBLITE}" ]]; then
 ./runtests.mpi.unix procs $np xtb_siosi3
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np xtb_siosi7
+let "myexit+=$?"
 fi
 #--- if we only want quick tests get out now!
 if [[ "$what" == "fast" ]]; then
-  exit
+    echo
+    echo  "the number of failed tests is" $myexit
+    echo
+    exit 0
 fi
 #
 #---   long  may not run on workstations
 # new xc functionals for 7.0.0
 ./runtests.mpi.unix procs $np dft_scanl
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_he2p_wb97
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_ne2p_wb97x
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_ar2p_wb97
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_waterdimer_wb97d3
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_s66x8_waterdimer
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_c2br6_vdw4
+let "myexit+=$?"
+./runtests.mpi.unix procs $np dft_r2scan0
+let "myexit+=$?"
 #
 ./runtests.mpi.unix procs $np ccsdt_ompt_w3pvdz
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np ccsdt_w3pvdz
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np aump2 
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np n2_ccsd 
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np benzene_ccsd 
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np uoverlap
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np grad_nh3_trimer 
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np hess_nh3
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np hess_nh3_dimer
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np hess_actlist
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np mp2_si2h6
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np pbo_nesc1e
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np bf_cis
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np oniom3
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np cytosine_ccsd
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tce_active_ccsdt
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tce_uracil_creomact
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tce_eomsd_eomsol2
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tddftgrad_pyridine_opt 
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tddftgrad_phenoxy_radical
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np  qmd_props
+let "myexit+=$?"
 echo 'This test requires 16 processors to run quickly'
 ./runtests.mpi.unix procs $np tce_polar_ccsd_big
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np hess_biph
+let "myexit+=$?"
 #echo 'This test requires >100 processors to run quickly'
 #./runtests.mpi.unix procs $np tce_hyperpolar_ccsd_big
 echo 'misc tests'
 ./runtests.mpi.unix procs $np ch3oh-transden
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np cho_cs_analytic_trans
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o-td
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np o2minus-td
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np udft_aoresp
+let "myexit+=$?"
 echo 'The following  tests require few processors but a lot of time'
 ./runtests.mpi.unix procs $np ch4cl_zts
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np cui_hiraobs
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np mep-test
+let "myexit+=$?"
 if [[ "$what" != "flaky" ]]; then
-  exit
+    echo
+    echo  "the number of failed tests is" $myexit
+    echo
+    exit 0
 fi
 echo 'The intermediate values for this test may cause some differences.'
 echo 'Please check the final values for the last optimized structure.'
 ./runtests.mpi.unix procs $np ch4_zts
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np dielsalder
-./runtests.mpi.unix procs $np talc
+let "myexit+=$?"
+np_small=$(get_limit $np 16)
+./runtests.mpi.unix procs $np_small talc
+let "myexit+=$?"
 echo 'The intermediate energy values for the numerical gradient '
 echo 'test may cause some differences.'
 echo 'Please check the final gradient values for correctness.'
 ./runtests.mpi.unix procs $np neb-fch3cl neb-isobutene
+let "myexit+=$?"
 
 echo 'the following tests are know to be numerically unstable'
 ./runtests.mpi.unix procs $np qmmm_opt0
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np pspw_scan_h2o
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np pspw_vs98_h2o
+let "myexit+=$?"
 np_small=$(get_limit $np 8)
 ./runtests.mpi.unix procs $np_small h2o_selci
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o_vscf
+let "myexit+=$?"
+echo
+echo  "the number of failed tests is" $myexit
+echo
+exit 0

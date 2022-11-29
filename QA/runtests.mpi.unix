@@ -32,7 +32,9 @@
 export HYDRA_DEBUG=0
 # find memory leaks using  this glibc feature that
 # initialized memory blocks to non-zero values
-export MALLOC_PERTURB_=$(($RANDOM % 255 + 1))
+if [[ -z "${USE_ASAN}" ]]; then
+    export MALLOC_PERTURB_=$(($RANDOM % 255 + 1))
+fi    
 
 if [[ -z "${NWCHEM_TARGET}" ]]; then
     UNAME_S=$(uname -s)
@@ -412,7 +414,7 @@ sync
 #
   if [ $runstatus -ne 0 ]; then
     echo "     NWChem execution failed"
-    overall_status=1
+    let "overall_status+=1"
     tail -50 $TESTOUTPUTS/$OUTPUTFILE
     continue
   fi
@@ -477,7 +479,7 @@ sync
 #    head -1000 ${STUB}.out
 #    echo "@@@     Paste End of Output File"  
 #    tail -1000 ${STUB}.out
-    overall_status=1
+    let "overall_status+=1"
     continue 
   else
 #
@@ -498,7 +500,7 @@ sync
     espstatus=$?
        if [[ $espstatus -ne 0 ]]; then
          echo "ESP comparison failed"
-         overall_status=1
+         let "overall_status+=1"
 	 diff -u esp_temp.ok.q esp_temp.q 
          continue 
        else
@@ -513,7 +515,7 @@ sync
        diff -w ${STUB}.ok.tst ${STUB}.tst >& /dev/null
        if [ $? -ne 0 ]; then
          echo "failed"
-         overall_status=1
+         let "overall_status+=1"
          continue 
        else
          echo "completed"
@@ -526,7 +528,7 @@ sync
         echo "completed "
        else
         echo "failed"
-        overall_status=1
+        let "overall_status+=1"
         continue 
        fi
       fi

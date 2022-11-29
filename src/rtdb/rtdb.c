@@ -88,7 +88,6 @@ static void rtdb_broadcast(const int msg_type, const int ma_type,
 {
   Integer len = MA_sizeof(ma_type, nelem, MT_CHAR);
   Integer from = 0;
-  Integer type = msg_type;
   GA_Brdcst(data, len, from);
 }
 

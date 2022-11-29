@@ -943,6 +943,12 @@ chttps://github.com/awvwgk/r2scan-d4-paper
            a1      = 0.49484001d0
            scales8 = 0.78981345d0
            a2      = 5.73083694
+c r2scan0
+c 10.1063/5.0086040
+        else if (xccomb(86)) then
+           a1      = 0.4534d0
+           scales8 = 1.1846d0
+           a2      = 5.8972d0
         else
 c     try to see if set rtdb was used
            read_ok=abs(scales8).gt.0d0.and.

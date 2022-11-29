@@ -8,10 +8,15 @@ on:
     types: [backend_automation]
   workflow_dispatch:
 jobs:
+  build_workflow:
+    uses: ./.github/workflows/update_main.yml
+    secrets:
+      inherit
   build:
     if: |
       github.event_name == 'schedule' ||
       (!contains(github.event.head_commit.message, 'ci skip'))
+    needs: [build_workflow]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 2880
     strategy:
@@ -29,8 +34,6 @@ jobs:
           - "all python xtb"
         fc:
           - gfortran
-        use_openmp:
-          - 2
         use_simint:
           - 1
         use_libxc:
@@ -39,6 +42,8 @@ jobs:
           - 1
         build_plumed:
           - 1
+        branch:
+          - master
         include:
           - os: [self-hosted, ubuntu1804]
             experimental: false
@@ -52,7 +57,7 @@ jobs:
             use_tblite: 1
           - os: [self-hosted, osx-arm64]
             experimental: false
-            mpi_impl: intel
+            mpi_impl: build_mpich
             armci_network: MPI-PT
             nwchem_modules: "all python xtb"
             fc: ifort
@@ -68,10 +73,33 @@ jobs:
             fc: ifx
             blas: "build_openblas"
             use_libxc: 1
+            use_tblite: 1
+          - os: [self-hosted, fedora]
+            experimental: false
+            mpi_impl: openmpi
+            armci_network: MPI-TS
+            nwchem_modules: "all python xtb"
+            fc: gfortran
+            blas: "build_openblas"
+            use_libxc: 1
+            use_simint: 1
             use_openmp: 2
             use_tblite: 1
+            branch: release-7-2-0
+          - os: [self-hosted, oracle_linux]
+            experimental: false
+            mpi_impl: mpich
+            armci_network: MPI-PT
+            nwchem_modules: "all python xtb"
+            fc: gfortran
+            blas: "build_openblas"
+            use_libxc: 1
+            use_openmp: 2
+            use_tblite: 1
+            branch: release-7-2-0
       fail-fast: false
     env:
+        MPI_IMPL: ${{ matrix.mpi_impl }}
         ARMCI_NETWORK: ${{ matrix.armci_network }}
         NWCHEM_MODULES: ${{ matrix.nwchem_modules }}
         USE_SIMINT: ${{ matrix.use_simint }}
@@ -91,12 +119,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 40
+          fetch-depth: 32
+          ref: ${{ matrix.branch }}
           clean: true
       - name: Get Instruction
         id: get-simd
         run: |
-          echo "::set-output name=simd::$(./travis/guess_simd.sh)"
+          echo "simd=$(./travis/guess_simd.sh)" >> $GITHUB_ENV
         shell: bash
       - name: Clear cache dir
         run: |
@@ -108,7 +137,7 @@ jobs:
         with:
           path: |
             ~/cache
-          key: ${{ runner.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-blas${{ matrix.blas}}-blas_size${{ matrix.blas_size}}-libxc${{matrix.use_libxc}}-tblite${{matrix.use_tblite}}-simd${{ steps.get-simd.outputs.simd }}-nwchemcache-v003
+          key: ${{ runner.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-blas${{ matrix.blas}}-blas_size${{ matrix.blas_size}}-libxc${{matrix.use_libxc}}-tblite${{matrix.use_tblite}}-simd${{ env.simd }}-nwchemcache-v003
       - name: build environment
         run: |
           ./travis/build_env.sh
@@ -134,7 +163,9 @@ jobs:
         run: |
           export TRAVIS_BUILD_DIR=`pwd`
           unset USE_SIMINT
-          source travis/nwchem.bashrc; cd QA && ./doqmtests.mpi 3
+          mytee=tee
+          if  [[ `uname -s` == "Darwin" ]]; then mytee=gtee; fi
+          source travis/nwchem.bashrc; cd QA && ./doqmtests.mpi 3 | $mytee >(ts "%d%b%Y %H:%M:%S" > ../../../../doqmtests.mpi.log.` date +%b%d%Y_%H:%M`)
         shell: bash
       - name: Check if QA testing has failed
         if: ${{ failure() }} &&  steps.qa_test.outcome == 'failure'

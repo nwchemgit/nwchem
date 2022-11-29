@@ -65,8 +65,10 @@ if [[ "${NWCHEM_TARGET}" == "LINUX" ]]; then
 else
   binary=64
 fi
-if [ -n "${USE_DYNAMIC_ARCH}" ]; then
-    FORCETARGET+="DYNAMIC_ARCH=1 DYNAMIC_OLDER=1"
+if [[ -n "${USE_DYNAMIC_ARCH}" ]] || [[ "${USE_HWOPT}" == "n" ]]; then
+    if [[ "$arch" == "x86_64" ]]; then
+	FORCETARGET+="DYNAMIC_ARCH=1 DYNAMIC_OLDER=1"
+    fi
 fi
 #cray ftn wrapper
 if [[ ${FC} == ftn ]]; then
@@ -136,10 +138,14 @@ elif  [[ -n ${FC} ]] && [[ "${FC}" == "ifort" ]] || [[ "${FC}" == "ifx" ]]; then
     LAPACK_FPFLAGS_VAL=" -fp-model source -O2 -g "
 else
 	#assuming gfortran
+    FORCETARGET+=' F_COMPILER=GFORTRAN '
     LAPACK_FPFLAGS_VAL=" "
         if [[ ${BLAS_SIZE} == 8 ]]; then
-	    LAPACK_FLAGS_VAL+=" -fdefault-integer-8"
-	fi
+           LAPACK_FPFLAGS_VAL+=" -fdefault-integer-8"
+       fi
+fi
+if [[   -z "${FC}" ]]; then
+    FC=gfortran
 fi
 if [[   -z "${CC}" ]]; then
     CC=cc
@@ -179,6 +185,13 @@ else
     THREADOPT="1"
     MYNTS="128"
 fi
+# cross compilation
+GOTMINGW64=$("$CC" -dM -E - </dev/null 2> /dev/null |grep MINGW64|cut -c21)
+if [[ "${GOTMINGW64}" == "1" ]]; then
+    FORCETARGET+=HOSTCC=\"gcc\"
+    THREADOPT="0"
+    MYNTS="1"
+fi
 
 #we want openblas to use pthreads and not openmp.
 #but NWChem and OpenBLAS both use USE_OPENMP
@@ -187,7 +200,8 @@ if [[  ! -z "${USE_OPENMP}" ]]; then
     unset USE_OPENMP
     NWCHEM_USE_OPENMP=1
 fi
-echo make $FORCETARGET LAPACK_FPFLAGS=$LAPACK_FPFLAGS_VAL  INTERFACE64=$sixty4_int BINARY=$binary NUM_THREADS=$MYNTS NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD=$THREADOPT  libs netlib -j4
+echo FC is $FC
+echo make FC=$FC $FORCETARGET LAPACK_FPFLAGS=$LAPACK_FPFLAGS_VAL  INTERFACE64=$sixty4_int BINARY=$binary NUM_THREADS=$MYNTS NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD=$THREADOPT  libs netlib -j4
 echo
 echo OpenBLAS compilation in progress
 echo output redirected to libext/openblas/OpenBLAS/openblas.log
@@ -195,7 +209,7 @@ echo
 if [[ ${_FC} == xlf ]]; then
  make FC="xlf -qextname" $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=$MYNTS NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4 >& openblas.log
 else
- make $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4 >& openblas.log
+ make FC=$FC $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4 >& openblas.log
 fi
 if [[ "$?" != "0" ]]; then
     tail -500 openblas.log

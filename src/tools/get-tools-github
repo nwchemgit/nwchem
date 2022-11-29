@@ -93,8 +93,8 @@ then
     if [ ! -f ga-"$GA_RELEASE_NO".tar.gz ]; then
 	if test "x$TAR_URL" = x
 	then
-#	TAR_URL=https://github.com/GlobalArrays/ga/releases/download/v"$GA_RELEASE_NO"/ga-"$GA_RELEASE_NO".tar.gz
-	 TAR_URL=https://github.com/edoapra/ga/releases/download/v"$GA_RELEASE_NO"/ga-"$GA_RELEASE_NO".tar.gz
+	TAR_URL=https://github.com/GlobalArrays/ga/releases/download/v"$GA_RELEASE_NO"/ga-"$GA_RELEASE_NO".tar.gz
+#	 TAR_URL=https://github.com/edoapra/ga/releases/download/v"$GA_RELEASE_NO"/ga-"$GA_RELEASE_NO".tar.gz
 #	 TAR_URL=https://github.com/edoapra/ga/releases/download/v"$GA_RELEASE_NO"/ga-5.8.2.v3.tar.gz
 #         TAR_URL=https://github.com/GlobalArrays/ga/archive/refs/tags/v"$GA_RELEASE_NO".tar.gz
 	 #         https://github.com/edoapra/ga/releases/download/v5.7.2/ga-5.7.2.tar.gz
@@ -200,6 +200,13 @@ if [[  -z "${CC}" ]]; then
     CC=cc
 fi
 GOTMINGW64=` $CC -dM -E - </dev/null 2> /dev/null |grep MINGW64|cut -c21 `
+if [[ -d "ga-5.8.2" ]]; then
+    if [[ ! -f "ga-5.8.2/patched581" ]]; then
+	./gamalloc_patch.sh $GA_DIR
+	echo patched
+	touch ga-5.8.2/patched581
+    fi
+fi
 #if [ ! -z "$GOTMINGW64" ]
 #then
 #echo "CC" $CC

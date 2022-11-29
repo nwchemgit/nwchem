@@ -1,0 +1,1207 @@
+ argument  1 = dft_r2scan0.nw
+  NWChem w/ OpenMP: maximum threads =    1
+
+
+
+============================== echo of input deck ==============================
+echo
+start
+
+geometry nocenter noautoz noautosym
+ C   -0.30987551     1.93875533    -1.38643188
+ C   -0.30987551     1.93875533     1.38643188
+ C    0.30987551    -1.93875533     1.38643188
+ C    0.30987551    -1.93875533    -1.38643188
+ C    0.67310780     2.62944002    -0.69382891
+ C    0.67310780     2.62944002     0.69382891
+ C   -1.29119537     1.24585196    -0.69296452
+ C   -1.29119537     1.24585196     0.69296452
+ C   -0.67310780    -2.62944002     0.69382891
+ C   -0.67310780    -2.62944002    -0.69382891
+ C    1.29119537    -1.24585196     0.69296452
+ C    1.29119537    -1.24585196    -0.69296452
+ H   -0.30804532     1.93522004    -2.46947696
+ H   -0.30804532     1.93522004     2.46947696
+ H    1.44020488     3.16918920    -1.23545405
+ H    1.44020488     3.16918920     1.23545405
+ H   -2.05014822     0.69469241    -1.23338579
+ H   -2.05014822     0.69469241     1.23338579
+ H    0.30804532    -1.93522004     2.46947696
+ H    0.30804532    -1.93522004    -2.46947696
+ H   -1.44020488    -3.16918920     1.23545405
+ H   -1.44020488    -3.16918920    -1.23545405
+ H    2.05014822    -0.69469241     1.23338579
+ H    2.05014822    -0.69469241    -1.23338579
+end
+
+basis "ao basis" spherical noprint
+ * library sto-3g
+end
+
+dft
+  xc r2scan0
+  noprint "final vectors analysis"
+end
+
+task dft gradient
+
+dft
+ xc xr2scan 0.75d0 hfexch 0.25d0 cr2scan 1.0d0
+end
+
+task dft gradient
+
+dft
+ xc r2scan0
+ disp vdw 4
+end
+
+task dft gradient
+================================================================================
+
+
+                                         
+                                         
+
+
+             Northwest Computational Chemistry Package (NWChem) 7.0.1
+             --------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                              Copyright (c) 1994-2022
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = WE41275u
+    program         = nwchem
+    date            = Thu Oct 20 13:53:24 2022
+
+    compiled        = Thu_Oct_20_12:32:04_2022
+    source          = /home/meji656/Sources/nwchem.master
+    nwchem branch   = 7.0.0
+    nwchem revision = nwchem_on_git-4063-g862a16112c
+    ga revision     = 5.8.1
+    use scalapack   = T
+    input           = dft_r2scan0.nw
+    prefix          = dft_r2scan0.
+    data base       = ./dft_r2scan0.db
+    status          = startup
+    nproc           =        2
+    time left       =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   26214396 doubles =    200.0 Mbytes
+    stack    =   26214401 doubles =    200.0 Mbytes
+    global   =   52428800 doubles =    400.0 Mbytes (distinct from heap & stack)
+    total    =  104857597 doubles =    800.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+
+
+                             Geometry "geometry" -> ""
+                             -------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 C                    6.0000    -0.30987551     1.93875533    -1.38643188
+    2 C                    6.0000    -0.30987551     1.93875533     1.38643188
+    3 C                    6.0000     0.30987551    -1.93875533     1.38643188
+    4 C                    6.0000     0.30987551    -1.93875533    -1.38643188
+    5 C                    6.0000     0.67310780     2.62944002    -0.69382891
+    6 C                    6.0000     0.67310780     2.62944002     0.69382891
+    7 C                    6.0000    -1.29119537     1.24585196    -0.69296452
+    8 C                    6.0000    -1.29119537     1.24585196     0.69296452
+    9 C                    6.0000    -0.67310780    -2.62944002     0.69382891
+   10 C                    6.0000    -0.67310780    -2.62944002    -0.69382891
+   11 C                    6.0000     1.29119537    -1.24585196     0.69296452
+   12 C                    6.0000     1.29119537    -1.24585196    -0.69296452
+   13 H                    1.0000    -0.30804532     1.93522004    -2.46947696
+   14 H                    1.0000    -0.30804532     1.93522004     2.46947696
+   15 H                    1.0000     1.44020488     3.16918920    -1.23545405
+   16 H                    1.0000     1.44020488     3.16918920     1.23545405
+   17 H                    1.0000    -2.05014822     0.69469241    -1.23338579
+   18 H                    1.0000    -2.05014822     0.69469241     1.23338579
+   19 H                    1.0000     0.30804532    -1.93522004     2.46947696
+   20 H                    1.0000     0.30804532    -1.93522004    -2.46947696
+   21 H                    1.0000    -1.44020488    -3.16918920     1.23545405
+   22 H                    1.0000    -1.44020488    -3.16918920    -1.23545405
+   23 H                    1.0000     2.05014822    -0.69469241     1.23338579
+   24 H                    1.0000     2.05014822    -0.69469241    -1.23338579
+
+      Atomic Mass 
+      ----------- 
+
+      C                 12.000000
+      H                  1.007825
+
+
+ Effective nuclear repulsion energy (a.u.)     623.1830842254
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000    -0.0000000000     0.0000000000
+
+
+            XYZ format geometry
+            -------------------
+    24
+ geometry
+ C                    -0.30987551     1.93875533    -1.38643188
+ C                    -0.30987551     1.93875533     1.38643188
+ C                     0.30987551    -1.93875533     1.38643188
+ C                     0.30987551    -1.93875533    -1.38643188
+ C                     0.67310780     2.62944002    -0.69382891
+ C                     0.67310780     2.62944002     0.69382891
+ C                    -1.29119537     1.24585196    -0.69296452
+ C                    -1.29119537     1.24585196     0.69296452
+ C                    -0.67310780    -2.62944002     0.69382891
+ C                    -0.67310780    -2.62944002    -0.69382891
+ C                     1.29119537    -1.24585196     0.69296452
+ C                     1.29119537    -1.24585196    -0.69296452
+ H                    -0.30804532     1.93522004    -2.46947696
+ H                    -0.30804532     1.93522004     2.46947696
+ H                     1.44020488     3.16918920    -1.23545405
+ H                     1.44020488     3.16918920     1.23545405
+ H                    -2.05014822     0.69469241    -1.23338579
+ H                    -2.05014822     0.69469241     1.23338579
+ H                     0.30804532    -1.93522004     2.46947696
+ H                     0.30804532    -1.93522004    -2.46947696
+ H                    -1.44020488    -3.16918920     1.23545405
+ H                    -1.44020488    -3.16918920    -1.23545405
+ H                     2.05014822    -0.69469241     1.23338579
+ H                     2.05014822    -0.69469241    -1.23338579
+
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |  angstroms
+ ------------------------------------------------------------------------------
+    5 C                |   1 C                |     2.62053  |     1.38672
+    6 C                |   2 C                |     2.62053  |     1.38672
+    6 C                |   5 C                |     2.62229  |     1.38766
+    7 C                |   1 C                |     2.62121  |     1.38708
+    8 C                |   2 C                |     2.62121  |     1.38708
+    8 C                |   7 C                |     2.61903  |     1.38593
+    9 C                |   3 C                |     2.62053  |     1.38672
+   10 C                |   4 C                |     2.62053  |     1.38672
+   10 C                |   9 C                |     2.62229  |     1.38766
+   11 C                |   3 C                |     2.62121  |     1.38708
+   12 C                |   4 C                |     2.62121  |     1.38708
+   12 C                |  11 C                |     2.61903  |     1.38593
+   13 H                |   1 C                |     2.04667  |     1.08305
+   14 H                |   2 C                |     2.04667  |     1.08305
+   15 H                |   5 C                |     2.04678  |     1.08311
+   16 H                |   6 C                |     2.04678  |     1.08311
+   17 H                |   7 C                |     2.04566  |     1.08252
+   18 H                |   8 C                |     2.04566  |     1.08252
+   19 H                |   3 C                |     2.04667  |     1.08305
+   20 H                |   4 C                |     2.04667  |     1.08305
+   21 H                |   9 C                |     2.04678  |     1.08311
+   22 H                |  10 C                |     2.04678  |     1.08311
+   23 H                |  11 C                |     2.04566  |     1.08252
+   24 H                |  12 C                |     2.04566  |     1.08252
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:         24
+ ==============================================================================
+
+
+
+ ==============================================================================
+                                 internuclear angles
+ ------------------------------------------------------------------------------
+        center 1       |       center 2       |       center 3       |  degrees
+ ------------------------------------------------------------------------------
+    5 C                |   1 C                |   7 C                |   120.04
+    5 C                |   1 C                |  13 H                |   119.99
+    7 C                |   1 C                |  13 H                |   119.97
+    6 C                |   2 C                |   8 C                |   120.04
+    6 C                |   2 C                |  14 H                |   119.99
+    8 C                |   2 C                |  14 H                |   119.97
+    9 C                |   3 C                |  11 C                |   120.04
+    9 C                |   3 C                |  19 H                |   119.99
+   11 C                |   3 C                |  19 H                |   119.97
+   10 C                |   4 C                |  12 C                |   120.04
+   10 C                |   4 C                |  20 H                |   119.99
+   12 C                |   4 C                |  20 H                |   119.97
+    1 C                |   5 C                |   6 C                |   119.96
+    1 C                |   5 C                |  15 H                |   120.03
+    6 C                |   5 C                |  15 H                |   120.00
+    2 C                |   6 C                |   5 C                |   119.96
+    2 C                |   6 C                |  16 H                |   120.03
+    5 C                |   6 C                |  16 H                |   120.00
+    1 C                |   7 C                |   8 C                |   120.00
+    1 C                |   7 C                |  17 H                |   120.05
+    8 C                |   7 C                |  17 H                |   119.95
+    2 C                |   8 C                |   7 C                |   120.00
+    2 C                |   8 C                |  18 H                |   120.05
+    7 C                |   8 C                |  18 H                |   119.95
+    3 C                |   9 C                |  10 C                |   119.96
+    3 C                |   9 C                |  21 H                |   120.03
+   10 C                |   9 C                |  21 H                |   120.00
+    4 C                |  10 C                |   9 C                |   119.96
+    4 C                |  10 C                |  22 H                |   120.03
+    9 C                |  10 C                |  22 H                |   120.00
+    3 C                |  11 C                |  12 C                |   120.00
+    3 C                |  11 C                |  23 H                |   120.05
+   12 C                |  11 C                |  23 H                |   119.95
+    4 C                |  12 C                |  11 C                |   120.00
+    4 C                |  12 C                |  24 H                |   120.05
+   11 C                |  12 C                |  24 H                |   119.95
+ ------------------------------------------------------------------------------
+                            number of included internuclear angles:         36
+ ==============================================================================
+
+
+
+  library name resolved from: environment
+  library file name is: </home/meji656/Sources/nwchem.master/src/basis/libraries.bse/>
+  
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+
+
+ Summary of "ao basis" -> "ao basis" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ C                           sto-3g                  3        5   2s1p
+ H                           sto-3g                  1        1   1s
+
+
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :    24
+          No. of electrons :    84
+           Alpha electrons :    42
+            Beta electrons :    42
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  50
+          AO basis - number of functions:    72
+                     number of shells:    48
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+
+              XC Information
+              --------------
+                     r^2SCAN0 Method XC Functional
+                     Hartree-Fock (Exact) Exchange  0.250          
+               r^2SCAN metaGGA Exchange Functional  0.750          
+                     r^2SCAN Correlation Potential  1.000          
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          C                   0.70       49          12.0       434
+          H                   0.35       45          12.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:  1128
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         50 iters            50 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-08
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:        -451.73790191
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =    -456.085332
+ 1-e energy   =   -1857.539842
+ 2-e energy   =     778.271426
+ HOMO         =      -0.094915
+ LUMO         =       0.231626
+
+  WARNING: movecs_in_org=atomic not equal to movecs_in=./dft_r2scan0.movecs
+   Time after variat. SCF:      0.7
+   Time prior to 1st pass:      0.7
+
+ Grid_pts file          = ./dft_r2scan0.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     89        Max. recs in file   = 506625431
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):        0.00                 258
+          Stack Space remaining (MW):       26.21            26213220
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1   -458.5099661704 -1.08D+03  1.10D-02  3.44D-01     5.5
+ Grid integrated density:      83.999915680584
+ Requested integration accuracy:   0.10E-05
+ d= 0,ls=0.0,diis     2   -458.5619433665 -5.20D-02  2.05D-03  7.45D-03     8.6
+ Grid integrated density:      83.999915872378
+ Requested integration accuracy:   0.10E-05
+ d= 0,ls=0.0,diis     3   -458.5630311780 -1.09D-03  6.21D-04  1.54D-03    11.8
+ Grid integrated density:      83.999915379489
+ Requested integration accuracy:   0.10E-05
+ d= 0,ls=0.0,diis     4   -458.5633092716 -2.78D-04  8.64D-05  1.04D-05    15.6
+ Grid integrated density:      83.999915385574
+ Requested integration accuracy:   0.10E-05
+ d= 0,ls=0.0,diis     5   -458.5633094129 -1.41D-07  4.31D-05  9.52D-06    19.4
+ Grid integrated density:      83.999915382063
+ Requested integration accuracy:   0.10E-05
+ d= 0,ls=0.0,diis     6   -458.5633111530 -1.74D-06  5.03D-07  8.17D-10    23.2
+ Grid integrated density:      83.999915382135
+ Requested integration accuracy:   0.10E-05
+ d= 0,ls=0.0,diis     7   -458.5633111532 -1.79D-10  9.46D-08  3.76D-11    27.0
+
+
+         Total DFT energy =     -458.563311153206
+      One electron energy =    -1856.817735735266
+           Coulomb energy =      844.442373868501
+    Exchange-Corr. energy =      -69.371033511832
+ Nuclear repulsion energy =      623.183084225391
+
+ Numeric. integr. density =       83.999915382135
+
+     Total iterative time =     26.3s
+
+
+
+ center of mass
+ --------------
+ x =   0.00000000 y =  -0.00000000 z =   0.00000000
+
+ moments of inertia (a.u.)
+ ------------------
+        2926.909580724029          38.715248535950           0.000000000000
+          38.715248535950        1097.608218925413           0.000000000000
+           0.000000000000           0.000000000000        2772.560610226639
+
+     Multipole analysis of the density
+     ---------------------------------
+
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0     -0.000000    -42.000000    -42.000000     84.000000
+
+     1   1 0 0     -0.000000     -0.000000     -0.000000      0.000000
+     1   0 1 0     -0.000000     -0.000000     -0.000000     -0.000000
+     1   0 0 1     -0.000000     -0.000000     -0.000000      0.000000
+
+     2   2 0 0    -47.481720   -164.225703   -164.225703    280.969687
+     2   1 1 0      3.239210      2.284987      2.284987     -1.330765
+     2   1 0 1      0.000000      0.000000      0.000000      0.000000
+     2   0 2 0    -50.207259   -650.901791   -650.901791   1251.596323
+     2   0 1 1     -0.000000     -0.000000     -0.000000      0.000000
+     2   0 0 2    -45.212389   -211.505884   -211.505884    377.799379
+
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :    24
+          No. of electrons :    84
+           Alpha electrons :    42
+            Beta electrons :    42
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  50
+          AO basis - number of functions:    72
+                     number of shells:    48
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+
+              XC Information
+              --------------
+                     r^2SCAN0 Method XC Functional
+                     Hartree-Fock (Exact) Exchange  0.250          
+               r^2SCAN metaGGA Exchange Functional  0.750          
+                     r^2SCAN Correlation Potential  1.000          
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          C                   0.70       49          12.0       434
+          H                   0.35       45          12.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:  1128
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         50 iters            50 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-08
+
+
+
+                            NWChem DFT Gradient Module
+                            --------------------------
+
+
+
+  charge          =   0.00
+  wavefunction    = closed shell
+
+
+
+                         DFT ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 C      -0.585580   3.663716  -2.619976   -0.000244   0.000047   0.005661
+   2 C      -0.585580   3.663716   2.619976   -0.000244   0.000047  -0.005661
+   3 C       0.585580  -3.663716   2.619976    0.000244  -0.000047  -0.005661
+   4 C       0.585580  -3.663716  -2.619976    0.000244  -0.000047   0.005661
+   5 C       1.271989   4.968921  -1.311147   -0.003623  -0.002931   0.002075
+   6 C       1.271989   4.968921   1.311147   -0.003623  -0.002931  -0.002075
+   7 C      -2.440005   2.354319  -1.309513    0.003364   0.002907   0.003199
+   8 C      -2.440005   2.354319   1.309513    0.003364   0.002907  -0.003199
+   9 C      -1.271989  -4.968921   1.311147    0.003623   0.002931  -0.002075
+  10 C      -1.271989  -4.968921  -1.311147    0.003623   0.002931   0.002075
+  11 C       2.440005  -2.354319   1.309513   -0.003364  -0.002907  -0.003199
+  12 C       2.440005  -2.354319  -1.309513   -0.003364  -0.002907   0.003199
+  13 H      -0.582121   3.657036  -4.666635    0.000045  -0.000077   0.006977
+  14 H      -0.582121   3.657036   4.666635    0.000045  -0.000077  -0.006977
+  15 H       2.721593   5.988899  -2.334670   -0.004911  -0.003406   0.003461
+  16 H       2.721593   5.988899   2.334670   -0.004911  -0.003406  -0.003461
+  17 H      -3.874218   1.312778  -2.330761    0.005401   0.003370   0.003794
+  18 H      -3.874218   1.312778   2.330761    0.005401   0.003370  -0.003794
+  19 H       0.582121  -3.657036   4.666635   -0.000045   0.000077  -0.006977
+  20 H       0.582121  -3.657036  -4.666635   -0.000045   0.000077   0.006977
+  21 H      -2.721593  -5.988899   2.334670    0.004911   0.003406  -0.003461
+  22 H      -2.721593  -5.988899  -2.334670    0.004911   0.003406   0.003461
+  23 H       3.874218  -1.312778   2.330761   -0.005401  -0.003370  -0.003794
+  24 H       3.874218  -1.312778  -2.330761   -0.005401  -0.003370   0.003794
+
+                 ----------------------------------------
+                 |  Time  |  1-e(secs)   |  2-e(secs)   |
+                 ----------------------------------------
+                 |  CPU   |       0.03   |       2.54   |
+                 ----------------------------------------
+                 |  WALL  |       0.03   |       2.54   |
+                 ----------------------------------------
+
+ Task  times  cpu:       35.7s     wall:       35.8s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+
+
+ Summary of "ao basis" -> "ao basis" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ C                           sto-3g                  3        5   2s1p
+ H                           sto-3g                  1        1   1s
+
+
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :    24
+          No. of electrons :    84
+           Alpha electrons :    42
+            Beta electrons :    42
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  50
+          AO basis - number of functions:    72
+                     number of shells:    48
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+
+              XC Information
+              --------------
+                     Hartree-Fock (Exact) Exchange  0.250          
+               r^2SCAN metaGGA Exchange Functional  0.750          
+                     r^2SCAN Correlation Potential  1.000          
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          C                   0.70       49          12.0       434
+          H                   0.35       45          12.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:  1128
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         50 iters            50 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-08
+
+
+ Loading old vectors from job with title :
+
+
+
+   Time after variat. SCF:     35.9
+   Time prior to 1st pass:     35.9
+
+ Grid_pts file          = ./dft_r2scan0.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     89        Max. recs in file   = 506625431
+
+ Grid integrated density:      83.999915382383
+ Requested integration accuracy:   0.10E-05
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):        0.00                 258
+          Stack Space remaining (MW):       26.21            26213220
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1   -458.5633111532 -1.08D+03  4.78D-08  3.93D-12    41.3
+ Grid integrated density:      83.999915382388
+ Requested integration accuracy:   0.10E-05
+ d= 0,ls=0.0,diis     2   -458.5633111532 -6.82D-13  2.48D-08  4.38D-12    45.1
+
+
+         Total DFT energy =     -458.563311153164
+      One electron energy =    -1856.817731952278
+           Coulomb energy =      844.442369955665
+    Exchange-Corr. energy =      -69.371033381943
+ Nuclear repulsion energy =      623.183084225391
+
+ Numeric. integr. density =       83.999915382388
+
+     Total iterative time =      9.2s
+
+
+
+ center of mass
+ --------------
+ x =   0.00000000 y =  -0.00000000 z =   0.00000000
+
+ moments of inertia (a.u.)
+ ------------------
+        2926.909580724029          38.715248535950           0.000000000000
+          38.715248535950        1097.608218925413           0.000000000000
+           0.000000000000           0.000000000000        2772.560610226639
+
+     Multipole analysis of the density
+     ---------------------------------
+
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0     -0.000000    -42.000000    -42.000000     84.000000
+
+     1   1 0 0      0.000000      0.000000      0.000000      0.000000
+     1   0 1 0     -0.000000     -0.000000     -0.000000     -0.000000
+     1   0 0 1     -0.000000     -0.000000     -0.000000      0.000000
+
+     2   2 0 0    -47.481727   -164.225707   -164.225707    280.969687
+     2   1 1 0      3.239206      2.284986      2.284986     -1.330765
+     2   1 0 1      0.000000      0.000000      0.000000      0.000000
+     2   0 2 0    -50.207266   -650.901794   -650.901794   1251.596323
+     2   0 1 1     -0.000000     -0.000000     -0.000000      0.000000
+     2   0 0 2    -45.212381   -211.505880   -211.505880    377.799379
+
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :    24
+          No. of electrons :    84
+           Alpha electrons :    42
+            Beta electrons :    42
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  50
+          AO basis - number of functions:    72
+                     number of shells:    48
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+
+              XC Information
+              --------------
+                     Hartree-Fock (Exact) Exchange  0.250          
+               r^2SCAN metaGGA Exchange Functional  0.750          
+                     r^2SCAN Correlation Potential  1.000          
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          C                   0.70       49          12.0       434
+          H                   0.35       45          12.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:  1128
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         50 iters            50 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-08
+
+
+
+                            NWChem DFT Gradient Module
+                            --------------------------
+
+
+
+  charge          =   0.00
+  wavefunction    = closed shell
+
+
+
+                         DFT ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 C      -0.585580   3.663716  -2.619976   -0.000244   0.000047   0.005661
+   2 C      -0.585580   3.663716   2.619976   -0.000244   0.000047  -0.005661
+   3 C       0.585580  -3.663716   2.619976    0.000244  -0.000047  -0.005661
+   4 C       0.585580  -3.663716  -2.619976    0.000244  -0.000047   0.005661
+   5 C       1.271989   4.968921  -1.311147   -0.003623  -0.002931   0.002075
+   6 C       1.271989   4.968921   1.311147   -0.003623  -0.002931  -0.002075
+   7 C      -2.440005   2.354319  -1.309513    0.003364   0.002907   0.003199
+   8 C      -2.440005   2.354319   1.309513    0.003364   0.002907  -0.003199
+   9 C      -1.271989  -4.968921   1.311147    0.003623   0.002931  -0.002075
+  10 C      -1.271989  -4.968921  -1.311147    0.003623   0.002931   0.002075
+  11 C       2.440005  -2.354319   1.309513   -0.003364  -0.002907  -0.003199
+  12 C       2.440005  -2.354319  -1.309513   -0.003364  -0.002907   0.003199
+  13 H      -0.582121   3.657036  -4.666635    0.000045  -0.000077   0.006977
+  14 H      -0.582121   3.657036   4.666635    0.000045  -0.000077  -0.006977
+  15 H       2.721593   5.988899  -2.334670   -0.004911  -0.003406   0.003461
+  16 H       2.721593   5.988899   2.334670   -0.004911  -0.003406  -0.003461
+  17 H      -3.874218   1.312778  -2.330761    0.005401   0.003370   0.003794
+  18 H      -3.874218   1.312778   2.330761    0.005401   0.003370  -0.003794
+  19 H       0.582121  -3.657036   4.666635   -0.000045   0.000077  -0.006977
+  20 H       0.582121  -3.657036  -4.666635   -0.000045   0.000077   0.006977
+  21 H      -2.721593  -5.988899   2.334670    0.004911   0.003406  -0.003461
+  22 H      -2.721593  -5.988899  -2.334670    0.004911   0.003406   0.003461
+  23 H       3.874218  -1.312778   2.330761   -0.005401  -0.003370  -0.003794
+  24 H       3.874218  -1.312778  -2.330761   -0.005401  -0.003370   0.003794
+
+                 ----------------------------------------
+                 |  Time  |  1-e(secs)   |  2-e(secs)   |
+                 ----------------------------------------
+                 |  CPU   |       0.03   |       2.54   |
+                 ----------------------------------------
+                 |  WALL  |       0.03   |       2.54   |
+                 ----------------------------------------
+
+ Task  times  cpu:       18.1s     wall:       18.1s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+
+
+ Summary of "ao basis" -> "ao basis" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ C                           sto-3g                  3        5   2s1p
+ H                           sto-3g                  1        1   1s
+
+
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :    24
+          No. of electrons :    84
+           Alpha electrons :    42
+            Beta electrons :    42
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  50
+          AO basis - number of functions:    72
+                     number of shells:    48
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+
+              XC Information
+              --------------
+                     r^2SCAN0 Method XC Functional
+                     Hartree-Fock (Exact) Exchange  0.250          
+               r^2SCAN metaGGA Exchange Functional  0.750          
+                     r^2SCAN Correlation Potential  1.000          
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          C                   0.70       49          12.0       434
+          H                   0.35       45          12.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:  1128
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         50 iters            50 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-08
+
+      Dispersion Parameters
+      ---------------------
+
+           DFT-D3BJ Model   
+          s6 scale factor  :        1.000000000000
+          s8 scale factor  :        1.184600000000
+          a1 parameter     :        0.453400000000
+          a2 parameter     :        5.897200000000
+              vdW contrib  :       -0.010560226402
+
+
+ Loading old vectors from job with title :
+
+
+
+   Time after variat. SCF:     54.0
+   Time prior to 1st pass:     54.0
+
+ Grid_pts file          = ./dft_r2scan0.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     89        Max. recs in file   = 506625431
+
+ Grid integrated density:      83.999915382299
+ Requested integration accuracy:   0.10E-05
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):        0.00                 258
+          Stack Space remaining (MW):       26.21            26213220
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1   -458.5738713796 -1.08D+03  1.09D-09  1.82D-15    59.4
+ Grid integrated density:      83.999915382299
+ Requested integration accuracy:   0.10E-05
+ d= 0,ls=0.0,diis     2   -458.5738713796 -4.55D-13  5.77D-10  1.20D-15    63.2
+
+
+         Total DFT energy =     -458.573871379569
+      One electron energy =    -1856.817731965361
+           Coulomb energy =      844.442369976573
+    Exchange-Corr. energy =      -69.371033389770
+ Nuclear repulsion energy =      623.183084225391
+
+    Dispersion correction =       -0.010560226402
+
+ Numeric. integr. density =       83.999915382299
+
+     Total iterative time =      9.2s
+
+
+
+ center of mass
+ --------------
+ x =   0.00000000 y =  -0.00000000 z =   0.00000000
+
+ moments of inertia (a.u.)
+ ------------------
+        2926.909580724029          38.715248535950           0.000000000000
+          38.715248535950        1097.608218925413           0.000000000000
+           0.000000000000           0.000000000000        2772.560610226639
+
+     Multipole analysis of the density
+     ---------------------------------
+
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0     -0.000000    -42.000000    -42.000000     84.000000
+
+     1   1 0 0      0.000000      0.000000      0.000000      0.000000
+     1   0 1 0     -0.000000     -0.000000     -0.000000     -0.000000
+     1   0 0 1     -0.000000     -0.000000     -0.000000      0.000000
+
+     2   2 0 0    -47.481727   -164.225707   -164.225707    280.969687
+     2   1 1 0      3.239206      2.284986      2.284986     -1.330765
+     2   1 0 1      0.000000      0.000000      0.000000      0.000000
+     2   0 2 0    -50.207265   -650.901794   -650.901794   1251.596323
+     2   0 1 1      0.000000      0.000000      0.000000      0.000000
+     2   0 0 2    -45.212380   -211.505880   -211.505880    377.799379
+
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :    24
+          No. of electrons :    84
+           Alpha electrons :    42
+            Beta electrons :    42
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  50
+          AO basis - number of functions:    72
+                     number of shells:    48
+          Convergence on energy requested:  1.00D-06
+          Convergence on density requested:  1.00D-05
+          Convergence on gradient requested:  5.00D-04
+
+              XC Information
+              --------------
+                     r^2SCAN0 Method XC Functional
+                     Hartree-Fock (Exact) Exchange  0.250          
+               r^2SCAN metaGGA Exchange Functional  0.750          
+                     r^2SCAN Correlation Potential  1.000          
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          C                   0.70       49          12.0       434
+          H                   0.35       45          12.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:  1128
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL):  1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         50 iters            50 iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho:  1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul:  1.00D-08
+
+
+
+                            NWChem DFT Gradient Module
+                            --------------------------
+
+
+
+  charge          =   0.00
+  wavefunction    = closed shell
+
+
+
+                         DFT ENERGY GRADIENTS
+
+    atom               coordinates                        gradient
+                 x          y          z           x          y          z
+   1 C      -0.585580   3.663716  -2.619976   -0.000278   0.000183   0.005642
+   2 C      -0.585580   3.663716   2.619976   -0.000278   0.000183  -0.005642
+   3 C       0.585580  -3.663716   2.619976    0.000278  -0.000183  -0.005642
+   4 C       0.585580  -3.663716  -2.619976    0.000278  -0.000183   0.005642
+   5 C       1.271989   4.968921  -1.311147   -0.003645  -0.002814   0.002069
+   6 C       1.271989   4.968921   1.311147   -0.003645  -0.002814  -0.002069
+   7 C      -2.440005   2.354319  -1.309513    0.003308   0.003060   0.003185
+   8 C      -2.440005   2.354319   1.309513    0.003308   0.003060  -0.003185
+   9 C      -1.271989  -4.968921   1.311147    0.003645   0.002814  -0.002069
+  10 C      -1.271989  -4.968921  -1.311147    0.003645   0.002814   0.002069
+  11 C       2.440005  -2.354319   1.309513   -0.003308  -0.003060  -0.003185
+  12 C       2.440005  -2.354319  -1.309513   -0.003308  -0.003060   0.003185
+  13 H      -0.582121   3.657036  -4.666635    0.000032  -0.000030   0.006925
+  14 H      -0.582121   3.657036   4.666635    0.000032  -0.000030  -0.006925
+  15 H       2.721593   5.988899  -2.334670   -0.004888  -0.003356   0.003439
+  16 H       2.721593   5.988899   2.334670   -0.004888  -0.003356  -0.003439
+  17 H      -3.874218   1.312778  -2.330761    0.005335   0.003411   0.003760
+  18 H      -3.874218   1.312778   2.330761    0.005335   0.003411  -0.003760
+  19 H       0.582121  -3.657036   4.666635   -0.000032   0.000030  -0.006925
+  20 H       0.582121  -3.657036  -4.666635   -0.000032   0.000030   0.006925
+  21 H      -2.721593  -5.988899   2.334670    0.004888   0.003356  -0.003439
+  22 H      -2.721593  -5.988899  -2.334670    0.004888   0.003356   0.003439
+  23 H       3.874218  -1.312778   2.330761   -0.005335  -0.003411  -0.003760
+  24 H       3.874218  -1.312778  -2.330761   -0.005335  -0.003411   0.003760
+
+                 ----------------------------------------
+                 |  Time  |  1-e(secs)   |  2-e(secs)   |
+                 ----------------------------------------
+                 |  CPU   |       0.03   |       2.54   |
+                 ----------------------------------------
+                 |  WALL  |       0.03   |       2.54   |
+                 ----------------------------------------
+
+ Task  times  cpu:       18.1s     wall:       18.1s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        24	        53
+	current total bytes		         0	         0
+	maximum total bytes		 277218472	  22518632
+	maximum total K-bytes		    277219	     22519
+	maximum total M-bytes		       278	        23
+
+
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, Y. Alexeev, J. Anchell,
+       V. Anisimov, F. W. Aquino, R. Atta-Fynn, J. Autschbach, N. P. Bauman,
+     J. C. Becca, D. E. Bernholdt, K. Bhaskaran-Nair, S. Bogatko, P. Borowski,
+         J. Boschen, J. Brabec, A. Bruner, E. Cauet, Y. Chen, G. N. Chuev,
+      C. J. Cramer, J. Daily, M. J. O. Deegan, T. H. Dunning Jr., M. Dupuis,
+   K. G. Dyall, G. I. Fann, S. A. Fischer, A. Fonari, H. Fruchtl, L. Gagliardi,
+      J. Garza, N. Gawande, S. Ghosh, K. Glaesemann, A. W. Gotz, J. Hammond,
+       V. Helms, E. D. Hermes, K. Hirao, S. Hirata, M. Jacquelin, L. Jensen,
+   B. G. Johnson, H. Jonsson, R. A. Kendall, M. Klemm, R. Kobayashi, V. Konkov,
+      S. Krishnamoorthy, M. Krishnan, Z. Lin, R. D. Lins, R. J. Littlefield,
+      A. J. Logsdail, K. Lopata, W. Ma, A. V. Marenich, J. Martin del Campo,
+   D. Mejia-Rodriguez, J. E. Moore, J. M. Mullin, T. Nakajima, D. R. Nascimento,
+    J. A. Nichols, P. J. Nichols, J. Nieplocha, A. Otero-de-la-Roza, B. Palmer,
+    A. Panyala, T. Pirojsirikul, B. Peng, R. Peverati, J. Pittner, L. Pollack,
+   R. M. Richard, P. Sadayappan, G. C. Schatz, W. A. Shelton, D. W. Silverstein,
+   D. M. A. Smith, T. A. Soares, D. Song, M. Swart, H. L. Taylor, G. S. Thomas,
+            V. Tipparaju, D. G. Truhlar, K. Tsemekhman, T. Van Voorhis,
+      A. Vazquez-Mayagoitia, P. Verma, O. Villa, A. Vishnu, K. D. Vogiatzis,
+        D. Wang, J. H. Weare, M. J. Williamson, T. L. Windus, K. Wolinski,
+        A. T. Wong, Q. Wu, C. Yang, Q. Yu, M. Zacharias, Z. Zhang, Y. Zhao,
+                                and R. J. Harrison
+                        "NWChem: Past, present, and future
+                         J. Chem. Phys. 152, 184102 (2020)
+                               doi:10.1063/5.0004997
+
+                                      AUTHORS
+                                      -------
+  E. Apra, E. J. Bylaska, N. Govind, K. Kowalski, M. Valiev, D. Mejia-Rodriguez,
+       A. Kunitsa, N. P. Bauman, A. Panyala, W. A. de Jong, T. P. Straatsma,
+        H. J. J. van Dam, D. Wang, T. L. Windus, J. Hammond, J. Autschbach,
+    K. Bhaskaran-Nair, J. Brabec, K. Lopata, S. A. Fischer, S. Krishnamoorthy,
+     M. Jacquelin, W. Ma, M. Klemm, O. Villa, Y. Chen, V. Anisimov, F. Aquino,
+    S. Hirata, M. T. Hackler, Eric Hermes, L. Jensen, J. E. Moore, J. C. Becca,
+      V. Konjkov, T. Risthaus, M. Malagoli, A. Marenich, A. Otero-de-la-Roza,
+        J. Mullin, P. Nichols, R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan,
+        A. Fonari, M. J. Williamson, R. J. Harrison, J. R. Rehr, M. Dupuis,
+     D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan,
+     B. E. Van Kuiken, A. Vazquez-Mayagoitia, M. Swart, Q. Wu, T. Van Voorhis,
+     A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann,
+   H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall, J. A. Nichols, K. Tsemekhman,
+    K. Wolinski, J. Anchell, D. E. Bernholdt, P. Borowski, T. Clark, D. Clerc,
+   H. Dachsel, M. J. O. Deegan, K. Dyall, D. Elwood, E. Glendening, M. Gutowski,
+   A. C. Hess, J. Jaffe, B. G. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin,
+   R. Littlefield, X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
+   K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
+                               A. T. Wong, Z. Zhang.
+
+ Total times  cpu:       71.9s     wall:       72.1s

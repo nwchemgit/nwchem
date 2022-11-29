@@ -175,6 +175,7 @@ c
       logical lcdft  ! Qin
       integer ipop
       logical out1
+      logical zerof
 c
 cc AJL/Begin/SPIN ECPs
       integer ecp_channels
@@ -451,6 +452,15 @@ C     global density
          g_dens(i) = ga_create_atom_blocked(geom, basis, 
      $        'density matrix')
       end do
+c
+c     skip for fake forces
+c
+      if (.not. rtdb_get(rtdb,'forces:fakezero',mt_log,1,zerof))
+     z     zerof = .false.
+      if(zerof)  then
+         call dfill(lforce, 0.0D0, dbl_mb(k_force), 1)
+         goto 1984
+      endif
 c     
       if (scftype .eq. 'MCSCF') then
          if (.not. ma_push_get(mt_dbl, nopen**4, 'pdm2', 
@@ -1187,6 +1197,7 @@ C     symmetrize
      $               ((dbl_mb(k_frc_smd+i-1+3*(j-1)),i=1,3),j=1,nat)
               endif
             endif
+ 1984      continue
             write(luout,2200) 'total ',
      $           theory(1:inp_strlen(theory)), ' gradient',
      $           ((dbl_mb(k_force+i-1+3*(j-1)),i=1,3),j=1,nat)

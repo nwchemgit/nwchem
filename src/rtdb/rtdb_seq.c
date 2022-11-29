@@ -134,7 +134,7 @@ void ma_print(FILE *file, const int ma_type, const int nelem, void *p)
 
   case MT_F_INT:	/* Fortran integer ... not equivalent on KSR */
     for (nprint=i=0; i<nelem; i++) {
-      nprint += fprintf(file, "%d ", ((Integer *) p)[i]);
+      nprint += fprintf(file, "%ld ", ((Integer *) p)[i]);
       if (nprint >= 72) {
 	(void) fprintf(file, "\n");
 	nprint = 0;

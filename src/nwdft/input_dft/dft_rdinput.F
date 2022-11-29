@@ -781,6 +781,7 @@ c
       xcname(83)='             MN15-L Method XC Functional'
       xcname(84)='               MN15 Method XC Functional'
       xcname(85)='             M06-SX Method XC Functional'
+      xcname(86)='           r^2SCAN0 Method XC Functional'
 c     
 c     place character XC parameters in rtdb
 c     

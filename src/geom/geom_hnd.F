@@ -4880,10 +4880,10 @@ c
          return
       endif
 c     
-      if (.not. ma_push_get(mt_int, nat*nat,'check all',l_m, k_m))
+      if (.not. ma_push_get(mt_int, nat*nat,'check all0',l_m, k_m))
      $     call errquit('geom_check_all_connected: ma?',nat*nat,
      &       MA_ERR)
-      if (.not. ma_push_get(mt_int, nat,'check all',l_clus, k_clus))
+      if (.not. ma_push_get(mt_int, nat,'check all1',l_clus, k_clus))
      $     call errquit('geom_check_all_connected: ma?',nat,
      &       MA_ERR)
 c     
@@ -4997,7 +4997,7 @@ c
                if (numijxtra .eq. mxbond) then
                   numijxtra = 0
                   okay = .false.
-                  return
+                  goto 10000
                endif
                if (oprint) write(LuOut,44) iclus, jclus, 
      &                     imin, jmin, rmin

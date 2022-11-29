@@ -36,7 +36,7 @@ jobs:
           key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchem-dockeractions-v002
       - name: Qemu
         id: qemu
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
         with:
           image: crazymax/binfmt:v6.0.0
       - name: Available platforms
@@ -44,15 +44,10 @@ jobs:
           echo ${{ steps.qemu.outputs.platforms }}
           docker images
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
         with:
           driver-opts: |
               image=moby/buildkit:master
-      - name: Get Arch
-        id: get-arch
-        run: |
-          echo "::set-output name=arch::$(echo ${{matrix.archs }} | sed 's/linux//'|sed  's/\///g' )"
-        shell: bash
       - name: fetch cache
         if: (steps.setup-cache.outputs.cache-hit == 'true') && ( matrix.folder  != 'helloworld' )
         run: |
@@ -62,14 +57,13 @@ jobs:
           rsync -av ~/cache/libext* cache/. ; \
           echo "libext cache fetched" ; \
           fi
-      - uses: haya14busa/action-cond@v1
-        id: cache-hit-reporter
-        with:
-          cond: ${{ steps.setup-cache.outputs.cache-hit != '' }}
-          if_true: "Y"
-          if_false: "N"
+          echo "cache_hit=Y" >> $GITHUB_ENV
+      - name: negative-cache-hit-reporter
+        if: (steps.setup-cache.outputs.cache-hit != 'true')
+        run: |
+          echo "cache_hit=N" >> $GITHUB_ENV
       - name: build_schedule
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           push: false
           context: ${{ matrix.folder }}
@@ -78,7 +72,9 @@ jobs:
           tags: nwchem_image
           build-args: |
             FC=${{ matrix.fc }}
-            CACHE_HIT=${{ steps.cache-hit-reporter.outputs.value }}
+            CACHE_HIT=${{ env.cache_hit }}
+            NWCHEM_BRANCH=${{ github.ref_name }}
+            GITHUB_REPOSITORY_OWNER=${{ github.repository_owner }}
       - name: store cache
         run: |
             mkdir -p ~/cache/
