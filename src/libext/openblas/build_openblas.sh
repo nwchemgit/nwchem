@@ -186,6 +186,7 @@ else
     MYNTS="128"
 fi
 # cross compilation
+GOTMINGW64=$("$CC" -dM -E - </dev/null 2> /dev/null |grep MINGW64|cut -c21)
 if [[ "${GOTMINGW64}" == "1" ]]; then
     FORCETARGET+=HOSTCC=\"gcc\"
     THREADOPT="0"
