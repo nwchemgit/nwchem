@@ -22,6 +22,12 @@ if [[ "$what" == "fast" ]]; then
   echo " QM: Running only a set of quick tests"
   echo " ====================================="
   echo
+elif [[ "$what" == "sonadc" ]]; then
+  echo
+  echo " ============================="
+  echo " QM: Running only sonadc tests"
+  echo " ============================="
+  echo
 else
   echo
   echo " ======================================================"
@@ -29,6 +35,17 @@ else
   echo " ======================================================"
   echo
 fi
+#
+#---   sonadc tests
+#
+./runtests.mpi.unix procs $np sonadc_aoints_khe
+./runtests.mpi.unix procs $np sonadc_grd_khe
+./runtests.mpi.unix procs $np sonadc_nad_khe
+#--- if we only want sonadc tests get out now!
+if [[ "$WHAT" == "sonadc" ]]; then
+  exit
+fi
+
 #
 #---   small tests
 #./runtests.mpi.unix procs $np testtask
