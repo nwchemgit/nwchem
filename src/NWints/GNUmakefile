@@ -2,7 +2,7 @@
 
     HEADERS = api/int_tim.fh api/apiP.fh api/int_nbf.fh auxil/spcartP.fh hondo/hnd_whermt.fh hondo/hnd_rys.fh hondo/hnd_tol.fh ../property/prop.fh
     LIBRARY = libnwints.a
-    SUBDIRS = simint api int auxil ints_sp deriv texas ecp hondo rel dk 
+    SUBDIRS = simint api int auxil ints_sp deriv texas ecp hondo rel dk sifs
     OBJ = intgrl_input.o
   USE_TEXAS = YEP
 export USE_TEXAS
