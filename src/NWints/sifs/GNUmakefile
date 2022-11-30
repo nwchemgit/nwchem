@@ -30,7 +30,7 @@ siftdy.F siftyp.F sifw1x.F sifw2.F \
 sifwh.F sifzh2.F sifzwh.F:
 	./build_sifs.sh
 
-.NOTPARALLEL:bummer.F sif2w8.F sifc2f.F sifcfg.F
+  MAKEFLAGS = -j 1 --no-print-directory
 
 cleanF:
 	@rm -rf colu* *F dependencies
