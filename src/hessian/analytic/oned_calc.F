@@ -38,6 +38,10 @@ c
 cc AJL/Begin/SPIN ECPs
       integer ecp_channel
 cc AJL/End
+C LB
+      LOGICAL hlfdrv !true = calculate half-derivative overlap integrals
+                        ! for nadtrc
+C LB
 c
       nproc = ga_nnodes()
       task_size = 1
@@ -94,8 +98,11 @@ c
 C     dS
 c
                 if (doS) then
+C LB
+                hlfdrv=.false.
+C LB
                 call intd_1eov(basis,ish1,basis,ish2,lscr,Iscr,
-     &               lbuf,Ibuf,idatom)
+     &               lbuf,Ibuf,idatom,hlfdrv)
 
                 if ( idatom(1) .ge. 1 ) then
 c               write(6,*) 'integral buffer for ',idatom(1),

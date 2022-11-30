@@ -56,6 +56,8 @@ c::passed
       integer idatom(*)         !< [Output] array identifying centers for derivatives
 c                       ! e.g., the first nint*3  derivatives go to center idatom(1)
 c                       !       the second nint*3 derivatives go to center idatom(2)
+      logical,parameter :: hlfdrv = .false. ! not calculating half-deriv
+                                            ! overlap matrix
 c::local
       logical shells_ok
       integer i_geom, j_geom, ibas, jbas, ucont, mynint
@@ -75,6 +77,7 @@ c... statement function for int_chk_sh
       inline_chk_sh(ibas,ish) =
      $    ((ish.gt.0) .and. (ish.le.ncont_tot_gb(ibas)))
 c
+
 c check initialization and shells
 c
       if (.not.int_chk_init('intpd_1eov'))
@@ -112,7 +115,7 @@ c
       if (i_cent.eq.j_cent) then
 *        write(luout,*)' automatic zero '
         call ifill(2,0,idatom,1)
-        call dcopy((mynint*3*2),0.0d00,0,Ova,1)
+        call ycopy((mynint*3*2),0.0d00,0,Ova,1)
         return
       endif
       idatom(1) = i_cent
@@ -140,7 +143,7 @@ c
 c.............................. doS    doT     doV     canonical
      &      Ova,scr,scr,mynint,.true.,.false.,.false.,.false.,
 c........... dryrun
-     &      .false.,scr,lscr)
+     &      .false.,scr,lscr,hlfdrv)
         if (bas_spherical(ibas).or.bas_spherical(jbas)) then
           if (Li.eq.-1) i_gen = 1
           if (Lj.eq.-1) j_gen = 1

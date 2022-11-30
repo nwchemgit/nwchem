@@ -1,9 +1,8 @@
-#define NO_BQGEM 1
       subroutine grad1 ( H, lbuf, scr, lscr, dens, wdens, frc_nuc,
      $                   frc_kin, frc_wgh, g_force,
      $                   g_dens, g_wdens, basis, geom, nproc, nat, 
-     $                   max_at_bf, rtdb, oskel, ndens )
-c$Id$
+     $                   max_at_bf, rtdb, oskel )
+c$Id: grad1.F,v 1.17 2008/04/22 22:00:19 niri Exp $
 
 C     one electron contribution to RHF, ROHF and UHF gradients
 C     now also UMP2
@@ -23,10 +22,7 @@ C-------------------------parameters--------------------------------
      $     g_dens,        ! density matrix (summed if ROHF, UHF)
      $     g_wdens,       ! weighted density (Lagrangian)
      $     g_force,       ! global force array
-     $     basis, geom, nproc, nat, max_at_bf, rtdb,
-cc AJL/Begin/SPIN ECPs
-     $     ndens          ! Number of density matrices in g_dens
-cc AJL/End
+     $     basis, geom, nproc, nat, max_at_bf, rtdb
 
       double precision H, ! integral derivatives
      $     scr, 
@@ -36,11 +32,7 @@ cc AJL/End
 
       dimension H ( lbuf ), frc_nuc(3, nat), frc_kin(3, nat),
      $          frc_wgh(3, nat), scr(lscr),
-     $          dens(max_at_bf,max_at_bf), 
-     $          wdens(max_at_bf,max_at_bf),
-cc AJL/Begin/SPIN ECPs
-     $          g_dens(ndens)
-cc AJL/End
+     $          dens(max_at_bf,max_at_bf), wdens(max_at_bf,max_at_bf)
 
       logical oskel   ! symmetry?
 
@@ -70,43 +62,8 @@ c
       integer nxtask, task_size
       external nxtask
 C LB
-c      hlfdrv= true => calculate half-derivative overlap ints for nadtrc
-c      hlfdrv= fals => half-deriv overlap ints not needed for gradients
       LOGICAL hlfdrv !true = calculate half-derivative overlap integrals
 C LB
-
-cc AJL/Begin/SPIN ECPs
-      integer ecp_channels
-      integer iecp
-      double precision H_beta (lbuf)
-      double precision dens_beta (max_at_bf,max_at_bf)
-#ifdef NO_BQGEM
-#include "inp.fh"
-      character*2 bqchar
-#endif
-
-cc    Read this value from rtdb vvvv
-      if (.not.rtdb_get(rtdb, 'dft:spin_polarised_ecps',
-     &  mt_int, 1, ecp_channels)) then
-        ecp_channels = 1
-      endif 
-
-cc AJL: With spin-polarised ECPs Hcore will be spin dependent
-cc            See Szabo and Ostlund pg. 215
-cc      So we need to separate out the densities
-cc        
-c      if (ecp_channels.gt.1) then
-c     
-c       Restore alpha and beta densities to calculate spin-polarised
-c       derivatives 
-c
-c        call ga_print(g_dens(1))
-c        call ga_print(g_dens(2))
-c        call ga_dadd(1d0, g_dens(1), -1d0, g_dens(2), g_dens(1))
-c        call ga_print(g_dens(1))
-c        call ga_print(g_dens(2))
-c      end if   
-cc AJL/End
 
       task_size = 1
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
@@ -114,6 +71,10 @@ cc AJL/End
       pointforce = geom_include_bqbq(geom)
       dobq = geom_extbq_on()
       call hf_print_set(1)
+cgk debug
+      write(*,*)'gk: in grad1, dobq = ', dobq
+      write(*,*)'gk: in grad1, pointforce = ', pointforce
+cgk end
 
       ijatom = -1
       next = nxtask(nproc,task_size)
@@ -142,26 +103,10 @@ c
 
             status = bas_ce2cnr(basis,iat1,iac1f,iac1l)
             status = bas_ce2cnr(basis,iat2,iac2f,iac2l)
-c
-cc AJL/Begin/SPIN ECPs
-c            call ga_get(g_dens,iab1f,iab1l,iab2f,iab2l,dens,max_at_bf)
-            do 75, iecp = 1, ecp_channels
-              if (iecp.eq.1) then
-                call ga_get(g_dens(iecp),iab1f,iab1l,
-     $               iab2f,iab2l,dens,max_at_bf)
-              else
-                call ga_get(g_dens(iecp),iab1f,iab1l,
-     $               iab2f,iab2l,dens_beta,max_at_bf)
-              endif
- 75         continue
-cc Recombine g_dens, as it is not used again
-c            if (ecp_channels.gt.1) then
-c              call ga_dadd(1d0, g_dens(1), 1d0, g_dens(2), g_dens(1))
-c            end if
-cc g_wdens is not dependent on spin, so can leave this
+
+            call ga_get (g_dens, iab1f,iab1l,iab2f,iab2l,dens,max_at_bf)
             call ga_get(g_wdens,iab1f,iab1l,iab2f,iab2l,wdens,max_at_bf)
-cc AJL/End
-c
+
             do 70, ish1 = iac1f, iac1l
               if ( iat1.eq.iat2 ) iac2l = ish1
               do 60, ish2 = iac2f, iac2l
@@ -206,29 +151,14 @@ C               idatom(1).ge.0 <=> idatom(2).ge.0 (no check necessary)
 
 C               1el. derivatives
                 if(.not.dobq) then
-                  call intd_1eh1(basis,ish1,basis,ish2,lscr,scr,
-     &                 lbuf,H)
+                call intd_1eh1(basis,ish1,basis,ish2,lscr,scr,
+     &               lbuf,H)
                 else
-                  call intd_1epot(basis,ish1,basis,ish2,lscr,scr,
-     &                 lbuf,H)
+                call intd_1epot(basis,ish1,basis,ish2,lscr,scr,
+     &               lbuf,H)
                 end if
-c
-cc AJL/Begin/SPIN ECPs
-cc With spin-polarised ECPs Hcore will be spin dependent
-cc            See Szabo and Ostlund pg. 215
-                if (ecp_channels.gt.1) then
-C               1el. derivatives
-                  if(.not.dobq) then
-cc For now this will do, but this could be more efficiently done
-                    call intd_1eh1_beta(basis,ish1,basis,ish2,lscr,scr,
-     &                   lbuf,H_beta)
-                  else
-                    call intd_1epot_beta(basis,ish1,basis,ish2,lscr,scr,
-     &                   lbuf,H_beta)
-                  end if
-                end if
-cc AJL/End
-c
+                  
+
 C     D x H
 
                 ic=1
@@ -238,11 +168,6 @@ C     D x H
                     do 31, ip1 = if1, il1
                       do 30, ip2 = if2, il2
                         dE = dE + dens(ip1,ip2) * H(ic)
-cc AJL/Begin/SPIN ECPs
-                        if (ecp_channels.gt.1) then
-                          dE = dE + dens_beta(ip1,ip2) * H_beta(ic)
-                        end if
-cc AJL/End                 
                         ic = ic + 1
  30                   continue
  31                 continue
@@ -291,6 +216,9 @@ c
 c     continue with forces if there are external charges (MV)
 c     --------------------------------------------------
       if(.not.dobq) return
+cgk debug
+      write(*,*)'gk:  continuing with forces for external charges'
+cgk end
 
       bq_ncent = geom_extbq_ncenter()
       i_cbq = geom_extbq_coord()
@@ -299,12 +227,6 @@ c     --------------------------------------------------
       ijatom = -1
       next = nxtask(nproc,task_size)
       do 91, iat1 = 1, nat
-#ifdef NO_BQGEM
-         status = geom_cent_get (geom, iat1, name, crd1, q1)
-c         bqchar(1:1)=byte_mb(i_t+16*(iat-1))
-c         bqchar(2:2)=byte_mb(i_t+16*(iat-1)+1)
-         if (.not.inp_compare(.false.,'bq', name(1:2))) then
-#endif
         do 81, iat2 = 1, bq_ncent
 
           ijatom = ijatom + 1
@@ -335,42 +257,174 @@ c
             next = nxtask(nproc,task_size)
           endif
  81     continue
-#ifdef NO_BQGEM
-      endif
-#endif
  91   continue
       next = nxtask(-nproc,task_size)
 
+cgk debug
+      write(*,*)'gk: leaving grad1'
+cgk end
 
       return
       end
+      subroutine grad_hnd_cos ( H, lbuf, scr, lscr, 
+     $                   dens, wdens, frc_nuc,
+     $                   frc_kin, frc_wgh, g_force,
+     $                   g_dens, g_wdens, basis, geom, nproc, nat, 
+     $                   max_at_bf, rtdb, oskel )
+c$Id: grad1.F,v 1.17 2008/04/22 22:00:19 niri Exp $
+
+C     one electron contribution to RHF, ROHF and UHF gradients
+C     now also UMP2
+
+      implicit none
+
+#include "mafdecls.fh"
+#include "global.fh"
+#include "geom.fh"
+#include "bas.fh"
+#include "rtdb.fh"
+#include "sym.fh"
+#include "stdio.fh"
+
+C-------------------------parameters--------------------------------
+      integer lbuf, lscr,
+     $     g_dens,        ! density matrix (summed if ROHF, UHF)
+     $     g_wdens,       ! weighted density (Lagrangian)
+     $     g_force,       ! global force array
+     $     basis, geom, nproc, nat, max_at_bf, rtdb
+
+      double precision H, ! integral derivatives
+     $     scr, 
+     $     dens,          ! local density block
+     $     wdens,         ! local weighted density block
+     $     frc_nuc, frc_kin, frc_wgh   ! forces arrays
+
+      dimension H ( lbuf ), frc_nuc(3, nat), frc_kin(3, nat),
+     $          frc_wgh(3, nat), scr(lscr),
+     $          dens(max_at_bf,max_at_bf), wdens(max_at_bf,max_at_bf)
+
+      logical oskel   ! symmetry?
+
+C-------------------------local variables--------------------------
+
+      integer ijatom, next, iat1, iat2, iat3, ish1, ish2,
+     $     iab1f, iab1l, iab2f, iab2l, iac1f, iac1l, iac2f, iac2l,
+     $     if1, il1, if2, il2,
+     $     icart, ic, nint, ip1, ip2
+
+      double precision dE, qfac
+
+      logical status, pointforce
+
+      integer nxtask, task_size
+      external nxtask
+
+c     ---- -cosmo- gradient term -----
+      logical odbug
+
+      odbug=.true.
+      if(odbug) then
+         write(Luout,*) 'in -grad1_hnd_cos- ...'
+      endif
 c
-C> \brief calculate the gradient terms due to the interaction with the 
-C> COSMO charges
-C>
-C> Evaluate the gradient contributions from the COSMO embedding. The
-C> original part is from Klamt and Sch&uuml;&uuml;rmann [1] 
-C> (see Eqs.(13-16)). The derivatives of matrix \f$A\f$ have been 
-C> modified by York and Karplus [2] (see Eqs.(73-76)) to obtain smooth
-C> potential energy surfaces. York and Karplus also modified matrix
-C> \f$B\f$ which is easy to do in their classical force field code.
-C> In an ab-initio code this not so easy to do and as it is not 
-C> required to eliminate singularities the original expression from [1]
-C> for \f$B\f$ is used here.
-C>
-C> ### References ###
-C>
-C> [1] A. Klamt, G. Sch&uuml;&uuml;rmann,
-C>     "COSMO: a new approach to dielectric screening in solvents with
-C>      explicit expressions for the screening energy and its gradient",
-C>     <i>J. Chem. Soc., Perkin Trans. 2</i>, 1993, pp 799-805, DOI:
-C>     <a href="https://doi.org/10.1039/P29930000799">
-C>     10.1039/P29930000799</a>.
-C>
-C> [2] D.M. York, M. Karplus,
-C>     "A smooth solvation potential based on the conductor-like
-C>      screening model", <i>J. Phys. Chem. A</i> (1999) <b>103</b>,
-C>     pp 11060-11079, DOI:
-C>     <a href="https://doi.org/10.1021/jp992097l">
-C>     10.1021/jp992097l</a>.
-C>
+
+      task_size = 1
+      status = rtdb_parallel(.true.) ! Broadcast reads to all processes
+
+      pointforce = geom_include_bqbq(geom)
+
+      call hf_print_set(1)
+
+      ijatom = -1
+      next = nxtask(nproc,task_size)
+      do 90, iat1 = 1, nat
+        do 80, iat2 = 1, iat1
+
+          ijatom = ijatom + 1
+          if ( ijatom .eq. next ) then
+
+            status = bas_ce2bfr(basis,iat1,iab1f,iab1l)
+            status = bas_ce2bfr(basis,iat2,iab2f,iab2l)
+
+            if (iab1f.le.0 .or. iab2f.le.0) then
+c     
+c     At least one center has no functions on it ... next atom
+c
+              goto 1010
+            endif
+
+            if (oskel) then
+               if (.not. sym_atom_pair(geom, iat1, iat2, qfac))
+     $              goto 1010
+            else
+               qfac = 1.0d0
+            endif
+
+            status = bas_ce2cnr(basis,iat1,iac1f,iac1l)
+            status = bas_ce2cnr(basis,iat2,iac2f,iac2l)
+
+            call ga_get (g_dens, iab1f,iab1l,iab2f,iab2l,dens,max_at_bf)
+            call ga_get(g_wdens,iab1f,iab1l,iab2f,iab2l,wdens,max_at_bf)
+
+            do 70, ish1 = iac1f, iac1l
+              if ( iat1.eq.iat2 ) iac2l = ish1
+              do 60, ish2 = iac2f, iac2l
+
+C               shell block in atomic (D/Dw)-matrix block
+                status = bas_cn2bfr(basis,ish1,if1,il1)
+                if1 = if1 - iab1f + 1
+                il1 = il1 - iab1f + 1
+                status = bas_cn2bfr(basis,ish2,if2,il2)
+                if2 = if2 - iab2f + 1
+                il2 = il2 - iab2f + 1
+
+                nint = ( il1 - if1 + 1 ) * ( il2 - if2 + 1 )
+
+                ic=1
+                do iat3 = 1, nat
+                  do icart = 1, 3
+                    do ip1 = if1, il1
+                      do ip2 = if2, il2
+                        H(ic)=0.D0
+                        ic = ic + 1
+                      enddo
+                    enddo
+                  enddo
+                enddo
+
+C               1el. -cosmo- derivatives
+c-              call intd_1eh1(basis,ish1,basis,ish2,lscr,scr,
+c-   &               lbuf,H)
+
+C     D x H
+
+                ic=1
+                do 50, iat3 = 1, nat
+                  do 40, icart = 1, 3
+                    dE = 0.D0
+                    do 31, ip1 = if1, il1
+                      do 30, ip2 = if2, il2
+                        dE = dE + dens(ip1,ip2) * H(ic)
+                        ic = ic + 1
+ 30                   continue
+ 31                 continue
+                    if ( iat1.ne.iat2 .or. ish1.ne.ish2 ) dE = dE + dE
+                    dE = dE * qfac
+                    frc_kin(icart,iat3) = frc_kin(icart,iat3) + dE
+ 40               continue
+ 50             continue
+
+ 60           continue
+ 70         continue
+
+ 1010       continue
+
+            next = nxtask(nproc,task_size)
+          endif
+
+ 80     continue
+ 90   continue
+      next = nxtask(-nproc,task_size)
+
+      return
+      end
