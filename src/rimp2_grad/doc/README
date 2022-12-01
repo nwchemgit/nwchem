@@ -2,14 +2,3 @@ This directory contains
 rimp2-grad.tex
 	RI-MP2 frozen core gradient equations, as a superset of Robert
 	Harrison's writeup of the exact MP2 frozen core gradient.
-
-changebar.bug, changebar.dtx, changebar.ins, chbar.sh, manifest.txt
-	Standard latex changebar package (from CTAN)
-
-geometry.sty
-	Standard latex page geometry package (from CTAN)
-
-subeqnarray.dtx, subeqnarray.ins
-	Standard latex subequation array package (from CTAN)
-
-Eventually, these standard styles from CTAN
