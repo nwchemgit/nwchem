@@ -6,7 +6,9 @@ sifo2f.o sifmge.o siffw2.o siffw1.o siffr2.o siffr1.o sifew2.o \
 sifew1.o sife2.o sife1.o sifd2.o sifd1.o sifcfg.o sifc2f.o \
 sif2w8.o sifzwh.o sifzh2.o sifwh.o sifw2.o sifw1x.o siftyp.o \
 siftdy.o sifstv.o sifskh.o sifsk1.o sifsce.o sifrsh.o sifrh2.o \
-sifrh1.o sifrd2.o bummer.o
+sifrh1.o sifrd2.o
+
+OBJ = bummer.o
 
       LIBRARY = libnwints.a
 
