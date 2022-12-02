@@ -717,6 +717,10 @@ c
             endif
          endif
          call pstat_on(ps_laifock)
+         if (doprint) then
+            write(6,111) ' Start laifock', util_wallsec()
+            call util_flush(6)
+         end if
          call mp2_lai_fock_uhf_prepar(
      $        g_p_ab_a,g_p_ab_b,g_p_ij_a,g_p_ij_b,
      $        noa,nob,nva,nvb,g_tmpa, g_tmpb,nmo)
@@ -725,6 +729,10 @@ c
      $        noa,nob,nva,nvb,g_lai_a,g_lai_b,rtdb,tol2e_fock)
          call mp2_lai_fock_uhf_tidy(g_tmpa, g_tmpb)
          call pstat_off(ps_laifock)
+         if (doprint) then
+            write(6,111) ' Done laifock', util_wallsec()
+            call util_flush(6)
+         end if
 c
          if (omatrix) then
             call ga_print(g_lai_a)
@@ -782,11 +790,20 @@ c
          if(.not.ga_create(mt_dbl,nmo,nmo,'tot beta dens',nmo,0,
      $        g_p_tot_b))call errquit(
      $        'mp2_energy: ga_create failed',0, GA_ERR)
-c     
+c
+         if (doprint) then
+            write(6,111) ' Start make_tot_dens', util_wallsec()
+            call util_flush(6)
+         end if
+         
          call mp2_make_tot_dens(g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b,
      $        g_rhs,g_p_tot_a,g_p_tot_b,noa,nva,nob,nvb,nbf,nmo,
      $        int_mb(k_map_a), int_mb(k_map_b),
      $        g_vecs_a,g_vecs_b,basis,scftype)
+         if (doprint) then
+            write(6,111) ' Done make_tot_dens', util_wallsec()
+            call util_flush(6)
+         end if
 c
          if (otrace) then
             call mp2_print_trace_norm(g_p_tot_a,'g_p_tot_a',nmo)
@@ -931,6 +948,7 @@ c
       endif
 c     
       call ga_sync
+ 111  format(a,' at ', f10.1,'s')
 c     
       end
       subroutine mp2_print_trace_norm(g, text, n)
