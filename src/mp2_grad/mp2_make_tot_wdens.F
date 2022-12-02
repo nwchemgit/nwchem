@@ -46,7 +46,7 @@ c
       call ga_copy_patch('n',g_w_ai_a,1,noa_hi,1,nva,g_w_tot_a,
      $     1, noa_hi, noa_hi+1, nmo)
 c     
-      call ga_transpose(g_w_ai_a,g_w_ai_a_tr)
+      call mp2_transpwai(g_w_ai_a,g_w_ai_a_tr)
       call ga_copy_patch('n',g_w_ai_a_tr,1,nva,1,noa_hi,g_w_tot_a,
      $     noa_hi+1,nmo,1,noa_hi)
       call ga_copy_patch('n',g_w_ij_a,1,noa_hi,1,noa_hi,g_w_tot_a,
@@ -55,7 +55,7 @@ c
      $     noa_hi+1,nmo,noa_hi+1,nmo)
       call ga_copy_patch('n',g_w_ai_b,1,nob_hi,1,nvb,g_w_tot_b,
      $     1, nob_hi, nob_hi+1,nmo)
-      call ga_transpose(g_w_ai_b,g_w_ai_b_tr)
+      call mp2_transpwai(g_w_ai_b,g_w_ai_b_tr)
       call ga_copy_patch('n',g_w_ai_b_tr,1,nvb,1,nob_hi,g_w_tot_b,
      $     nob_hi+1,nmo,1,nob_hi)
       call ga_copy_patch('n',g_w_ij_b,1,nob_hi,1,nob_hi,g_w_tot_b,
@@ -148,3 +148,44 @@ c
 c
       end
 
+      subroutine mp2_transpwai(g,g_tr)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+#include "errquit.fh"
+      integer g,g_tr
+c
+      integer ilo,ihi,jlo,jhi
+      integer i,j
+      integer k_buf,l_buf
+      integer n_row,n_col,gtype
+      integer dowork
+c
+      call ga_inquire(g_tr, gtype, n_row, n_col)
+      call ga_distribution(g_tr, ga_nodeid(), 
+     T     ilo, ihi, jlo, jhi)
+      if ((ilo.eq.0).and.(ihi.eq.-1))  then
+         dowork=0
+      else
+c     check if distrib by columns
+         if(ilo.ne.1.and.ihi.ne.n_row) call
+     R        errquit(' mp2transpwai bug ',0,0)
+         dowork=1
+      endif
+      if(dowork.eq.1) then
+         if (.not. ma_push_get(mt_dbl, n_row, 'mp2: wdens',
+     $        l_buf, k_buf)) call errquit
+     $        ('mp2: insufficient memory : bug ', n_row, MA_ERR)
+      do j=jlo,jhi
+         call ga_get(g,j,j,1,n_row,dbl_mb(k_buf),1)
+          if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2b'
+          call ga_put(g_tr,1,n_row,j,j,dbl_mb(k_buf),n_row)
+           if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2b'
+      enddo
+      if (.not. ma_pop_stack(l_buf)) call errquit
+     $     ('mp2transp pop_stack failed ', n_row, MA_ERR)
+       
+      endif
+      call ga_sync()
+      return
+      end
