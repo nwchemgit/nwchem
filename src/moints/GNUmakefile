@@ -10,9 +10,7 @@ include ../config/makefile.h
 	      moints_mem.o \
 	      moints_mp2.o \
 	      moints_stats.o \
-              moints_full.o \
-              sifs0.o \
-              sifs1.o
+              moints_full.o 
 
 OBJ_OPTIMIZE = \
 	      moints_cutil.o \
@@ -29,9 +27,7 @@ OBJ_OPTIMIZE = \
               moints_aux2.F \
               moints_ccsd.F \
               moints_full.F \
-              moints_semi.F \
-              sifs0.F \
-              sifs1.F
+              moints_semi.F 
 
 LIB_DEFINES = -DDEBUG_PRINT
 
