@@ -24,3 +24,19 @@ cat > ibummr.patch <<EOF
 EOF
 patch -p0 < ibummr.patch
 rm -f ibummr.patch
+rm -f siftdy.patch
+cat > siftdy.patch <<EOF
+--- siftdy.F.org	2022-12-02 14:50:03.807903254 -0800
++++ siftdy.F	2022-12-02 14:54:13.969471516 -0800
+@@ -282,7 +282,7 @@
+ c
+ c     # default code: just return a dummy string.
+ c
+-      chrtdy = site // 'Machine=?  ??:??:?? ??-???-??'
++      chrtdy = site // 'Machine=unknown'
+ #endif 
+ c
+       return
+EOF
+patch -p0 < siftdy.patch
+rm -f siftdy.patch
