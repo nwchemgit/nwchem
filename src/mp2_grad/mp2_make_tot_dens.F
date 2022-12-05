@@ -79,7 +79,7 @@ c     check if distrib by columns
      $     ('mp2: insufficient memory : bug ', nmo, MA_ERR)
 
       do i=jlo,jhi
-         if(i.le.nob) then
+         if(i.le.noa) then
             call ga_get(g_p_ij_a,1,noa,i,i,dbl_mb(k_buf),noa)
             call ga_put(g_p_tot_a,1,noa,i,i,dbl_mb(k_buf),noa)
          else
