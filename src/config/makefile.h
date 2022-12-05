@@ -243,10 +243,10 @@ endif
 # specified below.  Use of MPI requires substituting the tcgmsg-mpi
 # wrapper for the normal tcgmsg library.
 # the 2 following environmental variables are need for linking
-# LIBMPI - represents the name of mpi library (with -l)
-# MPI_LIB - represents the path to the mpi library
-#LIBMPI =  -lmpich
-#MPI_LIB= /usr/local/lib
+# NWLIBMPI - represents the name of mpi library (with -l)
+# NWMPI_LIB - represents the path to the mpi library
+#NWLIBMPI =  -lmpich
+#NWMPI_LIB= /usr/local/lib
 
 #JN: under the new structure, tools should be listed first as
 # their header files are needed for dependency analysis of
@@ -320,10 +320,10 @@ endif
 ifdef BUILD_MPICH
     NW_CORE_SUBDIRS += libext
     PATH := $(NWCHEM_TOP)/src/libext/bin:$(PATH)
-    MPI_INCLUDE = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
-    MPI_LIB     = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH)  $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
-    LIBMPI      = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
-    LIBMPI	+= $(shell /usr/local/bin/pkg-config --libs-only-L hwloc 2> /dev/null)
+    NWMPI_INCLUDE = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
+    NWMPI_LIB     = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH)  $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
+    NWLIBMPI      = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
+    NWLIBMPI	+= $(shell /usr/local/bin/pkg-config --libs-only-L hwloc 2> /dev/null)
 endif
 
 
@@ -3524,37 +3524,69 @@ endif
 ifdef USE_MPI 
     #ifeq ($(FC),$(findstring $(FC),mpifrt mpfort mpif77 mpxlf mpif90 ftn scorep-ftn))
     ifeq ($(FC),$(findstring $(FC), ftn scorep-ftn))
-        LIBMPI =
-        MPI_INCLUDE =
-        MPI_LIB =
-    else
+        NWLIBMPI =
+        NWMPI_INCLUDE =
+        NWMPI_LIB =
+    else ifdef FORCE_MPI_ENV
         ifndef MPI_INCLUDE
-            # check if mpif90 is present
-            MPIF90YN = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
-            ifeq ($(MPIF90YN),mpif90notfound)
-                errormpif90:
-	            $(info )
-	            $(info mpif90 not found. Please add its location to PATH)
-	            $(info e.g. export PATH=/usr/local/bin:/usr/lib64/openmpi/bin:...)
-	            $(info )
-            endif
-            MPI_INCLUDE = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
-        endif
+                errormpi1:
+	            $(error )
+   	            $(error FORCE_MPI_ENV set but MPI_INCLUDE not set)
+	            $(error )
+        else
+	  NWMPI_INCLUDE = $(MPI_INCLUDE)
+	endif
         ifndef MPI_LIB
-            MPI_LIB     = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
-        endif
+                errormpi2:
+	            $(error )
+   	            $(error FORCE_MPI_ENV set but MPI_LIB not set)
+	            $(error )
+        else
+	  NWMPI_LIB = $(MPI_LIB)
+	endif
         ifndef LIBMPI
-            LIBMPI      = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
+                errormpi3:
+	            $(error )
+   	            $(error FORCE_MPI_ENV set but LIBMPI not set)
+	            $(error )
+        else
+	  NWLIBMPI = $(LIBMPI)
+	endif
+     else
+        ifeq ($(shell pwd), $(NWCHEM_TOP)/src)
+	    ifndef FORCE_MPI_ENV
+                ifdef LIBMPI
+$(info ***warning LIBMPI ignored since FORCE_MPI_ENV not set***)
+                endif
+                ifdef MPI_LIB
+$(info ***warning MPI_LIB ignored since FORCE_MPI_ENV not set***)
+ 	        endif
+                ifdef MPI_INCLUDE
+$(info ***warning MPI_INCLUDE ignored since FORCE_MPI_ENV not set***)
+ 	        endif
+	    endif
+	endif
+        # check if mpif90 is present
+        MPIF90YN = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
+        ifeq ($(MPIF90YN),mpif90notfound)
+            errormpif90:
+                $(error )
+                $(error mpif90 not found. Please add its location to PATH)
+                $(error e.g. export PATH=/usr/local/bin:/usr/lib64/openmpi/bin:...)
+                $(error )
         endif
+        NWMPI_INCLUDE = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
+        NWMPI_LIB     = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
+        NWLIBMPI      = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
     endif
 
-    ifdef MPI_LIB 
-        CORE_LIBS += $(patsubst -L-L%,-L%,-L$(MPI_LIB))
+    ifdef NWMPI_LIB 
+        CORE_LIBS += $(patsubst -L-L%,-L%,-L$(NWMPI_LIB))
     endif 
     ifdef OLD_GA
-        CORE_LIBS += -ltcgmsg-mpi $(LIBMPI) 
+        CORE_LIBS += -ltcgmsg-mpi $(NWLIBMPI) 
     else
-        CORE_LIBS += $(LIBMPI) 
+        CORE_LIBS += $(NWLIBMPI) 
     endif
 else 
     ifdef OLD_GA
