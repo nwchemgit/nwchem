@@ -148,9 +148,8 @@ endif
 ifneq ($(OLD_GA),)
   EXTRA_OBJ += ga_zgop.o
 endif
-#LIB_DEFINES += -I$(MPI_INCLUDE)
-ifneq ($(MPI_INCLUDE),)
-   LIB_INCLUDES += $(patsubst -I-I%,-I%,-I$(MPI_INCLUDE))
+ifneq ($(NWMPI_INCLUDE),)
+   LIB_INCLUDES += $(patsubst -I-I%,-I%,-I$(NWMPI_INCLUDE))
 endif
 
 ifdef USE_VTUNE
