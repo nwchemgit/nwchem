@@ -476,17 +476,13 @@ c
          end do                 ! End of a
          call ga_sync()
         if (.not. rtdb_get(rtdb, 'mp2:copyback', mt_log, 1, mp2cpybck))
-     $    mp2cpybck=.true.
+     $    mp2cpybck=.false.
 
          if(mp2cpybck) then
             call mp2_copyback(g_buf,g_buf_trans)
          else
             call ga_copy(g_buf_trans,g_buf)
          endif
-cc      call ga_print(g_buf_trans)
-cc      call ga_print(g_buf)
-c               call ga_sync()
-c         call ga_mask_sync(.true.,.false.)
          call ga_sync()
 c     
 c     Now have locally (a,1:nbfpairlocal).  Loop thru local shell pairs
@@ -525,7 +521,6 @@ c
             ptr = ptr + count*(oseg_hi-oseg_lo+1)
          end do
 c     
-cedo         call ga_mask_sync(.true.,.false.)
          call ga_sync
 c     
       end do                    ! End of i
