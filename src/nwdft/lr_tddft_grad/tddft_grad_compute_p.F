@@ -102,7 +102,7 @@ c
         call nga_scale_patch(g_tp(ip),blo,bhi,0.5d0)
       enddo
 c
-      if (tddft_grad_util_print(pname,print_debug)) then
+      if (util_print(pname,print_debug)) then
         oroot = ga_nodeid().eq.0
         if (oroot) write(LuOut,*)'DEBUG: '//pname//'P'
         call tddft_grad_print_array(ipol,nroots,g_tp,dble(ipol))

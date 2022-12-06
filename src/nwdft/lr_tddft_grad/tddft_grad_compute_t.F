@@ -147,7 +147,7 @@ c (X-Y)ias(X-Y)ibs
 c
       enddo ! ip = 1, ipol
 c
-      if (tddft_grad_util_print('tddft grad t',print_debug)) then
+      if (util_print('tddft grad t',print_debug)) then
         oroot = ga_nodeid().eq.0
         if (oroot) write(LuOut,*)'DEBUG: '//pname//'T'
         call tddft_grad_print_array(ipol,nroot,g_tp,dble(ipol))

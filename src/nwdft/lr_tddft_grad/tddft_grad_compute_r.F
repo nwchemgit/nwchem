@@ -120,17 +120,21 @@ c
 c
 c Daniel (2-8-13): This is a local TDA variable, so that we don't need
 c to change the global tda variable.
-      logical tdaloc
+      logical tdaloc, tdaloc_rtdb
+      logical oprint
+      integer g_r_x(2),g_r_org(2)
 c
       double precision Exc(2)    ! Exchange-correlation energy
 c
       pname="tddft_grad_compute_r: "
       iwhich = 0  ! call to tddft_nga_cont()
+      write(6,*) ' 0 tda ',tda
 c
 c     1. Do the T contributions
 c
 c     1.1. Create global array to hold Tuv
 c
+      oprint=util_print('tddft_grad_r',print_debug)
       idim(1) = nroot*ipol
       idim(2) = nao
       idim(3) = nao
@@ -180,6 +184,7 @@ c fock_xc:triplet here for restricted triplet calculations to work.
 c
       call tddft_nga_cont(rtdb,ihdl_geom,ihdl_bfao,g_tuv,g_apbt,g_ambt,
      +nao,ipol,tol2e,tda,oskel,kfac,lhashf,.false.,nroot,iwhich,lhascd)
+      write(6,*) ' 2 tda ',tda
 c Daniel (2-26-13): Reset fock_xc:triplet here for restricted triplet 
 c calculations to work.
       if (otriplet) then
@@ -217,11 +222,11 @@ c
 c
 c     1. Done T contributions
 cDEBUG
-c     if (tddft_grad_util_print('tddft grad r',print_debug)) then
-c       oroot = ga_nodeid().eq.0
-c       if (oroot) write(LuOut,*)'DEBUG A: tddft_grad_comp_r: R'
-c       call tddft_grad_print_array(ipol,nroot,g_r,dble(ipol))
-c     endif
+      if (oprint) then
+       oroot = ga_nodeid().eq.0
+       if (oroot) write(LuOut,*)'DEBUG A: tddft_grad_comp_r: R_T'
+       call tddft_grad_print_array(ipol,nroot,g_r,dble(ipol))
+      endif
 cDEBUG
 c
 c     2. Do the (X+Y) and (X-Y) contributions
@@ -304,6 +309,8 @@ c the global one.
           tdaloc = .false. ! For TDDFT calculations
         endif
       endif
+        if (rtdb_get(rtdb,'tddft:tdaloc',mt_log,1,tdaloc_rtdb))
+     +    tdaloc=tdaloc_rtdb
       call tddft_nga_cont(rtdb,ihdl_geom,ihdl_bfao,g_x,g_apbx,g_ambx,
      +nao,ipol,tol2e,tdaloc,oskel,kfac,lhashf,otriplet,nroot,iwhich,
      +lhascd)
@@ -349,6 +356,21 @@ c     2.10 Transform (A+B)(X+Y) to MO basis occupied-occupied block only
 c
       call tddft_grad_trans_ao2mo(ipol,nao,nfc,naoc,nocc,nav,nfv,
      +     nroot,1.0d0,0.0d0,"ij",g_mo,g_apbx,g_hij,"ij")
+      if(oprint)then
+c     extra ga to keep track of X
+         if (.not. ga_duplicate(g_r(1), g_r_x(1), 'gtmp2'))
+     c        call errquit('tdgcr: gadupl failed',0,0)
+         call ga_zero(g_r_x(1))
+         g_r_org(1)=g_r(1)
+         g_r(1)=g_r_x(1)
+         if(ipol.eq.2) then
+         if (.not. ga_duplicate(g_r(2), g_r_x(2), 'gtmp2'))
+     c           call errquit('tdgcr: gadupl failed',0,0)
+         call ga_zero(g_r_x(2))
+         g_r_org(2)=g_r(2)
+         g_r(2)=g_r_x(2)
+         endif
+      endif
 c
 c     2.11 Add -sum_j (X+Y)ja [(A+B)(X+Y)ji] to Ria
 c
@@ -546,11 +568,21 @@ c
 c     2. Done (X+Y) and (X-Y) contributions
 c
 cDEBUG
-c     if (tddft_grad_util_print('tddft grad r',print_debug)) then
-c       oroot = ga_nodeid().eq.0
-c       if (oroot) write(LuOut,*)'DEBUG B: tddft_grad_comp_r: R'
-c       call tddft_grad_print_array(ipol,nroot,g_r,dble(ipol))
-c     endif
+      if (oprint) then
+       oroot = ga_nodeid().eq.0
+       if (oroot) write(LuOut,*)'DEBUG B: tddft_grad_comp_r: R_x'
+       call tddft_grad_print_array(ipol,nroot,g_r_x,dble(ipol))
+       call ga_add(1d0,g_r_x(1),1d0,g_r_org(1),g_r_org(1))
+       g_r(1)=g_r_org(1)
+       if (.not.ga_destroy(g_r_x(1))) 
+     +     call errquit(pname//'failed to destroy grx',1,GA_ERR)
+       if(ipol.eq.2) then
+       call ga_add(1d0,g_r_x(2),1d0,g_r_org(2),g_r_org(2))
+       g_r(2)=g_r_org(2)
+       if (.not.ga_destroy(g_r_x(2))) 
+     +     call errquit(pname//'failed to destroy grx',2,GA_ERR)
+       endif
+      endif
 cDEBUG
 c
 c     3. Do the Gxc contributions
@@ -664,14 +696,14 @@ c
         enddo
         call ga_sync()
 cDEBUG
-c     if (tddft_grad_util_print('tddft grad r',print_debug)) then
-c       oroot = ga_nodeid().eq.0
-c       if (oroot) write(LuOut,*)'DEBUG C: tddft_grad_comp_r: den'
-c       call tddft_grad_print_array(ipol,nroot,int_mb(k_den2),
-c    +                              dble(ipol))
-c       call tddft_grad_print_array(ipol,nroot,int_mb(k_den2+1),
-c    +                              dble(ipol))
-c     endif
+        if (oprint) then
+           oroot = ga_nodeid().eq.0
+           if (oroot) write(LuOut,*)'DEBUG C: tddft_grad_comp_r: den'
+       call tddft_grad_print_array(ipol,nroot,int_mb(k_den2),
+     +          dble(ipol))
+       call tddft_grad_print_array(ipol,nroot,int_mb(k_den2+1),
+     +      dble(ipol))
+      endif
 cDEBUG
 c Daniel (1-10-13): For a single restricted root ngxc = 1 and there are 2
 c density matrices fed to fock_xc, the GS density matrix D and the
@@ -689,7 +721,7 @@ c fock_xc.
      +               int_mb(k_gxc), Exc, ipol, .false.)
         call ga_sync()
 c DEBUG
-      if (tddft_grad_util_print('tddft grad r',print_debug)) then
+      if (oprint) then
         oroot = ga_nodeid().eq.0
         if (oroot) write(LuOut,*)'DEBUG: '//pname//'gxc'
         call tddft_grad_print_array(ipol,nroot,int_mb(k_gxc),
@@ -734,9 +766,9 @@ c
       endif  ! xc_gotxc()
 c
 c     Debug print
-      if (tddft_grad_util_print('tddft grad r',print_debug)) then
+      if (oprint) then
         oroot = ga_nodeid().eq.0
-        if (oroot) write(LuOut,*)'DEBUG: '//pname//'R'
+        if (oroot) write(LuOut,*)'DEBUG: '//pname//'R_all'
         call tddft_grad_print_array(ipol,nroot,g_r,dble(ipol))
       endif
 c
