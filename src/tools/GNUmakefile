@@ -318,14 +318,14 @@ endif # SOCKETS
 ifdef USE_MPI
 
     MPI_COMBINED =
-    ifneq ($(MPI_INCLUDE),)
-        MPI_COMBINED += $(patsubst -I-I%,-I%,-I${MPI_INCLUDE})
+    ifneq ($(NWMPI_INCLUDE),)
+        MPI_COMBINED += $(patsubst -I-I%,-I%,-I${NWMPI_INCLUDE})
     endif
-    ifneq ($(MPI_LIB),)
-        MPI_COMBINED += $(patsubst -L-L%,-L%,-L${MPI_LIB})
+    ifneq ($(NWMPI_LIB),)
+        MPI_COMBINED += $(patsubst -L-L%,-L%,-L${NWMPI_LIB})
     endif
-    ifneq ($(LIBMPI),)
-        MPI_COMBINED += $(LIBMPI)
+    ifneq ($(NWLIBMPI),)
+        MPI_COMBINED += $(NWLIBMPI)
         ifeq ($(ARMCI_NETWORK),ARMCI)
            MPI_COMBINED += -lpthread
         endif
@@ -676,7 +676,7 @@ ifeq ($(FC),$(findstring $(FC),scorep scorep-wrapper scorep-gfortran scorep-mpif
 #fix for configure or cmake
      MAYBE_HOST += SCOREP_WRAPPER=OFF
 endif
-ifeq ($(V),$(findstring $(V),-1 0))
+ifneq ($(V),1)
      MAYBE_HOST += -q --enable-silent-rules
      MAKE= make V=0
 endif
