@@ -60,7 +60,6 @@ c
 c
       logical odiff,oprint
       parameter (odiff=.true.)
-      parameter (oprint=.true.)
 c
 c     Input:
 c
@@ -124,9 +123,12 @@ c
       logical oroot
 c
       character*32 pname
-      logical tdaloc
+      logical tdaloc, tdaloc_rtdb
+      logical oprint_debug
 c
       pname= "tddft_grad_solve: "
+      oprint=util_print('tddft_grad_solve',print_medium)
+      oprint_debug=util_print('tddft_grad_solvecphf',print_debug)
 c
 c     Initialize the common block for tddft_grad_solve_product and
 c     tddft_grad_solve_precond
@@ -153,6 +155,8 @@ c
           tdaloc = .false. ! For TDDFT calculations
         endif
       endif
+        if (rtdb_get(rtdb,'tddft:tdaloc',mt_log,1,tdaloc_rtdb))
+     +    tdaloc=tdaloc_rtdb
 c End test
       tdg_tol2e   = tol2e
       tdg_kfac    = kfac
@@ -223,6 +227,14 @@ c
      +         nfv,jdim,g_mo,fn_solve)) then
         call ga_copy(g_b,g_x)
         call tddft_grad_solve_precond(g_x,0.0d0)
+      endif
+      if(oprint_debug) then
+         if(oroot) write(luout,*) ' LHS'
+         call util_flush(luout)
+         call ga_print(g_x)
+         if(oroot) write(luout,*) ' RHS'
+         call util_flush(luout)
+         call ga_print(g_b)
       endif
 c
       call ga_lkain(rtdb,g_x,g_b,tddft_grad_solve_product,
