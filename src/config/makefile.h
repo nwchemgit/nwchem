@@ -3580,6 +3580,9 @@ $(info ***warning MPI_INCLUDE ignored since FORCE_MPI_ENV not set***)
         NWLIBMPI      = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
     endif
 
+    ifdef NWMPI_INCLUDE
+      LIB_INCLUDES += $(patsubst -I-I%,-I%,-I$(NWMPI_INCLUDE))
+    endif
     ifdef NWMPI_LIB 
         CORE_LIBS += $(patsubst -L-L%,-L%,-L$(NWMPI_LIB))
     endif 

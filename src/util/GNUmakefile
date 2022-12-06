@@ -148,9 +148,7 @@ endif
 ifneq ($(OLD_GA),)
   EXTRA_OBJ += ga_zgop.o
 endif
-ifneq ($(NWMPI_INCLUDE),)
-   LIB_INCLUDES += $(patsubst -I-I%,-I%,-I$(NWMPI_INCLUDE))
-endif
+
 
 ifdef USE_VTUNE
   EXTRA_OBJ += vtune_bind.o vtune.o
