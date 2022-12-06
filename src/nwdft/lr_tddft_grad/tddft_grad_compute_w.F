@@ -141,7 +141,7 @@ c
       parameter (oskel=.false.)
       double precision Exc(2)    ! Exchange-correlation energy
 c
-      logical tdaloc
+      logical tdaloc, tdaloc_rtdb
       logical doitw,doitz
       logical doitxpy1,doitxpy2
       logical doitxmy1,doitxmy2
@@ -769,6 +769,8 @@ c the global one.
           tdaloc = .false. ! For TDDFT (pure) calculations
         endif
       endif
+        if (rtdb_get(rtdb,'tddft:tdaloc',mt_log,1,tdaloc_rtdb))
+     +    tdaloc=tdaloc_rtdb
       call tddft_nga_cont(rtdb,ihdl_geom,ihdl_bfao,g_x,g_apbx,g_ambx,
      +   nao,ipol,tol2e,tdaloc,oskel,kfac,lhashf,otriplet,nroots,iwhich,
      +   lhascd)
