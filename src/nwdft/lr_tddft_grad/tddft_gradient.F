@@ -168,6 +168,9 @@ c     Get the start times
 c
 c     Init pstat
       call dft_pstat_init(rtdb)
+c      
+      call util_print_push
+      call util_print_rtdb_load(rtdb,'tddft')
 c
 c     Print header
       if (oroot) call tddft_grad_print_header(luout)
@@ -225,7 +228,7 @@ c     Print calculation information
 c
 c     Print start times
       if (oroot) then
-        if (tddft_grad_util_print('tddft grad time',print_default)) then
+        if (util_print('tddft grad time',print_default)) then
           write(luout,*)
           write(luout,"(' Start at time  cpu:',f11.1,'s  wall:',f11.1,
      +                  's')")-tddft_grad_cpu,-tddft_grad_wall
@@ -435,7 +438,7 @@ c     Print end times and wrap up
       tddft_grad_cpu  = tddft_grad_cpu  + util_cpusec()
       tddft_grad_wall = tddft_grad_wall + util_wallsec()
       if (oroot) then
-        if (tddft_grad_util_print('tddft grad time',print_default)) then
+        if (util_print('tddft grad time',print_default)) then
           write(LuOut,*)
           write(LuOut,"(' TDDFT Gradient time  cpu:',f11.1,'s  wall:',
      +                  f11.1,'s')")tddft_grad_cpu,tddft_grad_wall
@@ -496,6 +499,7 @@ c
 c <-- MN solvation models 
 c
       call dft_pstat_print
+      call util_print_pop
       return
       end
 c $Id$

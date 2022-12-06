@@ -254,7 +254,7 @@ c
       if (.not.ga_destroy(g_x)) 
      +   call errquit(pname//'failed to destroy g_x',0, GA_ERR)
 c
-      if (tddft_grad_util_print('tddft grad z',print_debug)) then
+      if (util_print('tddft grad z',print_debug)) then
         if (oroot) write(LuOut,*)'DEBUG: '//pname//'Z'
         call tddft_grad_print_array(ipol,nroots,g_z,dble(ipol))
       endif

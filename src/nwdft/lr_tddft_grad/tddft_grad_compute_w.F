@@ -599,7 +599,7 @@ c Daniel (2-12-13): We need to set triplet here for fock_xc.
      +               int_mb(k_gxc), Exc, ipol, .false.)
         call ga_sync()
 c DEBUG
-      if (tddft_grad_util_print('tddft grad w',print_debug)) then
+      if (util_print('tddft grad w',print_debug)) then
         oroot = ga_nodeid().eq.0
         if (oroot) write(LuOut,*)'DEBUG: '//pname//'gxc'
         call tddft_grad_print_array(ipol,nroots,int_mb(k_gxc),
@@ -1190,7 +1190,7 @@ c
       enddo
       call ga_sync()
 c
-      if (tddft_grad_util_print('tddft grad w',print_debug)) then
+      if (util_print('tddft grad w',print_debug)) then
         oroot = ga_nodeid().eq.0
         if (oroot) write(LuOut,*)'DEBUG: '//pname//'W'
         call tddft_grad_print_array(ipol,nroots,g_w,dble(ipol))
