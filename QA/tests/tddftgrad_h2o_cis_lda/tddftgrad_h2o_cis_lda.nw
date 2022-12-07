@@ -24,7 +24,7 @@ tddft
    root 1
  end
 end
-set tddft:tdaloc .false.
+#set tddft:tdaloc .false.
 task tddft gradient
 task tddft gradient numerical
 
