@@ -120,7 +120,8 @@ c
 c
 c Daniel (2-8-13): This is a local TDA variable, so that we don't need
 c to change the global tda variable.
-      logical tdaloc, tdaloc_rtdb
+      logical tdaloc, tddft_grad_tdaloc
+      external tddft_grad_tdaloc
       logical oprint
       integer g_r_x(2),g_r_org(2)
 c
@@ -283,34 +284,10 @@ c
      +    call errquit(pname//'failed to create g_apby',0,GA_ERR)
       if (.not.nga_create(mt_dbl,3,idim,'vectors (A-B)Y',ichnk,g_amby))
      +    call errquit(pname//'failed to create g_amby',0,GA_ERR)
-c
+      tdaloc=tddft_grad_tdaloc(rtdb,tda,lhashf)
+c     
 c     2.5 Compute (A+B)X, (A-B)X, (A+B)Y and (A-B)Y
 c
-c Daniel (1-5-13): We manipulate the code here because the
-c R vector has the same number of terms for RPA and CIS.  This is a
-c consequence of (X-Y) = X.  It might be a good idea to avoid doing this
-c part for the Y vector since Y = 0.  Note that the coupling matrix
-c expressions H^+[V] and H^-[V] can both be nonzero for CIS, so it isn't
-c okay to skip the anti-symmetric part in the tddft_nga_cont routine.  
-c What CIS does is makes the Y vector contribution zero in the following
-c routines.
-c Daniel (2-8-13): Set the local TDA variable so that we don't change
-c the global one.
-      if (lhashf) then
-        if (tda) then
-          tdaloc = .false. ! For CIS calculations
-        else
-          tdaloc = .false. ! For RPA calculations
-        endif
-      else 
-        if (tda) then
-          tdaloc = .true.  ! For TDDFT/TDA calculations
-        else
-          tdaloc = .false. ! For TDDFT calculations
-        endif
-      endif
-        if (rtdb_get(rtdb,'tddft:tdaloc',mt_log,1,tdaloc_rtdb))
-     +    tdaloc=tdaloc_rtdb
       call tddft_nga_cont(rtdb,ihdl_geom,ihdl_bfao,g_x,g_apbx,g_ambx,
      +nao,ipol,tol2e,tdaloc,oskel,kfac,lhashf,otriplet,nroot,iwhich,
      +lhascd)
