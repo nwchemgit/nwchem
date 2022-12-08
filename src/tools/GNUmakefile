@@ -725,6 +725,9 @@ $(BUILDDIR)/config.status: $(GA_DIR)/configure $(STAMP_FC) $(STAMP_CC) $(STAMP_D
 	@echo '*** Configuring Parallel Tools ****'
 	@echo ''
 	@(test -d $(BUILDDIR)) || mkdir $(BUILDDIR);
+	@echo ' '
+	@if [ "$V" != "1" ]]; then echo '*** autoconf output redirected to config.log ****' ; echo '*** type make V=1 to get verbose output ***'; fi
+	@echo ' '
 	@(cd $(BUILDDIR) && echo $(CONFIGURE_PATH) $(CONFIGURE_ARGS) && $(CONFIGURE_PATH) $(CONFIGURE_ARGS)) || exit 1
 $(GA_DIR)/Makefile.in:
 	@echo "No Global Arrays found: Attempting running ./get-tools"

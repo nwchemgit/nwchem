@@ -534,7 +534,7 @@ let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o2_fde
 let "myexit+=$?"
 # tddft gradients
-./runtests.mpi.unix procs $np tddftgrad_co_cis tddftgrad_n2 tddftgrad_co tddftgrad_n2_uks tddftgrad_ch2o
+./runtests.mpi.unix procs $np tddftgrad_co_cis tddftgrad_n2 tddftgrad_co tddftgrad_n2_uks tddftgrad_ch2o tddftgrad_h2o_cis_lda
 let "myexit+=$?"
 # new xc functionals for 7.0.0
 ./runtests.mpi.unix procs $np dft_rscan
