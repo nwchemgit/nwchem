@@ -22,7 +22,7 @@ cat > ibummr.patch <<EOF
  c     # save the listing unit for use later.
  c
 EOF
-patch -p0 < ibummr.patch
+patch -p0 -s -N < ibummr.patch
 rm -f ibummr.patch
 rm -f siftdy.patch
 cat > siftdy.patch <<EOF
@@ -38,5 +38,5 @@ cat > siftdy.patch <<EOF
  c
        return
 EOF
-patch -p0 < siftdy.patch
+patch -p0 -s -N < siftdy.patch
 rm -f siftdy.patch
