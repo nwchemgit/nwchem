@@ -9,7 +9,6 @@ SHORTVERSION=2021.11.001
 VERSION=new_release_2021.11.001
 #https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/new_release_2020.11.001/elpa-new_release_2020.11.001.tar.gz
 echo mpif90 is `which mpif90`
-export ARFLAGS=rU
 if [ -f  elpa-${VERSION}.tar.gz ]; then
     echo "using existing"  elpa-${VERSION}.tar.gz
 else
@@ -21,8 +20,14 @@ tar xzf elpa-${VERSION}.tar.gz
 ln -sf elpa-${VERSION} elpa
 cd elpa
 UNAME_S=$(uname -s)
+if [[ ${UNAME_S} == Linux ]]; then
+    export ARFLAGS=rU
+fi
 if [[ ${UNAME_S} == Darwin ]]; then
-    export FORTRAN_CPP=$(find  /usr/local/Cellar/gcc/`brew list --versions gcc|cut -c 5-`/bin -name cpp*)
+if [[  -z "$HOMEBREW_PREFIX" ]]; then
+    HOMEBREW_PREFIX=/usr/local
+fi
+    export FORTRAN_CPP=$(find  "$HOMEBREW_PREFIX"/Cellar/gcc/`brew list --versions gcc|cut -c 5-`/bin -name cpp*)
     if ! [ -x "$(command -v $FORTRAN_CPP)" ]; then
 	echo
 	echo cpp from gcc homebrew missing
@@ -153,7 +158,11 @@ fi
 
 if [ ! -f  configure ]; then
     sh ./autogen.sh
-fi    
+fi
+# patch affinity
+rm -f check_thread_affinity.patch
+wget https://raw.githubusercontent.com/conda-forge/elpa-feedstock/main/recipe/check_thread_affinity.patch
+patch -p2 -s -N < check_thread_affinity.patch
 mkdir -p build
 cd build
 if [[ !  -z "${BUILD_SCALAPACK}" ]]; then
@@ -197,7 +206,7 @@ unset SCALAPACK_FCFLAGS
 unset SCALAPACK_LDFLAGS
 echo mpif90 is `which mpif90`
 echo MPIF90 is "$MPIF90"
-    make V=1 -j1 FC=$MPIF90 CC=$MPICC -l0.0001
+    make V=0 -j1 FC=$MPIF90 CC=$MPICC -l0.0001
 if [[ "$?" != "0" ]]; then
     echo " "
     echo "Elpa compilation failed"
