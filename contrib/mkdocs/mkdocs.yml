@@ -30,7 +30,8 @@ theme:
 #    - navigation.tabs
 #    - navigation.tabs.sticky
     - navigation.indexes
-    
+    - search.highlight
+    - search.share
 
 use_directory_urls: false
 markdown_extensions:
