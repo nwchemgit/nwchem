@@ -144,7 +144,7 @@ nav:
       - 'Archived Forum': Archived-Forum.md
       - 'EMSL Arrows': EMSL_Arrows.md
       - Supplementary Information:
-          - Global Arrays: "https://hpc.pnl.gov/globalarrays"
+          - Global Arrays: "https://hpc.pnl.gov/globalarrays/"
           - ARMCI.md
       - Software-supporting-NWChem.md
       - Containers: Containers.md
