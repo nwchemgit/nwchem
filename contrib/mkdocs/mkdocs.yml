@@ -32,7 +32,8 @@ theme:
     - navigation.indexes
     - search.highlight
     - search.share
-
+extra_css:
+  - stylesheets/extra.css
 use_directory_urls: false
 markdown_extensions:
     - smarty
