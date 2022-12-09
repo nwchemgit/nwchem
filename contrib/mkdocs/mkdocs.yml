@@ -118,6 +118,10 @@ nav:
           - Hessians-and-Vibrational-Frequencies.md
           - Constraints.md
           - Nudged-Elastic-Band-and-Zero-Temperature-String-Methods.md
+      - Electronic Structure Analysis:
+          - Properties.md
+          - ESP.md
+          - DPLOT.md 
       - Other-Capabilities:
           - Electron-Transfer.md
           - Python.md
