@@ -25,7 +25,12 @@ theme:
   features:
     - navigation.expand
     - navigation.top
-
+    - navigation.instant
+    - navigation.tracking
+#    - navigation.tabs
+#    - navigation.tabs.sticky
+    - navigation.indexes
+    
 
 use_directory_urls: false
 markdown_extensions:
