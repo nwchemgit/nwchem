@@ -84,7 +84,33 @@ nav:
           - SMD-Model.md
           - VEM-Model.md
           - ONIOM.md
-          - QMMM.md
+          - QMMM:
+              - qmmm_introduction.md
+              - QMMM table of contents: QMMM.md
+              - QMMM Restart and Topology Files:
+                  - Overview: QMMM_Restart_and_Topology_Files.md
+                  - QMMM_Preparation_Prerequisites.md
+                  - Qmmm_preparation_basic.md
+                  - Qmmm_preparation_solvation.md
+                  - Qmmm_preparation_constraints.md
+              - QMMM Input File:
+                  - Overview: QMMM_Input_File.md
+                  - QMMM_QM_Parameters.md
+                  - QMMM_MM_Parameters.md
+                  - QMMM_QMMM_Parameters.md
+              - QMMMM Single Point Calculations:
+                  - QMMM Ground State Energy and Gradient: qmmm_sp_energy.md
+                  - QMMM Excited State Energy: QMMM_Excited_States.md
+                  - QMMM Properties: qmmm_sp_property.md
+                  - QMMM ESP Charge Analysis: QMMM_ESP.md
+              - QMMM Potential Energy Surface Analysis:
+                  - QMMM Optimization: Qmmm_optimization.md
+                  - QMMM Transition States: QMMM_Transition_States.md
+                  - QMMM Hessians and Frequency: Qmmm_freq.md
+                  - QMMM Reaction Pathway Calculations with NEB: Qmmm_NEB_Calculations.md
+              - QMMM_Dynamics.md
+              - QMMM_Free_Energy.md
+              - QMMM_Appendix.md
           - Bq.md
           - 1D-RISM.md
       - Potential Energy Surface Analysis:
@@ -99,7 +125,13 @@ nav:
           - VSCF.md
           - CCCA_method.md
           - Interface.md
-      - 'NWChem Examples': Examples.md
+      - Molecular Mechanics:
+          - Prepare.md
+          - MD.md
+          - Analysis.md
+      - NWChem Examples:
+          - Sample.md
+          - Geometry-examples.md
       - Benchmarks.md
       - Known-Bugs.md
       - 'FAQ': FAQ.md
@@ -109,4 +141,4 @@ nav:
       - 'EMSL Arrows': EMSL_Arrows.md
       - Software-supporting-NWChem.md
       - Supplementary-Information.md
-      - 'Containers': Containers.md
+      - Containers: Containers.md
