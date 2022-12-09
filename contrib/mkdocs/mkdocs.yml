@@ -4,9 +4,29 @@ repo_url: https://github.com/nwchemgit/nwchem-wiki
 site_url: https://nwchemgit.github.io
 edit_uri: blob/master/
 theme:
-  name: readthedocs
-  highlightjs: false
-  prev_next_buttons_location: both
+  name: material
+  logo: assets/MS3logo.png
+  font:
+    text: Lato
+  palette:
+#    primary: light blue
+#    accent: indigo
+#    font: false
+    - scheme: default
+      toggle:
+        icon: material/brightness-7 
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.expand
+    - navigation.top
+
+
 use_directory_urls: false
 markdown_extensions:
     - smarty
@@ -32,14 +52,47 @@ plugins:
   - alternate-link
 nav:
       - 'NWChem Manual': Home.md
-      - 'How to download and install NWChem': Download.md
-      - 'Introduction ': Introduction.md
-      - Quantum-Mechanical-Methods.md
-      - Quantum-Molecular-Dynamics.md
-      - 'Hybrid Approaches': Hybrid-Approaches.md
-      - Other-Capabilities.md
+      - 'How to download and install NWChem':
+          - Download.md
+          - Compiling-NWChem.md
+      - 'Introduction ':
+          - Getting-Started.md
+          - NWChem-Architecture.md
+      - Quantum-Mechanical-Methods:
+          - Hartree-Fock-Theory-for-Molecules.md
+          - Density-Functional-Theory-for-Molecules.md
+          - Excited-State-Calculations.md
+          - RT-TDDFT.md
+          - 'Plane-Wave Density Functional Theory': Plane-Wave-Density-Functional-Theory.md
+          - TCE.md
+          - MP2.md
+          - CCSD.md
+          - Multiconfiguration_SCF.md
+          - 'Molecular GW': GW.md
+      - Quantum Molecular Dynamics:
+          - Plane-Wave-Density-Functional-Theory.md
+          - Gaussian-Basis-AIMD.md
+      - Hybrid Approaches:
+          - COSMO-Solvation-Model.md
+          - SMD-Model.md
+          - VEM-Model.md
+          - ONIOM.md
+          - QMMM.md
+          - Bq.md
+          - 1D-RISM.md
+      - Potential Energy Surface Analysis:
+          - Geometry-Optimization.md
+          - Hessians-and-Vibrational-Frequencies.md
+          - Constraints.md
+          - Nudged-Elastic-Band-and-Zero-Temperature-String-Methods.md
+      - Other-Capabilities:
+          - Electron-Transfer.md
+          - Python.md
+          - Quantum.md
+          - VSCF.md
+          - CCCA_method.md
+          - Interface.md
       - 'NWChem Examples': Examples.md
-      - 'How to Compile NWChem': Compiling-NWChem.md
       - Benchmarks.md
       - Known-Bugs.md
       - 'FAQ': FAQ.md
