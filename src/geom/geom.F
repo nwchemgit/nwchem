@@ -3329,7 +3329,7 @@ c
 #include "geomP.fh"
       character*2 symbols(nelements)
       character*16 elements(nelements)
-      character*16 tag          !< [Input] the tag, e.g. He232
+      character*(*) tag         !< [Input] the tag, e.g. He232
       character*(*) symbol      !< [Output] the chemical symbol, e.g. He
       character*(*) element     !< [Output] the element, e.g. Helium
       integer atn               !< [Output] the nuclear charge, e.g. 2
@@ -3387,9 +3387,12 @@ c
 c     eliminate conventions that refer to centers used for
 c     computation purposes .. just bq and x for now
 c
-      buf = tag
-      lbuf = inp_strlen(buf)
+      lbuf = inp_strlen(tag)
       if (lbuf .eq. 0) return
+      if (lbuf .gt. 16) call errquit(
+     C     ' geom_tag_to_element: lbuft gt 16',lbuf,0)
+      buf(1:lbuf) = tag(1:lbuf)
+      if(lbuf.lt.16) buf(lbuf+1:lbuf+1)=" "
 c
       call inp_lcase(buf)
       if (buf(1:2) .eq. 'bq' .or. 
