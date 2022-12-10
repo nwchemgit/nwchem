@@ -57,6 +57,17 @@ extra_javascript:
 plugins:
   - search
   - alternate-link
+  - with-pdf:
+      enabled_if_env: ENABLE_PDF_EXPORT
+      toc_title: TOC
+      author: 'NWChem Developers'
+      copyright: 'ECL 2.0'
+      cover_logo: assets/MS3logo.png
+      cover_subtitle: 'User Manual'
+      output_path: /tmp/nwchem_manual.pdf
+      exclude_pages:
+        - '^Home.html$'
+        - '^Archived-Forum.html$'
 nav:
       - 'NWChem Manual': Home.md
       - 'How to download and install NWChem':
