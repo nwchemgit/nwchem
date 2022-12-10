@@ -689,20 +689,17 @@ c
 c         initialize all centers as bqX
 c
            lenb=inp_strlen(tag_old(l))
-           write(6,*) ' lenb ',lenb
            tag_new(l)= '  '
            tag_new(l)(1:lenb+2) = 'bq' // tag_old(l)
      T          (1:lenb)
            if(lenb.lt.14) tag_new(l)(lenb+3:lenb+3)=' '
-           write(6,*) l,'tago ',tag_old(l)
-           write(6,*) l,'tagn ',tag_new(l)
            q_new(l) = 0.0d0
 c
           do k = 1, mon_atm(j)
 c
 c           only do bsse with atoms
 c
-             is_atm = geom_tag_to_element(trim(tag_old(l)),symbol,
+             is_atm = geom_tag_to_element(tag_old(l),symbol,
      E            element,atn)
             if ((.not. is_atm) .and. symbol.ne.'bq')
      $        call errquit('bsse_create_geom: not atom or bq',
@@ -724,7 +721,7 @@ c       Sort out the masses of the various centers
 c
         allbq=.true.
         do l = 1, natoms
-           is_atm = geom_tag_to_element(trim(tag_new(l)),
+           is_atm = geom_tag_to_element(tag_new(l),
      $          symbol,element,atn)
           if(symbol.ne.'bq') allbq=.false.
           if ((.not. is_atm) .and. symbol.ne.'bq')
