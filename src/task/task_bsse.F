@@ -979,15 +979,12 @@ c-----------------------------------------------------------------------
 
         bsse_error = 0.0d0
 
-        i = 1
+        do j = 1, nmon,2
 
-        do j = 1, nmon
-
-          m_error(j) = mon_energy(i) - mon_energy(i+1)
+          m_error(j) = mon_energy(j) - mon_energy(j+1)
           bsse_error = bsse_error + m_error(j)
-          i= i + 2
 
-        enddo
+       enddo
 
       final_spr_energy = spr_energy + bsse_error    
 c
@@ -1270,11 +1267,8 @@ c-----------------------------------------------------------------------
 
       bsse_error = 0.0d0
 
-      i = 1
-
-      do j = 1, nmon
-        bsse_error = bsse_error +  mon_energy(i) - mon_energy(i+1)
-        i= i + 2     
+      do j = 1, nmon,2
+        bsse_error = bsse_error +  mon_energy(j) - mon_energy(j+1)
       enddo
 c
 
@@ -1605,13 +1599,10 @@ c
 c
       bsse_error = 0.0d0
 
-      i = 1
+      do j = 1, nmon,22
 
-      do j = 1, nmon
-
-        m_error(j) = mon_energy(i) - mon_energy(i+1)
+        m_error(j) = mon_energy(j) - mon_energy(j+1)
         bsse_error = bsse_error + m_error(j)
-        i= i + 2
 
       enddo
 c
