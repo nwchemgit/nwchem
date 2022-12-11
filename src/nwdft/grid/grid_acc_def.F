@@ -25,7 +25,8 @@ c
       double precision grid_acc(num_gridtypes)
       double precision job_grid_acc
       character*16 element
-      character*16 tag
+      character*16 tag, tag_mod
+      integer lenb
       double precision eps
       parameter (eps = 1.d-20)
       data gridtypes /'xcoarse', 'coarse', 'medium', 'fine', 'xfine',
@@ -418,7 +419,10 @@ c
 c hack for nbo
             if(tag(3:4).eq.'gh') iptr=5
             if(tag(1:1).eq.'X'.or.tag(1:1).eq.'x') iptr=2
-            if (.not. geom_tag_to_element(tag(iptr:), symbol, 
+            lenb=inp_strlen(tag)
+            tag_mod=' '
+            tag_mod(1:lenb-iptr+1)=tag(iptr:lenb)
+            if (.not. geom_tag_to_element(tag_mod, symbol, 
      &           element, i_atomic_number)) then
                if (inp_compare(.false.,tag(1:2),'bq')) then 
                   i_atomic_number = 0
