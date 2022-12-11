@@ -26,7 +26,8 @@ c
       logical same_atom, same_bq, isbq
 c
       character*16 element
-      character*16 tag
+      character*16 tag,tag_mod
+      integer lenb
       character*2 symbol
 c
       logical lnewtype
@@ -179,7 +180,10 @@ c           Hence they should always have i_atomic_number .eq. 0
 c           no matter what follows the X.
 c
             if(tag(1:1).eq.'X'.or.tag(1:1).eq.'x') iptr=2
-            if (.not. geom_tag_to_element(tag(iptr:), symbol, 
+            lenb=inp_strlen(tag)
+            tag_mod=' '
+            tag_mod(1:lenb-iptr+1)=tag(iptr:lenb)
+            if (.not. geom_tag_to_element(tag_mod, symbol, 
      &           element, i_atomic_number)) then
                if (inp_compare(.false.,tag(1:2),'bq')) then 
                   if(bqdontcare) then
