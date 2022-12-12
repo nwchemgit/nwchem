@@ -318,14 +318,14 @@ endif # SOCKETS
 ifdef USE_MPI
 
     MPI_COMBINED =
-    ifneq ($(MPI_INCLUDE),)
-        MPI_COMBINED += $(patsubst -I-I%,-I%,-I${MPI_INCLUDE})
+    ifneq ($(NWMPI_INCLUDE),)
+        MPI_COMBINED += $(patsubst -I-I%,-I%,-I${NWMPI_INCLUDE})
     endif
-    ifneq ($(MPI_LIB),)
-        MPI_COMBINED += $(patsubst -L-L%,-L%,-L${MPI_LIB})
+    ifneq ($(NWMPI_LIB),)
+        MPI_COMBINED += $(patsubst -L-L%,-L%,-L${NWMPI_LIB})
     endif
-    ifneq ($(LIBMPI),)
-        MPI_COMBINED += $(LIBMPI)
+    ifneq ($(NWLIBMPI),)
+        MPI_COMBINED += $(NWLIBMPI)
         ifeq ($(ARMCI_NETWORK),ARMCI)
            MPI_COMBINED += -lpthread
         endif
@@ -722,7 +722,7 @@ $(BUILDDIR)/config.status: $(GA_DIR)/configure $(STAMP_FC) $(STAMP_CC) $(STAMP_D
 	@echo ''
 	@(test -d $(BUILDDIR)) || mkdir $(BUILDDIR);
 	@echo ' '
-	@if [ "$V" != "1" ]]; then echo '*** autoconf output redirected to config.log ****' ; echo '*** type make V=1 to get verbose output ***'; fi
+	@if [[ "$V" != "1" ]]; then echo '*** autoconf output redirected to config.log ****' ; echo '*** type make V=1 to get verbose output ***'; fi
 	@echo ' '
 	@(cd $(BUILDDIR) && echo $(CONFIGURE_PATH) $(CONFIGURE_ARGS) && $(CONFIGURE_PATH) $(CONFIGURE_ARGS)) || exit 1
 $(GA_DIR)/Makefile.in:

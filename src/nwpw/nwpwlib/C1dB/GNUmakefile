@@ -42,9 +42,6 @@ endif
 
 ifeq ($(USE_MPIF),y)
   LIB_DEFINES += -DMPI
-  ifneq ($(MPI_INCLUDE),)
-    LIB_INCLUDES += $(patsubst -I-I%,-I%,-I$(MPI_INCLUDE))
-  endif
 else
   LIB_DEFINES += -DTCGMSG
 endif
