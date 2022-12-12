@@ -6,4 +6,5 @@ python3 -m pip install --user mkdocs-material --quiet
 python3 -m pip install --user git+https://github.com/cmitu/mkdocs-altlink-plugin/ --use-pep517 --quiet
 python3 -m pip install --user python-markdown-math --quiet
 python3 -m pip install --user install pymdown-extensions --quiet
-python3 -m pip install --user  install mkdocs-with-pdf --quiet
+#python3 -m pip install --user  install mkdocs-with-pdf --quiet
+python3 -m pip install --user  install mkdocs-print-site-plugin --quiet

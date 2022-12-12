@@ -57,17 +57,27 @@ extra_javascript:
 plugins:
   - search
   - alternate-link
-  - with-pdf:
-      enabled_if_env: ENABLE_PDF_EXPORT
-      toc_title: TOC
-      author: 'NWChem Developers'
-      copyright: 'ECL 2.0'
-      cover_logo: assets/MS3logo.png
-      cover_subtitle: 'User Manual'
-      output_path: /tmp/nwchem_manual.pdf
-      exclude_pages:
-        - '^Home.html$'
-        - '^Archived-Forum.html$'
+  - print-site:
+      add_to_navigation: false
+      print_page_title: 'Print Site'
+      add_print_site_banner: false
+      # Table of contents
+      add_table_of_contents: true
+      toc_title: 'Table of Contents'
+      toc_depth: 6
+      # Content-related
+      add_full_urls: false
+      enumerate_headings: true
+      enumerate_figures: true
+      add_cover_page: true
+      cover_page_template: "docs/assets/other_cover_page.tpl"
+      path_to_pdf: ""
+      include_css: true
+      enabled: true
+      exclude:
+        - Home*
+        - Archived-Forum*
+        - EMSL*
 nav:
       - 'NWChem Manual': Home.md
       - 'How to download and install NWChem':
