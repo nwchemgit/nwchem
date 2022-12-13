@@ -133,6 +133,7 @@ nav:
           - Prepare.md
           - MD.md
           - Analysis.md
+          - Format_of_MD_Files.md
       - NWChem Examples:
           - Sample.md
           - Geometry-examples.md
