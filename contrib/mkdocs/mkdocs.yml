@@ -8,6 +8,9 @@ theme:
   logo: assets/MS3logo.png
   font:
     text: Lato
+  icon:
+    edit: material/file-document-edit-outline
+    repo: fontawesome/brands/github
   palette:
 #    primary: light blue
 #    accent: indigo
