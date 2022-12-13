@@ -145,6 +145,7 @@ nav:
           - ARMCI.md
       - Software-supporting-NWChem.md
       - Containers: Containers.md
+      - Documentation in PDF format: "https://nwchemgit.github.io/nwchemusermanual.pdf"
 plugins:
   - search
   - alternate-link
