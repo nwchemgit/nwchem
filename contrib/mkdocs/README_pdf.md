@@ -1,4 +1,3 @@
-pip install htmlark
 
 MKDOCS_SERVE=B ./build_website.sh
 
