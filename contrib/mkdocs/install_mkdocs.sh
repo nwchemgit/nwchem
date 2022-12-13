@@ -6,7 +6,7 @@ else
 fi
 python3 -m pip install --upgrade pip --quiet  $USEROPT
 python3 -m pip install  MarkupSafe --use-pep517 --quiet $USEROPT
-python3 -m pip install mkdocs --quiet $USEROPT
+python3 -m pip install mkdocs==1.3.1 --quiet $USEROPT
 python3 -m pip install mkdocs-material --quiet $USEROPT
 python3 -m pip install git+https://github.com/cmitu/mkdocs-altlink-plugin/ --use-pep517 --quiet $USEROPT
 python3 -m pip install python-markdown-math --quiet $USEROPT
