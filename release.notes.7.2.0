@@ -37,7 +37,9 @@ Gaussian DFT module:
  - wb97, wb97-d3 and wb97x
  - r2SCAN, r2SCAN-L
 
-
+Basis set 
+* added autoaux fitting basis sets to libraries.bse
+* new "bse" input option
 
 
    
