@@ -65,6 +65,12 @@ nav:
       - 'Introduction ':
           - Getting-Started.md
           - NWChem-Architecture.md
+      - Capabilities.md
+      - Top-level.md
+      - Geometry.md
+      - Basis.md
+      - ECP.md
+      - Relativistic-All-electron-Approximations.md
       - Quantum-Mechanical-Methods:
           - Hartree-Fock-Theory-for-Molecules.md
           - Density-Functional-Theory-for-Molecules.md
@@ -134,6 +140,7 @@ nav:
           - MD.md
           - Analysis.md
           - Format_of_MD_Files.md
+      - Python.md
       - NWChem Examples:
           - Sample.md
           - Geometry-examples.md
