@@ -1,0 +1,64 @@
+start
+
+title "test basis details keyword"
+
+echo
+
+geometry
+C     0.000000     0.000000     0.000000
+H     0.000000     0.000000     1.089000
+H     1.026719     0.000000    -0.363000
+H    -0.513360    -0.889165    -0.363000
+H    -0.513360     0.889165    -0.363000
+end
+
+basis b1 
+*  details library aug-cc-pvdz
+end
+
+basis b2 bse 
+*  library aug-cc-pvdz
+end
+
+basis b3 spherical
+*   library aug-cc-pvdz
+end
+
+basis b4 
+*   library aug-cc-pvdz
+end
+
+set "ao basis" b1
+
+dft
+vectors  output b1.mos
+print low
+end
+
+task dft
+
+set "ao basis" b2
+
+dft
+vectors input project b1 b1.mos output b2.mos
+end
+
+task dft
+
+set "ao basis" b3
+
+dft
+vectors input project b2 b2.mos output b3.mos
+end
+
+task dft
+
+
+set "ao basis" b4
+
+dft
+vectors input project b3 b3.mos output b4.mos
+end
+
+task dft
+
