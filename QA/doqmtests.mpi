@@ -545,6 +545,12 @@ let "myexit+=$?"
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np rt_tddft_mocap
 let "myexit+=$?"
+./runtests.mpi.unix procs $np rt_tddft_cytosine_cam_cdfit
+let "myexit+=$?"
+./runtests.mpi.unix procs $np rt_tddft_tcne_spinkick
+let "myexit+=$?"
+./runtests.mpi.unix procs $np rt_tddft_water_abs_spec
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_ne_n12
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_mfm_ch3
