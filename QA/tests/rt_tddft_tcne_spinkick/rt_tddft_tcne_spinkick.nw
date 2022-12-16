@@ -1,0 +1,115 @@
+##
+## Real-time TDDFT QA
+## rt_tddft_tcne_spinkick
+## 
+## This tests open shell propagation and spin-dependent excitation
+## rules.  Here we excite the alpha spin with a positive kick, and the
+## beta spin with a negative kick.
+##
+## Suggested checks:
+## nw_rtparse -xdipole -salpha -pz -c myrun.out tcne.out
+## nw_rtparse -xdipole -sbeta -pz -c myrun.out tcne.out
+## nw_rtparse -xenergy -c myrun.out tcne.out
+## nw_rtparse -xS2 -c myrun.out tcne.out
+##
+
+title "Tetracyanoethylene anion"
+
+echo
+
+start tcne
+echo
+
+
+##
+## optimized with cc-pvdz/B3LYP
+##
+geometry "system" units angstroms noautosym nocenter noautoz
+ C    -1.77576486     0.66496556     0.00004199
+ N    -2.94676621     0.71379797     0.00004388
+ C    -0.36046718     0.62491168     0.00003506
+ C     0.36049301    -0.62492429    -0.00004895
+ C     1.77579907    -0.66504145    -0.00006082
+ N     2.94680364    -0.71382258    -0.00006592
+ C    -0.31262746    -1.87038951    -0.00011201
+ N    -0.85519492    -2.90926164    -0.00016331
+ C     0.31276207     1.87031662     0.00010870
+ N     0.85498782     2.90938919     0.00016857
+end
+
+set geometry "system"
+
+
+##
+## C, N: 6-31G
+##
+basis
+C    S
+   3047.5249000              0.0018347        
+    457.3695100              0.0140373        
+    103.9486900              0.0688426        
+     29.2101550              0.2321844        
+      9.2866630              0.4679413        
+      3.1639270              0.3623120        
+C    SP
+      7.8682724             -0.1193324              0.0689991        
+      1.8812885             -0.1608542              0.3164240        
+      0.5442493              1.1434564              0.7443083        
+C    SP
+      0.1687144              1.0000000              1.0000000        
+N    S
+   4173.5110000              0.0018348        
+    627.4579000              0.0139950        
+    142.9021000              0.0685870        
+     40.2343300              0.2322410        
+     12.8202100              0.4690700        
+      4.3904370              0.3604550        
+N    SP
+     11.6263580             -0.1149610              0.0675800        
+      2.7162800             -0.1691180              0.3239070        
+      0.7722180              1.1458520              0.7408950        
+N    SP
+      0.2120313              1.0000000              1.0000000        
+end
+
+charge -1
+
+dft
+  mult 2
+  odft
+  xc b3lyp
+end
+task dft energy
+
+
+##
+## Excite alpha and beta spins with different kick excitations.  Also
+## do full checking.
+##
+rt_tddft
+  tmax 5.0
+  dt 0.2
+
+  nrestarts 0
+  nchecks *
+  checklvl 3
+
+  field "ka"
+    type delta
+    polarization z
+    max 0.001
+    spin alpha
+  end
+
+  field "kb"
+    type delta
+    polarization z
+    max -0.001
+    spin beta
+  end
+
+  excite "system" with "ka"
+  excite "system" with "kb"
+end
+task dft rt_tddft
+
