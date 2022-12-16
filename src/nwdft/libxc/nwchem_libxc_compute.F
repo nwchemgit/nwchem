@@ -231,7 +231,6 @@
           mgga = .true.
           dolap = iand(libxc_flags(ifunc),xc_flags_needs_laplacian).eq.
      $            xc_flags_needs_laplacian
-#endif
           
           if (iand(libxc_flags(ifunc),xc_flags_have_exc).eq.
      $                                xc_flags_have_exc) then
