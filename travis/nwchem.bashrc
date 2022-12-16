@@ -188,3 +188,9 @@ if [[ "$FC" == "gfortran" ]]; then
      export NWCHEM_MODULES=$(echo $NWCHEM_MODULES |sed  's/xtb//')
    fi
 fi
+
+if [[ "$USE_LIBXC" == "-1" ]]; then
+    unset USE_LIBXC
+    export LIBXC_LIB=/usr/lib/x86_64-linux-gnu
+    export LIBXC_INCLUDE=/usr/include
+fi
