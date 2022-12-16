@@ -12,14 +12,15 @@ LIBRARY = libnwdft.a
 
 LIB_INCLUDES = -I../include 
 ifdef USE_LIBXC
+LIB_DEFINES += -DXC_MAJOR_VERSION=$(shell grep XC_MAJOR_VERSION ../../libext/libxc/install/include/xc_version.h |cut -d " " -f 3)
 LIB_INCLUDES += -I../../libext/libxc/install/include
 endif
 ifdef LIBXC_INCLUDE
+LIB_DEFINES += -DXC_MAJOR_VERSION=$(shell grep XC_MAJOR_VERSION $(LIBXC_INCLUDE)/xc_version.h |cut -d " " -f 3)
 LIB_INCLUDES += -I$(LIBXC_INCLUDE)
 endif
 LIB_INCLUDES += -I.
 
-LIB_DEFINES += -DXC_MAJOR_VERSION=$(shell grep XC_MAJOR_VERSION /usr/include/xc_version.h |cut -d " " -f 3)
 
 include ../../config/makefile.h
 include ../../config/makelib.h
