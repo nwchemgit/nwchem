@@ -63,7 +63,11 @@
       logical gga,mgga,dolap
       logical,external :: nwchem_libxc_family
 
+#if XC_MAJOR_VERSION > 5
       integer(c_size_t) :: nqs
+#else
+      integer*4 :: nqs
+#endif
 #ifdef USE_LIBXC      
       type(xc_f03_func_t) :: xcfunc      
 
@@ -158,8 +162,11 @@
         call xc_f03_func_set_zeta_threshold(xcfunc, 1d-10)
 
         select case(libxc_family(ifunc))
+#if XC_MAJOR_VERSION > 5
         case (XC_FAMILY_LDA, XC_FAMILY_HYB_LDA)
-
+#else
+        case (XC_FAMILY_LDA)
+#endif
           if ((.not.do_2nd) .and. (.not.do_3rd)) then
             call xc_f03_lda_exc_vxc(xcfunc,nqs,
      $            dbl_mb(krho),dbl_mb(kexc),dbl_mb(kvrho))
@@ -224,6 +231,7 @@
           mgga = .true.
           dolap = iand(libxc_flags(ifunc),xc_flags_needs_laplacian).eq.
      $            xc_flags_needs_laplacian
+#endif
           
           if (iand(libxc_flags(ifunc),xc_flags_have_exc).eq.
      $                                xc_flags_have_exc) then
