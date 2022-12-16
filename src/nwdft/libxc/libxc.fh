@@ -1,5 +1,7 @@
+#ifdef USE_LIBXC
 #if XC_MAJOR_VERSION < 4
 #error "need libxc version > 4 "
+#endif
 #endif
       integer, parameter :: maxfunc = 100
 
