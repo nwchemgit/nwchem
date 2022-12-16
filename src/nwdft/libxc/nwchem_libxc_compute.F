@@ -63,10 +63,12 @@
       logical gga,mgga,dolap
       logical,external :: nwchem_libxc_family
 
-#if XC_MAJOR_VERSION > 5
+#if LIBXC_NP_SIZE == 4
+      integer*4 nqs
+#elif LIBXC_NP_SIZE == 8
       integer(c_size_t) :: nqs
-#else
-      integer*4 :: nqs
+#elif
+#error "unexpected value for LIBXC_NP_SIZE"
 #endif
 #ifdef USE_LIBXC      
       type(xc_f03_func_t) :: xcfunc      
