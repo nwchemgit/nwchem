@@ -17,8 +17,7 @@ LIB_DEFINES += -DLIBXC_NP_SIZE=$(shell ./libxc_findsizenp.sh ../../libext/libxc/
 LIB_INCLUDES += -I../../libext/libxc/install/include
 endif
 ifdef LIBXC_INCLUDE
-LIB_DEFINES += -DXC_MAJOR_VERSION=$(shell grep XC_MAJOR_VE
-RSION $(LIBXC_INCLUDE)/xc_version.h |cut -d " " -f 3)
+LIB_DEFINES += -DXC_MAJOR_VERSION=$(shell grep XC_MAJOR_VERSION $(LIBXC_INCLUDE)/xc_version.h |cut -d " " -f 3)
 LIB_DEFINES += -DLIBXC_NP_SIZE=$(shell ./libxc_findsizenp.sh $(LIBXC_INCLUDE))
 LIB_INCLUDES += -I$(LIBXC_INCLUDE)
 endif
