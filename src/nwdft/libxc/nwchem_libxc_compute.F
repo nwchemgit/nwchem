@@ -57,6 +57,7 @@
       double precision :: Amat3(nq,NCOL_AMAT3)
       double precision :: Cmat3(nq,NCOL_CMAT3)
 
+#ifdef USE_LIBXC
       double precision :: fac 
 
       double precision, external :: ddot
@@ -67,10 +68,9 @@
       integer*4 nqs
 #elif LIBXC_NP_SIZE == 8
       integer(c_size_t) :: nqs
-#elif
+#else
 #error "unexpected value for LIBXC_NP_SIZE"
 #endif
-#ifdef USE_LIBXC      
       type(xc_f03_func_t) :: xcfunc      
 
       gga = .false.
