@@ -13,10 +13,13 @@ LIBRARY = libnwdft.a
 LIB_INCLUDES = -I../include 
 ifdef USE_LIBXC
 LIB_DEFINES += -DXC_MAJOR_VERSION=$(shell grep XC_MAJOR_VERSION ../../libext/libxc/install/include/xc_version.h |cut -d " " -f 3)
+LIB_DEFINES += -DLIBXC_NP_SIZE=$(shell ./libxc_findsizenp.sh ../../libext/libxc/install/include)
 LIB_INCLUDES += -I../../libext/libxc/install/include
 endif
 ifdef LIBXC_INCLUDE
-LIB_DEFINES += -DXC_MAJOR_VERSION=$(shell grep XC_MAJOR_VERSION $(LIBXC_INCLUDE)/xc_version.h |cut -d " " -f 3)
+LIB_DEFINES += -DXC_MAJOR_VERSION=$(shell grep XC_MAJOR_VE
+RSION $(LIBXC_INCLUDE)/xc_version.h |cut -d " " -f 3)
+LIB_DEFINES += -DLIBXC_NP_SIZE=$(shell ./libxc_findsizenp.sh $(LIBXC_INCLUDE))
 LIB_INCLUDES += -I$(LIBXC_INCLUDE)
 endif
 LIB_INCLUDES += -I.
