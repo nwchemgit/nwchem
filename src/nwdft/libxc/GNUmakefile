@@ -19,5 +19,7 @@ LIB_INCLUDES += -I$(LIBXC_INCLUDE)
 endif
 LIB_INCLUDES += -I.
 
+LIB_DEFINES += -DXC_MAJOR_VERSION=$(shell grep XC_MAJOR_VERSION /usr/include/xc_version.h |cut -d " " -f 3)
+
 include ../../config/makefile.h
 include ../../config/makelib.h
