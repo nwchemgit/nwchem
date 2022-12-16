@@ -136,6 +136,7 @@ jobs:
             nwchem_modules: "qmandpw qmd"
             fc: gfortran-11
             cc: gcc-11
+            use_libxc: -1
           - os: ubuntu-20.04
             experimental: true
             mpi_impl: mpich

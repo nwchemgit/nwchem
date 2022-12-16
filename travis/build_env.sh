@@ -155,6 +155,9 @@ fi
         sudo  apt-get -y install gcc-11 gfortran-11 g++-11
     fi
     fi
+    if [[ "$USE_LIBXC" == "-1" ]]; then
+	sudo apt-get -y install libxc-dev
+    fi
     if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]]; then
         sh ./"$base".sh -a -c -s --action remove --install-dir $IONEAPI_ROOT   --eula accept
         sh ./"$hpc".sh -a -c -s --action remove --install-dir  $IONEAPI_ROOT  --eula accept
