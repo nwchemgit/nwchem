@@ -14,8 +14,8 @@ LIB_INCLUDES = -I../include
 ifdef USE_LIBXC
 LIB_INCLUDES += -I../../libext/libxc/install/include
 endif
-ifdef LIBXC_DIR
-LIB_INCLUDES += -I$(LIBXC_DIR)/include
+ifdef LIBXC_INCLUDE
+LIB_INCLUDES += -I$(LIBXC_INCLUDE)
 endif
 LIB_INCLUDES += -I.
 
