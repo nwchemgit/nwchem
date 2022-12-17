@@ -41,7 +41,7 @@
       xcfamily = xc_f03_func_info_get_family(xcinfo)
 
       select case(xcfamily)
-#if XC_MAJOR_VERSION > 5
+#if XC_MAJOR_VERSION > 4
       case (XC_FAMILY_LDA, XC_FAMILY_HYB_LDA)
 #else
       case (XC_FAMILY_LDA)
@@ -54,7 +54,7 @@
       endselect
 
       select case(xcfamily)
-#if XC_MAJOR_VERSION > 5
+#if XC_MAJOR_VERSION > 4
       case (XC_FAMILY_HYB_LDA, XC_FAMILY_HYB_GGA, XC_FAMILY_HYB_MGGA)
 #else
       case (XC_FAMILY_HYB_GGA, XC_FAMILY_HYB_MGGA)
