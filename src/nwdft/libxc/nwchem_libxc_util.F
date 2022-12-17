@@ -74,8 +74,10 @@
       use,intrinsic :: iso_c_binding
 #ifdef USE_LIBXC
       use xc_f03_lib_m, only: xc_f03_version_string,
-     $                        xc_f03_reference,
-     $                        xc_f03_functional_get_name
+#if XC_MAJOR_VERSION > 4
+     $     xc_f03_reference,
+#endif
+     $     xc_f03_functional_get_name
 #endif
       implicit none
 
@@ -110,8 +112,10 @@
       use,intrinsic :: iso_c_binding
 #ifdef USE_LIBXC
       use xc_f03_lib_m, only: xc_f03_version_string,
-     $                        xc_f03_reference,
-     $                        xc_f03_functional_get_name
+#if XC_MAJOR_VERSION > 4
+     $     xc_f03_reference,
+#endif
+     $     xc_f03_functional_get_name
 #endif
       implicit none
 
