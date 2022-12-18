@@ -57,14 +57,20 @@
       double precision :: Amat3(nq,NCOL_AMAT3)
       double precision :: Cmat3(nq,NCOL_CMAT3)
 
+#ifdef USE_LIBXC
       double precision :: fac 
 
       double precision, external :: ddot
       logical gga,mgga,dolap
       logical,external :: nwchem_libxc_family
 
+#if LIBXC_NP_SIZE == 4
+      integer*4 nqs
+#elif LIBXC_NP_SIZE == 8
       integer(c_size_t) :: nqs
-#ifdef USE_LIBXC      
+#else
+#error "unexpected value for LIBXC_NP_SIZE"
+#endif
       type(xc_f03_func_t) :: xcfunc      
 
       gga = .false.
@@ -153,23 +159,35 @@
         fac = libxc_facts(ifunc)
 
         call xc_f03_func_init(xcfunc,libxc_funcs(ifunc),polarized)
+#if XC_MAJOR_VERSION > 4
         call xc_f03_func_set_dens_threshold(xcfunc, tol_rho)
         call xc_f03_func_set_sigma_threshold(xcfunc, tol_rho**2)
         call xc_f03_func_set_zeta_threshold(xcfunc, 1d-10)
-
+#endif
         select case(libxc_family(ifunc))
+#if XC_MAJOR_VERSION > 4
         case (XC_FAMILY_LDA, XC_FAMILY_HYB_LDA)
-
+#else
+        case (XC_FAMILY_LDA)
+#endif
           if ((.not.do_2nd) .and. (.not.do_3rd)) then
             call xc_f03_lda_exc_vxc(xcfunc,nqs,
      $            dbl_mb(krho),dbl_mb(kexc),dbl_mb(kvrho))
           elseif (.not.do_3rd) then
+#if XC_MAJOR_VERSION > 4
             call xc_f03_lda_exc_vxc_fxc(xcfunc,nqs,dbl_mb(krho),
      $            dbl_mb(kexc),dbl_mb(kvrho),dbl_mb(kv2rho2))
+#else
+            call errquit(' libxc interface incomplete',0,0)
+#endif
           else
+#if XC_MAJOR_VERSION > 4
             call xc_f03_lda_exc_vxc_fxc_kxc(xcfunc,nqs,dbl_mb(krho),
      $            dbl_mb(kexc),dbl_mb(kvrho),dbl_mb(kv2rho2),
      $            dbl_mb(kv3rho3))
+#else
+            call errquit(' libxc interface incomplete',0,0)
+#endif
           endif
 
 
@@ -186,17 +204,25 @@
      $                                dbl_mb(kexc),
      $                                dbl_mb(kvrho),dbl_mb(kvsigma))
             elseif (.not.do_3rd) then
+#if XC_MAJOR_VERSION > 4
               call xc_f03_gga_exc_vxc_fxc(xcfunc,nqs,
      $             dbl_mb(krho),dbl_mb(ksigma),dbl_mb(kexc),
      $             dbl_mb(kvrho),dbl_mb(kvsigma),dbl_mb(kv2rho2),
      $             dbl_mb(kv2rhosig),dbl_mb(kv2sig2))
+#else
+            call errquit(' libxc interface incomplete',0,0)
+#endif
             else
+#if XC_MAJOR_VERSION > 4
               call xc_f03_gga_exc_vxc_fxc_kxc(xcfunc,nqs,
      $             dbl_mb(krho),dbl_mb(ksigma),dbl_mb(kexc),
      $             dbl_mb(kvrho),dbl_mb(kvsigma),dbl_mb(kv2rho2),
      $             dbl_mb(kv2rhosig),dbl_mb(kv2sig2),
      $             dbl_mb(kv3rho3),dbl_mb(kv3rho2sig),
      $             dbl_mb(kv3rhosig2),dbl_mb(kv3sig3))
+#else
+            call errquit(' libxc interface incomplete',0,0)
+#endif
             endif
           else
             if ((.not.do_2nd).and.(.not.do_3rd)) then
@@ -204,17 +230,25 @@
      $                            dbl_mb(krho),dbl_mb(ksigma),
      $                            dbl_mb(kvrho),dbl_mb(kvsigma))
             elseif (.not.do_3rd) then
+#if XC_MAJOR_VERSION > 4
               call xc_f03_gga_vxc_fxc(xcfunc,nqs,
      $             dbl_mb(krho),dbl_mb(ksigma),
      $             dbl_mb(kvrho),dbl_mb(kvsigma),dbl_mb(kv2rho2),
      $             dbl_mb(kv2rhosig),dbl_mb(kv2sig2))
+#else
+            call errquit(' libxc interface incomplete',0,0)
+#endif
             else
+#if XC_MAJOR_VERSION > 4
               call xc_f03_gga_vxc_fxc_kxc(xcfunc,nqs,
      $             dbl_mb(krho),dbl_mb(ksigma),
      $             dbl_mb(kvrho),dbl_mb(kvsigma),dbl_mb(kv2rho2),
      $             dbl_mb(kv2rhosig),dbl_mb(kv2sig2),
      $             dbl_mb(kv3rho3),dbl_mb(kv3rho2sig),
      $             dbl_mb(kv3rhosig2),dbl_mb(kv3sig3))
+#else
+            call errquit(' libxc interface incomplete',0,0)
+#endif
             endif
             call dfill(nq,0d0,dbl_mb(kexc),1)
           endif

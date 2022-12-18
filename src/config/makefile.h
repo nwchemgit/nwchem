@@ -3637,9 +3637,9 @@ ifdef USE_LIBXC
 endif
 
 # we use an external libxc library out of LIBXC_DIR
-ifdef LIBXC_DIR
+ifdef LIBXC_LIB
     DEFINES += -DUSE_LIBXC
-    EXTRA_LIBS += -L$(LIBXC_DIR)/lib
+    EXTRA_LIBS += -L$(LIBXC_LIB)
     EXTRA_LIBS += -lxcf03 -lxc
 endif
 
