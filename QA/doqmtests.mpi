@@ -521,8 +521,6 @@ let "myexit+=$?"
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np carbon_fon
 let "myexit+=$?"
-./runtests.mpi.unix procs $np ch5n_nbo
-let "myexit+=$?"
 ./runtests.mpi.unix procs $np tpss tpssh
 let "myexit+=$?"
 #
