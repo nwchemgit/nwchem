@@ -46,11 +46,10 @@ echo DISTR is "$DISTR"
 	 else
 	mkdir -p ~/mntdmg $IONEAPI_ROOT || true
 	cd ~/Downloads
-	dir_base="18971"
-	dir_hpc="18977"
-	base="m_BaseKit_p_2022.3.1.17244"
-#	base="m_BaseKit_p_2023.0.0.25441_offline"
-	hpc="m_HPCKit_p_2022.3.1.15344"
+	dir_base="19080"
+	dir_hpc="19086"
+	base="m_BaseKit_p_2023.0.0.25441"
+	hpc="m_HPCKit_p_2023.0.0.25440"
 	curl -sS -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_base"/"$base".dmg
 	curl -sS -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".dmg
 	echo "installing BaseKit"
