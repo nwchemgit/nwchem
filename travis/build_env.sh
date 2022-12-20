@@ -129,8 +129,8 @@ fi
         tries=0 ; until [ "$tries" -ge 10 ] ; do \
 	dir_base="19079"
 	dir_hpc="19084"
-	base="l_BaseKit_p_2023.0.0.25537_offline.sh"
-	hpc="l_HPCKit_p_2023.0.0.25400_offline.sh"
+	base="l_BaseKit_p_2023.0.0.25537_offline"
+	hpc="l_HPCKit_p_2023.0.0.25400_offline"
         wget -nv https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".sh \
         && wget -nv  https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_base"/"$base".sh \
 	    && break ;\
