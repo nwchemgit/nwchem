@@ -46,10 +46,10 @@ echo DISTR is "$DISTR"
 	 else
 	mkdir -p ~/mntdmg $IONEAPI_ROOT || true
 	cd ~/Downloads
-	dir_base="18971"
-	dir_hpc="18977"
-	base="m_BaseKit_p_2022.3.1.17244"
-	hpc="m_HPCKit_p_2022.3.1.15344"
+	dir_base="19080"
+	dir_hpc="19086"
+	base="m_BaseKit_p_2023.0.0.25441"
+	hpc="m_HPCKit_p_2023.0.0.25440"
 	curl -sS -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_base"/"$base".dmg
 	curl -sS -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".dmg
 	echo "installing BaseKit"
@@ -126,10 +126,10 @@ fi
 	export TERM=dumb
         rm -f l_Base*sh l_HP*sh
         tries=0 ; until [ "$tries" -ge 10 ] ; do \
-	dir_base="18970"
-	dir_hpc="18975"
-	base="l_BaseKit_p_2022.3.1.17310"
-	hpc="l_HPCKit_p_2022.3.1.16997"
+	dir_base="19079"
+	dir_hpc="19084"
+	base="l_BaseKit_p_2023.0.0.25537_offline"
+	hpc="l_HPCKit_p_2023.0.0.25400_offline"
         wget -nv https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".sh \
         && wget -nv  https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_base"/"$base".sh \
 	    && break ;\
@@ -170,6 +170,7 @@ fi
         sh ./"$hpc".sh -a -c -s --action install \
         --components  "$intel_components"  \
          --install-dir $IONEAPI_ROOT     --eula accept
+	rm -f ./"$hpc".sh ./"$base".sh
 	if [[ "$?" != 0 ]]; then
 	    echo "apt-get install failed: exit code " "${?}"
 	    exit 1
