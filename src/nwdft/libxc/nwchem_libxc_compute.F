@@ -161,7 +161,7 @@
         call xc_f03_func_init(xcfunc,libxc_funcs(ifunc),polarized)
         call xc_f03_func_set_dens_threshold(xcfunc, tol_rho)
 #if XC_MAJOR_VERSION > 4
-        call xc_f03_func_set_sigma_threshold(xcfunc, tol_rho**2)
+        call xc_f03_func_set_sigma_threshold(xcfunc, tol_rho)
         call xc_f03_func_set_zeta_threshold(xcfunc, 1d-10)
 #endif
         select case(libxc_family(ifunc))
