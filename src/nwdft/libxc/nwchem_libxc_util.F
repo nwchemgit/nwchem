@@ -73,11 +73,7 @@
       subroutine nwchem_libxc_print
       use,intrinsic :: iso_c_binding
 #ifdef USE_LIBXC
-      use xc_f03_lib_m, only: xc_f03_version_string,
-#if XC_MAJOR_VERSION > 4
-     $     xc_f03_reference,
-#endif
-     $     xc_f03_functional_get_name
+      use xc_f03_lib_m, only: xc_f03_functional_get_name
 #endif
       implicit none
 
@@ -111,11 +107,7 @@
       subroutine nwchem_libxc_print_header
       use,intrinsic :: iso_c_binding
 #ifdef USE_LIBXC
-      use xc_f03_lib_m, only: xc_f03_version_string,
-#if XC_MAJOR_VERSION > 4
-     $     xc_f03_reference,
-#endif
-     $     xc_f03_functional_get_name
+      use xc_f03_lib_m, only: xc_f03_version_string
 #endif
       implicit none
 
