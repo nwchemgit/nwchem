@@ -159,8 +159,8 @@
         fac = libxc_facts(ifunc)
 
         call xc_f03_func_init(xcfunc,libxc_funcs(ifunc),polarized)
-#if XC_MAJOR_VERSION > 4
         call xc_f03_func_set_dens_threshold(xcfunc, tol_rho)
+#if XC_MAJOR_VERSION > 4
         call xc_f03_func_set_sigma_threshold(xcfunc, tol_rho**2)
         call xc_f03_func_set_zeta_threshold(xcfunc, 1d-10)
 #endif
@@ -178,7 +178,9 @@
             call xc_f03_lda_exc_vxc_fxc(xcfunc,nqs,dbl_mb(krho),
      $            dbl_mb(kexc),dbl_mb(kvrho),dbl_mb(kv2rho2))
 #else
-            call errquit(' libxc interface incomplete',0,0)
+            call xc_f03_lda_exc_vxc(xcfunc,nqs,dbl_mb(krho),
+     $                              dbl_mb(kexc),dbl_mb(kvrho))
+            call xc_f03_lda_fxc(xcfunc,nqs,dbl_mb(krho),dbl_mb(kv2rho2))
 #endif
           else
 #if XC_MAJOR_VERSION > 4
@@ -186,7 +188,10 @@
      $            dbl_mb(kexc),dbl_mb(kvrho),dbl_mb(kv2rho2),
      $            dbl_mb(kv3rho3))
 #else
-            call errquit(' libxc interface incomplete',0,0)
+            call xc_f03_lda_exc_vxc(xcfunc,nqs,dbl_mb(krho),
+     $                              dbl_mb(kexc),dbl_mb(kvrho))
+            call xc_f03_lda_fxc(xcfunc,nqs,dbl_mb(krho),dbl_mb(kv2rho2))
+            call xc_f03_lda_kxc(xcfunc,nqs,dbl_mb(krho),dbl_mb(kv3rho3))
 #endif
           endif
 
@@ -210,7 +215,14 @@
      $             dbl_mb(kvrho),dbl_mb(kvsigma),dbl_mb(kv2rho2),
      $             dbl_mb(kv2rhosig),dbl_mb(kv2sig2))
 #else
-            call errquit(' libxc interface incomplete',0,0)
+              call xc_f03_gga_exc_vxc(xcfunc,nqs,
+     $                                dbl_mb(krho),dbl_mb(ksigma),
+     $                                dbl_mb(kexc),
+     $                                dbl_mb(kvrho),dbl_mb(kvsigma))
+              call xc_f03_gga_fxc(xcfunc,nqs,
+     $                                dbl_mb(krho),dbl_mb(ksigma),
+     $                                dbl_mb(kv2rho2),dbl_mb(kv2rhosig),
+     $                                dbl_mb(kv2sig2))
 #endif
             else
 #if XC_MAJOR_VERSION > 4
@@ -221,7 +233,18 @@
      $             dbl_mb(kv3rho3),dbl_mb(kv3rho2sig),
      $             dbl_mb(kv3rhosig2),dbl_mb(kv3sig3))
 #else
-            call errquit(' libxc interface incomplete',0,0)
+              call xc_f03_gga_exc_vxc(xcfunc,nqs,
+     $                                dbl_mb(krho),dbl_mb(ksigma),
+     $                                dbl_mb(kexc),
+     $                                dbl_mb(kvrho),dbl_mb(kvsigma))
+              call xc_f03_gga_fxc(xcfunc,nqs,
+     $                            dbl_mb(krho),dbl_mb(ksigma),
+     $                            dbl_mb(kv2rho2),dbl_mb(kv2rhosig),
+     $                            dbl_mb(kv2sig2))
+              call xc_f03_gga_kxc(xcfunc,nqs,
+     $                            dbl_mb(krho),dbl_mb(ksigma),
+     $                            dbl_mb(kv3rho3),dbl_mb(kv3rho2sig),
+     $                            dbl_mb(kv3rhosig2),dbl_mb(kv3sig3))
 #endif
             endif
           else
@@ -236,7 +259,13 @@
      $             dbl_mb(kvrho),dbl_mb(kvsigma),dbl_mb(kv2rho2),
      $             dbl_mb(kv2rhosig),dbl_mb(kv2sig2))
 #else
-            call errquit(' libxc interface incomplete',0,0)
+              call xc_f03_gga_vxc(xcfunc,nqs,
+     $                            dbl_mb(krho),dbl_mb(ksigma),
+     $                            dbl_mb(kvrho),dbl_mb(kvsigma))
+              call xc_f03_gga_fxc(xcfunc,nqs,
+     $                            dbl_mb(krho),dbl_mb(ksigma),
+     $                            dbl_mb(kv2rho2),dbl_mb(kv2rhosig),
+     $                            dbl_mb(kv2sig2))
 #endif
             else
 #if XC_MAJOR_VERSION > 4
@@ -247,7 +276,17 @@
      $             dbl_mb(kv3rho3),dbl_mb(kv3rho2sig),
      $             dbl_mb(kv3rhosig2),dbl_mb(kv3sig3))
 #else
-            call errquit(' libxc interface incomplete',0,0)
+              call xc_f03_gga_vxc(xcfunc,nqs,
+     $                            dbl_mb(krho),dbl_mb(ksigma),
+     $                            dbl_mb(kvrho),dbl_mb(kvsigma))
+              call xc_f03_gga_fxc(xcfunc,nqs,
+     $                            dbl_mb(krho),dbl_mb(ksigma),
+     $                            dbl_mb(kv2rho2),dbl_mb(kv2rhosig),
+     $                            dbl_mb(kv2sig2))
+              call xc_f03_gga_kxc(xcfunc,nqs,
+     $                            dbl_mb(krho),dbl_mb(ksigma),
+     $                            dbl_mb(kv3rho3),dbl_mb(kv3rho2sig),
+     $                            dbl_mb(kv3rhosig2),dbl_mb(kv3sig3))
 #endif
             endif
             call dfill(nq,0d0,dbl_mb(kexc),1)
