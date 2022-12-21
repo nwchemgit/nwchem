@@ -183,15 +183,15 @@ fi
     fi
     if [[ "$FC" == "flang" ]]; then
 	if [[ "USE_AOMP" == "Y" ]]; then
-	    aomp_major=15
-	    aomp_minor=0-2
+	    aomp_major=14
+	    aomp_minor=0-3
 	    wget -nv https://github.com/ROCm-Developer-Tools/aomp/releases/download/rel_"$aomp_major"."$aomp_minor"/aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
 	    sudo dpkg -i aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
 	    export PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/bin/:$PATH
 	    export LD_LIBRARY_PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/lib:$LD_LIBRARY_PATH
 	    ls -lrt /usr/lib | grep aomp ||true
 	else
-	    aocc_version=3.2.0
+	    aocc_version=4.0.0
 	    aocc_dir=aocc-compiler-${aocc_version}
 	    curl -sS -LJO https://developer.amd.com/wordpress/media/files/${aocc_dir}.tar
 	    tar xf ${aocc_dir}.tar
@@ -204,7 +204,7 @@ fi
     fi
     if [[ "$FC" == "amdflang" ]]; then
 	sudo apt-get install -y wget gnupg2 coreutils dialog tzdata
-	rocm_version=5.2
+	rocm_version=5.4.1
 	wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key |  sudo apt-key add -
 	echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/'$rocm_version'/ ubuntu main' | sudo tee /etc/apt/sources.list.d/rocm.list
 	sudo apt-get  update -y && sudo apt-get -y install rocm-llvm openmp-extras

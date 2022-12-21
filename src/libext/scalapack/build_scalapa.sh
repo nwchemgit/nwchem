@@ -193,6 +193,9 @@ echo MPICH_CC is "$MPICH_CC"
 if [[  -z "$I_MPI_F90"   ]] ; then
     export I_MPI_F90="$FC"
 fi
+if [[  -z "$I_MPI_CC"   ]] ; then
+    export I_MPI_CC="$CC"
+fi
 echo I_MPI_F90 is "$I_MPI_F90"
 if [[  -z "$PE_ENV"   ]] ; then
     #check if mpif90 and FC are consistent

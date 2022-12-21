@@ -144,6 +144,13 @@ else
            LAPACK_FPFLAGS_VAL+=" -fdefault-integer-8"
        fi
 fi
+if  [[ -n ${CC} ]] && [[ "${CC}" == "amdclang" ]]; then
+    let VERSIONEQ15=$(expr `${CC} -dM -E - < /dev/null 2> /dev/null|egrep 15|grep __clang_major__ |cut  -d ' ' -f 3 ` \= 15)
+    if [[ ${VERSIONEQ15} == 1 ]]; then
+       echo "amdclang 15 buggy. reduced optimization to O1"
+       FORCETARGET+=' COMMON_OPT=-O1'
+    fi
+fi
 if [[   -z "${FC}" ]]; then
     FC=gfortran
 fi
@@ -209,7 +216,7 @@ echo
 if [[ ${_FC} == xlf ]]; then
  make FC="xlf -qextname" $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=$MYNTS NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4 >& openblas.log
 else
- make FC=$FC $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4 >& openblas.log
+ make FC=$FC $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT"  libs netlib -j4 >& openblas.log
 fi
 if [[ "$?" != "0" ]]; then
     tail -500 openblas.log
