@@ -231,7 +231,7 @@ jobs:
             armci_network: MPI-TS
             nwchem_modules: "tinyqmpw"
             fc: ifort
-            cc: icc
+            cc: icx
             use_libxc: 1
           - os: macos-11
             experimental: true 
@@ -263,7 +263,7 @@ jobs:
             armci_network: MPI-TS
             nwchem_modules: "nwdft solvation driver"
             fc: ifort
-            cc: icc
+            cc: icx
             use_simint: 1
           - os: ubuntu-20.04
             experimental: true 
