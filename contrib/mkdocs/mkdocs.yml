@@ -154,12 +154,16 @@ nav:
       - Supplementary Information:
           - Global Arrays: "https://hpc.pnl.gov/globalarrays/"
           - ARMCI.md
+      - Interfaces-with-External-Software.md
       - Software-supporting-NWChem.md
       - Containers: Containers.md
       - Documentation in PDF format: "https://nwchemgit.github.io/nwchemusermanual.pdf"
 plugins:
   - search
   - alternate-link
+  - bibtex:
+      bib_file: "docs/refs.bib"
+      csl_file: "docs/american-chemical-society.csl"
   - print-site:
       add_to_navigation: false
       print_page_title: 'Print Site'
