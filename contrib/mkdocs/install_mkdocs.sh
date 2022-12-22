@@ -2,6 +2,7 @@
 #if [[ $(command -v pandoc 2 > /dev/null) ]]; then
 #    echo need to install pandoc
     sudo apt-get install -y pandoc
+    sudo apt-get install -y pandoc-citeproc
 #fi
 pandoc --version
 if [[ "$?" != 0 ]]; then
