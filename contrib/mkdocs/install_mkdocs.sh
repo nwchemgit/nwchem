@@ -1,6 +1,12 @@
 #!/bin/bash
 if [[ $(command -v pandoc 2 > /dev/null) ]]; then
+    echo need to install pandoc
     sudo apt-get install -y pandoc
+fi
+pandoc --version
+if [[ "$?" != 0 ]]; then
+    echo broken pandoc installation
+    exit 1
 fi
 if [[ -z "$VIRTUAL_ENV" ]]; then
     USEROPT=--user
@@ -9,7 +15,8 @@ else
 fi
 python3 -m pip install --upgrade pip --quiet  $USEROPT
 python3 -m pip install  MarkupSafe --use-pep517 --quiet $USEROPT
-python3 -m pip install mkdocs==1.3.1 --quiet $USEROPT
+#python3 -m pip install mkdocs==1.3.1 --quiet $USEROPT
+python3 -m pip install mkdocs==1.4.0 --quiet $USEROPT
 python3 -m pip install mkdocs-material --quiet $USEROPT
 python3 -m pip install git+https://github.com/cmitu/mkdocs-altlink-plugin/ --use-pep517 --quiet $USEROPT
 python3 -m pip install python-markdown-math --quiet $USEROPT
