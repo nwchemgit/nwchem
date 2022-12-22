@@ -161,9 +161,6 @@ nav:
 plugins:
   - search
   - alternate-link
-  - bibtex:
-      bib_file: "docs/refs.bib"
-      csl_file: "docs/american-chemical-society.csl"
   - print-site:
       add_to_navigation: false
       print_page_title: 'Print Site'
