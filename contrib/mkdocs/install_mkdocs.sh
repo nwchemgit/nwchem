@@ -13,3 +13,5 @@ python3 -m pip install python-markdown-math --quiet $USEROPT
 python3 -m pip install install pymdown-extensions --quiet $USEROPT
 #python3 -m pip install install mkdocs-with-pdf --quiet $USEROPT
 python3 -m pip install install mkdocs-print-site-plugin --quiet $USEROPT
+python3 -m pip install  mkdocs-bibtex --use-pep517 --quiet $USEROPT
+python3 -m pip install  pandoc --quiet $USEROPT
