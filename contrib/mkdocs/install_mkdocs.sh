@@ -1,8 +1,8 @@
 #!/bin/bash
-if [[ $(command -v pandoc 2 > /dev/null) ]]; then
-    echo need to install pandoc
+#if [[ $(command -v pandoc 2 > /dev/null) ]]; then
+#    echo need to install pandoc
     sudo apt-get install -y pandoc
-fi
+#fi
 pandoc --version
 if [[ "$?" != 0 ]]; then
     echo broken pandoc installation
