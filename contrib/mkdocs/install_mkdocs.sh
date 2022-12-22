@@ -1,4 +1,7 @@
 #!/bin/bash
+if [[ $(command -v pandoc 2 > /dev/null) ]]; then
+    sudo apt-get install -y pandoc
+fi
 if [[ -z "$VIRTUAL_ENV" ]]; then
     USEROPT=--user
 else
@@ -14,4 +17,4 @@ python3 -m pip install install pymdown-extensions --quiet $USEROPT
 #python3 -m pip install install mkdocs-with-pdf --quiet $USEROPT
 python3 -m pip install install mkdocs-print-site-plugin --quiet $USEROPT
 python3 -m pip install  mkdocs-bibtex --use-pep517 --quiet $USEROPT
-python3 -m pip install  pandoc --quiet $USEROPT
+python3 -m pip install  pandoc --use-pep517 --quiet $USEROPT
