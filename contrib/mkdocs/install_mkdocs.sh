@@ -26,3 +26,4 @@ python3 -m pip install install pymdown-extensions --quiet $USEROPT
 python3 -m pip install install mkdocs-print-site-plugin --quiet $USEROPT
 python3 -m pip install  mkdocs-bibtex --use-pep517 --quiet $USEROPT
 python3 -m pip install  pandoc --use-pep517 --quiet $USEROPT
+python3 -m pip install  pypandoc_binary --use-pep517 --quiet $USEROPT
