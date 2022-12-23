@@ -163,7 +163,7 @@ plugins:
   - alternate-link
   - bibtex:
       bib_file: "docs/refs.bib"
-      csl_file: "docs/american-chemical-society.csl"
+      csl_file: "docs/journal-of-chemical-theory-and-computation.csl"
   - print-site:
       add_to_navigation: false
       print_page_title: 'Print Site'
