@@ -1,14 +1,14 @@
 #!/bin/bash
 #if [[ $(command -v pandoc 2 > /dev/null) ]]; then
 #    echo need to install pandoc
-    sudo apt-get install -y pandoc
-    sudo apt-get install -y pandoc-citeproc
+#    sudo apt-get install -y pandoc
+#    sudo apt-get install -y pandoc-citeproc
 #fi
-pandoc --version
-if [[ "$?" != 0 ]]; then
-    echo broken pandoc installation
-    exit 1
-fi
+#pandoc --version
+#if [[ "$?" != 0 ]]; then
+#    echo broken pandoc installation
+#    exit 1
+#fi
 if [[ -z "$VIRTUAL_ENV" ]]; then
     USEROPT=--user
 else
