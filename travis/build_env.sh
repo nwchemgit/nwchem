@@ -16,6 +16,9 @@ fi
 if test -f "/usr/lib/centos-release"; then
     dist="centos"
 fi
+if [[ $(grep -c fedora /etc/os-release) > 0 ]]; then
+    dist="fedora"
+fi
 echo dist is "$dist"
 if [ -z "$DISTR" ] ; then
     DISTR=$dist
@@ -43,12 +46,12 @@ echo DISTR is "$DISTR"
 	 else
 	mkdir -p ~/mntdmg $IONEAPI_ROOT || true
 	cd ~/Downloads
-	dir_base="18675"
-	dir_hpc="18681"
-	base="m_BaseKit_p_2022.2.0.226"
-	hpc="m_HPCKit_p_2022.2.0.158"
-	curl -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_base"/"$base".dmg
-	curl -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".dmg
+	dir_base="19080"
+	dir_hpc="19086"
+	base="m_BaseKit_p_2023.0.0.25441"
+	hpc="m_HPCKit_p_2023.0.0.25440"
+	curl -sS -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_base"/"$base".dmg
+	curl -sS -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".dmg
 	echo "installing BaseKit"
 	hdiutil attach "$base".dmg  -mountpoint ~/mntdmg -nobrowse
 	sudo  ~/mntdmg/bootstrapper.app/Contents/MacOS/install.sh  -c -s --action install  \
@@ -95,10 +98,13 @@ fi
 	     rpminst=yum
 	 fi
 	 if [[ "$HOSTNAME" != "fedoraqemuwe40672" ]]; then
-	 sudo $rpminst udate;  sudo $rpminst -y install perl perl python3-devel time patch openblas-serial64 openmpi-devel cmake gcc-gfortran unzip which make tar bzip2 openssh-clients rsync
+	 sudo $rpminst update;  sudo $rpminst -y install perl perl python3-devel time patch cmake gcc-gfortran unzip which make tar bzip2 openssh-clients rsync
+	  sudo $rpminst -y install openblas-serial64 || true
 	 #	 module load mpi
 	 if [[ "$MPI_IMPL" == "openmpi" ]]; then
 	     sudo $rpminst -y install  openmpi-devel
+         elif [[ "$MPI_IMPL" == "mpich" ]]; then
+	     sudo $rpminst -y install mpich  mpich-devel
 	 else
 	     echo ready only for openmpi
 	     exit 1
@@ -117,14 +123,15 @@ fi
     fi
     if [[ "$MPI_IMPL" == "intel" || "$FC" == "ifort" || "$FC" == "ifx" ]]; then
 	export APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
+	export TERM=dumb
         rm -f l_Base*sh l_HP*sh
         tries=0 ; until [ "$tries" -ge 10 ] ; do \
-	dir_base="18673"
-	dir_hpc="18679"
-	base="l_BaseKit_p_2022.2.0.262"
-	hpc="l_HPCKit_p_2022.2.0.191"
-        wget https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".sh \
-        && wget https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_base"/"$base".sh \
+	dir_base="19079"
+	dir_hpc="19084"
+	base="l_BaseKit_p_2023.0.0.25537_offline"
+	hpc="l_HPCKit_p_2023.0.0.25400_offline"
+        wget -nv https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".sh \
+        && wget -nv  https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_base"/"$base".sh \
 	    && break ;\
             tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
 
@@ -137,7 +144,10 @@ fi
     sudo apt-get -y install software-properties-common
     sudo add-apt-repository universe && sudo apt-get update
 #    sudo apt-get -y install gfortran python3-dev python-dev cmake "$mpi_libdev" "$mpi_bin" "$scalapack_libdev"  make perl  libopenblas-dev python3 rsync
-    sudo apt-get -y install gfortran python3-dev make "$mpi_libdev" "$mpi_bin"  make perl  python3 rsync
+    sudo apt-get -y install gfortran python3-dev  make perl  python3 rsync
+    if [[ "$MPI_IMPL" != "intel" ]]; then
+	sudo apt-get -y install "$mpi_libdev" "$mpi_bin"
+    fi
     echo "mpif90 -show output is " `mpif90 -show` || true
     echo "which mpif90 output is " `which mpif90` ||  true
     if [[ "$FC" == "gfortran-11" ]] || [[ "$CC" == "gcc-11" ]]; then
@@ -160,6 +170,7 @@ fi
         sh ./"$hpc".sh -a -c -s --action install \
         --components  "$intel_components"  \
          --install-dir $IONEAPI_ROOT     --eula accept
+	rm -f ./"$hpc".sh ./"$base".sh
 	if [[ "$?" != 0 ]]; then
 	    echo "apt-get install failed: exit code " "${?}"
 	    exit 1
@@ -172,17 +183,17 @@ fi
     fi
     if [[ "$FC" == "flang" ]]; then
 	if [[ "USE_AOMP" == "Y" ]]; then
-	    aomp_major=15
-	    aomp_minor=0-2
-	    wget https://github.com/ROCm-Developer-Tools/aomp/releases/download/rel_"$aomp_major"."$aomp_minor"/aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
+	    aomp_major=14
+	    aomp_minor=0-3
+	    wget -nv https://github.com/ROCm-Developer-Tools/aomp/releases/download/rel_"$aomp_major"."$aomp_minor"/aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
 	    sudo dpkg -i aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
 	    export PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/bin/:$PATH
 	    export LD_LIBRARY_PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/lib:$LD_LIBRARY_PATH
 	    ls -lrt /usr/lib | grep aomp ||true
 	else
-	    aocc_version=3.2.0
+	    aocc_version=4.0.0
 	    aocc_dir=aocc-compiler-${aocc_version}
-	    curl -LJO https://developer.amd.com/wordpress/media/files/${aocc_dir}.tar
+	    curl -sS -LJO https://developer.amd.com/wordpress/media/files/${aocc_dir}.tar
 	    tar xf ${aocc_dir}.tar
 	    ./${aocc_dir}/install.sh
 	    source setenv_AOCC.sh
@@ -193,7 +204,7 @@ fi
     fi
     if [[ "$FC" == "amdflang" ]]; then
 	sudo apt-get install -y wget gnupg2 coreutils dialog tzdata
-	rocm_version=5.2
+	rocm_version=5.4.1
 	wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key |  sudo apt-key add -
 	echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/'$rocm_version'/ ubuntu main' | sudo tee /etc/apt/sources.list.d/rocm.list
 	sudo apt-get  update -y && sudo apt-get -y install rocm-llvm openmp-extras
@@ -205,7 +216,7 @@ fi
     if [[ "$FC" == "nvfortran" ]]; then
 	sudo apt-get -y install lmod g++ libtinfo5 libncursesw5 lua-posix lua-filesystem lua-lpeg lua-luaossl
 	nv_major=22
-	nv_minor=9
+	nv_minor=11
 	nverdot="$nv_major"."$nv_minor"
 	nverdash="$nv_major"-"$nv_minor"
 	arch_dpkg=`dpkg --print-architecture`

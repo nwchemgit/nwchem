@@ -37,11 +37,12 @@ fi
 if [[ "$FC" == "amdflang" ]]; then
     export PATH=/opt/rocm/bin:$PATH
     export LD_LIBRARY_PATH=/opt/rocm-"$rocm_version"/lib:/opt/rocm/llvm/lib:$LD_LIBRARY_PATH
+     export BUILD_MPICH=1
 fi
 
 if [[ "$FC" == "nvfortran" ]]; then
      nv_major=22
-     nv_minor=9
+     nv_minor=11
      nverdot="$nv_major"."$nv_minor"
      export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:$PATH
      export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH
