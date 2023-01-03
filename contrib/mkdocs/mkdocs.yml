@@ -37,6 +37,7 @@ theme:
     - search.highlight
     - search.share
     - content.action.edit
+    - content.action.view
 extra_css:
   - stylesheets/extra.css
 use_directory_urls: false
