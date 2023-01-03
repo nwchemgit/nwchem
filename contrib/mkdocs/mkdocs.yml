@@ -9,7 +9,8 @@ theme:
   font:
     text: Lato
   icon:
-    edit: material/file-document-edit-outline
+    edit: material/pencil
+    view: material/eye
     repo: fontawesome/brands/github
   palette:
 #    primary: light blue
@@ -35,6 +36,7 @@ theme:
     - navigation.indexes
     - search.highlight
     - search.share
+    - content.action.edit
 extra_css:
   - stylesheets/extra.css
 use_directory_urls: false
