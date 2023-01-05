@@ -39,7 +39,7 @@ theme:
     - search.share
     - content.action.edit
     - content.action.view
-    - content.action.copy
+    - content.code.copy
 extra_css:
   - stylesheets/extra.css
 use_directory_urls: false
