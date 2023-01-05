@@ -2,7 +2,7 @@ site_name: NWChem
 site_description: NWChem Website
 repo_url: https://github.com/nwchemgit/nwchem-wiki
 site_url: https://nwchemgit.github.io
-edit_uri: blob/master/
+edit_uri_template: 'edit/master/{path}'
 theme:
   name: material
   logo: assets/MS3logo.png
@@ -34,10 +34,12 @@ theme:
 #    - navigation.tabs
 #    - navigation.tabs.sticky
     - navigation.indexes
+    - navigation.footer
     - search.highlight
     - search.share
     - content.action.edit
     - content.action.view
+    - content.action.copy
 extra_css:
   - stylesheets/extra.css
 use_directory_urls: false
