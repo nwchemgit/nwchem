@@ -18,6 +18,11 @@
       integer ijshell, ilo, ihi, jlo, jhi
       integer l_buf, l_scr
       integer k_buf, k_scr
+      logical do_mirr
+      logical util_mirrmat
+      external util_mirrmat
+      integer g_x_mirr,g_y_mirr,g_z_mirr
+      integer g_x_org,g_y_org,g_z_org
 !
       double precision center(3)
 !
@@ -27,6 +32,34 @@
       call ga_zero(g_x)
       call ga_zero(g_y)
       call ga_zero(g_z)
+      g_x_mirr=0
+      g_y_mirr=0
+      g_z_mirr=0
+      do_mirr=util_mirrmat(1,g_x,g_x_mirr,
+     D     .false., .true.)
+      do_mirr=do_mirr.and.util_mirrmat(1,g_y,g_y_mirr,
+     D     .false., .true.)
+      do_mirr=do_mirr.and.util_mirrmat(1,g_z,g_z_mirr,
+     D     .false., .true.)
+      if(do_mirr) then
+         g_x_org=g_x
+         g_x=g_x_mirr
+         g_y_org=g_y
+         g_y=g_y_mirr
+         g_z_org=g_z
+         g_z=g_z_mirr
+            
+      else
+         if(g_x_mirr.ne.0) then
+            if(.not.ga_destroy(g_x_mirr))call errquit(
+     $           'could not destroy mirrx handle',1, GA_ERR)
+         endif
+         if(g_y_mirr.ne.0) then
+            if(.not.ga_destroy(g_y_mirr))call errquit(
+     $           'could not destroy mirry handle',1, GA_ERR)
+         endif
+      endif
+
       if(oscfps) call pstat_on(ps_int_dip)
 !
 !     grab basis set info type stuff
@@ -65,7 +98,8 @@
 !
 !     get the integrals we want
 !
-               call int_mpole(ibas, ishell, jbas, jshell,
+!               call int_mpole(ibas, ishell, jbas, jshell,
+               call int_mpole(jbas, jshell, ibas, ishell,
      $              1,
      $              center,
      $              mscratch, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
@@ -84,6 +118,20 @@
       if(.not.MA_pop_stack(l_buf))
      $   call errquit('int_dip_ga:pop failed',0, MA_ERR)
 !
+      if (do_mirr) then
+         g_x=g_x_org
+         call util_mirrmerge(g_x_mirr,g_x)
+         if(.not.ga_destroy(g_x_mirr))call errquit(
+     $        'could not destroy g_x_mirr handle',1, GA_ERR)
+         g_y=g_y_org
+         call util_mirrmerge(g_y_mirr,g_y)
+         if(.not.ga_destroy(g_y_mirr))call errquit(
+     $        'could not destroy g_y_mirr handle',1, GA_ERR)
+         g_z=g_z_org
+         call util_mirrmerge(g_z_mirr,g_z)
+         if(.not.ga_destroy(g_z_mirr))call errquit(
+     $        'could not destroy g_x_mirr handle',1, GA_ERR)
+      endif
       call ga_sync()
 !
       if (util_print('multipole', print_debug)) then
@@ -101,15 +149,16 @@
       implicit none
 #include "global.fh"
       integer g_x, g_y, g_z, ilo, ihi, jlo, jhi
-      double precision buf(jlo:jhi,3,ilo:ihi)
+!      double precision buf(jlo:jhi,3,ilo:ihi)
+      double precision buf(ilo:ihi,3,jlo:jhi)
       integer i, j
-      do i = ilo,ihi
+c      do i = ilo,ihi
          do j = jlo, jhi
-            call ga_put(g_x,i,i,j,j,buf(j,1,i),1)
-            call ga_put(g_y,i,i,j,j,buf(j,2,i),1)
-            call ga_put(g_z,i,i,j,j,buf(j,3,i),1)
+            call ga_put(g_x,ilo,ihi,j,j,buf(ilo,1,j),1)
+            call ga_put(g_y,ilo,ihi,j,j,buf(ilo,2,j),1)
+            call ga_put(g_z,ilo,ihi,j,j,buf(ilo,3,j),1)
          end do
-      end do
+c      end do
       end
 
       subroutine int_qdr_ga(ibas, jbas, g_xx, g_xy, g_xz,

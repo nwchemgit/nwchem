@@ -22,6 +22,8 @@ c
       double precision mp2y, scfy
       double precision mp2z, scfz
       double precision ndip(3)
+      logical ga_create_atom_blocked
+      external ga_create_atom_blocked
       integer geom
 c
       if (.not. bas_cando_mpoles(basis)) return
@@ -31,15 +33,9 @@ c
 c
 c     Generate dipole integrals
 c
-*ga:1:0
-      if(.not.ga_create(mt_dbl,nbf,nbf,' ao integs x ',
-     $     0,0,g_x)) call errquit('mp2_dipole: ga',0, GA_ERR)
-*ga:1:0
-      if(.not.ga_create(mt_dbl,nbf,nbf,' ao integs y ',
-     $     0,0,g_y)) call errquit('mp2_dipole: ga',0, GA_ERR)
-*ga:1:0
-      if(.not.ga_create(mt_dbl,nbf,nbf,' ao integs z',
-     $     0,0,g_z)) call errquit('mp2_dipole: ga',0, GA_ERR)
+      g_x = ga_create_atom_blocked(geom, basis,'ao integs x')
+      g_y = ga_create_atom_blocked(geom, basis,'ao integs y')
+      g_z = ga_create_atom_blocked(geom, basis,'ao integs z')
 c
       call int_init(rtdb,1,basis)
       call int_dip_ga(basis, basis, g_x, g_y, g_z)
@@ -48,8 +44,7 @@ c
 c     Generate SCF AO density
 c
 *ga:1:0
-      if(.not.ga_create(mt_dbl, nbf, nbf,' AO density  ',
-     $     0,0,g_dens)) call errquit('mp2_dipole: ga',0, GA_ERR)
+      g_dens = ga_create_atom_blocked(geom, basis,'ao density')
       call ga_dgemm('n', 't', nbf, nbf, noa, 1.0d0, g_vecs_a,
      $     g_vecs_a, 0.0d0, g_dens)
       call ga_dgemm('n', 't', nbf, nbf, nob, 1.0d0, g_vecs_b,
@@ -62,8 +57,7 @@ c
 c     Form the MP2 AO density
 c
 *ga:1:0
-      if(.not.ga_create(mt_dbl,nmo,nbf,'scratch',0,0,g_scratch))
-     $     call errquit('mp2_grad: scratch',1, GA_ERR)
+      g_scratch = ga_create_atom_blocked(geom, basis,'scratch')
       call ga_dgemm('n','t',nmo,nbf,nmo,1.0d0,g_p_tot_a,g_vecs_a,
      $     0.0d0,g_scratch)
       call ga_dgemm('n','n',nbf,nbf,nmo,1.0d0,g_vecs_a,g_scratch,

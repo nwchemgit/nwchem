@@ -22,7 +22,8 @@ if [[ ! -x "$(command -v patch)" ]]; then
 	do_exit
     fi
 fi
-URL1="https://www.chemie.uni-bonn.de/pctc/mulliken-center/software/dft-d3/"
+#URL1="https://www.chemie.uni-bonn.de/pctc/mulliken-center/software/dft-d3/"
+URL1="https://www.chemiebn.uni-bonn.de/pctc/mulliken-center/software/dft-d3/"
 URL2="https://web.archive.org/web/20210527062154if_/https://www.chemie.uni-bonn.de/pctc/mulliken-center/software/dft-d3/"
 declare -a urls=("$URL1" "$URL1" "$URL1" "$URL2" "$URL2")
 TGZ=dftd3.tgz
@@ -47,7 +48,7 @@ else
     echo chchc ${COM1} ${urls[$tries]}/"$TGZ" ${COM2}
     tries=1 ; until [ "$tries" -ge 5 ] ; do
     ${COM1} ${urls[$tries]}/"$TGZ" ${COM2} && break
-    tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 5 ;  done
+    tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 9 ;  done
 fi
 if [[ ! -f "$TGZ" ]]; then
     echo "download failed"
