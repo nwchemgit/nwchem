@@ -5,14 +5,24 @@ do_exit(){
 	echo ' '
 	exit 1
     }
-rm -f dftd3.f nwpwxc_vdw3a.F
-export PATH=`pwd`:$PATH
+check_patch(){
 if [[ ! -x "$(command -v patch)" ]]; then
     #try to download busybox for x86_64 linux
-    if [[ $(uname -s) == "Linux" ]]  && [[ $(uname -m) == "x86_64" ]] ; then
+    if [[ $(uname -s) == "Linux" ]] ; then
 	echo "patch command missing"
 	echo "downloading busybox to use patch command"
-	wget https://www.busybox.net/downloads/binaries/1.31.0-defconfig-multiarch-musl/busybox-x86_64 -O patch
+	if [[ $(uname -m) == "x86_64" ]] ; then
+	    barch=x86_64
+	elif [[ $(uname -m) == "aarch64" ]] ; then
+	    barch=armv8l
+	elif [[ $(uname -m) == "ppc64" ]] ; then
+	    barch=powerpc64
+	elif [[ $(echo armv6l| awk ' /arm*/ { print "arm"}') == "arm" ]] ; then
+	    barch=armv5l
+	else
+	    do_exit
+	fi
+	wget https://www.busybox.net/downloads/binaries/1.31.0-defconfig-multiarch-musl/busybox-$barch -O patch
 	if [ "$?" != 0 ]; then
 	    do_exit
 	else
@@ -22,6 +32,11 @@ if [[ ! -x "$(command -v patch)" ]]; then
 	do_exit
     fi
 fi
+}
+
+check_patch
+rm -f dftd3.f nwpwxc_vdw3a.F
+export PATH=`pwd`:$PATH
 #URL1="https://www.chemie.uni-bonn.de/pctc/mulliken-center/software/dft-d3/"
 URL1="https://www.chemiebn.uni-bonn.de/pctc/mulliken-center/software/dft-d3/"
 URL2="https://web.archive.org/web/20210527062154if_/https://www.chemie.uni-bonn.de/pctc/mulliken-center/software/dft-d3/"
