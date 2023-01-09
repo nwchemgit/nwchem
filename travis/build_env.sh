@@ -148,6 +148,9 @@ fi
     if [[ "$MPI_IMPL" != "intel" ]]; then
 	sudo apt-get -y install "$mpi_libdev" "$mpi_bin"
     fi
+    # check for mpif90 command and exit if not present
+    if [[ ! $(command -v mpif90) ]]; then echo "mpif90 not present"; exit 1; fi
+
     echo "mpif90 -show output is " `mpif90 -show` || true
     echo "which mpif90 output is " `which mpif90` ||  true
     if [[ "$FC" == "gfortran-11" ]] || [[ "$CC" == "gcc-11" ]]; then
