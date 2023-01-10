@@ -90,152 +90,154 @@ echo DISTR is "$DISTR"
 #      HOMEBREW_NO_INSTALL_CLEANUP=1 HOMEBREW_NO_AUTO_UPDATE=1 brew install scalapack
 #  fi
 fi
- if [[ "$os" == "Linux" ]]; then
-     if [[ "$DISTR" == "fedora" ]] || [[ "$DISTR" == "centos" ]] ; then
-	 env
-	 rpminst=dnf
-	 if [[ "$DISTR" == "centos" ]] ; then
-	     rpminst=yum
-	 fi
-	 if [[ "$HOSTNAME" != "fedoraqemuwe40672" ]]; then
-	 sudo $rpminst update;  sudo $rpminst -y install perl perl python3-devel time patch cmake gcc-gfortran unzip which make tar bzip2 openssh-clients rsync
-	  sudo $rpminst -y install openblas-serial64 || true
-	 #	 module load mpi
-	 if [[ "$MPI_IMPL" == "openmpi" ]]; then
-	     sudo $rpminst -y install  openmpi-devel
-         elif [[ "$MPI_IMPL" == "mpich" ]]; then
-	     sudo $rpminst -y install mpich  mpich-devel
-	 else
-	     echo ready only for openmpi
-	     exit 1
-	 fi
-	 fi
-	 export PATH=/usr/lib64/"$MPI_IMPL"/bin:$PATH
-	 export LD_LIBRARY_PATH=/usr/lib64/"$MPI_IMPL"/lib:$LD_LIBRARY_PATH
-	 which mpif90
-	 mpif90 -show
-     else
-    if [[ "$MPI_IMPL" == "openmpi" ]]; then
-	mpi_bin="openmpi-bin" ; mpi_libdev="libopenmpi-dev" scalapack_libdev="libscalapack-openmpi-dev"
-    fi
-    if [[ "$MPI_IMPL" == "mpich" ]]; then
-        mpi_bin="mpich" ; mpi_libdev="libmpich-dev" scalapack_libdev="libscalapack-mpich-dev"
-    fi
-    if [[ "$MPI_IMPL" == "intel" || "$FC" == "ifort" || "$FC" == "ifx" ]]; then
-	export APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
-	export TERM=dumb
-        rm -f l_Base*sh l_HP*sh
-        tries=0 ; until [ "$tries" -ge 10 ] ; do \
-	dir_base="19079"
-	dir_hpc="19084"
-	base="l_BaseKit_p_2023.0.0.25537_offline"
-	hpc="l_HPCKit_p_2023.0.0.25400_offline"
-        wget -nv https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".sh \
-        && wget -nv  https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_base"/"$base".sh \
-	    && break ;\
-            tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
+if [[ "$os" == "Linux" ]]; then
+    if [[ "$DISTR" == "fedora" ]] || [[ "$DISTR" == "centos" ]] ; then
+	env
+	rpminst=dnf
+	if [[ "$DISTR" == "centos" ]] ; then
+	    rpminst=yum
+	fi
+	if [[ "$HOSTNAME" != "fedoraqemuwe40672" ]]; then
+	    sudo $rpminst update;  sudo $rpminst -y install perl perl python3-devel time patch cmake gcc-gfortran unzip which make tar bzip2 openssh-clients rsync
+	    sudo $rpminst -y install openblas-serial64 || true
+	    #	 module load mpi
+	    if [[ "$MPI_IMPL" == "openmpi" ]]; then
+		sudo $rpminst -y install  openmpi-devel
+            elif [[ "$MPI_IMPL" == "mpich" ]]; then
+		sudo $rpminst -y install mpich  mpich-devel
+	    else
+		echo ready only for openmpi
+		exit 1
+	    fi
+	fi
+	export PATH=/usr/lib64/"$MPI_IMPL"/bin:$PATH
+	export LD_LIBRARY_PATH=/usr/lib64/"$MPI_IMPL"/lib:$LD_LIBRARY_PATH
+	which mpif90
+	mpif90 -show
+    else
+	if [[ "$MPI_IMPL" == "openmpi" ]]; then
+	    mpi_bin="openmpi-bin" ; mpi_libdev="libopenmpi-dev" scalapack_libdev="libscalapack-openmpi-dev"
+	fi
+	if [[ "$MPI_IMPL" == "mpich" ]]; then
+            mpi_bin="mpich" ; mpi_libdev="libmpich-dev" scalapack_libdev="libscalapack-mpich-dev"
+	fi
+	if [[ "$MPI_IMPL" == "intel" || "$FC" == "ifort" || "$FC" == "ifx" ]]; then
+	    export APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
+	    export TERM=dumb
+            rm -f l_Base*sh l_HP*sh
+            tries=0 ; until [ "$tries" -ge 10 ] ; do \
+			  dir_base="19079"
+			  dir_hpc="19084"
+			  base="l_BaseKit_p_2023.0.0.25537_offline"
+			  hpc="l_HPCKit_p_2023.0.0.25400_offline"
+			  wget -nv https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".sh \
+			      && wget -nv  https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_base"/"$base".sh \
+			      && break ;\
+			      tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
 
-	if [[ "$MPI_IMPL" == "intel" ]]; then
-            mpi_bin="  " ; mpi_libdev=" " scalapack_libdev=" "
+	    if [[ "$MPI_IMPL" == "intel" ]]; then
+		mpi_bin="  " ; mpi_libdev=" " scalapack_libdev=" "
+	    fi
+	fi
+	if [[ "$GITHUB_WORKFLOW" != "NWChem_CI_selfhosted" ]]; then
+	    sudo apt-get update
+	    sudo apt-get -y install software-properties-common
+	    sudo add-apt-repository universe && sudo apt-get update
+            tries=0 ; until [ "$tries" -ge 10 ] ; do \
+			  sudo apt-get -y install gfortran python3-dev  make perl  python3 rsync "$mpi_libdev" "$mpi_bin" \
+			      && break ;\
+			  tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
+
+	    if [[ "$FC" == "gfortran-11" ]] || [[ "$CC" == "gcc-11" ]]; then
+		sudo  add-apt-repository -y ppa:ubuntu-toolchain-r/test 
+		sudo  apt-get -y install gcc-11 gfortran-11 g++-11
+	    fi
+	fi
+	if [[ "$USE_LIBXC" == "-1" ]]; then
+	    sudo apt-get -y install libxc-dev
+	fi
+	if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]]; then
+            sh ./"$base".sh -a -c -s --action remove --install-dir $IONEAPI_ROOT   --eula accept
+            sh ./"$hpc".sh -a -c -s --action remove --install-dir  $IONEAPI_ROOT  --eula accept
+	    
+            sh ./"$base".sh -a -c -s --action install --components intel.oneapi.lin.mkl.devel --install-dir $IONEAPI_ROOT  --eula accept
+	    intel_components="intel.oneapi.lin.ifort-compiler:intel.oneapi.lin.dpcpp-cpp-compiler-pro"
+	    if [[ "$MPI_IMPL" == "intel" ]]; then
+		intel_components+=":intel.oneapi.lin.mpi.devel"
+	    fi
+            sh ./"$hpc".sh -a -c -s --action install \
+               --components  "$intel_components"  \
+               --install-dir $IONEAPI_ROOT     --eula accept
+	    rm -f ./"$hpc".sh ./"$base".sh
+	    if [[ "$?" != 0 ]]; then
+		echo "apt-get install failed: exit code " "${?}"
+		exit 1
+	    fi
+            source "$IONEAPI_ROOT"/setvars.sh || true
+	    export I_MPI_F90="$FC"
+	    "$FC" -V
+	    icc -V
+
+	fi
+	if [[ "$FC" == "flang" ]]; then
+	    if [[ "USE_AOMP" == "Y" ]]; then
+		aomp_major=14
+		aomp_minor=0-3
+		wget -nv https://github.com/ROCm-Developer-Tools/aomp/releases/download/rel_"$aomp_major"."$aomp_minor"/aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
+		sudo dpkg -i aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
+		export PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/bin/:$PATH
+		export LD_LIBRARY_PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/lib:$LD_LIBRARY_PATH
+		ls -lrt /usr/lib | grep aomp ||true
+	    else
+		aocc_version=4.0.0
+		aocc_dir=aocc-compiler-${aocc_version}
+		curl -sS -LJO https://developer.amd.com/wordpress/media/files/${aocc_dir}.tar
+		tar xf ${aocc_dir}.tar
+		./${aocc_dir}/install.sh
+		source setenv_AOCC.sh
+		pwd
+	    fi
+	    flang -v
+	    which flang
+	fi
+	if [[ "$FC" == "amdflang" ]]; then
+	    sudo apt-get install -y wget gnupg2 coreutils dialog tzdata
+	    rocm_version=5.4.1
+	    wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key |  sudo apt-key add -
+	    echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/'$rocm_version'/ ubuntu main' | sudo tee /etc/apt/sources.list.d/rocm.list
+	    sudo apt-get  update -y && sudo apt-get -y install rocm-llvm openmp-extras
+	    export PATH=/opt/rocm/bin:$PATH
+	    export LD_LIBRARY_PATH=/opt/rocm/lib:/opt/rocm/llvm/lib:$LD_LIBRARY_PATH
+	    amdflang -v
+	    amdclang -v
+	fi
+	if [[ "$FC" == "nvfortran" ]]; then
+	    sudo apt-get -y install lmod g++ libtinfo5 libncursesw5 lua-posix lua-filesystem lua-lpeg lua-luaossl
+	    nv_major=22
+	    nv_minor=11
+	    nverdot="$nv_major"."$nv_minor"
+	    nverdash="$nv_major"-"$nv_minor"
+	    arch_dpkg=`dpkg --print-architecture`
+	    echo 'deb [trusted=yes] https://developer.download.nvidia.com/hpc-sdk/ubuntu/'$arch_dpkg' /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
+	    echo '*** added hpc-sdk source to /etc/aps ***'
+	    ls -lrt /etc/apt/sources.list.d/ || true
+	    ls -lrt	/etc/apt/sources.list.d/nvhpc.list || true
+	    sudo cat /etc/apt/sources.list.d/nvhpc.list || true
+	    sudo apt-get update -y
+	    apt-cache search nvhpc
+            sudo apt-get install -y nvhpc-"$nverdash"
+	    export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:$PATH
+	    export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH
+	    sudo /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x
+	    
+	    export FC=nvfortran
+	    export CC=gcc
+	    nvfortran -V
+	    which nvfortran
 	fi
     fi
-    if [[ "$GITHUB_WORKFLOW" != "NWChem_CI_selfhosted" ]]; then
-    sudo apt-get update
-    sudo apt-get -y install software-properties-common
-    sudo add-apt-repository universe && sudo apt-get update
-#    sudo apt-get -y install gfortran python3-dev python-dev cmake "$mpi_libdev" "$mpi_bin" "$scalapack_libdev"  make perl  libopenblas-dev python3 rsync
-    sudo apt-get -y install gfortran python3-dev  make perl  python3 rsync
-    if [[ "$MPI_IMPL" != "intel" ]]; then
-	sudo apt-get -y install "$mpi_libdev" "$mpi_bin"
-    fi
+    # check for mpif90 command and exit if not present
+    if [[ ! $(command -v mpif90) ]]; then echo "mpif90 not present"; exit 1; fi
     echo "mpif90 -show output is " `mpif90 -show` || true
     echo "which mpif90 output is " `which mpif90` ||  true
-    if [[ "$FC" == "gfortran-11" ]] || [[ "$CC" == "gcc-11" ]]; then
-	sudo  add-apt-repository -y ppa:ubuntu-toolchain-r/test 
-        sudo  apt-get -y install gcc-11 gfortran-11 g++-11
-    fi
-    fi
-    if [[ "$USE_LIBXC" == "-1" ]]; then
-	sudo apt-get -y install libxc-dev
-    fi
-    if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]]; then
-        sh ./"$base".sh -a -c -s --action remove --install-dir $IONEAPI_ROOT   --eula accept
-        sh ./"$hpc".sh -a -c -s --action remove --install-dir  $IONEAPI_ROOT  --eula accept
-
-        sh ./"$base".sh -a -c -s --action install --components intel.oneapi.lin.mkl.devel --install-dir $IONEAPI_ROOT  --eula accept
-	intel_components="intel.oneapi.lin.ifort-compiler:intel.oneapi.lin.dpcpp-cpp-compiler-pro"
-	if [[ "$MPI_IMPL" == "intel" ]]; then
-	    intel_components+=":intel.oneapi.lin.mpi.devel"
-	fi
-        sh ./"$hpc".sh -a -c -s --action install \
-        --components  "$intel_components"  \
-         --install-dir $IONEAPI_ROOT     --eula accept
-	rm -f ./"$hpc".sh ./"$base".sh
-	if [[ "$?" != 0 ]]; then
-	    echo "apt-get install failed: exit code " "${?}"
-	    exit 1
-	fi
-        source "$IONEAPI_ROOT"/setvars.sh || true
-	export I_MPI_F90="$FC"
-	"$FC" -V
-	icc -V
-
-    fi
-    if [[ "$FC" == "flang" ]]; then
-	if [[ "USE_AOMP" == "Y" ]]; then
-	    aomp_major=14
-	    aomp_minor=0-3
-	    wget -nv https://github.com/ROCm-Developer-Tools/aomp/releases/download/rel_"$aomp_major"."$aomp_minor"/aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
-	    sudo dpkg -i aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
-	    export PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/bin/:$PATH
-	    export LD_LIBRARY_PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/lib:$LD_LIBRARY_PATH
-	    ls -lrt /usr/lib | grep aomp ||true
-	else
-	    aocc_version=4.0.0
-	    aocc_dir=aocc-compiler-${aocc_version}
-	    curl -sS -LJO https://developer.amd.com/wordpress/media/files/${aocc_dir}.tar
-	    tar xf ${aocc_dir}.tar
-	    ./${aocc_dir}/install.sh
-	    source setenv_AOCC.sh
-	    pwd
-	fi
-	flang -v
-	which flang
-    fi
-    if [[ "$FC" == "amdflang" ]]; then
-	sudo apt-get install -y wget gnupg2 coreutils dialog tzdata
-	rocm_version=5.4.1
-	wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key |  sudo apt-key add -
-	echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/'$rocm_version'/ ubuntu main' | sudo tee /etc/apt/sources.list.d/rocm.list
-	sudo apt-get  update -y && sudo apt-get -y install rocm-llvm openmp-extras
-	export PATH=/opt/rocm/bin:$PATH
-	export LD_LIBRARY_PATH=/opt/rocm/lib:/opt/rocm/llvm/lib:$LD_LIBRARY_PATH
-	amdflang -v
-	amdclang -v
-    fi
-    if [[ "$FC" == "nvfortran" ]]; then
-	sudo apt-get -y install lmod g++ libtinfo5 libncursesw5 lua-posix lua-filesystem lua-lpeg lua-luaossl
-	nv_major=22
-	nv_minor=11
-	nverdot="$nv_major"."$nv_minor"
-	nverdash="$nv_major"-"$nv_minor"
-	arch_dpkg=`dpkg --print-architecture`
-	echo 'deb [trusted=yes] https://developer.download.nvidia.com/hpc-sdk/ubuntu/'$arch_dpkg' /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
-	echo '*** added hpc-sdk source to /etc/aps ***'
-	ls -lrt /etc/apt/sources.list.d/ || true
-	ls -lrt	/etc/apt/sources.list.d/nvhpc.list || true
-	sudo cat /etc/apt/sources.list.d/nvhpc.list || true
-	sudo apt-get update -y
-	apt-cache search nvhpc
-        sudo apt-get install -y nvhpc-"$nverdash"
-	export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:$PATH
-	export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH
-	sudo /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x
-
-	export FC=nvfortran
-	export CC=gcc
-	nvfortran -V
-	which nvfortran
-    fi
-    fi
 fi

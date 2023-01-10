@@ -3524,40 +3524,43 @@ ifdef USE_MPI
         NWLIBMPI	+= $(shell /usr/local/bin/pkg-config --libs-only-L hwloc 2> /dev/null)
     else ifdef FORCE_MPI_ENV
         ifndef MPI_INCLUDE
-                errormpi1:
-	            $(error )
-   	            $(error FORCE_MPI_ENV set but MPI_INCLUDE not set)
-	            $(error )
+            errormpi1:
+                $(info )
+                $(info FORCE_MPI_ENV set but MPI_INCLUDE not set)
+                $(info )
+                $(error )
         else
-	  NWMPI_INCLUDE = $(MPI_INCLUDE)
-	endif
+            NWMPI_INCLUDE = $(MPI_INCLUDE)
+        endif
         ifndef MPI_LIB
-                errormpi2:
-	            $(error )
-   	            $(error FORCE_MPI_ENV set but MPI_LIB not set)
-	            $(error )
+            errormpi2:
+                $(info )
+                $(info FORCE_MPI_ENV set but MPI_LIB not set)
+                $(info )
+                $(error )
         else
-	  NWMPI_LIB = $(MPI_LIB)
+           NWMPI_LIB = $(MPI_LIB)
 	endif
         ifndef LIBMPI
-                errormpi3:
-	            $(error )
-   	            $(error FORCE_MPI_ENV set but LIBMPI not set)
-	            $(error )
+            errormpi3:
+                $(info )
+                $(info FORCE_MPI_ENV set but LIBMPI not set)
+                $(info )
+                $(error )
         else
-	  NWLIBMPI = $(LIBMPI)
+           NWLIBMPI = $(LIBMPI)
 	endif
-     else
+    else
         ifeq ($(shell pwd), $(NWCHEM_TOP)/src)
 	    ifndef FORCE_MPI_ENV
                 ifdef LIBMPI
-$(info ***warning LIBMPI ignored since FORCE_MPI_ENV not set***)
+                    $(info ***warning LIBMPI ignored since FORCE_MPI_ENV not set***)
                 endif
                 ifdef MPI_LIB
-$(info ***warning MPI_LIB ignored since FORCE_MPI_ENV not set***)
+                    $(info ***warning MPI_LIB ignored since FORCE_MPI_ENV not set***)
  	        endif
                 ifdef MPI_INCLUDE
-$(info ***warning MPI_INCLUDE ignored since FORCE_MPI_ENV not set***)
+                    $(info ***warning MPI_INCLUDE ignored since FORCE_MPI_ENV not set***)
  	        endif
 	    endif
 	endif
@@ -3565,9 +3568,10 @@ $(info ***warning MPI_INCLUDE ignored since FORCE_MPI_ENV not set***)
         MPIF90YN = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
         ifeq ($(MPIF90YN),mpif90notfound)
             errormpif90:
-                $(error )
-                $(error mpif90 not found. Please add its location to PATH)
-                $(error e.g. export PATH=/usr/local/bin:/usr/lib64/openmpi/bin:...)
+                $(info )
+                $(info mpif90 not found. Please add its location to PATH)
+                $(info e.g. export PATH=/usr/local/bin:/usr/lib64/openmpi/bin:...)
+                $(info )
                 $(error )
         endif
         NWMPI_INCLUDE = $(shell $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
@@ -3587,6 +3591,12 @@ $(info ***warning MPI_INCLUDE ignored since FORCE_MPI_ENV not set***)
         CORE_LIBS += $(NWLIBMPI) 
     endif
 else 
+    errornousempi:
+        $(info )
+        $(info please set the env. variable USE_MPI)
+        $(info and provide a working MPI installation)
+        $(info )
+        $(error )
     ifdef OLD_GA
       CORE_LIBS += -ltcgmsg 
     else
