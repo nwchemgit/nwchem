@@ -143,11 +143,10 @@ if [[ "$os" == "Linux" ]]; then
 	    sudo apt-get update
 	    sudo apt-get -y install software-properties-common
 	    sudo add-apt-repository universe && sudo apt-get update
-	    #    sudo apt-get -y install gfortran python3-dev python-dev cmake "$mpi_libdev" "$mpi_bin" "$scalapack_libdev"  make perl  libopenblas-dev python3 rsync
-	    sudo apt-get -y install gfortran python3-dev  make perl  python3 rsync
-	    if [[ "$MPI_IMPL" != "intel" ]]; then
-		sudo apt-get -y install "$mpi_libdev" "$mpi_bin"
-	    fi
+            tries=0 ; until [ "$tries" -ge 10 ] ; do \
+			  sudo apt-get -y install gfortran python3-dev  make perl  python3 rsync "$mpi_libdev" "$mpi_bin" \
+			      && break ;\
+			  tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
 
 	    if [[ "$FC" == "gfortran-11" ]] || [[ "$CC" == "gcc-11" ]]; then
 		sudo  add-apt-repository -y ppa:ubuntu-toolchain-r/test 
