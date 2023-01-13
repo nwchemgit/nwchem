@@ -143,7 +143,6 @@ if [[ "$os" == "Linux" ]]; then
 	    sudo apt-get update
 	    sudo apt-get -y install software-properties-common
 	    sudo add-apt-repository universe && sudo apt-get update
-	    pkg_extra=" "
 	    if [[ "$FC" == "gfortran-11" ]] || [[ "$CC" == "gcc-11" ]]; then
 		sudo  add-apt-repository -y ppa:ubuntu-toolchain-r/test 
 		pkg_extra+=" gcc-11 gfortran-11 g++-11 "
@@ -151,6 +150,7 @@ if [[ "$os" == "Linux" ]]; then
 	    if [[ "$USE_LIBXC" == "-1" ]]; then
 		pkg_extra+=" libxc-dev "
 	    fi
+	    echo pkg to install: gfortran python3-dev  make perl  python3 rsync "$mpi_libdev" "$mpi_bin" "$pkg_extra"
             tries=0 ; until [ "$tries" -ge 10 ] ; do \
 			  sudo apt-get -y install gfortran python3-dev  make perl  python3 rsync "$mpi_libdev" "$mpi_bin" "$pkg_extra" \
 			      && break ;\
