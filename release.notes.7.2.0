@@ -20,11 +20,14 @@ Interfaces:
  * Libxc  
  * tblite   
 
-env. variable USE_HWOPT: when USE_HWOPT=n all hardware (non-dynamic) optimizations are not  used (e.g. gcc -march=native)
+Compilation:
+Added the enviroment variable USE_HWOPT: when USE_HWOPT=n all hardware (non-dynamic) optimizations are not used (e.g. gcc -march=native)
 
-COSMO updates   
+Solavation module:
+* COSMO updates   
 
 Gaussian DFT module:
+* New functionality: exact two-component relativistic Hamiltonian (X2C)
 * New functionality: Auxiliary Density Functional Theory (ADFT) XC method  
 * New functionality: Resolution of Identity Time-Dependft DFT (RITDFT)
 * New DFT XC functionals
