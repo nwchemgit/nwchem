@@ -584,6 +584,8 @@ if [[ ! -z "${USE_TBLITE}" ]]; then
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np xtb_siosi7
 let "myexit+=$?"
+./runtests.mpi.unix procs $np h2o_ccca o2_ccca
+let "myexit+=$?"
 fi
 #--- if we only want quick tests get out now!
 if [[ "$what" == "fast" ]]; then
