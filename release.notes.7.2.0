@@ -23,7 +23,7 @@ Interfaces:
 Compilation:
 Added the enviroment variable USE_HWOPT: when USE_HWOPT=n all hardware (non-dynamic) optimizations are not used (e.g. gcc -march=native)
 
-Solavation module:
+Solvation module:
 * COSMO updates   
 
 Gaussian DFT module:
