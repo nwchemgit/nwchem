@@ -11,11 +11,11 @@ jobs:
 
     steps:
       - name: list caches
-        uses: easimon/wipe-cache@main
+        uses: edoapra/wipe-cache@main
         with:
           dry-run: 'true'
       - name: clear caches
         if: ${{ github.actor == github.repository_owner }}
-        uses: easimon/wipe-cache@main
+        uses: edoapra/wipe-cache@main
         with:
           dry-run: 'false'
