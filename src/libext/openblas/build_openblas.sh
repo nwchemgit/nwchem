@@ -8,8 +8,16 @@ if [ -f  OpenBLAS-${VERSION}.tar.gz ]; then
     echo "using existing"  OpenBLAS-${VERSION}.tar.gz
 else
     rm -rf OpenBLAS*
-    curl -L https://github.com/xianyi/OpenBLAS/archive/v${VERSION}.tar.gz -o OpenBLAS-${VERSION}.tar.gz
+    tries=1 ; until [ "$tries" -ge 6 ] ; do
+		  if [ "$tries" -gt 1 ]; then sleep 9; echo attempt no.  $tries ; fi
+		  curl -L https://github.com/xianyi/OpenBLAS/archive/v${VERSION}.tar.gz -o OpenBLAS-${VERSION}.tar.gz ;
+		  # check tar.gz integrity
+		  gzip -t OpenBLAS-${VERSION}.tar.gz >&  /dev/null
+		  if [ $? -eq 0 ]; then break ;  fi
+		  tries=$((tries+1)) ;  done
 fi
+gzip -t OpenBLAS-${VERSION}.tar.gz >&  /dev/null
+if [ $? -ne 0 ]; then echo  "openBLAS tarball not ready"; rm -f OpenBLAS-${VERSION}.tar.gz; exit 1 ; fi
 tar xzf OpenBLAS-${VERSION}.tar.gz
 ln -sf OpenBLAS-${VERSION} OpenBLAS
 cd OpenBLAS
