@@ -1093,7 +1093,7 @@ ifeq ($(TARGET),MACX)
     ifeq ($(FC),g77)
         #g77, only decent one form Fink http://fink.sf.net
         #gcc version 3.4 20031015 (experimental)
-        _G77V33= $(shell g77 -v  2>&1|egrep spec|head -n 1|awk ' /3.3/  {print "Y"}')
+        _G77V33= $(shell g77 -v  2>&1|grep spec|head -n 1|awk ' /3.3/  {print "Y"}')
         FDEBUG= -O1 -g
         FOPTIONS   = -fno-second-underscore -fno-globals -Wno-globals
         FOPTIMIZE  = -O3 -fno-inline-functions -funroll-loops
@@ -1130,7 +1130,7 @@ ifeq ($(TARGET),MACX)
         GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
 
         ifdef GNUMAJOR
-            GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __GNUC_MINOR | cut -c24)
+            GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC_MINOR | cut -c24)
             GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 ] && echo true)
             GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 ] && echo true)
             GNU_GE_6 = $(shell [ $(GNUMAJOR) -ge 6  ] && echo true)
@@ -1248,8 +1248,8 @@ ifeq ($(TARGET),MACX)
     ifeq ($(FC),xlf) 
         LDOPTIONS = -Wl,-multiply_defined -Wl,warning
     else
-#       _GCC4= $(shell gcc -v  2>&1|egrep spec|head -n 1|awk ' / 3./  {print "N";exit}; / 2./ {print "N";exit};{print "Y"}')
-        _GCC4= $(shell $(CC) -dM -E - < /dev/null | egrep __VERS | cut -c22|awk ' /3/  {print "N";exit}; /2/ {print "N";exit};{print "Y"}')
+#       _GCC4= $(shell gcc -v  2>&1|grep spec|head -n 1|awk ' / 3./  {print "N";exit}; / 2./ {print "N";exit};{print "Y"}')
+        _GCC4= $(shell $(CC) -dM -E - < /dev/null | grep __VERS | cut -c22|awk ' /3/  {print "N";exit}; /2/ {print "N";exit};{print "Y"}')
         ifeq ($(_GCC4),Y) 
 #           EXTRA_LIBS += 
         else
@@ -1341,7 +1341,7 @@ ifeq ($(TARGET),MACX64)
         GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
 
         ifneq ($(strip $(GNUMAJOR)),)
-            GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __GNUC_MINOR | cut -c24)
+            GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC_MINOR | cut -c24)
             GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 \) ] && echo true)
             GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 -o \( $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 \) ] && echo true)
             GNU_GE_6 = $(shell [ $(GNUMAJOR) -ge 6  ] && echo true)
@@ -1415,11 +1415,11 @@ ifeq ($(TARGET),MACX64)
 
 
     ifeq ($(FC),ifort)
-        _IFCV11= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 11) {print "Y";exit}}')
-        _IFCV12= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 12) {print "Y";exit}}')
-        _IFCV14= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 14) {print "Y";exit}}')
-        _IFCV15ORNEWER=$(shell ifort -logo  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
-        _IFCV17=$(shell ifort -logo  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 17) {print "Y";exit}}')
+        _IFCV11= $(shell ifort -logo  2>&1|grep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 11) {print "Y";exit}}')
+        _IFCV12= $(shell ifort -logo  2>&1|grep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 12) {print "Y";exit}}')
+        _IFCV14= $(shell ifort -logo  2>&1|grep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 14) {print "Y";exit}}')
+        _IFCV15ORNEWER=$(shell ifort -logo  2>&1|grep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
+        _IFCV17=$(shell ifort -logo  2>&1|grep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 17) {print "Y";exit}}')
         DEFINES  += -DIFCV8 -DIFCLINUX
 
         ifdef USE_I4FLAGS
@@ -1582,7 +1582,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
         GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
 
         ifdef GNUMAJOR
-            GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __VERS | cut -c24)
+            GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __VERS | cut -c24)
             GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 ] && echo true)
             GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 ] && echo true)
             GNU_GE_6 = $(shell [ $(GNUMAJOR) -ge 6  ] && echo true)
@@ -1631,7 +1631,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
         _CPU = $(shell uname -m  )
 
         ifeq ($(FC),g77)
-            _G77V33= $(shell g77 -v  2>&1|egrep spec|head -n 1|awk ' /3.3/  {print "Y"}')
+            _G77V33= $(shell g77 -v  2>&1|grep spec|head -n 1|awk ' /3.3/  {print "Y"}')
             FOPTIONS   += -fno-second-underscore   
             FOPTIONS   += -fno-f90  -ffixed-line-length-72 -ffixed-form
             FOPTIMIZE  +=  -O2  -malign-double -finline-functions 
@@ -1657,7 +1657,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
             _CPU=i786
         else
             ifeq ($(_CPU),i686)
-                _GOTSSE2= $(shell cat /proc/cpuinfo | egrep sse2 | tail -n 1 | awk ' /sse2/  {print "Y"}')
+                _GOTSSE2= $(shell cat /proc/cpuinfo | grep sse2 | tail -n 1 | awk ' /sse2/  {print "Y"}')
                 ifeq ($(_GOTSSE2),Y) 
                     _CPU=i786
                 endif
@@ -1738,7 +1738,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN))
             ifdef  USE_DEBUG
                 FOPTIONS += -g
             endif
-            _IFCV7= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk '/7./ {print "Y"; exit}')
+            _IFCV7= $(shell ifort -v  2>&1|grep "Version "|head -n 1|awk '/7./ {print "Y"; exit}')
             ifneq ($(_IFCV7),Y)
                 DEFINES+= -DIFCV8
                 ifeq ($(FC),ifc)
@@ -2200,7 +2200,7 @@ ifneq ($(TARGET),LINUX)
             else
                 GNUMAJOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
                 ifdef GNUMAJOR
-                    GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | egrep __GNUC_MINOR | cut -c24)
+                    GNUMINOR=$(shell $(FC) -dM -E - < /dev/null 2> /dev/null | grep __GNUC_MINOR | cut -c24)
                     GNU_GE_4_6 = $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 6 ] && echo true)
                     GNU_GE_4_8 = $(shell [ $(GNUMAJOR) -gt 4 ] || [ $(GNUMAJOR) -eq 4 -a $(GNUMINOR) -ge 8 ] && echo true)
                 endif
@@ -2292,9 +2292,9 @@ ifneq ($(TARGET),LINUX)
             endif
 
             ifeq ($(FC),ifort)
-                _IFCV9= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk '/9./ {print "Y"}; /10./ {print "Y"; exit}')
-                _IFCV81= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk ' /8.1/  {print "Y";exit}; /9./ {print "Y"; exit}; /10./ {print "Y"; exit}')
-                _IFCV8= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk ' /8./  {print "Y";exit}; /9./ {print "Y"; exit}; /10./ {print "Y"; exit}')
+                _IFCV9= $(shell ifort -v  2>&1|grep "Version "|head -n 1|awk '/9./ {print "Y"}; /10./ {print "Y"; exit}')
+                _IFCV81= $(shell ifort -v  2>&1|grep "Version "|head -n 1|awk ' /8.1/  {print "Y";exit}; /9./ {print "Y"; exit}; /10./ {print "Y"; exit}')
+                _IFCV8= $(shell ifort -v  2>&1|grep "Version "|head -n 1|awk ' /8./  {print "Y";exit}; /9./ {print "Y"; exit}; /10./ {print "Y"; exit}')
 
                 ifeq ($(_IFCV8),Y)
                     DEFINES+= -DIFCV8
@@ -2303,7 +2303,7 @@ ifneq ($(TARGET),LINUX)
                 ifeq ($(_IFCV81),Y)
                     DEFINES+= -DIFCV81
                 endif
-                ITANIUMNO = $(shell   cat /proc/cpuinfo | egrep family | head -n 1  2>&1 | awk ' /Itanium 2/ { print "-tpp2"; exit };/Itanium/ { print "-tpp1"}')
+                ITANIUMNO = $(shell   cat /proc/cpuinfo | grep family | head -n 1  2>&1 | awk ' /Itanium 2/ { print "-tpp2"; exit };/Itanium/ { print "-tpp1"}')
                 FOPTIONS   += -auto -w -ftz $(ITANIUMNO)
                 ifdef  USE_GPROF
                     FOPTIONS += -qp
@@ -2398,20 +2398,20 @@ ifneq ($(TARGET),LINUX)
             # support for traditional Intel(R) Fortran compiler
             ifeq ($(_FC),ifort)
                 ifeq ($(shell $(CNFDIR)/check_env.sh $(USE_HWOPT)),1)
-                    _GOTSSE3= $(shell cat /proc/cpuinfo | egrep sse3 | tail -n 1 | awk ' /sse3/  {print "Y"}')
-                    _GOTSSE42= $(shell cat /proc/cpuinfo | egrep sse4_2 | tail -n 1 | awk ' /sse4_2/  {print "Y"}')
-                    _GOTAVX= $(shell cat /proc/cpuinfo | egrep avx | tail -n 1 | awk ' /avx/  {print "Y"}')
-                    _GOTAVX2= $(shell cat /proc/cpuinfo | egrep fma | tail -n 1 | awk ' /fma/  {print "Y"}')
-                    _GOTAVX512F= $(shell cat /proc/cpuinfo | egrep avx512f | tail -n 1 | awk ' /avx512f/  {print "Y"}')
+                    _GOTSSE3= $(shell cat /proc/cpuinfo | grep sse3 | tail -n 1 | awk ' /sse3/  {print "Y"}')
+                    _GOTSSE42= $(shell cat /proc/cpuinfo | grep sse4_2 | tail -n 1 | awk ' /sse4_2/  {print "Y"}')
+                    _GOTAVX= $(shell cat /proc/cpuinfo | grep avx | tail -n 1 | awk ' /avx/  {print "Y"}')
+                    _GOTAVX2= $(shell cat /proc/cpuinfo | grep fma | tail -n 1 | awk ' /fma/  {print "Y"}')
+                    _GOTAVX512F= $(shell cat /proc/cpuinfo | grep avx512f | tail -n 1 | awk ' /avx512f/  {print "Y"}')
                 endif
                 _IFCE = $(shell ifort -V  2>&1 |head -1 |awk ' /64/ {print "Y";exit};')
-                _IFCV7= $(shell ifort -v  2>&1|egrep "Version "|head -n 1|awk ' /7./  {print "Y";exit}')
-                _IFCV11= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 11) {print "Y";exit}}')
-                _IFCV12= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 12) {print "Y";exit}}')
-                _IFCV14= $(shell ifort -logo  2>&1|egrep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 14) {print "Y";exit}}')
-                _IFCV15ORNEWER=$(shell ifort -logo  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
-                _IFCV17=$(shell ifort -logo  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 17) {print "Y";exit}}')
-                _IFCV18=$(shell ifort -logo  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 18) {print "Y";exit}}')
+                _IFCV7= $(shell ifort -v  2>&1|grep "Version "|head -n 1|awk ' /7./  {print "Y";exit}')
+                _IFCV11= $(shell ifort -logo  2>&1|grep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 11) {print "Y";exit}}')
+                _IFCV12= $(shell ifort -logo  2>&1|grep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 12) {print "Y";exit}}')
+                _IFCV14= $(shell ifort -logo  2>&1|grep "Version "|head -n 1|sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 14) {print "Y";exit}}')
+                _IFCV15ORNEWER=$(shell ifort -logo  2>&1|grep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
+                _IFCV17=$(shell ifort -logo  2>&1|grep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 17) {print "Y";exit}}')
+                _IFCV18=$(shell ifort -logo  2>&1|grep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 18) {print "Y";exit}}')
 
 #               Intel EM64T is required
                 ifneq ($(_IFCE),Y)
@@ -2607,7 +2607,7 @@ ifneq ($(TARGET),LINUX)
             endif
 
             ifeq ($(_CC),icc)
-                ICCV15ORNEWER=$(shell icc -V  2>&1|egrep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
+                ICCV15ORNEWER=$(shell icc -V  2>&1|grep "Version "|head -n 1 | sed 's/.*Version \([0-9][0-9]\).*/\1/' | awk '{if ($$1 >= 15) {print "Y";exit}}')
                 ifdef USE_KNL
                     COPTIONS   +=   -xMIC-AVX512 -ftz
                     DEFINES+= -DINTEL_64ALIGN
@@ -3668,7 +3668,7 @@ ifdef BUILD_PLUMED
     LD_LIBRARY_PATH := $(NWCHEM_TOP)/src/libext/lib:$(LD_LIBRARY_PATH)
     DEFINES += -DUSE_PLUMED
     PLUMED_HOME=$(NWCHEM_TOP)/src/libext
-    PLUMED_DYNAMIC_LIBS=$(shell test -x $(NWCHEM_TOP)/src/libext/bin/plumed && $(NWCHEM_TOP)/src/libext/bin/plumed info --configuration|egrep DYNAMIC_LIBS| cut -c 14-)
+    PLUMED_DYNAMIC_LIBS=$(shell test -x $(NWCHEM_TOP)/src/libext/bin/plumed && $(NWCHEM_TOP)/src/libext/bin/plumed info --configuration|grep DYNAMIC_LIBS| cut -c 14-)
     PLUMED_HASMPI = $(shell test -x $(NWCHEM_TOP)/src/libext/bin/plumed && $(NWCHEM_TOP)/src/libext/bin/plumed info --configuration|grep program_can_run_mpi|cut -c 21-21)
 endif
 ifdef USE_PLUMED
@@ -3682,8 +3682,8 @@ ifdef USE_PLUMED
 	    $(info  Please add to your PATH the directory where the plumed command is found )
 	    $(info )
     endif
-    PLUMED_HOME = $(shell plumed info --configuration|egrep prefix=|head -1|cut -c 8-)
-    PLUMED_DYNAMIC_LIBS = $(shell plumed info --configuration|egrep DYNAMIC_LIBS| cut -c 14-)
+    PLUMED_HOME = $(shell plumed info --configuration|grep prefix=|head -1|cut -c 8-)
+    PLUMED_DYNAMIC_LIBS = $(shell plumed info --configuration|grep DYNAMIC_LIBS| cut -c 14-)
     PLUMED_HASMPI = $(plumed info --configuration|grep program_can_run_mpi|cut -c 21-21)
     #PLUMED_LOAD= /home/edo/tahoma/apps/plumed262.intel20u2/lib/libplumed.a -ldl  -lstdc++ -lfftw3 -lz -ldl -llapack -lblas   -rdynamic -Wl,-Bsymbolic -fopenmp 
     ifndef PLUMED_DYNAMIC_LIBS
@@ -4027,7 +4027,7 @@ ifndef FLINT
 
     ifdef TCE_CUDA
         ifdef USE_TTLG
-            CUDA_VERS_GE8=$(shell nvcc --version|egrep rel|  awk '/release 9/ {print "Y";exit}; /release 8/ {print "Y";exit};{print "N"}')
+            CUDA_VERS_GE8=$(shell nvcc --version|grep rel|  awk '/release 9/ {print "Y";exit}; /release 8/ {print "Y";exit};{print "N"}')
             ifeq ($(CUDA_VERS_GE8),N)
                 CUDA_FLAGS = -O3 -Xcompiler -std=c++11 -DNOHTIME -Xptxas --warn-on-spills $(CUDA_ARCH) 
             else
