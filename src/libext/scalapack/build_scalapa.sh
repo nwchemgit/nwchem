@@ -110,7 +110,13 @@ if [[ -f "scalapack-$COMMIT.tar.gz" ]]; then
 else
     echo "downloading"  "scalapack-$COMMIT.tar.gz"
     rm -f scalapack-$COMMIT.tar.gz
-    curl -L https://github.com/Reference-ScaLAPACK/scalapack/archive/$COMMIT.tar.gz -o scalapack-$COMMIT.tar.gz
+    tries=1 ; until [ "$tries" -ge 6 ] ; do
+		  if [ "$tries" -gt 1 ]; then sleep 9; echo attempt no.  $tries ; fi
+		  curl -L https://github.com/Reference-ScaLAPACK/scalapack/archive/$COMMIT.tar.gz -o scalapack-$COMMIT.tar.gz
+		  # check tar.gz integrity
+		  gzip -t scalapack-$COMMIT.tar.gz >&  /dev/null
+		  if [ $? -eq 0 ]; then break ;  fi
+		  tries=$((tries+1)) ;  done
 fi
 tar xzf scalapack-$COMMIT.tar.gz
 ln -sf scalapack-$COMMIT scalapack
