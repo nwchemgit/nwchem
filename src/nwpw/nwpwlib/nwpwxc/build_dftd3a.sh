@@ -34,6 +34,11 @@ if [[ ! -x "$(command -v patch)" ]]; then
 fi
 }
 
+if [[ ! -z "${NO_NWPWXC_VDW3A}" ]]; then
+    rm -f nwpwxc_vdw3a.F
+    echo ' removed nwpwxc_vdw3a.F source'
+    exit 0
+fi
 check_patch
 rm -f dftd3.f nwpwxc_vdw3a.F
 export PATH=`pwd`:$PATH
@@ -67,6 +72,8 @@ else
 fi
 if [[ ! -f "$TGZ" ]]; then
     echo "download failed"
+    echo "if internet connectivity is missing"
+    echo "set NO_NWPWXC_VDW3A=1"
     exit 1
 fi
 tar xzf dftd3.tgz dftd3.f
