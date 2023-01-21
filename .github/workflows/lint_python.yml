@@ -20,6 +20,7 @@ jobs:
       - run: pip install bandit black codespell flake8 flake8-2020 flake8-bugbear
                          flake8-comprehensions isort mypy pytest pyupgrade safety
       - run: python -m pip  install --upgrade requests
+      - run: python -m pip install 'setuptools>=65.5.1'
       - run: bandit --recursive --skip B101,B110,B306,B307,B311,B605,B607 .
       - run: black --check . || true
       - run: codespell --count
