@@ -1,13 +1,31 @@
 #!/usr/bin/env bash
-rm -rf columbu* *.F
+TGZ=columbus-master.tar.gz
+[ -f "$TGZ" ] && gunzip -t "$TGZ" > /dev/null && USE_TGZ=1
+if [[ "$USE_TGZ" == 1 ]]; then
+    echo "using existing"  "$TGZ"
+else
+rm -rf columbu* *.F sifs.patched
 tries=0 ; until [ "$tries" -ge 10 ] ; do \
-wget -O columbus-master.tar.gz https://gitlab.com/api/v4/projects/36816383/repository/archive?path=Columbus/source/gcfci/colib/sifs \
-&& wget -O bummer.F https://gitlab.com/columbus-program-system/columbus/-/raw/master/Columbus/source/gcfci/colib/humanio/bummer.F?inline=false\
+curl > "$TGZ" https://zgitlab.com/api/v4/projects/36816383/repository/archive?path=Columbus/source/gcfci/colib/sifs \
+&& curl > bummer.F https://gitlab.com/columbus-program-system/columbus/-/raw/master/Columbus/source/gcfci/colib/humanio/bummer.F?inline=false\
 	    && break ;\
-            tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 20 ;  done
-tar xzf columbus-master.tar.gz
-mv $(find columbus-master*s -name "*F") .
-rm -rf columbus-master*
+					 tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 2 ;  done
+fi
+[ -f "$TGZ" ] && gunzip -t "$TGZ" > /dev/null && USE_TGZ=1
+if [[ "$USE_TGZ" != 1 ]]; then
+    echo "download failed"
+    echo 
+    echo "if internet connectivity is missing"
+    echo "set NO_SIFS=1"
+    echo 
+    exit 1
+fi
+tar xzf "$TGZ"
+mv $(find columbus-master*sifs -name "*F") .
+rm -rf columbus-master*sifs
+if [[ -f "sifs.patched" ]]; then
+    echo 'source already patched'
+else
 rm -f ibummr.patch
 cat > ibummr.patch <<EOF
 --- bummer.F.org	2022-12-01 11:34:21.510551238 -0800
@@ -40,3 +58,5 @@ cat > siftdy.patch <<EOF
 EOF
 patch -p0 -s -N < siftdy.patch
 rm -f siftdy.patch
+echo yes > sifs.patched
+fi
