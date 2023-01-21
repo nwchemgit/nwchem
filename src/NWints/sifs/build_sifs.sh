@@ -6,7 +6,7 @@ if [[ "$USE_TGZ" == 1 ]]; then
 else
 rm -rf columbu* *.F sifs.patched
 tries=0 ; until [ "$tries" -ge 10 ] ; do \
-curl > "$TGZ" https://zgitlab.com/api/v4/projects/36816383/repository/archive?path=Columbus/source/gcfci/colib/sifs \
+curl > "$TGZ" https://gitlab.com/api/v4/projects/36816383/repository/archive?path=Columbus/source/gcfci/colib/sifs \
 && curl > bummer.F https://gitlab.com/columbus-program-system/columbus/-/raw/master/Columbus/source/gcfci/colib/humanio/bummer.F?inline=false\
 	    && break ;\
 					 tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 2 ;  done
