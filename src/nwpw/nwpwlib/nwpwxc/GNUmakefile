@@ -13,18 +13,26 @@
                    nwpwxc_c_vs98.o nwpwxc_c_lsda.o nwpwxc_c_vwn1.o \
                    nwpwxc_c_vwn1_rpa.o nwpwxc_c_vwn2.o nwpwxc_c_vwn3.o nwpwxc_c_vwn4.o \
                    nwpwxc_c_vwn5.o nwpwxc_c_op.o \
-                   nwpwxc_cs00.o nwpwxc_vdw3a.o nwpwxc_vdw3b.o nwpwxc_vdw3c.o \
+                   nwpwxc_cs00.o nwpwxc_vdw3b.o nwpwxc_vdw3c.o \
                    nwpwxcP_xc_b97.o nwpwxc_x_b97.o nwpwxc_c_b97.o nwpwxc_xc_kt1.o \
                    nwpwxc_c_spbe.o nwpwxc_x_ssbD_1.o nwpwxc_c_perdew81.o \
                    nwpwxc_c_perdew86.o nwpwxc_x_pw91.o nwpwxc_x_pw6.o nwpwxc_x_b86b.o \
                    nwpwxc_x_scan.o nwpwxc_c_scan.o
+ifdef NO_NWPWXC_VDW3A
+             OBJ_OPTIMIZE += nwpwxc_vdw3a_stub.o
+else
+             OBJ_OPTIMIZE += nwpwxc_vdw3a.o
+endif
 
              OBJ = nwpwxc_block.o nwpwxc_add.o nwpwxc_query.o nwpwxc_nwchem.o \
                    nwpwxc_vdw3d.o
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = nwpwxc_vdw3a.F nwpwxc_vdw3c.F nwpwxc_eval.F nwpwxc_c_vwn_a.fh
+    USES_BLAS = nwpwxc_vdw3c.F nwpwxc_eval.F nwpwxc_c_vwn_a.fh
+ifndef NO_NWPWXC_VDW3A
+    USES_BLAS += nwpwxc_vdw3a.F 
+endif
 
       HEADERS = nwpwxc.fh nwpwxc_param.fh
 
@@ -32,7 +40,9 @@
 
 include ../../../config/makefile.h
 include ../../../config/makelib.h
+ifndef NO_NWPWXC_VDW3A
 nwpwxc_vdw3a.F:
-	./build_dftd3a.sh 
+	./build_dftd3a.sh
+endif
 
 
