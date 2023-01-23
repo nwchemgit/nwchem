@@ -416,7 +416,7 @@ c      write(*,*) "core_ion_energy=",core_ion_energy,ecorez,ecorecore
       if (mprint) then
       write(luout,*)
       write(luout,*) "Generated formatted_filename: ",full_filename(1:l)
-c      if (filter) write(luout,*) "- filtering pseudopotential -"
+      if (filter) write(luout,*) "- filtering pseudopotential -"
       end if
       call openfile(2,full_filename,l,'w',l)
 
