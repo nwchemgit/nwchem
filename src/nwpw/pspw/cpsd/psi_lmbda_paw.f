@@ -106,7 +106,7 @@ c          call Dneall_f_GramSchmidt(ms,psi2,npack1)
 
 *     ***********************************
 *     *                                 *
-*     *        psi_gen_X_paw           	*
+*     *        psi_gen_X_paw            *
 *     *                                 *
 *     ***********************************
       subroutine psi_gen_X_paw(ms,nn,

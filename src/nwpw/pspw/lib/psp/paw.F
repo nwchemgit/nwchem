@@ -1377,9 +1377,9 @@ c           end do
       end
 
 *     ***********************************
-*     *					*
-*     *	 	   psp_overlap_S	*
-*     *					*
+*     *                                 *
+*     *         psp_overlap_S           *
+*     *                                 *
 *     ***********************************
 
 *    This routine computes the paw overlap S operator to psi1
@@ -1529,9 +1529,9 @@ c           end do
 
 
 *     ***********************************
-*     *					*
-*     *	    psp_add_paw_extra_overlap1	*
-*     *					*
+*     *                                 *
+*     *    psp_add_paw_extra_overlap1   *
+*     *                                 *
 *     ***********************************
 
 *    This routine adds the extra part of the paw overlap S operator to psi1
@@ -1693,9 +1693,9 @@ c        end do
 
 
 *     ***********************************
-*     *					*
-*     *	    psp_add_paw_extra_overlap2	*
-*     *					*
+*     *                                 *
+*     *    psp_add_paw_extra_overlap    *
+*     *                                 *
 *     ***********************************
 
 *    This routine adds the extra part of the paw overlap S operator to psi1
@@ -1867,9 +1867,9 @@ c        end do
 
 
 *     ***********************************
-*     *					*
-*     *	    psp_paw_overlap_fion	*
-*     *					*
+*     *                                 *
+*     *       psp_paw_overlap_fion      *
+*     *                                 *
 *     ***********************************
 
 *    This routine adds the extra part of the paw overlap S operator to psi1

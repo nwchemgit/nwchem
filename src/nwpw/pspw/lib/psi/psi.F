@@ -8403,9 +8403,9 @@ c     real*8 sum1,sum2
 
 
 *     ***********************************
-*     *					*
-*     *		psito2_sd_update	*
-*     *					*
+*     *                                 *
+*     *        psito2_sd_update         *
+*     *                                 *
 *     ***********************************
       subroutine psi1to2_sd_update(dte)
       implicit none
@@ -8461,12 +8461,18 @@ c     >                 dbl_mb(tmp_L(1)),ierr)
            call psp_overlap_S(ispin,neq,
      >                        dcpl_mb(psi1(1)),
      >                        dcpl_mb(spsi1(1)))
-           call psi_lmbda_paw(ispin,neq,nemaxq,npack1,
+
+           if (paw_gram_schmidt) then
+              call Dneall_f_Sortho(0,dcpl_mb(psi2(1)),
+     >                               dcpl_mb(psi1(1)),npack1)
+           else
+              call psi_lmbda_paw(ispin,neq,nemaxq,npack1,
      >                        dcpl_mb(spsi1(1)),
      >                        dcpl_mb(psi2(1)),
      >                        dte,
      >                        dbl_mb(lmd(1)),
      >                        dbl_mb(tmp_L(1)),ierr)
+           end if
         else if (occupation_on) then
            call psi_lmbda2(ispin,ne,nemaxq,npack1,
      >                     dcpl_mb(psi1(1)),
@@ -10439,14 +10445,13 @@ c      call OrthoCheck_geo(ispin,ne,dcpl_mb(psi2(1)))
 
 
 *     ***************************
-*     *				*
-*     *	    psi_initialize 	*
-*     *				*
+*     *                         *
+*     *      psi_initialize     *
+*     *                         *
 *     ***************************
 
       logical function psi_initialize()
       implicit none 
-
 
 #include "bafdecls.fh"
 #include "btdb.fh"
@@ -10484,8 +10489,8 @@ c      call OrthoCheck_geo(ispin,ne,dcpl_mb(psi2(1)))
       double precision control_fractional_kT
       external         control_fractional_smeartype
       external         control_fractional_kT
-      logical          control_ortho
-      external         control_ortho
+      logical          control_ortho,control_gram_schmidt
+      external         control_ortho,control_gram_schmidt
 
 
       ne_excited(1) = 0
@@ -10499,7 +10504,8 @@ c      call OrthoCheck_geo(ispin,ne,dcpl_mb(psi2(1)))
           value= band_reformat_c_wvfnc(1)
         end if
       end if
-      pawexist = psp_pawexist()
+      pawexist         = psp_pawexist()
+      paw_gram_schmidt = control_gram_schmidt()
 
 
 *     *****  get ispin,ne,neq,nfft3d,npack0,npack1 ****
@@ -10704,9 +10710,9 @@ c      end if
       end
 
 *     ***************************
-*     *				*
-*     *	 psi_1ortho_check_fix   *
-*     *				*
+*     *                         *
+*     *   psi_1ortho_check_fix  *
+*     *                         *
 *     ***************************
       subroutine psi_1ortho_check_fix()
       implicit none

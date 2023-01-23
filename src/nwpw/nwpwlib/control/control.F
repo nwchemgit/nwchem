@@ -4405,9 +4405,9 @@ c      end if
 
 
 *     ***************************
-*     *                	   	*
-*     *    control_gram_schmidt *
-*     *                  	*
+*     *                         *
+*     *   control_gram_schmidt  *
+*     *                         *
 *     ***************************
       logical function control_gram_schmidt()
       implicit none
