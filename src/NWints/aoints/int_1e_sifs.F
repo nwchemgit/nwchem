@@ -51,12 +51,14 @@ c
 c     sifs parameters
 c
       integer*4 aoints
-      integer*4 ifmt1, ibvtyp, l1rec, n1max, ierr 
+      integer*4 ifmt1,  l1rec, n1max, ierr 
+      integer*4 ibvtyp
       integer*4 ibitv
       integer*4 mxbf
       parameter (mxbf=1000)
 c     header 1
-      integer*4 ntitle, nsym, nbas, ninfo, mxenrgy, nenrgy, nmap
+      integer*4 ntitle,  nbas, ninfo, mxenrgy, nenrgy, nmap
+      integer nsym
       parameter(ntitle=1,nsym=1,mxenrgy=1)
 c     header 2
       integer*4 info(ninfo)  ! not to be confused with NWChem info
@@ -76,7 +78,9 @@ c     header 2
       integer numtot
       integer*4 msame,nmsame,nomore
       parameter(msame=0, nmsame=1, nomore= 2)
-      integer*4 itypea, itypeb, nrec, num, ibuf, last
+      integer*4 nrec, num
+      integer itypea, itypeb, last
+      integer*4  ibuf
       real*8 fcore
       logical basok
       
@@ -90,7 +94,7 @@ cgk end
       
 c
 cgk debug
-*      write(*,*)'gk: **** entered int_1e_sifs'
+      write(*,*)'gk: **** entered int_1e_sifs'
 cgk end
       basok=.false.
       odbug=.true.
@@ -127,7 +131,7 @@ c     k_* are the offsets corrsponding to the l_* handles
 c     
       call int_mem_1e(max1e, mem1)
 cgk debug
-*      write(*,*)'gk: in int_mem_1e, max1e=', max1e, ' mem1=',mem1
+      write(*,*)'gk: in int_mem_1e, max1e=', max1e, ' mem1=',mem1
 cgk end
 c     get memory for integral buffer
       if (.not. MA_push_get(MT_DBL,max1e,'int_1e_sifs:buf',l_buf,k_buf))
@@ -157,14 +161,17 @@ c     get memory for sifs bfnlab (character*8)
      &        nbft*8, MA_ERR)
 c     get memory for sifs buffer space
       lrecal=l1rec
+C LB
+      WRITE(*,*)"LB: lrecal=",lrecal,"l1rec=",l1rec
+C LB
       if (.not. MA_push_get(MT_DBL, lrecal,'int_1e_sifs:sifbuf',
      &     l_sifbuf, k_sifbuf))
-     $     call errquit('int_1e_sifs: ma failed getting sifbuf', lrecal, 
+     $     call errquit('int_1e_sifs: ma failed getting sifbuf', lrecal,
      &        MA_ERR)
       n1mx=n1max
-      if (.not. MA_push_get(MT_DBL, n1mx,'int_1e_sifs:sifbuf',
+      if (.not. MA_push_get(MT_DBL, n1mx,'int_1e_sifs:sifval',
      &     l_sifval, k_sifval))
-     $     call errquit('int_1e_sifs: ma failed getting sifbuf', n1mx, 
+     $     call errquit('int_1e_sifs: ma failed getting sifval', n1mx, 
      &        MA_ERR)
 
 c
@@ -260,6 +267,7 @@ cgk debug
 *       write(*,*)'gk:    nenrgy=',nenrgy
 *       write(*,*)'gk:    ntitle=',ntitle
 *       write(*,*)'gk:    ninfo=',ninfo
+      WRITE(*,*)'LB: l2rec=',info(4)
 cgk end
          call sifwh( aoints,  ntitle,  nsym,    nbft,
      &      ninfo,   nenrgy,  nmap,    stitle,   nbpsy,   slabel,  info,
@@ -353,6 +361,10 @@ cgk end
 
                      if(ibuf.eq.n1max) then
                        numtot = numtot + ibuf
+C LB
+                       WRITE(*,*)"int_mom_sifs calling sifew1 1,
+     &last=",last,"ibvtyp=",ibvtyp
+C LB
                        call sifew1(aoints, info, 2, ibuf, last, 
      &                   itypea, itypeb, ifmt1, ibvtyp, 
      &                   dbl_mb(k_sifval), clab, fcore, ibitv, 
@@ -384,9 +396,11 @@ cgk end
          last=nmsame
          numtot=numtot+ibuf
 cgk debug
-*      write(*,*)'gk: nrec=', nrec
-*      write(*,*)'gk:  ibuf=', ibuf
-*      write(*,*)'gk:  numtot=', numtot
+*       write(*,*)'gk: nrec=', nrec
+*       write(*,*)'gk:  ibuf=', ibuf
+*       write(*,*)'gk:  last=', last,"ibvtyp=",ibvtyp
+*       write(*,*)'gk:  numtot=', numtot
+*       WRITE(*,*)"int_mom_sifs calling sifew1 2"
 cgk end
          call sifew1(aoints, info, 2, ibuf, last, 
      &     itypea, itypeb, ifmt1, ibvtyp, 
@@ -401,7 +415,7 @@ cgk end
       call ga_sync()            ! So that no nasty races can result
 
 cgk debug
-*      write(*,*)'gk: calling int_so_sifs from int_1e_sifs'
+      write(*,*)'gk: calling int_so_sifs from int_1e_sifs'
 *      write(*,*)'gk:  mem1=', mem1
 cgk end
       call int_so_sifs(ibas, oskel, aoints, nbft, max1e, mem1, l1rec,
@@ -409,14 +423,14 @@ cgk end
      &  fcore, ibvtyp, ibitv, ifmt1)
 
 cgk debug
-*      write(*,*)'gk: calling int_mom_sifs from int_1e_sifs'
+      write(*,*)'gk: calling int_mom_sifs from int_1e_sifs'
 *      write(*,*)'gk:  mem1=', mem1
 cgk end
       call int_mom_sifs(ibas, oskel, aoints, nbft, l1rec,
      &  n1max, dbl_mb(k_sifbuf), dbl_mb(k_sifval), ninfo, info, 
      &  fcore, ibvtyp, ibitv, ifmt1)
 cgk debug
-*      write(*,*)'gk: back from int_so_sifs in int_1e_sifs'
+      write(*,*)'gk: back from int_so_sifs in int_1e_sifs'
 cgk end
 c     
 c     chop stack at first item allocated
@@ -437,6 +451,9 @@ c
      $     ('int_1e_sifs: pop failed at l_scr', 0, GA_ERR)
       if (.not. MA_pop_stack(l_buf)) call errquit
      $     ('int_1e_sifs: pop failed at l_buf', 0, GA_ERR)
+C LB
+      WRITE(*,*)"LB: done with MA_pop_stack"
+C LB
 c
 c     ----- restore ocache -----
 c
@@ -449,11 +466,17 @@ c
 *        if (.not. ga_destroy(g_loc)) call errquit('i1ega: gad?',0,
 *    &       GA_ERR)
 *     endif
+C LB
+      WRITE(*,*)"LB: call ga_sync"
+C LB
       call ga_sync()            ! So that no nasty races can result
+C LB
+      WRITE(*,*)"LB: done with ga_sync"
+C LB
 c     
       if (oscfps) call pstat_off(ps_int_1e)
 c     
 cgk debug
-*      write(*,*)'gk: leaving int_1e_sifs at end of routine'
+      write(*,*)'gk: leaving int_1e_sifs at end of routine'
 cgk end
       end

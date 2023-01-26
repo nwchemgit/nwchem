@@ -54,7 +54,8 @@ c
 c     sifs parameters
 c
       integer*4 aoints
-      integer*4 ifmt1, ibvtyp, l1rec, n1max, ierr 
+      integer*4 ifmt1, l1rec, n1max, ierr 
+      integer*4 ibvtyp
       integer*4 ibitv
       integer*4 mxbf
 c     make sure this is compatible with columbus
@@ -67,7 +68,9 @@ c     header 2
       integer numtot
       integer*4 msame,nmsame,nomore
       parameter(msame=0, nmsame=1, nomore= 2)
-      integer*4 itypea, itypeb, nrec, num, ibuf, last
+      integer*4 nrec, num
+      integer itypea, itypeb, last
+      integer*4  ibuf
       logical basok
       real*8 momval
       
@@ -289,8 +292,8 @@ cgk debug
               if(ibuf.eq.n1max) then
                 numtot = numtot + ibuf
 C LB
-c                WRITE(*,*)"LB: in int_mom_sifs"
-c                WRITE(*,*)"LB: calling sifew1 1 ibuf=",ibuf
+         WRITE(*,*)"LB: in int_mom_sifs"
+         WRITE(*,*)"LB: calling sifew1 1 last=",last,"ibvtyp=",ibvtyp
 C LB
                 call sifew1(aoints, info, 2, ibuf, msame, 
      &            itypea, itypeb, ifmt1, ibvtyp, 
@@ -322,8 +325,8 @@ cgk debug
 *     write(*,*)'gk:  numtot=', numtot
 cgk end
 C LB
-*          WRITE(*,*)"LB: in int_mom_sifs"
-*          WRITE(*,*)"LB: calling sifew1 2 ibuf=",ibuf
+       WRITE(*,*)"LB: in int_mom_sifs"
+       WRITE(*,*)"LB: calling sifew1 2 last=",last,"ibvtyp=",ibvtyp
 C LB
           call sifew1(aoints, info, 2, ibuf, last, 
      &      itypea, itypeb, ifmt1, ibvtyp, 

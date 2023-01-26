@@ -54,7 +54,8 @@ c
 c     sifs parameters
 c
       integer*4 aoints
-      integer*4 ifmt1, ibvtyp, l1rec, n1max, ierr 
+      integer*4 ifmt1, l1rec, n1max, ierr 
+      integer*4 ibvtyp
       integer*4 ibitv
       integer*4 mxbf
 c     make sure this is compatible with columbus
@@ -67,7 +68,9 @@ c     header 2
       integer numtot
       integer*4 msame,nmsame,nomore
       parameter(msame=0, nmsame=1, nomore= 2)
-      integer*4 itypea, itypeb, nrec, num, ibuf, last
+      integer*4 nrec, num
+      integer itypea, itypeb, last
+      integer*4 ibuf
       logical basok
 *     character*3 sotype(3)
 *     data sotype /'sox','soy','soz'/
@@ -83,7 +86,7 @@ cgk end
       
 c
 cgk debug
-*      write(*,*)'gk: **** entered int_so_sifs'
+      write(*,*)'gk: **** entered int_so_sifs'
 cgk end
       basok=.false.
       odbug=.true.
@@ -122,47 +125,69 @@ c
 c     k_* are the offsets corrsponding to the l_* handles
 c     
 cgk debug
-*     write(*,*)'gk: max1e=', max1e
-*     write(*,*)'gk: mem1=', mem1
-*     write(*,*)'gk: nbft=', nbft
+      write(*,*)'gk: max1e=', max1e
+      write(*,*)'gk: mem1=', mem1
+      write(*,*)'gk: nbft=', nbft
 cgk end
       max1eso=3*max1e
       mem1so=3*mem1
       maxint=nbft*(nbft+1)/2 
 cgk debug
-*     write(*,*)'gk: max1eso=', max1eso
-*     write(*,*)'gk: mem1so=', mem1so
-*     write(*,*)'gk: maxint=', maxint
+      write(*,*)'gk: max1eso=', max1eso
+      write(*,*)'gk: mem1so=', mem1so
+      write(*,*)'gk: maxint=', maxint
+      WRITE(*,*)"LB: start MA_push_get"
 cgk end
 
+C LB
+      WRITE(*,*)"LB: integral buffer"
+C LB
 c     get memory for integral buffer
       if (.not. MA_push_get(MT_DBL,max1eso,'int_so_sifs:buf',l_buf,
      &  k_buf))
      $     call errquit('int_so_sifs: ma failed', max1eso, MA_ERR)
+C LB
+      WRITE(*,*)"LB: scratch space"
+C LB
 c     get memory for scratch space
       if (.not. MA_push_get(MT_DBL, mem1so,'int_so_sifs:scr',l_scr,
      &  k_scr))
      $     call errquit('int_so_sifs: ma failed', mem1so, MA_ERR)
+C LB
+      WRITE(*,*)"LB: x spin orbit"
+C LB
 c     get memory for x spin orbit
       if (.not. MA_push_get(MT_DBL,maxint,'int_so_sifs:sox',l_sox,
      &        k_sox))
      $     call errquit('int_so_sifs: ma failed for so x', maxint, 
      &        MA_ERR)
+C LB
+      WRITE(*,*)"LB: y spin orbit"
+C LB
 c     get memory for y spin orbit
       if (.not. MA_push_get(MT_DBL,maxint,'int_so_sifs:soy',l_soy,
      &        k_soy))
      $     call errquit('int_so_sifs: ma failed for so y', maxint, 
      &        MA_ERR)
+C LB
+      WRITE(*,*)"LB: z spin orbit"
+C LB
 c     get memory for z spin orbit
       if (.not. MA_push_get(MT_DBL,maxint,'int_so_sifs:soz',l_soz,
      &        k_soz))
      $     call errquit('int_so_sifs: ma failed for so z', maxint, 
      &        MA_ERR)
+C LB
+      WRITE(*,*)"LB: full bra"
+C LB
 c     get memory for full bra label array
       if (.not. MA_push_get(MT_Int,maxint,'int_so_sifs:iso',l_iso,
      &        k_iso))
      $     call errquit('int_so_sifs: ma failed for iso', maxint, 
      &        MA_ERR)
+C LB
+      WRITE(*,*)"LB: full ket"
+C LB
 c     get memory for full ket label array
       if (.not. MA_push_get(MT_Int,maxint,'int_so_sifs:jso',l_jso,
      &        k_jso))
@@ -176,7 +201,7 @@ c        start loop over so integrals here.
          do jshell = 1, nshell
             do ishell = 1, nshell
 cgk debug
-*     write(*,*)'gk: ishell=',ishell,' jshell=',jshell
+      write(*,*)'gk: ishell=',ishell,' jshell=',jshell
 cgk end
                odoit = .true.
                if (oskel) 
@@ -200,7 +225,7 @@ cgk end
 cgk debug
 *     write(*,'(a,i4,a,i4,a,i4,a,i4)')
 *    &  'gk: ilo=',ilo,' ihi=',ihi,' jlo=',jlo,' jhi=',jhi
-*     write(*,*)'gk: numints=',numints
+      write(*,*)'gk: numints=',numints
 cgk end
                        ijmap=(j-jlo)*(ihi-ilo+1)+(i-ilo)
                        if(i.ge.j) then
@@ -236,8 +261,8 @@ c call sifs
       endif
       call ga_sync()            ! So that no nasty races can result
 cgk debug
-*     write(*,*)'gk: numints = ', numints
-*     write(*,*)'gk: maxint = ', maxint
+      write(*,*)'gk: numints = ', numints
+      write(*,*)'gk: maxint = ', maxint
 *     symmap=0
 *     do i=1,nbft
 *       do j = 1, i
@@ -268,10 +293,11 @@ cgk debug
             if(ibuf.eq.n1max) then
               numtot = numtot + ibuf
 cgk debug
-*      WRITE(*,*)"LB: calling sifew1 1"
+      WRITE(*,*)"int_so_sifs calling sifew1 1"
 *      write(*,*)'gk: nrec=', nrec
 *      write(*,*)'gk:  ibuf=', ibuf
 *      write(*,*)'gk:  numtot=', numtot
+      WRITE(*,*)"last=",last,"ibvtyp=",ibvtyp
 cgk end
               call sifew1(aoints, info, 2, ibuf, msame, 
      &          itypea, itypeb, ifmt1, ibvtyp, 
@@ -298,10 +324,11 @@ cgk end
 *       endif
         numtot=numtot+ibuf
 cgk debug
-*     WRITE(*,*)"LB: calling sifew1 2"
+      WRITE(*,*)"int_so_sifs calling sifew1 2"
 *     write(*,*)'gk: nrec=', nrec
-*     write(*,*)'gk:  ibuf=', ibuf
+      write(*,*)'gk:  ibuf=', ibuf
 *     write(*,*)'gk:  numtot=', numtot
+      WRITE(*,*)"last=",last,"ibvtyp=",ibvtyp
 cgk end
         call sifew1(aoints, info, 2, ibuf, last, 
      &    itypea, itypeb, ifmt1, ibvtyp, 

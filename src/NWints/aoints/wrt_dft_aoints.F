@@ -64,8 +64,8 @@ c     sifs
       parameter(nmap=2)
       integer*4 aoints
       parameter(aoints=23)
-      integer*4 ifmt1, ibvtyp, l1rec, n1max, ierr, ifmt, l2rec, n2max,
-     &          lrecal
+      integer*4 ifmt1, ibvtyp, l1rec, n1max, ierr, ifmt, l2rec, n2max
+      integer lrecal
       integer*4 ibitv
       integer*4 mxengy
       parameter (mxengy=1)
