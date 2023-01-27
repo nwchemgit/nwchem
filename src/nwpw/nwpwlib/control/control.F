@@ -5513,6 +5513,31 @@ c      end if
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *    control_kbpp_filter_scale    *
+*     *                                 *
+*     ***********************************
+      real*8 function control_kbpp_filter_scale()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+      
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+      
+      real*8 scal
+
+      scal = 1.0d0
+      if (.not.btdb_get(rtdb,'nwpw:kbpp_filter_scale',mt_dbl,1,scal))
+     >  scal=1.0d0
+      
+      control_kbpp_filter_scale = scal
+      return
+      end
+
 
 *     ***********************************
 *     *                                 *

@@ -62,6 +62,7 @@
       integer vnl_ray_hndl,vl_ray_hndl,vlpaw_ray_hndl
       integer G_ray_indx,tmp_ray_indx
       integer vnl_ray_indx,vl_ray_indx,vlpaw_ray_indx
+      real*8 filter_scale
 
 
 *     **** other variables ****
@@ -77,6 +78,8 @@
       external log_integrate_def,log_coulomb0_energy,log_coulomb_energy
       integer  kbpp_calc_nray
       external kbpp_calc_nray
+      real*8   control_kbpp_filter_scale
+      external control_kbpp_filter_scale
 
 
       call Parallel_taskid(taskid)
@@ -292,6 +295,7 @@
       nfft3=ngrid(3)
       call setup_kbpp(nfft1,nfft2,nfft3,unita,unitg,dbl_mb(G_indx))
       filter = control_kbpp_filter()
+      filter_scale = control_kbpp_filter_scale()
 
       !**** allocate memory for rays ****
       nray = kbpp_calc_nray(nfft1,nfft2,nfft3,unita)
@@ -351,7 +355,7 @@
      >                                dbl_mb(vlpaw_ray_indx),
      >                                dbl_mb(vnl_ray_indx),
      >                                dbl_mb(tmp_ray_indx),
-     >                                filter,
+     >                                filter,filter_scale,
      >                      ierr)
         value = BA_free_heap(tmp_ray_hndl)
         value = value.and.BA_free_heap(vl_ray_hndl)
