@@ -888,7 +888,8 @@ c     >           dcpl_mb(psi1(1)),1)
       oprint= ((taskid.eq.MASTER).and.control_print(print_medium))
 
       !*** need to redo cr_fft of psi1 ***
-      if (ci_algorithm.ge.5) call electron_gen_psi_r(dcpl_mb(psi1(1)))
+*     *** Duo0130 ***
+      !if (ci_algorithm.ge.5) call electron_gen_psi_r(dcpl_mb(psi1(1)))
 
       Hgg = 0.0d0
 
