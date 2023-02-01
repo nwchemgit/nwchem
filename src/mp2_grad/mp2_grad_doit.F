@@ -333,7 +333,7 @@ c
 
          end if
          call pstat_on(ps_maket)
-         call mp2_make_tuhf(nbf,noa_lo,noa_hi,nva_lo,nva_hi,
+         call mp2_make_tuhf(rtdb,nbf,noa_lo,noa_hi,nva_lo,nva_hi,
      $        sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,num_oa,num_va,
      $        nob_lo,nob_hi,nvb_lo,nvb_hi,sym_lo_ob,sym_hi_ob,
      $        sym_lo_vb,sym_hi_vb,num_ob,num_vb,oseg_lo,oseg_hi,
