@@ -136,3 +136,41 @@ c
       call util_mirrstop(g_densdis)
       return
       end
+      integer function util_mirrmem(nmat,g_a)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+      integer g_a(*)
+      integer nmat
+c
+      integer ppn
+      integer nbytes,i,imat
+      integer maxdim
+      parameter(maxdim=10)
+      integer type, dims(maxdim),ndim
+      util_mirrmem=0
+      call util_getppn(ppn)
+      do imat=1,nmat
+         call nga_inquire(g_a(imat), type, ndim, dims)
+      if(ndim.gt.maxdim) call errquit(
+     Q     ' mirrmem: increase maxdim  to ',ndim,0)
+#if 1
+      if(ga_nodeid().eq.0) then
+         write(0,123)  ' ndim ',ndim,' dims ',
+     D        (dims(i),i=1,ndim)
+      endif
+ 123     format(A,I2,A,3I10)
+#endif
+         nbytes=1
+         do i=1,ndim
+            nbytes=nbytes*dims(i)
+         enddo
+         nbytes=ma_sizeof(mt_dbl,1,mt_byte)*nbytes
+         util_mirrmem=util_mirrmem+nbytes
+      enddo
+      if(ga_nnodes().ne.1) then
+c     divide by ppn & round it by 30%
+         util_mirrmem=(util_mirrmem*130)/(ppn*100)
+      endif
+      return
+      end

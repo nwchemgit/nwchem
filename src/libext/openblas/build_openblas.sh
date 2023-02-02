@@ -26,6 +26,7 @@ patch -p0 -s -N < ../makesys.patch
 #patch -p0 -s -N < ../icc_avx512.patch
 # patch for pgi/nvfortran missing -march=armv8
 patch -p0 -s -N < ../arm64_fopt.patch
+patch -p1 -s -N < ../9402df5604e69f86f58953e3883f33f98c930baf.patch
 if [[  -z "${FORCETARGET}" ]]; then
 FORCETARGET=" "
 UNAME_S=$(uname -s)
@@ -35,7 +36,11 @@ if [[ ${UNAME_S} == Linux ]]; then
 elif [[ ${UNAME_S} == Darwin ]]; then
     CPU_FLAGS=$(/usr/sbin/sysctl -n machdep.cpu.features)
     if [[ "$arch" == "x86_64" ]]; then
-    CPU_FLAGS_2=$(/usr/sbin/sysctl -n machdep.cpu.leaf7_features)
+#	CPU_FLAGS_2=$(/usr/sbin/sysctl -n machdep.cpu.leaf7_features)
+	if [[ $(/usr/sbin/sysctl -n hw.optional.avx2_0) == 1 ]]; then
+	    echo got AVX2
+	    CPU_FLAGS_2="AVX2"
+	fi
     fi
 fi
   GOTSSE2=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /sse2/   {print "Y"}')

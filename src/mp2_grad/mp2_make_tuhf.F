@@ -54,6 +54,8 @@ c
       integer g_ta_mirr,g_tb_mirr,g_ta_org,g_tb_org
       logical util_mirrmat,tuhfreplicated
       external util_mirrmat
+      integer util_mirrmem,mem_mirr
+      external util_mirrmem
 c
       integer l_ia_uv, k_ia_uv, l_tmp, k_tmp, l_ia_jb, k_ia_jb
       double precision ddot
@@ -89,14 +91,23 @@ c
      $     call errquit('could not alloc ga for T_b',1, GA_ERR)
       if (.not.rtdb_get(rtdb, 'mp2:tuhfreplicated', mt_log, 1, 
      T     tuhfreplicated)) tuhfreplicated=.true.
+      do_mirra=.false.
+      do_mirrb=.false.
       if(tuhfreplicated) then
-         do_mirra=util_mirrmat(1,g_t_a,g_ta_mirr,
-     D        .false., .true.)
-         do_mirrb=util_mirrmat(1,g_t_b,g_tb_mirr,
-     D        .false., .true.)
-      else
-         do_mirra=.false.
-         do_mirrb=.false.
+         mem_mirr=
+     M        util_mirrmem(1,g_t_a)+
+     M        util_mirrmem(1,g_t_b)
+         if(ga_nodeid().eq.0) then
+            write(6,14) ' needed by mirroring: ', mem_mirr
+            write(6,14) ' ga_memory_avail()  : ', ga_memory_avail()
+         endif
+ 14      format(a,i10,' bytes')
+         if(ga_memory_avail().gt. mem_mirr) then
+            do_mirra=util_mirrmat(1,g_t_a,g_ta_mirr,
+     D           .false., .true.)
+            do_mirrb=util_mirrmat(1,g_t_b,g_tb_mirr,
+     D           .false., .true.)
+            endif
       endif
       if(do_mirra.and.do_mirrb) then
          if(ga_nodeid().eq.0)
