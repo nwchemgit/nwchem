@@ -35,7 +35,11 @@ if [[ ${UNAME_S} == Linux ]]; then
 elif [[ ${UNAME_S} == Darwin ]]; then
     CPU_FLAGS=$(/usr/sbin/sysctl -n machdep.cpu.features)
     if [[ "$arch" == "x86_64" ]]; then
-    CPU_FLAGS_2=$(/usr/sbin/sysctl -n machdep.cpu.leaf7_features)
+#	CPU_FLAGS_2=$(/usr/sbin/sysctl -n machdep.cpu.leaf7_features)
+	if [[ $(/usr/sbin/sysctl -n hw.optional.avx2_0) == 1 ]]; then
+	    echo got AVX2
+	    CPU_FLAGS_2="AVX2"
+	fi
     fi
 fi
   GOTSSE2=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /sse2/   {print "Y"}')
