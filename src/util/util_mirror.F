@@ -156,10 +156,10 @@ c
      Q     ' mirrmem: increase maxdim  to ',ndim,0)
 #if 1
       if(ga_nodeid().eq.0) then
-         write(0,123) ga_nodeid(), ' ndim ',ndim,' dims ',
+         write(0,123)  ' ndim ',ndim,' dims ',
      D        (dims(i),i=1,ndim)
       endif
- 123     format(I2,A,I2,A,3I4)
+ 123     format(A,I2,A,3I10)
 #endif
          nbytes=1
          do i=1,ndim
