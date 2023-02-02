@@ -1901,12 +1901,14 @@ c      end
       real*8 Hgg,Hge,Hee
       real*8 ehartr,scal1,scal2,dv,Elow,Ehigh,lmbda,sum1
       real*8 ehfx,phfx,Eion
+      character*50  filename
+      character*255 full_filename
+
+*     **** external functions ****
       integer  control_version
       external control_version
       real*8   coulomb_e,ewald_e,ion_ion_e
       external coulomb_e,ewald_e,ion_ion_e
-
-*     **** external functions ****
       real*8   lattice_omega
       external lattice_omega
 
@@ -1937,7 +1939,10 @@ c      end
       if (control_version().eq.3) Eion = ewald_e()   !**** get ewald energy ****
       if (control_version().eq.4) Eion = ion_ion_e() !**** get free-space ion-ion energy ****
       if (taskid.eq.MASTER) then
-         open(unit=103,file="ion_ion.dat")
+         filename = "ion_ion.dat"
+         call util_file_name_noprefix(filename,.false.,.false.,
+     >                                full_filename)
+         open(unit=103,file=full_filename,form="formatted")
          write(103,*) Eion
          close(103)
       end if
@@ -2169,6 +2174,8 @@ c        call D3dB_rr_daxpy(1,(-2.0d0*c1*c2),vcge,vcee)
       real*8 Hge,Hee
       real*8 ehartr,scal1,scal2,dv,Elow,Ehigh,lmbda,sum1
       real*8 ehfx,phfx,Eion
+      character*50  filename
+      character*255 full_filename
 
 *     **** external functions ****
       real*8   lattice_omega
@@ -2213,7 +2220,10 @@ c      oprint = .true.
       if (control_version().eq.4) Eion = ion_ion_e() !**** get free-space ion-ion energy ****
       if (oprint) write(*,*) "Eion=",Eion
       if (taskid.eq.MASTER) then
-         open(unit=103,file="ion_ion.dat")
+         filename = "ion_ion.dat"
+         call util_file_name_noprefix(filename,.false.,.false.,
+     >                                full_filename)
+         open(unit=103,file=full_filename,form="formatted")
          write(103,*) Eion
          close(103)
       end if
@@ -2545,6 +2555,8 @@ c
       real*8 Hci(3,3),Eci(3),wkopt(1),work(999)
       !real*8 Hci(2,2),Eci(2),wkopt(1),work(999)
       integer lwork,INFO
+      character*50  filename
+      character*255 full_filename
 
 *     **** external functions ****
       real*8   lattice_omega
@@ -2582,7 +2594,10 @@ c     end if
       if (control_version().eq.4) Eion = ion_ion_e() !**** get free-space ion-ion energy ****
       if (oprint) write(*,*) "Eion=",Eion
       if (taskid.eq.MASTER) then
-         open(unit=103,file="ion_ion.dat")
+         filename = "ion_ion.dat"
+         call util_file_name_noprefix(filename,.false.,.false.,
+     >                                full_filename)
+         open(unit=103,file=full_filename,form="formatted")
          write(103,*) Eion
          close(103)
       end if
@@ -3008,6 +3023,8 @@ c     common / CI_Hgg_common / Hgg
       real*8 ehfx,phfx,Eion
       real*8 Hci(3,3),Eci(3),wkopt(1),work(999)
       integer lwork,INFO
+      character*50  filename
+      character*255 full_filename
 
 *     **** external functions ****
       real*8   lattice_omega
@@ -3042,7 +3059,10 @@ c      oprint = .true.
       if (control_version().eq.4) Eion = ion_ion_e() !**** get free-space ion-ion energy ****
       if (oprint) write(*,*) "Eion=",Eion
       if (taskid.eq.MASTER) then
-         open(unit=103,file="ion_ion.dat")
+         filename = "ion_ion.dat"
+         call util_file_name_noprefix(filename,.false.,.false.,
+     >                                full_filename)
+         open(unit=103,file=full_filename,form="formatted")
          write(103,*) Eion
          close(103)
       end if
@@ -11951,6 +11971,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
       integer h1_integrals(2),h2_integrals(2)
       integer vij(2),dnij(2),orbi(2),orbj(2),vhij(2)
       real*8 e1,e2,e2h,scal1,scal2,dv
+      character*50  filename
+      character*255 full_filename
 
 *     **** external functions ****
       integer  control_version
@@ -12030,6 +12052,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
       end do
       call Parallel_Vector_SumAll(nnall,dbl_mb(h1_integrals(1)))
 
+
       if (oprint) then
          write(luout,*) "begin_one_electron_integrals"
          icount = 0
@@ -12042,7 +12065,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
          end do
          write(luout,*) "end_one_electron_integrals"
 
-         open(unit=101,file="one_electron_integrals.dat")
+         filename = "one_electron_integrals.dat"
+         call util_file_name_noprefix(filename,.false.,.false.,
+     >                                full_filename)
+         open(unit=101,file=full_filename,form="formatted")
          write(101,'(3I5)') ne(1),ne_excited(1),icount
          icount = 0
          do i=1,nall
@@ -12172,7 +12198,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
          end do
          write(luout,*) "end_two_electron_integrals"
          write(luout,*)
-         open(unit=102,file="two_electron_integrals.dat")
+
+         filename = "two_electron_integrals.dat"
+         call util_file_name_noprefix(filename,.false.,.false.,
+     >                                full_filename)
+         open(unit=102,file=full_filename,form="formatted")
          write(102,'(2I5,I10)') ne(1),ne_excited(1),iicount
          iicount = 0
          do ij=1,nnall
