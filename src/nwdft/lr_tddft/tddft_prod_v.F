@@ -58,7 +58,6 @@ c
       character*4 targetsym    ! Symmetry of target excited state
       double precision cwall   ! Wall timings
       double precision ccpu    ! CPU timings
-      double precision dcpu    ! CPU timings
       integer algorithm        ! =1 multiple fock build; =2: conventional
       integer mult             ! Ground state spin multiplicity
       integer l_irs(2),k_irs(2)! Irreps
@@ -116,6 +115,8 @@ c      double precision, allocatable, dimension(:,:) :: eye
       integer iwhich
 c
       nodezero=(ga_nodeid().eq.0)
+      ccpu=0d0
+      cwall=0d0
 cjb
 c      call ga_print(g_movecs(1))
 c
