@@ -381,6 +381,17 @@ c
      $                                          nroots,ipol,nmo,nocc,
      $                                          dbl_mb(k_en),g_vecs)
           esys=dbl_mb(k_en+state-1)
+c     check nroots vs nstates (tddft might have changed nroots)
+c     get number of TDDFT roots calculated
+        if (.not.rtdb_get(rtdb,'tddft:nroots',mt_int,1,nroots))
+     &    call errquit(pname//'failed to get nroots ',0,RTDB_ERR)
+        if (nroots.lt.(nstates-1)) then
+c     call errquit(pname//'nroots<(nstates-1) ',0,RTDB_ERR)
+           if(ga_nodeid().eq.0) write(luout,124) nstates,nroots
+ 124       format(9x,'Number of states decreased from ',i8,' to ',i8)
+           nstates=nroots
+        endif
+
 c         calculate couplings
           call qmd_coup(rtdb,geom,geom_p,ipol,nstates,dt_nucl,nmo,
      $                  nocc,g_vecs,g_vecs_p,dbl_mb(k_coup),
