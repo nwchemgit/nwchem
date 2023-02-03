@@ -1,4 +1,4 @@
-      subroutine mp2_make_tuhf(nbf,noa_lo,noa_hi,nva_lo,nva_hi,
+      subroutine mp2_make_tuhf(rtdb,nbf,noa_lo,noa_hi,nva_lo,nva_hi,
      $     sym_lo_oa,sym_hi_oa,sym_lo_va,sym_hi_va,num_oa,num_va,
      $     nob_lo,nob_hi,nvb_lo,nvb_hi, sym_lo_ob,sym_hi_ob,
      $     sym_lo_vb,sym_hi_vb,num_ob,num_vb,   
@@ -16,6 +16,7 @@
 #include "rtdb.fh"
 #include "eaf.fh"
 #include "util.fh"
+      integer rtdb
       character*8 task
       integer nbf,i
       integer noa_lo,noa_hi,nva_lo,nva_hi
@@ -51,8 +52,10 @@ c
       logical otdebug
       logical do_mirra,do_mirrb,do_mirr
       integer g_ta_mirr,g_tb_mirr,g_ta_org,g_tb_org
-      logical util_mirrmat
+      logical util_mirrmat,tuhfreplicated
       external util_mirrmat
+      integer util_mirrmem,mem_mirr
+      external util_mirrmem
 c
       integer l_ia_uv, k_ia_uv, l_tmp, k_tmp, l_ia_jb, k_ia_jb
       double precision ddot
@@ -86,24 +89,48 @@ c
 *ga:1:0
       if(.not.ga_create(mt_dbl,nob*nvb,nva,'T_b',(nob*nvb),0,g_t_b))
      $     call errquit('could not alloc ga for T_b',1, GA_ERR)
-      do_mirra=util_mirrmat(1,g_t_a,g_ta_mirr,
-     D     .false., .true.)
-      do_mirrb=util_mirrmat(1,g_t_b,g_tb_mirr,
-     D        .false., .true.)
-         if(do_mirra.and.do_mirrb) then
-            if(ga_nodeid().eq.0)
-     w           write(6,*) 'mp2_make_tuhf mirroring'
-            do_mirr=.true.
-             g_ta_org=g_t_a
-             g_tb_org=g_t_b
-             g_t_a=g_ta_mirr
-             g_t_b=g_tb_mirr
+      if (.not.rtdb_get(rtdb, 'mp2:tuhfreplicated', mt_log, 1, 
+     T     tuhfreplicated)) tuhfreplicated=.false.
+      do_mirr=.false.
+      do_mirra=.false.
+      do_mirrb=.false.
+      if(tuhfreplicated) then
+         mem_mirr=
+     M        util_mirrmem(1,g_t_a)+
+     M        util_mirrmem(1,g_t_b)
+         if(ga_nodeid().eq.0) then
+            write(6,14) ' needed by mirroring: ', mem_mirr
+            write(6,14) ' ga_memory_avail()  : ', ga_memory_avail()
+         endif
+ 14      format(a,i10,' bytes')
+         if(ga_memory_avail().gt. mem_mirr) then
+            do_mirra=util_mirrmat(1,g_t_a,g_ta_mirr,
+     D           .false., .true.)
+            do_mirrb=util_mirrmat(1,g_t_b,g_tb_mirr,
+     D           .false., .true.)
             else
-               if(do_mirra) then
-                  if(.not.ga_destroy(g_ta_mirr))call errquit(
-     $                 'could not destroy mirrt_a handle',1, GA_ERR)
-               endif
+               if(ga_nodeid().eq.0)
+     W              write(6,*) ' insuff. memory  for mirroring '
             endif
+      endif
+      if(do_mirra.and.do_mirrb) then
+         if(ga_nodeid().eq.0)
+     w        write(6,*) 'mp2_make_tuhf mirroring'
+         do_mirr=.true.
+         g_ta_org=g_t_a
+         g_tb_org=g_t_b
+         g_t_a=g_ta_mirr
+         g_t_b=g_tb_mirr
+      else
+         if(do_mirra) then
+            if(.not.ga_destroy(g_ta_mirr))call errquit(
+     $           'could not destroy mirrt_a handle',1, GA_ERR)
+            write(6,10) ga_nodeid(),'destroyed g_ta_mirr',g_ta_mirr
+ 10         format(i5,a,i5)
+         endif
+         g_ta_org=0
+         g_tb_org=0
+      endif
       tunitptra=1
       tunitptrb=1
       do i=oseg_lo,oseg_hi 
@@ -295,15 +322,19 @@ c
 c
       if(do_mirr) then
          if(.not.ga_destroy(g_t_b))call errquit(
-     $        'could not destroy t_b handle',1, GA_ERR)
+     $        'could not destroy mirr t_b handle',1, GA_ERR)
          if(.not.ga_destroy(g_t_a))call errquit(
-     $        'could not destroy t_a handle',1, GA_ERR)
+     $        'could not destroy mirr t_a handle',1, GA_ERR)
              g_t_a=g_ta_org
              g_t_b=g_tb_org
        endif
 
-      if(.not.ga_destroy(g_t_b))call errquit(
-     $     'could not destroy t_b handle',1, GA_ERR)
+       if(.not.ga_destroy(g_t_b))then
+          if(ga_nodeid().eq.0) call ga_summarize(1)
+          call ga_sync()
+        call errquit(
+     $         'could not destroy t_b handle',1, GA_ERR)
+        endif
       if(.not.ga_destroy(g_t_a))call errquit(
      $     'could not destroy t_a handle',1, GA_ERR)
 c
