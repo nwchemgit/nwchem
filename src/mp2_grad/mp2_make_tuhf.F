@@ -326,8 +326,12 @@ c
              g_t_b=g_tb_org
        endif
 
-      if(.not.ga_destroy(g_t_b))call errquit(
-     $     'could not destroy t_b handle',1, GA_ERR)
+       if(.not.ga_destroy(g_t_b))then
+          if(ga_nodeid().eq.0) call ga_summarize(1)
+          call ga_sync()
+        call errquit(
+     $         'could not destroy t_b handle',1, GA_ERR)
+        endif
       if(.not.ga_destroy(g_t_a))call errquit(
      $     'could not destroy t_a handle',1, GA_ERR)
 c
