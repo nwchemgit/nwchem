@@ -90,7 +90,8 @@ c
       if(.not.ga_create(mt_dbl,nob*nvb,nva,'T_b',(nob*nvb),0,g_t_b))
      $     call errquit('could not alloc ga for T_b',1, GA_ERR)
       if (.not.rtdb_get(rtdb, 'mp2:tuhfreplicated', mt_log, 1, 
-     T     tuhfreplicated)) tuhfreplicated=.true.
+     T     tuhfreplicated)) tuhfreplicated=.false.
+      do_mirr=.false.
       do_mirra=.false.
       do_mirrb=.false.
       if(tuhfreplicated) then
@@ -107,6 +108,9 @@ c
      D           .false., .true.)
             do_mirrb=util_mirrmat(1,g_t_b,g_tb_mirr,
      D           .false., .true.)
+            else
+               if(ga_nodeid().eq.0)
+     W              write(6,*) ' insuff. memory  for mirroring '
             endif
       endif
       if(do_mirra.and.do_mirrb) then
@@ -325,8 +329,12 @@ c
              g_t_b=g_tb_org
        endif
 
-      if(.not.ga_destroy(g_t_b))call errquit(
-     $     'could not destroy t_b handle',1, GA_ERR)
+       if(.not.ga_destroy(g_t_b))then
+          if(ga_nodeid().eq.0) call ga_summarize(1)
+          call ga_sync()
+        call errquit(
+     $         'could not destroy t_b handle',1, GA_ERR)
+        endif
       if(.not.ga_destroy(g_t_a))call errquit(
      $     'could not destroy t_a handle',1, GA_ERR)
 c
