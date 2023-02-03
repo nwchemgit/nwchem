@@ -371,7 +371,7 @@ c
       else if (lewin) then
        if (nroots.gt.newin) nroots = newin
       else if (nroots.gt.nov(1)+nov(2)) then
-        if (nodezero.and.util_print('initial guess',print_default))
+        if (nodezero.and.util_print('initial guess',print_low))
      1    write(LuOut,9040) nroots,nov(1)+nov(2)
         nroots=nov(1)+nov(2)
         if (.not.rtdb_put(rtdb,'tddft:nroots',mt_int,1,nroots))
