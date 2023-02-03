@@ -91,6 +91,7 @@ c
      $     call errquit('could not alloc ga for T_b',1, GA_ERR)
       if (.not.rtdb_get(rtdb, 'mp2:tuhfreplicated', mt_log, 1, 
      T     tuhfreplicated)) tuhfreplicated=.true.
+      do_mirr=.false.
       do_mirra=.false.
       do_mirrb=.false.
       if(tuhfreplicated) then
