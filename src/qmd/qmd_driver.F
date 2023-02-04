@@ -76,6 +76,7 @@ c     Surface Hopping
       integer ispin
       double precision dt_elec           ! electronic time step
       double precision kbt               ! k_b*T in au (for plumed)
+      double precision wall              ! wall time
       logical do_namd                    ! NAMD flag
       logical do_property                ! property flag
       logical do_tddft                   ! tddft flag
@@ -312,6 +313,7 @@ c         write trajectory
      &           0,etotal,geom,dipole)
         end if
       end if  ! restart
+      wall = util_wallsec()
 c
 c     start nuclear molecular dynamics loop
       do istep_nucl = sstep_nucl,nstep_nucl
@@ -453,6 +455,9 @@ c          for input and output, state runs from 0 to nstates-1
          else
            write(luout,'(A21)') "No dipole on RTDB"
          end if
+         write(luout,125) "Wall time/ts    (s) :",istep_nucl,
+     ,        util_wallsec()-wall
+         wall = util_wallsec()
          write(luout,*)
          write(luout,*)
 c
