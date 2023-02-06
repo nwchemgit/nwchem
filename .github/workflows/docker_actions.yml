@@ -63,7 +63,7 @@ jobs:
         run: |
           echo "cache_hit=N" >> $GITHUB_ENV
       - name: build_schedule
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           push: false
           context: ${{ matrix.folder }}
