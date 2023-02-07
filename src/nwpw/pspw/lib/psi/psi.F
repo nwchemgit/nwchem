@@ -861,8 +861,8 @@ c     >           dcpl_mb(psi1(1)),1)
 #include "stdio.fh"
 #include "psi.fh"
 
-      real*8 Hgg
-      common / CI_Hgg_common / Hgg
+      real*8 Hgg,H1gg,H2gg
+      common / CI_Hgg_common / Hgg,H1gg,H2gg
       
       !*** local variables ***
       integer taskid,MASTER
@@ -1065,7 +1065,7 @@ c      end if
       real*8 theta,ep,sp,e0old
       integer r1(2),t0(2),t(2),g(2),psig_r(2),psie_r(2)
       integer rhog(2),rhoe(2),rhoge(2),vcgg(2),vcge(2),vcee(2)
-      integer vc(2),vctmp(2),te(2),vcc(2)
+      integer vc(2),vctmp(2),tg(2),te(2),vcc(2)
       integer psig_ptr,psie_ptr,psig_homo(2),hpsig(2),hpsie(2)
       integer hpsig_r(2),hpsie_r(2)
       real*8  Sgg,Sge,See
@@ -1104,6 +1104,8 @@ c      end if
      >        BA_push_get(mt_dcpl,npack1,'g',g(2),g(1))
       value = value.and.
      >        BA_push_get(mt_dcpl,npack1,'t',t(2),t(1))
+      value = value.and.
+     >        BA_push_get(mt_dcpl,npack1,'tg',tg(2),tg(1))
       value = value.and.
      >        BA_push_get(mt_dcpl,npack1,'te',te(2),te(1))
 
@@ -1191,7 +1193,7 @@ cc      end if
      >                        dcpl_mb(psie_ptr),
      >                        dbl_mb(psie_r(1)),
      >                        eci,dcpl_mb(g(1)),
-     >                        dcpl_mb(t(1)),
+     >                        dcpl_mb(tg(1)),
      >                        dcpl_mb(te(1)),
      >                        dbl_mb(rhog(1)),
      >                        dbl_mb(rhoge(1)),
@@ -1246,7 +1248,7 @@ cc      end if
      >                          dcpl_mb(psie_ptr),
      >                          dbl_mb(psie_r(1)),
      >                          eci,dcpl_mb(g(1)),
-     >                          dcpl_mb(t(1)),
+     >                          dcpl_mb(tg(1)),
      >                          dcpl_mb(te(1)),
      >                          dbl_mb(rhog(1)),
      >                          dbl_mb(rhoge(1)),
@@ -1324,7 +1326,7 @@ c     >   write(*,*) "orb,it,eci,eold,eci-eold=",ii,it,eci,eold,eci-eold
      >                                  dcpl_mb(psig_ptr),
      >                                  dbl_mb(psig_r(1)),
      >                                  dbl_mb(psie_r(1)),
-     >                                  dcpl_mb(r1(1)),dcpl_mb(te(1)),
+     >                                  dcpl_mb(tg(1)),dcpl_mb(te(1)),
      >                                  dbl_mb(rhog(1)),
      >                                  dbl_mb(rhoe(1)),
      >                                  dbl_mb(rhoge(1)),
@@ -1383,6 +1385,7 @@ cc      end if
       value = value.and.BA_pop_stack(psie_r(2))
       value = value.and.BA_pop_stack(psig_r(2))
       value = value.and.BA_pop_stack(te(2))
+      value = value.and.BA_pop_stack(tg(2))
       value = value.and.BA_pop_stack(t(2))
       value = value.and.BA_pop_stack(g(2))
       value = value.and.BA_pop_stack(r1(2))
@@ -2159,8 +2162,8 @@ c        call D3dB_rr_daxpy(1,(-2.0d0*c1*c2),vcge,vcee)
 #include "util.fh"
 #include "stdio.fh"
 
-      real*8 Hgg
-      common / CI_Hgg_common / Hgg
+      real*8 Hgg,H1gg,H2gg
+      common / CI_Hgg_common / Hgg,H1gg,H2gg
 
 *     **** local variables ****
       integer MASTER,taskid
@@ -2169,8 +2172,8 @@ c        call D3dB_rr_daxpy(1,(-2.0d0*c1*c2),vcge,vcee)
       integer neq1(2),i,q,ms,n1q(2),n2q(2)
       integer nx,ny,nz,n2ft3d
       real*8 Sgg,Sge,See,A,B,C,c1,c2
-      real*8 H1gg,H1ge,H1ee
-      real*8 H2gg,H2ge,H2ee
+      real*8 H1ge,H1ee
+      real*8 H2ge,H2ee
       real*8 Hge,Hee
       real*8 ehartr,scal1,scal2,dv,Elow,Ehigh,lmbda,sum1
       real*8 ehfx,phfx,Eion
@@ -3006,8 +3009,8 @@ c
 #include "util.fh"
 #include "stdio.fh"
 
-c     real*8 Hgg
-c     common / CI_Hgg_common / Hgg
+      real*8 Hgg,H1gg,H2gg
+      common / CI_Hgg_common / Hgg,H1gg,H2gg
 
 *     **** local variables ****
       integer MASTER,taskid
@@ -3016,9 +3019,9 @@ c     common / CI_Hgg_common / Hgg
       integer neq1(2),i,q,ms,n1q(2),n2q(2)
       integer nx,ny,nz,n2ft3d
       real*8 Sgg,Sge,See,c1,c2,c3,A,B,C
-      real*8 H1gg,H1ge,H1gm,H1eg,H1ee,H1em,H1mg,H1me,H1mm
-      real*8 H2gg,H2ge,H2gm,H2eg,H2ee,H2em,H2mg,H2me,H2mm
-      real*8 Hgg,Hge,Hgm,Heg,Hee,Hem,Hmg,Hme,Hmm
+      real*8 H1ge,H1gm,H1eg,H1ee,H1em,H1mg,H1me,H1mm
+      real*8 H2ge,H2gm,H2eg,H2ee,H2em,H2mg,H2me,H2mm
+      real*8 Hge,Hgm,Heg,Hee,Hem,Hmg,Hme,Hmm
       real*8 ehartr,scal1,scal2,dv,Elow,Ehigh,lmbda,sum1
       real*8 ehfx,phfx,Eion
       real*8 Hci(3,3),Eci(3),wkopt(1),work(999)
@@ -3153,6 +3156,10 @@ c      oprint = .true.
       end if
 
 *     *** generate <g|H|m> ***
+      call psi_H1psi(ispin,neq,npack1,n2ft3d,psig,psig_r,hpsig)
+      call Pack_c_Copy(1,hpsig,h1psig)
+      call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rhogg)
+
       H1gm=0.0d0
       call psi_H1psi(ispin,neq1,npack1,n2ft3d,psilumo,psilumo_r,h1psie)
       call Pack_cc_dot(1,psihomo,h1psie,H1gm)
@@ -3324,6 +3331,8 @@ c      oprint = .true.
 
 *     **** generate dElow/dpsie ****
       if (control_version().eq.4) then
+         call coulomb2_v(rhogg,vcgg)
+
          call D3dB_r_Copy(1,vcee,vc)
          call D3dB_rr_Mul2(1,psilumo_r,vc)
          call D3dB_rr_Sum2(1,hpsie_r,vc)
