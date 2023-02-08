@@ -88,6 +88,9 @@ c
 cgk debug
       write(*,*)'gk: **** entered int_so_sifs'
 cgk end
+C LB
+      IF (.NOT.MA_verify_allocator_stuff()) stop 'err10'
+C LB
       basok=.false.
       odbug=.true.
       osome=.true.
@@ -141,6 +144,9 @@ cgk end
 
 C LB
       WRITE(*,*)"LB: integral buffer"
+C LB
+C LB
+      IF (.NOT.MA_verify_allocator_stuff()) stop 'place 11'
 C LB
 c     get memory for integral buffer
       if (.not. MA_push_get(MT_DBL,max1eso,'int_so_sifs:buf',l_buf,

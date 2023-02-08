@@ -64,7 +64,8 @@ c     sifs
       parameter(nmap=2)
       integer*4 aoints
       parameter(aoints=23)
-      integer*4 ifmt1, ibvtyp, l1rec, n1max, ierr, ifmt, l2rec, n2max
+      integer*4 ifmt1, ibvtyp, n1max, ierr, ifmt, n2max
+      INTEGER l1rec, l2rec
       integer lrecal
       integer*4 ibitv
       integer*4 mxengy
@@ -400,16 +401,19 @@ c
 C LB
 c      write(*,*)'LB: before sifcfg(1), ierr=',ierr
 c      WRITE(*,*)'n1max=',n1max,'n2max=',n2max,'ifmt1=',ifmt1,'ifmt',ifmt
+      WRITE(*,*)"LB, sizeof l1rec=",sizeof(l1rec)
+      WRITE(*,*)"LB, sizeof lrecal=",sizeof(lrecal)
 C LB
       call sifcfg(1, lrecal, nbf_ao, ibvtyp, ifmt1, l1rec, n1max, ierr)
       lrecal = 4096
 C LB
-c      write(*,*)'LB: after sifcfg(1), ierr=',ierr
-c      WRITE(*,*)'n1max=',n1max,'n2max=',n2max,'ifmt1=',ifmt1,'ifmt',ifmt
+      write(*,*)'LB: after sifcfg(1), ierr=',ierr
+      WRITE(*,*)'l1rec=',l1rec
 C LB
       call sifcfg(2, lrecal, nbf, ibvtyp, ifmt, l2rec, n2max, ierr)
 C LB
-c      write(*,*)'LB: after sifcfg(2), ierr=',ierr
+      write(*,*)'LB: after sifcfg(2), ierr=',ierr
+      WRITE(*,*)'l2rec=',l2rec
 C LB
 
       info(1) = 1 ! =FSPLIT; do not split aoints file
@@ -487,7 +491,7 @@ cgk end
 cgk debug
 *     write(*,*)'gk: calling int_1e_sifs'
 *     write(*,*)'gk:    mxengy=', mxengy
-*     write(*,*)'gk:    ninfo=', ninfo
+      write(*,*)'gk:    info=', info
 cgk write
 
       call int_1e_sifs(AO_bas_han, aoints, energy, mxengy, 

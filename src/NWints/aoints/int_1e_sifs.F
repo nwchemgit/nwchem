@@ -51,14 +51,13 @@ c
 c     sifs parameters
 c
       integer*4 aoints
-      integer*4 ifmt1,  l1rec, n1max, ierr 
-      integer*4 ibvtyp
+      integer*4 ifmt1, ibvtyp, n1max, ierr 
+      INTEGER l1rec, ntitle, ibuf, nsym
       integer*4 ibitv
       integer*4 mxbf
       parameter (mxbf=1000)
 c     header 1
-      integer*4 ntitle,  nbas, ninfo, mxenrgy, nenrgy, nmap
-      integer nsym
+      integer*4 nbas, ninfo, mxenrgy, nenrgy, nmap
       parameter(ntitle=1,nsym=1,mxenrgy=1)
 c     header 2
       integer*4 info(ninfo)  ! not to be confused with NWChem info
@@ -78,9 +77,7 @@ c     header 2
       integer numtot
       integer*4 msame,nmsame,nomore
       parameter(msame=0, nmsame=1, nomore= 2)
-      integer*4 nrec, num
-      integer itypea, itypeb, last
-      integer*4  ibuf
+      integer*4 itypea, itypeb, nrec, num,  last
       real*8 fcore
       logical basok
       
@@ -95,6 +92,7 @@ cgk end
 c
 cgk debug
       write(*,*)'gk: **** entered int_1e_sifs'
+      WRITE(*,*)'LB: info=',info
 cgk end
       basok=.false.
       odbug=.true.
@@ -161,9 +159,6 @@ c     get memory for sifs bfnlab (character*8)
      &        nbft*8, MA_ERR)
 c     get memory for sifs buffer space
       lrecal=l1rec
-C LB
-      WRITE(*,*)"LB: lrecal=",lrecal,"l1rec=",l1rec
-C LB
       if (.not. MA_push_get(MT_DBL, lrecal,'int_1e_sifs:sifbuf',
      &     l_sifbuf, k_sifbuf))
      $     call errquit('int_1e_sifs: ma failed getting sifbuf', lrecal,
@@ -193,10 +188,10 @@ c     gk: consider this a temporary hack.  8 characters is not enough.
          enddo
       enddo
 cgk debug
-*      write(*,*)'gk: bfnlab:'
-*      do i=0,nbft-1
-*         write(6,'(i4,2x,8a1)') i+1, (byte_mb(k_bfnlab+i*8+j), j=0,7)
-*      enddo
+      write(*,*)'gk: bfnlab:'
+      do i=0,nbft-1
+         write(6,'(i4,2x,8a1)') i+1, (byte_mb(k_bfnlab+i*8+j), j=0,7)
+      enddo
 cgk end
 
 c     put effective nuclear repulsion energy in energy(1)
@@ -208,8 +203,8 @@ c     put effective nuclear repulsion energy in energy(1)
       fcore=0d0 
 
 cgk debug
-*      write(*,*)'gk:  i, iat, shmap(otype)'
-*      write(*,*)'gk:  nmap=',nmap
+       write(*,*)'gk:  i, iat, shmap(otype)'
+       write(*,*)'gk:  nmap=',nmap
 cgk end
       i=0
       do ishell=1,nshell
@@ -240,8 +235,8 @@ c
                map(i,1)=iat
                map(i,2)=shmap(otype)
 cgk debug
-*      write(*,'(a,i,i,i)')'gk: ', i, iat, shmap(otype)
-*      write(*,'(a,i,i,i)')'gk: ', i, map(i,1), map(i,2)
+       write(*,'(a,i,i,i)')'gk: ', i, iat, shmap(otype)
+       write(*,'(a,i,i,i)')'gk: ', i, map(i,1), map(i,2)
 cgk end
 *              int_mb(k_map+i-1) = iat
 *              int_mb(k_map+nbft+i-1) = shmap(otype)
@@ -263,18 +258,18 @@ cgk end
       if (0 .eq. ga_nodeid()) then
 
 cgk debug
-*       write(*,*)'gk: calling sifwh with aoints=',aoints
-*       write(*,*)'gk:    nenrgy=',nenrgy
-*       write(*,*)'gk:    ntitle=',ntitle
-*       write(*,*)'gk:    ninfo=',ninfo
-      WRITE(*,*)'LB: l2rec=',info(4)
+       write(*,*)'gk: calling sifwh with aoints=',aoints
+       write(*,*)'gk:    nenrgy=',nenrgy
+       write(*,*)'gk:    ntitle=',ntitle
+       write(*,*)'gk:    ninfo=',ninfo
+       WRITE(*,*)'LB: l2rec=',info(4)
 cgk end
          call sifwh( aoints,  ntitle,  nsym,    nbft,
      &      ninfo,   nenrgy,  nmap,    stitle,   nbpsy,   slabel,  info,
      &      byte_mb(k_bfnlab),  ietype,  energy,  imtype,  map, 
      &      ierr )
 cgk debug
-*       write(*,*)'gk: back from sifwh with ierr=',ierr
+       write(*,*)'gk: back from sifwh with ierr=',ierr
 cgk end
 
 c        start loop over integral types here.
@@ -299,7 +294,7 @@ c        start loop over integral types here.
          end if
 
 cgk debug
-*      write(*,*)'gk: processing integral type: ', integ_type
+      write(*,*)'gk: processing integral type: ', integ_type
 cgk end
 
          do jshell = 1, nshell
@@ -362,8 +357,11 @@ cgk end
                      if(ibuf.eq.n1max) then
                        numtot = numtot + ibuf
 C LB
-                       WRITE(*,*)"int_mom_sifs calling sifew1 1,
+                       WRITE(*,*)"int_1e_sifs calling sifew1 1,
      &last=",last,"ibvtyp=",ibvtyp
+                   WRITE(*,*)"sizeof(dbl_mb)=",sizeof(dbl_mb(k_sifval)),
+     &             "sizeof(buf)=",sizeof(dbl_mb(k_sifbuf))
+
 C LB
                        call sifew1(aoints, info, 2, ibuf, last, 
      &                   itypea, itypeb, ifmt1, ibvtyp, 
@@ -451,9 +449,6 @@ c
      $     ('int_1e_sifs: pop failed at l_scr', 0, GA_ERR)
       if (.not. MA_pop_stack(l_buf)) call errquit
      $     ('int_1e_sifs: pop failed at l_buf', 0, GA_ERR)
-C LB
-      WRITE(*,*)"LB: done with MA_pop_stack"
-C LB
 c
 c     ----- restore ocache -----
 c
@@ -466,13 +461,7 @@ c
 *        if (.not. ga_destroy(g_loc)) call errquit('i1ega: gad?',0,
 *    &       GA_ERR)
 *     endif
-C LB
-      WRITE(*,*)"LB: call ga_sync"
-C LB
       call ga_sync()            ! So that no nasty races can result
-C LB
-      WRITE(*,*)"LB: done with ga_sync"
-C LB
 c     
       if (oscfps) call pstat_off(ps_int_1e)
 c     
