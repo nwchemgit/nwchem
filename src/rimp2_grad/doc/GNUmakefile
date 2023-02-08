@@ -1,6 +1,6 @@
 # $Id$
 
-rimp2-grad.dvi dvi: rimp2-grad.tex changebar.sty subeqnarray.sty geometry.sty
+rimp2-grad.dvi dvi: rimp2-grad.tex 
 	latex rimp2-grad
 	latex rimp2-grad
 

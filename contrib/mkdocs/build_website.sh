@@ -18,11 +18,15 @@ if [ -d "docs" ]; then
     echo ' '
     cd docs
 else    
-rm -rf docs #archivedforum
-git clone --depth 1 git@github.com:nwchemgit/nwchem-wiki.git docs
+    rm -rf docs #archivedforum
+#git clone --depth 1 git@github.com:nwchemgit/nwchem-wiki.git docs
+wget -q https://github.com/nwchemgit/nwchem-wiki/tarball/master -O - | tar -xz
+mv nwchemgit-nwchem-wiki-* docs
 cd docs
-git clone --depth 1 git@github.com:nwchemgit/archivedforum.git
-mv archivedforum/Special_AWCforum .
+wget -q  https://github.com/nwchemgit/archivedforum/tarball/master -O - | tar -xz --wildcards   nwchemgit-archivedforum-*/Special_AWCforum/*
+mv nwchemgit-archivedforum-*/Special_AWCforum .
+#git clone --depth 1 git@github.com:nwchemgit/archivedforum.git
+#mv archivedforum/Special_AWCforum .
 fi
 cd ..
 if [[ -z "${MKDOCS_SERVE}" ]]; then

@@ -8,8 +8,16 @@ if [ -f  OpenBLAS-${VERSION}.tar.gz ]; then
     echo "using existing"  OpenBLAS-${VERSION}.tar.gz
 else
     rm -rf OpenBLAS*
-    curl -L https://github.com/xianyi/OpenBLAS/archive/v${VERSION}.tar.gz -o OpenBLAS-${VERSION}.tar.gz
+    tries=1 ; until [ "$tries" -ge 6 ] ; do
+		  if [ "$tries" -gt 1 ]; then sleep 9; echo attempt no.  $tries ; fi
+		  curl -L https://github.com/xianyi/OpenBLAS/archive/v${VERSION}.tar.gz -o OpenBLAS-${VERSION}.tar.gz ;
+		  # check tar.gz integrity
+		  gzip -t OpenBLAS-${VERSION}.tar.gz >&  /dev/null
+		  if [ $? -eq 0 ]; then break ;  fi
+		  tries=$((tries+1)) ;  done
 fi
+gzip -t OpenBLAS-${VERSION}.tar.gz >&  /dev/null
+if [ $? -ne 0 ]; then echo  "openBLAS tarball not ready"; rm -f OpenBLAS-${VERSION}.tar.gz; exit 1 ; fi
 tar xzf OpenBLAS-${VERSION}.tar.gz
 ln -sf OpenBLAS-${VERSION} OpenBLAS
 cd OpenBLAS
@@ -18,6 +26,7 @@ patch -p0 -s -N < ../makesys.patch
 #patch -p0 -s -N < ../icc_avx512.patch
 # patch for pgi/nvfortran missing -march=armv8
 patch -p0 -s -N < ../arm64_fopt.patch
+patch -p1 -s -N < ../9402df5604e69f86f58953e3883f33f98c930baf.patch
 if [[  -z "${FORCETARGET}" ]]; then
 FORCETARGET=" "
 UNAME_S=$(uname -s)
@@ -27,7 +36,11 @@ if [[ ${UNAME_S} == Linux ]]; then
 elif [[ ${UNAME_S} == Darwin ]]; then
     CPU_FLAGS=$(/usr/sbin/sysctl -n machdep.cpu.features)
     if [[ "$arch" == "x86_64" ]]; then
-    CPU_FLAGS_2=$(/usr/sbin/sysctl -n machdep.cpu.leaf7_features)
+#	CPU_FLAGS_2=$(/usr/sbin/sysctl -n machdep.cpu.leaf7_features)
+	if [[ $(/usr/sbin/sysctl -n hw.optional.avx2_0) == 1 ]]; then
+	    echo got AVX2
+	    CPU_FLAGS_2="AVX2"
+	fi
     fi
 fi
   GOTSSE2=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /sse2/   {print "Y"}')
@@ -144,6 +157,13 @@ else
            LAPACK_FPFLAGS_VAL+=" -fdefault-integer-8"
        fi
 fi
+if  [[ -n ${CC} ]] && [[ "${CC}" == "amdclang" ]]; then
+    let VERSIONEQ15=$(expr `${CC} -dM -E - < /dev/null 2> /dev/null|egrep 15|grep __clang_major__ |cut  -d ' ' -f 3 ` \= 15)
+    if [[ ${VERSIONEQ15} == 1 ]]; then
+       echo "amdclang 15 buggy. reduced optimization to O1"
+       FORCETARGET+=' COMMON_OPT=-O1'
+    fi
+fi
 if [[   -z "${FC}" ]]; then
     FC=gfortran
 fi
@@ -209,7 +229,7 @@ echo
 if [[ ${_FC} == xlf ]]; then
  make FC="xlf -qextname" $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=$MYNTS NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4 >& openblas.log
 else
- make FC=$FC $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib -j4 >& openblas.log
+ make FC=$FC $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT"  libs netlib -j4 >& openblas.log
 fi
 if [[ "$?" != "0" ]]; then
     tail -500 openblas.log

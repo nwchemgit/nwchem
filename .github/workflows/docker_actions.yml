@@ -38,7 +38,7 @@ jobs:
         id: qemu
         uses: docker/setup-qemu-action@v2
         with:
-          image: crazymax/binfmt:v6.0.0
+          image: tonistiigi/binfmt:qemu-v6.0.0-10
       - name: Available platforms
         run: |
           echo ${{ steps.qemu.outputs.platforms }}
@@ -47,7 +47,7 @@ jobs:
         uses: docker/setup-buildx-action@v2
         with:
           driver-opts: |
-              image=moby/buildkit:master
+              image=moby/buildkit:v0.10.4
       - name: fetch cache
         if: (steps.setup-cache.outputs.cache-hit == 'true') && ( matrix.folder  != 'helloworld' )
         run: |
@@ -63,7 +63,7 @@ jobs:
         run: |
           echo "cache_hit=N" >> $GITHUB_ENV
       - name: build_schedule
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           push: false
           context: ${{ matrix.folder }}

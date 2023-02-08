@@ -110,7 +110,13 @@ if [[ -f "scalapack-$COMMIT.tar.gz" ]]; then
 else
     echo "downloading"  "scalapack-$COMMIT.tar.gz"
     rm -f scalapack-$COMMIT.tar.gz
-    curl -L https://github.com/Reference-ScaLAPACK/scalapack/archive/$COMMIT.tar.gz -o scalapack-$COMMIT.tar.gz
+    tries=1 ; until [ "$tries" -ge 6 ] ; do
+		  if [ "$tries" -gt 1 ]; then sleep 9; echo attempt no.  $tries ; fi
+		  curl -L https://github.com/Reference-ScaLAPACK/scalapack/archive/$COMMIT.tar.gz -o scalapack-$COMMIT.tar.gz
+		  # check tar.gz integrity
+		  gzip -t scalapack-$COMMIT.tar.gz >&  /dev/null
+		  if [ $? -eq 0 ]; then break ;  fi
+		  tries=$((tries+1)) ;  done
 fi
 tar xzf scalapack-$COMMIT.tar.gz
 ln -sf scalapack-$COMMIT scalapack
@@ -192,6 +198,9 @@ echo MPICH_CC is "$MPICH_CC"
 #Intel MPI
 if [[  -z "$I_MPI_F90"   ]] ; then
     export I_MPI_F90="$FC"
+fi
+if [[  -z "$I_MPI_CC"   ]] ; then
+    export I_MPI_CC="$CC"
 fi
 echo I_MPI_F90 is "$I_MPI_F90"
 if [[  -z "$PE_ENV"   ]] ; then

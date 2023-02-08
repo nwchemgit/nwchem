@@ -1,8 +1,12 @@
+<<<<<<< HEAD
 
 # $Id$
 #
     USE_I4FLAGS=1
 
+ifdef NO_SIFS
+    OBJ= sifs_stubs.o
+else
     OBJ_OPTIMIZE = sifrd1.o sifr2.o sifr1x.o sifr1n.o \
 	sifo2f.o siffw2.o siffw1.o sifew2.o \
  	sifew1.o sife2.o sife1.o sifd2.o sifd1.o sifcfg.o \
@@ -13,10 +17,9 @@
 	ulab1.o ulab8.o ulab16.o ulab32.o cdcopy.o izero.o
 
     OBJ = bummer.o
+endif
 
     LIBRARY = libnwints.a
-
-    #USES_BLAS = sifd1.F sifd2.F sife1.F sife2.F
 
     LIB_INCLUDES = -I../../nwdft/grid -I../../nwdft/include \
 	 -I../../ddscf
@@ -47,3 +50,4 @@ sifwh.F sifzh2.F sifzwh.F:
 
 cleanF:
 	@rm -rf colu* *F dependencies
+

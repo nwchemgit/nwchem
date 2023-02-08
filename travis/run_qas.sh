@@ -113,6 +113,7 @@ fi
 # check if dft is among modules
      if [[ ! $(grep -i dft $TRAVIS_BUILD_DIR/src/stubs.F| awk '/dft_input/') ]]; then
 	 cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_he2+
+	 cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs bas_details
 	 cd $TRAVIS_BUILD_DIR/QA && NWCHEM_BASIS_LIBRARY=${NWCHEM_TOP}/src/basis/libraries.bse/ ./runtests.mpi.unix procs $nprocs adft_he2+
 	 if [[ ! $(grep -i prop $TRAVIS_BUILD_DIR/src/stubs.F| awk '/prop_input/') ]]; then
 	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs prop_mep_gcube
@@ -158,9 +159,11 @@ fi
 	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_smear
 	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_he2p_wb97
 	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs ritddft_pyridine
+	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs tddftgrad_h2o_cis_lda
 	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs au2-sarc-zora-mp
 	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs x2c-h2se
-	   if [[ ! -z "$USE_LIBXC" ]]; then
+	     cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dftd3_c6cn
+	   if [[ ! -z "$USE_LIBXC" ]] || [[ ! -z "$LIBXC_INCLUDE" ]]; then
 	       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs libxc_he2+
 	       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs libxc_scanl
 	   fi
@@ -168,7 +171,7 @@ fi
        if [[ ! $(grep -i mp2_input $TRAVIS_BUILD_DIR/src/stubs.F| awk '/mp2_input/') ]]; then
 	   if [[ ! $(grep -i ccsd_input $TRAVIS_BUILD_DIR/src/stubs.F| awk '/ccsd_input/') ]]; then
 	       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs ccsdt_w3pvdz ccsdt_ompt_w3pvdz
-	       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs n2_ccsd h2mp2 auh2o aump2
+	       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs n2_ccsd h2mp2 grad_ozone auh2o aump2
 	   fi
        fi
        if [[ ! $(grep -i pspw $TRAVIS_BUILD_DIR/src/stubs.F| awk '/pspw_input/') ]]; then

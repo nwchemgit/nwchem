@@ -1,0 +1,836 @@
+ argument  1 = /Users/edo/nwchem/nwchem-edoapra-master/QA/tests/bas_details/bas_details.nw
+  NWChem w/ OpenMP: maximum threads =    1
+ 
+
+
+============================== echo of input deck ==============================
+start
+
+title "test basis details keyword"
+
+echo
+
+geometry
+C     0.000000     0.000000     0.000000
+H     0.000000     0.000000     1.089000
+H     1.026719     0.000000    -0.363000
+H    -0.513360    -0.889165    -0.363000
+H    -0.513360     0.889165    -0.363000
+end
+
+basis b1
+*  details library aug-cc-pvdz
+end
+
+basis b2 bse
+*  library aug-cc-pvdz
+end
+
+basis b3 spherical
+*   library aug-cc-pvdz
+end
+
+basis b4
+*   library aug-cc-pvdz
+end
+
+set "ao basis" b1
+
+dft
+vectors  output b1.mos
+print low
+end
+
+task dft
+
+set "ao basis" b2
+
+dft
+vectors input project b1 b1.mos output b2.mos
+end
+
+task dft
+
+set "ao basis" b3
+
+dft
+vectors input project b2 b2.mos output b3.mos
+end
+
+task dft
+
+
+set "ao basis" b4
+
+dft
+vectors input project b3 b3.mos output b4.mos
+end
+
+task dft
+
+================================================================================
+
+
+                                         
+                                         
+ 
+ 
+             Northwest Computational Chemistry Package (NWChem) 7.2.0
+             --------------------------------------------------------
+ 
+ 
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+ 
+                              Copyright (c) 1994-2022
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+ 
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+ 
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname        = WE40672
+    program         = /Users/edo/nwchem/nwchem-edoapra-master/bin/MACX64/nwchem
+    date            = Wed Dec 14 18:04:30 2022
+
+    compiled        = Wed_Dec_14_18:03:49_2022
+    source          = /Users/edo/nwchem/nwchem-edoapra-master
+    nwchem branch   = 7.2.0
+    nwchem revision = nwchem_on_git-4232-g9621f8a386
+    ga revision     = 5.8.1
+    use scalapack   = T
+    input           = /Users/edo/nwchem/nwchem-edoapra-master/QA/tests/bas_details/bas_details.nw
+    prefix          = bas_details.
+    data base       = ./bas_details.db
+    status          = startup
+    nproc           =        1
+    time left       =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   26214396 doubles =    200.0 Mbytes
+    stack    =   26214401 doubles =    200.0 Mbytes
+    global   =   52428800 doubles =    400.0 Mbytes (distinct from heap & stack)
+    total    =  104857597 doubles =    800.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+ 
+  0 permanent = .
+  0 scratch   = .
+ 
+ 
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+                            test basis details keyword
+                            --------------------------
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ TD  symmetry detected
+
+          ------
+          auto-z
+          ------
+  Looking for out-of-plane bends
+  no constraints, skipping   0.000000000000000E+000
+  no constraints, skipping   0.000000000000000E+000
+ 
+ 
+                             Geometry "geometry" -> ""
+                             -------------------------
+ 
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 C                    6.0000     0.00000000     0.00000000     0.00000000
+    2 H                    1.0000    -0.62873455     0.62873455     0.62873455
+    3 H                    1.0000     0.62873455    -0.62873455     0.62873455
+    4 H                    1.0000    -0.62873455    -0.62873455    -0.62873455
+    5 H                    1.0000     0.62873455     0.62873455    -0.62873455
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      C                 12.000000
+      H                  1.007825
+ 
+
+ Effective nuclear repulsion energy (a.u.)      13.4477252140
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+ 
+      Symmetry information
+      --------------------
+ 
+ Group name              Td       
+ Group number             42
+ Group order              24
+ No. of unique centers     2
+ 
+      Symmetry unique atoms
+ 
+     1    2
+ 
+
+
+                                Z-matrix (autoz)
+                                -------- 
+
+ Units are Angstrom for bonds and degrees for angles
+ 
+      Type          Name      I     J     K     L     M      Value
+      ----------- --------  ----- ----- ----- ----- ----- ----------
+    1 Stretch                  1     2                       1.08900
+    2 Stretch                  1     3                       1.08900
+    3 Stretch                  1     4                       1.08900
+    4 Stretch                  1     5                       1.08900
+    5 Bend                     2     1     3               109.47122
+    6 Bend                     2     1     4               109.47122
+    7 Bend                     2     1     5               109.47122
+    8 Bend                     3     1     4               109.47122
+    9 Bend                     3     1     5               109.47122
+   10 Bend                     4     1     5               109.47122
+ 
+ 
+            XYZ format geometry
+            -------------------
+     5
+ geometry
+ C                     0.00000000     0.00000000     0.00000000
+ H                    -0.62873455     0.62873455     0.62873455
+ H                     0.62873455    -0.62873455     0.62873455
+ H                    -0.62873455    -0.62873455    -0.62873455
+ H                     0.62873455     0.62873455    -0.62873455
+ 
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |  angstroms
+ ------------------------------------------------------------------------------
+    2 H                |   1 C                |     2.05791  |     1.08900
+    3 H                |   1 C                |     2.05791  |     1.08900
+    4 H                |   1 C                |     2.05791  |     1.08900
+    5 H                |   1 C                |     2.05791  |     1.08900
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:          4
+ ==============================================================================
+
+
+
+ ==============================================================================
+                                 internuclear angles
+ ------------------------------------------------------------------------------
+        center 1       |       center 2       |       center 3       |  degrees
+ ------------------------------------------------------------------------------
+    2 H                |   1 C                |   3 H                |   109.47
+    2 H                |   1 C                |   4 H                |   109.47
+    2 H                |   1 C                |   5 H                |   109.47
+    3 H                |   1 C                |   4 H                |   109.47
+    3 H                |   1 C                |   5 H                |   109.47
+    4 H                |   1 C                |   5 H                |   109.47
+ ------------------------------------------------------------------------------
+                            number of included internuclear angles:          6
+ ==============================================================================
+
+
+
+
+
+ Summary of "b1" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ *                        aug-cc-pvdz                 on all atoms 
+
+
+
+
+ Summary of "b2" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ *                        aug-cc-pvdz                 on all atoms 
+
+
+
+
+ Summary of "b3" -> "" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ *                        aug-cc-pvdz                 on all atoms 
+
+
+
+
+ Summary of "b4" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ *                        aug-cc-pvdz                 on all atoms 
+
+
+ 
+                                 NWChem DFT Module
+                                 -----------------
+ 
+ 
+                            test basis details keyword
+ 
+ 
+                      Basis "ao basis" -> "b1" (spherical)
+                      -----
+  C (Carbon)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  6.66500000E+03  0.000692
+  1 S  1.00000000E+03  0.005329
+  1 S  2.28000000E+02  0.027077
+  1 S  6.47100000E+01  0.101718
+  1 S  2.10600000E+01  0.274740
+  1 S  7.49500000E+00  0.448564
+  1 S  2.79700000E+00  0.285074
+  1 S  5.21500000E-01  0.015204
+ 
+  2 S  6.66500000E+03 -0.000146
+  2 S  1.00000000E+03 -0.001154
+  2 S  2.28000000E+02 -0.005725
+  2 S  6.47100000E+01 -0.023312
+  2 S  2.10600000E+01 -0.063955
+  2 S  7.49500000E+00 -0.149981
+  2 S  2.79700000E+00 -0.127262
+  2 S  5.21500000E-01  0.544529
+ 
+  3 S  1.59600000E-01  1.000000
+ 
+  4 S  4.69000000E-02  1.000000
+ 
+  5 P  9.43900000E+00  0.038109
+  5 P  2.00200000E+00  0.209480
+  5 P  5.45600000E-01  0.508557
+ 
+  6 P  1.51700000E-01  1.000000
+ 
+  7 P  4.04100000E-02  1.000000
+ 
+  8 D  5.50000000E-01  1.000000
+ 
+  9 D  1.51000000E-01  1.000000
+ 
+  H (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.30100000E+01  0.019685
+  1 S  1.96200000E+00  0.137977
+  1 S  4.44600000E-01  0.478148
+ 
+  2 S  1.22000000E-01  1.000000
+ 
+  3 S  2.97400000E-02  1.000000
+ 
+  4 P  7.27000000E-01  1.000000
+ 
+  5 P  1.41000000E-01  1.000000
+ 
+
+
+ Summary of "ao basis" -> "b1" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ C                        aug-cc-pvdz                9       23   4s3p2d
+ H                        aug-cc-pvdz                5        9   3s2p
+
+
+ 
+  Caching 1-el integrals 
+  WARNING: movecs_in_org=atomic not equal to movecs_in=./b1.mos
+   Time after variat. SCF:      0.4
+   Time prior to 1st pass:      0.4
+
+
+         Total DFT energy =      -40.098721470454
+      One electron energy =      -79.817762448480
+           Coulomb energy =       32.731732491192
+    Exchange-Corr. energy =       -6.460416727190
+ Nuclear repulsion energy =       13.447725214025
+
+ Numeric. integr. density =       10.000005610713
+
+     Total iterative time =      0.3s
+
+
+ 
+                  Occupations of the irreducible representations
+                  ----------------------------------------------
+ 
+                     irrep           alpha         beta
+                     --------     --------     --------
+                     a1                2.0          2.0
+                     a2                0.0          0.0
+                     e                 0.0          0.0
+                     t1                0.0          0.0
+                     t2                3.0          3.0
+ 
+
+ Task  times  cpu:        0.4s     wall:        0.4s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+ 
+                                 NWChem DFT Module
+                                 -----------------
+ 
+ 
+                            test basis details keyword
+ 
+ 
+                      Basis "ao basis" -> "b2" (spherical)
+                      -----
+  C (Carbon)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  6.66500000E+03  0.000692
+  1 S  1.00000000E+03  0.005329
+  1 S  2.28000000E+02  0.027077
+  1 S  6.47100000E+01  0.101718
+  1 S  2.10600000E+01  0.274740
+  1 S  7.49500000E+00  0.448564
+  1 S  2.79700000E+00  0.285074
+  1 S  5.21500000E-01  0.015204
+ 
+  2 S  6.66500000E+03 -0.000146
+  2 S  1.00000000E+03 -0.001154
+  2 S  2.28000000E+02 -0.005725
+  2 S  6.47100000E+01 -0.023312
+  2 S  2.10600000E+01 -0.063955
+  2 S  7.49500000E+00 -0.149981
+  2 S  2.79700000E+00 -0.127262
+  2 S  5.21500000E-01  0.544529
+ 
+  3 S  1.59600000E-01  1.000000
+ 
+  4 S  4.69000000E-02  1.000000
+ 
+  5 P  9.43900000E+00  0.038109
+  5 P  2.00200000E+00  0.209480
+  5 P  5.45600000E-01  0.508557
+ 
+  6 P  1.51700000E-01  1.000000
+ 
+  7 P  4.04100000E-02  1.000000
+ 
+  8 D  5.50000000E-01  1.000000
+ 
+  9 D  1.51000000E-01  1.000000
+ 
+  H (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.30100000E+01  0.019685
+  1 S  1.96200000E+00  0.137977
+  1 S  4.44600000E-01  0.478148
+ 
+  2 S  1.22000000E-01  1.000000
+ 
+  3 S  2.97400000E-02  1.000000
+ 
+  4 P  7.27000000E-01  1.000000
+ 
+  5 P  1.41000000E-01  1.000000
+ 
+
+
+ Summary of "ao basis" -> "b2" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ C                        aug-cc-pvdz                9       23   4s3p2d
+ H                        aug-cc-pvdz                5        9   3s2p
+
+
+ 
+  Caching 1-el integrals 
+  WARNING: movecs_in_org=project not equal to movecs_in=./b2.mos
+   Time after variat. SCF:      0.7
+   Time prior to 1st pass:      0.7
+
+
+         Total DFT energy =      -40.098721474766
+      One electron energy =      -79.817417679667
+           Coulomb energy =       32.731340846306
+    Exchange-Corr. energy =       -6.460369855430
+ Nuclear repulsion energy =       13.447725214025
+
+ Numeric. integr. density =       10.000005610781
+
+     Total iterative time =      0.2s
+
+
+ 
+                  Occupations of the irreducible representations
+                  ----------------------------------------------
+ 
+                     irrep           alpha         beta
+                     --------     --------     --------
+                     a1                2.0          2.0
+                     a2                0.0          0.0
+                     e                 0.0          0.0
+                     t1                0.0          0.0
+                     t2                3.0          3.0
+ 
+
+ Task  times  cpu:        0.3s     wall:        0.3s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+ 
+                                 NWChem DFT Module
+                                 -----------------
+ 
+ 
+                            test basis details keyword
+ 
+ 
+                      Basis "ao basis" -> "b3" (spherical)
+                      -----
+  C (Carbon)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  6.66500000E+03  0.000692
+  1 S  1.00000000E+03  0.005329
+  1 S  2.28000000E+02  0.027077
+  1 S  6.47100000E+01  0.101718
+  1 S  2.10600000E+01  0.274740
+  1 S  7.49500000E+00  0.448564
+  1 S  2.79700000E+00  0.285074
+  1 S  5.21500000E-01  0.015204
+ 
+  2 S  6.66500000E+03 -0.000146
+  2 S  1.00000000E+03 -0.001154
+  2 S  2.28000000E+02 -0.005725
+  2 S  6.47100000E+01 -0.023312
+  2 S  2.10600000E+01 -0.063955
+  2 S  7.49500000E+00 -0.149981
+  2 S  2.79700000E+00 -0.127262
+  2 S  5.21500000E-01  0.544529
+ 
+  3 S  1.59600000E-01  1.000000
+ 
+  4 S  4.69000000E-02  1.000000
+ 
+  5 P  9.43900000E+00  0.038109
+  5 P  2.00200000E+00  0.209480
+  5 P  5.45600000E-01  0.508557
+ 
+  6 P  1.51700000E-01  1.000000
+ 
+  7 P  4.04100000E-02  1.000000
+ 
+  8 D  5.50000000E-01  1.000000
+ 
+  9 D  1.51000000E-01  1.000000
+ 
+  H (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.30100000E+01  0.019685
+  1 S  1.96200000E+00  0.137977
+  1 S  4.44600000E-01  0.478148
+ 
+  2 S  1.22000000E-01  1.000000
+ 
+  3 S  2.97400000E-02  1.000000
+ 
+  4 P  7.27000000E-01  1.000000
+ 
+  5 P  1.41000000E-01  1.000000
+ 
+
+
+ Summary of "ao basis" -> "b3" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ C                        aug-cc-pvdz                9       23   4s3p2d
+ H                        aug-cc-pvdz                5        9   3s2p
+
+
+ 
+  Caching 1-el integrals 
+  WARNING: movecs_in_org=project not equal to movecs_in=./b3.mos
+   Time after variat. SCF:      1.0
+   Time prior to 1st pass:      1.0
+
+
+         Total DFT energy =      -40.098721474784
+      One electron energy =      -79.817393093582
+           Coulomb energy =       32.731313156390
+    Exchange-Corr. energy =       -6.460366751616
+ Nuclear repulsion energy =       13.447725214025
+
+ Numeric. integr. density =       10.000005610778
+
+     Total iterative time =      0.2s
+
+
+ 
+                  Occupations of the irreducible representations
+                  ----------------------------------------------
+ 
+                     irrep           alpha         beta
+                     --------     --------     --------
+                     a1                2.0          2.0
+                     a2                0.0          0.0
+                     e                 0.0          0.0
+                     t1                0.0          0.0
+                     t2                3.0          3.0
+ 
+
+ Task  times  cpu:        0.3s     wall:        0.3s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+ 
+                                 NWChem DFT Module
+                                 -----------------
+ 
+ 
+                            test basis details keyword
+ 
+ 
+                      Basis "ao basis" -> "b4" (cartesian)
+                      -----
+  C (Carbon)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  6.66500000E+03  0.000692
+  1 S  1.00000000E+03  0.005329
+  1 S  2.28000000E+02  0.027077
+  1 S  6.47100000E+01  0.101718
+  1 S  2.10600000E+01  0.274740
+  1 S  7.49500000E+00  0.448564
+  1 S  2.79700000E+00  0.285074
+  1 S  5.21500000E-01  0.015204
+ 
+  2 S  6.66500000E+03 -0.000146
+  2 S  1.00000000E+03 -0.001154
+  2 S  2.28000000E+02 -0.005725
+  2 S  6.47100000E+01 -0.023312
+  2 S  2.10600000E+01 -0.063955
+  2 S  7.49500000E+00 -0.149981
+  2 S  2.79700000E+00 -0.127262
+  2 S  5.21500000E-01  0.544529
+ 
+  3 S  1.59600000E-01  1.000000
+ 
+  4 S  4.69000000E-02  1.000000
+ 
+  5 P  9.43900000E+00  0.038109
+  5 P  2.00200000E+00  0.209480
+  5 P  5.45600000E-01  0.508557
+ 
+  6 P  1.51700000E-01  1.000000
+ 
+  7 P  4.04100000E-02  1.000000
+ 
+  8 D  5.50000000E-01  1.000000
+ 
+  9 D  1.51000000E-01  1.000000
+ 
+  H (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.30100000E+01  0.019685
+  1 S  1.96200000E+00  0.137977
+  1 S  4.44600000E-01  0.478148
+ 
+  2 S  1.22000000E-01  1.000000
+ 
+  3 S  2.97400000E-02  1.000000
+ 
+  4 P  7.27000000E-01  1.000000
+ 
+  5 P  1.41000000E-01  1.000000
+ 
+
+
+ Summary of "ao basis" -> "b4" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ C                        aug-cc-pvdz                9       25   4s3p2d
+ H                        aug-cc-pvdz                5        9   3s2p
+
+
+ 
+  Caching 1-el integrals 
+  WARNING: movecs_in_org=project not equal to movecs_in=./b4.mos
+   Time after variat. SCF:      1.3
+   Time prior to 1st pass:      1.3
+
+
+         Total DFT energy =      -40.100836427564
+      One electron energy =      -79.804187567806
+           Coulomb energy =       32.702475992294
+    Exchange-Corr. energy =       -6.446850066076
+ Nuclear repulsion energy =       13.447725214025
+
+ Numeric. integr. density =       10.000005618093
+
+     Total iterative time =      0.3s
+
+
+ 
+                  Occupations of the irreducible representations
+                  ----------------------------------------------
+ 
+                     irrep           alpha         beta
+                     --------     --------     --------
+                     a1                2.0          2.0
+                     a2                0.0          0.0
+                     e                 0.0          0.0
+                     t1                0.0          0.0
+                     t2                3.0          3.0
+ 
+
+ Task  times  cpu:        0.4s     wall:        0.4s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+MA_summarize_allocated_blocks: starting scan ...
+heap block 'gridpts', handle 74, address 0x7fedf6985698:
+	type of elements:		double precision
+	number of elements:		33554432
+	address of client space:	0x7fedf6985700
+	index for client space:		17581915250195
+	total number of bytes:		268435568
+MA_summarize_allocated_blocks: scan completed: 1 heap block, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         1	         0
+	maximum number of blocks	        25	        55
+	current total bytes		 268435568	         0
+	maximum total bytes		 273176464	  22512552
+	maximum total K-bytes		    273177	     22513
+	maximum total M-bytes		       274	        23
+ 
+ 
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+ 
+          E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,
+       T. P. Straatsma, M. Valiev, H. J. J. van Dam, Y. Alexeev, J. Anchell,
+       V. Anisimov, F. W. Aquino, R. Atta-Fynn, J. Autschbach, N. P. Bauman,
+     J. C. Becca, D. E. Bernholdt, K. Bhaskaran-Nair, S. Bogatko, P. Borowski,
+         J. Boschen, J. Brabec, A. Bruner, E. Cauet, Y. Chen, G. N. Chuev,
+      C. J. Cramer, J. Daily, M. J. O. Deegan, T. H. Dunning Jr., M. Dupuis,
+   K. G. Dyall, G. I. Fann, S. A. Fischer, A. Fonari, H. Fruchtl, L. Gagliardi,
+      J. Garza, N. Gawande, S. Ghosh, K. Glaesemann, A. W. Gotz, J. Hammond,
+       V. Helms, E. D. Hermes, K. Hirao, S. Hirata, M. Jacquelin, L. Jensen,
+   B. G. Johnson, H. Jonsson, R. A. Kendall, M. Klemm, R. Kobayashi, V. Konkov,
+      S. Krishnamoorthy, M. Krishnan, Z. Lin, R. D. Lins, R. J. Littlefield,
+      A. J. Logsdail, K. Lopata, W. Ma, A. V. Marenich, J. Martin del Campo,
+   D. Mejia-Rodriguez, J. E. Moore, J. M. Mullin, T. Nakajima, D. R. Nascimento,
+    J. A. Nichols, P. J. Nichols, J. Nieplocha, A. Otero-de-la-Roza, B. Palmer,
+    A. Panyala, T. Pirojsirikul, B. Peng, R. Peverati, J. Pittner, L. Pollack,
+   R. M. Richard, P. Sadayappan, G. C. Schatz, W. A. Shelton, D. W. Silverstein,
+   D. M. A. Smith, T. A. Soares, D. Song, M. Swart, H. L. Taylor, G. S. Thomas,
+            V. Tipparaju, D. G. Truhlar, K. Tsemekhman, T. Van Voorhis,
+      A. Vazquez-Mayagoitia, P. Verma, O. Villa, A. Vishnu, K. D. Vogiatzis,
+        D. Wang, J. H. Weare, M. J. Williamson, T. L. Windus, K. Wolinski,
+        A. T. Wong, Q. Wu, C. Yang, Q. Yu, M. Zacharias, Z. Zhang, Y. Zhao,
+                                and R. J. Harrison
+                        "NWChem: Past, present, and future
+                         J. Chem. Phys. 152, 184102 (2020)
+                               doi:10.1063/5.0004997
+ 
+                                      AUTHORS
+                                      -------
+  E. Apra, E. J. Bylaska, N. Govind, K. Kowalski, M. Valiev, D. Mejia-Rodriguez,
+       A. Kunitsa, N. P. Bauman, A. Panyala, W. A. de Jong, T. P. Straatsma,
+   H. J. J. van Dam, D. Wang, T. L. Windus, J. Hammond, J. Autschbach, A. Woods,
+    K. Bhaskaran-Nair, J. Brabec, K. Lopata, S. A. Fischer, S. Krishnamoorthy,
+     M. Jacquelin, W. Ma, M. Klemm, O. Villa, Y. Chen, V. Anisimov, F. Aquino,
+     S. Hirata, M. T. Hackler, E. Hermes, L. Jensen, J. E. Moore, J. C. Becca,
+      V. Konjkov, T. Risthaus, M. Malagoli, A. Marenich, A. Otero-de-la-Roza,
+        J. Mullin, P. Nichols, R. Peverati, J. Pittner, Y. Zhao, P.-D. Fan,
+        A. Fonari, M. J. Williamson, R. J. Harrison, J. R. Rehr, M. Dupuis,
+     D. Silverstein, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan,
+     B. E. Van Kuiken, A. Vazquez-Mayagoitia, M. Swart, Q. Wu, T. Van Voorhis,
+     A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann,
+   H. Fruchtl, J. Garza, K. Hirao, R. A. Kendall, J. A. Nichols, K. Tsemekhman,
+    K. Wolinski, J. Anchell, D. E. Bernholdt, P. Borowski, T. Clark, D. Clerc,
+   H. Dachsel, M. J. O. Deegan, K. Dyall, D. Elwood, E. Glendening, M. Gutowski,
+   A. C. Hess, J. Jaffe, B. G. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin,
+   R. Littlefield, X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
+   K. Glaesemann, G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
+                               A. T. Wong, Z. Zhang.
+
+ Total times  cpu:        1.6s     wall:        1.6s

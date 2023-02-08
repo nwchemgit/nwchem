@@ -76,6 +76,7 @@ c     Surface Hopping
       integer ispin
       double precision dt_elec           ! electronic time step
       double precision kbt               ! k_b*T in au (for plumed)
+      double precision wall              ! wall time
       logical do_namd                    ! NAMD flag
       logical do_property                ! property flag
       logical do_tddft                   ! tddft flag
@@ -312,6 +313,7 @@ c         write trajectory
      &           0,etotal,geom,dipole)
         end if
       end if  ! restart
+      wall = util_wallsec()
 c
 c     start nuclear molecular dynamics loop
       do istep_nucl = sstep_nucl,nstep_nucl
@@ -381,6 +383,17 @@ c
      $                                          nroots,ipol,nmo,nocc,
      $                                          dbl_mb(k_en),g_vecs)
           esys=dbl_mb(k_en+state-1)
+c     check nroots vs nstates (tddft might have changed nroots)
+c     get number of TDDFT roots calculated
+        if (.not.rtdb_get(rtdb,'tddft:nroots',mt_int,1,nroots))
+     &    call errquit(pname//'failed to get nroots ',0,RTDB_ERR)
+        if (nroots.lt.(nstates-1)) then
+c     call errquit(pname//'nroots<(nstates-1) ',0,RTDB_ERR)
+           if(ga_nodeid().eq.0) write(luout,124) nstates,nroots
+ 124       format(9x,'Number of states decreased from ',i8,' to ',i8)
+           nstates=nroots
+        endif
+
 c         calculate couplings
           call qmd_coup(rtdb,geom,geom_p,ipol,nstates,dt_nucl,nmo,
      $                  nocc,g_vecs,g_vecs_p,dbl_mb(k_coup),
@@ -442,6 +455,9 @@ c          for input and output, state runs from 0 to nstates-1
          else
            write(luout,'(A21)') "No dipole on RTDB"
          end if
+         write(luout,125) "Wall time/ts    (s) :",istep_nucl,
+     ,        util_wallsec()-wall
+         wall = util_wallsec()
          write(luout,*)
          write(luout,*)
 c

@@ -154,6 +154,8 @@
       external psp_pawexist,psp_paw_use_grid_cmp
       integer  psp_paw_mult_l_max
       external psp_paw_mult_l_max
+      logical  control_gram_schmidt
+      external control_gram_schmidt
 
       integer  Parallel_maxthreads
       external Parallel_maxthreads
@@ -561,6 +563,7 @@ c           call psp_check_print(ia)
          write(luout,1290) control_tole(),control_tolc()
          write(luout,1281) control_it_in()*control_it_out(),
      >                 control_it_in(),control_it_out()
+         if (control_gram_schmidt()) write(luout,1282)
          if ((minimizer.eq.5).or.(minimizer.eq.8)) then
            write(luout,1291)
            if (control_ks_algorithm().eq.-1)  then
@@ -926,6 +929,7 @@ c      call frac_occ_end()
  1280 FORMAT(5X, ' time step=',F10.2,5X,'fictitious mass=',F10.1)
  1281 FORMAT(5X, ' maximum iterations =',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
+ 1282 FORMAT(5X, ' Gram Schmidt orthonormality used')
  1289 FORMAT(5X, ' SCF algorithm        = ',A,' (',I2,' histories)')
  1290 FORMAT(5X, ' tolerance=',E9.3,' (energy)',E12.3,
      &        ' (density)')

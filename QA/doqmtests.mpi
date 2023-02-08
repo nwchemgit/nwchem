@@ -521,8 +521,6 @@ let "myexit+=$?"
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np carbon_fon
 let "myexit+=$?"
-./runtests.mpi.unix procs $np ch5n_nbo
-let "myexit+=$?"
 ./runtests.mpi.unix procs $np tpss tpssh
 let "myexit+=$?"
 #
@@ -534,7 +532,7 @@ let "myexit+=$?"
 ./runtests.mpi.unix procs $np h2o2_fde
 let "myexit+=$?"
 # tddft gradients
-./runtests.mpi.unix procs $np tddftgrad_co_cis tddftgrad_n2 tddftgrad_co tddftgrad_n2_uks tddftgrad_ch2o
+./runtests.mpi.unix procs $np tddftgrad_co_cis tddftgrad_n2 tddftgrad_co tddftgrad_n2_uks tddftgrad_ch2o tddftgrad_h2o_cis_lda
 let "myexit+=$?"
 # new xc functionals for 7.0.0
 ./runtests.mpi.unix procs $np dft_rscan
@@ -544,6 +542,12 @@ let "myexit+=$?"
 ./runtests.mpi.unix procs $np rt_tddft_dimer_charge
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np rt_tddft_mocap
+let "myexit+=$?"
+./runtests.mpi.unix procs $np rt_tddft_cytosine_cam_cdfit
+let "myexit+=$?"
+./runtests.mpi.unix procs $np rt_tddft_tcne_spinkick
+let "myexit+=$?"
+./runtests.mpi.unix procs $np rt_tddft_water_abs_spec
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_ne_n12
 let "myexit+=$?"
@@ -579,6 +583,10 @@ if [[ ! -z "${USE_TBLITE}" ]]; then
 ./runtests.mpi.unix procs $np xtb_siosi3
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np xtb_siosi7
+let "myexit+=$?"
+./runtests.mpi.unix procs $np h2o_ccca o2_ccca
+let "myexit+=$?"
+./runtests.mpi.unix procs $np dftd3_c6cn
 let "myexit+=$?"
 fi
 #--- if we only want quick tests get out now!

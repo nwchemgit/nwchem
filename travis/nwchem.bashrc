@@ -37,6 +37,7 @@ fi
 if [[ "$FC" == "amdflang" ]]; then
     export PATH=/opt/rocm/bin:$PATH
     export LD_LIBRARY_PATH=/opt/rocm-"$rocm_version"/lib:/opt/rocm/llvm/lib:$LD_LIBRARY_PATH
+     export BUILD_MPICH=1
 fi
 
 if [[ "$FC" == "nvfortran" ]]; then
@@ -187,4 +188,10 @@ if [[ "$FC" == "gfortran" ]]; then
      unset USE_TBLITE
      export NWCHEM_MODULES=$(echo $NWCHEM_MODULES |sed  's/xtb//')
    fi
+fi
+
+if [[ "$USE_LIBXC" == "-1" ]]; then
+    unset USE_LIBXC
+    export LIBXC_LIB=/usr/lib/x86_64-linux-gnu
+    export LIBXC_INCLUDE=/usr/include
 fi

@@ -1135,11 +1135,13 @@ c     Now read the basis for this magical atom type in using
 c     the given tag
 c
  10   if (.not. inp_a(field)) field=' '
+#ifdef IGNORE_HEH
 c
 c     ignore spherical vs cartesian from bse for He/H
 c     since they do assign spherical when the other elements are cartesian
 c
       if (.not.inp_compare(.false., 'h', string(1:1))) then
+#endif
       if(read_sphere) then
          if (inp_compare(.false., 'spherical', field)) then
             if (.not. bas_set_spherical(basis, .true.))
@@ -1147,7 +1149,9 @@ c
      &           (' bas_set_spherical failed ',911, BASIS_ERR)
          endif
       endif
+#ifdef IGNORE_HEH
       endif
+#endif
       if (.not. inp_read()) call errquit
      $     ('bas_tag_lib: premature EOF', 0, INPUT_ERR)
 c     

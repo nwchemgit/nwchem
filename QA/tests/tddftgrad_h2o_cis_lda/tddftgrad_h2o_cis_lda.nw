@@ -1,0 +1,30 @@
+echo
+title h2o
+start h2o
+geometry units bohr 
+symmetry c1
+    H -1.57866004 0.0  0.40931277
+    O  0.00000000 0.0 -0.81862553
+    H  1.57866004 0.0  0.40931277
+end  
+basis "ao basis"   
+  * library 6-31G   
+end
+dft 
+  xc slater 1.0 pw91lda 1.0 
+#  xc slater 1.0 pw91lda 1.0 hfexch 1d-8
+end 
+tddft
+ cis
+ nroots 10
+ algorithm 1
+ notriplet
+ civecs
+ grad
+   root 1
+ end
+end
+#set tddft:tdaloc .false.
+task tddft gradient
+task tddft gradient numerical
+

@@ -11,12 +11,11 @@ basis spherical
 end
 
 set dft:no_prune T
-set dft:job_grid_acc 1d-20
 set dft:tol_rho 1d-30
 
 dft
- grid xfine
- grid lebedev H 350 18 I 350 18 
+ grid huge
+ tolerances acccoul 15
  xc b3lyp
 end
 

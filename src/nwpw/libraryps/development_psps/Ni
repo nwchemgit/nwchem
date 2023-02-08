@@ -1,0 +1,38 @@
+#
+# $Id: Ni 25011 2013-12-19 17:45:25Z d3y133 $
+#
+Comment: Ni(II) pseudopotential parameters
+Comment: Relativistic TM, 3s and 3p in the valence, multiple s and p projectors, no semicore
+Comment: Ni(II) ([Ar] 3s2 3p6 3d8) reference atom
+Comment: Developed by EJB on 12/16/2022
+Comment:
+
+[lmax] 2
+[locp] 0
+[rlocal] 1.0
+[cutoff] 50.0
+
+ <atom>
+ Ni
+  0.280000E+02  0.590000E+02   3   3
+   1   0  0.200000E+01
+   2   0  0.200000E+01
+   2   1  0.600000E+01
+   3   0  0.200000E+01
+   3   1  0.600000E+01
+   3   2  8.0
+ <end>
+ <solver> pauli                     <end>
+ <pseudopotential> troullier-martins         <end>
+ <rcut>
+   0  1.80
+   1  1.80
+   2  1.80
+ <end>
+ <kb_expansion>
+   0  2
+   1  2
+ <end>
+<screening_cut> 0.10 <end>
+<comment> Parameterized Ni Troullier-Martin psp (3s3p3d4s4p projectors, 12/16/2022 by EJB) <end>
+

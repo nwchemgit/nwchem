@@ -4405,9 +4405,9 @@ c      end if
 
 
 *     ***************************
-*     *                	   	*
-*     *    control_gram_schmidt *
-*     *                  	*
+*     *                         *
+*     *   control_gram_schmidt  *
+*     *                         *
 *     ***************************
       logical function control_gram_schmidt()
       implicit none
@@ -5510,6 +5510,31 @@ c      end if
      >   value = .false.
 
       control_kbpp_filter = value
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *    control_kbpp_filter_scale    *
+*     *                                 *
+*     ***********************************
+      real*8 function control_kbpp_filter_scale()
+      implicit none
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+      
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+      
+      real*8 scal
+
+      scal = 1.0d0
+      if (.not.btdb_get(rtdb,'nwpw:kbpp_filter_scale',mt_dbl,1,scal))
+     >  scal=1.0d0
+      
+      control_kbpp_filter_scale = scal
       return
       end
 

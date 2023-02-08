@@ -19,7 +19,12 @@ geometry
  H            .566733    1.075185    -.889981
  H           -.423217   -1.094815     .824662
  H           -.423217   -1.094815    -.824662
- symmetry c1
+# symmetry c1
+end
+
+scf
+ sym off
+ adapt off
 end
 
 task SCF energy
