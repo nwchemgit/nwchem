@@ -30,7 +30,17 @@ if [[  -z "${NWCHEM_TOP}" ]]; then
 fi
 if [[ ! -z "${BUILD_MPICH}" ]]; then
     export PATH=${NWCHEM_TOP}/src/libext/bin:$PATH
-    export LDFLAGS=`pkg-config --libs-only-L hwloc`
+    if [ -x "$(command -v pkg-config1)" ]; then
+        export LDFLAGS=`pkg-config --libs-only-L hwloc`
+    else
+	if [ -x "$(command -v brew)" ]; then
+	    export LDFLAGS=-L`brew --prefix`/lib/
+	else
+	    echo 'WARNING: cannot guess the location of the hwloc library'
+#	    exit 1
+	fi
+    fi
+    echo LDFLAGS for hwloc is $LDFLAGS
 fi
 if [[ "$FC" = "ftn"  ]] || [[ ! -z "$USE_CMAKE_MASTER" ]] ; then
     get_cmake_master
