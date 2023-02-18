@@ -25,8 +25,8 @@ echo NWCHEM_TOP is $NWCHEM_TOP
 export USE_MPI=y
 if [[ "$FC" == "flang" ]]; then
     if [[ "USE_AOMP" == "Y" ]]; then
-	aomp_major=15
-	aomp_minor=0-2
+	aomp_major=16
+	aomp_minor=0-3
 	export PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/bin/:$PATH
 	export LD_LIBRARY_PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/lib:$LD_LIBRARY_PATH
     else
@@ -41,8 +41,8 @@ if [[ "$FC" == "amdflang" ]]; then
 fi
 
 if [[ "$FC" == "nvfortran" ]]; then
-     nv_major=22
-     nv_minor=11
+     nv_major=23
+     nv_minor=1
      nverdot="$nv_major"."$nv_minor"
      export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:$PATH
      export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH
