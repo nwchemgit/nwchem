@@ -3521,7 +3521,11 @@ ifdef USE_MPI
         NWMPI_INCLUDE = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_include)
         NWMPI_LIB     = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH)  $(NWCHEM_TOP)/src/tools/guess-mpidefs --mpi_lib)
         NWLIBMPI      = $(shell PATH=$(NWCHEM_TOP)/src/libext/bin:$(PATH) $(NWCHEM_TOP)/src/tools/guess-mpidefs --libmpi)
-        NWLIBMPI	+= $(shell /usr/local/bin/pkg-config --libs-only-L hwloc 2> /dev/null)
+        NWLIBMPI	+= $(shell pkg-config3 --libs-only-L hwloc 2> /dev/null)
+        GOT_BREW = $(shell command -v brew 2> /dev/null)
+        ifdef GOT_BREW
+             NWLIBMPI	+= -L$(shell brew --prefix)/lib
+        endif
     else ifdef FORCE_MPI_ENV
         ifndef MPI_INCLUDE
             errormpi1:
