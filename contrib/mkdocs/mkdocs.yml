@@ -48,6 +48,10 @@ markdown_extensions:
     - toc:
         permalink: True
     - tables
+    - table_captions:
+        caption_top: false
+        numbering: true
+    - caption
     - footnotes:
         SEPARATOR: _footnote_
 #    - markdown_katex:
