@@ -1,3 +1,40 @@
+C> Old intd_1eov is now intd_1eovQ (below).  This intd_1eov is a wrapper
+C> for backward compatibility.  intd_1eovQ has a new input argument,
+C> hlfdrv, required for computing the half-derivative overlap matrix used
+C> by COLUMBUS to compute non-adiabatic derivative couplings.  Routines
+C> which need to calculate the HDOM should call intd_1eovQ directly,
+C> specifying hlfdrv=.true.
+C>
+C> Lachlan Belcher 14 Feb 2023
+
+      subroutine intd_1eov(i_basis,ish,j_basis,jsh,lscr,scr,
+     &       lOva,Ova,idatom)
+c $Id$
+      implicit none
+      integer i_basis   !< [Input] ish basis set handle
+      integer ish       !< [Input] "i" contraction index
+      integer j_basis   !< [Input] jsh basis set handle
+      integer jsh       !< [Input] "j" contraction index
+      integer lscr      !< [Input] length of scratch space "scr"
+      integer lOva      !< [Input] number of overlap integral derivatives in shells ish and jsh
+      double precision scr(lscr) !< [Scratch] Work space
+      double precision Ova(lOva) !< [Output] The overlap integral derivatives
+c                       ! NOTE: nint*3 integral derivatives returned per unique center
+      integer idatom(*) !< [Output] array identifying centers for derivatives
+c                       ! e.g., the first nint*3  derivatives go to center idatom(1)
+c                       !       the second nint*3 derivatives go to center idatom(2)
+      logical hlfdrv    ! [input] if true, calculate same atom as well
+                        ! as different atom integrals. This is necessary
+                        ! when calculating the half-derivative overlap
+                        ! matrix for NADCTs
+c
+      hlfdrv=.false.
+      CALL intd_1eovQ(i_basis,ish,j_basis,jsh,lscr,scr,
+     &       lOva,Ova,idatom,hlfdrv)
+
+      end
+C--------------------------------------------------------------------------------------------
+
 C> \ingroup nwint
 C> @{
 C>
@@ -14,8 +51,8 @@ C> of integrals, `ncoord` are the Cartesian coordinates x, y and z, and
 C> is 2 for the number of expansion centers on which the basis functions are
 C> positioned.
 C>
-      subroutine intd_1eov(i_basis,ish,j_basis,jsh,lscr,scr,
-     &       lOva,Ova,idatom)
+      subroutine intd_1eovQ(i_basis,ish,j_basis,jsh,lscr,scr,
+     &       lOva,Ova,idatom,hlfdrv)
 c $Id$
       implicit none
 #include "stdio.fh"
@@ -34,6 +71,10 @@ c                       ! NOTE: nint*3 integral derivatives returned per unique 
       integer idatom(*) !< [Output] array identifying centers for derivatives
 c                       ! e.g., the first nint*3  derivatives go to center idatom(1)
 c                       !       the second nint*3 derivatives go to center idatom(2)
+      logical hlfdrv    ! [input] if true, calculate same atom as well
+                        ! as different atom integrals. This is necessary
+                        ! when calculating the half-derivative overlap
+                        ! matrix for NADCTs
 c
 c Order is...   nint*3*2 (3=> xyz, 2=atoms)
 c
@@ -74,11 +115,11 @@ c                            d[idatom(2),z]/
      &          INT_ERR)
       endif
       call intd_1eovP(i_basis,ish,j_basis,jsh,lscr,scr,nint,
-     &    OVa,idatom)
+     &    OVa,idatom,hlfdrv)
       end
       
       subroutine intd_1eovP(i_basis,ish,j_basis,jsh,lscr,scr,
-     &       nint,Ova,idatom)
+     &       nint,Ova,idatom,hlfdrv)
       implicit none
 c
 c returns 1e overlap derivative integrals for shells/contractions ish,jsh
@@ -117,6 +158,10 @@ c                       ! NOTE: nint*3 integral derivatives returned per unique 
       integer idatom(*) ! [output] array identifying centers for derivatives
 c                       ! e.g., the first nint*3  derivatives go to center idatom(1)
 c                       !       the second nint*3 derivatives go to center idatom(2)
+      logical hlfdrv    ! [input] if true, calculate same atom as well
+                        ! as different atom integrals. This is necessary
+                        ! when calculating the half-derivative overlap
+                        ! matrix for NADCTs
 c
 c Order is...   nint*3*2 (3=> xyz, 2=atoms)
 c
@@ -180,7 +225,7 @@ c
 c
       iatom = (sf_ibs_cn2ce(ish,ibas))
       jatom = (sf_ibs_cn2ce(jsh,jbas))
-      if (iatom.eq.jatom) then
+      if ((iatom.eq.jatom).and.(.not.hlfdrv))then
         idatom(1) = 0
         idatom(2) = 0
         return
@@ -287,7 +332,7 @@ c........................       doS   doT    doV    canAB
 c...........       nonrel dryrun
      &      ohnd_ok,oNR,.false.,scr,lscr,rel_dbg,rel_typ)
       else if (onw_ok.or.osim_ok) then
-        call hf1d(
+        call hf1dQ(
      &      coords(1,iatom,igeom),
      &      dbl_mb(mb_exndcf(iexp,ibas)),
      &      dbl_mb(mb_exndcf(icf,ibas)),
@@ -303,7 +348,7 @@ c
      &      Ova,scr,scr,nint,
 c...........overlap, k-e,     pot-e,    canab,  dryrun
      &      .true.,  .false., .false., .false., .false.,
-     &      scr,lscr)
+     &      scr,lscr,hlfdrv)
       elseif (ohnd_ok) then
         call hnd_stvintd(
      &      coords(1,iatom,igeom),
@@ -363,7 +408,7 @@ c
             call spcart_tran1e(Ova(1,Zyx,Zatom),scr,
      &          j_nbf_x,i_nbf_x,0,jgen,
      &          j_nbf_s,i_nbf_s,Itype,igen,
-     &          .false.)
+     &          .true.)
           enddo
         enddo
       else if (bas_spherical(jbas)) then

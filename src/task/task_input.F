@@ -231,6 +231,15 @@ c            oembed = .true.
      >                        'rdf')) then
             operation='rdf'
          else if (inp_compare(.false.,test,
+     >                        'aoints')) then
+            operation='aoints'
+         else if (inp_compare(.false.,test,
+     >                        'grdtrc')) then
+            operation='grdtrc'
+         else if (inp_compare(.false.,test,
+     >                        'nadtrc')) then
+            operation='nadtrc'
+         else if (inp_compare(.false.,test,
      >                        'lcao')) then
             operation='lcao'
          else if (inp_compare(.false.,test,

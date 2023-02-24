@@ -1,4 +1,14 @@
-      Subroutine hf1d(
+C> Old hf1d is now hf1dQ (below).  This hf1d is a wrapper
+C> for backward compatibility.  hf1dQ has a new input argument,
+C> hlfdrv, required for computing the half-derivative overlap matrix used
+C> by COLUMBUS to compute non-adiabatic derivative couplings.  Routines
+C> which need to calculate the HDOM should call hf1dQ directly,
+C> specifying hlfdrv=.true.
+C>
+C> Lachlan Belcher 14 Feb 2023
+
+
+      SUBROUTINE hf1d(
      &       Axyz,Aprims,Acoefs,NPA,NCA,La,ictrA,
      &       Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,ictrB,
      &       Cxyz,zan,exinv,ncenters,
@@ -8,8 +18,68 @@ c $Id$
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
+      logical hlfdrv    ! [input] if true, calculate same atom as well
+                        ! as different atom integrals. This is necessary
+                        ! when calculating the half-derivative overlap
+                        ! matrix for NADCTs
+      integer ictrA, ictrB !NB already used implicitly
+
+      Logical dryrun
+      Logical O2I,KEI,NAI,canAB,GenCon
+
+c--> Cartesian Coordinates, Primitives & Contraction Coefficients
+
+      Dimension Axyz(3),Aprims(NPA),Acoefs(NPA,NCA)
+      Dimension Bxyz(3),Bprims(NPB),Bcoefs(NPB,NCB)
+
+c--> Nuclear Cartesian Coordinates, Charges & Inverse Exponents
+
+      Dimension Cxyz(3,ncenters),zan(ncenters),exinv(ncenters)
+
+c--> Blocks of Overlap, Kinetic Energy & Nuclear Attraction Integrals
+
+      Dimension bO2I(Nint,*),bKEI(Nint,*),bNAI(Nint,*)
+
+
+      hlfdrv=.false.
+      CALL hf1dQ(
+     &       Axyz,Aprims,Acoefs,NPA,NCA,La,ictrA,
+     &       Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,ictrB,
+     &       Cxyz,zan,exinv,ncenters,
+     &       bO2I,bKEI,bNAI,Nint,
+     &       O2I,KEI,NAI,canAB,dryrun,W0,maxW0,
+     &       hlfdrv)
+
+
+
+      end
+
+
+
+C-------------------------------------------------------------------------
+      Subroutine hf1dQ(
+     &       Axyz,Aprims,Acoefs,NPA,NCA,La,ictrA,
+     &       Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,ictrB,
+     &       Cxyz,zan,exinv,ncenters,
+     &       bO2I,bKEI,bNAI,Nint,
+     &       O2I,KEI,NAI,canAB,dryrun,W0,maxW0,
+     &       hlfdrv)
+c $Id$
+
+      Implicit real*8 (a-h,o-z)
+      Implicit integer (i-n)
 
 #include "errquit.fh"
+#include "stdio.fh"
+      LOGICAL smatm     ! if true, both integrals use the same atom
+                        ! center.  Necessary for knowing when to
+                        ! multiply by the 1/2 factor for half-derivative
+                        ! integrals
+      logical hlfdrv    ! [input] if true, calculate same atom as well
+                        ! as different atom integrals. This is necessary
+                        ! when calculating the half-derivative overlap
+                        ! matrix for NADCTs
+      integer ictrA, ictrB !NB already used implicitly
 
       Logical dryrun
       Logical O2I,KEI,NAI,canAB,GenCon
@@ -66,6 +136,8 @@ c******************************************************************************
       call hf_print_set(0)
 #endif
       MXD = 1
+      smatm=.FALSE.
+      IF(ictrA.EQ.ictrB ) smatm = .TRUE.
 
 c Determine whether general or segmented contraction is used.
 
@@ -188,6 +260,13 @@ c Compute the 2-center overlap integrals, <a|S|b>.
      &             canAB)
 
        do 200 n = 1,Nint
+!        WRITE(*,*)"LB in hf1d, smatm=",smatm,"hlfdrv=",hlfdrv
+!        WRITE(*,*)"ictrA=",ictrA,"ictrB=",ictrB
+        IF ((.NOT. smatm) .AND. (hlfdrv)) THEN
+          bO2I(n,1)=-5D-01*bO2I(n,1)
+          bO2I(n,2)=-5D-01*bO2I(n,2)
+          bO2I(n,3)=-5D-01*bO2I(n,3)
+        ENDIF
         bO2I(n,4) = -bO2I(n,1)
         bO2I(n,5) = -bO2I(n,2)
         bO2I(n,6) = -bO2I(n,3)
@@ -356,7 +435,7 @@ c   (1) the derivative wrt to each of the nuclear attraction centers,
 c   (2) the derivative wrt to the centers of the Gaussian functions.
          
          if( ictrA.eq.ictrB )then
-           call daxpy(Nint*3,1.D0,W0(i_VA),1,bNAI(1,((ictrA-1)*3+1)),1)         
+           call daxpy(Nint*3,1.D0,W0(i_VA),1,bNAI(1,((ictrA-1)*3+1)),1)
          else
            call daxpy(Nint*3,1.D0,W0(i_VA),1,bNAI(1,((ictrA-1)*3+1)),1)
            call daxpy(Nint*3,1.D0,W0(i_VB),1,bNAI(1,((ictrB-1)*3+1)),1)

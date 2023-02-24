@@ -154,6 +154,15 @@ c
       logical task_gwmol
       external task_gwmol
 
+      logical task_aoints
+      external task_aoints
+
+      logical task_grdtrc
+      external task_grdtrc
+
+      logical task_nadtrc
+      external task_nadtrc
+
 c      logical embed_optimize
 c      external embed_optimize
 c
@@ -377,6 +386,12 @@ c
          status = task_energy(rtdb)
       else if (inp_compare(.false., 'gradient', operation)) then
          status = task_gradient(rtdb)
+      else if (inp_compare(.false., 'aoints', operation)) then
+         status = task_aoints(rtdb)
+      else if (inp_compare(.false., 'grdtrc', operation)) then
+         status = task_nadtrc(rtdb)
+      else if (inp_compare(.false., 'nadtrc', operation)) then
+         status = task_nadtrc(rtdb)
       else if (inp_compare(.false., 'property', operation)) then
          status = task_property(rtdb)
       else if (inp_compare(.false., 'hessian', operation)) then
