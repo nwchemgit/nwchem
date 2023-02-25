@@ -3646,7 +3646,7 @@ endif
 ifdef USE_LIBXC
     DEFINES += -DUSE_LIBXC
     EXTRA_LIBS += -L$(NWCHEM_TOP)/src/libext/libxc/install/lib
-    EXTRA_LIBS += -lxcf03 -lxc
+    EXTRA_LIBS += -lnwc_xcf03 -lnwc_xc
 endif
 
 # we use an external libxc library out of LIBXC_DIR
