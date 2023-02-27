@@ -635,14 +635,14 @@ c     two electron trace
         do j=1, nat
          do i=1,3
           frc_tot(i,j)=frc_kin(i,j)+frc_eff(i,j)+
-     &                 +frc_sow(i,j)+frc_2el(i,j)
+     &                 frc_sow(i,j)+frc_2el(i,j)
          enddo
         enddo
       else
         do j=1, nat
          do i=1,3
           frc_tot(i,j)=frc_kin(i,j)+frc_nuc(i,j)+frc_eff(i,j)+
-     &                 +frc_sow(i,j)+frc_2el(i,j)
+     &                 frc_sow(i,j)+frc_2el(i,j)
          enddo
         enddo
       endif
