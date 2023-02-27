@@ -8,15 +8,15 @@
 #include "context.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
-c     
-c>>>  Read input for properties calculations.    
-c     
+c
+c>>>  Read input for properties calculations.
+c
 c     All input is of the form:
 c     <keyword>  or   <keyword> <value>  or   <keyword> <value><units>
-c     
+c
       integer rtdb ! [input] handle to database
       integer iline, ifield, nfield, ii, jj, icount
-      
+
       character*255 movecs_in
       character*255 movecs_out
       character*255 test
@@ -57,7 +57,7 @@ c
       integer cphf3write,checkorth
       integer l_atefg,k_atefg,
      &        l_atshi,k_atshi,
-     &        l_athyp,k_athyp, 
+     &        l_athyp,k_athyp,
      &        l_pr, k_pr
       double precision point(3)
       logical status
@@ -65,16 +65,16 @@ c
       integer atomnr(100) ! FA-04-22-10
 
 c ... jochen:
-      integer aoresponse, nfreq, l_fr, k_fr, 
+      integer aoresponse, nfreq, l_fr, k_fr,
      &        velocity, magneticpert, aor_giao, aor_damp, aor_conv,
      &        aor_orbeta, aor_gprime, aor_quad, aor_analyze,
-     &        loc_boys, loc_pm, loc_ibo
+     &        loc_boys, loc_pm, loc_ibo, loc_opt, itmp
       double precision gamwidth, convergence
-c     
+c
 c>>>  declarations from NWdft
-c     
+c
       integer infinity ! for infinite loop
-      parameter (infinity=100000) 
+      parameter (infinity=100000)
 c
       movecs_in     = ' '
       movecs_out    = ' '
@@ -86,14 +86,14 @@ c
       polfromsos        = 0
       nbofile           = 0
       nboopt            = 0
-      efgfile           = 0 
-      efgopt            = 0 
-      hypfile           = 0 
-      hypopt            = 0 
-      gshiftfile        = 0 
-      gshiftopt         = 0 
-      shldfile          = 0 
-      shldopt           = 0 
+      efgfile           = 0
+      efgopt            = 0
+      hypfile           = 0
+      hypopt            = 0
+      gshiftfile        = 0
+      gshiftopt         = 0
+      shldfile          = 0
+      shldopt           = 0
 c
       dipole            = 1
       quadrupole        = 1
@@ -115,7 +115,7 @@ c
       hyperfine         = 1
       spinspin          = 1
       giao              = 1
-      gshift            = 1 
+      gshift            = 1
       center            = 1 ! default of center of charge
       point(1)          = 0.0d+0
       point(2)          = 0.0d+0
@@ -126,7 +126,7 @@ c
       spnspnpairs       = 0
 
 c ... jochen:
-      aoresponse        = 1 
+      aoresponse        = 1
       velocity          = 1
       magneticpert      = 1
       aor_giao          = 1
@@ -144,19 +144,20 @@ c ... jochen:
       loc_boys          = 1
       loc_pm            = 1
       loc_ibo           = 1
-c     
+      loc_opt           = 0
+c
 c     read inputs; store in rtdb
-c     
+c
       do iline = 1,infinity     !  infinite loop over input lines
-        
+
       if (.not. inp_read()) call errquit
      $   ('prop_input: inp_read failed', 0, INPUT_ERR)
-        
+
       nfield = inp_n_field()
       do ifield = 1,nfield
-        
+
       if (inp_a(test)) then
-c       
+c
         if ( inp_compare(.false., 'hyperfine', test)) then
           hyperfine = 0
           if (inp_i(hfineatoms)) then
@@ -169,12 +170,12 @@ c
               if (status) then
                 icount = icount+1
               else
-                write(6,'(a,a,i4,a)') 
+                write(6,'(a,a,i4,a)')
      &             'NMR hyperfine property input found',
      &             ' fewer atoms than expected, only',icount,
      &             ' will be used'
                 hfineatoms = icount
-                if (icount.eq.0) then 
+                if (icount.eq.0) then
                   if (.not.ma_pop_stack(l_athyp)) call
      &        errquit('prop_input: ma_pop_stack failed k_athyp',
      &                0,MA_ERR)
@@ -183,7 +184,7 @@ c
               endif
             enddo
           endif
-   14     continue      
+   14     continue
         elseif ( inp_compare(.false., 'spinspin', test)) then
           spinspin = 0
           if (inp_i(spnspnpairs)) then
@@ -196,7 +197,7 @@ c
               if (status) then
                 icount = icount+1
               else
-                write(6,'(a,a,i4,a)') 
+                write(6,'(a,a,i4,a)')
      &             'Spin-spin property input found',
      &             ' fewer pairs than expected, only',icount,
      &             ' will be used'
@@ -206,7 +207,7 @@ c
                   enddo
                 endif
                 spnspnpairs = icount
-                if (icount.eq.0) then 
+                if (icount.eq.0) then
                   if (.not.ma_pop_stack(l_pr)) call
      &         errquit('prop_input: ma_pop_stack failed k_pr',0,MA_ERR)
                 endif
@@ -214,7 +215,7 @@ c
               endif
             enddo
           endif
-   10     continue                
+   10     continue
         elseif ( inp_compare(.false., 'shielding', test)) then
           giao = 0
           if (inp_i(giaoatoms)) then
@@ -228,12 +229,12 @@ c
               if (status) then
                 icount = icount+1
               else
-                write(6,'(a,a,i4,a)') 
+                write(6,'(a,a,i4,a)')
      &             'NMR shielding property input found',
      &             ' fewer atoms than expected, only',icount,
      &             ' will be used'
                 giaoatoms = icount
-                if (icount.eq.0) then 
+                if (icount.eq.0) then
                   if (.not.ma_free_heap(l_atshi)) call
      &              errquit('prop_input: ma_free_heap l_atshi',
      &                      0, MA_ERR)
@@ -242,11 +243,11 @@ c
               endif
             enddo
           endif
-   11     continue                
+   11     continue
         elseif ( inp_compare(.false., 'gshift', test)) then
-          gshift = 0   
+          gshift = 0
 c  ... jochen: parse input for response/aoresponse key
-      elseif ( 
+      elseif (
      &    inp_compare(.false.,   'response', test) .or.
      &    inp_compare(.false., 'aoresponse', test)) then
         aoresponse = 0
@@ -259,12 +260,12 @@ c  ... jochen: parse input for response/aoresponse key
             if (status) then
               icount = icount+1
             else
-              write(6,'(a,a,i4,a)') 
+              write(6,'(a,a,i4,a)')
      &           'Response property input found',
      &           ' fewer frequencies than expected, only',icount,
      &           ' will be used'
               nfreq = icount
-              if (icount.eq.0) then 
+              if (icount.eq.0) then
                 if (.not.ma_pop_stack(l_fr)) call
      &          errquit('prop_input: ma_pop_stack failed k_fr',0,MA_ERR)
               endif
@@ -272,7 +273,7 @@ c  ... jochen: parse input for response/aoresponse key
             endif
           enddo
         endif
-   12   continue  
+   12   continue
       elseif ( inp_compare(.false., 'velocity', test)) then
          velocity = 0
       elseif ( inp_compare(.false., 'magneticpert', test)) then
@@ -296,8 +297,8 @@ c  ... jochen: parse input for response/aoresponse key
      &        0, INPUT_ERR)
          endif
 c cphf3write=1 ==> write (z1,Az1) to file
-c z1 , history matrix of solutions 
-c Az1, history matrix of products Az1       
+c z1 , history matrix of solutions
+c Az1, history matrix of products Az1
         status=inp_i(cphf3write)
 c        write(*,*) 'Reading cphf3write=',cphf3write
         status=inp_i(checkorth)
@@ -309,23 +310,37 @@ c        write(*,*) 'Reading checkorth=',checkorth
      &        0, INPUT_ERR)
          endif
 c        ... jochen end
-c ... jochen: localization input         
+c ... jochen: localization input
       elseif ( inp_compare(.false., 'localization', test)) then
         localization = 0
         if (inp_a(test)) then
           if ( inp_compare(.false., 'boys', test)) then
             loc_boys = 0
+            itmp = 0
+            if (inp_i(itmp)) then ! localization option
+              loc_opt = itmp
+            end if
           elseif ( inp_compare(.false., 'ibo', test)) then
             loc_ibo = 0
+            itmp = 0
+            if (inp_i(itmp)) then ! localization option
+              loc_opt = itmp
+            end if
           elseif ( inp_compare(.false., 'pm', test)) then
             loc_pm = 0
+            itmp = 0
+            if (inp_i(itmp)) then ! localization option
+              loc_opt = itmp
+            end if
           else ! default is PM
             loc_pm = 0
+            loc_opt = 0
           end if
         else
           loc_pm = 0
+          loc_opt = 0
         end if
-c ... jochen end        
+c ... jochen end
       elseif ( inp_compare(.false., 'stoneanalysis', test)) then
          stoneanalysis  = 0
          stoneanalysis  = 1
@@ -359,12 +374,12 @@ c
               if (status) then
                 icount = icount+1
               else
-                write(6,'(a,a,i4,a)') 
+                write(6,'(a,a,i4,a)')
      &             'EFGZ4 property input found',
      &             ' fewer atoms than expected, only',icount,
      &             ' will be used'
                 efgz4atoms = icount
-                if (icount.eq.0) then 
+                if (icount.eq.0) then
                   if (.not.ma_pop_stack(l_atefg)) call
      &        errquit('prop_input: ma_pop_stack failed k_atefg',
      &                0,MA_ERR)
@@ -373,7 +388,7 @@ c
               endif
             enddo
          endif
-   13    continue      
+   13    continue
 c --------- storing selected atmnr in rtdb ------- START
           if (efgz4atoms.gt.0) then
            if (.not. rtdb_put(rtdb, 'efgz4:natoms',mt_int,
@@ -435,9 +450,9 @@ c ==========================================
          dipole  = 0
       elseif ( inp_compare(.false., 'nbofile', test)) then
          nbofile = 1
-c ... jochen: read an option (integer value) to define 
-c     what NBO options will appear    
-          if (inp_i(nboopt)) then 
+c ... jochen: read an option (integer value) to define
+c     what NBO options will appear
+          if (inp_i(nboopt)) then
              continue           ! just read the number
           end if
       elseif ( inp_compare(.false., 'aimfile', test)) then
@@ -450,17 +465,17 @@ c     what NBO options will appear
          if(.not. inp_a(norm_style))
      $     call errquit(' prop_input: missing val for norm_stl ',0,
      I           INPUT_ERR)
-         
+
       elseif ( inp_compare(.false., 'efgfile', test)) then
          efgfile = 1
-c ... Fredy: read an option (integer value) to define 
-c     what EFG options will appear    
-          if (inp_i(efgopt)) then 
+c ... Fredy: read an option (integer value) to define
+c     what EFG options will appear
+          if (inp_i(efgopt)) then
              continue           ! just read the number
           end if
       elseif ( inp_compare(.false., 'hypfile', test)) then
          hypfile = 1
-          if (inp_i(hypopt)) then 
+          if (inp_i(hypopt)) then
              continue           ! just read the number
           end if
       elseif ( inp_compare(.false., 'gshiftfile', test)) then
@@ -521,7 +536,7 @@ c     what EFG options will appear
              status = status .and. inp_f(point(2))
              status = status .and. inp_f(point(3))
              if (.not.status)
-     $         call errquit 
+     $         call errquit
      $          ('prop_input: invalid arbitrary point',555, INPUT_ERR)
            else
              call errquit ('prop_input: not a valid center type',555,
@@ -531,10 +546,10 @@ c     what EFG options will appear
             call errquit ('prop_input: no center information',555,
      &       INPUT_ERR)
          endif
-c             
-      else if (inp_compare(.false.,'print', test) .or. 
+c
+      else if (inp_compare(.false.,'print', test) .or.
      $        inp_compare(.false.,'noprint', test)) then
-c          
+c
          call util_print_input(rtdb, 'prop')
 c
       elseif ( inp_compare(.false., 'end', test)) then
@@ -543,17 +558,17 @@ c
          write(6,'(a,a,a)') ' prop_input: keyword ',test,
      &             ' not recognized'
          goto 10000 !  die with error
-      endif 
+      endif
           else           ! no further field found in line
             goto 88      ! next line
       endif              ! terminates block    if (inp_a(test)) then
-      enddo              ! end of loop over input fields 
-   88   continue 
+      enddo              ! end of loop over input fields
+   88   continue
       enddo              ! end of infinite loop over input lines
-99999 continue 
+99999 continue
 c
 c    place integer parameters in rtdb
-c       
+c
       if (.not. rtdb_put(rtdb, 'prop:nbofile', mt_int, 1,
      $                               nbofile           ))
      $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
@@ -625,7 +640,7 @@ c ... Fredy: also write EFG option key to RTDB:
       if (.not. rtdb_put(rtdb, 'prop:quadrupole', mt_int, 1,
      $                               quadrupole        ))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
-      if (.not. rtdb_put(rtdb, 'prop:octupole', mt_int, 1, 
+      if (.not. rtdb_put(rtdb, 'prop:octupole', mt_int, 1,
      $                               octupole          ))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:mulliken', mt_int, 1,
@@ -683,11 +698,16 @@ c
 c
       if (.not. rtdb_put(rtdb, 'prop:loc_pm', mt_int, 1,
      $                               loc_pm  ))
-     $  call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
-c      
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+c
       if (.not. rtdb_put(rtdb, 'prop:loc_ibo', mt_int, 1,
      $                               loc_ibo  ))
-     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)      
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+c
+      if (.not. rtdb_put(rtdb, 'prop:loc_opt', mt_int, 1,
+     $                               loc_opt  ))
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+c
       if (.not. rtdb_put(rtdb, 'prop:spinspin', mt_int, 1,
      $                               spinspin         ))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
@@ -709,7 +729,7 @@ c
           if (.not. rtdb_put(rtdb, 'giao:atom list', mt_int, giaoatoms,
      &                       int_mb(k_atshi)))
      $    call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
-          if (.not.ma_free_heap(l_atshi)) 
+          if (.not.ma_free_heap(l_atshi))
      &    call errquit('prop_input: ma_free_heap l_atshi-1',
      &                      0, MA_ERR)
       endif
@@ -739,7 +759,7 @@ c             limits made a lot of trouble. Therefore we set the
 c             "nocheck" option which is used later in hnd_property.F
       if (aoresponse.eq.0) then
        if (.not. rtdb_put(rtdb, 'prop:nocheck', mt_log, 1, .true.))
-     $      call errquit('prop_input: rtdb_put nocheck failed', 0, 
+     $      call errquit('prop_input: rtdb_put nocheck failed', 0,
      $      RTDB_ERR)
       endif
       if (.not. rtdb_put(rtdb, 'aoresponse:velocity', mt_int, 1,
@@ -756,7 +776,7 @@ c             "nocheck" option which is used later in hnd_property.F
      $   call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'aoresponse:gprime', mt_int, 1,
      $   aor_gprime))
-     $   call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)      
+     $   call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'aoresponse:quad', mt_int, 1,
      $   aor_quad))
      $   call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
@@ -805,19 +825,19 @@ c ... jochen: end response section
         if (.not. rtdb_put(rtdb, 'prop:center_val',mt_dbl, 3, point))
      $      call errquit('prop_input: rtdb_put failed', 555, RTDB_ERR)
       endif
-c       
+c
       if(movecs_in.ne.' ') then
          if (.not. rtdb_cput(rtdb, 'prop:vectors',1, movecs_in))
      $      call errquit('prop_input: rtdb_cput failed', 555, RTDB_ERR)
       end if
 
       return
-c       
+c
 10000 continue !  die with error
       write (6,*) 'prop_input: error in input file, last field: '
       write (6,'(a)') test
       call errquit('prop_input: error in input file', 0, INPUT_ERR)
-c       
+c
       end
 
       subroutine prop_grid_input(rtdb)
@@ -845,7 +865,7 @@ c
       pname = "prop_input_grid"
 c
       tag = 'prop:cubefile'
-      if(.not.rtdb_put(rtdb,tag,mt_log,1,.true.)) 
+      if(.not.rtdb_put(rtdb,tag,mt_log,1,.true.))
      >    goto 999
 c
 600   continue
@@ -880,7 +900,7 @@ c
         end if
         tag="prop:grid:pad"
         f3 = f3*cang2au
-        if(.not.rtdb_put(rtdb,tag,mt_dbl,3,f3)) 
+        if(.not.rtdb_put(rtdb,tag,mt_dbl,3,f3))
      >       goto 999
       else if (inp_compare(.false.,'rmin',token)) then
         ic = 0
@@ -893,7 +913,7 @@ c
         end if
         tag="prop:grid:rmin"
         f3 = f3*cang2au
-        if(.not.rtdb_put(rtdb,tag,mt_dbl,3,f3)) 
+        if(.not.rtdb_put(rtdb,tag,mt_dbl,3,f3))
      >       goto 999
       else if (inp_compare(.false.,'rmax',token)) then
         ic = 0
@@ -906,7 +926,7 @@ c
         end if
         tag="prop:grid:rmax"
         f3 = f3*cang2au
-        if(.not.rtdb_put(rtdb,tag,mt_dbl,3,f3)) 
+        if(.not.rtdb_put(rtdb,tag,mt_dbl,3,f3))
      >       goto 999
        else if (inp_compare(.false.,'ngrid',token)) then
         ic = 0
@@ -920,12 +940,12 @@ c
            call errquit(pname//'need 1/3 integers '//token,0, INPUT_ERR)
         end if
         tag="prop:grid:ngrid"
-        if(.not.rtdb_put(rtdb,tag,mt_int,3,itok3)) 
+        if(.not.rtdb_put(rtdb,tag,mt_int,3,itok3))
      >       goto 999
 c      disabling filename for now
 c      --------------------------
       else if (inp_compare(.false.,'output',token)) then
-        if(.not.inp_a(buffer)) 
+        if(.not.inp_a(buffer))
      >       goto 997
         tag="prop:grid:output"
         if (.not. rtdb_cput(rtdb, tag,1, trim(buffer)))

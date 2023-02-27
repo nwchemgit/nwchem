@@ -19,7 +19,7 @@ c
       integer     geom   ! geometry "object" handle
       logical     status
       logical     some
-      logical     out 
+      logical     out
       integer     iopt
       integer     i,ipol
       character*20 scftype
@@ -34,20 +34,20 @@ c
      2     nogiao,nogshift,noston,nospinspin,noaoresponse,noboysloc,
      3     nopmloc,noiboloc,noelpiso
      4    /  1,    1,    1,    1,    1,    1,    1,    1,    1,
-     5       1,    1,    1,    1,    1,    1,    1,    1, 
-     6       1,    1,    1,    1,    1,    1,    1,    1,    1 /
+     5       1,    1,    1,    1,    1,    1,    1,    1,    1,
+     6       1,    1,    1,    1,    1,    1,    1,    1 /
 c
       out   =.false.
-      some  =.true.        
+      some  =.true.
       some  =some.or.out
       some  =some.and.ga_nodeid().eq.0
 
 c     Determine scftype
-      if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype)) 
+      if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype))
      &     scftype = "RHF"
       if (scftype.eq."RHF") then
            ipol = 1
-      else 
+      else
            ipol = 2
       endif
 c
@@ -60,9 +60,10 @@ c
 
       status=rtdb_get(rtdb,'prop:loc_pm',MT_INT,1,nopmloc)
 
-      status=rtdb_get(rtdb,'prop:loc_ibo',MT_INT,1,noiboloc) 
+      status=rtdb_get(rtdb,'prop:loc_ibo',MT_INT,1,noiboloc)
 
       status=rtdb_get(rtdb,'prop:esp',MT_INT,1,noelp) !done
+
       status=rtdb_get(rtdb,'prop:espiso',MT_INT,1,noelpiso)         !done
       status=rtdb_get(rtdb,'prop:efield',MT_INT,1,noelf)            !done
       status=rtdb_get(rtdb,'prop:efieldgrad',MT_INT,1,noelfg)       !done
@@ -89,16 +90,17 @@ c     Boys localization
       if (noboysloc.eq.0) then
         call localization_driver(rtdb, basis, geom, 2)
       end if
-c
-c     Boys localization
+
+c     IBO localization
       if (noiboloc.eq.0) then
         call localization_driver(rtdb, basis, geom, 3)
-      end if      
+      end if
+
 c
 c     ----- aoresponse: frequency dependent response -----
 c
       iopt = 1 ! default
-      if (.not. rtdb_get(rtdb,'prop:newaoresp',MT_INT,1,iopt))  
+      if (.not. rtdb_get(rtdb,'prop:newaoresp',MT_INT,1,iopt))
      &   iopt = 1 ! toggle for old driver for closed shells
       if (ipol.gt.1.or.scftype.eq."UHF") iopt = 1  ! always set new driver for open shells
 c
@@ -120,17 +122,17 @@ c
 c
 c     ----- dipole moment -----
 c
-      if(nodip.eq.0.or.nopmloc.eq.0.or.noboysloc.eq.0.or.nodpl.eq.0) 
+      if(nodip.eq.0.or.nopmloc.eq.0.or.noboysloc.eq.0.or.nodpl.eq.0)
      &  call hnd_mtpole(rtdb,basis,geom,1)
 c
 c     ----- quadrupole moment -----
 c
-      if(noqdp.eq.0) 
+      if(noqdp.eq.0)
      &  call hnd_mtpole(rtdb,basis,geom,2)
 c
 c     ----- octupole moment -----
 c
-      if(nootp.eq.0) 
+      if(nootp.eq.0)
      &  call hnd_mtpole(rtdb,basis,geom,3)
 c
 c     ----- (hyper)polarizabilities by -sos- -----
@@ -194,7 +196,7 @@ c
 c     ----- electrostatic potential on a specific electron density surface ---
 c
       if(noelpiso.eq.0) call hnd_elpiso(rtdb,basis,geom)
- 
+
 c     ----- electric field -----
 c
       if(noelf.eq.0) call hnd_elfmap(rtdb,basis,geom)
@@ -227,7 +229,7 @@ c
       if((nogiao.eq.0)) then
         if (ga_nodeid().eq.0 .and. (do_zora)) then
          write(LuOut,*)
-           call util_print_centered(LuOut,'Scalar ZORA NMR Shielding', 
+           call util_print_centered(LuOut,'Scalar ZORA NMR Shielding',
      &                   23, .true.)
          write(LuOut,*)
         endif
@@ -251,7 +253,7 @@ c     === deallocate used ga's ===
 
       if (nogshift.eq.0 .or. nogiao  .eq.0 .or.
      &    nospin  .eq.0 .or. noelfgZ4.eq.0) then
-       if (do_zora) then 
+       if (do_zora) then
         do i=1,ipol
            if (.not. ga_destroy(g_zora_Kinetic(i))) call errquit(
      &          'prp: ga_destroy failed g_zora_K',0, GA_ERR)
@@ -259,13 +261,13 @@ c     === deallocate used ga's ===
      &         'prp: ga_destroy failed ',0, GA_ERR)
         enddo ! ipol
 c Do not destroy g_AtNr if doing g-shift because it was not created!!
-        status=rtdb_get(rtdb,'prop:gshift'      ,MT_INT,1,nogshift) 
+        status=rtdb_get(rtdb,'prop:gshift'      ,MT_INT,1,nogshift)
         if (nogshift.ne.0) then
          if (.not. ga_destroy(g_AtNr)) call errquit( ! defined in dft_zora_NMR.F
-     &    'prp: ga_destroy failed g_AtNr',0, GA_ERR)   
+     &    'prp: ga_destroy failed g_AtNr',0, GA_ERR)
         endif
        if (.not. ga_destroy(g_Ci)) call errquit( ! defined in dft_zora_utils.F
-     &    'prp: ga_destroy failed g_Ci',0, GA_ERR)                 
+     &    'prp: ga_destroy failed g_Ci',0, GA_ERR)
        end if
       end if ! check-nogshift-nogiao-nospin-noelfgZ4
 c

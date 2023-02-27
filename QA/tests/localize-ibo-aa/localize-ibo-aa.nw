@@ -71,7 +71,7 @@ convergence energy 1e-10
 end
 
 property
- localization ibo
+ localization ibo 2
 end
 
 task scf property
