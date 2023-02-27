@@ -164,8 +164,11 @@ jobs:
           export TRAVIS_BUILD_DIR=`pwd`
           unset USE_SIMINT
           mytee=tee
+	  dist=$(grep ID= /etc/os-release |grep -v VERSION|head -1 |cut -c4-| sed 's/\"//g')
+	  nprocs=3
+	  if [[ $dist == "fedora" ]]; then nprocs=2; fi
           if  [[ `uname -s` == "Darwin" ]]; then mytee=gtee; fi
-          source travis/nwchem.bashrc; cd QA && ./doqmtests.mpi 3 | $mytee >(ts "%d%b%Y %H:%M:%S" > ../../../../doqmtests.mpi.log.` date +%b%d%Y_%H:%M`)
+          source travis/nwchem.bashrc; cd QA && ./doqmtests.mpi $nprocs | $mytee >(ts "%d%b%Y %H:%M:%S" > ../../../../doqmtests.mpi.log.` date +%b%d%Y_%H:%M`)
         shell: bash
       - name: Check if QA testing has failed
         if: ${{ failure() }} &&  steps.qa_test.outcome == 'failure'
