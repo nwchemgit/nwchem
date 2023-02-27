@@ -309,7 +309,6 @@ c     >   (int_mb(p_map3(1,nb)+k+j*(nx(nb)/2+1)), k=0,nx(nb)/2)
 c      end do
 c      write(*,*)
 c      end if
-     
 
       nfft3d(nb) = (nx(nb)/2+1)*nq1(nb)
       if ((ny(nb)*nq2(nb)).gt.nfft3d(nb)) nfft3d(nb) = ny(nb)*nq2(nb)

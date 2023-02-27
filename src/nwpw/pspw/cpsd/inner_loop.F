@@ -94,6 +94,8 @@ c     real*8     fion(3,natmx)
       integer nion1
 
 *     ***** external functions ****
+      logical  control_gram_schmidt
+      external control_gram_schmidt
       logical  control_move,psp_semicore,psp_pawexist,control_Fei
       logical  pspw_SIC,pspw_SIC_relaxed
       logical  pspw_HFX,pspw_HFX_relaxed
@@ -189,7 +191,6 @@ c     real*8     fion(3,natmx)
       integer mblock(2),nblock(2),algorithm(2)
       common /matrix_blocking/ mblock,nblock,algorithm
 #endif
-
 
       call nwpw_timing_start(42)
 
@@ -662,10 +663,13 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
         if (psp_pawexist()) then
            call psp_overlap_S(ispin,ne,psi1,psi_r)
            if (move) call phafac2()
-           call psi_lmbda_paw(ispin,ne,nemax,npack1,psi_r,psi2,
-     >                     dte,
-     >                     lmd,dbl_mb(tmp_L(1)),ierr)
-
+           if (control_gram_schmidt()) then
+              call Dneall_f_Sortho(ms,psi2,psi_r,npack1)
+           else
+              call psi_lmbda_paw(ispin,ne,nemax,npack1,psi_r,psi2,
+     >                           dte,
+     >                           lmd,dbl_mb(tmp_L(1)),ierr)
+           end if
         else if (fractional) then
            call psi_lmbda2(ispin,ne,nemax,npack1,psi1,psi2,
      >                     dte,occ1,

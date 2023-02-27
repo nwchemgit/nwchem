@@ -28,7 +28,7 @@
       integer taskid
       integer ms,nn
       integer st1,st2
-      integer A,B,C,U,D,Ba,Bs,fnm
+      integer A,B,C,U,D,Ba,Bs,fnm,i
 
       call nwpw_timing_start(3)
 
@@ -111,11 +111,11 @@ c          call Dneall_f_ortho(ms,psi2,npack1)
 
       !call dcopy(nn,B,1,Bs,1)
       call Parallel_shared_vector_copy(.true.,nn,B,Bs)
-      call daxpy_omp(nn,1.0d0,Ba,1,Bs,1)
-      call dscal_omp(nn,0.5d0,Bs,1)
+      call DAXPY_OMP(nn,1.0d0,Ba,1,Bs,1)
+      call DSCAL_OMP(nn,0.5d0,Bs,1)
 
-      call daxpy_omp(nn,-1.0d0,B,1,Ba,1)
-      call dscal_omp(nn,-0.5d0,Ba,1)
+      call DAXPY_OMP(nn,-1.0d0,B,1,Ba,1)
+      call DSCAL_OMP(nn,-0.5d0,Ba,1)
 
       return
       end
@@ -177,16 +177,18 @@ c          call Dneall_f_ortho(ms,psi2,npack1)
       external Dneall_m_dmax
 
       !**** A = I-A ***
-       call dscal(nn,(-1.0d0),A,1)
+       call DSCAL_OMP(nn,(-1.0d0),A,1)
        call Dneall_m_eye(ms,fnm,1.0d0)
-       call daxpy(nn,1.0d0,fnm,1,A,1)
+       call DAXPY_OMP(nn,1.0d0,fnm,1,A,1)
 
       !*** fnm = I-A ****
-      call dcopy(nn,A,1,fnm,1)
+      !call dcopy(nn,A,1,fnm,1)
+      call Parallel_shared_vector_copy(.true.,nn,A,fnm)
 
       !*** solve U*D*Ut*X + X*U*D*Ut = fnm for X ***
       call psi_fnm_to_X(ms,fnm,U,D,fweight,tmp)
-      call dcopy(nn,fnm,1,X1,1)
+      !call dcopy(nn,fnm,1,X1,1)
+      call Parallel_shared_vector_copy(.true.,nn,fnm,X1)
 
 
       it     = 0
@@ -207,7 +209,7 @@ c          call Dneall_f_ortho(ms,psi2,npack1)
         call Dneall_mmm_Multiply(ms,X1,Ba,-1.0d0,fnm,1.0d0)
 
         !*** fnm = I-A + Ba*X - X*Ba - X*C*X ***
-        call daxpy(nn,1.0d0,A,1,fnm,1)
+        call DAXPY_OMP(nn,1.0d0,A,1,fnm,1)
 
 
         !*** solve U*D*Ut*X + X*U*D*Ut = fnm for X ***
@@ -217,10 +219,12 @@ c          call Dneall_f_ortho(ms,psi2,npack1)
         !call DMSUB(n_max,n,X1,fnm,tmp)
         !adiff = tmp(idamax(n_max*n,tmp,1))
         !call dcopy(n_max*n,fnm,1,X1,1)
-        call dcopy(nn,X1,1,tmp,1)
-        call daxpy(nn,-1.0d0,fnm,1,tmp,1)
+        !call dcopy(nn,X1,1,tmp,1)
+        call Parallel_shared_vector_copy(.true.,nn,X1,tmp)
+        call DAXPY_OMP(nn,-1.0d0,fnm,1,tmp,1)
         adiff = Dneall_m_dmax(ms,tmp)
-        call dcopy(nn,fnm,1,X1,1)
+        !call dcopy(nn,fnm,1,X1,1)
+        call Parallel_shared_vector_copy(.true.,nn,fnm,X1)
 
         if (adiff.lt.convg) failed = .false.
       end do

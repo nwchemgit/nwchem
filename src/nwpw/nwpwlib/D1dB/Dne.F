@@ -1982,6 +1982,8 @@ c     ****************************************
 
          value = BA_push_get(mt_dbl,(2*ne(1)*ne(1)),
      >                       'tmp1',tmp1(2),tmp1(1))
+         value = value.and.BA_push_get(mt_dbl,ne(1),
+     >                                'ework',ework(2),ework(1))
          if (.not. value) 
      >      call errquit('Dneall_m_diagonalize:out of stack',
      >                    1,MA_ERR)
@@ -1993,15 +1995,23 @@ c     ****************************************
             if (ne(ms).le.0) go to 30
 
 !$OMP MASTER
+            call EIGEN_SET(ne(ms),hml(shift2),dbl_mb(ework(1)))
             call DSYEV('V','U',ne(ms),
      >                 hml(shift2),ne(ms), 
      >                 eig(shift1),
      >                 dbl_mb(tmp1(1)),2*ne(1)*ne(1),
      >                 ierr)
+c            ierr = 0
+c            call EIGEN_UNSORT(ne(ms),ne(ms),
+c     >                        hml(shift2),eig(shift1),
+c     >                        dbl_mb(tmp1(1)),ierr)
             if (ierr.ne.0) then
-              call errquit(
-     > 'You may need to do make 64_to_32 and recompile. '
-     > //'dneadiag:dsyev err=',ierr,0)
+              write(*,*) "dnem_iag:dsyev err=",ierr,0
+              call EIGEN_FAIL(ne(ms),
+     >                        hml(shift2),
+     >                        dbl_mb(ework(1)),
+     >                        eig(shift1))
+              !call errquit("dnem_iag:dsyev err=",ierr,0)
             end if
 !$OMP END MASTER
 !$OMP BARRIER
@@ -2020,7 +2030,8 @@ c     ****************************************
             call Parallel_Brdcst_values(MASTER,ne(mb)*ne(mb),hml)
          end if
 
-         value = BA_pop_stack(tmp1(2))
+         value = BA_pop_stack(ework(2))
+         value = value.and.BA_pop_stack(tmp1(2))
          if (.not. value) 
      >    call errquit('error popping stack in Dneall_m_diagonalize',
      >                 0,MA_ERR)
@@ -2028,6 +2039,32 @@ c     ****************************************
       end if
 
       call nwpw_timing_end(17)
+      return
+      end
+
+      subroutine EIGEN_SET(N,HML,EW)
+      implicit none
+      integer N
+      real*8 HML(N,N),EW(N)
+      integer i
+      do i=1,N
+         EW(I) = HML(i,i)
+      end do
+      return
+      end
+
+      subroutine EIGEN_FAIL(N,HML,EW,EIG)
+      implicit none
+      integer N
+      real*8 HML(N,N),EW(N),EIG(N)
+      integer i
+      do i=1,N
+         EIG(i) = EW(i)
+      end do
+      call dcopy(N*N,0.0d0,0,HML,1)
+      do i=1,N
+          HML(i,i) = 1.0d0
+      end do
       return
       end
 
@@ -6004,7 +6041,7 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
-c     *        Dneall_4m_RotateSkew         *
+c     *        Dneall_4m_RotateSkew          *
 c     *                                      *
 c     ****************************************
 
@@ -7391,7 +7428,13 @@ c     ****************************************
      >                 eig(shift1),
      >                 dbl_mb(tmp1(1)),2*nein(1)*nein(1),
      >                 ierr)
-         if(ierr.ne.0) call errquit('dneamdg: dsyev err.ne.0 ',ierr,0)
+            if (ierr.ne.0) then
+               ierr = 0
+               call EIGEN_UNSORT(nein(ms),nein(ms),
+     >                           hml(shift2),eig(shift1),
+     >                           dbl_mb(tmp1(1)),ierr)
+c              call errquit('dneamdg: dsyev err.ne.0 ',ierr,0)
+            end if
 
             if (.not.assending)
      >       call eigsrt(eig(shift1),

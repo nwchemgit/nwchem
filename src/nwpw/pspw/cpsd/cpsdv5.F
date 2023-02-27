@@ -212,6 +212,8 @@ c#include "Parallel.fh"
       external control_fractional_kT
       real*8   control_fractional_alpha
       external control_fractional_alpha
+      logical  control_gram_schmidt
+      external control_gram_schmidt
 
       integer  pspw_Efield_type
       external pspw_Efield_type
@@ -716,6 +718,7 @@ c           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
          write(luout,1290) control_tole(),control_tolc(),control_tolr()
          write(luout,1281) control_it_in()*control_it_out(),
      >                 control_it_in(),control_it_out()
+         if (control_gram_schmidt()) write(luout,1282)
 
         if (control_fractional()) then
            write(6,1297)
@@ -1527,6 +1530,7 @@ c      call frac_occ_end()
  1280 FORMAT(5X, ' time step=',F10.2,5X,'fictitious mass=',F10.1)
  1281 FORMAT(5X, ' maximum iterations =',I10,
      >           ' ( ',I4,' inner ',I6,' outer )')
+ 1282 FORMAT(5X, ' Gram Schmidt orthonormality used')
  1290 FORMAT(5X, ' tolerance=',E9.3,' (energy)',E12.3,
      &        ' (electron)',E12.3,' (ion)')
  1297 FORMAT(/' fractional smearing parameters:')

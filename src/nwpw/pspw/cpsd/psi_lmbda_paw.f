@@ -54,6 +54,7 @@ c $Id: psi_lmbda_paw.f 21177 2011-10-10 17:09:43Z bylaska $
 
       do ms=1,ispin
         IF(ne(ms).le.0) go to 640
+        failed = .false.
 
 *       ***** compute the overlap matrices ****
         call Dneall_ffm_sym_Multiply(ms,psi2,psi2,npack1,tmp(A))
@@ -68,11 +69,26 @@ c $Id: psi_lmbda_paw.f 21177 2011-10-10 17:09:43Z bylaska $
         call psi_gen_Ba_Bs(ms,nn,tmp(B),tmp(Bs),tmp(Ba))
 
         call psi_gen_UD(ms,tmp(Bs),tmp(D))
+c        if (tmp(D).lt.1.0e-3) failed = .true.
+c        if (taskid.eq.MASTER) then
+c        write(*,*) "ne=",ne(ms),failed
+c        write(*,'(A,300(I4,E12.3))') "D= ",(i,tmp(D+i),i=0,ne(ms)-1)
+cc        write(*,'(A,300(I4,E12.3))') "diag(B)= ",
+cc     >       (i,tmp(B+i+i*ne(ms)),i=0,ne(ms)-1)
+c        write(9,*)
+c        write(9,*) "B=["
+c        do i=0,ne(ms)-1
+c        write(9,'(300E12.3)') (tmp(B+i+j*ne(ms)),j=0,ne(ms)-1)
+c        write(9,*)";"
+c        end do
+c        write(9,*)"]"
+c        end if
 
-        call psi_gen_X_paw(ms,nn,tmp(st1),tmp(st2),
-     >                     tmp(A),tmp(Ba),tmp(C),
-     >                     tmp(U),tmp(D),tmp(fnm),
-     >                     failed)
+        if (.not.failed)
+     >     call psi_gen_X_paw(ms,nn,tmp(st1),tmp(st2),
+     >                        tmp(A),tmp(Ba),tmp(C),
+     >                        tmp(U),tmp(D),tmp(fnm),
+     >                        failed)
 
         if (failed) then
           if (taskid.eq.MASTER) then
@@ -90,7 +106,7 @@ c          call Dneall_f_GramSchmidt(ms,psi2,npack1)
      >                          psi1,npack1,
      >                          tmp(st1), 1.0d0,
      >                          psi2,1.0d0)
-          call dscal_omp(nn,(1.0d0/dte),tmp(st1),1)
+          call DSCAL_OMP(nn,(1.0d0/dte),tmp(st1),1)
           call Dneall_mm_Expand(ms,tmp(st1),lmbda)
         end if
    
@@ -173,7 +189,7 @@ c          call Dneall_f_GramSchmidt(ms,psi2,npack1)
         call Dneall_mmm_Multiply(ms,X1,Ba,-1.0d0,fnm,1.0d0)
 
         !*** fnm = I-A + Ba*X - X*Ba - X*C*X ***
-        call daxpy_omp(nn,1.0d0,A,1,fnm,1)
+        call DAXPY_OMP(nn,1.0d0,A,1,fnm,1)
 
 
         !*** solve U*D*Ut*X + X*U*D*Ut = fnm for X ***
@@ -184,7 +200,7 @@ c          call Dneall_f_GramSchmidt(ms,psi2,npack1)
         !call dcopy(n_max*n,fnm,1,X1,1)
         !call dcopy(nn,X1,1,tmp,1)
         call Parallel_shared_vector_copy(.true.,nn,X1,tmp)
-        call daxpy_omp(nn,-1.0d0,fnm,1,tmp,1)
+        call DAXPY_OMP(nn,-1.0d0,fnm,1,tmp,1)
 !$OMP MASTER
         adiff = Dneall_m_dmax(ms,tmp)
 !$OMP END MASTER

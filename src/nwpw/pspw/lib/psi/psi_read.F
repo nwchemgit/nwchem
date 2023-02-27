@@ -3,9 +3,9 @@
 *
 
 *     ***********************************
-*     *             			*
-*     *           psi_read		*
-*     *             			*
+*     *                                 *
+*     *           psi_read              *
+*     *                                 *
 *     ***********************************
 
       subroutine psi_read(ispin,ne,psi2,occupation,occ)
