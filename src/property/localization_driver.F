@@ -34,8 +34,8 @@ c     ==================================================================
 #include "apiP.fh"
 #include "prop.fh"
 #include "bgj.fh"
-#include "util.fh"    
-
+#include "util.fh"
+#include "nwc_const.fh"
 
 c     subroutine arguments:
       integer rtdb    ! [input] rtdb handle
@@ -46,17 +46,18 @@ c     subroutine arguments:
 c     local GA handles:
       integer g_uc(4), g_smat, g_sc, g_tran
       integer g_movecs(2), g_cmo(2), g_temp, g_tmp1, g_tmp2
-      integer g_s2, g_s12, g_p12, g_p21
-      integer g_ctilde, g_iao, g_mo
 
 c     MA variables:
       integer l_c, k_c, l_sc, k_sc, l_eval, k_eval, l_occ, k_occ
       integer l_dip(3), k_dip(3)
+      integer l_pop, k_pop, l_list, k_list
 
 c     other local variables:
 
-      integer nclosed(2), nopen(2), nvirt(2), ncore,
-     &  ndens, nbf, nmo, nloc, i
+      integer loc_opt
+
+      integer nclosed(2), nopen(2), nvirt(2), ncore, nocc, nvir,
+     &  ndens, nbf, nmo, nloc, i, natoms
 
       integer info, dbg, ispin
       
@@ -92,13 +93,8 @@ c     other local variables:
       logical int_normalize
       external int_normalize
 
-c     variables for IAO basis
-      integer
-     &  nbf_iao, nbf_iao_mxprim, nbf_iao_mxang, nbf_iao_mxcont,
-     &  nbf_iao_mxnbf_cn, nbf_iao_mxnbf_ce, nshells_iao,
-     &  minbas      
-
       character*(19) pname
+      character*(3) ltyp
 
 c     ==================================================================
 
@@ -124,20 +120,52 @@ c     ----------------------
         write (luout,9000) ! general header
         if (loctype.eq.1) then
           call util_print_centered(luout,
-     &       'Pipek-Mezey localization', 32, .true.)
+     &       'Pipek-Mezey localization', 25, .true.)
         elseif (loctype.eq.2) then
           call util_print_centered(luout,
      &      'Boys localization', 25, .true.)
         elseif (loctype.eq.3) then
           call util_print_centered(luout,
-     &       'IAO-IBO localization', 20, .true.)
+     &      'IAO-IBO localization', 25, .true.)
         else
           write (luout,*) 'loctype =',loctype
           write (luout,*) 'LocType value not supported. Exiting.'
           return
         end if
       end if
-      
+
+c     retrieve localization option from rtdb if it exists
+
+      if (.not. rtdb_get(rtdb, 'prop:loc_opt', mt_int, 1,
+     &                               loc_opt  ))
+     &  loc_opt = 0
+
+c     option is currently only implemented for IBOs:
+
+      if (loc_opt.gt.0 .and. (loctype.ne.3)) then
+        if (oprint) write(luout,'(/1x,a/1x,a)')
+     &    'localization option not implemented for chosen loc. type',
+     &    'setting option to 0 ...'
+        loc_opt = 0
+      end if
+
+      if (oprint) then
+        if (loc_opt .eq.0) then
+          call util_print_centered(luout,
+     &      '(occupied orbitals)', 25, .false.)
+        else if (loc_opt.eq.1) then
+          call util_print_centered(luout,
+     &      '(virtual orbitals)', 25, .false.)
+        else if (loc_opt.eq.2) then
+          call util_print_centered(luout,
+     &      '(occ and virt orbitals)', 25, .false.)
+        else
+          call errquit(pname//': localization option out of range',
+     &      loc_opt, INPUT_ERR)
+        end if
+      end if
+
+
 
 c     -------------------------------------------------------
 c     assemble some data:
@@ -160,8 +188,19 @@ c     allocate dbl_mb(leval) = orbital energies:
 
       if (debug)
      &   write (luout,*) 'loc driver: nclosed,nopen,nvirt',nclosed(1),
-     &   nopen(1), nvirt(1)
-      
+     &  nopen(1), nvirt(1)
+
+      natoms = 0
+
+      if (.not. geom_ncent(geom, natoms)) call errquit
+     &  (pname//': geom',0, GEOM_ERR)
+
+      if (natoms.lt.1) call errquit
+     &  (pname//': could not get natoms from rtdb', 911, UNKNOWN_ERR)
+
+      if (natoms.gt.nw_max_atom) call errquit
+     &  (pname//': nw_max_atom too small ', 911, UNKNOWN_ERR)
+
 c     Skip localization if we have an open-shell system
 c     (to be extended eventually, localizing alpha and
 c     beta spin orbitals separately):
@@ -190,9 +229,15 @@ c     dynamically but for now let's make sure we don't get out of
 c     bounds:
 
       if (nmo.gt.maxnloc) call
-     &   errquit('loc_driver: maxnloc too small',0, BASIS_ERR)
+     &  errquit('loc_driver: maxnloc too small',0, BASIS_ERR)
 
-      
+c     for the time being, we set these variables here:
+
+      ispin = 1
+      nocc = nclosed(1)
+      nvir = nvirt(ispin)
+
+
 c     --------------------------------------------
 c     setup complete. Now proceed to the localization
 c     --------------------------------------------
@@ -471,335 +516,72 @@ c        smat not needed anymore
          if (.not. ga_destroy(g_smat)) call errquit(
      &     'loc_driver: error destroying g_smat',0, GA_ERR)
 
-c      ================================================================
+
+c      ===============================================================
 
        else if (loctype.eq.3) then
 
-c       ====================
-c       IAO-IBO localization
-c       ====================
-        
-c       AO Overlap Matrix S1 -> g_smat:
-
-        g_smat  = ga_create_atom_blocked(geom, basis, 'loc:smat')
-        call ga_zero(g_smat)
-        call int_1e_ga(basis, basis, g_smat, 'overlap', .false.)
-
-c       auxiliary basis overlap S2 -> g_s2 basis needs to defined in the
-c       input as "iao basis". we will now create the basis here and then
-c       calculate the overlap and the mixed ao-iao basis overlap S12
-        
-        if (.not. bas_create(minbas, 'iao basis'))
-     &    call errquit(pname//': cannot create iao bas', 86, BASIS_ERR)
-        
-        if (.not. bas_rtdb_load(rtdb, geom, minbas, 'iao basis'))
-     &    call errquit(pname//': iao basis not present', 86, BASIS_ERR)
-        
-        if (.not. int_normalize(rtdb,minbas))
-     &    call errquit(pname//': int_normalize failed iao', 86, INT_ERR)
-        
-        if (.not. bas_numbf(minbas, nbf_iao))
-     &    call errquit(pname//': bas error nbf_iao', 86, BASIS_ERR)
-        
-        if (.not. bas_nprim_cn_max(minbas,nbf_iao_mxprim))
-     &    call errquit(pname//': bas error iao mxprim', 86, BASIS_ERR)
-        
-        if (.not. bas_high_angular(minbas,nbf_iao_mxang))
-     &    call errquit(pname//': bas error iao mxang', 86, BASIS_ERR)
-        
-        if (.not. bas_ncontr_cn_max(minbas,nbf_iao_mxcont))
-     &    call errquit(pname//': bas error iao mxcont', 86, BASIS_ERR)
-        
-        if (.not. bas_nbf_cn_max(minbas,nbf_iao_mxnbf_cn))
-     &    call errquit(pname//': bas error iao mcnbf_cn', 86, BASIS_ERR)
-        
-        if (.not. bas_nbf_ce_max(minbas,nbf_iao_mxnbf_ce))
-     &    call errquit(pname//': bas error iao mxnbf_ce', 86, BASIS_ERR)
-        
-        if (.not. bas_numcont(minbas,nshells_iao))
-     &    call errquit(pname//': bas error iao nshells', 86, BASIS_ERR)
-
-c       create overlap for minbas, and the mixed basis-minbas
-c       overlap S12.
-c       Then we calculate the projectors P12 and P21
-c       via solving S1 P12 = S12 for P12 etc.
-        
-        g_s2  = ga_create_atom_blocked(geom, minbas, 'loc:s2')
-        call ga_zero(g_s2)
-        call int_1e_ga(minbas, minbas, g_s2, 'overlap', .false.)
-
-        if (.not. ga_create(MT_DBL, nbf, nbf_iao, 'loc:s12',
-     &    nbf, 0, g_s12)) call errquit(pname//': S12',61, GA_ERR)
-
-        call ga_zero(g_s12)
-        call int_1e_ga(basis, minbas, g_s12, 'overlap', .false.)
-
-        if (.not.ga_duplicate(g_s12, g_p12, 'g_p12')) call
-     &    errquit(pname//': ga_dup P12',62,GA_ERR)
-
-        call ga_copy(g_s12, g_p12)
-        
-#ifdef SCALAPACK
-        info = ga_solve(g_smat, g_p12) 
-        if (debug) write(luout,*)
-     &    'info from ga_solve P12:', info
-#else
-        if (debug) write(luout,*) 'call 1 ma_solve' 
-        call ma_solve(g_smat, g_p12)
-#endif
-
-        if (.not. ga_create(MT_DBL, nbf_iao, nbf, 'loc:p21',
-     &    nbf_iao, 0, g_p21)) call errquit(pname//': P21',63, GA_ERR)
-
-        call ga_transpose(g_s12, g_p21)
-        if (debug) write(luout,*) 'P12 assembled' 
-
-c       S12 no longer needed
-        if (.not. ga_destroy(g_s12))
-     &    call errquit(pname//': ga_destroy failed g_s12',61, GA_ERR)  
-
-c : scalapack throws a 'ga_to_SL: rows/cols error' so we're using
-c       ma_solve for the time being
-c#ifdef SCALAPACK
-c        info = ga_solve(g_s2, g_p21) 
-c        if (debug) write(luout,*)
-c     &    'info from ga_solve P21:', info
-c#else
-        if (debug) write(luout,*) 'call 2 ma_solve' 
-        call ma_solve(g_s2, g_p21)
-c#endif
-
-c       g_s2 no longer needed
-        if (.not. ga_destroy(g_s2)) call errquit(
-     &    pname//': error destroying g_s2',0, GA_ERR)
-
-        if (dbg>1) then
-          call ga_print(g_p12)
-          call ga_print(g_p21)
-        end if
-
-c       store P12 * P21 in array g_temp; we'll need it soon
-
-        if (.not.ga_duplicate(g_smat, g_temp, 'g_temp')) call
-     &    errquit(pname//': ga_dup temp', 71, GA_ERR)
-        
-        call ga_dgemm('n', 'n', nbf, nbf, nbf_iao,
-     &    1.0d0, g_p12, g_p21, 0.0d0, g_temp)
-
-         if (debug) write (luout,*) 'p12 p21 -> temp'        
-
-c        P21 is no longer needed
-         
-         if (.not. ga_destroy(g_p21))
-     &     call errquit(pname//': ga_destroy failed g_p21',61, GA_ERR)
-        
-c        we will localize the doubly occupied orbitals, assuming a
-c        closed-shell calculation and no designated core
-c        corbitals. Eventually, this will need to be extended to a loop
-c        over spins, for unrestricted SCF, and we may want to add
-c        localization of the virtual space, too
-
-        if (.not. geom_num_core(rtdb, geom, 'ddscf', ncore)) ncore = 0
-
-        if (debug) write (luout,*) 'ncore = ',ncore
-
-        ispin = 1
-        
-         do i = 1, nclosed(ispin)
-            iloc(i) = i
-         end do
-         nloc = nclosed(ispin)
-
-c        copy the relevant CMOs to g_mo
-         
-         if (.not. ga_create(MT_DBL, nbf, nloc, 'loc:g_mo',
-     &     nbf, 0, g_mo)) call errquit(pname//': g_mo',0, GA_ERR)
-
-         call ga_copy_patch('n',
-     &     g_movecs(ispin), 1, nbf, 1, nloc,
-     &     g_mo,            1, nbf, 1, nloc)
-
-         if (debug) write (luout,*) 'movecs -> mo'         
-
-c        create C-tilde from Appendix C of Knizia's IBO paper.  g_temp
-c        holds P12 * P21; we won't need it after the next matrix
-c        multiplication
-         
-         if (.not. ga_create(MT_DBL, nbf, nloc, 'loc:ctilde',
-     &     nbf, 0, g_ctilde)) call errquit('loc_driver: sc',0, GA_ERR)
-
-         call ga_dgemm('n', 'n', nbf, nloc, nbf, 
-     &     1.0d0, g_temp, g_mo, 0.0d0, g_ctilde)
-
-         if (.not. ga_destroy(g_temp))
-     &     call errquit(pname//': ga_destroy failed g_temp',71, GA_ERR)
-
-         if (debug) write (luout,*) 'pre sym_orth 1'
-         call sym_orth(g_ctilde, g_smat, nbf, nloc)
-
-         if (dbg>1) call ga_print(g_ctilde)
-
-c        now assemble the matrix products to form matrix A from Appendix
-c        C of the IBO paper. The result will be accumulated in array
-c        g_iao which are the IAOs in basis 1. The shape of the array is
-c        the same as P12
-
-         if (.not.ga_duplicate(g_smat, g_tmp1, 'g_tmp1')) call
-     &     errquit(pname//': ga_dup tmp1', 72, GA_ERR)
-         
-         if (.not.ga_duplicate(g_smat, g_tmp2, 'g_tmp2')) call
-     &     errquit(pname//': ga_dup tmp2', 72, GA_ERR)
-
-         if (.not.ga_duplicate(g_smat, g_temp, 'g_temp')) call
-     &     errquit(pname//': ga_dup temp', 72, GA_ERR)
-
-         if (.not.ga_duplicate(g_p12, g_iao, 'g_iao')) call
-     &     errquit(pname//': ga_dup iao', 72, GA_ERR)
-
-
-c        C * C(trans) 
-         call ga_dgemm('n', 't', nbf, nbf, nloc, 
-     &     1.0d0, g_mo, g_mo, 0.0d0, g_temp)
-
-c        C * C(trans) * S1 -> tmp1
-         call ga_dgemm('n', 'n', nbf, nbf, nbf, 
-     &     1.0d0, g_temp, g_smat, 0.0d0, g_tmp1)
-
-c        tilde-C * tilde-C(trans) 
-         call ga_dgemm('n', 't', nbf, nbf, nloc, 
-     &     1.0d0, g_ctilde, g_ctilde, 0.0d0, g_temp)
-
-c        tilde-C * tilde-C(trans) * S1 -> tmp2
-         call ga_dgemm('n', 'n', nbf, nbf, nbf, 
-     &     1.0d0, g_temp, g_smat, 0.0d0, g_tmp2)         
-
-c        C * C(trans) * S1  * tilde-C * tilde-C(trans) * S1
-
-         call ga_dgemm('n', 'n', nbf, nbf, nbf, 
-     &     1.0d0, g_tmp1, g_tmp2, 0.0d0, g_temp)
-
-c        multiply prev. result by P12 and store in g_iao
-
-         call ga_dgemm('n', 'n', nbf, nbf_iao, nbf, 
-     &     1.0d0, g_temp, g_p12, 0.0d0, g_iao)
-         
-c        form C * C(trans) -1
-         call ga_add_todiag(g_tmp1, -1.0d0)
-         
-c        form tilde-C * tilde-C(trans) -1
-         call ga_add_todiag(g_tmp2, -1.0d0)
-
-c        multiply the two prev. results with each other, then multiply
-c        the result with P12 and add to g_iao
-         
-         call ga_dgemm('n', 'n', nbf, nbf, nbf, 
-     &     1.0d0, g_tmp1, g_tmp2, 0.0d0, g_temp)
-
-         call ga_dgemm('n', 'n', nbf, nbf_iao, nbf, 
-     &     1.0d0, g_temp, g_p12, 1.0d0, g_iao)
-
-c        g_ctilde no longer needed
-         
-         if (.not. ga_destroy(g_ctilde))
-     &     call errquit(pname//': ga_destroy failed ctilde',62, GA_ERR)
-
-c        delete temp arrays before calling sym_orth, which allocates its
-c        own temp memory
-
-         if (.not. ga_destroy(g_tmp1))
-     &     call errquit(pname//': ga_destroy failed g_tmp1',71, GA_ERR)
-         
-         if (.not. ga_destroy(g_tmp2))
-     &     call errquit(pname//': ga_destroy failed g_tmp2',71, GA_ERR)
-         
-         if (.not. ga_destroy(g_temp))
-     &     call errquit(pname//': ga_destroy failed g_temp',71, GA_ERR)         
-c        last step: orthonormalize g_iao
-
-         if (debug) write (luout,*) 'pre sym_orth 2'
-         call sym_orth(g_iao, g_smat, nbf, nbf_iao)
-
-         call ga_sync
-         
-         if (dbg>1) call ga_print(g_iao)
-
-c        check orthogonality of IAOs w.r.t. metric S1
-c        g_p12 is used for scratch
-
-        if (.not. ga_create(MT_DBL, nbf_iao, nbf_iao, 'g_temp',
-     &    nbf_iao, 0, g_temp)) call errquit(pname//': temp',73, GA_ERR)
-         
-         call ga_dgemm('n', 'n', nbf, nbf_iao, nbf, 
-     &     1.0d0, g_smat, g_iao, 0.0d0, g_p12)
-
-         call ga_dgemm('t', 'n', nbf_iao, nbf_iao, nbf, 
-     &     1.0d0, g_iao, g_p12, 0.0d0, g_temp)
-
-         if (dbg>1) call ga_print(g_temp)
-
-         call ga_add_todiag(g_temp, -1.0d0)
-
-         call ga_maxelt(g_temp, rtemp)
-         if (master) then
-           write(luout,'(/1x,a,1x,f18.12)')
-     &       'IBO loc: largest element in C(iao, trans) S C(iao) -1: ',
-     &     rtemp
-           write(luout,'(1x,a/1x,a/)')
-     &       'Significant deviations from zero may indicate',
-     &       'elevated numerical noise in the IAO generation'
-         end if
-
-         if (.not. ga_destroy(g_temp))
-     &     call errquit(pname//': ga_destroy failed g_temp',73, GA_ERR)
-
-c        g_p12 no longer needed
-         
-         if (.not. ga_destroy(g_p12))
-     &     call errquit(pname//': ga_destroy failed g_p12',61, GA_ERR)
-         
-c        allocate some memory used in the localization routine:
-
-         if (.not. ma_push_get(mt_dbl, 2*nbf_iao, 'c', l_c, k_c))
-     &        call errquit(pname//': ma for c', 0, MA_ERR)
-
-
-c        jochen: comment
-c        IBO localization was modeled on the pre-existing PM
-c        localization code
-         call localizeIBO(basis, minbas,
-     &     dbl_mb(k_c),
-     &     nloc, iloc, nbf, nmo, g_mo, g_smat, g_iao, nbf_iao,
-     &     dbl_mb(k_eval+(ispin-1)*nbf), dbl_mb(k_occ+(ispin-1)*nbf))
-
-c        g_mo now holds the localized MOs in the AO basis
-
-c        assuming occupied MO localization, we copy the LMOs into the
-c        relevant part of movecs
-
-         call ga_copy_patch('n',
-     &     g_mo,        1, nbf, 1, nloc,
-     &     g_movecs(1), 1, nbf, 1, nloc)
-
-
-c        deallocate remaining arrays that are no longer needed
-         
-         if (.not. ma_pop_stack(l_c)) call errquit(
-     &      pname//': error MA pop c',0, MA_ERR)
-
-         if (.not. ga_destroy(g_iao)) call errquit(
-     &     pname//': error destroying g_iao',0, GA_ERR)
-
-         if (.not. ga_destroy(g_mo)) call errquit(
-     &     pname//': error destroying g_mo',0, GA_ERR)         
-         
-c        smat not needed anymore
-         if (.not. ga_destroy(g_smat)) call errquit(
-     &     pname//': error destroying g_smat',0, GA_ERR)
-
-c        destroy minimal basis (iao basis)
-         if (.not.bas_destroy(minbas))
-     &     call errquit(pname//'iao bas_destroy failed',0,BASIS_ERR)
-
+c        ===================================================
+c        IAO-IBO localization (occupied or virtual orbitals)
+c        ===================================================
+
+
+         ispin = 1
+         nocc = nclosed(ispin)
+         nvir = nvirt(ispin)
+
+c        allocate MA array for pairs of MOs. The actual dimensions
+c        needed are less or equal to 2*nbf
+
+         if (.not. ma_push_get(mt_dbl, 2*nbf, 'c mo', l_c, k_c))
+     &     call errquit(pname//': ma for c', 0, MA_ERR)
+
+         if (.not. ma_push_get(mt_dbl, natoms, 'pop', l_pop, k_pop))
+     &     call errquit(pname//': loc:pop', 0, MA_ERR)
+
+         if (.not. ma_push_get(mt_int, natoms, 'list', l_list, k_list))
+     &     call errquit(pname//': loc:list', 0, MA_ERR)
+
+         if (loc_opt.eq.0) then
+           ltyp = 'occ'
+           call ibo_localization(rtdb, geom, ltyp, basis,
+     &       g_movecs(ispin),nocc,nvir, nmo, nbf, natoms,
+     &       dbl_mb(k_eval+(ispin-1)*nbf),
+     &       dbl_mb(k_occ+(ispin-1)*nbf),
+     &       dbl_mb(k_c),
+     &       dbl_mb(k_pop), int_mb(k_list))
+
+         else if (loc_opt.eq.1) then
+           ltyp = 'vir'
+           call ibo_localization(rtdb, geom, ltyp, basis,
+     &       g_movecs(ispin),nocc,nvir, nmo, nbf, natoms,
+     &       dbl_mb(k_eval+(ispin-1)*nbf),
+     &       dbl_mb(k_occ+(ispin-1)*nbf),
+     &       dbl_mb(k_c),
+     &       dbl_mb(k_pop), int_mb(k_list))
+
+         else if(loc_opt.eq.2) then
+           ltyp = 'occ'
+           call ibo_localization(rtdb, geom, ltyp, basis,
+     &       g_movecs(ispin),nocc,nvir, nmo, nbf, natoms,
+     &       dbl_mb(k_eval+(ispin-1)*nbf),
+     &       dbl_mb(k_occ+(ispin-1)*nbf),
+     &       dbl_mb(k_c),
+     &       dbl_mb(k_pop), int_mb(k_list))
+
+           ltyp = 'vir'
+           call ibo_localization(rtdb, geom, ltyp, basis,
+     &       g_movecs(ispin),nocc,nvir, nmo, nbf, natoms,
+     &       dbl_mb(k_eval+(ispin-1)*nbf),
+     &       dbl_mb(k_occ+(ispin-1)*nbf),
+     &       dbl_mb(k_c),
+     &       dbl_mb(k_pop), int_mb(k_list))
+
+         else
+           call errquit(pname//': loc_opt out of range',loc_opt,
+     &       UNKNOWN_ERR)
+
+         end if ! loc_opt
 
        end if ! loctype
 
@@ -849,84 +631,6 @@ c     ==================================================================
      &  10x,28(1h*),/,10x,'*** ORBITAL LOCALIZATION ***',/,
      &  10x,28(1h*)/)
 
- 9020 format(/,10x,'Open shell calculations not yet implemented',
+ 9020 format(/,10x,'Spin-unrestricted calculations not yet implemented',
      &      ' for the Localization module. Exiting')
       end
-
-c     =================================================================
-
-      subroutine sym_orth(g_c, g_s, n1, n2)
-
-      implicit none
-
-#include "global.fh"
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "stdio.fh"      
-#include "numerical_constants.fh"      
-
-c     Given input vectors collected in matrix C, and a metric S,
-c     calculate
-c     C' = C times [transpose(C) S C]**(-1/2) such that
-c     transpose(C') S C = unit matrix
-
-c     matrix S is square symmetric, dimension n1, n1
-c     matrix C has dimension n1, n2
-      
-c     in the calling routine, matrix C may be allocated with more than
-c     n2 columns, which is the reason we use ga_copy_patch below
-      
-      integer g_c !  in/out
-      integer g_s !  input
-
-      integer n1, n2  ! input
-
-      integer g_sc, g_csc
-
-      character*(8) pname
-
-      logical debug
-
-c     -----------------------------------------------------------------
-
-      pname = 'sym_orth'
-
-      debug = .false. .and. ga_nodeid().eq.0 !during development
-
-      if (debug) write(luout,*) 'entering '//pname
-
-       if(.not.ga_create(mt_dbl,n1,n2,'g_sc',0,0,g_sc))
-     &  call errquit(pname//': error creating g_sc',141, GA_ERR)
-
-       if(.not.ga_create(mt_dbl,n2,n2,'g_csc',0,0,g_csc))
-     &    call errquit(pname//': error creating g_csc',142, GA_ERR) 
-
-       call ga_dgemm('n','n',n1, n2, n1, 1.0d0,
-     &   g_s, g_c, 0.0d0, g_sc)
-
-       call ga_dgemm('t','n',n2, n2, n1, 1.0d0,
-     &   g_c, g_sc, 0.0d0, g_csc)
-
-       call ga_matpow(g_csc, -FP_Half, 1d-12)
-
-       call ga_copy_patch('n', 
-     &   g_c,  1, n1, 1, n2,
-     &   g_sc, 1, n1, 1, n2)
-
-       call ga_dgemm('n','n',n1, n2, n2, 1.0d0,
-     &   g_sc, g_csc, 0.0d0, g_c)       
-
-
-       if (.not. ga_destroy(g_sc))
-     &   call errquit(pname//': error destroy g_sc',141, GA_ERR)
-
-       if (.not. ga_destroy(g_csc))
-     &   call errquit(pname//': error destroy g_csc',142, GA_ERR)       
-
-       if (debug) write(luout,*) 'leaving '//pname
-       
-       return
-
-       end
-
-      

@@ -68,7 +68,7 @@ c ... jochen:
       integer aoresponse, nfreq, l_fr, k_fr, 
      &        velocity, magneticpert, aor_giao, aor_damp, aor_conv,
      &        aor_orbeta, aor_gprime, aor_quad, aor_analyze,
-     &        loc_boys, loc_pm, loc_ibo
+     &        loc_boys, loc_pm, loc_ibo, loc_opt, itmp
       double precision gamwidth, convergence
 c     
 c>>>  declarations from NWdft
@@ -144,7 +144,8 @@ c ... jochen:
       loc_boys          = 1
       loc_pm            = 1
       loc_ibo           = 1
-c     
+      loc_opt           = 0
+c
 c     read inputs; store in rtdb
 c     
       do iline = 1,infinity     !  infinite loop over input lines
@@ -315,15 +316,29 @@ c ... jochen: localization input
         if (inp_a(test)) then
           if ( inp_compare(.false., 'boys', test)) then
             loc_boys = 0
+            itmp = 0
+            if (inp_i(itmp)) then ! localization option
+              loc_opt = itmp
+            end if
           elseif ( inp_compare(.false., 'ibo', test)) then
             loc_ibo = 0
+            itmp = 0
+            if (inp_i(itmp)) then ! localization option
+              loc_opt = itmp
+            end if
           elseif ( inp_compare(.false., 'pm', test)) then
             loc_pm = 0
+            itmp = 0
+            if (inp_i(itmp)) then ! localization option
+              loc_opt = itmp
+            end if
           else ! default is PM
             loc_pm = 0
+            loc_opt = 0
           end if
         else
           loc_pm = 0
+          loc_opt = 0
         end if
 c ... jochen end        
       elseif ( inp_compare(.false., 'stoneanalysis', test)) then
@@ -687,7 +702,12 @@ c
 c      
       if (.not. rtdb_put(rtdb, 'prop:loc_ibo', mt_int, 1,
      $                               loc_ibo  ))
-     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)      
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+c
+      if (.not. rtdb_put(rtdb, 'prop:loc_opt', mt_int, 1,
+     $                               loc_opt  ))
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+c
       if (.not. rtdb_put(rtdb, 'prop:spinspin', mt_int, 1,
      $                               spinspin         ))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
