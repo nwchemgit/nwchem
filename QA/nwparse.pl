@@ -18,7 +18,7 @@
 #           Richland, WA 99352-0999
 #
 $quiet = 0;
-$debug = 1;
+$debug = 0;
 $num_argv = @ARGV;
 
 if ($num_argv == 0) {
