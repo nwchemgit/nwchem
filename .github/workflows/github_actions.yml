@@ -368,14 +368,7 @@ jobs:
         with:
           path: |
             ~/cache
-            ~/apps
           key: ${{ matrix.os }}-${{ matrix.mpi_impl}}-${{ matrix.fc}}-xcode${{ matrix.xcode_version}}-simint${{ matrix.use_simint}}-blas${{ matrix.blas}}-blas_size${{ matrix.blas_size}}-libxc${{matrix.use_libxc}}-tblite${{matrix.use_tblite}}-simd${{ env.simd }}-nwchemcache-v003
-      - name: fetch apps cache
-        if: steps.setup-cache.outputs.cache-hit == 'true'
-        run: |
-          if [[ -f ~/apps/oneapi/setvars.sh ]]; then \
-          echo "apps oneapi cache fetched" ; \
-          export GOT_APPSCACHE="Y" ; fi
       - name: build environment
         run: |
           pwd
