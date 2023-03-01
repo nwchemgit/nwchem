@@ -1156,8 +1156,8 @@ c
      D        call errquit(' rtdb_delete failed',0,RTDB_ERR)
          call dft_sethfx(rtdb)
          dft_guesshfx=.true.
+         call util_print_get_level(level_org)
+         call util_print_set_level(10)
       endif
-      call util_print_get_level(level_org)
-      call util_print_set_level(10)
       return
       end
