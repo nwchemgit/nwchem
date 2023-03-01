@@ -302,7 +302,7 @@ c
       oprint_info = util_print('common', print_debug)
       oprint_parm = util_print('parameters', print_default)
       oprint_3c2e = util_print('3c 2e integrals', print_default)
-      oprint_conv = util_print('convergence', print_default)
+      oprint_conv = util_print('convergence', print_low)
       oprint_conv_details = util_print('convergence details', 
      &                                 print_high)
       oprint_vecs = util_print('intermediate vectors', print_high)
