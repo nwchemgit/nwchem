@@ -34,8 +34,8 @@ c
      2     nogiao,nogshift,noston,nospinspin,noaoresponse,noboysloc,
      3     nopmloc,noiboloc,noelpiso
      4    /  1,    1,    1,    1,    1,    1,    1,    1,    1,
-     5       1,    1,    1,    1,    1,    1,    1,    1, 
-     6       1,    1,    1,    1,    1,    1,    1,    1,    1 /
+     5       1,    1,    1,    1,    1,    1,    1,    1,    1,
+     6       1,    1,    1,    1,    1,    1,    1,    1 /
 c
       out   =.false.
       some  =.true.        
@@ -63,6 +63,7 @@ c
       status=rtdb_get(rtdb,'prop:loc_ibo',MT_INT,1,noiboloc) 
 
       status=rtdb_get(rtdb,'prop:esp',MT_INT,1,noelp) !done
+
       status=rtdb_get(rtdb,'prop:espiso',MT_INT,1,noelpiso)         !done
       status=rtdb_get(rtdb,'prop:efield',MT_INT,1,noelf)            !done
       status=rtdb_get(rtdb,'prop:efieldgrad',MT_INT,1,noelfg)       !done
@@ -89,8 +90,8 @@ c     Boys localization
       if (noboysloc.eq.0) then
         call localization_driver(rtdb, basis, geom, 2)
       end if
-c
-c     Boys localization
+
+c     IBO localization
       if (noiboloc.eq.0) then
         call localization_driver(rtdb, basis, geom, 3)
       end if      
