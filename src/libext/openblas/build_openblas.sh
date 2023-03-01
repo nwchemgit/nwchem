@@ -240,6 +240,7 @@ if [[ "$?" != "0" ]]; then
 fi
 
 mkdir -p ../../lib
+strip --strip-debug libopenblas*-*.a
 cp libopenblas.a ../../lib/libnwc_openblas.a
 #make PREFIX=. install
 if [[  ! -z "${NWCHEM_USE_OPENMP}" ]]; then

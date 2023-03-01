@@ -248,6 +248,7 @@ C     RTDB flag for printing out all matrices
       logical lprint_mats  !print matrices to stdout?
       logical lsave_mats   !save matrices to file?
       logical molden, forceatguess, save_evals, densmat
+      integer back_to_atguess
       character*256 file_mat1,movecs_in_org
       integer ma_type, no_sflip,l_at_flip,k_at_flip
       character*26 date
@@ -301,7 +302,7 @@ c
       oprint_info = util_print('common', print_debug)
       oprint_parm = util_print('parameters', print_default)
       oprint_3c2e = util_print('3c 2e integrals', print_default)
-      oprint_conv = util_print('convergence', print_default)
+      oprint_conv = util_print('convergence', print_low)
       oprint_conv_details = util_print('convergence details', 
      &                                 print_high)
       oprint_vecs = util_print('intermediate vectors', print_high)
@@ -862,9 +863,13 @@ c       optionally, g_x2c_c2u is also allocated and kept.
       end if                    ! do_x2c
 c
 c     == determine guess ==
+      if(.not.rtdb_get(rtdb,'back_to_atguess',mt_int,1,
+     N     back_to_atguess)) 
+     .     back_to_atguess=0
       if(.not.rtdb_get(rtdb,'forceatguess',mt_log,1,forceatguess)) 
      .     forceatguess=.false.
-      if(forceatguess) movecs_in='atomic'
+ 1993 if(forceatguess) movecs_in='atomic'
+      if(movecs_in.eq.'atomic') back_to_atguess=0
       call dft_guessin(movecs_in,ldmix,ncanorg,fon,
      ,     vecs_or_dens,
      ,     ipol,nbf_ao,g_movecs,g_gmovecs,
@@ -1820,8 +1825,21 @@ c
       call dft_scfcvg(rms, derr, Etold, Etnew,
      &                e_conv, d_conv, g_conv, ipol, 
      &                iter, iterations, idone, rtdb,
-     &                converged, diising)
+     &     converged, diising,
+     B     back_to_atguess)
 c
+      if(movecs_in.ne.'atomic'.and.back_to_atguess.lt.0) then
+         movecs_in='atomic'
+         if(ga_nodeid().eq.0)
+     W        write(luout,*) ' restart from atomic guess'
+         if (.not. ga_destroy(g_denso(1))) call errquit
+     &        ('dft_scf: could not destroy g_denso', 0, GA_ERR)
+         if(ipol.eq.2) then
+            if (.not. ga_destroy(g_denso(2))) call errquit
+     &           ('dft_scf: could not destroy g_dens2', 0, GA_ERR)
+         endif
+         goto 1993
+      endif
       if (oprint_time)
      &     call dft_tstamp(' called scfcvg ')
 c

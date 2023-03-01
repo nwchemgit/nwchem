@@ -212,7 +212,7 @@ c
 c     
 c     write noc (consistent with definition in ddscf) to rtdb
 c     
-      if (.not. rtdb_put(rtdb, 'dft:noc', mt_int, 2, noc))
+      if (.not. rtdb_put(rtdb, 'dft:noc', mt_int, 2, noc(1)))
      &   call errquit('inpana: rtdb_put of noc failed', 0, RTDB_ERR)
 cHvD
       use_nwxc = util_module_avail("nwxc")
@@ -1046,6 +1046,118 @@ c
      ,     ' iaoacc ',iaoacc,
      ,    ' tol_rho ',tol_rho
        call util_flush(luout)
+      endif
+      return
+      end
+      subroutine dft_sethfx(rtdb)
+      implicit none
+#include "geom.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "cdft.fh"
+#include "errquit.fh"
+      integer rtdb
+c
+      character*10 pname
+      integer i,nopen
+      double precision thresh,tol2e
+      pname='dft_sethfx'
+c     multiplicity
+      if(rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen)) then
+         mult=nopen+1
+         ipol=2
+         if (.not. rtdb_put(rtdb, 'dft:ipol', mt_int, 1, ipol))
+     &   call errquit(pname//': rtdb_put failed', 0, RTDB_ERR)
+         if (.not. rtdb_put(rtdb, 'dft:mult', mt_int, 1, mult))
+     &   call errquit(pname//': rtdb_put failed', 1, RTDB_ERR)
+      endif
+      do i = 1, numfunc
+         xfac(i)=0.d0
+         cfac(i)=0.d0
+         lcfac(i)=.false.
+         nlcfac(i)=.false.
+         lxfac(i)=.false.
+         nlxfac(i)=.false.
+         xccomb(i)=.false.
+      enddo
+      lxfac(1) = .true.
+      nlxfac(1) = .true.
+      xfac(1) = 1.0d0
+      if (.not. rtdb_put(rtdb, 'dft:cfac',
+     &     mt_dbl, numfunc, cfac(1)))
+     &     call errquit(pname//': rtdb_put failed', 2, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'dft:xfac',
+     &      mt_dbl, numfunc, xfac(1)))
+     &     call errquit(pname//': rtdb_put failed', 3, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'dft:lcfac',
+     &     mt_log, numfunc, lcfac(1)))
+     &     call errquit(pname//': rtdb_put failed', 4, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'dft:nlcfac',
+     &     mt_log, numfunc, nlcfac(1)))
+     &     call errquit(pname//': rtdb_put failed', 5, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'dft:lxfac',
+     &     mt_log, numfunc, lxfac(1)))
+     &     call errquit(pname//': rtdb_put failed', 6, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'dft:nlxfac',
+     &    mt_log, numfunc, nlxfac(1)))
+     &     call errquit(pname//': rtdb_put failed', 7, RTDB_ERR)
+      if (.not. rtdb_cput(rtdb, 'dft:theory', 1, 'dft'))
+     $        call errquit('rtdb_cput failed',0, RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'dft:e_conv',mt_dbl,1,1d-8))
+     .     call errquit(pname//': rtdbput econv failed',0, RTDB_ERR)
+      if (.not.rtdb_get(rtdb, 'scf:thresh', MT_DBL, 1, thresh))
+     &     thresh=1d-4
+      d_conv=thresh*thresh
+cdbg      write(6,*) ' d_conv is ',d_conv
+      if(.not. rtdb_put(rtdb, 'dft:d_conv', mt_dbl, 1, d_conv))
+     &      call errquit('dft_rdinput: rtdb_put failed', 106, RTDB_ERR)
+      if (.not. rtdb_get(rtdb, 'scf:tol2e', MT_DBL, 1, tol2e))
+     *     tol2e=1d-12
+      itol2e=-log10(tol2e)
+cdbg      write(6,*) ' itol2e is ',itol2e
+      if (.not. rtdb_put(rtdb, 'dft:itol2e', mt_int, 1, 12))
+     .     call errquit(pname//': rtdbput itol2e failed',0, RTDB_ERR)
+      return
+      end
+      subroutine dft_sethfx_cleanup(rtdb)
+      implicit none
+#include "geom.fh"
+#include "bas.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "cdft.fh"
+#include "errquit.fh"
+      integer level_org
+      common /dftg/ level_org
+      integer rtdb
+      character*18 pname
+      integer i
+      pname='dft_sethfx_cleanup'
+      call util_print_set_level(level_org)
+      return
+      end
+      logical function dft_guesshfx(rtdb)
+      implicit none
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "cdft.fh"
+#include "errquit.fh"
+      integer level_org
+      common /dftg/ level_org
+      integer rtdb
+c
+      logical dftguess
+c      
+      dft_guesshfx=.false.
+      if(.not.rtdb_get(rtdb,'dftguess',mt_log,1,dftguess)) 
+     D     dftguess=.false.
+      if(dftguess) then
+         if(.not.rtdb_delete(rtdb,'dftguess'))
+     D        call errquit(' rtdb_delete failed',0,RTDB_ERR)
+         call dft_sethfx(rtdb)
+         dft_guesshfx=.true.
+         call util_print_get_level(level_org)
+         call util_print_set_level(10)
       endif
       return
       end

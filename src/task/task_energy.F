@@ -239,12 +239,14 @@ c     external oimp2
       external wfn1_task_energy
       logical xtb_energy
       external xtb_energy
+      logical dft_guesshfx,nwdft
+      external dft_guesshfx,nwdft
 c
       logical status
       double precision dipole(3)
       character*80 key, prefix
 c
-      logical dftmp2
+      logical dftmp2,dftguess
       integer which_mp2
 c
 #ifndef SKIP_ECCE
@@ -267,6 +269,11 @@ c     Actually do the deed
 c
       prefix = theory           ! Most common scenario
       if (theory .eq. 'scf') then
+         if(dft_guesshfx(rtdb)) then
+            if(.not.nwdft(rtdb)) call errquit
+     D           ('scfvecguess failed dft call',0,0)
+            call dft_sethfx_cleanup(rtdb)
+         endif
          status = scf(rtdb)
       else if (theory .eq. 'smd') then
          status = task_smd_energy(rtdb)
