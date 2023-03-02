@@ -95,8 +95,7 @@ nav:
           - Plane-Wave-Density-Functional-Theory.md
           - Gaussian-Basis-AIMD.md
       - Hybrid Approaches:
-          - COSMO-Solvation-Model.md
-          - SMD-Model.md
+          - Solvation-Models.md
           - VEM-Model.md
           - ONIOM.md
           - QMMM:
