@@ -27,4 +27,4 @@ python3 -m pip install install mkdocs-print-site-plugin --quiet $USEROPT
 python3 -m pip install  mkdocs-bibtex --use-pep517 --quiet $USEROPT
 python3 -m pip install  pandoc --use-pep517 --quiet $USEROPT
 python3 -m pip install  pypandoc_binary --use-pep517 --quiet $USEROPT
-python3 -m pip install install git+https://github.com/flywire/caption --use-pep517 $USEROPT
+python3 -m pip install install git+https://github.com/flywire/caption --use-pep517 --quiet $USEROPT
