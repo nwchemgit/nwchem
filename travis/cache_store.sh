@@ -1,5 +1,6 @@
 #!/bin/bash
-          mkdir -p ~/apps || true
+          mkdir -p ~/cache/libext/lib  ~/cache/libext/bin  ~/cache/libext/include ~/cache/libext/mpich || true
+          mkdir -p ~/cache/libext/mpich/mpich || true
           mkdir -p ~/cache/libext/lib  ~/cache/libext/bin  ~/cache/libext/include || true
           mkdir -p ~/cache/simint/simint_install || true
           mkdir -p ~/cache/tarballs || true
