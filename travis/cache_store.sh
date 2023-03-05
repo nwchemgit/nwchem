@@ -1,7 +1,7 @@
 #!/bin/bash
-          mkdir -p ~/apps || true
           mkdir -p ~/cache/libext/lib  ~/cache/libext/bin  ~/cache/libext/include ~/cache/libext/mpich || true
           mkdir -p ~/cache/libext/mpich/mpich || true
+          mkdir -p ~/cache/libext/lib  ~/cache/libext/bin  ~/cache/libext/include || true
           mkdir -p ~/cache/simint/simint_install || true
           mkdir -p ~/cache/tarballs || true
           mkdir -p ~/cache/libxc || true
@@ -14,3 +14,6 @@
           [ -f "src/libext/libxc/install/lib/libxc.a" ] && rsync -av  src/libext/libxc/install ~/cache/libxc/. || true
           echo "cache stored"
           ls -Rla ~/cache
+	  du -sh ~/cache
+	  du -sh ~/cache/* || true
+	  du -sh ~/cache/*/* || true

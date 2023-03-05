@@ -211,6 +211,8 @@ if [[ "$?" != "0" ]]; then
     echo " "
     echo "Elpa compilation failed"
     echo " "
+    echo "****** config.log *****"
+    cat config.log
     exit 1
 fi
     make V=0   install

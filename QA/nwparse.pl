@@ -18,7 +18,7 @@
 #           Richland, WA 99352-0999
 #
 $quiet = 0;
-$debug = 1;
+$debug = 0;
 $num_argv = @ARGV;
 
 if ($num_argv == 0) {
@@ -402,7 +402,7 @@ foreach $filename (@FILES_TO_PARSE) {
           }
         }
 
-	if (/Excitation energy/ || /Rotatory /) {
+	if (/Excitation energy/ || /Rotatory / || /IBO loc: largest element in /) {
 	    if ($debug) {print "\ndebug: $_";}
 	    @line_tokens = split(' ');
 	    $num_line_tokens = @line_tokens;

@@ -1945,7 +1945,7 @@ c
       call dft_scfcvg(rms, derr, Etold, Etnew, 
      &     e_conv, d_conv, g_conv, ipol, 
      &     iter, iterations, idone, rtdb,
-     &     converged, diising)
+     &     converged, diising, 0)
 c
 #ifdef LOOSE_START
       if (delta.lt.1.d-3)then

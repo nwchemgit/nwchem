@@ -219,5 +219,5 @@ fi
 $CMAKE --install _build
 
 cd ..
-
+strip --strip-debug ../lib/libtblite.a
 ln -sf  ../lib/libtblite.a  ../lib/libnwc_tblite.a
