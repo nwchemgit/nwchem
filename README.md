@@ -8,7 +8,7 @@
 [![Github Downloads Release 6.8.1](https://img.shields.io/github/downloads/nwchemgit/nwchem/6.8.1-release/total.svg)](https://github.com/nwchemgit/nwchem/releases/tag/6.8.1-release)
 [![Github Downloads Release 7.0.0](https://img.shields.io/github/downloads/nwchemgit/nwchem/v7.0.0-release/total.svg)](https://github.com/nwchemgit/nwchem/releases/tag/v7.0.0-release)
 [![Github Downloads Release 7.0.2](https://img.shields.io/github/downloads/nwchemgit/nwchem/v7.0.2-release/total.svg)](https://github.com/nwchemgit/nwchem/releases/tag/v7.0.2-release)
-[![Github Downloads Release 7.0.2](https://img.shields.io/github/downloads/nwchemgit/nwchem/v7.0.2-release/total.svg)](https://github.com/nwchemgit/nwchem/releases/tag/v7.2.0-release)
+[![Github Downloads Release 7.2.0](https://img.shields.io/github/downloads/nwchemgit/nwchem/v7.2.0-release/total.svg)](https://github.com/nwchemgit/nwchem/releases/tag/v7.2.0-release)
 
 [![All Releases tags](https://img.shields.io/github/release/nwchemgit/nwchem/all.svg)](https://github.com/nwchemgit/nwchem/releases)  
 [![EMSL](https://rawgit.com/nwchemgit/nwchem/master/contrib/git.nwchem/emsl_logo2.svg)](https://www.emsl.pnl.gov)
