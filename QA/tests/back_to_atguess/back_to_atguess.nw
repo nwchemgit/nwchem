@@ -26,16 +26,16 @@ end
 
 scf; print low; end
 
-#task scf optimize
 dft
-vectors input hcore
-maxiter 1
+ direct
+ vectors input hcore
+ maxiter 1
 end
 task dft ignore
 
 set back_to_atguess 2
 dft
-maxiter 99
+ maxiter 99
 end
 task dft
 
