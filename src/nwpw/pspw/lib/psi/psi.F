@@ -1073,12 +1073,12 @@ c      end if
       real*8  H2gg,H2ge,H2ee
       real*8  Hgg,Hge,Hee
       real*8  scal1,scal2,dv,ehartr
-      real*8  A,B,C,Elow,Ehigh,c1,c2,lmbda,sum,sigma
+      real*8  A,B,C,Elow,Ehigh,c1,c2,lmbda,sum,sigma,thresh
 
       logical  control_print
       external control_print
-      real*8   control_Ep,control_Sp,lattice_omega
-      external control_Ep,control_Sp,lattice_omega
+      real*8   control_Ep,control_Sp,lattice_omega,control_CI_cg_thresh
+      external control_Ep,control_Sp,lattice_omega,control_CI_cg_thresh
       integer  electron_psi_r_ptr
       external electron_psi_r_ptr
 
@@ -1094,6 +1094,8 @@ c      end if
       scal1 = 1.0d0/dble(nx*ny*nz)
       scal2 = 1.0d0/lattice_omega()
       dv = scal1*lattice_omega()
+
+      thresh = control_CI_cg_thresh()
 
       call D3dB_n2ft3d(1,n2ft3d)
 
@@ -1287,16 +1289,16 @@ c     >   write(*,*) "orb,it,eci,eold,eci-eold=",ii,it,eci,eold,eci-eold
          call psi_project_out_virtual(ii,dcpl_mb(r1(1)))
 
 *        *** determine conjuagate direction ***
-         call Pack_cc_dot(1,dcpl_mb(r1(1)),
-     >                   dcpl_mb(r1(1)),
-     >                   lmbda_r1)
+        call Pack_cc_dot(1,dcpl_mb(r1(1)),
+     >                     dcpl_mb(r1(1)),
+     >                     lmbda_r1)
 
          call Pack_c_Copy(1,dcpl_mb(r1(1)),dcpl_mb(t(1)))
 
-         if (it.gt.1) then
+         if ((it.gt.1).and.((lmbda_r1/lmbda_r0).lt.thresh))  then
             call Pack_cc_daxpy(1,(lmbda_r1/lmbda_r0),
-     >                      dcpl_mb(t0(1)),
-     >                      dcpl_mb(t(1)))
+     >                           dcpl_mb(t0(1)),
+     >                           dcpl_mb(t(1)))
          end if
          lmbda_r0 = lmbda_r1
          oneloop = .true.
@@ -1311,18 +1313,18 @@ c     >   write(*,*) "orb,it,eci,eold,eci-eold=",ii,it,eci,eold,eci-eold
 
 *        **** compute de0 = <t|g> ****
          call Pack_cc_dot(1,dcpl_mb(t(1)),
-     >                      dcpl_mb(g(1)),
+     >                      dcpl_mb(r1(1)),
      >                      de0)
 
 *        *** bad direction ***
          if ((de0.lt.0.0d0).and.oneloop) then
-           call Pack_c_Copy(1,dcpl_mb(g(1)),dcpl_mb(t(1)))
+           call Pack_c_Copy(1,dcpl_mb(r1(1)),dcpl_mb(t(1)))
            oneloop = .false.
            go to 3
          end if
 
          call psi_linesearch_CI_virtual(ci_algorithm,maxit_ls,
-     >                                   ii,theta,eci,de0,dcpl_mb(t(1)),
+     >                                  ii,theta,eci,de0,dcpl_mb(t(1)),
      >                                  dcpl_mb(psig_ptr),
      >                                  dbl_mb(psig_r(1)),
      >                                  dbl_mb(psie_r(1)),
@@ -3857,6 +3859,9 @@ c     write(*,*) ciE(1),ciE(2),ciE(3),ciE(4)
 
       return
       end
+
+
+
 
 
 
