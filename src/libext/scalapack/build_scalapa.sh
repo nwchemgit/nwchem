@@ -301,7 +301,9 @@ if [[ "$?" != "0" ]]; then
     exit 1
 fi
 mkdir -p ../../../lib
-strip --strip-debug lib/libscalapack.a
+if [[ $(uname -s) == "Linux" ]]; then
+    strip --strip-debug lib/libscalapack.a
+fi
 cp lib/libscalapack.a ../../../lib/libnwc_scalapack.a
 if [[ "$KNL_SWAP" == "1" ]]; then
     module swap  craype-haswell craype-mic-knl

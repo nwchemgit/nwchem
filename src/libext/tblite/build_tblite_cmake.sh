@@ -219,5 +219,7 @@ fi
 $CMAKE --install _build
 
 cd ..
-strip --strip-debug ../lib/libtblite.a
+if [[ $(uname -s) == "Linux" ]]; then
+    strip --strip-debug ../lib/libtblite.a
+fi
 ln -sf  ../lib/libtblite.a  ../lib/libnwc_tblite.a
