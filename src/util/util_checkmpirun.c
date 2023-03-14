@@ -131,14 +131,12 @@ void FATR util_checkmpirun_(Integer *ok_out){
       }
   }
 
-  if (rank == 0) {
-      if (incompatible) {
-          printf("%d MPI-related incompatibilities were detected!\n", incompatible);
-	*ok_out = (Integer) 0;
-      }else{
-	*ok_out = (Integer) 1;
-	
-      }
+  if (incompatible) {
+    if (rank == 0) printf("%d MPI-related incompatibilities were detected!\n", incompatible);
+    *ok_out = (Integer) 0;
+  }else{
+    *ok_out = (Integer) 1;
+    
   }
 
 
