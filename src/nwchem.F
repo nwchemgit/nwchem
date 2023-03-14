@@ -88,6 +88,7 @@ c
 #endif
       logical do_printaff
       integer linux_printaff
+      integer mpirun_code
 c
 c     Create parallel processes and initialize IPC layer
 c
@@ -286,6 +287,8 @@ c
 c
       call perfm_start()
 
+      call util_checkmpirun(mpirun_code)
+      if(mpirun_code.eq.0) call errquit('mpirun incompatible ',0,UERR)
 #ifdef USE_OFFLOAD
       call util_getppn(ppnout)
       if(ppnout.eq.0) call errquit('util_getppn failed ',0,UERR)
