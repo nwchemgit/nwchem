@@ -3236,8 +3236,8 @@ c      oprint = .true.
          call D3dB_cr_fft3b(1,vcc)
          call D3dB_r_Copy(1,vcc,vcee)
          call D3dB_r_nZero(1,neq(1)+neq(2),hpsig_r)
-         call pspw_potential_HFX(ispin,psie_r,hpsig_r)
-         call pspw_energy_HFX(ispin,psie_r,ehfx,phfx)
+         call pspw_potential_HFX(ispin,psig_r,hpsig_r)
+         call pspw_energy_HFX(ispin,psig_r,ehfx,phfx)
          H2ee = H2ee + ehfx
          Hee = H1ee + H2ee + Eion
       end if
@@ -3251,7 +3251,7 @@ c      oprint = .true.
          H2em = dsqrt(2.0d0)*0.5d0*(0.5d0*ehartr*dv)
          Hem = H1em + H2em
       else
-         call pspw_et_gen_rho(ispin,neq,n2ft3d,psie_r,rhoee)
+         call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rhoee)
          call D3dB_rr_dot(1,rhoee,vcge,H2em)
          H2em = dsqrt(2.0d0)*(0.50d0*H2em*dv)
          Hem = H1em + H2em
@@ -3394,7 +3394,10 @@ c      oprint = .true.
          call D3dB_cr_fft3b(1,vcc)
          call D3dB_rr_daxpy(1,-0.5d0,vcc,vcgg)
 
-         call pspw_et_gen_rho(ispin,neq,n2ft3d,psie_r,rhoee)
+         call Pack_c_Copy(1,psilumo,psig)
+         call D3dB_r_Copy(1,psilumo_r,psig_r)
+         call pspw_et_gen_rho(ispin,neq,n2ft3d,psig_r,rhoee)
+
          call D3dB_r_SMul1(1,scal1,rhoee)
          call D3dB_rc_fft3f(1,rhoee)
          call Pack_c_pack(0,rhoee)
@@ -3442,6 +3445,11 @@ c      oprint = .true.
          call D3dB_rr_daxpy(1,(-2.0d0*c3*c3),vctmp,vc)
 
          call D3dB_rr_daxpy(1,(2.0d0*c3*c3),hpsie_r,vc)
+
+         call Pack_c_Copy(1,psihomo,psig)
+         call D3dB_r_Copy(1,psihomo_r,psig_r)
+         call Pack_c_Copy(1,psilumo,psie)
+         call D3dB_r_Copy(1,psilumo_r,psie_r)
       end if
 
       call D3dB_rc_fft3f(1,vc)
