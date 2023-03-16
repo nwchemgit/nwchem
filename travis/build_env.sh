@@ -192,7 +192,8 @@ if [[ "$os" == "Linux" ]]; then
 	    else
 		aocc_version=4.0.0
 		aocc_dir=aocc-compiler-${aocc_version}
-		curl -sS -LJO https://developer.amd.com/wordpress/media/files/${aocc_dir}.tar
+#		curl -sS -LJO https://developer.amd.com/wordpress/media/files/${aocc_dir}.tar
+		curl -sS -LJO https://download.amd.com/developer/eula/aocc-compiler/${aocc_dir}.tar
 		tar xf ${aocc_dir}.tar
 		./${aocc_dir}/install.sh
 		source setenv_AOCC.sh
