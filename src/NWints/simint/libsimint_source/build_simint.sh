@@ -245,9 +245,7 @@ cd ../..
 echo ln -sf  simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install simint_install
 ln -sf  simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install simint_install
 cd simint_install/lib
-if [[ $(uname -s) == "Linux" ]]; then
-    strip --strip-debug libsimint.a
-fi    
+strip --strip-debug libsimint.a
 ln -sf libsimint.a libnwc_simint.a
 export SIMINT_HOME=${SRC_HOME}/simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install
 echo 'SIMINT library built with maximum angular momentum='${SIMINT_MAXAM}
