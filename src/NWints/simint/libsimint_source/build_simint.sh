@@ -145,18 +145,6 @@ mkdir -p build; cd build
 if [[ -z "${SIMINT_BUILD_TYPE}" ]]; then
     SIMINT_BUILD_TYPE=Release
 fi
-$CMAKE  -DCMAKE_BUILD_TYPE="${SIMINT_BUILD_TYPE}"  ../
-make -j2
-cd ..
-#./create.py -g build/generator/ostei -l 6 -p 4 -d 1 simint.l6_p4_d1
-#create.py -g build/generator/ostei -l 4 -p 4 -d 0 -ve 4 -he 4 -vg 5 -hg 5
-#https://www.cc.gatech.edu/~echow/pubs/huang-chow-sc18.pdf
-#workaround for PYTHONHOME crazyness
-if [[ ! -z "${PYTHONHOME}" ]]; then
-    export PYTHONHOMESET=${PYTHONHOME}
-    unset PYTHONHOME
-    echo 'PYTHONOME unset'
-fi
 if [[ -z "${CXX}" ]]; then
     #look for c++
     if  [ -z "$(command -v c++)" ]; then
@@ -168,6 +156,21 @@ if [[ -z "${CXX}" ]]; then
 	CXX=c++
     fi
 fi    
+if [[ -z "${CXX_FOR_BUILD}" ]]; then
+    CXX_FOR_BUILD=${CXX}
+fi
+echo CXX_FOR_BUILD $CXX_FOR_BUILD && $CMAKE CXX=$CXX_FOR_BUILD -DCMAKE_CXX_COMPILER=$CXX_FOR_BUILD  -DCMAKE_BUILD_TYPE="${SIMINT_BUILD_TYPE}"  ../
+make -j2
+cd ..
+#./create.py -g build/generator/ostei -l 6 -p 4 -d 1 simint.l6_p4_d1
+#create.py -g build/generator/ostei -l 4 -p 4 -d 0 -ve 4 -he 4 -vg 5 -hg 5
+#https://www.cc.gatech.edu/~echow/pubs/huang-chow-sc18.pdf
+#workaround for PYTHONHOME crazyness
+if [[ ! -z "${PYTHONHOME}" ]]; then
+    export PYTHONHOMESET=${PYTHONHOME}
+    unset PYTHONHOME
+    echo 'PYTHONOME unset'
+fi
 if [[ -z "${GENERATOR_PROCESSES}" ]]; then
     GENERATOR_PROCESSES=3
     #parallel processing broken for g++-10 and later (at least on macos)
@@ -197,13 +200,16 @@ if [[ -z "${FC}" ]]; then
     fi
 fi    
 FC_EXTRA=$(${NWCHEM_TOP}/src/config/strip_compiler.sh ${FC})
+echo FC_EXTRA $FC_EXTRA
 if [[ ${FC_EXTRA} == gfortran  || ${FC_EXTRA} == flang || ${FC_EXTRA} == armflang || (${FC} == ftn && ${PE_ENV} == GNU) || (${FC} == ftn && ${PE_ENV} == AOCC) ]] ; then
     Fortran_FLAGS="-fdefault-integer-8 -cpp"
+    if [[ ${FC_EXTRA} == gfortran  || (${FC} == ftn && ${PE_ENV} == GNU)]]; then
     GNUMAJOR=$(${FC} -dM -E - < /dev/null 2> /dev/null | grep __GNUC__ |cut -c18-)
     echo GNUMAJOR is $GNUMAJOR
     if [ $GNUMAJOR -ge 8 ]; then
     Fortran_FLAGS+=" -std=legacy "
     fi
+fi
 elif  [ ${FC} == xlf ] || [ ${FC} == xlf_r ] || [ ${FC} == xlf90 ]|| [ ${FC} == xlf90_r ]; then
     Fortran_FLAGS=" -qintsize=8 -qextname -qpreprocess"
 elif  [[ ${FC} == ifort || (${FC} == ftn && ${PE_ENV} == INTEL) ]]; then
@@ -222,6 +228,7 @@ elif  [ ${FC} == frt ] || [ ${FC} == frtpx ] ; then
     CC=/opt/FJSVxos/devkit/aarch64/bin/aarch64-linux-gnu-gcc
     CXX=/opt/FJSVxos/devkit/aarch64/bin/aarch64-linux-gnu-g++
 fi
+if [[ ! -z ${FFLAGS_FORGA} ]]; then Fortran_FLAGS+=" ${FFLAGS_FORGA}" ; fi
 echo Fortran_FLAGS equal "$Fortran_FLAGS"
 FC="${FC}" CC="${CC}" CXX="${CXX}" $CMAKE \
  -DCMAKE_BUILD_TYPE="${SIMINT_BUILD_TYPE}" -DSIMINT_VECTOR=${VEC}  \
