@@ -4,5 +4,7 @@
 ! is often unhelpful, especially when threads are used.
 ! there were issues with the implementation of cpu time
 ! as well, that motivated deleting the code.
-      return util_wallsec()
+      double precision util_wallsec
+      external util_wallsec
+      util_cpusec=util_wallsec()
       end
