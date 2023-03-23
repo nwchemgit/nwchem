@@ -129,7 +129,7 @@ c
 c
       pname="tddft_grad_compute_r: "
       iwhich = 0  ! call to tddft_nga_cont()
-      write(6,*) ' 0 tda ',tda
+c      write(6,*) ' 0 tda ',tda
 c
 c     1. Do the T contributions
 c
@@ -185,7 +185,7 @@ c fock_xc:triplet here for restricted triplet calculations to work.
 c
       call tddft_nga_cont(rtdb,ihdl_geom,ihdl_bfao,g_tuv,g_apbt,g_ambt,
      +nao,ipol,tol2e,tda,oskel,kfac,lhashf,.false.,nroot,iwhich,lhascd)
-      write(6,*) ' 2 tda ',tda
+c      write(6,*) ' 2 tda ',tda
 c Daniel (2-26-13): Reset fock_xc:triplet here for restricted triplet 
 c calculations to work.
       if (otriplet) then
