@@ -23,7 +23,7 @@ jobs:
         os:
           - [self-hosted, centos7]
         branch:
-          - release-7-2-0
+          - hotfix/release-7-2-0
           - master
         sing_image:
           - ompi41x.ifort
