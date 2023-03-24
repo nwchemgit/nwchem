@@ -85,7 +85,7 @@ jobs:
             use_simint: 1
             use_openmp: 2
             use_tblite: 1
-            branch: release-7-2-0
+            branch: hotfix/release-7-2-0
           - os: [self-hosted, oracle_linux]
             experimental: false
             mpi_impl: mpich
@@ -96,7 +96,7 @@ jobs:
             use_libxc: 1
             use_openmp: 2
             use_tblite: 1
-            branch: release-7-2-0
+            branch: hotfix/release-7-2-0
       fail-fast: false
     env:
         MPI_IMPL: ${{ matrix.mpi_impl }}
