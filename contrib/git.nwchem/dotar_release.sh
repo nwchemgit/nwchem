@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 Vx=7
-Vy=0
+Vy=2
 Vz=0
 NWVER="$Vx"."$Vy"."$Vz"-release
 unset NWCHEM_TOP
-#TOPDIR=nwchem-"$Vx"."$Vy"."$Vz"
-#BRANCH=release-"$Vx"-"$Vy"-"$Vz"
-TOPDIR=nwchem
-BRANCH=master
+export USE_MPI=y
+TOPDIR=nwchem-"$Vx"."$Vy"."$Vz"
+BRANCH=release-"$Vx"-"$Vy"-"$Vz"
+#TOPDIR=nwchem
+#BRANCH=master
 # need to change BRANCH for patch releases
 rm -rf temp.`date +%Y%m%d`
 mkdir -p temp.`date +%Y%m%d`
@@ -23,7 +24,7 @@ cd ..
 # set USE_64TO32=y on by default since we do make 64_to_32 for this tarball
 patch -p1  < ../contrib/git.nwchem/use6432y.patch
 # do  make 64_to_32 
-export NWCHEM_MODULES=all\ python
+export NWCHEM_MODULES=all\ python\ gwmol
 make nwchem_config NWCHEM_MODULES=all\ python
 export EACCSD=1
 export IPCCSD=1
