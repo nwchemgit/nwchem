@@ -335,6 +335,10 @@ ifdef USE_NONBLOCKING_BCAST
   LIB_DEFINES += -DUSE_IBCAST
 endif
 
+ifdef USE_NO_WALLTIME
+ LIB_DEFINES += -DNO_WALLTIME
+endif
+
 include ../config/makelib.h
 
 
