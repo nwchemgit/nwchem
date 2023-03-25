@@ -29,15 +29,16 @@ c     Preliminaries
       do_zora = .false.
 c
 c     Read input data beyond zora; store in rtdb.
-  10  if (inp_a(test)) then
+      if (inp_a(test)) then
        if (inp_compare(.false.,'on',test)) then
-        do_zora = .true.
+          do_zora = .true.
        else if (inp_compare(.false.,'off',test)) then
         do_zora = .false.
        else
         call errquit('zora_input: unknown directive',0, UNKNOWN_ERR)
        endif
-       goto 10
+      else
+         call errquit('specify ZORA ON or OFF',0, UNKNOWN_ERR)
       endif
 c
 c     Put zora parameters in rtdb
