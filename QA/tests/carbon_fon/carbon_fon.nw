@@ -44,7 +44,7 @@ fon partial 6 electrons 1.8 filled 4
 end
 
 relativistic 
- zora
+ zora on
 end
 
 task sodft energy
