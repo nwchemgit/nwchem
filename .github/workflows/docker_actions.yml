@@ -13,10 +13,11 @@ jobs:
     strategy:
         fail-fast: false
         matrix:
+          experimental: [false]
           include:
             - {folder: nwchem-dev, archs: linux/aarch64, fc: gfortran}
             - {folder: nwchem-dev, archs: linux/ppc64le, fc: gfortran}
-            - {folder: nwchem-dev.xlf, archs: linux/ppc64le, fc: xlf}
+            - {folder: nwchem-dev.xlf, archs: linux/ppc64le, fc: xlf, experimental: true}
             - {folder: nwchem-dev, archs: linux/arm/v7, fc: gfortran}
  
     runs-on: ubuntu-latest
