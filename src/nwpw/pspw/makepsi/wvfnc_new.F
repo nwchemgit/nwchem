@@ -187,7 +187,7 @@
             do k=2,nfft3d
                dcpl_mb(cfull_indx+k-1) = dcpl_mb(cfull_indx+k-1)
      >                                 + dcmplx((0.5d0-util_random(0)),
-     >                                         (0.5d0-util_random(0)))
+     >                                          (0.5d0-util_random(0)))
      >                                  /dsqrt(dble(nfft3d))
             end do
             call gctimereverse(nfft1,nfft2,nfft3,dcpl_mb(cfull_indx))
