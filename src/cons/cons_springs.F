@@ -1012,7 +1012,7 @@ c
 1004   FORMAT(T5,"i",4X,"j",4X,"k",4X,"l",T23,"Kphi",T31,"phi0",
      > T39,"phi",T47,"Energy",T55,"f1",T62,"f2",T69"f3",T76,"f4",/,
      > T5,76("_"))
-1005   FORMAT( 4(1X,I4),3(1X,F7.3),1X,5(F7.3))
+1005   FORMAT( 4(1X,I4),3(1X,F8.3),1X,5(F7.3))
 1006   FORMAT( T53,4F7.3)
       return
       end
@@ -1420,13 +1420,23 @@ c
       double precision r4(3)
       double precision phi
       double precision energy
+      double precision diff
+      double precision pi
 c
       integer i
 c
 c     calculate dihedral angle
 c     ------------------------
       call cons_dihed(r1,r2,r3,r4,phi,"rads")
-      energy = 0.5d0*k*(phi-phi0)**2
+
+      pi = acos(-1d0)
+      diff = phi - phi0
+      if(diff.gt.pi) then
+        diff = diff - 2d0*pi
+      elseif(diff.lt.-pi) then
+        diff = diff + 2d0*pi
+      endif
+      energy = 0.5d0*k*diff**2
       return
       end
 
@@ -1453,13 +1463,23 @@ c
 c
       integer i
       double precision a
+      double precision diff
+      double precision pi
 c
 c     calculate dihedral angle
 c     ------------------------
       call cons_dihed(r1,r2,r3,r4,phi,"rads")
-      energy = 0.5d0*k*(phi-phi0)**2
+      pi = acos(-1d0)
+      diff = phi-phi0
+      if(diff.gt.pi) then
+        diff = diff - 2d0*pi
+      elseif(diff.lt.-pi) then
+        diff = diff + 2d0*pi
+      endif
+
+      energy = 0.5d0*k*diff**2
       call cons_dihed_deriv(r1,r2,r3,r4,f1,f2,f3,f4,"rads")
-      a = k*(phi-phi0)
+      a = k*diff
       do i=1,3
         f1(i) = f1(i)*a
         f2(i) = f2(i)*a
