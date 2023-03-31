@@ -13,7 +13,6 @@ jobs:
     strategy:
         fail-fast: false
         matrix:
-          experimental: [false]
           include:
             - {folder: nwchem-dev, archs: linux/aarch64, fc: gfortran}
             - {folder: nwchem-dev, archs: linux/ppc64le, fc: gfortran}
