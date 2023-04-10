@@ -2148,6 +2148,7 @@ ifneq ($(TARGET),LINUX)
 #	    LDOPTIONS +=-Wl,-rpath=/usr/local/lib/gcc7
             LDOPTIONS += $(shell mpif90  -show 2>&1 |cut -d " " -f 2) 
             ARFLAGS = rU
+	    _CPU = $(shell uname -p)
         endif
 
         ifeq ($(_FC),gfortran)
