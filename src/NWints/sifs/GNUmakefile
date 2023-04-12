@@ -29,24 +29,12 @@ endif
 
 include ../../config/makelib.h
 
-bummer.F \
-aiopen.F aiwait.F airead.F aiwrit.F \
-seqwbf.F seqrbf.F \
-plab1.F plab8.F plab16.F plab32.F \
-ulab1.F ulab8.F ulab16.F ulab32.F \
-sif2w8.F sifcfg.F \
-sifd1.F sifd2.F sife1.F sife2.F \
-sifew1.F sifew2.F \
-siffw1.F siffw2.F sifo2f.F \
-sifr1n.F sifr2.F \
-sifrd1.F sifrd2.F sifrh1.F sifrh2.F \
-sifsk1.F sifskh.F \
-sifw2.F izero.F\
-sifwh.F sifzh2.F sifzwh.F:
+MAKEFLAGS = -j 1 --no-print-directory
+ALLF = $(filter-out ./sifs_stubs.F, $(shell find . -name '*.F'))
+
+bummer.F:
 	./build_sifs.sh
 
-  MAKEFLAGS = -j 1 --no-print-directory
-
 cleanF:
-	@rm -rf colu* *F dependencies
+	@rm -rf colu* $(ALLF)  dependencies sifs.patched
 
