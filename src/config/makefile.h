@@ -2150,6 +2150,7 @@ ifneq ($(TARGET),LINUX)
         GOTFREEBSD= $(shell uname -o 2>&1|awk ' /FreeBSD/ {print "1";exit}')
         ifeq ($(GOTFREEBSD),1)
             DEFINES  +=-DMPICH_NO_ATTR_TYPE_TAGS
+	    DEFINES  += -DNOIO -DEAFHACK
 #	    LDOPTIONS +=-Wl,-rpath=/usr/local/lib/gcc7
             LDOPTIONS += $(shell mpif90  -show 2>&1 |cut -d " " -f 2) 
             ARFLAGS = rU
