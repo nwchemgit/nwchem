@@ -31,7 +31,6 @@ include ../../config/makelib.h
 
 MAKEFLAGS = -j 1 --no-print-directory
 ALLF = $(filter-out ./sifs_stubs.F, $(shell find . -name '*.F'))
-$(info $(ALLF) )
 
 bummer.F:
 	./build_sifs.sh
