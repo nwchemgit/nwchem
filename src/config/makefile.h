@@ -1928,10 +1928,15 @@ ifneq ($(TARGET),LINUX)
     ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CYGWIN64 CATAMOUNT))
 
         GOTMINGW64=$(shell $(CC) -dM -E - </dev/null 2> /dev/null |grep MINGW64|cut -c21)
+        GOTFREEBSD= $(shell uname -o 2>&1|awk ' /FreeBSD/ {print "1";exit}')
         ifeq ($(GOTMINGW64),1)
             _CPU = x86_64
         else
-            _CPU = $(shell uname -m  )
+            ifeq ($(GOTFREEBSD),1)
+                _CPU = $(shell uname -p  )
+            else
+                _CPU = $(shell uname -m  )
+            endif
         endif
 
 #       ifeq ($(NWCHEM_TARGET),LINUX64)
@@ -2145,6 +2150,7 @@ ifneq ($(TARGET),LINUX)
         GOTFREEBSD= $(shell uname -o 2>&1|awk ' /FreeBSD/ {print "1";exit}')
         ifeq ($(GOTFREEBSD),1)
             DEFINES  +=-DMPICH_NO_ATTR_TYPE_TAGS
+	    DEFINES  += -DNOIO -DEAFHACK
 #	    LDOPTIONS +=-Wl,-rpath=/usr/local/lib/gcc7
             LDOPTIONS += $(shell mpif90  -show 2>&1 |cut -d " " -f 2) 
             ARFLAGS = rU

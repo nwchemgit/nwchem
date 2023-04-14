@@ -678,7 +678,9 @@ ifeq ($(FC),$(findstring $(FC),scorep scorep-wrapper scorep-gfortran scorep-mpif
 endif
 ifneq ($(V),1)
      MAYBE_HOST += -q --enable-silent-rules
-     MAKE= make V=0
+     ifneq ($(GOTFREEBSD),1)
+        MAKE= make V=0
+     endif
 endif
 BUILDDIR = build
 INSTALLDIR = install
