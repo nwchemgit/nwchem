@@ -87,7 +87,7 @@ c
 c
       me=ga_nodeid()
 c
-      odbug=.false.
+      odbug=.true.
       osome=oprint
       call util_print_push
       call util_print_rtdb_load(rtdb, 'cosmo')
@@ -337,23 +337,34 @@ c     get sola,solb,solc,solg,solh,soln parameters, only used if cosmo_smd is tr
 c     get dielecinf, only used if cosmo_vem is true
 c     get dielec, always used 
 c
-      if(odbug.and.me.eq.0) 
-     &     write(luout,*) "calling solv_data"
-      if(.not.solv_data(solvname_short,solvname_long, !short and long solvent names
-     &          dielec,dielecinf, ! slow and fast components
-     &          sola,solb,solc,solg,solh,soln,icds)) then
 c
 c     if set by the user
 c
       status = rtdb_get(rtdb,'cosmo:dielec',mt_dbl,1,dielec)
-      status = rtdb_get(rtdb,'cosmo:dielecinf',mt_dbl,1,dielecinf)
-      status = rtdb_get(rtdb,'cosmo:sola',mt_dbl,1,sola)
-      status = rtdb_get(rtdb,'cosmo:solb',mt_dbl,1,solb)
-      status = rtdb_get(rtdb,'cosmo:solc',mt_dbl,1,solc)
-      status = rtdb_get(rtdb,'cosmo:solg',mt_dbl,1,solg)
-      status = rtdb_get(rtdb,'cosmo:solh',mt_dbl,1,solh)
-      status = rtdb_get(rtdb,'cosmo:soln',mt_dbl,1,soln)
-      status = rtdb_get(rtdb,'cosmo:icds',mt_int,1,icds)
+      status = status.or.
+     S     rtdb_get(rtdb,'cosmo:dielecinf',mt_dbl,1,dielecinf)
+      status = status.or.
+     S     rtdb_get(rtdb,'cosmo:sola',mt_dbl,1,sola)
+      status = status.or.
+     S     rtdb_get(rtdb,'cosmo:solb',mt_dbl,1,solb)
+      status = status.or.
+     S     rtdb_get(rtdb,'cosmo:solc',mt_dbl,1,solc)
+      status = status.or.
+     S     rtdb_get(rtdb,'cosmo:solg',mt_dbl,1,solg)
+      status = status.or.
+     S     rtdb_get(rtdb,'cosmo:solh',mt_dbl,1,solh)
+      status = status.or.
+     S     rtdb_get(rtdb,'cosmo:soln',mt_dbl,1,soln)
+      status = status.or.
+     S     rtdb_get(rtdb,'cosmo:icds',mt_int,1,icds)
+      if(.not.status) then
+      if(odbug.and.me.eq.0) 
+     &     write(luout,*) "calling solv_data"
+      if(.not.solv_data(solvname_short,solvname_long, !short and long solvent names
+     &     dielec,dielecinf,    ! slow and fast components
+     &          sola,solb,solc,solg,solh,soln,icds)) then
+      call errquit('solv_data failure',0,0)
+      endif
       endif
 c
 c     set sola,solb,solc,solg,solh,soln,icds parameters (either from
@@ -418,10 +429,15 @@ c       write(luout,'(A)') " after solv_data"
           if (soln.lt.zero) call errquit
      $ ('cosmo_initialize: illegal/undefined value for soln',0,0)
          else
+            if (solvname_short.ne.'h2o'.and.solvname_long.ne.'water') 
+     T           then
+               icds = 2
+            else
           write(luout,'(A,I1)')   " icds:          ",icds
           call errquit
      $ ('cosmo_initialize: illegal value for icds',0,0)
          endif
+        endif
         endif
       endif
 c 
