@@ -852,6 +852,8 @@ c
          ierr=eaf_delete(mine)
          ierr=eaf_open(mine, eaf_rw, fd)
          ierr = eaf_stat(mine, avail0, fstype)
+         call util_fsync(mine)
+         ierr = eaf_stat(mine, avail0, fstype)
          if(avail0.gt.fiftytb) toolarge=1
       else
          ierr=0
@@ -882,6 +884,7 @@ c
       nuse_fail=0
       if(io_node) then
          ierr = eaf_stat(mine, avail1, fstype)
+         call util_fsync(mine)
          if (ierr .ne. 0) call errquit(
      U        'util_scratch_avail: eaf_stat',ierr,DISK_ERR)
          ierr=eaf_delete(mine)
@@ -1159,5 +1162,29 @@ c      scratch_dir, parallel
      S     cphf_str2)
       write(6,*) ga_nodeid(),' fparal ',cphf_str1(1:str1len),
      A     cphf_str2(1:inp_strlen(cphf_str2))
+      return
+      end
+      subroutine util_fsync(fname)
+      implicit none
+      character*(*),intent(in) :: fname
+c
+      integer iunit
+      integer*4 fd_in
+c
+      interface
+         function fsync (fd) bind(c,name="fsync")
+         use iso_c_binding, only: c_int
+         integer(c_int), value :: fd
+         integer(c_int) :: fsync
+         end function fsync
+      end interface
+      iunit=10
+      open (iunit,file=fname)
+c      flush(iunit)
+      fd_in=fnum(iunit)
+c Flush and sync
+      if(fsync(fd_in).ne.0) call
+     c     errquit("Error calling FSYNC",0,0)
+
       return
       end
