@@ -816,7 +816,7 @@ c
       character*(nw_max_path_len) mine
       integer nuse
       integer avail0,avail1
-      integer fd
+      integer fd,fd_in
       character*8 fstype
       integer l1megabyte,i_k,l_k,nuse_fail,nattpt,
      ,     availmax
@@ -847,13 +847,14 @@ c
 #else
       call util_getppn(ppn)
       io_node=mod(me,ppn).eq.0
+      call ga_sync()
       if(io_node) then
          call util_file_name('junk',.true.,.true.,mine)
          ierr=eaf_delete(mine)
          ierr=eaf_open(mine, eaf_rw, fd)
-         ierr = eaf_stat(mine, avail0, fstype)
          call util_fsync(mine)
          ierr = eaf_stat(mine, avail0, fstype)
+         write(6,*) ga_nodeid(), 'avail0 ',avail0
          if(avail0.gt.fiftytb) toolarge=1
       else
          ierr=0
@@ -883,8 +884,9 @@ c
       call ga_sync()
       nuse_fail=0
       if(io_node) then
-         ierr = eaf_stat(mine, avail1, fstype)
          call util_fsync(mine)
+         ierr = eaf_stat(mine, avail1, fstype)
+         write(6,*) ga_nodeid(), 'avail1 ',avail1
          if (ierr .ne. 0) call errquit(
      U        'util_scratch_avail: eaf_stat',ierr,DISK_ERR)
          ierr=eaf_delete(mine)
@@ -1169,7 +1171,9 @@ c      scratch_dir, parallel
       character*(*),intent(in) :: fname
 c
       integer iunit
-      integer*4 fd_in
+      integer*4 fd_in,code
+      integer ga_nodeid
+      external ga_nodeid
 c
       interface
          function fsync (fd) bind(c,name="fsync")
@@ -1180,11 +1184,13 @@ c
       end interface
       iunit=10
       open (iunit,file=fname)
-c      flush(iunit)
+      call util_flush(iunit)
+#ifdef GFORTRAN
       fd_in=fnum(iunit)
-c Flush and sync
-      if(fsync(fd_in).ne.0) call
-     c     errquit("Error calling FSYNC",0,0)
-
+c     Flush and sync
+      code=fsync(fd_in)
+      if(code.ne.0) call
+     c     errquit("Error calling FSYNC",ga_nodeid(),0)
+#endif
       return
       end
