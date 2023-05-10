@@ -854,7 +854,7 @@ c
          ierr=eaf_open(mine, eaf_rw, fd)
          call util_fsync(mine)
          ierr = eaf_stat(mine, avail0, fstype)
-         write(6,*) ga_nodeid(), 'avail0 ',avail0
+c         write(6,*) ga_nodeid(), 'avail0 ',avail0
          if(avail0.gt.fiftytb) toolarge=1
       else
          ierr=0
@@ -886,7 +886,7 @@ c
       if(io_node) then
          call util_fsync(mine)
          ierr = eaf_stat(mine, avail1, fstype)
-         write(6,*) ga_nodeid(), 'avail1 ',avail1
+c         write(6,*) ga_nodeid(), 'avail1 ',avail1
          if (ierr .ne. 0) call errquit(
      U        'util_scratch_avail: eaf_stat',ierr,DISK_ERR)
          ierr=eaf_delete(mine)
