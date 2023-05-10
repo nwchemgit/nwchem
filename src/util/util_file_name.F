@@ -1185,7 +1185,7 @@ c
       iunit=10
       open (iunit,file=fname)
       call util_flush(iunit)
-#ifdef GFORTRAN
+#if defined(GFORTRAN) && !defined(USE_FLANG) && !defined(__llvm__) && !defined(___PGLLVM__)
       fd_in=fnum(iunit)
 c     Flush and sync
       code=fsync(fd_in)
