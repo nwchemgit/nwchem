@@ -27,7 +27,6 @@ jobs:
           - master
         sing_image:
           - ompi41x.ifort
-          - ompi41x.ifx
           - ompi41x
       fail-fast: false
     env:
