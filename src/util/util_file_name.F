@@ -816,7 +816,7 @@ c
       character*(nw_max_path_len) mine
       integer nuse
       integer avail0,avail1
-      integer fd
+      integer fd,fd_in
       character*8 fstype
       integer l1megabyte,i_k,l_k,nuse_fail,nattpt,
      ,     availmax
@@ -847,11 +847,14 @@ c
 #else
       call util_getppn(ppn)
       io_node=mod(me,ppn).eq.0
+      call ga_sync()
       if(io_node) then
          call util_file_name('junk',.true.,.true.,mine)
          ierr=eaf_delete(mine)
          ierr=eaf_open(mine, eaf_rw, fd)
+         call util_fsync(mine)
          ierr = eaf_stat(mine, avail0, fstype)
+c         write(6,*) ga_nodeid(), 'avail0 ',avail0
          if(avail0.gt.fiftytb) toolarge=1
       else
          ierr=0
@@ -881,7 +884,9 @@ c
       call ga_sync()
       nuse_fail=0
       if(io_node) then
+         call util_fsync(mine)
          ierr = eaf_stat(mine, avail1, fstype)
+c         write(6,*) ga_nodeid(), 'avail1 ',avail1
          if (ierr .ne. 0) call errquit(
      U        'util_scratch_avail: eaf_stat',ierr,DISK_ERR)
          ierr=eaf_delete(mine)
@@ -1159,5 +1164,33 @@ c      scratch_dir, parallel
      S     cphf_str2)
       write(6,*) ga_nodeid(),' fparal ',cphf_str1(1:str1len),
      A     cphf_str2(1:inp_strlen(cphf_str2))
+      return
+      end
+      subroutine util_fsync(fname)
+      implicit none
+      character*(*),intent(in) :: fname
+c
+      integer iunit
+      integer*4 fd_in,code
+      integer ga_nodeid
+      external ga_nodeid
+c
+      interface
+         function fsync (fd) bind(c,name="fsync")
+         use iso_c_binding, only: c_int
+         integer(c_int), value :: fd
+         integer(c_int) :: fsync
+         end function fsync
+      end interface
+      iunit=10
+      open (iunit,file=fname)
+      call util_flush(iunit)
+#if defined(GFORTRAN) && !defined(USE_FLANG) && !defined(__llvm__) && !defined(___PGLLVM__)
+      fd_in=fnum(iunit)
+c     Flush and sync
+      code=fsync(fd_in)
+      if(code.ne.0) call
+     c     errquit("Error calling FSYNC",ga_nodeid(),0)
+#endif
       return
       end

@@ -3096,9 +3096,11 @@ ifneq ($(TARGET),LINUX)
         # Jeff: FreeBSD does not link libm automatically with flang
         ifeq ($(USE_FLANG),1)
             EXTRA_LIBS += -lm
+            DEFINES  += -DUSE_FLANG
         endif
 
     endif
+
 endif
 #endof of LINUX64
 

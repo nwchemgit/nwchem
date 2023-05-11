@@ -33,6 +33,9 @@ c
       logical status
       double precision qfac
 c
+      integer g_lo(3),g_hi(3),icadd
+      logical oned_getlohi
+      external oned_getlohi
       integer nxtask
       external nxtask
 cc AJL/Begin/SPIN ECPs
@@ -42,14 +45,20 @@ c
       nproc = ga_nnodes()
       task_size = 1
       ijatom = -1
-      next = nxtask(nproc,task_size)
+c      next = nxtask(nproc,task_size)
+      call nga_distribution(g_rhs,
+     .     ga_nodeid(), g_lo,g_hi)
+c     write(6,'(i4,"gadis",i4,3(i6,":",i6,","))') ga_nodeid(),g_rhs,
+c    .     g_lo(1),g_hi(1),
+c    .     g_lo(2),g_hi(2),
+c    .     g_lo(3),g_hi(3)
 c
       do 90 iat1 = 1, nat
         do 80 iat2 = 1, nat
 c       do 80 iat2 = 1, iat1
 
           ijatom = ijatom + 1
-          if ( ijatom .eq. next ) then
+c          if ( ijatom .eq. next ) then
 
             status = bas_ce2bfr(basis,iat1,iab1f,iab1l)
             status = bas_ce2bfr(basis,iat2,iab2f,iab2l)
@@ -102,12 +111,26 @@ c               write(6,*) 'integral buffer for ',idatom(1),
 c    *              idatom(2)
 c
                   ic = 1
+                  icadd = 0
                   do i = 1, 2
                   do icart1 = 1, 3 
                     lo(1) = (idatom(i)-1) * 3 + icart1
                     hi(1) = (idatom(i)-1) * 3 + icart1
 cedo                    call nga_acc(g_rhs, lo, hi, Ibuf(ic), ld, 1.0d0)
-                    call nga_put(g_rhs, lo, hi, Ibuf(ic), ld)
+c     check if I own this patch to do a local nga_put
+                    if(oned_getlohi(g_lo,g_hi,ld,
+     c                   if1,if2,
+     c                   lo,hi,
+     c                   icadd)) then
+
+c                          write(6,'(i4,"gaput",i4,"icadd",i4,
+c     F  3(i6,":",i6,","))') ga_nodeid(),g_rhs,
+c     .           icadd,
+c     .     lo(1),hi(1),
+c     .     lo(2),hi(2),
+c     .           lo(3),hi(3)
+                          call nga_put(g_rhs,lo,hi,Ibuf(ic+icadd),ld)
+                    endif
                     ic = ic + nint
                   enddo
                   enddo
@@ -135,7 +158,12 @@ c
                    lo(1) = atx
                    hi(1) = atx
 !                   call nga_acc(g_rhs, lo, hi, Ibuf(ic), ld, 1.0d0)
-                   call nga_put(g_rhs, lo, hi, Ibuf(ic), ld)
+                    if(oned_getlohi(g_lo,g_hi,ld,
+     c                   if1,if2,
+     c                   lo,hi,
+     c                   icadd)) then
+                       call nga_put(g_rhs, lo, hi, Ibuf(ic+icadd), ld)
+                       endif
                    ic = ic + nint
                  enddo
                 endif   ! doV and doT
@@ -144,12 +172,44 @@ c
  70         continue
  1010       continue
 
-            next = nxtask(nproc,task_size)
-          endif  ! if my task
+c            next = nxtask(nproc,task_size)
+c          endif  ! if my task
 
  80     continue
  90   continue
-      next = nxtask(-nproc,task_size)
+c     next = nxtask(-nproc,task_size)
+      call ga_sync()
+c      call ga_print(g_rhs)
 c
+      return
+      end
+      logical function oned_getlohi(g_lo,g_hi,ld,
+     c     if1,if2,
+     c     lo,hi,
+     c     icadd)
+      implicit none
+      integer g_lo(3),g_hi(3),ld(2) ! input
+      integer if1,if2               ! input
+      integer lo(3),hi(3)             ! input/output
+      integer icadd                   ! output
+      oned_getlohi=.false.
+      icadd=0
+      if((lo(1).ge.g_lo(1)).or.(hi(1).le.g_hi(1)).and.
+     I     (lo(2).ge.g_lo(2)).or.(hi(2).le.g_hi(2)).and.
+     I     (lo(3).ge.g_lo(3)).or.(hi(3).le.g_hi(3))) then
+         lo(1)=max(g_lo(1),lo(1))
+         hi(1)=min(g_hi(1),hi(1))
+         lo(2)=max(g_lo(2),lo(2))
+         icadd=lo(2)-if2
+         hi(2)=min(g_hi(2),hi(2))
+         lo(3)=max(g_lo(3),lo(3))
+         icadd=icadd+(lo(3)-if1)*ld(2)
+         hi(3)=min(g_hi(3),hi(3))
+         if((hi(1).ge.lo(1)).and.
+     I        (hi(2).ge.lo(2)).and.
+     I        (hi(3).ge.lo(3))) then
+            oned_getlohi=.true.
+         endif
+      endif
       return
       end
