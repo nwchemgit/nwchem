@@ -86,7 +86,7 @@ c
       integer omp_get_max_threads
       external omp_get_max_threads
 #endif
-      logical do_printaff
+      logical do_printaff,do_checkmpi
       integer linux_printaff
       integer mpirun_code
 c
@@ -287,8 +287,6 @@ c
 c
       call perfm_start()
 
-      call util_checkmpirun(mpirun_code)
-      if(mpirun_code.eq.0) call errquit('mpirun incompatible ',0,UERR)
 #ifdef USE_OFFLOAD
       call util_getppn(ppnout)
       if(ppnout.eq.0) call errquit('util_getppn failed ',0,UERR)
@@ -321,6 +319,14 @@ c
 #ifdef CATAMOUNT
          call util_allocga()
 #endif
+      if (.not.rtdb_get(rtdb,'check_mpirun',mt_log,1,do_checkmpi))
+     &     do_checkmpi = .false.
+      if(do_checkmpi) then
+         mpirun_code=0
+         call util_checkmpirun(mpirun_code)
+         if(mpirun_code.eq.0) call errquit('mpirun incompatible ',
+     *        0      ,UERR)
+      endif
       if (.not.rtdb_get(rtdb,'do_printaff',mt_log,1,do_printaff))
      &     do_printaff = .false.
       if(do_printaff) then
