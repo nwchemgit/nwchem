@@ -68,7 +68,7 @@ jobs:
           - os: [self-hosted, ubuntu1604]
             experimental: false
             mpi_impl: intel
-            armci_network: MPI-PT
+            armci_network: SOCKETS
             nwchem_modules: "all python xtb"
             fc: ifx
             blas: "build_openblas"

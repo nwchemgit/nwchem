@@ -86,8 +86,9 @@ c
       integer omp_get_max_threads
       external omp_get_max_threads
 #endif
-      logical do_printaff
+      logical do_printaff,do_checkmpi
       integer linux_printaff
+      integer mpirun_code
 c
 c     Create parallel processes and initialize IPC layer
 c
@@ -318,6 +319,14 @@ c
 #ifdef CATAMOUNT
          call util_allocga()
 #endif
+      if (.not.rtdb_get(rtdb,'check_mpirun',mt_log,1,do_checkmpi))
+     &     do_checkmpi = .false.
+      if(do_checkmpi) then
+         mpirun_code=0
+         call util_checkmpirun(mpirun_code)
+         if(mpirun_code.eq.0) call errquit('mpirun incompatible ',
+     *        0      ,UERR)
+      endif
       if (.not.rtdb_get(rtdb,'do_printaff',mt_log,1,do_printaff))
      &     do_printaff = .false.
       if(do_printaff) then
