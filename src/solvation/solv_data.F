@@ -17,6 +17,7 @@ c
 c
 c     get the solvent data
 c
+      write(6,*)' SSSSSSSSSSSSSSS'
       if (solvname_short.eq.'h2o') solvname_long='water' ! default
       eps=0d0
       epsinf=0d0
@@ -24,7 +25,7 @@ c
      &     EPS,EPSINF,
      &     SOLA,SOLB,SOLC,SOLG,SOLH,SOLN)
       if(eps.eq.0d0.and.epsinf.eq.0d0) then
-cdbg         write(6,*) ' no data from solv_data'
+         write(6,*) ' no data from solv_data'
          solv_data=.false.
          return
       endif
@@ -35,6 +36,8 @@ c
       if (solvname_short.ne.'h2o'.and.solvname_long.ne.'water') 
      &   icds = 2
 c
+      write(6,*) ' icds ',icds
+      write(6,*) solvname_short, solvname_long
       return
       end
 c
