@@ -18,7 +18,7 @@ ulab1.o ulab8.o ulab16.o ulab32.o cdcopy.o izero.o
 
 OBJ = bummer.o
 endif
-      LIBRARY = libnwints.a
+      LIBRARY = libsonadc.a
 
 
      LIB_INCLUDES = -I../../nwdft/grid -I../../nwdft/include \
