@@ -14,7 +14,7 @@ jobs:
     uses: edoapra/nwchem-singularity/.github/workflows/apptainer_action.ifx.yml@master
     secrets:
       inherit
-  build:
+  test_on_tahoma:
     needs: [build_singularity]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 2880
