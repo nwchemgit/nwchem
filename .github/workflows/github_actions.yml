@@ -338,28 +338,28 @@ jobs:
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS
-            nwchem_modules: "nwdft driver solvation mp2_grad mcscf ccsd rimp2 fcidump sonadc"
+            nwchem_modules: "nwdft driver solvation mp2_grad mcscf ccsd rimp2 fcidump nwc_columbus"
             fc: nvfortran
             cc: gcc
           - os: ubuntu-22.04
             experimental: true
             mpi_impl: openmpi
             armci_network: MPI-TS
-            nwchem_modules: "nwdft driver solvation mp2_grad mcscf ccsd rimp2 fcidump sonadc"
+            nwchem_modules: "nwdft driver solvation mp2_grad mcscf ccsd rimp2 fcidump nwc_columbus"
             fc: gfortran
             cc: gcc
           - os: ubuntu-22.04
             experimental: true
             mpi_impl: mpich
             armci_network: MPI-TS
-            nwchem_modules: "nwdft driver solvation mp2_grad mcscf ccsd rimp2 fcidump sonadc"
+            nwchem_modules: "nwdft driver solvation mp2_grad mcscf ccsd rimp2 fcidump nwc_columbus"
             fc: flang
             cc: clang
           - os: ubuntu-22.04
             experimental: true
             mpi_impl: intel
             armci_network: MPI-TS
-            nwchem_modules: "nwdft driver solvation mp2_grad mcscf ccsd rimp2 fcidump sonadc"
+            nwchem_modules: "nwdft driver solvation mp2_grad mcscf ccsd rimp2 fcidump nwc_columbus"
             fc: ifx
       fail-fast: false
     env:
