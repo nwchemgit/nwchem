@@ -13,7 +13,7 @@ include ../../config/makefile.h
                     print_dint_block.o print_soblock.o  trc_soblock.o \
                     int_mom_sifs.o     hdoverlap.o 
 
-     LIBRARY = libnwints.a
+     LIBRARY = libnwc_columbus.a
 
 LIB_INCLUDES = -I../../nwdft/grid -I../../nwdft/include \
  -I../../ddscf # I../../nwdft/util

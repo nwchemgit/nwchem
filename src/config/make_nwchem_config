@@ -21,7 +21,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
         property solvation nwpw fft rimp2_grad python argos analyz diana nwmd cafe space \
         drdy vscf uccsdt qmmm rism qmd etrans tce geninterface bq mm cons\
         perfm dntmc smd nbo dangchang leps ccca lucia dimqm rdmft fcidump\
-        gwmol xtb
+        gwmol xtb nwc_columbus
 
 # These are the libraries for the high-level modules.  They should be
 # specified in an order that will link correctly, but that shouldn't
@@ -30,7 +30,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 KNOWN_MODULE_LIBS = -ltest -lccsd -llucia -lmcscf -lselci -lmp2 -lmoints \
                     -lstepper -ldriver -loptim -lplnwv -lnwdft -lgradients \
                     -lcphf -lscfaux -lesp -lddscf -ldangchang -lleps -lguess -lhessian \
-                    -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lsolvation -lnwints \
+                    -lvib -lnwcutil -lrimp2g -lrimp2 -lproperty -lsolvation -lnwints -lnwc_columbus \
 		    -largos -lprepar -lnwmd -lnwpw -lofpw -lpaw -lpspw -lband -lnwpwlib \
                     -lnwxc -lsmd -lsmddb\
                     -lcafe -lspace -lanalyze -ldiana -lqhop \
@@ -191,6 +191,8 @@ MODULES := $(patsubst lucia, lucia mp2_grad ddscf nwdft property cphf gradients 
 
 MODULES := $(patsubst xtb, xtb nwdft ddscf gradients hessian atomscf NWints,$(MODULES) )
 
+MODULES := $(patsubst nwc_columbus, nwc_columbus NWints,$(MODULES) )
+
 # This dependency is the other way round (matchnxyz used by symmetry)
 # but is required for correct linking on SOLARIS.  Nasty kludge.
 #
@@ -272,6 +274,7 @@ MOD_LIBS := $(patsubst rdmft,-lrdmft,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst fcidump,-lfcidump,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst gwmol,-lgwmol,$(MOD_LIBS) )
 MOD_LIBS := $(patsubst xtb,-lnwxtb,$(MOD_LIBS) )
+MOD_LIBS := $(patsubst nwc_columbus,-lnwc_columbus,$(MOD_LIBS) )
 MOD_LIBS := $(strip $(MOD_LIBS))
 
 #-----------------------------------------------------------------------------
@@ -336,6 +339,7 @@ STUBROUTINES := $(patsubst dimqm,dimqm_addop dimqm_addop_uhf_damp dimqm_addop_uh
 #STUBROUTINES := $(patsubst cons, cons_end cons_input cons_add_egrad cons_add_energy cons_init cons_print_summary cons_active,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst gwmol, gw_input gwmol, $(STUBROUTINES) )
 STUBROUTINES := $(patsubst xtb, xtb_input xtb_energy xtb_energy_gradient, $(STUBROUTINES) )
+STUBROUTINES := $(patsubst nwc_columbus, sifcfg sifwh sodft_aoints, $(STUBROUTINES) )
 STUBROUTINES := $(strip $(STUBROUTINES))
 STUBROUTINES := $(sort $(STUBROUTINES))
 
