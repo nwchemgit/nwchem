@@ -11,22 +11,22 @@ c
 c
 c  ##  paramter & common block section
 c
-      integer*4 nipv,iretbv
+      integer nipv,iretbv
       parameter (nipv=4,iretbv=0)
 c
-      integer*4   ninfmx
+      integer   ninfmx
       parameter(ninfmx=10)
 c
 c     # bummer error types.
-      integer*4   wrnerr,  nfterr,  faterr
+      integer   wrnerr,  nfterr,  faterr
       parameter(wrnerr=0,nfterr=1,faterr=2)
 c
 c  ##  integer*4 section
 c
-      integer*4 info(ninfmx),itypea,itypeb,ifmt,ibvtyp,ierr,ibitv(1)
-      integer*4 last,labs(4,*)
-      integer*4 nbuf
-      integer*4 sfile
+      integer info(ninfmx),itypea,itypeb,ifmt,ibvtyp,ierr,ibitv(1)
+      integer last,labs(4,*)
+      integer nbuf
+      integer sfile
 c
 c  ##  real*8
 c
@@ -48,7 +48,7 @@ cgk debug
 cgk end
       call sifrd2(sfile,   info,   nipv,    iretbv,
      &            buffer,  nbuf,   last,    itypea,
-     &            itypeb,  ifmt,   ibvtyp,  vals,
+     &            itypeb,  ibvtyp,  vals,
      &            labs,    ibitv,  ierr)
 cgk debug
 !      write(*,*)'gk: after sifrd2'

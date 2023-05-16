@@ -23,9 +23,9 @@ c
       logical oskel             ! [input] If true generate symmetry unique list
       double precision sifval(n1max)
       double precision sifbuf(l1rec)
-      integer*4 ninfo
-      integer*4 info(ninfo)  ! not to be confused with NWChem info
-      integer*4 clab(2,max1e)
+      integer ninfo
+      integer info(ninfo)  ! not to be confused with NWChem info
+      integer clab(2,max1e)
       real*8 fcore
 
 c     
@@ -53,28 +53,29 @@ c
 c  
 c     sifs parameters
 c
-      integer*4 aoints
-      integer*4 ifmt1, l1rec, n1max, ierr 
-      integer*4 ibvtyp
-      integer*4 ibitv
-      integer*4 mxbf
+      integer aoints, ierr
+      integer ifmt1, l1rec, n1max
+      integer ibvtyp
+      integer ibitv
+      integer mxbf
 c     make sure this is compatible with columbus
       parameter (mxbf=1000)
 c     header 1
-      integer*4 ntitle, nsym, nbas, mxenrgy
+      integer ntitle, nsym, nbas, mxenrgy
       parameter(ntitle=1,nsym=1,mxenrgy=1)
 c     header 2
       integer otype, nprim, ngen, sphcart, iat, shdim, igen, ibf
       integer numtot
-      integer*4 msame,nmsame,nomore
+      integer msame,nmsame,nomore
       parameter(msame=0, nmsame=1, nomore= 2)
-      integer*4 nrec, num
-      integer itypea, itypeb, last
-      integer*4 ibuf
+      integer nrec
+      integer itypea, itypeb, last, num
+      integer ibuf
       logical basok
 *     character*3 sotype(3)
 *     data sotype /'sox','soy','soz'/
       real*8 soval
+      CHARACTER(10) integ_type
       
 
 cgk provisional
@@ -86,7 +87,7 @@ cgk end
       
 c
 cgk debug
-*      write(*,*)'gk: **** entered int_so_sifs'
+      write(*,*)'gk: **** entered int_so_sifs'
 cgk end
       basok=.false.
       odbug=.true.
@@ -260,12 +261,15 @@ cgk debug
         if(icart.eq.1) then
           kcart=k_soz
           itypeb=2
+          integ_type='spnorbz'
         elseif(icart.eq.2) then
           kcart=k_soy
           itypeb=1
+          integ_type='spnorby'
         elseif(icart.eq.3) then
           kcart=k_sox
           itypeb=0
+          integ_type='spnorbx'
         endif
         symmap=0
         numtot=0
@@ -282,7 +286,7 @@ cgk debug
 *      WRITE(*,*)"last=",last,"ibvtyp=",ibvtyp
 cgk end
               call sifew1(aoints, info, 2, ibuf, msame, 
-     &          itypea, itypeb, ifmt1, ibvtyp, 
+     &          itypea, itypeb, ibvtyp, 
      &          sifval, clab, fcore, ibitv, 
      &          sifbuf, nrec, ierr)
               numtot = numtot - ibuf
@@ -313,11 +317,11 @@ cgk debug
 *      WRITE(*,*)"last=",last,"ibvtyp=",ibvtyp
 cgk end
         call sifew1(aoints, info, 2, ibuf, last, 
-     &    itypea, itypeb, ifmt1, ibvtyp, 
+     &    itypea, itypeb, ibvtyp, 
      &    sifval, clab, fcore, ibitv, 
      &    sifbuf, nrec, ierr)
-*       write(6,'(a,i10,1x,a,a)') 'Wrote ',numtot, sotype(icart), 
-*    &     ' integrals to aoints'
+        write(6,'(a,i10,1x,a,a)') 'Wrote ',numtot, integ_type, 
+     &     ' integrals to aoints'
       enddo
 cgk end
 cgk debug

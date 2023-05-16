@@ -35,9 +35,9 @@ c
       integer junk
       logical int2e_set_bf_range
       external int2e_set_bf_range
-      integer*4 clabs(4,*)
-      integer*4 aoint2, ninfo, ifmt, ibvtyp, ibitv
-      integer*4 info(ninfo)
+      integer clabs(4,*)
+      integer aoint2, ninfo, ifmt, ibvtyp, ibitv
+      integer info(ninfo)
       double precision values(*), buffer(*)
  
 cgk debug

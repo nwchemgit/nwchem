@@ -6,10 +6,10 @@
 #include "errquit.fh"
 #include "mafdecls.fh"
 
-      integer*4 aodens
-      integer*4 l2rec
-      integer*4 n2max
-      integer*4 info(*)
+      integer aodens
+      integer l2rec
+      integer n2max
+      integer info(*)
       integer ibas
       integer nbft
       integer nshell
