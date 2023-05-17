@@ -39,13 +39,13 @@ c
       double precision sij, smax, denmax
       integer neri
       integer i
-      integer*4 aoint2, ninfo, ifmt, ibvtyp, last, itypea, itypeb,
+      integer aoint2, ninfo, ifmt, ibvtyp, last, itypea, itypeb,
      &          iwait, nrec, reqnum, ierr, ibitv, nipv
       parameter(nipv=4)
-      integer*4 clabs(nipv,*)
-      integer*4 info(ninfo)
+      integer clabs(nipv,*)
+      integer info(ninfo)
       double precision values(*), buffer(*)
-      integer*4 msame,nmsame,nomore
+      integer msame,nmsame,nomore
       parameter(msame=0, nmsame=1, nomore= 2)
       integer n2max
 
@@ -158,7 +158,7 @@ cgk end
                          if(num.eq.n2max) then
                            nwritten=nwritten+num
                            call sifew2( aoint2, info, nipv, num,  
-     &                                  msame, itypea, itypeb, ifmt,
+     &                                  msame, itypea, itypeb, 
      &                                  ibvtyp, values, clabs, ibitv,
      &                                  buffer, iwait, nrec, reqnum,
      &                                  ierr )

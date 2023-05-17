@@ -20,9 +20,9 @@
     
       
       integer ibas
-      integer*4 aodens
-      integer*4 ninfo
-      integer*4 info(ninfo)  ! not to be confused with NWChem info
+      integer aodens
+      integer ninfo
+      integer info(ninfo)  ! not to be confused with NWChem info
       integer nbft
       integer g_force, g_d1, g_eff
       integer g_sod(3)
@@ -61,20 +61,20 @@
 c  
 c     sifs parameters
 c
-      integer*4 l1rec, n1max, l2rec, n2max, ierr 
-      integer*4 nsym, nmap
+      integer l1rec, n1max, l2rec, n2max, ierr 
+      integer nsym, nmap
       parameter(nsym=1, nmap=0)
-*     integer*4 ietype(mxenrgy)
-      integer*4 kntin(nsym), nmpsy(nsym)
+*     integer ietype(mxenrgy)
+      integer kntin(nsym), nmpsy(nsym)
 *     real*8 energy(nenrgy)
-      integer*4 itypea, itypeb
-      integer*4 numd1s, nbfs
-      integer*4 aodens2
+      integer itypea, itypeb
+      integer numd1s, nbfs
+      integer aodens2
       logical status
       INTEGER :: g_ad1, g_hd, l_asym, k_asym, l_hd, k_hd, nadx
       DOUBLE PRECISION :: nadxfl(nat,3)
       INTEGER :: hdol ! Handle or half-drv ovlp GA
-      INTEGER*4 :: aodensa, infoa(ninfo)
+      INTEGER :: aodensa, infoa(ninfo)
       LOGICAL :: trans
       INTEGER :: dims(3),chunk(3),iend(2),jstrt(3),jend(3) 
       INTEGER, PARAMETER :: istrt(2) = (/1,1/)
@@ -207,26 +207,26 @@ c       read one electron density
         itypea=0
         itypeb=7
 cgk debug
-*     write(*,*)'gk:  getting effective density'
-*     write(*,*)'gk:  calling rd1mat from egrad_trace'
-*        WRITE(*,*)"LB egrad_trace, l1rec=",l1rec,"n1max=",n1max,
-*     &   "numd1s=",numd1s,"nsym=",nsym,"nmpsy=",nmpsy,"kntin=",kntin,
-*     &   "nbfs=",nbfs
+!      write(*,*)'gk:  getting effective density'
+!      write(*,*)'gk:  calling rd1mat from egrad_trace'
+!      WRITE(*,*)"LB egrad_trace, l1rec=",l1rec,"n1max=",n1max,
+!     &   "numd1s=",numd1s,"nsym=",nsym,"nmpsy=",nmpsy,"kntin=",kntin,
+!     &   "nbfs=",nbfs
 cgkd end
         call rd1mat(aodens, l1rec, n1max, info, dbl_mb(k_sifbuf), 
      &    int_mb(k_slab), dbl_mb(k_sifval), dbl_mb(k_sm), numd1s,
      &    int_mb(k_sym), int_mb(k_map), nsym, nmpsy, kntin, itypea, 
      &    itypeb, nbfs) 
 cgk debug
-*       write(*,*)'gk:  back from rd1mat'
-*       write(*,*)'gk: total effective density matrix:'
-*       ij=0
-*       do i=1,nbft
-*         do j=1,i
-*           write(*,'(2i4,f20.12)') i,j,dbl_mb(k_sm+ij)
-*           ij=ij+1
-*         enddo
-*       enddo
+!       write(*,*)'gk:  back from rd1mat'
+!       write(*,*)'gk: total effective density matrix:'
+!       ij=0
+!       do i=1,nbft
+!         do j=1,i
+!           write(*,'(2i4,f20.12)') i,j,dbl_mb(k_sm+ij)
+!           ij=ij+1
+!         enddo
+!       enddo
 cgk end
 c       put effective density in global arrays
         call sif2ga(g_d1,dbl_mb(k_sm),ibas,nbft)
@@ -240,15 +240,15 @@ c       get sifs effective fock matrix
      &    itypeb, nbfs) 
 
 cgk debug
-*       write(*,*)'gk:  back from rd1mat'
-*       write(*,*)'gk: total effective fock matrix:'
-*       ij=0
-*       do i=1,nbft
-*         do j=1,i
-*           write(*,'(2i4,f20.12)') i,j,dbl_mb(k_sm+ij)
-*           ij=ij+1
-*         enddo
-*       enddo
+!       write(*,*)'gk:  back from rd1mat'
+!       write(*,*)'gk: total effective fock matrix:'
+!       ij=0
+!       do i=1,nbft
+!         do j=1,i
+!           write(*,'(2i4,f20.12)') i,j,dbl_mb(k_sm+ij)
+!           ij=ij+1
+!         enddo
+!       enddo
 cgk end
 
 c       put effective density in global arrays

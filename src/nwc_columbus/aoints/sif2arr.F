@@ -2,14 +2,14 @@
      &   infocd, b2s, sminb, smaxb, shoff, nsp, nshell, dbg)
 
 #include "errquit.fh"
-      integer*4 aodens
+      integer aodens
       double precision d2(mx_d2)
       integer mx_d2
       double precision valbuf(*)
       integer nipv
-      integer*4 labbuf(nipv,*)
+      integer labbuf(nipv,*)
       double precision buf(*)
-      integer*4 infocd(*)
+      integer infocd(*)
       integer b2s(*)
       integer sminb(*)
       integer smaxb(*)
@@ -18,7 +18,7 @@
       integer nshell
       integer dbg(4,*)
 
-      integer*4 nbuf, last
+      integer nbuf, last
       integer i, j, k, l, ij, kl
       integer i0, j0, k0, l0
       integer s, t, u, v, st, uv

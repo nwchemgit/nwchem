@@ -52,11 +52,11 @@ c
       external nxtask
       integer l_sifval, l_sifbuf, l2rec, n2max
       integer k_sifval, k_sifbuf 
-      integer*4 ninfo, ifmt, ibvtyp, ibitv, aoint2, nipv, itypea, 
+      integer ninfo, ifmt, ibvtyp, ibitv, aoint2, nipv, itypea, 
      &          itypeb, wait, nrec, reqnum, ierr, iwait
-      integer*4 info(ninfo)
-      integer*4 clabs(4,*)
-      integer*4 msame,nmsame,nomore
+      integer info(ninfo)
+      integer clabs(4,*)
+      integer msame,nmsame,nomore
       parameter(msame=0, nmsame=1, nomore= 2)
 
       integer l_i, l_j, l_k, l_l, l_g
@@ -246,7 +246,7 @@ cgk debug
 cgk end
          nwritten=nwritten+num
          call sifew2( aoint2, info, nipv, num,  
-     &        nomore, itypea, itypeb, ifmt,
+     &        nomore, itypea, itypeb,
      &        ibvtyp, dbl_mb(k_sifval), clabs, ibitv,
      &        dbl_mb(k_sifbuf), iwait, nrec, reqnum,
      &        ierr )

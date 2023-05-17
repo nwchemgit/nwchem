@@ -23,9 +23,9 @@ c
       logical oskel             ! [input] If true generate symmetry unique list
       double precision sifval(n1max)
       double precision sifbuf(l1rec)
-      integer*4 ninfo
-      integer*4 info(ninfo)  ! not to be confused with NWChem info
-      integer*4 clab(2,n1max)
+      integer ninfo
+      integer info(ninfo)  ! not to be confused with NWChem info
+      integer clab(2,n1max)
       real*8 fcore
 
 c     
@@ -53,26 +53,27 @@ c
 c  
 c     sifs parameters
 c
-      integer*4 aoints
-      integer*4 ifmt1, l1rec, n1max, ierr 
-      integer*4 ibvtyp
-      integer*4 ibitv
-      integer*4 mxbf
+      integer aoints, ierr
+      integer ifmt1, l1rec, n1max
+      integer ibvtyp
+      integer ibitv
+      integer mxbf
 c     make sure this is compatible with columbus
       parameter (mxbf=1000)
 c     header 1
-      integer*4 ntitle, nsym, nbas, mxenrgy
+      integer ntitle, nsym, nbas, mxenrgy
       parameter(ntitle=1,nsym=1,mxenrgy=1)
 c     header 2
       integer otype, nprim, ngen, sphcart, iat, shdim, igen, ibf
       integer numtot
-      integer*4 msame,nmsame,nomore
+      integer msame,nmsame,nomore
       parameter(msame=0, nmsame=1, nomore= 2)
-      integer*4 nrec, num
-      integer itypea, itypeb, last
-      integer*4  ibuf
+      integer nrec
+      integer itypea, itypeb, last, num
+      integer  ibuf
       logical basok
       real*8 momval
+      CHARACTER(10) integ_type
       
 
 cgk provisional
@@ -277,12 +278,27 @@ cgk debug
           if(icart.eq.1) then
             kcart=k_momz
             itypeb=0+int_type*3
+            IF(int_type.eq.1) THEN
+              integ_type='linmomz'
+            ELSE
+              integ_type='angmomz'
+            ENDIF
           elseif(icart.eq.2) then
             kcart=k_momy
             itypeb=1+int_type*3
+            IF(int_type.eq.1) THEN
+              integ_type='linmomy'
+            ELSE
+              integ_type='angmomy'
+            ENDIF
           elseif(icart.eq.3) then
             kcart=k_momx
             itypeb=2+int_type*3
+            IF(int_type.eq.1) THEN
+              integ_type='linmomx'
+            ELSE
+              integ_type='angmomx'
+            ENDIF
           endif
           symmap=0
           numtot=0
@@ -292,11 +308,11 @@ cgk debug
               if(ibuf.eq.n1max) then
                 numtot = numtot + ibuf
 C LB
-*         WRITE(*,*)"LB: in int_mom_sifs"
-*         WRITE(*,*)"LB: calling sifew1 1 last=",last,"ibvtyp=",ibvtyp
+!         WRITE(*,*)"LB: in int_mom_sifs"
+!         WRITE(*,*)"LB: calling ifew1 1 last=",last,"ibvtyp=",ibvtyp
 C LB
                 call sifew1(aoints, info, 2, ibuf, msame, 
-     &            itypea, itypeb, ifmt1, ibvtyp, 
+     &            itypea, itypeb, ibvtyp, 
      &            sifval, clab, fcore, ibitv, 
      &            sifbuf, nrec, ierr)
                 numtot = numtot - ibuf
@@ -329,9 +345,11 @@ C LB
 !       WRITE(*,*)"LB: calling sifew1 2 last=",last,"ibvtyp=",ibvtyp
 C LB
           call sifew1(aoints, info, 2, ibuf, last, 
-     &      itypea, itypeb, ifmt1, ibvtyp, 
+     &      itypea, itypeb, ibvtyp, 
      &      sifval, clab, fcore, ibitv, 
      &      sifbuf, nrec, ierr)
+        write(6,'(a,i10,1x,a,a)') 'Wrote ',numtot, integ_type, 
+     &     ' integrals to aoints'
         enddo
       enddo
 cgk end
