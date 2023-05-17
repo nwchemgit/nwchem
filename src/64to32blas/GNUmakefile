@@ -17,7 +17,8 @@
                  jlacpy.o \
                  ysfrk.o ysysv.o ysytrf.o ysytrs.o ysymm.o ysymv.o \
                  ysyr2k.o ytrmm.o ytrtri.o jlacp2.o \
-		 ysyrk.o jsyrk.o jsysv.o jsytrf.o
+		 ysyrk.o jsyrk.o jsysv.o jsytrf.o \
+		 ystebz.o ystein.o
 
 
 include ../config/makefile.h
