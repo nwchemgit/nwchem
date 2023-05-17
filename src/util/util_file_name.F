@@ -1175,6 +1175,7 @@ c
       integer ga_nodeid
       external ga_nodeid
 c
+#if !defined(CYGNUS) && !defined(WIN32)
       interface
          function fsync (fd) bind(c,name="fsync")
          use iso_c_binding, only: c_int
@@ -1182,15 +1183,18 @@ c
          integer(c_int) :: fsync
          end function fsync
       end interface
+#endif
       iunit=10
       open (iunit,file=fname)
       call util_flush(iunit)
+#if !defined(CYGNUS) && !defined(WIN32)
 #if defined(GFORTRAN) && !defined(USE_FLANG) && !defined(__llvm__) && !defined(___PGLLVM__)
       fd_in=fnum(iunit)
 c     Flush and sync
       code=fsync(fd_in)
       if(code.ne.0) call
      c     errquit("Error calling FSYNC",ga_nodeid(),0)
+#endif
 #endif
       return
       end

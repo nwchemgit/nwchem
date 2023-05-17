@@ -118,6 +118,7 @@ ifeq ($(NWCHEM_TARGET),$(findstring $(NWCHEM_TARGET),LINUX64 CATAMOUNT))
   endif
   ifeq ($(GOTMINGW64),1)
     EXTRA_OBJ += util_mingw.o
+    LIB_DEFINES += -DWIN32 -D__MINGW32__
   endif
   ifeq ($(_CPU),x86_64)
   ifneq ($(GOTMINGW64),1)
