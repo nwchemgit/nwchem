@@ -32,7 +32,7 @@ blaswrapper.f cdcopy.f\
 colib1.f colib2.f colib3.f colib4.f \
 colib5.f colib6.f colib7.f colib8.f \
 colib8a.f colib9.f: izero.F
-#	./build_colib.sh
+	./build_colib.sh
 
 MAKEFLAGS = -j 1 --no-print-directory
 ALLF = $(filter-out ./sifs_stubs.F, $(shell find . -name '*.F'))

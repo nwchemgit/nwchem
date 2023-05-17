@@ -90,8 +90,8 @@ fi
 sed -i -e 's/dcopy_wr/cdcopy/g' ./colib8.f
 
 # SO effective density matrix has btype 35.  Needed until this change is made in COLUMBUS
-sed -i -e 's/ibtypmx=??/ibtypmx=40/g' ./colib8.f
-sed -i -e 's/btypmx=??/btypmx=40/g' ./colib8.f
+sed -i -e 's/btypmx=34/btypmx=40/g' ./colib8.f
+sed -i -e 's/btypmx=35/btypmx=40/g' ./colib8.f
 
 #These already exist in NWchem; need to rename to avoid double definition
 sed -i -e 's/subroutine\ mxma/subroutine\ mxma_x/g' ./colib1.f
