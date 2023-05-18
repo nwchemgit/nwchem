@@ -1,24 +1,20 @@
 #
 # $Id$
 #
-USE_I4FLAGS=1
+#USE_I4FLAGS=1
 include ../../config/makefile.h
 
 ifdef NO_SIFS
 OBJ = sifs_stubs.o
 else
-OBJ_OPTIMIZE = sifrd1.o sifr2.o sifr1x.o sifr1n.o  \
-sifo2f.o siffw2.o siffw1.o sifew2.o \
-sifew1.o sife2.o sife1.o sifd2.o sifd1.o sifcfg.o \
-sif2w8.o sifzwh.o sifzh2.o sifwh.o sifw2.o \
-sifskh.o sifsk1.o sifrh2.o \
-sifrh1.o sifrd2.o aiopen.o aiwait.o airead.o \
-aiwrit.o seqwbf.o seqrbf.o plab1.o plab8.o plab16.o plab32.o \
-ulab1.o ulab8.o ulab16.o ulab32.o cdcopy.o izero.o
 
-OBJ = bummer.o
+OBJ_OPTIMIZE = colib1.o colib2.o colib3.o colib4.o \
+	       colib5.o colib6.o colib7.o colib8.o \
+	       colib8a.o colib9.o blaswrapper.o izero.o \
+	       cdcopy.o 
+
 endif
-      LIBRARY = libnwc_columbus.a
+      LIBRARY = libnwints.a
 
 
      LIB_INCLUDES = -I../../nwdft/grid -I../../nwdft/include \
@@ -29,11 +25,21 @@ endif
 
 include ../../config/makelib.h
 
+izero.F:
+	./build_colib.sh
+
+blaswrapper.f cdcopy.f\
+colib1.f colib2.f colib3.f colib4.f \
+colib5.f colib6.f colib7.f colib8.f \
+colib8a.f colib9.f: izero.F
+	./build_colib.sh
+
 MAKEFLAGS = -j 1 --no-print-directory
 ALLF = $(filter-out ./sifs_stubs.F, $(shell find . -name '*.F'))
 
-bummer.F:
-	./build_sifs.sh
+
+#bummer.F:
+#	./build_colib.sh
 
 cleanF:
 	@rm -rf colu* $(ALLF)  dependencies sifs.patched

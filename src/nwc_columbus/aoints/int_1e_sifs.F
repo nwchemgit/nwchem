@@ -50,34 +50,36 @@ c
 c  
 c     sifs parameters
 c
-      integer*4 aoints
-      integer*4 ifmt1, ibvtyp, n1max, ierr 
-      INTEGER l1rec, ntitle, ibuf, nsym
-      integer*4 ibitv
-      integer*4 mxbf
+      integer aoints
+      integer ifmt1, n1max
+      INTEGER l1rec, ntitle, ibuf, nsym, ibvtyp, ierr
+      integer ibitv
+      integer mxbf
       parameter (mxbf=1000)
 c     header 1
-      integer*4 nbas, ninfo, mxenrgy, nenrgy, nmap
+      integer nbas, mxenrgy, nenrgy, nmap
+      INTEGER ninfo
       parameter(ntitle=1,nsym=1,mxenrgy=1)
 c     header 2
-      integer*4 info(ninfo)  ! not to be confused with NWChem info
-      integer*4 ietype(mxenrgy)
-      integer*4 imtype(nmap) ! map will be taken from dynamic memory 
-      integer*4 map(nbft,nmap)
-      integer*4 clab(2,*)
+      integer info(ninfo)  ! not to be confused with NWChem info
+      integer ietype(mxenrgy)
+      integer imtype(nmap) ! map will be taken from dynamic memory 
+      integer map(nbft,nmap)
+      integer clab(2,*)
       real*8 energy(nenrgy)
       character*80 stitle(ntitle)
       character*4 slabel(nsym)
-      integer*4 nbpsy(nsym)
+      integer nbpsy(nsym)
       character*1 shtypes(-1:7)
       data shtypes/'l','s', 'p', 'd', 'f', 'g', 'h', 'i', 'k'/
-      integer*4 shmap(-1:7)
+      integer shmap(-1:7)
       data shmap  /  0,  1,   2,   4,   6,   9,  12,  16,  0 /
       integer otype, nprim, ngen, sphcart, iat, shdim, igen, ibf
       integer numtot
-      integer*4 msame,nmsame,nomore
+      integer msame,nmsame,nomore
       parameter(msame=0, nmsame=1, nomore= 2)
-      integer*4 itypea, itypeb, nrec, num,  last
+      integer nrec
+      INTEGER itypea, itypeb, num, last
       real*8 fcore
       logical basok
       
@@ -91,8 +93,8 @@ cgk end
       
 c
 cgk debug
-!      write(*,*)'gk: **** entered int_1e_sifs'
-!      WRITE(*,*)'LB: info=',info
+      write(*,*)'gk: **** entered int_1e_sifs'
+!      WRITE(*,*)'LB: info=',info(1:5)
 cgk end
       basok=.false.
       odbug=.true.
@@ -170,6 +172,7 @@ c     get memory for sifs buffer space
      &        MA_ERR)
 
 c
+
 c     Set up SIFS header iformation
 c
       call bas_vec_info(ibas, byte_mb(k_info))
@@ -235,8 +238,8 @@ c
                map(i,1)=iat
                map(i,2)=shmap(otype)
 cgk debug
-*       write(*,'(a,i,i,i)')'gk: ', i, iat, shmap(otype)
-*       write(*,'(a,i,i,i)')'gk: ', i, map(i,1), map(i,2)
+!       write(*,'(a,i,i,i)')'gk: ', i, iat, shmap(otype)
+!       write(*,'(a,i,i,i)')'gk: ', i, map(i,1), map(i,2)
 cgk end
 *              int_mb(k_map+i-1) = iat
 *              int_mb(k_map+nbft+i-1) = shmap(otype)
@@ -263,6 +266,9 @@ cgk debug
 !       write(*,*)'gk:    ntitle=',ntitle
 !       write(*,*)'gk:    ninfo=',ninfo
 !       WRITE(*,*)'LB: l2rec=',info(4)
+!       WRITE(*,*)'LB: ietype',ietype
+!        WRITE(*,*)"LB before sifwh, info=",info(1:5)
+
 cgk end
          call sifwh( aoints,  ntitle,  nsym,    nbft,
      &      ninfo,   nenrgy,  nmap,    stitle,   nbpsy,   slabel,  info,
@@ -270,6 +276,7 @@ cgk end
      &      ierr )
 cgk debug
 !       write(*,*)'gk: back from sifwh with ierr=',ierr
+!        WRITE(*,*)"LB after sifwh, info=",info(1:5)
 cgk end
 
 c        start loop over integral types here.
@@ -300,7 +307,7 @@ cgk end
          do jshell = 1, nshell
             do ishell = 1, nshell
 cgk debug
-*      write(*,*)'gk: ishell=',ishell,' jshell=',jshell
+!      write(*,*)'gk: ishell=',ishell,' jshell=',jshell
 cgk end
  
                odoit = .true.
@@ -339,7 +346,7 @@ cgk end
      &                  thresh, int_mb(k_ilab),int_mb(k_jlab), max1e,
      $                  dbl_mb(k_buf), mem1, dbl_mb(k_scr), numints)
 cgk debug
-*       write(*,*)'gk: back from int_l1epe'
+!       write(*,*)'gk: back from int_l1epe'
 cgk end
                   else if (type .eq. 3) then
 c                    ECP is summed here, but COLUMBUS should not care.
@@ -364,7 +371,7 @@ C LB
 
 C LB
                        call sifew1(aoints, info, 2, ibuf, last, 
-     &                   itypea, itypeb, ifmt1, ibvtyp, 
+     &                   itypea, itypeb, ibvtyp, 
      &                   dbl_mb(k_sifval), clab, fcore, ibitv, 
      &                   dbl_mb(k_sifbuf), nrec, ierr)
 c                      ibuf on return has the number of unwritten
@@ -394,19 +401,20 @@ cgk end
          last=nmsame
          numtot=numtot+ibuf
 cgk debug
-*       write(*,*)'gk: nrec=', nrec
-*       write(*,*)'gk:  ibuf=', ibuf
-*       write(*,*)'gk:  last=', last,"ibvtyp=",ibvtyp
-*       write(*,*)'gk:  numtot=', numtot
-*       WRITE(*,*)"int_mom_sifs calling sifew1 2"
+!       write(*,*)'gk: nrec=', nrec
+!       write(*,*)'gk:  ibuf=', ibuf
+!       write(*,*)'gk:  last=', last,"ibvtyp=",ibvtyp
+!       write(*,*)'gk:  numtot=', numtot
+!       WRITE(*,*)"int_1e_sifs calling sifew1 2"
 cgk end
          call sifew1(aoints, info, 2, ibuf, last, 
-     &     itypea, itypeb, ifmt1, ibvtyp, 
+     &     itypea, itypeb, ibvtyp, 
      &     dbl_mb(k_sifval), clab, fcore, ibitv, 
      &     dbl_mb(k_sifbuf), nrec, ierr)
 
          write(6,'(a,i10,1x,a,a)') 'Wrote ',numtot, integ_type, 
      &     ' integrals to aoints'
+         
 
          enddo
       endif

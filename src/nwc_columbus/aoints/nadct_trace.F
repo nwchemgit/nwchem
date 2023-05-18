@@ -47,16 +47,16 @@ c
      &        l_frc_sow, l_frc_sox, l_frc_soy, l_frc_soz, l_frc_atr
       integer k_force, k_frc_nuc, k_frc_kin, k_frc_fds, k_frc_2el, 
      &        k_frc_sow, k_frc_sox, k_frc_soy, k_frc_soz, k_frc_atr
-      integer*4 aodens, aodensa
+      integer aodens, aodensa
       parameter(aodens=24, aodensa=25)
-      integer*4 ninfo, ninfmx, ntitmx, nsymx
+      integer ninfo, ninfmx, ntitmx, nsymx
       parameter(ninfo=5,ninfmx=10,ntitmx=30,nsymx=8)
-      integer*4 infocd(ninfmx)
+      integer infocd(ninfmx)
       character*80 siftits(ntitmx)
-      integer*4 nsym, nmot, nmbpsy(nsymx), nsift
-      integer*4 infocda(ninfmx)
+      integer nsym, nmot, nmbpsy(nsymx), nsift
+      integer infocda(ninfmx)
       character*80 siftitsa(ntitmx)
-      integer*4 nsifta
+      integer nsifta
       LOGICAL :: trans ! is this a transition property run?
 
 cgk debug
@@ -377,8 +377,9 @@ cgk debug
 cgk end
         call rdhcid(aodens, infocd, nsift, siftits, nsym, nmot, nmbpsy)
 cgk debug
-*     write(*,*)'gk: back from rdhcid'
-*     write(*,*)'gk: nsym = ', nsym
+!      write(*,*)'gk: back from rdhcid'
+!      write(*,*)'gk: nsym = ', nsym
+!      WRITE(*,*)"LB, info=",infocd
 cgk end
       endif
 

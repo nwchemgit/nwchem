@@ -18,10 +18,10 @@ c
 c     arguments
 c     
       integer geom, basis            ! [input] parameter handles
-      integer*4 aoint2 
-      integer*4 ninfo, ifmt, ibvtyp
-      integer*4 ibitv
-      integer*4 info(ninfo)
+      integer aoint2 
+      integer ninfo, ifmt, ibvtyp
+      integer ibitv
+      integer info(ninfo)
       double precision tol2e         ! [input] integral selection threshold
       logical oskel                  ! [input] toggle skeleton Fock matrix
 c     
@@ -40,8 +40,8 @@ c
       external int2e_test_mem, int2e_buf_write, int2e_file_rewind
       integer ncomputed, nwritten, num
       common/sif2e/ncomputed, nwritten, num
-      integer*4 max2e, l2rec, n2max, ierr
-      integer*4 clabs(4,*)
+      integer max2e, l2rec, n2max, ierr
+      integer clabs(4,*)
 c
 cgk debug
 *     write(*,*)'gk: entered int_2e_sifs'

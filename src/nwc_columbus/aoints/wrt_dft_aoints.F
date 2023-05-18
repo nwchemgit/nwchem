@@ -60,25 +60,27 @@ c     sifs
       integer l_lab
       integer  nmax
       parameter(nmap=2)
-      integer*4 aoints
+      integer aoints
       parameter(aoints=23)
-      integer*4 ifmt1, ibvtyp, n1max, ierr, ifmt, n2max
-      INTEGER l1rec, l2rec
+      integer ifmt1, n1max, ifmt, n2max
+      INTEGER l1rec, l2rec, ibvtyp, ierr
       integer lrecal
-      integer*4 ibitv
-      integer*4 mxengy
+      integer ibitv
+      integer mxengy
       parameter (mxengy=1)
       real*8 energy(mxengy)
-      integer*4 ninfo, iunit2, aoint2
-      parameter(ninfo=5)
-      integer*4 info(ninfo)  ! not to be confused with NWChem info
+      integer iunit2, aoint2
+      INTEGER ninfo
+      parameter(ninfo=6)
+      integer info(ninfo)  ! not to be confused with NWChem info
       real*8 tol2e
       parameter(tol2e=1d-10) ! integrate with user parameters...
-
+      INTEGER imtype(nmap)
 cgk debug
       integer mem1, max1e, mem2, max2e
 cgk end
       ierr=0 !initialize
+      imtype=0
        
 
       wrt_dft_aoints = .false.
@@ -107,7 +109,7 @@ c
 !#endif
 c     
 c     Determine the characteristics of the AO Gaussian basis set.
-c     This uses the old NWdft data structures, rather than tthe rtdb
+c     This uses the ol6 NWdft data structures, rather than tthe rtdb
 c     
       if (.not. bas_numbf(AO_bas_han, nbf_ao)) then
          call errquit('Exiting from wrt_dft_aoints',1, BASIS_ERR)
@@ -395,21 +397,21 @@ c
       ibvtyp=0
       lrecal = 4096
 C LB
-c      write(*,*)'LB: before sifcfg(1), ierr=',ierr
-c      WRITE(*,*)'n1max=',n1max,'n2max=',n2max,'ifmt1=',ifmt1,'ifmt',ifmt
-c      WRITE(*,*)"LB, sizeof l1rec=",sizeof(l1rec)
-c      WRITE(*,*)"LB, sizeof lrecal=",sizeof(lrecal)
+!      write(*,*)'LB: before sifcfg(1), ierr=',ierr
+!      WRITE(*,*)'n1max=',n1max,'n2max=',n2max,'ifmt1=',ifmt1,'ifmt',ifmt
+!      WRITE(*,*)"LB, sizeof l1rec=",sizeof(l1rec)
+!      WRITE(*,*)"LB, sizeof lrecal=",sizeof(lrecal)
 C LB
       call sifcfg(1, lrecal, nbf_ao, ibvtyp, ifmt1, l1rec, n1max, ierr)
       lrecal = 4096
 C LB
-c      write(*,*)'LB: after sifcfg(1), ierr=',ierr
-c      WRITE(*,*)'l1rec=',l1rec
+!      write(*,*)'LB: after sifcfg(1), ierr=',ierr
+!      WRITE(*,*)'l1rec=',l1rec
 C LB
       call sifcfg(2, lrecal, nbf, ibvtyp, ifmt, l2rec, n2max, ierr)
 C LB
-c      write(*,*)'LB: after sifcfg(2), ierr=',ierr
-c      WRITE(*,*)'l2rec=',l2rec
+!      write(*,*)'LB: after sifcfg(2), ierr=',ierr
+!      WRITE(*,*)'l2rec=',l2rec
 C LB
 
       info(1) = 1 ! =FSPLIT; do not split aoints file
@@ -420,12 +422,12 @@ C LB
       nmax=max(n1max,n2max)
 
 cgk debug
-c      write(*,*)'gk: n1max = ', n1max
-c      write(*,*)'gk: l1rec = ', l1rec
-c      write(*,*)'gk: n2max = ', n1max
-c      write(*,*)'gk: l2rec = ', l2rec
-c      write(*,*)'gk: ifmt1 = ', ifmt1
-c      write(*,*)'gk: ifmt = ', ifmt
+!      write(*,*)'gk: n1max = ', n1max
+!      write(*,*)'gk: l1rec = ', l1rec
+!      write(*,*)'gk: n2max = ', n2max
+!      write(*,*)'gk: l2rec = ', l2rec
+!      write(*,*)'gk: ifmt1 = ', ifmt1
+!      write(*,*)'gk: ifmt = ', ifmt
 cgk end
       if(ierr.ne.0) 
      &   call errquit('wrt_dft_aoints: error in sifcfg', ierr,
@@ -487,11 +489,13 @@ cgk end
 cgk debug
 *     write(*,*)'gk: calling int_1e_sifs'
 *     write(*,*)'gk:    mxengy=', mxengy
-*      write(*,*)'gk:    info=', info
+!      write(*,*)'LB before int_1e_sifs, info=', info(1:5)
+!      WRITE(*,*)"k_map=",k_map,"szintarr=",szintarr,"nmap=",nmap
 cgk write
 
+      info(6) = ifmt1 ! new for Columbus 7
       call int_1e_sifs(AO_bas_han, aoints, energy, mxengy, 
-     &   nbf_ao, nmap, int_mb(k_map),int_mb(k_map+szintarr*nmap+1),
+     &   nbf_ao, nmap, int_mb(k_map),imtype,
      &   ifmt1, ibvtyp, ibitv, l1rec, n1max, int_mb(k_lab),
      &   ninfo, info)
 
@@ -501,11 +505,11 @@ cgk debug
 cgk write
 
 cgk debug
-c      write(*,*)'gk: done with one electron integrals'
-c      write(*,*)'gk: now let us do 2e ints.'
-c      write(*,*)'LB: aoints=',aoints,'iunit2=',iunit2,'aoint2=',aoint2
-c     &,'ierr=',ierr
-c      WRITE(*,*)'LB: info =',info(1),info(2),info(3),info(4)
+!      write(*,*)'gk: done with one electron integrals'
+!      write(*,*)'gk: now let us do 2e ints.'
+!      write(*,*)'LB: aoints=',aoints,'iunit2=',iunit2,'aoint2=',aoint2
+!     &,'ierr=',ierr
+!      WRITE(*,*)'LB: info =',info(1),info(2),info(3),info(4)
 cgk end
 c     open 2 electron itegrals file
       iunit2=aoints
@@ -520,6 +524,7 @@ cgk debug
 *     write(*,*)'gk: iunit2 = ', iunit2
 cgk end
 
+      info(6) = ifmt ! new for Columbus 7
       call int_2e_sifs(geom, AO_bas_han, tol2e, oskel, aoint2, ninfo, 
      &     info, ifmt, ibvtyp, ibitv, int_mb(k_lab))
 
