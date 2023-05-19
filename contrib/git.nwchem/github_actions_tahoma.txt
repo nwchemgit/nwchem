@@ -28,6 +28,7 @@ jobs:
         sing_image:
           - ompi41x.ifort
           - ompi41x
+          - ompi41x.ifort.mpits
       fail-fast: false
     env:
         USE_LIBXC: 1
