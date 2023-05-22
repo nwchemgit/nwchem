@@ -341,21 +341,21 @@ c
 c     if set by the user
 c
       status = rtdb_get(rtdb,'cosmo:dielec',mt_dbl,1,dielec)
-      status = status.or.
+      status = status.and.
      S     rtdb_get(rtdb,'cosmo:dielecinf',mt_dbl,1,dielecinf)
-      status = status.or.
+      status = status.and.
      S     rtdb_get(rtdb,'cosmo:sola',mt_dbl,1,sola)
-      status = status.or.
+      status = status.and.
      S     rtdb_get(rtdb,'cosmo:solb',mt_dbl,1,solb)
-      status = status.or.
+      status = status.and.
      S     rtdb_get(rtdb,'cosmo:solc',mt_dbl,1,solc)
-      status = status.or.
+      status = status.and.
      S     rtdb_get(rtdb,'cosmo:solg',mt_dbl,1,solg)
-      status = status.or.
+      status = status.and.
      S     rtdb_get(rtdb,'cosmo:solh',mt_dbl,1,solh)
-      status = status.or.
+      status = status.and.
      S     rtdb_get(rtdb,'cosmo:soln',mt_dbl,1,soln)
-      status = status.or.
+      status = status.and.
      S     rtdb_get(rtdb,'cosmo:icds',mt_int,1,icds)
       if(.not.status) then
       if(odbug.and.me.eq.0) 
