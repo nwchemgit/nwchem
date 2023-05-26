@@ -82,6 +82,7 @@ if [[ -n ${FC} ]] &&   [[ ${FC} == ftn ]]; then
 fi
 
 FC_EXTRA=$(${NWCHEM_TOP}/src/config/strip_compiler.sh ${FC})
+echo FC_EXTRA is $FC_EXTRA
 
 #Intel MPI
 if [[  -z "$I_MPI_F90"   ]] ; then
@@ -196,7 +197,9 @@ fi
 if [[ ${FC} == nvfortran ]] || [[ ${FC} == pgf90 ]]; then
   Fortran_FLAGS+="-Mbackslash -fast -tp host"
 fi
-
+if [ ! -z "${CONDA_BUILD_SYSROOT}" ]; then
+ Fortran_FLAGS+="-Wl,-rpath,${PREFIX}/lib -L${PREFIX}/lib"
+fi
 if [[ -z "$USE_OPENMP" ]]; then
   DOOPENMP=OFF
 else
