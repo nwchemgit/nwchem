@@ -132,6 +132,7 @@ if [[ "$os" == "Linux" ]]; then
 	    export APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 	    export TERM=dumb
             rm -f l_Base*sh l_HP*sh
+	    tries=0 ; until [ "$tries" -ge 10 ] ; do \
 			  dir_base="7deeaac4-f605-4bcf-a81b-ea7531577c61"
 			  dir_hpc="1ff1b38a-8218-4c53-9956-f0b264de35a4"
 			  base="l_BaseKit_p_2023.1.0.46401_offline"
