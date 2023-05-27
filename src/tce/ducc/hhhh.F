@@ -170,6 +170,9 @@ c      Commutator = 2, PT Order = 2
         INTERMOOOO(m,l,i,j) = INTERMOOOO(m,l,i,j) -
      &          (1.0/4.0)*T2(m,l,e,f)*T2(i,j,e,f)
         ENDDO; ENDDO; ENDDO; ENDDO; ENDDO; ENDDO
+#ifndef OPTIMIZE_DUCC
+CDIR$ NOPREFETCH
+#endif
         DO  i  = 1, NOS
         DO  j  = 1, NOS
         DO  k  = 1, NOS
@@ -2739,6 +2742,9 @@ c      Commutator = 3, PT Order = 5
      &  INTERMOOVO(m,l,f,i)*T1(j,f)
         ENDDO; ENDDO; ENDDO; ENDDO; ENDDO
         DEALLOCATE(INTERMOOVO)
+#ifndef OPTIMIZE_DUCC
+CDIR$ NOPREFETCH
+#endif
         DO  i  = 1, NOS
         DO  j  = 1, NOS
         DO  k  = 1, NOS
