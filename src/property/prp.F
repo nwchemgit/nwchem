@@ -186,6 +186,13 @@ c
         endif
         call hnd_hyperfine_ZORA(rtdb,basis,geom)
        end if
+      else
+         if (ga_nodeid().eq.0) then
+            write(luout,7000)
+ 7000 format(/,6x,'Indirect spin-spin coupling not calculated for RHF',
+     1       /,6x,'wave functions: needs UHF wave function')
+         endif
+         call errquit(' use ODFT input keyword ',0,0)
       end if
 c
 c     ----- electrostatic potential -----
