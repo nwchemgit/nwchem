@@ -1,3 +1,4 @@
+#include "gw_simd.fh"
       subroutine gw_cdgw_buildpi(which,ovup,ovdw,pi,factor,ldpi,nri,
      $                           npoles,main,ipol,maxpoles)
 C
@@ -64,13 +65,13 @@ C     Note that we actually compute -\Pi.
           !
           ! Scale ERIs with factor in square brackets of Equation (39)
           !
-!$omp     parallel do simd schedule(static) collapse(2)
+!$omp     parallel do MYSIMD schedule(static) collapse(2)
           do ipole=1,npoles(1)
           do iri=1,nri
             ovup(iri,ipole) = ovup(iri,ipole)*factor(ipole,1)
           enddo
           enddo
-!$omp     end parallel do simd
+!$omp     end parallel do MYSIMD
 
           !
           ! DSFRK is the RFP version of DSYRK
@@ -80,13 +81,13 @@ C     Note that we actually compute -\Pi.
           !
           ! Back-transform ERIs, since we are going to need them again
           !
-!$omp     parallel do simd schedule(static) collapse(2)
+!$omp     parallel do MYSIMD schedule(static) collapse(2)
           do ipole=1,npoles(1)
           do iri=1,nri
             ovup(iri,ipole) = ovup(iri,ipole)/factor(ipole,1)
           enddo
           enddo
-!$omp     end parallel do simd
+!$omp     end parallel do MYSIMD
 
         endif
 
@@ -98,13 +99,13 @@ C     Note that we actually compute -\Pi.
           !
           ! Scale ERIs with factor in square brackets of Equation (39)
           !
-!$omp     parallel do simd schedule(static) collapse(2)
+!$omp     parallel do MYSIMD schedule(static) collapse(2)
           do ipole=1,npoles(2)
           do iri=1,nri
             ovdw(iri,ipole) = ovdw(iri,ipole)*factor(ipole,2)
           enddo
           enddo
-!$omp     end parallel do simd
+!$omp     end parallel do MYSIMD
 
           !
           ! DSFRK is the RFP version of DSYRK
@@ -114,13 +115,13 @@ C     Note that we actually compute -\Pi.
           !
           ! Back-transform ERIs, since we are going to need them again
           !
-!$omp     parallel do simd schedule(static) collapse(2)
+!$omp     parallel do MYSIMD schedule(static) collapse(2)
           do ipole=1,npoles(2)
           do iri=1,nri
             ovdw(iri,ipole) = ovdw(iri,ipole)/factor(ipole,2)
           enddo
           enddo
-!$omp     end parallel do simd
+!$omp     end parallel do MYSIMD
 
         endif
 

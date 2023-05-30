@@ -1,3 +1,4 @@
+#include "gw_simd.fh"
       subroutine gw_analytic_addrpa(rpa,eia,mynpoles,lpole)
 c
 c     Adds squared eigenvalue differences to diagonal of
@@ -13,12 +14,11 @@ c     Equation (32), (34).
       double precision,intent(out) :: rpa(mynpoles,*)
 
       integer ipole
-
-!$omp parallel do simd
+!$omp parallel do MYSIMD
       do ipole=lpole,lpole+mynpoles-1
         rpa(ipole-lpole+1,ipole) = rpa(ipole-lpole+1,ipole) +
      $                             eia(ipole-lpole+1)**2   
       enddo
-!$omp end parallel do simd
+!$omp end parallel do MYSIMD
 
       end subroutine

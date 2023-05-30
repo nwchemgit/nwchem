@@ -53,12 +53,12 @@ echo DISTR is "$DISTR"
 	 else
 	mkdir -p ~/mntdmg $IONEAPI_ROOT || true
 	cd ~/Downloads
-	dir_base="19080"
-	dir_hpc="19086"
-	base="m_BaseKit_p_2023.0.0.25441"
-	hpc="m_HPCKit_p_2023.0.0.25440"
-	curl -sS -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_base"/"$base".dmg
-	curl -sS -LJO https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".dmg
+	dir_base="2516a0a0-de4d-4f3d-9e83-545b32127dbb"
+	dir_hpc="a99cb1c5-5af6-4824-9811-ae172d24e594"
+	base="m_BaseKit_p_2023.1.0.45568"
+	hpc="m_HPCKit_p_2023.1.0.44543"
+	curl -sS -LJO https://registrationcenter-download.intel.com/akdlm/IRC_NAS/"$dir_base"/"$base".dmg
+	curl -sS -LJO https://registrationcenter-download.intel.com/akdlm/IRC_NAS/"$dir_hpc"/"$hpc".dmg
 	echo "installing BaseKit"
 	hdiutil attach "$base".dmg  -mountpoint ~/mntdmg -nobrowse
 	sudo  ~/mntdmg/bootstrapper.app/Contents/MacOS/install.sh  -c -s --action install  \
@@ -132,13 +132,13 @@ if [[ "$os" == "Linux" ]]; then
 	    export APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 	    export TERM=dumb
             rm -f l_Base*sh l_HP*sh
-            tries=0 ; until [ "$tries" -ge 10 ] ; do \
-			  dir_base="19079"
-			  dir_hpc="19084"
-			  base="l_BaseKit_p_2023.0.0.25537_offline"
-			  hpc="l_HPCKit_p_2023.0.0.25400_offline"
-			  wget -nv https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_hpc"/"$hpc".sh \
-			      && wget -nv  https://registrationcenter-download.intel.com/akdlm/irc_nas/"$dir_base"/"$base".sh \
+	    tries=0 ; until [ "$tries" -ge 10 ] ; do \
+			  dir_base="7deeaac4-f605-4bcf-a81b-ea7531577c61"
+			  dir_hpc="1ff1b38a-8218-4c53-9956-f0b264de35a4"
+			  base="l_BaseKit_p_2023.1.0.46401_offline"
+			  hpc="l_HPCKit_p_2023.1.0.46346_offline"
+			  wget -nv https://registrationcenter-download.intel.com/akdlm/IRC_NAS/"$dir_hpc"/"$hpc".sh \
+			      && wget -nv  https://registrationcenter-download.intel.com/akdlm/IRC_NAS/"$dir_base"/"$base".sh \
 			      && break ;\
 			      tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
 
@@ -200,7 +200,10 @@ if [[ "$os" == "Linux" ]]; then
 		aocc_version=4.0.0
 		aocc_dir=aocc-compiler-${aocc_version}
 #		curl -sS -LJO https://developer.amd.com/wordpress/media/files/${aocc_dir}.tar
-		curl -sS -LJO https://download.amd.com/developer/eula/aocc-compiler/${aocc_dir}.tar
+		tries=0 ; until [ "$tries" -ge 10 ] ; do \
+                curl -sS -LJO https://download.amd.com/developer/eula/aocc-compiler/${aocc_dir}.tar \
+                && break ; \
+                tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
 		tar xf ${aocc_dir}.tar
 		./${aocc_dir}/install.sh
 		source setenv_AOCC.sh

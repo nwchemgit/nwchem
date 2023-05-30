@@ -1,0 +1,6 @@
+#if (__INTEL_COMPILER_BUILD_DATE>=20230302 && !defined(__INTEL_LLVM_COMPILER))
+#define MYSIMD
+#warning do simd disabled
+#else
+#define MYSIMD simd
+#endif
