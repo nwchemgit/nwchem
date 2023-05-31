@@ -26,6 +26,7 @@ jobs:
           - hotfix/release-7-2-0
           - master
         sing_image:
+          - ompi41x.ifx
           - ompi41x.ifort
           - ompi41x
           - mpi-ts.ompi41x.ifort
