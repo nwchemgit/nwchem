@@ -166,11 +166,6 @@ fi
 #if [[ ! -z "$BUILD_SCALAPACK"   ]] ; then
 #    Fortran_FLAGS+=-I"$NWCHEM_TOP"/src/libext/include
 #fi
-#fix for clang 12 error in implicit-function-declaration
-GOTCLANG=$( "$MPICC" -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
-if [[ ${GOTCLANG} == "1" ]] ; then
-    C_FLAGS=" -Wno-error=implicit-function-declaration "
-fi
 echo "SCALAPACK_SIZE" is $SCALAPACK_SIZE
 if [[ ${FC} == ftn ]]; then
     if [[ ${PE_ENV} == PGI ]]; then
@@ -213,6 +208,7 @@ if [[  -z "$I_MPI_CC"   ]] ; then
     export I_MPI_CC="$CC"
 fi
 echo I_MPI_F90 is "$I_MPI_F90"
+echo I_MPI_CC is "$I_MPI_CC"
 if [[  -z "$PE_ENV"   ]] ; then
     #check if mpif90 and FC are consistent
     MPIF90_EXTRA=$(${NWCHEM_TOP}/src/config/strip_compiler.sh `${MPIF90} -show`)
@@ -224,6 +220,11 @@ if [[  -z "$PE_ENV"   ]] ; then
 	echo MPIF90 is $MPIF90_EXTRA
 	exit 1
     fi
+fi
+#fix for clang 12 error in implicit-function-declaration
+GOTCLANG=$( "$MPICC" -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
+if [[ ${GOTCLANG} == "1" ]] ; then
+    C_FLAGS=" -Wno-error=implicit-function-declaration "
 fi
 if [[  "$SCALAPACK_SIZE" == 8 ]] ; then
     if  [[ ${FC} == f95 ]] || [[ ${FC_EXTRA} == gfortran ]] ; then
