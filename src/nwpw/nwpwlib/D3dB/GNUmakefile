@@ -52,5 +52,7 @@ endif
 
 ifeq ($(USE_FFTW3),y)
   LIB_DEFINES += -DFFTW3
-  LIB_INCLUDES += -I$(FFTW3_INCLUDE)
+  ifdef FFTW3_INCLUDE
+     LIB_INCLUDES += -I$(FFTW3_INCLUDE)
+  endif
 endif

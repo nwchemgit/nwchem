@@ -97,7 +97,7 @@ c     call D3dBs_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 #ifdef FFTW3
          indx  = i + indx0
-         call fftw_execute_dft(splans(7,nb),A(indx),A(indx))
+         call sfftw_execute_dft(splans(7,nb),A(indx),A(indx))
 
 #else
          indx  = i + indx0
@@ -140,7 +140,7 @@ c     call D3dBs_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 #ifdef FFTW3
          indx  = i + indx0
-         call fftw_execute_dft(splans(8,nb),A(indx),A(indx))
+         call sfftw_execute_dft(splans(8,nb),A(indx),A(indx))
 #else
          indx  = i + indx0
          indx1 = indx
@@ -166,7 +166,7 @@ c     call D3dBs_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 *     *************************************************
 
 #ifdef FFTW3
-      call fftw_execute_dft_c2r(splans(3,nb),A,A)
+      call sfftw_execute_dft_c2r(splans(3,nb),A,A)
 
 #else
       call cshift1_sfftb(nx(nb),ny(nb),nq(nb),1,A)
@@ -197,7 +197,7 @@ c     call D3dBs_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       indx = 1
       do q=1,nq3(nb)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
-            call fftw_execute_dft(splans(17,nb),A(indx),A(indx))
+            call sfftw_execute_dft(splans(17,nb),A(indx),A(indx))
          end if
          indx = indx + nz(nb)
       end do
@@ -229,7 +229,7 @@ c     call D3dBs_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       indx = 1
       do q=1,nq2(nb)
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
-            call fftw_execute_dft(splans(18,nb),A(indx),A(indx))
+            call sfftw_execute_dft(splans(18,nb),A(indx),A(indx))
          end if
          indx = indx + ny(nb)
       end do
@@ -258,7 +258,7 @@ c     call D3dBs_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 *     *********************************************************************
 
 #ifdef FFTW3
-         call fftw_execute_dft_c2r(splans(13,nb),A,A)
+         call sfftw_execute_dft_c2r(splans(13,nb),A,A)
 #else
 
       !indx = 1
@@ -368,7 +368,7 @@ c     call D3dBs_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 
 #ifdef FFTW3
-      call dfftw_execute_dft_r2c(splans(4,nb),A,A)
+      call sfftw_execute_dft_r2c(splans(4,nb),A,A)
 
 #else
       indx = 1
@@ -396,7 +396,7 @@ c     call D3dBs_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 #ifdef FFTW3
           indx  = i + indx0
-          call fftw_execute_dft(splans(9,nb),A(indx),A(indx))
+          call sfftw_execute_dft(splans(9,nb),A(indx),A(indx))
 
 #else
           indx  = i + indx0
@@ -440,7 +440,7 @@ c     call D3dBs_c_stranspose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
  
 #ifdef FFTW3
           indx  = i + indx0
-          call fftw_execute_dft(splans(10,nb),A(indx),A(indx))
+          call sfftw_execute_dft(splans(10,nb),A(indx),A(indx))
 
 #else
           indx  = i + indx0
@@ -480,7 +480,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 *     ********************************************
 
 #ifdef FFTW3
-          call fftw_execute_dft_r2c(splans(14,nb),A,A)
+          call sfftw_execute_dft_r2c(splans(14,nb),A,A)
 
 #else
       !indx = 1
@@ -506,7 +506,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       indx = 1
       do q=1,nq2(nb)
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
-            call fftw_execute_dft(splans(19,nb),A(indx),A(indx))
+            call sfftw_execute_dft(splans(19,nb),A(indx),A(indx))
          end if
          indx = indx + ny(nb)
       end do
@@ -538,7 +538,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       indx = 1
       do q=1,nq3(nb)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
-            call fftw_execute_dft(splans(20,nb),A(indx),A(indx))
+            call sfftw_execute_dft(splans(20,nb),A(indx),A(indx))
          end if
          indx = indx + nz(nb)
       end do
@@ -660,7 +660,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 #ifdef FFTW3
          indx = i+indx0+shift0
-         call fftw_execute_dft(splans(7,nb),A(indx),A(indx))
+         call sfftw_execute_dft(splans(7,nb),A(indx),A(indx))
 
 #else
          indx  = i + indx0
@@ -710,7 +710,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 #ifdef FFTW3
          indx = i+indx0+shift0
-         call fftw_execute_dft(splans(8,nb),A(indx),A(indx))
+         call sfftw_execute_dft(splans(8,nb),A(indx),A(indx))
 #else
          indx  = i + indx0
          indx1 = indx
@@ -736,7 +736,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 *     *********************************************************************
 
 #ifdef FFTW3
-      call fftw_execute_dft_c2r(splans(3,nb),A(shift0),A(shift0))
+      call sfftw_execute_dft_c2r(splans(3,nb),A(shift0),A(shift0))
 
 #else
       call cshift1_sfftb(nx(nb),ny(nb),nq(nb),1,A(shift))
@@ -774,7 +774,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
 
 #ifdef FFTW3
-         call fftw_execute_dft(splans(17,nb),
+         call sfftw_execute_dft(splans(17,nb),
      >                         A(indx+shift0),A(indx+shift0))
 #else
          call scfftb(nz(nb),A(shift0+indx),scpl_mb(tmpz(1,nb)))
@@ -798,7 +798,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
 
 #ifdef FFTW3
-         call fftw_execute_dft(splans(18,nb),
+         call sfftw_execute_dft(splans(18,nb),
      >                          A(indx+shift0),A(indx+shift0))
 #else
          call scfftb(ny(nb),A(shift0+indx),scpl_mb(tmpy(1,nb)))
@@ -818,7 +818,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 *     *********************************************************************
 
 #ifdef FFTW3
-      call fftw_execute_dft_c2r(splans(13,nb),A(shift0),A(shift0))
+      call sfftw_execute_dft_c2r(splans(13,nb),A(shift0),A(shift0))
 
 #else
       call cshift1_sfftb(nx(nb),nq1(nb),1,1,A(shift))
@@ -903,7 +903,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       call nwpw_timing_start(31)
 
 #ifdef FFTW3
-      call dfftw_execute_dft_r2c(splans(4,id),A,A)
+      call sfftw_execute_dft_r2c(splans(4,id),A,A)
 
 #else
 
@@ -937,7 +937,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 
 #ifdef FFTW3
-      call fftw_execute_dft_r2c(splans(14,id),A,A)
+      call sfftw_execute_dft_r2c(splans(14,id),A,A)
 
 #else
 
@@ -1030,7 +1030,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       call nwpw_timing_start(31)
 
 #ifdef FFTW3
-      call fftw_execute_dft_r2c(splans(4,id),tmp1,tmp1)
+      call sfftw_execute_dft_r2c(splans(4,id),tmp1,tmp1)
 
 #else
 
@@ -1059,7 +1059,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       call nwpw_timing_start(31)
 
 #ifdef FFTW3
-      call fftw_execute_dft_r2c(splans(14,id),tmp1,tmp1)
+      call sfftw_execute_dft_r2c(splans(14,id),tmp1,tmp1)
 
 #else
 
@@ -1154,7 +1154,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
         indx2 = indx2 + 1
         if (.not.log_mb(zero_row2(1,nbb)+indx2-1)) then
           indx  = i + indx0
-          call fftw_execute_dft(splans(9,1),tmp1(indx),tmp1(indx))
+          call sfftw_execute_dft(splans(9,1),tmp1(indx),tmp1(indx))
         end if
        end do
        indx0 = indx0 + nxhy
@@ -1214,7 +1214,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       indx = 1
       do q=1,nq2(id)
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
-         call fftw_execute_dft(splans(19,1),tmp1(indx),tmp1(indx))
+         call sfftw_execute_dft(splans(19,1),tmp1(indx),tmp1(indx))
          end if
          indx = indx + ny(id)
       end do
@@ -1333,7 +1333,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 #ifdef FFTW3
           indx  = i + indx0
-          call fftw_execute_dft(splans(10,1),tmp2(indx),tmp2(indx))
+          call sfftw_execute_dft(splans(10,1),tmp2(indx),tmp2(indx))
 
 #else
           indx  = i + indx0
@@ -1374,7 +1374,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       indx = 1
       do q=1,nq3(id)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
-            call fftw_execute_dft(splans(20,1),tmp2(indx),tmp2(indx))
+            call sfftw_execute_dft(splans(20,1),tmp2(indx),tmp2(indx))
          end if
          indx = indx + nz(id)
       end do
@@ -1605,7 +1605,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 #ifdef FFTW3
          indx  = i + indx0
-         call fftw_execute_dft(splans(7,1),tmp1(indx),tmp1(indx))
+         call sfftw_execute_dft(splans(7,1),tmp1(indx),tmp1(indx))
 #else
 
          indx  = i + indx0
@@ -1652,7 +1652,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       indx = 1
       do q=1,nq3(id)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
-            call fftw_execute_dft(splans(17,1),tmp1(indx),tmp1(indx))
+            call sfftw_execute_dft(splans(17,1),tmp1(indx),tmp1(indx))
          end if
          indx = indx + nz(id)
       end do
@@ -1768,7 +1768,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 #ifdef FFTW3
          indx  = i + indx0
-         call fftw_execute_dft(splans(8,id),tmp2(indx),tmp2(indx))
+         call sfftw_execute_dft(splans(8,id),tmp2(indx),tmp2(indx))
 
 #else
          indx  = i + indx0
@@ -1811,7 +1811,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
       indx = 1
       do q=1,nq2(id)
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
-            call fftw_execute_dft(splans(18,id),tmp2(indx),tmp2(indx))
+            call sfftw_execute_dft(splans(18,id),tmp2(indx),tmp2(indx))
          end if
          indx = indx + ny(id)
       end do
@@ -1912,7 +1912,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 
 
 #ifdef FFTW3
-      call fftw_execute_dft_c2r(splans(3,id),tmp2,tmp2)
+      call sfftw_execute_dft_c2r(splans(3,id),tmp2,tmp2)
 
 #else
 #ifdef NUSE_OPENMP
@@ -1956,7 +1956,7 @@ c     call D3dBs_c_transpose_jk(nb,A,scpl_mb(tmp2(1)),real_mb(tmp3(1)))
 *     *********************************************************************
 
 #ifdef FFTW3
-      call fftw_execute_dft_c2r(splans(13,id),tmp1,tmp1)
+      call sfftw_execute_dft_c2r(splans(13,id),tmp1,tmp1)
 
 #else
       indx = 1
