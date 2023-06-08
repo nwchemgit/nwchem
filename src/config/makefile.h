@@ -3622,7 +3622,7 @@ endif
 # FFTW3 library inclusion
 ifdef USE_FFTW3
     ifndef LIBFFTW3
-        LIBFFTW3 = -lfftw3
+        LIBFFTW3 = -lfftw3 -lfftw3f
     endif
     ifdef FFTW3_LIB
         CORE_LIBS += -L$(FFTW3_LIB)
