@@ -240,7 +240,15 @@ fi
 $CMAKE --install _build
 
 cd ..
+
+if [ ! -z "${CONDA_TOOLCHAIN_HOST}" ]; then
+    arch=$(echo $CONDA_TOOLCHAIN_HOST | cut -d - -f 1)
+else
+    arch=$(uname -m)
+fi
 if [[ $(uname -s) == "Linux" ]]; then
-    strip --strip-debug ../lib/libtblite.a
+    if [[ "$arch" == "x86_64" ]]; then
+	strip --strip-debug ../lib/libtblite.a
+    fi
 fi
 ln -sf  ../lib/libtblite.a  ../lib/libnwc_tblite.a
