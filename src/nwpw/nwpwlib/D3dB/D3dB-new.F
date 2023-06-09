@@ -1183,8 +1183,7 @@ c      call dcopy(n2ft3d_map(nb),0.0d0,0,A,1)
       common    / D3dB_fft / tmpx,tmpy,tmpz
 
 #ifdef FFTW3
-!#include "fftw3.fh"
-#include "fftw3.f"
+#include <fftw3.f>
        integer Atest(2),nxh,nxhz,nxhy
 #endif
 

@@ -195,8 +195,7 @@ ccccccccccc  #define TCGMSG
       common    / D3dBs_fft / tmpx,tmpy,tmpz
 
 #ifdef FFTW3
-!#include "fftw3.fh"
-#include "fftw3.f"
+#include <fftw3.f>
        integer Atest(2),nxh,nxhz,nxhy
 #endif
 
