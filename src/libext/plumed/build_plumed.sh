@@ -39,6 +39,9 @@ if [[ "$BLAS_SIZE" == 8 ]];  then
 else
     ILP64=" "
 fi
+if [ ! -z "${CONDA_BUILD_SYSROOT}" ]; then 
+    LDFLAGS_EXTRA+=" -Wl,-rpath,${PREFIX}/lib -L${PREFIX}/lib "
+fi
 echo LDFLAGS_EXTRA is "$LDFLAGS_EXTRA"
 MODULES_EXTRA="--enable-modules=+cvhd"
 echo executing the command \
@@ -52,6 +55,14 @@ echo executing the command \
 	    LDFLAGS="$BLASOPT $LDFLAGS_EXTRA" \
 	    LIBS="$BLASOPT $LDFLAGS_EXTRA" \
 	    --prefix=$NWCHEM_TOP/src/libext
+if [[ "$?" != "0" ]]; then
+    echo " "
+    echo "configure failed"
+    echo " "
+    ls -lrta
+    cat config.log
+    exit 1
+fi
 make  -j4
 if [[ "$?" != "0" ]]; then
     echo " "
