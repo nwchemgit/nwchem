@@ -157,9 +157,9 @@ if [[ "$os" == "Linux" ]]; then
 	    if [[ "$USE_LIBXC" == "-1" ]]; then
 		pkg_extra+=" libxc-dev"
 	    fi
-	    echo pkg to install: gfortran python3-dev  make perl  python3 rsync "$mpi_libdev" "$mpi_bin" $pkg_extra
+	    echo pkg to install: gfortran python3-dev  make perl  python3 rsync $mpi_libdev $mpi_bin $pkg_extra
             tries=0 ; until [ "$tries" -ge 10 ] ; do \
-			  sudo apt-get -y install gfortran python3-dev  make perl  python3 rsync "$mpi_libdev" "$mpi_bin" $pkg_extra \
+			  sudo apt-get -y install gfortran python3-dev  make perl  python3 rsync $mpi_libdev $mpi_bin $pkg_extra \
 			      && break ;\
 			  tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
 
