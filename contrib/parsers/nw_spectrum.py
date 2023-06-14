@@ -276,6 +276,7 @@ class SpectrumProcessor(object):
 
             if end_tag in line:
                 inside = False
+                break
 
             if singlet_tag in line:
                 state = "singlet"
@@ -614,6 +615,10 @@ def main():
     S = SpectrumProcessor(opts, instream, outstream)
     S.process_all()
     
+    if opts.infile:
+        instream.close()
+    if opts.outfile:
+        outstream.close()
 
 
 
