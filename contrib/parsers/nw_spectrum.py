@@ -129,7 +129,7 @@ class SpectrumProcessor(object):
                     raise Exception("Expected excitation number {0}, found {1}".format(iexcite, n))
 
                 if energy_ev < 0.0:
-                    self.write("{0} Warning: Ignored negative vpsec excitation: {1} eV, {2}".format(opts.cchar, energy_ev, osc))
+                    self.write("{0} Warning: Ignored negative vpsec excitation: {1} eV, {2}".format(self.opts.cchar, energy_ev, osc))
                     if self.opts.verbose:
                         sys.stderr.write ("Warning: Ignored negative vpsec excitation: {0} eV, {1}\n".format(energy_ev, osc))
                 else:
