@@ -6,8 +6,7 @@ edit_uri_template: 'edit/master/{path}'
 theme:
   name: material
   logo: assets/MS3logo.png
-  font:
-    text: Lato
+  font: false
   icon:
     edit: material/pencil
     view: material/eye
