@@ -71,6 +71,7 @@ c ===== added for unrestricted calc ===== END
       logical dft_CPHF1_read,dft_CPHF1_write
       character*(*) lbl_cphfaoresp
       parameter(lbl_cphfaoresp='aoresp_giao_b1')
+      integer calc_type_save
       logical  cphf2, file_write_ga, file_read_ga, cphf
       external cphf2, file_write_ga, file_read_ga, cphf
 
@@ -379,8 +380,10 @@ c     Done via rtdb, put cphf:skew .false. on rtdb and later remove it.
       if (.not. rtdb_put(rtdb, 'cphf:skew', mt_log, 1,.false.)) call
      $   errquit('giao_b1: failed to write skew ', 0, RTDB_ERR)
       if (debug) write (luout,*) 'calling cphf'
+         call xc_calctype_backup(rtdb,calc_type_save)
       if (.not.cphf2(rtdb)) call errquit
      $  ('giao_b1: failure in cphf ',0, RTDB_ERR)
+         call xc_calctype_restore(rtdb,calc_type_save)
       if (.not. rtdb_delete(rtdb, 'cphf:skew')) call
      $   errquit('giao_b1: rtdb_delete failed ', 0, RTDB_ERR)
       if (debug) write (luout,*) 'cphf done'
