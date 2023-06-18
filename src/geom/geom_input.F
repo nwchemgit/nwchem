@@ -677,6 +677,9 @@ c
       if (.not. geom_cart_get(geom, ncenter, tags, coords, charge))
      $     call errquit('geom_input: geom_cart_get failed', 0,
      &       GEOM_ERR)
+      if (.not. geom_vel_get(geom, velocities))
+     $     call errquit('geom_input: geom_vel_get failed', 0,
+     &       GEOM_ERR)
 
 c
 c     If doing user zmatrix then remember values of constant variables
