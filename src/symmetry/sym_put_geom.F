@@ -1,5 +1,6 @@
       subroutine sym_put_in_geom(geom, nat_uniq, nat_new,
-     $     tags_new, uniq_cent, coords_new, l_map, k_map, nops,
+     $     tags_new, uniq_cent, coords_new, velocities_new,
+     $     l_map, k_map, nops,
      $     charge_new, mass_new, invnucexp_new)
 C$Id$
       implicit none
@@ -14,6 +15,7 @@ C$Id$
       character*16 tags_new(nat_new)
       integer uniq_cent(nat_uniq)
       double precision coords_new(3,nat_new)
+      double precision velocities_new(3,nat_new)
       double precision charge_new(max_cent)
       double precision mass_new(max_cent)
       double precision invnucexp_new(max_cent)
@@ -34,6 +36,9 @@ c
       enddo
       call dgemm('n', 'n', 3, nat_new, 3, 1.0d0, amatrix(1,1,geom), 3,
      $     coords_new, 3, 0.0d0, coords(1,1,geom), 3)
+      call dgemm('n', 'n', 3, nat_new, 3, 1.0d0, amatrix(1,1,geom), 3,
+     $     velocities_new, 3, 0.0d0, velocities(1,1,geom), 3)
+c
 c
       ncenter_unique(geom) = nat_uniq
       ncenter(geom) = nat_new
