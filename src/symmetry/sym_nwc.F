@@ -78,10 +78,17 @@ c
      &     latags, iatags)
       LResult = MA_Push_Get(MT_Dbl,nata*(nops+1)*3,'scratch atoms',
      &     lcoord, icoord) .and. lresult
+      LResult = MA_Push_Get(MT_Dbl,nata*(nops+1)*3,'scratch velocities',
+     &     lvel, ivel) .and. lresult
       Lresult = MA_Push_Get(MT_Int,nata,'distinct atoms',ldatom,idatom)
      $     .and. lresult
       if (.not. lresult) call errquit('sym_nwc: dosymops ma failed', 0,
      &       MA_ERR)
+      do ii=1,nata
+          dbl_mb(ivel+3*(ii-1))   = velocities(1,ii,geom)
+          dbl_mb(ivel+3*(ii-1)+1) = velocities(2,ii,geom)
+          dbl_mb(ivel+3*(ii-1)+2) = velocities(3,ii,geom)
+      end do
 c
       call dosymops(sym_ops(1,1,geom),nops,coords(1,1,geom),
      $     tags(1,geom),nata,
@@ -89,6 +96,7 @@ c
      $     cdist,cang,Int_MB(idatom), 
      $     charge(1,geom), charge_new, geom_mass(1,geom),
      $     mass_new, geom_invnucexp(1,geom),invnucexp_new,threquiv)
+
 c
       if(nareal.gt.max_cent) then
         write(6,*)' Too many atoms, increase nw_max_atom in ',
@@ -139,7 +147,7 @@ c     remain in icoord.
 c     Note that the memory for the map (lmscr) is now freed in geom_destroy
 c
       call sym_put_in_geom(geom, nata, nareal,
-     $     Byte_MB(iatags), int_mb(idatom), dbl_mb(icoord),
+     $     Byte_MB(iatags), int_mb(idatom),dbl_mb(icoord),dbl_mb(ivel),
      $     lmscr, imscr, nops, charge_new, mass_new, invnucexp_new)
 c
 c ... sloppy way for the moment to fix units for 2-d case
@@ -221,6 +229,7 @@ c
 c--> final clean up of memory: gensym and dosymops activities
 c
       LResult = MA_Pop_Stack(ldatom)
+      LResult = MA_Pop_Stack(lvel)
       LResult = MA_Pop_Stack(lcoord)
       LResult = MA_Pop_Stack(latags)
 c

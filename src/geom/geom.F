@@ -1814,6 +1814,7 @@ c
       end do
 c
       end
+
 c
 C> \brief Extract only the coordinates and charges from a geometry
 C> instance
@@ -2762,8 +2763,11 @@ c
          call util_print_centered(LuOut,'Velocities',40,.true.)
          write(LuOut,3) 
          do icent = 1, ncenter(geom)
+            do i = 1, 3
+               tmp(i) = velocities(i,icent,geom)/scale ! Scale units as necessary
+            end do
             write(LuOut,4) icent, tags(icent,geom), charge(icent,geom),
-     $           (velocities(i,icent,geom),i=1,3)
+     $           (tmp(i),i=1,3)
          end do
       endif
 c
