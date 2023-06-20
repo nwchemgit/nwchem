@@ -19,11 +19,12 @@
         do h1=1,h1d
         do h2=1,h2d
         do p5=1,p5d
-!dir$ simd
+!$omp simd
         do p6=1,p6d
          r2sub(h2,h1,p4,p3)=r2sub(h2,h1,p4,p3)
      &   + factor*t2sub(h2,h1,p6,p5)*v2sub(p6,p5,p4,p3)
         enddo
+!$omp end simd
         enddo
         enddo
         enddo
@@ -46,11 +47,12 @@
         do p5=1,p5d
 !dir$ loop count min(8), max(80), avg(32)
 !dec$ unroll_and_jam = 8
-!dir$ simd
+!$omp simd
         do p6=1,p6d
          r2sub(h2,h1,p4,p3)=r2sub(h2,h1,p4,p3)
      &   + factor*t2sub(h2,h1,p6,p5)*v2sub(p6,p5,p4,p3)
-        enddo
+      enddo
+!$omp end simd
         enddo
         enddo
         enddo
