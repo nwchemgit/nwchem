@@ -11,7 +11,16 @@
 
 
       LIBRARY = libnwpw.a
+$(info USE_OPENMP $(origin USE_OPENMP))
 
+ifdef USE_OPENMP
+# QA issues
+ifeq ($(FC),ifx)
+override undefine USE_OPENMP
+endif
+endif
+
+$(info USE_OPENMP $(origin USE_OPENMP))
 
   LIB_DEFINES =
 
