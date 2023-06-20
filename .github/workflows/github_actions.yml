@@ -167,6 +167,7 @@ jobs:
             armci_network: MPI-PR
             nwchem_modules: "tinyqmpw python"
             fc: ifort
+            use_openmp: 2
           - os: ubuntu-20.04
             experimental: true
             mpi_impl: mpich
@@ -180,6 +181,7 @@ jobs:
             armci_network: SOCKETS
             nwchem_modules: "tce"
             fc: ifort
+            use_openmp: 2
           - os: ubuntu-22.04
             experimental: true 
             mpi_impl: mpich
@@ -205,6 +207,7 @@ jobs:
             armci_network: MPI-PR
             nwchem_modules: "tinyqmpw python"
             fc: ifx
+            use_openmp: 2
           - os: ubuntu-20.04
             experimental: true 
             mpi_impl: mpich
@@ -217,6 +220,7 @@ jobs:
             armci_network: SOCKETS
             nwchem_modules: "tce"
             fc: ifx
+            use_openmp: 2
           - os: ubuntu-20.04
             experimental: true
             mpi_impl: openmpi
