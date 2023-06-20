@@ -14,7 +14,7 @@ OBJ_OPTIMIZE = colib1.o colib2.o colib3.o colib4.o \
 	       cdcopy.o 
 
 endif
-      LIBRARY = libnwints.a
+      LIBRARY = libnwc_columbus.a
 
 
      LIB_INCLUDES = -I../../nwdft/grid -I../../nwdft/include \

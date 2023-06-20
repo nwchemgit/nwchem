@@ -588,6 +588,8 @@ let "myexit+=$?"
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np dftd3_c6cn
 let "myexit+=$?"
+./runtests.mpi.unix procs $np bare_ecps
+let "myexit+=$?"
 fi
 #--- if we only want quick tests get out now!
 if [[ "$what" == "fast" ]]; then

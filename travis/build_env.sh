@@ -135,8 +135,8 @@ if [[ "$os" == "Linux" ]]; then
 	    tries=0 ; until [ "$tries" -ge 10 ] ; do \
 			  dir_base="7deeaac4-f605-4bcf-a81b-ea7531577c61"
 			  dir_hpc="1ff1b38a-8218-4c53-9956-f0b264de35a4"
-			  base="l_BaseKit_p_2023.1.0.46401_offline"
-			  hpc="l_HPCKit_p_2023.1.0.46346_offline"
+			  base="l_BaseKit_p_2023.1.0.46401"
+			  hpc="l_HPCKit_p_2023.1.0.46346"
 			  wget -nv https://registrationcenter-download.intel.com/akdlm/IRC_NAS/"$dir_hpc"/"$hpc".sh \
 			      && wget -nv  https://registrationcenter-download.intel.com/akdlm/IRC_NAS/"$dir_base"/"$base".sh \
 			      && break ;\
