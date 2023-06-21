@@ -52,7 +52,7 @@ jobs:
           fi
       - name:  dir name
         run: |
-          echo "dirname=nwchem.${{ github.run_id }}.${{ github.run_number }}.${{ matrix.sing_image }}" >> $GITHUB_ENV
+          echo "dirname=nwchem.${{ github.nwversion }}.${{ github.run_id }}.${{ github.run_number }}.${{ matrix.sing_image }}" >> $GITHUB_ENV
       - name: Checkout QA code
         run: |
           pwd
