@@ -3878,6 +3878,7 @@ MKDIR = mkdir
 #extract defines to be used with linear algebra libraries
 ifdef USE_INTERNALBLAS
     DEFINES += -DBLAS_NOTHREADS
+    BLAS_SIZE=8
 endif
 ifdef BUILD_OPENBLAS
     DEFINES += -DOPENBLAS
