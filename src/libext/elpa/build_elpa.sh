@@ -19,6 +19,8 @@ fi
 tar xzf elpa-${VERSION}.tar.gz
 ln -sf elpa-${VERSION} elpa
 cd elpa
+mkdir -p build
+cd build
 export SRCDIR=`pwd`
 if [ ! -f  configure ]; then
     sh ./autogen.sh
@@ -226,13 +228,17 @@ export CC=$MPICC
 #hack
 #MYFCFLAGS="-O3 -xAVX2"
 #MYCFLAGS="-O3 -march=native -mavx2 -mfma -funsafe-loop-optimizations -funsafe-math-optimizations -ftree-vect-loop-version -ftree-vectorize"
- FC=$MPIF90 CC=$MPICC ./configure \
+ FC=$MPIF90 CC=$MPICC ../configure \
   --enable-option-checking=fatal \
   CFLAGS="$MYCFLAGS" \
   FCFLAGS="$MYFCFLAGS" \
     SCALAPACK_LDFLAGS="$SCALAPACK_LDFLAGS" \
     SCALAPACK_FCFLAGS="$SCALAPACK_FCFLAGS" \
     $sixty4_int  \
+  --disable-option-checking \
+ --disable-dependency-tracking \
+ --disable-shared --enable-static  \
+ --disable-c-tests \
      ${FORCETARGET} \
 --prefix=${NWCHEM_TOP}/src/libext
 unset FORCETARGET
