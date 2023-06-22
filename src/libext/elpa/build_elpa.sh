@@ -220,6 +220,7 @@ echo MYCFLAGS is $MYCFLAGS
 echo 64ints is $sixty4_int
 echo MYLINK is "${MYLINK}"
 export SCALAPACK_LDFLAGS="${MYLINK}"
+export SCALAPACK_FCFLAGS+="${MYLINK}"
 export    FC=$MPIF90
 export CC=$MPICC
 #hack
