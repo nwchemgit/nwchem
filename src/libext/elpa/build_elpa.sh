@@ -19,20 +19,22 @@ fi
 tar xzf elpa-${VERSION}.tar.gz
 ln -sf elpa-${VERSION} elpa
 cd elpa
+rm -f check_thread_affinity.patch
+wget https://raw.githubusercontent.com/conda-forge/elpa-feedstock/main/recipe/check_thread_affinity.patch
+patch -p2 -s -N < check_thread_affinity.patch
 if [ ! -f  configure ]; then
     sh ./autogen.sh
 fi
+export SRCDIR=`pwd`
 mkdir -p build
 cd build
-export SRCDIR=`pwd`
 UNAME_S=$(uname -s)
 if [[ ${UNAME_S} == Linux ]]; then
     export ARFLAGS=rU
 fi
+MYCFLAGS+=" -Wno-error=implicit-function-declaration "
+MYCFLAGS+=" -Wno-error=format "
 if [[ ${UNAME_S} == Darwin ]]; then
-rm -f check_thread_affinity.patch
-wget https://raw.githubusercontent.com/conda-forge/elpa-feedstock/main/recipe/check_thread_affinity.patch
-patch -p2 -s -N < check_thread_affinity.patch
 if [[  -z "$HOMEBREW_PREFIX" ]]; then
     HOMEBREW_PREFIX=/usr/local
 fi
@@ -45,7 +47,7 @@ fi
 	exit 1
     else
 	echo FORTRAN_CPP is $FORTRAN_CPP
-    fi
+   fi
 fi
 if [[ "$FC" = "ftn"  ]] ; then
     MPIF90="ftn"
@@ -88,9 +90,9 @@ else
     GOTCLANG=$( "$MPICC" -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
 fi
 if [[ ${GOTCLANG} == "1" ]] ; then
-#    if [[ ${UNAME_S} == Linux ]]; then
-#	export FORTRAN_CPP=/usr/bin/cpp
-#    fi
+    if [[ ${UNAME_S} == Linux ]]; then
+	export FORTRAN_CPP=/usr/bin/cpp
+    fi
     MYCFLAGS+=" -Wno-error=implicit-function-declaration "
 fi
 # check gfortran version for arg check
@@ -113,9 +115,9 @@ if [[ ${FC} == ifort ]] || [[ ${FC} == ifx ]] || [[ ${PE_ENV} == INTEL ]] ; then
 #    sixty4_int+=" --disable-mpi-module "
 #    MYCFLAGS+=" -fPIC"
     #force CC=gcc
-    export I_MPI_CC=gcc
     export I_MPI_FC=ifort
-    export CC=gcc
+#    export I_MPI_CC=gcc
+#    export CC=gcc
     export USE_MANUALCPP=1
 #    MYLINK+=" -fPIC"
 
@@ -123,7 +125,7 @@ if [[ ${FC} == ifort ]] || [[ ${FC} == ifx ]] || [[ ${PE_ENV} == INTEL ]] ; then
 fi
 if [[ ! -z "$MKLROOT"   ]] ; then
     if [[ ${BLAS_SIZE} == 8 ]]; then
-	SCALAPCK_FCFLAGS+=" -I${MKLROOT}/include/intel64/ilp64"
+	SCALAPACK_FCFLAGS+=" -I${MKLROOT}/include/intel64/ilp64"
     else
 	SCALAPACK_FCFLAGS+=" -I${MKLROOT}/include/intel64/lp64"
     fi
@@ -148,20 +150,24 @@ echo I_MPI_F90 is "$I_MPI_F90"
 if [[  -z "${FORCETARGET}" ]]; then
 FORCETARGET="-disable-sse -disable-sse-assembly --disable-avx --disable-avx2  --disable-avx512  "
 fi #FORCETARGET
-if [[ "${USE_HWOPT}" != "0" ]] && [[ "${USE_HWOPT}" != "n" ]] &&[[ "${USE_HWOPT}" != "N" ]] && [[ ${UNAME_S} == Linux ]]; then
+if [[ ${CC} == icx ]] ; then
+    MYCFLAGS+=" -xhost "
+fi
+if [[ "${USE_HWOPT}" != "0" ]] && [[ "${USE_HWOPT}" != "n" ]] && [[ "${USE_HWOPT}" != "N" ]] && [[ ${UNAME_S} == Linux ]]; then
 if [[ ${UNAME_S} == Linux ]]; then
-    CPU_FLAGS=$(cat /proc/cpuinfo | grep flags |tail -n 1)
-    CPU_FLAGS_2=$(cat /proc/cpuinfo | grep flags |tail -n 1)
+    CPU_FLAGS=$(cat /proc/cpuinfo | grep flags | grep -v vmx\ flags |tail -n 1)
+    CPU_FLAGS_2=$(cat /proc/cpuinfo | grep flags |grep -v vmx\ flags | tail -n 1)
 elif [[ ${UNAME_S} == Darwin ]]; then
     CPU_FLAGS=$(/usr/sbin/sysctl -n machdep.cpu.features)
     CPU_FLAGS_2=$(/usr/sbin/sysctl -n machdep.cpu.leaf7_features)
 fi
+echo examineHW0 CPUF ${CPU_FLAGS} ${CPU_FLAGS_2}
   GOTSSE2=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /sse2/   {print "Y"}')
    GOTAVX=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /avx/    {print "Y"}')
   GOTAVX2=$(echo ${CPU_FLAGS_2} | tr  'A-Z' 'a-z'| awk ' /avx2/   {print "Y"}')
 GOTAVX512=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /avx512f/{print "Y"}')
 GOTCLZERO=$(echo ${CPU_FLAGS}   | tr  'A-Z' 'a-z'| awk ' /clzero/{print "Y"}')
-if [[ ${CC} == icc ]] ; then
+if [[ ${CC} == icc ]] || [[ ${CC} == icx ]] ; then
     MYCFLAGS+=" -xhost "
 elif [[ ${CC} == nvc ]]  || [[ ${PE_ENV} == NVIDIA ]] ; then
     MYCFLAGS+=" -tp native"
@@ -182,7 +188,7 @@ fi
     if [[ "${GOTAVX2}" == "Y" ]]; then
 	echo "using AVX2 instructions"
 	FORCETARGET=" --enable-sse-assembly --enable-avx --enable-avx2  --disable-avx512  "
-#	MYCFLAGS+=" -mmmx -msse -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -maes -mavx -mfma -mavx2 "
+#	CFLAGS+=" -mmmx -msse -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -maes -mavx -mfma -mavx2 "
     fi
     if [[ "${GOTAVX512}" == "Y" ]]; then
 	echo "using AVX512 instructions"
@@ -199,9 +205,6 @@ if [[ `${CC} -dM -E - < /dev/null 2> /dev/null | grep -c GNU` > 0 ]] ; then
     fi
 fi
 
-# patch affinity
-#mkdir -p build
-#cd build
 if [[ !  -z "${BUILD_SCALAPACK}" ]]; then
     MYLINK+=" -L${NWCHEM_TOP}/src/libext/lib -lnwc_scalapack"
 fi
@@ -221,21 +224,17 @@ echo MYFCFLAGS is $MYFCFLAGS
 echo MYCFLAGS is $MYCFLAGS
 echo 64ints is $sixty4_int
 echo MYLINK is "${MYLINK}"
+echo FORCETARGET is "${FORCETARGET}"
 export SCALAPACK_LDFLAGS="${MYLINK}"
 export SCALAPACK_FCFLAGS+="${MYLINK}"
+export LIBS="${MYLINK}"
 export    FC=$MPIF90
 export CC=$MPICC
-#hack
-#MYFCFLAGS="-O3 -xAVX2"
-#MYCFLAGS="-O3 -march=native -mavx2 -mfma -funsafe-loop-optimizations -funsafe-math-optimizations -ftree-vect-loop-version -ftree-vectorize"
  FC=$MPIF90 CC=$MPICC ../configure \
-  --enable-option-checking=fatal \
+    $sixty4_int \
   CFLAGS="$MYCFLAGS" \
   FCFLAGS="$MYFCFLAGS" \
-    SCALAPACK_LDFLAGS="$SCALAPACK_LDFLAGS" \
-    SCALAPACK_FCFLAGS="$SCALAPACK_FCFLAGS" \
-    $sixty4_int  \
-  --disable-option-checking \
+  --enable-option-checking=fatal \
  --disable-dependency-tracking \
  --disable-shared --enable-static  \
  --disable-c-tests \
@@ -249,13 +248,13 @@ unset SCALAPACK_FCFLAGS
 unset SCALAPACK_LDFLAGS
 echo mpif90 is `which mpif90`
 echo MPIF90 is "$MPIF90"
-#    make V=0 -j1 FC=$MPIF90 CC=$MPICC -l0.0001
-#  FC=$MPIF90  CC=$MPICC make   V=1
 if [[ "$USE_MANUALCPP" == 1 ]]; then
+    echo @@@@ MANUALCPP @@@
     make FC="$SRCDIR/remove_xcompiler $SRCDIR/manual_cpp mpif90"   -j5
 else
     make    -j5
 fi
+#    make V=0 -j1 FC=$MPIF90 CC=$MPICC -l0.0001
 if [[ "$?" != "0" ]]; then
     echo " "
     echo "Elpa compilation failed"
