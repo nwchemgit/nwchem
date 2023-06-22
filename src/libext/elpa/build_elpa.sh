@@ -19,12 +19,12 @@ fi
 tar xzf elpa-${VERSION}.tar.gz
 ln -sf elpa-${VERSION} elpa
 cd elpa
-mkdir -p build
-cd build
-export SRCDIR=`pwd`
 if [ ! -f  configure ]; then
     sh ./autogen.sh
 fi
+mkdir -p build
+cd build
+export SRCDIR=`pwd`
 UNAME_S=$(uname -s)
 if [[ ${UNAME_S} == Linux ]]; then
     export ARFLAGS=rU
