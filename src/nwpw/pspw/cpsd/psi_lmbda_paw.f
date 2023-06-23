@@ -69,6 +69,9 @@ c $Id: psi_lmbda_paw.f 21177 2011-10-10 17:09:43Z bylaska $
         call psi_gen_Ba_Bs(ms,nn,tmp(B),tmp(Bs),tmp(Ba))
 
         call psi_gen_UD(ms,tmp(Bs),tmp(D))
+        do i=1,ne(ms)
+            if (tmp(D+i-1).lt.1.0d-3) failed = .true.
+        end do
 c        if (tmp(D).lt.1.0e-3) failed = .true.
 c        if (taskid.eq.MASTER) then
 c        write(*,*) "ne=",ne(ms),failed
@@ -97,8 +100,8 @@ c        end if
             write(*,*) '        +Try using a smaller time step'
             write(*,*) '        +Gram-Schmidt being performed, spin:',ms
           end if
-c          call Dneall_f_GramSchmidt(ms,psi2,npack1)
-           call Dneall_f_Sortho(ms,psi2,psi1,npack1)
+          call Dneall_f_GramSchmidt(ms,psi2,npack1)
+c           call Dneall_f_Sortho(ms,psi2,psi1,npack1)
 
           ierr = 1
         else
