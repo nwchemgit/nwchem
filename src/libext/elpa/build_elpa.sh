@@ -96,8 +96,10 @@ if [[ ${GOTCLANG} == "1" ]] ; then
     MYCFLAGS+=" -Wno-error=implicit-function-declaration "
 fi
 # check gfortran version for arg check
-GFORTRAN_EXTRA=$(echo $FC | cut -c 1-8)
-if [[ ${GFORTRAN_EXTRA} == gfortran ]] || [[ ${PE_ENV} == GNU ]] || [[ ${FC} == flang ]] || [[ ${PE_ENV} == AOCC ]]; then
+#GFORTRAN_EXTRA=$(echo $FC | cut -c 1-8)
+FC_EXTRA=$(${NWCHEM_TOP}/src/config/strip_compiler.sh ${FC})
+CC_EXTRA=$(${NWCHEM_TOP}/src/config/strip_compiler.sh ${CC})
+if [[ ${FC_EXTRA} == gfortran ]] || [[ ${PE_ENV} == GNU ]] || [[ ${FC} == flang ]] || [[ ${PE_ENV} == AOCC ]]; then
     let GFOVERSIONGT7=$(expr `${FC} -dumpversion | cut -f1 -d.` \> 7)
     if [[ ${GFOVERSIONGT7} == 1 ]]; then
 	MYFCFLAGS+=' -std=legacy '
@@ -171,14 +173,14 @@ if [[ ${CC} == icc ]] || [[ ${CC} == icx ]] ; then
     MYCFLAGS+=" -xhost "
 elif [[ ${CC} == nvc ]]  || [[ ${PE_ENV} == NVIDIA ]] ; then
     MYCFLAGS+=" -tp native"
-elif [[ ${CC} == gcc ]] || [[ ${GOTCLANG} == "1" ]] || [[ ${CC} == cc ]]; then
+elif [[ ${CC_EXTRA} == gcc ]] || [[ ${GOTCLANG} == "1" ]] || [[ ${CC} == cc ]]; then
     MYCFLAGS+=" -mtune=native -march=native "
 fi    
 if [[ ${CC} == ifort ]] ; then
     MYFCFLAGS+=" -O3 -xhost "
 elif [[ ${FC} == nvfortran ]]  || [[ ${PE_ENV} == NVIDIA ]] ; then
     MYCFLAGS+=" -tp native"
-elif [[ ${FC} == gfortran ]] ; then
+elif [[ ${FC_EXTRA} == gfortran ]] ; then
     MYFCFLAGS+=" -O3 -mtune=native -march=native "
 fi    
     if [[ "${GOTAVX}" == "Y" ]]; then
@@ -252,9 +254,10 @@ if [[ "$USE_MANUALCPP" == 1 ]]; then
     echo @@@@ MANUALCPP @@@
     make FC="$SRCDIR/remove_xcompiler $SRCDIR/manual_cpp mpif90"   -j5
 else
-    make    -j5
+    make  FC=$MPIF90 CC=$MPICC -j5
+#    make  V=1  FC=$MPIF90 CC=$MPICC -j5
 fi
-#    make V=0 -j1 FC=$MPIF90 CC=$MPICC -l0.0001
+
 if [[ "$?" != "0" ]]; then
     echo " "
     echo "Elpa compilation failed"
