@@ -3,11 +3,10 @@
 *
 
 *     ***********************************
-*     *					*
-*     *	 	  psp_init  		*
-*     *					*
+*     *                                 *
+*     *             psp_init            *
+*     *                                 *
 *     ***********************************
-
       subroutine psp_init()      
       implicit none
 
@@ -4665,11 +4664,10 @@ c       close(11)
       end
 
 *     ***********************************
-*     *					*
-*     *	 	  psp_readall  		*
-*     *					*
+*     *                                 *
+*     *          psp_readall            *
+*     *                                 *
 *     ***********************************
-
       subroutine psp_readall()
       implicit none
       
@@ -4707,12 +4705,12 @@ c     logocal semicore(0:nkatmx)
       parameter(MASTER=0)
 
 *     **** external functions ****
-      logical      nwpw_filefind,control_print
+      logical      nwpw_filefind,control_print,control_psp_reset
       integer      control_ngrid,ion_nion
       real*8       control_unita
       character*12 control_boundry
       character*4  ion_atom
-      external     nwpw_filefind,control_print
+      external     nwpw_filefind,control_print,control_psp_reset
       external     control_ngrid,ion_nion
       external     control_unita
       external     control_boundry
@@ -4742,7 +4740,7 @@ c     logocal semicore(0:nkatmx)
        element = ion_atom(ia)
        l = index(element,' ') - 1
        fname = element(1:l)//'.vpp'
-        
+
 
        found = .false.
        do while (.not.found)
@@ -4817,7 +4815,7 @@ c     logocal semicore(0:nkatmx)
            if (ierr.gt.0) go to 9000
 
 *          **** set pawexist ****
-           if (int_mb(psp_type(1)+ia-1).eq.4) pawexist = .true.
+           !if (int_mb(psp_type(1)+ia-1).eq.4) pawexist = .true.
 
 *          **************************************************************
 *          ***** logic for finding out if psp is correctly formatted ****
@@ -4825,7 +4823,8 @@ c     logocal semicore(0:nkatmx)
            correct_box = .true.
            boundry = control_boundry()
            l =index(boundry,' ') - 1
-           if ( (ngp(1).ne.control_ngrid(1)) .or.
+           if (control_psp_reset(ion_atom(ia)) .or.
+     >       (ngp(1).ne.control_ngrid(1)) .or.
      >       (ngp(2).ne.control_ngrid(2)) .or.
      >       (ngp(3).ne.control_ngrid(3)) .or. 
      >       (unita(1,1).ne.control_unita(1,1)) .or.
@@ -4841,9 +4840,9 @@ c     logocal semicore(0:nkatmx)
      >       ((boundry(1:l).eq.'aperiodic').and.(version.ne.4))) then
               correct_box = .false.
               if ((taskid.eq.MASTER).and.
-     >           control_print(print_medium)) then
-              write(luout,*) 
-     >         "pseudopotential is not correctly formatted:",fname
+     >            control_print(print_medium)) then
+                 write(luout,*) 
+     >           "pseudopotential is not correctly formatted:",fname
               end if
 
 
@@ -4873,8 +4872,12 @@ c     logocal semicore(0:nkatmx)
 
 
            end if
-           if (correct_box) found = .true.
+           if (correct_box) then
+              found = .true.
 
+*             **** set pawexist ****
+              if (int_mb(psp_type(1)+ia-1).eq.4) pawexist=.true.
+           end if
          end if
 
 *        **** generate formatted pseudopotential atom.vpp *****

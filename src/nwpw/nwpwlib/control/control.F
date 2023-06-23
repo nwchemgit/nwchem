@@ -4215,7 +4215,7 @@ c      end if
 *     *****************************
 *     *                	          *		 
 *     *   control_pspparameters   *
-*     *                 	  *
+*     *                	          *		 
 *     *****************************
       subroutine control_pspparameters(atom,lmax,locp,rlocal)
       implicit none
@@ -4257,6 +4257,120 @@ c      end if
       
       return
       end
+
+*     **********************************
+*     *                                *              
+*     *      control_psp_reset         *
+*     *                                *
+*     **********************************
+      logical function control_psp_reset(atom)
+      implicit none
+      character*4 atom
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+#include "errquit.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical reset
+      integer k,l
+      character*5  element
+      character*50 rtdb_name
+
+      element = '     '
+      element = atom
+      l = index(element,' ') - 1
+      rtdb_name = '                      '
+      rtdb_name = element(1:l)//':psp_reset'
+      reset = .false.
+
+      k = index(rtdb_name,' ') - 1
+      if (.not.btdb_get(rtdb,rtdb_name(1:k),mt_log,1,reset)) 
+     >   reset = .false.
+     
+      control_psp_reset = reset
+      return
+      end
+
+*     **********************************
+*     *                                *              
+*     *      control_psp_reset_new     *
+*     *                                *
+*     **********************************
+      subroutine control_psp_reset_new(atom)
+      implicit none
+      character*4 atom
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+#include "errquit.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical reset
+      integer k,l
+      character*5  element
+      character*50 rtdb_name
+
+      element = '     '
+      element = atom
+      l = index(element,' ') - 1
+      rtdb_name = '                      '
+      rtdb_name = element(1:l)//':psp_reset'
+      reset = .true.
+
+      k = index(rtdb_name,' ') - 1
+      if (.not.btdb_put(rtdb,rtdb_name(1:k),mt_log,1,reset))
+     >   call errquit('control_psp_reset_new: failed',0,RTDB_ERR)
+
+      return
+      end
+
+*     **********************************
+*     *                                *
+*     *    control_psp_reset_delete    *
+*     *                                *
+*     **********************************
+      subroutine control_psp_reset_delete(atom)
+      implicit none
+      character*4 atom
+
+#include "bafdecls.fh"
+#include "btdb.fh"
+#include "errquit.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical reset,tmp
+      integer k,l
+      character*5  element
+      character*50 rtdb_name
+
+      element = '     '
+      element = atom
+      l = index(element,' ') - 1
+      rtdb_name = '                       '
+      rtdb_name = element(1:l)//':psp_reset'
+      reset = .true.
+
+      k = index(rtdb_name,' ') - 1
+      if (btdb_get(rtdb,rtdb_name(1:k),mt_log,1,tmp)) then
+        if (tmp) then
+           if (.not.rtdb_delete(rtdb,rtdb_name(1:k)))
+     >       call errquit('control_psp_reset_delete: failed',0,RTDB_ERR)
+        end if
+      end if
+
+      return
+      end
+
 
 *     **********************************
 *     *                                *              
