@@ -29,7 +29,11 @@ get_cmake_release(){
     else
 	curl -L ${CMAKE_URL} -o cmake-${CMAKE_VER}.tar.gz
 	tar xzf cmake-${CMAKE_VER}.tar.gz
-	CMAKE=`pwd`/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}/bin/cmake
+	if [[ ${UNAME_S} == "Darwin" ]] ; then
+	    CMAKE=`pwd`/cmake-${CMAKE_VER}-macos-universal/CMake.app/Contents/bin/cmake
+	else
+	    CMAKE=`pwd`/cmake-${CMAKE_VER}-linux-${CMAKE_CPU}/bin/cmake
+	fi
     fi
     cd $orgdir
 
