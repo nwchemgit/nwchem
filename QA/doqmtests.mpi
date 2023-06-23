@@ -658,6 +658,8 @@ let "myexit+=$?"
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np tce_eomsd_eomsol2
 let "myexit+=$?"
+./runtests.mpi.unix procs $np tce_eomccsd_gradient
+let "myexit+=$?"
 ./runtests.mpi.unix procs $np tddftgrad_pyridine_opt 
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np tddftgrad_phenoxy_radical
