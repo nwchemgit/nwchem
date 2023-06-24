@@ -156,10 +156,12 @@ c
       integer      control_ngrid
       real*8       control_unita
       logical      kbppv3d,kbppv3e,hghppv1,pawppv1,nwpw_filefind
+      logical      control_psp_reset
       external     control_version
       external     control_ngrid
       external     control_unita
       external     kbppv3d,kbppv3e,hghppv1,pawppv1,nwpw_filefind
+      external     control_psp_reset
 
 
 *     **** get lmax,locp,and rlocal from psp library ****
@@ -175,8 +177,10 @@ c
       formatted_filename = element(1:l)//'.vpp'
 
 *     **** generate one-dimensional pseudopotential file ****
-      if (.not.nwpw_filefind(psp_filename)) then
+      if ((.not.nwpw_filefind(psp_filename)).or.
+     >    (control_psp_reset(atom))) then
          call psp_generator_auto(1,atom,lmax,locp,rlocal)
+         call control_psp_reset_delete(atom)
 
 *     **** get lmax,locp,and rlocal from rtdb ****
       else

@@ -26,7 +26,8 @@
       integer     code,gga,fmm_lmax,fmm_lr
       integer	  ispin,multiplicity
       integer     est_finish_time,est_step_time
-      logical     move,frac_coord,SA,fei,fei_quench,gram_schmidt
+      logical     move,frac_coord,SA,fei,fei_quench
+      logical     gram_schmidt,gram_schmidt2
       logical     rotation,translation,dof_rotation,dof_translation
       logical     balance,spin_orbit,dipole_motion
       logical     two_comp_ppot,frozen,pio,fast_erf,fmm,smooth_cutoff
@@ -52,7 +53,8 @@
      >                         ks_algorithm,minimizer,
      >                         symm_number,
      >                         move,frac_coord,SA,fei,fei_quench,
-     >                         gram_schmidt,rotation,translation,
+     >                         gram_schmidt,gram_schmidt2,
+     >                         rotation,translation,
      >                         dof_rotation,dof_translation,
      >                         balance,spin_orbit,dipole_motion,
      >                         two_comp_ppot,frozen,pio,fast_erf,

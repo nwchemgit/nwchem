@@ -30,6 +30,8 @@ c $Id: psi_lmbda_paw.f 21177 2011-10-10 17:09:43Z bylaska $
       integer st1,st2
       integer A,B,C,U,D,Ba,Bs,fnm
       integer i,j
+      logical  control_gram_schmidt2
+      external control_gram_schmidt2
 
       call nwpw_timing_start(3)
 
@@ -100,8 +102,11 @@ c        end if
             write(*,*) '        +Try using a smaller time step'
             write(*,*) '        +Gram-Schmidt being performed, spin:',ms
           end if
-          call Dneall_f_GramSchmidt(ms,psi2,npack1)
-c           call Dneall_f_Sortho(ms,psi2,psi1,npack1)
+          if (control_gram_schmidt2()) then
+             call Dneall_f_GramSchmidt(ms,psi2,npack1)
+          else
+             call Dneall_f_Sortho(ms,psi2,psi1,npack1)
+          end if
 
           ierr = 1
         else

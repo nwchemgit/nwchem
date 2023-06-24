@@ -12,7 +12,7 @@ c
 #include "btdb.fh"
 #include "errquit.fh"
 
-      integer ind               ! Index of matched directive
+      integer ind,inda          ! Index of matched directive
       integer num_dirs          ! No. of known directives
       parameter (num_dirs = 5)
       character*30 dirs(num_dirs)
@@ -59,16 +59,21 @@ c
 c
 c pspw_library
 c
-  20  ind = index(atom,' ') - 1
-      rtdb_name = atom(1:ind)//':pspw_library'
+  20  inda = index(atom,' ') - 1
+      rtdb_name = atom(1:inda)//':pspw_library'
       ind = index(library_name,' ') - 1
       if (.not. btdb_cput(rtdb,rtdb_name,
      >                  1,library_name(1:ind)))
      > call errquit('nwpw_set_library: rtdb write error', 
      >              0,INPUT_ERR)
 
-      rtdb_name = atom(1:ind)//':pspw_library_type'
+      rtdb_name = atom(1:inda)//':pspw_library_type'
       if (.not. btdb_put(rtdb,rtdb_name,mt_int,1,0))
+     > call errquit('nwpw_set_library: rtdb write error', 
+     >              0,INPUT_ERR)
+
+      rtdb_name = atom(1:inda)//':psp_reset'
+      if (.not. btdb_put(rtdb,rtdb_name,mt_log,1,.true.))
      > call errquit('nwpw_set_library: rtdb write error', 
      >              0,INPUT_ERR)
       goto 10
@@ -76,11 +81,16 @@ c
 c
 c  paw_library
 c
-  30  ind = index(atom,' ') - 1
-      rtdb_name = atom(1:ind)//':paw_library'
+  30  inda = index(atom,' ') - 1
+      rtdb_name = atom(1:inda)//':paw_library'
       ind = index(library_name,' ') - 1
       if (.not. btdb_cput(rtdb,rtdb_name,
      >                  1,library_name(1:ind)))
+     > call errquit('nwpw_set_library: rtdb write error', 
+     >              0,INPUT_ERR)
+
+      rtdb_name = atom(1:inda)//':psp_reset'
+      if (.not. btdb_put(rtdb,rtdb_name,mt_log,1,.true.))
      > call errquit('nwpw_set_library: rtdb write error', 
      >              0,INPUT_ERR)
       goto 10
@@ -88,8 +98,8 @@ c
 c
 c CPI filename
 c
-  40  ind = index(atom,' ') - 1
-      rtdb_name = atom(1:ind)//':pspw_library'
+  40  inda = index(atom,' ') - 1
+      rtdb_name = atom(1:inda)//':pspw_library'
       ind = index(library_name,' ') - 1
       if (.not. btdb_cput(rtdb,rtdb_name,
      >                  1,library_name(1:ind)))
@@ -97,9 +107,13 @@ c
      >              0,INPUT_ERR)
 
       idum = 2
-      ind = index(atom,' ') - 1
-      rtdb_name = atom(1:ind)//':pspw_library_type'
+      rtdb_name = atom(1:inda)//':pspw_library_type'
       if (.not. btdb_put(rtdb,rtdb_name,mt_int,1,idum))
+     > call errquit('nwpw_set_library: rtdb write error', 
+     >              0,INPUT_ERR)
+
+      rtdb_name = atom(1:inda)//':psp_reset'
+      if (.not. btdb_put(rtdb,rtdb_name,mt_log,1,.true.))
      > call errquit('nwpw_set_library: rtdb write error', 
      >              0,INPUT_ERR)
       goto 10
@@ -107,8 +121,8 @@ c
 c
 c TETER filename
 c
-  50  ind = index(atom,' ') - 1
-      rtdb_name = atom(1:ind)//':pspw_library'
+  50  inda = index(atom,' ') - 1
+      rtdb_name = atom(1:inda)//':pspw_library'
       ind = index(library_name,' ') - 1
       if (.not. btdb_cput(rtdb,rtdb_name,
      >                  1,library_name(1:ind)))
@@ -116,9 +130,13 @@ c
      >              0,INPUT_ERR)
 
       idum = 3
-      ind = index(atom,' ') - 1
-      rtdb_name = atom(1:ind)//':pspw_library_type'
+      rtdb_name = atom(1:inda)//':pspw_library_type'
       if (.not. btdb_put(rtdb,rtdb_name,mt_int,1,idum))
+     > call errquit('nwpw_set_library: rtdb write error', 
+     >              0,INPUT_ERR)
+
+      rtdb_name = atom(1:inda)//':psp_reset'
+      if (.not. btdb_put(rtdb,rtdb_name,mt_log,1,.true.))
      > call errquit('nwpw_set_library: rtdb write error', 
      >              0,INPUT_ERR)
       goto 10

@@ -1,8 +1,8 @@
 
 *     ***************************************
-*     *					    *
-*     *		cpsp_formatter_auto	    *
-*     *					    *
+*     *                                     *
+*     *         cpsp_formatter_auto	        *
+*     *                                     *
 *     ***************************************
       subroutine cpsp_formatter_auto(atom)
       implicit none
@@ -29,12 +29,12 @@
       integer      control_ngrid, brillioun_nbrillioun
       real*8       control_unita, brillioun_all_k
       logical      kbpp_band,nwpw_filefind,hghpp_band,rkbpp_band
-      logical      kbpp_e_band
+      logical      kbpp_e_band,control_psp_reset
       external     control_version
       external     control_ngrid, brillioun_nbrillioun
       external     control_unita, brillioun_all_k
       external     kbpp_band,nwpw_filefind,hghpp_band
-      external     rkbpp_band,kbpp_e_band
+      external     rkbpp_band,kbpp_e_band,control_psp_reset
       value  = .true.
 
 *     **** get lmax,locp,and rlocal from psp library ****
@@ -50,9 +50,11 @@
       formatted_filename = element(1:l)//'.cpp'
 
 *     **** generate one-dimensional pseudopotential file ****
-      if (.not.nwpw_filefind(psp_filename)) then
+      if ((.not.nwpw_filefind(psp_filename)).or.
+     >    (control_psp_reset(atom))) then
 
         call psp_generator_auto(1,atom,lmax,locp,rlocal)
+        call control_psp_reset_delete(atom)
          
 *     **** get lmax,locp,and rlocal from rtdb ****
       else
