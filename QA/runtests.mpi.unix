@@ -225,6 +225,7 @@ do
   echo "     copying input and verified output files"
 
    OUTPUTFILE=${STUB}.out
+   ERRORFILE=${STUB}.err
    INPUTFILE=${STUB}.nw
 
 #
@@ -354,17 +355,17 @@ sync
     if [ $NPROC -gt 0 ]; then
       if [ $NONSTD_MPI -ne 0 ]; then
       if [ -z $USE_SLEEPLOOP ]; then
-          ${MPIRUN} ${NWCHEM} ${INPUTFILE} >& ${OUTPUTFILE}
+          ${MPIRUN} ${NWCHEM} ${INPUTFILE} 2> ${ERRORFILE} 1> ${OUTPUTFILE}
 	else
-          ${NWCHEM_TOP}/QA/sleep_loopqa.sh        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE  $OUTPUTFILE
+          ${NWCHEM_TOP}/QA/sleep_loopqa.sh        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE 2> $ERRORFILE 1> $OUTPUTFILE
 	fi
         runstatus=$?
       else
-        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE >& $OUTPUTFILE
+          $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE 2> $ERRORFILE 1> $OUTPUTFILE
         runstatus=$?
       fi
     else
-       $NWCHEM $INPUTFILE >& $OUTPUTFILE
+       $NWCHEM $INPUTFILE 2> $ERRORFILE 1> $OUTPUTFILE
        runstatus=$?
     fi
     [ -f $OUTPUTFILE ] && cp $OUTPUTFILE $TESTOUTPUTS/$OUTPUTFILE
@@ -393,19 +394,19 @@ sync
 #       know what we are doing (i.e. above this script) and simply use that
 #       verbatim. Set MPIRUN_PATH for this purpose, its value is transfered 
 #       to MPIRUN at some point in this script.
-        $MPIRUN $NWCHEM $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE
+        $MPIRUN $NWCHEM $INPUTFILE  2> $TESTOUTPUTS/$ERRORFILE 1> $TESTOUTPUTS/$OUTPUTFILE
         runstatus=$?
       else
 #       In the case of standard MPI we construct the appropriate command here.
       if [ -z $USE_SLEEPLOOP ]; then
-        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE >& ${TESTOUTPUTS}/${OUTPUTFILE}
+        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE 2> ${TESTOUTPUTS}/${ERRORFILE} 1> ${TESTOUTPUTS}/${OUTPUTFILE}
       else
-          ${NWCHEM_TOP}/QA/sleep_loopqa.sh        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE  $OUTPUTFILE
+          ${NWCHEM_TOP}/QA/sleep_loopqa.sh        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE  2> $ERRORFILE 1> $OUTPUTFILE
       fi
         runstatus=$?
       fi
     else
-      $NWCHEM $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE
+      $NWCHEM $INPUTFILE 2> $TESTOUTPUTS/$ERRORFILE 1> $TESTOUTPUTS/$OUTPUTFILE
        runstatus=$?
     fi
 #
@@ -465,6 +466,7 @@ sync
     fi
 
     diff -w ${STUB}.ok.out.nwparse ${STUB}.out.nwparse >& /dev/null
+    cat ${ERRORFILE}
     diff1status=$?
 #
   fi

@@ -62,6 +62,7 @@ else
     else
 	MPIF90=mpif90
         MPICC=mpicc
+	MPICXX=mpicxx
 	#fix include path
 #	FCFLAGS+="-I`${NWCHEM_TOP}/src/tools/guess-mpidefs --mpi_include`"
 #	CFLAGS+="-I`${NWCHEM_TOP}/src/tools/guess-mpidefs --mpi_include`"
@@ -83,6 +84,9 @@ fi
 
 if [[   -z "${CC}" ]]; then
     CC=cc
+fi
+if [[   -z "${CXX}" ]]; then
+    CXX=c++
 fi
 if [[ ${FC} == flang ]] || [[ ${PE_ENV} == AOCC ]]; then
     GOTCLANG=1
@@ -140,12 +144,18 @@ if [[  -z "$MPICH_CC"   ]] ; then
     export MPICH_CC="$CC"
 fi
 echo MPICH_CC is "$MPICH_CC"
+if [[  -z "$MPICH_CXX"   ]] ; then
+    export MPICH_CXX="$CXX"
+fi
 #Intel MPI
 if [[  -z "$I_MPI_F90"   ]] ; then
     export I_MPI_F90="$FC"
 fi
 if [[  -z "$I_MPI_CC"   ]] ; then
     export I_MPI_CC="$CC"
+fi
+if [[  -z "$I_MPI_CXX"   ]] ; then
+    export I_MPI_CXX="$CXX"
 fi
 echo I_MPI_F90 is "$I_MPI_F90"
 
@@ -232,7 +242,7 @@ export SCALAPACK_FCFLAGS+="${MYLINK}"
 export LIBS="${MYLINK}"
 export    FC=$MPIF90
 export CC=$MPICC
- FC=$MPIF90 CC=$MPICC ../configure \
+ FC=$MPIF90 CC=$MPICC CXX=$MPICXX ../configure \
     $sixty4_int \
   CFLAGS="$MYCFLAGS" \
   FCFLAGS="$MYFCFLAGS" \
@@ -254,7 +264,7 @@ if [[ "$USE_MANUALCPP" == 1 ]]; then
     echo @@@@ MANUALCPP @@@
     make FC="$SRCDIR/remove_xcompiler $SRCDIR/manual_cpp mpif90"   -j5
 else
-    make  FC=$MPIF90 CC=$MPICC -j5
+    make  FC=$MPIF90 CC=$MPICC CXX=$MPICXX -j5
 #    make  V=1  FC=$MPIF90 CC=$MPICC -j5
 fi
 
