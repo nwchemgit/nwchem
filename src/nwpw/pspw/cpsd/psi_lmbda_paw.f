@@ -102,7 +102,7 @@ c        end if
             write(*,*) '        +Try using a smaller time step'
             write(*,*) '        +Gram-Schmidt being performed, spin:',ms
           end if
-          if (control_gram_schmidt2() then
+          if (control_gram_schmidt2()) then
              call Dneall_f_GramSchmidt(ms,psi2,npack1)
           else
              call Dneall_f_Sortho(ms,psi2,psi1,npack1)
