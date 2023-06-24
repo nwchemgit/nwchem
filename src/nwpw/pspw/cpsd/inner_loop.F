@@ -663,14 +663,12 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
         if (psp_pawexist()) then
            call psp_overlap_S(ispin,ne,psi1,psi_r)
            if (move) call phafac2()
-
            if (control_gram_schmidt()) then
               if (control_gram_schmidt2()) then
                  call Dneall_f_GramSchmidt(ms,psi2,npack1)
               else
                  call Dneall_f_Sortho(ms,psi2,psi_r,npack1)
               end if
-
            else
               call psi_lmbda_paw(ispin,ne,nemax,npack1,psi_r,psi2,
      >                           dte,
