@@ -48,6 +48,7 @@ C$Id$
 #include "cscfps.fh"
 #include "sym.fh"
 #include "geom.fh"
+#include "util.fh"
 c     
 c     Compute the desired type of integrals (kinetic, potential, overlap)
 c     and ADD them into the given global array.
@@ -68,13 +69,16 @@ c
 c     local variables
 c
       integer type
-      logical dobq
+      integer bad_ovl,adrs,lds,i0,i1,j0,j1
+      logical dobq,oprint_s,oprint_check_s
       character*255 integ_type1
 c
       call ga_sync()
 c
       dobq = geom_extbq_on()
       integ_type1 = integ_type
+      oprint_check_s = util_print('check_s',print_high)
+      oprint_s = util_print('ao overlap',print_debug)
 c
       if (inp_compare(.false., integ_type1, 'potential0')) then
         integ_type1='potential'
@@ -157,6 +161,23 @@ cc AJL/End
          call int_1e_oldga(ibas, jbas, g, integ_type1, oskel)
       end if
 c
+c     overlap: check if offdiagonal elements are 1 -> same basis
+      if(type.eq.3.and.oprint_s) call ga_print(g)
+      if(type.eq.3.and.oprint_check_s) then
+         bad_ovl=0
+         call ga_distribution(g,
+     .     ga_nodeid(), i0, i1, j0, j1)
+         if (i0.gt.0 .and. i0.le.i1) then
+            call ga_access(g, i0, i1, j0, j1, adrs, lds)
+            call int_checks(i0, i1, j0, j1,dbl_mb(adrs),
+     A           bad_ovl)
+         endif
+         call ga_igop(2023,bad_ovl,1, '+')
+         if(bad_ovl.gt.0) then
+            call errquit('int_1e_ga: same basis from S matrix',
+     A           bad_ovl, BASIS_ERR)
+         endif
+      endif
       end
 c
       subroutine int_1e_ooldga(ibas, jbas, g, integ_type, oskel)
@@ -714,4 +735,29 @@ c
 c     
       if (oscfps) call pstat_off(ps_int_1e)
 c     
+      end
+      subroutine int_checks(i0, i1, j0, j1, s, sing_vals)
+      implicit none
+#include "stdio.fh"
+      integer i0, i1, j0, j1
+      double precision s(i0:i1,j0:j1)
+      integer sing_vals
+c
+      integer i,j
+      double precision eps
+      parameter(eps=1d-8)
+c
+      if(i0.lt.j0) return
+      do j=j0,j1
+         do i=i0,min(i1,j1)
+            if(i.gt.j) then
+               if (abs(s(i,j)-1d0).lt.eps) then
+                  write(luout,1) i,j
+                  sing_vals=sing_vals+1
+               endif
+            endif
+         enddo
+      enddo
+ 1    format(' basis ',i5,' and ',i5,' are the same')
+      return
       end
