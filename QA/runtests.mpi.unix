@@ -357,15 +357,15 @@ sync
       if [ -z $USE_SLEEPLOOP ]; then
           ${MPIRUN} ${NWCHEM} ${INPUTFILE} 2> ${ERRORFILE} 1> ${OUTPUTFILE}
 	else
-          ${NWCHEM_TOP}/QA/sleep_loopqa.sh        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE  $OUTPUTFILE
+          ${NWCHEM_TOP}/QA/sleep_loopqa.sh        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE 2> $ERRORFILE 1> $OUTPUTFILE
 	fi
         runstatus=$?
       else
-        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE >& $OUTPUTFILE
+          $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE 2> $ERRORFILE 1> $OUTPUTFILE
         runstatus=$?
       fi
     else
-       $NWCHEM $INPUTFILE >& $OUTPUTFILE
+       $NWCHEM $INPUTFILE 2> $ERRORFILE 1> $OUTPUTFILE
        runstatus=$?
     fi
     [ -f $OUTPUTFILE ] && cp $OUTPUTFILE $TESTOUTPUTS/$OUTPUTFILE
