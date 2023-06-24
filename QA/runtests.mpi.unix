@@ -225,6 +225,7 @@ do
   echo "     copying input and verified output files"
 
    OUTPUTFILE=${STUB}.out
+   ERRORFILE=${STUB}.err
    INPUTFILE=${STUB}.nw
 
 #
@@ -354,7 +355,7 @@ sync
     if [ $NPROC -gt 0 ]; then
       if [ $NONSTD_MPI -ne 0 ]; then
       if [ -z $USE_SLEEPLOOP ]; then
-          ${MPIRUN} ${NWCHEM} ${INPUTFILE} >& ${OUTPUTFILE}
+          ${MPIRUN} ${NWCHEM} ${INPUTFILE} 2> ${ERRORFILE} 1> ${OUTPUTFILE}
 	else
           ${NWCHEM_TOP}/QA/sleep_loopqa.sh        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE  $OUTPUTFILE
 	fi
@@ -465,6 +466,7 @@ sync
     fi
 
     diff -w ${STUB}.ok.out.nwparse ${STUB}.out.nwparse >& /dev/null
+    cat ${ERRORFILE}
     diff1status=$?
 #
   fi
