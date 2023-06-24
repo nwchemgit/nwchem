@@ -1280,6 +1280,12 @@ c         return
      >      'nwpw:gram-schmidt',mt_log,1,gram_schmidt))
      >  gram_schmidt = .false.
 
+*     **** set gram_schmidt2 ***
+      gram_schmidt2 = .false.
+      if (.not.btdb_get(rtdb,
+     >      'nwpw:gram-schmidt2',mt_log,1,gram_schmidt2))
+     >  gram_schmidt2 = .false.
+
 *     **** set translation ***
       translation = control_allow_translation()
       dof_translation = translation
@@ -4531,6 +4537,21 @@ c      end if
       control_gram_schmidt=gram_schmidt
       return
       end
+
+*     ***************************
+*     *                         *
+*     *  control_gram_schmidt2  *
+*     *                         *
+*     ***************************
+      logical function control_gram_schmidt2()
+      implicit none
+
+#include "control.fh"
+
+      control_gram_schmidt2=gram_schmidt2
+      return
+      end
+
 
 
 *     ***************************
