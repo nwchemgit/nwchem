@@ -394,19 +394,19 @@ sync
 #       know what we are doing (i.e. above this script) and simply use that
 #       verbatim. Set MPIRUN_PATH for this purpose, its value is transfered 
 #       to MPIRUN at some point in this script.
-        $MPIRUN $NWCHEM $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE
+        $MPIRUN $NWCHEM $INPUTFILE  2> $TESTOUTPUTS/$ERRORFILE 1> $TESTOUTPUTS/$OUTPUTFILE
         runstatus=$?
       else
 #       In the case of standard MPI we construct the appropriate command here.
       if [ -z $USE_SLEEPLOOP ]; then
-        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE >& ${TESTOUTPUTS}/${OUTPUTFILE}
+        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE 2> ${TESTOUTPUTS}/${ERRORFILE} 1> ${TESTOUTPUTS}/${OUTPUTFILE}
       else
-          ${NWCHEM_TOP}/QA/sleep_loopqa.sh        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE  $OUTPUTFILE
+          ${NWCHEM_TOP}/QA/sleep_loopqa.sh        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE  2> $ERRORFILE 1> $OUTPUTFILE
       fi
         runstatus=$?
       fi
     else
-      $NWCHEM $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE
+      $NWCHEM $INPUTFILE 2> $TESTOUTPUTS/$ERRORFILE 1> $TESTOUTPUTS/$OUTPUTFILE
        runstatus=$?
     fi
 #
