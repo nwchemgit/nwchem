@@ -5,6 +5,8 @@ if [[ "$1" == *fortran* ]] && [[ ! -z $_FC ]]; then
     echo $_FC
 elif [[ "$1" == *cc* ]] && [[ ! -z $_CC ]]; then
     echo $_CC
+elif [[ "$1" == *gfortran* ]] ; then
+    echo gfortran
 else
     echo $(basename -- $1 | cut -d \- -f 1 | sed 's/[0-9]*//g')
 fi
