@@ -167,6 +167,9 @@ fi
 	   if [[ ! -z "$USE_LIBXC" ]] || [[ ! -z "$LIBXC_INCLUDE" ]]; then
 	       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs libxc_he2+
 	   fi
+	   if [[ ! -z "$BUILD_ELPA" ]]; then
+	       cd $TRAVIS_BUILD_DIR/QA && ./runtests.mpi.unix procs $nprocs dft_siosi3_elpa
+	   fi
 	 fi
        if [[ ! $(grep -i mp2_input $TRAVIS_BUILD_DIR/src/stubs.F| awk '/mp2_input/') ]]; then
 	   if [[ ! $(grep -i ccsd_input $TRAVIS_BUILD_DIR/src/stubs.F| awk '/ccsd_input/') ]]; then
