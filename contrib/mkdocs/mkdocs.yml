@@ -57,7 +57,8 @@ markdown_extensions:
 #         no_inline_svg: True
 #         insert_fonts_css: True
 #         macro-file: macros.tex
-#    - pymdownx.arithmatex
+    - pymdownx.arithmatex:
+        generic: true
 #extra_javascript:
 #  - 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML'
     - mdx_math:
@@ -66,7 +67,10 @@ markdown_extensions:
     - attr_list
     - md_in_html
 extra_javascript:
-  - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML
+  - css/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js
+#  - https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/MathJax.js?config=TeX-AMS_HTML
 nav:
       - 'NWChem Homepage': index.md
       - 'NWChem Manual': Home.md
