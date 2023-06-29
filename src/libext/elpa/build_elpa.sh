@@ -192,7 +192,7 @@ elif [[ ${FC} == nvfortran ]]  || [[ ${PE_ENV} == NVIDIA ]] ; then
 elif [[ ${FC_EXTRA} == gfortran ]] ; then
     MYFCFLAGS+=" -O3 -g -mtune=native -march=native "
 #    MYFCFLAGS+=" -Wno-lto-type-mismatch "
-    MYLINK+="-fno-lto"
+    MYLINK+=" -fno-lto "
 fi    
     if [[ "${GOTAVX}" == "Y" ]]; then
 	echo "using AVX instructions"
