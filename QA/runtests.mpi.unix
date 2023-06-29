@@ -466,6 +466,7 @@ sync
 
     diff -w ${STUB}.ok.out.nwparse ${STUB}.out.nwparse >& /dev/null
     diff1status=$?
+    cat ${ERRORFILE}
 #
   fi
 #
