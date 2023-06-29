@@ -1,19 +1,17 @@
 #!/usr/bin/env bash
 #set -v
 arch=`uname -m`
-#SHORTVERSION=2020.11.001
-#ERSION=new_release_2020.11.001
-#SHORTVERSION=2021.05.002
-#VERSION=new_release_2021_05_002
-SHORTVERSION=2021.11.001
-VERSION=new_release_2021.11.001
-#https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/new_release_2020.11.001/elpa-new_release_2020.11.001.tar.gz
+#SHORTVERSION=2021.11.001
+SHORTVERSION=2023.05.001
+VERSION=new_release_${SHORTVERSION}
 echo mpif90 is `which mpif90`
 if [ -f  elpa-${VERSION}.tar.gz ]; then
     echo "using existing"  elpa-${VERSION}.tar.gz
 else
     rm -rf elpa*
-echo    curl -L https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
+#    echo    curl -L https://github.com/marekandreas/elpa/archive/refs/tags/${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
+#    curl -L https://github.com/marekandreas/elpa/archive/refs/tags/${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
+    echo curl https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
     curl -L https://gitlab.mpcdf.mpg.de/elpa/elpa/-/archive/${VERSION}/elpa-${VERSION}.tar.gz -o elpa-${VERSION}.tar.gz
 fi
 tar xzf elpa-${VERSION}.tar.gz
@@ -35,6 +33,7 @@ fi
 MYCFLAGS+=" -Wno-error=implicit-function-declaration "
 MYCFLAGS+=" -Wno-error=format "
 if [[ ${UNAME_S} == Darwin ]]; then
+    MYLINK+=" -Wl,-no_compact_unwind"
 if [[  -z "$HOMEBREW_PREFIX" ]]; then
     HOMEBREW_PREFIX=/usr/local
 fi
@@ -191,7 +190,9 @@ if [[ ${CC} == ifort ]] ; then
 elif [[ ${FC} == nvfortran ]]  || [[ ${PE_ENV} == NVIDIA ]] ; then
     MYCFLAGS+=" -tp native"
 elif [[ ${FC_EXTRA} == gfortran ]] ; then
-    MYFCFLAGS+=" -O3 -mtune=native -march=native "
+    MYFCFLAGS+=" -O3 -g -mtune=native -march=native "
+#    MYFCFLAGS+=" -Wno-lto-type-mismatch "
+    MYLINK+="-fno-lto"
 fi    
     if [[ "${GOTAVX}" == "Y" ]]; then
 	echo "using AVX instructions"
@@ -262,10 +263,9 @@ echo mpif90 is `which mpif90`
 echo MPIF90 is "$MPIF90"
 if [[ "$USE_MANUALCPP" == 1 ]]; then
     echo @@@@ MANUALCPP @@@
-    make FC="$SRCDIR/remove_xcompiler $SRCDIR/manual_cpp mpif90"   -j5
+    make FC="$SRCDIR/remove_xcompiler $SRCDIR/manual_cpp mpif90"   -j4
 else
-    make  FC=$MPIF90 CC=$MPICC CXX=$MPICXX -j5
-#    make  V=1  FC=$MPIF90 CC=$MPICC -j5
+    make  FC=$MPIF90 CC=$MPICC CXX=$MPICXX -j4
 fi
 
 if [[ "$?" != "0" ]]; then
@@ -278,5 +278,5 @@ if [[ "$?" != "0" ]]; then
 fi
     make V=0   install
 
-ln -sf ${NWCHEM_TOP}/src/libext/lib/libelpa.a  ${NWCHEM_TOP}/src/libext/lib/libnwc_elpa.a
-ln -sf ${NWCHEM_TOP}/src/libext/include/elpa-${SHORTVERSION}  ${NWCHEM_TOP}/src/libext/include/elpa
+cp ${NWCHEM_TOP}/src/libext/lib/libelpa.a  ${NWCHEM_TOP}/src/libext/lib/libnwc_elpa.a
+cp -r ${NWCHEM_TOP}/src/libext/include/elpa-${SHORTVERSION}  ${NWCHEM_TOP}/src/libext/include/elpa

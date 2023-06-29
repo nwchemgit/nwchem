@@ -262,6 +262,7 @@ if  [[ ${FC_EXTRA} == gfortran ]] || [[ ${FC} == f95 ]]; then
     if [[ "$(expr `${FC} -dumpversion | cut -f1 -d.` \> 7)" == 1 ]]; then
 	Fortran_FLAGS+=" -std=legacy "
     fi
+    LDFLAGS+="-fno-lto"
 fi
 if [[ ${PE_ENV} == NVIDIA ]] || [[ ${FC} == nvfortran ]] ; then
   Fortran_FLAGS+=" -fPIC "
