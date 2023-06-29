@@ -591,6 +591,10 @@ let "myexit+=$?"
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np bare_ecps
 let "myexit+=$?"
+if [[ ! -z "${BUILD_ELPA}" ]]; then
+./runtests.mpi.unix procs $np siosi3_elpa
+let "myexit+=$?"
+fi
 #--- if we only want quick tests get out now!
 if [[ "$what" == "fast" ]]; then
     echo
