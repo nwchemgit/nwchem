@@ -16,12 +16,14 @@ OBJ_OPTIMIZE = gw_ri_init.o gw_invdiag.o gw_tools.o \
 	       gw_analytic_addrpa.o gw_analytic_ovscale.o \
                gw_analytic_rpa.o gw_analytic_scalxpy.o \
                gw_analytic_sigmac_graph.o \
-	       gw_minres.o cs_minres_qlp.o \
+	       gw_minres.o  \
 	       gw_cdgw_buildrn_graph.o gw_cdgw_buildiw.o \
 	       gw_cdgw_buildin_graph.o gw_cdgw_buildpi.o \
 	       gw_cdgw_buildrn_minres.o
 
-
+ifdef GWCMPLX
+OBJ_OPTIMIZE += cs_minres_qlp.o
+endif
 LIBRARY = libgwmol.a
 
 HEADERS = ../nwdft/include/cdft.fh ../nwdft/grid/cgridfile.fh 
