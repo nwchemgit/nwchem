@@ -3819,16 +3819,7 @@ ifdef NWCHEM_LINK_CUDA
 endif
 
 ifdef GWCMPLX
-  ifdef GWEN
-    errorgw:
-$(info  GWCMPLX and GWEN are incompatible )
-$(error )
-  endif
   DEFINES += -DGWCMPLX
-endif
-
-ifdef GWEN
-  DEFINES += -DGWEN
 endif
 
 ifdef GWDEBUG
