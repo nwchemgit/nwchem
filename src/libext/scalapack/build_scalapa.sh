@@ -243,7 +243,7 @@ fi
 #cross-compilation: we set CDEFS
 #https://github.com/Reference-ScaLAPACK/scalapack/commit/1bdf63ec17bf8e827b8c5abd292f0e41bdc2f56e
 CMAKE_EXTRA=" "
-if  [[ ${FC} == frtpx ]] ; then
+if  [[ ${FC} == frtpx ]] ||  [ -x "$(command -v xx-info)" ]; then
     CMAKE_EXTRA="-DCDEFS=Add_"
 fi    
 #skip argument check for gfortran
@@ -293,6 +293,7 @@ if [[ "$?" != "0" ]]; then
     echo " "
     echo "cmake failed"
     echo " "
+    cat $(find . -name *log)
     exit 1
 fi
 make V=0 -j3 scalapack/fast
@@ -304,7 +305,13 @@ if [[ "$?" != "0" ]]; then
 fi
 mkdir -p ../../../lib
 if [[ $(uname -s) == "Linux" ]]; then
-    strip --strip-debug lib/libscalapack.a
+    if [ -x "$(command -v xx-info)" ]; then
+	MYSTRIP=$(xx-info)-strip
+    else
+	MYSTRIP=strip
+    fi
+    echo MYSTRIP is $MYSTRIP
+    $MYSTRIP --strip-debug lib/libscalapack.a
 fi
 cp lib/libscalapack.a ../../../lib/libnwc_scalapack.a
 if [[ "$KNL_SWAP" == "1" ]]; then
