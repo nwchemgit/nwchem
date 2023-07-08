@@ -45,7 +45,26 @@ else
 	exit 1
     fi
 fi
+#cross compilation
+if [ -x "$(command -v xx-info)" ]; then
+    SHARED_FLAGS+=" --host=$(xx-info triple) "
+    SHARED_FLAGS+=" --build=$(uname -m)-linux-gnu "
+    # 32bit or 64bit arch?
+    arch=$(xx-info march)
+    echo "mpich arch is " $arch
+    if echo $arch |grep -q 32 ; then
+	SHARED_FLAGS+=" --with-cross=../cross32.txt "
+    else
+	SHARED_FLAGS+=" --with-cross=../cross.txt "
+    fi
+fi
+echo SHARED_FLAGS is $SHARED_FLAGS
 ./configure --prefix=`pwd`/../.. --enable-fortran=all $SHARED_FLAGS  --disable-cxx --enable-romio --with-pm=gforker --with-device=ch3:nemesis --disable-cuda --disable-opencl --enable-silent-rules  --enable-fortran=all
+if [[ "$?" != "0" ]]; then
+    cat config.log
+    echo "MPICH configuration failed"
+    exit 1
+fi
 mkdir -p ../../../lib
 echo
 echo mpich compilation in progress

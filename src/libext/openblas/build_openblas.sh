@@ -228,6 +228,7 @@ MAKEJ=" "
 MYMAKE=gmake
 fi
 echo FC is $FC
+echo CC is $CC
 echo $MYMAKE FC=$FC $FORCETARGET LAPACK_FPFLAGS=$LAPACK_FPFLAGS_VAL  INTERFACE64=$sixty4_int BINARY=$binary NUM_THREADS=$MYNTS NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD=$THREADOPT  libs netlib $MAKEJ
 echo
 echo OpenBLAS compilation in progress
@@ -236,7 +237,7 @@ echo
 if [[ ${_FC} == xlf ]]; then
  $MYMAKE FC="xlf -qextname" $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=$MYNTS NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT" libs netlib $MAKEJ >& openblas.log
 else
- $MYMAKE FC=$FC $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT"  libs netlib $MAKEJ >& openblas.log
+ $MYMAKE FC=$FC CC=$CC HOSTCC=gcc $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT"  libs netlib $MAKEJ >& openblas.log
 fi
 if [[ "$?" != "0" ]]; then
     tail -500 openblas.log
@@ -248,7 +249,13 @@ fi
 
 mkdir -p ../../lib
 if [[ $(uname -s) == "Linux" ]]; then
-    strip --strip-debug libopenblas*-*.a
+    if [ -x "$(command -v xx-info)" ]; then
+	MYSTRIP=$(xx-info)-strip
+    else
+	MYSTRIP=strip
+    fi
+    echo MYSTRIP is $MYSTRIP
+    $MYSTRIP --strip-debug libopenblas*-*.a
 fi
 cp libopenblas.a ../../lib/libnwc_openblas.a
 #make PREFIX=. install
