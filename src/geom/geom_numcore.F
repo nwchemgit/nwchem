@@ -42,6 +42,7 @@ c          you have left any sense of physics well behind anyway...
 C
 C INCLUDE FILES
 #include "nwc_const.fh"
+#include "periodic.fh"
 #include "geomP.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
