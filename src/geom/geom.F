@@ -4680,6 +4680,7 @@ c
 #include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
+#include "periodic.fh"
 c
       integer atn           !< [Input] the atomic number of element
       double precision mass !< [Output] the default elemental atomic mass.
@@ -7118,6 +7119,7 @@ c Written by: R. A. Kendall, PNNL, December 1996
 c
 #include "stdio.fh"
 #include "nwc_const.fh"
+#include "periodic.fh"
 #include "geomP.fh"
       integer atn ! [input] atomic number of element
       double precision rcoval ! [output] estimate of covalent 
