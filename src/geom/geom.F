@@ -1056,6 +1056,7 @@ C> If storing the geometry was successful return .true., return .false. otherwis
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
+#include "periodic.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "util.fh"
@@ -3327,6 +3328,7 @@ c
 #include "inp.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
+#include "periodic.fh"
       character*16 tag          !< [Input] the tag, e.g. He232
       character*(*) symbol      !< [Output] the chemical symbol, e.g. He
       character*(*) element     !< [Output] the element, e.g. Helium
@@ -3418,6 +3420,7 @@ c
 #include "inp.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
+#include "periodic.fh"
       logical geom_tag_to_charge_gen
       integer nt
       integer ns
@@ -3514,6 +3517,7 @@ c
 #include "inp.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
+#include "periodic.fh"
       logical geom_tag_to_charge
       integer nt
       integer i
@@ -3595,6 +3599,7 @@ c
 #include "inp.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
+#include "periodic.fh"
       logical geom_tag_to_atn
       integer nt
       integer i
