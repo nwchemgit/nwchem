@@ -1,15 +1,18 @@
-      integer atn1
-      character*2 symbols
-      character*16 elements
-      character*1 sym1      ! 1 character atomic symbols+atomic no.s
-! they are ordered like this due to common block alignment rules
-      common/celements/
-     $      atn1(14),
-     $      symbols(nelements),
-     $      elements(nelements),
-     $      sym1(14)
-      data atn1/ 1 , 5 , 6 , 7 , 8 , 9 , 15, 16, 19, 23, 39, 53, 74, 92/
-      data sym1/'H','B','C','N','O','F','P','S','K','V','Y','I','W','U'/
+      integer atn1(14)
+C they are ordered like this due to common block alignment rules
+      integer  nelements
+      parameter (nelements     = 118)
+      character*2 symbols(nelements)
+      character*16 elements(nelements)
+      character*1 sym1(14)      ! 1 character atomic symbols+atomic no.s
+cold      common/celements/
+cold     $      atn1(14),
+cold     $      symbols(nelements),sym1(14),
+cold     $      elements(nelements)
+      data atn1/
+     $ 1 , 5 , 6 , 7 , 8 , 9 , 15, 16, 19, 23, 39, 53, 74, 92/
+      data sym1/
+     $ 'H','B','C','N','O','F','P','S','K','V','Y','I','W','U'/
       data symbols/
      $     'H ', 'He', 'Li', 'Be', 'B ', 'C ', 'N ', 'O ', 'F ', 'Ne',
      $     'Na', 'Mg', 'Al', 'Si', 'P ', 'S ', 'Cl', 'Ar', 'K ', 'Ca',
