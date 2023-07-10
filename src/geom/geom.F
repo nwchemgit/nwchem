@@ -3327,8 +3327,6 @@ c
 #include "inp.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
-      character*2 symbols(nelements)
-      character*16 elements(nelements)
       character*16 tag          !< [Input] the tag, e.g. He232
       character*(*) symbol      !< [Output] the chemical symbol, e.g. He
       character*(*) element     !< [Output] the element, e.g. Helium
@@ -3339,48 +3337,6 @@ c     and return the symbol, name and atomic no.
 c
       integer lbuf, ind
       character*16 buf
-      character*1 sym1(14)      ! 1 character atomic symbols+atomic no.s
-      integer atn1(14)
-      data symbols/
-     $     'H ', 'He', 'Li', 'Be', 'B ', 'C ', 'N ', 'O ', 'F ', 'Ne',
-     $     'Na', 'Mg', 'Al', 'Si', 'P ', 'S ', 'Cl', 'Ar', 'K ', 'Ca',
-     $     'Sc', 'Ti', 'V ', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn',
-     $     'Ga', 'Ge', 'As', 'Se', 'Br', 'Kr', 'Rb', 'Sr', 'Y ', 'Zr',
-     $     'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'In', 'Sn',
-     $     'Sb', 'Te', 'I ', 'Xe', 'Cs', 'Ba', 'La', 'Ce', 'Pr', 'Nd',
-     $     'Pm', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb',
-     $     'Lu', 'Hf', 'Ta', 'W ', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg',
-     $     'Tl', 'Pb', 'Bi', 'Po', 'At', 'Rn', 'Fr', 'Ra', 'Ac', 'Th',
-     $     'Pa', 'U ', 'Np', 'Pu', 'Am', 'Cm', 'Bk', 'Cf', 'Es', 'Fm',
-     $     'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds',
-     $     'Rg', 'Cn'/
-      data elements/
-     $     'Hydrogen', 'Helium', 'Lithium', 'Beryllium', 'Boron',
-     $     'Carbon', 'Nitrogen', 'Oxygen', 'Fluorine', 'Neon', 'Sodium',
-     $     'Magnesium', 'Aluminium', 'Silicon', 'Phosphorous',
-     $     'Sulphur', 'Chlorine', 'Argon', 'Potassium', 'Calcium',
-     $     'Scandium', 'Titanium', 'Vanadium', 'Chromium', 'Manganese',
-     $     'Iron', 'Cobalt', 'Nickel', 'Copper', 'Zinc', 'Gallium',
-     $     'Germanium', 'Arsenic', 'Selenium', 'Bromine', 'Krypton',
-     $     'Rubidium', 'Strontium', 'Yttrium', 'Zirconium', 'Niobium',
-     $     'Molybdenum', 'Technetium', 'Ruthenium', 'Rhodium',
-     $     'Palladium', 'Silver', 'Cadmium', 'Indium', 'Tin',
-     $     'Antinomy', 'Tellurium', 'Iodine', 'Xenon', 'Caesium',
-     $     'Barium', 'Lanthanum', 'Cerium', 'Praseodymium', 'Neodymium',
-     $     'Promethium', 'Samarium', 'Europium', 'Gadolinium',
-     $     'Terbium', 'Dysprosium', 'Holmium', 'Erbium', 'Thulium',
-     $     'Ytterbium', 'Lutetium', 'Hafnium', 'Tantalum', 'Tungsten',
-     $     'Rhenium', 'Osmium', 'Iridium', 'Platinum', 'Gold',
-     $     'Mercury', 'Thallium', 'Lead', 'Bismuth', 'Polonium',
-     $     'Astatine', 'Radon', 'Francium', 'Radium', 'Actinium',
-     $     'Thorium', 'Protoactinium', 'Uranium', 'Neptunium',
-     $     'Plutonium', 'Americium', 'Curium', 'Berkelium',
-     $     'Californium', 'Einsteinium', 'Fermium', 'Mendelevium',
-     $     'Nobelium', 'Lawrencium','Rutherfordium','Dubnium',
-     $     'Seaborgium','Bohrium','Hassium','Meitnerium',
-     $     'Darmstadtium', 'Roentgenium', 'Copernicium'/
-      data sym1/'H','B','C','N','O','F','P','S','K','V','Y','I','W','U'/
-      data atn1/ 1 , 5 , 6 , 7 , 8 , 9 , 15, 16, 19, 23, 39, 53, 74, 92/
 
       geom_tag_to_element = .false.
 c
@@ -3467,8 +3423,6 @@ c
       integer ns
       integer i
       logical match
-      character*2 symbols(nelements)
-      character*16 elements(nelements)
       character*1 tag(nt*ns)                  ! [input]
       double precision  q(nt)            ! [output]
 c
@@ -3478,50 +3432,6 @@ c
       integer j,offset
       integer lbuf, ind
       character*16 buf
-      character*1 sym1(14)      ! 1 character atomic symbols+atomic no.s
-      integer atn1(14)
-      data symbols/
-     $     'H ', 'He', 'Li', 'Be', 'B ', 'C ', 'N ', 'O ', 'F ', 'Ne',
-     $     'Na', 'Mg', 'Al', 'Si', 'P ', 'S ', 'Cl', 'Ar', 'K ', 'Ca',
-     $     'Sc', 'Ti', 'V ', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn',
-     $     'Ga', 'Ge', 'As', 'Se', 'Br', 'Kr', 'Rb', 'Sr', 'Y ', 'Zr',
-     $     'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'In', 'Sn',
-     $     'Sb', 'Te', 'I ', 'Xe', 'Cs', 'Ba', 'La', 'Ce', 'Pr', 'Nd',
-     $     'Pm', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb',
-     $     'Lu', 'Hf', 'Ta', 'W ', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg',
-     $     'Tl', 'Pb', 'Bi', 'Po', 'At', 'Rn', 'Fr', 'Ra', 'Ac', 'Th',
-     $     'Pa', 'U ', 'Np', 'Pu', 'Am', 'Cm', 'Bk', 'Cf', 'Es', 'Fm',
-     $     'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds',
-     $     'Rg', 'Cn', 'Nh', 'Fl', 'Mc', 'Lv', 'Ts', 'Og'/
-      data elements/
-     $     'Hydrogen', 'Helium', 'Lithium', 'Beryllium', 'Boron',
-     $     'Carbon', 'Nitrogen', 'Oxygen', 'Fluorine', 'Neon', 'Sodium',
-     $     'Magnesium', 'Aluminium', 'Silicon', 'Phosphorous',
-     $     'Sulphur', 'Chlorine', 'Argon', 'Potassium', 'Calcium',
-     $     'Scandium', 'Titanium', 'Vanadium', 'Chromium', 'Manganese',
-     $     'Iron', 'Cobalt', 'Nickel', 'Copper', 'Zinc', 'Gallium',
-     $     'Germanium', 'Arsenic', 'Selenium', 'Bromine', 'Krypton',
-     $     'Rubidium', 'Strontium', 'Yttrium', 'Zirconium', 'Niobium',
-     $     'Molybdenum', 'Technetium', 'Ruthenium', 'Rhodium',
-     $     'Palladium', 'Silver', 'Cadmium', 'Indium', 'Tin',
-     $     'Antinomy', 'Tellurium', 'Iodine', 'Xenon', 'Caesium',
-     $     'Barium', 'Lanthanum', 'Cerium', 'Praseodymium', 'Neodymium',
-     $     'Promethium', 'Samarium', 'Europium', 'Gadolinium',
-     $     'Terbium', 'Dysprosium', 'Holmium', 'Erbium', 'Thulium',
-     $     'Ytterbium', 'Lutetium', 'Hafnium', 'Tantalum', 'Tungsten',
-     $     'Rhenium', 'Osmium', 'Iridium', 'Platinum', 'Gold',
-     $     'Mercury', 'Thallium', 'Lead', 'Bismuth', 'Polonium',
-     $     'Astatine', 'Radon', 'Francium', 'Radium', 'Actinium',
-     $     'Thorium', 'Protoactinium', 'Uranium', 'Neptunium',
-     $     'Plutonium', 'Americium', 'Curium', 'Berkelium',
-     $     'Californium', 'Einsteinium', 'Fermium', 'Mendelevium',
-     $     'Nobelium', 'Lawrencium','Rutherfordium','Dubnium',
-     $     'Seaborgium','Bohrium','Hassium','Meitnerium',
-     $     'Darmstadtium', 'Roentgenium', 'Copernicium', 'Nihonium',
-     $     'Flerovium', 'Moscovium', 'Livermorium', 'Tennessine',
-     $     'Oganesson'/
-      data sym1/'H','B','C','N','O','F','P','S','K','V','Y','I','W','U'/
-      data atn1/ 1 , 5 , 6 , 7 , 8 , 9 , 15, 16, 19, 23, 39, 53, 74, 92/
 
       geom_tag_to_charge_gen = .false.
 c
@@ -3608,8 +3518,6 @@ c
       integer nt
       integer i
       logical match
-      character*2 symbols(nelements)
-      character*16 elements(nelements)
       character*16 tag(nt)                  ! [input]
       double precision  q(nt)            ! [output]
 c
@@ -3618,48 +3526,6 @@ c     and return the symbol, name and atomic no.
 c
       integer lbuf, ind
       character*16 buf
-      character*1 sym1(14)      ! 1 character atomic symbols+atomic no.s
-      integer atn1(14)
-      data symbols/
-     $     'H ', 'He', 'Li', 'Be', 'B ', 'C ', 'N ', 'O ', 'F ', 'Ne',
-     $     'Na', 'Mg', 'Al', 'Si', 'P ', 'S ', 'Cl', 'Ar', 'K ', 'Ca',
-     $     'Sc', 'Ti', 'V ', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn',
-     $     'Ga', 'Ge', 'As', 'Se', 'Br', 'Kr', 'Rb', 'Sr', 'Y ', 'Zr',
-     $     'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'In', 'Sn',
-     $     'Sb', 'Te', 'I ', 'Xe', 'Cs', 'Ba', 'La', 'Ce', 'Pr', 'Nd',
-     $     'Pm', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb',
-     $     'Lu', 'Hf', 'Ta', 'W ', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg',
-     $     'Tl', 'Pb', 'Bi', 'Po', 'At', 'Rn', 'Fr', 'Ra', 'Ac', 'Th',
-     $     'Pa', 'U ', 'Np', 'Pu', 'Am', 'Cm', 'Bk', 'Cf', 'Es', 'Fm',
-     $     'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds',
-     $     'Rg', 'Cn'/
-      data elements/
-     $     'Hydrogen', 'Helium', 'Lithium', 'Beryllium', 'Boron',
-     $     'Carbon', 'Nitrogen', 'Oxygen', 'Fluorine', 'Neon', 'Sodium',
-     $     'Magnesium', 'Aluminium', 'Silicon', 'Phosphorous',
-     $     'Sulphur', 'Chlorine', 'Argon', 'Potassium', 'Calcium',
-     $     'Scandium', 'Titanium', 'Vanadium', 'Chromium', 'Manganese',
-     $     'Iron', 'Cobalt', 'Nickel', 'Copper', 'Zinc', 'Gallium',
-     $     'Germanium', 'Arsenic', 'Selenium', 'Bromine', 'Krypton',
-     $     'Rubidium', 'Strontium', 'Yttrium', 'Zirconium', 'Niobium',
-     $     'Molybdenum', 'Technetium', 'Ruthenium', 'Rhodium',
-     $     'Palladium', 'Silver', 'Cadmium', 'Indium', 'Tin',
-     $     'Antinomy', 'Tellurium', 'Iodine', 'Xenon', 'Caesium',
-     $     'Barium', 'Lanthanum', 'Cerium', 'Praseodymium', 'Neodymium',
-     $     'Promethium', 'Samarium', 'Europium', 'Gadolinium',
-     $     'Terbium', 'Dysprosium', 'Holmium', 'Erbium', 'Thulium',
-     $     'Ytterbium', 'Lutetium', 'Hafnium', 'Tantalum', 'Tungsten',
-     $     'Rhenium', 'Osmium', 'Iridium', 'Platinum', 'Gold',
-     $     'Mercury', 'Thallium', 'Lead', 'Bismuth', 'Polonium',
-     $     'Astatine', 'Radon', 'Francium', 'Radium', 'Actinium',
-     $     'Thorium', 'Protoactinium', 'Uranium', 'Neptunium',
-     $     'Plutonium', 'Americium', 'Curium', 'Berkelium',
-     $     'Californium', 'Einsteinium', 'Fermium', 'Mendelevium',
-     $     'Nobelium', 'Lawrencium','Rutherfordium','Dubnium',
-     $     'Seaborgium','Bohrium','Hassium','Meitnerium',
-     $     'Darmstadtium', 'Roentgenium', 'Copernicium'/
-      data sym1/'H','B','C','N','O','F','P','S','K','V','Y','I','W','U'/
-      data atn1/ 1 , 5 , 6 , 7 , 8 , 9 , 15, 16, 19, 23, 39, 53, 74, 92/
 
       geom_tag_to_charge = .false.
 c
@@ -3733,8 +3599,6 @@ c
       integer nt
       integer i
       logical match
-      character*2 symbols(nelements)
-      character*16 elements(nelements)
 c     TP: changed from character*(*) tag(nt) to character*(16) tag(nt)
       character*(16) tag(nt)         ! [input]
       integer atn(nt)            ! [output]
@@ -3744,48 +3608,6 @@ c     and return the symbol, name and atomic no.
 c
       integer lbuf, ind
       character*16 buf
-      character*1 sym1(14)      ! 1 character atomic symbols+atomic no.s
-      integer atn1(14)
-      data symbols/
-     $     'H ', 'He', 'Li', 'Be', 'B ', 'C ', 'N ', 'O ', 'F ', 'Ne',
-     $     'Na', 'Mg', 'Al', 'Si', 'P ', 'S ', 'Cl', 'Ar', 'K ', 'Ca',
-     $     'Sc', 'Ti', 'V ', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn',
-     $     'Ga', 'Ge', 'As', 'Se', 'Br', 'Kr', 'Rb', 'Sr', 'Y ', 'Zr',
-     $     'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'In', 'Sn',
-     $     'Sb', 'Te', 'I ', 'Xe', 'Cs', 'Ba', 'La', 'Ce', 'Pr', 'Nd',
-     $     'Pm', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb',
-     $     'Lu', 'Hf', 'Ta', 'W ', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg',
-     $     'Tl', 'Pb', 'Bi', 'Po', 'At', 'Rn', 'Fr', 'Ra', 'Ac', 'Th',
-     $     'Pa', 'U ', 'Np', 'Pu', 'Am', 'Cm', 'Bk', 'Cf', 'Es', 'Fm',
-     $     'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds',
-     $     'Rg', 'Cn'/
-      data elements/
-     $     'Hydrogen', 'Helium', 'Lithium', 'Beryllium', 'Boron',
-     $     'Carbon', 'Nitrogen', 'Oxygen', 'Fluorine', 'Neon', 'Sodium',
-     $     'Magnesium', 'Aluminium', 'Silicon', 'Phosphorous',
-     $     'Sulphur', 'Chlorine', 'Argon', 'Potassium', 'Calcium',
-     $     'Scandium', 'Titanium', 'Vanadium', 'Chromium', 'Manganese',
-     $     'Iron', 'Cobalt', 'Nickel', 'Copper', 'Zinc', 'Gallium',
-     $     'Germanium', 'Arsenic', 'Selenium', 'Bromine', 'Krypton',
-     $     'Rubidium', 'Strontium', 'Yttrium', 'Zirconium', 'Niobium',
-     $     'Molybdenum', 'Technetium', 'Ruthenium', 'Rhodium',
-     $     'Palladium', 'Silver', 'Cadmium', 'Indium', 'Tin',
-     $     'Antinomy', 'Tellurium', 'Iodine', 'Xenon', 'Caesium',
-     $     'Barium', 'Lanthanum', 'Cerium', 'Praseodymium', 'Neodymium',
-     $     'Promethium', 'Samarium', 'Europium', 'Gadolinium',
-     $     'Terbium', 'Dysprosium', 'Holmium', 'Erbium', 'Thulium',
-     $     'Ytterbium', 'Lutetium', 'Hafnium', 'Tantalum', 'Tungsten',
-     $     'Rhenium', 'Osmium', 'Iridium', 'Platinum', 'Gold',
-     $     'Mercury', 'Thallium', 'Lead', 'Bismuth', 'Polonium',
-     $     'Astatine', 'Radon', 'Francium', 'Radium', 'Actinium',
-     $     'Thorium', 'Protoactinium', 'Uranium', 'Neptunium',
-     $     'Plutonium', 'Americium', 'Curium', 'Berkelium',
-     $     'Californium', 'Einsteinium', 'Fermium', 'Mendelevium',
-     $     'Nobelium', 'Lawrencium','Rutherfordium','Dubnium',
-     $     'Seaborgium','Bohrium','Hassium','Meitnerium',
-     $     'Darmstadtium', 'Roentgenium', 'Copernicium'/
-      data sym1/'H','B','C','N','O','F','P','S','K','V','Y','I','W','U'/
-      data atn1/ 1 , 5 , 6 , 7 , 8 , 9 , 15, 16, 19, 23, 39, 53, 74, 92/
 
       geom_tag_to_atn = .false.
 c
