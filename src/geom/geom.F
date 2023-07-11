@@ -3413,6 +3413,9 @@ c
          return
       end if
 c
+c     disabled because could do what the user is not asking for
+c     e.g.: recognize 'jnk' as 'nitrogen'
+#if 0
       if (inp_match(14, .false., buf(2:2), sym1, ind)) then
          ind = atn1(ind)
          symbol  = symbols(ind)
@@ -3421,6 +3424,7 @@ c
          geom_tag_to_element = .true.
          return
       end if
+#endif
 cc
 c     Nothing matched
 c
