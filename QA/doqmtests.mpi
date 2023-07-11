@@ -625,6 +625,8 @@ let "myexit+=$?"
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np back_to_atguess
 let "myexit+=$?"
+./runtests.mpi.unix procs $np dft_tennessine
+let "myexit+=$?"
 #
 ./runtests.mpi.unix procs $np ccsdt_ompt_w3pvdz
 let "myexit+=$?"
