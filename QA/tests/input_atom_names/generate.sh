@@ -42,7 +42,7 @@ for atom in \
 do
 
 echo "
-start full_names
+start scratch_${atom}
 
 basis spherical bse
  * library AHGBS-5
