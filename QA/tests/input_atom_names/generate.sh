@@ -57,11 +57,12 @@ relativistic
 end
 
 dft
+  odft
   xc slater
 end
 
-print rtdb
-print rtdbvalues
+#print rtdb
+#print rtdbvalues
 
 task dft ignore
 " > ${atom}.nw || echo "${atom}" failed
