@@ -3378,6 +3378,21 @@ c
         enddo
       end if
 c
+c     Failed ... attempt to match the first three characters
+c     against three character element names for Z>118
+c
+      if (buf(3:3) .ne. ' ') then
+         ! size() is a F95 intrinsic, and is better than hard-coding the size of the arrays for Z>118
+         if (inp_match(size(sym3), .false., buf(1:3), sym3, ind)) then
+            ind = atn3(ind)
+            symbol  = symbols(ind)
+            element = elements(ind)
+            atn     = ind
+            geom_tag_to_element = .true.
+            return
+         end if
+      end if
+c
 c     Failed ... attempt to match the first two characters
 c     against two character element names
 c
