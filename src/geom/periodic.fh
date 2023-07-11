@@ -1,18 +1,20 @@
-      integer atn1(14)
-C they are ordered like this due to common block alignment rules
-      integer  nelements
-      parameter (nelements     = 118)
+      integer nelements
+      parameter (nelements = 120)
       character*2 symbols(nelements)
       character*16 elements(nelements)
+      integer atn1(14)
       character*1 sym1(14)      ! 1 character atomic symbols+atomic no.s
-cold      common/celements/
-cold     $      atn1(14),
-cold     $      symbols(nelements),sym1(14),
-cold     $      elements(nelements)
+! for Z>118
+      integer atn3(2)
+      character*3 sym3(2)       ! 3 character atomic symbols+atomic no.s
       data atn1/
      $ 1 , 5 , 6 , 7 , 8 , 9 , 15, 16, 19, 23, 39, 53, 74, 92/
       data sym1/
      $ 'H','B','C','N','O','F','P','S','K','V','Y','I','W','U'/
+      data atn3/
+     $ 119, 120/
+      data sym3/
+     $ 'Uue', 'Ubn'/
       data symbols/
      $     'H ', 'He', 'Li', 'Be', 'B ', 'C ', 'N ', 'O ', 'F ', 'Ne',
      $     'Na', 'Mg', 'Al', 'Si', 'P ', 'S ', 'Cl', 'Ar', 'K ', 'Ca',
@@ -25,7 +27,7 @@ cold     $      elements(nelements)
      $     'Tl', 'Pb', 'Bi', 'Po', 'At', 'Rn', 'Fr', 'Ra', 'Ac', 'Th',
      $     'Pa', 'U ', 'Np', 'Pu', 'Am', 'Cm', 'Bk', 'Cf', 'Es', 'Fm',
      $     'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds',
-     $     'Rg', 'Cn', 'Nh', 'Fl', 'Mc', 'Lv', 'Ts', 'Og'/
+     $     'Rg', 'Cn', 'Nh', 'Fl', 'Mc', 'Lv', 'Ts', 'Og', 'Uu', 'Ub'/
       data elements/
      $     'Hydrogen', 'Helium', 'Lithium', 'Beryllium', 'Boron',
      $     'Carbon', 'Nitrogen', 'Oxygen', 'Fluorine', 'Neon', 'Sodium',
@@ -52,4 +54,4 @@ cold     $      elements(nelements)
      $     'Seaborgium','Bohrium','Hassium','Meitnerium',
      $     'Darmstadtium', 'Roentgenium', 'Copernicium', 'Nihonium',
      $     'Flerovium', 'Moscovium', 'Livermorium', 'Tennessine',
-     $     'Oganesson'/
+     $     'Oganesson', 'Ununennium', 'Unbinilium'/
