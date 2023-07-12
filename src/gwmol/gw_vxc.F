@@ -131,6 +131,8 @@ c
       if (.not.ma_push_get(mt_dbl,2*nbf_ao,'vxc temp',l_tmp,k_tmp))
      $  call errquit(pname//'failed to allocate temp',0,MA_ERR) 
       do isp=1,ipol
+        if (oskel)
+     $    call sym_symmetrize(geom, ao_bas_han, .false., g_vxc(isp))
         call ga_dgemm('n','n',nbf_ao,nmo,nbf_ao,1.0d0,g_vxc(isp),
      $                 pars%g_movecs(isp),0.0d0,g_dens(isp))
         do imo=1,nmo
