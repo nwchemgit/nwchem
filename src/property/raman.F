@@ -1246,8 +1246,9 @@ c
       integer lu
       lu = 64
 c     
-      write(6,*) 'RRR ',fdrpol(1,1)
+c      write(6,*) 'RRR ',fdrpol(1,1)
       write(lu,4321) fdrpol
+      call util_flush(lu)
  4321 format('{{',2(f14.8,','),f14.8,'},{',2(f14.8,','),f14.8,'},{',
      F     2(f14.8,','),f14.8,'}}')
 c
