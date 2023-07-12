@@ -550,7 +550,7 @@ c
       else if (inp_compare(.false.,'print', test) .or. 
      $        inp_compare(.false.,'noprint', test)) then
 c          
-         call util_print_input(rtdb, 'prop')
+         call util_print_input(rtdb, 'property')
 c
       elseif ( inp_compare(.false., 'end', test)) then
          goto 99999
