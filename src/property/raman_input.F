@@ -166,6 +166,11 @@ c========== Added by FA-06-16-12 ========== START
      $     call errquit(pname//'rtdb put failed',0, RTDB_ERR)
         endif
        endif 
+      else if (inp_compare(.false.,'print', test) .or. 
+     $        inp_compare(.false.,'noprint', test)) then
+c          
+         call util_print_input(rtdb, 'raman')
+c
       else if(inp_compare(.false.,'raman_modes_list',test)) then
        if (.not.rtdb_put(rtdb,'raman:ramantype',mt_int,1,3))
      $     call errquit(pname//'rtdb put failed',0, RTDB_ERR)
