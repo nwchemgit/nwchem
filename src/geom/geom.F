@@ -3378,6 +3378,21 @@ c
         enddo
       end if
 c
+c     Failed ... attempt to match the first three characters
+c     against three character element names for Z>118
+c
+      if (buf(3:3) .ne. ' ') then
+         ! size() is a F95 intrinsic, and is better than hard-coding the size of the arrays for Z>118
+         if (inp_match(size(sym3), .false., buf(1:3), sym3, ind)) then
+            ind = atn3(ind)
+            symbol  = symbols(ind)
+            element = elements(ind)
+            atn     = ind
+            geom_tag_to_element = .true.
+            return
+         end if
+      end if
+c
 c     Failed ... attempt to match the first two characters
 c     against two character element names
 c
@@ -3402,6 +3417,9 @@ c
          return
       end if
 c
+c     disabled because could do what the user is not asking for
+c     e.g.: recognize 'jnk' as 'nitrogen'
+#if 0
       if (inp_match(14, .false., buf(2:2), sym1, ind)) then
          ind = atn1(ind)
          symbol  = symbols(ind)
@@ -3410,6 +3428,7 @@ c
          geom_tag_to_element = .true.
          return
       end if
+#endif
 cc
 c     Nothing matched
 c
@@ -4717,6 +4736,12 @@ c
      & 247.0704d0, 247.0703d0, 251.0796d0, 252.0829d0, 257.0950d0,
      & 258.0986d0, 259.1009d0, 262.1100d0, 261.1087d0, 262.1138d0,
      & 266.1219d0, 262.1229d0, 267.1318d0, 268.1388d0 /
+cedo masses of isotope with longest half-life from
+cedo https://webelements.com/${element_name}/isotopes.html
+      data (def_masses(i),i=110,120) /
+     Z 281.0000d0, 280.0000d0, 285.0000d0, 284.0000d0, 289.0000d0,
+     F 287.0000d0, 292.0000d0, 293.0000d0, 294.0000d0, 0d0,
+     Z 0d0/
 c
       geom_atn_to_default_mass = .false.
 c
