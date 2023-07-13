@@ -51,8 +51,9 @@ c
       data ilist /1,4,5, 4,2,6, 5,6,3/
 c
       parameter(froth=4.0d0/3.0d0) 
-      parameter(pifac=froth*3.14159265358979323846264338327950288419d0)
+c      parameter(pifac=froth*3.14159265358979323846264338327950288419d0)
 c
+      pifac=acos(-1d0)*froth
       oskel = .false.
 c
 c     Integral initialization
