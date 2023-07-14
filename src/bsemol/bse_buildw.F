@@ -15,7 +15,7 @@
       double precision w(nri,nri)
 
       integer :: ovlo,ovhi,kov(2),isp
-      integer :: ldpi, sizepi
+      integer :: ldpi, sizepi, iri, jri
       integer :: alloc, info, ld, ipole
       double precision,allocatable :: factor(:,:)
 
@@ -69,7 +69,8 @@ C
         if (pars%mynpoles(isp).lt.1) cycle
         ovlo = pars%ovlo(isp)
         ovhi = pars%ovhi(isp)
-        call ga_release_update(pars%g_eriov(isp),1,nri,ovlo,ovhi)
+        call ga_release(pars%g_eriov(isp),1,nri,ovlo,ovhi)
       enddo
 
       end
+

@@ -22,7 +22,7 @@
       character(*), parameter :: pname = 'bse_init: '
 
       character(len=255) :: basisname, scftype, gwevals
-      integer i, ilo, ihi, j
+      integer i, ilo, ihi, j, g_work
       integer nbf_temp, ipol_temp, nocc, nvir, nmo_temp(2)
       logical ldum
 
@@ -40,6 +40,7 @@ c
       double precision t0, ehomo, vxddp, vxddm, aq2, zeta
 
       integer,parameter :: unitno = 66
+      integer :: nmix(2)
 
 #ifdef USE_OPENMP
       integer,external :: omp_get_max_threads, omp_get_thread_num
@@ -209,11 +210,12 @@ c
      &  call errquit(pname//'rtdb_get failed',176,RTDB_ERR)
       if (pars%ncap) then
         zeta = 0.304121d0
+        if (xfac(87).gt.1d-10) zeta=0.5d0
         aq2 = 2d0/9d0 * (1d0-zeta)**2
         do i=1,ipol
           ehomo = dbl_mb(pars%k_mf_evals+(i-1)*nbf_ao+pars%nocc(i)-1)
-          vxddp = -0.5d0*aq2*(1d0 + sqrt(1d0-4d0*ehomo/aq2))*0.8d0
-          vxddm = -0.5d0*aq2*(1d0 - sqrt(1d0-4d0*ehomo/aq2))*0.8d0
+          vxddp = -0.5d0*aq2*(1d0 + sqrt(1d0-4d0*ehomo/aq2))*0.9d0
+          vxddm = -0.5d0*aq2*(1d0 - sqrt(1d0-4d0*ehomo/aq2))*0.9d0
           pars%vxddp(i) = vxddp
           pars%vxddm(i) = vxddm
           if (pars%me.eq.0) then
@@ -253,6 +255,22 @@ c
       call print_integrals((/ao_bas_han,cd_bas_han/),.false.)
       call schwarz_init(geom, ao_bas_han)
       call scf_get_fock_param(pars%rtdb, pars%tol2e)
+
+      ! Obtain irreps information
+      do i=1,ipol
+        if(.not.ma_push_get(mt_int,nbf_ao,'irreps',pars%l_irs(i),
+     $          pars%k_irs(i))) call errquit
+     $          ('bse_init: failed to allocate irs',0,MA_ERR)
+        if(.not.ga_create(mt_dbl,nbf_ao,pars%nmo,'Work',nbf_ao,-1,
+     $                    g_work))
+     $    call errquit('bse_init: failed to allocate work',0,GA_ERR)
+        call ga_copy_patch('n',pars%g_movecs(i),1,nbf_ao,1,pars%nmo,
+     $                      g_work,1,nbf_ao,1,pars%nmo)
+        call sym_movecs_adapt(ao_bas_han, 1.0d-8, g_work,
+     $                        int_mb(pars%k_irs(i)),nmix(i))
+        if(.not.ga_destroy(g_work)) call errquit
+     $    ('bse_init: failed to destroy g_work',0, GA_ERR)
+      enddo
 
       ! Get dipole in CIS basis
       call bse_dipole(pars)

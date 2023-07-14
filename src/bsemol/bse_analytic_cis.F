@@ -45,9 +45,9 @@
         nvir2(1) = pars%nvir(1)**2
 
         call ga_distribution(pars%g_apb,pars%me,ilo,ihi,jlo,jhi)
-        if (jhi.ge.jlo) call nga_put(g_diag,jlo,jhi,wia,jhi-jlo+1)
+        if (jhi.ge.jlo) call nga_put(g_diag,ilo,ihi,wia,ihi-ilo+1)
 
-        ! Screened Coulomb contribution from B
+        ! Screened Coulomb contribution from A
         if(.not.ga_create(mt_dbl,nvir2(1),nocc2(1),'tmp',nvir2(1),0,
      &                    g_tmp))
      &    call errquit(pname//'could not create temp GA',1,GA_ERR) 
@@ -59,21 +59,22 @@
         do ij=jlo,jhi
           jmo = (ij-1)/pars%nocc(1) + 1
           imo = ij - (jmo-1)*pars%nocc(1)
+          llia = (imo-1)*pars%nvir(1) + 1
+          ulia = imo*pars%nvir(1)
           do bmo = 1,pars%nvir(1)
-            llia = (imo-1)*pars%nvir(1) + 1
-            ulia = imo*pars%nvir(1)
             jb = (jmo-1)*pars%nvir(1) + bmo
             call ga_put(pars%g_apb,llia,ulia,jb,jb,
      &           dbl_mb(ktmp+(ij-jlo)*nvir2(1)+(bmo-1)*pars%nvir(1)),
      &           pars%nvir(1))
           enddo
         enddo
+        call ga_sync()
         call ga_copy(pars%g_apb,g_amb)
         call ga_release(g_tmp,ilo,ihi,jlo,jhi)
         if (.not.ga_destroy(g_tmp))
      &    call errquit(pname//'could not destroy temp GA',1,GA_ERR) 
 
-        ! Screened-Coulomb contribution from A
+        ! Screened-Coulomb contribution from B
         if(.not.ga_create(mt_dbl,totpoles,totpoles,'tmp',0,totpoles,
      &     g_tmp))
      &    call errquit(pname//'could not create temp GA',1,GA_ERR) 
@@ -103,7 +104,6 @@
      &    call errquit(pname//'could not destroy eriov GA',1,GA_ERR) 
         if (.not.ga_destroy(pars%g_wov(1)))
      &    call errquit(pname//'could not destroy wov GA',1,GA_ERR) 
-
 
         ! First step is to get (A-B)^(1/2)
         call ga_sync()
