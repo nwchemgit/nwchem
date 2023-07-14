@@ -274,7 +274,6 @@ c
       if (pars%me.eq.0) write(*,*) '  Orthogonalize ERIs'
 #endif
       do isp=1,pars%ipol
-        if (nmo.eq.0) cycle
 c
 c     Transform OO block
 c

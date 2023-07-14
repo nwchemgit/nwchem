@@ -6,7 +6,7 @@
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "bse.fh"
-
+#include "cdft.fh"
       type(bse_params_t) :: pars
       character(*), parameter :: pname = 'bse_analytic: '
 
@@ -35,10 +35,10 @@
 
       ! obtain "old" eigenvalue difference to build W
       do isp=1,pars%ipol
-         lSize = (isp-1)*pars%npoles(1)
-         call gw_get_eia(dbl_mb(pars%k_mf_evals+(isp-1)*pars%nmo),
+         lSize = (isp-1)*maxpoles
+         call bse_get_eia(dbl_mb(pars%k_mf_evals+(isp-1)*nbf_ao),
      &                   dbl_mb(k_dia+lSize),pars%nocc(isp),
-     &                   pars%nvir(isp))    
+     &                   pars%nvir(isp),pars%ovlo(isp),pars%ovhi(isp))
       enddo 
 
       ! obtain screened Coulomb matrix
@@ -52,8 +52,8 @@
 
       ! obtain "GW" eigenvalue difference to build Casida matrix
       do isp=1,pars%ipol
-         lSize = (isp-1)*pars%npoles(1)
-         call bse_get_eia(dbl_mb(pars%k_gw_evals+(isp-1)*pars%nmo),
+         lSize = (isp-1)*maxpoles
+         call bse_get_eia(dbl_mb(pars%k_gw_evals+(isp-1)*nbf_ao),
      &                   dbl_mb(k_dia+lSize),pars%nocc(isp),
      &                   pars%nvir(isp),pars%ovlo(isp),
      %                   pars%ovhi(isp))    

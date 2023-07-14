@@ -56,7 +56,8 @@
      &                    pars%g_movecs(isp),1,nbf_ao,1,pars%nocc(isp),
      &                    g_tmp1,1,nbf_ao,1,pars%nocc(isp))
           call ga_matmul_patch('t','n',1d0,0d0,
-     &                    pars%g_movecs(isp),1,pars%nvir(isp),1,nbf_ao,
+     &                    pars%g_movecs(isp),pars%nocc(isp)+1,
+     &                    pars%nmo,1,nbf_ao,
      &                    g_tmp1,1,nbf_ao,1,pars%nocc(isp),
      &                    g_tmp2,1,pars%nvir(isp),1,pars%nocc(isp))
           call nga_copy_patch('n',g_tmp2,(/1,1/),

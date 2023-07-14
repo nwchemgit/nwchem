@@ -8,7 +8,7 @@ c
       do ipole=llpole,ulpole
         imo = (ipole-1)/nvir + 1
         amo = ipole - (imo-1)*nvir + nocc
-        eia(ipole) = eig(amo) - eig(imo)
+        eia(ipole-llpole+1) = eig(amo) - eig(imo)
       enddo
 c      
       return
