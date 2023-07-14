@@ -204,6 +204,7 @@ if [[ -d "ga-5.8.2" ]]; then
     if [[ ! -f "ga-5.8.2/patched581" ]]; then
 	./gamalloc_patch.sh $GA_DIR
 	./peigstubs_patch.sh $GA_DIR
+	./mpipr-too-many_patch.sh $GA_DIR
 	echo patched
 	touch ga-5.8.2/patched581
     fi
