@@ -754,6 +754,7 @@ c 000000000 run properties (AORESPONSE) on displaced geom 000 START
      &                      .false.,.false.,ramanpolfile)  
          if (ga_nodeid().eq.0)
      &    write(luout,*) 'ramanpolfile=',ramanpolfile
+         call raman_init_response(rtdb)
 
          status1=ramanpol_read(
      &           ramanpolfile,! in: filename
@@ -1238,5 +1239,45 @@ c        if (begin .gt. last)  go to 200
  9      if(oprint_dalphadq) then
          call raman_close_dadq(filedadq)
       endif
+      return
+      end
+      subroutine raman_init_response(rtdb)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+      integer rtdb
+      double precision gamwidth_in,freq_in
+      double precision freq,gamwidth
+      integer nfreq,aor_damp,aor_damp_in
+      parameter(gamwidth_in=0.007d0,freq_in=8.8559D-2,aor_damp_in=0)
+      logical read_fail
+      character*32  pname
+      pname='raman_init_response'
+      read_fail=(.not.rtdb_get(rtdb, 'aoresponse:damping', mt_int, 1,
+     $     aor_damp))
+      if(read_fail.or.(aor_damp.eq.0d0)) then
+         if (.not. rtdb_put(rtdb, 'aoresponse:damping', mt_int, 1,
+     $        aor_damp_in))
+     $        call errquit(pname//'rtdb_put failed', 1, RTDB_ERR)
+      endif
+      read_fail=(.not.rtdb_get(rtdb, 'aoresponse:gamwidth', mt_dbl, 1,
+     $     gamwidth))
+      if(read_fail.or.(gamwidth.eq.0d0)) then
+         if (.not. rtdb_put(rtdb, 'aoresponse:gamwidth', mt_dbl, 1,
+     $        gamwidth_in))
+     $        call errquit(pname//'rtdb_put failed', 1, RTDB_ERR)
+      endif
+      read_fail=.not.rtdb_get(rtdb,'aoresponse:nfreq', mt_int,1,nfreq)
+      if(read_fail.or.(nfreq.eq.0)) then
+         if (.not. rtdb_put(rtdb, 'aoresponse:nfreq', mt_int, 1,1))
+     $        call errquit(pname//'rtdb_put failed', 2, RTDB_ERR)
+        if (.not. rtdb_put(rtdb, 'aoresponse:freqlist', mt_dbl, 1,
+     &        freq_in))
+     $        call errquit(pname//'rtdb_put failed', 0, RTDB_ERR)
+      endif
+c      status=rtdb_get(rtdb,'prop:aoresponse',MT_INT,1,noaoresponse)
+      if(.not.rtdb_put(rtdb,'prop:aoresponse',MT_INT,1,0))
+     $        call errquit(pname//'rtdb_put failed', 3, RTDB_ERR)
       return
       end
