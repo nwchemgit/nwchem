@@ -32,19 +32,23 @@ c
 c
 #if !defined SECOND_DERIV && !defined THIRD_DERIV
       Subroutine xc_xncap(tol_rho, fac, rho, delrho,
-     &                    Amat, Cmat, nq, ipol, Ex, qwght,ldew,func)
+     &                    Amat, Cmat, nq, ipol, Ex, qwght,ldew,func,
+     &                    version)
 #elif defined(SECOND_DERIV) && !defined THIRD_DERIV
       Subroutine xc_xncap_d2(tol_rho, fac, rho, delrho,
      &                       Amat, Amat2, Cmat, Cmat2, nq, ipol, Ex,
-     &                       qwght,ldew,func)
+     &                       qwght,ldew,func,
+     &                       version)
 #else
       Subroutine xc_xncap_d3(tol_rho, fac, rho, delrho,
      &                       Amat, Amat2, Amat3, Cmat, Cmat2, Cmat3, 
-     &                       nq, ipol, Ex, qwght,ldew,func)
+     &                       nq, ipol, Ex, qwght,ldew,func,
+     &                       version)
 #endif
 c
       implicit none
-c      
+c
+      character*1 version
       double precision fac, Ex
       integer nq, ipol
       logical ldew
@@ -77,8 +81,7 @@ c
       double precision ckf, Ax
       double precision F43, F13, F23, F49
 c
-      parameter(mu=0.2195149727645171d0, beta=0.01808569669d0)
-      parameter(zeta=0.30412141859531383d0)
+      parameter(mu=0.2195149727645171d0)
 
       parameter (F43=4.d0/3.d0, F13=1.d0/3.d0, F23=2.0d0/3.0d0)
       parameter (F49=4d0/9d0)
@@ -105,6 +108,14 @@ c
       d2arcsinh(s) = -s/dsqrt(1d0+s*s)**3
       d3arcsinh(s) = (2d0*s*s - 1d0)/dsqrt(1d0+s*s)**5
 c
+      if (version.eq.'r') then
+        zeta = 0.5d0
+        beta = 0.017983d0
+      else
+        zeta = 0.30412141859531383d0
+        beta = 0.01808569669d0
+      endif
+
       pi = acos(-1.d0)
       ckf = (3d0*pi*pi)**F13
       Ax = -3d0/(4d0*pi)*ckf

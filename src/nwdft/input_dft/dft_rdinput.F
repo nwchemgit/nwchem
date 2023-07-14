@@ -703,6 +703,7 @@ c
       xname(83)='              MN15-L Exchange Functional'
       xname(84)='                MN15 Exchange Functional'
       xname(85)='              M06-SX Exchange Functional'
+      xname(87)='           NCAPR GGA Exchange Functional'
 c
 c     Exchange-Correlation combination functional name defaults.
 c
@@ -785,6 +786,7 @@ c
       xcname(84)='               MN15 Method XC Functional'
       xcname(85)='             M06-SX Method XC Functional'
       xcname(86)='           r^2SCAN0 Method XC Functional'
+      xcname(87)='              NCAPR Method XC Functional'
 c     
 c     place character XC parameters in rtdb
 c     

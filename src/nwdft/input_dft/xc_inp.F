@@ -153,7 +153,7 @@ c
 c     r2scan0 ==> 19
 c
       integer num_dirs, ind, mlen, iline, n, itemp
-      parameter (num_dirs=168)
+      parameter (num_dirs=169)
 c
       character*15 dirs(num_dirs)
       character*255 test
@@ -212,7 +212,7 @@ c
      &     'xscan', 'cscan',
      &     'hcth147@tz2p',
      W     'wb97','wb97x','wb97x-d3', 
-     &     'xr2scan', 'cr2scan','r2scan0' /
+     &     'xr2scan', 'cr2scan','r2scan0', 'ncapr' /
 c     becke97-d, ssb-d
       logical disp, dumdirect
       integer ivdw
@@ -298,7 +298,8 @@ c
      &     9710,9720,9650,9660,9615,9616,
      &  1947,
      &  9410,9420,9430,
-     &  9661,9662,9670, 
+     &  9661,9662,9670,
+     &  9730, 
      &     1999 ) ind
 
 
@@ -1816,6 +1817,17 @@ c
       lxfac(72) = .true.
       nlxfac(72) = .true.
       xfac(72) = 1.0d0
+      goto 10
+
+
+9730  xccomb(87) = .true.
+      cfac(3) = 1d0
+      lcfac(3) = .true.
+      cfac(4) = 1d0
+      nlcfac(4) = .true.
+      lxfac(87) = .true.
+      nlxfac(87) = .true.
+      xfac(87) = 1.0d0
       goto 10
 c
 c r2SCAN metaGGA
