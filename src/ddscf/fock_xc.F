@@ -182,7 +182,8 @@ c
             dims(1) = 2*nfock_xc+2
          endif
          if (.not.MA_alloc_Get(MT_int,dims(1),'XCDens',lgxcd,igxcd))
-     &      call errquit('fock_xc: cannot allocate xcdens',0, MA_ERR)
+     &        call errquit('fock_xc: cannot allocate xcdens',0, MA_ERR)
+#ifdef GXCD
 c
 c     alpha bit
 c
@@ -207,6 +208,7 @@ c
      N              nbf_ao,geom,ao_bas_han)
             enddo
          endif
+#endif
 c Daniel (1-10-13): We will need to do things differently for TDDFT
 c gradients because we are (possibly) feeding in density matrices for 
 c many excited states.
@@ -242,7 +244,7 @@ c     -----------------------
      D        nbf_ao,geom,ao_bas_han,nfock_xc,ndens)
          g_dens_save(1)=g_dens(1)
          g_dens(1)=g_dens_3d
-#ifdef DEBUG          
+#ifdef DEBUG
          alo(1) = 1
          ahi(1) = nbf_ao
          blo(1) = nfock_xc+1
@@ -260,6 +262,11 @@ c     -----------------------
           call dft_3dmtest(g_dens_3d,
      N     ndens,nfock_xc,
      N         nbf_ao,geom,ao_bas_han)
+            do i=1,dims(1)
+               if (.not. ga_destroy(int_mb(igxcd+i-1)))
+     &              call errquit('fock_xc: could not destroy g_dens_xc',0,
+     &              GA_ERR)
+            enddo
 #endif          
 c Daniel (1-10-13): The SCF density matrix is stored differently than
 c it is for calc_type = 1, 3, or 4
@@ -338,7 +345,6 @@ cold     &     int_mb(igxcd),
       else
        call grid_quadv0_gen(rtdb, 
      &     int_mb(igxcd),
-     &     g_dens,
      &     g_xc, nexc,
      &     rho_n_dum, Exc,
      &     nfock_xc, calc_type, tdum, l3d, triplet)
@@ -453,13 +459,15 @@ c
 c     2-d GA dens1 
 c
 #ifdef DEBUG
-            if(ga_nodeid().eq.0) then
+      if(ga_nodeid().eq.0) then
                call nga_inquire(g_dens, ityp, ndim, dims)
-               write(6,*) ' ndim ',ndim,' dims ',dims
+ 1             format(a,i8,i8,i8)
+ 2             format(a,i8,a,i8,i8,i8)
+               write(6,2) 'npatch ndim ',ndim,' dims ',dims
                call nga_distribution(g_dens,
      .           ga_nodeid(), alo, ahi)
-               write(6,*) ' alo ',alo
-               write(6,*) ' ahi ',ahi
+               write(6,1) 'npatch alo ',alo
+               write(6,1) 'npatch ahi ',ahi
                call util_flush(6)
             endif
 #endif            
@@ -501,8 +509,10 @@ c     call nga_inquire(g_dens, ityp, ndim, dims)
       ndim=3
       dims(1)=ndens*(nfock_xc+1)
 #ifdef DEBUG      
-      write(6,*) ' dm3d nfock_xc ndens ',nfock_xc,ndens
-      write(6,*) ' ndim ',ndim,' dims ',dims
+      write(6,1) ' dm3d nfock_xc ndens ',nfock_xc,ndens
+      write(6,2) ' dm3d ndim ',ndim,' dims ',dims(1)
+ 1    format(a,i8,i8)
+ 2    format(a,i8,a,i8)
 #endif      
       dft_dm3d=ga_create3d_atom_blocked(geom, basis,
      S     'xcdm3d', dims(1))
