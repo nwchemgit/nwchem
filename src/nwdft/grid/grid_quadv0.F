@@ -165,7 +165,9 @@ c
       integer g_s
 
       integer nshells_bas,nbf_mxnbf_ce2
-      integer basis
+      integer basis,g_dens_2d
+      integer dft_npatch
+      external dft_npatch
 
 #ifdef SOLARIS
 c     needed for -stackvar option
@@ -447,15 +449,23 @@ c XC-third derivatives in this portion of the code, since this part
 c doesn't depend on having 3-dimensional GAs.
       if (calc_type.eq.2.or.calc_type.eq.5) then
          do isp=1,ipol
-            call util_ga_mat_reduce(nbf_ao, nctrs, int_mb(icetobfr), 
-     A           g_dens(1+(isp-1)*(nmat+1)),  1, 
-     A           dbl_mb(irdens_atom+(isp-1)*nctrs*nctrs), 'absmax', 
-     &           dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
-            do ii=2,(nmat+1)
+c     call dfill(nctrs*nctrs, 0.0d0, r,
+c      c    dbl_mb(irdens_atom+(isp-1)*nctrs*nctrs))
+c            do ii=1,(nmat+1)
+c            call util_ga_mat_reduce(nbf_ao, nctrs, int_mb(icetobfr), 
+c     A           g_dens(ii+(isp-1)*(nmat+1)),  1, 
+c     A           dbl_mb(irdens_atom+(isp-1)*nctrs*nctrs), 'absmax', 
+c     &           dbl_mb(iscr), nbf_ao_mxnbf_ce,.false.)
+            do ii=1,nmat+1
+            g_dens_2d =
+     =           dft_npatch(g_dens,ii,nbf_ao,geom,ao_bas_han)
+c DM in last position is the scf DM               
                call util_ga_mat_reduce(nbf_ao,nctrs,int_mb(icetobfr), 
-     A              g_dens(ii+(isp-1)*(nmat+1)),  1, 
+     A              g_dens_2d,  1, 
      A              dbl_mb(irdens_atom+(isp-1)*nctrs*nctrs), 'absmax', 
      &              dbl_mb(iscr), nbf_ao_mxnbf_ce,.false.)
+               if (.not. ga_destroy(g_dens_2d))
+     &            call errquit(pname//'failed destroy',g_dens_2d,GA_ERR)
             enddo
          enddo
       elseif (adft) then

@@ -70,8 +70,9 @@ c
       integer ityp, ndim
       logical lcgmin
       external xc_gotxc,xc_getipol
-      integer ga_create_atom_blocked,dft_npatch
-      external ga_create_atom_blocked
+      integer ga_create_atom_blocked,dft_npatch,dft_dm3d
+      external ga_create_atom_blocked,dft_dm3d
+      integer g_dens_3d,g_dens_save(2)
 c
       integer nroots  !number of roots for the TDDFT gradient calculations
 c
@@ -237,6 +238,11 @@ c     -----------------------
          if (.not. bgj_get_scf_dens(g_dens_scf))
      &        call errquit('fock_xc: cant get scf density handles',0,
      &       UNKNOWN_ERR)
+          g_dens_3d=dft_dm3d(g_dens,g_dens_scf,
+     D        nbf_ao,geom,ao_bas_han,nfock_xc,ndens)
+         g_dens_save(1)=g_dens(1)
+         g_dens(1)=g_dens_3d
+#ifdef DEBUG          
          alo(1) = 1
          ahi(1) = nbf_ao
          blo(1) = nfock_xc+1
@@ -251,6 +257,10 @@ c     -----------------------
      =        ga_create_atom_blocked(geom,ao_bas_han,'gdens+2')
             call ga_copy(g_dens_scf(2),int_mb(igxcd+2*nfock_xc+1))
          endif
+          call dft_3dmtest(g_dens_3d,
+     N     ndens,nfock_xc,
+     N         nbf_ao,geom,ao_bas_han)
+#endif          
 c Daniel (1-10-13): The SCF density matrix is stored differently than
 c it is for calc_type = 1, 3, or 4
       elseif (calc_type.eq.5) then
@@ -310,7 +320,7 @@ c
       call xc_init_index(geom,ndens,nbf_ao,ao_bas_han,
      &   g_dens_scf, l_cntoce, k_cntoce,
      &   l_cntobfr, k_cntobfr, l_cetobfr, k_cetobfr,
-     &   l_rdens_atom, k_rdens_atom)
+     &     l_rdens_atom, k_rdens_atom)
 c     
 c     check if we can get the grid from a file
 c         
@@ -320,13 +330,15 @@ c and therefore don't want l3d to be set equal to true.
 c      if (.not.lcgmin) then
       if (.not.lcgmin.and.calc_type.ne.5) then
        call grid_quadv0_gen(rtdb, 
-     &     int_mb(igxcd),
+cold     &     int_mb(igxcd),
+     &     g_dens,
      &     g_xc, nexc,
      &     rho_n_dum, Exc,
      &     nfock_xc, calc_type, tdum, .true., triplet)
       else
        call grid_quadv0_gen(rtdb, 
      &     int_mb(igxcd),
+     &     g_dens,
      &     g_xc, nexc,
      &     rho_n_dum, Exc,
      &     nfock_xc, calc_type, tdum, l3d, triplet)
@@ -337,11 +349,18 @@ c
 c     Clean up
 c
       if(l3d) then
-         do i=1,dims(1)
-         if (.not. ga_destroy(int_mb(igxcd+i-1)))
-     &      call errquit('fock_xc: could not destroy g_dens_xc',0,
-     &       GA_ERR)
-         enddo
+         if(calc_type.eq.2) then
+            g_dens(1)=g_dens_save(1)
+            if (.not. ga_destroy(g_dens_3d))
+     &           call errquit('fock_xc: could not destroy g_dens_3d',0,
+     &           GA_ERR)
+         else
+            do i=1,dims(1)
+               if (.not. ga_destroy(int_mb(igxcd+i-1)))
+     &              call errquit('fock_xc: could not destroy g_dens_xc',0,
+     &              GA_ERR)
+            enddo
+         endif
       endif
       if (.not.ma_free_heap(lgxcd))
      &   call errquit('fockxc: cannot pop stack',0, MA_ERR)
@@ -384,7 +403,7 @@ c
 c
       if (oprint) then
          if(ga_nodeid().eq.0)write(luout,*)'XC matrix at end fock_xc:'
-         tdum=ga_ddot(g_xc,g_xc)
+         tdum=ga_ddot(g_xc(1),g_xc(1))
          if(ga_nodeid().eq.0)write(luout,*)'g_xc dotproduct',tdum
          do i=1,nfock
             alo(1)=i
@@ -427,9 +446,23 @@ c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
       integer alo(3), ahi(3), blo(2), bhi(2)
+      integer ityp,ndim,dims(3)
+      external ga_nodeid
+      integer ga_nodeid
 c
 c     2-d GA dens1 
 c
+#ifdef DEBUG
+            if(ga_nodeid().eq.0) then
+               call nga_inquire(g_dens, ityp, ndim, dims)
+               write(6,*) ' ndim ',ndim,' dims ',dims
+               call nga_distribution(g_dens,
+     .           ga_nodeid(), alo, ahi)
+               write(6,*) ' alo ',alo
+               write(6,*) ' ahi ',ahi
+               call util_flush(6)
+            endif
+#endif            
       g_dens1 = ga_create_atom_blocked(geom,basis,'gdens1')
       alo(1) = imat
       ahi(1) = imat
@@ -445,9 +478,110 @@ c
       dft_npatch=g_dens1
       return
       end
+      integer function dft_dm3d(g_dens,g_dens_scf,
+     ,     nbf,geom,basis,nfock_xc,ndens)
+      implicit none
+c     integer dft_dm3d ! new GA handle
+      integer ndens,nfock_xc
+      integer g_dens ! N-D GA
+      integer g_dens_scf(2)
+      integer nbf
+      integer geom,basis
+c
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
+      integer alo(3), ahi(3), blo(3), bhi(3)
+      integer ityp,ndim,dims(3)
+      external ga_nodeid,ga_create3d_atom_blocked
+      integer ga_nodeid,ga_create3d_atom_blocked
+c
+c     2-d GA dens1 
+c
+c     call nga_inquire(g_dens, ityp, ndim, dims)
+      ndim=3
+      dims(1)=ndens*(nfock_xc+1)
+#ifdef DEBUG      
+      write(6,*) ' dm3d nfock_xc ndens ',nfock_xc,ndens
+      write(6,*) ' ndim ',ndim,' dims ',dims
+#endif      
+      dft_dm3d=ga_create3d_atom_blocked(geom, basis,
+     S     'xcdm3d', dims(1))
+      alo(1) = 1
+      ahi(1) = nfock_xc
+      alo(2) = 1
+      ahi(2) = nbf
+      alo(3) = 1
+      ahi(3) = nbf
+      blo(1) = 1
+      bhi(1) = nfock_xc
+      blo(2) = 1
+      bhi(2) = nbf
+      blo(3) = 1
+      bhi(3) = nbf
+      call nga_copy_patch('N',g_dens,alo,ahi,dft_dm3d,blo,bhi)
+      if(ndens.eq.2) then
+         alo(1) = nfock_xc*2+1
+         ahi(1) = 3*nfock_xc
+         blo(1) = nfock_xc+2
+         bhi(1) = 2*nfock_xc+1
+         call nga_copy_patch('N',g_dens,alo,ahi,dft_dm3d,blo,bhi)
+      endif
+#if 1
+      alo(1) = 1
+      ahi(1) = nbf
+      alo(2) = 1
+      ahi(2) = nbf
+      blo(1) = nfock_xc+1
+      bhi(1) = nfock_xc+1
+      call nga_copy_patch('N',g_dens_scf,alo,ahi,dft_dm3d,blo,bhi)
+      if(ndens.eq.2) then
+         blo(1) = 2*nfock_xc+2
+         bhi(1) = 2*nfock_xc+2
+         call nga_copy_patch('N',g_dens_scf(2),alo,ahi,dft_dm3d,blo,bhi)
+      endif
+#endif      
+      return
+      end
       subroutine dft_store_rhon(dft_rho_n)
       implicit none
 #include "dft_conv.fh"
       double precision dft_rho_n
       rho_n = dft_rho_n
+      end
+      subroutine dft_3dmtest(g_dens_3d,g_xcd,
+     N     ndens,nfock_xc,
+     N     nbf_ao,geom,ao_bas_han)
+      implicit none
+#include "global.fh"
+#include "errquit.fh"
+      integer g_dens_3d, g_xcd(*),
+     N     ndens,nfock_xc,
+     N     nbf_ao,geom,ao_bas_han
+c
+      integer i
+      integer g_test
+      integer dft_npatch
+      external dft_npatch
+      logical myfail
+      double precision tr1,tr2
+c      
+      write(6,*) ' nfock_xc ',nfock_xc
+      myfail=.false.
+      do i=1,ndens*(nfock_xc+1)
+         g_test =
+     =        dft_npatch(g_dens_3d,i,nbf_ao,geom,ao_bas_han)
+         tr1=ga_ddot(g_test,g_test)
+         tr2=ga_ddot(g_xcd(i),g_xcd(i))
+         if(abs(tr1-tr2).gt.1d-5) then
+            write(6,*) i,' fail ',tr1,tr2
+            myfail=.true.
+         else
+            write(6,*) i,' OK ',tr1,tr2
+         endif
+         if (.not. ga_destroy(g_test))
+     &        call errquit('fock_xc: could not destroy g_test',0,
+     &        GA_ERR)
+      enddo
+      if(myfail) call errquit(' wrong 3ddm ',0,0)
+      return
       end
