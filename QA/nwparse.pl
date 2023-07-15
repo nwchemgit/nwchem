@@ -442,7 +442,7 @@ foreach $filename (@FILES_TO_PARSE) {
             }
             printf FILE_OUTPUT "%.10f\n", set_to_digits(@line_tokens[$itok],10);
         }
-	if (/isotropic =/ || /anisotropy =/ ) {
+	if (/sotropic =/ || /anisotropy =/ ) {
 		if ($debug) {print "\ndebug: $_";}
 		@line_tokens = split(' ');
 		$num_line_tokens = @line_tokens;
