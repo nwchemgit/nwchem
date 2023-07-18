@@ -416,6 +416,7 @@ sync
     echo "     NWChem execution failed"
     let "overall_status+=1"
     tail -50 $TESTOUTPUTS/$OUTPUTFILE
+    cat $ERRORFILE
     continue
   fi
    time=(60 "$x")
