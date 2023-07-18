@@ -362,7 +362,7 @@ c
          if (.not. ga_destroy(g_dens_3d))
      &        call errquit('fock_xc: could not destroy g_dens_3d',0,
      &        GA_ERR)
-      else
+      elseif(l3d) then
          do i=1,dims(1)
             if (.not. ga_destroy(int_mb(igxcd+i-1)))
      &           call errquit('fock_xc: could not destroy g_dens_xc',0,
