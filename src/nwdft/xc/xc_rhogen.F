@@ -118,6 +118,7 @@ c
       integer ga_nodeid
       external ga_nodeid
 #endif
+      integer type,ndim,dims(3)
       g_keepd(1)=0
       g_keepd(2)=0
       call starttimer(monitor_xcrho)
@@ -306,16 +307,25 @@ c
                       else
 c3d
                          if(what.eq.1) then
-c                            write(6,*) ' what ',what,ipert,npert
-c                            write(6,*) ' iniz in',iniz
+c                      write(6,'(a,4(i5))') ' what ',what,ipert,npert,ii
+
+c                      write(6,*) ' iniz in',iniz,' ipt ',
+c     B                     ipert+(ii-1)*npert
+c     need  to handle ttddfrgrad madness tddft_grad_compute_r.F
+                            call nga_inquire(g_dens, type, ndim, dims)
+                            if(ndim.lt.3.and.npert.gt.1) then
+                               write(6,*) ' ndim ',ndim
+                               write(6,*) ' dims ',dims
+                               write(6,*) ' npert ',npert
+                               call errquit(' 3dm fail',npert,0)
+                            endif
                             call xc_get3ddm(g_dens(1),
-     I                           ipert+(ii-1)*npert,ipol*npert,
-     %                       ifirst, ilast, jfirst, jlast, Pmat,nbfia)
-c                            write(6,*) ' iniz out',iniz
+     I                           ipert+(ii-1)*npert,
+     %                         ifirst, ilast, jfirst, jlast, Pmat,nbfia)
                          else
                             call ga_get(g_dens(ipert+(ii-1)*npert), 
-     %                       ifirst, ilast, jfirst, jlast, Pmat,nbfia)
-                      endif
+     %                        ifirst, ilast, jfirst, jlast, Pmat,nbfia)
+                         endif
                        endif
                        call endtimer(monitor_gaget)
                        if (wmax*FUNC_MAXI*FUNC_MAXJ*
@@ -860,13 +870,13 @@ c
       return
       end
 C>
-C> @}
-      subroutine xc_get3ddm(g_dens,ipert,npert,
+C     > @}
+      subroutine xc_get3ddm(g_dens,ipert,
      %     ifirst, ilast, jfirst, jlast, pmat,nbf)
       implicit none
       integer g_dens
-      integer ipert,npert,
-     %     ifirst, ilast, jfirst, jlast
+      integer ipert
+      integer     ifirst, ilast, jfirst, jlast
       integer nbf
       double precision pmat(*)
 c

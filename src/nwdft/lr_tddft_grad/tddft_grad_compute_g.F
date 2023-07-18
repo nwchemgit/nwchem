@@ -253,6 +253,8 @@ c     Functions
 c
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
+      integer g_dens_3d,dft_dm3d_calc5
+      external dft_dm3d_calc5
       logical  grid_reopen
       external grid_reopen
       logical  xc_gotxc   ! do we have a density functional?
@@ -928,10 +930,25 @@ c the number of perturbed density matrices.  This is necessary so that we
 c can define a value for looping in xc_3rd_deriv and build the
 c perturbed density in xc_rhogen.  Since we loop over the roots, 
 c the number of Fock matrices is always equal to 1.
+c
+c 3d
+c     
+          g_dens_3d=dft_dm3d_calc5(g_dtmp,
+     D        nao,ihdl_geom,ihdl_bfao,2*ipol,0)
+      if (xc_gotxc()) then
+        do ip = 1, 2*ipol
+          if (.not.ga_destroy(g_dtmp(ip)))
+     1      call errquit(pname//"could not destroy g_dtmp_ao", 0,
+     2        GA_ERR) 
+        enddo
+      endif
+
           call dftgh_gridv0(rtdb,ihdl_geom,ihdl_bfao, ipol,nao,
-     &         g_dtmp, dbl_mb(k_frc_dft), dum, idum, calc_type,
+     &         g_dens_3d, dbl_mb(k_frc_dft), dum, idum, calc_type,
      &         nat, log_mb(k_act), nat, dbl_mb(k_rdens_atom),
      &         int_mb(k_cetobfr), 1, otriplet, 0d0, .false.)
+       if (.not.ga_destroy(g_dens_3d))
+     +     call errquit(pname//"could not destroy g_dens_3d",0,GA_ERR)
 c          call dftgh_gridv0(rtdb,ihdl_geom,ihdl_bfao, ipol,nao,
 c     &         g_dtmp, dbl_mb(k_frc_dft), dum, idum, calc_type,
 c     &         nat, log_mb(k_act), nat, dbl_mb(k_rdens_atom),
@@ -1366,13 +1383,6 @@ c
       if (.not.ga_destroy(g_rhs_xc(1))) 
      +  call errquit(pname//"could not destroy g_rhs_xc",0,GA_ERR)
 c
-      if (xc_gotxc()) then
-        do ip = 1, 2*ipol
-          if (.not.ga_destroy(g_dtmp(ip)))
-     1      call errquit(pname//"could not destroy g_dtmp_ao", 0,
-     2        GA_ERR) 
-        enddo
-      endif
 c
       do ip = 1, ipol
         if (.not.ga_destroy(g_d(0+ip)))

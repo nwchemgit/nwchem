@@ -127,15 +127,27 @@ c TDDFT gradients.
 c Use this for the ground state density matrix (for the gradient of
 c the ground state density).  Note that g_dens(2) and g_dens(4) store
 c the ground state density matrices in TDDFT gradients.
-                if (calctype.eq.1) then
+                 if (calctype.eq.1) then
+#if 1                  
+                  call xc_get3ddm(g_dens(1),
+     I                           2*imat+ipol*(ispin-1),
+     %                   ifirst, ilast, 1, nbf_ao, ppp,nbfia)
+#else                  
                   call ga_get(g_dens(2*imat+2*(ispin-1)), 
-     1              ifirst, ilast, 1, nbf_ao, PPP, nbfia)
+     1                 ifirst, ilast, 1, nbf_ao, PPP, nbfia)
+#endif                  
 c Use this for the perturbed density matrix (for the gradient of the
 c perturbed density).  Note that g_dens(1) and g_dens(3) store the
 c penturbed density matrices in TDDFT gradients.
-                else if (calctype.eq.2) then
+               else if (calctype.eq.2) then
+#if 1                  
+                  call xc_get3ddm(g_dens(1),
+     I                           imat+ipol*(ispin-1),
+     %                 ifirst, ilast, 1, nbf_ao, ppp,nbfia)
+#else                  
                   call ga_get(g_dens(imat+2*(ispin-1)), 
-     1              ifirst, ilast, 1, nbf_ao, PPP, nbfia)
+     1                 ifirst, ilast, 1, nbf_ao, PPP, nbfia)
+#endif                  
                 endif
                 do mu = inizia, ifinia
 c mu1 is used for indexing the scratch array hh (which starts at 1, 
