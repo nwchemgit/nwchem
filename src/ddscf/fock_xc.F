@@ -75,7 +75,7 @@ c
       integer g_dens_3d,g_dens_save(2)
 c
       integer nroots            !number of roots for the TDDFT gradient calculations
-      integer g_test
+      integer g_test,len_gxcd
 c
       if(.not.xc_gotxc()) return
       oprint= util_print('fock_xc',print_debug)
@@ -167,10 +167,9 @@ c     (unperturbed) density matrices.
 c
 c     g_dens_xc is the density matrix used in the XC routines
 c
+       len_gxcd=2
       if(l3d) then
-c     -------------
 c     calc_type = 2
-c     -------------
 c     the number of density matrices 
 c     needed is nfock_xc+1 (typically 1 for perturbed density and 1
 c     for unperturbed SCF density) for RDFT and 2*nfock_xc+2 (typically
@@ -178,62 +177,33 @@ c     2 for perturbed densities and 2 for unperturbed SCF densities) for
 c     UDFT.
 c
          if(ndens.eq.1) then
-            dims(1) = nfock_xc+1
+            len_gxcd = nfock_xc+1
          else
-            dims(1) = 2*nfock_xc+2
+            len_gxcd = 2*nfock_xc+2
          endif
-         if (.not.MA_alloc_Get(MT_int,dims(1),'XCDens',lgxcd,igxcd))
-     &        call errquit('fock_xc: cannot allocate xcdens',0, MA_ERR)
-#ifdef GXCD
-c
-c     alpha bit
-c
-         alo(1) = 1
-         ahi(1) = nfock_xc
-         blo(1) = 1
-         bhi(1) = nfock_xc
-         do i=1,nfock_xc
-            int_mb(igxcd+i-1)=
-     =           dft_npatch(g_dens,i,nbf_ao,geom,ao_bas_han)
-         enddo
-c
-c     beta bit
-c
-         if(ndens.eq.2)  then
-            alo(1) = nfock_xc*2+1
-            ahi(1) = nfock_xc*3
-            blo(1) = nfock_xc+1+1
-            bhi(1) = nfock_xc*2+1
-            do i=blo(1),bhi(1)
-               int_mb(igxcd+i-1)=dft_npatch(g_dens,i+nfock_xc-1,
-     N              nbf_ao,geom,ao_bas_han)
-            enddo
-         endif
-#endif
-c Daniel (1-10-13): We will need to do things differently for TDDFT
-c gradients because we are (possibly) feeding in density matrices for 
-c many excited states.
       elseif (calc_type.eq.5) then
-c     -----------------------
-c     calc_type = 5
-c     -----------------------
+         len_gxcd=nfock+ndens
+      else
+c     calc_type = 1 or 3 or 4
+         len_gxcd=2
+      endif
+c      write(6,*)' calc_typ len_gxcd ',calc_type,len_gxcd
+       if (.not.MA_alloc_Get(MT_int,len_gxcd,'XCDens',lgxcd,igxcd))
+     &        call errquit('fock_xc: cannot allocate xcdens',0, MA_ERR)
+      if (calc_type.eq.5) then
 c Daniel (1-10-13): For the moment, I want the calculation to work for
 c a single root.  However, we at this point should have nfock+ndens
 c density matrices (nfock = nroots*ndens, and ndens accounts for the
 c spin-polarization, and hence the number of ground state density 
 c matrices).  I build the MA array anticipating testing the multiple
 c root situation in the future.
-         if (.not.MA_alloc_Get(MT_int,nfock+ndens,'XCDens',lgxcd,igxcd))
-     &      call errquit('fock_xc: cannot allocate xcdens',0, MA_ERR)
          do i = 1, nfock+ndens
             int_mb(igxcd+i-1) = g_dens(i)
          enddo
-      else
+      elseif(.not.l3d) then
 c     -----------------------
 c     calc_type = 1 or 3 or 4
 c     -----------------------
-         if (.not.MA_alloc_Get(MT_int,2,'XCDens',lgxcd,igxcd))
-     &      call errquit('fock_xc: cannot allocate xcdens',0, MA_ERR)
          int_mb(igxcd)=g_dens(1)
          if(ndens.eq.2) int_mb(igxcd+1)=g_dens(3)
       endif
@@ -241,34 +211,11 @@ c     -----------------------
          if (.not. bgj_get_scf_dens(g_dens_scf))
      &        call errquit('fock_xc: cant get scf density handles',0,
      &       UNKNOWN_ERR)
-          g_dens_3d=dft_dm3d(g_dens,g_dens_scf,
+          g_dens_3d=dft_dm3d(g_dens(1),g_dens_scf,
      D        nbf_ao,geom,ao_bas_han,nfock_xc,ndens)
+         int_mb(igxcd)=g_dens_3d
          g_dens_save(1)=g_dens(1)
          g_dens(1)=g_dens_3d
-#ifdef DEBUG
-         alo(1) = 1
-         ahi(1) = nbf_ao
-         blo(1) = nfock_xc+1
-         bhi(1) = nfock_xc+1
-         int_mb(igxcd+nfock_xc) =
-     =        ga_create_atom_blocked(geom,ao_bas_han,'gdens+1')
-         call ga_copy(g_dens_scf(1),int_mb(igxcd+nfock_xc))
-         if(ndens.eq.2) then
-            blo(1) = 2*nfock_xc+1+1
-            bhi(1) = 2*nfock_xc+1+1
-            int_mb(igxcd+2*nfock_xc+1) =
-     =        ga_create_atom_blocked(geom,ao_bas_han,'gdens+2')
-            call ga_copy(g_dens_scf(2),int_mb(igxcd+2*nfock_xc+1))
-         endif
-          call dft_3dmtest(g_dens_3d,
-     N     ndens,nfock_xc,
-     N         nbf_ao,geom,ao_bas_han)
-            do i=1,dims(1)
-               if (.not. ga_destroy(int_mb(igxcd+i-1)))
-     &              call errquit('fock_xc: could not destroy g_dens_xc',0,
-     &              GA_ERR)
-            enddo
-#endif          
 c Daniel (1-10-13): The SCF density matrix is stored differently than
 c it is for calc_type = 1, 3, or 4
       elseif (calc_type.eq.5) then
@@ -280,6 +227,7 @@ c Use nroots to determine where the ground state density matrix is.
      D        nbf_ao,geom,ao_bas_han,nfock,ndens)
          g_dens_save(1)=g_dens(1)
          g_dens(1)=g_dens_3d
+         int_mb(igxcd)=g_dens_3d
       else
          g_dens_scf(1) = int_mb(igxcd)
          if (ndens.eq.2) g_dens_scf(2) = int_mb(igxcd+1)
@@ -308,28 +256,10 @@ c
             endif
             call ga_print(g_dens_scf(2))
          endif
-         if(calc_type.ne.2) then
-         if(ga_nodeid().eq.0) then
-            write(luout,*) 'g_dens_xc1',int_mb(igxcd)
-            call util_flush(luout)
-         endif
-         if(l3d) then
-            do i=1,ndens*(nfock_xc+1)
-               alo(1)=i
-               ahi(1)=i
-               call ga_print(int_mb(igxcd+i-1))
-            enddo
-         else
-            call ga_print(int_mb(igxcd))
-         endif
-         if(ndens.eq.2.and.(.not.l3d)) then
-            if(ga_nodeid().eq.0) then
-               write(luout,*) 'g_dens_xc2',int_mb(igxcd+1)
-               call util_flush(luout)
-            endif
-            call ga_print(int_mb(igxcd+1))
-         endif
-         endif
+         do i=1,len_gxcd
+            write(luout,*) i,'igxcd',int_mb(igxcd+i-1)
+            call ga_print(int_mb(igxcd+i-1))
+         enddo
       endif  
       call xc_init_index(geom,ndens,nbf_ao,ao_bas_han,
      &   g_dens_scf, l_cntoce, k_cntoce,
@@ -347,8 +277,8 @@ c      if (.not.lcgmin) then
       else
          l3d_arg=l3d
       endif
-      call grid_quadv0_gen(rtdb, 
-     &     g_dens,
+      call grid_quadv0_gen(rtdb,  
+     &     int_mb(igxcd),
      &     g_xc, nexc,
      &     rho_n_dum, Exc,
      &     nfock_xc, calc_type, tdum, l3d_arg, triplet)
@@ -382,17 +312,17 @@ c     move beta from block 2 to block 4
          ahi(1) = nfock_xc*2
          blo(1) = nfock_xc*3+1
          bhi(1) = nfock_xc*4
-         call nga_copy_patch('N',g_xc,alo,ahi,
-     &      g_xc,blo,bhi)
+         call nga_copy_patch('N',g_xc(1),alo,ahi,
+     &      g_xc(1),blo,bhi)
 c     move alpha from block 1 to block 2
          alo(1) = 1
          ahi(1) = nfock_xc
          blo(1) = nfock_xc+1
          bhi(1) = nfock_xc*2
-         call nga_copy_patch('N',g_xc,alo,ahi,
-     &      g_xc,blo,bhi)
+         call nga_copy_patch('N',g_xc(1),alo,ahi,
+     &      g_xc(1),blo,bhi)
 c     zero block 1 that was occupied by alpha
-         call nga_zero_patch(g_xc, alo, ahi)
+         call nga_zero_patch(g_xc(1), alo, ahi)
 c     flip sign to make it consistent with HF K (Exchange)
          call ga_scale(g_xc,-1d0)
       endif
@@ -594,41 +524,4 @@ c3d
 #include "dft_conv.fh"
       double precision dft_rho_n
       rho_n = dft_rho_n
-      end
-      subroutine dft_3dmtest(g_dens_3d,g_xcd,
-     N     ndens,nfock_xc,
-     N     nbf_ao,geom,ao_bas_han)
-      implicit none
-#include "global.fh"
-#include "errquit.fh"
-      integer g_dens_3d, g_xcd(*),
-     N     ndens,nfock_xc,
-     N     nbf_ao,geom,ao_bas_han
-c
-      integer i
-      integer g_test
-      integer dft_npatch
-      external dft_npatch
-      logical myfail
-      double precision tr1,tr2
-c      
-      write(6,*) ' nfock_xc ',nfock_xc
-      myfail=.false.
-      do i=1,ndens*(nfock_xc+1)
-         g_test =
-     =        dft_npatch(g_dens_3d,i,nbf_ao,geom,ao_bas_han)
-         tr1=ga_ddot(g_test,g_test)
-         tr2=ga_ddot(g_xcd(i),g_xcd(i))
-         if(abs(tr1-tr2).gt.1d-5) then
-            write(6,*) i,' fail ',tr1,tr2
-            myfail=.true.
-         else
-            write(6,*) i,' OK ',tr1,tr2
-         endif
-         if (.not. ga_destroy(g_test))
-     &        call errquit('fock_xc: could not destroy g_test',0,
-     &        GA_ERR)
-      enddo
-      if(myfail) call errquit(' wrong 3ddm ',0,0)
-      return
       end
