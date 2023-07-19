@@ -228,7 +228,7 @@ c
                      if(.not.xcrep_ga) goto 1984
                      call ga_zero(k_repxc(ii))
                   else
-                     xcrep_ga=util_mirrmat(1,g_dens(ii),k_repxc(ii),
+                     xcrep_ga=util_mirrmat(1,g_vxc(ii),k_repxc(ii),
      +                                      .false.,.true.)
 
                      if(.not.xcrep_ga) goto 1984
