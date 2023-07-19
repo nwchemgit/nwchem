@@ -15,7 +15,7 @@
       character(*), parameter :: pname = 'bse_oscstr: '
       character(len=7) :: key
 
-      integer totpoles
+      integer totpoles,npoles
       double precision omega(*)
       double precision oscstr(3),oscstr_tot,tmp,moms(20),maxr,r(1)
 
@@ -42,6 +42,9 @@
      $                   1,.false.) 
       call ga_scale(g_dipmag,0.5d0)
 
+      npoles = pars%npoles(1)
+      if (pars%ipol.gt.1) npoles = npoles + pars%npoles(2)
+
 
       if (pars%singlet) then
         key = 'singlet'
@@ -53,7 +56,7 @@
       llpole = -1
       if (pars%dowindow) then
         iroot = 0
-        do ipole=1,totpoles
+        do ipole=1,npoles
           if (omega(ipole).lt.pars%elower) cycle
           if (llpole.eq.-1) llpole = ipole
           iroot = iroot + 1
@@ -106,7 +109,7 @@
         call ga_copy_patch('n',pars%g_apb,1,pars%npoles(1),ipole,ipole,
      &                         g_xy(1),1,pars%npoles(1),1,1)
         if (pars%ipol.gt.1) then
-          call ga_copy_patch('n',pars%g_apb,pars%npoles(1)+1,totpoles,
+          call ga_copy_patch('n',pars%g_apb,pars%npoles(1)+1,npoles,
      &                        ipole,ipole,g_xy(2),1,pars%npoles(2),1,1)
         endif
         call tddft_transfm(1,g_xy,pars%g_movecs,nbf_ao,pars%nocc,
@@ -162,6 +165,7 @@ c          enddo
 c        endif
 c        oscstr = 2d0/3d0*omega(ipole)*oscstr
 
+
           l = 0
           maxr = 0.0d0
           do i=1,pars%ipol
@@ -198,6 +202,8 @@ c        oscstr = 2d0/3d0*omega(ipole)*oscstr
 
 
         endif
+
+        call ga_sync()
 
       enddo
 

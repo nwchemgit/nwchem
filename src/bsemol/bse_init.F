@@ -42,6 +42,8 @@ c
       integer,parameter :: unitno = 66
       integer :: nmix(2)
 
+      logical ncapr
+
 #ifdef USE_OPENMP
       integer,external :: omp_get_max_threads, omp_get_thread_num
       integer,external :: omp_get_num_threads
@@ -58,6 +60,8 @@ c
 #else
       pars%iMaxThreads = 1
 #endif
+
+      pars%npoles(:) = 0
 
       ! Get defaults in case input block is not present
       if (.not.rtdb_get(pars%rtdb,'bse:init',mt_log,1,ldum))
@@ -204,51 +208,57 @@ c
         pars%npoles(i) = pars%nocc(i)*pars%nvir(i)
       enddo
 
+      if ((pars%nroots.eq.-1).or.(pars%nroots.gt.sum(pars%npoles))) then
+        pars%nroots = sum(pars%npoles)
+      endif
+
+
       ! Obtain NCAP DD shift
  1001 format(2X,A12,F8.3,A3)
       if (.not.rtdb_get(pars%rtdb,'bse:ncap',mt_log,1,pars%ncap))
      &  call errquit(pname//'rtdb_get failed',176,RTDB_ERR)
+      if (.not.rtdb_get(pars%rtdb,'bse:ncapr',mt_log,1,ncapr))
+     &  call errquit(pname//'rtdb_get failed',176,RTDB_ERR)
+
+      pars%ncap = ncapr .or. pars%ncap
+
       if (pars%ncap) then
         zeta = 0.304121d0
-        if (xfac(87).gt.1d-10) zeta=0.5d0
+        if (abs(xfac(87)).gt.1d-10) zeta=0.5d0
         aq2 = 2d0/9d0 * (1d0-zeta)**2
         do i=1,ipol
           ehomo = dbl_mb(pars%k_mf_evals+(i-1)*nbf_ao+pars%nocc(i)-1)
-          vxddp = -0.5d0*aq2*(1d0 + sqrt(1d0-4d0*ehomo/aq2))*0.9d0
-          vxddm = -0.5d0*aq2*(1d0 - sqrt(1d0-4d0*ehomo/aq2))*0.9d0
+          vxddp = -0.5d0*aq2*(1d0 + sqrt(1d0-4d0*ehomo/aq2))!*0.85d0
+          vxddm = -0.5d0*aq2*(1d0 - sqrt(1d0-4d0*ehomo/aq2))!*0.85d0
           pars%vxddp(i) = vxddp
           pars%vxddm(i) = vxddm
           if (pars%me.eq.0) then
-            write(luout,*)    ' Shifting eigvals by 80% NCAP DD'
+            write(luout,*)    ' Shifting eigvals by 100% NCAP DD'
             write(luout,1001) ' v_x^{DD-}: ',vxddp*ha2ev, ' eV'
             write(luout,1001) ' v_x^(DD+): ',vxddm*ha2ev, ' eV'
           endif
-          call dcopy(nbf_ao,dbl_mb(pars%k_mf_evals+(i-1)*nbf_ao),1,
-     &                      dbl_mb(pars%k_gw_evals+(i-1)*nbf_ao),1)
-          dbl_mb(pars%k_gw_evals+(i-1)*nbf_ao:
-     &           pars%k_gw_evals+(i-1)*nbf_ao+pars%nocc(i)-1) =      
-     &     dbl_mb(pars%k_gw_evals+(i-1)*nbf_ao:
-     &           pars%k_gw_evals+(i-1)*nbf_ao+pars%nocc(i)-1) +
-     &           vxddp
-          dbl_mb(pars%k_gw_evals+(i-1)*nbf_ao+pars%nocc(i):
-     &           pars%k_gw_evals+(i-1)*nbf_ao+nbf_ao-1) =      
-     &     dbl_mb(pars%k_gw_evals+(i-1)*nbf_ao+pars%nocc(i):
-     &           pars%k_gw_evals+(i-1)*nbf_ao+nbf_ao-1) +
-     &           vxddm
+          call daxpy(pars%nocc(i),1d0,vxddp,0,
+     &       dbl_mb(pars%k_mf_evals+(i-1)*nbf_ao),1)
+          call daxpy(pars%nvir(i),1d0,vxddm,0,
+     &       dbl_mb(pars%k_mf_evals+(i-1)*nbf_ao+pars%nocc(i)),1)
         enddo
       endif
 
       ! Read GW QP energies
-      if (.not.pars%ncap) then
+      !if (.not.pars%ncap) then
         call util_file_name('gwevals',.false.,.false.,gwevals)
         call util_file_name_resolve(gwevals,.false.)
-        open(unit=unitno,status='old',form='unformatted',file=gwevals)
-        do i=1,pars%ipol
-          call sread(unitno, dbl_mb(pars%k_gw_evals+(i-1)*nbf_ao),
-     &               pars%nmo)     
-        enddo
-        close(unit=unitno)
-      endif  
+        if (pars%me.eq.0) then
+          open(unit=unitno,status='old',form='unformatted',file=gwevals)
+          do i=1,pars%ipol
+            call sread(unitno, dbl_mb(pars%k_gw_evals+(i-1)*nbf_ao),
+     &                 pars%nmo)     
+          enddo
+          close(unit=unitno)
+        endif
+        call ga_brdcst(mt_dbl,dbl_mb(pars%k_gw_evals),
+     &                 ma_sizeof(mt_dbl,nbf_ao*pars%ipol,mt_byte),0)
+      !endif  
 
       !3-center ERIs 
       call int_init(pars%rtdb, 2, (/ao_bas_han, cd_bas_han/))

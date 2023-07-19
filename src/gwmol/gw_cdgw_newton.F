@@ -110,9 +110,11 @@
 
           if (eviter.lt.3) then
             if (myul.lt.ulqp) then
-              Eout = Enew(llmo+iqp,isp) + 0.001d0
+              !Eout = Enew(llmo+iqp,isp) + 0.001d0
+              Eout = Eout + 0.001d0
             elseif (myll.gt.llqp) then
-              Eout = Enew(llmo+iqp-2,isp) - 0.001d0
+              !Eout = Enew(llmo+iqp-2,isp) - 0.001d0
+              Eout = Eout - 0.001d0
             endif
           endif
 
@@ -207,6 +209,7 @@ c
 
           ! Save last energy
           Enew(llmo+iqp-1,isp)  = Eout
+          Sigma(llmo+iqp-1,isp) = SigmaC + Sigma_X
 
           ! check convergence info
           if (converged) then

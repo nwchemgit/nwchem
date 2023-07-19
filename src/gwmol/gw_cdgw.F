@@ -48,6 +48,10 @@ c
 
       logical converged,ok
       double precision, external :: gw_efermi
+
+      logical,external :: movecs_write
+      integer,parameter :: unitno = 66
+      character*255 gwevals
 c
 c     -----------------------------------------------------------------
 c
@@ -82,6 +86,15 @@ c
       call dfill(lSize,0d0,dbl_mb(kSigma),1)
 
       call gw_vxc(dbl_mb(kSigma),nmo,pars)
+
+      if (pars%ncap) then
+        do isp=1,ipol
+          call daxpy(pars%nocc(isp),1d0,pars%vxddp(isp),0,
+     $               dbl_mb(ksigma+(isp-1)*pars%nmo),1)
+          call daxpy(pars%nvir(isp),1d0,pars%vxddm(isp),0,
+     $               dbl_mb(ksigma+(isp-1)*pars%nmo+pars%nocc(isp)),1)
+        enddo
+      endif
 
       pars%timer%vxc = pars%timer%vxc + util_wallsec() - timer
 c
@@ -169,19 +182,14 @@ c
  9020 format(/,2x,"*** G",I1,"W",I1)     
  9021 format(/,2x,"*** G",I2,"W",I2)     
 
-      if (eviter.eq.0 .and. pars%ncap .and. pars%evgw) then
-        do i=1,ipol
-          do j=0,pars%nmo-1
-            if (j.lt.pars%nocc(i)) then
-              dbl_mb(kEmod+(i-1)*nmo+j) = 
-     $        dbl_mb(kEmod+(i-1)*nmo+j) + pars%vxddp(i)
-            else
-              dbl_mb(kEmod+(i-1)*nmo+j) = 
-     $        dbl_mb(kEmod+(i-1)*nmo+j) + pars%vxddm(i)
-            endif
-          enddo
-        enddo
-      endif
+      call gw_shift(dbl_mb(kemod),dbl_mb(pars%k_evals),-efermi,
+     $              pars%nmo,nbf_ao,pars%ipol)
+      if(.not.movecs_write(pars%rtdb, ao_bas_han, movecs_out, 'dft',
+     $                       'W vals',nbf_ao,ipol,(/pars%nmo,pars%nmo/),
+     $                       dbl_mb(pars%k_occ), nbf_ao,
+     $                       dbl_mb(pars%k_evals),nbf_ao,pars%g_movecs))
+     $  call errquit('gw_analytic: could not save movecs',0,DISK_ERR)   
+
 c
 c     Obtain eigenvalue difference
 c
@@ -194,19 +202,19 @@ c
 c
 c     Experimental bit, might be useful for BSE calculations
 c
-      if (eviter.eq.0 .and. pars%ncap .and. (.not.pars%evgw)) then
-        do i=1,ipol
-          do j=0,pars%nmo-1
-            if (j.lt.pars%nocc(i)) then
-              dbl_mb(kEmod+(i-1)*nmo+j) = 
-     $        dbl_mb(kEmod+(i-1)*nmo+j) + pars%vxddp(i)
-            else
-              dbl_mb(kEmod+(i-1)*nmo+j) = 
-     $        dbl_mb(kEmod+(i-1)*nmo+j) + pars%vxddm(i)
-            endif
-          enddo
-        enddo
-      endif
+c      if (eviter.eq.0 .and. pars%ncap .and. (.not.pars%evgw)) then
+c        do i=1,ipol
+c          do j=0,pars%nmo-1
+c            if (j.lt.pars%nocc(i)) then
+c              dbl_mb(kEmod+(i-1)*nmo+j) = 
+c     $        dbl_mb(kEmod+(i-1)*nmo+j) + pars%vxddp(i)
+c            else
+c              dbl_mb(kEmod+(i-1)*nmo+j) = 
+c     $        dbl_mb(kEmod+(i-1)*nmo+j) + pars%vxddm(i)
+c            endif
+c          enddo
+c        enddo
+c      endif
 c
 c      if (eviter.eq.0 .and. pars%ncap) then
 c        call dcopy(nmo*ipol,dbl_mb(kEmod),1,dbl_mb(kEref),1)
@@ -277,11 +285,11 @@ c
         ! Update Fermi energy
         !
         do i=1,ipol
-          lSize = kEnew + (i-1)*nbf_ao
+          lSize = kEnew + (i-1)*nmo
           efermi_new(i) = gw_efermi(dbl_mb(lSize),pars%nocc(i))
         enddo
         call gw_shift(dbl_mb(kEnew),dbl_mb(kemod),efermi_new,
-     $                nbf_ao,pars%nmo,pars%ipol)
+     $                pars%nmo,pars%nmo,pars%ipol)
         efermi(:) = efermi(:) + efermi_new(:)
         call dcopy(pars%ipol*nmo,dbl_mb(kemod),1,dbl_mb(kEnew),1)
 
@@ -293,11 +301,25 @@ c
         endif  
       endif
 
+      if (main) then
+
+      call gw_shift(dbl_mb(kenew),dbl_mb(kemod),-efermi,nmo,nmo,ipol)
+      call util_file_name('gwevals',.false.,.false.,gwevals)
+      call util_file_name_resolve(gwevals,.false.)
+      open(unit=unitno,status='unknown',form='unformatted',file=gwevals)
+      do i=1,ipol
+        call swrite(unitno, dbl_mb(kemod+(i-1)*nmo),nmo)
+      enddo
+      close(unit=unitno)
+
+      endif
+
       if (.not.ga_destroy(pars%g_sols))
      $  call errquit('gw_cdgw_newton: cannot destroy GA',0,GA_ERR) 
 
       if (.not.(ma_free_heap(liW).and.ma_free_heap(liWidx)))
      $  call errquit(pname//'cannot destroy iW arrays',0,MA_ERR)
+
 
 c
       end subroutine

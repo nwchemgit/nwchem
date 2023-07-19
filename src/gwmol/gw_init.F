@@ -31,6 +31,8 @@ c
 c
       logical movecs_read, movecs_read_header, atom_tag_check
       external movecs_read, movecs_read_header, atom_tag_check
+
+      logical,external :: movecs_write
 c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -46,8 +48,6 @@ c
 c
 c     -----------------------------------------------------------------
 c
-      zeta = 0.304121d0
-      aq2 = 2d0/9d0 * (1d0-zeta)**2
 
       pars%timer%init  = util_wallsec()
       pars%timer%total = pars%timer%init
@@ -70,6 +70,9 @@ c
 
       pars%me = ga_nodeid()
       pars%nprocs = ga_nnodes()
+
+      !oskel = .false.
+      !oadapt = .false.
 
 #ifdef USE_OPENMP
       pars%iMaxThreads = omp_get_max_threads()
@@ -236,7 +239,6 @@ c
         do j=1,pars%nmo
           if (dbl_mb(pars%k_occ+(i-1)*nbf_ao+j-1).gt.0.d0) then
             nocc = nocc + 1
-            cycle
           else
             nvir = nvir + 1
           endif
@@ -284,16 +286,23 @@ c
 c
  1001 format(2X,A12,F8.3,A3)
       if (pars%ncap) then
+        zeta = 0.304121d0
+        if ((xfac(87)).gt.1d-10) zeta=0.5d0
+        aq2 = 2d0/9d0 * (1d0-zeta)**2
         do i=1,ipol
           ehomo = dbl_mb(pars%k_evals+(i-1)*nbf_ao+pars%nocc(i)-1)
-          vxddp = -0.5d0*aq2*(1d0 + sqrt(1d0-4d0*ehomo/aq2))
-          vxddm = -0.5d0*aq2*(1d0 - sqrt(1d0-4d0*ehomo/aq2))
+          vxddp = -0.5d0*aq2*(1d0 + sqrt(1d0-4d0*ehomo/aq2))!*0.15d0
+          vxddm = -0.5d0*aq2*(1d0 - sqrt(1d0-4d0*ehomo/aq2))!*0.15d0
           pars%vxddp(i) = vxddp
           pars%vxddm(i) = vxddm
           if (pars%me.eq.0) then
             write(luout,1001) ' v_x^{DD+}: ',vxddp*ha2ev, ' eV'
             write(luout,1001) ' v_x^(DD-): ',vxddm*ha2ev, ' eV'
           endif
+          call daxpy(pars%nocc(i),1d0,vxddp,0,
+     $               dbl_mb(pars%k_evals+(i-1)*nbf_ao),1)
+          call daxpy(pars%nvir(i),1d0,vxddm,0,
+     $               dbl_mb(pars%k_evals+(i-1)*nbf_ao+pars%nocc(i)),1)
         enddo
       endif
 c

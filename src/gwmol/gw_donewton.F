@@ -31,7 +31,11 @@ C
       !take full newton step for large enough z
       !
       if (z.gt.0.4d0 .and. z.le.1d0 ) then 
-        xout = xin + step
+        if (iter.eq.1) then
+          xout = xin + 0.5d0*step
+        else
+          xout = xin + step
+        endif
 
       !
       ! when we have bracketed the solution, the
