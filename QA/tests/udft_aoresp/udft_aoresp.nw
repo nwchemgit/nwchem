@@ -42,7 +42,7 @@ mult 2
 grid xfine
 direct
 xc b3lyp
-convergence energy 1e-8 diis 80 ncyds 80 damp 0
+convergence energy 1e-8
 end
 
 task dft property
