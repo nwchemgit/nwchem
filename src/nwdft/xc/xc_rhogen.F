@@ -36,6 +36,7 @@ C>
 #include "dftpara.fh"
 #include "dist.fh"
 #include "dft_fdist.fh"
+#include "stdio.fh"
 
       Logical GRAD !< [Input] .true. when using gradient corrected
                    !< functional
@@ -141,15 +142,6 @@ c     to keep compilers quiet
       iatcur=1
       jatcur=1
       if(what.eq.0) then
-c
-c         write(6,*) ' @@ rhog: trace of g_dens(1) ',
-c     D        ga_ddot(g_dens(1),g_dens(1)),g_dens(1)
-c         write(6,*) ' what ',what
-c         write(6,*) ' npert ',npert
-c         if(what.eq.0) then
-c            if(ipol.eq.2)
-c     I    write(6,*) ' @@ rhog: trace of g_dens(2) ',
-c     D        ga_ddot(g_dens(2),g_dens(2)),g_dens(2)
          call dcopy(nq*npol,0d0,0,rho,1)
          if (grad) call dcopy(3*nq*ipol,0d0,0,delrho,1)
          if (kske) call dcopy(nq*ipol,0d0,0,ttau,1)  ! total
@@ -166,9 +158,12 @@ c
       elseif(what.eq.1) then
          call nga_inquire(g_dens(1), type, ndim, dims)
          if(ndim.lt.3.and.npert.gt.1) then
-            write(6,*) ' ndim ',ndim
-            write(6,*) ' dims ',dims
-            write(6,*) ' npert ',npert
+            if(ga_nodeid().eq.0) then
+               write(luout,*) ' ndim ',ndim
+               write(luout,*) ' dims ',dims
+               write(luout,*) ' npert ',npert
+            endif
+            call ga_sync()
             call errquit(' xcrhogen: 3dm fail',npert,0)
          endif
          call dcopy(nq*ipol*npert,0d0,0,rho,1)
@@ -322,23 +317,12 @@ c
                       else
 c3d
                          if(what.eq.1) then
-c                      write(6,'(a,4(i5))') ' what ',what,ipert,npert,ii
-
-c                      write(6,*) ' iniz in',iniz,' ipt ',
-c     B                     ipert+(ii-1)*npert
-c     need  to handle ttddfrgrad madness tddft_grad_compute_r.F
                             call xc_get3ddm(g_dens(1),
      I                           ipert+(ii-1)*npert,
      %                         ifirst, ilast, jfirst, jlast, Pmat,nbfia)
                          else
                             call ga_get(g_dens(ipert+(ii-1)*npert), 
      %                        ifirst, ilast, jfirst, jlast, Pmat,nbfia)
-c                            write(6,13) ' ip ii np ',ipert,ii,npert,
-c     P                           'i j ',ifirst, ilast, jfirst, jlast
-c 13                         format(a,3i8,a,4i8)
-c                            write(6,17) ' @@ Pmat',Pmat(1),
-c     P                           pmat(nbfia*nbfja),dabsmax(sizeblk,Pmat)
-c 17                         format(a,3f12.6)
                          endif
                        endif
                        call endtimer(monitor_gaget)

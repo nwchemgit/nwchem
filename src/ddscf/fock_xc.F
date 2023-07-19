@@ -187,7 +187,6 @@ c
 c     calc_type = 1 or 3 or 4
          len_gxcd=2
       endif
-c      write(6,*)' calc_typ len_gxcd ',calc_type,len_gxcd
        if (.not.MA_alloc_Get(MT_int,len_gxcd,'XCDens',lgxcd,igxcd))
      &        call errquit('fock_xc: cannot allocate xcdens',0, MA_ERR)
       if (calc_type.eq.5) then
@@ -389,19 +388,6 @@ c
 c
 c     2-d GA dens1 
 c
-#ifdef DEBUG
-      if(ga_nodeid().eq.0) then
-               call nga_inquire(g_dens, ityp, ndim, dims)
- 1             format(a,i8,i8,i8)
- 2             format(a,i8,a,i8,i8,i8)
-               write(6,2) 'npatch ndim ',ndim,' dims ',dims
-               call nga_distribution(g_dens,
-     .           ga_nodeid(), alo, ahi)
-               write(6,1) 'npatch alo ',alo
-               write(6,1) 'npatch ahi ',ahi
-               call util_flush(6)
-            endif
-#endif            
       g_dens1 = ga_create_atom_blocked(geom,basis,'gdens1')
       alo(1) = imat
       ahi(1) = imat
@@ -439,12 +425,6 @@ c
 c     call nga_inquire(g_dens, ityp, ndim, dims)
       ndim=3
       dims(1)=ndens*(nfock_xc+1)
-#ifdef DEBUG      
-      write(6,1) ' dm3d nfock_xc ndens ',nfock_xc,ndens
-      write(6,2) ' dm3d ndim ',ndim,' dims ',dims(1)
- 1    format(a,i8,i8)
- 2    format(a,i8,a,i8)
-#endif      
       dft_dm3d=ga_create3d_atom_blocked(geom, basis,
      S     'xcdm3d', dims(1))
       alo(1) = 1
