@@ -14,6 +14,7 @@
      &     rtdb_put(rtdb,'bse:lanczos',mt_log,1,.false.) .and. 
      &     rtdb_put(rtdb,'bse:tda',mt_log,1,.false.) .and. 
      &     rtdb_put(rtdb,'bse:ncap',mt_log,1,.false.) .and.
+     &     rtdb_put(rtdb,'bse:ncapr',mt_log,1,.false.) .and.
      &     rtdb_put(rtdb,'bse:singlet',mt_log,1,.true.) .and.
      &     rtdb_put(rtdb,'bse:triplet',mt_log,1,.false.) .and.
      &     rtdb_put(rtdb,'bse:dowindow',mt_log,1,.false.) .and.

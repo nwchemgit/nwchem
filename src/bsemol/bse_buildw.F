@@ -40,7 +40,7 @@ C
 
         ovlo = pars%ovlo(isp)
         ovhi = pars%ovhi(isp)
-        call ga_access(pars%g_eriov(1),1,nri,ovlo,ovhi,kov(isp),ld)
+        call ga_access(pars%g_eriov(isp),1,nri,ovlo,ovhi,kov(isp),ld)
 
 !$omp   parallel do
         do ipole=1,pars%mynpoles(isp)
