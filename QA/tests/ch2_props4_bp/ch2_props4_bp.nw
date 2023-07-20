@@ -42,7 +42,7 @@ dft
  grid xfine
  direct
  xc becke88 perdew86
- convergence energy 1e-8 diis 80 ncyds 80 damp 0
+ convergence energy 1e-8 
 end
 
 task dft property

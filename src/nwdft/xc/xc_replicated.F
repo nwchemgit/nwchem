@@ -36,8 +36,18 @@ c
       integer ntwo12,howmanyrr,memrylft,memigop
       logical dm_ronly
       integer ilo, ihi, jlo, jhi,jj
+      integer ndens
 c
       oprint = util_print('xcreplicated', print_high)
+c     we do not mirror 3D GAs for now
+
+      call nga_inquire(g_dens(1), idum, dm_ndim, idumm)
+      call nga_inquire(g_vxc(1), idum, xc_ndim, idumm)
+
+      xcreplicated=.false.
+      ndens=ipol
+c     3d g_dens is a single ga
+      if(dm_ndim.eq.3) ndens=1
 #ifdef HAVE_SET_GA_PROPERTY
       if (.not.rtdb_get(rtdb,'dft:dm_ronly', mt_log, 1, dm_ronly))
      &        dm_ronly=.false.
@@ -45,7 +55,7 @@ c
 c     try read-only DM or mirroring
 c     
       if(dm_ronly) then
-         do ii=1,ipol
+         do ii=1,ndens
             write(6,*) ga_nodeid(), ' set dm ',ii,g_dens(ii)
             call ga_distribution(g_dens(ii),
      .     ga_nodeid(), ilo, ihi, jlo, jhi)
@@ -69,9 +79,11 @@ c            call ga_print(g_dens(ii))
          return
       endif
 #endif
+      do ii = 1, ndens
+        g_repdm(ii)=-1
+      enddo
       do ii = 1, ipol
         k_repxc(ii)=-1
-        g_repdm(ii)=-1
       enddo
 c     non blocking
       if (.not. rtdb_get(rtdb, 'dft:truerepdm', mt_log, 1,
@@ -84,12 +96,6 @@ c     non blocking
       if (.not. rtdb_get(rtdb, 'dft:nbget', mt_log, 1,
      +  dftnbget)) dftnbget=.false.
 
-c     we do not mirror 3D GAs for now
-
-      call nga_inquire(g_dens(1), idum, dm_ndim, idumm)
-      call nga_inquire(g_vxc(1), idum, xc_ndim, idumm)
-
-      xcreplicated=.false.
 c     Check number of nodes to decide to use Mirror Array
       if(ga_cluster_nnodes().eq.1.and.(.not.truerep)) return
 
@@ -108,8 +114,10 @@ c     Check number of nodes to decide to use Mirror Array
       if (.not. rtdb_get(rtdb, 'dft:xcrepirrg', mt_log, 1, 
      &     xcrepirrg)) xcrepirrg=.false.
       if(dorepxc) dorepxc=xc_ndim.eq.2
+c      if(dorepdm) dorepdm=dm_ndim.eq.2
       if(dograd) truerepxc=.false.
       if(truerepxc) truerepxc=xc_ndim.eq.2
+      if(truerepdm) truerepdm=dm_ndim.eq.2
       xcreplicated_l=.false.
       xcrep_ga=.false.
       if(truerep) then
@@ -149,12 +157,12 @@ c         no xc bit in the gradients
 c     
 c            allocate replicated D matrix
 c
-             truerepdm=ma_push_get(MT_Dbl,ntwo12*ipol,
+             truerepdm=ma_push_get(MT_Dbl,ntwo12*ndens,
      +            'dmat',l_repdm(1),k_repdm(1))
              if(truerepdm) then
-                k_repdm(2)=k_repdm(1)+ntwo12/ipol
+                k_repdm(2)=k_repdm(1)+ntwo12/ndens
                 if (odftps) call pstat_on(ps_xcopy)
-                do ii=1,ipol
+                do ii=1,ndens
                    call xc_bcastdm(geom,basis,nbf_ao,
      +                  g_dens(ii),dbl_mb(k_repdm(ii)))
                 enddo
@@ -220,7 +228,7 @@ c
                      if(.not.xcrep_ga) goto 1984
                      call ga_zero(k_repxc(ii))
                   else
-                     xcrep_ga=util_mirrmat(1,g_dens(ii),k_repxc(ii),
+                     xcrep_ga=util_mirrmat(1,g_vxc(ii),k_repxc(ii),
      +                                      .false.,.true.)
 
                      if(.not.xcrep_ga) goto 1984
@@ -229,8 +237,9 @@ c
             else
                xcrep_ga = .true.
             endif
+         enddo
 
-
+         do ii=1,ndens
             if(dorepdm) then
                if(xcrepirrg) then
                   xcreplicated_l=nga_create_irreg_config(MT_DBL,2,dims,
@@ -289,15 +298,22 @@ c       Just attempt the destroy operations. If the array is allocated
 c       the destroy operation should succeed, if it is not we do not
 c       care that the destroy operation fails.
 c
-        do ii=1,ipol
+        do ii=1,ndens
           if(.not.ga_destroy(g_repdm(ii))) then
 c           we do not need to do anything
           end if
+        enddo
+        do ii=1,ipol
           if(k_repxc(ii).ne.-1) then
           if(.not.ga_destroy(k_repxc(ii))) 
      *            call errquit(' xc_rep: gadestr xc failed',0,GA_ERR)
           end if
         end do
+      endif
+      if(oprint) then
+         write(6,'(i4,a,2(2x,l),a,2i5)')
+     G        ga_nodeid(),' dorep x d',dorepxc,dorepdm,
+     T        '  dims: ',xc_ndim,dm_ndim
       endif
       return
       end
@@ -323,15 +339,21 @@ c
 c
       integer i,j,ilo,ihi,jlo,jhi,numi,numj,icount
       integer idim,jdim,istart
+      integer ndens
+      integer idum,idumm(10),dm_ndim
       logical dm_ronly
 c
       xc_rep_close=.true.
+      ndens=ipol
+      call nga_inquire(g_dens(1), idum, dm_ndim, idumm)
+c     3d g_dens is a single ga
+      if(dm_ndim.eq.3) ndens=1
       if (.not.rtdb_get(rtdb,'dft:dm_ronly', mt_log, 1, dm_ronly))
      &        dm_ronly=.false.
       if(dm_ronly) then
 #ifdef HAVE_SET_GA_PROPERTY
          
-         do i=1,ipol
+         do i=1,ndens
             write(6,*) ga_nodeid(), ' unset dm ',i
             call ga_unset_property(g_dens(i))
          enddo
@@ -386,12 +408,14 @@ c
      &                    GA_ERR)
                   endif
                endif
-               if(dorepdm) then
+            enddo
+            if(dorepdm) then
+               do i = 1, ndens
                   if (.not.ga_destroy(g_repdm(i)))
      &                 call errquit('xc_rep_close: cannot gadestr',i,
      &                 GA_ERR)
-               endif
-            enddo
+               enddo
+            endif
          endif
          
          if(.not.truerepxc) call ga_sync()
