@@ -3935,10 +3935,9 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
-c     *        Dneall_m_scale_s21           *
+c     *        Dneall_m_scale_s21            *
 c     *                                      *
 c     ****************************************
-
       subroutine Dneall_m_scale_s21(mb,dte,s21)
       implicit none
       integer mb
@@ -4008,9 +4007,10 @@ c     ****************************************
       end
 
 
+
 c     ****************************************
 c     *                                      *
-c     *        Dneall_m_scale_s11           *
+c     *        Dneall_m_scale_s11            *
 c     *                                      *
 c     ****************************************
 
@@ -4507,7 +4507,7 @@ c     ****************************************
       real*8   ddot
       external ddot
 
-
+     
       if (parallelized) then
          if (mb.eq.0) then
             nn  = ne(1)  + ne(2)
@@ -4545,8 +4545,8 @@ c     ****************************************
          end do
 !$OMP END MASTER
 !$OMP BARRIER
-         call D1dB_SumAll(nn*nprj,dbl_mb(sw1b(1)))
-         call D1dB_SumAll(nn*nprj,dbl_mb(sw2b(1)))
+         call D1dB_Vector_SumAll(nn*nprj,dbl_mb(sw1b(1)))
+         call D1dB_Vector_SumAll(nn*nprj,dbl_mb(sw2b(1)))
 
          if (mparallelized) then
             call Parallel_taskid(taskid)
@@ -4609,6 +4609,7 @@ c     ****************************************
          if (.not.value)
      >   call errquit('Dneall_m_add_sw1sw2:pop stack',1,MA_ERR)
       else
+
          if (mb.eq.0) then
             ms1 = 1
             ms2 = ispin

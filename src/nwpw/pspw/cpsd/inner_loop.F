@@ -670,13 +670,13 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
                  call Dneall_f_Sortho(ms,psi2,psi_r,npack1)
               end if
            else
-              call psi_lmbda_paw(ispin,ne,nemax,npack1,psi_r,psi2,
-     >                           dte,
-     >                           lmd,dbl_mb(tmp_L(1)),ierr)
+              call psi_lmbda_paw(ispin,ne,nemax,npack1,psi_r,psi2,dte,
+     >                            lmd,dbl_mb(tmp_L(1)),ierr)
+c              call psi_lmbda_paw1(ispin,ne,nemax,npack1,psi_r,psi2,dte,
+c     >                             lmd,dbl_mb(tmp_L(1)),ierr)
            end if
         else if (fractional) then
-           call psi_lmbda2(ispin,ne,nemax,npack1,psi1,psi2,
-     >                     dte,occ1,
+           call psi_lmbda2(ispin,ne,nemax,npack1,psi1,psi2,dte,occ1,
      >                     lmd,dbl_mb(tmp_L(1)),ierr)
         !else if (sic.or.hfx) then
         else if (sic) then

@@ -3,9 +3,9 @@
 *
 
 *     ***********************************
-*     *					*
-*     *		control_read		*
-*     *					*
+*     *                                 *
+*     *          control_read	          *
+*     *                                 *
 *     ***********************************
       logical function control_read(code_in,rtdb)
       implicit none 
