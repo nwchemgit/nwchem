@@ -114,7 +114,7 @@ c     Check number of nodes to decide to use Mirror Array
       if (.not. rtdb_get(rtdb, 'dft:xcrepirrg', mt_log, 1, 
      &     xcrepirrg)) xcrepirrg=.false.
       if(dorepxc) dorepxc=xc_ndim.eq.2
-      if(dorepdm) dorepdm=dm_ndim.eq.2
+c      if(dorepdm) dorepdm=dm_ndim.eq.2
       if(dograd) truerepxc=.false.
       if(truerepxc) truerepxc=xc_ndim.eq.2
       if(truerepdm) truerepdm=dm_ndim.eq.2
@@ -310,6 +310,11 @@ c           we do not need to do anything
           end if
         end do
       endif
+      if(oprint) then
+         write(6,'(i4,a,2(2x,l),a,2i5)')
+     G        ga_nodeid(),' dorep x d',dorepxc,dorepdm,
+     T        '  dims: ',xc_ndim,dm_ndim
+      endif
       return
       end
 
@@ -339,13 +344,13 @@ c
       logical dm_ronly
 c
       xc_rep_close=.true.
-      if (.not.rtdb_get(rtdb,'dft:dm_ronly', mt_log, 1, dm_ronly))
-     &        dm_ronly=.false.
-      if(dm_ronly) then
       ndens=ipol
       call nga_inquire(g_dens(1), idum, dm_ndim, idumm)
 c     3d g_dens is a single ga
       if(dm_ndim.eq.3) ndens=1
+      if (.not.rtdb_get(rtdb,'dft:dm_ronly', mt_log, 1, dm_ronly))
+     &        dm_ronly=.false.
+      if(dm_ronly) then
 #ifdef HAVE_SET_GA_PROPERTY
          
          do i=1,ndens
@@ -403,12 +408,14 @@ c
      &                    GA_ERR)
                   endif
                endif
-               if(dorepdm) then
+            enddo
+            if(dorepdm) then
+               do i = 1, ndens
                   if (.not.ga_destroy(g_repdm(i)))
      &                 call errquit('xc_rep_close: cannot gadestr',i,
      &                 GA_ERR)
-               endif
-            enddo
+               enddo
+            endif
          endif
          
          if(.not.truerepxc) call ga_sync()
