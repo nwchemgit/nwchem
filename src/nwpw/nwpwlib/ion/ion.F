@@ -1460,9 +1460,9 @@ c      end if
 
 
 *     ***************************
-*     *				*
-*     *		ion_chargeexist	*
-*     *				*
+*     *                         *
+*     *     ion_chargeexist     *
+*     *                         *
 *     ***************************
       logical function ion_chargeexist()
       implicit none
@@ -1475,9 +1475,9 @@ c      end if
       end
 
 *     ***************************
-*     *				*
-*     *		ion_nion	*
-*     *				*
+*     *                         *
+*     *         ion_nion        *
+*     *                         *
 *     ***************************
       integer function ion_nion()
       implicit none

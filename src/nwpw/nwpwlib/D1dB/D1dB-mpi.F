@@ -4,11 +4,10 @@
 
 *
 *     ***********************************
-*     *					*
-*     *	        D1dB_SumAll		*	
-*     *					*
+*     *                                 *
+*     *            D1dB_SumAll          *
+*     *                                 *
 *     ***********************************
-
       subroutine D1dB_SumAll(sum)
 c     implicit none
       real*8  sum
@@ -191,11 +190,10 @@ c     implicit none
 
 
 *     ***********************************
-*     *					*
-*     *	        D1dB_Vector_SumAll	*	
-*     *					*
+*     *                                 *
+*     *        D1dB_Vector_SumAll       *
+*     *                                 *
 *     ***********************************
-
       subroutine D1dB_Vector_SumAll(n,sum)
 c     implicit none
       integer n
