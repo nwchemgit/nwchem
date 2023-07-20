@@ -58,7 +58,7 @@ jobs:
           pwd
           cd ..
           rm  -rf ${{ env.dirname }}
-          wget -q https://github.com/nwchemgit/nwchem/tarball/master -O - | tar -xz --exclude=src --exclude=contrib --exclude=web --exclude=examples --exclude=doc --exclude=travis --exclude="nwxc*"  --exclude="chem-library-tests"
+          wget -q https://github.com/nwchemgit/nwchem/tarball/${{ matrix.branch }} -O - | tar -xz --exclude=src --exclude=contrib --exclude=web --exclude=examples --exclude=doc --exclude=travis --exclude="nwxc*"  --exclude="chem-library-tests"
           mv nwchemgit-nwchem-* ${{ env.dirname }}
           ls -lr ${{ env.dirname }}/QA
         shell: bash
