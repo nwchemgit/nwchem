@@ -52,7 +52,7 @@ jobs:
           fi
       - name:  dir name
         run: |
-          echo "dirname=nwchem.${{ github.nwversion }}.${{ github.run_id }}.${{ github.run_number }}.${{ matrix.sing_image }}" >> $GITHUB_ENV
+          echo "dirname=nwchem-${{ env.nwversion }}${{ github.nwversion }}.${{ github.run_id }}.${{ github.run_number }}.${{ matrix.sing_image }}" >> $GITHUB_ENV
       - name: Checkout QA code
         run: |
           pwd
@@ -81,5 +81,5 @@ jobs:
           export MPIRUN_PATH=`which srun`
           MYNN=$(( $SLURM_NNODES*$SLURM_NTASKS_PER_NODE ))
           echo MYNN is $MYNN
-          (echo ${{ matrix.sing_image }}; ./doqmtests.mpi  $MYNN flaky ; echo ${{ env.nwversion }}.${{ matrix.sing_image }}) | tee >(ts "%d%b%Y %H:%M:%S" > ../../../../doqmtests.mpi.log.` date +%b%d%Y_%H:%M`)
+          (echo ${{ env.nwversion }}.${{ matrix.sing_image }}; ./doqmtests.mpi  $MYNN flaky ; echo ${{ env.nwversion }}.${{ matrix.sing_image }}) | tee >(ts "%d%b%Y %H:%M:%S" > ../../../../doqmtests.mpi.log.` date +%b%d%Y_%H:%M`)
         shell: bash
