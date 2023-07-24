@@ -15,7 +15,7 @@ c
 	integer          :: ovlo(2),ovhi(2)
 	integer          :: vvlo(2),vvhi(2)
 	integer          :: llmo(2),nqp(2)
-	integer          :: nroots
+	integer          :: nroots,nmax
         double precision :: tol2e, eta
 c
         integer          :: l_mf_evals, k_mf_evals
@@ -27,7 +27,7 @@ c
 c
         integer          :: g_movecs(2), g_moeris, g_sols
 	integer          :: g_erioo(2), g_eriov(2), g_erivv(2), g_erim
-        integer          :: g_wov(2), g_apb, g_dipa(3), g_dipb(3)
+        integer          :: g_wov(2), g_apb, g_dipa(3), g_dipb(3), g_amb
 	integer          :: g_quada(6), g_quadb(6)
 	integer          :: g_dipmaga(3), g_dipmagb(3)
         logical          :: noio
