@@ -230,7 +230,10 @@
           if (.not.ga_destroy(pars%g_erivv(isp)))
      &      call errquit(pname//'could not destroy erivv GA',177,GA_ERR)
 
-          call ga_copy(pars%g_apb,g_amb)
+          call ga_copy_patch('n',pars%g_apb,1+off1,
+     &           pars%npoles(isp)+off1,1+off1,pars%npoles(isp)+off1,
+     &           g_amb,1+off1,pars%npoles(isp)+off1,1+off1,
+     &           pars%npoles(isp)+off1)
 
 
           ! Add Screened Coulomb contribution from B
@@ -275,6 +278,7 @@
         endif
         call ga_add_diagonal(pars%g_apb,g_diag)
         call ga_add_diagonal(g_amb,g_diag)
+
 
         ! Destroy ERIs
         if (.not.ga_destroy(pars%g_eriov(1)))
