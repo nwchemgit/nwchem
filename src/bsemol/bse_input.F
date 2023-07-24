@@ -18,10 +18,10 @@ c
       character*255 test
       character(*), parameter :: pname = "bse_input: "
 c
-      integer, parameter :: num_dirs = 9
+      integer, parameter :: num_dirs = 10
       character*11 dirs(num_dirs)
       data dirs / 'method','tda','ncap','ncapr','singlet','triplet', 
-     &            'outwin', 'nroots', 'end' /
+     &            'outwin', 'nroots', 'maxroots', 'end' /
 c
       integer ind, itemp
       double precision threshold, eta, temp
@@ -45,7 +45,7 @@ c
         call errquit(pname//'unknown directive', 0, INPUT_ERR)
       end if
 c
-      goto (100, 200, 300, 301, 400, 500, 600, 700, 9999) ind
+      goto (100, 200, 300, 301, 400, 500, 600, 700, 800, 9999) ind
 
       call errquit(pname//'unknown directive',ind, INPUT_ERR)
 c
@@ -59,12 +59,12 @@ c
       if (inp_compare(.false.,'analytic',test)) then
         if (.not.rtdb_put(rtdb, 'bse:analytic', mt_log, 1, .true.))
      &    call errquit(pname//'rtdb_put failed', 101, RTDB_ERR)
-      elseif (inp_compare(.false.,'bse:davidson',test)) then
+      elseif (inp_compare(.false.,'davidson',test)) then
         if (.not.rtdb_put(rtdb, 'bse:davidson', mt_log, 1, .true.))
      &    call errquit(pname//'rtdb_put failed', 102, RTDB_ERR)
         if (.not.rtdb_put(rtdb, 'bse:analytic', mt_log, 1, .false.))
      &    call errquit(pname//'rtdb_put failed', 101, RTDB_ERR)
-      elseif (inp_compare(.false.,'bse:lanczos',test)) then
+      elseif (inp_compare(.false.,'lanczos',test)) then
         if (.not.rtdb_put(rtdb, 'bse:lanczos', mt_log, 1, .true.))
      &    call errquit(pname//'rtdb_put failed', 103, RTDB_ERR)
         if (.not.rtdb_put(rtdb, 'bse:analytic', mt_log, 1, .false.))
@@ -129,7 +129,14 @@ c
       if(.not.rtdb_put(rtdb,'bse:nroots',mt_int,1,itemp))
      &  call errquit(pname//'rtdb_put failed', 700, RTDB_ERR)
       goto 10
-     
+c
+c     maximum number of trial vectors
+c
+ 800  if(.not.inp_i(itemp))
+     &  call errquit(pname//'could not read maxroots',800,INPUT_ERR)
+      if(.not.rtdb_put(rtdb,'bse:nmax',mt_int,1,itemp))
+     &  call errquit(pname//'rtdb_put failed', 800, RTDB_ERR)
+      goto 10
 c
 c     normal termination
 c

@@ -111,6 +111,14 @@ c
       if(.not.rtdb_get(pars%rtdb,'bse:nroots',mt_int,1,pars%nroots))
      &  call errquit(pname//'could not read from rtdb',5,RTDB_ERR)
 
+      ! Maximum Number of roots
+      if(.not.rtdb_get(pars%rtdb,'bse:nmax',mt_int,1,pars%nmax))
+     &  call errquit(pname//'could not read from rtdb',5,RTDB_ERR)
+      if (pars%nmax.le.2*pars%nroots) then
+        call errquit(pname//'maxroots should be at least 2*nroots',
+     $               119,INPUT_ERR)
+      endif
+
       ! Get some info from DFT module
       call dft_rdinput(pars%rtdb)
       if (cdfit) then
@@ -210,6 +218,10 @@ c
 
       if ((pars%nroots.eq.-1).or.(pars%nroots.gt.sum(pars%npoles))) then
         pars%nroots = sum(pars%npoles)
+      endif
+
+      if (pars%nmax.gt.sum(pars%npoles)) then
+        pars%nmax = sum(pars%npoles)
       endif
 
 

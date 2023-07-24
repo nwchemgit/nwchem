@@ -40,9 +40,6 @@
      &                   dbl_mb(k_dia+lSize),pars%nocc(isp),
      &                   pars%nvir(isp),pars%ovlo(isp),pars%ovhi(isp))
       enddo 
-      if (pars%me.eq.0) then
-        call ma_print(dbl_mb(k_dia),pars%mynpoles(1),1,'Diff1')
-      endif
 
       ! obtain screened Coulomb matrix
       call bse_buildw(pars,dbl_mb(k_dia),dbl_mb(kW),pars%nmo,nri,
@@ -61,9 +58,6 @@
      &                   pars%nvir(isp),pars%ovlo(isp),
      &                   pars%ovhi(isp))    
       enddo 
-      if (pars%me.eq.0) then
-        call ma_print(dbl_mb(k_dia),pars%mynpoles(1),1,'Diff2')
-      endif
 
       ! Build and diagonalize Casida-like matrix
       if (pars%tda) then
