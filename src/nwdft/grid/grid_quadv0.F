@@ -464,7 +464,7 @@ c DM in last position is the scf DM
          enddo
       elseif (adft) then
         call adft_reduce(nbf_xc, nctrs, int_mb(icetobfr), tmat, ipol,
-     &                   dbl_mb(irdens_atom), nbf_xc_mxnbf_ce)
+     &                   dbl_mb(irdens_atom))
       else   
       call util_ga_mat_reduce(nbf_ao, nctrs, int_mb(icetobfr), g_dens, 
      &                        ipol, dbl_mb(irdens_atom), 'absmax', 
