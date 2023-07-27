@@ -665,11 +665,11 @@ c
      &    cstatus,
      &    fstatus
  3    format(/
-     $     '    heap     = ', i10,' doubles',' = ',f8.1,' Mbytes',/,
-     $     '    stack    = ', i10,' doubles',' = ',f8.1,' Mbytes',/,
-     $     '    global   = ', i10,' doubles',' = ',f8.1,' Mbytes',
+     $     '    heap     = ', i12,' doubles',' = ',f10.1,' Mbytes',/,
+     $     '    stack    = ', i12,' doubles',' = ',f10.1,' Mbytes',/,
+     $     '    global   = ', i12,' doubles',' = ',f10.1,' Mbytes',
      &     ' ',A,/,
-     $     '    total    = ', i10,' doubles',' = ',f8.1,' Mbytes',/,
+     $     '    total    = ', i12,' doubles',' = ',f10.1,' Mbytes',/,
      $     '    verify   = ', a3,/,
      $     '    hardfail = ', a3,//)
 c
