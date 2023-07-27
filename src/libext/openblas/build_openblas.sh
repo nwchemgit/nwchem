@@ -27,6 +27,7 @@ patch -p0 -s -N < ../makesys.patch
 # patch for pgi/nvfortran missing -march=armv8
 patch -p0 -s -N < ../arm64_fopt.patch
 patch -p1 -s -N < ../9402df5604e69f86f58953e3883f33f98c930baf.patch
+patch -p0 -s -N < ../crayftn.patch
 if [[  -z "${FORCETARGET}" ]]; then
 FORCETARGET=" "
 UNAME_S=$(uname -s)
@@ -137,7 +138,7 @@ elif  [[ -n ${FC} ]] && [[ "${FC}" == "flang" ]] || [[ "${FC}" == "amdflang" ]];
     LAPACK_FPFLAGS_VAL=" -O1 -g -Kieee"
 elif  [[ "${_FC}" == "crayftn" ]] ; then
 #    FORCETARGET+=' F_COMPILER=FLANG '
-    LAPACK_FPFLAGS_VAL=" -s integer64"
+    LAPACK_FPFLAGS_VAL=" -s integer64 -ef "
 elif  [[ -n ${FC} ]] && [[ "${FC}" == "pgf90" ]] || [[ "${FC}" == "nvfortran" ]]; then
     FORCETARGET+=' F_COMPILER=PGI '
   if  [[ "${FC}" == "nvfortran" ]]; then
