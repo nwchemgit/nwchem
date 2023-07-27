@@ -27,6 +27,7 @@ patch -p0 -s -N < ../makesys.patch
 # patch for pgi/nvfortran missing -march=armv8
 patch -p0 -s -N < ../arm64_fopt.patch
 patch -p1 -s -N < ../9402df5604e69f86f58953e3883f33f98c930baf.patch
+patch -p0 -s -N < ../crayftn.patch
 if [[  -z "${FORCETARGET}" ]]; then
 FORCETARGET=" "
 UNAME_S=$(uname -s)
@@ -111,20 +112,21 @@ if [[ ${FC} == ftn ]]; then
 #	echo ' '
 #	echo 'openblas installation not ready for crayftn '
 #	echo ' '
-	if ! [ -x "$(command -v gfortran)" ]; then
-	    echo " please load the gcc module (not prgenv)"
-	    echo " by executing"
-	    echo "     module load gcc "
-	    echo " "
-	    exit 1
-	fi
-	FC=gfortran
-	CCORG=${CC}
-	CC=clang
-	export PATH=/opt/cray/pe/cce/default/cce-clang/x86_64/bin:$PATH
-        FORCETARGET+=' FC=gfortran CC=clang '
+#	if ! [ -x "$(command -v gfortran)" ]; then
+#	    echo " please load the gcc module (not prgenv)"
+#	    echo " by executing"
+#	    echo "     module load gcc "
+#	    echo " "
+#	    exit 1
+#	fi
+#	FC=gfortran
+#	CCORG=${CC}
+#	CC=clang
+#	export PATH=/opt/cray/pe/cce/default/cce-clang/x86_64/bin:$PATH
+#        FORCETARGET+=' FC=gfortran CC=clang '
 #	exit 1
-#        exit 1
+	#        exit 1
+	_FC=crayftn
     fi
 fi
 if [[ -n ${FC} ]] &&  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == xlf90 ]]|| [[ ${FC} == xlf90_r ]]; then
@@ -134,6 +136,9 @@ if [[ -n ${FC} ]] &&  [[ ${FC} == xlf ]] || [[ ${FC} == xlf_r ]] || [[ ${FC} == 
 elif  [[ -n ${FC} ]] && [[ "${FC}" == "flang" ]] || [[ "${FC}" == "amdflang" ]]; then
     FORCETARGET+=' F_COMPILER=FLANG '
     LAPACK_FPFLAGS_VAL=" -O1 -g -Kieee"
+elif  [[ "${_FC}" == "crayftn" ]] ; then
+#    FORCETARGET+=' F_COMPILER=FLANG '
+    LAPACK_FPFLAGS_VAL=" -s integer64 -ef "
 elif  [[ -n ${FC} ]] && [[ "${FC}" == "pgf90" ]] || [[ "${FC}" == "nvfortran" ]]; then
     FORCETARGET+=' F_COMPILER=PGI '
   if  [[ "${FC}" == "nvfortran" ]]; then
@@ -222,7 +227,7 @@ if [[  ! -z "${USE_OPENMP}" ]]; then
 fi
 GOTFREEBSD=$(uname -o 2>&1|awk ' /FreeBSD/ {print "1";exit}')
 MYMAKE=make
-MAKEJ=" -j4"
+MAKEJ=" -j3 "
 if [[  "${GOTFREEBSD}" == 1 ]]; then
 MAKEJ=" "
 MYMAKE=gmake
@@ -240,7 +245,9 @@ else
  $MYMAKE FC=$FC CC=$CC HOSTCC=gcc $FORCETARGET  LAPACK_FPFLAGS="$LAPACK_FPFLAGS_VAL"  INTERFACE64="$sixty4_int" BINARY="$binary" NUM_THREADS=128 NO_CBLAS=1 NO_LAPACKE=1 DEBUG=0 USE_THREAD="$THREADOPT"  libs netlib $MAKEJ >& openblas.log
 fi
 if [[ "$?" != "0" ]]; then
-    tail -500 openblas.log
+    echo error code '$?'
+    ls -l openblas.log
+    tail -n 500 openblas.log
     echo " "
     echo "OpenBLAS compilation failed"
     echo " "
@@ -248,6 +255,9 @@ if [[ "$?" != "0" ]]; then
 fi
 
 mkdir -p ../../lib
+if  [[ "${_FC}" == "crayftn" ]] ; then
+    cd lapack-netlib/SRC; ar rUv ../../libopenblas*-*.a la_constants.o  ;cd ../..
+fi
 if [[ $(uname -s) == "Linux" ]]; then
     if [ -x "$(command -v xx-info)" ]; then
 	MYSTRIP=$(xx-info)-strip

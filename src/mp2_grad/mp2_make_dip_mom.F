@@ -22,7 +22,7 @@ c
       double precision mp2y, scfy
       double precision mp2z, scfz
       double precision ndip(3)
-      logical ga_create_atom_blocked
+      integer ga_create_atom_blocked
       external ga_create_atom_blocked
       integer geom
 c

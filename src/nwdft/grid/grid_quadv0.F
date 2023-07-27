@@ -464,7 +464,7 @@ c DM in last position is the scf DM
          enddo
       elseif (adft) then
         call adft_reduce(nbf_xc, nctrs, int_mb(icetobfr), tmat, ipol,
-     &                   dbl_mb(irdens_atom), nbf_xc_mxnbf_ce)
+     &                   dbl_mb(irdens_atom))
       else   
       call util_ga_mat_reduce(nbf_ao, nctrs, int_mb(icetobfr), g_dens, 
      &                        ipol, dbl_mb(irdens_atom), 'absmax', 
@@ -1044,25 +1044,3 @@ c
       return
       end
 
-      subroutine adft_reduce(nbf, nat, cetobfr, coef, ipol, rdens_atom)
-      implicit none
-      integer nbf, nat, ipol, mxnbf
-      integer cetobfr(2,nat)
-      double precision rdens_atom(nat,nat,ipol),coef(nbf,ipol)
-      double precision dabsmax
-      external dabsmax
-
-      integer iat,istart,iend
-
-      rdens_atom(:,:,:) = 0d0
-
-      do iat=1,nat
-        istart = cetobfr(1,iat)
-        iend   = cetobfr(2,iat)
-        rdens_atom(1,iat,1) = dabsmax(iend-istart+1,coef(istart,1))
-        if (ipol.gt.1) then
-          rdens_atom(1,iat,2) = dabsmax(iend-istart+1,coef(istart,2))
-        endif
-      enddo
-
-      end
