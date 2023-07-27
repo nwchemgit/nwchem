@@ -2145,6 +2145,7 @@ ifneq ($(TARGET),LINUX)
         GOTCLANG= $(shell $(_CC) -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
         ifeq ($(GOTCLANG),1)
             COPTIONS   += -fPIC
+	    COPTIONS   += -Wno-deprecated-non-prototype
         endif
 
         GOTFREEBSD= $(shell uname -o 2>&1|awk ' /FreeBSD/ {print "1";exit}')
@@ -2772,7 +2773,9 @@ ifneq ($(TARGET),LINUX)
         ifeq ($(_FC),crayftn)
 #           Jeff: Cray Fortran supports preprocessing as of version 8.2.2 (at least)
 #           EXPLICITF = FALSE
-            FOPTIONS += -hsystem_alloc -hoverindex
+            FOPTIONS += -hoverindex
+            FOPTIONS += -dC
+            LDOPTIONS += -hsystem_alloc
 #           workaround for vectorization failures with cce 11
             FOPTIONS += -hfp1
             ifdef BUILD_OPENBLAS
