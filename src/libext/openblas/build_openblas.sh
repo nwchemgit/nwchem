@@ -255,6 +255,9 @@ if [[ "$?" != "0" ]]; then
 fi
 
 mkdir -p ../../lib
+if  [[ "${_FC}" == "crayftn" ]] ; then
+    cd lapack-netlib/SRC; ar rUv ../../libopenblas*-*.a la_constants.o  ;cd ../..
+fi
 if [[ $(uname -s) == "Linux" ]]; then
     if [ -x "$(command -v xx-info)" ]; then
 	MYSTRIP=$(xx-info)-strip
