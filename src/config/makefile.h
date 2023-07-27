@@ -2783,7 +2783,8 @@ ifneq ($(TARGET),LINUX)
 #           Jeff: Cray Fortran supports preprocessing as of version 8.2.2 (at least)
 #           EXPLICITF = FALSE
             FOPTIONS += -hoverindex
-            FOPTIONS += -dC
+            FOPTIONS += -dC   # fix rt-tddft hacking for derived types
+            FOPTIONS += -ef   # create f90 .mod
             LDOPTIONS += -hsystem_alloc
 #           workaround for vectorization failures with cce 11
             FOPTIONS += -hfp1
