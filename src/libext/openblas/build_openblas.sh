@@ -28,6 +28,7 @@ cd OpenBLAS
 patch -p0 -s -N < ../arm64_fopt.patch
 #patch -p1 -s -N < ../9402df5604e69f86f58953e3883f33f98c930baf.patch
 patch -p0 -s -N < ../crayftn.patch
+patch -p0 -s -N < ../f_check.patch
 if [[  -z "${FORCETARGET}" ]]; then
 FORCETARGET=" "
 UNAME_S=$(uname -s)
@@ -247,6 +248,7 @@ fi
 if [[ "$?" != "0" ]]; then
     echo error code '$?'
     ls -l openblas.log
+    head -n 120 openblas.log
     tail -n 500 openblas.log
     echo " "
     echo "OpenBLAS compilation failed"

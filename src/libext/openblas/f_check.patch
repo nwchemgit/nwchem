@@ -1,0 +1,33 @@
+--- f_check.org	2023-04-01 13:18:01.000000000 -0700
++++ f_check	2023-07-31 10:40:07.437900567 -0700
+@@ -90,9 +90,8 @@
+ 
+                 v="${data#*GCC: *\) }"
+                 v="${v%%\"*}"
+-
+                 major="${v%%.*}"
+-
++		major=$(echo $major | cut -d " " -f 1 | sed 's/-win32//')
+                 if [ "$major" -ge 4 ]; then
+                     vendor=GFORTRAN
+                     openmp='-fopenmp'
+--- Makefile.prebuild.org	2023-07-31 11:27:53.629587426 -0700
++++ Makefile.prebuild	2023-07-31 11:27:58.129611660 -0700
+@@ -60,6 +60,7 @@
+ 	./getarch_2nd  1 >> $(TARGET_CONF)
+ 
+ $(TARGET_CONF): c_check$(SCRIPTSUFFIX) f_check$(SCRIPTSUFFIX) getarch
++	echo excting @@ ./c_check$(SCRIPTSUFFIX) $(TARGET_MAKE) $(TARGET_CONF) "$(HOSTCC)" $(TARGET_FLAGS) $(CFLAGS) > /tmp/edoo.log
+ 	./c_check$(SCRIPTSUFFIX) $(TARGET_MAKE) $(TARGET_CONF) "$(HOSTCC)" $(TARGET_FLAGS) $(CFLAGS)
+ ifneq ($(ONLY_CBLAS), 1)
+ 	./f_check$(SCRIPTSUFFIX) $(TARGET_MAKE) $(TARGET_CONF) "$(FC)" $(TARGET_FLAGS)
+--- c_check.org	2023-07-31 11:38:45.649079370 -0700
++++ c_check	2023-07-31 11:39:02.001165470 -0700
+@@ -279,6 +279,7 @@
+         no_avx2=0
+         oldgcc=0
+         data=`$compiler_name -dumpversion`
++        data=$(echo $data | cut -d " " -f 1 | sed 's/-win32//')
+         case "$data" in *.*.*)
+             data="${data%.*}"
+         esac
