@@ -26,7 +26,7 @@ c
       integer l_vecs,k_vecs,l_idx,k_idx
       integer l_shlbuf, k_shlbuf, l_mobuf, k_mobuf
       integer me, isp, addr
-      integer g_3ceris,shlo,shhi,offset,ld
+      integer g_3ceris,shlo,shhi,offset,ld,g_tmp
       integer nmo,nvir,rihi,rilo,nri,nri_me,nocc,offk
       integer ish,jsh,ksh,ni,nj,nk,nij
       integer ifirst,jfirst,kfirst
@@ -309,6 +309,8 @@ c
      $                nbf_cd,dbl_mb(k_eri),nbf_cd)
           call ga_release_update(pars%g_erivv(isp),ilo,ihi,jlo,jhi)
         endif
+
+
  103    continue
       enddo
 c

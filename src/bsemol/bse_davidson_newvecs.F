@@ -1,16 +1,20 @@
       subroutine bse_davidson_newvecs(ntrials,ndim,npoles,g_x,g_y,
-     $               g_ym,g_s,g_ks,g_mks,g_w,g_kw,g_mkw,lvkv,vkv)
+     $               g_ym,g_s,g_ks,g_mks,g_w,g_kw,g_mkw,lvkv,vkv,map,
+     $               nblocks)
 
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
 #include "errquit.fh"
 
-      integer ntrials,ndim,npoles
+      integer ntrials,ndim,npoles,nblocks
       integer g_x,g_y,g_ym,g_s,g_ks,g_mks
       integer g_w,g_kw,g_mkw,lvkv,vkv
+      integer map(nblocks),grid(2)
 
       logical stat
+
+      grid = (/ga_nnodes(),1/)
 
       ! Save working vectors
       call ga_copy(g_s,g_x)
@@ -23,12 +27,14 @@
      $    call errquit('bse_davidson_newvecs: destroy failed',1,GA_ERR)
 
       ! Create new working vectors
-      stat = ga_create(mt_dbl,npoles,ntrials+ndim,'s',0,
-     $                 ntrials+ndim,g_s) .and.
-     $       ga_create(mt_dbl,npoles,ntrials+ndim,'ks',0,
-     $                 ntrials+ndim,g_ks) .and.
-     $       ga_create(mt_dbl,npoles,ntrials+ndim,'mks',0,
-     $                 ntrials+ndim,g_mks)
+      g_s = ga_create_handle()
+      call ga_set_data(g_s,2,(/npoles,ntrials+ndim/),mt_dbl)
+      call ga_set_array_name(g_s,'s')
+      call ga_set_tiled_irreg_proc_grid(g_s,map,(/nblocks,1/),grid)
+      stat = ga_allocate(g_s)
+
+      stat = stat.and.ga_duplicate(g_s,g_ks,'ks').and.
+     $                ga_duplicate(g_s,g_mks,'mks')
       if(.not.stat)
      $  call errquit('bse_davidson_newvecs: create failed',1,GA_ERR)
 
@@ -58,9 +64,9 @@
      $    call errquit('bse_davidson_newvecs: destroy failed',2,GA_ERR)
 
       ! Create new solutions
-      stat = ga_create(mt_dbl,npoles,ntrials,'x',0,ntrials,g_x) .and.
-     $       ga_create(mt_dbl,npoles,ntrials,'y',0,ntrials,g_y) .and.
-     $       ga_create(mt_dbl,npoles,ntrials,'ym',0,ntrials,g_ym)
+      stat = ga_duplicate(g_s,g_x,'x').and.
+     $       ga_duplicate(g_s,g_y,'y').and.
+     $       ga_duplicate(g_s,g_ym,'ym')
       if(.not.stat)
      $  call errquit('bse_davidson_newvecs: create failed',2,GA_ERR)
 

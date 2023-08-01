@@ -39,7 +39,7 @@
       k = 1
   100 continue
       do i=k,m
-        if (eig(i).lt.1d-10) then
+        if (eig(i).lt.1d-12) then
           do j=i+1,n
             eig(j-1) = eig(j)
             vkv(:,j-1) = vkv(:,j)
@@ -62,8 +62,10 @@
       call dcopy(npoles*m,work,1,v,1)
 
       if (first) return
+
       call dgemm('n','n',npoles,m,n,1d0,kv,npoles,vkv,n,0d0,work,npoles)
       call dcopy(npoles*m,work,1,kv,1)
+
       call dgemm('n','n',npoles,m,n,1d0,mkv,npoles,vkv,n,0d0,work,
      $            npoles)
       call dcopy(npoles*m,work,1,mkv,1)

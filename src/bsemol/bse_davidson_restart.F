@@ -1,15 +1,19 @@
       subroutine bse_davidson_restart(ntrials,nroots,npoles,g_x,g_y,
-     $                                g_ym,g_s,g_ks,g_mks,lvkv,vkv)
+     $                                g_ym,g_s,g_ks,g_mks,lvkv,vkv,
+     $                                map,nblocks)
 
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
 #include "errquit.fh"
 
-      integer ntrials,nroots,npoles
+      integer ntrials,nroots,npoles,nblocks
       integer g_x,g_y,g_ym,g_s,g_ks,g_mks,lvkv,vkv
+      integer map(nblocks),grid(2)
 
       logical stat
+
+      grid = (/ga_nnodes(),1/)
 
       ! Reset the number of trials
       ntrials = nroots
@@ -28,9 +32,14 @@
      $   call errquit('bse_davidson_restar: failed destroy',1,GA_ERR)
 
       ! Re-create new solutions
-      stat = ga_create(mt_dbl,npoles,ntrials,'x',0,ntrials,g_x) .and.
-     $       ga_create(mt_dbl,npoles,ntrials,'y',0,ntrials,g_y) .and. 
-     $       ga_create(mt_dbl,npoles,ntrials,'ym',0,ntrials,g_ym)
+      g_x = ga_create_handle()
+      call ga_set_data(g_x,2,(/npoles,ntrials/),mt_dbl)
+      call ga_set_array_name(g_x,'x')
+      call ga_set_tiled_irreg_proc_grid(g_x,map,(/nblocks,1/),grid)
+      stat = ga_allocate(g_x)
+
+      stat = stat.and.ga_duplicate(g_x,g_y,'y').and.
+     $                ga_duplicate(g_x,g_ym,'ym')
       if (.not.stat)
      $   call errquit('bse_davidson_restar: failed create',1,GA_ERR)
 
@@ -48,9 +57,10 @@
      $   call errquit('bse_davidson_restar: failed destroy',2,GA_ERR)
 
       ! Re-create new solutions
-      stat = ga_create(mt_dbl,npoles,ntrials,'s',0,ntrials,g_s) .and.
-     $       ga_create(mt_dbl,npoles,ntrials,'ks',0,ntrials,g_ks) .and. 
-     $       ga_create(mt_dbl,npoles,ntrials,'mks',0,ntrials,g_mks)
+      stat = ga_duplicate(g_x,g_s,'s').and.
+     $       ga_duplicate(g_x,g_ks,'ks').and.
+     $       ga_duplicate(g_x,g_mks,'mks')
+
       if (.not.stat)
      $   call errquit('bse_davidson_restar: failed create',2,GA_ERR)
 
