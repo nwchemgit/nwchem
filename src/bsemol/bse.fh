@@ -22,6 +22,8 @@ c
         integer          :: l_gw_evals, k_gw_evals
         integer          :: l_occ, k_occ
 	integer          :: l_irs(2),k_irs(2)
+	integer          :: l_map,k_map
+	integer          :: nblocks
 c
         integer          :: fd
 c

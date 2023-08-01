@@ -18,17 +18,20 @@
 
       integer indeces(pars%nroots),ntrials,g_trials,npoles,ndim
       integer g_x,g_y,g_ym,g_s,g_ks,g_mks,g_w,g_kw,g_mkw,off1
-      integer g_wia,g_tmp,info,lwork,kwork,idum,mdim
+      integer g_wia,g_tmp,info,lwork,kwork,idum,mdim,k_trials
       integer k_x,k_y,k_ym,k_s,k_ks,k_mks,k_w,k_kw,k_mkw,k_r,l_r
-      integer myld,vkv,l_vkv,myhi,mylo,k_trials,l_ksw,ksw,jdum
+      integer l_map,k_map,l_tmp1,k_tmp1,l_tmp2,k_tmp2,k_x2,k_trials2
+      integer k_w2,l_tmp3,k_tmp3,l_tmp4,k_tmp4,k_kw2,k_mkw2
+      integer myld,vkv,l_vkv,myhi,mylo,l_ksw,ksw,jdum,myld2
+      integer subscript(2)
       double precision minimum,norm(pars%nroots),rdum,factor
-      double precision,allocatable :: diagonal(:),diagonal2(:)
 
+      integer inode,nprocs
       integer ipole,jpole,itrial,imo,amo,idavidson
       logical found,dohartree,stat,debug
       double precision,external :: dasum
 
-      debug = pars%me.eq.0
+      !debug = pars%me.eq.0
       debug = .false.
 
       ! synchronize parallel processes
@@ -41,9 +44,7 @@
       totnpoles = maxnpoles*pars%ipol
       npoles = sum(pars%npoles(1:pars%ipol))
       ntrials = pars%nroots
-
-
-      allocate(diagonal(npoles),diagonal2(npoles))
+      nprocs = ga_nnodes()
 
       ! allocation
       if(.not.ma_push_get(mt_dbl,totnpoles,'dia',l_dia,k_dia))
@@ -52,24 +53,64 @@
      &  call errquit(pname//'failed to allocate omega',0,MA_ERR)
       if(.not.ma_push_get(mt_dbl,npoles,'residual',l_r,k_r))
      &  call errquit(pname//'failed to allocate residual',0,MA_ERR)
+      if(.not.ma_push_get(mt_dbl,maxpoles*200,'tmp1',l_tmp1,k_tmp1))
+     &  call errquit(pname//'failed to allocate tmp1',0,MA_ERR)
+      if(.not.ma_push_get(mt_dbl,maxpoles*200,'tmp2',l_tmp2,k_tmp2))
+     &  call errquit(pname//'failed to allocate tmp2',0,MA_ERR)
+      if(.not.ma_push_get(mt_dbl,maxpoles*200,'tmp3',l_tmp3,k_tmp3))
+     &  call errquit(pname//'failed to allocate tmp3',0,MA_ERR)
+      if(.not.ma_push_get(mt_dbl,maxpoles*200,'tmp4',l_tmp4,k_tmp4))
+     &  call errquit(pname//'failed to allocate tmp4',0,MA_ERR)
+      if(.not.ma_push_get(mt_int,2*ga_nnodes()+1,'map',l_map,k_map))
+     &  call errquit(pname//'failed to allocate map',0,MA_ERR)
       if(.not.ma_push_get(mt_dbl,ntrials*ntrials,'vkv',l_vkv,vkv))
      &  call errquit(pname//'failed to allocate vkv',0,MA_ERR)
       if(.not.ma_push_get(mt_dbl,nri**2,'W',lW,kW))
      &  call errquit(pname//'failed to allocate W',0,MA_ERR)
 
-      stat = ga_create(mt_dbl,npoles,ntrials,'x',0,ntrials,g_x).and.
-     $  ga_create(mt_dbl,npoles,ntrials,'y',0,ntrials,g_y).and.
-     $  ga_create(mt_dbl,npoles,ntrials,'ym',0,ntrials,g_ym).and.
-     $  ga_create(mt_dbl,npoles,ntrials,'s',0,ntrials,g_s).and.
-     $  ga_create(mt_dbl,npoles,ntrials,'ks',0,ntrials,g_ks).and.
-     $  ga_create(mt_dbl,npoles,ntrials,'mks',0,ntrials,g_mks).and.
-     $  ga_create(mt_dbl,npoles,ntrials,'w',0,ntrials,g_w).and.
-     $  ga_create(mt_dbl,npoles,ntrials,'kw',0,ntrials,g_kw).and.
-     $  ga_create(mt_dbl,npoles,ntrials,'mkw',0,ntrials,g_mkw).and.
-     $  ga_create(mt_dbl,npoles,ntrials,'t',0,ntrials,g_trials).and.
-     $  nga_create(mt_dbl,1,npoles,'wia',0,g_wia)
+      ! Get map for irreg array
+      pars%nblocks = ga_nnodes()
+      do inode=0,ga_nnodes()-1
+        idum = pars%ovlo(1)
+        call ga_brdcst(mt_int,idum,ma_sizeof(mt_int,1,mt_byte),inode)
+        int_mb(k_map+inode) = idum
+      enddo
+      if (pars%ipol.gt.1) then
+        pars%nblocks = pars%nblocks + ga_nnodes()
+        do inode=0,ga_nnodes()-1
+          idum = pars%ovlo(2)
+          call ga_brdcst(mt_int,idum,ma_sizeof(mt_int,1,mt_byte),inode)
+          int_mb(k_map+ga_nnodes()+inode) = idum + pars%npoles(1)
+        enddo
+      endif
+      int_mb(k_map+pars%nblocks) = 1
 
-      if(.not.stat) call errquit('ga create failed',66,GA_ERR)
+      ! Allocate GA arrays
+      g_x = ga_create_handle()
+      call ga_set_data(g_x,2,(/npoles,ntrials/),mt_dbl)
+      call ga_set_array_name(g_x,'x')
+      call ga_set_tiled_irreg_proc_grid(g_x,int_mb(k_map),
+     $   (/pars%nblocks,1/),(/ga_nnodes(),1/))
+      stat = ga_allocate(g_x)
+      stat = stat.and.ga_duplicate(g_x,g_y,'y').and.
+     $                ga_duplicate(g_x,g_ym,'ym').and. 
+     $                ga_duplicate(g_x,g_s,'s').and. 
+     $                ga_duplicate(g_x,g_ks,'ks').and. 
+     $                ga_duplicate(g_x,g_mks,'mks').and. 
+     $                ga_duplicate(g_x,g_w,'w').and. 
+     $                ga_duplicate(g_x,g_kw,'kw').and. 
+     $                ga_duplicate(g_x,g_mkw,'mkw').and. 
+     $                ga_duplicate(g_x,g_trials,'trials')
+      if(.not.stat) call errquit('ga create failed',103,GA_ERR)
+
+      g_wia = ga_create_handle()
+      call ga_set_data(g_wia,1,npoles,mt_dbl)
+      call ga_set_array_name(g_wia,'wia')
+      call ga_set_tiled_irreg_proc_grid(g_wia,int_mb(k_map),
+     $                pars%nblocks,ga_nnodes())
+      stat = stat.and.ga_allocate(g_wia)
+      if(.not.stat) call errquit('ga create failed',110,GA_ERR)
+
 
       ! obtain "old" eigenvalue difference to build W
       do isp=1,pars%ipol
@@ -112,26 +153,82 @@
       if(pars%me.eq.0) 
      $  call bse_davidson_guess(pars,dbl_mb(k_dia),g_trials,npoles,
      $                          ntrials)
-      call ga_brdcst(mt_dbl,diagonal,ma_sizeof(mt_dbl,npoles,mt_byte),0)
+      call ga_brdcst(mt_dbl,dbl_mb(k_dia),
+     $                           ma_sizeof(mt_dbl,npoles,mt_byte),0)
+      do isp=1,pars%ipol
+        off1 = (isp-1)*pars%npoles(1)
+        call dcopy(pars%mynpoles(isp),
+     $             dbl_mb(k_dia+off1+pars%ovlo(isp)-1),
+     $             1,dbl_mb(k_dia+(isp-1)*pars%mynpoles(1)),1)
+      enddo
 
-      call ga_distribution(g_s,pars%me,mylo,myhi,idum,idum)
-      myld = myhi - mylo + 1
+
+      do isp=1,pars%ipol
+        if(.not.ga_create(mt_dbl,nri*pars%nvir(isp),pars%nvir(isp),
+     $          'g_erivv',0,pars%nvir(isp),g_tmp))
+     $  call errquit('could not create GA',0,GA_ERR)
+        call ga_copy_patch('n',pars%g_erivv(isp),1,nri,1,
+     $                      pars%nvir(isp)*pars%nvir(isp),
+     $                      g_tmp,1,nri*pars%nvir(isp),1,
+     $                      pars%nvir(isp))
+        if(.not.ga_destroy(pars%g_erivv(isp)))
+     $      call errquit('could not destroy GA',0,GA_ERR)
+        pars%g_erivv(isp) = g_tmp
+      enddo
 
       ! K-orthogonalization
       call bse_davidson_kvec(pars,g_trials,g_wia,g_x,npoles,
-     $                       ntrials,pars%singlet)
-      call ga_access(g_x,mylo,myhi,1,ntrials,k_x,myld)
-      call ga_access(g_trials,mylo,myhi,1,ntrials,k_trials,myld)
-      call bse_davidson_kortho(pars,dbl_mb(k_trials),dbl_mb(k_x),
-     $    dbl_mb(k_x),dbl_mb(vkv),dbl_mb(k_x),myld,ntrials,mdim,.true.)
-      call ga_release_update(g_trials,mylo,myhi,1,ntrials)
-      call ga_release_update(g_x,mylo,myhi,1,ntrials)
+     $                       ntrials,pars%singlet,1d0)
+
+
+      call nga_access_block_grid(g_x, (/pars%me,0/), k_x, myld)
+      call nga_access_block_grid(g_trials, (/pars%me,0/),k_trials,myld)
+      if (pars%ipol.eq.1) then
+        myld2 = 0
+        call dcopy(myld*ntrials,dbl_mb(k_x),1,dbl_mb(k_tmp1),1)
+        call dcopy(myld*ntrials,dbl_mb(k_trials),1,dbl_mb(k_tmp2),1)
+      else
+        call nga_access_block_grid(g_x,(/pars%me+nprocs,0/),k_x2,myld2)
+        call nga_access_block_grid(g_trials,(/pars%me+nprocs,0/),
+     $                            k_trials2,myld2)
+        do itrial=1,ntrials
+          call dcopy(myld,dbl_mb(k_x+(itrial-1)*myld),1,
+     $                 dbl_mb(k_tmp1+(itrial-1)*(myld+myld2)),1)
+          call dcopy(myld2,dbl_mb(k_x2+(itrial-1)*myld2),1,
+     $                 dbl_mb(k_tmp1+(itrial-1)*(myld+myld2)+myld),1)
+          call dcopy(myld,dbl_mb(k_trials+(itrial-1)*myld),1,
+     $                 dbl_mb(k_tmp2+(itrial-1)*(myld+myld2)),1)
+          call dcopy(myld2,dbl_mb(k_trials2+(itrial-1)*myld2),1,
+     $                 dbl_mb(k_tmp2+(itrial-1)*(myld+myld2)+myld),1)
+        enddo
+      endif
+
+      call bse_davidson_kortho(pars,dbl_mb(k_tmp2),dbl_mb(k_tmp1),
+     $    dbl_mb(k_tmp1),dbl_mb(vkv),dbl_mb(k_tmp1),
+     $    myld+myld2,ntrials,mdim,.true.)
+
+      if (pars%ipol.eq.1) then
+        call dcopy(myld*ntrials,dbl_mb(k_tmp2),1,dbl_mb(k_trials),1)
+      else
+        do itrial=1,ntrials
+          call dcopy(myld,dbl_mb(k_tmp2+(itrial-1)*(myld+myld2)),1,
+     $               dbl_mb(k_trials+(itrial-1)*myld),1)
+          call dcopy(myld2,dbl_mb(k_tmp2+(itrial-1)*(myld+myld2)+myld),
+     $                1,dbl_mb(k_trials2+(itrial-1)*myld2),1)
+        enddo
+        call nga_release_update_block_grid(g_trials,
+     $          (/pars%me+nprocs,0/))
+        call nga_release_block_grid(g_x,(/pars%me+nprocs,0/))
+      endif
+      call nga_release_update_block_grid(g_trials,(/pars%me,0/))
+      call nga_release_block_grid(g_x,(/pars%me,0/))
 
       ! Starting vectors
+      call ga_copy(g_trials,g_x)
       call bse_davidson_kvec(pars,g_x,g_wia,g_y,npoles,
-     $                       ntrials,pars%singlet)
-      call bse_davidson_mvec(pars,g_y,g_wia,g_ym,npoles,
-     $                       ntrials)
+     $                       ntrials,pars%singlet,1d0)
+      call bse_davidson_kvec(pars,g_y,g_wia,g_ym,npoles,
+     $                       ntrials,.false.,-1d0)
       call ga_copy(g_x,g_s)
       call ga_copy(g_y,g_ks)
       call ga_copy(g_ym,g_mks)
@@ -145,17 +242,17 @@
 
       do idavidson=1,20
 
-        ! Get access to local chunks
-        call ga_access(g_s,mylo,myhi,1,ntrials,k_s,myld)
-        call ga_access(g_ks,mylo,myhi,1,ntrials,k_ks,myld)
-        call ga_access(g_mks,mylo,myhi,1,ntrials,k_mks,myld)
-        call ga_access(g_x,mylo,myhi,1,ntrials,k_x,myld)
-        call ga_access(g_y,mylo,myhi,1,ntrials,k_y,myld)
-        call ga_access(g_ym,mylo,myhi,1,ntrials,k_ym,myld)
-
         ! Build projected matrix
-        call dgemm('t','n',ntrials,ntrials,myld,1d0,dbl_mb(k_ks),
-     $              myld,dbl_mb(k_mks),myld,0d0,dbl_mb(vkv),ntrials)
+        call dcopy(ntrials*ntrials,0d0,0,dbl_mb(vkv),1)
+        do isp=1,pars%ipol
+          subscript = (/pars%me+(isp-1)*ga_nnodes(),0/)
+          call nga_access_block_grid(g_ks,subscript,k_ks,myld)
+          call nga_access_block_grid(g_mks,subscript,k_mks,myld)
+          call dgemm('t','n',ntrials,ntrials,myld,1d0,dbl_mb(k_ks),
+     $                myld,dbl_mb(k_mks),myld,1d0,dbl_mb(vkv),ntrials)
+          call nga_release_block_grid(g_ks,subscript)
+          call nga_release_block_grid(g_mks,subscript)
+        enddo
         call ga_dgop((/194/),dbl_mb(vkv),ntrials**2,'+')
         if (debug) call ma_print(dbl_mb(vkv),ntrials,ntrials,'Proj')
 
@@ -171,58 +268,87 @@
         if (info.ne.0)
      $    call errquit(pname//'Diagonalization failed',206,0)
         if (debug) call ma_print(dbl_mb(vkv),ntrials,ntrials,'Eigen')
+        if (debug) call ma_print(dbl_mb(k_omega),ntrials,1,'Omega')
 
 
         ! Project back vectors
-        call dgemm('n','n',myld,ntrials,ntrials,1d0,dbl_mb(k_s),myld,
+        do isp=1,pars%ipol
+          subscript = (/pars%me+(isp-1)*nprocs,0/)
+          call nga_access_block_grid(g_s,subscript,k_s,myld)
+          call nga_access_block_grid(g_ks,subscript,k_ks,myld)
+          call nga_access_block_grid(g_mks,subscript,k_mks,myld)
+          call nga_access_block_grid(g_x,subscript,k_x,myld)
+          call nga_access_block_grid(g_y,subscript,k_y,myld)
+          call nga_access_block_grid(g_ym,subscript,k_ym,myld)
+
+          call dgemm('n','n',myld,ntrials,ntrials,1d0,dbl_mb(k_s),myld,
      $              dbl_mb(vkv),ntrials,0d0,dbl_mb(k_x),myld)
-        call dgemm('n','n',myld,ntrials,ntrials,1d0,dbl_mb(k_ks),myld,
+          call dgemm('n','n',myld,ntrials,ntrials,1d0,dbl_mb(k_ks),myld,
      $              dbl_mb(vkv),ntrials,0d0,dbl_mb(k_y),myld)
-        call dgemm('n','n',myld,ntrials,ntrials,1d0,dbl_mb(k_mks),myld,
-     $              dbl_mb(vkv),ntrials,0d0,dbl_mb(k_ym),myld)
+          call dgemm('n','n',myld,ntrials,ntrials,1d0,dbl_mb(k_mks),
+     $              myld,dbl_mb(vkv),ntrials,0d0,dbl_mb(k_ym),myld)
+
+          call nga_release_block_grid(g_s,subscript)
+          call nga_release_block_grid(g_ks,subscript)
+          call nga_release_block_grid(g_mks,subscript)
+          call nga_release_update_block_grid(g_x,subscript)
+          call nga_release_update_block_grid(g_y,subscript)
+          call nga_release_update_block_grid(g_ym,subscript)
+        enddo
 
         ! Get residual
-        call ga_access(g_w,mylo,myhi,1,pars%nroots,k_w,myld)
+        subscript = (/pars%me,0/)
+        call nga_access_block_grid(g_x,subscript,k_x,myld)
+        call nga_access_block_grid(g_ym,subscript,k_trials,myld)
+        if (pars%ipol.eq.1) then
+          myld2 = 0
+          call dcopy(myld*ntrials,dbl_mb(k_x),1,dbl_mb(k_tmp1),1)
+          call dcopy(myld*ntrials,dbl_mb(k_trials),1,dbl_mb(k_tmp2),1)
+        else
+          subscript = (/pars%me+nprocs,0/)
+          call nga_access_block_grid(g_x,subscript,k_x2,myld2)
+          call nga_access_block_grid(g_ym,subscript,k_trials2,myld2)
+          do itrial=1,pars%nroots
+            call dcopy(myld,dbl_mb(k_x+(itrial-1)*myld),1,
+     $                  dbl_mb(k_tmp1+(itrial-1)*(myld+myld2)),1)
+            call dcopy(myld2,dbl_mb(k_x2+(itrial-1)*myld2),1,
+     $                  dbl_mb(k_tmp1+(itrial-1)*(myld+myld2)+myld),1)
+            call dcopy(myld,dbl_mb(k_trials+(itrial-1)*myld),1,
+     $                  dbl_mb(k_tmp2+(itrial-1)*(myld+myld2)),1)
+            call dcopy(myld2,dbl_mb(k_trials2+(itrial-1)*myld2),1,
+     $                  dbl_mb(k_tmp2+(itrial-1)*(myld+myld2)+myld),1)
+          enddo
+        endif
 
-#if 1
         call bse_davidson_residual(pars%nroots,ntrials,dbl_mb(k_omega),
-     $         dbl_mb(k_x),dbl_mb(k_ym),dbl_mb(k_r),
-     $         dbl_mb(k_dia+mylo-1),dbl_mb(k_w),myld,ndim,norm)
+     $         dbl_mb(k_tmp1),dbl_mb(k_tmp2),dbl_mb(k_r),
+     $         dbl_mb(k_dia),dbl_mb(k_tmp3),myld+myld2,ndim,norm)
+
+        call nga_release_block_grid(g_x,(/pars%me,0/))
+        call nga_release_block_grid(g_ym,(/pars%me,0/))
+        call nga_access_block_grid(g_w,(/pars%me,0/),k_w,myld)
+        if(pars%ipol.eq.1) then
+          call dcopy(pars%nroots*myld,dbl_mb(k_tmp3),1,dbl_mb(k_w),1)
+        else
+          call nga_release_block_grid(g_x,subscript)
+          call nga_release_block_grid(g_ym,subscript)
+          call nga_access_block_grid(g_w,subscript,k_w2,myld2)
+          do itrial=1,pars%nroots
+            call dcopy(myld,dbl_mb(k_tmp3+(itrial-1)*(myld+myld2)),1,
+     $                      dbl_mb(k_w+(itrial-1)*myld),1)
+            call dcopy(myld2,dbl_mb(k_tmp3+
+     $                     (itrial-1)*(myld+myld2)+myld),1,
+     $                     dbl_mb(k_w2+(itrial-1)*myld2),1)
+          enddo
+          call nga_release_update_block_grid(g_w,subscript)
+        endif
+        call nga_release_update_block_grid(g_w,(/pars%me,0/))
 
         ! Print info
         if (pars%me.eq.0) then
           write(*,9010) idavidson,ntrials,pars%nroots-ndim,maxval(norm)
         endif
  9010   format(I5,3X,I5,3X,I5,G16.5)
-#else        
-        minimum = 0d0
-        ndim = 0
-        do itrial=1,pars%nroots
-          call dcopy(myld,dbl_mb(k_ym+(itrial-1)*myld),1,dbl_mb(k_r),1)
-          call daxpy(myld,-dbl_mb(k_omega+itrial-1),
-     $               dbl_mb(k_x+(itrial-1)*myld),1,dbl_mb(k_r),1)
-          norm = maxval(abs(dbl_mb(k_r:k_r+myhi-mylo)))
-          call ga_dgop((/229/),norm,1,'maxabs')
-          write(*,*) "       ",itrial,norm(1),
-     $       dsqrt(dbl_mb(k_omega+itrial-1))*27.2114d0
-          if (norm(1).gt.1d-5) then
-            ndim = ndim + 1
-            do ipole=mylo,myhi
-              factor = (dbl_mb(k_dia+ipole-1)-dbl_mb(k_omega+itrial-1))
-              dbl_mb(k_r+ipole-mylo) = dbl_mb(k_r+ipole-mylo)/factor
-            enddo
-            call ga_put(g_w,mylo,myhi,ndim,ndim,dbl_mb(k_r),myld)
-          endif
-        enddo
-#endif        
-
-        call ga_release_update(g_w,mylo,myhi,1,pars%nroots)
-        call ga_release_update(g_x,mylo,myhi,1,ntrials)
-        call ga_release_update(g_y,mylo,myhi,1,ntrials)
-        call ga_release_update(g_ym,mylo,myhi,1,ntrials)
-        call ga_release_update(g_s,mylo,myhi,1,ntrials)
-        call ga_release_update(g_ks,mylo,myhi,1,ntrials)
-        call ga_release_update(g_mks,mylo,myhi,1,ntrials)
 
         ! All residuals are below the threshold
         if (ndim.eq.0) exit
@@ -230,50 +356,115 @@
         ! Restart calculation if dimensions exceeded
         if (ndim+ntrials.gt.pars%nmax) then
           call bse_davidson_restart(ntrials,pars%nroots,npoles,
-     $          g_x,g_y,g_ym,g_s,g_ks,g_mks,l_vkv,vkv)
+     $          g_x,g_y,g_ym,g_s,g_ks,g_mks,l_vkv,vkv,
+     $          int_mb(k_map),pars%nblocks)
           cycle
         endif
 
         ! Project-out current vectors
-        call ga_access(g_ks,mylo,myhi,1,ntrials,k_ks,myld)
-        call ga_access(g_s,mylo,myhi,1,ntrials,k_s,myld)
-        call ga_access(g_w,mylo,myhi,1,pars%nroots,k_w,myld)
         if(.not.ma_push_get(mt_dbl,ndim*ntrials,'ksw',l_ksw,ksw))
      $    call errquit(pname//'ksw allocation failed',264,MA_ERR)
-        call dgemm('t','n',ntrials,ndim,myld,1d0,dbl_mb(k_ks),myld,
-     $              dbl_mb(k_w),myld,0d0,dbl_mb(ksw),ntrials)
+        call dcopy(ntrials*ndim,0d0,0,dbl_mb(ksw),1)
+        do isp=1,pars%ipol
+          subscript = (/pars%me+(isp-1)*nprocs,0/)
+          call nga_access_block_grid(g_ks,subscript,k_ks,myld)
+          call nga_access_block_grid(g_w,subscript,k_w,myld)
+          call dgemm('t','n',ntrials,ndim,myld,1d0,dbl_mb(k_ks),myld,
+     $              dbl_mb(k_w),myld,1d0,dbl_mb(ksw),ntrials)
+          call nga_release_block_grid(g_ks,subscript)
+          call nga_release_block_grid(g_w,subscript)
+        enddo
         call ga_dgop((/268/),dbl_mb(ksw),ntrials*ndim,'+')
-        call dgemm('n','n',myld,ndim,ntrials,-1d0,dbl_mb(k_s),myld,
-     $              dbl_mb(ksw),ntrials,1d0,dbl_mb(k_w),myld)
+
+        do isp=1,pars%ipol
+          subscript = (/pars%me+(isp-1)*nprocs,0/)
+          call nga_access_block_grid(g_s,subscript,k_s,myld)
+          call nga_access_block_grid(g_w,subscript,k_w,myld)
+          call dgemm('n','n',myld,ndim,ntrials,-1d0,dbl_mb(k_s),myld,
+     $                dbl_mb(ksw),ntrials,1d0,dbl_mb(k_w),myld)
+          call nga_release_update_block_grid(k_w,subscript)
+          call nga_release_block_grid(k_s,subscript)
+        enddo
         if(.not.ma_chop_stack(l_ksw))
      $    call errquit(pname//'ksw deallocation failed',272,MA_ERR)
-        call ga_release(g_ks,mylo,myhi,1,ntrials)
-        call ga_release(g_s,mylo,myhi,1,ntrials)
-        call ga_release_update(g_w,mylo,myhi,1,pars%nroots)
 
 
         ! K-orthogonalization
         call bse_davidson_kvec(pars,g_w,g_wia,g_kw,npoles,
-     $                         ndim,pars%singlet)
-        call bse_davidson_mvec(pars,g_kw,g_wia,g_mkw,npoles,
-     $                         ndim)
-        call ga_access(g_w,mylo,myhi,1,pars%nroots,k_w,myld)
-        call ga_access(g_kw,mylo,myhi,1,pars%nroots,k_kw,myld)
-        call ga_access(g_mkw,mylo,myhi,1,pars%nroots,k_mkw,myld)
-        call ga_access(g_x,mylo,myhi,1,mdim,k_x,myld)
-        call bse_davidson_kortho(pars,dbl_mb(k_w),dbl_mb(k_kw),
-     $    dbl_mb(k_mkw),dbl_mb(vkv),dbl_mb(k_x),myld,ndim,mdim,
-     $    .false.)
-        call ga_release_update(g_x,mylo,myhi,1,mdim)
-        call ga_release_update(g_w,mylo,myhi,1,pars%nroots)
-        call ga_release_update(g_kw,mylo,myhi,1,pars%nroots)
-        call ga_release_update(g_mkw,mylo,myhi,1,pars%nroots)
+     $                         ndim,pars%singlet,1d0)
+        call bse_davidson_kvec(pars,g_kw,g_wia,g_mkw,npoles,
+     $                         ndim,.false.,-1d0)
+
+        subscript = (/pars%me,0/)
+        call nga_access_block_grid(g_w,subscript,k_w,myld)
+        call nga_access_block_grid(g_kw,subscript,k_kw,myld)
+        call nga_access_block_grid(g_mkw,subscript,k_mkw,myld)
+        if (pars%ipol.eq.1) then
+          myld2 = 0
+          call dcopy(ndim*myld,dbl_mb(k_w),1,dbl_mb(k_tmp1),1)
+          call dcopy(ndim*myld,dbl_mb(k_kw),1,dbl_mb(k_tmp2),1)
+          call dcopy(ndim*myld,dbl_mb(k_mkw),1,dbl_mb(k_tmp3),1)
+        else
+          subscript = (/pars%me+nprocs,0/)
+          call nga_access_block_grid(g_w,subscript,k_w2,myld2)
+          call nga_access_block_grid(g_kw,subscript,k_kw2,myld2)
+          call nga_access_block_grid(g_mkw,subscript,k_mkw2,myld2)
+          do itrial=1,ndim
+            call dcopy(myld,dbl_mb(k_w+(itrial-1)*myld),1,
+     $         dbl_mb(k_tmp1+(itrial-1)*(myld+myld2)),1)
+            call dcopy(myld2,dbl_mb(k_w2+(itrial-1)*myld2),1,
+     $         dbl_mb(k_tmp1+(itrial-1)*(myld+myld2)+myld),1)
+            call dcopy(myld,dbl_mb(k_kw+(itrial-1)*myld),1,
+     $         dbl_mb(k_tmp2+(itrial-1)*(myld+myld2)),1)
+            call dcopy(myld2,dbl_mb(k_kw2+(itrial-1)*myld2),1,
+     $         dbl_mb(k_tmp2+(itrial-1)*(myld+myld2)+myld),1)
+            call dcopy(myld,dbl_mb(k_mkw+(itrial-1)*myld),1,
+     $         dbl_mb(k_tmp3+(itrial-1)*(myld+myld2)),1)
+            call dcopy(myld2,dbl_mb(k_mkw2+(itrial-1)*myld2),1,
+     $         dbl_mb(k_tmp3+(itrial-1)*(myld+myld2)+myld),1)
+          enddo
+        endif
+
+        call bse_davidson_kortho(pars,dbl_mb(k_tmp1),dbl_mb(k_tmp2),
+     $    dbl_mb(k_tmp3),dbl_mb(vkv),dbl_mb(k_tmp4),myld+myld2,
+     $    ndim,mdim,.false.)
+
+        if(pars%ipol.eq.1) then
+          call dcopy(mdim*myld,dbl_mb(k_tmp1),1,dbl_mb(k_w),1)
+          call dcopy(mdim*myld,dbl_mb(k_tmp2),1,dbl_mb(k_kw),1)
+          call dcopy(mdim*myld,dbl_mb(k_tmp3),1,dbl_mb(k_mkw),1)
+        else
+          do itrial=1,ndim
+            call dcopy(myld,dbl_mb(k_tmp1+(itrial-1)*(myld+myld2)),1,
+     $         dbl_mb(k_w+(itrial-1)*myld),1)
+            call dcopy(myld2,
+     $         dbl_mb(k_tmp1+(itrial-1)*(myld+myld2)+myld),1,
+     $         dbl_mb(k_w2+(itrial-1)*myld2),1)
+            call dcopy(myld,dbl_mb(k_tmp2+(itrial-1)*(myld+myld2)),1,
+     $         dbl_mb(k_kw+(itrial-1)*myld),1)
+            call dcopy(myld2,
+     $         dbl_mb(k_tmp2+(itrial-1)*(myld+myld2)+myld),1,
+     $         dbl_mb(k_kw2+(itrial-1)*myld2),1)
+            call dcopy(myld,dbl_mb(k_tmp3+(itrial-1)*(myld+myld2)),1,
+     $         dbl_mb(k_mkw+(itrial-1)*myld),1)
+            call dcopy(myld2,
+     $         dbl_mb(k_tmp3+(itrial-1)*(myld+myld2)+myld),1,
+     $         dbl_mb(k_mkw2+(itrial-1)*myld2),1)
+          enddo
+          call nga_release_update_block_grid(g_w,subscript)
+          call nga_release_update_block_grid(g_kw,subscript)
+          call nga_release_update_block_grid(g_mkw,subscript)
+        endif
+        call nga_release_update_block_grid(g_w,(/pars%me,0/))
+        call nga_release_update_block_grid(g_kw,(/pars%me,0/))
+        call nga_release_update_block_grid(g_mkw,(/pars%me,0/))
 
         ! All trial vectors were linearly-dependent
         ! restart calculation with current best guess
         if (mdim.eq.0) then
           call bse_davidson_restart(ntrials,pars%nroots,npoles,
-     $          g_x,g_y,g_ym,g_s,g_ks,g_mks,l_vkv,vkv)
+     $          g_x,g_y,g_ym,g_s,g_ks,g_mks,l_vkv,vkv,int_mb(k_map),
+     $          pars%nblocks)
           cycle
         endif
 
@@ -282,25 +473,47 @@
         ! Extend the size of the current vectors
         call bse_davidson_newvecs(ntrials,ndim,npoles,g_x,g_y,g_ym,
      $                            g_s,g_ks,g_mks,g_w,g_kw,g_mkw,
-     $                            l_vkv,vkv)
+     $                            l_vkv,vkv,int_mb(k_map),pars%nblocks)
 
       enddo
+
+      if(pars%me.eq.0) write(*,*)
+
+      stat = ga_destroy(pars%g_apb) .and. ga_destroy(pars%g_amb)
+      if(.not.stat) call errquit('deallocation failed',481,GA_ERR) 
+
+      stat = ga_create(mt_dbl,npoles,pars%nroots,'X+Y',0,pars%nroots,
+     $                 pars%g_apb)
+      if(.not.stat) call errquit('failed to creare GA',484,GA_ERR)
+      call nga_copy_patch('n',g_x,(/1,1/),(/npoles,pars%nroots/),
+     $                 pars%g_apb,(/1,1/),(/npoles,pars%nroots/))
 
       stat = ga_destroy(g_x).and.ga_destroy(g_y).and.ga_destroy(g_ym)
       stat = stat.and.ga_destroy(g_s).and.ga_destroy(g_ks)
       stat = stat.and.ga_destroy(g_mks).and.ga_destroy(g_w)
       stat = stat.and.ga_destroy(g_kw).and.ga_destroy(g_mkw)
       stat = stat.and.ga_destroy(g_trials).and.ga_destroy(g_wia)
-      stat = stat.and.ga_destroy(pars%g_apb).and.ga_destroy(pars%g_amb)
       do isp=1,pars%ipol
         stat = stat.and.ga_destroy(pars%g_erioo(isp))
         stat = stat.and.ga_destroy(pars%g_eriov(isp))
         stat = stat.and.ga_destroy(pars%g_erivv(isp))
         stat = stat.and.ga_destroy(pars%g_wov(isp))
       enddo
-      if(.not.stat) call errquit('deallocation failed',0,GA_ERR) 
+      if(.not.stat) call errquit('deallocation failed',496,GA_ERR) 
+
+      if (.not.pars%tda) then
+        do ipole=0,pars%nroots-1
+          dbl_mb(k_omega+ipole) = dsqrt(dbl_mb(k_omega+ipole))
+          call ga_scale_patch(pars%g_apb,1,npoles,ipole+1,ipole+1,
+     $              dsqrt(dbl_mb(k_omega+ipole)))
+        enddo
+      endif
+
+      call bse_oscstr(pars,dbl_mb(k_omega),npoles)
+
       stat = ma_chop_stack(l_dia)
-      if(.not.stat) call errquit('deallocation failed',0,MA_ERR) 
+      if(.not.stat) call errquit('deallocation failed',501,MA_ERR) 
+
 
       end subroutine bse_davidson
 

@@ -22,7 +22,9 @@
       call nga_get(pars%g_apb,1,npoles,diagonal,npoles)
       call nga_get(pars%g_amb,1,npoles,amb,npoles)
 
-      diagonal(:) = diagonal(:)*amb(:)
+      if (.not.pars%tda) then
+        diagonal(:) = diagonal(:)*amb(:)
+      endif
       indeces(:) = -1
 
       ! Get the indeces of the smallest diagonal elements
