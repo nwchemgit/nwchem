@@ -514,6 +514,9 @@
       stat = ma_chop_stack(l_dia)
       if(.not.stat) call errquit('deallocation failed',501,MA_ERR) 
 
+      ! Destroy GAs
+      if (.not.ga_destroy(pars%g_apb))
+     &    call errquit(pname//'could not destroy temp GA',519,GA_ERR)
 
       end subroutine bse_davidson
 
