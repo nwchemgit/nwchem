@@ -12,7 +12,7 @@
 
       double precision w(*)
 
-      integer isp,ilo,ihi,jlo,jhi,keri,ld
+      integer isp,ilo,ihi,jlo,jhi,keri,ld,g_tmp
 
       do isp=1,ipol
 
@@ -45,6 +45,10 @@
         call dtfsm('n','l','l','n','n',nri,jhi-jlo+1,1.0d0,w,
      &              dbl_mb(keri),nri)
         call ga_release_update(pars%g_erivv(isp),1,nri,jlo,jhi)
+
+
+
       enddo   
+
 
       end

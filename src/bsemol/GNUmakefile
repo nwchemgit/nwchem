@@ -3,7 +3,7 @@ OBJ = bsemol.o bse_input.o bse_init.o bse_analytic.o \
       bse_finalize.o bse_ri_init.o bse_wmn.o \
       bse_analytic_cis.o bse_analytic_tda.o \
       bse_dipole.o bse_oscstr.o bse_puteris.o bse_get_eia.o \
-      bse_davidson_diagonal.o bse_davidson_mvec.o \
+      bse_davidson_diagonal.o \
       bse_davidson_kvec.o bse_davidson_guess.o \
       bse_davidson_kortho.o bse_davidson_restart.o \
       bse_davidson_newvecs.o bse_davidson_residual.o
