@@ -167,7 +167,7 @@ c
       integer nshells_bas,nbf_mxnbf_ce2
       integer basis,g_dens_org(2)
       integer type,ndim,dims(3)
-      integer dft_npatch
+      integer dft_npatch, iptr
       external dft_npatch
 
 #ifdef SOLARIS
@@ -462,17 +462,18 @@ c doesn't depend on having 3-dimensional GAs.
          endif
          do isp=1,ipol
             do ii=1,nmat+1
+               iptr=ii+(isp-1)*(nmat+1)
                if(ndim.eq.3) then
-                  g_dens =
+                  g_dens(iptr) =
      =                 dft_npatch(g_dens_org,ii,nbf_ao,geom,ao_bas_han)
                endif
 c DM in last position is the scf DM               
                call util_ga_mat_reduce(nbf_ao,nctrs,int_mb(icetobfr), 
-     A              g_dens,  1, 
+     A              g_dens(iptr),  1, 
      A              dbl_mb(irdens_atom+(isp-1)*nctrs*nctrs), 'absmax', 
      &              dbl_mb(iscr), nbf_ao_mxnbf_ce,.false.)
                if(ndim.eq.3) then
-                  if (.not. ga_destroy(g_dens)) call errquit
+                  if (.not. ga_destroy(g_dens(iptr))) call errquit
      P                 (pname//'failed destroy',g_dens,GA_ERR)
                endif
             enddo
