@@ -22,15 +22,20 @@
       integer llpole,ulpole,iroot,ixyz,ipole,mag_transdip(3)
 
       integer isym,jsym,i,j,k,l,pol,occ,vir
-      integer g_td(2),g_xy(2),g_dipmag
+      integer g_td(2),g_xy(2),g_dipmag, g_ovlp, g_work, g_corr
+      integer k_corr, l_corr
       character*4 oname,vname
 
-      logical ltransden
+      logical ltransden,stat
       double precision origin(3)
+      double precision na,nb,s2
       data origin/0d0,0d0,0d0/
 
       character*(nw_max_path_len) fn_civecs, fn_transden
       logical,external :: dmat_to_file
+      integer,external :: ga_create_atom_blocked
+
+      double precision x(totpoles),y(totpoles)
 
       if(.not.rtdb_get(pars%rtdb,'bse:ltransden',mt_log,1,ltransden))
      $    ltransden = .false.
@@ -41,6 +46,30 @@
       call int_giao_1ega(ao_bas_han,ao_bas_han,g_dipmag,'angmom',origin,
      $                   1,.false.) 
       call ga_scale(g_dipmag,0.5d0)
+
+      if (pars%ipol.eq.2) then
+        if(.not.ma_push_get(mt_dbl,pars%nmo*pars%nmo,'corr',
+     $                      l_corr,k_corr))
+     $    call errquit('bse_oscstr: failed to create MA',0,MA_ERR)
+        g_ovlp = ga_create_atom_blocked(geom, ao_bas_han, 'Overlap')
+        if(.not.ga_create(mt_dbl,nbf_ao,pars%nmo,'work',0,0,g_work))
+     $    call errquit('bse_oscstr: failed to create GA',0,GA_ERR)
+        if(.not.ga_create(mt_dbl,pars%nmo,pars%nmo,'work',
+     $                    pars%nmo,0,g_corr))
+     $    call errquit('bse_oscstr: failed to create GA',0,GA_ERR)
+        call ga_zero(g_ovlp)
+        call int_1e_ga(ao_bas_han, ao_bas_han, g_ovlp, 'overlap', oskel)
+        if (oskel) call sym_symmetrize(geom,ao_bas_han,.false.,g_ovlp)
+        call ga_dgemm('n','n',nbf_ao,pars%nmo,nbf_ao,1d0,g_ovlp,
+     $                 pars%g_movecs(2),0d0,g_work)
+        call ga_dgemm('t','n',pars%nmo,pars%nmo,nbf_ao,1d0,
+     $                 pars%g_movecs(1),g_work,0d0,g_corr)
+        call ga_get(g_corr,1,pars%nmo,1,pars%nmo,dbl_mb(k_corr),
+     $              pars%nmo)
+        stat = ga_destroy(g_ovlp).and.ga_destroy(g_work).and.
+     $         ga_destroy(g_corr)
+      endif
+
 
       npoles = pars%npoles(1)
       if (pars%ipol.gt.1) npoles = npoles + pars%npoles(2)
@@ -108,9 +137,20 @@
 
         call ga_copy_patch('n',pars%g_apb,1,pars%npoles(1),ipole,ipole,
      &                         g_xy(1),1,pars%npoles(1),1,1)
+        if (pars%davidson) then
+          call ga_add_patch(1d0,pars%g_amb,1,pars%npoles(1),ipole,ipole,
+     &                    1d0,g_xy(1),1,pars%npoles(1),1,1,
+     &                        g_xy(1),1,pars%npoles(1),1,1)
+        endif
         if (pars%ipol.gt.1) then
           call ga_copy_patch('n',pars%g_apb,pars%npoles(1)+1,npoles,
      &                        ipole,ipole,g_xy(2),1,pars%npoles(2),1,1)
+          if (pars%davidson) then
+            call ga_add_patch(1d0,pars%g_amb,pars%npoles(1)+1,npoles,
+     &                        ipole,ipole,
+     &                        1d0,g_xy(2),1,pars%npoles(2),1,1,
+     &                            g_xy(2),1,pars%npoles(2),1,1)
+          endif
         endif
         call tddft_transfm(1,g_xy,pars%g_movecs,nbf_ao,pars%nocc,
      &                    (/pars%nmo,pars%nmo/),0,0,pars%ipol,g_td,1)
@@ -187,8 +227,29 @@ c        oscstr = 2d0/3d0*omega(ipole)*oscstr
           jsym = ieor(jsym-1,int_mb(pars%k_irs(pol)+vir-1)-1)+1
           call sym_irrepname(geom, jsym, vname)
 
+          if (pars%ipol.eq.2) then
+            na = dble(pars%nocc(1))
+            nb = dble(pars%nocc(2))
+            s2 = na - (na-nb)/2d0 + ((na-nb)/2d0)**2
+            do j=1,pars%nocc(1)
+              do k=1,pars%nocc(2)
+              enddo
+            enddo
+
+          endif
+
           write(luout,9110) iroot,key,vname,omega(ipole),
      &                        omega(ipole)*ha2ev
+
+          if (pars%davidson.and.pars%ipol.eq.2) then
+            call ga_get(pars%g_apb,1,npoles,ipole,ipole,x,npoles)
+            call ga_get(pars%g_amb,1,npoles,ipole,ipole,y,npoles)
+            call tddft_s2(pars%tda, (/0,0/), pars%nocc, 
+     &                    (/pars%nmo,pars%nmo/), (/0,0/),
+     &                    pars%npoles,x,x(pars%npoles(1)+1),y,
+     &                    y(pars%npoles(1)+1),dbl_mb(k_corr),s2)
+            write(luout,9180) s2
+          endif
 
           if (pars%singlet) then
             write(luout,9200) moms(2),moms(3),moms(4),
@@ -240,6 +301,7 @@ c        oscstr = 2d0/3d0*omega(ipole)*oscstr
      1  i5,1x,a5,1x,a4,f8.5,' X')
  9170 format(5x,'Occ.',i5,1x,a5,1x,a4,'---  Virt.',
      1  i5,1x,a5,1x,a4,f8.5,' Y')
+ 9180 format(2x,'<S2> = ',f8.4)
 
 
       end
