@@ -1391,6 +1391,13 @@ c
       if (.not.ga_destroy(g_rhs_xc(1))) 
      +  call errquit(pname//"could not destroy g_rhs_xc",0,GA_ERR)
 c
+      if (xc_gotxc().and.(.not.dm3d)) then
+        do ip = 1, 2*ipol
+          if (.not.ga_destroy(g_dtmp(ip)))
+     1      call errquit(pname//"could not destroy g_dtmp_ao", 0,
+     2        GA_ERR) 
+        enddo
+      endif
 c
       do ip = 1, ipol
         if (.not.ga_destroy(g_d(0+ip)))
