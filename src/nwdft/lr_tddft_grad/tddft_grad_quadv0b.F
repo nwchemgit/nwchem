@@ -18,6 +18,8 @@ c
 #include "errquit.fh"
 c
 #include "mafdecls.fh"
+#include "global.fh"
+#include "stdio.fh"
 #include "dftpara.fh"
 c     
       logical ldew              ! true if weight derivatives are included [input]
@@ -30,6 +32,8 @@ c
       integer ibf(mbf_ao), iniz(natoms), ifin(natoms)
       integer cetobfr(2,*)
       integer calctype
+      integer type,ndim,dims(3)
+
 c
 c Scratch array for product of XC functional, basis functions, and 
 c gradients of basis functions.
@@ -70,6 +74,15 @@ c
       double precision out(3)
       double precision ccdel(nq,mbf_ao,*)
 c
+c     check if 3d DM
+      call nga_inquire(g_dens(1), type, ndim, dims)
+#ifdef DEBUG      
+      if(ga_nodeid().eq.0) then
+         write(luout,*) ' ndim ',ndim
+         write(luout,*) ' dims ',(dims(imat),
+     ,        imat=1,ndim)
+      endif
+#endif      
       if (grad) then
         do imat = 1, nmat
           do ispin = 1, ipol
@@ -128,26 +141,26 @@ c Use this for the ground state density matrix (for the gradient of
 c the ground state density).  Note that g_dens(2) and g_dens(4) store
 c the ground state density matrices in TDDFT gradients.
                  if (calctype.eq.1) then
-#if 1                  
-                  call xc_get3ddm(g_dens(1),
-     I                           2*imat+ipol*(ispin-1),
-     %                   ifirst, ilast, 1, nbf_ao, ppp,nbfia)
-#else                  
-                  call ga_get(g_dens(2*imat+2*(ispin-1)), 
-     1                 ifirst, ilast, 1, nbf_ao, PPP, nbfia)
-#endif                  
+                    if(ndim.eq.3) then
+                       call xc_get3ddm(g_dens(1),
+     I                      2*imat+ipol*(ispin-1),
+     %                      ifirst, ilast, 1, nbf_ao, ppp,nbfia)
+                  else
+                     call ga_get(g_dens(2*imat+2*(ispin-1)),
+     1                    ifirst, ilast, 1, nbf_ao, PPP, nbfia)
+                  endif
 c Use this for the perturbed density matrix (for the gradient of the
 c perturbed density).  Note that g_dens(1) and g_dens(3) store the
 c penturbed density matrices in TDDFT gradients.
                else if (calctype.eq.2) then
-#if 1                  
-                  call xc_get3ddm(g_dens(1),
-     I                           imat+ipol*(ispin-1),
-     %                 ifirst, ilast, 1, nbf_ao, ppp,nbfia)
-#else                  
-                  call ga_get(g_dens(imat+2*(ispin-1)), 
-     1                 ifirst, ilast, 1, nbf_ao, PPP, nbfia)
-#endif                  
+                  if(ndim.eq.3) then
+                     call xc_get3ddm(g_dens(1),
+     I                    imat+ipol*(ispin-1),
+     %                    ifirst, ilast, 1, nbf_ao, ppp,nbfia)
+                  else
+                     call ga_get(g_dens(imat+2*(ispin-1)),
+     1                    ifirst, ilast, 1, nbf_ao, PPP, nbfia)
+                  endif
                 endif
                 do mu = inizia, ifinia
 c mu1 is used for indexing the scratch array hh (which starts at 1, 

@@ -44,7 +44,7 @@
         rohf_lagr.o 		rohf_diis.o \
 	rhf_fock.o              multipole.o ga_mat_to_vec.o \
         movecs_frag.o  localize.o int_dip_ga.o \
-        fock_xc.o fock_j_fit.o rohf_jkfac.o uhf_jkfac.o \
+        fock_xc.o fock_xc_dm3d.o fock_j_fit.o rohf_jkfac.o uhf_jkfac.o \
         rohf_hessv3.o \
 	fock_2e_cam.o ga_get2eri.o scf_frozemb.o print_integrals.o \
 	rohf_hessv2_ext.o rohf_hessv3_ext.o uhf_hessv2_ext.o uhf_precond_ext.o \
