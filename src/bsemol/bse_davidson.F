@@ -482,11 +482,15 @@
       stat = ga_destroy(pars%g_apb) .and. ga_destroy(pars%g_amb)
       if(.not.stat) call errquit('deallocation failed',481,GA_ERR) 
 
-      stat = ga_create(mt_dbl,npoles,pars%nroots,'X+Y',0,pars%nroots,
+      stat = ga_create(mt_dbl,npoles,pars%nroots,'X',0,pars%nroots,
      $                 pars%g_apb)
+      stat = ga_create(mt_dbl,npoles,pars%nroots,'Y',0,pars%nroots,
+     $                 pars%g_amb)
       if(.not.stat) call errquit('failed to creare GA',484,GA_ERR)
       call nga_copy_patch('n',g_x,(/1,1/),(/npoles,pars%nroots/),
      $                 pars%g_apb,(/1,1/),(/npoles,pars%nroots/))
+      call nga_copy_patch('n',g_y,(/1,1/),(/npoles,pars%nroots/),
+     $                 pars%g_amb,(/1,1/),(/npoles,pars%nroots/))
 
       stat = ga_destroy(g_x).and.ga_destroy(g_y).and.ga_destroy(g_ym)
       stat = stat.and.ga_destroy(g_s).and.ga_destroy(g_ks)
@@ -506,8 +510,14 @@
           dbl_mb(k_omega+ipole) = dsqrt(dbl_mb(k_omega+ipole))
           call ga_scale_patch(pars%g_apb,1,npoles,ipole+1,ipole+1,
      $              dsqrt(dbl_mb(k_omega+ipole)))
+          call ga_scale_patch(pars%g_amb,1,npoles,ipole+1,ipole+1,
+     $              1.0/dsqrt(dbl_mb(k_omega+ipole))) 
         enddo
       endif
+
+      call ga_print(pars%g_apb)
+      call ga_add(0.5d0,pars%g_apb,0.5d0,pars%g_amb,pars%g_apb)
+      call ga_add(1d0,pars%g_apb,-1d0,pars%g_amb,pars%g_amb)
 
       call bse_oscstr(pars,dbl_mb(k_omega),npoles)
 
@@ -516,6 +526,8 @@
 
       ! Destroy GAs
       if (.not.ga_destroy(pars%g_apb))
+     &    call errquit(pname//'could not destroy temp GA',519,GA_ERR)
+      if (.not.ga_destroy(pars%g_amb))
      &    call errquit(pname//'could not destroy temp GA',519,GA_ERR)
 
       end subroutine bse_davidson
