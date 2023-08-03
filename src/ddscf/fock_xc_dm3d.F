@@ -64,7 +64,7 @@ c
       integer dims(3),chunk(3)
       integer igxcd,lgxcd
       integer xc_getipol
-      logical oprint, debug
+      logical oprint, debug, oprint_trace
       integer alo(3), ahi(3), blo(3), bhi(3)
       integer nfock_xc,i
       integer ityp, ndim
@@ -79,6 +79,7 @@ c
 c
       if(.not.xc_gotxc()) return
       oprint= util_print('fock_xc',print_debug)
+      oprint_trace= util_print('fock_xc_trace',print_debug)
 
 c ... jochen: 
       debug = .false.
@@ -112,6 +113,7 @@ c
      &      write(luout,*)' fockxc: calc_type not set: setting to 1'
          calc_type = 1
       endif
+      if(ga_nodeid().eq.0) write(6,*) ' fock_xcd3d: ctype ',calc_type
 c
 c     == need a better solution for this == NXG
 c Daniel (2-16-13): This line of code is VERY dangerous.  It caused 
