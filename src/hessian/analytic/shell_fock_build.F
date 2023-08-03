@@ -848,7 +848,7 @@ c
 #ifdef NXT
       next = nxtask(-nproc,task_size)
 #endif
-      call ga_igop(65331, cache_hitmiss, 12, '+')
+      call ga_igop(65331, cache_hitmiss(1,1), 12, '+')
       cache_hit=0
       cache_miss=0
       do jj=1,6
@@ -1241,6 +1241,7 @@ c
 #include "errquit.fh"
 #include "global.fh"
 #include "bgj.fh"
+#include "rtdb.fh"
 #include "mafdecls.fh"
 #include "util.fh"
 #include "stdio.fh"
@@ -1258,6 +1259,8 @@ c
       integer i
       logical oprint
       integer ilo(3),ihi(3)
+      logical dm3d
+      integer rtdb_out
       integer ga_create3d_atom_blocked
       external ga_create3d_atom_blocked
 c
@@ -1267,6 +1270,9 @@ c
      ,        ' ndens ',ndens
          call util_flush(luout)
       endif
+      rtdb_out=bgj_get_rtdb_handle()
+      if (.not.rtdb_get(rtdb_out,'dft:dm3d',mt_log,1,dm3d)) 
+     D     dm3d=.false.
 #if 0
       dims(1) = nfock
       dims(2) = nbf
@@ -1292,8 +1298,13 @@ c      write(6,123) ga_nodeid(),' gxc distr ihi',ihi
       Exc(1) = 0.0d0
       Exc(2) = 0.0d0
       nExc = 1
-      call fock_xc(geom, nbf,basis,
-     ,             ndens,  g_dens, g_xc,Exc,nExc,.true.)
+      if(dm3d) then
+         call fock_xc_dm3d(geom, nbf,basis,
+     ,        ndens,  g_dens, g_xc,Exc,nExc,.true.)
+      else
+         call fock_xc(geom, nbf,basis,
+     ,        ndens,  g_dens, g_xc,Exc,nExc,.true.)
+      endif
       call ga_add(1.0d0, g_xc, 1.0d0, g_fock,
      &     g_fock)
       if (oprint) then

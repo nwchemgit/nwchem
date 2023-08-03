@@ -115,10 +115,6 @@ c
       integer sizeblk, gindx
       integer what
       logical zapnegatives
-#ifdef DEBUG
-      integer ga_nodeid
-      external ga_nodeid
-#endif
       integer type,ndim,dims(3)
       g_keepd(1)=0
       g_keepd(2)=0
@@ -157,15 +153,13 @@ c
          endif
       elseif(what.eq.1) then
          call nga_inquire(g_dens(1), type, ndim, dims)
-         if(ndim.lt.3.and.npert.gt.1) then
-            if(ga_nodeid().eq.0) then
-               write(luout,*) ' ndim ',ndim
-               write(luout,*) ' dims ',dims
-               write(luout,*) ' npert ',npert
-            endif
-            call ga_sync()
-            call errquit(' xcrhogen: 3dm fail',npert,0)
+#ifdef DEBUG         
+         if(ga_nodeid().eq.0) then
+            write(luout,*) ' ndim ',ndim
+            write(luout,*) ' dims ',(dims(ii),ii=1,ndim)
+            write(luout,*) ' npert ',npert
          endif
+#endif         
          call dcopy(nq*ipol*npert,0d0,0,rho,1)
          if (grad) call dcopy(3*nq*ipol*npert,0d0,0,delrho,1)
          if (kske) call dcopy(nq*ipol*npert,0d0,0,ttau,1)   ! total
@@ -316,7 +310,7 @@ c
      %                      ifirst, ilast, jfirst, jlast, Pmat,nbfia)
                       else
 c3d
-                         if(what.eq.1) then
+                         if(what.eq.1.and.ndim.eq.3) then
                             call xc_get3ddm(g_dens(1),
      I                           ipert+(ii-1)*npert,
      %                         ifirst, ilast, jfirst, jlast, Pmat,nbfia)
