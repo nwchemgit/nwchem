@@ -38,7 +38,7 @@ c     !!! BGJ test !!!
       integer vg_fockc
       integer dims(3), chunk(3),alo(3),ahi(3),blo(3),bhi(3)
       external ga_create_atom_blocked
-      logical xc_active, jfit,oprint,odft,cphf_uhf
+      logical xc_active, jfit,oprint,odft,cphf_uhf,dm3d
       oprint= util_print('fock_2e',print_debug)
       cphf_uhf = .false.
       if (.not. rtdb_get(bgj_get_rtdb_handle(), 
@@ -183,8 +183,16 @@ c
       Exc(1) = 0.0d0
       Exc(2) = 0.0d0
       nExc = 1
-      call fock_xc(geom1, nbf,ao_basis,
-     &             nfock, vg_dens, g_xc,Exc,nExc,.false.)
+      if (.not. rtdb_get(bgj_get_rtdb_handle(), 
+     &     'dft:dm3d', mt_log, 1, dm3d)) 
+     D     dm3d = .false.
+      if(dm3d) then
+         call fock_xc_dm3d(geom1, nbf,ao_basis,
+     &        nfock, vg_dens, g_xc,Exc,nExc,.false.)
+      else
+         call fock_xc(geom1, nbf,ao_basis,
+     &        nfock, vg_dens, g_xc,Exc,nExc,.false.)
+      endif
       ffac=1d0
       if (xc_active) then
          odft=nfock.eq.4
