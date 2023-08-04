@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+if [[ -z "$APPTAINER_NAME" ]] || [[ -z "$SINGULARITY_NAME" ]] ; then
+    MYSUDO=sudo
+else
+    MYSUDO=" "
+fi
 if [[ -z "$TRAVIS_BUILD_DIR" ]] ; then
     TRAVIS_BUILD_DIR=$(pwd)
 fi
@@ -61,20 +66,20 @@ echo DISTR is "$DISTR"
 	curl -sS -LJO https://registrationcenter-download.intel.com/akdlm/IRC_NAS/"$dir_hpc"/"$hpc".dmg
 	echo "installing BaseKit"
 	hdiutil attach "$base".dmg  -mountpoint ~/mntdmg -nobrowse
-	sudo  ~/mntdmg/bootstrapper.app/Contents/MacOS/install.sh  -c -s --action install  \
+	$MYSUDO  ~/mntdmg/bootstrapper.app/Contents/MacOS/install.sh  -c -s --action install  \
         --components intel.oneapi.mac.mkl.devel  --install-dir $IONEAPI_ROOT --eula accept
 	hdiutil detach ~/mntdmg
         #fix slow ifort https://community.intel.com/t5/Intel-oneAPI-HPC-Toolkit/slow-execution-of-ifort-icpc-on-MacOSX-catalina/m-p/1203190
 	#
 	echo "installing HPCKit"
 	hdiutil attach "$hpc".dmg  -mountpoint ~/mntdmg -nobrowse
-	sudo  ~/mntdmg/bootstrapper.app/Contents/MacOS/install.sh -c -s  --eula accept \
+	$MYSUDO  ~/mntdmg/bootstrapper.app/Contents/MacOS/install.sh -c -s  --eula accept \
 	     --action install --components default --install-dir $IONEAPI_ROOT
 	hdiutil detach ~/mntdmg
 	$TRAVIS_BUILD_DIR/travis/fix_xcodebuild.sh
-	sudo cp xcodebuild "$IONEAPI_ROOT"/compiler/latest/mac/bin/intel64/.
+	$MYSUDO cp xcodebuild "$IONEAPI_ROOT"/compiler/latest/mac/bin/intel64/.
 	ls -lrta $IONEAPI_ROOT ||true
-	sudo rm -rf "$IONEAPI_ROOT"/intelpython "$IONEAPI_ROOT"/dal "$IONEAPI_ROOT"/advisor \
+	$MYSUDO rm -rf "$IONEAPI_ROOT"/intelpython "$IONEAPI_ROOT"/dal "$IONEAPI_ROOT"/advisor \
 	     "$IONEAPI_ROOT"/ipp "$IONEAPI_ROOT"/conda_channel 	"$IONEAPI_ROOT"/dnnl \
 	     "$IONEAPI_ROOT"/installer "$IONEAPI_ROOT"/vtune_profiler "$IONEAPI_ROOT"/tbb || true
 	fi
@@ -105,13 +110,13 @@ if [[ "$os" == "Linux" ]]; then
 	    rpminst=yum
 	fi
 	if [[ "$HOSTNAME" != "fedoraqemuwe40672" ]]; then
-	    sudo $rpminst update;  sudo $rpminst -y install perl perl python3-devel time patch cmake gcc-gfortran unzip which make tar bzip2 openssh-clients rsync
-	    sudo $rpminst -y install openblas-serial64 || true
+	    $MYSUDO $rpminst update;  $MYSUDO $rpminst -y install perl perl python3-devel time patch cmake gcc-gfortran unzip which make tar bzip2 openssh-clients rsync
+	    $MYSUDO $rpminst -y install openblas-serial64 || true
 	    #	 module load mpi
 	    if [[ "$MPI_IMPL" == "openmpi" ]]; then
-		sudo $rpminst -y install  openmpi-devel
+		$MYSUDO $rpminst -y install  openmpi-devel
             elif [[ "$MPI_IMPL" == "mpich" ]]; then
-		sudo $rpminst -y install mpich  mpich-devel
+		$MYSUDO $rpminst -y install mpich  mpich-devel
 	    else
 		echo ready only for openmpi
 		exit 1
@@ -147,11 +152,11 @@ if [[ "$os" == "Linux" ]]; then
 	    fi
 	fi
 	if [[ "$GITHUB_WORKFLOW" != "NWChem_CI_selfhosted" ]]; then
-	    sudo apt-get update
-	    sudo apt-get -y install software-properties-common
-	    sudo add-apt-repository universe && sudo apt-get update
+	    $MYSUDO apt-get update
+	    $MYSUDO apt-get -y install software-properties-common
+	    $MYSUDO add-apt-repository universe && $MYSUDO apt-get update
 	    if [[ "$FC" == "gfortran-11" ]] || [[ "$CC" == "gcc-11" ]]; then
-		sudo  add-apt-repository -y ppa:ubuntu-toolchain-r/test 
+		$MYSUDO  add-apt-repository -y ppa:ubuntu-toolchain-r/test 
 		pkg_extra+="gcc-11 gfortran-11 g++-11"
 	    fi
 	    if [[ "$USE_LIBXC" == "-1" ]]; then
@@ -159,7 +164,7 @@ if [[ "$os" == "Linux" ]]; then
 	    fi
 	    echo pkg to install: gfortran python3-dev  make perl  python3 rsync $mpi_libdev $mpi_bin $pkg_extra
             tries=0 ; until [ "$tries" -ge 10 ] ; do \
-			  sudo apt-get -y install gfortran python3-dev  make perl  python3 rsync $mpi_libdev $mpi_bin $pkg_extra \
+			  $MYSUDO apt-get -y install gfortran python3-dev  make perl  python3 rsync $mpi_libdev $mpi_bin $pkg_extra \
 			      && break ;\
 			  tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
 
@@ -192,7 +197,7 @@ if [[ "$os" == "Linux" ]]; then
 		aomp_major=16
 		aomp_minor=0-3
 		wget -nv https://github.com/ROCm-Developer-Tools/aomp/releases/download/rel_"$aomp_major"."$aomp_minor"/aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
-		sudo dpkg -i aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
+		$MYSUDO dpkg -i aomp_Ubuntu2004_"$aomp_major"."$aomp_minor"_amd64.deb
 		export PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/bin/:$PATH
 		export LD_LIBRARY_PATH=/usr/lib/aomp_"$aomp_major"."$aomp_minor"/lib:$LD_LIBRARY_PATH
 		ls -lrt /usr/lib | grep aomp ||true
@@ -213,34 +218,34 @@ if [[ "$os" == "Linux" ]]; then
 	    which flang
 	fi
 	if [[ "$FC" == "amdflang" ]]; then
-	    sudo apt-get install -y wget gnupg2 coreutils dialog tzdata
+	    $MYSUDO apt-get install -y wget gnupg2 coreutils dialog tzdata
 	    rocm_version=5.4.3
-	    wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key |  sudo apt-key add -
-	    echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/'$rocm_version'/ ubuntu main' | sudo tee /etc/apt/sources.list.d/rocm.list
-	    sudo apt-get  update -y && sudo apt-get -y install rocm-llvm openmp-extras
+	    wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key |  $MYSUDO apt-key add -
+	    echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/'$rocm_version'/ ubuntu main' | $MYSUDO tee /etc/apt/sources.list.d/rocm.list
+	    $MYSUDO apt-get  update -y && $MYSUDO apt-get -y install rocm-llvm openmp-extras
 	    export PATH=/opt/rocm/bin:$PATH
 	    export LD_LIBRARY_PATH=/opt/rocm/lib:/opt/rocm/llvm/lib:$LD_LIBRARY_PATH
 	    amdflang -v
 	    amdclang -v
 	fi
 	if [[ "$FC" == "nvfortran" ]]; then
-	    sudo apt-get -y install lmod g++ libtinfo5 libncursesw5 lua-posix lua-filesystem lua-lpeg lua-luaossl
+	    $MYSUDO apt-get -y install lmod g++ libtinfo5 libncursesw5 lua-posix lua-filesystem lua-lpeg lua-luaossl
 	    nv_major=23
 	    nv_minor=3
 	    nverdot="$nv_major"."$nv_minor"
 	    nverdash="$nv_major"-"$nv_minor"
 	    arch_dpkg=`dpkg --print-architecture`
-	    echo 'deb [trusted=yes] https://developer.download.nvidia.com/hpc-sdk/ubuntu/'$arch_dpkg' /' | sudo tee /etc/apt/sources.list.d/nvhpc.list
+	    echo 'deb [trusted=yes] https://developer.download.nvidia.com/hpc-sdk/ubuntu/'$arch_dpkg' /' | $MYSUDO tee /etc/apt/sources.list.d/nvhpc.list
 	    echo '*** added hpc-sdk source to /etc/aps ***'
 	    ls -lrt /etc/apt/sources.list.d/ || true
 	    ls -lrt	/etc/apt/sources.list.d/nvhpc.list || true
-	    sudo cat /etc/apt/sources.list.d/nvhpc.list || true
-	    sudo apt-get update -y
+	    $MYSUDO cat /etc/apt/sources.list.d/nvhpc.list || true
+	    $MYSUDO apt-get update -y
 	    apt-cache search nvhpc
-            sudo apt-get install -y nvhpc-"$nverdash"
+            $MYSUDO apt-get install -y nvhpc-"$nverdash"
 	    export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:$PATH
 	    export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH
-	    sudo /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x
+	    $MYSUDO /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x
 	    
 	    export FC=nvfortran
 	    export CC=gcc
