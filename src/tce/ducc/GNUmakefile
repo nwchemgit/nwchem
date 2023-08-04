@@ -3,8 +3,8 @@
 OBJ_OPTIMIZE =  map_hcore.o rot_vir.o ducc.o hh.o hp.o pp.o hhhh.o pppp.o hhhp.o ppph.o hhpp.o hphp.o
 include ../../config/makefile.h
 
-ifeq ($(_FC),ifort)
-FOPTIMIZE = -O3 -ip -unroll
+ifeq ($(FC),ifx)
+FOPTIMIZE = -O1  -unroll
 endif
 
 LIB_INCLUDES = -I../include
