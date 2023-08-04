@@ -1428,6 +1428,9 @@ ifeq ($(TARGET),MACX64)
         endif
 
         FOPTIONS += -fpp -g -no-save-temps
+        ifneq ($(V),1)
+           FOPTIONS += -Qoption,fpp,-w0
+	endif
         FDEBUG    = -O2 -g
         FOPTIMIZE = -O3
 
@@ -2383,6 +2386,9 @@ ifneq ($(TARGET),LINUX)
             ifeq ($(_FC),ifxold)
                 DEFINES += -DIFCV8 -DIFCLINUX
                 FOPTIONS += -fpp -align
+                ifneq ($(V),1)
+                    FOPTIONS += -Qoption,fpp,-w0
+		endif
                 FOPTIMIZE = -g -O3 -fimf-arch-consistency=true
                 ifdef USE_I4FLAGS
                 else
@@ -2445,6 +2451,9 @@ ifneq ($(TARGET),LINUX)
                 endif
 
                 FOPTIONS += -align -fpp
+                ifneq ($(V),1)
+                    FOPTIONS += -Qoption,fpp,-w0
+		endif
 
 #               might be not need and the root cause for https://github.com/nwchemgit/nwchem/issues/255
 #               CPP=fpp -P
