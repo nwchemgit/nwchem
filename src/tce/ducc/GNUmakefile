@@ -4,7 +4,9 @@ OBJ_OPTIMIZE =  map_hcore.o rot_vir.o ducc.o hh.o hp.o pp.o hhhh.o pppp.o hhhp.o
 include ../../config/makefile.h
 
 ifeq ($(FC),ifx)
-FOPTIMIZE = -O1  -unroll
+#fix for hhhh.F segv crash with ifx 2023.2.0
+FOPTIMIZE = -O0
+V=1
 endif
 
 LIB_INCLUDES = -I../include
