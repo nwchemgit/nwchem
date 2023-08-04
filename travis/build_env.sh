@@ -58,10 +58,10 @@ echo DISTR is "$DISTR"
 	 else
 	mkdir -p ~/mntdmg $IONEAPI_ROOT || true
 	cd ~/Downloads
-	dir_base="2516a0a0-de4d-4f3d-9e83-545b32127dbb"
-	dir_hpc="a99cb1c5-5af6-4824-9811-ae172d24e594"
-	base="m_BaseKit_p_2023.1.0.45568"
-	hpc="m_HPCKit_p_2023.1.0.44543"
+	dir_base="cd013e6c-49c4-488b-8b86-25df6693a9b7"
+	dir_hpc="edb4dc2f-266f-47f2-8d56-21bc7764e119"
+	base="m_BaseKit_p_2023.2.0.49398"
+	hpc="m_HPCKit_p_2023.2.0.49443"
 	curl -sS -LJO https://registrationcenter-download.intel.com/akdlm/IRC_NAS/"$dir_base"/"$base".dmg
 	curl -sS -LJO https://registrationcenter-download.intel.com/akdlm/IRC_NAS/"$dir_hpc"/"$hpc".dmg
 	echo "installing BaseKit"
@@ -138,10 +138,10 @@ if [[ "$os" == "Linux" ]]; then
 	    export TERM=dumb
             rm -f l_Base*sh l_HP*sh
 	    tries=0 ; until [ "$tries" -ge 10 ] ; do \
-			  dir_base="7deeaac4-f605-4bcf-a81b-ea7531577c61"
-			  dir_hpc="1ff1b38a-8218-4c53-9956-f0b264de35a4"
-			  base="l_BaseKit_p_2023.1.0.46401"
-			  hpc="l_HPCKit_p_2023.1.0.46346"
+			  dir_base="992857b9-624c-45de-9701-f6445d845359"
+			  dir_hpc="0722521a-34b5-4c41-af3f-d5d14e88248d"
+			  base="l_BaseKit_p_2023.2.0.49397"
+			  hpc="l_HPCKit_p_2023.2.0.49440"
 			  wget -nv https://registrationcenter-download.intel.com/akdlm/IRC_NAS/"$dir_hpc"/"$hpc".sh \
 			      && wget -nv  https://registrationcenter-download.intel.com/akdlm/IRC_NAS/"$dir_base"/"$base".sh \
 			      && break ;\
