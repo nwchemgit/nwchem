@@ -29,12 +29,13 @@ cat > mpipr-too-many.patch <<EOF
      retval = ftruncate(fd, size);
      if (-1 == retval) {
          perror("_shm_create: ftruncate");
-@@ -7248,3 +7251,27 @@
+@@ -7248,3 +7251,29 @@
  #endif
  #endif
  }
 +
 +STATIC void count_open_fds(void) {
++#ifdef __linux__
 +  /* check only every 100 ops && rank == 1 */
 +  counter_open_fds += 1;
 +  if (counter_open_fds % 100 == 0 && g_state.rank == MIN(1,g_state.node_size)) {
@@ -56,6 +57,7 @@ cat > mpipr-too-many.patch <<EOF
 +  }
 +    fclose(f);
 +  }
++#endif
 +}
 EOF
 patch -p0 -s -N < ./mpipr-too-many.patch
