@@ -515,10 +515,8 @@
         enddo
       endif
 
-      call ga_print(pars%g_apb)
       call ga_add(0.5d0,pars%g_apb,0.5d0,pars%g_amb,pars%g_apb)
       call ga_add(1d0,pars%g_apb,-1d0,pars%g_amb,pars%g_amb)
-
       call bse_oscstr(pars,dbl_mb(k_omega),npoles)
 
       stat = ma_chop_stack(l_dia)

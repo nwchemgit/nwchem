@@ -16,8 +16,10 @@
       character*4 oname,vname
       logical found
       integer amo,imo,itrial,ipole,jpole,indeces(ntrials)
-      integer isym,jsym,i,j,pol
+      integer isym,jsym,i,j,pol,idum
+      integer allindeces(npoles)
       double precision minimum
+      logical swapped
 
       call nga_get(pars%g_apb,1,npoles,diagonal,npoles)
       call nga_get(pars%g_amb,1,npoles,amb,npoles)
@@ -26,13 +28,52 @@
         diagonal(:) = diagonal(:)*amb(:)
       endif
       indeces(:) = -1
+      allindeces(:) = -1
+
+      do ipole=1,npoles
+        allindeces(ipole) = ipole
+      enddo
+
+      do ipole=npoles-1,1,-1
+        swapped = .false.
+        do jpole=1,ipole
+          if (diagonal(allindeces(jpole)).gt.
+     $        diagonal(allindeces(jpole+1))) then
+            idum = allindeces(jpole)
+            allindeces(jpole) = allindeces(jpole+1)
+            allindeces(jpole+1) = idum
+            swapped = .true.
+          endif
+        enddo
+        if(.not.swapped) exit
+      enddo
+
+      if (pars%dowindow) then
+        do ipole=1,npoles
+          if (dsqrt(diagonal(allindeces(ipole))).ge.pars%elower) then
+            if (ipole+ntrials-1.gt.npoles) then
+              indeces(1:ntrials) = allindeces(npoles-ntrials+1:npoles)
+            else
+              indeces(1:ntrials) = allindeces(ipole:ipole+ntrials-1)
+            endif
+            exit
+          endif
+        enddo
+      else
+        indeces(1:ntrials) = allindeces(1:ntrials)
+      endif
 
       ! Get the indeces of the smallest diagonal elements
+      ! within energy window
+#if 0
       do itrial=1,ntrials
         minimum = 1d6
         do ipole=1,npoles
           if (abs(diagonal(ipole)).lt.minimum) then
-            found = .true.
+            if (pars%dowindow) then
+            else
+              found = .true.
+            endif
             do jpole=1,itrial
               if (ipole.eq.indeces(jpole)) then
                 found = .false.
@@ -46,6 +87,7 @@
           endif
         enddo
       enddo
+#endif
 
       ! Get symmetry of ground state
       isym = 1
@@ -86,7 +128,7 @@
         endif
         call sym_irrepname(geom, jsym, vname)
         write(luout,9030) itrial,pol,imo,amo,vname,
-     $                    dsqrt(diagonal(ipole))*27.2114d0
+     $                    dsqrt(diagonal(ipole))*27.211396d0
       enddo
 
  9000 format(i5,' smallest diagonals (eV) ')

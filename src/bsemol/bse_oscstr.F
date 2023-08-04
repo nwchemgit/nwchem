@@ -21,21 +21,26 @@
 
       integer llpole,ulpole,iroot,ixyz,ipole,mag_transdip(3)
 
-      integer isym,jsym,i,j,k,l,pol,occ,vir
+      integer isym,jsym,i,j,k,l,pol,occ,vir,ioff
       integer g_td(2),g_xy(2),g_dipmag, g_ovlp, g_work, g_corr
-      integer k_corr, l_corr
+      integer k_corr, l_corr, ulloop
       character*4 oname,vname
 
       logical ltransden,stat
       double precision origin(3)
-      double precision na,nb,s2
+      double precision na,nb,s2,s2_full
       data origin/0d0,0d0,0d0/
 
       character*(nw_max_path_len) fn_civecs, fn_transden
       logical,external :: dmat_to_file
       integer,external :: ga_create_atom_blocked
 
+      character*5 spin(2)
       double precision x(totpoles),y(totpoles)
+      double precision thresh  ! Threshold for printing
+      parameter (thresh=5.0d-2)
+      spin(1)='alpha'
+      spin(2)='beta '
 
       if(.not.rtdb_get(pars%rtdb,'bse:ltransden',mt_log,1,ltransden))
      $    ltransden = .false.
@@ -83,7 +88,7 @@
 
       ! Get the lower and upper limits
       llpole = -1
-      if (pars%dowindow) then
+      if (pars%dowindow .and. (.not.pars%davidson)) then
         iroot = 0
         do ipole=1,npoles
           if (omega(ipole).lt.pars%elower) cycle
@@ -184,27 +189,28 @@
           enddo
         endif
 
+        if (pars%davidson.and.pars%ipol.eq.2) then
+          call ga_get(pars%g_apb,1,npoles,ipole,ipole,x,npoles)
+          call ga_get(pars%g_amb,1,npoles,ipole,ipole,y,npoles)
+          call tddft_s2(pars%tda, (/0,0/), pars%nocc, 
+     &                    (/pars%nmo,pars%nmo/), (/0,0/),
+     &                    pars%npoles,x,x(pars%npoles(1)+1),y,
+     &                    y(pars%npoles(1)+1),dbl_mb(k_corr),s2)
+          call bse_s2(pars%nocc,pars%nmo,pars%npoles,x,
+     &     x(pars%npoles(1)+1), y, y(pars%npoles(1)+1), dbl_mb(k_corr),
+     &     s2_full) 
+          if (abs(s2_full).lt.0.2d0) then
+            key = 'singlet'
+          elseif (abs(abs(s2_full)-2.0d0).lt.0.2) then
+            key = 'triplet'
+          else
+            key = '       '
+          endif
+        endif
+
         if (pars%me.eq.0) then
           call tddft_oscstr(moms, omega(ipole), mag_transdip,
      &                      oscstr, oscstr_tot)
-
-c        do ixyz=1,3
-c          moms(ixyz) = moms(ixyz) + nga_ddot_patch(pars%g_apb,'n',
-c     &          (/1,ipole/),(/pars%npoles(1),ipole/),
-c     &          pars%g_dipa(ixyz),'n',1,pars%npoles(1))
-c          oscstr = oscstr + moms(ixyz)**2
-c        enddo
-c        if (pars%ipol.gt.1) then
-c          do ixyz=1,3
-c            moms(ixyz) = moms(ixyz) + 
-c     &        nga_ddot_patch(pars%g_apb,'n',(/pars%npoles(1)+1,ipole/),
-c     &            (/totpoles,ipole/),
-c     &            pars%g_dipb(ixyz),'n',1,pars%npoles(2))
-c            oscstr = oscstr + moms(ixyz)**2
-c          enddo
-c        endif
-c        oscstr = 2d0/3d0*omega(ipole)*oscstr
-
 
           l = 0
           maxr = 0.0d0
@@ -227,28 +233,13 @@ c        oscstr = 2d0/3d0*omega(ipole)*oscstr
           jsym = ieor(jsym-1,int_mb(pars%k_irs(pol)+vir-1)-1)+1
           call sym_irrepname(geom, jsym, vname)
 
-          if (pars%ipol.eq.2) then
-            na = dble(pars%nocc(1))
-            nb = dble(pars%nocc(2))
-            s2 = na - (na-nb)/2d0 + ((na-nb)/2d0)**2
-            do j=1,pars%nocc(1)
-              do k=1,pars%nocc(2)
-              enddo
-            enddo
-
-          endif
-
           write(luout,9110) iroot,key,vname,omega(ipole),
      &                        omega(ipole)*ha2ev
 
           if (pars%davidson.and.pars%ipol.eq.2) then
-            call ga_get(pars%g_apb,1,npoles,ipole,ipole,x,npoles)
-            call ga_get(pars%g_amb,1,npoles,ipole,ipole,y,npoles)
-            call tddft_s2(pars%tda, (/0,0/), pars%nocc, 
-     &                    (/pars%nmo,pars%nmo/), (/0,0/),
-     &                    pars%npoles,x,x(pars%npoles(1)+1),y,
-     &                    y(pars%npoles(1)+1),dbl_mb(k_corr),s2)
+            write(luout,*)
             write(luout,9180) s2
+            write(luout,9190) s2_full
           endif
 
           if (pars%singlet) then
@@ -261,6 +252,73 @@ c        oscstr = 2d0/3d0*omega(ipole)*oscstr
             write(luout,9210)
           endif
 
+          if (pars%davidson) then
+
+          write(luout,*)
+          if (ipol.eq.1) then
+            l=0
+            do j=1,pars%nocc(1)
+              do k=pars%nocc(1)+1,pars%nmo
+                l=l+1
+                if (pars%tda) then
+                  r=x(l)
+                  call sym_irrepname
+     1              (geom,int_mb(pars%k_irs(1)+j-1),oname)
+                  call sym_irrepname
+     1              (geom,int_mb(pars%k_irs(1)+k-1),vname)
+                  if ((dabs(r(1)).gt.thresh))
+     2              write(LuOut,9120) j,oname,k,vname,r
+                else
+                  r=x(l)
+                  call sym_irrepname
+     1              (geom,int_mb(pars%k_irs(1)+j-1),oname)
+                  call sym_irrepname
+     1              (geom,int_mb(pars%k_irs(1)+k-1),vname)
+                  if ((dabs(r(1)).gt.thresh))
+     2              write(LuOut,9130) j,oname,k,vname,r
+                  r=y(l)
+                  if ((dabs(r(1)).gt.thresh))
+     2              write(LuOut,9140) j,oname,k,vname,r
+                endif
+              enddo
+            enddo
+          else
+            do i=1,ipol
+              ioff = (i-1)*pars%npoles(1)
+              l=0
+              do j=1,pars%nocc(i)
+                do k=pars%nocc(i)+1,pars%nmo
+                  l=l+1
+                  if (pars%tda) then
+                    r = x(ioff+l)
+                    call sym_irrepname
+     1                (geom,int_mb(pars%k_irs(i)+j-1),oname)
+                    call sym_irrepname
+     1                (geom,int_mb(pars%k_irs(i)+k-1),vname)
+                    if ((dabs(r(1)).gt.thresh))
+     2                write(LuOut,9150) j,spin(i),oname,
+     3                k,spin(i),vname,r
+                  else
+                    r = x(ioff+l)
+                    call sym_irrepname
+     1                (geom,int_mb(pars%k_irs(i)+j-1),oname)
+                    call sym_irrepname
+     1                (geom,int_mb(pars%k_irs(i)+k-1),vname)
+                    if ((dabs(r(1)).gt.thresh))
+     2                write(LuOut,9160) j,spin(i),oname,
+     3                k,spin(i),vname,r
+                    r=y(ioff+l)
+                    if ((dabs(r(1)).gt.thresh))
+     2                write(LuOut,9170) j,spin(i),oname,
+     3                k,spin(i),vname,r
+                  endif
+                enddo
+              enddo
+            enddo      
+          endif
+          call util_flush(LuOut)
+
+          endif
 
         endif
 
@@ -301,7 +359,8 @@ c        oscstr = 2d0/3d0*omega(ipole)*oscstr
      1  i5,1x,a5,1x,a4,f8.5,' X')
  9170 format(5x,'Occ.',i5,1x,a5,1x,a4,'---  Virt.',
      1  i5,1x,a5,1x,a4,f8.5,' Y')
- 9180 format(2x,'<S2> = ',f8.4)
+ 9180 format(2x,'    <S2> = ',f8.4)
+ 9190 format(2x,'   D<S2> = ',f8.4)
 
 
       end
