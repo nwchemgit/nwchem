@@ -185,7 +185,7 @@ c
       nExc = 1
       if (.not. rtdb_get(bgj_get_rtdb_handle(), 
      &     'dft:dm3d', mt_log, 1, dm3d)) 
-     D     dm3d = .false.
+     D     dm3d = .true.
       if(dm3d) then
          call fock_xc_dm3d(geom1, nbf,ao_basis,
      &        nfock, vg_dens, g_xc,Exc,nExc,.false.)

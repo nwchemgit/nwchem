@@ -932,7 +932,7 @@ c can define a value for looping in xc_3rd_deriv and build the
 c perturbed density in xc_rhogen.  Since we loop over the roots, 
 c     the number of Fock matrices is always equal to 1.
           if (.not.rtdb_get(rtdb,'dft:dm3d',mt_log,1,dm3d))
-     D         dm3d=.false.
+     D         dm3d=.true.
 c
 c 3d
 c
