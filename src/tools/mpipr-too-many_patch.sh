@@ -35,9 +35,9 @@ cat > mpipr-too-many.patch <<EOF
  }
 +
 +STATIC void count_open_fds(void) {
-+  /* check only every 200 ops && rank == 1 */
++  /* check only every 100 ops && rank == 1 */
 +  counter_open_fds += 1;
-+  if (counter_open_fds % 200 == 0 && g_state.rank == MIN(1,g_state.node_size)) {
++  if (counter_open_fds % 100 == 0 && g_state.rank == MIN(1,g_state.node_size)) {
 +    FILE *f = fopen("/proc/sys/fs/file-nr", "r");
 +
 +    long nfiles, unused, maxfiles;
@@ -46,7 +46,7 @@ cat > mpipr-too-many.patch <<EOF
 +    if(nfiles % 1000 == 0) fprintf(stderr," %d: no. open files = %ld maxfiles = %ld\n", g_state.rank, nfiles, maxfiles);
 +#endif
 +    if(nfiles > (maxfiles/100)*80) {
-+      printf(" %d: running out of files; files = %ld  maxfiles = %ld mmin %ld \n", g_state.rank, nfiles, maxfiles, MIN(1,g_state.node_size));
++      printf(" %d: running out of files; files = %ld  maxfiles = %ld \n", g_state.rank, nfiles, maxfiles);
 +#if PAUSE_ON_ERROR
 +      fprintf(stderr,"%d(%d): too many open files\n",
 +	      g_state.rank,  getpid());
@@ -58,3 +58,5 @@ cat > mpipr-too-many.patch <<EOF
 +  }
 +}
 EOF
+patch -p0 -s -N < ./mpipr-too-many.patch
+echo mpipr-too-many.patch applied
