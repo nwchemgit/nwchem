@@ -6,7 +6,8 @@ OBJ = bsemol.o bse_input.o bse_init.o bse_analytic.o \
       bse_davidson_diagonal.o \
       bse_davidson_kvec.o bse_davidson_guess.o \
       bse_davidson_kortho.o bse_davidson_restart.o \
-      bse_davidson_newvecs.o bse_davidson_residual.o
+      bse_davidson_newvecs.o bse_davidson_residual.o \
+      bse_s2.o
 
 USES_BLAS = bse_buildw.F bse_ri_init.F bse_wmn.F
 
