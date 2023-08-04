@@ -100,7 +100,7 @@ c
      &  call errquit(pname//'rtdb_put failed', 300, RTDB_ERR)
       goto 10
 c
-c     compute singlet transitions
+c     compute triplet transitions
 c
  500  if (.not.rtdb_put(rtdb, 'bse:singlet', mt_log, 1, .false.))
      &  call errquit(pname//'rtdb_put failed', 300, RTDB_ERR)
