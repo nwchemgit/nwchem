@@ -40,7 +40,7 @@ if [[ "$arch" == "aarch64" ]]; then
     fi
 else
     if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
-	FOPT=-O2
+#	FOPT=-O2
     if [[ -z "$BUILD_OPENBLAS" ]] ; then
 	if [[ "$os" == "Darwin" ]]; then
  	    export BLASOPT="-L$MKLROOT  -Wl,-rpath,${MKLROOT}/lib -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core  -lpthread -lm -ldl  -L`gfortran -print-file-name=libquadmath.0.dylib|sed -e s'/libquadmath.0.dylib//'` "
