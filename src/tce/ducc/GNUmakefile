@@ -20,7 +20,7 @@ V=1
 
 ifeq ($(FC),ifx)
 #fix for hhhh.F segv crash with ifx 2023.2.0
-FOPTIMIZE = -O0
+FOPTIMIZE = -O1
 endif
 
 
