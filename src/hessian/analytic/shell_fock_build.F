@@ -1272,7 +1272,7 @@ c
       endif
       rtdb_out=bgj_get_rtdb_handle()
       if (.not.rtdb_get(rtdb_out,'dft:dm3d',mt_log,1,dm3d)) 
-     D     dm3d=.false.
+     D     dm3d=.true.
 #if 0
       dims(1) = nfock
       dims(2) = nbf

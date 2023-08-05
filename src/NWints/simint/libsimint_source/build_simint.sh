@@ -233,12 +233,26 @@ elif  [ ${FC} == frt ] || [ ${FC} == frtpx ] ; then
     CC=/opt/FJSVxos/devkit/aarch64/bin/aarch64-linux-gnu-gcc
     CXX=/opt/FJSVxos/devkit/aarch64/bin/aarch64-linux-gnu-g++
 fi
+if  [ ${CC} == icx ] ; then
+    C_FLAGS=" -w "
+    C_FLAGS_RELEASE="-O2"
+else
+    C_FLAGS_RELEASE="-O3"
+fi
+GOTCLANG=$( "$CC" -dM -E - </dev/null 2> /dev/null |grep __clang__|head -1|cut -c19)
+if [[ ${GOTCLANG} == "1" ]] ; then
+    echo "GOTCLANG"
+    C_FLAGS+=" -Wno-error=implicit-function-declaration "
+fi
+echo
 if [[ ! -z ${FFLAGS_FORGA} ]]; then Fortran_FLAGS+=" ${FFLAGS_FORGA}" ; fi
 echo Fortran_FLAGS equal "$Fortran_FLAGS"
+echo C_FLAGS equal "$C_FLAGS"
 FC="${FC}" CC="${CC}" CXX="${CXX}" $CMAKE \
  -DCMAKE_BUILD_TYPE="${SIMINT_BUILD_TYPE}" -DSIMINT_VECTOR=${VEC}  \
  -DCMAKE_INSTALL_LIBDIR=lib -DENABLE_FORTRAN=ON -DSIMINT_MAXAM=${SIMINT_MAXAM} -DSIMINT_MAXDER=${DERIV} \
  -DENABLE_TESTS=OFF     -DSIMINT_STANDALONE=OFF   \
+ -DCMAKE_C_FLAGS="$C_FLAGS"   -DCMAKE_C_FLAGS_RELEASE="$C_FLAGS_RELEASE"  \
  -DCMAKE_Fortran_FLAGS="$Fortran_FLAGS" -DCMAKE_INSTALL_PREFIX=${SRC_HOME}/simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install ../
 time -p make  -j4
 make simint
@@ -251,7 +265,9 @@ echo ln -sf  simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install simint_i
 ln -sf  simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install simint_install
 cd simint_install/lib
 if [[ "$arch" == "x86_64" ]]; then
-    strip --strip-debug libsimint.a
+    if [[ $(uname -s) == "Linux" ]]; then
+	strip --strip-debug libsimint.a
+    fi
 fi
 ln -sf libsimint.a libnwc_simint.a
 export SIMINT_HOME=${SRC_HOME}/simint.l${SIMINT_MAXAM}_p${PERMUTE_SLOW}_d${DERIV}.install
