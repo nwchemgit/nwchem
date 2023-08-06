@@ -48,7 +48,6 @@ HEADERS = xc.fh xc_vdw.fh xc_params.fh xc_hcth.fh
 	xc_xvs98.o xc_cvs98.o xc_xm06.o xc_cm06.o \
 	xc_spbe96.o xc_kt1.o xc_ssbD_1.o xc_s12x.o xc_cams12x.o \
 	xc_camb88.o xc_att_xc.o xc_camxpbe96.o xc_camxlsd.o xc_xwpbe.o hse08fx.o \
-	xc_vdw_main.o xc_vdw_util.o \
 	xc_xsogga.o xc_xmvs15.o \
 	xc_xm11.o xc_xmn12.o xc_xmn15.o \
 	xc_csogga.o\
@@ -60,6 +59,8 @@ HEADERS = xc.fh xc_vdw.fh xc_params.fh xc_hcth.fh
 	xc_xncap.o xc_xncap.o xc_xr2scan.o xc_xr2scanl.o\
 	xc_cr2scan.o xc_cr2scanl.o xc_hcth_extra.o \
 	xc_rhogen_adft.o xc_tabcd_adft.o
+
+	VDW_OBJ= xc_vdw_main.o xc_vdw_util.o
 
      LIBRARY = libnwdft.a
 
@@ -76,6 +77,11 @@ LIB_INCLUDES = -I../include
 	       xc_tabcd_adft.F xc_rhogen_adft.F
 
 include ../../config/makefile.h
+	ifeq ($(_FC),ifort)
+	   OBJ += $(VDW_OBJ)
+	else
+	   OBJ_OPTIMIZE += $(VDW_OBJ)
+	endif
 include ../../config/makelib.h
 ifdef EXTERNAL_GA_PATH
   GA_WAPI.H=${EXTERNAL_GA_PATH}/include/ga-wapi.h
