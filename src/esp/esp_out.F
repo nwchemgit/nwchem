@@ -21,7 +21,7 @@ c
       integer i,j,k
       integer fn
       character*16 Atag
-      character*80 name,espfilename
+      character*256 name,espfilename
       real*8 coord(3)
 c
       if(me.eq.0) then
