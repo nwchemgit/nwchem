@@ -593,13 +593,19 @@ c
 c
       oprint_energies = util_print("cosmo_energies",print_never)
       oprint_energies = oprint_energies.and.(ga_nodeid().eq.0)
+      
 c
       wgsrf_cosmo_vem = zero
       wstar_cosmo_vem = zero
       tolw = 0.00001d0
       iter_cosmo_vem = 0
-      dvem1=(dielecinf-one)*dielec/dielecinf/(dielec-one)
-      dvem2=(dielec-dielecinf)/dielecinf/(dielec-one)
+      if(dielecinf.ne.0d0) then
+         dvem1=(dielecinf-1d0)*dielec/dielecinf/(dielec-1d0)
+         dvem2=(dielec-dielecinf)/dielecinf/(dielec-1d0)
+      else
+         dvem1=0d0
+         dvem2=0d0
+      endif
 c
       if (.not. rtdb_get
      $ (rtdb,'cosmo:istep_cosmo_vem',mt_int,1,istep_cosmo_vem))
@@ -1263,8 +1269,10 @@ c      calculated in tddft_grad_compute_g.F.
 c
 c      calculate noneq charges from current ES charges and saved GS charges
 c
-        if (do_cosmo_vem.eq.2) dvem1=one
-        if (do_cosmo_vem.eq.2) dvem2=zero
+         if (do_cosmo_vem.eq.2) then
+            dvem1=1d0
+            dvem2=0d0
+         endif
         espolgsrf = zero
         espolin = zero
         espoldyn = zero

@@ -17,8 +17,12 @@ c
 c
 c     get the solvent data
 c
-      write(6,*)' SSSSSSSSSSSSSSS'
       if (solvname_short.eq.'h2o') solvname_long='water' ! default
+      if (solvname_short.eq.'unkn') then
+         solvname_long='unknown'  ! default
+         solv_data=.false.
+         return
+      endif
       eps=0d0
       epsinf=0d0
       call DATSOLMN(solvname_short,solvname_long,
@@ -36,8 +40,6 @@ c
       if (solvname_short.ne.'h2o'.and.solvname_long.ne.'water') 
      &   icds = 2
 c
-      write(6,*) ' icds ',icds
-      write(6,*) solvname_short, solvname_long
       return
       end
 c
