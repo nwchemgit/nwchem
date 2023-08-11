@@ -32,6 +32,7 @@ c
       logical ozmatrix
       logical oautoz
       logical oautosym
+      logical store_symrot
       logical ocenter
       logical found_cart
       logical ofinite, oatomfinite
@@ -92,8 +93,10 @@ c
       logical found_ang2au_conv
       logical found_au2ang_conv
       double precision ang2au, au2ang
+      double precision rot(3,3),rot_inv(3,3)
       integer istart,iend,irate
       integer atn, isys, fcent
+      integer l_xyzold,k_xyzold
       character*16 format, nucmodel
       logical geom_zmtmak
       external geom_zmtmak
@@ -122,7 +125,7 @@ c
 c     
 c     geometry [<name>] [units <units>] [print] [noprint] [bqbq] \
 c     [angstrom_to_au <real>] [au_to_angstrom <real>] \
-c     [(no)autoz] [nucleus <model>]
+c     [(no)autoz] [nucleus <model>] [store_symrot]
 c     
 c     subdirectives
 c     
@@ -161,6 +164,7 @@ c
       ecce_periodic     = .false.
       sysset            = .false.
       symset            = .false.
+      store_symrot      = .false.
 c
       call dfill(3*max_center, 0.0d0, velocities, 1)
 c
@@ -257,6 +261,8 @@ c ------ Store ofinite to be used by HFine finite calc ---FA-03-21-11-- START
      $      call errquit('geo ofinite: rtdb_put failed',555, RTDB_ERR)
 c ------ Store ofinite to be used by HFine finite calc ---FA-03-21-11-- END
             end if
+         else if (inp_compare(.false.,'store_symrot',field)) then
+            store_symrot = .true.
          else
             if (name .ne. ' ') call errquit
      $           ('geom_input: geometry [<name>] [units <units>]', 0,
@@ -654,10 +660,25 @@ c
             write(luout,*)
          endif
 c     
+         if(store_symrot) then
+            if(.not. ma_push_get(mt_dbl,3*ncenter,'xyzold',
+     L        l_xyzold,k_xyzold)) call
+     $           errquit('geom_input: ma error', ncenter, MA_ERR)
+            call
+     D           dcopy(ncenter*3, coords, 1, dbl_mb(k_xyzold), 1)
+         endif
          call geom_getsym0(rtdb,geom,oautosym,
      ,     ncenter,isys,
      ,     name,tags,
      ,     threquiv,scale,coords,charge,velocities,atomct)
+         if(store_symrot) then
+            call geom_findrot(ncenter,dbl_mb(k_xyzold),coords,rot)
+            call geom_m3inv(rot,rot_inv)
+            if (.not. rtdb_put(rtdb, 'geom:symrot', MT_DBL, 9, rot_inv)) 
+     E           call errquit("geom_input: symrot",0,0)
+            if (.not. ma_pop_stack(l_xyzold))
+     &           call errquit('geom_input:cant pop stack',0,0)
+         endif
       endif                     ! End of else clause for if(oadjust)
 
 c

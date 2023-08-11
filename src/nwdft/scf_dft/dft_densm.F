@@ -138,7 +138,6 @@ c
               nocinit=1
            endif
         endif
-        new_ntotel=rhfuhf*(anoc(1)+anoc(2))
 c       
 c       initialize ef
 c       
@@ -156,11 +155,14 @@ c
             call dft_zero(2,nbf,nmo,anoc(2),efermi(2),evals(nbf+1),
      .         ssmear,toll,.true.)
             nmo(2)=nmo(1)
-          else
-cold            call dft_zero(ipol,nbf,nmo,ntotel,efermi(1),evals,ssmear,
-            call dft_zero(ipol,nbf,nmo,new_ntotel,
-     E            efermi(1),evals,ssmear,
-     .         toll,spinset)
+         else
+            if(fon) then
+               new_ntotel=rhfuhf*(anoc(1)+anoc(2))
+            else
+               new_ntotel=ntotel
+            endif
+            call dft_zero(ipol,nbf,nmo,new_ntotel,efermi(1),
+     E           evals, ssmear,toll,.false.)
             efermi(2)=efermi(1)
           endif
         else
