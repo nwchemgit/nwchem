@@ -271,6 +271,7 @@ c
 c
       call ecce_print_module_entry('dft')
       dft_scf_so = .false.
+      lfon_occ=0
       nbf_mo = 2*nbf_ao
       lmaxov_sv = lmaxov
       oprint = util_print('information', print_low)
@@ -2366,12 +2367,13 @@ c
       go to 1000 
  4444 format(/,1x,'Determinant Occupancy: ',8(1x,i3,1x))
 c
-      if(fon.and.(ndet.gt.0))then 
+ 2002 continue
+      if(lfon_occ.ne.0)then
        if (.not.ma_pop_stack(kfon_occ))
      &   call errquit('dft_scf: cannot pop stack:lfon_occ',0,MA_ERR)
       endif
 c     
- 2002 continue
+c 2002 continue
 
       if (.not. ga_destroy(g_damp_so(1))) call errquit
      &     ('dft_scf_so: could not destroy g_damp_so', 0, GA_ERR)
@@ -2566,10 +2568,10 @@ c
          call ecce_print_module_exit('dft', 'failed')
       endif
 c     
-c     call ma_summarize_allocated_blocks()
-c
-      if (.not.ma_pop_stack(lrwork))
-     &   call errquit('dft_scf: cannot pop stack:lrwork',0, MA_ERR)
+      if (.not.ma_pop_stack(lrwork)) then
+         call ma_summarize_allocated_blocks()
+         call errquit('dft_scf: cannot pop stack:lrwork',0, MA_ERR)
+      endif
       if (.not.ma_pop_stack(lwork))
      &   call errquit('dft_scf: cannot pop stack:lwork',0, MA_ERR)
       if (.not.ma_pop_stack(lw))
