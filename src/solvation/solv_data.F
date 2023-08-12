@@ -29,7 +29,7 @@ c
      &     EPS,EPSINF,
      &     SOLA,SOLB,SOLC,SOLG,SOLH,SOLN)
       if(eps.eq.0d0.and.epsinf.eq.0d0) then
-         write(6,*) ' no data from solv_data'
+         write(6,*) ' no data from solv_data for',solvname_short
          solv_data=.false.
          return
       endif
