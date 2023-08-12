@@ -1,0 +1,30 @@
+echo
+start
+
+geometry units angstrom noprint
+ pt   0.000000  0.000000  0.000000
+ pt   0.000000  0.        2.67401333
+ symmetry ih
+end
+
+basis "ao basis" spherical
+* library def2-svp
+end
+
+basis "cd basis" spherical
+* library "weigend coulomb fitting"
+end
+
+ecp
+* library def2-ecp
+end
+
+dft
+ xc pbe96 cpbe96
+  mult 27
+ noprint "final vectors analysis" multipole inertia
+ smear 
+end
+set dft:spinset f
+task dft gradient
+

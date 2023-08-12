@@ -629,6 +629,8 @@ let "myexit+=$?"
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np chem_library_h4_sto6g_0.000
 let "myexit+=$?"
+./runtests.mpi.unix procs $np dft_pt13_spinsetf
+let "myexit+=$?"
 # superheavy elements check
 source ./qa_funcs.sh
 strings -a $(get_nwchem_executable) |grep Tennessine >& /dev/null
