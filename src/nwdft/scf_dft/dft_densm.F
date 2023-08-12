@@ -249,7 +249,7 @@ C          1723       format(' Foccs ',(
          endif
        endif
 c
-       if(spinset) then
+cold       if(spinset) then
          if(search0) then
            noc(1)=nint(ntot(1)*ipol*0.5d0)
            if(ipol.eq.2) noc(2)=nint(ntot(2))
@@ -257,7 +257,7 @@ c
            noc(1)=nocsave(1)
            noc(2)=nocsave(2)
          endif
-       endif
+cold       endif
 c
       endif  ! smear
 c
