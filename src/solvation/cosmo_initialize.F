@@ -253,7 +253,7 @@ c
 c
       do_cosmo_model = DO_COSMO_YK
       if(.not.rtdb_get(rtdb,'cosmo:dielec',mt_dbl,1,dielec))
-     D        dielec   =78.4d+00 ! default water dielectric
+     D        dielec   =78.4d0 ! default water dielectric
       cosmo_screen = COSMO_SCREEN_ST
       cosmo_sccor  = COSMO_SCCOR_LAGRA ! surface charge correction adapted for geometry optimzations
       minbem   =2
@@ -261,9 +261,9 @@ c
                   ! York-Karplus model
       ificos   =0
       lineq    =-1 ! 0: direct solver, 1: iterative solver
-      rsolv    =0.50d+00
-      zeta     =4.50d+00 ! apparently for Lebedev grids zeta=4.9
-      gammas   =1.00d+00 ! full switching, see York, Karplus Eq.86.
+      rsolv    =0.50d0
+      zeta     =4.50d0 ! apparently for Lebedev grids zeta=4.9
+      gammas   =1.00d0 ! full switching, see York, Karplus Eq.86.
       swtol    =1.00d-04 ! switching tolerance, see York, Karplus
                          ! Eq.62-88.
       iangleb  =-1
@@ -281,24 +281,6 @@ c
          minbem   =3
          maxbem   =4 
          ificos   =0
-         if (dielec.eq.78.4d+00) then
-            solvname_short  = 'h2o'
-            solvname_long  = 'water'
-            sola =  0.82d0
-            solb =  0.35d0
-            solc =  0.d0
-            solg =  103.62d0
-            solh =  0.d0
-            soln =  1.333d0
-            dielecinf = soln*soln ! n**2 (refractive index squared)
-         else
-            sola = -1.d0
-            solb = -1.d0
-            solc = -1.d0
-            solg = -1.d0
-            solh = -1.d0
-            soln = -1.d0
-         end if
       endif
 c
       status = rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo)
@@ -321,10 +303,16 @@ c
       status = rtdb_get(rtdb,'cosmo:zeta',mt_dbl,1,zeta) 
       status = rtdb_get(rtdb,'cosmo:gamma_s',mt_dbl,1,gammas) 
       status = rtdb_get(rtdb,'cosmo:sw_tol',mt_dbl,1,swtol) 
-      if(.not.rtdb_cget(rtdb,'cosmo:solvent',1,solvname_short))
-     c     solvname_short='unkn'
-      if(.not.rtdb_cget(rtdb,'cosmo:solvname_long',1,solvname_long))
-     $     solvname_long='unknown'
+      if(.not.rtdb_cget(rtdb,'cosmo:solvent',1,solvname_short)) then
+         if(do_cosmo_smd) then
+            solvname_short='h2o'
+         else
+            solvname_short='unkn'
+         endif
+      endif
+      if(.not.rtdb_cget(rtdb,'cosmo:solvname_long',1,solvname_long))then
+         if(.not.do_cosmo_smd) solvname_long='unknown'
+      endif
       status = rtdb_get(rtdb,'cosmo:iangleb',mt_int,1,iangleb)
       status = rtdb_get(rtdb,'cosmo:fibonacci',mt_int,1,fibonacci)
       status = rtdb_get(rtdb,'cosmo:thomson',mt_int,1,thomson)
@@ -360,21 +348,17 @@ c
      S        rtdb_get(rtdb,'cosmo:solh',mt_dbl,1,solh)
          status = status.or.
      S        rtdb_get(rtdb,'cosmo:soln',mt_dbl,1,soln)
-#if 1
       if(rtdb_get(rtdb,'cosmo:icds',mt_int,1,icds)) then
          status=.true.
       endif
-#endif      
       endif
-c      status = status.or.
-c     S     rtdb_get(rtdb,'cosmo:icds',mt_int,1,icds)
       if (solvname_short.eq.'unkn') then
          solvname_long='unknown'
       else
          if(.not.status) then
             if(odbug.and.me.eq.0) 
      &           write(luout,*) "calling solv_data for solv:",
-     S           solvname_short,'@',solvname_long,'@'
+     S           solvname_short
             if(.not.solv_data(solvname_short,solvname_long, !short and long solvent names
      &           dielec,dielecinf, ! slow and fast components
      &           sola,solb,solc,solg,solh,soln,icds)) then
