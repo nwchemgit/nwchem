@@ -36,10 +36,8 @@ jobs:
         COMEX_MAX_NB_OUTSTANDING: 8
         SINGULARITYENV_NWCHEM_BASIS_LIBRARY: /cluster/apps/nwchem/nwchem/src/basis/libraries/
         SINGULARITYENV_SCRATCH_DIR: /big_scratch
-        SINGULARITYENV_UCX_LOG_LEVEL: DIAG
         APPTAINERENV_NWCHEM_BASIS_LIBRARY: /cluster/apps/nwchem/nwchem/src/basis/libraries/
         APPTAINERENV_SCRATCH_DIR: /big_scratch
-        APPTAINERENV_UCX_LOG_LEVEL: DIAG
         MPIRUN_NPOPT: -n
         NWCHEM_EXECUTABLE: "singularity exec /big_scratch/nwchems.img nwchem "
     steps:
