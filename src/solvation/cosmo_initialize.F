@@ -355,7 +355,7 @@ c
       if (solvname_short.eq.'unkn') then
          solvname_long='unknown'
       else
-         if(.not.status) then
+c         if(.not.status) then
             if(odbug.and.me.eq.0) 
      &           write(luout,*) "calling solv_data for solv:",
      S           solvname_short
@@ -363,7 +363,7 @@ c
      &           dielec,dielecinf, ! slow and fast components
      &           sola,solb,solc,solg,solh,soln,icds)) then
                call errquit('solv_data failure',0,0)
-            endif
+c            endif
          endif
       endif
 c
