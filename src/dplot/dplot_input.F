@@ -37,7 +37,7 @@
       Character*256  File_Vec,File_Vec2,File_Out
       Character*256  File_Mat1,File_Mat2
       Character*256  File_civecs
-      character*32  theory
+      character*32  theory(2)
       logical lgaussian,dodos,ltransden,ldiffden
       double precision tol_rho
 *
@@ -66,21 +66,16 @@ c
       ldiffden = .false.
       tol_rho = 1d-40
 c
-c     try to get a scf movecs
+c     try to get scf/dft movecs
 c
-!      tag = 'scf:input vectors'
-!      if (.not. rtdb_cget(rtdb, tag, 1, File_vec)) then
-!         tag = 'dft:input vectors'
-!         if (.not. rtdb_cget(rtdb, tag, 1, File_vec)) 
-!     .        File_Vec  = 'movecs'
-!      endif
-!     write(0,*) ' FIle vec is ',File_Vec
-c     guess dft as theory  (is this really needed???)
-      if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
-     $     theory='dft'
-      if (.not. rtdb_cget(rtdb, theory(1:inp_strlen(theory))//
-     A     ':output vectors', 1, file_vec)) file_vec = ' '
-
+      theory(1)='scf'
+      theory(2)='dft'
+      file_vec = ' '
+      do i=1,2
+         if (rtdb_cget(rtdb, theory(i)(1:inp_strlen(theory(i)))//
+     A        ':output vectors', 1, file_vec)) goto 2023
+      enddo
+ 2023 continue
       File_Vec2 = ' '
       File_civecs = ' '
       File_Mat1 = ' '
