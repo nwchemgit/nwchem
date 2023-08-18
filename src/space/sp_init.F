@@ -659,7 +659,12 @@ c
       real*8 boxsiz(maxbox,3)
       integer ndx(nw),lseq(mseq),isndx(mseq)
       real*8 temp,tempw,temps
-c
+c aa  from prepar/pre_toprd.F
+      integer idummy
+      character*10 slvmdl
+      character*3 string
+      character*1 cdummy 
+c aa
       character*1 cdum
       real*8 rdum,cgx,cgy,cgz
       integer i,j,k,idum,jdum,kdum,number,ncyc,numw
@@ -750,20 +755,26 @@ c
       do 109 i=1,now*(npars+1)
       read(lfntop,2001,end=9897,err=9898) 
   109 continue
+c aa, adapted from topology prepare code from /prepare/pre_toprd.F
       if(ntw.gt.0) then
-      read(lfntop,2004,end=9897,err=9898) 
-      read(lfntop,2004,end=9897,err=9898) 
+         read(lfntop,2004) (idummy,i=1,ntw)
+         read(lfntop,2004) (idummy,i=1,ntw)
  2004 format(11i7)
       endif
       if(nnw.gt.0) then
-      read(lfntop,2005,end=9997,err=9998) 
-      read(lfntop,2005,end=9997,err=9998) 
+         read(lfntop,2005) (idummy,i=1,nnw)
+         read(lfntop,2005) (idummy,i=1,nnw)
  2005 format(11i7)
       endif
-      read(lfntop,2001,end=9897,err=9898) 
-      do 204 i=1,npars
-      read(lfntop,2001,end=9897,err=9898) 
-  204 continue
+      if(nwa.gt.0) then
+         read(lfntop,2006) slvmdl,string
+ 2006    format(a10,a3)
+         do 110 i=1,npars
+            read(lfntop,2007) cdummy
+ 2007       format(a1)
+  110    continue
+      endif
+c aa
 c
       write(lfnout,6100)
  6100 format(/,' RESTART FILE INFORMATION',/)
