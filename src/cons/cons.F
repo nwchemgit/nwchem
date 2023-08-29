@@ -926,13 +926,13 @@ c
      $   energy = 0.0d0
 
       if ((master).and.(dabs(energy).gt.1.0d-9)) then
-      write(luout,'(A39,3X,F12.6)')
+      write(luout,'(A39,3X,F22.12)')
      >       " Total energy with constraints        :",
      >         energy
-      write(luout,'(A39,3X,F12.6)')
+      write(luout,'(A39,3X,F22.12)')
      >       " Energy contribution from constraints :",
      >                       etot
-      write(luout,'(A39,3X,F12.6)')
+      write(luout,'(A39,3X,F22.12)')
      >       " Total energy without constraints     :",
      >                       energy-etot
       write(luout,*) "--------------------------------------"
