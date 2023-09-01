@@ -227,6 +227,7 @@ if [[ "$os" == "Linux" ]]; then
 	    echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/'$rocm_version'/ ubuntu main' | $MYSUDO tee /etc/apt/sources.list.d/rocm.list
 	    tries=0 ; until [ "$tries" -ge 10 ] ; do \
 	    $MYSUDO apt-get  update -y && $MYSUDO apt-get -y install rocm-llvm openmp-extras \
+            && break ; \
 	    tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ; done
 	    export PATH=/opt/rocm/bin:$PATH
 	    export LD_LIBRARY_PATH=/opt/rocm/lib:/opt/rocm/llvm/lib:$LD_LIBRARY_PATH
