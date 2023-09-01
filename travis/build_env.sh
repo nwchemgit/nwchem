@@ -188,7 +188,7 @@ if [[ "$os" == "Linux" ]]; then
 	    fi
             source "$IONEAPI_ROOT"/setvars.sh || true
 	    export I_MPI_F90="$FC"
-	    "$FC" -V
+	    "$FC" -V ; if [[ $? != 0 ]]; then echo "Intel SW install failed"; exit 1; fi
 	    icc -V
 
 	fi
@@ -230,7 +230,7 @@ if [[ "$os" == "Linux" ]]; then
 	    tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ; done
 	    export PATH=/opt/rocm/bin:$PATH
 	    export LD_LIBRARY_PATH=/opt/rocm/lib:/opt/rocm/llvm/lib:$LD_LIBRARY_PATH
-	    amdflang -v
+	    amdflang -v ; if [[ $? != 0 ]]; then echo "amdflang install failed"; exit 1; fi
 	    amdclang -v
 	fi
 	if [[ "$FC" == "nvfortran" ]]; then
@@ -257,7 +257,7 @@ if [[ "$os" == "Linux" ]]; then
 	    
 	    export FC=nvfortran
 	    export CC=gcc
-	    nvfortran -V
+	    nvfortran -V ;if [[ $? != 0 ]]; then echo "nvfortran install failed"; exit 1; fi
 	    which nvfortran
 	fi
     fi
