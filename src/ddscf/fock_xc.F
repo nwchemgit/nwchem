@@ -111,7 +111,7 @@ c
      &      write(luout,*)' fockxc: calc_type not set: setting to 1'
          calc_type = 1
       endif
-      if(ga_nodeid().eq.0) write(6,*) ' fock_xc: ctype ',calc_type
+cdbg      if(ga_nodeid().eq.0) write(6,*) ' fock_xc: ctype ',calc_type
 c
 c     == need a better solution for this == NXG
 c Daniel (2-16-13): This line of code is VERY dangerous.  It caused 

@@ -188,7 +188,7 @@ if [[ "$os" == "Linux" ]]; then
 	    fi
             source "$IONEAPI_ROOT"/setvars.sh || true
 	    export I_MPI_F90="$FC"
-	    "$FC" -V
+	    "$FC" -V ; if [[ $? != 0 ]]; then echo "Intel SW install failed"; exit 1; fi
 	    icc -V
 
 	fi
@@ -220,12 +220,18 @@ if [[ "$os" == "Linux" ]]; then
 	if [[ "$FC" == "amdflang" ]]; then
 	    $MYSUDO apt-get install -y wget gnupg2 coreutils dialog tzdata
 	    rocm_version=5.4.3
-	    wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key |  $MYSUDO apt-key add -
+	    tries=0 ; until [ "$tries" -ge 10 ] ; do \
+	    wget -q -O - https://repo.radeon.com/rocm/rocm.gpg.key |  $MYSUDO apt-key add - \
+		&& break ; \
+	    tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ; done
 	    echo 'deb [arch=amd64] https://repo.radeon.com/rocm/apt/'$rocm_version'/ ubuntu main' | $MYSUDO tee /etc/apt/sources.list.d/rocm.list
-	    $MYSUDO apt-get  update -y && $MYSUDO apt-get -y install rocm-llvm openmp-extras
+	    tries=0 ; until [ "$tries" -ge 10 ] ; do \
+	    $MYSUDO apt-get  update -y && $MYSUDO apt-get -y install rocm-llvm openmp-extras \
+            && break ; \
+	    tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ; done
 	    export PATH=/opt/rocm/bin:$PATH
 	    export LD_LIBRARY_PATH=/opt/rocm/lib:/opt/rocm/llvm/lib:$LD_LIBRARY_PATH
-	    amdflang -v
+	    amdflang -v ; if [[ $? != 0 ]]; then echo "amdflang install failed"; exit 1; fi
 	    amdclang -v
 	fi
 	if [[ "$FC" == "nvfortran" ]]; then
@@ -242,14 +248,17 @@ if [[ "$os" == "Linux" ]]; then
 	    $MYSUDO cat /etc/apt/sources.list.d/nvhpc.list || true
 	    $MYSUDO apt-get update -y
 	    apt-cache search nvhpc
-            $MYSUDO apt-get install -y nvhpc-"$nverdash"
+	    tries=0 ; until [ "$tries" -ge 10 ] ; do \
+            $MYSUDO apt-get install -y nvhpc-"$nverdash" \
+            && break ; \
+            tries=$((tries+1)) ; echo attempt no.  $tries    ; sleep 30 ;  done
 	    export PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin:$PATH
 	    export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH
 	    $MYSUDO /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x
 	    
 	    export FC=nvfortran
 	    export CC=gcc
-	    nvfortran -V
+	    nvfortran -V ;if [[ $? != 0 ]]; then echo "nvfortran install failed"; exit 1; fi
 	    which nvfortran
 	fi
     fi
