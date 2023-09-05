@@ -159,7 +159,7 @@ function get_mpi_lib ()
       fi
    done
    # homebrew hwloc
-   if [ $(command -v pkg-config 2> /dev/null) -ne 0 ]; then
+   if command -v pkg-config >& /dev/null ; then
     if pkg-config --exists hwloc; then
 	outlist="${outlist} $(pkg-config --libs-only-L hwloc 2> /dev/null) -lhwloc"
     fi
