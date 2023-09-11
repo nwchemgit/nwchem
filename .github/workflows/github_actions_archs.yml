@@ -57,7 +57,7 @@ jobs:
           path: |
             ~/cache
           key: ${{ runner.os }}-${{ matrix.mpi_impl}}-${{ matrix.distro}}-${{ matrix.arch}}-nwchem-v009
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         name: Checkout
         with:
           fetch-depth: 40
