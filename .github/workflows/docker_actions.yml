@@ -35,7 +35,7 @@ jobs:
           key: ${{ matrix.folder}}-${{ matrix.fc}}/${{ matrix.archs}}-nwchem-dockeractions-v002
       - name: Qemu
         id: qemu
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
         with:
           image: tonistiigi/binfmt:qemu-v6.0.0-10
       - name: Available platforms
