@@ -286,9 +286,13 @@ foreach $filename (@FILES_TO_PARSE) {
 	    }
 #                                                    *** Assumes $itok was incremented above
 	    if (! $quiet) {
-		printf "%.3f\n", set_to_digits(@line_tokens[$itok],3);
+		$text = sprintf("%.3f", $line_tokens[$itok]);
+		printf "$text\n";
+#		printf "%.3f\n", set_to_digits(@line_tokens[$itok],3);
 	    }
-	    printf FILE_OUTPUT "%.3f\n", set_to_digits(@line_tokens[$itok],3);
+	    $text = sprintf("%.3f", $line_tokens[$itok]);
+	    printf FILE_OUTPUT "$text\n";
+#	    printf FILE_OUTPUT "%.3f\n", set_to_digits(@line_tokens[$itok],3);
 	}
 	if (/nuclear/ && /repulsion/ && /energy/){
 	    if ($debug) {print "\ndebug: $_";}
@@ -306,9 +310,13 @@ foreach $filename (@FILES_TO_PARSE) {
 	    }
 #                                                    *** Assumes $itok was incremented above
 	    if (! $quiet) {
-		printf "%.3f\n", set_to_digits(@line_tokens[$itok],3);
+		$text = sprintf("%.2f", $line_tokens[$itok]);
+		printf "$text\n";
+#		printf "%.3f\n", set_to_digits(@line_tokens[$itok],3);
 	    }
-	    printf FILE_OUTPUT "%.2f\n", set_to_digits(@line_tokens[$itok],2);
+	    $text = sprintf("%.2f", $line_tokens[$itok]);
+	    printf FILE_OUTPUT "$text\n";
+#	    printf FILE_OUTPUT "%.2f\n", set_to_digits(@line_tokens[$itok],2);
 	}
         if (! $sgroup) {
 	if (/Total/ && /energy/) {
@@ -328,9 +336,13 @@ foreach $filename (@FILES_TO_PARSE) {
 		}
 #                                                    *** Assumes $itok was incremented above
 		if (! $quiet) {
-		    printf "%.5f\n", set_to_digits(@line_tokens[$itok],5);
+		    $text = sprintf("%.5f", $line_tokens[$itok]);
+		    printf "$text\n";
+#		    printf "%.5f\n", set_to_digits(@line_tokens[$itok],5);
 		}
-		printf FILE_OUTPUT "%.5f\n", set_to_digits(@line_tokens[$itok],5);
+		$text = sprintf("%.5f", $line_tokens[$itok]);
+		printf FILE_OUTPUT "$text\n";
+#		printf FILE_OUTPUT "%.5f\n", set_to_digits(@line_tokens[$itok],5);
 	    }
 	}
 	}
@@ -352,9 +364,13 @@ foreach $filename (@FILES_TO_PARSE) {
 		}
 #                                                    *** Assumes $itok was incremented above
 		if (! $quiet) {
-		    printf "%.7f\n", set_to_digits(@line_tokens[$itok],7);
+		    $text = sprintf("%.7f", $line_tokens[$itok]);
+		    printf "$text\n";
+#		    printf "%.7f\n", set_to_digits(@line_tokens[$itok],7);
 		}
-		printf FILE_OUTPUT "%.7f\n", set_to_digits(@line_tokens[$itok],7);
+		$text = sprintf("%.7f", $line_tokens[$itok]);
+		printf FILE_OUTPUT "$text\n";
+#		printf FILE_OUTPUT "%.7f\n", set_to_digits(@line_tokens[$itok],7);
 	    }
 	}
 	}
@@ -375,9 +391,13 @@ foreach $filename (@FILES_TO_PARSE) {
               printf FILE_OUTPUT "%s ", @line_tokens[$itok];
             }
             if (!$quiet) {
-              printf "%.2f\n", set_to_digits(@line_tokens[$itok],2);
-            }
-            printf FILE_OUTPUT "%.2f\n", set_to_digits(@line_tokens[$itok],2);
+ 	      $text = sprintf("%.2f", $line_tokens[$itok]);
+	      printf "$text\n";
+#              printf "%.2f\n", set_to_digits(@line_tokens[$itok],2);
+           }
+	    $text = sprintf("%.2f", $line_tokens[$itok]);
+	    printf FILE_OUTPUT "$text\n";
+#            printf FILE_OUTPUT "%.2f\n", set_to_digits(@line_tokens[$itok],2);
           }
         }
         if (!$sgroup) {
@@ -396,9 +416,13 @@ foreach $filename (@FILES_TO_PARSE) {
               printf FILE_OUTPUT "%s ", @line_tokens[$itok];
             }
             if (!$quiet) {
-              printf "%.4f\n", set_to_digits(@line_tokens[$itok],4);
+		$text = sprintf("%.4f", $line_tokens[$itok]);
+		printf "$text\n";
+#              printf "%.4f\n", set_to_digits(@line_tokens[$itok],4);
             }
-            printf FILE_OUTPUT "%.4f\n", set_to_digits(@line_tokens[$itok],4);
+	    $text = sprintf("%.4f", $line_tokens[$itok]);
+	    printf FILE_OUTPUT "$text\n";
+#            printf FILE_OUTPUT "%.4f\n", set_to_digits(@line_tokens[$itok],4);
           }
         }
 
@@ -418,9 +442,13 @@ foreach $filename (@FILES_TO_PARSE) {
 	    }
 #                                                   *** Assumes $itok was incremented above
 	    if (! $quiet) {
-	        printf "%.3f\n", set_to_digits(@line_tokens[$itok],3);
+		$text = sprintf("%.3f", $line_tokens[$itok]);
+		printf "$text\n";
+#	        printf "%.3f\n", set_to_digits(@line_tokens[$itok],3);
 	    }
-	    printf FILE_OUTPUT "%.3f\n", set_to_digits(@line_tokens[$itok],3);
+	    $text = sprintf("%.3f", $line_tokens[$itok]);
+	    printf FILE_OUTPUT "$text\n";
+#	    printf FILE_OUTPUT "%.3f\n", set_to_digits(@line_tokens[$itok],3);
 	}
         if (/MR-BWCCSD energy/ || (/BW-MRCCSD/ && /a posteriori/) || /MR-MkCCSD energy/ ) {
             if ($debug) {print "\ndebug: $_";}
@@ -438,9 +466,13 @@ foreach $filename (@FILES_TO_PARSE) {
             }
 #                                                   *** Assumes $itok was incremented above
             if (! $quiet) {
-                printf "%.10f\n", set_to_digits(@line_tokens[$itok],10);
+		$text = sprintf("%.10f", $line_tokens[$itok]);
+		printf "$text\n";
+#                printf "%.10f\n", set_to_digits(@line_tokens[$itok],10);
             }
-            printf FILE_OUTPUT "%.10f\n", set_to_digits(@line_tokens[$itok],10);
+	    $text = sprintf("%.10f", $line_tokens[$itok]);
+	    printf FILE_OUTPUT "$text\n";
+#            printf FILE_OUTPUT "%.10f\n", set_to_digits(@line_tokens[$itok],10);
         }
 	if (/sotropic =/ || /anisotropy =/ ) {
 		if ($debug) {print "\ndebug: $_";}
@@ -458,9 +490,13 @@ foreach $filename (@FILES_TO_PARSE) {
 		}
 #                                                    *** Assumes $itok was incremented above
 		if (! $quiet) {
-		    printf "%.3f\n", set_to_digits(@line_tokens[$itok],3);
+		    $text = sprintf("%.3f", $line_tokens[$itok]);
+		    printf "$text\n";
+#		    printf "%.3f\n", set_to_digits(@line_tokens[$itok],3);
 		}
-		printf FILE_OUTPUT "%.3f\n", set_to_digits(@line_tokens[$itok],3);
+		$text = sprintf("%.3f", $line_tokens[$itok]);
+		printf FILE_OUTPUT "$text\n";
+#		printf FILE_OUTPUT "%.3f\n", set_to_digits(@line_tokens[$itok],3);
 	}
 		if ( /average: /) {
 		if ($debug) {print "\ndebug: $_";}
