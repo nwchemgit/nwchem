@@ -20,6 +20,9 @@ if [[ "$NWCHEM_MODULES" == "tce" ]]; then
     export IPCCSD=1
 fi
 cd $TRAVIS_BUILD_DIR/src
+echo ===== log for ducc directory =====
+ git log tce/ducc |head -40
+echo ==================================
 #FDOPT="-O0 -g"
 export MPICH_FC=$FC
 if [[ "$arch" == "aarch64" ]]; then 
