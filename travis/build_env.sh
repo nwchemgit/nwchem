@@ -181,7 +181,18 @@ if [[ "$os" == "Linux" ]]; then
             sh ./"$hpc".sh -a -c -s --action install \
                --components  "$intel_components"  \
                --install-dir $IONEAPI_ROOT     --eula accept
+	    if [[ "$?" != 0 ]]; then
+		df -h
+		echo "hpc kit install failed: exit code " "${?}"
+		exit 1
+	    fi
 	    rm -f ./"$hpc".sh ./"$base".sh
+#Critical updates for 2023.2
+	    wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/0d65c8d4-f245-4756-80c4-6712b43cf835/l_fortran-compiler_p_2023.2.1.8.sh
+	    sh l_fortran-compiler_p_2023.2.1.8.sh  -a -s  --install-dir $IONEAPI_ROOT  --eula accept
+	    wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/ebf5d9aa-17a7-46a4-b5df-ace004227c0e/l_dpcpp-cpp-compiler_p_2023.2.1.8.sh
+	    sh l_dpcpp-cpp-compiler_p_2023.2.1.8.sh -a -s  --install-dir $IONEAPI_ROOT  --eula accept
+	    rm -f l_*comp*sh || true
 	    if [[ "$?" != 0 ]]; then
 		echo "apt-get install failed: exit code " "${?}"
 		exit 1
