@@ -360,7 +360,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 40
+          show-progress:
+          fetch-depth: 200
       - name: Get Instruction
         id: get-simd
         run: |
