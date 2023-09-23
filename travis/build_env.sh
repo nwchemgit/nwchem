@@ -170,8 +170,8 @@ if [[ "$os" == "Linux" ]]; then
 
 	fi
 	if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]]; then
-            sh ./"$base".sh -a -c -s --action remove --install-dir $IONEAPI_ROOT   --eula accept
-            sh ./"$hpc".sh -a -c -s --action remove --install-dir  $IONEAPI_ROOT  --eula accept
+#            sh ./"$base".sh -a -c -s --action remove --install-dir $IONEAPI_ROOT   --eula accept
+#            sh ./"$hpc".sh -a -c -s --action remove --install-dir  $IONEAPI_ROOT  --eula accept
 	    
             sh ./"$base".sh -a -c -s --action install --components intel.oneapi.lin.mkl.devel --install-dir $IONEAPI_ROOT  --eula accept
 	    intel_components="intel.oneapi.lin.ifort-compiler:intel.oneapi.lin.dpcpp-cpp-compiler-pro"
@@ -188,8 +188,8 @@ if [[ "$os" == "Linux" ]]; then
 	    fi
 	    rm -f ./"$hpc".sh ./"$base".sh
 #Critical updates for 2023.2
-	    wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/0d65c8d4-f245-4756-80c4-6712b43cf835/l_fortran-compiler_p_2023.2.1.8.sh
-	    sh l_fortran-compiler_p_2023.2.1.8.sh  -a -s  --install-dir $IONEAPI_ROOT  --eula accept
+#	    wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/0d65c8d4-f245-4756-80c4-6712b43cf835/l_fortran-compiler_p_2023.2.1.8.sh
+#	    sh l_fortran-compiler_p_2023.2.1.8.sh -a -c -s --action install --install-dir $IONEAPI_ROOT  --components intel.oneapi.lin.ifort-compiler  --eula accept
 #	    wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/ebf5d9aa-17a7-46a4-b5df-ace004227c0e/l_dpcpp-cpp-compiler_p_2023.2.1.8.sh
 #	    sh l_dpcpp-cpp-compiler_p_2023.2.1.8.sh -a -s  --install-dir $IONEAPI_ROOT  --eula accept
 	    if [[ "$?" != 0 ]]; then
