@@ -20,6 +20,9 @@ if [[ "$NWCHEM_MODULES" == "tce" ]]; then
     export IPCCSD=1
 fi
 cd $TRAVIS_BUILD_DIR/src
+echo ===== log for ducc directory =====
+ git log tce/ducc |head -40
+echo ==================================
 #FDOPT="-O0 -g"
 export MPICH_FC=$FC
 if [[ "$arch" == "aarch64" ]]; then 
@@ -40,7 +43,7 @@ if [[ "$arch" == "aarch64" ]]; then
     fi
 else
     if [[ "$FC" == "ifort" ]] || [[ "$FC" == "ifx" ]] ; then
-	FOPT=-O2
+#	FOPT=-O2
     if [[ -z "$BUILD_OPENBLAS" ]] ; then
 	if [[ "$os" == "Darwin" ]]; then
  	    export BLASOPT="-L$MKLROOT  -Wl,-rpath,${MKLROOT}/lib -lmkl_intel_ilp64 -lmkl_sequential -lmkl_core  -lpthread -lm -ldl  -L`gfortran -print-file-name=libquadmath.0.dylib|sed -e s'/libquadmath.0.dylib//'` "

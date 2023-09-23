@@ -268,6 +268,7 @@ c     patching non computed eigenvectors with identity
          nmoout=0
          call ga_evp_real(g_s, g_svecs, evals,nb,nmoout)
       elseif(yev.eq.'l') then
+         call errquit('yev=l disabled ',0,0)
          nmoout=nocc
          call ga_evp_real(g_s, g_svecs, evals,nb,nmoout)
          call dft_idtyvecs(g_svecs,nmoout+1)

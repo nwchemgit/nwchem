@@ -18,13 +18,18 @@ c
 c     get the solvent data
 c
       if (solvname_short.eq.'h2o') solvname_long='water' ! default
+      if (solvname_short.eq.'unkn') then
+         solvname_long='unknown'  ! default
+         solv_data=.false.
+         return
+      endif
       eps=0d0
       epsinf=0d0
       call DATSOLMN(solvname_short,solvname_long,
      &     EPS,EPSINF,
      &     SOLA,SOLB,SOLC,SOLG,SOLH,SOLN)
       if(eps.eq.0d0.and.epsinf.eq.0d0) then
-cdbg         write(6,*) ' no data from solv_data'
+         write(6,*) ' no data from solv_data for',solvname_short
          solv_data=.false.
          return
       endif
