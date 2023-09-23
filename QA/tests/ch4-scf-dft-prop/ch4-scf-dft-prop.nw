@@ -31,7 +31,13 @@ property
 end
 
 cosmo
-  dielec 3.9
+  dielec 3.89
+end
+
+task dft property
+
+cosmo
+ solvent foctane
 end
 
 task dft property

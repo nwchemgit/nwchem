@@ -631,6 +631,11 @@ let "myexit+=$?"
 let "myexit+=$?"
 ./runtests.mpi.unix procs $np dft_pt13_spinsetf
 let "myexit+=$?"
+# dielectric const bug  https://github.com/nwchemgit/nwchem/issues/776
+./runtests.mpi.unix procs $np ch4-scf-dft-prop
+let "myexit+=$?"
+./runtests.mpi.unix procs $np ch4-dft-scf-prop
+let "myexit+=$?"
 # superheavy elements check
 source ./qa_funcs.sh
 strings -a $(get_nwchem_executable) |grep Tennessine >& /dev/null
