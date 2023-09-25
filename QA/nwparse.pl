@@ -166,15 +166,15 @@ foreach $filename (@FILES_TO_PARSE) {
 		if (! $quiet) {
 		    printf " %10s %10.3f %10.3f %10.3f\n", 
 		         $atoms[$iatom], 
-		         set_to_digits($grads[$indx1],4), 
-		         set_to_digits($grads[$indx2],4),
-  		         set_to_digits($grads[$indx3],4);
+		         set_to_digits($grads[$indx1],3), 
+		         set_to_digits($grads[$indx2],3),
+  		         set_to_digits($grads[$indx3],3);
 		}
 		printf FILE_OUTPUT " %10s %10.3f %10.3f %10.3f\n", 
 		         $atoms[$iatom], 
-		         set_to_digits($grads[$indx1],4), 
-		         set_to_digits($grads[$indx2],4),
-  		         set_to_digits($grads[$indx3],4);
+		         set_to_digits($grads[$indx1],3), 
+		         set_to_digits($grads[$indx2],3),
+  		         set_to_digits($grads[$indx3],3);
 	    }
 	    
 	    @atoms = ();
@@ -670,8 +670,6 @@ sub set_to_digits
     for ($i = 0; $i < $digits ; $i++) {$value *= 10.0;}
     if ($value < 0.0) {$value -= 0.5;}
     else              {$value += 0.5;}
-    if ($value < 0.0) {$value -= 5*10.**(-2);}
-    else              {$value += 5*10.**(-2);}
     $value = int ($value);
     for ($i = 0; $i < $digits ; $i++) {$value /= 10.0;}
     if (abs($value) == 0.0) {$value = 0.0;}
