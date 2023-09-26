@@ -166,15 +166,15 @@ foreach $filename (@FILES_TO_PARSE) {
 		if (! $quiet) {
 		    printf " %10s %10.3f %10.3f %10.3f\n", 
 		         $atoms[$iatom], 
-		         set_to_digits($grads[$indx1],4), 
-		         set_to_digits($grads[$indx2],4),
-  		         set_to_digits($grads[$indx3],4);
+		         set_to_digits($grads[$indx1],3), 
+		         set_to_digits($grads[$indx2],3),
+  		         set_to_digits($grads[$indx3],3);
 		}
 		printf FILE_OUTPUT " %10s %10.3f %10.3f %10.3f\n", 
 		         $atoms[$iatom], 
-		         set_to_digits($grads[$indx1],4), 
-		         set_to_digits($grads[$indx2],4),
-  		         set_to_digits($grads[$indx3],4);
+		         set_to_digits($grads[$indx1],3), 
+		         set_to_digits($grads[$indx2],3),
+  		         set_to_digits($grads[$indx3],3);
 	    }
 	    
 	    @atoms = ();
@@ -286,13 +286,9 @@ foreach $filename (@FILES_TO_PARSE) {
 	    }
 #                                                    *** Assumes $itok was incremented above
 	    if (! $quiet) {
-		$text = sprintf("%.3f", $line_tokens[$itok]);
-		printf "$text\n";
-#		printf "%.3f\n", set_to_digits(@line_tokens[$itok],3);
+		printf "%.3f\n", set_to_digits(@line_tokens[$itok],3);
 	    }
-	    $text = sprintf("%.3f", $line_tokens[$itok]);
-	    printf FILE_OUTPUT "$text\n";
-#	    printf FILE_OUTPUT "%.3f\n", set_to_digits(@line_tokens[$itok],3);
+	    printf FILE_OUTPUT "%.3f\n", set_to_digits(@line_tokens[$itok],3);
 	}
 	if (/nuclear/ && /repulsion/ && /energy/){
 	    if ($debug) {print "\ndebug: $_";}
@@ -310,13 +306,9 @@ foreach $filename (@FILES_TO_PARSE) {
 	    }
 #                                                    *** Assumes $itok was incremented above
 	    if (! $quiet) {
-		$text = sprintf("%.2f", $line_tokens[$itok]);
-		printf "$text\n";
-#		printf "%.3f\n", set_to_digits(@line_tokens[$itok],3);
+		printf "%.3f\n", set_to_digits(@line_tokens[$itok],3);
 	    }
-	    $text = sprintf("%.2f", $line_tokens[$itok]);
-	    printf FILE_OUTPUT "$text\n";
-#	    printf FILE_OUTPUT "%.2f\n", set_to_digits(@line_tokens[$itok],2);
+	    printf FILE_OUTPUT "%.2f\n", set_to_digits(@line_tokens[$itok],2);
 	}
         if (! $sgroup) {
 	if (/Total/ && /energy/) {
@@ -336,13 +328,9 @@ foreach $filename (@FILES_TO_PARSE) {
 		}
 #                                                    *** Assumes $itok was incremented above
 		if (! $quiet) {
-		    $text = sprintf("%.5f", $line_tokens[$itok]);
-		    printf "$text\n";
-#		    printf "%.5f\n", set_to_digits(@line_tokens[$itok],5);
+		    printf "%.5f\n", set_to_digits(@line_tokens[$itok],5);
 		}
-		$text = sprintf("%.5f", $line_tokens[$itok]);
-		printf FILE_OUTPUT "$text\n";
-#		printf FILE_OUTPUT "%.5f\n", set_to_digits(@line_tokens[$itok],5);
+		printf FILE_OUTPUT "%.5f\n", set_to_digits(@line_tokens[$itok],5);
 	    }
 	}
 	}
@@ -364,13 +352,9 @@ foreach $filename (@FILES_TO_PARSE) {
 		}
 #                                                    *** Assumes $itok was incremented above
 		if (! $quiet) {
-		    $text = sprintf("%.7f", $line_tokens[$itok]);
-		    printf "$text\n";
-#		    printf "%.7f\n", set_to_digits(@line_tokens[$itok],7);
+		    printf "%.7f\n", set_to_digits(@line_tokens[$itok],7);
 		}
-		$text = sprintf("%.7f", $line_tokens[$itok]);
-		printf FILE_OUTPUT "$text\n";
-#		printf FILE_OUTPUT "%.7f\n", set_to_digits(@line_tokens[$itok],7);
+		printf FILE_OUTPUT "%.7f\n", set_to_digits(@line_tokens[$itok],7);
 	    }
 	}
 	}
@@ -391,13 +375,9 @@ foreach $filename (@FILES_TO_PARSE) {
               printf FILE_OUTPUT "%s ", @line_tokens[$itok];
             }
             if (!$quiet) {
- 	      $text = sprintf("%.2f", $line_tokens[$itok]);
-	      printf "$text\n";
-#              printf "%.2f\n", set_to_digits(@line_tokens[$itok],2);
-           }
-	    $text = sprintf("%.2f", $line_tokens[$itok]);
-	    printf FILE_OUTPUT "$text\n";
-#            printf FILE_OUTPUT "%.2f\n", set_to_digits(@line_tokens[$itok],2);
+              printf "%.2f\n", set_to_digits(@line_tokens[$itok],2);
+            }
+            printf FILE_OUTPUT "%.2f\n", set_to_digits(@line_tokens[$itok],2);
           }
         }
         if (!$sgroup) {
@@ -416,13 +396,9 @@ foreach $filename (@FILES_TO_PARSE) {
               printf FILE_OUTPUT "%s ", @line_tokens[$itok];
             }
             if (!$quiet) {
-		$text = sprintf("%.4f", $line_tokens[$itok]);
-		printf "$text\n";
-#              printf "%.4f\n", set_to_digits(@line_tokens[$itok],4);
+              printf "%.4f\n", set_to_digits(@line_tokens[$itok],4);
             }
-	    $text = sprintf("%.4f", $line_tokens[$itok]);
-	    printf FILE_OUTPUT "$text\n";
-#            printf FILE_OUTPUT "%.4f\n", set_to_digits(@line_tokens[$itok],4);
+            printf FILE_OUTPUT "%.4f\n", set_to_digits(@line_tokens[$itok],4);
           }
         }
 
@@ -442,13 +418,9 @@ foreach $filename (@FILES_TO_PARSE) {
 	    }
 #                                                   *** Assumes $itok was incremented above
 	    if (! $quiet) {
-		$text = sprintf("%.3f", $line_tokens[$itok]);
-		printf "$text\n";
-#	        printf "%.3f\n", set_to_digits(@line_tokens[$itok],3);
+	        printf "%.3f\n", set_to_digits(@line_tokens[$itok],3);
 	    }
-	    $text = sprintf("%.3f", $line_tokens[$itok]);
-	    printf FILE_OUTPUT "$text\n";
-#	    printf FILE_OUTPUT "%.3f\n", set_to_digits(@line_tokens[$itok],3);
+	    printf FILE_OUTPUT "%.3f\n", set_to_digits(@line_tokens[$itok],3);
 	}
         if (/MR-BWCCSD energy/ || (/BW-MRCCSD/ && /a posteriori/) || /MR-MkCCSD energy/ ) {
             if ($debug) {print "\ndebug: $_";}
@@ -466,13 +438,9 @@ foreach $filename (@FILES_TO_PARSE) {
             }
 #                                                   *** Assumes $itok was incremented above
             if (! $quiet) {
-		$text = sprintf("%.10f", $line_tokens[$itok]);
-		printf "$text\n";
-#                printf "%.10f\n", set_to_digits(@line_tokens[$itok],10);
+                printf "%.10f\n", set_to_digits(@line_tokens[$itok],10);
             }
-	    $text = sprintf("%.10f", $line_tokens[$itok]);
-	    printf FILE_OUTPUT "$text\n";
-#            printf FILE_OUTPUT "%.10f\n", set_to_digits(@line_tokens[$itok],10);
+            printf FILE_OUTPUT "%.10f\n", set_to_digits(@line_tokens[$itok],10);
         }
 	if (/sotropic =/ || /anisotropy =/ ) {
 		if ($debug) {print "\ndebug: $_";}
@@ -490,13 +458,9 @@ foreach $filename (@FILES_TO_PARSE) {
 		}
 #                                                    *** Assumes $itok was incremented above
 		if (! $quiet) {
-		    $text = sprintf("%.3f", $line_tokens[$itok]);
-		    printf "$text\n";
-#		    printf "%.3f\n", set_to_digits(@line_tokens[$itok],3);
+		    printf "%.3f\n", set_to_digits(@line_tokens[$itok],3);
 		}
-		$text = sprintf("%.3f", $line_tokens[$itok]);
-		printf FILE_OUTPUT "$text\n";
-#		printf FILE_OUTPUT "%.3f\n", set_to_digits(@line_tokens[$itok],3);
+		printf FILE_OUTPUT "%.3f\n", set_to_digits(@line_tokens[$itok],3);
 	}
 		if ( /average: /) {
 		if ($debug) {print "\ndebug: $_";}
@@ -706,8 +670,6 @@ sub set_to_digits
     for ($i = 0; $i < $digits ; $i++) {$value *= 10.0;}
     if ($value < 0.0) {$value -= 0.5;}
     else              {$value += 0.5;}
-    if ($value < 0.0) {$value -= 5*10.**(-2);}
-    else              {$value += 5*10.**(-2);}
     $value = int ($value);
     for ($i = 0; $i < $digits ; $i++) {$value /= 10.0;}
     if (abs($value) == 0.0) {$value = 0.0;}
