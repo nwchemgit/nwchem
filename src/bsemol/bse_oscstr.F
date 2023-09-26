@@ -38,7 +38,7 @@
       character*5 spin(2)
       double precision x(totpoles),y(totpoles)
       double precision thresh  ! Threshold for printing
-      parameter (thresh=5.0d-2)
+      parameter (thresh=1.0d-2)
       spin(1)='alpha'
       spin(2)='beta '
 
@@ -185,13 +185,16 @@
 
         if (pars%ipol.eq.1) then
           do i=1,20
-            moms(i) = moms(i)*dsqrt(2.0d0)
+            moms(i) = moms(i)/dsqrt(2.0d0)
           enddo
         endif
 
-        if (pars%davidson.and.pars%ipol.eq.2) then
+        if (pars%davidson) then
           call ga_get(pars%g_apb,1,npoles,ipole,ipole,x,npoles)
           call ga_get(pars%g_amb,1,npoles,ipole,ipole,y,npoles)
+        endif
+
+        if (pars%davidson.and.pars%ipol.eq.2) then
           call tddft_s2(pars%tda, (/0,0/), pars%nocc, 
      &                    (/pars%nmo,pars%nmo/), (/0,0/),
      &                    pars%npoles,x,x(pars%npoles(1)+1),y,
@@ -199,9 +202,9 @@
           call bse_s2(pars%nocc,pars%nmo,pars%npoles,x,
      &     x(pars%npoles(1)+1), y, y(pars%npoles(1)+1), dbl_mb(k_corr),
      &     s2_full) 
-          if (abs(s2_full).lt.0.2d0) then
+          if (abs(s2_full).lt.0.25d0) then
             key = 'singlet'
-          elseif (abs(abs(s2_full)-2.0d0).lt.0.2) then
+          elseif (abs(abs(s2_full)-2.0d0).lt.0.25) then
             key = 'triplet'
           else
             key = '       '
