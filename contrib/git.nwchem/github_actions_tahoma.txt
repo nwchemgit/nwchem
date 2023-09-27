@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 jobs:
   build_workflow:
-    uses: ./.github/workflows/update_main.yml
+    uses: edoapra/nwchemgit/.github/workflows/update_main.yml@main
     secrets:
       inherit
   build_singularity:
