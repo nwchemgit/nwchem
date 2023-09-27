@@ -174,6 +174,15 @@ if [[ "$os" == "Linux" ]]; then
 #            sh ./"$hpc".sh -a -c -s --action remove --install-dir  $IONEAPI_ROOT  --eula accept
 	    
             sh ./"$base".sh -a -c -s --action install --components intel.oneapi.lin.mkl.devel --install-dir $IONEAPI_ROOT  --eula accept
+	    if [[ "$?" != 0 ]]; then
+		df -h
+		echo "base kit install failed: exit code " "${?}"
+		exit 1
+	    fi
+	    rm  -rf $IONEAPI_ROOT/mkl/latest/lib/ia32
+	    rm  -rf $IONEAPI_ROOT/mkl/latest/lib/intel64/*sycl*
+	    rm  -rf $IONEAPI_ROOT/mkl/latest/lib/intel64/*_pgi_*
+	    rm  -rf $IONEAPI_ROOT/mkl/latest/lib/intel64/*_gf_*
 	    intel_components="intel.oneapi.lin.ifort-compiler:intel.oneapi.lin.dpcpp-cpp-compiler-pro"
 	    if [[ "$MPI_IMPL" == "intel" ]]; then
 		intel_components+=":intel.oneapi.lin.mpi.devel"
@@ -186,6 +195,7 @@ if [[ "$os" == "Linux" ]]; then
 		echo "hpc kit install failed: exit code " "${?}"
 		exit 1
 	    fi
+	    rm  -rf $IONEAPI_ROOT/compiler/latest/linux/lib/oclfpga
 	    rm -f ./"$hpc".sh ./"$base".sh
 #Critical updates for 2023.2
 #	    wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/0d65c8d4-f245-4756-80c4-6712b43cf835/l_fortran-compiler_p_2023.2.1.8.sh
