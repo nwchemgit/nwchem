@@ -268,9 +268,9 @@ if [[ "$os" == "Linux" ]]; then
 	    export LD_LIBRARY_PATH=/opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/lib:$LD_LIBRARY_PATH
 	    $MYSUDO /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/compilers/bin/makelocalrc -x
 	    #clean stuff we do not use
-	    rm  -rf /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/profilers
-	    rm  -rf /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/comm_libs
-	    rm  -rf /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/math_libs
+	    $MYSUDO rm -rf /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/profilers
+	    $MYSUDO rm -rf /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/comm_libs
+	    $MYSUDO rm -rf /opt/nvidia/hpc_sdk/Linux_"$arch"/"$nverdot"/math_libs
 	    export FC=nvfortran
 	    export CC=gcc
 	    nvfortran -V ;if [[ $? != 0 ]]; then echo "nvfortran install failed"; exit 1; fi
